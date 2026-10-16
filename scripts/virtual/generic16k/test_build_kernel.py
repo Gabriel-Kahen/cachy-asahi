@@ -10,6 +10,18 @@ import build_kernel as build
 
 
 class BuildControls(unittest.TestCase):
+    def test_opt_in_diagnostics_require_both_named_symbols_and_printk_time(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / '.config'
+            base = (build.HERE / 'kernel.fragment').read_text()
+            path.write_text(base)
+            build.config_check(path)
+            with self.assertRaises(ValueError): build.config_check(path, True)
+            path.write_text(base + build.DIAGNOSTIC_FRAGMENT)
+            self.assertEqual(build.config_check(path, True)['page_size'], 16384)
+            path.write_text(base + 'CONFIG_KALLSYMS=y\n')
+            with self.assertRaises(ValueError): build.config_check(path, True)
+
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)

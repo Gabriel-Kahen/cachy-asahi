@@ -20,6 +20,7 @@ HERE = Path(__file__).resolve().parent
 PACKAGES = ('build-essential', 'bc', 'clang', 'lld', 'llvm', 'flex', 'bison',
             'libssl-dev', 'libelf-dev', 'python3', 'qemu-system-arm', 'ca-certificates')
 PUBLIC_LIMIT = 256 * 1024
+DIAGNOSTIC_PUBLIC_LIMIT = 2 * 1024**2
 
 
 def need(ok, reason):
@@ -93,6 +94,11 @@ def command(argv, log, seconds, env):
 def publish(run):
     public = run / 'public'
     index = json.loads((public / 'index.json').read_text())
+    diagnostics = False
+    if (public / 'caller.json').is_file():
+        diagnostics = json.loads((public / 'caller.json').read_text()).get('boot_diagnostics', False)
+    need(type(diagnostics) is bool, 'diagnostic selection')
+    limit = DIAGNOSTIC_PUBLIC_LIMIT if diagnostics else PUBLIC_LIMIT
     rows, total = [], 0
     need(len(index) <= 32, 'public count')
     for row in index:
@@ -102,7 +108,7 @@ def publish(run):
         need(path.is_file() and not path.is_symlink(), 'public regular file')
         data = path.read_bytes()
         total += len(data)
-        need(len(data) == row['bytes'] and digest(data) == row['sha256'] and total <= PUBLIC_LIMIT, 'public binding')
+        need(len(data) == row['bytes'] and digest(data) == row['sha256'] and total <= limit, 'public binding')
         rows.append(dict(row, base64=base64.b64encode(data).decode('ascii')))
     print('GENERIC16K_PUBLIC_BEGIN')
     print(json.dumps({'schema': 1, 'files': rows}, sort_keys=True, separators=(',', ':')))
@@ -116,6 +122,7 @@ def main():
     parser.add_argument('--run-name', required=True)
     parser.add_argument('--publish', action='store_true')
     parser.add_argument('--execute', action='store_true')
+    parser.add_argument('--boot-diagnostics', action='store_true')
     args = parser.parse_args()
     root = args.source_root.resolve(strict=True)
     check_source(root, args.manifest_sha256)
@@ -134,12 +141,14 @@ def main():
     build = HERE / (args.run_name + '-kernel')
     need(not build.exists() and not build.is_symlink(), 'fresh build output required')
     report = {'status': 'FAIL', 'scope': 'generic ARM64 16KiB software smoke only',
+              'boot_diagnostics': args.boot_diagnostics,
               'source_commit': os.environ.get('GITHUB_SHA'), 'manifest_sha256': args.manifest_sha256,
               'uname': list(os.uname()), 'commands': [], 'cleanup': [], 'hardware': 'NOT RUN',
               'performance': 'NOT RUN', 'source_license_records': 'public source COPYING, GPL-2.0 and syscall note'}
     env = {'PATH': '/usr/bin:/bin', 'HOME': str(run), 'TMPDIR': str(run), 'LC_ALL': 'C',
            'TZ': 'UTC', 'PYTHONDONTWRITEBYTECODE': '1'}
     selected = {}
+    diagnostic_args = ['--boot-diagnostics'] if args.boot_diagnostics else []
     def call(argv, log, seconds):
         row = {'argv': argv, 'status': 'STARTED', 'log': log.name}
         report['commands'].append(row)
@@ -166,14 +175,14 @@ def main():
         for name, argv, seconds in (
             ('fetch', [sys.executable, '-B', str(HERE/'fetch_inputs.py'), '--fetch', '--out', str(run/'inputs')], 320),
             ('kernel', [sys.executable, '-B', str(HERE/'build_kernel.py'), '--archive', str(run/'inputs/kernel.tar.gz'),
-                        '--output', str(build), '--build'], 3700)):
+                        '--output', str(build), '--build', *diagnostic_args], 3700)):
             call(argv, run / (name + '.log'), seconds)
         receipt = json.loads((build/'build-receipt.json').read_text())
         argv = [sys.executable, '-B', str(HERE/'fixture.py'), '--kernel', str(build/'build/arch/arm64/boot/Image'),
                 '--kernel-config', str(build/'build/.config'), '--kernel-receipt', str(build/'build-receipt.json'),
                 '--kernel-release', receipt['kernel_release'], '--rootfs-tar', str(run/'inputs/rootfs.tar.gz'),
                 '--rootfs-sha256', '42a4eeaa038994ffd31fa173256ef2f0ef511358eeb41b9ea1f8626391b9b319',
-                '--out', str(run/'vm'), '--execute-in-owned-fixture']
+                '--out', str(run/'vm'), '--execute-in-owned-fixture', *diagnostic_args]
         call(argv, run/'fixture.log', 300)
         result = json.loads((run/'vm/fixture-result.json').read_text())
         need(result['status'] == 'PASS' and result.get('natural_exit') is True and result.get('qemu_exit') == 0,
@@ -184,6 +193,9 @@ def main():
         raise
     finally:
         try:
+            if args.boot_diagnostics:
+                select('uart.full.log', run/'vm/uart.log', 1024**2)
+                select('diagnostic.fragment', build/'diagnostic.fragment')
             for name, path in (
                 ('input-manifest.json', HERE/'inputs.json'), ('candidate-files.json', HERE/'ci-files.json'),
                 ('kernel.fragment', HERE/'kernel.fragment'),
@@ -211,7 +223,8 @@ def main():
                     report.update(status='FAIL', cleanup_error=type(error).__name__)
                     report['cleanup'].append({'name': path.name, 'status': 'FAIL'})
         selected['caller.json'] = (json.dumps(report, sort_keys=True, indent=2) + '\n').encode()
-        need(sum(map(len, selected.values())) <= PUBLIC_LIMIT, 'public total limit')
+        limit = DIAGNOSTIC_PUBLIC_LIMIT if args.boot_diagnostics else PUBLIC_LIMIT
+        need(sum(map(len, selected.values())) <= limit, 'public total limit')
         index = []
         for name, data in sorted(selected.items()):
             (public/name).write_bytes(data)

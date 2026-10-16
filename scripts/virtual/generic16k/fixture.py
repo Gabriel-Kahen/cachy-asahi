@@ -216,11 +216,17 @@ def supervise(command, log, timeout=180, output_limit=1 << 20):
         log.write_bytes(data[:output_limit])
 
 
+def boot_arguments(diagnostics=False):
+    base = 'console=ttyAMA0 rdinit=/init panic=-1'
+    return base + (' initcall_debug ignore_loglevel printk.time=1' if diagnostics else '')
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     for opt in ('kernel', 'kernel-receipt', 'kernel-config', 'kernel-release', 'rootfs-tar', 'rootfs-sha256', 'out'):
         p.add_argument('--'+opt, required=True)
     p.add_argument('--execute-in-owned-fixture', action='store_true')
+    p.add_argument('--boot-diagnostics', action='store_true')
     p.add_argument('--qemu', default='qemu-system-aarch64')
     a = p.parse_args()
     kernel = Path(a.kernel).resolve(); config = Path(a.kernel_config).resolve()
@@ -236,11 +242,15 @@ def main():
     for setting in ('CONFIG_ARM64_16K_PAGES=y', 'CONFIG_BLK_DEV_INITRD=y', 'CONFIG_BINFMT_ELF=y', 'CONFIG_BINFMT_SCRIPT=y'):
         if setting not in settings: raise ValueError('missing kernel setting: '+setting)
     if 'CONFIG_MODULES=y' in settings: raise ValueError('this fixture requires the built-in-only kernel')
+    if a.boot_diagnostics and (receipt.get('boot_diagnostics') is not True or
+            not {'CONFIG_KALLSYMS=y', 'CONFIG_PRINTK_TIME=y'} <= settings):
+        raise ValueError('matching named boot diagnostic kernel required')
     if digest(a.rootfs_tar) != a.rootfs_sha256: raise ValueError('rootfs hash')
     out = Path(a.out).absolute(); out.mkdir(mode=0o700)
     nonce = secrets.token_hex(16)
     result = {'status': 'PREPARED_NOT_RUN', 'page_size': 16384, 'kernel_release': a.kernel_release,
               'kernel_sha256': digest(kernel), 'rootfs_sha256': a.rootfs_sha256, 'nonce': nonce,
+              'boot_diagnostics': a.boot_diagnostics,
               'scope': 'generic ARM64 page/ELF smoke; no Asahi/M2/platform/performance acceptance'}
     try:
         if kernel.stat().st_size > 256 << 20: raise ValueError('kernel Image byte budget')
@@ -277,7 +287,7 @@ def main():
             result['tools']['qemu'] = {'path': str(Path(qemu).resolve()), 'sha256': digest(qemu)}
             command = [qemu, '-nodefaults', '-machine', 'virt', '-accel', 'tcg', '-cpu', 'max', '-smp', '1',
                        '-m', '512', '-kernel', str(owned_kernel), '-initrd', str(image), '-append',
-                       'console=ttyAMA0 rdinit=/init panic=-1', '-nic', 'none', '-display', 'none',
+                       boot_arguments(a.boot_diagnostics), '-nic', 'none', '-display', 'none',
                        '-monitor', 'none', '-serial', 'stdio', '-no-reboot']
             result['qemu_command'] = command
             code, output = supervise(command, out/'uart.log')
