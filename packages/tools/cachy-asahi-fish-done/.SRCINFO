@@ -1,0 +1,31 @@
+pkgbase = cachy-asahi-fish-done
+	pkgdesc = Explicitly enabled Fish command and selected child-job notifications
+	pkgver = 0.1.0
+	pkgrel = 1
+	url = https://github.com/franciscolourenco/done
+	arch = any
+	license = MIT
+	makedepends = python
+	depends = fish>=4.9.3
+	depends = libnotify
+	depends = coreutils
+	source = done.fish
+	source = done.upstream.fish
+	source = opt-in.fish
+	source = check-module.py
+	source = usage.md
+	source = source-provenance.json
+	source = NOTICE
+	source = LICENSE.upstream
+	source = LICENSE.project
+	sha256sums = 0b82b488900de44cbf6546b411e8e356d6eb41b7d49ab68a4f0ec09378bcab7c
+	sha256sums = 4aa68e18104966509dd0bfd6f7378423e212781d0674dae85fd38b1d30e30372
+	sha256sums = 6ff60eef9f211819833b0d94a9fef15a2982835c84d868d7b0d55200e37b6a20
+	sha256sums = 79a869d9adc6405a07ac647d01be905f99cc1e8dedd0821f38680fc504b919dd
+	sha256sums = fe155ebae03000265ba697f7172ecd5a5812d7c84e69fe89616a34ae8fe57893
+	sha256sums = f9ceb33d64c6e3bc26f582a83e6eb5e2955730e4c9333d0e3d26afd0b11dd8fb
+	sha256sums = cb000928dc0f592c00ee4a8df16659b8aab326b235effd6ea208aaecf319f4c3
+	sha256sums = d3a6b9e81b93ce9b59c72355867b03f15e9ec186ad9d6b96e0a96374fa3d4c30
+	sha256sums = 51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7
+
+pkgname = cachy-asahi-fish-done

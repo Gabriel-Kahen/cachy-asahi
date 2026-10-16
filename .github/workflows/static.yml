@@ -167,6 +167,11 @@ jobs:
           fish -n packages/tools/cachy-asahi-fish-autopair/opt-in.fish
           bash -n packages/tools/cachy-asahi-fish-autopair/PKGBUILD
           python3 -B -c "import ast,pathlib; ast.parse(pathlib.Path('packages/tools/cachy-asahi-fish-autopair/check-module.py').read_text())"
+      - name: Check opt-in Fish completion notification source without host desktop actors
+        run: |
+          fish -n packages/tools/cachy-asahi-fish-done/opt-in.fish packages/tools/cachy-asahi-fish-done/done.fish
+          bash -n packages/tools/cachy-asahi-fish-done/PKGBUILD
+          python3 -B -c "import ast,pathlib; ast.parse(pathlib.Path('packages/tools/cachy-asahi-fish-done/check-module.py').read_text())"
       - name: Check ARM mirror candidate behavior with mocked network
         run: |
           python3 -B -Werror::ResourceWarning packages/tools/cachy-asahi-mirrors/test_mirrors.py
