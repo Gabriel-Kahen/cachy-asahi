@@ -171,6 +171,31 @@ class CheckInputsTests(unittest.TestCase):
             self.assertFalse((self.root/variant).exists())
 
 
+class ActualMetadataTests(unittest.TestCase):
+    def test_native_compatibility_aliases_are_metadata_not_foreign_selection(self):
+        row=pkg('libtool',provides=['libtool-multilib=2.6.0'],conflict=['libtool-multilib'],replaces=['libtool-multilib'])
+        self.assertEqual(a.package(row,r)['provides'],row['provides'])
+        self.assertEqual(a.package(pkg('libunwind',provides=['libunwind-x86_64.so']),r)['arch'],'aarch64')
+        for row in (pkg('libtool-multilib'),pkg('libunwind',arch='x86_64'),pkg('editor',depend=['libtool-multilib']),pkg('editor',provides=['../escape'])):
+            with self.subTest(row=row),self.assertRaises((a.Refusal,r.Error)):a.package(row,r)
+
+    def test_identical_alpm_relations_only_normalize_once(self):
+        reader=a.inventory_reader()
+        for field in ('DEPENDS','PROVIDES','CONFLICTS','REPLACES'):
+            self.assertEqual(reader.sections(('%'+field+'%\nlibncursesw.so=6-64\nlibncursesw.so=6-64\n\n').encode(),{field})[field],['libncursesw.so=6-64'])
+        for field in ('NAME','ARCH','FILES','BACKUP'):
+            with self.subTest(field=field),self.assertRaises(ValueError):reader.sections(('%'+field+'%\nsame\nsame\n\n').encode(),{field})
+
+    def test_literal_systemd_backslash_is_not_decoded_or_a_separator(self):
+        reader=a.inventory_reader();name=r'usr/lib/systemd/system/system-systemd\x2dcryptsetup.slice'
+        self.assertEqual(reader.relative(name),(name,False))
+        self.assertEqual(a.package(pkg('systemd',files=[name]),r)['files'],[name])
+        for name in ('../escape','/absolute',r'usr/\x2d/../escape',r'usr/\x2d//escape'):
+            with self.subTest(name=name),self.assertRaises(ValueError):reader.relative(name)
+        self.assertEqual(a.MAX_INSTALLED_JSON,reader.MAX_INSTALLED_JSON)
+        self.assertEqual(c.MAX_JSON,4*1024**2)
+
+
 class InventoryTests(unittest.TestCase):
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory(prefix='apps-alpm-observation-');self.addCleanup(self.temp.cleanup)
@@ -254,7 +279,7 @@ class InventoryTests(unittest.TestCase):
     def test_package_byte_output_and_deadline_bounds_refuse(self):
         for name,value in (('MAX_PACKAGES',1),('MAX_BYTES',1),('MAX_RECORD',1)):
             with self.subTest(name=name),patch.object(self.reader,name,value),self.assertRaises(Exception):self.collect()
-        with patch.object(c,'MAX_JSON',16),self.assertRaises(ValueError):self.collect()
+        with patch.object(self.reader,'MAX_INSTALLED_JSON',16),self.assertRaises(ValueError):self.collect()
         with patch.object(self.reader.time,'monotonic',side_effect=[0,31]),self.assertRaises(ValueError):self.collect()
 
     def test_existing_or_alias_output_and_write_failure_preserve_state(self):
