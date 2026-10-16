@@ -2,7 +2,7 @@
   "background_cancellation": "NOT_RUN",
   "background_duplicate_watch": "NOT_RUN",
   "background_failure": "NOT_RUN",
-  "basis_source": "0100f7b22b3a91d4bb58808cbba03358aabccf77",
+  "basis_source": "a484ea2ba5ea21d2a156ade89a9e1275833587aa",
   "done_packet": {
     "archive_sha256": "9ce3c7ba89467f04660014c1b12056dce28bd0c4e69b4cab8a9c2c98e1cce54f",
     "ref": "de35c384a2e5b14b664d4156897f271b81e467ba"
@@ -261,16 +261,16 @@
       "sha256": "1f80fc1fa2f347fef24b4ed48d409f072e6bd267ba6a796c30c4cfee56d57e62"
     },
     "scripts/ci/fish-done-managed-notifications/session.py": {
-      "bytes": 10823,
-      "sha256": "b9e556aa567e586a66651dc672cd7274875e5d22cbf7a53631cec8f31a1d6e3a"
+      "bytes": 12354,
+      "sha256": "c8b2907c7b70c09888f978b64195cef2a6a0ef5b9b66ac1b0e07c413903ec503"
     },
     "scripts/ci/fish-done-managed-notifications/source-pins.json": {
       "bytes": 9840,
-      "sha256": "855b2d72c185a58891f84cb9b29995bd12ae47acb1ab8c0f8a57f0db07ae8d82"
+      "sha256": "1f128b2126ccbc22b01b580f670bf0bd1c00001d06f8dacfe0e1fc5ede9b8bb2"
     },
     "scripts/ci/fish-done-managed-notifications/test_source.py": {
-      "bytes": 30187,
-      "sha256": "7b79f98f1bdc68c77f9c035b4a1f80f04a34cf1707c6ecf117df65b5a111f876"
+      "bytes": 36268,
+      "sha256": "eece173802ae6ec0d21e1f316d33c0a00c8084b0d6608a99d3108a1647203705"
     },
     "scripts/ci/maintained-desktop574-inputs.json": {
       "bytes": 623664,
@@ -407,12 +407,12 @@
       "sha256": "0790b69c56c73d546f6d0069bb26bd212467f5eed6835fec0d2b2f5109d7bf54"
     },
     "session.py": {
-      "bytes": 10823,
-      "sha256": "b9e556aa567e586a66651dc672cd7274875e5d22cbf7a53631cec8f31a1d6e3a"
+      "bytes": 12354,
+      "sha256": "c8b2907c7b70c09888f978b64195cef2a6a0ef5b9b66ac1b0e07c413903ec503"
     },
     "source-pins.json": {
       "bytes": 9840,
-      "sha256": "855b2d72c185a58891f84cb9b29995bd12ae47acb1ab8c0f8a57f0db07ae8d82"
+      "sha256": "1f128b2126ccbc22b01b580f670bf0bd1c00001d06f8dacfe0e1fc5ede9b8bb2"
     },
     "test_desktop574_runtime.py": {
       "bytes": 12245,
@@ -438,6 +438,12 @@
   "root_freeze": "ROOT_STAMPS_CALLER_MANIFEST_HASHES_AND_EXACT_SOURCE",
   "schema": 1,
   "scope": "MANUAL_GENERIC4K_TWO_ORIGINAL_FOREGROUND_AND_ONE_WATCHED_SUCCESS_WITH_ORIGINAL_NOTIFICATION_PIXELS",
+  "startup_failure": {
+    "case": "PRETRIGGER_LAYERS_IPC_TIMEOUT",
+    "correction": "RETIRED_EXACT_TIMEOUT_PROBE_RETRY_WITHIN_UNCHANGED_30S",
+    "frames": "NONE",
+    "run": 38958627308
+  },
   "status": "PROPOSED_FIRST_VISIBLE_FRAME_FIX_NOT_EXECUTED",
   "visual": "NOT_RUN",
   "watched_background": "NOT_RUN_SUCCESSOR",
