@@ -73,4 +73,21 @@ class Caller(unittest.TestCase):
         with self.assertRaises(ValueError):caller.regular(alias,1024)
 
 
+
+    def test_optional_failure_frame_is_retained_separately_and_cannot_accept(self):
+        base,runtime,proof,report,_=self.fixture()
+        image=(runtime/'frames/minimal-shell.ppm').read_bytes()
+        (runtime/'frames/minimal-failure.ppm').write_bytes(image)
+        (runtime/'frames/private-failure.ppm').write_bytes(image)
+        report['events'].append(dict(event='keyboard_failure_diagnostic',stage='minimal',diagnostic_only=True,success_evidence=False))
+        (runtime/'runtime.json').write_text(json.dumps(report))
+        out=self.root/'public';result=caller.retain(base,runtime,proof,out)
+        self.assertEqual(result['status'],'NOT_ACCEPTED');self.assertEqual(len(result['frames']),6)
+        self.assertEqual(set(result['failure_frames']),{'minimal'})
+        self.assertTrue(result['failure_frames']['minimal']['diagnostic_only'])
+        self.assertFalse(result['failure_frames']['minimal']['success_evidence'])
+        self.assertEqual((out/'frames/minimal-failure.ppm').read_bytes(),image)
+        self.assertFalse((out/'frames/private-failure.ppm').exists())
+
+
 if __name__=='__main__':unittest.main()

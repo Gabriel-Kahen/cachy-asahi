@@ -80,7 +80,7 @@ def frame(path):
 def retain(base, runtime, proof, output):
     need(not output.exists() and not output.is_symlink(), 'fresh public retention directory required')
     output.mkdir(mode=0o700)
-    result = dict(status='NOT_ACCEPTED', files={}, frames={}, errors=[], native_scope='GENERIC_ARM_ONLY',
+    result = dict(status='NOT_ACCEPTED', files={}, frames={}, failure_frames={}, errors=[], native_scope='GENERIC_ARM_ONLY',
                   hardware='NOT_RUN', battery='NOT_RUN', audio='NOT_RUN', visual_review='NOT_RUN',
                   workflow_scope='managed-virtual-keyboard',
                   physical_input='NOT_RUN', terminal_exit='UNOBSERVED_NONCHILD',
@@ -123,6 +123,14 @@ def retain(base, runtime, proof, output):
         except Exception as error:
             result['errors'].append(stage + ': ' + str(error)[:512])
         copy(path, 'frames/' + stage + '.ppm', 8 * 1024**2, required=True)
+    # Two optional, fixed failure-only leaves. They never count toward six success captures.
+    for phase in ('minimal','overlay'):
+        path=runtime/'frames'/(phase+'-failure.ppm')
+        if not path.exists() and not path.is_symlink():continue
+        try:
+            result['failure_frames'][phase]=dict(frame(path),diagnostic_only=True,success_evidence=False)
+        except Exception as error:result['errors'].append(phase+' failure capture: '+str(error)[:512])
+        copy(path,'frames/'+phase+'-failure.ppm',8*1024**2)
     try:
         original = read_json(base / 'report.json', 512 * 1024)
         report = read_json(runtime / 'runtime.json')
@@ -152,7 +160,7 @@ def retain(base, runtime, proof, output):
         need(set(report['frames'])==set(FRAMES),'exact runtime capture set differs')
         for stage in FRAMES:
             need(result['frames'][stage]['sha256'] == report['frames'][stage]['sha256'], 'captured frame hash differs')
-        need(not result['errors'], 'public retention incomplete')
+        need(not result['failure_frames'] and not report.get('failure_frames') and not result['errors'], 'public retention incomplete or contains failure diagnostics')
         result.update(managed_session=observed['managed_session'])
         result['status'] = 'PASS_KEYBOARD_METADATA_PIXELS_PENDING_VISUAL_REVIEW'
     except Exception as error:

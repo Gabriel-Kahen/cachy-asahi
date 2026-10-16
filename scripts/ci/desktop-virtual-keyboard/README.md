@@ -78,3 +78,19 @@ route, shipped shortcut behavior, typed Bash/Vim commands and cleanup, and six
 actual image reviews. Generic software input can pass without establishing
 physical M2 keyboard/touchpad support,16KiB behavior, accelerated graphics,
 latency, performance or hardware acceptance. Those remain NOT_RUN.
+
+
+Failure diagnostics preserve the original failure. Before retiring an owned
+terminal, the guest can emit one failure-only observation with last requested
+step and only shell.txt/edit.txt/result.txt from the known nonce workspace.
+Absent/unsafe/oversized leaves are labeled; safe single-link UID23001 regular
+files up to1024B get a full SHA256 and at most256B of base64 content. No directory
+listing, arbitrary path, PTY read/write or alternate command execution occurs.
+An8s grace permits an optional original QMP failure capture. Two fixed public
+leaves minimal-failure.ppm/overlay-failure.ppm are separately labeled diagnostic;
+they never count toward the six success images or permit metadata acceptance.
+Capture/diagnostic errors cannot replace the original workflow failure.
+Actual38896363801 proved launch and acknowledged shell input, then failed the
+exact output deadline. Its retained data lacks terminal text/workspace contents;
+character fidelity and the cause remain unproven. This change adds evidence,
+without a speculative timing/mapping change or weaker result criterion.

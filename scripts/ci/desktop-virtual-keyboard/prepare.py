@@ -61,6 +61,22 @@ def prepare(source,output):
                     "                    require(qmp is not None, 'QMP keyboard not ready')\n"
                     "                    report['events'].append(keyboard_controller.handle(qmp,event))\n"
                     "                if event.get('event') == 'frame_ready':")
+    runtime=replace(runtime,"                if event.get('event') == 'frame_ready':",
+                    "                if event.get('event') == 'keyboard_failure_diagnostic':\n"
+                    "                    phase = event.get('stage')\n"
+                    "                    require(phase in ('minimal','overlay') and event.get('diagnostic_only') is True and event.get('success_evidence') is False, 'invalid keyboard diagnostic')\n"
+                    "                    if event.get('capture_requested') is True:\n"
+                    "                        try:\n"
+                    "                            require(qmp is not None and event.get('nonce') == keyboard_controller.nonces.get(phase), 'failure capture identity differs')\n"
+                    "                            require(phase not in report.setdefault('failure_frames',{}), 'duplicate failure capture')\n"
+                    "                            leaf = phase + '-failure.ppm'\n"
+                    "                            qmp.execute('screendump', {'filename': '/out/' + leaf})\n"
+                    "                            metadata = ppm(fixture / leaf)\n"
+                    "                            shutil.copyfile(fixture / leaf, frames / leaf)\n"
+                    "                            report['failure_frames'][phase] = dict(metadata, nonce=event['nonce'], last_step=event.get('last_step'), diagnostic_only=True)\n"
+                    "                        except Exception as error:\n"
+                    "                            report.setdefault('failure_frame_errors',[]).append(type(error).__name__ + ': ' + str(error)[:256])\n"
+                    "                if event.get('event') == 'frame_ready':")
     runtime=replace(runtime,"stage in ('minimal', 'overlay') and stage not in report['frames']",
                     'stage in '+repr(K.FRAMES)+" and stage not in report['frames']")
     runtime=replace(runtime,"set(report['frames']) == phases",'set(report[\'frames\']) == set('+repr(K.FRAMES)+')')

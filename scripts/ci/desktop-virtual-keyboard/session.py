@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: MIT
 """Observe a terminal and Vim reached only through QMP keyboard events."""
+import base64
 import json
+import stat
 import os
 from pathlib import Path
 import time
@@ -80,10 +82,32 @@ def child(parent,executable):
     return rows[0] if rows else None
 
 
+
+def failure_files(workspace):
+    """Only the three known nonce-workspace leaves; no enumeration or PTY read."""
+    rows={}
+    for name in ('shell.txt','edit.txt','result.txt'):
+        path=workspace/name
+        try:
+            info=path.lstat()
+            row=dict(bytes=info.st_size,uid=info.st_uid,mode=stat.S_IMODE(info.st_mode),links=info.st_nlink)
+            if not stat.S_ISREG(info.st_mode) or info.st_uid!=23001 or info.st_nlink!=1:
+                row['status']='UNSAFE_NOT_READ'
+            elif info.st_size>1024:row['status']='OVERSIZED_NOT_READ'
+            else:
+                raw=T.read(path,1024)
+                row.update(status='READ',sha256=K.sha(raw),prefix_bytes=min(len(raw),256),
+                           prefix_base64=base64.b64encode(raw[:256]).decode())
+            rows[name]=row
+        except FileNotFoundError:rows[name]=dict(status='ABSENT')
+        except BaseException as error:rows[name]=dict(status='READ_ERROR',error=type(error).__name__)
+    return rows
+
+
 def phase(stage,config,env,logs):
     nonce=os.urandom(16).hex();workspace=base.HOME/('keyboard-'+stage+'-'+nonce)
     workspace.mkdir(mode=0o700);before=T.snapshot(Path(env['XDG_CONFIG_HOME']))
-    compositor=terminal=shell_process=editor_process=None;selected=None;sequence=0;first=None
+    compositor=terminal=shell_process=editor_process=None;selected=None;sequence=0;first=None;last_step=None
     W.base=base
     def command(argv,label,timeout=20):
         nonlocal sequence
@@ -117,6 +141,8 @@ def phase(stage,config,env,logs):
         if terminal:K.need(r['pid']==terminal.proof['pid'],'terminal PID changed')
         return r
     def request(step):
+        nonlocal last_step
+        last_step=step
         if step!='launch':K.need(window() is not None,'focused terminal missing before input')
         base.emit('keyboard_request',stage=stage,nonce=nonce,step=step,plan_sha256=K.sha(K.encoded(K.plan(stage,nonce,step))))
     def file_ready(name):
@@ -192,7 +218,19 @@ def phase(stage,config,env,logs):
         reply=command(['/usr/bin/hyprctl','dispatch','hl.dsp.exit()'],'exit',timeout=5)
         K.need(reply.strip()=='ok','compositor exit reply differs');compositor.process.wait(timeout=10)
         K.need(compositor.process.returncode==0,'unclean compositor exit')
-    except BaseException as error:first=error
+    except BaseException as error:
+        first=error
+        try:
+            capture=bool(terminal and compositor and compositor.process.poll() is None)
+            base.emit('keyboard_failure_diagnostic',stage=stage,nonce=nonce,last_step=last_step,
+                      reason=str(first)[:256],files=failure_files(workspace),capture_requested=capture,
+                      diagnostic_only=True,success_evidence=False)
+            if capture:
+                # Host observes this event before phase_failed and can capture the still-owned terminal.
+                until=time.monotonic()+8
+                while time.monotonic()<until:time.sleep(.1)
+        except BaseException:
+            pass  # The original workflow failure stays primary even if diagnostics fail.
     finally:
         for process in (editor_process,shell_process,terminal):
             if process:
