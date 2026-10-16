@@ -1,4 +1,7 @@
 {
+  "schema_version": 1,
+  "scope": "DATA_STAGED_PRIVATE_ROOT_NOT_ALPM_INSTALLATION",
+  "provider_inputs": "BOUND_BY_ROOT",
   "files": {
     "scripts/ci/glibc-generic16k/common.py": {
       "bytes": 11573,
@@ -17,12 +20,12 @@
       "sha256": "a111ef296fff624fef3560c175e46b4d983bdacc163ced49db4265de853ca6e4"
     },
     "scripts/ci/glibc-gnu-provider-lifecycle/common.py": {
-      "bytes": 9925,
-      "sha256": "5af002505349f62643759898defe66f24655f4a29329f8ab48a0df9213f589e4"
+      "bytes": 10969,
+      "sha256": "82e80eb348ade098d9071d8d3bde139e021725374deb9ede250576c0e0d5a99a"
     },
     "scripts/ci/glibc-gnu-provider-lifecycle/container.py": {
-      "bytes": 23328,
-      "sha256": "163e73312df30f78fc111e31dcbfb58ac8d6a3563d214eeca661687160f7fe8d"
+      "bytes": 23878,
+      "sha256": "816221f21e7a9f3f32c1f4cd1edc41a5c10912124dc6ce558f8c3f9e0be1d540"
     },
     "scripts/ci/glibc-gnu-provider-system16k/README.md": {
       "bytes": 7282,
@@ -37,8 +40,8 @@
       "sha256": "24ecb33290876dde2cde0dd789d56ecf22098cfcb1728ed09c24ac3c92eb57fd"
     },
     "scripts/ci/glibc-gnu-provider-system16k/dependencies.json": {
-      "bytes": 5443,
-      "sha256": "5e0c3de616e725972e22b87910cca0c039bbf58ed3c44462a9e196f60bffe356"
+      "bytes": 5444,
+      "sha256": "19e2800a2eff9a5abbf470ce9ad80a70f2cdab018f4bc28f8d7126118d717a9c"
     },
     "scripts/ci/glibc-gnu-provider-system16k/enter-system.py": {
       "bytes": 1123,
@@ -180,8 +183,5 @@
       "bytes": 1720,
       "sha256": "b71adf10496d563a20eed7cecef8074cb82dd103a63e47f48462a1bd5d18f23d"
     }
-  },
-  "provider_inputs": "BOUND_BY_ROOT",
-  "schema_version": 1,
-  "scope": "DATA_STAGED_PRIVATE_ROOT_NOT_ALPM_INSTALLATION"
+  }
 }

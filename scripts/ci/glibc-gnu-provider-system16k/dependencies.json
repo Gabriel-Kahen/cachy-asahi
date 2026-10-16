@@ -1,4 +1,5 @@
 {
+  "schema_version": 1,
   "files": {
     "scripts/ci/glibc-generic16k/common.py": {
       "bytes": 11573,
@@ -17,12 +18,12 @@
       "sha256": "a111ef296fff624fef3560c175e46b4d983bdacc163ced49db4265de853ca6e4"
     },
     "scripts/ci/glibc-gnu-provider-lifecycle/common.py": {
-      "bytes": 9925,
-      "sha256": "5af002505349f62643759898defe66f24655f4a29329f8ab48a0df9213f589e4"
+      "bytes": 10969,
+      "sha256": "82e80eb348ade098d9071d8d3bde139e021725374deb9ede250576c0e0d5a99a"
     },
     "scripts/ci/glibc-gnu-provider-lifecycle/container.py": {
-      "bytes": 23328,
-      "sha256": "163e73312df30f78fc111e31dcbfb58ac8d6a3563d214eeca661687160f7fe8d"
+      "bytes": 23878,
+      "sha256": "816221f21e7a9f3f32c1f4cd1edc41a5c10912124dc6ce558f8c3f9e0be1d540"
     },
     "scripts/ci/glibc-gnu-provider/normal-child-exec.patch": {
       "bytes": 773,
@@ -132,6 +133,5 @@
       "bytes": 1720,
       "sha256": "b71adf10496d563a20eed7cecef8074cb82dd103a63e47f48462a1bd5d18f23d"
     }
-  },
-  "schema_version": 1
+  }
 }
