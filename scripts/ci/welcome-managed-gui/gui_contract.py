@@ -64,11 +64,14 @@ def together(clients,welcome_pid,doctor_pid,view,action_pid=None):
 
 
 def layout(command,row,kind):
-    need(kind in RECTS and re.fullmatch('0x[0-9a-fA-F]{1,16}',row.get('address','')),'safe layout target required')
+    need(kind in RECTS and re.fullmatch('0x[0-9a-fA-F]{1,16}',row.get('address','')) and
+         type(row.get('floating')) is bool,'safe layout target required')
     at,size=RECTS[kind];target='address:'+row['address']
-    for expression in (f'hl.dsp.window.float({{action="set",window="{target}"}})',
+    expressions=[] if row['floating'] else [f'hl.dsp.window.float({{action="set",window="{target}"}})']
+    expressions.extend((
         f'hl.dsp.window.resize({{x={size[0]},y={size[1]},relative=false,window="{target}"}})',
-        f'hl.dsp.window.move({{x={at[0]},y={at[1]},relative=false,window="{target}"}})'):
+        f'hl.dsp.window.move({{x={at[0]},y={at[1]},relative=false,window="{target}"}})'))
+    for expression in expressions:
         need(command(['/usr/bin/hyprctl','dispatch',expression],'layout').strip()=='ok','layout dispatch failed')
 
 

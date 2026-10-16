@@ -144,7 +144,7 @@ class Phase(unittest.TestCase):
                 if row['pid']==900:self.observed.exited_flag=True
                 else:self.major['welcome'].process.returncode=1 if self.bad_welcome_exit else 0
                 self.rows.pop(row['pid']);return 'ok\n'
-            if '.float(' in expression:row['floating']=True
+            if '.float(' in expression:row['floating']=not row['floating']
             else:row['size' if '.resize(' in expression else 'at']=list(map(int,re.search(r'x=([0-9]+),y=([0-9]+)',expression).groups()))
             return 'ok\n'
         raise AssertionError(argv)

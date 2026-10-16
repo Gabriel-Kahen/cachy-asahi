@@ -215,8 +215,8 @@
       "sha256": "559eede1b2139e673fcfa76d655f66ac390b5df1827625762db2973f0c82dd80"
     },
     "scripts/ci/welcome-managed-gui/gui_contract.py": {
-      "bytes": 7084,
-      "sha256": "6aa7bafe93bc68efca96772cd8d9f5e260d778ecf8d2dd2665d908eb50a311f0"
+      "bytes": 7212,
+      "sha256": "d5a254b33aacbcf903559c994192c0aed9c637b1cb6243619ec7ac05563eb7b2"
     },
     "scripts/ci/welcome-managed-gui/managed_contract.py": {
       "bytes": 3790,
@@ -255,12 +255,12 @@
       "sha256": "273c17be7fc909fdbb35926b3063d984b322ffa43752fff4c69af1ba034542d7"
     },
     "scripts/ci/welcome-managed-gui/test_gui.py": {
-      "bytes": 8807,
-      "sha256": "dc90a118bc724ef3af3faccbc74d2605aba289ab410264da783e22dd76391420"
+      "bytes": 10219,
+      "sha256": "fc975de82fb9d89b800a4814d6cb507706871dbe1f0748d0dc6a49fff7ffa503"
     },
     "scripts/ci/welcome-managed-gui/test_phase.py": {
-      "bytes": 17887,
-      "sha256": "763368891c11f35638486a70256ac857fea773ec1aaddf1a95a0e3f31d7ba701"
+      "bytes": 17902,
+      "sha256": "589424993d67ba8404a0ea961055eaf253a2977978db84753c9433f7b6586532"
     },
     "scripts/ci/welcome-managed-gui/transport.json": {
       "bytes": 402,
@@ -349,8 +349,8 @@
       "sha256": "559eede1b2139e673fcfa76d655f66ac390b5df1827625762db2973f0c82dd80"
     },
     "gui_contract.py": {
-      "bytes": 7084,
-      "sha256": "6aa7bafe93bc68efca96772cd8d9f5e260d778ecf8d2dd2665d908eb50a311f0"
+      "bytes": 7212,
+      "sha256": "d5a254b33aacbcf903559c994192c0aed9c637b1cb6243619ec7ac05563eb7b2"
     },
     "managed_contract.py": {
       "bytes": 3790,

@@ -89,6 +89,31 @@ class Transport(unittest.TestCase):
 
 
 class Semantic(unittest.TestCase):
+    def test_layout_is_idempotent_for_actual_floating_to_action_transition(self):
+        row=window(566,'welcome');calls=[]
+        def command(argv,label):
+            calls.append(argv[-1])
+            if '.float(' in argv[-1]:row['floating']=not row['floating']
+            return 'ok\n'
+        G.layout(command,row,'welcome-action')
+        self.assertTrue(row['floating']);self.assertEqual(len(calls),2)
+        self.assertFalse(any('.float(' in expression for expression in calls))
+        self.assertIn('x=550,y=550,relative=false',calls[0]);self.assertIn('x=12,y=12,relative=false',calls[1])
+        G.layout(command,row,'welcome');self.assertTrue(row['floating']);self.assertEqual(len(calls),4)
+
+    def test_layout_floats_only_observed_tiled_window_and_refuses_unknown_state(self):
+        row=window(566,'welcome');row['floating']=False;calls=[]
+        def command(argv,label):
+            calls.append(argv[-1])
+            if '.float(' in argv[-1]:row['floating']=not row['floating']
+            return 'ok\n'
+        G.layout(command,row,'welcome-action')
+        self.assertTrue(row['floating']);self.assertEqual(len(calls),3);self.assertIn('.float(',calls[0])
+        for state in (None,1,'true'):
+            row['floating']=state
+            with self.assertRaisesRegex(ValueError,'safe layout target required'):G.layout(command,row,'welcome-action')
+        self.assertEqual(len(calls),3)
+
     def test_visible_selected_guide_requires_exact_full_installed_text(self):
         text=b'installed guide\n';value=dict(status='PASS',pid=10,nodes=[node('First steps',selected=True),node('text',text=text)])
         result=G.validate_snapshot(value,10,'first-steps',G.sha(text));self.assertIn(G.sha(text),result['showing_text_sha256'])
