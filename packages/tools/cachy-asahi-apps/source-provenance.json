@@ -1,0 +1,50 @@
+{
+  "behaviors": {
+    "authentication": "client.Verifier signature_status and isolated external public keyring",
+    "catalog": "separate signed finite caller selection bound to exact signed release",
+    "mutation": "NONE; explicit NOT_APPLIED",
+    "relations": "release.relation and release.satisfies with preinstalled ALPM vercmp",
+    "semantics": "release.verify_release, pkginfo, database_check, provenance_check, source associations and dependency_check"
+  },
+  "copyright": "2026 cachy-asahi contributors",
+  "external_helpers": {
+    "scripts/client/client.py": {
+      "bytes": 28669,
+      "sha256": "48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7"
+    },
+    "scripts/release/release.py": {
+      "bytes": 41320,
+      "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435"
+    },
+    "scripts/release/source_delivery.py": {
+      "bytes": 16456,
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+    }
+  },
+  "license": "MIT",
+  "package": "cachy-asahi-apps",
+  "qualification": {
+    "hardware": "NOT_RUN",
+    "host_tests": "signed synthetic fixtures; see handoff actual results",
+    "installed_lifecycle": "NOT_RUN",
+    "native_build": "NOT_RUN",
+    "release_acceptance": "NOT_ESTABLISHED"
+  },
+  "runtime_sources": {
+    "apps.py": {
+      "bytes": 20258,
+      "sha256": "6ce521a2e8d5152b94164a52d84e60190065d5b6a8c4c4e1db576a40751efa56"
+    },
+    "cachy-asahi-apps": {
+      "bytes": 77,
+      "sha256": "9828b3772cb1272371df8847160f94ba08eab1caa232c45d0102b43f3fdef0f6"
+    },
+    "helper-pins.json": {
+      "bytes": 493,
+      "sha256": "33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a"
+    }
+  },
+  "schema_version": 1,
+  "source_kind": "original project source; three existing repository helpers are external exact source dependencies",
+  "version": "0.1.0-1"
+}

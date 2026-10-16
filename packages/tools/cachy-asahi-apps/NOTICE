@@ -1,0 +1,5 @@
+Original cachy-asahi application planning CLI, Copyright (c) 2026 cachy-asahi contributors, MIT.
+No CachyOS packageinstaller/Shelly implementation, artwork or catalogs are included.
+The runtime explicitly requires the separate repository-source snapshot identified by helper-pins.json.
+It executes the project's existing MIT client signature and release dependency/semantic helpers at those exact hashes.
+No upstream application binaries, release keys, supported production catalog or hardware validation are included.
