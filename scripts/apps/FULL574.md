@@ -142,3 +142,24 @@ before proceeding. Capability restoration and complete-map verification still
 finish before the marker exists. Actual38977834026 remains FAIL before commit;
 its successful capability-preserving snapshot alone is not a transaction pass.
 This correction has only source and temporary-data evidence pending a new run.
+
+The Apps-only `full574_statx.py` binding pins/reuses the exact2784B
+`expanded600-installer-vm/observer600.py` descriptor query. The original full-root
+observer runs in its proven private namespace; private capability scan/observe/
+restore function dictionaries and copier facades select the same fresh statx
+query. Every descriptor is queried anew, the first result is cross-checked with
+original fdinfo, and unsupported ABI/symbol/syscall/mask follows original fdinfo.
+Disagreement, zero IDs and other errors still refuse. No mount IDs are cached or
+equated. Generic modules, the bind-scope proof helper and capability source files
+are untouched; all node/hash/attribute/identity/alias checks and limits remain.
+Auxiliary closure policy and raw-cache comparisons remain unchanged.
+
+An ownership marker records exact binding source pins and scope. Stderr carries
+bounded monotonic BEGIN/END/FAIL phase observations (at most96 records,512B each);
+stdout JSON and the original combined output cap remain unchanged. Reaching the
+logging cap omits further diagnostics, never functional work. These observations
+may locate a subsequent timeout but do not prove the stage of an earlier one.
+Actual38979455129 timed out at its original310-second caller limit with no phase
+output; it remains FAIL with no completed-copy/commit/source-after claim.
+Temporary-data controls establish behavior and scoped query mechanics only.
+Native performance, successful copying and transactions need a new actual run.
