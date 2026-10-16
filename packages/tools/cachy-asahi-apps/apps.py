@@ -62,6 +62,11 @@ def helpers(source):
     return c,r,pins
 
 
+def inventory_reader():
+    path=HERE/'inventory.py';module=ModuleType('apps_inventory');module.__file__=str(path)
+    exec(compile(ordinary(path),str(path),'exec'),module.__dict__);return module
+
+
 def allowed(value):
     return (type(value) is str and re.fullmatch('[A-Za-z0-9][A-Za-z0-9._+-]{0,127}',value) is not None and
             not re.search('(^|[-_.])(aur|multilib|x86|x86_64|i[3-6]86)([-_.]|$)',value,re.I) and
@@ -207,10 +212,13 @@ class Relations:
 
 
 def plan(context,installed,operation,requested,r):
-    need(set(installed)=={'schema_version','kind','target_arch','snapshot_id','packages'} and
+    observed='observation' in installed
+    need(set(installed)==({'schema_version','kind','target_arch','snapshot_id','packages'}|({'observation'} if observed else set())) and
          type(installed['schema_version']) is int and installed['schema_version']==1 and
          installed['kind']=='complete-installed-inventory' and installed['target_arch']=='aarch64' and
          type(installed['snapshot_id']) is str and 0<len(installed['snapshot_id'])<=128,'complete ARM installed inventory required')
+    qualifier='CALLER_DECLARED_METADATA_NOT_HOST_ATTESTED'
+    if observed:qualifier=inventory_reader().validate(installed,lambda row:package(row,r))
     before=indexed(installed['packages'],r);base=context['base'];available=context['available'];apps=context['apps']
     need(all(before.get(n)==row for n,row in base.items()),'installed base differs from signed base; base redesign refused')
     need(requested and len(set(requested))==len(requested) and all(n in apps for n in requested),'choose distinct signed catalog application IDs')
@@ -266,11 +274,12 @@ def plan(context,installed,operation,requested,r):
         before_inventory_sha256=digest(encoded([before[n] for n in sorted(before)])),
         after_inventory_sha256=digest(encoded([after[n] for n in sorted(after)])),
         protection='ALL_SIGNED_BASE_PACKAGES',dependency_policy='unique signed-release provider; no orphan/autoremove',
-        installed_inventory='CALLER_DECLARED_METADATA_NOT_HOST_ATTESTED')
+        installed_inventory=qualifier,inventory_reobserved_by_planner=False)
 
 
 def execute(args):
     c,r,pins=helpers(args.repository_source)
+    if args.command=='inventory':return inventory_reader().publish(args.dbpath,args.output,c,lambda row:package(row,r))
     with authenticated(args,c,r) as context:
         result=dict(schema_version=1,status='READONLY',applied='NOT_APPLIED',scope='development',
             synthetic=context['spec']['synthetic'],stable_accepted=False,freshness='NOT_ESTABLISHED',
@@ -298,12 +307,17 @@ def main():
     parser.add_argument('--repository-source',default=str(DEFAULT_REPOSITORY_SOURCE),
                         help='exact runtime helper tree; defaults to the installed companion package')
     for name in ('release','release-sha256','catalog','catalog-sha256','catalog-signature','keyring','signer'):
-        parser.add_argument('--'+name,required=True)
+        parser.add_argument('--'+name)
     parser.add_argument('--installed');parser.add_argument('--installed-sha256')
     sub=parser.add_subparsers(dest='command',required=True);sub.add_parser('list')
     sub.add_parser('search').add_argument('query');sub.add_parser('show').add_argument('application')
     command=sub.add_parser('plan');command.add_argument('operation',choices=('install','remove'));command.add_argument('applications',nargs='+')
+    inventory=sub.add_parser('inventory',help='readonly local ALPM9 metadata snapshot, no release credentials')
+    inventory.add_argument('--dbpath',type=Path,required=True);inventory.add_argument('--output',type=Path,required=True)
     args=parser.parse_args()
+    if args.command!='inventory':
+        missing=[name for name in ('release','release_sha256','catalog','catalog_sha256','catalog_signature','keyring','signer') if not getattr(args,name)]
+        if missing:parser.error('required for signed catalog commands: '+', '.join('--'+n.replace('_','-') for n in missing))
     try:print(encoded(execute(args)).decode(),end='');return 0
     except (ValueError,OSError,KeyError,TypeError,subprocess.SubprocessError) as error:
         print(encoded(dict(status='REFUSED',applied='NOT_APPLIED',error=str(error),issues=getattr(error,'issues',[]))).decode(),end='');return 1

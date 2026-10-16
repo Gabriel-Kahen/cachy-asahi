@@ -34,6 +34,18 @@ def context(rows):
 def inventory(*rows):
     return dict(schema_version=1,kind='complete-installed-inventory',target_arch='aarch64',snapshot_id='declared-test',packages=[pkg('linux-asahi'),*rows])
 
+def write_db(path,rows):
+    local=path/'local';local.mkdir(parents=True,exist_ok=True);(local/'ALPM_DB_VERSION').write_bytes(b'9\n')
+    for row in rows:
+        directory=local/(row['name']+'-'+row['version']);directory.mkdir()
+        desc=''.join('%'+field+'%\n'+row[key]+'\n\n' for field,key in (('NAME','name'),('VERSION','version'),('ARCH','arch')))
+        for field,key in (('DEPENDS','depend'),('PROVIDES','provides'),('CONFLICTS','conflict'),('REPLACES','replaces')):
+            if row.get(key):desc+='%'+field+'%\n'+'\n'.join(row[key])+'\n\n'
+        (directory/'desc').write_text(desc)
+        (directory/'files').write_bytes(('%FILES%\n'+'\n'.join(row['files'])+'\n\n').encode() if row['files'] else b'')
+    return local
+
+
 class PlannerTests(unittest.TestCase):
     def test_install_dependency_closure_records_signed_hashes_without_mutation(self):
         rows=[pkg('editor',depend=['api>=2']),pkg('runtime','2',provides=['api=2'])];ctx=context(rows);old=inventory();held=copy.deepcopy((ctx,old))
@@ -159,6 +171,110 @@ class CheckInputsTests(unittest.TestCase):
             self.assertFalse((self.root/variant).exists())
 
 
+class InventoryTests(unittest.TestCase):
+    def setUp(self):
+        self.temp=tempfile.TemporaryDirectory(prefix='apps-alpm-observation-');self.addCleanup(self.temp.cleanup)
+        self.root=Path(self.temp.name);self.db=self.root/'db';self.local=write_db(self.db,[pkg('linux-asahi'),pkg('fileless',files=[])])
+        self.reader=a.inventory_reader();self.output=self.root/'inventory.json';self.normalize=lambda row:a.package(row,r)
+    def collect(self):return self.reader.collect(self.db,c,self.normalize)
+    def test_fileless_raw_hashes_normalization_and_private_publication_without_commands(self):
+        with patch.object(subprocess,'Popen',side_effect=AssertionError('inventory must not run a command')):
+            result=self.reader.publish(self.db,self.output,c,self.normalize)
+        value=c.decode(self.output.read_bytes());self.assertEqual(self.output.stat().st_mode&0o777,0o600)
+        self.assertEqual(result['qualification'],self.reader.QUALIFICATION);self.assertEqual(len(value['packages']),2)
+        self.assertEqual(value['packages'][0]['files'],[]);self.assertFalse(value['observation']['payload_verified'])
+        self.assertFalse(any('sha256' in row for row in value['packages']))
+        self.assertEqual(value['observation']['inputs']['local/fileless-1/files'],dict(bytes=0,sha256=a.digest(b'')))
+        self.assertEqual(self.reader.validate(value,self.normalize),self.reader.QUALIFICATION)
+    def test_lock_any_type_uncertainty_and_root_alias_refuse_without_output(self):
+        lock=self.db/'db.lck'
+        for kind in ('file','directory','symlink'):
+            if kind=='file':lock.write_bytes(b'')
+            elif kind=='directory':lock.mkdir()
+            else:lock.symlink_to(self.root/'absent')
+            with self.subTest(kind=kind),self.assertRaises(ValueError):self.reader.publish(self.db,self.output,c,self.normalize)
+            if kind=='directory':lock.rmdir()
+            else:lock.unlink()
+            self.assertFalse(self.output.exists())
+        original=self.reader.os.stat
+        def uncertain(path,*args,**kw):
+            if path=='db.lck':raise PermissionError('uncertain lock')
+            return original(path,*args,**kw)
+        with patch.object(self.reader.os,'stat',side_effect=uncertain),self.assertRaises(PermissionError):self.collect()
+        alias=self.root/'db-alias';alias.symlink_to(self.db,target_is_directory=True)
+        with self.assertRaises(OSError):self.reader.collect(alias,c,self.normalize)
+    def test_malformed_identity_architecture_ownership_and_exact_fileless_rules(self):
+        directory=self.local/'fileless-1';desc=directory/'desc';files=directory/'files';original=desc.read_bytes()
+        variants=[original.replace(b'%ARCH%\naarch64\n\n',b''),original.replace(b'aarch64',b'x86_64'),
+            original+b'%NAME%\nother\n\n',original+b'%DEPENDS%\n../escape\n\n',b'invalid\n',original+b'\xff']
+        for raw in variants:
+            desc.write_bytes(raw)
+            with self.subTest(raw=raw),self.assertRaises(Exception):self.collect()
+        desc.write_bytes(original)
+        for raw in (b'\n',b'%BACKUP%\netc/x\t' + b'0'*32+b'\n\n',b'%FILES%\n../escape\n\n',b'%FILES%\nusr/x\nusr/x\n\n'):
+            files.write_bytes(raw)
+            with self.subTest(raw=raw),self.assertRaises(ValueError):self.collect()
+        files.write_bytes(b'%FILES%\n\n');self.assertEqual(self.collect()['packages'][0]['files'],[])
+        files.unlink()
+        with self.assertRaisesRegex(ValueError,'incomplete'):self.collect()
+    def test_hardlinks_symlinks_special_and_unknown_records_refuse(self):
+        directory=self.local/'fileless-1';files=directory/'files';files.unlink();target=self.root/'empty';target.write_bytes(b'')
+        files.symlink_to(target)
+        with self.assertRaises(OSError):self.collect()
+        files.unlink();os.link(target,files)
+        with self.assertRaises(Exception):self.collect()
+        files.unlink();os.mkfifo(files)
+        with self.assertRaises(Exception):self.collect()
+        files.unlink();files.write_bytes(b'');(directory/'unexpected').write_bytes(b'')
+        with self.assertRaises(ValueError):self.collect()
+    def test_drift_in_records_membership_or_transient_lock_refuses(self):
+        original=self.reader.scan
+        for variant in ('record','membership','lock'):
+            calls=0;desc=self.local/'fileless-1/desc';old=desc.read_bytes();extra=self.local/'new-1'
+            def changed(*args):
+                nonlocal calls
+                value=original(*args);calls+=1
+                if calls==1:
+                    if variant=='record':desc.write_bytes(old+b'%DESC%\nchanged\n\n')
+                    elif variant=='membership':extra.mkdir()
+                    else:(self.db/'db.lck').write_bytes(b'');(self.db/'db.lck').unlink()
+                return value
+            with self.subTest(variant=variant),patch.object(self.reader,'scan',side_effect=changed),self.assertRaises(Exception):self.collect()
+            desc.write_bytes(old)
+            if extra.exists():extra.rmdir()
+    def test_observed_qualifier_does_not_relax_base_or_claim_payload(self):
+        value=self.collect();ctx=context([pkg('editor')]);self.assertEqual(a.plan(ctx,value,'install',['editor'],r)['installed_inventory'],self.reader.QUALIFICATION)
+        bad=copy.deepcopy(value);bad['observation']['payload_verified']=True
+        with self.assertRaises(ValueError):a.plan(ctx,bad,'install',['editor'],r)
+        bad=copy.deepcopy(value);next(p for p in bad['packages'] if p['name']=='linux-asahi')['version']='2'
+        bad['observation']['packages_metadata_sha256']=a.digest(a.encoded(bad['packages']))
+        with self.assertRaises(Exception):a.plan(ctx,bad,'install',['editor'],r)
+        duplicate=self.local/'fileless-2';duplicate.mkdir();(duplicate/'desc').write_text('%NAME%\nfileless\n\n%VERSION%\n2\n\n%ARCH%\naarch64\n\n');(duplicate/'files').write_bytes(b'')
+        with self.assertRaises(ValueError):self.collect()
+    def test_package_byte_output_and_deadline_bounds_refuse(self):
+        for name,value in (('MAX_PACKAGES',1),('MAX_BYTES',1),('MAX_RECORD',1)):
+            with self.subTest(name=name),patch.object(self.reader,name,value),self.assertRaises(Exception):self.collect()
+        with patch.object(c,'MAX_JSON',16),self.assertRaises(ValueError):self.collect()
+        with patch.object(self.reader.time,'monotonic',side_effect=[0,31]),self.assertRaises(ValueError):self.collect()
+
+    def test_existing_or_alias_output_and_write_failure_preserve_state(self):
+        self.output.write_bytes(b'keep')
+        with self.assertRaises(ValueError):self.reader.publish(self.db,self.output,c,self.normalize)
+        self.assertEqual(self.output.read_bytes(),b'keep');self.output.unlink()
+        with self.assertRaises(ValueError):self.reader.publish(self.db,self.db/'snapshot.json',c,self.normalize)
+        alias=self.root/'output-alias';alias.symlink_to(self.root,target_is_directory=True)
+        with self.assertRaises(OSError):self.reader.publish(self.db,alias/'snapshot.json',c,self.normalize)
+        with patch.object(self.reader.os,'fsync',side_effect=OSError('injected output failure')),self.assertRaises(OSError):
+            self.reader.publish(self.db,self.output,c,self.normalize)
+        self.assertFalse(self.output.exists())
+    def test_cli_observation_needs_no_release_catalog_or_key_credentials(self):
+        command=[sys.executable,'-I','-B',str(HERE/'apps.py'),'--repository-source',str(SOURCE),'inventory','--dbpath',str(self.db),'--output',str(self.output)]
+        result=subprocess.run(command,capture_output=True,text=True,timeout=30,env=dict(PATH='/usr/bin:/bin',HOME=str(self.root),LC_ALL='C'))
+        self.assertEqual(result.returncode,0,result.stdout+result.stderr);receipt=json.loads(result.stdout)
+        self.assertEqual(receipt['qualification'],self.reader.QUALIFICATION);self.assertEqual(receipt['sha256'],a.digest(self.output.read_bytes()))
+        self.assertEqual(receipt['applied'],'NOT_APPLIED')
+
+
 class SignedTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -211,6 +327,24 @@ class SignedTests(unittest.TestCase):
         helper.write_bytes(raw+b'\nchanged');changed=run(['list']);self.assertNotEqual(changed.returncode,0)
         self.assertIn('helper differs',json.loads(changed.stdout)['error']);helper.write_bytes(raw)
         self.assertEqual(list(home.iterdir()),[]);self.assertFalse((stage/'.git').exists())
+
+    def test_observed_inventory_to_genuine_signed_install_remove_and_base_drift_refusal(self):
+        base=json.loads((self.bundle/'base.json').read_bytes());db=self.root/'observed-db';write_db(db,base['packages'])
+        reader=a.inventory_reader();self.installed=self.root/'observed.json'
+        receipt=reader.publish(db,self.installed,c,lambda row:a.package(row,r))
+        self.args.installed=str(self.installed);self.args.installed_sha256=receipt['sha256']
+        result=a.execute(self.args);self.assertEqual(result['plan']['additions'][0]['name'],'fixture')
+        self.assertEqual(result['plan']['installed_inventory'],reader.QUALIFICATION)
+        self.assertNotEqual(json.loads(self.installed.read_bytes())['snapshot_id'],base['snapshot_id'])
+        row=json.loads((self.bundle/'release.json').read_bytes())['packages'][0]
+        write_db(db,[row]);self.installed=self.root/'observed-after.json'
+        receipt=reader.publish(db,self.installed,c,lambda row:a.package(row,r));self.args.installed=str(self.installed);self.args.installed_sha256=receipt['sha256'];self.args.operation='remove'
+        result=a.execute(self.args);self.assertEqual(result['plan']['removals'][0]['name'],'fixture')
+        self.assertNotIn('release_archive_sha256',result['plan']['removals'][0])
+        old=db/'local/runtime-2';(old/'desc').write_bytes((old/'desc').read_bytes().replace(b'%VERSION%\n2\n',b'%VERSION%\n3\n'));old.rename(db/'local/runtime-3')
+        changed=self.root/'observed-base-drift.json';receipt=reader.publish(db,changed,c,lambda row:a.package(row,r))
+        self.args.installed=str(changed);self.args.installed_sha256=receipt['sha256']
+        with self.assertRaisesRegex(a.Refusal,'base differs'):a.execute(self.args)
 
     def test_actual_signed_install_list_search_show_and_no_source_change(self):
         before=self.held();result=a.execute(self.args)

@@ -2,6 +2,7 @@
   "behaviors": {
     "authentication": "client.Verifier signature_status and isolated external public keyring",
     "catalog": "separate signed finite caller selection bound to exact signed release",
+    "local_inventory": "Explicit readonly nofollow ALPM9 database observation, two matching reads, fresh0600 output, metadata-only qualifier, no subprocess or DB writes",
     "mutation": "NONE; explicit NOT_APPLIED",
     "relations": "release.relation and release.satisfies with preinstalled ALPM vercmp",
     "semantics": "release.verify_release, pkginfo, database_check, provenance_check, source associations and dependency_check"
@@ -44,6 +45,16 @@
       "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
     }
   },
+  "inventory_source_pointers": {
+    "scripts/ci/full-root-upgrade/root_upgrade.py": {
+      "bytes": 23555,
+      "sha256": "fe1232ae6b510021910b4fb80016ac3b4668c6e4386cdae45e7b95196e400756"
+    },
+    "scripts/port/repository-client-native/base.py": {
+      "bytes": 43739,
+      "sha256": "94a8e2898b062a0efd0f567d1f4f472bd04d6ff5a1573cd09f3bf8d1f556cddd"
+    }
+  },
   "license": "MIT",
   "package": "cachy-asahi-apps",
   "qualification": {
@@ -61,8 +72,8 @@
   },
   "runtime_sources": {
     "apps.py": {
-      "bytes": 20529,
-      "sha256": "e9e59528007dc315e2ee4a0f742a324e0c23d1932e008ac03d579cda8554535b"
+      "bytes": 21619,
+      "sha256": "5963cce6d124bac5241635899aece5a5e253cafb6817a1a40f3f2a8a7909114d"
     },
     "cachy-asahi-apps": {
       "bytes": 310,
@@ -71,9 +82,13 @@
     "helper-pins.json": {
       "bytes": 493,
       "sha256": "33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a"
+    },
+    "inventory.py": {
+      "bytes": 12955,
+      "sha256": "1c463b15abb9ca9a172d07a8a06de2047302dee16f8c4a8dbe9b9c5647f41ab8"
     }
   },
   "schema_version": 1,
   "source_kind": "original project planner with exact installed three-helper runtime dependency",
-  "version": "0.1.0-2"
+  "version": "0.1.0-3"
 }

@@ -13,6 +13,7 @@ import sys
 sys.dont_write_bytecode=True
 HERE=Path(__file__).absolute().parent
 PAYLOAD={'usr/bin/cachy-asahi-apps':('cachy-asahi-apps',0o755),
+ 'usr/lib/cachy-asahi-apps/inventory.py':('inventory.py',0o644),
  'usr/lib/cachy-asahi-apps/apps.py':('apps.py',0o644),
  'usr/lib/cachy-asahi-apps/helper-pins.json':('helper-pins.json',0o644),
  'usr/share/doc/cachy-asahi-apps/README.md':('README.md',0o644),
@@ -39,7 +40,7 @@ def main():
         if not line.strip() or line.lstrip().startswith('#'):continue
         key,value=line.strip().split(' = ',1);info.setdefault(key,[]).append(value)
     assert info['source']==sources and info['sha256sums']==pins and info['pkgname']==['cachy-asahi-apps']
-    assert info['pkgver']==['0.1.0'] and info['pkgrel']==['2'] and info['arch']==['any'] and info['license']==['MIT']
+    assert info['pkgver']==['0.1.0'] and info['pkgrel']==['3'] and info['arch']==['any'] and info['license']==['MIT']
     spec=importlib.util.spec_from_file_location('checked_apps',root/'apps.py');module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
     _,_,helpers=module.helpers(args.repository_source)
     if args.stage:
