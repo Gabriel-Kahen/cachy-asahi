@@ -1,5 +1,32 @@
 # Generic ARM64 16 KiB kernel trial
 
+[Diagnostic actual38864391246](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38864391246)
+passes the native build, generic16KiB userspace smoke, natural QEMU exit0 and
+three owned-workspace cleanup checks. Source/workflow is
+`ba2e14c90f915d944d2cd54f4a408de8c85e504b`, manifest
+`9a8eece98d98a523a867c3779c3c98e2f739aaaabea211d61aba5b7f06aa147d`.
+Root independently checks all14 source identities, both config fragments,
+the ordered once-only uname/getconf/memory-smoke/nonce markers and the retained
+command/fixture/cleanup joins.
+
+This profile adds KALLSYMS, printk timestamps and initcall tracing. Its Image is
+5167112 bytes, SHA256
+`4e0a0a7ca05569e4c7a827d9597b937c84c3c3fd0f9b8cf585df5af6e8b418f2`;
+configuration SHA256
+`32b8749857f457f567f1b77106724cc0bc13927d93d9779257b4741cc0f14b00`.
+The guest executes retained ARM64 bash/uname/getconf and a static smoke program,
+reports16384-byte pages and validates mmap/mprotect/munmap and file-offset
+alignment. All24 declared public files total161539 bytes. The retained ZIP is
+154238 bytes, SHA256
+`5f71f1e29fb1bc80ff44ce2edc034aa9d9797536eba93f93e4df98e187ec733c`.
+Independent PID absence was not exported; natural process completion and the
+source-enforced retirement path remain the recorded process evidence.
+
+The trace shows clock cleanup returning and `/init` executing. It does not
+identify why the earlier profile timed out. This is a generic diagnostic-profile
+software result, separate from the earlier failure, signed transactions, Asahi
+platform integration, physical M2 execution and performance.
+
 [Actual38862416370](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38862416370)
 is **FAIL**: native compilation passed, but QEMU timed out before userspace.
 Source/workflow is `0909d8549cf2b9e8a2c4d4e47c2b4325581e6e6e`; the candidate
@@ -21,7 +48,7 @@ cleanup but does not establish which operation stopped. The caller reports
 input, VM and kernel workspace absence. Process retirement remains enforced by
 the timeout cleanup source; independent PID absence was not exported.
 
-The next opt-in diagnostic adds named initcall traces and printk timestamps,
+The opt-in diagnostic added named initcall traces and printk timestamps,
 with a bounded complete UART export. Its25 controls pass. It preserves the
 timeouts, userspace acceptance markers, normal-exit requirement and cleanup
 gates; it is not a proven boot repair.
