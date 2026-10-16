@@ -55,8 +55,10 @@ class Fixture:
         license_names = ('COPYINGv2','COPYING.LESSERv2','LICENSES')
         license_rows = {n:('synthetic-license-'+n).encode() for n in license_names}
         gnu = archive({'glibc-2.43/'+n:raw for n,raw in license_rows.items()}, 'w:gz')
-        src = {'PKGBUILD':b'# synthetic recipe, never executed\n', '.SRCINFO':f['build-harness/expected.SRCINFO'], 'source-lock.json':b'{"synthetic":true}\n',
-               'glibc-2.43.tar.gz':gnu, 'glibc-2.43.tar.gz.sig':b'synthetic-signature', 'gnu-keyring.gpg':b'synthetic-keyring'}
+        src = {n.removeprefix('source/'):(ROOT/'packages/core/cachy-asahi-glibc-gnu-provider'/n.removeprefix('source/')).read_bytes()
+               for n in p.FROZEN_RECIPE if n.startswith('source/')}
+        src.update({'glibc-2.43.tar.gz':gnu, 'glibc-2.43.tar.gz.sig':b'synthetic-signature',
+                    'gnu-keyring.gpg':b'synthetic-keyring', 'source-authentication.json':b'{"synthetic":true}\n'})
         self.gnu = {n:p.digest(src[n]) for n in p.GNU}
         for n,raw in src.items(): f['source/'+n] = raw
         f['source/bundle.json'] = p.encoded(dict(status='SOURCE_BUNDLE_READY_UNSELECTED_GNU_PROVIDER',files={n:p.digest(v) for n,v in src.items()}))
@@ -114,7 +116,8 @@ class Fixture:
             f[prefix+'runtime-inputs.json']=b'{"synthetic":true}\n'
             runtime=dict(status='PASS_OWNED_CANDIDATE_GLIBC_RUNTIME_SMOKE',mode='NATIVE_EXECUTE',host_architecture='aarch64',
                 input_sha256=p.digest(f[prefix+'runtime-inputs.json'])['sha256'],runtime=dict(status='PASS',cases=8),cases=sorted(p.CASES),
-                commands=command(prefix+'runtime-smoke',14),sources=original)
+                commands=command(prefix+'runtime-smoke',14),
+                sources={n:dict(**v,device_major=8,device_minor=1,inode=100+i) for i,(n,v) in enumerate(original.items())})
             f[prefix+'runtime-smoke/receipt.json']=p.encoded(runtime)
             compiled={}
             for n in sorted(p.BINARIES):
@@ -206,6 +209,58 @@ class Controls(unittest.TestCase):
         with patch.object(owner,'selection',return_value=binding),patch.object(owner,'load',return_value=common):
             directory,accepted=owner.packet(ROOT,self.root)
         self.assertEqual(directory,self.f.args.output);self.assertEqual(accepted,index)
+
+    def test_actual_shape_has_no_source_srcinfo(self):
+        self.assertNotIn('source/.SRCINFO', self.f.files)
+        p.native(self.f.files, json.loads((self.f.collection/'run.json').read_bytes()))
+
+    def test_each_generated_srcinfo_must_match(self):
+        for side in ('a','b'):
+            with self.subTest(side=side):
+                name='runtime/'+side+'/evidence/generated.SRCINFO'
+                original=self.f.files[name]
+                self.f.files[name]=original+b'pkgrel = 99\n'
+                with self.assertRaisesRegex(ValueError, 'actual SRCINFO expectation'):
+                    p.native(self.f.files, json.loads((self.f.collection/'run.json').read_bytes()))
+                self.f.files[name]=original
+
+    def test_expected_srcinfo_cannot_be_replaced_alongside_both_generated(self):
+        for name in ('build-harness/expected.SRCINFO','runtime/a/evidence/generated.SRCINFO','runtime/b/evidence/generated.SRCINFO'):
+            self.f.files[name]+=b'pkgrel = 99\n'
+        manifest=json.loads(self.f.files['build-harness/source-manifest.json'])
+        manifest['files']['expected.SRCINFO']=p.digest(self.f.files['build-harness/expected.SRCINFO'])
+        self.f.files['build-harness/source-manifest.json']=p.encoded(manifest)
+        result=json.loads(self.f.files['runtime/result.json'])
+        result['harness_manifest_sha256']=p.digest(self.f.files['build-harness/source-manifest.json'])['sha256']
+        self.f.files['runtime/result.json']=p.encoded(result)
+        self.f.publish();self.refuse()
+
+    def test_frozen_recipe_bytes_refuse_even_with_refreshed_bundle(self):
+        self.f.files['source/stage.py']+=b'# changed\n'
+        bundle=json.loads(self.f.files['source/bundle.json'])
+        bundle['files']['stage.py']=p.digest(self.f.files['source/stage.py'])
+        self.f.files['source/bundle.json']=p.encoded(bundle)
+        result=json.loads(self.f.files['runtime/result.json'])
+        result['source_bundle_manifest_sha256']=p.digest(self.f.files['source/bundle.json'])['sha256']
+        self.f.files['runtime/result.json']=p.encoded(result)
+        self.f.publish();self.refuse()
+
+    def test_invented_source_srcinfo_refuses(self):
+        self.f.files['source/.SRCINFO']=self.f.files['build-harness/expected.SRCINFO']
+        self.f.publish();self.refuse()
+
+    def test_runtime_source_extra_inode_fields_preserve_exact_byte_join(self):
+        runtime=json.loads(self.f.files['runtime/a/runtime-smoke/receipt.json'])
+        normal=json.loads(self.f.files['runtime/a/normal-clients/receipt.json'])
+        self.assertNotEqual(runtime['sources'], normal['original_sources'])
+        p.native(self.f.files, json.loads((self.f.collection/'run.json').read_bytes()))
+
+    def test_runtime_source_content_mismatch_refuses_with_fresh_export(self):
+        self.change('runtime/a/runtime-smoke/receipt.json',lambda v:v['sources']['probe.c'].update(sha256='0'*64))
+        result=json.loads(self.f.files['runtime/result.json'])
+        result['builds'][0]['runtime_receipt_sha256']=p.digest(self.f.files['runtime/a/runtime-smoke/receipt.json'])['sha256']
+        self.f.files['runtime/result.json']=p.encoded(result)
+        self.f.publish();self.refuse()
 
     def test_running_run_refuses_before_output(self):
         file=self.f.collection/'run.json';value=json.loads(file.read_bytes());value['status']='in_progress';file.write_bytes(p.encoded(value));self.refuse()

@@ -29,6 +29,14 @@ embedded and retained BUILDINFO, recipe/SRCINFO, full upstream result rows,
 normal compiler receipts and original command outputs, normal ELF interpreters,
 source/license bytes and ordered consumer/producer absence must join.
 
+The source bundle contains the nine frozen recipe files, three original GNU
+inputs and source authentication, with no generated `.SRCINFO`. Literal byte
+pins bind those recipe files and `build-harness/expected.SRCINFO` to the exact
+source commit above. Both retained native `evidence/generated.SRCINFO` records
+must match that expected metadata. Runtime source records carry observed inode
+and device details; their byte counts and hashes must match normal compilation
+source identities, while all original records remain unchanged.
+
 Both Root decisions must contain `run_id` (integer), `source_sha`,
 `artifact_sha256` and `retention_sha256`, binding the actual collected export.
 The pair decision additionally contains `status=ROOT_ACCEPTED_PROVIDER_NATIVE_PAIR`,
@@ -69,5 +77,5 @@ PYTHONDONTWRITEBYTECODE=1 python3 scripts/ci/glibc-gnu-provider-packet/test_prep
 ```
 
 The controls use temporary synthetic archives and explicit synthetic decisions,
-mock the fixture held/source identities, block subprocess actors and exercise
+reuse frozen recipe bytes but mock fixture held/GNU identities, block subprocess actors and exercise
 the real owner data gate. They never create a real accepted-input payload.
