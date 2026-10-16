@@ -420,8 +420,9 @@ native_build = "PASS native ARM byte-identical pairs in38884680631 and3888678150
 native_cli_lifecycle = "PASS fresh/existing users, install/reinstall/remove/report preservation in38886781500"
 native_generic16k_cli = "PASS unchanged unpacked CLI payloads in38904917140; not installed or GUI"
 native_generic_managed_gui = "PASS fourteen Root-viewed captures and actual GTK actions in38905814219"
+native_generic16k_managed_gui = "PASS installed593, sixteen GTK actions and fourteen Root-viewed first frames in38952428172; docs/validation/managed-gui-generic16k-native-20261016.md"
 hardware_validation = "NOT RUN"
-next_step = "Managed GUI/guides/app launch and separate generic16K CLI pass; complete signed composition/lifecycle and both-target validation before selection."
+next_step = "Managed GUI/guides/app launch now pass both generic4K and installed16K trials; complete signed composition/lifecycle and both-target validation before selection."
 
 
 [[packages]]
@@ -438,6 +439,7 @@ native_build = "PASS native ARM byte-identical pairs in38884680631 and3888678150
 native_cli_lifecycle = "PASS fresh/existing users, install/reinstall/remove/report preservation in38886781500"
 native_generic16k_cli = "PASS unchanged unpacked CLI payloads in38904917140; not installed or GUI"
 native_generic_managed_report = "PASS actual CLI private report and co-present readable terminal in both GUI profiles38905814219"
+native_generic16k_managed_report = "PASS private reports and readable co-present terminal in both installed593 GUI profiles38952428172; no hardware certification"
 hardware_validation = "NOT RUN"
 next_step = "Exercise the installed read-only report with unavailable model/bus and real managed session states; complete signed admission and target validation before selection."
 
