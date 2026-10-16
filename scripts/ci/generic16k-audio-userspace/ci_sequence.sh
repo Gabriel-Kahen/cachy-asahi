@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: MIT
 # Future disposable native CI only; no installation, Git mutation or dispatch.
 set -euo pipefail
-if [ "$#" -ne 5 ]; then
-  echo 'usage: ci_sequence.sh SOURCE_ROOT PRODUCT_CHECKOUT DESKTOP_CHECKOUT NEW_OWNER_ROOT NEW_KERNEL_WORK' >&2
+if [ "$#" -ne 6 ]; then
+  echo 'usage: ci_sequence.sh SOURCE_ROOT PRODUCT_CHECKOUT DESKTOP_CHECKOUT NEW_OWNER_ROOT NEW_KERNEL_WORK RETAINED_PUBLIC_INPUTS' >&2
   exit 2
 fi
 task_source=$1
@@ -11,6 +11,7 @@ task_product=$2
 task_desktop=$3
 task_owner=$4
 task_work=$5
+task_public_inputs=$6
 task_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
 : "${AUDIO16K_SOURCE_COMMIT:?explicit frozen Source required}"
 : "${AUDIO16K_CANDIDATE_SHA256:?reviewed candidate-files.json SHA required}"
@@ -74,6 +75,14 @@ for task_index in {01..15}; do
 done
 timeout --kill-after=15s 120s "${task_clean_env[@]}" "${task_seed[@]}" python3 -I -B "$task_dir/job.py" seed "${task_args[@]}"
 unset task_seed
+# Complete the existing public cache prerequisite, matching the current desktop lane.
+"${task_clean_env[@]}" python3 -I -B - "$task_dir" "$task_public_inputs" <<'PY'
+import pathlib,sys
+sys.path.insert(0,sys.argv[1]);import job
+job.verify_public_seed(pathlib.Path(sys.argv[2]))
+PY
+timeout --kill-after=10s 120s "${task_clean_env[@]}" "TMPDIR=$task_work" \
+  python3 -I -B "$task_public_inputs/seed.py" --cache "$task_owner/base/context/deps" > "$task_owner/public-seed.log" 2>&1
 timeout --kill-after=30s 2400s "${task_clean_env[@]}" python3 -I -B "$task_dir/job.py" build "${task_args[@]}"
 timeout --kill-after=15s 670s "${task_clean_env[@]}" "GH_TOKEN=${GH_TOKEN:?actions-read token required}" \
   python3 -I -B "$task_dir/job.py" retrieve "${task_args[@]}"

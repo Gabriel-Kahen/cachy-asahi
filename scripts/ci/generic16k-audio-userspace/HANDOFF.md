@@ -1,6 +1,6 @@
 # Opt-in 16 KiB Rust LV2 userspace candidate
 
-**Implemented source candidate; native compilation, capture and VM execution NOT RUN.** Twelve portable controls pass with zero skips; Bash syntax passes. No Docker, network, package, host installation, Git, CI or hardware actor ran locally. The canonical generic16K lane is unchanged. Root owns adoption, the final source/workflow freeze and actual dispatch.
+**Implemented source candidate; native compilation, capture and VM execution NOT RUN.** Sixteen portable controls pass with zero skips; Bash syntax passes. No Docker, network, package, host installation, Git, CI or hardware actor ran locally. The canonical generic16K lane is unchanged. Root owns adoption, the final source/workflow freeze and actual dispatch.
 
 ## Concrete pipeline
 
@@ -46,10 +46,11 @@ bash "$GITHUB_WORKSPACE/audio-source/scripts/ci/generic16k-audio-userspace/ci_se
   "$GITHUB_WORKSPACE/product-api" \
   "$GITHUB_WORKSPACE/desktop-base" \
   "$RUNNER_TEMP/audio16k-owner" \
-  "$RUNNER_TEMP/audio16k-kernel-work"
+  "$RUNNER_TEMP/audio16k-kernel-work" \
+  "$GITHUB_WORKSPACE/retained-public-inputs"
 ```
 
-The source commit and manifest values must be supplied explicitly after Root adoption. The five paths must be fresh/ordinary and satisfy the existing owner's separation checks. The source manifest is verified before actors. All new source and kernel helper outputs stay outside canonical generic16K sources: the helper is copied by exact pin into the owned work directory before build.
+The source commit and manifest values must be supplied explicitly after Root adoption. The six paths must be ordinary, with fresh owner/work directories, and satisfy the existing owner's separation checks. The source manifest is verified before actors. All new source and kernel helper outputs stay outside canonical generic16K sources: the helper is copied by exact pin into the owned work directory before build.
 
 If Root already owns a prepared574 image, exact retrieved archives and a genuine fresh diagnostic kernel receipt in the same job, the reusable core can also run directly:
 
@@ -79,6 +80,14 @@ python3 -B -Werror::ResourceWarning -m unittest discover \
 bash -n artifacts/development/generic16k-audio-userspace-20261016/ci_sequence.sh
 ```
 
-The12 controls cover source drift, native recipe/readonly command construction, preserved image-owner routing, bounded failure publication, regular/closed payload and16KiB structure, exact page/nonce/natural-exit proof, and refusal of a changed original oracle/grid or foreign loader path. The retained native4KiB report in `test-data/` is inert validator input, not a new execution result. **Fresh native host capture and 16KiB LV2 processing are NOT RUN.** Real audio devices, PipeWire graphs, speaker safety, M2/Asahi integration, performance and release acceptance remain outside this candidate.
+The16 controls cover source drift, native recipe/readonly command construction, preserved image-owner routing, bounded failure publication, regular/closed payload and16KiB structure, exact page/nonce/natural-exit proof, and refusal of a changed original oracle/grid or foreign loader path. The retained native4KiB report in `test-data/` is inert validator input, not a new execution result. **Fresh native host capture and 16KiB LV2 processing are NOT RUN.** Real audio devices, PipeWire graphs, speaker safety, M2/Asahi integration, performance and release acceptance remain outside this candidate.
 
 The supplied workflow is opt-in only, uses pinned checkouts and the exact manifest gate, provisions runner tools separately, and invokes the complete same-job sequence. It has a195-minute job budget; the main sequence watchdog is9000 seconds plus240 seconds cleanup grace within a156-minute step. Root must freeze its actual source commit and manifest SHA before dispatch. No existing workflow is modified by this candidate.
+
+## First-actual prerequisite correction
+
+Run38870933012 verified the original manifest and12 controls, seeded the six secret-backed files, then reported existing574 preparation `build` CommandExit1. Audio retrieval, kernel fetch/build, native harness capture and VM were NOT STARTED. The retained public result does not contain the inner base report/log, so its exact underlying failure remains UNDETERMINED. Cleanup remains FAIL with bootstrap retirement UNKNOWN; the template image NOT CREATED field does not prove daemon-wide image absence.
+
+A separate source-proven omission is corrected: the current desktop workflow seeds fourteen frozen public files before574 build, but this original sequence did not. The new workflow checks out retained source `04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd` into `retained-public-inputs`; the sequence verifies exact seed.py SHA256 `a7857658af224984065e575f6ffed8308ea85027d46eace8bda146d9033e93b3` and index.json SHA256 `a388c8c8ba8e06cb92fd2be598b86e433c4e403b6e71a0f15b1eaec381bb7300`, then invokes that immutable helper on the existing owner's `base/context/deps` after secret seeding and before build. The sixth sequence argument is the retained checkout. This is the same prerequisite as `.github/workflows/native-arm-desktop-terminal-workflow.yml`; no version, signature, archive pin or secret changes.
+
+The trial adapter now snapshots a bounded projection of `base/report.json` plus8192-byte tails of `build.log` and `public-seed.log` before unchanged owner cleanup. Report inputs are capped at1 MiB; at most32 filename/error-kind/HTTP-status rows are exported with total/truncation counts. URLs and arbitrary report strings are excluded. Diagnostics cannot change the owner return code, retirement or acceptance.16 controls include exact seed identity/drift, sequence ordering/checkout binding, report bounds and cleanup-failure preservation. The full retry has NOT RUN.
