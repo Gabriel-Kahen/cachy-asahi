@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
 """Provider-specific inert metadata, ownership, gating and source controls."""
-import ast,copy,hashlib,importlib.util,io,json,os,shlex,struct,subprocess,tarfile,tempfile,unittest
+import ast,base64,copy,hashlib,importlib.util,io,json,os,shlex,struct,subprocess,tarfile,tempfile,unittest
 from pathlib import Path
 from unittest.mock import patch
 
@@ -119,7 +119,7 @@ class Ownership(Temporary):
 
     def test_exact_fileless_metapackages_allow_zero_byte_alpm_records(self):
         database,lock,paths=self.fixture()
-        for name in ('base','ca-certificates','dbus-units','gcc-libs','linux-firmware'):(paths[name]/'files').write_bytes(b'')
+        for name in ('base','base-devel','ca-certificates','dbus-units','gcc-libs','linux-firmware'):(paths[name]/'files').write_bytes(b'')
         value=O.check(database,lock,{'usr/lib/libc.so.6'})
         self.assertEqual(value['checked_packages'],574)
         self.assertEqual(value['overlapping_removed_glibc_paths'],1)
@@ -127,7 +127,7 @@ class Ownership(Temporary):
 
     def test_fileless_records_do_not_hide_other_owner_collisions(self):
         database,lock,paths=self.fixture()
-        for name in ('base','ca-certificates','dbus-units','gcc-libs','linux-firmware'):(paths[name]/'files').write_bytes(b'')
+        for name in ('base','base-devel','ca-certificates','dbus-units','gcc-libs','linux-firmware'):(paths[name]/'files').write_bytes(b'')
         with self.assertRaisesRegex(ValueError,'tzdata'):O.check(database,lock,{'usr/bin/zic'})
         (paths['base']/'files').write_text('%FILES%\nusr/lib/libc.so.6\n')
         with self.assertRaisesRegex(ValueError,'base'):O.check(database,lock,{'usr/lib/libc.so.6'})
@@ -148,6 +148,53 @@ class Ownership(Temporary):
         with self.assertRaisesRegex(ValueError,'identity differs'):O.check(database,lock,set())
         (p/'desc').write_text('%NAME%\nbase\n\n%VERSION%\n3-3\n')
         (p/'files').unlink();(p/'files').symlink_to(lock)
+        with self.assertRaisesRegex(ValueError,'ordinary ALPM'):O.check(database,lock,set())
+
+    def test_exact_held_base_devel_archive_is_metadata_only_and_identity_bound(self):
+        evidence=json.loads((HERE/'base-devel-fileless-evidence.json').read_bytes())
+        package=next(r for r in json.loads((ROOT/'scripts/ci/maintained-desktop574-inputs.json').read_bytes())['packages'] if r['name']=='base-devel')
+        self.assertEqual(evidence['package'],package)
+        raw=base64.b64decode(evidence['archive_base64'],validate=True)
+        self.assertEqual((len(raw),hashlib.sha256(raw).hexdigest()),(package['size'],package['sha256']))
+        with tarfile.open(fileobj=io.BytesIO(raw),mode='r:xz') as archive:
+            self.assertEqual(set(archive.getnames()),{'.BUILDINFO','.MTREE','.PKGINFO'})
+            self.assertTrue(all(m.isfile() for m in archive.getmembers()))
+            metadata=D.fields(archive.extractfile('.PKGINFO').read().decode())
+        self.assertEqual((metadata['pkgname'],metadata['pkgver'],metadata['size']),(['base-devel'],['1-2'],['0']))
+        reference=evidence['host_format'];desc=base64.b64decode(reference['desc_base64'],validate=True)
+        self.assertEqual(hashlib.sha256(desc).hexdigest(),reference['desc_sha256'])
+        self.assertEqual((O.blocks(desc)['%NAME%'],O.blocks(desc)['%VERSION%']),(['base-devel'],['1-2']))
+        self.assertEqual(base64.b64decode(reference['files_base64']),b'')
+        self.assertEqual(evidence['native_database'],'NOT_EXPORTED_BY_ACTUAL38953883080')
+
+    def test_missing_base_devel_entry_reproduces_ownership_failure_then_six_records_pass(self):
+        database,lock,paths=self.fixture()
+        for name in O.FILELESS:(paths[name]/'files').write_bytes(b'')
+        previous={name:version for name,version in O.FILELESS.items() if name!='base-devel'}
+        with patch.dict(O.FILELESS,previous,clear=True),self.assertRaisesRegex(ValueError,'file list required: base-devel 1-2'):
+            O.check(database,lock,{'usr/lib/libc.so.6'})
+        self.assertEqual(O.check(database,lock,{'usr/lib/libc.so.6'})['checked_packages'],574)
+
+    def test_fileless_exception_is_six_exact_identities_not_zero_install_size(self):
+        self.assertEqual(O.FILELESS,{'base':'3-3','base-devel':'1-2','ca-certificates':'20240618-1','dbus-units':'37-3','gcc-libs':'16.1.1+r12+g301eb08fa2c5-1','linux-firmware':'20260916-1'})
+        database,lock,paths=self.fixture();(paths['dbus-broker-units']/'files').write_bytes(b'')
+        # This held package declares size0 but owns real symlink paths. Never infer
+        # a fileless exception from the installed-size metadata alone.
+        with self.assertRaisesRegex(ValueError,'dbus-broker-units'):O.check(database,lock,set())
+
+    def test_base_devel_nonempty_collision_and_malformed_records_are_not_ignored(self):
+        database,lock,paths=self.fixture();path=paths['base-devel']/'files'
+        path.write_text('%FILES%\nusr/lib/libc.so.6\n')
+        with self.assertRaisesRegex(ValueError,'base-devel'):O.check(database,lock,{'usr/lib/libc.so.6'})
+        for raw in (b'\n',b'%BACKUP%\n',b'garbage\n',b'%FILES%\n%FILES%\n',b'%FILES%\n../escape\n'):
+            path.write_bytes(raw)
+            with self.subTest(raw=raw),self.assertRaises(ValueError):O.check(database,lock,set())
+
+    def test_empty_base_devel_requires_exact_version_and_ordinary_record(self):
+        database,lock,paths=self.fixture();directory=paths['base-devel'];path=directory/'files';path.write_bytes(b'')
+        (directory/'desc').write_text('%NAME%\nbase-devel\n\n%VERSION%\n1-3\n')
+        with self.assertRaisesRegex(ValueError,'identity differs'):O.check(database,lock,set())
+        (directory/'desc').write_text('%NAME%\nbase-devel\n\n%VERSION%\n1-2\n');path.unlink();path.symlink_to(lock)
         with self.assertRaisesRegex(ValueError,'ordinary ALPM'):O.check(database,lock,set())
 
     def test_tzdata_collision_fails_without_overwrite(self):
