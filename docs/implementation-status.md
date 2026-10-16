@@ -2,6 +2,8 @@
 
 Latest October16 implementation update (supersedes the earlier pending-run notes below):
 
+Real Done foreground38954684654 passes metadata, bus/caller and cleanup gates, but Root views both original first screenshots and finds no visible notification. Visual delivery acceptance is refused; the worker is diagnosing capture timing without changing three-second expiry or replacing first frames. Background dispatch remains pending that visible result.
+
 [Complete managed GUI16K actual38952428172 now passes](validation/managed-gui-generic16k-native-20261016.md): both profiles, sixteen GTK actions, Doctor reports and all fourteen original first frames Root viewed. Root reruns104 source/26 generated/59 closed-file joins,476 events, actual16384 config/4060 ELF records and ordered cleanup. Candidate history, nonchild terminal exit and missing removed kernel-output limits remain explicit; no physical M2 or release credit.
 
 Watched-background Done notification coverage is now implemented with44 focused controls and78 source/20 generated-file joins. It preserves both foreground cases and adds one actual installed caa_done_watch/sleep8 success flow, caller continuation, child PID/group/handler retirement, real notification joins and a third original first frame. Native background delivery is NOT RUN; dispatch follows foreground delivery acceptance. Background failure/cancellation/duplicate/disown remain untested.
