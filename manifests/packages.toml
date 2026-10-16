@@ -327,6 +327,8 @@ installation = "PASS generic native ARM current-version signed install/removal a
 installation_evidence = "docs/validation/full-composition-audio-padding-native-20261016.md"
 runtime_validation = "PASS bounded native offline DSP and four official graph synthetic processing"
 runtime_evidence = "docs/validation/asahi-audio-graph-processing-native-20261016.md"
+page_size_validation = "PASS generic ARM64 16384-byte guest: loaders and 60 software cases/120 instances; actual38873662542"
+page_size_evidence = "docs/validation/asahi-audio-generic16k-native-20261016.md"
 hardware_validation = "NOT RUN"
 next_step = "Current signed installation/removal and bounded native DSP/full-graph processing passed. Validate live services, routing, acoustics and M2 hardware; complete corresponding-source/license delivery before production selection."
 
@@ -351,6 +353,8 @@ installation = "PASS generic native ARM current-version signed install/removal a
 installation_evidence = "docs/validation/full-composition-audio-padding-native-20261016.md"
 runtime_validation = "PASS bounded native offline DSP and four official graph synthetic processing"
 runtime_evidence = "docs/validation/asahi-audio-graph-processing-native-20261016.md"
+page_size_validation = "PASS generic ARM64 16384-byte guest: loaders and 60 software cases/120 instances; actual38873662542"
+page_size_evidence = "docs/validation/asahi-audio-generic16k-native-20261016.md"
 hardware_validation = "NOT RUN"
 next_step = "Current signed installation/removal and bounded native DSP/full-graph processing passed. Validate live services, routing, acoustics and M2 hardware; complete corresponding-source/license delivery before production selection."
 
