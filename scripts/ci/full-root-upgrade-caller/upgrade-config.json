@@ -87,7 +87,7 @@
       "root_bytes": 6442450944,
       "root_nodes": 200000,
       "seconds": 1200,
-      "window_bytes": 8388608
+      "window_bytes": 16777216
     },
     "platform_mode": "generic-development",
     "purpose": "disposable-bound-update-scale",
