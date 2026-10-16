@@ -30,7 +30,9 @@ class Contracts(unittest.TestCase):
         self.lock=dict(line.split() for line in (ROOT/'scripts/ci/expanded600-installer-vm/expected600.lock').read_text().splitlines())
 
     def test_pending_root600_acceptance_refuses_before_any_actor_or_git(self):
-        with patch.object(P.subprocess,'Popen',side_effect=AssertionError('actor forbidden')),\
+        (self.work/'input-policy.json').write_bytes(P.encoded(dict(schema_version=1,status='AWAITING_ROOT_NATIVE600_ACCEPTANCE')))
+        with patch.object(P,'HERE',self.work),\
+             patch.object(P.subprocess,'Popen',side_effect=AssertionError('actor forbidden')),\
              patch.object(P,'revision',side_effect=AssertionError('Git forbidden')):
             with self.assertRaisesRegex(ValueError,'Root accepted original600'):
                 gate.verify(ROOT,'a'*40,'a'*40,ROOT,ROOT,ROOT,ROOT,ROOT)
