@@ -1,8 +1,11 @@
 # Full587 controlled failed-update/disposal lane
 
-**Implemented source only.**59 inert controls pass; no child, GPG, ALPM, helper,
-namespace, container, VM, Git or CI actor ran here. The two current actuals were
-not inspected. Normal upgrade/install acceptance and existing results stay separate.
+**Native failure case remains unaccepted.** Run38877815636 stopped during the
+child's initial observation, before the controlled exit witness. Its nested
+copy disposal and outer cleanup passed. The frozen Runner's128 descriptor limit
+cannot cover the actual1048 hardlink groups. A real Linux fixture reproduces
+incomplete observation at128 and complete observation at8192 for1048 closed groups.
+This identifies a source-proven prerequisite; the native inner error was not exported.
 
 Adopt `integration.patch` at **`scripts/ci/full-root-failed-update/`**. This adds
 three MIT-licensed modules, two focused test modules and a separate lane config.
@@ -35,6 +38,12 @@ never overridden to reopen ALPM or reuse the copy. Database records, user files,
 trust, package payload, helper/cache closure and empty checkpoint state must
 remain unchanged. The whole owned workspace, including its stale lock, is then
 disposed through the existing descriptor/mount-checked lifetime.
+
+This lane privately binds the unchanged Runner's exact128-descriptor request to
+8192, after requiring an inherited hard limit of at least8192. Other limits and
+other Runner callers remain unchanged. This covers the observer's bounded4096
+hardlink groups plus directory/temporary descriptors. Four controls check the
+private binding, unchanged other limits, insufficient capacity and source drift.
 
 The original pre-copy persistent source is independently re-observed and must
 match throughout. Its raw cache bytes stay unchanged; only the disposable copy

@@ -20,6 +20,7 @@ LOCK='var/lib/pacman/db.lck'
 NORMAL='scripts/ci/full-root-upgrade/root_upgrade.py'
 SELF='scripts/ci/full-root-failed-update/run.py'
 PURPOSE='actual587-precommit-failure-disposal-test'
+CHILD_NOFILE=8192
 BEFORE='2198942a546f4714587c810fe174d4457121960f3a7b1dbaa276e9f970f322c7'
 LOCK_NODE=dict(type='file',mode=0,uid=0,gid=0,bytes=0,sha256=hashlib.sha256(b'').hexdigest())
 
@@ -70,6 +71,21 @@ def identity(path):
     return [info.st_dev,info.st_ino]
 
 
+def process_binding(module):
+    # The complete-root observer retains up to 4096 hardlink-group descriptors.
+    # Bind only this private Runner module; other callers keep its 128-FD limit.
+    original=module.resource
+    hard=original.getrlimit(original.RLIMIT_NOFILE)[1]
+    need(hard==original.RLIM_INFINITY or hard>=CHILD_NOFILE,'full-root child descriptor budget unavailable')
+    def setrlimit(kind,bounds):
+        if kind==original.RLIMIT_NOFILE:
+            need(bounds==(128,128),'frozen child descriptor request differs')
+            bounds=(CHILD_NOFILE,CHILD_NOFILE)
+        return original.setrlimit(kind,bounds)
+    module.resource=SimpleNamespace(**{**vars(original),'setrlimit':setrlimit})
+    return module
+
+
 def selected_api(args):
     root=Path(args.source_root)
     raw=read(args.lane_config);need(hashlib.sha256(raw).hexdigest()==args.lane_config_sha256,'lane configuration pin differs')
@@ -89,7 +105,7 @@ def selected_api(args):
     initializer=load('initialize',root/'scripts/update/aux_initialize.py')
     copy=load('copy',root/'scripts/update/aux_copy.py')
     constructor=load('constructor',root/'scripts/ci/full-root-upgrade/construct_repository.py')
-    process=load('process',root/'scripts/port/kernel-native-job/runtime.py')
+    process=process_binding(load('process',root/'scripts/port/kernel-native-job/runtime.py'))
     api,initialize=driver.connect(linked,initializer,Path(args.comparator),auxiliary_runtime=True)
     return SimpleNamespace(config=config,driver=driver,linked=linked,copy=copy,constructor=constructor,
                            process=process,normal=api,initialize=initialize)

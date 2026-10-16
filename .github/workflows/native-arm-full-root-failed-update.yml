@@ -27,7 +27,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: native-arm-full-root-failed-update
+  group: native-arm-full-root-failed-update-fd8192
   cancel-in-progress: false
 jobs:
   native:
