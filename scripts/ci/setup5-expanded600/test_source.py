@@ -132,6 +132,77 @@ class PayloadTransition(unittest.TestCase):
             T.added_absent(self.added,'before upgrade');T.added_absent(self.added,'after Setup3 rollback')
 
 
+class Other599Payload(unittest.TestCase):
+    def setUp(self):
+        source=(ROOT/'scripts/ci/expanded-development-composition/lifecycle.py').read_text()
+        method=next(n for n in ast.parse(source).body if isinstance(n,ast.FunctionDef) and n.name=='expected_node')
+        namespace={};exec(compile(ast.Module(body=[method],type_ignores=[]),'<unchanged native600 node projection>','exec'),namespace)
+        self.project=namespace['expected_node']
+        self.binding=patch.object(T,'L',SimpleNamespace(expected_node=self.project));self.binding.start();self.addCleanup(self.binding.stop)
+        raw=lambda size,digest:dict(type='file',mode=0o644,uid=0,gid=0,bytes=size,sha256=digest*64)
+        self.full=dict(packages={P.SETUP:'0.1.0-3','pacman':'held','kept':'1','addon':'2'},
+            ownership={P.SETUP:['usr/bin/setup'],'pacman':['etc/pacman.conf'],'kept':['usr/bin/kept'],'addon':['usr/lib/libaddon.so']},
+            nodes={'usr/bin/setup':raw(1,'a'),'etc/pacman.conf':raw(2693,'b'),'usr/bin/kept':raw(5,'c'),
+                   'usr/lib/libaddon.so':dict(type='symlink',mode=0o777,uid=0,gid=0,target='libaddon.so.2')})
+        self.baseline={p:self.project(n) for p,n in self.full['nodes'].items() if p!='usr/lib/libaddon.so'}
+        self.baseline['etc/pacman.conf'].update(size=116,sha256='d'*64)
+        self.incoming=[dict(name='addon',version='2',payload={'usr/lib/libaddon.so':self.full['nodes']['usr/lib/libaddon.so']})]
+
+    def expected(self):return T.expected_other599(self.full,self.baseline,self.incoming)
+
+    def test_configured_native600_baseline_plus_signed_incoming_without_raw_archive_waiver(self):
+        expected=self.expected()
+        self.assertNotEqual(expected['etc/pacman.conf'],self.project(self.full['nodes']['etc/pacman.conf']))
+        self.assertEqual(expected['etc/pacman.conf'],self.baseline['etc/pacman.conf'])
+        self.assertEqual(set(expected),{'etc/pacman.conf','usr/bin/kept','usr/lib/libaddon.so'})
+        self.assertEqual(expected['usr/lib/libaddon.so'],self.project(self.full['nodes']['usr/lib/libaddon.so']))
+        T.same_payload(expected,copy.deepcopy(expected),'actual other599 signed payload differs')
+
+    def test_every_actual_byte_mode_uid_gid_type_and_link_drift_refuses_with_operands(self):
+        expected=self.expected()
+        for path,key,value in [('etc/pacman.conf','sha256','e'*64),('usr/bin/kept','size',6),
+            ('usr/bin/kept','mode',0o755),('usr/bin/kept','uid',1),('usr/bin/kept','gid',1),
+            ('usr/lib/libaddon.so','link','foreign.so'),('usr/lib/libaddon.so','type','file')]:
+            actual=copy.deepcopy(expected);actual[path][key]=value
+            with self.subTest(path=path,key=key),self.assertRaisesRegex(ValueError,'actual other599 signed payload differs') as caught:
+                T.same_payload(expected,actual,'actual other599 signed payload differs')
+            detail=json.loads(str(caught.exception).split(': ',1)[1])
+            self.assertEqual(detail['path'],path);self.assertEqual(detail['expected'],expected[path]);self.assertEqual(detail['actual'],actual[path])
+
+    def test_missing_baseline_incoming_signed_drift_and_overlap_refuse(self):
+        baseline=copy.deepcopy(self.baseline);incoming=copy.deepcopy(self.incoming)
+        del self.baseline['usr/bin/kept']
+        with self.assertRaisesRegex(ValueError,'complete exact other599'):self.expected()
+        self.baseline=copy.deepcopy(baseline);self.incoming=copy.deepcopy(incoming)
+        self.incoming[0]['payload']['usr/lib/libaddon.so']=dict(self.full['nodes']['usr/lib/libaddon.so'],target='wrong.so')
+        with self.assertRaisesRegex(ValueError,'signed payload'):self.expected()
+        self.incoming=copy.deepcopy(incoming)
+        self.baseline['usr/lib/libaddon.so']=self.project(self.full['nodes']['usr/lib/libaddon.so'])
+        with self.assertRaisesRegex(ValueError,'overlap'):self.expected()
+
+    def test_missing_extra_or_wrong_version_incoming_cannot_shrink_other599_scope(self):
+        for field,value in [('payload',{}),('payload',{'usr/lib/extra.so':dict(type='0')}),('version','wrong')]:
+            original=copy.deepcopy(self.incoming[0]);self.incoming[0][field]=value
+            try:
+                with self.subTest(field=field,value=value),self.assertRaises(ValueError):self.expected()
+            finally:self.incoming[0]=original
+        expected=self.expected();actual=copy.deepcopy(expected);del actual['usr/bin/kept']
+        with self.assertRaisesRegex(ValueError,'other599 installed payload changed'):
+            T.same_payload(expected,actual,'other599 installed payload changed')
+
+    def test_bounded_failure_operands_retain_full_path_and_link_hashes(self):
+        path='x'*4096;expected={path:dict(type='symlink',link='a'*4096)};actual={path:dict(type='symlink',link='b'*4096)}
+        with self.assertRaises(ValueError) as caught:T.same_payload(expected,actual,'actual other599 signed payload differs')
+        raw=str(caught.exception);self.assertLess(len(raw.encode()),2048)
+        detail=json.loads(raw.split(': ',1)[1]);self.assertEqual(detail['path_sha256'],hashlib.sha256(path.encode()).hexdigest())
+        self.assertEqual(detail['actual']['link']['sha256'],hashlib.sha256(('b'*4096).encode()).hexdigest())
+        path='😀'*1024
+        with self.assertRaises(ValueError) as caught:
+            T.same_payload({path:dict(type='symlink',link='😀'*1024)},{path:dict(type='symlink',link='😃'*1024)},'other599 installed payload changed')
+        self.assertLess(len(str(caught.exception).encode()),2048)
+        json.loads(str(caught.exception).split(': ',1)[1])
+
+
 class PacketSources(unittest.TestCase):
     def setUp(self):
         self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup);self.root=Path(self.tmp.name)
