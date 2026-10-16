@@ -168,6 +168,36 @@ class Adapter(unittest.TestCase):
             subprocess.run(['/usr/bin/bash','-n'],input=run,text=True,check=True,capture_output=True)
             self.assertIn("python3 -c 'import json;",run)
             proof=json.loads((out/'runner-proof.json').read_bytes());self.assertGreater(len(proof['files']),20)
+            # Load the actual generated graph in separate isolated interpreters,
+            # including the Doctor process which does not inherit guest modules.
+            shadow=root/'shadow';shadow.mkdir()
+            for name in ('management_contract','management_root','management_phase'):
+                (shadow/(name+'.py')).write_text("raise RuntimeError('ambient module imported')\n")
+            probe='''import importlib.util,json,runpy,sys
+from pathlib import Path
+root=Path(sys.argv[1]);entry=sys.argv[2];before=list(sys.path)
+ns=runpy.run_path(str(root/entry),run_name='isolated_import_control')
+load=ns['load'];base=load('isolated_base','base_guest.py')
+assert base.management_root.C is sys.modules['management_contract']
+assert Path(base.management_root.__file__)==root/'management_root.py'
+if entry=='desktop574_guest.py':
+    api=load('isolated_api','managed_session.py');session=load('isolated_session','session.py')
+    assert session.MG.C is sys.modules['management_contract']
+    assert session.C.MG is sys.modules['management_contract']
+    assert Path(session.MG.__file__)==root/'management_phase.py'
+else:
+    assert ns['C'].MG is sys.modules['management_contract']
+assert sys.path==before
+assert all(Path(sys.modules[n].__file__)==root/(n+'.py') for n in
+           ('management_contract','management_root'))
+print(json.dumps(dict(status='PASS_ISOLATED_GENERATED_IMPORTS',entry=entry,actors='NOT_RUN',sys_path='UNCHANGED')))
+'''
+            for entry in ('desktop574_guest.py','doctor_worker.py'):
+                with self.subTest(isolated_entry=entry):
+                    result=subprocess.run([sys.executable,'-I','-B','-c',probe,str(out),entry],cwd=shadow,
+                        env=dict(os.environ,PYTHONPATH=str(shadow)),text=True,capture_output=True,timeout=20,check=True)
+                    self.assertEqual(json.loads(result.stdout)['status'],'PASS_ISOLATED_GENERATED_IMPORTS')
+
     def test_outer_deadlines_allow_the_original_gui_cleanup_budget(self):
         run=(HERE/'run.py').read_text();workflow=(HERE.parents[2]/'.github/workflows/native-arm-welcome-management.yml').read_text()
         self.assertIn("timeout=450 if log.name=='gui-runtime.log'",run)
