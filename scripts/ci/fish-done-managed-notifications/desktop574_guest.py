@@ -42,14 +42,17 @@ def main():
                 (owned / 'user-owned.conf').write_text('preserve this custom configuration\n')
         session.phase(stage, config, env, logs, trace_waybar=trace)
         completed.add(stage)
+        if stage=='overlay':
+            session.phase('background',config,env,logs,trace_waybar=False)
+            completed.add('background')
 
     def emit(event, **values):
         if event in ('session_pass', 'complete'):
             # boot receives the child's session_pass through a separate process;
             # its successful child exit already requires both phases.
             if event == 'session_pass':
-                base.need(completed == {'minimal', 'overlay'}, 'both client phases required')
-            values.update(waybar='PASS', mako='PASS', fish_done='PASS_REAL_MANAGED_FOREGROUND_TWO_CASES', watched_background='NOT_RUN', battery='NOT_RUN', audio='NOT_RUN')
+                base.need(completed == {'minimal', 'overlay', 'background'}, 'both client phases required')
+            values.update(waybar='PASS', mako='PASS', fish_done='PASS_REAL_MANAGED_FOREGROUND_TWO_CASES', watched_background='PASS_REAL_MANAGED_SINGLE_SUCCESS', battery='NOT_RUN', audio='NOT_RUN')
         original_emit(event, **values)
 
     session.base = base

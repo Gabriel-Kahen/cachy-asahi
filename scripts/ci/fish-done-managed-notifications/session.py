@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-"""Real installed Done -> notify-send -> managed bus -> normal Mako, two foreground cases."""
+"""Real installed Done -> notify-send -> managed bus -> normal Mako, two foreground cases and one watched job."""
 import base64,json,os,re,signal,time
 from pathlib import Path
 import bar_helpers as B
@@ -25,6 +25,7 @@ def phase(stage,config,env,logs,**options):
     O.need(options.get('trace_waybar',False) is False and stage in O.CASES,'fixed ordinary Done phase required')
     B.base=base;first=None;compositor=bar=mako=terminal=observer=None;selected=None;sequence=0
     before=B.snapshot(Path(env['XDG_CONFIG_HOME']));case,outcome=O.CASES[stage]
+    kind='Watched job' if stage=='background' else 'Foreground command'
     def command(argv,label='query',timeout=7):
         nonlocal sequence
         sequence+=1;return base.command(argv,selected,logs,stage+'-done-'+str(sequence)+'-'+label,timeout=timeout)
@@ -77,13 +78,13 @@ def phase(stage,config,env,logs,**options):
             dbus('org.freedesktop.Notifications','/org/freedesktop/Notifications','org.freedesktop.Notifications','GetCapabilities')
             if any(r.get('member')=='GetCapabilities' for r in observer.rows()):break
             O.need(time.monotonic()<deadline,'real bus observer readiness');healthy();time.sleep(.1)
-        O.need(O.notify(observer.rows(),owner,outcome) is None,'unsolicited Done notification')
-        terminal=fish_terminal.Terminal(selected);fish_pid=terminal.process.pid
+        O.need(O.notify(observer.rows(),owner,outcome,kind) is None,'unsolicited Done notification')
+        terminal=(fish_terminal.BackgroundTerminal if stage=='background' else fish_terminal.Terminal)(selected);fish_pid=terminal.process.pid
         O.need(os.readlink('/proc/'+str(fish_pid)+'/exe')=='/usr/bin/fish','actual Fish executable differs')
         terminal.start(outcome);wire=None;observed=None
         deadline=time.monotonic()+15
         while wire is None:
-            healthy();wire=O.notify(observer.rows(),owner,outcome)
+            healthy();wire=O.notify(observer.rows(),owner,outcome,kind)
             O.need(time.monotonic()<deadline,'real Done delivery deadline')
         observed=time.monotonic()
         def visible():

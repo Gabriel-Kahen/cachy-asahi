@@ -44,9 +44,9 @@ case. Real Fish/notify-send/timeout executables are required to be AArch64 ELF;
 their actual byte identities are retained. No source payload copied outside a
 package installation is treated as installed Done.
 
-## Two bounded foreground cases
+## Original two foreground cases and one watched job
 
-The initial scope is the explicitly permitted two foreground cases:
+The two original foreground cases and their commands/status checks are preserved:
 
 | Profile | Actual interactive command | Expected caller status |
 | --- | --- | ---: |
@@ -61,8 +61,24 @@ transient hint and3000ms expiry remain unchanged. Prompts record the actual
 post-command status; a following user command records caller continuation; Fish
 must then exit normally with0. A raw bounded PTY transcript and hashes join those
 records. This is actual fish_postexec behavior, not calling __done_notify directly.
-Watched background notifications remain NOT_RUN in this first lane and are not
-silently counted as covered.
+A third phase, `background`, uses the same shipped overlay config in a fresh
+ordinary managed compositor/client session. It launches exactly one `sleep 8`
+child job, captures `$last_pid`, and calls the installed original `caa_done_watch`.
+The original function creates and owns its PROCESS_EXIT handler; no product
+function, notify-send or timeout is replaced. Its registered handler must exist
+before a real Fish prompt and independent caller-continuation command return0
+while the exact same child is still alive. `/proc` binds its real parent Fish,
+single-process job group, start ticks, executable and literal arguments.
+
+Only actual watched-job completion can satisfy the third case's
+`Watched job completed.` body, default threshold/TTL, unique Notify/reply, Mako
+live listing/visible layer and original first QMP `background.ppm`. Normal
+retirement requires the original handler absent, child PID/group absent and
+normal Fish/Mako exits, with raw exact-PID registration/retirement markers.
+Failure cleanup retires only the identified owned child and the original Fish
+resources; no unrelated PID is signaled. Background failure, cancellation,
+duplicate-watch and disown semantics remain NOT_RUN on a real manager. This one
+positive single-process case is the declared coverage limit.
 
 Hyprland, Waybar and Mako start from their normal shipped configs on the real
 systemd-owned UID23001 runtime/bus. The desktop settles for the original five
@@ -86,10 +102,10 @@ within2500ms of observing the reply. It keeps the original one-shot QMP PPM path
 original bytes, geometry/nonuniform checks, five-second host observation bound,
 request hash and managed identity join. It does not extend expiry, reload clients,
 increase opacity, retry or replace a frame. A delayed or unreadable first frame
-cannot be rescued; Root must view both original first PPMs for readable actual
-success/failure summary and body. Metadata success remains pixels pending review.
+cannot be rescued; Root must view all three original first PPMs for readable actual
+foreground success/failure and watched-job success summary/body. Metadata success remains pixels pending review.
 
-Both phases require installed payload preservation, existing user config sentinels
+All three phases require installed payload preservation, existing user config sentinels
 (including Fish), exact caller statuses, ordinary0 Fish/Mako/Waybar/compositor
 exits, process retirement and the original manager/unit/socket cleanup. Bounded
 failure records retain available raw Fish and bus bytes without masking the first
@@ -101,8 +117,8 @@ The accepted resources and650/850/900/1750/2050s session/service/controller/clea
 budgets,2CPU/4GiB software guest,14 runtime cleanup records, base/probe/image
 retirement and128MiB closed public export remain. No new native helper/compiler
 is added; the accepted fixture's existing GBM helper path is reused. There are no
-hardware, M2, acceleration, performance,16K or release claims. Separate16K and
-background coverage are future work.
+hardware, M2, acceleration, performance,16K or release claims. Separate16K and the untested background failure/cancellation/duplicate/disown
+paths remain future work.
 
 ## Source controls and Root dispatch
 
@@ -119,3 +135,23 @@ commit and actual dispatch. Its read-only packet checkout is pinned before any
 existing secret seed/native actor. Source proof requires the exact workflow SHA;
 stage proof compares every generated file. Packet/payload verification and unit
 protocol examples are source/data checks, never real-manager execution evidence.
+
+## Proposal provenance and observed wire correction
+
+The background extension is a private source proposal based on Root's foreground
+freeze1f0c9619dc8b6300ee882fc82d3baebe594dd866. It incorporates the separately
+proposed correction for actual38952906070: the real pinned notify-send sends an
+empty app_icon and the typed image-path string utilities-terminal. The retained
+bounded original bus prefix is a regression fixture. It has no Notify reply and
+cannot pass delivery or native acceptance. Constructed replies are inert unit
+examples only. No execution of this extension is claimed.
+
+`source-pins.json` and `ci/source-manifest.json` are refreshed proposals covering
+all source and generated bytes, including both immutable test fixtures. They
+exclude bytecode and their own recursive hashes. Workflow stamps are computed
+from the proposed caller and manifest; Root must independently verify, integrate,
+freeze and own dispatch after the foreground successor is accepted. The extra
+first frame fits within the unchanged128MiB export; all original time/resource
+caps and14 runtime cleanup records stay fixed. `capture.py` changes only its
+stage allowlist; original foreground Terminal class/init/commands are byte-equivalent
+under AST comparison against the retained original baseline fixture.

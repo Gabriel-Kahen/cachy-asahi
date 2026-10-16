@@ -115,7 +115,7 @@ def retain(base, runtime, proof, output, runner, manifest):
     for index in range(24):
         name = 'config/desktop/command-' + str(index) + '.txt'
         copy(runtime / name, 'runtime/' + name, 1024**2)
-    for stage in ('minimal', 'overlay'):
+    for stage in ('minimal', 'overlay', 'background'):
         path = runtime / 'frames' / (stage + '.ppm')
         try:
             result['frames'][stage] = frame(path)
@@ -146,7 +146,7 @@ def retain(base, runtime, proof, output, runner, manifest):
         need(len(report['cleanup']) == 14 and report['base_reference_cleanup']['ok'] is True and
              all(row.get('exit', 0) == 0 for row in report['cleanup']) and
              any(row.get('guest_disk_removed') is True for row in report['cleanup']), 'runtime cleanup incomplete')
-        for stage in ('minimal', 'overlay'):
+        for stage in ('minimal', 'overlay', 'background'):
             need(result['frames'][stage]['sha256'] == report['frames'][stage]['sha256'], 'captured frame hash differs')
             observer = report['frames'][stage].get('observer')
             need(type(observer) is dict and observer.get('sha256') == result['frames'][stage]['sha256'] and

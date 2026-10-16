@@ -40,7 +40,7 @@ def verify_result(events):
             row=frame[name];O.need(owned_layer({row['monitor']:{'levels':{row['level']:[row]}}},namespace,frame['waybar_pid' if name=='bar' else 'mako_pid']) is not None,'visible owned client layer required')
         monitor=transport['monitor'];raw=base64.b64decode(monitor['raw_base64'],validate=True)
         O.need(len(raw)==monitor['bytes'] and hashlib.sha256(raw).hexdigest()==monitor['sha256'] and monitor['exit'] in (0,-2),'complete real bus observer receipt required')
-        wire=O.notify(O.messages(raw),frame['wire']['recipient'],outcome)
+        wire=O.notify(O.messages(raw),frame['wire']['recipient'],outcome,'Watched job' if stage=='background' else 'Foreground command')
         recipient=frame['recipient'];O.need(recipient['service']=='org.freedesktop.Notifications' and recipient['unique']==wire['recipient'] and recipient['pid']==frame['mako_pid'] and json.loads(recipient['owner_reply'][2:])==recipient['unique'],'actual Mako unique owner/PID evidence required')
         pids=[frame[n] for n in ('compositor_pid','waybar_pid','mako_pid','fish_pid')]
         O.need(all(type(n) is int and n>0 for n in pids) and len(set(pids))==4,'distinct owned compositor/bar/Mako/Fish identities required')
@@ -52,6 +52,10 @@ def verify_result(events):
              frame['installed']['archive_sha256']=='9ce3c7ba89467f04660014c1b12056dce28bd0c4e69b4cab8a9c2c98e1cce54f' and len(frame['installed']['files'])==8 and
              set(frame['installed']['executables'])=={'fish','notify-send','timeout'} and
              transport['payload_preserved'] is True and transport['user_config_preserved'] is True and phase['config_preserved'] is True and phase['fish']=='PASS','installed package/user preservation evidence required')
+        if stage=='background':
+            from fish_terminal import BACKGROUND_COMMAND,verify_background
+            O.need(frame['caller']['command']==BACKGROUND_COMMAND,'original watched job command required')
+            verify_background(frame['caller']['watch'],frame['fish_pid'],raw,transport['fish'].get('watch_retirement'))
     sessions=[r for r in events if r.get('event')=='session_pass']
-    O.need(len(sessions)==1 and sessions[0].get('fish_done')=='PASS_REAL_MANAGED_FOREGROUND_TWO_CASES','real installed Done manager result required')
-    return dict(managed=result,foreground_cases=2,watched_background='NOT_RUN',visual_review='NOT_RUN',hardware='NOT_RUN')
+    O.need(len(sessions)==1 and sessions[0].get('fish_done')=='PASS_REAL_MANAGED_FOREGROUND_TWO_CASES' and sessions[0].get('watched_background')=='PASS_REAL_MANAGED_SINGLE_SUCCESS','real installed Done manager result required')
+    return dict(managed=result,foreground_cases=2,watched_background='PASS_REAL_MANAGED_SINGLE_SUCCESS',background_cases=1,background_failure='NOT_RUN',background_cancellation='NOT_RUN',background_duplicate_watch='NOT_RUN',visual_review='NOT_RUN',hardware='NOT_RUN')
