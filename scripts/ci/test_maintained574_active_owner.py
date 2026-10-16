@@ -1,10 +1,12 @@
 """Inert daemon/process models only. No Docker, native build, or subprocess actors."""
 import copy
 import importlib.util
+import io
 import json
 from pathlib import Path
 import signal
 import subprocess
+import tarfile
 import tempfile
 from types import SimpleNamespace
 import unittest
@@ -103,6 +105,16 @@ class Controls(unittest.TestCase):
         log=self.out/'private.log';log.write_text('must stay private')
         self.d.fault=('import',m.ClientCommandError(1,log))
         row=self.execute();self.assertNotIn('build_failure',row)
+
+    def test_trust_probe_failure_never_skips_original_cleanup_or_changes_failure(self):
+        log=self.out/'guard.log';log.write_bytes(m.TRUST_FAILURE+b'\n')
+        self.d.fault=('build',m.ClientCommandError(1,log))
+        with patch.object(m,'trust_metadata',side_effect=OSError('PRIVATE probe details')) as probe:
+            row=self.execute()
+        probe.assert_called_once_with(self.owner)
+        self.assertEqual(row['status'],'FAIL');self.assertEqual(row['error_kind'],'ClientCommandError')
+        self.assertEqual(row['cleanup']['status'],'PASS');self.assertEqual(row['trust_metadata']['status'],'UNAVAILABLE')
+        self.assertNotIn('PRIVATE',json.dumps(row['trust_metadata']))
 
     def mutations(self):
         return [a for a,_ in self.d.calls if a[:2] in (('container','rm'),('image','rm'))]
@@ -222,6 +234,96 @@ class Controls(unittest.TestCase):
         with self.assertRaises(ValueError): m.membership(self.prepared,wanted)
         extra.rmdir(); (self.prepared/'pacman.conf').chmod(0o666)
         with self.assertRaises(ValueError): m.membership(self.prepared,wanted)
+
+
+class MetadataControls(unittest.TestCase):
+    def setUp(self):
+        for name in ('Popen','run','check_output'):
+            guard=patch.object(subprocess,name,side_effect=AssertionError('external actor forbidden'))
+            guard.start();self.addCleanup(guard.stop)
+        guard=patch.object(m.socket,'socket',side_effect=AssertionError('network actor forbidden'))
+        guard.start();self.addCleanup(guard.stop)
+
+    def header(self,uid=0,kind=tarfile.REGTYPE,size=10,name='pacman.conf'):
+        entry=tarfile.TarInfo(name);entry.uid=uid;entry.gid=1001;entry.mode=0o644;entry.type=kind;entry.size=size
+        if kind==tarfile.SYMTYPE:entry.linkname='/PRIVATE_TARGET';entry.size=0
+        return entry.tobuf(format=tarfile.PAX_FORMAT)+b'PRIVATE_DATA'+b'\0'*10240
+
+    def connection(self,data,status=200):
+        body=io.BytesIO(data);response=SimpleNamespace(status=status,read=Mock(side_effect=body.read),close=Mock())
+        client=Mock();client.getresponse.return_value=response
+        return client,response
+
+    def test_fixed_archive_header_exposes_only_numeric_metadata_not_contents(self):
+        client,response=self.connection(self.header(uid=1001))
+        with patch.object(m,'MetadataConnection',return_value=client):row=m.trust_header(BUILD,'/etc/pacman.conf')
+        self.assertEqual((row['uid'],row['gid'],row['mode'],row['bytes']),(1001,1001,0o644,10))
+        self.assertTrue(row['fails_regular_uid_size_predicate']);self.assertNotIn('PRIVATE',json.dumps(row))
+        client.request.assert_called_once_with('GET','/containers/'+BUILD+'/archive?path=%2Fetc%2Fpacman.conf')
+        response.close.assert_called_once();client.close.assert_called_once()
+
+    def test_predicate_distinguishes_UID_type_size_but_not_GID_or_mode(self):
+        for uid,kind,size,expected in ((0,tarfile.REGTYPE,10,False),(1,tarfile.REGTYPE,10,True),
+                                      (0,tarfile.SYMTYPE,0,True),(0,tarfile.REGTYPE,32*1024**2+1,True)):
+            with self.subTest(uid=uid,kind=kind,size=size):
+                client,_=self.connection(self.header(uid,kind,size))
+                with patch.object(m,'MetadataConnection',return_value=client):row=m.trust_header(BUILD,'/etc/pacman.conf')
+                self.assertIs(row['fails_regular_uid_size_predicate'],expected)
+                self.assertNotIn('PRIVATE',json.dumps(row))
+
+    def test_path_and_archive_root_cannot_escape_fixed_set(self):
+        with self.assertRaises(ValueError):m.trust_header(BUILD,'/root/.ssh/id_ed25519')
+        client,_=self.connection(self.header(name='../PRIVATE'))
+        with patch.object(m,'MetadataConnection',return_value=client),self.assertRaises(ValueError):
+            m.trust_header(BUILD,'/etc/pacman.conf')
+
+    def test_HTTP_error_body_is_never_read_or_exported(self):
+        client,response=self.connection(b'PRIVATE daemon error',404)
+        with patch.object(m,'MetadataConnection',return_value=client):row=m.trust_header(BUILD,'/etc/pacman.conf')
+        self.assertEqual(row,{'path':'/etc/pacman.conf','status':'HTTP_ERROR','http_status':404})
+        response.read.assert_not_called()
+
+    def test_extended_header_budget_is_finite(self):
+        entry=tarfile.TarInfo('x'*100000);raw=entry.tobuf(format=tarfile.PAX_FORMAT)
+        client,response=self.connection(raw)
+        with patch.object(m,'MetadataConnection',return_value=client),self.assertRaises(ValueError):
+            m.trust_header(BUILD,'/etc/pacman.conf')
+        self.assertLessEqual(sum(call.args[0] for call in response.read.call_args_list),65536)
+
+    def owner(self,running=False):
+        row={'cid':BUILD,'name':'cachy-asahi-574-active-'+TOKEN+'-build','image':ROOT}
+        return SimpleNamespace(containers=[row],names={'build':row['name']},token=TOKEN)
+
+    def test_only_stopped_owned_failed_container_is_observed(self):
+        owner=self.owner();identity=owner.containers[0]
+        def value(running=False):
+            return {'Id':BUILD,'Name':'/'+identity['name'],'Image':ROOT,'Config':{'Labels':{m.LABEL:TOKEN}},
+                    'State':{'Running':running,'ExitCode':1}}
+        for changed in (dict(value(),Id='f'*64),dict(value(),Image=OLD),value(running=True)):
+            client,_=self.connection(json.dumps(changed).encode())
+            with patch.object(m,'MetadataConnection',return_value=client),patch.object(m,'trust_header') as header:
+                row=m.trust_metadata(owner)
+            self.assertEqual(row['status'],'UNAVAILABLE');header.assert_not_called()
+        client,response=self.connection(json.dumps(value()).encode())
+        with patch.object(m,'MetadataConnection',return_value=client):m.trust_identity(owner,identity)
+        client.request.assert_called_once_with('GET','/containers/'+BUILD+'/json')
+        response.close.assert_called_once()
+
+    def test_fixed_nine_paths_and_timeout_preserve_partial_unknown(self):
+        owner=self.owner();responses=[{'path':path,'status':'HTTP_ERROR','http_status':404} for path in m.TRUST_PATHS]
+        with patch.object(m,'trust_identity'),patch.object(m,'trust_header',side_effect=responses) as header:row=m.trust_metadata(owner)
+        self.assertEqual(row['status'],'OBSERVED');self.assertEqual(len(row['rows']),9)
+        self.assertEqual([call.args[1] for call in header.call_args_list],list(m.TRUST_PATHS))
+        with patch.object(m,'trust_identity'),patch.object(m,'trust_header',side_effect=TimeoutError('PRIVATE')):row=m.trust_metadata(owner)
+        self.assertEqual(row['status'],'UNAVAILABLE');self.assertEqual(row['error_kind'],'TimeoutError')
+        self.assertEqual(len(row['rows']),1);self.assertNotIn('PRIVATE',json.dumps(row))
+
+    def test_metadata_transport_has_no_TCP_or_remote_socket_fallback(self):
+        endpoint=Mock()
+        with patch.object(m.socket,'socket',return_value=endpoint) as factory:
+            connection=m.MetadataConnection('ignored-host',timeout=3);connection.connect()
+        factory.assert_called_once_with(m.socket.AF_UNIX,m.socket.SOCK_STREAM)
+        endpoint.connect.assert_called_once_with('/var/run/docker.sock')
 
 
 if __name__=='__main__': unittest.main()
