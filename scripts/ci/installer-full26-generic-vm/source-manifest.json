@@ -1,8 +1,8 @@
 {
   "files": {
     ".github/workflows/native-arm-installer-full26-generic-vm.yml": {
-      "bytes": 7954,
-      "sha256": "a42a60f7a93048921af52c23db25ccb9f7fcab534dfca3d4d56fd9a9bbf88ada"
+      "bytes": 8981,
+      "sha256": "a402742984e3470b25e129574da68e8e94783605679e5c282ff7abd4e53cab75"
     },
     "scripts/ci/installer-full26-generic-vm/README.md": {
       "bytes": 5469,
@@ -17,8 +17,8 @@
       "sha256": "436c0b7e25202a314bce71e745a19d91771d7340cf64c6f70bbb1b0b3ed608b3"
     },
     "scripts/ci/installer-full26-generic-vm/job.py": {
-      "bytes": 21100,
-      "sha256": "e6031394231a107f9ada6b8409017687684f414e9adcfd816fc6bd1c2f311e75"
+      "bytes": 23354,
+      "sha256": "6b904a19b9c9892ef0bbe1d8492ae6c9c18457199933ef5183ed0e5711ed64e5"
     },
     "scripts/ci/installer-full26-generic-vm/matrix.py": {
       "bytes": 8011,
@@ -37,8 +37,8 @@
       "sha256": "bc0a135a6db41d11cbae24b7e3a95c51292416b199b827379216b819c07fb458"
     },
     "scripts/ci/installer-full26-generic-vm/test_full26.py": {
-      "bytes": 14855,
-      "sha256": "0ad1c467225b011f68eb1b0846c1f6c99cc7958a7048c5c48f3e2ff65197f6fe"
+      "bytes": 20488,
+      "sha256": "3449eb53d6978ffff6c7895612451a2deb58f2822fe3cb8b868812bcd34fd454"
     },
     "scripts/ci/integration.py": {
       "bytes": 79750,

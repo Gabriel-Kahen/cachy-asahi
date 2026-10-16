@@ -222,5 +222,89 @@ class Controls(unittest.TestCase):
         self.assertTrue(any(n.startswith('native/result.json:') for n in value['errors']))
         self.assertNotIn('engine/'+name,value['files']);self.assertNotIn('native/result.json',value['files'])
 
+    def tooling_fixture(self):
+        source=self.root/'packet';source.mkdir()
+        path=self.engine/'scripts/virtual/tooling.lock.json';lock=json.loads(path.read_bytes())
+        files={}
+        for row in lock['keyring_files']+lock['packages']:
+            raw=('inert:'+row['filename']).encode();(source/row['filename']).write_bytes(raw)
+            pin=A.digest(raw);row.update(size=pin['bytes'],sha256=pin['sha256']);files[row['filename']]=pin
+            if 'signature_size' in row:
+                raw=('inert-signature:'+row['filename']).encode();name=row['filename']+'.sig'
+                (source/name).write_bytes(raw);pin=A.digest(raw)
+                row.update(signature_size=pin['bytes'],signature_sha256=pin['sha256']);files[name]=pin
+        path.write_bytes(A.encoded(lock))
+        index=dict(schema_version=1,purpose='installer-full26-generic-vm-tooling-inputs',
+                   tooling_lock_sha256=job.sha(path),files=files)
+        (source/'index.json').write_bytes(A.encoded(index))
+        return source,index
+
+    def test_closed_retained_tooling_copies_all45_without_network_or_input_mutation(self):
+        source,index=self.tooling_fixture();before={p.name:p.read_bytes() for p in source.iterdir()}
+        out=self.root/'tooling-cache';receipt=job.tooling_packet(source,self.engine,out)
+        self.assertEqual(receipt['count'],45);self.assertEqual(receipt['network'],'NOT_USED')
+        self.assertEqual(receipt['files'],index['files']);self.assertEqual(receipt['bytes'],sum(r['bytes'] for r in index['files'].values()))
+        self.assertEqual({p.name:p.read_bytes() for p in source.iterdir()},before)
+        self.assertEqual({p.name:p.read_bytes() for p in out.iterdir()},{n:v for n,v in before.items() if n!='index.json'})
+
+    def test_tooling_missing_extra_hash_alias_and_index_drift_refuse_before_cache(self):
+        source,index=self.tooling_fixture();name=next(iter(index['files']));raw=(source/name).read_bytes()
+        for variant in ('missing','extra','hash','alias','index'):
+            with self.subTest(variant=variant):
+                if variant=='missing':(source/name).unlink()
+                elif variant=='extra':(source/'unexpected').write_bytes(b'extra')
+                elif variant=='hash':(source/name).write_bytes(raw+b'x')
+                elif variant=='alias':(source/name).unlink();(source/name).symlink_to(source/'index.json')
+                else:
+                    bad=copy.deepcopy(index);bad['files'][name]['sha256']='0'*64
+                    (source/'index.json').write_bytes(A.encoded(bad))
+                out=self.root/('bad-cache-'+variant)
+                with self.assertRaises((ValueError,OSError)):job.tooling_packet(source,self.engine,out)
+                self.assertFalse(out.exists())
+                (source/'unexpected').unlink(missing_ok=True)
+                if (source/name).is_symlink() or (source/name).exists():(source/name).unlink()
+                (source/name).write_bytes(raw);(source/'index.json').write_bytes(A.encoded(index))
+
+    def test_tooling_all_validates_before_materialization_and_changed_copy_refuses(self):
+        source,index=self.tooling_fixture();name=next(iter(index['files']));origin=job.A.read;seen=0
+        def changed(path,*args):
+            nonlocal seen
+            raw=origin(path,*args)
+            if path==source/name:
+                seen+=1
+                if seen==2:return raw+b'changed'
+            return raw
+        with patch.object(job.A,'read',side_effect=changed),self.assertRaises(ValueError):
+            job.tooling_packet(source,self.engine,self.root/'racy-cache')
+        self.assertFalse((self.root/'racy-cache'/name).exists())
+
+    def test_producer_safe_distinguishes_constructor_from_started_consumers(self):
+        from types import SimpleNamespace
+        owner=SimpleNamespace(installed=None,installed_owned=None,report=dict(stages={}))
+        self.assertTrue(job.producer_safe(None,False,False,self.root/'vm'))
+        self.assertTrue(job.producer_safe(owner,False,False,self.root/'vm'))
+        self.assertFalse(job.producer_safe(None,True,False,self.root/'vm'))
+        self.assertFalse(job.producer_safe(owner,True,False,self.root/'vm'))
+        self.assertFalse(job.producer_safe(owner,False,True,self.root/'vm'))
+        owner.installed_owned={'image_id':'sha256:'+'a'*64}
+        self.assertFalse(job.producer_safe(owner,False,False,self.root/'vm'))
+        owner.installed_owned=None;owner.report['stages']={'fixtures':dict(status='FAIL')}
+        self.assertFalse(job.producer_safe(owner,False,False,self.root/'vm'))
+        owner.report['owned_image_cleanup']=dict(status='PASS')
+        self.assertTrue(job.producer_safe(owner,True,False,self.root/'vm'))
+        self.assertFalse(job.producer_safe(owner,True,True,self.root/'vm'))
+
+    def test_tooling_validation_precedes_native_actors_and_consumer_start_has_exact_anchor(self):
+        node=next(n for n in ast.parse(Path(job.__file__).read_bytes()).body if isinstance(n,ast.FunctionDef) and n.name=='run')
+        calls={}
+        for n in ast.walk(node):
+            if isinstance(n,ast.Call):
+                name=ast.unparse(n.func)
+                if name in ('tooling_packet','native.probe','native.main','controller.run'):calls[name]=n.lineno
+        self.assertLess(calls['tooling_packet'],calls['native.probe']);self.assertLess(calls['native.probe'],calls['native.main'])
+        self.assertLess(calls['native.main'],calls['controller.run'])
+        self.assertNotIn('ThreadPoolExecutor',Path(job.__file__).read_text())
+        self.assertNotIn('audit_tooling.fetch',Path(job.__file__).read_text())
+
 
 if __name__=='__main__':unittest.main()
