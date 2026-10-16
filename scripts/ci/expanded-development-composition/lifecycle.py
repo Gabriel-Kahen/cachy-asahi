@@ -218,7 +218,7 @@ def main():
                 signatures=True,dependencies=True,payload=True,ownership=True,originals_preserved=True,user_config_preserved=True))
 
         def install():
-            printed=run(pacman+['--noconfirm','--noscriptlet','-U','--print','--print-format','%n %v',*addon_paths])
+            printed=run(pacman+['--noconfirm','-U','--print','--print-format','%n %v',*addon_paths])
             C.need(dict(line.split() for line in printed.splitlines())=={r['name']:r['version'] for r in rows},
                    'normal incoming dependency/conflict preflight differs')
             run(pacman+['--noconfirm','--noscriptlet','-U',*addon_paths])
