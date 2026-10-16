@@ -4,8 +4,9 @@ The separate caller in `scripts/ci/full-root-upgrade-caller/` prepares the signe
 initial587-package composition with updater4.4.2-2 and setup0.1.0-3. It stages
 the complete persistent data, then uses `scripts/ci/full-root-upgrade/` to perform
 one real signed setup0.1.0-4 upgrade in a second, owned copy. The first native
-trial38858858112 failed before staging because its ownership parser rejected
-a valid zero-byte ALPM files record. No upgrade commit began; outer cleanup and
+trial38858858112 failed before staging because an ownership record lacked a
+FILES field. This refusal was reproduced with valid zero-byte ALPM metapackage
+records; the actual offending package was not retained. No upgrade commit began; outer cleanup and
 owned-volume absence passed. Full persistent-source preservation was not
 established. The corrected parser retains empty metapackages and still rejects
 missing records or nonempty records without a FILES field. Five focused controls

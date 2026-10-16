@@ -14,9 +14,9 @@ jobs:
       - name: Install test prerequisites on disposable runner
         run: |
           sudo apt-get update
-          sudo apt-get install --no-install-recommends -y bash fish zsh vim build-essential gnupg libarchive-tools pacman-package-manager makepkg
-          for tool in bash fish zsh vim cc gpg gpgconf repo-add bsdtar vercmp pacman; do command -v "$tool"; done
-          dpkg-query -W bash fish zsh vim build-essential gnupg libarchive-tools pacman-package-manager makepkg
+          sudo apt-get install --no-install-recommends -y bash fish zsh vim build-essential clang lld gnupg libarchive-tools pacman-package-manager makepkg
+          for tool in bash fish zsh vim cc clang ld.lld gpg gpgconf repo-add bsdtar vercmp pacman; do command -v "$tool"; done
+          dpkg-query -W bash fish zsh vim build-essential clang lld gnupg libarchive-tools pacman-package-manager makepkg
       - name: Verify packaged setup source and sync boundaries
         env:
           PYTHONDONTWRITEBYTECODE: '1'
@@ -112,7 +112,11 @@ jobs:
               python3 -B -m unittest discover -s scripts/update -p "$suite" -v
           done
       - name: Check complete persistent-root upgrade caller without actors
-        run: python3 -B -m unittest discover -s scripts/ci/full-root-upgrade-caller -p 'test_*.py'
+        run: |
+          python3 -B -m unittest discover -s scripts/ci/full-root-upgrade-caller -p 'test_*.py'
+          python3 -B -m unittest discover -s scripts/ci/full-root-upgrade -p 'test_*.py'
+      - name: Check generic 16 KiB build and fixture controls without kernel or VM actors
+        run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/virtual/generic16k -p 'test_*.py'
       - name: Check bounded root observations without package actors
         run: |
           python3 -B scripts/update/test_full_root.py
