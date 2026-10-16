@@ -159,6 +159,10 @@ jobs:
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-native/ci -p 'test_*.py'
       - name: Check unselected glibc runtime smoke contracts without candidate execution
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/glibc-owned-runtime -p 'test_*.py'
+      - name: Check installed Welcome managed GUI contracts without actors
+        run: |
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-managed-gui -p 'test_*.py'
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-managed-gui/ci -p 'test_*.py'
       - name: Check generic 16 KiB build and fixture controls without kernel or VM actors
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/virtual/generic16k -p 'test_*.py'
       - name: Check 16 KiB audio producer and userspace fixture without actors
