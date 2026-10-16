@@ -88,7 +88,7 @@ class Lane(unittest.TestCase):
     def test_03_only_main_usage_run_change_kernel_helper_functions(self):
         old=ast.parse((SOURCE/'scripts/virtual/generic16k/build_kernel.py').read_text());new=ast.parse((s.HERE/'build_kernel.py').read_text())
         funcs=lambda t:{n.name:ast.dump(n) for n in t.body if isinstance(n,ast.FunctionDef) and n.name not in ('main','usage','run')}
-        self.assertEqual(funcs(old),funcs(new));self.assertEqual(len((s.HERE/'kernel.fragment').read_text().splitlines()),89)
+        self.assertEqual(funcs(old),funcs(new));self.assertEqual(len((s.HERE/'kernel.fragment').read_text().splitlines()),90)
 
     def test_04_image_16k_and_4k_header_refusal(self):
         p=self.work/'Image';raw=bytearray(64);raw[56:60]=b'ARM\x64';struct.pack_into('<Q',raw,24,4);p.write_bytes(raw)
@@ -99,7 +99,7 @@ class Lane(unittest.TestCase):
     def test_05_all_fragment_values_and_required_api_refusals(self):
         p=self.work/'config';text=(s.HERE/'kernel.fragment').read_text()+self.helper.DIAGNOSTIC_FRAGMENT;p.write_text(text)
         self.helper.config_check(p,True)
-        for name in ('DRM_VIRTIO_GPU','PCI_HOST_GENERIC','VIRTIO_BLK','VIRTIO_CONSOLE','NET','UNIX','CGROUPS','USER_NS','EVENTFD','SECCOMP_FILTER','FILE_LOCKING'):
+        for name in ('DRM_VIRTIO_GPU','DRM_VIRTIO_GPU_KMS','PCI_HOST_GENERIC','VIRTIO_BLK','VIRTIO_CONSOLE','NET','UNIX','CGROUPS','USER_NS','EVENTFD','SECCOMP_FILTER','FILE_LOCKING'):
             with self.subTest(name=name):
                 p.write_text(text.replace('CONFIG_'+name+'=y','CONFIG_'+name+'=n'))
                 with self.assertRaises(ValueError):self.helper.config_check(p,True)

@@ -185,12 +185,12 @@
       "sha256": "b10b641060e273479d32d8a74719565c4264faf6fefd9e963c8f82dc1fbe738e"
     },
     "scripts/ci/managed-gui-generic16k/kernel.fragment": {
-      "bytes": 1766,
-      "sha256": "f2d29abac2faae579a91e306f87f15fd6a713f88774f63aa7c004e552ff7a503"
+      "bytes": 1794,
+      "sha256": "25f3d712b5ab22c17417db8446cd99018946a20609fa09afc77d2d8b9cf62613"
     },
     "scripts/ci/managed-gui-generic16k/kernel_contract.py": {
       "bytes": 4659,
-      "sha256": "880b3d0c6064d7b461cba51befd0f0c71b219b842d7558b83f9af3f73fb0f51d"
+      "sha256": "a1b7d638d06d392b962f6678221a2c101408584c6b30e5d2e6ed669abc9e92ec"
     },
     "scripts/ci/old_four_seed.py": {
       "bytes": 29048,
