@@ -61,7 +61,7 @@ jobs:
         run: |
           set -euo pipefail
           test "$(sha256sum expanded604-code/scripts/ci/expanded604-composition/run.py | cut -d ' ' -f 1)" = 583f78fc192cced2671d2576712bcb04f1977509bbb12e736fccffcc35dcb7bc
-          test "$(sha256sum expanded604-code/scripts/ci/expanded604-composition/source-manifest.json | cut -d ' ' -f 1)" = f206f2232b54a3b5bbe777f26fb3ffb7bf6e09537966754c405e9ad4df7ec0d1
+          test "$(sha256sum expanded604-code/scripts/ci/expanded604-composition/source-manifest.json | cut -d ' ' -f 1)" = 26aec1dbceee69dd49cf2cd01af4670f8a63700789ef4e710144312f71b21a7f
           python3 -B expanded604-code/scripts/ci/expanded604-composition/gate.py \
             --code "$GITHUB_WORKSPACE/expanded604-code" --source "$IMPLEMENTATION_SOURCE" \
             --workflow-sha "$WORKFLOW_SOURCE" --preflight
@@ -119,8 +119,8 @@ jobs:
           python3 -B expanded604-code/scripts/ci/expanded604-composition/gate.py \
             --code "$GITHUB_WORKSPACE/expanded604-code" --source "$IMPLEMENTATION_SOURCE" --workflow-sha "$WORKFLOW_SOURCE" \
             --legacy-source "$GITHUB_WORKSPACE/expanded604-legacy" --eight-source "$GITHUB_WORKSPACE/expanded604-eight" \
-            --seven-source "$GITHUB_WORKSPACE/expanded604-seven" --management-source "$GITHUB_WORKSPACE/expanded604-management" \
-            --setup-source "$GITHUB_WORKSPACE/expanded604-setup" --welcome-source "$GITHUB_WORKSPACE/expanded604-welcome" \
+            --seven-source "$GITHUB_WORKSPACE/expanded604-seven" --management-source "$GITHUB_WORKSPACE/expanded604-management/payload" \
+            --setup-source "$GITHUB_WORKSPACE/expanded604-setup" --welcome-source "$GITHUB_WORKSPACE/expanded604-welcome/payload" \
             --audio-inputs "$RUNNER_TEMP/audio-archives"
       - name: Run hosted controls without native actors
         shell: bash
@@ -129,8 +129,9 @@ jobs:
           EXPANDED604_EIGHT_ROOT: ${{ github.workspace }}/expanded604-eight
           EXPANDED604_SEVEN_ROOT: ${{ github.workspace }}/expanded604-seven
           EXPANDED604_LEGACY_ROOT: ${{ github.workspace }}/expanded604-legacy
-          EXPANDED604_MANAGEMENT_ROOT: ${{ github.workspace }}/expanded604-management
+          EXPANDED604_MANAGEMENT_ROOT: ${{ github.workspace }}/expanded604-management/payload
           EXPANDED604_SETUP_ROOT: ${{ github.workspace }}/expanded604-setup
+          EXPANDED604_WELCOME_ROOT: ${{ github.workspace }}/expanded604-welcome/payload
         run: |
           set -euo pipefail
           python3 -B -m unittest discover -s expanded604-code/scripts/ci/expanded604-composition -p 'test_*.py' -v
@@ -454,8 +455,8 @@ jobs:
             python3 -B "$GITHUB_WORKSPACE/expanded604-code/scripts/ci/expanded604-composition/run.py" \
               --code "$GITHUB_WORKSPACE/expanded604-code" --code-revision "$IMPLEMENTATION_SOURCE" \
               --legacy-source "$GITHUB_WORKSPACE/expanded604-legacy" --eight-source "$GITHUB_WORKSPACE/expanded604-eight" \
-              --seven-source "$GITHUB_WORKSPACE/expanded604-seven" --management-source "$GITHUB_WORKSPACE/expanded604-management" \
-              --setup-source "$GITHUB_WORKSPACE/expanded604-setup" --welcome-source "$GITHUB_WORKSPACE/expanded604-welcome" \
+              --seven-source "$GITHUB_WORKSPACE/expanded604-seven" --management-source "$GITHUB_WORKSPACE/expanded604-management/payload" \
+              --setup-source "$GITHUB_WORKSPACE/expanded604-setup" --welcome-source "$GITHUB_WORKSPACE/expanded604-welcome/payload" \
               --preparation-source "$GITHUB_WORKSPACE/composition-preparation" \
               --updater-v2-source "$GITHUB_WORKSPACE/composition-updater-v2" --setup4-pair "$RUNNER_TEMP/setup4-retained" \
               --product "$GITHUB_WORKSPACE/composition-product" --updater "$GITHUB_WORKSPACE/composition-updater" \
