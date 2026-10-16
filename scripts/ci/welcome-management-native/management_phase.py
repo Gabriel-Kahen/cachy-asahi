@@ -53,10 +53,11 @@ def exercise(base,stage,env,logs,workspace,old_welcome,doctor,policy,lock,hooks)
     def action(label,scope=None,scroll=False):
         nonlocal action_sequence
         value=a11y('scroll' if scroll else 'activate',label,scope)
-        if scroll:C.need(value.get('interface')=='Component' and value.get('action_name')=='scroll-anywhere' and value.get('pid')==current.process.pid,'actual scroll interface failed')
+        window=hooks['window'](current.process.pid) if scroll else None
+        if scroll:C.visible_control(value,current.process.pid,label,window)
         else:C.need(value.get('actions')==1 and value.get('action_name') in ('click','activate','press','switch'),'actual management action failed')
         action_sequence+=1
-        base.emit('management_action',stage=stage,sequence=action_sequence,pid=current.process.pid,label=label,scope=scope,scroll=scroll,proof=value,physical_input='NOT_RUN')
+        base.emit('management_action',stage=stage,sequence=action_sequence,pid=current.process.pid,label=label,scope=scope,scroll=scroll,proof=value,window=window,physical_input='NOT_RUN')
     def page(view,expected):
         def probe():
             value=a11y('snapshot')

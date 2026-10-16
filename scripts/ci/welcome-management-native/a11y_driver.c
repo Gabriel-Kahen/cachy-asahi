@@ -34,6 +34,97 @@ static gboolean control_role(AtspiRole role, const char *name)
          (!strcmp(name, "Welcome") || !strcmp(name, "System") || !strcmp(name, "Guides") || !strcmp(name, "Management")));
 }
 
+typedef struct { AtspiRect rects[13]; AtspiRole roles[13]; guint count; } Geometry;
+
+static gboolean contains(const AtspiRect *outer, const AtspiRect *inner)
+{
+    return outer->x <= inner->x && outer->y <= inner->y &&
+        (gint64)inner->x + inner->width <= (gint64)outer->x + outer->width &&
+        (gint64)inner->y + inner->height <= (gint64)outer->y + outer->height;
+}
+
+static gboolean geometry(guint pid, Geometry *value)
+{
+    value->count = 0;
+    AtspiAccessible *node = g_object_ref(target);
+    for (guint depth = 0; depth <= 12; depth++) {
+        atspi_accessible_clear_cache(node);
+        check(atspi_accessible_get_process_id(node, &error) == pid, "geometry process");
+        AtspiRole role = atspi_accessible_get_role(node, &error); check(TRUE, "geometry role");
+        AtspiStateSet *states = atspi_accessible_get_state_set(node);
+        gboolean showing = state(states, ATSPI_STATE_VISIBLE) && state(states, ATSPI_STATE_SHOWING);
+        if (states) g_object_unref(states);
+        AtspiComponent *component = atspi_accessible_get_component_iface(node);
+        if (!showing || !component) {
+            if (component) g_object_unref(component);
+            g_object_unref(node); return FALSE;
+        }
+        AtspiRect *rect = atspi_component_get_extents(component, ATSPI_COORD_TYPE_SCREEN, &error);
+        check(rect != NULL, "geometry extents"); g_object_unref(component);
+        gboolean valid = rect->x >= -32768 && rect->x <= 32768 && rect->y >= -32768 && rect->y <= 32768 &&
+            rect->width > 0 && rect->width <= 8192 && rect->height > 0 && rect->height <= 8192 &&
+            (!depth || contains(rect, &value->rects[0]));
+        if (valid) { value->rects[depth] = *rect; value->roles[depth] = role; value->count++; }
+        g_free(rect);
+        if (!valid) { g_object_unref(node); return FALSE; }
+        AtspiAccessible *parent = atspi_accessible_get_parent(node, &error); check(parent != NULL, "geometry parent");
+        g_object_unref(node);
+        if (role == ATSPI_ROLE_FRAME) {
+            check(atspi_accessible_get_role(parent, &error) == ATSPI_ROLE_APPLICATION &&
+                  atspi_accessible_get_process_id(parent, &error) == pid, "owned top-level geometry");
+            g_object_unref(parent); return TRUE;
+        }
+        node = parent;
+    }
+    g_object_unref(node); check(FALSE, "geometry depth bound"); return FALSE;
+}
+
+static gboolean settled_geometry(guint pid, Geometry *value)
+{
+    gint64 until = g_get_monotonic_time() + 2 * G_USEC_PER_SEC;
+    do {
+        while (g_main_context_iteration(NULL, FALSE)) {}
+        if (geometry(pid, value)) return TRUE;
+        g_usleep(25000);
+    } while (g_get_monotonic_time() < until);
+    return FALSE;
+}
+
+static void ensure_visible(guint pid)
+{
+    AtspiComponent *component = atspi_accessible_get_component_iface(target);
+    check(component != NULL, "scroll component");
+    gboolean scrolled = atspi_component_scroll_to(component, ATSPI_SCROLL_ANYWHERE, &error);
+    check(TRUE, "actual component scroll"); /* FALSE without an error still needs complete visibility proof. */
+    Geometry value; gboolean unclipped = settled_geometry(pid, &value), focus_called = FALSE;
+    if (!unclipped) {
+        AtspiStateSet *states = atspi_accessible_get_state_set(target);
+        check(state(states, ATSPI_STATE_ENABLED) && state(states, ATSPI_STATE_SENSITIVE), "clipped control cannot receive focus");
+        if (states) g_object_unref(states);
+        focus_called = TRUE;
+        check(atspi_component_grab_focus(component, &error), "actual component focus scroll");
+        check(settled_geometry(pid, &value), "focused control remains clipped");
+    }
+    atspi_accessible_clear_cache(target);
+    AtspiStateSet *states = atspi_accessible_get_state_set(target);
+    gboolean focused = state(states, ATSPI_STATE_FOCUSED);
+    if (states) g_object_unref(states);
+    check(!focus_called || focused, "actual focused control required");
+    char *name = atspi_accessible_get_name(target, &error); check(name && !strcmp(name, wanted), "visible target identity");
+    char *encoded = g_base64_encode((const guchar *)name, strlen(name)); g_free(name);
+    printf("{\"status\":\"PASS\",\"pid\":%u,\"actions\":0,\"interface\":\"Component\",\"action_name\":\"ensure-visible\","
+           "\"scroll_called\":true,\"scroll_returned\":%s,\"focus_called\":%s,\"focused\":%s,\"unclipped_after_scroll\":%s,"
+           "\"method\":\"%s\",\"coordinate_space\":\"ATSPI_SCREEN\",\"name_base64\":\"%s\",\"chain\":[",
+           pid, scrolled ? "true" : "false", focus_called ? "true" : "false", focused ? "true" : "false",
+           unclipped ? "true" : "false", focus_called ? "FOCUS_SCROLL" : scrolled ? "COMPONENT_SCROLL" : "ALREADY_UNCLIPPED", encoded);
+    for (guint i = 0; i < value.count; i++) {
+        AtspiRect r = value.rects[i];
+        printf("%s{\"pid\":%u,\"role\":%u,\"visible\":true,\"showing\":true,\"rect\":[%d,%d,%d,%d]}",
+               i ? "," : "", pid, (guint)value.roles[i], r.x, r.y, r.width, r.height);
+    }
+    puts("]}"); g_free(encoded); g_object_unref(component);
+}
+
 static void walk(AtspiAccessible *node, guint depth, const char *scope)
 {
     check(depth <= 12 && nodes < 192, "tree bound");
@@ -159,9 +250,7 @@ int main(int argc, char **argv)
         check(matches == 1 && target, "one showing control required");
         AtspiRole role = atspi_accessible_get_role(target, &error); check(TRUE, "control role");
         if (scrolling) {
-            AtspiComponent *component = atspi_accessible_get_component_iface(target);
-            check(component && atspi_component_scroll_to(component, ATSPI_SCROLL_ANYWHERE, &error), "actual component scroll");
-            printf("{\"status\":\"PASS\",\"pid\":%u,\"actions\":0,\"interface\":\"Component\",\"action_name\":\"scroll-anywhere\"}\n", (guint)pid);
+            ensure_visible((guint)pid);
         } else if (role == ATSPI_ROLE_PAGE_TAB) select_guide_tab((guint)pid);
         else {
             AtspiAction *action = atspi_accessible_get_action_iface(target); check(action != NULL, "action interface");
