@@ -42,8 +42,9 @@ independently checks the saved report's bytes/hash/mode/UID and worker parent.
 
 Welcome interaction uses its existing GTK AT-SPI interface. The small driver is
 restricted to one owned process,192 nodes, depth12,32 applications and fixed
-named controls. It queries the installed interface and executes one unambiguous
-native click/activate/press/switch action. It does not call product callbacks or
+named controls. Ordinary controls execute one unambiguous native
+click/activate/press/switch action; known guide PAGE_TAB controls select their
+fixed child index through the notebook parent Selection interface. It does not call product callbacks or
 modify the app. Snapshots retain typed showing/selected state, bounded names and
 full visible-text hashes; selected guide text must match installed guide bytes.
 Driver calls are process/output/time bounded. Missing/incompatible accessibility
@@ -121,3 +122,16 @@ windows and Home location, without clipping, overlap, dialogs or invisible text.
 Helper compilation and GTK/AT-SPI interactions remain unexecuted here. Keyboard
 focus/typing, missing-app disabled/error UI, the direct Guides top-tab control,
 hardware,16KiB execution, acceleration, audio/power and complete M6 are untested.
+
+
+The three known guide PAGE_TAB accessibles use the parent PAGE_TAB_LIST's real
+AT-SPI Selection.select_child operation. Only First steps/Updates/Recovery with
+fixed indices0/1/2 and exactly three children qualify. The helper retains one
+showing enabled/sensitive target, owned process checks, parent role/state/owner,
+indexed child role/name/owner, selected-child confirmation and single selection.
+Proofs explicitly say Selection/select-child and the session records the notebook
+selection method; ordinary button/radio AtspiAction calls stay unchanged. Public
+replay admits this method only for those known guide labels and indices. The
+independent subsequent selected-page and installed guide text-hash snapshots,
+all fourteen captures and existing ownership/cleanup gates remain required.
+Actual38899924764 remains failed at Updates; the new API path needs native retry.

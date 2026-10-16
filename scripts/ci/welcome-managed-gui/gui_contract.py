@@ -78,7 +78,7 @@ def layout(command,row,kind):
 def validate_snapshot(value,pid,view,text_sha=None):
     need(value.get('status')=='PASS' and value.get('pid')==pid and type(value.get('nodes')) is list and
          1<=len(value['nodes'])<=192,'owned accessibility snapshot required')
-    names=[];texts=[];selected=[]
+    names=[];texts=[];selected=[];selected_tabs=[]
     for row in value['nodes']:
         encoded=row.get('name_base64','');need(type(encoded) is str and len(encoded)<=216,'accessible name cap')
         name=base64.b64decode(encoded,validate=True).decode('utf-8',errors='replace')
@@ -87,6 +87,7 @@ def validate_snapshot(value,pid,view,text_sha=None):
         if row['showing']:
             names.append(name)
             if row['selected'] or row['checked']:selected.append(name)
+            if row['role']==37 and row['selected']:selected_tabs.append(name)
             if 'text_sha256' in row:
                 need(re.fullmatch('[0-9a-f]{64}',row['text_sha256']) and type(row.get('text_bytes')) is int and
                      0<=row['text_bytes']<=262144,'accessible text hash/bound differs')
@@ -94,10 +95,29 @@ def validate_snapshot(value,pid,view,text_sha=None):
     ready=True
     if view=='home':ready={'Open Terminal','Open Files','First steps','Updates','Recovery'}<=set(names)
     elif view=='system':ready='Refresh system status' in names and text_sha in texts
-    elif view in LABELS:ready=LABELS[view] in selected and text_sha in texts
+    elif view in LABELS:ready=LABELS[view] in selected_tabs and text_sha in texts
     else:need(view in ('terminal-action','files-action'),'unknown accessibility view')
     if not ready:raise ViewPending('requested Welcome page/text not showing yet')
     return dict(showing_names=names,selected_names=selected,showing_text_sha256=texts,node_count=len(value['nodes']))
+
+
+
+def validate_action(value,pid,label):
+    need(value.get('status')=='PASS' and value.get('pid')==pid and type(value.get('actions')) is int and value['actions']==1,
+         'one owned accessibility operation required')
+    if value.get('action_name')=='select-child':
+        guides=('First steps','Updates','Recovery')
+        need(label in guides and value.get('interface')=='Selection' and
+             type(value.get('target_role')) is int and value['target_role']==37 and
+             type(value.get('parent_role')) is int and value['parent_role']==38 and
+             type(value.get('child_index')) is int and value['child_index']==guides.index(label) and
+             type(value.get('child_count')) is int and value['child_count']==3 and value.get('selected') is True and
+             type(value.get('selected_count')) is int and value['selected_count']==1,
+             'known guide notebook selection proof differs')
+        return 'installed GTK AT-SPI notebook selection'
+    need(value.get('action_name') in ('click','activate','press','switch') and 'interface' not in value,
+         'real accessibility action required')
+    return 'installed GTK AT-SPI action'
 
 
 def validate_doctor(value,stage,nonce,terminal_pid):

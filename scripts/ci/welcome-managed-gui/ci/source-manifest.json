@@ -179,12 +179,12 @@
       "sha256": "e5d7dc11d1a59cf37a273e9a7103c7e55b169335b17c599990946f4e677ca974"
     },
     "scripts/ci/welcome-managed-gui/README.md": {
-      "bytes": 8438,
-      "sha256": "8fb2a06390da307545b9c1a483b6f354d9d72bc9ebb232271583de67bc38c6a4"
+      "bytes": 9403,
+      "sha256": "0fc1bda1a62a1cb3d248fdf0ec1f1322b6fe377e45aac511b81de4e2feb5d89e"
     },
     "scripts/ci/welcome-managed-gui/a11y_driver.c": {
-      "bytes": 6624,
-      "sha256": "787611e9244820beafbb7616a5e8f99dee4f4b16d28746bcff8bf9b1c61ff2c5"
+      "bytes": 9340,
+      "sha256": "0dacaf0c44ee270298e16067e1d7793a7de1f5480fe83df15b0bfd142a0ccd72"
     },
     "scripts/ci/welcome-managed-gui/candidates.py": {
       "bytes": 6435,
@@ -203,8 +203,8 @@
       "sha256": "a4f77bd12f0c41d6689837e1186cf5aa568bdd974c9ee3d586cb69bb85bc85aa"
     },
     "scripts/ci/welcome-managed-gui/contract.py": {
-      "bytes": 7034,
-      "sha256": "e290a6b983e7a60ccd29e22ff4b26e4712d2479a335aeaffabacaecb1534622f"
+      "bytes": 6840,
+      "sha256": "02046a46791fc9966ed8f2eff8af354f7f3b7e6a79ae657830d542af02b0ef2f"
     },
     "scripts/ci/welcome-managed-gui/desktop574_guest.py": {
       "bytes": 2061,
@@ -215,8 +215,8 @@
       "sha256": "559eede1b2139e673fcfa76d655f66ac390b5df1827625762db2973f0c82dd80"
     },
     "scripts/ci/welcome-managed-gui/gui_contract.py": {
-      "bytes": 7212,
-      "sha256": "d5a254b33aacbcf903559c994192c0aed9c637b1cb6243619ec7ac05563eb7b2"
+      "bytes": 8491,
+      "sha256": "86a8280c338414d80e8f25c839985e640036deaf74e79a6bde743f860a022d24"
     },
     "scripts/ci/welcome-managed-gui/managed_contract.py": {
       "bytes": 3790,
@@ -235,8 +235,8 @@
       "sha256": "e3aa9caba37d5aa3087a99dff5f8f0ef50e139eaf409bb345a52924518acf178"
     },
     "scripts/ci/welcome-managed-gui/session.py": {
-      "bytes": 18913,
-      "sha256": "eeeb951f35fe6e5352e1a53295bce6b2c23cda30a7c7e050e635a54ad1e662fd"
+      "bytes": 18875,
+      "sha256": "4d2de17020efea4d04828dce68de1fd0ccf185b543fa97b772e706478f747032"
     },
     "scripts/ci/welcome-managed-gui/source-pins.json": {
       "bytes": 5999,
@@ -255,12 +255,12 @@
       "sha256": "273c17be7fc909fdbb35926b3063d984b322ffa43752fff4c69af1ba034542d7"
     },
     "scripts/ci/welcome-managed-gui/test_gui.py": {
-      "bytes": 10219,
-      "sha256": "fc975de82fb9d89b800a4814d6cb507706871dbe1f0748d0dc6a49fff7ffa503"
+      "bytes": 12407,
+      "sha256": "536cadb0a3c78538bba4e0f5d462effa6a1e7dc0bc769dd4137b1d3593c6a43a"
     },
     "scripts/ci/welcome-managed-gui/test_phase.py": {
-      "bytes": 19678,
-      "sha256": "a9444218cd90dd4bf6a5870857fbd69b685ce3d98d5ad666e0adf30180ee91e2"
+      "bytes": 20761,
+      "sha256": "99daaf5175fe2b6e462dd7deb3d485fb5b46f7a941315697d4127048203ca4b5"
     },
     "scripts/ci/welcome-managed-gui/transport.json": {
       "bytes": 402,
@@ -301,8 +301,8 @@
   },
   "generated_runner": {
     "a11y_driver.c": {
-      "bytes": 6624,
-      "sha256": "787611e9244820beafbb7616a5e8f99dee4f4b16d28746bcff8bf9b1c61ff2c5"
+      "bytes": 9340,
+      "sha256": "0dacaf0c44ee270298e16067e1d7793a7de1f5480fe83df15b0bfd142a0ccd72"
     },
     "base_guest.py": {
       "bytes": 37666,
@@ -329,8 +329,8 @@
       "sha256": "bd1584aa86e7a0a0e7f7025eb8ce7e0fa9399fba5c625df64902bd179de675cd"
     },
     "contract.py": {
-      "bytes": 7034,
-      "sha256": "e290a6b983e7a60ccd29e22ff4b26e4712d2479a335aeaffabacaecb1534622f"
+      "bytes": 6840,
+      "sha256": "02046a46791fc9966ed8f2eff8af354f7f3b7e6a79ae657830d542af02b0ef2f"
     },
     "desktop574_fixture.sh": {
       "bytes": 5283,
@@ -349,8 +349,8 @@
       "sha256": "559eede1b2139e673fcfa76d655f66ac390b5df1827625762db2973f0c82dd80"
     },
     "gui_contract.py": {
-      "bytes": 7212,
-      "sha256": "d5a254b33aacbcf903559c994192c0aed9c637b1cb6243619ec7ac05563eb7b2"
+      "bytes": 8491,
+      "sha256": "86a8280c338414d80e8f25c839985e640036deaf74e79a6bde743f860a022d24"
     },
     "managed_contract.py": {
       "bytes": 3790,
@@ -365,8 +365,8 @@
       "sha256": "ae7a6b6e9479b6fc4575161d0ed03b807c58a4b11f8e374ec66d80451a6320b6"
     },
     "session.py": {
-      "bytes": 18913,
-      "sha256": "eeeb951f35fe6e5352e1a53295bce6b2c23cda30a7c7e050e635a54ad1e662fd"
+      "bytes": 18875,
+      "sha256": "4d2de17020efea4d04828dce68de1fd0ccf185b543fa97b772e706478f747032"
     },
     "source-pins.json": {
       "bytes": 5999,

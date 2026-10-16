@@ -116,7 +116,10 @@ class Phase(unittest.TestCase):
                 label=argv[3]
                 if label==self.bad_action:actor.process.returncode=2;result=dict(status='FAIL')
                 else:
-                    actor.process.returncode=0;result.update(actions=1,action_name='switch' if label in ('Updates','Recovery') else 'click')
+                    actor.process.returncode=0;result.update(actions=1,action_name='click')
+                    if label in ('Updates','Recovery'):
+                        result.update(action_name='select-child',interface='Selection',target_role=37,parent_role=38,
+                            child_index=1 if label=='Updates' else 2,child_count=3,selected=True,selected_count=1)
                     if label=='Open Terminal':self.rows[900]=self.row(900,'terminal')
                     elif label=='Open Files':self.rows[self.major['thunar'].process.pid]=self.row(self.major['thunar'].process.pid,'thunar')
                     else:self.view={'System':'system','Welcome':'home','First steps':'first-steps','Updates':'updates','Recovery':'recovery'}.get(label,self.view)
@@ -128,7 +131,7 @@ class Phase(unittest.TestCase):
                 else:
                     label=S.C.LABELS[self.view];guide='first-run' if self.view=='first-steps' else self.view
                     text=(ROOT/'packages/tools/cachy-asahi-welcome'/(guide+'.txt')).read_bytes()
-                    nodes=[node(label,selected=True),node('text',text=text)]
+                    nodes=[node(label,selected=True,role=37),node('text',text=text)]
                 result['nodes']=nodes
             actor.paths=[logs/(name+'.stdout'),logs/(name+'.stderr')]
             actor.paths[0].write_text(json.dumps(result));actor.paths[1].write_text('')
@@ -220,6 +223,9 @@ class Phase(unittest.TestCase):
         self.run_phase();self.retired()
         self.assertEqual([e['view'] for e in self.events if e['event']=='frame_ready'],list(S.C.VIEWS))
         self.assertEqual(len([e for e in self.events if e['event']=='welcome_action']),8)
+        selections=[e for e in self.events if e['event']=='welcome_action' and e['proof']['action_name']=='select-child']
+        self.assertEqual([e['label'] for e in selections],['Updates','Recovery'])
+        self.assertTrue(all(e['method']=='installed GTK AT-SPI notebook selection' for e in selections))
         self.assertEqual(self.events[-1]['event'],'phase_pass');self.assertTrue(self.observed.closed)
         self.assertEqual((self.config/'owned').read_text(),'preserve')
         self.assertEqual([self.major[k].process.returncode for k in ('welcome','doctor','thunar','compositor')],[0,0,0,0])
@@ -279,7 +285,7 @@ class Phase(unittest.TestCase):
     def test_full_managed_contract_and_semantic_digest_identity_mutations(self):
         self.run_phase();events=managed_events(self.events)
         self.assertEqual(contract.verify_result(events,self.lock)['GUI'],'NATIVE_METADATA_PASS_PIXELS_PENDING_REVIEW')
-        for change in ('manager','guide','physical','retired','method','missing-frame'):
+        for change in ('manager','guide','physical','retired','method','selection-index','selection-method','global-select','missing-frame'):
             bad=copy.deepcopy(events)
             frame=next(e for e in bad if e.get('event')=='frame_ready' and e.get('view')=='first-steps')
             if change=='manager':frame['managed_identity']['manager_pid']=999
@@ -287,6 +293,9 @@ class Phase(unittest.TestCase):
             elif change=='physical':frame['physical_input']='PASS'
             elif change=='retired':next(e for e in bad if e.get('event')=='welcome_terminal_retired')['exit_status']=0
             elif change=='method':next(e for e in bad if e.get('event')=='welcome_action')['method']='direct shell command'
+            elif change=='selection-index':next(e for e in bad if e.get('event')=='welcome_action' and e.get('label')=='Updates')['proof']['child_index']=2
+            elif change=='selection-method':next(e for e in bad if e.get('event')=='welcome_action' and e.get('label')=='Updates')['method']='installed GTK AT-SPI action'
+            elif change=='global-select':next(e for e in bad if e.get('event')=='welcome_action' and e.get('label')=='Updates')['label']='System'
             else:bad.remove(frame)
             with self.subTest(change=change),self.assertRaises(ValueError):contract.verify_result(bad,self.lock)
 
