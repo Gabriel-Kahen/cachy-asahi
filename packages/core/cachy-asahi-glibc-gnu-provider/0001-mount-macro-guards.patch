@@ -1,0 +1,24 @@
+From: cachy-asahi contributors
+Subject: [PATCH] GNU 2.43: retain Linux-provided OPEN_TREE macros
+
+Minimal GNU 2.43 adaptation of upstream 8d6fbb22cdd54660056408ca0e9682a8cedbf055
+(bug 33921), without the unrelated fcntl/cloexec include refactoring.
+Keep Linux token definitions if supplied; preserve both existing fallback values.
+
+--- a/sysdeps/unix/sysv/linux/sys/mount.h
++++ b/sysdeps/unix/sysv/linux/sys/mount.h
+@@ -265,8 +265,12 @@
+ #define FSOPEN_CLOEXEC          0x00000001
+ 
+ /* open_tree flags.  */
+-#define OPEN_TREE_CLONE    1         /* Clone the target tree and attach the clone */
+-#define OPEN_TREE_CLOEXEC  O_CLOEXEC /* Close the file on execve() */
++#ifndef OPEN_TREE_CLONE
++# define OPEN_TREE_CLONE    1 /* Clone the target tree and attach the clone */
++#endif
++#ifndef OPEN_TREE_CLOEXEC
++# define OPEN_TREE_CLOEXEC  O_CLOEXEC /* Close the file on execve() */
++#endif
+ 
+ 
+ __BEGIN_DECLS

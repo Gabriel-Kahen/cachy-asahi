@@ -1,0 +1,169 @@
+{
+  "accepted_source_packet": {
+    "artifact_sha256": "c4e5507601c3ef1c5bbed3b1bbb60d066d1fc2e8f36bfd53ba6944f8ff93002c",
+    "native_run": 38915137670,
+    "native_source": "d1055cf95f7d236fc55396db36b432df5191ff2a",
+    "packet_members": [
+      "source/glibc-2.43.tar.gz",
+      "source/glibc-2.43.tar.gz.sig",
+      "source/gnu-keyring.gpg"
+    ],
+    "reuse_scope": "exact full GNU source/signature/keyring and patches, not reuse of private-prefix package/build results"
+  },
+  "bootstrap": {
+    "glibc": "2.43+r22+g8362e8ce10b2-2",
+    "inventory_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+    "packages": 574
+  },
+  "epoch_basis": "uniform release archive member timestamp",
+  "execution_gate": "Root acceptance of private candidate16K result and complete conventional provider plan; no actors authorized by this source proposal",
+  "expected_patched_payload_tree": "b55538c80b7228c1adcd0a85cc7af1ac13bec3d0",
+  "feature_choices": {
+    "gd": "not in accepted bootstrap; optional memusagestat unavailable",
+    "locales": "GNU source C.utf8 only; no ALARM locale-gen/memusagestat copied; broader locale migration not implemented",
+    "multiarch": "disabled",
+    "multiarch_reason": "--disable-multi-arch selects baseline AArch64 assembly FUNC symbols and memchr/strlen WEAK aliases; actual38906503054 multiarch IFUNC/GLOBAL differs. No ABI waiver or performance claim.",
+    "nscd": "disabled",
+    "systemtap": "disabled; no external sdt headers",
+    "test_timeout": "Only tst-malloc-too-large-malloc-hugetlb2: TIMEOUTFACTOR=5, full assertions retained; still bounded/fatal"
+  },
+  "layout": {
+    "abi_expectations": "UNMODIFIED strict GNU abilists and bootstrap OBJECT/TLS-size checks",
+    "compiled_locales": "/usr/lib/locale",
+    "configured_dirname_ascii_bytes": 17,
+    "exported_dirname_object_bytes": 18,
+    "gettext_catalogs": "/usr/share/locale",
+    "loader": "/usr/lib/ld-linux-aarch64.so.1",
+    "localstatedir": "/var",
+    "multiarch": "disabled",
+    "shared_libraries": "/usr/lib",
+    "sysconfdir": "/etc",
+    "versioned_prefix": null
+  },
+  "licenses": [
+    "GPL-2.0-or-later",
+    "LGPL-2.1-or-later",
+    "LicenseRef-glibc-notices"
+  ],
+  "limits": {
+    "seconds": 180,
+    "source_bytes": 536870912,
+    "source_compressed": 100663296,
+    "source_file": 67108864,
+    "source_members": 60000
+  },
+  "name": "cachy-asahi-glibc-gnu-provider",
+  "old_binary_recipe_correspondence": "UNRESOLVED; unrelated official release successor; old GNU8362 lock unchanged",
+  "packaging": {
+    "excluded": [
+      "usr/bin/tzselect",
+      "usr/bin/zdump",
+      "usr/bin/zic",
+      "var/db/Makefile",
+      "etc/ld.so.cache",
+      "etc/ld.so.cache~"
+    ],
+    "hooks": [],
+    "install_scriptlet": null,
+    "locale_gen": null,
+    "stage_helper_sha256": "43b1b441dcc384379ab80c4864bbf7ffd898d56e4ba629c0faa966c25a979e6c"
+  },
+  "patch_order": [
+    {
+      "files": {
+        "sysdeps/unix/sysv/linux/sys/mount.h": {
+          "after_sha256": "a27e7916298ff67cd88fec0724087c7e25345cb40f796e82e187f07bcd58fd1b",
+          "before_sha256": "9b1e75adf0cc9b43968fd7f39ee02f7bd8c6154fc0a0b5a61c5c098874291835"
+        }
+      },
+      "origin": "project GNU2.43 adaptation of upstream8d6fbb22cdd54660056408ca0e9682a8cedbf055",
+      "path": "0001-mount-macro-guards.patch",
+      "sha256": "09117692cd3a1d5838ea700df68b512f9f625a6d2af497a1afcf92046deca8f5"
+    },
+    {
+      "files": {
+        "conform/Makefile": {
+          "after_sha256": "769227ad708ad0ab72d865001793af02a9d989289a6d5e44e3349a14392cacd7",
+          "before_sha256": "f6fc77a91b386fd4b19e7b76de83c33bb0f7e1000e83045b108d526df9898eff"
+        },
+        "elf/Makefile": {
+          "after_sha256": "23eb42d01f9a1787680223604aa556f02941276f759a9e8d4ba943613c6571a2",
+          "before_sha256": "9fd3b071751bccb8116d05e8b703172962ebdc437692a81c98578db5d60299ad"
+        }
+      },
+      "origin": "project held-builder expectation correction; actual38898464517",
+      "path": "0002-held-builder-test-expectations.patch",
+      "sha256": "f730c778ba51f9e525c9f6a7949a76af00364d49f41eedb5d73b8e86a3d4c132"
+    }
+  ],
+  "payload_identity_scope": "derived exact release archive payload tree; not an upstream Git revision",
+  "payload_tree": "97ac10e146c65ecbd22d36e3743eb5b5e9166ae9",
+  "pkgrel": 1,
+  "prefix": "/usr",
+  "provider": {
+    "backup": [
+      "etc/gai.conf"
+    ],
+    "conflicts": [
+      "glibc"
+    ],
+    "depends": [
+      "linux-api-headers>=4.10",
+      "filesystem",
+      "tzdata"
+    ],
+    "held_archive_sha256": "8fac217e98c6e4342326726b2640ac254e8c82032f06f30bfa13ebbcc4fcb25b",
+    "held_conflicts": [],
+    "held_name": "glibc",
+    "held_provides": [],
+    "held_replaces": [],
+    "held_version": "2.43+r22+g8362e8ce10b2-2",
+    "provides": [
+      "glibc=2.43"
+    ],
+    "replaces": [],
+    "version_scope": "GNU2.43 only; no claim to held r22/security patches or dependency equality with held version"
+  },
+  "public_inputs": [
+    {
+      "bytes": 40287809,
+      "path": "glibc-2.43.tar.gz",
+      "sha256": "e1e622cbd635019090fa23260e5d9ec219b12f97ae7ae02f033d4ae42cf2c004",
+      "url": "https://ftp.gnu.org/gnu/glibc/glibc-2.43.tar.gz"
+    },
+    {
+      "bytes": 1018,
+      "path": "glibc-2.43.tar.gz.sig",
+      "sha256": "bfd0c5a9924e4f084281cd2f3ba96e5c6e87a6d363113e7a0f98c5151463c9e3",
+      "url": "https://ftp.gnu.org/gnu/glibc/glibc-2.43.tar.gz.sig"
+    },
+    {
+      "bytes": 3698125,
+      "path": "gnu-keyring.gpg",
+      "sha256": "0fe55175b96a8ea1c4b670cc3fe11d56b341e4eff81b161ea49958ae550be6ca",
+      "url": "https://ftp.gnu.org/gnu/gnu-keyring.gpg"
+    }
+  ],
+  "purpose": "UNSELECTED_CONVENTIONAL_USR_PROVIDER_SOURCE_ONLY",
+  "release": "2.43",
+  "release_evidence": {
+    "announcement": "https://sourceware.org/pipermail/libc-announce/2026/000052.html",
+    "directory": "https://ftp.gnu.org/gnu/glibc/"
+  },
+  "schema_version": 1,
+  "signing": {
+    "primary": "35B17DF5752577CA0C541CEB94BFDF4484AD142F",
+    "publisher_keyring_guidance": "https://ftp.gnu.org/pub/README",
+    "signature_epoch": 1769208137,
+    "subkey": "FD19E6D31B192EE4DC63EAD3DC2B16215ED5412A",
+    "trust": "UNSELECTED: current retained signer expiration; independent pretrusted fingerprint authority not established; GNU HTTPS publisher keyring only"
+  },
+  "source": {
+    "bytes": 40287809,
+    "path": "glibc-2.43.tar.gz",
+    "sha256": "e1e622cbd635019090fa23260e5d9ec219b12f97ae7ae02f033d4ae42cf2c004",
+    "url": "https://ftp.gnu.org/gnu/glibc/glibc-2.43.tar.gz"
+  },
+  "source_date_epoch": 1769201640,
+  "version": "2.43.caa1"
+}

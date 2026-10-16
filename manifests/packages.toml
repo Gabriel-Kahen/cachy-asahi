@@ -527,3 +527,20 @@ native_evidence = "docs/validation/glibc-official-release-native-20261016.md"
 installation = "NOT RUN package lifecycle; explicit private-loader runtime smoke PASS"
 hardware_validation = "NOT RUN"
 next_step = "Unselected private-prefix experiment only. Complete16K/M2 and broader compatibility, independent source-key authority and maintenance/security admission; preserve older held-binary source gap and make no performance claim."
+
+[[packages]]
+name = "cachy-asahi-glibc-gnu-provider"
+phase = "complete-port-core-experiment"
+status = "candidate-source-only"
+source = "https://ftp.gnu.org/gnu/glibc/glibc-2.43.tar.gz"
+upstream_release = "2.43"
+source_archive_sha256 = "e1e622cbd635019090fa23260e5d9ec219b12f97ae7ae02f033d4ae42cf2c004"
+recipe = "packages/core/cachy-asahi-glibc-gnu-provider/PKGBUILD"
+license = "GPL-2.0-or-later; LGPL-2.1-or-later; LicenseRef-glibc-notices"
+selected_for_development = false
+selected_for_release = false
+candidate_version = "2.43.caa1-1"
+native_build = "NOT RUN"
+installation = "NOT RUN"
+hardware_validation = "NOT RUN"
+next_step = "Build the separate conventional /usr provider with full GNU tests and strict ABI checks after private-candidate16K acceptance; then exercise owned-root replacement/removal, locale/cache behavior and recovery. Source authority/expiry, historical recipe correspondence and security/maintenance admission remain unresolved."

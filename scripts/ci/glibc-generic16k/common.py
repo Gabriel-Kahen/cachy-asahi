@@ -124,6 +124,20 @@ def aligned(raw,generic):
     return dict(interpreter=interpreter,needed=needed)
 
 
+def elf_closure(elfs,files):
+    for name,row in elfs.items():
+        folders=(PREFIX+'/usr/lib/',) if row['scope']=='candidate' else ('usr/lib/','lib/')
+        # Exact accepted gconv DSOs use DT_RUNPATH=$ORIGIN for their helper
+        # libraries. Keep this lookup local to those pinned private importers.
+        if row['scope']=='candidate' and name.startswith(PREFIX+'/usr/lib/gconv/'):
+            folders+=(PREFIX+'/usr/lib/gconv/',)
+        need(not row['interpreter'] or row['interpreter'].lstrip('/') in files,
+             'captured interpreter absent: '+name)
+        for lib in row['needed']:
+            need(any(folder+lib in files for folder in folders),
+                 'closed ELF dependency absent: '+name+' -> '+lib)
+
+
 def stage(package,root,generic):
     """Data only. Flatten contained archive links to exact ordinary runtime bytes."""
     need(package.stat().st_size==PACKAGE_BYTES and sha(read(package,32*1024**2))==PACKAGE_SHA,'accepted package byte identity before staging')

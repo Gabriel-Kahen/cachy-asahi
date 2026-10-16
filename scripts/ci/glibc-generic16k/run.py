@@ -63,10 +63,7 @@ def payload(archive,receipt,stage_rows,generic,root):
     for name in c.CLIENTS:
         raw=files['work/clients/'+name][1];expected=receipt['compile']['compiled_files'][name]
         c.need(len(raw)==expected['bytes'] and c.sha(raw)==expected['sha256'] and expected['elf_machine']==183,'client compile/capture join differs')
-    for name,row in elfs.items():
-        folders=(c.PREFIX+'/usr/lib/',) if row['scope']=='candidate' else ('usr/lib/','lib/')
-        c.need(not row['interpreter'] or row['interpreter'].lstrip('/') in files,'interpreter closure missing')
-        c.need(all(any(folder+lib in files for folder in folders) for lib in row['needed']),'DT_NEEDED closure missing')
+    c.elf_closure(elfs,files)
     c.need({'smoke','usr/bin/python3',*['usr/bin/'+name for name in c.TOOLS]}<=set(files),'bootstrap/probe closure roots absent')
     return files
 
