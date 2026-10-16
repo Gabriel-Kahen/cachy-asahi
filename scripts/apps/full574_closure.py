@@ -35,6 +35,11 @@ def source_bytes(path):
         return raw
     finally:os.close(fd)
 
+_fast_spec=importlib.util.spec_from_file_location("_apps574_statx_binding",Path(__file__).with_name("full574_statx.py"))
+fast=importlib.util.module_from_spec(_fast_spec);sys.modules[_fast_spec.name]=fast;_fast_spec.loader.exec_module(fast)
+scoped=fast.bind(ROOT,roots,caps,copy_scope,aux_copy,source_bytes)
+roots,caps,copy_scope=scoped.roots,scoped.caps,scoped.copy_scope
+
 def current_payloads():
     """Exact current recipe outputs, including archive directories; no ELF input."""
     result={}
@@ -71,6 +76,7 @@ def candidate_metadata(raw):
             need(count<=128 and set(member.pax_headers)<={'path','linkpath','mtime','atime','ctime'},'candidate-xattrs-or-unknown-pax-refused')
     return 'NO_CAPABILITIES_OR_OTHER_XATTRS'
 
+@fast.traced('tree-and-aux-observation')
 def _measure(root,limits):
     value=roots.observe(root,limits=limits,hardlinks='generic-development-internal')
     links.check(value,limits);return value,aux.checkpoint(root,value,limits)
@@ -79,6 +85,7 @@ def measure(root,limits):
     """Read-only raw observation; measured ineligible flags are not rewritten."""
     return _measure(root,limits)[0]
 
+@fast.traced('complete-capability-map')
 def capability_map(root,observation,limits,expected=None):
     mapping=caps.observe(root,observation['nodes'],limits)
     need(expected is None or mapping==expected,'original574-security-capabilities-changed')
@@ -170,6 +177,7 @@ class Adapter:
         self.comparator=aux.load_comparator(ROOT/'scripts/ci/full-development-composition/audio_aux.py',budget)
         self.source_check()
 
+    @fast.traced('source-revalidation')
     def source_check(self):
         need(self.t.inode(self.source)==self.lease['source_identity'],'source-lease-inode')
         fd=roots._open_root(self.source)
@@ -199,6 +207,7 @@ class Adapter:
         need(owner['source']==str(self.source) and owner['source_tree_sha256']==self.policy['source_tree_sha256'] and
             owner['copy'].get('apps_full574_binding')==self.binding,'copy-policy-lease-binding')
 
+    @fast.traced('copy-with-capability-restoration')
     def copy(self,source,target,**kwargs):
         need(Path(source)==self.source,'copy-source-lease')
         self.source_check()
@@ -207,7 +216,7 @@ class Adapter:
         baseline_nodes(self.source_check()[0]['nodes'],observation['nodes'],self.payloads)
         restored=caps.restore(target,observation['nodes'],self.policy['source_capabilities'],kwargs['limits'])
         need(restored==self.policy['source_capabilities'],'copied-capability-map')
-        value.update(apps_full574_binding=self.binding,security_capabilities='EXACT_SOURCE_MAP_RESTORED_AND_VERIFIED',source_capabilities_sha256=digest(restored))
+        value.update(mount_query_binding=scoped.receipt,apps_full574_binding=self.binding,security_capabilities='EXACT_SOURCE_MAP_RESTORED_AND_VERIFIED',source_capabilities_sha256=digest(restored))
         return value
 
     def selection(self,add,remove,inventory,before):
