@@ -108,7 +108,7 @@ def run(args):
         result['accepted_inputs'] = prepare_inputs(archives, args.private / 'candidate', checks,
                                                   s.ROOT / 'scripts/ci/full-development-composition')
         stage = 'runtime'; raw = args.private / 'runtime'; raw.mkdir(mode=0o700)
-        name = 'cachy-asahi-graph-processing-' + uuid.uuid4().hex[:16]
+        name = 'cachy-asahi-lsp-offline-' + uuid.uuid4().hex[:16]
         s.save(args.private / 'runtime-container.json', {'name': name})
         try:
             api.command(runtime_command(held, image, name, args.private / 'candidate', raw, lock, args.product),
