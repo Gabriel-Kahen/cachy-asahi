@@ -569,7 +569,7 @@ next_step = "Complete finite supported signed catalog, native pair and installed
 [[packages]]
 name = "cachy-asahi-repository-runtime"
 phase = "tools-experience"
-status = "candidate-source-only"
+status = "candidate"
 source = "local-original-pinned-project-helpers"
 recipe = "packages/tools/cachy-asahi-repository-runtime/PKGBUILD"
 license = "MIT"
@@ -577,10 +577,10 @@ candidate_version = "0.1.0-1"
 selected_for_development = false
 selected_for_release = false
 host_validation = "PASS exact three original helpers, eight-file staging and real installed-layout planner calls in standalone25-check suite"
-native_build = "NOT RUN"
-installation = "NOT RUN"
+native_build = "PASS native ARM pair38967303862: both 28888-byte archives/BUILDINFO byte-identical; Root original comparison replay passes"
+installation = "NOT ACCEPTED: dependency image install reached a failing pacman database-query option; full lifecycle pending"
 hardware_validation = "NOT RUN"
-next_step = "Native build pair and disposable dependency-checked installation/removal with apps; runtime helpers authenticate development inputs and provide no package apply or production trust authority."
+next_step = "Finish disposable dependency-checked installation/removal with apps; runtime helpers authenticate development inputs and provide no package apply or production trust authority."
 
 
 [[packages]]
