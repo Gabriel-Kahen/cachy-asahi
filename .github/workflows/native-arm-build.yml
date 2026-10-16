@@ -1,68 +1,74 @@
-name: native-arm-build
+name: native-arm-audio-graph-processing
 on:
   workflow_dispatch:
     inputs:
-      mode:
-        description: Probe, audit, original builds, or frozen development-only integration
+      source_commit:
+        description: Reviewed full source SHA containing the reviewed four-graph synthetic processing helpers
         required: true
-        default: probe
-        type: choice
-        options: [probe, audit, build, integration]
-      inputs_sha256:
-        description: Reviewed SHA-256 of selected input lock (build uses maintained successor)
         type: string
-        default: ''
-      recipes_sha256:
-        description: Reviewed SHA-256 of selected four-package recipe lock (build)
-        type: string
-        default: ''
-      integration_sha256:
-        description: Reviewed SHA-256 of scripts/ci/integration.lock.json (integration)
-        type: string
-        default: ''
 permissions:
   contents: read
+  actions: read
 concurrency:
-  group: native-arm-build
+  group: native-arm-audio-graph-processing
   cancel-in-progress: false
   queue: max
 jobs:
   native:
     if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
     runs-on: ubuntu-24.04-arm
-    timeout-minutes: 50
+    timeout-minutes: 150
     env:
       PYTHONDONTWRITEBYTECODE: '1'
-      BUILD_MODE: ${{ inputs.mode }}
-      INPUTS_SHA256: ${{ inputs.inputs_sha256 }}
-      RECIPES_SHA256: ${{ inputs.recipes_sha256 }}
-      INTEGRATION_SHA256: ${{ inputs.integration_sha256 }}
+      SOURCE_COMMIT: ${{ inputs.source_commit }}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1, verified upstream ref
+      - name: Check out reviewed offline Asahi graph source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
+          ref: ${{ inputs.source_commit }}
+          path: audio-graph-source
           persist-credentials: false
-      - name: Record native runner evidence
+      - name: Check out unchanged package APIs
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: db1010de321cc056a01672f006e6cc25d3c8a8b7
+          path: product-api
+          persist-credentials: false
+      - name: Check out pinned574 preparation only
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 8d8e2f5d5a94ab3ebee2d8b1cc20aecf98e435e2
+          path: desktop-base
+          persist-credentials: false
+      - name: Run inert processing oracle controls before native actors
+        timeout-minutes: 2
         shell: bash
         run: |
           set -euo pipefail
-          install -d -m 700 "$RUNNER_TEMP/native-home"
-          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/native-home" LANG=C.UTF-8 TZ=UTC \
-            RUNNER_TEMP="$RUNNER_TEMP" TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 \
-            RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" \
-            ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
-            GITHUB_SHA="$GITHUB_SHA" GITHUB_REPOSITORY="$GITHUB_REPOSITORY" \
-            GITHUB_RUN_ID="$GITHUB_RUN_ID" GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" \
-            python3 -B scripts/ci/native_arm.py probe \
-            --cache "$RUNNER_TEMP/alarm-cache" --output "$RUNNER_TEMP/native-probe"
-      - name: Seed the six frozen private cache objects before native work
-        if: inputs.mode == 'build'
+          python3 -I -B -m unittest discover \
+            -s "$GITHUB_WORKSPACE/audio-graph-source/scripts/ci/asahi-audio-graph-processing" -p 'test_*.py'
+          cc -std=c11 -Wall -Wextra -Werror -O2 -UNDEBUG \
+            "$GITHUB_WORKSPACE/audio-graph-source/scripts/ci/asahi-audio-graph-processing/test_processing.c" \
+            -o "$RUNNER_TEMP/graph-processing-oracles"
+          "$RUNNER_TEMP/graph-processing-oracles" "$RUNNER_TEMP/graph-processing-oracle-samples.f32"
+          rm -f -- "$RUNNER_TEMP/graph-processing-oracles"
+      - name: Bind source and private job ownership
+        timeout-minutes: 2
+        shell: bash
+        run: |
+          set -euo pipefail
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP" LANG=C.UTF-8 TZ=UTC \
+            python3 -I -B "$GITHUB_WORKSPACE/audio-graph-source/scripts/ci/asahi-audio-graph-processing/job.py" init \
+            --source-commit "$SOURCE_COMMIT" --source "$GITHUB_WORKSPACE/audio-graph-source" \
+            --product "$GITHUB_WORKSPACE/product-api" --desktop "$GITHUB_WORKSPACE/desktop-base" \
+            --root "$RUNNER_TEMP/audio-graph-job" >"$RUNNER_TEMP/audio-graph-init-controller.log" 2>&1
+      - name: Seed only the six exact retained inputs
+        timeout-minutes: 2
         shell: bash
         env:
           CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01 }}
           CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02 }}
           CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01 }}
-          CACHY_OLD_FOUR_SCHEMA: '1'
-          CACHY_OLD_FOUR_SOURCE_EPOCH: '1791748800'
           CACHY_OLD_FOUR_JBIGKIT_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_01 }}
           CACHY_OLD_FOUR_JBIGKIT_02: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_02 }}
           CACHY_OLD_FOUR_JBIGKIT_SIG_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_SIG_01 }}
@@ -84,72 +90,116 @@ jobs:
           CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-          test "$INPUTS_SHA256" = beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
-          test "$(sha256sum scripts/ci/maintained-native/locks/inputs-successor.lock.json | cut -d ' ' -f 1)" = "$INPUTS_SHA256"
-          timeout --signal=TERM --kill-after=5s 75s python3 -B - <<'PYSEED'
-          import hashlib
-          import os
-          from pathlib import Path
-          import sys
-          sys.path.insert(0, 'scripts/ci')
-          from old_four_seed import (OLD_FOUR_PRIVATE_ROWS, RETAINED_BUBBLEWRAP_PRIVATE_ROWS,
-                                     seed_current_build_cache)
-          pin = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
-          if hashlib.sha256(Path('scripts/ci/inputs.lock.json').read_bytes()).hexdigest() != pin:
-              raise SystemExit('private-cache-input-binding-refused')
-          names = {'CACHY_OLD_FOUR_' + f'{tag}_{i:02d}'
-                   for _, _, _, tag, count in OLD_FOUR_PRIVATE_ROWS for i in range(1, count + 1)}
-          retained = {'CACHY_RETAINED_BUBBLEWRAP_V1_' + f'{tag}_{i:02d}'
-                      for _, _, _, tag, sizes in RETAINED_BUBBLEWRAP_PRIVATE_ROWS
-                      for i in range(1, len(sizes) + 1)}
-          names |= retained
-          if len(names) != 22 or len(retained) != 3 or not all(os.environ.get(name) for name in names):
-              raise SystemExit('private-cache-required-secrets-missing')
-          cache = Path(os.environ['RUNNER_TEMP']) / 'alarm-cache'
-          cache.mkdir(mode=0o700)
-          keep = names | {'CACHY_OLD_FOUR_SCHEMA', 'CACHY_OLD_FOUR_SOURCE_EPOCH'}
-          for name in tuple(os.environ):
-              if name not in keep:
-                  os.environ.pop(name)
-          seed_current_build_cache(cache, pin)
-          PYSEED
-      - name: Authenticate inputs or build in isolated native containers
-        if: inputs.mode != 'probe'
+          python3 -I -B "$GITHUB_WORKSPACE/audio-graph-source/scripts/ci/asahi-audio-graph-processing/job.py" seed \
+            --source-commit "$SOURCE_COMMIT" --source "$GITHUB_WORKSPACE/audio-graph-source" \
+            --product "$GITHUB_WORKSPACE/product-api" --desktop "$GITHUB_WORKSPACE/desktop-base" \
+            --root "$RUNNER_TEMP/audio-graph-job" >"$RUNNER_TEMP/audio-graph-job/seed-controller.log" 2>&1
+      - name: Check out fourteen pinned public builder inputs
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd
+          path: retained-public-inputs
+          persist-credentials: false
+      - name: Seed fourteen fixed public inputs without credentials
+        timeout-minutes: 3
         shell: bash
-        env:
-          NATIVE_RECIPES_PATH: ${{ inputs.mode == 'build' && 'scripts/ci/setup-0.1.0-4-recipes.lock.json' || 'scripts/ci/recipes.lock.json' }}
-          NATIVE_INPUTS_PATH: ${{ inputs.mode == 'build' && 'scripts/ci/maintained-native/locks/inputs-successor.lock.json' || 'scripts/ci/inputs.lock.json' }}
         run: |
           set -euo pipefail
-          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/native-home" LANG=C.UTF-8 TZ=UTC \
-            RUNNER_TEMP="$RUNNER_TEMP" TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 \
-            RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" \
-            ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
-            GITHUB_SHA="$GITHUB_SHA" GITHUB_REPOSITORY="$GITHUB_REPOSITORY" \
-            GITHUB_RUN_ID="$GITHUB_RUN_ID" GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" \
-            python3 -B scripts/ci/native_arm.py "$BUILD_MODE" \
-            --inputs "$NATIVE_INPUTS_PATH" --inputs-sha256 "$INPUTS_SHA256" \
-            --recipes "$NATIVE_RECIPES_PATH" --recipes-sha256 "$RECIPES_SHA256" \
-            --integration-sha256 "$INTEGRATION_SHA256" \
-            --integration-output "$RUNNER_TEMP/integration-evidence" \
-            --cache "$RUNNER_TEMP/alarm-cache" --output "$RUNNER_TEMP/native-evidence"
-      - name: Retain bounded evidence and package artifacts in free workflow logs
-        if: always()
+          python3 -I -B - <<'PYSEED'
+          import hashlib, os
+          from pathlib import Path
+          root=Path(os.environ['GITHUB_WORKSPACE'])/'retained-public-inputs'
+          pins={'seed.py':'a7857658af224984065e575f6ffed8308ea85027d46eace8bda146d9033e93b3',
+                'index.json':'a388c8c8ba8e06cb92fd2be598b86e433c4e403b6e71a0f15b1eaec381bb7300'}
+          for name,digest in pins.items():
+              path=root/name
+              if not path.is_file() or path.is_symlink() or hashlib.sha256(path.read_bytes()).hexdigest()!=digest:
+                  raise SystemExit('public-seed-pin-differs')
+          PYSEED
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP" LANG=C.UTF-8 TZ=UTC \
+            python3 -I -B "$GITHUB_WORKSPACE/retained-public-inputs/seed.py" \
+            --cache "$RUNNER_TEMP/audio-graph-job/base/context/deps"
+      - name: Prepare only the unchanged signed574 builder
+        timeout-minutes: 40
+        shell: bash
         run: |
-          evidence_status=0
-          python3 scripts/ci/log_evidence.py "$RUNNER_TEMP/native-probe" || evidence_status=1
-          if [ -d "$RUNNER_TEMP/native-evidence" ]; then
-            python3 scripts/ci/log_evidence.py "$RUNNER_TEMP/native-evidence" || evidence_status=1
-          fi
-          if [ -d "$RUNNER_TEMP/integration-evidence/public" ]; then
-            for stage in "$RUNNER_TEMP/integration-evidence/public"/*; do
-              if [ -d "$stage" ]; then
-                python3 scripts/ci/log_evidence.py "$stage" || evidence_status=1
-              fi
-            done
-            if [ -f "$RUNNER_TEMP/integration-evidence/public/summary/result.json" ]; then
-              cat "$RUNNER_TEMP/integration-evidence/public/summary/result.json"
-            fi
-          fi
-          exit "$evidence_status"
+          set -euo pipefail
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP" LANG=C.UTF-8 TZ=UTC \
+            python3 -I -B "$GITHUB_WORKSPACE/audio-graph-source/scripts/ci/asahi-audio-graph-processing/job.py" build \
+            --source-commit "$SOURCE_COMMIT" --source "$GITHUB_WORKSPACE/audio-graph-source" \
+            --product "$GITHUB_WORKSPACE/product-api" --desktop "$GITHUB_WORKSPACE/desktop-base" \
+            --root "$RUNNER_TEMP/audio-graph-job" >"$RUNNER_TEMP/audio-graph-job/base-controller.log" 2>&1
+      - name: Retrieve only the fixed accepted audio inputs privately
+        timeout-minutes: 11
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP" LANG=C.UTF-8 TZ=UTC \
+            GH_TOKEN="$GH_TOKEN" python3 -I -B "$GITHUB_WORKSPACE/audio-graph-source/scripts/ci/asahi-audio-graph-processing/job.py" retrieve \
+            --source-commit "$SOURCE_COMMIT" --source "$GITHUB_WORKSPACE/audio-graph-source" \
+            --product "$GITHUB_WORKSPACE/product-api" --desktop "$GITHUB_WORKSPACE/desktop-base" \
+            --root "$RUNNER_TEMP/audio-graph-job" >"$RUNNER_TEMP/audio-graph-job/retrieval-controller.log" 2>&1
+      - name: Run sixteen fresh synthetic streams and eight controls with candidate adapter
+        timeout-minutes: 18
+        shell: bash
+        run: |
+          set -euo pipefail
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP" LANG=C.UTF-8 TZ=UTC \
+            python3 -I -B "$GITHUB_WORKSPACE/audio-graph-source/scripts/ci/asahi-audio-graph-processing/job.py" trial \
+            --source-commit "$SOURCE_COMMIT" --source "$GITHUB_WORKSPACE/audio-graph-source" \
+            --product "$GITHUB_WORKSPACE/product-api" --desktop "$GITHUB_WORKSPACE/desktop-base" \
+            --root "$RUNNER_TEMP/audio-graph-job" >"$RUNNER_TEMP/audio-graph-job/trial-controller.log" 2>&1
+      - name: Retire only owned trial resources and the owned574 image
+        id: cleanup
+        if: always()
+        timeout-minutes: 5
+        shell: bash
+        run: |
+          set -euo pipefail
+          cleanup_status=0
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP" LANG=C.UTF-8 TZ=UTC \
+            python3 -I -B "$GITHUB_WORKSPACE/audio-graph-source/scripts/ci/asahi-audio-graph-processing/job.py" cleanup \
+            --source-commit "$SOURCE_COMMIT" --source "$GITHUB_WORKSPACE/audio-graph-source" \
+            --product "$GITHUB_WORKSPACE/product-api" --desktop "$GITHUB_WORKSPACE/desktop-base" \
+            --root "$RUNNER_TEMP/audio-graph-job" >"$RUNNER_TEMP/audio-graph-cleanup-controller.log" 2>&1 || cleanup_status=$?
+          rm -f -- "$RUNNER_TEMP/audio-graph-init-controller.log" "$RUNNER_TEMP/audio-graph-cleanup-controller.log"
+          exit "$cleanup_status"
+      - name: Retain only the closed public JSON observations
+        if: always()
+        timeout-minutes: 2
+        shell: bash
+        env:
+          CLEANUP_OUTCOME: ${{ steps.cleanup.outcome }}
+        run: |
+          set -euo pipefail
+          python3 -I -B - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          root = Path(os.environ['RUNNER_TEMP']) / 'audio-graph-job/public'
+          root.mkdir(parents=True, exist_ok=True, mode=0o700)
+          path = root / 'result.json'
+          allowed = {'result.json', 'runtime.json'}
+          valid = all(p.is_file() and not p.is_symlink() and p.name in allowed for p in root.iterdir())
+          if not valid:
+              raise SystemExit('public-output-set-refused')
+          if os.environ['CLEANUP_OUTCOME'] != 'success' or not path.is_file():
+              try:
+                  result = json.loads(path.read_text()) if path.is_file() else {}
+              except (OSError, ValueError):
+                  result = {}
+              result.update(status='FAIL', cleanup_step=os.environ['CLEANUP_OUTCOME'],
+                            target_audio='NOT RUN', hardware='NOT RUN', native_rebuilds=0, selected_for_release=False)
+              path.write_text(json.dumps(result, indent=2, sort_keys=True) + '\n')
+          if sum(p.stat().st_size for p in root.iterdir()) > 16 * 1024 * 1024:
+              raise SystemExit('public-output-size-refused')
+          PY
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP" LANG=C.UTF-8 TZ=UTC \
+            python3 -I -B "$GITHUB_WORKSPACE/product-api/scripts/ci/log_evidence.py" \
+            "$RUNNER_TEMP/audio-graph-job/public"
+          rm -f -- "$RUNNER_TEMP/audio-graph-init-controller.log" "$RUNNER_TEMP/audio-graph-job/seed-controller.log" \
+            "$RUNNER_TEMP/audio-graph-job/base-controller.log" "$RUNNER_TEMP/audio-graph-job/trial-controller.log" \
+            "$RUNNER_TEMP/audio-graph-job/retrieval-controller.log" \
+            "$RUNNER_TEMP/audio-graph-cleanup-controller.log"
