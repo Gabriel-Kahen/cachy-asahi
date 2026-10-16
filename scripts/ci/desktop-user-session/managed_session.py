@@ -95,6 +95,16 @@ def runtime_nodes():
         need(stat.S_ISSOCK(value.st_mode) and value.st_uid == UID, 'managed socket identity differs')
 
 
+def bus_owner_ready(command):
+    """Only typed name absence is pending; transport/parse failures still refuse."""
+    reply = command(['/usr/bin/busctl', '--address=' + ADDRESS, '--auto-start=no', '--timeout=3s',
+        'call', 'org.freedesktop.DBus', '/org/freedesktop/DBus', 'org.freedesktop.DBus',
+        'NameHasOwner', 's', 'org.freedesktop.systemd1'])
+    match = re.fullmatch(r'b (true|false)\s*', reply)
+    need(match is not None, 'typed D-Bus name-owner reply required')
+    return match[1] == 'true'
+
+
 def bus_probe(command, expected_pid):
     need(type(expected_pid) is int and 0 < expected_pid < 2**32, 'expected manager PID required')
     prefix = ['/usr/bin/busctl', '--address=' + ADDRESS, '--auto-start=no', '--timeout=3s', 'call']
@@ -185,7 +195,10 @@ class ManagedSession:
             except FileNotFoundError:
                 return None
             # Socket activation is permitted only on the systemd-managed endpoint.
-            reply = bus_probe(lambda argv: self.command(argv, user=True), manager['MainPID'])
+            command = lambda argv: self.command(argv, user=True)
+            if not bus_owner_ready(command):
+                return None
+            reply = bus_probe(command, manager['MainPID'])
             self.user_env['CACHY_MANAGED_MANAGER_PID'] = str(manager['MainPID'])
             self.base.emit('managed_session_ready', status='PASS', units=dict(self.states), **reply)
             return dict(self.user_env)
