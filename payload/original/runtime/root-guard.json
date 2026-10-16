@@ -1,0 +1,70 @@
+{
+  "architecture": "aarch64",
+  "binary_sha256": "c45e61445a131f3c5b0a77223350235a59fcf07373675d258e7c063f0b0dcd1c",
+  "compile_command": [
+    "/usr/bin/cc",
+    "-std=c11",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Wformat=2",
+    "-Werror",
+    "-DMANAGEMENT_TEST",
+    "-I/usr/include/glib-2.0",
+    "-I/usr/lib/glib-2.0/include",
+    "-I/usr/include/libmount",
+    "-I/usr/include/blkid",
+    "-I/usr/include/sysprof-6",
+    "-pthread",
+    "/guard-source/test_management.c",
+    "/guard-source/management.c",
+    "-o",
+    "/tmp/management-root-guard",
+    "-Wl,-z,max-page-size=16384",
+    "-lgio-2.0",
+    "-lgobject-2.0",
+    "-lglib-2.0"
+  ],
+  "euid": 0,
+  "hardware": "NOT_RUN",
+  "page_size": 4096,
+  "passed": 1,
+  "pkg_config_cflags": [
+    "-I/usr/include/glib-2.0",
+    "-I/usr/lib/glib-2.0/include",
+    "-I/usr/include/libmount",
+    "-I/usr/include/blkid",
+    "-I/usr/include/sysprof-6",
+    "-pthread"
+  ],
+  "pkg_config_libs": [
+    "-lgio-2.0",
+    "-lgobject-2.0",
+    "-lglib-2.0"
+  ],
+  "scope": "SEPARATE_SOURCE_BOUND_TEST_CONTROL_NOT_INSTALLED_PRODUCT_BEHAVIOR",
+  "skipped": 0,
+  "source_files": {
+    "management.c": {
+      "bytes": 19484,
+      "sha256": "1703fe13c3055a3f35ec12b85c2ffcb3814a0c364fc9537caf4adf32d24d20b4"
+    },
+    "management.h": {
+      "bytes": 1564,
+      "sha256": "5e5e8f196321eb6da75224cbb9f48e9dab7ed20909af4569a9a910ac29f8c212"
+    },
+    "test_management.c": {
+      "bytes": 11388,
+      "sha256": "17a23fa7fce5562c3ddeab9a2dda2aa2853c4c2b40dc532bcd3e21fe9a67f18c"
+    }
+  },
+  "status": "PASS_NATIVE_REAL_ROOT_GUARD",
+  "tap_bytes": 154,
+  "tap_sha256": "5adcb3b5078ae8da0f66e043109ac6a68f4fe82e2327cb3731d5cff00d0697f1",
+  "test_command": [
+    "/tmp/management-root-guard",
+    "-p",
+    "/management/root-guard"
+  ],
+  "uid": 0
+}

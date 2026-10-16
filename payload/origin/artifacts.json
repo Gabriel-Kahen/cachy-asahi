@@ -1,0 +1,25 @@
+{
+  "total_count": 1,
+  "artifacts": [
+    {
+      "id": 12079667020,
+      "node_id": "MDg6QXJ0aWZhY3QxMjA3OTY2NzAyMA==",
+      "name": "welcome-management-native-candidates-38974893566-1",
+      "size_in_bytes": 1891061,
+      "url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/actions/artifacts/12079667020",
+      "archive_download_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/actions/artifacts/12079667020/zip",
+      "expired": false,
+      "digest": "sha256:16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960",
+      "created_at": "2026-10-16T22:46:31Z",
+      "updated_at": "2026-10-16T22:46:31Z",
+      "expires_at": "2026-10-19T22:46:30Z",
+      "workflow_run": {
+        "id": 38974893566,
+        "repository_id": 1414857795,
+        "head_repository_id": 1414857795,
+        "head_branch": "codex/welcome-management-import-fixed-v1",
+        "head_sha": "216b7256bc0e22dd6719b70fc8c15376de158660"
+      }
+    }
+  ]
+}

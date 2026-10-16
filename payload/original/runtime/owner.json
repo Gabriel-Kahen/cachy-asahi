@@ -1,0 +1,16 @@
+{
+  "containers": [
+    "cachy-asahi-product-probe-796e7631d5e9a319b833946f8ffe3e0e",
+    "cachy-asahi-product-f8b09be12cf2120b6659c0d2d79bd4fa",
+    "cachy-asahi-product-e0df956c7be5b821bb04cf11ee951000",
+    "cachy-asahi-product-9d250c1eeca3cf9dd532efb329dc48bd",
+    "cachy-asahi-product-90a42ab7133dc8075fe30fb8d1e03f90",
+    "cachy-asahi-product-6742dc60dce04d8406d016772bf488fc",
+    "cachy-asahi-product-d26fb51f4b5aceb14884ce179f93eeb9",
+    "cachy-asahi-product-lifecycle-7ccd67a7b9313bc29b48a215bdbbbc14"
+  ],
+  "image": "sha256:76341c747962c665b25f5ee6a823346491d3c85863932eb750e948df9aef8142",
+  "label": "org.cachy-asahi.welcome-management-native.job",
+  "schema_version": 1,
+  "token": "d82489af6c650174c910f2807546f780"
+}

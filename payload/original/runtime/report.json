@@ -1,0 +1,1187 @@
+{
+  "base_count": 574,
+  "base_image": "sha256:76341c747962c665b25f5ee6a823346491d3c85863932eb750e948df9aef8142",
+  "base_lock_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+  "commands": [
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--name",
+        "cachy-asahi-product-probe-796e7631d5e9a319b833946f8ffe3e0e",
+        "--pull=never",
+        "--platform=linux/arm64",
+        "--network=none",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges",
+        "--pids-limit=256",
+        "--memory=3g",
+        "--cpus=4",
+        "--user",
+        "1001:1001",
+        "--tmpfs",
+        "/tmp:rw,nosuid,nodev,exec,size=2g",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/welcome-management-native-runtime,dst=/out",
+        "--read-only",
+        "--label=org.cachy-asahi.welcome-management-native.job=d82489af6c650174c910f2807546f780",
+        "--entrypoint=/bin/bash",
+        "sha256:76341c747962c665b25f5ee6a823346491d3c85863932eb750e948df9aef8142",
+        "-c",
+        "/usr/bin/pacman -T \"$@\" >/dev/null && /usr/bin/pacman -Q",
+        "orphans-dependencies",
+        "gcc",
+        "glib2>=2.74",
+        "gtk3>=3.24",
+        "make",
+        "pacman",
+        "pkgconf",
+        "python",
+        "python>=3.11",
+        "systemd"
+      ],
+      "log": "base-inventory.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--name",
+        "cachy-asahi-product-f8b09be12cf2120b6659c0d2d79bd4fa",
+        "--pull=never",
+        "--platform=linux/arm64",
+        "--network=none",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges",
+        "--pids-limit=256",
+        "--memory=3g",
+        "--cpus=4",
+        "--user",
+        "1001:1001",
+        "--tmpfs",
+        "/tmp:rw,nosuid,nodev,exec,size=2g",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/welcome-management-native-runtime/cachy-asahi-welcome-a/artifacts,dst=/out",
+        "--read-only",
+        "--label=org.cachy-asahi.welcome-management-native.job=d82489af6c650174c910f2807546f780",
+        "--env=CACHY_ASAHI_CONTAINER=1",
+        "--env=SOURCE_DATE_EPOCH=1791748800",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/welcome-management-native-runtime/cachy-asahi-welcome-a/inputs,dst=/inputs,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/welcome-management-native-runtime/cachy-asahi-welcome-a/expected-packages.lock,dst=/expected-packages.lock,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/cachy-asahi/cachy-asahi/scripts/build/container-entry.sh,dst=/builder-entry.sh,readonly",
+        "--entrypoint=/bin/bash",
+        "sha256:76341c747962c665b25f5ee6a823346491d3c85863932eb750e948df9aef8142",
+        "/builder-entry.sh"
+      ],
+      "log": "cachy-asahi-welcome-a/build.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--name",
+        "cachy-asahi-product-e0df956c7be5b821bb04cf11ee951000",
+        "--pull=never",
+        "--platform=linux/arm64",
+        "--network=none",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges",
+        "--pids-limit=256",
+        "--memory=3g",
+        "--cpus=4",
+        "--user",
+        "1001:1001",
+        "--tmpfs",
+        "/tmp:rw,nosuid,nodev,exec,size=2g",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/welcome-management-native-runtime/cachy-asahi-welcome-b/artifacts,dst=/out",
+        "--read-only",
+        "--label=org.cachy-asahi.welcome-management-native.job=d82489af6c650174c910f2807546f780",
+        "--env=CACHY_ASAHI_CONTAINER=1",
+        "--env=SOURCE_DATE_EPOCH=1791748800",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/welcome-management-native-runtime/cachy-asahi-welcome-b/inputs,dst=/inputs,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/welcome-management-native-runtime/cachy-asahi-welcome-b/expected-packages.lock,dst=/expected-packages.lock,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/cachy-asahi/cachy-asahi/scripts/build/container-entry.sh,dst=/builder-entry.sh,readonly",
+        "--entrypoint=/bin/bash",
+        "sha256:76341c747962c665b25f5ee6a823346491d3c85863932eb750e948df9aef8142",
+        "/builder-entry.sh"
+      ],
+      "log": "cachy-asahi-welcome-b/build.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--name",
+        "cachy-asahi-product-9d250c1eeca3cf9dd532efb329dc48bd",
+        "--pull=never",
+        "--platform=linux/arm64",
+        "--network=none",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges",
+        "--pids-limit=256",
+        "--memory=3g",
+        "--cpus=4",
+        "--user",
+        "1001:1001",
+        "--tmpfs",
+        "/tmp:rw,nosuid,nodev,exec,size=2g",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/welcome-management-native-runtime/cachy-asahi-doctor-a/artifacts,dst=/out",
+        "--read-only",
+        "--label=org.cachy-asahi.welcome-management-native.job=d82489af6c650174c910f2807546f780",
+        "--env=CACHY_ASAHI_CONTAINER=1",
+        "--env=SOURCE_DATE_EPOCH=1791748800",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/welcome-management-native-runtime/cachy-asahi-doctor-a/inputs,dst=/inputs,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/welcome-management-native-runtime/cachy-asahi-doctor-a/expected-packages.lock,dst=/expected-packages.lock,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/cachy-asahi/cachy-asahi/scripts/build/container-entry.sh,dst=/builder-entry.sh,readonly",
+        "--entrypoint=/bin/bash",
+        "sha256:76341c747962c665b25f5ee6a823346491d3c85863932eb750e948df9aef8142",
+        "/builder-entry.sh"
+      ],
+      "log": "cachy-asahi-doctor-a/build.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--name",
+        "cachy-asahi-product-90a42ab7133dc8075fe30fb8d1e03f90",
+        "--pull=never",
+        "--platform=linux/arm64",
+        "--network=none",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges",
+        "--pids-limit=256",
+        "--memory=3g",
+        "--cpus=4",
+        "--user",
+        "1001:1001",
+        "--tmpfs",
+        "/tmp:rw,nosuid,nodev,exec,size=2g",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/welcome-management-native-runtime/cachy-asahi-doctor-b/artifacts,dst=/out",
+        "--read-only",
+        "--label=org.cachy-asahi.welcome-management-native.job=d82489af6c650174c910f2807546f780",
+        "--env=CACHY_ASAHI_CONTAINER=1",
+        "--env=SOURCE_DATE_EPOCH=1791748800",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/welcome-management-native-runtime/cachy-asahi-doctor-b/inputs,dst=/inputs,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/welcome-management-native-runtime/cachy-asahi-doctor-b/expected-packages.lock,dst=/expected-packages.lock,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/cachy-asahi/cachy-asahi/scripts/build/container-entry.sh,dst=/builder-entry.sh,readonly",
+        "--entrypoint=/bin/bash",
+        "sha256:76341c747962c665b25f5ee6a823346491d3c85863932eb750e948df9aef8142",
+        "/builder-entry.sh"
+      ],
+      "log": "cachy-asahi-doctor-b/build.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--name",
+        "cachy-asahi-product-6742dc60dce04d8406d016772bf488fc",
+        "--pull=never",
+        "--platform=linux/arm64",
+        "--network=none",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges",
+        "--pids-limit=256",
+        "--memory=3g",
+        "--cpus=4",
+        "--user",
+        "1001:1001",
+        "--tmpfs",
+        "/tmp:rw,nosuid,nodev,exec,size=2g",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/welcome-management-native-runtime/cachy-asahi-orphans-a/artifacts,dst=/out",
+        "--read-only",
+        "--label=org.cachy-asahi.welcome-management-native.job=d82489af6c650174c910f2807546f780",
+        "--env=CACHY_ASAHI_CONTAINER=1",
+        "--env=SOURCE_DATE_EPOCH=1791748800",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/welcome-management-native-runtime/cachy-asahi-orphans-a/inputs,dst=/inputs,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/welcome-management-native-runtime/cachy-asahi-orphans-a/expected-packages.lock,dst=/expected-packages.lock,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/cachy-asahi/cachy-asahi/scripts/build/container-entry.sh,dst=/builder-entry.sh,readonly",
+        "--entrypoint=/bin/bash",
+        "sha256:76341c747962c665b25f5ee6a823346491d3c85863932eb750e948df9aef8142",
+        "/builder-entry.sh"
+      ],
+      "log": "cachy-asahi-orphans-a/build.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--name",
+        "cachy-asahi-product-d26fb51f4b5aceb14884ce179f93eeb9",
+        "--pull=never",
+        "--platform=linux/arm64",
+        "--network=none",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges",
+        "--pids-limit=256",
+        "--memory=3g",
+        "--cpus=4",
+        "--user",
+        "1001:1001",
+        "--tmpfs",
+        "/tmp:rw,nosuid,nodev,exec,size=2g",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/welcome-management-native-runtime/cachy-asahi-orphans-b/artifacts,dst=/out",
+        "--read-only",
+        "--label=org.cachy-asahi.welcome-management-native.job=d82489af6c650174c910f2807546f780",
+        "--env=CACHY_ASAHI_CONTAINER=1",
+        "--env=SOURCE_DATE_EPOCH=1791748800",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/welcome-management-native-runtime/cachy-asahi-orphans-b/inputs,dst=/inputs,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/welcome-management-native-runtime/cachy-asahi-orphans-b/expected-packages.lock,dst=/expected-packages.lock,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/cachy-asahi/cachy-asahi/scripts/build/container-entry.sh,dst=/builder-entry.sh,readonly",
+        "--entrypoint=/bin/bash",
+        "sha256:76341c747962c665b25f5ee6a823346491d3c85863932eb750e948df9aef8142",
+        "/builder-entry.sh"
+      ],
+      "log": "cachy-asahi-orphans-b/build.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--name",
+        "cachy-asahi-product-lifecycle-7ccd67a7b9313bc29b48a215bdbbbc14",
+        "--pull=never",
+        "--platform=linux/arm64",
+        "--network=none",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges",
+        "--pids-limit=256",
+        "--memory=3g",
+        "--cpus=4",
+        "--user",
+        "0:0",
+        "--tmpfs",
+        "/tmp:rw,nosuid,nodev,exec,size=2g",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/welcome-management-native-runtime/lifecycle-output,dst=/out",
+        "--cap-add=CHOWN",
+        "--cap-add=DAC_OVERRIDE",
+        "--cap-add=FOWNER",
+        "--cap-add=FSETID",
+        "--cap-add=SETUID",
+        "--cap-add=SETGID",
+        "--label=org.cachy-asahi.welcome-management-native.job=d82489af6c650174c910f2807546f780",
+        "--env=CACHY_ASAHI_MANAGEMENT_OPERATION=lifecycle",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/welcome-management-native-runtime/lifecycle-inputs,dst=/inputs,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/welcome-management-native-runtime/lifecycle-inputs/runner,dst=/runner,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/cachy-asahi/cachy-asahi/packages/tools/cachy-asahi-welcome,dst=/guard-source,readonly",
+        "--entrypoint=/usr/bin/python3",
+        "sha256:76341c747962c665b25f5ee6a823346491d3c85863932eb750e948df9aef8142",
+        "-I",
+        "-B",
+        "/runner/lifecycle.py"
+      ],
+      "log": "lifecycle.log"
+    },
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/runner/work/_temp/welcome-management-native-runtime/gui-prepared/desktop574_runtime.py",
+        "--source",
+        "/home/runner/work/cachy-asahi/cachy-asahi",
+        "--base-dir",
+        "/home/runner/work/_temp/desktop574",
+        "--output",
+        "/home/runner/work/_temp/welcome-management-native-runtime/gui-runtime"
+      ],
+      "log": "gui-runtime.log"
+    }
+  ],
+  "dependencies": [
+    "gcc",
+    "glib2>=2.74",
+    "gtk3>=3.24",
+    "make",
+    "pacman",
+    "pkgconf",
+    "python",
+    "python>=3.11",
+    "systemd"
+  ],
+  "error": "command failed: gui-runtime.log",
+  "error_type": "ValueError",
+  "hardware": "NOT_RUN",
+  "lifecycle": {
+    "architecture": "aarch64",
+    "base574_preserved": true,
+    "base_count": 574,
+    "base_manifest_sha256": "40b91ee242243676833e30b95b21da52bd00fe72ade753df8a1ea0a8c96575fc",
+    "events": [
+      {
+        "base574_preserved": true,
+        "count": 577,
+        "observations": [
+          {
+            "actual_default_count": 577,
+            "apply_supported": false,
+            "base_protected": true,
+            "db_preserved": true,
+            "default_dbpath": "/var/lib/pacman",
+            "default_root": "/",
+            "doctor": "PASS_ACTUAL_READONLY_JSON",
+            "fixture": "PASS_VERSIONED_PROVIDED_OPTIONAL_CYCLE_PROTECTED",
+            "foreign_lock": "PASS_REFUSAL_PRESERVED",
+            "home": "management-home-fresh",
+            "plan_verify": "PASS_NOT_APPLIED",
+            "readonly_enforced": "UNPRIVILEGED_NO_DB_WRITE_ACCESS",
+            "reports": {
+              "default-assessment.json": "fbea1d09077b497bdc0ac26cc6b06fc7e4ebb9d75044d337724c25c18278c864",
+              "doctor.json": "45b7b451511c8120046cecfb99760a3b9940421b812cc2e8ffabe9c74fbc3bb2",
+              "fixture-assessment.json": "0eeb4552a873a3b233205d2eaa8da7b4b7bd846e92dbeb4ac61dc20101199094",
+              "fixture-observation.json": "af6164a35eee32519500809943419f6bf08d1d0619032d27b705b7a910453405",
+              "fixture-plan.json": "be749a42b9892a3b18505eda0ac2c82f49237f8c8b40f9715428514a152a47ce",
+              "welcome-status.json": "1218cfc4535379cf6eb90fa369493c5794feb36777b7a1bb5831b9975be00080"
+            },
+            "welcome_status": "PASS_ACTUAL_PLATFORM"
+          },
+          {
+            "actual_default_count": 577,
+            "apply_supported": false,
+            "base_protected": true,
+            "db_preserved": true,
+            "default_dbpath": "/var/lib/pacman",
+            "default_root": "/",
+            "doctor": "PASS_ACTUAL_READONLY_JSON",
+            "fixture": "PASS_VERSIONED_PROVIDED_OPTIONAL_CYCLE_PROTECTED",
+            "foreign_lock": "PASS_REFUSAL_PRESERVED",
+            "home": "management-home-existing",
+            "plan_verify": "PASS_NOT_APPLIED",
+            "readonly_enforced": "UNPRIVILEGED_NO_DB_WRITE_ACCESS",
+            "reports": {
+              "default-assessment.json": "fbea1d09077b497bdc0ac26cc6b06fc7e4ebb9d75044d337724c25c18278c864",
+              "doctor.json": "0d8abbb06e95b8b286ba3c691aa43b2c8d4c9e7dea9ff16b806e9600e06bc847",
+              "fixture-assessment.json": "d2b61fbbb11ff498f300afc2fb0f35662d9ba0b90946227a1948331e7db07b63",
+              "fixture-observation.json": "59ea71e18a92b660d7476a3679d8c9347961d4e7d91c852cabaef42678137c48",
+              "fixture-plan.json": "a594a6bc67859342a5943eca69bcef813c0a1ba8d6592844169d37c302a92f9d",
+              "welcome-status.json": "1218cfc4535379cf6eb90fa369493c5794feb36777b7a1bb5831b9975be00080"
+            },
+            "welcome_status": "PASS_ACTUAL_PLATFORM"
+          }
+        ],
+        "phase": "install",
+        "user_preserved": true
+      },
+      {
+        "base574_preserved": true,
+        "count": 577,
+        "observations": [
+          {
+            "actual_default_count": 577,
+            "apply_supported": false,
+            "base_protected": true,
+            "db_preserved": true,
+            "default_dbpath": "/var/lib/pacman",
+            "default_root": "/",
+            "doctor": "PASS_ACTUAL_READONLY_JSON",
+            "fixture": "PASS_VERSIONED_PROVIDED_OPTIONAL_CYCLE_PROTECTED",
+            "foreign_lock": "PASS_REFUSAL_PRESERVED",
+            "home": "management-home-fresh",
+            "plan_verify": "PASS_NOT_APPLIED",
+            "readonly_enforced": "UNPRIVILEGED_NO_DB_WRITE_ACCESS",
+            "reports": {
+              "default-assessment.json": "c2c9b92be1911798d68bdc85c9d28dbb304857e193828d6cbae522a3ac7f9b37",
+              "doctor.json": "2b6bb5a8c5166c41304e5a23d4a63c75788ebdc6cb8851df35d3139e9e3987cc",
+              "fixture-assessment.json": "76064370c7d80a9d5afcc60b2175188a420acf5cede72677e786b13ac41cd9ca",
+              "fixture-observation.json": "0db10290fbc2dc9207599a366b3a3cf19ddf0835ed7a9c3c9f401edf1b1f6f02",
+              "fixture-plan.json": "b29f28a74b9d1ab5873eb94e4d81bafa5e7e2b32857640e461f9712973e61dd6",
+              "welcome-status.json": "1218cfc4535379cf6eb90fa369493c5794feb36777b7a1bb5831b9975be00080"
+            },
+            "welcome_status": "PASS_ACTUAL_PLATFORM"
+          },
+          {
+            "actual_default_count": 577,
+            "apply_supported": false,
+            "base_protected": true,
+            "db_preserved": true,
+            "default_dbpath": "/var/lib/pacman",
+            "default_root": "/",
+            "doctor": "PASS_ACTUAL_READONLY_JSON",
+            "fixture": "PASS_VERSIONED_PROVIDED_OPTIONAL_CYCLE_PROTECTED",
+            "foreign_lock": "PASS_REFUSAL_PRESERVED",
+            "home": "management-home-existing",
+            "plan_verify": "PASS_NOT_APPLIED",
+            "readonly_enforced": "UNPRIVILEGED_NO_DB_WRITE_ACCESS",
+            "reports": {
+              "default-assessment.json": "c2c9b92be1911798d68bdc85c9d28dbb304857e193828d6cbae522a3ac7f9b37",
+              "doctor.json": "6230e18ea8f0615b684616cff788af075c53a9b5fb23a3282c88e3c942a44652",
+              "fixture-assessment.json": "89ecdd74fe497876186918f5f095393bad4e7adbc6a43206413b2dd4b8f44834",
+              "fixture-observation.json": "5d9597530ce5e8e4641a11cba712b16113be134f7edee4712d0db8e544e31756",
+              "fixture-plan.json": "0a0aac71936bd911495e7646f507f8c81725cdbd28ae32152e6d62e19877b2b1",
+              "welcome-status.json": "1218cfc4535379cf6eb90fa369493c5794feb36777b7a1bb5831b9975be00080"
+            },
+            "welcome_status": "PASS_ACTUAL_PLATFORM"
+          }
+        ],
+        "phase": "same-version-reinstall",
+        "user_preserved": true
+      },
+      {
+        "base574_preserved": true,
+        "count": 574,
+        "payloads_absent": true,
+        "phase": "remove",
+        "user_preserved": true
+      },
+      {
+        "base574_preserved": true,
+        "count": 577,
+        "observations": [
+          {
+            "actual_default_count": 577,
+            "apply_supported": false,
+            "base_protected": true,
+            "db_preserved": true,
+            "default_dbpath": "/var/lib/pacman",
+            "default_root": "/",
+            "doctor": "PASS_ACTUAL_READONLY_JSON",
+            "fixture": "PASS_VERSIONED_PROVIDED_OPTIONAL_CYCLE_PROTECTED",
+            "foreign_lock": "PASS_REFUSAL_PRESERVED",
+            "home": "management-home-fresh",
+            "plan_verify": "PASS_NOT_APPLIED",
+            "readonly_enforced": "UNPRIVILEGED_NO_DB_WRITE_ACCESS",
+            "reports": {
+              "default-assessment.json": "621f835e35abbb34a5ebc36a491d334cc9700731b0b12372d7d3417e6a7ec237",
+              "doctor.json": "6121230bf4aac6fa39cf7c3a4d246030b408eb7fdba8f38cd181c27e61cde3bc",
+              "fixture-assessment.json": "2da985f5d04284f11687fdba5da19582d0aa37d9a90260c6b41f6ffed034e6cf",
+              "fixture-observation.json": "805ef32656c6d1c43faa29b341371121a505a19c57eeb747391ef2b28672c08a",
+              "fixture-plan.json": "4215e7886e615d842bc97d39efcafa53b006e881b8e634fd4deb99a7ce16eec0",
+              "welcome-status.json": "1218cfc4535379cf6eb90fa369493c5794feb36777b7a1bb5831b9975be00080"
+            },
+            "welcome_status": "PASS_ACTUAL_PLATFORM"
+          },
+          {
+            "actual_default_count": 577,
+            "apply_supported": false,
+            "base_protected": true,
+            "db_preserved": true,
+            "default_dbpath": "/var/lib/pacman",
+            "default_root": "/",
+            "doctor": "PASS_ACTUAL_READONLY_JSON",
+            "fixture": "PASS_VERSIONED_PROVIDED_OPTIONAL_CYCLE_PROTECTED",
+            "foreign_lock": "PASS_REFUSAL_PRESERVED",
+            "home": "management-home-existing",
+            "plan_verify": "PASS_NOT_APPLIED",
+            "readonly_enforced": "UNPRIVILEGED_NO_DB_WRITE_ACCESS",
+            "reports": {
+              "default-assessment.json": "621f835e35abbb34a5ebc36a491d334cc9700731b0b12372d7d3417e6a7ec237",
+              "doctor.json": "a3bb1cb75d4e781307bd5700fd94bc7ac012e740fe102f8b7bf9c4f88fedd9c7",
+              "fixture-assessment.json": "6864c189d8207aa021273467a74a97144dd98555c44f484267baef334d4790a7",
+              "fixture-observation.json": "e2571e1dee2fe5a75a56edc613e5fb3758bccfbe86ff44ad329d9cbe27ed6f88",
+              "fixture-plan.json": "eb13fdad0fe89e2c19402ab01b54a04aef91bf7dbed4cae747dd793447281458",
+              "welcome-status.json": "1218cfc4535379cf6eb90fa369493c5794feb36777b7a1bb5831b9975be00080"
+            },
+            "welcome_status": "PASS_ACTUAL_PLATFORM"
+          }
+        ],
+        "phase": "reinstall-after-removal",
+        "user_preserved": true
+      },
+      {
+        "base574_preserved": true,
+        "count": 574,
+        "payloads_absent": true,
+        "phase": "final-remove",
+        "user_preserved": true
+      }
+    ],
+    "hardware": "NOT_RUN",
+    "installed_count": 577,
+    "page_size": 4096,
+    "preserved_nodes": 114738,
+    "preserved_reports": 36,
+    "release": "NOT_ADMITTED",
+    "removal": "NOT_IMPLEMENTED",
+    "reports_preserved": true,
+    "root_guard": {
+      "architecture": "aarch64",
+      "binary_sha256": "c45e61445a131f3c5b0a77223350235a59fcf07373675d258e7c063f0b0dcd1c",
+      "compile_command": [
+        "/usr/bin/cc",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Wformat=2",
+        "-Werror",
+        "-DMANAGEMENT_TEST",
+        "-I/usr/include/glib-2.0",
+        "-I/usr/lib/glib-2.0/include",
+        "-I/usr/include/libmount",
+        "-I/usr/include/blkid",
+        "-I/usr/include/sysprof-6",
+        "-pthread",
+        "/guard-source/test_management.c",
+        "/guard-source/management.c",
+        "-o",
+        "/tmp/management-root-guard",
+        "-Wl,-z,max-page-size=16384",
+        "-lgio-2.0",
+        "-lgobject-2.0",
+        "-lglib-2.0"
+      ],
+      "euid": 0,
+      "hardware": "NOT_RUN",
+      "page_size": 4096,
+      "passed": 1,
+      "pkg_config_cflags": [
+        "-I/usr/include/glib-2.0",
+        "-I/usr/lib/glib-2.0/include",
+        "-I/usr/include/libmount",
+        "-I/usr/include/blkid",
+        "-I/usr/include/sysprof-6",
+        "-pthread"
+      ],
+      "pkg_config_libs": [
+        "-lgio-2.0",
+        "-lgobject-2.0",
+        "-lglib-2.0"
+      ],
+      "scope": "SEPARATE_SOURCE_BOUND_TEST_CONTROL_NOT_INSTALLED_PRODUCT_BEHAVIOR",
+      "skipped": 0,
+      "source_files": {
+        "management.c": {
+          "bytes": 19484,
+          "sha256": "1703fe13c3055a3f35ec12b85c2ffcb3814a0c364fc9537caf4adf32d24d20b4"
+        },
+        "management.h": {
+          "bytes": 1564,
+          "sha256": "5e5e8f196321eb6da75224cbb9f48e9dab7ed20909af4569a9a910ac29f8c212"
+        },
+        "test_management.c": {
+          "bytes": 11388,
+          "sha256": "17a23fa7fce5562c3ddeab9a2dda2aa2853c4c2b40dc532bcd3e21fe9a67f18c"
+        }
+      },
+      "status": "PASS_NATIVE_REAL_ROOT_GUARD",
+      "tap_bytes": 154,
+      "tap_sha256": "5adcb3b5078ae8da0f66e043109ac6a68f4fe82e2327cb3731d5cff00d0697f1",
+      "test_command": [
+        "/tmp/management-root-guard",
+        "-p",
+        "/management/root-guard"
+      ],
+      "uid": 0
+    },
+    "status": "PASS_MANAGEMENT_INSTALLED_READONLY_LIFECYCLE",
+    "user_preserved": true
+  },
+  "original_selected_inventory": "UNCHANGED",
+  "ownership_token": "d82489af6c650174c910f2807546f780",
+  "performance": "NOT_MEASURED",
+  "products": {
+    "cachy-asahi-doctor": {
+      "builds": [
+        {
+          "archive": "cachy-asahi-doctor-0.1.0-1-any.pkg.tar.xz",
+          "payload": {
+            "usr/bin/cachy-asahi-doctor": {
+              "gid": 0,
+              "link": "",
+              "mode": 493,
+              "mtime": 1791748800,
+              "sha256": "d8eb487bc81b5880aceb412360ef674cc214150d61733dfdc8d8654e0f54cf38",
+              "size": 14695,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-doctor/README.md": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "8d1260424db6e54c8a68b008ab1d317d54a2a58d34655f34ae5059603cf19e4e",
+              "size": 3995,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-doctor/LICENSE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+              "size": 1081,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-doctor/NOTICE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "96aa4022dcf6b97ea2b55ef63d78d5c261bfcd39c303822bad184a33d09e5804",
+              "size": 563,
+              "type": "0",
+              "uid": 0
+            }
+          },
+          "sha256": "06898669fdd6c9e5bdcc9909e6b0e75e958bdbd57520a7082c0e9f5f7fac7482",
+          "tests": {
+            "check_enabled": true,
+            "markers": [
+              "^Ran 16 tests in [0-9.]+s$",
+              "^OK$"
+            ],
+            "skipped": 0,
+            "status": "PASS_COMPLETE_ROOT_BOUND_CHECKS_NO_SKIPS"
+          }
+        },
+        {
+          "archive": "cachy-asahi-doctor-0.1.0-1-any.pkg.tar.xz",
+          "payload": {
+            "usr/bin/cachy-asahi-doctor": {
+              "gid": 0,
+              "link": "",
+              "mode": 493,
+              "mtime": 1791748800,
+              "sha256": "d8eb487bc81b5880aceb412360ef674cc214150d61733dfdc8d8654e0f54cf38",
+              "size": 14695,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-doctor/README.md": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "8d1260424db6e54c8a68b008ab1d317d54a2a58d34655f34ae5059603cf19e4e",
+              "size": 3995,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-doctor/LICENSE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+              "size": 1081,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-doctor/NOTICE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "96aa4022dcf6b97ea2b55ef63d78d5c261bfcd39c303822bad184a33d09e5804",
+              "size": 563,
+              "type": "0",
+              "uid": 0
+            }
+          },
+          "sha256": "06898669fdd6c9e5bdcc9909e6b0e75e958bdbd57520a7082c0e9f5f7fac7482",
+          "tests": {
+            "check_enabled": true,
+            "markers": [
+              "^Ran 16 tests in [0-9.]+s$",
+              "^OK$"
+            ],
+            "skipped": 0,
+            "status": "PASS_COMPLETE_ROOT_BOUND_CHECKS_NO_SKIPS"
+          }
+        }
+      ],
+      "comparison": {
+        "errors": [],
+        "hardware_status": "NOT RUN",
+        "independence_limit": "Distinct recorded container runs; independent machine execution is not attested.",
+        "packages": {
+          "cachy-asahi-doctor-0.1.0-1-any.pkg.tar.xz": {
+            "buildinfo_equal": true,
+            "bytes_equal": true,
+            "installed_contents_equal": true,
+            "pkginfo_equal": true
+          }
+        },
+        "status": "contents-reproduced"
+      },
+      "version": "0.1.0-1"
+    },
+    "cachy-asahi-orphans": {
+      "builds": [
+        {
+          "archive": "cachy-asahi-orphans-0.1.0-1-any.pkg.tar.xz",
+          "payload": {
+            "usr/bin/cachy-asahi-orphans": {
+              "gid": 0,
+              "link": "",
+              "mode": 493,
+              "mtime": 1791748800,
+              "sha256": "2d7d6914482a76f963603ad71aab38f87693a1c7c7ad15f7ae54bf50a3c1d629",
+              "size": 19417,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/cachy-asahi-orphans/protection-floor.json": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "0d6dfbf3cd550fe72ddad30058693007f8bb86214de1e83442580677db5005f2",
+              "size": 10489,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-orphans/README.md": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "421e83c8dd3f482ae0d35edf8565d09fa1d3cc2f9f4eb7e5459376b26a54991a",
+              "size": 8282,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-orphans/LICENSE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+              "size": 1081,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-orphans/NOTICE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "326f699857d31b8cd4462081aea074d4349721fb9c48965db6208c793a086720",
+              "size": 759,
+              "type": "0",
+              "uid": 0
+            }
+          },
+          "sha256": "21b13501d8ed5de828e7ac47ff8c8ec2132ca3f0af68bb7062f22852ef640bea",
+          "tests": {
+            "check_enabled": true,
+            "markers": [
+              "^Ran 18 tests in [0-9.]+s$",
+              "^OK$"
+            ],
+            "skipped": 0,
+            "status": "PASS_COMPLETE_ROOT_BOUND_CHECKS_NO_SKIPS"
+          }
+        },
+        {
+          "archive": "cachy-asahi-orphans-0.1.0-1-any.pkg.tar.xz",
+          "payload": {
+            "usr/bin/cachy-asahi-orphans": {
+              "gid": 0,
+              "link": "",
+              "mode": 493,
+              "mtime": 1791748800,
+              "sha256": "2d7d6914482a76f963603ad71aab38f87693a1c7c7ad15f7ae54bf50a3c1d629",
+              "size": 19417,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/cachy-asahi-orphans/protection-floor.json": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "0d6dfbf3cd550fe72ddad30058693007f8bb86214de1e83442580677db5005f2",
+              "size": 10489,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-orphans/README.md": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "421e83c8dd3f482ae0d35edf8565d09fa1d3cc2f9f4eb7e5459376b26a54991a",
+              "size": 8282,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-orphans/LICENSE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+              "size": 1081,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-orphans/NOTICE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "326f699857d31b8cd4462081aea074d4349721fb9c48965db6208c793a086720",
+              "size": 759,
+              "type": "0",
+              "uid": 0
+            }
+          },
+          "sha256": "21b13501d8ed5de828e7ac47ff8c8ec2132ca3f0af68bb7062f22852ef640bea",
+          "tests": {
+            "check_enabled": true,
+            "markers": [
+              "^Ran 18 tests in [0-9.]+s$",
+              "^OK$"
+            ],
+            "skipped": 0,
+            "status": "PASS_COMPLETE_ROOT_BOUND_CHECKS_NO_SKIPS"
+          }
+        }
+      ],
+      "comparison": {
+        "errors": [],
+        "hardware_status": "NOT RUN",
+        "independence_limit": "Distinct recorded container runs; independent machine execution is not attested.",
+        "packages": {
+          "cachy-asahi-orphans-0.1.0-1-any.pkg.tar.xz": {
+            "buildinfo_equal": true,
+            "bytes_equal": true,
+            "installed_contents_equal": true,
+            "pkginfo_equal": true
+          }
+        },
+        "status": "contents-reproduced"
+      },
+      "version": "0.1.0-1"
+    },
+    "cachy-asahi-welcome": {
+      "builds": [
+        {
+          "archive": "cachy-asahi-welcome-0.1.0-2-aarch64.pkg.tar.xz",
+          "payload": {
+            "usr/bin/cachy-asahi-welcome": {
+              "gid": 0,
+              "link": "",
+              "mode": 493,
+              "mtime": 1791748800,
+              "sha256": "fdc8f8778b9c751881ba6a15df83bd9ea4896b308ac2b6b0432a300473d1f6f6",
+              "size": 67816,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/applications/io.github.GabrielKahen.CachyAsahiWelcome.desktop": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "2c2159a75c7b0303eebf47e77e89d6d1f6241372f7ecb006c6b11002135cb441",
+              "size": 358,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-welcome/README.md": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "dbc3716ed6fb6264d976e8b49cb07e7b35990f69fa1f190f773aa61384573e54",
+              "size": 4847,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-welcome/first-run.txt": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "2c123deef2cf02b586250c1128907ba294ced83a3671607dd2aef2f3cfa094eb",
+              "size": 1484,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-welcome/recovery.txt": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "09e5160543b0739b10f327972e338b01c16269d8bcfc6620325eceed0c6a26a2",
+              "size": 1555,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-welcome/updates.txt": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "fcde7d9aa0c6f1a0fc8090c5dc26f405708f18ea760d74b664732e2824d403b8",
+              "size": 1445,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/icons/hicolor/scalable/apps/cachy-asahi-welcome.svg": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "0db6f69c16766172942551b512e89842d086f4a04320a20bfd9a4473b17a1b73",
+              "size": 531,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-welcome/LICENSE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+              "size": 1081,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-welcome/NOTICE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "71e80969d77f4079bff80b62c53c84866489d91206a420384fc1622319d8021a",
+              "size": 665,
+              "type": "0",
+              "uid": 0
+            }
+          },
+          "sha256": "61d6b2b2ec09dbbdaa29908cb8797527fd347c4f8c8dc23967dc161b57014280",
+          "tests": {
+            "check_enabled": true,
+            "expected_skip": "ok 13 /management/root-guard # SKIP Root guard requires an actual root test process",
+            "markers": [
+              "^1\\.\\.7$",
+              "^ok [0-9]+ /status/installed$",
+              "^ok [0-9]+ /status/unavailable$",
+              "^ok [0-9]+ /status/duplicate$",
+              "^ok [0-9]+ /status/lookalike$",
+              "^ok [0-9]+ /status/malformed$",
+              "^ok [0-9]+ /status/oversized$",
+              "^ok [0-9]+ /status/json\\-controls$",
+              "^1\\.\\.13$",
+              "^ok [0-9]+ /management/api$",
+              "^ok [0-9]+ /management/success$",
+              "^ok [0-9]+ /management/nonzero$",
+              "^ok [0-9]+ /management/missing$",
+              "^ok [0-9]+ /management/output\\-limit$",
+              "^ok [0-9]+ /management/timeout$",
+              "^ok [0-9]+ /management/cancel\\-detached$",
+              "^ok [0-9]+ /management/complete\\-detached$",
+              "^ok [0-9]+ /management/unrelated\\-child\\-isolation$",
+              "^ok [0-9]+ /management/environment$",
+              "^ok [0-9]+ /management/binary\\-output$",
+              "^ok [0-9]+ /management/invalid\\-utf8$",
+              "^ok 13 /management/root\\-guard # SKIP Root guard requires an actual root test process$",
+              "^1\\.\\.8$",
+              "^ok [0-9]+ /report/doctor/valid$",
+              "^ok [0-9]+ /report/doctor/schema$",
+              "^ok [0-9]+ /report/orphans/valid$",
+              "^ok [0-9]+ /report/orphans/schema$",
+              "^ok [0-9]+ /report/json$",
+              "^ok [0-9]+ /report/unicode$",
+              "^ok [0-9]+ /report/refusal$",
+              "^ok [0-9]+ /report/bounds$",
+              "^Ran 5 tests in [0-9.]+s$",
+              "^OK$",
+              "PASS_SOURCE_PAYLOAD_CONTRACT"
+            ],
+            "passed": 32,
+            "registered": 33,
+            "root_guard": "REQUIRES_SEPARATE_REAL_UID0_CASE",
+            "skipped": 1,
+            "status": "PASS_32_ORDINARY_TESTS_AND_ONE_SCOPED_ROOT_GUARD_SKIP"
+          }
+        },
+        {
+          "archive": "cachy-asahi-welcome-0.1.0-2-aarch64.pkg.tar.xz",
+          "payload": {
+            "usr/bin/cachy-asahi-welcome": {
+              "gid": 0,
+              "link": "",
+              "mode": 493,
+              "mtime": 1791748800,
+              "sha256": "fdc8f8778b9c751881ba6a15df83bd9ea4896b308ac2b6b0432a300473d1f6f6",
+              "size": 67816,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/applications/io.github.GabrielKahen.CachyAsahiWelcome.desktop": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "2c2159a75c7b0303eebf47e77e89d6d1f6241372f7ecb006c6b11002135cb441",
+              "size": 358,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-welcome/README.md": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "dbc3716ed6fb6264d976e8b49cb07e7b35990f69fa1f190f773aa61384573e54",
+              "size": 4847,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-welcome/first-run.txt": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "2c123deef2cf02b586250c1128907ba294ced83a3671607dd2aef2f3cfa094eb",
+              "size": 1484,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-welcome/recovery.txt": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "09e5160543b0739b10f327972e338b01c16269d8bcfc6620325eceed0c6a26a2",
+              "size": 1555,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-welcome/updates.txt": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "fcde7d9aa0c6f1a0fc8090c5dc26f405708f18ea760d74b664732e2824d403b8",
+              "size": 1445,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/icons/hicolor/scalable/apps/cachy-asahi-welcome.svg": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "0db6f69c16766172942551b512e89842d086f4a04320a20bfd9a4473b17a1b73",
+              "size": 531,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-welcome/LICENSE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+              "size": 1081,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-welcome/NOTICE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "71e80969d77f4079bff80b62c53c84866489d91206a420384fc1622319d8021a",
+              "size": 665,
+              "type": "0",
+              "uid": 0
+            }
+          },
+          "sha256": "61d6b2b2ec09dbbdaa29908cb8797527fd347c4f8c8dc23967dc161b57014280",
+          "tests": {
+            "check_enabled": true,
+            "expected_skip": "ok 13 /management/root-guard # SKIP Root guard requires an actual root test process",
+            "markers": [
+              "^1\\.\\.7$",
+              "^ok [0-9]+ /status/installed$",
+              "^ok [0-9]+ /status/unavailable$",
+              "^ok [0-9]+ /status/duplicate$",
+              "^ok [0-9]+ /status/lookalike$",
+              "^ok [0-9]+ /status/malformed$",
+              "^ok [0-9]+ /status/oversized$",
+              "^ok [0-9]+ /status/json\\-controls$",
+              "^1\\.\\.13$",
+              "^ok [0-9]+ /management/api$",
+              "^ok [0-9]+ /management/success$",
+              "^ok [0-9]+ /management/nonzero$",
+              "^ok [0-9]+ /management/missing$",
+              "^ok [0-9]+ /management/output\\-limit$",
+              "^ok [0-9]+ /management/timeout$",
+              "^ok [0-9]+ /management/cancel\\-detached$",
+              "^ok [0-9]+ /management/complete\\-detached$",
+              "^ok [0-9]+ /management/unrelated\\-child\\-isolation$",
+              "^ok [0-9]+ /management/environment$",
+              "^ok [0-9]+ /management/binary\\-output$",
+              "^ok [0-9]+ /management/invalid\\-utf8$",
+              "^ok 13 /management/root\\-guard # SKIP Root guard requires an actual root test process$",
+              "^1\\.\\.8$",
+              "^ok [0-9]+ /report/doctor/valid$",
+              "^ok [0-9]+ /report/doctor/schema$",
+              "^ok [0-9]+ /report/orphans/valid$",
+              "^ok [0-9]+ /report/orphans/schema$",
+              "^ok [0-9]+ /report/json$",
+              "^ok [0-9]+ /report/unicode$",
+              "^ok [0-9]+ /report/refusal$",
+              "^ok [0-9]+ /report/bounds$",
+              "^Ran 5 tests in [0-9.]+s$",
+              "^OK$",
+              "PASS_SOURCE_PAYLOAD_CONTRACT"
+            ],
+            "passed": 32,
+            "registered": 33,
+            "root_guard": "REQUIRES_SEPARATE_REAL_UID0_CASE",
+            "skipped": 1,
+            "status": "PASS_32_ORDINARY_TESTS_AND_ONE_SCOPED_ROOT_GUARD_SKIP"
+          }
+        }
+      ],
+      "comparison": {
+        "errors": [],
+        "hardware_status": "NOT RUN",
+        "independence_limit": "Distinct recorded container runs; independent machine execution is not attested.",
+        "packages": {
+          "cachy-asahi-welcome-0.1.0-2-aarch64.pkg.tar.xz": {
+            "buildinfo_equal": true,
+            "bytes_equal": true,
+            "installed_contents_equal": true,
+            "pkginfo_equal": true
+          }
+        },
+        "status": "contents-reproduced"
+      },
+      "version": "0.1.0-2"
+    }
+  },
+  "removal": "NOT_IMPLEMENTED",
+  "scope": "THREE_UNSELECTED_MANAGEMENT_CANDIDATES",
+  "signer": {
+    "authority": "EPHEMERAL_TEST_ONLY_OUTSIDE_UNTRUSTED_ACTORS",
+    "fingerprint": "73C0DA0EDA7F12757726B5C1F1032F8B6A7F08C4"
+  },
+  "status": "FAIL"
+}

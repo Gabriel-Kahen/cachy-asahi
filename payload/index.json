@@ -1,0 +1,1591 @@
+{
+  "candidate_source": "96aa3e7a81840b7eba6ba07188481fd89631fb6b",
+  "kind": "ROOT_ACCEPTED_WELCOME2_NATIVE_INPUTS",
+  "native_source": "216b7256bc0e22dd6719b70fc8c15376de158660",
+  "original_collection": {
+    "artifact.zip": {
+      "bytes": 1891061,
+      "path": "origin/artifact.zip",
+      "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+    },
+    "artifacts.json": {
+      "bytes": 973,
+      "path": "origin/artifacts.json",
+      "sha256": "4a52a1659b6800a6e3057493aefb11f7e5790d215aca74b2a64d8152fe66c3df"
+    },
+    "collection.json": {
+      "bytes": 254,
+      "path": "origin/collection.json",
+      "sha256": "aea601f03bbb6393a713236f051b4c889a3e6e547aee97267d6b84087a364781"
+    },
+    "logs.zip": {
+      "bytes": 109617,
+      "path": "origin/logs.zip",
+      "sha256": "26f0b55c879b7c8be4031301ca88ee0296e1424ed29cbd1a6adff131a18eb067"
+    },
+    "run.json": {
+      "bytes": 14308,
+      "path": "origin/run.json",
+      "sha256": "f520af5db805446d33fbe155776bea3d3a11684527e98327ef6ef0b73e16dc77"
+    }
+  },
+  "original_members": [
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 12357,
+        "path": "original/harness/input-policy.json",
+        "sha256": "b48f1b718b529cda7f08487eda336bc377d69b9f11f523d929e4444deafde2d1"
+      },
+      "member": "harness/input-policy.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 4928,
+        "path": "original/harness/installed.py",
+        "sha256": "ee8a67051a2b531e1fe321254e39b7271fe6b0dcc4b06a7ec63eeeb8938ba9c2"
+      },
+      "member": "harness/installed.py"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 10025,
+        "path": "original/harness/lifecycle.py",
+        "sha256": "6c111a3efb451688ef89419956b381e5e417809676efbe28496d15fa9ca1b231"
+      },
+      "member": "harness/lifecycle.py"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 14198,
+        "path": "original/harness/native_contract.py",
+        "sha256": "23d19817d7751ce73ab1e772f5c7724305fb8e91723c273b15f41f947cb6c81f"
+      },
+      "member": "harness/native_contract.py"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 30436,
+        "path": "original/harness/source-manifest.json",
+        "sha256": "00b15022daad761ffe5c21170c00447910d9533ea0af836827d4be2f431e02c0"
+      },
+      "member": "harness/source-manifest.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 1786,
+        "path": "original/ordered-cleanup.json",
+        "sha256": "b992e790c45bdb84bbebcb2338c2dfb1fcf6e0dfe0f9a777d3407fc1b8ac1911"
+      },
+      "member": "ordered-cleanup.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 31496,
+        "path": "original/packages/cachy-asahi-welcome-a/cachy-asahi-welcome-0.1.0-2-aarch64.pkg.tar.xz",
+        "sha256": "61d6b2b2ec09dbbdaa29908cb8797527fd347c4f8c8dc23967dc161b57014280"
+      },
+      "member": "packages/cachy-asahi-welcome-a/cachy-asahi-welcome-0.1.0-2-aarch64.pkg.tar.xz"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 31496,
+        "path": "original/packages/cachy-asahi-welcome-b/cachy-asahi-welcome-0.1.0-2-aarch64.pkg.tar.xz",
+        "sha256": "61d6b2b2ec09dbbdaa29908cb8797527fd347c4f8c8dc23967dc161b57014280"
+      },
+      "member": "packages/cachy-asahi-welcome-b/cachy-asahi-welcome-0.1.0-2-aarch64.pkg.tar.xz"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 45494,
+        "path": "original/retention.json",
+        "sha256": "7c84ce894f5590ea0ef6ffda7659fc93dc2ea7dc6a49711420a368dd08ccba2c"
+      },
+      "member": "retention.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 167,
+        "path": "original/runtime/cachy-asahi-welcome-a/artifacts/config.sha256",
+        "sha256": "8309cb4c0409ccdc1ca922475dde9377aec434911efc453299f41e8fadb234ec"
+      },
+      "member": "runtime/cachy-asahi-welcome-a/artifacts/config.sha256"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 11501,
+        "path": "original/runtime/cachy-asahi-welcome-a/artifacts/environment.txt",
+        "sha256": "37464114cbeca870c899a1665eca9d0c87784ed857b1858ead18f8596690b6fa"
+      },
+      "member": "runtime/cachy-asahi-welcome-a/artifacts/environment.txt"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 3092,
+        "path": "original/runtime/cachy-asahi-welcome-a/artifacts/generated.SRCINFO",
+        "sha256": "3a24b91a914ccbede4a15d47c9d71dcb3429f11c40de3c41699f86aa011a209c"
+      },
+      "member": "runtime/cachy-asahi-welcome-a/artifacts/generated.SRCINFO"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 6651,
+        "path": "original/runtime/cachy-asahi-welcome-a/artifacts/makepkg.conf",
+        "sha256": "cfcf0bd2601d887724c5ca7d9a48ac5dd347abad9e8ac5efa436080e45822a60"
+      },
+      "member": "runtime/cachy-asahi-welcome-a/artifacts/makepkg.conf"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 11117,
+        "path": "original/runtime/cachy-asahi-welcome-a/artifacts/packages.lock",
+        "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+      },
+      "member": "runtime/cachy-asahi-welcome-a/artifacts/packages.lock"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 116,
+        "path": "original/runtime/cachy-asahi-welcome-a/artifacts/pacman.conf",
+        "sha256": "14d304eeb83baf1379279356c232580fd095c2d508b41c74677347801a0bafe7"
+      },
+      "member": "runtime/cachy-asahi-welcome-a/artifacts/pacman.conf"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 9701,
+        "path": "original/runtime/cachy-asahi-welcome-a/build.log",
+        "sha256": "8ff46c1a16310301a10ebcdbd80fb394d6004eb4efc2697db40350945bfcec55"
+      },
+      "member": "runtime/cachy-asahi-welcome-a/build.log"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 11117,
+        "path": "original/runtime/cachy-asahi-welcome-a/expected-packages.lock",
+        "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+      },
+      "member": "runtime/cachy-asahi-welcome-a/expected-packages.lock"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 8501,
+        "path": "original/runtime/cachy-asahi-welcome-a/provenance.json",
+        "sha256": "5484a8275e2beb628a4885a1ddf529485c6dc48f97b197c5b4e7728f0a56c9d9"
+      },
+      "member": "runtime/cachy-asahi-welcome-a/provenance.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 36981,
+        "path": "original/runtime/cachy-asahi-welcome-a/validation.json",
+        "sha256": "92779eb18a7c65fb55145dcdf945846c020bb77a8672709bb1f0082a858bc098"
+      },
+      "member": "runtime/cachy-asahi-welcome-a/validation.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 167,
+        "path": "original/runtime/cachy-asahi-welcome-b/artifacts/config.sha256",
+        "sha256": "8309cb4c0409ccdc1ca922475dde9377aec434911efc453299f41e8fadb234ec"
+      },
+      "member": "runtime/cachy-asahi-welcome-b/artifacts/config.sha256"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 11501,
+        "path": "original/runtime/cachy-asahi-welcome-b/artifacts/environment.txt",
+        "sha256": "b85fcae6c0188c9a117cf5fcd488f18d822759f41939f02fcce018b783710c3a"
+      },
+      "member": "runtime/cachy-asahi-welcome-b/artifacts/environment.txt"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 3092,
+        "path": "original/runtime/cachy-asahi-welcome-b/artifacts/generated.SRCINFO",
+        "sha256": "3a24b91a914ccbede4a15d47c9d71dcb3429f11c40de3c41699f86aa011a209c"
+      },
+      "member": "runtime/cachy-asahi-welcome-b/artifacts/generated.SRCINFO"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 6651,
+        "path": "original/runtime/cachy-asahi-welcome-b/artifacts/makepkg.conf",
+        "sha256": "cfcf0bd2601d887724c5ca7d9a48ac5dd347abad9e8ac5efa436080e45822a60"
+      },
+      "member": "runtime/cachy-asahi-welcome-b/artifacts/makepkg.conf"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 11117,
+        "path": "original/runtime/cachy-asahi-welcome-b/artifacts/packages.lock",
+        "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+      },
+      "member": "runtime/cachy-asahi-welcome-b/artifacts/packages.lock"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 116,
+        "path": "original/runtime/cachy-asahi-welcome-b/artifacts/pacman.conf",
+        "sha256": "14d304eeb83baf1379279356c232580fd095c2d508b41c74677347801a0bafe7"
+      },
+      "member": "runtime/cachy-asahi-welcome-b/artifacts/pacman.conf"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 9701,
+        "path": "original/runtime/cachy-asahi-welcome-b/build.log",
+        "sha256": "a5aadf5b81ec394d6f53c2423d4e1dc45c495b12c3f43f5e89c0dc900784b3f3"
+      },
+      "member": "runtime/cachy-asahi-welcome-b/build.log"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 11117,
+        "path": "original/runtime/cachy-asahi-welcome-b/expected-packages.lock",
+        "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+      },
+      "member": "runtime/cachy-asahi-welcome-b/expected-packages.lock"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 8501,
+        "path": "original/runtime/cachy-asahi-welcome-b/provenance.json",
+        "sha256": "44a07f4b58d314c52ba5bdb459ddd1d525cdf30207557d816d55c55235773304"
+      },
+      "member": "runtime/cachy-asahi-welcome-b/provenance.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 36981,
+        "path": "original/runtime/cachy-asahi-welcome-b/validation.json",
+        "sha256": "92779eb18a7c65fb55145dcdf945846c020bb77a8672709bb1f0082a858bc098"
+      },
+      "member": "runtime/cachy-asahi-welcome-b/validation.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 403,
+        "path": "original/runtime/cachy-asahi-welcome-comparison.json",
+        "sha256": "f591503bf425103e39925a937ac171b51509dc9eee25001cd2f440044342ae4d"
+      },
+      "member": "runtime/cachy-asahi-welcome-comparison.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 10910,
+        "path": "original/runtime/lifecycle.json",
+        "sha256": "ac0998921e850911bdb216720b288bf539a0d22d4d4486ea22abf97b173f6f24"
+      },
+      "member": "runtime/lifecycle.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 737,
+        "path": "original/runtime/owner.json",
+        "sha256": "c815d315b1b4fed82a42296409d58b2651b7608dc414aa55fc73e2ff21474485"
+      },
+      "member": "runtime/owner.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 45868,
+        "path": "original/runtime/report.json",
+        "sha256": "26cfd88ac51d7afe54580369658a90355238097c3efe2c86e511fc8c382eacc0"
+      },
+      "member": "runtime/report.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 1800,
+        "path": "original/runtime/root-guard.json",
+        "sha256": "1a38924028b32de9da63a1957a1c108ec9e4241ea8df1e9318fa9c8386b6853d"
+      },
+      "member": "runtime/root-guard.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 154,
+        "path": "original/runtime/root-guard.tap",
+        "sha256": "5adcb3b5078ae8da0f66e043109ac6a68f4fe82e2327cb3731d5cff00d0697f1"
+      },
+      "member": "runtime/root-guard.tap"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 429,
+        "path": "original/signed/TEST-public.asc",
+        "sha256": "8023c17fc3287b3c3ea98f3342997561e63895c192fce94a87d6995f7bcdac02"
+      },
+      "member": "signed/TEST-public.asc"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 31496,
+        "path": "original/signed/cachy-asahi-welcome-0.1.0-2-aarch64.pkg.tar.xz",
+        "sha256": "61d6b2b2ec09dbbdaa29908cb8797527fd347c4f8c8dc23967dc161b57014280"
+      },
+      "member": "signed/cachy-asahi-welcome-0.1.0-2-aarch64.pkg.tar.xz"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 119,
+        "path": "original/signed/cachy-asahi-welcome-0.1.0-2-aarch64.pkg.tar.xz.sig",
+        "sha256": "f7b0833bd586be513cd80fff7b30b2bd9147c7ede6023dc861f84d3c005aeb35"
+      },
+      "member": "signed/cachy-asahi-welcome-0.1.0-2-aarch64.pkg.tar.xz.sig"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 59,
+        "path": "original/signed/control.json",
+        "sha256": "e32d8844738eca7c7e519cd9dddfe48f89c0fe2403edcdc8a4d0c894c228edc7"
+      },
+      "member": "signed/control.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 321,
+        "path": "original/source-proof.json",
+        "sha256": "58b712c56da3b033358a0568e28de6eece18a7198d3d5e1baf6d949eea170fec"
+      },
+      "member": "source-proof.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 3092,
+        "path": "original/source/cachy-asahi-welcome/.SRCINFO",
+        "sha256": "3a24b91a914ccbede4a15d47c9d71dcb3429f11c40de3c41699f86aa011a209c"
+      },
+      "member": "source/cachy-asahi-welcome/.SRCINFO"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 1081,
+        "path": "original/source/cachy-asahi-welcome/LICENSE",
+        "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+      },
+      "member": "source/cachy-asahi-welcome/LICENSE"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 3045,
+        "path": "original/source/cachy-asahi-welcome/Makefile",
+        "sha256": "7bb33f82c36b6c1c07b94afe5eb1615e0896b9755242476f4aff43ac5a95c5e2"
+      },
+      "member": "source/cachy-asahi-welcome/Makefile"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 665,
+        "path": "original/source/cachy-asahi-welcome/NOTICE",
+        "sha256": "71e80969d77f4079bff80b62c53c84866489d91206a420384fc1622319d8021a"
+      },
+      "member": "source/cachy-asahi-welcome/NOTICE"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 2983,
+        "path": "original/source/cachy-asahi-welcome/PKGBUILD",
+        "sha256": "071cada88855ac7e462df8cde264d4ae60263655da4706d9c2c9dc5af7b33f6b"
+      },
+      "member": "source/cachy-asahi-welcome/PKGBUILD"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 4847,
+        "path": "original/source/cachy-asahi-welcome/README.md",
+        "sha256": "dbc3716ed6fb6264d976e8b49cb07e7b35990f69fa1f190f773aa61384573e54"
+      },
+      "member": "source/cachy-asahi-welcome/README.md"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 531,
+        "path": "original/source/cachy-asahi-welcome/cachy-asahi-welcome.svg",
+        "sha256": "0db6f69c16766172942551b512e89842d086f4a04320a20bfd9a4473b17a1b73"
+      },
+      "member": "source/cachy-asahi-welcome/cachy-asahi-welcome.svg"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 3656,
+        "path": "original/source/cachy-asahi-welcome/check_source.py",
+        "sha256": "a688d4373c2d69a69aa59b314cb1f83dbfb99ccbedd78d159928ead6e00fef5a"
+      },
+      "member": "source/cachy-asahi-welcome/check_source.py"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 1484,
+        "path": "original/source/cachy-asahi-welcome/first-run.txt",
+        "sha256": "2c123deef2cf02b586250c1128907ba294ced83a3671607dd2aef2f3cfa094eb"
+      },
+      "member": "source/cachy-asahi-welcome/first-run.txt"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 358,
+        "path": "original/source/cachy-asahi-welcome/io.github.GabrielKahen.CachyAsahiWelcome.desktop",
+        "sha256": "2c2159a75c7b0303eebf47e77e89d6d1f6241372f7ecb006c6b11002135cb441"
+      },
+      "member": "source/cachy-asahi-welcome/io.github.GabrielKahen.CachyAsahiWelcome.desktop"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 11343,
+        "path": "original/source/cachy-asahi-welcome/management-report.c",
+        "sha256": "21bb131d48a34f86f5a7035b6b9032980bb9330afbc409dca69639a5f0ec9e86"
+      },
+      "member": "source/cachy-asahi-welcome/management-report.c"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 647,
+        "path": "original/source/cachy-asahi-welcome/management-report.h",
+        "sha256": "2caed0cedfc375577d05b8468ec1c54b98e2c23daa247f217671d033b68b739d"
+      },
+      "member": "source/cachy-asahi-welcome/management-report.h"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 19484,
+        "path": "original/source/cachy-asahi-welcome/management.c",
+        "sha256": "1703fe13c3055a3f35ec12b85c2ffcb3814a0c364fc9537caf4adf32d24d20b4"
+      },
+      "member": "source/cachy-asahi-welcome/management.c"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 1564,
+        "path": "original/source/cachy-asahi-welcome/management.h",
+        "sha256": "5e5e8f196321eb6da75224cbb9f48e9dab7ed20909af4569a9a910ac29f8c212"
+      },
+      "member": "source/cachy-asahi-welcome/management.h"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 1555,
+        "path": "original/source/cachy-asahi-welcome/recovery.txt",
+        "sha256": "09e5160543b0739b10f327972e338b01c16269d8bcfc6620325eceed0c6a26a2"
+      },
+      "member": "source/cachy-asahi-welcome/recovery.txt"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 6735,
+        "path": "original/source/cachy-asahi-welcome/status.c",
+        "sha256": "2bfd5f64c724670546057d01312fc6b9591416f6113c65eae8cbb9a53f3909cf"
+      },
+      "member": "source/cachy-asahi-welcome/status.c"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 833,
+        "path": "original/source/cachy-asahi-welcome/status.h",
+        "sha256": "da0c71ef784debe9ea8ec0be34d8326afe5520ad463efc4a2d432805324b8b78"
+      },
+      "member": "source/cachy-asahi-welcome/status.h"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 3170,
+        "path": "original/source/cachy-asahi-welcome/test_cli.py",
+        "sha256": "722182698ca07b14b03787a52f5b3976f2f039ae048f142f2dee72e6176fa972"
+      },
+      "member": "source/cachy-asahi-welcome/test_cli.py"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 11388,
+        "path": "original/source/cachy-asahi-welcome/test_management.c",
+        "sha256": "17a23fa7fce5562c3ddeab9a2dda2aa2853c4c2b40dc532bcd3e21fe9a67f18c"
+      },
+      "member": "source/cachy-asahi-welcome/test_management.c"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 8746,
+        "path": "original/source/cachy-asahi-welcome/test_management_report.c",
+        "sha256": "a75cf2d71536412cf315d9ab6b0d7337a1ee044847023058c6e40a53102971ed"
+      },
+      "member": "source/cachy-asahi-welcome/test_management_report.c"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 5571,
+        "path": "original/source/cachy-asahi-welcome/test_management_ui.c",
+        "sha256": "d8b74cffc68bf4cb1c4ed43de491f9abbf2e95a397aee2692ebb2e1dcde14e50"
+      },
+      "member": "source/cachy-asahi-welcome/test_management_ui.c"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 5152,
+        "path": "original/source/cachy-asahi-welcome/test_status.c",
+        "sha256": "710eba6eafd4389bf2bf73bc39c7e727d4d60097cb783c035da60bc4ba8d740e"
+      },
+      "member": "source/cachy-asahi-welcome/test_status.c"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 1445,
+        "path": "original/source/cachy-asahi-welcome/updates.txt",
+        "sha256": "fcde7d9aa0c6f1a0fc8090c5dc26f405708f18ea760d74b664732e2824d403b8"
+      },
+      "member": "source/cachy-asahi-welcome/updates.txt"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 21403,
+        "path": "original/source/cachy-asahi-welcome/welcome.c",
+        "sha256": "3f7979e2e4d9d511628491d77e267a39a4a47936e23cd9c612b56f775b48f414"
+      },
+      "member": "source/cachy-asahi-welcome/welcome.c"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "file": {
+        "bytes": 30436,
+        "path": "original/source/source-manifest.json",
+        "sha256": "00b15022daad761ffe5c21170c00447910d9533ea0af836827d4be2f431e02c0"
+      },
+      "member": "source/source-manifest.json"
+    }
+  ],
+  "packages": {
+    "cachy-asahi-welcome": {
+      "checks": {
+        "a": {
+          "bytes": 9701,
+          "path": "original/runtime/cachy-asahi-welcome-a/build.log",
+          "sha256": "8ff46c1a16310301a10ebcdbd80fb394d6004eb4efc2697db40350945bfcec55"
+        },
+        "b": {
+          "bytes": 9701,
+          "path": "original/runtime/cachy-asahi-welcome-b/build.log",
+          "sha256": "a5aadf5b81ec394d6f53c2423d4e1dc45c495b12c3f43f5e89c0dc900784b3f3"
+        }
+      },
+      "cleanup": {
+        "bytes": 1786,
+        "path": "original/ordered-cleanup.json",
+        "sha256": "b992e790c45bdb84bbebcb2338c2dfb1fcf6e0dfe0f9a777d3407fc1b8ac1911"
+      },
+      "collection": {
+        "bytes": 254,
+        "path": "origin/collection.json",
+        "sha256": "aea601f03bbb6393a713236f051b4c889a3e6e547aee97267d6b84087a364781"
+      },
+      "comparison": {
+        "bytes": 403,
+        "path": "original/runtime/cachy-asahi-welcome-comparison.json",
+        "sha256": "f591503bf425103e39925a937ac171b51509dc9eee25001cd2f440044342ae4d"
+      },
+      "decision": {
+        "bytes": 17583,
+        "path": "root-decision.json",
+        "sha256": "aa306e8607e07c570e995ce39fdf8c7c9d46dfcdf8f57df7fc9db0f08b5c7900"
+      },
+      "files": {
+        "a": {
+          "bytes": 31496,
+          "path": "original/packages/cachy-asahi-welcome-a/cachy-asahi-welcome-0.1.0-2-aarch64.pkg.tar.xz",
+          "sha256": "61d6b2b2ec09dbbdaa29908cb8797527fd347c4f8c8dc23967dc161b57014280"
+        },
+        "b": {
+          "bytes": 31496,
+          "path": "original/packages/cachy-asahi-welcome-b/cachy-asahi-welcome-0.1.0-2-aarch64.pkg.tar.xz",
+          "sha256": "61d6b2b2ec09dbbdaa29908cb8797527fd347c4f8c8dc23967dc161b57014280"
+        }
+      },
+      "native_run": 38974893566,
+      "native_source": "216b7256bc0e22dd6719b70fc8c15376de158660",
+      "payload": {
+        "usr/bin/cachy-asahi-welcome": {
+          "gid": 0,
+          "link": "",
+          "mode": 493,
+          "mtime": 1791748800,
+          "sha256": "fdc8f8778b9c751881ba6a15df83bd9ea4896b308ac2b6b0432a300473d1f6f6",
+          "size": 67816,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/applications/io.github.GabrielKahen.CachyAsahiWelcome.desktop": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "2c2159a75c7b0303eebf47e77e89d6d1f6241372f7ecb006c6b11002135cb441",
+          "size": 358,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/doc/cachy-asahi-welcome/README.md": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "dbc3716ed6fb6264d976e8b49cb07e7b35990f69fa1f190f773aa61384573e54",
+          "size": 4847,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/doc/cachy-asahi-welcome/first-run.txt": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "2c123deef2cf02b586250c1128907ba294ced83a3671607dd2aef2f3cfa094eb",
+          "size": 1484,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/doc/cachy-asahi-welcome/recovery.txt": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "09e5160543b0739b10f327972e338b01c16269d8bcfc6620325eceed0c6a26a2",
+          "size": 1555,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/doc/cachy-asahi-welcome/updates.txt": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "fcde7d9aa0c6f1a0fc8090c5dc26f405708f18ea760d74b664732e2824d403b8",
+          "size": 1445,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/icons/hicolor/scalable/apps/cachy-asahi-welcome.svg": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "0db6f69c16766172942551b512e89842d086f4a04320a20bfd9a4473b17a1b73",
+          "size": 531,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/licenses/cachy-asahi-welcome/LICENSE": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+          "size": 1081,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/licenses/cachy-asahi-welcome/NOTICE": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "71e80969d77f4079bff80b62c53c84866489d91206a420384fc1622319d8021a",
+          "size": 665,
+          "type": "0",
+          "uid": 0
+        }
+      },
+      "qualification": "NATIVE_PAIR_AND_CLI_ONLY",
+      "raw_lifecycle": {
+        "bytes": 10910,
+        "path": "original/runtime/lifecycle.json",
+        "sha256": "ac0998921e850911bdb216720b288bf539a0d22d4d4486ea22abf97b173f6f24"
+      },
+      "root_guard_tap": {
+        "bytes": 154,
+        "path": "original/runtime/root-guard.tap",
+        "sha256": "5adcb3b5078ae8da0f66e043109ac6a68f4fe82e2327cb3731d5cff00d0697f1"
+      },
+      "source_files": {
+        ".SRCINFO": {
+          "bytes": 3092,
+          "path": "original/source/cachy-asahi-welcome/.SRCINFO",
+          "sha256": "3a24b91a914ccbede4a15d47c9d71dcb3429f11c40de3c41699f86aa011a209c"
+        },
+        "LICENSE": {
+          "bytes": 1081,
+          "path": "original/source/cachy-asahi-welcome/LICENSE",
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "Makefile": {
+          "bytes": 3045,
+          "path": "original/source/cachy-asahi-welcome/Makefile",
+          "sha256": "7bb33f82c36b6c1c07b94afe5eb1615e0896b9755242476f4aff43ac5a95c5e2"
+        },
+        "NOTICE": {
+          "bytes": 665,
+          "path": "original/source/cachy-asahi-welcome/NOTICE",
+          "sha256": "71e80969d77f4079bff80b62c53c84866489d91206a420384fc1622319d8021a"
+        },
+        "PKGBUILD": {
+          "bytes": 2983,
+          "path": "original/source/cachy-asahi-welcome/PKGBUILD",
+          "sha256": "071cada88855ac7e462df8cde264d4ae60263655da4706d9c2c9dc5af7b33f6b"
+        },
+        "README.md": {
+          "bytes": 4847,
+          "path": "original/source/cachy-asahi-welcome/README.md",
+          "sha256": "dbc3716ed6fb6264d976e8b49cb07e7b35990f69fa1f190f773aa61384573e54"
+        },
+        "cachy-asahi-welcome.svg": {
+          "bytes": 531,
+          "path": "original/source/cachy-asahi-welcome/cachy-asahi-welcome.svg",
+          "sha256": "0db6f69c16766172942551b512e89842d086f4a04320a20bfd9a4473b17a1b73"
+        },
+        "check_source.py": {
+          "bytes": 3656,
+          "path": "original/source/cachy-asahi-welcome/check_source.py",
+          "sha256": "a688d4373c2d69a69aa59b314cb1f83dbfb99ccbedd78d159928ead6e00fef5a"
+        },
+        "first-run.txt": {
+          "bytes": 1484,
+          "path": "original/source/cachy-asahi-welcome/first-run.txt",
+          "sha256": "2c123deef2cf02b586250c1128907ba294ced83a3671607dd2aef2f3cfa094eb"
+        },
+        "io.github.GabrielKahen.CachyAsahiWelcome.desktop": {
+          "bytes": 358,
+          "path": "original/source/cachy-asahi-welcome/io.github.GabrielKahen.CachyAsahiWelcome.desktop",
+          "sha256": "2c2159a75c7b0303eebf47e77e89d6d1f6241372f7ecb006c6b11002135cb441"
+        },
+        "management-report.c": {
+          "bytes": 11343,
+          "path": "original/source/cachy-asahi-welcome/management-report.c",
+          "sha256": "21bb131d48a34f86f5a7035b6b9032980bb9330afbc409dca69639a5f0ec9e86"
+        },
+        "management-report.h": {
+          "bytes": 647,
+          "path": "original/source/cachy-asahi-welcome/management-report.h",
+          "sha256": "2caed0cedfc375577d05b8468ec1c54b98e2c23daa247f217671d033b68b739d"
+        },
+        "management.c": {
+          "bytes": 19484,
+          "path": "original/source/cachy-asahi-welcome/management.c",
+          "sha256": "1703fe13c3055a3f35ec12b85c2ffcb3814a0c364fc9537caf4adf32d24d20b4"
+        },
+        "management.h": {
+          "bytes": 1564,
+          "path": "original/source/cachy-asahi-welcome/management.h",
+          "sha256": "5e5e8f196321eb6da75224cbb9f48e9dab7ed20909af4569a9a910ac29f8c212"
+        },
+        "recovery.txt": {
+          "bytes": 1555,
+          "path": "original/source/cachy-asahi-welcome/recovery.txt",
+          "sha256": "09e5160543b0739b10f327972e338b01c16269d8bcfc6620325eceed0c6a26a2"
+        },
+        "status.c": {
+          "bytes": 6735,
+          "path": "original/source/cachy-asahi-welcome/status.c",
+          "sha256": "2bfd5f64c724670546057d01312fc6b9591416f6113c65eae8cbb9a53f3909cf"
+        },
+        "status.h": {
+          "bytes": 833,
+          "path": "original/source/cachy-asahi-welcome/status.h",
+          "sha256": "da0c71ef784debe9ea8ec0be34d8326afe5520ad463efc4a2d432805324b8b78"
+        },
+        "test_cli.py": {
+          "bytes": 3170,
+          "path": "original/source/cachy-asahi-welcome/test_cli.py",
+          "sha256": "722182698ca07b14b03787a52f5b3976f2f039ae048f142f2dee72e6176fa972"
+        },
+        "test_management.c": {
+          "bytes": 11388,
+          "path": "original/source/cachy-asahi-welcome/test_management.c",
+          "sha256": "17a23fa7fce5562c3ddeab9a2dda2aa2853c4c2b40dc532bcd3e21fe9a67f18c"
+        },
+        "test_management_report.c": {
+          "bytes": 8746,
+          "path": "original/source/cachy-asahi-welcome/test_management_report.c",
+          "sha256": "a75cf2d71536412cf315d9ab6b0d7337a1ee044847023058c6e40a53102971ed"
+        },
+        "test_management_ui.c": {
+          "bytes": 5571,
+          "path": "original/source/cachy-asahi-welcome/test_management_ui.c",
+          "sha256": "d8b74cffc68bf4cb1c4ed43de491f9abbf2e95a397aee2692ebb2e1dcde14e50"
+        },
+        "test_status.c": {
+          "bytes": 5152,
+          "path": "original/source/cachy-asahi-welcome/test_status.c",
+          "sha256": "710eba6eafd4389bf2bf73bc39c7e727d4d60097cb783c035da60bc4ba8d740e"
+        },
+        "updates.txt": {
+          "bytes": 1445,
+          "path": "original/source/cachy-asahi-welcome/updates.txt",
+          "sha256": "fcde7d9aa0c6f1a0fc8090c5dc26f405708f18ea760d74b664732e2824d403b8"
+        },
+        "welcome.c": {
+          "bytes": 21403,
+          "path": "original/source/cachy-asahi-welcome/welcome.c",
+          "sha256": "3f7979e2e4d9d511628491d77e267a39a4a47936e23cd9c612b56f775b48f414"
+        }
+      },
+      "version": "0.1.0-2"
+    }
+  },
+  "qualification": "NATIVE_PAIR_AND_CLI_ONLY_GUI_NOT_ACCEPTED",
+  "schema_version": 1,
+  "zip_only_cli_reports": [
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "identity": {
+        "bytes": 1345520,
+        "sha256": "fbea1d09077b497bdc0ac26cc6b06fc7e4ebb9d75044d337724c25c18278c864"
+      },
+      "member": "runtime/public-reports/existing/install/default-assessment.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "identity": {
+        "bytes": 11551,
+        "sha256": "0d8abbb06e95b8b286ba3c691aa43b2c8d4c9e7dea9ff16b806e9600e06bc847"
+      },
+      "member": "runtime/public-reports/existing/install/doctor.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "identity": {
+        "bytes": 19244,
+        "sha256": "d2b61fbbb11ff498f300afc2fb0f35662d9ba0b90946227a1948331e7db07b63"
+      },
+      "member": "runtime/public-reports/existing/install/fixture-assessment.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "identity": {
+        "bytes": 1010,
+        "sha256": "59ea71e18a92b660d7476a3679d8c9347961d4e7d91c852cabaef42678137c48"
+      },
+      "member": "runtime/public-reports/existing/install/fixture-observation.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "identity": {
+        "bytes": 1589,
+        "sha256": "a594a6bc67859342a5943eca69bcef813c0a1ba8d6592844169d37c302a92f9d"
+      },
+      "member": "runtime/public-reports/existing/install/fixture-plan.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "identity": {
+        "bytes": 589,
+        "sha256": "1218cfc4535379cf6eb90fa369493c5794feb36777b7a1bb5831b9975be00080"
+      },
+      "member": "runtime/public-reports/existing/install/welcome-status.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "identity": {
+        "bytes": 1345520,
+        "sha256": "621f835e35abbb34a5ebc36a491d334cc9700731b0b12372d7d3417e6a7ec237"
+      },
+      "member": "runtime/public-reports/existing/reinstall-after-removal/default-assessment.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "identity": {
+        "bytes": 11551,
+        "sha256": "a3bb1cb75d4e781307bd5700fd94bc7ac012e740fe102f8b7bf9c4f88fedd9c7"
+      },
+      "member": "runtime/public-reports/existing/reinstall-after-removal/doctor.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "identity": {
+        "bytes": 19276,
+        "sha256": "6864c189d8207aa021273467a74a97144dd98555c44f484267baef334d4790a7"
+      },
+      "member": "runtime/public-reports/existing/reinstall-after-removal/fixture-assessment.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "identity": {
+        "bytes": 1010,
+        "sha256": "e2571e1dee2fe5a75a56edc613e5fb3758bccfbe86ff44ad329d9cbe27ed6f88"
+      },
+      "member": "runtime/public-reports/existing/reinstall-after-removal/fixture-observation.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "identity": {
+        "bytes": 1605,
+        "sha256": "eb13fdad0fe89e2c19402ab01b54a04aef91bf7dbed4cae747dd793447281458"
+      },
+      "member": "runtime/public-reports/existing/reinstall-after-removal/fixture-plan.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "identity": {
+        "bytes": 589,
+        "sha256": "1218cfc4535379cf6eb90fa369493c5794feb36777b7a1bb5831b9975be00080"
+      },
+      "member": "runtime/public-reports/existing/reinstall-after-removal/welcome-status.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "identity": {
+        "bytes": 1345520,
+        "sha256": "c2c9b92be1911798d68bdc85c9d28dbb304857e193828d6cbae522a3ac7f9b37"
+      },
+      "member": "runtime/public-reports/existing/same-version-reinstall/default-assessment.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "identity": {
+        "bytes": 11551,
+        "sha256": "6230e18ea8f0615b684616cff788af075c53a9b5fb23a3282c88e3c942a44652"
+      },
+      "member": "runtime/public-reports/existing/same-version-reinstall/doctor.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "identity": {
+        "bytes": 19274,
+        "sha256": "89ecdd74fe497876186918f5f095393bad4e7adbc6a43206413b2dd4b8f44834"
+      },
+      "member": "runtime/public-reports/existing/same-version-reinstall/fixture-assessment.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "identity": {
+        "bytes": 1010,
+        "sha256": "5d9597530ce5e8e4641a11cba712b16113be134f7edee4712d0db8e544e31756"
+      },
+      "member": "runtime/public-reports/existing/same-version-reinstall/fixture-observation.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "identity": {
+        "bytes": 1604,
+        "sha256": "0a0aac71936bd911495e7646f507f8c81725cdbd28ae32152e6d62e19877b2b1"
+      },
+      "member": "runtime/public-reports/existing/same-version-reinstall/fixture-plan.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "identity": {
+        "bytes": 589,
+        "sha256": "1218cfc4535379cf6eb90fa369493c5794feb36777b7a1bb5831b9975be00080"
+      },
+      "member": "runtime/public-reports/existing/same-version-reinstall/welcome-status.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "identity": {
+        "bytes": 1345520,
+        "sha256": "fbea1d09077b497bdc0ac26cc6b06fc7e4ebb9d75044d337724c25c18278c864"
+      },
+      "member": "runtime/public-reports/fresh/install/default-assessment.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "identity": {
+        "bytes": 11551,
+        "sha256": "45b7b451511c8120046cecfb99760a3b9940421b812cc2e8ffabe9c74fbc3bb2"
+      },
+      "member": "runtime/public-reports/fresh/install/doctor.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "identity": {
+        "bytes": 19238,
+        "sha256": "0eeb4552a873a3b233205d2eaa8da7b4b7bd846e92dbeb4ac61dc20101199094"
+      },
+      "member": "runtime/public-reports/fresh/install/fixture-assessment.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "identity": {
+        "bytes": 1010,
+        "sha256": "af6164a35eee32519500809943419f6bf08d1d0619032d27b705b7a910453405"
+      },
+      "member": "runtime/public-reports/fresh/install/fixture-observation.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "identity": {
+        "bytes": 1586,
+        "sha256": "be749a42b9892a3b18505eda0ac2c82f49237f8c8b40f9715428514a152a47ce"
+      },
+      "member": "runtime/public-reports/fresh/install/fixture-plan.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "identity": {
+        "bytes": 589,
+        "sha256": "1218cfc4535379cf6eb90fa369493c5794feb36777b7a1bb5831b9975be00080"
+      },
+      "member": "runtime/public-reports/fresh/install/welcome-status.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "identity": {
+        "bytes": 1345520,
+        "sha256": "621f835e35abbb34a5ebc36a491d334cc9700731b0b12372d7d3417e6a7ec237"
+      },
+      "member": "runtime/public-reports/fresh/reinstall-after-removal/default-assessment.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "identity": {
+        "bytes": 11551,
+        "sha256": "6121230bf4aac6fa39cf7c3a4d246030b408eb7fdba8f38cd181c27e61cde3bc"
+      },
+      "member": "runtime/public-reports/fresh/reinstall-after-removal/doctor.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "identity": {
+        "bytes": 19270,
+        "sha256": "2da985f5d04284f11687fdba5da19582d0aa37d9a90260c6b41f6ffed034e6cf"
+      },
+      "member": "runtime/public-reports/fresh/reinstall-after-removal/fixture-assessment.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "identity": {
+        "bytes": 1010,
+        "sha256": "805ef32656c6d1c43faa29b341371121a505a19c57eeb747391ef2b28672c08a"
+      },
+      "member": "runtime/public-reports/fresh/reinstall-after-removal/fixture-observation.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "identity": {
+        "bytes": 1602,
+        "sha256": "4215e7886e615d842bc97d39efcafa53b006e881b8e634fd4deb99a7ce16eec0"
+      },
+      "member": "runtime/public-reports/fresh/reinstall-after-removal/fixture-plan.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "identity": {
+        "bytes": 589,
+        "sha256": "1218cfc4535379cf6eb90fa369493c5794feb36777b7a1bb5831b9975be00080"
+      },
+      "member": "runtime/public-reports/fresh/reinstall-after-removal/welcome-status.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "identity": {
+        "bytes": 1345520,
+        "sha256": "c2c9b92be1911798d68bdc85c9d28dbb304857e193828d6cbae522a3ac7f9b37"
+      },
+      "member": "runtime/public-reports/fresh/same-version-reinstall/default-assessment.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "identity": {
+        "bytes": 11551,
+        "sha256": "2b6bb5a8c5166c41304e5a23d4a63c75788ebdc6cb8851df35d3139e9e3987cc"
+      },
+      "member": "runtime/public-reports/fresh/same-version-reinstall/doctor.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "identity": {
+        "bytes": 19268,
+        "sha256": "76064370c7d80a9d5afcc60b2175188a420acf5cede72677e786b13ac41cd9ca"
+      },
+      "member": "runtime/public-reports/fresh/same-version-reinstall/fixture-assessment.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "identity": {
+        "bytes": 1010,
+        "sha256": "0db10290fbc2dc9207599a366b3a3cf19ddf0835ed7a9c3c9f401edf1b1f6f02"
+      },
+      "member": "runtime/public-reports/fresh/same-version-reinstall/fixture-observation.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "identity": {
+        "bytes": 1601,
+        "sha256": "b29f28a74b9d1ab5873eb94e4d81bafa5e7e2b32857640e461f9712973e61dd6"
+      },
+      "member": "runtime/public-reports/fresh/same-version-reinstall/fixture-plan.json"
+    },
+    {
+      "archive": {
+        "bytes": 1891061,
+        "path": "origin/artifact.zip",
+        "sha256": "16dc3196b8de9ba39b842b044ec6e9a29899ba8b6386d516a885c03c1a8b8960"
+      },
+      "identity": {
+        "bytes": 589,
+        "sha256": "1218cfc4535379cf6eb90fa369493c5794feb36777b7a1bb5831b9975be00080"
+      },
+      "member": "runtime/public-reports/fresh/same-version-reinstall/welcome-status.json"
+    }
+  ]
+}
