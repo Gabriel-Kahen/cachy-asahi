@@ -117,6 +117,39 @@ class Ownership(Temporary):
         database,lock,_=self.fixture();value=O.check(database,lock,{'usr/lib/libc.so.6','etc/gai.conf','usr/share/licenses/new/LICENSES'})
         self.assertEqual(value['checked_packages'],574);self.assertEqual(value['overlapping_removed_glibc_paths'],2)
 
+    def test_exact_fileless_metapackages_allow_zero_byte_alpm_records(self):
+        database,lock,paths=self.fixture()
+        for name in ('base','ca-certificates','dbus-units','gcc-libs','linux-firmware'):(paths[name]/'files').write_bytes(b'')
+        value=O.check(database,lock,{'usr/lib/libc.so.6'})
+        self.assertEqual(value['checked_packages'],574)
+        self.assertEqual(value['overlapping_removed_glibc_paths'],1)
+        self.assertEqual(value['other_owner_collisions'],{})
+
+    def test_fileless_records_do_not_hide_other_owner_collisions(self):
+        database,lock,paths=self.fixture()
+        for name in ('base','ca-certificates','dbus-units','gcc-libs','linux-firmware'):(paths[name]/'files').write_bytes(b'')
+        with self.assertRaisesRegex(ValueError,'tzdata'):O.check(database,lock,{'usr/bin/zic'})
+        (paths['base']/'files').write_text('%FILES%\nusr/lib/libc.so.6\n')
+        with self.assertRaisesRegex(ValueError,'base'):O.check(database,lock,{'usr/lib/libc.so.6'})
+
+    def test_empty_non_metapackage_and_malformed_fileless_records_refused(self):
+        database,lock,paths=self.fixture()
+        for name,raw in (('glibc',b''),('base',b'\n'),('base',b'%BACKUP%\n'),
+                         ('base',b'garbage\n'),('base',b'%FILES%\n%FILES%\n')):
+            with self.subTest(name=name,raw=raw):
+                original=(paths[name]/'files').read_bytes();(paths[name]/'files').write_bytes(raw)
+                try:
+                    with self.assertRaises(ValueError):O.check(database,lock,set())
+                finally:(paths[name]/'files').write_bytes(original)
+
+    def test_zero_byte_fileless_records_still_require_exact_identity_and_regular_file(self):
+        database,lock,paths=self.fixture();p=paths['base']
+        (p/'files').write_bytes(b'');(p/'desc').write_text('%NAME%\nbase\n\n%VERSION%\nwrong\n')
+        with self.assertRaisesRegex(ValueError,'identity differs'):O.check(database,lock,set())
+        (p/'desc').write_text('%NAME%\nbase\n\n%VERSION%\n3-3\n')
+        (p/'files').unlink();(p/'files').symlink_to(lock)
+        with self.assertRaisesRegex(ValueError,'ordinary ALPM'):O.check(database,lock,set())
+
     def test_tzdata_collision_fails_without_overwrite(self):
         database,lock,_=self.fixture()
         with self.assertRaisesRegex(ValueError,'tzdata'):O.check(database,lock,{'usr/bin/zic'})
