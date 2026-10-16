@@ -1,0 +1,23 @@
+{
+  "status": "ROOT_ACCEPTED_NATIVE_SETUP5_PAIR_AND_LEGACY_LIFECYCLE",
+  "run_id": 38934198468,
+  "source": "4cf9884dacb2816532b07c8107982d7157656046",
+  "closed_files": 145,
+  "closed_bytes": 1255371,
+  "source_files": 42,
+  "retained_setup4_files": 64,
+  "package_bytes": 26872,
+  "package_sha256": "1aafee365e3bcb04e1fce694c110a997914a07f4359697df5e017375897385fc",
+  "package_transitions": 8,
+  "ordinary_user_observations": 24,
+  "legacy_profiles": 5,
+  "new_grouped_profile": 1,
+  "cases_per_profile": 10,
+  "full574_restored": true,
+  "ordered_cleanup": "PASS",
+  "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY",
+  "real_modules": "NOT_RUN",
+  "actual_page_size": 4096,
+  "hardware": "NOT_RUN",
+  "release": "UNSELECTED"
+}
