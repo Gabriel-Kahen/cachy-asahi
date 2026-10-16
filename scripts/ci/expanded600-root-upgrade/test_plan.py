@@ -1,5 +1,5 @@
 """Real held exporter plus inert tempfile protocol inputs; no native/signing actors."""
-import hashlib,importlib.util,json,subprocess,sys,tempfile,unittest
+import hashlib,importlib.util,json,os,subprocess,sys,tempfile,unittest
 from pathlib import Path
 from types import SimpleNamespace as NS
 from unittest.mock import patch
@@ -60,7 +60,7 @@ class PlanProtocol(unittest.TestCase):
         self.assertFalse((self.args.output/'private/inputs/plan.json').exists())
         self.assertEqual(json.loads((ready/'manifest.json').read_bytes())['status'],'READY_SIGNED_INITIAL587')
         self.assertEqual(len(self.calls),587);self.assertEqual(sum(s=='A'*40 for _,s in self.calls),10)
-    def test_real_flat600_stage_uses_captured_hooks_signers_helpers_and_exact27_files(self):
+    def flat_fixture(self):
         self.p.prepare=self.prepared;_,plan=owner.prepare_with_plan(self.p,self.args)
         ready=self.root/'expanded600';(ready/'packages').mkdir(parents=True)
         before,_=C.locks();rows=[];projects=[dict(name=n) for n in before if n.startswith('cachy-asahi-')]
@@ -70,12 +70,45 @@ class PlanProtocol(unittest.TestCase):
             rows.append(dict(name=n,version=v,archive=archive,signature=archive+'.sig',size=len(raw),sha256=hashlib.sha256(raw).hexdigest(),signature_size=len(sig),signature_sha256=hashlib.sha256(sig).hexdigest()))
             if n in selected:(ready/archive).write_bytes(raw);(ready/(archive+'.sig')).write_bytes(sig)
         (ready/'expected-installed.lock').write_bytes((C.HERE/'before600.lock').read_bytes());(ready/'manifest.json').write_bytes(C.encoded(dict(status='READY_SIGNED_EXPANDED600',packages=rows,projects=projects)))
+        return ready,plan,rows
+    def test_real_flat600_stage_uses_captured_hooks_signers_helpers_and_exact27_files(self):
+        ready,plan,_=self.flat_fixture()
         target=owner.flat_inputs(ready,self.args.output/'private',self.root/'flat',plan);result=json.loads((target/'plan.json').read_bytes())
         self.assertEqual(len(result['packages']),27);self.assertEqual(len(result['projects']),17)
         for key in ('hooks','signer_fingerprint','test_signer_fingerprint'):self.assertEqual(result[key],plan[key])
         self.assertEqual(result['setup4'],dict(helpers=plan['setup4']['helpers']));self.assertTrue(result['full_root_upgrade'])
         self.assertEqual((target/'expected-installed.lock').read_bytes(),(C.HERE/'before600.lock').read_bytes())
         self.assertFalse((self.args.output/'private/inputs/plan.json').exists())
+    def large_lsp(self):
+        ready,plan,rows=self.flat_fixture();row=next(r for r in rows if r['name']=='lsp-plugins-lv2')
+        pinned=next(r for r in json.loads((ROOT/'scripts/ci/full-development-composition/audio-inputs.json').read_bytes()) if r['name']==row['name'])
+        self.assertEqual(pinned['size'],5587560)
+        path=ready/row['archive'];path.write_bytes(b'L'*pinned['size']);row.update(size=path.stat().st_size,sha256=C.sha(path))
+        manifest=C.read(ready/'manifest.json');manifest['packages']=rows;(ready/'manifest.json').write_bytes(C.encoded(manifest))
+        return ready,plan,row,path
+    def test_exact_lsp_size_stages_all27_while_default_reference_and_json_refuse(self):
+        ready,plan,row,path=self.large_lsp();ref=dict(path=row['archive'],bytes=row['size'],sha256=row['sha256'])
+        with self.assertRaisesRegex(ValueError,'closed byte reference'):C.checked(ready,ref)
+        with self.assertRaisesRegex(ValueError,'bounded ordinary JSON'):C.read(path)
+        target=owner.flat_inputs(ready,self.args.output/'private',self.root/'flat-large',plan)
+        staged=C.read(target/'plan.json');self.assertEqual(len(staged['packages']),27)
+        self.assertEqual(len(staged['projects']),17);self.assertEqual(C.sha(target/path.name),row['sha256'])
+        self.assertEqual((target/path.name).stat().st_size,5587560)
+    def test_archive_cap_keeps_digest_hardlink_and_finite_size_refusals(self):
+        ready,_,row,path=self.large_lsp();ref=dict(path=row['archive'],bytes=row['size'],sha256=row['sha256'])
+        with self.assertRaisesRegex(ValueError,'identity differs'):C.checked(ready,ref|{'sha256':'0'*64},cap=8*1024**2)
+        alias=ready/'alias';os.link(path,alias)
+        with self.assertRaisesRegex(ValueError,'identity differs'):C.checked(ready,ref,cap=8*1024**2)
+        alias.unlink()
+        path.write_bytes(b'X'*(8*1024**2+1));ref.update(bytes=path.stat().st_size,sha256=C.sha(path))
+        with self.assertRaisesRegex(ValueError,'closed byte reference'):C.checked(ready,ref,cap=8*1024**2)
+    def test_flat_stage_does_not_raise_detached_signature_limit(self):
+        ready,plan,row,_=self.large_lsp();signature=ready/row['signature'];signature.write_bytes(b'S'*(4*1024**2+1))
+        manifest=C.read(ready/'manifest.json');held=next(r for r in manifest['packages'] if r['name']==row['name'])
+        held.update(signature_size=signature.stat().st_size,signature_sha256=C.sha(signature))
+        (ready/'manifest.json').write_bytes(C.encoded(manifest))
+        with self.assertRaisesRegex(ValueError,'closed byte reference'):
+            owner.flat_inputs(ready,self.args.output/'private',self.root/'flat-large-signature',plan)
     def test_real_export_refusal_restores_original_api_and_exposes_no_plan(self):
         original=self.p.export_ready;self.p.prepare=lambda args:self.prepared(args,badkey=True)
         with self.assertRaisesRegex(ValueError,'ALARM keyring pin differs'):owner.prepare_with_plan(self.p,self.args)
