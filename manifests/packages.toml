@@ -409,9 +409,9 @@ candidate_version = "0.1.0-1"
 selected_for_development = false
 selected_for_release = false
 host_validation = "PASS x86_64 C build, seven status fixtures, five executable CLI controls, exact nine-file staging"
-native_build = "NOT RUN"
+native_build = "PASS two native ARM build containers; byte-identical archives in38884680631"
 hardware_validation = "NOT RUN"
-next_step = "Build two native ARM packages and validate the welcome GUI, local guides and app launches in the managed desktop; complete signed lifecycle and target validation before selection."
+next_step = "Complete the installed CLI lifecycle and validate the welcome GUI, local guides and app launches in the managed desktop; complete signed lifecycle and target validation before selection."
 
 
 [[packages]]
@@ -424,6 +424,6 @@ license = "MIT"
 candidate_version = "0.1.0-1"
 selected_for_development = false
 selected_for_release = false
-native_build = "NOT RUN"
+native_build = "PASS two native ARM build containers; byte-identical archives in38884680631"
 hardware_validation = "NOT RUN"
-next_step = "Build two native packages and exercise the installed read-only report with unavailable model/bus and real managed session states; verify private report and package lifecycle before selection."
+next_step = "Complete the installed lifecycle and exercise the installed read-only report with unavailable model/bus and real managed session states; verify private report and package lifecycle before selection."
