@@ -1,0 +1,40 @@
+{
+  "archive_bytes": 19301932,
+  "archive_sha256": "b852e3fc647d63699c5f42003a748cbd2268991dc2615a494dc3cdda4d757d12",
+  "artifact_sha256": "3de7af54e6bd43442ede220e08b2f84c4c6bc77b29076990f50d37ea98ad8608",
+  "cleanup": "PASS",
+  "hardware": "NOT_RUN",
+  "limits": [
+    "Native generic aarch64/4096 disposable pair; no M2 or system installation acceptance.",
+    "Current GNU publisher key expiry/untrusted fingerprint, maintained security authority, and historical held-binary recipe correspondence remain unresolved.",
+    "Recorded independent containers do not establish independent machine execution."
+  ],
+  "normal": "COMPILED_NOT_EXECUTED_NORMAL_INTERPRETER",
+  "performance": "NOT_MEASURED",
+  "provider_pkgbuild_sha256": "a2d08f4786879a86af14cccf1cffe21811aa8dfa4428559848fa4cede839ab64",
+  "release": "NOT_ADMITTED",
+  "retention_sha256": "5a98ad04e6c0ebdd560c52f3be181ed195b8be70174f686f53de829cea17825f",
+  "run_id": 38960150458,
+  "security": "NO_CREDIT",
+  "source_closure": "PASS_ROOT_FROZEN_GIT_24_HARNESS_AND_9_RECIPE_FILES",
+  "source_sha": "0056a7c1b83ff325f1368d3659cfeb8e5a5c8358",
+  "status": "ROOT_ACCEPTED_PROVIDER_NATIVE_PAIR",
+  "upstream": {
+    "a": {
+      "ERROR": 0,
+      "FAIL": 0,
+      "PASS": 6939,
+      "UNSUPPORTED": 106,
+      "XFAIL": 13,
+      "XPASS": 0
+    },
+    "b": {
+      "ERROR": 0,
+      "FAIL": 0,
+      "PASS": 6939,
+      "UNSUPPORTED": 106,
+      "XFAIL": 13,
+      "XPASS": 0
+    }
+  }
+}

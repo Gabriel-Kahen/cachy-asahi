@@ -1,0 +1,49 @@
+{
+  "artifact_sha256": "3de7af54e6bd43442ede220e08b2f84c4c6bc77b29076990f50d37ea98ad8608",
+  "cleanup": "PASS",
+  "compile_commands_per_build": 13,
+  "compile_receipts": {
+    "a": {
+      "bytes": 62186,
+      "path": "runtime/a/normal-clients/receipt.json",
+      "sha256": "e8a560a5d157bc438265fd6cf395788bae755e15e91b57c3250ac719228615cf"
+    },
+    "b": {
+      "bytes": 62186,
+      "path": "runtime/b/normal-clients/receipt.json",
+      "sha256": "b35cf51b012fbc4c1d087c2b5136fa017c6defcf1c77e433ac524061221844f2"
+    }
+  },
+  "execution": "NOT_RUN_NORMAL_INTERPRETER; PRIVATE_PROVIDER_STAGED_SMOKE_SEPARATE",
+  "files": {
+    "exec-child": {
+      "bytes": 23696,
+      "path": "runtime/a/normal-clients/bin/exec-child",
+      "sha256": "d2e92fef3ad68e4ad0b2b45d13f9ce452aa92c0c711851f26f61825ef31e6c4b"
+    },
+    "plugin.so": {
+      "bytes": 20736,
+      "path": "runtime/a/normal-clients/bin/plugin.so",
+      "sha256": "c91a0dab73c81b601484b319de60951d455e456430812f0430f5231c544859c1"
+    },
+    "smoke-normal": {
+      "bytes": 44000,
+      "path": "runtime/a/normal-clients/bin/smoke-normal",
+      "sha256": "f9ee2ae4e6b283cc2531b244ef26a7ca596d38b04740d29885cdc0b4cc10bb93"
+    }
+  },
+  "hardware": "NOT_RUN",
+  "limits": [
+    "Native generic aarch64/4096 disposable pair; no M2 or system installation acceptance.",
+    "Current GNU publisher key expiry/untrusted fingerprint, maintained security authority, and historical held-binary recipe correspondence remain unresolved.",
+    "Recorded independent containers do not establish independent machine execution."
+  ],
+  "normal_source_sha256": "a766bc7cd31cce18fe7e564432de4e4b63db49763608ae70ef8fab61cd29116c",
+  "performance": "NOT_MEASURED",
+  "release": "NOT_ADMITTED",
+  "retention_sha256": "5a98ad04e6c0ebdd560c52f3be181ed195b8be70174f686f53de829cea17825f",
+  "run_id": 38960150458,
+  "security": "NO_CREDIT",
+  "source_sha": "0056a7c1b83ff325f1368d3659cfeb8e5a5c8358",
+  "status": "ROOT_ACCEPTED_NORMAL_INTERPRETER_PROBES"
+}

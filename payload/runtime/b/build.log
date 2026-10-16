@@ -1,0 +1,712 @@
+PASS_ACTUAL_PROVIDER_SRCINFO
+==> Making package: cachy-asahi-glibc-gnu-provider 2.43.caa1-1 (Fri Oct 16 20:50:41 2026)
+==> Retrieving sources...
+  -> Found glibc-2.43.tar.gz
+  -> Found 0001-mount-macro-guards.patch
+  -> Found 0002-held-builder-test-expectations.patch
+  -> Found stage.py
+==> Validating source files with sha256sums...
+    glibc-2.43.tar.gz ... Passed
+    0001-mount-macro-guards.patch ... Passed
+    0002-held-builder-test-expectations.patch ... Passed
+    stage.py ... Passed
+==> Making package: cachy-asahi-glibc-gnu-provider 2.43.caa1-1 (Fri Oct 16 20:50:42 2026)
+==> Checking runtime dependencies...
+==> Checking buildtime dependencies...
+==> Retrieving sources...
+  -> Found glibc-2.43.tar.gz
+  -> Found 0001-mount-macro-guards.patch
+  -> Found 0002-held-builder-test-expectations.patch
+  -> Found stage.py
+==> Validating source files with sha256sums...
+    glibc-2.43.tar.gz ... Passed
+    0001-mount-macro-guards.patch ... Passed
+    0002-held-builder-test-expectations.patch ... Passed
+    stage.py ... Passed
+==> Removing existing $srcdir/ directory...
+==> Extracting sources...
+  -> Extracting glibc-2.43.tar.gz with bsdtar
+==> Starting prepare()...
+patching file sysdeps/unix/sysv/linux/sys/mount.h
+patching file elf/Makefile
+patching file conform/Makefile
+==> Starting build()...
+checking build system type... aarch64-unknown-linux-gnu
+checking host system type... aarch64-unknown-linux-gnu
+checking for aarch64-unknown-linux-gnu-gcc... aarch64-unknown-linux-gnu-gcc
+checking for suffix of object files... o
+checking whether the compiler supports GNU C... yes
+checking whether aarch64-unknown-linux-gnu-gcc accepts -g... yes
+checking for aarch64-unknown-linux-gnu-gcc option to enable C11 features... none needed
+checking for aarch64-unknown-linux-gnu-g++... aarch64-unknown-linux-gnu-g++
+checking whether the compiler supports GNU C++... yes
+checking whether aarch64-unknown-linux-gnu-g++ accepts -g... yes
+checking for aarch64-unknown-linux-gnu-g++ option to enable C++11 features... -std=gnu++11
+checking whether aarch64-unknown-linux-gnu-g++ -std=gnu++11 can link programs... yes
+checking for sysdeps preconfigure fragments... aarch64 alpha arc arm csky hppa i386 loongarch m68k microblaze checking for egrep -e... /usr/sbin/grep -E
+mips or1k powerpc riscv s390 sh checking for egrep -e... (cached) /usr/sbin/grep -E
+sparc x86_64 
+checking for a BSD-compatible install... /usr/bin/install -c
+checking whether ln -s works... yes
+checking for ld... ld
+checking version of ld... 2.46.0, ok
+checking for gnumake... no
+checking for gmake... no
+checking for make... make
+checking version of make... 4.4.1, ok
+checking for gnumsgfmt... no
+checking for gmsgfmt... no
+checking for msgfmt... msgfmt
+checking version of msgfmt... 1.0, ok
+checking for makeinfo... makeinfo
+checking version of makeinfo... 7.3, ok
+checking for sed... sed
+checking version of sed... 4.10, ok
+checking for gawk... gawk
+checking version of gawk... 5.4.1, ok
+checking for bison... bison
+checking version of bison... 3.8.2, ok
+checking if aarch64-unknown-linux-gnu-gcc is sufficient to build libc... yes
+checking for python3... python3
+checking version of python3... 3.14.8, ok
+checking for use of fpu sysdeps directories... yes
+checking for clang in testing... no
+checking for clang++ in testing... no
+checking for -fstack-protector... yes
+checking for -fstack-protector-strong... yes
+checking for -fstack-protector-all... yes
+checking for assembler and linker STT_GNU_IFUNC support... yes
+checking for gcc attribute ifunc support... yes
+checking whether the linker supports textrels along with ifunc... yes
+checking for GNU attribute retain support... yes
+checking if compiler warns about alias for function with incompatible types... yes
+checking sysdep dirs... sysdeps/unix/sysv/linux/aarch64 sysdeps/aarch64/nptl sysdeps/unix/sysv/linux/wordsize-64 sysdeps/unix/sysv/linux sysdeps/nptl sysdeps/pthread sysdeps/gnu sysdeps/unix/inet sysdeps/unix/sysv sysdeps/unix sysdeps/posix sysdeps/aarch64/fpu sysdeps/aarch64 sysdeps/wordsize-64 sysdeps/ieee754/ldbl-128 sysdeps/ieee754/dbl-64 sysdeps/ieee754/flt-32 sysdeps/ieee754 sysdeps/generic
+checking LD_LIBRARY_PATH variable... ok
+checking for bash... /usr/sbin/bash
+checking for perl... /usr/sbin/perl
+checking for install-info... /usr/sbin/install-info
+checking for .set assembler directive... yes
+checking linker support for protected data symbol... yes
+checking linker support for INSERT in linker script... yes
+checking for broken __attribute__((alias()))... no
+checking whether to put _rtld_local into .sdata section... no
+checking for libunwind-support in compiler... no
+checking whether --noexecstack is desirable for .S files... yes
+checking for linker that supports --no-error-execstack... yes
+checking for linker that supports -z execstack... yes
+checking for linker that supports -z start-stop-gc... yes
+checking for linker that supports --depaudit... yes
+checking for linker that supports -z pack-relative-relocs... yes
+checking for linker that supports --no-dynamic-linker... yes
+checking for -static-pie... yes
+checking for -fpie... yes
+checking for -Wno-discarded-qualifiers... -Wno-discarded-qualifiers
+checking for GLOB_DAT reloc... yes
+checking for tls descriptor support in testing... desc
+checking for traditional tls support in testing... trad
+checking for -Wno-maybe-uninitialized... -Wno-maybe-uninitialized
+checking whether cc puts quotes around section names... no
+checking for __builtin_memset... no
+checking for 64-bit atomic support... yes
+checking for compiler option to disable generation of FMA instructions... -ffp-contract=off
+checking for compiler option that -fsignaling-nans... -fsignaling-nans
+checking -fsemantic-interposition in testing... yes
+checking for -ffloat-store in testing... -ffloat-store
+checking if __attribute__ ((__optimize__("-fno-tree-loop-distribute-patterns"))) works... yes
+checking for -Wimplicit-fallthrough... -Wimplicit-fallthrough
+checking for -Wfree-labels... -Wfree-labels
+checking for -Wmissing-parameter-name... -Wmissing-parameter-name
+checking support for trampolines in testing... yes
+checking -Wno-restrict in testing... -Wno-restrict
+checking -Wno-fortify-source in testing... -Wno-fortify-source
+checking -finput-charset=ascii in testing... -finput-charset=ascii
+checking aarch64-unknown-linux-gnu-g++ -std=gnu++11 -finput-charset=ascii in testing... -finput-charset=ascii
+checking for STB_GNU_UNIQUE in testing... yes
+checking for libgd... no
+checking for is_selinux_enabled in -lselinux... no
+checking for maximum supported _FORTIFY_SOURCE level... 3
+checking whether the assembler requires one version per symbol... no
+checking for __builtin_trap with no external dependencies... yes
+checking whether the compiler supports __attribute__ ((aligned (65536)))... yes
+checking whether the C++ compiler supports thread_local... yes
+running configure fragment for sysdeps/unix/sysv/linux/aarch64
+running configure fragment for sysdeps/unix/sysv/linux
+checking installed Linux kernel header files... 3.2.0 or later
+checking for kernel header at least 3.7.0... ok
+checking for symlinks in /usr/include... ok
+running configure fragment for sysdeps/gnu
+running configure fragment for sysdeps/aarch64
+checking for egrep -e... (cached) /usr/sbin/grep -E
+checking for big endian... no
+checking if compiler supports -mbranch-protection=bti... yes
+checking for linker that supports -z force-bti... yes
+checking if toolchain is enabled to support BTI... no
+checking if compiler supports -mbranch-protection=gcs... yes
+checking for linker that supports -z gcs=always... yes
+checking if toolchain is enabled to support GCS... no
+checking whether -fPIC is default... yes
+checking whether -fPIE is default... yes
+checking PDE load address... 0x0000000000400000
+checking for linker that supports -Ttext-segment=0x0000000000400000... yes
+checking if compiler supports -fno-fp-int-builtin-inexact... -fno-fp-int-builtin-inexact
+checking for linker that supports --undefined-version... yes
+checking if we can build programs as PIE... yes
+checking if we can build static PIE programs... yes
+checking whether aarch64-unknown-linux-gnu-gcc can link against -lgcc_s... yes
+checking attribute can declared after function declaration... yes
+configure: creating ./config.status
+config.status: creating config.make
+config.status: creating Makefile
+config.status: creating config.h
+config.status: executing default commands
+
+type "make help" for help with common glibc makefile targets
+
+mkdir -p -- /work/recipe/src/build/gnu
+mkdir -p -- /work/recipe/src/build/csu
+mkdir -p -- /work/recipe/src/build/iconv
+mkdir -p -- /work/recipe/src/build/locale
+mkdir -p -- /work/recipe/src/build/locale
+mkdir -p -- /work/recipe/src/build/localedata
+mkdir -p -- /work/recipe/src/build/localedata
+mkdir -p -- /work/recipe/src/build/localedata
+mkdir -p -- /work/recipe/src/build/iconvdata
+mkdir -p -- /work/recipe/src/build/assert
+mkdir -p -- /work/recipe/src/build/assert
+mkdir -p -- /work/recipe/src/build/ctype
+mkdir -p -- /work/recipe/src/build/ctype
+mkdir -p -- /work/recipe/src/build/intl
+mkdir -p -- /work/recipe/src/build/intl
+mkdir -p -- /work/recipe/src/build/intl
+plural.y:51.1-7: warning: POSIX Yacc does not support %define [-Wyacc]
+   51 | %define api.pure full
+      | ^~~~~~~
+plural.y:52.1-7: warning: POSIX Yacc does not support %expect [-Wyacc]
+   52 | %expect 7
+      | ^~~~~~~
+mkdir -p -- /work/recipe/src/build/catgets
+mkdir -p -- /work/recipe/src/build/catgets
+mkdir -p -- /work/recipe/src/build/math
+mkdir -p -- /work/recipe/src/build/math
+mkdir -p -- /work/recipe/src/build/setjmp
+mkdir -p -- /work/recipe/src/build/setjmp
+mkdir -p -- /work/recipe/src/build/signal
+mkdir -p -- /work/recipe/src/build/signal
+mkdir -p -- /work/recipe/src/build/signal
+mkdir -p -- /work/recipe/src/build/stdlib
+mkdir -p -- /work/recipe/src/build/stdio-common
+mkdir -p -- /work/recipe/src/build/libio
+mkdir -p -- /work/recipe/src/build/dlfcn
+mkdir -p -- /work/recipe/src/build/dlfcn
+mkdir -p -- /work/recipe/src/build/nptl
+mkdir -p -- /work/recipe/src/build/rt
+mkdir -p -- /work/recipe/src/build/malloc
+mkdir -p -- /work/recipe/src/build/string
+mkdir -p -- /work/recipe/src/build/wcsmbs
+mkdir -p -- /work/recipe/src/build/timezone
+mkdir -p -- /work/recipe/src/build/timezone
+mkdir -p -- /work/recipe/src/build/timezone
+mkdir -p -- /work/recipe/src/build/time
+mkdir -p -- /work/recipe/src/build/dirent
+mkdir -p -- /work/recipe/src/build/posix
+mkdir -p -- /work/recipe/src/build/posix
+mkdir -p -- /work/recipe/src/build/posix
+mkdir -p -- /work/recipe/src/build/io
+mkdir -p -- /work/recipe/src/build/io
+mkdir -p -- /work/recipe/src/build/io
+mkdir -p -- /work/recipe/src/build/termios
+mkdir -p -- /work/recipe/src/build/termios
+mkdir -p -- /work/recipe/src/build/resource
+mkdir -p -- /work/recipe/src/build/resource
+mkdir -p -- /work/recipe/src/build/resource
+mkdir -p -- /work/recipe/src/build/resource
+mkdir -p -- /work/recipe/src/build/misc
+mkdir -p -- /work/recipe/src/build/misc/bits
+mkdir -p -- /work/recipe/src/build/misc
+mkdir -p -- /work/recipe/src/build/socket
+mkdir -p -- /work/recipe/src/build/sysvipc
+mkdir -p -- /work/recipe/src/build/sysvipc
+mkdir -p -- /work/recipe/src/build/gmon
+mkdir -p -- /work/recipe/src/build/gmon
+mkdir -p -- /work/recipe/src/build/gnulib
+mkdir -p -- /work/recipe/src/build/gnulib
+mkdir -p -- /work/recipe/src/build/gnulib
+mkdir -p -- /work/recipe/src/build/wctype
+mkdir -p -- /work/recipe/src/build/wctype
+mkdir -p -- /work/recipe/src/build/manual
+mkdir -p -- /work/recipe/src/build/po
+mkdir -p -- /work/recipe/src/build/po
+mkdir -p -- /work/recipe/src/build/po
+mkdir -p -- /work/recipe/src/build/argp
+mkdir -p -- /work/recipe/src/build/argp
+mkdir -p -- /work/recipe/src/build/conform
+mkdir -p -- /work/recipe/src/build/conform
+mkdir -p -- /work/recipe/src/build/conform
+mkdir -p -- /work/recipe/src/build/debug
+mkdir -p -- /work/recipe/src/build/mathvec
+mkdir -p -- /work/recipe/src/build/mathvec
+mkdir -p -- /work/recipe/src/build/mathvec
+mkdir -p -- /work/recipe/src/build/support
+mkdir -p -- /work/recipe/src/build/support
+mkdir -p -- /work/recipe/src/build/support
+mkdir -p -- /work/recipe/src/build/nptl_db
+mkdir -p -- /work/recipe/src/build/nptl_db
+mkdir -p -- /work/recipe/src/build/nptl_db
+mkdir -p -- /work/recipe/src/build/inet
+mkdir -p -- /work/recipe/src/build/resolv
+mkdir -p -- /work/recipe/src/build/nss
+mkdir -p -- /work/recipe/src/build/hesiod
+mkdir -p -- /work/recipe/src/build/hesiod
+mkdir -p -- /work/recipe/src/build/hesiod
+mkdir -p -- /work/recipe/src/build/sunrpc
+mkdir -p -- /work/recipe/src/build/sunrpc
+mkdir -p -- /work/recipe/src/build/nis
+mkdir -p -- /work/recipe/src/build/nis
+mkdir -p -- /work/recipe/src/build/nis
+mkdir -p -- /work/recipe/src/build/nscd
+mkdir -p -- /work/recipe/src/build/nscd
+mkdir -p -- /work/recipe/src/build/nscd
+mkdir -p -- /work/recipe/src/build/login
+/bin/sh: line 1: /work/recipe/src/build/elf/dso-sort-tests-all2.def: No such file or directory
+/bin/sh: line 1: /work/recipe/src/build/elf/dso-sort-tests-all3.def: No such file or directory
+/bin/sh: line 1: /work/recipe/src/build/elf/dso-sort-tests-all4.def: No such file or directory
+ar: `u' modifier ignored since `D' is the default (see `U')
+ar: `u' modifier ignored since `D' is the default (see `U')
+ar: `u' modifier ignored since `D' is the default (see `U')
+mkdir -p -- /work/recipe/src/build/linkobj
+ar: `u' modifier ignored since `D' is the default (see `U')
+ar: `u' modifier ignored since `D' is the default (see `U')
+ar: `u' modifier ignored since `D' is the default (see `U')
+ar: `u' modifier ignored since `D' is the default (see `U')
+ar: `u' modifier ignored since `D' is the default (see `U')
+ar: `u' modifier ignored since `D' is the default (see `U')
+ar: `u' modifier ignored since `D' is the default (see `U')
+ar: `u' modifier ignored since `D' is the default (see `U')
+ar: `u' modifier ignored since `D' is the default (see `U')
+ar: `u' modifier ignored since `D' is the default (see `U')
+ar: `u' modifier ignored since `D' is the default (see `U')
+ar: `u' modifier ignored since `D' is the default (see `U')
+ar: `u' modifier ignored since `D' is the default (see `U')
+ar: `u' modifier ignored since `D' is the default (see `U')
+ar: `u' modifier ignored since `D' is the default (see `U')
+ar: `u' modifier ignored since `D' is the default (see `U')
+ar: `u' modifier ignored since `D' is the default (see `U')
+ar: `u' modifier ignored since `D' is the default (see `U')
+ar: `u' modifier ignored since `D' is the default (see `U')
+ar: `u' modifier ignored since `D' is the default (see `U')
+ar: `u' modifier ignored since `D' is the default (see `U')
+ar: `u' modifier ignored since `D' is the default (see `U')
+ar: `u' modifier ignored since `D' is the default (see `U')
+ar: `u' modifier ignored since `D' is the default (see `U')
+ar: `u' modifier ignored since `D' is the default (see `U')
+ar: `u' modifier ignored since `D' is the default (see `U')
+ar: `u' modifier ignored since `D' is the default (see `U')
+ar: `u' modifier ignored since `D' is the default (see `U')
+ar: `u' modifier ignored since `D' is the default (see `U')
+Makefile:68: warning: pattern recipe did not update peer target 'top-menu./work/recipe/src/build/manual/texi'.
+Makefile:68: warning: pattern recipe did not update peer target 'chapters./work/recipe/src/build/manual/texi'.
+==> Starting check()...
+==> Entering fakeroot environment...
+==> Starting package()...
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/lib
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/include
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/include/bits
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/include/gnu
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/bin
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/include/bits/types
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/include/bits/types
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/i18n/charmaps
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/i18n/charmaps
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/i18n/charmaps
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/i18n/charmaps
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/i18n/locales
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/lib/gconv
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/lib/gconv
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/lib/gconv
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/lib/gconv/gconv-modules.d
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/include/finclude
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/include/sys
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/lib/getconf
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/include/scsi
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/include/scsi
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/include/scsi
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/include/net
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/info
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/be/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/bg/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/ca/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/cs/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/da/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/de/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/el/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/en_GB/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/eo/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/es/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/fi/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/fr/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/gl/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/hr/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/hu/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/ia/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/id/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/it/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/ja/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/ka/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/ko/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/lt/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/nb/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/nl/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/pl/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/pt/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/pt_BR/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/ro/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/ru/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/rw/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/sk/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/sl/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/sr/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/sv/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/tr/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/uk/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/vi/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/zh_CN/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/share/locale/zh_TW/LC_MESSAGES
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/include/arpa
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/include/arpa
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/include/protocols
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/include/protocols
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/include/protocols
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/include/netinet
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/include/rpc
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/include/netash
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/include/netatalk
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/include/netax25
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/include/neteconet
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/include/netipx
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/include/netiucv
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/include/netpacket
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/include/netrom
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/include/netrose
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/etc
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/var/db
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/include/nfs
+mkdir -p -- /work/recipe/pkg/cachy-asahi-glibc-gnu-provider/usr/lib/audit
+{"dirname_object_bytes": 18, "elf_files": 300, "entries": 1608, "loadable_files": 291, "scope": "staged layout and static ELF checks only; no build/runtime/admission credit", "status": "PASS_INERT_PROVIDER_STAGING"}
+==> Tidying install...
+==> Checking for packaging issues...
+==> WARNING: Package contains reference to $srcdir
+usr/lib/libanl.so.1
+usr/lib/libnss_compat.so.2
+usr/lib/crti.o
+usr/lib/getconf/POSIX_V7_LP64_OFF64
+usr/lib/getconf/POSIX_V6_LP64_OFF64
+usr/lib/getconf/XBS5_LP64_OFF64
+usr/lib/libm.so.6
+usr/lib/libpthread.so.0
+usr/lib/libc.so.6
+usr/lib/libnss_db.so.2
+usr/lib/librt.so.1
+usr/lib/libnss_hesiod.so.2
+usr/lib/libresolv.a
+usr/lib/libpcprofile.so
+usr/lib/libmemusage.so
+usr/lib/libmcheck.a
+usr/lib/gconv/IBM1144.so
+usr/lib/gconv/ISO-2022-CN.so
+usr/lib/gconv/GBK.so
+usr/lib/gconv/EUC-CN.so
+usr/lib/gconv/IBM297.so
+usr/lib/gconv/IBM280.so
+usr/lib/gconv/CP774.so
+usr/lib/gconv/HP-ROMAN8.so
+usr/lib/gconv/IBM420.so
+usr/lib/gconv/IBM4899.so
+usr/lib/gconv/IBM1141.so
+usr/lib/gconv/IBM869.so
+usr/lib/gconv/ISO8859-13.so
+usr/lib/gconv/DEC-MCS.so
+usr/lib/gconv/IBM1008.so
+usr/lib/gconv/IBM1154.so
+usr/lib/gconv/ISO_6937.so
+usr/lib/gconv/GREEK-CCITT.so
+usr/lib/gconv/IBM4971.so
+usr/lib/gconv/ANSI_X3.110.so
+usr/lib/gconv/IBM1156.so
+usr/lib/gconv/IBM921.so
+usr/lib/gconv/CP1255.so
+usr/lib/gconv/UHC.so
+usr/lib/gconv/ISO-2022-KR.so
+usr/lib/gconv/ASMO_449.so
+usr/lib/gconv/libCNS.so
+usr/lib/gconv/LATIN-GREEK-1.so
+usr/lib/gconv/IBM1097.so
+usr/lib/gconv/IBM855.so
+usr/lib/gconv/KOI8-RU.so
+usr/lib/gconv/MAC-IS.so
+usr/lib/gconv/IBM281.so
+usr/lib/gconv/libGB.so
+usr/lib/gconv/KOI8-R.so
+usr/lib/gconv/IBM274.so
+usr/lib/gconv/MAC-SAMI.so
+usr/lib/gconv/IBM1143.so
+usr/lib/gconv/IBM862.so
+usr/lib/gconv/IBM4909.so
+usr/lib/gconv/IBM424.so
+usr/lib/gconv/BIG5.so
+usr/lib/gconv/CP770.so
+usr/lib/gconv/INIS-8.so
+usr/lib/gconv/ISO8859-14.so
+usr/lib/gconv/GB18030.so
+usr/lib/gconv/SHIFT_JISX0213.so
+usr/lib/gconv/IBM1146.so
+usr/lib/gconv/KOI-8.so
+usr/lib/gconv/IBM1129.so
+usr/lib/gconv/IBM284.so
+usr/lib/gconv/EBCDIC-ES.so
+usr/lib/gconv/GREEK7-OLD.so
+usr/lib/gconv/NATS-DANO.so
+usr/lib/gconv/libISOIR165.so
+usr/lib/gconv/IBM858.so
+usr/lib/gconv/IBM12712.so
+usr/lib/gconv/IBM1166.so
+usr/lib/gconv/libJIS.so
+usr/lib/gconv/SAMI-WS2.so
+usr/lib/gconv/ISO8859-9E.so
+usr/lib/gconv/CP1257.so
+usr/lib/gconv/ISO8859-10.so
+usr/lib/gconv/KOI8-T.so
+usr/lib/gconv/ISO8859-4.so
+usr/lib/gconv/KOI8-U.so
+usr/lib/gconv/libKSC.so
+usr/lib/gconv/CP10007.so
+usr/lib/gconv/EBCDIC-PT.so
+usr/lib/gconv/IBM857.so
+usr/lib/gconv/IBM868.so
+usr/lib/gconv/CP772.so
+usr/lib/gconv/IBM922.so
+usr/lib/gconv/T.61.so
+usr/lib/gconv/IBM860.so
+usr/lib/gconv/IBM275.so
+usr/lib/gconv/MAC-CENTRALEUROPE.so
+usr/lib/gconv/IBM1388.so
+usr/lib/gconv/ISIRI-3342.so
+usr/lib/gconv/HP-THAI8.so
+usr/lib/gconv/IBM904.so
+usr/lib/gconv/ISO-IR-209.so
+usr/lib/gconv/IBM935.so
+usr/lib/gconv/IBM852.so
+usr/lib/gconv/ISO-2022-CN-EXT.so
+usr/lib/gconv/EUC-JISX0213.so
+usr/lib/gconv/IBM1004.so
+usr/lib/gconv/ISO8859-9.so
+usr/lib/gconv/IBM1163.so
+usr/lib/gconv/IBM861.so
+usr/lib/gconv/ARMSCII-8.so
+usr/lib/gconv/IBM256.so
+usr/lib/gconv/IBM1112.so
+usr/lib/gconv/EUC-KR.so
+usr/lib/gconv/IBM933.so
+usr/lib/gconv/IBM1155.so
+usr/lib/gconv/ISO_11548-1.so
+usr/lib/gconv/EUC-JP-MS.so
+usr/lib/gconv/IBM273.so
+usr/lib/gconv/IBM1130.so
+usr/lib/gconv/HP-TURKISH8.so
+usr/lib/gconv/IEC_P27-1.so
+usr/lib/gconv/IBM290.so
+usr/lib/gconv/IBM9030.so
+usr/lib/gconv/IBM1142.so
+usr/lib/gconv/ISO8859-16.so
+usr/lib/gconv/IBM1145.so
+usr/lib/gconv/EBCDIC-DK-NO.so
+usr/lib/gconv/IBM803.so
+usr/lib/gconv/CP737.so
+usr/lib/gconv/IBM500.so
+usr/lib/gconv/ISO8859-6.so
+usr/lib/gconv/IBM1371.so
+usr/lib/gconv/EBCDIC-ES-A.so
+usr/lib/gconv/MACINTOSH.so
+usr/lib/gconv/CP1250.so
+usr/lib/gconv/EBCDIC-CA-FR.so
+usr/lib/gconv/CP1253.so
+usr/lib/gconv/IBM1046.so
+usr/lib/gconv/IBM1148.so
+usr/lib/gconv/IBM1164.so
+usr/lib/gconv/IBM918.so
+usr/lib/gconv/GREEK7.so
+usr/lib/gconv/EBCDIC-AT-DE-A.so
+usr/lib/gconv/IBM1132.so
+usr/lib/gconv/IBM863.so
+usr/lib/gconv/IBM866.so
+usr/lib/gconv/CP771.so
+usr/lib/gconv/UNICODE.so
+usr/lib/gconv/IBM16804.so
+usr/lib/gconv/IBM932.so
+usr/lib/gconv/IBM1026.so
+usr/lib/gconv/IBM930.so
+usr/lib/gconv/IBM1124.so
+usr/lib/gconv/IBM1123.so
+usr/lib/gconv/IBM1161.so
+usr/lib/gconv/MAC-UK.so
+usr/lib/gconv/MIK.so
+usr/lib/gconv/TIS-620.so
+usr/lib/gconv/IBM871.so
+usr/lib/gconv/EBCDIC-IT.so
+usr/lib/gconv/IBM5347.so
+usr/lib/gconv/CP1254.so
+usr/lib/gconv/CP932.so
+usr/lib/gconv/IBM875.so
+usr/lib/gconv/CP1256.so
+usr/lib/gconv/ISO8859-7.so
+usr/lib/gconv/ISO_5428.so
+usr/lib/gconv/HP-GREEK8.so
+usr/lib/gconv/GBGBK.so
+usr/lib/gconv/IBM1137.so
+usr/lib/gconv/IBM866NAV.so
+usr/lib/gconv/IBM891.so
+usr/lib/gconv/TCVN5712-1.so
+usr/lib/gconv/IBM1167.so
+usr/lib/gconv/IBM1399.so
+usr/lib/gconv/IBM902.so
+usr/lib/gconv/GBBIG5.so
+usr/lib/gconv/IBM901.so
+usr/lib/gconv/CP1251.so
+usr/lib/gconv/EBCDIC-DK-NO-A.so
+usr/lib/gconv/IBM037.so
+usr/lib/gconv/HP-ROMAN9.so
+usr/lib/gconv/LATIN-GREEK.so
+usr/lib/gconv/IBM9448.so
+usr/lib/gconv/IBM905.so
+usr/lib/gconv/RK1048.so
+usr/lib/gconv/ISO_2033.so
+usr/lib/gconv/ISO_10367-BOX.so
+usr/lib/gconv/IBM9066.so
+usr/lib/gconv/UTF-16.so
+usr/lib/gconv/CP1258.so
+usr/lib/gconv/IBM903.so
+usr/lib/gconv/ISO8859-1.so
+usr/lib/gconv/IBM1390.so
+usr/lib/gconv/EBCDIC-ES-S.so
+usr/lib/gconv/IBM943.so
+usr/lib/gconv/ISO-IR-197.so
+usr/lib/gconv/IBM1122.so
+usr/lib/gconv/ISO_5427-EXT.so
+usr/lib/gconv/IBM874.so
+usr/lib/gconv/EBCDIC-FI-SE.so
+usr/lib/gconv/IBM1162.so
+usr/lib/gconv/ISO-2022-JP.so
+usr/lib/gconv/IBM437.so
+usr/lib/gconv/EBCDIC-UK.so
+usr/lib/gconv/IBM1133.so
+usr/lib/gconv/IBM1140.so
+usr/lib/gconv/ECMA-CYRILLIC.so
+usr/lib/gconv/IBM870.so
+usr/lib/gconv/EUC-TW.so
+usr/lib/gconv/IBM856.so
+usr/lib/gconv/PT154.so
+usr/lib/gconv/IBM1153.so
+usr/lib/gconv/libJISX0213.so
+usr/lib/gconv/INIS-CYRILLIC.so
+usr/lib/gconv/IBM1147.so
+usr/lib/gconv/ISO8859-15.so
+usr/lib/gconv/IBM864.so
+usr/lib/gconv/IBM939.so
+usr/lib/gconv/IBM423.so
+usr/lib/gconv/BIG5HKSCS.so
+usr/lib/gconv/EBCDIC-AT-DE.so
+usr/lib/gconv/ISO8859-8.so
+usr/lib/gconv/CP1125.so
+usr/lib/gconv/IBM937.so
+usr/lib/gconv/IBM038.so
+usr/lib/gconv/CSN_369103.so
+usr/lib/gconv/EBCDIC-FR.so
+usr/lib/gconv/ISO8859-3.so
+usr/lib/gconv/ISO8859-2.so
+usr/lib/gconv/BRF.so
+usr/lib/gconv/IBM1160.so
+usr/lib/gconv/ISO8859-5.so
+usr/lib/gconv/ISO646.so
+usr/lib/gconv/CP773.so
+usr/lib/gconv/IBM865.so
+usr/lib/gconv/JOHAB.so
+usr/lib/gconv/IBM880.so
+usr/lib/gconv/IBM1158.so
+usr/lib/gconv/CP1252.so
+usr/lib/gconv/IBM1025.so
+usr/lib/gconv/ISO8859-11.so
+usr/lib/gconv/EBCDIC-FI-SE-A.so
+usr/lib/gconv/IBM1157.so
+usr/lib/gconv/IBM4517.so
+usr/lib/gconv/IBM1149.so
+usr/lib/gconv/CP775.so
+usr/lib/gconv/IBM1047.so
+usr/lib/gconv/UTF-32.so
+usr/lib/gconv/EBCDIC-US.so
+usr/lib/gconv/SJIS.so
+usr/lib/gconv/UTF-7.so
+usr/lib/gconv/ISO_5427.so
+usr/lib/gconv/IBM278.so
+usr/lib/gconv/IBM1364.so
+usr/lib/gconv/IBM1008_420.so
+usr/lib/gconv/EUC-JP.so
+usr/lib/gconv/EBCDIC-IS-FRISS.so
+usr/lib/gconv/VISCII.so
+usr/lib/gconv/CWI.so
+usr/lib/gconv/IBM850.so
+usr/lib/gconv/NATS-SEFI.so
+usr/lib/gconv/IBM851.so
+usr/lib/gconv/IBM285.so
+usr/lib/gconv/IBM277.so
+usr/lib/gconv/GOST_19768-74.so
+usr/lib/gconv/TSCII.so
+usr/lib/gconv/INIS.so
+usr/lib/gconv/ISO_6937-2.so
+usr/lib/gconv/ISO-2022-JP-3.so
+usr/lib/gconv/GEORGIAN-PS.so
+usr/lib/gconv/GEORGIAN-ACADEMY.so
+usr/lib/Scrt1.o
+usr/lib/libnss_files.so.2
+usr/lib/libdl.so.2
+usr/lib/ld-linux-aarch64.so.1
+usr/lib/rcrt1.o
+usr/lib/grcrt1.o
+usr/lib/crt1.o
+usr/lib/libnss_dns.so.2
+usr/lib/libutil.so.1
+usr/lib/libBrokenLocale.a
+usr/lib/gcrt1.o
+usr/lib/libmvec.a
+usr/lib/Mcrt1.o
+usr/lib/libBrokenLocale.so.1
+usr/lib/libnsl.so.1
+usr/lib/libm-2.43.a
+usr/lib/crtn.o
+usr/lib/libc.a
+usr/lib/libc_malloc_debug.so.0
+usr/lib/libresolv.so.2
+usr/lib/libmvec.so.1
+usr/lib/libc_nonshared.a
+usr/lib/audit/sotruss-lib.so
+usr/lib/libg.a
+usr/lib/libthread_db.so.1
+usr/bin/getconf
+usr/bin/pldd
+usr/bin/iconvconfig
+usr/bin/ldconfig
+usr/bin/sln
+usr/bin/locale
+usr/bin/localedef
+usr/bin/makedb
+usr/bin/sprof
+usr/bin/pcprofiledump
+usr/bin/gencat
+usr/bin/iconv
+usr/bin/getent
+==> Creating package "cachy-asahi-glibc-gnu-provider"...
+  -> Generating .PKGINFO file...
+  -> Generating .BUILDINFO file...
+  -> Generating .MTREE file...
+  -> Compressing package...
+==> Leaving fakeroot environment.
+==> Finished making: cachy-asahi-glibc-gnu-provider 2.43.caa1-1 (Fri Oct 16 21:28:28 2026)

@@ -1,0 +1,25 @@
+{
+  "total_count": 1,
+  "artifacts": [
+    {
+      "id": 12075794514,
+      "node_id": "MDg6QXJ0aWZhY3QxMjA3NTc5NDUxNA==",
+      "name": "glibc-gnu-provider-38960150458-1",
+      "size_in_bytes": 89417740,
+      "url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/actions/artifacts/12075794514",
+      "archive_download_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/actions/artifacts/12075794514/zip",
+      "expired": false,
+      "digest": "sha256:3de7af54e6bd43442ede220e08b2f84c4c6bc77b29076990f50d37ea98ad8608",
+      "created_at": "2026-10-16T21:28:38Z",
+      "updated_at": "2026-10-16T21:28:38Z",
+      "expires_at": "2026-10-19T21:28:37Z",
+      "workflow_run": {
+        "id": 38960150458,
+        "repository_id": 1414857795,
+        "head_repository_id": 1414857795,
+        "head_branch": "codex/glibc-provider-fileless6-v1",
+        "head_sha": "0056a7c1b83ff325f1368d3659cfeb8e5a5c8358"
+      }
+    }
+  ]
+}

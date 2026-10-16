@@ -1,0 +1,96 @@
+{
+  "hardware": "NOT RUN",
+  "libraries": [
+    {
+      "baseline_set_sha256": "c17dfc5d70618ae7b4d8a73e0e693e8d4e0e176052d81d04dcad096db37c8d37",
+      "baseline_symbols": 9,
+      "candidate_set_sha256": "c17dfc5d70618ae7b4d8a73e0e693e8d4e0e176052d81d04dcad096db37c8d37",
+      "candidate_symbols": 9,
+      "library": "ld-linux-aarch64.so.1",
+      "missing": []
+    },
+    {
+      "baseline_set_sha256": "e62aeb6762e53adf92679d6d19f7f15e36603a485bc8d4fa69f781822e050e8b",
+      "baseline_symbols": 2777,
+      "candidate_set_sha256": "e62aeb6762e53adf92679d6d19f7f15e36603a485bc8d4fa69f781822e050e8b",
+      "candidate_symbols": 2777,
+      "library": "libc.so.6",
+      "missing": []
+    },
+    {
+      "baseline_set_sha256": "9a204b456a550c54d07afed876537fe4a0bf4acf416c38abb74988dcb4eded9c",
+      "baseline_symbols": 1339,
+      "candidate_set_sha256": "9a204b456a550c54d07afed876537fe4a0bf4acf416c38abb74988dcb4eded9c",
+      "candidate_symbols": 1339,
+      "library": "libm.so.6",
+      "missing": []
+    },
+    {
+      "baseline_set_sha256": "9f217f13f11df1cf8b17603961982a066ca87547bc6a8ec94c5c396bfb4aaf20",
+      "baseline_symbols": 67,
+      "candidate_set_sha256": "9f217f13f11df1cf8b17603961982a066ca87547bc6a8ec94c5c396bfb4aaf20",
+      "candidate_symbols": 67,
+      "library": "libresolv.so.2",
+      "missing": []
+    },
+    {
+      "baseline_set_sha256": "f7ba3ae8b7d74af10a172c5e083fb0ee347819e75b5c60da430a4d19bb02a411",
+      "baseline_symbols": 1,
+      "candidate_set_sha256": "f7ba3ae8b7d74af10a172c5e083fb0ee347819e75b5c60da430a4d19bb02a411",
+      "candidate_symbols": 1,
+      "library": "libdl.so.2",
+      "missing": []
+    },
+    {
+      "baseline_set_sha256": "425a7b129257a757fa9deb0a134ff80792fa62a7b35411fec362fd30715d77dd",
+      "baseline_symbols": 5,
+      "candidate_set_sha256": "425a7b129257a757fa9deb0a134ff80792fa62a7b35411fec362fd30715d77dd",
+      "candidate_symbols": 5,
+      "library": "libpthread.so.0",
+      "missing": []
+    },
+    {
+      "baseline_set_sha256": "00d23720f898acfcf72cf729a539418a7065eeb4bac2f1695be54549967a76f3",
+      "baseline_symbols": 1,
+      "candidate_set_sha256": "00d23720f898acfcf72cf729a539418a7065eeb4bac2f1695be54549967a76f3",
+      "candidate_symbols": 1,
+      "library": "librt.so.1",
+      "missing": []
+    },
+    {
+      "baseline_set_sha256": "e9ac17dcfed858f1a68d4df3d9dcca4ed44ed5e7b1bf466c620ccec1ff9ad84a",
+      "baseline_symbols": 1,
+      "candidate_set_sha256": "e9ac17dcfed858f1a68d4df3d9dcca4ed44ed5e7b1bf466c620ccec1ff9ad84a",
+      "candidate_symbols": 1,
+      "library": "libutil.so.1",
+      "missing": []
+    },
+    {
+      "baseline_set_sha256": "a08421e3897b88f60cd7397c1dacb95204ba3f539613b079d1711a5da0eb203f",
+      "baseline_symbols": 1,
+      "candidate_set_sha256": "a08421e3897b88f60cd7397c1dacb95204ba3f539613b079d1711a5da0eb203f",
+      "candidate_symbols": 1,
+      "library": "libanl.so.1",
+      "missing": []
+    },
+    {
+      "baseline_set_sha256": "af9fcab48c8fcc703eea4392654afbd36b60b44bf1f1e5e6f3368b6cfae4035c",
+      "baseline_symbols": 1,
+      "candidate_set_sha256": "af9fcab48c8fcc703eea4392654afbd36b60b44bf1f1e5e6f3368b6cfae4035c",
+      "candidate_symbols": 1,
+      "library": "libBrokenLocale.so.1",
+      "missing": []
+    },
+    {
+      "baseline_set_sha256": "7f1e57fbb46dcf9231a141bcdb758db9d5eb65d4943bf3e0c092186e102f0e54",
+      "baseline_symbols": 40,
+      "candidate_set_sha256": "7f1e57fbb46dcf9231a141bcdb758db9d5eb65d4943bf3e0c092186e102f0e54",
+      "candidate_symbols": 40,
+      "library": "libthread_db.so.1",
+      "missing": []
+    }
+  ],
+  "schema_version": 1,
+  "scope": "declared public dynsym name/type/binding/visibility/exact version-defaultness and OBJECT/TLS size only; runtime smoke separate",
+  "status": "PASS_STATIC_PUBLIC_ABI"
+}
