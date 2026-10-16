@@ -2,7 +2,7 @@
   "background_cancellation": "NOT_RUN",
   "background_duplicate_watch": "NOT_RUN",
   "background_failure": "NOT_RUN",
-  "basis_source": "a484ea2ba5ea21d2a156ade89a9e1275833587aa",
+  "basis_source": "18cc8df67eb7e8c5095e9f4db129c36e4a600648",
   "done_packet": {
     "archive_sha256": "9ce3c7ba89467f04660014c1b12056dce28bd0c4e69b4cab8a9c2c98e1cce54f",
     "ref": "de35c384a2e5b14b664d4156897f271b81e467ba"
@@ -181,24 +181,24 @@
       "sha256": "5e3540a853c96616f6767e86df152a87747299c6f8b5c36f41cc51ae7f3403cd"
     },
     "scripts/ci/fish-done-managed-notifications/README.md": {
-      "bytes": 12582,
-      "sha256": "227b86f54279cfe6740078137bb569b930056c02ab609520d70681892738a354"
+      "bytes": 13084,
+      "sha256": "49b71f5b3e4a6997ad09a6ceeac214e6e8e79522befe2d92f2168bebc379ad3a"
     },
     "scripts/ci/fish-done-managed-notifications/bar_helpers.py": {
       "bytes": 20986,
       "sha256": "3389f3ea1cc6193941c9394e0888748694cd33306956fedb7de805279d0572e5"
     },
     "scripts/ci/fish-done-managed-notifications/capture.py": {
-      "bytes": 5406,
-      "sha256": "1a3cf75ded3bfa54b68c992e68ddb4cccc982ba2e0e9cee597969dadd1355c84"
+      "bytes": 6919,
+      "sha256": "b07cb242c65a0aa149afd9d39a699accd22e79119fbe9be0e7d7b1876458b244"
     },
     "scripts/ci/fish-done-managed-notifications/ci/caller.py": {
-      "bytes": 11359,
-      "sha256": "4e935df6ef058a766c25dab2409c9b4d0e33d166f056f2026db83c15435219f0"
+      "bytes": 11530,
+      "sha256": "0ce387df491eb5406493d523c4fb04cc4f3ef95ea1ceec46a3090ffbe0516dd4"
     },
     "scripts/ci/fish-done-managed-notifications/contract.py": {
-      "bytes": 7735,
-      "sha256": "250477778cf5c96f269f47c8d3e28e5d819fe12dc517b6b2e754d2836ee1e117"
+      "bytes": 8689,
+      "sha256": "b0faa75d9b3c62289d4727c047ba75987076d8c057ec5db34bcae99a0c0f6653"
     },
     "scripts/ci/fish-done-managed-notifications/desktop574_guest.py": {
       "bytes": 2722,
@@ -245,8 +245,8 @@
       "sha256": "7704da1b060e739f63e4d7062a02938e64bcfbe1c10b4d6581532ded2f194de0"
     },
     "scripts/ci/fish-done-managed-notifications/observation.py": {
-      "bytes": 4648,
-      "sha256": "ead488eed2a4b349a9b798d6ad73eab509d2d0abec74f2c0378aeee746438c0c"
+      "bytes": 4830,
+      "sha256": "f99faa094bf7acab43dd0804b21b9d777fa074da9485435828a6515d8f3b0dc7"
     },
     "scripts/ci/fish-done-managed-notifications/package-inputs.json": {
       "bytes": 355174,
@@ -257,20 +257,20 @@
       "sha256": "4d65aec6b7200136a346d38acad9ea11387bc836881058a1484797f06fba5088"
     },
     "scripts/ci/fish-done-managed-notifications/prepare.py": {
-      "bytes": 4044,
-      "sha256": "1f80fc1fa2f347fef24b4ed48d409f072e6bd267ba6a796c30c4cfee56d57e62"
+      "bytes": 4425,
+      "sha256": "d974c674e10156bba8097c507708a3162bc2e02afee67b96e0b7b0888a56bb1b"
     },
     "scripts/ci/fish-done-managed-notifications/session.py": {
-      "bytes": 12354,
-      "sha256": "c8b2907c7b70c09888f978b64195cef2a6a0ef5b9b66ac1b0e07c413903ec503"
+      "bytes": 12648,
+      "sha256": "9785707ccffaf0735275e41cd31b4e45e4dc932eb31273b282f59e1240d66358"
     },
     "scripts/ci/fish-done-managed-notifications/source-pins.json": {
       "bytes": 9840,
-      "sha256": "1f128b2126ccbc22b01b580f670bf0bd1c00001d06f8dacfe0e1fc5ede9b8bb2"
+      "sha256": "b8f35525f78d0fccb5c031165b2b77fbfad928107ee5a20cf0dea92baf2aba0b"
     },
     "scripts/ci/fish-done-managed-notifications/test_source.py": {
-      "bytes": 36268,
-      "sha256": "eece173802ae6ec0d21e1f316d33c0a00c8084b0d6608a99d3108a1647203705"
+      "bytes": 44173,
+      "sha256": "5553409bdb1f82b502b77863380a5e814da1c87f156edcbded496302d24a2eb2"
     },
     "scripts/ci/maintained-desktop574-inputs.json": {
       "bytes": 623664,
@@ -347,12 +347,12 @@
       "sha256": "c550258599842df55464068e955373842acc5884c3f640eb07dc3a077aeb6313"
     },
     "capture.py": {
-      "bytes": 5406,
-      "sha256": "1a3cf75ded3bfa54b68c992e68ddb4cccc982ba2e0e9cee597969dadd1355c84"
+      "bytes": 6919,
+      "sha256": "b07cb242c65a0aa149afd9d39a699accd22e79119fbe9be0e7d7b1876458b244"
     },
     "contract.py": {
-      "bytes": 7735,
-      "sha256": "250477778cf5c96f269f47c8d3e28e5d819fe12dc517b6b2e754d2836ee1e117"
+      "bytes": 8689,
+      "sha256": "b0faa75d9b3c62289d4727c047ba75987076d8c057ec5db34bcae99a0c0f6653"
     },
     "desktop574_fixture.sh": {
       "bytes": 5114,
@@ -363,8 +363,8 @@
       "sha256": "721548482de143d5bae8a99b745c7225dee60440da10a1d43a8df34da78708b9"
     },
     "desktop574_runtime.py": {
-      "bytes": 22658,
-      "sha256": "3c3b2a9c05a05716a3cd868cd1b310f0b73a2c87376f8643bb6d87d9e816d359"
+      "bytes": 22774,
+      "sha256": "4739f0285bfde95975daf99df4be59ec1728460d53f9037284471280f024d0b1"
     },
     "done-lock.json": {
       "bytes": 2717,
@@ -399,20 +399,20 @@
       "sha256": "7704da1b060e739f63e4d7062a02938e64bcfbe1c10b4d6581532ded2f194de0"
     },
     "observation.py": {
-      "bytes": 4648,
-      "sha256": "ead488eed2a4b349a9b798d6ad73eab509d2d0abec74f2c0378aeee746438c0c"
+      "bytes": 4830,
+      "sha256": "f99faa094bf7acab43dd0804b21b9d777fa074da9485435828a6515d8f3b0dc7"
     },
     "package-inputs.json": {
       "bytes": 355174,
       "sha256": "0790b69c56c73d546f6d0069bb26bd212467f5eed6835fec0d2b2f5109d7bf54"
     },
     "session.py": {
-      "bytes": 12354,
-      "sha256": "c8b2907c7b70c09888f978b64195cef2a6a0ef5b9b66ac1b0e07c413903ec503"
+      "bytes": 12648,
+      "sha256": "9785707ccffaf0735275e41cd31b4e45e4dc932eb31273b282f59e1240d66358"
     },
     "source-pins.json": {
       "bytes": 9840,
-      "sha256": "1f128b2126ccbc22b01b580f670bf0bd1c00001d06f8dacfe0e1fc5ede9b8bb2"
+      "sha256": "b8f35525f78d0fccb5c031165b2b77fbfad928107ee5a20cf0dea92baf2aba0b"
     },
     "test_desktop574_runtime.py": {
       "bytes": 12245,
@@ -428,6 +428,13 @@
     "source": "6c7228162129a2e5f20118258bc4bad25fed20a0"
   },
   "native": "NOT_RUN",
+  "post_notify_request_failure": {
+    "correction": "IMMUTABLE_FIRST_REQUEST_BEFORE_VISIBILITY_QUERIES_ORIGINAL_FRAME_RETAINED_AND_VERIFIED_AGAINST_FRESH_VISIBILITY",
+    "frames": "NONE",
+    "reason": "STRICT_REQUEST_AGE_REJECTED_AFTER_SERIAL_VISIBILITY_QUERIES",
+    "run": 38960967539,
+    "source": "18cc8df67eb7e8c5095e9f4db129c36e4a600648"
+  },
   "request_budget": {
     "expiry_ms": 3000,
     "host_observation_max_ms": 5000,

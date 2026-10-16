@@ -31,25 +31,33 @@ def verify_result(events):
         def one(kind):
             rows=[r for r in events if r.get('event')==kind and r.get('stage')==stage]
             O.need(len(rows)==1,'one real Done '+kind+' required');return rows[0]
-        frame=one('frame_ready');observed=one('frame_captured');transport=one('done_transport');phase=one('phase_pass')
-        O.need([events.index(r) for r in (frame,observed,transport,phase)]==sorted(events.index(r) for r in (frame,observed,transport,phase)),'normal first capture/retirement order differs')
+        frame=one('frame_ready');observed=one('frame_captured');visible=one('frame_visibility');transport=one('done_transport');phase=one('phase_pass')
+        O.need([events.index(r) for r in (frame,observed,visible,transport,phase)]==sorted(events.index(r) for r in (frame,observed,visible,transport,phase)),'normal first capture/retirement order differs')
         O.need(frame['case']==transport['case']==phase['case']==case and frame['outcome']==outcome and frame['managed_identity']==identity and frame['activation']=='normal-shipped-config-no-reload' and frame['trace_waybar'] is False and frame['notification_timeout_ms']==3000 and 0<=frame['notification_age_ms']<=2000 and frame['capture_after_ms']>=5000,'real normal Done phase provenance differs')
         timing=frame['timing'];O.need(timing==O.capture_timing(frame['wire'],timing['request_realtime_us'],timing['request_monotonic_ns']) and frame['notification_age_ms']==timing['age_ms'] and frame.get('caller_pending') is True and 'caller' not in frame,'accurate pre-emission Notify age and deferred caller required')
         O.need(transport['capture_request_sha256']==request_digest(frame) and transport['post_request_identity']==identity,'post-request caller/manager join differs')
         activation=frame['activation_environment'];O.need(activation['manager_pid']==identity['manager_pid'] and activation['systemd_verified'] is True and activation['dbus_updated'] is True and environment_values(activation['values'])==activation['values'],'real managed activation evidence required')
         O.need(observed['first_capture'] is True and observed['request_sha256']==request_digest(frame) and observed['managed_identity']==identity and observed['visual_review']=='NOT_RUN' and 0<=observed['capture_ms']<=5000,'original first QMP frame required')
+        visibility=visible.get('visibility')
+        O.need(visible.get('managed_identity')==identity and visible.get('wire')==frame['wire'] and
+             visible.get('capture_request_sha256')==request_digest(frame) and transport.get('visibility')==visibility and
+             type(visibility) is dict and set(visibility)=={'bar','mako','notification','request_sha256','realtime_us','monotonic_ns'} and
+             not {'bar','mako','notification'}&set(frame) and visibility['request_sha256']==request_digest(frame) and
+             type(visibility['realtime_us']) is int and visibility['realtime_us']>=timing['request_realtime_us'] and
+             type(visibility['monotonic_ns']) is int and visibility['monotonic_ns']>=timing['request_monotonic_ns'] and
+             observed.get('visibility_sha256')==request_digest(visibility),'fresh post-request visibility receipt required')
         from capture import verify_pixel_receipt
-        verify_pixel_receipt(observed.get('notification_pixels'),frame['mako'],observed['sha256'])
+        verify_pixel_receipt(observed.get('notification_pixels'),visibility['mako'],observed['sha256'])
         O.need(type(observed.get('host_started_realtime_us')) is int and observed['host_started_realtime_us']<=observed['host_qmp_returned_realtime_us']<=observed['host_finished_realtime_us'] and type(observed.get('host_started_monotonic_ns')) is int,'host capture clocks absent')
         for name,namespace in (('bar','waybar'),('mako',MAKO_NAMESPACE)):
-            row=frame[name];O.need(owned_layer({row['monitor']:{'levels':{row['level']:[row]}}},namespace,frame['waybar_pid' if name=='bar' else 'mako_pid']) is not None,'visible owned client layer required')
+            row=visibility[name];O.need(owned_layer({row['monitor']:{'levels':{row['level']:[row]}}},namespace,frame['waybar_pid' if name=='bar' else 'mako_pid']) is not None,'visible owned client layer required')
         monitor=transport['monitor'];raw=base64.b64decode(monitor['raw_base64'],validate=True)
         O.need(len(raw)==monitor['bytes'] and hashlib.sha256(raw).hexdigest()==monitor['sha256'] and monitor['exit'] in (0,-2),'complete real bus observer receipt required')
         wire=O.notify(O.messages(raw),frame['wire']['recipient'],outcome,'Watched job' if stage=='background' else 'Foreground command')
         recipient=frame['recipient'];O.need(recipient['service']=='org.freedesktop.Notifications' and recipient['unique']==wire['recipient'] and recipient['pid']==frame['mako_pid'] and json.loads(recipient['owner_reply'][2:])==recipient['unique'],'actual Mako unique owner/PID evidence required')
         pids=[frame[n] for n in ('compositor_pid','waybar_pid','mako_pid','fish_pid')]
         O.need(all(type(n) is int and n>0 for n in pids) and len(set(pids))==4,'distinct owned compositor/bar/Mako/Fish identities required')
-        O.need(wire==frame['wire']==transport['wire'] and O.listing([frame['notification']],wire)==frame['notification'],'real Notify/reply/Mako listing join required')
+        O.need(wire==frame['wire']==transport['wire'] and O.listing([visibility['notification']],wire)==visibility['notification'],'real Notify/reply/Mako listing join required')
         O.need(frame['fish_pid']==transport['caller']['pid'] and all(transport['caller'][k]==outcome for k in ('outcome','prompt_status','caller_continuation')) and transport['fish']['exit']==0 and transport['mako_exit']==0,'normal owned Fish/Mako exit and caller status required')
         fish=transport['fish'];raw=base64.b64decode(fish['pty_base64'],validate=True)
         O.need(len(raw)==fish['pty_bytes'] and hashlib.sha256(raw).hexdigest()==fish['pty_sha256'] and ('FDM_PROMPT_2_'+str(outcome)).encode() in raw and ('FDM_CONT_'+str(outcome)).encode() in raw,'actual interactive Fish continuation bytes required')

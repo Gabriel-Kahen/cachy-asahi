@@ -96,18 +96,24 @@ reported separately from the required normal Fish/Mako/client exits.
 ## First pixels and preservation
 
 Done naturally expires in three seconds. The first request now follows the real
-Notify/reply and live Mako list/layer observations immediately. Foreground caller
-continuation, recipient-owner recheck and the three manager identity queries run
-after request emission; they remain required in the joined final transport
-receipt, exact PTY bytes and normal process exits. The original two foreground
-commands and original terminal implementation are unchanged. The background
-caller's independent live-job continuation remains before completion as before.
+Notify/reply immediately, before launching live Mako list/layer processes.
+Those fresh observations follow request emission and carry its exact digest in
+a separate frame_visibility event and the final transport receipt. Host capture
+stores the one original QMP frame first, then checks its original RGB bytes
+against that fresh owned geometry. The original five-second observation bound
+includes waiting for visibility and pixel verification; there is no recapture.
+Foreground caller continuation, recipient-owner recheck and the three manager
+identity queries remain required afterward, with exact PTY bytes and normal
+process exits. No host capture acknowledgement is invented. The original two
+foreground commands and terminal are unchanged. The background caller's
+independent live-job continuation remains before completion as before.
 
 Request age now uses the actual busctl Notify timestamp-realtime and the guest
 CLOCK_REALTIME immediately before emission, including Notify-to-reply latency.
-A request older than2000ms fails, reserving at least1000ms of the original3000ms
-expiry. The receipt retains Notify/reply/request guest times and guest monotonic
-sample. Host capture start/QMP-return/end realtime plus monotonic start are
+A request older than2000ms still fails, reserving at least1000ms of the original
+3000ms expiry. The first original image is retained before timing rejection so
+a late request has diagnostic pixels, never acceptance credit. The receipt retains
+Notify/reply/request guest times and guest monotonic sample. Host capture start/QMP-return/end realtime plus monotonic start are
 recorded separately; different host/guest clock domains are not subtracted or
 claimed synchronized. No acknowledgement of host capture is invented.
 

@@ -84,12 +84,14 @@ class Protocol(unittest.TestCase):
             installed=dict(status='PASS_ACTUAL_INSTALLED_DONE_PAYLOAD_METADATA',version='0.1.0-2',archive_sha256='9ce3c7ba89467f04660014c1b12056dce28bd0c4e69b4cab8a9c2c98e1cce54f',files={str(i):'a'*64 for i in range(8)},executables={n:{} for n in ('fish','notify-send','timeout')})
             caller=dict(pid=205,command=F.COMMANDS[outcome],outcome=outcome,prompt_status=outcome,caller_continuation=outcome)
             frame=dict(event='frame_ready',stage=stage,case=case,outcome=outcome,managed_identity=identity,activation='normal-shipped-config-no-reload',trace_waybar=False,notification_timeout_ms=3000,notification_age_ms=1000,timing=O.capture_timing(wire,2000000,123456),caller_pending=True,capture_after_ms=5000,activation_environment=activation,compositor_pid=201,waybar_pid=202,mako_pid=203,fish_pid=205,bar=row('waybar',202,0,0,1024,30),mako=row('notifications',203,650,40,300,100),wire=wire,notification={k:wire[k] for k in ('id','app_name','summary','body')},recipient=dict(service='org.freedesktop.Notifications',unique=':1.7',pid=203,owner_reply='s ":1.7"'),installed=installed)
+            visibility={key:frame.pop(key) for key in ('bar','mako','notification')}
+            visibility.update(request_sha256=C.request_digest(frame),realtime_us=2100000,monotonic_ns=124000)
             raw=b'\n'.join(json.dumps(r).encode() for r in messages(outcome,kind))+b'\n';pty=('FDM_PROMPT_2_'+str(outcome)+'\nFDM_CONT_'+str(outcome)).encode()
             if stage=='background':
                 child=dict(pid=206,parent_pid=205,process_group=206,start_ticks=1234,executable='/usr/bin/sleep',argv=['sleep','8'])
                 caller.update(command=F.BACKGROUND_COMMAND,watch=dict(child=child,registration_status=0,handler_registered=True,caller_before_completion=True))
                 pty=b'\nFDM_WATCH_206_0\n'+pty+b'\nFDM_BG_RETIRED_206\n'
-            events.extend([frame,dict(event='frame_captured',stage=stage,first_capture=True,request_sha256=C.request_digest(frame),managed_identity=identity,visual_review='NOT_RUN',capture_ms=20,sha256='a'*64,notification_pixels=dict(status='PASS_PIXEL_PRESENCE_PENDING_READABILITY',frame_sha256='a'*64,roi={k:frame['mako'][k] for k in ('x','y','w','h')},roi_sha256='b'*64,pixels=30000,counts=dict(background=20000,border=2000,text=200),color_tolerance=6,style_sha256=P.STYLE_SHA256,visual_review='NOT_RUN'),host_started_realtime_us=3000000,host_qmp_returned_realtime_us=3001000,host_finished_realtime_us=3002000,host_started_monotonic_ns=345678),dict(event='done_transport',stage=stage,case=case,wire=wire,caller=caller,capture_request_sha256=C.request_digest(frame),post_request_identity=identity,monitor=dict(raw_base64=base64.b64encode(raw).decode(),bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest(),exit=0),fish=dict(exit=0,pty_base64=base64.b64encode(pty).decode(),pty_bytes=len(pty),pty_sha256=hashlib.sha256(pty).hexdigest()),mako_exit=0,payload_preserved=True,user_config_preserved=True),dict(event='phase_pass',stage=stage,case=case,config_preserved=True,fish='PASS')])
+            events.extend([frame,dict(event='frame_captured',stage=stage,first_capture=True,request_sha256=C.request_digest(frame),managed_identity=identity,visual_review='NOT_RUN',capture_ms=20,sha256='a'*64,visibility_sha256=C.request_digest(visibility),notification_pixels=dict(status='PASS_PIXEL_PRESENCE_PENDING_READABILITY',frame_sha256='a'*64,roi={k:visibility['mako'][k] for k in ('x','y','w','h')},roi_sha256='b'*64,pixels=30000,counts=dict(background=20000,border=2000,text=200),color_tolerance=6,style_sha256=P.STYLE_SHA256,visual_review='NOT_RUN'),host_started_realtime_us=3000000,host_qmp_returned_realtime_us=3001000,host_finished_realtime_us=3002000,host_started_monotonic_ns=345678),dict(event='frame_visibility',stage=stage,case=case,wire=wire,visibility=visibility,capture_request_sha256=C.request_digest(frame),managed_identity=identity),dict(event='done_transport',stage=stage,case=case,wire=wire,caller=caller,visibility=visibility,capture_request_sha256=C.request_digest(frame),post_request_identity=identity,monitor=dict(raw_base64=base64.b64encode(raw).decode(),bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest(),exit=0),fish=dict(exit=0,pty_base64=base64.b64encode(pty).decode(),pty_bytes=len(pty),pty_sha256=hashlib.sha256(pty).hexdigest()),mako_exit=0,payload_preserved=True,user_config_preserved=True),dict(event='phase_pass',stage=stage,case=case,config_preserved=True,fish='PASS')])
             if stage=='background':
                 events[-2]['fish']['watch_retirement']=dict(child=child,handler_absent=True,pid_absent=True,process_group_absent=True)
         stopped={n:dict(Id=n,LoadState='loaded',ActiveState='inactive',SubState='dead',MainPID=0) for n in ('user@23001.service','user-runtime-dir@23001.service')}
@@ -181,7 +183,7 @@ class Background(unittest.TestCase):
         text=(HERE/'capture.py').read_text()
         self.assertEqual(text.count("qmp.execute('screendump'"),1)
         self.assertIn("elapsed > 5000",text)
-        self.assertLess(text.index('shutil.copyfile(source, target)'),text.index('notification_pixels(target'))
+        self.assertLess(text.index('shutil.copyfile(source, target)'),text.index('presence=notification_pixels('))
         self.assertIn("('minimal', 'overlay', 'background')",text)
 
     def test_actual_original_watch_function_and_default_timing_preserved(self):
@@ -291,10 +293,11 @@ class ExpiringCapture(unittest.TestCase):
             with self.subTest(key=key),self.assertRaises(ValueError):C.verify_result(altered)
 
     def test_capture_request_precedes_caller_and_manager_rechecks(self):
-        text=(HERE/'session.py').read_text();start=text.index("base.emit('frame_ready',**request)")
+        text=Path(S.__file__).read_text();start=text.index("base.emit('frame_ready',**request)")
         self.assertLess(start,text.index('continuation=terminal.continuation(outcome)'))
         self.assertLess(start,text.index('post_identity=identity()'))
-        self.assertIn('timing=O.capture_timing(wire,time.time_ns()//1000,time.monotonic_ns())',text)
+        self.assertIn('timing=O.capture_timing_facts(wire,time.time_ns()//1000,time.monotonic_ns())',text)
+        self.assertLess(start,text.index("current=B.wait_ready(visible,healthy,2,"))
         self.assertIn('notification_pixels(runtime/',(HERE/'ci/caller.py').read_text())
 
     def test_protocol_rejects_missing_pixels_or_stale_age_or_future_host_clock(self):
@@ -397,6 +400,105 @@ class StartupIPC(unittest.TestCase):
         api=self.api(6,self.timeout_text);self.assertIsNone(S.startup_layers(api,{},self.logs,'first'))
         other=self.api(0,b'{"fresh":{"levels":{"2":[]}}}')
         self.assertEqual(S.startup_layers(other,{},self.logs,'second'),{'fresh':{'levels':{'2':[]}}})
+
+
+class EarlyCapture(unittest.TestCase):
+    def setUp(self):
+        self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup);self.root=Path(self.tmp.name)
+        self.fixture=self.root/'fixture';self.frames=self.root/'frames';self.fixture.mkdir();self.frames.mkdir()
+        blocked=patch.object(subprocess,'Popen',side_effect=AssertionError('no native actor'));blocked.start();self.addCleanup(blocked.stop)
+
+    def request(self):return next(e for e in Protocol().fixture() if e.get('event')=='frame_ready' and e['stage']=='minimal')
+
+    def test_request_precedes_listing_layers_caller_and_manager_queries(self):
+        text=Path(S.__file__).read_text();request=text.index("base.emit('frame_ready',**request)")
+        for marker in ("current=B.wait_ready(visible,healthy,2,",'continuation=terminal.continuation(outcome)','post_identity=identity()'):
+            self.assertLess(request,text.index(marker))
+        self.assertNotIn('**current',text[:request])
+
+    def test_late_clock_facts_do_not_grant_timing_acceptance(self):
+        wire=O.notify(messages(),':1.7',0)
+        facts=O.capture_timing_facts(wire,3000001,123)
+        self.assertGreater(facts['age_us'],2000000)
+        with self.assertRaisesRegex(ValueError,'one second'):O.capture_timing(wire,3000001,123)
+
+    def test_late_request_retains_one_original_capture_then_refuses(self):
+        from types import SimpleNamespace
+        request=self.request();request['timing']=O.capture_timing_facts(request['wire'],3000001,123456)
+        request['notification_age_ms']=request['timing']['age_ms'];data=b'unchanged original first capture bytes'
+        calls=[]
+        def execute(method,args):calls.append((method,args));(self.fixture/'minimal.ppm').write_bytes(data)
+        decode=lambda path:dict(sha256=hashlib.sha256(path.read_bytes()).hexdigest())
+        report=dict(frames={},events=[request])
+        with self.assertRaisesRegex(ValueError,'one second'):
+            P.capture_frame(request,SimpleNamespace(execute=execute),self.fixture,self.frames,report,decode)
+        self.assertEqual((self.frames/'minimal.ppm').read_bytes(),data);self.assertEqual(len(calls),1)
+        self.assertTrue(report['frames']['minimal']['observer']['first_capture'])
+        self.assertNotIn('notification_pixels',report['frames']['minimal']['observer'])
+        with self.assertRaises(ValueError):P.capture_frame(request,SimpleNamespace(execute=execute),self.fixture,self.frames,report,decode)
+        self.assertEqual(len(calls),1)
+
+    def finalize_fixture(self):
+        events=Protocol().fixture();request=next(e for e in events if e.get('event')=='frame_ready')
+        observer=copy.deepcopy(next(e for e in events if e.get('event')=='frame_captured'))
+        pixels=observer.pop('notification_pixels');observer.pop('visibility_sha256')
+        transport=next(e for e in events if e.get('event')=='frame_visibility')
+        return transport,pixels,dict(events=[request,observer,transport],frames={'minimal':dict(sha256='a'*64,observer=observer)})
+
+    def test_fresh_visibility_finalizes_original_pixels_without_recapture(self):
+        transport,pixels,report=self.finalize_fixture()
+        with patch.object(P,'notification_pixels',return_value=pixels) as decode,patch.object(P.time,'monotonic_ns',return_value=500345678):
+            P.finalize_capture(transport,self.frames,report)
+        observer=report['frames']['minimal']['observer'];self.assertEqual(observer['notification_pixels'],pixels)
+        self.assertEqual(observer['visibility_sha256'],C.request_digest(transport['visibility']))
+        decode.assert_called_once_with(self.frames/'minimal.ppm',transport['visibility']['mako'])
+        with self.assertRaisesRegex(ValueError,'one visibility'):P.finalize_capture(transport,self.frames,report)
+
+    def test_wrong_first_image_or_request_cannot_finalize(self):
+        transport,pixels,report=self.finalize_fixture();pixels['frame_sha256']='b'*64
+        with patch.object(P,'notification_pixels',return_value=pixels),patch.object(P.time,'monotonic_ns',return_value=500345678),self.assertRaises(ValueError):P.finalize_capture(transport,self.frames,report)
+        transport,pixels,report=self.finalize_fixture();transport['capture_request_sha256']='bad'
+        with self.assertRaisesRegex(ValueError,'request join'):P.finalize_capture(transport,self.frames,report)
+
+    def test_missing_stale_or_foreign_late_visibility_never_passes(self):
+        for key,value in (('request_sha256','bad'),('realtime_us',1),('monotonic_ns',1)):
+            events=Protocol().fixture();next(e for e in events if e.get('event')=='done_transport')['visibility'][key]=value
+            with self.subTest(key=key),self.assertRaises(ValueError):C.verify_result(events)
+        events=Protocol().fixture();next(e for e in events if e.get('event')=='done_transport')['visibility']=None
+        with self.assertRaises(ValueError):C.verify_result(events)
+        events=Protocol().fixture();next(e for e in events if e.get('event')=='done_transport')['visibility']['mako']['pid']=999
+        with self.assertRaises(ValueError):C.verify_result(events)
+
+    def test_first_capture_without_visibility_pixels_cannot_pass(self):
+        events=Protocol().fixture();observer=next(e for e in events if e.get('event')=='frame_captured');observer.pop('notification_pixels')
+        with self.assertRaises(ValueError):C.verify_result(events)
+        events=Protocol().fixture();next(e for e in events if e.get('event')=='frame_ready')['mako']={}
+        with self.assertRaises(ValueError):C.verify_result(events)
+
+    def test_deferred_pixel_check_keeps_original_five_second_budget(self):
+        transport,pixels,report=self.finalize_fixture()
+        with patch.object(P,'notification_pixels',return_value=pixels),patch.object(P.time,'monotonic_ns',return_value=5001345678):
+            with self.assertRaisesRegex(ValueError,'five-second observation budget'):
+                P.finalize_capture(transport,self.frames,report)
+        self.assertGreater(report['frames']['minimal']['observer']['capture_ms'],5000)
+
+    def test_transport_cannot_replace_fresh_visibility_after_first_frame(self):
+        events=Protocol().fixture();transport=next(e for e in events if e.get('event')=='done_transport')
+        transport['visibility']=copy.deepcopy(transport['visibility']);transport['visibility']['notification']['body']='different'
+        with self.assertRaises(ValueError):C.verify_result(events)
+
+    def test_generated_host_finalizes_visibility_before_phase_acceptance(self):
+        runner=Path(os.environ['DONE_MANAGED_PREPARED_RUNNER'])
+        text=(runner/'desktop574_runtime.py').read_text()
+        self.assertEqual(text.count('from capture import capture_frame'),1)
+        text=text.replace('from capture import capture_frame','from capture import capture_frame,finalize_capture')
+        anchor="                if event.get('event') == 'phase_pass':"
+        self.assertEqual(text.count(anchor),1)
+        text=text.replace(anchor,"                if event.get('event') == 'frame_visibility': finalize_capture(event,frames,report)\n"+anchor)
+        ast.parse(text)
+        self.assertLess(text.index('finalize_capture(event,frames,report)'),text.index(anchor))
+        self.assertIn('deadline = time.monotonic() + 900',text)
+        self.assertIn('signal.setitimer(signal.ITIMER_REAL, 1750)',text)
 
 
 class HostedProof(unittest.TestCase):
