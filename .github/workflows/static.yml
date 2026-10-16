@@ -151,6 +151,10 @@ jobs:
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/full-root-failed-update -p 'test_*.py'
       - name: Check full-composition installer VM contracts without actors
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/full-composition-installer-vm -p 'test_*.py'
+      - name: Check Welcome and Doctor native product contracts without actors
+        run: |
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-native -p 'test_*.py'
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-native/ci -p 'test_*.py'
       - name: Check generic 16 KiB build and fixture controls without kernel or VM actors
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/virtual/generic16k -p 'test_*.py'
       - name: Check 16 KiB audio producer and userspace fixture without actors
