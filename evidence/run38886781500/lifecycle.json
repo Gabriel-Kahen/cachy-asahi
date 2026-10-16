@@ -1,0 +1,2823 @@
+{
+  "status": "PASS_PRODUCTS_INSTALLED_CLI_LIFECYCLE",
+  "events": [
+    {
+      "phase": "install",
+      "status": "PASS",
+      "inventory_count": 576,
+      "observations": [
+        {
+          "home": "product-home-fresh",
+          "welcome": {
+            "schema_version": 1,
+            "project": "cachy-asahi",
+            "welcome_version": "0.1.0",
+            "architecture": "aarch64",
+            "kernel": "6.17.0-1022-azure",
+            "page_size": 4096,
+            "package_database": "readable",
+            "hardware_compatibility": "not-assessed",
+            "packages": {
+              "cachy-asahi-welcome": {
+                "state": "installed",
+                "version": "0.1.0-1"
+              },
+              "cachy-asahi-setup": {
+                "state": "not-found",
+                "version": null
+              },
+              "cachy-asahi-hyprland-settings": {
+                "state": "not-found",
+                "version": null
+              },
+              "cachy-asahi-update": {
+                "state": "not-found",
+                "version": null
+              },
+              "cachy-asahi-topmem": {
+                "state": "not-found",
+                "version": null
+              },
+              "cachy-asahi-ksmctl": {
+                "state": "not-found",
+                "version": null
+              }
+            }
+          },
+          "doctor": {
+            "checks": [
+              {
+                "check": "platform",
+                "note": "Observed running kernel/architecture/page size; no target compatibility test.",
+                "state": "checked",
+                "value": {
+                  "architecture": "aarch64",
+                  "kernel": "6.17.0-1022-azure",
+                  "page_size_bytes": 4096
+                }
+              },
+              {
+                "check": "apple-model",
+                "note": "Apple model unknown. No model is inferred from the kernel name or generic architecture.",
+                "state": "unavailable",
+                "value": {
+                  "identifier": null,
+                  "model": null,
+                  "model_property_available": false,
+                  "observed_board": null
+                }
+              },
+              {
+                "check": "session",
+                "note": "Environment hints only; compositor responsiveness and rendering are not tested.",
+                "state": "unknown",
+                "value": {
+                  "hyprland_environment": false,
+                  "type": "unknown",
+                  "wayland_environment": false
+                }
+              },
+              {
+                "check": "tools",
+                "note": "Executable availability in /usr/bin:/bin; tools were not launched for this check.",
+                "state": "checked",
+                "value": {
+                  "Hyprland": true,
+                  "cachy-asahi-setup": false,
+                  "cachy-asahi-update": false,
+                  "hyprctl": true,
+                  "pacman": true,
+                  "pipewire": true,
+                  "systemctl": true,
+                  "wireplumber": true,
+                  "wpctl": true
+                }
+              },
+              {
+                "check": "package/asahi-meta",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/linux-asahi",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/m1n1",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/uboot-asahi",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/asahi-alarm-keyring",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/asahi-firmware",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/asahi-scripts",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/asahi-configs",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/asahi-audio",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/alsa-ucm-conf-asahi",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/speakersafetyd",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/mesa",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "present",
+                  "version": "1:26.2.4-1"
+                }
+              },
+              {
+                "check": "package/mesa-asahi",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/libdrm",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "present",
+                  "version": "2.4.134-1"
+                }
+              },
+              {
+                "check": "package/hyprland",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "desktop",
+                  "presence": "present",
+                  "version": "0.56.2-4"
+                }
+              },
+              {
+                "check": "package/pipewire",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "desktop",
+                  "presence": "present",
+                  "version": "1:1.6.9-1"
+                }
+              },
+              {
+                "check": "package/pipewire-pulse",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "desktop",
+                  "presence": "present",
+                  "version": "1:1.6.9-1"
+                }
+              },
+              {
+                "check": "package/wireplumber",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "desktop",
+                  "presence": "present",
+                  "version": "0.5.18-1"
+                }
+              },
+              {
+                "check": "package/cachy-asahi-hyprland-settings",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-fish-config",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-zsh-config",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-setup",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-update",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-fdk-aac",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-ksmctl",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-topmem",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-zsh-autosuggestions",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-fish-bang-bang",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-doctor",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "present",
+                  "version": "0.1.0-1"
+                }
+              },
+              {
+                "check": "package/cachy-asahi-welcome",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "present",
+                  "version": "0.1.0-1"
+                }
+              },
+              {
+                "check": "system/speakersafetyd.service",
+                "note": "Could not query the local service manager; no service state was inferred.",
+                "state": "unknown",
+                "value": null
+              },
+              {
+                "check": "system/asahi-audio.service",
+                "note": "Could not query the local service manager; no service state was inferred.",
+                "state": "unknown",
+                "value": null
+              },
+              {
+                "check": "system/display-manager.service",
+                "note": "Could not query the local service manager; no service state was inferred.",
+                "state": "unknown",
+                "value": null
+              },
+              {
+                "check": "user/pipewire.service",
+                "note": "Local user bus unavailable. Run doctor from your affected login session.",
+                "state": "unavailable",
+                "value": null
+              },
+              {
+                "check": "user/pipewire-pulse.service",
+                "note": "Local user bus unavailable. Run doctor from your affected login session.",
+                "state": "unavailable",
+                "value": null
+              },
+              {
+                "check": "user/wireplumber.service",
+                "note": "Local user bus unavailable. Run doctor from your affected login session.",
+                "state": "unavailable",
+                "value": null
+              },
+              {
+                "check": "user/xdg-desktop-portal.service",
+                "note": "Local user bus unavailable. Run doctor from your affected login session.",
+                "state": "unavailable",
+                "value": null
+              },
+              {
+                "check": "user/xdg-desktop-portal-hyprland.service",
+                "note": "Local user bus unavailable. Run doctor from your affected login session.",
+                "state": "unavailable",
+                "value": null
+              }
+            ],
+            "collected_utc": "2026-10-16T10:25:15.666294+00:00",
+            "coverage": {
+              "checked": 32,
+              "unavailable": 6,
+              "unknown": 4
+            },
+            "limitations": [
+              "Fixed package/unit/tool selection; missing alternatives are not install instructions.",
+              "No journal, process arguments, home/key contents, network addresses or machine/serial IDs collected.",
+              "No hardware, speaker safety, rendering, boot/recovery, performance or production-trust certification."
+            ],
+            "limits": {
+              "command_output_bytes": 65536,
+              "command_seconds": 2,
+              "device_tree_bytes": 4096,
+              "total_query_seconds": 20
+            },
+            "schema_version": 1,
+            "scope": "local observations only",
+            "tool": "cachy-asahi-doctor",
+            "version": "0.1.0"
+          },
+          "report_sha256": "eaad8e36c35ece734ae1a77772d40d3c3454907492784efb445d539408498a6a",
+          "no_overwrite": "PASS",
+          "report_mode": "0600"
+        },
+        {
+          "home": "product-home-existing",
+          "welcome": {
+            "schema_version": 1,
+            "project": "cachy-asahi",
+            "welcome_version": "0.1.0",
+            "architecture": "aarch64",
+            "kernel": "6.17.0-1022-azure",
+            "page_size": 4096,
+            "package_database": "readable",
+            "hardware_compatibility": "not-assessed",
+            "packages": {
+              "cachy-asahi-welcome": {
+                "state": "installed",
+                "version": "0.1.0-1"
+              },
+              "cachy-asahi-setup": {
+                "state": "not-found",
+                "version": null
+              },
+              "cachy-asahi-hyprland-settings": {
+                "state": "not-found",
+                "version": null
+              },
+              "cachy-asahi-update": {
+                "state": "not-found",
+                "version": null
+              },
+              "cachy-asahi-topmem": {
+                "state": "not-found",
+                "version": null
+              },
+              "cachy-asahi-ksmctl": {
+                "state": "not-found",
+                "version": null
+              }
+            }
+          },
+          "doctor": {
+            "checks": [
+              {
+                "check": "platform",
+                "note": "Observed running kernel/architecture/page size; no target compatibility test.",
+                "state": "checked",
+                "value": {
+                  "architecture": "aarch64",
+                  "kernel": "6.17.0-1022-azure",
+                  "page_size_bytes": 4096
+                }
+              },
+              {
+                "check": "apple-model",
+                "note": "Apple model unknown. No model is inferred from the kernel name or generic architecture.",
+                "state": "unavailable",
+                "value": {
+                  "identifier": null,
+                  "model": null,
+                  "model_property_available": false,
+                  "observed_board": null
+                }
+              },
+              {
+                "check": "session",
+                "note": "Environment hints only; compositor responsiveness and rendering are not tested.",
+                "state": "unknown",
+                "value": {
+                  "hyprland_environment": false,
+                  "type": "unknown",
+                  "wayland_environment": false
+                }
+              },
+              {
+                "check": "tools",
+                "note": "Executable availability in /usr/bin:/bin; tools were not launched for this check.",
+                "state": "checked",
+                "value": {
+                  "Hyprland": true,
+                  "cachy-asahi-setup": false,
+                  "cachy-asahi-update": false,
+                  "hyprctl": true,
+                  "pacman": true,
+                  "pipewire": true,
+                  "systemctl": true,
+                  "wireplumber": true,
+                  "wpctl": true
+                }
+              },
+              {
+                "check": "package/asahi-meta",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/linux-asahi",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/m1n1",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/uboot-asahi",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/asahi-alarm-keyring",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/asahi-firmware",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/asahi-scripts",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/asahi-configs",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/asahi-audio",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/alsa-ucm-conf-asahi",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/speakersafetyd",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/mesa",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "present",
+                  "version": "1:26.2.4-1"
+                }
+              },
+              {
+                "check": "package/mesa-asahi",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/libdrm",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "present",
+                  "version": "2.4.134-1"
+                }
+              },
+              {
+                "check": "package/hyprland",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "desktop",
+                  "presence": "present",
+                  "version": "0.56.2-4"
+                }
+              },
+              {
+                "check": "package/pipewire",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "desktop",
+                  "presence": "present",
+                  "version": "1:1.6.9-1"
+                }
+              },
+              {
+                "check": "package/pipewire-pulse",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "desktop",
+                  "presence": "present",
+                  "version": "1:1.6.9-1"
+                }
+              },
+              {
+                "check": "package/wireplumber",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "desktop",
+                  "presence": "present",
+                  "version": "0.5.18-1"
+                }
+              },
+              {
+                "check": "package/cachy-asahi-hyprland-settings",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-fish-config",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-zsh-config",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-setup",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-update",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-fdk-aac",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-ksmctl",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-topmem",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-zsh-autosuggestions",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-fish-bang-bang",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-doctor",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "present",
+                  "version": "0.1.0-1"
+                }
+              },
+              {
+                "check": "package/cachy-asahi-welcome",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "present",
+                  "version": "0.1.0-1"
+                }
+              },
+              {
+                "check": "system/speakersafetyd.service",
+                "note": "Could not query the local service manager; no service state was inferred.",
+                "state": "unknown",
+                "value": null
+              },
+              {
+                "check": "system/asahi-audio.service",
+                "note": "Could not query the local service manager; no service state was inferred.",
+                "state": "unknown",
+                "value": null
+              },
+              {
+                "check": "system/display-manager.service",
+                "note": "Could not query the local service manager; no service state was inferred.",
+                "state": "unknown",
+                "value": null
+              },
+              {
+                "check": "user/pipewire.service",
+                "note": "Local user bus unavailable. Run doctor from your affected login session.",
+                "state": "unavailable",
+                "value": null
+              },
+              {
+                "check": "user/pipewire-pulse.service",
+                "note": "Local user bus unavailable. Run doctor from your affected login session.",
+                "state": "unavailable",
+                "value": null
+              },
+              {
+                "check": "user/wireplumber.service",
+                "note": "Local user bus unavailable. Run doctor from your affected login session.",
+                "state": "unavailable",
+                "value": null
+              },
+              {
+                "check": "user/xdg-desktop-portal.service",
+                "note": "Local user bus unavailable. Run doctor from your affected login session.",
+                "state": "unavailable",
+                "value": null
+              },
+              {
+                "check": "user/xdg-desktop-portal-hyprland.service",
+                "note": "Local user bus unavailable. Run doctor from your affected login session.",
+                "state": "unavailable",
+                "value": null
+              }
+            ],
+            "collected_utc": "2026-10-16T10:25:16.597245+00:00",
+            "coverage": {
+              "checked": 32,
+              "unavailable": 6,
+              "unknown": 4
+            },
+            "limitations": [
+              "Fixed package/unit/tool selection; missing alternatives are not install instructions.",
+              "No journal, process arguments, home/key contents, network addresses or machine/serial IDs collected.",
+              "No hardware, speaker safety, rendering, boot/recovery, performance or production-trust certification."
+            ],
+            "limits": {
+              "command_output_bytes": 65536,
+              "command_seconds": 2,
+              "device_tree_bytes": 4096,
+              "total_query_seconds": 20
+            },
+            "schema_version": 1,
+            "scope": "local observations only",
+            "tool": "cachy-asahi-doctor",
+            "version": "0.1.0"
+          },
+          "report_sha256": "1849f0125ac15208db3fa6d8e0d3cce036b6ad230cf6735a2c47b8e745e7676c",
+          "no_overwrite": "PASS",
+          "report_mode": "0600"
+        }
+      ],
+      "config_preserved": true
+    },
+    {
+      "phase": "same-version-reinstall",
+      "status": "PASS",
+      "inventory_count": 576,
+      "observations": [
+        {
+          "home": "product-home-fresh",
+          "welcome": {
+            "schema_version": 1,
+            "project": "cachy-asahi",
+            "welcome_version": "0.1.0",
+            "architecture": "aarch64",
+            "kernel": "6.17.0-1022-azure",
+            "page_size": 4096,
+            "package_database": "readable",
+            "hardware_compatibility": "not-assessed",
+            "packages": {
+              "cachy-asahi-welcome": {
+                "state": "installed",
+                "version": "0.1.0-1"
+              },
+              "cachy-asahi-setup": {
+                "state": "not-found",
+                "version": null
+              },
+              "cachy-asahi-hyprland-settings": {
+                "state": "not-found",
+                "version": null
+              },
+              "cachy-asahi-update": {
+                "state": "not-found",
+                "version": null
+              },
+              "cachy-asahi-topmem": {
+                "state": "not-found",
+                "version": null
+              },
+              "cachy-asahi-ksmctl": {
+                "state": "not-found",
+                "version": null
+              }
+            }
+          },
+          "doctor": {
+            "checks": [
+              {
+                "check": "platform",
+                "note": "Observed running kernel/architecture/page size; no target compatibility test.",
+                "state": "checked",
+                "value": {
+                  "architecture": "aarch64",
+                  "kernel": "6.17.0-1022-azure",
+                  "page_size_bytes": 4096
+                }
+              },
+              {
+                "check": "apple-model",
+                "note": "Apple model unknown. No model is inferred from the kernel name or generic architecture.",
+                "state": "unavailable",
+                "value": {
+                  "identifier": null,
+                  "model": null,
+                  "model_property_available": false,
+                  "observed_board": null
+                }
+              },
+              {
+                "check": "session",
+                "note": "Environment hints only; compositor responsiveness and rendering are not tested.",
+                "state": "unknown",
+                "value": {
+                  "hyprland_environment": false,
+                  "type": "unknown",
+                  "wayland_environment": false
+                }
+              },
+              {
+                "check": "tools",
+                "note": "Executable availability in /usr/bin:/bin; tools were not launched for this check.",
+                "state": "checked",
+                "value": {
+                  "Hyprland": true,
+                  "cachy-asahi-setup": false,
+                  "cachy-asahi-update": false,
+                  "hyprctl": true,
+                  "pacman": true,
+                  "pipewire": true,
+                  "systemctl": true,
+                  "wireplumber": true,
+                  "wpctl": true
+                }
+              },
+              {
+                "check": "package/asahi-meta",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/linux-asahi",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/m1n1",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/uboot-asahi",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/asahi-alarm-keyring",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/asahi-firmware",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/asahi-scripts",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/asahi-configs",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/asahi-audio",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/alsa-ucm-conf-asahi",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/speakersafetyd",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/mesa",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "present",
+                  "version": "1:26.2.4-1"
+                }
+              },
+              {
+                "check": "package/mesa-asahi",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/libdrm",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "present",
+                  "version": "2.4.134-1"
+                }
+              },
+              {
+                "check": "package/hyprland",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "desktop",
+                  "presence": "present",
+                  "version": "0.56.2-4"
+                }
+              },
+              {
+                "check": "package/pipewire",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "desktop",
+                  "presence": "present",
+                  "version": "1:1.6.9-1"
+                }
+              },
+              {
+                "check": "package/pipewire-pulse",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "desktop",
+                  "presence": "present",
+                  "version": "1:1.6.9-1"
+                }
+              },
+              {
+                "check": "package/wireplumber",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "desktop",
+                  "presence": "present",
+                  "version": "0.5.18-1"
+                }
+              },
+              {
+                "check": "package/cachy-asahi-hyprland-settings",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-fish-config",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-zsh-config",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-setup",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-update",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-fdk-aac",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-ksmctl",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-topmem",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-zsh-autosuggestions",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-fish-bang-bang",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-doctor",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "present",
+                  "version": "0.1.0-1"
+                }
+              },
+              {
+                "check": "package/cachy-asahi-welcome",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "present",
+                  "version": "0.1.0-1"
+                }
+              },
+              {
+                "check": "system/speakersafetyd.service",
+                "note": "Could not query the local service manager; no service state was inferred.",
+                "state": "unknown",
+                "value": null
+              },
+              {
+                "check": "system/asahi-audio.service",
+                "note": "Could not query the local service manager; no service state was inferred.",
+                "state": "unknown",
+                "value": null
+              },
+              {
+                "check": "system/display-manager.service",
+                "note": "Could not query the local service manager; no service state was inferred.",
+                "state": "unknown",
+                "value": null
+              },
+              {
+                "check": "user/pipewire.service",
+                "note": "Local user bus unavailable. Run doctor from your affected login session.",
+                "state": "unavailable",
+                "value": null
+              },
+              {
+                "check": "user/pipewire-pulse.service",
+                "note": "Local user bus unavailable. Run doctor from your affected login session.",
+                "state": "unavailable",
+                "value": null
+              },
+              {
+                "check": "user/wireplumber.service",
+                "note": "Local user bus unavailable. Run doctor from your affected login session.",
+                "state": "unavailable",
+                "value": null
+              },
+              {
+                "check": "user/xdg-desktop-portal.service",
+                "note": "Local user bus unavailable. Run doctor from your affected login session.",
+                "state": "unavailable",
+                "value": null
+              },
+              {
+                "check": "user/xdg-desktop-portal-hyprland.service",
+                "note": "Local user bus unavailable. Run doctor from your affected login session.",
+                "state": "unavailable",
+                "value": null
+              }
+            ],
+            "collected_utc": "2026-10-16T10:25:17.639454+00:00",
+            "coverage": {
+              "checked": 32,
+              "unavailable": 6,
+              "unknown": 4
+            },
+            "limitations": [
+              "Fixed package/unit/tool selection; missing alternatives are not install instructions.",
+              "No journal, process arguments, home/key contents, network addresses or machine/serial IDs collected.",
+              "No hardware, speaker safety, rendering, boot/recovery, performance or production-trust certification."
+            ],
+            "limits": {
+              "command_output_bytes": 65536,
+              "command_seconds": 2,
+              "device_tree_bytes": 4096,
+              "total_query_seconds": 20
+            },
+            "schema_version": 1,
+            "scope": "local observations only",
+            "tool": "cachy-asahi-doctor",
+            "version": "0.1.0"
+          },
+          "report_sha256": "10ce866bcfd14c4d205b3645aeb6988f162092d2db5eda4c39ee9592c899c4b7",
+          "no_overwrite": "PASS",
+          "report_mode": "0600"
+        },
+        {
+          "home": "product-home-existing",
+          "welcome": {
+            "schema_version": 1,
+            "project": "cachy-asahi",
+            "welcome_version": "0.1.0",
+            "architecture": "aarch64",
+            "kernel": "6.17.0-1022-azure",
+            "page_size": 4096,
+            "package_database": "readable",
+            "hardware_compatibility": "not-assessed",
+            "packages": {
+              "cachy-asahi-welcome": {
+                "state": "installed",
+                "version": "0.1.0-1"
+              },
+              "cachy-asahi-setup": {
+                "state": "not-found",
+                "version": null
+              },
+              "cachy-asahi-hyprland-settings": {
+                "state": "not-found",
+                "version": null
+              },
+              "cachy-asahi-update": {
+                "state": "not-found",
+                "version": null
+              },
+              "cachy-asahi-topmem": {
+                "state": "not-found",
+                "version": null
+              },
+              "cachy-asahi-ksmctl": {
+                "state": "not-found",
+                "version": null
+              }
+            }
+          },
+          "doctor": {
+            "checks": [
+              {
+                "check": "platform",
+                "note": "Observed running kernel/architecture/page size; no target compatibility test.",
+                "state": "checked",
+                "value": {
+                  "architecture": "aarch64",
+                  "kernel": "6.17.0-1022-azure",
+                  "page_size_bytes": 4096
+                }
+              },
+              {
+                "check": "apple-model",
+                "note": "Apple model unknown. No model is inferred from the kernel name or generic architecture.",
+                "state": "unavailable",
+                "value": {
+                  "identifier": null,
+                  "model": null,
+                  "model_property_available": false,
+                  "observed_board": null
+                }
+              },
+              {
+                "check": "session",
+                "note": "Environment hints only; compositor responsiveness and rendering are not tested.",
+                "state": "unknown",
+                "value": {
+                  "hyprland_environment": false,
+                  "type": "unknown",
+                  "wayland_environment": false
+                }
+              },
+              {
+                "check": "tools",
+                "note": "Executable availability in /usr/bin:/bin; tools were not launched for this check.",
+                "state": "checked",
+                "value": {
+                  "Hyprland": true,
+                  "cachy-asahi-setup": false,
+                  "cachy-asahi-update": false,
+                  "hyprctl": true,
+                  "pacman": true,
+                  "pipewire": true,
+                  "systemctl": true,
+                  "wireplumber": true,
+                  "wpctl": true
+                }
+              },
+              {
+                "check": "package/asahi-meta",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/linux-asahi",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/m1n1",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/uboot-asahi",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/asahi-alarm-keyring",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/asahi-firmware",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/asahi-scripts",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/asahi-configs",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/asahi-audio",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/alsa-ucm-conf-asahi",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/speakersafetyd",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/mesa",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "present",
+                  "version": "1:26.2.4-1"
+                }
+              },
+              {
+                "check": "package/mesa-asahi",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/libdrm",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "present",
+                  "version": "2.4.134-1"
+                }
+              },
+              {
+                "check": "package/hyprland",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "desktop",
+                  "presence": "present",
+                  "version": "0.56.2-4"
+                }
+              },
+              {
+                "check": "package/pipewire",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "desktop",
+                  "presence": "present",
+                  "version": "1:1.6.9-1"
+                }
+              },
+              {
+                "check": "package/pipewire-pulse",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "desktop",
+                  "presence": "present",
+                  "version": "1:1.6.9-1"
+                }
+              },
+              {
+                "check": "package/wireplumber",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "desktop",
+                  "presence": "present",
+                  "version": "0.5.18-1"
+                }
+              },
+              {
+                "check": "package/cachy-asahi-hyprland-settings",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-fish-config",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-zsh-config",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-setup",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-update",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-fdk-aac",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-ksmctl",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-topmem",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-zsh-autosuggestions",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-fish-bang-bang",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-doctor",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "present",
+                  "version": "0.1.0-1"
+                }
+              },
+              {
+                "check": "package/cachy-asahi-welcome",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "present",
+                  "version": "0.1.0-1"
+                }
+              },
+              {
+                "check": "system/speakersafetyd.service",
+                "note": "Could not query the local service manager; no service state was inferred.",
+                "state": "unknown",
+                "value": null
+              },
+              {
+                "check": "system/asahi-audio.service",
+                "note": "Could not query the local service manager; no service state was inferred.",
+                "state": "unknown",
+                "value": null
+              },
+              {
+                "check": "system/display-manager.service",
+                "note": "Could not query the local service manager; no service state was inferred.",
+                "state": "unknown",
+                "value": null
+              },
+              {
+                "check": "user/pipewire.service",
+                "note": "Local user bus unavailable. Run doctor from your affected login session.",
+                "state": "unavailable",
+                "value": null
+              },
+              {
+                "check": "user/pipewire-pulse.service",
+                "note": "Local user bus unavailable. Run doctor from your affected login session.",
+                "state": "unavailable",
+                "value": null
+              },
+              {
+                "check": "user/wireplumber.service",
+                "note": "Local user bus unavailable. Run doctor from your affected login session.",
+                "state": "unavailable",
+                "value": null
+              },
+              {
+                "check": "user/xdg-desktop-portal.service",
+                "note": "Local user bus unavailable. Run doctor from your affected login session.",
+                "state": "unavailable",
+                "value": null
+              },
+              {
+                "check": "user/xdg-desktop-portal-hyprland.service",
+                "note": "Local user bus unavailable. Run doctor from your affected login session.",
+                "state": "unavailable",
+                "value": null
+              }
+            ],
+            "collected_utc": "2026-10-16T10:25:18.667875+00:00",
+            "coverage": {
+              "checked": 32,
+              "unavailable": 6,
+              "unknown": 4
+            },
+            "limitations": [
+              "Fixed package/unit/tool selection; missing alternatives are not install instructions.",
+              "No journal, process arguments, home/key contents, network addresses or machine/serial IDs collected.",
+              "No hardware, speaker safety, rendering, boot/recovery, performance or production-trust certification."
+            ],
+            "limits": {
+              "command_output_bytes": 65536,
+              "command_seconds": 2,
+              "device_tree_bytes": 4096,
+              "total_query_seconds": 20
+            },
+            "schema_version": 1,
+            "scope": "local observations only",
+            "tool": "cachy-asahi-doctor",
+            "version": "0.1.0"
+          },
+          "report_sha256": "ab384ba1bc10e5cc8740f8c710318465b2737d946c43223c070f48a7f80b6caa",
+          "no_overwrite": "PASS",
+          "report_mode": "0600"
+        }
+      ],
+      "config_preserved": true
+    },
+    {
+      "phase": "remove",
+      "status": "PASS",
+      "inventory_count": 574,
+      "config_preserved": true,
+      "reports_preserved": true
+    },
+    {
+      "phase": "reinstall-after-removal",
+      "status": "PASS",
+      "inventory_count": 576,
+      "observations": [
+        {
+          "home": "product-home-fresh",
+          "welcome": {
+            "schema_version": 1,
+            "project": "cachy-asahi",
+            "welcome_version": "0.1.0",
+            "architecture": "aarch64",
+            "kernel": "6.17.0-1022-azure",
+            "page_size": 4096,
+            "package_database": "readable",
+            "hardware_compatibility": "not-assessed",
+            "packages": {
+              "cachy-asahi-welcome": {
+                "state": "installed",
+                "version": "0.1.0-1"
+              },
+              "cachy-asahi-setup": {
+                "state": "not-found",
+                "version": null
+              },
+              "cachy-asahi-hyprland-settings": {
+                "state": "not-found",
+                "version": null
+              },
+              "cachy-asahi-update": {
+                "state": "not-found",
+                "version": null
+              },
+              "cachy-asahi-topmem": {
+                "state": "not-found",
+                "version": null
+              },
+              "cachy-asahi-ksmctl": {
+                "state": "not-found",
+                "version": null
+              }
+            }
+          },
+          "doctor": {
+            "checks": [
+              {
+                "check": "platform",
+                "note": "Observed running kernel/architecture/page size; no target compatibility test.",
+                "state": "checked",
+                "value": {
+                  "architecture": "aarch64",
+                  "kernel": "6.17.0-1022-azure",
+                  "page_size_bytes": 4096
+                }
+              },
+              {
+                "check": "apple-model",
+                "note": "Apple model unknown. No model is inferred from the kernel name or generic architecture.",
+                "state": "unavailable",
+                "value": {
+                  "identifier": null,
+                  "model": null,
+                  "model_property_available": false,
+                  "observed_board": null
+                }
+              },
+              {
+                "check": "session",
+                "note": "Environment hints only; compositor responsiveness and rendering are not tested.",
+                "state": "unknown",
+                "value": {
+                  "hyprland_environment": false,
+                  "type": "unknown",
+                  "wayland_environment": false
+                }
+              },
+              {
+                "check": "tools",
+                "note": "Executable availability in /usr/bin:/bin; tools were not launched for this check.",
+                "state": "checked",
+                "value": {
+                  "Hyprland": true,
+                  "cachy-asahi-setup": false,
+                  "cachy-asahi-update": false,
+                  "hyprctl": true,
+                  "pacman": true,
+                  "pipewire": true,
+                  "systemctl": true,
+                  "wireplumber": true,
+                  "wpctl": true
+                }
+              },
+              {
+                "check": "package/asahi-meta",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/linux-asahi",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/m1n1",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/uboot-asahi",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/asahi-alarm-keyring",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/asahi-firmware",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/asahi-scripts",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/asahi-configs",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/asahi-audio",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/alsa-ucm-conf-asahi",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/speakersafetyd",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/mesa",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "present",
+                  "version": "1:26.2.4-1"
+                }
+              },
+              {
+                "check": "package/mesa-asahi",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/libdrm",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "present",
+                  "version": "2.4.134-1"
+                }
+              },
+              {
+                "check": "package/hyprland",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "desktop",
+                  "presence": "present",
+                  "version": "0.56.2-4"
+                }
+              },
+              {
+                "check": "package/pipewire",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "desktop",
+                  "presence": "present",
+                  "version": "1:1.6.9-1"
+                }
+              },
+              {
+                "check": "package/pipewire-pulse",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "desktop",
+                  "presence": "present",
+                  "version": "1:1.6.9-1"
+                }
+              },
+              {
+                "check": "package/wireplumber",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "desktop",
+                  "presence": "present",
+                  "version": "0.5.18-1"
+                }
+              },
+              {
+                "check": "package/cachy-asahi-hyprland-settings",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-fish-config",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-zsh-config",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-setup",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-update",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-fdk-aac",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-ksmctl",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-topmem",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-zsh-autosuggestions",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-fish-bang-bang",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-doctor",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "present",
+                  "version": "0.1.0-1"
+                }
+              },
+              {
+                "check": "package/cachy-asahi-welcome",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "present",
+                  "version": "0.1.0-1"
+                }
+              },
+              {
+                "check": "system/speakersafetyd.service",
+                "note": "Could not query the local service manager; no service state was inferred.",
+                "state": "unknown",
+                "value": null
+              },
+              {
+                "check": "system/asahi-audio.service",
+                "note": "Could not query the local service manager; no service state was inferred.",
+                "state": "unknown",
+                "value": null
+              },
+              {
+                "check": "system/display-manager.service",
+                "note": "Could not query the local service manager; no service state was inferred.",
+                "state": "unknown",
+                "value": null
+              },
+              {
+                "check": "user/pipewire.service",
+                "note": "Local user bus unavailable. Run doctor from your affected login session.",
+                "state": "unavailable",
+                "value": null
+              },
+              {
+                "check": "user/pipewire-pulse.service",
+                "note": "Local user bus unavailable. Run doctor from your affected login session.",
+                "state": "unavailable",
+                "value": null
+              },
+              {
+                "check": "user/wireplumber.service",
+                "note": "Local user bus unavailable. Run doctor from your affected login session.",
+                "state": "unavailable",
+                "value": null
+              },
+              {
+                "check": "user/xdg-desktop-portal.service",
+                "note": "Local user bus unavailable. Run doctor from your affected login session.",
+                "state": "unavailable",
+                "value": null
+              },
+              {
+                "check": "user/xdg-desktop-portal-hyprland.service",
+                "note": "Local user bus unavailable. Run doctor from your affected login session.",
+                "state": "unavailable",
+                "value": null
+              }
+            ],
+            "collected_utc": "2026-10-16T10:25:20.003825+00:00",
+            "coverage": {
+              "checked": 32,
+              "unavailable": 6,
+              "unknown": 4
+            },
+            "limitations": [
+              "Fixed package/unit/tool selection; missing alternatives are not install instructions.",
+              "No journal, process arguments, home/key contents, network addresses or machine/serial IDs collected.",
+              "No hardware, speaker safety, rendering, boot/recovery, performance or production-trust certification."
+            ],
+            "limits": {
+              "command_output_bytes": 65536,
+              "command_seconds": 2,
+              "device_tree_bytes": 4096,
+              "total_query_seconds": 20
+            },
+            "schema_version": 1,
+            "scope": "local observations only",
+            "tool": "cachy-asahi-doctor",
+            "version": "0.1.0"
+          },
+          "report_sha256": "36b5eb7be28de2adc1a151a4801ef44ad8a0ce78f1a0bd72958cde83438a6e72",
+          "no_overwrite": "PASS",
+          "report_mode": "0600"
+        },
+        {
+          "home": "product-home-existing",
+          "welcome": {
+            "schema_version": 1,
+            "project": "cachy-asahi",
+            "welcome_version": "0.1.0",
+            "architecture": "aarch64",
+            "kernel": "6.17.0-1022-azure",
+            "page_size": 4096,
+            "package_database": "readable",
+            "hardware_compatibility": "not-assessed",
+            "packages": {
+              "cachy-asahi-welcome": {
+                "state": "installed",
+                "version": "0.1.0-1"
+              },
+              "cachy-asahi-setup": {
+                "state": "not-found",
+                "version": null
+              },
+              "cachy-asahi-hyprland-settings": {
+                "state": "not-found",
+                "version": null
+              },
+              "cachy-asahi-update": {
+                "state": "not-found",
+                "version": null
+              },
+              "cachy-asahi-topmem": {
+                "state": "not-found",
+                "version": null
+              },
+              "cachy-asahi-ksmctl": {
+                "state": "not-found",
+                "version": null
+              }
+            }
+          },
+          "doctor": {
+            "checks": [
+              {
+                "check": "platform",
+                "note": "Observed running kernel/architecture/page size; no target compatibility test.",
+                "state": "checked",
+                "value": {
+                  "architecture": "aarch64",
+                  "kernel": "6.17.0-1022-azure",
+                  "page_size_bytes": 4096
+                }
+              },
+              {
+                "check": "apple-model",
+                "note": "Apple model unknown. No model is inferred from the kernel name or generic architecture.",
+                "state": "unavailable",
+                "value": {
+                  "identifier": null,
+                  "model": null,
+                  "model_property_available": false,
+                  "observed_board": null
+                }
+              },
+              {
+                "check": "session",
+                "note": "Environment hints only; compositor responsiveness and rendering are not tested.",
+                "state": "unknown",
+                "value": {
+                  "hyprland_environment": false,
+                  "type": "unknown",
+                  "wayland_environment": false
+                }
+              },
+              {
+                "check": "tools",
+                "note": "Executable availability in /usr/bin:/bin; tools were not launched for this check.",
+                "state": "checked",
+                "value": {
+                  "Hyprland": true,
+                  "cachy-asahi-setup": false,
+                  "cachy-asahi-update": false,
+                  "hyprctl": true,
+                  "pacman": true,
+                  "pipewire": true,
+                  "systemctl": true,
+                  "wireplumber": true,
+                  "wpctl": true
+                }
+              },
+              {
+                "check": "package/asahi-meta",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/linux-asahi",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/m1n1",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/uboot-asahi",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/asahi-alarm-keyring",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/asahi-firmware",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/asahi-scripts",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/asahi-configs",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/asahi-audio",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/alsa-ucm-conf-asahi",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/speakersafetyd",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/mesa",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "present",
+                  "version": "1:26.2.4-1"
+                }
+              },
+              {
+                "check": "package/mesa-asahi",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/libdrm",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "platform",
+                  "presence": "present",
+                  "version": "2.4.134-1"
+                }
+              },
+              {
+                "check": "package/hyprland",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "desktop",
+                  "presence": "present",
+                  "version": "0.56.2-4"
+                }
+              },
+              {
+                "check": "package/pipewire",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "desktop",
+                  "presence": "present",
+                  "version": "1:1.6.9-1"
+                }
+              },
+              {
+                "check": "package/pipewire-pulse",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "desktop",
+                  "presence": "present",
+                  "version": "1:1.6.9-1"
+                }
+              },
+              {
+                "check": "package/wireplumber",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "desktop",
+                  "presence": "present",
+                  "version": "0.5.18-1"
+                }
+              },
+              {
+                "check": "package/cachy-asahi-hyprland-settings",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-fish-config",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-zsh-config",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-setup",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-update",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-fdk-aac",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-ksmctl",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-topmem",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-zsh-autosuggestions",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-fish-bang-bang",
+                "note": "Not installed; this reference list is not an installation plan.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "absent",
+                  "version": null
+                }
+              },
+              {
+                "check": "package/cachy-asahi-doctor",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "present",
+                  "version": "0.1.0-1"
+                }
+              },
+              {
+                "check": "package/cachy-asahi-welcome",
+                "note": "Installed version observed.",
+                "state": "checked",
+                "value": {
+                  "group": "project",
+                  "presence": "present",
+                  "version": "0.1.0-1"
+                }
+              },
+              {
+                "check": "system/speakersafetyd.service",
+                "note": "Could not query the local service manager; no service state was inferred.",
+                "state": "unknown",
+                "value": null
+              },
+              {
+                "check": "system/asahi-audio.service",
+                "note": "Could not query the local service manager; no service state was inferred.",
+                "state": "unknown",
+                "value": null
+              },
+              {
+                "check": "system/display-manager.service",
+                "note": "Could not query the local service manager; no service state was inferred.",
+                "state": "unknown",
+                "value": null
+              },
+              {
+                "check": "user/pipewire.service",
+                "note": "Local user bus unavailable. Run doctor from your affected login session.",
+                "state": "unavailable",
+                "value": null
+              },
+              {
+                "check": "user/pipewire-pulse.service",
+                "note": "Local user bus unavailable. Run doctor from your affected login session.",
+                "state": "unavailable",
+                "value": null
+              },
+              {
+                "check": "user/wireplumber.service",
+                "note": "Local user bus unavailable. Run doctor from your affected login session.",
+                "state": "unavailable",
+                "value": null
+              },
+              {
+                "check": "user/xdg-desktop-portal.service",
+                "note": "Local user bus unavailable. Run doctor from your affected login session.",
+                "state": "unavailable",
+                "value": null
+              },
+              {
+                "check": "user/xdg-desktop-portal-hyprland.service",
+                "note": "Local user bus unavailable. Run doctor from your affected login session.",
+                "state": "unavailable",
+                "value": null
+              }
+            ],
+            "collected_utc": "2026-10-16T10:25:20.937367+00:00",
+            "coverage": {
+              "checked": 32,
+              "unavailable": 6,
+              "unknown": 4
+            },
+            "limitations": [
+              "Fixed package/unit/tool selection; missing alternatives are not install instructions.",
+              "No journal, process arguments, home/key contents, network addresses or machine/serial IDs collected.",
+              "No hardware, speaker safety, rendering, boot/recovery, performance or production-trust certification."
+            ],
+            "limits": {
+              "command_output_bytes": 65536,
+              "command_seconds": 2,
+              "device_tree_bytes": 4096,
+              "total_query_seconds": 20
+            },
+            "schema_version": 1,
+            "scope": "local observations only",
+            "tool": "cachy-asahi-doctor",
+            "version": "0.1.0"
+          },
+          "report_sha256": "db38a7893a2742f1fb80405e74353652d9c937449dc4b4b8fd9e9dc24cba69d9",
+          "no_overwrite": "PASS",
+          "report_mode": "0600"
+        }
+      ],
+      "config_preserved": true
+    },
+    {
+      "phase": "final-remove",
+      "status": "PASS",
+      "inventory_count": 574,
+      "config_preserved": true,
+      "reports_preserved": true
+    }
+  ],
+  "base_count": 574,
+  "installed_count": 576,
+  "user_config_preserved": true,
+  "user_reports_preserved": true,
+  "masked_hooks": 41,
+  "GUI": "NOT_RUN",
+  "hardware": "NOT_RUN",
+  "actual_page_size": 4096
+}

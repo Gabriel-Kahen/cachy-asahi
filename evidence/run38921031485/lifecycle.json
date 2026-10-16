@@ -1,0 +1,3056 @@
+{
+  "status": "PASS_FISH_DONE_INSTALLED_LIFECYCLE",
+  "events": [
+    {
+      "phase": "install",
+      "status": "PASS",
+      "inventory_count": 575,
+      "observations": [
+        {
+          "home": "fish-home-fresh",
+          "proof": {
+            "status": "PASS",
+            "machine": "aarch64",
+            "fish": "fish, version 4.9.3",
+            "wrapper_sha256": "6ff60eef9f211819833b0d94a9fef15a2982835c84d868d7b0d55200e37b6a20",
+            "runtime_sha256": "f545413bd75a3017b8d11a5ca7fe7394f326babbc8c18618323c39fbd8d0a0d4",
+            "scope": "local notify-send process shim invocation only; no actual notification manager or visual display",
+            "cases": {
+              "noninteractive": {
+                "exit": 0,
+                "notifications": 0
+              },
+              "foreground": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 3,
+                "proofs": [
+                  {
+                    "argv": [
+                      "--hint=int:transient:1",
+                      "--urgency=normal",
+                      "--icon=utilities-terminal",
+                      "--app-name=fish",
+                      "--expire-time=3000",
+                      "--",
+                      "Done in 122 ms",
+                      "Foreground command completed."
+                    ]
+                  },
+                  {
+                    "argv": [
+                      "--hint=int:transient:1",
+                      "--urgency=critical",
+                      "--icon=utilities-terminal",
+                      "--app-name=fish",
+                      "--expire-time=3000",
+                      "--",
+                      "Failed (7) after 124 ms",
+                      "Foreground command completed."
+                    ]
+                  }
+                ]
+              },
+              "background": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 4,
+                "proofs": [
+                  {
+                    "argv": [
+                      "--hint=int:transient:1",
+                      "--urgency=normal",
+                      "--icon=utilities-terminal",
+                      "--app-name=fish",
+                      "--expire-time=3000",
+                      "--",
+                      "Done in 230 ms",
+                      "Watched job completed."
+                    ]
+                  },
+                  {
+                    "argv": [
+                      "--hint=int:transient:1",
+                      "--urgency=critical",
+                      "--icon=utilities-terminal",
+                      "--app-name=fish",
+                      "--expire-time=3000",
+                      "--",
+                      "Failed (7) after 230 ms",
+                      "Watched job completed."
+                    ]
+                  },
+                  {
+                    "argv": [
+                      "--hint=int:transient:1",
+                      "--urgency=critical",
+                      "--icon=utilities-terminal",
+                      "--app-name=fish",
+                      "--expire-time=3000",
+                      "--",
+                      "Failed (143) after 110 ms",
+                      "Watched job completed."
+                    ]
+                  }
+                ]
+              },
+              "watch-rejection": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 1,
+                "proofs": []
+              },
+              "disown": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 1,
+                "proofs": []
+              },
+              "repeat-preserve": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 1,
+                "proofs": []
+              },
+              "command-data": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 1,
+                "proofs": [
+                  {
+                    "argv": [
+                      "--hint=int:transient:1",
+                      "--urgency=normal",
+                      "--icon=utilities-terminal",
+                      "--app-name=fish",
+                      "--expire-time=3000",
+                      "--",
+                      "Done in 122 ms",
+                      "Foreground command: sleep .12 # &lt;tag&gt; $HOME $(touch PWNED) --leading"
+                    ]
+                  }
+                ]
+              },
+              "transport-failure": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 1,
+                "proofs": [
+                  {
+                    "elapsed_seconds": 0.153,
+                    "invocation": {
+                      "argv": [
+                        "--hint=int:transient:1",
+                        "--urgency=normal",
+                        "--icon=utilities-terminal",
+                        "--app-name=fish",
+                        "--expire-time=3000",
+                        "--",
+                        "Done in 122 ms",
+                        "Foreground command completed."
+                      ]
+                    }
+                  }
+                ]
+              },
+              "transport-timeout": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 1,
+                "proofs": [
+                  {
+                    "elapsed_seconds": 3.128,
+                    "invocation": {
+                      "argv": [
+                        "--hint=int:transient:1",
+                        "--urgency=normal",
+                        "--icon=utilities-terminal",
+                        "--app-name=fish",
+                        "--expire-time=3000",
+                        "--",
+                        "Done in 122 ms",
+                        "Foreground command completed."
+                      ]
+                    }
+                  }
+                ]
+              },
+              "disable": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 0,
+                "proofs": []
+              },
+              "existing-function": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "existing-autoload": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "existing-variable": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "existing-wrapper": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "existing-public": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "no-bus": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "notify-send": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "timeout": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              }
+            }
+          },
+          "receipt_sha256": "864a8c7c61c8ac4862feb574e13413afc397ab881c641a27afa070e2c2ee87a5",
+          "fish_sha256": "676028c5be037d08361e1c95affc92f3c7548293d809cb6d19c3a4a2bb9b2583",
+          "recorders": {
+            "noninteractive": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "foreground": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 122 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 37
+                },
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=critical",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Failed (7) after 124 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 47
+                },
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 122 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 57
+                }
+              ],
+              "transcript_sha256": "3d61b0eca12d8adca6394aa21c8ed0bb54781ee2c5ed5a4050c3c9a387bad9e5"
+            },
+            "background": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 230 ms",
+                    "Watched job completed."
+                  ],
+                  "pid": 117
+                },
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=critical",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Failed (7) after 230 ms",
+                    "Watched job completed."
+                  ],
+                  "pid": 142
+                },
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=critical",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Failed (143) after 110 ms",
+                    "Watched job completed."
+                  ],
+                  "pid": 172
+                },
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 135 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 174
+                }
+              ],
+              "transcript_sha256": "3f8fa8d0af2d47761e9ef1ab725122b926ff491affba8a1634cc14ba58eea12c"
+            },
+            "watch-rejection": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 220 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 213
+                }
+              ],
+              "transcript_sha256": "1f7d5d4fd9de7f0fa755aea5ce2c0bdc31cd76ca9719d2579a17161cb7c15892"
+            },
+            "disown": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 222 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 240
+                }
+              ],
+              "transcript_sha256": "70165e4f08ef9b10c583b3a2d90a5b9c955f51c08cc6e45ca36e2b2bc596b11d"
+            },
+            "repeat-preserve": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 122 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 289
+                }
+              ],
+              "transcript_sha256": "6c4d6551b09b9ae1c49c44ea80164af8c742530f877593ff36beaf1b75015c89",
+              "hooks_preserved": true,
+              "caller_continued": true,
+              "custom_binding_preserved": true
+            },
+            "command-data": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 122 ms",
+                    "Foreground command: sleep .12 # &lt;tag&gt; $HOME $(touch PWNED) --leading"
+                  ],
+                  "pid": 331
+                }
+              ],
+              "transcript_sha256": "d8d2f6d6eb75aff3e68efc46f378355bc54763cfb638d71c02308b3447277100"
+            },
+            "transport-failure": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 122 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 349
+                }
+              ],
+              "transcript_sha256": "2d651315a3524f4a09b9275ebe89d1a5c9c04b7acb3cec56703b55f0e5b03d3b"
+            },
+            "transport-timeout": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 122 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 370
+                }
+              ],
+              "transcript_sha256": "a80805af81ec1b4b8fe8610ce9785423ecf47066f3db9e835d3f8c16a697c0a6",
+              "recorded_pids_absent": true
+            },
+            "disable": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "existing-function": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "existing-autoload": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "existing-variable": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "existing-wrapper": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "existing-public": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "no-bus": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "notify-send": {
+              "transport": "ABSENT_CONTROL",
+              "rows": []
+            },
+            "timeout": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            }
+          }
+        },
+        {
+          "home": "fish-home-existing",
+          "proof": {
+            "status": "PASS",
+            "machine": "aarch64",
+            "fish": "fish, version 4.9.3",
+            "wrapper_sha256": "6ff60eef9f211819833b0d94a9fef15a2982835c84d868d7b0d55200e37b6a20",
+            "runtime_sha256": "f545413bd75a3017b8d11a5ca7fe7394f326babbc8c18618323c39fbd8d0a0d4",
+            "scope": "local notify-send process shim invocation only; no actual notification manager or visual display",
+            "cases": {
+              "noninteractive": {
+                "exit": 0,
+                "notifications": 0
+              },
+              "foreground": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 3,
+                "proofs": [
+                  {
+                    "argv": [
+                      "--hint=int:transient:1",
+                      "--urgency=normal",
+                      "--icon=utilities-terminal",
+                      "--app-name=fish",
+                      "--expire-time=3000",
+                      "--",
+                      "Done in 122 ms",
+                      "Foreground command completed."
+                    ]
+                  },
+                  {
+                    "argv": [
+                      "--hint=int:transient:1",
+                      "--urgency=critical",
+                      "--icon=utilities-terminal",
+                      "--app-name=fish",
+                      "--expire-time=3000",
+                      "--",
+                      "Failed (7) after 124 ms",
+                      "Foreground command completed."
+                    ]
+                  }
+                ]
+              },
+              "background": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 4,
+                "proofs": [
+                  {
+                    "argv": [
+                      "--hint=int:transient:1",
+                      "--urgency=normal",
+                      "--icon=utilities-terminal",
+                      "--app-name=fish",
+                      "--expire-time=3000",
+                      "--",
+                      "Done in 220 ms",
+                      "Watched job completed."
+                    ]
+                  },
+                  {
+                    "argv": [
+                      "--hint=int:transient:1",
+                      "--urgency=critical",
+                      "--icon=utilities-terminal",
+                      "--app-name=fish",
+                      "--expire-time=3000",
+                      "--",
+                      "Failed (7) after 230 ms",
+                      "Watched job completed."
+                    ]
+                  },
+                  {
+                    "argv": [
+                      "--hint=int:transient:1",
+                      "--urgency=critical",
+                      "--icon=utilities-terminal",
+                      "--app-name=fish",
+                      "--expire-time=3000",
+                      "--",
+                      "Failed (143) after 110 ms",
+                      "Watched job completed."
+                    ]
+                  }
+                ]
+              },
+              "watch-rejection": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 1,
+                "proofs": []
+              },
+              "disown": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 1,
+                "proofs": []
+              },
+              "repeat-preserve": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 1,
+                "proofs": []
+              },
+              "command-data": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 1,
+                "proofs": [
+                  {
+                    "argv": [
+                      "--hint=int:transient:1",
+                      "--urgency=normal",
+                      "--icon=utilities-terminal",
+                      "--app-name=fish",
+                      "--expire-time=3000",
+                      "--",
+                      "Done in 122 ms",
+                      "Foreground command: sleep .12 # &lt;tag&gt; $HOME $(touch PWNED) --leading"
+                    ]
+                  }
+                ]
+              },
+              "transport-failure": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 1,
+                "proofs": [
+                  {
+                    "elapsed_seconds": 0.153,
+                    "invocation": {
+                      "argv": [
+                        "--hint=int:transient:1",
+                        "--urgency=normal",
+                        "--icon=utilities-terminal",
+                        "--app-name=fish",
+                        "--expire-time=3000",
+                        "--",
+                        "Done in 122 ms",
+                        "Foreground command completed."
+                      ]
+                    }
+                  }
+                ]
+              },
+              "transport-timeout": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 1,
+                "proofs": [
+                  {
+                    "elapsed_seconds": 3.128,
+                    "invocation": {
+                      "argv": [
+                        "--hint=int:transient:1",
+                        "--urgency=normal",
+                        "--icon=utilities-terminal",
+                        "--app-name=fish",
+                        "--expire-time=3000",
+                        "--",
+                        "Done in 122 ms",
+                        "Foreground command completed."
+                      ]
+                    }
+                  }
+                ]
+              },
+              "disable": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 0,
+                "proofs": []
+              },
+              "existing-function": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "existing-autoload": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "existing-variable": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "existing-wrapper": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "existing-public": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "no-bus": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "notify-send": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "timeout": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              }
+            }
+          },
+          "receipt_sha256": "5ffe11f337e422fcc97f53e0d61606069739ef658c89f087400a2b70c8351609",
+          "fish_sha256": "676028c5be037d08361e1c95affc92f3c7548293d809cb6d19c3a4a2bb9b2583",
+          "recorders": {
+            "noninteractive": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "foreground": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 122 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 569
+                },
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=critical",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Failed (7) after 124 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 582
+                },
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 122 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 594
+                }
+              ],
+              "transcript_sha256": "caf3f00f57c3710b5f906b5e5d42cb601ec3ad10d39c79aa4ab79f96a970a270"
+            },
+            "background": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 220 ms",
+                    "Watched job completed."
+                  ],
+                  "pid": 650
+                },
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=critical",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Failed (7) after 230 ms",
+                    "Watched job completed."
+                  ],
+                  "pid": 673
+                },
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=critical",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Failed (143) after 110 ms",
+                    "Watched job completed."
+                  ],
+                  "pid": 701
+                },
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 134 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 703
+                }
+              ],
+              "transcript_sha256": "7a8d94b8bf3c03118688ec23fcc26f79a436aaacb5cefb7af6752dc085b5ff55"
+            },
+            "watch-rejection": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 220 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 743
+                }
+              ],
+              "transcript_sha256": "5717b224a46a81c87bb23be8732abee110ad946386011e65c588c70968f2b6c8"
+            },
+            "disown": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 222 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 785
+                }
+              ],
+              "transcript_sha256": "735189282b2f5a6af74ef5439f7f95b5fc064c470ffaf63b2ecc963361868792"
+            },
+            "repeat-preserve": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 122 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 834
+                }
+              ],
+              "transcript_sha256": "08b84ce4d03a006debd6c98d36699cdc99130ce03bc8f66c22c4b6a6ba5ec938",
+              "hooks_preserved": true,
+              "caller_continued": true,
+              "custom_binding_preserved": true
+            },
+            "command-data": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 122 ms",
+                    "Foreground command: sleep .12 # &lt;tag&gt; $HOME $(touch PWNED) --leading"
+                  ],
+                  "pid": 871
+                }
+              ],
+              "transcript_sha256": "2225415bc259b012b49fcbe7ae9420a574aedaa6e2e9345cf15cf44c10051890"
+            },
+            "transport-failure": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 122 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 893
+                }
+              ],
+              "transcript_sha256": "e3c6ba473baaaa077cc7a158597d676caf20f899b3b51bb950fd1f4e5a4c018b"
+            },
+            "transport-timeout": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 122 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 911
+                }
+              ],
+              "transcript_sha256": "03d6e1e5cfcc0bcba7b0f4a9a6ee1d5f830e0b32a2ed548b1e07a4becd8fbcc9",
+              "recorded_pids_absent": true
+            },
+            "disable": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "existing-function": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "existing-autoload": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "existing-variable": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "existing-wrapper": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "existing-public": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "no-bus": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "notify-send": {
+              "transport": "ABSENT_CONTROL",
+              "rows": []
+            },
+            "timeout": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            }
+          }
+        }
+      ],
+      "config_preserved": true
+    },
+    {
+      "phase": "same-version-reinstall",
+      "status": "PASS",
+      "inventory_count": 575,
+      "observations": [
+        {
+          "home": "fish-home-fresh",
+          "proof": {
+            "status": "PASS",
+            "machine": "aarch64",
+            "fish": "fish, version 4.9.3",
+            "wrapper_sha256": "6ff60eef9f211819833b0d94a9fef15a2982835c84d868d7b0d55200e37b6a20",
+            "runtime_sha256": "f545413bd75a3017b8d11a5ca7fe7394f326babbc8c18618323c39fbd8d0a0d4",
+            "scope": "local notify-send process shim invocation only; no actual notification manager or visual display",
+            "cases": {
+              "noninteractive": {
+                "exit": 0,
+                "notifications": 0
+              },
+              "foreground": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 3,
+                "proofs": [
+                  {
+                    "argv": [
+                      "--hint=int:transient:1",
+                      "--urgency=normal",
+                      "--icon=utilities-terminal",
+                      "--app-name=fish",
+                      "--expire-time=3000",
+                      "--",
+                      "Done in 122 ms",
+                      "Foreground command completed."
+                    ]
+                  },
+                  {
+                    "argv": [
+                      "--hint=int:transient:1",
+                      "--urgency=critical",
+                      "--icon=utilities-terminal",
+                      "--app-name=fish",
+                      "--expire-time=3000",
+                      "--",
+                      "Failed (7) after 124 ms",
+                      "Foreground command completed."
+                    ]
+                  }
+                ]
+              },
+              "background": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 4,
+                "proofs": [
+                  {
+                    "argv": [
+                      "--hint=int:transient:1",
+                      "--urgency=normal",
+                      "--icon=utilities-terminal",
+                      "--app-name=fish",
+                      "--expire-time=3000",
+                      "--",
+                      "Done in 220 ms",
+                      "Watched job completed."
+                    ]
+                  },
+                  {
+                    "argv": [
+                      "--hint=int:transient:1",
+                      "--urgency=critical",
+                      "--icon=utilities-terminal",
+                      "--app-name=fish",
+                      "--expire-time=3000",
+                      "--",
+                      "Failed (7) after 230 ms",
+                      "Watched job completed."
+                    ]
+                  },
+                  {
+                    "argv": [
+                      "--hint=int:transient:1",
+                      "--urgency=critical",
+                      "--icon=utilities-terminal",
+                      "--app-name=fish",
+                      "--expire-time=3000",
+                      "--",
+                      "Failed (143) after 110 ms",
+                      "Watched job completed."
+                    ]
+                  }
+                ]
+              },
+              "watch-rejection": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 1,
+                "proofs": []
+              },
+              "disown": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 1,
+                "proofs": []
+              },
+              "repeat-preserve": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 1,
+                "proofs": []
+              },
+              "command-data": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 1,
+                "proofs": [
+                  {
+                    "argv": [
+                      "--hint=int:transient:1",
+                      "--urgency=normal",
+                      "--icon=utilities-terminal",
+                      "--app-name=fish",
+                      "--expire-time=3000",
+                      "--",
+                      "Done in 122 ms",
+                      "Foreground command: sleep .12 # &lt;tag&gt; $HOME $(touch PWNED) --leading"
+                    ]
+                  }
+                ]
+              },
+              "transport-failure": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 1,
+                "proofs": [
+                  {
+                    "elapsed_seconds": 0.154,
+                    "invocation": {
+                      "argv": [
+                        "--hint=int:transient:1",
+                        "--urgency=normal",
+                        "--icon=utilities-terminal",
+                        "--app-name=fish",
+                        "--expire-time=3000",
+                        "--",
+                        "Done in 122 ms",
+                        "Foreground command completed."
+                      ]
+                    }
+                  }
+                ]
+              },
+              "transport-timeout": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 1,
+                "proofs": [
+                  {
+                    "elapsed_seconds": 3.128,
+                    "invocation": {
+                      "argv": [
+                        "--hint=int:transient:1",
+                        "--urgency=normal",
+                        "--icon=utilities-terminal",
+                        "--app-name=fish",
+                        "--expire-time=3000",
+                        "--",
+                        "Done in 122 ms",
+                        "Foreground command completed."
+                      ]
+                    }
+                  }
+                ]
+              },
+              "disable": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 0,
+                "proofs": []
+              },
+              "existing-function": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "existing-autoload": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "existing-variable": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "existing-wrapper": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "existing-public": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "no-bus": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "notify-send": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "timeout": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              }
+            }
+          },
+          "receipt_sha256": "82ac53140da6fcbc6faeafd457d2a40e0323836827d961b7a33cc448bb3e741b",
+          "fish_sha256": "676028c5be037d08361e1c95affc92f3c7548293d809cb6d19c3a4a2bb9b2583",
+          "recorders": {
+            "noninteractive": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "foreground": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 122 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 1110
+                },
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=critical",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Failed (7) after 124 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 1125
+                },
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 122 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 1135
+                }
+              ],
+              "transcript_sha256": "1a92b0cd170882c876133e98a55b3cecef8542a0597a3f7ad200cb68ca9e4742"
+            },
+            "background": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 220 ms",
+                    "Watched job completed."
+                  ],
+                  "pid": 1189
+                },
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=critical",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Failed (7) after 230 ms",
+                    "Watched job completed."
+                  ],
+                  "pid": 1213
+                },
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=critical",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Failed (143) after 110 ms",
+                    "Watched job completed."
+                  ],
+                  "pid": 1249
+                },
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 134 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 1251
+                }
+              ],
+              "transcript_sha256": "329666b743c7e689862cc33e60adadbc0b35654004c7d6806d62503d944ed222"
+            },
+            "watch-rejection": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 221 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 1281
+                }
+              ],
+              "transcript_sha256": "0cd415f1c83455fb6896b050e219776424502a40081990ad10035d2b19bc6af6"
+            },
+            "disown": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 222 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 1310
+                }
+              ],
+              "transcript_sha256": "c08820c5d59b451f67239fb078aa1430bd09ba5471bc1021873079bbb57ac138"
+            },
+            "repeat-preserve": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 122 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 1359
+                }
+              ],
+              "transcript_sha256": "367bfed038c92d13d6e356b293b691e04f5c2d486cd0a5143405acbd68e94eba",
+              "hooks_preserved": true,
+              "caller_continued": true,
+              "custom_binding_preserved": true
+            },
+            "command-data": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 122 ms",
+                    "Foreground command: sleep .12 # &lt;tag&gt; $HOME $(touch PWNED) --leading"
+                  ],
+                  "pid": 1394
+                }
+              ],
+              "transcript_sha256": "33ee96205c6285434885c6aa7d624820647424300162e66ec40a0f5396ea1bed"
+            },
+            "transport-failure": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 122 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 1414
+                }
+              ],
+              "transcript_sha256": "77b238d1b0255607cb964fe1f185ba5ac0e23287f47e055b1b3c5f4aa72157f8"
+            },
+            "transport-timeout": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 122 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 1432
+                }
+              ],
+              "transcript_sha256": "d3841bcda2ec81abbec3f785b39827726357e5a6f99f86630c8894151c9ce91e",
+              "recorded_pids_absent": true
+            },
+            "disable": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "existing-function": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "existing-autoload": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "existing-variable": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "existing-wrapper": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "existing-public": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "no-bus": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "notify-send": {
+              "transport": "ABSENT_CONTROL",
+              "rows": []
+            },
+            "timeout": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            }
+          }
+        },
+        {
+          "home": "fish-home-existing",
+          "proof": {
+            "status": "PASS",
+            "machine": "aarch64",
+            "fish": "fish, version 4.9.3",
+            "wrapper_sha256": "6ff60eef9f211819833b0d94a9fef15a2982835c84d868d7b0d55200e37b6a20",
+            "runtime_sha256": "f545413bd75a3017b8d11a5ca7fe7394f326babbc8c18618323c39fbd8d0a0d4",
+            "scope": "local notify-send process shim invocation only; no actual notification manager or visual display",
+            "cases": {
+              "noninteractive": {
+                "exit": 0,
+                "notifications": 0
+              },
+              "foreground": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 3,
+                "proofs": [
+                  {
+                    "argv": [
+                      "--hint=int:transient:1",
+                      "--urgency=normal",
+                      "--icon=utilities-terminal",
+                      "--app-name=fish",
+                      "--expire-time=3000",
+                      "--",
+                      "Done in 122 ms",
+                      "Foreground command completed."
+                    ]
+                  },
+                  {
+                    "argv": [
+                      "--hint=int:transient:1",
+                      "--urgency=critical",
+                      "--icon=utilities-terminal",
+                      "--app-name=fish",
+                      "--expire-time=3000",
+                      "--",
+                      "Failed (7) after 124 ms",
+                      "Foreground command completed."
+                    ]
+                  }
+                ]
+              },
+              "background": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 4,
+                "proofs": [
+                  {
+                    "argv": [
+                      "--hint=int:transient:1",
+                      "--urgency=normal",
+                      "--icon=utilities-terminal",
+                      "--app-name=fish",
+                      "--expire-time=3000",
+                      "--",
+                      "Done in 220 ms",
+                      "Watched job completed."
+                    ]
+                  },
+                  {
+                    "argv": [
+                      "--hint=int:transient:1",
+                      "--urgency=critical",
+                      "--icon=utilities-terminal",
+                      "--app-name=fish",
+                      "--expire-time=3000",
+                      "--",
+                      "Failed (7) after 220 ms",
+                      "Watched job completed."
+                    ]
+                  },
+                  {
+                    "argv": [
+                      "--hint=int:transient:1",
+                      "--urgency=critical",
+                      "--icon=utilities-terminal",
+                      "--app-name=fish",
+                      "--expire-time=3000",
+                      "--",
+                      "Failed (143) after 110 ms",
+                      "Watched job completed."
+                    ]
+                  }
+                ]
+              },
+              "watch-rejection": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 1,
+                "proofs": []
+              },
+              "disown": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 1,
+                "proofs": []
+              },
+              "repeat-preserve": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 1,
+                "proofs": []
+              },
+              "command-data": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 1,
+                "proofs": [
+                  {
+                    "argv": [
+                      "--hint=int:transient:1",
+                      "--urgency=normal",
+                      "--icon=utilities-terminal",
+                      "--app-name=fish",
+                      "--expire-time=3000",
+                      "--",
+                      "Done in 122 ms",
+                      "Foreground command: sleep .12 # &lt;tag&gt; $HOME $(touch PWNED) --leading"
+                    ]
+                  }
+                ]
+              },
+              "transport-failure": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 1,
+                "proofs": [
+                  {
+                    "elapsed_seconds": 0.155,
+                    "invocation": {
+                      "argv": [
+                        "--hint=int:transient:1",
+                        "--urgency=normal",
+                        "--icon=utilities-terminal",
+                        "--app-name=fish",
+                        "--expire-time=3000",
+                        "--",
+                        "Done in 122 ms",
+                        "Foreground command completed."
+                      ]
+                    }
+                  }
+                ]
+              },
+              "transport-timeout": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 1,
+                "proofs": [
+                  {
+                    "elapsed_seconds": 3.128,
+                    "invocation": {
+                      "argv": [
+                        "--hint=int:transient:1",
+                        "--urgency=normal",
+                        "--icon=utilities-terminal",
+                        "--app-name=fish",
+                        "--expire-time=3000",
+                        "--",
+                        "Done in 122 ms",
+                        "Foreground command completed."
+                      ]
+                    }
+                  }
+                ]
+              },
+              "disable": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 0,
+                "proofs": []
+              },
+              "existing-function": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "existing-autoload": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "existing-variable": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "existing-wrapper": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "existing-public": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "no-bus": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "notify-send": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "timeout": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              }
+            }
+          },
+          "receipt_sha256": "67a5c3ef0ace3950d40af00ecd6be4e20c53824237146f55e856beafe3ffe1cd",
+          "fish_sha256": "676028c5be037d08361e1c95affc92f3c7548293d809cb6d19c3a4a2bb9b2583",
+          "recorders": {
+            "noninteractive": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "foreground": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 122 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 1627
+                },
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=critical",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Failed (7) after 124 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 1640
+                },
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 122 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 1652
+                }
+              ],
+              "transcript_sha256": "b2e47491ee3f43ec3fa94e2dbcd592bb0842f7c878a5cd1c5fb59c69487857cf"
+            },
+            "background": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 220 ms",
+                    "Watched job completed."
+                  ],
+                  "pid": 1711
+                },
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=critical",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Failed (7) after 220 ms",
+                    "Watched job completed."
+                  ],
+                  "pid": 1741
+                },
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=critical",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Failed (143) after 110 ms",
+                    "Watched job completed."
+                  ],
+                  "pid": 1775
+                },
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 134 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 1777
+                }
+              ],
+              "transcript_sha256": "ee025c6332744f80261c4f89c0ac1fdd263b021af21b40c723e4f1632097b8dc"
+            },
+            "watch-rejection": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 220 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 1812
+                }
+              ],
+              "transcript_sha256": "40d14aafd57936b4de03a8b0b89f8a7d9c87b7525faa93f5ec122bc2c02e6560"
+            },
+            "disown": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 222 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 1849
+                }
+              ],
+              "transcript_sha256": "7518813242ffd0377bed6f0577e473f6c08cb9882a5c8fa5a9796b3a0ec35554"
+            },
+            "repeat-preserve": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 122 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 1894
+                }
+              ],
+              "transcript_sha256": "02f454c042419966890b95c92a8e312d3bfc7bc519773573dd03609ea700aecf",
+              "hooks_preserved": true,
+              "caller_continued": true,
+              "custom_binding_preserved": true
+            },
+            "command-data": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 122 ms",
+                    "Foreground command: sleep .12 # &lt;tag&gt; $HOME $(touch PWNED) --leading"
+                  ],
+                  "pid": 1933
+                }
+              ],
+              "transcript_sha256": "2c50b1adf5df9fd00535b0386e24f0097ec853882b2aaeb15fd9009d09ccdc80"
+            },
+            "transport-failure": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 122 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 1951
+                }
+              ],
+              "transcript_sha256": "867b5ba3eaa539ec05ccd66b854ba3bcd3d2dc8de332958b799e6bc6c12629f9"
+            },
+            "transport-timeout": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 122 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 1970
+                }
+              ],
+              "transcript_sha256": "af7e24b9d5a491712b3b791f54ae069affe9679c4af26b6c49739f74b0b03758",
+              "recorded_pids_absent": true
+            },
+            "disable": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "existing-function": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "existing-autoload": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "existing-variable": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "existing-wrapper": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "existing-public": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "no-bus": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "notify-send": {
+              "transport": "ABSENT_CONTROL",
+              "rows": []
+            },
+            "timeout": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            }
+          }
+        }
+      ],
+      "config_preserved": true
+    },
+    {
+      "phase": "remove",
+      "status": "PASS",
+      "inventory_count": 574,
+      "config_preserved": true,
+      "guarded_opt_in_absent": true
+    },
+    {
+      "phase": "reinstall-after-removal",
+      "status": "PASS",
+      "inventory_count": 575,
+      "observations": [
+        {
+          "home": "fish-home-fresh",
+          "proof": {
+            "status": "PASS",
+            "machine": "aarch64",
+            "fish": "fish, version 4.9.3",
+            "wrapper_sha256": "6ff60eef9f211819833b0d94a9fef15a2982835c84d868d7b0d55200e37b6a20",
+            "runtime_sha256": "f545413bd75a3017b8d11a5ca7fe7394f326babbc8c18618323c39fbd8d0a0d4",
+            "scope": "local notify-send process shim invocation only; no actual notification manager or visual display",
+            "cases": {
+              "noninteractive": {
+                "exit": 0,
+                "notifications": 0
+              },
+              "foreground": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 3,
+                "proofs": [
+                  {
+                    "argv": [
+                      "--hint=int:transient:1",
+                      "--urgency=normal",
+                      "--icon=utilities-terminal",
+                      "--app-name=fish",
+                      "--expire-time=3000",
+                      "--",
+                      "Done in 122 ms",
+                      "Foreground command completed."
+                    ]
+                  },
+                  {
+                    "argv": [
+                      "--hint=int:transient:1",
+                      "--urgency=critical",
+                      "--icon=utilities-terminal",
+                      "--app-name=fish",
+                      "--expire-time=3000",
+                      "--",
+                      "Failed (7) after 124 ms",
+                      "Foreground command completed."
+                    ]
+                  }
+                ]
+              },
+              "background": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 4,
+                "proofs": [
+                  {
+                    "argv": [
+                      "--hint=int:transient:1",
+                      "--urgency=normal",
+                      "--icon=utilities-terminal",
+                      "--app-name=fish",
+                      "--expire-time=3000",
+                      "--",
+                      "Done in 220 ms",
+                      "Watched job completed."
+                    ]
+                  },
+                  {
+                    "argv": [
+                      "--hint=int:transient:1",
+                      "--urgency=critical",
+                      "--icon=utilities-terminal",
+                      "--app-name=fish",
+                      "--expire-time=3000",
+                      "--",
+                      "Failed (7) after 220 ms",
+                      "Watched job completed."
+                    ]
+                  },
+                  {
+                    "argv": [
+                      "--hint=int:transient:1",
+                      "--urgency=critical",
+                      "--icon=utilities-terminal",
+                      "--app-name=fish",
+                      "--expire-time=3000",
+                      "--",
+                      "Failed (143) after 110 ms",
+                      "Watched job completed."
+                    ]
+                  }
+                ]
+              },
+              "watch-rejection": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 1,
+                "proofs": []
+              },
+              "disown": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 1,
+                "proofs": []
+              },
+              "repeat-preserve": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 1,
+                "proofs": []
+              },
+              "command-data": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 1,
+                "proofs": [
+                  {
+                    "argv": [
+                      "--hint=int:transient:1",
+                      "--urgency=normal",
+                      "--icon=utilities-terminal",
+                      "--app-name=fish",
+                      "--expire-time=3000",
+                      "--",
+                      "Done in 122 ms",
+                      "Foreground command: sleep .12 # &lt;tag&gt; $HOME $(touch PWNED) --leading"
+                    ]
+                  }
+                ]
+              },
+              "transport-failure": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 1,
+                "proofs": [
+                  {
+                    "elapsed_seconds": 0.154,
+                    "invocation": {
+                      "argv": [
+                        "--hint=int:transient:1",
+                        "--urgency=normal",
+                        "--icon=utilities-terminal",
+                        "--app-name=fish",
+                        "--expire-time=3000",
+                        "--",
+                        "Done in 122 ms",
+                        "Foreground command completed."
+                      ]
+                    }
+                  }
+                ]
+              },
+              "transport-timeout": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 1,
+                "proofs": [
+                  {
+                    "elapsed_seconds": 3.128,
+                    "invocation": {
+                      "argv": [
+                        "--hint=int:transient:1",
+                        "--urgency=normal",
+                        "--icon=utilities-terminal",
+                        "--app-name=fish",
+                        "--expire-time=3000",
+                        "--",
+                        "Done in 122 ms",
+                        "Foreground command completed."
+                      ]
+                    }
+                  }
+                ]
+              },
+              "disable": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 0,
+                "proofs": []
+              },
+              "existing-function": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "existing-autoload": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "existing-variable": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "existing-wrapper": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "existing-public": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "no-bus": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "notify-send": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "timeout": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              }
+            }
+          },
+          "receipt_sha256": "74da7bbb4f3cca314f081376209052f09d475bcec217564892f451613eb9effd",
+          "fish_sha256": "676028c5be037d08361e1c95affc92f3c7548293d809cb6d19c3a4a2bb9b2583",
+          "recorders": {
+            "noninteractive": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "foreground": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 122 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 2170
+                },
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=critical",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Failed (7) after 124 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 2182
+                },
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 122 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 2194
+                }
+              ],
+              "transcript_sha256": "948ba3dedf6d7bba837ec56d68a2ea19b3ec1e5fb4477c36f8b5b530042e9eab"
+            },
+            "background": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 220 ms",
+                    "Watched job completed."
+                  ],
+                  "pid": 2248
+                },
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=critical",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Failed (7) after 220 ms",
+                    "Watched job completed."
+                  ],
+                  "pid": 2269
+                },
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=critical",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Failed (143) after 110 ms",
+                    "Watched job completed."
+                  ],
+                  "pid": 2289
+                },
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 104 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 2291
+                }
+              ],
+              "transcript_sha256": "bf2171d8bfeedcb22604e70060a4c3b3f23977eab8fde8020fc60b972b69b765"
+            },
+            "watch-rejection": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 220 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 2326
+                }
+              ],
+              "transcript_sha256": "d23834e895f1bdd9b4bbe9d0e6c96ca3be1b41c08b8769ba94e0b0bf353d8388"
+            },
+            "disown": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 222 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 2365
+                }
+              ],
+              "transcript_sha256": "677530d6783cd76e350c17aa997678ee58555a67515c12a8cfff4810dfb3b0ed"
+            },
+            "repeat-preserve": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 122 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 2416
+                }
+              ],
+              "transcript_sha256": "19f6790277666d9dd27e95ad74b996540acea89951f355ee91a93d8774377741",
+              "hooks_preserved": true,
+              "caller_continued": true,
+              "custom_binding_preserved": true
+            },
+            "command-data": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 122 ms",
+                    "Foreground command: sleep .12 # &lt;tag&gt; $HOME $(touch PWNED) --leading"
+                  ],
+                  "pid": 2457
+                }
+              ],
+              "transcript_sha256": "fe4b0466747ac8d964c0c1fcde55927f5c643fea572536b94637000d63871c95"
+            },
+            "transport-failure": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 122 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 2476
+                }
+              ],
+              "transcript_sha256": "5f89cdbf44dc4cefd70e3480c08e10b7b02843a540a201738e80b9d5fa7e7868"
+            },
+            "transport-timeout": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 122 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 2494
+                }
+              ],
+              "transcript_sha256": "2b7dc653e68494ec2c953669ecc509401dc7fc4ec60f11781ec2386cb664ad04",
+              "recorded_pids_absent": true
+            },
+            "disable": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "existing-function": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "existing-autoload": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "existing-variable": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "existing-wrapper": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "existing-public": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "no-bus": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "notify-send": {
+              "transport": "ABSENT_CONTROL",
+              "rows": []
+            },
+            "timeout": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            }
+          }
+        },
+        {
+          "home": "fish-home-existing",
+          "proof": {
+            "status": "PASS",
+            "machine": "aarch64",
+            "fish": "fish, version 4.9.3",
+            "wrapper_sha256": "6ff60eef9f211819833b0d94a9fef15a2982835c84d868d7b0d55200e37b6a20",
+            "runtime_sha256": "f545413bd75a3017b8d11a5ca7fe7394f326babbc8c18618323c39fbd8d0a0d4",
+            "scope": "local notify-send process shim invocation only; no actual notification manager or visual display",
+            "cases": {
+              "noninteractive": {
+                "exit": 0,
+                "notifications": 0
+              },
+              "foreground": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 3,
+                "proofs": [
+                  {
+                    "argv": [
+                      "--hint=int:transient:1",
+                      "--urgency=normal",
+                      "--icon=utilities-terminal",
+                      "--app-name=fish",
+                      "--expire-time=3000",
+                      "--",
+                      "Done in 122 ms",
+                      "Foreground command completed."
+                    ]
+                  },
+                  {
+                    "argv": [
+                      "--hint=int:transient:1",
+                      "--urgency=critical",
+                      "--icon=utilities-terminal",
+                      "--app-name=fish",
+                      "--expire-time=3000",
+                      "--",
+                      "Failed (7) after 124 ms",
+                      "Foreground command completed."
+                    ]
+                  }
+                ]
+              },
+              "background": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 4,
+                "proofs": [
+                  {
+                    "argv": [
+                      "--hint=int:transient:1",
+                      "--urgency=normal",
+                      "--icon=utilities-terminal",
+                      "--app-name=fish",
+                      "--expire-time=3000",
+                      "--",
+                      "Done in 220 ms",
+                      "Watched job completed."
+                    ]
+                  },
+                  {
+                    "argv": [
+                      "--hint=int:transient:1",
+                      "--urgency=critical",
+                      "--icon=utilities-terminal",
+                      "--app-name=fish",
+                      "--expire-time=3000",
+                      "--",
+                      "Failed (7) after 220 ms",
+                      "Watched job completed."
+                    ]
+                  },
+                  {
+                    "argv": [
+                      "--hint=int:transient:1",
+                      "--urgency=critical",
+                      "--icon=utilities-terminal",
+                      "--app-name=fish",
+                      "--expire-time=3000",
+                      "--",
+                      "Failed (143) after 110 ms",
+                      "Watched job completed."
+                    ]
+                  }
+                ]
+              },
+              "watch-rejection": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 1,
+                "proofs": []
+              },
+              "disown": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 1,
+                "proofs": []
+              },
+              "repeat-preserve": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 1,
+                "proofs": []
+              },
+              "command-data": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 1,
+                "proofs": [
+                  {
+                    "argv": [
+                      "--hint=int:transient:1",
+                      "--urgency=normal",
+                      "--icon=utilities-terminal",
+                      "--app-name=fish",
+                      "--expire-time=3000",
+                      "--",
+                      "Done in 122 ms",
+                      "Foreground command: sleep .12 # &lt;tag&gt; $HOME $(touch PWNED) --leading"
+                    ]
+                  }
+                ]
+              },
+              "transport-failure": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 1,
+                "proofs": [
+                  {
+                    "elapsed_seconds": 0.154,
+                    "invocation": {
+                      "argv": [
+                        "--hint=int:transient:1",
+                        "--urgency=normal",
+                        "--icon=utilities-terminal",
+                        "--app-name=fish",
+                        "--expire-time=3000",
+                        "--",
+                        "Done in 122 ms",
+                        "Foreground command completed."
+                      ]
+                    }
+                  }
+                ]
+              },
+              "transport-timeout": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 1,
+                "proofs": [
+                  {
+                    "elapsed_seconds": 3.128,
+                    "invocation": {
+                      "argv": [
+                        "--hint=int:transient:1",
+                        "--urgency=normal",
+                        "--icon=utilities-terminal",
+                        "--app-name=fish",
+                        "--expire-time=3000",
+                        "--",
+                        "Done in 122 ms",
+                        "Foreground command completed."
+                      ]
+                    }
+                  }
+                ]
+              },
+              "disable": {
+                "exit": 0,
+                "activation": "enabled",
+                "notifications": 0,
+                "proofs": []
+              },
+              "existing-function": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "existing-autoload": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "existing-variable": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "existing-wrapper": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "existing-public": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "no-bus": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "notify-send": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              },
+              "timeout": {
+                "exit": 0,
+                "activation": "yielded",
+                "notifications": 0
+              }
+            }
+          },
+          "receipt_sha256": "74da7bbb4f3cca314f081376209052f09d475bcec217564892f451613eb9effd",
+          "fish_sha256": "676028c5be037d08361e1c95affc92f3c7548293d809cb6d19c3a4a2bb9b2583",
+          "recorders": {
+            "noninteractive": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "foreground": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 122 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 2684
+                },
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=critical",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Failed (7) after 124 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 2694
+                },
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 122 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 2707
+                }
+              ],
+              "transcript_sha256": "db7135249bd771400ccec0cbb67cc547fe9f3f784f7e3a6a6ebae49c285c96a6"
+            },
+            "background": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 220 ms",
+                    "Watched job completed."
+                  ],
+                  "pid": 2764
+                },
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=critical",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Failed (7) after 220 ms",
+                    "Watched job completed."
+                  ],
+                  "pid": 2792
+                },
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=critical",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Failed (143) after 110 ms",
+                    "Watched job completed."
+                  ],
+                  "pid": 2823
+                },
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 134 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 2825
+                }
+              ],
+              "transcript_sha256": "f30e21f3fe6b153797c2d0d035fa59672213316d3a72db9a88be99df367bc2a0"
+            },
+            "watch-rejection": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 220 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 2862
+                }
+              ],
+              "transcript_sha256": "60d8090482cf650762b73a616f4e00c970eaa10e5969b769d1ea0e7c2146f63a"
+            },
+            "disown": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 222 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 2908
+                }
+              ],
+              "transcript_sha256": "ca822f3c2a61fd4cc3f0bfa84177ba695464a538deecde3c3d484fbde535c7d8"
+            },
+            "repeat-preserve": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 122 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 2952
+                }
+              ],
+              "transcript_sha256": "eecd0e7b44a50937a281a7b88091ea1ddf18aec2efde9fc9e242650969f70534",
+              "hooks_preserved": true,
+              "caller_continued": true,
+              "custom_binding_preserved": true
+            },
+            "command-data": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 122 ms",
+                    "Foreground command: sleep .12 # &lt;tag&gt; $HOME $(touch PWNED) --leading"
+                  ],
+                  "pid": 2984
+                }
+              ],
+              "transcript_sha256": "eca8ad06222b8119ef013dbe9b4b5e23e10884bedf0c4fceb48b2a04689f7be9"
+            },
+            "transport-failure": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 122 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 3004
+                }
+              ],
+              "transcript_sha256": "f267620c02a74fe9fe50eb7b5eb0af4eebf3a9ee5a6c93be5d495f7565ecc6fa"
+            },
+            "transport-timeout": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": [
+                {
+                  "argv": [
+                    "--hint=int:transient:1",
+                    "--urgency=normal",
+                    "--icon=utilities-terminal",
+                    "--app-name=fish",
+                    "--expire-time=3000",
+                    "--",
+                    "Done in 122 ms",
+                    "Foreground command completed."
+                  ],
+                  "pid": 3022
+                }
+              ],
+              "transcript_sha256": "ba9968006bde1aca08060b2c4a6ae48141184c744932c6716f4f952731b408e0",
+              "recorded_pids_absent": true
+            },
+            "disable": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "existing-function": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "existing-autoload": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "existing-variable": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "existing-wrapper": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "existing-public": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "no-bus": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            },
+            "notify-send": {
+              "transport": "ABSENT_CONTROL",
+              "rows": []
+            },
+            "timeout": {
+              "transport": "PRIVATE_NOTIFY_SEND_RECORDER",
+              "shim_sha256": "4a843e1cd7e9c94d4ec076547b5a3ebff95ca22ae54c1fbc407b8451f87c369c",
+              "rows": []
+            }
+          }
+        }
+      ],
+      "config_preserved": true
+    },
+    {
+      "phase": "final-remove",
+      "status": "PASS",
+      "inventory_count": 574,
+      "config_preserved": true,
+      "guarded_opt_in_absent": true
+    }
+  ],
+  "base_count": 574,
+  "installed_count": 575,
+  "user_config_preserved": true,
+  "system_config_preserved": true,
+  "user_outputs_preserved": true,
+  "masked_hooks": 41,
+  "actual_page_size": 4096,
+  "hardware": "NOT_RUN",
+  "native_architecture": "aarch64",
+  "wrapper_sha256": "6ff60eef9f211819833b0d94a9fef15a2982835c84d868d7b0d55200e37b6a20",
+  "runtime_sha256": "f545413bd75a3017b8d11a5ca7fe7394f326babbc8c18618323c39fbd8d0a0d4",
+  "notification_scope": "LOCAL_RECORDER_ONLY",
+  "trust": "UNSIGNED_LOCAL_CANDIDATE_ONLY"
+}
