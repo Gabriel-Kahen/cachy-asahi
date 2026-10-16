@@ -131,8 +131,8 @@
       "sha256": "961a962d6dc3f8ab76de94ca378d8e8aa382e42bbc3f116aaa3a765f18173fb9"
     },
     "scripts/ci/desktop-terminal-workflow/session.py": {
-      "bytes": 6623,
-      "sha256": "2a64622ff99e39a189ffaf94b7f6ee0fdc73cd3c5191c20a5dfb4496755416be"
+      "bytes": 8051,
+      "sha256": "0188041f71bfccc78884a890a1af652aec163b8eb4c06a4e212f00f2c91ff0ed"
     },
     "scripts/ci/desktop-terminal-workflow/desktop574_guest.py": {
       "bytes": 1937,
@@ -147,8 +147,8 @@
       "sha256": "e0742e019a4bf95c3a79008efa8fd7130fb605936e537030e5c9d3277bbc852d"
     },
     "scripts/ci/desktop-terminal-workflow/test_workflow.py": {
-      "bytes": 16487,
-      "sha256": "07395c6fd155535e5ed4d9dd5eaf3f04c3582dc0e53a78f5c81f5fd8478a8bcb"
+      "bytes": 20853,
+      "sha256": "3665d4e6d2a44c1d13d6d9052f95a2cbcc1b51053647960505c287c95b5fd7c8"
     },
     "scripts/ci/desktop-terminal-workflow/source-pins.json": {
       "bytes": 3457,
@@ -201,8 +201,8 @@
       "sha256": "fef73183f7998d461212e0ffa90414fea7cc0c92ddf38d91275f8e8e9d85da86"
     },
     "session.py": {
-      "bytes": 6623,
-      "sha256": "2a64622ff99e39a189ffaf94b7f6ee0fdc73cd3c5191c20a5dfb4496755416be"
+      "bytes": 8051,
+      "sha256": "0188041f71bfccc78884a890a1af652aec163b8eb4c06a4e212f00f2c91ff0ed"
     },
     "source-pins.json": {
       "bytes": 3457,
@@ -235,10 +235,10 @@
       "sha256": "961a962d6dc3f8ab76de94ca378d8e8aa382e42bbc3f116aaa3a765f18173fb9"
     },
     {
-      "source": "artifacts/development/desktop-terminal-workflow-20261016/session.py",
+      "source": "artifacts/development/desktop-terminal-run38871360375/proposed/lane/session.py",
       "target": "scripts/ci/desktop-terminal-workflow/session.py",
-      "bytes": 6623,
-      "sha256": "2a64622ff99e39a189ffaf94b7f6ee0fdc73cd3c5191c20a5dfb4496755416be"
+      "bytes": 8051,
+      "sha256": "0188041f71bfccc78884a890a1af652aec163b8eb4c06a4e212f00f2c91ff0ed"
     },
     {
       "source": "artifacts/development/desktop-terminal-workflow-20261016/desktop574_guest.py",
@@ -259,10 +259,10 @@
       "sha256": "e0742e019a4bf95c3a79008efa8fd7130fb605936e537030e5c9d3277bbc852d"
     },
     {
-      "source": "artifacts/development/desktop-terminal-workflow-20261016/test_workflow.py",
+      "source": "artifacts/development/desktop-terminal-run38871360375/proposed/lane/test_workflow.py",
       "target": "scripts/ci/desktop-terminal-workflow/test_workflow.py",
-      "bytes": 16487,
-      "sha256": "07395c6fd155535e5ed4d9dd5eaf3f04c3582dc0e53a78f5c81f5fd8478a8bcb"
+      "bytes": 20853,
+      "sha256": "3665d4e6d2a44c1d13d6d9052f95a2cbcc1b51053647960505c287c95b5fd7c8"
     },
     {
       "source": "artifacts/development/desktop-terminal-workflow-20261016/source-pins.json",
