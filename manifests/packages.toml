@@ -127,16 +127,17 @@ license = "MIT"
 audit = "docs/setup-tooling.md"
 selected_for_development = true
 selected_for_release = false
-native_build = "PASS"
-native_build_commit = "98fecf28a3cde63a9dd7531501c2187825349310"
+native_build = "NOT RUN for0.1.0-5; historical0.1.0-4 PASS"
+prior_native_build_commit = "98fecf28a3cde63a9dd7531501c2187825349310"
 native_evidence = "docs/validation/repository-enrollment-native-20261015.md"
-candidate_version = "0.1.0-4"
+candidate_version = "0.1.0-5"
 historical_native_build = "PASS"
 historical_native_build_commit = "ebd5812640b0b69f5c09a47752b739e37e338754"
 historical_native_evidence = "docs/validation/native-arm.md"
-installation = "NOT RUN"
+installation = "NOT RUN for0.1.0-5; historical3-to4/enrollment/lifecycle PASS"
 hardware_validation = "NOT RUN"
-next_step = "Native setup4 pair and installed3-to4/enrollment/remove/reinstall/disable lifecycle passed (runs38782193131/38785474034); verify real Asahi trust/setup/recovery and independent onboarding on both Air sizes."
+host_evidence = "docs/validation/setup-shell-modules-host-20261016.md"
+next_step = "Explicit optional module setup5 passes68 host setup tests and10 synchronization controls. Run separate native pair/4-to5-to4 package and user-config lifecycle; preserve frozen setup3/4/587/600 evidence. Both M2 trust/setup/recovery and independent onboarding remain open."
 
 [[packages]]
 name = "cachy-asahi-ksmctl"
