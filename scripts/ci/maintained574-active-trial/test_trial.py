@@ -274,4 +274,25 @@ class Controls(unittest.TestCase):
             s.pinned(path,pin)
 
 
+class DiagnosticControls(unittest.TestCase):
+    def diagnostic(self):
+        import base64
+        raw=b'bounded transaction failure\n'
+        return dict(returncode=7,log_bytes=len(raw),tail_bytes=len(raw),tail_sha256=s.sha(raw),
+                    tail_base64=base64.b64encode(raw).decode())
+
+    def test_exact_build_tail_is_projected(self):
+        value=receipt();value['build_failure']=self.diagnostic()
+        self.assertEqual(o.project_owner(value)['build_failure'],value['build_failure'])
+
+    def test_drift_oversize_wrong_phase_or_extra_fields_refuse(self):
+        for field,changed in (('tail_sha256','0'*64),('tail_bytes',4097),('tail_base64','x'*5465),('returncode',0)):
+            value=receipt();value['build_failure']=self.diagnostic();value['build_failure'][field]=changed
+            with self.subTest(field=field),self.assertRaises((s.Refused,ValueError)):o.project_owner(value)
+        value=receipt(normal=True);value['build_failure']=self.diagnostic()
+        with self.assertRaises(s.Refused):o.project_owner(value)
+        value=receipt();value['build_failure']=dict(self.diagnostic(),private='excluded')
+        with self.assertRaises(s.Refused):o.project_owner(value)
+
+
 if __name__=='__main__': unittest.main()

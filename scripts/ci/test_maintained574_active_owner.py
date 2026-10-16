@@ -88,6 +88,22 @@ class Controls(unittest.TestCase):
     def execute(self):
         return m.execute(self.owner,self.prepared,'exact held transaction','one 1\n',self.out)
 
+    def test_failed_build_retains_bounded_public_transaction_tail_and_cleanup(self):
+        import base64
+        log=self.out/'transaction.log';log.write_bytes(b'x'*5000+b'\xfffailure\n')
+        error=m.ClientCommandError(7,log);self.d.fault=('build',error)
+        row=self.execute();diagnostic=row['build_failure']
+        self.assertEqual(diagnostic['returncode'],7)
+        self.assertEqual(diagnostic['log_bytes'],log.stat().st_size)
+        self.assertEqual(diagnostic['tail_bytes'],4096)
+        self.assertEqual(base64.b64decode(diagnostic['tail_base64']),log.read_bytes()[-4096:])
+        self.assertEqual(row['status'],'FAIL');self.assertEqual(row['cleanup']['status'],'PASS')
+
+    def test_other_command_failure_does_not_export_its_log(self):
+        log=self.out/'private.log';log.write_text('must stay private')
+        self.d.fault=('import',m.ClientCommandError(1,log))
+        row=self.execute();self.assertNotIn('build_failure',row)
+
     def mutations(self):
         return [a for a,_ in self.d.calls if a[:2] in (('container','rm'),('image','rm'))]
 
