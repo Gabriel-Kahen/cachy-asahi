@@ -91,7 +91,7 @@ class Lane(unittest.TestCase):
     def test_03_only_main_usage_run_change_kernel_helper_functions(self):
         old=ast.parse((SOURCE/'scripts/virtual/generic16k/build_kernel.py').read_text());new=ast.parse((s.HERE/'build_kernel.py').read_text())
         funcs=lambda t:{n.name:ast.dump(n) for n in t.body if isinstance(n,ast.FunctionDef) and n.name not in ('main','usage','run')}
-        self.assertEqual(funcs(old),funcs(new));self.assertEqual(len((s.HERE/'kernel.fragment').read_text().splitlines()),90)
+        self.assertEqual(funcs(old),funcs(new));self.assertEqual(len((s.HERE/'kernel.fragment').read_text().splitlines()),91)
 
     def test_04_image_16k_and_4k_header_refusal(self):
         p=self.work/'Image';raw=bytearray(64);raw[56:60]=b'ARM\x64';struct.pack_into('<Q',raw,24,4);p.write_bytes(raw)
@@ -425,6 +425,22 @@ class Lane(unittest.TestCase):
         target.write_bytes(target.read_bytes()+b'\n# drift\n')
         with self.assertRaisesRegex(ValueError,'source pin differs: kernel_contract.py'):
             self.caller.verify_files(self.work,{'kernel_contract.py':row})
+
+
+    def test_38_glycin_sandbox_kernel_requirements_are_built_in(self):
+        # --unshare-all initializes IPv4 loopback even in an isolated network.
+        text=(s.HERE/'kernel.fragment').read_text()+self.helper.DIAGNOSTIC_FRAGMENT
+        path=self.work/'sandbox.config';path.write_text(text);self.helper.config_check(path,True)
+        for name in ('NET','INET','UNIX','NAMESPACES','USER_NS','UTS_NS','IPC_NS','PID_NS',
+                     'NET_NS','CGROUPS','SYSVIPC','PROC_FS','TMPFS','UNIX98_PTYS',
+                     'MULTIUSER','SECCOMP','SECCOMP_FILTER'):
+            line='CONFIG_'+name+'=y\n';self.assertEqual(text.count(line),1)
+            for value in ('n','m',None):
+                with self.subTest(name=name,value=value):
+                    replacement='' if value is None else 'CONFIG_'+name+'='+value+'\n'
+                    path.write_text(text.replace(line,replacement))
+                    with self.assertRaisesRegex(ValueError,'generated configuration differs: CONFIG_'+name):
+                        self.helper.config_check(path,True)
 
 
 if __name__=='__main__':
