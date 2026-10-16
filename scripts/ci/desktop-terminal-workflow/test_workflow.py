@@ -179,11 +179,59 @@ class WorkerTests(unittest.TestCase):
         with self.assertRaises(ValueError):T.validate_result(bad,'minimal','a'*32,102)
 
 
+class ClientProbeTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup);self.root=Path(self.tmp.name)
+
+    def helper(self,code=6,output=None,errors=b''):
+        paths=[self.root/'probe.stdout',self.root/'probe.stderr']
+        # Exact stdout retained from actual38871360375, independent of the matcher.
+        observed="Hyprland IPC didn't respond in time\n\nCouldn't read (6)\n"
+        paths[0].write_text(observed if output is None else output)
+        paths[1].write_bytes(errors)
+        probe=SimpleNamespace(process=FakeProcess(700,code),paths=paths,finish=Mock())
+        base=SimpleNamespace(Logged=Mock(return_value=probe),terminate=Mock(),emit=Mock())
+        return base,probe
+
+    def test_observed_exit6_is_retired_and_reported_before_readiness_retry(self):
+        base,probe=self.helper()
+        with patch.object(session,'base',base):self.assertIsNone(session.startup_clients({},self.root,'owned'))
+        base.terminate.assert_called_once_with(probe.process);probe.finish.assert_called_once()
+        base.emit.assert_called_once_with('readiness_retry',scope='initial-terminal-mapping-only',probe='owned',
+                                          reason='hyprctl-ipc-read-timeout',returncode=6)
+
+    def test_other_exit_or_diagnostic_or_stderr_is_not_retryable(self):
+        for options in (dict(code=1),dict(output='different IPC error\n'),dict(errors=b'other fault')):
+            base,probe=self.helper(**options)
+            with patch.object(session,'base',base),self.assertRaises(ValueError):session.startup_clients({},self.root,'owned')
+            base.emit.assert_not_called();probe.finish.assert_called_once()
+
+    def test_success_still_requires_valid_json(self):
+        base,probe=self.helper(code=0,output='[]\n')
+        with patch.object(session,'base',base):self.assertEqual(session.startup_clients({},self.root,'owned'),[])
+        base,probe=self.helper(code=0,output='malformed')
+        with patch.object(session,'base',base),self.assertRaises(ValueError):session.startup_clients({},self.root,'owned')
+
+    def test_log_drain_failure_cannot_become_retry(self):
+        base,probe=self.helper();probe.finish.side_effect=ValueError('drain failed')
+        with patch.object(session,'base',base),self.assertRaisesRegex(ValueError,'drain failed'):
+            session.startup_clients({},self.root,'owned')
+        base.emit.assert_not_called()
+
+    def test_wait_failure_preserves_primary_and_runs_both_cleanup_duties(self):
+        base,probe=self.helper();probe.process.wait=Mock(side_effect=TimeoutError('primary wait failure'))
+        base.terminate.side_effect=RuntimeError('secondary termination failure')
+        with patch.object(session,'base',base),self.assertRaisesRegex(TimeoutError,'primary wait failure'):
+            session.startup_clients({},self.root,'owned')
+        probe.finish.assert_called_once();base.emit.assert_not_called()
+
+
 class PhaseTests(unittest.TestCase):
     def setUp(self):
         self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup);self.root=Path(self.tmp.name)
         self.config=self.root/'config';self.config.mkdir();(self.config/'user').write_text('preserve')
         self.items=[];self.events=[];self.clock=0;self.bad_class=False;self.bad_exit=False;self.change_config=False;self.finish_fault=False
+        self.startup_timeout=False;self.startup_calls=0;self.capture_timeout=False
         self.helper=SimpleNamespace(HOME=self.root,SHARE=Path('/guest/share'),RUNTIME=Mock(),
             Logged=self.launch,command=self.command,ipc=lambda *args:dict(args[2]),terminate=self.terminate,
             emit=lambda event,**values:self.events.append(dict(event=event,**values)))
@@ -209,6 +257,8 @@ class PhaseTests(unittest.TestCase):
     def command(self,argv,env,logs,name,timeout):
         if 'monitors' in argv:return json.dumps([dict(width=1024,height=768,scale=1)])
         if 'clients' in argv:
+            if self.capture_timeout and any(e['event']=='terminal_workflow_result' for e in self.events):
+                raise ValueError('strict capture IPC timeout')
             if len(self.items)<2 or self.items[1].process.poll() is not None:return '[]'
             value=client(self.items[1].process.pid)
             if self.bad_class:value['class']='foreign'
@@ -225,7 +275,15 @@ class PhaseTests(unittest.TestCase):
         if path.name=='release.json':self.items[1].process.returncode=1 if self.bad_exit else 0
 
     def run_phase(self):
+        def startup(env,logs,name):
+            self.startup_calls+=1
+            if self.startup_timeout and self.startup_calls==1:
+                self.assertFalse(list(self.root.glob('terminal-*/start.json')))
+                self.helper.emit('readiness_retry',scope='initial-terminal-mapping-only')
+                return None
+            return json.loads(self.command(['/usr/bin/hyprctl','-j','clients','-a'],env,logs,name,20))
         with patch.object(session,'base',self.helper),patch.object(session.T,'publish',self.publish),\
+             patch.object(session,'startup_clients',side_effect=startup),\
              patch.object(session,'worker_identity',side_effect=lambda pid,parent:dict(pid=pid,parent_pid=parent,uid=23001)),\
              patch.object(session.time,'monotonic',self.now),patch.object(session.time,'sleep',self.sleep):
             session.phase('minimal',Path('/explicit.lua'),dict(XDG_CONFIG_HOME=str(self.config)),self.root)
@@ -245,6 +303,17 @@ class PhaseTests(unittest.TestCase):
         self.bad_class=True;self.finish_fault=True
         with self.assertRaisesRegex(ValueError,'identity/visibility'):self.run_phase()
         self.retired();self.assertEqual(self.events,[])
+
+    def test_one_startup_timeout_retries_before_worker_release(self):
+        self.startup_timeout=True;self.run_phase();self.retired()
+        self.assertEqual(self.startup_calls,2)
+        self.assertEqual([e['event'] for e in self.events],['readiness_retry','terminal_workflow_result','frame_ready','phase_pass'])
+
+    def test_capture_query_timeout_stays_fatal(self):
+        self.capture_timeout=True
+        with self.assertRaisesRegex(ValueError,'strict capture IPC timeout'):self.run_phase()
+        self.retired();self.assertEqual(self.startup_calls,1)
+        self.assertNotIn('frame_ready',[e['event'] for e in self.events])
 
     def test_nonzero_terminal_exit_is_not_phase_pass(self):
         self.bad_exit=True

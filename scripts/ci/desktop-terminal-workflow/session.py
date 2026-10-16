@@ -9,6 +9,31 @@ import time
 spec = importlib.util.spec_from_file_location('terminal_session_contract', Path(__file__).with_name('terminal_workflow.py'))
 T = importlib.util.module_from_spec(spec);spec.loader.exec_module(T)
 base = None
+IPC_READ_TIMEOUT = "Hyprland IPC didn't respond in time\n\nCouldn't read (6)"
+
+
+def startup_clients(env, logs, name):
+    """Only the observed, fully retired IPC read timeout is a readiness retry."""
+    probe = base.Logged(['/usr/bin/hyprctl', '-j', 'clients', '-a'], name, logs, env)
+    first = None
+    try:
+        probe.process.wait(timeout=20)
+    except BaseException as error:
+        first = error
+    finally:
+        for cleanup in (lambda: base.terminate(probe.process), probe.finish):
+            try:cleanup()
+            except BaseException as error:
+                if first is None:first = error
+    if first is not None:raise first
+    output = T.read(probe.paths[0]).decode()
+    errors = T.read(probe.paths[1])
+    if probe.process.returncode == 6 and output.strip() == IPC_READ_TIMEOUT and not errors:
+        base.emit('readiness_retry', scope='initial-terminal-mapping-only', probe=name,
+                  reason='hyprctl-ipc-read-timeout', returncode=6)
+        return None
+    T.need(probe.process.returncode == 0, 'initial terminal clients query failed: ' + name)
+    return json.loads(output)
 
 
 def wait(probe, healthy, seconds, description):
@@ -48,7 +73,11 @@ def phase(stage, config, env, logs):
     def healthy():
         compositor.healthy();terminal.healthy()
 
-    def clients():
+    def clients(*, readiness=False):
+        nonlocal sequence
+        if readiness:
+            sequence += 1
+            return startup_clients(selected, logs, stage + '-terminal-' + str(sequence) + '-clients')
         return json.loads(command(['/usr/bin/hyprctl', '-j', 'clients', '-a'], 'clients'))
 
     try:
@@ -65,7 +94,11 @@ def phase(stage, config, env, logs):
             '--class', T.APP_ID, '--title', T.TITLE, '--working-directory', str(workspace),
             '--command', '/usr/bin/python3', '-I', '-B', str(base.SHARE / 'worker.py'),
             '--workspace', str(workspace), '--nonce', nonce, '--stage', stage], stage + '-alacritty', logs, selected)
-        wait(lambda: T.window(clients(), terminal.process.pid), healthy, 90, 'visible owned Alacritty')
+        def mapped():
+            reply = clients(readiness=True)
+            return T.window(reply, terminal.process.pid) if reply is not None else None
+
+        wait(mapped, healthy, 90, 'visible owned Alacritty')
         T.publish(workspace / 'start.json', dict(nonce=nonce, terminal_pid=terminal.process.pid))
 
         def result_ready():
