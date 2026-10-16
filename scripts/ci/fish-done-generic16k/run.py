@@ -193,6 +193,22 @@ def failed_driver_diagnostic(output,nonce,release,receipt):
             s.need(type(files) is dict and set(files)<= {'probe-enabled','probe-threshold','probe-exclusions','probe-completion',
                 'probe-timeout-entered','probe-timeout-stderr','notifications.jsonl'},'foreground probe file allowlist required')
             samples.extend(files.values())
+            transports=observation.get('transport_commands',[])
+            s.need(type(transports) is list and len(transports) in (0,2),'fixed two transport observations required')
+            for index,transport in enumerate(transports):
+                home='/tmp/done16k/foreground-probe/transport/bin/'
+                argv=([home+'timeout','--foreground','--signal=TERM','--kill-after=1s','2s','notify-send','--diagnostic-only']
+                      if index==0 else [home+'notify-send','--diagnostic-only'])
+                s.need(transport['kind']==('bounded-timeout' if index==0 else 'direct-recorder') and
+                    transport['command']['argv']==argv and transport['command']['expected_exit']==0 and
+                    re.fullmatch('[0-9a-f]{64}',transport['recorder_sha256']) and
+                    type(transport['notification_count']) is int and 0<=transport['notification_count']<=2,
+                    'transport observation identity differs')
+                for stream in ('stdout','stderr'):
+                    s.need(transport[stream]['bytes']==transport['command'][stream+'_bytes'] and
+                        transport[stream]['sha256']==transport['command'][stream+'_sha256'],
+                        'transport output command/sample join differs')
+                samples.extend([transport['stdout'],transport['stderr']])
         else:
             samples.extend([probe['stdout'],probe['stderr']])
     for row in samples:
