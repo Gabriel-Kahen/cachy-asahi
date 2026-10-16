@@ -67,6 +67,41 @@ def added_absent(paths,phase):
         'Setup5 added payload must be absent '+phase)
 
 
+def expected_other599(full,baseline,incoming):
+    # The unchanged native600 guard preserves the established signed587 image,
+    # including its configured package-owned files, and checks incoming bytes.
+    paths={p for name,owned in full['ownership'].items() if name!=P.SETUP for p in owned
+           if full['nodes'][p]['type']!='directory'}
+    expected={p:row for p,row in baseline.items() if p in paths}
+    for package in incoming:
+        name=package['name']
+        P.need(name!=P.SETUP and full['packages'].get(name)==package['version'],
+            'incoming600 package identity differs')
+        owned={p for p in full['ownership'][name] if full['nodes'][p]['type']!='directory'}
+        P.need(set(package['payload'])==owned,'incoming600 signed ownership differs')
+        for path,member in package['payload'].items():
+            row=L.expected_node(member)
+            P.need(path not in expected and row==L.expected_node(full['nodes'][path]),
+                'incoming600 signed payload/baseline overlap differs: '+path)
+            expected[path]=row
+    P.need(set(expected)==paths,'complete exact other599 installed payload basis required')
+    return expected
+
+
+def same_payload(expected,actual,why):
+    if expected==actual:return
+    path=next(p for p in sorted(set(expected)|set(actual)) if expected.get(p)!=actual.get(p))
+    def operand(row):
+        result=dict(row)
+        if len(result.get('link','').encode())>96:
+            raw=result['link'].encode();result['link']=dict(prefix=raw[:96].decode('utf-8','replace'),
+                bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())
+        return result
+    detail=dict(path=path.encode()[:96].decode('utf-8','replace'),path_sha256=hashlib.sha256(path.encode()).hexdigest(),
+        expected=operand(expected.get(path,dict(type='absent'))),actual=operand(actual.get(path,dict(type='absent'))))
+    raise ValueError(why+': '+P.encoded(detail).decode().strip())
+
+
 def ordinary_absent(uid):
     entries=list(Path('/proc').iterdir());P.need(len(entries)<512,'bounded owned process namespace required')
     for path in entries:
@@ -102,9 +137,9 @@ def trial(context):
     setup_paths,added_paths=payload_transition(full,product)
     added_absent(added_paths,'before upgrade')
     before_db,before_records=L.database();P.need({n:r['version'] for n,r in before_db.items()}==after,'real600 database required')
-    held={p:L.node(Path('/')/p) for n,paths in full['ownership'].items() if n!=P.SETUP for p in paths
-          if full['nodes'][p]['type']!='directory'}
-    P.need(all(row==L.expected_node(full['nodes'][p]) for p,row in held.items()),'actual other599 signed payload differs')
+    expected=expected_other599(full,context['held'],rows)
+    held={p:L.node(Path('/')/p) for p in expected}
+    same_payload(expected,held,'actual other599 signed payload differs')
     dbparent={p:L.node(Path(p)) for p in ('/var/lib/pacman','/var/lib/pacman/local')}
     setup_dir=Path('/var/lib/pacman/local')/(P.SETUP+'-0.1.0-3');desc_before=(setup_dir/'desc').read_bytes()
     P.need(len(desc_before)<=16384,'bounded Setup3 metadata required');Path('/out/setup3-before.desc').write_bytes(desc_before)
@@ -114,7 +149,7 @@ def trial(context):
     def preserved(phase,version):
         desired=P.expected(after,version);P.need(L.inventory()==desired,'exact600 inventory/version lock differs')
         db,records=L.database();other599(before_db,before_records,db,records)
-        P.need({p:L.node(Path('/')/p) for p in held}==held,'other599 installed payload changed')
+        same_payload(held,{p:L.node(Path('/')/p) for p in held},'other599 installed payload changed')
         P.need({p:L.node(Path(p)) for p in dbparent}==dbparent,'database parent modes/owners changed')
         P.need({k:v for k,v in L.tree(Path('/etc')).items() if k!='/etc/ld.so.cache'}==existing_configs and
             L.tree(Path('/home'))|L.tree(Path('/root'))==existing_users,'existing configurations/defaults changed')
