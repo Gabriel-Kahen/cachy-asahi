@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Real installed Done -> notify-send -> managed bus -> normal Mako, two foreground cases and one watched job."""
-import base64,json,os,re,signal,time
+import base64,hashlib,json,os,re,signal,time
 from pathlib import Path
 import bar_helpers as B
 import managed_session as managed
@@ -72,6 +72,7 @@ def phase(stage,config,env,logs,**options):
         O.need(recipient['pid']==mako.process.pid,'actual recipient process differs')
         settled=time.monotonic()
         while time.monotonic()-settled<5:healthy();time.sleep(.1)
+        O.need(identity()==managed_identity,'managed endpoint changed before trigger')
         observer=monitor.Monitor(selected)
         deadline=time.monotonic()+5
         while True:
@@ -81,27 +82,32 @@ def phase(stage,config,env,logs,**options):
         O.need(O.notify(observer.rows(),owner,outcome,kind) is None,'unsolicited Done notification')
         terminal=(fish_terminal.BackgroundTerminal if stage=='background' else fish_terminal.Terminal)(selected);fish_pid=terminal.process.pid
         O.need(os.readlink('/proc/'+str(fish_pid)+'/exe')=='/usr/bin/fish','actual Fish executable differs')
-        terminal.start(outcome);wire=None;observed=None
+        terminal.start(outcome);wire=None
         deadline=time.monotonic()+15
         while wire is None:
             healthy();wire=O.notify(observer.rows(),owner,outcome,kind)
             O.need(time.monotonic()<deadline,'real Done delivery deadline')
-        observed=time.monotonic()
         def visible():
-            O.need(owner_pid()==mako.process.pid,'recipient owner changed')
             row=O.listing(notices(),wire)
             display=layers();a=B.owned_layer(display,'waybar',bar.process.pid);b=B.owned_layer(display,B.MAKO_NAMESPACE,mako.process.pid)
             return dict(bar=a,mako=b,notification=row) if row and a and b else None
         current=B.wait_ready(visible,healthy,2,'Done natural-expiry visible notification')
-        continuation=terminal.continuation(outcome)
-        age=int((time.monotonic()-observed)*1000);O.need(0<=age<2500,'natural3000ms notification capture request late')
-        O.need(identity()==managed_identity,'managed endpoint changed')
-        base.emit('frame_ready',stage=stage,case=case,outcome=outcome,monitors=monitors,**current,
-            capture_after_ms=int((time.monotonic()-settled)*1000),notification_age_ms=age,
+        # Request the one original frame before terminal/manager queries consume
+        # the notice's fixed lifetime. Age includes real Notify -> reply latency.
+        timing=O.capture_timing(wire,time.time_ns()//1000,time.monotonic_ns())
+        request=dict(stage=stage,case=case,outcome=outcome,monitors=monitors,**current,
+            capture_after_ms=int((time.monotonic()-settled)*1000),notification_age_ms=timing['age_ms'],
+            timing=timing,caller_pending=True,
             waybar_pid=bar.process.pid,mako_pid=mako.process.pid,compositor_pid=compositor.process.pid,
             fish_pid=fish_pid,managed_identity=managed_identity,activation='normal-shipped-config-no-reload',
             activation_environment=activation,notification_timeout_ms=3000,trace_waybar=False,
-            wire=wire,recipient=recipient,caller=continuation,installed=payload)
+            wire=wire,recipient=recipient,installed=payload)
+        base.emit('frame_ready',**request)
+        request_sha=hashlib.sha256(json.dumps(dict(event='frame_ready',**request),sort_keys=True,separators=(',',':')).encode()).hexdigest()
+        # This is after request emission, not a claimed host-capture ACK.
+        continuation=terminal.continuation(outcome)
+        O.need(owner_pid()==mako.process.pid,'recipient owner changed')
+        post_identity=identity();O.need(post_identity==managed_identity,'managed endpoint changed')
         # Preserve the original first observation while allowing its natural
         # three-second expiry. No replacement screenshot or TTL override.
         until=time.monotonic()+3.5
@@ -140,5 +146,5 @@ def phase(stage,config,env,logs,**options):
         except BaseException as error:
             if first is None:first=error
     if first is not None:raise first
-    base.emit('done_transport',stage=stage,case=case,wire=wire,monitor=monitor_result,fish=fish_result,caller=continuation,mako_exit=mako.process.returncode,payload_preserved=True,user_config_preserved=True)
+    base.emit('done_transport',stage=stage,case=case,wire=wire,monitor=monitor_result,fish=fish_result,caller=continuation,capture_request_sha256=request_sha,post_request_identity=post_identity,mako_exit=mako.process.returncode,payload_preserved=True,user_config_preserved=True)
     base.emit('phase_pass',stage=stage,waybar='PASS',mako='PASS',fish='PASS',case=case,config_preserved=True)

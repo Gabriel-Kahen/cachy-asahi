@@ -95,15 +95,37 @@ reported separately from the required normal Fish/Mako/client exits.
 
 ## First pixels and preservation
 
-Done naturally expires in three seconds, unlike the old bar fixture's explicit
-nonexpiring notice. This lane settles the desktop before the command and requests
-its first capture immediately after real visible delivery and caller continuation,
-within2500ms of observing the reply. It keeps the original one-shot QMP PPM path,
-original bytes, geometry/nonuniform checks, five-second host observation bound,
-request hash and managed identity join. It does not extend expiry, reload clients,
-increase opacity, retry or replace a frame. A delayed or unreadable first frame
-cannot be rescued; Root must view all three original first PPMs for readable actual
-foreground success/failure and watched-job success summary/body. Metadata success remains pixels pending review.
+Done naturally expires in three seconds. The first request now follows the real
+Notify/reply and live Mako list/layer observations immediately. Foreground caller
+continuation, recipient-owner recheck and the three manager identity queries run
+after request emission; they remain required in the joined final transport
+receipt, exact PTY bytes and normal process exits. The original two foreground
+commands and original terminal implementation are unchanged. The background
+caller's independent live-job continuation remains before completion as before.
+
+Request age now uses the actual busctl Notify timestamp-realtime and the guest
+CLOCK_REALTIME immediately before emission, including Notify-to-reply latency.
+A request older than2000ms fails, reserving at least1000ms of the original3000ms
+expiry. The receipt retains Notify/reply/request guest times and guest monotonic
+sample. Host capture start/QMP-return/end realtime plus monotonic start are
+recorded separately; different host/guest clock domains are not subtracted or
+claimed synchronized. No acknowledgement of host capture is invented.
+
+The one-shot QMP PPM path, original bytes, geometry/nonuniform checks,
+five-second observation bound, request hash and managed-identity join remain.
+The original PPM is copied even when rejected. Its actual Mako rectangle must
+contain the source-pinned shipped background, border and text colors at bounded
+counts; absence makes the run fail. Public retention independently recomputes
+this receipt from the retained original PPM, rather than trusting a Boolean.
+Lossless original RGB subregions from accepted bar38938127725 and Root-rejected
+Done38954684654 provide positive/negative regression data. They are not new
+screenshots, constructed images or Done acceptance evidence.
+
+This pixel test establishes presence only. Root must view all three original
+first PPMs for readable foreground success/failure and watched-job success
+summary/body. No extra capture, replacement image, longer expiry, disabled
+animation, config reload or sandbox change is introduced. Metadata and pixel
+presence cannot substitute for that manual readability decision.
 
 All three phases require installed payload preservation, existing user config sentinels
 (including Fish), exact caller statuses, ordinary0 Fish/Mako/Waybar/compositor
@@ -155,3 +177,21 @@ first frame fits within the unchanged128MiB export; all original time/resource
 caps and14 runtime cleanup records stay fixed. `capture.py` changes only its
 stage allowlist; original foreground Terminal class/init/commands are byte-equivalent
 under AST comparison against the retained original baseline fixture.
+
+## Visible-fix diagnosis and scope
+
+This successor targets the current three-case Root freeze
+0100f7b22b3a91d4bb58808cbba03358aabccf77. Foreground actual38954684654, Source
+6c7228162129a2e5f20118258bc4bad25fed20a0, passed automated checks but Root viewed
+both original first frames and found no notification. The retained data places
+Notify-to-reply at903.869/400.849ms, last pre-emission manager replies at
+2866.828/2349.954ms, and actual reason1 expiry at3005.687/3006.796ms after Notify.
+The old age1534/1617ms began after parsed reply and preceded those manager queries.
+Exact guest emission and host capture timestamps were not retained; expiry
+before the actual screenshot is an inference, not a proved timing fact.
+
+The concrete fix removes avoidable queries from the critical path, measures the
+real total request age, preserves all deferred checks, records the previously
+missing clocks and rejects absent notification pixels. No successor native run
+or readable first frame is claimed. All source/generated manifests and workflow
+stamps are proposals for Root to revalidate, integrate, freeze and dispatch.

@@ -9,6 +9,7 @@ import observation as O
 import packet
 import fish_terminal as F
 import contract as C
+import capture as P
 
 HERE=Path(__file__).resolve().parent
 ROOT=Path(os.environ.get('DONE_MANAGED_SOURCE_ROOT',Path.cwd())).resolve()
@@ -17,9 +18,9 @@ MODULES=Path(os.environ.get('DONE_MANAGED_INPUTS',ROOT/'artifacts/development/se
 
 def messages(outcome=0,kind='Foreground command'):
     title='Done in 5s' if outcome==0 else 'Failed (7) after 5s'
-    call=dict(type='method_call',sender=':1.9',destination='org.freedesktop.Notifications',path='/org/freedesktop/Notifications',interface='org.freedesktop.Notifications',member='Notify',cookie=42,
+    call=dict(type='method_call',**{'timestamp-realtime':1000000},sender=':1.9',destination='org.freedesktop.Notifications',path='/org/freedesktop/Notifications',interface='org.freedesktop.Notifications',member='Notify',cookie=42,
               payload=dict(type='susssasa{sv}i',data=['fish',0,'',title,kind+' completed.',[],{'image-path':{'type':'s','data':'utilities-terminal'},'urgency':{'type':'y','data':1 if outcome==0 else 2},'transient':{'type':'i','data':1}},3000]))
-    reply=dict(type='method_return',sender=':1.7',destination=':1.9',reply_cookie=42,payload=dict(type='u',data=[23]))
+    reply=dict(type='method_return',**{'timestamp-realtime':1100000},sender=':1.7',destination=':1.9',reply_cookie=42,payload=dict(type='u',data=[23]))
     return [call,reply]
 
 
@@ -80,14 +81,14 @@ class Protocol(unittest.TestCase):
             row=lambda namespace,pid,x,y,w,h:dict(namespace=namespace,pid=pid,x=x,y=y,w=w,h=h,alpha=1,level='2',monitor='Virtual-1')
             activation=dict(values=dict(WAYLAND_DISPLAY='wayland-1',HYPRLAND_INSTANCE_SIGNATURE='test-owned',XDG_SESSION_TYPE='wayland',XDG_CURRENT_DESKTOP='Hyprland'),manager_pid=101,systemd_verified=True,dbus_updated=True)
             installed=dict(status='PASS_ACTUAL_INSTALLED_DONE_PAYLOAD_METADATA',version='0.1.0-2',archive_sha256='9ce3c7ba89467f04660014c1b12056dce28bd0c4e69b4cab8a9c2c98e1cce54f',files={str(i):'a'*64 for i in range(8)},executables={n:{} for n in ('fish','notify-send','timeout')})
-            caller=dict(pid=205,outcome=outcome,prompt_status=outcome,caller_continuation=outcome)
-            frame=dict(event='frame_ready',stage=stage,case=case,outcome=outcome,managed_identity=identity,activation='normal-shipped-config-no-reload',trace_waybar=False,notification_timeout_ms=3000,notification_age_ms=100,capture_after_ms=5000,activation_environment=activation,compositor_pid=201,waybar_pid=202,mako_pid=203,fish_pid=205,bar=row('waybar',202,0,0,1024,30),mako=row('notifications',203,650,40,300,100),wire=wire,notification={k:wire[k] for k in ('id','app_name','summary','body')},recipient=dict(service='org.freedesktop.Notifications',unique=':1.7',pid=203,owner_reply='s ":1.7"'),caller=caller,installed=installed)
+            caller=dict(pid=205,command=F.COMMANDS[outcome],outcome=outcome,prompt_status=outcome,caller_continuation=outcome)
+            frame=dict(event='frame_ready',stage=stage,case=case,outcome=outcome,managed_identity=identity,activation='normal-shipped-config-no-reload',trace_waybar=False,notification_timeout_ms=3000,notification_age_ms=1000,timing=O.capture_timing(wire,2000000,123456),caller_pending=True,capture_after_ms=5000,activation_environment=activation,compositor_pid=201,waybar_pid=202,mako_pid=203,fish_pid=205,bar=row('waybar',202,0,0,1024,30),mako=row('notifications',203,650,40,300,100),wire=wire,notification={k:wire[k] for k in ('id','app_name','summary','body')},recipient=dict(service='org.freedesktop.Notifications',unique=':1.7',pid=203,owner_reply='s ":1.7"'),installed=installed)
             raw=b'\n'.join(json.dumps(r).encode() for r in messages(outcome,kind))+b'\n';pty=('FDM_PROMPT_2_'+str(outcome)+'\nFDM_CONT_'+str(outcome)).encode()
             if stage=='background':
                 child=dict(pid=206,parent_pid=205,process_group=206,start_ticks=1234,executable='/usr/bin/sleep',argv=['sleep','8'])
                 caller.update(command=F.BACKGROUND_COMMAND,watch=dict(child=child,registration_status=0,handler_registered=True,caller_before_completion=True))
                 pty=b'\nFDM_WATCH_206_0\n'+pty+b'\nFDM_BG_RETIRED_206\n'
-            events.extend([frame,dict(event='frame_captured',stage=stage,first_capture=True,request_sha256=C.request_digest(frame),managed_identity=identity,visual_review='NOT_RUN',capture_ms=20),dict(event='done_transport',stage=stage,case=case,wire=wire,caller=caller,monitor=dict(raw_base64=base64.b64encode(raw).decode(),bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest(),exit=0),fish=dict(exit=0,pty_base64=base64.b64encode(pty).decode(),pty_bytes=len(pty),pty_sha256=hashlib.sha256(pty).hexdigest()),mako_exit=0,payload_preserved=True,user_config_preserved=True),dict(event='phase_pass',stage=stage,case=case,config_preserved=True,fish='PASS')])
+            events.extend([frame,dict(event='frame_captured',stage=stage,first_capture=True,request_sha256=C.request_digest(frame),managed_identity=identity,visual_review='NOT_RUN',capture_ms=20,sha256='a'*64,notification_pixels=dict(status='PASS_PIXEL_PRESENCE_PENDING_READABILITY',frame_sha256='a'*64,roi={k:frame['mako'][k] for k in ('x','y','w','h')},roi_sha256='b'*64,pixels=30000,counts=dict(background=20000,border=2000,text=200),color_tolerance=6,style_sha256=P.STYLE_SHA256,visual_review='NOT_RUN'),host_started_realtime_us=3000000,host_qmp_returned_realtime_us=3001000,host_finished_realtime_us=3002000,host_started_monotonic_ns=345678),dict(event='done_transport',stage=stage,case=case,wire=wire,caller=caller,capture_request_sha256=C.request_digest(frame),post_request_identity=identity,monitor=dict(raw_base64=base64.b64encode(raw).decode(),bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest(),exit=0),fish=dict(exit=0,pty_base64=base64.b64encode(pty).decode(),pty_bytes=len(pty),pty_sha256=hashlib.sha256(pty).hexdigest()),mako_exit=0,payload_preserved=True,user_config_preserved=True),dict(event='phase_pass',stage=stage,case=case,config_preserved=True,fish='PASS')])
             if stage=='background':
                 events[-2]['fish']['watch_retirement']=dict(child=child,handler_absent=True,pid_absent=True,process_group_absent=True)
         stopped={n:dict(Id=n,LoadState='loaded',ActiveState='inactive',SubState='dead',MainPID=0) for n in ('user@23001.service','user-runtime-dir@23001.service')}
@@ -127,7 +128,7 @@ class Background(unittest.TestCase):
         with self.assertRaises(ValueError):C.verify_result(events)
 
     def test_background_receipt_cannot_substitute_foreground_receipt(self):
-        events=self.events();frame=next(e for e in events if e.get('stage')=='background' and e['event']=='frame_ready')
+        events=self.events();frame=next(e for e in events if e.get('stage')=='background' and e['event']=='done_transport')
         frame['caller'].pop('watch')
         with self.assertRaises((ValueError,KeyError)):C.verify_result(events)
 
@@ -139,12 +140,12 @@ class Background(unittest.TestCase):
 
     def test_child_cannot_be_fish_or_foreign_or_wrong_executable(self):
         for key,value in (('pid',205),('parent_pid',999),('process_group',205),('executable','/tmp/notify-shim'),('argv',['sleep','0.1']),('start_ticks',0)):
-            events=self.events();frame=next(e for e in events if e.get('stage')=='background' and e['event']=='frame_ready')
+            events=self.events();frame=next(e for e in events if e.get('stage')=='background' and e['event']=='done_transport')
             frame['caller']['watch']['child'][key]=value
             with self.subTest(key=key),self.assertRaises(ValueError):C.verify_result(events)
 
     def test_no_caller_continuation_after_completion_can_claim_live_job(self):
-        events=self.events();frame=next(e for e in events if e.get('stage')=='background' and e['event']=='frame_ready')
+        events=self.events();frame=next(e for e in events if e.get('stage')=='background' and e['event']=='done_transport')
         frame['caller']['watch']['caller_before_completion']=False
         with self.assertRaises(ValueError):C.verify_result(events)
 
@@ -156,7 +157,7 @@ class Background(unittest.TestCase):
             with self.subTest(raw=raw),self.assertRaises(ValueError):F.watched_pid(raw)
 
     def test_registration_and_retirement_markers_cannot_be_reordered_or_rebound(self):
-        events=self.events();frame=next(e for e in events if e.get('stage')=='background' and e['event']=='frame_ready')
+        events=self.events();frame=next(e for e in events if e.get('stage')=='background' and e['event']=='done_transport')
         row=next(e for e in events if e.get('stage')=='background' and e['event']=='done_transport')
         raw=base64.b64decode(row['fish']['pty_base64']);watch=frame['caller']['watch'];retired=row['fish']['watch_retirement']
         F.verify_background(watch,205,raw,retired)
@@ -175,9 +176,12 @@ class Background(unittest.TestCase):
             self.assertEqual(ast.dump(select(old)),ast.dump(select(new)),name)
         self.assertEqual(O.CASES['minimal'],('foreground-success',0));self.assertEqual(O.CASES['overlay'],('foreground-failure',7))
 
-    def test_capture_only_adds_one_background_stage_to_original_helper(self):
-        text=(HERE/'capture.py').read_text().replace("('minimal', 'overlay', 'background')","('minimal', 'overlay')")
-        self.assertEqual(text,(ROOT/'scripts/ci/desktop-bar-notifications/capture.py').read_text())
+    def test_capture_preserves_one_original_qmp_frame_and_fixed_budget(self):
+        text=(HERE/'capture.py').read_text()
+        self.assertEqual(text.count("qmp.execute('screendump'"),1)
+        self.assertIn("elapsed > 5000",text)
+        self.assertLess(text.index('shutil.copyfile(source, target)'),text.index('notification_pixels(target'))
+        self.assertIn("('minimal', 'overlay', 'background')",text)
 
     def test_actual_original_watch_function_and_default_timing_preserved(self):
         self.assertIn('caa_done_watch $__fdm_job',F.BACKGROUND_COMMAND)
@@ -233,6 +237,71 @@ class ActualWire38952906070(unittest.TestCase):
     def test_nonempty_icon_field_cannot_replace_actual_pinned_wire_format(self):
         rows=self.rows();next(r for r in rows if r.get('member')=='Notify')['payload']['data'][2]='utilities-terminal'
         with self.assertRaises(ValueError):O.notify(rows,':1.25',0)
+
+
+class ExpiringCapture(unittest.TestCase):
+    def pixel_cases(self):return json.loads((HERE/'fixtures/real-notification-pixels.json').read_bytes())['cases']
+
+    def test_real_root_viewed_absent_frames_rejected_accepted_mako_regions_pass(self):
+        for case in self.pixel_cases():
+            raw=base64.b64decode(case['rgb_base64'],validate=True)
+            self.assertEqual(hashlib.sha256(raw).hexdigest(),case['roi_sha256'])
+            receipt=P.rgb_receipt(raw,case['roi'],case['original_first_ppm_sha256'])
+            if case['expected_presence']:
+                P.verify_pixel_receipt(receipt,case['roi'],case['original_first_ppm_sha256'])
+                self.assertEqual(receipt['visual_review'],'NOT_RUN')
+            else:
+                self.assertEqual(receipt['counts'],dict(background=0,border=0,text=0))
+                with self.assertRaisesRegex(ValueError,'no shipped Mako'):P.verify_pixel_receipt(receipt,case['roi'],case['original_first_ppm_sha256'])
+
+    def test_presence_cannot_be_boolean_wrong_frame_or_wrong_geometry(self):
+        case=self.pixel_cases()[0];raw=base64.b64decode(case['rgb_base64']);receipt=P.rgb_receipt(raw,case['roi'],case['original_first_ppm_sha256'])
+        for value in (True,{},dict(receipt,frame_sha256='a'*64),dict(receipt,roi=dict(x=0,y=0,w=320,h=75))):
+            with self.subTest(value=str(value)[:80]),self.assertRaises(ValueError):P.verify_pixel_receipt(value,case['roi'],case['original_first_ppm_sha256'])
+
+    def test_pixels_cannot_claim_readability_or_use_wrong_style(self):
+        case=self.pixel_cases()[0];receipt=P.rgb_receipt(base64.b64decode(case['rgb_base64']),case['roi'],case['original_first_ppm_sha256'])
+        for key,value in (('visual_review','PASS'),('style_sha256','a'*64),('color_tolerance',99)):
+            bad=dict(receipt);bad[key]=value
+            with self.subTest(key=key),self.assertRaises(ValueError):P.verify_pixel_receipt(bad,case['roi'],case['original_first_ppm_sha256'])
+
+    def test_accurate_age_includes_reply_time_and_reserves_one_second(self):
+        wire=O.notify(messages(),':1.7',0);timing=O.capture_timing(wire,2500000,123)
+        self.assertEqual((timing['age_ms'],timing['reserve_us']),(1500,1500000))
+        for now in (999999,1099999,3000001):
+            with self.subTest(now=now),self.assertRaises(ValueError):O.capture_timing(wire,now,123)
+        bad=copy.deepcopy(wire);bad['call'].pop('timestamp-realtime')
+        with self.assertRaises(ValueError):O.capture_timing(bad,2500000,123)
+
+    def test_actual_old_late_manager_queries_exhaust_new_request_budget(self):
+        fixture=json.loads((HERE/'fixtures/real-expiring-notification-timing.json').read_bytes())
+        for case in fixture['cases']:
+            wire=case['wire'];last=case['last_pre_emit_manager_reply']['timestamp-realtime'];closed=case['actual_closed']['timestamp-realtime']
+            self.assertLess(case['reported_notification_age_ms'],2000)
+            self.assertGreater(last-wire['call']['timestamp-realtime'],2000000)
+            self.assertLess(last,closed)  # Exact host capture timing was not retained.
+            with self.assertRaisesRegex(ValueError,'one second'):O.capture_timing(wire,last,123)
+
+    def test_original_pending_caller_must_join_after_request(self):
+        events=Protocol().fixture();request=next(e for e in events if e['event']=='frame_ready')
+        self.assertTrue(request['caller_pending']);self.assertNotIn('caller',request)
+        for key,value in (('capture_request_sha256','bad'),('post_request_identity',{})):
+            altered=copy.deepcopy(events);next(e for e in altered if e['event']=='done_transport')[key]=value
+            with self.subTest(key=key),self.assertRaises(ValueError):C.verify_result(altered)
+
+    def test_capture_request_precedes_caller_and_manager_rechecks(self):
+        text=(HERE/'session.py').read_text();start=text.index("base.emit('frame_ready',**request)")
+        self.assertLess(start,text.index('continuation=terminal.continuation(outcome)'))
+        self.assertLess(start,text.index('post_identity=identity()'))
+        self.assertIn('timing=O.capture_timing(wire,time.time_ns()//1000,time.monotonic_ns())',text)
+        self.assertIn('notification_pixels(runtime/',(HERE/'ci/caller.py').read_text())
+
+    def test_protocol_rejects_missing_pixels_or_stale_age_or_future_host_clock(self):
+        for key,value in (('notification_pixels',{}),('host_finished_realtime_us',1)):
+            events=Protocol().fixture();next(e for e in events if e['event']=='frame_captured')[key]=value
+            with self.subTest(key=key),self.assertRaises(ValueError):C.verify_result(events)
+        events=Protocol().fixture();next(e for e in events if e['event']=='frame_ready')['notification_age_ms']=100
+        with self.assertRaises(ValueError):C.verify_result(events)
 
 
 class HostedProof(unittest.TestCase):
