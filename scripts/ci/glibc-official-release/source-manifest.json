@@ -17,8 +17,8 @@
       "sha256": "c10b5d9414dec148343a273c658d0f5c6345b8710b341865de6af829c3520312"
     },
     "build-entry.sh": {
-      "bytes": 1715,
-      "sha256": "8830c09d61a908bf8a441a0fc2e47915f9e734ae762ef270cd64623c8ae8fdf4"
+      "bytes": 1739,
+      "sha256": "3f585147898f2a4c9335c3889cfbe71f2d8c5b9328daaf7b9a0d2fcf7adc6bc4"
     },
     "collect_tests.py": {
       "bytes": 3093,
@@ -55,6 +55,10 @@
     "test_job.py": {
       "bytes": 6533,
       "sha256": "ebe6e4f60349d9356db65578fbbcd36d554319518c491be2ff43eb0fbdca9481"
+    },
+    "test_makepkg_config.py": {
+      "bytes": 4707,
+      "sha256": "e2c823e946e7e2f0664b4d82dfaabeb11aa1a31557ce0664cdaa349139b6013d"
     }
   },
   "license": "MIT",
