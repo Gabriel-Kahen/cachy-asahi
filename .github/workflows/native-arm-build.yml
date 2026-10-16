@@ -286,7 +286,7 @@ jobs:
         if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          ref: 4b1ce901ca160ab71b3bd8689a2569f3073685dd
+          ref: 93bc9bfac7343ee3b443ae3332c0942ed1ba5b55
           path: provider-source
           persist-credentials: false
       - name: Required offline provider and shipped PipeWire AAC codec trial
@@ -397,7 +397,7 @@ jobs:
             PYTHONDONTWRITEBYTECODE=1 \
             python3 -B "$GITHUB_WORKSPACE/provider-source/scripts/ci/full-development-composition/run.py" \
               --updater-v2-source "$GITHUB_WORKSPACE/composition-updater-v2" \
-              --setup4-pair "$RUNNER_TEMP/setup4-retained" --measure-footprint \
+              --setup4-pair "$RUNNER_TEMP/setup4-retained" --measure-footprint --measure-footprint-only \
               --product "$GITHUB_WORKSPACE/composition-product" \
               --updater "$GITHUB_WORKSPACE/composition-updater" \
               --desktop "$GITHUB_WORKSPACE/composition-desktop" \
