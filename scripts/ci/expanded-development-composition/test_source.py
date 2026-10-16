@@ -29,6 +29,11 @@ class Inputs(unittest.TestCase):
     def test_actual_retained_archives_buildinfo_payload(self):
         self.assertEqual(set(inputs.retained(BUNDLE,self.index,ROOT)),C.SCRIPTS)
 
+    def test_retained_rows_keep_names_for_installation_plan(self):
+        for name,row in inputs.retained(BUNDLE,self.index,ROOT).items():
+            self.assertEqual(row['name'],name)
+            self.assertEqual(row['inspected']['metadata']['.PKGINFO']['pkgname'],[name])
+
     def test_audio_output_matches_held_retriever_before_native_work(self):
         helper=C.load('expanded_audio_path_control',ROOT/'scripts/ci/full-development-composition/retrieve_audio.py')
         with tempfile.TemporaryDirectory() as directory,patch.dict(os.environ,RUNNER_TEMP=directory,GH_TOKEN=''):

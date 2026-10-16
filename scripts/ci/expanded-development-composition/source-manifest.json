@@ -24,8 +24,8 @@
     "sha256": "9b22286e3bce477671a7fc7ef691458cf1f35781931a225e561590a6847a2679"
   },
   "scripts/ci/expanded-development-composition/inputs.py": {
-    "bytes": 6234,
-    "sha256": "f5cfb6c7c15a1f02850ba609a6d0d59c1f5419c077e84c64efdf9c43cad0808a"
+    "bytes": 6244,
+    "sha256": "bad4505282b07bd5330b681614839567de1a38d3935b07ea55d895b1d621b083"
   },
   "scripts/ci/expanded-development-composition/installed_shells.py": {
     "bytes": 6009,
@@ -48,7 +48,7 @@
     "sha256": "abc46fbd749a65ec89ce6f38f434ab3ea02b3c2e67bd82d0ef46a400378a9b07"
   },
   "scripts/ci/expanded-development-composition/test_source.py": {
-    "bytes": 15998,
-    "sha256": "097794bd31c77a4dbfd4f99f925a70d962437e10d2ed9e0dd684c2096a6bdc67"
+    "bytes": 16275,
+    "sha256": "4543333097b819a658a897b8e0cc176301753ee9c537112d6db245e329fb9350"
   }
 }
