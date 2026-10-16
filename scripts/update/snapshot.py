@@ -99,6 +99,23 @@ def public_home(c, home, keyring, signer):
     return env
 
 
+def selected_synthetic(c, settings):
+    """Default tiny fixtures stay synthetic; actual inputs need explicit selection.
+
+    This label grants no platform or installation authority. Both authenticated
+    metadata and the semantically verified spec must match it exactly.
+    """
+    selected = settings.get('release_synthetic', True)
+    c.need(type(selected) is bool, 'explicit boolean release synthetic selection required')
+    if not selected:
+        c.need(settings.get('purpose') == 'disposable-generic-bound-update'
+               and settings.get('model') == 'generic-development-only'
+               and settings.get('running_kernel_release') == 'NOT-HARDWARE-OBSERVED'
+               and settings.get('operations') == ['repository-update'],
+               'actual release requires explicit generic disposable update selection')
+    return selected
+
+
 @contextmanager
 def authenticated(args, workspace, settings):
     """Yield verified snapshots until exit; caller owns checkpoint/ALPM locks.
@@ -109,6 +126,7 @@ def authenticated(args, workspace, settings):
     c = module('update_snapshot_client', ROOT / 'scripts/client/client.py')
     r = module('update_snapshot_release', ROOT / 'scripts/release/release.py')
     settings = copy.deepcopy(settings)
+    synthetic = selected_synthetic(c, settings)
     signer = c.fingerprint(settings['signer'])
     for name in ('metadata_sha256', 'release_sha256', 'public_keyring_sha256'):
         c.need(type(settings[name]) is str and c.HEX.fullmatch(settings[name]), 'exact input digest required')
@@ -150,8 +168,8 @@ def authenticated(args, workspace, settings):
             (child / name).write_bytes(data)
             (child / name).chmod(0o400)
         metadata = c.decode((child / 'metadata.json').read_bytes())
-        c.need(metadata.get('synthetic') is True and metadata.get('release_id') == settings['release_id']
-               and metadata.get('repo_name') == settings['repo_name'], 'synthetic selected release required')
+        c.need(metadata.get('synthetic') is synthetic and metadata.get('release_id') == settings['release_id']
+               and metadata.get('repo_name') == settings['repo_name'], 'selected release synthetic label or identity differs')
         root = c.directory(source)
         try:
             raw = c.read_member(root, 'release.json')
@@ -207,7 +225,7 @@ def authenticated(args, workspace, settings):
         home = child / 'verifier-home'
         env = public_home(c, home, (child / 'public.gpg').read_bytes(), signer)
         semantic_release, spec = r.verify_release(bundle, signer, env)
-        c.need(semantic_release == release and spec.get('synthetic') is True
+        c.need(semantic_release == release and spec.get('synthetic') is synthetic
                and spec['repo_name'] == settings['repo_name'] and spec['release_id'] == settings['release_id'],
                'semantic release selection differs')
         expected_snapshot = inventory(c, child)

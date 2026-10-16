@@ -45,9 +45,14 @@ def configuration(path, pin):
     raw = client.read_path(path, client.MAX_JSON)
     need(hashlib.sha256(raw).hexdigest() == pin, 'update configuration changed')
     value = client.decode(raw)
-    need(set(value) == SETTINGS and type(value['schema_version']) is int and value['schema_version'] == 1
+    need(set(value) in (SETTINGS, SETTINGS | {'release_synthetic'}) and type(value['schema_version']) is int and value['schema_version'] == 1
          and value['purpose'] == 'disposable-generic-bound-update', 'explicit disposable release configuration required')
     need(value['operations'] == ['repository-update'], 'unsupported update operations')
+    synthetic = value.get('release_synthetic', True)
+    need(type(synthetic) is bool, 'explicit boolean release synthetic selection required')
+    need(synthetic or value['model'] == 'generic-development-only'
+         and value['running_kernel_release'] == 'NOT-HARDWARE-OBSERVED',
+         'actual release requires explicit generic disposable update selection')
     need(client.NAMESPACE.fullmatch(value['namespace']) and client.NAME.fullmatch(value['release_id'])
          and client.NAME.fullmatch(value['repo_name']), 'invalid release identity')
     need(client.fingerprint(value['signer']) == value['signer'] and len(value['signer']) == 40,
