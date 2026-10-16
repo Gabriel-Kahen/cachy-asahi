@@ -189,3 +189,9 @@ The draft asset contains exact public original kernel source only, not a support
 project release. Source/pure controls do not establish actual read-only-token
 access, cache visibility, source transfer, kernel build or Done behavior. These
 remain new execution gates for Root; current/held actuals are unchanged.
+
+The separate failed-foreground probe also observes the unchanged private recorder
+through the original two-second GNU timeout and directly in a fresh private home,
+with five-second outer bounds. It records actual exit/status, byte-hashed stderr,
+recorder identity and invocation counts. These two diagnostic commands cannot
+satisfy the original eighteen-case success gate or relax its timeout.

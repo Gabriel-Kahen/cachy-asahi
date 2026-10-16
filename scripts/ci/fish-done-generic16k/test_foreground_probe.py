@@ -65,5 +65,26 @@ class ProbeControls(original_tests.Diagnostics):
         value,manifest=self.probe()
         with self.assertRaises(ValueError):run.guest_report(b'DONE16K_DIAGNOSTIC '+json.dumps(value).encode(),0,'a'*32,'test16k',manifest)
 
+    def test_transport_failure_is_diagnostic_and_output_is_joined(self):
+        value,manifest=self.probe();observed=value['foreground_probe']['value'];rows=[]
+        for kind,argv in (
+            ('bounded-timeout',['timeout','--foreground','--signal=TERM','--kill-after=1s','2s','notify-send','--diagnostic-only']),
+            ('direct-recorder',['notify-send','--diagnostic-only'])):
+            argv[0]='/tmp/done16k/foreground-probe/transport/bin/'+argv[0]
+            streams={name:guest.sample(b'',2048) for name in ('stdout','stderr')}
+            command=dict(argv=argv,expected_exit=0,exit=124 if kind=='bounded-timeout' else 0)
+            for name,row in streams.items():command.update({name+'_bytes':row['bytes'],name+'_sha256':row['sha256']})
+            rows.append(dict(kind=kind,command=command,notification_count=0,recorder_sha256='c'*64,**streams))
+        observed['transport_commands']=rows
+        def join():
+            raw=(json.dumps(observed,sort_keys=True,separators=(',',':'))+'\n').encode()
+            value['foreground_probe']['command'].update(stdout_bytes=len(raw),stdout_sha256=run.s.sha(raw))
+        join();self.accept(value,manifest)
+        rows[0]['command']['stdout_sha256']='d'*64;join()
+        with self.assertRaisesRegex(ValueError,'command/sample'):self.accept(value,manifest)
+        rows[0]['command']['stdout_sha256']=rows[0]['stdout']['sha256']
+        rows[0]['command']['argv'][4]='3s';join()
+        with self.assertRaisesRegex(ValueError,'identity differs'):self.accept(value,manifest)
+
 
 if __name__=='__main__':unittest.main()

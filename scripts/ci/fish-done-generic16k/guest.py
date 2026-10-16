@@ -215,6 +215,21 @@ end'''
                 result.update(fish_normal_exit=False,close_error_type=type(error).__name__,close_reason=str(error)[:160])
                 try:session.term.close()
                 except OSError:pass
+    # Run the original recorder in a separate fresh home, first through the
+    # unchanged two-second transport and then directly. This diagnoses startup
+    # failure/cost without relaxing the product timeout or granting acceptance.
+    transport=module.prepare(root,'transport')
+    recorder=transport/'bin/notify-send'
+    env=module.environment(transport)
+    timeout=transport/'bin/timeout'
+    result['transport_commands']=[]
+    for kind,argv in (
+        ('bounded-timeout',[str(timeout),'--foreground','--signal=TERM','--kill-after=1s','2s','notify-send','--diagnostic-only']),
+        ('direct-recorder',[str(recorder),'--diagnostic-only'])):
+        try:row,out=command(argv,env,seconds=5);err=b''
+        except CommandFailure as error:row,out,err=error.row,error.stdout,error.stderr
+        result['transport_commands'].append(dict(kind=kind,command=row,stdout=sample(out,1024),stderr=sample(err,2048),
+            notification_count=len(module.rows(transport)),recorder_sha256=sha(read(recorder))))
     need(sha(read(fixture))==result['fixture_sha256'] and sha(read(source/'done.fish'))==result['runtime_sha256'] and
          sha(read(source/'opt-in.fish'))==result['wrapper_sha256'],'probe source bytes changed')
     return result
