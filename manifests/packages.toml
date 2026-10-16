@@ -412,3 +412,18 @@ host_validation = "PASS x86_64 C build, seven status fixtures, five executable C
 native_build = "NOT RUN"
 hardware_validation = "NOT RUN"
 next_step = "Build two native ARM packages and validate the welcome GUI, local guides and app launches in the managed desktop; complete signed lifecycle and target validation before selection."
+
+
+[[packages]]
+name = "cachy-asahi-doctor"
+phase = "tools-experience"
+status = "candidate"
+source = "local-original"
+recipe = "packages/tools/cachy-asahi-doctor/PKGBUILD"
+license = "MIT"
+candidate_version = "0.1.0-1"
+selected_for_development = false
+selected_for_release = false
+native_build = "NOT RUN"
+hardware_validation = "NOT RUN"
+next_step = "Build two native packages and exercise the installed read-only report with unavailable model/bus and real managed session states; verify private report and package lifecycle before selection."
