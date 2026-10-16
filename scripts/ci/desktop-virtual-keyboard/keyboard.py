@@ -98,3 +98,28 @@ class Controller:
         self.index+=1
         if self.index==len(STEPS):self.index=0;self.stage_index+=1
         return proof
+
+
+def verify_keyboards(keyboards,board=None):
+    """One typed QEMU keyboard, optionally the pinned board's power-only input."""
+    need(type(keyboards) is list and 1<=len(keyboards)<=2 and all(type(k) is dict for k in keyboards),
+         'bounded compositor keyboard list required')
+    names=[k.get('name') for k in keyboards]
+    need(names.count('qemu-virtio-keyboard')==1 and names.count('gpio-keys')<=1 and
+         set(names)<={'qemu-virtio-keyboard','gpio-keys'},'unexpected or duplicate keyboard')
+    need(all(k.get('layout')=='us' and k.get('capsLock') is False for k in keyboards),
+         'Hyprland US virtual keyboard differs')
+    if 'gpio-keys' not in names:
+        need(board is None,'unjoined board input proof');return
+    need(type(board) is dict and board.get('name')=='gpio-keys' and board.get('driver')=='gpio-keys' and
+         type(board.get('sysfs')) is str and re.fullmatch(r'/sys/devices/platform/gpio-keys/input/input[0-9]{1,6}',board['sysfs']) and
+         board.get('bus_type')==25 and board.get('of_node')=='/sys/firmware/devicetree/base/gpio-keys' and
+         board.get('compatible_hex')=='6770696f2d6b65797300' and board.get('poweroff_linux_code_hex')=='00000074',
+         'board power-button identity differs')
+    text=board.get('key_bitmap');need(type(text) is str and re.fullmatch('[0-9a-f]{1,16}( [0-9a-f]{1,16}){0,11}',text),
+                                         'bounded ARM64 input key bitmap required')
+    bits=sum(int(word,16)<<(64*i) for i,word in enumerate(reversed(text.split())))
+    need(bits==1<<116,'board device is not KEY_POWER-only')
+    need(type(board.get('event')) is str and re.fullmatch('event[0-9]{1,6}',board['event']) and
+         board.get('node')=='/dev/input/'+board['event'] and type(board.get('major')) is int and board['major']==13 and
+         type(board.get('minor')) is int and 0<=board['minor']<2**20,'board input character-device join absent')

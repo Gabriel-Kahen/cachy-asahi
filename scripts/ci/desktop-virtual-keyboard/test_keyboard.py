@@ -14,6 +14,14 @@ import contract as C
 import session as S
 
 
+
+def board():
+    return dict(name='gpio-keys',event='event1',node='/dev/input/event1',
+        sysfs='/sys/devices/platform/gpio-keys/input/input1',driver='gpio-keys',major=13,minor=65,
+        bus_type=25,of_node='/sys/firmware/devicetree/base/gpio-keys',compatible_hex='6770696f2d6b65797300',
+        poweroff_linux_code_hex='00000074',key_bitmap='10000000000000 0')
+
+
 def events():
     # The accepted managed contract fixture is a modeled lifecycle, not a native run.
     unit=lambda name,sub,pid:dict(Id=name,LoadState='loaded',ActiveState='active',SubState=sub,Result='success',ExecMainStatus=0,MainPID=pid)
@@ -131,6 +139,55 @@ class KeyboardTests(unittest.TestCase):
         self.assertEqual([r['package']['name'] for r in lock['rows']],['qemu-system-aarch64','linux-aarch64'])
         config=(HERE/'upstream-kernel.config').read_text()
         for setting in ('CONFIG_INPUT=y','CONFIG_INPUT_EVDEV=y','CONFIG_VIRTIO_PCI=y','CONFIG_VIRTIO_INPUT=m'):self.assertIn(setting+'\n',config)
+
+
+
+    def test_board_power_only_exception_accepts_actual_device_order(self):
+        q=dict(name='qemu-virtio-keyboard',layout='us',capsLock=False,main=False)
+        g=dict(name='gpio-keys',layout='us',capsLock=False,main=True)
+        K.verify_keyboards([q,g],board());K.verify_keyboards([g,q],board())
+        rows=events()
+        for r in rows:
+            if r['event']=='keyboard_ready':r['keyboards']=[q,g];r['board_device']=board()
+        self.assertEqual(C.verify_result(rows)['frames'],6)
+
+    def test_unknown_duplicate_or_unproved_board_keyboards_refused(self):
+        q=dict(name='qemu-virtio-keyboard',layout='us',capsLock=False)
+        g=dict(name='gpio-keys',layout='us',capsLock=False)
+        for rows,proof in (([q,q],None),([q,g,g],board()),([g],board()),([q,dict(g,name='usb-keyboard')],board()),
+                           ([q,g],None),([q],board()),([q,dict(g,layout='de')],board()),([dict(q,capsLock=True),g],board())):
+            with self.subTest(rows=rows),self.assertRaises(ValueError):K.verify_keyboards(rows,proof)
+
+    def test_gpio_identity_and_key_capability_are_replayed(self):
+        q=dict(name='qemu-virtio-keyboard',layout='us',capsLock=False);g=dict(name='gpio-keys',layout='us',capsLock=False)
+        for key,value in (('driver','virtio_input'),('sysfs','/sys/devices/usb/input/input1'),('bus_type',3),
+                          ('of_node','/sys/firmware/devicetree/base/other'),('compatible_hex','00'),
+                          ('poweroff_linux_code_hex','0000001e'),('key_bitmap','10000000000000 40000000'),
+                          ('key_bitmap','0'),('key_bitmap','f'*257),('major',1),('node','/dev/input/event2')):
+            with self.subTest(key=key,value=value),self.assertRaises(ValueError):K.verify_keyboards([q,g],board()|{key:value})
+        rows=events()
+        for r in rows:
+            if r['event']=='keyboard_ready':r['keyboards']=[q,g];r['board_device']=board()
+        next(r for r in rows if r['event']=='keyboard_ready')['board_device']['key_bitmap']='1'
+        with self.assertRaises(ValueError):C.verify_result(rows)
+
+    def test_passive_board_sysfs_read_is_bounded_and_joins_character_node(self):
+        import io,os,stat
+        from types import SimpleNamespace
+        device='/sys/devices/platform/gpio-keys/input/input1';platform='/sys/devices/platform/gpio-keys'
+        of='/sys/firmware/devicetree/base/gpio-keys'
+        data={device+'/name':b'gpio-keys\n','/fixture/event1/dev':b'13:65\n',device+'/id/bustype':b'0019\n',
+              device+'/capabilities/key':b'10000000000000 0\n',of+'/compatible':b'gpio-keys\0',
+              of+'/poweroff/linux,code':b'\0\0\0t'}
+        resolved={'/fixture/event1/device':device,platform+'/driver':'/sys/bus/platform/drivers/gpio-keys',platform+'/of_node':of}
+        def run():
+            with patch.object(Path,'resolve',lambda path,*a,**kw:Path(resolved[str(path)])),\
+                 patch.object(Path,'open',lambda path,*a,**kw:io.BytesIO(data[str(path)])),\
+                 patch.object(Path,'stat',return_value=SimpleNamespace(st_mode=stat.S_IFCHR|0o600,st_rdev=os.makedev(13,65))):
+                return S.board_input(SimpleNamespace(glob=lambda _: [Path('/fixture/event1')]))
+        self.assertEqual(run(),board())
+        data[device+'/capabilities/key']=b'1'*257
+        with self.assertRaisesRegex(ValueError,'byte limit'):run()
 
 
 if __name__=='__main__':unittest.main()

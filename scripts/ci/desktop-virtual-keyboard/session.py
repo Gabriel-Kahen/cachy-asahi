@@ -30,6 +30,37 @@ def input_device(sysfs=Path('/sys/class/input')):
     return found[0]
 
 
+
+def board_input(sysfs=Path('/sys/class/input'),devices=Path('/dev/input')):
+    """Bounded passive evidence for virt-11.1's separate GPIO power button."""
+    def read(path,cap=256):
+        with path.open('rb') as stream:raw=stream.read(cap+1)
+        K.need(len(raw)<=cap,'board sysfs byte limit');return raw
+    found=[];events=list(sysfs.glob('event*'))
+    K.need(len(events)<=8,'board input enumeration limit')
+    for event in events:
+        device=(event/'device').resolve()
+        if read(device/'name',64).decode().strip()!='gpio-keys':continue
+        platform=device.parent.parent
+        K.need((platform/'driver').resolve()==Path('/sys/bus/platform/drivers/gpio-keys'),
+               'board input platform driver differs')
+        of_node=(platform/'of_node').resolve()
+        major,minor=map(int,read(event/'dev',32).decode().strip().split(':'))
+        node=devices/event.name;info=node.stat()
+        import stat
+        K.need(stat.S_ISCHR(info.st_mode) and info.st_rdev==os.makedev(major,minor),'board event device differs')
+        found.append(dict(name='gpio-keys',event=event.name,node='/dev/input/'+event.name,
+            sysfs=str(device),driver='gpio-keys',major=major,minor=minor,
+            bus_type=int(read(device/'id/bustype',16).decode().strip(),16),
+            of_node=str(of_node),compatible_hex=read(of_node/'compatible',64).hex(),
+            poweroff_linux_code_hex=read(of_node/'poweroff/linux,code',4).hex(),
+            key_bitmap=read(device/'capabilities/key').decode().strip()))
+    K.need(len(found)==1,'exactly one board GPIO input required')
+    K.verify_keyboards([dict(name='qemu-virtio-keyboard',layout='us',capsLock=False),
+                       dict(name='gpio-keys',layout='us',capsLock=False)],found[0])
+    return found[0]
+
+
 def descendant(pid,parent,executable):
     proof=identity(pid)
     fields=dict(line.split(':',1) for line in Path('/proc',str(pid),'status').read_text().splitlines() if ':' in line)
@@ -118,10 +149,11 @@ def phase(stage,config,env,logs):
         K.need(len(monitors)==1 and monitors[0].get('width')==1024 and monitors[0].get('height')==768 and monitors[0].get('scale')==1,'fixed monitor required')
         devices=json.loads(command(['/usr/bin/hyprctl','-j','devices'],'devices'))
         keyboards=devices.get('keyboards',[])
-        K.need(len(keyboards)==1 and keyboards[0].get('name')=='qemu-virtio-keyboard' and keyboards[0].get('layout')=='us' and keyboards[0].get('capsLock') is False,
-               'Hyprland sole US virtual keyboard differs')
+        K.need(type(keyboards) is list and all(type(k) is dict for k in keyboards),'typed keyboard rows required')
+        board=board_input() if any(k.get('name')=='gpio-keys' for k in keyboards) else None
+        K.verify_keyboards(keyboards,board)
         K.need(clients(initial=True) in (None,[]),'preexisting window refused')
-        base.emit('keyboard_ready',stage=stage,nonce=nonce,kernel_device=device,keyboards=keyboards,monitors=monitors,
+        base.emit('keyboard_ready',stage=stage,nonce=nonce,kernel_device=device,keyboards=keyboards,board_device=board,monitors=monitors,
                   shortcut_policy='SHIPPED_UNCHANGED' if stage=='overlay' else 'DECLARED_MINIMAL_SUPER_RETURN_SUPER_Q',
                   user_configuration_sha256=K.sha(K.encoded(before)),configuration_sha256=K.sha(T.read(config)))
         request('launch')

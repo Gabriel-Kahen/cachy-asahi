@@ -23,7 +23,12 @@ XDG configuration tree must remain byte/mode/owner identical in both phases.
 
 Each phase requires one kernel QEMU Virtio Keyboard, virtio_input driver and
 matching character node, plus exactly one Hyprland qemu-virtio-keyboard with US
-layout and Caps Lock off. The host uses supported QMP input-send-event qcodes
+layout and Caps Lock off. One separate gpio-keys board power-button device is
+allowed only with bounded passive sysfs proof: exact platform/driver/DT identity,
+BUS_HOST, joined event character node and KEY_POWER-only bitmap. Its DT poweroff
+code must be116; unknown, duplicate or alphabet-capable companions fail. The
+compositor may report that power button as main; actual nonce-bound input
+delivery remains required through the QEMU virtual keyboard. The host uses supported QMP input-send-event qcodes
 through the existing owned QMP socket. Press/release pairs are paced40ms each;
 modifiers release in reverse order even after an uncertain command reply.
 No PTY write, clipboard paste, accessibility action or exec callback supplies
@@ -57,6 +62,7 @@ kernel7.2.10-1-aarch64-ARCH. Read-only archive inspection found both virtual
 keyboard device strings and input-send-event in the held ARM QEMU ELF. The
 held Image's embedded config (retained as upstream-kernel.config) has INPUT=y,
 INPUT_EVDEV=y,VIRTIO_PCI=y,VIRTIO_INPUT=m; the exact virtio_input.ko is present.
+The gpio_keys.ko bytes and CONFIG_KEYBOARD_GPIO=m are pinned as well.
 The fixture verifies installed prerequisite bytes before staging, modprobes
 virtio_input in the guarded guest and waits for udev. Device discovery and
 successful key delivery still need the native actual.
