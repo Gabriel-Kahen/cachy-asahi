@@ -39,7 +39,7 @@ checks remain mandatory. Original source license, tool, 3,600-second build and
 16-GiB workspace records remain intact.
 
 Acquisition uses the identical bounded direct transport helper from the separate
-four-tool HTTP429 correction: two declared codeload tag aliases, once each,
+four-tool HTTP 429 correction: two declared codeload tag aliases, once each,
 no redirects or proxies, normal TLS verification and a shared 300-second hard
 deadline. Only transient failures allow the second URL after one pause capped
 at10 seconds. The unchanged pinned fetch reader still requires all 262,965,559
@@ -141,3 +141,51 @@ original path performs no post-error group query; bounded /proc observations
 remain separate. This cannot earn any process-absence or PASS credit.
 
 The derived kernel helper records `workspace_scan=ACTIVE_CHILD_COMPILER_OUTPUT_ENOENT_ONLY_STRICT_FINAL`. During an active child only, an ENOENT below the exact private compiler output `build/` can be transient. Source, workspace and compiler-root absence, permission and other errors remain fatal. Completed-command and final allocation scans are strict. The periodic aggregate quota, per-file limits, log cap, build deadline and cleanup policy are unchanged. This follows the scanner failure on `.bitrev.o.d` during actual tools run38924169611; it is not evidence of a successful replacement build.
+
+The acquisition-cache successor delegates to the shared pinned
+scripts/ci/tools-generic16k/acquire_kernel.py. Both manual lanes restore/save only
+the same exact content-addressed kernel.tar.gz using official actions/cache
+restore/save commit 0057852bfaa89a56745cba8c7296529d2fc39830, verified by Root at exact
+metadata blobs. No floating ref or cache-prefix fallback is used. Done's historical
+local acquire helper/tests remain unchanged; source controls additionally exercise
+the shared cache byte-validation suite before secrets.
+
+Cache contents are untrusted until every copied byte matches the unchanged exact
+262965559-byte/SHA256 874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad
+archive pin. A restored mismatch, alias/special/hardlink, writable/mutated input,
+foreign/partial key, extra member or missing exact hit is fatal; no fetch waiver.
+A true miss retains the same two-URL/no-redirect/300s policy. Successful verified
+acquisition prepares only the archive for explicit early save, before build or
+kernel workspace cleanup. Cache storage is separate from those workspaces and
+no extracted source, image, executable or private seed/key is cached. Receipts
+separate restored versus fetched bytes and grant no fresh signature/runtime credit.
+
+Actual 38931217828 Source 30943484295c924a9eaaafcfb5b9ca40ade1f96c failed both
+original direct URLs with HTTP 429 before kernel build/extraction or a new guest
+run. Its partial input was absent. It adds no Done behavior data; the earlier
+foreground failure remains unresolved. This cache successor is source/pure tested
+only: no current actual was changed, archive downloaded, action executed, kernel
+built or VM launched by this worker. All diagnostic/eighteen-case/product 3s/
+page/preservation/cleanup gates remain unchanged. Cache hit/miss/save, new native
+acquisition and corrected Done behavior still need an actual Root dispatch.
+
+Cache visibility still follows GitHub's ref/default-branch policy; the same key
+alone cannot solve first misses across unique frozen dispatch refs. A true miss
+now uses Root's exact draft source-only release 415175342/asset 647949735 through
+the fixed GitHub API endpoint recorded in retained-kernel-asset.json. The shared
+retained_kernel.py streams that one asset with read-only workflow GH_TOKEN via
+gh api, under a 300s/size/hash/stderr bound and owned-group cleanup. It accepts no
+arbitrary authenticated URL. Only verified original archive bytes are published;
+the explicit retained_archive boundary rechecks/copies them before extraction,
+records distinct retained-source provenance, and requests early archive-only save.
+The seed receipt is joined into existing runtime.json. Invalid restore or corrupt selected
+seed fails. A naturally completed nonzero gh transport is explicitly unavailable
+and may use the original two URLs only after the true-miss guard; its receipt
+is retained. Deadline/cleanup failures are fatal, with no hidden retry or cache-hit
+relabeling. When no retained
+source is selected, a true cache miss preserves the original two-URL 300s fallback.
+
+The draft asset contains exact public original kernel source only, not a supported
+project release. Source/pure controls do not establish actual read-only-token
+access, cache visibility, source transfer, kernel build or Done behavior. These
+remain new execution gates for Root; current/held actuals are unchanged.

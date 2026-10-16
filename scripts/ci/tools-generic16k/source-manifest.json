@@ -1,8 +1,8 @@
 {
   "files": {
     ".github/workflows/native-arm-tools-generic16k.yml": {
-      "bytes": 11890,
-      "sha256": "7b96f47435872458f4a04905e8f9a0c3f779740a7b56cd8a4fb5b962a2edeb6d"
+      "bytes": 15782,
+      "sha256": "4f979a56e1765c489e0ed4178531393effd5df9ac7406899afa7518ea8e998a5"
     },
     "packages/desktop/cachy-asahi-hyprland-settings/.SRCINFO": {
       "bytes": 1811,
@@ -393,28 +393,32 @@
       "sha256": "e5d7dc11d1a59cf37a273e9a7103c7e55b169335b17c599990946f4e677ca974"
     },
     "scripts/ci/tools-generic16k/README.md": {
-      "bytes": 9695,
-      "sha256": "1f9ab6bf605df789d9d8e1e2610f22fbbee5c0673ac76c62d934b7c79ae60e3a"
+      "bytes": 14636,
+      "sha256": "2632a6c2faaec1d2d43ad602dab5906c7ecf984baed1b485d8d81464d1995229"
     },
     "scripts/ci/tools-generic16k/acquire_kernel.py": {
-      "bytes": 3510,
-      "sha256": "09601f994f25601b7242cb36f38c6b0ead58ab5188d61e27ffe813c737a854b3"
+      "bytes": 8844,
+      "sha256": "4a372e1f4bfbd1f8604579873fc6fbdec91ac2555bb36f028646017b44b8c23f"
     },
     "scripts/ci/tools-generic16k/build_kernel.py": {
       "bytes": 12822,
       "sha256": "3d1f25edbdd8d4ac4f48f5efcc756854e56d93cbaadeaefba3bdab2a1d32e9b1"
+    },
+    "scripts/ci/tools-generic16k/cache-action.json": {
+      "bytes": 661,
+      "sha256": "ccb3e967a5b4b08b54886fc388d8a696a7c122984c20093d96347cfe6cec01f6"
     },
     "scripts/ci/tools-generic16k/capture.py": {
       "bytes": 8770,
       "sha256": "4661566f160cad7fc35ec85e7c1d861ad1bf4ca6c093893e4424c68f6be63ebe"
     },
     "scripts/ci/tools-generic16k/dependencies.json": {
-      "bytes": 20409,
-      "sha256": "029039520b6b0a3946fa8b0ebb54afaa94dd930603d3ba1cb322d394e0704295"
+      "bytes": 21243,
+      "sha256": "56a3e36d1268feb4e2ad4e28f967716cdfc32ef036dae5a6706fd6eacbddac33"
     },
     "scripts/ci/tools-generic16k/guest.py": {
-      "bytes": 10855,
-      "sha256": "b2975a8287564411c41ee34c40a5b5e6a42592d17cfe726ba24ea98ba06f0693"
+      "bytes": 11481,
+      "sha256": "578ec5a8f30c931c726db4d072dd241e1ea83a0f518f9ff11f3cb5af969d31fd"
     },
     "scripts/ci/tools-generic16k/kernel.fragment": {
       "bytes": 815,
@@ -424,9 +428,17 @@
       "bytes": 13731,
       "sha256": "83b324fd7b459f7ad48585a97f32d9a36c5131b92f50f4920c284b16c1be518e"
     },
+    "scripts/ci/tools-generic16k/retained-kernel-asset.json": {
+      "bytes": 523,
+      "sha256": "96f578b9f82e3ed334330482746b730c1867b1de7634d3ac9519727e48325102"
+    },
+    "scripts/ci/tools-generic16k/retained_kernel.py": {
+      "bytes": 5419,
+      "sha256": "04a374fe025528a84249b318035d65b182c21d882402409053c0764d572373c6"
+    },
     "scripts/ci/tools-generic16k/run.py": {
-      "bytes": 27422,
-      "sha256": "ff579b9ae5d0d3e54f276f07aed7391a5ae7a38c55e9ff6354d63bb400beb1b3"
+      "bytes": 35508,
+      "sha256": "5b6b6dcc0823bcb552eec7ffd25d1d1eb60e4d12b59538204925c8e4eff21bc9"
     },
     "scripts/ci/tools-generic16k/support.py": {
       "bytes": 2994,
@@ -435,6 +447,14 @@
     "scripts/ci/tools-generic16k/test_acquire.py": {
       "bytes": 5604,
       "sha256": "71a6154536fa94d7d004c7b8ab24f8d732ea0756321c4e49735a2ac02d993f6e"
+    },
+    "scripts/ci/tools-generic16k/test_cache.py": {
+      "bytes": 13059,
+      "sha256": "58d031e9202b5903e11a62540ff7020d2a585c6d64b0904b36ca4674be32164b"
+    },
+    "scripts/ci/tools-generic16k/test_retained.py": {
+      "bytes": 6556,
+      "sha256": "72a1bfa077fda965a1aba48997e86c876fa73008eb299a7824b57bf873e9a7b1"
     },
     "scripts/ci/tools-generic16k/test_scan.py": {
       "bytes": 4655,
@@ -515,9 +535,13 @@
     "scripts/virtual/tooling.lock.json": {
       "bytes": 31183,
       "sha256": "c18afc5bde9868594d41bd576a956960a7b01b190d148ba03ca4c41d4394e1b0"
+    },
+    "scripts/ci/tools-generic16k/test_boot_observation.py": {
+      "bytes": 8599,
+      "sha256": "f1c81f1f27d98cd3e093263e50cda501e321a66dc78b5af609887debfa6e0e3f"
     }
   },
   "schema_version": 1,
   "scope": "PRIVATE_GENERIC_ARM64_16K_MAPPED_TOOLS_PTY_CLI_ONLY",
-  "status": "SOURCE_ONLY_BOUNDED_DIRECT_KERNEL_TRANSPORT_FIX"
+  "status": "SOURCE_ONLY_EXACT_KERNEL_CACHE_AND_RETAINED_ASSET_SEED_ACTUAL_NOT_RUN"
 }

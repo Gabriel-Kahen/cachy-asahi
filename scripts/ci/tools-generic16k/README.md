@@ -141,3 +141,73 @@ build/capture/VM execution, native package checks, Asahi integration, M2 hardwar
 performance and release admission remain unrun by this worker.
 
 The derived kernel helper records `workspace_scan=ACTIVE_CHILD_COMPILER_OUTPUT_ENOENT_ONLY_STRICT_FINAL`. During an active child only, an ENOENT below the exact private compiler output `build/` can be transient. Source, workspace and compiler-root absence, permission and other errors remain fatal. Completed-command and final allocation scans are strict. The periodic aggregate quota, per-file limits, log cap, build deadline and cleanup policy are unchanged. This follows the scanner failure on `.bitrev.o.d` during actual tools run38924169611; it is not evidence of a successful replacement build.
+
+The source-acquisition successor shares acquire_kernel.py with the Done lane and
+adds exact archive reuse through Root-verified official actions/cache restore/save
+commit 0057852bfaa89a56745cba8c7296529d2fc39830 (Node20 metadata identities retained
+in cache-action.json). Cache state grants no source-signature or runtime credit.
+Only kernel.tar.gz is restored/saved, under a dedicated SHA-named directory outside
+kernel build/cleanup roots. Both lanes use one exact content-addressed key, no
+restore prefixes, no extracted source, packages, build trees or kernel images.
+
+A true exact-key hit must have exactly that one ordinary owned archive. Every byte
+is hashed while copying to a fresh private input; the exact 262965559-byte size and
+874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad digest are required
+before publication or extraction. Symlinks, hardlinks, special/writable files,
+changed identities, extra restored members, partial/foreign matches, missing hits
+and corruption fail. They never trigger an unreported fetch. Receipt statuses
+separate RESTORED_HASH_VERIFIED from FETCHED_HASH_VERIFIED and retain cache identity,
+byte/hash validation, attempts and partial-file absence. No fresh authentication
+or signature claim is made for cache transport.
+
+On an actual miss, the unchanged two direct codeload aliases, no redirects, one
+capped transient pause and 300-second total acquisition policy apply. Actual fetched
+bytes are rechecked while creating the separate archive-only cache copy. A copy or
+hash failure cannot retry a URL or request save. Own partials are removed; existing
+destinations and raced-in files are never overwritten. Explicit save runs only
+following successful miss acquisition, before kernel build/final cleanup, with a
+two-minute action bound. A save attempt is not evidence that persistence occurred.
+Restore also has a two-minute bound. Cache failures cannot silently grant acceptance.
+
+The exact source revision/input/provenance and all kernel/build/page/preservation/
+cleanup and behavior gates are unchanged. Pure controls use tiny private byte
+fixtures with network/actors forbidden; no live cache restore/save or new kernel
+acquisition was performed by this worker. First verified future acquisition can
+populate the cache; running/held actual work is not borrowed or changed.
+
+Cache visibility follows GitHub's ref/default-branch rules. Identical content keys
+do not guarantee reuse across the unique frozen dispatch refs used by these lanes.
+This implementation avoids refetch only when that exact verified cache entry is
+visible; it does not by itself solve cross-ref first-miss HTTP 429 failures. It
+never borrows or edits an active run to seed cache storage.
+
+On a true miss the workflow now uses Root's exact draft CI-source asset 647949735
+from release 415175342 (ci-kernel-source-874ef68d04ac), through the fixed
+https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/releases/assets/647949735
+endpoint. retained-kernel-asset.json records its exact size/digest. A read-only
+workflow GH_TOKEN is passed only to a fixed gh api application/octet-stream
+command with a private empty GH configuration and stripped debug/proxy environment.
+The helper accepts no authenticated URL argument. Root accepted gh's GitHub asset
+redirect route; no helper constructs credentials for arbitrary origins.
+
+The bounded 300s stream hashes every byte, caps stdout at the exact archive size
+and stderr at 8KiB, and atomically publishes only verified bytes to a fresh cache
+archive. Its owned process group is retired with an unreaped leader and absence
+checks. Only stderr length/hash and exit metadata are retained, never token,
+environment, response or stderr text. Corrupt bytes, unsafe paths, deadlines or failed cleanup are fatal. A naturally
+completed nonzero gh transport is explicitly RETAINED_ASSET_UNAVAILABLE, publishes
+no file and allows the original two URLs only after the workflow proved a true
+cache miss. Its receipt remains retained; no continue-on-error or hidden retry
+is used. Retained bytes cannot be mislabeled a cache hit.
+The workflow then passes that explicit local retained archive to acquire(): a
+second copy/hash gate publishes the actual kernel input and records distinct
+RETAINED_ARCHIVE_HASH_VERIFIED provenance. The separate seed receipt joins exact
+asset identity into existing runtime metadata. Early explicit save can seed later
+eligible cache reuse. Without a selected retained input, a true miss still uses
+the original two direct URLs and 300s policy.
+
+This immutable checksum-bound asset route supplies the first miss independently
+of dispatch-ref cache visibility; its public source bytes do not represent a
+supported project release. No new cache/asset transfer or native acquisition was
+run by this worker. Actual read-only workflow-token access, visible cache reuse,
+first-miss source seeding and new kernel/guest behavior still need Root's actual.
