@@ -1,0 +1,6 @@
+install: PASS
+changed-version-upgrade: PASS
+remove: PASS
+reinstall: PASS
+remove: PASS
+TOOLS_LIFECYCLE_PASS

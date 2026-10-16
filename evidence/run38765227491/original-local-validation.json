@@ -1,0 +1,141 @@
+{
+  "all_current_inputs_match_source_and_canonical": true,
+  "all_lifecycle_package_copies_match_build_outputs": true,
+  "builder_image": "sha256:c7a2f6a39e128983128a3c10cb2c6ba1ffcad0ade6917a1dfc041e8b9324ba25",
+  "builder_package_lock_sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25",
+  "bundle": {
+    "bytes": 437181,
+    "declared_size_and_sha256_match": true,
+    "file": "tools-evidence.tar.gz",
+    "regular_members": 284,
+    "sha256": "05ac35a2c613fced89b723fd5dff161fb3f3c4152ff16779d83ee84429e467ce",
+    "uncompressed_bytes": 1126229
+  },
+  "cleanup_scope": "Docker --rm normal-exit path and attempted final named rm; no separate retained absence audit; base image retained",
+  "compared_canonical_commit": "20f9a05d89e15b45c50df6b3d51d78d625ee520c",
+  "current_byte_comparisons": 3,
+  "current_native_builds": 6,
+  "distinct_build_container_names": 9,
+  "independent_current_archive_equality": "PASS",
+  "lifecycle_log": "lifecycle.log",
+  "local_validation": "PASS",
+  "logs_zip": {
+    "bytes": 3899337,
+    "crc_and_member_lengths": "PASS",
+    "sha256": "074d4ef0b99c0da784207ebace633210cf6927f0f3891bb076e9ec46792d8e2b"
+  },
+  "normal_lifecycle": "PASS",
+  "packages": [
+    {
+      "attempt": "current-1",
+      "bytes": 7540,
+      "clean_environment_id": "cachy-asahi-6bc2fa1c19d5cdae",
+      "filename": "cachy-asahi-fish-bang-bang-0.1.0-1-any.pkg.tar.xz",
+      "image_id": "sha256:c7a2f6a39e128983128a3c10cb2c6ba1ffcad0ade6917a1dfc041e8b9324ba25",
+      "package": "cachy-asahi-fish-bang-bang",
+      "payload_files": 7,
+      "sha256": "9d5a043691152b7555acafc877eb960750c85417ceef4c41b5f91382645f4b1c",
+      "version": "0.1.0-1"
+    },
+    {
+      "attempt": "current-2",
+      "bytes": 7540,
+      "clean_environment_id": "cachy-asahi-2e245ece84ee1563",
+      "filename": "cachy-asahi-fish-bang-bang-0.1.0-1-any.pkg.tar.xz",
+      "image_id": "sha256:c7a2f6a39e128983128a3c10cb2c6ba1ffcad0ade6917a1dfc041e8b9324ba25",
+      "package": "cachy-asahi-fish-bang-bang",
+      "payload_files": 7,
+      "sha256": "9d5a043691152b7555acafc877eb960750c85417ceef4c41b5f91382645f4b1c",
+      "version": "0.1.0-1"
+    },
+    {
+      "attempt": "upgrade-build",
+      "bytes": 7524,
+      "clean_environment_id": "cachy-asahi-4df20c708b68df18",
+      "filename": "cachy-asahi-fish-bang-bang-0.1.0-2-any.pkg.tar.xz",
+      "image_id": "sha256:c7a2f6a39e128983128a3c10cb2c6ba1ffcad0ade6917a1dfc041e8b9324ba25",
+      "package": "cachy-asahi-fish-bang-bang",
+      "payload_files": 7,
+      "sha256": "067c42d8713d0f02561e72fd23ecbd83a9e3aee5b011ffb5e9b19b410d179993",
+      "version": "0.1.0-2"
+    },
+    {
+      "attempt": "current-1",
+      "bytes": 13652,
+      "clean_environment_id": "cachy-asahi-435574ec880f4ad8",
+      "filename": "cachy-asahi-zsh-autosuggestions-0.7.1-1-any.pkg.tar.xz",
+      "image_id": "sha256:c7a2f6a39e128983128a3c10cb2c6ba1ffcad0ade6917a1dfc041e8b9324ba25",
+      "package": "cachy-asahi-zsh-autosuggestions",
+      "payload_files": 6,
+      "sha256": "ff59a185f52e80dc4fd08c666d093cccefa3e57f2513085c900602da597f29b9",
+      "version": "0.7.1-1"
+    },
+    {
+      "attempt": "current-2",
+      "bytes": 13652,
+      "clean_environment_id": "cachy-asahi-5d978678d75bd246",
+      "filename": "cachy-asahi-zsh-autosuggestions-0.7.1-1-any.pkg.tar.xz",
+      "image_id": "sha256:c7a2f6a39e128983128a3c10cb2c6ba1ffcad0ade6917a1dfc041e8b9324ba25",
+      "package": "cachy-asahi-zsh-autosuggestions",
+      "payload_files": 6,
+      "sha256": "ff59a185f52e80dc4fd08c666d093cccefa3e57f2513085c900602da597f29b9",
+      "version": "0.7.1-1"
+    },
+    {
+      "attempt": "upgrade-build",
+      "bytes": 13652,
+      "clean_environment_id": "cachy-asahi-439ffbc280f8b80f",
+      "filename": "cachy-asahi-zsh-autosuggestions-0.7.1-2-any.pkg.tar.xz",
+      "image_id": "sha256:c7a2f6a39e128983128a3c10cb2c6ba1ffcad0ade6917a1dfc041e8b9324ba25",
+      "package": "cachy-asahi-zsh-autosuggestions",
+      "payload_files": 6,
+      "sha256": "a3f332e560ce67d73a0da3842b3057a04e5388c8ae125c2a1be39d078ad338bb",
+      "version": "0.7.1-2"
+    },
+    {
+      "attempt": "current-1",
+      "bytes": 8092,
+      "clean_environment_id": "cachy-asahi-13d7f0850a02fc30",
+      "filename": "cachy-asahi-topmem-0.1.0-1-any.pkg.tar.xz",
+      "image_id": "sha256:c7a2f6a39e128983128a3c10cb2c6ba1ffcad0ade6917a1dfc041e8b9324ba25",
+      "package": "cachy-asahi-topmem",
+      "payload_files": 4,
+      "sha256": "583ffacd614bd741722486d5fbc64b79bb283d62c87974063fc1484dfcbe199b",
+      "version": "0.1.0-1"
+    },
+    {
+      "attempt": "current-2",
+      "bytes": 8092,
+      "clean_environment_id": "cachy-asahi-3a66a3997d9baa67",
+      "filename": "cachy-asahi-topmem-0.1.0-1-any.pkg.tar.xz",
+      "image_id": "sha256:c7a2f6a39e128983128a3c10cb2c6ba1ffcad0ade6917a1dfc041e8b9324ba25",
+      "package": "cachy-asahi-topmem",
+      "payload_files": 4,
+      "sha256": "583ffacd614bd741722486d5fbc64b79bb283d62c87974063fc1484dfcbe199b",
+      "version": "0.1.0-1"
+    },
+    {
+      "attempt": "upgrade-build",
+      "bytes": 8096,
+      "clean_environment_id": "cachy-asahi-48d9da080200c68b",
+      "filename": "cachy-asahi-topmem-0.1.0-2-any.pkg.tar.xz",
+      "image_id": "sha256:c7a2f6a39e128983128a3c10cb2c6ba1ffcad0ade6917a1dfc041e8b9324ba25",
+      "package": "cachy-asahi-topmem",
+      "payload_files": 4,
+      "sha256": "9c6c53327aee04a0026e9653e4d27f1446ac4a2a849124260f8c1cf0a203206c",
+      "version": "0.1.0-2"
+    }
+  ],
+  "recipe_input_counts": {
+    "cachy-asahi-fish-bang-bang": 12,
+    "cachy-asahi-topmem": 7,
+    "cachy-asahi-zsh-autosuggestions": 12
+  },
+  "recorded_page_size": 4096,
+  "run_id": 38765227491,
+  "source_commit": "4ee5a99e6ce7a83e2e5a5bdf4b71a1080e91d21c",
+  "upgrade_fixture_builds": 3,
+  "validation_method": "Read and hash existing retained bytes only; no rebuild/replay/CI collection.",
+  "verified_provenance_file_hashes": 90,
+  "workflow_commit": "1588ebc22245ee11b2c1d86754b9c2cfa0f3776f"
+}

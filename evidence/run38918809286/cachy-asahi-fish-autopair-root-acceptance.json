@@ -1,0 +1,16 @@
+{
+  "archive_sha256": "ea5dbb98856e8226b133b08ab2332b170244edb743248a5a98d8c2c3930f9f78",
+  "evidence": "docs/validation/fish-candidates-native-20261016.md",
+  "hardware": "NOT_RUN",
+  "name": "cachy-asahi-fish-autopair",
+  "native_lifecycle": "PASS",
+  "native_pair": "PASS_BYTES_IDENTICAL",
+  "native_run": 38918809286,
+  "qualification": "PASS_NATIVE_PAIR_AND_INSTALLED_LIFECYCLE_WITH_ORIGINAL_EXPORT_ORDER_FAILURE",
+  "raw_lifecycle_sha256": "dd3f78aa12d6c202f250e7bfb15491fdee4c8e5ebf04b6ca6cd10161a1382267",
+  "release_selection": false,
+  "run_id": "38918809286",
+  "source_sha": "32a254b29a8171176b7d192dcaab8f7076c3f977",
+  "status": "ROOT_ACCEPTED_NATIVE_CANDIDATE",
+  "version": "0.1.0-1"
+}
