@@ -2,10 +2,11 @@
 
 Implemented preparation, running-transaction observation, normal optional execution and manual CI source. **27 new inert controls PASS; original 18 owner controls PASS; native/Docker execution NOT RUN.** No Git, CI dispatch, canonical mutation or peer stage occurred.
 
-Adopt the six new files under `trial/proposed/` plus its generated `scripts/ci/maintained574-active-trial/candidate-files.json`. The manifest also authenticates the existing two-file owner proposal at canonical paths; those original files remain byte-identical:
-
-- `maintained574_active_owner.py`: `71f228c6b73911b97be63fe8bf1062c5de43e7ef4c8fd89bf7913b41d324c713`
-- `test_maintained574_active_owner.py`: `9d0cc5767a4fdc82a5a0ac3d71203c7e7b898865429620acc171aa9e19ba5aa1`
+Adopt the six new files under `trial/proposed/` plus its generated `scripts/ci/maintained574-active-trial/candidate-files.json`. The candidate manifest authenticates both owner files and the trial adapter.
+Use the hashes from the selected source's candidate-files.json; later diagnostic
+commits update those pins. The held original builder helper and input inventory
+remain separately pinned. Fixed active-build failure tails and the nine-path
+trust metadata probe preserve transaction failure and the existing cleanup.
 
 `validation.json` records the final manifest hash, file identities and observed controls. Root owns adoption, source/workflow freeze and eventual dispatch. The manual workflow accepts full `source_commit`, `candidate_sha256`, and `trial_mode=both|normal|cancel`; default `both` runs the normal optional owner first, then a separate fresh cancellation case against the same prepared context. Job/step ceilings are 195/179 minutes, with a 7900-second observer deadline and 660-second TERM-to-KILL grace. These are limits, not measured runtime or cancellation guarantees.
 

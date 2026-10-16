@@ -39,6 +39,27 @@ match; signature and semantic verification remain mandatory. Legacy synthetic
 defaults pass all19 real signed update and10 snapshot controls;15 new selection
 controls and34 caller controls pass. A real upgrade retry is still required.
 
+Retry38873660215 passes release selection and reaches observe-before, then
+refuses a missing/unsupported root path before commit. Complete copying,
+one-shot initialization, source preservation, copy disposal and outer/volume
+cleanup pass. All three commit/checkpoint flags remain false; aggregate commit
+count remains UNKNOWN. The first failed path was not exported.
+
+Root passively hash-verifies the retained rootfs and all574 package archives,
+then reconstructs their path metadata without executing/installing them. Apart
+from the already handled mtab link, only filesystem's var/lock -> ../run/lock
+has a missing endpoint after runtime staging empties run. The exact filesystem
+archive is14864 bytes/SHA256
+`228b63ef4a88501a68856231a19325a1ad31d92016a692d0a8be181edc70703f`.
+The narrow correction treats only that root-owned0777 literal, with exact0755
+var and run parent-directory shapes and absent run/lock, as comparison data. It
+grants no Reader/node/child traversal, preserves the original87-chain table and
+keeps general path resolution strict. Future missing-path errors name the node.
+Five new controls,17 path,7 finite-link,34 caller and28 failure-case controls pass.
+Normal retry38880148414 and queued failure-case38880150909 use separate frozen
+sources; actual success is still pending. This source-demonstrated prerequisite
+does not identify the earlier run's unexported first path.
+
 The successor is the retained setup package with SHA256
 `c817c01aad875fcf5a34073d4c9d0e830c577301189148b3c0e0969f001bea1a`.
 The constructor keeps its real341-package build identity separate from the587
