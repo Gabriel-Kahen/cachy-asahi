@@ -1,5 +1,40 @@
 # Welcome and Doctor native product candidates
 
+[Corrected actual38886781500](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38886781500)
+now passes both native package pairs and the complete installed CLI lifecycle.
+Source/workflow is `09717a45388e5b90ca80fd3fef327444101c108f`; manifest
+`9997b546aa3d8bf5055932524f436d5dac8b4f90eae3ca94eb666241d488ae47`.
+All four archive bytes remain identical to the table below.
+
+Five phases pass with exact inventories: install576, same-version reinstall576,
+remove574, reinstall-after-removal576 and final removal574. Fresh and existing
+fixture users run the installed Welcome status/help/version/guides/no-display
+fallback and Doctor platform/package reports. Private0600 report export,
+no-overwrite/symlink refusal and report preservation across package removal are
+required by the selected source. Exact preexisting HOME/configuration and outside
+sentinel preservation pass with generated session state outside protected HOME.
+The reports correctly observe generic aarch64/4096-byte pages, unknown Apple
+model and unavailable session services; they do not invent hardware health.
+Local unsigned candidates and masked hooks are explicit, so this provides no
+production signing, service/hook or real target installation acceptance.
+
+Root joins all44 source files, checks all four public archives/payloads/ELF
+layouts/build-log test markers and both byte pairs, and replays the exact five
+lifecycle events and preservation assertions. All six consumer container
+absences and owned base/probe cleanup pass. Private report files and raw in-
+container preservation snapshots remain Source-enforced rather than separately
+exported. GUI,16KiB execution and physical M2 validation remain open.
+
+Successful-run logs:84845 bytes,
+`44c5cff31215112861fb3f2663ef97c6f60aef4b9d5e1d691cedb2d600a47bba`.
+Artifact12040755250:216366 bytes,
+`49f9a4460cfa85650a071c914a6785392924c05ffa5b30404da11816f9181973`.
+All59 declared files/669412 raw bytes join their retention hashes. Local readout:
+`artifacts/development/welcome-native-run38886781500/`.
+The earlier failure remains recorded below; it is superseded only for this scoped
+installed lifecycle, not relabeled as a pass.
+
+
 [Actual38884680631](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38884680631)
 passes four fresh native package builds and both byte comparisons. The overall
 job fails its installed lifecycle and is not package-lifecycle acceptance.
