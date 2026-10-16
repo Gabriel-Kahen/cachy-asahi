@@ -34,6 +34,8 @@ def managed_events(first):
     for event in second:
         event['stage']='overlay'
         if event['event']=='frame_ready':event['doctor_proof_sha256']=result['proof_sha256']
+        if event['event']=='compositor_log_summary':
+            for stream in event['streams']:stream['path']=stream['path'].replace('/minimal.','/overlay.')
     identity=dict(address='unix:path=/run/user/23001/bus',uid=23001,manager_pid=422,default_target='GetUnit-PASS')
     states={'systemd-user-sessions.service':unit('systemd-user-sessions.service','active','exited'),
         'user-runtime-dir@23001.service':unit('user-runtime-dir@23001.service','active','exited'),
@@ -85,7 +87,7 @@ class Phase(unittest.TestCase):
         self.share=self.root/'share';self.share.mkdir();(self.share/'candidate-lock.json').write_text(json.dumps(self.lock))
         self.events=[];self.actors=[];self.major={};self.rows={};self.counter=100;self.clock=0;self.view='home'
         self.bad_action=None;self.config_drift=False;self.bad_welcome_exit=False;self.capture_failure=False
-        self.doctor_failure=None;self.doctor_exits=False;self.diagnostic_error=False
+        self.doctor_failure=None;self.doctor_exits=False;self.diagnostic_error=False;self.compositor_finish_error=None
         self.original_publish=S.C.publish;self.original_read=S.C.read;self.original_lstat=Path.lstat
         self.base=SimpleNamespace(HOME=self.root,SHARE=self.share,RUNTIME=SimpleNamespace(glob=lambda p:
             [SimpleNamespace(name='wayland-0',is_socket=lambda:True)] if self.major else []),
@@ -139,6 +141,15 @@ class Phase(unittest.TestCase):
         kind='compositor' if argv[0].endswith('/Hyprland') else 'doctor' if argv[0].endswith('/alacritty') else \
             'welcome' if argv[0].endswith('/cachy-asahi-welcome') else 'settings' if argv[0].endswith('/xfconfd') else 'thunar'
         self.major[kind]=actor
+        if kind=='compositor':
+            def finish():
+                actor.finished=True
+                self.emit('compositor_log_summary',stage='minimal',pid=actor.process.pid,returncode=actor.process.returncode,
+                    drains_complete=True,overflow=bool(self.compositor_finish_error),drain_errors=0,
+                    streams=[dict(path='/home/desktop574/logs/minimal.'+suffix,observed_bytes=0,limit_bytes=limit)
+                             for suffix,limit in (('stdout',2*1024*1024),('stderr',256*1024))])
+                if self.compositor_finish_error:raise ValueError(self.compositor_finish_error)
+            actor.finish=finish
         if kind in ('doctor','welcome'):self.rows[actor.process.pid]=self.row(actor.process.pid,kind)
         return actor
 
@@ -208,7 +219,9 @@ class Phase(unittest.TestCase):
 
     def run_phase(self):
         clock=SimpleNamespace(monotonic=self.now,sleep=lambda n:None)
-        with patch.object(S,'base',self.base),patch.object(S,'time',clock),patch.object(S.C,'read',side_effect=self.read),\
+        with patch.object(S.L,'launch',side_effect=lambda base,stage,config,logs,env:
+                 self.launch(['/usr/bin/Hyprland','--config',str(config)],stage,logs,env)),\
+             patch.object(S,'base',self.base),patch.object(S,'time',clock),patch.object(S.C,'read',side_effect=self.read),\
              patch.object(S.C,'publish',side_effect=self.publish),patch.object(S.S,'startup_clients',side_effect=lambda *a:list(self.rows.values())),\
              patch.object(S.S,'worker_identity',side_effect=lambda pid,parent:dict(pid=pid,parent_pid=parent,uid=23001)),\
              patch.object(S.O,'ObservedTerminal',side_effect=self.observed_factory),\
@@ -230,6 +243,29 @@ class Phase(unittest.TestCase):
         self.assertEqual((self.config/'owned').read_text(),'preserve')
         self.assertEqual([self.major[k].process.returncode for k in ('welcome','doctor','thunar','compositor')],[0,0,0,0])
         self.assertTrue(all(a.env.get('DBUS_SESSION_BUS_ADDRESS')=='unix:path=/run/user/23001/bus' for a in self.major.values()))
+
+    def test_cleanup_log_failure_after_seven_frames_stays_fatal(self):
+        self.compositor_finish_error='compositor process log overflow/failure'
+        with self.assertRaisesRegex(ValueError,'compositor process log overflow/failure'):self.run_phase()
+        self.retired()
+        self.assertEqual(len([e for e in self.events if e['event']=='frame_ready']),7)
+        self.assertNotIn('phase_pass',[e['event'] for e in self.events])
+        self.assertEqual(self.events[-1]['checkpoint'],'cleanup')
+
+    def test_compositor_log_receipt_mutations_refuse_acceptance(self):
+        self.run_phase();events=managed_events(self.events)
+        for mutation in ('missing','duplicate','exit','overflow','drain','cap','count','path','pid'):
+            bad=copy.deepcopy(events);log=next(e for e in bad if e.get('event')=='compositor_log_summary')
+            if mutation=='missing':bad.remove(log)
+            elif mutation=='duplicate':bad.append(copy.deepcopy(log))
+            elif mutation=='exit':log['returncode']=1
+            elif mutation=='overflow':log['overflow']=True
+            elif mutation=='drain':log['drains_complete']=False
+            elif mutation=='cap':log['streams'][0]['limit_bytes']=4*1024*1024
+            elif mutation=='count':log['streams'][0]['observed_bytes']=2*1024*1024+1
+            elif mutation=='path':log['streams'][0]['path']='/another/stdout'
+            else:log['pid']+=1
+            with self.subTest(mutation=mutation),self.assertRaises(ValueError):contract.verify_result(bad,self.lock)
 
     def test_failed_gtk_action_retires_every_actor_without_phase_pass(self):
         self.bad_action='Updates'

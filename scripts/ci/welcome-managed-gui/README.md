@@ -99,6 +99,7 @@ After adoption to scripts/ci/welcome-managed-gui/, with the exact asset checkout
 export WELCOME_GUI_ASSETS=/absolute/exact-native-input-checkout
 python3 -B -m unittest discover -s scripts/ci/welcome-managed-gui -p test_gui.py
 python3 -B -m unittest discover -s scripts/ci/welcome-managed-gui -p test_phase.py
+python3 -B -m unittest discover -s scripts/ci/welcome-managed-gui -p test_compositor_log.py
 python3 -B -m unittest discover -s scripts/ci/welcome-managed-gui -p test_doctor_worker.py
 python3 -B -m unittest discover -s scripts/ci/welcome-managed-gui/ci -p test_caller.py
 python3 -B scripts/ci/welcome-managed-gui/prepare.py --source "$PWD" --assets "$WELCOME_GUI_ASSETS" --output /absolute/fresh-welcome-gui-runner
@@ -135,3 +136,17 @@ replay admits this method only for those known guide labels and indices. The
 independent subsequent selected-page and installed guide text-hash snapshots,
 all fourteen captures and existing ownership/cleanup gates remain required.
 Actual38899924764 remains failed at Updates; the new API path needs native retry.
+
+The seven-view GUI exercise gives only compositor stdout an 2 MiB hard
+budget per profile (4 MiB for both profiles); compositor stderr retains the
+shared 256 KiB bound. Every other actor retains the shared bounds. This is
+a finite capacity change for the longer exercise, not a log filter: DEBUG,
+WARN and ERR bytes are all retained up to the budget, excess is drained to
+avoid deadlock and still fails health/cleanup. Separate per-stream observed
+byte counts, limits and drain-error counts are emitted at compositor exit;
+normal exit, drain completion and all existing cleanup checks remain required.
+The source diagnosis was actual 38902823702: minimal Hyprland exited 0,
+stdout filled its previous 262,144-byte bound with repeated DEBUG/EGL output,
+stderr was 1,088 bytes, and cleanup rejected the overflow. The retained
+truncated stream cannot establish total bytes; 2 MiB is an explicit capacity
+choice, not a measured upper bound or a native success claim.

@@ -85,6 +85,10 @@ class Transport(unittest.TestCase):
             self.assertNotIn('dbus-run-session',(output/'base_guest.py').read_text())
             self.assertIn('pkg-config --cflags --libs atspi-2 gobject-2.0',fixture)
             self.assertIn('session.wait(timeout=1080)',(output/'base_guest.py').read_text())
+            self.assertEqual((output/'compositor_log.py').read_bytes(),(HERE/'compositor_log.py').read_bytes())
+            self.assertIn('/runner/compositor_log.py',fixture)
+            self.assertIn('MAX_LOG = 256 * 1024',(output/'base_guest.py').read_text())
+            self.assertIn('L.launch(base,stage,config,logs,env)',(output/'session.py').read_text())
             self.assertNotIn('active_owner',json.dumps(json.loads((HERE/'source-pins.json').read_text())))
 
 
