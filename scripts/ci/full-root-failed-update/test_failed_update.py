@@ -30,6 +30,28 @@ def marker(spec):return dict(event='prepared-precommit-exit',case=lane.CASE,nonc
 def worker():return dict(returncode=86,termination=None,direct_child_reaped=True,group_retired=True)
 
 
+class DescriptorControls(unittest.TestCase):
+    def fixture(self,hard=8192):
+        resource=SimpleNamespace(RLIMIT_NOFILE=7,RLIM_INFINITY=-1,getrlimit=Mock(return_value=(1024,hard)),setrlimit=Mock())
+        return SimpleNamespace(resource=resource),resource
+    def test_private_binding_leaves_original_resource_unchanged(self):
+        module,original=self.fixture();lane.process_binding(module)
+        self.assertIsNot(module.resource,original)
+        module.resource.setrlimit(7,(128,128))
+        original.setrlimit.assert_called_once_with(7,(8192,8192))
+    def test_other_limits_are_forwarded_unchanged(self):
+        module,original=self.fixture(-1);lane.process_binding(module)
+        module.resource.setrlimit(3,(100,100));original.setrlimit.assert_called_once_with(3,(100,100))
+    def test_insufficient_inherited_hard_limit_refuses(self):
+        module,original=self.fixture(4096)
+        with self.assertRaisesRegex(ValueError,'descriptor budget'):lane.process_binding(module)
+        self.assertIs(module.resource,original);original.setrlimit.assert_not_called()
+    def test_unexpected_upstream_request_refuses(self):
+        module,original=self.fixture();lane.process_binding(module)
+        with self.assertRaisesRegex(ValueError,'request differs'):module.resource.setrlimit(7,(256,256))
+        original.setrlimit.assert_not_called()
+
+
 class BoundaryControls(unittest.TestCase):
     def fixture(self,root):
         alpm=SimpleNamespace(started=True,handle='handle',inventory=lambda:BASE,
