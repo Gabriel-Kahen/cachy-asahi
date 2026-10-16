@@ -534,7 +534,7 @@ next_step = "Unselected private-prefix experiment only. Generic16K eight-case ru
 [[packages]]
 name = "cachy-asahi-glibc-gnu-provider"
 phase = "complete-port-core-experiment"
-status = "candidate-source-only"
+status = "candidate"
 source = "https://ftp.gnu.org/gnu/glibc/glibc-2.43.tar.gz"
 upstream_release = "2.43"
 source_archive_sha256 = "e1e622cbd635019090fa23260e5d9ec219b12f97ae7ae02f033d4ae42cf2c004"
@@ -543,16 +543,16 @@ license = "GPL-2.0-or-later; LGPL-2.1-or-later; LicenseRef-glibc-notices"
 selected_for_development = false
 selected_for_release = false
 candidate_version = "2.43.caa1-1"
-native_build = "NOT RUN"
+native_build = "PASS native pair38960150458:19301932bytes/SHA256b852e3fc647d63699c5f42003a748cbd2268991dc2615a494dc3cdda4d757d12; full GNU7058 rows each, ABI/header/staged runtime"
 installation = "NOT RUN"
 hardware_validation = "NOT RUN"
-next_step = "Build the separate conventional /usr provider with full GNU tests and strict ABI checks after private-candidate16K acceptance; then exercise owned-root replacement/removal, locale/cache behavior and recovery. Source authority/expiry, historical recipe correspondence and security/maintenance admission remain unresolved."
+next_step = "Accepted actual native pair and normal-probe compilation packet prepared. Conventional installed lifecycle/interruption/system16K code is bound; dispatch awaits explicit public packet publication approval. Source-key expiry/authority, historical recipe correspondence and security/maintenance admission remain unresolved."
 
 
 [[packages]]
 name = "cachy-asahi-apps"
 phase = "tools-experience"
-status = "candidate-source-only"
+status = "candidate"
 source = "local-original"
 recipe = "packages/tools/cachy-asahi-apps/PKGBUILD"
 license = "MIT"
@@ -560,10 +560,10 @@ candidate_version = "0.1.0-5"
 selected_for_development = false
 selected_for_release = false
 host_validation = "PASS 38 standalone checks plus real574 archive-derived 7MB metadata fixture: readonly ALPM9 inventory, signed collector-to-plan integration and eight-file staging"
-native_build = "NOT RUN"
-installation = "NOT RUN"
+native_build = "PASS native pair38970264456:22088bytes/SHA2569ec47f6cf506c5d2b6da3ac6f4f42e00ce98b8d1985b1b9eca065c38058c1580;39 checks each"
+installation = "PASS signed574to577/repeat/remove/reinstall/final574; installed signed catalog/plans and complete577 metadata collection38970264456"
 hardware_validation = "NOT RUN"
-next_step = "Apps0.1.0-5 stages checksum-verified ordinary makepkg check inputs; actual source-link extraction and all39 checks pass. Native pair and installed full577 lifecycle pending; signed plans remain NOT_APPLIED. Preserve both M2 requirements."
+next_step = "Complete generic16K management integration, copied-root authenticated application transactions and both M2 workflows. Apps plans remain NOT_APPLIED; see docs/validation/management-native-20261016.md."
 
 
 [[packages]]
@@ -578,15 +578,15 @@ selected_for_development = false
 selected_for_release = false
 host_validation = "PASS exact three original helpers, eight-file staging and real installed-layout planner calls in standalone25-check suite"
 native_build = "PASS native ARM pair38967303862: both 28888-byte archives/BUILDINFO byte-identical; Root original comparison replay passes"
-installation = "NOT ACCEPTED: dependency image install reached a failing pacman database-query option; full lifecycle pending"
+installation = "PASS signed dependency image575 and combined574to577/repeat/remove/reinstall/final574 lifecycle38970264456"
 hardware_validation = "NOT RUN"
-next_step = "Finish disposable dependency-checked installation/removal with apps; runtime helpers authenticate development inputs and provide no package apply or production trust authority."
+next_step = "Complete generic16K management integration and both M2 workflows; see docs/validation/management-native-20261016.md. Runtime helpers authenticate development inputs; release selection false."
 
 
 [[packages]]
 name = "cachy-asahi-cache"
 phase = "tools-experience"
-status = "candidate-source-only"
+status = "candidate"
 source = "local-original"
 recipe = "packages/tools/cachy-asahi-cache/PKGBUILD"
 license = "MIT"
@@ -594,10 +594,10 @@ candidate_version = "0.2.0-1"
 selected_for_development = false
 selected_for_release = false
 host_validation = "PASS 27 temporary-target checks with real libalpm16 exclusion, selected cleanup, concurrent refusal and interruption; four-file staging"
-native_build = "NOT RUN"
-installation = "NOT RUN"
+native_build = "PASS native pair38970264456:18304bytes/SHA256450706e2899f57b44ca2f446560c8aeab710a4726a13561d09a2cb4a8bf1da40;27 checks each"
+installation = "PASS signed package lifecycle and six ordinary installed real-ALPM selected cleanup/foreign-lock fixture observations38970264456"
 hardware_validation = "NOT RUN"
-next_step = "Native pair and disposable installed cleanup with protected rollback archives and ordered lifecycle; no automatic obsolete selection, stale unlock, orphan removal, physical-space or recovery claim."
+next_step = "Complete generic16K management integration and both M2 workflows. Cache apply passed only disposable explicit fixtures; physical reclaimed bytes remain NOT_MEASURED. See docs/validation/management-native-20261016.md."
 
 
 [[packages]]
