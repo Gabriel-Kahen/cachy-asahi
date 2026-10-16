@@ -96,6 +96,34 @@ class CallerTests(unittest.TestCase):
             self.assertEqual(self.execute(), 1)
         self.assertTrue(self.result()['cancelled']); self.assertEqual(self.result()['status'], 'FAIL')
 
+    def test_runtime_name_is_accepted_by_real_held_cleanup(self):
+        # Exercise the real ownership gate, with daemon access and deletion inert.
+        cleanup_api = SimpleNamespace(capture=Mock(return_value=''), cleanup=Mock(side_effect=self.cleanup))
+        self.held.cleanup = HELD.cleanup
+        with patch.object(HELD, 'pair_api', return_value=cleanup_api):
+            self.assertEqual(self.execute(), 0)
+        argv = self.api.command.call_args.args[0]
+        name = argv[argv.index('--name') + 1]
+        expected = ['docker', 'container', 'ls', '-a', '--filter',
+                    'name=^/' + name + '$', '--format', '{{.Names}}']
+        self.assertEqual(cleanup_api.capture.call_count, 2)
+        for call in cleanup_api.capture.call_args_list:
+            self.assertEqual(call.args, (expected,))
+        self.assertTrue(self.result()['cleanup']['runtime']['absence_verified'])
+        self.assertFalse(self.args.private.exists())
+
+    def test_unknown_runtime_name_cannot_query_or_erase_private_data(self):
+        self.args.private.mkdir()
+        r.s.save(self.args.private / 'runtime-container.json', {'name': 'unowned-container'})
+        cleanup_api = SimpleNamespace(capture=Mock(), cleanup=Mock())
+        with patch.object(HELD, 'pair_api', return_value=cleanup_api):
+            result = HELD.cleanup(self.args.private, [])
+        self.assertEqual(result['status'], 'FAIL')
+        self.assertFalse(result['runtime']['absence_verified'])
+        cleanup_api.capture.assert_not_called()
+        cleanup_api.cleanup.assert_not_called()
+        self.assertTrue(self.args.private.is_dir())
+
 
 class ProjectionTests(unittest.TestCase):
     def test_caller_uses_real_complete_contract_and_rejects_corrupt_hash(self):
