@@ -45,6 +45,12 @@ other Runner callers remain unchanged. This covers the observer's bounded4096
 hardlink groups plus directory/temporary descriptors. Four controls check the
 private binding, unchanged other limits, insufficient capacity and source drift.
 
+Both full-root selections now allow16MiB of decoder memory. The exact retained
+setup4 XZ archive refuses at8MiB with `Memory usage limit exceeded` and parses
+all13 nodes/six regular payload files at16MiB. The archive reader, package bytes,
+signatures and all other archive bounds remain unchanged. Normal retry38880148414
+reached prepare and failed this budget before commit; copy/source disposal passed.
+
 The original pre-copy persistent source is independently re-observed and must
 match throughout. Its raw cache bytes stay unchanged; only the disposable copy
 receives the existing one-shot cache initialization before the failure baseline.
