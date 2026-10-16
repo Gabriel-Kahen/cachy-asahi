@@ -1,0 +1,108 @@
+{
+  "cleanup": "PASS",
+  "closed_public_files": 72,
+  "evidence": {
+    "bytes": 4773,
+    "path": "artifacts/development/setup5-expanded600-actual-check-20261016/handoff/root-replay/result.json",
+    "sha256": "23711fb69f27cab3834dc7081a9952805ebde68e540c324a8cb57cb55a283ee4"
+  },
+  "expected600_sha256": "d263a3ca9089c204603f2e12b80dc4f209ee6e636f10da940a514040b636db79",
+  "hardware": "NOT_RUN",
+  "limits": [
+    "No native, container, package, shell, manager or hardware actor was run by replay.",
+    "Private full600 payload map and raw other599 installed database/root were not exported; preservation is original source-enforced retained evidence, not a new independent live comparison.",
+    "Original587/audio archives were not re-inspected; retained source policy and runtime joins only.",
+    "Retained signature references and roles match; fresh cryptographic verification is not performed because public key material is not exported.",
+    "Aux comparator is original pinned source with AArch64 tail-padding qualification; helper exit remains NOT_OBSERVED.",
+    "Setup5 real-RC notification checks use the original private notify-send recorder, not real desktop delivery.",
+    "Public six-case receipts retain decoded editor/continuation/lifecycle observations; complete raw PTY streams are not exported for independent byte replay."
+  ],
+  "package_count": 600,
+  "package_sha256": "1aafee365e3bcb04e1fce694c110a997914a07f4359697df5e017375897385fc",
+  "release": "NOT_ADMITTED",
+  "run_id": "38964311175",
+  "scope": "Separate native aarch644096 Setup3to5/repeat/rollback3 and six real generated-RC cases; original600 consumer isolated and unchanged",
+  "setup5": {
+    "aux_transitions": [
+      "BASELINE",
+      "EXACT_LOAD_SAVE_ORDER",
+      "EXACT_LOAD_SAVE_ORDER",
+      "RAW_EQUAL",
+      "EXACT_LOAD_SAVE_ORDER",
+      "EXACT_LOAD_SAVE_ORDER"
+    ],
+    "helper_exit": "NOT_OBSERVED",
+    "notification_scope": "PRIVATE_NOTIFY_SEND_RECORDER_ONLY",
+    "ordinary_uid": 1000,
+    "package_count": 600,
+    "phase_counts": [
+      [
+        "baseline587",
+        587
+      ],
+      [
+        "install600",
+        600
+      ],
+      [
+        "upgrade-setup5-600",
+        600
+      ],
+      [
+        "real-generated-rc-600",
+        600
+      ],
+      [
+        "same-version-setup5-600",
+        600
+      ],
+      [
+        "rollback-setup3-600",
+        600
+      ]
+    ],
+    "raw_ld_aux_checkpoints": 6,
+    "real_cases": 6,
+    "replay": "PASSIVE_RETAINED_NATIVE_RUNTIME_METADATA",
+    "setup3_database_install_date": {
+      "after": [
+        "1792185158"
+      ],
+      "before": [
+        "1792185066"
+      ],
+      "interval": [
+        1792185158,
+        1792185158
+      ],
+      "policy": "NORMAL_ALPM_ROLLBACK_ONLY; ORIGINAL_EIGHT_CHECKPOINT_CONSUMER_IS_ISOLATED"
+    },
+    "setup5_archive_sha256": "1aafee365e3bcb04e1fce694c110a997914a07f4359697df5e017375897385fc",
+    "signed_other599_preservation": "ORIGINAL_SOURCE_ENFORCED_RETAINED_BOOLS_RAW_PRIVATE_MAP_NOT_EXPORTED",
+    "status": "REPLAYED_ORIGINAL_SETUP5_POLICY_AND_NATIVE_REAL_VALIDATORS"
+  },
+  "source_joins": {
+    "accepted_setup5_packet": {
+      "files": 149,
+      "revision": "79d8d2f53510e4f3a04f39c1b1e24c999aa32e44"
+    },
+    "baseline_modules": {
+      "code_files": 34,
+      "code_revision": "8cc0a67295dc68772fc86ad81148eac3bec9eb56",
+      "module_files": 86,
+      "module_revision": "22c095c85cb6fd79d5de0f0ee43ca012c32c2aeb"
+    },
+    "implementation": {
+      "files": 14,
+      "revision": "95ebf2aca32c829351f8b59ef49fa4edea9f0abc",
+      "snapshot": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/setup5-expanded600-actual-check-20261016/handoff/root-replay/implementation-source"
+    },
+    "probe": {
+      "files": 147,
+      "revision": "0bbf875369c816aab19945c3e4f63c9b1f0b61b0",
+      "snapshot": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/setup5-expanded600-actual-check-20261016/handoff/root-replay/probe-source"
+    }
+  },
+  "source_sha": "95ebf2aca32c829351f8b59ef49fa4edea9f0abc",
+  "status": "ROOT_ACCEPTED_NATIVE_SETUP5_EXPANDED600_LIFECYCLE"
+}

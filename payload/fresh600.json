@@ -1,0 +1,84 @@
+{
+  "status": "ROOT_ACCEPTED_SIGNED_EXPANDED600_FRESH_INSTALLER",
+  "run_id": "38965999704",
+  "source_sha": "3cbd856315adb30ba7a1b9246739a520c19c9728",
+  "package_count": 600,
+  "expected600_sha256": "d263a3ca9089c204603f2e12b80dc4f209ee6e636f10da940a514040b636db79",
+  "cleanup": "PASS",
+  "hardware": "NOT_RUN",
+  "release": "NOT_ADMITTED",
+  "scope": "Signed TEST600 fresh install in separately owned generic ARM4K VM with complete independent post-parent root readback",
+  "independent_root_readback": "PASS",
+  "ordinary_parent_retired": "PASS",
+  "ordinary_and_root_flags": {
+    "committed": true,
+    "database_verified": true,
+    "namespace_barrier": true,
+    "numeric_namespace_verified": true,
+    "numeric_ownership_verified": true,
+    "ordinary_parent_nnp_cap0": true,
+    "ownership_verified": true,
+    "parent_inventory_preserved": true,
+    "parent_payload_verified": true,
+    "payload_verified": true,
+    "preservation_verified": true,
+    "private_trust_verified": true,
+    "process_retirement": true,
+    "root_guest_payload_verified": true,
+    "source_cache_preserved": true
+  },
+  "root_observation": {
+    "complete": true,
+    "deadline_seconds": 600,
+    "elapsed_ms": 507978,
+    "footprint": {
+      "bytes": 4929806831,
+      "database_bytes": 11789351,
+      "database_files": 1829,
+      "hardlink_inodes": 1048,
+      "nodes": 124422
+    },
+    "missing_database_nodes": 0,
+    "missing_database_samples": [],
+    "observed_nodes": 124422,
+    "required_database_nodes": 1201,
+    "unsupported_counts": {
+      "absolute-symlink": 24,
+      "auxiliary-present": 3
+    },
+    "unsupported_reasons_omitted": 0
+  },
+  "qemu_seconds": 3852.414,
+  "qemu_natural_exit": true,
+  "source_joins": 101,
+  "closed_public_files": 10,
+  "closed_public_bytes": 132075,
+  "statx_backend": {
+    "bytes": 2784,
+    "deadline_seconds": 600,
+    "fallback": "ORIGINAL_FDINFO_NO_BUDGET_OR_CHECK_WAIVER",
+    "scope": "INDEPENDENT600_ROOT_READBACK_MOUNT_QUERY_ONLY",
+    "sha256": "c3d804e7f2927c7889835ad187a39a3d7c618a4651700f57b0c5413c46612607"
+  },
+  "actual_mount_api": "NOT_EXPORTED_STATX_OR_FDINFO_FALLBACK_NOT_DISTINGUISHED",
+  "native_container_P0": "UNCHANGED_FAILED",
+  "limits": [
+    "Private raw node/hash/ownership maps and installed target/profile/lock bytes were checked by the frozen guest code and are not exported; this replay checks complete summaries and exact retained protocol/source joins, not a new full-byte readback.",
+    "Retired container/image/VM absence is retained source-bound cleanup evidence, not live reobservation.",
+    "No physical installation, target boot, hooks/scriptlets, native-container P0, M2 or performance acceptance.",
+    "Statx source selection and unchanged full hashing/deadlines are checked; runtime choice of statx versus original fdinfo fallback is not reported."
+  ],
+  "evidence": {
+    "path": "artifacts/development/signed600-statx-root-verifier-20261016/handoff/passive-verification.json",
+    "bytes": 4327,
+    "sha256": "22b0e5d43356e8eb8af934be75453841a83550ad2c2cc631899934c36842d088"
+  },
+  "log_archive": {
+    "bytes": 3115442,
+    "sha256": "83bd87ad75113d6f958f389fbc91373318d2dac2b8cb856bb7e812de930f6c30"
+  },
+  "public_frame": {
+    "bytes": 35158,
+    "sha256": "41535f83e77251a2cf7951d16eda9f2e0d561d2879eaf089f03632cf160e7e65"
+  }
+}
