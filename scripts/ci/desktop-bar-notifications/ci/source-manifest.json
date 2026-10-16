@@ -206,7 +206,7 @@
     },
     "source-pins.json": {
       "bytes": 3133,
-      "sha256": "1258f1413c4c083bd8e0be73353c698bd083bd699142d51a95df485881913976"
+      "sha256": "506e17dd8e652b74a8e99b366c382acd08827b9adb180e827842174d1541c348"
     },
     "test_desktop574_runtime.py": {
       "bytes": 12245,
