@@ -47,6 +47,7 @@ def policy():
 def source(root):
  binding=policy();value=decode(read(HERE/'source-manifest.json'))
  need(value['schema_version']==1 and value.get('status')=='FROZEN_NATIVE574_APPS_SOURCE' and 1<=len(value['files'])<=256,'Root frozen finite source closure required')
+ need({'scripts/apps/file_capabilities.py','scripts/apps/test_file_capabilities.py',LANE+'/export_extract.py'}<=value['files'].keys(),'capability-aware Apps source closure required')
  for name,pin in value['files'].items():checked(root,dict(path=name,**pin))
  checked(root,binding['adapter']);return binding
 
@@ -55,6 +56,9 @@ def inputs(root,packet_root):
  need(native.policy()['packet_source']==binding['packet_source'] and native.policy()['packet_index']==binding['packet_index'] and native.VERSIONS==VERSIONS,'same Root-bound accepted management packet required')
  value=native.packet(packet_root);checks=load('package_checks',root/'scripts/checks/package_checks.py');payload,origins=native.package_payload(packet_root,value,checks)
  need(all(row['qualification']=='NATIVE_PAIR_AND_DISPOSABLE_LIFECYCLE' for row in value['packages'].values()),'all four original native lifecycles required')
+ closure=adapter(root)
+ for row in value['packages'].values():
+  for side in ('a','b'):closure.candidate_metadata(checked(packet_root,row['files'][side]))
  return value,payload,origins
 
 def adapter(root):
@@ -65,6 +69,7 @@ def result(value):
  need(value['status']=='PASS_NATIVE574_APPS_ACTUAL_TRANSACTIONS' and value['base_count']==574 and value['counts']==[578,575,574] and value['source_preserved'] is True and value['user_trust_protected_preserved'] is True and value['workspaces_disposed'] is True and value['interrupted_copy']=='NOT_RUN_SEPARATE_ACTOR_REQUIRED' and value['hardware']=='NOT_RUN','actual complete Apps transaction evidence absent')
  need(set(value['refusals'])=={'wrong-plan-sha','precommit-db-drift','foreign-alpm-lock'} and all(r['status']=='FAIL' and r['commit_started'] is False and r['packages_committed'] is False for r in value['refusals'].values()),'three actual zero-commit refusals required')
  need(all(r.get('full574_closure',{}).get('status')=='PASS-recorded-state-preserved' and r['full574_closure']['main_cache']=='RAW_EQUAL' and r['full574_closure']['auxiliary_transition']=={'kind':'RAW_EQUAL'} and r['full574_closure']['auxiliary_inode_liveness']=='NOT_ESTABLISHED_SOURCE_SNAPSHOT_KEYS' for r in value['transactions']),'raw original link/ldconfig closure proof required')
+ need(value.get('security_capabilities')=='EXACT_SOURCE_MAP_PRESERVED' and re.fullmatch('[0-9a-f]{64}',value.get('source_capabilities_sha256') or '') and all(r['full574_closure'].get('security_capabilities')=='EXACT_SOURCE_MAP_PRESERVED' and r['full574_closure'].get('source_capabilities_sha256')==value['source_capabilities_sha256'] for r in value['transactions']),'complete original574 capability preservation required')
  need(len(value['transactions'])==3 and all(r['status']=='PASS_OWNED_DISPOSABLE_APPS_TRANSACTION' and r['dependency_checks']=='ORDINARY_LIBALPM' and r['cleanup']=='OWNED_WORKSPACE_TEMP_AND_ALPM_HANDLE_LOCK_RELEASED' and r['rollback']=='NOT_ATTEMPTED_DISPOSABLE_COPY_ONLY' for r in value['transactions']),'ordinary real commit/cleanup required')
  need(value['transactions'][0]['prepared_add']==VERSIONS and value['transactions'][0]['prepared_remove']=={} and value['transactions'][1]['prepared_add']=={} and value['transactions'][1]['prepared_remove']=={n:v for n,v in VERSIONS.items() if n!='cachy-asahi-repository-runtime'} and value['transactions'][2]['prepared_add']=={} and value['transactions'][2]['prepared_remove']=={'cachy-asahi-repository-runtime':'0.1.0-1'},'explicit add/remove and retained Runtime dependency differ')
  return value

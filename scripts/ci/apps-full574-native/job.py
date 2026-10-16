@@ -32,6 +32,7 @@ def actor(root,output,report,command,api,role,script,extra=()):
  row=reserve(report,output,role);C.need(api.inspect(row['name'],command) is None,'fresh actor name required')
  argv=['/usr/bin/docker','run','--name',row['name'],'--label',C.LABEL+'='+report['token'],'--pull=never','--platform=linux/arm64','--network=none','--read-only','--user=0:0','--cap-drop=ALL','--security-opt=no-new-privileges','--pids-limit=128','--memory=4g','--cpus=2','--ulimit=nofile=8192:8192']
  argv+=['--cap-add='+cap for cap in ('CHOWN','DAC_OVERRIDE','FOWNER','FSETID')]
+ if role in ('extract','lifecycle','interruption'):argv+=['--cap-add=SETFCAP']
  argv+=['--tmpfs','/tmp:rw,nosuid,nodev,exec,size=1g,mode=1777','--env=PYTHONDONTWRITEBYTECODE=1','--env=CACHY_APPS574_SNAPSHOT=1','--env=CACHY_APPS574_FIXTURE=1','--env=CACHY_APPS574_LIFECYCLE=1','--env=OWNER_TOKEN='+report['token'],'--env=OUTPUT_UID='+str(os.getuid()),'--env=OUTPUT_GID='+str(os.getgid())]
  mounts=[(root,'/source',True),(output/'inputs','/inputs',True)]
  if role in ('extract','source-verify','source-cleanup'):
@@ -64,10 +65,12 @@ def materialize(args,output,report):
 
 def bind(root,output,report,packet):
  snap=C.decode(C.read(output/'snapshot-public/snapshot.json'));C.need(snap['status']=='PASS_ORIGINAL574_APPS_CLOSURE_SNAPSHOT','complete original574 snapshot required')
- extraction=C.sha(C.read(output/'snapshot-public/extraction.json'));module=C.adapter(root)
- common=dict(schema_version=1,purpose=module.PURPOSE,snapshot_sha256=report['snapshot_point']['archive_sha256'],extraction_receipt_sha256=extraction,source_tree_sha256=snap['tree_sha256'],source_packages_sha256=snap['source_packages_sha256'],source_closure_sha256=snap['source_closure_sha256'])
- policy=dict(common,baseline_lock_sha256=C.BASE,candidates={n:dict(version=C.VERSIONS[n],archive_sha256=r['files']['a']['sha256'],payload_sha256=module.digest(module.current_payloads()[n])) for n,r in packet['packages'].items()})
- lease=dict(common,token=report['token'],source='/seed',source_identity=snap['source_inode']);C.save(output/'inputs/full574-policy.json',policy);C.save(output/'inputs/full574-lease.json',lease)
+ extraction_raw=C.read(output/'snapshot-public/extraction.json');extraction=C.sha(extraction_raw);extract=C.decode(extraction_raw);module=C.adapter(root)
+ C.need(extract['archive_sha256']==report['snapshot_point']['archive_sha256'] and extract['capability_restoration']=='PRESERVED_AND_COMPLETE_NODE_MAP_VERIFIED' and extract['security_capabilities']==snap['source_capabilities'] and extract['security_capabilities_sha256']==snap['source_capabilities_sha256'],'actual archive/extracted capability map join')
+ common=dict(schema_version=1,purpose=module.PURPOSE,snapshot_sha256=report['snapshot_point']['archive_sha256'],extraction_receipt_sha256=extraction,source_tree_sha256=snap['tree_sha256'],source_packages_sha256=snap['source_packages_sha256'],source_closure_sha256=snap['source_closure_sha256'],source_capabilities_sha256=snap['source_capabilities_sha256'])
+ C.need(type(snap['source_capabilities']) is dict and module.digest(snap['source_capabilities'])==snap['source_capabilities_sha256'],'snapshot capability map binding')
+ policy=dict(common,baseline_lock_sha256=C.BASE,source_capabilities=snap['source_capabilities'],candidates={n:dict(version=C.VERSIONS[n],archive_sha256=r['files']['a']['sha256'],payload_sha256=module.digest(module.current_payloads()[n])) for n,r in packet['packages'].items()})
+ lease=dict(common,token=report['token'],source='/seed',source_identity=snap['source_inode']);C.need(len(C.encoded(policy))<=65536 and len(C.encoded(lease))<=65536,'original bounded adapter policy/lease size');C.save(output/'inputs/full574-policy.json',policy);C.save(output/'inputs/full574-lease.json',lease)
  shutil.copyfile(output/'snapshot-public/base.json',output/'inputs/base.json');report['binding']=dict(policy_sha256=C.sha(C.encoded(policy)),lease_sha256=C.sha(C.encoded(lease)));C.save(output/'owner.json',report)
 
 def run(args):
@@ -194,10 +197,12 @@ def retain(args):
   C.need(owner['status']=='PASS_ACTUAL_TRANSACTIONS_PENDING_ORDERED_CLEANUP' and owner['token']==proof_value['consumer_token'] and owner['source_sha']==proof_value['source_sha'] and owner['producer_token']==proof_value['job_token'] and owner['image']==original['image'] and original['ownership']['token']==proof_value['job_token'],'actual source/producer/lifecycle joins')
   C.need(ordered['status']=='PASS_ORDERED_CONSUMERS_COPIES_KEYS_SOURCE_THEN_PRODUCER' and ordered['consumer']=='PASS_ALL_ACTORS_COPIES_KEYS_AND_SOURCE_RETIRED' and ordered['authority']=='PASS_REMOVED_AFTER_CONSUMER_ABSENCE' and ordered['producer']==original['owned_cleanup'] and original['owned_cleanup']['status']=='PASS' and all(r['status']=='PASS_ABSENCE_VERIFIED' for r in owner['actors']),'complete ordered teardown required')
   C.need(interruption['status']=='FAIL_INTERRUPTED_OWNED_COPY_RETAINED' and interruption['packages_committed']=='UNKNOWN' and interruption['rollback']=='NOT_CLAIMED' and interruption['worker_group_absent'] and interruption['direct_child_reaped'] and owner['interruption']==interruption and owner['lifecycle']==life,'original interruption uncertainty/result join required')
+  C.need(interruption.get('security_capabilities')=='EXACT_SOURCE_MAP_PRESERVED_AFTER_GROUP_ABSENCE' and interruption.get('source_capabilities_sha256')==life['source_capabilities_sha256'],'interrupted physical copy capability map proof required')
   C.need(interruption['time_limit']==300 and interruption['reap_limit']==5 and interruption['seconds']<=305 and sum(row['bytes'] for row in interruption['outputs'].values())<=1024**2,'original interrupted worker bounds required')
   for side,pin in interruption['outputs'].items():
    C.need(side in ('stdout','stderr') and pin['path']=='interrupted-'+side and result['files']['interruption-public/'+pin['path']]=={k:pin[k] for k in ('bytes','sha256')},'original interrupted raw output join')
   snap=C.decode(C.read(args.output/'snapshot-public/snapshot.json'));after=C.decode(C.read(args.output/'snapshot-public/snapshot-after.json'));C.need(snap['status']==after['status']=='PASS_ORIGINAL574_APPS_CLOSURE_SNAPSHOT' and snap['tree_sha256']==after['tree_sha256']==life['source_tree_sha256'] and snap['extraction']['archive_sha256']==owner['snapshot_point']['archive_sha256'],'original snapshot/source preserved after all actual consumers')
+  C.need(snap['source_capabilities']==after['source_capabilities'] and snap['source_capabilities_sha256']==after['source_capabilities_sha256']==life['source_capabilities_sha256'] and snap['extraction']['capability_restoration']=='PRESERVED_AND_COMPLETE_NODE_MAP_VERIFIED' and snap['extraction']['security_capabilities']==snap['source_capabilities'] and snap['extraction']['security_capabilities_sha256']==snap['source_capabilities_sha256'],'actual extraction/source/lifecycle capability map joins')
   C.need(not result['errors'],'closed evidence incomplete');result['status']=C.STATUS
  except Exception as error:result['errors'].append(str(error)[:1024])
  C.save(args.public/'retention.json',result);return result

@@ -44,7 +44,9 @@ class Controls(unittest.TestCase):
   with self.assertRaises(ValueError):C.read(p)
   with self.assertRaisesRegex(ValueError,'duplicate'):C.decode(b'{"a":1,"a":2}')
  def test_source_manifest_and_adapter_are_independent_byte_pins(self):
-  adapter=self.root/'adapter.py';adapter.write_bytes(b'# inert\n');pin=C.ref(self.root,adapter);manifest=self.root/'source-manifest.json';manifest.write_bytes(C.encoded(dict(schema_version=1,status='FROZEN_NATIVE574_APPS_SOURCE',files={'adapter.py':{k:v for k,v in pin.items() if k!='path'}})))
+  adapter=self.root/'adapter.py';adapter.write_bytes(b'# inert\n');pin=C.ref(self.root,adapter);manifest=self.root/'source-manifest.json';manifest.write_bytes(C.encoded(dict(schema_version=1,status='FROZEN_NATIVE574_APPS_SOURCE',files={name:{k:v for k,v in pin.items() if k!='path'} for name in ('adapter.py','scripts/apps/file_capabilities.py','scripts/apps/test_file_capabilities.py',C.LANE+'/export_extract.py')})))
+  for name in ('scripts/apps/file_capabilities.py','scripts/apps/test_file_capabilities.py',C.LANE+'/export_extract.py'):
+   target=self.root/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(b'# inert\n')
   with patch.object(C,'HERE',self.root),patch.object(C,'policy',return_value=dict(adapter=pin)):
    C.source(self.root);adapter.write_bytes(b'# changed\n')
    with self.assertRaisesRegex(ValueError,'hash differs'):C.source(self.root)
@@ -52,13 +54,13 @@ class Controls(unittest.TestCase):
   args=SimpleNamespace(source=self.root,packet=self.root/'carrier/payload')
   with patch.object(C,'source',return_value=dict(packet_source='a'*40)),patch.object(subprocess,'check_output',return_value='b'*40+'\n'),patch.object(C,'inputs',side_effect=AssertionError('packet before carrier check')),self.assertRaisesRegex(ValueError,'carrier checkout'):job.check(args)
  def test_policy_binding_uses_actual_snapshot_not_future_receipt(self):
-  inputs=self.root/'inputs';inputs.mkdir();pub=self.root/'snapshot-public';pub.mkdir();extraction=dict(archive_sha256='a'*64,nodes=42);C.save(pub/'extraction.json',extraction);C.save(pub/'base.json',dict(inert=True))
-  snapshot=dict(status='PASS_ORIGINAL574_APPS_CLOSURE_SNAPSHOT',tree_sha256='b'*64,source_packages_sha256='c'*64,source_closure_sha256='d'*64,source_inode=[1,2]);C.save(pub/'snapshot.json',snapshot)
+  inputs=self.root/'inputs';inputs.mkdir();pub=self.root/'snapshot-public';pub.mkdir();extraction=dict(archive_sha256='a'*64,nodes=42,capability_restoration='PRESERVED_AND_COMPLETE_NODE_MAP_VERIFIED',security_capabilities={'usr/bin/UNIT-inert':'0100000240000000000000000000000000000000'},security_capabilities_sha256=C.sha(C.encoded({'usr/bin/UNIT-inert':'0100000240000000000000000000000000000000'})));C.save(pub/'extraction.json',extraction);C.save(pub/'base.json',dict(inert=True))
+  snapshot=dict(status='PASS_ORIGINAL574_APPS_CLOSURE_SNAPSHOT',tree_sha256='b'*64,source_packages_sha256='c'*64,source_closure_sha256='d'*64,source_inode=[1,2],source_capabilities={'usr/bin/UNIT-inert':'0100000240000000000000000000000000000000'},source_capabilities_sha256=C.sha(C.encoded({'usr/bin/UNIT-inert':'0100000240000000000000000000000000000000'})));C.save(pub/'snapshot.json',snapshot)
   module=SimpleNamespace(PURPOSE='APPS_ORIGINAL574_READONLY_CLOSURE',digest=lambda v:C.sha(C.encoded(v)),current_payloads=lambda:{n:{'inert':n} for n in C.VERSIONS})
   packet=dict(packages={n:dict(files=dict(a=dict(sha256='e'*64))) for n in C.VERSIONS});report=dict(token='f'*32,snapshot_point=dict(archive_sha256='a'*64))
   with patch.object(C,'adapter',return_value=module):job.bind(self.root,self.root,report,packet)
   policy=C.decode(C.read(inputs/'full574-policy.json'));lease=C.decode(C.read(inputs/'full574-lease.json'))
-  self.assertEqual(policy['snapshot_sha256'],'a'*64);self.assertEqual(policy['extraction_receipt_sha256'],C.sha(C.encoded(extraction)));self.assertEqual(lease['source'],'/seed');self.assertEqual(lease['source_identity'],[1,2]);self.assertEqual(set(policy['candidates']),set(C.VERSIONS));self.assertEqual(policy['source_tree_sha256'],snapshot['tree_sha256'])
+  self.assertEqual(policy['snapshot_sha256'],'a'*64);self.assertEqual(policy['extraction_receipt_sha256'],C.sha(C.encoded(extraction)));self.assertEqual(lease['source'],'/seed');self.assertEqual(lease['source_identity'],[1,2]);self.assertEqual(set(policy['candidates']),set(C.VERSIONS));self.assertEqual(policy['source_tree_sha256'],snapshot['tree_sha256']);self.assertEqual(policy['source_capabilities'],snapshot['source_capabilities']);self.assertEqual(policy['source_capabilities_sha256'],lease['source_capabilities_sha256'])
  def test_actor_mounts_no_authority_in_consumers_no_privileged_or_network(self):
   report=dict(token='a'*32,image='sha256:'+'b'*64,actors=[],commands=[]);api=SimpleNamespace(inspect=Mock(side_effect=[None,dict(actual=True)]),verify_actor=Mock(return_value='c'*64));command=Mock(return_value=dict(code=0))
   job.actor(self.root,self.root,report,command,api,'lifecycle','lifecycle.py');argv=command.call_args.args[0]
@@ -98,15 +100,16 @@ class Controls(unittest.TestCase):
   base=dict(schema_version=1,snapshot_id='inert',kind='complete-target-transaction',target_arch='aarch64',packages=[dict(name='base-'+str(n),version='1',files=['usr/share/'+str(n)]) for n in range(574)])
   value=fixture.specification(base,[], 'a'*40);self.assertTrue(value['synthetic']);self.assertEqual(value['base']['sha256'],C.sha(C.encoded(base)));self.assertEqual(len(value['policy']['protected_packages']),574);self.assertEqual(len(value['policy']['coordinated_sets'][0]['versions']),574)
  def test_result_cannot_credit_dependency_autoremove_cache_rewrite_or_false_refusal(self):
-  success=dict(status='PASS_OWNED_DISPOSABLE_APPS_TRANSACTION',dependency_checks='ORDINARY_LIBALPM',cleanup='OWNED_WORKSPACE_TEMP_AND_ALPM_HANDLE_LOCK_RELEASED',rollback='NOT_ATTEMPTED_DISPOSABLE_COPY_ONLY',full574_closure=dict(status='PASS-recorded-state-preserved',main_cache='RAW_EQUAL',auxiliary_transition=dict(kind='RAW_EQUAL'),auxiliary_inode_liveness='NOT_ESTABLISHED_SOURCE_SNAPSHOT_KEYS'))
+  success=dict(status='PASS_OWNED_DISPOSABLE_APPS_TRANSACTION',dependency_checks='ORDINARY_LIBALPM',cleanup='OWNED_WORKSPACE_TEMP_AND_ALPM_HANDLE_LOCK_RELEASED',rollback='NOT_ATTEMPTED_DISPOSABLE_COPY_ONLY',full574_closure=dict(status='PASS-recorded-state-preserved',main_cache='RAW_EQUAL',auxiliary_transition=dict(kind='RAW_EQUAL'),auxiliary_inode_liveness='NOT_ESTABLISHED_SOURCE_SNAPSHOT_KEYS',security_capabilities='EXACT_SOURCE_MAP_PRESERVED',source_capabilities_sha256='a'*64))
   transactions=[dict(success,prepared_add=C.VERSIONS,prepared_remove={}),dict(success,prepared_add={},prepared_remove={n:v for n,v in C.VERSIONS.items() if n!='cachy-asahi-repository-runtime'}),dict(success,prepared_add={},prepared_remove={'cachy-asahi-repository-runtime':'0.1.0-1'})]
-  value=dict(status='PASS_NATIVE574_APPS_ACTUAL_TRANSACTIONS',base_count=574,counts=[578,575,574],source_preserved=True,user_trust_protected_preserved=True,workspaces_disposed=True,interrupted_copy='NOT_RUN_SEPARATE_ACTOR_REQUIRED',hardware='NOT_RUN',transactions=transactions,refusals={n:dict(status='FAIL',commit_started=False,packages_committed=False) for n in ('wrong-plan-sha','precommit-db-drift','foreign-alpm-lock')})
+  value=dict(status='PASS_NATIVE574_APPS_ACTUAL_TRANSACTIONS',base_count=574,counts=[578,575,574],source_preserved=True,user_trust_protected_preserved=True,workspaces_disposed=True,interrupted_copy='NOT_RUN_SEPARATE_ACTOR_REQUIRED',hardware='NOT_RUN',security_capabilities='EXACT_SOURCE_MAP_PRESERVED',source_capabilities_sha256='a'*64,transactions=transactions,refusals={n:dict(status='FAIL',commit_started=False,packages_committed=False) for n in ('wrong-plan-sha','precommit-db-drift','foreign-alpm-lock')})
   C.result(value)
-  for kind in ('autoremove','cache-rewrite','refusal-commit'):
+  for kind in ('autoremove','cache-rewrite','refusal-commit','capability-change'):
    bad=copy.deepcopy(value)
    if kind=='autoremove':bad['transactions'][1]['prepared_remove']=dict(C.VERSIONS)
    elif kind=='cache-rewrite':bad['transactions'][0]['full574_closure']['auxiliary_transition']['kind']='WAIVED'
-   else:bad['refusals']['wrong-plan-sha']['commit_started']=True
+   elif kind=='refusal-commit':bad['refusals']['wrong-plan-sha']['commit_started']=True
+   else:bad['transactions'][0]['full574_closure']['source_capabilities_sha256']='b'*64
    with self.subTest(kind=kind),self.assertRaises(ValueError):C.result(bad)
  def rejected_header(self,*,pax=None,uid=0,mtime=0,mode=0o644):
   old=C.load('original_extraction_diagnostic',ROOT/'scripts/ci/glibc-gnu-provider-lifecycle-owner/snapshot.py');path=self.root/'unit-metadata.tar'
@@ -132,6 +135,45 @@ class Controls(unittest.TestCase):
   raw='x'*20000;value=self.rejected_header(pax={'UNIT.large':raw});row=value['pax']['entries'][0]['value'];self.assertFalse(row['complete']);self.assertEqual(row['bytes'],20000);self.assertEqual(row['sha256'],C.sha(raw.encode()));self.assertEqual(len(base64.b64decode(row['prefix_base64'])),512)
   snap=C.load('Apps_metadata_diagnostic_other',HERE/'snapshot.py');old=C.load('original_extraction_other',ROOT/'scripts/ci/glibc-gnu-provider-lifecycle-owner/snapshot.py')
   self.assertIsNone(snap.metadata_failure(ValueError('unrelated failure'),old));self.assertIsNone(snap.metadata_failure(ValueError('plain archive metadata; xattrs/unknown PAX refused'),old))
+ def test_setfcap_is_only_extract_and_copy_consumer_grant(self):
+  for role in ('extract','lifecycle','interruption','source-verify','signer','scrub','source-cleanup'):
+   report=dict(token='a'*32,image='sha256:'+'b'*64,actors=[],commands=[],snapshot_point=dict(archive_sha256='c'*64));api=SimpleNamespace(inspect=Mock(side_effect=[None,{}]),verify_actor=Mock(return_value='d'*64));command=Mock(return_value=dict(code=0))
+   job.actor(self.root,self.root,report,command,api,role,'INERT-NOT-EXECUTED.py');argv=command.call_args.args[0]
+   self.assertEqual('--cap-add=SETFCAP' in argv,role in ('extract','lifecycle','interruption'));self.assertIn('--security-opt=no-new-privileges',argv);self.assertIn('--network=none',argv)
+ def capability_extractor(self):
+  derivative=C.load('cap_export_derivative',HERE/'export_extract.py')
+  caps=C.load('cap_export_helper',HERE.parents[1]/'apps/file_capabilities.py')
+  return derivative,derivative.isolated(ROOT,caps,C.read)
+ def capability_archive(self,pax,kind=tarfile.REGTYPE):
+  path=self.root/'caps.tar'
+  with tarfile.open(path,'w',format=tarfile.PAX_FORMAT,encoding='utf8',errors='surrogateescape') as stream:
+   for n in ('proc','sys','dev','run','tmp','usr','usr/bin'):
+    m=tarfile.TarInfo(n);m.type=tarfile.DIRTYPE;m.uid=os.getuid();m.gid=os.getgid();m.mode=0o755;stream.addfile(m)
+   m=tarfile.TarInfo('usr/bin/inert');m.type=kind;m.uid=os.getuid();m.gid=os.getgid();m.mode=0o755;m.pax_headers=pax
+   if kind==tarfile.SYMTYPE:m.linkname='literal-unexecuted'
+   stream.addfile(m,io.BytesIO(b'') if kind==tarfile.REGTYPE else None)
+   if kind==tarfile.REGTYPE:
+    alias=tarfile.TarInfo('usr/bin/inert-alias');alias.type=tarfile.LNKTYPE;alias.linkname='usr/bin/inert';alias.uid=m.uid;alias.gid=m.gid;alias.mode=m.mode;stream.addfile(alias)
+  return path
+ def test_exact_diagnostic_bytes_and_hardlink_aliases_are_retained(self):
+  derivative,extractor=self.capability_extractor();raw=bytes.fromhex('0100000240000000000000000000000000000000');path=self.capability_archive({derivative.XATTR:raw.decode('utf8','surrogateescape')})
+  members,total,excluded=extractor.records(path)
+  self.assertEqual(extractor.apps_capabilities,{'usr/bin/inert':raw.hex(),'usr/bin/inert-alias':raw.hex()});self.assertEqual(total,0);self.assertEqual(excluded,[])
+  old=C.load('unchanged_shared_extractor',ROOT/derivative.ORIGINAL)
+  with self.assertRaisesRegex(ValueError,'xattrs/unknown PAX refused'):old.records(path)
+  # Real ordinary tempfile extraction, no capability-bearing program execution.
+  extractor.DATA=self.root;extractor.ROOT=self.root/'root'
+  with patch.dict(os.environ,OWNER_TOKEN='a'*32):value=extractor.extract(path,extractor.ROOT,C.sha(path.read_bytes()))
+  self.assertEqual(value['capability_restoration'],'PENDING_RESTORE_AND_COMPLETE_NODE_VERIFICATION');self.assertEqual(value['original_extractor_sha256'],derivative.ORIGINAL_SHA256);self.assertNotEqual(value['adapted_extractor_sha256'],derivative.ORIGINAL_SHA256)
+  self.assertEqual(value['security_capabilities'],extractor.apps_capabilities);self.assertEqual((extractor.ROOT/'usr/bin/inert').stat().st_ino,(extractor.ROOT/'usr/bin/inert-alias').stat().st_ino)
+ def test_all_other_unknown_or_nonregular_capability_pax_refuse(self):
+  derivative,extractor=self.capability_extractor();text=bytes.fromhex('0100000240000000000000000000000000000000').decode('utf8','surrogateescape')
+  for pax,kind in [({'SCHILY.xattr.user.inert':'x'},tarfile.REGTYPE),({'SCHILY.xattr.security.selinux':'x'},tarfile.REGTYPE),({'SCHILY.acl.access':'x'},tarfile.REGTYPE),({derivative.XATTR:text},tarfile.DIRTYPE),({derivative.XATTR:text},tarfile.SYMTYPE),({derivative.XATTR:'invalid'},tarfile.REGTYPE)]:
+   with self.subTest(pax=list(pax),kind=kind),self.assertRaises(ValueError):extractor.records(self.capability_archive(pax,kind))
+ def test_extractor_source_bytes_and_exact_anchor_are_mandatory(self):
+  derivative,_=self.capability_extractor();caps=SimpleNamespace(pax_value=lambda x:bytes())
+  for raw in (b'inert',C.read(ROOT/derivative.ORIGINAL).replace(b'member.uid>=0',b'member.uid>=1')):
+   with self.assertRaisesRegex(ValueError,'exact original extractor'):derivative.isolated(ROOT,caps,lambda _:raw)
  def test_workflow_source_packet_gates_before_secret_seed(self):
   path=HERE.parents[2]/'.github/workflows/native-arm-apps-full574-transaction.yml'
   if not path.exists():path=ROOT/'.github/workflows/native-arm-apps-full574-transaction.yml'
