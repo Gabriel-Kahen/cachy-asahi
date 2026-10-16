@@ -13,6 +13,14 @@ def load(name,path):
     spec=importlib.util.spec_from_file_location(name,path);module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);return module
 
 
+def absent_environment(helper,home,session):
+    # Fish --no-config skips reading configuration but can still initialize its
+    # XDG config tree. Keep probe-generated state outside the protected HOME.
+    environment=helper.user_environment(home,session)
+    environment['XDG_CONFIG_HOME']=str(session/'fish-config')
+    return environment
+
+
 def main():
     C=load('fish_lifecycle_contract','/runner/contract.py');L=load('accepted_fish_preservation','/accepted/lifecycle.py')
     L.need(os.getuid()==0 and os.getpid()==1 and Path('/.dockerenv').is_file() and os.uname().machine=='aarch64' and
@@ -43,11 +51,12 @@ def main():
             (home/'.config/fish/config-alias').symlink_to('config.fish')
         output=Path('/tmp')/('fish-output-'+kind);output.mkdir(mode=0o700);(output/'outside').write_text('preserve user-owned outside file\n')
         sessions[home]=L.session_paths(home,output)
+        (sessions[home]/'fish-config').mkdir(mode=0o700)
         for path in (home,*home.rglob('*'),output,*output.rglob('*')):os.chown(path,account.pw_uid,account.pw_gid,follow_symlinks=False)
         homes.append((home,L.snapshot(home),output,L.entry(output/'outside')))
 
-    def user(home,argv):
-        environment=L.user_environment(home,sessions[home])
+    def user(home,argv,*,absent_probe=False):
+        environment=absent_environment(L,home,sessions[home]) if absent_probe else L.user_environment(home,sessions[home])
         return L.command(['/usr/bin/runuser','-u','alarm','--','/usr/bin/env','-i',
             *(key+'='+value for key,value in environment.items()),*argv],timeout=150)
 
@@ -108,7 +117,7 @@ def main():
         for home,_,_,_ in homes:
             user(home,['/usr/bin/fish','--no-config','--command',
                 'if test -r /usr/share/cachy-asahi/fish-done/opt-in.fish; source /usr/share/cachy-asahi/fish-done/opt-in.fish; end; '+
-                'functions --query __done_ended caa_done_watch caa_done_disable; and exit 31; exit 0'])
+                'functions --query __done_ended caa_done_watch caa_done_disable; and exit 31; exit 0'],absent_probe=True)
         preserve();events.append(dict(phase=label,status='PASS',inventory_count=574,config_preserved=True,guarded_opt_in_absent=True))
 
     archives=[str(archive)]

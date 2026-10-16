@@ -207,6 +207,24 @@ def publish(p,worker,result,lock):
     finally:os.close(fd)
 
 
+def observation_summary(p,observation,payload,started):
+    """Bounded metadata only; never export node contents or an arbitrary tree."""
+    counts=observation.get('unsupported_counts',{})
+    required={'var/lib/pacman/local/ALPM_DB_VERSION'}
+    for name,version in payload['packages'].items():
+        required.update('var/lib/pacman/local/'+name+'-'+version+'/'+part for part in ('desc','files'))
+    missing=sorted(required-observation['nodes'].keys());footprint=observation.get('footprint',{})
+    summary=dict(complete=observation.get('complete') is True,elapsed_ms=max(0,int((time.monotonic()-started)*1000)),
+        deadline_seconds=600,observed_nodes=len(observation['nodes']),
+        unsupported_counts={(str(reason) if len(str(reason))<=160 else str(reason)[:128]+'#'+hashlib.sha256(str(reason).encode()).hexdigest()[:16]):counts[reason]
+                            for reason in sorted(counts)[:16]},
+        unsupported_reasons_omitted=max(0,len(counts)-16),required_database_nodes=len(required),
+        missing_database_nodes=len(missing),missing_database_samples=missing[:8],
+        footprint={name:footprint[name] for name in ('nodes','bytes','database_files','database_bytes','hardlink_inodes') if name in footprint})
+    need(len(p.encoded(summary))<=8192,'mapped observation diagnostic bound')
+    return summary
+
+
 def verify_export(p,worker,result,c):
     root_guard();need(result.get('status')=='PROVISIONAL_MAPPED_PARENT','mapped parent stage incomplete')
     need(all(result.get(key) is True for key in ('committed','namespace_barrier','payload_verified','ownership_verified',
@@ -222,14 +240,24 @@ def verify_export(p,worker,result,c):
     info=target.stat();need([info.st_dev,info.st_ino]==result['target_identity'] and
          stat.S_ISDIR(info.st_mode) and info.st_uid==info.st_gid==UID and stat.S_IMODE(info.st_mode)==0o700,
          'mapped target identity differs')
-    limits=roots.Limits(deadline=time.monotonic()+600,max_nodes=200000,max_bytes=6*p.GIB,max_file_bytes=p.GIB,max_package_files=500000)
+    started=time.monotonic()
+    limits=roots.Limits(deadline=started+600,max_nodes=200000,max_bytes=6*p.GIB,max_file_bytes=p.GIB,max_package_files=500000)
     observation=roots.observe(target,limits=limits,hardlinks='generic-development-internal')
-    records=driver.database(target,max_packages=587,max_files=500000,max_nodes=1000000,observed=observation['nodes'])
-    need({r['name']:r['version'] for r in records}==profile['expected'],'mapped observer installed inventory differs')
-    for row in records:
-        expected={n for n in payload['ownership'][row['name']] if payload['nodes'][n]['type']!='directory'}
-        need(set(row['files'])==expected,'mapped observer package ownership differs: '+row['name'])
-    worker.compare_payload(normalize(observation),payload,derived_output_binding=profile.get('derived_output_binding'))
+    summary=observation_summary(p,observation,payload,started)
+    try:
+        # observe() returns partial nodes after a bounded traversal failure.
+        # Never reinterpret that failure as a missing installed DB record.
+        need(observation.get('complete') is True and set(observation['unsupported_counts'])<=
+             {'absolute-symlink','auxiliary-present'},'mapped root observation incomplete/unsupported')
+        worker.compare_payload(normalize(observation),payload,derived_output_binding=profile.get('derived_output_binding'))
+        records=driver.database(target,max_packages=587,max_files=500000,max_nodes=1000000,observed=observation['nodes'])
+        need({r['name']:r['version'] for r in records}==profile['expected'],'mapped observer installed inventory differs')
+        for row in records:
+            expected={n for n in payload['ownership'][row['name']] if payload['nodes'][n]['type']!='directory'}
+            need(set(row['files'])==expected,'mapped observer package ownership differs: '+row['name'])
+    except BaseException:
+        result['root_guest_observation']=summary
+        raise
     guest=driver.database(Path('/'),max_packages=1024,max_files=500000,max_nodes=1000000)
     need({r['name']:r['version'] for r in guest}==c['tooling_inventory'],'mapped observer parent inventory differs')
     fd=evidence_directory(worker)
@@ -239,7 +267,7 @@ def verify_export(p,worker,result,c):
     finally:os.close(fd)
     need(hashlib.sha256(lock).hexdigest()==p.EXPECTED,'mapped candidate lock differs')
     worker.checked_inputs(protected=True)
-    result=dict(result,status=worker.PASS,root_guest_payload_verified=True,parent_payload_verified=True,
+    result=dict(result,status=worker.PASS,root_guest_observation=summary,root_guest_payload_verified=True,parent_payload_verified=True,
                 numeric_ownership_verified=True,source_cache_preserved=True,parent_inventory_preserved=True)
     publish(p,worker,result,lock)
     return result

@@ -1,8 +1,8 @@
 {
   "files": {
     ".github/workflows/native-arm-tools-generic16k.yml": {
-      "bytes": 11645,
-      "sha256": "827fd4fc4f6ca4c2c33efd0886dacd377e0d9bb607c2ab241e23bd018c25fc97"
+      "bytes": 11890,
+      "sha256": "7b96f47435872458f4a04905e8f9a0c3f779740a7b56cd8a4fb5b962a2edeb6d"
     },
     "packages/desktop/cachy-asahi-hyprland-settings/.SRCINFO": {
       "bytes": 1811,
@@ -396,6 +396,10 @@
       "bytes": 8884,
       "sha256": "1fe7fbd3dff8856b67aab70284d0815e913a69b9847839457fc20d55f3f0b493"
     },
+    "scripts/ci/tools-generic16k/acquire_kernel.py": {
+      "bytes": 3510,
+      "sha256": "09601f994f25601b7242cb36f38c6b0ead58ab5188d61e27ffe813c737a854b3"
+    },
     "scripts/ci/tools-generic16k/build_kernel.py": {
       "bytes": 11091,
       "sha256": "c6ae177cb7487d86bcdd428994ce0ae3ccf5375262da622cd4bd27f9564758e5"
@@ -405,8 +409,8 @@
       "sha256": "4661566f160cad7fc35ec85e7c1d861ad1bf4ca6c093893e4424c68f6be63ebe"
     },
     "scripts/ci/tools-generic16k/dependencies.json": {
-      "bytes": 20243,
-      "sha256": "cc8df3de61e2dd8ce220546349cde335e1716cff0cef88efd593ea8d6e948c9a"
+      "bytes": 20409,
+      "sha256": "b74ccc0fa6ed7fd0f431752854ef26053040ba64ed34a790d455d2bb891de2cf"
     },
     "scripts/ci/tools-generic16k/guest.py": {
       "bytes": 10855,
@@ -427,6 +431,10 @@
     "scripts/ci/tools-generic16k/support.py": {
       "bytes": 2994,
       "sha256": "94215d08ded23746b7d86b890491db5b09332b41eccf6b1bca994c31bd0195f3"
+    },
+    "scripts/ci/tools-generic16k/test_acquire.py": {
+      "bytes": 5604,
+      "sha256": "71a6154536fa94d7d004c7b8ab24f8d732ea0756321c4e49735a2ac02d993f6e"
     },
     "scripts/ci/tools-generic16k/test_smoke.py": {
       "bytes": 24954,
@@ -507,5 +515,5 @@
   },
   "schema_version": 1,
   "scope": "PRIVATE_GENERIC_ARM64_16K_MAPPED_TOOLS_PTY_CLI_ONLY",
-  "status": "SOURCE_ONLY_ACTUAL_CI_NOT_RUN"
+  "status": "SOURCE_ONLY_BOUNDED_DIRECT_KERNEL_TRANSPORT_FIX"
 }

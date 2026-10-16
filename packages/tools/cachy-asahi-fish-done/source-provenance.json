@@ -44,7 +44,8 @@
     "Independent namespace guard; no automatic startup, focus probes, terminal escape notification, Windows/macOS helpers, eval override or upstream uninstall event.",
     "Default body omits commands and working directories. Optional command text is bounded and XML-escaped.",
     "Explicit current-shell single-process background watcher uses Fish on-process-exit, elapsed from registration; rejects multi-process/pipeline jobs; no all-shell job discovery.",
-    "Notification transport bounded by coreutils timeout (2s plus 1s kill grace)."
+    "Notification transport bounded by coreutils timeout (2s plus 1s kill grace).",
+    "Pkgrel2: timeout --foreground keeps monitor alive to reap the named single-process notify-send after forced kill. Bound remains2s+1s grace; arbitrary descendants are not covered. Proven by isolated host child-subreaper probe; native lifecycle retry remains required."
   ],
   "original_source_installed_as_inert_record": "done.upstream.fish; not sourced by wrapper"
 }

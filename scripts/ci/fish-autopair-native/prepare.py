@@ -24,6 +24,8 @@ def source(kind,root):
             ('all eight owned consumers','all four owned consumers',1),
             ('scripts/ci/tools-native','scripts/ci/fish-autopair-native',2),('tools-consumer:','fish-autopair-consumer:',1),
             ('PASS_NATIVE_TOOLS_CANDIDATES_CLI_PTY_LIFECYCLE','PASS_NATIVE_FISH_AUTOPAIR_CANDIDATE_LIFECYCLE',2),
+            ("C.validate_lifecycle(report['lifecycle'])",
+             "C.validate_retained_lifecycle(report,read(runtime/'lifecycle.json',4*1024**2))",1),
             ("    for path in sorted((source/'scripts/ci/fish-autopair-native').iterdir()):\n        if path.is_file():copy(path,'harness/'+path.name,2*1024**2)",
              "    for relative in read(source/'scripts/ci/fish-autopair-native/source-manifest.json')['files']:\n        if relative.startswith('scripts/ci/fish-autopair-native/'):\n            path=source/relative;copy(path,'harness/'+path.name,2*1024**2)",1),
             ("        for path in sorted((source/'packages/tools'/product).iterdir()):copy(path,'source/'+product+'/'+path.name,1024**2)",

@@ -27,7 +27,7 @@ Once explicitly enabled, foreground commands lasting **more than 5000 ms**
 request a notification, including when the terminal stays focused. Success uses
 normal urgency; failure/cancellation uses critical urgency and the actual exit
 status. This focus-independent policy is deliberate and differs from upstream.
-Each notify-send call is bounded to 2 seconds plus a 1-second kill grace; calls
+Each named notify-send process is bounded to 2 seconds plus a 1-second kill grace; calls
 run synchronously, so a failed or slow service can delay the prompt by that
 bound. Transport errors are suppressed and do not change the command's status.
 No automatic retries or sound fallback are performed.
@@ -89,3 +89,12 @@ package-manager lifecycle, native ARM builds, generic 16K operation, both M2 Air
 models and performance remain NOT RUN. The unchanged upstream code and complete
 MIT notices are provided for review; the adapted path is not a full upstream
 feature-equivalence claim.
+
+
+Pkgrel2 uses timeout --foreground so the timeout monitor survives its forced
+kill and reaps the named notify-send child. The normal libnotify binary is a
+single process; this bound does not cover arbitrary descendants launched by a
+replacement command. A controlled isolated host subreaper probe confirmed that
+the previous group-kill mode killed the monitor and left an adopted zombie,
+whereas foreground mode reaped the child and removed its /proc entry in3seconds.
+Real desktop delivery/physical validation remain NOT_RUN.

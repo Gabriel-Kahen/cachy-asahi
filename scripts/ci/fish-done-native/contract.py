@@ -63,7 +63,7 @@ def recipe(source,name=PACKAGE):
     need({p.name for p in root.iterdir()}==expected,'exact12 Done recipe inputs required');inputs={}
     for path in root.iterdir():
         need(path.is_file() and not path.is_symlink() and path.stat().st_size<=1024**2,'bounded regular input required');inputs[path.name]=digest(path)
-    need(meta.get('pkgname')==[PACKAGE] and meta.get('pkgver')==['0.1.0'] and meta.get('pkgrel')==['1'] and
+    need(meta.get('pkgname')==[PACKAGE] and meta.get('pkgver')==['0.1.0'] and meta.get('pkgrel')==['2'] and
          meta.get('arch')==['any'] and meta.get('license')==['MIT'] and meta.get('depends')==['fish>=4.9.3','libnotify','coreutils'] and
          meta.get('makedepends')==['python'] and len(meta.get('source',[]))==len(meta.get('sha256sums',[]))==9 and
          set(meta['source'])==expected-{'PKGBUILD','.SRCINFO','README.md'},'fixed offline any/MIT/dependency source set required')
@@ -75,7 +75,7 @@ def recipe(source,name=PACKAGE):
     return dict(metadata=meta,input_sha256=inputs)
 
 
-def version(source,name=PACKAGE):recipe(source,name);return '0.1.0-1'
+def version(source,name=PACKAGE):recipe(source,name);return '0.1.0-2'
 
 
 def files(name=PACKAGE):

@@ -1,7 +1,7 @@
 # Native Fish Done candidate
 
 Separate manual lane for the final12-source/eight-payload Done package,
-version0.1.0-1. The frozen Tools and Autopair lanes remain unchanged. This
+version0.1.0-2. The frozen Tools and Autopair lanes remain unchanged. This
 uses Autopair's small fixed-anchor adapter pattern around the exact pinned
 Tools run/job code and the accepted Welcome build/preservation helpers.
 It adds no general framework or dependency-fetch path.
@@ -83,3 +83,30 @@ Source/inert controls, prior host fixtures and compilation of generated
 Python are separate from actual native builds, installed lifecycle,
 cleanup,16K, M2/hardware, desktop notifications, performance, signatures or
 release admission. Actual native work remains NOT_RUN until Root dispatches.
+
+
+Actual38918307798: both native makepkg18case checks and exact build pair passed,
+but first installed transport-timeout control failed exact /proc PID absence.
+A controlled private host subreaper probe confirms old timeout group-kill sends
+SIGKILL to its own monitor and leaves the killed child adopted as a zombie;
+--foreground leaves the monitor alive to reap the named child in3seconds.
+The native failed PID state was not retained; the causal mechanism is confirmed
+in host/source evidence, not asserted as directly observed native state.
+Product pkgrel2 uses --foreground, retains all18cases/private recorder/strict
+PID absence/failure/privacy and kill assertions, and bounds the normal
+single-process notify-send; arbitrary descendants are not claimed bounded.
+Also retain the source-predicted absent-probe correction demonstrated in
+autopair38915141096: only absent XDG_CONFIG_HOME points to pre-owned0700 external
+session/fish-config; actual HOME/allotherenv/protected snapshots and all five
+ALPM transitions stay strict. No baseline reset or ignore rule is added.
+Old actual remains FAIL and immutable; corrected native retry is NOT_RUN.
+
+
+The Done job adapter also corrects the shared closed-export key-order defect
+Root demonstrated in autopair38918809286: it reads the original standalone
+runtime/lifecycle.json, requires semantic equality with the sorted parent
+report's lifecycle value, and validates the original-order proof/digest. It
+never regenerates raw receipt bytes from the recursively sorted parent report.
+Exact receipt digests and all lifecycle gates remain unchanged. Inert actual-
+shaped controls reproduce the old sorted-proof rejection, run the exact adapted
+export statements successfully, and reject report or receipt-digest tampering.
