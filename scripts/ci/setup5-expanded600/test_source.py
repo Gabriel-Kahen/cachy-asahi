@@ -1,0 +1,204 @@
+# SPDX-License-Identifier: MIT
+"""Pure contract, real temporary metadata, AST and mocked actor controls; no native actors."""
+import ast
+import copy
+import importlib.util
+import json
+from pathlib import Path
+import tempfile
+import unittest
+from types import SimpleNamespace
+from unittest.mock import patch
+import policy as P
+import host
+import gate
+import lifecycle as T
+
+ROOT=next(p for p in Path(__file__).resolve().parents if (p/'AGENTS.md').is_file())
+
+
+def functions(raw):return {n.name:ast.dump(n) for n in ast.parse(raw).body if isinstance(n,ast.FunctionDef)}
+
+
+def descriptor(date=1,dependency='python>=3.11'):
+    return ('%NAME%\n'+P.SETUP+'\n\n%VERSION%\n0.1.0-3\n\n%INSTALLDATE%\n'+str(date)+'\n\n%DEPENDS%\n'+dependency+'\n\n').encode()
+
+
+class Contracts(unittest.TestCase):
+    def setUp(self):
+        self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup);self.work=Path(self.tmp.name)
+        self.lock=dict(line.split() for line in (ROOT/'scripts/ci/expanded600-installer-vm/expected600.lock').read_text().splitlines())
+
+    def test_pending_root600_acceptance_refuses_before_any_actor_or_git(self):
+        with patch.object(P.subprocess,'Popen',side_effect=AssertionError('actor forbidden')),\
+             patch.object(P,'revision',side_effect=AssertionError('Git forbidden')):
+            with self.assertRaisesRegex(ValueError,'Root accepted original600'):
+                gate.verify(ROOT,'a'*40,'a'*40,ROOT,ROOT,ROOT,ROOT,ROOT)
+
+    def bound(self):
+        value=copy.deepcopy(P.read(P.HERE/'input-policy.json'));proof=P.read(P.HERE/'root-setup5-acceptance.json')
+        baseline=dict(fixture_only=True,status='ROOT_ACCEPTED_NATIVE_EXPANDED600_COMPOSITION',source_sha=value['baseline_source'],run_id='999000001',
+            package_count=600,expected600_sha256=P.AFTER,bang_version='0.1.0-2',bang_pair_bytes_buildinfo='PASS',installed_lifecycle='PASS',installed_six_modules='PASS',cleanup='PASS',hardware='NOT_RUN')
+        for name,v in [('native.json',baseline),('setup5.json',proof)]:
+            (self.work/name).write_bytes(P.encoded(v))
+        value.update(status='ROOT_BOUND_SETUP5_EXPANDED600_AFTER_NATIVE600_ACCEPTANCE',
+            baseline_acceptance=P.ref(self.work/'native.json'),setup5_acceptance=P.ref(self.work/'setup5.json'))
+        (self.work/'input-policy.json').write_bytes(P.encoded(value));return value,baseline
+
+    def test_real_setup5_prerequisite_and_native600_receipt_schema_are_separate(self):
+        self.bound()
+        with patch.object(P,'HERE',self.work):self.assertEqual(P.policy()['setup5_source'],P.PAIR)
+
+    def test_failed_wrong_source_or_incomplete600_receipt_refuses(self):
+        for key,bad in [('status','FAIL'),('package_count',599),('source_sha','0'*40),('cleanup','FAIL'),('installed_six_modules','NOT_RUN')]:
+            value,baseline=self.bound();baseline[key]=bad;(self.work/'native.json').write_bytes(P.encoded(baseline))
+            value['baseline_acceptance']=P.ref(self.work/'native.json');(self.work/'input-policy.json').write_bytes(P.encoded(value))
+            with self.subTest(key=key),patch.object(P,'HERE',self.work),self.assertRaises(ValueError):P.policy()
+
+    def test_only_setup3_to5_changes_while_all600_names_and_other599_versions_hold(self):
+        after=P.expected(self.lock,'0.1.0-5');self.assertEqual(len(after),600)
+        self.assertEqual({n:v for n,v in after.items() if n!=P.SETUP},{n:v for n,v in self.lock.items() if n!=P.SETUP})
+        self.assertEqual(P.expected(self.lock,'0.1.0-3'),self.lock)
+        with self.assertRaises(ValueError):P.expected(self.lock,'0.1.0-4')
+        changed=dict(self.lock);changed['fish']='999'
+        with self.assertRaises(ValueError):P.expected(changed,'0.1.0-5')
+
+    def test_other599_database_and_records_detect_tamper(self):
+        before={n:dict(version=v) for n,v in self.lock.items()};records={n:dict(desc=n.encode().hex()) for n in before}
+        after=copy.deepcopy(before);after[P.SETUP]['version']='0.1.0-5';changed=copy.deepcopy(records);changed[P.SETUP]['desc']='new'
+        T.other599(before,records,after,changed)
+        changed['fish']['desc']='changed'
+        with self.assertRaisesRegex(ValueError,'other599'):T.other599(before,records,after,changed)
+        changed=copy.deepcopy(records);after['fish']['version']='999'
+        with self.assertRaises(ValueError):T.other599(before,records,after,changed)
+
+    def test_setup3_normal_alpm_date_delta_only(self):
+        T.restored_desc(descriptor(1),descriptor(2),2,2)
+        for after in [descriptor(2,'changed'),descriptor(3),descriptor(2).replace(b'0.1.0-3',b'0.1.0-4')]:
+            with self.assertRaises(ValueError):T.restored_desc(descriptor(1),after,2,2)
+        with self.assertRaises(ValueError):T.desc_fields(descriptor()+b'%NAME%\nduplicate\n\n')
+
+    def test_borrowed_packet_metadata_and_bytes_change_is_visible(self):
+        path=self.work/'index.json';path.write_bytes(b'original');before=host.packet_snapshot(self.work)
+        path.write_bytes(b'changed');self.assertNotEqual(host.packet_snapshot(self.work),before)
+        path.unlink();path.symlink_to('/unowned')
+        with self.assertRaises(ValueError):host.packet_snapshot(self.work)
+
+
+class Source(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        with patch.object(P.subprocess,'Popen',side_effect=AssertionError('actor forbidden')):
+            cls.namespace,cls.host_source=host.original_namespace(ROOT)
+        cls.original=(ROOT/'scripts/ci/expanded-development-composition/run.py').read_text()
+        cls.life=(ROOT/'scripts/ci/expanded-development-composition/lifecycle.py').read_text()
+
+    def test_unchanged_host_helpers_and_original_finally_cleanup(self):
+        a,b=functions(self.original),functions(self.host_source)
+        self.assertEqual({n for n in a if a[n]!=b[n]},{'main','export'})
+        def final(raw):
+            main=next(n for n in ast.parse(raw).body if isinstance(n,ast.FunctionDef) and n.name=='main')
+            return [ast.dump(n.finalbody[0])+'|'+','.join(ast.dump(x) for x in n.finalbody[1:]) for n in main.body if isinstance(n,ast.Try)]
+        self.assertEqual(final(self.original),final(self.host_source))
+        self.assertIn('signal.setitimer(signal.ITIMER_REAL,6600)',self.host_source)
+        self.assertIn('C.validate_result(life)',self.host_source)
+
+    def test_separate_consumer_runs_before_unchanged_original_and_is_owned(self):
+        self.assertLess(self.host_source.index('setup5_host.consume('),self.host_source.index("resultdir=out/'container'"))
+        self.assertIn('len(owned.rows)==4',self.host_source)
+        self.assertEqual(self.host_source.count("execute(argv+['--entrypoint=/usr/bin/python3',image,'-I','-B','/runner/lifecycle.py']"),1)
+        self.assertIn("'setup5/'+n for n in setup5_host.P.PUBLIC",self.host_source)
+
+    def test_bootstrap_adapter_inserts_only_its_explicit_result_before_original_continuation(self):
+        raw=T.adapted_source(self.life)
+        extra="        report.update(_setup5_trial(locals()),ldconfig=ld_receipts)\n        return 0\n"
+        self.assertEqual(raw.replace(extra,''),self.life)
+        self.assertEqual({n for n,v in functions(self.life).items() if functions(raw)[n]!=v},{'main'})
+        self.assertNotIn("'--noscriptlet','-U','--print'",raw)
+        self.assertIn("['--noconfirm','-U','--print'",raw)
+        self.assertIn("restore('final587')",self.host_source if "restore('final587')" in self.host_source else self.life)
+
+    def test_anchor_drift_refuses_instead_of_applying_broad_replacements(self):
+        with self.assertRaises(ValueError):T.adapted_source(self.life.replace("install();checkpoint('install600',after,rows)",'missing'))
+        with self.assertRaises(ValueError):host.replace('x x','x','y')
+
+    def test_no_setup5_build_or_new_signing_authority_in_extension(self):
+        raw=Path(host.__file__).read_text()
+        self.assertIn('sign.append(dest)',raw);self.assertIn('verifier(path,signature,signer)',raw)
+        self.assertNotIn('quick-generate-key',raw);self.assertNotIn('makepkg',raw)
+        self.assertIn("STAGED['signer']==plan['test_signer']",raw)
+        self.assertIn("snapshot.C=native",Path(T.__file__).read_text())
+        self.assertIn('timeout=240',Path(T.__file__).read_text())
+        self.assertIn("['--noconfirm','--noscriptlet','-U',rollback]",Path(T.__file__).read_text())
+
+    def test_manual_workflow_presecret_gate_and_fixed_input_sources(self):
+        root=Path(P.HERE).parents[2]  # proposed checkout root
+        file=root/'.github/workflows/native-arm-setup5-expanded600.yml';text=file.read_text()
+        self.assertIn('workflow_dispatch:',text);self.assertNotIn('schedule:',text)
+        self.assertLess(text.index('setup5-expanded600/gate.py'),text.index('secrets.'))
+        self.assertIn('ref: '+P.PAIR,text);self.assertIn('ref: '+P.PROBE,text)
+        self.assertIn('setup5-expanded600/run.py',text);self.assertIn('--code-revision "$EXPANDED_SOURCE"',text)
+        self.assertIn('7200s',text);self.assertIn('timeout-minutes: 220',text)
+
+
+class Results(unittest.TestCase):
+    def setUp(self):
+        flags=dict(signatures=True,dependencies=True,payload=True,ownership=True,originals_preserved=True,user_config_preserved=True)
+        preserved=dict(other599_versions=True,other599_database=True,other599_payload=True,configuration_preserved=True,database_check=True)
+        self.value=dict(status='PASS_SETUP5_EXPANDED600_INTEGRATION',scope='SEPARATE_OWNED_FULL600_SETUP5_CONSUMER',package_count=600,
+            restored_count=600,baseline600_sha256=P.AFTER,setup5_archive_sha256=P.ARCHIVE,setup3_version='0.1.0-3',setup5_version='0.1.0-5',
+            original_consumer_modified=False,hardware='NOT_RUN',release='NOT_ADMITTED',
+            setup5_events=[dict(phase=n,count=600,status='PASS',inventory_sha256=P.AFTER if n==P.PHASES[-1] else P.TRIAL,**preserved) for n in P.PHASES],
+            events=[dict(phase=n,count=count,status='PASS',**flags) for n,count in [('baseline587',587),('install600',600)]],
+            ldconfig=[dict(phase=n,helper_exit='NOT_OBSERVED',state_sha256='a'*64,aux_sha256='b'*64,
+                transition=dict(kind='RAW_EQUAL' if i else 'BASELINE')) for i,n in enumerate(P.LD_PHASES)],
+            real_modules=dict(fixture_only=True),complete_user_workspace_preserved=True,ordinary_user_processes_absent=True,
+            setup3_payload_restored=True,setup3_database_semantics_restored=True,other_setup3_db_files_identical=True)
+        self.called=[];self.native=SimpleNamespace(validate_real=lambda value:self.called.append(value))
+
+    def test_separate_result_requires_native_probe_validator(self):
+        P.validate(self.value,self.native);self.assertEqual(self.called,[dict(fixture_only=True)])
+
+    def test_partial_wrong_version_or_original_consumer_modification_refuses(self):
+        for key,bad in [('package_count',599),('setup5_version','0.1.0-4'),('original_consumer_modified',True),
+                        ('complete_user_workspace_preserved',False),('ordinary_user_processes_absent',False)]:
+            value=copy.deepcopy(self.value);value[key]=bad
+            with self.subTest(key=key),self.assertRaises(ValueError):P.validate(value,self.native)
+        value=copy.deepcopy(self.value);value['setup5_events'].pop()
+        with self.assertRaises(ValueError):P.validate(value,self.native)
+
+    def test_every_other599_gate_and_untouched_bootstrap_gate_is_required(self):
+        for section,key in [('setup5_events','other599_database'),('setup5_events','other599_payload'),('setup5_events','configuration_preserved'),
+                            ('events','payload'),('events','signatures')]:
+            value=copy.deepcopy(self.value);value[section][0][key]=False
+            with self.subTest(section=section,key=key),self.assertRaises(ValueError):P.validate(value,self.native)
+
+    def test_ldconfig_reset_or_raw_join_hash_omission_refuses(self):
+        for key,bad in [('phase','new-baseline'),('state_sha256','missing'),('transition',dict(kind='BASELINE'))]:
+            value=copy.deepcopy(self.value);value['ldconfig'][1][key]=bad
+            with self.subTest(key=key),self.assertRaises(ValueError):P.validate(value,self.native)
+
+    def test_native_real_probe_failure_cannot_be_hidden_by_600_preservation(self):
+        def failed(_):raise ValueError('real native probe failed')
+        with self.assertRaisesRegex(ValueError,'real native probe failed'):
+            P.validate(self.value,SimpleNamespace(validate_real=failed))
+
+
+class Workspace(unittest.TestCase):
+    def test_all_seven_home_trees_are_preserved_beyond_the_old128_node_cap(self):
+        native=ROOT/'scripts/ci/setup5-native-real-modules/lifecycle.py'
+        N=P.load('setup5_test_workspace_native',native);N.C=P
+        io=P.load('setup5_test_legacy_entries',ROOT/'scripts/ci/welcome-native/lifecycle.py')
+        H=P.load('setup5_test_per_home_bounds',ROOT/'scripts/ci/setup5-real-modules/run.py')
+        with tempfile.TemporaryDirectory() as folder:
+            parent=Path(folder);work=parent/'work';work.mkdir();(work/'receipt.json').write_text('{}\n')
+            real=dict(lifecycle={name:{} for name in ('fish-a','fish-b','zsh-a','zsh-b','fish-noninteractive','zsh-noninteractive')})
+            for name in [*real['lifecycle'],'edited-conflict-user']:
+                home=work/name;home.mkdir()
+                for n in range(30):(home/str(n)).write_bytes(b'preserved user state\n')
+            before=N.workspace_snapshot(parent,real,io,H);self.assertGreater(len(before),210)
+            changed=work/'edited-conflict-user/29';changed.write_bytes(b'changed edit\n')
+            self.assertNotEqual(N.workspace_snapshot(parent,real,io,H),before)
+
+
+if __name__=='__main__':unittest.main(verbosity=2)
