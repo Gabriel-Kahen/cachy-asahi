@@ -22,8 +22,8 @@ import tempfile
 import time
 import zipfile
 
-RUN = 38953883080
-SOURCE = 'c21ba12e7e6f10a499458350eb6235096a0e5189'
+RUN = 38960150458
+SOURCE = '0056a7c1b83ff325f1368d3659cfeb8e5a5c8358'
 PACKAGE = 'cachy-asahi-glibc-gnu-provider-2.43.caa1-1-aarch64.pkg.tar.xz'
 HELD = 'glibc-2.43+r22+g8362e8ce10b2-2-aarch64.pkg.tar.xz'
 HELD_SHA = '8fac217e98c6e4342326726b2640ac254e8c82032f06f30bfa13ebbcc4fcb25b'
