@@ -186,6 +186,30 @@ class Inert(ActorGuard):
             self.assertEqual({p.name:C.digest(p) for p in target.iterdir()},C.recipe(ROOT)['input_sha256'])
             self.assertIn('.SRCINFO',{p.name for p in target.iterdir()})
 
+    def test_database_queries_omit_transaction_only_option(self):
+        tree=ast.parse((ROOT/'scripts/ci/setup5-native/lifecycle.py').read_text())
+        main=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='main')
+        base=next(n for n in main.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='pacman' for t in n.targets))
+        installed=next(n for n in main.body if isinstance(n,ast.FunctionDef) and n.name=='installed')
+        captured=[]
+        def command(argv):captured.append(argv);return ''
+        def need(ok,reason):self.assertTrue(ok,reason)
+        scope=dict(config=Path('/inert/config'),original={},rows={'fixture':dict(payload={})},
+                   C=SimpleNamespace(PACKAGE='candidate',files=lambda:{}),
+                   L=SimpleNamespace(inventory=lambda:{'candidate':'fixture'},command=command,need=need))
+        exec(compile(ast.Module(body=[base,installed],type_ignores=[]),'<exact-queries>','exec'),scope)
+        scope['installed']('fixture')
+        self.assertEqual(len(captured),4)
+        self.assertTrue(all('--noscriptlet' not in argv for argv in captured))
+        transition=next(n for n in main.body if isinstance(n,ast.FunctionDef) and n.name=='transition')
+        statement=next(n for n in transition.body if isinstance(n,ast.Expr) and isinstance(n.value,ast.Call) and isinstance(n.value.func,ast.Attribute) and n.value.func.attr=='command')
+        self.assertIsInstance(statement,ast.Expr)
+        for version in ('fixture',None):
+            scope.update(version=version,archives={'fixture':Path('/inert/archive')})
+            exec(compile(ast.Module(body=[statement],type_ignores=[]),'<exact-transaction>','exec'),scope)
+            self.assertEqual(captured[-1].count('--noscriptlet'),1)
+            self.assertIn('-U' if version else '-R',captured[-1])
+
     def test_recipe_staging_still_refuses_existing_destination_without_overwrite(self):
         with tempfile.TemporaryDirectory() as temp:
             target=Path(temp)/'nested'/'package';target.mkdir(parents=True);(target/'sentinel').write_bytes(b'preserve')

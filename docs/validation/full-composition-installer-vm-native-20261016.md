@@ -1,5 +1,15 @@
 # Full587 installation inside a generic ARM VM
 
+## Accepted software installation38921039131
+
+[Actual38921039131](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38921039131), Source/workflow `52bc53f05b9eb4cbb125f76fd53b9ba5aae6d72c`, passes the complete signed587 fresh-install software route. Root joins the exact nonce-bound boot/result/exit protocol, nested guest/VM/caller receipts and all nine closed public files/120435bytes. All15 ordinary/root acceptance flags are true, including actual commit, numeric ownership, private trust, preserved parent/source cache, retired ordinary processes and independent root payload/database readback. The exact SONAME link remains root-owned0777; hooks/scriptlets stay disabled and implicit ldconfig exit remains unobserved.
+
+Independent root observes all123866 filesystem nodes, 4882156918logical bytes,1790database files and all1175 required database nodes, with none missing. The target footprint is complete and matches the root counters. Observation takes593819ms under the original600s budget, leaving6.181s margin; no deadline/resource allowance changed. A larger composition still requires its own actual result. The previous partial-observation cause is not retrospectively proven by this success.
+
+The guest reports aarch64/4096 on kernel7.2.10-1-aarch64-ARCH and nonce `093f9a548d044cfaaa2e86ddff330bc2`. QEMU exits naturally after3721.634s. Tooling/disk commands all exit0; all16 added tooling packages are accounted for and tooling trust cleanup passes. VM process/container/image/private state retires before producer/key-agent/private-cache and caller cleanup; borrowed cache/images stay preserved. Root replays the unchanged pure protocol/acceptance validator and checks all source files against the actual Git revision. Full private disk/package contents are checked in the guest and are not exported.
+
+Once-collected logs are3116119bytes, SHA256 `85042d1545c9468c0c8137a051bc3fdd09f613d77f37ca65fd3f4606f0c4865d`. Only the declared full-installer-public frame is decoded. The local acceptance record is `artifacts/development/full-installer-vm-run38921039131/root-verification.json`. This clears the original587 software prerequisite for the separate600 installer. It does not accept M2/macOS partitioning/Asahi boot, native-container P0, production signing, hook/service behavior, actual recovery, performance or complete M8.
+
 ## Exact derived-link retry38904382289
 
 Commit `b0ef18da839227cd843f7f5cdd9e7dccd8033fa8` predicts and verifies exactly one derived SONAME link: `usr/lib/libvsscript.so -> libvapoursynth-script.so.0`, root-owned0777. The complete passive574-archive scan predicts only this addition. The builder recomputes the full actual587 input set before starting the VM and refuses a different projection. Both ordinary and independent root-guest observers require the exact selected metadata; default unexpected-output refusal is unchanged. The actual link metadata from38891384087 remains unobserved. A bounded exact-node diagnostic is retained by the new implementation if the next observation differs.
