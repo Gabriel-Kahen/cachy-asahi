@@ -5,6 +5,18 @@
       "mode": 420,
       "sha256": "79a869d9adc6405a07ac647d01be905f99cc1e8dedd0821f38680fc504b919dd",
       "source": "packages/tools/cachy-asahi-fish-done/check-module.py"
+    },
+    "fixtures/notify_recorder.c": {
+      "bytes": 4622,
+      "mode": 420,
+      "sha256": "9587d70952a4d9eef09aaa5c242e182018c77abdd9813d0c9723290f09d1cab4",
+      "source": "scripts/ci/fish-done-generic16k/notify_recorder.c"
+    },
+    "fixtures/recorder_adapter.py": {
+      "bytes": 1312,
+      "mode": 420,
+      "sha256": "8d108ad36484d34f711e93cb5e3a2cc2cb32abd69132080d3fb53edf12ba2d34",
+      "source": "scripts/ci/fish-done-generic16k/recorder_adapter.py"
     }
   },
   "products": {

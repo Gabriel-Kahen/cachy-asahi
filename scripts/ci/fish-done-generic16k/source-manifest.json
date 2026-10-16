@@ -213,36 +213,44 @@
       "sha256": "5e3540a853c96616f6767e86df152a87747299c6f8b5c36f41cc51ae7f3403cd"
     },
     "scripts/ci/fish-done-generic16k/README.md": {
-      "bytes": 13843,
-      "sha256": "cd91ea1d436a1a1eeec8c512e7fbb1200bd3aadc9cfd19bc229d28b4e6a4192a"
+      "bytes": 14705,
+      "sha256": "393c3e3617e1e593cd7679d51eca536ac0162455fa9b140a919d2dd6fd0c4523"
     },
     "scripts/ci/fish-done-generic16k/acquire_kernel.py": {
       "bytes": 3510,
       "sha256": "09601f994f25601b7242cb36f38c6b0ead58ab5188d61e27ffe813c737a854b3"
     },
     "scripts/ci/fish-done-generic16k/capture.py": {
-      "bytes": 8392,
-      "sha256": "ded9590581244daeadf3a47d20b5f11577a0f1088708814cb914091e5d81f37b"
+      "bytes": 11193,
+      "sha256": "27e42e5fc858966bbe961638ad16fcfd20460affd0314cf5398c8859d35e5a71"
     },
     "scripts/ci/fish-done-generic16k/dependencies.json": {
-      "bytes": 13611,
-      "sha256": "a8750f64dad0c89ffabb4f6f727254fae010c138d39a5dff749152b7776acbe3"
+      "bytes": 13953,
+      "sha256": "9fbe939965881f2fba933da6cebf55d4005d3b85174db5f03de3287c6108ed77"
     },
     "scripts/ci/fish-done-generic16k/guest.py": {
-      "bytes": 19662,
-      "sha256": "6b276bd51a108273ad5f46cab577acccf16bea689c6c70f22e119e9ee25ae7a2"
+      "bytes": 20918,
+      "sha256": "c9b32b17a25cd9f2b2f21127532d8be4e4554d4dc26fbe9c6eaee65b8f2a5ddd"
+    },
+    "scripts/ci/fish-done-generic16k/notify_recorder.c": {
+      "bytes": 4622,
+      "sha256": "9587d70952a4d9eef09aaa5c242e182018c77abdd9813d0c9723290f09d1cab4"
     },
     "scripts/ci/fish-done-generic16k/payload-map.json": {
-      "bytes": 2714,
-      "sha256": "5086924e408225aa6cabd8d3b7dae6cf1840be7d7b80c8eef2b35e67304e3389"
+      "bytes": 3188,
+      "sha256": "47e1cd37bb11790dad7758e3c259f45929f53841bb789268b6d4bb75612603d1"
+    },
+    "scripts/ci/fish-done-generic16k/recorder_adapter.py": {
+      "bytes": 1312,
+      "sha256": "8d108ad36484d34f711e93cb5e3a2cc2cb32abd69132080d3fb53edf12ba2d34"
     },
     "scripts/ci/fish-done-generic16k/run.py": {
-      "bytes": 32405,
-      "sha256": "a30af1f5d8b31f090f7e861877449f193786b3f1a108496e98be95e5b3cf1c26"
+      "bytes": 34008,
+      "sha256": "f472546b9e690b22167b06836ceb37fc1aa8e88dfc4b364b77f390fe3ae90b82"
     },
     "scripts/ci/fish-done-generic16k/support.py": {
-      "bytes": 3041,
-      "sha256": "0a73b31403332fdf0e57a95d4cce81a7a07039916af0fe9667edae8cc03a9946"
+      "bytes": 5780,
+      "sha256": "d88358a557e9db8cb285804d22aca571a028e587e4b6942c12d8e863b1eeff73"
     },
     "scripts/ci/fish-done-generic16k/test_acquire.py": {
       "bytes": 5604,
@@ -256,9 +264,13 @@
       "bytes": 5730,
       "sha256": "6dd053b91a7c79a091ce68094581549dae4f2c3fb7e05ea0879670c6aea33332"
     },
+    "scripts/ci/fish-done-generic16k/test_native_capture.py": {
+      "bytes": 7930,
+      "sha256": "54c1def42bfaed79f55ce215c65e5ab237a63941b3166f0d9a6cc67679efa488"
+    },
     "scripts/ci/fish-done-generic16k/test_smoke.py": {
-      "bytes": 25440,
-      "sha256": "62547180b618e39886242e3a28bb331d3b21fecbc3a98a70dfb697437e6086e7"
+      "bytes": 27935,
+      "sha256": "59c192b7869308544507696f80ca3c668b5b0f4693cfa4da228478d580269dea"
     },
     "scripts/ci/maintained-desktop574-inputs.json": {
       "bytes": 623664,

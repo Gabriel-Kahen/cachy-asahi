@@ -34,7 +34,7 @@ jobs:
         timeout-minutes: 2
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '4269f7134c095a7d344b1d28f5436023fd9c1beea2fe0d3c1d22b08afd2a6d40' "$SLICE/job.py" 'e35dcf9c23f83e386f456f0847c17b0af838bc67b872baf85edd81975d7b37cb' "$SLICE/source-manifest.json" | sha256sum --check
+          printf '%s  %s\n' '4269f7134c095a7d344b1d28f5436023fd9c1beea2fe0d3c1d22b08afd2a6d40' "$SLICE/job.py" 'cfc433f18c47e74a66e4fd16ab5b80b8ebb8b93312784421773d7cd4cce9447c' "$SLICE/source-manifest.json" | sha256sum --check
           python3 -I -B "$SLICE/job.py" proof --source "$GITHUB_WORKSPACE" --manifest "$SLICE/source-manifest.json" --proof "$RUNNER_TEMP/setup5-real-source-proof.json"
       - name: Seed the six exact retained inputs using existing secrets only
         timeout-minutes: 2

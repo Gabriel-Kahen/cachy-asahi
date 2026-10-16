@@ -92,13 +92,20 @@ class Inputs(unittest.TestCase):
             with self.subTest(field=field),self.assertRaises(ValueError):C.accepted_index(BUNDLE,value)
 
     def test_failed_lifecycle_not_repaired_by_export_qualification(self):
-        value=copy.deepcopy(self.index)
         original=C.read
-        def altered(path,cap=4*1024**2):
-            result=original(path,cap)
-            if result.get('status')==next(iter(C.LIFE.values())):result['status']='FAIL'
-            return result
-        with patch.object(C,'read',side_effect=altered),self.assertRaises(ValueError):C.accepted_index(BUNDLE,value)
+        for name,row in sorted(self.index['packages'].items()):
+            with self.subTest(name=name):
+                target=C.checked(BUNDLE,row['raw_lifecycle']);mutated=[]
+                self.assertEqual(original(target)['status'],C.LIFE[name])
+                def altered(path,cap=4*1024**2):
+                    result=original(path,cap)
+                    if Path(path)==target:
+                        result['status']='FAIL';mutated.append(Path(path))
+                    return result
+                with patch.object(C,'read',side_effect=altered),self.assertRaisesRegex(
+                        ValueError,'failed/incomplete raw lifecycle cannot be accepted'):
+                    C.accepted_index(BUNDLE,copy.deepcopy(self.index))
+                self.assertEqual(mutated,[target])
 
     def test_payload_source_license_refusal(self):
         value=copy.deepcopy(self.index);row=value['packages']['cachy-asahi-doctor']

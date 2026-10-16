@@ -241,4 +241,93 @@ class Controls(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'installed shell input differs'):join.installed_join(SOURCE,B)
 
 
+# Entry counts observed in the retained complete host generated-RC workspace.
+# CI builds the same seven-home shape with synthetic private bytes, never a
+# fabricated native execution receipt or a dependency on an untracked host tree.
+REAL_HOME_COUNTS={'edited-conflict-user':7,'fish-bang-autopair-done':66,'fish-done-autopair-bang':66,'fish-noninteractive':20,'zsh-autosuggest-highlight-substring':32,'zsh-highlight-substring-autosuggest':32,'zsh-noninteractive':11}
+
+
+class WorkspacePreservation(unittest.TestCase):
+    def setUp(self):
+        self.actor=patch.object(subprocess,'Popen',side_effect=AssertionError('actors forbidden'));self.actor.start();self.addCleanup(self.actor.stop)
+        self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup);self.parent=Path(self.temp.name)/'user';work=self.parent/'work';work.mkdir(parents=True)
+        self.L=C.load('unchanged_128_entry_snapshot',SOURCE/'scripts/ci/welcome-native/lifecycle.py');self.H=C.load('accepted_bounded_home_snapshot',SOURCE/'scripts/ci/setup5-real-modules/run.py')
+        for name,count in REAL_HOME_COUNTS.items():
+            home=work/name;(home/'config/fish').mkdir(parents=True);(home/'setup-state').mkdir()
+            for relative in ('config/fish/config.fish','.zshrc','setup-state/state.json'):(home/relative).write_bytes(b'private user config/journal/edit bytes\n')
+            (home/'fixture-link').symlink_to('.zshrc')
+            for n in range(count-7):(home/('user-data-'+str(n))).write_bytes(b'preserve user data\n')
+            self.assertEqual(sum(1 for _ in home.rglob('*')),count)
+        self.real=dict(lifecycle={n:{} for n in REAL_HOME_COUNTS if n!='edited-conflict-user'});(work/'receipt.json').write_text(json.dumps(dict(scope='SYNTHETIC_WORKSPACE_SHAPE_ONLY'))+'\n')
+
+    def snapshot(self):return lifecycle.workspace_snapshot(self.parent,self.real,self.L,self.H)
+
+    def test_actual_seven_home_shape_exceeds_old128_but_every_node_is_preserved(self):
+        with self.assertRaisesRegex(ValueError,'config entry cap'):self.L.snapshot(self.parent)
+        before=self.snapshot();expected={'.':self.L.entry(self.parent),**{str(p.relative_to(self.parent)):self.L.entry(p) for p in self.parent.rglob('*')}}
+        self.assertEqual(len(before),244);self.assertEqual(before,expected);self.assertEqual(self.snapshot(),before)
+
+    def test_user_config_journal_data_link_and_directory_metadata_changes_are_detected(self):
+        home=self.parent/'work/edited-conflict-user'
+        for relative in ('config/fish/config.fish','setup-state/state.json'):
+            before=self.snapshot();path=home/relative;path.write_bytes(path.read_bytes()+b'deliberate retained edit\n');self.assertNotEqual(self.snapshot(),before)
+        before=self.snapshot();(home/'.zshrc').chmod(0o600);self.assertNotEqual(self.snapshot(),before)
+        before=self.snapshot();(home/'fixture-link').unlink();(home/'fixture-link').symlink_to('config/fish/config.fish');self.assertNotEqual(self.snapshot(),before)
+        before=self.snapshot();path=home/'config';info=path.stat();os.utime(path,ns=(info.st_atime_ns,info.st_mtime_ns+1000000));self.assertNotEqual(self.snapshot(),before)
+        before=self.snapshot();path=self.parent/'work/receipt.json';path.write_text(path.read_text()+' ');self.assertNotEqual(self.snapshot(),before)
+
+    def test_unregistered_outer_user_state_or_missing_home_is_refused(self):
+        path=self.parent/'outside-user-state';path.write_text('must not silently exclude')
+        with self.assertRaisesRegex(ValueError,'workspace root'):self.snapshot()
+        path.unlink();path=self.parent/'work/extra-user-state';path.write_text('must not silently exclude')
+        with self.assertRaisesRegex(ValueError,'registry'):self.snapshot()
+        path.unlink();shutil.rmtree(self.parent/'work/edited-conflict-user')
+        with self.assertRaisesRegex(ValueError,'registry'):self.snapshot()
+
+    def test_existing_individual256_node_cap_is_still_required(self):
+        home=self.parent/'work/edited-conflict-user'
+        for n in range(250):(home/('extra-'+str(n))).write_bytes(b'')
+        with self.assertRaisesRegex(ValueError,'bounded private home'):self.snapshot()
+
+    def test_existing_individual_file_cap_is_still_required(self):
+        (self.parent/'work/edited-conflict-user/oversize').write_bytes(b'x'*(1024**2+1))
+        with self.assertRaisesRegex(ValueError,'bounded private fixture bytes'):self.snapshot()
+
+    def test_existing_individual_home_byte_cap_is_still_required(self):
+        home=self.parent/'work/edited-conflict-user'
+        for n in range(5):(home/('large-'+str(n))).write_bytes(b'x'*1024**2)
+        with self.assertRaisesRegex(ValueError,'bounded private fixture bytes'):self.snapshot()
+
+    def test_aliased_home_and_special_file_are_refused(self):
+        path=self.parent/'work/edited-conflict-user';shutil.rmtree(path);path.symlink_to('fish-bang-autopair-done',target_is_directory=True)
+        with self.assertRaisesRegex(ValueError,'ordinary absolute'):self.snapshot()
+        path.unlink();path.mkdir();os.mkfifo(path/'special')
+        with self.assertRaisesRegex(ValueError,'ordinary fixture node'):self.snapshot()
+
+    def test_completed_raw_receipt_survives_a_later_preservation_failure(self):
+        value=real_receipt();raw=json.dumps(value,separators=(',',':'))+'\n';target=Path(self.temp.name)/'published.json'
+        result=lifecycle.retain_real(raw,target);self.assertEqual(result,value);self.assertEqual(target.read_bytes(),raw.encode());self.snapshot()
+        (self.parent/'unexpected').write_text('later failure')
+        with self.assertRaisesRegex(ValueError,'workspace root'):self.snapshot()
+        self.assertEqual(target.read_bytes(),raw.encode())
+        # Publishing data does not validate it or grant a final lifecycle PASS.
+        raw='{"status":"FAIL"}\n';target=Path(self.temp.name)/'failed.json'
+        with self.assertRaises(ValueError):lifecycle.retain_real(raw,target)
+        self.assertEqual(target.read_text(),raw)
+
+    def test_raw_receipt_byte_cap_refuses_without_publication(self):
+        target=Path(self.temp.name)/'oversize.json'
+        with self.assertRaisesRegex(ValueError,'bounded actual real-flow stdout'):lifecycle.retain_real('x'*(128*1024+1),target)
+        self.assertFalse(target.exists())
+
+    def test_main_retains_raw_before_cleanup_payload_snapshot_or_normal_remove(self):
+        import ast
+        raw=Path(lifecycle.__file__).read_text();tree=ast.parse(raw);main=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='main')
+        saved=next(i for i,n in enumerate(main.body) if isinstance(n,ast.Assign) and isinstance(n.value,ast.Call) and isinstance(n.value.func,ast.Name) and n.value.func.id=='retain_real')
+        snapshot=next(i for i,n in enumerate(main.body) if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='user_before' for t in n.targets))
+        self.assertLess(saved,snapshot);self.assertNotIn('L.snapshot(parent)',raw)
+        line=ast.unparse(main.body[saved]);self.assertIn("'/out/real-modules.json'",line)
+        self.assertEqual(raw.count("Path('/out/real-modules.json')"),1)
+
+
 if __name__=='__main__':unittest.main()

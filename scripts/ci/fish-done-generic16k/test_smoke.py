@@ -18,6 +18,7 @@ from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 import capture
+import recorder_adapter
 import guest
 import run
 import support as s
@@ -35,6 +36,19 @@ def elf(align=16384,needed=False):
     return bytes(raw)
 
 
+def transport_fixture(files):
+    row=dict(argv=s.COMPILE,exit=0,expected_exit=0,natural_exit=True,group_absent=True,pid=12345,pgid=12345,
+        seconds=.1,stdout_bytes=0,stderr_bytes=0,stdout_sha256=s.sha(b''),stderr_sha256=s.sha(b''))
+    build=dict(status='BUILT_NATIVE_C_TEST_RECORDER',compile_count=1,architecture='aarch64',source_commit='c'*40,
+        source_sha256=files[s.SOURCE]['sha256'],binary_sha256=files[s.RECORDER]['sha256'],deadline_seconds=30,output_cap=131072,
+        command=row,compiler=dict(path='/usr/bin/cc',resolved='/usr/bin/gcc',bytes=3,sha256=s.sha(b'gcc')))
+    return dict(kind='NATIVE_C_RECORDER_PREPARE_ONLY',product_change='NONE',original_fixture_execution='NOT_RUN_UNCHANGED_CAPTURED_ONLY',
+        original_case_bodies=18,transport_timeout='UNCHANGED_2S_TERM_1S_KILL',adaptation='ONLY_PREPARE_RECORDER_SUBSTITUTED',
+        original_fixture_sha256=files['fixtures/done.py']['sha256'],adapted_fixture_sha256=files[s.ADAPTED]['sha256'],
+        recorder_source_sha256=files[s.SOURCE]['sha256'],adapter_sha256=files[s.ADAPTER]['sha256'],
+        recorder_binary_sha256=files[s.RECORDER]['sha256'],native_build=build)
+
+
 class Controls(unittest.TestCase):
     def setUp(self):
         self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup);self.root=Path(self.tmp.name)
@@ -43,7 +57,7 @@ class Controls(unittest.TestCase):
 
     def test_exact_source_only_map_and_entry(self):
         s.check_source(ROOT);mapping=s.mapping()
-        self.assertEqual(len(mapping['products']),1);self.assertEqual(len(mapping['fixtures']),1)
+        self.assertEqual(len(mapping['products']),1);self.assertEqual(len(mapping['fixtures']),3)
         self.assertEqual(sum(len(r['payload']) for r in mapping['products'].values()),8)
         value=run.trial(SimpleNamespace(source_root=ROOT,execute=False))
         self.assertEqual(value['status'],'SOURCE_INPUTS_VERIFIED_NOT_EXECUTED');self.assertEqual(len(value['products']),1)
@@ -82,20 +96,22 @@ class Controls(unittest.TestCase):
         data['guest.py']=b'# inert\n'
         mapped={**{n:r for product in s.mapping()['products'].values() for n,r in product['payload'].items()},**s.mapping()['fixtures']}
         data.update({n:(ROOT/r['source']).read_bytes() for n,r in mapped.items()})
+        data[s.RECORDER]=elf();data[s.ADAPTED]=recorder_adapter.adapt(data['fixtures/done.py'])
         archive=self.root/'payload.tar';files={};elfs={}
         with tarfile.open(archive,'w') as stream:
             for name,raw in data.items():
-                mode=mapped[name]['mode'] if name in mapped else 0o755
+                mode=mapped[name]['mode'] if name in mapped else 0o644 if name==s.ADAPTED else 0o755
                 entry=tarfile.TarInfo(name);entry.size=len(raw);entry.mode=mode;stream.addfile(entry,io.BytesIO(raw))
                 files[name]=dict(bytes=len(raw),mode=mode,sha256=s.sha(raw))
                 if raw.startswith(b'\x7fELF'):
                     interpreter,needed=s.aligned(raw,self.generic);elfs[name]=dict(interpreter=interpreter,needed=needed)
         receipt=dict(status='CAPTURED_UNPACKED_NATIVE574_PAYLOAD',inventory_sha256=s.LOCK,payload_map_sha256=s.MAP_SHA,
             files=files,elf=elfs,products=s.mapping()['products'],archive=dict(bytes=archive.stat().st_size,sha256=s.sha(archive.read_bytes())))
+        receipt.update(source_commit='c'*40,test_transport=transport_fixture(files))
         return archive,receipt
 
     def test_closed_payload_and_manifest_hashes_are_required(self):
-        archive,receipt=self.payload_fixture();self.assertEqual(len(run.payload(archive,receipt,self.generic)),24)
+        archive,receipt=self.payload_fixture();self.assertEqual(len(run.payload(archive,receipt,self.generic)),28)
         for field in ('inventory_sha256','payload_map_sha256'):
             bad=copy.deepcopy(receipt);bad[field]='0'*64
             with self.assertRaises(ValueError):run.payload(archive,bad,self.generic)
@@ -128,6 +144,12 @@ class Controls(unittest.TestCase):
         names=['noninteractive','foreground','background','watch-rejection','disown','repeat-preserve','command-data','transport-failure',
                'transport-timeout','disable','existing-function','existing-autoload','existing-variable','existing-wrapper','existing-public',
                'no-bus','notify-send','timeout']
+        for name,row in s.mapping()['fixtures'].items():receipt['files'][name]=dict(bytes=row['bytes'],mode=row['mode'],sha256=row['sha256'])
+        adapted=recorder_adapter.adapt((ROOT/'packages/tools/cachy-asahi-fish-done/check-module.py').read_bytes())
+        receipt['files'][s.ADAPTED]=dict(bytes=len(adapted),mode=0o644,sha256=s.sha(adapted))
+        receipt['files'][s.RECORDER]=dict(bytes=len(elf()),mode=0o755,sha256=s.sha(elf()))
+        receipt.update(source_commit='c'*40,elf={s.RECORDER:dict(interpreter=None,needed=[])})
+        receipt['test_transport']=transport_fixture(receipt['files'])
         enabled=set(names[1:10]);cases={n:dict(exit=0,notifications=0,**(dict(activation='enabled' if n in enabled else 'yielded',proofs=[]) if n!='noninteractive' else {})) for n in names}
         def invocation(failed=False,kind='Foreground command',status=7,private=True):
             return dict(argv=['--hint=int:transient:1','--urgency='+('critical' if failed else 'normal'),
@@ -143,14 +165,18 @@ class Controls(unittest.TestCase):
             scope='local notify-send process shim invocation only; no actual notification manager or visual display',
             wrapper_sha256=receipt['files']['usr/share/cachy-asahi/fish-done/opt-in.fish']['sha256'],
             runtime_sha256=receipt['files']['usr/share/cachy-asahi/fish-done/done.fish']['sha256'])
-        command=dict(argv=['/usr/bin/python3','-I','-B','/fixtures/done.py','--source','/usr/share/cachy-asahi/fish-done','--output','/tmp/done16k/cases'],
+        command=dict(argv=['/usr/bin/python3','-I','-B','/fixtures/done-native.py','--source','/usr/share/cachy-asahi/fish-done','--output','/tmp/done16k/cases'],
             exit=0,group_absent=True,owned_processes_absent=True,seconds=.1,stdout_bytes=1,stderr_bytes=0,stdout_sha256='b'*64,stderr_sha256=s.sha(b''))
-        value=dict(status='PASS_GENERIC_16K_FISH_DONE_RECORDER_PTY_ONLY',nonce=nonce,architecture='aarch64',page_size=16384,kernel=release,
+        value=dict(status=s.STATUS,nonce=nonce,architecture='aarch64',page_size=16384,kernel=release,
             uid=23001,commands=[command],done=proof,done_receipt_sha256='d'*64,case_inputs_preserved=dict.fromkeys(names,True),
-            config_preserved=True,payload_preserved=True,owned_processes_absent=True,notification_transport='PRIVATE_NOTIFY_SEND_RECORDER_ONLY',
+            config_preserved=True,payload_preserved=True,owned_processes_absent=True,notification_transport=s.TRANSPORT,
             notification_manager='NOT_RUN',DBus='NOT_RUN',display='NOT_RUN',package_registration='NOT_INSTALLED_EXACT_SOURCE_PAYLOADS_COPIED_ONLY',
             GUI='NOT_RUN',hardware='NOT_RUN',performance='NOT_RUN',release_admission=False,
             payload_manifest_sha256=s.sha((json.dumps(receipt,sort_keys=True,indent=2)+'\n').encode()))
+        value['test_transport']=receipt['test_transport']
+        value['native_recorder_cases']={n:dict(recorder_present=n!='notify-send',recorder_sha256=receipt['files'][s.RECORDER]['sha256'] if n!='notify-send' else None,
+            notification_count=cases[n]['notifications'],fixture_notification_delta=cases[n]['notifications'],
+            recorded_pids=list(range(200,200+cases[n]['notifications'])),notifications_sha256=s.sha(b'')) for n in names}
         return value,receipt,nonce,release
 
     def output(self,value,nonce,release):
@@ -186,6 +212,7 @@ class Controls(unittest.TestCase):
         report=dict(status='PASS_SMOKE_AWAITING_PRODUCER_RETIREMENT',job_token=token,image_id=image,natural_VM_exit=True,QEMU_exit=0,
             actors=[dict(natural_exit=True,exit=0,group_absent=True)]*3,consumer_cleanup=dict(capture_absent=True,private_removed=True,producer='BORROWED_PRESERVED'),
             kernel=dict(status='BUILT_ONLY',kernel_build='PASS',helper=dict(path=str(work/'helper/build_kernel.py'))))
+        guest_value,capture_value,_,_=self.report_fixture();report.update(guest=guest_value,capture=capture_value)
         owner=dict(ownership=dict(token=token),owned_cleanup=dict(status='PASS',probe=dict(absence_verified=True),image=dict(id=image,absence_verified=True)))
         s.save(out/'runtime.json',report);s.save(base/'report.json',owner)
         return SimpleNamespace(base_dir=base,output=out,kernel_work=work,job_token=token),report,owner
@@ -193,7 +220,7 @@ class Controls(unittest.TestCase):
     def test_final_pass_waits_for_owned_producer_and_kernel_work_retirement(self):
         args,report,owner=self.final_fixture()
         with patch.dict(os.environ,RUNNER_TEMP=str(self.root)):result=run.finalize(args)
-        self.assertEqual(result['status'],'PASS_GENERIC_16K_FISH_DONE_RECORDER_PTY_ONLY');self.assertFalse(args.kernel_work.exists())
+        self.assertEqual(result['status'],s.STATUS);self.assertFalse(args.kernel_work.exists())
 
     def test_unproved_producer_or_wrong_kernel_path_cannot_be_removed_or_pass(self):
         args,report,owner=self.final_fixture();owner['owned_cleanup']['image']['absence_verified']=False;s.save(args.base_dir/'report.json',owner)
@@ -335,7 +362,7 @@ class Controls(unittest.TestCase):
         sources={n for n in s.pins()['files'] if n.startswith('packages/tools/cachy-asahi-fish-done/')}
         self.assertEqual(len(sources),12)
         payload=s.mapping()['products']['cachy-asahi-fish-done']['payload']
-        self.assertEqual(len(payload),8);self.assertEqual(set(s.mapping()['fixtures']),{'fixtures/done.py'})
+        self.assertEqual(len(payload),8);self.assertEqual(set(s.mapping()['fixtures']),{'fixtures/done.py',s.SOURCE,s.ADAPTER})
         self.assertNotIn('notify-send',s.TOOLS);self.assertNotIn('usr/bin/notify-send',payload)
         self.assertTrue({'sleep','sh','timeout','kill','fish'}<=set(s.TOOLS))
         source=(s.HERE/'guest.py').read_text()

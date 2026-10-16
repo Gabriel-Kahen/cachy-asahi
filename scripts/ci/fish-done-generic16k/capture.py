@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 """Read-only native574 byte capture; product payloads are unpacked, never installed."""
 import argparse
+import base64
 import importlib.util
 import io
 import json
@@ -49,6 +50,31 @@ def import_only(name,path):
     spec.loader.exec_module(module);return module
 
 
+def compile_recorder(root,source_commit,supervisor):
+    """Exactly one compiler child inside the already owned read-only capture container."""
+    s.need(not Path('/out/notify-recorder').exists(),'fresh native recorder output required')
+    compiler=Path('/usr/bin/cc').resolve(strict=True)
+    s.need(compiler.is_relative_to(Path('/usr/bin')),'native compiler escape')
+    binary=s.read(compiler,64*1024**2);source=s.read(s.HERE/'notify_recorder.c')
+    build=dict(status='FAIL',compile_count=1,architecture=platform.machine(),source_commit=source_commit,
+        source_sha256=s.sha(source),deadline_seconds=30,output_cap=131072,
+        compiler=dict(path='/usr/bin/cc',resolved=str(compiler),bytes=len(binary),sha256=s.sha(binary)))
+    try:
+        row,out=supervisor.command(s.COMPILE,dict(PATH='/usr/bin:/bin',LANG='C',LC_ALL='C',TMPDIR='/tmp'),seconds=30)
+        build['command']=row
+        s.need(not out and row['stderr_bytes']==0,'native recorder compiler must be silent')
+        path=Path('/out/notify-recorder');info=path.lstat()
+        s.need(stat.S_ISREG(info.st_mode) and info.st_uid==os.getuid() and info.st_nlink==1 and not path.is_symlink(),
+            'owned compiler output required')
+        raw=s.read(path,1024**2);build.update(status='BUILT_NATIVE_C_TEST_RECORDER',binary_sha256=s.sha(raw))
+        return raw,build
+    except supervisor.CommandFailure as error:
+        build.update(command=error.row,error_type=type(error).__name__,reason=str(error)[:160],
+            stdout_base64=base64.b64encode(error.stdout).decode(),stderr_base64=base64.b64encode(error.stderr).decode())
+        raise
+    finally:s.save('/out/recorder-build.json',build,262144)
+
+
 def capture(root,image,source_commit):
     guard();s.check_source(root);before=inventory();products=s.products(root)
     generic=s.load(root,'scripts/virtual/generic16k/fixture.py');files={};rows={};total=0;elfs={}
@@ -64,8 +90,13 @@ def capture(root,image,source_commit):
             add(member,data,expected['mode'],'source-payload/'+name)
     for member,row in s.mapping()['fixtures'].items():
         add(member,s.read(root/row['source']),row['mode'],'unchanged project PTY fixture/'+row['source'])
-        import_only('done16k_fixture_'+s.sha(member.encode())[:16],root/row['source'])
-    import_only('done16k_guest_import_only',s.HERE/'guest.py')
+        if member.endswith('.py'):import_only('done16k_fixture_'+s.sha(member.encode())[:16],root/row['source'])
+    supervisor=import_only('done16k_guest_import_only',s.HERE/'guest.py')
+    recorder,build=compile_recorder(root,source_commit,supervisor)
+    add(s.RECORDER,recorder,0o755,'native574 one bounded C test-recorder compilation')
+    adapter=s.load(root,'scripts/ci/fish-done-generic16k/recorder_adapter.py')
+    adapted=adapter.adapt(files['fixtures/done.py'][1])
+    add(s.ADAPTED,adapted,0o644,'prepare-only adaptation; original fixture separately retained')
     stdlib=Path(sysconfig.get_path('stdlib')).resolve(strict=True)
     s.need(stdlib.is_relative_to(Path('/usr/lib')),'native Python stdlib path differs')
     for directory,children,names in os.walk(stdlib):
@@ -94,6 +125,7 @@ def capture(root,image,source_commit):
         if value and str(value).endswith('.so'):
             path=Path(value).resolve(strict=True)
             if path.is_relative_to(stdlib):pending.append((str(path).lstrip('/'),path))
+    pending.append((s.RECORDER,Path('/out/notify-recorder')))
     processed=set()
     while pending:
         name,path=pending.pop()
@@ -118,6 +150,13 @@ def capture(root,image,source_commit):
         architecture=platform.machine(),capture_page_size=os.sysconf('SC_PAGE_SIZE'),
         source_commit=source_commit,payload_map_sha256=s.MAP_SHA,products=products,files=rows,elf=elfs,
         package_registration='NOT_INSTALLED_EXACT_SOURCE_PAYLOADS_COPIED_ONLY',GUI='NOT_RUN',hardware='NOT_RUN')
+    receipt['test_transport']=dict(kind='NATIVE_C_RECORDER_PREPARE_ONLY',product_change='NONE',
+        original_fixture_execution='NOT_RUN_UNCHANGED_CAPTURED_ONLY',original_case_bodies=18,
+        transport_timeout='UNCHANGED_2S_TERM_1S_KILL',adaptation='ONLY_PREPARE_RECORDER_SUBSTITUTED',
+        original_fixture_sha256=rows['fixtures/done.py']['sha256'],adapted_fixture_sha256=rows[s.ADAPTED]['sha256'],
+        recorder_source_sha256=rows[s.SOURCE]['sha256'],adapter_sha256=rows[s.ADAPTER]['sha256'],
+        recorder_binary_sha256=rows[s.RECORDER]['sha256'],native_build=build)
+    s.test_transport(receipt)
     archive=Path('/out/payload.tar')
     with tarfile.open(archive,'w') as stream:
         for name,(mode,data) in sorted(files.items()):
