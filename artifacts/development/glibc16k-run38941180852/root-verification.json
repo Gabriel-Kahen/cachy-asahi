@@ -1,0 +1,22 @@
+{
+  "status": "ROOT_ACCEPTED_PRIVATE_GNU16K_RUNTIME",
+  "run_id": 38941180852,
+  "source_sha": "308c9b0cba5ad6c90530e4b10f0e3fb3e01dcbfb",
+  "source_files": 32,
+  "page_size": 16384,
+  "cases": 8,
+  "runtime_records": 12,
+  "commands": 14,
+  "compile_commands": 13,
+  "runtime_files": 19,
+  "candidate_package_sha256": "04e481dc5b3ac711760ca42749044b0be85283b3aa9c9c631cb6738ac7d699fb",
+  "actual_parent_child_providers": "PASS",
+  "source_archive_payload_join": "PASS",
+  "ordered_cleanup": "PASS",
+  "limitation": "Raw complete UART, private compiled clients, bootstrap payload and actual kernel config/Image are not exported. Their execution/content checks are enforced by the exact frozen source; retained parsed records and candidate package bytes independently join here.",
+  "hardware": "NOT_RUN",
+  "installation": "NOT_RUN",
+  "security": "NO_CREDIT",
+  "performance": "NOT_MEASURED",
+  "release": "NOT_ADMITTED"
+}
