@@ -1,0 +1,13 @@
+# Installed Welcome GUI native trials
+
+The [installed CLI lifecycle](welcome-doctor-native-20261016.md) passes separately. Installed Welcome GUI acceptance remains pending.
+
+[Actual38892469396](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38892469396), Source `2ac16b1bb42fe7da05dc7caa58021e6249c3d1f6`, fails the standalone Doctor fixture before any native app/VM work. Its mocked stat omitted file size; the correction preserves real stat fields. Independent test-module execution now matches hosted entry.
+
+[Actual38893328482](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38893328482), Source `b953d0c1bb3d94bd7226b263814dfd5d8b84fcf7`, passes the574 producer,593-package runtime, generic ARM boot and real managed user/bus checks. Doctor's terminal maps; the retained guest console then confirms `ValueError: Doctor worker failed: event port unavailable`. Its fresh helper module has no event sink, while command cleanup calls the real logger's emitter. Alacritty's later exit0 does not prove successful child work. Welcome never starts and no GUI capture passes. Managed cleanup, all14 runtime cleanup records and owned base image/probe absence pass.
+
+The correction collects all four real Doctor command exit/log events locally, restores the original emitter, requires the ordered exits and preserves the existing command/report/identity/configuration gates. Bounded phase diagnostics retain the first failure after cleanup. Commit `17e25ef2583b6c7de498e66426431452a49314d3` passes32 focused GUI controls plus the full hosted static job38895457477. Both changed generated-runner hashes are refreshed. The static workflow explicitly checks out the immutable native product inputs instead of depending on ignored local files.
+
+[Retry38895476251](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38895476251) is running on Source/workflow `9a89faf53eaec8a367f07d5e9c16d792c9f9ca91`, workflow SHA256 `f0c8dd86b76d5ae9ae347524eaa2d42e4af88f3b37a934ce8dce86b74ae5e150`, manifest `84982dc63ec3034341a82bfcfe6e4623679ea0707be8c832e7f0882ae870da5e`. Actual semantic actions,14 captures and independent visual inspection remain required. Physical M2 behavior remains untested; package selections remain false.
+
+Root collects the failed actual's logs/artifact once. Logs:163047 bytes/SHA256 `33a788ae46feaae3258fcb92668001d9e570ac7a3872b9850f8b892f86a6a6c3`. Artifact12043201285:119885 compressed bytes/SHA256 `f801c1ca71aa971dbbb771faa07adb21fee299a22d36a0117cbd0fa82736db1e`; all40 declared files/468537 raw bytes join retention hashes/sizes. The confirming guest console is44861 bytes/SHA256 `eeb55f78a05c0465a0dc09bb630b3fe4ad4a4af57c263c54e9c27c5d0173d9d8`.
