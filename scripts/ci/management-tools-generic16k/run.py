@@ -40,13 +40,13 @@ def payload(archive,receipt,generic,expected,base):
     for row in elfs.values():
         C.need(not row['interpreter'] or row['interpreter'].lstrip('/') in files,'ELF interpreter absent')
         C.need(all(any(folder+n in files for folder in ('usr/lib/','lib/')) for n in row['needed']),'ELF dependency absent')
-    required={'guest.py','original_guest.py','fixtures/catalog.tar','usr/lib/libalpm.so.16'}|{'usr/bin/'+n for n in C.TOOLS}|set(expected)
+    required={'guest.py','signature_observer.py','original_guest.py','fixtures/catalog.tar','usr/lib/libalpm.so.16'}|{'usr/bin/'+n for n in C.TOOLS}|set(expected)
     C.need(required<=set(files),'complete management/runtime roots required')
     for name,(mode,data) in expected.items():C.need(files[name]==(stat.S_IFREG|mode,data),'actual native data payload differs')
     C.need(C.sha(files['fixtures/catalog.tar'][1])==receipt['fixture_archive_sha256'] and
         all(receipt['fixture_authority'][k] is True for k in ('synthetic','private_authority_removed','signing_processes_absent')) and
         receipt['fixture_authority']['production_trust']=='NOT_ESTABLISHED','isolated fresh TEST authority proof absent')
-    C.need(files['guest.py'][1]==C.read(C.HERE/'guest.py'),'guest source differs')
+    C.need(files['guest.py'][1]==C.read(C.HERE/'guest.py') and files['signature_observer.py'][1]==C.read(C.HERE/'signature_observer.py'),'guest/diagnostic source differs')
     C.need(files['original_guest.py'][1]==C.read(base.s.HERE/'guest.py'),'unchanged guest API bytes differ')
     return files
 
@@ -62,7 +62,17 @@ def partial_commands(raw,nonce):
         else:records.append(value)
     C.need([v['case'] for v in records]==CASES[:len(records)] and len(records)<=len(CASES) and
         (not failures or len(records)<len(CASES) and failures[0]['case']==CASES[len(records)]),'partial fixed command sequence differs')
-    return dict(acceptance_credit=False,commands=records,failed_commands=failures)
+    result=dict(acceptance_credit=False,commands=records,failed_commands=failures);observations=[]
+    for line in raw.replace(b'\r',b'').splitlines():
+        if not line.startswith((b'MANAGEMENT16K_SIGNATURE_FAILURE ',b'MANAGEMENT16K_SIGNATURE_UNAVAILABLE ')):continue
+        label,token,data=line.split(b' ',2);C.need(token.decode()==nonce and len(line)<=66000 and not observations and len(failures)==1 and failures[0]['case']=='apps-plan-install','one bounded failure-only signature observation required')
+        value=C.decode(data);C.need(value['acceptance_credit'] is False,'signature diagnostic cannot grant acceptance')
+        if label==b'MANAGEMENT16K_SIGNATURE_FAILURE':
+            observer=C.load('management16k_signature_observer',C.HERE/'signature_observer.py');observer.validate(value)
+            C.need(value['original_command_sha256']==C.sha(json.dumps(failures[0]['command'],sort_keys=True,separators=(',',':')).encode()),'signature observation original command differs')
+        observations.append(dict(label=label.decode(),value=value))
+    if observations:result['signature_observations']=observations
+    return result
 
 def guest_report(raw,code,nonce,release,receipt):
     C.need(code==0 and len(raw)<=1024**2 and not any(v in raw for v in (b'MANAGEMENT16K_ERROR',b'TOOLS16K FAIL',b'Kernel panic',b'Attempted to kill init')),'natural bounded guest exit0 required')

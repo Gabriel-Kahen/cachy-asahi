@@ -136,7 +136,13 @@ def exercise(nonce,release):
     def call(name,argv,expected=0):
         try:row,out=original.command(argv,env,expected,30)
         except original.CommandFailure as error:
-            print('MANAGEMENT16K_COMMAND_FAILURE '+nonce+' '+json.dumps(dict(case=name,command=error.row,stdout_base64=base64.b64encode(error.stdout).decode(),stderr_base64=base64.b64encode(error.stderr).decode()),sort_keys=True,separators=(',',':')),flush=True);raise
+            print('MANAGEMENT16K_COMMAND_FAILURE '+nonce+' '+json.dumps(dict(case=name,command=error.row,stdout_base64=base64.b64encode(error.stdout).decode(),stderr_base64=base64.b64encode(error.stderr).decode()),sort_keys=True,separators=(',',':')),flush=True)
+            if name=='apps-plan-install':
+                try:
+                    observer=load('management16k_signature_observer','/signature_observer.py');diagnostic=observer.observe(original,work,env,error)
+                    print('MANAGEMENT16K_SIGNATURE_FAILURE '+nonce+' '+json.dumps(diagnostic,sort_keys=True,separators=(',',':')),flush=True)
+                except BaseException as failure:print('MANAGEMENT16K_SIGNATURE_UNAVAILABLE '+nonce+' '+json.dumps(dict(error_type=type(failure).__name__,reason=str(failure)[:160],acceptance_credit=False),sort_keys=True,separators=(',',':')),flush=True)
+            raise
         row.update(case=name,owned_processes_absent=original.owned_absent());commands.append(row)
         print('MANAGEMENT16K_COMMAND '+nonce+' '+json.dumps(dict(case=name,command=row,stdout_base64=base64.b64encode(out).decode()),sort_keys=True,separators=(',',':')),flush=True)
         return json.loads(out)

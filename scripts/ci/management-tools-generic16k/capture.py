@@ -35,6 +35,7 @@ def capture(root,image,source_commit):
     fixture,authority=catalog.create(root,products)
     add('fixtures/catalog.tar',fixture,0o444,'fresh isolated public signed TEST fixture')
     add('guest.py',C.read(C.HERE/'guest.py'),0o644,'source-pinned management guest')
+    add('signature_observer.py',C.read(C.HERE/'signature_observer.py'),0o644,'failure-only public TEST signature observer')
     add('original_guest.py',C.read(root/'scripts/ci/tools-generic16k/guest.py'),0o644,'unchanged bounded command/preservation APIs')
     old.import_only('management16k_guest_import_only',C.HERE/'guest.py')
     stdlib=Path(sysconfig.get_path('stdlib')).resolve(strict=True)

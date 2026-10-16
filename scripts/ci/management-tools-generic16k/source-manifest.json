@@ -381,8 +381,8 @@
       "sha256": "27ba4be42cf2bd41675073e07cccc917ae033f9d68b07a33cfd7f074ac27b760"
     },
     "scripts/ci/management-tools-generic16k/capture.py": {
-      "bytes": 6989,
-      "sha256": "1ba3b98902341949c923a9fd49035418f98e16e1fc8bc4d692998aabdee2a1ad"
+      "bytes": 7113,
+      "sha256": "d52d9b7512fd347c2108e52d986108b58aa8a9636663f2a2803fa79fc9319ee7"
     },
     "scripts/ci/management-tools-generic16k/catalog.py": {
       "bytes": 4347,
@@ -393,16 +393,20 @@
       "sha256": "ff0c7a3701dec1b1997853106024cbeb1f3fddd67b77b08d050a630af084833b"
     },
     "scripts/ci/management-tools-generic16k/guest.py": {
-      "bytes": 17079,
-      "sha256": "603cb5721524bcff8fbb99a033fcd9630d0efae9c7b3a2c7192f39c523591569"
+      "bytes": 17697,
+      "sha256": "845f761ac2f29126b300515e6f91ceef1dfe7686625c8c8b2f2c4920daf8818d"
     },
     "scripts/ci/management-tools-generic16k/input-policy.json": {
       "bytes": 466,
       "sha256": "a6fa49dff5a42a12497a1d12d82f60b0c118f784c742023681633a5875219fa0"
     },
     "scripts/ci/management-tools-generic16k/run.py": {
-      "bytes": 20221,
-      "sha256": "0789ae4081c01808e8eba26a9d3aabf04fe0481d1dc6e0579259b0ed5c377903"
+      "bytes": 21398,
+      "sha256": "ed47901771ec0032d7ac4ecc4aab9d06298540d73865f9ac39aff31ac69e77b1"
+    },
+    "scripts/ci/management-tools-generic16k/signature_observer.py": {
+      "bytes": 9009,
+      "sha256": "6926902e69e639b999aa67d7ff01b617ec7c57e9074ba8d52330f21cf24edfa9"
     },
     "scripts/ci/management-tools-generic16k/test_capture_entry.py": {
       "bytes": 2124,
@@ -411,6 +415,10 @@
     "scripts/ci/management-tools-generic16k/test_lane.py": {
       "bytes": 22516,
       "sha256": "ba32c6ebcba98220aec2f6a8f917df3d11b323d707f4a70787c8fd9233cdf6b9"
+    },
+    "scripts/ci/management-tools-generic16k/test_signature_observer.py": {
+      "bytes": 6873,
+      "sha256": "4e138fd7c456583fbca8c07fbd34bf7eddc2fb89f14eaf4c6a805e82743f2a33"
     },
     "scripts/ci/old_four_seed.py": {
       "bytes": 29048,
