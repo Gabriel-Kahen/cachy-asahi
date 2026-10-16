@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Real installed Done -> notify-send -> managed bus -> normal Mako, two foreground cases and one watched job."""
-import base64,hashlib,json,os,re,signal,time
+import base64,hashlib,json,os,re,signal,subprocess,time
 from pathlib import Path
 import bar_helpers as B
 import managed_session as managed
@@ -19,6 +19,33 @@ def trace_requested(words):
 
 def trace_command(argv,enabled=False):
     O.need(enabled is False,'ordinary startup required');return list(argv)
+
+
+def startup_layers(api,env,logs,name):
+    """Only retired startup IPC timeouts become not-ready; no post-Notify retries."""
+    logged=api.Logged(['/usr/bin/hyprctl','-j','layers'],name,logs,env)
+    first=None;cleanup_ok=True
+    try:logged.process.wait(timeout=7)
+    except BaseException as error:first=error
+    finally:
+        for cleanup in (lambda:api.terminate(logged.process),logged.finish):
+            try:cleanup()
+            except BaseException as error:
+                cleanup_ok=False
+                if first is None:first=error
+    if first is not None:
+        if not (cleanup_ok and isinstance(first,subprocess.TimeoutExpired)):raise first
+        reason='BOUNDED_STARTUP_PROBE_WAIT_TIMEOUT'
+    else:
+        out,err=(path.read_bytes() for path in logged.paths)
+        if logged.process.returncode==0:return json.loads(out)
+        O.need(logged.process.returncode==6 and
+            out==b"Hyprland IPC didn't respond in time\n\nCouldn't read (6)\n" and not err,
+            'command failed: '+name)
+        reason='EXACT_HYPRCTL_IPC_READ_TIMEOUT_6'
+    api.emit('startup_layers_retry',name=name,reason=reason,returncode=logged.process.returncode,
+             probe_retired=True,budget='EXISTING_30_SECOND_PRETRIGGER_READINESS')
+    return None
 
 
 def phase(stage,config,env,logs,**options):
@@ -42,7 +69,11 @@ def phase(stage,config,env,logs,**options):
         O.need(selected.get('DBUS_SESSION_BUS_ADDRESS')==managed.ADDRESS and selected.get('XDG_RUNTIME_DIR')==str(managed.RUNTIME),'real managed endpoint required')
         pid=os.environ.get('CACHY_MANAGED_MANAGER_PID','');O.need(re.fullmatch('[1-9][0-9]{0,9}',pid),'root-joined manager absent')
         return managed.bus_probe(lambda a:command(a,'manager'),int(pid))
-    def layers():return json.loads(command(['/usr/bin/hyprctl','-j','layers'],'layers'))
+    def layers(startup=False):
+        nonlocal sequence
+        if not startup:return json.loads(command(['/usr/bin/hyprctl','-j','layers'],'layers'))
+        sequence+=1
+        return startup_layers(base,selected,logs,stage+'-done-'+str(sequence)+'-layers')
     def owner_pid():return B.uint_reply(bus('GetConnectionUnixProcessID','s','org.freedesktop.Notifications'))
     def notices():return json.loads(command(['/usr/bin/makoctl','list','-j'],'mako-list'))
     try:
@@ -63,7 +94,8 @@ def phase(stage,config,env,logs,**options):
             O.need(answer in ('b false','b true'),'typed owner reply required')
             if answer=='b false':return None
             O.need(owner_pid()==mako.process.pid,'foreign notification owner')
-            return B.owned_layer(layers(),'waybar',bar.process.pid)
+            display=layers(startup=True)
+            return B.owned_layer(display,'waybar',bar.process.pid) if display is not None else None
         B.wait_ready(ready,healthy,30,'normal bar/Mako readiness')
         O.need(notices()==[],'preexisting notification')
         owner_reply=bus('GetNameOwner','s','org.freedesktop.Notifications').strip();O.need(owner_reply.startswith('s '),'typed service owner required')

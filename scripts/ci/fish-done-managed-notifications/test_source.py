@@ -10,6 +10,7 @@ import packet
 import fish_terminal as F
 import contract as C
 import capture as P
+import session as S
 
 HERE=Path(__file__).resolve().parent
 ROOT=Path(os.environ.get('DONE_MANAGED_SOURCE_ROOT',Path.cwd())).resolve()
@@ -302,6 +303,100 @@ class ExpiringCapture(unittest.TestCase):
             with self.subTest(key=key),self.assertRaises(ValueError):C.verify_result(events)
         events=Protocol().fixture();next(e for e in events if e['event']=='frame_ready')['notification_age_ms']=100
         with self.assertRaises(ValueError):C.verify_result(events)
+
+
+class StartupIPC(unittest.TestCase):
+    def setUp(self):
+        self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup);self.logs=Path(self.tmp.name)
+        blocked=patch.object(subprocess,'Popen',side_effect=AssertionError('no actual actor'));blocked.start();self.addCleanup(blocked.stop)
+        self.timeout_text=b"Hyprland IPC didn't respond in time\n\nCouldn't read (6)\n"
+
+    def api(self,code=0,out=b'{"Virtual-1":{"levels":{"2":[]}}}',err=b'',failure=None,cleanup_error=None):
+        from types import SimpleNamespace
+        history=[];events=[]
+        class Process:
+            returncode=None
+            def wait(self,timeout):
+                history.append(('wait',timeout))
+                if failure is not None:raise failure
+                self.returncode=code
+        class Logged:
+            def __init__(logged,argv,name,logs,env):
+                history.append(('spawn',argv));logged.process=Process()
+                logged.paths=[logs/(name+'.stdout'),logs/(name+'.stderr')]
+                for path,raw in zip(logged.paths,(out,err)):path.write_bytes(raw)
+            def finish(logged):
+                history.append(('finish',logged.process.returncode))
+                if cleanup_error is not None:raise cleanup_error
+        def terminate(process):
+            history.append(('terminate',process.returncode))
+            if process.returncode is None:process.returncode=-15
+        return SimpleNamespace(Logged=Logged,terminate=terminate,emit=lambda event,**row:events.append(dict(event=event,**row)),history=history,events=events)
+
+    def test_exact_actual_read_timeout_retries_after_owned_probe_retirement(self):
+        api=self.api(6,self.timeout_text)
+        self.assertIsNone(S.startup_layers(api,{},self.logs,'minimal-done-35-layers'))
+        self.assertEqual([n[0] for n in api.history],['spawn','wait','terminate','finish'])
+        self.assertEqual(api.history[1],('wait',7));self.assertEqual(api.events[0]['reason'],'EXACT_HYPRCTL_IPC_READ_TIMEOUT_6')
+        self.assertTrue(api.events[0]['probe_retired'])
+
+    def test_success_requires_actual_json_response(self):
+        api=self.api();actual=S.startup_layers(api,{},self.logs,'probe')
+        self.assertEqual(actual,{'Virtual-1':{'levels':{'2':[]}}});self.assertFalse(api.events)
+
+    def test_non_timeout_exit_wrong_bytes_or_stderr_never_retries(self):
+        for n,(code,out,err) in enumerate(((1,self.timeout_text,b''),(6,b'other error',b''),(6,self.timeout_text,b'foreign'),(6,self.timeout_text+b'extra',b''))):
+            api=self.api(code,out,err)
+            with self.subTest(code=code,out=out,err=err),self.assertRaises(ValueError):
+                S.startup_layers(api,{},self.logs,'probe'+str(n))
+            self.assertFalse(api.events)
+        api=self.api(0,b'not json')
+        with self.assertRaises(ValueError):S.startup_layers(api,{},self.logs,'bad-json')
+
+    def test_existing_seven_second_wait_timeout_retries_only_when_retired(self):
+        api=self.api(failure=subprocess.TimeoutExpired(['hyprctl'],7))
+        self.assertIsNone(S.startup_layers(api,{},self.logs,'wait-timeout'))
+        self.assertEqual(api.events[0]['reason'],'BOUNDED_STARTUP_PROBE_WAIT_TIMEOUT')
+        self.assertEqual(api.history[-1],('finish',-15))
+
+    def test_cleanup_failure_refuses_even_for_known_timeout(self):
+        for n,failure in enumerate((None,subprocess.TimeoutExpired(['hyprctl'],7))):
+            api=self.api(6,self.timeout_text,failure=failure,cleanup_error=ValueError('retirement unknown'))
+            with self.subTest(failure=failure),self.assertRaises((ValueError,subprocess.TimeoutExpired)):
+                S.startup_layers(api,{},self.logs,'failed-cleanup'+str(n))
+            self.assertFalse(api.events)
+
+    def test_cancelled_probe_propagates_after_cleanup(self):
+        api=self.api(failure=KeyboardInterrupt())
+        with self.assertRaises(KeyboardInterrupt):S.startup_layers(api,{},self.logs,'cancelled')
+        self.assertEqual(api.history[-1][0],'finish');self.assertFalse(api.events)
+
+    def test_repeated_not_ready_does_not_extend_original_thirty_seconds(self):
+        import bar_helpers as B
+        with patch.object(B.time,'monotonic',side_effect=[0,0,31]),patch.object(B.time,'sleep'):
+            with self.assertRaisesRegex(ValueError,'readiness deadline'):
+                B.wait_ready(lambda:None,lambda:None,30,'normal bar/Mako readiness')
+
+    def test_retry_can_only_be_requested_by_pretrigger_ready_function(self):
+        tree=ast.parse(Path(S.__file__).read_bytes())
+        phase=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='phase')
+        ready=next(n for n in ast.walk(phase) if isinstance(n,ast.FunctionDef) and n.name=='ready')
+        visible=next(n for n in ast.walk(phase) if isinstance(n,ast.FunctionDef) and n.name=='visible')
+        calls=[n for n in ast.walk(phase) if isinstance(n,ast.Call) and isinstance(n.func,ast.Name) and n.func.id=='layers' and n.keywords]
+        self.assertEqual(len(calls),1);self.assertIn(calls[0],list(ast.walk(ready)))
+        self.assertFalse(any(isinstance(n,ast.keyword) and n.arg=='startup' for n in ast.walk(visible)))
+        self.assertIn("B.wait_ready(ready,healthy,30,'normal bar/Mako readiness')",Path(S.__file__).read_text())
+
+    def test_successful_probe_does_not_waive_owned_layer_identity(self):
+        import bar_helpers as B
+        value={'Virtual-1':{'levels':{'2':[dict(namespace='waybar',pid=999,x=0,y=0,w=1024,h=30,alpha=1)]}}}
+        api=self.api(0,json.dumps(value).encode());actual=S.startup_layers(api,{},self.logs,'foreign-layer')
+        with self.assertRaisesRegex(ValueError,'foreign waybar'):B.owned_layer(actual,'waybar',100)
+
+    def test_transient_then_success_has_no_cached_geometry_fallback(self):
+        api=self.api(6,self.timeout_text);self.assertIsNone(S.startup_layers(api,{},self.logs,'first'))
+        other=self.api(0,b'{"fresh":{"levels":{"2":[]}}}')
+        self.assertEqual(S.startup_layers(other,{},self.logs,'second'),{'fresh':{'levels':{'2':[]}}})
 
 
 class HostedProof(unittest.TestCase):
