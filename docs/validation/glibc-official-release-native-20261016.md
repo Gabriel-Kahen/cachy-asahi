@@ -1,5 +1,13 @@
 # Isolated official GNU libc candidate
 
+## Native compilation completed; upstream checks failed
+
+[Actual38898464517](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38898464517), Source/workflow `bc1cd2d8c8d6b10639a8275dcbc11840ae8b745a`, completes native GNU compilation, info and locale generation after the makepkg configuration correction. `check()` fails with three named failures: `elf/check-abi-libc` (`_nl_default_dirname` size0x12 versus0x43 under the private prefix), `malloc/tst-malloc-too-large-malloc-hugetlb2` (20s timeout), and Linux-header compatibility (`OPEN_TREE_CLONE` redefinition). Five XPASS results and107 UNSUPPORTED results remain recorded. The make summary reports6815 PASS; the collector counts6930 PASS across its wider7058-result set. These counts are not interchangeable.
+
+Both GNU check and check-abi exit2; no failure is waived. The second build, package, candidate-header/runtime checks and reproducibility remain NOT RUN. Corrective implementation is in progress. All five exact consumer names are absent before owned producer retirement; ordered cleanup passes.
+
+Logs:92965 bytes/SHA256 `dee48bb380091dfdcf9a0a3e6f62e504d4b6fc9a9d386e38a530837575cdc094`. Artifact12046579016:47030066 compressed bytes/SHA256 `106be153076d7b0dc024be0f1ea8a076106d2e190fa6f2c42c1be9c3049c0471`. All45 declared files/47014192 raw bytes join their hashes and sizes. No source correspondence, production selection,16K execution or M2/performance acceptance is established.
+
 The separately named `cachy-asahi-glibc-official-release 2.43.caa1-1` uses an unmodified complete GNU2.43 release in a versioned private prefix. It does not replace/provide the base libc. The old GNU8362 binary/source correspondence gap remains unresolved. No later stable/security fixes, production trust or hardware acceptance are claimed.
 
 The complete official archive is40287809 bytes/SHA256 `e1e622cbd635019090fa23260e5d9ec219b12f97ae7ae02f033d4ae42cf2c004`, with20740 payload files/267112798 bytes and derived payload-tree identity `97ac10e146c65ecbd22d36e3743eb5b5e9166ae9`. This derived identity is not an upstream Git revision. GNU's published keyring validates the detached signature, while reporting current retained key expiry. An independent pretrusted fingerprint authority is unestablished. The candidate remains unselected.

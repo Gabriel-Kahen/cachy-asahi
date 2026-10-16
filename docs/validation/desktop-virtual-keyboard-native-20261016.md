@@ -1,5 +1,13 @@
 # Virtual keyboard native trial
 
+## Batched input retry38904379501
+
+[Actual38901031090](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38901031090) passes the explicit board-device and owned startup-surface checks, launches the terminal/Bash through the shipped shortcut, and receives QMP acknowledgements. Its retained failure capture shows corrupted initial `cd` input; the later nonce and command text arrive. Bash stays in the original directory and `tee` fails there. All three expected workspace files are absent. This is failed input delivery, not an ownership or permission correction.
+
+Commit `b0ef18da839227cd843f7f5cdd9e7dccd8033fa8` batches every complete chord in one QMP call, spaces chords by500ms and requires an identity-checked passive Bash cwd acknowledgement after a separate key-only `cd`. There are no input retries, injected commands or permission changes. Fifty-three focused/generated controls pass. Queue saturation remains an unproven cause; pacing is explicit VM test policy, not a performance result.
+
+[Retry38904379501](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38904379501) selects Source/workflow `aad2726b5ddaf9b57d00a053128c9ac11287af0c`, workflow SHA256 `41da9d6ef6f80345fd5c511419afe4f59aacc31f6e1c2e48ab28e1da4bdde796`, manifest `6829a1f8fb2c2ea8ae0ca8f46523597a6252ceede1b364e9a9e9f34ec580de97`. Full typed shell/Vim success, six captures and cleanup remain pending. Earlier38896363801 fails typed output without a failure frame;38898873595 stops before keys on anonymous unmapped XWayland surfaces. Their later narrow diagnostic/owned-surface corrections do not change either failed result.
+
 [Actual38894721820](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38894721820) fails before sending any keys. Source/workflow is `641bc3a267e95404d650b6bb6331fb8257488632`, workflow SHA256 `46820051d3d57d034b3495055161a7bd6e2cb081c5068c09fa8f0b41b43417e8`, source manifest `dbef4bc182f9982bbf9855a1e38307f533882b38da8a4898e243446db41f7664`.
 
 The generic ARM VM boots kernel7.2.10-1-aarch64-ARCH with4096-byte pages. Its real systemd user manager/bus, render-device access and software GBM probe pass. The intended QEMU Virtio Keyboard passes the kernel/device join. Hyprland reports that exact keyboard with US layout and Caps Lock off, plus a separate `gpio-keys` device. The one-keyboard assertion rejects the second device: `Hyprland sole US virtual keyboard differs`. The explicit power-button-device correction is in development; no arbitrary additional keyboard is accepted.

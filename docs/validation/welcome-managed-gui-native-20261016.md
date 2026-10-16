@@ -1,5 +1,11 @@
 # Installed Welcome GUI native trials
 
+## Notebook retry38902823702 reaches all seven minimal views
+
+[Actual38902823702](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38902823702), Source/workflow `1fe6effd851f6cd6053edb626ca2d2cd9e1bd3b7`, passes actual GTK notebook Selection operations, reaches and captures all seven minimal views and passes the Doctor report. Root independently views the new Updates and Recovery captures: the selected guide text and Doctor are readable. It then fails at cleanup with `process log overflow/failure`, before overlay. Repeated post-capture client queries also record bounded IPC timeouts; a causal relationship is not yet established. All14 outer runtime cleanup records, managed unit/runtime retirement and producer image/probe absence pass. This remains failed GUI acceptance.
+
+Logs:368248 bytes/SHA256 `8e169aa6354b3f665d1c0f925aa816f290c212e3fe6ef03abef86841b3a8347e`. Artifact12047670345:675900 compressed bytes/SHA256 `bdfcc9856dd707d79ac69ea3f055cb87a2744d9b29652f4d505600a2c5c1a5cc`; all47 declared files/18535912 raw bytes join. The seven captures from this actual have not received a complete visual acceptance pass. A cleanup correction is in development; all14 successful captures, both profiles and owned exits remain required.
+
 The [installed CLI lifecycle](welcome-doctor-native-20261016.md) passes separately. Installed Welcome GUI acceptance remains pending.
 
 [Actual38892469396](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38892469396), Source `2ac16b1bb42fe7da05dc7caa58021e6249c3d1f6`, fails the standalone Doctor fixture before any native app/VM work. Its mocked stat omitted file size; the correction preserves real stat fields. Independent test-module execution now matches hosted entry.
