@@ -263,14 +263,14 @@ class Controls(unittest.TestCase):
         self.assertTrue(all(before[k]==after[k] for k in before if k not in ('main','usage','run')))
         self.assertEqual((ROOT/'scripts/ci/tools-generic16k/kernel.fragment').read_bytes(),(ROOT/'scripts/virtual/generic16k/kernel.fragment').read_bytes())
         helper=s.load(ROOT,'scripts/ci/tools-generic16k/build_kernel.py')
-        self.assertEqual(helper.DIAGNOSTIC_FRAGMENT,'CONFIG_KALLSYMS=y\nCONFIG_PRINTK_TIME=y\nCONFIG_UNIX98_PTYS=y\nCONFIG_EVENTFD=y\n')
+        self.assertEqual(helper.DIAGNOSTIC_FRAGMENT,'CONFIG_KALLSYMS=y\nCONFIG_PRINTK_TIME=y\nCONFIG_UNIX98_PTYS=y\nCONFIG_EVENTFD=y\nCONFIG_FILE_LOCKING=y\n')
 
     def kernel_fixture(self):
         helper=s.load(ROOT,'scripts/ci/tools-generic16k/build_kernel.py');config=self.root/'config';image=self.root/'Image'
         base=(ROOT/'scripts/ci/tools-generic16k/kernel.fragment').read_bytes();config.write_bytes(base+helper.DIAGNOSTIC_FRAGMENT.encode())
         raw=bytearray(64);raw[56:60]=b'ARM\x64';struct.pack_into('<Q',raw,24,4);image.write_bytes(raw)
         return dict(profile='TOOLS16K_PTY_DERIVED_DIAGNOSTIC',derivation=dict(base_helper_sha256=s.pins()['files']['scripts/virtual/generic16k/build_kernel.py']['sha256'],
-            diagnostic_extension='CONFIG_UNIX98_PTYS=y;CONFIG_EVENTFD=y',
+            diagnostic_extension='CONFIG_UNIX98_PTYS=y;CONFIG_EVENTFD=y;CONFIG_FILE_LOCKING=y',
                workspace_scan='ACTIVE_CHILD_COMPILER_OUTPUT_ENOENT_ONLY_STRICT_FINAL',accepted_profile_modified=False),status='BUILT_ONLY',kernel_build='PASS',boot_diagnostics=True,
             image_check=dict(header_page_size=16384),module_policy=dict(CONFIG_MODULES='n'),archive=dict(sha256='874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad'),
             source_commit='94fb23346d522edf53722357c426a3e58030beea',helper=dict(sha256=s.sha((ROOT/'scripts/ci/tools-generic16k/build_kernel.py').read_bytes())),
@@ -282,7 +282,7 @@ class Controls(unittest.TestCase):
         bad=copy.deepcopy(receipt);bad['derivation']['accepted_profile_modified']=True
         with self.assertRaises(ValueError):run.kernel(bad,ROOT)
         config=self.root/'config';original=config.read_text()
-        for key in ('CONFIG_UNIX98_PTYS','CONFIG_EVENTFD'):
+        for key in ('CONFIG_UNIX98_PTYS','CONFIG_EVENTFD','CONFIG_FILE_LOCKING'):
             config.write_text(original.replace(key+'=y','# '+key+' is not set'))
             receipt['config']['sha256']=s.sha(config.read_bytes())
             with self.subTest(key=key),self.assertRaisesRegex(ValueError,key):run.kernel(receipt,ROOT)

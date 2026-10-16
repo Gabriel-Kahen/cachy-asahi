@@ -30,7 +30,7 @@ class Inputs(unittest.TestCase):
     def test_closed_reused_source_and_tools_cache_helper_pins(self):
         c.check_source(ROOT);self.assertEqual(len(c.decode(c.read(c.HERE/'dependencies.json'))['files']),19)
         self.assertEqual(c.dependencies()['scripts/ci/tools-generic16k/build_kernel.py']['sha256'],
-            '3d1f25edbdd8d4ac4f48f5efcc756854e56d93cbaadeaefba3bdab2a1d32e9b1')
+            '3c8695685dcae7eded7406ccbf0f8152f6f5820f87ef47f4e791b577c2d3b55a')
 
     def test_pending_tools_cache_cannot_authorize_native_trial(self):
         value=c.decode(c.read(c.HERE/'input-policy.json'));value['status']='PENDING';value['kernel_cache']=None

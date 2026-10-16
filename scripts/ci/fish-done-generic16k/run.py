@@ -114,7 +114,7 @@ def payload(archive,receipt,generic):
 def kernel(receipt,root):
     s.need(receipt['profile']=='TOOLS16K_PTY_DERIVED_DIAGNOSTIC' and
            receipt['derivation']==dict(base_helper_sha256=s.pins()['files']['scripts/virtual/generic16k/build_kernel.py']['sha256'],
-               diagnostic_extension='CONFIG_UNIX98_PTYS=y;CONFIG_EVENTFD=y',
+               diagnostic_extension='CONFIG_UNIX98_PTYS=y;CONFIG_EVENTFD=y;CONFIG_FILE_LOCKING=y',
                workspace_scan='ACTIVE_CHILD_COMPILER_OUTPUT_ENOENT_ONLY_STRICT_FINAL',accepted_profile_modified=False) and receipt['status']=='BUILT_ONLY' and receipt['kernel_build']=='PASS' and receipt['boot_diagnostics'] is True and
            receipt['image_check']['header_page_size']==16384 and receipt['module_policy']['CONFIG_MODULES']=='n' and
            receipt['archive']['sha256']=='874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad' and
@@ -171,6 +171,30 @@ def failed_driver_diagnostic(output,nonce,release,receipt):
     s.need(type(value['cases']) is dict and len(value['cases'])<=2,'bounded fixed diagnostic cases required')
     for case,files in value['cases'].items():
         s.need(case in value['case_directories_present'] and set(files)==allowed,'fixed diagnostic file allowlist required');samples.extend(files.values())
+    probe=value.get('foreground_probe')
+    if probe is not None:
+        s.need(type(probe) is dict and type(probe.get('command')) is dict,'foreground probe command required')
+        row=probe['command']
+        s.need(row['argv']==['/usr/bin/python3','-I','-B','/guest.py','--foreground-probe','/tmp/done16k/foreground-probe'],
+               'fixed separate foreground probe argv required')
+        if 'value' in probe:
+            observation=probe['value'];files=observation.get('files',{})
+            raw=(json.dumps(observation,sort_keys=True,separators=(',',':'))+'\n').encode()
+            s.need(len(raw)<=16384 and row['stdout_bytes']==len(raw) and row['stdout_sha256']==s.sha(raw),
+                   'foreground probe stdout bytes/hash differ')
+            s.need(row['exit']==0 and row['expected_exit']==0 and row['natural_exit'] is True and row['group_absent'] is True and
+                probe['owned_processes_absent'] is True and observation['schema_version']==1 and
+                observation['status']=='FOREGROUND_PROBE_ONLY' and observation['acceptance_credit'] is False and
+                observation['product_change']=='NONE' and observation['workload']=='sleep .12' and observation['threshold']==80,
+                'separate diagnostic scope and retirement required')
+            s.need(all(observation[field]==receipt['files'][path]['sha256'] for field,path in
+                [('fixture_sha256','fixtures/done.py'),('runtime_sha256','usr/share/cachy-asahi/fish-done/done.fish'),
+                 ('wrapper_sha256','usr/share/cachy-asahi/fish-done/opt-in.fish')]),'foreground probe original source identity differs')
+            s.need(type(files) is dict and set(files)<= {'probe-enabled','probe-threshold','probe-exclusions','probe-completion',
+                'probe-timeout-entered','probe-timeout-stderr','notifications.jsonl'},'foreground probe file allowlist required')
+            samples.extend(files.values())
+        else:
+            samples.extend([probe['stdout'],probe['stderr']])
     for row in samples:
         if row.get('status') in ('ABSENT','UNAVAILABLE'):continue
         raw=base64.b64decode(row['sample_base64'],validate=True)

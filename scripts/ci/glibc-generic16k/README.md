@@ -62,7 +62,7 @@ failure so a guest syscall/loader failure is diagnosable without relaxing checks
 The original Tools supervisor/preflight/kernel checker, owned574 producer,
 generic cpio/ELF/page probe and derived EVENTFD/PTYS kernel helper are reused.
 The derived helper remains SHA256
-3d1f25edbdd8d4ac4f48f5efcc756854e56d93cbaadeaefba3bdab2a1d32e9b1.
+3c8695685dcae7eded7406ccbf0f8152f6f5820f87ef47f4e791b577c2d3b55a.
 No new kernel fragment, flags or limits are selected. The final Tools handoff is consumed directly: acquire_kernel.py8844B/SHA256
 4a372e1f4bfbd1f8604579873fc6fbdec91ac2555bb36f028646017b44b8c23f and
 retained_kernel.py5419B/SHA256

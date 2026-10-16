@@ -28,7 +28,7 @@ def download(archive,acquire,deadline_alarm,receipt_path):
     need(archive.name=='kernel.tar.gz' and archive.parent.name==SHA and not archive.exists() and not archive.is_symlink(),'fresh exact archive cache path required')
     token=os.environ.get('GH_TOKEN');need(type(token) is str and 0<len(token)<=16384,'read-only workflow token required')
     partial=Path(str(archive)+'.partial');created=False;process=None;poll=None;digest=hashlib.sha256();count=0;stderr=bytearray();natural=False;group_absent=False
-    report=dict(status='FAIL',asset_id=ASSET_ID,release_id=RELEASE_ID,release_draft=True,source_kind='PUBLIC_ORIGINAL_KERNEL_SOURCE_CI_ASSET_ONLY',
+    report=dict(status='FAIL',asset_id=ASSET_ID,release_id=RELEASE_ID,release_draft=False,release_prerelease=True,source_kind='PUBLIC_ORIGINAL_KERNEL_SOURCE_CI_ASSET_ONLY',
         url=URL,expected_bytes=SIZE,expected_sha256=SHA,extraction='NOT_PERFORMED',deadline_seconds=300,
         authentication='READ_ONLY_WORKFLOW_TOKEN_FIXED_GITHUB_API_VIA_GH',release_admission=False)
     try:
