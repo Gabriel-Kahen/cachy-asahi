@@ -25,5 +25,9 @@
   "packages/desktop/cachy-asahi-hyprland-settings/waybar.css": "a97930965a4e622adc920491c7d433a803173bb6e644c4c3c88efb79187e11d5",
   "packages/desktop/cachy-asahi-hyprland-settings/waybar.json": "4c7adb2deb0403fefc4562d39105635cebfc44ce88e44fe84c4a90a00b2be3c0",
   "scripts/port/preview.py": "d737c51474e05cc2c4db2e87fc021f50328eea7744983dd4076d44751fce7383",
-  "scripts/port/refreshed-desktop/archive-authentication-receipt.json": "0d172a7aed58660115ae087a31faf4bb57f564b799f5920273589a3cc339bc40"
+  "scripts/port/refreshed-desktop/archive-authentication-receipt.json": "0d172a7aed58660115ae087a31faf4bb57f564b799f5920273589a3cc339bc40",
+  "scripts/ci/desktop-user-session/prepare.py": "a70885622a36fe1ba764ea7d0846933b639ef04dc3c532598fb92ceb73ffe00b",
+  "scripts/ci/desktop-user-session/managed_session.py": "2187c47b3f5877d8585c66c806b0c5dd17efc38cee414c46bc746157f3c4d991",
+  "scripts/ci/desktop-user-session/managed_contract.py": "0f6c7566afd2ffb4e283b7f2edd36433e13cca873c60e5d68a46afbd3c2d4218",
+  "scripts/ci/desktop-user-session/source-pins.json": "b5e4df112c8a9ade746b6a60cafa68e5a58226a1f13280d0725b9e5175a7686d"
 }

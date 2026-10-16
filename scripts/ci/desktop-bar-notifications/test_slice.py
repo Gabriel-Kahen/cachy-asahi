@@ -22,6 +22,27 @@ def layer(value):
     return {'Virtual-1': {'levels': {'2': [value]}}}
 
 
+def managed_events(events):
+    identity=dict(address='unix:path=/run/user/23001/bus',uid=23001,manager_pid=777,default_target='GetUnit-PASS')
+    def unit(name,active,substate,pid):
+        return dict(Id=name,LoadState='loaded',ActiveState=active,SubState=substate,Result='success',ExecMainStatus=0,MainPID=pid)
+    units={name:unit(name,'active',sub,pid) for name,sub,pid in (
+        ('systemd-user-sessions.service','exited',0),('user-runtime-dir@23001.service','exited',0),('user@23001.service','running',777))}
+    result=[dict(event='managed_session_ready',status='PASS',units=units,**identity),
+            dict(event='managed_user_ready',status='PASS',**identity)]
+    for event in copy.deepcopy(events):
+        if event.get('event')=='frame_ready':
+            event.update(managed_identity=identity,activation='normal-shipped-config-no-reload',notification_timeout_ms=0,compositor_pid=3)
+        result.append(event)
+        if event.get('event')=='frame_ready':
+            result.append(dict(event='frame_captured',stage=event['stage'],request_sha256=contract.request_digest(event),
+                first_capture=True,capture_ms=20,sha256='a'*64,managed_identity=identity,visual_review='NOT_RUN'))
+    stopped=['user@23001.service','user-runtime-dir@23001.service']
+    result.extend([dict(event='managed_session_cleanup',status='PASS',runtime_absent=True,owned_units_stopped=True,units=stopped,
+        unit_states={n:unit(n,'inactive','dead',0) for n in stopped}),dict(event='complete',status='PASS')])
+    return result
+
+
 class DataTests(unittest.TestCase):
     def test_layer_requires_unique_pid_namespace_positive_onscreen_geometry(self):
         self.assertIsNotNone(session.owned_layer(layer(row()), 'waybar', 102))
@@ -109,14 +130,15 @@ class DataTests(unittest.TestCase):
                 waybar_pid=1,mako_pid=2,capture_after_ms=5000),
                 dict(event='phase_pass',stage=stage,waybar='PASS',mako='PASS',config_preserved=True)]
         events.append(dict(event='session_pass',status='PASS',waybar='PASS',mako='PASS'))
+        events=managed_events(events)
         contract.verify_result(events)
         for mutation in ('duplicate','configuration','session','owner','hidden'):
             value=copy.deepcopy(events)
             if mutation=='duplicate':value.append(value[0])
-            elif mutation=='configuration':value[1]['config_preserved']=1
-            elif mutation=='session':value[-1]['mako']='NOT_RUN'
-            elif mutation=='owner':value[0]['mako']['pid']=22
-            else:value[0]['bar']['alpha']=.5
+            elif mutation=='configuration':next(e for e in value if e.get('event')=='phase_pass')['config_preserved']=1
+            elif mutation=='session':next(e for e in value if e.get('event')=='session_pass')['mako']='NOT_RUN'
+            elif mutation=='owner':next(e for e in value if e.get('event')=='frame_ready')['mako']['pid']=22
+            else:next(e for e in value if e.get('event')=='frame_ready')['bar']['alpha']=.5
             with self.assertRaises(ValueError):contract.verify_result(value)
 
 
@@ -193,8 +215,10 @@ class PhaseTests(unittest.TestCase):
 
     def run_phase(self):
         with patch.object(session,'base',self.helper),patch.object(session.os,'killpg',self.signal),\
-             patch.object(session.time,'monotonic',self.now),patch.object(session.time,'sleep',self.sleep):
-            session.phase('minimal',Path('/explicit.lua'),dict(XDG_CONFIG_HOME=str(self.config)),self.root)
+             patch.object(session.time,'monotonic',self.now),patch.object(session.time,'sleep',self.sleep),\
+             patch.dict(session.os.environ,{'CACHY_MANAGED_MANAGER_PID':'777'}),\
+             patch.object(session.managed,'bus_probe',return_value=dict(address=session.managed.ADDRESS,uid=23001,manager_pid=777,default_target='GetUnit-PASS')):
+            session.phase('minimal',Path('/explicit.lua'),dict(XDG_CONFIG_HOME=str(self.config),XDG_RUNTIME_DIR=str(session.managed.RUNTIME),DBUS_SESSION_BUS_ADDRESS=session.managed.ADDRESS),self.root)
 
     def assert_retired(self):
         self.assertTrue(all(p.process.poll() is not None and p.finished for p in self.processes))

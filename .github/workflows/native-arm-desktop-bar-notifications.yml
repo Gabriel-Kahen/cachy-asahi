@@ -34,7 +34,7 @@ jobs:
         timeout-minutes: 2
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '8f2fcb60ce0a0bffd4112b5d1fb95615a0cc155e71dc387dc90449b650f12eba' "$SLICE/ci/caller.py" '2c22800d358f9b58b99fd57330035822a991e84691b660ad00fc9883c648aba4' "$SLICE/ci/source-manifest.json" | sha256sum --check
+          printf '%s  %s\n' 'dd0f7585be38abab4f1226ef51d729135b1b7c7c33f257e907ca0e3462af58cf' "$SLICE/ci/caller.py" '0f07f65638acf75c4772696e503fe7094ee12dabe4ecef8ef30cf873b6e42f46' "$SLICE/ci/source-manifest.json" | sha256sum --check
           python3 -I -B "$SLICE/ci/caller.py" proof --workspace "$GITHUB_WORKSPACE" --manifest "$SLICE/ci/source-manifest.json" --proof "$RUNNER_TEMP/bar-notification-source-proof.json"
       - name: Focused source and hosted entry controls
         timeout-minutes: 3
@@ -42,7 +42,7 @@ jobs:
           set -euo pipefail
           python3 -I -B scripts/ci/test_maintained_desktop574.py
           python3 -I -B scripts/ci/test_desktop574_guest.py
-          python3 -B -m unittest discover -s "$SLICE" -p test_slice.py
+          python3 -B -m unittest discover -s "$SLICE" -p 'test_*.py'
           python3 -B -m unittest discover -s "$SLICE/ci" -p test_caller.py
       - name: Prepare and prove the exact separate runner without native actors
         timeout-minutes: 2
@@ -127,7 +127,7 @@ jobs:
         timeout-minutes: 2
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '8f2fcb60ce0a0bffd4112b5d1fb95615a0cc155e71dc387dc90449b650f12eba' "$SLICE/ci/caller.py" | sha256sum --check
+          printf '%s  %s\n' 'dd0f7585be38abab4f1226ef51d729135b1b7c7c33f257e907ca0e3462af58cf' "$SLICE/ci/caller.py" | sha256sum --check
           python3 -I -B "$SLICE/ci/caller.py" retain --proof "$RUNNER_TEMP/bar-notification-source-proof.json" --base "$RUNNER_TEMP/desktop574" --runtime "$RUNNER_TEMP/bar-notification-runtime" --output "$RUNNER_TEMP/bar-notification-public"
       - name: Upload only the bounded public evidence directory
         if: always()

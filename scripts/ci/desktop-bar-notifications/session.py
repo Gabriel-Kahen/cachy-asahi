@@ -9,6 +9,7 @@ import re
 import signal
 import stat
 import time
+import managed_session as managed
 
 SUMMARY = 'Cachy Asahi desktop'
 BODY = 'Waybar and Mako: generic ARM software check'
@@ -141,10 +142,18 @@ def phase(stage, config, env, logs):
     def listing():
         return json.loads(command(['/usr/bin/makoctl', 'list', '-j'], 'list'))
 
+    def managed_identity():
+        need(selected.get('DBUS_SESSION_BUS_ADDRESS') == managed.ADDRESS and
+             selected.get('XDG_RUNTIME_DIR') == str(managed.RUNTIME), 'managed capture endpoint differs')
+        raw = os.environ.get('CACHY_MANAGED_MANAGER_PID', '')
+        need(re.fullmatch('[1-9][0-9]{0,9}', raw) is not None, 'root-joined manager PID absent')
+        return managed.bus_probe(lambda argv: command(argv, 'managed-capture', timeout=5), int(raw))
+
     try:
         need(not any(p.is_socket() for p in base.RUNTIME.glob('wayland-*')), 'stale Wayland socket')
         compositor = base.Logged(['/usr/bin/Hyprland', '--config', str(config)], stage, logs, env)
         selected = base.ipc(stage, compositor, env, logs)
+        identity = managed_identity()
         monitors = json.loads(command(['/usr/bin/hyprctl', '-j', 'monitors'], 'monitors'))
         need(base.usable_monitors(monitors), 'no usable monitor')
         need(len(monitors) == 1 and monitors[0]['width'] == 1024 and monitors[0]['height'] == 768
@@ -159,9 +168,8 @@ def phase(stage, config, env, logs):
         need(has_owner() == 'b false', 'preexisting notification owner')
         bar = base.Logged(['/usr/bin/waybar', '--config', str(TEMPLATES / 'waybar.json'),
             '--style', str(TEMPLATES / 'waybar.css')], stage + '-waybar', logs, selected)
-        # Explicit fixture-only margin leaves the full bar unobscured.
-        mako = base.Logged(['/usr/bin/mako', '--config', str(TEMPLATES / 'mako.conf'),
-            '--outer-margin', '40,10,10,10'], stage + '-mako', logs, selected)
+        mako = base.Logged(['/usr/bin/mako', '--config', str(TEMPLATES / 'mako.conf')],
+            stage + '-mako', logs, selected)
 
         def bus_ready():
             value = has_owner()
@@ -192,14 +200,18 @@ def phase(stage, config, env, logs):
             time.sleep(.1)
         current = visible()
         need(current is not None, 'clients disappeared before capture')
+        need(managed_identity() == identity, 'managed identity changed before capture')
         base.emit('frame_ready', stage=stage, monitors=monitors, **current,
                   capture_after_ms=int((time.monotonic() - start) * 1000),
-                  waybar_pid=bar.process.pid, mako_pid=mako.process.pid)
+                  waybar_pid=bar.process.pid, mako_pid=mako.process.pid,
+                  compositor_pid=compositor.process.pid, managed_identity=identity,
+                  activation='normal-shipped-config-no-reload', notification_timeout_ms=0)
         after = time.monotonic() + 8
         while time.monotonic() < after:
             healthy()
             time.sleep(.1)
         need(visible() is not None, 'clients disappeared after capture')
+        need(managed_identity() == identity, 'managed identity changed after capture')
         dbus('org.freedesktop.Notifications', '/org/freedesktop/Notifications',
              'org.freedesktop.Notifications', 'CloseNotification', 'u', str(identifier))
 
