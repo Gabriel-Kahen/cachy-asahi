@@ -9,6 +9,8 @@
   "feature_choices": {
     "gd": "not in accepted bootstrap; optional memusagestat unavailable",
     "locales": "upstream test locales; no ALARM locale-gen scripts copied",
+    "multiarch": "disabled",
+    "multiarch_reason": "--disable-multi-arch selects baseline AArch64 assembly FUNC symbols and memchr/strlen WEAK aliases; actual38906503054 multiarch IFUNC/GLOBAL differs. No ABI waiver or performance claim.",
     "nscd": "disabled",
     "systemtap": "disabled; no external sdt headers",
     "test_timeout": "Only tst-malloc-too-large-malloc-hugetlb2: TIMEOUTFACTOR=5, full assertions retained; still bounded/fatal"
@@ -19,6 +21,7 @@
     "configured_dirname_ascii_bytes": 17,
     "exported_dirname_object_bytes": 18,
     "gettext_catalogs": "/opt/caa/g243a1/l",
+    "multiarch": "disabled",
     "versioned_prefix": "/opt/caa/g243a1"
   },
   "licenses": [
@@ -65,7 +68,7 @@
   ],
   "payload_identity_scope": "derived exact release archive payload tree; not an upstream Git revision",
   "payload_tree": "97ac10e146c65ecbd22d36e3743eb5b5e9166ae9",
-  "pkgrel": 2,
+  "pkgrel": 3,
   "prefix": "/opt/caa/g243a1",
   "public_inputs": [
     {

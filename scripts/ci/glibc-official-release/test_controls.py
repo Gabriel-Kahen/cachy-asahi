@@ -206,7 +206,7 @@ class Controls(unittest.TestCase):
         (base/'image-id').write_text(image);write_json(base/'report.json',dict(status='PASS_NATIVE_OFFLINE_574_TRANSACTION',image=image,ownership=dict(token='base-fixture')))
         for name in ('PKGBUILD','source-lock.json','glibc-2.43.tar.gz'):(bundle/name).write_text('inert fixture only')
         files={p.name:dict(bytes=p.stat().st_size,sha256=R.sha(p)) for p in bundle.iterdir()}
-        selected=dict(status='SOURCE_BUNDLE_READY_UNSELECTED_OFFICIAL_RELEASE',release='2.43',payload_tree=M.PAYLOAD_TREE,authentication={},files=files,declared_patches=[],configured_layout={})
+        selected=dict(status='SOURCE_BUNDLE_READY_UNSELECTED_OFFICIAL_RELEASE',release='2.43',payload_tree=M.PAYLOAD_TREE,authentication={},files=files,declared_patches=[],configured_layout={},configured_features={'multiarch':'disabled'},package_version='2.43.caa1-3')
         write_json(bundle/'bundle.json',selected)
         smoke_files={}
         for name in ('abi_smoke.c','exec_child.c','probe.c','probe.h','plugin.c','runner.py'):

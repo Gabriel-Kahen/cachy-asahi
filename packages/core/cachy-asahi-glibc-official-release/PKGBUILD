@@ -2,7 +2,7 @@
 # Project-owned successor; unrelated to the old binary's unavailable build recipe.
 pkgname=cachy-asahi-glibc-official-release
 pkgver=2.43.caa1
-pkgrel=2
+pkgrel=3
 pkgdesc='Unselected GNU libc rebuild candidate in a versioned private prefix'
 arch=('aarch64')
 url='https://www.gnu.org/software/libc/'
@@ -35,6 +35,7 @@ build() {
   "$srcdir/$_upstream/configure" --prefix="$_prefix/usr" --libdir="$_prefix/usr/lib" \
     --libexecdir="$_prefix/usr/lib" --localedir="$_prefix/l" --sysconfdir="$_prefix/etc" --localstatedir="$_prefix/var" \
     --build=aarch64-unknown-linux-gnu --host=aarch64-unknown-linux-gnu \
+    --disable-multi-arch \
     --with-headers=/usr/include --enable-bind-now --enable-stack-protector=strong \
     --enable-fortify-source --disable-systemtap --disable-nscd --disable-profile --disable-werror \
     --with-pkgversion='cachy-asahi-official-release-caa1 GNU2.43' || return

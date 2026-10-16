@@ -160,6 +160,8 @@ jobs:
           python3 -B -Werror::ResourceWarning packages/tools/cachy-asahi-zsh-history-substring-search/check-module.py --module-dir "$GITHUB_WORKSPACE/packages/tools/cachy-asahi-zsh-history-substring-search" --work "$work"
           zsh -fn packages/tools/cachy-asahi-zsh-history-substring-search/opt-in.zsh
           bash -n packages/tools/cachy-asahi-zsh-history-substring-search/PKGBUILD
+      - name: Check Fish autopair native lifecycle contracts without container actors
+        run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/fish-autopair-native -p 'test_*.py'
       - name: Check native tool candidate contracts without container actors
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/tools-native -p test_native.py
       - name: Check Fish autopair source syntax without requiring newer host Fish runtime
