@@ -10,6 +10,7 @@ import os
 from pathlib import Path
 import re
 import stat
+import struct
 import sys
 import tarfile
 import time
@@ -275,6 +276,91 @@ def payload(ready, rows, code):
                 packages={row['name']:row['version'] for row in rows})
 
 
+# This lane preserves the exact signed574 root. The historical generic profile
+# stays frozen globally; only the proven SQLite member differs here.
+BASE_TOOL_PROFILE_SHA='b7fbd65e357e132949432fb00e765a05e3c76ea29a41d1df93413870d9fd1ed8'
+BUILDER_LOCK='cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac'
+COHERENT_TOOL_PROFILE_SHA='92342499a72bfde278975c12d33e97165d51ddeb0fd8094ad8bd4d3f0eb6c741'
+COHERENT_TOOL_BYTES=85444968
+OLD_SQLITE={'owner': 'signed-rootfs', 'path': '/usr/lib/libsqlite3.so.3.53.4', 'sha256': '2db449a85914b1fefa35388d205fa3a8dc946ee3e8ab289cb8a0bfbdc17f575f', 'size': 1657608}
+NEW_SQLITE={'owner': 'sqlite 3.54.0-1', 'path': '/usr/lib/libsqlite3.so.3.54.0', 'sha256': 'a98f9af57cba3aab9b499408fd8dc7370f7a4d39beba5ad2dd47fcf8e5ff1c90', 'size': 1657528}
+SQLITE_ARCHIVE=dict(name='sqlite',version='3.54.0-1',sha256='88c1b8d04c68597ea09bc1e393ad79fb0faf94b7fe45f507f663a6e68c1c7102',
+    size=1849948,signature_sha256='567c1ca19cbee1f80b166232b0d0cc2619f1ad2100d3faf0aedcdf47656c1177',signature_size=566)
+SQLITE_ELF=dict(soname='libsqlite3.so.0',needed=['ld-linux-aarch64.so.1','libc.so.6','libm.so.6'],runpath='/usr/lib',rpath=None,interpreter=None)
+
+
+def coherent_tools(raw):
+    need(hashlib.sha256(raw).hexdigest()==BASE_TOOL_PROFILE_SHA,'exact historical tool profile required')
+    value=decode(raw)
+    need(len(value['files'])==136 and sum(row['size'] for row in value['files'])==85445048 and
+         [row for row in value['files'] if row['path']==OLD_SQLITE['path']]==[OLD_SQLITE], 'historical SQLite role differs')
+    value['files']=[dict(NEW_SQLITE) if row['path']==OLD_SQLITE['path'] else row for row in value['files']]
+    need(value['aliases'].pop(OLD_SQLITE['path'])==OLD_SQLITE['path'],'historical SQLite alias differs')
+    for path in (NEW_SQLITE['path'],'/usr/lib/libsqlite3.so','/usr/lib/libsqlite3.so.0'):
+        need(path not in value['aliases'],'unexpected existing SQLite alias');value['aliases'][path]=NEW_SQLITE['path']
+    raw=(json.dumps(value,sort_keys=True,indent=2)+'\n').encode()
+    need(hashlib.sha256(raw).hexdigest()==COHERENT_TOOL_PROFILE_SHA and len(value['files'])==136 and
+         sum(row['size'] for row in value['files'])==COHERENT_TOOL_BYTES,'closed coherent profile differs')
+    return value
+
+
+def tool_selection(manifest,payload,builder):
+    raw=''.join(name+' '+version+'\n' for name,version in sorted(builder.items())).encode()
+    need(len(builder)==574 and hashlib.sha256(raw).hexdigest()==BUILDER_LOCK and builder.get('sqlite')=='3.54.0-1',
+         'exact preserved574 builder required')
+    rows=[row for row in manifest['packages'] if row['name']=='sqlite']
+    need(len(rows)==1 and all(rows[0].get(k)==v for k,v in SQLITE_ARCHIVE.items()),'exact signed SQLite source tuple required')
+    nodes=payload['nodes'];path=NEW_SQLITE['path'].lstrip('/')
+    expected=dict(type='file',uid=0,gid=0,mode=0o755,bytes=NEW_SQLITE['size'],sha256=NEW_SQLITE['sha256'])
+    need(nodes.get(path)==expected and OLD_SQLITE['path'].lstrip('/') not in nodes,'signed SQLite payload differs')
+    for name in ('usr/lib/libsqlite3.so','usr/lib/libsqlite3.so.0'):
+        need(nodes.get(name)==dict(type='symlink',uid=0,gid=0,mode=0o777,target='libsqlite3.so.3.54.0'),'signed SQLite alias differs')
+    return dict(purpose='full-installer-preserved574-sqlite354-v1',builder_lock_sha256=BUILDER_LOCK,
+                base_profile_sha256=BASE_TOOL_PROFILE_SHA,profile_sha256=COHERENT_TOOL_PROFILE_SHA,archive=SQLITE_ARCHIVE,elf=SQLITE_ELF)
+
+
+def validate_tools(profile,manifest,payload,builder,held):
+    need(profile['tools']==coherent_tools(held) and profile['base_tool_profile_sha256']==BASE_TOOL_PROFILE_SHA and
+         profile['tool_profile_sha256']==COHERENT_TOOL_PROFILE_SHA and
+         profile['tool_profile_binding']==tool_selection(manifest,payload,builder),'coherent signed tool binding differs')
+
+
+def sqlite_elf(raw):
+    # Parse only the one archive-pinned replacement. All135 other exact ELF/DSO
+    # bytes remain the original reviewed closure. No loader or CDLL executes.
+    need(len(raw)==NEW_SQLITE['size'] and hashlib.sha256(raw).hexdigest()==NEW_SQLITE['sha256'],'SQLite ELF bytes differ')
+    need(raw[:7]==b'\x7fELF\x02\x01\x01' and struct.unpack_from('<HH',raw,16)==(3,183),'SQLite ELF64LE AArch64 DSO required')
+    offset=struct.unpack_from('<Q',raw,32)[0];size,count=struct.unpack_from('<HH',raw,54)
+    need(size==56 and 0<count<=128 and offset+size*count<=len(raw),'SQLite program header bounds')
+    loads=[];dynamic=[];interpreter=None
+    for i in range(count):
+        kind,flags,fileoff,vaddr,paddr,filesz,memsz,align=struct.unpack_from('<IIQQQQQQ',raw,offset+i*size)
+        need(fileoff+filesz<=len(raw),'SQLite segment bounds')
+        if kind==1:loads.append((vaddr,filesz,fileoff))
+        elif kind==2:dynamic.append((fileoff,filesz))
+        elif kind==3:
+            need(interpreter is None and filesz<=4096 and raw[fileoff+filesz-1]==0,'SQLite interpreter bounds')
+            interpreter=raw[fileoff:fileoff+filesz-1].decode()
+    need(len(dynamic)==1 and dynamic[0][1]%16==0 and dynamic[0][1]<=65536,'SQLite dynamic table bounds')
+    values={};terminated=False
+    for pos in range(dynamic[0][0],sum(dynamic[0]),16):
+        tag,value=struct.unpack_from('<qQ',raw,pos)
+        if tag==0:terminated=True;break
+        values.setdefault(tag,[]).append(value)
+    need(terminated and len(values.get(5,[]))==len(values.get(10,[]))==1,'SQLite string table missing')
+    pointer=values[5][0];length=values[10][0];need(0<length<=65536,'SQLite string table bound')
+    maps=[fileoff+pointer-address for address,filesz,fileoff in loads if address<=pointer and pointer+length<=address+filesz]
+    need(len(maps)==1,'SQLite string table mapping differs');strings=raw[maps[0]:maps[0]+length]
+    def string(index):
+        need(0<=index<len(strings),'SQLite string offset');end=strings.find(b'\0',index)
+        need(end>=index and end-index<=4096,'SQLite string bound');return strings[index:end].decode('ascii')
+    def single(tag):
+        need(len(values.get(tag,[]))<=1,'duplicate SQLite dynamic role');return None if tag not in values else string(values[tag][0])
+    facts=dict(soname=single(14),needed=sorted(string(i) for i in values.get(1,[])),runpath=single(29),rpath=single(15),interpreter=interpreter)
+    need(facts==SQLITE_ELF,'SQLite dynamic closure differs')
+    return facts
+
+
 def build(ready, code, output):
     ready,code,output=map(lambda p:Path(p).resolve(strict=True),(ready,code,output))
     need(not (output/'installer-profile.json').exists() and not (output/'payload.json').exists(),'fresh profile output required')
@@ -294,10 +380,14 @@ def build(ready, code, output):
     need(numeric_ids(data)==dict(uids=[0],gids=[0,5,11,50,81,102]),'exact signed numeric identity set required')
     raw=encoded(data)
     need(len(raw)<=MAX_JSON,'payload contract byte bound'); (output/'payload.json').write_bytes(raw)
-    tool=decode(tool_bytes); need(len(tool['files'])==136 and sum(r['size'] for r in tool['files'])==85445048,'held tool closure differs')
+    builder=value['builder_lock'];need(builder['path']=='builder-packages.lock' and builder['sha256']==BUILDER_LOCK,'preserved builder binding differs')
+    builder_path=checked(ready,builder['path'],builder,maximum=1024**2)
+    builder_inventory=lock(builder_path.read_bytes(),574)
+    binding=tool_selection(value,data,builder_inventory);tool=coherent_tools(tool_bytes)
     profile=dict(schema_version=1,purpose='full-composition-installer-vm',architecture='aarch64',
         expected_lock_sha256=EXPECTED,expected=expected,manifest=manifest_ref,code_files=refs,numeric_vm=NUMERIC_VM,
-        payload=reference(output/'payload.json'),tools=tool,tool_profile_sha256=pins['NATIVE_PROFILE_SHA'],
+        payload=reference(output/'payload.json'),tools=tool,tool_profile_sha256=COHERENT_TOOL_PROFILE_SHA,
+        base_tool_profile_sha256=pins['NATIVE_PROFILE_SHA'],tool_profile_binding=binding,
         launcher=constants_['TRANSACTION_LAUNCHER'],limits=dict(packages=587,nodes=200000,bytes=6*GIB,file_bytes=GIB,seconds=4500),
         scope='fresh signed initial587 transaction plus declared user fixtures in generic4K VM',
         excluded=['native-container P0','Asahi production install','target boot/session','partitioning','macOS recovery','M2 hardware','16K kernel','performance'])
