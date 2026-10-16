@@ -151,6 +151,48 @@ class Inert(ActorGuard):
             self.assertEqual(result['status'],'FAIL_OR_INCOMPLETE');self.assertTrue(result['errors'])
             self.assertIn('source/'+C.PACKAGE+'/.SRCINFO',result['files']);self.assertNotIn('harness/.unexpected',result['files'])
 
+    def test_exact_lifecycle_staging_branch_reproduces_old_missing_parent_and_now_succeeds(self):
+        # Execute only the real adapted loop that failed before native lifecycle.
+        tree=ast.parse(prepare.source('run',ROOT))
+        loops=[n for n in ast.walk(tree) if isinstance(n,ast.For) and any(
+            isinstance(call,ast.Call) and isinstance(call.func,ast.Attribute) and
+            isinstance(call.func.value,ast.Name) and call.func.value.id=='C' and call.func.attr=='stage_recipe'
+            for call in ast.walk(n))]
+        self.assertEqual(len(loops),1)
+        branch=compile(ast.fix_missing_locations(ast.Module(body=[loops[0]],type_ignores=[])),'exact-adapter-context-branch','exec')
+        function=next(n for n in ast.parse((ROOT/'scripts/ci/setup5-native/contract.py').read_text()).body if isinstance(n,ast.FunctionDef) and n.name=='stage_recipe')
+        old=copy.deepcopy(function);mkdir=old.body[0].value
+        self.assertEqual(mkdir.func.attr,'mkdir');self.assertEqual([k.arg for k in mkdir.keywords],['parents'])
+        mkdir.keywords=[]  # The sole historical difference, matching actual38930145094.
+        namespace=dict(recipe=C.recipe,RECIPE=C.RECIPE,shutil=shutil)
+        exec(compile(ast.fix_missing_locations(ast.Module(body=[old],type_ignores=[])),'actual-old-staging-function','exec'),namespace)
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp)
+            def fixture(name):
+                out=root/name;out.mkdir();context=out/'lifecycle-inputs';context.mkdir()
+                archive='cachy-asahi-setup-0.1.0-5-any.pkg.tar.xz'
+                source=out/(C.PACKAGE+'-a')/'artifacts';source.mkdir(parents=True)
+                (source/archive).write_bytes(b'bounded archive-copy fixture; never installed')
+                return dict(C=C,shutil=shutil,source=ROOT,out=out,context=context,
+                            products={C.PACKAGE:dict(archive=archive)}),source/archive
+            failed,archive=fixture('old')
+            with patch.object(C,'stage_recipe',namespace['stage_recipe']):
+                with self.assertRaises(FileNotFoundError) as error:exec(branch,failed)
+            self.assertEqual(error.exception.filename,str(failed['context']/'sources'/C.PACKAGE))
+            fixed,archive=fixture('fixed');self.assertFalse((fixed['context']/'sources').exists())
+            exec(branch,fixed)
+            target=fixed['context']/'sources'/C.PACKAGE
+            self.assertEqual((fixed['context']/archive.name).read_bytes(),archive.read_bytes())
+            self.assertEqual({p.name:C.digest(p) for p in target.iterdir()},C.recipe(ROOT)['input_sha256'])
+            self.assertIn('.SRCINFO',{p.name for p in target.iterdir()})
+
+    def test_recipe_staging_still_refuses_existing_destination_without_overwrite(self):
+        with tempfile.TemporaryDirectory() as temp:
+            target=Path(temp)/'nested'/'package';target.mkdir(parents=True);(target/'sentinel').write_bytes(b'preserve')
+            before={p.name:p.read_bytes() for p in target.iterdir()}
+            with self.assertRaises(FileExistsError):C.stage_recipe(ROOT,target)
+            self.assertEqual({p.name:p.read_bytes() for p in target.iterdir()},before)
+
     def test_retained_bundle_size_hash_failure_creates_nothing(self):
         with tempfile.TemporaryDirectory() as temp:
             root=Path(temp);source=root/'bad';source.write_bytes(b'bad')

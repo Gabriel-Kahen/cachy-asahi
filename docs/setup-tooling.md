@@ -25,7 +25,7 @@ The readability guards let shell startup continue after package templates disapp
 
 Candidate0.1.0-5 also accepts the six explicit module component names listed in the [package guide](../packages/settings/cachy-asahi-setup/README.md). They enable none by default. Select only installed modules you want, preview, then apply with the same flags above. Setup adds guarded source blocks in deterministic shell order, preserving highlighting before substring search and every user-owned edit. Missing selected modules fail before configuration/state mutation. Module wrappers keep their own runtime, binding and notification policies.
 
-New modules and shared-file journal groups require the new CLI for recovery/removal. Old setup3/4 state and single-entry journals remain supported; old CLIs safely refuse new ownership. Complete recovery/removal before downgrading. See [host validation](validation/setup-shell-modules-host-20261016.md) for tested scope; native setup5 package/upgrade and target workflows remain pending.
+New modules and shared-file journal groups require the new CLI for recovery/removal. Old setup3/4 state and single-entry journals remain supported; old CLIs safely refuse new ownership. Complete recovery/removal before downgrading. See [host validation](validation/setup-shell-modules-host-20261016.md) for tested scope; native setup5 installed upgrade and target workflows remain pending.
 
 ### Explicit Hyprland configuration
 

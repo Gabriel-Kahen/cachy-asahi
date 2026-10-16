@@ -3,7 +3,8 @@
 A separate manual lane for cachy-asahi-setup 0.1.0-5. No native run has been made
 by this worker. The setup5 product/helper was adopted at actual Source
 1542b27e2e11d43697ca9b1818aca553ea4a8111. This freeze joins those canonical bytes;
-the new harness/workflow still need Root adoption and an actual dispatch revision.
+the original harness/workflow were adopted and exercised in actual38930145094;
+this bounded source successor still needs Root adoption and a fresh native retry.
 The workflow requires source=workflow=checkout revision and does not invent or
 pin a future Git SHA. A private staged source tree verifies the complete freeze
 without changing canonical files. The old587 and expanded600 compositions and
@@ -94,3 +95,24 @@ restore workflow @JOB_SHA256@/@MANIFEST_SHA256@ markers, then run freeze.py --so
 ABS. Unknown inherited source bytes or adapter anchors fail. Runtime run.py also
 requires explicit --setup4-pair ABS to the already verified unpacked retained pair.
 Root alone dispatches native work; this worker runs source/pure checks only.
+
+
+Actual38930145094 Sourceb76bf23852db93f8dee4b81f1bf0d0cc25ac73f4:
+both setup5 native archives reproduce (26872 bytes each, SHA256
+1aafee365e3bcb04e1fce694c110a997914a07f4359697df5e017375897385fc),
+including BUILDINFO/PKGINFO and payload. The run fails before lifecycle because
+stage_recipe's target.mkdir() does not create lifecycle-inputs/sources. No
+lifecycle container/log/receipt exists; the three actually launched consumers and
+original producer retire successfully. This remains a failed/incomplete native
+run, not installed lifecycle acceptance and not a product defect.
+
+The sole runtime correction is target.mkdir(parents=True). The destination must
+still be fresh: existing destinations raise FileExistsError, with no exist_ok,
+overwrite or ownership relaxation. A functional inert test compiles/executes the
+exact failed adapted context loop: the historical missing-parent variant raises
+the same FileNotFoundError, then the correction copies the archive fixture and
+all twelve exact pinned sources including hidden .SRCINFO. An existing-destination
+control proves refusal without overwrite. All eight ALPM transitions,24 ordinary
+observations, complete pair/source/license/ownership/cleanup and user-preservation
+gates remain unchanged. No product version changes or native actors run here.
+The corrected native retry is NOT_RUN; the retained first actual remains FAIL.

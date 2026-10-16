@@ -76,7 +76,7 @@ def recipe(source,name=PACKAGE):
 
 
 def stage_recipe(source,target):
-    target.mkdir()
+    target.mkdir(parents=True)
     for name in recipe(source)['input_sha256']:shutil.copyfile(source/RECIPE/name,target/name)
 
 

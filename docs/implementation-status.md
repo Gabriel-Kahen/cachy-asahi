@@ -1,6 +1,6 @@
 # Implementation and acceptance status
 
-October16 setup feature: [candidate0.1.0-5](validation/setup-shell-modules-host-20261016.md) implements six explicit optional shell-module selections with deterministic order, grouped atomic-file recovery and legacy state/journal handling. Root replays68 setup tests plus10 synchronization controls. Native package/upgrade and target execution remain pending; the current600 run keeps its frozen setup3 baseline.
+October16 setup feature: [candidate0.1.0-5](validation/setup-shell-modules-host-20261016.md) implements six explicit optional shell-module selections with deterministic order, grouped atomic-file recovery and legacy state/journal handling. Root replays68 setup tests plus10 synchronization controls. Its identical native build pair now passes; a lifecycle staging-path error remains under correction. Target execution remains pending, and the current600 run keeps its frozen setup3 baseline.
 
 October16 combined shell implementation: [all six host cases pass](validation/shell-coexistence-host-20261016.md) for the three Fish and three Zsh modules, including typed editing, suggestions/highlighting/search, caller continuation, private Done invocation and preserved configuration. A concrete bang-bang caller-return bug is fixed in0.1.0-2; its fresh native build/installed acceptance will be exercised in the expanded600 composition. Existing0.1.0-1/587 evidence remains unchanged.
 
