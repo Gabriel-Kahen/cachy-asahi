@@ -127,7 +127,7 @@ jobs:
           set -euo pipefail
           env -i PATH=/usr/bin:/bin HOME="$RUNNER_TEMP" LC_ALL=C TZ=UTC python3 -B "$SLICE/run.py" \
             --bundle "$RUNNER_TEMP/glibc-source-bundle" --bundle-manifest-sha256 "$(sha256sum "$RUNNER_TEMP/glibc-source-bundle/bundle.json" | cut -d ' ' -f 1)" \
-            --harness-manifest-sha256 'e03c4f5ce9e886413a4e317d0baf4ca606567715681a314a909212d96a68640f' --owner-token "$CONSUMER_TOKEN" \
+            --harness-manifest-sha256 'afd2727bbddd7928c9d6144b44bbf5f7a394cf8a5f12473ce73b1423cfddbaa0' --owner-token "$CONSUMER_TOKEN" \
             --base-dir "$RUNNER_TEMP/desktop574" --source-root "$GITHUB_WORKSPACE" \
             --smoke-dir "$GITHUB_WORKSPACE/scripts/ci/glibc-owned-runtime" --smoke-manifest "$GITHUB_WORKSPACE/scripts/ci/glibc-owned-runtime/source-manifest.json" \
             --output "$RUNNER_TEMP/glibc-runtime" --execute
