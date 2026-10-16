@@ -2,6 +2,9 @@
  * Copyright (c) 2026 cachy-asahi contributors */
 #include <gtk/gtk.h>
 #include <string.h>
+#include <unistd.h>
+#include "management.h"
+#include "management-report.h"
 #include "status.h"
 
 #ifndef WELCOME_DOC_DIR
@@ -13,9 +16,39 @@
 static const char *const guides[] = { "first-run", "updates", "recovery" };
 static const char *const guide_titles[] = { "First steps", "Updates", "Recovery" };
 
+typedef struct Welcome Welcome;
 typedef struct {
+    Welcome *owner;
+    ManagementTool tool;
+    GtkWidget *button, *spinner, *summary, *raw;
+    ManagementJob *job;
+} ManagementView;
+struct Welcome {
     GtkWidget *window, *stack, *notebook, *system_text;
-} Welcome;
+    GtkApplication *application;
+    guint refs;
+    gboolean closing;
+    ManagementView management[MANAGEMENT_TOOL_COUNT];
+};
+
+static void welcome_unref(gpointer data)
+{
+    Welcome *welcome = data;
+    if (--welcome->refs == 0) {
+        g_object_unref(welcome->application);
+        g_free(welcome);
+    }
+}
+
+static void welcome_close(GtkWidget *widget, gpointer data)
+{
+    (void)widget;
+    Welcome *welcome = data;
+    welcome->closing = TRUE;
+    for (guint i = 0; i < MANAGEMENT_TOOL_COUNT; i++)
+        if (welcome->management[i].job) management_cancel(welcome->management[i].job);
+}
+
 
 static GtkWidget *paragraph(const char *text)
 {
@@ -31,6 +64,132 @@ static GtkWidget *column(void)
     GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 14);
     gtk_container_set_border_width(GTK_CONTAINER(box), 24);
     return box;
+}
+
+/* Plain text only. Retain a bounded preview even when JSON validation fails. */
+static void management_raw(ManagementView *view, const char *output)
+{
+    gsize length = output ? strlen(output) : 0;
+    gsize shown = MIN(length, (gsize)65536);
+    char *valid = g_utf8_make_valid(output ? output : "", (gssize)shown);
+    char *text = g_strconcat(valid, length > shown ? "\n[Raw preview truncated at 64 KiB.]" : "", NULL);
+    gtk_text_buffer_set_text(gtk_text_view_get_buffer(GTK_TEXT_VIEW(view->raw)), text, -1);
+    g_free(valid); g_free(text);
+}
+
+static void management_done(ManagementJob *job, const ManagementResult *result, gpointer data)
+{
+    (void)job;
+    ManagementView *view = data;
+    Welcome *welcome = view->owner;
+    view->job = NULL;
+    if (!welcome->closing) {
+        const char *outcome = "Check failed.";
+        switch (result->state) {
+        case MANAGEMENT_COMPLETE: outcome = "Check completed."; break;
+        case MANAGEMENT_FAILED: outcome = "Check failed."; break;
+        case MANAGEMENT_TIMEOUT: outcome = "Check stopped: time limit reached."; break;
+        case MANAGEMENT_OUTPUT_LIMIT: outcome = "Check stopped: output limit reached."; break;
+        case MANAGEMENT_CANCELLED: outcome = "Check cancelled."; break;
+        case MANAGEMENT_UNAVAILABLE: outcome = "The installed tool is unavailable."; break;
+        case MANAGEMENT_UNSUPPORTED: outcome = "This check is unsupported in the current session."; break;
+        }
+        if (!result->retired) outcome = "Check incomplete: process retirement is unconfirmed.";
+        ManagementReport report = management_report_parse(view->tool, result->output ? result->output : "");
+        if (!result->retired) {
+            management_report_clear(&report);
+            report.summary = g_strdup("No assessment conclusion is available from this incomplete run.");
+        }
+        char *text;
+        if (result->state == MANAGEMENT_COMPLETE && result->retired) {
+            text = g_strdup_printf("%s\nElapsed: %.1f seconds.", report.summary, result->elapsed_ms / 1000.0);
+        } else {
+            text = g_strdup_printf("%s\n%s\n%s\nExit status: %d; elapsed: %.1f seconds.",
+                outcome, report.summary,
+                result->diagnostic && *result->diagnostic ? result->diagnostic : "",
+                result->exit_code, result->elapsed_ms / 1000.0);
+        }
+        gtk_label_set_text(GTK_LABEL(view->summary), text);
+        management_raw(view, result->output);
+        gtk_spinner_stop(GTK_SPINNER(view->spinner));
+        gtk_widget_hide(view->spinner);
+        gtk_widget_set_sensitive(view->button, result->retired && management_available(view->tool) && geteuid() != 0);
+        management_report_clear(&report); g_free(text);
+    }
+    g_application_release(G_APPLICATION(welcome->application));
+    welcome_unref(welcome);
+}
+
+static void management_run(GtkButton *button, gpointer data)
+{
+    (void)button;
+    ManagementView *view = data;
+    if (view->job || view->owner->closing) return;
+    GError *error = NULL;
+    ManagementJob *job = management_start(view->tool, management_done, view, &error);
+    if (!job) {
+        gtk_label_set_text(GTK_LABEL(view->summary), error ? error->message : "Could not start this check.");
+        g_clear_error(&error); return;
+    }
+    view->job = job;
+    view->owner->refs++;
+    g_application_hold(G_APPLICATION(view->owner->application));
+    gtk_widget_set_sensitive(view->button, FALSE);
+    gtk_label_set_text(GTK_LABEL(view->summary), "Running check…");
+    management_raw(view, "");
+    gtk_widget_show(view->spinner);
+    gtk_spinner_start(GTK_SPINNER(view->spinner));
+}
+
+static GtkWidget *management_page(Welcome *welcome)
+{
+    static const char *const titles[] = { "Doctor", "Orphan assessment" };
+    static const char *const descriptions[] = {
+        "Check local system and service status.",
+        "Find possible orphan packages and broken dependencies."
+    };
+    static const char *const buttons[] = { "Run Doctor", "Assess orphan packages" };
+    GtkWidget *scroll = gtk_scrolled_window_new(NULL, NULL);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroll), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+    GtkWidget *box = column();
+    gtk_container_add(GTK_CONTAINER(scroll), box);
+    gtk_box_pack_start(GTK_BOX(box), paragraph("Run local checks and inspect installed packages. Checks do not change your system."), FALSE, FALSE, 0);
+    for (guint i = 0; i < MANAGEMENT_TOOL_COUNT; i++) {
+        ManagementView *view = &welcome->management[i];
+        view->owner = welcome; view->tool = (ManagementTool)i;
+        GtkWidget *frame = gtk_frame_new(titles[i]);
+        GtkWidget *content = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+        gtk_container_set_border_width(GTK_CONTAINER(content), 14);
+        gtk_container_add(GTK_CONTAINER(frame), content);
+        gtk_box_pack_start(GTK_BOX(content), paragraph(descriptions[i]), FALSE, FALSE, 0);
+        GtkWidget *actions = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
+        view->button = gtk_button_new_with_label(buttons[i]);
+        view->spinner = gtk_spinner_new();
+        gtk_widget_set_no_show_all(view->spinner, TRUE);
+        gtk_box_pack_start(GTK_BOX(actions), view->button, FALSE, FALSE, 0);
+        gtk_box_pack_start(GTK_BOX(actions), view->spinner, FALSE, FALSE, 0);
+        gtk_box_pack_start(GTK_BOX(content), actions, FALSE, FALSE, 0);
+        gboolean available = management_available(view->tool);
+        const char *state = geteuid() == 0 ? "Run Welcome from your regular desktop login to use management checks." :
+            available ? "Ready. No check has run." : "The optional tool is not installed or executable. This check is unavailable.";
+        view->summary = paragraph(state);
+        gtk_box_pack_start(GTK_BOX(content), view->summary, FALSE, FALSE, 0);
+        gtk_widget_set_sensitive(view->button, available && geteuid() != 0);
+        g_signal_connect(view->button, "clicked", G_CALLBACK(management_run), view);
+        GtkWidget *expander = gtk_expander_new("View report");
+        GtkWidget *raw_scroll = gtk_scrolled_window_new(NULL, NULL);
+        gtk_widget_set_size_request(raw_scroll, -1, 160);
+        view->raw = gtk_text_view_new();
+        gtk_text_view_set_editable(GTK_TEXT_VIEW(view->raw), FALSE);
+        gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(view->raw), FALSE);
+        gtk_text_view_set_monospace(GTK_TEXT_VIEW(view->raw), TRUE);
+        gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(view->raw), GTK_WRAP_WORD_CHAR);
+        gtk_container_add(GTK_CONTAINER(raw_scroll), view->raw);
+        gtk_container_add(GTK_CONTAINER(expander), raw_scroll);
+        gtk_box_pack_start(GTK_BOX(content), expander, FALSE, FALSE, 0);
+        gtk_box_pack_start(GTK_BOX(box), frame, FALSE, FALSE, 0);
+    }
+    return scroll;
 }
 
 static char *read_guide(guint index, GError **error)
@@ -115,8 +274,11 @@ static void activate(GtkApplication *application, gpointer unused)
     GtkWindow *existing = gtk_application_get_active_window(application);
     if (existing) { gtk_window_present(existing); return; }
     Welcome *welcome = g_new0(Welcome, 1);
+    welcome->application = g_object_ref(application);
+    welcome->refs = 1;
     welcome->window = gtk_application_window_new(application);
-    g_object_set_data_full(G_OBJECT(welcome->window), "welcome-state", welcome, g_free);
+    g_object_set_data_full(G_OBJECT(welcome->window), "welcome-state", welcome, welcome_unref);
+    g_signal_connect(welcome->window, "destroy", G_CALLBACK(welcome_close), welcome);
     gtk_window_set_title(GTK_WINDOW(welcome->window), "cachy-asahi Welcome");
     gtk_window_set_default_size(GTK_WINDOW(welcome->window), 720, 580);
     gtk_window_set_icon_name(GTK_WINDOW(welcome->window), "cachy-asahi-welcome");
@@ -178,6 +340,8 @@ static void activate(GtkApplication *application, gpointer unused)
     gtk_box_pack_start(GTK_BOX(system), reload, FALSE, FALSE, 0);
     gtk_stack_add_titled(GTK_STACK(welcome->stack), system, "system", "System");
     refresh(NULL, welcome);
+
+    gtk_stack_add_titled(GTK_STACK(welcome->stack), management_page(welcome), "management", "Management");
 
     welcome->notebook = gtk_notebook_new();
     gtk_container_set_border_width(GTK_CONTAINER(welcome->notebook), 18);

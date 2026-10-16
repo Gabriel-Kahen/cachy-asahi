@@ -412,19 +412,20 @@ status = "candidate"
 source = "local-original"
 recipe = "packages/tools/cachy-asahi-welcome/PKGBUILD"
 license = "MIT"
-candidate_version = "0.1.0-1"
+candidate_version = "0.1.0-2"
 selected_for_development = false
 selected_for_release = false
-host_validation = "PASS x86_64 C build, seven status fixtures, five executable CLI controls, exact nine-file staging"
-native_build = "PASS native ARM byte-identical pairs in38884680631 and38886781500"
-native_cli_lifecycle = "PASS fresh/existing users, install/reinstall/remove/report preservation in38886781500"
-native_generic16k_cli = "PASS unchanged unpacked CLI payloads in38904917140; not installed or GUI"
-native_generic_managed_gui = "PASS fourteen Root-viewed captures and actual GTK actions in38905814219"
-native_generic16k_managed_gui = "PASS installed593, sixteen GTK actions and fourteen Root-viewed first frames in38952428172; docs/validation/managed-gui-generic16k-native-20261016.md"
+host_validation = "PASS32 x86_64 functional checks, separate real mapped-root guard, private Xvfb GTK fixture and exact9-file staging for0.1.0-2"
+native_build = "NOT RUN for0.1.0-2; historical0.1.0-1 native pair and GUI evidence remain separate"
+native_cli_lifecycle = "HISTORICAL0.1.0-1: PASS fresh/existing users, install/reinstall/remove/report preservation in38886781500"
+native_generic16k_cli = "HISTORICAL0.1.0-1: PASS unchanged unpacked CLI payloads in38904917140; not installed or GUI"
+native_generic_managed_gui = "HISTORICAL0.1.0-1: PASS fourteen Root-viewed captures and actual GTK actions in38905814219"
+native_generic16k_managed_gui = "HISTORICAL0.1.0-1: PASS installed593, sixteen GTK actions and fourteen Root-viewed first frames in38952428172; docs/validation/managed-gui-generic16k-native-20261016.md"
 hardware_validation = "NOT RUN"
-next_step = "Managed GUI/guides/app launch now pass both generic4K and installed16K trials; complete signed composition/lifecycle and both-target validation before selection."
+next_step = "Welcome2 adds explicit ordinary-user Doctor/Orphans Management panel.32 hostchecks, separate real mapped-root refusal and private Xvfb GUI fixtures pass; native/installed-tool/GUI successor lane in development. Preserve old1 evidence; both M2 workflows remain open."
 
 
+installation = "NOT RUN for0.1.0-2; historical0.1.0-1 lifecycle and managed GUI accepted"
 [[packages]]
 name = "cachy-asahi-doctor"
 phase = "tools-experience"
