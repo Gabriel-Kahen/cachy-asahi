@@ -60,11 +60,16 @@ class Phase(unittest.TestCase):
         self.share=self.root/'share';self.share.mkdir();(self.share/'candidate-lock.json').write_text(json.dumps(self.lock))
         self.events=[];self.actors=[];self.major={};self.rows={};self.counter=100;self.clock=0;self.view='home'
         self.bad_action=None;self.config_drift=False;self.bad_welcome_exit=False;self.capture_failure=False
+        self.doctor_failure=None;self.doctor_exits=False;self.diagnostic_error=False
         self.original_publish=S.C.publish;self.original_read=S.C.read;self.original_lstat=Path.lstat
         self.base=SimpleNamespace(HOME=self.root,SHARE=self.share,RUNTIME=SimpleNamespace(glob=lambda p:
             [SimpleNamespace(name='wayland-0',is_socket=lambda:True)] if self.major else []),
             Logged=self.launch,command=self.command,ipc=lambda *a:dict(a[2]),terminate=self.terminate,
-            emit=lambda event,**kw:self.events.append(dict(event=event,**copy.deepcopy(kw))))
+            emit=self.emit)
+
+    def emit(self,event,**values):
+        if self.diagnostic_error and event=='welcome_phase_failed':raise RuntimeError('secondary diagnostic emit failure')
+        self.events.append(dict(event=event,**copy.deepcopy(values)))
 
     def read(self,path,cap=256*1024):
         if path.parent==Path('/usr/share/doc/cachy-asahi-welcome'):return (ROOT/'packages/tools/cachy-asahi-welcome'/path.name).read_bytes()
@@ -151,6 +156,10 @@ class Phase(unittest.TestCase):
             raw=(json.dumps(proof['doctor'],sort_keys=True,indent=2)+'\n').encode()
             report=path.parent/'doctor-report.json';report.write_bytes(raw);report.chmod(0o600)
             proof['report_sha256']=S.C.sha(raw);self.original_publish(path.parent/'result.json',proof)
+            if self.doctor_failure:
+                (path.parent/'result.json').unlink()
+                self.original_publish(path.parent/'result.json',self.doctor_failure)
+            if self.doctor_exits:self.major['doctor'].process.returncode=0
         elif path.name=='release.json':
             actor=self.major['doctor'];actor.process.returncode=0;self.rows.pop(actor.process.pid,None)
 
@@ -195,6 +204,37 @@ class Phase(unittest.TestCase):
         self.bad_action='Updates'
         with self.assertRaisesRegex(ValueError,'accessibility operation failed'):self.run_phase()
         self.retired();self.assertNotIn('phase_pass',[e['event'] for e in self.events])
+
+    def test_worker_failure_reason_is_retained_before_welcome_and_after_cleanup(self):
+        self.doctor_failure=dict(status='FAIL',error_type='ValueError',reason='event port unavailable')
+        with self.assertRaisesRegex(ValueError,'Doctor worker failed: event port unavailable'):self.run_phase()
+        self.retired();self.assertNotIn('welcome',self.major)
+        diagnostic=next(e for e in self.events if e['event']=='welcome_phase_failed')
+        self.assertEqual(diagnostic['checkpoint'],'doctor-validation')
+        self.assertEqual(diagnostic['doctor_result']['reason'],'event port unavailable')
+        self.assertEqual(diagnostic['reason'],'Doctor worker failed: event port unavailable')
+        self.assertNotIn('doctor_result',[e['event'] for e in self.events]);self.assertNotIn('phase_pass',[e['event'] for e in self.events])
+
+    def test_early_terminal_exit_stays_fatal_but_worker_failure_is_diagnosed(self):
+        self.doctor_failure=dict(status='FAIL',error_type='ValueError',reason='event port unavailable');self.doctor_exits=True
+        with self.assertRaisesRegex(ValueError,'owned GUI actor exited'):self.run_phase()
+        self.retired();self.assertNotIn('welcome',self.major)
+        diagnostic=next(e for e in self.events if e['event']=='welcome_phase_failed')
+        self.assertEqual(diagnostic['checkpoint'],'doctor-result')
+        self.assertEqual(diagnostic['reason'],'owned GUI actor exited')
+        self.assertEqual(diagnostic['doctor_result']['reason'],'event port unavailable')
+
+    def test_secondary_diagnostic_emit_failure_cannot_mask_first_or_cleanup(self):
+        self.doctor_failure=dict(status='FAIL',reason='primary worker failure');self.diagnostic_error=True
+        with self.assertRaisesRegex(ValueError,'Doctor worker failed: primary worker failure'):self.run_phase()
+        self.retired();self.assertNotIn('phase_pass',[e['event'] for e in self.events])
+
+    def test_diagnostic_fields_are_bounded_and_unsafe_result_not_followed(self):
+        work=self.root/'diagnostic';work.mkdir();outside=self.root/'outside';outside.write_text('private')
+        (work/'result.json').symlink_to(outside)
+        value=S.failure('minimal','doctor-result',ValueError('x'*4096),work)
+        self.assertEqual(len(value['reason']),512);self.assertEqual(value['doctor_result']['status'],'UNREADABLE')
+        self.assertNotIn('private',json.dumps(value));self.assertEqual(outside.read_text(),'private')
 
     def test_user_configuration_drift_refuses_acceptance(self):
         self.config_drift=True

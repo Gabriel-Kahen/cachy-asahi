@@ -31,8 +31,24 @@ def wait(probe,healthy,seconds,label):
         time.sleep(.2)
 
 
+def failure(stage,checkpoint,error,workspace):
+    result=dict(stage=stage,status='FAIL',checkpoint=checkpoint,error_type=type(error).__name__,reason=str(error)[:512])
+    try:
+        path=workspace/'result.json'
+        if not path.exists():result['doctor_result']=dict(status='ABSENT')
+        else:
+            raw=C.read(path);value=json.loads(raw)
+            C.need(type(value) is dict,'Doctor diagnostic result shape differs')
+            result['doctor_result']=dict(bytes=len(raw),sha256=C.sha(raw),
+                **{name:str(value.get(name,''))[:cap] for name,cap in (('status',64),('error_type',64),('reason',512))})
+    except BaseException as diagnostic:
+        result['doctor_result']=dict(status='UNREADABLE',error_type=type(diagnostic).__name__)
+    return result
+
+
 def phase(stage,config,env,logs):
     compositor=doctor=welcome=settings=thunar=observed=None;first=None;sequence=0;selected=None
+    checkpoint='startup'
     nonce=os.urandom(16).hex();workspace=base.HOME/('doctor-'+stage+'-'+nonce);workspace.mkdir(mode=0o700)
     for name in ('cache','data','state','thunar-config'):(workspace/name).mkdir(mode=0o700)
     protected=C.snapshot(Path(env['XDG_CONFIG_HOME']))
@@ -133,22 +149,28 @@ def phase(stage,config,env,logs):
             XDG_CACHE_HOME=str(workspace/'cache'),XDG_DATA_HOME=str(workspace/'data'),XDG_STATE_HOME=str(workspace/'state'))
         lock=json.loads(C.read(base.SHARE/'candidate-lock.json'))
         C.need(lock['status']=='VERIFIED_NATIVE_CANDIDATES' and lock['eligibility']=='PRIVATE_GUI_TRIAL_ONLY','verified candidates required')
+        checkpoint='doctor-startup'
         doctor=base.Logged(['/usr/bin/alacritty','--config-file',str(workspace/'alacritty.toml'),'--class',C.DOCTOR_ID,
             '--title',C.DOCTOR_TITLE,'--working-directory',str(workspace),'--command','/usr/bin/python3','-I','-B',
             str(base.SHARE/'doctor_worker.py'),'--workspace',str(workspace),'--nonce',nonce,'--stage',stage],stage+'-doctor',logs,selected)
+        checkpoint='doctor-window'
         place(doctor.process.pid,'doctor',initial=True);C.publish(workspace/'start.json',dict(nonce=nonce,terminal_pid=doctor.process.pid))
         def result():
             path=workspace/'result.json';return json.loads(C.read(path)) if path.exists() else None
-        doctor_proof=wait(result,healthy,150,'installed Doctor report')
+        checkpoint='doctor-result';doctor_proof=wait(result,healthy,150,'installed Doctor report')
+        checkpoint='doctor-validation'
         C.need(doctor_proof.get('status')=='PASS_INSTALLED_DOCTOR_REPORT','Doctor worker failed: '+str(doctor_proof.get('reason','invalid result'))[:512])
         C.validate_doctor(doctor_proof,stage,nonce,doctor.process.pid)
+        checkpoint='doctor-report-file'
         report_path=workspace/'doctor-report.json';report_info=report_path.lstat();report_data=C.read(report_path)
         C.need(stat.S_ISREG(report_info.st_mode) and stat.S_IMODE(report_info.st_mode)==0o600 and report_info.st_uid==23001 and
                C.sha(report_data)==doctor_proof['report_sha256'] and json.loads(report_data)==doctor_proof['doctor'],
                'parent observed Doctor report file differs')
+        checkpoint='doctor-worker-identity'
         doctor_sha=C.sha(C.read(workspace/'result.json'));S.worker_identity(doctor_proof['worker_pid'],doctor.process.pid)
         base.emit('doctor_result',stage=stage,proof=doctor_proof,proof_sha256=doctor_sha)
         # Accessibility bus is activated on the real managed user endpoint.
+        checkpoint='accessibility-bus'
         address=ast.literal_eval(command(['/usr/bin/gdbus','call','--session','--dest','org.a11y.Bus','--object-path',
             '/org/a11y/bus','--method','org.a11y.Bus.GetAddress'],'accessibility-bus'))
         C.need(type(address) is tuple and len(address)==1 and type(address[0]) is str and
@@ -158,6 +180,7 @@ def phase(stage,config,env,logs):
         C.need('..' not in socket.parts and not any(p.is_symlink() for p in socket.parents) and
                stat.S_ISSOCK(info.st_mode) and info.st_uid==23001,'owned accessibility socket required')
         selected['AT_SPI_BUS_ADDRESS']=address[0]
+        checkpoint='welcome-gui'
         welcome=base.Logged(['/usr/bin/cachy-asahi-welcome'],stage+'-welcome',logs,selected)
         place(welcome.process.pid,'welcome',initial=True);home=page('home',initial=True);capture('home',home)
         baseline={r.get('pid') for r in clients()};click('Open Terminal')
@@ -225,6 +248,7 @@ def phase(stage,config,env,logs):
         C.need(compositor.process.returncode==0,'unclean compositor exit')
     except BaseException as error:first=error
     finally:
+        if first is None:checkpoint='cleanup'
         if observed:
             try:observed.close()
             except BaseException as error:
@@ -238,6 +262,9 @@ def phase(stage,config,env,logs):
         try:C.need(C.snapshot(Path(env['XDG_CONFIG_HOME']))==protected,'existing user configuration changed')
         except BaseException as error:
             if first is None:first=error
-    if first is not None:raise first
+    if first is not None:
+        try:base.emit('welcome_phase_failed',**failure(stage,checkpoint,first,workspace))
+        except BaseException:pass  # Diagnostics never replace the first failure or bypass cleanup.
+        raise first
     base.emit('phase_pass',stage=stage,welcome_gui='PASS',doctor_report='PASS',guide_navigation='PASS',launch_actions='PASS',
               config_preserved=True,physical_input='NOT_RUN',hardware='NOT_RUN',terminal_action_exit='UNOBSERVED_NONCHILD')
