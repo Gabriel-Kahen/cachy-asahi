@@ -51,11 +51,18 @@ def verify_result(events):
             i,request=req[0];j,receipt=sent[0];plan=K.plan(stage,nonce,step);digest=K.sha(K.encoded(plan))
             K.need(last<i<j and request.get('nonce')==receipt.get('nonce')==nonce and
                    request.get('plan_sha256')==receipt.get('plan_sha256')==digest and
-                   receipt.get('chords')==len(plan) and receipt.get('qmp_calls')==sum(2*len(c) for c in plan) and
-                   receipt.get('all_keys_released') is True and receipt.get('route')=='input-send-event/virtio-keyboard-pci',
+                   receipt.get('chords')==len(plan) and receipt.get('qmp_calls')==len(plan) and receipt.get('key_events')==sum(2*len(c) for c in plan) and
+                   receipt.get('delivery_policy')==K.DELIVERY_POLICY and receipt.get('all_keys_released') is True and receipt.get('route')=='input-send-event/virtio-keyboard-pci',
                    'keyboard plan/order/receipt differs')
             steps[step]=(i,j);last=j
-        K.need(steps['launch'][1]<terminal_at<steps['shell'][0],'terminal shortcut ownership ordering differs')
+        K.need(steps['launch'][1]<terminal_at<steps['workspace'][0] and
+               type(joined.get('initial_settle_ms')) is int and joined['initial_settle_ms']>=K.DELIVERY_POLICY['initial_settle_ms'],
+               'terminal shortcut ownership/initial settle differs')
+        workspace_at,workspace=one('keyboard_workspace',stage)
+        K.need(steps['workspace'][1]<workspace_at<steps['shell'][0] and workspace.get('nonce')==nonce and
+               workspace.get('shell')==shell and workspace.get('method')=='passive-proc-cwd' and
+               workspace.get('cwd')==dict(status='READ',path='/home/desktop574/keyboard-'+stage+'-'+nonce),
+               'typed workspace cd/independent cwd proof differs')
         frame_positions={}
         for view in K.VIEWS:
             index,row=one('frame_ready',stage+'-'+view);frame_positions[view]=index
@@ -96,8 +103,8 @@ def verify_result(events):
         exits=[r for r in events[closed_at:passed_at] if r.get('event')=='process_exit' and r.get('name')==stage]
         K.need(len(exits)==1 and exits[0].get('returncode')==0,'compositor retirement failed')
         previous=passed_at
-    K.need(len([r for r in events if r.get('event')=='keyboard_request'])==16 and
-           len([r for r in events if r.get('event')=='qmp_keyboard_input'])==16 and
+    K.need(len([r for r in events if r.get('event')=='keyboard_request'])==18 and
+           len([r for r in events if r.get('event')=='qmp_keyboard_input'])==18 and
            len([r for r in events if r.get('event')=='frame_ready'])==6,'extra keyboard requests/captures refused')
     for name in ('session_pass','complete'):
         r=next(r for r in events if r.get('event')==name)

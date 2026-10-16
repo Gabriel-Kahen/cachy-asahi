@@ -97,6 +97,19 @@ def startup_clients(rows,compositor_pid):
     K.verify_startup(proof);return proof
 
 
+
+def shell_cwd(process):
+    """Passive identity-checked cwd observation, never a chdir or PTY operation."""
+    if process is None:return dict(status='UNAVAILABLE',reason='NO_OWNED_SHELL')
+    try:
+        process.healthy()
+        value=os.readlink(Path('/proc',str(process.proof['pid']),'cwd'))
+        process.healthy()
+        K.need(value.startswith('/') and len(value)<=512,'bounded absolute shell cwd required')
+        return dict(status='READ',path=value)
+    except BaseException as error:return dict(status='UNAVAILABLE',reason=type(error).__name__)
+
+
 def failure_files(workspace):
     """Only the three known nonce-workspace leaves; no enumeration or PTY read."""
     rows={}
@@ -205,9 +218,18 @@ def phase(stage,config,env,logs):
         K.need(tty.startswith('/dev/pts/') and tty.removeprefix('/dev/pts/').isdecimal(),'real terminal shell PTY required')
         shell.update(pty=tty)
         shell_process=ObservedTerminal(shell['pid'],'/usr/bin/bash')
-        until=time.monotonic()+3
+        started=time.monotonic()
+        until=started+K.DELIVERY_POLICY['initial_settle_ms']/1000
         while time.monotonic()<until:healthy();shell_process.healthy();time.sleep(.1)
-        base.emit('keyboard_terminal',stage=stage,nonce=nonce,terminal=terminal.proof,shell=shell,window=row)
+        K.need(window() is not None,'focused terminal missing after initial settle')
+        base.emit('keyboard_terminal',stage=stage,nonce=nonce,terminal=terminal.proof,shell=shell,window=row,
+                  initial_settle_ms=int((time.monotonic()-started)*1000))
+        request('workspace')
+        def workspace_ready():
+            value=shell_cwd(shell_process)
+            return value if value==dict(status='READ',path=str(workspace)) else None
+        cwd=wait(workspace_ready,'typed workspace cd')
+        base.emit('keyboard_workspace',stage=stage,nonce=nonce,shell=shell,cwd=cwd,method='passive-proc-cwd')
         request('shell');shell_file=wait(lambda:file_ready('shell.txt'),'typed shell output')
         frame('shell',dict(shell=shell,file=shell_file))
         request('editor-open');editor=wait(lambda:child(shell['pid'],'/usr/bin/vim'),'interactive Vim child')
@@ -238,7 +260,7 @@ def phase(stage,config,env,logs):
         try:
             capture=bool(terminal and compositor and compositor.process.poll() is None)
             base.emit('keyboard_failure_diagnostic',stage=stage,nonce=nonce,last_step=last_step,
-                      reason=str(first)[:256],files=failure_files(workspace),capture_requested=capture,
+                      reason=str(first)[:256],files=failure_files(workspace),shell_cwd=shell_cwd(shell_process),capture_requested=capture,
                       diagnostic_only=True,success_evidence=False)
             if capture:
                 # Host observes this event before phase_failed and can capture the still-owned terminal.

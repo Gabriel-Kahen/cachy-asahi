@@ -14,6 +14,7 @@ import struct
 import sys
 import tarfile
 import time
+from types import SimpleNamespace
 
 GIB = 1024**3
 EXPECTED = '2198942a546f4714587c810fe174d4457121960f3a7b1dbaa276e9f970f322c7'
@@ -166,7 +167,7 @@ def manifest(ready, *, protected=False):
     return value, row, expected
 
 
-def archive(path, stream_module, limits, accounting, *, package=None):
+def archive(path, stream_module, limits, accounting, *, package=None, library_facts=None):
     """Inspect signed tar bytes, retaining literal links and closed hardlink sets.
 
     Uses the held bounded decompressor. Unlike the tiny fixture, this distinct
@@ -222,10 +223,23 @@ def archive(path, stream_module, limits, accounting, *, package=None):
                 row=numeric
                 if member.isdir(): row['type']='directory'
                 elif member.isfile():
-                    data=tar.extractfile(member); digest=hashlib.sha256(); consumed=0
+                    data=tar.extractfile(member); digest=hashlib.sha256(); consumed=0; capture=None
+                    config=bytearray() if library_facts is not None and (name=='etc/ld.so.conf' or name.rpartition('/')[0] in ('etc/ld.so.conf.d','usr/lib/ld.so.conf.d') and not name.rsplit('/',1)[1].startswith('.') and name.endswith('.conf')) else None
                     while block:=data.read(65536):
                         limits_tick(); consumed+=len(block); need(consumed<=member.size,'payload size drift'); digest.update(block)
+                        if library_facts is not None and consumed==len(block) and block.startswith(b'\x7fELF'):
+                            need(member.size<=512*1024**2,'SONAME ELF input byte bound');capture=bytearray()
+                        if capture is not None:capture.extend(block)
+                        if config is not None:
+                            need(consumed<=4096,'SONAME configuration byte bound');config.extend(block)
                     need(consumed==member.size,'truncated file'); row.update(type='file',bytes=consumed,sha256=digest.hexdigest())
+                    if capture is not None:
+                        need(len(library_facts['elf'])<8192,'SONAME ELF count bound')
+                        try:
+                            facts=library_facts['parser'](capture)
+                            library_facts['elf'][name]={key:facts[key] for key in ('class','byte_order','machine','type','dynamic_present','soname')}
+                        except ValueError as error:library_facts['elf'][name]={'refused':str(error)[:128]}
+                    if config is not None:library_facts['configs'][name]=bytes(config).decode('ascii')
                 elif member.issym():
                     need(member.linkname and len(os.fsencode(member.linkname))<=4096 and '\0' not in member.linkname,'invalid signed symlink')
                     row.update(type='symlink',target=member.linkname)
@@ -246,6 +260,8 @@ def archive(path, stream_module, limits, accounting, *, package=None):
         need(target in rows and rows[target]['type']=='file','hardlink must end at archived regular file')
         need(all(rows[name][key]==rows[target][key] for key in ('mode','uid','gid')),'hardlink metadata differs')
         rows[name]=dict(rows[target]); groups.setdefault(target,{target}).add(name)
+        if library_facts is not None and target in library_facts['elf']:library_facts['elf'][name]=dict(library_facts['elf'][target])
+    if library_facts is not None:need(len(library_facts['elf'])<=8192,'SONAME ELF count bound')
     accounting.update(bytes=accounting['bytes']+decoded.total,nodes=accounting['nodes']+headers,
                       compressed_bytes=accounting['compressed_bytes']+size)
     return rows,[sorted(group) for group in groups.values()]
@@ -254,9 +270,13 @@ def archive(path, stream_module, limits, accounting, *, package=None):
 def payload(ready, rows, code):
     module=load('_full_installer_archive_stream',Path(code)/'scripts/update/archive_stream.py')
     limits=module.Limits(256*1024**2,4*GIB,8*GIB,500000,GIB,64*1024**2,time.monotonic()+3600)
+    parser=Path(code)/'scripts/platform/elf_audit.py'
+    need(sha(parser)==SONAME_ELF_PARSER_SHA,'SONAME data parser pin differs')
+    elf=load('_full_installer_soname_elf',parser)
+    library_facts={'parser':elf.parse_elf,'elf':{},'configs':{}}
     accounting={'bytes':0,'nodes':0,'compressed_bytes':0}; nodes={}; owners={}; groups=[]
     for row in rows:
-        incoming,links=archive(Path(ready)/row['archive'],module,limits,accounting,package=row)
+        incoming,links=archive(Path(ready)/row['archive'],module,limits,accounting,package=row,library_facts=library_facts)
         owners[row['name']]=sorted(incoming)
         for name,node in incoming.items():
             need(name not in nodes or nodes[name]['type']==node['type']=='directory' and nodes[name]==node,
@@ -273,6 +293,7 @@ def payload(ready, rows, code):
     need(len(nodes)<=200000 and sum(n.get('bytes',0) for n in nodes.values())<=6*GIB,'physical payload bound')
     need(nodes.get('usr/bin/ldconfig',{}).get('sha256')=='8794bf13f7a651963a219d8031fe04800d06ac6e44a29fbdfd81b64855b2bd98', 'held static auxiliary differs')
     return dict(schema_version=1,nodes=nodes,ownership=owners,hardlinks=sorted(groups),accounting=accounting,
+                library_facts={key:library_facts[key] for key in ('elf','configs')},
                 packages={row['name']:row['version'] for row in rows})
 
 
@@ -361,6 +382,145 @@ def sqlite_elf(raw):
     return facts
 
 
+# This policy models only the held GNU8362 scan/link rules and exact full587 lane.
+SONAME_ELF_PARSER_SHA='72ec18c7d8580094164b3ea4c11fcff2583519b4cd861e5c436ec9d7a779401b'
+SONAME_PURPOSE='full-installer-held587-ldconfig-sonames-v1'
+SONAME_OUTPUTS={'usr/lib/libvsscript.so':dict(type='symlink',mode=0o777,uid=0,gid=0,target='libvapoursynth-script.so.0')}
+SONAME_TARGET='usr/lib/python3.14/site-packages/vapoursynth/libvsscript.so'
+SONAME_TARGET_NODE=dict(type='file',mode=0o755,uid=0,gid=0,bytes=67816,sha256='3ba72b1bc64942269cc29de3343a6250fcfb0a1b89f9a5d615d2f78973b3e65c')
+SONAME_PACKAGES={
+ 'vapoursynth':dict(version='80-1',sha256='92bfe702802d00826933e5c3ac711709c6132f76813c168b0b98122499199536',size=1624620,
+     signature_sha256='6a990da1b1f1d87d7789d30babb41d2671094b806f3744bde9b36277a176c5d4',signature_size=566),
+ 'glibc':dict(version='2.43+r22+g8362e8ce10b2-2',sha256='8fac217e98c6e4342326726b2640ac254e8c82032f06f30bfa13ebbcc4fcb25b',size=9676568,
+     signature_sha256='82501115482ffeb93cce58cbc36372d917159f9dd60e3b98fd465e94e16c2103',signature_size=566)}
+
+
+def soname_compare(left,right):
+    # GNU _dl_cache_libcmp, restricted to bounded source-held ASCII basenames.
+    need(all(re.fullmatch('[A-Za-z0-9_.+-]{1,255}',name) for name in (left,right)),'SONAME candidate basename')
+    a,b=left+'\0',right+'\0';i=j=0
+    while a[i]!='\0':
+        if a[i].isdigit() and b[j].isdigit():
+            x,y=i,j
+            while a[i].isdigit():i+=1
+            while b[j].isdigit():j+=1
+            need(i-x<=9 and j-y<=9,'SONAME numeric comparison bound')
+            value=int(a[x:i])-int(b[y:j])
+            if value:return value
+        elif a[i].isdigit():return 1
+        elif b[j].isdigit():return -1
+        elif a[i]!=b[j]:return ord(a[i])-ord(b[j])
+        else:i+=1;j+=1
+    return ord(a[i])-ord(b[j])
+
+
+def project_sonames(payload,resolver):
+    """Finite data projection, not an execution or source/binary correspondence proof."""
+    nodes=payload['nodes'];facts=payload['library_facts'];deadline=time.monotonic()+60
+    def tick():need(time.monotonic()<deadline,'SONAME projection deadline')
+    limits=SimpleNamespace(max_nodes=200000,max_depth=64,tick=tick)
+    def endpoint(name):return resolver(nodes,name,limits=limits)[0]
+    main=nodes.get('etc/ld.so.conf',{})
+    need(main.get('sha256')=='785c6c3614a27ae6115a27c1ca55bbf333654780997c4ba7e181172b021d1bf3','SONAME main configuration pin')
+    active={name for name in nodes if name=='etc/ld.so.conf' or name.rpartition('/')[0] in
+            ('etc/ld.so.conf.d','usr/lib/ld.so.conf.d') and not name.rsplit('/',1)[1].startswith('.') and name.endswith('.conf')}
+    need(active==set(facts['configs']),'SONAME configuration facts incomplete')
+    for name,text in facts['configs'].items():
+        raw=text.encode('ascii');node=nodes[name]
+        need(node['type']=='file' and node['bytes']==len(raw) and node['sha256']==hashlib.sha256(raw).hexdigest(),'SONAME configuration facts/content mismatch')
+    dirs={'usr/lib','usr/lib64'};config_count=0
+    for name,text in facts['configs'].items():
+        tick()
+        if name=='etc/ld.so.conf':continue
+        parent,_,base=name.rpartition('/')
+        if parent not in ('etc/ld.so.conf.d','usr/lib/ld.so.conf.d') or base.startswith('.') or not base.endswith('.conf'):continue
+        config_count+=1;need(config_count<=32,'SONAME configuration count bound')
+        need(nodes[name]['type']=='file' and nodes[name]['uid']==nodes[name]['gid']==0 and not nodes[name]['mode']&0o022,'SONAME configuration metadata')
+        for line in text.splitlines():
+            line=line.split('#',1)[0].strip(' \t')
+            if not line:continue
+            allowed=('/usr/lib/libfakeroot',) if name=='usr/lib/ld.so.conf.d/fakeroot.conf' else ('/usr/lib','/usr/lib64')
+            need(line in allowed,'SONAME undeclared scan directory');dirs.add(line.lstrip('/'))
+    actual=set()
+    for directory in sorted(dirs):
+        if directory not in nodes:continue
+        resolved=endpoint(directory)
+        need(nodes[resolved]==dict(type='directory',mode=0o755,uid=0,gid=0),'SONAME scan directory metadata');actual.add(resolved)
+    children={directory:[] for directory in actual}
+    for name in nodes:
+        tick();directory,_,base=name.rpartition('/')
+        if directory in children:children[directory].append(name)
+    need(sum(map(len,children.values()))<=8192,'SONAME directory entry bound')
+    hard={name:tuple(group) for group in payload['hardlinks'] for name in group}
+    same=lambda a,b:a==b or a in hard and b in hard and hard[a]==hard[b]
+    generated={};replacements=[];candidates=0;hwcaps=[]
+    for directory,names in sorted(children.items()):
+        winners={}
+        hw=directory+'/glibc-hwcaps'
+        if hw in nodes:
+            need(nodes[hw]['type']=='directory','SONAME hwcaps directory shape')
+            hwcaps.extend(name for name,node in nodes.items() if name.rpartition('/')[0]==hw and node['type']=='directory')
+        for name in sorted(names):
+            tick();base=name.rsplit('/',1)[1];node=nodes[name]
+            dso=(base.startswith(('lib','ld-')) and '.so' in base) or base.startswith(('ld.so.','ld64.so.'))
+            temporary=(base.endswith(('.#prelink#','.dpkg-new','.dpkg-tmp')) or re.search(r'\.#prelink#\..{6}$',base) is not None or ';' in base)
+            if not dso or temporary or node['type']=='directory':continue
+            resolved=endpoint(name);need(nodes[resolved]['type']=='file','SONAME candidate endpoint must be regular')
+            elf=facts['elf'].get(resolved)
+            if elf is None:continue  # Inspected non-ELF linker script, like libc.so.
+            need('refused' not in elf,'SONAME ELF facts incomplete: '+resolved)
+            if elf['type']!=3:continue  # The held GNU reader rejects non-ET_DYN.
+            need((elf['class'],elf['byte_order'],elf['machine'])==(64,'little',183),'SONAME foreign architecture candidate')
+            soname=elf['soname'] or base
+            need(re.fullmatch('[A-Za-z0-9_.+-]{1,255}',soname),'SONAME output must be a contained basename')
+            linked=node['type']=='symlink'
+            if linked and base!=soname and not(base.endswith('.so') and soname.startswith(base)):linked=False
+            if linked:soname=base
+            candidate=dict(name=base,endpoint=resolved,is_link=linked);old=winners.get(soname)
+            if old is None or (old['is_link'] and not linked) or linked==old['is_link'] and soname_compare(old['name'],base)<0:winners[soname]=candidate
+            elif old is not None and old['is_link']==linked and soname_compare(old['name'],base)==0:
+                need(old['name']==base,'SONAME equal-version literal-target ambiguity')
+            candidates+=1
+        for soname,winner in winners.items():
+            if winner['is_link']:continue
+            name=directory+'/'+soname
+            if name in nodes:
+                current=endpoint(name)
+                if nodes[name]['type']=='symlink' and not same(current,winner['endpoint']):replacements.append(name)
+                continue  # Existing regular files are never replaced by GNU.
+            generated[name]=dict(type='symlink',mode=0o777,uid=0,gid=0,target=winner['name'])
+    need(len(generated)<=32 and not replacements,'SONAME packaged alias replacement refused')
+    return dict(directories=sorted(actual),entries=sum(map(len,children.values())),candidates=candidates,
+                hwcaps_no_link_directories=sorted(hwcaps),outputs=generated)
+
+
+def soname_binding(payload):
+    nodes=payload['nodes']
+    need(payload['soname_projection']['outputs']==SONAME_OUTPUTS,'unexpected finite SONAME output set: '+encoded(payload['soname_projection']['outputs']).decode()[:4096])
+    need(nodes.get(SONAME_TARGET)==SONAME_TARGET_NODE,'SONAME target payload differs')
+    for name in ('usr/lib/libvapoursynth-script.so','usr/lib/libvapoursynth-script.so.0'):
+        need(nodes.get(name)==dict(type='symlink',mode=0o777,uid=0,gid=0,target='python3.14/site-packages/vapoursynth/libvsscript.so'),'SONAME input alias differs')
+    need(all(name not in nodes for name in SONAME_OUTPUTS),'SONAME output is already package-owned')
+    need({SONAME_TARGET,'usr/lib/libvapoursynth-script.so','usr/lib/libvapoursynth-script.so.0'}<=set(payload['ownership'].get('vapoursynth',())) and
+         'usr/bin/ldconfig' in payload['ownership'].get('glibc',()),'SONAME package ownership differs')
+    need(nodes.get('usr/bin/ldconfig')==dict(type='file',mode=0o755,uid=0,gid=0,bytes=865664,sha256='8794bf13f7a651963a219d8031fe04800d06ac6e44a29fbdfd81b64855b2bd98'),'SONAME helper payload differs')
+    need(all(payload['packages'].get(name)==row['version'] for name,row in SONAME_PACKAGES.items()),'SONAME payload package identity differs')
+    return dict(purpose=SONAME_PURPOSE,packages=SONAME_PACKAGES,outputs=SONAME_OUTPUTS,
+                facts_sha256=hashlib.sha256(encoded(payload['library_facts'])).hexdigest(),
+                projection=payload['soname_projection'],elf_parser_sha256=SONAME_ELF_PARSER_SHA,
+                helper_source_sha256='0ba98dc9182e70f18f0b22c721cd9a4fbff7ce635250acc41ed1200faf2b6d57',
+                libcmp_source_sha256='b41065543cd93b202ccc9c72c3648339c35470d251bb36ba563d84c1733d3728')
+
+
+def soname_selection(manifest,payload,code):
+    for name,expected in SONAME_PACKAGES.items():
+        rows=[row for row in manifest['packages'] if row['name']==name]
+        need(len(rows)==1 and all(rows[0].get(key)==value for key,value in expected.items()),'SONAME signed archive tuple differs: '+name)
+    resolver=load('_full_installer_soname_paths',Path(code)/'scripts/update/root_path.py')
+    need(project_sonames(payload,resolver.resolve)==payload['soname_projection'],'SONAME projection/facts differ')
+    return soname_binding(payload)
+
+
 def build(ready, code, output):
     ready,code,output=map(lambda p:Path(p).resolve(strict=True),(ready,code,output))
     need(not (output/'installer-profile.json').exists() and not (output/'payload.json').exists(),'fresh profile output required')
@@ -370,7 +530,8 @@ def build(ready, code, output):
     for name,pin in config['code_pins'].items():
         ref=reference(code/name); need(ref['sha256']==pin,'held source pin changed: '+name); refs[name]=ref
     for name in ('scripts/ci/full-root-upgrade-caller/upgrade-config.json','scripts/virtual/common.py',
-                 'scripts/virtual/tooling.lock.json','scripts/virtual/audit_tooling.py'):
+                 'scripts/virtual/tooling.lock.json','scripts/virtual/audit_tooling.py',
+                 'scripts/platform/elf_audit.py','scripts/update/root_path.py'):
         refs[name]=reference(code/name)
     constants_=constants(code/'scripts/virtual/common.py',{'TRANSACTION_PROFILE_BYTES','TRANSACTION_LAUNCHER'})
     tool_bytes=constants_['TRANSACTION_PROFILE_BYTES']
@@ -378,6 +539,9 @@ def build(ready, code, output):
     need(hashlib.sha256(tool_bytes).hexdigest()==pins['NATIVE_PROFILE_SHA'],'held tool-profile pin differs')
     data=payload(ready,value['packages'],code)
     need(numeric_ids(data)==dict(uids=[0],gids=[0,5,11,50,81,102]),'exact signed numeric identity set required')
+    resolver=load('_full_installer_soname_projection_paths',code/'scripts/update/root_path.py')
+    data['soname_projection']=project_sonames(data,resolver.resolve)
+    derived=soname_selection(value,data,code)
     raw=encoded(data)
     need(len(raw)<=MAX_JSON,'payload contract byte bound'); (output/'payload.json').write_bytes(raw)
     builder=value['builder_lock'];need(builder['path']=='builder-packages.lock' and builder['sha256']==BUILDER_LOCK,'preserved builder binding differs')
@@ -386,7 +550,7 @@ def build(ready, code, output):
     binding=tool_selection(value,data,builder_inventory);tool=coherent_tools(tool_bytes)
     profile=dict(schema_version=1,purpose='full-composition-installer-vm',architecture='aarch64',
         expected_lock_sha256=EXPECTED,expected=expected,manifest=manifest_ref,code_files=refs,numeric_vm=NUMERIC_VM,
-        payload=reference(output/'payload.json'),tools=tool,tool_profile_sha256=COHERENT_TOOL_PROFILE_SHA,
+        payload=reference(output/'payload.json'),derived_output_binding=derived,tools=tool,tool_profile_sha256=COHERENT_TOOL_PROFILE_SHA,
         base_tool_profile_sha256=pins['NATIVE_PROFILE_SHA'],tool_profile_binding=binding,
         launcher=constants_['TRANSACTION_LAUNCHER'],limits=dict(packages=587,nodes=200000,bytes=6*GIB,file_bytes=GIB,seconds=4500),
         scope='fresh signed initial587 transaction plus declared user fixtures in generic4K VM',

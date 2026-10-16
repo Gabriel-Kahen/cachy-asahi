@@ -55,6 +55,7 @@ def checked_inputs(*, protected):
     p.need(payload['schema_version']==1 and len(payload['nodes'])<=200000 and
            set(payload['ownership'])==set(expected) and payload['packages']==expected,'payload map/count differs')
     held=p.constants(SHARED/'code/scripts/virtual/common.py',{'TRANSACTION_PROFILE_BYTES'})['TRANSACTION_PROFILE_BYTES']
+    p.need(p.encoded(profile.get('derived_output_binding'))==p.encoded(p.soname_selection(value,payload,SHARED/'code')),'held SONAME output selection differs')
     p.validate_tools(profile,value,payload,c['builder_inventory'],held)
     p.need(c['tooling_inventory'].get('sqlite')=='3.54.0-1','preserved tooling SQLite inventory differs')
     return c,profile,value,payload
@@ -185,7 +186,14 @@ def engine_argv(spec_fd,pin,evidence_fd,namespace_fd=None):
     return inner
 
 
-def compare_payload(observation,payload):
+def soname_observation(observation):
+    # One exact known pathname; no file content or arbitrary tree dump is exported.
+    value={name:observation['nodes'].get(name,{'type':'absent'}) for name in p.SONAME_OUTPUTS}
+    p.need(len(p.encoded(value))<=8192,'SONAME observation diagnostic byte bound')
+    return value
+
+
+def compare_payload(observation,payload,*,derived_output_binding=None):
     p.need(observation['complete'] and set(observation['unsupported_counts']) <= {'absolute-symlink','auxiliary-present'}, 'full root observation incomplete/unsupported')
     nodes=observation['nodes']
     for name,expected in payload['nodes'].items():
@@ -195,7 +203,13 @@ def compare_payload(observation,payload):
     p.need(actual_groups==payload['hardlinks'],'installed hardlink groups differ')
     for name,data in FIXTURES.items():
         p.need(nodes.get(name)==dict(type='file',mode=0o600,uid=0,gid=0,bytes=len(data),sha256=hashlib.sha256(data).hexdigest()), 'preservation fixture differs')
-    generated={'etc/ld.so.cache','var/cache/ldconfig/aux-cache','var/lib/pacman/local/ALPM_DB_VERSION'}
+    derived={}
+    if derived_output_binding is not None:
+        p.need(p.encoded(derived_output_binding)==p.encoded(p.soname_binding(payload)),'explicit held SONAME selection required')
+        derived=derived_output_binding['outputs']
+        for name,expected in derived.items():
+            p.need(nodes.get(name)==expected,'derived installed output differs: '+name)
+    generated=set(derived) | {'etc/ld.so.cache','var/cache/ldconfig/aux-cache','var/lib/pacman/local/ALPM_DB_VERSION'}
     for name,version in payload.get('packages',{}).items():
         generated.update('var/lib/pacman/local/'+name+'-'+version+'/'+part for part in ('desc','files','mtree','install'))
     directories=set()
@@ -203,8 +217,8 @@ def compare_payload(observation,payload):
         parent=name.rpartition('/')[0]
         while parent:
             directories.add(parent); parent=parent.rpartition('/')[0]
-    # Only package DB and the two declared ALPM ldconfig cache products can add
-    # non-directory nodes beyond authenticated payload and preservation fixtures.
+    # The default still admits only DB/cache products. This lane may additionally
+    # select the exact preprojected SONAME map after full typed-node equality.
     for name,node in nodes.items():
         if name in payload['nodes'] or name in FIXTURES: continue
         if node['type']=='directory':
@@ -283,7 +297,8 @@ def engine(spec_fd,spec_pin,evidence_fd):
         p.need(alpm.inventory()==profile['expected'],'reopened installed package map differs')
         for name,paths in payload['ownership'].items(): p.need(alpm.owned_files([name])==set(paths),'installed package ownership differs: '+name)
         observed=roots.observe(root,limits=limits,hardlinks='generic-development-internal')
-        compare_payload(observed,payload)
+        result['derived_output_observation']=soname_observation(observed);evidence.save('result.json',result)
+        compare_payload(observed,payload,derived_output_binding=profile.get('derived_output_binding'))
         db=driver.database(root,max_packages=587,max_files=500000,max_nodes=1000000,observed=observed['nodes'])
         p.need({r['name']:r['version'] for r in db}==profile['expected'],'real installed database differs')
         for row in db:
@@ -296,7 +311,7 @@ def engine(spec_fd,spec_pin,evidence_fd):
         p.need(hashlib.sha256(lock).hexdigest()==p.EXPECTED,'actual installed lock hash differs')
         evidence.write('candidate-packages.lock',lock)
         result.update(status='PROVISIONAL_FULL_COMPOSITION_INSTALLER',phase='complete',payload_verified=True,
-            ownership_verified=True,database_verified=True,preservation_verified=True,private_trust_verified=True,
+            ownership_verified=True,database_verified=True,preservation_verified=True,private_trust_verified=True,derived_outputs_verified=True,
             target_footprint=observed['footprint'],live_cache_keys=live)
     except BaseException as error:
         result.update(status='FAIL',error_type=type(error).__name__,error=str(error)[:512],
@@ -347,7 +362,7 @@ def execute(namespace_fd=None,lease_sha256=None):
             p.need(all(n.get('uid')==n.get('gid')==23001 for n in observed['nodes'].values()),'exported target ownership mapping differs')
             target_db=driver.database(target,max_packages=587,max_files=500000,max_nodes=1000000,observed=observed['nodes'])
             for node in observed['nodes'].values(): node.update(uid=0,gid=0)
-            compare_payload(observed,payload)
+            compare_payload(observed,payload,derived_output_binding=profile.get('derived_output_binding'))
             p.need({r['name']:r['version'] for r in target_db}==profile['expected'],'parent target database differs')
         after=driver.database(Path('/'),max_packages=1024,max_files=500000,max_nodes=1000000)
         p.need(before==after,'guest parent package database changed')

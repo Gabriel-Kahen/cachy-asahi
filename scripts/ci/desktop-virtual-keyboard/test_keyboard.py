@@ -53,9 +53,11 @@ def events():
         for step in K.STEPS:
             plan=K.plan(stage,nonce,step);pin=K.sha(K.encoded(plan))
             add('keyboard_request',stage=stage,step=step,nonce=nonce,plan_sha256=pin)
-            add('qmp_keyboard_input',stage=stage,step=step,nonce=nonce,plan_sha256=pin,chords=len(plan),qmp_calls=sum(2*len(c) for c in plan),
-                all_keys_released=True,route='input-send-event/virtio-keyboard-pci')
-            if step=='launch':add('keyboard_terminal',stage=stage,nonce=nonce,terminal=terminal,shell=shell,window=window)
+            add('qmp_keyboard_input',stage=stage,step=step,nonce=nonce,plan_sha256=pin,chords=len(plan),qmp_calls=len(plan),key_events=sum(2*len(c) for c in plan),
+                all_keys_released=True,route='input-send-event/virtio-keyboard-pci',delivery_policy=dict(K.DELIVERY_POLICY))
+            if step=='launch':add('keyboard_terminal',stage=stage,nonce=nonce,terminal=terminal,shell=shell,window=window,initial_settle_ms=10001)
+            if step=='workspace':add('keyboard_workspace',stage=stage,nonce=nonce,shell=shell,
+                cwd=dict(status='READ',path='/home/desktop574/keyboard-'+stage+'-'+nonce),method='passive-proc-cwd')
             if step in ('shell','editor-save','result'):
                 view={'shell':'shell','editor-save':'editor','result':'result'}[step]
                 proof=dict(shell=shell)
@@ -97,22 +99,29 @@ class KeyboardTests(unittest.TestCase):
         self.assertEqual(K.qcodes('|'),['shift','backslash'])
         self.assertEqual(K.qcodes('\x1b'),['esc'])
 
-    def test_send_is_only_key_events_and_releases_reverse_order(self):
-        q=QMP();self.assertEqual(K.send(q,[['meta_l','ret']],pause=lambda _:None),4)
-        self.assertTrue(all(name=='input-send-event' for name,args in q.calls))
-        self.assertEqual([a['events'][0]['data']['key']['data'] for _,a in q.calls],['meta_l','ret','ret','meta_l'])
-        self.assertEqual([a['events'][0]['data']['down'] for _,a in q.calls],[True,True,False,False])
+    def test_send_batches_one_complete_chord_with_reverse_releases(self):
+        q=QMP();self.assertEqual(K.send(q,[['meta_l','ret']],pause=lambda _:None),1)
+        self.assertEqual(len(q.calls),1);name,args=q.calls[0];self.assertEqual(name,'input-send-event')
+        self.assertEqual([e['data']['key']['data'] for e in args['events']],['meta_l','ret','ret','meta_l'])
+        self.assertEqual([e['data']['down'] for e in args['events']],[True,True,False,False])
 
-    def test_uncertain_press_is_released_and_error_stays_failed(self):
-        q=QMP(fail=2)
+    def test_uncertain_batch_only_sends_emergency_key_ups_and_stays_failed(self):
+        q=QMP(fail=1)
         with self.assertRaises(TimeoutError):K.send(q,[['meta_l','ret']],pause=lambda _:None)
-        self.assertEqual([a['events'][0]['data']['down'] for _,a in q.calls],[True,True,False,False])
+        self.assertEqual(len(q.calls),2)
+        self.assertEqual([e['data']['key']['data'] for e in q.calls[1][1]['events']],['ret','meta_l'])
+        self.assertTrue(all(e['data']['down'] is False for e in q.calls[1][1]['events']))
+        def both_fail(*args):
+            raise TimeoutError('primary') if args[1]['events'][0]['data']['down'] else RuntimeError('secondary release')
+        from types import SimpleNamespace
+        with self.assertRaisesRegex(TimeoutError,'primary'):
+            K.send(SimpleNamespace(execute=both_fail),[['c']],pause=lambda _:None)
 
     def test_controller_rejects_duplicate_reordered_changed_nonce(self):
         c=K.Controller();q=QMP()
         def request(step,nonce='a'*32):return dict(stage='minimal',step=step,nonce=nonce,plan_sha256=K.sha(K.encoded(K.plan('minimal',nonce,step))))
-        with patch.object(K,'send',return_value=4):c.handle(q,request('launch'))
-        for r in (request('launch'),request('result'),request('shell','b'*32),request('shell')|dict(plan_sha256='0'*64)):
+        with patch.object(K,'send',return_value=1):c.handle(q,request('launch'))
+        for r in (request('launch'),request('result'),request('workspace','b'*32),request('workspace')|dict(plan_sha256='0'*64)):
             with self.assertRaises(ValueError):c.handle(q,r)
 
     def test_full_modeled_route_replays(self):
@@ -228,6 +237,28 @@ class KeyboardTests(unittest.TestCase):
             with self.subTest(key=key),self.assertRaises(ValueError):K.verify_startup(proof)
         rows=events();next(r for r in rows if r['event']=='keyboard_ready')['startup_windows']=startup_proof([setup_surface()|dict(visible=True)])
         with self.assertRaises(ValueError):C.verify_result(rows)
+
+
+
+    def test_explicit_vm_policy_paces_press_and_release_without_retries(self):
+        q=QMP();pauses=[];K.send(q,[['c'],['d']],pause=pauses.append)
+        self.assertEqual(pauses,[.5,.5]);self.assertEqual(len(q.calls),2)
+        self.assertEqual(K.DELIVERY_POLICY,dict(name='vm-chord-batch-workspace-v1',batch='press-release',gap_ms=500,initial_settle_ms=10000))
+        self.assertEqual(K.plan('minimal','a'*32,'workspace')[-1],['ret'])
+
+    def test_cwd_policy_and_initial_settle_are_required_independent_evidence(self):
+        for change in ('cwd','missing-cwd','shell-id','policy','settle','cwd-method','ordering'):
+            rows=copy.deepcopy(events());workspace=next(r for r in rows if r['event']=='keyboard_workspace')
+            if change=='cwd':workspace['cwd']['path']='/'
+            elif change=='missing-cwd':rows.remove(workspace)
+            elif change=='shell-id':workspace['shell']=dict(workspace['shell'],pid=999)
+            elif change=='policy':next(r for r in rows if r['event']=='qmp_keyboard_input')['delivery_policy']['gap_ms']=40
+            elif change=='settle':next(r for r in rows if r['event']=='keyboard_terminal')['initial_settle_ms']=3000
+            elif change=='cwd-method':workspace['method']='injected chdir'
+            else:
+                a=rows.index(workspace);b=next(i for i,r in enumerate(rows) if r['event']=='keyboard_request' and r.get('step')=='shell')
+                rows[a],rows[b]=rows[b],rows[a]
+            with self.subTest(change=change),self.assertRaises(ValueError):C.verify_result(rows)
 
 
 if __name__=='__main__':unittest.main()
