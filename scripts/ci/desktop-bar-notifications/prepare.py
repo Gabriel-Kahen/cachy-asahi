@@ -46,8 +46,14 @@ def prepare(source, output):
     fixture = replace(fixture, 'TimeoutStartSec=650', 'TimeoutStartSec=850')
     (output / 'desktop574_fixture.sh').write_text(fixture)
     runtime = (source / 'scripts/ci/desktop574_runtime.py').read_text()
-    runtime = replace(runtime, 'import time\n', 'import time\nfrom contract import verify_source, verify_result, verify_package_input\nfrom capture import capture_frame\n')
+    runtime = replace(runtime, 'import time\n', 'import time\nfrom contract import verify_source, verify_result, verify_package_input\nfrom capture import capture_frame\nfrom session import trace_command\n')
     runtime = replace(runtime, '    require(not out.exists()', '    verify_source(source)\n    require(not out.exists()')
+    runtime = replace(runtime, "    parser.add_argument('--output', type=Path, required=True)",
+        "    parser.add_argument('--output', type=Path, required=True)\n"
+        "    parser.add_argument('--trace-waybar',action='store_true',help='explicit diagnostic G_DBUS_DEBUG=call; default ordinary startup')")
+    runtime = replace(runtime, "report = {'status': 'FAIL',", "report = {'status': 'FAIL', 'trace_waybar': args.trace_waybar,")
+    runtime = replace(runtime, 'cmd = qemu_command(derived, name, fixture, source, runner)',
+        'cmd = trace_command(qemu_command(derived, name, fixture, source, runner), args.trace_waybar)')
     runtime = replace(runtime, "        observed = inventory(",
         "        verify_package_input(json.loads(Path(__file__).with_name('package-inputs.json').read_text()), base)\n"
         "        observed = inventory(")
@@ -63,6 +69,9 @@ def prepare(source, output):
         "        active.finish(); active = None\n        verify_result(report['events'])\n        report['status']")
     if runtime.count('PASS_NATIVE_CONFIGURATION_AND_GENERIC_SOFTWARE_SESSION') != 2:
         raise ValueError('base acceptance anchors differ')
+    runtime = replace(runtime, "        verify_result(report['events'])\n",
+        "        require(all(e.get('trace_waybar') is args.trace_waybar for e in report['events'] if e.get('event')=='frame_ready'), 'host/guest Waybar trace selection differs')\n"
+        "        verify_result(report['events'])\n")
     runtime = runtime.replace('PASS_NATIVE_CONFIGURATION_AND_GENERIC_SOFTWARE_SESSION',
                               'PASS_BAR_NOTIFICATION_GENERIC_ARM_SMOKE')
     runtime = replace(runtime, 'Same-job native574 configuration and generic QEMU software session exercise.',

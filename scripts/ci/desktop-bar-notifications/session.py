@@ -212,9 +212,30 @@ def failure_observation(stage,error,actors,command,selected,activation):
 
 
 
-def waybar_environment(selected):
-    # GLib call logging only; preserve every session/backend/config value.
-    return dict(selected,G_DBUS_DEBUG='call')
+TRACE_MARKER='cachy_asahi_waybar_trace=1'
+
+
+def trace_requested(command_line):
+    values=[word for word in command_line.split() if word.startswith('cachy_asahi_waybar_trace=')]
+    need(values in ([],[TRACE_MARKER]),'one explicit diagnostic trace marker required')
+    return bool(values)
+
+
+def trace_command(argv,enabled=False):
+    need(type(enabled) is bool and type(argv) is list and argv and type(argv[-1]) is str,
+         'explicit boolean Waybar trace option required')
+    result=list(argv);marker='cachy_asahi_bar_notifications=1'
+    need(result[-1].count(marker)==1 and 'cachy_asahi_waybar_trace=' not in result[-1],
+         'one original unselected bar guest command required')
+    if enabled:result[-1]=result[-1].replace(marker,marker+' '+TRACE_MARKER)
+    return result
+
+
+def waybar_environment(selected,trace_waybar=False):
+    need(type(trace_waybar) is bool,'explicit boolean Waybar trace option required')
+    result=dict(selected);result.pop('G_DBUS_DEBUG',None)
+    if trace_waybar:result['G_DBUS_DEBUG']='call'
+    return result
 
 
 def retain_waybar_trace(stage,logged):
@@ -235,7 +256,8 @@ def retain_waybar_trace(stage,logged):
         logging=dict(G_DBUS_DEBUG='call'),diagnostic_only=True,logs=rows)
 
 
-def phase(stage, config, env, logs):
+def phase(stage, config, env, logs, *, trace_waybar=False):
+    need(type(trace_waybar) is bool,'explicit boolean Waybar trace option required')
     compositor = bar = mako = None
     first = None
     selected = activation = None
@@ -266,7 +288,7 @@ def phase(stage, config, env, logs):
 
     def finish_observed(logged):
         logged.finish()
-        if logged is bar and first is not None:
+        if logged is bar and first is not None and trace_waybar:
             retain_waybar_trace(stage,logged)
 
     def managed_identity():
@@ -296,7 +318,7 @@ def phase(stage, config, env, logs):
             'org.freedesktop.DBus', 'NameHasOwner', 's', 'org.freedesktop.Notifications').strip()
         need(has_owner() == 'b false', 'preexisting notification owner')
         bar = base.Logged(['/usr/bin/waybar', '--config', str(TEMPLATES / 'waybar.json'),
-            '--style', str(TEMPLATES / 'waybar.css')], stage + '-waybar', logs, waybar_environment(selected))
+            '--style', str(TEMPLATES / 'waybar.css')], stage + '-waybar', logs, waybar_environment(selected,trace_waybar))
         mako = base.Logged(['/usr/bin/mako', '--config', str(TEMPLATES / 'mako.conf')],
             stage + '-mako', logs, selected)
 
@@ -334,7 +356,8 @@ def phase(stage, config, env, logs):
                   capture_after_ms=int((time.monotonic() - start) * 1000),
                   waybar_pid=bar.process.pid, mako_pid=mako.process.pid,
                   compositor_pid=compositor.process.pid, managed_identity=identity,
-                  activation='normal-shipped-config-no-reload', notification_timeout_ms=0,activation_environment=activation)
+                  activation='normal-shipped-config-no-reload', notification_timeout_ms=0,activation_environment=activation,
+                  trace_waybar=trace_waybar)
         after = time.monotonic() + 8
         while time.monotonic() < after:
             healthy()

@@ -6,6 +6,11 @@ on:
         description: Exact 40-character source SHA, equal to this workflow revision
         type: string
         required: true
+      trace_waybar:
+        description: Enable diagnostic G_DBUS_DEBUG=call for Waybar only
+        type: boolean
+        required: false
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -34,7 +39,7 @@ jobs:
         timeout-minutes: 2
         run: |
           set -euo pipefail
-          printf '%s  %s\n' 'dd0f7585be38abab4f1226ef51d729135b1b7c7c33f257e907ca0e3462af58cf' "$SLICE/ci/caller.py" '27bc26755c8782124904856f311b2086a3fb67a6ccb2aadc2dd5422d8ff6f6e8' "$SLICE/ci/source-manifest.json" | sha256sum --check
+          printf '%s  %s\n' 'dd0f7585be38abab4f1226ef51d729135b1b7c7c33f257e907ca0e3462af58cf' "$SLICE/ci/caller.py" 'ec38b5e6ba96454212344dae30c9d304c8d84c9e01a6b76420be2cb1c77dada1' "$SLICE/ci/source-manifest.json" | sha256sum --check
           python3 -I -B "$SLICE/ci/caller.py" proof --workspace "$GITHUB_WORKSPACE" --manifest "$SLICE/ci/source-manifest.json" --proof "$RUNNER_TEMP/bar-notification-source-proof.json"
       - name: Focused source and hosted entry controls
         timeout-minutes: 3
@@ -107,11 +112,20 @@ jobs:
           --output "$RUNNER_TEMP/desktop574" --job-token "$JOB_TOKEN"
       - name: Native optional bar and notification generic ARM session
         timeout-minutes: 35
-        run: >-
-          timeout --signal=TERM --kill-after=30s 2050s
-          python3 -B "$RUNNER_TEMP/bar-notification-runner/desktop574_runtime.py"
-          --source "$GITHUB_WORKSPACE" --base-dir "$RUNNER_TEMP/desktop574"
-          --output "$RUNNER_TEMP/bar-notification-runtime"
+        env:
+          WAYBAR_TRACE: ${{ inputs.trace_waybar }}
+        run: |
+          set -euo pipefail
+          trace_args=()
+          case "${WAYBAR_TRACE:-false}" in
+            false) ;;
+            true) trace_args=(--trace-waybar) ;;
+            *) exit 2 ;;
+          esac
+          timeout --signal=TERM --kill-after=30s 2050s \
+            python3 -B "$RUNNER_TEMP/bar-notification-runner/desktop574_runtime.py" \
+            --source "$GITHUB_WORKSPACE" --base-dir "$RUNNER_TEMP/desktop574" \
+            --output "$RUNNER_TEMP/bar-notification-runtime" "${trace_args[@]}"
       - name: Retire the original owned builder after every consumer
         if: always() && steps.proof.outcome == 'success'
         timeout-minutes: 3

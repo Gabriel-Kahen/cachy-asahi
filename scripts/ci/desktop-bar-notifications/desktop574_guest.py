@@ -30,6 +30,7 @@ def main():
                   'bar-notification fixture marker required')
 
     def phase(stage, config, env, logs):
+        trace = session.trace_requested(Path('/proc/cmdline').read_text())
         # Sentinels exercise explicit-template selection and repeated session setup.
         directory = Path(env['XDG_CONFIG_HOME'])
         if stage == 'minimal':
@@ -37,7 +38,7 @@ def main():
                 owned = directory / name
                 owned.mkdir(mode=0o700)
                 (owned / 'user-owned.conf').write_text('preserve this custom configuration\n')
-        session.phase(stage, config, env, logs)
+        session.phase(stage, config, env, logs, trace_waybar=trace)
         completed.add(stage)
 
     def emit(event, **values):
