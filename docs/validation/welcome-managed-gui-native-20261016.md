@@ -1,5 +1,21 @@
 # Installed Welcome GUI native trials
 
+## Complete two-profile GUI acceptance38905814219
+
+[Actual38905814219](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38905814219) **PASS** for installed Welcome interaction and Doctor reporting in the generic ARM managed session. Source/workflow `0afba008bee41fd0acb2001fd5e9e61fede9ad2a`, parent `3b55b050a949fc3e09bf0830b00e9f38eecf584a`, workflow SHA256 `bdb9c9c698971edaed683f11336419ecd067d5d60099d71c197d64df6cac2799`,76-file manifest `d12d829b54b82efd0123c8b4eb086eeb4e1a761021fa8ea0c6bad17800feeb12`. Root joins all76 frozen source files,23 generated runner files and replays all522 public events against the exact native candidate lock.
+
+Root independently views **all14 original captures from this actual**: home, Terminal action, Files action, System, First steps, Updates and Recovery in both minimal and shipped overlay profiles. Every required view is readable, expected guide/tab content is present, and Doctor remains visible alongside. Terminal displays its actual shell; Files displays the actual user home. GTK actions and notebook Selection operations, selected-tab/full installed-guide text hashes, refresh/status agreement, owned process/window/bus joins and required capture ordering pass. This accepts the requested first-screen views, not an untested scrolling workflow.
+
+The593-package runtime uses the same original Welcome/Doctor bytes from input Source `8a38b3fd5963e61fc94707dd87e5dcd626a518a3`; their corrected [installed CLI lifecycle](welcome-doctor-native-20261016.md) and [generic16K CLI](welcome-doctor-generic16k-native-20261016.md) remain separate evidence. The immutable transport still retains the first producer's historical failed lifecycle; it is not rewritten. Doctor's real commands/private0600 report/no-overwrite/symlink refusals pass in both GUI profiles, with actual aarch64/4096-byte pages/kernel7.2.10-1-aarch64-ARCH and unknown Apple model.
+
+Welcome, Doctor, Thunar and compositor normal exit requirements pass. The separately launched nonchild Terminal exit code remains `UNOBSERVED_NONCHILD`; pidfd retirement and absence are verified. Owned xfconfd is intentionally retired. User/config preservation, real managed unit/runtime retirement, all14 runtime cleanup records, runtime-image/base-reference cleanup and owned574 producer image/probe absence pass.
+
+The new log budget is exercised: minimal compositor stdout280329 bytes, overlay2614 bytes, each below2MiB. Both stderr streams are1088 bytes below256KiB; both drains complete with no overflow/errors and compositor exit0. All bytes count without filtering. Earlier failed actuals remain FAIL.
+
+Logs:572124 bytes/SHA256 `b94215dec40e8a1899153e27751e25f7dbd9e6de450005a7cee029ead0bad34f`. Artifact12048986744:1581089 compressed bytes/SHA256 `d852ac973f867d1eaa038ac12c8580dfafd1a70966bef7b0a90a572e6de62503`. All54 closed files/36261481 raw bytes join hashes/sizes; all14 original PPMs are2359312 bytes each. Raw disks, homes and package caches are excluded. Root's separate verification adds visual acceptance; the original retention metadata truthfully remains `PIXELS_PENDING_VISUAL_REVIEW`.
+
+This is installed generic ARM GUI software acceptance. Actual M2 input/graphics/audio/power/boot recovery, physical16K GUI, performance, production signing/admission and both Air models remain unaccepted. Release selections stay false.
+
 ## Longer-exercise compositor log correction
 
 The retained38902823702 process-exit record identifies Hyprland as the overflowing actor: exit0, stdout clamped262144 bytes/SHA256 `33b170a40ce3dd4f0396ae3a4040e36c0742c45d73b1b3abc0a9d6f8373578b6`, stderr1088 bytes. Its retained tail repeats DEBUG/EGL diagnostics. The full original stdout total is unknown. Commit `3b55b050a949fc3e09bf0830b00e9f38eecf584a` gives only that owned actor a finite2MiB stdout cap; stderr and all other actors keep their old bounds. It counts all bytes without filtering and retains fatal overflow/drain-error checks. Both phase receipts must join exact bounds, owned compositor PID, normal exit0 and ordering after seven captures/before acceptance. Fifty-three focused controls and generated closure/shell syntax pass.
@@ -12,7 +28,7 @@ The retained38902823702 process-exit record identifies Hyprland as the overflowi
 
 Logs:368248 bytes/SHA256 `8e169aa6354b3f665d1c0f925aa816f290c212e3fe6ef03abef86841b3a8347e`. Artifact12047670345:675900 compressed bytes/SHA256 `bdfcc9856dd707d79ac69ea3f055cb87a2744d9b29652f4d505600a2c5c1a5cc`; all47 declared files/18535912 raw bytes join. The seven captures from this actual have not received a complete visual acceptance pass. A cleanup correction is in development; all14 successful captures, both profiles and owned exits remain required.
 
-The [installed CLI lifecycle](welcome-doctor-native-20261016.md) passes separately. Installed Welcome GUI acceptance remains pending.
+The [installed CLI lifecycle](welcome-doctor-native-20261016.md) passes separately. The earlier failed trials below remain historical results; the successful complete trial is recorded above.
 
 [Actual38892469396](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38892469396), Source `2ac16b1bb42fe7da05dc7caa58021e6249c3d1f6`, fails the standalone Doctor fixture before any native app/VM work. Its mocked stat omitted file size; the correction preserves real stat fields. Independent test-module execution now matches hosted entry.
 
