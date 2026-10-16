@@ -143,8 +143,8 @@
       "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
     },
     "scripts/ci/fish-autopair-native/README.md": {
-      "bytes": 5003,
-      "sha256": "29f835fd8b21befe652f65e576a04c3759af2a4fcfd45368d34c5cda200eb65d"
+      "bytes": 6243,
+      "sha256": "45b48d5d007d495de4edb1bc8fab4f127967847359d737c9fa2854492fd1f578"
     },
     "scripts/ci/fish-autopair-native/contract.py": {
       "bytes": 9837,
@@ -159,8 +159,8 @@
       "sha256": "c5d3ebd1b972ec486d42afe376e2d9e26daca8fdc7711aeb482aa4d14abe80a5"
     },
     "scripts/ci/fish-autopair-native/lifecycle.py": {
-      "bytes": 7255,
-      "sha256": "dc0ab104fc3a26a38c9339a5b885a870eab88c6eb645574dfec426670da5794a"
+      "bytes": 7758,
+      "sha256": "08bbf60dc9455ccee7dca4475b376a2dc53185e58ff8e459965b0b43ad60a1bc"
     },
     "scripts/ci/fish-autopair-native/prepare.py": {
       "bytes": 3208,
@@ -172,11 +172,11 @@
     },
     "scripts/ci/fish-autopair-native/source-pins.json": {
       "bytes": 4377,
-      "sha256": "7256e5033711833a7e335e9a41dbadd24d95319595ed38f3b1f8f383aeaf36cd"
+      "sha256": "cd001e1d09e7389669524bc93a820c7fc8f511f6a9328b57358c77bab93409b6"
     },
     "scripts/ci/fish-autopair-native/test_native.py": {
-      "bytes": 14583,
-      "sha256": "fb8d73b157109dc82700f435a51e3cfe773fd45952e5c4ddbeb1b5359975e56b"
+      "bytes": 17770,
+      "sha256": "ff1f1f70f0fe16832d7cfc84891e60f8f5d70c9fcaed37363017a0e6d00e5bda"
     },
     "scripts/ci/maintained-desktop574-inputs.json": {
       "bytes": 623664,

@@ -97,7 +97,7 @@ jobs:
           bash -n scripts/ci/desktop574_fixture.sh
       - name: Check optional bar and notification session controls without actors
         run: |
-          python3 -B -m unittest discover -s scripts/ci/desktop-bar-notifications -p test_slice.py
+          python3 -B -m unittest discover -s scripts/ci/desktop-bar-notifications -p 'test_*.py'
           python3 -B -m unittest discover -s scripts/ci/desktop-bar-notifications/ci -p test_caller.py
       - name: Check managed user session controls without services or VM actors
         run: |
@@ -162,6 +162,10 @@ jobs:
           bash -n packages/tools/cachy-asahi-zsh-history-substring-search/PKGBUILD
       - name: Check Fish autopair native lifecycle contracts without container actors
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/fish-autopair-native -p 'test_*.py'
+      - name: Check Fish Done native lifecycle contracts without container actors
+        run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/fish-done-native -p 'test_*.py'
+      - name: Check generic 16K tools contracts without VM actors
+        run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/tools-generic16k -p 'test_*.py'
       - name: Check native tool candidate contracts without container actors
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/tools-native -p test_native.py
       - name: Check Fish autopair source syntax without requiring newer host Fish runtime
