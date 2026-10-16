@@ -4,6 +4,7 @@ import argparse
 import base64
 import fcntl
 import hashlib
+import http.client
 import importlib.util
 import json
 import os
@@ -11,16 +12,116 @@ from pathlib import Path
 import platform
 import re
 import signal
+import socket
 import stat
 import subprocess
+import tarfile
 import time
 import uuid
+from urllib.parse import quote
 
 HELPER = '27ba4be42cf2bd41675073e07cccc917ae033f9d68b07a33cfd7f074ac27b760'
 INPUTS = 'b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9'
 INVENTORY = 'cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac'
 LABEL = 'org.cachy-asahi.bootstrap574.active-job'
 ENV = {'PATH':'/usr/bin:/bin', 'LANG':'C.UTF-8', 'LC_ALL':'C.UTF-8'}
+TRUST_PATHS = tuple('/etc/pacman.d/gnupg/'+name for name in (
+    'pubring.kbx','pubring.gpg','trustdb.gpg','tofu.db','gpg.conf','gpg-agent.conf',
+    'common.conf','public-keys.d/pubring.db')) + ('/etc/pacman.conf',)
+TRUST_FAILURE = b'ValueError: ordinary bounded producer trust/config required'
+
+
+class MetadataConnection(http.client.HTTPConnection):
+    """Only the already-admitted local daemon; never a TCP/remote fallback."""
+    def connect(self):
+        self.sock = socket.socket(socket.AF_UNIX,socket.SOCK_STREAM)
+        self.sock.settimeout(self.timeout)
+        self.sock.connect('/var/run/docker.sock')
+
+
+class HeaderReader:
+    def __init__(self, response):
+        self.response = response
+        self.remaining = 65536
+
+    def read(self, size=-1):
+        need(self.remaining > 0, 'archive header bound')
+        amount = min(self.remaining,size if size >= 0 else self.remaining)
+        data = self.response.read(amount)
+        self.remaining -= len(data)
+        return data
+
+
+def trust_header(cid, path):
+    need(re.fullmatch('[0-9a-f]{64}',cid) and path in TRUST_PATHS,'fixed metadata target required')
+    client = MetadataConnection('local-docker',timeout=3)
+    response = None
+    try:
+        client.request('GET','/containers/'+cid+'/archive?path='+quote(path,safe=''))
+        response = client.getresponse()
+        need(type(response.status) is int and 100<=response.status<=599,'HTTP status differs')
+        if response.status != 200:
+            return {'path':path,'status':'HTTP_ERROR','http_status':response.status}
+        with tarfile.open(fileobj=HeaderReader(response),mode='r|') as archive:
+            member = archive.next()
+            need(member is not None and member.name==Path(path).name,'archive root identity differs')
+            need(type(member.uid) is int and 0<=member.uid<=2**32-1 and
+                 type(member.gid) is int and 0<=member.gid<=2**32-1 and
+                 type(member.size) is int and 0<=member.size<=2**63-1,'archive numeric metadata differs')
+            kind = 'regular' if member.isreg() else 'symlink' if member.issym() else 'directory' if member.isdir() else 'other'
+            return {'path':path,'status':'PRESENT','archive_type':kind,'uid':member.uid,'gid':member.gid,
+                    'mode':member.mode & 0o7777,'bytes':member.size,
+                    'fails_regular_uid_size_predicate':kind!='regular' or member.uid!=0 or member.size>32*1024**2}
+    finally:
+        if response is not None: response.close()
+        client.close()
+
+
+def trust_identity(owner, row):
+    """Recheck the stopped owner through the same read-only Unix connection."""
+    client = MetadataConnection('local-docker',timeout=3)
+    response = None
+    try:
+        need(re.fullmatch('[0-9a-f]{64}',row['cid']),'fixed container CID required')
+        client.request('GET','/containers/'+row['cid']+'/json')
+        response = client.getresponse()
+        need(response.status==200,'container metadata unavailable')
+        raw = response.read(65537); need(len(raw)<=65536,'container metadata bound')
+        value = json.loads(raw)
+        need(value['Id']==row['cid'] and value['Name']=='/'+row['name'] and value['Image']==row['image'] and
+             (value['Config'].get('Labels') or {}).get(LABEL)==owner.token,'container metadata identity differs')
+        state = value['State']
+        need(state['Running'] is False and type(state['ExitCode']) is int and state['ExitCode']!=0,'stopped failed build required')
+    finally:
+        if response is not None: response.close()
+        client.close()
+
+
+def trust_metadata(owner):
+    """Fixed-path archive headers only, after failure and before existing cleanup."""
+    value = {'status':'UNAVAILABLE','method':'fixed-path-docker-archive-headers','rows':[]}
+    previous = signal.getsignal(signal.SIGALRM)
+    timer = signal.setitimer(signal.ITIMER_REAL,0)
+    def expired(*_): raise TimeoutError('metadata deadline')
+    try:
+        signal.signal(signal.SIGALRM,expired); signal.setitimer(signal.ITIMER_REAL,30)
+        need(len(owner.containers)==1,'one failed build container required')
+        row = owner.containers[0]
+        need(row['name']==owner.names['build'],'build name differs')
+        trust_identity(owner,row)
+        value['container'] = dict(row)
+        for path in TRUST_PATHS:
+            try: value['rows'].append(trust_header(row['cid'],path))
+            except Exception as error:
+                value['rows'].append({'path':path,'status':'UNAVAILABLE','error_kind':type(error).__name__})
+                if isinstance(error,TimeoutError): raise
+        value['status'] = 'OBSERVED'
+    except Exception as error:
+        value['error_kind'] = type(error).__name__
+    finally:
+        signal.setitimer(signal.ITIMER_REAL,0); signal.signal(signal.SIGALRM,previous)
+        signal.setitimer(signal.ITIMER_REAL,*timer)
+    return value
 
 
 class ClientFenceError(ValueError):
@@ -281,6 +382,7 @@ def execute(owner, prepared, transaction, lock, out):
               'token':owner.token,'initial_image_ids':owner.before,'active_executor':None}
     pending = None
     fenced = False
+    inspect_trust = False
     try:
         save(out/'result.json',result)
         owner.d.run('image','import','--platform','linux/arm64','--change','LABEL '+LABEL+'='+owner.token,
@@ -324,6 +426,7 @@ def execute(owner, prepared, transaction, lock, out):
         # commands and seed/controller logs stay outside the public projection.
         if result['phase'] == 'active-build' and isinstance(error, ClientCommandError) and error.diagnostic is not None:
             result['build_failure'] = error.diagnostic
+            inspect_trust = TRUST_FAILURE in base64.b64decode(error.diagnostic['tail_base64'])
         # Start/attach does not create resources: an exact CID already fences its executor.
         # Other client failures can leave an unobservable in-flight import/create/commit/copy.
         fenced = result['phase'] in ('active-build','active-probe') and not isinstance(error,ClientFenceError)
@@ -331,6 +434,11 @@ def execute(owner, prepared, transaction, lock, out):
         # A second TERM/INT cannot skip exact-CID cleanup; restore the caller mask.
         mask = signal.pthread_sigmask(signal.SIG_BLOCK,{signal.SIGINT,signal.SIGTERM})
         try:
+            if inspect_trust:
+                try: result['trust_metadata'] = trust_metadata(owner)
+                except Exception as error:
+                    result['trust_metadata'] = {'status':'UNAVAILABLE','method':'fixed-path-docker-archive-headers',
+                                                'rows':[],'error_kind':type(error).__name__}
             result['cleanup'] = owner.cleanup(fenced)
             if result['cleanup']['status']!='PASS': result['status']='FAIL'
             if signal.sigpending() & {signal.SIGINT,signal.SIGTERM}:

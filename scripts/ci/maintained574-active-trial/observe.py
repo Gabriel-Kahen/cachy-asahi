@@ -17,6 +17,9 @@ import support as s
 
 PHASES = ('root-import','build-create','build-copy','active-build','commit','probe-create','active-probe','completed')
 ACTIVE_TOOLS = {'pacman','pacman-key','gpg','gpg-agent','ldconfig'}
+TRUST_PATHS = tuple('/etc/pacman.d/gnupg/'+name for name in (
+    'pubring.kbx','pubring.gpg','trustdb.gpg','tofu.db','gpg.conf','gpg-agent.conf',
+    'common.conf','public-keys.d/pubring.db')) + ('/etc/pacman.conf',)
 
 
 def image_list(values):
@@ -83,6 +86,42 @@ def project_owner(value):
         projected[key]=resource_rows(cleanup[key],token,'containers' in key)
     s.need(projected['initial_image_ids']==result['initial_image_ids'],'baseline_receipt_join')
     result['cleanup']=projected
+    if 'trust_metadata' in value:
+        metadata=value['trust_metadata']
+        s.need('build_failure' in result and b'ValueError: ordinary bounded producer trust/config required' in raw and
+               type(metadata) is dict and {'status','method','rows'}<=set(metadata)<=
+               {'status','method','rows','container','error_kind'} and
+               metadata['status'] in ('OBSERVED','UNAVAILABLE') and
+               metadata['method']=='fixed-path-docker-archive-headers','trust_metadata_scope')
+        safe={k:metadata[k] for k in ('status','method')};safe['rows']=[]
+        if 'error_kind' in metadata:
+            s.need(type(metadata['error_kind']) is str and re.fullmatch('[A-Za-z0-9_]{1,64}',metadata['error_kind']),'trust_error_kind')
+            safe['error_kind']=metadata['error_kind']
+        if 'container' in metadata:
+            container=resource_rows([metadata['container']],token,True)[0]
+            s.need(container in projected['captured_containers'],'trust_container_join');safe['container']=container
+        s.need(type(metadata['rows']) is list and len(metadata['rows'])<=9,'trust_metadata_bound')
+        seen=[]
+        for row in metadata['rows']:
+            s.need(type(row) is dict and row.get('path') in TRUST_PATHS and row['path'] not in seen,'trust_path_set')
+            seen.append(row['path']);status=row.get('status')
+            if status=='PRESENT':
+                s.need(set(row)=={'path','status','archive_type','uid','gid','mode','bytes','fails_regular_uid_size_predicate'} and
+                       row['archive_type'] in ('regular','symlink','directory','other') and
+                       all(type(row[k]) is int and 0<=row[k]<=2**32-1 for k in ('uid','gid')) and
+                       type(row['mode']) is int and 0<=row['mode']<=0o7777 and
+                       type(row['bytes']) is int and 0<=row['bytes']<=2**63-1 and
+                       type(row['fails_regular_uid_size_predicate']) is bool and
+                       row['fails_regular_uid_size_predicate']==(row['archive_type']!='regular' or row['uid']!=0 or row['bytes']>32*1024**2),'trust_numeric_join')
+            elif status=='HTTP_ERROR':
+                s.need(set(row)=={'path','status','http_status'} and type(row['http_status']) is int and 100<=row['http_status']<=599,'trust_HTTP_status')
+            else:
+                s.need(status=='UNAVAILABLE' and set(row)=={'path','status','error_kind'} and
+                       type(row['error_kind']) is str and re.fullmatch('[A-Za-z0-9_]{1,64}',row['error_kind']),'trust_unavailable')
+            safe['rows'].append(dict(row))
+        s.need((not seen or 'container' in safe) and
+               (metadata['status']!='OBSERVED' or seen==list(TRUST_PATHS)),'trust_metadata_completion')
+        result['trust_metadata']=safe
     return result
 
 

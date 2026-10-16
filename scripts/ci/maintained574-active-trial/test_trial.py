@@ -268,7 +268,8 @@ class Controls(unittest.TestCase):
     def test_original_owner_pair_and_held_sources_remain_exact(self):
         root=next(v for v in HERE.parents if (v/'scripts/ci/maintained_desktop574.py').is_file())
         for name,pin in s.PINS.items():
-            path=root/'scripts/ci'/name
+            path=HERE.parent/name
+            if not path.exists():path=root/'scripts/ci'/name
             if not path.exists():
                 path=root/'artifacts/development/maintained574-active-cancellation-20261016/proposed/scripts/ci'/name
             s.pinned(path,pin)
@@ -292,6 +293,43 @@ class DiagnosticControls(unittest.TestCase):
         value=receipt(normal=True);value['build_failure']=self.diagnostic()
         with self.assertRaises(s.Refused):o.project_owner(value)
         value=receipt();value['build_failure']=dict(self.diagnostic(),private='excluded')
+        with self.assertRaises(s.Refused):o.project_owner(value)
+
+
+class TrustMetadataControls(unittest.TestCase):
+    def value(self):
+        import base64
+        value=receipt();raw=b'ValueError: ordinary bounded producer trust/config required\n'
+        value['build_failure']={'returncode':1,'log_bytes':len(raw),'tail_bytes':len(raw),'tail_sha256':s.sha(raw),
+                                'tail_base64':base64.b64encode(raw).decode()}
+        rows=[{'path':path,'status':'HTTP_ERROR','http_status':404} for path in o.TRUST_PATHS]
+        rows[-1]={'path':'/etc/pacman.conf','status':'PRESENT','archive_type':'regular','uid':1001,'gid':1001,
+                  'mode':0o644,'bytes':100,'fails_regular_uid_size_predicate':True}
+        value['trust_metadata']={'status':'OBSERVED','method':'fixed-path-docker-archive-headers','rows':rows,
+                                 'container':dict(value['cleanup']['captured_containers'][0])}
+        return value
+
+    def test_fixed_metadata_is_projected_without_accepting_failed_transaction(self):
+        value=self.value();projected=o.project_owner(value)
+        self.assertEqual(projected['trust_metadata'],value['trust_metadata'])
+        self.assertEqual(projected['status'],'FAIL');self.assertEqual(projected['cleanup']['status'],'PASS')
+
+    def test_wrong_path_contents_numeric_claims_container_or_scope_refuse(self):
+        for field,changed in (('path','/root/.ssh/id_ed25519'),('uid',-1),('bytes',2**64),
+                              ('fails_regular_uid_size_predicate',False),('contents','PRIVATE')):
+            value=self.value();value['trust_metadata']['rows'][-1][field]=changed
+            with self.subTest(field=field),self.assertRaises(s.Refused):o.project_owner(value)
+        value=self.value();value['trust_metadata']['container']['cid']='f'*64
+        with self.assertRaises(s.Refused):o.project_owner(value)
+        value=self.value();del value['build_failure']
+        with self.assertRaises(s.Refused):o.project_owner(value)
+
+    def test_unavailable_diagnostic_does_not_waive_failure_or_cleanup_guard(self):
+        value=self.value();value['trust_metadata']={'status':'UNAVAILABLE','method':'fixed-path-docker-archive-headers',
+                                                   'rows':[],'error_kind':'TimeoutError'}
+        projected=o.project_owner(value)
+        self.assertEqual(projected['status'],'FAIL');self.assertEqual(projected['trust_metadata']['rows'],[])
+        value['trust_metadata']['private']='PRIVATE'
         with self.assertRaises(s.Refused):o.project_owner(value)
 
 
