@@ -36,7 +36,9 @@ class Worker(unittest.TestCase):
 
     def stat(self,path,*args,**kwargs):
         value=self.original_stat(path,*args,**kwargs)
-        if path.name=='doctor-report.json':return SimpleNamespace(st_uid=23001,st_mode=value.st_mode)
+        if path.name=='doctor-report.json':
+            fields={name:getattr(value,name) for name in dir(value) if name.startswith('st_')}
+            return SimpleNamespace(**(fields|{'st_uid':23001}))
         return value
 
     def exercise(self):

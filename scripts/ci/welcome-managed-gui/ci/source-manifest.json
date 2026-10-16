@@ -251,8 +251,8 @@
       "sha256": "ca73da754373cf68148ac992f1c2281b03b604703f112a2c4fd24d4604033e87"
     },
     "scripts/ci/welcome-managed-gui/test_doctor_worker.py": {
-      "bytes": 3314,
-      "sha256": "f59b92a45c4429d99553df7464836af867cd127c5ac04cd00cedd19a2f247969"
+      "bytes": 3415,
+      "sha256": "7c3bd36e32db782f654bed0cd32e564a9bc2c59a6f0dd1aff448a7c972e81d01"
     },
     "scripts/ci/welcome-managed-gui/test_gui.py": {
       "bytes": 8807,
