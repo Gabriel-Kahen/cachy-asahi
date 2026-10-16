@@ -40,7 +40,7 @@ def main():
         if not line.strip() or line.lstrip().startswith('#'):continue
         key,value=line.strip().split(' = ',1);info.setdefault(key,[]).append(value)
     assert info['source']==sources and info['sha256sums']==pins and info['pkgname']==['cachy-asahi-apps']
-    assert info['pkgver']==['0.1.0'] and info['pkgrel']==['4'] and info['arch']==['any'] and info['license']==['MIT']
+    assert info['pkgver']==['0.1.0'] and info['pkgrel']==['5'] and info['arch']==['any'] and info['license']==['MIT']
     spec=importlib.util.spec_from_file_location('checked_apps',root/'apps.py');module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
     _,_,helpers=module.helpers(args.repository_source)
     if args.stage:

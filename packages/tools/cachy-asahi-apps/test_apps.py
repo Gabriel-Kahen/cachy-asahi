@@ -143,6 +143,32 @@ class CheckInputsTests(unittest.TestCase):
         self.assertEqual({p.relative_to(output).as_posix() for p in output.rglob('*') if p.is_file()},self.prepare.MEMBERS)
         for name in PINS:self.assertEqual((output/'repository'/name).read_bytes(),(SOURCE/name).read_bytes())
         self.assertEqual((output/'repository/scripts/release/test_release.py').read_bytes(),(SOURCE/'scripts/release/test_release.py').read_bytes())
+    def test_makepkg_local_source_links_stage_private_regular_pinned_inputs(self):
+        import hashlib,re,shlex
+        recipe=options.app_recipe_root.absolute();text=(recipe/'PKGBUILD').read_text()
+        names=shlex.split(re.search(r'^source=\((.*?)\)',text,re.M|re.S)[1])
+        pins=shlex.split(re.search(r'^sha256sums=\((.*?)\)',text,re.M|re.S)[1])
+        src=self.root/'makepkg-src';src.mkdir()
+        for name in names:(src/name).symlink_to(recipe/name)
+        with self.assertRaisesRegex(ValueError,'ordinary check input path'):
+            self.prepare.prepare(src/'check-inputs.tar.gz',src/'check-inputs.json',self.root/'direct')
+        def stage():
+            return subprocess.run(['/bin/bash','--noprofile','--norc','-c','set -euo pipefail; source "$1"; _stage_check_sources',
+                'stage-check',str(recipe/'PKGBUILD')],env=dict(PATH='/usr/bin:/bin',srcdir=str(src)),text=True,capture_output=True,timeout=30)
+        result=stage();self.assertEqual(result.returncode,0,result.stdout+result.stderr);staged=Path(result.stdout.strip())
+        self.assertEqual(staged.parent,src);self.assertEqual(staged.stat().st_mode&0o777,0o700)
+        self.assertEqual({p.name for p in staged.iterdir()},set(names))
+        for name,pin in zip(names,pins):
+            path=staged/name;self.assertFalse(path.is_symlink());self.assertEqual(path.stat().st_nlink,1)
+            self.assertEqual(path.stat().st_mode&0o777,0o600);self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(),pin)
+            self.assertTrue((src/name).is_symlink())
+        value=self.prepare.prepare(staged/'check-inputs.tar.gz',staged/'check-inputs.json',staged/'check-inputs')
+        self.assertEqual(value['files'],16)
+        second=stage();self.assertEqual(second.returncode,0,second.stderr);self.assertNotEqual(second.stdout,result.stdout)
+        changed=self.root/'changed-index.json';changed.write_bytes(self.index.read_bytes()+b'changed')
+        (src/'check-inputs.json').unlink();(src/'check-inputs.json').symlink_to(changed)
+        refused=stage();self.assertNotEqual(refused.returncode,0);self.assertEqual(refused.stdout,'')
+
     def test_bad_archive_hash_existing_output_and_symlink_refuse(self):
         wrong=self.root/'bad.tar.gz';wrong.write_bytes(self.archive.read_bytes()+b'changed')
         with self.assertRaises(ValueError):self.prepare.prepare(wrong,self.index,self.root/'bad')
