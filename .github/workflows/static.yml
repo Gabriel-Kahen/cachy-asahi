@@ -178,6 +178,11 @@ jobs:
           ref: 8a38b3fd5963e61fc94707dd87e5dcd626a518a3
           path: .ci-inputs/welcome-native
           persist-credentials: false
+      - name: Check Welcome Doctor 16K CLI contracts without actors
+        env:
+          WELCOME16K_SOURCE_ROOT: ${{ github.workspace }}
+          WELCOME16K_ASSETS: ${{ github.workspace }}/.ci-inputs/welcome-native
+        run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-doctor-generic16k -p 'test_*.py'
       - name: Check installed Welcome managed GUI contracts without actors
         env:
           WELCOME_GUI_ASSETS: ${{ github.workspace }}/.ci-inputs/welcome-native
