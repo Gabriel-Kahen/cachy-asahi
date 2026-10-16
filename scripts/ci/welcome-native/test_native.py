@@ -1,5 +1,7 @@
 """Inert gates and command controls; no compiler, package or container actor."""
 import copy
+from contextlib import redirect_stdout
+import io
 import json
 from pathlib import Path
 import struct
@@ -11,7 +13,7 @@ import contract as C
 import lifecycle
 import run
 
-ROOT=Path(__file__).resolve().parents[3]
+ROOT=next(root for root in Path(__file__).resolve().parents if (root/'scripts/checks/package_checks.py').is_file())
 CHECKS=C.load('product_inert_shared_checks',ROOT/'scripts/checks/package_checks.py')
 
 
@@ -145,6 +147,76 @@ class NativeControls(unittest.TestCase):
                 proof=json.loads((out/(C.DOCTOR+'-'+side)/'provenance.json').read_text())
                 self.assertEqual(proof['status'],'built-package-static-pass')
                 self.assertEqual(proof['expected_packages_sha256'],C.digest(lock))
+
+
+class PreservationControls(unittest.TestCase):
+    def setUp(self):
+        self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup)
+        root=Path(self.tmp.name);self.home=root/'home';self.output=root/'output'
+        self.home.mkdir(mode=0o700);self.output.mkdir(mode=0o700)
+        (self.output/'outside').write_text('PRIVATE outside contents')
+        self.session=lifecycle.session_paths(self.home,self.output)
+        (self.home/'.config/user-edited').write_text('PRIVATE existing configuration')
+        (self.home/'.config/alias').symlink_to('user-edited')
+        self.before=lifecycle.snapshot(self.home);self.outside=lifecycle.entry(self.output/'outside')
+
+    def check(self):return lifecycle.preservation_check(self.home,self.before,self.output,self.outside)
+
+    def failure(self):
+        captured=io.StringIO()
+        with redirect_stdout(captured),self.assertRaisesRegex(ValueError,'user config/outside changed'):self.check()
+        text=captured.getvalue();self.assertNotIn('PRIVATE',text)
+        return json.loads(text)
+
+    def test_generated_session_state_and_reports_do_not_count_as_user_config(self):
+        for name in ('cache','data','state','runtime'):
+            (self.session/name/'generated').write_text('fixture generated state')
+        (self.output/'install.json').write_text('test-owned report')
+        (self.output/'install-alias').symlink_to('outside')
+        self.check();self.assertEqual(lifecycle.snapshot(self.home),self.before)
+        env=lifecycle.user_environment(self.home,self.session)
+        self.assertEqual(Path(env['XDG_CONFIG_HOME']),self.home/'.config')
+        for key in ('XDG_CACHE_HOME','XDG_DATA_HOME','XDG_STATE_HOME','XDG_RUNTIME_DIR'):
+            self.assertFalse(Path(env[key]).is_relative_to(self.home))
+            self.assertEqual(Path(env[key]).stat().st_mode&0o777,0o700)
+
+    def test_preexisting_config_content_still_fails_without_content_export(self):
+        (self.home/'.config/user-edited').write_text('PRIVATE changed configuration')
+        row=self.failure()
+        self.assertTrue(any(e['path']=='.config/user-edited' and 'value' in e['fields'] for e in row['changed']))
+
+    def test_preexisting_config_mode_and_symlink_targets_still_fail(self):
+        (self.home/'.config/user-edited').chmod(0o777)
+        self.assertTrue(any('mode' in e['fields'] for e in self.failure()['changed']))
+        alias=self.home/'.config/alias';alias.unlink();alias.symlink_to('PRIVATE replacement target')
+        row=self.failure();self.assertTrue(any(e['path']=='.config/alias' and 'value' in e['fields'] for e in row['changed']))
+
+    def test_arbitrary_added_or_removed_home_paths_are_not_exempted(self):
+        (self.home/'unexpected').write_text('PRIVATE')
+        self.assertTrue(any(e['path']=='unexpected' and e['fields']==['added'] for e in self.failure()['changed']))
+        (self.home/'.config/user-edited').unlink()
+        self.assertTrue(any(e['path']=='.config/user-edited' and e['fields']==['removed'] for e in self.failure()['changed']))
+
+    def test_directory_metadata_is_not_blanket_ignored(self):
+        (self.home/'.config').chmod(0o777)
+        self.assertTrue(any(e['path']=='.config' and 'mode' in e['fields'] for e in self.failure()['changed']))
+
+    def test_outside_contents_and_metadata_remain_protected(self):
+        (self.output/'outside').chmod(0o777)
+        self.assertIn('mode',self.failure()['outside_fields'])
+        (self.output/'outside').write_text('PRIVATE overwritten')
+        self.assertIn('value',self.failure()['outside_fields'])
+
+    def test_diagnostics_have_finite_path_only_rows(self):
+        for i in range(40):(self.home/('added-'+str(i))).write_text('PRIVATE')
+        row=self.failure();self.assertEqual(len(row['changed']),32)
+        self.assertGreater(row['omitted'],0)
+        self.assertTrue(all(set(e)=={'path','fields'} for e in row['changed']))
+        self.assertLess(len(json.dumps(row)),16384)
+
+    def test_generated_roots_cannot_be_placed_inside_protected_home(self):
+        nested=self.home/'nested';nested.mkdir()
+        with self.assertRaises(ValueError):lifecycle.session_paths(self.home,nested)
 
 
 if __name__=='__main__':unittest.main()

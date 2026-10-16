@@ -26,15 +26,55 @@ def command(argv, *, expected=0, timeout=35):
     return value.stdout.decode()
 
 
+def entry(path):
+    info=path.lstat();kind='link' if stat.S_ISLNK(info.st_mode) else 'file' if stat.S_ISREG(info.st_mode) else 'dir'
+    need(kind!='dir' or stat.S_ISDIR(info.st_mode),'special configuration entry')
+    return dict(kind=kind,mode=stat.S_IMODE(info.st_mode),uid=info.st_uid,gid=info.st_gid,
+        mtime_ns=info.st_mtime_ns,value=os.readlink(path) if kind=='link' else sha(path) if kind=='file' else None)
+
+
 def snapshot(root):
     result={}
     for path in sorted(root.rglob('*')):
         need(len(result)<128,'config entry cap')
-        info=path.lstat();kind='link' if stat.S_ISLNK(info.st_mode) else 'file' if stat.S_ISREG(info.st_mode) else 'dir'
-        need(kind!='dir' or stat.S_ISDIR(info.st_mode),'special configuration entry')
-        result[str(path.relative_to(root))]=dict(kind=kind,mode=stat.S_IMODE(info.st_mode),uid=info.st_uid,gid=info.st_gid,
-            mtime_ns=info.st_mtime_ns,value=os.readlink(path) if kind=='link' else sha(path) if kind=='file' else None)
+        result[str(path.relative_to(root))]=entry(path)
     return result
+
+
+def session_paths(home,output):
+    # These are fixture-owned generated paths, not preexisting user settings.
+    need(home.is_absolute() and output.is_absolute() and not output.is_relative_to(home) and
+         not home.is_relative_to(output),'separate home/session roots required')
+    (home/'.config').mkdir(mode=0o700,exist_ok=True)
+    session=output/'session';session.mkdir(mode=0o700)
+    for name in ('cache','data','state','runtime'):(session/name).mkdir(mode=0o700)
+    return session
+
+
+def user_environment(home,session):
+    return dict(PATH='/usr/bin:/bin',LANG='C.UTF-8',HOME=str(home),XDG_CONFIG_HOME=str(home/'.config'),
+        XDG_CACHE_HOME=str(session/'cache'),XDG_DATA_HOME=str(session/'data'),XDG_STATE_HOME=str(session/'state'),
+        XDG_RUNTIME_DIR=str(session/'runtime'),DISPLAY='',WAYLAND_DISPLAY='',DBUS_SESSION_BUS_ADDRESS='unix:path=/nonexistent')
+
+
+def preservation_check(home,before,output,outside):
+    try:
+        after=snapshot(home);current=entry(output/'outside')
+    except (OSError,ValueError) as error:
+        print(json.dumps(dict(scope='user-preservation',home=home.name,error_kind=type(error).__name__)),flush=True)
+        raise ValueError('user config/outside changed') from None
+    changed=[]
+    for path in sorted(before.keys()|after.keys()):
+        fields=['added'] if path not in before else ['removed'] if path not in after else [
+            field for field in before[path] if before[path][field]!=after[path][field]]
+        if fields:changed.append(dict(path=path,fields=fields))
+    outside_fields=[field for field in outside if outside[field]!=current[field]]
+    if changed or outside_fields:
+        # Paths/field names only: no config contents, link targets or hashes.
+        bounded=[row for row in changed if len(row['path'])<=256 and row['path'].isprintable()][:32]
+        print(json.dumps(dict(scope='user-preservation',home=home.name,changed=bounded,
+            changed_count=len(changed),omitted=len(changed)-len(bounded),outside_fields=outside_fields),sort_keys=True),flush=True)
+        raise ValueError('user config/outside changed')
 
 
 def inventory():
@@ -59,7 +99,7 @@ def main():
     config=Path('/tmp/product-pacman.conf')
     config.write_text('[options]\nArchitecture = aarch64\nSigLevel = Required\nLocalFileSigLevel = Optional\nHookDir = '+str(hooks)+'\n')
     pacman=['/usr/bin/pacman','--config',str(config),'--noconfirm','--noscriptlet']
-    account=pwd.getpwnam('alarm');homes=[];receipts={};events=[]
+    account=pwd.getpwnam('alarm');homes=[];sessions={};receipts={};events=[]
     for kind in ('fresh','existing'):
         home=Path('/tmp')/('product-home-'+kind);home.mkdir(mode=0o700)
         if kind=='existing':
@@ -70,18 +110,18 @@ def main():
             (home/'.config/alias').symlink_to('Thunar/user-sentinel')
         output=Path('/tmp')/('doctor-output-'+kind);output.mkdir(mode=0o700)
         (output/'outside').write_text('preserve outside report\n')
+        sessions[home]=session_paths(home,output)
         for path in (home,*home.rglob('*'),output,*output.rglob('*')):os.chown(path,account.pw_uid,account.pw_gid,follow_symlinks=False)
-        homes.append((home,snapshot(home),output,sha(output/'outside')))
+        homes.append((home,snapshot(home),output,entry(output/'outside')))
 
     def user(home,argv,expected=0):
-        return command(['/usr/bin/runuser','-u','alarm','--','/usr/bin/env','-i','PATH=/usr/bin:/bin','LANG=C.UTF-8',
-            'HOME='+str(home),'XDG_CONFIG_HOME='+str(home/'.config'),'XDG_CACHE_HOME='+str(home/'.cache'),
-            'XDG_DATA_HOME='+str(home/'.local/share'),'XDG_STATE_HOME='+str(home/'.local/state'),
-            'DISPLAY=','WAYLAND_DISPLAY=','DBUS_SESSION_BUS_ADDRESS=unix:path=/nonexistent',*argv],expected=expected)
+        environment=user_environment(home,sessions[home])
+        return command(['/usr/bin/runuser','-u','alarm','--','/usr/bin/env','-i',
+            *(key+'='+value for key,value in environment.items()),*argv],expected=expected)
 
     def preserved():
         for home,before,output,outside in homes:
-            need(snapshot(home)==before and sha(output/'outside')==outside,'user config/outside changed')
+            preservation_check(home,before,output,outside)
             for path,pin in receipts.items():
                 info=path.lstat()
                 need(sha(path)==pin['sha256'] and stat.S_IMODE(info.st_mode)==0o600 and
