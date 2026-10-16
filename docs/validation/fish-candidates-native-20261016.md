@@ -1,9 +1,10 @@
 # Fish candidate native results
 
-Both candidates remain unselected. Autopair now has native pair and installed lifecycle acceptance with the export-validator defect below explicitly qualified. Done installed lifecycle, real desktop notifications, generic16K and M2 compatibility remain open.
+Both candidates remain unselected. Autopair now has native pair and installed lifecycle acceptance with the export-validator defect below explicitly qualified. Done0.1.0-2 also passes its native pair and installed local-recorder lifecycle. Real desktop notifications, generic16K and M2 compatibility remain open.
 
 | Actual | Exact source/workflow | Native builds | Installed lifecycle |
 | --- | --- | --- | --- |
+| [Done38921031485](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38921031485) | `6c691098cd7be3ad4a4b2acb9acfb4fdc653cf53` | Both18-case checks pass;15380byte identical pair | PASS all five phases and six installed18-case observations; local recorder only |
 | [Autopair38915141096](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38915141096) | `d6492b6ea647ea26258e659acb07be3b943b275e` | Both14-case checks pass; complete archive/BUILDINFO/payload pair matches | FAIL after first removal |
 | [Done38918307798](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38918307798) | `de6db8f0580e4294e395a5d07abb9f66755747ea` | Both18-case checks pass; complete archive/BUILDINFO/payload pair matches | FAIL during first installed18-case suite |
 
@@ -13,7 +14,11 @@ The autopair retry workflow still ends FAIL solely in its exporter: sorted neste
 
 Retry artifact12054425621:145416compressed bytes, SHA256 `963ca5e686655c5a01865752e008e72ac75cf98f42fcd5d073f4e5cd3a52e5b0`; log ZIP86120bytes, SHA256 `b7d42c4387a549e809788a363ae1b388d2dca7a4eb56df64a19fcc590add5f3f`.
 
-Done's installed transport-timeout case finds the recorded notification PID still present after forced timeout. The retained data does not record its process state, so a zombie is a hypothesis rather than an observed fact. Version0.1.0-2 adds `timeout --foreground` so the monitor survives forced child termination and can reap the named notification child. A separate controlled host subreaper fixture reproduces the default monitor self-kill/adopted zombie and the corrected monitor exit137/child absence, both near3seconds; this is explanatory host evidence, not retained native process-state evidence. The corrected native run remains pending, with process-absence and bounded-transport checks required. The bound concerns the named notify-send process, not arbitrary descendants. Only a private notify-send recorder is used; no real bus/display or host notification is exercised.
+Done's installed transport-timeout case finds the recorded notification PID still present after forced timeout. The retained data does not record its process state, so a zombie is a hypothesis rather than an observed fact. Version0.1.0-2 adds `timeout --foreground` so the monitor survives forced child termination and can reap the named notification child. A separate controlled host subreaper fixture reproduces the default monitor self-kill/adopted zombie and the corrected monitor exit137/child absence, both near3seconds; this is explanatory host evidence, not retained native process-state evidence. [Corrected actual38921031485](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38921031485) now passes the process-absence and bounded-transport checks, all18 cases for both fresh/existing users at three installed phases, both required removals and full user/system preservation. The bound concerns the named notify-send process, not arbitrary descendants. Only a private notify-send recorder is used; no real bus/display or host notification is exercised.
+
+Root independently verifies the successful Done actual's35 frozen Git bindings, all54 closed exported files/602139bytes, six original receipt byte hashes, every18-case recorder transcript/proof join, original package payload/source/licenses/BUILDINFO, distinct build containers and exact native aarch64/4096 inventory. The identical0.1.0-2 package archives are15380bytes, SHA256 `9ce3c7ba89467f04660014c1b12056dce28bd0c4e69b4cab8a9c2c98e1cce54f`. All four consumers retire before the original producer image/probe, and the original successful export remains unchanged.
+
+Successful Done artifact12055315780:172474compressed bytes, SHA256 `45681e9c90ed6d6216a78317148f9ac4ec4096ad5db3e6304e9186b8ae3ef835`; log ZIP85340bytes, SHA256 `f03bc1575548c460d6afafd4f42632d554d7968649810fb7ac418ce178e3f015`.
 
 Both actuals pass ordered consumer retirement before original producer cleanup. Root joins every original exported member's exact byte count/hash: Autopair56files/327786bytes, Done53files/361427bytes, with no missing or unexpected paths. Failure export status remains unchanged.
 
