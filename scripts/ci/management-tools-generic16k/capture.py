@@ -103,6 +103,6 @@ def capture(root,image,source_commit):
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--image-id',required=True);parser.add_argument('--source-commit',required=True);args=parser.parse_args()
-    s.need(re.fullmatch('sha256:[0-9a-f]{64}',args.image_id),'immutable image required')
-    s.need(re.fullmatch('[0-9a-f]{40}',args.source_commit),'exact source commit required')
+    C.need(re.fullmatch('sha256:[0-9a-f]{64}',args.image_id),'immutable image required')
+    C.need(re.fullmatch('[0-9a-f]{40}',args.source_commit),'exact source commit required')
     print(json.dumps(capture(Path('/repo'),args.image_id,args.source_commit),sort_keys=True))

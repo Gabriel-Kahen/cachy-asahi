@@ -1,5 +1,4 @@
 {
-  "schema_version": 1,
   "files": {
     "scripts/ci/glibc-generic16k/common.py": {
       "bytes": 11573,
@@ -91,7 +90,7 @@
     },
     "scripts/ci/tools-generic16k/dependencies.json": {
       "bytes": 21413,
-      "sha256": "1a0899a3f8e08f2640df071d290c877212049bbc2f3d1a5de8e73d9404f549c5"
+      "sha256": "4230eb9b270033919c2f346d5bef0e77841713b57275045fe25c197f75b6cab3"
     },
     "scripts/ci/tools-generic16k/kernel.fragment": {
       "bytes": 815,
@@ -133,5 +132,6 @@
       "bytes": 1720,
       "sha256": "b71adf10496d563a20eed7cecef8074cb82dd103a63e47f48462a1bd5d18f23d"
     }
-  }
+  },
+  "schema_version": 1
 }
