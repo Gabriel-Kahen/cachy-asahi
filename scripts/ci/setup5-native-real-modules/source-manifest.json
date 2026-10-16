@@ -41,8 +41,8 @@
       "sha256": "4269f7134c095a7d344b1d28f5436023fd9c1beea2fe0d3c1d22b08afd2a6d40"
     },
     "scripts/ci/setup5-native-real-modules/lifecycle.py": {
-      "bytes": 6557,
-      "sha256": "b4bb7b4bd5544fccc4211fc2ec0401433dc8c8510bd8b1cdbc4a85a44b07d523"
+      "bytes": 8165,
+      "sha256": "1f80573af87730e17104593ebf9821580cd0ccc161ae30f9342ad7d4efa32822"
     },
     "scripts/ci/setup5-native-real-modules/prepare.py": {
       "bytes": 3174,
@@ -53,8 +53,8 @@
       "sha256": "662b312ea4e2138497d465946ffbec93c481f12c89970ab7e217d3131e80270e"
     },
     "scripts/ci/setup5-native-real-modules/test_source.py": {
-      "bytes": 20167,
-      "sha256": "554baea50706c8be54c367d9daee7971b0669bf978ff831ed31050d585673de0"
+      "bytes": 27329,
+      "sha256": "89266d9331e579a52f135905b02f93ad9528f3b59755d5d1fb429cb60b1064e1"
     },
     "scripts/ci/setup5-native/source-manifest.json": {
       "bytes": 14044,

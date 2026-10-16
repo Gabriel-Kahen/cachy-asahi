@@ -100,6 +100,7 @@ def payload(archive,receipt,generic):
     required={'guest.py',*[ 'usr/bin/'+name for name in s.TOOLS]}
     required.update(name for product in receipt['products'].values() for name in product['payload'])
     required.update(s.mapping()['fixtures'])
+    required.update((s.RECORDER,s.ADAPTED,s.SOURCE,s.ADAPTER))
     s.need(required<=set(files) and elf_names==set(receipt['elf']),'complete product/tool ELF roots required')
     for name,expected in {**{n:r for product in receipt['products'].values() for n,r in product['payload'].items()},**s.mapping()['fixtures']}.items():
         mode,data=files[name]
@@ -108,6 +109,10 @@ def payload(archive,receipt,generic):
     for row in receipt['elf'].values():
         s.need(not row['interpreter'] or row['interpreter'].lstrip('/') in files,'closed interpreter absent')
         s.need(all(any(folder+lib in files for folder in ('usr/lib/','lib/')) for lib in row['needed']),'DT_NEEDED closure absent')
+    s.test_transport(receipt)
+    adapter=s.load(s.HERE.parents[2],'scripts/ci/fish-done-generic16k/recorder_adapter.py')
+    s.need(files[s.ADAPTED][1]==adapter.adapt(files['fixtures/done.py'][1]),
+        'parent independently reproduced prepare-only adapted fixture differs')
     return files
 
 
@@ -232,13 +237,14 @@ def guest_report(output,code,nonce,release,receipt):
     reports=[(i,line.removeprefix(b'DONE16K_REPORT ')) for i,line in enumerate(lines) if line.startswith(b'DONE16K_REPORT ')]
     s.need(len(reports)==1 and positions[2]<reports[0][0]<positions[3] and len(reports[0][1])<=65536,'one bounded guest report required')
     value=json.loads(reports[0][1])
-    s.need(value['status']=='PASS_GENERIC_16K_FISH_DONE_RECORDER_PTY_ONLY' and value['nonce']==nonce and
+    s.need(value['status']==s.STATUS and value['nonce']==nonce and
            value['architecture']=='aarch64' and value['page_size']==16384 and value['kernel']==release and value['uid']==23001 and
            value['config_preserved'] is True and value['payload_preserved'] is True and value['owned_processes_absent'] is True and
            value['package_registration']=='NOT_INSTALLED_EXACT_SOURCE_PAYLOADS_COPIED_ONLY' and
            value['GUI']==value['hardware']==value['performance']==value['notification_manager']==value['DBus']==value['display']=='NOT_RUN' and
-           value['notification_transport']=='PRIVATE_NOTIFY_SEND_RECORDER_ONLY' and value['release_admission'] is False and
+           value['notification_transport']==s.TRANSPORT and value['release_admission'] is False and
            value['payload_manifest_sha256']==s.sha((json.dumps(receipt,sort_keys=True,indent=2)+'\n').encode()),'Done guest identity/preservation/scope differs')
+    s.need(value['test_transport']==s.test_transport(receipt),'adapted guest/native compile payload join differs')
     proof=value['done'];cases=proof['cases']
     names={'noninteractive','foreground','background','watch-rejection','disown','repeat-preserve','command-data','transport-failure',
            'transport-timeout','disable','existing-function','existing-autoload','existing-variable','existing-wrapper','existing-public',
@@ -273,9 +279,17 @@ def guest_report(output,code,nonce,release,receipt):
         rows=cases[name]['proofs'];s.need(len(rows)==1 and 0<=rows[0]['elapsed_seconds']<4.5,'transport deadline evidence missing')
         invocation(rows[0]['invocation'])
     s.need(cases['disable']['notifications']==0 and cases['repeat-preserve']['notifications']==1,'disable/repeat notification behavior differs')
-    commands=value['commands'];s.need(len(commands)==1,'one complete Done driver command required')
+    native=value['native_recorder_cases'];s.need(set(native)==names,'all eighteen native recorder copy/log joins required')
+    for name,row in native.items():
+        present=name!='notify-send';count=row['notification_count'];pids=row['recorded_pids']
+        s.need(row['recorder_present'] is present and row['recorder_sha256']==(receipt['files'][s.RECORDER]['sha256'] if present else None) and
+            type(count) is int and 0<=count<=32 and type(pids) is list and len(pids)==count and all(type(pid) is int and pid>0 for pid in pids) and
+            type(row['fixture_notification_delta']) is int and row['fixture_notification_delta']==cases[name]['notifications'] and
+            0<=row['fixture_notification_delta']<=count and (present or count==0) and
+            re.fullmatch('[0-9a-f]{64}',row['notifications_sha256']),'native recorder byte/PID/count evidence differs')
+    commands=value['commands'];s.need(len(commands)==1,'one complete adapted Done driver command required')
     row=commands[0]
-    expected=['/usr/bin/python3','-I','-B','/fixtures/done.py','--source','/usr/share/cachy-asahi/fish-done','--output','/tmp/done16k/cases']
+    expected=['/usr/bin/python3','-I','-B','/fixtures/done-native.py','--source','/usr/share/cachy-asahi/fish-done','--output','/tmp/done16k/cases']
     s.need(row['argv']==expected and row['exit']==0 and row['group_absent'] is True and row['owned_processes_absent'] is True and
            0<=row['seconds']<=245 and 0<=row['stdout_bytes']+row['stderr_bytes']<=131072 and
            all(re.fullmatch('[0-9a-f]{64}',row[k]) for k in ('stdout_sha256','stderr_sha256')),'exact Done command/result/group differs')
@@ -366,6 +380,8 @@ def trial(args):
     finally:
         report['log_tails']={}
         try:
+            build=args.private/'capture/recorder-build.json'
+            if build.exists():report['recorder_build']=json.loads(s.read(build,262144))
             for filename in ('capture.log','compile.log','uart.log'):
                 path=args.private/filename
                 if path.exists():
@@ -396,6 +412,8 @@ def finalize(args):
                consumer['producer']=='BORROWED_PRESERVED' and cleanup['status']=='PASS' and
                cleanup['probe']['absence_verified'] is True and cleanup['image']['absence_verified'] is True and
                cleanup['image']['id']==report['image_id'],'ordered consumer/producer cleanup required')
+        s.need(report['guest']['status']==s.STATUS and report['guest']['test_transport']==s.test_transport(report['capture']),
+               'final adapted transport/native compile joins required')
         work=args.kernel_work
         s.need(work==Path(os.environ['RUNNER_TEMP'])/'done16k-kernel' and work.is_absolute() and
                not any(p.is_symlink() for p in (work,*work.parents)) and work.stat().st_uid==os.getuid() and
@@ -403,7 +421,7 @@ def finalize(args):
                report['kernel']['status']=='BUILT_ONLY' and report['kernel']['kernel_build']=='PASS',
                'completed owned kernel work required')
         shutil.rmtree(work);s.need(not work.exists(),'owned kernel work remains')
-        report.update(status='PASS_GENERIC_16K_FISH_DONE_RECORDER_PTY_ONLY',producer_cleanup=cleanup,kernel_work_removed=True)
+        report.update(status=s.STATUS,producer_cleanup=cleanup,kernel_work_removed=True)
     except BaseException as error:report.update(status='FAIL',finalize_error=type(error).__name__)
     s.save(args.output/'runtime.json',report);return report
 

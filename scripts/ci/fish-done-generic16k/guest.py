@@ -135,7 +135,7 @@ def command(argv,env,expected=0,seconds=30):
         except ProcessLookupError:absent=True
         else:absent=False
     out,err=map(bytes,parts)
-    row=dict(argv=argv,exit=code,expected_exit=expected,natural_exit=natural,group_absent=absent,seconds=round((last if error else time.monotonic())-start,6),
+    row=dict(argv=argv,exit=code,expected_exit=expected,natural_exit=natural,group_absent=absent,pid=process.pid,pgid=process.pid,seconds=round((last if error else time.monotonic())-start,6),
              stdout_bytes=len(out),stdout_sha256=sha(out),stderr_bytes=len(err),stderr_sha256=sha(err))
     if error is not None or code!=expected or not absent:
         row.update(error_type=type(error).__name__ if error else None,reason=str(error)[:160] if error else 'guest command exit/group differs',
@@ -235,6 +235,33 @@ end'''
     return result
 
 
+def recorder_cases(root,proof,manifest):
+    """Join each private recorder copy and its PID/count log to the captured native ELF."""
+    result={};expected=manifest['files']['fixtures/notify-recorder']['sha256']
+    for name,case_proof in proof['cases'].items():
+        case=root/name;recorder=case/'bin/notify-send';exists=recorder.exists()
+        need(exists==(name!='notify-send'),'original missing-recorder case differs')
+        if exists:
+            info=recorder.lstat()
+            need(stat.S_ISREG(info.st_mode) and info.st_nlink==1 and info.st_uid==info.st_gid==23001 and
+                stat.S_IMODE(info.st_mode)==0o700 and sha(read(recorder,1024**2))==expected,
+                'private native recorder bytes/identity changed')
+        log=case/'notifications.jsonl';raw=b''
+        if log.exists():
+            info=log.lstat();need(stat.S_ISREG(info.st_mode) and info.st_nlink==1 and info.st_uid==info.st_gid==23001 and
+                stat.S_IMODE(info.st_mode)==0o600,'private notification log identity differs');raw=read(log,65536)
+        lines=raw.splitlines(keepends=True);need(len(lines)<=32 and all(len(line)<4096 and line.endswith(b'\n') for line in lines),
+            'bounded native recorder lines required')
+        rows=[json.loads(line) for line in lines]
+        need(all(set(row)=={'argv','pid'} and type(row['argv']) is list and all(type(v) is str for v in row['argv']) and
+            type(row['pid']) is int and row['pid']>0 for row in rows),'native recorder argv/PID shape differs')
+        need(type(case_proof['notifications']) is int and 0<=case_proof['notifications']<=len(rows) and (exists or not rows),'native recorder count/delta join differs')
+        result[name]=dict(recorder_present=exists,recorder_sha256=expected if exists else None,
+            notification_count=len(rows),fixture_notification_delta=case_proof['notifications'],
+            recorded_pids=[row['pid'] for row in rows],notifications_sha256=sha(raw))
+    return result
+
+
 def exercise(nonce,release):
     need(os.geteuid()==0 and os.uname().machine=='aarch64' and os.uname().release==release and
          os.sysconf('SC_PAGE_SIZE')==16384 and 'fish_done16k=1' in Path('/proc/cmdline').read_text().split(),
@@ -252,21 +279,11 @@ def exercise(nonce,release):
         PYTHONDONTWRITEBYTECODE='1',DISPLAY='',WAYLAND_DISPLAY='',DBUS_SESSION_BUS_ADDRESS='unix:path=/no-real-bus',
         XDG_CONFIG_HOME=str(home/'config'),XDG_CACHE_HOME=str(home/'cache'),XDG_DATA_HOME=str(home/'data'),
         XDG_STATE_HOME=str(home/'state'),XDG_RUNTIME_DIR=str(home/'runtime'))
-    argv=['/usr/bin/python3','-I','-B','/fixtures/done.py','--source','/usr/share/cachy-asahi/fish-done','--output',str(root/'cases')]
+    argv=['/usr/bin/python3','-I','-B','/fixtures/done-native.py','--source','/usr/share/cachy-asahi/fish-done','--output',str(root/'cases')]
     try:row,out=command(argv,env,seconds=240)
     except CommandFailure as error:
         diagnostic=json.loads(failure_diagnostic(error,root,nonce,release,manifest_raw,home,before))
-        # Collect the original failure first, then one separate bounded decisive probe.
-        original=diagnostic['original_receipt']
-        if original.get('sample_complete') and json.loads(base64.b64decode(original['sample_base64'])).get('error')=='long success did not notify once':
-            probe_argv=['/usr/bin/python3','-I','-B','/guest.py','--foreground-probe',str(root/'foreground-probe')]
-            try:
-                probe_row,probe_out=command(probe_argv,env,seconds=25)
-                diagnostic['foreground_probe']=dict(command=probe_row,value=json.loads(probe_out),owned_processes_absent=owned_absent())
-            except CommandFailure as probe_error:
-                diagnostic['foreground_probe']=dict(command=probe_error.row,stdout=sample(probe_error.stdout,4096),stderr=sample(probe_error.stderr,4096,True))
-            except (OSError,ValueError) as probe_error:
-                diagnostic['foreground_probe_collection_error']=dict(error_type=type(probe_error).__name__,reason=str(probe_error)[:160])
+        diagnostic['test_transport']=manifest['test_transport']
         raw=json.dumps(diagnostic,sort_keys=True,separators=(',',':'));need(len(raw.encode())<=65536,'combined diagnostic byte bound')
         print('DONE16K_DIAGNOSTIC '+raw,flush=True)
         raise
@@ -274,10 +291,11 @@ def exercise(nonce,release):
     summary=json.loads(out);proof_raw=read(root/'cases/receipt.json');proof=json.loads(proof_raw)
     need(summary['status']=='PASS' and summary['cases']==18 and summary['receipt']==str(root/'cases/receipt.json') and
          proof['status']=='PASS' and len(proof['cases'])==18 and all(v['exit']==0 for v in proof['cases'].values()),
-         'all eighteen existing Done cases required')
+         'all eighteen unchanged case bodies with native C test transport required')
     need(proof['machine']=='aarch64' and proof['fish']=='fish, version 4.9.3' and
          proof['runtime_sha256']==manifest['files']['usr/share/cachy-asahi/fish-done/done.fish']['sha256'] and
          proof['wrapper_sha256']==manifest['files']['usr/share/cachy-asahi/fish-done/opt-in.fish']['sha256'],'actual Done source/platform differs')
+    native_cases=recorder_cases(root/'cases',proof,manifest)
     preserved={}
     for name in proof['cases']:
         case=root/'cases'/name
@@ -289,10 +307,10 @@ def exercise(nonce,release):
         need(not (case/'unexpected-rc').exists() and not (case/'PWNED').exists(),'case caller data executed')
         preserved[name]=True
     need(snapshot(home)==before,'outer caller HOME/XDG files changed');payload_identity(manifest);owned_absent()
-    return dict(status='PASS_GENERIC_16K_FISH_DONE_RECORDER_PTY_ONLY',nonce=nonce,architecture='aarch64',page_size=16384,
-        kernel=release,uid=os.getuid(),commands=[row],done=proof,done_receipt_sha256=sha(proof_raw),case_inputs_preserved=preserved,
+    return dict(status='PASS_GENERIC_16K_FISH_DONE_NATIVE_C_RECORDER_ADAPTED_PTY_ONLY',nonce=nonce,architecture='aarch64',page_size=16384,
+        kernel=release,uid=os.getuid(),commands=[row],done=proof,test_transport=manifest['test_transport'],native_recorder_cases=native_cases,done_receipt_sha256=sha(proof_raw),case_inputs_preserved=preserved,
         config_preserved=True,payload_preserved=True,owned_processes_absent=True,payload_manifest_sha256=sha(manifest_raw),
-        notification_transport='PRIVATE_NOTIFY_SEND_RECORDER_ONLY',notification_manager='NOT_RUN',DBus='NOT_RUN',display='NOT_RUN',
+        notification_transport='PRIVATE_NATIVE_C_NOTIFY_SEND_RECORDER_ONLY',notification_manager='NOT_RUN',DBus='NOT_RUN',display='NOT_RUN',
         package_registration='NOT_INSTALLED_EXACT_SOURCE_PAYLOADS_COPIED_ONLY',GUI='NOT_RUN',hardware='NOT_RUN',
         performance='NOT_RUN',release_admission=False)
 

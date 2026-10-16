@@ -25,7 +25,9 @@ sleep/sh/timeout/kill. Full ELF interpreter/DT_NEEDED closure is required; every
 ELF must be AArch64 and structurally 16-KiB aligned. No real notify-send binary,
 notification manager, desktop, D-Bus service or socket is copied. Limits are
 4,096 files, 256 MiB total, 64 MiB/member, 270 MiB private tar, 1 MiB receipt,
-240-second capture, 128 processes and 2 GiB memory.
+240-second capture, 128 processes and 2 GiB memory. Capture also compiles the
+source-pinned C recorder once in the same owned native actor, with a 30-second
+command bound and complete compiler, process and ELF joins.
 
 The kernel uses the existing source-pinned
 `scripts/ci/tools-generic16k/build_kernel.py`, SHA256
@@ -58,8 +60,9 @@ getconf and the unchanged mmap/mprotect/file-offset probe to agree with aarch64,
 the exact kernel release and 16,384-byte pages. Python checks actual sysconf too.
 
 After the marker/page guard, the guest drops supplementary groups and UID/GID to
-23001. One bounded 240-second outer command runs the unchanged adopted driver
-against the mapped module. All eighteen cases must pass: noninteractive no-op;
+23001. One bounded 240-second outer command runs a separate adapted driver
+against the mapped module. Only prepare() substitutes a private native C recorder;
+the eighteen original case and assertion bodies remain unchanged. All eighteen cases must pass: noninteractive no-op;
 foreground success/failure/short/exclusion/invalid setting; watched background
 success/failure/SIGTERM/rejection/disown/disable; repeat and caller continuation;
 existing keys/handlers/namespaces/autoload; literal opt-in command text; missing
@@ -86,7 +89,7 @@ Consumer cleanup joins capture CID/name/image/job label, exports bounded log
 tails, removes private files and proves the borrowed producer remains intact.
 Only after the original producer proves probe/image absence may finalize remove
 the completed owned `$RUNNER_TEMP/done16k-kernel` workspace and report
-`PASS_GENERIC_16K_FISH_DONE_RECORDER_PTY_ONLY`. Interrupted/failed kernel work
+`PASS_GENERIC_16K_FISH_DONE_NATIVE_C_RECORDER_ADAPTED_PTY_ONLY`. Interrupted/failed kernel work
 may remain for disposable-runner cleanup and cannot yield PASS, matching the
 existing helper. This does not improve active kernel build cancellation.
 
@@ -195,3 +198,11 @@ through the original two-second GNU timeout and directly in a fresh private home
 with five-second outer bounds. It records actual exit/status, byte-hashed stderr,
 recorder identity and invocation counts. These two diagnostic commands cannot
 satisfy the original eighteen-case success gate or relax its timeout.
+
+Actual38942908262 measured the original Python recorder taking2.858840 seconds
+to start and write one row, while the unchanged two-second product transport
+timed out with zero rows. The C recorder addresses this fixture cost. Its explicit
+transport scope is `PRIVATE_NATIVE_C_NOTIFY_SEND_RECORDER_ONLY`; the original
+driver is retained unchanged, and the controller reproduces the separate adapted
+bytes. Native execution of this correction remains pending. Historical failures
+remain failures; real notification delivery and M2 compatibility remain untested.

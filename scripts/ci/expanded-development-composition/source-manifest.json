@@ -48,7 +48,7 @@
     "sha256": "abc46fbd749a65ec89ce6f38f434ab3ea02b3c2e67bd82d0ef46a400378a9b07"
   },
   "scripts/ci/expanded-development-composition/test_source.py": {
-    "bytes": 17008,
-    "sha256": "796517bba73c036bc8262ba8dc1c795b09331fb875dbf3d8b30039ff02b0c3ad"
+    "bytes": 17457,
+    "sha256": "d6ed2bc34a2b9ce9cf6fc1012b6c19dde96becfe207f526fd51f35d626b9057d"
   }
 }

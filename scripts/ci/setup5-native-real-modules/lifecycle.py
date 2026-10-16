@@ -19,6 +19,30 @@ def legacy_source(path):
     return raw
 
 
+def retain_real(raw,target):
+    C.need(type(raw) is str and len(raw.encode())<=128*1024,'bounded actual real-flow stdout required')
+    target.write_text(raw)
+    value=json.loads(raw);C.validate_real(value);return value
+
+
+def workspace_snapshot(parent,real,L,H):
+    # Seven independently bounded homes; registry equality covers every outer node.
+    C.safe(parent);work=parent/'work';C.safe(work)
+    C.need(parent.is_dir() and work.is_dir() and {p.name for p in parent.iterdir()}=={'work'},'exact real-user workspace root required')
+    names=set(real['lifecycle'])|{'edited-conflict-user'}
+    C.need(len(names)==7 and all(Path(n).name==n and n not in ('.','..') for n in names),'seven distinct real-user home names required')
+    C.need({p.name for p in work.iterdir()}==names|{'receipt.json'},'complete real-user workspace registry differs')
+    receipt=work/'receipt.json';C.safe(receipt);C.need(receipt.is_file() and receipt.stat().st_size<=128*1024,'bounded generated real-user receipt required')
+    result={'.':L.entry(parent),'work':L.entry(work),'work/receipt.json':L.entry(receipt)}
+    for name in sorted(names):
+        home=work/name;C.safe(home);C.need(home.is_dir(),'ordinary real-user home required')
+        result['work/'+name]=L.entry(home)
+        # Reuse all256-node/1MiB-file/4MiB-home bounds, then retain the legacy
+        # exact entry metadata (including directory/symlink mtimes) for every node.
+        for relative in H.snapshot(home):result['work/'+name+'/'+relative]=L.entry(home/relative)
+    return result
+
+
 def main():
     C.SOURCE=Path('/code')
     C.need(os.getuid()==os.geteuid()==0 and os.getpid()==1 and os.uname().machine=='aarch64' and Path('/.dockerenv').is_file() and os.environ.get('CACHY_ASAHI_SETUP5_REAL_LIFECYCLE')=='1','dedicated marked native ARM root PID1 required')
@@ -57,14 +81,15 @@ def main():
     ordinary_absent()
     env=dict(PATH='/usr/bin:/bin',HOME=str(parent),LANG='C.UTF-8',LC_ALL='C.UTF-8',PYTHONDONTWRITEBYTECODE='1',CACHY_SETUP5_REAL_USER='1')
     raw=L.command(['/usr/bin/runuser','-u','alarm','--','/usr/bin/env','-i',*(k+'='+v for k,v in env.items()),'/usr/bin/python3','-I','-B','/runner/installed.py','--source','/code','--output',str(parent/'work')],timeout=240)
-    ordinary_absent();real=json.loads(raw);C.validate_real(real);payloads();C.need(protected()==before,'real behavior changed legacy homes/system')
+    real=retain_real(raw,Path('/out/real-modules.json'));ordinary_absent();payloads();C.need(protected()==before,'real behavior changed legacy homes/system')
     # Preserve the newly-created user tree, including edited blocks, through ALPM removal.
-    user_before=L.snapshot(parent);L.command(pacman+['--noscriptlet','-R',*C.NAMES]);C.need(L.inventory()==base,'exact574 inventory not restored');L.command(pacman+['-Dk'])
+    H=C.load('accepted_per_home_snapshot',C.SOURCE/'scripts/ci/setup5-real-modules/run.py')
+    user_before=workspace_snapshot(parent,real,L,H);L.command(pacman+['--noscriptlet','-R',*C.NAMES]);C.need(L.inventory()==base,'exact574 inventory not restored');L.command(pacman+['-Dk'])
     C.need(all(not os.path.lexists('/'+p) for product in products.values() for p in product['payload']),'removed candidate payload remains')
-    C.need(protected()==before and L.snapshot(parent)==user_before,'ALPM removal changed user configurations/journals/edits/system')
+    C.need(protected()==before and workspace_snapshot(parent,real,L,H)==user_before,'ALPM removal changed user configurations/journals/edits/system')
     events.append(dict(phase='remove-real-seven',inventory_count=574,status='PASS',legacy_homes_preserved=True,system_preserved=True,database_check=True))
     result=dict(status='PASS_NATIVE_SETUP5_LEGACY_AND_REAL_MODULES',base_count=574,restored_count=574,products=C.VERSIONS,legacy=legacy,events=events,real_modules=real,installed_payloads_preserved=True,new_user_state_preserved_on_remove=True,ordinary_user_processes_absent=True,actual_page_size=os.sysconf('SC_PAGE_SIZE'),hardware='NOT_RUN',trust='UNSIGNED_LOCAL_CANDIDATES_ONLY',release='NOT_ADMITTED')
-    C.validate_lifecycle(result);Path('/out/real-modules.json').write_text(json.dumps(real,indent=2)+'\n');Path('/out/lifecycle.json').write_text(json.dumps(result,indent=2)+'\n')
+    C.validate_lifecycle(result);Path('/out/lifecycle.json').write_text(json.dumps(result,indent=2)+'\n')
 
 
 if __name__=='__main__':main()
