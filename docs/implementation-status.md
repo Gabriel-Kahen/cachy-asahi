@@ -2,6 +2,11 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 16, resumed development:
+
+- The bound updater now uses an opt-in runtime's root-path resolver in its existing protected-file checks, preserving the original resolver by default. All19 real signed tiny-root and14 scaled local tests pass; adapter-resolved base-trust writes still refuse before commit. Actual complete-root updates remain pending.
+- The audio auxiliary-cache fix is integrated: unchanged bytes or one exact source-shaped ordering transition may pass, with all named data, physical padding and other baseline comparisons held. All38 focused audio checks and6 caller checks against the selected workflow pass. Native install/removal/restoration is the next run; prior failed trials remain failed.
+
 October 15, current integration frontier (latest Root snapshot):
 
 - The ten selected development recipes have native ARM build pairs and exact archive-byte comparisons. Current setup is 0.1.0-4 and updater is 4.4.2-2. [Setup enrollment](validation/repository-enrollment-lifecycle-native-20261015.md) and [real installed updater Check](validation/updater-real-check-native-20261015.md) pass their separate signed, preservation and refusal cases. The additional [opt-in Zsh highlighting candidate](validation/zsh-highlighting-native-20261015.md) now passes its native pair, strict 17-file payload, signed install/remove/reinstall, four PTYs and user-file preservation. Its exact tested recipe/helpers are adopted; it remains outside the original selected ten and requires manual opt-in.

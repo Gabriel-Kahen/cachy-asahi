@@ -347,6 +347,7 @@ def compose(args, raw, public, result):
         argv += ['--mount', f'type=bind,src={HERE / "lifecycle.py"},dst=/lifecycle.py,readonly']
     if audio:
         argv += ['--mount', f'type=bind,src={HERE / "audio.py"},dst=/audio.py,readonly']
+        argv += ['--mount', f'type=bind,src={HERE / "audio_aux.py"},dst=/audio_aux.py,readonly']
     if successor:
         argv += ['--mount', f'type=bind,src={HERE / "updater_v2.py"},dst=/updater-v2.py,readonly',
                  '--env=CACHY_ASAHI_UPDATER_RUNTIME=' + uuid.uuid4().hex]

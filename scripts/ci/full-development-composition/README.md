@@ -151,13 +151,13 @@ target must resolve to a recorded ordinary scanned library under the existing
 guard, or use the new observed-root-link exception for an exact audited target
 below. Other nested targets remain refused. Duplicate priority/order is retained. Main bytes may
 change only while mapping/generator and other metadata including size stay equal;
-the new raw hash remains in the result. Auxiliary raw bytes/metadata must match
-B0 exactly: ANY byte difference is AUDIO_LDCONFIG_UNACCEPTED. No auxiliary semantic
-decoder is added until a real raw change demonstrates that it is needed.
+the new raw hash remains in the result. Auxiliary metadata still must match B0;
+its hash may differ only after the exact prior-capture serialization check in
+the final section below. No general semantic normalization is accepted.
 
 Helper/config, selected root metadata and regular/link identities must remain
 stable. Missing/stale baseline state, leftover temporaries, configuration drift,
-changed unowned SONAME links, unexplained mappings or auxiliary byte changes
+changed unowned SONAME links, unexplained mappings or unproved auxiliary byte changes
 fail closed, with checkpoint and bounded changed-field/path/hash diagnostics.
 Private complete state records remain in the existing temporary container work;
 normal public audio results contain only hashes/counts/status, not cache bytes.
@@ -166,7 +166,8 @@ A post-commit check failure stops this branch; it is not a rollback. Existing
 container cleanup still owns disposal. No cache is restored or normalized to
 force a pass, and no ALPM helper exit status is fabricated from state equality.
 
-Only audio.py, test_audio.py and this scope note change. Source pins/caller Source
+The current correction changes audio.py, run.py, test_audio.py, this note and adds
+audio_aux.py/test_audio_aux.py. Source pins/caller Source
 selection need a new Root freeze if adopted; no shared lock or workflow is edited
 here. Inert fixtures mock all commands and target ownership, using ordinary
 private temp data. Actual native configuration acceptance, generic-native checkpoint
@@ -257,7 +258,7 @@ inventory, and no frames were decoded to fill it. Unknown actual targets continu
 to fail closed. Generic-native retry and all four checkpoint outcomes remain
 unestablished until Root adopts and tests a fresh source selection.
 
-## B0/B1 raw auxiliary diagnostic proposal after38816517554
+## Historical B0/B1 raw diagnostic proposal after38816517554
 
 Artifact-only against Source65d50336b8137e67f871fc1b45811724c7e57a23. That actual
 completed B0, installed six additions with exact593 inventory, then failed B1
@@ -301,3 +302,61 @@ B1 before its first comparison; no B2/B3 or extra capture is selected. No existi
 cache is written, restored, normalized, regenerated or decoded. Repeated fixed
 output names are refused rather than overwritten. Root owns source selection,
 publication and any next actual run.
+
+
+## Exact prior-capture auxiliary serialization correction after38824669218
+
+Artifact-only candidate against Source e06f187d1e20b63eece858d82369ee3696cba4d5
+and workflow c3226390b6419d06db3adb863b3405d4f0544163. This supersedes the historical
+raw-only auxiliary policy described above; earlier actual runs remain FAIL.
+The retained B0/B1 pair has identical995-entry named maps and exactly the order
+predicted by retained glibc cache.c, with unchanged physical trailing bytes.
+That finite finding supports only the following deliberately narrow transition.
+
+At B0/B1/B2/B3, take a bounded stable read of the one fixed auxiliary path and join
+its complete node/hash to that checkpoint. Retain only its raw bytes in memory
+for the next transition; each successor must follow its immediate predecessor.
+Read failure refuses even when the recorded hashes are equal. The256KiB input
+bound is now mandatory for this slice. Existing B0/B1 public diagnostic exports
+remain; B2/B3 add no public raw exports. Diagnostic publication cannot waive a
+failed transition. No real cache is reconstructed or written.
+
+Unchanged complete raw bytes pass the existing raw-equality route. Changed bytes
+must both parse as the exact supported little-endian24-byte magic/32-byte header/
+48-byte record layout: positive count at most4096, strings at most128KiB, total at
+most256KiB, exact size equation, initial empty byte, unique full inode/ctime/size/
+device keys, and bounded NUL-terminated strings of at most4096 bytes. Nonzero
+string offsets must account for the complete contiguous table in record order;
+NULL and non-NULL empty SONAMEs remain distinct. Unknown changed layouts refuse.
+The complete key-to-(flags, SONAME bytes-or-NULL, ISA) map must remain equal.
+
+The separate data-only audio_aux.py comparator uses the retained source's fixed
+prime table (not mathematical next-prime), uint64 hash arithmetic followed by
+uint32 return, head-insertion load, and ascending-bucket/list save order. Each
+after-record's44 named bytes and each placed SONAME/NUL sequence must equal the
+expected bytes exactly. All four unknown trailing bytes in every physical record
+slot must equal the previous capture at that same slot. They are never ignored,
+zeroed, or moved with their keys. Arbitrary permutations, changed keys/values,
+added/removed or duplicate entries, malformed strings and changed padding refuse.
+No accepting normalized-cache output is produced.
+
+Only after that check succeeds may the auxiliary raw hash differ from B0. Its
+complete type/mode/UID/GID/size and auxiliary-directory metadata still compare to
+B0. Helper/config/aliases/scan/explicit targets/ordered main mapping/generator and
+all other original-baseline comparisons remain intact, including the existing
+main-cache hash exception. A private per-run context advances only after every
+check passes; the final summary requires all four checkpoint labels and records
+the accepted transition kind. The three actual ALPM mutations and existing
+postinstall/restoration checks are unchanged. run.py adds one read-only sibling
+module bind required by the isolated container Python invocation.
+
+The helper remains pinned to8794bf13f7a651963a219d8031fe04800d06ac6e44a29fbdfd81b64855b2bd98.
+The declared glibc revision is8362e8ce10b24068bacc19552c128dd10e082fd9 and retained
+cache.c SHA256 is4d8950977fbba59b0ccd479027811c6b82a31c3700d4478d04e8a4147c87bca8.
+The existing recipe/BUILDINFO source-to-binary gap remains; source compatibility
+is not exact binary provenance or observed helper exit success. Seconds-valued
+ctime cache keys are not content identity. The other baseline comparisons must
+independently pass. The actual B1 trial stopped before those checks; this offline
+pair success does not retroactively make it PASS. B2/B3, current full native
+install/removal, services/audio/plugin operation, target lifecycle, M2/16KiB,
+hardware, performance and release acceptance remain unestablished.
