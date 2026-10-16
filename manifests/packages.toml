@@ -411,6 +411,7 @@ selected_for_release = false
 host_validation = "PASS x86_64 C build, seven status fixtures, five executable CLI controls, exact nine-file staging"
 native_build = "PASS native ARM byte-identical pairs in38884680631 and38886781500"
 native_cli_lifecycle = "PASS fresh/existing users, install/reinstall/remove/report preservation in38886781500"
+native_generic16k_cli = "PASS unchanged unpacked CLI payloads in38904917140; not installed or GUI"
 hardware_validation = "NOT RUN"
 next_step = "Validate the welcome GUI, local guides and app launches in the managed desktop; complete signed lifecycle and target validation before selection."
 
@@ -427,6 +428,7 @@ selected_for_development = false
 selected_for_release = false
 native_build = "PASS native ARM byte-identical pairs in38884680631 and38886781500"
 native_cli_lifecycle = "PASS fresh/existing users, install/reinstall/remove/report preservation in38886781500"
+native_generic16k_cli = "PASS unchanged unpacked CLI payloads in38904917140; not installed or GUI"
 hardware_validation = "NOT RUN"
 next_step = "Exercise the installed read-only report with unavailable model/bus and real managed session states; complete signed admission and target validation before selection."
 
