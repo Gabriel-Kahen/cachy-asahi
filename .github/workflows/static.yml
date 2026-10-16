@@ -89,6 +89,19 @@ jobs:
         run: python3 -B scripts/ci/asahi-audio-rust/test_sources.py
       - name: Check offline audio graph caller without plugin actors
         run: python3 -B -m unittest discover -s scripts/ci/asahi-audio-offline-graph -p 'test_*.py'
+      - name: Check synthetic graph processing controls without plugins
+        run: |
+          python3 -I -B -m unittest discover -s scripts/ci/asahi-audio-graph-processing -p 'test_*.py'
+          cc -std=c11 -Wall -Wextra -Werror -O2 -UNDEBUG scripts/ci/asahi-audio-graph-processing/test_processing.c -o "$RUNNER_TEMP/graph-processing-controls"
+          "$RUNNER_TEMP/graph-processing-controls" "$RUNNER_TEMP/graph-processing-samples.f32"
+          rm -f -- "$RUNNER_TEMP/graph-processing-controls"
+      - name: Check disposable copied-root and auxiliary controls
+        run: |
+          for suite in test_disposable_copy.py test_internal_runtime.py test_auxiliary.py; do
+            sudo -n unshare --user --map-root-user --mount --net --fork \
+              env -i PATH=/usr/bin:/bin HOME=/tmp TMPDIR=/tmp LC_ALL=C PYTHONDONTWRITEBYTECODE=1 \
+              python3 -B -m unittest discover -s scripts/update -p "$suite" -v
+          done
       - name: Check bounded root observations without package actors
         run: |
           python3 -B scripts/update/test_full_root.py
