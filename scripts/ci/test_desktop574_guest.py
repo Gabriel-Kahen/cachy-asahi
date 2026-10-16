@@ -697,7 +697,7 @@ class DiagnosticTests(unittest.TestCase):
 
 
 class CaptureWindowTests(unittest.TestCase):
-    def exercise(self, reply, *, latency=0, unhealthy=False):
+    def exercise(self, reply, *, latency=0, unhealthy=False, query_error=None):
         now, events = [10.0], []
         client, compositor = Mock(), Mock()
         client.process.pid = 43
@@ -705,9 +705,10 @@ class CaptureWindowTests(unittest.TestCase):
             compositor.healthy.side_effect = ValueError('synthetic compositor exit')
         def query(*args, **kwargs):
             self.assertGreaterEqual(now[0], 15)
-            self.assertLess(now[0], 16)
-            self.assertLessEqual(kwargs['timeout'], 16 - now[0])
+            self.assertEqual(kwargs, dict(timeout=20))
             now[0] += latency
+            if query_error is not None:
+                raise query_error
             return json.dumps(reply)
         with patch.object(guest.time, 'monotonic', side_effect=lambda: now[0]), \
              patch.object(guest.time, 'sleep', side_effect=lambda seconds: now.__setitem__(0, now[0] + seconds)), \
@@ -722,16 +723,15 @@ class CaptureWindowTests(unittest.TestCase):
                 failure = None
         return failure, now[0], events, command, client, compositor
 
-    def test_capture_waits_rechecks_and_finishes_in_existing_eight_seconds(self):
+    def test_capture_waits_rechecks_then_keeps_eight_seconds_after_ready(self):
         reply = [dict(pid=43, mapped=True, size=[420, 220], visible=True, hidden=False, xwayland=False)]
         failure, end, events, command, client, compositor = self.exercise(reply)
         self.assertIsNone(failure)
-        self.assertAlmostEqual(end, 18)
+        self.assertAlmostEqual(end, 23)
         self.assertEqual(len(events), 1)
         sampled, event, row = events[0]
         self.assertGreaterEqual(sampled, 15)
-        self.assertLess(sampled, 16)
-        self.assertGreaterEqual(end - sampled, 2)
+        self.assertAlmostEqual(end - sampled, 8)
         self.assertEqual(event, 'frame_ready')
         self.assertEqual(row['clients'], reply)
         self.assertGreaterEqual(row['capture_after_ms'], 5000)
@@ -754,10 +754,16 @@ class CaptureWindowTests(unittest.TestCase):
                 self.assertIsInstance(failure, ValueError)
                 self.assertEqual(events, [])
 
-    def test_capture_deadline_and_unhealthy_process_never_emit_ready(self):
+    def test_capture_slow_valid_reply_is_accepted_but_transport_or_health_failure_refuses(self):
         good = [dict(pid=43, mapped=True, size=[420, 220], visible=True, hidden=False, xwayland=False)]
-        failure, _, events, *_ = self.exercise(good, latency=1.1)
-        self.assertEqual(str(failure), 'capture readiness deadline')
+        failure, end, events, command, *_ = self.exercise(good, latency=2)
+        self.assertIsNone(failure)
+        self.assertEqual(len(events), 1)
+        self.assertAlmostEqual(end - events[0][0], 8)
+        self.assertGreaterEqual(events[0][2]['capture_after_ms'], 7000)
+        first = subprocess.TimeoutExpired('inert-capture-query', 20)
+        failure, _, events, *_ = self.exercise(good, latency=20, query_error=first)
+        self.assertIs(failure, first)
         self.assertEqual(events, [])
         failure, _, events, command, *_ = self.exercise(good, unhealthy=True)
         self.assertEqual(str(failure), 'synthetic compositor exit')
