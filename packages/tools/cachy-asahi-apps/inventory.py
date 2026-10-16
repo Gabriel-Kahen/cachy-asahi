@@ -16,6 +16,7 @@ FIELDS={'NAME','VERSION','BASE','DESC','URL','ARCH','BUILDDATE','INSTALLDATE','P
 MAX_BYTES=64*1024**2
 MAX_RECORD=4*1024**2
 MAX_PACKAGES=4096
+MAX_INSTALLED_JSON=16*1024**2
 
 
 def need(ok,message):
@@ -38,13 +39,16 @@ def sections(raw,allowed):
             key=line[1:-1];need(current is None and key in allowed and key not in result,'unknown/duplicate/missing-separator ALPM section')
             result[key]=[];current=key
         else:
-            need(current is not None and not line.startswith('%') and line not in result[current],'malformed/duplicate ALPM value')
-            result[current].append(line)
+            need(current is not None and not line.startswith('%'),'malformed ALPM value')
+            # Identical relations are idempotent ALPM lists (e.g. native parted).
+            if line in result[current]:
+                need(current in {'DEPENDS','PROVIDES','CONFLICTS','REPLACES'},'duplicate ALPM value')
+            else:result[current].append(line)
     return result
 
 
 def relative(value):
-    need(type(value) is str and value and len(value)<=512 and '\\' not in value and
+    need(type(value) is str and value and len(value)<=512 and
          not any(ord(v)<32 or ord(v)==127 for v in value),'unsafe ALPM ownership path')
     directory=value.endswith('/');name=value[:-1] if directory else value;path=PurePosixPath(name)
     need(name not in ('','.','..') and not path.is_absolute() and path.as_posix()==name and '..' not in path.parts,'noncanonical ALPM ownership path')
@@ -136,7 +140,7 @@ def collect(dbpath,c,normalize):
         consistency='TWO_MATCHING_READS_NO_LOCK_NO_DETECTED_DRIFT')
     result=dict(schema_version=1,kind='complete-installed-inventory',target_arch='aarch64',snapshot_id='alpm-local-db-'+raw_sha,
                 packages=rows,observation=observation)
-    need(len(encoded(result))<=c.MAX_JSON,'inventory exceeds planner input byte bound')
+    need(len(encoded(result))<=MAX_INSTALLED_JSON,'inventory exceeds installed input byte bound')
     return result
 
 

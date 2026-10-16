@@ -2,7 +2,7 @@
   "behaviors": {
     "authentication": "client.Verifier signature_status and isolated external public keyring",
     "catalog": "separate signed finite caller selection bound to exact signed release",
-    "local_inventory": "Explicit readonly nofollow ALPM9 database observation, two matching reads, fresh0600 output, metadata-only qualifier, no subprocess or DB writes",
+    "local_inventory": "Explicit readonly nofollow ALPM9 database observation, two matching reads, fresh0600 output, metadata-only qualifier, no subprocess or DB writes; separate16MiB inventory capacity; idempotent exact repeated relations; literal POSIX backslash ownership",
     "mutation": "NONE; explicit NOT_APPLIED",
     "relations": "release.relation and release.satisfies with preinstalled ALPM vercmp",
     "semantics": "release.verify_release, pkginfo, database_check, provenance_check, source associations and dependency_check"
@@ -72,8 +72,8 @@
   },
   "runtime_sources": {
     "apps.py": {
-      "bytes": 21619,
-      "sha256": "5963cce6d124bac5241635899aece5a5e253cafb6817a1a40f3f2a8a7909114d"
+      "bytes": 21983,
+      "sha256": "b64e3fd6fae67bca64fdd804278b7d88b9851eb92da26636ed2beb723e9a4781"
     },
     "cachy-asahi-apps": {
       "bytes": 310,
@@ -84,11 +84,11 @@
       "sha256": "33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a"
     },
     "inventory.py": {
-      "bytes": 12955,
-      "sha256": "1c463b15abb9ca9a172d07a8a06de2047302dee16f8c4a8dbe9b9c5647f41ab8"
+      "bytes": 13160,
+      "sha256": "986c8baea2921cf3f58f98c2e76a1adad9013fbe4b1f47743d12397e9e6c2516"
     }
   },
   "schema_version": 1,
   "source_kind": "original project planner with exact installed three-helper runtime dependency",
-  "version": "0.1.0-3"
+  "version": "0.1.0-4"
 }

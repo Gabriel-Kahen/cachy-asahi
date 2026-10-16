@@ -23,6 +23,7 @@ HERE=Path(__file__).absolute().parent
 DEFAULT_REPOSITORY_SOURCE=Path(__file__).absolute().parents[2]/'share/cachy-asahi/repository-runtime'
 META=('name','version','arch','depend','provides','conflict','replaces','files')
 MAX_PACKAGES=4096
+MAX_INSTALLED_JSON=16*1024**2
 MAX_MATCHES=65536
 
 
@@ -83,7 +84,11 @@ def package(row,r):
             need(type(item) is str and 0<len(item)<=512,'bounded package metadata required')
             if key=='files':need(item not in ('.','..') and not item.startswith('/') and '..' not in Path(item).parts and Path(item).as_posix()==item,'unsafe payload path')
             else:
-                name,op,version=r.relation(item);need(allowed(name),'x86/multilib/AUR relation refused')
+                name,op,version=r.relation(item)
+                # Native packages may declare foreign-named compatibility aliases.
+                # These are metadata, not selected package/dependency identities.
+                need(allowed(name) or key in ('provides','conflict','replaces') and
+                     re.fullmatch('[A-Za-z0-9][A-Za-z0-9._+-]{0,127}',name) is not None,'x86/multilib/AUR relation refused')
                 if key=='provides':need(op in (None,'='),'unsupported provider relation')
         value[key]=sorted(entries)
     if 'repository' in row:need(allowed(row['repository']),'x86/multilib/AUR installed repository refused')
@@ -287,10 +292,10 @@ def execute(args):
         def app(row):return dict(row,packages=[dict(context['available'][n],release_archive_sha256=next(p['sha256'] for p in context['release']['packages'] if p['name']==n)) for n in row['packages']])
         if args.command=='plan':
             need(args.installed and args.installed_sha256,'explicit installed inventory and SHA256 required for plans')
-            raw=c.read_path(Path(args.installed).absolute(),c.MAX_JSON);need(digest(raw)==args.installed_sha256,'installed inventory SHA256 mismatch')
+            raw=c.read_path(Path(args.installed).absolute(),MAX_INSTALLED_JSON);need(digest(raw)==args.installed_sha256,'installed inventory SHA256 mismatch')
             result['plan']=plan(context,c.decode(raw),args.operation,args.applications,r)
             result['binding']['installed_sha256']=args.installed_sha256
-            need(c.read_path(Path(args.installed).absolute(),c.MAX_JSON)==raw,'installed inventory changed while planning')
+            need(c.read_path(Path(args.installed).absolute(),MAX_INSTALLED_JSON)==raw,'installed inventory changed while planning')
             result['status']='PLANNED'
         else:
             rows=[context['apps'][n] for n in sorted(context['apps'])]
