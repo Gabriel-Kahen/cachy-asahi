@@ -1,8 +1,10 @@
 """Accept only raw equality or one bounded, exact glibc load/save serialization.
 
-No cache access or writes. Padding stays fixed by physical slot, not by key.
+No cache access or writes. The supported AArch64 tail padding is classified,
+not compared as semantic data; every source-initialized byte remains checked.
 The source/binary correspondence and actual helper exit remain unobserved.
 """
+import hashlib
 import struct
 
 HELPER_SHA256 = '8794bf13f7a651963a219d8031fe04800d06ac6e44a29fbdfd81b64855b2bd98'
@@ -75,7 +77,6 @@ def compare(before, after):
     string_start, cursor = 32 + len(old) * 48, 1
     for number, (key, (flags, name, isa)) in enumerate(expected):
         position = 32 + number * 48
-        need(before[position + 44:position + 48] == after[position + 44:position + 48], 'physical-padding')
         offset = 0 if name is None else cursor
         need(after[position:position + 44] == ENTRY.pack(*key, flags, offset, isa), 'expected-record')
         if name is not None:
@@ -83,5 +84,15 @@ def compare(before, after):
             need(after[string_start + cursor:string_start + cursor + len(chunk)] == chunk, 'expected-string')
             cursor += len(chunk)
     need(string_start + cursor == len(after), 'expected-length')
+    # cache.c assigns only44 named bytes; AArch64 rounds each record to48.
+    # load_aux_cache consumes named fields/strings, never these padding contents.
+    tails = [b''.join(data[32 + i * 48 + 44:32 + i * 48 + 48] for i in range(len(old)))
+             for data in (before, after)]
+    padding = {'classification': 'PINNED_SOURCE_AARCH64_TAIL_PADDING', 'bytes_per_record': 4,
+               'slots_compared': len(old),
+               'slots_changed': sum(tails[0][i:i + 4] != tails[1][i:i + 4] for i in range(0, len(tails[0]), 4)),
+               'bytes_changed': sum(a != b for a, b in zip(*tails)),
+               'before_sha256': hashlib.sha256(tails[0]).hexdigest(),
+               'after_sha256': hashlib.sha256(tails[1]).hexdigest()}
     return {'kind': 'EXACT_LOAD_SAVE_ORDER', 'entries': len(old), 'hash_buckets': size,
-            'source_sha256': SOURCE_SHA256}
+            'source_sha256': SOURCE_SHA256, 'padding': padding}

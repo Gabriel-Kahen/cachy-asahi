@@ -311,7 +311,7 @@ def ld_summary(states, auxiliary=None):
         ld_need([row['checkpoint'] for row in auxiliary.get('transitions', [])]
                 == ['B0-587', 'B1-593', 'B2-592', 'B3-587'], 'aux-order-incomplete-checkpoints')
     return {'status': 'PASS-recorded-state-preserved', 'auxiliary_exit_status': 'NOT OBSERVED',
-            'scope': 'four audio checkpoints; no extra regeneration; aux raw-equal or exact prior load/save order with physical padding held',
+            'scope': 'four audio checkpoints; no extra regeneration; aux raw-equal or exact prior load/save order; source-defined tail padding classified',
             'auxiliary_transitions': auxiliary['transitions'] if auxiliary is not None else [],
             'checkpoints': [{'state_sha256': hashlib.sha256(json.dumps(s, sort_keys=True).encode()).hexdigest(),
                              'main_sha256': s['caches']['/etc/ld.so.cache']['sha256'],

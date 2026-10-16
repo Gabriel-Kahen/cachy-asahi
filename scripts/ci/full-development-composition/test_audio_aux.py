@@ -60,9 +60,29 @@ class Serialization(unittest.TestCase):
         self.assertEqual(dict(aux.parse(self.before)), dict(aux.parse(arbitrary)))
         self.refuse(arbitrary)
 
-    def test_padding_must_hold_at_physical_slot(self):
-        self.refuse(fixture((B, A, C), (b'EFGH', b'ABCD', b'IJKL')))
-        self.refuse(overwrite(self.after, 32 + 44, b'Z'))
+    def test_proven_tail_padding_is_classified_with_exact_counts_and_hashes(self):
+        changed = fixture((B, A, C), (b'\0' * 4, b'\xff' * 4, b'\x11\x22\x33\x44'))
+        report = aux.compare(self.before, changed)['padding']
+        self.assertEqual(report, {'classification': 'PINNED_SOURCE_AARCH64_TAIL_PADDING',
+            'bytes_per_record': 4, 'slots_compared': 3, 'slots_changed': 3, 'bytes_changed': 12,
+            'before_sha256': hashlib.sha256(b''.join(TAILS)).hexdigest(),
+            'after_sha256': hashlib.sha256(b'\0' * 4 + b'\xff' * 4 + b'\x11\x22\x33\x44').hexdigest()})
+        self.assertEqual(aux.compare(self.before, self.after)['padding']['bytes_changed'], 0)
+        self.assertEqual(changed, fixture((B, A, C), (b'\0' * 4, b'\xff' * 4, b'\x11\x22\x33\x44')))
+
+    def test_every_padding_byte_value_and_named_field_boundary(self):
+        for value in range(256):
+            with self.subTest(value=value):
+                data = fixture((B, A, C), (bytes([value]) * 4,) * 3)
+                self.assertEqual(aux.compare(self.before, data)['kind'], 'EXACT_LOAD_SAVE_ORDER')
+        changed = fixture((B, A, C), (b'\0' * 4,) * 3)
+        for position in (32, 40, 48, 56, 64, 68, 72, 75, 80):
+            with self.subTest(position=position):
+                self.refuse(overwrite(changed, position, bytes([changed[position] ^ 0x80])))
+
+    def test_padding_classification_cannot_accept_a_wrong_serialization_order(self):
+        for order in ((A, B, C), (C, B, A)):
+            with self.subTest(order=order): self.refuse(fixture(order, (b'\0' * 4,) * 3))
 
     def test_changed_key_and_each_named_value_refuse(self):
         for position, replacement in [(32, struct.pack('<Q', 9)), (64, struct.pack('<i', 7)),
