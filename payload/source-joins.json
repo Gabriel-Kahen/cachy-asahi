@@ -1,0 +1,8 @@
+{
+  "status": "PASS_ROOT_INDEPENDENT_FROZEN_GIT_BYTE_JOINS",
+  "git_files": 218,
+  "local_pinned_parser_files": 1,
+  "source": "0b255f22c84279ea92fb6f710f2f24bd16871590",
+  "source_files": 53,
+  "manifest_sha256": "26aec1dbceee69dd49cf2cd01af4670f8a63700789ef4e710144312f71b21a7f"
+}

@@ -1,0 +1,1 @@
+MIT project acceptance records for generic native604 software only. Source0b255f22c84279ea92fb6f710f2f24bd16871590, actual38979740492. No hardware, installer, performance or supported-release acceptance.

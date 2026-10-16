@@ -1,0 +1,430 @@
+{
+  "cleanup": [
+    {
+      "resource": "owned-consumer",
+      "status": "PASS"
+    },
+    {
+      "resource": "owned604-public-cache",
+      "status": "PASS"
+    },
+    {
+      "resource": "original-producer",
+      "status": "PASS"
+    }
+  ],
+  "hardware": "NOT_RUN",
+  "installed_six_module_cases": [
+    "fish-bang-auto-done",
+    "fish-done-auto-bang",
+    "fish-noninteractive",
+    "zsh-auto-highlight-substring",
+    "zsh-highlight-substring-auto",
+    "zsh-noninteractive"
+  ],
+  "interim587_states": [
+    "remove-to587-upgraded",
+    "final587-upgraded"
+  ],
+  "lifecycle_phases": [
+    "baseline587",
+    "install604",
+    "same-version604",
+    "remove-to587",
+    "restore604",
+    "final587"
+  ],
+  "limitations": [
+    "All fresh target-cache signatures, public keyrings and585 original system archive pairs are not exported. Signature-role/hash/unchanged-row declarations and source-enforced verification are joined; no fresh cryptographic verification is performed.",
+    "The six audio archive payloads and private full installed node/database/ownership/user maps are not exported. Incoming audio identity is joined to frozen policy; actual installed comparisons remain original source-enforced receipts.",
+    "Raw eight auxiliary-cache blobs and ldconfig state JSON are independently replayed using the exact frozen comparator. Helper exit remains NOT_OBSERVED; no helper execution, regeneration or source/binary correspondence claim.",
+    "Normal lifecycle exit0 and preservation/absence observations are original source-enforced records, not fresh process/root/container probes. Owned cleanup is disposal, not rollback or boot recovery.",
+    "Generic native ARM604 metadata lifecycle and installed shell coexistence only; notification delivery, GUI,16K/Apple/M2,services/audio execution,installer,performance and release acceptance are not established."
+  ],
+  "origin": {
+    "frames": {
+      "part-0000": {
+        "bytes": 33074,
+        "sha256": "c4fdc88de54d257a37e1f7edaf9dddb6d8fdb920e6a860319cc636a88b115ec9"
+      },
+      "part-0001": {
+        "bytes": 555077,
+        "sha256": "39e0785cb57bf19acfd51b8ce23753cf8bc259838e85a94d463f9a8758483573"
+      },
+      "part-0002": {
+        "bytes": 398706,
+        "sha256": "c1338c9efd91bb5b00c0ab3bdb3738d3cdf3c23f42c6afb812acd75068404d81"
+      },
+      "part-0003": {
+        "bytes": 540975,
+        "sha256": "ae4d4a4d9a6f0ab93d465d3e68fc42bd8d24eae0486b6c32ecb0780b4e83d6d1"
+      },
+      "part-0004": {
+        "bytes": 653420,
+        "sha256": "a7406f3282dfc9fbf605db57e862f863b0b6012e9b1f0e2ae288939a37aa6b96"
+      },
+      "part-0005": {
+        "bytes": 962356,
+        "sha256": "74e8b3a2b79e0b5cc1a3c798e5b69f273bb23021177a9ff58e9cd7d17ad0c913"
+      },
+      "part-0006": {
+        "bytes": 2452052,
+        "sha256": "173fa1858877033af3a1d93101f79d4a59f7c77fe00518f23df57aa2bf720b0f"
+      },
+      "part-0007": {
+        "bytes": 2389219,
+        "sha256": "07bac0a6d7c2ba55af6cce2c19cc6503eaaefec6be7aebd1af39d9375a39c0ef"
+      },
+      "part-0008": {
+        "bytes": 197734,
+        "sha256": "c42dc368ed2ca18462c47865effe9ffc178b8bed9a556371592dfd64282c7e75"
+      }
+    },
+    "logs": {
+      "bytes": 21579590,
+      "sha256": "baf247c22a17142b109580088f8528b727fbf38750a0a3199198f9d98c025c5a"
+    },
+    "retention_step": "native/29_Retain the separate bounded604 public closure and lifecycle.txt",
+    "step": {
+      "bytes": 15222949,
+      "sha256": "0168f3ed6f31b8816bac76495deb7d19a3e40e92e97f51a956a98f7e137f0973"
+    },
+    "transport": {
+      "advertised_public_closure": "PASS",
+      "bytes": 27564961,
+      "chunks": 686,
+      "files": 689,
+      "hardware": "NOT_RUN",
+      "native_acceptance": "NOT_PERFORMED",
+      "packet_count": 8,
+      "public_report_status": "PASS_NATIVE_EXPANDED604_COMPOSITION"
+    }
+  },
+  "prerequisites": {
+    "native600": {
+      "bang_pair_bytes_buildinfo": "PASS",
+      "bang_version": "0.1.0-2",
+      "cleanup": "PASS",
+      "evidence": {
+        "bytes": 2016,
+        "path": "artifacts/development/expanded600-run38948569244/passive-verification.json",
+        "sha256": "e502c1dfb03a768232e749d83cc28d5dd6c29cdf9a85b7b5b4fb20955c5e2f40"
+      },
+      "expected600_sha256": "d263a3ca9089c204603f2e12b80dc4f209ee6e636f10da940a514040b636db79",
+      "hardware": "NOT_RUN",
+      "installed_lifecycle": "PASS",
+      "installed_six_modules": "PASS",
+      "installer": "NOT_RUN",
+      "ldconfig_helper_exit": "NOT_OBSERVED",
+      "ldconfig_qualification": "Source-defined AArch64 tail padding; helper source/binary correspondence not independently established",
+      "limits": {
+        "hardware": "NOT_RUN",
+        "installer": "NOT_RUN",
+        "native_work": "NOT_EXECUTED_BY_VERIFIER",
+        "original587_and_audio_archives": "POLICY_AND_REPORTED_RUNTIME_JOINS_ONLY_NOT_REINSPECTED",
+        "release": "NOT_ADMITTED",
+        "signature_reverification": "NOT_RUN_PUBLIC_KEYS_SIGNATURE_BYTES_NOT_EXPORTED"
+      },
+      "package_count": 600,
+      "release": "NOT_ADMITTED",
+      "run_id": "38948569244",
+      "scope": "Native ARM generic4096 offline600 composition; baseline587 preserved/restored,6 main and2 Bang subtransactions,6 installed module cases,8 raw ld/aux checkpoints. Source-bound recorded cleanup; no live recheck.",
+      "source_sha": "8cc0a67295dc68772fc86ad81148eac3bec9eb56",
+      "status": "ROOT_ACCEPTED_NATIVE_EXPANDED600_COMPOSITION"
+    },
+    "observer587": {
+      "cleanup": "PASS",
+      "closed_bytes": 120435,
+      "closed_files": 9,
+      "expected_lock_sha256": "2198942a546f4714587c810fe174d4457121960f3a7b1dbaa276e9f970f322c7",
+      "hardware": "NOT_RUN",
+      "independent_root_readback": "PASS",
+      "log_archive": {
+        "bytes": 3116119,
+        "sha256": "85042d1545c9468c0c8137a051bc3fdd09f613d77f37ca65fd3f4606f0c4865d"
+      },
+      "nonce": "093f9a548d044cfaaa2e86ddff330bc2",
+      "ordinary_and_root_flags": {
+        "committed": true,
+        "database_verified": true,
+        "namespace_barrier": true,
+        "numeric_namespace_verified": true,
+        "numeric_ownership_verified": true,
+        "ordinary_parent_nnp_cap0": true,
+        "ownership_verified": true,
+        "parent_inventory_preserved": true,
+        "parent_payload_verified": true,
+        "payload_verified": true,
+        "preservation_verified": true,
+        "private_trust_verified": true,
+        "process_retirement": true,
+        "root_guest_payload_verified": true,
+        "source_cache_preserved": true
+      },
+      "ordinary_parent_retired": "PASS",
+      "package_count": 587,
+      "public_frame": {
+        "bytes": 32280,
+        "sha256": "8927a7eb466448ddc26d95fee5bafba4e5f3bb7e030be1bc6beb305a295814fb"
+      },
+      "qemu_natural_exit": true,
+      "qemu_seconds": 3721.634,
+      "root_observation": {
+        "complete": true,
+        "deadline_seconds": 600,
+        "elapsed_ms": 593819,
+        "footprint": {
+          "bytes": 4882156918,
+          "database_bytes": 11732088,
+          "database_files": 1790,
+          "hardlink_inodes": 1048,
+          "nodes": 123866
+        },
+        "missing_database_nodes": 0,
+        "missing_database_samples": [],
+        "observed_nodes": 123866,
+        "required_database_nodes": 1175,
+        "unsupported_counts": {
+          "absolute-symlink": 24,
+          "auxiliary-present": 3
+        },
+        "unsupported_reasons_omitted": 0
+      },
+      "run_id": "38921039131",
+      "scope": "Full signed587 generic4K fresh software installation. Exact raw protocol and nested receipts checked; no physical install, target boot, hooks/scriptlets, native-container P0 or performance acceptance. Full private disk/package tree was checked by the guest and is not exported.",
+      "source_sha": "52bc53f05b9eb4cbb125f76fd53b9ba5aae6d72c",
+      "status": "ROOT_ACCEPTED_FULL587_INSTALLER_SOFTWARE"
+    }
+  },
+  "public_bytes": 27564961,
+  "public_files": 689,
+  "raw_ldconfig": [
+    {
+      "auxiliary": {
+        "bytes": 68552,
+        "sha256": "60d320cf1e6e62eb9e67d277b1e698b2646989f5ac6fc0fc5a83960b0660f75e"
+      },
+      "helper_exit": "NOT_OBSERVED",
+      "phase": "baseline587",
+      "state": {
+        "bytes": 1054903,
+        "sha256": "235077943093d9912fcb4f885165729e5193d03c84835b0d456d532c0c693cea"
+      },
+      "transition": {
+        "kind": "BASELINE"
+      }
+    },
+    {
+      "auxiliary": {
+        "bytes": 68552,
+        "sha256": "4d59371c09266982449705353ade3f1beaaa25061d8350f83187dd63dbe741cc"
+      },
+      "helper_exit": "NOT_OBSERVED",
+      "phase": "install604",
+      "state": {
+        "bytes": 1054903,
+        "sha256": "5eb9b3c7f68844a7f3c341aab8de790eeb8ecc6890675376a7d455a39b06dac0"
+      },
+      "transition": {
+        "entries": 995,
+        "hash_buckets": 1021,
+        "kind": "EXACT_LOAD_SAVE_ORDER",
+        "padding": {
+          "after_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+          "before_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+          "bytes_changed": 0,
+          "bytes_per_record": 4,
+          "classification": "PINNED_SOURCE_AARCH64_TAIL_PADDING",
+          "slots_changed": 0,
+          "slots_compared": 995
+        },
+        "source_sha256": "4d8950977fbba59b0ccd479027811c6b82a31c3700d4478d04e8a4147c87bca8"
+      }
+    },
+    {
+      "auxiliary": {
+        "bytes": 68552,
+        "sha256": "60d320cf1e6e62eb9e67d277b1e698b2646989f5ac6fc0fc5a83960b0660f75e"
+      },
+      "helper_exit": "NOT_OBSERVED",
+      "phase": "same-version604",
+      "state": {
+        "bytes": 1054903,
+        "sha256": "235077943093d9912fcb4f885165729e5193d03c84835b0d456d532c0c693cea"
+      },
+      "transition": {
+        "entries": 995,
+        "hash_buckets": 1021,
+        "kind": "EXACT_LOAD_SAVE_ORDER",
+        "padding": {
+          "after_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+          "before_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+          "bytes_changed": 0,
+          "bytes_per_record": 4,
+          "classification": "PINNED_SOURCE_AARCH64_TAIL_PADDING",
+          "slots_changed": 0,
+          "slots_compared": 995
+        },
+        "source_sha256": "4d8950977fbba59b0ccd479027811c6b82a31c3700d4478d04e8a4147c87bca8"
+      }
+    },
+    {
+      "auxiliary": {
+        "bytes": 68552,
+        "sha256": "4d59371c09266982449705353ade3f1beaaa25061d8350f83187dd63dbe741cc"
+      },
+      "helper_exit": "NOT_OBSERVED",
+      "phase": "remove-to587-upgraded",
+      "state": {
+        "bytes": 1054903,
+        "sha256": "5eb9b3c7f68844a7f3c341aab8de790eeb8ecc6890675376a7d455a39b06dac0"
+      },
+      "transition": {
+        "entries": 995,
+        "hash_buckets": 1021,
+        "kind": "EXACT_LOAD_SAVE_ORDER",
+        "padding": {
+          "after_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+          "before_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+          "bytes_changed": 0,
+          "bytes_per_record": 4,
+          "classification": "PINNED_SOURCE_AARCH64_TAIL_PADDING",
+          "slots_changed": 0,
+          "slots_compared": 995
+        },
+        "source_sha256": "4d8950977fbba59b0ccd479027811c6b82a31c3700d4478d04e8a4147c87bca8"
+      }
+    },
+    {
+      "auxiliary": {
+        "bytes": 68552,
+        "sha256": "60d320cf1e6e62eb9e67d277b1e698b2646989f5ac6fc0fc5a83960b0660f75e"
+      },
+      "helper_exit": "NOT_OBSERVED",
+      "phase": "remove-to587",
+      "state": {
+        "bytes": 1054903,
+        "sha256": "235077943093d9912fcb4f885165729e5193d03c84835b0d456d532c0c693cea"
+      },
+      "transition": {
+        "entries": 995,
+        "hash_buckets": 1021,
+        "kind": "EXACT_LOAD_SAVE_ORDER",
+        "padding": {
+          "after_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+          "before_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+          "bytes_changed": 0,
+          "bytes_per_record": 4,
+          "classification": "PINNED_SOURCE_AARCH64_TAIL_PADDING",
+          "slots_changed": 0,
+          "slots_compared": 995
+        },
+        "source_sha256": "4d8950977fbba59b0ccd479027811c6b82a31c3700d4478d04e8a4147c87bca8"
+      }
+    },
+    {
+      "auxiliary": {
+        "bytes": 68552,
+        "sha256": "4d59371c09266982449705353ade3f1beaaa25061d8350f83187dd63dbe741cc"
+      },
+      "helper_exit": "NOT_OBSERVED",
+      "phase": "restore604",
+      "state": {
+        "bytes": 1054903,
+        "sha256": "5eb9b3c7f68844a7f3c341aab8de790eeb8ecc6890675376a7d455a39b06dac0"
+      },
+      "transition": {
+        "entries": 995,
+        "hash_buckets": 1021,
+        "kind": "EXACT_LOAD_SAVE_ORDER",
+        "padding": {
+          "after_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+          "before_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+          "bytes_changed": 0,
+          "bytes_per_record": 4,
+          "classification": "PINNED_SOURCE_AARCH64_TAIL_PADDING",
+          "slots_changed": 0,
+          "slots_compared": 995
+        },
+        "source_sha256": "4d8950977fbba59b0ccd479027811c6b82a31c3700d4478d04e8a4147c87bca8"
+      }
+    },
+    {
+      "auxiliary": {
+        "bytes": 68552,
+        "sha256": "60d320cf1e6e62eb9e67d277b1e698b2646989f5ac6fc0fc5a83960b0660f75e"
+      },
+      "helper_exit": "NOT_OBSERVED",
+      "phase": "final587-upgraded",
+      "state": {
+        "bytes": 1054903,
+        "sha256": "235077943093d9912fcb4f885165729e5193d03c84835b0d456d532c0c693cea"
+      },
+      "transition": {
+        "entries": 995,
+        "hash_buckets": 1021,
+        "kind": "EXACT_LOAD_SAVE_ORDER",
+        "padding": {
+          "after_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+          "before_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+          "bytes_changed": 0,
+          "bytes_per_record": 4,
+          "classification": "PINNED_SOURCE_AARCH64_TAIL_PADDING",
+          "slots_changed": 0,
+          "slots_compared": 995
+        },
+        "source_sha256": "4d8950977fbba59b0ccd479027811c6b82a31c3700d4478d04e8a4147c87bca8"
+      }
+    },
+    {
+      "auxiliary": {
+        "bytes": 68552,
+        "sha256": "4d59371c09266982449705353ade3f1beaaa25061d8350f83187dd63dbe741cc"
+      },
+      "helper_exit": "NOT_OBSERVED",
+      "phase": "final587",
+      "state": {
+        "bytes": 1054903,
+        "sha256": "5eb9b3c7f68844a7f3c341aab8de790eeb8ecc6890675376a7d455a39b06dac0"
+      },
+      "transition": {
+        "entries": 995,
+        "hash_buckets": 1021,
+        "kind": "EXACT_LOAD_SAVE_ORDER",
+        "padding": {
+          "after_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+          "before_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+          "bytes_changed": 0,
+          "bytes_per_record": 4,
+          "classification": "PINNED_SOURCE_AARCH64_TAIL_PADDING",
+          "slots_changed": 0,
+          "slots_compared": 995
+        },
+        "source_sha256": "4d8950977fbba59b0ccd479027811c6b82a31c3700d4478d04e8a4147c87bca8"
+      }
+    }
+  ],
+  "release": "NOT_ADMITTED",
+  "root_acceptance": "NOT_ISSUED",
+  "run_id": 38979740492,
+  "signature_and_payload_scope": {
+    "audio_inputs": 6,
+    "fresh_TEST_signatures": "18_SOURCE_ENFORCED_BYTES_NOT_EXPORTED",
+    "incoming": 19,
+    "native_pairs": 13,
+    "official_LSP_signature": "ORIGINAL_POLICY_HASH_DECLARATION_JOINED",
+    "signer_roles": {
+      "ephemeral_TEST": "C155E28A78F1280E8E4390E45C3760FD04CA5689",
+      "upstream_ALARM": "68B3537F39A313B3E574D06777193F152BDBE6A6"
+    },
+    "target_manifest": {
+      "bytes": 654400,
+      "sha256": "6a0aa04c9518d0336db2966793a59da6655011589caacf138a4cf2f0cc9ac240"
+    },
+    "unchanged_original_rows": 585
+  },
+  "source": "0b255f22c84279ea92fb6f710f2f24bd16871590",
+  "source_files": 53,
+  "source_manifest_sha256": "26aec1dbceee69dd49cf2cd01af4670f8a63700789ef4e710144312f71b21a7f",
+  "status": "VERIFIED_EXPANDED604_PUBLIC_SOFTWARE_EVIDENCE_NOT_ROOT_ACCEPTANCE"
+}
