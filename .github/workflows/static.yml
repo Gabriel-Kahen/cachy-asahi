@@ -166,6 +166,12 @@ jobs:
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/fish-done-native -p 'test_*.py'
       - name: Check setup5 native upgrade contracts without container actors
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/setup5-native -p 'test_*.py'
+      - name: Fetch exact updater sources for the complete passive replay suite
+        run: >-
+          git -c credential.helper= -c core.hooksPath=/dev/null fetch --no-tags --depth=1 origin
+          de04c6b102890218da4f0b77e938315d601e824f
+          001f0484ab8b599ddc03a84e62fd81af315a2a03
+          4b803ba7daa0eacd978a5bf86d62346363c3b6dc
       - name: Check Apps transactions and management source contracts
         run: |
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/apps -p 'test_*.py'
