@@ -157,5 +157,38 @@ class Controls(unittest.TestCase):
    for key,value in (('fresh604_decision_sha256','c'*64),('run_id','1'),('apps6',{}),('status','ROOT_ACCEPTED_CURRENT604_SINGLE_PROFILE_GENERIC16K'),('fresh_assets_index_sha256',None)):
     changed=copy.deepcopy(docs);changed['overlay'][key]=value
     with self.subTest(key=key),self.assertRaises(ValueError):join(changed)
+class BuildContextGuard(unittest.TestCase):
+ def module(self):
+  import importlib.util
+  p=C.HERE/'install604.py';s=importlib.util.spec_from_file_location('_current604_build_guard_control',p);m=importlib.util.module_from_spec(s);s.loader.exec_module(m);return m
+ def test_actual_host_refuses_before_any_installer_or_package_method(self):
+  import io
+  from contextlib import redirect_stdout
+  m=self.module();capture=io.StringIO()
+  with patch.object(m.sys,'argv',[str(m.__file__)]),patch.object(m,'load',side_effect=AssertionError('host must refuse before source imports')),redirect_stdout(capture),self.assertRaises(ValueError):m.install()
+  facts=json.loads(capture.getvalue().split(' ',1)[1]);self.assertIn('euid',facts);self.assertIn('machine',facts);self.assertFalse(facts['buildkit_context'])
+ def test_all_original_predicates_and_explicit_context_refusals_are_retained(self):
+  import io
+  from contextlib import redirect_stdout
+  from types import SimpleNamespace
+  m=self.module()
+  def invoke(uid=0,machine='aarch64',marker=False,systemd=False,context=True,explicit=True):
+   factory=lambda p:SimpleNamespace(is_file=lambda:marker,exists=lambda:systemd)
+   args=[str(m.__file__)]+(['--owned-buildkit-context','a'*64]if explicit else [])
+   with patch.object(m.sys,'argv',args),patch.object(m.os,'geteuid',return_value=uid),patch.object(m.os,'uname',return_value=SimpleNamespace(machine=machine)),patch.object(m,'Path',side_effect=factory),patch.object(m,'build_admission',side_effect=None if context else ValueError('invalid readonly binding'),return_value=True),redirect_stdout(io.StringIO()):return m.build_guard()
+  # Inert predicate-only fragments do not execute installation or claim native success.
+  invoke();invoke(marker=True,explicit=False)
+  for args in ({'uid':1000},{'machine':'x86_64'},{'systemd':True},{'context':False,'marker':True},{'explicit':False,'marker':False}):
+   with self.subTest(args=args),self.assertRaises(ValueError):invoke(**args)
+  node=next(n for n in ast.parse((C.HERE/'install604.py').read_bytes()).body if isinstance(n,ast.FunctionDef)and n.name=='install');self.assertEqual(ast.dump(node.body[0]),ast.dump(ast.parse('build_guard()').body[0]))
+ def test_both_generated_dockerfiles_use_exact_readonly_context_digest_and_explicit_root(self):
+  import hashlib
+  for selected in C.PROFILES:
+   with self.subTest(profile=selected),tempfile.TemporaryDirectory()as td:
+    base=Path(td);runner=Controls.generated(self,base,selected);runtime=(runner/'desktop574_runtime.py').read_text();self.assertEqual(runtime.count("(context/'Dockerfile').write_text(context604.dockerfile(base_reference,context))"),1)
+    context=base/'context';context.mkdir();raw=b'UNIT_CONTEXT_BYTES_ONLY';(context/'build-authorization.json').write_bytes(raw);text=ci.context604.dockerfile('cachy-asahi-desktop574-base:'+'a'*32,context)
+    self.assertIn('\nUSER 0:0\n',text);self.assertIn('RUN --network=none --mount=type=bind,source=build-authorization.json,target=/run/cachy-asahi-managed604-build.json,ro ',text);self.assertIn('--owned-buildkit-context '+hashlib.sha256(raw).hexdigest(),text);self.assertNotIn('touch /.dockerenv',text);self.assertIn("'runtime-image',300",runtime)
+    self.assertIn('build-authorization.json',(C.HERE/'context604.py').read_text())
+
 if __name__=='__main__':unittest.main(verbosity=2)
 

@@ -3,6 +3,7 @@
 import hashlib
 import importlib.util
 import json
+import os
 from pathlib import Path
 import shutil
 import sys
@@ -55,6 +56,8 @@ def prepare(source,runner,ready):
         target=context/'code/scripts/ci/expanded604-apps6-public-pairs'/name;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source/'scripts/ci/expanded604-apps6-public-pairs'/name,target)
     target=context/'code/scripts/ci/full-root-upgrade/root_upgrade.py';target.parent.mkdir(parents=True);shutil.copyfile(source/'scripts/ci/full-root-upgrade/root_upgrade.py',target)
     for name in ('install604.py','context604.py'):shutil.copyfile(Path(__file__).with_name(name),context/name)
+    admission=dict(schema_version=1,purpose='OWNED_OFFLINE_SIGNED604_BUILD',nonce=os.urandom(16).hex(),installer_sha256=hashlib.sha256((context/'install604.py').read_bytes()).hexdigest(),context_sha256=hashlib.sha256((context/'context604.py').read_bytes()).hexdigest(),manifest_sha256=hashlib.sha256((bundle/'manifest.json').read_bytes()).hexdigest(),expected604_sha256=C.TARGET_SHA)
+    (context/'build-authorization.json').write_bytes(C.encoded(admission))
     rows=[]
     for p in sorted(context.rglob('*')):
         if p.is_file():rows.append(dict(path=p.relative_to(context).as_posix(),bytes=p.stat().st_size,sha256=C.sha(p)))
@@ -63,3 +66,7 @@ def prepare(source,runner,ready):
     desktop=next(r for r in incoming if r['name']=='cachy-asahi-hyprland-settings')
     (runner/'desktop-archive.json').write_bytes(C.encoded(dict(name=Path(desktop['archive']).name,sha256=desktop['sha256'])))
     verify(source,runner)
+
+def dockerfile(base_reference,context):
+    digest=hashlib.sha256((context/'build-authorization.json').read_bytes()).hexdigest()
+    return 'FROM '+base_reference+'\nUSER 0:0\nCOPY . /tmp/managed604/\nRUN --network=none --mount=type=bind,source=build-authorization.json,target=/run/cachy-asahi-managed604-build.json,ro python3 -I -B /tmp/managed604/install604.py --owned-buildkit-context '+digest+' && rm -rf /tmp/managed604\n'

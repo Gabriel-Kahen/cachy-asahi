@@ -529,16 +529,16 @@
       "sha256": "0df8fca76d1006260e7ed7eee6dddbeaa54bfe8e6e3d7e63cd32a06cf63e7bcc"
     },
     "scripts/ci/current604-public-pair-generic16k/adapter.py": {
-      "bytes": 2676,
-      "sha256": "af017cbd1a2b768328c3f82ed82cfb8e0fb664984671a7b732a7489a27630816"
+      "bytes": 2944,
+      "sha256": "544baa650a9a482ce1acbb62030fce024de4b5469e96b1e8bdbcc79fb9ced578"
     },
     "scripts/ci/current604-public-pair-generic16k/ci.py": {
       "bytes": 4881,
       "sha256": "166a7e942beee007baaade5aa3bceb1181e0fe89d80a05449b55c99e46bd10a5"
     },
     "scripts/ci/current604-public-pair-generic16k/context604.py": {
-      "bytes": 5014,
-      "sha256": "25b745f3e219e94aa60cecc85d21b5e7ce92004fa3b1cdcf39fac06c2f5114ba"
+      "bytes": 5912,
+      "sha256": "ea4ed1203fc884f43326492926d2d9b32b9b8e9193f499f2dae6897a56061834"
     },
     "scripts/ci/current604-public-pair-generic16k/contract.py": {
       "bytes": 11780,
@@ -553,8 +553,8 @@
       "sha256": "3dc7566968f6cb424237adaef51170ed1c0776cd4296d3e41f7c056301d27367"
     },
     "scripts/ci/current604-public-pair-generic16k/install604.py": {
-      "bytes": 5955,
-      "sha256": "aa4a70e9bcf417a4afbd9788013cbe63865e14817343e59922a4f8b723ce51bd"
+      "bytes": 8713,
+      "sha256": "db432e9245b83148819b9fdba8dd683a89ef19c10142f44e041ec7b265561bd7"
     },
     "scripts/ci/current604-public-pair-generic16k/prepare.py": {
       "bytes": 4461,
@@ -573,8 +573,8 @@
       "sha256": "71d3f0334c5e0931d69bdc3633ac9ab44e6b53031a079074cfbefc6c8d1a6b6a"
     },
     "scripts/ci/current604-public-pair-generic16k/test_lane.py": {
-      "bytes": 17058,
-      "sha256": "8c91a3df823dd2de24a411a06946298b8d45ae9276bfdda105fe0b27d77a304a"
+      "bytes": 20339,
+      "sha256": "ad6698f92e5f07721a8fcd48232ee19869ed9f23da3cc1c1c289cc06455bb7b3"
     },
     "scripts/ci/desktop-user-session/prepare.py": {
       "bytes": 6300,
