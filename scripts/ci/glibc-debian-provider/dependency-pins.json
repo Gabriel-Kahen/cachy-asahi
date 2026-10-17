@@ -1,0 +1,75 @@
+{
+  "files": {
+    "scripts/ci/glibc-gnu-provider/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "scripts/ci/glibc-gnu-provider/abi.py": {
+      "bytes": 4061,
+      "sha256": "b2ae51e792fc125fa664ba116794827fe5350912861256df8cdad1de479d5ff0"
+    },
+    "scripts/ci/glibc-gnu-provider/base-devel-fileless-evidence.json": {
+      "bytes": 6314,
+      "sha256": "1fb65daa91274c662bbfeb1ed7ee1cc59054d9eb101ea1d4788e0b1b04f8138a"
+    },
+    "scripts/ci/glibc-gnu-provider/build-entry.sh": {
+      "bytes": 1892,
+      "sha256": "f1e0546d945ad0905a25a1d4a8489ec78b35cf8ae9614444d71a8ac9b9b6aa1d"
+    },
+    "scripts/ci/glibc-gnu-provider/collect_tests.py": {
+      "bytes": 3093,
+      "sha256": "cdbe9af94b0ca142e802267ce7d9af7ae006bde8ab55d4b81399a065b79f6c79"
+    },
+    "scripts/ci/glibc-gnu-provider/header_check.py": {
+      "bytes": 4336,
+      "sha256": "29f2c9e2530f6bfcc6542ec5256fb6c0732808e85c999942a01b836144107358"
+    },
+    "scripts/ci/glibc-gnu-provider/header_probe.c": {
+      "bytes": 1383,
+      "sha256": "ccc07c323632f9f916c1bed436d0a97f530fca25d9dd59bb489489c093790e7f"
+    },
+    "scripts/ci/glibc-gnu-provider/materialize.py": {
+      "bytes": 12553,
+      "sha256": "70bcde37f56b5a4ea3a44993a6add82ef4627635801c0a7909b14aefbca00d92"
+    },
+    "scripts/ci/glibc-gnu-provider/metadata.py": {
+      "bytes": 2712,
+      "sha256": "0c37477acf6b34c65850f01a9770786c38badf157d2914394612d0b35b07c51d"
+    },
+    "scripts/ci/glibc-gnu-provider/normal-child-exec.patch": {
+      "bytes": 773,
+      "sha256": "1a1f3b1898b0542dfb6bf03d7d6bf0acda33ba3f040055cf710027d69415b9ff"
+    },
+    "scripts/ci/glibc-gnu-provider/normal-client-policy.json": {
+      "bytes": 815,
+      "sha256": "92f8b918ade03b6ad71ff00fe38a3f797d416fe6225082c9d4ba23c2cc71dd8d"
+    },
+    "scripts/ci/glibc-gnu-provider/normal-exec-change.json": {
+      "bytes": 839,
+      "sha256": "9d3769704396a33acc0c144cc1519d10230a5fb07d2f7b135dcfd0ba1ab6a68b"
+    },
+    "scripts/ci/glibc-gnu-provider/normal_clients.py": {
+      "bytes": 7824,
+      "sha256": "2382a818358a5e28b81ce789d18cee815a0d0c7d52b96a1cbd1d55d7edf31309"
+    },
+    "scripts/ci/glibc-gnu-provider/ownership.py": {
+      "bytes": 3961,
+      "sha256": "d7e2d46cf28293c6e1e8105adfe4c3a345c6990c62b4605213a3b399f8959219"
+    },
+    "scripts/ci/glibc-gnu-provider/provider_stage.py": {
+      "bytes": 8147,
+      "sha256": "43b1b441dcc384379ab80c4864bbf7ffd898d56e4ba629c0faa966c25a979e6c"
+    },
+    "scripts/ci/glibc-gnu-provider/run.py": {
+      "bytes": 22188,
+      "sha256": "a755cb4e7191da3cdef785bbf77dfcc241dfe9e2b0da13d3e85ae7ccc17102a9"
+    },
+    "scripts/ci/glibc-gnu-provider/stage.py": {
+      "bytes": 5285,
+      "sha256": "31ac772b75e2ed3c1a69a07aec4120af24941481a4db8042e4a816bd5ea9e56c"
+    }
+  },
+  "schema_version": 1,
+  "scope": "Only consumed helper source bytes; old job/bindings/acceptances/integration receipt dependencies deliberately absent.",
+  "source": "CURRENT_BYTE_PINNED_GNU_PROVIDER_HELPERS_NOT_OLD_PAIR_ACCEPTANCE"
+}
