@@ -50,6 +50,6 @@ class Controls(unittest.TestCase):
  def test_identity_literal_counts_budgets_and_worker_body_unchanged(self):
   root=next(p for p in HERE.parents if (p/'manifests/packages.toml').is_file());original=root/'scripts/ci/glibc-gnu-provider-installed16k/guest.py';raw=original.read_text();new=(HERE/'guest.py').read_text()
   for text,count in (('/installed16k',5),('GNU_INSTALLED16K',3),('caa_gnu_installed16k=1',1)):self.assertEqual(new.count(text),count)
-  self.assertEqual(hashlib.sha256(ast.dump(functions(HERE/'guest.py')['worker'],include_attributes=False).encode()).hexdigest(),'5e6afcf6b623cce9da0ebaa847ca097ba9e12a3dca3971c9cbbd983ed7492a67')
+  self.assertEqual(hashlib.sha256(ast.get_source_segment((HERE/'guest.py').read_text(),functions(HERE/'guest.py')['worker']).encode()).hexdigest(),'cf850dfc98c5988407dcebe6fe5a059ea3d3fd648ec05fa36725985ecceb9fda')
   self.assertIn(',10500,512*1024)',new);self.assertIn("len(raw)<=512*1024",new)
 if __name__=='__main__':unittest.main(verbosity=2)
