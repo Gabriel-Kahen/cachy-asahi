@@ -167,6 +167,7 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-gnu-failure-log/test_summary.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-debian-maintained-installed16k/test_generator.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-debian-maintained-native-lifecycle-next/test_prepare.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-debian-maintained-installed16k-ci/test_wiring.py
       - name: Check maintained Debian lifecycle candidate gates and source adaptation
         run: python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-debian-maintained-lifecycle/test_adapter.py
       - name: Check maintained Debian native pair source and ownership
