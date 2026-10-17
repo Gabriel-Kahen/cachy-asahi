@@ -8,7 +8,7 @@ SYSTEM={'fish':'/usr/bin/fish','grim':'/usr/bin/grim','busctl':'/usr/bin/busctl'
 TOOLS=set(SYSTEM)|{'sway','swaymsg','mako','makoctl'}
 STYLE='c6ab55ae475611bf2df2b7120b97a924eed5d65c149561d4da4f12b5b8c25504'
 
-SOURCE_PINS={'controller.py': 'e2d0d699e63928b43f25af8920704187cffb1b148003dd080f186b8cffba4125', 'observation.py': '153fad25f0b5f58730cd077bdf414ed2b30ae6d7c780aa4f8f99484b7348d057', 'monitor.py': '7704da1b060e739f63e4d7062a02938e64bcfbe1c10b4d6581532ded2f194de0', 'capture.py': '283160761381a55b441396b4c3aa8049ee240f5c78656c26165d62c2efc56cbc', 'fish_terminal.py': 'fb6ec2870544fccfd3aeb005657709093f9da7dfe7650c06eb901526faba4734', 'done-lock.json': 'e7de2d6d72e4f6f3882c5b5c5c0c65c71a89146e629ceb17004a45013f607026'}
+SOURCE_PINS={'controller.py': 'b36802b23441c37a57f9e647137d6d04b4b70e554662e3b63e48bd973400ecd5', 'observation.py': '153fad25f0b5f58730cd077bdf414ed2b30ae6d7c780aa4f8f99484b7348d057', 'monitor.py': '7704da1b060e739f63e4d7062a02938e64bcfbe1c10b4d6581532ded2f194de0', 'capture.py': '283160761381a55b441396b4c3aa8049ee240f5c78656c26165d62c2efc56cbc', 'fish_terminal.py': 'fb6ec2870544fccfd3aeb005657709093f9da7dfe7650c06eb901526faba4734', 'done-lock.json': 'e7de2d6d72e4f6f3882c5b5c5c0c65c71a89146e629ceb17004a45013f607026'}
 
 def need(ok,why):
  if not ok:raise ValueError(why)

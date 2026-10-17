@@ -49,6 +49,22 @@ def until(probe,seconds,why):
   if v:return v
   O.need(time.monotonic()<end,why);time.sleep(.01)
 
+def monitor_ready(observer,probe,healthy,*,clock=time.monotonic,sleep=time.sleep):
+ """Synchronize subscription before Fish; only benign pretrigger probes repeat."""
+ deadline=clock()+5;attempts=0
+ while True:
+  remaining=deadline-clock();O.need(remaining>0 and attempts<51,'monitor readiness')
+  probe(min(2,remaining));attempts+=1
+  rows=observer.rows()
+  observed=any(row.get('type')=='method_call' and row.get('member')=='GetCapabilities' and
+               row.get('path')=='/org/freedesktop/Notifications' and
+               row.get('interface')=='org.freedesktop.Notifications' for row in rows)
+  O.need(clock()<=deadline,'monitor readiness')
+  if observed:return {'attempts':attempts,'budget_seconds':5,'observed_method_call':True}
+  healthy();remaining=deadline-clock();O.need(remaining>0,'monitor readiness')
+  sleep(min(.1,remaining))
+
+
 def stop(name,p,normal=False):
  if p.poll() is None:
   os.killpg(p.pid,signal.SIGTERM)
@@ -112,8 +128,7 @@ try:
   row={'stage':stage,'case':kind,'outcome':outcome,'recipient':owner,'mako_pid':mako.pid,'notification_timeout_ms':3000};cases.append(row)
   observer=monitor.Monitor(E)
   # Non-notification D-Bus method proves the observer is live before the real Fish trigger.
-  command(['/usr/bin/busctl','--user','--auto-start=no','call','org.freedesktop.Notifications','/org/freedesktop/Notifications','org.freedesktop.Notifications','GetCapabilities'])
-  until(lambda:any(x.get('member')=='GetCapabilities' for x in observer.rows()),5,'monitor readiness')
+  row['monitor_readiness']=monitor_ready(observer,lambda remaining:command(['/usr/bin/busctl','--user','--auto-start=no','call','org.freedesktop.Notifications','/org/freedesktop/Notifications','org.freedesktop.Notifications','GetCapabilities'],timeout=remaining),healthy)
   term=(F.BackgroundTerminal if stage=='background' else F.Terminal)(E)
   term.start(outcome)
   wire=until(lambda:O.notify(observer.rows(),owner,outcome,'Watched job' if stage=='background' else 'Foreground command'),15,'original Done delivery15s')

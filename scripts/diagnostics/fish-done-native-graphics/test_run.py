@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Inert input/staging/refusal controls; no native graphics actors or ALPM needed."""
-import hashlib,importlib.util,io,json,os,struct,tarfile,tempfile,unittest
+import ast,hashlib,importlib.util,io,json,os,struct,tarfile,tempfile,unittest
 from pathlib import Path
 from unittest.mock import patch
 HERE=Path(__file__).resolve().parent
@@ -64,5 +64,37 @@ class Controls(unittest.TestCase):
    with tarfile.open(fileobj=buf,mode='w:xz') as stream:
     m=tarfile.TarInfo(name);m.size=1;m.mode=0o644;stream.addfile(m,io.BytesIO(b'x'))
    with self.assertRaises(ValueError):R.archive(buf.getvalue(),{'payload':{}})
+
+class ReadinessControls(unittest.TestCase):
+ def helper(self):
+  tree=ast.parse((HERE/'controller.py').read_text());node=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='monitor_ready')
+  import time
+  namespace={'O':R,'time':time};exec(compile(ast.Module(body=[node],type_ignores=[]),'<owned-monitor-ready>','exec'),namespace);return namespace['monitor_ready']
+ def run_race(self,observed_on=2,probe_cost=0):
+  now=[0.];calls=[];rows=[]
+  def probe(timeout):
+   calls.append(timeout);now[0]+=probe_cost
+   rows[:]=[{'type':'method_return','payload':{'type':'as','data':[['body']]}}]
+   if observed_on is not None and len(calls)>=observed_on:rows.append({'type':'method_call','member':'GetCapabilities','path':'/org/freedesktop/Notifications','interface':'org.freedesktop.Notifications'})
+  observer=type('Observer',(),{'rows':lambda self:list(rows)})()
+  def sleep(seconds):now[0]+=seconds
+  return self.helper(),observer,probe,lambda:None,lambda:now[0],sleep,now,calls
+ def test_lost_first_call_reply_only_then_real_call_synchronizes(self):
+  ready,observer,probe,healthy,clock,sleep,now,calls=self.run_race()
+  result=ready(observer,probe,healthy,clock=clock,sleep=sleep)
+  self.assertEqual(result,{'attempts':2,'budget_seconds':5,'observed_method_call':True});self.assertEqual(len(calls),2);self.assertLess(now[0],5)
+ def test_reply_only_never_becomes_observed_call_and_budget_stays_five(self):
+  ready,observer,probe,healthy,clock,sleep,now,calls=self.run_race(observed_on=None)
+  with self.assertRaisesRegex(ValueError,'monitor readiness'):ready(observer,probe,healthy,clock=clock,sleep=sleep)
+  self.assertLessEqual(now[0],5);self.assertLessEqual(len(calls),51);self.assertTrue(all(0<x<=2 for x in calls))
+ def test_probe_consuming_remaining_budget_cannot_extend_or_pass_late(self):
+  ready,observer,probe,healthy,clock,sleep,now,calls=self.run_race(observed_on=1,probe_cost=5.01)
+  with self.assertRaisesRegex(ValueError,'monitor readiness'):ready(observer,probe,healthy,clock=clock,sleep=sleep)
+  self.assertEqual(len(calls),1)
+ def test_first_observed_call_does_not_retry_notification_or_capture(self):
+  ready,observer,probe,healthy,clock,sleep,now,calls=self.run_race(observed_on=1)
+  self.assertEqual(ready(observer,probe,healthy,clock=clock,sleep=sleep)['attempts'],1)
+  source=(HERE/'controller.py').read_text();self.assertEqual(source.count("row['monitor_readiness']=monitor_ready("),1)
+  self.assertEqual(source.count("target=W/(stage+'.ppm')"),1);self.assertIn("timeout=2)",source);self.assertIn('time.monotonic()+3.5',source)
 
 if __name__=='__main__':unittest.main()
