@@ -134,15 +134,16 @@ class Controls(unittest.TestCase):
     def test_real_ext4_regular_hardlink_symlink_serialization(self):
         # This is a real private file-image round trip, not native/16K acceptance.
         import os
-        self.assertIsNotNone(shutil.which('mkfs.ext4'));self.assertIsNotNone(shutil.which('debugfs'))
+        mkfs=shutil.which('mkfs.ext4');debugfs=shutil.which('debugfs')
+        self.assertIsNotNone(mkfs);self.assertIsNotNone(debugfs)
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory);source=root/'source';source.mkdir();(source/'payload').write_bytes(b'bound payload\n');os.link(source/'payload',source/'alias');(source/'literal').symlink_to('payload');image=root/'fixture.raw'
             with image.open('xb') as stream:stream.truncate(16*1024**2)
-            result=subprocess.run(['/usr/bin/mkfs.ext4','-q','-F','-b','4096','-d',str(source),str(image)],capture_output=True,timeout=30);self.assertEqual(result.returncode,0,result.stderr)
-            result=subprocess.run(['/usr/bin/debugfs','-R','dump /alias '+str(root/'readback'),str(image)],capture_output=True,timeout=10);self.assertEqual(result.returncode,0,result.stderr);self.assertEqual((root/'readback').read_bytes(),b'bound payload\n')
+            result=subprocess.run([mkfs,'-q','-F','-b','4096','-d',str(source),str(image)],capture_output=True,timeout=30);self.assertEqual(result.returncode,0,result.stderr)
+            result=subprocess.run([debugfs,'-R','dump /alias '+str(root/'readback'),str(image)],capture_output=True,timeout=10);self.assertEqual(result.returncode,0,result.stderr);self.assertEqual((root/'readback').read_bytes(),b'bound payload\n')
             inode=[]
             for name in ('payload','alias'):
-                result=subprocess.run(['/usr/bin/debugfs','-R','stat /'+name,str(image)],capture_output=True,text=True,timeout=10);self.assertEqual(result.returncode,0,result.stderr);inode.append(result.stdout.split()[1])
+                result=subprocess.run([debugfs,'-R','stat /'+name,str(image)],capture_output=True,text=True,timeout=10);self.assertEqual(result.returncode,0,result.stderr);inode.append(result.stdout.split()[1])
             self.assertEqual(*inode)
 
 if __name__=='__main__':unittest.main()
