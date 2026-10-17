@@ -25,7 +25,11 @@ def main():
  argv=sys.argv[1:];C.need(argv and argv[0]=='apply' and '--operation' in argv and argv[argv.index('--operation')+1]=='install','install fixture only')
  i=argv.index('--applications')+1;names=[]
  while i<len(argv) and not argv[i].startswith('--'):names.append(argv[i]);i+=1
- C.need(names==['cache'],'only authenticated Cache install, with actual Runtime dependency')
+ C.need(names==['apps'],'only authenticated Apps install, with actual Runtime dependency')
+ plan_path=Path(argv[argv.index('--plan')+1]);raw=C.read(plan_path)
+ C.need(C.sha(raw)==argv[argv.index('--plan-sha256')+1],'exact authenticated fixture plan SHA required')
+ index=C.decode(C.checked(Path('/inputs'),dict(C.policy()['packet_index'],path='native-index.json')))
+ C.load('fixture_precommit_checks',C.HERE/'checks.py').install_plan(C,C.decode(raw),index)
  header=Path('/usr/include/alpm.h').read_text();dependency_flag(header)
  T=C.load('dependency_install_original',Path('/source/scripts/apps/transaction.py'))
  if '--worker' not in argv:
