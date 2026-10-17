@@ -26,10 +26,19 @@ class Controls(unittest.TestCase):
      runtime=(runner/'desktop574_runtime.py').read_text();guest=(runner/'base_guest.py').read_text();fixture=(runner/'desktop574_fixture.sh').read_text();managed=(runner/'management_contract.py').read_text()
      self.assertIn('for stage in '+repr((selected,))+':',managed);self.assertIn('present_count',managed);self.assertIn('time.monotonic() + 1300',runtime);self.assertIn('signal.ITIMER_REAL, 1750',runtime);self.assertIn('TimeoutStartSec=1200',fixture);self.assertIn("DL.service_lease()['deadline_ns']",guest);self.assertIn("os.sysconf('SC_PAGE_SIZE')==16384",guest);self.assertIn('installed604_preserved',guest);self.assertIn('elf_audit.py --root',fixture);self.assertIn("DL.validate(finals[0]",(runner/'contract.py').read_text());self.assertNotIn('hosted.fetch',runtime)
      self.assertIn('independent-installed-public-pairs-apps6-current604-management-generic16k-profile',runtime)
+     self.assertIn('context604.selection(base,expected)',runtime);self.assertNotIn("all(expected.get(n)==v for n,v in base.items())",runtime)
      for filename,source in (('doctor_lifetime.py','scripts/ci/welcome-management-native/doctor_lifetime.py'),('a11y_driver.c','scripts/ci/welcome-management-native/a11y_driver.c'),('file_capabilities.py','scripts/apps/file_capabilities.py')):self.assertEqual((runner/filename).read_bytes(),(ROOT/source).read_bytes())
- def test_context_install_helpers_change_only_composition_namespace(self):
-   for name,count in (('context604.py',4),('install604.py',3)):
-    original=(ROOT/C.OLD/name).read_text();changed=(C.HERE/name).read_text();self.assertEqual(original.count('scripts/ci/expanded604-current-management'),count);self.assertEqual(changed,original.replace('scripts/ci/expanded604-current-management','scripts/ci/expanded604-apps6-public-pairs'))
+ def test_exact_provider_replacement_keeps_original573(self):
+   base={r['name']:r['version'] for r in C.json_read(ROOT/'scripts/ci/maintained-desktop574-inputs.json')['packages']}
+   expected=dict(row.split() for row in (ROOT/'scripts/ci/expanded604-apps6-public-pairs/expected604.lock').read_text().splitlines())
+   incoming=ci.context604.selection(base,expected)
+   self.assertEqual(len(incoming),31);self.assertIn('cachy-asahi-fdk-aac',incoming)
+   self.assertEqual(base.keys()-expected.keys(),{'libfdk-aac'})
+   self.assertEqual({n:v for n,v in base.items() if n!='libfdk-aac'},{n:v for n,v in expected.items() if n in base})
+   for changed in ({**expected,'libfdk-aac':'3.0.0-1'},{**expected,'glibc':'wrong'},dict(expected,**{'cachy-asahi-fdk-aac':'wrong'})):
+    with self.subTest(change=changed.get('glibc')),self.assertRaisesRegex(ValueError,'exact Apps6'):ci.context604.selection(base,changed)
+   for changed in ({**base,'libfdk-aac':'wrong'},{k:v for k,v in base.items() if k!='glibc'}):
+    with self.assertRaisesRegex(ValueError,'exact original574'):ci.context604.selection(changed,expected)
    self.assertEqual(Path(ci.context604.__file__),C.HERE/'context604.py')
    observer=(ROOT/C.OLD/'installed604.py').read_text()
    for check in ('complete actual payload hardlink set required','capability hardlink aliases','deadline=600','max_packages=604','6*1024**3','200000','database/root drift'):self.assertIn(check,observer)
