@@ -32,6 +32,34 @@
       "bytes": 8877,
       "sha256": "2bddbdb7c0abfa41a9c15a88c139d62cf1aa50c6556bcc0fcbef27999c3af9ac"
     },
+    "scripts/ci/glibc-gnu-trial-apparmor/README.md": {
+      "bytes": 5103,
+      "sha256": "0cfa6907b891d97f59a9d9b555eae462818d27b916c1b0e734f0c48c2a690bd5"
+    },
+    "scripts/ci/glibc-gnu-trial-apparmor/profile.py": {
+      "bytes": 18714,
+      "sha256": "66912eb9e3b4fdee936a2146ea6becd0209e2a4fe10b6e3465690bf845d59cf8"
+    },
+    "scripts/ci/glibc-gnu-trial-apparmor/test_profile.py": {
+      "bytes": 11143,
+      "sha256": "62343b39fec6466ab0c52025874db24b8fd6ae063941ed58cf25819f7b7806d9"
+    },
+    "scripts/ci/glibc-gnu-trial-apparmor/vendor/LICENSE": {
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    "scripts/ci/glibc-gnu-trial-apparmor/vendor/apparmor/apparmor.go": {
+      "bytes": 4974,
+      "sha256": "7bf6c04caeedb59df89e8de2b3fa335c73477b34efa2f0af3a0ad22484e3cb21"
+    },
+    "scripts/ci/glibc-gnu-trial-apparmor/vendor/apparmor/template.go": {
+      "bytes": 6196,
+      "sha256": "7da15d81aa5c507f5002b844fdc49a969904681447a2cc29222bd6cbe797163b"
+    },
+    "scripts/ci/glibc-gnu-trial-apparmor/vendor/source.json": {
+      "bytes": 1033,
+      "sha256": "02b8b22c590a58b959b0745c0c7381a891c977907576bdd9c6f2666c73606a8a"
+    },
     "scripts/ci/glibc-owned-runtime/exec_child.c": {
       "bytes": 913,
       "sha256": "0a2b48762f8f7ec6d942ca9fb4af4f04a50fd93d2d7dff42407adfea13b1e4cc"

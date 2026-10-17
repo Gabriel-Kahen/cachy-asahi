@@ -93,8 +93,11 @@ class Controls(unittest.TestCase):
                 snapshot.records(self.archive([('foreign-link','symlink','/outside'),('usr/lib/alias','hardlink',target)]))
 
     def test_foreign_actor_and_unknown_daemon_state_preserved(self):
-        value=dict(Name='/owned',Image='sha256:'+'a'*64,Config=dict(Labels={job.LABEL:'b'*32}),Id='c'*64)
+        value=dict(Name='/owned',Image='sha256:'+'a'*64,Config=dict(Labels={job.LABEL:'b'*32}),Id='c'*64,AppArmorProfile='docker-default')
         self.assertEqual(job.verify_actor(value,'owned','sha256:'+'a'*64,job.LABEL,'b'*32),'c'*64)
+        value['AppArmorProfile']='unexpected-custom-profile'
+        with self.assertRaises(ValueError):job.verify_actor(value,'owned','sha256:'+'a'*64,job.LABEL,'b'*32)
+        value['AppArmorProfile']='docker-default'
         value['Config']['Labels'][job.LABEL]='foreign'
         with self.assertRaises(ValueError):job.verify_actor(value,'owned','sha256:'+'a'*64,job.LABEL,'b'*32)
         with self.assertRaises(ValueError):job.inspect('owned',lambda *a,**k:dict(code=1,out=b'',err=b'daemon unavailable'))
@@ -146,7 +149,7 @@ class Controls(unittest.TestCase):
     def test_setfcap_grant_is_only_the_exact_extraction_actor(self):
         for role in ('extract','source-cleanup','inner-scrub'):
             output=self.root/role;output.mkdir();report=dict(token='a'*32,image='sha256:'+'b'*64,actors=[],snapshot_point=dict(archive_sha256='c'*64));command=unittest.mock.Mock(return_value=dict(code=0))
-            with patch.object(job,'inspect',side_effect=[None,{}]),patch.object(job,'verify_actor',return_value='d'*64):job.observer(self.root,output,report,command,role,'/runner/capability_snapshot.py')
+            with patch.object(job,'inspect',side_effect=[None,dict(AppArmorProfile='docker-default')]),patch.object(job,'verify_actor',return_value='d'*64):job.observer(self.root,output,report,command,role,'/runner/capability_snapshot.py')
             argv=command.call_args.args[0];self.assertEqual('--cap-add=SETFCAP' in argv,role=='extract');self.assertIn('--network=none',argv);self.assertIn('--security-opt=no-new-privileges',argv)
 
     def test_capability_wrapper_is_isolated_and_original_extractors_are_unchanged(self):

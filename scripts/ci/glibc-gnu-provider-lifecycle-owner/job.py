@@ -64,6 +64,7 @@ def selection(workspace):
     relative(packet['directory'])
     manifest=read(HERE/'integration-manifest.json')
     needed={'scripts/apps/file_capabilities.py','scripts/ci/apps-full574-native/export_extract.py','scripts/ci/glibc-gnu-provider-lifecycle-owner/snapshot.py','scripts/ci/glibc-gnu-provider-lifecycle/capabilities.py'}|{HERE.relative_to(workspace).as_posix()+'/capability_snapshot.py'}
+    needed|={'scripts/ci/glibc-gnu-trial-apparmor/profile.py','scripts/ci/glibc-gnu-trial-apparmor/vendor/apparmor/template.go','scripts/ci/glibc-gnu-trial-apparmor/vendor/apparmor/apparmor.go','scripts/ci/glibc-gnu-trial-apparmor/vendor/LICENSE','scripts/ci/glibc-gnu-trial-apparmor/vendor/source.json'}
     need(needed<=manifest['files'].keys(),'capability-aware frozen owner closure required')
     for name,row in manifest['files'].items():reference(workspace,dict(path=name,**row),16*1024**2)
     return policy
@@ -126,6 +127,7 @@ def inspect(name,command):
 
 def verify_actor(value,name,image,label,token,cid=None):
     need(value['Name']=='/'+name and value['Image']==image and value['Config']['Labels'].get(label)==token and re.fullmatch('[0-9a-f]{64}',value['Id']) and cid in (None,value['Id']),'foreign actor preserved')
+    need(value['AppArmorProfile']=='docker-default','outer observers preserve enforcing Docker default profile')
     return value['Id']
 
 
@@ -145,10 +147,15 @@ def producer_lease(base):
 
 def command_api(workspace,output,report):
     api=runtime(workspace)
-    def command(argv,required=True,seconds=30):
+    def command(argv,required=True,seconds=30,private_stdout=False):
+        if private_stdout:need(argv==['/usr/bin/sudo','-n','--','/usr/bin/cat','--','/sys/kernel/security/apparmor/profiles'] and seconds==10,'only bounded exact CI registry observer may redact stdout')
         row,out,err,error=api.run_command(argv,output,dict(api.ENV,HOME=str(output),TMPDIR=str(output)),seconds,1024**2)
+        stored=out
+        if private_stdout:
+            row['stdout_retention']='HASH_AND_LENGTH_ONLY_PRIVATE_KERNEL_PROFILE_REGISTRY'
+            stored=(json.dumps(dict(bytes=len(out),sha256=hashlib.sha256(out).hexdigest(),scope='PRIVATE_REGISTRY_NOT_EXPORTED'),sort_keys=True)+'\n').encode()
         n=len(report['commands']);need(n<256,'bounded owner commands');report['commands'].append(row);save(output/'owner.json',report)
-        (output/('command-%03d.stdout'%n)).write_bytes(out);(output/('command-%03d.stderr'%n)).write_bytes(err)
+        (output/('command-%03d.stdout'%n)).write_bytes(stored);(output/('command-%03d.stderr'%n)).write_bytes(err)
         if error:raise error
         need(row['group_absence_verified'] and (not required or row['exit_code']==0),'actor command exit/group retirement')
         return dict(code=row['exit_code'],out=out,err=err)
@@ -185,7 +192,7 @@ def observer(workspace,output,report,command,role,script,extra=()):
     for source,target,readonly in mounts:argv+=['--mount','type=bind,src='+str(source)+',dst='+target+(',readonly' if readonly else '')]
     argv+=['--entrypoint=/usr/bin/python3',report['image'],'-I','-B',script,*extra]
     result=command(argv,False,900 if role=='extract' else 180)
-    value=inspect(row['name'],command);need(value is not None,'observer CID retained');row.update(id=verify_actor(value,row['name'],report['image'],LABEL,report['token']),status='EXITED',exit=result['code']);save(output/'owner.json',report)
+    value=inspect(row['name'],command);need(value is not None,'observer CID retained');row.update(id=verify_actor(value,row['name'],report['image'],LABEL,report['token']),status='EXITED',exit=result['code'],AppArmorProfile=value['AppArmorProfile']);save(output/'owner.json',report)
     need(result['code']==0,'owned snapshot observer failed')
 
 
@@ -203,7 +210,7 @@ def snapshot_source(workspace,output,report,command):
     need(ordinary(source,12*1024**3).st_size>0,'bounded original574 rootfs export')
     after=inspect(row['name'],command);verify_actor(after,row['name'],report['image'],LABEL,report['token'],cid)
     need(after['State']==value['State'],'export never ran a source-root actor')
-    report['snapshot_point']=dict(container=cid,image=report['image'],state=value['State'],archive_bytes=source.stat().st_size,archive_sha256=sha(source),kind='NEVER_STARTED_ORIGINAL574_IMAGE_ROOTFS')
+    report['snapshot_point']=dict(container=cid,image=report['image'],state=value['State'],archive_bytes=source.stat().st_size,archive_sha256=sha(source),kind='NEVER_STARTED_ORIGINAL574_IMAGE_ROOTFS',AppArmorProfile=value['AppArmorProfile'])
     save(output/'owner.json',report);retire([row],report['image'],LABEL,report['token'],command,output,report)
     observer(workspace,output,report,command,'extract','/runner/capability_snapshot.py')
     snapshot=read(output/'snapshot-public/snapshot.json');need(snapshot['status']=='PASS_ORIGINAL574_DATA_SNAPSHOT' and snapshot['observation']['database_sha256']==LOCK and snapshot['extraction']['archive_sha256']==report['snapshot_point']['archive_sha256'],'actual complete original574 snapshot and archive join')
@@ -268,9 +275,11 @@ def execute_leased(args):
     with lease(args.output/'owner.lock',True):
         command=command_api(args.workspace,args.output,report);save(args.output/'owner.json',report)
         try:
+            apparmor=load('trial_apparmor',args.workspace/'scripts/ci/glibc-gnu-trial-apparmor/profile.py')
+            report['apparmor']=apparmor.load(args.output/'apparmor',proof_value,base,'lifecycle',command,(args.base/'probe-cid').read_text().strip());save(args.output/'owner.json',report)
             snapshot_source(args.workspace,args.output,report,command)
             inputs,runner=materialize(args.workspace,args.base,packet_root,packet_value,args.output,report)
-            result=command([sys.executable,'-I','-B',str(runner/'run.py'),'--inputs',str(inputs),'--input-sha256',sha(inputs/'lifecycle-input.json'),'--source-root',str(args.workspace),'--held-root',str(args.output/'data/original574'),'--output',str(args.output/'inner')],False,3800)
+            result=command([sys.executable,'-I','-B',str(runner/'run.py'),'--inputs',str(inputs),'--input-sha256',sha(inputs/'lifecycle-input.json'),'--source-root',str(args.workspace),'--held-root',str(args.output/'data/original574'),'--output',str(args.output/'inner'),'--apparmor-state',str(args.output/'apparmor')],False,3800)
             inner=read(args.output/'inner/owner.json');need(result['code']==0 and inner['status']=='PASS_GENERIC_ARM_INSTALLED_PROVIDER_AND_TEARDOWN','actual installed lifecycle and inner teardown')
             report['capabilities']=capability_records(args.workspace,args.output,report)
             report['status']='PASS_LIFECYCLE_PENDING_ORDERED_PRODUCER_CLEANUP'
@@ -278,6 +287,7 @@ def execute_leased(args):
         finally:
             try:retire(report['actors'],report['image'],LABEL,report['token'],command,args.output,report)
             except BaseException as error:report.update(outer_cleanup_error=str(error)[:512])
+            if (args.output/'apparmor/state.json').exists():report['apparmor']=read(args.output/'apparmor/state.json',128*1024)
             save(args.output/'owner.json',report)
     return int(report['status']!='PASS_LIFECYCLE_PENDING_ORDERED_PRODUCER_CLEANUP')
 
@@ -311,6 +321,13 @@ def cleanup(args):
                 need(not (args.output/'data/original574').exists(),'original data snapshot remains')
                 archive=args.output/'data/source.tar'
                 if archive.exists():ordinary(archive,12*1024**3);archive.unlink()
+                apparmor=load('trial_apparmor',args.workspace/'scripts/ci/glibc-gnu-trial-apparmor/profile.py')
+                try:
+                    report['apparmor']=apparmor.unload(args.output/'apparmor',proof_value,read(args.base/'report.json'),'lifecycle',command) if (args.output/'apparmor/state.json').exists() else apparmor.unregistered_absent(proof_value['consumer_token'],'lifecycle',command)
+                    result['apparmor']=report['apparmor']
+                finally:
+                    if (args.output/'apparmor/state.json').exists():report['apparmor']=read(args.output/'apparmor/state.json',128*1024)
+                    save(args.output/'owner.json',report)
                 report['consumer_cleanup']='PASS_ALL_ACTORS_CLONES_AND_SOURCE_DATA_RETIRED';save(args.output/'owner.json',report);result['consumer']=report['consumer_cleanup']
         else:
             need(not args.output.exists(),'unidentified wrapper output preserved');result['consumer']='NOT_STARTED'
@@ -346,6 +363,8 @@ def retain(args):
         if (args.base/name).exists():copy(args.base/name,'producer/'+name,2*1024**2)
     if args.output.exists():
         copy(args.output/'owner.json','owner.json',2*1024**2)
+        for name in ('state.json','trial.profile'):
+            if (args.output/'apparmor'/name).exists():copy(args.output/'apparmor'/name,'apparmor/'+name,128*1024)
         for directory,prefix in [(args.output/'snapshot-public','snapshot'),(args.output/'inner/public','lifecycle')]:
             if directory.exists():
                 for path in sorted(directory.iterdir()):copy(path,prefix+'/'+path.name,64*1024**2)
@@ -362,6 +381,10 @@ def retain(args):
     except BaseException as error:result['errors'].append(dict(file='input-packet',error=str(error)[:256]))
     try:
         owner=read(args.output/'owner.json');ordered=read(args.receipt)
+        need({'apparmor/state.json','apparmor/trial.profile'}<=result['files'].keys(),'closed actual profile/registration evidence required')
+        state=read(args.output/'apparmor/state.json',128*1024);profile=args.output/'apparmor/trial.profile'
+        need(state==owner['apparmor'] and state['profile']==dict(bytes=ordinary(profile,65536).st_size,sha256=sha(profile)),'exported actual profile bytes and registration join owner')
+        need(owner['apparmor']['status']=='PASS_OWNED_PROFILE_REMOVED_AFTER_ALL_CONSUMERS' and ordered['apparmor']==owner['apparmor'],'actual owned trial profile load/enforce/removal evidence required')
         result['capabilities']=capability_records(args.workspace,args.output,owner)
         need(result['capabilities']==owner['capabilities'],'executed/exported capability records join')
         need(owner['status']=='PASS_LIFECYCLE_PENDING_ORDERED_PRODUCER_CLEANUP' and owner['consumer_cleanup']=='PASS_ALL_ACTORS_CLONES_AND_SOURCE_DATA_RETIRED' and ordered['status']=='PASS_ORDERED_ALL_CONSUMERS_THEN_PRODUCER' and not result['errors'],'closed native lifecycle and ordered teardown')
