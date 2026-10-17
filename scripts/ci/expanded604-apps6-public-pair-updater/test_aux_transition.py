@@ -306,7 +306,7 @@ class RealScannerControls(unittest.TestCase):
   cls.comparator=load('_apps_real_aux_comparator',ROOT/'scripts/ci/full-development-composition/audio_aux.py');cls.cache=zlib.decompress(base64.b64decode(AUX_ZLIB_BASE64));assert len(cls.cache)==68552 and hashlib.sha256(cls.cache).hexdigest()=='ac07ea43f003f7d03b7679645da647d9822fe7d11bc42df599d7289cb669b869';assert len(cls.comparator.parse(cls.cache))>0
  def setUp(self):
   import subprocess
-  guard=self.patch.object(subprocess,'Popen',side_effect=AssertionError('no actors/Git/network'));guard.start();self.addCleanup(guard.stop);temp=self.tempfile.TemporaryDirectory();self.addCleanup(temp.cleanup);self.root=Path(temp.name);self.parent=self.root/'usr/lib/cachy-asahi-apps';self.parent.mkdir(parents=True,mode=0o755);(self.parent/'apps.py').write_bytes(b'old actual owned payload');(self.root/'usr/lib/libretained.so').write_bytes(b'actual retained sibling');self.config=dict(before_lock_sha256=H.BEFORE,after_lock_sha256=H.AFTER);self.old=self.state()
+  guard=self.patch.object(subprocess,'Popen',side_effect=AssertionError('no actors/Git/network'));guard.start();self.addCleanup(guard.stop);temp=self.tempfile.TemporaryDirectory();self.addCleanup(temp.cleanup);self.root=Path(temp.name);self.parent=self.root/'usr/lib/cachy-asahi-apps';self.parent.mkdir(parents=True,mode=0o755);(self.parent/'apps.py').write_bytes(b'old actual owned payload');(self.root/'usr/lib/libretained.so').write_bytes(b'actual retained sibling');self.config=dict(before_lock_sha256=H.BEFORE,after_lock_sha256=H.AFTER);self.old=self.state();self.old_observation=self.roots.observe(self.root,limits=self.roots.Limits(deadline=self.time.monotonic()+20),hardlinks='generic-development-internal')
   # A real atomic replacement of selected owned data changes its parent times.
   p=self.parent/'incoming';p.write_bytes(b'new actual owned payload');os.replace(p,self.parent/'apps.py');st=self.parent.stat();os.utime(self.parent,ns=(st.st_atime_ns,st.st_mtime_ns+1000000000));self.new=self.state()
  def state(self):
@@ -338,5 +338,49 @@ class RealScannerControls(unittest.TestCase):
   for field,value in [('main_bytes',b'changed'),('closure',()),('scan_directories',()),('helper',{'changed':1}),('configs',{'changed':1}),('aliases',{'changed':1}),('targets',{'changed':1}),('caches',{'changed':{'node':{'type':'absent'}}}),('aux_bytes',b'corrupted')]:
    after=copy.deepcopy(self.new);after[field]=value
    with self.subTest(field=field),self.assertRaises(ValueError):self.compare(after=after)
+
+
+ def test_diagnostics_distinguish_missing_extra_metadata_identity_scalar_and_bound_rows(self):
+  a={'scan':{'usr/lib/example':{'node':{'type':'file','mode':420,'uid':0,'gid':0,'bytes':1,'sha256':'a'*64},'identity':tuple(range(9))}}}
+  variants=[({},'MISSING_NODE','row.presence'),({'usr/lib/extra':1,**a['scan']},'EXTRA_NODE','row.presence'),({'usr/lib/example':7},'ROW_SHAPE_OR_SCALAR','row')]
+  changed=copy.deepcopy(a['scan']);changed['usr/lib/example']['node']['mode']=0;variants.append((changed,'NODE_METADATA_OR_SHAPE','node.mode'));changed=copy.deepcopy(a['scan']);changed['usr/lib/example']['identity']=tuple(range(8))+(99,);variants.append((changed,'INODE_IDENTITY','identity.ctime_ns'))
+  for rows,category,field in variants:
+   b={'scan':rows};value=H.apps_scan_difference(a,b,a,b);self.assertEqual((value['category'],value['field']),(category,field));self.assertFalse(value['acceptance_authority']);self.assertLess(len(json.dumps(value)),8192)
+  bad={'scan':{'/absolute':1}}
+  with self.assertRaises(ValueError):H.apps_scan_difference({'scan':{}},bad,{'scan':{}},bad)
+  with self.assertRaises(ValueError):H.derive_linked((ROOT/'scripts/update/linked_runtime.py').read_bytes()+b' ')
+ def test_actual_generated_composed_linked_override_routes_projection_and_retains_refusal(self):
+  import tempfile,types,importlib
+  # This is a route harness, not full-root/native acceptance: unrelated fixed
+  # link-observation prerequisites are inert. The scanner rows, cache bytes,
+  # original cache comparator and generated Runtime.tree/parent code are real.
+  import prepare as P
+  Cspec=importlib.util.spec_from_file_location('_route_actual_contract',ROOT/P.NEW/'contract.py');C=importlib.util.module_from_spec(Cspec);sys.modules[Cspec.name]=C;Cspec.loader.exec_module(C);A=C.scoped('_route_actual_adapter',ROOT/P.NEW/'adapter.py',{'contract':C})
+  with tempfile.TemporaryDirectory() as td:
+   base=Path(td);source=base/'source';source.mkdir();held=C.read(ROOT/'scripts/ci/expanded600-root-upgrade/held-pins.json')['normal'];fixtures={'scripts/ci/full-root-upgrade-caller/upgrade-config.json':'normal-upgrade-config.json','scripts/ci/full-root-failed-update/lane-config.json':'precommit-lane-config.json','scripts/install/local_transaction.py':'local_transaction.py'}
+   for name,row in held['pins'].items():
+    original=ROOT/name
+    if not original.is_file() or P.pin(original.read_bytes())!=row:original=HERE/'fixtures'/fixtures[name]
+    self.assertEqual(P.pin(original.read_bytes()),row);dest=source/name;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(original.read_bytes())
+   code=base/'code';A.prepare(source,code,'normal',git=False,implementation=ROOT)
+   with self.patch.dict(sys.modules),self.patch.object(sys,'path',[str(code/'scripts/update'),*sys.path]):
+    names={f.stem for f in (code/'scripts/update').glob('*.py')}
+    for name in names:sys.modules.pop(name,None)
+    linked=importlib.import_module('linked_runtime');parent=linked.aux_runtime;original_projection=parent.apps6_postcommit_compare
+    def runtime(cls):
+     value=object.__new__(cls);value.root=self.root;value.root_limits=linked.roots.Limits(deadline=self.time.monotonic()+20);value.baseline=self.old_observation;value.aux_precommit=self.old;value.commit_ready=True;value.apps6_auxiliary_selected=True;value.config=self.config;value.comparator=self.comparator;value.footprints=[];value.auxiliary_checks=[];value.database_changes=();value.projected=linked.roots.observe(self.root,limits=value.root_limits)['nodes'];return value
+    original=types.ModuleType('_old_linked_active_route');exec(compile((ROOT/'scripts/update/linked_runtime.py').read_bytes(),'exact-held-linked-runtime','exec'),original.__dict__)
+    # Live-key/native closure authority is explicitly NOT asserted by this
+    # route unit. It still parses the real retained cache; compare is never mocked.
+    def key_projection(state,comparator):return {'scope':'INERT_ROUTE_NOT_LIVE_KEY_AUTHORITY','parsed_original_records':len(comparator.parse(state['aux_bytes']))}
+    with self.patch.object(linked.links,'check',return_value=None),self.patch.object(linked.aux,'checkpoint',return_value=self.new),self.patch.object(linked.aux,'live_keys',side_effect=key_projection),self.patch.object(original.Runtime,'view',lambda self,value:value),self.patch.object(linked.Runtime,'view',lambda self,value:value):
+     prior=runtime(original.Runtime)
+     with self.assertRaisesRegex(ValueError,'aux-checkpoint-scan-changed'):original.Runtime.tree(prior,self.root)
+     actual=runtime(linked.Runtime)
+     with self.patch.object(parent,'apps6_postcommit_compare',wraps=original_projection) as projection:linked.Runtime.tree(actual,self.root);self.assertEqual(projection.call_count,1)
+     self.assertEqual(actual.auxiliary_checks[-1]['selected_scan_directory']['projection'],'DIRECTORY_MTIME_CTIME_ONLY')
+     target=self.root/'usr/lib/libretained.so';data=target.read_bytes();target.write_bytes(data[:-1]+b'X');bad=self.state();actual=runtime(linked.Runtime)
+     with self.patch.object(linked.aux,'checkpoint',return_value=bad),self.assertRaisesRegex(ValueError,'aux-checkpoint-scan-changed'):linked.Runtime.tree(actual,self.root)
+     diagnostic=actual.auxiliary_checks[-1];self.assertEqual(diagnostic['checkpoint'],'scan-comparison-failure');row=diagnostic['diagnostic'];self.assertEqual(row['path'],'usr/lib/libretained.so');self.assertEqual(row['field'],'node.sha256');self.assertEqual(row['before']['node']['sha256'],self.old['scan']['usr/lib/libretained.so']['node']['sha256']);self.assertEqual(row['after']['node']['sha256'],bad['scan']['usr/lib/libretained.so']['node']['sha256']);self.assertFalse(row['acceptance_authority'])
 
 if __name__=='__main__':unittest.main(verbosity=2)
