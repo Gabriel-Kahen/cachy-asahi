@@ -1,0 +1,76 @@
+{
+  "cleanup": "PASS",
+  "evidence": {
+    "bytes": 16234,
+    "path": "replay.json",
+    "sha256": "342e03ca5d4c2c3486e37966570f47109a0265f5724271bae5e9ffb37d1a810d"
+  },
+  "expected604_sha256": "76c37db5eb097662f4a9ca0465680de285466b0443916a50255ea5b8f6d6c946",
+  "hardware": "NOT_RUN",
+  "input_policy_sha256": "f505068025efa934ec0ab5cbcd826d3cc45473fdcc965aa3d47a362a7ad1f6b1",
+  "installed_lifecycle": "PASS",
+  "installed_module_cases": [
+    "fish-bang-auto-done",
+    "fish-done-auto-bang",
+    "fish-noninteractive",
+    "zsh-auto-highlight-substring",
+    "zsh-highlight-substring-auto",
+    "zsh-noninteractive"
+  ],
+  "installed_six_modules": "PASS",
+  "interim587_states": [
+    "remove-to587-upgraded",
+    "final587-upgraded"
+  ],
+  "ldconfig_helper_exit": "NOT_OBSERVED",
+  "lifecycle_phases": [
+    "baseline587",
+    "install604",
+    "same-version604",
+    "remove-to587",
+    "restore604",
+    "final587"
+  ],
+  "limitations": [
+    "All fresh target-cache signatures, public keyrings and585 original system archive pairs are not exported. Signature-role/hash/unchanged-row declarations and source-enforced verification are joined; no fresh cryptographic verification is performed.",
+    "The six audio archive payloads and private full installed node/database/ownership/user maps are not exported. Incoming audio identity is joined to frozen policy; actual installed comparisons remain original source-enforced receipts.",
+    "Raw eight auxiliary-cache blobs and ldconfig state JSON are independently replayed using the exact frozen comparator. Helper exit remains NOT_OBSERVED; no helper execution, regeneration or source/binary correspondence claim.",
+    "Normal lifecycle exit0 and preservation/absence observations are original source-enforced records, not fresh process/root/container probes. Owned cleanup is disposal, not rollback or boot recovery.",
+    "Generic native ARM604 metadata lifecycle and installed shell coexistence only; notification delivery, GUI,16K/Apple/M2,services/audio execution,installer,performance and release acceptance are not established."
+  ],
+  "package_count": 604,
+  "release": "NOT_ADMITTED",
+  "run_id": "38979740492",
+  "scope": "Native AArch64 generic4K signed587to604/repeat/restoration lifecycle; six installed module cases, eight raw ldconfig/aux states. Recorded cleanup; no fresh live reobservation.",
+  "signature_and_payload_scope": {
+    "audio_inputs": 6,
+    "fresh_TEST_signatures": "18_SOURCE_ENFORCED_BYTES_NOT_EXPORTED",
+    "incoming": 19,
+    "native_pairs": 13,
+    "official_LSP_signature": "ORIGINAL_POLICY_HASH_DECLARATION_JOINED",
+    "signer_roles": {
+      "ephemeral_TEST": "C155E28A78F1280E8E4390E45C3760FD04CA5689",
+      "upstream_ALARM": "68B3537F39A313B3E574D06777193F152BDBE6A6"
+    },
+    "target_manifest": {
+      "bytes": 654400,
+      "sha256": "6a0aa04c9518d0336db2966793a59da6655011589caacf138a4cf2f0cc9ac240"
+    },
+    "unchanged_original_rows": 585
+  },
+  "source_evidence": {
+    "bytes": 283,
+    "path": "source-joins.json",
+    "sha256": "405699cffa6b3ee44302dcbdcd42408e0acb14cadac5d85bebe64eb5e9c76bdf"
+  },
+  "source_joins": {
+    "git_files": 218,
+    "infrastructure_pins": 53,
+    "legacy_pins": 83,
+    "pinned_local_parser": 1,
+    "recipe_support": 79
+  },
+  "source_manifest_sha256": "26aec1dbceee69dd49cf2cd01af4670f8a63700789ef4e710144312f71b21a7f",
+  "source_sha": "0b255f22c84279ea92fb6f710f2f24bd16871590",
+  "status": "ROOT_ACCEPTED_NATIVE_EXPANDED604_COMPOSITION"
+}
