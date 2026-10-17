@@ -139,4 +139,49 @@ class Lane(unittest.TestCase):
  def test_retainer_keeps_raw_repair_and_derivation_receipts(self):
   s=A.text(SOURCE,'job.py');self.assertIn("signed-repair/native-result.json",s);self.assertIn('runner-derivations.json',s);self.assertIn("len(entries)<=256",s);self.assertIn("result['bytes']<=old.MAX_TOTAL",s);self.assertIn('original/native/lifecycle repair receipts differ',s);self.assertIn('original worker/plan repair joins differ',s)
 
+
+ def evidence_case(self,root):
+  import repair
+  source=root/'private';source.mkdir(mode=0o700)
+  for name in repair.PUBLIC_FILES:(source/name).write_bytes(('TEST '+name+'\n').encode())
+  for name in ('seed/boot/platform-fixture','bundle/repo/test.db.tar.gz'):
+   path=source/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(b'unchanged TEST evidence\n')
+  (source/'bundle/repo/test.db').symlink_to('test.db.tar.gz');return source
+ def test_evidence_publication_preserves_complete_bytes_aliases_and_private_mode(self):
+  import repair,stat
+  with tempfile.TemporaryDirectory() as t:
+   root=Path(t);source=self.evidence_case(root);target=root/'public'
+   with patch.object(subprocess,'Popen',side_effect=AssertionError('publication has no actors')):receipt=repair.publish_evidence(source,target,True)
+   self.assertTrue(receipt['complete']);self.assertEqual(stat.S_IMODE(source.stat().st_mode),0o700)
+   self.assertTrue(repair.PUBLIC_FILES<=receipt['files'].keys());self.assertEqual(os.readlink(target/'bundle/repo/test.db'),'test.db.tar.gz')
+   for name,row in receipt['files'].items():
+    path=target/name
+    if row['type']=='file':self.assertEqual(path.read_bytes(),(source/name).read_bytes());self.assertEqual(stat.S_IMODE(path.stat().st_mode),0o644)
+    elif row['type']=='directory':self.assertEqual(stat.S_IMODE(path.stat().st_mode),0o755)
+   self.assertEqual(json.loads((target/'publication.json').read_bytes()),receipt)
+ def test_missing_worker_or_private_workspace_never_publishes_completion(self):
+  import repair
+  for kind in ('missing-worker','workspace'):
+   with self.subTest(kind=kind),tempfile.TemporaryDirectory() as t:
+    root=Path(t);source=self.evidence_case(root)
+    if kind=='missing-worker':(source/'worker-4.stderr').unlink()
+    else:(source/'owned-copy').mkdir();(source/'owned-copy/private').write_bytes(b'never export')
+    with self.assertRaisesRegex(ValueError,'complete five-worker'):repair.publish_evidence(source,root/'complete',True)
+    self.assertFalse((root/'complete').exists());row=repair.publish_evidence(source,root/'failed',False);self.assertFalse(row['complete']);self.assertNotIn('owned-copy',row['files']);self.assertFalse((root/'failed/owned-copy').exists())
+ def test_evidence_unknown_private_file_hardlink_and_unsafe_alias_refuse(self):
+  import repair
+  for kind in ('private','hardlink','alias'):
+   with self.subTest(kind=kind),tempfile.TemporaryDirectory() as t:
+    root=Path(t);source=self.evidence_case(root)
+    if kind=='private':(source/'private-key').write_bytes(b'never publish')
+    elif kind=='hardlink':os.link(source/'public.gpg',root/'alias')
+    else:(source/'bundle/repo/test.db').unlink();(source/'bundle/repo/test.db').symlink_to('../../public.gpg')
+    with self.assertRaises(ValueError):repair.publish_evidence(source,root/'public',True)
+    self.assertFalse((root/'public').exists())
+ def test_native_annotation_precedes_publication_and_all_outputs_remain_required(self):
+  s=(HERE/'repair.py').read_text();self.assertLess(s.index("(case/'native-result.json').write_bytes"),s.index('try:publish_evidence'));self.assertNotIn("shutil.copytree(case,'/out/repair'",s)
+  for i in range(5):
+   import repair
+   self.assertTrue({f'worker-{i}.stdout',f'worker-{i}.stderr',f'plan-{i}.json',f'inventory-{i}.json'}<=repair.PUBLIC_FILES)
+
 if __name__=='__main__':unittest.main(verbosity=2)

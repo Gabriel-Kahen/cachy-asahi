@@ -25,3 +25,17 @@ The binder preserves exact held Runtime1/Cache2 mappings and binds checked Apps6
 All new code and reused helper sources are MIT (SPDX headers; original licenses/provenance remain in candidate archives). Sixteen controls include actual package() staging of all eight Apps installed files plus Runtime1, successful unchanged backend app_source loading with installed helper paths, and missing/tampered/hardlink/symlink installed-source/helper refusals. Package staging is not installation or a native build. Portable controls and emitted-source readiness are source/data results only. **Native package pair, installed lifecycle and actual repair NOT_RUN; hardware/M2 NOT_RUN.**
 
 The inherited catalog fixture mount is explicitly redirected to the original `scripts/ci/apps-cache-native/catalog_fixture.py`, whose exact bytes are included in both infrastructure pins and adapter PINS. No fixture body or actor grant changes. The finite C.HERE path control proves the adapted run has no inherited C.HERE operands, resolves the actual readonly catalog bind to the pinned file, verifies job.py's four source-manifest operands, and checks the emitted own rules/repair/policy inputs.
+
+Repair evidence publication keeps the private case at mode 0700. After the original
+child returns and its private transaction copy is disposed, the wrapper publishes
+only the bounded TEST seed/release, public authority, five inventories/plans and
+five raw stdout/stderr pairs plus both result receipts. Public directories use
+0755 and ordinary files 0644; content hashes and safe repository sibling aliases
+are retained in publication.json. Unknown top-level data, hardlinked files, unsafe
+aliases and incomplete successful evidence refuse. Failed private transaction
+state is not exported, and a partial publication never certifies completion.
+
+Actual 39028592005 remains failed: the inner native repair reported five commits
+and two refusals, but the original export lacked every raw repair file. The 0700
+copy/reader mismatch is source-derived; original target UID/mode was not exported.
+The successor requires a fresh native execution for complete evidence admission.
