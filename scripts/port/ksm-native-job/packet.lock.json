@@ -2,8 +2,8 @@
   "files": {
     ".github/workflows/native-arm-ksm.yml": {
       "mode": "0644",
-      "sha256": "ae2dc0adace61812c4fcf6396dfec2a219dbef66813a00c28852ca6d156f34ae",
-      "size_bytes": 7329
+      "sha256": "77af4a601893d8c409aa42755601c3f723aa8bd3818d20680e2c7ec3d5477782",
+      "size_bytes": 9251
     },
     "AGENTS.md": {
       "mode": "0644",
@@ -462,8 +462,8 @@
     },
     "scripts/build/compare.py": {
       "mode": "0644",
-      "sha256": "d75d9177cb741d7ae8e13466aa4b9e96587470b88749735ef2923f9a4446748d",
-      "size_bytes": 5763
+      "sha256": "4198864c264642b196a090a67b36185e5c194e38edc4cb928d08eb65b9f710cd",
+      "size_bytes": 5820
     },
     "scripts/build/container-entry.sh": {
       "mode": "0644",
@@ -477,13 +477,13 @@
     },
     "scripts/ci/inputs.lock.json": {
       "mode": "0644",
-      "sha256": "3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650",
+      "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f",
       "size_bytes": 328101
     },
     "scripts/ci/native_arm.py": {
       "mode": "0644",
-      "sha256": "a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898",
-      "size_bytes": 28318
+      "sha256": "077d3f8db24000dbbd7af23ba1a07757f4aeb21ff036498085618847ab5b5ce9",
+      "size_bytes": 28468
     },
     "scripts/ci/recipes.lock.json": {
       "mode": "0644",
@@ -497,7 +497,7 @@
     },
     "scripts/client/stage.py": {
       "mode": "0644",
-      "sha256": "dc0c75969ed79548c3eb0ab1692f57ebffe7464d9192e591cdcf61aeaeb77154",
+      "sha256": "13c2108aa03d76305a16bf1c9d08aa610e51f54f7726e4732c13d0824e5733f5",
       "size_bytes": 33711
     },
     "scripts/port/ksm-lifecycle/contract.py": {
@@ -512,8 +512,8 @@
     },
     "scripts/port/ksm-lifecycle/source-checkpoint.json": {
       "mode": "0644",
-      "sha256": "f3966ce9d97b6a3661a57474740052eaa837929c7b7553ac2d82702562f03fc8",
-      "size_bytes": 7004
+      "sha256": "6ac7b5094a1a43e5e84aa86ebbd7081c96680dfdef6e271427b8fcb0bd3627a7",
+      "size_bytes": 1469
     },
     "scripts/port/ksm-lifecycle/source-test-results-135.json": {
       "mode": "0644",
@@ -532,18 +532,18 @@
     },
     "scripts/port/ksm-lifecycle/stage.py": {
       "mode": "0644",
-      "sha256": "be4a61ac4ed8efbf243e2be1a5211c4ad0553f7be13a26b64e3e655de73cbaee",
-      "size_bytes": 28843
+      "sha256": "1ae16e8ecd610f8c6539fdf07f112cd8b63f06413252c3cdbb7d4d8e5f363471",
+      "size_bytes": 43300
     },
     "scripts/port/ksm-lifecycle/test_contract.py": {
       "mode": "0644",
-      "sha256": "13c7273a83cf3b67330f76380c05c14aa8af6ff4d7173c43d607d5c8b25e4258",
+      "sha256": "f9dc25ad2bc6f3c27d1a4dcf611060a95a423553cfa46d57da5257c7b0622c5b",
       "size_bytes": 25769
     },
     "scripts/port/ksm-lifecycle/test_stage.py": {
       "mode": "0644",
-      "sha256": "e34c99bb71f57748c5f171f08085ca4d0ab3846e26cbc48ca07e246730218332",
-      "size_bytes": 40222
+      "sha256": "56c68589171e34352ac600c5cbe258ade770b21f873396ee5b0e338e13e759ca",
+      "size_bytes": 85342
     },
     "scripts/port/ksm-lifecycle/test_worker.py": {
       "mode": "0644",
@@ -552,7 +552,7 @@
     },
     "scripts/port/ksm-lifecycle/worker.py": {
       "mode": "0644",
-      "sha256": "76a3e94f317bea79d1e2444630d719b8acaed6c6cb6427c0bb19beedbc4d6b83",
+      "sha256": "8670e05d0cd51a3d3d685702768634bde50427e2a0c8173f1852f94a7ff554d1",
       "size_bytes": 38456
     },
     "scripts/port/ksm-native-job/acceptance.py": {
@@ -570,19 +570,44 @@
       "sha256": "e10b39f0cbd5337b93f82edc77f06ad401265d6fec6c5c1eb6d9fccf35be78eb",
       "size_bytes": 58478
     },
+    "scripts/port/ksm-native-job/cache_intake.py": {
+      "mode": "0644",
+      "sha256": "c474a32b7be41d73504906932cab8022318cdd81e49ca6da45ed942c5bf3d5dc",
+      "size_bytes": 34371
+    },
     "scripts/port/ksm-native-job/consumer.py": {
       "mode": "0644",
       "sha256": "2c801ac981df837397f5384639455f45b938e64bac461d97616007fb00f77ee2",
       "size_bytes": 9154
     },
+    "scripts/port/ksm-native-job/current_cache.py": {
+      "mode": "0644",
+      "sha256": "ab0229e957807c9dec63325d81aed80d77ff74708a2af31a4e720a8ee247ca4e",
+      "size_bytes": 7658
+    },
+    "scripts/port/ksm-native-job/donor/current-controller.py": {
+      "mode": "0644",
+      "sha256": "6d11dedad65470650e9ada0cff47f9f5a3337ddcdc390fce76742b61598f3d61",
+      "size_bytes": 111516
+    },
+    "scripts/port/ksm-native-job/donor/current-native-arm.py": {
+      "mode": "0644",
+      "sha256": "a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898",
+      "size_bytes": 28318
+    },
+    "scripts/port/ksm-native-job/donor/current-packet.json": {
+      "mode": "0644",
+      "sha256": "2233f89144232c33bea9a756a7efb9aa6f5f720ba74d2bfcb5ef1e61a2ffefc5",
+      "size_bytes": 94735
+    },
     "scripts/port/ksm-native-job/executor.py": {
       "mode": "0644",
-      "sha256": "5211b91bf9e5cc7e786b30806eed76a5c3cef64c75811b83949b80cc20301577",
-      "size_bytes": 42263
+      "sha256": "92436f39e3a7a3961b8feb498635ed5c7683f1bbbda1f8a97951daec1a94317a",
+      "size_bytes": 65551
     },
     "scripts/port/ksm-native-job/executor_contract.py": {
       "mode": "0644",
-      "sha256": "a13b471b08edcb5b529b930daf8611a6fb102424ef9b14b49ea49978e88a19df",
+      "sha256": "8d119ebbd493fd5ba743248c45fb64ee2a0b90bb8abf75cd869acdd4f0acaa41",
       "size_bytes": 35446
     },
     "scripts/port/ksm-native-job/history-80.json": {
@@ -662,23 +687,23 @@
     },
     "scripts/port/ksm-native-job/job.py": {
       "mode": "0644",
-      "sha256": "f57c9cf24807b3070b0087eb173b163f41e0de32fd235cf4f4b6a9998b18ca18",
-      "size_bytes": 7855
+      "sha256": "46e01bf8e827057c4f8884a405f672dd11e5db23f32dbf71dd9e88612367e098",
+      "size_bytes": 9754
     },
     "scripts/port/ksm-native-job/producer_driver.py": {
       "mode": "0644",
-      "sha256": "e325b13bec56471835bf2d4e6bde47353c7030fe52b87b31746e0066d85c2c10",
-      "size_bytes": 26412
+      "sha256": "30fc08607b78bcfa12feeed5f83e8b61260e4dda8fcf75cf5c180d4390a53979",
+      "size_bytes": 47272
     },
     "scripts/port/ksm-native-job/public.py": {
       "mode": "0644",
-      "sha256": "1d9ecb0b710daa3ce65f915e937fd51d0c935712f9600e8b5942e0a30a55f244",
+      "sha256": "8b862cfb9957d0074fb185d395bde8809402c4616b053b6eb7f0ab99caeecf19",
       "size_bytes": 21792
     },
     "scripts/port/ksm-native-job/required_paths.py": {
       "mode": "0644",
-      "sha256": "716201c3f5d7768e0b0f1e30ce49c3b9f5708ae2dafc0648147ac1975222a117",
-      "size_bytes": 9551
+      "sha256": "089450ef91b75b1e7f594704a187322b8d6dafa74872a5ba166701b5c9af8f14",
+      "size_bytes": 9841
     },
     "scripts/port/ksm-native-job/runtime.py": {
       "mode": "0644",
@@ -692,8 +717,8 @@
     },
     "scripts/port/ksm-native-job/source-checkpoint.json": {
       "mode": "0644",
-      "sha256": "e54715b27d8ff753be0e4a07b3301485f80f3cd1e619205a641732d80b39d099",
-      "size_bytes": 26889
+      "sha256": "a83830ad4791d9b90b2a77ea82c5b1db5293572da4c28129cbbe957aec459dd1",
+      "size_bytes": 3061
     },
     "scripts/port/ksm-native-job/source-test-results.json": {
       "mode": "0644",
@@ -722,8 +747,8 @@
     },
     "scripts/port/ksm-native-job/test_executor.py": {
       "mode": "0644",
-      "sha256": "842d7428dc23a10a1e129adc14b66c65dd256b15f16449e6f5647d45ed56ec3b",
-      "size_bytes": 50585
+      "sha256": "ae529bbf8c43301fbfa1dd46977335baf8bfce9fc34c642bc73373373dffff48",
+      "size_bytes": 97762
     },
     "scripts/port/ksm-native-job/test_executor_contract.py": {
       "mode": "0644",
@@ -742,8 +767,8 @@
     },
     "scripts/port/ksm-native-job/test_producer_driver.py": {
       "mode": "0644",
-      "sha256": "82bab828813fa89a036c59fc4247e397cb75087bdc9a66b1e00978bc2a780ad5",
-      "size_bytes": 35990
+      "sha256": "937e57375823441566c8add61fafca443ec00546bc78f4b5b3fcca695675bbd0",
+      "size_bytes": 70590
     },
     "scripts/port/ksm-native-job/test_public.py": {
       "mode": "0644",
@@ -752,8 +777,8 @@
     },
     "scripts/port/ksm-native-job/test_runtime.py": {
       "mode": "0644",
-      "sha256": "04d5e87fb895b36b81fc428aa6ae6ccae6aabc0495a2595a2c83b90b73b4182b",
-      "size_bytes": 69638
+      "sha256": "86e9604f05abe7b8c57799136c2251f095d5150f536db16b004bfddaca6ebc42",
+      "size_bytes": 69857
     },
     "scripts/port/ksm-native-job/test_shim.py": {
       "mode": "0644",
@@ -762,7 +787,7 @@
     },
     "scripts/port/refreshed-desktop/proposed-builder-inventory.lock": {
       "mode": "0644",
-      "sha256": "89bdb06fea1862b5a6e02b77a4b98f6e04755b02327d875a716bd792929f3a4f",
+      "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25",
       "size_bytes": 6674
     },
     "scripts/setup/setup.py": {

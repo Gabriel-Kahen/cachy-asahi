@@ -155,5 +155,10 @@ EXPECTED_PATHS = frozenset((
     'scripts/port/ksm-native-job/test_public.py',
     'scripts/port/refreshed-desktop/proposed-builder-inventory.lock',
     'scripts/setup/setup.py',
+    'scripts/port/ksm-native-job/current_cache.py',
+    'scripts/port/ksm-native-job/cache_intake.py',
+    'scripts/port/ksm-native-job/donor/current-controller.py',
+    'scripts/port/ksm-native-job/donor/current-packet.json',
+    'scripts/port/ksm-native-job/donor/current-native-arm.py',
 ))
 WORKFLOW = ".github/workflows/native-arm-ksm.yml"
