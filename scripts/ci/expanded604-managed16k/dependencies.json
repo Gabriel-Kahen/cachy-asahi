@@ -717,8 +717,8 @@
       "sha256": "3184b1dd802f9fc66a874f020919ac2090bf09c9ad1d109b396d147c9dccaf1d"
     },
     "scripts/ci/welcome-management-native/a11y_driver.c": {
-      "bytes": 19474,
-      "sha256": "70c87d5800b94c25d1ee2d56ab4f0db03d7a92e986ce817745c5f7fcfd4608cd"
+      "bytes": 20397,
+      "sha256": "ecc55ceb452a43056d3328c41b05435bdf70ce097f86bc98630dd482e7decce2"
     },
     "scripts/ci/welcome-management-native/candidates.py": {
       "bytes": 2530,
@@ -749,8 +749,8 @@
       "sha256": "6c111a3efb451688ef89419956b381e5e417809676efbe28496d15fa9ca1b231"
     },
     "scripts/ci/welcome-management-native/management_contract.py": {
-      "bytes": 16338,
-      "sha256": "f7e0f8ebdf85b0ab39ee845e4fc220d552bc3f1e73f370047aea235851bdc249"
+      "bytes": 16804,
+      "sha256": "26d17146e99ba2adcae0cace73837f492cc4b0758efd109bc1005aa8662c8c35"
     },
     "scripts/ci/welcome-management-native/management_phase.py": {
       "bytes": 14425,
@@ -773,16 +773,20 @@
       "sha256": "f04a8ebada6892d1119fc3b43dd83809c9cde75cef5b8eebb417b635819bdbe7"
     },
     "scripts/ci/welcome-management-native/source-manifest.json": {
-      "bytes": 30801,
-      "sha256": "9c29304256cfb2351eaa9c6160a01335b318d2af755638dd15145e5174c5521b"
+      "bytes": 30978,
+      "sha256": "c5e2840c2f5a8040b335cf894024181a8101aee6ff08e064bc1aca121386ff96"
     },
     "scripts/ci/welcome-management-native/test_failure_capture.py": {
       "bytes": 5027,
       "sha256": "711047ff3f0160e55acf4f2cd3147d24989ba10b021faaf936cb9185b81ef50d"
     },
+    "scripts/ci/welcome-management-native/test_focus_reply.py": {
+      "bytes": 2839,
+      "sha256": "5e8d49c65c4251843a165e62a7d507df166252df635416ad467313659911fc9b"
+    },
     "scripts/ci/welcome-management-native/test_gui.py": {
-      "bytes": 27563,
-      "sha256": "4008f3cdd5214a450319035ebbb5f5468c98fbc9651a37a72ce8e53f86efd310"
+      "bytes": 27612,
+      "sha256": "9d4a8dc9edff89e8a33208771513b3c62d1fb5785db4d4711642b2d26d8871a3"
     },
     "scripts/ci/welcome-management-native/test_native.py": {
       "bytes": 24027,

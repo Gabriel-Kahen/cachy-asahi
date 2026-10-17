@@ -88,7 +88,7 @@ def result(rows):return next(e for e in rows if e['event']=='management_result')
 class Semantics(unittest.TestCase):
     def test_disabled_button_visibility_requires_owned_enabled_same_panel_peer(self):
         label=UI['labels']['orphans'];proof,window=scroll_proof(label)
-        proof.update(method='PEER_FOCUS_SCROLL',unclipped_after_scroll=False,peer_focus=dict(pid=80,role=62,name_base64='VmlldyByZXBvcnQ=',scope='Orphan assessment',
+        proof.update(method='PEER_FOCUS_SCROLL',unclipped_after_scroll=False,peer_focus_reply='REPLIED',peer_focus_error=None,peer_focus=dict(pid=80,role=62,name_base64='VmlldyByZXBvcnQ=',scope='Orphan assessment',
             enabled=True,sensitive=True,focused=True,same_panel=True,target_enabled=False,target_sensitive=False))
         C.visible_control(proof,80,label,window)
         for field,value in (('pid',81),('pid',80.0),('role',43),('scope','Doctor'),('name_base64',base64.b64encode(b'Other').decode()),
