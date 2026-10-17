@@ -7,7 +7,7 @@ HERE=Path(__file__).resolve().parent
 OLD='scripts/ci/expanded604-apps6-updater';NEW='scripts/ci/expanded604-apps6-public-pair-updater'
 FRESH='scripts/ci/expanded604-apps6-public-pair-installer';COMP='scripts/ci/expanded604-apps6-public-pairs'
 WF='.github/workflows/native-arm-expanded604-apps6-public-pair-updater.yml'
-OWN=('prepare.py','adapter.py','selected_package.py','baseline.py','apps6-product.json','policy.json','source-pins.json','test_lane.py','README.md','fixtures/normal-upgrade-config.json','fixtures/precommit-lane-config.json','fixtures/local_transaction.py')
+OWN=('prepare.py','adapter.py','aux_transition.py','test_aux_transition.py','selected_package.py','baseline.py','apps6-product.json','policy.json','source-pins.json','test_lane.py','README.md','fixtures/normal-upgrade-config.json','fixtures/precommit-lane-config.json','fixtures/local_transaction.py')
 MODULES=('contract.py','gate.py','run.py','before_cache.py','freeze.py')
 NATIVE604='b0154bd3b60434e45d4411b558f3ffda9e415640'
 def need(v,w):

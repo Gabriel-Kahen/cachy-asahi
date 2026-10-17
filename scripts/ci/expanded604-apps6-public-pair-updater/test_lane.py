@@ -55,7 +55,9 @@ class Controls(unittest.TestCase):
     if not p.is_file():continue
     n=p.relative_to(old).as_posix()
     if n=='scripts/ci/full-root-upgrade/construct_repository.py' or n.startswith(self.A.PREFIX) or n in ('upgrade-config.json','adapter.json'):continue
-    self.assertEqual((code/n).read_bytes(),p.read_bytes(),case+':'+n)
+    if n=='scripts/update/aux_runtime.py':
+     H=self.C.load('exact_apps_auxiliary_controls',HERE/'aux_transition.py');expected,_=H.derive(p.read_bytes());self.assertEqual((code/n).read_bytes(),expected,case+':'+n)
+    else:self.assertEqual((code/n).read_bytes(),p.read_bytes(),case+':'+n)
  def test_all_three_config_resources_and_complete_code_pins(self):
   for case,code in self.codes.items():
    config=self.C.read(code/'upgrade-config.json');old=self.C.read(self.old[case]/'upgrade-config.json')
