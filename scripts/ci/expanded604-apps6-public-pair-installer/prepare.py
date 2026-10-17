@@ -16,6 +16,8 @@ def pin(raw):return dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())
 def encoded(value):return (json.dumps(value,sort_keys=True,indent=2,allow_nan=False)+'\n').encode()
 def source(repo,composition):
  result={};pins=json.loads((HERE/'source-pins.json').read_bytes());groups=pins['groups']
+ controls=pins['workflow_control_inputs']
+ need(len(controls)==9 and all(groups['composition'].get(n)==row and pins['files'].get(n)==row for n,row in controls.items()),'complete original workflow control closure required')
  recipes=pins['composition_recipe_inputs']
  need(len(recipes)==80 and all(groups['composition'].get(n)==row and pins['files'].get(n)==row for n,row in recipes.items()),'complete pinned composition recipe/provenance closure required')
  need(set(groups)=={'installer','composition'},'two finite source roles required')
@@ -57,6 +59,9 @@ def workflow(raw,rows,owner,manifest):
  text=text.replace('expanded604-apps6-installer','expanded604-apps6-public-pair-installer')
  need(text.count('apps6_native_source')==2 and text.count('--apps6-native-source')==2,'two public authority checkout/argv sites')
  text=text.replace('apps6_native_source','apps6_authority_source').replace('apps6-native','apps6-authority')
+ anchor='          CURRENT604_INSTALLER_SOURCE: ${{ github.workspace }}/expanded604-installer\n'
+ need(text.count(anchor)==1,'one focused controls implementation root')
+ text=text.replace(anchor,anchor+'          PUBLIC_PAIR_INSTALLER_ROOT: ${{ github.workspace }}/expanded604-installer\n          PUBLIC_PAIR_COMPOSITION_ROOT: ${{ github.workspace }}/expanded604-installer\n')
  return text.encode()
 
 def emit(repo,composition,output):
