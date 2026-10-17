@@ -174,7 +174,7 @@ class Lane(unittest.TestCase):
   with self.assertRaises(ValueError):adapter.backend(changed)
  def test_lifecycle_genuine_case_loop_and_helpers_byte_AST_preserved(self):
   raw=self.native('lifecycle.py');out=adapter.lifecycle(raw);before=adapter.functions(raw);after=adapter.functions(out)
-  self.assertEqual([n for n in before if before[n]!=after[n]],['inspected','main']);self.assertEqual(set(after)-set(before),{'_vm_backend'})
+  self.assertEqual([n for n in before if before[n]!=after[n]],['inspected','main']);self.assertEqual(set(after)-set(before),{'_vm_backend','_vm_backend_note','_vm_backend_call'})
   # Transaction loops stay exact; only readonly /seed baseline/after budgets route.
   self.assertEqual([dump(n) for n in ast.walk(function(raw,'main')) if isinstance(n,ast.For)],[dump(n) for n in ast.walk(function(out,'main')) if isinstance(n,ast.For)])
   for n in ('owned','observed','argv','leaf','damage','restore','repaired'):self.assertEqual(before[n],after[n])
@@ -449,5 +449,38 @@ class InnerLifecycleDiagnostic(unittest.TestCase):
    with self.assertRaises(ValueError):self.capture(self.row(b'a',b'',**change),b'a',b'')
   raw=(HERE/'guest.py').read_text();self.assertIn(" lifecycle_failure(s,record,out,err,error)\n C.need(error is None and record['exit_code']==0 and record['group_absence_verified'] is True,'original case direct child/group retirement')",raw)
   self.assertIn("env,3000,2*1024**2)",raw)
+
+class BackendFailureNoteControls(unittest.TestCase):
+ def functions(self):
+  import ast
+  names={'_vm_backend_note','_vm_backend_call'};tree=ast.parse(adapter.BACKEND_NOTE)
+  env=dict(C=C,types=__import__('types'));exec(compile(ast.Module(body=[n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name in names],type_ignores=[]),'<source-pinned-backend-note>','exec'),env);return env
+ def test_genuine_bounded_failed_child_note_survives_existing_inner_tail(self):
+  import traceback,base64,contextlib,io,json,sys
+  env=self.functions();runner=C.load('real_backend_note_runner',Path(os.environ['FULL574_REPAIR16K_SOURCE'])/'scripts/ci/glibc-owned-runtime/runner.py')
+  with tempfile.TemporaryDirectory()as td:
+   root=Path(td);script=root/'failure.py';script.write_text("import json,sys\nprint(json.dumps(dict(status='FAIL',error_type='ValueError',error='UNIT cooperative full-root deadline diagnostic',packages_committed=False,commit_started=False,recovery='DISPOSE_OWNED_COPY_IF_COMMIT_OR_CLEANUP_UNCERTAIN',rollback='NOT_CLAIMED')))\nsys.stderr.write('UNIT bounded child stderr\\n')\nsys.exit(1)\n")
+   row,out,err,error=runner.run_command([sys.executable,'-I','-B',str(script),'prepare-copy'],root,dict(PATH='/usr/bin:/bin',HOME=str(root),LANG='C.UTF-8'),5,1024**2)
+  self.assertIsNone(error);self.assertEqual(row['exit_code'],1);self.assertIs(row['group_absence_verified'],True)
+  note=env['_vm_backend_note'](row,out,err,error);self.assertLessEqual(len(note.encode()),1900)
+  value=json.loads(note.split(' ',1)[1]);self.assertEqual(value['supervisor'],row);self.assertEqual(value['result']['error'],'UNIT cooperative full-root deadline diagnostic');self.assertIs(value['acceptance_authority'],False);self.assertNotIn('stdout_preview',value)
+  exc=ValueError('bounded actual command failed: /usr/bin/python3');exc.add_note(note);stderr=('UNIT earlier traceback padding\n'*200+''.join(traceback.format_exception(exc))).encode()
+  guest=C.load('note_framing_guest',HERE/'guest.py');selection=dict(nonce='a'*32,case='repair-bytes');stdout=b''
+  inner=dict(argv=['/usr/bin/python3','-I','-B','/workspace/execution-lifecycle.py'],exit_code=1,seconds=1,time_limit=3000,output_limit=2*1024**2,group_absence_verified=True,stdout_bytes=0,stdout_sha256=C.sha(stdout),stderr_bytes=len(stderr),stderr_sha256=C.sha(stderr))
+  stream=io.StringIO()
+  with contextlib.redirect_stdout(stream):guest.lifecycle_failure(selection,inner,stdout,stderr,None)
+  frame=json.loads(stream.getvalue().split(' ',2)[2]);tail=base64.b64decode(frame['stderr_tail']['base64'],validate=True)
+  self.assertEqual(tail,stderr[-2048:]);self.assertIn(note.encode()+b'\n',tail);self.assertIn(b'ValueError: bounded actual command failed:',stderr)
+ def test_exact_failure_guard_preserved_and_invalid_stdout_never_previewed(self):
+  env=self.functions();result=dict(argv=['/usr/bin/python3','-I','-B','/execution/scripts/apps/transaction.py','prepare-copy'],exit_code=1,seconds=1,time_limit=610,output_limit=1024**2,group_absence_verified=False,stdout_bytes=15,stdout_sha256=C.sha(b'PRIVATE_MAP!!!'),stderr_bytes=0,stderr_sha256=C.sha(b''))
+  # The formatter rejects changed receipts, never substituting a passing row.
+  with self.assertRaises(ValueError):env['_vm_backend_note'](result,b'PRIVATE_MAP!!!',b'',None)
+  result['stdout_bytes']=len(b'PRIVATE_MAP!!!');note=env['_vm_backend_note'](result,b'PRIVATE_MAP!!!',b'',None);self.assertNotIn('PRIVATE_MAP',note);self.assertIn('"result":null',note)
+  api=__import__('types').SimpleNamespace(run_command=lambda *a,**kw:(result,b'PRIVATE_MAP!!!',b'',None));instance=__import__('types').SimpleNamespace(api=api)
+  def original(self,argv,*,seconds=610,expected=0):
+   self.api.run_command();raise ValueError('bounded actual command failed: /usr/bin/python3')
+  env['_vm_original_call']=original
+  with self.assertRaisesRegex(ValueError,'^bounded actual command failed: /usr/bin/python3$')as failure:env['_vm_backend_call'](instance,result['argv'])
+  self.assertIs(instance.api,api);self.assertEqual(len(failure.exception.__notes__),1);self.assertIn('"group_absence_verified":false',failure.exception.__notes__[0])
 
 if __name__=='__main__':unittest.main()
