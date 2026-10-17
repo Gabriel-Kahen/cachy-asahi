@@ -30,7 +30,7 @@ class Controls(unittest.TestCase):
  def test_complete_closed_source_and_exact_bound_composition(self):
   value=self.C.read(self.output/P.NEW/'source-manifest.json')
   for n,row in value['files'].items():self.assertEqual(P.pin((self.output/n).read_bytes()),row,n)
-  fresh=self.C.read(self.output/P.FRESH/'source-manifest.json');self.assertEqual(hashlib.sha256((self.output/P.FRESH/'source-manifest.json').read_bytes()).hexdigest(),'f279aff3910f1c8ff09c90a6b9714380ca095fc256096af3273f8d21248a2900')
+  fresh=self.C.read(self.output/P.FRESH/'source-manifest.json');self.assertEqual(hashlib.sha256((self.output/P.FRESH/'source-manifest.json').read_bytes()).hexdigest(),'e8981d47dcad4b1451dcf7b0cf00bd4cf4241c2615d2ebeaf6fc3e55702c9733')
   for n,row in fresh['files'].items():self.assertEqual(P.pin((self.output/n).read_bytes()),row,n)
   self.assertEqual(P.NATIVE604,'b0154bd3b60434e45d4411b558f3ffda9e415640');self.assertEqual(self.C.read(self.output/P.COMP/'input-policy.json')['status'],'ROOT_BOUND_PUBLIC_PAIRS_APPS6_CURRENT604_NATIVE_INPUTS')
  def test_unbound_three_cases_before_output_or_actor(self):
@@ -84,4 +84,22 @@ class Controls(unittest.TestCase):
  def test_workflow_owner_manifest_authority_and_bounds_exact(self):
   rows=self.C.read(HERE/'source-pins.json')['groups']['updater'];expected=P.workflow((self.output/'.github/workflows/native-arm-expanded604-apps6-updater.yml').read_bytes(),rows,self.C.sha(self.output/P.NEW/'run.py'),self.C.sha(self.output/P.NEW/'source-manifest.json'));self.assertEqual((self.output/P.WF).read_bytes(),expected);text=expected.decode();self.assertNotIn('--apps6-native-source',text);self.assertEqual(text.count('--apps6-authority-source'),2)
   run=(self.output/P.NEW/'run.py').read_text();self.assertIn("old.command(argv+['--entrypoint=/usr/bin/python3',image,'-I','-B','/runner.py'],public/'transaction.log',3900)",run)
+ def test_emitted_genuine_setup_recipe_full_source_helper_license_closure(self):
+  recipe=P.setup_recipe(self.output);self.assertEqual(len(recipe['input_sha256']),12);self.assertEqual(recipe['metadata']['pkgname'],['cachy-asahi-setup']);self.assertEqual(recipe['metadata']['pkgrel'],['5'])
+  required=self.C.read(HERE/'source-pins.json')['setup_recipe_guard_inputs'];self.assertEqual(len(required),14)
+  for n,row in required.items():self.assertEqual(P.pin((self.output/n).read_bytes()),row,n)
+  # Run the REAL original recipe guard on a closed disposable source subset.
+  with tempfile.TemporaryDirectory() as td:
+   root=Path(td)
+   for n in (*required,'scripts/ci/setup5-native/contract.py','scripts/checks/package_checks.py'):
+    p=root/n;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes((self.output/n).read_bytes())
+   self.assertEqual(P.setup_recipe(root),recipe)
+   for n in required:
+    p=root/n;raw=p.read_bytes();p.unlink()
+    try:
+     with self.assertRaises(FileNotFoundError):P.setup_recipe(root)
+    finally:p.write_bytes(raw)
+   p=root/'scripts/setup/setup.py';p.write_bytes(p.read_bytes()+b'\n')
+   with self.assertRaisesRegex(ValueError,'provenance'):P.setup_recipe(root)
+
 if __name__=='__main__':unittest.main(verbosity=2)

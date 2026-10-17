@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # SPDX-License-Identifier: MIT
 """Finite public-pair604 upgrade/recovery emission; future actual gates remain UNBOUND."""
-import argparse,ast,hashlib,json,stat
+import argparse,ast,hashlib,importlib.util,json,stat
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
 OLD='scripts/ci/expanded604-apps6-updater';NEW='scripts/ci/expanded604-apps6-public-pair-updater'
@@ -22,6 +22,11 @@ def source(repo,fresh):
    need(n and not n.startswith('/') and '\\' not in n and all(p not in ('','.','..') for p in n.split('/')),'relative source path');p=root/n
    need(not any(q.is_symlink() for q in (p,*p.parents)),'no source aliases');s=p.lstat();need(stat.S_ISREG(s.st_mode) and s.st_nlink==1 and 0<s.st_size<=16*1024**2,'bounded ordinary source');raw=p.read_bytes();need(pin(raw)==row,'source role differs: '+role+':'+n);need(n not in result or result[n]==raw,'source roles conflict');result[n]=raw
  return result
+
+def setup_recipe(source):
+ # The actual unchanged setup_pair guard consumes12 recipe inputs +helper/license.
+ spec=importlib.util.spec_from_file_location('_closed_public_updater_setup_recipe',source/'scripts/ci/setup5-native/contract.py');module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);value=module.recipe(source)
+ need(len(value['input_sha256'])==12 and value['metadata']['pkgrel']==['5'],'genuine closed Setup5 recipe guard');return value
 
 def adapt(raw,name):
  text=raw.decode();ledger=[]
@@ -55,7 +60,7 @@ def workflow(raw,rows,owner,manifest):
  text=text.replace('expanded604-apps6-updater','expanded604-apps6-public-pair-updater').replace('apps6_native_source','apps6_authority_source').replace('apps6-native','apps6-authority');return text.encode()
 
 def emit(repo,fresh,output):
- repo=Path(repo).absolute();fresh=Path(fresh).absolute();output=Path(output).absolute();rows=source(repo,fresh)
+ repo=Path(repo).absolute();fresh=Path(fresh).absolute();output=Path(output).absolute();rows=source(repo,fresh);setup=setup_recipe(fresh)
  need(not output.exists() and output.parent.is_dir() and not any(p.is_symlink() for p in (output,*output.parents)),'fresh disjoint ordinary output')
  output.mkdir(mode=0o700)
  def write(n,raw):p=output/n;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(raw)
@@ -69,7 +74,7 @@ def emit(repo,fresh,output):
  files={p.relative_to(output).as_posix():pin(p.read_bytes()) for p in output.rglob('*') if p.is_file()};need(len(files)<=512,'finite complete updater source')
  raw=encoded(dict(schema_version=1,status='FROZEN_ROOT_FINAL_SOURCE',files=files,scope='PUBLIC_PAIRS_APPS5_TO6_UNBOUND',native='NOT_RUN',hardware='NOT_RUN'));write(NEW+'/source-manifest.json',raw)
  write(WF,workflow(rows['.github/workflows/native-arm-expanded604-apps6-updater.yml'],json.loads((HERE/'source-pins.json').read_bytes())['groups']['updater'],files[NEW+'/run.py']['sha256'],pin(raw)['sha256']))
- result=dict(status='SOURCE_ONLY_PUBLIC_PAIRS_APPS5_TO6_CURRENT604_UNBOUND',source_rows=len(files),composition_source=NATIVE604,native604='UNBOUND',fresh604='UNBOUND',changes=changes,other603='UNCHANGED',actors='NOT_RUN');write('updater-adaptation.json',encoded(result));return result
+ result=dict(status='SOURCE_ONLY_PUBLIC_PAIRS_APPS5_TO6_CURRENT604_UNBOUND',source_rows=len(files),composition_source=NATIVE604,native604='UNBOUND',fresh604='UNBOUND',setup_recipe_guard='PASS_EXACT_ORIGINAL_RECIPE_HELPER_LICENSE',changes=changes,other603='UNCHANGED',actors='NOT_RUN');write('updater-adaptation.json',encoded(result));return result
 if __name__=='__main__':
  p=argparse.ArgumentParser(description=__doc__)
  for n in ('source','fresh','output'):p.add_argument('--'+n,type=Path,required=True)
