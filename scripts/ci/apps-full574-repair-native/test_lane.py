@@ -63,7 +63,7 @@ class Controls(unittest.TestCase):
    with self.assertRaises(ValueError):f(dict(row,**change),damage)
   with self.assertRaises(ValueError):f(row,{'foreign':None})
  def test_generator_and_original_owner_two_functions_only(self):
-  source=self.source;out=self.root/'emitted';result=P.emit(source,out);self.assertEqual(result['status'],'SOURCE_ONLY_UNBOUND');lane=out/P.NEW;manifest=json.loads((lane/'source-manifest.json').read_bytes());self.assertEqual(len(manifest['files']),107);self.assertEqual((out/P.WF).read_text(),P.workflow((source/'.github/workflows/native-arm-apps-full574-transaction.yml').read_text()));self.assertEqual((out/'scripts/ci/apps-full574-native/job.py').read_bytes(),(source/'scripts/ci/apps-full574-native/job.py').read_bytes());self.assertNotIn(P.NEW+'/source-manifest.json',manifest['files'])
+  source=self.source;out=self.root/'emitted';result=P.emit(source,out);self.assertEqual(result['status'],'SOURCE_ONLY_UNBOUND');lane=out/P.NEW;manifest=json.loads((lane/'source-manifest.json').read_bytes());self.assertEqual(len(manifest['files']),112);self.assertEqual((out/P.WF).read_text(),P.workflow((source/'.github/workflows/native-arm-apps-full574-transaction.yml').read_text()));self.assertEqual((out/'scripts/ci/apps-full574-native/job.py').read_bytes(),(source/'scripts/ci/apps-full574-native/job.py').read_bytes());self.assertNotIn(P.NEW+'/source-manifest.json',manifest['files'])
   with patch.dict(sys.modules,{},clear=False):
    C=load('contract',lane/'contract.py');self.assertEqual(C.VERSIONS,PACK.VERSIONS)
    with self.assertRaisesRegex(ValueError,'UNBOUND'):C.source(out)

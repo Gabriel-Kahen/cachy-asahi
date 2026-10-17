@@ -15,7 +15,7 @@ def derived(text):
  start=run.index("   actor(args.source,args.output,report,command,api,'interruption'");end=run.index("   api.retire(report['actors']",start);run=run[:start]+run[end:]
  run=replace(run,'lifecycle=life,interruption=interruption','lifecycle=life')
  retain=replace(retain,";interruption=C.decode(C.read(args.output/'interruption-public/interruption.json'))",'')
- start=retain.index("  C.need(interruption['status']");end=retain.index("  snap=C.decode",start);retain=retain[:start]+"  C.need(owner['lifecycle']==life,'original lifecycle owner join required')\n"+retain[end:]
+ start=retain.index("  C.need(interruption['status']");end=retain.index("  snap=C.decode",start);retain=retain[:start]+"  C.need(owner['lifecycle']==life,'original lifecycle owner join required')\n  C.load('retained_inspection_joins',C.HERE/'checks.py').retained(C,life,args.output/'lifecycle-public',result['files'])\n"+retain[end:]
  retain=replace(retain,"  C.need(not result['errors'],'closed evidence incomplete')","  C.need([r['role'] for r in owner['actors']]==['export','extract','signer','lifecycle','source-verify','scrub','source-cleanup'] and all(r.get('exit')==0 for r in owner['actors'] if r['role']!='export'),'exact seven normal roles and natural exits required')\n  C.need(not result['errors'],'closed evidence incomplete')")
  C.need(not any(isinstance(n,ast.Name) and n.id=='interruption' for n in ast.walk(ast.parse(run+retain))),'no inactive interruption operand')
  return dict(run=run,retain=retain)
