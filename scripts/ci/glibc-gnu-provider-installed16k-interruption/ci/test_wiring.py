@@ -75,7 +75,9 @@ class Controls(unittest.TestCase):
  def test_workflow_source_bundle_owner_cleanup_order_bounds_and_fixed_actions(self):
   wf=ROOT/WF
   if not wf.exists():wf=next(p for p in HERE.parents if (p/WF).is_file())/WF
-  text=wf.read_text();positions=[text.index(s) for s in ('id: decisions','id: wiring','id: proof','id: packet','Seed the six existing private','Reuse unchanged owned574','id: installed16k','PYBARRIER','"$SLICE/job.py" cleanup','"$SLICE/job.py" retain')];self.assertEqual(positions,sorted(positions))
+  text=wf.read_text();job_env=text.split('    env:',1)[1].split('    steps:',1)[0];self.assertNotIn('runner.temp',job_env)
+  gate=text.index('wiring.py preflight --workspace');bundle=text.index("printf 'BUNDLE=%s/interrupted16k-source");self.assertLess(gate,bundle);self.assertLess(bundle,text.index('id: wiring'));self.assertIn('>> \"$GITHUB_ENV\"',text[bundle:text.index('id: wiring')])
+  positions=[text.index(s) for s in ('id: decisions','id: wiring','id: proof','id: packet','Seed the six existing private','Reuse unchanged owned574','id: installed16k','PYBARRIER','"$SLICE/job.py" cleanup','"$SLICE/job.py" retain')];self.assertEqual(positions,sorted(positions))
   for term in ('timeout-minutes: 360','timeout-minutes: 220','timeout-minutes: 80','--workspace "$BUNDLE" --acceptances "$BUNDLE/','--owner "$RUNNER_TEMP/provider-interruption-owner"','PASS_ALL_ACTORS_GROUPS_AND_DISKS_REMOVED','len(value[\'files\'])<=320','544*1024**2','persist-credentials: false','--workspace "$GITHUB_WORKSPACE"','874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad'):
    self.assertIn(term,text)
   for name in re.findall(r'python3 -I -B (scripts/[^ \n]+\.py)',text):self.assertTrue((self.root/name).is_file(),name)

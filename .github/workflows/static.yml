@@ -160,7 +160,8 @@ jobs:
       - name: Check Debian native pair source packet and cleanup boundaries without actors
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/glibc-debian-native-provider -p 'test_*.py'
       - name: Check maintained Debian first staged16K phase and candidate gates
-        run: python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-debian-maintained-system16k/test_adapter.py
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-debian-maintained-system16k/test_adapter.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-debian-maintained-system16k/test_protocol.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-debian-maintained-staged-packet/test_prepare.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-gnu-failure-log/test_summary.py

@@ -45,8 +45,8 @@
       "sha256": "7beaef3c080802bc7cdbc82af37589dc1c4fba39aa731d7c909885a1f851ab57"
     },
     "scripts/ci/glibc-gnu-provider-installed16k-interruption/ci/test_wiring.py": {
-      "bytes": 8522,
-      "sha256": "94a4da816f8f2f01549a03686709b0f5c2edb7db7d5747fb3e98f7d4338590eb"
+      "bytes": 8891,
+      "sha256": "923cc4042baa74a39fb98a918c436f1488f79eb4d3dea1b2756101194e50a8c7"
     },
     "scripts/ci/glibc-gnu-provider-installed16k-interruption/ci/wiring.py": {
       "bytes": 8198,
