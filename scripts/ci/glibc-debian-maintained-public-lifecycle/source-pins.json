@@ -77,6 +77,10 @@
       "bytes": 3711,
       "sha256": "d1731a40d275c5ed74ccf20b654a76754031dbdcbd32b27154164e3953af6da4"
     },
+    "scripts/ci/glibc-gnu-failure-log/summary.py": {
+      "bytes": 11924,
+      "sha256": "9bd52ce4453a3a03d8dc8b5edb6b6a4b8ec421e0c3037dfb64dc31da45687555"
+    },
     "scripts/ci/glibc-gnu-provider-interruption-owner/README.md": {
       "bytes": 6935,
       "sha256": "f4caf1d4a87223ec8bcb0ab3ee6d0954980d40436a48d50a6a6f3500f1367888"

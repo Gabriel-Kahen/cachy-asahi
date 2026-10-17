@@ -4,6 +4,10 @@
       "bytes": 17766,
       "sha256": "0922e95cc75ab21b2a57e5c6e05f78ecb411cead262099ab653d26b377afaf22"
     },
+    ".github/workflows/native-arm-glibc-gnu-provider-interruption.yml": {
+      "bytes": 9652,
+      "sha256": "0b91c98bcf3e6064b7f5d54097a63fb9e47876a169039add7f05ab8d7894c202"
+    },
     ".github/workflows/native-arm-glibc-gnu-provider-lifecycle.yml": {
       "bytes": 9441,
       "sha256": "502734225082f5b3212dc162634bd8e152ab66ebe3c4b6f64d8798484cc8728c"
@@ -147,6 +151,10 @@
     "scripts/ci/glibc-gnu-failure-log/summary.py": {
       "bytes": 11924,
       "sha256": "9bd52ce4453a3a03d8dc8b5edb6b6a4b8ec421e0c3037dfb64dc31da45687555"
+    },
+    "scripts/ci/glibc-gnu-failure-log/test_summary.py": {
+      "bytes": 10534,
+      "sha256": "e1f1a619f046396ad33862182531036224acfebf7746c025e24487dfbf53b24b"
     },
     "scripts/ci/glibc-gnu-provider-installed16k-interruption/ci/wiring.py": {
       "bytes": 8198,
