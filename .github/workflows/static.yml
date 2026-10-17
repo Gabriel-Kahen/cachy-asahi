@@ -178,6 +178,14 @@ jobs:
           persist-credentials: false
       - name: Check maintained glibc public compile-input route without actors
         run: CAA3_PUBLIC_ROUTE_SOURCE="$PWD" CAA3_PUBLIC_ROUTE_PACKET="$PWD/.ci-inputs/maintained-caa3-public/payload" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/glibc-debian-maintained-public-lifecycle -p test_route.py -v
+      - name: Checkout exact public maintained glibc native component
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 9aef8b7429fb8dd9f9d8412f4e878c5e0324c58d
+          path: .ci-inputs/maintained-caa3-public-native
+          persist-credentials: false
+      - name: Check maintained glibc public native-to16K source route without actors
+        run: CAA3_PUBLIC_NATIVE_SOURCE="$PWD/.ci-inputs/maintained-caa3-public-native" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/glibc-debian-maintained-public-installed16k -p test_route.py -v
       - name: Check maintained Debian native pair source and ownership
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/glibc-debian-maintained-native-provider -p 'test_*.py'
       - name: Check owned GNU trial AppArmor policy and retirement without actors
