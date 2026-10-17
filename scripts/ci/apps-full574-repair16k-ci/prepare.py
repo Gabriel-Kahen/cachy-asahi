@@ -17,6 +17,7 @@ def replace(text,before,after):need(text.count(before)==1,'one finite CI source 
 def section(text,start,end):need(text.count(start)==text.count(end)==1,'one fixed kernel section');return text[text.index(start):text.index(end)]
 def workflow(native,kernel,owner_sha,manifest_sha):
  text=native.replace('native-arm-apps-full574-repair','native-arm-apps-full574-repair16k')
+ text=replace(text,'  group: native-arm-apps-full574-repair16k\n','  group: native-arm-apps-full574-repair16k-${{ inputs.repair_case }}\n')
  text=replace(text,'    timeout-minutes: 120','    timeout-minutes: 350') # New generic16K global profile, original native stays120.
  text=replace(text,'  contents: read\n','  contents: read\n  actions: read\n')
  text=replace(text,'      SLICE: scripts/ci/apps-full574-repair-native','      SLICE: '+LANE)
