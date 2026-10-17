@@ -5,7 +5,7 @@ from pathlib import Path
 ROOT=next(p for p in Path(__file__).resolve().parents if (p/'manifests/packages.toml').is_file())
 HERE=Path(__file__).resolve().parent
 ORIGINAL='scripts/ci/apps-cache-native/'
-PINS={'contract.py': {'bytes': 11912, 'sha256': '16c68aa997dc018c568178f7a270938b164bec6721729be1231432ef96b280c4'}, 'run.py': {'bytes': 15349, 'sha256': 'd3cdf95b0757e1f2ebd04cb8bc56f90888ff8c17f615e9ca6e65357c4462b56e'}, 'job.py': {'bytes': 13236, 'sha256': '9a88aa45a16a5a6056d719828a1bae8b04a3cb3b32a2768b5aecb8167ef2adda'}, 'lifecycle.py': {'bytes': 16624, 'sha256': '971cd386da65cbe247e93f4fbbc6ce6a6c6f9e77aadbc6f6b1df6d39c049e45c'}, 'installed.py': {'bytes': 4441, 'sha256': '10d210905f770854ddf9ebb72b46002d414787aa0a878a498ba4b21b663d9d8e'}, 'runtime_image.py': {'bytes': 2057, 'sha256': 'a682b64a5326fc7edf0d2347c37ae50805f9b7773c2683f1fbae1769c18fa023'}}
+PINS={'contract.py': {'bytes': 11912, 'sha256': '16c68aa997dc018c568178f7a270938b164bec6721729be1231432ef96b280c4'}, 'run.py': {'bytes': 15349, 'sha256': 'd3cdf95b0757e1f2ebd04cb8bc56f90888ff8c17f615e9ca6e65357c4462b56e'}, 'job.py': {'bytes': 13236, 'sha256': '9a88aa45a16a5a6056d719828a1bae8b04a3cb3b32a2768b5aecb8167ef2adda'}, 'lifecycle.py': {'bytes': 16624, 'sha256': '971cd386da65cbe247e93f4fbbc6ce6a6c6f9e77aadbc6f6b1df6d39c049e45c'}, 'installed.py': {'bytes': 4441, 'sha256': '10d210905f770854ddf9ebb72b46002d414787aa0a878a498ba4b21b663d9d8e'}, 'runtime_image.py': {'bytes': 2057, 'sha256': 'a682b64a5326fc7edf0d2347c37ae50805f9b7773c2683f1fbae1769c18fa023'}, 'catalog_fixture.py': {'bytes': 3333, 'sha256': '0314733b88cc73f9813e488eff55bea8833e6b196d876d5a40fa7507e3ddc071'}}
 def read(source,name):
  p=source/(ORIGINAL+name);row=PINS[name]
  if any(parent.is_symlink() for parent in p.parents):raise ValueError('original source alias refused')
@@ -30,7 +30,9 @@ def original_contract(source):
 def text(source,name):
  raw=read(source,name).decode()
  if name=='run.py':
+  read(source,'catalog_fixture.py')
   raw=replace(raw,'import contract as C\n','import contract as C\nimport adapter as A\n')
+  raw=replace(raw,"f'type=bind,src={C.HERE}/catalog_fixture.py,dst=/catalog_fixture.py,readonly'","f'type=bind,src={source}/scripts/ci/apps-cache-native/catalog_fixture.py,dst=/catalog_fixture.py,readonly'")
   start="    def runner_context(context):\n        runner=context/'runner';runner.mkdir()\n        for name in ('contract.py','input-policy.json','installed.py','runtime_image.py','lifecycle.py'):shutil.copyfile(C.HERE/name,runner/name)\n        accepted=runner/'accepted';accepted.mkdir()\n        shutil.copyfile(source/'scripts/ci/welcome-native/lifecycle.py',accepted/'lifecycle.py')\n        shutil.copyfile(source/'scripts/ci/full-root-upgrade/root_upgrade.py',accepted/'root_upgrade.py')\n        return runner\n"
   raw=replace(raw,start,"    def runner_context(context):return A.runner(source,context)\n")
   raw=replace(raw,"        shutil.copytree(out/'catalog-fixture',life/'catalog-fixture',symlinks=True);public_tree(life)\n","        shutil.copytree(out/'catalog-fixture',life/'catalog-fixture',symlinks=True)\n        A.prepare_repair(source,life,out);public_tree(life)\n")

@@ -572,10 +572,10 @@ historical_native_build = "PASS native pair38970264456:22088bytes/SHA2569ec47f6c
 historical_installation = "PASS signed574to577/repeat/remove/reinstall/final574; installed signed catalog/plans and complete577 metadata collection38970264456"
 historical_native_generic16k_cli = "PASS generic16384 private data-staged CLI/helper cases38978464494; NOT ALPM-installed inVM; docs/validation/management-generic16k-20261016.md"
 hardware_validation = "NOT RUN"
-next_step = "Build Apps6 native pairs and run the separately owned signed repair fixture; full574 corruption remains refused, and both M2 workflows remain open. See docs/validation/apps6-signed-reinstall-20261017.md."
+next_step = "Run the corrected native installed/signed repair fixture after accepted Apps6 pairs; full574 corruption remains refused, and both M2 workflows remain open. See docs/validation/apps6-signed-reinstall-20261017.md."
 
 host_validation = "PASS42 package checks/15 backend controls and five real signed x86 copied-root transactions, including corrupt/missing ordinary leaf repair; six legacy plans byte-equal"
-native_build = "NOT_RUN Apps0.1.0-6; historical Apps5 native pair retains its own scope"
+native_build = "PASS Apps0.1.0-6 native pair39027622244:22876bytes/SHA2561ce4a540a5ec2fa26353847b93fed953e084cf65e872836f670ac721446cd3d7; Root pair-only replay, lifecycle not reached"
 installation = "PASS signed synthetic x86 copied-root repair; Apps6 native package installation NOT_RUN"
 native_generic16k_cli = "NOT_RUN Apps6; prior data-staged Apps5 result does not transfer"
 

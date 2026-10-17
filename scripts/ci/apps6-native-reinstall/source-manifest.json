@@ -1,8 +1,8 @@
 {
   "files": {
     "manifests/packages.toml": {
-      "bytes": 37290,
-      "sha256": "04a624e50332720da60562a82438f678daf089cd9267c8756b630f2b22f74472"
+      "bytes": 37394,
+      "sha256": "edb1a4fcc10ba2beff81262e6ea01cd73cdb40a7d1cb6a15d9c9a4b838521298"
     },
     "packages/tools/cachy-asahi-apps/.SRCINFO": {
       "bytes": 1775,
@@ -164,6 +164,10 @@
       "bytes": 17706,
       "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
     },
+    "scripts/ci/apps-cache-native/catalog_fixture.py": {
+      "bytes": 3333,
+      "sha256": "0314733b88cc73f9813e488eff55bea8833e6b196d876d5a40fa7507e3ddc071"
+    },
     "scripts/ci/apps-cache-native/contract.py": {
       "bytes": 11912,
       "sha256": "16c68aa997dc018c568178f7a270938b164bec6721729be1231432ef96b280c4"
@@ -189,12 +193,12 @@
       "sha256": "a682b64a5326fc7edf0d2347c37ae50805f9b7773c2683f1fbae1769c18fa023"
     },
     "scripts/ci/apps6-native-reinstall/README.md": {
-      "bytes": 6713,
-      "sha256": "4c4c77a61c3cffc5d46e475eb6b942d9ef18b8f03cf7fb0fc0b07e4ec8837d3d"
+      "bytes": 7213,
+      "sha256": "555c5f5ad6a09612521ff130e5e1be79ecbbafaa9f0447cceec078618b404050"
     },
     "scripts/ci/apps6-native-reinstall/adapter.py": {
-      "bytes": 9037,
-      "sha256": "db92bc491a8c9f5ee46fb53b407237a1d19d922c80bb52c24380937a109d5b6b"
+      "bytes": 9398,
+      "sha256": "da2ab816b0942292315040e8f1cf7cff12f89555fccc0ceea8ab303836d4bab0"
     },
     "scripts/ci/apps6-native-reinstall/bind.py": {
       "bytes": 1962,
@@ -209,8 +213,8 @@
       "sha256": "40a8823ed245ee029a9b4d7b0241465e4a6c3a3e5a8f3df70be5ab3e394aaca8"
     },
     "scripts/ci/apps6-native-reinstall/infrastructure-pins.json": {
-      "bytes": 5595,
-      "sha256": "3c78e2894073e852acecc03759c7dd1f2b5473a7784d6f40f790080a7081f063"
+      "bytes": 5755,
+      "sha256": "19598715174543cdbfb6cdd3640560a2077965227d91fbef07734fb2074c313f"
     },
     "scripts/ci/apps6-native-reinstall/input-policy.json": {
       "bytes": 9150,
@@ -233,8 +237,8 @@
       "sha256": "145a401df6837e1882e07103472b2f3f08c1f0aa01182efaf62ad6e015c18796"
     },
     "scripts/ci/apps6-native-reinstall/test_lane.py": {
-      "bytes": 11556,
-      "sha256": "f9decfb7c77c9a28f12452aa6cbf5099f842d3eaa3b790beb5d9352ef2510384"
+      "bytes": 13930,
+      "sha256": "327a0ebfa454ec93e414e258f197c328a6c0a96f8b69074b463e724ec624092a"
     },
     "scripts/ci/full-development-composition/run.py": {
       "bytes": 29738,
@@ -421,7 +425,7 @@
           "https://github.com/Gabriel-Kahen/cachy-asahi"
         ]
       },
-      "recipe": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/apps6-native-isolated-root-source-20261017/source/packages/tools/cachy-asahi-apps/PKGBUILD",
+      "recipe": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/apps6-native-catalog-root-source-20261017/source/packages/tools/cachy-asahi-apps/PKGBUILD",
       "review": [
         "PKGBUILD body and metadata consistency require independent review; static checks are not a shell sandbox"
       ],
@@ -482,7 +486,7 @@
           "https://github.com/Gabriel-Kahen/cachy-asahi"
         ]
       },
-      "recipe": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/apps6-native-isolated-root-source-20261017/source/packages/tools/cachy-asahi-cache/PKGBUILD",
+      "recipe": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/apps6-native-catalog-root-source-20261017/source/packages/tools/cachy-asahi-cache/PKGBUILD",
       "review": [
         "PKGBUILD body and metadata consistency require independent review; static checks are not a shell sandbox"
       ],
@@ -557,7 +561,7 @@
           "https://github.com/Gabriel-Kahen/cachy-asahi"
         ]
       },
-      "recipe": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/apps6-native-isolated-root-source-20261017/source/packages/tools/cachy-asahi-repository-runtime/PKGBUILD",
+      "recipe": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/apps6-native-catalog-root-source-20261017/source/packages/tools/cachy-asahi-repository-runtime/PKGBUILD",
       "review": [
         "PKGBUILD body and metadata consistency require independent review; static checks are not a shell sandbox"
       ],
