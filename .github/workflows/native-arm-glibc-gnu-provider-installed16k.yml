@@ -65,6 +65,7 @@ jobs:
           python3 -I -B scripts/ci/glibc-gnu-provider-lifecycle/test_controls.py
           python3 -I -B scripts/ci/glibc-gnu-provider-installed16k/test_lane.py
           python3 -I -B scripts/ci/glibc-gnu-provider-installed16k/test_child_failure.py
+          python3 -I -B scripts/ci/glibc-gnu-provider-installed16k/test_progress.py
       - name: Seed the six existing private input files using unchanged secrets
         timeout-minutes: 2
         env:

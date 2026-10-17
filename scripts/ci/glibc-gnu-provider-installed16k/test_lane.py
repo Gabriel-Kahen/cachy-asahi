@@ -40,7 +40,7 @@ class Controls(unittest.TestCase):
         for case in ('pristine','modified'):
             for stage in ('source-before','clone','before574','precommit-refused','provider574','reinstalled574','held574','source-after'):files[case+'-'+stage+'-root.json.gz']=dict(bytes=0,sha256='e'*64)
         isolation=dict(status='PASS_OBSERVED_NATIVE_CAPS_AND_MOUNT_FENCE',mask=sandbox.MASK,no_new_privs=1,seccomp=2,raw_block_devices=[],writable_source_alias=False,mount_flags=[15,4096])
-        return [dict(event='boot',page_size=16384,kernel='exact16k',architecture='aarch64',kernel_profile_sha256='b'*64),dict(event='result',status=C.PASS,page_size=16384,normal_runtime_observations=8,hardware='NOT_RUN',release='NOT_ADMITTED',source_nodes_sha256='c'*64,capabilities=dict(status='EXACT_SOURCE_MAP_PRESERVED',cases=2,stages=8,source_capabilities_sha256='d'*64),isolation=isolation,files=files,bytes=0),dict(event='exit',status=C.PASS,cleanup='PASS_OWNED_CLONES_REMOVED')]
+        return [dict(event='boot',observer_nofile=dict(before=[1024,4096],after=[8192,8192],scope='NATIVE_TRIAL_8192_BOTH_INHERITED_BY_LIFECYCLE_CHILD'),page_size=16384,kernel='exact16k',architecture='aarch64',kernel_profile_sha256='b'*64),dict(event='result',status=C.PASS,page_size=16384,normal_runtime_observations=8,hardware='NOT_RUN',release='NOT_ADMITTED',source_nodes_sha256='c'*64,capabilities=dict(status='EXACT_SOURCE_MAP_PRESERVED',cases=2,stages=8,source_capabilities_sha256='d'*64),isolation=isolation,files=files,bytes=0),dict(event='exit',status=C.PASS,cleanup='PASS_OWNED_CLONES_REMOVED')]
     def uart(self,events):return b'kernel boot log\n'+b'\n'.join(('GNU_INSTALLED16K '+self.selection()['nonce']+' '+json.dumps(r)).encode() for r in events)+b'\n'
 
     def test_source_closure(self):C.check_source(self.source)
@@ -146,5 +146,20 @@ class Controls(unittest.TestCase):
             for name in ('payload','alias'):
                 result=subprocess.run([debugfs,'-R','stat /'+name,str(image)],capture_output=True,text=True,timeout=10);self.assertEqual(result.returncode,0,result.stderr);inode.append(result.stdout.split()[1])
             self.assertEqual(*inode)
+
+    def test_observer_boot_missing_invalid_or_unbounded_limit_refuses(self):
+        correct=self.events()[0]['observer_nofile']
+        for bad in (None,dict(correct,before=[True,8192]),dict(correct,before=[8192,1024]),dict(correct,before=[1024,2**31]),dict(correct,after=[8192,16384]),dict(correct,scope='OTHER')):
+            events=self.events()
+            if bad is None:del events[0]['observer_nofile']
+            else:events[0]['observer_nofile']=bad
+            with self.assertRaises(ValueError):R.protocol(self.uart(events),self.selection())
+    def test_observer_boot_all_original_fields_remain_exact(self):
+        events=self.events();events[0]['unrecognized']='extra'
+        with self.assertRaises(ValueError):R.protocol(self.uart(events),self.selection())
+    def test_live_progress_channel_never_substitutes_original_success_events(self):
+        progress=b'GNU_INSTALLED16K_PROGRESS '+self.selection()['nonce'].encode()+b' {"acceptance":"FORBIDDEN_DIAGNOSTIC_ONLY"}\n'
+        self.assertEqual(R.protocol(progress+self.uart(self.events()),self.selection())['status'],C.PASS)
+        with self.assertRaises(ValueError):R.protocol(progress,self.selection())
 
 if __name__=='__main__':unittest.main()
