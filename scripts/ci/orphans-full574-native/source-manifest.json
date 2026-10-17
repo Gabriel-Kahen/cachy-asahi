@@ -301,8 +301,8 @@
       "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
     },
     "scripts/ci/orphans-full574-native/README.md": {
-      "bytes": 6881,
-      "sha256": "e49efcba88046bf88416b5f9354ae3671ad79e5c31052177a7c32262bdd3e710"
+      "bytes": 8596,
+      "sha256": "a8e8861e7ff2e8b33f3157575bcecd3f2ccac84440becfc03fac97173efc272f"
     },
     "scripts/ci/orphans-full574-native/cache-only-plan-39010123449.json": {
       "bytes": 2890,
@@ -337,20 +337,24 @@
       "sha256": "652b8cd84f5839f9907ef93a7004ddf4894cf90fab3cd5f0eb188e2d5d79b6ac"
     },
     "scripts/ci/orphans-full574-native/job.py": {
-      "bytes": 793,
-      "sha256": "3a6582006c5f37fab03a410d36e11eb9c17941178dd169ce6e21101b39ffabdc"
+      "bytes": 921,
+      "sha256": "3821a2a0996207afc65d99dc5f8c1b08a83c0541c53a2a84cbebf71a76086c24"
     },
     "scripts/ci/orphans-full574-native/lifecycle.py": {
       "bytes": 10899,
       "sha256": "f5c2e202c2d6cbc7f47e6e2ac2d31ee5db04507184fabeb2fe73a025f8baab4b"
+    },
+    "scripts/ci/orphans-full574-native/modes.py": {
+      "bytes": 5824,
+      "sha256": "ab9bab1d49daa2ec1f9187a13722f5ca3581a643ace23af37700e7685c568fc7"
     },
     "scripts/ci/orphans-full574-native/policy.json": {
       "bytes": 790,
       "sha256": "5bbe229f5a86244916ae58cf1266c0c56ea0d9d353287d0d97cad9a623d56f58"
     },
     "scripts/ci/orphans-full574-native/prepare.py": {
-      "bytes": 5490,
-      "sha256": "c62955fad474994b4b6c6ee9b3b0c7addbaff4ac4746b8360f7202a9b302b42e"
+      "bytes": 4999,
+      "sha256": "a2e4d3a20b3b97da461c8276653909ab787b8b400796d77a8debb948e51ab260"
     },
     "scripts/ci/orphans-full574-native/scrub.py": {
       "bytes": 251,
@@ -371,6 +375,10 @@
     "scripts/ci/orphans-full574-native/test_lane.py": {
       "bytes": 17602,
       "sha256": "f5eafd970ed9a9ada93adcb2b1a226506e214f920c78af08aa41bba8118acd20"
+    },
+    "scripts/ci/orphans-full574-native/test_modes.py": {
+      "bytes": 6366,
+      "sha256": "b16a1c576b861ff0c3c9f661f176a4b3f7ed279814a068cd92bba17eba654e25"
     },
     "scripts/client/client.py": {
       "bytes": 28669,
