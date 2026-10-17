@@ -2,21 +2,29 @@
   "GUI_prerequisite": "CURRENT_GUI_FAIL_NOT_ACCEPTED_SEPARATE",
   "after_sha256": "3f64a13c4af7ab8b1598583f534af3347c8df2397a0afa33fb8b0f5f06b19cf5",
   "before_sha256": "5553e3c67423dffa54e521a211ff471faf6b384f61ff5bb56495b05b39600566",
-  "decision_source": null,
+  "decision_source": "668b55ef72661fdd278324208eb2ba5c4fa3f001",
   "installer_inputs": {
     "eight_source": "0d7ec3b5ec9b473c9a1b2557735f8dadd8de3f50",
     "fresh600_decisions": "fd42f51b6c32a1cca69df5699760ed2a9e39329f",
     "legacy_source": "b6b17e5f6b322f160f7eeb22c8a01380a3c854cd",
     "management_source": "92e433fa79eb57bfb3e4038feb30e7a7c87c652f",
-    "native604_decisions": null,
+    "native604_decisions": "1c953fb9b1f9442f40895f886b659534424345ce",
     "setup_source": "79d8d2f53510e4f3a04f39c1b1e24c999aa32e44",
     "seven_source": "7fee76d68e5fd75437d8b49aaaced8376d2215cd",
     "welcome_source": "77bd2c6ecf2e5c28a04116c3da85c45f70d1cc90"
   },
-  "installer_source": null,
+  "installer_source": "ed776a706fc711c5bcc4d933f38e88e7791bc9f6",
   "prerequisites": {
-    "fresh604": null,
-    "native604": null,
+    "fresh604": {
+      "bytes": 3173,
+      "path": "payload/fresh604.json",
+      "sha256": "b90656f7fd3d8204fa9b2b3255364657c1723042d3cd4cfdefdd0bc9e6afe938"
+    },
+    "native604": {
+      "bytes": 2671,
+      "path": "payload/native604.json",
+      "sha256": "8243e27085a098a695f2036864aaf8b04b21fb648aff88631f724d4249a194fe"
+    },
     "normal600": {
       "bytes": 2803,
       "path": "payload/normal600.json",
@@ -35,5 +43,5 @@
   },
   "schema_version": 1,
   "setup5_pair_source": "79d8d2f53510e4f3a04f39c1b1e24c999aa32e44",
-  "status": "UNBOUND_ACTUAL_CURRENT604_PREREQUISITES"
+  "status": "ROOT_BOUND_ACTUAL_CURRENT604_PREREQUISITES"
 }

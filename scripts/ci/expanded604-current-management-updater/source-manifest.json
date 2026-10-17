@@ -485,8 +485,8 @@
       "sha256": "d8322718de20a1fa3a09d9d77a285701dfbf10a4648a323ea4f92588102de7a5"
     },
     "scripts/ci/expanded604-current-management-updater/input-policy.json": {
-      "bytes": 1558,
-      "sha256": "19900023b3cb23cbfdd0aa17eb1531bb83738c8f1c32251dfd5c0b0f756f581a"
+      "bytes": 1968,
+      "sha256": "ec6962a9e37f538de61530228d9c6681fbf9e3af6db6f80cec52be1e7faada65"
     },
     "scripts/ci/expanded604-current-management-updater/policy.json": {
       "bytes": 1558,
@@ -796,6 +796,5 @@
   "hardware": "NOT_RUN",
   "native": "NOT_RUN",
   "schema_version": 1,
-  "scope": "CURRENT604_UPDATER_SOURCE_ONLY_UNBOUND",
   "status": "FROZEN_ROOT_FINAL_SOURCE"
 }
