@@ -1,0 +1,202 @@
+{
+  "accepted_source_packet": null,
+  "bootstrap": {
+    "glibc": "2.43+r22+g8362e8ce10b2-2",
+    "inventory_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+    "packages": 574
+  },
+  "distribution_patch_series": {
+    "applied": false,
+    "scope": "Debian2.43-7 is signed source metadata provenance for orig object only; Debian packaging/security patches and Debian binary correspondence are not selected or claimed"
+  },
+  "documentation": {
+    "build_change": "Only remove manual from Makeconfig all-subdirs and omit make info; all present-source check and ABI commands unchanged/fatal",
+    "omissions_sha256": "bfb206ce1a3b4bcad52d69b1ca1f935615c5375af34f43930e06733375acbb50",
+    "policy": "No manual build/install/tests: all112 absent source paths explicitly recorded; no GNU manual reinsertion",
+    "security": "NO_CREDIT_NO_CURRENCY_CLAIM",
+    "source_subset": true
+  },
+  "epoch_basis": "uniform release archive member timestamp",
+  "execution_gate": "UNBOUND independent archive-key bootstrap; no native/build/runtime/release acceptance",
+  "expected_patched_payload_tree": "51979d25e61ba516e9fa73e147c75d021b4838e1",
+  "feature_choices": {
+    "gd": "not in accepted bootstrap; optional memusagestat unavailable",
+    "locales": "GNU source C.utf8 only; no ALARM locale-gen/memusagestat copied; broader locale migration not implemented",
+    "multiarch": "disabled",
+    "multiarch_reason": "--disable-multi-arch selects baseline AArch64 assembly FUNC symbols and memchr/strlen WEAK aliases; actual38906503054 multiarch IFUNC/GLOBAL differs. No ABI waiver or performance claim.",
+    "nscd": "disabled",
+    "systemtap": "disabled; no external sdt headers",
+    "test_timeout": "Only tst-malloc-too-large-malloc-hugetlb2: TIMEOUTFACTOR=5, full assertions retained; still bounded/fatal"
+  },
+  "layout": {
+    "abi_expectations": "UNMODIFIED strict GNU abilists and bootstrap OBJECT/TLS-size checks",
+    "compiled_locales": "/usr/lib/locale",
+    "configured_dirname_ascii_bytes": 17,
+    "exported_dirname_object_bytes": 18,
+    "gettext_catalogs": "/usr/share/locale",
+    "loader": "/usr/lib/ld-linux-aarch64.so.1",
+    "localstatedir": "/var",
+    "multiarch": "disabled",
+    "shared_libraries": "/usr/lib",
+    "sysconfdir": "/etc",
+    "versioned_prefix": null
+  },
+  "licenses": [
+    "GPL-2.0-or-later",
+    "LGPL-2.1-or-later",
+    "LicenseRef-glibc-notices"
+  ],
+  "limits": {
+    "seconds": 180,
+    "source_bytes": 536870912,
+    "source_compressed": 100663296,
+    "source_file": 67108864,
+    "source_members": 60000
+  },
+  "name": "cachy-asahi-glibc-gnu-provider",
+  "native_evidence": {
+    "build": "NOT_RUN",
+    "installation": "NOT_RUN",
+    "old_caa1_pair": "NOT_REUSED",
+    "private16k": "NOT_RUN_NEW_SOURCE",
+    "runtime": "NOT_RUN"
+  },
+  "old_binary_recipe_correspondence": "UNRESOLVED; unrelated official release successor; old GNU8362 lock unchanged",
+  "packaging": {
+    "excluded": [
+      "usr/bin/tzselect",
+      "usr/bin/zdump",
+      "usr/bin/zic",
+      "var/db/Makefile",
+      "etc/ld.so.cache",
+      "etc/ld.so.cache~"
+    ],
+    "hooks": [],
+    "install_scriptlet": null,
+    "locale_gen": null,
+    "stage_helper_sha256": "43b1b441dcc384379ab80c4864bbf7ffd898d56e4ba629c0faa966c25a979e6c"
+  },
+  "patch_order": [
+    {
+      "files": {
+        "sysdeps/unix/sysv/linux/sys/mount.h": {
+          "after_sha256": "a27e7916298ff67cd88fec0724087c7e25345cb40f796e82e187f07bcd58fd1b",
+          "before_sha256": "9b1e75adf0cc9b43968fd7f39ee02f7bd8c6154fc0a0b5a61c5c098874291835"
+        }
+      },
+      "origin": "project GNU2.43 adaptation of upstream8d6fbb22cdd54660056408ca0e9682a8cedbf055",
+      "path": "0001-mount-macro-guards.patch",
+      "sha256": "09117692cd3a1d5838ea700df68b512f9f625a6d2af497a1afcf92046deca8f5"
+    },
+    {
+      "files": {
+        "conform/Makefile": {
+          "after_sha256": "769227ad708ad0ab72d865001793af02a9d989289a6d5e44e3349a14392cacd7",
+          "before_sha256": "f6fc77a91b386fd4b19e7b76de83c33bb0f7e1000e83045b108d526df9898eff"
+        },
+        "elf/Makefile": {
+          "after_sha256": "23eb42d01f9a1787680223604aa556f02941276f759a9e8d4ba943613c6571a2",
+          "before_sha256": "9fd3b071751bccb8116d05e8b703172962ebdc437692a81c98578db5d60299ad"
+        }
+      },
+      "origin": "project held-builder expectation correction; actual38898464517",
+      "path": "0002-held-builder-test-expectations.patch",
+      "sha256": "f730c778ba51f9e525c9f6a7949a76af00364d49f41eedb5d73b8e86a3d4c132"
+    },
+    {
+      "files": {
+        "Makeconfig": {
+          "after_sha256": "9b3385c6996f43346adccf4d098085458848d0886e03a43c8a7f381018c4504b",
+          "before_sha256": "4e9c08d05aa774dab9fe87cb6ec9ff1b4a5b1c698a8b5a3382cb4eeb3aab5a86"
+        }
+      },
+      "origin": "Project explicit treatment of authenticated Debian source manual omission",
+      "path": "0003-debian-manual-omission.patch",
+      "sha256": "6959527f28b1363548c1e7adc76abc95546f584a4670cfd38016c7c134797d87"
+    }
+  ],
+  "payload_identity_scope": "Exact Debian2.43 orig source subset; distinct from GNU full archive/tree/caa1 native pair",
+  "payload_tree": "1fbcd978e2051d72273231f03b921b1503e0e424",
+  "pkgrel": 1,
+  "prefix": "/usr",
+  "provider": {
+    "backup": [
+      "etc/gai.conf"
+    ],
+    "conflicts": [
+      "glibc"
+    ],
+    "depends": [
+      "linux-api-headers>=4.10",
+      "filesystem",
+      "tzdata"
+    ],
+    "held_archive_sha256": "8fac217e98c6e4342326726b2640ac254e8c82032f06f30bfa13ebbcc4fcb25b",
+    "held_conflicts": [],
+    "held_name": "glibc",
+    "held_provides": [],
+    "held_replaces": [],
+    "held_version": "2.43+r22+g8362e8ce10b2-2",
+    "provides": [
+      "glibc=2.43"
+    ],
+    "replaces": [],
+    "version_scope": "GNU2.43 only; no claim to held r22/security patches or dependency equality with held version"
+  },
+  "public_inputs": [
+    {
+      "bytes": 192842,
+      "path": "sid-InRelease",
+      "sha256": "7adfcfd12245e14a1198f6340dfb60b19a61d73531ef6cce925a68deb4e06f98"
+    },
+    {
+      "bytes": 12028604,
+      "path": "sid-Sources.xz",
+      "sha256": "781f5a9546d0b41aaa5b4abcf61ba3168fc5dc8c0e74f17d68a2a24670035583"
+    },
+    {
+      "bytes": 21553420,
+      "path": "glibc_2.43.orig.tar.xz",
+      "sha256": "b8f0d50a7d4255658efe1f608cacdc4be82bb3c009875626df5968cc64c58880"
+    },
+    {
+      "bytes": 8571,
+      "path": "glibc_2.43-7.dsc",
+      "sha256": "a99e5beb8f568765d191f3d0d074cf6b60d2c89dec84f2f4bb70573e52e0a835"
+    },
+    {
+      "bytes": 11861,
+      "path": "archive-key-12.asc",
+      "sha256": "c2a9a16fde95e037bafd0fa6b7e31f41b4ff1e85851de5558f19a2a2f0e955e2"
+    },
+    {
+      "bytes": 11861,
+      "path": "archive-key-13.asc",
+      "sha256": "6f1d277429dd7ffedcc6f8688a7ad9a458859b1139ffa026d1eeaadcbffb0da7"
+    }
+  ],
+  "purpose": "UNSELECTED_NEW_DEBIAN_ORIG_CONVENTIONAL_PROVIDER",
+  "release": "2.43",
+  "release_evidence": {
+    "independent_chain": "Current Debian sid signed Release\u2192Sources\u2192orig object; independent key trust bootstrap not accepted",
+    "previous_GNU": "Expired GNU signature and distinct GNU tar/tree remain unchanged"
+  },
+  "schema_version": 1,
+  "security": "NO_CREDIT_NO_MAINTAINED_CURRENCY_CLAIM",
+  "signing": {
+    "authority": "DEBIAN_ARCHIVE_RELEASE_SOURCES_ORIG",
+    "bootstrap": "UNBOUND_ROOT_INDEPENDENT_ARCHIVE_KEY_AUTHORITY",
+    "primaries": [
+      "B8B80B5B623EAB6AD8775C45B7C5D7D6350947F8",
+      "04B54C3CDCA79751B16BC6B5225629DF75B188BD"
+    ]
+  },
+  "source": {
+    "bytes": 21553420,
+    "path": "glibc_2.43.orig.tar.xz",
+    "sha256": "b8f0d50a7d4255658efe1f608cacdc4be82bb3c009875626df5968cc64c58880",
+    "url": "https://deb.debian.org/debian/pool/main/g/glibc/glibc_2.43.orig.tar.xz"
+  },
+  "source_date_epoch": 1769201640,
+  "version": "2.43.caa2"
+}
