@@ -10,6 +10,7 @@ from pathlib import Path
 import platform
 import signal
 import shutil
+import stat
 import sys
 import time
 sys.path.insert(0,str(Path(__file__).resolve().parent))
@@ -137,6 +138,21 @@ def configs(root):
 
 
 def copy_probes(root,index):
+    # Only the new clone's '/' becomes searchable, after exact copy proof.
+    C.need(root in (WORK/'pristine/root',WORK/'modified/root') and not any(p.is_symlink() for p in (root,*root.parents)), 'exact owned cloned chroot root only')
+    descriptors=[]
+    metadata=lambda info:dict(device=info.st_dev,inode=info.st_ino,mode=stat.S_IMODE(info.st_mode),uid=info.st_uid,gid=info.st_gid)
+    try:
+        for path in (root,root.parent,HELD):descriptors.append(os.open(path,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC))
+        before=[metadata(os.fstat(fd)) for fd in descriptors]
+        C.need(all(stat.S_ISDIR(os.fstat(fd).st_mode) and row['uid']==os.geteuid() and row['mode']==0o700 and metadata(path.lstat())==row for fd,row,path in zip(descriptors,before,(root,root.parent,HELD))) and len({(r['device'],r['inode']) for r in before})==3,'original private clone/source/parent identities and modes')
+        os.fchmod(descriptors[0],0o755)
+        after=[metadata(os.fstat(fd)) for fd in descriptors]
+        expected=[dict(before[0],mode=0o755),*before[1:]]
+        C.need(after==expected and all(metadata(path.lstat())==row for path,row in zip((root,root.parent,HELD),after)),'only owned cloned root search metadata changed; source/parent unchanged')
+        root_initialization=dict(status='PASS_CLONE_ROOT_ONLY_0700_TO_0755_AFTER_COPY_PROOF',path=str(root),before=before[0],after=after[0],parent_before=before[1],parent_after=after[1],source_before=before[2],source_after=after[2],source_mutation='NONE',payload_nodes_mutation='NONE_FOR_ROOT_MODE_INITIALIZATION')
+    finally:
+        for fd in reversed(descriptors):os.close(fd)
     directory=root/FIXTURE;directory.mkdir(mode=0o755,parents=True)
     for name,row in index['probes'].items():
         destination=directory/name;shutil.copyfile(INPUTS/row['path'],destination);destination.chmod(0o755 if name!='plugin.so' else 0o644)
@@ -144,6 +160,7 @@ def copy_probes(root,index):
     (directory/'held.install').write_bytes(C.archive(INPUTS/index['held']['path'])['data']['.INSTALL'])
     user=root/USER;user.mkdir(mode=0o700,parents=True)
     for name in ('config','history','sentinel'):(user/name).write_bytes(('preserve '+name+'\n').encode())
+    return root_initialization
 
 
 def role_identities(root,expected):
@@ -237,7 +254,8 @@ def run_case(api,commands,index,base,new,old,case,report):
                 (root/'etc/gai.conf').write_bytes(pristine_gai+b'\n# preserve modified gai\n')
                 (root/'etc/locale.gen').write_bytes(pristine_locale+b'\n# preserve modified locale settings\n')
             wanted_gai=C.read(root/'etc/gai.conf');wanted_locale=C.read(root/'etc/locale.gen')
-            copy_probes(root,index);before=snapshot(api,root,case+'-before574')
+            C.need(lifetime['copy']['copy_byte_identical_before_initialization'] is True,'complete clone byte identity before deliberate runtime root initialization')
+            report['root_initialization']=copy_probes(root,index);before=snapshot(api,root,case+'-before574')
             # Prepared add/remove is deliberately released without commit. No sole-provider removal.
             report['precommit_refusal']=transaction(api,root,INPUTS/index['archives']['a']['path'],'glibc',C.NAME,OUT/(case+'-prepare.log'),True)
             C.need(same(before,snapshot(api,root,case+'-precommit-refused')),'precommit refusal preserves complete DB/payload')
