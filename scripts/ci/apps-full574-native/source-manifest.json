@@ -265,8 +265,8 @@
       "sha256": "f86af098fdb0fc9a57a8b78b351341395ce13f9977464783f6f8133626e85698"
     },
     "scripts/ci/glibc-gnu-provider-lifecycle-owner/job.py": {
-      "bytes": 30357,
-      "sha256": "31e56973d8de5afc78cb1e8121a2ce91b609b7fcf4d62819d9d5caedf7d6b21a"
+      "bytes": 33340,
+      "sha256": "8b833b2cf16afa0dd14ba711e088d2030b3c747ad0ca878a802b67de6ae305f9"
     },
     "scripts/ci/glibc-gnu-provider-lifecycle-owner/snapshot.py": {
       "bytes": 9397,
