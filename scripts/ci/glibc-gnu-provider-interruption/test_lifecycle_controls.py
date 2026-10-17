@@ -206,4 +206,64 @@ class Controls(unittest.TestCase):
                 member=tarfile.TarInfo('usr/bin/inert');member.pax_headers=pax;archive.addfile(member,io.BytesIO(b''))
             with self.assertRaisesRegex(ValueError,'package xattrs'):C.archive(path)
 
+    def package_fixture(self,entries):
+        import io,tarfile
+        path=self.root/'inert-package.tar'
+        with tarfile.open(path,'w') as stream:
+            for name in ('.PKGINFO','.BUILDINFO','.MTREE'):
+                raw=b'pkgname = inert\n';m=tarfile.TarInfo(name);m.size=len(raw);m.mode=0o644;stream.addfile(m,io.BytesIO(raw))
+            for row in entries:
+                m=tarfile.TarInfo(row['name']);m.type=row.get('type',tarfile.REGTYPE);m.mode=row.get('mode',0o644);m.uid=row.get('uid',0);m.gid=row.get('gid',0);m.linkname=row.get('target','');m.pax_headers=row.get('pax',{})
+                raw=row.get('raw',b'inert never executed') if m.isfile() else row.get('raw',b'');m.size=len(raw)
+                stream.addfile(m,io.BytesIO(raw) if raw else None)
+        return path
+    def test_archive_resolves_forward_internal_hardlink_chain_with_exact_bytes(self):
+        import tarfile
+        rows=[dict(name='usr/c',type=tarfile.LNKTYPE,target='usr/b'),dict(name='usr/b',type=tarfile.LNKTYPE,target='usr/a'),dict(name='usr/a')]
+        value=C.archive(self.package_fixture(rows));nodes=value['nodes']
+        self.assertEqual(set(nodes),{'usr/a','usr/b','usr/c'})
+        for name in nodes:
+            self.assertEqual(nodes[name],dict(type='file',mode=0o644,uid=0,gid=0,bytes=20,sha256=C.sha(b'inert never executed'),hardlink_group='usr/a'))
+            self.assertEqual(value['data'][name],b'inert never executed')
+        lane.payload(nodes,nodes)
+    def test_archive_hardlink_missing_cycles_escape_and_special_targets_refuse(self):
+        import tarfile
+        bad=[[dict(name='usr/a',type=tarfile.LNKTYPE,target=target)] for target in ('usr/missing','/etc/passwd','../escape','usr/../escape','usr//bad','usr/./bad')]
+        bad += [[dict(name='usr/a',type=tarfile.LNKTYPE,target='usr/b'),dict(name='usr/b',type=tarfile.LNKTYPE,target='usr/a')]]
+        for kind in (tarfile.DIRTYPE,tarfile.SYMTYPE,tarfile.FIFOTYPE):
+            bad.append([dict(name='usr/a',type=tarfile.LNKTYPE,target='usr/b'),dict(name='usr/b',type=kind,target='regular')])
+        for rows in bad:
+            with self.subTest(rows=rows),self.assertRaises(ValueError):C.archive(self.package_fixture(rows))
+    def test_archive_hardlink_header_identity_size_metadata_and_ancestors_refuse(self):
+        import tarfile
+        regular=dict(name='usr/a');alias=dict(name='usr/b',type=tarfile.LNKTYPE,target='usr/a')
+        for change in (dict(mode=0o600),dict(uid=1),dict(gid=1),dict(raw=b'invalid hardlink data'),dict(pax={'SCHILY.xattr.security.capability':'refuse'}),dict(target='.PKGINFO')):
+            with self.subTest(change=change),self.assertRaises(ValueError):C.archive(self.package_fixture([regular,alias|change]))
+        with self.assertRaisesRegex(ValueError,'ancestor'):
+            C.archive(self.package_fixture([dict(name='usr',type=tarfile.SYMTYPE,target='elsewhere'),regular,alias]))
+    def test_archive_hardlink_group_bound_remains_finite(self):
+        import tarfile
+        rows=[dict(name='usr/a')]+[dict(name='usr/alias-%04d'%n,type=tarfile.LNKTYPE,target='usr/a') for n in range(4096)]
+        with self.assertRaisesRegex(ValueError,'group bound'):C.archive(self.package_fixture(rows))
+    def test_real_inert_hardlinks_pass_payload_but_equal_byte_copies_and_extra_alias_refuse(self):
+        import tarfile
+        expected=C.archive(self.package_fixture([dict(name='usr/a'),dict(name='usr/b',type=tarfile.LNKTYPE,target='usr/a')]))['nodes']
+        # Only temp fixture ownership is projected to this ordinary test UID/GID.
+        expected={n:dict(row,uid=os.getuid(),gid=os.getgid()) for n,row in expected.items()}
+        root=self.root/'tree';(root/'usr').mkdir(parents=True);a=root/'usr/a';a.write_bytes(b'inert never executed');a.chmod(0o644);b=root/'usr/b';os.link(a,b)
+        api=self.capability_api()
+        def observed():return api['roots'].observe(root,limits=lane.limits(api),hardlinks='generic-development-internal')['nodes']
+        lane.payload(observed(),expected)
+        b.unlink();b.write_bytes(a.read_bytes());b.chmod(0o644)
+        with self.assertRaises(ValueError):lane.payload(observed(),expected)
+        b.unlink();os.link(a,b);os.link(a,root/'usr/c')
+        with self.assertRaisesRegex(ValueError,'hardlink group'):lane.payload(observed(),expected)
+    def test_payload_hardlink_members_cannot_use_config_exception_or_changed_bytes(self):
+        import tarfile
+        nodes=C.archive(self.package_fixture([dict(name='usr/a'),dict(name='usr/b',type=tarfile.LNKTYPE,target='usr/a')]))['nodes']
+        with self.assertRaisesRegex(ValueError,'hardlink group'):lane.payload(nodes,nodes,('usr/b',))
+        for key,value in (('sha256','0'*64),('bytes',1),('mode',0o600),('uid',1),('gid',1)):
+            changed=copy.deepcopy(nodes);changed['usr/b'][key]=value
+            with self.subTest(key=key),self.assertRaises(ValueError):lane.payload(changed,nodes)
+
 if __name__=='__main__':unittest.main()

@@ -64,6 +64,13 @@ def payload(nodes,expected,except_files=()):
     for n,row in expected.items():
         if row['type']=='directory' or n in except_files:continue
         C.need(n in nodes and all(nodes[n].get(k)==v for k,v in row.items()),'installed payload differs: '+n)
+    groups={}
+    for n,row in expected.items():
+        if 'hardlink_group' in row:groups.setdefault(row['hardlink_group'],set()).add(n)
+    for key,members in groups.items():
+        C.need(not members.intersection(except_files) and
+               {n for n,row in nodes.items() if row.get('hardlink_group')==key}==members,
+               'installed payload hardlink group differs: '+key)
 
 
 def unchanged(before,after,old,new,old_version):
