@@ -54,11 +54,11 @@
     },
     "scripts/ci/glibc-debian-maintained-installed16k-ci/test_wiring.py": {
       "bytes": 11935,
-      "sha256": "65f0de5c54b61972c5b855e81bf7abe632b5a4ce4998259b7cdb7536ede01f03"
+      "sha256": "afd26647bf9748706e39c37afcc81c0d27d79c324910d46eb3c69bfb024c857b"
     },
     "scripts/ci/glibc-debian-maintained-installed16k-ci/wiring.py": {
       "bytes": 4997,
-      "sha256": "f9d0786936b1efda01363373575a55c665ed63bc4afc75531a8c9b92582b0a53"
+      "sha256": "c0cc704af0b77ee22e3ed70980afacac0385fee0e084259a8bbb73f7455ce627"
     },
     "scripts/ci/glibc-debian-maintained-installed16k/README.md": {
       "bytes": 5003,
@@ -158,7 +158,7 @@
     },
     "scripts/ci/glibc-gnu-provider-installed16k-interruption/ci/wiring.py": {
       "bytes": 8198,
-      "sha256": "7483637091e30cc12d260ac01c3c4bf9af6b6330b5d7296068bfee9476678ef1"
+      "sha256": "452b5ae1838ae77bb8fb7eb03a082b9af3e981f410190611e9aedde9790ef997"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/README.md": {
       "bytes": 10343,
