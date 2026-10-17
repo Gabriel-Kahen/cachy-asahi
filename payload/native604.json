@@ -1,0 +1,53 @@
+{
+  "GUI": "NOT_ACCEPTED_SEPARATE",
+  "attempt": 1,
+  "cleanup": "PASS",
+  "created_utc": "2026-10-17T05:50:45.632807+00:00",
+  "expected604_sha256": "3f64a13c4af7ab8b1598583f534af3347c8df2397a0afa33fb8b0f5f06b19cf5",
+  "frozen_git_joins": 238,
+  "hardware": "NOT_RUN",
+  "input_policy_sha256": "c8e6fe7f944d18dec2503b45b83c8b2f2553f50e15350507fc0b5ceb3087193a",
+  "installed16k": "NOT_RUN",
+  "installed_lifecycle": "PASS",
+  "installed_six_modules": "PASS",
+  "installer": "NOT_RUN",
+  "interim587_states": [
+    "remove-to587-upgraded",
+    "final587-upgraded"
+  ],
+  "lifecycle_phases": [
+    "baseline587",
+    "install604",
+    "same-version604",
+    "remove-to587",
+    "restore604",
+    "final587"
+  ],
+  "limitations": [
+    "All fresh target-cache signatures, public keyrings and585 original system archive pairs are not exported. Signature-role/hash/unchanged-row declarations and source-enforced verification are joined; no fresh cryptographic verification is performed.",
+    "The six audio archive payloads and private full installed node/database/ownership/user maps are not exported. Incoming audio identity is joined to frozen policy; actual installed comparisons remain original source-enforced receipts.",
+    "Raw eight auxiliary-cache blobs and ldconfig state JSON are independently replayed using the exact frozen comparator. Helper exit remains NOT_OBSERVED; no helper execution, regeneration or source/binary correspondence claim.",
+    "Normal lifecycle exit0 and preservation/absence observations are original source-enforced records, not fresh process/root/container probes. Owned cleanup is disposal, not rollback or boot recovery.",
+    "Generic native ARM604 metadata lifecycle and installed shell coexistence only; notification delivery, GUI,16K/Apple/M2,services/audio execution,installer,performance and release acceptance are not established."
+  ],
+  "original_logs": {
+    "bytes": 20028384,
+    "sha256": "fac3cad381299452f0e804667b0086d21aabc1542a8afeb35815d8845df8000b"
+  },
+  "package_count": 604,
+  "public_bytes": 33678544,
+  "public_files": 715,
+  "release": "NOT_ADMITTED",
+  "root_passive_replay": {
+    "bytes": 16372,
+    "sha256": "fe36380954d2c7c70d3e098791a51bc9a5c550e0fb3bbb38cb967e5a7fa02c5f"
+  },
+  "run_id": "39005723200",
+  "schema_version": 1,
+  "scope": "GENERIC_NATIVE_ARM4096_OFFLINE_CURRENT604_LIFECYCLE_AND_INSTALLED_SHELL_COEXISTENCE",
+  "source_manifest_sha256": "61048018e95c262ecd911ffc4150bbbb3e4857b65dee4f4a69a44016c59e2302",
+  "source_sha": "61a75ac08c735871aac85db5db40e9acac989ddc",
+  "status": "ROOT_ACCEPTED_NATIVE_CURRENT604_COMPOSITION",
+  "transport_join": 1,
+  "unchanged_original_rows": 585
+}

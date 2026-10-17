@@ -1,0 +1,82 @@
+{
+  "GUI": "NOT_ACCEPTED_SEPARATE",
+  "attempt": 1,
+  "cleanup": "PASS",
+  "closed_public_bytes": 142523,
+  "closed_public_files": 10,
+  "created_utc": "2026-10-17T07:36:03.339917+00:00",
+  "expected604_sha256": "3f64a13c4af7ab8b1598583f534af3347c8df2397a0afa33fb8b0f5f06b19cf5",
+  "frozen_git_joins": 232,
+  "hardware": "NOT_RUN",
+  "independent_root_readback": "PASS",
+  "limits": [
+    "Private raw node/hash/ownership maps and installed target/profile/lock bytes were checked by the frozen guest code and are not exported; this replay checks complete summaries and exact retained protocol/source joins, not a new full-byte readback.",
+    "Retired container/image/VM absence is retained source-bound cleanup evidence, not live reobservation.",
+    "No physical installation, target boot, hooks/scriptlets, native-container P0, M2 or performance acceptance.",
+    "Statx source selection and unchanged full hashing/deadlines are checked; runtime choice of statx versus original fdinfo fallback is not reported."
+  ],
+  "native_container_P0": "UNCHANGED_FAILED",
+  "ordinary_and_root_flags": {
+    "committed": true,
+    "database_verified": true,
+    "namespace_barrier": true,
+    "numeric_namespace_verified": true,
+    "numeric_ownership_verified": true,
+    "ordinary_parent_nnp_cap0": true,
+    "ownership_verified": true,
+    "parent_inventory_preserved": true,
+    "parent_payload_verified": true,
+    "payload_verified": true,
+    "preservation_verified": true,
+    "private_trust_verified": true,
+    "process_retirement": true,
+    "root_guest_payload_verified": true,
+    "source_cache_preserved": true
+  },
+  "ordinary_parent_retired": "PASS",
+  "original_logs": {
+    "bytes": 3145932,
+    "sha256": "cd43e963fbeaa19d09493bd4476715f1c4837b06b6695398180edcd917dee0c5"
+  },
+  "package_count": 604,
+  "qemu_natural_exit": true,
+  "qemu_seconds": 3862.721,
+  "release": "NOT_ADMITTED",
+  "root_bound_data_joins": 1,
+  "root_observation": {
+    "complete": true,
+    "deadline_seconds": 600,
+    "elapsed_ms": 518729,
+    "footprint": {
+      "bytes": 4930113861,
+      "database_bytes": 11796560,
+      "database_files": 1841,
+      "hardlink_inodes": 1048,
+      "nodes": 124479
+    },
+    "missing_database_nodes": 0,
+    "missing_database_samples": [],
+    "observed_nodes": 124479,
+    "required_database_nodes": 1209,
+    "unsupported_counts": {
+      "absolute-symlink": 24,
+      "auxiliary-present": 3
+    },
+    "unsupported_reasons_omitted": 0
+  },
+  "root_passive_replay": {
+    "bytes": 11027,
+    "sha256": "d7c2de0577910ddbe06fb5e60723d83ac02dcacd2ab54b5e975a9eb92749b4eb"
+  },
+  "run_id": "39007904058",
+  "schema_version": 1,
+  "scope": "SIGNED_TEST_CURRENT604_FRESH_INSTALL_IN_SEPARATELY_OWNED_GENERIC_ARM4096_VM",
+  "serial": {
+    "bytes": 56753,
+    "sha256": "4d518ffce0312f6f340ffaef39bc1bf134291b2ef5a03b02a232f821da8857e7"
+  },
+  "source_manifest_sha256": "86c101e87aad63b84d3b49d7977704e6bdbff96f576c157280583ade6e6e0e05",
+  "source_sha": "ed776a706fc711c5bcc4d933f38e88e7791bc9f6",
+  "status": "ROOT_ACCEPTED_SIGNED_CURRENT604_FRESH_INSTALLER",
+  "workflow_sha256": "19fe9e3664029861fb2aca7445d08a6fe3c680e3b97bfd1a1394001a70837d05"
+}
