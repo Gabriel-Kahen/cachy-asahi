@@ -157,16 +157,16 @@
       "sha256": "498a3beec0327b9335dcd6d80ed5919fa2edebebd3284e9ee8b97770328e26a2"
     },
     "scripts/apps/full574_closure.py": {
-      "bytes": 17186,
-      "sha256": "182ef86bbfee65bf56bf2b6b9dcc514b55bb252f7e99eb2846ea1e74989935ac"
+      "bytes": 17201,
+      "sha256": "a15e62f40dcad8ba7824babec9f9046a4caec3e3cfa68c11d904c37988c3fb2c"
     },
     "scripts/apps/full574_copy.py": {
       "bytes": 7799,
       "sha256": "33d49316c28dee344e78e17d7e7ffa409c9d7ad09bb48a82651f7d44f1cb61a0"
     },
     "scripts/apps/full574_statx.py": {
-      "bytes": 4240,
-      "sha256": "8e1e3670999b65f0d4487f68f3faaa6e1aed71d020a870c5d8eee65219b227dc"
+      "bytes": 5897,
+      "sha256": "bf3b6bf522d353142808f027dd3e20032648ef7d0ebb6d8aa1d8a0c50a1db51f"
     },
     "scripts/apps/test_file_capabilities.py": {
       "bytes": 8282,
@@ -185,8 +185,8 @@
       "sha256": "6732c3f92f1cefe15934f42aaed8fbe90af65c8bfa10543aac4e7046dbc6b395"
     },
     "scripts/apps/test_full574_statx.py": {
-      "bytes": 7372,
-      "sha256": "fac34b9b2ec0ceb6892073a647139308f1948e1021d3e6180cc444d5d4f97ea9"
+      "bytes": 11737,
+      "sha256": "e2661f20d4933148cfdc82aed16cffc7870ac45134588b966e19582c12f28f9b"
     },
     "scripts/apps/test_transaction.py": {
       "bytes": 6909,

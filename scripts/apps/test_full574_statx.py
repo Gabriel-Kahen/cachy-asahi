@@ -8,7 +8,7 @@ sys.dont_write_bytecode=True
 HERE=Path(__file__).resolve().parent
 spec=importlib.util.spec_from_file_location('statx_scoped_apps_closure',HERE/'full574_closure.py');C=importlib.util.module_from_spec(spec);sys.modules[spec.name]=C;spec.loader.exec_module(C)
 F=C.fast
-import full_root as roots,aux_copy
+import full_root as roots,aux_copy,aux_checkpoint as aux
 spec=importlib.util.spec_from_file_location('statx_unchanged_caps',HERE/'file_capabilities.py');caps=importlib.util.module_from_spec(spec);spec.loader.exec_module(caps)
 spec=importlib.util.spec_from_file_location('statx_unchanged_copy',HERE/'full574_copy.py');proof=importlib.util.module_from_spec(spec);spec.loader.exec_module(proof)
 
@@ -82,5 +82,55 @@ class Scoped(unittest.TestCase):
    def fail():raise error
    with self.assertRaises(ValueError) as observed:fail()
   self.assertIs(observed.exception,error);self.assertEqual([json.loads(r.split(b' ',1)[1])['event'] for r in writes],['BEGIN','FAIL'])
+
+ def test_auxiliary_private_bodies_and_shared_readers_remain_exact(self):
+  before=(aux.Reader,aux.checkpoint,aux.load_comparator,aux.copy._parent,aux.copy._root_check,aux.copy._source_alias);bound=binding()
+  self.assertEqual(before,(aux.Reader,aux.checkpoint,aux.load_comparator,aux.copy._parent,aux.copy._root_check,aux.copy._source_alias))
+  self.assertIsNot(bound.aux.Reader,aux.Reader);self.assertIs(bound.aux.checkpoint.__code__,aux.checkpoint.__code__)
+  for name,value in vars(aux.Reader).items():
+   if callable(value):self.assertIs(getattr(bound.aux.Reader,name).__code__,value.__code__)
+  namespace=bound.aux.Reader.literal.__globals__;self.assertIs(namespace['roots'],bound.roots)
+  for name in ('_parent','_root_check','_source_alias'):
+   self.assertIs(getattr(namespace['copy'],name).__code__,getattr(aux.copy,name).__code__)
+   function=getattr(namespace['copy'],name)
+   self.assertIs((function.__wrapped__ if name=='_parent' else function).__globals__['roots'],bound.roots)
+   if name=='_parent':self.assertIs(function.__wrapped__.__code__,aux.copy._parent.__wrapped__.__code__)
+  factory=bound.copy_scope.copy_data.__wrapped__.__globals__['aux_copy']._copy_binding
+  self.assertIs(factory.__globals__['aux'],bound.aux)
+ def test_real_temp_auxiliary_reads_equal_with_fresh_mount_queries_and_no_skipped_hashes(self):
+  bound=binding();opening=Path.open;counts=[]
+  def tracked(path,*args,**kwargs):
+   if str(path).startswith('/proc/self/fdinfo/'):counts.append(str(path))
+   return opening(path,*args,**kwargs)
+  with tempfile.TemporaryDirectory() as temporary:
+   path=Path(temporary);self.tree(path);observation=roots.observe(path,limits=limits(),hardlinks='generic-development-internal')
+   def actual(reader):return (reader.literal('nested/a'),reader.capture('relative'),reader.resolve('relative'),reader.children('nested',32))
+   with patch.object(Path,'open',tracked):
+    old=actual(aux.Reader(path,observation,limits()));original=len(counts);counts.clear()
+    new=actual(bound.aux.Reader(path,observation,limits()));optimized=len(counts)
+   self.assertEqual(old,new)
+   if hasattr(ctypes.CDLL(None),'statx') and sys.byteorder=='little':self.assertEqual(optimized,1);self.assertGreater(original,optimized)
+   print('AUX_QUERY_CONTROL '+json.dumps(dict(original_fdinfo_opens=original,proposed_fdinfo_opens=optimized,scope='TEMP_READER_IO_COUNTS_ONLY_NOT_NATIVE_TIMING')))
+   (path/'nested/a').write_bytes(b'changed original file bytes')
+   for module in (aux,bound.aux):
+    with self.assertRaisesRegex(ValueError,'file-shape|file-content'):module.Reader(path,observation,limits()).literal('nested/a')
+ def test_auxiliary_fdinfo_fallback_hash_alias_and_deadline_refusals_remain(self):
+  with patch.object(ctypes,'CDLL',return_value=SimpleNamespace()):bound=binding()
+  with tempfile.TemporaryDirectory() as temporary:
+   path=Path(temporary);self.tree(path);observation=roots.observe(path,limits=limits(),hardlinks='generic-development-internal')
+   old=aux.Reader(path,observation,limits());new=bound.aux.Reader(path,observation,limits());self.assertEqual(old.literal('nested/a'),new.literal('nested/a'))
+   (path/'alias').unlink();(path/'alias').write_bytes((path/'nested/a').read_bytes())
+   for module in (aux,bound.aux):
+    with self.assertRaises(ValueError):module.Reader(path,observation,limits()).literal('nested/a')
+    with self.assertRaisesRegex(ValueError,'root observation deadline'):module.Reader(path,observation,roots.Limits(deadline=time.monotonic()-1))
+ def test_static_deadline_reason_is_retained_and_other_messages_redacted(self):
+  for message,reason in (('root observation deadline','root observation deadline'),('aux-checkpoint-library-link-closure: /private/token-sensitive-reason','aux-checkpoint-library-link-closure'),('/private/token-sensitive-reason','OTHER_REDACTED')):
+   writes=[];error=ValueError(message)
+   with patch.object(F,'_phases',0),patch.object(F.os,'write',side_effect=lambda fd,raw:writes.append(raw) or len(raw)):
+    @F.traced('inert-control')
+    def fail():raise error
+    with self.assertRaises(ValueError) as raised:fail()
+   self.assertIs(raised.exception,error);row=json.loads(writes[-1].split(b' ',1)[1]);self.assertEqual(row['error_reason'],reason)
+   self.assertTrue(all(len(raw)<=512 for raw in writes));self.assertNotIn(b'token-sensitive',b''.join(writes))
 
 if __name__=='__main__':unittest.main(verbosity=2)
