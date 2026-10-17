@@ -1,0 +1,99 @@
+{
+  "attempt": 1,
+  "candidate": "cachy-asahi-glibc-gnu-provider-2.43.caa1-1",
+  "candidate_extraction": "NOT_TESTED",
+  "cases": {
+    "modified": {
+      "configuration_handoffs": {
+        "ALPM_automatic_active_preservation": "NOT_CLAIMED",
+        "original_modified_gai_retained": true,
+        "original_modified_locale_retained": true,
+        "phases": 3,
+        "root_map_joins": 3,
+        "status": "PASS_THREE_EXPLICIT_CLONE_CONFIGURATION_HANDOFFS"
+      },
+      "interrupted_recovery": {
+        "candidate_extraction": "NOT_TESTED",
+        "checkpoint_phase": "REMOVE_ONLY",
+        "lock": "EXACT_IDENTITY_REMOVED_AFTER_GROUP_ABSENCE",
+        "outer_runtime": "UNCHANGED_EXACT_HELD_ROLES_AND_SOURCE_PINNED_LIBALPM",
+        "power_loss": "NOT_TESTED",
+        "recovered_full574": true,
+        "status": "PASS_ACTUAL_REMOVE_SIGSTOP_KILL_LOCK_AND_EXTERNAL_RECOVERY",
+        "writer_pid": 94
+      },
+      "normal_runtime_stages": 5,
+      "precommit_refusal": 1,
+      "root_initialization": {
+        "after": 493,
+        "before": 448,
+        "parent_private": true,
+        "source_unchanged": true,
+        "status": "PASS_EXACT_CLONE_ROOT_SEARCH_INITIALIZATION_JOIN"
+      },
+      "root_nodes": 123066,
+      "stages": 10,
+      "transactions_committed": 4
+    },
+    "pristine": {
+      "configuration_handoffs": null,
+      "interrupted_recovery": {
+        "candidate_extraction": "NOT_TESTED",
+        "checkpoint_phase": "REMOVE_ONLY",
+        "lock": "EXACT_IDENTITY_REMOVED_AFTER_GROUP_ABSENCE",
+        "outer_runtime": "UNCHANGED_EXACT_HELD_ROLES_AND_SOURCE_PINNED_LIBALPM",
+        "power_loss": "NOT_TESTED",
+        "recovered_full574": true,
+        "status": "PASS_ACTUAL_REMOVE_SIGSTOP_KILL_LOCK_AND_EXTERNAL_RECOVERY",
+        "writer_pid": 17
+      },
+      "normal_runtime_stages": 5,
+      "precommit_refusal": 1,
+      "root_initialization": {
+        "after": 493,
+        "before": 448,
+        "parent_private": true,
+        "source_unchanged": true,
+        "status": "PASS_EXACT_CLONE_ROOT_SEARCH_INITIALIZATION_JOIN"
+      },
+      "root_nodes": 123066,
+      "stages": 10,
+      "transactions_committed": 4
+    }
+  },
+  "created_utc": "2026-10-17T05:47:27.851050+00:00",
+  "frozen_git_joins": 208,
+  "hardware": "NOT_RUN",
+  "installed16k": "NOT_RUN",
+  "interruption": "PASS_ACTUAL_REMOVE_SIGSTOP_KILL_LOCK_AND_EXTERNAL_RECOVERY",
+  "normal_runtime_observations": 10,
+  "ordered_cleanup": "PASS",
+  "originals": {
+    "artifact.zip": {
+      "bytes": 299180396,
+      "sha256": "8d0ee89145544139025a6efc379c7162dd2121d613863d53c0ffdaf5fc6d69d8"
+    },
+    "logs.zip": {
+      "bytes": 94330,
+      "sha256": "f316009591ff941ad671de99ae4f0c2305e00be410c264a682b56ff7cc7ffacd"
+    }
+  },
+  "package_authority": "PRIOR_ROOT_PACKET_RECEIPTS_RETAINED_NO_NEW_CRYPTO_CREDIT",
+  "page_size": 4096,
+  "power_loss": "NOT_TESTED",
+  "precommit_refusals": 2,
+  "provider_archive_sha256": "b852e3fc647d63699c5f42003a748cbd2268991dc2615a494dc3cdda4d757d12",
+  "release_admission": false,
+  "root_maps": 20,
+  "root_passive_replay": {
+    "bytes": 4108,
+    "sha256": "13d05d91fed7926827cb607654181945d953808197ad66802ab4e1afd3cc5037"
+  },
+  "run_id": 39005569381,
+  "schema_version": 1,
+  "scope": "DISPOSABLE_GENERIC_NATIVE_ARM_FULL574_REMOVE_PHASE_INTERRUPTION_AND_EXTERNAL_RECOVERY",
+  "source_authority_repair": "NO_CREDIT_OLD_GNU_AUTHORITY_UNCHANGED",
+  "source_sha": "365c952fcfbdc7d4760313df4d5fa1da7c8a2120",
+  "status": "ROOT_ACCEPTED_CONVENTIONAL_PROVIDER_INTERRUPTION_RECOVERY",
+  "transactions_committed": 8
+}
