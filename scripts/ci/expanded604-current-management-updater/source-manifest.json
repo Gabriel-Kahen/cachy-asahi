@@ -477,8 +477,8 @@
       "sha256": "3b35b83c3b7c6e7f66d60dc5bbf546daf2042a61c451dec7ae54daee6a2124ff"
     },
     "scripts/ci/expanded604-current-management-updater/freeze.py": {
-      "bytes": 1934,
-      "sha256": "86a9c85f96637131b345cf037438ebba27f7cc41c17957719dc752fb68714345"
+      "bytes": 1995,
+      "sha256": "93022ab2e605f89a2e16d175b619b3316624fd71cf203b5069fcde83e6708ebf"
     },
     "scripts/ci/expanded604-current-management-updater/gate.py": {
       "bytes": 5461,
@@ -493,8 +493,8 @@
       "sha256": "19900023b3cb23cbfdd0aa17eb1531bb83738c8f1c32251dfd5c0b0f756f581a"
     },
     "scripts/ci/expanded604-current-management-updater/prepare.py": {
-      "bytes": 6307,
-      "sha256": "c11960c00da0ff9d56456ab076b40de5893dad1d12ef131e6dfa3cb1384bbd3f"
+      "bytes": 6591,
+      "sha256": "6b97bf373c4e63725f7b389c2b7f51277f09a2a0de53fdc02b20499a8d349299"
     },
     "scripts/ci/expanded604-current-management-updater/run.py": {
       "bytes": 11122,
@@ -513,8 +513,8 @@
       "sha256": "1ad3ea9f63dde04385e2479f23d399c40d1fbc3fc1efc72eb384d7d8d179f8f1"
     },
     "scripts/ci/expanded604-current-management-updater/test_current.py": {
-      "bytes": 3318,
-      "sha256": "d03a080a4d06476daf058450365b4644f41bcbc1859a3f12c6c6565e5a1d29b2"
+      "bytes": 4800,
+      "sha256": "0b65acef7b8bbac8e41ade7132c31449e2779db157e6451ada402a2c1b3cd599"
     },
     "scripts/ci/expanded604-current-management-updater/test_driver_progress.py": {
       "bytes": 5088,

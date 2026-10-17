@@ -38,6 +38,10 @@ def adapt(raw,name):
  edits={}
  for a,b in changes.items():
   if a in text:edits[a]=text.count(a);text=text.replace(a,b)
+ if name=='freeze.py':
+  anchor="    names=set(old)|{'scripts/ci/expanded600-root-upgrade/source-manifest.json'}\n"
+  need(text.count(anchor)==1,'exact updater freeze closure anchor')
+  text=text.replace(anchor,anchor+"    names.update(C.read(C.HERE/'source-pins.json')['files'])\n")
  ast.parse(text);return text.encode(),edits
 
 def emit(root,output):

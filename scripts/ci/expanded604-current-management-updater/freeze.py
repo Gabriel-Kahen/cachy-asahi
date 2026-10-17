@@ -11,6 +11,7 @@ def freeze(root):
     C.policy();root=C.safe(root.absolute());C.need(root==C.SOURCE,'freeze only adopted604 updater root')
     directory=root/'scripts/ci/expanded600-root-upgrade';old=C.read(directory/'source-manifest.json')
     names=set(old)|{'scripts/ci/expanded600-root-upgrade/source-manifest.json'}
+    names.update(C.read(C.HERE/'source-pins.json')['files'])
     # The accepted installer checkout separately verifies its full immutable closure at the gate.
     names|={p.relative_to(root).as_posix() for p in C.HERE.iterdir() if p.is_file() and p.name!='source-manifest.json'}
     C.need(1<=len(names)<=512,'finite604 updater source closure required')
