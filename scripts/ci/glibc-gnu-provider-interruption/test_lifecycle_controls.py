@@ -322,16 +322,16 @@ class Controls(unittest.TestCase):
         self.assertTrue(all(set(f)=={'file','function','line'} for r in rows for f in r['frames']))
 
 
-    def test_trial_alone_has_fsetid_for_foreign_group_mode_preservation(self):
+    def test_trial_alone_has_fsetid_and_kill_for_metadata_and_owned_uid65534_retirement(self):
         import ast
         tree=ast.parse(Path(run.__file__).read_bytes())
         assignments=[n for n in ast.walk(tree) if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='caps' for t in n.targets)]
         self.assertEqual(len(assignments),1)
         expression=compile(ast.Expression(assignments[0].value),str(run.__file__),'eval')
         def caps(role):return eval(expression,{'__builtins__':{}},{'role':role})
-        self.assertEqual(caps('trial'),('CHOWN','DAC_OVERRIDE','FOWNER','FSETID','SETUID','SETGID','SYS_CHROOT','SYS_ADMIN','SETFCAP'))
+        self.assertEqual(caps('trial'),('CHOWN','DAC_OVERRIDE','FOWNER','FSETID','KILL','SETUID','SETGID','SYS_CHROOT','SYS_ADMIN','SETFCAP'))
         self.assertEqual(caps('scrub'),('CHOWN','DAC_OVERRIDE','FOWNER'))
-        self.assertNotIn('FSETID',caps('scrub'))
+        self.assertNotIn('FSETID',caps('scrub'));self.assertNotIn('KILL',caps('scrub'))
 
     def test_real_inert_setid_metadata_still_requires_both_exact_mode_bits(self):
         # Never execute this owned tempfile. This exercises the actual unchanged

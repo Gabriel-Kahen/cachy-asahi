@@ -25,8 +25,8 @@
       "sha256": "b40676ac23139704e0aabd6edc0128a7bba406cda043b7411479194acce48bd4"
     },
     "scripts/ci/glibc-gnu-provider-lifecycle/proc_mount.py": {
-      "bytes": 15359,
-      "sha256": "590de4b205c15b22ccf56ab9cdb8d125448628f5581d370d3af6e58f0be9b516"
+      "bytes": 15368,
+      "sha256": "ae94b9b6ae45c8cb52526235a4489b6012004ceb416d34ff40971356f0295748"
     },
     "scripts/ci/glibc-gnu-provider/normal-child-exec.patch": {
       "bytes": 773,

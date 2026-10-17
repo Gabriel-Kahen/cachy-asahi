@@ -85,3 +85,14 @@ and exact receipt refusals. They establish no real native bind-mount proof.
 Apps actual38977834026 exposed the original guard; the qualified Apps native
 successor and these GNU native consumers remain separate pending actuals.
 No GNU packet publication/dispatch or hardware/performance credit follows.
+
+### Owned unprivileged group supervision
+
+The isolated trial now includes CAP_KILL with the strict ten-capability mask
+0x802400fb (2149843195), allowing the unchanged supervisor to signal/reap and
+verify absence of its UID65534 normal-probe group. Native run38995066761 exposed
+EPERM at killpg during that cleanup. The missing capability matches the UID
+permission boundary; a unique DAC-versus-LSM cause was not separately traced.
+The next native result must prove the correction. Observer, scrub and extract
+capabilities are unchanged; the trial retains its private PID namespace, read-only
+source, network isolation, NNP, seccomp, scoped AppArmor and resource bounds.

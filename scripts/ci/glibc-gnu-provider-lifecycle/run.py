@@ -62,7 +62,7 @@ def main():
             '--cap-drop=ALL','--security-opt=no-new-privileges','--pids-limit=512','--memory=4g','--cpus=2','--ulimit=nofile=8192:8192','--tmpfs=/tmp:rw,nosuid,nodev,size=128m',
             '--env=CACHY_GNU_PROVIDER_LIFECYCLE=1','--env=INPUT_INDEX_SHA256='+args.input_sha256,'--env=OUTPUT_UID='+str(os.getuid()),'--env=OUTPUT_GID='+str(os.getgid()),'--env=PYTHONDONTWRITEBYTECODE=1']
         if role=='trial':argv+=['--security-opt=apparmor='+profile['name'],'--env=GNU_TRIAL_APPARMOR_PROFILE='+profile['name']]
-        caps=('CHOWN','DAC_OVERRIDE','FOWNER','FSETID','SETUID','SETGID','SYS_CHROOT','SYS_ADMIN','SETFCAP') if role=='trial' else ('CHOWN','DAC_OVERRIDE','FOWNER')
+        caps=('CHOWN','DAC_OVERRIDE','FOWNER','FSETID','KILL','SETUID','SETGID','SYS_CHROOT','SYS_ADMIN','SETFCAP') if role=='trial' else ('CHOWN','DAC_OVERRIDE','FOWNER')
         argv+=['--cap-add='+cap for cap in caps]
         mounts=[(args.inputs,'/inputs',True),(args.source_root,'/source',True),(args.held_root,'/held',True),(C.HERE,'/runner',True),(private,'/work',False),(public,'/out',False)]
         for source,target,readonly in mounts:argv+=['--mount','type=bind,src='+str(source)+',dst='+target+(',readonly' if readonly else '')]
