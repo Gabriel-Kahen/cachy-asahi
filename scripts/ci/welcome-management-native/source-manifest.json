@@ -126,7 +126,7 @@
     },
     "packages/tools/cachy-asahi-orphans/.SRCINFO": {
       "bytes": 914,
-      "sha256": "1d171298c87606d351e4dc26a5cb83bd66719b419b619f17e82bcbd097fc0188"
+      "sha256": "a324b86100e9a14aa431021f2ed3454920e764708faea4bc0775239dd9765223"
     },
     "packages/tools/cachy-asahi-orphans/LICENSE": {
       "bytes": 1081,
@@ -138,23 +138,23 @@
     },
     "packages/tools/cachy-asahi-orphans/PKGBUILD": {
       "bytes": 1379,
-      "sha256": "b7c6055622f57dd3a30101ee418301a2cb3e910f03ccbb99a25ebbbed4cb9391"
+      "sha256": "b59a1b67a8fd6290549e861bd40f5e94447d5376c86eca6baa94d2cdddb6b91a"
     },
     "packages/tools/cachy-asahi-orphans/README.md": {
-      "bytes": 8282,
-      "sha256": "421e83c8dd3f482ae0d35edf8565d09fa1d3cc2f9f4eb7e5459376b26a54991a"
+      "bytes": 8810,
+      "sha256": "ef96e2cf1e0809a065edd36545c861e4064f3bae2cc4665401455a89dd144529"
     },
     "packages/tools/cachy-asahi-orphans/cachy-asahi-orphans": {
-      "bytes": 19417,
-      "sha256": "2d7d6914482a76f963603ad71aab38f87693a1c7c7ad15f7ae54bf50a3c1d629"
+      "bytes": 20007,
+      "sha256": "559ff8554b9c93f237ddebec8f6c8ac09749ed93b6a179c06fcf513dfffe3292"
     },
     "packages/tools/cachy-asahi-orphans/protection-floor.json": {
       "bytes": 10489,
       "sha256": "0d6dfbf3cd550fe72ddad30058693007f8bb86214de1e83442580677db5005f2"
     },
     "packages/tools/cachy-asahi-orphans/test_orphans.py": {
-      "bytes": 12730,
-      "sha256": "f862b853e90a79314cbf221f440ddd2f679d21d8e94ee002d736b1f26b1ee83c"
+      "bytes": 14653,
+      "sha256": "8f4080979ad3de2b1c27419f27cd6e3f61b122544164f1e16158cc4f8d73bb82"
     },
     "packages/tools/cachy-asahi-welcome/.SRCINFO": {
       "bytes": 3092,
@@ -398,7 +398,7 @@
     },
     "scripts/ci/welcome-management-native/input-policy.json": {
       "bytes": 12357,
-      "sha256": "b48f1b718b529cda7f08487eda336bc377d69b9f11f523d929e4444deafde2d1"
+      "sha256": "7f80eed09a5c9bed429a9814b75229b74792c583803679f8441a422ca64c846b"
     },
     "scripts/ci/welcome-management-native/installed.py": {
       "bytes": 4928,
@@ -425,12 +425,12 @@
       "sha256": "1ae31ae2ec57b03527d6cf4986321728e7a891c75474268a4ec89cad331b666d"
     },
     "scripts/ci/welcome-management-native/native_contract.py": {
-      "bytes": 14198,
-      "sha256": "23d19817d7751ce73ab1e772f5c7724305fb8e91723c273b15f41f947cb6c81f"
+      "bytes": 14202,
+      "sha256": "4639a8839e73d9a091b1cbf4f2b4a1d50913a41b320019112301eb667f69d13c"
     },
     "scripts/ci/welcome-management-native/prepare.py": {
-      "bytes": 9797,
-      "sha256": "fdf722cf964ff7f7ae5c72b731661a4ead006c637f6db4929b22f662b48e9031"
+      "bytes": 9796,
+      "sha256": "d552a067facb5c4c8b50f86264452283fcf004f80093d6a67cd53430a3643ed4"
     },
     "scripts/ci/welcome-management-native/run.py": {
       "bytes": 12928,
@@ -441,12 +441,12 @@
       "sha256": "711047ff3f0160e55acf4f2cd3147d24989ba10b021faaf936cb9185b81ef50d"
     },
     "scripts/ci/welcome-management-native/test_gui.py": {
-      "bytes": 27433,
-      "sha256": "54c495aede7aa2d35baad8f207d9252a2b33c364b65f92f9758733c23721feea"
+      "bytes": 27563,
+      "sha256": "4008f3cdd5214a450319035ebbb5f5468c98fbc9651a37a72ce8e53f86efd310"
     },
     "scripts/ci/welcome-management-native/test_native.py": {
-      "bytes": 23645,
-      "sha256": "90b1cda3b2101059724ddd86bcd012c4321a7b826f988a430fe34312e3ce4d80"
+      "bytes": 24027,
+      "sha256": "9d54e812c7b882536028c84cce37113495d3505a97ae0bdc690d40a6923de2e4"
     },
     "scripts/ci/welcome-management-native/test_report_retirement.py": {
       "bytes": 3739,
@@ -561,14 +561,14 @@
     "cachy-asahi-orphans": {
       "errors": [],
       "input_sha256": {
-        ".SRCINFO": "1d171298c87606d351e4dc26a5cb83bd66719b419b619f17e82bcbd097fc0188",
+        ".SRCINFO": "a324b86100e9a14aa431021f2ed3454920e764708faea4bc0775239dd9765223",
         "LICENSE": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
         "NOTICE": "326f699857d31b8cd4462081aea074d4349721fb9c48965db6208c793a086720",
-        "PKGBUILD": "b7c6055622f57dd3a30101ee418301a2cb3e910f03ccbb99a25ebbbed4cb9391",
-        "README.md": "421e83c8dd3f482ae0d35edf8565d09fa1d3cc2f9f4eb7e5459376b26a54991a",
-        "cachy-asahi-orphans": "2d7d6914482a76f963603ad71aab38f87693a1c7c7ad15f7ae54bf50a3c1d629",
+        "PKGBUILD": "b59a1b67a8fd6290549e861bd40f5e94447d5376c86eca6baa94d2cdddb6b91a",
+        "README.md": "ef96e2cf1e0809a065edd36545c861e4064f3bae2cc4665401455a89dd144529",
+        "cachy-asahi-orphans": "559ff8554b9c93f237ddebec8f6c8ac09749ed93b6a179c06fcf513dfffe3292",
         "protection-floor.json": "0d6dfbf3cd550fe72ddad30058693007f8bb86214de1e83442580677db5005f2",
-        "test_orphans.py": "f862b853e90a79314cbf221f440ddd2f679d21d8e94ee002d736b1f26b1ee83c"
+        "test_orphans.py": "8f4080979ad3de2b1c27419f27cd6e3f61b122544164f1e16158cc4f8d73bb82"
       },
       "metadata": {
         "arch": [
@@ -591,16 +591,16 @@
           "cachy-asahi-orphans"
         ],
         "pkgrel": [
-          "1"
+          "2"
         ],
         "pkgver": [
           "0.1.0"
         ],
         "sha256sums": [
-          "2d7d6914482a76f963603ad71aab38f87693a1c7c7ad15f7ae54bf50a3c1d629",
-          "f862b853e90a79314cbf221f440ddd2f679d21d8e94ee002d736b1f26b1ee83c",
+          "559ff8554b9c93f237ddebec8f6c8ac09749ed93b6a179c06fcf513dfffe3292",
+          "8f4080979ad3de2b1c27419f27cd6e3f61b122544164f1e16158cc4f8d73bb82",
           "0d6dfbf3cd550fe72ddad30058693007f8bb86214de1e83442580677db5005f2",
-          "421e83c8dd3f482ae0d35edf8565d09fa1d3cc2f9f4eb7e5459376b26a54991a",
+          "ef96e2cf1e0809a065edd36545c861e4064f3bae2cc4665401455a89dd144529",
           "326f699857d31b8cd4462081aea074d4349721fb9c48965db6208c793a086720",
           "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
         ],

@@ -138,3 +138,11 @@ Host source/tempfile/staging results are separate from native ARM package builds
 installed lifecycle, authenticated updater integration, actual orphan removal,
 M2 hardware and maintained release acceptance. `arch=any` is a text-package
 statement. This candidate is never selected for development or release itself.
+
+Dependency satisfier results are memoized only within a single read-only
+assessment, separately for its immutable full and remaining ALPM lists. The
+cache holds package names or absence, never handles or cross-assessment facts.
+Cache saturation falls back to the original ALPM query without dropping facts.
+Optional descriptions share only the identical normalized ALPM query.
+Every assessment still checks the complete before/after DB snapshot, locks,
+protection floor, reverse dependencies, relations and original deadlines.

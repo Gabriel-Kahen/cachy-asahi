@@ -43,7 +43,7 @@ def prepare(source,output,assets):
         (output/filename).write_text(replace(text,anchor,imports+'\n'+anchor))
     # Adapter contracts are materialized independently of archive bytes, then hash-bound below.
     gui=(output/'gui_contract.py').read_text()
-    gui=replace(gui,"version='0.1.0-1'","version=('0.1.0-2' if name=='cachy-asahi-welcome' else '0.1.0-1')")
+    gui=replace(gui,"version='0.1.0-1'","version=('0.1.0-1' if name=='cachy-asahi-doctor' else '0.1.0-2')")
     gui+='''\nimport management_contract as MG
 BASE_VIEWS=VIEWS
 VIEWS=MG.VIEWS

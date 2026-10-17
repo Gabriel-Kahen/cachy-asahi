@@ -34,7 +34,7 @@ jobs:
         timeout-minutes: 2
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '778fa175c19ddd591bcaa71796f3dd58df3d5c87bae8bc77fa4ae1d1254b3824' "$SLICE/job.py" '3c9d8913146f1d7aa4174cece2cf410393b4f53341788fde5c469bfa6cfaa564' "$SLICE/source-manifest.json" | sha256sum --check
+          printf '%s  %s\n' '778fa175c19ddd591bcaa71796f3dd58df3d5c87bae8bc77fa4ae1d1254b3824' "$SLICE/job.py" '9c29304256cfb2351eaa9c6160a01335b318d2af755638dd15145e5174c5521b' "$SLICE/source-manifest.json" | sha256sum --check
           python3 -I -B "$SLICE/job.py" proof --source "$GITHUB_WORKSPACE" --manifest "$SLICE/source-manifest.json" --proof "$RUNNER_TEMP/welcome-management-native-source-proof.json"
       - name: Focused source and hosted entry controls
         timeout-minutes: 3

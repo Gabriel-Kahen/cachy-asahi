@@ -93,10 +93,14 @@ class SourceControls(unittest.TestCase):
         self.assertEqual(value['ui']['strings']['running'],'Running check…');self.assertEqual(value['ui']['max_output_bytes'],1048576)
         for name,source_count,payload_count,recipe_sha in ((C.NAME,24,9,'071cada88855ac7e462df8cde264d4ae60263655da4706d9c2c9dc5af7b33f6b'),
                 (C.DOCTOR,7,4,'119e2b839195e0c18b885b0208928e234af63e2a5f958dbf4fc9edad5a2c04b1'),
-                (C.ORPHANS,8,5,'b7c6055622f57dd3a30101ee418301a2cb3e910f03ccbb99a25ebbbed4cb9391')):
+                (C.ORPHANS,8,5,'b59a1b67a8fd6290549e861bd40f5e94447d5376c86eca6baa94d2cdddb6b91a')):
             row=value['products'][name]
             self.assertEqual(len(row['source_files']),source_count);self.assertEqual(len(row['payload']),payload_count)
             self.assertEqual(row['recipe_sha256'],recipe_sha);C.recipe(ROOT,name)
+        self.assertEqual(value['products'][C.ORPHANS]['version'],'0.1.0-2')
+        stale=copy.deepcopy(value);stale['products'][C.ORPHANS]['version']='0.1.0-1'
+        with patch.object(C,'read',return_value=stale),self.assertRaisesRegex(ValueError,'version'):C.policy()
+        self.assertEqual(value['products'][C.ORPHANS]['check_markers'],['^Ran 20 tests in [0-9.]+s$','^OK$'])
         self.assertEqual(value['products'][C.DOCTOR]['accepted_archive'],dict(name='cachy-asahi-doctor-0.1.0-1-any.pkg.tar.xz',bytes=13708,
             sha256='06898669fdd6c9e5bdcc9909e6b0e75e958bdbd57520a7082c0e9f5f7fac7482',source_commit='09717a45388e5b90ca80fd3fef327444101c108f',producer_run='38886781500'))
 
@@ -137,10 +141,10 @@ class SourceControls(unittest.TestCase):
             with self.assertRaises(ValueError):C.read(file)
 
     def test_native_checks_require_full_markers_and_no_skips(self):
-        with tempfile.TemporaryDirectory() as tmp,patch.object(C,'product',return_value=dict(check_markers=['^Ran 18 tests in [0-9.]+s$','^OK$'])):
-            log=Path(tmp)/'build.log';good='Starting check()\nRan 18 tests in 1.0s\nOK\n';log.write_text(good)
+        with tempfile.TemporaryDirectory() as tmp,patch.object(C,'product',return_value=dict(check_markers=C.product(C.ORPHANS)['check_markers'])):
+            log=Path(tmp)/'build.log';good='Starting check()\nRan 20 tests in 1.0s\nOK\n';log.write_text(good)
             self.assertTrue(C.check_log(log,C.ORPHANS)['check_enabled'])
-            for value in (good.replace('18','17'),good.replace('Starting check()',''),good+'OK (skipped=1)\n',good+'ERROR\n',good+'not ok 1\n'):
+            for value in (good.replace('20','18'),good.replace('Starting check()',''),good+'OK (skipped=1)\n',good+'ERROR\n',good+'not ok 1\n'):
                 log.write_text(value)
                 with self.subTest(value=value),self.assertRaises(ValueError):C.check_log(log,C.ORPHANS)
 
