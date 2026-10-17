@@ -9,8 +9,8 @@
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "manifests/packages.toml": {
-      "bytes": 36116,
-      "sha256": "ea481925bc6272b9feb5b4f5b7b8e7e58ef90916293c93e0471b0290130f11f2"
+      "bytes": 36110,
+      "sha256": "6083eb8a784e6162e5fb1f95b12e84f997c66fa18e06b968605cbd336f50c8f9"
     },
     "packages/tools/cachy-asahi-apps/.SRCINFO": {
       "bytes": 1775,

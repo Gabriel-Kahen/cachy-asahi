@@ -33,6 +33,7 @@ def interface(policy):
         set(ui.get('strings',{}))=={'running','complete','failure','unavailable'} and
         all(type(v) is str and 1<=len(v)<=256 for group in ('labels','strings') for v in ui[group].values()) and
         type(ui.get('raw_preview_suffix')) is str and 0<len(ui['raw_preview_suffix'])<=128 and
+        type(ui.get('orphan_preview_bytes')) is int and ui['orphan_preview_bytes']==8192 and ui.get('orphan_preview_suffix')=='\n[Raw preview truncated at 8 KiB.]' and
         type(ui.get('max_output_bytes')) is int and 0<ui['max_output_bytes']<=2*1024**2,'Root final management UI contract remains UNBOUND')
     return ui
 
@@ -57,6 +58,9 @@ def snapshot(value,pid,view,expected=None):
     body='\n'.join(texts);expected=expected or {}
     for text in expected.get('text',[]):
         need(any(text in s for s in texts),'actual management outcome/report text not showing')
+    if view in ('management-doctor','management-orphans','management-failure') and expected.get('text'):
+        need(len(expected['text'])==3 and sum(text==expected['text'][2] for text in texts)==1,
+             'entire actual raw preview and truncation notice must match')
     for label,state in expected.get('buttons',{}).items():
         controls=[row for name,row,_ in rows if name==label and row['role']==43]
         need(len(controls)==1 and controls[0]['enabled'] is state and controls[0]['sensitive'] is state,'optional tool button sensitivity differs')
@@ -160,7 +164,11 @@ def action(row,pid,label,scope,scroll):
     else:need('interface' not in proof and proof.get('actions')==1 and proof.get('action_name') in ('click','activate','press','switch'),'actual management GTK action differs')
 
 
-def preview(raw,ui):return raw[:65536].decode(errors='replace')+(ui['raw_preview_suffix'] if len(raw)>65536 else '')
+def preview(raw,ui,kind='doctor'):
+    need(kind in ('doctor','orphans','failure'),'fixed preview tool required')
+    limit=65536 if kind=='doctor' else ui['orphan_preview_bytes']
+    suffix=ui['raw_preview_suffix'] if kind=='doctor' else ui['orphan_preview_suffix']
+    return raw[:limit].decode(errors='replace')+(suffix if len(raw)>limit else '')
 
 def verify_result(events,lock):
     need(lock.get('status')=='VERIFIED_NATIVE_CANDIDATES' and set(lock['products'])=={'cachy-asahi-welcome','cachy-asahi-doctor','cachy-asahi-orphans'},'three real bound candidates required')
@@ -199,7 +207,7 @@ def verify_result(events,lock):
                 _,summary=report(gui_raw,kind,result['inventory'])
                 need(gui_raw.decode() in frame['semantic']['expected']['text'],'actual GTK Doctor report must be retained and joined')
             actual=gui_raw if kind=='doctor' else raw;tool='doctor' if kind=='doctor' else 'orphans'
-            expected=dict(text=[ui['strings']['failure' if kind=='failure' else 'complete'],summary,preview(actual,ui)],buttons={ui['labels'][tool]:True})
+            expected=dict(text=[ui['strings']['failure' if kind=='failure' else 'complete'],summary,preview(actual,ui,kind)],buttons={ui['labels'][tool]:True})
             need(frame['semantic']['expected']==expected and len(raw)<=ui['max_output_bytes'],'actual raw report and GUI conclusion not joined')
             start=3+4*('doctor','orphans','failure').index(kind)
             need(events.index(actions[start+2])<events.index(frame)<events.index(actions[start+3]),'actual report expander/capture order differs')

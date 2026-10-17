@@ -412,21 +412,21 @@ status = "candidate"
 source = "local-original"
 recipe = "packages/tools/cachy-asahi-welcome/PKGBUILD"
 license = "MIT"
-candidate_version = "0.1.0-3"
+candidate_version = "0.1.0-4"
 selected_for_development = false
 selected_for_release = false
-host_validation = "PASS32 x86_64 functional cases; original root-only guard SKIP as ordinary user; private GTK static-running/close checks and9-file staging. Host redraws180to0 per3s; no native/M2 performance claim"
-native_build = "Current0.1.0-3 NOT RUN; historical PASS byte-identical0.1.0-2 native ARM pair38974893566:31496bytes/SHA25661d6b2b2ec09dbbdaa29908cb8797527fd347c4f8c8dc23967dc161b57014280"
-native_cli_lifecycle = "Current0.1.0-3 NOT RUN; historical PASS0.1.0-2 signed577/577/574/577/574 fresh/existing users and36rawCLIreports38974893566; overallrunGUIFAIL"
+host_validation = "PASS35 ordinary host tests with one scoped UID0 skip; three mandatory report-worker lifetime/display controls and31GUI contract controls; exact retained984307B report host comparison supports responsiveness only"
+native_build = "Current0.1.0-4 NOT RUN; historical0.1.0-3 Root-accepted pair39000068077:31408bytes/SHA256b25d81a42d4258efaf232f6d639b4b2b626293f94c448e752d5956be1d24fa94"
+native_cli_lifecycle = "Current0.1.0-4 NOT RUN; historical0.1.0-3 Root-accepted signed lifecycle39000068077 with36rawCLIreports and complete574/user preservation; GUI remainsFAIL"
 native_generic16k_cli = "HISTORICAL0.1.0-1: PASS unchanged unpacked CLI payloads in38904917140; not installed or GUI"
 native_generic_managed_gui = "HISTORICAL0.1.0-1: PASS fourteen Root-viewed captures and actual GTK actions in38905814219"
 native_generic16k_managed_gui = "HISTORICAL0.1.0-1: PASS installed593, sixteen GTK actions and fourteen Root-viewed first frames in38952428172; docs/validation/managed-gui-generic16k-native-20261016.md"
 hardware_validation = "NOT RUN"
 native_evidence = "docs/validation/welcome2-native-cli-20261016.md"
-next_step = "Native Welcome3 pair, signed CLI lifecycle and full24-frame GUI39000068077 are active with unchanged30s/45s limits; then rebase current604 with Welcome3 and Orphans2 before current16K/M2 acceptance. Historical Welcome2/604 evidence stays separate."
+next_step = "Native Welcome4 pair, signed CLI lifecycle and unchanged full24-frame/17-operation GUI with30s/45s limits; only after acceptance rebase current604 with Welcome4/Orphans2. Historical604 locks and Welcome3 failures remain distinct."
 
 
-installation = "Current0.1.0-3 NOT RUN; historical PASS0.1.0-2 native installed CLI lifecycle; current managed GUI remains unaccepted"
+installation = "Current0.1.0-4 NOT RUN; historical0.1.0-3 signed installed CLI lifecycle accepted; current full GUI remains unaccepted"
 [[packages]]
 name = "cachy-asahi-doctor"
 phase = "tools-experience"

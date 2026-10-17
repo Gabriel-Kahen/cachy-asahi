@@ -195,7 +195,7 @@ def exercise(base,stage,env,logs,workspace,old_welcome,doctor,policy,lock,hooks)
                     return matches[0] if len(matches)==1 else None
                 preview,summary=hooks['wait'](actual_doctor,healthy,remaining(report_until),'actual GTK Doctor report')
                 gui_raw=preview.encode();gui_report=dict(base64=base64.b64encode(gui_raw).decode(),sha256=C.sha(gui_raw),bytes=len(gui_raw))
-            else:preview=raw[:65536].decode(errors='replace')+(ui['raw_preview_suffix'] if len(raw)>65536 else '')
+            else:preview=C.preview(raw,ui,kind)
             expected=dict(text=[ui['strings']['failure' if kind=='failure' else 'complete'],summary,preview],buttons={ui['labels'][tool]:True})
             capture('management-'+kind,expected,report_until)
             reports[kind]=dict(gui_report=gui_report,base64=base64.b64encode(raw).decode(),sha256=C.sha(raw),bytes=len(raw),gui_process=child,metadata_only=True)

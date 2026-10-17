@@ -21,7 +21,8 @@ ROOT=Path(os.environ.get('WELCOME_MANAGEMENT_SOURCE',Path(__file__).resolve().pa
 HERE=Path(__file__).resolve().parent
 UI=dict(labels=dict(management='Management',doctor='Run Doctor',orphans='Assess orphan packages'),
     strings=dict(running='Running check…',complete='Elapsed:',failure='Check failed.',unavailable='The optional tool is not installed or executable. This check is unavailable.'),
-    raw_preview_suffix='\n[Raw preview truncated at 64 KiB.]',max_output_bytes=1024**2)
+    raw_preview_suffix='\n[Raw preview truncated at 64 KiB.]',max_output_bytes=1024**2,
+    orphan_preview_bytes=8192,orphan_preview_suffix='\n[Raw preview truncated at 8 KiB.]')
 
 
 def node(text,*,name='',enabled=True,showing=True):
@@ -68,7 +69,7 @@ def events():
                 if kind=='doctor':rows.append(actions[2])
                 rows.extend(actions[start:start+3]);tool='doctor' if kind=='doctor' else 'orphans'
                 raw=C.encoded(dict(doctor=doctor,orphans=orphan,failure=refusal)[kind]);_,summary=C.report(raw,kind,inventory)
-                expected=dict(text=[UI['strings']['failure' if kind=='failure' else 'complete'],summary,C.preview(raw,UI)],buttons={UI['labels'][tool]:True})
+                expected=dict(text=[UI['strings']['failure' if kind=='failure' else 'complete'],summary,C.preview(raw,UI,kind)],buttons={UI['labels'][tool]:True})
                 reports[kind]=dict(base64=base64.b64encode(raw).decode(),sha256=C.sha(raw),bytes=len(raw),gui_process=child(tool))
                 if kind=='doctor':reports[kind]['gui_report']=dict(base64=base64.b64encode(raw).decode(),sha256=C.sha(raw),bytes=len(raw))
             nodes=[node(text) for text in expected['text']]+[node('',name=label,enabled=enabled) for label,enabled in expected['buttons'].items()]
@@ -297,7 +298,7 @@ class Adapter(unittest.TestCase):
             with patch.object(N,'verify_source'),patch.object(A,'verify_source'),patch.object(N,'policy',return_value=dict(ui=UI)),patch.object(A,'stage',side_effect=stage):P.prepare(ROOT,out,root/'assets')
             for path in out.glob('*.py'):compile(path.read_text(),str(path),'exec')
             runtime=(out/'desktop574_runtime.py').read_text();guest=(out/'base_guest.py').read_text();session=(out/'session.py').read_text()
-            self.assertIn("version={'cachy-asahi-doctor':'0.1.0-1','cachy-asahi-orphans':'0.1.0-2','cachy-asahi-welcome':'0.1.0-3'}[name]",(out/'gui_contract.py').read_text())
+            self.assertIn("version={'cachy-asahi-doctor':'0.1.0-1','cachy-asahi-orphans':'0.1.0-2','cachy-asahi-welcome':'0.1.0-4'}[name]",(out/'gui_contract.py').read_text())
             for stage_name in ('minimal','overlay'):
                 for view in C.VIEWS:self.assertIn(stage_name+'-'+view,runtime)
             self.assertIn('management_root.serve',guest);self.assertIn('managed_session.SETPRIV',guest);self.assertNotIn('dbus-run-session',guest)
