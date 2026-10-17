@@ -1,0 +1,41 @@
+{
+  "VM": "NOT_RUN",
+  "cases": {
+    "repair-bytes": {
+      "decision": {
+        "bytes": 1481,
+        "sha256": "f8e106a882b7fc9b553c8a399f6d9296d17d77f9aadbdcf46135b090f88b4157"
+      },
+      "run": 39037387719
+    },
+    "repair-missing": {
+      "decision": {
+        "bytes": 1505,
+        "sha256": "060d11713bf3217dfc927fa733ba8e3140289ccce687b0ac11e30762f82838c8"
+      },
+      "run": 39037409734
+    }
+  },
+  "copied_root_preservation": "SOURCE_ENFORCED_RAW_MAPS_NOT_EXPORTED",
+  "each_committed_transactions": 4,
+  "each_counts": [
+    578,
+    575,
+    574
+  ],
+  "each_strict_inspect_refusals": 1,
+  "each_zero_commit_refusals": 3,
+  "hardware": "NOT_RUN",
+  "ordered_cleanup": "PASS_BOTH_DISTINCT_ACTUAL_RUNS",
+  "packet_source": "65950a7e3ca82d97e21a65556844dab1cfd1a7f7",
+  "performance": "NOT_MEASURED",
+  "readonly_inspection": "PASS_AUTHENTICATED_NONCOMMIT_BEFORE_PINS",
+  "release": "NOT_ADMITTED",
+  "schema_version": 1,
+  "scope": "NATIVE_FULL574_SELECTED_REPAIR_CASES_ONLY",
+  "signature_cryptographic_reverification": "NOT_RUN_PASSIVE_NO_SUBPROCESSES",
+  "source_manifest_sha256": "636baf21fa537ca813b7403b1bc6afb920404d974236bd52d8c1cdf479477ba9",
+  "source_operand_git_joins_per_case": 204,
+  "source_sha": "5051663cf191e40bdbb3b03e2d62748f69b6afb1",
+  "status": "ROOT_ACCEPTED_TWO_INDEPENDENT_NATIVE_FULL574_SIGNED_REPAIR_CASES"
+}
