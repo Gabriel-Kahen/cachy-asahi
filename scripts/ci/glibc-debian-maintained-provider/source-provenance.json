@@ -1,0 +1,16 @@
+{
+  "basis": {
+    "maintained_patch_provenance_sha256": "80ad418d9e7bf47a5c5e12bed0b91ada082dbff0e933b26c68edcfbe520e16db",
+    "private_materializer_sha256": "da650f9edbdab7d1a72e4de12013eee3ad70881e317d1be6ad81c93f785a41eb"
+  },
+  "candidate": "UNBOUND caa3, distinct from caa2; no old native/build/runtime acceptance reused",
+  "licenses": "Original local source MIT; retain GNU notices and authenticated Debian copyright/individual patch notices. Not blanket patch relicensing.",
+  "policy": "All84 exact authenticated default-series patches,40 recorded offset outputs,fuzz0; project0001 superseded by authenticated upstream guards; exact project0002 applied; MAKEINFO=: and Debian manual-linked test changes explicit.",
+  "sources": {
+    "debian_version": "2.43-7",
+    "orig_url": "https://deb.debian.org/debian/pool/main/g/glibc/glibc_2.43.orig.tar.xz",
+    "patch_url": "https://deb.debian.org/debian/pool/main/g/glibc/glibc_2.43-7.debian.tar.xz",
+    "upstream_branch_revision": "562cd7badd3f9edd74b68316439f910f6f7c4c1f"
+  },
+  "status": "SOURCE_PREPARATION_ONLY_NOT_BUILT_INSTALLED_OR_ADMITTED"
+}
