@@ -7,7 +7,7 @@ TARGET=Path('/work/.gnu-readonly-proc-probe')
 FLAGS=15
 BIND=4096
 ROOTS=(Path('/work/pristine/root'),Path('/work/modified/root'))
-MASK=2149843163
+MASK=2149843195
 STATUS=('Uid','Gid','Groups','CapInh','CapPrm','CapEff','CapBnd','CapAmb','NoNewPrivs','Seccomp','Seccomp_filters')
 
 def need(ok,why):
@@ -107,7 +107,7 @@ def verify_bind(target,source_info,source_row):
  return dict(status='PASS_EXACT_DEV_NULL_BIND_IDENTITY',mount_row=rows[0],source_mount_row=source_row,inode=info.st_ino,device=info.st_dev,rdev=info.st_rdev,mode=info.st_mode,uid=info.st_uid,gid=info.st_gid)
 
 def caps(value):
- status=value['status'];need(all(int(status[k],16)==MASK for k in ('CapEff','CapPrm','CapBnd')) and all(int(status[k],16)==0 for k in ('CapInh','CapAmb')) and status['NoNewPrivs']=='1' and status['Seccomp']=='2','original native9cap/NNP/seccomp readback')
+ status=value['status'];need(all(int(status[k],16)==MASK for k in ('CapEff','CapPrm','CapBnd')) and all(int(status[k],16)==0 for k in ('CapInh','CapAmb')) and status['NoNewPrivs']=='1' and status['Seccomp']=='2','original bounded native10cap/NNP/seccomp readback')
 
 def ordinary(path,directory=True):
  need(not any(p.is_symlink() for p in (path,*path.parents)),'owned mount path has no symlink alias');fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_CLOEXEC|(os.O_DIRECTORY if directory else 0));info=os.fstat(fd)
