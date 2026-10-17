@@ -7,7 +7,7 @@ LANE='scripts/ci/apps-full574-repair-native'
 MANAGEMENT='scripts/ci/management-tools-generic16k'
 BASE='cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac'
 LABEL='org.cachy-asahi.apps-full574-native'
-STATUS='PASS_NATIVE574_SIGNED_REPAIR_INSPECTION_AND_ORDERED_TEARDOWN'
+STATUS='PASS_NATIVE574_SIGNED_REPAIR_CASE_AND_ORDERED_TEARDOWN'
 ENV=dict(PATH='/usr/bin:/bin',LANG='C.UTF-8',LC_ALL='C.UTF-8',TZ='UTC')
 VERSIONS={'cachy-asahi-repository-runtime':'0.1.0-1','cachy-asahi-apps':'0.1.0-6','cachy-asahi-cache':'0.2.0-1','cachy-asahi-orphans':'0.1.0-2'}
 
@@ -40,13 +40,13 @@ def load(name,path):
 def policy():
  need(not sys.flags.optimize,'ordinary unoptimized Python required')
  value=decode(read(HERE/'input-policy.json'))
- need(value.get('schema_version')==1 and value.get('status')=='ROOT_BOUND_NATIVE574_SIGNED_REPAIR_INPUTS' and value.get('versions')==VERSIONS and
+ need(value.get('schema_version')==1 and value.get('cases')==list(CASES) and value.get('aggregate')=='BOTH_INDEPENDENT_ROOT_CASE_DECISIONS_REQUIRED' and value.get('status')=='ROOT_BOUND_NATIVE574_SIGNED_REPAIR_INPUTS' and value.get('versions')==VERSIONS and
       re.fullmatch('[0-9a-f]{40}',value.get('packet_source') or '') and type(value.get('packet_index')) is dict and type(value.get('adapter')) is dict and value['adapter'].get('path')=='scripts/apps/full574_closure.py','UNBOUND native574 Apps packet/closure; no secrets or actors permitted')
  return value
 
 def source(root):
  binding=policy();value=decode(read(HERE/'source-manifest.json'))
- need(value['schema_version']==1 and value.get('status')=='FROZEN_NATIVE574_SIGNED_REPAIR_INSPECTION_SOURCE' and 1<=len(value['files'])<=256,'Root frozen finite source closure required')
+ need(value['schema_version']==1 and value.get('status')=='FROZEN_NATIVE574_SIGNED_REPAIR_CASE_SOURCE' and 1<=len(value['files'])<=256,'Root frozen finite source closure required')
  need({'scripts/apps/file_capabilities.py','scripts/apps/test_file_capabilities.py',LANE+'/export_extract.py'}<=value['files'].keys(),'capability-aware Apps source closure required')
  for name,pin in value['files'].items():checked(root,dict(path=name,**pin))
  checked(root,binding['adapter']);return binding
@@ -64,3 +64,7 @@ def adapter(root):
 
 def result(value):
  return load('actual_repair_result',HERE/'checks.py').result(sys.modules[__name__],value)
+
+CASES=('repair-bytes','repair-missing')
+def case(value):
+ need(type(value) is str and value in CASES,'one explicit repair case required');return value

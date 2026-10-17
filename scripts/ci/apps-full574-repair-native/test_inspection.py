@@ -14,7 +14,7 @@ def receipt():
 class Controls(unittest.TestCase):
  def test_exact_supervised_cli_source_rows_and_template_unchanged(self):
   cli=json.loads((HERE/'cli-pins.json').read_bytes())['files'];rows=json.loads((HERE/'source-pins.json').read_bytes())['files'];self.assertEqual(set(cli),{'scripts/apps/repair_inspection.py','scripts/apps/test_repair_inspection.py','scripts/apps/REPAIR_INSPECTION.md'});self.assertTrue(all(rows.get(n)==r for n,r in cli.items()));self.assertEqual(json.loads((HERE/'policy.json').read_bytes())['status'],'UNBOUND')
- def test_two_repairs_use_genuine_cli_not_fixture_measurement(self):
+ def test_explicit_case_uses_genuine_cli_not_fixture_measurement(self):
   text=(HERE/'lifecycle.py').read_text();tree=ast.parse(text);main=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='main');loop=next(n for n in ast.walk(main) if isinstance(n,ast.For) and ast.unparse(n.target)=='(label, missing)');body=ast.get_source_segment(text,loop)
   self.assertIn('preparation=inspected(',body);self.assertNotIn('observed(',body);self.assertIn("pins=preparation['before']",body);self.assertIn("damage_map=preparation['damage']",body)
   node=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='inspected');calls=[];saved={};C=types.SimpleNamespace(need=need,read=lambda p:p.read_bytes(),sha=lambda b:hashlib.sha256(b).hexdigest(),save=lambda p,v:saved.update({p.name:v}),load=lambda n,p:K)
@@ -27,10 +27,10 @@ class Controls(unittest.TestCase):
    with self.subTest(change=patching),self.assertRaises(ValueError):K.inspection(C,dict(row,**patching),'a'*64)
  def test_original_retained_json_and_closed_export_hashes_join(self):
   with tempfile.TemporaryDirectory() as td:
-   root=Path(td);C=types.SimpleNamespace(need=need,read=lambda p,cap:p.read_bytes(),sha=lambda b:hashlib.sha256(b).hexdigest(),decode=json.loads);value=dict(preparations={},inspection_files={});files={}
-   for label in ('repair-bytes','repair-missing'):
+   root=Path(td);C=types.SimpleNamespace(need=need,case=lambda v: v if v in ('repair-bytes','repair-missing') else need(False,'case'),read=lambda p,cap:p.read_bytes(),sha=lambda b:hashlib.sha256(b).hexdigest(),decode=json.loads);value=dict(case='repair-missing',preparations={},inspection_files={});files={}
+   for label in ('repair-missing',):
     row=receipt();raw=json.dumps(row).encode();name=label+'-inspection.json';(root/name).write_bytes(raw);pin=dict(path=name,**P.pin(raw));value['preparations'][label]=row;value['inspection_files'][label]=pin;files['lifecycle-public/'+name]=P.pin(raw)
-   K.retained(C,value,root,files);bad=copy.deepcopy(value);bad['inspection_files']['repair-bytes']['path']='../different';
+   K.retained(C,value,root,files);bad=copy.deepcopy(value);bad['inspection_files']['repair-missing']['path']='../different';
    with self.assertRaises(ValueError):K.retained(C,bad,root,files)
    (root/'repair-missing-inspection.json').write_bytes(b'changed original JSON')
    with self.assertRaises(ValueError):K.retained(C,value,root,files)

@@ -62,12 +62,12 @@ class Controls(unittest.TestCase):
   for change in (dict(packages_committed=False),dict(prepared_add={'cachy-asahi-apps':'0.1.0-5'}),dict(prepared_remove={'base':'1'})):
    with self.assertRaises(ValueError):f(dict(row,**change),damage)
   with self.assertRaises(ValueError):f(row,{'foreign':None})
- def test_generator_and_original_owner_two_functions_only(self):
-  source=self.source;out=self.root/'emitted';result=P.emit(source,out);self.assertEqual(result['status'],'SOURCE_ONLY_UNBOUND');lane=out/P.NEW;manifest=json.loads((lane/'source-manifest.json').read_bytes());self.assertEqual(len(manifest['files']),112);self.assertEqual((out/P.WF).read_text(),P.workflow((source/'.github/workflows/native-arm-apps-full574-transaction.yml').read_text()));self.assertEqual((out/'scripts/ci/apps-full574-native/job.py').read_bytes(),(source/'scripts/ci/apps-full574-native/job.py').read_bytes());self.assertNotIn(P.NEW+'/source-manifest.json',manifest['files'])
+ def test_generator_and_original_owner_three_explicit_derivations(self):
+  source=self.source;out=self.root/'emitted';result=P.emit(source,out);self.assertEqual(result['status'],'SOURCE_ONLY_UNBOUND');lane=out/P.NEW;manifest=json.loads((lane/'source-manifest.json').read_bytes());self.assertEqual(len(manifest['files']),113);self.assertEqual((out/P.WF).read_text(),P.workflow((source/'.github/workflows/native-arm-apps-full574-transaction.yml').read_text()));self.assertEqual((out/'scripts/ci/apps-full574-native/job.py').read_bytes(),(source/'scripts/ci/apps-full574-native/job.py').read_bytes());self.assertNotIn(P.NEW+'/source-manifest.json',manifest['files'])
   with patch.dict(sys.modules,{},clear=False):
    C=load('contract',lane/'contract.py');self.assertEqual(C.VERSIONS,PACK.VERSIONS)
    with self.assertRaisesRegex(ValueError,'UNBOUND'):C.source(out)
-   J=load('repair_job_emitted',lane/'job.py');parts=J.derived((source/'scripts/ci/apps-full574-native/job.py').read_text());self.assertEqual(set(parts),{'run','retain'});self.assertNotIn("api,'interruption'",parts['run']);self.assertIn("api,'lifecycle'",parts['run'])
+   J=load('repair_job_emitted',lane/'job.py');parts=J.derived((source/'scripts/ci/apps-full574-native/job.py').read_text());self.assertEqual(set(parts),{'run','retain','actor'});self.assertNotIn("api,'interruption'",parts['run']);self.assertIn("api,'lifecycle'",parts['run'])
    parsed=ast.parse(parts['run']+parts['retain']);self.assertFalse(any(isinstance(n,ast.Name) and n.id=='interruption' for n in ast.walk(parsed)))
  def test_actual_nested_payload_layout_original_check_and_strict_data(self):
   import subprocess

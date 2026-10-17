@@ -2,6 +2,13 @@ name: native-arm-apps-full574-repair
 on:
   workflow_dispatch:
     inputs:
+      repair_case:
+        description: One independent full574 signed repair case
+        type: choice
+        required: true
+        options:
+          - repair-bytes
+          - repair-missing
       source_sha:
         description: Exact 40-character source SHA, equal to this workflow revision
         type: string
@@ -26,6 +33,7 @@ jobs:
     env:
       PYTHONDONTWRITEBYTECODE: '1'
       SOURCE_SHA: ${{ inputs.source_sha }}
+      REPAIR_CASE: ${{ inputs.repair_case }}
       MANIFEST_SHA256: ${{ inputs.manifest_sha256 }}
       SLICE: scripts/ci/apps-full574-repair-native
     steps:
@@ -43,7 +51,7 @@ jobs:
           test "$GITHUB_WORKFLOW_SHA" = "$SOURCE_SHA"
           [[ $MANIFEST_SHA256 =~ ^[0-9a-f]{64}$ ]]
           printf '%s  %s\n' "$MANIFEST_SHA256" "$SLICE/source-manifest.json" | sha256sum --check
-          python3 -I -B "$SLICE/job.py" proof --source "$GITHUB_WORKSPACE" --proof "$RUNNER_TEMP/apps574-source-proof.json"
+          python3 -I -B "$SLICE/job.py" proof --case "$REPAIR_CASE" --source "$GITHUB_WORKSPACE" --proof "$RUNNER_TEMP/apps574-source-proof.json"
       - name: Focused source and actual backend guards only
         timeout-minutes: 3
         run: |
@@ -60,7 +68,7 @@ jobs:
       - name: Verify closed native packet before secrets
         timeout-minutes: 2
         run: >-
-          python3 -I -B "$SLICE/job.py" check --source "$GITHUB_WORKSPACE"
+          python3 -I -B "$SLICE/job.py" check --case "$REPAIR_CASE" --source "$GITHUB_WORKSPACE"
           --packet "$GITHUB_WORKSPACE/retained-apps574-inputs/payload"
       - name: Seed the six exact retained inputs using existing secrets only
         timeout-minutes: 2
@@ -120,7 +128,7 @@ jobs:
         timeout-minutes: 60
         run: >-
           timeout --signal=TERM --kill-after=30s 3550s
-          python3 -I -B "$SLICE/supervise.py" run --handoff "$RUNNER_TEMP/apps574-repair-job.json" --source "$GITHUB_WORKSPACE"
+          python3 -I -B "$SLICE/supervise.py" run --handoff "$RUNNER_TEMP/apps574-repair-job.json" --case "$REPAIR_CASE" --source "$GITHUB_WORKSPACE"
           --packet "$GITHUB_WORKSPACE/retained-apps574-inputs/payload"
           --proof "$RUNNER_TEMP/apps574-source-proof.json" --base "$RUNNER_TEMP/desktop574"
           --output "$RUNNER_TEMP/apps574-runtime"
@@ -129,14 +137,14 @@ jobs:
         timeout-minutes: 11
         run: >-
           timeout --signal=TERM --kill-after=10s 650s
-          python3 -I -B "$SLICE/supervise.py" cleanup --handoff "$RUNNER_TEMP/apps574-repair-job.json" --job-outcome '${{ steps.repair_trial.outcome }}' --source "$GITHUB_WORKSPACE"
+          python3 -I -B "$SLICE/supervise.py" cleanup --handoff "$RUNNER_TEMP/apps574-repair-job.json" --job-outcome '${{ steps.repair_trial.outcome }}' --case "$REPAIR_CASE" --source "$GITHUB_WORKSPACE"
           --proof "$RUNNER_TEMP/apps574-source-proof.json" --base "$RUNNER_TEMP/desktop574"
           --output "$RUNNER_TEMP/apps574-runtime" --receipt "$RUNNER_TEMP/apps574-cleanup.json"
       - name: Retain bounded closed actual and failure evidence
         if: always() && steps.proof.outcome == 'success'
         timeout-minutes: 3
         run: >-
-          python3 -I -B "$SLICE/job.py" retain --source "$GITHUB_WORKSPACE"
+          python3 -I -B "$SLICE/job.py" retain --case "$REPAIR_CASE" --source "$GITHUB_WORKSPACE"
           --packet "$GITHUB_WORKSPACE/retained-apps574-inputs/payload"
           --proof "$RUNNER_TEMP/apps574-source-proof.json" --base "$RUNNER_TEMP/desktop574"
           --output "$RUNNER_TEMP/apps574-runtime" --receipt "$RUNNER_TEMP/apps574-cleanup.json"
