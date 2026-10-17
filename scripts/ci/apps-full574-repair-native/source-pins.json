@@ -1,5 +1,5 @@
 {
-  "base_source": "20fab07397b25e9db91bfead77ebf1c33133fcf5",
+  "base_source": "1c7910107ce7ad6502e7ac7c973bc1d9df2ef1ba",
   "borrowed_source": {
     "scripts/ci/orphans-full574-native/supervise.py": "5113349d5271ed1ad597e50c5ab32d10fefb1040"
   },
@@ -156,6 +156,10 @@
       "bytes": 13437,
       "sha256": "5e8b32ed0a83adefd75cea9e036f04adfb18afed0a4283be10ddf37df8582c7c"
     },
+    "scripts/apps/REPAIR_INSPECTION.md": {
+      "bytes": 4097,
+      "sha256": "1a501882d535f44e3f4304b81d9648d6a496bdb9a4d18b58a84df5a1d2299bad"
+    },
     "scripts/apps/file_capabilities.py": {
       "bytes": 13562,
       "sha256": "498a3beec0327b9335dcd6d80ed5919fa2edebebd3284e9ee8b97770328e26a2"
@@ -171,6 +175,10 @@
     "scripts/apps/full574_statx.py": {
       "bytes": 5897,
       "sha256": "bf3b6bf522d353142808f027dd3e20032648ef7d0ebb6d8aa1d8a0c50a1db51f"
+    },
+    "scripts/apps/repair_inspection.py": {
+      "bytes": 9442,
+      "sha256": "1f49f75e565a60c7e159f28d005851c4ef38e0c3e11cff322a66093107e48538"
     },
     "scripts/apps/test_file_capabilities.py": {
       "bytes": 8282,
@@ -191,6 +199,10 @@
     "scripts/apps/test_full574_statx.py": {
       "bytes": 11737,
       "sha256": "e2661f20d4933148cfdc82aed16cffc7870ac45134588b966e19582c12f28f9b"
+    },
+    "scripts/apps/test_repair_inspection.py": {
+      "bytes": 14490,
+      "sha256": "43c5931338dde5bb26cb2c8c8f3ddebfec128e427db384c9035fa7b0c6e56462"
     },
     "scripts/apps/test_transaction.py": {
       "bytes": 8377,

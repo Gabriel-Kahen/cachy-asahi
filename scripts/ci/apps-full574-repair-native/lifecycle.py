@@ -24,6 +24,14 @@ def observed(T,adapter,workspace,owner):
  owned(T,workspace,owner);value=adapter.measure(workspace/'root',T.limits());app=C.load('repair_inventory_apps',INPUTS/'apps-source/apps.py');client,release,_=app.helpers(INPUTS/'candidate/usr/share/cachy-asahi/repository-runtime');inventory=app.inventory_reader().collect(workspace/'root/var/lib/pacman',client,lambda row:app.package(row,release));C.need(len(inventory['packages'])==578,'actual current four candidates plus original574 required')
  owned(T,workspace,owner);return value,T.pins(value,inventory)
 
+def inspected(T,calls,workspace,owner,path,plan,label):
+ C.need(label in ('repair-bytes','repair-missing'),'two closed signed inspection cases');owned(T,workspace,owner)
+ args=['/usr/bin/python3','-I','-B',str(SOURCE/'scripts/apps/repair_inspection.py'),'inspect-reinstall',*H.common(workspace,owner),*H.credentials(),'--applications',*plan['plan']['requested_applications'],'--plan',str(path),'--plan-sha256',C.sha(C.read(path))]
+ value=calls.call(args) # Original610s caller surrounds normal CLI's600s worker.
+ C.save(OUT/(label+'-inspection.json'),value) # Original, unmodified CLI receipt.
+ C.load('actual_inspection_checks',Path(__file__).with_name('checks.py')).inspection(C,value,C.sha(C.read(path)))
+ owned(T,workspace,owner);return value
+
 def argv(calls,workspace,owner,path,plan,pins):
  return [*H.backend('apply',workspace,owner),*H.credentials(),'--operation',plan['plan']['operation'],'--applications',*plan['plan']['requested_applications'],'--plan',str(path),'--plan-sha256',C.sha(C.read(path)),*[part for key,value in pins.items() for part in ('--before-'+key.replace('_','-'),value)],'--confirm-disposable-transaction']
 
@@ -51,7 +59,7 @@ def main():
   workspace=WORK/'main';prepared=calls.call([*H.backend('prepare-copy',workspace),'--source','/seed']);C.need(prepared['status']=='OWNED_COPY_PREPARED' and prepared['source_preserved'] is True,'original exact copy required');owner=prepared['ownership_sha256'];H.retain_copy(workspace,owner)
   path,plan=planned(calls,workspace,'install','install',['apps','cache','orphans']);installed=calls.call(H.apply_args(calls,workspace,owner,path,plan));C.need(installed['prepared_add']==C.VERSIONS,'actual current four native packages required');transactions=[installed];counts=[len(H.count(workspace))];C.need(counts==[578],'actual578 after install required');repairs={};refusals={};preparations={}
   for label,missing in (('repair-bytes',False),('repair-missing',True)):
-   path,plan=planned(calls,workspace,label,'reinstall',['apps']);owned(T,workspace,owner);original=damage(workspace,TARGET,missing);before,pins=observed(T,adapter,workspace,owner);damage_map={TARGET:before['nodes'].get(TARGET)};preparations[label]=dict(scope='READONLY_ACTUAL_COMPLETE_OWNED_MAP_BEFORE_AUTHENTICATED_BACKEND',before=pins,damage=damage_map)
+   path,plan=planned(calls,workspace,label,'reinstall',['apps']);owned(T,workspace,owner);original=damage(workspace,TARGET,missing);preparation=inspected(T,calls,workspace,owner,path,plan,label);pins=preparation['before'];damage_map=preparation['damage'];preparations[label]=preparation
    attempts=argv(calls,workspace,owner,path,plan,pins);refusals[label+'-default-inspect']=calls.call(H.backend('inspect',workspace,owner),expected=1);C.need(refusals[label+'-default-inspect']['status']=='FAIL','default strict inspect must refuse damaged payload');repairs[label]=repaired(calls.call(attempts),damage_map);C.need(C.read(original[0])==original[1] and len(H.count(workspace))==578,'exact original signed leaf restored without inventory expansion')
   path,plan=planned(calls,workspace,'repair-refusals','reinstall',['apps']);before,pins=observed(T,adapter,workspace,owner);attempts=argv(calls,workspace,owner,path,plan,pins);stable_pins=dict(pins);wrong=list(attempts);wrong[wrong.index('--plan-sha256')+1]='0'*64;refusals['wrong-plan-sha']=H.zero(calls.call(wrong,expected=1))
   owned(T,workspace,owner);changed=damage(workspace,UNSELECTED)
@@ -66,7 +74,7 @@ def main():
    path,plan=planned(calls,workspace,label,'remove',names);transactions.append(calls.call(H.apply_args(calls,workspace,owner,path,plan)));rows=H.count(workspace);counts.append(len(rows));C.need(len(rows)==expected,'actual removal count required')
    if expected==575:C.need(rows.get('cachy-asahi-repository-runtime')=='0.1.0-1','unselected required Runtime retained')
   disposed=calls.call(H.backend('dispose-copy',workspace,owner),seconds=75);C.need(disposed['status']=='OWNED_COPY_DISPOSED' and not workspace.exists(),'original explicit owned copy disposal required');after=adapter.measure(Path('/seed'),T.limits());adapter.capability_map(Path('/seed'),after,T.limits(),caps);C.need(adapter.digest(after['nodes'])==source_sha,'original readonly full source preserved')
-  report.update(status='PASS_NATIVE574_AUTHENTICATED_SELECTED_REPAIRS',base_count=574,counts=counts,transactions=transactions,repairs=repairs,refusals=refusals,preparations=preparations,source_preserved=True,workspaces_disposed=True,user_trust_protected_preserved=True,source_tree_sha256=source_sha,source_capabilities_sha256=caps_sha,security_capabilities='EXACT_SOURCE_MAP_PRESERVED',original_user_nodes=len(user));C.result(report)
+  report.update(status='PASS_NATIVE574_AUTHENTICATED_INSPECTION_AND_SELECTED_REPAIRS',base_count=574,counts=counts,transactions=transactions,repairs=repairs,refusals=refusals,preparations=preparations,inspection_files={label:C.ref(OUT,OUT/(label+'-inspection.json')) for label in preparations},source_preserved=True,workspaces_disposed=True,user_trust_protected_preserved=True,source_tree_sha256=source_sha,source_capabilities_sha256=caps_sha,security_capabilities='EXACT_SOURCE_MAP_PRESERVED',original_user_nodes=len(user));C.result(report)
  except BaseException as error:report.update(error_type=type(error).__name__,error=str(error)[:1024]);raise
  finally:
   C.save(OUT/'lifecycle.json',report)
