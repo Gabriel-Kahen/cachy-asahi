@@ -159,8 +159,10 @@ def runtime_mounts(root,report):
   need(len(json.dumps(receipt,allow_nan=False).encode())<=16384,'bounded runtime mount receipt')
 
 def guard(work):
- # Subordinate to the unchanged caller guard; also valid in its guarded16K guest.
- need(work==Path('/work') and os.getuid()==os.geteuid()==0 and os.uname().machine=='aarch64' and os.environ.get('CACHY_GNU_PROVIDER_LIFECYCLE')=='1' and work.is_mount() and {p.name for p in Path('/sys/class/net').iterdir()}=={'lo'},'owned same-role GNU proc diagnostic only')
+ # Subordinate to either exact unchanged caller guard, including guarded16K.
+ markers={k:v for k,v in os.environ.items() if k.startswith('CACHY_GNU_PROVIDER_')}
+ need(markers in ({'CACHY_GNU_PROVIDER_LIFECYCLE':'1'},{'CACHY_GNU_PROVIDER_INTERRUPTION':'1'}),'one exact known same-role GNU marker only')
+ need(work==Path('/work') and os.getuid()==os.geteuid()==0 and os.uname().machine=='aarch64' and work.is_mount() and {p.name for p in Path('/sys/class/net').iterdir()}=={'lo'},'owned same-role GNU proc diagnostic only')
 
 def check(commands,work):
  guard(work)
