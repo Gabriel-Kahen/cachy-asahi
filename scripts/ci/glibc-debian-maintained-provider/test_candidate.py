@@ -11,10 +11,11 @@ import bundle as B
 class Candidate(unittest.TestCase):
  def setUp(self):
   self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup);self.root=Path(self.tmp.name)
- def test_shipped_unbound_policy_refuses_before_helpers_crypto_output_or_actors(self):
-  output=self.root/'bundle'
+ def test_explicit_unbound_policy_refuses_before_helpers_crypto_output_or_actors(self):
+  output=self.root/'bundle';value=json.loads((HERE/'authority.json').read_bytes())
+  value.update(status='UNBOUND_DEBIAN_MAINTAINED_SOURCE_AUTHORITY',decision=None);policy=self.root/'unbound.json';policy.write_text(json.dumps(value))
   with patch.object(subprocess,'Popen',side_effect=AssertionError('actor forbidden')),patch.object(M,'helper',side_effect=AssertionError('helper forbidden')):
-   with self.assertRaisesRegex(ValueError,'UNBOUND'):B.materialize(self.root/'absent',self.root/'absent.tar',output)
+   with self.assertRaisesRegex(ValueError,'UNBOUND'):B.materialize(self.root/'absent',self.root/'absent.tar',output,policy)
   self.assertFalse(output.exists())
  def test_wrong_caa2_candidate_or_duplicate_policy_cannot_reuse_authority(self):
   value=json.loads((HERE/'authority.json').read_bytes());value['status']='ROOT_BOUND_DEBIAN_MAINTAINED_SOURCE_AUTHORITY';value['candidate']['version']='2.43.caa2-1';path=self.root/'authority.json';path.write_text(json.dumps(value))
