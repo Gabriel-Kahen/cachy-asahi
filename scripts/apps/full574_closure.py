@@ -19,8 +19,8 @@ copy_scope=importlib.util.module_from_spec(_copy_spec);sys.modules[_copy_spec.na
 PURPOSE='APPS_ORIGINAL574_READONLY_CLOSURE'
 EXECUTION_BUDGET=dict(backend_seconds=600,caller_seconds=610)
 LOCK_SHA256='cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac'
-VERSIONS={'cachy-asahi-apps':'0.1.0-5','cachy-asahi-repository-runtime':'0.1.0-1',
-          'cachy-asahi-cache':'0.2.0-1','cachy-asahi-orphans':'0.1.0-1'}
+VERSIONS={'cachy-asahi-apps':'0.1.0-6','cachy-asahi-repository-runtime':'0.1.0-1',
+          'cachy-asahi-cache':'0.2.0-1','cachy-asahi-orphans':'0.1.0-2'}
 SCAN_DATA='usr/lib/cachy-asahi-apps'
 need=aux.need
 sha=lambda raw:hashlib.sha256(raw).hexdigest()
@@ -142,6 +142,28 @@ def baseline_nodes(source,current,payloads):
                 need(node['type']=='file' and node['uid']==node['gid']==0 and node['mode']==0o644 and node['bytes']<=4*1024**2 and 'hardlink_group' not in node,'candidate-db-file');matched=True;break
         need(matched,'unselected-new-node')
 
+def reinstall_nodes(source,current,payloads,selected,installed):
+    """Only authenticated selected file bytes/missing leaves differ, never the map."""
+    need(selected and selected<=installed<=payloads.keys(),'repair-installed-selection')
+    effective={name:dict(nodes) for name,nodes in payloads.items()};damaged={}
+    for package in installed:
+        for name,wanted in payloads[package].items():
+            actual=current.get(name)
+            if package not in selected or wanted['type']=='directory':
+                need(actual==wanted,'repair-unselected-or-directory-changed');continue
+            need(name not in source and wanted['type']=='file','repair-original574-or-nonfile-target')
+            for parent in Path(name).parents:
+                key=parent.as_posix()
+                if key=='.':continue
+                row=payloads[package].get(key,source.get(key))
+                need(row is not None and row['type']=='directory' and current.get(key)==row,'repair-parent-metadata-or-type')
+            if actual is not None:
+                need(set(actual)=={'type','mode','uid','gid','bytes','sha256'} and actual['type']=='file' and all(actual[k]==wanted[k] for k in ('mode','uid','gid')) and type(actual['bytes']) is int and 0<=actual['bytes']<=128*1024 and re.fullmatch('[0-9a-f]{64}',actual['sha256']),'repair-ordinary-single-link-exact-metadata-leaf')
+                effective[package][name]=actual
+            if actual!=wanted:damaged[name]=actual
+    baseline_nodes(source,current,effective)
+    return damaged
+
 def pinned_json(path,pin,read):
     raw=read(Path(path).absolute(),65536);need(re.fullmatch('[0-9a-f]{64}',pin or '') and sha(raw)==pin,'policy-or-lease-pin')
     def unique(pairs):
@@ -203,10 +225,30 @@ class Adapter:
             digest(canonical_state(state))==self.policy['source_closure_sha256'],'native-source-snapshot-or-closure')
         return observation,state
 
+    def authorize_reinstall(self,plan,inventory,context,plan_sha256):
+        """Called only inside the original authenticated, byte-equal replan context."""
+        need(not hasattr(self,'repair_names') and re.fullmatch('[0-9a-f]{64}',plan_sha256),'single-authenticated-repair-plan')
+        inventory_check(inventory)
+        need(plan['operation']=='reinstall' and not any(plan[k] for k in ('additions','upgrades','removals','dependencies','conflicts','unchanged_selected')) and plan['before_inventory_sha256']==plan['after_inventory_sha256'] and plan['repair_policy']=='EXPLICIT_SELECTED_SAME_VERSION_AND_METADATA_ONLY_NO_DEPENDENCY_EXPANSION','repair-only-same-metadata-no-expansion')
+        rows=plan['reinstalls'];need(type(rows) is list and 0<len(rows)<=4,'finite-explicit-reinstalls')
+        names=[r['after']['name'] for r in rows];need(names==sorted(set(names)) and names==plan['requested_packages'] and set(names)<=VERSIONS.keys(),'exact-requested-current-reinstall-selection')
+        installed={r['name']:r['version'] for r in inventory['packages']};archives={}
+        for row in rows:
+            name=row['after']['name'];metadata=context['available'][name];archive=[r for r in context['release']['packages'] if r['name']==name]
+            need(metadata['name']==name and metadata['version']==installed.get(name)==VERSIONS[name] and len(archive)==1 and archive[0]['version']==VERSIONS[name] and archive[0]['sha256']==self.policy['candidates'][name]['archive_sha256'],'repair-signed-current-version-and-archive')
+            for role,source_kind in (('before','caller-installed-inventory'),('after','signed-release')):
+                item=row[role];extra={'source','metadata_sha256'}|({'release_archive_sha256'} if role=='after' else {'declared_archive_sha256'} if 'declared_archive_sha256' in item else set())
+                need(set(item)==set(metadata)|extra and all(item[k]==v for k,v in metadata.items()) and item['source']==source_kind and item['metadata_sha256']==digest(metadata),'repair-exact-installed-and-signed-metadata')
+            need(row['after']['release_archive_sha256']==archive[0]['sha256'] and row['before'].get('declared_archive_sha256',archive[0]['sha256'])==archive[0]['sha256'],'repair-archive-selection-drift')
+            archives[name]=archive[0]['sha256']
+        self.repair_names=set(names);self.repair_installed=set(installed)&VERSIONS.keys()
+        self.repair_authorization=dict(plan_sha256=plan_sha256,selected=names,archives=archives,scope='AUTHENTICATED_SAME_VERSION_ORDINARY_FILE_BYTES_OR_MISSING_LEAF_ONLY')
+
     def observe(self,root,budget):
         value,state=_measure(root,budget)
         original,source_state=self.source_check()
-        baseline_nodes(original['nodes'],value['nodes'],self.payloads)
+        if hasattr(self,'repair_names'):reinstall_nodes(original['nodes'],value['nodes'],self.payloads,self.repair_names,self.repair_installed)
+        else:baseline_nodes(original['nodes'],value['nodes'],self.payloads)
         capability_map(root,value,budget,self.policy['source_capabilities'])
         need(digest(canonical_state(scan_view(state)))==digest(canonical_state(scan_view(source_state))),'copy-baseline-closure')
         self.comparator.parse(state['aux_bytes'])
@@ -236,8 +278,12 @@ class Adapter:
         inventory_check(inventory)
         need((set(add)|set(remove))<=VERSIONS.keys() and all(v==VERSIONS[n] for n,v in (add|remove).items()),'Apps-only-current-four-selection')
         installed={r['name'] for r in inventory['packages']}
-        for name in installed&VERSIONS.keys():
-            need(all(before.get(n)==v for n,v in self.payloads[name].items()),'installed-current-candidate-payload')
+        if hasattr(self,'repair_names'):
+            need(set(add)==self.repair_names and not remove,'repair-selection-differs-from-authenticated-plan')
+            reinstall_nodes(self.source_check()[0]['nodes'],before,self.payloads,self.repair_names,installed&VERSIONS.keys())
+        else:
+            for name in installed&VERSIONS.keys():
+                need(all(before.get(n)==v for n,v in self.payloads[name].items()),'installed-current-candidate-payload')
 
     def archive(self,name,path,nodes):
         raw=self.t.B.client.read_path(path,self.t.I.MAX_ARCHIVE)
@@ -246,6 +292,9 @@ class Adapter:
 
     def old_payload(self,nodes):
         allowed={n:row for payload in self.payloads.values() for n,row in payload.items()}
+        if hasattr(self,'repair_names'):
+            need(hasattr(self,'repair_before'),'repair-before-map-not-captured')
+            allowed.update(self.repair_before)
         need(all(n in allowed and row==allowed[n] for n,row in nodes.items()),'installed-current-candidate-payload')
 
     def project(self,before,payload,**kwargs):
@@ -259,11 +308,17 @@ class Adapter:
         capability_map(root,after,self.limits,self.baseline_caps)
         result=unchanged(self.baseline,state,self.comparator)
         result.update(security_capabilities='EXACT_SOURCE_MAP_PRESERVED',source_capabilities_sha256=digest(self.baseline_caps))
+        if hasattr(self,'repair_names'):
+            need(all(after['nodes'].get(n)==row for name in self.repair_names for n,row in self.payloads[name].items()),'repaired-signed-payload-not-exact')
+            result['repair']=dict(self.repair_authorization,status='SELECTED_SIGNED_ORDINARY_LEAVES_RESTORED',before_damage=self.repair_damage)
         return result
 
     def capture(self,root,observation):
         self.baseline=aux.checkpoint(root,observation,self.limits)
         self.baseline_caps=capability_map(root,observation,self.limits,self.policy['source_capabilities'])
+        if hasattr(self,'repair_names'):
+            self.repair_damage=reinstall_nodes(self.source_check()[0]['nodes'],observation['nodes'],self.payloads,self.repair_names,self.repair_installed)
+            self.repair_before={n:row for name in self.repair_names for n in self.payloads[name] if (row:=observation['nodes'].get(n)) is not None}
 
 def connect(args,backend,budget):
     values=[getattr(args,n,None) for n in ('full574_policy','full574_policy_sha256','full574_lease','full574_lease_sha256')]

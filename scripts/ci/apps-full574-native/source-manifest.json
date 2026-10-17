@@ -149,16 +149,16 @@
       "sha256": "80cda05980b064a9cb2ad47e5525ddba03dbaefaf350d44d18a27c63ac1ffbaf"
     },
     "scripts/apps/FULL574.md": {
-      "bytes": 11734,
-      "sha256": "3b247e6bc9ae8598ae0b22c49f25e577f227339a54a5ba7409a57e48e4bcb5cb"
+      "bytes": 13437,
+      "sha256": "5e8b32ed0a83adefd75cea9e036f04adfb18afed0a4283be10ddf37df8582c7c"
     },
     "scripts/apps/file_capabilities.py": {
       "bytes": 13562,
       "sha256": "498a3beec0327b9335dcd6d80ed5919fa2edebebd3284e9ee8b97770328e26a2"
     },
     "scripts/apps/full574_closure.py": {
-      "bytes": 17201,
-      "sha256": "a15e62f40dcad8ba7824babec9f9046a4caec3e3cfa68c11d904c37988c3fb2c"
+      "bytes": 22621,
+      "sha256": "f43304982dee768adf48f1c2ae5ecf6afa32e2cc405846046f6ac29604022b55"
     },
     "scripts/apps/full574_copy.py": {
       "bytes": 7799,
@@ -177,8 +177,8 @@
       "sha256": "b1c60ca87170faf7657c8e086509f370ad2a603143dd9a6965e3c355880de4ca"
     },
     "scripts/apps/test_full574_closure.py": {
-      "bytes": 18142,
-      "sha256": "a900bc7d1e99231350b3a5b6a173cdec7af20721e1f696df32a386e841d9cc0d"
+      "bytes": 29886,
+      "sha256": "9079940dd78ca9da817add53244eaf411913eb65aa08c06ef9b05afa01de0ad3"
     },
     "scripts/apps/test_full574_copy.py": {
       "bytes": 8786,
@@ -193,8 +193,8 @@
       "sha256": "951512a28c6f692806f3da7bf1e4e5d5b5166e9f1912f4370de52271bff7e9a4"
     },
     "scripts/apps/transaction.py": {
-      "bytes": 26300,
-      "sha256": "c1e1ebc4826a6158e7a03cb747bd081f791ccef386a58f291e6d3610edfd79e3"
+      "bytes": 27125,
+      "sha256": "aedc814f9455f898e78e4944ce3a2b2483faddec11022fc73d9d24deb2a43b43"
     },
     "scripts/checks/package_checks.py": {
       "bytes": 17706,
@@ -249,8 +249,8 @@
       "sha256": "fe5670055f2b309640e80049d077ad16022f3a86100f2429104034cfe1ad554b"
     },
     "scripts/ci/apps-full574-native/test_lane.py": {
-      "bytes": 30282,
-      "sha256": "19ce69c1012643acc272892d3ab1bccc1c0664b68134faa0425e1da29d9f873a"
+      "bytes": 31021,
+      "sha256": "3d658a27e6e26437115f81f06bef30b4078965aa4826dfc883a58759c6e0fd54"
     },
     "scripts/ci/expanded600-installer-vm/observer600.py": {
       "bytes": 2784,

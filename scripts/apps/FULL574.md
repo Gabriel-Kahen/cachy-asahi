@@ -178,3 +178,13 @@ deadline; caller terminated at310.031862 seconds before an ownership marker or
 commit. This finite capacity correction skips no independent observation, hash,
 node, identity, xattr, trust or cleanup check. Success/performance remains native
 pending; no duplicate check was removed.
+
+## Explicit signed same-version repair
+
+The current source adapter identifies Apps0.1.0-6, Orphans0.1.0-2, Runtime0.1.0-1 and Cache0.2.0-1. Historical held5/1 sources and archive-derived facades retain their own identities. A new full574 policy must bind actual matching current archives and payload hashes; old package metadata does not transfer.
+
+Only explicit reinstall enters repair observation, inside the existing authenticated and byte-identical replan context. Selection must match installed/signed version and metadata, exact policy archive hashes and explicit requested packages, without additions, removals, upgrades or dependency expansion. Default source/prepare/inspect/install/remove observations remain strict. The caller must provide the complete actual before-map pins through existing transaction arguments; generic inspect continues to reject damaged payloads.
+
+Selected ordinary file byte damage or missing regular leaves may be repaired only with exact ownership/mode and existing exact ordinary parents. Unselected/base/source/DB/user/trust/capability state remains exact. Aliases, hardlinks, special nodes, metadata/xattr changes, new paths and missing directories refuse. The complete damaged map is returned and pinned, rechecked before commit, and the exact signed selected payload must be restored afterward. Source/lease/authentication/lock/ALPM/copy/preservation and600/610 bounds remain.
+
+Twenty-nine closure and fifteen transaction controls pass, including real temporary filesystem cases and modeled authenticated-context guards. These do not attest new signature verification, ALPM repair or native execution. A genuine native full574 repair fixture remains required.
