@@ -18,14 +18,37 @@ def backend(s,mode,work,owner=None):
  args+=['--source','/seed'] if mode=='prepare-copy' else ['--ownership-sha256',owner]
  return C.decode(command(s,args,600 if mode=='prepare-copy' else 75)[1])
 
+def stage_guard(s,stage,proof=None,roots=()):
+ work=Path('/work');C.need(stage==work/'repair16k-stage' and not stage.is_symlink(),'fixed private work staging path')
+ source=Path('/source/scripts/update/full_root.py');C.need(C.row(source)==s['source_files']['scripts/update/full_root.py'],'pinned original descriptor/mount primitives')
+ namespace=dict(Path=Path,os=os,need=C.need);open_root=C.function(source,'_open_root',namespace);mount_id=C.function(source,'_mount_id',namespace)
+ class Limit:
+  def tick(self):remaining(s,3000)
+ limit=Limit();fds=[]
+ try:
+  for p in (work,stage,*roots):
+   C.need(p==work or p.is_relative_to(work),'fixed owned work mount only');fds.append(open_root(p))
+  infos=[os.fstat(fd) for fd in fds];mounts=[mount_id(fd,limit) for fd in fds]
+  C.need(all(stat.S_ISDIR(v.st_mode) for v in infos) and all(v.st_dev==infos[0].st_dev for v in infos) and len(set(mounts))==1,'same actual work filesystem and mount for atomic rename')
+  C.need(all(v.st_uid==v.st_gid==0 and stat.S_IMODE(v.st_mode)==0o700 for v in infos[:2]),'root-owned private work/staging directories')
+  named=os.stat(stage.name,dir_fd=fds[0],follow_symlinks=False);C.need((named.st_dev,named.st_ino)==(infos[1].st_dev,infos[1].st_ino),'named/held staging inode equality')
+  with Path('/proc/self/mountinfo').open('rb') as stream:raw=stream.read(1024**2+1)
+  C.need(len(raw)<=1024**2,'bounded mount-table identity');rows=[line.split() for line in raw.splitlines()];C.need(rows and all(len(v)>=10 and v[0].isdigit() and b'-' in v for v in rows),'complete mount-table shape')
+  targets=[os.fsencode(str(p)) for p in (stage,*roots)]
+  C.need(not any(v[4]==p or v[4].startswith(p+b'/') for v in rows for p in targets),'nested work staging/root mounts refused')
+  current=dict(path=str(stage),inode=[infos[1].st_dev,infos[1].st_ino],work_inode=[infos[0].st_dev,infos[0].st_ino],mount_id=mounts[0])
+  C.need(proof is None or current==proof,'original work/staging identity drift');return current
+ finally:
+  for fd in reversed(fds):os.close(fd)
+
 def prepare(s):
- media=Path('/media');C.need(media.is_mount() and not any(media.iterdir()) and [media.stat().st_dev,media.stat().st_ino]==s['media_identity'] and shutil.disk_usage(media).free>=48*1024**3,'fresh exact48GiB owned media mount');stage=media/'stage';stage.mkdir();C.save(media/'stage-owner.json',dict(nonce=s['nonce'],inode=[stage.stat().st_dev,stage.stat().st_ino]));copies=[];moved=[]
+ media=Path('/media');C.need(media.is_mount() and not any(media.iterdir()) and [media.stat().st_dev,media.stat().st_ino]==s['media_identity'] and shutil.disk_usage(media).free>=48*1024**3,'fresh exact48GiB owned media mount');stage=Path('/work/repair16k-stage');C.need(not stage.exists() and not stage.is_symlink(),'fresh fixed work staging directory');stage.mkdir(mode=0o700);stage_info=stage_guard(s,stage);C.save(media/'stage-owner.json',dict(nonce=s['nonce'],**stage_info,retired=False));copies=[];moved=[]
  try:
   for name in ('main','interrupted'):
    workspace=Path('/work')/name;value=backend(s,'prepare-copy',workspace);C.need(value['status']=='OWNED_COPY_PREPARED' and value['source_preserved'] is True,'original complete capability-preserving source copy');copies.append((workspace,value['ownership_sha256']))
   boot=stage/'boot';data=stage/'data';data.mkdir();seed=data/'seed'
   for original,target in ((Path('/work/main/root'),boot),(Path('/work/interrupted/root'),seed)):
-   C.need(not target.exists() and original.is_dir() and not original.is_mount(),'fresh own staging root');identity=[original.stat().st_dev,original.stat().st_ino];original.rename(target);moved.append((original,target,identity))
+   C.need(not target.exists() and original.is_dir() and not original.is_mount(),'fresh own staging root');stage_guard(s,stage,stage_info,(original,));identity=[original.stat().st_dev,original.stat().st_ino];original.rename(target);moved.append((original,target,identity))
   # Only fixed owned data roles. The readonly original source is not decorated.
   for name in ('inputs','source','execution','workspace'):
    origin=Path('/'+name);target=data/name;C.need(origin.is_dir() and not target.exists(),'fixed data role source')
@@ -55,10 +78,11 @@ def prepare(s):
  finally:
   # Rejoin actual held copy identities before invoking the original disposer.
   for original,target,identity in reversed(moved):
-   C.need(not original.exists() and target.is_dir() and [target.stat().st_dev,target.stat().st_ino]==identity,'owned staging relocation identity');target.rename(original)
+   C.need(not original.exists() and target.is_dir() and [target.stat().st_dev,target.stat().st_ino]==identity,'owned staging relocation identity');stage_guard(s,stage,stage_info,(target,));target.rename(original)
   for workspace,owner in reversed(copies):
    value=backend(s,'dispose-copy',workspace,owner);C.need(value['status']=='OWNED_COPY_DISPOSED' and not workspace.exists(),'original prepare-copy retirement')
-  if stage.exists():shutil.rmtree(stage)
+  stage_guard(s,stage,stage_info);shutil.rmtree(stage);C.need(not stage.exists() and not stage.is_symlink(),'fixed work staging absence after restoration/disposal')
+ prepared=C.decode(C.read(media/'prepared.json'));prepared['staging']=dict(stage_info,retired=True);C.save(media/'prepared.json',prepared);C.save(media/'stage-owner.json',dict(nonce=s['nonce'],**stage_info,retired=True))
  for p in media.iterdir():os.chown(p,s['uid'],s['gid'])
 
 def readback(s):
