@@ -1,5 +1,7 @@
 # Implementation and acceptance status
 
+October17 selected-orphan native results: corrected normal39025438484 and interruption39025455152 are independently Root accepted against the same held package/source identities. Normal proves574→576→575 and Runtime retention; interruption proves bounded disposal with commit UNKNOWN and rollback NOT_CLAIMED. Both preserve original protection and ordered cleanup. Outer cancellation, M2 and release admission remain untested.
+
 October17 cancellation implementation: selected-orphan outer supervision now forwards cancellation and proves exact direct-child reap/group absence before the original cleanup lease. Fourteen local controls include real process/flock handoff and source generation. Native cancellation remains untested; original actors and timeout budgets are unchanged.
 
 The [retained ARM compiler16K four-case matrix](validation/arm-retained-generic16k-20261017.md) is Root accepted: C01/39023250723, C02/39024130786, C03/39024135638 and C04/39024140669 independently pass on the same frozen source. Root joins147 source records/150 Git objects and replays all1872 normal-loader correctness commands, actual16384-byte pages, native _ctypes closure and original ordered consumer/producer/kernel cleanup. The minimal capture import correction and complete hosted static checks pass. This is generic16K correctness, without M2/performance/installation or release credit.
