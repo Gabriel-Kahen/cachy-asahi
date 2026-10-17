@@ -100,7 +100,7 @@ class Controls(unittest.TestCase):
  def test_emitted_corrected_roles_and_all80_real_runtime_recipe_dependencies(self):
   with tempfile.TemporaryDirectory() as td:
    root=Path(td);out=root/'closed';P.emit(ROOT,UPDATER,out);pins=C.decode(C.read(C.HERE/'source-pins.json'));required=pins['runtime_recipe_inputs'];self.assertEqual(len(required),80)
-   self.assertEqual(C.row(out/C.OLD/'source-manifest.json')['sha256'],'37ae9236429d9f43ea728ebc30abde6f09070093293d242fc0bd54286ec5333c');self.assertEqual(C.row(out/'scripts/ci/expanded604-apps6-public-pair-installer/source-manifest.json')['sha256'],'b8a35cf9f04c5321db6db9103f3a7ef95d58ebcc0ff960b805362a3867ed715a')
+   self.assertEqual(C.row(out/C.OLD/'source-manifest.json')['sha256'],'532c219c619b2777189a954cf5293595a694a94f1ca158301900e84929e3fbb8');self.assertEqual(C.row(out/'scripts/ci/expanded604-apps6-public-pair-installer/source-manifest.json')['sha256'],'b8a35cf9f04c5321db6db9103f3a7ef95d58ebcc0ff960b805362a3867ed715a')
    for n,row in required.items():self.assertEqual(C.row(out/n),row,n)
    controls=pins['fresh_control_inputs'];self.assertEqual(len(controls),9)
    for n,row in controls.items():self.assertEqual(C.row(out/n),row,n)
@@ -110,5 +110,34 @@ class Controls(unittest.TestCase):
    with self.assertRaises((ValueError,FileNotFoundError)):P.emit(out,out,root/'refused')
    self.assertFalse((root/'refused').exists());leaf.write_bytes(raw)
    for n in ('policy.json','input-policy.json'):self.assertIsNone(C.decode(C.read(out/C.LANE/n))['binding'])
+
+ def test_all_three_corrected_auxiliary_and_16k_adapter_derivations_exact(self):
+  selected=C.load('corrected_selected_contract',ROOT/C.OLD/'contract.py');adapter=selected.scoped('corrected_selected_adapter',ROOT/C.OLD/'adapter.py',{'contract':selected});helper=selected.load('corrected_auxiliary',ROOT/C.OLD/'aux_transition.py')
+  fixtures={'scripts/ci/full-root-upgrade-caller/upgrade-config.json':'normal-upgrade-config.json','scripts/ci/full-root-failed-update/lane-config.json':'precommit-lane-config.json','scripts/install/local_transaction.py':'local_transaction.py'}
+  held=selected.read(ROOT/'scripts/ci/expanded600-root-upgrade/held-pins.json')
+  with tempfile.TemporaryDirectory() as td:
+   base=Path(td)
+   for case in C.CASES:
+    source=base/('held-'+case);source.mkdir()
+    for name,row in held[case]['pins'].items():
+     path=ROOT/name
+     if not path.is_file() or C.row(path)!=row:path=ROOT/C.OLD/'fixtures'/fixtures[name]
+     self.assertEqual(C.row(path),row,name);target=source/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(path.read_bytes())
+    prior=base/('prior-'+case);adapter.prior.prepare(source,prior,case,git=False,implementation=ROOT)
+    output=base/('derived-'+case);config,calling=A.prepare_selected(adapter,source,output,case,git=False,implementation=ROOT)
+    for p in prior.rglob('*'):
+     if not p.is_file():continue
+     n=p.relative_to(prior).as_posix()
+     if n.startswith(adapter.PREFIX) or n in ('upgrade-config.json','adapter.json'):continue
+     raw=p.read_bytes()
+     if n=='scripts/update/aux_runtime.py':raw,proof=helper.derive(raw);self.assertEqual(proof['status'],'EXACT_APPS5_TO6_AUXILIARY_SELECTION_ONLY')
+     elif n=='scripts/ci/full-root-upgrade/construct_repository.py':raw=adapter.constructor(raw)
+     elif n=='scripts/ci/full-root-upgrade-caller/container.py':raw=A.caller(raw)
+     self.assertEqual((output/n).read_bytes(),raw,case+':'+n)
+    value=C.decode(C.read(config));oldvalue=selected.read(prior/'upgrade-config.json')
+    for key,value_before in oldvalue.items():
+     if key not in ('code_pins','release'):self.assertEqual(value[key],value_before,case+':'+key)
+    for n,digest in value['code_pins'].items():self.assertEqual(C.sha((output/n).read_bytes()),digest,case+':'+n)
+    receipt=selected.read(output/'adapter.json');self.assertEqual(receipt['config_sha256'],C.sha(config.read_bytes()));self.assertIn('auxiliary_selection',receipt);self.assertEqual(receipt['updater16k_dispatch']['counted_edits'],1)
 
 if __name__=='__main__':unittest.main(verbosity=2)
