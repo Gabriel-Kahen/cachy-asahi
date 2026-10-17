@@ -1,0 +1,170 @@
+{
+  "candidate": {
+    "authority_sha256": "88643eabd61a39df63ecaeb50bb20041d17cf4fd3adee55d82d43d3c1ca08707",
+    "package": "cachy-asahi-glibc-gnu-provider",
+    "pkgbuild_sha256": "9d6d5e688c95febe85321abc69fbfe1b7781a02e318771ae43851d8c29f68bb8",
+    "prepared_tree": "08ea2aef96bd3144cf02cbc68cbbb003dc25ed9f",
+    "source_packet_ref": "60e174c5db7f770c94064198516dd3ee07b51b7b",
+    "version": "2.43.caa3-1"
+  },
+  "files": {
+    "scripts/ci/glibc-debian-maintained-provider-interruption-owner/capability_snapshot.py": {
+      "bytes": 4104,
+      "sha256": "b287172c398ce03ed96b1c0b25f6217ffe807956c20a00f1d1b57da3cae20731"
+    },
+    "scripts/ci/glibc-debian-maintained-provider-interruption-owner/integration-manifest.json": {
+      "bytes": 12872,
+      "sha256": "8d26aae0489fe4e6337fd10de192f239ee99dfaf7ca5675be865a13b0f71f198"
+    },
+    "scripts/ci/glibc-debian-maintained-provider-interruption-owner/job.py": {
+      "bytes": 38742,
+      "sha256": "54100df793dc487c21fcc925f21ad329d3763ff1ac9024c2760d80cab28d8502"
+    },
+    "scripts/ci/glibc-debian-maintained-provider-interruption-owner/policy.json": {
+      "bytes": 670,
+      "sha256": "a5f4bf0a15ed38ea19016686dcc333780cfcf7ab8bc791c1ca751b9c47bf33fd"
+    },
+    "scripts/ci/glibc-debian-maintained-provider-interruption-owner/snapshot.py": {
+      "bytes": 9400,
+      "sha256": "0ff8d2e15ebcca5f91d09c19e986737d7d5596f3f439decb1e1d763d833c5e69"
+    },
+    "scripts/ci/glibc-debian-maintained-provider-interruption/alpm-semantics.json": {
+      "bytes": 2966,
+      "sha256": "8d8ed810403c62a9de6b336e7e953cd85504bdd5033a6370a1e66b8f625e2a2e"
+    },
+    "scripts/ci/glibc-debian-maintained-provider-interruption/candidate_gate.py": {
+      "bytes": 4355,
+      "sha256": "92f390037767a9d1fdfaf9c9837fac75726c16178adc573b416b0ad7f540e5a4"
+    },
+    "scripts/ci/glibc-debian-maintained-provider-interruption/common.py": {
+      "bytes": 13521,
+      "sha256": "12bbe70d7f60224a27ef89828a594f9267de261e8e324fb2d4a8fe396c886895"
+    },
+    "scripts/ci/glibc-debian-maintained-provider-interruption/container.py": {
+      "bytes": 36759,
+      "sha256": "22ce53335b8ec9a8d3200679855c7922c62cd3da4cefab15556660b1ab39192e"
+    },
+    "scripts/ci/glibc-debian-maintained-provider-interruption/dependencies.json": {
+      "bytes": 5083,
+      "sha256": "f1f22819a95a677a3e1520a6826acfffa70f2612488b6d0b88fe4e299b6987b4"
+    },
+    "scripts/ci/glibc-debian-maintained-provider-interruption/input-policy.json": {
+      "bytes": 436,
+      "sha256": "d777931e61834ab8accd6a80a2b00368080703fa050e8e20a206e959514ebd6b"
+    },
+    "scripts/ci/glibc-debian-maintained-provider-interruption/interruption.py": {
+      "bytes": 14293,
+      "sha256": "daf605b234ece080706a29f597f006da95b80113baeeb57c3e7f46c102c6d8bf"
+    },
+    "scripts/ci/glibc-debian-maintained-provider-interruption/normal-exec-change.json": {
+      "bytes": 839,
+      "sha256": "9d3769704396a33acc0c144cc1519d10230a5fb07d2f7b135dcfd0ba1ab6a68b"
+    },
+    "scripts/ci/glibc-debian-maintained-provider-interruption/run.py": {
+      "bytes": 9173,
+      "sha256": "319d775dd30cd5c6d0343b88170260d4668cbe152d04a920dc237830264f56e2"
+    },
+    "scripts/ci/glibc-debian-maintained-provider-interruption/scrub.py": {
+      "bytes": 849,
+      "sha256": "b3ab918d62c45428163975968c9a49cf0f4363029e1b46f19cdf03fc52fcb70b"
+    },
+    "scripts/ci/glibc-debian-maintained-provider-interruption/smoke-normal.c": {
+      "bytes": 12437,
+      "sha256": "a766bc7cd31cce18fe7e564432de4e4b63db49763608ae70ef8fab61cd29116c"
+    },
+    "scripts/ci/glibc-debian-maintained-provider-interruption/source-manifest.json": {
+      "bytes": 1586,
+      "sha256": "5a6201e429f6ca75853d86cedd82ee5749fdfed982a7355933bf06282b732c74"
+    },
+    "scripts/ci/glibc-debian-maintained-provider-lifecycle-owner/capability_snapshot.py": {
+      "bytes": 4101,
+      "sha256": "21242b74b3ade489f37e1affd41512a89e213a01a819e9d4f746b2a82d5544cf"
+    },
+    "scripts/ci/glibc-debian-maintained-provider-lifecycle-owner/integration-manifest.json": {
+      "bytes": 11827,
+      "sha256": "50d7e9a285b2bd7658fee36dc54aa06590542e768f2aeb3a82e0af416023477b"
+    },
+    "scripts/ci/glibc-debian-maintained-provider-lifecycle-owner/job.py": {
+      "bytes": 35136,
+      "sha256": "55544ec18a3b46ab2538320aedc126807239ab0978049b57fc3c34831b2c8a08"
+    },
+    "scripts/ci/glibc-debian-maintained-provider-lifecycle-owner/policy.json": {
+      "bytes": 670,
+      "sha256": "a5f4bf0a15ed38ea19016686dcc333780cfcf7ab8bc791c1ca751b9c47bf33fd"
+    },
+    "scripts/ci/glibc-debian-maintained-provider-lifecycle-owner/snapshot.py": {
+      "bytes": 9397,
+      "sha256": "9738acb125ce6d468d5359ecfbd5540454826567fd4ac4481576ec31da37190c"
+    },
+    "scripts/ci/glibc-debian-maintained-provider-lifecycle/candidate_gate.py": {
+      "bytes": 4355,
+      "sha256": "92f390037767a9d1fdfaf9c9837fac75726c16178adc573b416b0ad7f540e5a4"
+    },
+    "scripts/ci/glibc-debian-maintained-provider-lifecycle/common.py": {
+      "bytes": 13509,
+      "sha256": "a86c2f3206b99604e95414178d11b4d50ae687376b920c0eebdf5503460f4e1a"
+    },
+    "scripts/ci/glibc-debian-maintained-provider-lifecycle/container.py": {
+      "bytes": 35741,
+      "sha256": "f12e6e057b225b617fd26597edb00ea92c4df01ca426a21fb482b2681044f9a4"
+    },
+    "scripts/ci/glibc-debian-maintained-provider-lifecycle/dependencies.json": {
+      "bytes": 5083,
+      "sha256": "f1f22819a95a677a3e1520a6826acfffa70f2612488b6d0b88fe4e299b6987b4"
+    },
+    "scripts/ci/glibc-debian-maintained-provider-lifecycle/input-policy.json": {
+      "bytes": 436,
+      "sha256": "d777931e61834ab8accd6a80a2b00368080703fa050e8e20a206e959514ebd6b"
+    },
+    "scripts/ci/glibc-debian-maintained-provider-lifecycle/normal-exec-change.json": {
+      "bytes": 839,
+      "sha256": "9d3769704396a33acc0c144cc1519d10230a5fb07d2f7b135dcfd0ba1ab6a68b"
+    },
+    "scripts/ci/glibc-debian-maintained-provider-lifecycle/run.py": {
+      "bytes": 8910,
+      "sha256": "e7335f26c22c1e991eebcb8f1db0f9acc4094e8e0d60bbe6019b8aba25093890"
+    },
+    "scripts/ci/glibc-debian-maintained-provider-lifecycle/scrub.py": {
+      "bytes": 846,
+      "sha256": "bfac8896427c5fdcdd172a94af925dc5771452e150b44f27f4e16c498c548359"
+    },
+    "scripts/ci/glibc-debian-maintained-provider-lifecycle/smoke-normal.c": {
+      "bytes": 12437,
+      "sha256": "a766bc7cd31cce18fe7e564432de4e4b63db49763608ae70ef8fab61cd29116c"
+    },
+    "scripts/ci/glibc-debian-maintained-provider-lifecycle/source-manifest.json": {
+      "bytes": 1309,
+      "sha256": "8ea80c12b57de4e47b53c0b1e4c75c86426f9c17f013fe9a9fbb7a1fc1ef7523"
+    }
+  },
+  "hardware": "NOT_RUN",
+  "original_source_files": 82,
+  "release": "NOT_ADMITTED",
+  "roles": {
+    "interruption": {
+      "cases": "UNCHANGED_PRISTINE_AND_MODIFIED",
+      "identity_edits": {
+        "common.py": 2,
+        "owner/job.py": 5
+      },
+      "native": "NOT_RUN",
+      "output": "scripts/ci/glibc-debian-maintained-provider-interruption",
+      "output_owner": "scripts/ci/glibc-debian-maintained-provider-interruption-owner",
+      "source": "scripts/ci/glibc-gnu-provider-interruption",
+      "source_owner": "scripts/ci/glibc-gnu-provider-interruption-owner"
+    },
+    "lifecycle": {
+      "cases": "UNCHANGED_PRISTINE_AND_MODIFIED",
+      "identity_edits": {
+        "common.py": 2,
+        "owner/job.py": 5
+      },
+      "native": "NOT_RUN",
+      "output": "scripts/ci/glibc-debian-maintained-provider-lifecycle",
+      "output_owner": "scripts/ci/glibc-debian-maintained-provider-lifecycle-owner",
+      "source": "scripts/ci/glibc-gnu-provider-lifecycle",
+      "source_owner": "scripts/ci/glibc-gnu-provider-lifecycle-owner"
+    }
+  },
+  "status": "EMITTED_SOURCE_ONLY_CAA3_PAIR_PACKET_UNBOUND"
+}
