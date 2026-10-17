@@ -329,8 +329,8 @@
       "sha256": "17f4ff9521484ffcb50d8e3c661ad6ad84ec6edb5343a88adbdee13d66ede79a"
     },
     "scripts/ci/expanded604-current-management-installer/contract.py": {
-      "bytes": 7619,
-      "sha256": "65405762065170acd56d2b390a00d31342ab2ce6be3c901687fe6a084c80b61f"
+      "bytes": 7676,
+      "sha256": "26c8941b1c9dcaeea04677dd57fc2a62fa1fbdf938916f6c7fcc223ee9f9e332"
     },
     "scripts/ci/expanded604-current-management-installer/expected604.lock": {
       "bytes": 11992,
@@ -345,16 +345,16 @@
       "sha256": "fd55ad261844efdd86185be99dd953cda8b044488672e395f098f9f9ee4e9956"
     },
     "scripts/ci/expanded604-current-management-installer/input-policy.json": {
-      "bytes": 763,
-      "sha256": "91f070c1d76670f5307b57ab25ecf797e5576675e81300eb10751bbf041fbbad"
+      "bytes": 1122,
+      "sha256": "5040f0d2285678d68ad11a361bea3cbd4645db4b6c0b97fa7ce090e5319de568"
     },
     "scripts/ci/expanded604-current-management-installer/policy.json": {
       "bytes": 763,
       "sha256": "91f070c1d76670f5307b57ab25ecf797e5576675e81300eb10751bbf041fbbad"
     },
     "scripts/ci/expanded604-current-management-installer/prepare.py": {
-      "bytes": 5800,
-      "sha256": "ffe717688903db41f310a8c2b029283d510f15ef362748975ddb3a137ca8a222"
+      "bytes": 6084,
+      "sha256": "e1531dc3e00269a901235a7f4c93fb5af0fabad828742885bab8cbd98abddabe"
     },
     "scripts/ci/expanded604-current-management-installer/source-pins.json": {
       "bytes": 22198,
@@ -365,8 +365,8 @@
       "sha256": "7e6391f3387d375b810293003c6f0b0e05a75edf5886be7890c609c3c990a216"
     },
     "scripts/ci/expanded604-current-management-installer/test_current.py": {
-      "bytes": 4573,
-      "sha256": "4c28058c1fdb92d652d783d59f3e8e8760a30c7996be2b552665a5d457612258"
+      "bytes": 5434,
+      "sha256": "f9cea983eaceb094857037f0ea8725ba1b04a068593a24696b1e1c03e0783375"
     },
     "scripts/ci/expanded604-current-management-installer/test_source.py": {
       "bytes": 12869,
@@ -580,6 +580,6 @@
   "hardware": "NOT_RUN",
   "native": "NOT_RUN",
   "schema_version": 1,
-  "scope": "CURRENT604_INSTALLER_SOURCE_ONLY_UNBOUND_NO_RUNTIME_CREDIT",
+  "scope": "PRIVATE_SIGNED604_FRESH_INSTALLER",
   "status": "FROZEN_ROOT_FINAL_SOURCE"
 }

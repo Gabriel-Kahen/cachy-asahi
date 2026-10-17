@@ -67,7 +67,7 @@ jobs:
         run: |
           set -euo pipefail
           test "$(sha256sum expanded604-upgrade/scripts/ci/expanded604-current-management-updater/run.py | cut -d ' ' -f 1)" = aa9f968f6e4f954f05651b469a63b87b3411fcf5e1bf3fc66500030da238cf9a
-          test "$(sha256sum expanded604-upgrade/scripts/ci/expanded604-current-management-updater/source-manifest.json | cut -d ' ' -f 1)" = ecbcfe5c039ef64ef11adc3cfa3406e3ef06f534b6d1ae7213c4ded549dcb092
+          test "$(sha256sum expanded604-upgrade/scripts/ci/expanded604-current-management-updater/source-manifest.json | cut -d ' ' -f 1)" = d289e218e1c095bc54ad177c4b1056b825a1f73baa4af323d84fdc81c4a0f6f8
           python3 -B expanded604-upgrade/scripts/ci/expanded604-current-management-updater/gate.py \
             --implementation "$GITHUB_WORKSPACE/expanded604-upgrade" --source "$IMPLEMENTATION_SOURCE" \
             --workflow-sha "$WORKFLOW_SOURCE" --case "$UPGRADE_CASE" --preflight

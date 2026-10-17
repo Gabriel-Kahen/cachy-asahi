@@ -110,6 +110,7 @@ def freeze(source):
     locks();COMPOSITION.verify_source(source)
     names=set(read(HERE.parent/'expanded604-current-management/source-manifest.json')['files'])
     names.add('scripts/ci/expanded604-current-management/source-manifest.json')
+    names.update(read(HERE/'source-pins.json')['files'])
     names|={'scripts/ci/expanded600-installer-vm/'+name for name in
         ('contract.py','adapter.py','adapter-rules.json','call-rules.json','legacy-pins.json','observer600.py')}
     names|={p.relative_to(source).as_posix() for p in HERE.iterdir() if p.is_file() and p.name!='source-manifest.json'}
