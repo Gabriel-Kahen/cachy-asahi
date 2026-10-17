@@ -416,17 +416,17 @@ candidate_version = "0.1.0-4"
 selected_for_development = false
 selected_for_release = false
 host_validation = "PASS35 ordinary host tests with one scoped UID0 skip; three mandatory report-worker lifetime/display controls and31GUI contract controls; exact retained984307B report host comparison supports responsiveness only"
-native_build = "Current0.1.0-4 NOT RUN; historical0.1.0-3 Root-accepted pair39000068077:31408bytes/SHA256b25d81a42d4258efaf232f6d639b4b2b626293f94c448e752d5956be1d24fa94"
-native_cli_lifecycle = "Current0.1.0-4 NOT RUN; historical0.1.0-3 Root-accepted signed lifecycle39000068077 with36rawCLIreports and complete574/user preservation; GUI remainsFAIL"
+native_build = "PASS current0.1.0-4 byte-identical native ARM pair39002929704:32268bytes/SHA25680cd962d35d8652ab7891d61f856e37502f365adb842329a680b4fa88558503d; Root113source joins and strict TEST-signatures verified"
+native_cli_lifecycle = "PASS current0.1.0-4 signed577/577/574/577/574 fresh/existing users and36rawCLIreports39002929704; all574 DB/user preservation and ordered8consumer/producer cleanup; overallGUIFAIL"
 native_generic16k_cli = "HISTORICAL0.1.0-1: PASS unchanged unpacked CLI payloads in38904917140; not installed or GUI"
 native_generic_managed_gui = "HISTORICAL0.1.0-1: PASS fourteen Root-viewed captures and actual GTK actions in38905814219"
 native_generic16k_managed_gui = "HISTORICAL0.1.0-1: PASS installed593, sixteen GTK actions and fourteen Root-viewed first frames in38952428172; docs/validation/managed-gui-generic16k-native-20261016.md"
 hardware_validation = "NOT RUN"
 native_evidence = "docs/validation/welcome2-native-cli-20261016.md"
-next_step = "Native Welcome4 pair, signed CLI lifecycle and unchanged full24-frame/17-operation GUI with30s/45s limits; only after acceptance rebase current604 with Welcome4/Orphans2. Historical604 locks and Welcome3 failures remain distinct."
+next_step = "Complete Doctor reference actor lifetime/final-outcome correction and fresh full24-frame/17-operation GUI; actual39002929704 retains exact8KiB Orphans accessible preview but fails absent Doctor capture. Then rebase604 Welcome4/Orphans2 before current16K/M2; historical locks remain separate."
 
 
-installation = "Current0.1.0-4 NOT RUN; historical0.1.0-3 signed installed CLI lifecycle accepted; current full GUI remains unaccepted"
+installation = "PASS current0.1.0-4 native signed installed CLI lifecycle; full managed GUI remains FAIL and release unselected"
 [[packages]]
 name = "cachy-asahi-doctor"
 phase = "tools-experience"
