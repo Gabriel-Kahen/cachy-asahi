@@ -30,7 +30,7 @@
     },
     "scripts/ci/glibc-gnu-provider-lifecycle-owner/integration-manifest.json": {
       "bytes": 9184,
-      "sha256": "e1ba28b0862d875b0afdcffd50f493e9bc975710279cc4a4e78ef7dd3ce8dc9b"
+      "sha256": "6544a5f7402ef9c80bbccc278588ed21d5bb6fa6e0e3a159c97e4c83bebfb1f8"
     },
     "scripts/ci/glibc-gnu-provider-lifecycle-owner/job.py": {
       "bytes": 34270,
@@ -45,8 +45,8 @@
       "sha256": "42082d2e773d423d2abc0e1f7ff50e74163c09c9a51c1c073a4cb17f7e79cc72"
     },
     "scripts/ci/glibc-gnu-provider-lifecycle/container.py": {
-      "bytes": 24576,
-      "sha256": "b40676ac23139704e0aabd6edc0128a7bba406cda043b7411479194acce48bd4"
+      "bytes": 26462,
+      "sha256": "ce89c98768b2ef171591e89006d38ba49543ef9dbe14cd52cc3f173c70b073b6"
     },
     "scripts/ci/glibc-gnu-provider-lifecycle/proc_mount.py": {
       "bytes": 15368,
@@ -66,7 +66,7 @@
     },
     "scripts/ci/glibc-gnu-provider-system16k/dependencies.json": {
       "bytes": 5619,
-      "sha256": "a9739d58fb9f13d8a69fd96b2b8a39732be7fb01aa601ee8801b738a52c7bdd6"
+      "sha256": "f7f80b52d4a5bb191a78829cdf8d30d096d351fc42411d0832d5f0f71df4978d"
     },
     "scripts/ci/glibc-gnu-provider-system16k/enter-system.py": {
       "bytes": 1123,
@@ -98,7 +98,7 @@
     },
     "scripts/ci/glibc-gnu-provider-system16k/source-manifest.json": {
       "bytes": 7792,
-      "sha256": "97aa3c9190aafbef0c2e9fca785f03f4d4495262b2bc0b657a87f78477de92c1"
+      "sha256": "613ca20121cf495b58abeda4b00303a688775cb19372d9765efe48ece5947218"
     },
     "scripts/ci/glibc-gnu-provider-system16k/test_source.py": {
       "bytes": 13848,

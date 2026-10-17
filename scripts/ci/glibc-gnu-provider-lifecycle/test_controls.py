@@ -346,4 +346,35 @@ class Controls(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'copy metadata differs'):copier._metadata_equal(path.stat(),expected)
         path.chmod(0o6755);copier._metadata_equal(path.stat(),expected)
 
+    def init_fixture(self,case='pristine'):
+        work=self.root/'work';work.mkdir(exist_ok=True);workspace=work/case;workspace.mkdir(mode=0o700);root=workspace/'root';root.mkdir(mode=0o700);source=self.root/'held';source.mkdir(mode=0o700,exist_ok=True);inputs=self.root/'inputs';inputs.mkdir(exist_ok=True)
+        probes={}
+        for name in ('smoke-normal','exec-child','plugin.so'):
+            (inputs/name).write_bytes(b'UNIT inert never executed');probes[name]=dict(path=name)
+        return root,source,work,inputs,dict(probes=probes,held=dict(path='held.pkg'))
+    def initialize(self,root,source,work,inputs,index):
+        with patch.object(lane,'WORK',work),patch.object(lane,'HELD',source),patch.object(lane,'INPUTS',inputs),patch.object(lane.C,'archive',return_value=dict(data={'.INSTALL':b'UNIT inert script never sourced'})):return lane.copy_probes(root,index)
+    def test_owned_clone_search_mode_after_copy_preserves_source_parent_and_payload(self):
+        import stat
+        for case in ('pristine','modified'):
+            root,source,work,inputs,index=self.init_fixture(case);(root/'payload').write_bytes(b'preserve payload');before=(root/'payload').stat();source_before=source.stat();fds=len(list(Path('/proc/self/fd').iterdir()));receipt=self.initialize(root,source,work,inputs,index)
+            self.assertEqual(stat.S_IMODE(root.stat().st_mode),0o755);self.assertEqual(stat.S_IMODE(root.parent.stat().st_mode),0o700);self.assertEqual(stat.S_IMODE(source.stat().st_mode),0o700);self.assertEqual(source_before,source.stat());self.assertEqual(before,(root/'payload').stat());self.assertEqual((root/'payload').read_bytes(),b'preserve payload');self.assertEqual(len(list(Path('/proc/self/fd').iterdir())),fds)
+            self.assertEqual(receipt['before']['mode'],0o700);self.assertEqual(receipt['after'],dict(receipt['before'],mode=0o755));self.assertEqual(receipt['source_before'],receipt['source_after']);self.assertEqual(receipt['parent_before'],receipt['parent_after'])
+    def test_clone_search_mode_refuses_foreign_or_symlink_or_nonprivate_parent(self):
+        root,source,work,inputs,index=self.init_fixture();root.parent.chmod(0o755)
+        with self.assertRaises(ValueError):self.initialize(root,source,work,inputs,index)
+        self.assertEqual(root.stat().st_mode&0o777,0o700);root.parent.chmod(0o700);root.rmdir();root.symlink_to(source,target_is_directory=True)
+        with self.assertRaises(ValueError):self.initialize(root,source,work,inputs,index)
+        with self.assertRaises(ValueError):self.initialize(source,source,work,inputs,index)
+        self.assertEqual(source.stat().st_mode&0o777,0o700)
+    def test_clone_root_mode_drift_is_fatal_and_never_silently_accepted(self):
+        root,source,work,inputs,index=self.init_fixture();original=lane.os.fchmod
+        def wrong(fd,mode):original(fd,0o777)
+        with patch.object(lane.os,'fchmod',side_effect=wrong),self.assertRaisesRegex(ValueError,'only owned cloned'):self.initialize(root,source,work,inputs,index)
+        self.assertEqual(source.stat().st_mode&0o777,0o700);self.assertEqual(root.parent.stat().st_mode&0o777,0o700)
+    def test_complete_copy_proof_precedes_root_mode_initialization_and_baseline(self):
+        import ast
+        text=Path(lane.__file__).read_text();node=next(n for n in ast.parse(text).body if isinstance(n,ast.FunctionDef) and n.name=='run_case');body=ast.get_source_segment(text,node)
+        self.assertLess(body.index("case+'-clone'"),body.index("copy_byte_identical_before_initialization"));self.assertLess(body.index("copy_byte_identical_before_initialization"),body.index("report['root_initialization']"));self.assertLess(body.index("report['root_initialization']"),body.index("case+'-before574'"))
+
 if __name__=='__main__':unittest.main()
