@@ -67,9 +67,9 @@ jobs:
         run: |
           set -euo pipefail
           test "$(sha256sum expanded604-upgrade/scripts/ci/expanded604-apps6-public-pair-updater/run.py | cut -d ' ' -f 1)" = ed05eaf1c6263ed5ce1dc2e97c863021c03d232cc5ad3554ab681aa4866993fe
-          test "$(sha256sum expanded604-upgrade/scripts/ci/expanded604-apps6-public-pair-updater/source-manifest.json | cut -d ' ' -f 1)" = 532c219c619b2777189a954cf5293595a694a94f1ca158301900e84929e3fbb8
+          test "$(sha256sum expanded604-upgrade/scripts/ci/expanded604-apps6-public-pair-updater/source-manifest.json | cut -d ' ' -f 1)" = b04337a0b759a71cc719479c44fc8be3ae578a83bab7a027db75eed5886227ad
           test "$(sha256sum expanded604-upgrade/scripts/ci/current604-public-pair-updater16k/job.py | cut -d ' ' -f 1)" = e41d56b762cb0b0c9a9b2ee413add00d803eeb085828d4aee55b1d1d10e95c0f
-          test "$(sha256sum expanded604-upgrade/scripts/ci/current604-public-pair-updater16k/wiring-source-manifest.json | cut -d ' ' -f 1)" = 82b21f6368e2f3d267a889502fcfb1f302cb27b5c536c16d203059f1ecd135f7
+          test "$(sha256sum expanded604-upgrade/scripts/ci/current604-public-pair-updater16k/wiring-source-manifest.json | cut -d ' ' -f 1)" = 17bfb142752fe02eb6e9f61ffb25e84fd7609c411cd93aacc529822b393fda94
           python3 -I -B expanded604-upgrade/scripts/ci/current604-public-pair-updater16k/job.py preflight \
             --implementation "$GITHUB_WORKSPACE/expanded604-upgrade" --source "$IMPLEMENTATION_SOURCE" \
             --workflow-sha "$WORKFLOW_SOURCE" --case "$UPGRADE_CASE"
