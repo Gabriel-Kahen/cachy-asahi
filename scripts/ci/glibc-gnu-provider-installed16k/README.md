@@ -52,7 +52,7 @@ The first native execution must still establish that the pinned util-linux
 commands use their permitted legacy fallback; incompatibility remains a failure.
 
 The four counted native source edits change the import location, one actual-page
-expectation and its diagnostic, and the outer container/guest guard. Nineteen
+expectation and its diagnostic, and the outer container/guest guard. Twenty
 original function/class bodies remain byte-identical, including transaction,
 dependency/conflict preparation, two configuration cases, complete payload and
 hardlink checks, capability restoration, runtime mounts, user preservation,
@@ -62,7 +62,7 @@ eight parent runtime cases and their direct child at before/provider/reinstalled
 held checkpoints: **eight actual normal-interpreter observations**. The held
 post_upgrade scriptlet is retained and explicitly executed after restoration,
 exactly as in the native lane. No sole-provider removal or dependency bypass is
-introduced. Interrupted replacement is a separate unimplemented future case.
+introduced. Interrupted replacement has a separate source and CI lane whose actual native interruption and normal installed16K prerequisites must both be accepted.
 
 The exact existing managed diagnostic16K kernel receipt/Image/config verifier is
 reused. QEMU has two CPUs,4096MiB, TCG, no network/display/monitor, a readonly boot

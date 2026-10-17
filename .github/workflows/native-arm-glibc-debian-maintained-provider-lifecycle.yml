@@ -36,7 +36,7 @@ jobs:
         timeout-minutes: 2
         run: |
           set -euo pipefail
-          printf '%s  %s\n' 'df60c31d437e2ca0d4b452d78dff652abab2ed220a10c167664d502d17583022' 'scripts/ci/glibc-debian-maintained-native-lifecycle-next/prepare.py' '4c0e9ccbbbd22cc291b3d9a0d2efc09821cb23a61db157a7a0eceb265ecc0cf9' 'scripts/ci/glibc-debian-maintained-native-lifecycle-next/source-pins.json' | sha256sum --check
+          printf '%s  %s\n' 'df60c31d437e2ca0d4b452d78dff652abab2ed220a10c167664d502d17583022' 'scripts/ci/glibc-debian-maintained-native-lifecycle-next/prepare.py' '038f952c3a421243d5462da23e5938680efb32ad5d97d15a42e82ae03b9ca58f' 'scripts/ci/glibc-debian-maintained-native-lifecycle-next/source-pins.json' | sha256sum --check
           python3 -I -B scripts/ci/glibc-debian-maintained-native-lifecycle-next/prepare.py emit --repo "$GITHUB_WORKSPACE" --output "$BUNDLE"
       - name: Require Root-bound source and immutable packet policy before secrets or native actors
         id: proof
