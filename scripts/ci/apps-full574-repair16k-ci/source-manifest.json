@@ -370,8 +370,8 @@
       "sha256": "6ec3723e5d8322ef5730eeb0222bfcaa5b0073d55c8353dc66afa5b29d8070de"
     },
     "scripts/ci/apps-full574-repair16k-ci/prepare.py": {
-      "bytes": 10018,
-      "sha256": "2b5bc319e372da9e216921b0bff3306c6661e09b84ed23ed00093eb6c125c181"
+      "bytes": 10158,
+      "sha256": "7f84f326f5658f5bb483d934a4482dbcf48b5ac71cbb06cadf4f377025fc05aa"
     },
     "scripts/ci/apps-full574-repair16k-ci/retain.py": {
       "bytes": 7571,
@@ -382,8 +382,8 @@
       "sha256": "7bd352b37308b9709b93011944d373f37265b80317fddff6798f6e2574761e2d"
     },
     "scripts/ci/apps-full574-repair16k-ci/test_ci.py": {
-      "bytes": 11176,
-      "sha256": "d68567a7013bd7342245c801336eee2886f9dc2e3028eaf5f5f0d86f512b9a7d"
+      "bytes": 11606,
+      "sha256": "d54d590b1fcf1fb5054c537627b5c818d94a6447f8ef7087cb9366a208944988"
     },
     "scripts/ci/apps-full574-repair16k/README.md": {
       "bytes": 6840,
