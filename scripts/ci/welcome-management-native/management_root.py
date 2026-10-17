@@ -58,6 +58,20 @@ def metadata():
     return result
 
 
+def restore_profile(L,pacman,products,baseline,preserved):
+    """Restore only the two exact signed fixture removals, including on failure."""
+    current=L.inventory();missing={n:v for n,v in baseline.items() if n not in TOOLS}
+    C.need(current in (baseline,missing) and metadata()==preserved,'unknown fixture state; restoration refused')
+    if current==missing:
+        archives=[]
+        for name in TOOLS:
+            row=products[name];path=INPUTS/row['archive']
+            C.need(path.parent==INPUTS and C.sha(C.read(path,8*1024**2))==row['sha256'],'exact signed helper archive required')
+            archives.append(str(path))
+        L.command(pacman+['-U',*archives],timeout=60)
+    C.need(L.inventory()==baseline and metadata()==preserved,'final GUI helper profile/nonselected database not restored')
+
+
 def serve(base,session,env,logs,seconds):
     base.guard(True);C.need(os.getuid()==0 and 'cachy_asahi_welcome_management=1' in Path('/proc/cmdline').read_text().split(),'owned management4K VM required')
     products=json.loads(C.read(INPUTS/'products.json'));control=json.loads(C.read(INPUTS/'control.json'))
@@ -95,10 +109,7 @@ def serve(base,session,env,logs,seconds):
                     C.need(inventory()==baseline,'tools already absent');L.command(pacman+['-R',*TOOLS],timeout=60)
                 else:
                     C.need(len(inventory())==592,'tools must actually be absent')
-                    archives=[]
-                    for name in TOOLS:
-                        row=products[name];path=INPUTS/row['archive'];C.need(path.parent==INPUTS and C.sha(C.read(path,8*1024**2))==row['sha256'],'exact signed helper archive required');archives.append(str(path))
-                    L.command(pacman+['-U',*archives],timeout=60)
+                    restore_profile(L,pacman,products,baseline,preserved)
                 answer['inventory']=inventory();C.need(metadata()==preserved,'nonselected database changed');answer['nonselected_database']='PRESERVED'
             elif op=='lock':
                 C.need(holder is None and inventory()==baseline,'fresh full profile required for fixture lock')
@@ -138,5 +149,5 @@ def serve(base,session,env,logs,seconds):
             if handle is not None:
                 if not select.select([handle],[],[],0)[0]:signal.pidfd_send_signal(handle,signal.SIGKILL)
                 os.close(handle)
-        C.need(metadata()==preserved and inventory()==baseline,'final GUI helper profile/nonselected database not restored')
-        L.command(['/usr/bin/gpgconf','--homedir','/tmp/management-trust','--kill','all'])
+        try:restore_profile(L,pacman,products,baseline,preserved)
+        finally:L.command(['/usr/bin/gpgconf','--homedir','/tmp/management-trust','--kill','all'])

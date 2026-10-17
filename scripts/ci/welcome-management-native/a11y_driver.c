@@ -13,6 +13,15 @@ static const char *wanted;
 static gboolean snapshot, scrolling;
 static const char *wanted_scope;
 static gsize text_total;
+static AtspiAccessible *scroll_peer;
+static guint peer_matches;
+
+static const char *tool_scope(void)
+{
+    if (!strcmp(wanted, "Run Doctor")) return "Doctor";
+    if (!strcmp(wanted, "Assess orphan packages")) return "Orphan assessment";
+    return NULL;
+}
 
 static void check(gboolean ok, const char *message)
 {
@@ -90,20 +99,61 @@ static gboolean settled_geometry(guint pid, Geometry *value)
     return FALSE;
 }
 
+static AtspiAccessible *tool_panel(AtspiAccessible *start, guint pid, const char *scope)
+{
+    AtspiAccessible *node = g_object_ref(start);
+    for (guint depth = 0; depth <= 12; depth++) {
+        check(atspi_accessible_get_process_id(node, &error) == pid, "peer ancestor process");
+        AtspiRole role = atspi_accessible_get_role(node, &error);
+        char *name = atspi_accessible_get_name(node, &error); check(name != NULL, "peer ancestor name");
+        gboolean found = role == ATSPI_ROLE_PANEL && !strcmp(name, scope); g_free(name);
+        if (found) return node;
+        AtspiAccessible *parent = atspi_accessible_get_parent(node, &error); check(parent != NULL, "peer ancestor parent");
+        g_object_unref(node); node = parent;
+    }
+    g_object_unref(node); check(FALSE, "peer ancestor bound"); return NULL;
+}
+
 static void ensure_visible(guint pid)
 {
     AtspiComponent *component = atspi_accessible_get_component_iface(target);
     check(component != NULL, "scroll component");
     gboolean scrolled = atspi_component_scroll_to(component, ATSPI_SCROLL_ANYWHERE, &error);
     check(TRUE, "actual component scroll"); /* FALSE without an error still needs complete visibility proof. */
-    Geometry value; gboolean unclipped = settled_geometry(pid, &value), focus_called = FALSE;
+    Geometry value; gboolean unclipped = settled_geometry(pid, &value), focus_called = FALSE, peer_focused = FALSE;
     if (!unclipped) {
         AtspiStateSet *states = atspi_accessible_get_state_set(target);
-        check(state(states, ATSPI_STATE_ENABLED) && state(states, ATSPI_STATE_SENSITIVE), "clipped control cannot receive focus");
+        gboolean enabled = state(states, ATSPI_STATE_ENABLED), sensitive = state(states, ATSPI_STATE_SENSITIVE);
         if (states) g_object_unref(states);
-        focus_called = TRUE;
-        check(atspi_component_grab_focus(component, &error), "actual component focus scroll");
+        if (enabled && sensitive) {
+            focus_called = TRUE;
+            check(atspi_component_grab_focus(component, &error), "actual component focus scroll");
+        } else {
+            /* A missing optional tool deliberately disables its button. Focus
+             * its enabled, same-tool report expander to scroll the viewport;
+             * never enable or activate the disabled check itself. */
+            const char *scope = tool_scope();
+            check(!enabled && !sensitive && scope && peer_matches == 1 && scroll_peer, "one disabled tool scroll peer");
+            AtspiAccessible *a = tool_panel(target, pid, scope), *b = tool_panel(scroll_peer, pid, scope);
+            check(a == b, "scroll peer must share actual tool panel"); g_object_unref(a); g_object_unref(b);
+            check(atspi_accessible_get_process_id(scroll_peer, &error) == pid &&
+                  atspi_accessible_get_role(scroll_peer, &error) == ATSPI_ROLE_TOGGLE_BUTTON, "scroll peer identity");
+            atspi_accessible_clear_cache(scroll_peer); states = atspi_accessible_get_state_set(scroll_peer);
+            check(state(states, ATSPI_STATE_ENABLED) && state(states, ATSPI_STATE_SENSITIVE), "scroll peer enabled");
+            if (states) g_object_unref(states);
+            AtspiComponent *peer_component = atspi_accessible_get_component_iface(scroll_peer);
+            check(peer_component && atspi_component_grab_focus(peer_component, &error), "actual peer focus scroll");
+            g_object_unref(peer_component);
+            peer_focused = TRUE;
+        }
         check(settled_geometry(pid, &value), "focused control remains clipped");
+        if (peer_focused) {
+            atspi_accessible_clear_cache(scroll_peer); states = atspi_accessible_get_state_set(scroll_peer);
+            check(state(states, ATSPI_STATE_FOCUSED), "actual peer focused state"); if (states) g_object_unref(states);
+            atspi_accessible_clear_cache(target); states = atspi_accessible_get_state_set(target);
+            check(!state(states, ATSPI_STATE_ENABLED) && !state(states, ATSPI_STATE_SENSITIVE), "disabled target state preserved");
+            if (states) g_object_unref(states);
+        }
     }
     atspi_accessible_clear_cache(target);
     AtspiStateSet *states = atspi_accessible_get_state_set(target);
@@ -114,9 +164,14 @@ static void ensure_visible(guint pid)
     char *encoded = g_base64_encode((const guchar *)name, strlen(name)); g_free(name);
     printf("{\"status\":\"PASS\",\"pid\":%u,\"actions\":0,\"interface\":\"Component\",\"action_name\":\"ensure-visible\","
            "\"scroll_called\":true,\"scroll_returned\":%s,\"focus_called\":%s,\"focused\":%s,\"unclipped_after_scroll\":%s,"
-           "\"method\":\"%s\",\"coordinate_space\":\"ATSPI_SCREEN\",\"name_base64\":\"%s\",\"chain\":[",
+           "\"method\":\"%s\",\"coordinate_space\":\"ATSPI_SCREEN\",\"name_base64\":\"%s\",",
            pid, scrolled ? "true" : "false", focus_called ? "true" : "false", focused ? "true" : "false",
-           unclipped ? "true" : "false", focus_called ? "FOCUS_SCROLL" : scrolled ? "COMPONENT_SCROLL" : "ALREADY_UNCLIPPED", encoded);
+           unclipped ? "true" : "false", peer_focused ? "PEER_FOCUS_SCROLL" : focus_called ? "FOCUS_SCROLL" : scrolled ? "COMPONENT_SCROLL" : "ALREADY_UNCLIPPED", encoded);
+    if (peer_focused)
+        printf("\"peer_focus\":{\"pid\":%u,\"role\":%u,\"name_base64\":\"VmlldyByZXBvcnQ=\",\"scope\":\"%s\","
+               "\"enabled\":true,\"sensitive\":true,\"focused\":true,\"same_panel\":true,\"target_enabled\":false,\"target_sensitive\":false},",
+               pid, (guint)ATSPI_ROLE_TOGGLE_BUTTON, tool_scope());
+    printf("\"chain\":[");
     for (guint i = 0; i < value.count; i++) {
         AtspiRect r = value.rects[i];
         printf("%s{\"pid\":%u,\"role\":%u,\"visible\":true,\"showing\":true,\"rect\":[%d,%d,%d,%d]}",
@@ -134,6 +189,10 @@ static void walk(AtspiAccessible *node, guint depth, const char *scope)
     AtspiRole role = atspi_accessible_get_role(node, &error); check(TRUE, "node role");
     AtspiStateSet *states = atspi_accessible_get_state_set(node);
     gboolean showing = state(states, ATSPI_STATE_SHOWING);
+    if (scrolling && tool_scope() && scope && !strcmp(scope, tool_scope()) &&
+        !strcmp(name, "View report") && role == ATSPI_ROLE_TOGGLE_BUTTON) {
+        peer_matches++; if (!scroll_peer) scroll_peer = g_object_ref(node);
+    }
     if (wanted && (showing || scrolling) && !strcmp(name, wanted) && control_role(role, name) &&
         (!wanted_scope || (scope && !strcmp(scope, wanted_scope)))) {
         if (!scrolling) check(state(states, ATSPI_STATE_ENABLED) && state(states, ATSPI_STATE_SENSITIVE), "disabled control");
@@ -269,5 +328,6 @@ int main(int argc, char **argv)
         }
     }
     if (target) g_object_unref(target);
+    if (scroll_peer) g_object_unref(scroll_peer);
     g_object_unref(application); g_object_unref(desktop); atspi_exit(); return 0;
 }

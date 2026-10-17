@@ -86,6 +86,27 @@ def result(rows):return next(e for e in rows if e['event']=='management_result')
 
 
 class Semantics(unittest.TestCase):
+    def test_disabled_button_visibility_requires_owned_enabled_same_panel_peer(self):
+        label=UI['labels']['orphans'];proof,window=scroll_proof(label)
+        proof.update(method='PEER_FOCUS_SCROLL',unclipped_after_scroll=False,peer_focus=dict(pid=80,role=62,name_base64='VmlldyByZXBvcnQ=',scope='Orphan assessment',
+            enabled=True,sensitive=True,focused=True,same_panel=True,target_enabled=False,target_sensitive=False))
+        C.visible_control(proof,80,label,window)
+        for field,value in (('pid',81),('pid',80.0),('role',43),('scope','Doctor'),('name_base64',base64.b64encode(b'Other').decode()),
+                            ('enabled',False),('focused',False),('focused',1),('sensitive',False),('same_panel',False),('target_enabled',True),('target_sensitive',True)):
+            bad=copy.deepcopy(proof);bad['peer_focus'][field]=value
+            with self.subTest(field=field,value=value),self.assertRaises(ValueError):C.visible_control(bad,80,label,window)
+        bad=copy.deepcopy(proof);bad['chain'][1]['rect'][3]=50
+        with self.assertRaises(ValueError):C.visible_control(bad,80,label,window)
+        with self.assertRaises(ValueError):C.visible_control(proof,80,'Open Files',window)
+    def test_peer_focus_cannot_replace_original_target_or_claim_target_focus(self):
+        label=UI['labels']['orphans'];proof,window=scroll_proof(label)
+        proof['peer_focus']={}
+        with self.assertRaises(ValueError):C.visible_control(proof,80,label,window)
+        driver=(HERE/'a11y_driver.c').read_text()
+        for text in ('a == b','actual peer focused state','disabled target state preserved','check(settled_geometry(pid, &value)',
+                     'peer_matches == 1','role == ATSPI_ROLE_TOGGLE_BUTTON'):
+            self.assertIn(text,driver)
+        self.assertNotIn('gtk_widget_set_sensitive',driver)
     def test_visibility_requires_genuine_component_or_unclipped_or_focused_geometry(self):
         label=UI['labels']['orphans'];proof,window=scroll_proof(label)
         C.visible_control(proof,80,label,window)
@@ -219,6 +240,43 @@ class ReportReadiness(unittest.TestCase):
         self.assertEqual(len(C.action_plan(UI)),17)
         self.assertEqual(len(C.VIEWS)*2,24)
         self.assertIn("observed('orphans',True)",text)
+
+
+class FailureCleanup(unittest.TestCase):
+    def fixture(self,directory,mode='missing'):
+        from types import SimpleNamespace
+        inputs=Path(directory);products={};baseline={'base':'1',**{n:'1' for n in R.TOOLS}}
+        missing={n:v for n,v in baseline.items() if n not in R.TOOLS};state={'inventory':baseline if mode=='baseline' else missing,'commands':[]}
+        for name in R.TOOLS:
+            raw=(name+' original archive').encode();path=inputs/(name+'.pkg.tar.xz');path.write_bytes(raw)
+            products[name]=dict(archive=path.name,sha256=C.sha(raw))
+        def command(argv,timeout):
+            self.assertEqual(argv,['pacman','--signed-fixture','-U',*[str(inputs/products[n]['archive']) for n in R.TOOLS]])
+            self.assertEqual(timeout,60);state['commands'].append(argv);state['inventory']=baseline
+        return SimpleNamespace(inventory=lambda:state['inventory'],command=command),products,baseline,state
+    def test_removed_tools_restore_from_exact_signed_archives_after_failure(self):
+        with tempfile.TemporaryDirectory() as directory:
+            L,products,baseline,state=self.fixture(directory)
+            with patch.object(R,'INPUTS',Path(directory)),patch.object(R,'metadata',return_value={'kept':'exact'}):R.restore_profile(L,['pacman','--signed-fixture'],products,baseline,{'kept':'exact'})
+            self.assertEqual(state['inventory'],baseline);self.assertEqual(len(state['commands']),1)
+    def test_complete_profile_cleanup_does_not_reinstall(self):
+        with tempfile.TemporaryDirectory() as directory:
+            L,products,baseline,state=self.fixture(directory,'baseline')
+            with patch.object(R,'INPUTS',Path(directory)),patch.object(R,'metadata',return_value={}):R.restore_profile(L,['pacman','--signed-fixture'],products,baseline,{})
+            self.assertEqual(state['commands'],[])
+    def test_archive_metadata_or_unknown_inventory_drift_refuses_cleanup_mutation(self):
+        for case in ('archive','metadata','inventory'):
+            with self.subTest(case=case),tempfile.TemporaryDirectory() as directory:
+                L,products,baseline,state=self.fixture(directory);actual={}
+                if case=='archive':(Path(directory)/products[R.TOOLS[0]]['archive']).write_bytes(b'changed')
+                elif case=='metadata':actual={'changed':True}
+                else:state['inventory']={**state['inventory'],'foreign':'1'}
+                with patch.object(R,'INPUTS',Path(directory)),patch.object(R,'metadata',return_value=actual),self.assertRaises(ValueError):R.restore_profile(L,['pacman','--signed-fixture'],products,baseline,{})
+                self.assertEqual(state['commands'],[])
+    def test_main_failure_finally_uses_same_restoration_and_always_retires_key_agent(self):
+        text=(HERE/'management_root.py').read_text()
+        self.assertEqual(text.count('restore_profile(L,pacman,products,baseline,preserved)'),3)
+        self.assertIn("finally:L.command(['/usr/bin/gpgconf'",text)
 
 
 class Adapter(unittest.TestCase):
