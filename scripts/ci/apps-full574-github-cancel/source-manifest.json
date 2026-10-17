@@ -235,16 +235,16 @@
       "sha256": "853976455400a56f0664ab7caab73a5cc669f27752d96d04b7463ed9a591b6a0"
     },
     "scripts/ci/apps-full574-github-cancel/prepare.py": {
-      "bytes": 5448,
-      "sha256": "7fed548d901b54d61544d1339e6f695a23c9b985e6998998070e47ea4e0769c4"
+      "bytes": 5585,
+      "sha256": "b2da7554fb14333aa478cc9f8ee432e1ea45d1e5768d1e03b0464a5e171c8615"
     },
     "scripts/ci/apps-full574-github-cancel/source-pins.json": {
       "bytes": 27353,
       "sha256": "506b0184df4552793c7e1f3ac0a54528221099b4a924af5cd45124759d828997"
     },
     "scripts/ci/apps-full574-github-cancel/test_cancel.py": {
-      "bytes": 9349,
-      "sha256": "5a2419212cfd74d0b6f9a18b10861459a2ffbe38b6a67e3bbae3eecbb94ff420"
+      "bytes": 13858,
+      "sha256": "adc4da5ff5d54eefcc76f3eb56b50e6ef4e4e22839da6d5be8aabda830dbb839"
     },
     "scripts/ci/apps-full574-native/README.md": {
       "bytes": 3802,

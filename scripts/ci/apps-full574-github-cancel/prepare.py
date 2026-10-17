@@ -20,6 +20,7 @@ def workflow(s):
  s=replace(s,"          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/apps -p 'test_*.py' -v", "          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/apps -p 'test_*.py' -v\n          python3 -B -Werror::ResourceWarning -m unittest discover -s \"$CANCEL_SLICE\" -p test_cancel.py -v")
  s=replace(s,'        id: repair_trial\n        timeout-minutes: 60\n','        id: repair_trial\n        timeout-minutes: 60\n        env:\n          GH_TOKEN: ${{ github.token }}\n')
  s=replace(s,'python3 -I -B "$SLICE/supervise.py" run --handoff','python3 -I -B "$CANCEL_SLICE/driver.py" run --component "$RUNNER_TEMP/apps574-github-cancel" --handoff')
+ s=replace(s,'          timeout --signal=TERM --kill-after=30s 3550s\n','          exec timeout --signal=TERM --kill-after=30s 3550s\n')
  anchor='      - name: Upload only the bounded public evidence directory\n';s=replace(s,anchor,'''      - name: Preserve bounded original self-cancel frontier intent and response
         if: always() && steps.proof.outcome == 'success'
         timeout-minutes: 2

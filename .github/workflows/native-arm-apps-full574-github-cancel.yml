@@ -140,7 +140,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: >-
-          timeout --signal=TERM --kill-after=30s 3550s
+          exec timeout --signal=TERM --kill-after=30s 3550s
           python3 -I -B "$CANCEL_SLICE/driver.py" run --component "$RUNNER_TEMP/apps574-github-cancel" --handoff "$RUNNER_TEMP/apps574-repair-job.json" --case "$REPAIR_CASE" --source "$GITHUB_WORKSPACE"
           --packet "$GITHUB_WORKSPACE/retained-apps574-inputs/payload"
           --proof "$RUNNER_TEMP/apps574-source-proof.json" --base "$RUNNER_TEMP/desktop574"

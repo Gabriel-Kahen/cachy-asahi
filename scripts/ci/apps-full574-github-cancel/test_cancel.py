@@ -81,4 +81,59 @@ class Controls(unittest.TestCase):
   for n,row in rows.items():self.assertEqual(D.pin(D.read(ROOT/n,16*1024**2)),row)
   self.assertEqual(D.pin((ROOT/D.NATIVE/'source-manifest.json').read_bytes())['sha256'],D.NATIVE_MF)
   pins=json.loads((HERE/'source-pins.json').read_bytes());self.assertEqual(sum(v=='FROZEN_NATIVE505' for v in pins['origins'].values()),115)
+class LauncherControls(unittest.TestCase):
+ # Real local processes/flock only. These signals are NOT a GitHub cancellation.
+ def route(self,exec_timeout,number):
+  import signal,time
+  with tempfile.TemporaryDirectory(prefix='cachy-cancel-launcher-') as tmp:
+   root=Path(tmp);supervisor=ROOT/'scripts/ci/orphans-full574-native/supervise.py'
+   child=root/'child.py';child.write_text("import fcntl,os,signal,sys,time\nfrom pathlib import Path\nr=Path(sys.argv[1])\nf=(r/'lease').open('a');fcntl.flock(f,fcntl.LOCK_EX|fcntl.LOCK_NB)\ndef stop(n,f):raise SystemExit(0)\nsignal.signal(signal.SIGINT,stop);signal.signal(signal.SIGTERM,stop)\n(r/'ready').write_text(str(os.getpid()))\nwhile True:time.sleep(.02)\n")
+   runner=root/'runner.py';runner.write_text("import importlib.util,json,sys\nfrom pathlib import Path\ns=importlib.util.spec_from_file_location('original',sys.argv[1]);m=importlib.util.module_from_spec(s);s.loader.exec_module(m)\nr=Path(sys.argv[2]);v=m.handoff([sys.executable,'-I','-B',str(r/'child.py'),str(r)],r/'handoff.json',{'local':True})\n(r/'returned').write_text(json.dumps(v))\n")
+   step=root/'step.sh';step.write_text('set -euo pipefail\n'+('exec ' if exec_timeout else '')+'timeout --signal=TERM --kill-after=30s 3550s '+sys.executable+' -I -B '+str(runner)+' '+str(supervisor)+' '+str(root)+'\n')
+   proc=subprocess.Popen(['/usr/bin/bash','--noprofile','--norc','-e','-o','pipefail',str(step)],start_new_session=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE);initial=None;timeout_pid=None
+   try:
+    end=time.monotonic()+5
+    while not (root/'ready').exists() and time.monotonic()<end:time.sleep(.01)
+    self.assertTrue((root/'ready').exists(),'real owned lease frontier');initial=json.loads((root/'handoff.json').read_bytes());pid=initial['job']['pid'];names=[]
+    for _ in range(5):
+     statrow=Path('/proc/'+str(pid)+'/stat').read_text();name=statrow.split('(',1)[1].rsplit(')',1)[0];names.append(name);parent=int(statrow.rsplit(')',1)[1].split()[1])
+     if name=='timeout':timeout_pid=pid
+     if pid==proc.pid:break
+     pid=parent
+    self.assertEqual(names,['python3','python3','timeout']+([] if exec_timeout else ['bash']));self.assertIsNotNone(timeout_pid)
+    os.kill(proc.pid,number);end=time.monotonic()+(5 if exec_timeout else 1)
+    while not (root/'returned').exists() and time.monotonic()<end:time.sleep(.01)
+    value=json.loads((root/'handoff.json').read_bytes());fd=os.open(root/'lease',os.O_RDWR)
+    try:
+     try:fcntl.flock(fd,fcntl.LOCK_EX|fcntl.LOCK_NB);available=True
+     except BlockingIOError:available=False
+    finally:os.close(fd)
+    if exec_timeout:
+     self.assertEqual(value['status'],'DIRECT_JOB_REAPED_GROUP_ABSENT_INNER_CLEANUP_STILL_REQUIRED');self.assertTrue(value['direct_reaped'] and value['group_absent']);self.assertTrue(available);self.assertEqual(value['cancellation_signal'],number);self.assertLess(value['cancellation_seconds'],5)
+    else:
+     self.assertEqual(value['status'],'RUNNING_NOT_CLEANUP_AUTHORITY');self.assertFalse(value['direct_reaped'] or value['group_absent'] or available);self.assertFalse((root/'returned').exists())
+   finally:
+    # Only fixture cleanup after observations; never counted as signal-path proof.
+    if timeout_pid:
+     try:os.kill(timeout_pid,signal.SIGTERM)
+     except ProcessLookupError:pass
+    try:proc.communicate(timeout=5)
+    except subprocess.TimeoutExpired:os.killpg(proc.pid,signal.SIGKILL);proc.communicate(timeout=2)
+    if initial:
+     with self.assertRaises(ProcessLookupError):os.killpg(initial['job']['pid'],0)
+ def test_plain_shell_INT_does_not_reach_original_handler(self):
+  import signal
+  self.route(False,signal.SIGINT)
+ def test_plain_shell_TERM_does_not_reach_original_handler(self):
+  import signal
+  self.route(False,signal.SIGTERM)
+ def test_exec_timeout_INT_retires_original_direct_job_and_lease(self):
+  import signal
+  self.route(True,signal.SIGINT)
+ def test_exec_timeout_TERM_retires_original_direct_job_and_lease(self):
+  import signal
+  self.route(True,signal.SIGTERM)
+ def test_only_actual_run_launcher_changes_and_emitter_matches_workflow(self):
+  original=(ROOT/P.WF).read_text();proposed=P.workflow((ROOT/P.NATIVE_WF).read_text());anchor='exec timeout --signal=TERM --kill-after=30s 3550s';self.assertEqual(proposed.count(anchor),1);self.assertEqual(proposed,original);self.assertEqual(__import__('hashlib').sha256(proposed.replace(anchor,anchor[5:]).encode()).hexdigest(),'beccfc02e658f58ce1ffbe80caea4599fc741dc53751349019a07b6f7a9ef2d5')
+
 if __name__=='__main__':unittest.main(verbosity=2)
