@@ -273,6 +273,10 @@ jobs:
         run: FULL574_REPAIR16K_SOURCE="$RUNNER_TEMP/repair16k-ci" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/apps-full574-repair16k -p 'test*.py'
       - name: Check full574 repair16K CI source without actors
         run: CACHY_ASAHI_REPAIR16K_TEST_SOURCE="$RUNNER_TEMP/repair16k-ci" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/apps-full574-repair16k-ci -p test_ci.py
+      - name: Assemble actual GitHub cancellation diagnostic without actors
+        run: python3 -I -B scripts/ci/apps-full574-github-cancel/prepare.py --native-source "$PWD/.ci-inputs/repair-native-baseline" --implementation "$PWD" --output "$RUNNER_TEMP/apps574-github-cancel"
+      - name: Check actual GitHub cancellation ownership and source guards
+        run: APPS574_GITHUB_CANCEL_SOURCE="$RUNNER_TEMP/apps574-github-cancel" python3 -I -B -Werror::ResourceWarning scripts/ci/apps-full574-github-cancel/test_cancel.py
       - name: Check generic 16K tools contracts without VM actors
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/tools-generic16k -p 'test_*.py'
       - name: Check Fish Done generic 16K contracts without VM actors
