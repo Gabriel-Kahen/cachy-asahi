@@ -1,0 +1,13 @@
+{
+  "packet": {
+    "directory": "payload",
+    "index": {
+      "bytes": 1340,
+      "sha256": "8515e66130d55a718a65053d93f19de06f1d7e33ef621a3cb612f67e1ecbbf07"
+    },
+    "ref": "60e174c5db7f770c94064198516dd3ee07b51b7b"
+  },
+  "qualification": "Root-bound new caa3 source authority and public eight-input carrier only. No native build/runtime/installation/hardware/security/release acceptance. No old caa1/caa2 acceptance credit.",
+  "schema_version": 1,
+  "status": "ROOT_BOUND_IMMUTABLE_MAINTAINED_DEBIAN_SOURCE_PACKET"
+}
