@@ -36,6 +36,10 @@ def adapt(raw,name):
  for a,b in changes.items():
   count=text.count(a)
   if count:edits[a]=count;text=text.replace(a,b)
+ if name=='contract.py':
+  anchor="    names.add('scripts/ci/expanded604-current-management/source-manifest.json')\n"
+  need(text.count(anchor)==1,'one Root freeze source-closure anchor')
+  text=text.replace(anchor,anchor+"    names.update(read(HERE/'source-pins.json')['files'])\n")
  ast.parse(text);after={n.name:ast.get_source_segment(text,n) for n in ast.parse(text).body if isinstance(n,ast.FunctionDef)}
  return text.encode(),dict(literal_identities=edits,unchanged=sorted(n for n in before if before[n]==after[n]),changed=sorted(n for n in before if before[n]!=after[n]))
 

@@ -37,4 +37,13 @@ class Controls(unittest.TestCase):
   (repo/P.NATIVE/'expected604.lock').write_bytes((SOURCE/P.OLD/'expected604.lock').read_bytes())
   with self.assertRaisesRegex(ValueError,'exact current604 installer support'):P.emit(repo,self.work/'never')
   self.assertFalse((self.work/'never').exists())
+ def test_root_freeze_retains_every_emitted_support_operand(self):
+  out,C,_=self.emit();lane=out/P.NEW;workflow=out/P.WORKFLOW;text=workflow.read_text()
+  for marker,path in (('@OWNER_SHA256@',lane/'ci.py'),('@MANIFEST_SHA256@',lane/'source-manifest.json')):
+   digest=hashlib.sha256(path.read_bytes()).hexdigest();self.assertEqual(text.count(digest),1);text=text.replace(digest,marker)
+  workflow.write_text(text)
+  with patch.object(C,'policy',return_value={}),patch.object(C.COMPOSITION,'verify_source',return_value={}):result=C.freeze(out)
+  retained=json.loads((lane/'source-manifest.json').read_bytes())['files'];support=json.loads((lane/'source-pins.json').read_bytes())['files']
+  self.assertTrue(set(support)<=set(retained));self.assertEqual(result['files'],144)
+  for name,row in retained.items():self.assertEqual(row,P.pin((out/name).read_bytes()))
 if __name__=='__main__':unittest.main(verbosity=2)
