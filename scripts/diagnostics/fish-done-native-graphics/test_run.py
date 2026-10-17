@@ -13,7 +13,7 @@ class Controls(unittest.TestCase):
  def file(self,name,data,mode=0o644):
   q=self.root/name;q.write_bytes(data);q.chmod(mode);return {'path':str(q),'sha256':R.sha(data)}
  def valid(self):
-  binary=bytearray(64);binary[:6]=b'\x7fELF\x02\x01';struct.pack_into('<H',binary,18,62)
+  binary=bytearray(64);binary[:6]=b'\x7fELF\x02\x01';struct.pack_into('<H',binary,18,R.native_architecture()['elf_machine'])
   tools={n:self.file(n,bytes(binary),0o755) for n in R.TOOLS}
   payload=b'inert payload';name='usr/share/cachy-asahi/fish-done/done.fish';buf=io.BytesIO()
   with tarfile.open(fileobj=buf,mode='w:xz') as stream:
@@ -50,10 +50,10 @@ class Controls(unittest.TestCase):
   row=self.file('fish-fixture',b'inert');a=self.root/'fish_indent';b=self.root/'fish_key_reader';os.link(row['path'],a);os.link(row['path'],b)
   self.file('other',b'other');aliases=(row['path'],str(a),str(b));R.ordinary(row['path'],row['sha256'],known_links=aliases)
   with self.assertRaisesRegex(ValueError,'alias group'):R.ordinary(row['path'],row['sha256'],known_links=(row['path'],str(a),str(self.root/'other')))
- def test_duplicate_and_non_x86_header_rejected(self):
+ def test_duplicate_and_non_native_header_rejected(self):
   with self.assertRaisesRegex(ValueError,'duplicate'):R.decode(b'{"a":1,"a":2}')
   row=self.file('wrong-architecture',b'\x7fELF\x02\x01'+b'\0'*58,0o755)
-  with self.assertRaisesRegex(ValueError,'native x86_64'):R.ordinary(row['path'],row['sha256'],executable=True)
+  with self.assertRaisesRegex(ValueError,'native .* ELF'):R.ordinary(row['path'],row['sha256'],executable=True)
  def test_original_runtime_helper_pins_and_unchanged_bounds(self):
   for name,expected in R.SOURCE_PINS.items():self.assertEqual(R.sha((HERE/name).read_bytes()),expected)
   source=(HERE/'controller.py').read_text();self.assertNotIn('artifacts/development/',source);self.assertIn('15,\'original Done delivery15s\'',source);self.assertIn("2,'original natural-expiry readiness2s'",source);self.assertIn('time.monotonic()+3.5',source);self.assertIn('<=2000000',source)
@@ -64,6 +64,41 @@ class Controls(unittest.TestCase):
    with tarfile.open(fileobj=buf,mode='w:xz') as stream:
     m=tarfile.TarInfo(name);m.size=1;m.mode=0o644;stream.addfile(m,io.BytesIO(b'x'))
    with self.assertRaises(ValueError):R.archive(buf.getvalue(),{'payload':{}})
+
+ def test_native_host_mapping_and_unsupported_refuses_before_inputs_or_actors(self):
+  for name,machine in [('x86_64',62),('aarch64',183)]:
+   with self.subTest(name=name),patch.object(R.platform,'machine',return_value=name):self.assertEqual(R.native_architecture(),{'name':name,'elf_machine':machine})
+  with patch.object(R.platform,'machine',return_value='riscv64'),patch.object(R,'ordinary',side_effect=AssertionError('input before architecture refusal')),patch.object(R.subprocess,'Popen',side_effect=AssertionError('actor')):
+   with self.assertRaisesRegex(ValueError,'x86_64 or aarch64'):R.preflight('/unused','0'*64,str(self.root/'never-created'))
+  self.assertFalse((self.root/'never-created').exists())
+ def test_aarch64_metadata_preflight_and_stage_never_executes_arm(self):
+  with patch.object(R.platform,'machine',return_value='aarch64'):
+   value,pins=self.valid();binary=(self.root/'mako').read_bytes();value['libraries']=[self.file('libfixture.so',binary)]
+   plan=self.execute_preflight(value,pins);bindings=R.stage(plan)
+   self.assertEqual(bindings['native_arch'],{'name':'aarch64','elf_machine':183});self.assertEqual(bindings['scope'],'NATIVE_AARCH64_SWAY_NOTIFICATION_COUNTERFACTUAL_ONLY_NOT_HYPRLAND_ALPM_M2')
+   self.assertEqual(struct.unpack_from('<H',(plan['work']/'tools/mako').read_bytes(),18)[0],183)
+ def test_mixed_tool_architecture_refuses_both_directions_before_actor(self):
+  for host,bad in [('x86_64',183),('aarch64',62)]:
+   with self.subTest(host=host),patch.object(R.platform,'machine',return_value=host):
+    value,pins=self.valid();raw=bytearray((self.root/'mako').read_bytes());struct.pack_into('<H',raw,18,bad);value['tools']['mako']=self.file('mako',bytes(raw),0o755)
+    with self.assertRaisesRegex(ValueError,'native '+host+' ELF'):self.execute_preflight(value,pins)
+    self.assertFalse((self.root/'fresh-work').exists())
+ def test_mixed_library_architecture_refuses_both_directions_before_actor(self):
+  for host,bad in [('x86_64',183),('aarch64',62)]:
+   with self.subTest(host=host),patch.object(R.platform,'machine',return_value=host):
+    value,pins=self.valid();raw=bytearray((self.root/'mako').read_bytes());struct.pack_into('<H',raw,18,bad);value['libraries']=[self.file('libmixed.so',bytes(raw))]
+    with self.assertRaisesRegex(ValueError,'native '+host+' ELF'):self.execute_preflight(value,pins)
+    self.assertFalse((self.root/'fresh-work').exists())
+ def test_inner_readonly_tool_and_library_guard_rechecks_machine(self):
+  tree=ast.parse((HERE/'controller.py').read_text());node=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='verify_native')
+  namespace={'Path':Path,'O':R,'hashlib':hashlib,'struct':struct,'native_arch':{'name':'aarch64','elf_machine':183}}
+  exec(compile(ast.Module(body=[node],type_ignores=[]),'<owned-native-input>','exec'),namespace)
+  raw=bytearray(64);raw[:6]=b'\x7fELF\x02\x01';struct.pack_into('<H',raw,18,183);row=self.file('inert-arm-header',bytes(raw));namespace['verify_native'](row['path'],row['sha256'])
+  struct.pack_into('<H',raw,18,62);row=self.file('inert-arm-header',bytes(raw))
+  with self.assertRaisesRegex(ValueError,'native architecture differs'):namespace['verify_native'](row['path'],row['sha256'])
+ def test_x86_bindings_keep_accepted_scope_and_record_machine(self):
+  with patch.object(R.platform,'machine',return_value='x86_64'):
+   value,pins=self.valid();bindings=R.stage(self.execute_preflight(value,pins));self.assertEqual(bindings['native_arch'],{'name':'x86_64','elf_machine':62});self.assertEqual(bindings['scope'],'NATIVE_X86_SWAY_NOTIFICATION_COUNTERFACTUAL_ONLY_NOT_HYPRLAND_ALPM_ARM_M2')
 
 class ReadinessControls(unittest.TestCase):
  def helper(self):

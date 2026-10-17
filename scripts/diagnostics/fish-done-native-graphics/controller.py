@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 """One private native-GPU session, three unchanged real Done notification cases."""
-import base64,hashlib,json,os,resource,signal,subprocess,sys,time
+import base64,hashlib,json,os,platform,resource,signal,struct,subprocess,sys,time
 from pathlib import Path
 P=Path('/inputs');W=Path('/work')
 sys.path.insert(0,str(P))
@@ -97,15 +97,20 @@ def image_roi(path):
 configs={name:digest(W/name) for name in ('sway.conf','mako.conf')}
 payload={str(q.relative_to(W/'done')):digest(q) for q in (W/'done').rglob('*') if q.is_file()}
 bindings=json.loads((W/'bindings.json').read_bytes())
+native_arch=bindings['native_arch'];O.need(platform.machine()==native_arch['name'] and {'x86_64':62,'aarch64':183}.get(native_arch['name'])==native_arch['elf_machine'],'actual native architecture differs')
+label='X86' if native_arch['name']=='x86_64' else 'AARCH64'
+def verify_native(path,expected):
+ raw=Path(path).read_bytes();O.need(hashlib.sha256(raw).hexdigest()==expected,'staged/system input drift')
+ O.need(raw[:6]==b'\x7fELF\x02\x01' and len(raw)>=64 and struct.unpack_from('<H',raw,18)[0]==native_arch['elf_machine'],'staged/system native architecture differs')
 for name,entry in bindings['inside_tools'].items():
- O.need(digest(entry['path'])==entry['sha256'],'staged/system tool drift '+name)
+ verify_native(entry['path'],entry['sha256'])
 O.need(str(Path('/usr/bin/sh').resolve())==bindings['inside_tools']['shell']['path'],'sh runtime alias drift')
 aliases=bindings['fish_aliases']
 if aliases:
  held=Path('/usr/bin/fish').stat();O.need(len(aliases)==held.st_nlink==3,'complete Fish multicall count')
  for alias in aliases:
   other=Path(alias).lstat();O.need((other.st_dev,other.st_ino,other.st_nlink)==(held.st_dev,held.st_ino,3),'Fish multicall alias drift')
-for name,entry in bindings['libraries'].items():O.need(digest(W/'libs'/name)==entry['sha256'],'staged library drift')
+for name,entry in bindings['libraries'].items():verify_native(W/'libs'/name,entry['sha256'])
 try:
  E.update(WLR_BACKENDS='headless',WLR_HEADLESS_OUTPUTS='1',WLR_RENDERER='gles2',WLR_RENDER_DRM_DEVICE=E['CACHY_RENDER_NODE'])
  parent=actor('sway',[str(W/'tools/sway'),'--config','/work/sway.conf'])
@@ -173,6 +178,6 @@ finally:
  for name,p,a in reversed(actors):
   try:stop(name,p)
   except BaseException as ex:errors.append('cleanup '+name+': '+str(ex))
- result={'status':'PASS_NATIVE_X86_GPU_DONE_FUNCTIONAL_PENDING_VISUAL_REVIEW' if not errors and len(cases)==3 else 'FAIL_OR_BLOCKED_NATIVE_X86_FIXTURE','scope':'NATIVE_X86_SWAY_NOTIFICATION_COUNTERFACTUAL_ONLY_NOT_HYPRLAND_ALPM_ARM_M2','errors':errors,'cases':cases,'cleanup':cleanup,'configs':configs,'payload':payload,'device_nodes':sorted(str(p) for p in Path('/dev').rglob('*')),'visual_review':'NOT_RUN','source_to_original_arm_mako_binary_attestation':'NOT_ESTABLISHED','bindings':bindings,'renderer_qualification':'Selected render-node/GLES and source guards; no live GL vendor/model readback or hardware-performance claim'}
+ result={'native_arch':native_arch,'status':'PASS_NATIVE_'+label+'_GPU_DONE_FUNCTIONAL_PENDING_VISUAL_REVIEW' if not errors and len(cases)==3 else 'FAIL_OR_BLOCKED_NATIVE_'+label+'_FIXTURE','scope':bindings['scope'],'errors':errors,'cases':cases,'cleanup':cleanup,'configs':configs,'payload':payload,'device_nodes':sorted(str(p) for p in Path('/dev').rglob('*')),'visual_review':'NOT_RUN','source_to_original_arm_mako_binary_attestation':'NOT_ESTABLISHED','bindings':bindings,'renderer_qualification':'Selected render-node/GLES and source guards; no live GL vendor/model readback or hardware-performance claim'}
  (W/'result.json').write_text(json.dumps(result,sort_keys=True,indent=2)+'\n')
  print(json.dumps({'status':result['status'],'errors':errors,'cases':len(cases)}))
