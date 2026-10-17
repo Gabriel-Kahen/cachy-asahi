@@ -218,6 +218,11 @@ def serve(base,session,env,logs,seconds):
                         if identity(int(p.name))['pgid']==observed['pgid']:members.append(int(p.name))
                     except (FileNotFoundError,ProcessLookupError,PermissionError):pass
                 answer.update(helper_absent=exited,supervisor_absent=superexited,group_absent=not members,inventory=inventory(),nonselected_database='PRESERVED' if metadata()==preserved else 'CHANGED')
+                # These are the existing scan and held-identity samples. They
+                # distinguish a live helper, supervisor or remaining group
+                # without adding an observer, signal or retirement allowance.
+                answer.update(group_members=members[:32],group_members_clipped=len(members)>32)
+                if progress is not None:answer['gui_progress']=progress.value()
             else:raise ValueError('unknown fixture operation')
             reply=CHANNEL/('reply-'+str(sequence)+'.json');pending=reply.with_suffix('.pending')
             with pending.open('xb') as stream:stream.write(C.encoded(answer));stream.flush();os.fsync(stream.fileno())
