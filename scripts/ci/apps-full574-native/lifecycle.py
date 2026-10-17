@@ -25,10 +25,15 @@ def backend(action,workspace,owner=None):return ['/usr/bin/python3','-I','-B','/
 def credentials():
  value=C.decode(C.read(INPUTS/'release/control.json'));return [part for key in ('release','release-sha256','catalog','catalog-sha256','catalog-signature','keyring','signer') for part in
   ('--'+key,{'release':'/inputs/release/bundle','release-sha256':value['release_sha256'],'catalog':'/inputs/release/catalog.json','catalog-sha256':value['catalog_sha256'],'catalog-signature':'/inputs/release/catalog.json.sig','keyring':'/inputs/release/public.gpg','signer':value['signer']}[key])]
+def inventory_identity(info):
+ # A read may update atime. Bind every security/content identity field, using
+ # nanoseconds for mutation times, exactly as the existing bounded C.read does.
+ return (info.st_dev,info.st_ino,info.st_mode,info.st_uid,info.st_gid,info.st_nlink,info.st_size,info.st_mtime_ns,info.st_ctime_ns)
+
 def retain_inventory(path,summary):
  C.safe(path);before=path.lstat();raw=C.read(path,16*1024**2)
  C.need(stat.S_ISREG(before.st_mode) and before.st_nlink==1 and before.st_uid==os.geteuid() and
-        stat.S_IMODE(before.st_mode)==0o600 and before==path.lstat(),'exact private caller-owned inventory required')
+        stat.S_IMODE(before.st_mode)==0o600 and inventory_identity(before)==inventory_identity(path.lstat()),'exact private caller-owned inventory required')
  C.need(summary['output']==str(path) and summary['bytes']==len(raw) and summary['sha256']==C.sha(raw),'original inventory command bytes differ')
  # Keep the original bytes at the existing flat export name; never republish through a weaker product path.
  fd=os.open(OUT/path.name,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,0o600)
