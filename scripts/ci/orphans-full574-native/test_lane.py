@@ -23,6 +23,15 @@ class Controls(unittest.TestCase):
   self.assertEqual(seen,[(123,(1<<7)|(1<<10)|(1<<8))])
   for handle,flags in ((124,(1<<7)|(1<<10)),(123,0),(123,(1<<7)|(1<<10)|(1<<8))):
    with self.assertRaisesRegex(ValueError,'original install flags'):value.alpm_trans_init(handle,flags)
+ def test_fixture_accepts_original_sanitized_child_environment_only(self):
+  # Original Calls.call passes a disposable owner token, not the outer actor flag.
+  env=dict(C.ENV,HOME='/tmp',CACHY_ASAHI_APPS_TRANSACTION='a'*32)
+  with patch.object(D.C,'source'),patch.object(D.os,'getuid',return_value=0),patch.object(D.os,'geteuid',return_value=0),patch.object(D.os,'uname',return_value=NS(machine='aarch64')),patch.object(D.sys,'argv',['fixture']):
+   with patch.dict(D.os.environ,env,clear=True):
+    with self.assertRaisesRegex(ValueError,'install fixture only'):D.main()
+   for bad in ('','a'*31,'g'*32):
+    with patch.dict(D.os.environ,dict(env,CACHY_ASAHI_APPS_TRANSACTION=bad,CACHY_APPS574_LIFECYCLE='1'),clear=True):
+     with self.assertRaisesRegex(ValueError,'native fixture actor'):D.main()
  def test_native_header_requires_one_exact_supported_public_enum(self):
   self.assertEqual(D.dependency_flag('enum flags { ALPM_TRANS_FLAG_ALLDEPS = (1 << 8), OTHER = 1 };'),256)
   for header in ('', 'ALPM_TRANS_FLAG_ALLDEPS = (1 << 9),', 'ALPM_TRANS_FLAG_ALLDEPS = 256,', 'ALPM_TRANS_FLAG_ALLDEPS = (1 << 8),\nALPM_TRANS_FLAG_ALLDEPS = (1 << 8),', 'x'*(1024**2+1)):

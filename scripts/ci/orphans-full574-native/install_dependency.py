@@ -21,7 +21,7 @@ def factory(original,flags):
  return create
 
 def main():
- C.source(Path('/source'));C.need(os.getuid()==os.geteuid()==0 and os.uname().machine=='aarch64' and os.environ.get('CACHY_APPS574_LIFECYCLE')=='1','only original native fixture actor')
+ C.source(Path('/source'));C.need(os.getuid()==os.geteuid()==0 and os.uname().machine=='aarch64' and re.fullmatch('[0-9a-f]{32}',os.environ.get('CACHY_ASAHI_APPS_TRANSACTION','')),'only original native fixture actor')
  argv=sys.argv[1:];C.need(argv and argv[0]=='apply' and '--operation' in argv and argv[argv.index('--operation')+1]=='install','install fixture only')
  i=argv.index('--applications')+1;names=[]
  while i<len(argv) and not argv[i].startswith('--'):names.append(argv[i]);i+=1
