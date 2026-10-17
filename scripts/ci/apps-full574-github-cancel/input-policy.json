@@ -1,0 +1,13 @@
+{
+  "binding": {
+    "cases": [
+      "repair-bytes",
+      "repair-missing"
+    ],
+    "native_manifest_sha256": "636baf21fa537ca813b7403b1bc6afb920404d974236bd52d8c1cdf479477ba9",
+    "native_source": "5051663cf191e40bdbb3b03e2d62748f69b6afb1",
+    "packet_source": "65950a7e3ca82d97e21a65556844dab1cfd1a7f7"
+  },
+  "schema_version": 1,
+  "status": "ROOT_BOUND_SELF_CANCEL_DIAGNOSTIC"
+}
