@@ -16,6 +16,7 @@ import stat
 import types
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 import contract as C
+import snapshot_progress as S
 
 def emit(nonce,value):
     raw=json.dumps(value,sort_keys=True,separators=(',',':'));C.need(len(raw)<=512*1024,'guest receipt bound')
@@ -74,25 +75,28 @@ PHASES=('source-before','clone','before574','precommit-refused','provider574','r
 
 def progress_value(raw,selection):
     C.need(len(raw)<=65536,'finite progress receipt');value=C.decode(raw)
-    C.need(type(value) is dict and set(value)=={'status','nonce','source_sha','records'} and value['status']=='DIAGNOSTIC_CALL_BOUNDARIES_NO_ACCEPTANCE' and value['nonce']==selection['nonce'] and value['source_sha']==selection['source_sha'],'source/nonce-bound diagnostic only')
-    rows=value['records'];C.need(type(rows) is list and 1<=len(rows)<=256,'finite stage records')
+    C.need(type(value) is dict and set(value)=={'status','nonce','source_sha','records','omitted_records'} and value['status']=='DIAGNOSTIC_CALL_BOUNDARIES_NO_ACCEPTANCE' and value['nonce']==selection['nonce'] and value['source_sha']==selection['source_sha'],'source/nonce-bound diagnostic only')
+    rows=value['records'];C.need(type(rows) is list and 1<=len(rows)<=256 and type(value['omitted_records']) is int and 0<=value['omitted_records']<=2**63-1 and rows[-1]['sequence']==len(rows)+value['omitted_records'],'finite stage records and explicit omissions')
     for n,row in enumerate(rows):
-        C.need(type(row) is dict and set(row)=={'sequence','stage','edge','case','phase'} and type(row['sequence']) is int and row['sequence']==n+1 and row['stage'] in ('worker','lifecycle','case','snapshot','observer','alpm','runtime','cache','initialization','configuration') and row['edge'] in ('enter','leave') and row['case'] in ('none','pristine','modified') and row['phase'] in ('none',*PHASES),'closed public progress labels')
+        C.need(type(row) is dict and set(row) in ({'sequence','stage','edge','case','phase'},{'sequence','stage','edge','case','phase','postwalk'}) and type(row['sequence']) is int and 0<row['sequence']<=2**63-1 and (n==0 or row['sequence']>rows[n-1]['sequence']) and row['stage'] in ('worker','lifecycle','case','snapshot','observer','alpm','runtime','cache','initialization','configuration','postwalk') and row['edge'] in ('enter','leave','sample') and row['case'] in ('none','pristine','modified') and row['phase'] in ('none',*PHASES),'closed public progress labels')
+        if 'postwalk' in row:
+            C.need(row['stage']=='postwalk','closed postwalk stage');S.validate(row['postwalk'])
     return value
 
 def install_progress():
     selection=C.decode(C.read('/installed16k/selection.json'));C.need(re.fullmatch('[0-9a-f]{32}',selection['nonce']) and re.fullmatch('[0-9a-f]{40}',selection['source_sha']),'exact progress source/nonce')
-    rows=[];context=dict(case='none',phase='none');disabled=False
-    def record(stage,edge):
+    journal=S.Journal(selection);lock=threading.Lock();context=dict(case='none',phase='none');disabled=False
+    def record(stage,edge,metrics=None):
         nonlocal disabled
         if disabled:return
         try:
-            C.need(len(rows)<256,'finite progress events');rows.append(dict(sequence=len(rows)+1,stage=stage,edge=edge,**context));value=dict(status='DIAGNOSTIC_CALL_BOUNDARIES_NO_ACCEPTANCE',nonce=selection['nonce'],source_sha=selection['source_sha'],records=rows);raw=json.dumps(value,sort_keys=True,separators=(',',':')).encode();progress_value(raw,selection)
-            temporary=PROGRESS.with_name('pristine-guest-progress-pending.log');fd=os.open(temporary,os.O_CREAT|os.O_EXCL|os.O_WRONLY|os.O_NOFOLLOW|os.O_CLOEXEC,0o600)
-            with os.fdopen(fd,'wb') as stream:stream.write(raw);stream.flush();os.fsync(stream.fileno())
-            if PROGRESS.exists():
-                info=PROGRESS.lstat();C.need(stat.S_ISREG(info.st_mode) and info.st_uid==0 and info.st_nlink==1 and stat.S_IMODE(info.st_mode)==0o600,'owned progress replacement')
-            temporary.replace(PROGRESS)
+            with lock:
+                raw=journal.push(stage,edge,context,metrics);progress_value(raw,selection)
+                temporary=PROGRESS.with_name('pristine-guest-progress-pending.log');fd=os.open(temporary,os.O_CREAT|os.O_EXCL|os.O_WRONLY|os.O_NOFOLLOW|os.O_CLOEXEC,0o600)
+                with os.fdopen(fd,'wb') as stream:stream.write(raw);stream.flush();os.fsync(stream.fileno())
+                if PROGRESS.exists():
+                    info=PROGRESS.lstat();C.need(stat.S_ISREG(info.st_mode) and info.st_uid==0 and info.st_nlink==1 and stat.S_IMODE(info.st_mode)==0o600,'owned progress replacement')
+                temporary.replace(PROGRESS)
         except Exception:disabled=True # Diagnostic failure never changes original supervision/worker outcome.
     def wrap(function,stage):
         def called(*args,**kwargs):
@@ -111,10 +115,11 @@ def install_progress():
     def load(name,path):
         module=original(name,path)
         if name=='guest_worker' and str(path)=='/installed16k/container16k.py':
+            module.snapshot=S.snapshot(module,record)
             for function,stage in (('main','lifecycle'),('run_case','case'),('snapshot','snapshot'),('transaction','alpm'),('smoke','runtime'),('caches','cache'),('copy_probes','initialization'),('config_handoff','configuration')):setattr(module,function,wrap(getattr(module,function),stage))
             helpers=module.C.helpers
             def observed_helpers(*args,**kwargs):
-                api=helpers(*args,**kwargs);roots=api['roots'];api['roots']=types.SimpleNamespace(**dict(vars(roots),observe=wrap(roots.observe,'observer')));return api
+                api=helpers(*args,**kwargs);api['caps']=S.capability_facade(api['caps'],record);roots=api['roots'];api['roots']=types.SimpleNamespace(**dict(vars(roots),observe=wrap(roots.observe,'observer')));return api
             module.C.helpers=observed_helpers
         return module
     C.load=load;record('worker','enter')

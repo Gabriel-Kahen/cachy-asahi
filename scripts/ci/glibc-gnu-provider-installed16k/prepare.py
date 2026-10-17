@@ -79,7 +79,7 @@ def prepare():
             if source.is_dir():target.mkdir(mode=0o755)
             else:C.read(source,256*1024**2);shutil.copyfile(source,target)
     text,receipt=adapter.derive(Path('/source'))
-    for name in ('guest.py','contract.py','sandbox.py'):shutil.copyfile(C.HERE/name,boot/'installed16k'/name)
+    for name in ('guest.py','contract.py','sandbox.py','snapshot_progress.py'):shutil.copyfile(C.HERE/name,boot/'installed16k'/name)
     (boot/'installed16k/container16k.py').write_text(text)
     C.save(boot/'installed16k/adapter.json',receipt)
     C.save(boot/'installed16k/selection.json',C.decode(C.read('/selection/selection.json')))

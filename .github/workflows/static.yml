@@ -200,6 +200,7 @@ jobs:
           python3 -B -Werror::ResourceWarning scripts/ci/glibc-gnu-provider-installed16k/test_lane.py
           python3 -I -B scripts/ci/glibc-gnu-provider-installed16k/test_child_failure.py
           python3 -B -Werror::ResourceWarning scripts/ci/glibc-gnu-provider-installed16k/test_progress.py
+          python3 -B -Werror::ResourceWarning scripts/ci/glibc-gnu-provider-installed16k/test_snapshot_progress.py
       - name: Check separate interrupted provider16K source and recovery gates without actors
         run: python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-gnu-provider-installed16k-interruption/test_generator.py
       - name: Check interrupted provider16K workflow assembly and prerequisite bindings without actors
