@@ -71,13 +71,17 @@
       }
     },
     "installer": {
+      ".github/workflows/native-arm-expanded600-installer-vm.yml": {
+        "bytes": 25071,
+        "sha256": "31bf9edea0381122d84ba99f1dcadd38d3ec8e4e9e70a6d91a70347bb80695e6"
+      },
       ".github/workflows/native-arm-expanded604-apps6-installer.yml": {
         "bytes": 29469,
         "sha256": "7398cefba595b721a8290af2b3437899d8372017cf600d32293cd7d6e3c406f5"
       },
       ".github/workflows/native-arm-expanded604-apps6-public-pair-installer.yml": {
-        "bytes": 29586,
-        "sha256": "720bb5567fcdbcade42e7c7fcec62f5b314d9bad56fbffce8430a2bcd54d0cce"
+        "bytes": 29756,
+        "sha256": "e06b829f76efd76f889ac95271b1ea0225bb347aa1a5148de30b5a760337def5"
       },
       ".github/workflows/native-arm-expanded604-apps6-public-pairs.yml": {
         "bytes": 28894,
@@ -491,6 +495,10 @@
         "bytes": 98,
         "sha256": "36784cbefc735e62ad51f75501983e2e2fc90753d1e058913a51c6a02ff079d1"
       },
+      "scripts/ci/expanded600-installer-vm/ci.py": {
+        "bytes": 9156,
+        "sha256": "8850ee29f636bede4d32cc52925b6310da3c1b914acae156a2d5e03efd0c4291"
+      },
       "scripts/ci/expanded600-installer-vm/contract.py": {
         "bytes": 6642,
         "sha256": "f636c614ae42fbc32ed8396441351872cc20db19bab4d6ac40b04dabd9cb9fd8"
@@ -503,6 +511,14 @@
         "bytes": 11874,
         "sha256": "d263a3ca9089c204603f2e12b80dc4f209ee6e636f10da940a514040b636db79"
       },
+      "scripts/ci/expanded600-installer-vm/gate.py": {
+        "bytes": 1869,
+        "sha256": "2f7fbedf016639b87014da77f335ce82f0f01732b5c98fcef118d4fd7b91e8f7"
+      },
+      "scripts/ci/expanded600-installer-vm/input-policy.json": {
+        "bytes": 1164,
+        "sha256": "b1f92bef726b5ee1d6c7265a4480c9c61d3733327071598d6549d4b41539d5ed"
+      },
       "scripts/ci/expanded600-installer-vm/legacy-pins.json": {
         "bytes": 12884,
         "sha256": "67416a3d292d3938c0a2d747d6bea08cd750b585fdd67473e62fac55e14a66c1"
@@ -514,6 +530,14 @@
       "scripts/ci/expanded600-installer-vm/observer600.py": {
         "bytes": 2784,
         "sha256": "c3d804e7f2927c7889835ad187a39a3d7c618a4651700f57b0c5413c46612607"
+      },
+      "scripts/ci/expanded600-installer-vm/test_observer600.py": {
+        "bytes": 10942,
+        "sha256": "6fedfd937e7af2de21aa998efcbf83dc403eed9b52a59723c7c3411151c44222"
+      },
+      "scripts/ci/expanded600-installer-vm/test_source.py": {
+        "bytes": 15792,
+        "sha256": "0c992bef42ef9d6b3056edffe2e59f9bf278059817c5be250a53c145ca42e657"
       },
       "scripts/ci/expanded604-apps6-installer/README.md": {
         "bytes": 877,
@@ -604,20 +628,20 @@
         "sha256": "e2cd4be74eb5cc524dac1a41a7f26c38b49b87b199e098f9cebde0bec9ce1b08"
       },
       "scripts/ci/expanded604-apps6-public-pair-installer/prepare.py": {
-        "bytes": 6157,
-        "sha256": "79daf80f9437f256739fd19bd2ab096b24cec552f9ff1f76c00bd8c096bf856e"
+        "bytes": 6758,
+        "sha256": "7a497103107ac5826cb11bab8f8359d556035b9f0bc5911f71b41047d319d2a5"
       },
       "scripts/ci/expanded604-apps6-public-pair-installer/source-manifest.json": {
-        "bytes": 45102,
-        "sha256": "e8981d47dcad4b1451dcf7b0cf00bd4cf4241c2615d2ebeaf6fc3e55702c9733"
+        "bytes": 46613,
+        "sha256": "b8a35cf9f04c5321db6db9103f3a7ef95d58ebcc0ff960b805362a3867ed715a"
       },
       "scripts/ci/expanded604-apps6-public-pair-installer/source-pins.json": {
-        "bytes": 123631,
-        "sha256": "a67b8109ddc8df4768d47c19c2fb1e90ccbc8871f974c745388fc8940e625556"
+        "bytes": 128271,
+        "sha256": "657d2052d5e5ff6ef8e2f14ce2d775c29950cf49bce2665621447da5b49806b8"
       },
       "scripts/ci/expanded604-apps6-public-pair-installer/test_lane.py": {
-        "bytes": 8253,
-        "sha256": "9d3d27a6d33d428600f9cb5ad15f47893ad76e0de081168561990c38e5a78d2c"
+        "bytes": 9099,
+        "sha256": "8e3f9c8121e3c2a64176e1bbc10eca052f156a013fffade70aafdc26de3f9cc0"
       },
       "scripts/ci/expanded604-apps6-public-pairs/README.md": {
         "bytes": 3360,
@@ -1035,6 +1059,10 @@
         "bytes": 12832,
         "sha256": "5aaa5b4f08c1b7a1f1eb7ce63d288d27592cc148c4eed80b7e90cd881f6f156b"
       },
+      "scripts/ci/full-composition-installer-vm/numeric_vm.py": {
+        "bytes": 14571,
+        "sha256": "9d3892f3a9cf40662af3d12f47b5ccd2491dee08a8d3f778664a3dfedfbe6a52"
+      },
       "scripts/ci/full-composition-installer-vm/producer.py": {
         "bytes": 19096,
         "sha256": "98d61944888485870b31b5457bcad9edfd8e51cb367414833f8d54611d7b0eaf"
@@ -1111,6 +1139,10 @@
         "bytes": 12766,
         "sha256": "52112b49ea98b5aef131b8bcbcc188bcc59cc3a4827161091d4e86af14d2757c"
       },
+      "scripts/install/local_transaction.py": {
+        "bytes": 93752,
+        "sha256": "14381d049506b52770059bf7af415f7a079f69872543e74417aca11ce24ac3c5"
+      },
       "scripts/platform/elf_audit.py": {
         "bytes": 26531,
         "sha256": "72ec18c7d8580094164b3ea4c11fcff2583519b4cd861e5c436ec9d7a779401b"
@@ -1122,6 +1154,10 @@
       "scripts/update/archive_stream.py": {
         "bytes": 11938,
         "sha256": "10f1a4c0ac5b98852d9ebb150af28f9ce345c800935a64fa463bc90f72fcb838"
+      },
+      "scripts/update/full_root.py": {
+        "bytes": 35970,
+        "sha256": "cece1c597b2e2eb98b0e3087cc7e7c148b54332f8a1c4f18e04e4552a71fb51d"
       },
       "scripts/virtual/common.py": {
         "bytes": 84361,
@@ -2436,6 +2472,44 @@
     }
   },
   "installer_composition_source": "b0154bd3b60434e45d4411b558f3ffda9e415640",
+  "installer_control_inputs": {
+    ".github/workflows/native-arm-expanded600-installer-vm.yml": {
+      "bytes": 25071,
+      "sha256": "31bf9edea0381122d84ba99f1dcadd38d3ec8e4e9e70a6d91a70347bb80695e6"
+    },
+    "scripts/ci/expanded600-installer-vm/ci.py": {
+      "bytes": 9156,
+      "sha256": "8850ee29f636bede4d32cc52925b6310da3c1b914acae156a2d5e03efd0c4291"
+    },
+    "scripts/ci/expanded600-installer-vm/gate.py": {
+      "bytes": 1869,
+      "sha256": "2f7fbedf016639b87014da77f335ce82f0f01732b5c98fcef118d4fd7b91e8f7"
+    },
+    "scripts/ci/expanded600-installer-vm/input-policy.json": {
+      "bytes": 1164,
+      "sha256": "b1f92bef726b5ee1d6c7265a4480c9c61d3733327071598d6549d4b41539d5ed"
+    },
+    "scripts/ci/expanded600-installer-vm/test_observer600.py": {
+      "bytes": 10942,
+      "sha256": "6fedfd937e7af2de21aa998efcbf83dc403eed9b52a59723c7c3411151c44222"
+    },
+    "scripts/ci/expanded600-installer-vm/test_source.py": {
+      "bytes": 15792,
+      "sha256": "0c992bef42ef9d6b3056edffe2e59f9bf278059817c5be250a53c145ca42e657"
+    },
+    "scripts/ci/full-composition-installer-vm/numeric_vm.py": {
+      "bytes": 14571,
+      "sha256": "9d3892f3a9cf40662af3d12f47b5ccd2491dee08a8d3f778664a3dfedfbe6a52"
+    },
+    "scripts/install/local_transaction.py": {
+      "bytes": 93752,
+      "sha256": "14381d049506b52770059bf7af415f7a079f69872543e74417aca11ce24ac3c5"
+    },
+    "scripts/update/full_root.py": {
+      "bytes": 35970,
+      "sha256": "cece1c597b2e2eb98b0e3087cc7e7c148b54332f8a1c4f18e04e4552a71fb51d"
+    }
+  },
   "installer_recipe_inputs": {
     "LICENSE": {
       "bytes": 1081,
@@ -2626,6 +2700,6 @@
       "sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd"
     }
   },
-  "installer_source_manifest_sha256": "e8981d47dcad4b1451dcf7b0cf00bd4cf4241c2615d2ebeaf6fc3e55702c9733",
+  "installer_source_manifest_sha256": "b8a35cf9f04c5321db6db9103f3a7ef95d58ebcc0ff960b805362a3867ed715a",
   "schema_version": 1
 }

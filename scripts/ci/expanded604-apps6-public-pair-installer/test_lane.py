@@ -4,7 +4,7 @@ import ast,copy,importlib.util,json,os,subprocess,sys,tempfile,unittest
 from pathlib import Path
 from unittest.mock import patch
 HERE=Path(__file__).resolve().parent
-ROOT=Path(os.environ.get('PUBLIC_PAIR_INSTALLER_ROOT',str(next(p for p in HERE.parents if (p/'manifests/packages.toml').is_file()))))
+ROOT=Path(os.environ.get('PUBLIC_PAIR_INSTALLER_ROOT',str(HERE.parents[2])))
 COMP=Path(os.environ.get('PUBLIC_PAIR_COMPOSITION_ROOT',ROOT))
 def load(name,path):
  spec=importlib.util.spec_from_file_location(name,path);value=importlib.util.module_from_spec(spec);sys.modules[name]=value;spec.loader.exec_module(value);return value
@@ -60,7 +60,7 @@ class Controls(unittest.TestCase):
  def test_copied_composition_is_exact_bound_b015_not_native_acceptance(self):
   out,C,r=self.emit();pins=json.loads((P.HERE/'source-pins.json').read_bytes())
   self.assertEqual(pins['composition_source'],'b0154bd3b60434e45d4411b558f3ffda9e415640')
-  self.assertEqual(r['source_rows'],262)
+  self.assertEqual(r['source_rows'],271)
   self.assertEqual(C.COMPOSITION.policy()['status'],'ROOT_BOUND_PUBLIC_PAIRS_APPS6_CURRENT604_NATIVE_INPUTS')
   self.assertEqual(P.pin((out/P.COMP/'source-manifest.json').read_bytes())['sha256'],'e2b1f8ac11fa119493e22f44722d265293887de7edda80f4b61c00f8a80bf51c')
   self.assertEqual(P.pin((out/P.COMP/'input-policy.json').read_bytes())['sha256'],'a97b82d79e5aa967cde1b65c2f0a8b47cfd24d8cd3854b070dc919753a479e30')
@@ -84,6 +84,14 @@ class Controls(unittest.TestCase):
   self.assertFalse((self.root/'absent').exists())
   pins=json.loads((P.HERE/'source-pins.json').read_bytes());del pins['groups']['composition']['packages/tools/cachy-asahi-apps/apps.py']
   with patch.object(P.json,'loads',return_value=pins),self.assertRaisesRegex(ValueError,'recipe/provenance closure'):P.source(ROOT,COMP)
+ def test_original_workflow_controls_are_closed_and_byte_pinned(self):
+  out,_,_=self.emit();pins=json.loads((P.HERE/'source-pins.json').read_bytes());rows=pins['workflow_control_inputs'];self.assertEqual(len(rows),9)
+  for n,row in rows.items():self.assertEqual(P.pin((out/n).read_bytes()),row)
+  self.assertEqual({p.name for p in (out/'scripts/ci/expanded600-installer-vm').glob('test_*.py')},{'test_source.py','test_observer600.py'})
+  text=(out/P.WF).read_text()
+  for name in ('PUBLIC_PAIR_INSTALLER_ROOT','PUBLIC_PAIR_COMPOSITION_ROOT'):self.assertIn(name+': ${{ github.workspace }}/expanded604-installer',text)
+  self.assertIn("python3 -B -m unittest discover -s expanded604-installer/scripts/ci/expanded600-installer-vm -p 'test_*.py' -v",text)
+  self.assertIn("python3 -B -m unittest discover -s expanded604-installer/scripts/ci/expanded604-apps6-public-pair-installer -p 'test_*.py' -v",text)
  def test_drift_alias_and_missing_anchors_refuse(self):
   with patch.object(P,'pin',return_value={}):
    with self.assertRaisesRegex(ValueError,'pinned source'):P.emit(ROOT,COMP,self.root/'absent')
