@@ -6,8 +6,8 @@
       "sha256": "d0e008eff74cba4dd71d152bac611c8d80bc024d1189632fbe973f495bb40ee5"
     },
     "manifests/packages.toml": {
-      "bytes": 36237,
-      "sha256": "783136d078dcdcc7bfe3ae6b57033249eab01552159cfaf029a4ff6d70289ed7"
+      "bytes": 36482,
+      "sha256": "b95faa94eea52f6dc0dfec7995a410ae32719bb60fd1b7a360f13ae8a274cf8f"
     },
     "scripts/apps/file_capabilities.py": {
       "bytes": 13562,
@@ -87,7 +87,7 @@
     },
     "scripts/ci/glibc-gnu-provider-installed16k/dependencies.json": {
       "bytes": 10762,
-      "sha256": "b6488f7d84b30a8e199d540fbb2c1997d0494aa877674c6c6262e8dba30803a7"
+      "sha256": "1225f7ca8f9201017bcf50c305f8b43e7d397a2f138a2cbbc22067c640d192b1"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/export.py": {
       "bytes": 1617,
@@ -123,7 +123,7 @@
     },
     "scripts/ci/glibc-gnu-provider-installed16k/source-manifest.json": {
       "bytes": 2691,
-      "sha256": "e5e9cddbfcebb7ade59cc084a5c9565267fc19f15b3473547b5b1cd224f91ae5"
+      "sha256": "b502ffdab826700c0b166ff920c7503681207041d944abb0797d9527eb081d95"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/support.py": {
       "bytes": 408,
