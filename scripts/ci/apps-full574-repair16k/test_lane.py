@@ -50,6 +50,34 @@ class Lane(unittest.TestCase):
    leaf=baseline/'manifests/packages.toml';leaf.write_bytes(leaf.read_bytes()+b'\n# actual drift\n')
    with self.assertRaisesRegex(ValueError,'borrowed source differs: manifests/packages.toml'):prepare.emit(self.original,out,baseline)
    self.assertFalse(out.exists())
+ def test_actual_media_argv_reaches_genuine_backend_parser_with_original_common_scope(self):
+  import contextlib,io
+  from types import SimpleNamespace
+  D=C.load('disk_backend_parser_control',HERE/'disk.py');T=C.load('genuine_backend_parser_control',self.root/'scripts/apps/transaction.py')
+  # Original39048514241 media ledger: argparse exit2, before any VM/copy.
+  captured=['/usr/bin/python3','-I','-B','/source/scripts/apps/transaction.py','prepare-copy','--workspace','/work/main','--full574-policy','/inputs/full574-policy.json','--full574-policy-sha256','ffa7fc3e995bfc79ea86ffaa7ff1b5376431fd5be098cc7c18e519a0d40fda7d','--full574-lease','/inputs/full574-lease.json','--full574-lease-sha256','6679fe96d56b96a29ead067096c47e4df4d4cbe061ee7cfe360fc5e7a7ab0b99','--source','/seed']
+  with patch.object(sys,'argv',[captured[3],*captured[4:]]),contextlib.redirect_stderr(io.StringIO()) as errors,self.assertRaises(SystemExit) as refused:T.main()
+  self.assertEqual(refused.exception.code,2)
+  for flag in ('--apps-source','--apps-provenance-sha256','--repository-source'):self.assertIn(flag,errors.getvalue())
+  raw={Path('/inputs/apps-source/source-provenance.json'):b'bounded actual temporary provenance',Path('/inputs/full574-policy.json'):b'bounded policy',Path('/inputs/full574-lease.json'):b'bounded lease'}
+  read=lambda path:raw[Path(path)];api=SimpleNamespace(read=read,sha=C.sha)
+  common=C.function(self.root/'scripts/ci/apps-full574-native/lifecycle.py','common',dict(C=api,INPUTS=Path('/inputs')))
+  for mode,owner,seconds in (('prepare-copy',None,600),('dispose-copy','a'*64,75)):
+   with self.subTest(mode=mode):
+    recorded=[]
+    def command(s,argv,cap):recorded.append((argv,cap));return {},b'{}',b''
+    with patch.object(D.C,'read',side_effect=read),patch.object(D.C,'row',side_effect=lambda path:dict(sha256=C.sha(read(path)))),patch.object(D,'command',side_effect=command):D.backend({},mode,Path('/work/main'),owner)
+    argv,cap=recorded[0];self.assertEqual(cap,seconds)
+    expected=common(Path('/work/main'),owner)+(['--source','/seed'] if mode=='prepare-copy' else [])
+    self.assertEqual(argv[:5],captured[:4]+[mode]);self.assertEqual(argv[5:],expected)
+    seen=[]
+    def prepared(args):seen.append(args);return dict(status='OWNED_COPY_PREPARED')
+    def guarded(args):seen.append(args);return self.root,self.root/'root',dict(workspace=[1,2])
+    with patch.object(sys,'argv',[argv[3],*argv[4:]]),patch.object(T,'prepare_copy',side_effect=prepared),patch.object(T,'root_guard',side_effect=guarded),patch.object(T,'locked',return_value=contextlib.nullcontext()),patch.object(T,'dispose') as dispose,contextlib.redirect_stdout(io.StringIO()):self.assertEqual(T.main(),0)
+    a=seen[0];self.assertEqual((a.action,a.workspace,a.apps_source,a.apps_provenance_sha256,a.repository_source),(mode,'/work/main','/inputs/apps-source',C.sha(raw[Path('/inputs/apps-source/source-provenance.json')]),'/inputs/candidate/usr/share/cachy-asahi/repository-runtime'))
+    self.assertEqual((a.full574_policy_sha256,a.full574_lease_sha256),(C.sha(raw[Path('/inputs/full574-policy.json')]),C.sha(raw[Path('/inputs/full574-lease.json')])))
+    self.assertEqual((a.source,a.ownership_sha256),('/seed',None) if mode=='prepare-copy' else (None,owner))
+    if mode=='dispose-copy':dispose.assert_called_once_with(self.root,[1,2])
  def test_guard_derivative_preserves_all_other_backend_functions(self):
   raw=C.read(self.root/'scripts/apps/transaction.py');changed=adapter.backend(raw);before=adapter.functions(raw);after=adapter.functions(changed)
   self.assertEqual([n for n in before if before[n]!=after[n]],['environment_guard']);self.assertIn(adapter.ENV_AFTER.encode(),changed)

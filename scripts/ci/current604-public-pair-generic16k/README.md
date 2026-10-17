@@ -37,3 +37,8 @@ new native/fresh/component inputs and kernel config/source can establish full
 software16K scope. It never establishes M2/hardware/security-currency/release.
 
 The fresh-source role is the corrected215-row assembly with exact b015 composition150 (MF e2b1f8ac11fa119493e22f44722d265293887de7edda80f4b61c00f8a80bf51c/input a97b82d79e5aa967cde1b65c2f0a8b47cfd24d8cd3854b070dc919753a479e30). Canonical UNBOUND composition may not substitute. Future profile decisions must retain fresh_assets_index_sha256 for their actual generated assets; these per-run hashes may differ. input_bindings_sha256 means the same immutable source-owned authority policy, not a fabricated shared ephemeral signature index.
+
+
+The explicit fresh source role includes all271 manifest rows plus its manifest and dedicated workflow. The47 pinned recipe/input leaves required by the original native-input validator are retained from exact b015 composition source; the former incomplete217-file source shape is refused. This source-only correction preserves the generic16K runtime and every UNBOUND authority. After a real fresh trial is bound and accepted, a separate exact source-role successor must select that actual bound fresh manifest; policy-only binding is insufficient. No future accepted source bytes or run IDs are guessed here.
+
+The explicit installer role includes its nine original CI control/helper dependencies. Its exact original39 and focused11 control commands passed from a standalone temporary workspace; this source selection grants no runtime authority.
