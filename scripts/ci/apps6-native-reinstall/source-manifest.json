@@ -217,8 +217,8 @@
       "sha256": "d97f4d9119b8ada3a67e599a7ae72f5d545936b6b327bcbb04ca5f24c92d910b"
     },
     "scripts/ci/apps6-native-reinstall/job.py": {
-      "bytes": 1537,
-      "sha256": "613a059b27d884a8093425aea70b7c18f4f7bb4c8ae8ecb2c17d659d6ad66b81"
+      "bytes": 1597,
+      "sha256": "d52105cf6471a88fb67f6fa19f07396cc0e1abb092c2fdd5c4763a6b891f2c81"
     },
     "scripts/ci/apps6-native-reinstall/repair.py": {
       "bytes": 6800,
@@ -233,8 +233,8 @@
       "sha256": "145a401df6837e1882e07103472b2f3f08c1f0aa01182efaf62ad6e015c18796"
     },
     "scripts/ci/apps6-native-reinstall/test_lane.py": {
-      "bytes": 10513,
-      "sha256": "2cf243e1fc6a6c0e682e83d78b92d88453346c82011b41e9740618fa8736e2ac"
+      "bytes": 11556,
+      "sha256": "f9decfb7c77c9a28f12452aa6cbf5099f842d3eaa3b790beb5d9352ef2510384"
     },
     "scripts/ci/full-development-composition/run.py": {
       "bytes": 29738,
@@ -421,7 +421,7 @@
           "https://github.com/Gabriel-Kahen/cachy-asahi"
         ]
       },
-      "recipe": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/apps6-native-root-source-20261017/source/packages/tools/cachy-asahi-apps/PKGBUILD",
+      "recipe": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/apps6-native-isolated-root-source-20261017/source/packages/tools/cachy-asahi-apps/PKGBUILD",
       "review": [
         "PKGBUILD body and metadata consistency require independent review; static checks are not a shell sandbox"
       ],
@@ -482,7 +482,7 @@
           "https://github.com/Gabriel-Kahen/cachy-asahi"
         ]
       },
-      "recipe": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/apps6-native-root-source-20261017/source/packages/tools/cachy-asahi-cache/PKGBUILD",
+      "recipe": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/apps6-native-isolated-root-source-20261017/source/packages/tools/cachy-asahi-cache/PKGBUILD",
       "review": [
         "PKGBUILD body and metadata consistency require independent review; static checks are not a shell sandbox"
       ],
@@ -557,7 +557,7 @@
           "https://github.com/Gabriel-Kahen/cachy-asahi"
         ]
       },
-      "recipe": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/apps6-native-root-source-20261017/source/packages/tools/cachy-asahi-repository-runtime/PKGBUILD",
+      "recipe": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/apps6-native-isolated-root-source-20261017/source/packages/tools/cachy-asahi-repository-runtime/PKGBUILD",
       "review": [
         "PKGBUILD body and metadata consistency require independent review; static checks are not a shell sandbox"
       ],
