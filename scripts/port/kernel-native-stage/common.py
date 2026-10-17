@@ -13,8 +13,8 @@ import sys
 HERE = Path(__file__).resolve().parent
 PREFIX = 'scripts/port/kernel-native-stage/'
 SOURCE = 'scripts/port/kernel-candidates/'
-BASE_SHA = '89bdb06fea1862b5a6e02b77a4b98f6e04755b02327d875a716bd792929f3a4f'
-INPUTS_SHA = '3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650'
+BASE_SHA = 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25'
+INPUTS_SHA = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
 TOOLS = ('gcc', 'g++', 'ld', 'as', 'ar', 'nm', 'objcopy', 'objdump', 'readelf', 'ranlib',
          'make', 'rustc', 'bindgen', 'pahole', 'dtc', 'clang', 'llvm-config', 'python3')
 

@@ -3,6 +3,7 @@ from contextlib import contextmanager
 import ast
 import importlib.util
 import copy
+import hashlib
 import json
 import os
 import signal
@@ -258,10 +259,18 @@ class JobContracts(unittest.TestCase):
                     return SimpleNamespace(returncode=self.child_exit, stdout=b'')
                 instance.run.side_effect = child
             phases.append((seconds, instance)); return instance
-        def source(*args, **kwargs): args[5].mkdir(parents=True); return {'status': 'PASS'}
+        def source(*args, **kwargs): args[5].mkdir(parents=True); return {'status': 'PASS', 'files_map': {}}
+        def seed(snapshot, private, setup, start, files_map):
+            # Controller fixture only: the real adapter has separate inert tests.
+            value = {'status': 'SEEDED_TRANSPORT_ONLY', 'objects': 4, 'bytes': 404428,
+                'signature_authentication': 'NOT RUN', 'native_build': 'NOT RUN',
+                'resource_uncertain': False, 'cancelled': False, 'secondary_errors': 0}
+            setup.current_cache_observation = value
+            return value
         self.patches = [patch.object(job, '__file__', str(self.root / 'scripts/port/kernel-native-job/job.py')),
             patch.dict(job.os.environ, {'GITHUB_WORKSPACE': str(self.root), 'GITHUB_RUN_ID': '1', 'GITHUB_RUN_ATTEMPT': '1'}),
             patch.object(job, 'ordinary'), patch.object(job.packet, 'verify', side_effect=source),
+            patch.object(job.current_cache, 'seed', side_effect=seed),
             patch.object(job, 'Docker', return_value=fake), patch.object(job.runtime, 'Runner', side_effect=runner),
             patch.object(job, 'accepted_producer', return_value=(self.image, accepted)),
             patch.object(job, 'acquired_paths', return_value={key: self.root / key for key in
@@ -1350,6 +1359,40 @@ class ModernResourceChildTests(unittest.TestCase):
         self.assertEqual(observed['diagnostics'],frozen)
         with patch.object(job.packet,'read',side_effect=AssertionError('no second capture')):job.public.child_validate_public(frozen)
         self.assertEqual(frozen['operation']['first_failure']['resource_mismatch'],{'field':'Memory','kind':'TYPE'})
+
+
+class AcquisitionFailureObservation(unittest.TestCase):
+    def record(self, nonce='a'*32):
+        return dict(schema_version=1,purpose='kernel-acquisition-failure',binding_sha256=hashlib.sha256(nonce.encode()).hexdigest(),phase='PACKAGE_FETCH',input_ordinal=0,error_kind='DATA_REFUSAL',refusal='HTTP_CHILD')
+
+    def output(self, record):
+        return b'KERNEL_ACQUISITION_FAILURE_V1 '+json.dumps(record,sort_keys=True,separators=(',',':')).encode()+b'\n'
+
+    def test_exact_process_binding_and_record_hash(self):
+        status={};record=self.record();raw=self.output(record)
+        job.observe_acquisition_failure(status,SimpleNamespace(stdout=raw),'a'*32)
+        group=status['acquisition_failure'];self.assertEqual(group['availability'],'VERIFIED')
+        self.assertEqual(group['diagnostic'],record);self.assertEqual(group['sha256'],hashlib.sha256(raw.split(b' ',1)[1]).hexdigest())
+
+    def test_missing_wrong_binding_duplicate_private_and_noncanonical_refuse(self):
+        record=self.record();raw=self.output(record)
+        cases=[(b'private exception /home/secret\n','UNAVAILABLE'),(self.output(self.record('b'*32)),'REFUSED'),
+            (raw+raw,'REFUSED'),(self.output(dict(record,raw='/private')),'REFUSED'),
+            (b'KERNEL_ACQUISITION_FAILURE_V1 '+json.dumps(record).encode()+b'\n','REFUSED'),
+            (self.output(dict(record,input_ordinal=True)),'REFUSED')]
+        for output,availability in cases:
+            status={'first_failed_phase':'parallel','failure_reason':'BOTH_CHILDREN_EXIT','cleanup':'FAIL'}
+            held=dict(status);job.observe_acquisition_failure(status,SimpleNamespace(stdout=output),'a'*32)
+            self.assertEqual(status['acquisition_failure']['availability'],availability)
+            self.assertTrue(all(status[k]==v for k,v in held.items()));self.assertIsNone(status['acquisition_failure']['diagnostic'])
+
+    def test_capture_controls_propagate_without_replacing_status(self):
+        class Result:
+            @property
+            def stdout(self):raise job.runtime.Cancelled(15)
+        status={'first_failed_phase':'parallel','cleanup':'FAIL'}
+        with self.assertRaises(job.runtime.Cancelled):job.observe_acquisition_failure(status,Result(),'a'*32)
+        self.assertEqual(status,{'first_failed_phase':'parallel','cleanup':'FAIL'})
 
 
 if __name__ == '__main__': unittest.main()
