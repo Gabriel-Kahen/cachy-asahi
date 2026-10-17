@@ -42,3 +42,14 @@ The fresh-source role is the corrected215-row assembly with exact b015 compositi
 The explicit fresh source role includes all271 manifest rows plus its manifest and dedicated workflow. The47 pinned recipe/input leaves required by the original native-input validator are retained from exact b015 composition source; the former incomplete217-file source shape is refused. This source-only correction preserves the generic16K runtime and every UNBOUND authority. After a real fresh trial is bound and accepted, a separate exact source-role successor must select that actual bound fresh manifest; policy-only binding is insufficient. No future accepted source bytes or run IDs are guessed here.
 
 The explicit installer role includes its nine original CI control/helper dependencies. Its exact original39 and focused11 control commands passed from a standalone temporary workspace; this source selection grants no runtime authority.
+
+The original574 builder contains upstream `libfdk-aac`; the declared604 target
+contains the exact project-built `cachy-asahi-fdk-aac` replacement. Preparation,
+the generated runtime and the offline installer validate both complete pinned
+inventories and admit only this replacement, with573 unchanged packages and31
+incoming archives. Every incoming detached signature and exact primary signer
+is required. The only permitted conflict is the FDK replacement, explicitly
+answered through ALPM; all573 retained database records and payload nodes,
+all31 incoming payloads, complete604 ownership and user state are checked.
+A pre-runtime failure retains bounded failure evidence without claiming a
+runtime cleanup result; kernel disposal remains unestablished on that path.

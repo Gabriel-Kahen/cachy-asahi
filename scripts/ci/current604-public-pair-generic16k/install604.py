@@ -5,6 +5,7 @@ import hashlib
 import importlib.util
 import json
 import os
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -24,15 +25,17 @@ def install():
     bundle=Path('/tmp/managed604/bundle');manifest=C.read(bundle/'manifest.json',1024**2)
     expected=C.lock((bundle/'expected-installed.lock').read_bytes(),604)
     C.need(hashlib.sha256((bundle/'expected-installed.lock').read_bytes()).hexdigest()==C.TARGET_SHA,'exact604 lock required')
-    before=L.inventory();C.need(len(before)==574 and all(expected.get(n)==v for n,v in before.items()),'fresh actual574 preserved base required')
+    select=load('_604_exact_provider_transition',Path(__file__).with_name('context604.py')).selection
+    before=L.inventory();selected=select(before,expected)
     baseline=db.database(Path('/'),max_packages=574)
-    baseline_db={r['name']:L.tree(Path('/var/lib/pacman/local')/(r['name']+'-'+r['version'])) for r in baseline}
-    baseline_nodes={p:L.node(Path('/')/p) for r in baseline for p in r['files']}
+    preserved=[r for r in baseline if r['name']!='libfdk-aac'];C.need(len(preserved)==573,'exact573 preserved DB records required')
+    baseline_db={r['name']:L.tree(Path('/var/lib/pacman/local')/(r['name']+'-'+r['version'])) for r in preserved}
+    baseline_nodes={p:L.node(Path('/')/p) for r in preserved for p in r['files']}
     user={str(p):L.tree(p) for p in (Path('/home'),Path('/root'))}
     # Existing held methods verify every detached signature against the exact primary signer,
     # mask each finite hook explicitly, and require signed local ALPM transactions.
-    rows=manifest['packages'];incoming=[r for r in rows if r['name'] not in before]
-    C.need(len(incoming)==30 and len(rows)==604,'exact30 additions from actual574 required')
+    rows=manifest['packages'];incoming=[r for r in rows if r['name'] in selected]
+    C.need(len(incoming)==31 and len(rows)==604,'exact31 incoming packages from actual574 required')
     home=Path('/tmp/managed604/trust');home.mkdir(mode=0o700)
     gpg=['gpg','--batch','--no-options','--homedir',str(home),'--no-auto-key-retrieve']
     roles=manifest['preparation']['signer_roles'];C.need(set(roles)=={'upstream_ALARM','ephemeral_TEST'} and len(set(roles.values()))==2,'two distinct signer roles required')
@@ -45,22 +48,25 @@ def install():
         signature=C.checked(bundle,dict(path=row['signature'],bytes=row['signature_size'],sha256=row['signature_sha256']),1024**2)
         C.need(row['signature']==row['archive']+'.sig' and row['signer'] in roles.values(),'closed signed incoming tuple required')
         L.verify_signature(gpg,archive,signature,row['signer'])
+        meta=L.metadata(archive)
+        conflicts={re.split('[<>=]',name)[0] for name in meta.get('conflict',[])} & (set(before)|selected)
+        C.need(conflicts==({'libfdk-aac'} if row['name']=='cachy-asahi-fdk-aac' else set()) and not meta.get('replaces') and not meta.get('backup'),'sole selected/installed conflict must be FDK replacement')
         names.update(Path(p).name for p in L.run(['pacman','-Qqlp',archive]).splitlines() if p.startswith(('/usr/share/libalpm/hooks/','/etc/pacman.d/hooks/')) and p.endswith('.hook'))
     for name in names:
         C.need(__import__('re').fullmatch(r'[A-Za-z0-9_.@+-]+\.hook',name),'safe finite hook required');(hooks/name).symlink_to('/dev/null')
     conf=Path('/tmp/managed604/pacman.conf');conf.write_text('[options]\nArchitecture = aarch64\nSigLevel = Required\nLocalFileSigLevel = Required\nGPGDir = '+str(home)+'\nHookDir = '+str(hooks)+'\n')
     try:
-        L.run(['pacman','--config',conf,'-U','--noconfirm','--noscriptlet',*[bundle/r['archive'] for r in incoming]])
+        L.run(['pacman','--config',conf,'-U','--noconfirm','--noscriptlet','--ask','4',*[bundle/r['archive'] for r in incoming]])
         C.need(L.inventory()==expected,'real installed604 inventory differs')
         actual=db.database(Path('/'),max_packages=604);C.need({r['name']:r['version'] for r in actual}==expected,'complete604 ALPM DB differs')
-        for r in baseline:C.need(L.tree(Path('/var/lib/pacman/local')/(r['name']+'-'+r['version']))==baseline_db[r['name']],'original574 DB changed')
-        C.need(all(L.node(Path('/')/p)==v for p,v in baseline_nodes.items()),'original574 actual payload changed')
+        for r in preserved:C.need(L.tree(Path('/var/lib/pacman/local')/(r['name']+'-'+r['version']))==baseline_db[r['name']],'preserved573 DB changed')
+        C.need(all(L.node(Path('/')/p)==v for p,v in baseline_nodes.items()),'preserved573 actual payload changed')
         C.need({str(p):L.tree(p) for p in (Path('/home'),Path('/root'))}==user,'original user state changed')
         payload=C.read(Path('/tmp/managed604/incoming.json'),32*1024**2)
         L.check_incoming(payload,expected,{r['name']:r for r in actual})
         L.run(['ldconfig'])
         Path('/runtime-packages.lock').write_bytes(C.inventory_bytes(expected))
-        Path('/installed604-install.json').write_bytes(C.encoded(dict(status='PASS_ACTUAL_SIGNED574_TO604',packages=604,original574_database='PRESERVED',original574_payload='PRESERVED',user='PRESERVED',signature='EACH_EXACT_PRIMARY_SIGNER_REQUIRED',hooks='MASKED',scriptlets='DISABLED',hardware='NOT_RUN')))
+        Path('/installed604-install.json').write_bytes(C.encoded(dict(status='PASS_ACTUAL_SIGNED574_TO604',packages=604,original573_database='PRESERVED',original573_payload='PRESERVED',provider_replacement={'before':'libfdk-aac 3.0.0-1','after':'cachy-asahi-fdk-aac 3.0.0-1'},incoming_packages=31,user='PRESERVED',signature='EACH_EXACT_PRIMARY_SIGNER_REQUIRED',hooks='MASKED',scriptlets='DISABLED',hardware='NOT_RUN')))
     finally:
         L.run(['gpgconf','--homedir',home,'--kill','all']);shutil.rmtree(home)
 if __name__=='__main__':install()

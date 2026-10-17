@@ -29,3 +29,5 @@ on unknown actor/VM lifetime are unchanged. Actual fit/performance is NOT_RUN.
 Keep policy.json as the immutable UNBOUND template. Root binds only derived input-policy.json after actual acceptance and refreshes both manifests/WF. Source negative tests use explicit UNBOUND controls/template, so binding the trial does not convert a source-only default test into an actor.
 
 Source assembly selects the corrected416-row updater and271-row fresh installer, including all nine original pre-runtime control dependencies and all80 recipe leaves. This source-only propagation does not bind actual native, fresh, updater, or16K authority.
+
+Default CI consumes the exact newly emitted unbound418-row corrected updater source (420 source-role operands), while preserving the old unbound b8 fresh role. Its three auxiliary/16K adapter derivations are checked against the exact declared auxiliary transformation, with all other transaction bodies conserved. Both future16K policies remain NULL.
