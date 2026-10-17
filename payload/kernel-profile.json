@@ -1,0 +1,21 @@
+{
+  "Image": {
+    "bytes": 8816648,
+    "sha256": "23e5f6662abceb6785dcf47aa97750912a239d65fec0d7fc690d8b41d4decbd2"
+  },
+  "architecture": "aarch64",
+  "archive_sha256": "874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad",
+  "config": {
+    "bytes": 63765,
+    "sha256": "c1ba2738d00616e289582033cc9638a804e964ae8d542ec3dfaf51e25cbf8606"
+  },
+  "diagnostic_fragment_sha256": "66f276cbb02451fa77785eb211467906ecbeaffdad9606616eafddd3f4a8f42d",
+  "fragment_sha256": "88819f00ebef80e385ebdfae6cc101ef21145e0bbd6bb12532b0d41a85c16d28",
+  "helper_sha256": "ccbead2912144c5aa4fcb3ce7af76b3c11f28fcde7987e5f32edb060ff7b0ee9",
+  "modules": "DISABLED",
+  "page_size": 16384,
+  "profile": "MANAGED_GUI_GENERIC16K_DIAGNOSTIC_V1",
+  "release": "7.1.13-generic16k-managed-gui",
+  "schema_version": 1,
+  "source_revision": "94fb23346d522edf53722357c426a3e58030beea"
+}
