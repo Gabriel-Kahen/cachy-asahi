@@ -60,4 +60,22 @@ class Controls(unittest.TestCase):
   self.assertIn(P.pin((HERE/'prepare.py').read_bytes())['sha256'],text);self.assertIn(P.pin((HERE/'source-pins.json').read_bytes())['sha256'],text)
   self.assertNotIn('e6e04dd',text);self.assertNotIn('apparmor=unconfined',text);self.assertNotIn('--privileged',text)
 
+
+class SummaryClosure(unittest.TestCase):
+ def test_exact_helper_is_closed_and_declared_before_secrets(self):
+  helper='scripts/ci/glibc-gnu-failure-log/summary.py';expected=dict(bytes=11924,sha256='9bd52ce4453a3a03d8dc8b5edb6b6a4b8ec421e0c3037dfb64dc31da45687555')
+  table=json.loads((HERE/'source-pins.json').read_bytes());rows=table['files']
+  self.assertEqual(rows[helper],expected);self.assertEqual(P.pin((ROOT/helper).read_bytes()),expected)
+  text=(ROOT/'.github/workflows/native-arm-glibc-debian-maintained-public-provider-lifecycle.yml').read_text();self.assertLess(text.index('Verify exact retained diagnostic helper before secrets'),text.index('secrets.'));self.assertIn('summary.py" --help',text);self.assertIn(expected['sha256'],text)
+ def test_closed_view_old_missing_hash_refuses_and_corrected_helper_help_runs(self):
+  with tempfile.TemporaryDirectory(prefix='caa3-summary-closed-') as td:
+   work=Path(td);closed=work/'closed'
+   with patch.object(subprocess,'Popen',side_effect=AssertionError('source emission cannot start actors')):
+    P.derive(ROOT,closed)
+   helper=closed/'scripts/ci/glibc-gnu-failure-log/summary.py';raw=helper.read_bytes();self.assertEqual(P.pin(raw)['sha256'],'9bd52ce4453a3a03d8dc8b5edb6b6a4b8ec421e0c3037dfb64dc31da45687555')
+   manifest=(P.pin(raw)['sha256']+'  '+str(helper)+'\n').encode();helper.unlink()
+   before=subprocess.run(['/usr/bin/sha256sum','--check'],input=manifest,capture_output=True,cwd=work,timeout=10);self.assertNotEqual(before.returncode,0);self.assertIn(b'No such file or directory',before.stderr)
+   helper.write_bytes(raw);after=subprocess.run(['/usr/bin/sha256sum','--check'],input=manifest,capture_output=True,cwd=work,timeout=10);self.assertEqual(after.returncode,0)
+   help=subprocess.run([os.sys.executable,'-I','-B',str(helper),'--help'],capture_output=True,cwd=work,timeout=10);self.assertEqual(help.returncode,0,help.stderr);self.assertLess(len(help.stdout+help.stderr),65536);self.assertIn(b'emit',help.stdout);self.assertIn(b'extract',help.stdout)
+
 if __name__=='__main__':unittest.main(verbosity=2)
