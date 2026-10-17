@@ -10,6 +10,10 @@ from pathlib import Path
 import re
 import resource
 import sys
+import threading
+import time
+import stat
+import types
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 import contract as C
 
@@ -65,6 +69,70 @@ def child_failure(row,stdout,stderr,error,phase):
                 inner_report=inner_failure_report(row),
                 acceptance='FORBIDDEN_DIAGNOSTIC_ONLY_NO_GUEST_FILES_OR_COMPLETION')
 
+PROGRESS=Path('/out/pristine-guest-progress.log')
+PHASES=('source-before','clone','before574','precommit-refused','provider574','reinstalled574','held574','source-after')
+
+def progress_value(raw,selection):
+    C.need(len(raw)<=65536,'finite progress receipt');value=C.decode(raw)
+    C.need(type(value) is dict and set(value)=={'status','nonce','source_sha','records'} and value['status']=='DIAGNOSTIC_CALL_BOUNDARIES_NO_ACCEPTANCE' and value['nonce']==selection['nonce'] and value['source_sha']==selection['source_sha'],'source/nonce-bound diagnostic only')
+    rows=value['records'];C.need(type(rows) is list and 1<=len(rows)<=256,'finite stage records')
+    for n,row in enumerate(rows):
+        C.need(type(row) is dict and set(row)=={'sequence','stage','edge','case','phase'} and type(row['sequence']) is int and row['sequence']==n+1 and row['stage'] in ('worker','lifecycle','case','snapshot','observer','alpm','runtime','cache','initialization','configuration') and row['edge'] in ('enter','leave') and row['case'] in ('none','pristine','modified') and row['phase'] in ('none',*PHASES),'closed public progress labels')
+    return value
+
+def install_progress():
+    selection=C.decode(C.read('/installed16k/selection.json'));C.need(re.fullmatch('[0-9a-f]{32}',selection['nonce']) and re.fullmatch('[0-9a-f]{40}',selection['source_sha']),'exact progress source/nonce')
+    rows=[];context=dict(case='none',phase='none');disabled=False
+    def record(stage,edge):
+        nonlocal disabled
+        if disabled:return
+        try:
+            C.need(len(rows)<256,'finite progress events');rows.append(dict(sequence=len(rows)+1,stage=stage,edge=edge,**context));value=dict(status='DIAGNOSTIC_CALL_BOUNDARIES_NO_ACCEPTANCE',nonce=selection['nonce'],source_sha=selection['source_sha'],records=rows);raw=json.dumps(value,sort_keys=True,separators=(',',':')).encode();progress_value(raw,selection)
+            temporary=PROGRESS.with_name('pristine-guest-progress-pending.log');fd=os.open(temporary,os.O_CREAT|os.O_EXCL|os.O_WRONLY|os.O_NOFOLLOW|os.O_CLOEXEC,0o600)
+            with os.fdopen(fd,'wb') as stream:stream.write(raw);stream.flush();os.fsync(stream.fileno())
+            if PROGRESS.exists():
+                info=PROGRESS.lstat();C.need(stat.S_ISREG(info.st_mode) and info.st_uid==0 and info.st_nlink==1 and stat.S_IMODE(info.st_mode)==0o600,'owned progress replacement')
+            temporary.replace(PROGRESS)
+        except Exception:disabled=True # Diagnostic failure never changes original supervision/worker outcome.
+    def wrap(function,stage):
+        def called(*args,**kwargs):
+            old=dict(context)
+            if stage=='case':
+                selected=kwargs.get('case',args[6] if len(args)>6 else None)
+                if selected in ('pristine','modified'):context.update(case=selected,phase='none')
+            if stage=='snapshot':
+                label=kwargs.get('label',args[2] if len(args)>2 else None)
+                if type(label) is str and label in {context['case']+'-'+p for p in PHASES}:context['phase']=label[len(context['case'])+1:]
+            record(stage,'enter')
+            try:return function(*args,**kwargs)
+            finally:record(stage,'leave');context.update(old)
+        return called
+    original=C.load
+    def load(name,path):
+        module=original(name,path)
+        if name=='guest_worker' and str(path)=='/installed16k/container16k.py':
+            for function,stage in (('main','lifecycle'),('run_case','case'),('snapshot','snapshot'),('transaction','alpm'),('smoke','runtime'),('caches','cache'),('copy_probes','initialization'),('config_handoff','configuration')):setattr(module,function,wrap(getattr(module,function),stage))
+            helpers=module.C.helpers
+            def observed_helpers(*args,**kwargs):
+                api=helpers(*args,**kwargs);roots=api['roots'];api['roots']=types.SimpleNamespace(**dict(vars(roots),observe=wrap(roots.observe,'observer')));return api
+            module.C.helpers=observed_helpers
+        return module
+    C.load=load;record('worker','enter')
+
+def supervised_progress(runtime,selection,nonce):
+    stop=threading.Event()
+    def poll():
+        last=0
+        while not stop.wait(.25):
+            try:
+                info=PROGRESS.lstat();C.need(stat.S_ISREG(info.st_mode) and info.st_uid==0 and info.st_nlink==1 and stat.S_IMODE(info.st_mode)==0o600,'owned progress reader');value=progress_value(C.read(PROGRESS,65536),selection);row=value['records'][-1]
+                if row['sequence']>last:
+                    last=row['sequence'];print('GNU_INSTALLED16K_PROGRESS '+nonce+' '+json.dumps(dict(source_sha=selection['source_sha'],acceptance='FORBIDDEN_DIAGNOSTIC_ONLY',**row),sort_keys=True,separators=(',',':')),flush=True)
+            except Exception:pass # Missing/partial/replaced receipt cannot interrupt original child supervision.
+    thread=threading.Thread(target=poll,name='bounded-phase-observer',daemon=True);thread.start()
+    try:return runtime.run_command(['/usr/bin/python3','-I','-B','/installed16k/guest.py','worker'],Path('/tmp'),dict(PATH='/usr/bin:/bin',LANG='C',LC_ALL='C',HOME='/tmp',TMPDIR='/tmp',PYTHONDONTWRITEBYTECODE='1'),10500,512*1024)
+    finally:stop.set();thread.join(timeout=1)
+
 def worker():
     selection=C.decode(C.read('/installed16k/selection.json'));nonce=selection['nonce']
     C.need(re.fullmatch('[0-9a-f]{32}',nonce) and os.getpid()!=1 and os.getuid()==os.geteuid()==0 and os.uname().machine=='aarch64' and os.sysconf('SC_PAGE_SIZE')==16384 and os.uname().release==selection['kernel']['release'],'fixed actual16K child required')
@@ -110,7 +178,7 @@ def run():
     C.need(os.sysconf('SC_PAGE_SIZE')==16384 and os.uname().release==selection['kernel']['release'],'actual16K boot identity')
     emit(nonce,dict(event='boot',page_size=16384,kernel=os.uname().release,architecture='aarch64',kernel_profile_sha256=selection['kernel_profile_sha256'],observer_nofile=nofile))
     runtime=C.load('guest_supervisor','/source/scripts/ci/glibc-owned-runtime/runner.py')
-    row,stdout,stderr,error=runtime.run_command(['/usr/bin/python3','-I','-B','/installed16k/guest.py','worker'],Path('/tmp'),dict(PATH='/usr/bin:/bin',LANG='C',LC_ALL='C',HOME='/tmp',TMPDIR='/tmp',PYTHONDONTWRITEBYTECODE='1'),10500,512*1024)
+    row,stdout,stderr,error=supervised_progress(runtime,selection,nonce)
     if not (error is None and row['exit_code']==0 and row['group_absence_verified']):
         emit(nonce,child_failure(row,stdout,stderr,error,'exit-or-retirement'))
     C.need(error is None and row['exit_code']==0 and row['group_absence_verified'],'lifecycle child exit/group retirement failed')
@@ -127,7 +195,7 @@ def run():
 
 if __name__=='__main__':
     if sys.argv[1:]==['worker']:
-        worker();raise SystemExit(0)
+        install_progress();worker();raise SystemExit(0)
     try:run()
     except BaseException as error:print('GNU_INSTALLED16K_ERROR '+type(error).__name__+' '+str(error)[:512],flush=True)
     finally:

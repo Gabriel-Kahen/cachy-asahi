@@ -30,6 +30,7 @@ def protocol(raw,selection):
     events=[C.decode(line[len(prefix):]) for line in lines]
     C.need([r['event'] for r in events]==['boot','result','exit'],'ordered three events only')
     boot,result,exit=events
+    nofile=boot.pop('observer_nofile',None);C.need(type(nofile) is dict and set(nofile)=={'before','after','scope'} and type(nofile['before']) is list and len(nofile['before'])==2 and all(type(n) is int and 0<n<=2**31-1 for n in nofile['before']) and nofile['before'][0]<=nofile['before'][1] and nofile['after']==[8192,8192] and all(type(n) is int for n in nofile['after']) and nofile['scope']=='NATIVE_TRIAL_8192_BOTH_INHERITED_BY_LIFECYCLE_CHILD','exact inherited observer8192 readback')
     C.need(boot==dict(event='boot',page_size=16384,kernel=selection['kernel']['release'],architecture='aarch64',kernel_profile_sha256=selection['kernel_profile_sha256']),'actual kernel/profile join')
     C.need(result['status']==C.PASS and result['page_size']==16384 and result['normal_runtime_observations']==8 and result['hardware']=='NOT_RUN' and result['release']=='NOT_ADMITTED' and result['source_nodes_sha256']==selection['source_nodes_sha256'],'actual complete lifecycle result required')
     C.need(exit==dict(event='exit',status=C.PASS,cleanup='PASS_OWNED_CLONES_REMOVED'),'guest clone retirement required')
@@ -66,11 +67,12 @@ def execute(args):
     # Hold the existing producer directory lease through ALL VM/consumer teardown.
     lease=os.open(args.base,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC);fcntl.flock(lease,fcntl.LOCK_EX|fcntl.LOCK_NB)
     args.output.mkdir(mode=0o700);out=args.output;disks=out/'disks';disks.mkdir();public=out/'public';public.mkdir()
-    selection=dict(nonce=os.urandom(16).hex(),kernel=profile,kernel_profile_sha256=C.sha((json.dumps(profile,sort_keys=True,indent=2)+'\n').encode()),input_index_sha256=C.row(inputs/'lifecycle-input.json')['sha256'],adapter_sha256=C.sha(text.encode()),source_nodes_sha256=index['source_nodes_sha256'],capabilities_sha256=index['source_capabilities_sha256'])
+    selection=dict(source_sha=owner['source_sha'],nonce=os.urandom(16).hex(),kernel=profile,kernel_profile_sha256=C.sha((json.dumps(profile,sort_keys=True,indent=2)+'\n').encode()),input_index_sha256=C.row(inputs/'lifecycle-input.json')['sha256'],adapter_sha256=C.sha(text.encode()),source_nodes_sha256=index['source_nodes_sha256'],capabilities_sha256=index['source_capabilities_sha256'])
+    C.need(re.fullmatch('[0-9a-f]{40}',selection['source_sha']) and selection['source_sha']==os.environ['SOURCE_SHA']==os.environ['WORKFLOW_SHA'],'exact progress source/workflow identity')
     C.save(out/'selection.json',selection);C.save(public/'kernel-profile.json',profile);C.save(public/'kernel-receipt.json',receipt);C.save(public/'adapter.json',derivation)
     shutil.copyfile(image,out/'Image');C.need(C.row(out/'Image')==profile['Image'],'actual copied16K Image differs')
     runtime=C.load('process_runtime',source/'scripts/ci/glibc-owned-runtime/runner.py')
-    report=dict(status='FAIL',token=selection['nonce'],image=index['image_id'],actors=[],commands=[],prerequisites=accepted,hardware='NOT_RUN',release='NOT_ADMITTED',producer_cleanup='BORROWED_NOT_ATTEMPTED',kernel_cleanup='BORROWED_NOT_ATTEMPTED')
+    report=dict(status='FAIL',source_sha=selection['source_sha'],output_uid=os.getuid(),output_gid=os.getgid(),token=selection['nonce'],image=index['image_id'],actors=[],commands=[],prerequisites=accepted,hardware='NOT_RUN',release='NOT_ADMITTED',producer_cleanup='BORROWED_NOT_ATTEMPTED',kernel_cleanup='BORROWED_NOT_ATTEMPTED')
     def save():C.save(out/'owner.json',report)
     def command(argv,seconds=30,cap=2*1024**2,allow_failure=False):
         row,stdout,stderr,error=runtime.run_command(argv,out,dict(native.ENV,HOME=str(out),TMPDIR=str(out)),seconds,cap)
@@ -89,7 +91,7 @@ def execute(args):
     def actor(role,script,target):
         name='caa-gnu-installed16k-'+selection['nonce']+'-'+role;C.need(inspect(name) is None,'fresh actor name')
         row=dict(name=name,id=None,status='RESERVED');report['actors'].append(row);save()
-        argv=['/usr/bin/docker','run','--name',name,'--label',C.LABEL+'='+selection['nonce'],'--pull=never','--platform=linux/arm64','--network=none','--read-only','--user=0:0','--cap-drop=ALL','--security-opt=no-new-privileges','--pids-limit=128','--memory=4g','--cpus=2','--tmpfs=/tmp:rw,nosuid,nodev,size=256m']
+        argv=['/usr/bin/docker','run','--name',name,'--label',C.LABEL+'='+selection['nonce'],'--pull=never','--platform=linux/arm64','--network=none','--read-only',('--user='+str(os.getuid())+':'+str(os.getgid()) if role=='export' else '--user=0:0'),'--cap-drop=ALL','--security-opt=no-new-privileges','--pids-limit=128','--memory=4g','--cpus=2','--tmpfs=/tmp:rw,nosuid,nodev,size=256m']
         if role in ('prepare','scrub'):argv+=['--cap-add='+n for n in ('CHOWN','DAC_OVERRIDE','FOWNER','FSETID','SETFCAP')]
         argv+=['--env=CAA_INSTALLED16K_PREPARE=1','--env=PYTHONDONTWRITEBYTECODE=1','--env=INPUT_INDEX_SHA256='+selection['input_index_sha256'],'--env=OUTPUT_UID='+str(os.getuid()),'--env=OUTPUT_GID='+str(os.getgid())]
         mounts=[(held,'/held',True),(source,'/source',True),(inputs,'/inputs',True),(runner,'/runner',True),(C.HERE,'/installed16k',True),(out,'/selection',True),(target,'/out',False)]
@@ -118,6 +120,14 @@ def execute(args):
         try:
             retire()
             C.need(all(r['group_absence_verified'] for r in report['commands']),'unknown child group; backing data preserved')
+            if error is not None and (disks/'volume.raw').is_file():
+                qemus=[(n,r) for n,r in enumerate(report['commands']) if r['argv'][0]=='/usr/bin/qemu-system-aarch64']
+                if len(qemus)==1 and qemus[0][1]['group_absence_verified'] is True:
+                    C.save(out/'failure-diagnostics.json',dict(status='FIXED_READONLY_DIAGNOSTICS_AFTER_QEMU_ABSENCE',nonce=selection['nonce'],source_sha=selection['source_sha'],qemu_command_index=qemus[0][0]))
+                    try:actor('export','export.py',public)
+                    except BaseException as caught:report['failure_diagnostic_error_type']=type(caught).__name__
+                    finally:retire()
+                    C.need(all(r['group_absence_verified'] for r in report['commands']),'diagnostic child group unknown; disks preserved')
             if (disks/'stage').exists() or (disks/'stage').is_symlink():
                 actor('scrub','scrub.py',disks);retire()
             C.need(not (disks/'stage').exists() and not (disks/'stage').is_symlink(),'private preparation roots remain')

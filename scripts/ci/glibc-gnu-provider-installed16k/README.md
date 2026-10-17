@@ -120,3 +120,36 @@ leaves PID1 authority unchanged; preparation, scrub and observer roles receive
 no new capability.
 Native run38995066761 exposed EPERM in killpg cleanup; the dedicated successor
 still requires actual native execution and Root acceptance.
+
+## Diagnostic-only progress and failed-disk readback
+
+The original2992-byte worker and all full-root/ALPM/runtime bodies remain exact.
+Its entry wrapper installs finite stage-function wrappers (8 owned stage calls
+and outer snapshot observer calls, no per-node profiler). A source/nonce-bound
+256-record/64KiB ledger uses the existing closed public-log slot
+`pristine-guest-progress.log`; the slot name grants no pristine result. Records
+carry only closed stage/case/phase/enter-or-leave/sequence labels. Call return can
+also indicate exception unwinding; these records never claim stage completion.
+PID1 polls the atomic ordinary0600 receipt in a bounded thread during the original
+10500s child supervisor and emits distinct live `GNU_INSTALLED16K_PROGRESS` frames.
+Missing, partial or changed progress cannot interrupt supervision. The original
+boot/result/exit protocol and512KiB child/16MiB UART bounds stay unchanged.
+
+Only after the host verifies its own QEMU group absent, the original export role
+can inspect fixed result.json (8MiB readcap) and the64KiB phase receipt via readonly
+debugfs before disk disposal. Each source-owned debugfs command uses the original
+group supervisor,15s/64KiB output and child-only destination filesize cap. Public
+facts contain raw lengths/hashes, a closed non-payload result projection and the
+validated phase ledger; no raw worker maps, private paths, keys or error text.
+Missing/invalid/partial/oversized receipts remain diagnostic-unavailable, never
+acceptance. Original10800s QEMU and650s outer cleanup budgets are not increased.
+
+The export role uses the exact retained ordinary host UID/GID with cap-dropALL
+and no added caps. Its owner/source/nonce and caller-owned ordinary disk/output
+modes are checked; existing mounts stay readonly except original public output.
+Normal readback body is byteexact beyond this entry guard. This corrects a future
+permission seam (capless root cannot write foreign0755 output or chown to its
+owner); it is not the cause of the failed39022744025 QEMU deadline. Likewise the
+boot parser now strictly validates the existing8192 observer readback before
+comparing all original boot fields. That future parser seam was not reached by
+the failed actual. No runtime/installation/hardware/performance credit results.
