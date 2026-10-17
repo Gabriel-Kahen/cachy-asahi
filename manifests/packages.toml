@@ -546,13 +546,14 @@ selected_for_development = false
 selected_for_release = false
 candidate_version = "2.43.caa1-1"
 native_build = "PASS native pair38960150458:19301932bytes/SHA256b852e3fc647d63699c5f42003a748cbd2268991dc2615a494dc3cdda4d757d12; full GNU7058 rows each, ABI/header/staged runtime"
-installation = "NOT RUN"
+installation = "PASS disposable generic native4096 normal lifecycle39003494818/source393e4742d6f5f461a4a9efbeadb6ebee0aec8d5d: pristine/modified, six commits, eight normal runtime observations, sixteen maps and ordered cleanup; M2 NOT_RUN"
+native_lifecycle_evidence = "docs/validation/glibc-provider-normal-lifecycle-native-20261017.md"
 hardware_validation = "NOT RUN"
 native_generic16k_runtime = "PASS data-staged standard system paths38983272600; ALPM installation NOT_RUN"
 debian_orig_candidate = "2.43.caa2-1: native38988598760 rejected on missing manual test dependencies; check exit2; no pair/archive acceptance"
-debian_maintained_candidate = "2.43.caa3-1: Root accepted native pair38994309021/source78dfd3bbd85a61a84dda2dfc601796ee89edfd5f; two18598440-byte archives SHA256a8e9f3e1d8ffe049fdc834f62e74c14ff622b98898c2f849e1580ab8aa0fdbd9; each6948PASS/109UNSUPPORTED/13XFAIL/zero unexpected failures; normal probes compiled, system-interpreter execution NOT_RUN"
+debian_maintained_candidate = "2.43.caa3-1: Root accepted native pair38994309021/source78dfd3bbd85a61a84dda2dfc601796ee89edfd5f; two18598440-byte archives SHA256a8e9f3e1d8ffe049fdc834f62e74c14ff622b98898c2f849e1580ab8aa0fdbd9; each6948PASS/109UNSUPPORTED/13XFAIL/zero unexpected failures; normal probes compiled; staged normal-interpreter generic16384 runtime39001194484 accepted; maintained-candidate ALPM installation NOT_RUN"
 debian_maintained_evidence = "docs/validation/glibc-debian-maintained-source-20261017.md"
-next_step = "GNU lifecycle38997857389 fails; artifact upload times out, leaving primary cause/root-initialization/detail cleanup UNKNOWN. Bounded log fallback is implemented for a changed diagnostic retry; interruption and full installed16K await actual prerequisites. Distinct maintained caa3 pair is accepted and first staged16K39000395365 is active against packet132aec86c0946f6c7b7a79c46e1a9ccaf91021e3; one proven report-prefix mismatch is corrected in newer source. Its own installed lifecycle/16K remain unaccepted. Original GNU expiry, historical recipe correspondence, hardware and release/security admission remain open."
+next_step = "Normal GNU generic-native lifecycle39003494818 is Root accepted, including explicit modified configuration handoff/restoration. Separate REMOVE-phase interruption/recovery39005569381 and full ALPM-installed16K39005865466 are active. Distinct maintained caa3 pair and staged16K39001194484 pass; its own native ALPM lifecycle remains gated on published inputs. Original GNU expiry, historical recipe correspondence, both M2 models and release/security admission remain open."
 
 
 [[packages]]
