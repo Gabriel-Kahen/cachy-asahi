@@ -61,7 +61,7 @@ def payload(archive,receipt,stage_rows,generic,root):
 
 def guest_report(uart,code,nonce,release,capture):
     c.need(code==0 and len(uart)<=1024**2 and b'SMOKE16K: mmap,mprotect,file-offset PASS' in uart,'natural VM exit and actual page probe required')
-    lines=[r.rstrip(b'\r') for r in uart.splitlines() if r.startswith(b'SYSTEM16K ')];prefix=('DEBIANMAINTAINEDSYSTEM16K REPORT '+nonce+' ').encode()
+    lines=[r.rstrip(b'\r') for r in uart.splitlines() if r.startswith(b'DEBIANMAINTAINEDSYSTEM16K ')];prefix=('DEBIANMAINTAINEDSYSTEM16K REPORT '+nonce+' ').encode()
     c.need(len(lines)==3 and lines[0]==('DEBIANMAINTAINEDSYSTEM16K BOOT '+nonce+' 16384').encode() and lines[1].startswith(prefix) and lines[2]==('DEBIANMAINTAINEDSYSTEM16K PASS '+nonce).encode(),'nonce-bound complete ordered system16K protocol')
     raw=base64.b64decode(lines[1][len(prefix):],validate=True);c.need(len(raw)<=512*1024,'guest receipt cap');value=c.decode(raw);c.guest_receipt(value);c.need(value['kernel']==release,'actual kernel release differs')
     for name,row in value['runtime_files'].items():

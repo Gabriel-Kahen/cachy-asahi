@@ -161,6 +161,8 @@ jobs:
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/glibc-debian-native-provider -p 'test_*.py'
       - name: Check maintained Debian first staged16K phase and candidate gates
         run: python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-debian-maintained-system16k/test_adapter.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-debian-maintained-system16k/test_protocol.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-debian-maintained-staged-packet/test_prepare.py
       - name: Check maintained Debian lifecycle candidate gates and source adaptation
         run: python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-debian-maintained-lifecycle/test_adapter.py
       - name: Check maintained Debian native pair source and ownership

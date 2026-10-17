@@ -17,8 +17,8 @@
       "sha256": "90f6330ee0c8770256966501b2885bcc0425c4b0c242409af267356449c37eda"
     },
     "scripts/ci/glibc-debian-maintained-system16k/adapter.py": {
-      "bytes": 8943,
-      "sha256": "2bb3987f73bbfb388b8a5a4ce5bd42f11173ed507480228b6e83a36fb6a61d8e"
+      "bytes": 8999,
+      "sha256": "7f3aa5131532a9c6f2a9c1d7bce8567f73418150966b28f27d284104abfd0ea4"
     },
     "scripts/ci/glibc-debian-maintained-system16k/capture.py": {
       "bytes": 7827,
@@ -57,8 +57,8 @@
       "sha256": "d1731a40d275c5ed74ccf20b654a76754031dbdcbd32b27154164e3953af6da4"
     },
     "scripts/ci/glibc-debian-maintained-system16k/run.py": {
-      "bytes": 9228,
-      "sha256": "3870e6ebd7e37b4d8b90dc6ca4085b60a1d6451d3be55d7392e6973a0bd35824"
+      "bytes": 9244,
+      "sha256": "1fe0e47c7c56b679d5b2f7846850d131df863aa570c1dd80b037f0ec21b920a0"
     },
     "scripts/ci/glibc-debian-maintained-system16k/source-pins.json": {
       "bytes": 9040,
@@ -67,6 +67,10 @@
     "scripts/ci/glibc-debian-maintained-system16k/test_adapter.py": {
       "bytes": 6875,
       "sha256": "17c84ecf31f937bc08e7f2130a912af4bef36093551a5ce9acb9900a260c5502"
+    },
+    "scripts/ci/glibc-debian-maintained-system16k/test_protocol.py": {
+      "bytes": 3266,
+      "sha256": "f8a8b3c15ed92f0a15302b52952736f165f526696d937287f582dbf4699050c3"
     },
     "scripts/ci/glibc-generic16k/common.py": {
       "bytes": 11573,
