@@ -48,7 +48,7 @@
   "scripts/ci/fish-done-managed-notifications/ci/caller.py": "608916a10b95d8d6aabe03e22b8fb527cb292886c0c2e1db8e5b1140ea53e67c",
   "scripts/ci/fish-done-managed-notifications/contract.py": "be87213da4e3c485a2ee71d6cdd22e2900bd9dd40886516b23da09763879dc14",
   "scripts/ci/fish-done-managed-notifications/desktop574_guest.py": "721548482de143d5bae8a99b745c7225dee60440da10a1d43a8df34da78708b9",
-  "scripts/ci/fish-done-managed-notifications/diagnostic-policy.json": "2e254f33fbc4b0c1666b63e0a9f963887772eb1ddd6297081c760d507a5877ff",
+  "scripts/ci/fish-done-managed-notifications/diagnostic-policy.json": "ee38939d1fa83f1df663e577bfac865c538731b8e01e7e68e173b3bebe0c7080",
   "scripts/ci/fish-done-managed-notifications/fish_terminal.py": "b95d8cea87d8831dba301df3068b3893fa429e372de1a14f6b609b045336c62f",
   "scripts/ci/fish-done-managed-notifications/fixtures/foreground-fish-terminal.py.txt": "905f684bdc2f10a95494d4de6a1cf546c7925c6272dbc3d3b1df6e8da98f10d4",
   "scripts/ci/fish-done-managed-notifications/fixtures/real-expiring-notification-timing.json": "4ca9df45bd05219032f889febe0da45b20169e60b4f96ca13f8ac5fd43ae2b30",

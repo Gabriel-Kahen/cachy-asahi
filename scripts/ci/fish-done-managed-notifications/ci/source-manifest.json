@@ -211,8 +211,8 @@
       "sha256": "721548482de143d5bae8a99b745c7225dee60440da10a1d43a8df34da78708b9"
     },
     "scripts/ci/fish-done-managed-notifications/diagnostic-policy.json": {
-      "bytes": 140,
-      "sha256": "2e254f33fbc4b0c1666b63e0a9f963887772eb1ddd6297081c760d507a5877ff"
+      "bytes": 139,
+      "sha256": "ee38939d1fa83f1df663e577bfac865c538731b8e01e7e68e173b3bebe0c7080"
     },
     "scripts/ci/fish-done-managed-notifications/fish_terminal.py": {
       "bytes": 10805,
@@ -276,7 +276,7 @@
     },
     "scripts/ci/fish-done-managed-notifications/source-pins.json": {
       "bytes": 10118,
-      "sha256": "d78de375071f411d5e21332f6b7a59bff0db376701d813e8db77929262b84345"
+      "sha256": "cba942869cf68c85ee5ed7899b28e814a5c47984783e60f9d773a008ecc407a3"
     },
     "scripts/ci/fish-done-managed-notifications/test_protocol_probe.py": {
       "bytes": 4944,
@@ -387,8 +387,8 @@
       "sha256": "b5a3fd974dd2c28fd096524d1dc2773df55cbba0f588c6100843d9e5b11db24b"
     },
     "diagnostic-policy.json": {
-      "bytes": 140,
-      "sha256": "2e254f33fbc4b0c1666b63e0a9f963887772eb1ddd6297081c760d507a5877ff"
+      "bytes": 139,
+      "sha256": "ee38939d1fa83f1df663e577bfac865c538731b8e01e7e68e173b3bebe0c7080"
     },
     "done-lock.json": {
       "bytes": 2717,
@@ -436,7 +436,7 @@
     },
     "source-pins.json": {
       "bytes": 10118,
-      "sha256": "d78de375071f411d5e21332f6b7a59bff0db376701d813e8db77929262b84345"
+      "sha256": "cba942869cf68c85ee5ed7899b28e814a5c47984783e60f9d773a008ecc407a3"
     },
     "test_desktop574_runtime.py": {
       "bytes": 12245,
@@ -451,7 +451,7 @@
     "run": 38954684654,
     "source": "6c7228162129a2e5f20118258bc4bad25fed20a0"
   },
-  "mako_wayland_protocol_probe": false,
+  "mako_wayland_protocol_probe": true,
   "native": "NOT_RUN",
   "post_notify_request_failure": {
     "correction": "IMMUTABLE_FIRST_REQUEST_BEFORE_VISIBILITY_QUERIES_ORIGINAL_FRAME_RETAINED_AND_VERIFIED_AGAINST_FRESH_VISIBILITY",
