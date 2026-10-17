@@ -1,0 +1,57 @@
+{
+  "apply_supported": false,
+  "assessment": "/out/reports/fresh/same-version-reinstall/fixture-assessment.json",
+  "assessment_identity": {
+    "bytes": 19268,
+    "ctime_ns": 1792211786680845937,
+    "dev": 2049,
+    "gid": 1000,
+    "ino": 6819559,
+    "links": 1,
+    "mode": 384,
+    "mtime_ns": 1792211786679670395,
+    "sha256": "94490807e35942ea3cdd83145f45a808b3bb78d3df6bbf3c1dff311b5a34e78b",
+    "uid": 1000
+  },
+  "database_sha256": "797e59cd94a7637c4ba84ae5ab8aa6a4db5e6dc422892edeb011e7bb7f883a48",
+  "dependency_facts_sha256": "3c7dc7fabfa810c130890baa69bc6a13bc1f58c7cb9d1668c850339ed6c55798",
+  "operation": "EXPLICIT_ORPHAN_REMOVAL_PLAN",
+  "schema_version": 1,
+  "scope": "LOCAL_INSTALLED_METADATA_ONLY_NOT_PAYLOAD_RELEASE_REMOVAL_OR_HARDWARE_PROOF",
+  "selected": {
+    "fixture-leaf": {
+      "candidate": true,
+      "depends": [],
+      "optdepends": [],
+      "optional_required_by": [],
+      "protected": false,
+      "provides": [],
+      "reason": "dependency",
+      "required_by": [],
+      "satisfiers": {
+        "depends": {},
+        "optdepends": {}
+      },
+      "version": "1-1"
+    },
+    "fixture-oldprovider": {
+      "candidate": true,
+      "depends": [],
+      "optdepends": [],
+      "optional_required_by": [],
+      "protected": false,
+      "provides": [
+        "fixture-virtual=1"
+      ],
+      "reason": "dependency",
+      "required_by": [],
+      "satisfiers": {
+        "depends": {},
+        "optdepends": {}
+      },
+      "version": "1-1"
+    }
+  },
+  "simultaneous_remaining_dependencies": "PASS_METADATA_ONLY",
+  "status": "NOT_APPLIED"
+}
