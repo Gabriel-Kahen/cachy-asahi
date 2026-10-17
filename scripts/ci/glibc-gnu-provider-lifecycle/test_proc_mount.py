@@ -27,6 +27,27 @@ class Controls(unittest.TestCase):
     return NS(**{k:getattr(info,k) for k in ('st_dev','st_ino','st_mode','st_rdev','st_nlink','st_size')},st_uid=0,st_gid=0)
    return info
   stack=__import__('contextlib').ExitStack();stack.enter_context(patch.object(P.os,'fstat',side_effect=lambda fd:root_null(fstat(fd))));stack.enter_context(patch.object(Path,'lstat',lambda path,*a,**kw:root_null(lstat(path,*a,**kw))));stack.enter_context(patch.object(P,'guard'));stack.enter_context(patch.object(P,'facts',side_effect=self.facts));stack.enter_context(patch.object(P,'invoke',side_effect=self.invoke));stack.enter_context(patch.object(P,'mounted',side_effect=lambda target=None:[self.mounts[target or self.target]] if (target or self.target) in self.mounts else []));stack.enter_context(patch.object(P,'verify_mount',return_value=dict(status='PASS_EXACT_READONLY_PROC_FLAGS')));stack.enter_context(patch.object(P,'verify_bind',return_value=dict(status='PASS_EXACT_DEV_NULL_BIND_IDENTITY')));stack.enter_context(patch.object(P,'source_mount',return_value='2 1 0:1 / /dev rw,nosuid - tmpfs tmpfs rw'));stack.enter_context(patch.object(P,'ROOTS',(self.root,)));stack.enter_context(patch.object(P,'TARGET',self.target));return stack
+ def status_facts(self,changes=None,omit=()):
+  fields={key:'0' for key in P.STATUS};fields.update(Uid='0 0 0 0',Gid='0 0 0 0',Groups='',CapEff=hex(P.MASK)[2:],CapPrm=hex(P.MASK)[2:],CapBnd=hex(P.MASK)[2:],NoNewPrivs='1',Seccomp='2',Seccomp_filters='2');fields.update(changes or {})
+  raw=''.join(key+':\t'+value+'\n' for key,value in fields.items() if key not in omit).encode()
+  def bounded(path,cap):return raw if path=='/proc/self/status' else b'0 0 4294967295\n'
+  with patch.object(P,'bounded',side_effect=bounded),patch.object(P.os,'readlink',side_effect=OSError(errno.ENOENT,'inert namespace absent')),patch.object(P,'text_fact',return_value={}),patch.object(P,'mounts',return_value=[]):return P.facts()
+ def test_empty_linux_supplementary_groups_retained_with_exact_cap_checks(self):
+  value=self.status_facts();self.assertEqual(value['status']['Groups'],'');P.caps(value)
+  for groups in ('0','0 1 65534','  \t'):
+   with self.subTest(groups=groups):self.assertEqual(self.status_facts({'Groups':groups})['status']['Groups'],groups.strip())
+ def test_empty_non_groups_fields_still_refuse(self):
+  for key in set(P.STATUS)-{'Groups'}:
+   for value in ('',' \t'):
+    with self.subTest(key=key,value=value),self.assertRaisesRegex(ValueError,'finite self status field'):self.status_facts({key:value})
+ def test_malformed_or_oversize_groups_and_other_status_still_refuse(self):
+  for key in P.STATUS:
+   for value in ('not-numeric!','0'*1025):
+    with self.subTest(key=key,value=value[:20]),self.assertRaisesRegex(ValueError,'finite self status field'):self.status_facts({key:value})
+ def test_empty_groups_does_not_relax_cap_nnp_seccomp_or_missing_fields(self):
+  for key,value in [('CapEff','0'),('CapPrm','0'),('CapBnd','0'),('CapInh','1'),('CapAmb','1'),('NoNewPrivs','0'),('Seccomp','0')]:
+   with self.subTest(key=key),self.assertRaises(ValueError):P.caps(self.status_facts({key:value}))
+  self.assertIsNone(self.status_facts(omit=('Groups',))['status']['Groups'])
  def test_exact_ten_caps_include_owned_group_signal_authority(self):
   self.assertEqual(P.MASK,2149843195);self.assertEqual(P.MASK,0x802400fb);self.assertEqual({n for n in range(64) if P.MASK&(1<<n)},{0,1,3,4,5,6,7,18,21,31});P.caps(self.facts())
   for key in ('CapEff','CapPrm','CapBnd'):
