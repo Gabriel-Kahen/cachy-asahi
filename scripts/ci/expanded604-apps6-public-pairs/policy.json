@@ -14,7 +14,7 @@
       "path": "index.json",
       "sha256": "782fd76c06831786cb74df396f195e8f5f8832e04b668c44bdadd802d1cb268b"
     },
-    "status": "UNBOUND"
+    "status": "ROOT_BOUND_PUBLIC_CURRENT4_PAIRS_AND_NATIVE_BYTECASE"
   },
   "combined": {
     "arguments": [
@@ -515,7 +515,7 @@
     },
     "source": "79d8d2f53510e4f3a04f39c1b1e24c999aa32e44"
   },
-  "status": "UNBOUND_PUBLIC_PAIRS_APPS6_CURRENT604_NATIVE_INPUTS",
+  "status": "ROOT_BOUND_PUBLIC_PAIRS_APPS6_CURRENT604_NATIVE_INPUTS",
   "welcome": {
     "candidate_source": "0b74d8ecea4f152bda4adfbd9bee488890db4363",
     "carrier_source": "77bd2c6ecf2e5c28a04116c3da85c45f70d1cc90",
