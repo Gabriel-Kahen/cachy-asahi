@@ -1,0 +1,52 @@
+{
+  "apps6": {
+    "archive": {
+      "bytes": 22876,
+      "sha256": "1ce4a540a5ec2fa26353847b93fed953e084cf65e872836f670ac721446cd3d7"
+    },
+    "version": "0.1.0-6"
+  },
+  "candidate_source": "0b74d8ecea4f152bda4adfbd9bee488890db4363",
+  "expected604_sha256": "7bc6caa51301bf076aeda4d137277a128c53a16e5bfd25f02e7309c4b3a408c3",
+  "fresh604": {
+    "carrier_source": null,
+    "decision": null,
+    "native604_decision_sha256": null,
+    "run_id": null,
+    "source_manifest_sha256": null,
+    "source_sha": null
+  },
+  "native604": {
+    "carrier_source": null,
+    "decision": null,
+    "input_policy_sha256": null,
+    "run_id": null,
+    "source_manifest_sha256": null,
+    "source_sha": null
+  },
+  "profiles": [
+    "minimal",
+    "overlay"
+  ],
+  "public_assets": {
+    "gui_authority": null,
+    "gui_authority_carrier": null,
+    "public_carrier": "77bd2c6ecf2e5c28a04116c3da85c45f70d1cc90",
+    "schema_version": 1,
+    "source_manifest_sha256": null,
+    "status": "UNBOUND_PUBLIC_ARCHIVES_AND_SEPARATE_GUI_COMPONENT_AUTHORITY"
+  },
+  "schema_version": 1,
+  "status": "UNBOUND_PUBLIC_PAIRS_APPS6_NATIVE_FRESH_AND_GUI_COMPONENT",
+  "trial_scope": "ONE_PROFILE_NOT_FULL60416K_ACCEPTANCE",
+  "welcome4_gui": {
+    "carrier_source": null,
+    "decision": null,
+    "profile_runs": {
+      "minimal": null,
+      "overlay": null
+    },
+    "source_manifest_sha256": null,
+    "source_sha": null
+  }
+}
