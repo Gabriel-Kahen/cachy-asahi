@@ -16,6 +16,38 @@ def emit(nonce,value):
     raw=json.dumps(value,sort_keys=True,separators=(',',':'));C.need(len(raw)<=512*1024,'guest receipt bound')
     print('GNU_INSTALLED16K '+nonce+' '+raw,flush=True)
 
+def inner_failure_report(row):
+    """PID1 observes the original report only after its writer group is absent."""
+    value=dict(status='UNAVAILABLE_UNRETIRED_CHILD',path='/out/result.json',read_cap=8*1024**2,
+               acceptance='FORBIDDEN_DIAGNOSTIC_ONLY_NO_COMPLETION')
+    if row.get('group_absence_verified') is not True:return value
+    try:raw=C.read('/out/result.json',8*1024**2)
+    except FileNotFoundError:
+        value['status']='MISSING_ORIGINAL_INNER_REPORT';return value
+    except Exception as error:
+        value.update(status='UNREADABLE_OR_OVER_CAP_INNER_REPORT',read_error=dict(type=type(error).__name__,message=str(error)[:512]));return value
+    preview=raw[:65536]
+    value.update(status='INVALID_ORIGINAL_INNER_REPORT',raw=dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest(),
+                 preview_base64=base64.b64encode(preview).decode('ascii'),preview_bytes=len(preview),truncated=len(preview)!=len(raw)))
+    try:
+        report=C.decode(raw);C.need(type(report) is dict,'original inner report must be an object')
+    except Exception as error:
+        value['parse_error']=dict(type=type(error).__name__,message=str(error)[:512]);return value
+    fields={}
+    for name in ('status','error_type','error'):
+        if name not in report:
+            fields[name]=dict(status='MISSING_FIELD');continue
+        item=report[name]
+        if type(item) is not str:
+            fields[name]=dict(status='INVALID_FIELD_TYPE',type=type(item).__name__);continue
+        try:data=item.encode('utf8')
+        except UnicodeEncodeError:
+            fields[name]=dict(status='INVALID_UTF8_FIELD');continue
+        bounded=data[:4096]
+        fields[name]=dict(bytes=len(data),sha256=hashlib.sha256(data).hexdigest(),preview_utf8=bounded.decode('utf8',errors='replace'),
+                          preview_bytes=len(bounded),truncated=len(data)!=len(bounded))
+    value.update(status='READ_ORIGINAL_INNER_REPORT_DIAGNOSTIC_ONLY',fields=fields);return value
+
 def child_failure(row,stdout,stderr,error,phase):
     """UART-only diagnostic of original captured buffers; never a guest result."""
     C.need(type(stdout) is type(stderr) is bytes and len(stdout)+len(stderr)<=512*1024,'original child capture bound')
@@ -29,6 +61,7 @@ def child_failure(row,stdout,stderr,error,phase):
                 stdout=stream(stdout),stderr=stream(stderr),
                 error=None if error is None else dict(type=type(error).__name__,**stream(message)),
                 capture='ORIGINAL_SUPERVISOR_CAPTURED_BUFFERS_MAY_BE_PARTIAL_ON_LIMIT_OR_INTERRUPTION',
+                inner_report=inner_failure_report(row),
                 acceptance='FORBIDDEN_DIAGNOSTIC_ONLY_NO_GUEST_FILES_OR_COMPLETION')
 
 def worker():
