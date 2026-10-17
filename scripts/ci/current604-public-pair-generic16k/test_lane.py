@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: MIT
 """Actor-blocked finite controls; no native or signing success fixtures."""
-import ast,copy,json,subprocess,sys,tempfile,unittest
+import ast,copy,json,os,shutil,subprocess,sys,tempfile,unittest
 from pathlib import Path
 from types import SimpleNamespace
-from unittest.mock import patch
+from unittest.mock import patch,Mock
 import contract as C
 import adapter as A
 import ci,gate,retain
@@ -28,6 +28,47 @@ class Controls(unittest.TestCase):
      self.assertIn('independent-installed-public-pairs-apps6-current604-management-generic16k-profile',runtime)
      self.assertIn('context604.selection(base,expected)',runtime);self.assertNotIn("all(expected.get(n)==v for n,v in base.items())",runtime)
      for filename,source in (('doctor_lifetime.py','scripts/ci/welcome-management-native/doctor_lifetime.py'),('a11y_driver.c','scripts/ci/welcome-management-native/a11y_driver.c'),('file_capabilities.py','scripts/apps/file_capabilities.py')):self.assertEqual((runner/filename).read_bytes(),(ROOT/source).read_bytes())
+ def test_failed_controller_exports_only_fixed_bounded_original_build_log_without_authority(self):
+  # Execute the actual derived owner.main failure/finally path. Every producer,
+  # signer and controller actor is inert; only real ordinary test-file IO occurs.
+  for selected in C.PROFILES:
+   for mode in ('present','missing','symlink','hardlink','over-cap'):
+    with self.subTest(profile=selected,mode=mode),tempfile.TemporaryDirectory(dir='/tmp') as td:
+     base=Path(td);output=base.with_name(base.name+'-output');producer_output=output.with_name(output.name+'-producer');kernel=base/'kernel';kernel.mkdir();image=kernel/'Image';image.write_bytes(b'UNIT_NOT_A_KERNEL');config=kernel/'config';config.write_bytes(b'UNIT_NOT_A_CONFIG');marker=b'UNIT_ORIGINAL_DOCKER_BUILD_STDERR_NOT_RUNTIME_SUCCESS\n'
+     args=SimpleNamespace(**{n:base/'inert-input' for n in (*ci.PRODUCER_PATHS,*ci.CARRIERS,*ci.DECISIONS,'audio_inputs')},implementation=ROOT,implementation_revision='a'*40,profile=selected,output=output,kernel_work=kernel,kernel_receipt=base/'inert-kernel-receipt')
+     cleanup=Mock(side_effect=AssertionError('unknown retirement must preserve producer'))
+     def produce(original):
+      producer_output.mkdir();(producer_output/'producer-owner.json').write_text('{"unit":"inert"}');return base/'inert-ready'
+     producer=SimpleNamespace(prepare=produce,cleanup=cleanup);materializer=SimpleNamespace(prepare=lambda *a:None);installer=SimpleNamespace(LEGACY='b'*40,COMPOSITION=object(),load=lambda *a:producer,scoped_load=lambda *a:materializer)
+     def prepare(*a):a[1].mkdir()
+     controller=dict(exit=1,natural_exit=True,group_absent=True)
+     def supervise(argv,log):
+      runtime=base/'current604-public-pair-generic16k-runtime';runtime.mkdir();raw=dict(status='FAIL',profile=selected,error='command failed: runtime-image',cleanup=[],events=[],frames={});(runtime/'runtime.json').write_bytes(C.encoded(raw));log.write_bytes(b'UNIT_FAILED_CONTROLLER')
+      path=runtime/'runtime-image.log'
+      if mode=='present':path.write_bytes(marker)
+      elif mode=='symlink':
+       other=base/'private-not-exported';other.write_bytes(b'PRIVATE_UNIT_SECRET');path.symlink_to(other)
+      elif mode=='hardlink':path.write_bytes(marker);os.link(path,base/'alias')
+      elif mode=='over-cap':
+       with path.open('wb') as stream:stream.truncate(16*1024**2+1)
+      return controller
+     runtime=SimpleNamespace(kernel=lambda *a:(dict(Image=dict(sha256=C.sha(image.read_bytes()))),{},image,config),supervise=supervise)
+     actual=ci._BASE
+     try:
+      with patch.object(actual,'parser',return_value=SimpleNamespace(parse_args=lambda _:args)),patch.object(actual,'preflight',return_value=({}, {}, object(), {}, base/'inert-assets',installer)),patch.object(actual.platform,'machine',return_value='aarch64'),patch.dict(os.environ,GITHUB_ACTIONS='true',RUNNER_ARCH='ARM64',RUNNER_TEMP=str(base)),patch.object(C,'prepare_assets',return_value=base/'inert-assets'),patch.object(C,'load',side_effect=lambda root,path:runtime if path.endswith('/run.py') else object()),patch.object(A,'prepare',side_effect=prepare),patch.object(ci.context604,'prepare'):
+       if mode in ('hardlink','over-cap'):
+        with self.assertRaisesRegex(ValueError,'bounded ordinary'):ci.main([])
+        self.assertFalse((output/'public/retention.json').exists())
+       else:
+        self.assertEqual(ci.main([]),1);report=C.json_read(output/'result.json');ledger=C.json_read(output/'public/retention.json');self.assertEqual(report['status'],'FAIL');self.assertEqual(report['cleanup'],'RETAINED_CONSUMER_OR_PRODUCER_ABSENCE_UNKNOWN');self.assertEqual(ledger['status'],'NOT_ACCEPTED');self.assertEqual(ledger['ordered_private_cleanup'],report['cleanup']);name='runtime/runtime-image.log'
+        if mode=='present':self.assertEqual((output/'public'/name).read_bytes(),marker);self.assertEqual(ledger['files'][name],dict(bytes=len(marker),sha256=C.sha(marker)))
+        else:self.assertNotIn(name,ledger['files'])
+        self.assertLessEqual(ledger['bytes'],128*1024**2);self.assertNotIn('private-not-exported',str(ledger))
+      cleanup.assert_not_called();self.assertTrue(kernel.exists());self.assertTrue((producer_output/'producer-owner.json').exists())
+     finally:
+      for path in (output,producer_output):
+       if path.exists():shutil.rmtree(path)
+
  def test_exact_provider_replacement_keeps_original573(self):
    base={r['name']:r['version'] for r in C.json_read(ROOT/'scripts/ci/maintained-desktop574-inputs.json')['packages']}
    expected=dict(row.split() for row in (ROOT/'scripts/ci/expanded604-apps6-public-pairs/expected604.lock').read_text().splitlines())
