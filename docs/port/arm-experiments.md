@@ -4,6 +4,8 @@ October 15, 2026. **ARM-C01–ARM-C04 passed hosted native build, correctness an
 
 ## First code workload and retrievable inputs
 
+October17 runtime implementation: `scripts/ci/arm-experiments-generic16k` now prepares the exact retained C01–C04 programs/corpus for ordinary execution in a generic16K guest. All four original archives and416 members are checked; the finite selection has16 final builds/48 executable ELFs/120 files, excluding PGO training programs. Nine inert controls pass, including the complete468-command correctness/dataflow algorithm and131 borrowed source joins. This is source readiness only: actual same-job userspace/kernel inputs, the outer CI owner, four runtime executions and independent retained-result acceptance remain unfinished. No existing compiled artifact is rebuilt or substituted, and neither M2 performance nor physical16K execution is inferred.
+
 Select **upstream zlib 1.3.2, its local static library and upstream `minigzip`
 example**, as a small integer/compression workload. Build an isolated experiment
 artifact, never replace the system zlib or add it to the release inventory.
