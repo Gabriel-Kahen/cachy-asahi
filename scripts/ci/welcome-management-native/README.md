@@ -111,3 +111,40 @@ remain separate required evidence. A 16K successor is a separate future lane;
 this proposal preserves the running historical Welcome 1/16K work.
 
 Welcome3 removes the management spinner while preserving running text, disabled actions and unchanged30-second supervision. An order-controlled host GTK fixture observed180 versus0 draws per3seconds; this is host rendering evidence only. Welcome2 native/CLI results remain historical; Welcome3 native pair, installed lifecycle and complete GUI remain NOT_RUN. Historical604 package locks are unchanged pending actual GUI3 acceptance and a new composition.
+
+## Current management Doctor lifetime composition
+
+The dedicated management adapter derives a single absolute monotonic1080s
+lease immediately before the existing managed-user session starts. This is
+the existing overall session budget, shared by both profiles; it is never
+renewed or reset per profile. Its one nonce/deadline record lives under the
+root-owned, non-user-replaceable `/run` parent with ordinary single-link,
+nofollow and fixed-mode checks. Historical GUI callers retain the original
+450s worker source unchanged. Product30s and shared management45s gates,
+parent1080s, runtime1300s and all original capture/resource caps are unchanged.
+
+The same original Alacritty terminal starts one Python wrapper which forks
+one report worker once. Existing direct-terminal per-frame worker identity
+now identifies that wrapper; `report_worker_pid` explicitly identifies the
+actual report child. There is no respawn or substitute window. All original
+Doctor commands/JSON/PTY/preservation checks still run in that child. Its
+separate0600 `lifetime.json` retains release/timeout/cancel/error intent even
+when initial `result.json` already exists. The wrapper holds a pidfd, reaps
+its exact direct child and writes a distinct0600 `worker-exit.json` with the
+actual wait status. Child intent or Alacritty0 alone never attests child0.
+Session teardown emits both as one bounded `doctor_lifetime` event; missing
+receipts remain UNKNOWN. The generated validator requires actual child0,
+release within the fixed parent interval and terminal0 after all original
+frames, before phase pass, for both profiles with the same original lease.
+It still requires all17management actions per profile and24frames total.
+
+Original39002929704 correctly failed because Doctor's terminal row was absent
+while Welcome and the complete8KiB Orphans preview remained visible. The
+450s expiry is plausible but its actual exit reason was not retained and
+remains UNPROVED. This corrects a source-defined lifetime composition and
+final-receipt gap; only a new original actual can establish full GUI success.
+
+The existing `python3 -B scripts/ci/welcome-management-native/test_gui.py`
+entry point also runs nine focused lifetime controls (36total controls).
+These use private temporary metadata, controlled clocks and bounded owned
+Python fork/wait cases; no GUI/database/service/container/VM/network actor.

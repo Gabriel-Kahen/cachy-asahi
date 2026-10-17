@@ -25,14 +25,14 @@ def prepare(source,output,assets):
     sys.modules['candidates']=candidates
     shared=C.load('accepted_welcome_management_prepare',source/'scripts/ci/welcome-managed-gui/prepare.py')
     shared.candidates=candidates;shared.prepare(source,output,assets)
-    for name in ('native_contract.py','input-policy.json','infrastructure-pins.json','installed.py','management_contract.py','management_phase.py','management_root.py','a11y_driver.c','candidates.py'):
+    for name in ('native_contract.py','input-policy.json','infrastructure-pins.json','installed.py','management_contract.py','management_phase.py','management_root.py','doctor_lifetime.py','a11y_driver.c','candidates.py'):
         shutil.copyfile(HERE/name,output/name)
     shutil.copyfile(source/'scripts/ci/welcome-native/lifecycle.py',output/'accepted_lifecycle.py')
     # Both guest.py and the independent Doctor terminal use python -I. Register
     # only these pinned siblings through their existing file loader, in order.
     for filename,anchor,names in (
-        ('desktop574_guest.py','\ndef main():',('management_contract','management_root','management_phase')),
-        ('doctor_worker.py',"\nC=load('doctor_gui_contract','gui_contract.py')",('management_contract','management_root')),
+        ('desktop574_guest.py','\ndef main():',('doctor_lifetime','management_contract','management_root','management_phase')),
+        ('doctor_worker.py',"\nC=load('doctor_gui_contract','gui_contract.py')",('management_contract','management_root','doctor_lifetime')),
     ):
         text=(output/filename).read_text()
         if filename=='doctor_worker.py':
@@ -55,9 +55,11 @@ def validate_snapshot(value,pid,view,text_sha=None):
 '''
     (output/'gui_contract.py').write_text(gui)
     worker=(output/'doctor_worker.py').read_text().replace('Welcome 0.1.0-1 | Doctor','Welcome 0.1.0-4 | Doctor')
+    worker=replace(worker,"    start=marker(workspace/'start.json',args.nonce,120)\n    C.need(start.get('terminal_pid')==os.getppid() and os.isatty(0) and os.isatty(1),'owned terminal parent/PTY required')\n    try:\n        result=exercise(base,workspace,args.stage,args.nonce,os.getppid(),dict(os.environ))\n        C.publish(workspace/'result.json',result);marker(workspace/'release.json',args.nonce,450);return 0\n    except BaseException as error:\n        if not (workspace/'result.json').exists():\n            C.publish(workspace/'result.json',dict(status='FAIL',reason=str(error)[:512],error_type=type(error).__name__,\n                      processes=getattr(error,'doctor_processes',[])))\n        print('DOCTOR REPORT FAILED: '+str(error)[:512],flush=True);return 1\n","    return sys.modules['doctor_lifetime'].worker(C,base,workspace,args.stage,args.nonce,exercise)\n")
+    worker=replace(worker,"if __name__=='__main__':raise SystemExit(main())","if __name__=='__main__':raise SystemExit(sys.modules['doctor_lifetime'].supervise(main))")
     (output/'doctor_worker.py').write_text(worker)
     session=(output/'session.py').read_text()
-    session=replace(session,'import time\n','import time\nimport management_phase as MG\n')
+    session=replace(session,'import time\n','import time\nimport management_phase as MG\nimport doctor_lifetime as DL\n')
     session=replace(session,'    def a11y(operation,label=None,pending=False):','    def a11y(operation,label=None,pending=False,scope=None):')
     session=replace(session,"([label] if label else [])","([label] if label else [])+([scope] if scope else [])")
     anchor="        target='address:'+C.window(clients(),welcome.process.pid,'welcome')['address']\n        C.need(command(['/usr/bin/hyprctl','dispatch',f'hl.dsp.window.close({{window=\"{target}\"}})'],'close-welcome').strip()=='ok','Welcome close failed')"
@@ -68,15 +70,21 @@ def validate_snapshot(value,pid,view,text_sha=None):
             dict(healthy=healthy,a11y=a11y,wait=wait,capture=capture,command=command,place=place,adopt=adopt,
                  window=lambda pid:C.window(clients(),pid,'welcome')))
 """.rstrip()
-    session=replace(session,anchor,new);(output/'session.py').write_text(session)
+    session=replace(session,anchor,new)
+    session=replace(session,"C.publish(workspace/'start.json',dict(nonce=nonce,terminal_pid=doctor.process.pid))","DL.start(workspace,nonce,doctor.process.pid)")
+    session=replace(session,"C.publish(workspace/'release.json',dict(nonce=nonce));doctor.process.wait(timeout=15)","DL.publish(workspace/'release.json',dict(nonce=nonce),0o600);doctor.process.wait(timeout=15)")
+    anchor="        try:C.need(C.snapshot(Path(env['XDG_CONFIG_HOME']))==protected,'existing user configuration changed')"
+    session=replace(session,anchor,"        if doctor is not None:\n            base.emit('doctor_lifetime',**DL.capture(workspace,stage,nonce,doctor.process.pid,doctor.process.returncode))\n"+anchor)
+    (output/'session.py').write_text(session)
     guest=(output/'base_guest.py').read_text()
-    guest=replace(guest,'import time\n','import time\nimport management_root\n')
+    guest=replace(guest,'import time\n','import time\nimport management_root\nimport doctor_lifetime as DL\n')
     guest=replace(guest,'code = session.wait(timeout=1080)','code = management_root.serve(managed_base, session, env, logs, 1080)')
+    guest=replace(guest,'        session = subprocess.Popen(managed_session.SETPRIV +','        DL.parent()\n        session = subprocess.Popen(managed_session.SETPRIV +')
     # base_guest is also the binding module used by managed session; only guarded VM root can transact.
     (output/'base_guest.py').write_text(guest)
     fixture=(output/'desktop574_fixture.sh').read_text()
     anchor='cc -std=c11 -O2 -Wall -Wextra -Werror /runner/a11y_driver.c'
-    fixture=replace(fixture,anchor,'cp /runner/native_contract.py /runner/input-policy.json /runner/infrastructure-pins.json /runner/installed.py /runner/accepted_lifecycle.py /runner/management_contract.py /runner/management_phase.py /runner/management_root.py "$root/usr/local/share/desktop574/"\n'+
+    fixture=replace(fixture,anchor,'cp /runner/native_contract.py /runner/input-policy.json /runner/infrastructure-pins.json /runner/installed.py /runner/accepted_lifecycle.py /runner/management_contract.py /runner/management_phase.py /runner/management_root.py /runner/doctor_lifetime.py "$root/usr/local/share/desktop574/"\n'+
         'cp -a /runner/candidates "$root/usr/local/share/desktop574/management-inputs"\n'+anchor)
     (output/'desktop574_fixture.sh').write_text(fixture)
     legacy=(output/'contract.py').read_text();(output/'legacy_contract.py').write_text(legacy)
@@ -86,6 +94,7 @@ from pathlib import Path
 import candidates
 import gui_contract as C
 import management_contract as M
+import doctor_lifetime as DL
 legacy=C.load('management_accepted_gui_contract','legacy_contract.py')
 verify_source=candidates.verify_source
 
@@ -97,12 +106,23 @@ def verify_result(events,lock):
         C.VIEWS=M.BASE_VIEWS
         original=legacy.verify_result(baseline,old)
         C.VIEWS=views
+        parent_leases=[]
         for stage in ('minimal','overlay'):
+            finals=[e for e in events if e.get('event')=='doctor_lifetime' and e.get('stage')==stage]
+            C.need(len(finals)==1,'one original Doctor lifetime receipt required')
+            doctor=next(e for e in events if e.get('event')=='doctor_result' and e.get('stage')==stage)
+            parent_leases.append(finals[0]['receipt']['parent'])
+            proof=doctor['proof'];DL.validate(finals[0],stage,proof['nonce'],proof['terminal_pid'],proof['worker_pid'])
+            C.need(proof['report_worker_pid']==finals[0]['receipt']['worker_pid'],'actual Doctor report child identity differs')
+            frames=[e for e in events if e.get('event')=='frame_ready' and e.get('stage')==stage]
+            phase=next(e for e in events if e.get('event')=='phase_pass' and e.get('stage')==stage)
+            C.need(events.index(frames[-1])<events.index(finals[0])<events.index(phase),'Doctor release must follow all original frames')
             reference=next(e for e in baseline if e.get('event')=='frame_ready' and e.get('stage')==stage)
             for frame in (e for e in events if e.get('event')=='frame_ready' and e.get('stage')==stage and e.get('view') in M.MANAGEMENT_VIEWS):
                 C.together(list(frame['windows'].values()),frame['welcome_pid'],reference['doctor_pid'],frame['view'])
                 C.need(all(frame[k]==reference[k] for k in ('doctor_pid','compositor_pid','worker','doctor_proof_sha256','managed_identity','producer_lifecycle')),
                        'management capture must retain actual managed bus/compositor/Doctor worker')
+        C.need(len({json.dumps(p,sort_keys=True) for p in parent_leases})==1,'both profiles must retain one fixed original parent lifetime')
     finally:C.VIEWS=views
     return dict(baseline=original,management=M.verify_result(events,lock),visual_review='NOT_RUN',hardware='NOT_RUN')
 '''
