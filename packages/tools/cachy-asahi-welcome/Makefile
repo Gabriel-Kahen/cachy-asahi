@@ -31,10 +31,14 @@ test-management-report: test_management_report.c management-report.c management-
 test-management-ui: test_management_ui.c welcome.c status.c status.h management.c management.h management-report.c management-report.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -DMANAGEMENT_TEST $(GTK_CFLAGS) test_management_ui.c status.c management.c management-report.c -o $@ $(LDFLAGS) $(GTK_LIBS)
 
-check: all test-status test-management test-management-report
+test-report-work: test_report_work.c welcome.c status.c status.h management.c management.h management-report.c management-report.h
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(GTK_CFLAGS) test_report_work.c status.c management.c management-report.c -o $@ $(LDFLAGS) $(GTK_LIBS)
+
+check: all test-status test-management test-management-report test-report-work
 	./test-status
 	./test-management
 	./test-management-report
+	./test-report-work
 	$(PYTHON) -B test_cli.py ./cachy-asahi-welcome
 	$(PYTHON) -B check_source.py --root "$(RECIPE_ROOT)"
 
@@ -52,4 +56,4 @@ install: all
 	install -Dm644 NOTICE $(DESTDIR)$(PREFIX)/share/licenses/cachy-asahi-welcome/NOTICE
 
 clean:
-	rm -f cachy-asahi-welcome test-status test-management test-management-report test-management-ui
+	rm -f cachy-asahi-welcome test-status test-management test-management-report test-management-ui test-report-work

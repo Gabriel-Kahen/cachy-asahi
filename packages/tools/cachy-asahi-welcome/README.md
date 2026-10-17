@@ -42,19 +42,24 @@ network request, install, removal, apply action or Apps launcher.
 Reports provide observation/candidate counts with unknown, unavailable and
 refused states preserved. Malformed or unsupported JSON produces no assessment
 conclusion. Raw reports are plain text in an initially collapsed expander with a
-64 KiB preview cap. The runner captures at most 1 MiB combined output and stops
+64 KiB Doctor preview cap and an 8 KiB Orphans preview cap, each with an explicit
+truncation notice when needed. The runner captures at most 1 MiB combined output and stops
 execution after 30 seconds. A per-job Linux subreaper supervisor retires tool
 children, including separate sessions, on completion, timeout, overflow or
 window close; Welcome holds its application lifetime until cleanup finishes.
 Failure to prove retirement is displayed and disables rerunning that check.
-No report is saved to disk. Check results do not certify health, hardware,
+Complete bounded JSON validation runs in a background GLib task. “Preparing
+report…” keeps the action disabled while the GTK main loop remains available.
+Widget updates stay on the GTK main thread. Window close cancels the pending
+result and retains application/state ownership until the bounded worker returns;
+process supervision and retirement remain separate. No report is saved to disk. Check results do not certify health, hardware,
 recovery or safe removal. Existing Doctor and Orphans tools are unchanged.
 
 Build dependencies are GCC, make and pkgconf; runtime dependencies remain GTK3
 >=3.24 and GLib >=2.74 (GIO is supplied by GLib). Doctor and Orphans are optional
 runtime dependencies. The source snapshot is local original MIT code pinned by
-SHA256; the coordinator selects the Git freeze. This successor is 0.1.0-3.
-Historical 0.1.0-1 and 0.1.0-2 native/GUI evidence does not validate this successor. See the
+SHA256; the coordinator selects the Git freeze. This successor is 0.1.0-4.
+Historical 0.1.0-1/0.1.0-2/0.1.0-3 native/GUI evidence does not validate this successor. See the
 associated development handoff for actual host checks, including the Xvfb GTK
 integration harness. That harness exercises fixtures and window-close cleanup;
 it is not native or installed-tool integration. Successor native ARM, native GUI,
@@ -69,7 +74,8 @@ make DESTDIR=/absolute/private/stage install
 ```
 
 `make check` runs seven status fixture cases, five CLI integration cases, bounded JSON report
-cases, controlled temporary process/descendant cleanup cases, and the
+cases, three report-worker lifetime/buffer/re-entry cases, controlled temporary
+process/descendant cleanup cases, and the
 read-only source/payload checks. It does not open a GUI or launch Terminal/Files.
 The optional `test-management-ui` target builds a GTK fixture integration harness
 for an ordinary user in an isolated display/session; it is not required by
