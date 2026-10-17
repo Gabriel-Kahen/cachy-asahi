@@ -321,12 +321,12 @@
       "sha256": "b2fccb056253fa3840bd854fc1d57748a3a9cde070776c2ec65940fec6f2b170"
     },
     "scripts/orphans/selected.py": {
-      "bytes": 11856,
-      "sha256": "2b9350b1805e3571e5fa17f082840d06ea793ca8939c7fba310cc6f0abb2b36d"
+      "bytes": 12680,
+      "sha256": "cacf0d72893f7bdb4e701016eaa242925ca81f03a4bd0ada008b8a164704964c"
     },
     "scripts/orphans/test_selected.py": {
-      "bytes": 9941,
-      "sha256": "15ac296dcf1134481adda0b4d9dc6594aa44fae9b7c11b6ec9eb867690e3f006"
+      "bytes": 12661,
+      "sha256": "bf391c63616122d494d6f83b692ba53950ad3feb7689b5c0bffff44e0d6842be"
     },
     "scripts/port/kernel-native-job/runtime.py": {
       "bytes": 11345,

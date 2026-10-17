@@ -64,6 +64,18 @@ def _recheck(root,alpm,proof,saved,selected,cancel):
  if cancel():raise Cancelled('cancelled before original ALPM prepare/commit')
  return current
 
+def _cached_archive(client,release,row,files):
+ # Release package metadata has no size field. Re-read the same outside cache
+ # using the original bounded single-link/no-follow streaming verifier.
+ filename=row.get('filename');need(type(filename) is str and filename not in ('','.','..') and Path(filename).name==filename and '/' not in filename and '\\' not in filename,'ordinary authenticated archive basename required')
+ member='repo/'+filename;client.reference(member,row['sha256'])
+ need(files.get(member)==row['sha256'],'authenticated package and release-file archive hashes differ')
+ fd=client.directory(release)
+ try:actual,size=client.hash_member(fd,member)
+ finally:os.close(fd)
+ need(actual==row['sha256']==files[member],'outside authenticated rollback cache bytes changed')
+ return dict(path=str(release/member),bytes=size,sha256=actual)
+
 def apply(args,*,cancel=lambda:False):
  """Original Apps apply Namespace plus selected/orphan_plan/orphan_plan_sha256."""
  need(args.confirm_disposable_transaction is True,'explicit disposable transaction confirmation required')
@@ -92,7 +104,7 @@ def apply(args,*,cancel=lambda:False):
     known={}
     for name in selected:
      need(name in context['available'] and name in rows and rows[name]['version']==plan['selected'][name]['version'],'authenticated matching rollback archive/version required')
-     row=rows[name];known[name]=dict(path=str(release/'repo'/row['filename']),bytes=row['size'],sha256=row['sha256'])
+     row=rows[name];known[name]=_cached_archive(c,release,row,context['release']['files'])
     need(not cache or known==cache,'authenticated rollback cache changed');cache.update(known)
     yield context
   app.authenticated=checked_auth;return app,c,r

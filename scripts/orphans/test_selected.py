@@ -77,10 +77,11 @@ class Controls(unittest.TestCase):
   path=self.root/'plan.json';raw=M.T.encoded(plan);path.write_bytes(raw)
   args=NS(confirm_disposable_transaction=True,selected=selected,operation='remove',release=str(self.root/'outside-cache'),orphan_plan=str(path),orphan_plan_sha256=M.T.sha(raw),**{k:'held' for k in ('full574_policy','full574_policy_sha256','full574_lease','full574_lease_sha256')})
   workspace=self.root/'workspace';actor=NS(started=True,handle=123);events=[]
+  archive=Path(args.release)/'repo/cache.pkg.tar.xz';archive.parent.mkdir(parents=True,exist_ok=True);archive.write_bytes(b'INERT SIGNED-CONTEXT ARCHIVE BYTES');digest=M.T.sha(archive.read_bytes())
   proof=NS(alpm=actor,check=lambda db:events.append('lock-check'),close=lambda:events.append('lock-close'))
   @contextmanager
   def authenticated(*a):
-   events.append('original-authenticate');yield dict(available={'cachy-asahi-cache':{}},release=dict(packages=[dict(name='cachy-asahi-cache',version=version,filename='cache.pkg.tar.xz',size=123,sha256='a'*64)]))
+   events.append('original-authenticate');yield dict(available={'cachy-asahi-cache':{}},release=dict(files={'repo/cache.pkg.tar.xz':digest},packages=[dict(name='cachy-asahi-cache',version=version,filename='cache.pkg.tar.xz',sha256=digest)]))
   @contextmanager
   def transaction(*a):events.append('original-alpm-exclusion');yield actor
   def committed(*a):events.append('original-commit');a[-1].update(commit_started=True,packages_committed=True)
@@ -90,15 +91,40 @@ class Controls(unittest.TestCase):
     result=dict(status='PASS_OWNED_DISPOSABLE_APPS_TRANSACTION',commit_started=False,packages_committed=False)
     M.T.commit(handle,{},remove or {'cachy-asahi-cache':'0.2.0-1'},{},'aarch64',result)
    return result
-  with patch.object(M.T,'root_guard',return_value=(workspace,self.root,{})),patch.object(M.O,'plan',return_value=plan),patch.object(M.O,'json_file',return_value=(saved,{})),patch.object(M.O,'inspect',return_value=(saved,[])),patch.object(M.T,'app_source',return_value=(NS(authenticated=authenticated),None,None)) as original_source,patch.object(M.T.B,'transaction',transaction),patch.object(M.T,'commit',committed),patch.object(M,'_OwnedLock',return_value=proof),patch.object(M.T,'apply',side_effect=backend):
+  with patch.object(M.T,'root_guard',return_value=(workspace,self.root,{})),patch.object(M.O,'plan',return_value=plan),patch.object(M.O,'json_file',return_value=(saved,{})),patch.object(M.O,'inspect',return_value=(saved,[])),patch.object(M.T,'app_source',return_value=(NS(authenticated=authenticated),M.T.B.client,None)) as original_source,patch.object(M.T.B,'transaction',transaction),patch.object(M.T,'commit',committed),patch.object(M,'_OwnedLock',return_value=proof),patch.object(M.T,'apply',side_effect=backend):
    try:return M.apply(args),events
    finally:
     self.assertIs(M.T.app_source,original_source);self.assertIs(M.T.B.transaction,transaction);self.assertIs(M.T.commit,committed)
  def test_delegates_existing_auth_exclusion_exact_remove_commit_and_retains_cache(self):
   result,events=self.delegated();self.assertEqual(result['status'],'PASS_SELECTED_CATALOG_ORPHAN_REMOVAL_IN_OWNED_COPY')
   self.assertLess(events.index('original-authenticate'),events.index('original-alpm-exclusion'));self.assertLess(events.index('original-alpm-exclusion'),events.index('original-commit'));self.assertEqual(events[-1],'lock-close')
-  self.assertEqual(result['retained_matching_signed_cache']['cachy-asahi-cache']['sha256'],'a'*64)
+  self.assertEqual(result['retained_matching_signed_cache']['cachy-asahi-cache'],dict(path=str(self.root/'outside-cache/repo/cache.pkg.tar.xz'),bytes=len(b'INERT SIGNED-CONTEXT ARCHIVE BYTES'),sha256=M.T.sha(b'INERT SIGNED-CONTEXT ARCHIVE BYTES')))
  def test_mismatching_rollback_archive_and_extra_removal_refuse_and_restore(self):
   with self.assertRaisesRegex(ValueError,'rollback archive'):self.delegated(version='changed')
   with self.assertRaisesRegex(ValueError,'explicit orphan selection'):self.delegated(remove={'cachy-asahi-cache':'0.2.0-1','extra':'1'})
+ def archive_fixture(self):
+  release=self.root/'known-good';archive=release/'repo/apps.pkg.tar.xz';archive.parent.mkdir(parents=True);archive.write_bytes(b'actual inert bytes no size declared')
+  row=dict(name='cachy-asahi-apps',version='0.1.0-5',arch='any',filename=archive.name,sha256=M.T.sha(archive.read_bytes()),provenance='provenance/cachy-asahi-apps.json',depend=['cachy-asahi-repository-runtime=0.1.0-1'],files=['usr/bin/cachy-asahi-apps'],provides=[],conflict=[],replaces=[],license=['MIT'])
+  return release,archive,row,{'repo/'+archive.name:row['sha256']}
+ def test_real_release_row_schema_without_size_uses_measured_original_cache_bytes(self):
+  release,archive,row,files=self.archive_fixture();self.assertNotIn('size',row)
+  result=M._cached_archive(M.T.B.client,release,row,files)
+  self.assertEqual(result,dict(path=str(archive),bytes=archive.stat().st_size,sha256=M.T.sha(archive.read_bytes())))
+ def test_changed_cache_or_signed_row_file_map_hashes_refuse(self):
+  release,archive,row,files=self.archive_fixture()
+  for changed in ({},dict(files,**{'repo/'+archive.name:'0'*64})):
+   with self.assertRaisesRegex(ValueError,'release-file'):M._cached_archive(M.T.B.client,release,row,changed)
+  archive.write_bytes(b'changed cache payload')
+  with self.assertRaisesRegex(ValueError,'cache bytes changed'):M._cached_archive(M.T.B.client,release,row,files)
+ def test_cache_aliases_escaping_names_and_original_finite_bound_refuse(self):
+  release,archive,row,files=self.archive_fixture();original=archive.read_bytes();outside=self.root/'outside';outside.write_bytes(original)
+  archive.unlink();archive.symlink_to(outside)
+  with self.assertRaises(OSError):M._cached_archive(M.T.B.client,release,row,files)
+  archive.unlink();os.link(outside,archive)
+  with self.assertRaisesRegex(M.T.B.client.Error,'non-hardlinked'):M._cached_archive(M.T.B.client,release,row,files)
+  archive.unlink();archive.write_bytes(original)
+  for name in ('../escape','/absolute','subdir/archive','',None,'file\\name'):
+   with self.subTest(name=name),self.assertRaises(ValueError):M._cached_archive(M.T.B.client,release,dict(row,filename=name),files)
+  with archive.open('r+b') as stream:stream.truncate(M.T.B.client.MAX_FILE+1)
+  with self.assertRaisesRegex(M.T.B.client.Error,'bounded size'):M._cached_archive(M.T.B.client,release,row,files)
 if __name__=='__main__':unittest.main(verbosity=2)

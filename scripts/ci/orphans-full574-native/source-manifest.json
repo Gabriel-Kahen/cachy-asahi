@@ -361,8 +361,8 @@
       "sha256": "ccf1d884609a69f03fa1b34546d0864de31f974cd7804fd3793272f796c1d28c"
     },
     "scripts/ci/orphans-full574-native/source-pins.json": {
-      "bytes": 15439,
-      "sha256": "bbf8fe2c732f868adf895e11d9cab2c4c696e4b001cc4a7e96613c85e0c5772c"
+      "bytes": 15440,
+      "sha256": "de5a38263f27e3fb72e04c691a226b5871d8933368acffb38fb011f1b8c438e5"
     },
     "scripts/ci/orphans-full574-native/stage_source.py": {
       "bytes": 3736,
@@ -393,12 +393,12 @@
       "sha256": "b2fccb056253fa3840bd854fc1d57748a3a9cde070776c2ec65940fec6f2b170"
     },
     "scripts/orphans/selected.py": {
-      "bytes": 11856,
-      "sha256": "2b9350b1805e3571e5fa17f082840d06ea793ca8939c7fba310cc6f0abb2b36d"
+      "bytes": 12680,
+      "sha256": "cacf0d72893f7bdb4e701016eaa242925ca81f03a4bd0ada008b8a164704964c"
     },
     "scripts/orphans/test_selected.py": {
-      "bytes": 9941,
-      "sha256": "15ac296dcf1134481adda0b4d9dc6594aa44fae9b7c11b6ec9eb867690e3f006"
+      "bytes": 12661,
+      "sha256": "bf391c63616122d494d6f83b692ba53950ad3feb7689b5c0bffff44e0d6842be"
     },
     "scripts/port/kernel-native-job/runtime.py": {
       "bytes": 11345,
