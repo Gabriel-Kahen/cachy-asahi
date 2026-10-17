@@ -261,8 +261,8 @@
       "sha256": "6d674c220f618716f296071fdf6731255ababc669fa6e3880a5ce69a94718d1d"
     },
     "scripts/ci/expanded604-apps6-public-pairs/input-policy.json": {
-      "bytes": 26810,
-      "sha256": "4e211301105b13b8a6a35988d75efc7bc25ec012fe5bdfb1c64e842be5844c6e"
+      "bytes": 26858,
+      "sha256": "a97b82d79e5aa967cde1b65c2f0a8b47cfd24d8cd3854b070dc919753a479e30"
     },
     "scripts/ci/expanded604-apps6-public-pairs/inputs.py": {
       "bytes": 17777,
@@ -285,8 +285,8 @@
       "sha256": "c06e8aabcca5793b65010a504457954eae49bd209115017e72f1a69f32584863"
     },
     "scripts/ci/expanded604-apps6-public-pairs/policy.json": {
-      "bytes": 26810,
-      "sha256": "4e211301105b13b8a6a35988d75efc7bc25ec012fe5bdfb1c64e842be5844c6e"
+      "bytes": 26858,
+      "sha256": "a97b82d79e5aa967cde1b65c2f0a8b47cfd24d8cd3854b070dc919753a479e30"
     },
     "scripts/ci/expanded604-apps6-public-pairs/prepare.py": {
       "bytes": 7155,
