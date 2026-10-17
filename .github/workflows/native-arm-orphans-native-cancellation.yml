@@ -149,12 +149,15 @@ jobs:
         run: |
           set -uo pipefail
           echo ORIGINAL_CANCELLED_EXPORT_ONLY
-          python3 -I -B "$SLICE/job.py" retain --trial "$TRIAL" --source "$GITHUB_WORKSPACE" \
+          if python3 -I -B "$SLICE/job.py" retain --trial "$TRIAL" --source "$GITHUB_WORKSPACE" \
             --packet "$GITHUB_WORKSPACE/retained-apps574-inputs/payload" \
             --proof "$RUNNER_TEMP/apps574-source-proof.json" --base "$RUNNER_TEMP/desktop574" \
             --output "$RUNNER_TEMP/apps574-runtime" --receipt "$RUNNER_TEMP/apps574-cleanup.json" \
-            --public "$RUNNER_TEMP/orphans-cancellation-export/original"
-          original_status=$?
+            --public "$RUNNER_TEMP/orphans-cancellation-export/original"; then
+            original_status=0
+          else
+            original_status=$?
+          fi
           test "$original_status" -eq 1 || exit 1
           python3 -I -B "$COMPONENT/cancel.py" complete --source "$GITHUB_WORKSPACE" \
             --proof "$RUNNER_TEMP/apps574-source-proof.json" --base "$RUNNER_TEMP/desktop574" \

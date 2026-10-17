@@ -418,12 +418,12 @@
       "sha256": "0d7ebf8315c72a7b32de965fec8d087a27455b67c14d2701200a1543b8acf578"
     },
     "scripts/ci/orphans-native-cancellation/cancel.py": {
-      "bytes": 20649,
-      "sha256": "ab1366007bc0cc8d090554f8c0bc50d669b5015077ccd41f21272c63d6690370"
+      "bytes": 23146,
+      "sha256": "e235c81ef82362e0135e1574ca7b8178244b55d4aae8e5607d4b4a3293bb8e94"
     },
     "scripts/ci/orphans-native-cancellation/test_cancel.py": {
-      "bytes": 6784,
-      "sha256": "27e6695b43c677238c208612177d5ddc3def1fc6fdd8cbab30969fcff217190a"
+      "bytes": 11330,
+      "sha256": "7b78d1d7f400c203105324a33fd03079985f4207821814f2b8b73af3537bda58"
     },
     "scripts/client/client.py": {
       "bytes": 28669,
