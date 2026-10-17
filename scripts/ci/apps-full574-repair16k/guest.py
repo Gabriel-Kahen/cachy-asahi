@@ -25,6 +25,22 @@ def worker_failure(s,record,out,err,error):
  raw=C.encoded(value);C.need(len(raw)<=65536,'bounded failure-only diagnostic frame')
  print('APPS574_REPAIR16K_FAILURE '+s['nonce']+' '+json.dumps(value,sort_keys=True,separators=(',',':')),flush=True);return True
 
+def lifecycle_failure(s,record,out,err,error):
+ """Original inner-child receipt and bounded stderr only; no map/readback authority."""
+ if error is None and record['exit_code']==0 and record['group_absence_verified'] is True:return False
+ C.need(type(s['nonce'])is str and len(s['nonce'])==32 and all(c in '0123456789abcdef' for c in s['nonce']) and s['case'] in C.CASES,'inner diagnostic nonce/case')
+ keys={'argv','exit_code','seconds','time_limit','output_limit','group_absence_verified','stdout_bytes','stdout_sha256','stderr_bytes','stderr_sha256'}
+ C.need(type(record)is dict and set(record)==keys and record['argv']==['/usr/bin/python3','-I','-B','/workspace/execution-lifecycle.py'] and type(record['exit_code'])is int and type(record['group_absence_verified'])is bool and record['time_limit']==3000 and record['output_limit']==2*1024**2,'original fixed lifecycle supervisor record')
+ C.need(type(out)is bytes and type(err)is bytes and len(out)+len(err)<=2*1024**2,'unchanged original combined lifecycle output cap')
+ for name,raw in (('stdout',out),('stderr',err)):
+  C.need(record[name+'_bytes']==len(raw) and record[name+'_sha256']==C.sha(raw),'inner original lifecycle buffer join')
+ tail=err[-2048:];failure=None
+ if error is not None:
+  raw=str(error).encode('utf-8','backslashreplace');failure=dict(type=type(error).__name__[:128],utf8_bytes=len(raw),sha256=C.sha(raw))
+ value=dict(schema_version=1,event='lifecycle_failure',status='DIAGNOSTIC_ONLY_NOT_ACCEPTANCE_OR_CLEANUP_AUTHORITY',case=s['case'],supervisor=record,stderr_tail=dict(bytes=len(tail),sha256=C.sha(tail),base64=base64.b64encode(tail).decode(),truncated=len(err)!=len(tail)),stdout='HASH_AND_LENGTH_ONLY_NO_PRIVATE_MAP_EXPORT',error=failure,retirement='ORIGINAL_GROUP_ABSENCE_RECORDED' if record['group_absence_verified'] is True else 'UNKNOWN_GROUP_ABSENCE_NO_CLEANUP_AUTHORITY',acceptance_authority=False,cleanup_authority=False,guest_disk_readback='NOT_ESTABLISHED')
+ raw=C.encoded(value);C.need(len(raw)<=12288,'bounded inner lifecycle diagnostic frame')
+ print('APPS574_REPAIR16K_INNER_FAILURE '+s['nonce']+' '+json.dumps(value,sort_keys=True,separators=(',',':')),flush=True);return True
+
 def borrowed_isolation():
  path=Path('/source/scripts/ci/current604-apps6-updater16k/guest.py');space=dict(C=C,Path=Path,os=os,ctypes=ctypes,errno=errno,ast=ast)
  C.function(path,'facts',space);raw=C.read(path).decode();node=next(n for n in ast.parse(raw).body if isinstance(n,ast.FunctionDef) and n.name=='isolate');text=ast.get_source_segment(raw,node);old="'EXACT_ORIGINAL_CALLER_NINE_CAPABILITIES_NO_SYS_ADMIN'";C.need(text.count(old)==1,'one source scope description');text=text.replace(old,"'EXACT_ORIGINAL_REPAIR_FIVE_CAPABILITIES_NO_SYS_ADMIN'");exec(compile(text,str(path)+':five-cap-profile','exec'),space);return space['isolate']()
@@ -57,6 +73,7 @@ def worker(s):
  env=dict(native.ENV,HOME='/tmp',TMPDIR='/tmp',PYTHONDONTWRITEBYTECODE='1',**s['env']);os.environ.clear();os.environ.update(env);runtime=C.load('runtime','/source/scripts/ci/glibc-owned-runtime/runner.py')
  record,out,err,error=runtime.run_command(['/usr/bin/python3','-I','-B','/workspace/execution-lifecycle.py'],Path('/tmp'),env,3000,2*1024**2)
  Path('/out/repair16k-child.stdout').write_bytes(out);Path('/out/repair16k-child.stderr').write_bytes(err);C.save('/out/repair16k-child.json',record)
+ lifecycle_failure(s,record,out,err,error)
  C.need(error is None and record['exit_code']==0 and record['group_absence_verified'] is True,'original case direct child/group retirement');life=native.result(C.decode(C.read('/out/lifecycle.json',4*1024**2)));C.need(life['case']==s['case'] and not Path('/work/main').exists(),'exact single case and original actual copied-root disposal')
  limits=source_budget(s,T);after=A.measure(Path('/seed'),limits);A.capability_map(Path('/seed'),after,limits,caps);C.need(after['nodes']==before['nodes'],'full actual guest source preserved')
  reader=C.load('elf_reader','/source/scripts/virtual/generic16k/fixture.py');audit=C.load('elf_audit','/source/scripts/ci/managed-gui-generic16k/elf_audit.py');elf=audit.audit(Path('/seed'),reader);C.need(elf['status']=='PASS_STAGED_NATIVE_AARCH64_ELF16K_ALIGNMENT','full original574 ELF audit');C.save('/out/repair16k-worker.json',dict(status='PRIVATE_COMPLETE_CASE',case=s['case'],isolation=isolation,child=record,source_tree_sha256=A.digest(after['nodes']),source_capabilities_sha256=A.digest(caps),ELF=dict(status=elf['status'],sha256=C.sha(C.encoded(elf)),count=len(elf['ELF'])),native_host='NOT_CLAIMED',hardware='NOT_RUN'))

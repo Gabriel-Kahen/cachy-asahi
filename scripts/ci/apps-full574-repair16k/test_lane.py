@@ -175,7 +175,7 @@ class Lane(unittest.TestCase):
  def test_lifecycle_genuine_case_loop_and_helpers_byte_AST_preserved(self):
   raw=self.native('lifecycle.py');out=adapter.lifecycle(raw);before=adapter.functions(raw);after=adapter.functions(out)
   self.assertEqual([n for n in before if before[n]!=after[n]],['inspected','main']);self.assertEqual(set(after)-set(before),{'_vm_backend'})
-  # Compare each main loop; only entry predicate changes before those loops.
+  # Transaction loops stay exact; only readonly /seed baseline/after budgets route.
   self.assertEqual([dump(n) for n in ast.walk(function(raw,'main')) if isinstance(n,ast.For)],[dump(n) for n in ast.walk(function(out,'main')) if isinstance(n,ast.For)])
   for n in ('owned','observed','argv','leaf','damage','restore','repaired'):self.assertEqual(before[n],after[n])
   self.assertIn(b"sys.path.insert(0,'/source/scripts/ci/apps-full574-repair-native');import contract as C",out);self.assertIn(b"SOURCE/'scripts/ci/apps-full574-repair-native/checks.py'",out);self.assertIn(b'/execution/scripts/apps/repair_inspection.py',out);self.assertNotIn(b"Path('/.dockerenv')",out)
@@ -377,8 +377,77 @@ class SourceStateBudget(unittest.TestCase):
   # Frozen46ea function text pins are independent of the emitter input version.
   held={'emit': '650d75247ddbdf3928580177f5c9c06eba6474905ac254b847e8b92795939585', 'worker_failure': 'fbfdca318e1c51b496798c8ebb33657f0dfea1f757ccc015e97076665ef96636', 'borrowed_isolation': '6b38825b912670d361da3d552b3fffc2b9a2fd93a99abbe9e1eccf96b82bde8f', 'startup': 'e112e6fb79d144dfc88292551fa30ac06b217399f75a5262d57d18fc975e6e95', 'lease': '355f10825acd172d933b8b44958e202b028610f3651185cc4a072094c89f6a57', 'source_state': '78411b4340d8db0b93957fbe7d660adb72c537780b36e2531103d91c8745053d', 'worker': '8e4ee93f6e88e66be5f8fb045c5d546d1e7bf91925d0b76d1ae234926af589c7', 'main': '69e1b579e7d6b698eaa6499a359bbafe07243581296c4843b563f548c50fa0ab'}
   after=(HERE/'guest.py').read_text();nodes={n.name:n for n in ast.parse(after).body if isinstance(n,ast.FunctionDef)}
-  self.assertEqual(set(nodes),set(held)|{'source_budget'})
+  self.assertEqual(set(nodes),set(held)|{'source_budget','lifecycle_failure'})
   changed=[name for name,digest in held.items() if hashlib.sha256(ast.get_source_segment(after,nodes[name]).encode()).hexdigest()!=digest]
   self.assertEqual(changed,['source_state','worker']);self.assertIn('env,3000,2*1024**2)',after);self.assertEqual(after.count('limits=source_budget(s,T)'),2)
+
+class InnerLifecycleBudget(unittest.TestCase):
+ def test_genuine_factory_refuses_old300_deadline_and_retains_authenticated600(self):
+  from types import SimpleNamespace
+  source=Path(os.environ['FULL574_REPAIR16K_SOURCE']);T=C.load('inner_budget_real_transaction',source/'scripts/apps/transaction.py')
+  derived=adapter.lifecycle(C.read(source/C.NATIVE/'lifecycle.py'))
+  nodes=[n for n in ast.parse(derived).body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id.startswith('_vm_source_') for t in n.targets)]
+  self.assertEqual(len(nodes),3)
+  with tempfile.TemporaryDirectory() as td:
+   inputs=Path(td);common=dict(schema_version=1,purpose='APPS_ORIGINAL574_READONLY_CLOSURE',execution_budget=dict(backend_seconds=600,caller_seconds=610),**{n:'a'*64 for n in ('snapshot_sha256','extraction_receipt_sha256','source_tree_sha256','source_packages_sha256','source_closure_sha256','source_capabilities_sha256')})
+   policy=dict(common,baseline_lock_sha256='b'*64,candidates={},source_capabilities={});lease=dict(common,token='c'*32,source='/seed',source_identity=[1,2])
+   C.save(inputs/'full574-policy.json',policy);C.save(inputs/'full574-lease.json',lease)
+   def factory():
+    import types
+    space=dict(INPUTS=inputs,C=C,types=types);exec(compile(ast.Module(body=nodes,type_ignores=[]),'<derived-real-source-budget>','exec'),space);return T.limits(space['_vm_source_scope'])
+   # Real T.limits, policy_pair, pinned reads and full-root deadline tick, no synthetic success.
+   with patch.object(T.time,'monotonic',return_value=100):old=T.limits();new=factory()
+   self.assertEqual(old.deadline,400);self.assertEqual(new.deadline,700)
+   with patch.object(T.time,'monotonic',return_value=401):
+    with self.assertRaisesRegex(ValueError,'root observation deadline'):old.tick()
+    new.tick()
+   with patch.object(T.time,'monotonic',return_value=701):
+    with self.assertRaisesRegex(ValueError,'root observation deadline'):new.tick()
+   for variant in ('mixed','missing','fields'):
+    changed=copy.deepcopy(policy)
+    if variant=='mixed':changed['execution_budget']['backend_seconds']=300
+    if variant=='missing':changed.pop('execution_budget')
+    if variant=='fields':changed['unexpected']='refuse'
+    C.save(inputs/'full574-policy.json',changed)
+    with self.assertRaises(ValueError):factory()
+ def test_exact_four_source_operands_only_and_genuine_case_loops_held(self):
+  source=Path(os.environ['FULL574_REPAIR16K_SOURCE']);raw=C.read(source/C.NATIVE/'lifecycle.py');derived=adapter.lifecycle(raw)
+  self.assertEqual(derived.count(b'T.limits(_vm_source_scope)'),4)
+  self.assertEqual(adapter.functions(raw)['observed'],adapter.functions(derived)['observed'])
+  self.assertIn(b"adapter.measure(workspace/'root',T.limits())",derived)
+  for before,after in zip([n for n in ast.walk(function(raw,'main')) if isinstance(n,ast.For)],[n for n in ast.walk(function(derived,'main')) if isinstance(n,ast.For)]):self.assertEqual(dump(before),dump(after))
+  for altered in (raw.replace(b"adapter.measure(Path('/seed'),T.limits())",b"adapter.measure(Path('/seed'),T.limits(None))",1),raw.replace(b"adapter.capability_map(Path('/seed'),baseline,T.limits())",b'changed_scan')):
+   with self.assertRaises(ValueError):adapter.lifecycle(altered)
+
+class InnerLifecycleDiagnostic(unittest.TestCase):
+ def setUp(self):
+  import io
+  self.io=io;self.guest=C.load('inner_failure_guest',HERE/'guest.py');self.selection=dict(nonce='d'*32,case='repair-bytes')
+ def row(self,out,err,**change):
+  return dict(dict(argv=['/usr/bin/python3','-I','-B','/workspace/execution-lifecycle.py'],exit_code=1,seconds=300.1,time_limit=3000,output_limit=2*1024**2,group_absence_verified=True,stdout_bytes=len(out),stdout_sha256=C.sha(out),stderr_bytes=len(err),stderr_sha256=C.sha(err)),**change)
+ def capture(self,row,out,err,error=None):
+  from contextlib import redirect_stdout
+  stream=self.io.StringIO()
+  with redirect_stdout(stream):result=self.guest.lifecycle_failure(self.selection,row,out,err,error)
+  return result,stream.getvalue()
+ def test_exact_original_inner_failure_nested_frame_no_stdout_map_export(self):
+  import base64
+  out=b'PRIVATE_COMPLETE_MAP_NEVER_PREVIEW'*100;err=b'Traceback original failure\n'*150+b'ValueError: root observation deadline\n';row=self.row(out,err);saved=copy.deepcopy(row)
+  with patch.object(subprocess,'Popen',side_effect=AssertionError('no actors')):emitted,wire=self.capture(row,out,err)
+  self.assertTrue(emitted);self.assertEqual(saved,row);self.assertNotIn('PRIVATE_COMPLETE_MAP',wire);self.assertLess(len(wire.encode()),12288)
+  v=C.decode(wire.split(' ',2)[2]);self.assertEqual(v['supervisor'],row);self.assertEqual(base64.b64decode(v['stderr_tail']['base64'],validate=True),err[-2048:]);self.assertEqual(v['stderr_tail']['sha256'],C.sha(err[-2048:]));self.assertTrue(v['stderr_tail']['truncated']);self.assertFalse(v['acceptance_authority']);self.assertFalse(v['cleanup_authority'])
+  # A real original outer diagnostic can carry the entire inner frame within its16KiB prefix.
+  outer_out=wire.encode();outer=self.row(outer_out,b'',argv=['/usr/bin/python3','-I','-B','/workspace/guest.py','worker'])
+  from contextlib import redirect_stdout
+  capture=self.io.StringIO()
+  with patch.object(subprocess,'Popen',side_effect=AssertionError('no actors')),redirect_stdout(capture):self.guest.worker_failure(self.selection,outer,outer_out,b'',None)
+  original=C.decode(capture.getvalue().split(' ',2)[2]);self.assertEqual(base64.b64decode(original['streams']['stdout']['prefix_base64']),outer_out);self.assertFalse(original['streams']['stdout']['truncated'])
+ def test_success_unknown_absence_and_changed_input_never_change_original_guard(self):
+  self.assertEqual(self.capture(self.row(b'',b'',exit_code=0),b'',b''),(False,''))
+  _,wire=self.capture(self.row(b'',b'',group_absence_verified=False),b'',b'',ValueError('command-time-limit'));v=C.decode(wire.split(' ',2)[2]);self.assertEqual(v['retirement'],'UNKNOWN_GROUP_ABSENCE_NO_CLEANUP_AUTHORITY');self.assertEqual(v['error']['sha256'],C.sha(b'command-time-limit'))
+  for change in (dict(stdout_sha256='0'*64),dict(argv=['/arbitrary']),dict(time_limit=600),dict(output_limit=4*1024**2)):
+   with self.assertRaises(ValueError):self.capture(self.row(b'a',b'',**change),b'a',b'')
+  raw=(HERE/'guest.py').read_text();self.assertIn(" lifecycle_failure(s,record,out,err,error)\n C.need(error is None and record['exit_code']==0 and record['group_absence_verified'] is True,'original case direct child/group retirement')",raw)
+  self.assertIn("env,3000,2*1024**2)",raw)
 
 if __name__=='__main__':unittest.main()
