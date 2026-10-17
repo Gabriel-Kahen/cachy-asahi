@@ -45,7 +45,7 @@ jobs:
         timeout-minutes: 2
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '7483637091e30cc12d260ac01c3c4bf9af6b6330b5d7296068bfee9476678ef1' 'scripts/ci/glibc-gnu-provider-installed16k-interruption/ci/wiring.py' 'b8852976f532ea8ec52807ad15abcfbcaaf932fa29c069a2f3dcac7c9741afbb' 'scripts/ci/glibc-gnu-provider-installed16k-interruption/ci/integration-manifest.json' | sha256sum --check
+          printf '%s  %s\n' '7483637091e30cc12d260ac01c3c4bf9af6b6330b5d7296068bfee9476678ef1' 'scripts/ci/glibc-gnu-provider-installed16k-interruption/ci/wiring.py' '3125f09bf5b7e3377287408a6614d91a1f67f4238e9ec03a151149d066512dfd' 'scripts/ci/glibc-gnu-provider-installed16k-interruption/ci/integration-manifest.json' | sha256sum --check
           python3 -I -B scripts/ci/glibc-gnu-provider-installed16k-interruption/ci/wiring.py preflight --workspace "$GITHUB_WORKSPACE"
           printf 'BUNDLE=%s/interrupted16k-source\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
       - name: Read only exact immutable native interruption Root decision
