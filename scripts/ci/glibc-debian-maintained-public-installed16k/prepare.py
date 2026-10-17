@@ -21,7 +21,7 @@ def load(n,p):
 def read(p,cap=16*1024**2):
  need(not any(x.is_symlink() for x in (p,*p.parents)),'ordinary unaliased source');s=p.stat();need(p.is_file() and s.st_nlink==1 and 0<s.st_size<=cap,'bounded single-link source');raw=p.read_bytes();need(len(raw)==s.st_size,'source changed');return raw
 def rows():
- v=json.loads(read(HERE/'source-pins.json'));need(v['schema_version']==1 and v['native_source']==COMPONENT and len(v['implementation'])==144 and len(v['native_component'])==159,'finite explicit144/159 source roles');return v
+ v=json.loads(read(HERE/'source-pins.json'));need(v['schema_version']==1 and v['native_source']==COMPONENT and len(v['implementation'])==146 and len(v['native_component'])==159,'finite explicit146/159 source roles');return v
 def verify(root,files):
  for n,row in files.items():need(pin(read(root/n))==row,'exact source differs: '+n)
 def source(root):
@@ -57,7 +57,7 @@ def phase(raw):
 def derive(root,component,output):
  held=source(root);native(component);need(not output.exists() and output.parent.is_dir() and not any(p.is_symlink() for p in (output,*output.parents)),'fresh ordinary output')
  G=load('public_installed_original_generator',root/LANE/'generator.py');receipt=G.emit(root,output)
- # Original nine VM modules and all native transaction bodies are generated first.
+ # Original VM modules plus bounded progress helper and all native transaction bodies are generated first.
  for n in held['implementation']:
   q=output/n;q.parent.mkdir(parents=True,exist_ok=True);q.write_bytes(read(root/n))
  for n in held['native_component']:
