@@ -266,4 +266,59 @@ class Controls(unittest.TestCase):
             changed=copy.deepcopy(nodes);changed['usr/b'][key]=value
             with self.subTest(key=key),self.assertRaises(ValueError):lane.payload(changed,nodes)
 
+
+    def test_pre_yield_copy_failure_keeps_stage_and_original_error(self):
+        from contextlib import contextmanager
+        bridge=self.capability_api()['capabilities'];evidence={}
+        @contextmanager
+        def refused(*a,**kw):
+            raise ValueError('original copy guard')
+            yield
+        with patch.object(bridge.scope,'copied_root',side_effect=refused),self.assertRaisesRegex(ValueError,'original copy guard'):
+            with bridge.copied_root({},'/held','/work/pristine',{},evidence=evidence):self.fail('no yield')
+        self.assertEqual(evidence['stage'],'COPY_ENTER')
+        self.assertEqual(evidence['failure'][0]['message'],'original copy guard')
+        self.assertNotIn('lifetime',evidence)
+
+    def test_restore_refusal_retains_real_retired_lifetime_before_caller_yield(self):
+        from contextlib import contextmanager
+        api=self.capability_api();bridge=api['capabilities'];lifetime={};evidence={}
+        @contextmanager
+        def copied(*a,**kw):
+            try:yield self.root,lifetime
+            finally:lifetime['cleanup']='PASS-owned-workspace-removed'
+        api['roots']=NS(observe=lambda *a,**k:{'nodes':{}})
+        index=dict(source_capabilities={},source_capabilities_sha256=bridge.digest({}))
+        with patch.object(bridge.scope,'copied_root',side_effect=copied),patch.object(api['caps'],'restore',side_effect=ValueError('original cap guard')),self.assertRaisesRegex(ValueError,'original cap guard'):
+            with bridge.copied_root(api,'/held','/work/pristine',index,evidence=evidence,limits=None):self.fail('no yield')
+        self.assertEqual(evidence['stage'],'CAPABILITY_RESTORE')
+        self.assertEqual(evidence['lifetime']['cleanup'],'PASS-owned-workspace-removed')
+
+    def test_original_primary_is_not_masked_by_missing_clone_lifetime(self):
+        from contextlib import contextmanager
+        bridge=self.capability_api()['capabilities'];report={}
+        @contextmanager
+        def refused(*a,**kw):
+            raise ValueError('primary copy guard')
+            yield
+        api=dict(capabilities=bridge);source={'nodes':{'inert':{'sha256':'a'*64}}}
+        sha=C.sha(json.dumps(source['nodes'],sort_keys=True).encode())
+        with patch.object(bridge,'copied_root',side_effect=refused),patch.object(lane,'limits',return_value=None),patch.object(lane,'snapshot',return_value=source),patch.object(lane,'database',return_value=[]),patch.object(lane,'inventory',return_value={}),self.assertRaisesRegex(ValueError,'primary copy guard'):
+            lane.run_case(api,None,{'source_nodes_sha256':sha},{},{},{},'pristine',report)
+        self.assertEqual(report['primary_failure'][0]['message'],'primary copy guard')
+        self.assertEqual(report['cleanup_failure'][0]['message'],'complete clone cleanup verified')
+        self.assertEqual(report['clone_cleanup_check'],'FAIL_OR_UNESTABLISHED')
+        self.assertEqual(report['source_before'],report['source_after'])
+
+    def test_failure_chain_metadata_is_bounded_and_excludes_frame_locals(self):
+        bridge=self.capability_api()['capabilities']
+        try:
+            try:raise ValueError('p'*10000)
+            except ValueError as first:raise RuntimeError('outer') from first
+        except RuntimeError as error:rows=bridge.failure(error)
+        self.assertEqual([r['type'] for r in rows],['RuntimeError','ValueError'])
+        self.assertEqual(len(rows[1]['message']),512)
+        self.assertLess(len(json.dumps(rows)),8192)
+        self.assertTrue(all(set(f)=={'file','function','line'} for r in rows for f in r['frames']))
+
 if __name__=='__main__':unittest.main()
