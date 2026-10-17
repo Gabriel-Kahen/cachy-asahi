@@ -45,7 +45,9 @@ Consumer ownership tokens and labels have a separate Debian namespace.
 unchanged. Exactly four counted retention edits accept an explicit emitted
 harness, remove the fixed old harness path, permit the Debian archive plus
 12MiB Sources index under the existing 96MiB source cap, and qualify the final
-success status as Debian. All other per-file bounds, required proof checks and
+success status as Debian. Before export the owner rechecks the exact preparation output manifest pin and
+its closed, flat, at-most32 files, preventing an emitted-path change from
+expanding the export. All other per-file bounds, required proof checks and
 768MiB aggregate cap remain unchanged. Export is a closed list of public source,
 new packages, compiler artifacts and bounded evidence/log tails; no rootfs or
 broad workspace upload. Evidence retention is three days.

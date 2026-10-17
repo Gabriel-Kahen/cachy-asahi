@@ -44,6 +44,15 @@ def prepare(root,inputs,harness,bundle,policy_path=HERE/'input-policy.json'):
  sys.path.insert(0,str(harness));m=module('debian_lane_materializer',harness/'materialize.py');m.materialize(root/'packages/core/cachy-asahi-glibc-debian-provider',inputs,bundle)
  return dict(status='PASS_NEW_DEBIAN_SOURCE_PREPARED_NO_NATIVE_CREDIT',packet=receipt,harness_manifest_sha256=hashlib.sha256((harness/'source-manifest.json').read_bytes()).hexdigest(),bundle_manifest_sha256=hashlib.sha256((bundle/'bundle.json').read_bytes()).hexdigest())
 
+def held_harness(j,harness,pin):
+ need(isinstance(pin,str) and re.fullmatch('[0-9a-f]{64}',pin),'explicit emitted harness manifest pin required')
+ manifest=harness/'source-manifest.json';j.regular(manifest,65536);need(j.sha(manifest)==pin,'emitted harness manifest changed before export');files=j.read(manifest,65536)['files']
+ need(type(files) is dict and 1<=len(files)<=32 and {p.name for p in harness.iterdir()}==set(files)|{'source-manifest.json'},'closed emitted harness required')
+ for name,row in files.items():
+  need(Path(name).name==name and name not in ('.','..'),'flat emitted harness name required');path=harness/name;info=j.regular(path,256*1024)
+  need(info.st_size==row['bytes'] and j.sha(path)==row['sha256'],'emitted harness file changed before export')
+ return files
+
 def ordinary_cleanup(j):
  need(platform.system()=='Linux' and platform.machine()=='aarch64' and os.getuid()==os.geteuid()>0 and not any(k.startswith('DOCKER_') for k in os.environ),'ordinary local native cleanup required')
  context=j.invoke(['/usr/bin/docker','context','inspect','default']);need(context.returncode==0 and json.loads(context.stdout)[0]['Endpoints']['docker']['Host']=='unix:///var/run/docker.sock','local default cleanup daemon required')
@@ -52,7 +61,7 @@ def ordinary_cleanup(j):
 def main():
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('phase',choices=('proof','prepare','cleanup','retain'))
  for key in ('workspace','manifest','proof','inputs','harness','bundle','base','runtime','cleanup','output'):p.add_argument('--'+key,type=Path)
- a=p.parse_args();need(not sys.flags.optimize,'ordinary unoptimized Python required');root=a.workspace.resolve(strict=True);j=source(root,json.loads(a.manifest.read_bytes()))
+ p.add_argument('--harness-manifest-sha256');a=p.parse_args();need(not sys.flags.optimize,'ordinary unoptimized Python required');root=a.workspace.resolve(strict=True);j=source(root,json.loads(a.manifest.read_bytes()))
  if a.phase=='proof':
   value=prove(root,json.loads(a.manifest.read_bytes()),os.environ);value['manifest_sha256']=j.sha(a.manifest)
   with a.proof.open('x') as stream:json.dump(value,stream,sort_keys=True,indent=2);stream.write('\n')
@@ -64,6 +73,7 @@ def main():
    for key in ('harness_manifest_sha256','bundle_manifest_sha256'):stream.write(key+'='+value[key]+'\n')
  elif a.phase=='cleanup':
   ordinary_cleanup(j);value=j.cleanup(root,json.loads(a.manifest.read_bytes()),j.read(a.proof),a.base,a.runtime,a.output)
- else:value=j.retain(root,a.base,a.runtime,a.bundle,a.proof,a.cleanup,a.output,a.harness)
+ else:
+  held_harness(j,a.harness,a.harness_manifest_sha256);value=j.retain(root,a.base,a.runtime,a.bundle,a.proof,a.cleanup,a.output,a.harness)
  print(json.dumps(value,sort_keys=True));return int(not value['status'].startswith(('SOURCE_PROOF_PASS','PASS_')))
 if __name__=='__main__':raise SystemExit(main())
