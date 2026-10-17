@@ -61,9 +61,9 @@ def inputs(root,packet_root):
   for side in ('a','b'):closure.candidate_metadata(checked(packet_root,row['files'][side]))
  return value,payload,origins
 
-def adapter(root):
+def adapter(root,inputs=Path('/inputs')):
  binding=source(root);module=load('closure_adapter',root/binding['adapter']['path'])
- return module
+ return load('held_payload_facade',HERE/'held_payloads.py').facade(sys.modules[__name__],root,module,inputs)
 
 def result(value):
  return load('cleanup_result_checks',HERE/'checks.py').result(sys.modules[__name__],value)

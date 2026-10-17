@@ -31,7 +31,7 @@ def main():
  index=C.decode(C.checked(Path('/inputs'),dict(C.policy()['packet_index'],path='native-index.json')))
  C.load('fixture_precommit_checks',C.HERE/'checks.py').install_plan(C,C.decode(raw),index)
  header=Path('/usr/include/alpm.h').read_text();dependency_flag(header)
- T=C.load('dependency_install_original',Path('/source/scripts/apps/transaction.py'))
+ T=C.load('dependency_install_original',Path('/source/scripts/apps/transaction.py'));C.load('held_install_payloads',C.HERE/'held_payloads.py').configure(T,C,Path('/source'))
  if '--worker' not in argv:
   p=argparse.ArgumentParser(add_help=False)
   for n in ('policy','policy-sha256','lease','lease-sha256'):p.add_argument('--full574-'+n,required=True)

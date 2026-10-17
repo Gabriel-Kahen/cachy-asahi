@@ -81,3 +81,40 @@ The3550-second outer,650-second cleanup,120-minute workflow, actor security and
 all per-command600/610 limits remain unchanged. Actual fit still needs a fresh
 complete interruption-only trial; no budget or successful normal component
 waives missing interruption evidence.
+
+## Held-package fixture payload correction
+
+Original39021715991 reported interruption-only workflow success, but strict passive
+replay refuses its unselected Orphans policy row: the held authenticated package
+is Orphans0.1.0-1 while the old owner derived its payload hash from current
+Orphans0.1.0-2 source. Executable and installed README bytes differ. Neither that
+result nor the cancelled normal39021975650 is admitted. Cancelled cleanup reported
+EWOULDBLOCK, unknown consumers and preserved authority/producer; no forced unlock
+or preservation success is inferred.
+
+The fixture now derives all four candidate payloads from the exact accepted native
+index and actual archives. Original C.inputs validates both pairs/source/metadata
+first; every flattened A archive is rehashed and parsed by the original bounded
+archive helper, matched to every native payload/source reference, root ownership,
+mode, complete file/directory set and size. held-payloads.json is published/rechecked
+before the original export actor, retained and independently reread before backend
+configuration and each original closure constructor. Current Orphans2 source rules
+are separately pinned; no new package/version/build or authority is substituted.
+
+A private facade reuses the identical original Adapter constructor/connect code
+with isolated globals copies selecting only those validated held nodes. All other
+methods, signature/selection/payload/capability/aux/source/mount checks and shared
+helper bytes/globals remain unchanged. Explicit fixture backend and staged-selected
+wrappers propagate the same facade into existing supervised children; install-only
+ALLDEPS and cancellation also configure that private transaction instance. Staged
+Orphans rules keep their real __file__/ROOT and unchanged floor. No generic daemon,
+product plugin, environment waiver or new actor is introduced.
+
+Both modes use separate concurrency groups with cancel-in-progress:false and
+original runID-derived tokens. Original600/610 backend/caller,3000 trial actor,
+600/5 interrupted worker,3550 outer,650 cleanup and120minute job bounds remain.
+The pre-secret actual-packet control reproduces the old source-model refusal and
+all-four repaired bindings using original constructor/connect code; only the final
+large-tree source scan is explicitly stubbed in that inert control. It is not
+574/native/ALPM/source-preservation acceptance. Fresh complete mode actuals and
+Root decisions are still required; all original failures/refusals remain.

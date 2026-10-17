@@ -18,7 +18,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: native-arm-orphans-full574-cleanup
+  group: native-arm-orphans-full574-cleanup-${{ inputs.trial }}
   cancel-in-progress: false
 jobs:
   native:
@@ -66,9 +66,11 @@ jobs:
           persist-credentials: false
       - name: Verify closed native packet before secrets
         timeout-minutes: 2
-        run: >-
-          python3 -I -B "$SLICE/job.py" check --trial "$TRIAL" --source "$GITHUB_WORKSPACE"
-          --packet "$GITHUB_WORKSPACE/retained-apps574-inputs/payload"
+        run: |
+          python3 -I -B "$SLICE/job.py" check --trial "$TRIAL" --source "$GITHUB_WORKSPACE" \
+            --packet "$GITHUB_WORKSPACE/retained-apps574-inputs/payload"
+          python3 -I -B "$SLICE/test_held_payloads.py" \
+            --actual-packet "$GITHUB_WORKSPACE/retained-apps574-inputs/payload"
       - name: Seed the six exact retained inputs using existing secrets only
         timeout-minutes: 2
         env:

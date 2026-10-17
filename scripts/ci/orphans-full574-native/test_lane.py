@@ -144,7 +144,7 @@ class Controls(unittest.TestCase):
  def test_native_rules_paths_and_cancel_are_explicit_staged_without_budget_changes(self):
   text=(C.HERE/'lifecycle.py').read_text();cancel=(C.HERE/'cancel.py').read_text();prepare=(C.HERE/'prepare.py').read_text()
   self.assertIn("RULES,stage_receipt=S.stage(C,'interruption' if '--interrupt' in sys.argv else 'normal')",text)
-  self.assertEqual(text.count("str(RULES/'scripts/orphans/selected.py')"),2)
+  self.assertEqual(text.count("str(C.HERE/'selected_fixture.py')"),2);self.assertEqual(text.count("'--staged-source',str(RULES)"),3)
   self.assertIn("readonly=str(RULES/'packages/tools/cachy-asahi-orphans/cachy-asahi-orphans')",text)
   self.assertIn("cancel,'--staged-source',str(RULES)",text);self.assertIn("'stage_source.py'",prepare)
   self.assertLess(cancel.index('stage.validate(C,a.staged_source)'),cancel.index("selected=C.load('selected_cancel'"))
