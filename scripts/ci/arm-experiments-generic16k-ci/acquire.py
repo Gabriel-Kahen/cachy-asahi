@@ -9,9 +9,12 @@ def need(ok,why):
  if not ok:raise ValueError(why)
 def pin(raw):return dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())
 def decode(raw,origin,entry):
- need(pin(raw)==origin['logs'] and len(raw)<=32*1024**2,'exact frozen original logs ZIP')
+ need(len(raw)<=32*1024**2,'bounded original logs ZIP transport')
  with zipfile.ZipFile(io.BytesIO(raw)) as z:
   names=z.namelist();need(len(names)==len(set(names))<=128 and names.count('0_trial.txt')==1 and sum(i.file_size for i in z.infolist())<=512*1024**2,'bounded closed original logs directory')
+  for member in z.infolist():
+   need(not member.filename.startswith('/') and '\\' not in member.filename and all(p not in ('','.','..') for p in member.filename.rstrip('/').split('/')) and (member.external_attr>>16)&0o170000 in (0,0o100000,0o040000),'ordinary bounded original log member path/type')
+  need(not z.getinfo('0_trial.txt').is_dir() and (z.getinfo('0_trial.txt').external_attr>>16)&0o170000 in (0,0o100000),'ordinary exact aggregate log')
   with z.open('0_trial.txt') as stream:text=stream.read(64*1024**2+1)
  need(len(text)<=64*1024**2,'bounded original aggregate log');lines=[re.sub(rb'^\d{4}-\d\d-\d\dT\S+ ',b'',l.removeprefix(b'\xef\xbb\xbf')) for l in text.splitlines()];head=b'CACHY_ASAHI_EVIDENCE_BEGIN experiment-artifacts ';tail=b'CACHY_ASAHI_EVIDENCE_END experiment-artifacts';begins=[i for i,l in enumerate(lines) if l.startswith(head)];ends=[i for i,l in enumerate(lines) if l==tail];need(len(begins)==len(ends)==1 and begins[0]<ends[0],'one original artifact frame');a,b=begins[0],ends[0];expected=head+('sha256='+origin['frame']['sha256']+' bytes='+str(origin['frame']['bytes'])).encode();need(lines[a]==expected,'original exact frame header');body=lines[a+1:b];need(all(re.fullmatch(rb'[A-Za-z0-9+/=]+',l) for l in body) and sum(map(len,body))<=12*1024**2,'strict bounded base64 frame');frame=base64.b64decode(b''.join(body),validate=True);need(pin(frame)==origin['frame'],'original compressed frame hash')
  result={};wanted={'experiment-artifacts/archive-manifest.json':entry['archive_manifest'],'experiment-artifacts/'+Path(entry['bundle']['path']).name:entry['bundle']}
@@ -34,7 +37,7 @@ def acquire(source_root,output,logs_root=None,download=False):
    need(not name.startswith('/') and all(p not in ('','.','..') for p in name.split('/')),'fixed original input destination');path=output/name;path.parent.mkdir(parents=True,exist_ok=True,mode=0o700)
    with path.open('xb') as stream:stream.write(data)
    path.chmod(0o400)
-  proof[experiment]=dict(run=origin['run'],attempt=1,source=origin['source'],logs=pin(raw),frame=origin['frame'],files={n:pin(data) for n,data in objects.items()})
+  proof[experiment]=dict(run=origin['run'],attempt=1,source=origin['source'],logs=pin(raw),original_logs=origin['logs'],logs_equal_original_transport=(pin(raw)==origin['logs']),input_authentication='EXACT_ORIGINAL_COMPRESSED_FRAME_AND_TWO_OBJECT_PINS',frame=origin['frame'],files={n:pin(data) for n,data in objects.items()})
  value=dict(status='EXACT_ORIGINAL_EIGHT_INPUTS_ACQUIRED_NO_EXECUTION',experiments=proof,hardware='NOT_RUN',runtime='NOT_RUN');(output/'input-proof.json').write_text(json.dumps(value,indent=2,sort_keys=True)+'\n');return value
 if __name__=='__main__':
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source-root',type=Path,required=True);p.add_argument('--output',type=Path,required=True);mode=p.add_mutually_exclusive_group(required=True);mode.add_argument('--logs-root',type=Path);mode.add_argument('--download',action='store_true');a=p.parse_args();print(json.dumps(acquire(a.source_root,a.output,a.logs_root,a.download)))

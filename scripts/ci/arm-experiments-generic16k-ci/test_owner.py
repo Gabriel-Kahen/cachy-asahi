@@ -28,8 +28,30 @@ class Controls(unittest.TestCase):
  def test_hash_encoding_frame_path_and_hardlink_refuse(self):
   for kind in ('base64','duplicate-frame','path','hardlink'):
    with self.subTest(kind=kind),self.assertRaises((ValueError,KeyError)):Q.decode(*self.frame(kind))
-  raw,origin,entry=self.frame();origin['logs']['sha256']='0'*64
-  with self.assertRaisesRegex(ValueError,'frozen original'):Q.decode(raw,origin,entry)
+  raw,origin,entry=self.frame();origin['frame']['sha256']='0'*64
+  with self.assertRaisesRegex(ValueError,'exact frame header'):Q.decode(raw,origin,entry)
+ def test_repacked_transport_keeps_exact_authenticated_frame(self):
+  raw,origin,entry=self.frame();target=io.BytesIO()
+  with zipfile.ZipFile(io.BytesIO(raw)) as old,zipfile.ZipFile(target,'w',compression=zipfile.ZIP_DEFLATED) as new:
+   info=zipfile.ZipInfo('0_trial.txt',date_time=(2026,10,17,0,0,0));info.compress_type=zipfile.ZIP_DEFLATED;new.comment=b'different transport container';new.writestr(info,old.read('0_trial.txt'))
+  repacked=target.getvalue();self.assertNotEqual(Q.pin(repacked),origin['logs']);self.assertEqual(Q.decode(repacked,origin,entry),Q.decode(raw,origin,entry))
+ def test_repacked_transport_cannot_change_frame_or_object(self):
+  raw,origin,entry=self.frame();target=io.BytesIO()
+  with zipfile.ZipFile(io.BytesIO(raw)) as old,zipfile.ZipFile(target,'w') as new:
+   body=old.read('0_trial.txt');new.writestr('0_trial.txt',body.replace(b'bytes='+str(origin['frame']['bytes']).encode(),b'bytes=0',1))
+  with self.assertRaisesRegex(ValueError,'exact frame header'):Q.decode(target.getvalue(),origin,entry)
+  changed=copy.deepcopy(entry);changed['bundle']['sha256']='0'*64
+  with self.assertRaisesRegex(ValueError,'input object pin'):Q.decode(raw,origin,changed)
+ def test_log_transport_unsafe_paths_types_and_aggregate_ambiguity_refuse(self):
+  raw,origin,entry=self.frame()
+  with zipfile.ZipFile(io.BytesIO(raw)) as old:body=old.read('0_trial.txt')
+  for name,mode in (('../outside',0),('/outside',0),('unsafe\\name',0),('link',0o120777),('0_trial.txt/',0)):
+   with self.subTest(name=name):
+    target=io.BytesIO()
+    with zipfile.ZipFile(target,'w') as z:
+     if name!='0_trial.txt/':z.writestr('0_trial.txt',body)
+     info=zipfile.ZipInfo(name);info.external_attr=mode<<16;z.writestr(info,body)
+    with self.assertRaises(ValueError):Q.decode(target.getvalue(),origin,entry)
  def source(self):
   view=self.work/'source';view.mkdir();manifest=json.loads((HERE/'integration-manifest.json').read_bytes());proposed=next((p for p in HERE.parents if p.name=='proposed'),None)
   for name in manifest['files']:

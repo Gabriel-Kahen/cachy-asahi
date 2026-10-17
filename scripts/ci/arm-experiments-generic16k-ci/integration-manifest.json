@@ -353,12 +353,12 @@
       "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
     },
     "scripts/ci/arm-experiments-generic16k-ci/README.md": {
-      "bytes": 4743,
-      "sha256": "9766c549b5d10a08bcefcec05cf233da4e09e5bbbe7c3bcb0873f17b29740bac"
+      "bytes": 5199,
+      "sha256": "71be092f2b61d895ce72bad7aeaccedf8fdec7d4e5a8b8226780d83b4c02c9a7"
     },
     "scripts/ci/arm-experiments-generic16k-ci/acquire.py": {
-      "bytes": 5436,
-      "sha256": "afc83c4bf7ec4e3ad7925ef06365b76a450e7d94aa4606b7f3a13ea56d54ec51"
+      "bytes": 6025,
+      "sha256": "2a669bc68faeee9c2fcff98f58317c10ed3959ce9d052c1b7070ac0943311164"
     },
     "scripts/ci/arm-experiments-generic16k-ci/origins.json": {
       "bytes": 1724,
@@ -373,8 +373,8 @@
       "sha256": "111bb45a136238c5fd3a8d2a8955a63e177d21c992c813f05508de8d2d809e1f"
     },
     "scripts/ci/arm-experiments-generic16k-ci/test_owner.py": {
-      "bytes": 8151,
-      "sha256": "dcc8b6f8db23f9570a3f23f6f6e39ee976abb65ed60001a8a1bcfeda239fc5ea"
+      "bytes": 9963,
+      "sha256": "29371619626e86b5fcfb178b117542683aba0ce57c06067ff0662b1a9dc0db7d"
     },
     "scripts/ci/arm-experiments-generic16k/README.md": {
       "bytes": 6968,
