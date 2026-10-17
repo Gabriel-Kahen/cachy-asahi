@@ -8,6 +8,7 @@ import json
 import os
 from pathlib import Path
 import re
+import resource
 import sys
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 import contract as C
@@ -92,13 +93,22 @@ def worker():
     value=dict(event='result',status=C.PASS,page_size=16384,source_nodes_sha256=index['source_nodes_sha256'],capabilities=caps,isolation=isolation,files=files,bytes=total,source_readback='COMPLETE574_PAYLOAD_DB_METADATA_CAPABILITY_HARDLINK_CHECKS',normal_runtime_observations=8,interrupted_lane='NOT_IMPLEMENTED_SEPARATE_FUTURE_CASE',hardware='NOT_RUN',release='NOT_ADMITTED')
     emit(nonce,value)
 
+def observer_file_limit():
+    """Match native trial's finite descriptor budget before authority reduction."""
+    before=resource.getrlimit(resource.RLIMIT_NOFILE)
+    resource.setrlimit(resource.RLIMIT_NOFILE,(8192,8192))
+    after=resource.getrlimit(resource.RLIMIT_NOFILE)
+    C.need(after==(8192,8192),'exact inherited native observer descriptor limit')
+    return dict(before=list(before),after=list(after),scope='NATIVE_TRIAL_8192_BOTH_INHERITED_BY_LIFECYCLE_CHILD')
+
 def run():
     C.need(os.getpid()==1 and os.getuid()==os.geteuid()==0,'root guest bootstrap only')
     selection=C.decode(C.read('/installed16k/selection.json'));nonce=selection['nonce']
+    nofile=observer_file_limit()
     # The worker cannot inspect a more privileged bootstrap's memory or FDs.
     libc=ctypes.CDLL(None,use_errno=True);C.need(libc.prctl(4,0,0,0,0)==0,'protect root bootstrap')
     C.need(os.sysconf('SC_PAGE_SIZE')==16384 and os.uname().release==selection['kernel']['release'],'actual16K boot identity')
-    emit(nonce,dict(event='boot',page_size=16384,kernel=os.uname().release,architecture='aarch64',kernel_profile_sha256=selection['kernel_profile_sha256']))
+    emit(nonce,dict(event='boot',page_size=16384,kernel=os.uname().release,architecture='aarch64',kernel_profile_sha256=selection['kernel_profile_sha256'],observer_nofile=nofile))
     runtime=C.load('guest_supervisor','/source/scripts/ci/glibc-owned-runtime/runner.py')
     row,stdout,stderr,error=runtime.run_command(['/usr/bin/python3','-I','-B','/installed16k/guest.py','worker'],Path('/tmp'),dict(PATH='/usr/bin:/bin',LANG='C',LC_ALL='C',HOME='/tmp',TMPDIR='/tmp',PYTHONDONTWRITEBYTECODE='1'),10500,512*1024)
     if not (error is None and row['exit_code']==0 and row['group_absence_verified']):

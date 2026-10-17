@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Original stdout/stderr/retirement preservation in pure PID1 source controls."""
-import ast,base64,hashlib,importlib.util,io,json,os,subprocess,tempfile,unittest
+import ast,base64,hashlib,importlib.util,io,json,os,resource,subprocess,sys,tempfile,time,unittest
 from pathlib import Path
 from types import SimpleNamespace as NS
 from unittest.mock import patch
@@ -14,8 +14,8 @@ def functions(path):
 def guest(row,stdout,stderr,error=None):
  events=[]
  C=NS(need=need,decode=json.loads,read=lambda p:json.dumps(dict(nonce=NONCE,kernel={'release':'test-kernel'},kernel_profile_sha256='b'*64)).encode(),load=lambda *a:NS(run_command=lambda *a:(row,stdout,stderr,error)),PASS='TEST_PASS')
- scope=dict(C=C,json=json,base64=base64,hashlib=hashlib,Path=Path,ctypes=NS(CDLL=lambda *a,**k:NS(prctl=lambda *a:0)),os=NS(getpid=lambda:1,getuid=lambda:0,geteuid=lambda:0,sysconf=lambda n:16384,uname=lambda:NS(release='test-kernel'),path=NS(ismount=lambda p:False)),emit=lambda nonce,value:events.append((nonce,value)))
- funcs=functions(HERE/'guest.py');exec(compile(ast.Module(body=[funcs[n] for n in ('inner_failure_report','child_failure','run')],type_ignores=[]),'<exact-proposed-guest>','exec'),scope)
+ scope=dict(resource=NS(RLIMIT_NOFILE=resource.RLIMIT_NOFILE,getrlimit=lambda _: (8192,8192),setrlimit=lambda *a:None),C=C,json=json,base64=base64,hashlib=hashlib,Path=Path,ctypes=NS(CDLL=lambda *a,**k:NS(prctl=lambda *a:0)),os=NS(getpid=lambda:1,getuid=lambda:0,geteuid=lambda:0,sysconf=lambda n:16384,uname=lambda:NS(release='test-kernel'),path=NS(ismount=lambda p:False)),emit=lambda nonce,value:events.append((nonce,value)))
+ funcs=functions(HERE/'guest.py');exec(compile(ast.Module(body=[funcs[n] for n in ('inner_failure_report','child_failure','observer_file_limit','run')],type_ignores=[]),'<exact-proposed-guest>','exec'),scope)
  return scope,events
 
 def row(stdout=b'',stderr=b'',**values):
@@ -92,5 +92,38 @@ class InnerReport(unittest.TestCase):
  def test_missing_or_wrong_typed_fields_are_not_invented(self):
   self.save(dict(status={'untrusted':'object'},error=None));v=self.capture();self.assertEqual(v['fields']['status'],dict(status='INVALID_FIELD_TYPE',type='dict'));self.assertEqual(v['fields']['error'],dict(status='INVALID_FIELD_TYPE',type='NoneType'));self.assertEqual(v['fields']['error_type'],dict(status='MISSING_FIELD'))
   self.save(dict(status='FAIL',error='\ud800'));v=self.capture();self.assertEqual(v['fields']['error'],dict(status='INVALID_UTF8_FIELD'));self.assertIn('raw',v)
+
+class ObserverDescriptors(unittest.TestCase):
+ def test_pid1_sets_exact_native_limit_before_child_and_exports_readback(self):
+  scope,events=guest(row(),b'',b'');sequence=[];values=iter(((1024,4096),(8192,8192)))
+  scope['resource']=NS(RLIMIT_NOFILE=resource.RLIMIT_NOFILE,getrlimit=lambda key:(sequence.append(('get',key)) or next(values)),setrlimit=lambda key,value:sequence.append(('set',key,value)))
+  with self.assertRaisesRegex(ValueError,'lifecycle child exit/group retirement failed'):scope['run']()
+  self.assertEqual(sequence,[('get',resource.RLIMIT_NOFILE),('set',resource.RLIMIT_NOFILE,(8192,8192)),('get',resource.RLIMIT_NOFILE)])
+  self.assertEqual(events[0][1]['observer_nofile'],dict(before=[1024,4096],after=[8192,8192],scope='NATIVE_TRIAL_8192_BOTH_INHERITED_BY_LIFECYCLE_CHILD'))
+ def test_limit_set_or_readback_failure_refuses_before_boot_or_child(self):
+  for kind in ('refused','wrong-readback'):
+   scope,events=guest(row(),b'',b'');calls=[]
+   def setting(*_):
+    if kind=='refused':raise PermissionError('inert refused limit')
+   scope['resource']=NS(RLIMIT_NOFILE=resource.RLIMIT_NOFILE,getrlimit=lambda _:(1024,4096),setrlimit=setting)
+   scope['C'].load=lambda *a:calls.append(a)
+   with self.subTest(kind=kind),self.assertRaises((PermissionError,ValueError)):scope['run']()
+   self.assertEqual(events,[]);self.assertEqual(calls,[])
+ def test_unchanged_full_observer_fails1024_and_closes1500_groups_at8192(self):
+  root=next(p for p in HERE.parents if (p/'manifests/packages.toml').is_file());path=root/'scripts/update/full_root.py';spec=importlib.util.spec_from_file_location('finite_descriptor_regression',path);module=importlib.util.module_from_spec(spec);sys.modules[spec.name]=module;spec.loader.exec_module(module)
+  before=resource.getrlimit(resource.RLIMIT_NOFILE);self.assertGreaterEqual(before[1],8192);fd_before=set(os.listdir('/proc/self/fd'));results=[]
+  with tempfile.TemporaryDirectory(prefix='observer-descriptors-') as temporary,patch.object(subprocess,'Popen',side_effect=AssertionError('actors forbidden')):
+   target=Path(temporary)
+   for n in range(1500):
+    first=target/('%04da'%n);first.write_bytes(b'inert never executed');os.link(first,target/('%04db'%n))
+   try:
+    for soft in (1024,8192):
+     resource.setrlimit(resource.RLIMIT_NOFILE,(soft,before[1]));results.append(module.observe(target,limits=module.Limits(deadline=time.monotonic()+30),hardlinks='generic-development-internal'))
+   finally:resource.setrlimit(resource.RLIMIT_NOFILE,before)
+  self.assertFalse(results[0]['complete']);self.assertEqual(results[0]['unsupported_counts'],{'filesystem-observation-failed':1});self.assertLess(results[0]['footprint']['hardlink_inodes'],1500)
+  self.assertTrue(results[1]['complete']);self.assertEqual(results[1]['unsupported_counts'],{});self.assertEqual(len(results[1]['hardlink_groups']),1500);self.assertEqual(results[1]['footprint']['hardlink_entries'],3000);self.assertTrue(all(group['nlink']==2 and len(group['members'])==2 for group in results[1]['hardlink_groups'].values()));self.assertEqual(resource.getrlimit(resource.RLIMIT_NOFILE),before);self.assertEqual(set(os.listdir('/proc/self/fd')),fd_before)
+ def test_worker_and_observer_source_and_all_existing_limits_stay_exact(self):
+  text=(HERE/'guest.py').read_text();worker=ast.get_source_segment(text,functions(HERE/'guest.py')['worker']);self.assertEqual(len(worker.encode()),2992);self.assertEqual(hashlib.sha256(worker.encode()).hexdigest(),'cf850dfc98c5988407dcebe6fe5a059ea3d3fd648ec05fa36725985ecceb9fda');self.assertIn(',10500,512*1024)',text)
+  root=next(p for p in HERE.parents if (p/'manifests/packages.toml').is_file());self.assertIn('--ulimit=nofile=8192:8192',(root/'scripts/ci/glibc-gnu-provider-lifecycle/run.py').read_text());self.assertIn('resource.setrlimit(resource.RLIMIT_NOFILE,(8192,8192))',text)
 
 if __name__=='__main__':unittest.main(verbosity=2)

@@ -25,8 +25,8 @@
       "sha256": "32acbd02f85b8311a48490fe2669ded1eef860946aea792a7a2455ef258b4e57"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/guest.py": {
-      "bytes": 9178,
-      "sha256": "ce354acb2a48c54ebf40f1b36a2ac74c3301747afca45e161a6667005e1a144e"
+      "bytes": 9725,
+      "sha256": "f8c609f97505f7a56c5b2c2585023b1dc9a7f92794d6dbf8cf996e00fbfdb29a"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/input-policy.json": {
       "bytes": 927,
