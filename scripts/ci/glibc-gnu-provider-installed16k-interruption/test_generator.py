@@ -58,7 +58,7 @@ class Controls(unittest.TestCase):
   _,folder,*_=self.emitted();tree=ast.parse((folder/'prepare.py').read_text());paths={n.value for n in ast.walk(tree) if isinstance(n,ast.Constant) and type(n.value) is str and n.value.startswith('installed16k')};wanted={'installed16k-interruption/'+n for n in ('container16k.py','adapter.json','selection.json')};self.assertTrue(wanted<=paths);self.assertTrue(all(p=='installed16k-interruption' or p.startswith('installed16k-interruption/') for p in paths))
  def stages(self):return ('source-before','source-after','clone','before574','precommit-refused','interrupted-before-unlock','recovered-held574','provider574','reinstalled574','held574')
  def protocol(self,C,R):
-  selection=dict(nonce='a'*32,kernel=dict(release='exact16k'),kernel_profile_sha256='b'*64,source_nodes_sha256='c'*64,capabilities_sha256='d'*64);names=['result.json']+[case+'-'+stage+'-root.json.gz' for case in ('pristine','modified') for stage in self.stages()];files={n:dict(bytes=1,sha256='e'*64) for n in names};result=dict(event='result',status=C.PASS,page_size=16384,normal_runtime_observations=10,hardware='NOT_RUN',release='NOT_ADMITTED',source_nodes_sha256='c'*64,capabilities=dict(status='EXACT_SOURCE_MAP_PRESERVED',cases=2,stages=10,source_capabilities_sha256='d'*64),isolation=dict(status='PASS_OBSERVED_NATIVE_CAPS_AND_MOUNT_FENCE',mask=2149843195,no_new_privs=1,seccomp=2,raw_block_devices=[],writable_source_alias=False,mount_flags=[15,4096]),files=files,bytes=len(files),interruption=dict(status='PASS_COMPLETE_INTERRUPTION_AND_NORMAL_RUNTIME_RECORDS',files=names));events=[dict(event='boot',page_size=16384,kernel='exact16k',architecture='aarch64',kernel_profile_sha256='b'*64),result,dict(event='exit',status=C.PASS,cleanup='PASS_OWNED_CLONES_REMOVED')]
+  selection=dict(nonce='a'*32,kernel=dict(release='exact16k'),kernel_profile_sha256='b'*64,source_nodes_sha256='c'*64,capabilities_sha256='d'*64);names=['result.json']+[case+'-'+stage+'-root.json.gz' for case in ('pristine','modified') for stage in self.stages()];files={n:dict(bytes=1,sha256='e'*64) for n in names};result=dict(event='result',status=C.PASS,page_size=16384,normal_runtime_observations=10,hardware='NOT_RUN',release='NOT_ADMITTED',source_nodes_sha256='c'*64,capabilities=dict(status='EXACT_SOURCE_MAP_PRESERVED',cases=2,stages=10,source_capabilities_sha256='d'*64),isolation=dict(status='PASS_OBSERVED_NATIVE_CAPS_AND_MOUNT_FENCE',mask=2149843195,no_new_privs=1,seccomp=2,raw_block_devices=[],writable_source_alias=False,mount_flags=[15,4096]),files=files,bytes=len(files),interruption=dict(status='PASS_COMPLETE_INTERRUPTION_AND_NORMAL_RUNTIME_RECORDS',files=names));events=[dict(event='boot',observer_nofile=dict(before=[1024,4096],after=[8192,8192],scope='NATIVE_TRIAL_8192_BOTH_INHERITED_BY_LIFECYCLE_CHILD'),page_size=16384,kernel='exact16k',architecture='aarch64',kernel_profile_sha256='b'*64),result,dict(event='exit',status=C.PASS,cleanup='PASS_OWNED_CLONES_REMOVED')]
   def uart(rows):return b'\n'.join(('GNU_INTERRUPTED16K '+selection['nonce']+' '+json.dumps(r)).encode() for r in rows)
   return selection,events,uart
  def test_new_protocol_requires10_runtimes20_maps_and_same_isolation(self):
@@ -72,6 +72,18 @@ class Controls(unittest.TestCase):
    elif kind=='alias':v['isolation']['writable_source_alias']=True
    else:v['interruption']['files'].pop()
    with self.subTest(kind=kind),self.assertRaises(ValueError):R.protocol(uart(rows),selection)
+ def test_progress_projection_uses_only_exact_interruption_statuses_and_phases(self):
+  _,folder,C,*_=self.emitted()
+  with patch.dict(sys.modules,{'contract':C}):E=load('interrupted_export',folder/'export.py')
+  phases={n:dict(complete=True,unsupported_counts={'unit-refusal':1}) for n in ('pristine-interrupted-before-unlock','pristine-recovered-held574')}
+  report=dict(status='PASS_GENERIC_ARM_PROVIDER_INTERRUPTION_RECOVERY',cases=dict(pristine=dict(status='PASS_INTERRUPTED_RECOVERED_NORMAL_PROVIDER_SEQUENCE',root_observation_failures=phases)),commands=[])
+  projected=E.diagnostic_projection(json.dumps(report).encode());self.assertEqual(projected['original_status'],report['status']);self.assertEqual(projected['cases']['pristine']['original_status'],report['cases']['pristine']['status']);self.assertEqual(set(projected['cases']['pristine']['observation_failures']),{'interrupted-before-unlock','recovered-held574'})
+  report['status']='PASS_GENERIC_ARM_SYSTEM_PROVIDER_LIFECYCLE';report['cases']['pristine']['status']='PASS_NORMAL_DISPOSABLE_PROVIDER_SEQUENCE';projected=E.diagnostic_projection(json.dumps(report).encode());self.assertEqual(projected['original_status'],'UNKNOWN_OR_UNEXPECTED');self.assertEqual(projected['cases']['pristine']['original_status'],'UNFINISHED_OR_UNRECORDED')
+ def test_strict_original8192_observer_boot_required(self):
+  _,_,C,R,*_=self.emitted();selection,events,uart=self.protocol(C,R)
+  for value in (None,dict(before=[1024,4096],after=[8192,16384],scope='NATIVE_TRIAL_8192_BOTH_INHERITED_BY_LIFECYCLE_CHILD')):
+   rows=copy.deepcopy(events);rows[0]['observer_nofile']=value
+   with self.assertRaises(ValueError):R.protocol(uart(rows),selection)
  def recovery_fixture(self,folder):
   root=self.work/'readback';root.mkdir();normal=dict(normal_parent_and_child=True,result=dict(status='PASS',cases=8,page_size=16384));rows={}
   for case in ('pristine','modified'):

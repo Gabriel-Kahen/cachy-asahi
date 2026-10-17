@@ -14,7 +14,7 @@ def functions(path):
 def guest(row,stdout,stderr,error=None):
  events=[]
  C=NS(need=need,decode=json.loads,read=lambda p:json.dumps(dict(nonce=NONCE,kernel={'release':'test-kernel'},kernel_profile_sha256='b'*64)).encode(),load=lambda *a:NS(run_command=lambda *a:(row,stdout,stderr,error)),PASS='TEST_PASS')
- scope=dict(resource=NS(RLIMIT_NOFILE=resource.RLIMIT_NOFILE,getrlimit=lambda _: (8192,8192),setrlimit=lambda *a:None),C=C,json=json,base64=base64,hashlib=hashlib,Path=Path,ctypes=NS(CDLL=lambda *a,**k:NS(prctl=lambda *a:0)),os=NS(getpid=lambda:1,getuid=lambda:0,geteuid=lambda:0,sysconf=lambda n:16384,uname=lambda:NS(release='test-kernel'),path=NS(ismount=lambda p:False)),emit=lambda nonce,value:events.append((nonce,value)))
+ scope=dict(supervised_progress=lambda runtime,selection,nonce:runtime.run_command(None),resource=NS(RLIMIT_NOFILE=resource.RLIMIT_NOFILE,getrlimit=lambda _: (8192,8192),setrlimit=lambda *a:None),C=C,json=json,base64=base64,hashlib=hashlib,Path=Path,ctypes=NS(CDLL=lambda *a,**k:NS(prctl=lambda *a:0)),os=NS(getpid=lambda:1,getuid=lambda:0,geteuid=lambda:0,sysconf=lambda n:16384,uname=lambda:NS(release='test-kernel'),path=NS(ismount=lambda p:False)),emit=lambda nonce,value:events.append((nonce,value)))
  funcs=functions(HERE/'guest.py');exec(compile(ast.Module(body=[funcs[n] for n in ('inner_failure_report','child_failure','observer_file_limit','run')],type_ignores=[]),'<exact-proposed-guest>','exec'),scope)
  return scope,events
 
@@ -49,7 +49,7 @@ class Controls(unittest.TestCase):
   self.assertEqual(capture.getvalue().encode(),out);self.assertEqual([v['event'] for _,v in events],['boot','exit']);self.assertNotIn('child-failure',capture.getvalue())
  def test_identity_literal_counts_budgets_and_worker_body_unchanged(self):
   root=next(p for p in HERE.parents if (p/'manifests/packages.toml').is_file());original=root/'scripts/ci/glibc-gnu-provider-installed16k/guest.py';raw=original.read_text();new=(HERE/'guest.py').read_text()
-  for text,count in (('/installed16k',5),('GNU_INSTALLED16K',3),('caa_gnu_installed16k=1',1)):self.assertEqual(new.count(text),count)
+  for text,count in (('/installed16k',7),('GNU_INSTALLED16K',4),('caa_gnu_installed16k=1',1)):self.assertEqual(new.count(text),count)
   self.assertEqual(hashlib.sha256(ast.get_source_segment((HERE/'guest.py').read_text(),functions(HERE/'guest.py')['worker']).encode()).hexdigest(),'cf850dfc98c5988407dcebe6fe5a059ea3d3fd648ec05fa36725985ecceb9fda')
   self.assertIn(',10500,512*1024)',new);self.assertIn("len(raw)<=512*1024",new)
 class InnerReport(unittest.TestCase):
