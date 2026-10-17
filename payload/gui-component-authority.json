@@ -1,0 +1,83 @@
+{
+  "archives": {
+    "cachy-asahi-doctor": {
+      "bytes": 13708,
+      "sha256": "06898669fdd6c9e5bdcc9909e6b0e75e958bdbd57520a7082c0e9f5f7fac7482"
+    },
+    "cachy-asahi-orphans": {
+      "bytes": 18900,
+      "sha256": "2543a13b584bf974efc4ce79f4da585d9e4513c2bc3907750fe5c962d20c8c02"
+    },
+    "cachy-asahi-welcome": {
+      "bytes": 32268,
+      "sha256": "80cd962d35d8652ab7891d61f856e37502f365adb842329a680b4fa88558503d"
+    }
+  },
+  "asset_binding": "NO_HISTORICAL_GUI_ASSET_PACKET_INCLUDED_NEW_PUBLIC_ASSET_ROUTE_REQUIRED",
+  "authority_kind": "DERIVED_ROOT_ACCEPTED_NATIVE_GUI_COMPONENT_FACTS",
+  "candidate_policy_sha256": "ebb3e8f942712b1fce81a72567e8e7f8197ea8c00a00187c7bd4f72e1c934ec9",
+  "candidate_source": "0b74d8ecea4f152bda4adfbd9bee488890db4363",
+  "cleanup": "PASS",
+  "doctor_lifetime": "PASS_ACTUAL_CHILD_WAIT_RELEASE_AND_FIXED_PARENT",
+  "doctor_version": "0.1.0-1",
+  "frames": 24,
+  "gui_contract": "PASS",
+  "hardware": "NOT_RUN",
+  "installed16k": "NOT_ACCEPTED",
+  "management_operations_per_profile": 17,
+  "original_root_decision_sha256": "ee8e444831efeab0c904531373b40533fe3585ad248aabdc300eceaf49239790",
+  "orphans_version": "0.1.0-2",
+  "payload_database_user_trust_preservation": "PASS_SOURCE_OWNED_ACTUAL_CHECKS",
+  "profile_results": {
+    "minimal": {
+      "closed_public_members": 299,
+      "direct_child_wait": 0,
+      "doctor_release": "RELEASED",
+      "frames": 12,
+      "gui_cleanup_steps": 14,
+      "operations": 17,
+      "owned_consumer_cleanup_count": 8,
+      "run_id": "39014808038",
+      "source_joins": 267,
+      "terminal_exit": 0
+    },
+    "overlay": {
+      "closed_public_members": 299,
+      "direct_child_wait": 0,
+      "doctor_release": "RELEASED",
+      "frames": 12,
+      "gui_cleanup_steps": 14,
+      "operations": 17,
+      "owned_consumer_cleanup_count": 8,
+      "run_id": "39014822190",
+      "source_joins": 267,
+      "terminal_exit": 0
+    }
+  },
+  "profile_runs": {
+    "minimal": "39014808038",
+    "overlay": "39014822190"
+  },
+  "profiles": [
+    "minimal",
+    "overlay"
+  ],
+  "qualifications": [
+    "Two distinct owned runs share one exact source/workflow and identical three candidate archive/payload identities",
+    "Separate native CLI lifecycle and generic GUI results; physical Apple input/graphics/audio/suspend/recovery not run",
+    "Original source-enforced TEST signature checks; no new cryptographic verification claimed by passive replay",
+    "Private full-root maps are not exported; original full preservation checks and bounded retained summaries are replayed",
+    "Owned teardown observations are retained originals, not fresh live re-observation",
+    "No expired GNU/source-authority or maintained-provider admission transfers"
+  ],
+  "release": "NOT_ADMITTED",
+  "runtime": "GENERIC_ARM64_4096_SOFTWARE_QEMU_GUI",
+  "schema_version": 1,
+  "source_manifest_sha256": "c0708d6b5d2292b6be1b8eb700f375049415e683875ac915b3e61a1ac8d86720",
+  "source_preservation": "PASS",
+  "source_sha": "e0b03524745de71aa3ab2ebe16a2cfa979553442",
+  "status": "ROOT_ACCEPTED_NATIVE_WELCOME4_MANAGEMENT_GUI_INDEPENDENT_PROFILES",
+  "visual_review": "PASS_ALL24_ORIGINAL_FIRST_FRAMES_AND_FOUR_FULL_RESOLUTION_MANAGEMENT_FRAMES",
+  "welcome_version": "0.1.0-4",
+  "workflow_sha256": "4a7505edf3b74d38587ccee2f8bdd0b7ee1dbc20cef0a87ab72c0146970d5229"
+}
