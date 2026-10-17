@@ -43,5 +43,11 @@ def lifecycle(raw):
  old="str(SOURCE/'scripts/apps/repair_inspection.py')";need(text.count(old)==1,'one genuine readonly CLI path');text=text.replace(old,"'/execution/scripts/apps/repair_inspection.py'")
  anchor="if __name__=='__main__':main()";need(text.count(anchor)==1,'one native lifecycle entry dispatch')
  route="def _vm_backend(action,workspace,owner=None):\n return ['/usr/bin/python3','-I','-B','/execution/scripts/apps/transaction.py',action,*H.common(workspace,owner)]\nH.backend=_vm_backend\n"
+ # The native source stays byte-exact. Route only its four readonly /seed
+ # baseline/after observations through the existing authenticated full574 budget.
+ for call in ("adapter.measure(Path('/seed'),T.limits())","adapter.capability_map(Path('/seed'),baseline,T.limits())","adapter.capability_map(Path('/seed'),after,T.limits(),caps)"):
+  need(text.count(call)==(2 if call.startswith('adapter.measure') else 1),'exact native readonly source budget seams')
+  text=text.replace(call,call.replace('T.limits()','T.limits(_vm_source_scope)'))
+ route+="_vm_source_policy=INPUTS/'full574-policy.json';_vm_source_lease=INPUTS/'full574-lease.json'\n_vm_source_scope=types.SimpleNamespace(full574_policy=_vm_source_policy,full574_policy_sha256=C.sha(C.read(_vm_source_policy)),full574_lease=_vm_source_lease,full574_lease_sha256=C.sha(C.read(_vm_source_lease)))\n"
  text=text.replace(anchor,route+anchor);out=text.encode();after=functions(out)
  need(set(after)==set(before)|{'_vm_backend'} and [n for n in before if before[n]!=after[n]]==['inspected','main'],'only exact lifecycle environment/readonly-path routing may differ');return out

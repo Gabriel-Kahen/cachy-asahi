@@ -18,8 +18,8 @@
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "manifests/packages.toml": {
-      "bytes": 37394,
-      "sha256": "edb1a4fcc10ba2beff81262e6ea01cd73cdb40a7d1cb6a15d9c9a4b838521298"
+      "bytes": 37484,
+      "sha256": "f530955f736b9c6924f157a733ea988b687186b86f9c51d120cb6deb107aa694"
     },
     "packages/tools/cachy-asahi-apps/.SRCINFO": {
       "bytes": 1775,
@@ -331,11 +331,11 @@
     },
     "scripts/ci/apps-full574-repair-native/source-manifest.json": {
       "bytes": 18640,
-      "sha256": "636baf21fa537ca813b7403b1bc6afb920404d974236bd52d8c1cdf479477ba9"
+      "sha256": "f83475b549e2ebed886c33dcef95bd6c74050256c1c807bab04d5d033cb2f79a"
     },
     "scripts/ci/apps-full574-repair-native/source-pins.json": {
       "bytes": 15477,
-      "sha256": "bb09afe9e99ac754d03693f53b72653b2c1ffe45f731bdcc0d18b6389019e65a"
+      "sha256": "4c7ddfe7853a8b8766eb796ffe1074a0c556074917507b8b23befe3930d5d884"
     },
     "scripts/ci/apps-full574-repair-native/supervise.py": {
       "bytes": 4401,
@@ -390,8 +390,8 @@
       "sha256": "7e5e08c5dbf713e4b4120f6da174b07118e74f338f89c4df6d856204d1b93bd1"
     },
     "scripts/ci/apps-full574-repair16k/adapter.py": {
-      "bytes": 5089,
-      "sha256": "1ea99f1f9b3ee8ab9f7c0edc75cfe72d73dcd558cad10d94c04c544779bbf80c"
+      "bytes": 5945,
+      "sha256": "42be71ae1a3ef6aa5bea2492a2b2d52d283d5123a9de5c0c4a9a9d5d4c609f9e"
     },
     "scripts/ci/apps-full574-repair16k/contract.py": {
       "bytes": 9557,
@@ -402,8 +402,8 @@
       "sha256": "403c01bb68df7e10619efffb5ad0dd318a416ab3d90f13326fc84930134908b2"
     },
     "scripts/ci/apps-full574-repair16k/guest.py": {
-      "bytes": 11640,
-      "sha256": "378486ef195044b369e60f553cc94ce61fcd2ca0960a76ca4a845ebd8117e103"
+      "bytes": 13859,
+      "sha256": "6f3e0c72511ceb3193f67ef0abc6d0266a5a03f21d145eba6f0ed6714a2ba338"
     },
     "scripts/ci/apps-full574-repair16k/input-policy.json": {
       "bytes": 112,
@@ -419,15 +419,15 @@
     },
     "scripts/ci/apps-full574-repair16k/source-manifest.json": {
       "bytes": 34322,
-      "sha256": "940fd19dc4c371c530fb726284c85b8ce2e6d3f040111c3be022b04b073dfffb"
+      "sha256": "b27d8ff98c6c3ea1985dc33c534fef672abbf2c2b7b49aed76461dae94d7c042"
     },
     "scripts/ci/apps-full574-repair16k/source-pins.json": {
       "bytes": 32215,
       "sha256": "ad36f839b52fcd83642f5b9643b57ff7eccf2af20670316899584d340d9c2dcc"
     },
     "scripts/ci/apps-full574-repair16k/test_lane.py": {
-      "bytes": 38058,
-      "sha256": "7a87511bd7919afbcddd96219a8d00d8acdc8ecdbcf2748669a2b7489a719a33"
+      "bytes": 44639,
+      "sha256": "820aa7cb1ce76ff9ec003470b8a7b1cfb92a106310b776778df9a24ad775eb4c"
     },
     "scripts/ci/apps-full574-repair16k/vm.py": {
       "bytes": 11257,
