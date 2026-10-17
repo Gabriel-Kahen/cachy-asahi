@@ -5,6 +5,7 @@ from pathlib import Path
 from unittest.mock import patch
 HERE=Path(__file__).resolve().parent
 SOURCE='a'*40;NONCE='b'*32
+spec=importlib.util.spec_from_file_location('original_snapshot_progress_controls',HERE/'snapshot_progress.py');S=importlib.util.module_from_spec(spec);spec.loader.exec_module(S)
 
 def need(ok,why):
  if not ok:raise ValueError(why)
@@ -12,25 +13,34 @@ def read(path,cap=2*1024**2):
  p=Path(path);need(not p.is_symlink() and p.stat().st_nlink==1 and p.stat().st_size<=cap,'ordinary bounded file');return p.read_bytes()
 def C():return types.SimpleNamespace(need=need,read=read,decode=json.loads,sha=lambda r:hashlib.sha256(r).hexdigest(),GIB=1024**3,save=lambda p,v:Path(p).write_text(json.dumps(v)))
 def scope(names,path='guest.py',**extra):
- text=(HERE/path).read_text();tree=ast.parse(text);selected=[n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name in names];need(len(selected)==len(names),'exact function controls');space=dict(C=C(),Path=Path,os=os,stat=stat,types=types,sys=sys,json=json,re=re,threading=threading,time=time,hashlib=hashlib,resource=resource,subprocess=subprocess,PHASES=('source-before','clone','before574','precommit-refused','provider574','reinstalled574','held574','source-after'));space.update(extra);exec(compile(ast.Module(body=selected,type_ignores=[]),str(HERE/path)+':inert','exec'),space);return space
+ text=(HERE/path).read_text();tree=ast.parse(text);selected=[n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name in names];need(len(selected)==len(names),'exact function controls');space=dict(C=C(),S=S,Path=Path,os=os,stat=stat,types=types,sys=sys,json=json,re=re,threading=threading,time=time,hashlib=hashlib,resource=resource,subprocess=subprocess,PHASES=('source-before','clone','before574','precommit-refused','provider574','reinstalled574','held574','source-after'));space.update(extra);exec(compile(ast.Module(body=selected,type_ignores=[]),str(HERE/path)+':inert','exec'),space);return space
 
 def row():return dict(sequence=1,stage='observer',edge='enter',case='pristine',phase='source-before')
-def value():return dict(status='DIAGNOSTIC_CALL_BOUNDARIES_NO_ACCEPTANCE',nonce=NONCE,source_sha=SOURCE,records=[row()])
+def value():return dict(status='DIAGNOSTIC_CALL_BOUNDARIES_NO_ACCEPTANCE',nonce=NONCE,source_sha=SOURCE,records=[row()],omitted_records=0)
 class Controls(unittest.TestCase):
  def test_worker_and_original_observer_are_not_rewritten_or_profiled(self):
   text=(HERE/'guest.py').read_text();node=next(n for n in ast.parse(text).body if isinstance(n,ast.FunctionDef) and n.name=='worker');raw=ast.get_source_segment(text,node).encode();self.assertEqual((len(raw),hashlib.sha256(raw).hexdigest()),(2992,'cf850dfc98c5988407dcebe6fe5a059ea3d3fd648ec05fa36725985ecceb9fda'));self.assertNotIn('setprofile',text);self.assertIn(',10500,512*1024)',text);self.assertIn('seconds=10800,cap=16*1024**2',(HERE/'run.py').read_text())
  def test_closed_nonce_source_labels_sequence_and_bounds_refuse(self):
   space=scope(('progress_value',));f=space['progress_value'];s=dict(nonce=NONCE,source_sha=SOURCE);v=value();self.assertEqual(f(json.dumps(v).encode(),s),v)
-  for mutation in (dict(nonce='c'*32),dict(source_sha='d'*40),dict(records=[]),dict(records=[dict(row(),sequence=True)]),dict(records=[dict(row(),phase='/private/key')]),dict(records=[dict(row(),stage='arbitrary')]),dict(records=[dict(row(),case='other')])):
+  for mutation in (dict(nonce='c'*32),dict(source_sha='d'*40),dict(records=[]),dict(omitted_records=True),dict(omitted_records=1),dict(records=[dict(row(),sequence=True)]),dict(records=[dict(row(),phase='/private/key')]),dict(records=[dict(row(),stage='arbitrary')]),dict(records=[dict(row(),case='other')])):
    with self.assertRaises(ValueError):f(json.dumps(dict(v,**mutation)).encode(),s)
   with self.assertRaises(ValueError):f(b'x'*65537,s)
+ def test_omitted_tail_and_postwalk_schema_keep_strict_sequence_and_counter_bounds(self):
+  f=scope(('progress_value',))['progress_value'];selection=dict(nonce=NONCE,source_sha=SOURCE);v=value();v.update(omitted_records=4,records=[dict(row(),sequence=5)]);self.assertEqual(f(json.dumps(v).encode(),selection),v)
+  metrics=dict(operation='walk',elapsed_ms=1,**dict.fromkeys(S.COUNTERS,0));v['records']=[dict(row(),sequence=5,stage='postwalk',edge='sample',postwalk=metrics)];self.assertEqual(f(json.dumps(v).encode(),selection),v)
+  for bad in (dict(metrics,walk_nodes=True),dict(metrics,operation='arbitrary'),dict(metrics,elapsed_ms=-1)):
+   v['records'][0]['postwalk']=bad
+   with self.assertRaises(ValueError):f(json.dumps(v).encode(),selection)
  def test_finite_wrappers_preserve_return_exception_and_no_per_node_events(self):
   with tempfile.TemporaryDirectory() as td:
-   root=Path(td);path=root/'progress.log';space=scope(('progress_value','install_progress'),PROGRESS=path);c=space['C'];original_return=object();calls=[]
+   root=Path(td);path=root/'progress.log';# Outer-boundary unit fixture uses inert facades; exact capability/snapshot bodies
+   # and refusal/return behavior have real small-tree controls in test_snapshot_progress.py.
+   outer=types.SimpleNamespace(Journal=S.Journal,validate=S.validate,snapshot=lambda module,record:module.snapshot,capability_facade=lambda module,record:module)
+   space=scope(('progress_value','install_progress'),PROGRESS=path,S=outer);c=space['C'];original_return=object();calls=[]
    def observe(*a,**k):
     for n in range(10000):str(n)
     calls.append(('observe',a,k));return original_return
-   roots=types.SimpleNamespace(observe=observe);api={'roots':roots};common=types.SimpleNamespace(helpers=lambda *a,**k:api);module=types.SimpleNamespace(C=common)
+   roots=types.SimpleNamespace(observe=observe);api={'roots':roots,'caps':object()};common=types.SimpleNamespace(helpers=lambda *a,**k:api);module=types.SimpleNamespace(C=common)
    for name in ('main','run_case','snapshot','transaction','smoke','caches','copy_probes','config_handoff'):setattr(module,name,lambda *a,**k:original_return)
    def bad(*a,**k):raise RuntimeError('original exception')
    module.transaction=bad;c.load=lambda name,path:module;c.read=lambda *a:json.dumps(dict(nonce=NONCE,source_sha=SOURCE)).encode();c.need=lambda ok,why:need(ok or why=='owned progress replacement',why) # Ordinary host-owned temp; productionroot0 check remains.

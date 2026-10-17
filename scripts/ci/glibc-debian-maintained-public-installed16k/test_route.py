@@ -12,10 +12,12 @@ class Controls(unittest.TestCase):
  def emitted(self):
   out=self.work/'emitted';r=P.derive(ROOT,COMPONENT,out);C=P.load('public_test_contract',out/P.LANE/'contract.py');return out,r,C
  def test_exact_source_roles_and_emission(self):
-  v=P.source(ROOT);self.assertEqual(len(v['implementation']),144);self.assertEqual(len(P.native(COMPONENT)),159);out,r,C=self.emitted();C.check_source(out);self.assertEqual(C.NATIVE,P.NATIVE)
+  v=P.source(ROOT);self.assertEqual(len(v['implementation']),146);self.assertEqual(len(P.native(COMPONENT)),159);out,r,C=self.emitted();C.check_source(out);self.assertEqual(C.NATIVE,P.NATIVE)
   self.assertEqual(r['ALPM_installation'],'NOT_RUN');self.assertEqual(r['original_derivation']['unchanged_native_bodies'],20)
  def test_default_refuses_before_output_or_git(self):
-  with self.assertRaisesRegex(ValueError,'UNBOUND public ALPM16K'):P.preflight(ROOT,dict.fromkeys(P.KINDS),{})
+  with tempfile.TemporaryDirectory() as td:
+   fixture=Path(td);policy=json.loads((HERE/'policy.json').read_bytes());policy.update(status='UNBOUND_DO_NOT_EXECUTE',binding=dict.fromkeys(P.KINDS));(fixture/'policy.json').write_bytes(P.encoded(policy))
+   with patch.object(P,'HERE',fixture),self.assertRaisesRegex(ValueError,'UNBOUND public ALPM16K'):P.preflight(ROOT,dict.fromkeys(P.KINDS),{})
   self.assertEqual(list(self.work.iterdir()),[])
  def test_native_missing_drift_alias_and_extra_refuse_before_output(self):
   target=self.work/'component';shutil.copytree(COMPONENT,target);n=P.NATIVE+'/container.py';p=target/n;p.write_bytes(p.read_bytes()+b'\n')
