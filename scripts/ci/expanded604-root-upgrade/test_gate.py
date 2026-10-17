@@ -154,4 +154,26 @@ class Results(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'outer actual604'):owner.verify_result(row,'normal')
 
 
+class WorkflowLayout(unittest.TestCase):
+    def test_all_carrier_roots_match_accepted_fresh604_argument_layouts(self):
+        import re
+        root=Path(__file__).resolve().parents[3]
+        workflows=root/'.github/workflows'
+        expected={'management':('payload',),'welcome':('payload',),'setup':()}
+        def layout(path,setup_checkout):
+            text=path.read_text();result={}
+            for kind,suffix in expected.items():
+                rows=re.findall(r'--'+kind+r'-source "\$GITHUB_WORKSPACE/([^"\n]+)"',text)
+                self.assertEqual(len(rows),2,(path.name,kind))
+                checkout='expanded604-'+kind+'-source' if kind!='setup' else setup_checkout
+                parts=[Path(value).parts for value in rows]
+                self.assertTrue(all(p[0]==checkout for p in parts),(path.name,kind))
+                self.assertEqual([p[1:] for p in parts],[suffix,suffix],(path.name,kind))
+                result[kind]=parts[0][1:]
+            return result
+        with patch.object(subprocess,'Popen',side_effect=AssertionError('actors forbidden')):
+            accepted=layout(workflows/'native-arm-expanded604-installer-vm.yml','expanded604-setup-source')
+            self.assertEqual(layout(workflows/'native-arm-expanded604-root-upgrade.yml','expanded604-setup5'),accepted)
+
+
 if __name__=='__main__':unittest.main(verbosity=2)
