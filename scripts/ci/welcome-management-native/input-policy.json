@@ -1,6 +1,6 @@
 {
   "base_inventory_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
-  "candidate_source": "96aa3e7a81840b7eba6ba07188481fd89631fb6b",
+  "candidate_source": "9baabc5dbe1ae596483263639d5b484b874d65fa",
   "products": {
     "cachy-asahi-doctor": {
       "accepted_archive": {
@@ -248,11 +248,11 @@
           420
         ]
       },
-      "recipe_sha256": "071cada88855ac7e462df8cde264d4ae60263655da4706d9c2c9dc5af7b33f6b",
+      "recipe_sha256": "41041876bd8c9ff8b4cb36242f4b092f587244846ed5bb895ff339480c3f9ce2",
       "source_files": {
         ".SRCINFO": {
           "bytes": 3092,
-          "sha256": "3a24b91a914ccbede4a15d47c9d71dcb3429f11c40de3c41699f86aa011a209c"
+          "sha256": "8b998468e7886478ac1f2d87e0b4bd941d08d389696bfcdd930bb64e483fb3d9"
         },
         "LICENSE": {
           "bytes": 1081,
@@ -268,11 +268,11 @@
         },
         "PKGBUILD": {
           "bytes": 2983,
-          "sha256": "071cada88855ac7e462df8cde264d4ae60263655da4706d9c2c9dc5af7b33f6b"
+          "sha256": "41041876bd8c9ff8b4cb36242f4b092f587244846ed5bb895ff339480c3f9ce2"
         },
         "README.md": {
-          "bytes": 4847,
-          "sha256": "dbc3716ed6fb6264d976e8b49cb07e7b35990f69fa1f190f773aa61384573e54"
+          "bytes": 4998,
+          "sha256": "5ec074aa95d1a5215cd4abd96d751257f77d88a46220f24cca30fc8a02d7d286"
         },
         "cachy-asahi-welcome.svg": {
           "bytes": 531,
@@ -280,7 +280,7 @@
         },
         "check_source.py": {
           "bytes": 3656,
-          "sha256": "a688d4373c2d69a69aa59b314cb1f83dbfb99ccbedd78d159928ead6e00fef5a"
+          "sha256": "dcac1efa79f4b6e4c1da5203eaebc5ffb03417d965b9c476fabba370653ea690"
         },
         "first-run.txt": {
           "bytes": 1484,
@@ -331,8 +331,8 @@
           "sha256": "a75cf2d71536412cf315d9ab6b0d7337a1ee044847023058c6e40a53102971ed"
         },
         "test_management_ui.c": {
-          "bytes": 5571,
-          "sha256": "d8b74cffc68bf4cb1c4ed43de491f9abbf2e95a397aee2692ebb2e1dcde14e50"
+          "bytes": 6438,
+          "sha256": "a302149c41245656e92843e752be4ca24f19ed42817b4834650bde30d807fad6"
         },
         "test_status.c": {
           "bytes": 5152,
@@ -343,11 +343,11 @@
           "sha256": "fcde7d9aa0c6f1a0fc8090c5dc26f405708f18ea760d74b664732e2824d403b8"
         },
         "welcome.c": {
-          "bytes": 21403,
-          "sha256": "3f7979e2e4d9d511628491d77e267a39a4a47936e23cd9c612b56f775b48f414"
+          "bytes": 21034,
+          "sha256": "576410453d5e0b8acf49cbbf3d9314c5fbdcc33d7388328c1d0bbae1c8f15b65"
         }
       },
-      "version": "0.1.0-2"
+      "version": "0.1.0-3"
     }
   },
   "schema_version": 1,

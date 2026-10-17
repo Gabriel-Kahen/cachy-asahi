@@ -1,6 +1,6 @@
 # Welcome management native candidate lane
 
-Private source proposal for Welcome 0.1.0-2, existing Doctor 0.1.0-1 and accepted
+Private source proposal for Welcome 0.1.0-3, existing Doctor 0.1.0-1 and accepted
 Orphans 0.1.0-1. This lane is manual, unselected, and fail-closed until Root binds
 the final product inputs. Those private policy bindings are now complete; the
 canonical manifest freeze and workflow digest markers remain Root-only. No native build, package installation, VM, managed GUI,
@@ -109,3 +109,5 @@ compile of `a11y_driver.c` checks local API compatibility only. Native pairs,
 installed lifecycle, managed GUI execution, original pixels and M2 hardware
 remain separate required evidence. A 16K successor is a separate future lane;
 this proposal preserves the running historical Welcome 1/16K work.
+
+Welcome3 removes the management spinner while preserving running text, disabled actions and unchanged30-second supervision. An order-controlled host GTK fixture observed180 versus0 draws per3seconds; this is host rendering evidence only. Welcome2 native/CLI results remain historical; Welcome3 native pair, installed lifecycle and complete GUI remain NOT_RUN. Historical604 package locks are unchanged pending actual GUI3 acceptance and a new composition.

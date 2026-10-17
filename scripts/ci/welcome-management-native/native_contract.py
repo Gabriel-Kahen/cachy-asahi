@@ -64,7 +64,7 @@ def policy(bound=True):
     need(value.get('schema_version')==1 and value.get('base_inventory_sha256')==BASE and
          set(value.get('products',{}))==set(NAMES),'fixed three-product/574 policy required')
     for name,row in value['products'].items():
-        need(row.get('version')==('0.1.0-1' if name==DOCTOR else '0.1.0-2') and
+        need(row.get('version')=={DOCTOR:'0.1.0-1',ORPHANS:'0.1.0-2',NAME:'0.1.0-3'}[name] and
              row.get('arch')==('aarch64' if name==NAME else 'any') and
              all(type(row.get(k)) is dict for k in ('source_files','payload','dependencies')) and
              type(row.get('check_markers')) is list,'fixed product schema/version required')
@@ -109,7 +109,7 @@ def recipe(source,name):
     value=product(name);checks=load('management_recipe_checks',source/'scripts/checks/package_checks.py')
     row=checks.recipe(source/'packages/tools'/name/'PKGBUILD');meta=row['metadata']
     need(not row['errors'] and meta.get('pkgname')==[name] and
-         meta.get('pkgver')==['0.1.0'] and meta.get('pkgrel')==['1' if name==DOCTOR else '2'] and
+         meta.get('pkgver')==['0.1.0'] and meta.get('pkgrel')==[{DOCTOR:'1',ORPHANS:'2',NAME:'3'}[name]] and
          meta.get('arch')==[value['arch']] and meta.get('license')==['MIT'] and
          not any(meta.get(k) for k in ('install','provides','conflicts','replaces','backup')) and
          {key:meta.get(key,[]) for key in ('depends','makedepends','checkdepends','optdepends')}==value['dependencies'] and
