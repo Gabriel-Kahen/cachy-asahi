@@ -137,6 +137,80 @@ def configs(root):
     return {n:(C.sha(C.read(root/n,2*1024**2)) if (root/n).is_file() else None) for n in CONFIGS}
 
 
+def config_handoff(root,before,new,old,wanted_gai,wanted_locale,phase,evidence=None):
+    """Explicit owned-clone policy, separate from ALPM's remove/add backup behavior."""
+    C.need(phase in ('provider','rollback_prepare','rollback_finish'),'finite configuration handoff phase')
+    C.need(root==WORK/'modified/root' and not any(p.is_symlink() for p in (root,*root.parents)), 'exact modified owned clone only')
+    for path,mode in ((root,0o755),(root.parent,0o700)):
+        info=path.lstat();C.need(stat.S_ISDIR(info.st_mode) and info.st_uid==os.geteuid() and stat.S_IMODE(info.st_mode)==mode,'owned searchable clone/private parent')
+    gai='etc/gai.conf';locale='etc/locale.gen';saved=gai+'.pacsave';fresh=gai+'.pacnew';locale_saved=locale+'.pacsave';stash=FIXTURE+'/gai-pacsave-before-rollback'
+    signature=lambda s:(s.st_dev,s.st_ino,s.st_mode,s.st_uid,s.st_gid,s.st_nlink,s.st_size,s.st_mtime_ns,s.st_ctime_ns)
+    descriptors=[];observations={};operations=[];directories=[]
+    value={} if evidence is None else evidence;C.need(type(value) is dict and not value,'fresh configuration handoff evidence');value.update(status='STARTED_EXPLICIT_CLONE_CONFIG_HANDOFF',phase=phase,ALPM_active_configuration_preservation='NOT_CLAIMED',operations=operations)
+    def directory_identity(s):return (s.st_dev,s.st_ino,s.st_mode,s.st_uid,s.st_gid)
+    def directories_stable():
+        for path,fd,info in directories:C.need(directory_identity(os.fstat(fd))==info==directory_identity(path.lstat()),'owned configuration directory identity unchanged')
+    def observe(name,row,data):
+        path=root/name;C.need(not any(p.is_symlink() for p in (path,*path.parents)),'ordinary configuration path')
+        fd=os.open(path,os.O_RDWR|os.O_NOFOLLOW|os.O_CLOEXEC);descriptors.append(fd);a=os.fstat(fd)
+        C.need(stat.S_ISREG(a.st_mode) and a.st_nlink==1 and a.st_uid==os.geteuid() and a.st_size<=2*1024**2 and not os.listxattr(fd),'owned single-link bounded plain configuration')
+        raw=os.pread(fd,2*1024**2+1,0);b=os.fstat(fd)
+        actual=dict(type='file',bytes=len(raw),sha256=C.sha(raw),mode=stat.S_IMODE(b.st_mode),uid=b.st_uid,gid=b.st_gid)
+        C.need(signature(a)==signature(b) and actual==row and raw==data and (path.lstat().st_dev,path.lstat().st_ino)==(b.st_dev,b.st_ino),'exact configuration bytes/metadata/identity')
+        observations[name]=dict(actual,device=b.st_dev,inode=b.st_ino);return fd,a
+    def absent(name):C.need(not os.path.lexists(root/name),'fresh configuration destination required: '+name)
+    def stable():
+        directories_stable()
+        for fd,info in held.values():C.need(signature(os.fstat(fd))==signature(info),'configuration changed during handoff')
+        for name,(fd,info) in held.items():C.need(signature((root/name).lstat())==signature(info),'configuration path changed during handoff')
+    def write(fd,row,data):
+        offset=0
+        while offset<len(data):
+            size=os.pwrite(fd,data[offset:],offset);C.need(size>0,'complete bounded configuration write');offset+=size
+        os.ftruncate(fd,len(data))
+        info=os.fstat(fd)
+        if (info.st_uid,info.st_gid)!=(row['uid'],row['gid']):os.fchown(fd,row['uid'],row['gid'])
+        os.fchmod(fd,row['mode']);os.fsync(fd)
+    def create(name,row,data):
+        absent(name);fd=os.open(root/name,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,0o600)
+        try:write(fd,row,data)
+        finally:os.close(fd)
+        observe(name,row,data);operations.append(dict(operation='CREATE_EXCLUSIVE_KNOWN_COPY',path=name))
+    try:
+        for path in (root.parent,root,root/'etc',root/FIXTURE):
+            C.need(not any(p.is_symlink() for p in (path,*path.parents)),'ordinary configuration directory path')
+            fd=os.open(path,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC);descriptors.append(fd);s=os.fstat(fd)
+            C.need(s.st_uid==os.geteuid() and not stat.S_IMODE(s.st_mode)&0o022,'owned nonwritable-by-others configuration directory')
+            directories.append((path,fd,directory_identity(s)))
+        directories_stable()
+        allowed={saved,fresh,locale_saved};C.need(all('etc/'+p.name in allowed for p in (root/'etc').iterdir() if p.name.startswith(('gai.conf.','locale.gen.'))),'no unknown configuration sidecars')
+        specs={saved:(before['nodes'][gai],wanted_gai),locale_saved:(before['nodes'][locale],wanted_locale)}
+        specs[gai]=(new['nodes'][gai],new['data'][gai]) if phase=='provider' else ((old['nodes'][gai],old['data'][gai]) if phase=='rollback_finish' else (before['nodes'][gai],wanted_gai))
+        if phase!='provider':specs[fresh]=(new['nodes'][gai],new['data'][gai])
+        if phase=='rollback_finish':specs.update({stash:(before['nodes'][gai],wanted_gai),locale:(old['nodes'][locale],old['data'][locale])})
+        else:absent(locale)
+        if phase=='provider':absent(fresh)
+        if phase!='rollback_finish':absent(stash)
+        held={name:observe(name,*spec) for name,spec in specs.items()};C.need(len({(s.st_dev,s.st_ino) for _,s in held.values()})==len(held),'configuration paths must not alias');stable();initial=dict(observations);value['before']=initial
+        if phase=='rollback_prepare':
+            create(stash,before['nodes'][gai],wanted_gai);stable()
+            os.unlink(root/saved);absent(saved);operations.append(dict(operation='UNLINK_PROVEN_BACKUP_AFTER_EXACT_STASH',path=saved,retained=stash))
+        else:
+            if phase=='provider':create(fresh,new['nodes'][gai],new['data'][gai]);stable()
+            write(held[gai][0],before['nodes'][gai],wanted_gai);operations.append(dict(operation='RESTORE_ORIGINAL_ACTIVE_FROM_PROVEN_PACSAVE',path=gai,source=saved))
+        final_specs=dict(specs)
+        if phase=='rollback_prepare':del final_specs[saved];final_specs[stash]=(before['nodes'][gai],wanted_gai)
+        else:
+            final_specs[gai]=(before['nodes'][gai],wanted_gai)
+            if phase=='provider':final_specs[fresh]=(new['nodes'][gai],new['data'][gai])
+        observations={};value['after']=observations
+        for name,spec in final_specs.items():observe(name,*spec)
+        directories_stable();C.need(len({(r['device'],r['inode']) for r in observations.values()})==len(observations),'final configuration paths must not alias')
+        value['status']='PASS_EXPLICIT_CLONE_CONFIG_HANDOFF';return value
+    finally:
+        for fd in reversed(descriptors):os.close(fd)
+
+
 def copy_probes(root,index):
     # Only the new clone's '/' becomes searchable, after exact copy proof.
     C.need(root in (WORK/'pristine/root',WORK/'modified/root') and not any(p.is_symlink() for p in (root,*root.parents)), 'exact owned cloned chroot root only')
@@ -271,6 +345,7 @@ def run_case(api,commands,index,base,new,old,case,report):
             report['replace']=transaction(api,root,INPUTS/index['archives']['a']['path'],'glibc',C.NAME,OUT/(case+'-replace.log'))
             expected=dict(base);del expected['glibc'];expected[C.NAME]=C.VERSION
             C.need(inventory(database(api,root))==expected and len(expected)==574,'provider574 exact inventory')
+            if case=='modified':report['provider_config_handoff']=config_handoff(root,before,new,old,wanted_gai,wanted_locale,'provider',evidence=report.setdefault('provider_config_handoff',{}))
             after=snapshot(api,root,case+'-provider574');payload(after['nodes'],new['nodes'],('etc/gai.conf',))
             for name,row in old['nodes'].items():
                 if name not in new['nodes'] and row['type']!='directory' and name not in C.CACHES:
@@ -291,8 +366,10 @@ def run_case(api,commands,index,base,new,old,case,report):
                 report['reinstalled_cache']=caches(commands,root);report['reinstalled_runtime']=smoke(commands,root,index,new,'reinstalled')
             reinstalled=snapshot(api,root,case+'-reinstalled574');report['provider_preservation']=unchanged(before,reinstalled,old,new,base['glibc'])
             # Recovery is performed from intact OUTER libc/ALPM, never target loader.
+            if case=='modified':report['rollback_config_prepare']=config_handoff(root,before,new,old,wanted_gai,wanted_locale,'rollback_prepare',evidence=report.setdefault('rollback_config_prepare',{}))
             report['external_rollback']=transaction(api,root,INPUTS/index['held']['path'],C.NAME,'glibc',OUT/(case+'-rollback.log'))
             C.need(inventory(database(api,root))==base,'held574 database restored')
+            if case=='modified':report['rollback_config_handoff']=config_handoff(root,before,new,old,wanted_gai,wanted_locale,'rollback_finish',evidence=report.setdefault('rollback_config_handoff',{}))
             with runtime_mounts(commands,root):
                 C.need((root/'usr/bin/locale-gen').is_file(),'held locale-gen restored before actual held scriptlet')
                 output=commands.inside(root,['/usr/bin/bash','--noprofile','--norc','-e','-x','-c','source /'+FIXTURE+'/held.install; post_upgrade "$1" "$2"','held-post-upgrade',base['glibc'],C.VERSION])

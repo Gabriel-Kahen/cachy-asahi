@@ -51,8 +51,8 @@ class Controls(unittest.TestCase):
         self.assertEqual(value['status'],'ROOT_ACCEPTED_GNU_PROVIDER_SYSTEM_PATHS_GENERIC16K');self.assertEqual(value['ALPM_installation'],'NOT_RUN')
     def test_native_stays_unbound(self):
         policy=C.decode(C.read(C.HERE/'input-policy.json'));self.assertIsNone(policy['binding']['native_lifecycle']);self.assertEqual(policy['status'],'UNBOUND_DO_NOT_EXECUTE')
-    def test_four_edits_nineteen_bodies(self):
-        text,receipt=adapter.derive(self.source);self.assertEqual(receipt['counted_edits'],4);self.assertEqual(len(receipt['unchanged_bodies']),19);self.assertEqual(receipt['changed_bodies'],['guard','validate_runtime']);ast.parse(text)
+    def test_four_edits_twenty_bodies(self):
+        text,receipt=adapter.derive(self.source);self.assertEqual(receipt['counted_edits'],4);self.assertEqual(len(receipt['unchanged_bodies']),20);self.assertIn('config_handoff',receipt['unchanged_bodies']);self.assertEqual(receipt['changed_bodies'],['guard','validate_runtime']);ast.parse(text)
     def test_original_transactions_payload_hardlinks_and_sequencing(self):
         text,_=adapter.derive(self.source);before=C.read(self.source/C.NATIVE/'container.py').decode()
         def bodies(raw):return {n.name:ast.get_source_segment(raw,n) for n in ast.parse(raw).body if isinstance(n,(ast.FunctionDef,ast.ClassDef))}

@@ -98,3 +98,33 @@ and exact receipt refusals. They establish no real native bind-mount proof.
 Apps actual38977834026 exposed the original guard; the qualified Apps native
 successor and these GNU native consumers remain separate pending actuals.
 No GNU packet publication/dispatch or hardware/performance credit follows.
+
+### Explicit modified-configuration handoff
+
+The owned disposable clone now performs a recorded configuration handoff after
+the dependency-checked remove/add commit. Native run39000922170 showed that ALPM
+saves modified `gai.conf` and `locale.gen` as `.pacsave`, then installs the new
+provider default as active `gai.conf`. It does not automatically preserve the
+modified active configuration across this package-name change. The pristine
+case completed; the modified case failed that active-configuration assertion.
+
+For the modified case only, the helper first proves both saved originals against
+the complete before map (bytes, mode, UID and GID) and proves the installed
+provider default. It creates a fresh `.pacnew` containing that exact default,
+restores the original active `gai.conf`, and retains both `.pacsave` files.
+Before rollback it retains the original gai backup at a fresh
+`tmp/provider-lifecycle/gai-pacsave-before-rollback` inside the existing owned
+fixture, then removes only the verified backup pathname so ALPM can recreate it
+without rotating a preexisting backup. After rollback it requires the exact held
+default, recreated original backup, retained stash and locale backup before
+restoring original active gai settings again. Every deliberate operation and
+its before/after identity and metadata are recorded separately from ALPM.
+
+All paths remain inside the exact owned modified clone with a private parent.
+Unknown sidecars/destinations, symbolic paths, hardlinks, aliases, extended
+attributes, unexpected bytes/metadata, writable-by-others configuration
+directories and observed drift refuse the handoff. Full574 inventory, payload,
+capability, hardlink, config, user and source preservation checks remain in
+place. No actor, capability, mount, scriptlet, resource or authority gate changes.
+Host tempfile controls establish source behavior only; fresh native lifecycle,
+interruption and installed16K results remain required.

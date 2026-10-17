@@ -24,5 +24,5 @@ def derive(source):
     a={n.name:ast.get_source_segment(raw.decode(),n) for n in ast.parse(raw).body if isinstance(n,(ast.FunctionDef,ast.ClassDef))}
     b={n.name:ast.get_source_segment(text,n) for n in ast.parse(text).body if isinstance(n,(ast.FunctionDef,ast.ClassDef))}
     unchanged=sorted(n for n in a if a[n]==b[n]);changed=sorted(n for n in a if a[n]!=b[n])
-    C.need(changed==['guard','validate_runtime'] and len(unchanged)==19,'finite unchanged lifecycle bodies required')
+    C.need(changed==['guard','validate_runtime'] and len(unchanged)==20 and 'config_handoff' in unchanged,'finite unchanged lifecycle bodies required')
     return text,dict(status='DERIVED_SOURCE_ONLY',source_sha256=C.sha(raw),adapted_sha256=C.sha(text.encode()),counted_edits=len(RULES),unchanged_bodies=unchanged,changed_bodies=changed,native='NOT_RUN',hardware='NOT_RUN')

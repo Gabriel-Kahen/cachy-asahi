@@ -27,8 +27,8 @@ class Controls(unittest.TestCase):
   with self.assertRaisesRegex(ValueError,'UNBOUND'):C.gate(Path('/missing'))
   with self.assertRaisesRegex(ValueError,'UNBOUND'):R.execute(type('Args',(),dict(acceptances=Path('/missing')))())
   self.assertEqual({p.name for p in self.work.iterdir()},{'emitted'})
- def test_native_four_edits19_bodies_and_current_composed_candidate(self):
-  out,r,folder,C,A,*_=self.emitted(True);text,receipt=A.derive(out);self.assertEqual(receipt['counted_edits'],4);self.assertEqual(len(receipt['unchanged_bodies']),19);self.assertEqual(receipt['changed_bodies'],['guard','validate_runtime']);original=(ROOT/'scripts/ci/glibc-gnu-provider-lifecycle/container.py').read_text();bodies=lambda s:{n.name:ast.get_source_segment(s,n) for n in ast.parse(s).body if isinstance(n,(ast.FunctionDef,ast.ClassDef))};a,b=bodies(original),bodies(text)
+ def test_native_four_edits20_bodies_and_current_composed_candidate(self):
+  out,r,folder,C,A,*_=self.emitted(True);text,receipt=A.derive(out);self.assertEqual(receipt['counted_edits'],4);self.assertEqual(len(receipt['unchanged_bodies']),20);self.assertIn('config_handoff',receipt['unchanged_bodies']);self.assertEqual(receipt['changed_bodies'],['guard','validate_runtime']);original=(ROOT/'scripts/ci/glibc-gnu-provider-lifecycle/container.py').read_text();bodies=lambda s:{n.name:ast.get_source_segment(s,n) for n in ast.parse(s).body if isinstance(n,(ast.FunctionDef,ast.ClassDef))};a,b=bodies(original),bodies(text)
   for name in ('transaction','run_case','copy_probes','payload','unchanged','runtime_mounts','snapshot','Commands','main'):self.assertEqual(a[name],b[name],name)
   self.assertEqual((out/G.NATIVE/'container.py').read_bytes(),(ROOT/'scripts/ci/glibc-gnu-provider-lifecycle/container.py').read_bytes());self.assertIn("'2.43.caa3-1'",(out/G.NATIVE/'common.py').read_text());self.assertIn('CACHY_GNU_PROVIDER_LIFECYCLE',text);self.assertEqual(r['composed_identity_edits'],{'common.py':2,'owner/job.py':5})
  def bound(self,folder,C,P):
