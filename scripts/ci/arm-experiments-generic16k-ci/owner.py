@@ -28,8 +28,11 @@ def namespace(args):
  tools,generic=A.dependencies(args.source_root);path=args.source_root/'scripts/ci/tools-generic16k/run.py';raw=read(path).decode();before="+' tools16k=1'";after="+' tools16k=1 armexperiments16k=1'";need(raw.count(before)==1,'one fixed inherited boot marker anchor');adapted=raw.replace(before,after);value=dict(__file__=str(path),__name__='source_owned_arm16k_tools_owner');exec(compile(adapted,str(path),'exec'),value)
  source=lambda text:{n.name:ast.dump(n,include_attributes=False) for n in ast.parse(text).body if isinstance(n,ast.FunctionDef)}
  original_functions,changed_functions=source(raw),source(adapted);need([n for n in original_functions if original_functions[n]!=changed_functions[n]]==['trial'],'one counted trial marker edit only')
- derivation=dict(status='SOURCE_ONLY_COUNTED_OWNER_ADAPTER',counted_edits=1,before_sha256=pin(raw.encode())['sha256'],after_sha256=pin(adapted.encode())['sha256'],unchanged_bodies=[n for n in original_functions if original_functions[n]==changed_functions[n]],callbacks=['preflight','payload','kernel','init','supervise','guest_report'],source_authorization=authorization)
+ derivation=dict(status='SOURCE_ONLY_COUNTED_OWNER_ADAPTER',counted_edits=1,before_sha256=pin(raw.encode())['sha256'],after_sha256=pin(adapted.encode())['sha256'],unchanged_bodies=[n for n in original_functions if original_functions[n]==changed_functions[n]],callbacks=['preflight','payload','kernel','init','supervise','guest_report'],capture_entry=dict(path='scripts/ci/arm-experiments-generic16k-ci/capture_entry.py',**pin(read(args.source_root/'scripts/ci/arm-experiments-generic16k-ci/capture_entry.py',65536))),source_authorization=authorization)
  original={k:value[k] for k in derivation['callbacks']};state={};proxy=SimpleNamespace(**vars(value['s']));proxy.SCOPE=SCOPE;value['s']=proxy
+ original_capture=value['capture_command']
+ def capture_command(a,image,name,capture):
+  argv=original_capture(a,image,name,capture);need(argv.count('/source/capture.py')==1,'one fixed original capture entry');argv[argv.index('/source/capture.py')]='/repo/'+derivation['capture_entry']['path'];return argv
  def preflight(a):
   image,owner=original['preflight'](a);state.update(image=image);return image,owner
  def payload(archive,receipt,g):
@@ -49,7 +52,7 @@ def namespace(args):
   return code,data,actor
  def guest_report(uart,code,nonce,release,capture):
   need(state.get('binding',{}).get('page_probe')!='PENDING_ORIGINAL_NEXT_COMPILE_STAGE','original probe stage required before VM result');return A.observed(uart,code,nonce,release,state['selection'])
- value.update(preflight=preflight,payload=payload,kernel=kernel,init=init,supervise=supervise,guest_report=guest_report);return value,derivation
+ value.update(preflight=preflight,payload=payload,kernel=kernel,init=init,supervise=supervise,guest_report=guest_report,capture_command=capture_command);return value,derivation
 
 def cleanup_safe(args):
  path=args.output/'runtime.json'

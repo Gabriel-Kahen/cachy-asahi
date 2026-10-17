@@ -1,0 +1,11 @@
+# Retained ARM compiler experiments on generic16K
+
+The source lane selects one of ARM-C01–C04 per job and runs its original four final builds through a468-command normal-loader correctness graph. It reuses the established native574 producer, readonly capture, static page probe, derived kernel, supervisor and ordered cleanup. These are generic16K software checks; no M2 performance, physical hardware, package installation or release credit follows.
+
+First run39021717263 refuses GitHub’s changed log ZIP identity before secrets or actors. The corrected acquisition authenticates the unchanged compressed evidence frame and both exact original objects independently of transport ZIP identity, retaining both hashes. All eight original inputs pass acquisition/data controls in subsequent runs.
+
+C01 run39022113041/source4bff55046532250e1a7a169814689c397581891a boots with actual16384-byte pages and passes its static mmap/mprotect/file-offset smoke. It then fails before any compiler correctness command: the ARM guest imports ctypes, but the original tools capture never imported that extension root and omitted _ctypes. The same raw failure appears in cancelled C02 run39022336426. C03/C04 runs39022373058/39022378028 are cancelled before trial; no guest or matrix outcome is inferred. All four once-only original collections remain under `artifacts/development/arm-retained-generic16k-transport-actual-20261017`.
+
+C01/C02 retain three natural actor exits/group absences and capture/private retirement. All four raw producer cleanup logs report probe/image absence. Kernel workspace deletion is not attested on these failed/cancelled runs, and full cleanup or runtime acceptance is not granted.
+
+The ARM-only capture wrapper now imports stdlib ctypes before invoking the unchanged capture script. It validates the exact guest import set, preserves original helper/module resolution, and leaves ELF alignment, DT_NEEDED discovery, source/inventory/hash guards, resources and runtime assertions unchanged. Fifteen owner controls and147 exact source joins pass. A distinct changed native run must establish complete capture, all468 commands and final cleanup; current runtime acceptance remains NOT_RUN.

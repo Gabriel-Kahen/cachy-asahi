@@ -5,7 +5,7 @@ from pathlib import Path
 from types import SimpleNamespace as NS
 from unittest.mock import patch
 sys.path.insert(0,str(Path(__file__).resolve().parent))
-import acquire as Q,owner as O
+import acquire as Q,owner as O,capture_entry as E
 HERE=Path(__file__).resolve().parent
 ROOT=next(p for p in HERE.parents if (p/'manifests/packages.toml').is_file())
 class Controls(unittest.TestCase):
@@ -81,6 +81,33 @@ class Controls(unittest.TestCase):
   original=adapter.P.read
   def read(path,cap):return b'{"status":"BOUND_BY_ROOT"}' if path==adapter.HERE/'policy.json' else original(path,cap)
   with patch.object(adapter.P,'read',side_effect=read),self.assertRaisesRegex(ValueError,'probe stage inputs required before actors'):adapter.trial(args)
+ def test_capture_entry_orders_import_before_unchanged_capture(self):
+  order=[]
+  with patch.object(E,'import_extensions',side_effect=lambda root:order.append(('import',str(root)))),patch.object(E.runpy,'run_path',side_effect=lambda *a,**k:order.append(('capture',a,k))):E.main()
+  self.assertEqual(order,[('import','/repo'),('capture',('/source/capture.py',),{'run_name':'__main__'})])
+ def test_actual_arm_import_closure_seeds_ctypes_without_helper_collisions(self):
+  keys=('runtime','prepare','support','sandbox');prior={k:sys.modules.get(k) for k in keys};paths=list(sys.path);ctypes=E.import_extensions(ROOT)
+  self.assertIn('_ctypes',sys.modules);self.assertTrue(Path(sys.modules['_ctypes'].__file__).name.endswith('.so'));self.assertEqual(sys.path,paths);self.assertEqual({k:sys.modules.get(k) for k in keys},prior);self.assertEqual(ctypes.__name__,'ctypes')
+  lane=self.work/'scripts/ci/arm-experiments-generic16k';lane.mkdir(parents=True);(lane/'guest.py').write_text('import ctypes,foreign_root\n')
+  with self.assertRaisesRegex(ValueError,'import closure changed'):E.import_extensions(self.work)
+ def test_original_capture_helper_context_and_native_scan_root_preserved(self):
+  paths=list(sys.path)
+  with patch.dict(sys.modules):
+   sys.modules.pop('support',None)
+   def capture(name):
+    spec=importlib.util.spec_from_file_location(name,ROOT/'scripts/ci/tools-generic16k/capture.py');value=importlib.util.module_from_spec(spec);spec.loader.exec_module(value);return value
+   try:
+    before=capture('original_capture_before');helpers={k:sys.modules.get(k) for k in ('runtime','prepare','support','sandbox')};E.import_extensions(ROOT);after=capture('original_capture_after');self.assertIs(before.s,after.s);self.assertEqual(Path(after.s.__file__).resolve(),ROOT/'scripts/ci/tools-generic16k/support.py');self.assertEqual({k:sys.modules.get(k) for k in helpers},helpers)
+    import sysconfig
+    self.assertTrue(Path(sys.modules['_ctypes'].__file__).resolve().is_relative_to(Path(sysconfig.get_path('stdlib')).resolve()))
+   finally:sys.path[:]=paths
+ def test_capture_import_alias_refuses_before_import_or_capture(self):
+  lane=self.work/'scripts/ci/arm-experiments-generic16k';lane.mkdir(parents=True);(lane/'guest.py').symlink_to(ROOT/'scripts/ci/arm-experiments-generic16k/guest.py')
+  with self.assertRaisesRegex(ValueError,'ordinary bounded exact source'):E.import_extensions(self.work)
+ def test_capture_argv_changes_only_entry_and_records_source_pin(self):
+  args,environment=self.source();value,receipt=self.namespace(args,environment);capture=self.work/'capture';image='sha256:'+'b'*64;name='capture-'+args.job_token
+  original={};raw=(args.source_root/'scripts/ci/tools-generic16k/run.py').read_text();exec(compile(raw,str(args.source_root/'scripts/ci/tools-generic16k/run.py'),'exec'),dict(value,__name__='original_capture_only'),original)
+  before=original['capture_command'](args,image,name,capture);after=value['capture_command'](args,image,name,capture);position=before.index('/source/capture.py');self.assertEqual(after[:position],before[:position]);self.assertEqual(after[position+1:],before[position+1:]);self.assertEqual(after[position],'/repo/scripts/ci/arm-experiments-generic16k-ci/capture_entry.py');self.assertEqual(receipt['capture_entry'],dict(path='scripts/ci/arm-experiments-generic16k-ci/capture_entry.py',**O.pin((HERE/'capture_entry.py').read_bytes())))
  def report(self,args):
   image='sha256:'+'b'*64;consumer=dict(capture_absent=True,private_removed=True,producer='BORROWED_PRESERVED');report=dict(job_token=args.job_token,status='PASS_SMOKE_AWAITING_PRODUCER_RETIREMENT',natural_VM_exit=True,QEMU_exit=0,actors=[dict(natural_exit=True,exit=0,group_absent=True) for _ in range(3)],consumer_cleanup=consumer,image_id=image,kernel=dict(helper=dict(path=str(args.kernel_work/'helper/build_kernel.py')),status='BUILT_ONLY',kernel_build='PASS'));args.output.mkdir();O.save(args.output/'runtime.json',report);return report,image
  def test_cleanup_safe_refuses_uncertain_or_partial_actor_retirement(self):
