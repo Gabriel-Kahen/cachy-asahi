@@ -28,6 +28,9 @@ def derive(text):
  # Preserve the fixed bounded original offline build log even when retirement
  # is uncertain; diagnostic bytes grant no GUI/runtime or cleanup acceptance.
  text=C.one(text,"(runtime/'runtime.json','runtime/runtime.json',16*1024**2)","(runtime/'runtime.json','runtime/runtime.json',16*1024**2),(runtime/'runtime-image.log','runtime/runtime-image.log',16*1024**2)")
+ text=C.one(text,"len(report.get('cleanup',[]))==14","len(report.get('cleanup',[]))==15 and context604.launcher_retired(report,C.ROOT)")
+ text=C.one(text,'all original14 consumer cleanup records required','all original14 plus owned QEMU image consumer cleanup records required')
+ text=C.one(text,"(runtime/'runtime-image.log','runtime/runtime-image.log',16*1024**2)","(runtime/'runtime-image.log','runtime/runtime-image.log',16*1024**2),(runtime/'qemu-tooling-image.log','runtime/qemu-tooling-image.log',16*1024**2)")
  return text.replace('expanded604-current-management-managed16k-runner','current604-public-pair-generic16k-runner').replace('expanded604-current-management-managed16k-runtime','current604-public-pair-generic16k-runtime')
 _BASE=C.module('_profile604_owned_ci',C.OLD+'/ci.py',{'contract':C,'adapter':adapter,'context604':context604},derive)
 parser,retired,preflight,main=_BASE.parser,_BASE.retired,_BASE.preflight,_BASE.main
