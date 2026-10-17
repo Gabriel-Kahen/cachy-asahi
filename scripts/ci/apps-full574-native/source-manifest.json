@@ -9,12 +9,12 @@
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "manifests/packages.toml": {
-      "bytes": 36727,
-      "sha256": "473d772cc1833c757630271e8e40edce90e14995fca9b1652fb0de695c463135"
+      "bytes": 37290,
+      "sha256": "04a624e50332720da60562a82438f678daf089cd9267c8756b630f2b22f74472"
     },
     "packages/tools/cachy-asahi-apps/.SRCINFO": {
       "bytes": 1775,
-      "sha256": "721cae0ca221c6160b730cf253d38568e20806531949abcf619e14f6be2dbeb8"
+      "sha256": "b1efe81a2c4385dd820f411194934ba64bbc288ebb5bc421b90056ade9e9ab3a"
     },
     "packages/tools/cachy-asahi-apps/LICENSE": {
       "bytes": 1081,
@@ -26,15 +26,15 @@
     },
     "packages/tools/cachy-asahi-apps/PKGBUILD": {
       "bytes": 3700,
-      "sha256": "09c36bc7d0c34e455b945088ce22d41f01aea5ebdbba0e918c83e4ea30034525"
+      "sha256": "aa4d6ed7865aab606a55e7de94e50d6966f47f7b926a39efd4b3f64eec403778"
     },
     "packages/tools/cachy-asahi-apps/README.md": {
-      "bytes": 9856,
-      "sha256": "4a2da8edd21fb610e94be3a2c28a2ff7db00da0537ca28476b5e7d50dca17fca"
+      "bytes": 11707,
+      "sha256": "c4ec55dc26bd427c37df59c647bb47719c6a88d91bd7c32b8c9ccc5a08ba6d5d"
     },
     "packages/tools/cachy-asahi-apps/apps.py": {
-      "bytes": 21983,
-      "sha256": "b64e3fd6fae67bca64fdd804278b7d88b9851eb92da26636ed2beb723e9a4781"
+      "bytes": 22601,
+      "sha256": "c12f8548d5fd3007a61fb366ca279dd061917cc5320ba81ce5e2ab0d02c7d9a6"
     },
     "packages/tools/cachy-asahi-apps/cachy-asahi-apps": {
       "bytes": 310,
@@ -49,8 +49,8 @@
       "sha256": "986c8baea2921cf3f58f98c2e76a1adad9013fbe4b1f47743d12397e9e6c2516"
     },
     "packages/tools/cachy-asahi-apps/source-provenance.json": {
-      "bytes": 3619,
-      "sha256": "8740ffa1e432e2275840aa81d28136b9bcce0db0106d429db4ed30889e24383c"
+      "bytes": 3814,
+      "sha256": "e942a7ce47dc601de8639f320401e79561d74e0923080f660125825ef860328b"
     },
     "packages/tools/cachy-asahi-cache/.SRCINFO": {
       "bytes": 800,
@@ -189,12 +189,12 @@
       "sha256": "e2661f20d4933148cfdc82aed16cffc7870ac45134588b966e19582c12f28f9b"
     },
     "scripts/apps/test_transaction.py": {
-      "bytes": 6909,
-      "sha256": "86451cbc351c630110c6d7b336a10b4ebf158f443ebfac0be2db4a78d8682d01"
+      "bytes": 8377,
+      "sha256": "951512a28c6f692806f3da7bf1e4e5d5b5166e9f1912f4370de52271bff7e9a4"
     },
     "scripts/apps/transaction.py": {
-      "bytes": 25522,
-      "sha256": "12231752bd96711951dc98b6277880e2b334058b1066639fc5fb2b78a982734e"
+      "bytes": 26300,
+      "sha256": "c1e1ebc4826a6158e7a03cb747bd081f791ccef386a58f291e6d3610edfd79e3"
     },
     "scripts/checks/package_checks.py": {
       "bytes": 17706,
