@@ -1,0 +1,43 @@
+{
+  "VM": "NOT_RUN",
+  "actors": 7,
+  "aggregate": "NATIVE_TWO_CASE_ACCEPTANCE_RECORDED_SEPARATELY_VM_NOT_ACCEPTED",
+  "case": "repair-missing",
+  "cleanup": "PASS",
+  "committed_transactions": 4,
+  "copied_root_preservation": "SOURCE_ENFORCED_RAW_MAPS_NOT_EXPORTED",
+  "counts": [
+    578,
+    575,
+    574
+  ],
+  "hardware": "NOT_RUN",
+  "original_collection": {
+    "artifact.zip": {
+      "bytes": 11697613,
+      "sha256": "2ec48822175b0cfc5c95f617f447ffae3453821c138ec33f2912118d4e5bb5ad"
+    },
+    "logs.zip": {
+      "bytes": 102215,
+      "sha256": "5437d74c2f2204168bcc2af3a5924e82a0b0f61cd34a4b638a1177058c17c212"
+    }
+  },
+  "packet_source": "65950a7e3ca82d97e21a65556844dab1cfd1a7f7",
+  "readonly_inspection": "PASS_AUTHENTICATED_NONCOMMIT_BEFORE_PINS",
+  "release": "NOT_ADMITTED",
+  "root_decision_utc": "2026-10-17T15:29:23.787492+00:00",
+  "root_independent_passive_replay": {
+    "bytes": 2514,
+    "sha256": "73bde3251b814a5e0f0d087c02a1059c2e4f137aff722e80cf2113de23ccf073"
+  },
+  "run_id": 39037409734,
+  "signature_cryptographic_reverification": "NOT_RUN_PASSIVE_NO_SUBPROCESSES",
+  "source_full_node_replay": "PASS_ORIGINAL_SOURCE_ONLY",
+  "source_manifest_sha256": "636baf21fa537ca813b7403b1bc6afb920404d974236bd52d8c1cdf479477ba9",
+  "source_nodes": 123056,
+  "source_operand_git_joins": 204,
+  "source_sha": "5051663cf191e40bdbb3b03e2d62748f69b6afb1",
+  "status": "ROOT_ACCEPTED_NATIVE_FULL574_SIGNED_REPAIR_CASE",
+  "strict_inspect_refusals": 1,
+  "zero_commit_refusals": 3
+}
