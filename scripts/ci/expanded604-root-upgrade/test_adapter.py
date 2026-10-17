@@ -63,7 +63,7 @@ class Adapter(unittest.TestCase):
 
     def test_original_runtime_and_inspector_bytes_and_budgets_are_preserved(self):
         unchanged=('scripts/client/client.py','scripts/release/release.py','scripts/update/bound_update.py',
-            'scripts/update/archive_stream.py','scripts/update/generic_policy.py','scripts/update/aux_checkpoint.py',
+            'scripts/update/archive_stream.py','scripts/update/aux_checkpoint.py',
             'scripts/update/aux_initialize.py','scripts/update/aux_copy.py','scripts/update/supervision.py',
             'scripts/ci/full-root-upgrade-caller/persistent_scope.py','scripts/ci/full-root-upgrade-caller/run.py',
             'scripts/port/kernel-native-job/runtime.py',A.PREFIX+'setup5.py',A.PREFIX+'accepted_pair.py')
@@ -83,6 +83,29 @@ class Adapter(unittest.TestCase):
                     return [(s,ast.dump(n,include_attributes=False)) for n,p,s,parent in A.nodes(ast.parse((root/name).read_bytes()))
                         if isinstance(n,ast.keyword) and n.arg in ('deadline','timeout','seconds','worker_seconds','verify_seconds')]
                 self.assertEqual(budgets(old),budgets(code),name)
+
+    def test_complete_protected_policy_uses_the_selected604_inventory(self):
+        before,after=A.C.locks();protected=sorted(set(before)-{'cachy-asahi-setup'})
+        for case,code in self.codes.items():
+            module=load('_selected604_policy_'+case,code/'scripts/update/generic_policy.py')
+            original=load('_prior600_policy_'+case,self.oldcodes[case]/'scripts/update/generic_policy.py')
+            kernel=next(n for n in protected if n.startswith('linux-'))
+            policy=dict(schema_version=1,purpose='cachy-asahi-generic-development-update-policy',
+                release_id='selected604-test',protected_packages=protected,
+                protected_versions={n:before[n] for n in protected},platform_roles={'kernel':[kernel]},
+                protected_units={k:sorted(v) for k,v in module.asahi.REQUIRED_UNITS.items()},
+                before_lock_sha256=A.C.BEFORE,after_lock_sha256=A.C.AFTER)
+            with self.assertRaisesRegex(ValueError,'invalid identifier list'):original.protected_names(policy)
+            self.assertEqual(len(module.protected_names(policy)),603)
+            settings=dict(purpose='disposable-generic-bound-update',model='generic-development-only',release_id=policy['release_id'])
+            snapshot=dict(release={'release_id':policy['release_id']},spec={'policy':{'protected_packages':protected}})
+            files={kernel:['/usr/lib/modules/6.1/kernel/inert.ko']}
+            self.assertEqual(module.authorize(policy,settings,snapshot,before,after,files,files)['decision'],
+                'generic-development-transaction-allowed')
+            for names in (protected+[protected[0]],list(before)+['extra-invalid-bound']):
+                with self.assertRaises(ValueError):module.protected_names(policy|{'protected_packages':names})
+            bad=dict(before);bad[kernel]='changed'
+            with self.assertRaises(ValueError):module.authorize(policy,settings,snapshot,bad,after,files,files)
 
     def test_bootstrap21_projects31_additions_preserves_closed_payload_API(self):
         code=self.codes['normal'];module=load('_604_bootstrap',code/'scripts/ci/full-root-upgrade-caller/container.py')
