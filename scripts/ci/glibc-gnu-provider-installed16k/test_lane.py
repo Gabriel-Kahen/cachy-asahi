@@ -45,12 +45,20 @@ class Controls(unittest.TestCase):
 
     def test_source_closure(self):C.check_source(self.source)
     def test_unbound_refuses_nonexistent_acceptances(self):
-        with self.assertRaisesRegex(ValueError,'UNBOUND'):C.gate(Path('/definitely-absent'))
+        # Exercise refusal independently of whether this frozen lane is bound.
+        with tempfile.TemporaryDirectory() as work:
+            here=Path(work);policy=C.decode(C.read(C.HERE/'input-policy.json'));policy['status']='UNBOUND_DO_NOT_EXECUTE'
+            C.save(here/'input-policy.json',policy)
+            with patch.object(C,'HERE',here),self.assertRaisesRegex(ValueError,'UNBOUND'):C.gate(Path('/definitely-absent'))
     def test_actual_system16k_decision_bound(self):
         policy=C.decode(C.read(C.HERE/'input-policy.json'));ref=policy['binding']['system16k'];value=C.decode(C.read(C.ref(C.HERE/'prerequisites',ref)))
         self.assertEqual(value['status'],'ROOT_ACCEPTED_GNU_PROVIDER_SYSTEM_PATHS_GENERIC16K');self.assertEqual(value['ALPM_installation'],'NOT_RUN')
-    def test_native_stays_unbound(self):
-        policy=C.decode(C.read(C.HERE/'input-policy.json'));self.assertIsNone(policy['binding']['native_lifecycle']);self.assertEqual(policy['status'],'UNBOUND_DO_NOT_EXECUTE')
+    def test_native_policy_is_unbound_or_joins_actual_normal_lifecycle(self):
+        policy=C.decode(C.read(C.HERE/'input-policy.json'));row=policy['binding']['native_lifecycle']
+        if row is None:self.assertEqual(policy['status'],'UNBOUND_DO_NOT_EXECUTE')
+        else:
+            self.assertEqual(policy['status'],'BOUND_BY_ROOT');self.assertEqual(row['path'],'native-lifecycle.json');accepted=C.gate(C.HERE/'prerequisites');native=accepted['native_lifecycle']
+            self.assertEqual(native['status'],'ROOT_ACCEPTED_CONVENTIONAL_PROVIDER_NORMAL_LIFECYCLE');self.assertEqual(native['page_size'],4096);self.assertEqual(native['ordered_cleanup'],'PASS');self.assertEqual(native['provider_archive_sha256'],accepted['system16k']['package_sha256']);self.assertEqual(native['hardware'],'NOT_RUN');self.assertEqual(native['configuration_handoffs']['phases'],3)
     def test_four_edits_twenty_bodies(self):
         text,receipt=adapter.derive(self.source);self.assertEqual(receipt['counted_edits'],4);self.assertEqual(len(receipt['unchanged_bodies']),20);self.assertIn('config_handoff',receipt['unchanged_bodies']);self.assertEqual(receipt['changed_bodies'],['guard','validate_runtime']);ast.parse(text)
     def test_original_transactions_payload_hardlinks_and_sequencing(self):
