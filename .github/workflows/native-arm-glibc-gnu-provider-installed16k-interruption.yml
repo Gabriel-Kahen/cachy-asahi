@@ -32,7 +32,6 @@ jobs:
       SOURCE_SHA: ${{ inputs.source_sha }}
       WORKFLOW_SHA: ${{ github.workflow_sha }}
       SLICE: scripts/ci/glibc-gnu-provider-interruption-owner
-      BUNDLE: ${{ runner.temp }}/interrupted16k-source
       NATIVE_INTERRUPTION_DECISION: ${{ inputs.native_interruption_decision }}
       NORMAL_INSTALLED16K_DECISION: ${{ inputs.normal_installed16k_decision }}
     steps:
@@ -46,8 +45,9 @@ jobs:
         timeout-minutes: 2
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '7483637091e30cc12d260ac01c3c4bf9af6b6330b5d7296068bfee9476678ef1' 'scripts/ci/glibc-gnu-provider-installed16k-interruption/ci/wiring.py' '6606e3bcd60ba33c5e8d200e773dfad7e664ec36589d4da0acd4193631bec6a2' 'scripts/ci/glibc-gnu-provider-installed16k-interruption/ci/integration-manifest.json' | sha256sum --check
+          printf '%s  %s\n' '7483637091e30cc12d260ac01c3c4bf9af6b6330b5d7296068bfee9476678ef1' 'scripts/ci/glibc-gnu-provider-installed16k-interruption/ci/wiring.py' '61b81a344e4a53f871181d75bb42d86c071ebd9d1238b7e5bf406916e63a9737' 'scripts/ci/glibc-gnu-provider-installed16k-interruption/ci/integration-manifest.json' | sha256sum --check
           python3 -I -B scripts/ci/glibc-gnu-provider-installed16k-interruption/ci/wiring.py preflight --workspace "$GITHUB_WORKSPACE"
+          printf 'BUNDLE=%s/interrupted16k-source\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
       - name: Read only exact immutable native interruption Root decision
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         timeout-minutes: 3
