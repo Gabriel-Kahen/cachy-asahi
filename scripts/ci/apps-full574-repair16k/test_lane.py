@@ -373,8 +373,12 @@ class SourceStateBudget(unittest.TestCase):
  def test_genuine_initial_factory_uses_exact_policy_freshlease_shared600(self):self._exercise_factory()
  def test_genuine_final_readback_factory_uses_exact_policy_freshlease_shared600(self):self._exercise_factory(final=True)
  def test_only_source_state_and_final_readback_change_all_other_guards_held(self):
-  original=Path(os.environ['FULL574_REPAIR16K_SOURCE'])/C.LANE/'guest.py';before=original.read_text();after=(HERE/'guest.py').read_text()
-  old={n.name:dump(n) for n in ast.parse(before).body if isinstance(n,ast.FunctionDef)};new={n.name:dump(n) for n in ast.parse(after).body if isinstance(n,ast.FunctionDef)}
-  self.assertEqual([n for n in old if old[n]!=new[n]],['source_state','worker']);self.assertEqual(set(new)-set(old),{'source_budget'});self.assertIn('env,3000,2*1024**2)',after);self.assertEqual(after.count('limits=source_budget(s,T)'),2)
+  import hashlib
+  # Frozen46ea function text pins are independent of the emitter input version.
+  held={'emit': '650d75247ddbdf3928580177f5c9c06eba6474905ac254b847e8b92795939585', 'worker_failure': 'fbfdca318e1c51b496798c8ebb33657f0dfea1f757ccc015e97076665ef96636', 'borrowed_isolation': '6b38825b912670d361da3d552b3fffc2b9a2fd93a99abbe9e1eccf96b82bde8f', 'startup': 'e112e6fb79d144dfc88292551fa30ac06b217399f75a5262d57d18fc975e6e95', 'lease': '355f10825acd172d933b8b44958e202b028610f3651185cc4a072094c89f6a57', 'source_state': '78411b4340d8db0b93957fbe7d660adb72c537780b36e2531103d91c8745053d', 'worker': '8e4ee93f6e88e66be5f8fb045c5d546d1e7bf91925d0b76d1ae234926af589c7', 'main': '69e1b579e7d6b698eaa6499a359bbafe07243581296c4843b563f548c50fa0ab'}
+  after=(HERE/'guest.py').read_text();nodes={n.name:n for n in ast.parse(after).body if isinstance(n,ast.FunctionDef)}
+  self.assertEqual(set(nodes),set(held)|{'source_budget'})
+  changed=[name for name,digest in held.items() if hashlib.sha256(ast.get_source_segment(after,nodes[name]).encode()).hexdigest()!=digest]
+  self.assertEqual(changed,['source_state','worker']);self.assertIn('env,3000,2*1024**2)',after);self.assertEqual(after.count('limits=source_budget(s,T)'),2)
 
 if __name__=='__main__':unittest.main()

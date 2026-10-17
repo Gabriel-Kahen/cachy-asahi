@@ -515,8 +515,8 @@
       "sha256": "ad36f839b52fcd83642f5b9643b57ff7eccf2af20670316899584d340d9c2dcc"
     },
     "scripts/ci/apps-full574-repair16k/test_lane.py": {
-      "bytes": 37382,
-      "sha256": "730a1010cb9e3b2ac07a10002b30195ddd9356616ed4573acd865e5a63218e05"
+      "bytes": 38058,
+      "sha256": "7a87511bd7919afbcddd96219a8d00d8acdc8ecdbcf2748669a2b7489a719a33"
     },
     "scripts/ci/apps-full574-repair16k/vm.py": {
       "bytes": 11257,
