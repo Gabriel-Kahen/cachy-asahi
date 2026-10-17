@@ -322,6 +322,8 @@ def main():
     report=dict(status='FAIL',scope='OWNED_CONVENTIONAL_GNU_PROVIDER_GENERIC_ARM_ONLY',commands=[],cases={},hardware='NOT_RUN',security_release_admission=False,Asahi='NOT_RUN',generic16K_provider='NOT_RUN',interrupted_in_progress_replacement='NOT_RUN')
     commands=Commands(api,report)
     try:
+        report['proc_preflight']=api['proc_probe'].check(commands,WORK)
+        C.need(report['proc_preflight']['status']=='PASS_READONLY_PROC_PREFLIGHT' and report['proc_preflight']['cleanup']=='PASS_OWNED_EMPTY_PROBE_REMOVED','readonly proc preflight failed; see proc_preflight')
         for case in C.CASES:
             report['cases'][case]={};run_case(api,commands,index,base,new,old,case,report['cases'][case])
         C.need(not any(WORK.iterdir()),'no lifecycle root remains')

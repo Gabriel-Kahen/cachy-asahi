@@ -1,5 +1,4 @@
 {
-  "schema_version": 1,
   "files": {
     "scripts/ci/glibc-generic16k/common.py": {
       "bytes": 11573,
@@ -18,12 +17,16 @@
       "sha256": "a111ef296fff624fef3560c175e46b4d983bdacc163ced49db4265de853ca6e4"
     },
     "scripts/ci/glibc-gnu-provider-lifecycle/common.py": {
-      "bytes": 12745,
-      "sha256": "003eebbb152bd32176d857e0f2ab6ec40bf7e417d8cb70b4b4ec5750ebdd0d29"
+      "bytes": 12892,
+      "sha256": "42082d2e773d423d2abc0e1f7ff50e74163c09c9a51c1c073a4cb17f7e79cc72"
     },
     "scripts/ci/glibc-gnu-provider-lifecycle/container.py": {
-      "bytes": 24956,
-      "sha256": "3f47052ff76572569315c3faeabc7defa092d523209ee859118fe936af2faed1"
+      "bytes": 25238,
+      "sha256": "d74a6e475cc31261f746d4a23a904172c6f2a61a307396a15718f0afcdaefc4e"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle/proc_mount.py": {
+      "bytes": 8877,
+      "sha256": "2bddbdb7c0abfa41a9c15a88c139d62cf1aa50c6556bcc0fcbef27999c3af9ac"
     },
     "scripts/ci/glibc-gnu-provider/normal-child-exec.patch": {
       "bytes": 773,
@@ -133,5 +136,6 @@
       "bytes": 1720,
       "sha256": "b71adf10496d563a20eed7cecef8074cb82dd103a63e47f48462a1bd5d18f23d"
     }
-  }
+  },
+  "schema_version": 1
 }
