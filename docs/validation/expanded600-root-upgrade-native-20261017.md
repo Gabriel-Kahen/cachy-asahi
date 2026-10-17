@@ -1,0 +1,11 @@
+# Native600 copied-root upgrade and controlled failures
+
+Root accepts three original first-attempt runs from source `338cca737b28a7aaa411734ee13aad713c10d786`: normal38986912102, precommit86 run38986913588 and postcommit87 run38986915490. Case identities come from the original receipts. Each closed seven-file log frame was collected once, independently replayed, and joined against all182 frozen Git source/input/decision records.
+
+Every case copies125301 nodes, checks the complete600-package source before/after, preserves599 protected packages and exercised user files, and disposes its owned copy. Normal performs the genuine Setup0.1.0-3→0.1.0-5 commit and syncs its checkpoint. Precommit exits86 with zero commits, unchanged inventory/checkpoint and its retained owned stale lock. Postcommit performs the genuine commit and independent after600 database/payload/preservation checks, then exits87 without changing the checkpoint. Both negative cases remain controlled failed updates; disposal does not establish rollback or boot recovery.
+
+Ordered consumer/volume/cache/producer/private cleanup passes. The normal/precommit/postcommit original log hashes are respectively `c824ffc28640fa00dc47ede6106f5f22be8091f40d2946e598d5670b92f96555`, `81f4261f44299afa90effb1ba77fd7f569726c5d840428cc7edb93198f6a6956`, and `6f2b63d629c82f4fd9a699a7332d1ffab8dff0c821d0ba227c9d67b6659b9ddd`.
+
+Private raw maps and86/87 fault witnesses are not exported. Their checks are enforced by the exact frozen source and retained receipts; replay does not perform another raw-map observation. Postcommit's successful libalpm return is required by its private witness but is not separately exported. Resource retirement is retained evidence, not a fresh live observation; auxiliary process exit status remains unobserved. This is generic4K software evidence only. Hardware remains NOT_RUN and release admission remains closed.
+
+Originals and Root decisions are retained under `artifacts/development/native-frontier-terminal-20261017/<run>`, with combined replay and182-source joins alongside them. The exact three decisions plus unchanged accepted native604/fresh604 decisions are published in carrier `977f963dbdca260446d280d38aa5b740b27fe9df`. They bind the final604 updater; that lane still needs its own native cases.
