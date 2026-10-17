@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       source:
-        description: Exact new604 copied-root implementation/workflow; unbound until Root accepts all five prerequisites
+        description: Exact Root-bound604 copied-root implementation/workflow revision
         required: true
         type: string
       case:
@@ -66,8 +66,8 @@ jobs:
           UPGRADE_CASE: ${{ inputs.case }}
         run: |
           set -euo pipefail
-          test "$(sha256sum expanded604-upgrade/scripts/ci/expanded604-root-upgrade/run.py | cut -d ' ' -f 1)" = @OWNER_SHA256@
-          test "$(sha256sum expanded604-upgrade/scripts/ci/expanded604-root-upgrade/source-manifest.json | cut -d ' ' -f 1)" = @MANIFEST_SHA256@
+          test "$(sha256sum expanded604-upgrade/scripts/ci/expanded604-root-upgrade/run.py | cut -d ' ' -f 1)" = 47b58124568298c2bda94cacebf57c72f444e00c83ba4f3a28dc3150a3f94002
+          test "$(sha256sum expanded604-upgrade/scripts/ci/expanded604-root-upgrade/source-manifest.json | cut -d ' ' -f 1)" = 9f6a234aadc63ec86bcb289d8fac7eb93ea2fcdb3422e57a35ce680a6e8cfe5c
           python3 -B expanded604-upgrade/scripts/ci/expanded604-root-upgrade/gate.py \
             --implementation "$GITHUB_WORKSPACE/expanded604-upgrade" --source "$IMPLEMENTATION_SOURCE" \
             --workflow-sha "$WORKFLOW_SOURCE" --case "$UPGRADE_CASE" --preflight

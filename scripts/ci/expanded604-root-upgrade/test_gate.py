@@ -94,15 +94,18 @@ class Authority(unittest.TestCase):
             self.records[key][field]=old
     def test_unbound_policy_refuses_gate_freeze_and_owner_before_outputs_or_actors(self):
         before=list(self.root.iterdir())
-        with self.assertRaisesRegex(ValueError,'UNBOUND'):C.policy()
-        with self.assertRaisesRegex(ValueError,'UNBOUND'):gate.main(['--implementation',str(self.root),'--source','0'*40,
-             '--workflow-sha','0'*40,'--case','normal','--preflight'])
-        with self.assertRaisesRegex(ValueError,'UNBOUND'):freeze.freeze(self.root)
-        argv=[]
-        for field in ('implementation','installer-source','decision-source','upgrader-source','preparation-source',
-             'product','updater','desktop','updater-v2-source','native','fdk','cache','setup4-pair',
-             *(n.replace('_','-') for n in C.INPUTS),'audio-inputs','output'):argv.extend(['--'+field,str(self.root/field)])
-        with self.assertRaisesRegex(ValueError,'UNBOUND'):owner.main(argv+['--implementation-revision','0'*40,'--case','normal'])
+        unbound=copy.deepcopy(C.policy(bound=False))
+        unbound.update(status='UNBOUND_ACTUAL_PREREQUISITES',installer_source=None,decision_source=None)
+        with patch.object(C,'read',return_value=unbound):
+            with self.assertRaisesRegex(ValueError,'UNBOUND'):C.policy()
+            with self.assertRaisesRegex(ValueError,'UNBOUND'):gate.main(['--implementation',str(self.root),'--source','0'*40,
+                 '--workflow-sha','0'*40,'--case','normal','--preflight'])
+            with self.assertRaisesRegex(ValueError,'UNBOUND'):freeze.freeze(self.root)
+            argv=[]
+            for field in ('implementation','installer-source','decision-source','upgrader-source','preparation-source',
+                 'product','updater','desktop','updater-v2-source','native','fdk','cache','setup4-pair',
+                 *(n.replace('_','-') for n in C.INPUTS),'audio-inputs','output'):argv.extend(['--'+field,str(self.root/field)])
+            with self.assertRaisesRegex(ValueError,'UNBOUND'):owner.main(argv+['--implementation-revision','0'*40,'--case','normal'])
         self.assertEqual(before,list(self.root.iterdir()))
     def test_root_policy_requires_all_positive_closed_refs(self):
         with patch.object(C,'read',return_value=self.policy):self.assertEqual(C.policy(),self.policy)
