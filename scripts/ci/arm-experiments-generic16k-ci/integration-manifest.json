@@ -353,28 +353,32 @@
       "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
     },
     "scripts/ci/arm-experiments-generic16k-ci/README.md": {
-      "bytes": 5199,
-      "sha256": "71be092f2b61d895ce72bad7aeaccedf8fdec7d4e5a8b8226780d83b4c02c9a7"
+      "bytes": 6059,
+      "sha256": "ddc8ab193be7f1162f1d0219d105526041ec096e44f34d3c6d043dd33c980b65"
     },
     "scripts/ci/arm-experiments-generic16k-ci/acquire.py": {
       "bytes": 6025,
       "sha256": "2a669bc68faeee9c2fcff98f58317c10ed3959ce9d052c1b7070ac0943311164"
+    },
+    "scripts/ci/arm-experiments-generic16k-ci/capture_entry.py": {
+      "bytes": 1404,
+      "sha256": "87a2af077562e0f0640e55aadc9ff05a6921361690d0f53a86630c3b7b7f2c26"
     },
     "scripts/ci/arm-experiments-generic16k-ci/origins.json": {
       "bytes": 1724,
       "sha256": "d469b855507501975e8d2d2d6c5a479748bfbf2c9eec896e0c06319a6d3672f8"
     },
     "scripts/ci/arm-experiments-generic16k-ci/owner.py": {
-      "bytes": 8657,
-      "sha256": "c17e5ffe16718ec0d470912db5ff13b68a76ec1c6e74758f992a105c363fd4a7"
+      "bytes": 9176,
+      "sha256": "09d7a762d7efb7ba1dffa0c062470b01a13a315d64bb787925094d174cf32f33"
     },
     "scripts/ci/arm-experiments-generic16k-ci/policy.json": {
       "bytes": 461,
       "sha256": "111bb45a136238c5fd3a8d2a8955a63e177d21c992c813f05508de8d2d809e1f"
     },
     "scripts/ci/arm-experiments-generic16k-ci/test_owner.py": {
-      "bytes": 9963,
-      "sha256": "29371619626e86b5fcfb178b117542683aba0ce57c06067ff0662b1a9dc0db7d"
+      "bytes": 13383,
+      "sha256": "ce956f258f915079f7df1f98987dbd1fcca2f18c96b6b4e23f1adc5c33aff36a"
     },
     "scripts/ci/arm-experiments-generic16k/README.md": {
       "bytes": 6968,
