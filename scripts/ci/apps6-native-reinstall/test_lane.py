@@ -78,6 +78,15 @@ class Lane(unittest.TestCase):
   s=A.text(SOURCE,'lifecycle.py');self.assertLess(s.index("installed('install')"),s.index('repair_result=repair.run()'));self.assertLess(s.index('repair_result=repair.run()'),s.index("installed('same-version-reinstall')"));self.assertIn("I.payloads(L,products);preserve()",s)
  def test_native_workflow_boundaries_and_no_capability_widening(self):
   path=HERE.parents[2]/'.github/workflows/native-arm-apps6-reinstall.yml';s=path.read_text();self.assertIn('ubuntu-24.04-arm',s);self.assertIn('timeout-minutes: 100',s);self.assertTrue(('@JOB_SHA256@' in s and '@MANIFEST_SHA256@' in s) or __import__('re').search(r"'[0-9a-f]{64}' \"\$SLICE/job.py\" '[0-9a-f]{64}' \"\$SLICE/source-manifest.json\"",s));self.assertLess(s.index('Prove the explicit'),s.index('existing secrets'));self.assertNotIn('--privileged',s)
+ def test_actual_workflow_entrypoint_imports_from_outside_checkout(self):
+  workflow=(HERE.parents[2]/'.github/workflows/native-arm-apps6-reinstall.yml').read_text()
+  entries=[(('job.py',),['-I','-B'],'"$SLICE/job.py"'),(('run.py',),['-B'],'"$SLICE/run.py"'),(('..','maintained_desktop574.py'),['-I','-B'],'scripts/ci/maintained_desktop574.py'),(('..','test_maintained_desktop574.py'),['-I','-B'],'scripts/ci/test_maintained_desktop574.py')]
+  with tempfile.TemporaryDirectory() as temporary:
+   for relative,flags,operand in entries:
+    path=HERE.joinpath(*relative).resolve()
+    self.assertIn('python3 '+' '.join(flags)+' '+operand,workflow)
+    result=subprocess.run([sys.executable,*flags,str(path),'--help'],cwd=temporary,env=dict(PATH='/usr/bin:/bin',HOME=temporary,LC_ALL='C.UTF-8',PYTHONDONTWRITEBYTECODE='1'),capture_output=True,timeout=15)
+    self.assertEqual(result.returncode,0,(str(path),result.stderr.decode()));self.assertLessEqual(len(result.stdout)+len(result.stderr),65536);self.assertIn(b'usage:',result.stdout.lower())
  def test_actual_eight_file_layout_and_installed_helpers_load_unchanged_backend(self):
   import repair
   source=Path(os.environ.get('APPS6_CANDIDATE_SOURCE',str(SOURCE))).absolute()

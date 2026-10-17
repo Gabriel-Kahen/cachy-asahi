@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
 """Distinct source proof; original ordered consumers/dependency-image/producer cleanup."""
-import argparse,json,os
+import argparse,json,os,sys
 from pathlib import Path
+sys.path.insert(0,str(Path(__file__).resolve().parent))
 import adapter as A
 import contract as C
 
