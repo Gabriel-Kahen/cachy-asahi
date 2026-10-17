@@ -39,7 +39,7 @@ def source_bytes(path):
 _fast_spec=importlib.util.spec_from_file_location("_apps574_statx_binding",Path(__file__).with_name("full574_statx.py"))
 fast=importlib.util.module_from_spec(_fast_spec);sys.modules[_fast_spec.name]=fast;_fast_spec.loader.exec_module(fast)
 scoped=fast.bind(ROOT,roots,caps,copy_scope,aux_copy,source_bytes)
-roots,caps,copy_scope=scoped.roots,scoped.caps,scoped.copy_scope
+roots,caps,copy_scope,aux=scoped.roots,scoped.caps,scoped.copy_scope,scoped.aux
 
 def current_payloads():
     """Exact current recipe outputs, including archive directories; no ELF input."""
