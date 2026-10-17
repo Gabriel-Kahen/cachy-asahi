@@ -21,7 +21,7 @@ class Controls(unittest.TestCase):
    with self.assertRaisesRegex(ValueError,'ordinary'):W.run(p,[])
  def test_real_original_five_cases_success_exit_and_no_extra_diagnostic(self):
   with tempfile.TemporaryDirectory() as td,contextlib.redirect_stdout(io.StringIO()) as stdout:
-   root=Path(td);before=list(sys.argv);self.assertEqual(W.run(CHECKER,self.args(root)),0);self.assertEqual(sys.argv,before);value=json.loads((root/'receipt.json').read_bytes());self.assertEqual(value['status'],'PASS_HOST_ZSH_PTY_CONTROLS');self.assertEqual(len(value['tests']),5);self.assertTrue(all(r['status']=='PASS' for r in value['tests']));self.assertFalse((root/'outer-readiness.json').exists());self.assertNotIn('ZSH_SUBSTRING_READINESS',stdout.getvalue())
+   root=Path(td);before=list(sys.argv);code=W.run(CHECKER,self.args(root));self.assertEqual(code,0,stdout.getvalue()[-8192:]);self.assertEqual(sys.argv,before);value=json.loads((root/'receipt.json').read_bytes());self.assertEqual(value['status'],'PASS_HOST_ZSH_PTY_CONTROLS');self.assertEqual(len(value['tests']),5);self.assertTrue(all(r['status']=='PASS' for r in value['tests']));self.assertFalse((root/'outer-readiness.json').exists());self.assertNotIn('ZSH_SUBSTRING_READINESS',stdout.getvalue())
  def test_real_final_reset_stall_retains_phase_without_changing_original_failure(self):
   # A CONTROLLED dropped final fixture Ctrl-C, not the cause of hosted39046824013.
   checker,raw=W.source(CHECKER);M=load('controlled_original_checker',checker);original=M.Terminal.send;counter=[0];processes=[];init=M.Terminal.__init__
