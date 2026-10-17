@@ -665,8 +665,8 @@
       "sha256": "5c1387031e244dcf5e9c94fc94151fcc316a56456d727cc0d33c6ffd9a190028"
     },
     "scripts/ci/expanded604-apps6-public-pair-updater/adapter.py": {
-      "bytes": 2894,
-      "sha256": "f8c81ce4a7ac3a19d499a5c5316a3625a7b7ccda8665466aefbc1299bd28c8b8"
+      "bytes": 3136,
+      "sha256": "3efc988c79248b011b2096787fc90574243f66dabc614da044c181987db2ae21"
     },
     "scripts/ci/expanded604-apps6-public-pair-updater/after604.lock": {
       "bytes": 11992,
@@ -675,6 +675,10 @@
     "scripts/ci/expanded604-apps6-public-pair-updater/apps6-product.json": {
       "bytes": 3020,
       "sha256": "0019c1236e1d9294a0149e39e02c048e89431922a445e26b4ae067bcf5f46a5a"
+    },
+    "scripts/ci/expanded604-apps6-public-pair-updater/aux_transition.py": {
+      "bytes": 5346,
+      "sha256": "759eb3930a36ce461b73f47348e35dda98efbf0fedd161868ed6339644cdf582"
     },
     "scripts/ci/expanded604-apps6-public-pair-updater/baseline.py": {
       "bytes": 1589,
@@ -721,8 +725,8 @@
       "sha256": "5e4c3cfca6e43becad9a3b02e4b7ac69140485e39777f435b1a79ba674e348ca"
     },
     "scripts/ci/expanded604-apps6-public-pair-updater/prepare.py": {
-      "bytes": 7446,
-      "sha256": "0ee7deba540d143176d38487306f393a7271878b3985f7b646f216cfc8c353b7"
+      "bytes": 7491,
+      "sha256": "8623e63dd92fa9d4a90fe112c8110b049646d3bec2cb6c0c615e5506c1a64e94"
     },
     "scripts/ci/expanded604-apps6-public-pair-updater/run.py": {
       "bytes": 11228,
@@ -736,9 +740,13 @@
       "bytes": 123222,
       "sha256": "d8206915ca5d660e08964c25e1b5653e65aa5d0afbacb51a193d16c370bdf8cc"
     },
+    "scripts/ci/expanded604-apps6-public-pair-updater/test_aux_transition.py": {
+      "bytes": 3349,
+      "sha256": "d6d341e2ec1339f4fc9bf81293f09c27064411f7477780d00c015ca618e3dcfb"
+    },
     "scripts/ci/expanded604-apps6-public-pair-updater/test_lane.py": {
-      "bytes": 10334,
-      "sha256": "1fdfdc2c620d993f454de9c1c49c7ceb04e2f1ca809c409ce4e35ddf6204c384"
+      "bytes": 10555,
+      "sha256": "8990e695abb687171accc7a440bf4d1713eddbdd570113bb8f3ceb840fc4bfe0"
     },
     "scripts/ci/expanded604-apps6-public-pairs/README.md": {
       "bytes": 3360,

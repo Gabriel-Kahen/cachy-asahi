@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Finite data preparation for a signed604 cache, with no builder/guest actors."""
+import hashlib
 import importlib.util
 import json
 from pathlib import Path
@@ -19,13 +20,24 @@ def verify(source,runner):
     for row in receipt['context_files']:C.checked(context,row,256*1024**2)
     return manifest,expected
 
+def selection(base,expected):
+    """Keep573 original packages; replace only the pinned upstream FDK provider."""
+    def need(ok,why):
+        if not ok:raise ValueError(why)
+    raw=lambda rows:''.join(n+' '+v+'\n' for n,v in sorted(rows.items())).encode()
+    need(len(base)==574 and hashlib.sha256(raw(base)).hexdigest()=='cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac','exact original574 inventory required')
+    need(len(expected)==604 and hashlib.sha256(raw(expected)).hexdigest()=='7bc6caa51301bf076aeda4d137277a128c53a16e5bfd25f02e7309c4b3a408c3','exact Apps6 target604 inventory required')
+    need(base.keys()-expected.keys()=={'libfdk-aac'} and base['libfdk-aac']=='3.0.0-1' and expected.get('cachy-asahi-fdk-aac')=='3.0.0-1' and all(expected.get(n)==v for n,v in base.items() if n!='libfdk-aac'),'sole FDK replacement and573 unchanged packages required')
+    incoming=expected.keys()-base.keys();need(len(incoming)==31,'exact31 incoming packages required')
+    return incoming
+
 def prepare(source,runner,ready):
     C=load('_managed604_staging_contract',source/'scripts/ci/expanded604-apps6-public-pairs/contract.py')
     manifest,ref,expected=C.target_manifest(ready)
     original=C.read(source/'scripts/ci/maintained-desktop574-inputs.json')
     base={r['name']:r['version'] for r in original['packages']}
-    C.need(len(base)==574 and all(expected.get(n)==v for n,v in base.items()),'exact retained574 subset of604 required')
-    incoming=[r for r in manifest['packages'] if r['name'] not in base];C.need(len(incoming)==30,'finite30 additions required')
+    selected=selection(base,expected)
+    incoming=[r for r in manifest['packages'] if r['name'] in selected];C.need(len(incoming)==31,'finite31 incoming packages required')
     C.need(not (runner/'ready604').exists(),'fresh owned604 bundle location required')
     shutil.move(str(ready),runner/'ready604');ready=runner/'ready604'
     context=runner/'install-context';context.mkdir(mode=0o700);bundle=context/'bundle';(bundle/'packages').mkdir(parents=True);(bundle/'keys').mkdir()
@@ -42,7 +54,7 @@ def prepare(source,runner,ready):
     for name in ('contract.py','lifecycle.py'):
         target=context/'code/scripts/ci/expanded604-apps6-public-pairs'/name;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source/'scripts/ci/expanded604-apps6-public-pairs'/name,target)
     target=context/'code/scripts/ci/full-root-upgrade/root_upgrade.py';target.parent.mkdir(parents=True);shutil.copyfile(source/'scripts/ci/full-root-upgrade/root_upgrade.py',target)
-    shutil.copyfile(Path(__file__).with_name('install604.py'),context/'install604.py')
+    for name in ('install604.py','context604.py'):shutil.copyfile(Path(__file__).with_name(name),context/name)
     rows=[]
     for p in sorted(context.rglob('*')):
         if p.is_file():rows.append(dict(path=p.relative_to(context).as_posix(),bytes=p.stat().st_size,sha256=C.sha(p)))
