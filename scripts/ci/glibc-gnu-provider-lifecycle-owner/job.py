@@ -127,7 +127,15 @@ def inspect(name,command):
 
 def verify_actor(value,name,image,label,token,cid=None):
     need(value['Name']=='/'+name and value['Image']==image and value['Config']['Labels'].get(label)==token and re.fullmatch('[0-9a-f]{64}',value['Id']) and cid in (None,value['Id']),'foreign actor preserved')
-    need(value['AppArmorProfile']=='docker-default','outer observers preserve enforcing Docker default profile')
+    if value['AppArmorProfile']=='' and label==LABEL and name=='caa-gnu-provider-owner-'+token+'-export':
+        # Docker applies its runtime profile on start. This data export never starts.
+        never_started(value);state=value['State'];config=value['HostConfig']
+        need(re.fullmatch('[0-9a-f]{32}',token) and state['Status']=='created' and state['FinishedAt'].startswith('0001-') and state['ExitCode']==0 and state['Error']=='' and
+             all(state[k] is False for k in ('Paused','Restarting','OOMKilled','Dead')) and value['RestartCount']==0 and
+             config['Privileged'] is False and config['CapDrop']==['ALL'] and not config['CapAdd'] and config['NetworkMode']=='none' and
+             config['SecurityOpt']==['no-new-privileges'] and value['Config']['Entrypoint']==['/usr/bin/false'],
+             'empty profile only for exact never-started owned data export with original confinement config')
+    else:need(value['AppArmorProfile']=='docker-default','outer observers preserve enforcing Docker default profile')
     return value['Id']
 
 

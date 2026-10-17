@@ -37,8 +37,8 @@
       "sha256": "21242b74b3ade489f37e1affd41512a89e213a01a819e9d4f746b2a82d5544cf"
     },
     "scripts/ci/glibc-gnu-provider-lifecycle-owner/job.py": {
-      "bytes": 33340,
-      "sha256": "8b833b2cf16afa0dd14ba711e088d2030b3c747ad0ca878a802b67de6ae305f9"
+      "bytes": 34270,
+      "sha256": "723c8ff74d66b5d746cec0bb53bec5186b4af7a70b7e5223e0e7db9ecc5a861a"
     },
     "scripts/ci/glibc-gnu-provider-lifecycle-owner/packet-interface.json": {
       "bytes": 2109,
@@ -53,8 +53,8 @@
       "sha256": "9738acb125ce6d468d5359ecfbd5540454826567fd4ac4481576ec31da37190c"
     },
     "scripts/ci/glibc-gnu-provider-lifecycle-owner/test_owner.py": {
-      "bytes": 12570,
-      "sha256": "8fd1a4b4f228829721411ff9d00e5c042b952df01d66f0b26cb60f81a23a51c9"
+      "bytes": 15676,
+      "sha256": "37532ac2ebeae2b76dd6ea3a3effb532b7e7b399978dcf0f43c5f0f88f2d56f8"
     },
     "scripts/ci/glibc-gnu-provider-lifecycle/README.md": {
       "bytes": 7593,

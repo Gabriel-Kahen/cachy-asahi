@@ -104,6 +104,36 @@ class Controls(unittest.TestCase):
             with self.subTest(target=target),self.assertRaises(ValueError):
                 snapshot.records(self.archive([('foreign-link','symlink','/outside'),('usr/lib/alias','hardlink',target)]))
 
+    def pending_export(self):
+        token='a'*32;name='caa-gnu-provider-interruption-owner-'+token+'-export'
+        return dict(Name='/'+name,Image='sha256:'+'b'*64,Id='c'*64,Config=dict(Labels={job.LABEL:token},Entrypoint=['/usr/bin/false']),
+            AppArmorProfile='',RestartCount=0,State=dict(Status='created',ExitCode=0,Error='',Running=False,Pid=0,StartedAt='0001-01-01T00:00:00Z',FinishedAt='0001-01-01T00:00:00Z',Paused=False,Restarting=False,OOMKilled=False,Dead=False),
+            HostConfig=dict(ReadonlyRootfs=True,Privileged=False,CapDrop=['ALL'],CapAdd=None,NetworkMode='none',SecurityOpt=['no-new-privileges']))
+
+    def test_never_started_empty_profile_export_identity_is_retirable_without_start(self):
+        value=self.pending_export();name=value['Name'][1:];image=value['Image'];token='a'*32
+        self.assertEqual(job.verify_actor(value,name,image,job.LABEL,token,'c'*64),'c'*64)
+        report=dict(actors=[dict(name=name,id='c'*64,role='export',status='RESERVED')]);output=self.root/'retire';output.mkdir();calls=[]
+        with patch.object(job,'inspect',side_effect=[value,None]):job.retire(report['actors'],image,job.LABEL,token,lambda argv:calls.append(argv),output,report)
+        self.assertEqual(calls,[['/usr/bin/docker','rm','--force','c'*64]]);self.assertEqual(report['actors'][0]['status'],'PASS_ABSENCE_VERIFIED')
+
+    def test_empty_profile_export_guard_refuses_started_or_changed_confinement(self):
+        changes=[('State','ExitCode',1),('State','Error','failed start'),('State','Status','exited'),('State','Running',True),('State','Pid',42),('State','StartedAt','2026-10-17T00:00:00Z'),('State','FinishedAt','2026-10-17T00:00:00Z'),
+                 ('State','Paused',True),('State','Restarting',True),('State','OOMKilled',True),('State','Dead',True),('HostConfig','ReadonlyRootfs',False),('HostConfig','Privileged',True),
+                 ('HostConfig','CapDrop',[]),('HostConfig','CapAdd',['SYS_ADMIN']),('HostConfig','NetworkMode','host'),('HostConfig','SecurityOpt',['no-new-privileges','apparmor=unconfined']),('Config','Entrypoint',['/usr/bin/sleep'])]
+        for section,key,bad in changes:
+            value=self.pending_export();value[section][key]=bad
+            with self.subTest(section=section,key=key),self.assertRaises(ValueError):job.verify_actor(value,value['Name'][1:],value['Image'],job.LABEL,'a'*32)
+        value=self.pending_export();value['RestartCount']=1
+        with self.assertRaises(ValueError):job.verify_actor(value,value['Name'][1:],value['Image'],job.LABEL,'a'*32)
+
+    def test_empty_profile_nonexport_and_foreign_export_remain_refused(self):
+        for suffix in ('extract','source-cleanup','inner-scrub'):
+            value=self.pending_export();name=value['Name'][1:].removesuffix('export')+suffix;value['Name']='/'+name
+            with self.assertRaises(ValueError):job.verify_actor(value,name,value['Image'],job.LABEL,'a'*32)
+        value=self.pending_export();value['Config']['Labels'][job.LABEL]='foreign'
+        with self.assertRaises(ValueError):job.verify_actor(value,value['Name'][1:],value['Image'],job.LABEL,'a'*32)
+
     def test_foreign_actor_and_unknown_daemon_state_preserved(self):
         value=dict(Name='/owned',Image='sha256:'+'a'*64,Config=dict(Labels={job.LABEL:'b'*32}),Id='c'*64,AppArmorProfile='docker-default')
         self.assertEqual(job.verify_actor(value,'owned','sha256:'+'a'*64,job.LABEL,'b'*32),'c'*64)
