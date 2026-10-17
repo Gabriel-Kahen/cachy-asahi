@@ -57,12 +57,12 @@
       "sha256": "1fffed0aba0c76ed6b8e7b58bb67b936dacc30d54009c401409a28329f6bb00b"
     },
     "scripts/ci/glibc-gnu-provider-interruption/container.py": {
-      "bytes": 25283,
-      "sha256": "f3be0f728271f98352675aa559c6a399cd7a0e28013e895cbc430e83438c07e2"
+      "bytes": 25971,
+      "sha256": "c314fb8420a1c546bc4c32a5a5a218b638823503b2fb0e2b1877e01f621651b8"
     },
     "scripts/ci/glibc-gnu-provider-interruption/dependencies.json": {
       "bytes": 3686,
-      "sha256": "3bf937827728540da6cf6a2cdb40bfb51c08499e40cd0e61d2814607ce3b7bcc"
+      "sha256": "edfda8edbbbc9776232ef9713eae7eea5d28a5cf1fc1a961c8ef69afc8ba88a4"
     },
     "scripts/ci/glibc-gnu-provider-interruption/input-interface.json": {
       "bytes": 2567,
@@ -94,23 +94,23 @@
     },
     "scripts/ci/glibc-gnu-provider-interruption/source-manifest.json": {
       "bytes": 1954,
-      "sha256": "75cef8369e0293c0f328331f0d7374ede7b611725675473ee17b98a9fd92feb2"
+      "sha256": "08989b7ff7317f093562af21e09329592969c435ec8fa43df3e0978df90def2f"
     },
     "scripts/ci/glibc-gnu-provider-interruption/test_interruption.py": {
       "bytes": 9795,
       "sha256": "de778a8526e950b116d013d28e431db3c854a62648c52b31d4e5d51003904f44"
     },
     "scripts/ci/glibc-gnu-provider-interruption/test_lifecycle_controls.py": {
-      "bytes": 20386,
-      "sha256": "8dc5662318a497dc32eb1e9c0389c18a4716ec4f9058a84353b576022e56f675"
+      "bytes": 23972,
+      "sha256": "20dc29ccb92fe3b0e9e2382ba30527dc359e882a04fcbab8c59557be7d07b069"
     },
     "scripts/ci/glibc-gnu-provider-lifecycle-owner/snapshot.py": {
       "bytes": 9397,
       "sha256": "9738acb125ce6d468d5359ecfbd5540454826567fd4ac4481576ec31da37190c"
     },
     "scripts/ci/glibc-gnu-provider-lifecycle/capabilities.py": {
-      "bytes": 3151,
-      "sha256": "bf2ed601cd42f72f06fde08095e73c9e41efad80a9524cf75df31fcd316ee2f9"
+      "bytes": 4510,
+      "sha256": "28dfa14ef7d98c2114d0c9271b209b801362bb855dfac7f7592277da9ed2cdb9"
     },
     "scripts/ci/glibc-gnu-provider-lifecycle/copy_scope.py": {
       "bytes": 3470,

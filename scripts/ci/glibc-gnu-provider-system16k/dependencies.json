@@ -22,8 +22,8 @@
       "sha256": "003eebbb152bd32176d857e0f2ab6ec40bf7e417d8cb70b4b4ec5750ebdd0d29"
     },
     "scripts/ci/glibc-gnu-provider-lifecycle/container.py": {
-      "bytes": 24268,
-      "sha256": "e2e909007d11843d84d8643ee9df83a71ae66ba2e1f8051c171678a2a32107f5"
+      "bytes": 24956,
+      "sha256": "3f47052ff76572569315c3faeabc7defa092d523209ee859118fe936af2faed1"
     },
     "scripts/ci/glibc-gnu-provider/normal-child-exec.patch": {
       "bytes": 773,

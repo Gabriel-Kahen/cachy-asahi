@@ -27,16 +27,43 @@ def disjoint(index,old,new):
  selected={name for package in (old,new) for name,row in package['nodes'].items() if row['type']!='directory'}
  need(not selected&binding(index).keys(),'capability-bearing selected provider file refused')
 
+def failure(error):
+ """Bounded exception facts only: no locals, payloads, environments or actors."""
+ result=[];seen=set();frames_left=8
+ while error is not None and id(error) not in seen and len(result)<4:
+  seen.add(id(error));frames=[];trace=error.__traceback__;count=0
+  while trace is not None and count<64:
+   if frames_left:
+    frames.append(dict(file=trace.tb_frame.f_code.co_filename[-256:],function=trace.tb_frame.f_code.co_name[:128],line=trace.tb_lineno))
+    if len(frames)>frames_left:frames.pop(0)
+   trace=trace.tb_next;count+=1
+  frames_left-=len(frames)
+  result.append(dict(type=type(error).__name__[:128],message=str(error)[:512],frames=frames,frames_clipped=trace is not None or count>len(frames),
+                     notes=[str(n)[:256] for n in getattr(error,'__notes__',())[:4]]))
+  error=error.__cause__ if error.__cause__ is not None else (None if error.__suppress_context__ else error.__context__)
+ return result
+
 @contextmanager
-def copied_root(api,source,workspace,index,**kwargs):
- # Unchanged copier owns all lifetime/error disposal. Restoration is inside its
- # context before the first caller yield, so refusal cannot accept a bare copy.
- with scope.copied_root(source,workspace,**kwargs) as (root,lifetime):
-  limits=kwargs['limits'];nodes=api['roots'].observe(root,limits=limits,hardlinks='generic-development-internal')['nodes']
-  actual=api['caps'].restore(root,nodes,binding(index),limits)
-  need(actual==binding(index),'complete restored capability map differs')
-  lifetime.update(security_capabilities='EXACT_SOURCE_MAP_RESTORED_AND_VERIFIED',source_capabilities_sha256=index['source_capabilities_sha256'])
-  yield root,lifetime
+def copied_root(api,source,workspace,index,evidence=None,**kwargs):
+ # Unchanged copier owns disposal; diagnostics never grant copy acceptance.
+ if evidence is None:evidence={}
+ need(type(evidence) is dict and not evidence,'fresh copy diagnostic object')
+ evidence.update(schema_version=1,stage='COPY_ENTER')
+ try:
+  with scope.copied_root(source,workspace,**kwargs) as (root,lifetime):
+   evidence.update(stage='COPY_RETURNED',lifetime=lifetime)
+   limits=kwargs['limits'];evidence['stage']='COPIED_TREE_OBSERVATION'
+   nodes=api['roots'].observe(root,limits=limits,hardlinks='generic-development-internal')['nodes']
+   evidence['stage']='CAPABILITY_RESTORE'
+   actual=api['caps'].restore(root,nodes,binding(index),limits)
+   need(actual==binding(index),'complete restored capability map differs')
+   lifetime.update(security_capabilities='EXACT_SOURCE_MAP_RESTORED_AND_VERIFIED',source_capabilities_sha256=index['source_capabilities_sha256'])
+   evidence['stage']='CALLER_YIELDED'
+   yield root,lifetime
+  evidence['stage']='COPY_LIFETIME_RETIRED'
+ except BaseException as error:
+  evidence['failure']=failure(error)
+  raise
 
 def records(index,cases,stages):
  mapping=binding(index)

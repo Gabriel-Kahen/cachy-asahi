@@ -21,8 +21,8 @@
       "sha256": "9738acb125ce6d468d5359ecfbd5540454826567fd4ac4481576ec31da37190c"
     },
     "scripts/ci/glibc-gnu-provider-lifecycle/capabilities.py": {
-      "bytes": 3151,
-      "sha256": "bf2ed601cd42f72f06fde08095e73c9e41efad80a9524cf75df31fcd316ee2f9"
+      "bytes": 4510,
+      "sha256": "28dfa14ef7d98c2114d0c9271b209b801362bb855dfac7f7592277da9ed2cdb9"
     },
     "scripts/ci/glibc-gnu-provider-lifecycle/copy_scope.py": {
       "bytes": 3470,

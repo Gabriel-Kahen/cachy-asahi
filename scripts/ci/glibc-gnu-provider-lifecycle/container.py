@@ -237,9 +237,9 @@ def run_case(api,commands,index,base,new,old,case,report):
     report['source_before']=C.sha(json.dumps(snapshot(api,HELD,case+'-source-before')['nodes'],sort_keys=True).encode())
     C.need(report['source_before']==index['source_nodes_sha256'],'frozen original574 source node snapshot')
     C.need(inventory(database(api,HELD))==base,'exact source574 database')
-    lifetime=None
+    lifetime=None;primary=None
     try:
-        with api['capabilities'].copied_root(api,HELD,WORK/case,index,limits=limits(api),cleanup_seconds=120) as (root,lifetime):
+        with api['capabilities'].copied_root(api,HELD,WORK/case,index,evidence=report.setdefault('copy_evidence',{}),limits=limits(api),cleanup_seconds=120) as (root,lifetime):
             initial=snapshot(api,root,case+'-clone');rows=database(api,root);C.need(inventory(rows)==base,'before574 clone')
             report['intersections']=collisions(new,rows)
             C.need(ownership(rows).get('lib')=='filesystem' and ownership(rows).get('usr/bin/tzselect')=='tzdata','filesystem/tzdata owners preserved')
@@ -296,12 +296,23 @@ def run_case(api,commands,index,base,new,old,case,report):
             C.need(ownership(database(api,root)).get('lib')=='filesystem' and ownership(database(api,root)).get('usr/bin/tzselect')=='tzdata','final platform-neutral held ownership')
             C.need({n:v for n,v in before['nodes'].items() if n.startswith(USER+'/')}=={n:v for n,v in final['nodes'].items() if n.startswith(USER+'/')},'all seeded user data preserved')
             report['status']='PASS_NORMAL_DISPOSABLE_PROVIDER_SEQUENCE'
+    except BaseException as error:
+        primary=error;report['primary_failure']=api['capabilities'].failure(error)
+        raise
     finally:
+        if lifetime is None:lifetime=report.get('copy_evidence',{}).get('lifetime')
         report['copy_lifetime']=lifetime
-        after=snapshot(api,HELD,case+'-source-after')
-        report['source_after']=C.sha(json.dumps(after['nodes'],sort_keys=True).encode())
-        C.need(report['source_before']==report['source_after'],'original readonly source node map preserved')
-        C.need(lifetime is not None and lifetime['cleanup']=='PASS-owned-workspace-removed' and not (WORK/case).exists(),'complete clone cleanup verified')
+        try:
+            after=snapshot(api,HELD,case+'-source-after')
+            report['source_after']=C.sha(json.dumps(after['nodes'],sort_keys=True).encode())
+            C.need(report['source_before']==report['source_after'],'original readonly source node map preserved')
+            C.need(lifetime is not None and lifetime['cleanup']=='PASS-owned-workspace-removed' and not (WORK/case).exists(),'complete clone cleanup verified')
+            report['clone_cleanup_check']='PASS'
+        except BaseException as error:
+            report['clone_cleanup_check']='FAIL_OR_UNESTABLISHED'
+            report['cleanup_failure']=api['capabilities'].failure(error)
+            if primary is None:raise
+            primary.add_note('source/clone cleanup verification also failed; see cleanup_failure; acceptance refused')
 
 
 def main():
