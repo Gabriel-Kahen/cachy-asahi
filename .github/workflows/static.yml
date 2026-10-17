@@ -235,6 +235,11 @@ jobs:
           EXPANDED604_MANAGED_SOURCE="$PWD" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/expanded604-managed16k -p 'test_*.py'
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/management-tools-generic16k -p 'test_*.py'
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-management-native -p 'test_*.py'
+      - name: Check Apps6 current604 composition, fresh install and upgrade source
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/ci/expanded604-apps6/test_lane.py
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/expanded604-apps6-installer -p 'test_*.py'
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/expanded604-apps6-updater -p 'test_*.py'
       - name: Check generic 16K tools contracts without VM actors
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/tools-generic16k -p 'test_*.py'
       - name: Check Fish Done generic 16K contracts without VM actors
