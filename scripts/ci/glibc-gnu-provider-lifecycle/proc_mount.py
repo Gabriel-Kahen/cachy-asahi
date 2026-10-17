@@ -40,7 +40,7 @@ def facts():
  for key in STATUS:
   value=lines.get(key)
   if value is None:status[key]=None;continue
-  need(len(value)<=1024 and re.fullmatch(r'[0-9a-fA-F\s]+',value) is not None,'finite self status field');status[key]=value
+  need(len(value)<=1024 and (key=='Groups' and value=='' or re.fullmatch(r'[0-9a-fA-F\s]+',value) is not None),'finite self status field');status[key]=value
  namespaces={}
  for name in ('mnt','pid','pid_for_children','user'):
   path=Path('/proc/self/ns')/name
