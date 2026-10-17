@@ -234,4 +234,45 @@ class Controls(unittest.TestCase):
    life.planned(calls,workspace,'install','install',['cache'])
   self.assertEqual((work/'install-inventory.json').read_bytes(),(out/'install-inventory.json').read_bytes());self.assertFalse((out/'install-plan.json').exists())
 
+ def test_inventory_retention_allows_only_read_side_atime_change(self):
+  # This host uses noatime. Project the kernel's permitted read-side atime
+  # update explicitly over a genuine tempfile/read; do not claim a live delta.
+  path=self.root/'inventory.json';out=self.root/'out';out.mkdir();raw=b'{"inert":true}\n';path.write_bytes(raw);path.chmod(0o600)
+  original=path.lstat();read=C.read;lstat=Path.lstat;accessed=False
+  class AccessTime(tuple):
+   def __new__(cls,info):
+    fields=list(info);fields[7]+=1;value=super().__new__(cls,fields);value.info=info;return value
+   def __getattr__(self,name):
+    return getattr(self.info,name)+(1 if name=='st_atime_ns' else 0)
+  projected=AccessTime(original)
+  self.assertNotEqual(original,projected)
+  self.assertEqual(life.inventory_identity(original),life.inventory_identity(projected))
+  def observed_read(*args,**kwargs):
+   nonlocal accessed
+   value=read(*args,**kwargs);accessed=True;return value
+  def observed_stat(candidate):
+   info=lstat(candidate);return AccessTime(info) if candidate==path and accessed else info
+  with patch.object(life,'OUT',out),patch.object(C,'read',side_effect=observed_read),patch.object(Path,'lstat',observed_stat):
+   self.assertEqual(life.retain_inventory(path,dict(output=str(path),bytes=len(raw),sha256=C.sha(raw))),raw)
+  self.assertEqual((out/path.name).read_bytes(),raw);self.assertEqual((out/path.name).stat().st_mode&0o777,0o600)
+
+ def test_inventory_retention_still_refuses_every_nonaccess_identity_drift(self):
+  path=self.root/'inventory.json';out=self.root/'out';out.mkdir();raw=b'{"inert":true}\n';path.write_bytes(raw);path.chmod(0o600)
+  read=C.read;lstat=Path.lstat;summary=dict(output=str(path),bytes=len(raw),sha256=C.sha(raw))
+  for field in ('st_dev','st_ino','st_mode','st_uid','st_gid','st_nlink','st_size','st_mtime_ns','st_ctime_ns'):
+   accessed=False
+   def observed_read(*args,**kwargs):
+    nonlocal accessed
+    value=read(*args,**kwargs);accessed=True;return value
+   def observed_stat(candidate):
+    info=lstat(candidate)
+    if candidate!=path or not accessed:return info
+    class Changed:
+     def __getattr__(self,name):return getattr(info,name)+(1 if name==field else 0)
+    return Changed()
+   with self.subTest(field=field),patch.object(life,'OUT',out),patch.object(C,'read',side_effect=observed_read),patch.object(Path,'lstat',observed_stat),self.assertRaisesRegex(ValueError,'caller-owned inventory'):
+    life.retain_inventory(path,summary)
+   self.assertFalse((out/path.name).exists())
+  self.assertEqual(path.read_bytes(),raw)
+
 if __name__=='__main__':unittest.main(verbosity=2)
