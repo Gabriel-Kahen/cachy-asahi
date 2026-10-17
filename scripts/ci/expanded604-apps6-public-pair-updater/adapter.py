@@ -1,0 +1,22 @@
+# SPDX-License-Identifier: MIT
+"""Original Apps6 transaction adapter plus explicit public input evidence seams."""
+import ast
+from pathlib import Path
+import contract as C
+OLD='scripts/ci/expanded604-apps6-updater';PREFIX='scripts/ci/expanded604-apps6-public-pair-updater/'
+prior=C.scoped('_public_pairs_original_apps6_adapter',C.HERE.parent/'expanded604-apps6-updater/adapter.py',{'contract':C});prior.PREFIX=PREFIX
+# Only data inspection dependencies are added; existing transaction bodies stay held.
+def constructor(raw):
+ text=raw.decode()
+ for before,after,count in [('build_lock','build_evidence',3),('build575.lock','public-build-evidence.json',2)]:
+  C.need(text.count(before)==count,'exact public constructor evidence seam: '+before);text=text.replace(before,after)
+ node=next(n for n in ast.parse(text).body if isinstance(n,ast.FunctionDef) and n.name=='convert_provenance');body=ast.get_source_segment(text,node);before="'inventory_count': 575";C.need(body.count(before)==1,'one explicit public build provenance scope');body=body.replace(before,before+", 'inventory_evidence': 'PUBLIC_ROOT_PAIR_AUTHORITY_AND_COMPLETE_BUILDINFO', 'raw_pacman_Q_lock': 'NOT_PRESENT_NOT_FABRICATED'");text=text[:text.index(ast.get_source_segment(text,node))]+body+text[text.index(ast.get_source_segment(text,node))+len(ast.get_source_segment(text,node)):];ast.parse(text);return text.encode()
+
+def prepare(source,target,case,*,git=True,implementation=None):
+ implementation=Path(implementation or C.SOURCE);config,caller=prior.prepare(source,target,case,git=git,implementation=implementation)
+ p=target/'scripts/ci/full-root-upgrade/construct_repository.py';p.write_bytes(constructor(p.read_bytes()));rows=C.read(C.HERE/'source-pins.json')['inspection_files']
+ for name,pin in rows.items():
+  path=C.checked(implementation,dict(path=name,**pin));dest=target/name;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(path.read_bytes())
+ value=C.read(config)
+ for name in rows:value['code_pins'][name]=C.sha(target/name)
+ value['code_pins']={name:C.sha(target/name) for name in value['code_pins']};value['release']['release_id']='public-pairs-apps6-current604-'+case+'-20261017';value['release']['namespace']='cachy-asahi-public-pairs-apps6-current604-'+case;config.write_bytes(C.encoded(value));row=C.read(target/'adapter.json');row['selection']['scripts/ci/full-root-upgrade/construct_repository.py']['after']=C.sha(target/'scripts/ci/full-root-upgrade/construct_repository.py');row.update(public_input_seams=['typed_public_build_evidence_not_raw_Q','complete_public_current4_validation'],status='PRIVATE_PUBLIC_PAIRS_APPS5_TO6_CURRENT604_SELECTION_ONLY',input_authority='PUBLIC659_PAIR_AND_INDEPENDENT_BYTECASE_NO_RAW223',config_sha256=C.sha(config),raw_Q_lock='NOT_PRESENT_NOT_FABRICATED',new604_and_fresh='UNBOUND');(target/'adapter.json').write_bytes(C.encoded(row));return config,caller

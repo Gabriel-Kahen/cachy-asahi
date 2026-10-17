@@ -14,7 +14,7 @@ def command(s,argv,cap=600):
  C.need(error is None and record['exit_code']==0 and record['group_absence_verified'] is True,'bounded owned media command/group retirement: '+str(argv[0]));return record,out,err
 
 def backend(s,mode,work,owner=None):
- args=['/usr/bin/python3','-I','-B','/source/scripts/apps/transaction.py',mode,'--workspace',str(work),'--full574-policy','/inputs/full574-policy.json','--full574-policy-sha256',C.row('/inputs/full574-policy.json')['sha256'],'--full574-lease','/inputs/full574-lease.json','--full574-lease-sha256',C.row('/inputs/full574-lease.json')['sha256']]
+ args=['/usr/bin/python3','-I','-B','/source/scripts/apps/transaction.py',mode,'--workspace',str(work),'--apps-source','/inputs/apps-source','--apps-provenance-sha256',C.sha(C.read('/inputs/apps-source/source-provenance.json')),'--repository-source','/inputs/candidate/usr/share/cachy-asahi/repository-runtime','--full574-policy','/inputs/full574-policy.json','--full574-policy-sha256',C.row('/inputs/full574-policy.json')['sha256'],'--full574-lease','/inputs/full574-lease.json','--full574-lease-sha256',C.row('/inputs/full574-lease.json')['sha256']]
  args+=['--source','/seed'] if mode=='prepare-copy' else ['--ownership-sha256',owner]
  return C.decode(command(s,args,600 if mode=='prepare-copy' else 75)[1])
 

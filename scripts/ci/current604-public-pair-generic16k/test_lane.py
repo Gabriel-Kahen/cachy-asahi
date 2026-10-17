@@ -77,6 +77,25 @@ class Controls(unittest.TestCase):
   self.assertNotIn('--apps6-native-source',text);self.assertIn('expanded604-apps6-inputs/payload',text)
   self.assertLess(text.index('--decisions-only'),text.index('secrets.CACHY'))
   r=(C.HERE/'retain.py').read_text();self.assertIn('128*1024**2',r);self.assertIn("receipt==owner['public_gui_assets']",r);self.assertIn("C.AS.asset_directory",r)
+ def test_exact_recipe_complete_installer_emits_and_incomplete_old_shape_refuses(self):
+  P=C.load(ROOT,C.NEW+'/prepare.py');pins=C.json_read(C.HERE/'source-pins.json');recipes=pins['installer_recipe_inputs']
+  controls=pins['installer_control_inputs'];self.assertEqual(len(controls),9)
+  for name,row in controls.items():self.assertEqual(P.pin((ROOT/name).read_bytes()),row)
+  self.assertEqual(len(recipes),47);self.assertEqual(len(pins['groups']['installer']),273)
+  self.assertEqual(C.sha((ROOT/P.INSTALLER/'source-manifest.json').read_bytes()),pins['installer_source_manifest_sha256'])
+  with tempfile.TemporaryDirectory() as td:
+   base=Path(td);output=base/'emitted';receipt=P.emit(ROOT,ROOT,ROOT,output)
+   self.assertEqual(receipt['source_rows'],424)
+   for n,pin in recipes.items():self.assertEqual(P.pin((output/n).read_bytes()),pin)
+   incomplete=base/'old-incomplete';incomplete.mkdir()
+   for n in pins['groups']['installer']:
+    if n not in recipes and n not in controls:
+     target=incomplete/n;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes((ROOT/n).read_bytes())
+   with self.assertRaises((ValueError,OSError)):P.source(ROOT,incomplete,ROOT)
+   for name in controls:
+    target=incomplete/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes((ROOT/name).read_bytes())
+   name=next(iter(recipes));target=incomplete/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(b'recipe drift')
+   with self.assertRaisesRegex(ValueError,'pinned source differs'):P.source(ROOT,incomplete,ROOT)
  def test_two_profile_schema_requires_apps6_and_same_fresh_authority(self):
    docs={}
    for i,profile in enumerate(C.PROFILES,1):

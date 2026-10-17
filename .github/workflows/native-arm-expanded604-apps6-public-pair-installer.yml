@@ -61,7 +61,7 @@ jobs:
         run: |
           set -euo pipefail
           test "$(sha256sum expanded604-installer/scripts/ci/expanded604-apps6-public-pair-installer/ci.py | cut -d ' ' -f 1)" = e9db1d8d2abebe363db9e6ebfc11e7ff2cfb3de19cf053efa7606219058666a3
-          test "$(sha256sum expanded604-installer/scripts/ci/expanded604-apps6-public-pair-installer/source-manifest.json | cut -d ' ' -f 1)" = f279aff3910f1c8ff09c90a6b9714380ca095fc256096af3273f8d21248a2900
+          test "$(sha256sum expanded604-installer/scripts/ci/expanded604-apps6-public-pair-installer/source-manifest.json | cut -d ' ' -f 1)" = b8a35cf9f04c5321db6db9103f3a7ef95d58ebcc0ff960b805362a3867ed715a
           python3 -B expanded604-installer/scripts/ci/expanded604-apps6-public-pair-installer/gate.py \
             --implementation "$GITHUB_WORKSPACE/expanded604-installer" --source "$IMPLEMENTATION_SOURCE" \
             --workflow-sha "$WORKFLOW_SOURCE" --preflight
@@ -157,6 +157,8 @@ jobs:
           EXPANDED600_LEGACY_ROOT: ${{ github.workspace }}/expanded604-legacy
           EXPANDED600_SEVEN_ROOT: ${{ github.workspace }}/expanded604-seven
           CURRENT604_INSTALLER_SOURCE: ${{ github.workspace }}/expanded604-installer
+          PUBLIC_PAIR_INSTALLER_ROOT: ${{ github.workspace }}/expanded604-installer
+          PUBLIC_PAIR_COMPOSITION_ROOT: ${{ github.workspace }}/expanded604-installer
           EXPANDED604_SOURCE: ${{ github.workspace }}/expanded604-installer
           EXPANDED604_LEGACY_ROOT: ${{ github.workspace }}/expanded604-legacy
           EXPANDED604_FRESH600_DECISION: ${{ github.workspace }}/expanded604-fresh600-decisions/payload/fresh600.json
