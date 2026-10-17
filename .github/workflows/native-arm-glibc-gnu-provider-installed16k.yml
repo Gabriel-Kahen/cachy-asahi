@@ -40,7 +40,7 @@ jobs:
         timeout-minutes: 2
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '8b833b2cf16afa0dd14ba711e088d2030b3c747ad0ca878a802b67de6ae305f9' "$SLICE/job.py" '183ac8c471a0231853a61a9ed29d86d856362ce17792938a034bd946b1d0dd62' "$SLICE/integration-manifest.json" | sha256sum --check
+          printf '%s  %s\n' '723c8ff74d66b5d746cec0bb53bec5186b4af7a70b7e5223e0e7db9ecc5a861a' "$SLICE/job.py" '1c252a8518be87a8d36c8faefb8b57e59a540d90cb3fa7259d165f62d4e4e6f3' "$SLICE/integration-manifest.json" | sha256sum --check
           python3 -I -B "$SLICE/job.py" proof --workspace "$GITHUB_WORKSPACE" --proof "$RUNNER_TEMP/provider-lifecycle-proof.json"
       - name: Checkout only the exact Root-bound actual input packet
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
