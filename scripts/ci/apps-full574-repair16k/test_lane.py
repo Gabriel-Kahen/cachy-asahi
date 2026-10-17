@@ -78,6 +78,96 @@ class Lane(unittest.TestCase):
     self.assertEqual((a.full574_policy_sha256,a.full574_lease_sha256),(C.sha(raw[Path('/inputs/full574-policy.json')]),C.sha(raw[Path('/inputs/full574-lease.json')])))
     self.assertEqual((a.source,a.ownership_sha256),('/seed',None) if mode=='prepare-copy' else (None,owner))
     if mode=='dispose-copy':dispose.assert_called_once_with(self.root,[1,2])
+ def test_real_cross_filesystem_old_refusal_and_work_stage_roundtrip(self):
+  import errno,shutil
+  with tempfile.TemporaryDirectory(dir='/tmp') as a,tempfile.TemporaryDirectory(dir='/dev/shm') as b:
+   work=Path(a);media=Path(b);self.assertNotEqual(work.stat().st_dev,media.stat().st_dev)
+   root=work/'main/root';root.mkdir(parents=True);leaf=root/'ordinary';leaf.write_bytes(b'bounded real fixture');os.link(leaf,root/'hard');(root/'link').symlink_to('ordinary')
+   identity=lambda p:(p.lstat().st_dev,p.lstat().st_ino,p.lstat().st_uid,p.lstat().st_gid,p.lstat().st_mode)
+   before={p.name:identity(p) for p in root.iterdir()};root_id=identity(root)
+   with self.assertRaises(OSError) as old:root.rename(media/'old-boot')
+   self.assertEqual(old.exception.errno,errno.EXDEV);self.assertTrue(root.is_dir());self.assertFalse((media/'old-boot').exists())
+   stage=work/'repair16k-stage';stage.mkdir(mode=0o700);stage_id=identity(stage);root.rename(stage/'boot')
+   self.assertEqual(identity(stage/'boot'),root_id);self.assertEqual({p.name:identity(p) for p in (stage/'boot').iterdir()},before)
+   (stage/'boot').rename(root);self.assertEqual(identity(root),root_id);self.assertEqual(identity(stage),stage_id);shutil.rmtree(stage);self.assertFalse(stage.exists());self.assertEqual(leaf.read_bytes(),b'bounded real fixture')
+ def test_stage_scope_real_descriptors_refuse_foreign_mount_alias_drift_and_nested_mount(self):
+  import io
+  from types import SimpleNamespace
+  D=C.load('stage_guard_control',HERE/'disk.py');real_fstat=os.fstat;real_open=Path.open
+  with tempfile.TemporaryDirectory(dir='/tmp') as td,tempfile.TemporaryDirectory(dir='/dev/shm') as shm:
+   work=Path(td);work.chmod(0o700);stage=work/'repair16k-stage';stage.mkdir(mode=0o700);root=work/'main/root';root.mkdir(parents=True)
+   def mapped(value):
+    path=Path(value);text=str(path)
+    if text=='/work':return work
+    if text.startswith('/source/'):return self.root/text.removeprefix('/source/')
+    return path
+   s=dict(deadline_monotonic=__import__('time').monotonic()+30,source_files={'scripts/update/full_root.py':C.row(self.root/'scripts/update/full_root.py')})
+   def owned(fd):
+    info=real_fstat(fd);return SimpleNamespace(st_dev=info.st_dev,st_ino=info.st_ino,st_mode=info.st_mode,st_uid=0,st_gid=0)
+   with patch.object(D,'Path',side_effect=mapped):
+    if os.geteuid()!=0:
+     with self.assertRaisesRegex(ValueError,'root-owned'):D.stage_guard(s,stage,roots=(root,))
+    with patch.object(D.os,'fstat',side_effect=owned):
+     proof=D.stage_guard(s,stage,roots=(root,));self.assertEqual(proof['inode'],[stage.stat().st_dev,stage.stat().st_ino]);self.assertGreater(proof['mount_id'],0)
+     with self.assertRaisesRegex(ValueError,'identity drift'):D.stage_guard(s,stage,dict(proof,inode=[0,0]))
+     foreign=Path(shm)
+     with self.assertRaises(ValueError):D.stage_guard(s,stage,roots=(foreign,))
+     raw=Path('/proc/self/mountinfo').read_bytes()+b'999999 1 0:1 / '+os.fsencode(str(stage/'nested'))+b' rw - tmpfs tmpfs rw\n'
+     def opened(path,*args,**kwargs):return io.BytesIO(raw) if path==Path('/proc/self/mountinfo') else real_open(path,*args,**kwargs)
+     with patch.object(Path,'open',opened),self.assertRaisesRegex(ValueError,'nested'):D.stage_guard(s,stage,proof)
+   stage.rmdir();stage.symlink_to(root,target_is_directory=True)
+   with patch.object(D,'Path',side_effect=mapped),self.assertRaisesRegex(ValueError,'fixed private'):D.stage_guard(s,stage)
+ def test_exact_prepare_small_command_map_restores_disposes_and_retires_work_stage(self):
+  import shutil,time
+  from types import SimpleNamespace
+  D=C.load('stage_prepare_control',HERE/'disk.py');real_open=Path.open;real_row=C.row;real_mount=Path.is_mount
+  for fail in (False,True):
+   with self.subTest(mkfs_failure=fail),tempfile.TemporaryDirectory() as td:
+    base=Path(td);dirs={n:base/n for n in ('work','media','inputs','source','execution','workspace')}
+    for p in dirs.values():p.mkdir(mode=0o700)
+    for n in ('main','interrupted'):
+     root=dirs['work']/n/'root';root.mkdir(parents=True);(root/'ordinary').write_bytes(n.encode())
+    (dirs['source']/'tiny.py').write_bytes(b'# inert source fixture\n')
+    for n in ('inputs','execution','workspace'):(dirs[n]/'inert').write_bytes(n.encode())
+    def mapped(value):
+     path=Path(value);text=str(path)
+     for name,root in dirs.items():
+      if text=='/'+name or text.startswith('/'+name+'/'):return root/text[len(name)+1:].lstrip('/')
+     return path
+    identities={n:[(dirs['work']/n/'root').stat().st_dev,(dirs['work']/n/'root').stat().st_ino] for n in ('main','interrupted')};disposed=[];commands=[];logical={}
+    def backend(s,mode,work,owner=None):
+     name=work.name
+     if mode=='prepare-copy':return dict(status='OWNED_COPY_PREPARED',source_preserved=True,ownership_sha256=('a' if name=='main' else 'b')*64)
+     root=work/'root';self.assertEqual([root.stat().st_dev,root.stat().st_ino],identities[name]);disposed.append(name);shutil.rmtree(work);return dict(status='OWNED_COPY_DISPOSED')
+    def guard(s,stage,proof=None,roots=()):
+     self.assertEqual(stage,dirs['work']/'repair16k-stage');self.assertTrue(stage.is_dir());self.assertTrue(all(p.is_relative_to(dirs['work']) for p in roots));value=dict(path=str(stage),inode=[stage.stat().st_dev,stage.stat().st_ino],work_inode=[dirs['work'].stat().st_dev,dirs['work'].stat().st_ino],mount_id=1)
+     if proof is not None:self.assertEqual(proof,value)
+     return value
+    def command(s,argv,cap=600):
+     commands.append(argv)
+     if argv[0]=='/usr/bin/cp':self.assertEqual(argv[1:4],['-a','--reflink=never','--']);shutil.copytree(argv[-2],argv[-1])
+     else:
+      self.assertEqual(argv[:8],['/usr/bin/mkfs.ext4','-F','-b','4096','-m','0','-L',argv[7]]);self.assertEqual(argv[8],'-d');self.assertTrue(Path(argv[9]).is_relative_to(dirs['work']/'repair16k-stage'))
+      if fail:raise ValueError('inert mkfs failure')
+     return {},b'',b''
+    class SparseModel:
+     def __init__(self,path):self.path=path;self.stream=real_open(path,'xb')
+     def __enter__(self):return self
+     def __exit__(self,*args):self.stream.close()
+     def truncate(self,size):self.asserted_size=size;logical[self.path]=size;self.stream.truncate(0)
+    def opened(path,*args,**kwargs):return SparseModel(path) if path.parent==dirs['media'] and args==('xb',) else real_open(path,*args,**kwargs)
+    def row(path):
+     path=Path(path);return dict(bytes=logical[path],sha256='e'*64) if path in logical else real_row(path)
+    audit=SimpleNamespace(audit=lambda *args:dict(status='PASS_STAGED_NATIVE_AARCH64_ELF16K_ALIGNMENT'))
+    s=dict(media_identity=[dirs['media'].stat().st_dev,dirs['media'].stat().st_ino],nonce='c'*32,case='repair-bytes',deadline_monotonic=time.monotonic()+30,uid=os.getuid(),gid=os.getgid(),source_files={'tiny.py':real_row(dirs['source']/'tiny.py')})
+    with patch.object(D,'Path',side_effect=mapped),patch.object(D,'backend',side_effect=backend),patch.object(D,'stage_guard',side_effect=guard),patch.object(D,'command',side_effect=command),patch.object(D.C,'load',return_value=audit),patch.object(D.C,'row',side_effect=row),patch.object(D.shutil,'disk_usage',return_value=SimpleNamespace(free=100*1024**3)),patch.object(Path,'is_mount',lambda p: p==dirs['media'] or real_mount(p)),patch.object(Path,'open',opened):
+     if fail:
+      with self.assertRaisesRegex(ValueError,'inert mkfs'):D.prepare(s)
+     else:D.prepare(s)
+    self.assertEqual(disposed,['interrupted','main']);self.assertFalse((dirs['work']/'repair16k-stage').exists());self.assertFalse(any(dirs['work'].iterdir()));self.assertEqual(set(logical),{dirs['media']/'boot.raw'} if fail else {dirs['media']/'boot.raw',dirs['media']/'data.raw'})
+    if not fail:
+     value=C.decode(C.read(dirs['media']/'prepared.json'));self.assertTrue(value['staging']['retired']);self.assertEqual([value[k]['bytes'] for k in ('boot','data')],[16*1024**3,24*1024**3]);owner=C.decode(C.read(dirs['media']/'stage-owner.json'));self.assertEqual(owner['nonce'],s['nonce']);self.assertTrue(owner['retired'])
+  scrub=C.read(self.root/'scripts/ci/apps-full574-native/scrub.py').decode();self.assertIn("for name in ('work','authority')",scrub);self.assertIn('T.LIFETIME._empty(fd,mount,budget,[0],depth=-1)',scrub);self.assertIn('not list(root.iterdir())',scrub)
  def test_guard_derivative_preserves_all_other_backend_functions(self):
   raw=C.read(self.root/'scripts/apps/transaction.py');changed=adapter.backend(raw);before=adapter.functions(raw);after=adapter.functions(changed)
   self.assertEqual([n for n in before if before[n]!=after[n]],['environment_guard']);self.assertIn(adapter.ENV_AFTER.encode(),changed)
