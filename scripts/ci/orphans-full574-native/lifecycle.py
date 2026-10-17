@@ -6,6 +6,8 @@ from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parent));import contract as C
 SOURCE=Path('/source');WORK=Path('/work');OUT=Path('/out')
 H=C.load('original_apps_lifecycle',C.HERE.parent/'apps-full574-native/lifecycle.py')
+S=C.load('root_owned_rules_stage',C.HERE/'stage_source.py')
+RULES=None
 
 def args_request(argv,orphan_plan):
  values={};parts=argv[5:];i=0
@@ -22,12 +24,12 @@ def args_request(argv,orphan_plan):
 
 def invoke(calls,value,label,expected=0):
  path=WORK/(label+'-request.json');C.need(not path.exists(),'fresh private request');path.write_bytes(C.encoded(value));path.chmod(0o600)
- argv=['/usr/bin/python3','-I','-B','/source/scripts/orphans/selected.py','--request',str(path),'--request-sha256',C.sha(C.read(path))]
+ argv=['/usr/bin/python3','-I','-B',str(RULES/'scripts/orphans/selected.py'),'--request',str(path),'--request-sha256',C.sha(C.read(path))]
  return calls.call(argv,expected=expected),argv
 
 def assessed_plan(calls,workspace,tag,select='cachy-asahi-apps'):
  assessment=WORK/(workspace.name+'-'+tag+'-assessment.json');plan=WORK/(workspace.name+'-'+tag+'-plan.json')
- readonly='/source/packages/tools/cachy-asahi-orphans/cachy-asahi-orphans'
+ readonly=str(RULES/'packages/tools/cachy-asahi-orphans/cachy-asahi-orphans')
  published=calls.call(['/usr/bin/python3','-I','-B',readonly,'assess','--root',str(workspace/'root'),'--dbpath',str(workspace/'root/var/lib/pacman'),'--output',str(assessment)],seconds=45)
  raw=C.read(assessment,4*1024**2);C.need(published['status']=='NOT_APPLIED' and published['sha256']==C.sha(raw),'original complete assessment publication required')
  observed=C.decode(raw)
@@ -36,11 +38,13 @@ def assessed_plan(calls,workspace,tag,select='cachy-asahi-apps'):
  return observed,plan
 
 def main():
+ global RULES
  C.need(os.getuid()==os.geteuid()==0 and os.uname().machine=='aarch64' and Path('/.dockerenv').is_file() and os.environ.get('CACHY_APPS574_LIFECYCLE')=='1' and {p.name for p in Path('/sys/class/net').iterdir()}=={'lo'},'original native isolated actor only')
  C.source(SOURCE);os.chown(WORK,0,0);WORK.chmod(0o700);T=C.load('original_apps_transaction',SOURCE/'scripts/apps/transaction.py');adapter=C.adapter(SOURCE);calls=H.Calls()
  before=adapter.measure(Path('/seed'),T.limits());source_sha=T.sha(T.encoded(before['nodes']));caps=adapter.capability_map(Path('/seed'),before,T.limits());cap_sha=adapter.digest(caps)
  value=dict(status='FAIL',hardware='NOT_RUN',rollback='NOT_CLAIMED',source_tree_sha256=source_sha,source_capabilities_sha256=cap_sha)
  try:
+  RULES,stage_receipt=S.stage(C,'interruption' if '--interrupt' in sys.argv else 'normal');C.save(OUT/'source-stage.json',stage_receipt)
   workspace=WORK/('interrupted' if '--interrupt' in sys.argv else 'main');prepared=calls.call([*H.backend('prepare-copy',workspace),'--source','/seed']);C.need(prepared['status']=='OWNED_COPY_PREPARED','original genuine copy required');owner=prepared['ownership_sha256'];H.retain_copy(workspace,owner)
   path,plan=H.planned(calls,workspace,'interrupted-install' if '--interrupt' in sys.argv else 'install','install',['apps'])
   index=C.decode(C.checked(Path('/inputs'),dict(C.policy()['packet_index'],path='native-index.json')))
@@ -56,13 +60,13 @@ def main():
   C.save(OUT/'assessment.json',observed);(OUT/'orphan-plan.json').write_bytes(C.read(orphan_plan,16*1024**2))
   if '--interrupt' in sys.argv:
    request_path=WORK/'interruption-request.json';request_path.write_bytes(C.encoded(selected));request_path.chmod(0o600)
-   command=['/usr/bin/python3','-I','-B','/source/scripts/orphans/selected.py','--request',str(request_path),'--request-sha256',C.sha(C.read(request_path))]
+   command=['/usr/bin/python3','-I','-B',str(RULES/'scripts/orphans/selected.py'),'--request',str(request_path),'--request-sha256',C.sha(C.read(request_path))]
    interrupted=H.interrupted(calls,workspace,owner,command);state=adapter.measure(workspace/'root',T.limits());adapter.capability_map(workspace/'root',state,T.limits(),caps);interrupted.update(security_capabilities='EXACT_SOURCE_MAP_PRESERVED_AFTER_GROUP_ABSENCE',source_capabilities_sha256=cap_sha);C.save(OUT/'interruption.json',interrupted);return
   before_cases=calls.call(H.backend('inspect',workspace,owner))['before'];cases={}
   noop=dict(selected,selected=[]);cases['noop'],_=invoke(calls,noop,'noop');C.need(cases['noop']['status']=='NOT_APPLIED_NO_SELECTION','no-op must not transact')
   # Native callback executes no mutation and uses the exact original backend guards.
   cancel=SOURCE/C.LANE/'cancel.py';cancel_request=WORK/'cancel-request.json';cancel_request.write_bytes(C.encoded(selected));cancel_request.chmod(0o600)
-  cases['cancel']=calls.call(['/usr/bin/python3','-I','-B',cancel,'--request',str(cancel_request),'--request-sha256',C.sha(C.read(cancel_request))]);C.need(cases['cancel']['status']=='CANCELLED_NOT_APPLIED','explicit operator cancellation required')
+  cases['cancel']=calls.call(['/usr/bin/python3','-I','-B',cancel,'--staged-source',str(RULES),'--request',str(cancel_request),'--request-sha256',C.sha(C.read(cancel_request))]);C.need(cases['cancel']['status']=='CANCELLED_NOT_APPLIED','explicit operator cancellation required')
   lock=types.ModuleType('original_cache_lock');lock.__file__=str(SOURCE/'packages/tools/cachy-asahi-cache/cachy-asahi-cache');exec(compile(C.read(Path(lock.__file__)),lock.__file__,'exec'),lock.__dict__);held=lock.AlpmLock(str(workspace/'root'),workspace/'root/var/lib/pacman');held.acquire()
   try:cases['foreign_lock'],_=invoke(calls,selected,'foreign-lock',1);held.check();C.need(cases['foreign_lock']['status']=='FAIL','foreign lock must refuse')
   finally:held.release()
