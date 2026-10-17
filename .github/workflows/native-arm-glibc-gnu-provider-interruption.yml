@@ -35,7 +35,7 @@ jobs:
         timeout-minutes: 2
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '4e73e06ee60f40ea23b40587f265d3eeae09fc1f11e90b48613474395b858970' "$SLICE/job.py" '83148dc3c69033f12f77c3c56005182c8804435ec4c1b627c96ce0ce040cc446' "$SLICE/integration-manifest.json" | sha256sum --check
+          printf '%s  %s\n' '4e73e06ee60f40ea23b40587f265d3eeae09fc1f11e90b48613474395b858970' "$SLICE/job.py" '5e4cdfc9501a0816d7a1685d0ba1656dc758c9f59457dd3b2a1078e72ae17edc' "$SLICE/integration-manifest.json" | sha256sum --check
           python3 -I -B "$SLICE/job.py" proof --workspace "$GITHUB_WORKSPACE" --proof "$RUNNER_TEMP/provider-interruption-proof.json"
       - name: Checkout only the exact Root-bound actual input packet
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -57,6 +57,7 @@ jobs:
           set -euo pipefail
           python3 -I -B "$SLICE/test_owner.py"
           python3 -I -B scripts/ci/glibc-gnu-provider-lifecycle/test_copy_scope.py
+          python3 -I -B scripts/ci/glibc-gnu-provider-lifecycle/test_proc_mount.py
           python3 -I -B scripts/ci/glibc-gnu-provider-interruption/test_lifecycle_controls.py
           python3 -I -B scripts/ci/glibc-gnu-provider-interruption/test_interruption.py
       - name: Seed the six existing private input files using unchanged secrets
