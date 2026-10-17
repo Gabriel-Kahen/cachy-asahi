@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "status": "UNBOUND_DO_NOT_EXECUTE",
+  "binding": {
+    "native_interruption": null,
+    "normal_installed16k": null
+  },
+  "authority": "PRIVATE_TEST_ONLY_NO_RELEASE_ADMISSION"
+}
