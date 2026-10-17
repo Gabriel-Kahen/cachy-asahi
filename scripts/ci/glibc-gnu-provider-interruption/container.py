@@ -127,24 +127,9 @@ def transaction(api,root,archive,remove,add,log,prepare_only=False,progress=None
 
 @contextmanager
 def runtime_mounts(commands,root):
-    mounts=[];placeholder=root/'dev/null';created=False
-    try:
-        for directory in ('proc','dev'):C.need((root/directory).is_dir() and not (root/directory).is_symlink(),'ordinary runtime mountpoint')
-        C.need(not placeholder.exists() and not placeholder.is_symlink(),'no preexisting device target')
-        placeholder.touch(mode=0o600);created=True
-        proc=root/'proc';mounts.append(proc)
-        commands.call(['/usr/bin/mount','-t','proc','-o','ro,nosuid,nodev,noexec','proc',str(proc)])
-        mounts.append(placeholder);commands.call(['/usr/bin/mount','--bind','/dev/null',str(placeholder)])
+    # Shared exact proc15/dev-null4096/umount0 helper; no utility API fallback.
+    with commands.api['proc_probe'].runtime_mounts(root,commands.report):
         yield
-    finally:
-        errors=[]
-        for target in reversed(mounts):
-            try:
-                if os.path.ismount(target):commands.call(['/usr/bin/umount',str(target)])
-                C.need(not os.path.ismount(target),'owned runtime mount remains')
-            except BaseException as error:errors.append(str(error)[:160])
-        C.need(not errors,'runtime unmount failure: '+str(errors))
-        if created:placeholder.unlink()
 
 
 def configs(root):
