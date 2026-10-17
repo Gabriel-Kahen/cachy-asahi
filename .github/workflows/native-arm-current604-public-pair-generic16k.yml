@@ -67,7 +67,7 @@ jobs:
         run: |
           set -euo pipefail
           test "$(sha256sum current604-public-pair-generic16k/scripts/ci/current604-public-pair-generic16k/ci.py | cut -d ' ' -f 1)" = 166a7e942beee007baaade5aa3bceb1181e0fe89d80a05449b55c99e46bd10a5
-          test "$(sha256sum current604-public-pair-generic16k/scripts/ci/current604-public-pair-generic16k/source-manifest.json | cut -d ' ' -f 1)" = cc5a2fd62fcbd83a746acb3a05f2bdd55a748e3a624a923d6dcd837cab31e038
+          test "$(sha256sum current604-public-pair-generic16k/scripts/ci/current604-public-pair-generic16k/source-manifest.json | cut -d ' ' -f 1)" = 944b5ac335d6f45abfac8d1e16a974ab70e040ab6915090f39fa6d26b779239c
           python3 -B current604-public-pair-generic16k/scripts/ci/current604-public-pair-generic16k/gate.py \
             --profile "$GUI_PROFILE" \
             --implementation "$GITHUB_WORKSPACE/current604-public-pair-generic16k" --implementation-revision "$IMPLEMENTATION_SOURCE" \
