@@ -97,6 +97,42 @@ class Lane(unittest.TestCase):
   with patch.object(vm.time,'monotonic',return_value=201):
    with self.assertRaises(ValueError):vm.remaining(200,3000)
   raw=C.read(HERE/'vm.py').decode();self.assertEqual(raw.count('deadline=time.monotonic()+3000'),1);self.assertIn('remaining(deadline,3000);return result',raw)
+ def test_real_native_context_calls_actual_borrowed_kernel_with_bridge_contract(self):
+  # Fixture only tests the import/interface seam; no authority or kernel proof.
+  import types,shutil
+  native=C.load('native_contract',self.root/C.NATIVE/'contract.py');seen=[];load=C.load
+  with tempfile.TemporaryDirectory() as d:
+   work=Path(d);helper=self.root/'scripts/ci/managed-gui-generic16k/build_kernel.py';fragment=self.root/'scripts/ci/managed-gui-generic16k/kernel.fragment'
+   paths={n:work/n for n in ('helper','fragment','image','config')}
+   shutil.copyfile(helper,paths['helper']);shutil.copyfile(fragment,paths['fragment']);paths['image'].write_bytes(b'INERT_NOT_A_KERNEL');paths['config'].write_bytes(b'INERT_NOT_A_CONFIG')
+   receipt={n:dict(path=str(path),**C.row(path)) for n,path in paths.items()};receipt_path=work/'receipt.json';receipt_path.write_bytes(C.encoded(receipt))
+   profile=dict(Image=C.row(paths['image']),scope='INERT_IMPORT_INTERFACE_ONLY_NOT_KERNEL_EVIDENCE');args=types.SimpleNamespace(source=self.root,case='repair-bytes',native_decisions=work,kernel_authority=work/'unused',kernel_work=work,kernel_receipt=receipt_path)
+   def loading(name,path):
+    module=load(name,path)
+    if name=='kernel_contract':
+     def from_receipt(value,H,raw,helper_sha,fragment_sha):
+      self.assertEqual(value,receipt);self.assertEqual(Path(H.__file__),helper);self.assertEqual(raw,C.read(fragment));self.assertEqual(helper_sha,C.row(helper)['sha256']);self.assertEqual(fragment_sha,C.row(fragment)['sha256']);seen.append(name);return profile,paths['image'],paths['config']
+     module.from_receipt=from_receipt
+    return module
+   with patch.object(C,'decisions',return_value=(native,{'scope':'INERT_NO_AUTHORITY'},{})),patch.object(C,'prior_kernel',return_value=(profile,{'scope':'INERT_NO_AUTHORITY'})),patch.object(C,'load',side_effect=loading),job.contract_context(native):
+    result=C.authorize(args);self.assertIs(sys.modules['contract'],native)
+   self.assertIs(result[0],native);self.assertEqual(result[2],(profile,paths['image'],paths['config']));self.assertEqual(seen,['kernel_contract']);self.assertIs(C.SELF,C)
+ def test_bridge_helpers_loaded_inside_native_context_bind_bridge_only(self):
+  native=C.load('native_contract',self.root/C.NATIVE/'contract.py');original=sys.modules['contract']
+  with job.contract_context(native):
+   for name in ('vm','disk','guest','job','prepare'):
+    module=C.load('context_'+name,HERE/(name+'.py'));self.assertIs(module.C,C,name);self.assertIs(sys.modules['contract'],native)
+   J=job.native_job(self.root,native);self.assertIs(J.C,native);self.assertIs(J.H.C,native);self.assertIs(sys.modules['contract'],native)
+  self.assertIs(sys.modules['contract'],original);self.assertIs(vm.C,C)
+ def test_own_helper_exception_restores_native_contract_alias(self):
+  native=C.load('native_contract',self.root/C.NATIVE/'contract.py')
+  with tempfile.TemporaryDirectory() as d:
+   root=Path(d);bad=root/'bad.py';bad.write_text("import contract as C\nraise ValueError('OWNED_INERT_IMPORT_FAILURE')\n")
+   with job.contract_context(native),patch.object(C,'HERE',root):
+    with self.assertRaisesRegex(ValueError,'OWNED_INERT_IMPORT_FAILURE'):C.load('bad_context',bad)
+    self.assertIs(sys.modules['contract'],native)
+   self.assertIs(sys.modules['contract'],C)
+
  def model(self):
   old=dict(source='/seed',token='control',source_identity=[1,2]);after=dict(old,source_identity=[3,4]);fresh=dict(status='FRESH_ACTUAL_GUEST_SOURCE_LEASE',before=old,before_sha256=C.sha(C.encoded(old)),after=after,after_sha256=C.sha(C.encoded(after)),source_identity=[3,4],changed_fields=['source_identity'])
   s=dict(nonce='model-only-not-runtime',case='repair-bytes',kernel=dict(release='model'),clock_seed_ns=123,host_lease=old,host_lease_sha256=C.sha(C.encoded(old)),source_tree_sha256='a'*64,source_capabilities_sha256='b'*64)

@@ -60,12 +60,30 @@ class Controls(unittest.TestCase):
  def test_copied_composition_is_exact_bound_b015_not_native_acceptance(self):
   out,C,r=self.emit();pins=json.loads((P.HERE/'source-pins.json').read_bytes())
   self.assertEqual(pins['composition_source'],'b0154bd3b60434e45d4411b558f3ffda9e415640')
-  self.assertEqual(r['source_rows'],215)
+  self.assertEqual(r['source_rows'],262)
   self.assertEqual(C.COMPOSITION.policy()['status'],'ROOT_BOUND_PUBLIC_PAIRS_APPS6_CURRENT604_NATIVE_INPUTS')
   self.assertEqual(P.pin((out/P.COMP/'source-manifest.json').read_bytes())['sha256'],'e2b1f8ac11fa119493e22f44722d265293887de7edda80f4b61c00f8a80bf51c')
   self.assertEqual(P.pin((out/P.COMP/'input-policy.json').read_bytes())['sha256'],'a97b82d79e5aa967cde1b65c2f0a8b47cfd24d8cd3854b070dc919753a479e30')
   self.assertTrue(all(x is None for x in C.policy(bound=False)['native604'].values()))
   with self.assertRaisesRegex(ValueError,'UNBOUND'):C.policy()
+ def test_emitted_actual_recipe_guards_and_setup_provenance(self):
+  out,C,_=self.emit();I=C.COMPOSITION.scoped_load('closed_recipe_inputs',out/P.COMP/'inputs.py',{'contract':C.COMPOSITION})
+  checks,_=I.tools(out)
+  for name in ('cachy-asahi-apps','cachy-asahi-cache','cachy-asahi-repository-runtime'):
+   recipe=checks.recipe(out/'packages/tools'/name/'PKGBUILD');self.assertEqual(recipe['errors'],[],name)
+  setup=C.COMPOSITION.load('closed_setup_recipe',out/'scripts/ci/setup5-native/contract.py');self.assertEqual(len(setup.recipe(out)['input_sha256']),12)
+  current=C.COMPOSITION.load('closed_current_recipes',out/'scripts/ci/welcome-management-native/native_contract.py')
+  for name in ('cachy-asahi-welcome','cachy-asahi-orphans'):self.assertEqual(current.recipe(out,name)['errors'],[])
+  missing=out/'packages/tools/cachy-asahi-cache/.SRCINFO';missing.unlink()
+  with self.assertRaisesRegex(ValueError,'reviewed .SRCINFO'):checks.recipe(missing.with_name('PKGBUILD'))
+ def test_missing_recipe_role_refuses_before_emission(self):
+  import shutil
+  copyroot=self.root/'composition';shutil.copytree(COMP,copyroot)
+  (copyroot/'packages/tools/cachy-asahi-cache/.SRCINFO').unlink()
+  with self.assertRaises(FileNotFoundError):P.emit(ROOT,copyroot,self.root/'absent')
+  self.assertFalse((self.root/'absent').exists())
+  pins=json.loads((P.HERE/'source-pins.json').read_bytes());del pins['groups']['composition']['packages/tools/cachy-asahi-apps/apps.py']
+  with patch.object(P.json,'loads',return_value=pins),self.assertRaisesRegex(ValueError,'recipe/provenance closure'):P.source(ROOT,COMP)
  def test_drift_alias_and_missing_anchors_refuse(self):
   with patch.object(P,'pin',return_value={}):
    with self.assertRaisesRegex(ValueError,'pinned source'):P.emit(ROOT,COMP,self.root/'absent')

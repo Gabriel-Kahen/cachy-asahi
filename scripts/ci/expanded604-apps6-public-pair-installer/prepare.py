@@ -15,7 +15,9 @@ def need(ok,why):
 def pin(raw):return dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())
 def encoded(value):return (json.dumps(value,sort_keys=True,indent=2,allow_nan=False)+'\n').encode()
 def source(repo,composition):
- result={};groups=json.loads((HERE/'source-pins.json').read_bytes())['groups']
+ result={};pins=json.loads((HERE/'source-pins.json').read_bytes());groups=pins['groups']
+ recipes=pins['composition_recipe_inputs']
+ need(len(recipes)==80 and all(groups['composition'].get(n)==row and pins['files'].get(n)==row for n,row in recipes.items()),'complete pinned composition recipe/provenance closure required')
  need(set(groups)=={'installer','composition'},'two finite source roles required')
  for role,root in (('installer',repo),('composition',composition)):
   rows=groups[role];need(0<len(rows)<=512,'finite source closure')
