@@ -1,5 +1,7 @@
 # Implementation and acceptance status
 
+October17 current result: the [native604 copied-root upgrade matrix](validation/expanded604-upgrade-matrix-20261017.md) is accepted for its exact historical Welcome2/Orphans1 composition. Normal38997177160 performs one genuine Setup3→5 commit and syncs its checkpoint; the accepted precommit/postcommit cases retain zero/one commits with unchanged checkpoints. All three preserve the source and603 protected packages and dispose their125356-node copies. Current Welcome3/Orphans2 integration, hardware and boot recovery remain separate. The [maintained Debian caa3 native pair](validation/glibc-debian-maintained-source-20261017.md) is also accepted; its normal installed lifecycle and16K acceptance remain open.
+
 Latest October16 implementation update (supersedes the earlier pending-run notes below):
 
 The real Done visible-first-frame correction is implemented with52 Root focused controls and80 source/20 generated joins. It emits the request before late caller/manager queries, measures age from Notify with at least one second left in the unchanged three-second expiry, preserves the first PPM before a pixel-presence check and independently replays that check at retention. Root still must read all three actual first frames; the combined foreground/background retry remains pending.
