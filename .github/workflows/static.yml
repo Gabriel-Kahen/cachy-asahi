@@ -259,6 +259,14 @@ jobs:
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/current604-apps6-generic16k -p test_lane.py
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/current604-apps6-updater16k -p test_lane.py
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/current604-apps6-updater16k -p test_wiring.py
+      - name: Checkout exact separate public-pair native604 source operand
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: b0154bd3b60434e45d4411b558f3ffda9e415640
+          path: .ci-inputs/public-pair-native604
+          persist-credentials: false
+      - name: Check separate public-pair current604 fresh installer source
+        run: PUBLIC_PAIR_INSTALLER_ROOT="$PWD" PUBLIC_PAIR_COMPOSITION_ROOT="$PWD/.ci-inputs/public-pair-native604" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/expanded604-apps6-public-pair-installer -p test_lane.py -v
       - name: Checkout exact public native Welcome4 archive inputs
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
