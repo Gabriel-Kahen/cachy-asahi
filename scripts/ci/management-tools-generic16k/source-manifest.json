@@ -454,7 +454,7 @@
     },
     "scripts/ci/tools-generic16k/dependencies.json": {
       "bytes": 21413,
-      "sha256": "4230eb9b270033919c2f346d5bef0e77841713b57275045fe25c197f75b6cab3"
+      "sha256": "096ec71c649f85efd557c28d7a9b26143f5084f20a2f8b076efaba5808ae30a1"
     },
     "scripts/ci/tools-generic16k/guest.py": {
       "bytes": 16338,
