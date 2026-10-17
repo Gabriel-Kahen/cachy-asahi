@@ -42,6 +42,22 @@ class Adapter(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):cls.temporary.cleanup()
 
+    def test_normal_diagnostic_is_additive_source_bound_and_fault_cases_unchanged(self):
+        import driver_progress as D
+        code=self.codes['normal'];row=A.C.read(code/'adapter.json')['normal_driver_diagnostic']
+        self.assertEqual(row['basis'],'a29d1987d909660feff4630b4a0e66d3073302ac')
+        self.assertEqual(row['budgets'],'UNCHANGED')
+        for name in (D.DRIVER,D.HOOK):
+            baseline,_=A.literals((self.oldcodes['normal']/name).read_bytes(),name)
+            output,proof=D.transformed(baseline,name)
+            self.assertEqual(output,(code/name).read_bytes());self.assertEqual(proof,row['files'][name])
+            with self.assertRaisesRegex(ValueError,'exact original'):D.transformed(baseline+b'\n',name)
+        config=A.C.read(code/'upgrade-config.json')
+        self.assertEqual(config['code_pins'][D.SELF],A.C.sha(code/D.SELF))
+        for case in ('precommit-exit86','postcommit-exit87'):
+            self.assertNotIn('normal_driver_diagnostic',A.C.read(self.codes[case]/'adapter.json'))
+            self.assertFalse((self.codes[case]/D.SELF).exists())
+
     def test_exact604_only_setup3_changes_to_genuine5(self):
         before,after=A.C.locks();self.assertEqual((len(before),len(after)),(604,604))
         self.assertEqual(after,before|{'cachy-asahi-setup':'0.1.0-5'})

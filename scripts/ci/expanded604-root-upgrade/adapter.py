@@ -184,6 +184,12 @@ def prepare(source,target,case,*,git=True,implementation=None):
               'postcommit-exit87':'actual604-postcommit-failure-disposal-test'}
     config['purpose']=purposes[case];config['scale']['before_lock_sha256']=C.BEFORE;config['scale']['after_lock_sha256']=C.AFTER
     config['release']['release_id']='expanded604-setup5-'+case+'-20261016';config['release']['namespace']='cachy-asahi-expanded604-'+case
+    diagnostic=None
+    if case=='normal':
+        location=Path(__file__).with_name('driver_progress.py')
+        progress=C.load('_root604_normal_progress',location)
+        diagnostic=progress.prepare(target)
+        config['code_pins'][progress.SELF]=C.sha(target/progress.SELF)
     config['code_pins']={name:C.sha(target/name) for name in config['code_pins']}
     config['external_pins']['/persistent_scope.py']=C.sha(caller/'persistent_scope.py')
     config_path.write_bytes(C.encoded(config))
@@ -191,4 +197,5 @@ def prepare(source,target,case,*,git=True,implementation=None):
         original_pin_count=len(held['pins']),derived_pin_count=len(config['code_pins']),changes=changes,config_sha256=C.sha(config_path),
         before_sha256=C.BEFORE,after_sha256=C.AFTER,package_count=604,protected_package_count=603,project_count=21,bootstrap_additions=31,
         setup5_inspectors='UNCHANGED_PRIVATE600_API_PATH',actors='NOT_RUN',hardware='NOT_RUN')
+    if diagnostic is not None:receipt['normal_driver_diagnostic']=diagnostic
     (target/'adapter.json').write_bytes(C.encoded(receipt));return config_path,caller

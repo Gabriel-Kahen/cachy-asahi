@@ -65,12 +65,12 @@
       "sha256": "6e8669e9e7d6dd07af929ace43f181a3aef314269dc3a209c987b6eb7f13889b"
     },
     "scripts/ci/expanded604-root-upgrade/README.md": {
-      "bytes": 9352,
-      "sha256": "126efe12ad0fa743c77e0c049e5dff8371e066b1338c7ba49bb0bed4a2eacc95"
+      "bytes": 10199,
+      "sha256": "ea1c171cbe6aa14ea67dbc3784a29932f2819fb5cf469bfab616d681b2d86c22"
     },
     "scripts/ci/expanded604-root-upgrade/adapter.py": {
-      "bytes": 14478,
-      "sha256": "f9c383d3b8d4d260e125db36d4b37666c9825f7cdd9e803af0234775b3b50410"
+      "bytes": 14838,
+      "sha256": "383e822950102826d5fe99f87608a69fdb54c2af0962d7f7c505dc2a9fedc875"
     },
     "scripts/ci/expanded604-root-upgrade/after604.lock": {
       "bytes": 11992,
@@ -87,6 +87,10 @@
     "scripts/ci/expanded604-root-upgrade/contract.py": {
       "bytes": 7370,
       "sha256": "80eb15508f3d6b5c58991c29a05acdd0e361b3ad3276074fca3561986d1c2cb1"
+    },
+    "scripts/ci/expanded604-root-upgrade/driver_progress.py": {
+      "bytes": 11203,
+      "sha256": "33afe1b698485d04b33819b2b734d2b162e6551275f3ff2c1f9bd7ff3edcce14"
     },
     "scripts/ci/expanded604-root-upgrade/freeze.py": {
       "bytes": 1920,
@@ -105,12 +109,16 @@
       "sha256": "47b58124568298c2bda94cacebf57c72f444e00c83ba4f3a28dc3150a3f94002"
     },
     "scripts/ci/expanded604-root-upgrade/test_adapter.py": {
-      "bytes": 12988,
-      "sha256": "410d11a67556f20f1ac9470a844fd613ad648b7c608f60d6bd3fdffa447197ce"
+      "bytes": 14084,
+      "sha256": "2c890d833cfe1453cfc9fc2bedeb0358c2731e558702e9a89f1a89a327d4eddf"
     },
     "scripts/ci/expanded604-root-upgrade/test_cache.py": {
       "bytes": 14719,
       "sha256": "11a56f73a2e2d21ef45cf9c489950fa9358f3e23fe9cf5e18a62290672cf37da"
+    },
+    "scripts/ci/expanded604-root-upgrade/test_driver_progress.py": {
+      "bytes": 5088,
+      "sha256": "f6e998a9bcc89accd9c7458dda79defb250b305b787d1fbddf7fbebd5a1cebfd"
     },
     "scripts/ci/expanded604-root-upgrade/test_gate.py": {
       "bytes": 12737,
