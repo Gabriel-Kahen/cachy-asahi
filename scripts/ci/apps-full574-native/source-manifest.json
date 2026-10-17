@@ -233,8 +233,8 @@
       "sha256": "c07a0e689679eb916fbf6934414c662fbec349b96b94a456b2b3c30d27fb4224"
     },
     "scripts/ci/apps-full574-native/lifecycle.py": {
-      "bytes": 13091,
-      "sha256": "4195f6e47d85feaf7c75f410ce35b05eb2e05e52b4a47625f6abf24408f1d3db"
+      "bytes": 14315,
+      "sha256": "3fb5ef7a3f1475819a6610a2f5650c8796f0073abd09c124d228d3749b504ffe"
     },
     "scripts/ci/apps-full574-native/scrub.py": {
       "bytes": 1883,
@@ -249,8 +249,8 @@
       "sha256": "fe5670055f2b309640e80049d077ad16022f3a86100f2429104034cfe1ad554b"
     },
     "scripts/ci/apps-full574-native/test_lane.py": {
-      "bytes": 22582,
-      "sha256": "0dec52dbcf5b387b9e64952e0f700f0382755871975959270c45032a1cbea004"
+      "bytes": 27593,
+      "sha256": "c3468bfe55685c2eea7b08cedd25fa7db3c0407e528ee91628f228e98973819a"
     },
     "scripts/ci/expanded600-installer-vm/observer600.py": {
       "bytes": 2784,

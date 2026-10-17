@@ -25,12 +25,27 @@ def backend(action,workspace,owner=None):return ['/usr/bin/python3','-I','-B','/
 def credentials():
  value=C.decode(C.read(INPUTS/'release/control.json'));return [part for key in ('release','release-sha256','catalog','catalog-sha256','catalog-signature','keyring','signer') for part in
   ('--'+key,{'release':'/inputs/release/bundle','release-sha256':value['release_sha256'],'catalog':'/inputs/release/catalog.json','catalog-sha256':value['catalog_sha256'],'catalog-signature':'/inputs/release/catalog.json.sig','keyring':'/inputs/release/public.gpg','signer':value['signer']}[key])]
+def retain_inventory(path,summary):
+ C.safe(path);before=path.lstat();raw=C.read(path,16*1024**2)
+ C.need(stat.S_ISREG(before.st_mode) and before.st_nlink==1 and before.st_uid==os.geteuid() and
+        stat.S_IMODE(before.st_mode)==0o600 and before==path.lstat(),'exact private caller-owned inventory required')
+ C.need(summary['output']==str(path) and summary['bytes']==len(raw) and summary['sha256']==C.sha(raw),'original inventory command bytes differ')
+ # Keep the original bytes at the existing flat export name; never republish through a weaker product path.
+ fd=os.open(OUT/path.name,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,0o600)
+ with os.fdopen(fd,'wb') as stream:stream.write(raw);stream.flush();os.fsync(stream.fileno())
+ return raw
+
 def planned(calls,workspace,label,operation,names):
- inventory=OUT/(label+'-inventory.json');summary=calls.call(['/inputs/candidate/usr/bin/cachy-asahi-apps','inventory','--dbpath',str(workspace/'root/var/lib/pacman'),'--output',str(inventory)],seconds=45)
- C.need(summary['status']=='OBSERVED_LOCAL_DB_METADATA' and inventory.stat().st_mode&0o777==0o600,'actual private inventory snapshot required')
- plan=calls.call(['/inputs/candidate/usr/bin/cachy-asahi-apps',*credentials(),'--installed',str(inventory),'--installed-sha256',C.sha(C.read(inventory,16*1024**2)),'plan',operation,*names],seconds=120)
+ C.need(label in ('install','remove-selected','remove-runtime','interrupted-install') and
+        workspace in (WORK/'main',WORK/'interrupted'),'fixed owned inventory scope required')
+ C.safe(WORK);info=WORK.lstat();C.need(stat.S_ISDIR(info.st_mode) and info.st_uid==os.geteuid() and
+        stat.S_IMODE(info.st_mode)==0o700,'private caller-owned inventory directory required')
+ inventory=WORK/(label+'-inventory.json');summary=calls.call(['/inputs/candidate/usr/bin/cachy-asahi-apps','inventory','--dbpath',str(workspace/'root/var/lib/pacman'),'--output',str(inventory)],seconds=45)
+ C.need(summary['status']=='OBSERVED_LOCAL_DB_METADATA','actual private inventory snapshot required');raw=retain_inventory(inventory,summary)
+ plan=calls.call(['/inputs/candidate/usr/bin/cachy-asahi-apps',*credentials(),'--installed',str(inventory),'--installed-sha256',C.sha(raw),'plan',operation,*names],seconds=120)
  C.need(plan['status']=='PLANNED' and plan['applied']=='NOT_APPLIED' and plan['installer_authority'] is False and plan['plan']['installed_inventory']=='OBSERVED_LOCAL_DB_METADATA_NOT_PAYLOAD_OR_HARDWARE_ATTESTATION' and plan['synthetic'] is True,'true signed synthetic plan from actual copied database required')
- path=OUT/(label+'-plan.json');path.write_bytes(C.encoded(plan));return path,plan
+ C.need(C.read(inventory,16*1024**2)==raw,'private inventory changed during planning')
+ path=OUT/(label+'-plan.json');path.write_bytes(C.encoded(plan));inventory.unlink();return path,plan
 
 def apply_args(calls,workspace,owner,path,plan):
  before=calls.call(backend('inspect',workspace,owner))['before']

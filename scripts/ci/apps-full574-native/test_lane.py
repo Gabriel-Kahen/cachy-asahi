@@ -179,4 +179,59 @@ class Controls(unittest.TestCase):
   if not path.exists():path=ROOT/'.github/workflows/native-arm-apps-full574-transaction.yml'
   text=path.read_text();self.assertIn('  workflow_dispatch:',text);self.assertNotIn('  push:',text);self.assertLess(text.index('job.py" proof'),text.index('${{ secrets.'));self.assertLess(text.index('Verify closed native packet'),text.index('${{ secrets.'));self.assertIn('cancel-in-progress: false',text);self.assertIn('contents: read',text);self.assertIn('650s',text)
 
+ def inventory_fixture(self):
+  reader=C.load('real_inventory_output_control',ROOT/'packages/tools/cachy-asahi-apps/inventory.py');client=C.load('real_inventory_client_control',ROOT/'scripts/client/client.py')
+  work=self.root/'work';work.mkdir(mode=0o700);out=self.root/'out';out.mkdir(mode=0o700);workspace=work/'main'
+  db=workspace/'root/var/lib/pacman';local=db/'local';package=local/'inert-1';package.mkdir(parents=True)
+  (local/'ALPM_DB_VERSION').write_bytes(b'9\n');(package/'desc').write_bytes(b'%NAME%\ninert\n\n%VERSION%\n1\n\n%ARCH%\naarch64\n\n');(package/'files').write_bytes(b'')
+  return reader,client,work,out,workspace,db
+ def plan_calls(self,reader,client,*,failure=False):
+  observed=[]
+  def call(argv,**kwargs):
+   observed.append((argv,kwargs))
+   if argv[1]=='inventory':return reader.publish(Path(argv[argv.index('--dbpath')+1]),Path(argv[argv.index('--output')+1]),client,lambda row:row)
+   installed=Path(argv[argv.index('--installed')+1]);raw=C.read(installed,16*1024**2)
+   self.assertEqual(argv[argv.index('--installed-sha256')+1],C.sha(raw));self.assertEqual(reader.validate(C.decode(raw),lambda row:row),reader.QUALIFICATION)
+   if failure:raise ValueError('inert modeled plan refusal')
+   return dict(status='PLANNED',applied='NOT_APPLIED',installer_authority=False,synthetic=True,plan=dict(installed_inventory=reader.QUALIFICATION))
+  return SimpleNamespace(call=call),observed
+ def test_actual_inventory_publish_owner_guard_refuses_root0_runner1001_shape(self):
+  reader,client,work,out,workspace,db=self.inventory_fixture();fstat=reader.os.fstat
+  def foreign(fd):
+   original=fstat(fd);fields=list(original);fields[4]=1001
+   return os.stat_result(fields)
+  with patch.object(reader.os,'geteuid',return_value=0),patch.object(reader.os,'fstat',side_effect=foreign),self.assertRaisesRegex(ValueError,'caller-owned output parent'):
+   reader.publish(db,out/'inventory.json',client,lambda row:row)
+  self.assertFalse((out/'inventory.json').exists())
+ def test_private_inventory_uses_real_ALPM9_reader_retains_exact_bytes_then_retires_private_file(self):
+  reader,client,work,out,workspace,db=self.inventory_fixture();calls,observed=self.plan_calls(reader,client)
+  before={p.relative_to(db).as_posix():p.read_bytes() for p in db.rglob('*') if p.is_file()}
+  with patch.object(life,'WORK',work),patch.object(life,'OUT',out),patch.object(life,'credentials',return_value=[]):path,plan=life.planned(calls,workspace,'install','install',['cache'])
+  requested=Path(observed[0][0][-1]);retained=out/requested.name
+  self.assertEqual(requested,work/'install-inventory.json');self.assertFalse(requested.is_relative_to(workspace/'root'));self.assertFalse(requested.exists())
+  self.assertEqual(observed[0][1]['seconds'],45);self.assertEqual(observed[1][1]['seconds'],120)
+  raw=retained.read_bytes();self.assertEqual(C.decode(raw)['observation']['dbpath'],str(db));self.assertEqual(retained.stat().st_mode&0o777,0o600)
+  self.assertEqual(observed[1][0][observed[1][0].index('--installed-sha256')+1],C.sha(raw));self.assertEqual(C.decode(path.read_bytes()),plan)
+  self.assertEqual({p.relative_to(db).as_posix():p.read_bytes() for p in db.rglob('*') if p.is_file()},before)
+ def test_private_inventory_alias_owner_mode_digest_and_existing_export_refuse(self):
+  path=self.root/'inventory.json';out=self.root/'out';out.mkdir();raw=b'{"inert":true}\n';path.write_bytes(raw);path.chmod(0o600)
+  summary=dict(output=str(path),bytes=len(raw),sha256=C.sha(raw))
+  with patch.object(life,'OUT',out):
+   with patch.object(life.os,'geteuid',return_value=os.getuid()+1),self.assertRaisesRegex(ValueError,'caller-owned inventory'):life.retain_inventory(path,summary)
+   path.chmod(0o644)
+   with self.assertRaises(ValueError):life.retain_inventory(path,summary)
+   path.chmod(0o600);alias=self.root/'alias';os.link(path,alias)
+   with self.assertRaises(ValueError):life.retain_inventory(path,summary)
+   alias.unlink();alias.symlink_to(path)
+   with self.assertRaises(ValueError):life.retain_inventory(alias,summary)
+   with self.assertRaisesRegex(ValueError,'command bytes differ'):life.retain_inventory(path,summary|dict(sha256='0'*64))
+   target=out/path.name;target.write_bytes(b'prior diagnosis')
+   with self.assertRaises(FileExistsError):life.retain_inventory(path,summary)
+   self.assertEqual(target.read_bytes(),b'prior diagnosis');self.assertEqual(path.read_bytes(),raw)
+ def test_plan_failure_keeps_original_private_and_retained_inventory_for_ordered_outer_cleanup(self):
+  reader,client,work,out,workspace,db=self.inventory_fixture();calls,_=self.plan_calls(reader,client,failure=True)
+  with patch.object(life,'WORK',work),patch.object(life,'OUT',out),patch.object(life,'credentials',return_value=[]),self.assertRaisesRegex(ValueError,'modeled plan refusal'):
+   life.planned(calls,workspace,'install','install',['cache'])
+  self.assertEqual((work/'install-inventory.json').read_bytes(),(out/'install-inventory.json').read_bytes());self.assertFalse((out/'install-plan.json').exists())
+
 if __name__=='__main__':unittest.main(verbosity=2)
