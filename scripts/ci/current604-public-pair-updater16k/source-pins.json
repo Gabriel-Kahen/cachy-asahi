@@ -1228,7 +1228,7 @@
       },
       ".github/workflows/native-arm-expanded604-apps6-public-pair-updater.yml": {
         "bytes": 32344,
-        "sha256": "231fedeefd36e33d3d941a8eb959a04ad7b06a0786b22381d7652235eac07d12"
+        "sha256": "09d8a0a1a5ae6a986d8f99503c0754cc4786acb35aac3e75c3da1611772bbfc5"
       },
       ".github/workflows/native-arm-expanded604-apps6-public-pairs.yml": {
         "bytes": 28894,
@@ -1891,8 +1891,8 @@
         "sha256": "0019c1236e1d9294a0149e39e02c048e89431922a445e26b4ae067bcf5f46a5a"
       },
       "scripts/ci/expanded604-apps6-public-pair-updater/aux_transition.py": {
-        "bytes": 5346,
-        "sha256": "759eb3930a36ce461b73f47348e35dda98efbf0fedd161868ed6339644cdf582"
+        "bytes": 7958,
+        "sha256": "8adda66e53d6b34fbecc6f0d34df81d7bea02cc6c819b270c3fdee708117d43d"
       },
       "scripts/ci/expanded604-apps6-public-pair-updater/baseline.py": {
         "bytes": 1589,
@@ -1951,16 +1951,16 @@
         "sha256": "87c7c0f6de4a2a8dd69b58cc3e3181d6771891f9dcc19a64cf488b01ec5bd8ac"
       },
       "scripts/ci/expanded604-apps6-public-pair-updater/source-manifest.json": {
-        "bytes": 71829,
-        "sha256": "532c219c619b2777189a954cf5293595a694a94f1ca158301900e84929e3fbb8"
+        "bytes": 71830,
+        "sha256": "b04337a0b759a71cc719479c44fc8be3ae578a83bab7a027db75eed5886227ad"
       },
       "scripts/ci/expanded604-apps6-public-pair-updater/source-pins.json": {
         "bytes": 123222,
         "sha256": "d8206915ca5d660e08964c25e1b5653e65aa5d0afbacb51a193d16c370bdf8cc"
       },
       "scripts/ci/expanded604-apps6-public-pair-updater/test_aux_transition.py": {
-        "bytes": 3349,
-        "sha256": "d6d341e2ec1339f4fc9bf81293f09c27064411f7477780d00c015ca618e3dcfb"
+        "bytes": 35626,
+        "sha256": "e770b28cfe6443ae96f448dc7f4163b94c6dcda8ae6b810d54cf7c3de11d958e"
       },
       "scripts/ci/expanded604-apps6-public-pair-updater/test_lane.py": {
         "bytes": 10555,
@@ -3215,5 +3215,5 @@
     }
   },
   "schema_version": 1,
-  "updater_source_manifest_sha256": "532c219c619b2777189a954cf5293595a694a94f1ca158301900e84929e3fbb8"
+  "updater_source_manifest_sha256": "b04337a0b759a71cc719479c44fc8be3ae578a83bab7a027db75eed5886227ad"
 }
