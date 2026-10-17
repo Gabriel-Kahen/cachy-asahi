@@ -6,6 +6,7 @@ import importlib.util
 import json
 import os
 import re
+import stat
 from pathlib import Path
 import shutil
 import subprocess
@@ -16,8 +17,35 @@ def need(ok,why):
 def load(name,path):
     spec=importlib.util.spec_from_file_location(name,path);m=importlib.util.module_from_spec(spec);sys.modules[name]=m;spec.loader.exec_module(m);return m
 
+BUILD_MOUNT=Path('/run/cachy-asahi-managed604-build.json')
+
+def build_admission(digest):
+    """Exact context receipt on a real readonly BuildKit file mount, never a marker."""
+    need(re.fullmatch('[0-9a-f]{64}',digest or ''),'explicit context digest required')
+    path=BUILD_MOUNT;info=path.lstat()
+    need(stat.S_ISREG(info.st_mode) and info.st_nlink==1 and info.st_uid==0 and 0<info.st_size<=4096 and not path.is_symlink(),'ordinary root-owned bounded build admission')
+    need(os.statvfs(path).f_flag&os.ST_RDONLY,'build admission must be kernel readonly')
+    mounts=Path('/proc/self/mountinfo').read_text();need(len(mounts)<=1024**2,'finite mount metadata')
+    rows=[line.split() for line in mounts.splitlines() if len(line.split())>=10 and line.split()[4]==str(path)]
+    need(len(rows)==1 and 'ro' in rows[0][5].split(','),'exact readonly file mount required')
+    raw=path.read_bytes();need(len(raw)==info.st_size and hashlib.sha256(raw).hexdigest()==digest,'context-bound admission bytes')
+    v=json.loads(raw);need(type(v)is dict and set(v)=={'schema_version','purpose','nonce','installer_sha256','context_sha256','manifest_sha256','expected604_sha256'} and type(v['schema_version'])is int and v['schema_version']==1 and v['purpose']=='OWNED_OFFLINE_SIGNED604_BUILD' and re.fullmatch('[0-9a-f]{32}',v['nonce'] or '') and v['expected604_sha256']=='7bc6caa51301bf076aeda4d137277a128c53a16e5bfd25f02e7309c4b3a408c3','exact finite build admission scope')
+    root=Path('/tmp/managed604');need(Path(__file__).resolve()==root/'install604.py','fixed install-context entry required')
+    for key,name in (('installer_sha256','install604.py'),('context_sha256','context604.py'),('manifest_sha256','bundle/manifest.json')):
+        p=root/name;need(p.is_file() and not p.is_symlink() and p.stat().st_nlink==1 and p.stat().st_size<=1024**2 and hashlib.sha256(p.read_bytes()).hexdigest()==v[key],'source/context/manifest admission pin differs')
+    network=Path('/proc/net/dev').read_text();need(len(network)<=65536 and {line.split(':',1)[0].strip() for line in network.splitlines() if ':' in line}=={'lo'},'actual offline build namespace required')
+    return True
+
+def build_guard():
+    facts=dict(euid=os.geteuid(),machine=os.uname().machine,docker_marker=Path('/.dockerenv').is_file(),systemd_runtime=Path('/run/systemd/system').exists(),buildkit_context=False)
+    try:
+        if sys.argv[1:]:
+            need(len(sys.argv)==3 and sys.argv[1]=='--owned-buildkit-context','explicit build-context invocation required');facts['buildkit_context']=build_admission(sys.argv[2])
+        need(facts['euid']==0 and facts['machine']=='aarch64' and not facts['systemd_runtime'] and (facts['buildkit_context'] if sys.argv[1:] else facts['docker_marker']),'owned native offline build only')
+    finally:print('CURRENT604_BUILD_ENV '+json.dumps(facts,sort_keys=True,separators=(',',':')),flush=True)
+
 def install():
-    need(os.geteuid()==0 and Path('/.dockerenv').is_file() and os.uname().machine=='aarch64' and not Path('/run/systemd/system').exists(),'owned native offline build only')
+    build_guard()
     code=Path('/tmp/managed604/code');sys.path.insert(0,str(code/'scripts/ci/expanded604-apps6-public-pairs'))
     C=load('contract',code/'scripts/ci/expanded604-apps6-public-pairs/contract.py')
     L=load('_604_native_install_methods',code/'scripts/ci/expanded604-apps6-public-pairs/lifecycle.py');L.CODE=code
