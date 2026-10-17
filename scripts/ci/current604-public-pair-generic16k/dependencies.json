@@ -14,7 +14,7 @@
     },
     ".github/workflows/native-arm-expanded604-apps6-public-pair-installer.yml": {
       "bytes": 29756,
-      "sha256": "0d89e719b42ae874e97d7d33573861372e95b2e46b25a9c8857e865bcb447c3f"
+      "sha256": "e06b829f76efd76f889ac95271b1ea0225bb347aa1a5148de30b5a760337def5"
     },
     ".github/workflows/native-arm-expanded604-apps6-public-pairs.yml": {
       "bytes": 28894,
@@ -569,8 +569,8 @@
       "sha256": "95202592db1de15b6092c3929334dd0c205ff111d22df3c2a017a4774890b928"
     },
     "scripts/ci/current604-public-pair-generic16k/source-pins.json": {
-      "bytes": 119963,
-      "sha256": "ceeca14f3a8a88c3f99627487c37f8f0e1917623ac8c0300223b11edd216e463"
+      "bytes": 119962,
+      "sha256": "71d3f0334c5e0931d69bdc3633ac9ab44e6b53031a079074cfbefc6c8d1a6b6a"
     },
     "scripts/ci/current604-public-pair-generic16k/test_lane.py": {
       "bytes": 12697,
@@ -745,8 +745,8 @@
       "sha256": "6965bb8a5b91201ad2f59c7c3eeda144814a8948e60b011a5fff959b96b5a4e4"
     },
     "scripts/ci/expanded604-apps6-public-pair-installer/input-policy.json": {
-      "bytes": 1146,
-      "sha256": "e2ee7a424604793bf4ab7a6077d76de4ec5a297640169ad57dc94a8876c1ff4c"
+      "bytes": 787,
+      "sha256": "e2cd4be74eb5cc524dac1a41a7f26c38b49b87b199e098f9cebde0bec9ce1b08"
     },
     "scripts/ci/expanded604-apps6-public-pair-installer/policy.json": {
       "bytes": 787,
@@ -757,8 +757,8 @@
       "sha256": "7a497103107ac5826cb11bab8f8359d556035b9f0bc5911f71b41047d319d2a5"
     },
     "scripts/ci/expanded604-apps6-public-pair-installer/source-manifest.json": {
-      "bytes": 46610,
-      "sha256": "5f4dbc150a5f8ca6a85843b783e7b5472251a4b0761e75e65f7d82b165a7b629"
+      "bytes": 46613,
+      "sha256": "b8a35cf9f04c5321db6db9103f3a7ef95d58ebcc0ff960b805362a3867ed715a"
     },
     "scripts/ci/expanded604-apps6-public-pair-installer/source-pins.json": {
       "bytes": 128271,
