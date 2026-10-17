@@ -15,6 +15,7 @@ import candidates as A
 import prepare as P
 import management_contract as C
 import management_root as R
+import management_phase as G
 
 ROOT=Path(os.environ.get('WELCOME_MANAGEMENT_SOURCE',Path(__file__).resolve().parents[3]))
 HERE=Path(__file__).resolve().parent
@@ -166,6 +167,58 @@ class Semantics(unittest.TestCase):
         text=(HERE/'management_root.py').read_text();self.assertIn('base.guard(True)',text);self.assertNotIn('os.unlink',text)
         self.assertIn('alpm_trans_release',text);self.assertIn('signal.pidfd_send_signal',text)
         self.assertNotIn('shell=True',text);self.assertNotIn('nodeps',text)
+
+
+class ReportReadiness(unittest.TestCase):
+    def test_live_helper_or_supervisor_does_not_launch_snapshot(self):
+        for helper,supervisor in ((False,False),(False,True),(True,False)):
+            with self.subTest(helper=helper,supervisor=supervisor),patch.object(G,'request',return_value=dict(helper_absent=helper,supervisor_absent=supervisor)) as request:
+                snapshot=unittest.mock.Mock(side_effect=AssertionError('report snapshot must wait'))
+                self.assertIsNone(G.completed_report_snapshot(snapshot));request.assert_called_once_with('observed')
+                snapshot.assert_not_called()
+    def test_exited_pidfds_only_allow_actual_snapshot_not_synthetic_success(self):
+        raw=dict(status='PASS',pid=80,nodes=[])
+        with patch.object(G,'request',return_value=dict(helper_absent=True,supervisor_absent=True)):
+            snapshot=unittest.mock.Mock(return_value=raw)
+            self.assertIs(G.completed_report_snapshot(snapshot),raw);snapshot.assert_called_once_with('snapshot')
+            with self.assertRaises(ValueError):C.snapshot(raw,80,'management-orphans',dict(text=['Elapsed:']))
+    def test_completion_state_is_typed_and_fail_closed(self):
+        for state in ({},dict(helper_absent=1,supervisor_absent=True),dict(helper_absent=True,supervisor_absent='yes')):
+            with self.subTest(state=state),patch.object(G,'request',return_value=state),self.assertRaises(ValueError):
+                G.completed_report_snapshot(unittest.mock.Mock())
+    def test_pidfd_readiness_is_nonblocking_and_does_not_signal_or_close(self):
+        with patch.object(R.select,'select',side_effect=[([10],[],[]),([],[],[])]) as ready,patch.object(R.os,'close') as close,patch.object(R.signal,'pidfd_send_signal') as signal:
+            self.assertEqual(R.completion(10,20),dict(helper_absent=True,supervisor_absent=False))
+            self.assertEqual(ready.call_args_list,[unittest.mock.call([10],[],[],0),unittest.mock.call([20],[],[],0)])
+            close.assert_not_called();signal.assert_not_called()
+        with patch.object(R.select,'select') as ready:
+            self.assertEqual(R.completion(None,None),dict(helper_absent=False,supervisor_absent=False));ready.assert_not_called()
+    def test_actual_owned_pidfds_observe_both_process_exits(self):
+        actors=[];fds=[]
+        try:
+            for _ in range(2):
+                actor=subprocess.Popen([sys.executable,'-I','-B','-c',
+                    "import sys;print('READY',flush=True);sys.stdin.buffer.read(1)"],
+                    stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+                actors.append(actor);self.assertEqual(actor.stdout.readline(),b'READY\n');fds.append(os.pidfd_open(actor.pid))
+            self.assertEqual(R.completion(*fds),dict(helper_absent=False,supervisor_absent=False))
+            actors[0].stdin.write(b'x');actors[0].stdin.flush();actors[0].wait(timeout=3)
+            self.assertEqual(R.completion(*fds),dict(helper_absent=True,supervisor_absent=False))
+            actors[1].stdin.write(b'x');actors[1].stdin.flush();actors[1].wait(timeout=3)
+            self.assertEqual(R.completion(*fds),dict(helper_absent=True,supervisor_absent=True))
+        finally:
+            for actor in actors:
+                if actor.poll() is None:actor.kill();actor.wait(timeout=3)
+                for stream in (actor.stdin,actor.stdout,actor.stderr):stream.close()
+            for fd in fds:os.close(fd)
+    def test_same_deadline_all_operations_and_closing_view_are_preserved(self):
+        text=(HERE/'management_phase.py').read_text()
+        self.assertIn("hooks['wait'](probe,healthy,45,'actual '+view)",text)
+        self.assertIn("hooks['wait'](actual_doctor,healthy,45,'actual GTK Doctor report')",text)
+        self.assertIn("if view in ('management-doctor','management-orphans','management-failure') else a11y('snapshot')",text)
+        self.assertEqual(len(C.action_plan(UI)),17)
+        self.assertEqual(len(C.VIEWS)*2,24)
+        self.assertIn("observed('orphans',True)",text)
 
 
 class Adapter(unittest.TestCase):
