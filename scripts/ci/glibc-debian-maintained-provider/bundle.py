@@ -7,9 +7,16 @@ sys.path.insert(0,str(Path(__file__).resolve().parent))
 import materialize as M
 import authority as G
 HERE=Path(__file__).resolve().parent
+# makepkg reserves .asc for detached signatures; retain original auth names too.
+KEY_COPIES={'archive-key-12.asc':'archive-key-12.key','archive-key-13.asc':'archive-key-13.key'}
+def recipe_inputs(files):
+ for original,copy in KEY_COPIES.items():
+  if original in files or copy in files:
+   M.need(original in files and copy in files and files[original]==files[copy],'exact public key data copy required: '+copy)
+ return {n:row for n,row in files.items() if n not in KEY_COPIES}
 STAGE_SHA='43b1b441dcc384379ab80c4864bbf7ffd898d56e4ba629c0faa966c25a979e6c'
 def render(files):
- names=list(files);M.need(all(Path(n).name==n and n not in ('.','..') and all(c.isalnum() or c in '_.-' for c in n) for n in names),'flat safe recipe source names required')
+ files=recipe_inputs(files);names=list(files);M.need(all(Path(n).name==n and n not in ('.','..') and all(c.isalnum() or c in '_.-' for c in n) for n in names),'flat safe recipe source names required')
  rows="source=("+' '.join("'"+n+"'" for n in names)+")\nsha256sums=("+' '.join("'"+files[n]['sha256']+"'" for n in names)+")"
  text=(HERE/'PKGBUILD.in').read_text();M.need(text.count('@SOURCE_ARRAYS@')==1,'exact recipe input anchor required');return text.replace('@SOURCE_ARRAYS@',rows).encode()
 def materialize(inputs,patch_tar,output,policy=HERE/'authority.json',auth_helper=None,inspector_helper=None,stage=None):
@@ -28,6 +35,7 @@ def materialize(inputs,patch_tar,output,policy=HERE/'authority.json',auth_helper
    for name in ('materialize.py','authority.py','source-lock.json','0002-held-builder-test-expectations.patch','source-provenance.json','NOTICE','LICENSE'):copies[name]=HERE/name
    M.need(not set(names)&set(copies),'noncolliding bounded bundle inputs required')
    for name,path in copies.items():a.read(path);shutil.copyfile(path,output/name)
+   for original,copy in KEY_COPIES.items():shutil.copyfile(output/original,output/copy)
    files={p.name:a.pin(a.read(p)) for p in sorted(output.iterdir())};M.need(len(files)<=32,'finite bundle input count');(output/'PKGBUILD').write_bytes(render(files))
    evidence=dict(source_preparation=result,source_authority=authority,chain=json.loads((prep/'source-chain.json').read_bytes()),patch_authentication=json.loads((prep/'patch-authentication.json').read_bytes()),proof_files={n:a.pin(a.read(prep/n,8*1024**2)) for n in ('before-tree.json','after-tree.json','series-plan.json','patch-commands.json','metadata-manifest.json')})
    (output/'source-authentication.json').write_bytes(M.encoded(evidence));closed={p.name:a.pin(a.read(p,8*1024**2 if p.name=='source-authentication.json' else 96*1024**2)) for p in sorted(output.iterdir())};value=dict(schema_version=1,status='SOURCE_BUNDLE_READY_UNSELECTED_MAINTAINED_DEBIAN_PROVIDER',package_version='2.43.caa3-1',files=closed,prepared_tree=result['after_tree'],native='NOT_RUN',security='NO_CREDIT',release='NOT_ADMITTED');(output/'bundle.json').write_bytes(M.encoded(value));return value

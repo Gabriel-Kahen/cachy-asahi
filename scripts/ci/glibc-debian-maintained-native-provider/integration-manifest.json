@@ -14,7 +14,7 @@
     },
     "scripts/ci/glibc-debian-maintained-native-provider/dependency-pins.json": {
       "bytes": 6047,
-      "sha256": "38e961917b905b165d2aa24408d97fac82b2c7935a1aa6d40ca3c420e25874f9"
+      "sha256": "26eb802d78a8627341f5be0139fd97d8af9ba1c6db5ee632dc7861c999b3fb7b"
     },
     "scripts/ci/glibc-debian-maintained-native-provider/input-policy.json": {
       "bytes": 528,
@@ -37,8 +37,8 @@
       "sha256": "edb66fc5884e499a9f9a1810a487bb7257a84f7c6f6521c207566f0339f8b43c"
     },
     "scripts/ci/glibc-debian-maintained-native-provider/source.py": {
-      "bytes": 4607,
-      "sha256": "14729e4a83eca8ef13362d62973f4b7cac26b428e794e759d4cbdc391b340749"
+      "bytes": 4634,
+      "sha256": "ab9fe3eb5f0b7dc22afacdfb60314215b6ebee848479621724179c3f661e001d"
     },
     "scripts/ci/glibc-debian-maintained-native-provider/srcinfo.py": {
       "bytes": 1578,
@@ -77,8 +77,8 @@
       "sha256": "2905c927d060c3536f8130a5fbd56e2aa56fd6d4392ee2a11cace8dfd5be4438"
     },
     "scripts/ci/glibc-debian-maintained-provider/bundle.py": {
-      "bytes": 4553,
-      "sha256": "4ce41c4e359fb01e4eb57784a27fb771c7e7b7143b3a81593ca48eebffb86bd4"
+      "bytes": 5146,
+      "sha256": "62c5602689b246576c48877808de62d6e04c923276577808a0e2b8614cf864d5"
     },
     "scripts/ci/glibc-debian-maintained-provider/dependency-pins.json": {
       "bytes": 547,
@@ -101,8 +101,8 @@
       "sha256": "d272bd255b2711f87fd5f91d2c181ba1209a1fd09c067b432656f5aa93902fcd"
     },
     "scripts/ci/glibc-debian-maintained-provider/test_candidate.py": {
-      "bytes": 6316,
-      "sha256": "ba60c52ca071710392546235dd111ac80bb1bdaffaa65dfa34dc0571551ec6d4"
+      "bytes": 7199,
+      "sha256": "c2e6b8dcd62ed15af4380f7872eb9eb0e8b7f3fa71497f5ade47674968c55e9a"
     },
     "scripts/ci/glibc-debian-maintained-provider/test_materialize.py": {
       "bytes": 2372,

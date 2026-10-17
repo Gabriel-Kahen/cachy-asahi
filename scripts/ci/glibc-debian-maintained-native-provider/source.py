@@ -18,7 +18,7 @@ def inputs(directory,pin):
  files=value['files'];M.need(type(files) is dict and 1<=len(files)<=32 and {p.name for p in directory.iterdir()}==set(files)|{'bundle.json'},'closed flat bounded maintained bundle required')
  for name,row in files.items():
   M.need(type(name) is str and Path(name).name==name and name not in ('.','..') and type(row) is dict and set(row)=={'bytes','sha256'},'flat pinned source file required');M.need(a.pin(a.read(directory/name))==row,'bundle source file changed: '+name)
- decision=policy['decision']['path'];expected=set(a.PUBLIC_PINS)|{decision,'glibc_2.43-7.debian.tar.xz','auth.py','original_inspector.py','stage.py','authority.json','materialize.py','authority.py','source-lock.json','0002-held-builder-test-expectations.patch','source-provenance.json','NOTICE','LICENSE','PKGBUILD','source-authentication.json'}
+ decision=policy['decision']['path'];expected=set(a.PUBLIC_PINS)|set(B.KEY_COPIES.values())|{decision,'glibc_2.43-7.debian.tar.xz','auth.py','original_inspector.py','stage.py','authority.json','materialize.py','authority.py','source-lock.json','0002-held-builder-test-expectations.patch','source-provenance.json','NOTICE','LICENSE','PKGBUILD','source-authentication.json'}
  M.need(set(files)==expected,'complete exact maintained recipe/source/authority file set required')
  for name in ('authority.json','auth.py','original_inspector.py','materialize.py','authority.py','source-lock.json','0002-held-builder-test-expectations.patch','source-provenance.json','NOTICE','LICENSE'):
   M.need((directory/name).read_bytes()==(HERE/name).read_bytes(),'source-frozen helper/policy differs: '+name)

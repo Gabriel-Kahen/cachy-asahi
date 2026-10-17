@@ -33,8 +33,8 @@
       "sha256": "2905c927d060c3536f8130a5fbd56e2aa56fd6d4392ee2a11cace8dfd5be4438"
     },
     "scripts/ci/glibc-debian-maintained-provider/bundle.py": {
-      "bytes": 4553,
-      "sha256": "4ce41c4e359fb01e4eb57784a27fb771c7e7b7143b3a81593ca48eebffb86bd4"
+      "bytes": 5146,
+      "sha256": "62c5602689b246576c48877808de62d6e04c923276577808a0e2b8614cf864d5"
     },
     "scripts/ci/glibc-debian-maintained-provider/dependency-pins.json": {
       "bytes": 547,
@@ -57,8 +57,8 @@
       "sha256": "d272bd255b2711f87fd5f91d2c181ba1209a1fd09c067b432656f5aa93902fcd"
     },
     "scripts/ci/glibc-debian-maintained-provider/test_candidate.py": {
-      "bytes": 6316,
-      "sha256": "ba60c52ca071710392546235dd111ac80bb1bdaffaa65dfa34dc0571551ec6d4"
+      "bytes": 7199,
+      "sha256": "c2e6b8dcd62ed15af4380f7872eb9eb0e8b7f3fa71497f5ade47674968c55e9a"
     },
     "scripts/ci/glibc-debian-maintained-provider/test_materialize.py": {
       "bytes": 2372,

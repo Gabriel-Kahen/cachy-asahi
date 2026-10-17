@@ -12,7 +12,7 @@
     "candidate": "Exact new candidate descriptor, not oldcaa1/caa2",
     "source_sha": "Actual future new caa3 native pair source40hex; NOT source-only carrier60e174",
     "run_id": "Actual positive first-attempt native pair run ID",
-    "provider_pkgbuild_sha256": "5b1da950ca5be27d06ccabff2c83983a4c6791ff184fe0a64d4fce60e5fe9a92",
+    "provider_pkgbuild_sha256": "9d6d5e688c95febe85321abc69fbfe1b7781a02e318771ae43851d8c29f68bb8",
     "archive_sha256": "Actual accepted equal a/b package SHA, currently UNKNOWN",
     "payload": {
       "node_count": "Actual common.archive(package)['nodes'] count, currently UNKNOWN; no old1066 assumption",
