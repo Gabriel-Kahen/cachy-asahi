@@ -16,6 +16,7 @@ import prepare as P
 import management_contract as C
 import management_root as R
 import management_phase as G
+from test_doctor_lifetime import Lifetime
 
 ROOT=Path(os.environ.get('WELCOME_MANAGEMENT_SOURCE',Path(__file__).resolve().parents[3]))
 HERE=Path(__file__).resolve().parent

@@ -713,8 +713,8 @@
       "sha256": "1830c3e72465cb1d65686f122c075170a8046fd57747a1f092ac0c780846ef51"
     },
     "scripts/ci/welcome-management-native/README.md": {
-      "bytes": 7409,
-      "sha256": "35e162a73a0785065cab553b2c87ca1340b46879c08b26a29759765325945b3e"
+      "bytes": 9791,
+      "sha256": "ab85079eef08b22b6b07cb8d593c65ee220d4824a0567d48224e4499a2e67e7c"
     },
     "scripts/ci/welcome-management-native/a11y_driver.c": {
       "bytes": 20397,
@@ -765,16 +765,16 @@
       "sha256": "180cf1d7c98dfbdf8178d5eab0bae8e8fa5f90ed32935b3f6febd3520e0c657a"
     },
     "scripts/ci/welcome-management-native/prepare.py": {
-      "bytes": 9842,
-      "sha256": "7e86d0fdcf5df71828d38b0e4f646666bf8cfea61d9567bcf60813f067a417b8"
+      "bytes": 13048,
+      "sha256": "fd9ca0f4fd58abd95088998018a854ae9cdd9444a6f40e4bb22952a5d7247e32"
     },
     "scripts/ci/welcome-management-native/run.py": {
       "bytes": 12928,
       "sha256": "f04a8ebada6892d1119fc3b43dd83809c9cde75cef5b8eebb417b635819bdbe7"
     },
     "scripts/ci/welcome-management-native/source-manifest.json": {
-      "bytes": 31722,
-      "sha256": "920523df87b526f0c808e95816665f525a59c84c5e5de2dabaf6f36e4b436ce4"
+      "bytes": 32081,
+      "sha256": "0a46996c6b91311b03b0c6bd727066620a9ceee244dab91e148e07faa65efbe6"
     },
     "scripts/ci/welcome-management-native/test_failure_capture.py": {
       "bytes": 5027,
@@ -785,8 +785,8 @@
       "sha256": "5e8d49c65c4251843a165e62a7d507df166252df635416ad467313659911fc9b"
     },
     "scripts/ci/welcome-management-native/test_gui.py": {
-      "bytes": 27754,
-      "sha256": "ed74a70dcc60f037d56ecfec80b475e7d595fc6dacc3ec6b3c995646c578fcff"
+      "bytes": 27796,
+      "sha256": "b9a729226a9c39b0e6de89e910b772dfb886b55e3b1a451d7e1149b105fa9b47"
     },
     "scripts/ci/welcome-management-native/test_native.py": {
       "bytes": 24185,

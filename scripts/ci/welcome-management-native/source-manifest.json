@@ -381,8 +381,8 @@
       "sha256": "c74a6e2be2248fd6016b0c39ff9cb9360051444e8bc52406d2d0c0b3f57ba22d"
     },
     "scripts/ci/welcome-management-native/README.md": {
-      "bytes": 7409,
-      "sha256": "35e162a73a0785065cab553b2c87ca1340b46879c08b26a29759765325945b3e"
+      "bytes": 9791,
+      "sha256": "ab85079eef08b22b6b07cb8d593c65ee220d4824a0567d48224e4499a2e67e7c"
     },
     "scripts/ci/welcome-management-native/a11y_driver.c": {
       "bytes": 20397,
@@ -391,6 +391,10 @@
     "scripts/ci/welcome-management-native/candidates.py": {
       "bytes": 2530,
       "sha256": "ccf540c1d1d0aa1e25b4e3830fcb84347d40a871dc5fe90243d72fa2b5c86dc3"
+    },
+    "scripts/ci/welcome-management-native/doctor_lifetime.py": {
+      "bytes": 12162,
+      "sha256": "0483782f1836c297a43717d22c05a29692f1df445ea3b52d38e04e14f297a286"
     },
     "scripts/ci/welcome-management-native/freeze.py": {
       "bytes": 2496,
@@ -433,12 +437,16 @@
       "sha256": "180cf1d7c98dfbdf8178d5eab0bae8e8fa5f90ed32935b3f6febd3520e0c657a"
     },
     "scripts/ci/welcome-management-native/prepare.py": {
-      "bytes": 9842,
-      "sha256": "7e86d0fdcf5df71828d38b0e4f646666bf8cfea61d9567bcf60813f067a417b8"
+      "bytes": 13048,
+      "sha256": "fd9ca0f4fd58abd95088998018a854ae9cdd9444a6f40e4bb22952a5d7247e32"
     },
     "scripts/ci/welcome-management-native/run.py": {
       "bytes": 12928,
       "sha256": "f04a8ebada6892d1119fc3b43dd83809c9cde75cef5b8eebb417b635819bdbe7"
+    },
+    "scripts/ci/welcome-management-native/test_doctor_lifetime.py": {
+      "bytes": 6605,
+      "sha256": "2dfd346d0157add01e312cd710e74df1ba5d210ba94949585ccbb55a6d85df9d"
     },
     "scripts/ci/welcome-management-native/test_failure_capture.py": {
       "bytes": 5027,
@@ -449,8 +457,8 @@
       "sha256": "5e8d49c65c4251843a165e62a7d507df166252df635416ad467313659911fc9b"
     },
     "scripts/ci/welcome-management-native/test_gui.py": {
-      "bytes": 27754,
-      "sha256": "ed74a70dcc60f037d56ecfec80b475e7d595fc6dacc3ec6b3c995646c578fcff"
+      "bytes": 27796,
+      "sha256": "b9a729226a9c39b0e6de89e910b772dfb886b55e3b1a451d7e1149b105fa9b47"
     },
     "scripts/ci/welcome-management-native/test_native.py": {
       "bytes": 24185,
