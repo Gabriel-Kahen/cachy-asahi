@@ -134,6 +134,6 @@ class LauncherControls(unittest.TestCase):
   import signal
   self.route(True,signal.SIGTERM)
  def test_only_actual_run_launcher_changes_and_emitter_matches_workflow(self):
-  original=(ROOT/P.WF).read_text();proposed=P.workflow((ROOT/P.NATIVE_WF).read_text());anchor='exec timeout --signal=TERM --kill-after=30s 3550s';self.assertEqual(proposed.count(anchor),1);self.assertEqual(proposed.replace(anchor,anchor[5:]),original)
+  original=(ROOT/P.WF).read_text();proposed=P.workflow((ROOT/P.NATIVE_WF).read_text());anchor='exec timeout --signal=TERM --kill-after=30s 3550s';self.assertEqual(proposed.count(anchor),1);self.assertEqual(proposed,original);self.assertEqual(__import__('hashlib').sha256(proposed.replace(anchor,anchor[5:]).encode()).hexdigest(),'beccfc02e658f58ce1ffbe80caea4599fc741dc53751349019a07b6f7a9ef2d5')
 
 if __name__=='__main__':unittest.main(verbosity=2)

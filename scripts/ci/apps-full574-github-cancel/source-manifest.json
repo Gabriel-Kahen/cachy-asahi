@@ -243,8 +243,8 @@
       "sha256": "506b0184df4552793c7e1f3ac0a54528221099b4a924af5cd45124759d828997"
     },
     "scripts/ci/apps-full574-github-cancel/test_cancel.py": {
-      "bytes": 13713,
-      "sha256": "6144003d8975fc8b7824199b2aea8d3b5ce0c6529e2fcfac1d5e5008e370b05f"
+      "bytes": 13858,
+      "sha256": "adc4da5ff5d54eefcc76f3eb56b50e6ef4e4e22839da6d5be8aabda830dbb839"
     },
     "scripts/ci/apps-full574-native/README.md": {
       "bytes": 3802,
