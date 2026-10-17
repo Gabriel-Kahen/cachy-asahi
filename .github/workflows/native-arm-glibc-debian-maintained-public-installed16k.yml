@@ -47,7 +47,7 @@ jobs:
         timeout-minutes: 2
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '40bdcae82f0ffd9c29490f4c815d7f2794328d5a57f8d1e721558c2d37e08d26' 'scripts/ci/glibc-debian-maintained-public-installed16k/prepare.py' '41480460a6eada115b9cc6c6347dd638cbdea2f6578e21cb4e0a212b6380551a' 'scripts/ci/glibc-debian-maintained-public-installed16k/policy.json' '1f6de1efe3095f0c4be414ba09faeca6927a7a6f6f64eeb2dab872a1bdb4c6ce' 'scripts/ci/glibc-debian-maintained-public-installed16k/source-pins.json' | sha256sum --check
+          printf '%s  %s\n' '4925db51bae4a617435bb565253a5d31f46ac35b756fb59fe8311e77ddc79c23' 'scripts/ci/glibc-debian-maintained-public-installed16k/prepare.py' '9981a32d7e8c2a169ce4193ba4390c90b03cfccc675fe3abd52c0244506e6bf9' 'scripts/ci/glibc-debian-maintained-public-installed16k/policy.json' '30c7de594741322b771bff139f87b307dadfa568c686106b801ed0cfa3330a64' 'scripts/ci/glibc-debian-maintained-public-installed16k/source-pins.json' | sha256sum --check
           python3 -I -B scripts/ci/glibc-debian-maintained-public-installed16k/prepare.py preflight --workspace "$GITHUB_WORKSPACE"
           printf 'VM_SOURCE=%s/maintained-installed16k-vm-source\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
       - name: Checkout exact current native normal lifecycle Root decision
@@ -120,6 +120,7 @@ jobs:
           python3 -I -B scripts/ci/glibc-gnu-provider-lifecycle-owner/test_owner.py
           python3 -I -B scripts/ci/glibc-debian-maintained-installed16k/test_generator.py
           python3 -I -B scripts/ci/glibc-debian-maintained-public-installed16k/test_route.py
+          python3 -I -B scripts/ci/glibc-gnu-provider-installed16k/test_snapshot_progress.py
           python3 -I -B scripts/ci/glibc-gnu-failure-log/test_summary.py
           python3 -I -B scripts/ci/glibc-gnu-provider-lifecycle/test_copy_scope.py
           python3 -I -B scripts/ci/glibc-gnu-provider-lifecycle/test_controls.py

@@ -94,16 +94,16 @@
       "sha256": "61e4bad870252dab3ca9580817247c9b88f0e6cdc6b40c5956a06e7b9e42a5a7"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/guest.py": {
-      "bytes": 14874,
-      "sha256": "65e31eec47c7898ccaae236b88672bd8f9e3d035b721d20c0c08c308dfd5226c"
+      "bytes": 15285,
+      "sha256": "f9828a6b587ae33c5d88b06e582c7a6176001891c097e1cf34bf0ebf6ac72da0"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/input-policy.json": {
       "bytes": 927,
       "sha256": "f0d4a61d6322dfd56d95d6353a2ff6953f7852381cd48d0feae862498d060902"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/prepare.py": {
-      "bytes": 6146,
-      "sha256": "7dfd7816a50c6a1b46c98b3af5339848f8e51264f3e5d85c14689f079d19a63f"
+      "bytes": 6169,
+      "sha256": "f8ba20f32bc60896ad491aa1deaa62525a7836586db1a55aa97d2757e863b45e"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/prerequisites/system16k.json": {
       "bytes": 2655,
@@ -121,9 +121,13 @@
       "bytes": 1014,
       "sha256": "012682ddc164737db1696f5dda3c43008febc32f865662c16f3c77637a426549"
     },
+    "scripts/ci/glibc-gnu-provider-installed16k/snapshot_progress.py": {
+      "bytes": 6935,
+      "sha256": "10a27a600874e80716278e8838e1fe8af4c51a29d5ca4e03b5919252ec82af84"
+    },
     "scripts/ci/glibc-gnu-provider-installed16k/source-manifest.json": {
-      "bytes": 2874,
-      "sha256": "1bac169d52548878f18baeb0ec34786895c739801bcb545026fc812766050bf3"
+      "bytes": 3248,
+      "sha256": "5aaccbccf2cb00b3f539000652af45f0cd54bbdd144371d6d77c1950f480a413"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/support.py": {
       "bytes": 408,
@@ -132,6 +136,10 @@
     "scripts/ci/glibc-gnu-provider-installed16k/test_lane.py": {
       "bytes": 13282,
       "sha256": "72b3bec510b7bf12017456d05241042c69f1ae70a4792c1678f9cfb3a74fd534"
+    },
+    "scripts/ci/glibc-gnu-provider-installed16k/test_snapshot_progress.py": {
+      "bytes": 10285,
+      "sha256": "84ee9e55a57a6cdf3a9e15b3af2bc07ed767f95926cd87501e54c534d36f787a"
     },
     "scripts/ci/glibc-gnu-provider-interruption-owner/README.md": {
       "bytes": 6935,
