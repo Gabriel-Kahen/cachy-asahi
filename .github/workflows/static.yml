@@ -259,6 +259,20 @@ jobs:
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/current604-apps6-generic16k -p test_lane.py
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/current604-apps6-updater16k -p test_lane.py
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/current604-apps6-updater16k -p test_wiring.py
+      - name: Checkout exact public native Welcome4 archive inputs
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 77bd2c6ecf2e5c28a04116c3da85c45f70d1cc90
+          path: .ci-inputs/welcome4-public
+          persist-credentials: false
+      - name: Checkout scoped public native GUI component authority
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 95fad8f409971551aa38b3bece44b8fdac72fab3
+          path: .ci-inputs/welcome4-gui-authority
+          persist-credentials: false
+      - name: Check distinct public GUI archive and fresh asset source guards
+        run: PUBLIC_GUI_SOURCE="$PWD" PUBLIC_GUI_PACKET="$PWD/.ci-inputs/welcome4-public/payload" PUBLIC_GUI_AUTHORITY="$PWD/.ci-inputs/welcome4-gui-authority/payload/gui-component-authority.json" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/current604-public-gui-assets -p test_assets.py -v
       - name: Checkout exact historical native repair case source operand
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
