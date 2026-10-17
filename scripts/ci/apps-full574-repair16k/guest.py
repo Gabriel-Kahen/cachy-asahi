@@ -39,8 +39,14 @@ def lease(s):
  receipt=dict(status='FRESH_ACTUAL_GUEST_SOURCE_LEASE',before=value,after=changed,before_sha256=C.sha(before),after_sha256=C.sha(raw),changed_fields=['source_identity'],source_identity=identity,original_host_identity_not_reused=True);C.save('/out/guest-lease.json',receipt)
  p=subprocess.run(['/usr/bin/mount','-o','remount,bind,ro','/inputs'],capture_output=True,timeout=15);C.need(p.returncode==0 and os.statvfs('/inputs').f_flag&os.ST_RDONLY,'inputs immutable before worker');return receipt
 
+def source_budget(s,T):
+ from types import SimpleNamespace
+ fresh=C.decode(C.read('/out/guest-lease.json'));scope=SimpleNamespace(full574_policy=Path('/inputs/full574-policy.json'),full574_policy_sha256=s['input_map']['full574-policy.json']['sha256'],full574_lease=Path('/inputs/full574-lease.json'),full574_lease_sha256=fresh['after_sha256'])
+ return T.limits(scope)
+
 def source_state(s):
- native=C.load('native_contract','/source/'+C.NATIVE+'/contract.py');native.source(Path('/source'));A=native.adapter(Path('/source'));T=C.load('native_metrics','/source/scripts/apps/transaction.py');limits=T.limits();before=A.measure(Path('/seed'),limits);caps=A.capability_map(Path('/seed'),before,limits)
+ native=C.load('native_contract','/source/'+C.NATIVE+'/contract.py');native.source(Path('/source'));A=native.adapter(Path('/source'));T=C.load('native_metrics','/source/scripts/apps/transaction.py')
+ limits=source_budget(s,T);before=A.measure(Path('/seed'),limits);caps=A.capability_map(Path('/seed'),before,limits)
  C.need(A.digest(before['nodes'])==s['source_tree_sha256'] and A.digest(caps)==s['source_capabilities_sha256'],'complete real source node/hash/capability roundtrip');return native,A,T,before,caps
 
 def worker(s):
@@ -52,7 +58,7 @@ def worker(s):
  record,out,err,error=runtime.run_command(['/usr/bin/python3','-I','-B','/workspace/execution-lifecycle.py'],Path('/tmp'),env,3000,2*1024**2)
  Path('/out/repair16k-child.stdout').write_bytes(out);Path('/out/repair16k-child.stderr').write_bytes(err);C.save('/out/repair16k-child.json',record)
  C.need(error is None and record['exit_code']==0 and record['group_absence_verified'] is True,'original case direct child/group retirement');life=native.result(C.decode(C.read('/out/lifecycle.json',4*1024**2)));C.need(life['case']==s['case'] and not Path('/work/main').exists(),'exact single case and original actual copied-root disposal')
- after=A.measure(Path('/seed'),T.limits());A.capability_map(Path('/seed'),after,T.limits(),caps);C.need(after['nodes']==before['nodes'],'full actual guest source preserved')
+ limits=source_budget(s,T);after=A.measure(Path('/seed'),limits);A.capability_map(Path('/seed'),after,limits,caps);C.need(after['nodes']==before['nodes'],'full actual guest source preserved')
  reader=C.load('elf_reader','/source/scripts/virtual/generic16k/fixture.py');audit=C.load('elf_audit','/source/scripts/ci/managed-gui-generic16k/elf_audit.py');elf=audit.audit(Path('/seed'),reader);C.need(elf['status']=='PASS_STAGED_NATIVE_AARCH64_ELF16K_ALIGNMENT','full original574 ELF audit');C.save('/out/repair16k-worker.json',dict(status='PRIVATE_COMPLETE_CASE',case=s['case'],isolation=isolation,child=record,source_tree_sha256=A.digest(after['nodes']),source_capabilities_sha256=A.digest(caps),ELF=dict(status=elf['status'],sha256=C.sha(C.encoded(elf)),count=len(elf['ELF'])),native_host='NOT_CLAIMED',hardware='NOT_RUN'))
 
 def main():

@@ -21,7 +21,7 @@ def load(n,p):
 def read(p,cap=16*1024**2):
  need(not any(x.is_symlink() for x in (p,*p.parents)),'ordinary unaliased source');s=p.stat();need(p.is_file() and s.st_nlink==1 and 0<s.st_size<=cap,'bounded single-link source');raw=p.read_bytes();need(len(raw)==s.st_size,'source changed');return raw
 def rows():
- v=json.loads(read(HERE/'source-pins.json'));need(v['schema_version']==1 and v['native_source']==COMPONENT and len(v['implementation'])==142 and len(v['native_component'])==159,'finite explicit142/159 source roles');return v
+ v=json.loads(read(HERE/'source-pins.json'));need(v['schema_version']==1 and v['native_source']==COMPONENT and len(v['implementation'])==144 and len(v['native_component'])==159,'finite explicit144/159 source roles');return v
 def verify(root,files):
  for n,row in files.items():need(pin(read(root/n))==row,'exact source differs: '+n)
 def source(root):
