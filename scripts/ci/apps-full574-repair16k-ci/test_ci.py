@@ -29,6 +29,8 @@ class Controls(unittest.TestCase):
     if begin.startswith('      - name: Checkout'):expected=expected.split('      - name: Actual')[0]
     self.assertIn(expected,wf)
    self.assertIn('timeout-minutes: 350',wf)
+   group='native-arm-apps-full574-repair16k-${{ inputs.repair_case }}';self.assertEqual(wf.count('  group: '+group+'\n'),1);self.assertIn('  cancel-in-progress: false\n',wf)
+   groups={case:group.replace('${{ inputs.repair_case }}',case) for case in ('repair-bytes','repair-missing')};self.assertEqual(len(set(groups.values())),2);self.assertEqual(groups['repair-bytes'],group.replace('${{ inputs.repair_case }}','repair-bytes'))
    for value in ('3550s','650s','3700s','timeout-minutes: 63','timeout-minutes: 40'):self.assertIn(value,wf)
    self.assertLess(wf.index('Verify actual native-case and prior kernel authorities'),wf.index('Seed the six exact retained inputs'))
    self.assertIn('retained-apps574-inputs/payload',wf);self.assertNotIn('expanded604-',wf);self.assertNotIn('apps6-inputs',wf);self.assertIn('--kernel-authority ',wf);self.assertIn('--kernel-receipt ',wf);self.assertIn('ci-retention', (out/P.LANE/'retain.py').read_text())
