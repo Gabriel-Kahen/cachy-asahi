@@ -78,6 +78,28 @@ class Lane(unittest.TestCase):
   s=A.text(SOURCE,'lifecycle.py');self.assertLess(s.index("installed('install')"),s.index('repair_result=repair.run()'));self.assertLess(s.index('repair_result=repair.run()'),s.index("installed('same-version-reinstall')"));self.assertIn("I.payloads(L,products);preserve()",s)
  def test_native_workflow_boundaries_and_no_capability_widening(self):
   path=HERE.parents[2]/'.github/workflows/native-arm-apps6-reinstall.yml';s=path.read_text();self.assertIn('ubuntu-24.04-arm',s);self.assertIn('timeout-minutes: 100',s);self.assertTrue(('@JOB_SHA256@' in s and '@MANIFEST_SHA256@' in s) or __import__('re').search(r"'[0-9a-f]{64}' \"\$SLICE/job.py\" '[0-9a-f]{64}' \"\$SLICE/source-manifest.json\"",s));self.assertLess(s.index('Prove the explicit'),s.index('existing secrets'));self.assertNotIn('--privileged',s)
+ def test_all_inherited_here_paths_and_actual_catalog_mount_operand(self):
+  tree=ast.parse(A.text(SOURCE,'run.py'))
+  remaining=[n for n in ast.walk(tree) if isinstance(n,ast.Attribute) and isinstance(n.value,ast.Name) and n.value.id=='C' and n.attr=='HERE'];self.assertEqual(remaining,[])
+  mounts=[n for n in ast.walk(tree) if isinstance(n,ast.JoinedStr) and any(isinstance(v,ast.Constant) and isinstance(v.value,str) and '/catalog_fixture.py,dst=' in v.value for v in n.values)];self.assertEqual(len(mounts),1)
+  for node in mounts[0].values:
+   if isinstance(node,ast.FormattedValue):self.assertIsInstance(node.value,ast.Name);self.assertEqual(node.value.id,'source')
+  operand=eval(compile(ast.Expression(mounts[0]),'<exact catalog mount operand>','eval'),{'__builtins__':{}},{'source':SOURCE})
+  parts=operand.split(',');self.assertEqual(parts[0],'type=bind');self.assertEqual(parts[2:],["dst=/catalog_fixture.py",'readonly']);path=Path(parts[1].removeprefix('src='));self.assertTrue(path.is_file());self.assertEqual(path.read_bytes(),A.read(SOURCE,'catalog_fixture.py'))
+  oldjob=ast.parse(A.text(SOURCE,'job.py'));paths=[]
+  for node in ast.walk(oldjob):
+   if isinstance(node,ast.BinOp) and isinstance(node.op,ast.Div) and isinstance(node.left,ast.Attribute) and isinstance(node.left.value,ast.Name) and node.left.value.id=='C' and node.left.attr=='HERE':
+    self.assertIsInstance(node.right,ast.Constant);paths.append(node.right.value);self.assertTrue((HERE/node.right.value).is_file())
+  self.assertEqual(paths,['source-manifest.json']*4)
+  for name in ('rules.py','repair.py','input-policy.json'):self.assertTrue((HERE/name).is_file())
+  with tempfile.TemporaryDirectory() as temporary:
+   runner=A.runner(SOURCE,Path(temporary));borrowed=[]
+   for filename in ('lifecycle.py','installed.py','runtime_image.py'):
+    for node in ast.walk(ast.parse(A.read(SOURCE,filename))):
+     if isinstance(node,ast.Constant) and isinstance(node.value,str) and node.value.startswith('/runner/'):
+      relative=node.value[len('/runner/'):];self.assertTrue((runner/relative).is_file());borrowed.append(relative)
+   self.assertEqual(set(borrowed),{'contract.py','accepted/lifecycle.py','accepted/root_upgrade.py'})
+   self.assertTrue((runner/'lifecycle.py').is_file());self.assertTrue((runner/'installed.py').is_file());self.assertTrue((runner/'runtime_image.py').is_file())
  def test_actual_workflow_entrypoint_imports_from_outside_checkout(self):
   workflow=(HERE.parents[2]/'.github/workflows/native-arm-apps6-reinstall.yml').read_text()
   entries=[(('job.py',),['-I','-B'],'"$SLICE/job.py"'),(('run.py',),['-B'],'"$SLICE/run.py"'),(('..','maintained_desktop574.py'),['-I','-B'],'scripts/ci/maintained_desktop574.py'),(('..','test_maintained_desktop574.py'),['-I','-B'],'scripts/ci/test_maintained_desktop574.py')]
