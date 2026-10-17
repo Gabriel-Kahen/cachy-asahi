@@ -35,8 +35,8 @@ node nor disk descriptor is given to the lifecycle child.
 PID1 remains a privileged supervisor. It protects its own dumpability and starts
 a separate process group for the child, reusing the existing bounded process
 runtime. The child reuses the existing AArch64 service-IPC filter and capability
-reduction function with the explicit GNU trial capability mask `0x802400cb`:
-CHOWN, DAC_OVERRIDE, FOWNER, SETGID, SETUID, SYS_CHROOT, SYS_ADMIN, SETFCAP.
+reduction function with the explicit GNU trial capability mask `0x802400db`:
+CHOWN, DAC_OVERRIDE, FOWNER, FSETID, SETGID, SETUID, SYS_CHROOT, SYS_ADMIN, SETFCAP.
 Effective, permitted and bounding sets must match; inheritable and ambient sets
 must be zero; `no_new_privs=1` and seccomp filter mode2 must be observed.
 

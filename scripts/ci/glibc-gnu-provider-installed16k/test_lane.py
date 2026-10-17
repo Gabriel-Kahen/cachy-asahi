@@ -125,7 +125,8 @@ class Controls(unittest.TestCase):
         for nr in sandbox.EPERM_CALLS:self.assertEqual(self.filtered(nr),0x50000|1,nr)
         self.assertEqual(self.filtered(63),0x7fff0000);self.assertEqual(self.filtered(63,arch=0xc000003e),0x80000000)
     def test_parent_caps_are_not_given_to_worker(self):
-        self.assertEqual(sandbox.MASK,2149843147);self.assertFalse(sandbox.MASK&(1<<27));self.assertFalse(sandbox.MASK&(1<<22));self.assertFalse(sandbox.MASK&(1<<19))
+        self.assertEqual(sandbox.CAPS,(0,1,3,4,6,7,18,21,31));self.assertEqual(sandbox.MASK,2149843163)
+        self.assertTrue(sandbox.MASK&(1<<4));self.assertFalse(sandbox.MASK&(1<<27));self.assertFalse(sandbox.MASK&(1<<22));self.assertFalse(sandbox.MASK&(1<<19))
     def test_host_sandbox_refuses(self):
         with self.assertRaises(ValueError):sandbox.apply()
     def test_writable_source_alias_receipt_refused(self):
