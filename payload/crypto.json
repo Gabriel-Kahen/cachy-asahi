@@ -1,0 +1,62 @@
+{
+  "commands": [
+    {
+      "bytes": 1060,
+      "exit": 0,
+      "file": "catalog.json",
+      "sha256": "909035744415e91b087549c8913475f86f49d07e1a33e97616b844f867e8eaeb",
+      "signature_sha256": "3a7ae0e19feb883d0e4a6ac59f7cc086d07b593f0abfe550f1fc1b692f4ab18d",
+      "stderr": "gpgv: Signature made Fri Oct 16 21:05:53 2026 EDT\ngpgv:                using EDDSA key 391D4ADFA1D4EE42D16257784AFE70B2968C0984\ngpgv: Good signature from \"TEST ONLY composition <composition@test.invalid>\"\n",
+      "stdout": "[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED 391D4ADFA1D4EE42D16257784AFE70B2968C0984 0\n[GNUPG:] SIG_ID WLe9GMLXpUqEmyRKZ+IIX2GTwjg 2026-10-17 1792199153\n[GNUPG:] GOODSIG 4AFE70B2968C0984 TEST ONLY composition <composition@test.invalid>\n[GNUPG:] VALIDSIG 391D4ADFA1D4EE42D16257784AFE70B2968C0984 2026-10-17 1792199153 0 4 0 22 8 00 391D4ADFA1D4EE42D16257784AFE70B2968C0984\n"
+    },
+    {
+      "bytes": 6335,
+      "exit": 0,
+      "file": "bundle/release.json",
+      "sha256": "8431673475257644fca55eea940368988656b68ac62ea27c20fcc4a44e10b2f3",
+      "signature_sha256": "11f3520fcce314e073ef316a9660e4b764d9516e4ece6b3a250f08ae80675452",
+      "stderr": "gpgv: Signature made Fri Oct 16 21:05:48 2026 EDT\ngpgv:                using EDDSA key 391D4ADFA1D4EE42D16257784AFE70B2968C0984\ngpgv: Good signature from \"TEST ONLY composition <composition@test.invalid>\"\n",
+      "stdout": "[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED 391D4ADFA1D4EE42D16257784AFE70B2968C0984 0\n[GNUPG:] SIG_ID B3/YQvOmpwVRUI+89PGJP1qo39Y 2026-10-17 1792199148\n[GNUPG:] GOODSIG 4AFE70B2968C0984 TEST ONLY composition <composition@test.invalid>\n[GNUPG:] VALIDSIG 391D4ADFA1D4EE42D16257784AFE70B2968C0984 2026-10-17 1792199148 0 4 0 22 8 00 391D4ADFA1D4EE42D16257784AFE70B2968C0984\n"
+    },
+    {
+      "bytes": 22088,
+      "exit": 0,
+      "file": "bundle/repo/cachy-asahi-apps-0.1.0-5-any.pkg.tar.xz",
+      "sha256": "9ec47f6cf506c5d2b6da3ac6f4f42e00ce98b8d1985b1b9eca065c38058c1580",
+      "signature_sha256": "030120adf3cc65f749847e559e9f341c185991d62e1f83388b03936931a91cc6",
+      "stderr": "gpgv: Signature made Fri Oct 16 21:05:47 2026 EDT\ngpgv:                using EDDSA key 391D4ADFA1D4EE42D16257784AFE70B2968C0984\ngpgv: Good signature from \"TEST ONLY composition <composition@test.invalid>\"\n",
+      "stdout": "[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED 391D4ADFA1D4EE42D16257784AFE70B2968C0984 0\n[GNUPG:] SIG_ID KLnQAqSoDSw+cIgjTh2czBbaKEI 2026-10-17 1792199147\n[GNUPG:] GOODSIG 4AFE70B2968C0984 TEST ONLY composition <composition@test.invalid>\n[GNUPG:] VALIDSIG 391D4ADFA1D4EE42D16257784AFE70B2968C0984 2026-10-17 1792199147 0 4 0 22 8 00 391D4ADFA1D4EE42D16257784AFE70B2968C0984\n"
+    },
+    {
+      "bytes": 18304,
+      "exit": 0,
+      "file": "bundle/repo/cachy-asahi-cache-0.2.0-1-any.pkg.tar.xz",
+      "sha256": "450706e2899f57b44ca2f446560c8aeab710a4726a13561d09a2cb4a8bf1da40",
+      "signature_sha256": "8d9dca77bc0ce0fde1f198ac907f90f7244a7a737b95318d0de05f378455aea6",
+      "stderr": "gpgv: Signature made Fri Oct 16 21:05:47 2026 EDT\ngpgv:                using EDDSA key 391D4ADFA1D4EE42D16257784AFE70B2968C0984\ngpgv: Good signature from \"TEST ONLY composition <composition@test.invalid>\"\n",
+      "stdout": "[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED 391D4ADFA1D4EE42D16257784AFE70B2968C0984 0\n[GNUPG:] SIG_ID kK5xOAHZ4Ns3ys9kQS4FuQ6sF+k 2026-10-17 1792199147\n[GNUPG:] GOODSIG 4AFE70B2968C0984 TEST ONLY composition <composition@test.invalid>\n[GNUPG:] VALIDSIG 391D4ADFA1D4EE42D16257784AFE70B2968C0984 2026-10-17 1792199147 0 4 0 22 8 00 391D4ADFA1D4EE42D16257784AFE70B2968C0984\n"
+    },
+    {
+      "bytes": 18540,
+      "exit": 0,
+      "file": "bundle/repo/cachy-asahi-orphans-0.1.0-1-any.pkg.tar.xz",
+      "sha256": "21b13501d8ed5de828e7ac47ff8c8ec2132ca3f0af68bb7062f22852ef640bea",
+      "signature_sha256": "3352dcf19f79ed2ce012b4eba737051821541f7181655e76d3ca8e1f864e3278",
+      "stderr": "gpgv: Signature made Fri Oct 16 21:05:47 2026 EDT\ngpgv:                using EDDSA key 391D4ADFA1D4EE42D16257784AFE70B2968C0984\ngpgv: Good signature from \"TEST ONLY composition <composition@test.invalid>\"\n",
+      "stdout": "[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED 391D4ADFA1D4EE42D16257784AFE70B2968C0984 0\n[GNUPG:] SIG_ID 5LbpFPeLaC+aCAcsdbQi0G/VYS0 2026-10-17 1792199147\n[GNUPG:] GOODSIG 4AFE70B2968C0984 TEST ONLY composition <composition@test.invalid>\n[GNUPG:] VALIDSIG 391D4ADFA1D4EE42D16257784AFE70B2968C0984 2026-10-17 1792199147 0 4 0 22 8 00 391D4ADFA1D4EE42D16257784AFE70B2968C0984\n"
+    },
+    {
+      "bytes": 28888,
+      "exit": 0,
+      "file": "bundle/repo/cachy-asahi-repository-runtime-0.1.0-1-any.pkg.tar.xz",
+      "sha256": "1c8a9149da02e60a4c14598cdf7007d6dbffcd6150757fcf6711977aa00cf8aa",
+      "signature_sha256": "9096244027b594bedc898eb42fb007dfb9edf4b591695cd32abee0a289318f76",
+      "stderr": "gpgv: Signature made Fri Oct 16 21:05:47 2026 EDT\ngpgv:                using EDDSA key 391D4ADFA1D4EE42D16257784AFE70B2968C0984\ngpgv: Good signature from \"TEST ONLY composition <composition@test.invalid>\"\n",
+      "stdout": "[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED 391D4ADFA1D4EE42D16257784AFE70B2968C0984 0\n[GNUPG:] SIG_ID lhRkSutcxpdKt/2PMfWJuXMmlag 2026-10-17 1792199147\n[GNUPG:] GOODSIG 4AFE70B2968C0984 TEST ONLY composition <composition@test.invalid>\n[GNUPG:] VALIDSIG 391D4ADFA1D4EE42D16257784AFE70B2968C0984 2026-10-17 1792199147 0 4 0 22 8 00 391D4ADFA1D4EE42D16257784AFE70B2968C0984\n"
+    }
+  ],
+  "key_sha256": "67e51f22825834285b8b10ebd2a795d48d55a466b28b22fce3a444b00f134e6e",
+  "scope": "EPHEMERAL_NATIVE_TEST_AUTHENTICATION_ONLY_NOT_STABLE_TRUST",
+  "signer": "391D4ADFA1D4EE42D16257784AFE70B2968C0984",
+  "status": "ROOT_REVERIFIED_SIX_TEST_SIGNATURES"
+}

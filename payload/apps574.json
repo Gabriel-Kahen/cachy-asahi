@@ -1,0 +1,104 @@
+{
+  "actual_commits": 3,
+  "capability_execution": "NOT_RUN_METADATA_ONLY",
+  "cleanup": "PASS_ORDERED_CONSUMERS_COPIES_KEYS_SOURCE_THEN_PRODUCER",
+  "collection": {
+    "artifact.zip": {
+      "bytes": 13005887,
+      "sha256": "691c946b87c4453245b9e6a5ec1f2cdd8277ed9ba9f19c4613d809b451063e3b"
+    },
+    "logs.zip": {
+      "bytes": 96009,
+      "sha256": "d84ddd0b3fe3fb1c7d7edfef8c35f1f2c26c9e2f0c3c234c04693d8858365291"
+    }
+  },
+  "complete_inventory_and_plans": "PASS",
+  "counts": [
+    574,
+    578,
+    575,
+    574
+  ],
+  "crypto_record": {
+    "bytes": 5758,
+    "sha256": "ad0dd278ead99d5f5767f911ee7f646bec0346f0683751b095d724234eede8e1"
+  },
+  "execution_budget": {
+    "backend_seconds": 600,
+    "caller_seconds": 610
+  },
+  "full_source_user_trust_protected_preservation": "PASS_RETAINED_SOURCE_BOUND_RECEIPTS",
+  "hardware": "NOT_RUN",
+  "interruption": {
+    "commit_started": "UNKNOWN",
+    "direct_child_reaped": true,
+    "packages_committed": "UNKNOWN",
+    "rollback": "NOT_CLAIMED",
+    "seconds": 107.494385,
+    "status": "FAIL_INTERRUPTED_OWNED_COPY_RETAINED",
+    "time_limit": 600,
+    "worker_group_absent": true
+  },
+  "limits": [
+    "Auxiliary inode liveness is NOT_ESTABLISHED_SOURCE_SNAPSHOT_KEYS; exact raw state is checked, not regenerated.",
+    "Interrupted commit outcome remains UNKNOWN; retained whole-copy disposal proves neither rollback nor boot recovery.",
+    "Resource retirement and after-state preservation are original source-enforced retained receipts, not a live reobservation.",
+    "TEST signing is ephemeral and does not establish stable repository trust.",
+    "No hooks/scriptlets, hardware, performance or supported-release acceptance."
+  ],
+  "release": "NOT_ADMITTED",
+  "run_id": 38988963672,
+  "schema_version": 1,
+  "scope": "GENERIC4K_NATIVE574_DISPOSABLE_APPS_COPIED_ROOT_ONLY",
+  "signatures": "ROOT_REVERIFIED_SIX_EPHEMERAL_TEST_SIGNATURES",
+  "signer": "391D4ADFA1D4EE42D16257784AFE70B2968C0984",
+  "source_capabilities": {
+    "usr/bin/newgidmap": "0100000240000000000000000000000000000000",
+    "usr/bin/newuidmap": "0100000280000000000000000000000000000000",
+    "usr/lib/gstreamer-1.0/gst-ptp-helper": "0100000200148000000000000000000000000000"
+  },
+  "source_capabilities_sha256": "f51c5419ecea4e63a809c41e45dd04b57befac56d294e06ed555f1656d29c194",
+  "source_footprint": {
+    "allocated_bytes": 5106737152,
+    "allocated_bytes_by_entry": 5159538688,
+    "bytes": 4904271540,
+    "complete": true,
+    "database_bytes": 21354764,
+    "database_files": 1755,
+    "filesystem_free_bytes": 93359149056,
+    "filesystem_free_bytes_source": "statvfs-f_bavail",
+    "filesystem_free_inodes": 18575030,
+    "filesystem_inode_counts_known": true,
+    "filesystem_inode_source": "statvfs",
+    "hardlink_declared_links": 2896,
+    "hardlink_entries": 2896,
+    "hardlink_inodes": 1048,
+    "hardlinks": 2896,
+    "largest_file_bytes": 173387392,
+    "nodes": 123056,
+    "symlinks": 14005
+  },
+  "source_git_joins": 92,
+  "source_join_record": {
+    "bytes": 15080,
+    "sha256": "c81dfb1e64154c4c04bec66c14aadf64b5e5020abf5e9e68aa438e53fe11e265"
+  },
+  "source_manifest_sha256": "9e314e0fb9cf888f8e4083dace259ddc0bebdd06cd8710fe3ce87b00d96d64cc",
+  "source_nodes": 123056,
+  "source_sha": "0c409563d3d62e879cdd6227c26634b4de64bf2e",
+  "source_tree_sha256": "a3ec894dd54b1f9e50487d10cd84df54a2d24978bde3b5e8ffb593d23d0d3602",
+  "status": "ROOT_ACCEPTED_NATIVE574_APPS_COPIED_ROOT_TRANSACTIONS",
+  "verification": {
+    "bytes": 2013,
+    "sha256": "de88c6fe11ee49c3279ee5f9cffa6df29aaf9f41c6b3e6193e0263f35ed9df2d"
+  },
+  "verifier": {
+    "bytes": 25726,
+    "sha256": "9585d2f082183574e4d02be84dc45d369765b658ebd5d6e545012d8c23f7d1bb"
+  },
+  "zero_commit_refusals": [
+    "foreign-alpm-lock",
+    "precommit-db-drift",
+    "wrong-plan-sha"
+  ]
+}
