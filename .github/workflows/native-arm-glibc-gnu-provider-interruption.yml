@@ -135,10 +135,21 @@ jobs:
         timeout-minutes: 5
         run: |
           set -euo pipefail
+          retain_status=0
           python3 -I -B "$SLICE/job.py" retain --workspace "$GITHUB_WORKSPACE" \
             --proof "$RUNNER_TEMP/provider-interruption-proof.json" --base "$RUNNER_TEMP/desktop574" \
             --output "$RUNNER_TEMP/provider-interruption-owner" --receipt "$RUNNER_TEMP/provider-interruption-cleanup.json" \
-            --packet-root "$GITHUB_WORKSPACE/lifecycle-packet" --public "$RUNNER_TEMP/provider-interruption-public"
+            --packet-root "$GITHUB_WORKSPACE/lifecycle-packet" --public "$RUNNER_TEMP/provider-interruption-public" || retain_status=$?
+          summary_status=0
+          printf '%s  %s\n' '9bd52ce4453a3a03d8dc8b5edb6b6a4b8ec421e0c3037dfb64dc31da45687555' 'scripts/ci/glibc-gnu-failure-log/summary.py' | sha256sum --check || summary_status=$?
+          if [ "$summary_status" -eq 0 ]; then
+            python3 -I -B scripts/ci/glibc-gnu-failure-log/summary.py emit --lane interruption \
+              --proof "$RUNNER_TEMP/provider-interruption-proof.json" --owner "$RUNNER_TEMP/provider-interruption-owner" \
+              --cleanup "$RUNNER_TEMP/provider-interruption-cleanup.json" --public "$RUNNER_TEMP/provider-interruption-public" \
+              --retain-exit "$retain_status" || summary_status=$?
+          fi
+          if [ "$retain_status" -ne 0 ]; then exit "$retain_status"; fi
+          exit "$summary_status"
       - name: Upload only the closed provider interruption public packet
         if: always() && steps.proof.outcome == 'success'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9

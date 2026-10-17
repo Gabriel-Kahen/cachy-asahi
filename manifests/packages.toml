@@ -423,7 +423,7 @@ native_generic_managed_gui = "HISTORICAL0.1.0-1: PASS fourteen Root-viewed captu
 native_generic16k_managed_gui = "HISTORICAL0.1.0-1: PASS installed593, sixteen GTK actions and fourteen Root-viewed first frames in38952428172; docs/validation/managed-gui-generic16k-native-20261016.md"
 hardware_validation = "NOT RUN"
 native_evidence = "docs/validation/welcome2-native-cli-20261016.md"
-next_step = "Build Welcome3 native pair, signed CLI lifecycle and full24-frame GUI with unchanged30s/45s limits; then rebase current604 with Welcome3 and Orphans2 before current16K/M2 acceptance. Historical Welcome2/604 evidence stays separate."
+next_step = "Native Welcome3 pair, signed CLI lifecycle and full24-frame GUI39000068077 are active with unchanged30s/45s limits; then rebase current604 with Welcome3 and Orphans2 before current16K/M2 acceptance. Historical Welcome2/604 evidence stays separate."
 
 
 installation = "Current0.1.0-3 NOT RUN; historical PASS0.1.0-2 native installed CLI lifecycle; current managed GUI remains unaccepted"
@@ -550,9 +550,9 @@ installation = "NOT RUN"
 hardware_validation = "NOT RUN"
 native_generic16k_runtime = "PASS data-staged standard system paths38983272600; ALPM installation NOT_RUN"
 debian_orig_candidate = "2.43.caa2-1: native38988598760 rejected on missing manual test dependencies; check exit2; no pair/archive acceptance"
-debian_maintained_candidate = "2.43.caa3-1: independent source authority/full85-patch preparation PASS; first native38992722347 FAIL before compile (.asc keys classified as detached signatures); exact .key-copy source fix passes31 controls and actual full source preparation; new native pair PENDING"
+debian_maintained_candidate = "2.43.caa3-1: Root accepted native pair38994309021/source78dfd3bbd85a61a84dda2dfc601796ee89edfd5f; two18598440-byte archives SHA256a8e9f3e1d8ffe049fdc834f62e74c14ff622b98898c2f849e1580ab8aa0fdbd9; each6948PASS/109UNSUPPORTED/13XFAIL/zero unexpected failures; normal probes compiled, system-interpreter execution NOT_RUN"
 debian_maintained_evidence = "docs/validation/glibc-debian-maintained-source-20261017.md"
-next_step = "Approved public packet is published at ba5dd71b99eb7e117be4ed3e269abd8e5f2b0b5f. GNU lifecycle38993545529 proves direct readonly proc mount under the narrow enforced profile; utility route fails and lifecycle cases remain NOT_RUN; interruption and ALPM-installed16K await their prerequisites. Validate the distinct maintained Debian caa3 pair, then its own lifecycle/16K. Original GNU expiry, historical recipe correspondence, hardware and release/security admission remain open."
+next_step = "GNU lifecycle38997857389 fails; artifact upload times out, leaving primary cause/root-initialization/detail cleanup UNKNOWN. Bounded log fallback is implemented for a changed diagnostic retry; interruption and full installed16K await actual prerequisites. Distinct maintained caa3 pair is accepted and first staged16K39000395365 is active against packet132aec86c0946f6c7b7a79c46e1a9ccaf91021e3; one proven report-prefix mismatch is corrected in newer source. Its own installed lifecycle/16K remain unaccepted. Original GNU expiry, historical recipe correspondence, hardware and release/security admission remain open."
 
 
 [[packages]]
@@ -624,4 +624,4 @@ native_build = "PASS current0.1.0-2 byte-identical native ARM pair38993858003:18
 installation = "PASS current0.1.0-2 signed three-product574to577/repeat/remove/reinstall/final574 and ordinary readonly CLI lifecycle38993858003; GUI FAIL before management helpers"
 native_generic16k_cli = "Current0.1.0-2 NOT RUN; historical0.1.0-1 PASS generic16384 private data-staged CLI/helper cases38978464494; NOT ALPM-installed inVM; docs/validation/management-generic16k-20261016.md"
 hardware_validation = "NOT RUN"
-next_step = "Complete Welcome GUI after actual AT-SPI peer-focus timeout, then current0.1.0-2 generic16K and both M2 workflows. Native pair/CLI: docs/validation/orphans2-native-20261017.md. Native GUI performance remains unestablished; actual orphan removal remains unimplemented; release selection false."
+next_step = "Complete current Welcome3 GUI39000068077 after earlier Orphans helper deadline failures, then current0.1.0-2 generic16K and both M2 workflows. Native pair/CLI: docs/validation/orphans2-native-20261017.md. Native GUI performance remains unestablished; actual orphan removal remains unimplemented; release selection false."

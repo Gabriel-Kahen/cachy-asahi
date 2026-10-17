@@ -1,8 +1,8 @@
 {
   "files": {
     "manifests/packages.toml": {
-      "bytes": 35884,
-      "sha256": "9229f0f7ad8058a0681f74b85448defbb523161a9ba207b23ec6899b5708533f"
+      "bytes": 36116,
+      "sha256": "ea481925bc6272b9feb5b4f5b7b8e7e58ef90916293c93e0471b0290130f11f2"
     },
     "scripts/apps/file_capabilities.py": {
       "bytes": 13562,
