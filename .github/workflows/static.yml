@@ -346,3 +346,5 @@ jobs:
       - name: Check recipe syntax without executing it
         run: |
           find packages -name PKGBUILD -type f -print0 | xargs -0 -r -n1 bash -n
+      - name: Check isolated native notification diagnostic without actors
+        run: python3 -I -B -Werror::ResourceWarning scripts/diagnostics/fish-done-native-graphics/test_run.py

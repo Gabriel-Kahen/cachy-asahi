@@ -1,0 +1,7 @@
+SPDX-License-Identifier: MIT
+
+Project diagnostic and copied helper sources retain their original MIT notices.
+Source helper provenance is recorded in source-provenance.json.
+The user supplies Done0.1.0-2 and native executables; no upstream package archives,
+Mako/Sway/wlroots/Meson source trees or native binaries are distributed here.
+The accepted Done archive carries its own project/upstream licenses and notices.
