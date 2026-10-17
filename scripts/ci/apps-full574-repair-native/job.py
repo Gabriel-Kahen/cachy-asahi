@@ -11,14 +11,14 @@ def function(text,name):
 def replace(text,old,new):
  C.need(text.count(old)==1,'exact finite original owner seam required');return text.replace(old,new)
 def derived(text):
- run=function(text,'run');retain=function(text,'retain');check=replace(function(text,'check'),'str(args.packet.parent)','str(args.packet)')
+ run=function(text,'run');retain=function(text,'retain')
  start=run.index("   actor(args.source,args.output,report,command,api,'interruption'");end=run.index("   api.retire(report['actors']",start);run=run[:start]+run[end:]
  run=replace(run,'lifecycle=life,interruption=interruption','lifecycle=life')
  retain=replace(retain,";interruption=C.decode(C.read(args.output/'interruption-public/interruption.json'))",'')
  start=retain.index("  C.need(interruption['status']");end=retain.index("  snap=C.decode",start);retain=retain[:start]+"  C.need(owner['lifecycle']==life,'original lifecycle owner join required')\n"+retain[end:]
  retain=replace(retain,"  C.need(not result['errors'],'closed evidence incomplete')","  C.need([r['role'] for r in owner['actors']]==['export','extract','signer','lifecycle','source-verify','scrub','source-cleanup'] and all(r.get('exit')==0 for r in owner['actors'] if r['role']!='export'),'exact seven normal roles and natural exits required')\n  C.need(not result['errors'],'closed evidence incomplete')")
  C.need(not any(isinstance(n,ast.Name) and n.id=='interruption' for n in ast.walk(ast.parse(run+retain))),'no inactive interruption operand')
- return dict(check=check,run=run,retain=retain)
+ return dict(run=run,retain=retain)
 
 def main():
  parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('mode',choices=('proof','check','run','cleanup','retain'))
