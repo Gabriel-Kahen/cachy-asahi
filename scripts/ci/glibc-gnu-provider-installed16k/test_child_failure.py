@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Original stdout/stderr/retirement preservation in pure PID1 source controls."""
-import ast,base64,hashlib,io,json,subprocess,unittest
+import ast,base64,hashlib,importlib.util,io,json,os,subprocess,tempfile,unittest
 from pathlib import Path
 from types import SimpleNamespace as NS
 from unittest.mock import patch
@@ -15,7 +15,7 @@ def guest(row,stdout,stderr,error=None):
  events=[]
  C=NS(need=need,decode=json.loads,read=lambda p:json.dumps(dict(nonce=NONCE,kernel={'release':'test-kernel'},kernel_profile_sha256='b'*64)).encode(),load=lambda *a:NS(run_command=lambda *a:(row,stdout,stderr,error)),PASS='TEST_PASS')
  scope=dict(C=C,json=json,base64=base64,hashlib=hashlib,Path=Path,ctypes=NS(CDLL=lambda *a,**k:NS(prctl=lambda *a:0)),os=NS(getpid=lambda:1,getuid=lambda:0,geteuid=lambda:0,sysconf=lambda n:16384,uname=lambda:NS(release='test-kernel'),path=NS(ismount=lambda p:False)),emit=lambda nonce,value:events.append((nonce,value)))
- funcs=functions(HERE/'guest.py');exec(compile(ast.Module(body=[funcs[n] for n in ('child_failure','run')],type_ignores=[]),'<exact-proposed-guest>','exec'),scope)
+ funcs=functions(HERE/'guest.py');exec(compile(ast.Module(body=[funcs[n] for n in ('inner_failure_report','child_failure','run')],type_ignores=[]),'<exact-proposed-guest>','exec'),scope)
  return scope,events
 
 def row(stdout=b'',stderr=b'',**values):
@@ -52,4 +52,45 @@ class Controls(unittest.TestCase):
   for text,count in (('/installed16k',5),('GNU_INSTALLED16K',3),('caa_gnu_installed16k=1',1)):self.assertEqual(new.count(text),count)
   self.assertEqual(hashlib.sha256(ast.get_source_segment((HERE/'guest.py').read_text(),functions(HERE/'guest.py')['worker']).encode()).hexdigest(),'cf850dfc98c5988407dcebe6fe5a059ea3d3fd648ec05fa36725985ecceb9fda')
   self.assertIn(',10500,512*1024)',new);self.assertIn("len(raw)<=512*1024",new)
+class InnerReport(unittest.TestCase):
+ def setUp(self):
+  self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup);self.path=Path(self.temp.name)/'result.json';self.calls=[]
+  root=next(p for p in HERE.parents if (p/'manifests/packages.toml').is_file());spec=importlib.util.spec_from_file_location('original_read_contract',root/'scripts/ci/glibc-gnu-provider-installed16k/contract.py');reader=importlib.util.module_from_spec(spec);spec.loader.exec_module(reader)
+  self.scope,self.events=guest(row(),b'',b'');self.scope['C'].decode=reader.decode
+  def read(path,cap):
+   self.assertEqual(path,'/out/result.json');self.assertEqual(cap,8*1024**2);self.calls.append((path,cap));return reader.read(self.path,cap)
+  self.scope['C'].read=read
+  no=patch.object(subprocess,'Popen',side_effect=AssertionError('no actor'));no.start();self.addCleanup(no.stop)
+ def capture(self,original=None):return self.scope['inner_failure_report'](dict(group_absence_verified=True) if original is None else original)
+ def save(self,value):
+  raw=(json.dumps(value,sort_keys=True,indent=2)+'\n').encode();self.path.write_bytes(raw);return raw
+ def test_original_fail_report_rawbytes_and_error_fields_join(self):
+  value=dict(status='FAIL',error_type='ValueError',error='INERT original failure',cases={'pristine':{}},commands=[]);raw=self.save(value);v=self.capture()
+  self.assertEqual(v['status'],'READ_ORIGINAL_INNER_REPORT_DIAGNOSTIC_ONLY');self.assertEqual(v['raw']['bytes'],len(raw));self.assertEqual(v['raw']['sha256'],hashlib.sha256(raw).hexdigest());self.assertEqual(base64.b64decode(v['raw']['preview_base64']),raw)
+  for k in ('status','error_type','error'):self.assertEqual(v['fields'][k]['preview_utf8'],value[k]);self.assertFalse(v['fields'][k]['truncated'])
+  self.assertEqual(v['acceptance'],'FORBIDDEN_DIAGNOSTIC_ONLY_NO_COMPLETION');self.assertEqual(self.calls,[('/out/result.json',8*1024**2)])
+ def test_missing_invalid_json_duplicate_and_nonobject_report_are_explicit(self):
+  self.assertEqual(self.capture()['status'],'MISSING_ORIGINAL_INNER_REPORT')
+  for raw in (b'{broken',b'[]',b'{"status":"FAIL","status":"PASS"}',b'{"status":NaN}'):
+   self.path.write_bytes(raw);v=self.capture();self.assertEqual(v['status'],'INVALID_ORIGINAL_INNER_REPORT');self.assertEqual(v['raw']['sha256'],hashlib.sha256(raw).hexdigest());self.assertEqual(base64.b64decode(v['raw']['preview_base64']),raw)
+ def test_over_cap_symlink_and_hardlink_fail_original_ordinary_read(self):
+  with self.path.open('wb') as f:f.truncate(8*1024**2+1)
+  v=self.capture();self.assertEqual(v['status'],'UNREADABLE_OR_OVER_CAP_INNER_REPORT');self.assertNotIn('raw',v);self.path.unlink()
+  target=self.path.with_name('held');target.write_bytes(b'{}');self.path.symlink_to(target)
+  self.assertEqual(self.capture()['status'],'UNREADABLE_OR_OVER_CAP_INNER_REPORT');self.path.unlink();os.link(target,self.path)
+  self.assertEqual(self.capture()['status'],'UNREADABLE_OR_OVER_CAP_INNER_REPORT')
+ def test_live_unknown_or_nonboolean_retirement_does_not_read_report(self):
+  for original in ({},{'group_absence_verified':False},{'group_absence_verified':1}):
+   self.assertEqual(self.capture(original)['status'],'UNAVAILABLE_UNRETIRED_CHILD')
+  self.assertEqual(self.calls,[])
+ def test_full_bounded_raw_hash_and_first64k_preview_are_distinct(self):
+  error='\x01'*100000;raw=self.save(dict(status='FAIL',error_type='INERT',error=error,unused='x'*(7*1024**2)));self.assertLess(len(raw),8*1024**2);v=self.capture()
+  self.assertEqual(v['raw']['sha256'],hashlib.sha256(raw).hexdigest());self.assertEqual(v['raw']['bytes'],len(raw));self.assertTrue(v['raw']['truncated']);self.assertEqual(v['raw']['preview_bytes'],65536);self.assertEqual(base64.b64decode(v['raw']['preview_base64']),raw[:65536]);self.assertEqual(v['fields']['error']['preview_utf8'],error[:4096]);self.assertTrue(v['fields']['error']['truncated'])
+ def test_failure_event_with_all_original_previews_stays_under512k(self):
+  self.save(dict(status='\x01'*100000,error_type='\x02'*100000,error='\x03'*100000));out=b'o'*(400*1024);err=b'e'*(112*1024);v=self.scope['child_failure'](row(out,err),out,err,ValueError('e'*100000),'exit-or-retirement')
+  self.assertLessEqual(len(json.dumps(v,sort_keys=True,separators=(',',':'))),512*1024);self.assertEqual(v['stdout']['sha256'],hashlib.sha256(out).hexdigest());self.assertEqual(v['stderr']['sha256'],hashlib.sha256(err).hexdigest());self.assertEqual(v['inner_report']['status'],'READ_ORIGINAL_INNER_REPORT_DIAGNOSTIC_ONLY')
+ def test_missing_or_wrong_typed_fields_are_not_invented(self):
+  self.save(dict(status={'untrusted':'object'},error=None));v=self.capture();self.assertEqual(v['fields']['status'],dict(status='INVALID_FIELD_TYPE',type='dict'));self.assertEqual(v['fields']['error'],dict(status='INVALID_FIELD_TYPE',type='NoneType'));self.assertEqual(v['fields']['error_type'],dict(status='MISSING_FIELD'))
+  self.save(dict(status='FAIL',error='\ud800'));v=self.capture();self.assertEqual(v['fields']['error'],dict(status='INVALID_UTF8_FIELD'));self.assertIn('raw',v)
+
 if __name__=='__main__':unittest.main(verbosity=2)
