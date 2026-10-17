@@ -64,7 +64,7 @@ def policy(bound=True):
     need(value.get('schema_version')==1 and value.get('base_inventory_sha256')==BASE and
          set(value.get('products',{}))==set(NAMES),'fixed three-product/574 policy required')
     for name,row in value['products'].items():
-        need(row.get('version')=={DOCTOR:'0.1.0-1',ORPHANS:'0.1.0-2',NAME:'0.1.0-3'}[name] and
+        need(row.get('version')=={DOCTOR:'0.1.0-1',ORPHANS:'0.1.0-2',NAME:'0.1.0-4'}[name] and
              row.get('arch')==('aarch64' if name==NAME else 'any') and
              all(type(row.get(k)) is dict for k in ('source_files','payload','dependencies')) and
              type(row.get('check_markers')) is list,'fixed product schema/version required')
@@ -80,7 +80,9 @@ def policy(bound=True):
              set(ui.get('strings',{}))=={'running','complete','failure','unavailable'} and
              all(type(v) is str and 0<len(v)<=1024 for group in ('labels','strings') for v in ui[group].values()) and
              type(ui.get('raw_preview_suffix')) is str and 0<len(ui['raw_preview_suffix'])<=1024 and
-             type(ui.get('max_output_bytes')) is int and 0<ui['max_output_bytes']<=1024**2,
+             type(ui.get('max_output_bytes')) is int and 0<ui['max_output_bytes']<=1024**2 and
+             type(ui.get('orphan_preview_bytes')) is int and ui['orphan_preview_bytes']==8192 and
+             ui.get('orphan_preview_suffix')=='\n[Raw preview truncated at 8 KiB.]',
              'Root final UI strings/output policy remains UNBOUND')
         accepted=value['products'][DOCTOR].get('accepted_archive')
         need(type(accepted) is dict and set(accepted)=={'name','bytes','sha256','source_commit','producer_run'} and
@@ -109,7 +111,7 @@ def recipe(source,name):
     value=product(name);checks=load('management_recipe_checks',source/'scripts/checks/package_checks.py')
     row=checks.recipe(source/'packages/tools'/name/'PKGBUILD');meta=row['metadata']
     need(not row['errors'] and meta.get('pkgname')==[name] and
-         meta.get('pkgver')==['0.1.0'] and meta.get('pkgrel')==[{DOCTOR:'1',ORPHANS:'2',NAME:'3'}[name]] and
+         meta.get('pkgver')==['0.1.0'] and meta.get('pkgrel')==[{DOCTOR:'1',ORPHANS:'2',NAME:'4'}[name]] and
          meta.get('arch')==[value['arch']] and meta.get('license')==['MIT'] and
          not any(meta.get(k) for k in ('install','provides','conflicts','replaces','backup')) and
          {key:meta.get(key,[]) for key in ('depends','makedepends','checkdepends','optdepends')}==value['dependencies'] and
@@ -147,10 +149,10 @@ def check_log(path,name):
     need(not re.search(r'\bskipped=|\bOK \(|\bFAILED\b|\bERROR\b|^not ok |^Bail out!',text,re.M),'unexpected test skip/error forbidden')
     directives=re.findall(r'^.*#\s*(?:SKIP|TODO)\b.*$',text,re.M|re.I)
     if name==NAME:
-        need(directives==[ROOT_GUARD_SKIP] and len(re.findall(r'^ok [0-9]+ /[^\n]+$',text,re.M))==28,
-             'exact32 ordinary passes and only the scoped nonroot root-guard skip required')
-        return dict(status='PASS_32_ORDINARY_TESTS_AND_ONE_SCOPED_ROOT_GUARD_SKIP',markers=markers,check_enabled=True,
-            passed=32,registered=33,skipped=1,expected_skip=ROOT_GUARD_SKIP,root_guard='REQUIRES_SEPARATE_REAL_UID0_CASE')
+        need(directives==[ROOT_GUARD_SKIP] and len(re.findall(r'^ok [0-9]+ /[^\n]+$',text,re.M))==31,
+             'exact35 ordinary passes and only the scoped nonroot root-guard skip required')
+        return dict(status='PASS_35_ORDINARY_TESTS_AND_ONE_SCOPED_ROOT_GUARD_SKIP',markers=markers,check_enabled=True,
+            passed=35,registered=36,skipped=1,expected_skip=ROOT_GUARD_SKIP,root_guard='REQUIRES_SEPARATE_REAL_UID0_CASE')
     need(not directives,'TAP skips/TODO forbidden outside the single Welcome root guard')
     return dict(status='PASS_COMPLETE_ROOT_BOUND_CHECKS_NO_SKIPS',markers=markers,check_enabled=True,skipped=0)
 

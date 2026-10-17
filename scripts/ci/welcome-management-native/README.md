@@ -1,6 +1,6 @@
 # Welcome management native candidate lane
 
-Private source proposal for Welcome 0.1.0-3, existing Doctor 0.1.0-1 and accepted
+Private source proposal for Welcome 0.1.0-4, existing Doctor 0.1.0-1 and accepted
 Orphans 0.1.0-1. This lane is manual, unselected, and fail-closed until Root binds
 the final product inputs. Those private policy bindings are now complete; the
 canonical manifest freeze and workflow digest markers remain Root-only. No native build, package installation, VM, managed GUI,

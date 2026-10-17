@@ -21,7 +21,7 @@ ROOT=Path(os.environ.get('WELCOME_MANAGEMENT_SOURCE',HERE.parents[2]))
 def complete_policy():
     value=C.read(HERE/'input-policy.json');value.update(status='ROOT_BOUND_FINAL_PRODUCT_SOURCE',candidate_source='1'*40)
     value['ui']=dict(labels=dict(management='Management',doctor='Run Doctor',orphans='Assess orphan packages'),
-        strings=dict(running='Running',complete='Complete',failure='Failed',unavailable='Unavailable'),raw_preview_suffix='Raw output',max_output_bytes=65536)
+        strings=dict(running='Running',complete='Complete',failure='Failed',unavailable='Unavailable'),raw_preview_suffix='Raw output',max_output_bytes=65536,orphan_preview_bytes=8192,orphan_preview_suffix='\n[Raw preview truncated at 8 KiB.]')
     for name,row in value['products'].items():
         row.update(source_files={'PKGBUILD':dict(bytes=1,sha256='0'*64)},payload={'usr/bin/'+name:[name,0o755]},
             dependencies={k:[] for k in ('depends','makedepends','checkdepends','optdepends')},check_markers=['^OK$'],recipe_sha256='0'*64)
@@ -88,10 +88,10 @@ class SourceControls(unittest.TestCase):
     def test_all_final_product_source_and_existing_doctor_archive_bound(self):
         value=C.policy();C.verify_source(ROOT)
         self.assertEqual(value['status'],'ROOT_BOUND_FINAL_PRODUCT_SOURCE')
-        self.assertEqual(value['candidate_source'],'9baabc5dbe1ae596483263639d5b484b874d65fa')
+        self.assertEqual(value['candidate_source'],'0b74d8ecea4f152bda4adfbd9bee488890db4363')
         self.assertEqual(set(value['products']),set(C.NAMES));self.assertEqual(value['ui']['strings']['complete'],'Elapsed:')
         self.assertEqual(value['ui']['strings']['running'],'Running check…');self.assertEqual(value['ui']['max_output_bytes'],1048576)
-        for name,source_count,payload_count,recipe_sha in ((C.NAME,24,9,'41041876bd8c9ff8b4cb36242f4b092f587244846ed5bb895ff339480c3f9ce2'),
+        for name,source_count,payload_count,recipe_sha in ((C.NAME,25,9,'06f3d380b27cdc0e4299d098d32706fbb89afcd2f9296bb7bdace2474e10e48e'),
                 (C.DOCTOR,7,4,'119e2b839195e0c18b885b0208928e234af63e2a5f958dbf4fc9edad5a2c04b1'),
                 (C.ORPHANS,8,5,'b59a1b67a8fd6290549e861bd40f5e94447d5376c86eca6baa94d2cdddb6b91a')):
             row=value['products'][name]
@@ -107,7 +107,7 @@ class SourceControls(unittest.TestCase):
     def test_complete_final_policy_shape_and_missing_ui_refusal(self):
         good=complete_policy()
         with patch.object(C,'read',return_value=good):self.assertEqual(C.policy(),good)
-        for key in ('labels','strings','max_output_bytes','raw_preview_suffix'):
+        for key in ('labels','strings','max_output_bytes','raw_preview_suffix','orphan_preview_bytes','orphan_preview_suffix'):
             bad=copy.deepcopy(good);bad['ui'].pop(key)
             with patch.object(C,'read',return_value=bad),self.subTest(key=key),self.assertRaises(ValueError):C.policy()
 
@@ -194,7 +194,7 @@ class SourceControls(unittest.TestCase):
 class RootGuardControls(unittest.TestCase):
     def welcome_log(self):
         # Format actually emitted by the three GLib binaries and the five-case CLI suite.
-        groups=(('test_status.c',7),('test_management.c',13),('test_management_report.c',8))
+        groups=(('test_status.c',7),('test_management.c',13),('test_management_report.c',8),('test_report_work.c',3))
         text='Starting check()\n'
         import re
         for filename,count in groups:
@@ -204,10 +204,10 @@ class RootGuardControls(unittest.TestCase):
                 text+=(C.ROOT_GUARD_SKIP if path=='/management/root-guard' else 'ok '+str(i)+' '+path)+'\n'
         return text+'Ran 5 tests in 0.100s\nOK\nPASS_SOURCE_PAYLOAD_CONTRACT\n'
 
-    def test_ordinary_check_is32_pass_plus_exact_scoped_skip(self):
+    def test_ordinary_check_is35_pass_plus_exact_scoped_skip(self):
         with tempfile.TemporaryDirectory() as tmp:
             log=Path(tmp)/'build.log';good=self.welcome_log();log.write_text(good)
-            row=C.check_log(log,C.NAME);self.assertEqual((row['passed'],row['registered'],row['skipped']),(32,33,1))
+            row=C.check_log(log,C.NAME);self.assertEqual((row['passed'],row['registered'],row['skipped']),(35,36,1))
             self.assertNotIn('NO_SKIPS',row['status']);self.assertEqual(row['root_guard'],'REQUIRES_SEPARATE_REAL_UID0_CASE')
             for bad in (good.replace(' # SKIP Root guard requires an actual root test process',''),
                 good.replace('requires an actual root test process','waived'),good+'ok 14 /management/extra # SKIP unexpected\n',

@@ -94,7 +94,7 @@
     },
     "scripts/ci/tools-generic16k/dependencies.json": {
       "bytes": 21413,
-      "sha256": "096ec71c649f85efd557c28d7a9b26143f5084f20a2f8b076efaba5808ae30a1"
+      "sha256": "2996d59cc0488b38797d43e41b05152a59ed27257e7c4428c336c62764c107e9"
     },
     "scripts/ci/tools-generic16k/kernel.fragment": {
       "bytes": 815,
