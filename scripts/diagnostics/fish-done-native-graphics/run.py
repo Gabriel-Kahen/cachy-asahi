@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""Explicit-input, render-only native x86 Sway/Done developer counterfactual."""
+"""Explicit-input, render-only native Linux Sway/Done developer counterfactual."""
 import argparse,hashlib,json,os,platform,re,shutil,signal,stat,struct,subprocess,sys,tarfile,time
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
@@ -8,7 +8,7 @@ SYSTEM={'fish':'/usr/bin/fish','grim':'/usr/bin/grim','busctl':'/usr/bin/busctl'
 TOOLS=set(SYSTEM)|{'sway','swaymsg','mako','makoctl'}
 STYLE='c6ab55ae475611bf2df2b7120b97a924eed5d65c149561d4da4f12b5b8c25504'
 
-SOURCE_PINS={'controller.py': 'b36802b23441c37a57f9e647137d6d04b4b70e554662e3b63e48bd973400ecd5', 'observation.py': '153fad25f0b5f58730cd077bdf414ed2b30ae6d7c780aa4f8f99484b7348d057', 'monitor.py': '7704da1b060e739f63e4d7062a02938e64bcfbe1c10b4d6581532ded2f194de0', 'capture.py': '283160761381a55b441396b4c3aa8049ee240f5c78656c26165d62c2efc56cbc', 'fish_terminal.py': 'fb6ec2870544fccfd3aeb005657709093f9da7dfe7650c06eb901526faba4734', 'done-lock.json': 'e7de2d6d72e4f6f3882c5b5c5c0c65c71a89146e629ceb17004a45013f607026'}
+SOURCE_PINS={'controller.py': '487d16718115d25bb94f2d82885690e4f4a64e38a12559d820fd9a31b2209996', 'observation.py': '153fad25f0b5f58730cd077bdf414ed2b30ae6d7c780aa4f8f99484b7348d057', 'monitor.py': '7704da1b060e739f63e4d7062a02938e64bcfbe1c10b4d6581532ded2f194de0', 'capture.py': '283160761381a55b441396b4c3aa8049ee240f5c78656c26165d62c2efc56cbc', 'fish_terminal.py': 'fb6ec2870544fccfd3aeb005657709093f9da7dfe7650c06eb901526faba4734', 'done-lock.json': 'e7de2d6d72e4f6f3882c5b5c5c0c65c71a89146e629ceb17004a45013f607026'}
 
 def need(ok,why):
  if not ok:raise ValueError(why)
@@ -22,7 +22,16 @@ def path(value):
   need(not q.is_symlink(),'symlink path component refused')
  return p
 
-def ordinary(value,expected,limit=32*1024**2,executable=False,known_links=()):
+def native_architecture():
+ name=platform.machine();machines={'x86_64':62,'aarch64':183}
+ need(sys.platform=='linux' and name in machines,'native Linux x86_64 or aarch64 required')
+ return {'name':name,'elf_machine':machines[name]}
+
+def native_elf(raw,architecture):
+ need(raw[:6]==b'\x7fELF\x02\x01' and len(raw)>=64 and struct.unpack_from('<H',raw,18)[0]==architecture['elf_machine'],'native '+architecture['name']+' ELF required')
+
+
+def ordinary(value,expected,limit=32*1024**2,executable=False,known_links=(),architecture=None):
  p=path(value);before=p.lstat()
  if before.st_nlink!=1:
   need(len(known_links)==before.st_nlink==3 and str(p) in known_links,'ordinary single-link input required')
@@ -34,7 +43,8 @@ def ordinary(value,expected,limit=32*1024**2,executable=False,known_links=()):
  with os.fdopen(fd,'rb') as stream:
   held=os.fstat(stream.fileno());need((held.st_dev,held.st_ino)==(before.st_dev,before.st_ino),'input identity changed');raw=stream.read(limit+1)
  after=p.lstat();need((before.st_dev,before.st_ino,before.st_size,before.st_mtime_ns,before.st_ctime_ns)==(after.st_dev,after.st_ino,after.st_size,after.st_mtime_ns,after.st_ctime_ns) and len(raw)==before.st_size and sha(raw)==expected,'input hash/drift refused')
- if executable:need(before.st_mode&0o111 and raw[:6]==b'\x7fELF\x02\x01' and len(raw)>=64 and struct.unpack_from('<H',raw,18)[0]==62,'native x86_64 ELF executable required')
+ if executable:
+  need(before.st_mode&0o111,'executable input required');native_elf(raw,native_architecture() if architecture is None else architecture)
  return p,raw,(before.st_dev,before.st_ino)
 
 def decode(raw):
@@ -46,7 +56,7 @@ def decode(raw):
 
 def host(render):
  need(Path(SYSTEM['python']).is_relative_to('/usr'),'native Python runtime must be under readonly /usr')
- need(sys.platform=='linux' and platform.machine()=='x86_64' and os.getuid()!=0,'ordinary native Linux x86_64 caller required')
+ need(sys.platform=='linux' and platform.machine() in ('x86_64','aarch64') and os.getuid()!=0,'ordinary native Linux x86_64 or aarch64 caller required')
  p=path(render);s=p.lstat();need(re.fullmatch('/dev/dri/renderD[0-9]+',render) is not None and stat.S_ISCHR(s.st_mode) and os.major(s.st_rdev)==226 and os.minor(s.st_rdev)>=128 and os.access(p,os.R_OK|os.W_OK),'accessible actual DRM render node required')
 
 def archive(raw,lock):
@@ -68,6 +78,7 @@ def system_aliases():
  need(Path('/usr/bin/sh').resolve()==Path(SYSTEM['shell']),'fixed sh→bash runtime alias required')
 
 def preflight(inputs,input_sha,work):
+ architecture=native_architecture()
  sources_code={name:ordinary(str(HERE/name),expected,131072)[1] for name,expected in SOURCE_PINS.items()}
  p,raw,_=ordinary(inputs,input_sha,32768);v=decode(raw)
  need(type(v) is dict and set(v)=={'schema_version','tools','libraries','mako_config','done_archive','render_node','source_metadata'} and type(v['schema_version']) is int and v['schema_version']==1,'exact input schema1 required')
@@ -78,7 +89,7 @@ def preflight(inputs,input_sha,work):
  binaries={};libraries={};identities=set();sources=[];total=[0]
  def take(row,executable=False,limit=32*1024**2,known_links=()):
   need(type(row) is dict and set(row)=={'path','sha256'},'exact path/hash row required')
-  q,data,identity=ordinary(row['path'],row['sha256'],limit,executable,known_links)
+  q,data,identity=ordinary(row['path'],row['sha256'],limit,executable,known_links,architecture)
   total[0]+=len(data);need(total[0]<=128*1024**2,'total input byte cap128MiB')
   need(identity not in identities,'aliased input refused');identities.add(identity);sources.append(q)
   need(w not in q.parents and q not in w.parents,'work/input overlap refused');return q,data
@@ -87,12 +98,12 @@ def preflight(inputs,input_sha,work):
   if name in SYSTEM:need(str(q)==SYSTEM[name],'fixed native system tool path required: '+name)
   binaries[name]=(q,data)
  for row in v['libraries']:
-  q,data=take(row);need(re.fullmatch('lib[A-Za-z0-9_.+-]+\\.so(?:\\.[0-9]+)*',q.name) is not None and q.name not in libraries,'ordinary uniquely named shared library required');need(data[:6]==b'\x7fELF\x02\x01' and len(data)>=64 and struct.unpack_from('<H',data,18)[0]==62,'native library required');libraries[q.name]=(q,data)
+  q,data=take(row);need(re.fullmatch('lib[A-Za-z0-9_.+-]+\\.so(?:\\.[0-9]+)*',q.name) is not None and q.name not in libraries,'ordinary uniquely named shared library required');native_elf(data,architecture);libraries[q.name]=(q,data)
  config,data=take(v['mako_config'],limit=4096);need(sha(data)==STYLE,'unchanged shipped Mako style required')
  lock=decode((HERE/'done-lock.json').read_bytes());q,done=take(v['done_archive'],limit=65536);need(len(done)==lock['bytes'] and sha(done)==lock['sha256'],'exact retained Done0.1.0-2 archive required');payload=archive(done,lock)
  system_aliases()
  host(v['render_node'])
- return {'inputs':v,'inputs_sha256':input_sha,'work':w,'binaries':binaries,'libraries':libraries,'config':data,'payload':payload,'sources':sources_code}
+ return {'native_arch':architecture,'inputs':v,'inputs_sha256':input_sha,'work':w,'binaries':binaries,'libraries':libraries,'config':data,'payload':payload,'sources':sources_code}
 
 def stage(plan):
  w=plan['work'];w.mkdir(mode=0o700)
@@ -107,7 +118,9 @@ def stage(plan):
   dest=w/'done'/name;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(raw);dest.chmod(0o444)
  (w/'mako.conf').write_bytes(plan['config']);(w/'sway.conf').write_text('output * resolution 1024x768 position 0 0\nseat seat0 fallback true\nfocus_follows_mouse no\ndefault_border none\n')
  for name,raw in plan['sources'].items():(w/'diagnostic'/name).write_bytes(raw);(w/'diagnostic'/name).chmod(0o444)
- bindings={'scope':'NATIVE_X86_SWAY_NOTIFICATION_COUNTERFACTUAL_ONLY_NOT_HYPRLAND_ALPM_ARM_M2','inputs':plan['inputs'],'inputs_sha256':plan['inputs_sha256'],'source_metadata_qualification':'CALLER_DECLARED_NOT_INDEPENDENT_SOURCE_TO_BINARY_ATTESTATION','inside_tools':inside,'fish_aliases':['/usr/bin/fish','/usr/bin/fish_indent','/usr/bin/fish_key_reader'] if plan['binaries']['fish'][0].stat().st_nlink==3 else [],'libraries':{n:{'sha256':sha(x[1])} for n,x in plan['libraries'].items()},'diagnostic_sources':{q.name:sha(q.read_bytes()) for q in (w/'diagnostic').glob('*.py')}}
+ label='X86' if plan['native_arch']['name']=='x86_64' else 'AARCH64'
+ scope='NATIVE_'+label+'_SWAY_NOTIFICATION_COUNTERFACTUAL_ONLY_NOT_HYPRLAND_ALPM_'+('ARM_' if label=='X86' else '')+'M2'
+ bindings={'native_arch':plan['native_arch'],'scope':scope,'inputs':plan['inputs'],'inputs_sha256':plan['inputs_sha256'],'source_metadata_qualification':'CALLER_DECLARED_NOT_INDEPENDENT_SOURCE_TO_BINARY_ATTESTATION','inside_tools':inside,'fish_aliases':['/usr/bin/fish','/usr/bin/fish_indent','/usr/bin/fish_key_reader'] if plan['binaries']['fish'][0].stat().st_nlink==3 else [],'libraries':{n:{'sha256':sha(x[1])} for n,x in plan['libraries'].items()},'diagnostic_sources':{q.name:sha(q.read_bytes()) for q in (w/'diagnostic').glob('*.py')}}
  (w/'bindings.json').write_bytes(encoded(bindings));return bindings
 
 def argv(plan):
@@ -127,7 +140,7 @@ def main():
   except subprocess.TimeoutExpired:os.killpg(process.pid,signal.SIGKILL);out,err=process.communicate(timeout=5);raise ValueError('whole owned fixture120s timeout; no pass')
   need(len(out)+len(err)<=65536,'bounded wrapper output')
   (plan['work']/'launch.json').write_bytes(encoded({'argv':a,'pid':process.pid,'exit':process.returncode,'seconds':time.monotonic()-started,'stdout':out.decode('utf8','replace'),'stderr':err.decode('utf8','replace')}))
-  result=decode((plan['work']/'result.json').read_bytes());need(process.returncode==0 and result['status']=='PASS_NATIVE_X86_GPU_DONE_FUNCTIONAL_PENDING_VISUAL_REVIEW','fixture failed; retain original output, never retry captures');print(result['status']);return 0
+  result=decode((plan['work']/'result.json').read_bytes());need(process.returncode==0 and result['native_arch']==plan['native_arch'] and result['status']=='PASS_NATIVE_'+('X86' if plan['native_arch']['name']=='x86_64' else 'AARCH64')+'_GPU_DONE_FUNCTIONAL_PENDING_VISUAL_REVIEW','fixture failed; retain original output, never retry captures');print(result['status']);return 0
  except BaseException as error:
   (plan['work']/'outer-failure.json').write_bytes(encoded({'status':'FAIL_NOT_ACCEPTANCE','error_type':type(error).__name__,'error':str(error)[:512],'seconds':time.monotonic()-started,'child_exit':None if process is None else process.poll(),'cleanup_qualification':'bwrap namespace lifetime owns remaining actors; no fresh live absence attestation'}));raise
 
