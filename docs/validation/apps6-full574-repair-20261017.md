@@ -1,0 +1,7 @@
+# Selected full574 signed repair implementation
+
+The source adapter supports an explicit authenticated reinstall selection for Apps6/Orphans2/Runtime1/Cache0.2-1 in an already owned copied root. It permits selected ordinary byte damage/missing leaves after exact signed replanning, while default inspection remains strict. Complete actual before-map pins and existing source/policy/lease operands are required. It preserves the original574 floor, unselected/source/configuration/user/trust state, full capability map and existing transaction/cleanup behavior.
+
+Root independently passes29 closure plus15 transaction controls and joins all three frozen proposed source files. Positive authentication contexts are modeled; temporary filesystem damage/alias/ownership/parent/drift controls are real. Twenty-two original closure and twenty original transaction function bodies remain byte-identical. The original commit and preservation bodies are unchanged. Proposal freeze932c0aabccd681c3b65747b7b07b18a0a0733b6eb47d09df4503febcab1fd4c8 is retained under artifacts/development/apps6-full574-repair-20261017.
+
+This is a source-only backend increment. Native full574 signed repair, current archive/policy binding, frontend before-map preparation, M2 and release acceptance remain open. The separate native Apps6 synthetic repair trial does not supply this full574 acceptance. Historical Apps5/Orphans1 packets and actuals retain their own identities.
