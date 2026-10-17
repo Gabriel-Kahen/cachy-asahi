@@ -1,8 +1,12 @@
 # SPDX-License-Identifier: MIT
 """Original full604/kernel/caps/raw-event guards, exactly12 selected first frames."""
 import contract as C
+context604=C.module('_profile604_qemu_context',C.NEW+'/context604.py')
 
 def derive(text):
+ text=C.one(text,'import contract as C','import contract as C\nimport context604')
+ text=C.one(text,"('runtime-image.log',16*1024**2)","('runtime-image.log',16*1024**2),('qemu-tooling-image.log',16*1024**2)")
+ text=C.one(text,"raw=C.json_read(runtime/'runtime.json',16*1024**2);lock=C.json_read(runner/'candidate-lock.json')","raw=C.json_read(runtime/'runtime.json',16*1024**2);lock=C.json_read(runner/'candidate-lock.json')\n        C.need(len(raw.get('cleanup',[]))==15 and all(r.get('exit',0)==0 for r in raw['cleanup']) and context604.launcher_retired(raw,C.ROOT),'all original roles plus exact owned QEMU image retirement required')")
  text=C.one(text,"raw['workflow_scope']=='installed604-welcome4-management-generic16k'","raw['workflow_scope']=='independent-installed-public-pairs-apps6-current604-management-generic16k-profile' and raw.get('profile')==selected")
  text=C.one(text,"len(raw['frames'])==24","len(raw['frames'])==12")
  text=C.one(text,"'exact24 real frames required'","'exact12 selected real frames required'")
@@ -10,7 +14,7 @@ def derive(text):
 
 def retain(output,producer,runtime,runner,kernel,source):
  owner=C.json_read(output/'result.json',16*1024**2);selected=C.profile(owner.get('profile'))
- module=C.module('_profile604_retention',C.OLD+'/retain.py',{'contract':C},derive)
+ module=C.module('_profile604_retention',C.OLD+'/retain.py',{'contract':C,'context604':context604},derive)
  module.selected=selected;module.FRAMES=tuple(selected+'-'+v for v in module.VIEWS)
  public=module.retain(output,producer,runtime,runner,kernel,source)
  assets=output/'fresh-public-gui-assets';receipt=C.json_read(assets/'provenance.json')
