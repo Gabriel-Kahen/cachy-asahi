@@ -109,8 +109,18 @@ def visible_control(proof,pid,label,window):
     method=proof.get('method')
     need((method=='COMPONENT_SCROLL' and proof['scroll_returned'] and not proof['focus_called'] and proof['unclipped_after_scroll']) or
          (method=='ALREADY_UNCLIPPED' and not proof['scroll_returned'] and not proof['focus_called'] and proof['unclipped_after_scroll']) or
-         (method=='FOCUS_SCROLL' and proof['focus_called'] and proof['focused'] and not proof['unclipped_after_scroll']),
+         (method=='FOCUS_SCROLL' and proof['focus_called'] and proof['focused'] and not proof['unclipped_after_scroll']) or
+         (method=='PEER_FOCUS_SCROLL' and not proof['focus_called'] and not proof['focused'] and not proof['unclipped_after_scroll']),
          'scroll return/focus/visibility evidence differs')
+    if method=='PEER_FOCUS_SCROLL':
+        expected={'Run Doctor':'Doctor','Assess orphan packages':'Orphan assessment'}
+        peer=proof.get('peer_focus');need(type(peer) is dict and type(peer.get('pid')) is int and type(peer.get('role')) is int and
+             all(type(peer.get(k)) is bool for k in ('enabled','sensitive','focused','same_panel','target_enabled','target_sensitive')),
+             'typed actual peer focus evidence required')
+        need(label in expected and peer==dict(pid=pid,role=62,name_base64='VmlldyByZXBvcnQ=',scope=expected[label],
+             enabled=True,sensitive=True,focused=True,same_panel=True,target_enabled=False,target_sensitive=False),
+             'actual enabled same-tool focus peer required for disabled target')
+    else:need('peer_focus' not in proof,'unexpected peer focus evidence')
     chain=proof.get('chain');need(type(chain) is list and 3<=len(chain)<=13,'complete owned component ancestor chain required')
     def rectangle(row):
         need(type(row) is dict and row.get('pid')==pid and row.get('visible') is True and row.get('showing') is True and

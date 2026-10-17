@@ -381,8 +381,8 @@
       "sha256": "3184b1dd802f9fc66a874f020919ac2090bf09c9ad1d109b396d147c9dccaf1d"
     },
     "scripts/ci/welcome-management-native/a11y_driver.c": {
-      "bytes": 15706,
-      "sha256": "8bc8658767c61b4f164951d63a4750aa57aeab32bbe5b6415cb1be83db851d44"
+      "bytes": 19474,
+      "sha256": "70c87d5800b94c25d1ee2d56ab4f0db03d7a92e986ce817745c5f7fcfd4608cd"
     },
     "scripts/ci/welcome-management-native/candidates.py": {
       "bytes": 2530,
@@ -413,16 +413,16 @@
       "sha256": "6c111a3efb451688ef89419956b381e5e417809676efbe28496d15fa9ca1b231"
     },
     "scripts/ci/welcome-management-native/management_contract.py": {
-      "bytes": 15365,
-      "sha256": "d944b6d7a88021d6baa7247bf154259d808b86b487d23e7e09a994211b0e2bce"
+      "bytes": 16338,
+      "sha256": "f7e0f8ebdf85b0ab39ee845e4fc220d552bc3f1e73f370047aea235851bdc249"
     },
     "scripts/ci/welcome-management-native/management_phase.py": {
       "bytes": 10955,
       "sha256": "3879a523a3c7418b8836817a9231a4104c9c4dfeb1fbbffb3b20e60599fcaedf"
     },
     "scripts/ci/welcome-management-native/management_root.py": {
-      "bytes": 10183,
-      "sha256": "1e2537fcccbbcbd1e9d454012a807df3ab7632226b6ec28c5537ffd9257018f8"
+      "bytes": 10674,
+      "sha256": "1ae31ae2ec57b03527d6cf4986321728e7a891c75474268a4ec89cad331b666d"
     },
     "scripts/ci/welcome-management-native/native_contract.py": {
       "bytes": 14198,
@@ -437,8 +437,8 @@
       "sha256": "f04a8ebada6892d1119fc3b43dd83809c9cde75cef5b8eebb417b635819bdbe7"
     },
     "scripts/ci/welcome-management-native/test_gui.py": {
-      "bytes": 22347,
-      "sha256": "b00c5867b961c4b697f065af3e4b291836eda76d7252f4cca4265e5fad5eb85c"
+      "bytes": 27192,
+      "sha256": "929e9505365ef28c8cce95391785bf66e52c0a3114e3b77682f2e187b47cff77"
     },
     "scripts/ci/welcome-management-native/test_native.py": {
       "bytes": 23645,
