@@ -48,6 +48,14 @@ def scroll_proof(label,pid=80):
     return proof,window
 
 
+
+def retirement(closing,inventory):
+    fast=dict(nonce='a'*32,sequence=86,operation='retired',status='PASS',process=closing,
+        helper_absent=True,supervisor_absent=True,group_absent=True,group_members=[],group_members_clipped=False)
+    proof=dict(fast,sequence=87,operation='retired-proof',inventory=inventory,nonselected_database='PRESERVED')
+    return fast,proof
+
+
 def events():
     inventory={'fixture-'+str(i):'1' for i in range(594)}
     doctor=dict(tool='cachy-asahi-doctor',scope='local observations only',checks=[dict(state='checked')],coverage=dict(checked=1,unknown=0,unavailable=0))
@@ -78,7 +86,9 @@ def events():
             semantic=dict(snapshot=snap,snapshot_sha256=C.sha(C.encoded(snap)),expected=expected,summary=C.snapshot(snap,80,view,expected))
             rows.append(dict(event='frame_ready',stage=stage,view=view,welcome_pid=80,semantic=semantic,capture_after_ms=5000,hardware='NOT_RUN',physical_input='NOT_RUN'))
             if kind in ('doctor','orphans','failure'):rows.append(actions[start+3])
+        fast,proof=retirement(child(stopped=True),inventory)
         rows.append(dict(event='management_result',stage=stage,reports=reports,closing_process=child(stopped=True),welcome_exit=0,
+            retirement_observation=fast,retirement_proof=proof,
             owned_group_absent=True,owned_helper_absent=True,owned_supervisor_absent=True,metadata_readonly=True,nonselected_database='PRESERVED',inventory=inventory,
             present_count=594,absent_count=592,scope='GENERIC4K_UNPRIVILEGED_ACTUAL_DEFAULT_TOOLS',hardware='NOT_RUN'))
     return rows,dict(status='VERIFIED_NATIVE_CANDIDATES',products={n:{} for n in N.NAMES},policy=dict(ui=UI))
@@ -190,6 +200,72 @@ class Semantics(unittest.TestCase):
         text=(HERE/'management_root.py').read_text();self.assertIn('base.guard(True)',text);self.assertNotIn('os.unlink',text)
         self.assertIn('alpm_trans_release',text);self.assertIn('signal.pidfd_send_signal',text)
         self.assertNotIn('shell=True',text);self.assertNotIn('nodeps',text)
+
+
+
+class ClosingRetirement(unittest.TestCase):
+    def test_metadata_runs_after_fast10s_with_both_raw_replies_retained(self):
+        closing=child(stopped=True);inventory={'fixed':'1'};pending={};fast,proof=retirement(closing,inventory)
+        clock=[0];phase=['fast'];calls=[]
+        def request(operation):
+            calls.append(operation)
+            if operation=='retired':return fast
+            self.assertEqual(phase[0],'preservation');clock[0]+=20;return proof
+        def wait(probe,healthy,seconds,label):
+            self.assertEqual((seconds,label),(10,'owned management group retirement'))
+            healthy();until=clock[0]+seconds;self.assertLess(clock[0],until);value=probe()
+            self.assertLess(clock[0],until);phase[0]='preservation';return value
+        with patch.object(G,'request',side_effect=request):self.assertEqual(G.closing_retirement(wait,pending,closing,inventory),(fast,proof))
+        self.assertEqual(clock[0],20);self.assertEqual(calls,['retired','retired-proof'])
+        self.assertIs(pending['retirement_observation'],fast);self.assertIs(pending['retirement_proof'],proof)
+        # Root's actual fast branch must not invoke either full metadata reader.
+        with patch.object(R.select,'select',return_value=([10],[],[])),patch.object(R.Path,'glob',return_value=[]):
+            read=unittest.mock.Mock(side_effect=AssertionError('metadata on fast path'))
+            state=R.retirement_reply('retired',closing,10,20,None,read,read,{})
+            self.assertTrue(state['group_absent']);read.assert_not_called()
+            full=R.retirement_reply('retired-proof',closing,10,20,None,lambda:inventory,lambda:{}, {})
+            self.assertEqual(full['inventory'],inventory);self.assertEqual(full['nonselected_database'],'PRESERVED')
+    def test_real_fast_absence_failure_remains10s_failure_without_proof(self):
+        closing=child(stopped=True);fast,_=retirement(closing,{})
+        fast.update(helper_absent=False);pending={}
+        def wait(probe,healthy,seconds,label):
+            self.assertEqual(seconds,10)
+            for _ in range(10):self.assertIsNone(probe())
+            raise ValueError(label+' deadline')
+        with patch.object(G,'request',return_value=fast) as request,self.assertRaisesRegex(ValueError,'retirement deadline'):
+            G.closing_retirement(wait,pending,closing,{})
+        self.assertEqual(request.call_count,10);self.assertTrue(all(c==unittest.mock.call('retired') for c in request.call_args_list))
+        self.assertIs(pending['retirement_observation'],fast);self.assertNotIn('retirement_proof',pending)
+        with patch.object(R.select,'select',return_value=([],[],[])),patch.object(R.Path,'glob',return_value=[]):
+            read=unittest.mock.Mock(side_effect=AssertionError('proof before retirement'))
+            with self.assertRaisesRegex(ValueError,'actual owned retirement'):R.retirement_reply('retired-proof',closing,10,20,None,read,read,{})
+            read.assert_not_called()
+    def test_full_proof_requires_current_identity_nonce_sequence_and_all_metadata(self):
+        closing=child(stopped=True);inventory={'fixed':'1'};fast,proof=retirement(closing,inventory)
+        C.retirement_proof(fast,proof,closing,inventory)
+        for field,value in (('nonce','b'*32),('sequence',89),('operation','retired'),('process',dict(closing,starttime=2)),
+                            ('inventory',{}),('nonselected_database','CHANGED'),('helper_absent',False),('supervisor_absent',1),
+                            ('group_absent',False),('group_members',[222]),('group_members_clipped',True)):
+            bad=copy.deepcopy(proof);bad[field]=value
+            with self.subTest(field=field),self.assertRaises(ValueError):C.retirement_proof(fast,bad,closing,inventory)
+        for field in ('inventory','nonselected_database','process','sequence'):
+            bad=copy.deepcopy(proof);bad.pop(field)
+            with self.subTest(missing=field),self.assertRaises(ValueError):C.retirement_proof(fast,bad,closing,inventory)
+        rows,lock=events()
+        for field in ('retirement_observation','retirement_proof'):
+            bad=copy.deepcopy(rows);result(bad).pop(field)
+            with self.subTest(receipt=field),self.assertRaises(ValueError):C.verify_result(bad,lock)
+    def test_preservation_failure_keeps_both_raw_replies_and_original_bounds(self):
+        closing=child(stopped=True);fast,proof=retirement(closing,{});proof['nonselected_database']='CHANGED';pending={}
+        with patch.object(G,'request',side_effect=[fast,proof]),self.assertRaisesRegex(ValueError,'nonselected metadata'):
+            G.closing_retirement(lambda probe,healthy,seconds,label:probe(),pending,closing,{})
+        self.assertIs(pending['retirement_observation'],fast);self.assertIs(pending['retirement_proof'],proof)
+        self.assertEqual(len(C.action_plan(UI)),17);self.assertEqual(len(C.VIEWS),12)
+        self.assertIn('time.monotonic()+90',(HERE/'management_phase.py').read_text())
+        self.assertIn('management_root.serve(managed_base, session, env, logs, 1080)',(HERE/'prepare.py').read_text())
+        source=(HERE/'management_phase.py').read_text()
+        self.assertIn("stable()==closing_before and not Path('/var/lib/pacman/db.lck').exists()",source)
+        self.assertIn('until=time.monotonic()+45',source)
 
 
 class ReportReadiness(unittest.TestCase):

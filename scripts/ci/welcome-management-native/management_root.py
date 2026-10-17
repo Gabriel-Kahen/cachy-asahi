@@ -134,6 +134,24 @@ def metadata():
     return result
 
 
+
+def retirement_reply(operation,observed,fd,superfd,progress,inventory,metadata,preserved):
+    """Fast held-process evidence; full preservation runs only after retirement."""
+    C.need(operation in ('retired','retired-proof') and observed is not None and fd is not None and superfd is not None,'owned observed group absent')
+    exited=bool(select.select([fd],[],[],0)[0]);superexited=bool(select.select([superfd],[],[],0)[0]);members=[]
+    for p in Path('/proc').glob('[0-9]*'):
+        try:
+            if identity(int(p.name))['pgid']==observed['pgid']:members.append(int(p.name))
+        except (FileNotFoundError,ProcessLookupError,PermissionError):pass
+    answer=dict(process=observed,helper_absent=exited,supervisor_absent=superexited,group_absent=not members,
+                group_members=members[:32],group_members_clipped=len(members)>32)
+    if progress is not None:answer['gui_progress']=progress.value()
+    if operation=='retired-proof':
+        C.need(exited and superexited and not members,'preservation requires actual owned retirement')
+        answer.update(inventory=inventory(),nonselected_database='PRESERVED' if metadata()==preserved else 'CHANGED')
+    return answer
+
+
 def restore_profile(L,pacman,products,baseline,preserved):
     """Restore only the two exact signed fixture removals, including on failure."""
     current=L.inventory();missing={n:v for n,v in baseline.items() if n not in TOOLS}
@@ -210,19 +228,8 @@ def serve(base,session,env,logs,seconds):
             elif op=='observed':
                 answer.update(process=observed,**completion(fd,superfd))
                 if progress is not None:answer['gui_progress']=progress.value()
-            elif op=='retired':
-                C.need(observed is not None and fd is not None and superfd is not None,'owned observed group absent')
-                exited=bool(select.select([fd],[],[],0)[0]);superexited=bool(select.select([superfd],[],[],0)[0]);members=[]
-                for p in Path('/proc').glob('[0-9]*'):
-                    try:
-                        if identity(int(p.name))['pgid']==observed['pgid']:members.append(int(p.name))
-                    except (FileNotFoundError,ProcessLookupError,PermissionError):pass
-                answer.update(helper_absent=exited,supervisor_absent=superexited,group_absent=not members,inventory=inventory(),nonselected_database='PRESERVED' if metadata()==preserved else 'CHANGED')
-                # These are the existing scan and held-identity samples. They
-                # distinguish a live helper, supervisor or remaining group
-                # without adding an observer, signal or retirement allowance.
-                answer.update(group_members=members[:32],group_members_clipped=len(members)>32)
-                if progress is not None:answer['gui_progress']=progress.value()
+            elif op in ('retired','retired-proof'):
+                answer.update(retirement_reply(op,observed,fd,superfd,progress,inventory,metadata,preserved))
             else:raise ValueError('unknown fixture operation')
             reply=CHANNEL/('reply-'+str(sequence)+'.json');pending=reply.with_suffix('.pending')
             with pending.open('xb') as stream:stream.write(C.encoded(answer));stream.flush();os.fsync(stream.fileno())

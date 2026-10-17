@@ -127,7 +127,8 @@ def inspect(name,command):
 
 def verify_actor(value,name,image,label,token,cid=None):
     need(value['Name']=='/'+name and value['Image']==image and value['Config']['Labels'].get(label)==token and re.fullmatch('[0-9a-f]{64}',value['Id']) and cid in (None,value['Id']),'foreign actor preserved')
-    if value['AppArmorProfile']=='' and label==LABEL and name=='caa-gnu-provider-owner-'+token+'-export':
+    exports={LABEL:'caa-gnu-provider-owner-','org.cachy-asahi.apps-full574-native':'caa-apps574-','org.cachy-asahi.orphans-full574-native':'caa-apps574-'}
+    if value['AppArmorProfile']=='' and label in exports and name==exports[label]+token+'-export':
         # Docker applies its runtime profile on start. This data export never starts.
         never_started(value);state=value['State'];config=value['HostConfig']
         need(re.fullmatch('[0-9a-f]{32}',token) and state['Status']=='created' and state['FinishedAt'].startswith('0001-') and state['ExitCode']==0 and state['Error']=='' and

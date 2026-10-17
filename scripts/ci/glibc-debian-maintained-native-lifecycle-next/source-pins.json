@@ -1,8 +1,8 @@
 {
   "files": {
     "manifests/packages.toml": {
-      "bytes": 36600,
-      "sha256": "d35d9b72907ba034367878094bdc6b2081f4076f1286780d8f2ee39de9b4a326"
+      "bytes": 36727,
+      "sha256": "473d772cc1833c757630271e8e40edce90e14995fca9b1652fb0de695c463135"
     },
     "scripts/apps/file_capabilities.py": {
       "bytes": 13562,
@@ -30,7 +30,7 @@
     },
     "scripts/ci/glibc-debian-maintained-lifecycle/source-pins.json": {
       "bytes": 14415,
-      "sha256": "951f9e1b1a9f6e70eb97ffba13b8b05aa4d3e760b1048e7cbd9486efefdce5a5"
+      "sha256": "71ccef7304462787e0cdf4e44166c808d05ad729f4155950f8ed29ffe7c8cc6b"
     },
     "scripts/ci/glibc-debian-maintained-provider/PKGBUILD.in": {
       "bytes": 3925,
@@ -166,11 +166,11 @@
     },
     "scripts/ci/glibc-gnu-provider-lifecycle-owner/integration-manifest.json": {
       "bytes": 9185,
-      "sha256": "16500752dbecb6fba922043ed5b76228a026d27172181e3d3614e68ed00f607b"
+      "sha256": "a6d5a113cc048394a757978a57f3600a177e180b20b7b20b0fea0652e6b00634"
     },
     "scripts/ci/glibc-gnu-provider-lifecycle-owner/job.py": {
-      "bytes": 34270,
-      "sha256": "723c8ff74d66b5d746cec0bb53bec5186b4af7a70b7e5223e0e7db9ecc5a861a"
+      "bytes": 34418,
+      "sha256": "90415ffea62bda2aacf6a42826601cfb28b40d3507801554ed505557b6fd8c14"
     },
     "scripts/ci/glibc-gnu-provider-lifecycle-owner/packet-interface.json": {
       "bytes": 2109,
@@ -185,8 +185,8 @@
       "sha256": "9738acb125ce6d468d5359ecfbd5540454826567fd4ac4481576ec31da37190c"
     },
     "scripts/ci/glibc-gnu-provider-lifecycle-owner/test_owner.py": {
-      "bytes": 15676,
-      "sha256": "37532ac2ebeae2b76dd6ea3a3effb532b7e7b399978dcf0f43c5f0f88f2d56f8"
+      "bytes": 22150,
+      "sha256": "52e6f55512b6fabfb6a3fe4b65f4acd82ff8ff5aed33c3792a1055330ebba02f"
     },
     "scripts/ci/glibc-gnu-provider-lifecycle/README.md": {
       "bytes": 10223,

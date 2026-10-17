@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
 """Read-only held bootstrap drives unchanged ALPM574 lifecycle in disk clones."""
+import base64
 import ctypes
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -13,6 +15,21 @@ import contract as C
 def emit(nonce,value):
     raw=json.dumps(value,sort_keys=True,separators=(',',':'));C.need(len(raw)<=512*1024,'guest receipt bound')
     print('GNU_INSTALLED16K '+nonce+' '+raw,flush=True)
+
+def child_failure(row,stdout,stderr,error,phase):
+    """UART-only diagnostic of original captured buffers; never a guest result."""
+    C.need(type(stdout) is type(stderr) is bytes and len(stdout)+len(stderr)<=512*1024,'original child capture bound')
+    def stream(raw):
+        preview=raw[:65536]
+        return dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest(),preview_base64=base64.b64encode(preview).decode('ascii'),
+                    preview_bytes=len(preview),truncated=len(preview)!=len(raw))
+    C.need(type(row) is dict and len(json.dumps(row,sort_keys=True,allow_nan=False))<=32768,'bounded original supervisor record')
+    message=str(error).encode('utf8') if error is not None else b''
+    return dict(event='child-failure',status='FAIL',phase=phase,supervisor_record=row,
+                stdout=stream(stdout),stderr=stream(stderr),
+                error=None if error is None else dict(type=type(error).__name__,**stream(message)),
+                capture='ORIGINAL_SUPERVISOR_CAPTURED_BUFFERS_MAY_BE_PARTIAL_ON_LIMIT_OR_INTERRUPTION',
+                acceptance='FORBIDDEN_DIAGNOSTIC_ONLY_NO_GUEST_FILES_OR_COMPLETION')
 
 def worker():
     selection=C.decode(C.read('/installed16k/selection.json'));nonce=selection['nonce']
@@ -51,8 +68,12 @@ def run():
     emit(nonce,dict(event='boot',page_size=16384,kernel=os.uname().release,architecture='aarch64',kernel_profile_sha256=selection['kernel_profile_sha256']))
     runtime=C.load('guest_supervisor','/source/scripts/ci/glibc-owned-runtime/runner.py')
     row,stdout,stderr,error=runtime.run_command(['/usr/bin/python3','-I','-B','/installed16k/guest.py','worker'],Path('/tmp'),dict(PATH='/usr/bin:/bin',LANG='C',LC_ALL='C',HOME='/tmp',TMPDIR='/tmp',PYTHONDONTWRITEBYTECODE='1'),10500,512*1024)
+    if not (error is None and row['exit_code']==0 and row['group_absence_verified']):
+        emit(nonce,child_failure(row,stdout,stderr,error,'exit-or-retirement'))
     C.need(error is None and row['exit_code']==0 and row['group_absence_verified'],'lifecycle child exit/group retirement failed')
-    lines=stdout.splitlines();C.need(len(lines)==1 and lines[0].startswith(('GNU_INSTALLED16K '+nonce+' ').encode()) and not stderr,'one closed worker result only')
+    lines=stdout.splitlines();closed=len(lines)==1 and lines[0].startswith(('GNU_INSTALLED16K '+nonce+' ').encode()) and not stderr
+    if not closed:emit(nonce,child_failure(row,stdout,stderr,error,'closed-worker-result'))
+    C.need(closed,'one closed worker result only')
     print(lines[0].decode(),flush=True)
     # Only PID1 retains authority to retire mount topology and power off.
     import subprocess

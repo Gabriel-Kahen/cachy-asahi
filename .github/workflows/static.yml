@@ -180,7 +180,9 @@ jobs:
           python3 -I -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/glibc-gnu-provider-interruption -p 'test_*.py'
           python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-gnu-provider-lifecycle/test_proc_mount.py
       - name: Check installed GNU provider16K source and disk serialization without actors
-        run: python3 -B -Werror::ResourceWarning scripts/ci/glibc-gnu-provider-installed16k/test_lane.py
+        run: |
+          python3 -B -Werror::ResourceWarning scripts/ci/glibc-gnu-provider-installed16k/test_lane.py
+          python3 -I -B scripts/ci/glibc-gnu-provider-installed16k/test_child_failure.py
       - name: Check separate interrupted provider16K source and recovery gates without actors
         run: python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-gnu-provider-installed16k-interruption/test_generator.py
       - name: Check interrupted provider16K workflow assembly and prerequisite bindings without actors

@@ -187,4 +187,68 @@ class Controls(unittest.TestCase):
         original=repo/'scripts/ci/glibc-gnu-provider-lifecycle-owner/snapshot.py';self.assertEqual(job.sha(original),'9738acb125ce6d468d5359ecfbd5540454826567fd4ac4481576ec31da37190c')
         text=(job.HERE/'capability_snapshot.py').read_text();self.assertIn("scripts/ci/apps-full574-native/export_extract.py",text);self.assertIn("old=derivative.isolated",text);self.assertIn("api['caps'].restore",text)
 
+
+    def export_identities(self):
+        token='a'*32
+        return [(job.LABEL,'caa-gnu-provider-owner-'+token+'-export'),('org.cachy-asahi.apps-full574-native','caa-apps574-'+token+'-export'),('org.cachy-asahi.orphans-full574-native','caa-apps574-'+token+'-export')]
+
+    def export_for(self,label,name):
+        value=self.pending_export();value['Name']='/'+name;value['Config']['Labels']={label:'a'*32};return value
+
+    def test_three_finite_owned_export_names_allow_data_without_runtime_enforcement_claim(self):
+        for label,name in self.export_identities():
+            value=self.export_for(label,name)
+            with self.subTest(label=label):self.assertEqual(job.verify_actor(value,name,value['Image'],label,'a'*32,'c'*64),'c'*64)
+
+    def test_all_three_owned_export_retirements_never_start_data_container(self):
+        for i,(label,name) in enumerate(self.export_identities()):
+            value=self.export_for(label,name);report=dict(actors=[dict(role='export',name=name,id=value['Id'],status='RESERVED')]);output=self.root/str(i);output.mkdir();calls=[]
+            with patch.object(job,'inspect',side_effect=[value,None]):job.retire(report['actors'],value['Image'],label,'a'*32,lambda argv:calls.append(argv),output,report)
+            self.assertEqual(calls,[['/usr/bin/docker','rm','--force',value['Id']]]);self.assertEqual(report['actors'][0]['status'],'PASS_ABSENCE_VERIFIED')
+
+    def test_actual_v2_created_export_inspect_is_data_only_positive(self):
+        # Retained original39008318474 runtime command006/007/008 inspect projection.
+        # Actual old source refused before export/lifecycle; no native successor claim.
+        value=ACTUAL_EXPORT_FIXTURE
+        label='org.cachy-asahi.orphans-full574-native';token=value['Config']['Labels'][label]
+        self.assertEqual(value['AppArmorProfile'],'');self.assertEqual(job.verify_actor(value,value['Name'][1:],value['Image'],label,token,value['Id']),value['Id'])
+
+    def test_export_namespace_suffix_and_foreign_identity_never_expand(self):
+        for label,name in self.export_identities():
+            for kind in ('suffix','label','token','cid','image','name','unknown_label'):
+                value=self.export_for(label,name);image=value['Image'];token='a'*32;cid=value['Id'];expected_name=name;expected_label=label
+                if kind=='suffix':value['Name']=value['Name'].removesuffix('export')+'extract';expected_name=value['Name'][1:]
+                elif kind=='label':value['Config']['Labels'][label]='f'*32
+                elif kind=='token':token='b'*32
+                elif kind=='cid':cid='f'*64
+                elif kind=='image':image='sha256:'+'f'*64
+                elif kind=='name':expected_name='foreign'
+                else:expected_label='org.cachy-asahi.unknown';value['Config']['Labels']={expected_label:token}
+                with self.subTest(label=label,kind=kind),self.assertRaises(ValueError):job.verify_actor(value,expected_name,image,expected_label,token,cid)
+
+    def test_every_export_label_preserves_full_never_started_confinement_guard(self):
+        changes=[('State','Status','running'),('State','Pid',17),('State','StartedAt','2026-10-17T00:00:00Z'),('State','FinishedAt','2026-10-17T00:00:00Z'),('State','Running',True),('State','ExitCode',1),('State','Error','failed start'),('State','Paused',True),('State','Restarting',True),('State','OOMKilled',True),('State','Dead',True),('HostConfig','ReadonlyRootfs',False),('HostConfig','Privileged',True),('HostConfig','CapDrop',[]),('HostConfig','CapAdd',['SYS_ADMIN']),('HostConfig','NetworkMode','host'),('HostConfig','SecurityOpt',['no-new-privileges','apparmor=unconfined']),('Config','Entrypoint',['/usr/bin/sleep'])]
+        for label,name in self.export_identities():
+            for section,key,bad in changes:
+                value=self.export_for(label,name);value[section][key]=bad
+                with self.subTest(label=label,field=key),self.assertRaises(ValueError):job.verify_actor(value,name,value['Image'],label,'a'*32)
+            value=self.export_for(label,name);value['RestartCount']=1
+            with self.assertRaises(ValueError):job.verify_actor(value,name,value['Image'],label,'a'*32)
+
+    def test_started_observers_keep_default_profile_requirement_for_all_labels(self):
+        for label,name in self.export_identities():
+            for suffix in ('extract','lifecycle','interruption','source-verify','scrub','source-cleanup'):
+                value=self.export_for(label,name);name2=name.removesuffix('export')+suffix;value['Name']='/'+name2
+                for profile in ('','unconfined','foreign-profile'):
+                    value['AppArmorProfile']=profile
+                    with self.subTest(label=label,suffix=suffix,profile=profile),self.assertRaises(ValueError):job.verify_actor(value,name2,value['Image'],label,'a'*32)
+                value['AppArmorProfile']='docker-default';self.assertEqual(job.verify_actor(value,name2,value['Image'],label,'a'*32),'c'*64)
+
+    def test_unknown_retirement_state_preserves_export_without_removal(self):
+        label,name=self.export_identities()[-1];value=self.export_for(label,name);value['State']['Pid']=9;report=dict(actors=[dict(role='export',name=name,id=value['Id'],status='RESERVED')]);output=self.root/'unknown-retire';output.mkdir();calls=[]
+        with patch.object(job,'inspect',return_value=value),self.assertRaises(ValueError):job.retire(report['actors'],value['Image'],label,'a'*32,lambda argv:calls.append(argv),output,report)
+        self.assertEqual(calls,[]);self.assertEqual(report['actors'][0]['status'],'RESERVED')
+
+ACTUAL_EXPORT_FIXTURE={'AppArmorProfile': '', 'Config': {'Entrypoint': ['/usr/bin/false'], 'Labels': {'org.cachy-asahi.bootstrap574.job': '5236d311dac5e30a', 'org.cachy-asahi.orphans-full574-native': '6ae8d49834be7b1250d4f777744cf32f'}}, 'HostConfig': {'CapAdd': None, 'CapDrop': ['ALL'], 'NetworkMode': 'none', 'Privileged': False, 'ReadonlyRootfs': True, 'SecurityOpt': ['no-new-privileges']}, 'Id': '07fc218d0b22971cef92f793a1605ed3ff309a8ce1924a7961641b48c6e8df64', 'Image': 'sha256:c7c8b093a03d7f8b05d1bd7a1953f6cda68abb7d78e34fa88d4dfa1cae3e3ca9', 'Name': '/caa-apps574-6ae8d49834be7b1250d4f777744cf32f-export', 'RestartCount': 0, 'State': {'Dead': False, 'Error': '', 'ExitCode': 0, 'FinishedAt': '0001-01-01T00:00:00Z', 'OOMKilled': False, 'Paused': False, 'Pid': 0, 'Restarting': False, 'Running': False, 'StartedAt': '0001-01-01T00:00:00Z', 'Status': 'created'}}
+
 if __name__=='__main__':unittest.main()

@@ -170,6 +170,31 @@ def preview(raw,ui,kind='doctor'):
     suffix=ui['raw_preview_suffix'] if kind=='doctor' else ui['orphan_preview_suffix']
     return raw[:limit].decode(errors='replace')+(suffix if len(raw)>limit else '')
 
+
+def retirement_reply(value,closing,operation):
+    need(type(value) is dict and value.get('status')=='PASS' and value.get('operation')==operation and
+         type(value.get('nonce')) is str and re.fullmatch('[0-9a-f]{32}',value['nonce']) and
+         type(value.get('sequence')) is int and 0<=value['sequence']<1024 and value.get('process')==closing,
+         'owned current closing reply identity differs')
+    keys=('helper_absent','supervisor_absent','group_absent')
+    need(all(type(value.get(k)) is bool for k in keys),'typed closing absence required')
+    members=value.get('group_members');clipped=value.get('group_members_clipped')
+    need(type(members) is list and len(members)<=32 and all(type(p) is int and p>1 for p in members) and
+         len(set(members))==len(members) and type(clipped) is bool and
+         value['group_absent']==(not members and not clipped),'closing group evidence differs')
+    if operation=='retired':need(not {'inventory','nonselected_database'}&set(value),'metadata must follow fast retirement')
+    return all(value[k] for k in keys)
+
+
+def retirement_proof(fast,proof,closing,inventory):
+    need(retirement_reply(fast,closing,'retired') and retirement_reply(proof,closing,'retired-proof'),
+         'actual helper/supervisor/group absence required')
+    need(proof['nonce']==fast['nonce'] and proof['sequence']==fast['sequence']+1,
+         'adjacent current closing proof required')
+    need(proof.get('inventory')==inventory and proof.get('nonselected_database')=='PRESERVED',
+         'GUI fixture mutated nonselected metadata')
+
+
 def verify_result(events,lock):
     need(lock.get('status')=='VERIFIED_NATIVE_CANDIDATES' and set(lock['products'])=={'cachy-asahi-welcome','cachy-asahi-doctor','cachy-asahi-orphans'},'three real bound candidates required')
     ui=interface(lock['policy']);phases=[]
@@ -215,5 +240,6 @@ def verify_result(events,lock):
         process(result['closing_process'],'orphans',frames[-1]['welcome_pid'],True)
         need(events.index(frames[-1])<events.index(result),'close retirement must follow the original closing frame')
         need(result['closing_process']['pgid']!=frames[-1]['welcome_pid'],'cannot retire Welcome group as helper')
+        retirement_proof(result.get('retirement_observation'),result.get('retirement_proof'),result['closing_process'],result['inventory'])
         phases.append(dict(stage=stage,reports={k:v['sha256'] for k,v in result['reports'].items()},closing='PASS_ACTUAL_OWNED_GROUP_RETIRED'))
     return dict(status='PASS_MANAGEMENT_NATIVE_METADATA_PIXELS_PENDING_REVIEW',phases=phases,hardware='NOT_RUN',orphan_removal='NOT_IMPLEMENTED')
