@@ -249,12 +249,12 @@
       "sha256": "fe5670055f2b309640e80049d077ad16022f3a86100f2429104034cfe1ad554b"
     },
     "scripts/ci/apps-full574-native/test_lane.py": {
-      "bytes": 30282,
-      "sha256": "19ce69c1012643acc272892d3ab1bccc1c0664b68134faa0425e1da29d9f873a"
+      "bytes": 31021,
+      "sha256": "3d658a27e6e26437115f81f06bef30b4078965aa4826dfc883a58759c6e0fd54"
     },
     "scripts/ci/apps-full574-repair-native/README.md": {
-      "bytes": 3259,
-      "sha256": "985b38abdb9f8dc63ba3034ad99e30ea8ea74aa0e9685a19a1600a17b9cfae0f"
+      "bytes": 3440,
+      "sha256": "57fed1649992cda8d29f3213d5dd5f972b85ab91d0c77e7ca84bf9100371de61"
     },
     "scripts/ci/apps-full574-repair-native/checks.py": {
       "bytes": 3834,
@@ -306,15 +306,15 @@
     },
     "scripts/ci/apps-full574-repair-native/source-pins.json": {
       "bytes": 15009,
-      "sha256": "c4eb57e4065dca3a1fc9e6d079473d7e038a8b11b16ddc8787b724308514c80e"
+      "sha256": "b5ee89d914c58b9edf29801c65c7478d9468d542bb80f1941aa6d26efce5bb47"
     },
     "scripts/ci/apps-full574-repair-native/supervise.py": {
       "bytes": 2036,
       "sha256": "f4e24c4355e27157ecf2a68e4d9175049851879c25d69031aa4c261e6baceaa3"
     },
     "scripts/ci/apps-full574-repair-native/test_lane.py": {
-      "bytes": 15899,
-      "sha256": "660bc0f705dac3833b11aa67fc4998a792709140a0999151dbf924586cbfe63c"
+      "bytes": 17250,
+      "sha256": "bf15c14981d716414b289d5e95be7dfbcf72f29056ba72852bb8e335b1781fc8"
     },
     "scripts/ci/expanded600-installer-vm/observer600.py": {
       "bytes": 2784,

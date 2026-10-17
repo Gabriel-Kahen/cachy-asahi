@@ -95,6 +95,16 @@ class Controls(unittest.TestCase):
  def test_carrier_root_checkout_and_three_packet_arguments_align(self):
   text=P.workflow((self.source/'.github/workflows/native-arm-apps-full574-transaction.yml').read_text());self.assertEqual(text.count('          path: retained-apps574-inputs\n'),1);self.assertNotIn('          path: retained-apps574-inputs/payload\n',text);self.assertEqual(text.count('--packet "$GITHUB_WORKSPACE/retained-apps574-inputs/payload"'),3)
   if ACTUAL is not None:self.assertTrue((ACTUAL/'index.json').is_file());self.assertFalse((ACTUAL/'payload').exists());self.assertEqual(json.loads((ACTUAL/'index.json').read_bytes())['kind'],'ROOT_ACCEPTED_NATIVE_CURRENT4_REPAIR_INPUTS')
+ def test_current_repair_bound_source_positive_and_default_actor_refusal(self):
+  out=self.root/'current-source';P.emit(self.source,out);lane=out/P.NEW;C=load('contract',lane/'contract.py')
+  with self.assertRaisesRegex(ValueError,'UNBOUND'):C.source(out)
+  bound=json.loads((lane/'input-policy.json').read_bytes());bound.update(status='ROOT_BOUND_NATIVE574_SIGNED_REPAIR_INPUTS',packet_source='65950a7e3ca82d97e21a65556844dab1cfd1a7f7',packet_index=dict(path='index.json',bytes=55737,sha256='782fd76c06831786cb74df396f195e8f5f8832e04b668c44bdadd802d1cb268b'));(lane/'input-policy.json').write_bytes(P.encoded(bound));manifest=json.loads((lane/'source-manifest.json').read_bytes());manifest['files'][P.NEW+'/input-policy.json']=P.pin((lane/'input-policy.json').read_bytes());(lane/'source-manifest.json').write_bytes(P.encoded(manifest));self.assertEqual(C.source(out),bound);self.assertEqual(C.VERSIONS,PACK.VERSIONS)
+  # Also join a real bound input policy when this test runs in Root's frozen view.
+  if (HERE/'input-policy.json').is_file():
+   actual=json.loads((HERE/'input-policy.json').read_bytes());own=load('contract',HERE/'contract.py')
+   if actual['status']=='ROOT_BOUND_NATIVE574_SIGNED_REPAIR_INPUTS':self.assertEqual(own.source(self.source),actual)
+   else:
+    with self.assertRaisesRegex(ValueError,'UNBOUND'):own.source(self.source)
  def test_actual_root_decision_hashes_are_exact_and_no_future_fallback(self):
   self.assertEqual(PACK.DECISIONS,{'triple':'f904a28e6e02ce2685eaa438c4c3d6d43a119b0d5d85a6706db5864c2bbd1676','orphans':'4495e3104903c755c230606cd4739e95cd78e9cbb909d64ff42ad53fa470ba05'})
   class C:

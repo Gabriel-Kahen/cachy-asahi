@@ -51,7 +51,14 @@ class Controls(unittest.TestCase):
    C.source(self.root);adapter.write_bytes(b'# changed\n')
    with self.assertRaisesRegex(ValueError,'hash differs'):C.source(self.root)
  def test_current_source_and_independent_adapter_policy_join_before_actors(self):
-  self.assertEqual(C.source(ROOT),C.policy())
+  binding=C.policy();actual=C.ref(ROOT,ROOT/'scripts/apps/full574_closure.py')
+  historical=dict(path='scripts/apps/full574_closure.py',bytes=17201,sha256='a15e62f40dcad8ba7824babec9f9046a4caec3e3cfa68c11d904c37988c3fb2c')
+  current=dict(path='scripts/apps/full574_closure.py',bytes=22621,sha256='f43304982dee768adf48f1c2ae5ecf6afa32e2cc405846046f6ac29604022b55')
+  self.assertEqual(binding['adapter'],historical);self.assertEqual(binding['versions']['cachy-asahi-apps'],'0.1.0-5');self.assertEqual(binding['versions']['cachy-asahi-orphans'],'0.1.0-1')
+  if actual==historical:self.assertEqual(C.source(ROOT),binding)
+  else:
+   self.assertEqual(actual,current)
+   with self.assertRaisesRegex(ValueError,r'^source/input hash differs: scripts/apps/full574_closure\.py$'):C.source(ROOT)
  def test_actual_packet_must_match_root_carrier_before_inspection(self):
   args=SimpleNamespace(source=self.root,packet=self.root/'carrier/payload')
   with patch.object(C,'source',return_value=dict(packet_source='a'*40)),patch.object(subprocess,'check_output',return_value='b'*40+'\n'),patch.object(C,'inputs',side_effect=AssertionError('packet before carrier check')),self.assertRaisesRegex(ValueError,'carrier checkout'):job.check(args)
