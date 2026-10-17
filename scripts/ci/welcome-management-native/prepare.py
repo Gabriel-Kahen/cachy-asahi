@@ -32,7 +32,7 @@ def prepare(source,output,assets):
     # only these pinned siblings through their existing file loader, in order.
     for filename,anchor,names in (
         ('desktop574_guest.py','\ndef main():',('doctor_lifetime','management_contract','management_root','management_phase')),
-        ('doctor_worker.py',"\nC=load('doctor_gui_contract','gui_contract.py')",('management_contract','management_root','doctor_lifetime')),
+        ('doctor_worker.py',"\nC=load('doctor_gui_contract','gui_contract.py')",('doctor_lifetime','management_contract','management_root')),
     ):
         text=(output/filename).read_text()
         if filename=='doctor_worker.py':
@@ -71,15 +71,16 @@ def validate_snapshot(value,pid,view,text_sha=None):
                  window=lambda pid:C.window(clients(),pid,'welcome')))
 """.rstrip()
     session=replace(session,anchor,new)
-    session=replace(session,"C.publish(workspace/'start.json',dict(nonce=nonce,terminal_pid=doctor.process.pid))","DL.start(workspace,nonce,doctor.process.pid)")
+    session=replace(session,"        checkpoint='doctor-startup'","        checkpoint='doctor-startup'\n        MG.request('profile',stage=stage,profile_nonce=nonce)")
+    session=replace(session,"C.publish(workspace/'start.json',dict(nonce=nonce,terminal_pid=doctor.process.pid))","DL.start(workspace,stage,nonce,doctor.process.pid)")
     session=replace(session,"C.publish(workspace/'release.json',dict(nonce=nonce));doctor.process.wait(timeout=15)","DL.publish(workspace/'release.json',dict(nonce=nonce),0o600);doctor.process.wait(timeout=15)")
     anchor="        try:C.need(C.snapshot(Path(env['XDG_CONFIG_HOME']))==protected,'existing user configuration changed')"
-    session=replace(session,anchor,"        if doctor is not None:\n            base.emit('doctor_lifetime',**DL.capture(workspace,stage,nonce,doctor.process.pid,doctor.process.returncode))\n"+anchor)
+    session=replace(session,anchor,"        if doctor is not None:\n            lifetime=DL.capture(workspace,stage,nonce,doctor.process.pid,doctor.process.returncode)\n            base.emit('doctor_lifetime',**lifetime)\n            if first is None:\n                try:\n                    DL.validate(lifetime,stage,nonce,doctor.process.pid,doctor_proof['worker_pid'])\n                    MG.request('profile-retired',stage=stage,profile_nonce=nonce,terminal_pid=doctor.process.pid,terminal_exit=doctor.process.returncode,worker_pid=doctor_proof['worker_pid'])\n                except BaseException as error:first=error\n"+anchor)
     (output/'session.py').write_text(session)
     guest=(output/'base_guest.py').read_text()
     guest=replace(guest,'import time\n','import time\nimport management_root\nimport doctor_lifetime as DL\n')
-    guest=replace(guest,'code = session.wait(timeout=1080)','code = management_root.serve(managed_base, session, env, logs, 1080)')
-    guest=replace(guest,'        session = subprocess.Popen(managed_session.SETPRIV +','        DL.parent()\n        session = subprocess.Popen(managed_session.SETPRIV +')
+    guest=replace(guest,'code = session.wait(timeout=1080)',"code = management_root.serve(managed_base, session, env, logs, DL.service_lease()['deadline_ns'])")
+    guest=replace(guest,'    guard(True)  # Never power off a host that failed the guest guard.','    guard(True)  # Never power off a host that failed the guest guard.\n    DL.service()')
     # base_guest is also the binding module used by managed session; only guarded VM root can transact.
     (output/'base_guest.py').write_text(guest)
     fixture=(output/'desktop574_fixture.sh').read_text()
@@ -106,13 +107,12 @@ def verify_result(events,lock):
         C.VIEWS=M.BASE_VIEWS
         original=legacy.verify_result(baseline,old)
         C.VIEWS=views
-        parent_leases=[]
+        profile_retirements=[]
         for stage in ('minimal','overlay'):
             finals=[e for e in events if e.get('event')=='doctor_lifetime' and e.get('stage')==stage]
             C.need(len(finals)==1,'one original Doctor lifetime receipt required')
             doctor=next(e for e in events if e.get('event')=='doctor_result' and e.get('stage')==stage)
-            parent_leases.append(finals[0]['receipt']['parent'])
-            proof=doctor['proof'];DL.validate(finals[0],stage,proof['nonce'],proof['terminal_pid'],proof['worker_pid'])
+            proof=doctor['proof'];profile_retirements.append(DL.validate(finals[0],stage,proof['nonce'],proof['terminal_pid'],proof['worker_pid']))
             C.need(proof['report_worker_pid']==finals[0]['receipt']['worker_pid'],'actual Doctor report child identity differs')
             frames=[e for e in events if e.get('event')=='frame_ready' and e.get('stage')==stage]
             phase=next(e for e in events if e.get('event')=='phase_pass' and e.get('stage')==stage)
@@ -122,7 +122,7 @@ def verify_result(events,lock):
                 C.together(list(frame['windows'].values()),frame['welcome_pid'],reference['doctor_pid'],frame['view'])
                 C.need(all(frame[k]==reference[k] for k in ('doctor_pid','compositor_pid','worker','doctor_proof_sha256','managed_identity','producer_lifecycle')),
                        'management capture must retain actual managed bus/compositor/Doctor worker')
-        C.need(len({json.dumps(p,sort_keys=True) for p in parent_leases})==1,'both profiles must retain one fixed original parent lifetime')
+        DL.validate_profiles(profile_retirements)
     finally:C.VIEWS=views
     return dict(baseline=original,management=M.verify_result(events,lock),visual_review='NOT_RUN',hardware='NOT_RUN')
 '''

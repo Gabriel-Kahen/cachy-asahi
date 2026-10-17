@@ -114,14 +114,17 @@ Welcome3 removes the management spinner while preserving running text, disabled 
 
 ## Current management Doctor lifetime composition
 
-The dedicated management adapter derives a single absolute monotonic1080s
-lease immediately before the existing managed-user session starts. This is
-the existing overall session budget, shared by both profiles; it is never
-renewed or reset per profile. Its one nonce/deadline record lives under the
-root-owned, non-user-replaceable `/run` parent with ordinary single-link,
-nofollow and fixed-mode checks. Historical GUI callers retain the original
-450s worker source unchanged. Product30s and shared management45s gates,
-parent1080s, runtime1300s and all original capture/resource caps are unchanged.
+The dedicated adapter assigns each Doctor profile a root-owned, create-once
+1080s lease with a distinct nonce/stage. Both leases retain the same original
+1200s fixture-service binding, anchored immediately after the root boot guard,
+before runtime setup. Rootserve uses that absolute deadline; setup time counts.
+The effective child deadline is the earlier of profile1080 and service1200.
+Overlay issuance requires minimal's actual child-wait/release/terminal proof
+retired. No lease is renewed, reset or reused. Records remain ordinary,
+single-link, nofollow, fixed-mode files under a non-user-replaceable `/run`
+parent. Historical callers retain their original450s worker source unchanged.
+Outer1300s, product30s, shared45s, retirement10s, fixture90s and every original
+capture/resource cap remain unchanged.
 
 The same original Alacritty terminal starts one Python wrapper which forks
 one report worker once. Existing direct-terminal per-frame worker identity
@@ -135,7 +138,8 @@ actual wait status. Child intent or Alacritty0 alone never attests child0.
 Session teardown emits both as one bounded `doctor_lifetime` event; missing
 receipts remain UNKNOWN. The generated validator requires actual child0,
 release within the fixed parent interval and terminal0 after all original
-frames, before phase pass, for both profiles with the same original lease.
+frames, before phase pass. It joins two distinct sequential profile leases to
+the same global service and requires minimal retirement before overlay starts.
 It still requires all17management actions per profile and24frames total.
 
 Original39002929704 correctly failed because Doctor's terminal row was absent
@@ -145,6 +149,14 @@ remains UNPROVED. This corrects a source-defined lifetime composition and
 final-receipt gap; only a new original actual can establish full GUI success.
 
 The existing `python3 -B scripts/ci/welcome-management-native/test_gui.py`
-entry point also runs nine focused lifetime controls (36total controls).
+entry point runs12 focused lifetime controls (44total controls).
 These use private temporary metadata, controlled clocks and bounded owned
 Python fork/wait cases; no GUI/database/service/container/VM/network actor.
+
+
+Run39008879501 proved minimal's complete17ops/12frames/new retirement proof
+and actual Doctor release, then failed overlay: its actual childwait1 records
+PARENT_DEADLINE under the shared old1080s lease. The1080s shared scope is
+corrected explicitly here; no unmeasured metadata optimization is claimed.
+This source change does not establish both profiles fit the unchanged total
+service/VM bounds. A distinct full24-frame/34-operation actual remains required.

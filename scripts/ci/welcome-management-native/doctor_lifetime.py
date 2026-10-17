@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-"""Doctor's owned lifetime within the existing absolute1080s managed session."""
+"""Doctor's owned lifetime within fixed1080s profiles and the original global1200s service."""
 import json
 import os
 from pathlib import Path
@@ -8,8 +8,10 @@ import select
 import stat
 import time
 
-LEASE=Path('/run/desktop574-doctor-lifetime.json')
+LEASE=Path('/run/desktop574-doctor-lifetime')
+SERVICE=Path('/run/desktop574-service-lifetime.json')
 SECONDS=1080
+SERVICE_SECONDS=1200
 CAP=8192
 
 
@@ -37,25 +39,55 @@ def publish(path,value,mode):
     with os.fdopen(fd,'wb') as stream:os.fchmod(stream.fileno(),mode);stream.write(raw);stream.flush();os.fsync(stream.fileno())
 
 
-def parent(path=LEASE):
-    info=path.parent.lstat();need(stat.S_ISDIR(info.st_mode) and info.st_uid==0 and info.st_mode&0o022==0 and not path.parent.is_symlink(),'root-owned nonreplaceable lease parent required')
-    started=time.monotonic_ns()
-    value=dict(schema_version=1,purpose='EXISTING_MANAGED_SESSION_1080S',parent_pid=os.getpid(),parent_nonce=os.urandom(16).hex(),started_ns=started,deadline_ns=started+SECONDS*10**9)
+def root_parent(path,uid):
+    info=path.parent.lstat();need(stat.S_ISDIR(info.st_mode) and info.st_uid==uid and info.st_mode&0o022==0 and not path.parent.is_symlink(),'nonreplaceable parent lifetime required')
+
+
+def service(path=SERVICE):
+    root_parent(path,0);started=time.monotonic_ns()
+    value=dict(schema_version=1,purpose='EXISTING_FIXTURE_SERVICE_1200S',parent_pid=os.getpid(),parent_nonce=os.urandom(16).hex(),started_ns=started,deadline_ns=started+SERVICE_SECONDS*10**9)
     publish(path,value,0o444);return value
 
 
-def lease(path=LEASE,uid=0):
-    info=path.parent.lstat();need(stat.S_ISDIR(info.st_mode) and info.st_uid==uid and info.st_mode&0o022==0 and not path.parent.is_symlink(),'nonreplaceable parent lifetime required')
-    value=read(path,uid,0o444)
-    need(set(value)=={'schema_version','purpose','parent_pid','parent_nonce','started_ns','deadline_ns'} and value['schema_version']==1 and value['purpose']=='EXISTING_MANAGED_SESSION_1080S','parent lifetime schema')
-    need(type(value['parent_nonce']) is str and len(value['parent_nonce'])==32 and all(c in '0123456789abcdef' for c in value['parent_nonce']),'fixed parent nonce required')
-    need(all(type(value[k]) is int and value[k]>0 for k in ('parent_pid','started_ns','deadline_ns')) and value['deadline_ns']-value['started_ns']==SECONDS*10**9,'fixed parent lifetime required')
-    need(value['started_ns']<=time.monotonic_ns()<value['deadline_ns'],'parent lifetime expired')
-    return value
+def fixed(value,purpose,seconds):
+    need(type(value) is dict and set(value)=={'schema_version','purpose','parent_pid','parent_nonce','started_ns','deadline_ns'},'closed fixed service lease required')
+    need(value['schema_version']==1 and value['purpose']==purpose and type(value['parent_nonce']) is str and len(value['parent_nonce'])==32 and all(c in '0123456789abcdef' for c in value['parent_nonce']),'fixed parent nonce required')
+    need(all(type(value[k]) is int and value[k]>0 for k in ('parent_pid','started_ns','deadline_ns')) and value['deadline_ns']-value['started_ns']==seconds*10**9,'fixed parent lifetime required')
 
 
-def start(workspace,nonce,terminal_pid):
-    value=dict(nonce=nonce,terminal_pid=terminal_pid,parent=lease())
+def service_lease(path=SERVICE,uid=0):
+    root_parent(path,uid);value=read(path,uid,0o444);fixed(value,'EXISTING_FIXTURE_SERVICE_1200S',SERVICE_SECONDS)
+    need(value['started_ns']<=time.monotonic_ns()<value['deadline_ns'],'service lifetime expired');return value
+
+
+def profile_path(stage):
+    need(stage in ('minimal','overlay'),'fixed Doctor profile required');return LEASE.with_name(LEASE.name+'-'+stage+'.json')
+
+
+def parent(stage,nonce,path=None,service_path=SERVICE):
+    path=profile_path(stage) if path is None else path;root_parent(path,0);global_owner=service_lease(service_path)
+    started=time.monotonic_ns();value=dict(schema_version=1,purpose='EXISTING_MANAGED_PROFILE_1080S',parent_pid=os.getpid(),parent_nonce=os.urandom(16).hex(),started_ns=started,deadline_ns=started+SECONDS*10**9,stage=stage,profile_nonce=nonce,service=global_owner)
+    binding(value,stage,nonce);publish(path,value,0o444);return value
+
+
+def binding(value,stage,nonce):
+    need(type(value) is dict and set(value)=={'schema_version','purpose','parent_pid','parent_nonce','started_ns','deadline_ns','stage','profile_nonce','service'},'closed fixed profile lease required')
+    fixed({k:v for k,v in value.items() if k not in ('stage','profile_nonce','service')},'EXISTING_MANAGED_PROFILE_1080S',SECONDS)
+    fixed(value['service'],'EXISTING_FIXTURE_SERVICE_1200S',SERVICE_SECONDS)
+    need(stage in ('minimal','overlay') and value['stage']==stage and value['profile_nonce']==nonce and type(nonce) is str and len(nonce)==32 and all(c in '0123456789abcdef' for c in nonce),'fixed Doctor profile/nonce differs')
+    need(value['parent_pid']==value['service']['parent_pid'] and value['service']['started_ns']<=value['started_ns']<value['service']['deadline_ns'],'profile must belong to original service')
+
+
+def deadline(value):return min(value['deadline_ns'],value['service']['deadline_ns'])
+
+
+def lease(stage,nonce,path=None,uid=0):
+    path=profile_path(stage) if path is None else path;root_parent(path,uid);value=read(path,uid,0o444);binding(value,stage,nonce)
+    need(value['started_ns']<=time.monotonic_ns()<deadline(value),'parent lifetime expired');return value
+
+
+def start(workspace,stage,nonce,terminal_pid):
+    value=dict(nonce=nonce,terminal_pid=terminal_pid,parent=lease(stage,nonce))
     publish(workspace/'start.json',value,0o600)
 
 
@@ -81,7 +113,7 @@ def worker(C,base,workspace,stage,nonce,exercise):
     def cancelled(signum,frame):raise Cancelled('owned Doctor signal '+str(signum))
     for signum in (signal.SIGTERM,signal.SIGINT):old[signum]=signal.signal(signum,cancelled)
     try:
-        binding=lease();until=min(binding['deadline_ns'],begin+120*10**9)
+        binding=lease(stage,nonce);until=min(deadline(binding),begin+120*10**9)
         while not (workspace/'start.json').exists():
             need(time.monotonic_ns()<until,'Doctor terminal start deadline');time.sleep(.1)
         value=read(workspace/'start.json',23001,0o600)
@@ -89,7 +121,7 @@ def worker(C,base,workspace,stage,nonce,exercise):
         phase='COMMANDS';result=exercise(base,workspace,stage,nonce,TERMINAL_PID,dict(os.environ))
         result.update(report_worker_pid=os.getpid(),worker_pid=WRAPPER_PID)
         C.publish(workspace/'result.json',result)
-        phase='WAIT_RELEASE';wait_marker(workspace/'release.json',nonce,binding['deadline_ns'])
+        phase='WAIT_RELEASE';wait_marker(workspace/'release.json',nonce,deadline(binding))
         outcome='RELEASED';code=0
     except BaseException as caught:
         error=caught
@@ -126,16 +158,23 @@ def validate(value,stage,nonce,terminal_pid,worker_pid):
     need(row['schema_version']==1 and row['stage']==stage and row['nonce']==nonce and row['terminal_pid']==terminal_pid and row['wrapper_pid']==worker_pid and row['outcome']=='RELEASED' and row['phase']=='WAIT_RELEASE' and row['intended_exit']==0 and row['error_type'] is row['reason'] is None,'Doctor ordinary worker release/exit required')
     waited=value['child_wait'];need(set(waited)=={'schema_version','wrapper_pid','terminal_pid','child_pid','child_returncode','wait_status','reason','parent','finished_ns'},'closed actual child wait required')
     need(waited['schema_version']==1 and waited['wrapper_pid']==worker_pid and waited['child_pid']==row['worker_pid'] and waited['terminal_pid']==terminal_pid and waited['child_returncode']==0 and waited['wait_status']==0 and waited['reason']=='NATURAL_CHILD_EXIT' and waited['parent']==row['parent'],'actual Doctor child wait0 required')
-    binding=row['parent'];need(all(type(row[k]) is int and row[k]>0 for k in ('terminal_pid','worker_pid','wrapper_pid','started_ns','finished_ns')) and all(type(waited[k]) is int and waited[k]>0 for k in ('wrapper_pid','terminal_pid','child_pid','finished_ns')) and type(waited['child_returncode']) is type(waited['wait_status']) is int,'typed child/wrapper identity and actual wait required')
-    need(set(binding)=={'schema_version','purpose','parent_pid','parent_nonce','started_ns','deadline_ns'} and type(binding['parent_nonce']) is str and len(binding['parent_nonce'])==32 and all(c in '0123456789abcdef' for c in binding['parent_nonce']) and all(type(binding[k]) is int and binding[k]>0 for k in ('parent_pid','started_ns','deadline_ns')),'closed fixed parent lease required')
-    need(binding['schema_version']==1 and binding['purpose']=='EXISTING_MANAGED_SESSION_1080S' and binding['deadline_ns']-binding['started_ns']==SECONDS*10**9 and binding['started_ns']<=row['started_ns']<=row['finished_ns']<binding['deadline_ns'] and row['finished_ns']<=waited['finished_ns']<binding['deadline_ns'],'Doctor fixed parent lifetime interval differs')
-    return dict(status='PASS_RELEASED_NATURAL_DOCTOR_WORKER_AND_TERMINAL',stage=stage,terminal_pid=terminal_pid,worker_pid=worker_pid,parent=binding)
+    owner=row['parent'];binding(owner,stage,nonce)
+    need(all(type(row[k]) is int and row[k]>0 for k in ('terminal_pid','worker_pid','wrapper_pid','started_ns','finished_ns')) and all(type(waited[k]) is int and waited[k]>0 for k in ('wrapper_pid','terminal_pid','child_pid','finished_ns')) and type(waited['child_returncode']) is type(waited['wait_status']) is int,'typed child/wrapper identity and actual wait required')
+    need(owner['started_ns']<=row['started_ns']<=row['finished_ns']<deadline(owner) and row['finished_ns']<=waited['finished_ns']<deadline(owner),'Doctor fixed profile/global lifetime interval differs')
+    return dict(status='PASS_RELEASED_NATURAL_DOCTOR_WORKER_AND_TERMINAL',stage=stage,terminal_pid=terminal_pid,worker_pid=worker_pid,parent=owner,finished_ns=waited['finished_ns'])
 
 
-def supervise(main,workspace=None):
+def validate_profiles(profiles):
+    need([p['stage'] for p in profiles]==['minimal','overlay'],'two ordered independent Doctor profiles required')
+    first,second=profiles;one=first['parent'];two=second['parent']
+    need(one['service']==two['service'] and one['parent_pid']==two['parent_pid'] and one['parent_nonce']!=two['parent_nonce'] and one['profile_nonce']!=two['profile_nonce'] and first['finished_ns']<two['started_ns'],'profiles require distinct fixed owners after previous retirement within one service')
+
+
+
+def supervise(main,workspace=None,stage=None,nonce=None):
     """One direct child; only waitpid status attests its actual process exit."""
     global WRAPPER_PID,TERMINAL_PID
-    WRAPPER_PID=os.getpid();TERMINAL_PID=os.getppid();binding=lease()
+    WRAPPER_PID=os.getpid();TERMINAL_PID=os.getppid()
     if workspace is None:
         import sys
         need(sys.argv.count('--workspace')==1,'fixed Doctor workspace operand')
@@ -146,6 +185,7 @@ def supervise(main,workspace=None):
         info=workspace.lstat()
         need(os.geteuid()==23001 and workspace==Path('/home/desktop574')/('doctor-'+stage+'-'+nonce) and not workspace.is_symlink() and stat.S_ISDIR(info.st_mode) and info.st_uid==23001 and stat.S_IMODE(info.st_mode)==0o700 and Path.cwd()==workspace and os.isatty(0) and os.isatty(1),'owned Doctor wrapper workspace/identity/PTY required')
         need('cachy_asahi_welcome_gui=1' in Path('/proc/cmdline').read_text().split(),'Doctor wrapper VM marker required')
+    binding=lease(stage,nonce)
     child=os.fork()
     if child==0:
         try:code=main()
@@ -166,7 +206,7 @@ def supervise(main,workspace=None):
     for signum in (signal.SIGTERM,signal.SIGINT):old[signum]=signal.signal(signum,cancel)
     try:
         while not poller.poll(100):
-            if cancelled or time.monotonic_ns()>=binding['deadline_ns']:
+            if cancelled or time.monotonic_ns()>=deadline(binding):
                 reason='PARENT_CANCELLED' if cancelled else 'PARENT_DEADLINE'
                 signal.pidfd_send_signal(handle,signal.SIGTERM)
                 if not poller.poll(1000):signal.pidfd_send_signal(handle,signal.SIGKILL)

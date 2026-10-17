@@ -445,8 +445,8 @@
       "sha256": "2cd3136995e0cdc7b6bdd6b8b0fcc75f684a8618178ff4ba35b5acd3b9f7fe2e"
     },
     "scripts/ci/expanded604-current-management-managed16k/dependencies.json": {
-      "bytes": 43578,
-      "sha256": "f98896406e7f7f95384d2d5dc5893c3113de3fcb835a2b3342d00cdc0cc3a55c"
+      "bytes": 43579,
+      "sha256": "2a566d6b1e20f94e08626a7cfeed4efb6ffaadf6e0899e6d2ea67cd9da7e271d"
     },
     "scripts/ci/expanded604-current-management-managed16k/freeze.py": {
       "bytes": 2637,
@@ -473,8 +473,8 @@
       "sha256": "c466caf17edafe9f9294fcb7eb63e56e9e198ddf4e8ef516229c6b07365e1a66"
     },
     "scripts/ci/expanded604-current-management-managed16k/test_lane.py": {
-      "bytes": 15030,
-      "sha256": "d3a4b3f877ee4092200ac1d89f1b61f2d3b3a59052b99dd5c0ad8c21c5b41a58"
+      "bytes": 15205,
+      "sha256": "31a605879514dc8ee21f26c93c3cf38caaa190fe1c41179ee33fca3436abce51"
     },
     "scripts/ci/expanded604-current-management/README.md": {
       "bytes": 3990,
@@ -857,8 +857,8 @@
       "sha256": "1830c3e72465cb1d65686f122c075170a8046fd57747a1f092ac0c780846ef51"
     },
     "scripts/ci/welcome-management-native/README.md": {
-      "bytes": 9791,
-      "sha256": "ab85079eef08b22b6b07cb8d593c65ee220d4824a0567d48224e4499a2e67e7c"
+      "bytes": 10537,
+      "sha256": "e40baf125882db31149a7f9750e1c4eca6ca6535b3ce8f15e13b2bc046e42b54"
     },
     "scripts/ci/welcome-management-native/a11y_driver.c": {
       "bytes": 20397,
@@ -869,8 +869,8 @@
       "sha256": "ccf540c1d1d0aa1e25b4e3830fcb84347d40a871dc5fe90243d72fa2b5c86dc3"
     },
     "scripts/ci/welcome-management-native/doctor_lifetime.py": {
-      "bytes": 12162,
-      "sha256": "0483782f1836c297a43717d22c05a29692f1df445ea3b52d38e04e14f297a286"
+      "bytes": 14227,
+      "sha256": "317f020b3b9e2a1bf15156d29399162915c8b3bd23531181921d7169ca4a21be"
     },
     "scripts/ci/welcome-management-native/freeze.py": {
       "bytes": 2496,
@@ -905,28 +905,28 @@
       "sha256": "56be23b11be0159325ee18e1a666461ef7430f6bff34cadb30393c1bec4f9445"
     },
     "scripts/ci/welcome-management-native/management_root.py": {
-      "bytes": 15725,
-      "sha256": "34bc267948a000d4089df55a75cfddfc600cd34dfb3c8a56bb31b7bc472a3c47"
+      "bytes": 17350,
+      "sha256": "e64cf50fabd67b73b68177feb34011364ab5bccd5d2535729ad369d4b364b893"
     },
     "scripts/ci/welcome-management-native/native_contract.py": {
       "bytes": 14414,
       "sha256": "180cf1d7c98dfbdf8178d5eab0bae8e8fa5f90ed32935b3f6febd3520e0c657a"
     },
     "scripts/ci/welcome-management-native/prepare.py": {
-      "bytes": 13048,
-      "sha256": "fd9ca0f4fd58abd95088998018a854ae9cdd9444a6f40e4bb22952a5d7247e32"
+      "bytes": 13583,
+      "sha256": "27a90027cebffa2d35b8b5e55915bfc779ceaf22b2a764d7e4594501632baead"
     },
     "scripts/ci/welcome-management-native/run.py": {
       "bytes": 12928,
       "sha256": "f04a8ebada6892d1119fc3b43dd83809c9cde75cef5b8eebb417b635819bdbe7"
     },
     "scripts/ci/welcome-management-native/source-manifest.json": {
-      "bytes": 32081,
-      "sha256": "a76431c0c62729adb9e45d6367c3629c8a1ce300844f5bdab60754f7f480658e"
+      "bytes": 32082,
+      "sha256": "922e6245e9d3e9e07e3ae9d8d83956029aa24122f7b4c00a080f3dd1c483cc77"
     },
     "scripts/ci/welcome-management-native/test_doctor_lifetime.py": {
-      "bytes": 6605,
-      "sha256": "2dfd346d0157add01e312cd710e74df1ba5d210ba94949585ccbb55a6d85df9d"
+      "bytes": 9687,
+      "sha256": "46229009710db7539b527246199233e5e2e0773b878077aa38183d043c89a60d"
     },
     "scripts/ci/welcome-management-native/test_failure_capture.py": {
       "bytes": 5027,
@@ -937,8 +937,8 @@
       "sha256": "5e8d49c65c4251843a165e62a7d507df166252df635416ad467313659911fc9b"
     },
     "scripts/ci/welcome-management-native/test_gui.py": {
-      "bytes": 33626,
-      "sha256": "550786808b6fca32677a82e14bd6273c83e72e455ea286ffe8431c84983fb47c"
+      "bytes": 35258,
+      "sha256": "e0c071f925dfed22e0fa1aebe16b823c9e5144a652da5742e80cd2dd33baa987"
     },
     "scripts/ci/welcome-management-native/test_native.py": {
       "bytes": 24185,
