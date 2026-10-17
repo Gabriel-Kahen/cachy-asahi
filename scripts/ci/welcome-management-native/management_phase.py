@@ -25,6 +25,20 @@ def request(operation,**fields):
     value=json.loads(C.read(reply,65536,0));C.need(value.get('nonce')==nonce and value.get('sequence')==number and value.get('status')=='PASS','owned root fixture result differs');return value
 
 
+
+def closing_retirement(wait,pending,closing,inventory):
+    def retired():
+        value=request('retired')
+        # Keep the last raw reply even when the unchanged fast wait refuses it.
+        pending['retirement_observation']=value
+        return value if C.retirement_reply(value,closing,'retired') else None
+    fast=wait(retired,lambda:None,10,'owned management group retirement')
+    pending['phase']='retirement-preservation-proof'
+    proof=request('retired-proof');pending['retirement_proof']=proof
+    C.retirement_proof(fast,proof,closing,inventory)
+    return fast,proof
+
+
 def report_command(base,tool,path,env,expected=0):
     argv=['/usr/bin/cachy-asahi-'+('orphans' if tool=='failure' else tool),'--json' if tool=='doctor' else 'assess']
     error_path=path.with_suffix('.stderr');process=None
@@ -210,16 +224,10 @@ def exercise(base,stage,env,logs,workspace,old_welcome,doctor,policy,lock,hooks)
         capture('management-closing',dict(text=[ui['strings']['running']],buttons={ui['labels']['orphans']:False}))
         close(current,False);closed=current
         pending.update(phase='welcome-close-returned',welcome_exit=closed.process.returncode)
-        def retired():
-            value=request('retired')
-            # Retain the last original reply even when the unchanged wait
-            # rejects it; the preceding lock-refusal report is not this case.
-            pending['retirement_observation']=value
-            return value if all(value[k] for k in ('helper_absent','supervisor_absent','group_absent')) else None
-        retirement=hooks['wait'](retired,lambda:None,10,'owned management group retirement')
+        retirement,proof=closing_retirement(hooks['wait'],pending,closing,inventory)
         C.need(stable()==closing_before and not Path('/var/lib/pacman/db.lck').exists(),'closing check changed metadata or created lock')
-        C.need(retirement['inventory']==inventory and retirement['nonselected_database']=='PRESERVED','GUI fixture mutated nonselected metadata')
         base.emit('management_result',stage=stage,reports=reports,closing_process=closing,welcome_exit=closed.process.returncode,
+            retirement_observation=retirement,retirement_proof=proof,
             owned_group_absent=True,owned_helper_absent=True,owned_supervisor_absent=True,metadata_readonly=True,
             nonselected_database='PRESERVED',inventory=inventory,present_count=594,absent_count=592,
             scope='GENERIC4K_UNPRIVILEGED_ACTUAL_DEFAULT_TOOLS',hardware='NOT_RUN')

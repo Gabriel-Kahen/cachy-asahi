@@ -1,0 +1,7 @@
+# Installed16K lifecycle child failure
+
+Actual39005865466/source75843da0a54c80fe78835907aaf6bd57555ee315 boots the original disk-backed full574 fixture with16384-byte pages, then fails before a complete lifecycle child result. QEMU exits naturally0 after38.258 seconds and its group, preparation actor and disks are retired. This establishes boot, not ALPM installation, completed child cleanup or hardware acceptance.
+
+Root retains both artifacts and logs once in artifacts/development/gnu-provider-installed16k-run39005865466. The installed ZIP is62457 bytes/SHA2566168b6b6ba8beecd46bf43f7fffb223c21c1f7c830e394515b3ea4d79725dd73; its19 members all join the original retention index. Original UART11408 bytes/e479d50d07efd996d1fa349fd8126172cf5396f09e2fbb8b12712265bb200e8a reports only lifecycle child exit/group retirement failure. The supervisor had discarded the child row/stdout/stderr before refusal, so the specific child cause remains UNKNOWN.
+
+The corrected guest preserves the original child-supervisor record and captured output hashes/byte counts with explicit64KiB previews/truncation in a nonce-bound failure UART event before the same refusal. Valid success adds no event. Original512KiB capture/receipt and16MiB UART caps,10500/10800-second bounds and full worker semantics remain unchanged. Five capture controls and31 original lane controls pass. The failure diagnostic receives no acceptance credit, and the strict success protocol continues to reject it. A changed native execution is needed to identify the child fault.
