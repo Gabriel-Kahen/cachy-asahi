@@ -105,8 +105,11 @@ class Controls(unittest.TestCase):
                 snapshot.records(self.archive([('foreign-link','symlink','/outside'),('usr/lib/alias','hardlink',target)]))
 
     def test_foreign_actor_and_unknown_daemon_state_preserved(self):
-        value=dict(Name='/owned',Image='sha256:'+'a'*64,Config=dict(Labels={job.LABEL:'b'*32}),Id='c'*64)
+        value=dict(Name='/owned',Image='sha256:'+'a'*64,Config=dict(Labels={job.LABEL:'b'*32}),Id='c'*64,AppArmorProfile='docker-default')
         self.assertEqual(job.verify_actor(value,'owned','sha256:'+'a'*64,job.LABEL,'b'*32),'c'*64)
+        value['AppArmorProfile']='unexpected-custom-profile'
+        with self.assertRaises(ValueError):job.verify_actor(value,'owned','sha256:'+'a'*64,job.LABEL,'b'*32)
+        value['AppArmorProfile']='docker-default'
         value['Config']['Labels'][job.LABEL]='foreign'
         with self.assertRaises(ValueError):job.verify_actor(value,'owned','sha256:'+'a'*64,job.LABEL,'b'*32)
         with self.assertRaises(ValueError):job.inspect('owned',lambda *a,**k:dict(code=1,out=b'',err=b'daemon unavailable'))
@@ -219,8 +222,11 @@ class Controls(unittest.TestCase):
 
     def retain_fixture(self,missing_binding=False):
         output,source,value=self.consumer_fixture()
+        (output/'apparmor').mkdir();(output/'apparmor/trial.profile').write_bytes(b'inert fixture only\n')
+        apparmor=dict(status='PASS_OWNED_PROFILE_REMOVED_AFTER_ALL_CONSUMERS',profile=dict(bytes=19,sha256=hashlib.sha256(b'inert fixture only\n').hexdigest()))
+        job.save(output/'apparmor/state.json',apparmor)
         job.save(output/'owner.json',dict(status='PASS_INTERRUPTION_PENDING_ORDERED_PRODUCER_CLEANUP',
-                 consumer_cleanup='PASS_ALL_ACTORS_CLONES_AND_SOURCE_DATA_RETIRED',source_snapshot=dict(observation=dict(node_sha256=source,security_capabilities={},source_capabilities_sha256=hashlib.sha256(b'{}\n').hexdigest())),capabilities=dict(status='EXACT_SOURCE_MAP_PRESERVED',source_capabilities_sha256=hashlib.sha256(b'{}\n').hexdigest(),paths=0,cases=2,stages=10,copy_scope_sha256={case:hashlib.sha256((json.dumps(synthetic_copy_scope(case),sort_keys=True,indent=2)+'\n').encode()).hexdigest() for case in ('pristine','modified')})))
+                 apparmor=apparmor,consumer_cleanup='PASS_ALL_ACTORS_CLONES_AND_SOURCE_DATA_RETIRED',source_snapshot=dict(observation=dict(node_sha256=source,security_capabilities={},source_capabilities_sha256=hashlib.sha256(b'{}\n').hexdigest())),capabilities=dict(status='EXACT_SOURCE_MAP_PRESERVED',source_capabilities_sha256=hashlib.sha256(b'{}\n').hexdigest(),paths=0,cases=2,stages=10,copy_scope_sha256={case:hashlib.sha256((json.dumps(synthetic_copy_scope(case),sort_keys=True,indent=2)+'\n').encode()).hexdigest() for case in ('pristine','modified')})))
         job.save(output/'inner/owner.json',dict(synthetic=True))
         (output/'snapshot-public').mkdir();job.save(output/'snapshot-public/snapshot.json',dict(synthetic=True))
         (output/'snapshot-public/original574-root.json.gz').write_bytes(b'synthetic observation only')
@@ -231,7 +237,7 @@ class Controls(unittest.TestCase):
             target=self.root/relative;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes((repo/relative).read_bytes())
         for name in ('input-policy.json','source-manifest.json'):job.save(output/'interruption-runner'/name,dict(synthetic=True))
         proof=self.root/'proof.json';job.save(proof,{})
-        receipt=self.root/'ordered.json';job.save(receipt,dict(status='PASS_ORDERED_ALL_CONSUMERS_THEN_PRODUCER'))
+        receipt=self.root/'ordered.json';job.save(receipt,dict(status='PASS_ORDERED_ALL_CONSUMERS_THEN_PRODUCER',apparmor=apparmor))
         base=self.root/'base';base.mkdir();job.save(base/'report.json',dict(synthetic=True));(base/'installed-packages.lock').write_bytes(b'synthetic lock')
         packet=self.root/'packet';packet.mkdir();job.save(packet/'packet.json',dict(synthetic=True))
         here=self.root/'owner-source';here.mkdir();job.save(here/'integration-manifest.json',dict(files={}))
@@ -281,7 +287,7 @@ class Controls(unittest.TestCase):
     def test_setfcap_grant_is_only_the_exact_extraction_actor(self):
         for role in ('extract','source-cleanup','inner-scrub'):
             output=self.root/role;output.mkdir();report=dict(token='a'*32,image='sha256:'+'b'*64,actors=[],snapshot_point=dict(archive_sha256='c'*64));command=unittest.mock.Mock(return_value=dict(code=0))
-            with patch.object(job,'inspect',side_effect=[None,{}]),patch.object(job,'verify_actor',return_value='d'*64):job.observer(self.root,output,report,command,role,'/runner/capability_snapshot.py')
+            with patch.object(job,'inspect',side_effect=[None,dict(AppArmorProfile='docker-default')]),patch.object(job,'verify_actor',return_value='d'*64):job.observer(self.root,output,report,command,role,'/runner/capability_snapshot.py')
             argv=command.call_args.args[0];self.assertEqual('--cap-add=SETFCAP' in argv,role=='extract');self.assertIn('--network=none',argv);self.assertIn('--security-opt=no-new-privileges',argv)
 
     def test_capability_wrapper_is_isolated_and_original_extractors_are_unchanged(self):

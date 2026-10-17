@@ -31,6 +31,7 @@ def owned(value,name,image,token):
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     for name in ('inputs','source-root','held-root','output'):parser.add_argument('--'+name,type=Path,required=True)
+    parser.add_argument('--apparmor-state',type=Path,required=True)
     parser.add_argument('--input-sha256',required=True);args=parser.parse_args()
     index,_,_,_=C.configuration(args.inputs,args.input_sha256)  # No mkdir, Docker or mutation before accepted gates.
     C.need(not any(n.startswith(('DOCKER_','LD_')) for n in os.environ),'daemon/loader overrides refused')
@@ -38,7 +39,10 @@ def main():
         C.need(path.is_absolute() and path.is_dir() and not any(p.is_symlink() for p in (path,*path.parents)) and ',' not in str(path),'ordinary explicit source/output paths')
     C.need(args.held_root!=Path('/') and not args.output.exists() and not any(args.output.is_relative_to(p) or p.is_relative_to(args.output) for p in (args.inputs,args.source_root,args.held_root)),'fresh separate lifecycle output/source')
     C.need(shutil.disk_usage(args.output.parent).free>=20*1024**3,'20GiB isolated root/evidence reserve')
-    api=C.helpers(args.source_root);args.output.mkdir(mode=0o700);private=args.output/'private';private.mkdir(mode=0o700);public=args.output/'public';public.mkdir(mode=0o700)
+    api=C.helpers(args.source_root)
+    apparmor=C.load('trial_apparmor_owner',args.source_root/'scripts/ci/glibc-gnu-trial-apparmor/profile.py')
+    profile=apparmor.binding(args.apparmor_state,index['token'],'lifecycle',index['image_id'])
+    args.output.mkdir(mode=0o700);private=args.output/'private';private.mkdir(mode=0o700);public=args.output/'public';public.mkdir(mode=0o700)
     lease=os.open(args.output/'lease',os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_CLOEXEC,0o600);fcntl.flock(lease,fcntl.LOCK_EX|fcntl.LOCK_NB)
     report=dict(status='FAIL',token=index['token'],image_id=index['image_id'],actors=[],commands=[],source='READONLY_ORIGINAL574',producer_cleanup='ROOT_OWNS_NOT_ATTEMPTED',hardware='NOT_RUN',release_admission=False)
     def save():(args.output/'owner.json').write_text(json.dumps(report,sort_keys=True,indent=2)+'\n')
@@ -57,6 +61,7 @@ def main():
         argv=['/usr/bin/docker','run','--name',name,'--label',C.LABEL+'='+index['token'],'--pull=never','--platform=linux/arm64','--user=0:0','--network=none','--read-only',
             '--cap-drop=ALL','--security-opt=no-new-privileges','--pids-limit=512','--memory=4g','--cpus=2','--ulimit=nofile=8192:8192','--tmpfs=/tmp:rw,nosuid,nodev,size=128m',
             '--env=CACHY_GNU_PROVIDER_LIFECYCLE=1','--env=INPUT_INDEX_SHA256='+args.input_sha256,'--env=OUTPUT_UID='+str(os.getuid()),'--env=OUTPUT_GID='+str(os.getgid()),'--env=PYTHONDONTWRITEBYTECODE=1']
+        if role=='trial':argv+=['--security-opt=apparmor='+profile['name'],'--env=GNU_TRIAL_APPARMOR_PROFILE='+profile['name']]
         caps=('CHOWN','DAC_OVERRIDE','FOWNER','FSETID','SETUID','SETGID','SYS_CHROOT','SYS_ADMIN','SETFCAP') if role=='trial' else ('CHOWN','DAC_OVERRIDE','FOWNER')
         argv+=['--cap-add='+cap for cap in caps]
         mounts=[(args.inputs,'/inputs',True),(args.source_root,'/source',True),(args.held_root,'/held',True),(C.HERE,'/runner',True),(private,'/work',False),(public,'/out',False)]
@@ -65,6 +70,7 @@ def main():
         result=command(argv,allow_failure=True,seconds=seconds)
         observed=inspect(name,command);C.need(observed is not None,'retained actor identity')
         actor.update(id=owned(observed,name,index['image_id'],index['token']),exit=result['code'],status='EXITED');save()
+        actor['apparmor']=apparmor.docker_profile(observed,index['token'],'lifecycle',role);save()
         return result
     def retire():
         errors=[]
@@ -83,6 +89,8 @@ def main():
         save();result=launch('trial','container.py',3600)
         C.need(result['code']==0,'installed provider lifecycle child failed')
         child=json.loads(C.read(public/'result.json',8*1024**2));C.need(child['status']=='PASS_GENERIC_ARM_SYSTEM_PROVIDER_LIFECYCLE' and set(child['cases'])==set(C.CASES) and all(r['status']=='PASS_NORMAL_DISPOSABLE_PROVIDER_SEQUENCE' and r['copy_lifetime']['cleanup']=='PASS-owned-workspace-removed' and r['source_before']==r['source_after']==index['source_nodes_sha256'] for r in child['cases'].values()),'complete child lifecycle result')
+        C.need(child.get('apparmor',{}).get('status')=='PASS_INSIDE_OWNED_TRIAL_APPARMOR_ENFORCE' and child['apparmor']['name']==profile['name'],'inside owned enforced trial profile proof required')
+        report['apparmor']=child['apparmor']
         expected_stages=('source-before','clone','before574','precommit-refused','provider574','reinstalled574','held574','source-after')
         report['capabilities']=api['capabilities'].records(index,child['cases'],expected_stages)
         report['lifecycle']='PASS'

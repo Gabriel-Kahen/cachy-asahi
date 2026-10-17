@@ -25,8 +25,8 @@
       "sha256": "b287172c398ce03ed96b1c0b25f6217ffe807956c20a00f1d1b57da3cae20731"
     },
     "scripts/ci/glibc-gnu-provider-interruption-owner/job.py": {
-      "bytes": 34089,
-      "sha256": "4e73e06ee60f40ea23b40587f265d3eeae09fc1f11e90b48613474395b858970"
+      "bytes": 37081,
+      "sha256": "cc0692ab7f3a48e6e3b7a1c6307177437391e7562f996c79924a730c29da4cdc"
     },
     "scripts/ci/glibc-gnu-provider-interruption-owner/packet-interface.json": {
       "bytes": 2112,
@@ -41,8 +41,8 @@
       "sha256": "0ff8d2e15ebcca5f91d09c19e986737d7d5596f3f439decb1e1d763d833c5e69"
     },
     "scripts/ci/glibc-gnu-provider-interruption-owner/test_owner.py": {
-      "bytes": 24461,
-      "sha256": "2326c9f0901b0f0bb59e18e7611d946ed9405c56a72f9ed2ec3751c639dd4049"
+      "bytes": 25110,
+      "sha256": "72c12b7955aea6daccf49c68ad9436d6126adf8ddb18aec5927450815dc1da19"
     },
     "scripts/ci/glibc-gnu-provider-interruption/README.md": {
       "bytes": 9534,
@@ -57,12 +57,12 @@
       "sha256": "ac2e38d80b0c0a283b9865fb88e6000f7c10202194298a6a3ed31b5679574d8b"
     },
     "scripts/ci/glibc-gnu-provider-interruption/container.py": {
-      "bytes": 26253,
-      "sha256": "36bcf7c80e178a890b23ea20bfa1c6a290ea32e33777e6036f4b4b3e6cdbfb0b"
+      "bytes": 26497,
+      "sha256": "581328e2b36829c0d32ede77981038e8470e672270485343f704e94b2689f223"
     },
     "scripts/ci/glibc-gnu-provider-interruption/dependencies.json": {
-      "bytes": 3860,
-      "sha256": "2660d20eacaf4b7a16f2b4793e95579f8f2bbfa5d53b2af6239840a681302f6b"
+      "bytes": 5082,
+      "sha256": "439ac302d6e0b359442ae491f15ccf36fcf0e130dddb94ddfa5a7287014c02ed"
     },
     "scripts/ci/glibc-gnu-provider-interruption/input-interface.json": {
       "bytes": 2567,
@@ -81,8 +81,8 @@
       "sha256": "9d3769704396a33acc0c144cc1519d10230a5fb07d2f7b135dcfd0ba1ab6a68b"
     },
     "scripts/ci/glibc-gnu-provider-interruption/run.py": {
-      "bytes": 8412,
-      "sha256": "7287a6dfdfa4fac73474633bdf8b95e38338a86c313b2ecab2c083f75f8d8fd9"
+      "bytes": 9166,
+      "sha256": "5ebf9c04ac2106adfc8a7f0601965df3604849b470553338ee10a324c43f7e12"
     },
     "scripts/ci/glibc-gnu-provider-interruption/scrub.py": {
       "bytes": 849,
@@ -94,7 +94,7 @@
     },
     "scripts/ci/glibc-gnu-provider-interruption/source-manifest.json": {
       "bytes": 1954,
-      "sha256": "577d3b148587d1d1d98ed61d203c969f3e00e779a3c28609797abff3572d645d"
+      "sha256": "947d51ee0a0ea42db7f45eb77ffa421d216ef3aa8c57218917f31420ccd6df1d"
     },
     "scripts/ci/glibc-gnu-provider-interruption/test_interruption.py": {
       "bytes": 9795,
@@ -123,6 +123,34 @@
     "scripts/ci/glibc-gnu-provider-lifecycle/test_proc_mount.py": {
       "bytes": 6614,
       "sha256": "5139b621ce46abd371aa502958a1ca9d1e2528fd37d156eac61cc9fde13df4e0"
+    },
+    "scripts/ci/glibc-gnu-trial-apparmor/README.md": {
+      "bytes": 5103,
+      "sha256": "0cfa6907b891d97f59a9d9b555eae462818d27b916c1b0e734f0c48c2a690bd5"
+    },
+    "scripts/ci/glibc-gnu-trial-apparmor/profile.py": {
+      "bytes": 18714,
+      "sha256": "66912eb9e3b4fdee936a2146ea6becd0209e2a4fe10b6e3465690bf845d59cf8"
+    },
+    "scripts/ci/glibc-gnu-trial-apparmor/test_profile.py": {
+      "bytes": 11143,
+      "sha256": "62343b39fec6466ab0c52025874db24b8fd6ae063941ed58cf25819f7b7806d9"
+    },
+    "scripts/ci/glibc-gnu-trial-apparmor/vendor/LICENSE": {
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    "scripts/ci/glibc-gnu-trial-apparmor/vendor/apparmor/apparmor.go": {
+      "bytes": 4974,
+      "sha256": "7bf6c04caeedb59df89e8de2b3fa335c73477b34efa2f0af3a0ad22484e3cb21"
+    },
+    "scripts/ci/glibc-gnu-trial-apparmor/vendor/apparmor/template.go": {
+      "bytes": 6196,
+      "sha256": "7da15d81aa5c507f5002b844fdc49a969904681447a2cc29222bd6cbe797163b"
+    },
+    "scripts/ci/glibc-gnu-trial-apparmor/vendor/source.json": {
+      "bytes": 1033,
+      "sha256": "02b8b22c590a58b959b0745c0c7381a891c977907576bdd9c6f2666c73606a8a"
     },
     "scripts/ci/glibc-owned-runtime/exec_child.c": {
       "bytes": 913,

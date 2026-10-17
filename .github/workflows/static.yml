@@ -159,6 +159,8 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-debian-maintained-provider/test_candidate.py
       - name: Check Debian native pair source packet and cleanup boundaries without actors
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/glibc-debian-native-provider -p 'test_*.py'
+      - name: Check owned GNU trial AppArmor policy and retirement without actors
+        run: python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-gnu-trial-apparmor/test_profile.py
       - name: Check readonly proc diagnostic without mount actors
         run: python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-gnu-provider-lifecycle/test_proc_mount.py
       - name: Check installed GNU provider16K source and disk serialization without actors
