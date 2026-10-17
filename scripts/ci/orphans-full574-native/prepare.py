@@ -5,7 +5,7 @@ import argparse,ast,hashlib,json
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
 OLD='scripts/ci/apps-full574-native';NEW='scripts/ci/orphans-full574-native'
-OWN=('prepare.py','policy.json','source-pins.json','lifecycle.py','stage_source.py','install_dependency.py','cancel.py','checks.py','test_lane.py','README.md','cache-only-plan-39010123449.json')
+OWN=('job.py','modes.py','test_modes.py','prepare.py','policy.json','source-pins.json','lifecycle.py','stage_source.py','install_dependency.py','cancel.py','checks.py','test_lane.py','README.md','cache-only-plan-39010123449.json')
 WF='.github/workflows/native-arm-orphans-full574-cleanup.yml'
 def need(ok,why):
  if not ok:raise ValueError(why)
@@ -25,16 +25,18 @@ def emit(root,output):
  for n in OWN:(lane/n).write_bytes((HERE/n).read_bytes())
  text=(root/OLD/'contract.py').read_text().replace("LANE='"+OLD+"'","LANE='"+NEW+"'").replace("LABEL='org.cachy-asahi.apps-full574-native'","LABEL='org.cachy-asahi.orphans-full574-native'").replace("STATUS='PASS_NATIVE574_APPS_COPIED_ROOT_TRANSACTIONS_AND_TEARDOWN'","STATUS='PASS_NATIVE574_SELECTED_ORPHAN_CLEANUP_AND_TEARDOWN'").replace("'ROOT_BOUND_NATIVE574_APPS_INPUTS'","'ROOT_BOUND_NATIVE574_ORPHAN_CLEANUP_INPUTS'").replace("'FROZEN_NATIVE574_APPS_SOURCE'","'FROZEN_NATIVE574_ORPHAN_CLEANUP_SOURCE'")
  tree=ast.parse(text);node=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='result');lines=text.splitlines(keepends=True);lines[node.lineno-1:node.end_lineno]=["def result(value):\n return load('cleanup_result_checks',HERE/'checks.py').result(sys.modules[__name__],value)\n"];(lane/'contract.py').write_text(''.join(lines))
- # Original owner orchestration functions are imported, never reimplemented.
- (lane/'job.py').write_text("#!/usr/bin/python3 -I\nimport argparse,sys\nfrom pathlib import Path\nsys.path.insert(0,str(Path(__file__).resolve().parent));import contract as C\nH=C.load('original_apps_owner',C.HERE.parent/'apps-full574-native/job.py')\nif __name__=='__main__':\n p=argparse.ArgumentParser();p.add_argument('mode',choices=('proof','check','run','cleanup','retain'))\n for n in ('source','packet','proof','base','output','receipt','public'):p.add_argument('--'+n,type=Path)\n a=p.parse_args();C.policy();v=getattr(H,a.mode)(a);print(C.encoded(dict(status=v['status'])).decode(),end='')\n raise SystemExit(0 if v['status'] in ('SOURCE_PROOF_PASS','EXACT_NATIVE_INPUTS_CHECKED_NOT_EXECUTED','PASS_ACTUAL_TRANSACTIONS_PENDING_ORDERED_CLEANUP','PASS_ORDERED_CONSUMERS_COPIES_KEYS_SOURCE_THEN_PRODUCER',C.STATUS) else 1)\n")
+ # Original owner custody is reused; modes derives only the selected run/retention and scoped actor budget.
+ # Independent mode wrapper is copied byte-for-byte from OWN.
  for n in ('snapshot.py','fixture.py','scrub.py'):
   (lane/n).write_text("#!/usr/bin/python3 -I\nimport sys\nfrom pathlib import Path\nsys.path.insert(0,str(Path(__file__).resolve().parent));import contract as C\nH=C.load('original_"+n[:-3]+"',Path('/source/"+OLD+'/'+n+"'))\nif __name__=='__main__':H.main()\n")
  (lane/'export_extract.py').write_bytes((root/OLD/'export_extract.py').read_bytes());(lane/'input-policy.json').write_bytes((HERE/'policy.json').read_bytes())
  files={n:pin((output/n).read_bytes()) for n in rows};files.update({p.relative_to(output).as_posix():pin(p.read_bytes()) for p in lane.iterdir() if p.is_file()})
  (lane/'source-manifest.json').write_bytes(encoded(dict(schema_version=1,status='FROZEN_NATIVE574_ORPHAN_CLEANUP_SOURCE',files=files,native='NOT_RUN',hardware='NOT_RUN')))
+ import importlib.util
+ spec=importlib.util.spec_from_file_location('orphan_modes_prepare',HERE/'modes.py');C_modes=importlib.util.module_from_spec(spec);spec.loader.exec_module(C_modes)
  text=(root/'.github/workflows/native-arm-apps-full574-transaction.yml').read_text().replace('native-arm-apps-full574-transaction','native-arm-orphans-full574-cleanup').replace(OLD,NEW).replace('apps-full574-transactions-${{','orphans-full574-cleanup-${{')
  text=text.replace("          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/apps -p 'test_*.py' -v", "          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/apps -p 'test_*.py' -v\n          python3 -I -B scripts/orphans/test_selected.py")
- wf=output/WF;wf.parent.mkdir(parents=True,exist_ok=True);wf.write_text(text)
+ wf=output/WF;wf.parent.mkdir(parents=True,exist_ok=True);text=C_modes.workflow(text);wf.write_text(text)
  value=dict(status='SOURCE_ONLY_NATIVE_ORPHAN_CLEANUP_UNBOUND',source_files=len(rows),manifest=pin((lane/'source-manifest.json').read_bytes()),workflow=pin(wf.read_bytes()),native='NOT_RUN',baseline_policy='ORIGINAL574_AND_FOUR_APP_GUARD_UNCHANGED',fixture_reason='PUBLIC_ALLDEPS_INSTALL_ONLY_NO_DATABASE_EDIT',cleanup='EXACT_EXISTING_SELECTED_API_NO_REASON_FLAGS',release='NOT_ADMITTED');(output/'native-adaptation.json').write_bytes(encoded(value));return value
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--source',type=Path,required=True);p.add_argument('--output',type=Path,required=True);a=p.parse_args();print(json.dumps(emit(a.source.absolute(),a.output.absolute()),sort_keys=True))

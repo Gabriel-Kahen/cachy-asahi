@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "status": "ROOT_SOURCE_AUTHORIZED_ONE_CASE_PER_JOB_NOT_RUNTIME_ACCEPTANCE",
+  "cases": ["ARM-C01", "ARM-C02", "ARM-C03", "ARM-C04"],
+  "runtime_acceptance": "UNBOUND",
+  "same_job_checks": ["original_owned574_preflight", "original_verified_tools_capture", "original_derived16k_kernel", "original_static_page_probe"],
+  "hardware": "NOT_RUN",
+  "performance": "NOT_MEASURED",
+  "installation": "NOT_RUN",
+  "release": "NOT_ADMITTED"
+}

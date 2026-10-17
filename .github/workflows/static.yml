@@ -228,7 +228,7 @@ jobs:
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/apps -p 'test_*.py'
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/orphans -p 'test_*.py'
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/apps-full574-native -p 'test_*.py'
-          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/orphans-full574-native -p test_lane.py
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/orphans-full574-native -p 'test*.py'
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/expanded600-root-upgrade -p 'test_*.py'
           EXPANDED604_SOURCE="$PWD" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/expanded604-root-upgrade -p 'test_*.py'
           EXPANDED604_MANAGED_SOURCE="$PWD" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/expanded604-managed16k -p 'test_*.py'
@@ -348,3 +348,5 @@ jobs:
           find packages -name PKGBUILD -type f -print0 | xargs -0 -r -n1 bash -n
       - name: Check isolated native notification diagnostic without actors
         run: python3 -I -B -Werror::ResourceWarning scripts/diagnostics/fish-done-native-graphics/test_run.py
+      - name: ARM experiment generic16K owner controls without execution
+        run: python3 -B -Werror::ResourceWarning scripts/ci/arm-experiments-generic16k-ci/test_owner.py

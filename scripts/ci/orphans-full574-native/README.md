@@ -1,6 +1,6 @@
 # Selected catalog-orphan native fixture source
 
-Distinct, default-UNBOUND native lane over the exact original Apps full574 owner, source export/copy, TEST release assembly and cleanup functions. It targets the published selected.py interface without replacing existing orphans/transaction.py. Original574 protected floor and four-app closure, archive authority, capabilities, offline security profiles, actor roles, resources,600/610 worker/caller deadlines,3000 lifecycle/900 interruption actor bounds and120-minute workflow remain unchanged. No source control executes native/signing/container actors.
+Distinct, default-UNBOUND native lane over the exact original Apps full574 owner, source export/copy, TEST release assembly and cleanup functions. It targets the published selected.py interface without replacing existing orphans/transaction.py. Original574 protected floor and four-app closure, archive authority, capabilities, offline security profiles, actor security/resources,600/610 worker/caller deadlines and120-minute workflow remain unchanged; the independent-mode scheduling correction is specified below. No source control executes native/signing/container actors.
 
 Apps and its Runtime dependency are installed in this fixture; cleanup removes only Apps. Original accepted four-pair packet is retained/authenticated as before; unused Cache/Orphans archive rows receive no new runtime credit. Orphans2 readonly source supplies the pinned rule inspector. No current604 input or historical accepted Apps lane is changed.
 
@@ -8,7 +8,7 @@ Genuine eligible setup uses the public ALPM ALLDEPS install flag(1<<8) only in a
 
 Normal actor exercises no-op, cancel, a genuine separately held cache ALPM lock, exact normal Apps-only cleanup and stale saved plan after that real removal. Full before/after copy pins must show no changes for no-op/cancel/foreign/stale. Runtime must remain installed after Apps cleanup, proving no recursive removal. Full source/capability/aux preservation and explicit original copy disposal remain required. Separate original interruption supervision waits for the real fsynced pending marker plus real ALPM lock, then stops/kills/reaps the owned worker; its commit outcome remains UNKNOWN and backing copy is disposed only after outer actor absence. No fabricated false commit status or rollback claim is emitted.
 
-Current source emits a manual workflow and finite wrappers importing the original owner functions instead of copying its framework. Default policy UNBOUND_NATIVE574_ORPHAN_CLEANUP_INPUTS refuses before proof/secrets/actors. Root must independently review/bind this new fixture status ROOT_BOUND_NATIVE574_ORPHAN_CLEANUP_INPUTS against exact selected source, original accepted candidate packet/closure and original owner pins before freeze/dispatch. This is source preparation only; no new native acceptance authority is invented. The emitted manifest needs normal Root final-source integration/pin refresh.
+Current source emits a manual workflow and finite wrappers deriving the selected orchestration from exact pinned original owner functions instead of copying its framework. Default policy UNBOUND_NATIVE574_ORPHAN_CLEANUP_INPUTS refuses before proof/secrets/actors. Root must independently review/bind this new fixture status ROOT_BOUND_NATIVE574_ORPHAN_CLEANUP_INPUTS against exact selected source, original accepted candidate packet/closure and original owner pins before freeze/dispatch. This is source preparation only; no new native acceptance authority is invented. The emitted manifest needs normal Root final-source integration/pin refresh.
 
 Future actual native/libalpm exclusion/second-readonly-handle and ALLDEPS behavior, complete matrix/resource fit, signed cache/source preservation and ordered teardown remain NOT_RUN. Header/adapter controls are host metadata/inert proof only. No product/version/package/GUI/604/hardware/release credit follows. Existing original packet/TEST release/signing guards remain mandatory.
 
@@ -52,7 +52,32 @@ helper resolution all point to the same root-owned bytes. Cancellation requires
 an explicit fixed staged-root argument and revalidates it before importing the
 same selected.py. No __file__ override, floor patch, source chown or reader waiver
 is used. Original /source stays readonly; original scrub removes the entire owned
-/work only after actor absence, including both source stages. Same actor counts,
+/work only after actor absence, including both source stages. Original actor custody/absence,
 command flags,600/610 deadlines and original protected/capability/cleanup checks
 remain. Host tests copy real source bytes/modes/link counts; UID0 observations are
 inertly modeled on an unprivileged host, not native ownership credit.
+
+## Independent trial successor
+
+The explicit required `--trial normal|interruption` / workflow `trial` input selects
+exactly one consumer matrix in a fresh run. It is recorded in source proof, owner,
+retention and cleanup; a different or missing trial refuses before actors. Each
+trial retains its own producer, source snapshot/recheck, signing inputs and ordered
+consumer→source/copies/keys→producer cleanup. Distinct NORMAL_ONLY and
+INTERRUPTION_ONLY statuses cannot imply combined acceptance. Both fresh complete
+results and Root admission remain required for the complete matrix.
+
+Actual39016989474 reached normal PASS then the original3550-second combined
+outer timeout expired during interruption setup. The normal actor alone took
+2512.463278 seconds. Interruption's first four completed commands consumed
+557.615828 seconds before signed install/remaining planning and its600-second
+worker; its container was still running, non-OOM, after about872 seconds when
+the outer deadline fired. An incomplete interruption cannot establish a commit,
+rollback, or performance gain. The explicit interruption-only adapter uses a
+3000-second aggregate actor envelope, the same as the existing full-copy normal
+actor. This reserves setup plus the unchanged600-second worker and5-second reap;
+original900-second generic/legacy interruption actors stay unchanged on disk.
+The3550-second outer,650-second cleanup,120-minute workflow, actor security and
+all per-command600/610 limits remain unchanged. Actual fit still needs a fresh
+complete interruption-only trial; no budget or successful normal component
+waives missing interruption evidence.
