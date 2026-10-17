@@ -100,7 +100,7 @@ class Controls(unittest.TestCase):
  def test_emitted_corrected_roles_and_all80_real_runtime_recipe_dependencies(self):
   with tempfile.TemporaryDirectory() as td:
    root=Path(td);out=root/'closed';P.emit(ROOT,UPDATER,out);pins=C.decode(C.read(C.HERE/'source-pins.json'));required=pins['runtime_recipe_inputs'];self.assertEqual(len(required),80)
-   self.assertEqual(C.row(out/C.OLD/'source-manifest.json')['sha256'],'b04337a0b759a71cc719479c44fc8be3ae578a83bab7a027db75eed5886227ad');self.assertEqual(C.row(out/'scripts/ci/expanded604-apps6-public-pair-installer/source-manifest.json')['sha256'],'b8a35cf9f04c5321db6db9103f3a7ef95d58ebcc0ff960b805362a3867ed715a')
+   self.assertEqual(C.row(out/C.OLD/'source-manifest.json')['sha256'],'bac983e875e5b85020fd185c3b4e12bc185a52d171bef3d12924eb8bf724f378');self.assertEqual(C.row(out/'scripts/ci/expanded604-apps6-public-pair-installer/source-manifest.json')['sha256'],'b8a35cf9f04c5321db6db9103f3a7ef95d58ebcc0ff960b805362a3867ed715a')
    for n,row in required.items():self.assertEqual(C.row(out/n),row,n)
    controls=pins['fresh_control_inputs'];self.assertEqual(len(controls),9)
    for n,row in controls.items():self.assertEqual(C.row(out/n),row,n)
@@ -131,6 +131,7 @@ class Controls(unittest.TestCase):
      if n.startswith(adapter.PREFIX) or n in ('upgrade-config.json','adapter.json'):continue
      raw=p.read_bytes()
      if n=='scripts/update/aux_runtime.py':raw,proof=helper.derive(raw);self.assertEqual(proof['status'],'EXACT_APPS5_TO6_AUXILIARY_SELECTION_ONLY')
+     elif n=='scripts/update/linked_runtime.py':raw,linked_proof=helper.derive_linked(raw);self.assertEqual(linked_proof['new_allowances'],'NONE')
      elif n=='scripts/ci/full-root-upgrade/construct_repository.py':raw=adapter.constructor(raw)
      elif n=='scripts/ci/full-root-upgrade-caller/container.py':raw=A.caller(raw)
      self.assertEqual((output/n).read_bytes(),raw,case+':'+n)
