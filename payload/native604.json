@@ -1,0 +1,58 @@
+{
+  "GUI": "NOT_RUN",
+  "cleanup": "PASS",
+  "expected604_sha256": "7bc6caa51301bf076aeda4d137277a128c53a16e5bfd25f02e7309c4b3a408c3",
+  "fresh_installer": "NOT_RUN",
+  "hardware": "NOT_RUN",
+  "hash_bound_nongit_records": 2,
+  "input_policy_sha256": "a97b82d79e5aa967cde1b65c2f0a8b47cfd24d8cd3854b070dc919753a479e30",
+  "installed16k": "NOT_RUN",
+  "installed_lifecycle": "PASS",
+  "installed_six_module_cases": [
+    "fish-bang-auto-done",
+    "fish-done-auto-bang",
+    "fish-noninteractive",
+    "zsh-auto-highlight-substring",
+    "zsh-highlight-substring-auto",
+    "zsh-noninteractive"
+  ],
+  "installed_six_modules": "PASS",
+  "lifecycle_phases": [
+    "baseline587",
+    "install604",
+    "same-version604",
+    "remove-to587",
+    "restore604",
+    "final587"
+  ],
+  "limitations": [
+    "Public659 original package pair decisions are joined separately from the sanitized native574 repair-bytes authority. That authority establishes no missing-repair/aggregate/604/VM/GUI credit. No raw223 evidence is consumed.",
+    "Complete BUILDINFO lists and expected pacman-Q lock hashes are provenance/original-pair-authority joins; the corresponding raw Q-lock bytes are not exported or reconstructed.",
+    "Root must independently join every actual source record to the supplied frozen Git commit. This tool performs no Git or collected code execution and cannot establish remote publication.",
+    "All fresh target-cache signatures, public keyrings and585 original system archive pairs are not exported. Signature-role/hash/unchanged-row declarations and source-enforced verification are joined; no fresh cryptographic verification is performed.",
+    "The six audio archive payloads and private full installed node/database/ownership/user maps are not exported. Incoming audio identity is joined to frozen policy; actual installed comparisons remain original source-enforced receipts.",
+    "Raw eight auxiliary-cache blobs and ldconfig state JSON are independently replayed using the exact frozen comparator. Helper exit remains NOT_OBSERVED; no helper execution, regeneration or source/binary correspondence claim.",
+    "Normal lifecycle exit0 and preservation/absence observations are original source-enforced records, not fresh process/root/container probes. Owned cleanup is disposal, not rollback or boot recovery.",
+    "Public-pair Apps6 native ARM604 metadata lifecycle and installed shell coexistence only; notification delivery, GUI,16K/Apple/M2,services/audio execution,installer,performance and release acceptance are not established."
+  ],
+  "package_count": 604,
+  "performance": "NOT_MEASURED",
+  "release": "NOT_ADMITTED",
+  "root_decision_utc": "2026-10-17T16:09:39.027065+00:00",
+  "root_independent_replay": {
+    "bytes": 22118,
+    "sha256": "daa61a6e6c6e4714eece89b61016369b81e0cdbfc7c45960b5b2fbc5c5a6bedc"
+  },
+  "run_id": "39044616267",
+  "schema_version": 1,
+  "scope": "NATIVE_GENERIC4096_PUBLIC_PAIR_APPS6_604_METADATA_LIFECYCLE_AND_INSTALLED_SHELL_COEXISTENCE_ONLY",
+  "source_actual_git_joins": 151,
+  "source_authorization": {
+    "bytes": 97874,
+    "sha256": "f3244430e87ba94b65b7258759b802ab48a1868bd5a359ee493c74f3d63cf99e"
+  },
+  "source_git_joins": 288,
+  "source_manifest_sha256": "e2b1f8ac11fa119493e22f44722d265293887de7edda80f4b61c00f8a80bf51c",
+  "source_sha": "b0154bd3b60434e45d4411b558f3ffda9e415640",
+  "status": "ROOT_ACCEPTED_NATIVE_PUBLIC_PAIRS_APPS6_CURRENT604_COMPOSITION"
+}
