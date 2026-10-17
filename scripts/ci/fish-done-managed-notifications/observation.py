@@ -1,8 +1,24 @@
 # SPDX-License-Identifier: MIT
 """Strict joins of real busctl-monitor calls/replies and Mako's live listing."""
 import json,re
+from pathlib import Path
 
 CASES={'minimal':('foreground-success',0),'overlay':('foreground-failure',7),'background':('watched-background-success',0)}
+
+
+def diagnostic_policy():
+    path=Path(__file__).with_name('diagnostic-policy.json')
+    need(not path.is_symlink() and path.is_file() and path.stat().st_size<=4096,'bounded source-pinned diagnostic policy required')
+    raw=path.read_bytes()
+    def pairs(rows):
+        value={}
+        for key,item in rows:need(key not in value,'duplicate diagnostic policy key');value[key]=item
+        return value
+    value=json.loads(raw,object_pairs_hook=pairs)
+    need(set(value)=={'schema_version','mako_wayland_protocol_probe','scope'} and type(value['schema_version']) is int and value['schema_version']==1 and
+         type(value['mako_wayland_protocol_probe']) is bool and value['scope']=='ONE_EXPLICIT_SOURCE_PINNED_DIAGNOSTIC_NOT_NORMAL_ACCEPTANCE',
+         'explicit source-pinned diagnostic boolean required')
+    return value
 
 
 def body(stage):return 'Watched job completed.' if stage=='background' else 'Foreground command completed.'

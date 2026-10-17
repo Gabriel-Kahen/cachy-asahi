@@ -700,6 +700,7 @@ class HostedProof(unittest.TestCase):
             result=self.caller().prove(ROOT,self.manifest(),environment)
         self.assertEqual(result['status'],'SOURCE_PROOF_PASS')
         self.assertEqual(result['module_ref'],'de35c384a2e5b14b664d4156897f271b81e467ba')
+        self.assertIs(result['mako_wayland_protocol_probe'],packet.diagnostic_policy()['mako_wayland_protocol_probe'])
 
     def test_source_workflow_disagreement_refused_before_file_or_packet_reads(self):
         module=self.caller();environment=dict(SOURCE_SHA='a'*40,GITHUB_SHA='a'*40,GITHUB_WORKFLOW_SHA='b'*40)

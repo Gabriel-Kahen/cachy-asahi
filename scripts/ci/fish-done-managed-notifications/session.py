@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Real installed Done -> notify-send -> managed bus -> normal Mako, two foreground cases and one watched job."""
-import base64,hashlib,json,os,re,signal,subprocess,time
+import base64,hashlib,json,os,re,signal,stat,subprocess,time
 from pathlib import Path
 import bar_helpers as B
 import managed_session as managed
@@ -57,9 +57,40 @@ def normal_compositor_output(logged):
     return dict(scope='DIAGNOSTIC_ONLY_EXISTING_NORMAL_UNLOGGED_OUTPUT',streams=streams)
 
 
+
+def protocol_environment(selected,enabled=False):
+    # One causal probe only: change the existing owned Mako client, no others.
+    O.need('WAYLAND_DEBUG' not in selected,'ambient Wayland trace refused')
+    O.need(type(enabled) is bool,'explicit boolean protocol probe required')
+    return dict(selected,WAYLAND_DEBUG='client') if enabled else dict(selected)
+
+
+def stopped_protocol_trace(logged):
+    # Called after the original finally has reaped the process and joined drains.
+    O.need(logged.process.poll()==0,'protocol trace requires normal owned Mako exit')
+    streams=[]
+    for path in logged.paths:
+        info=path.lstat()
+        O.need(stat.S_ISREG(info.st_mode) and info.st_nlink==1 and info.st_uid==os.geteuid() and
+               info.st_size<=256*1024,'bounded ordinary owned existing Mako log required')
+        fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_CLOEXEC)
+        with os.fdopen(fd,'rb') as stream:
+            held=os.fstat(stream.fileno())
+            O.need((held.st_dev,held.st_ino)==(info.st_dev,info.st_ino),'held protocol log differs')
+            raw=stream.read(256*1024+1)
+        after=path.lstat()
+        O.need((info.st_dev,info.st_ino,info.st_size,info.st_mtime_ns,info.st_ctime_ns)==
+               (after.st_dev,after.st_ino,after.st_size,after.st_mtime_ns,after.st_ctime_ns) and len(raw)==info.st_size,
+               'retired Mako log changed')
+        streams.append(dict(path=str(path),bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest(),raw_base64=base64.b64encode(raw).decode()))
+    return dict(scope='DIAGNOSTIC_ONLY_CLIENT_PROTOCOL_NOT_PRESENTATION',pid=logged.process.pid,exit=logged.process.returncode,
+                environment=dict(WAYLAND_DEBUG='client'),streams=streams,acceptance='FORBIDDEN_FOR_THIS_PROBE')
+
+
 def phase(stage,config,env,logs,**options):
     O.need(options.get('trace_waybar',False) is False and stage in O.CASES,'fixed ordinary Done phase required')
     B.base=base;first=None;compositor=bar=mako=terminal=observer=None;selected=None;sequence=0
+    protocol_probe=O.diagnostic_policy()['mako_wayland_protocol_probe']
     before=B.snapshot(Path(env['XDG_CONFIG_HOME']));case,outcome=O.CASES[stage]
     kind='Watched job' if stage=='background' else 'Foreground command'
     def command(argv,label='query',timeout=7):
@@ -97,7 +128,8 @@ def phase(stage,config,env,logs,**options):
         O.need(identity()==managed_identity and bus('NameHasOwner','s','org.freedesktop.Notifications').strip()=='b false','fresh owned managed notification service required')
         payload=installed.verify(lambda a:command(a,'installed'))
         bar=base.Logged(['/usr/bin/waybar','--config',str(B.TEMPLATES/'waybar.json'),'--style',str(B.TEMPLATES/'waybar.css')],stage+'-waybar',logs,B.waybar_environment(selected,False))
-        mako=base.Logged(['/usr/bin/mako','--config',str(B.TEMPLATES/'mako.conf')],stage+'-mako',logs,selected)
+        if protocol_probe:base.emit('mako_wayland_protocol_probe',stage=stage,scope='DIAGNOSTIC_ONLY_NOT_NORMAL_STARTUP',acceptance='FORBIDDEN_FOR_THIS_PROBE')
+        mako=base.Logged(['/usr/bin/mako','--config',str(B.TEMPLATES/'mako.conf')],stage+'-mako',logs,protocol_environment(selected,protocol_probe))
         def ready():
             answer=bus('NameHasOwner','s','org.freedesktop.Notifications').strip()
             O.need(answer in ('b false','b true'),'typed owner reply required')
@@ -203,6 +235,10 @@ def phase(stage,config,env,logs,**options):
                     except BaseException as error:
                         if first is None:first=error
         try:O.need(B.snapshot(Path(env['XDG_CONFIG_HOME']))==before,'user configuration changed')
+        except BaseException as error:
+            if first is None:first=error
+    if protocol_probe and mako is not None:
+        try:base.emit('mako_wayland_protocol_trace',stage=stage,trace=stopped_protocol_trace(mako))
         except BaseException as error:
             if first is None:first=error
     if first is not None:raise first

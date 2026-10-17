@@ -63,7 +63,13 @@ def prove(workspace, manifest, environment):
     packet=importlib.util.module_from_spec(spec);spec.loader.exec_module(packet);packet.policy()
     token = hashlib.sha256(('done-managed-notifications:' + run + ':' + attempt + ':' + source).encode()).hexdigest()[:16]
     return dict(status='SOURCE_PROOF_PASS', source_sha=source, workflow_sha=source,
-                run_id=run, run_attempt=attempt, source_files=len(manifest['files']), job_token=token, module_ref='de35c384a2e5b14b664d4156897f271b81e467ba')
+                run_id=run, run_attempt=attempt, source_files=len(manifest['files']), job_token=token, module_ref='de35c384a2e5b14b664d4156897f271b81e467ba',
+                mako_wayland_protocol_probe=packet.diagnostic_policy()['mako_wayland_protocol_probe'])
+
+
+def ordinary_mode(proof):
+    need(proof.get('mako_wayland_protocol_probe') is False,
+         'source-pinned diagnostic mode cannot satisfy normal acceptance')
 
 
 def frame(path):
@@ -126,6 +132,7 @@ def retain(base, runtime, proof, output, runner, manifest):
         original = read_json(base / 'report.json', 512 * 1024)
         report = read_json(runtime / 'runtime.json')
         source_proof = read_json(proof, 128 * 1024)
+        ordinary_mode(source_proof)
         verify_files(runner,read_json(manifest,512*1024)['generated_runner'])
         sys.path.insert(0,str(runner))
         spec=importlib.util.spec_from_file_location('done_real_delivery_replay',runner/'contract.py')

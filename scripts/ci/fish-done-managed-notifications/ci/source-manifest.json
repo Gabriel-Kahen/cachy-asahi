@@ -187,8 +187,8 @@
       "sha256": "5e3540a853c96616f6767e86df152a87747299c6f8b5c36f41cc51ae7f3403cd"
     },
     "scripts/ci/fish-done-managed-notifications/README.md": {
-      "bytes": 14914,
-      "sha256": "a00a35bb3ba1170e1fe403fa7cf020b0fbc5cf65313f035feb46e29b37e4fc89"
+      "bytes": 15675,
+      "sha256": "6e065edd947f0b5f271b2437296a1dad8e952763ca66a4133d341849e4a6e799"
     },
     "scripts/ci/fish-done-managed-notifications/bar_helpers.py": {
       "bytes": 20986,
@@ -199,16 +199,20 @@
       "sha256": "283160761381a55b441396b4c3aa8049ee240f5c78656c26165d62c2efc56cbc"
     },
     "scripts/ci/fish-done-managed-notifications/ci/caller.py": {
-      "bytes": 11530,
-      "sha256": "0ce387df491eb5406493d523c4fb04cc4f3ef95ea1ceec46a3090ffbe0516dd4"
+      "bytes": 11832,
+      "sha256": "608916a10b95d8d6aabe03e22b8fb527cb292886c0c2e1db8e5b1140ea53e67c"
     },
     "scripts/ci/fish-done-managed-notifications/contract.py": {
-      "bytes": 9337,
-      "sha256": "8b7ea5308dfb8eafa63854b250e58d225254831c833f84a860247188dc8aa1b1"
+      "bytes": 9554,
+      "sha256": "be87213da4e3c485a2ee71d6cdd22e2900bd9dd40886516b23da09763879dc14"
     },
     "scripts/ci/fish-done-managed-notifications/desktop574_guest.py": {
       "bytes": 2722,
       "sha256": "721548482de143d5bae8a99b745c7225dee60440da10a1d43a8df34da78708b9"
+    },
+    "scripts/ci/fish-done-managed-notifications/diagnostic-policy.json": {
+      "bytes": 140,
+      "sha256": "2e254f33fbc4b0c1666b63e0a9f963887772eb1ddd6297081c760d507a5877ff"
     },
     "scripts/ci/fish-done-managed-notifications/fish_terminal.py": {
       "bytes": 10805,
@@ -251,32 +255,36 @@
       "sha256": "7704da1b060e739f63e4d7062a02938e64bcfbe1c10b4d6581532ded2f194de0"
     },
     "scripts/ci/fish-done-managed-notifications/observation.py": {
-      "bytes": 5952,
-      "sha256": "7597fe61649d3f70b2a8e37da756aa775378c19661f47efe4a46e25940cd89b5"
+      "bytes": 6810,
+      "sha256": "153fad25f0b5f58730cd077bdf414ed2b30ae6d7c780aa4f8f99484b7348d057"
     },
     "scripts/ci/fish-done-managed-notifications/package-inputs.json": {
       "bytes": 355174,
       "sha256": "0790b69c56c73d546f6d0069bb26bd212467f5eed6835fec0d2b2f5109d7bf54"
     },
     "scripts/ci/fish-done-managed-notifications/packet.py": {
-      "bytes": 3946,
-      "sha256": "4d65aec6b7200136a346d38acad9ea11387bc836881058a1484797f06fba5088"
+      "bytes": 4081,
+      "sha256": "04b3c9ca3939fbab626ef2df504678ec49836a218356be2aac3e656e01508b12"
     },
     "scripts/ci/fish-done-managed-notifications/prepare.py": {
-      "bytes": 5125,
-      "sha256": "b37dd0c0d89910c7e2ad6680db12e3282fe359a978f644ce52d54879291de005"
+      "bytes": 5175,
+      "sha256": "553462224499bc8e8fa1745babfbab51cf87202e1f9a139068b021da970bdf66"
     },
     "scripts/ci/fish-done-managed-notifications/session.py": {
-      "bytes": 15171,
-      "sha256": "4064834a2fcb19c9c16fe3bf7e82822ca2a7ea9f2305f64aa0a1f20b2f38c97c"
+      "bytes": 17452,
+      "sha256": "dc32b5a44fbade167e031218daecd75f18df6183420bfe2cbcc1c21ce0a8137f"
     },
     "scripts/ci/fish-done-managed-notifications/source-pins.json": {
-      "bytes": 9840,
-      "sha256": "bbeeb34b513d377d8df77310b83e412db9f8859c11c1351e3744c7cfbc105dc5"
+      "bytes": 10118,
+      "sha256": "d78de375071f411d5e21332f6b7a59bff0db376701d813e8db77929262b84345"
+    },
+    "scripts/ci/fish-done-managed-notifications/test_protocol_probe.py": {
+      "bytes": 4944,
+      "sha256": "186a39c14afdf5da28d76adc81c4bce866a3df7e475edb3276f0a8a55d583076"
     },
     "scripts/ci/fish-done-managed-notifications/test_source.py": {
-      "bytes": 56488,
-      "sha256": "4695bb291560eec4f5269cb4515538bedbaf444f33e1e94645dc2b7978ab0292"
+      "bytes": 56607,
+      "sha256": "bfd803b5e5c0bf390819267f01628389f4fc6435afaf5889ada172b3a56279ba"
     },
     "scripts/ci/maintained-desktop574-inputs.json": {
       "bytes": 623664,
@@ -363,12 +371,12 @@
       "sha256": "283160761381a55b441396b4c3aa8049ee240f5c78656c26165d62c2efc56cbc"
     },
     "contract.py": {
-      "bytes": 9337,
-      "sha256": "8b7ea5308dfb8eafa63854b250e58d225254831c833f84a860247188dc8aa1b1"
+      "bytes": 9554,
+      "sha256": "be87213da4e3c485a2ee71d6cdd22e2900bd9dd40886516b23da09763879dc14"
     },
     "desktop574_fixture.sh": {
-      "bytes": 5114,
-      "sha256": "4b23638d90b5ae80d331bb85cbb71c41fd518b52b589db72b21ce76feeebde6a"
+      "bytes": 5145,
+      "sha256": "00cdf4dd77e336969730923a023eb13f93db3d6a600966b68a8741ac324cfe76"
     },
     "desktop574_guest.py": {
       "bytes": 2722,
@@ -377,6 +385,10 @@
     "desktop574_runtime.py": {
       "bytes": 23002,
       "sha256": "b5a3fd974dd2c28fd096524d1dc2773df55cbba0f588c6100843d9e5b11db24b"
+    },
+    "diagnostic-policy.json": {
+      "bytes": 140,
+      "sha256": "2e254f33fbc4b0c1666b63e0a9f963887772eb1ddd6297081c760d507a5877ff"
     },
     "done-lock.json": {
       "bytes": 2717,
@@ -411,20 +423,20 @@
       "sha256": "7704da1b060e739f63e4d7062a02938e64bcfbe1c10b4d6581532ded2f194de0"
     },
     "observation.py": {
-      "bytes": 5952,
-      "sha256": "7597fe61649d3f70b2a8e37da756aa775378c19661f47efe4a46e25940cd89b5"
+      "bytes": 6810,
+      "sha256": "153fad25f0b5f58730cd077bdf414ed2b30ae6d7c780aa4f8f99484b7348d057"
     },
     "package-inputs.json": {
       "bytes": 355174,
       "sha256": "0790b69c56c73d546f6d0069bb26bd212467f5eed6835fec0d2b2f5109d7bf54"
     },
     "session.py": {
-      "bytes": 15171,
-      "sha256": "4064834a2fcb19c9c16fe3bf7e82822ca2a7ea9f2305f64aa0a1f20b2f38c97c"
+      "bytes": 17452,
+      "sha256": "dc32b5a44fbade167e031218daecd75f18df6183420bfe2cbcc1c21ce0a8137f"
     },
     "source-pins.json": {
-      "bytes": 9840,
-      "sha256": "bbeeb34b513d377d8df77310b83e412db9f8859c11c1351e3744c7cfbc105dc5"
+      "bytes": 10118,
+      "sha256": "d78de375071f411d5e21332f6b7a59bff0db376701d813e8db77929262b84345"
     },
     "test_desktop574_runtime.py": {
       "bytes": 12245,
@@ -439,6 +451,7 @@
     "run": 38954684654,
     "source": "6c7228162129a2e5f20118258bc4bad25fed20a0"
   },
+  "mako_wayland_protocol_probe": false,
   "native": "NOT_RUN",
   "post_notify_request_failure": {
     "correction": "IMMUTABLE_FIRST_REQUEST_BEFORE_VISIBILITY_QUERIES_ORIGINAL_FRAME_RETAINED_AND_VERIFIED_AGAINST_FRESH_VISIBILITY",

@@ -21,6 +21,8 @@ def verify_package_input(proposal,installed):
 
 
 def verify_result(events):
+    O.need(not any(e.get('event') in ('mako_wayland_protocol_probe','mako_wayland_protocol_trace') for e in events),
+           'Wayland protocol probe is diagnostic-only and cannot satisfy normal visual acceptance')
     result=managed_contract.verify_result(events)
     boots=[e for e in events if e.get('event')=='boot']
     O.need(len(boots)==1 and boots[0].get('architecture')=='aarch64' and boots[0].get('page_size')==4096 and

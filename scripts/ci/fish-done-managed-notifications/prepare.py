@@ -23,10 +23,10 @@ def prepare(source,modules,output):
     bar.prepare(source,output)
     lock=packet.stage(source,modules,output/'done')
     shutil.copyfile(output/'done/done-lock.json',output/'done-lock.json')
-    for name in ('desktop574_guest.py','session.py','bar_helpers.py','fish_terminal.py','monitor.py','observation.py','installed.py','contract.py','capture.py','source-pins.json','package-inputs.json'):
+    for name in ('desktop574_guest.py','session.py','bar_helpers.py','fish_terminal.py','monitor.py','observation.py','installed.py','contract.py','capture.py','source-pins.json','package-inputs.json','diagnostic-policy.json'):
         shutil.copyfile(HERE/name,output/name)
     fixture=(output/'desktop574_fixture.sh').read_text()
-    extra=('bar_helpers.py','fish_terminal.py','monitor.py','observation.py','installed.py','done-lock.json')
+    extra=('bar_helpers.py','fish_terminal.py','monitor.py','observation.py','installed.py','done-lock.json','diagnostic-policy.json')
     fixture=replace(fixture,'cp /runner/base_guest.py /runner/session.py /runner/managed_session.py "$root/usr/local/share/desktop574/"',
         'cp /runner/base_guest.py /runner/session.py /runner/managed_session.py '+' '.join('/runner/'+n for n in extra)+' "$root/usr/local/share/desktop574/"')
     (output/'desktop574_fixture.sh').write_text(fixture)
