@@ -113,8 +113,8 @@
       "sha256": "11a56f73a2e2d21ef45cf9c489950fa9358f3e23fe9cf5e18a62290672cf37da"
     },
     "scripts/ci/expanded604-root-upgrade/test_gate.py": {
-      "bytes": 11421,
-      "sha256": "084222f12611d25ff4fd6696bdb184284834c989dc23e0d700cb8f025e0a26ec"
+      "bytes": 12737,
+      "sha256": "04c16f49611089893b8eb075b6b1356e1e607cc00209fa6db26b9a092bdce099"
     }
   },
   "hardware": "NOT_RUN",

@@ -67,7 +67,7 @@ jobs:
         run: |
           set -euo pipefail
           test "$(sha256sum expanded604-upgrade/scripts/ci/expanded604-root-upgrade/run.py | cut -d ' ' -f 1)" = 47b58124568298c2bda94cacebf57c72f444e00c83ba4f3a28dc3150a3f94002
-          test "$(sha256sum expanded604-upgrade/scripts/ci/expanded604-root-upgrade/source-manifest.json | cut -d ' ' -f 1)" = 9f6a234aadc63ec86bcb289d8fac7eb93ea2fcdb3422e57a35ce680a6e8cfe5c
+          test "$(sha256sum expanded604-upgrade/scripts/ci/expanded604-root-upgrade/source-manifest.json | cut -d ' ' -f 1)" = 2bffa1217fd335fba7aa0c54f3659c028f3f3a34fad76d47d8dca8e2bd3ebdd3
           python3 -B expanded604-upgrade/scripts/ci/expanded604-root-upgrade/gate.py \
             --implementation "$GITHUB_WORKSPACE/expanded604-upgrade" --source "$IMPLEMENTATION_SOURCE" \
             --workflow-sha "$WORKFLOW_SOURCE" --case "$UPGRADE_CASE" --preflight
@@ -179,8 +179,8 @@ jobs:
             --legacy-source "$GITHUB_WORKSPACE/expanded604-legacy" \
             --seven-source "$GITHUB_WORKSPACE/expanded604-seven" --eight-source "$GITHUB_WORKSPACE/expanded604-eight" \
             --setup-source "$GITHUB_WORKSPACE/expanded604-setup5" \
-            --management-source "$GITHUB_WORKSPACE/expanded604-management-source" \
-            --welcome-source "$GITHUB_WORKSPACE/expanded604-welcome-source" \
+            --management-source "$GITHUB_WORKSPACE/expanded604-management-source/payload" \
+            --welcome-source "$GITHUB_WORKSPACE/expanded604-welcome-source/payload" \
             --fresh600-decisions "$GITHUB_WORKSPACE/expanded604-fresh600-decisions" \
             --native604-decisions "$GITHUB_WORKSPACE/expanded604-native604-decisions" \
             --audio-inputs "$RUNNER_TEMP/audio-archives"
@@ -515,8 +515,8 @@ jobs:
               --desktop "$GITHUB_WORKSPACE/composition-desktop" \
               --native "$RUNNER_TEMP/native-evidence" --fdk "$RUNNER_TEMP/fdk-evidence" --cache "$RUNNER_TEMP/alarm-cache" \
               --seven-source "$GITHUB_WORKSPACE/expanded604-seven" --eight-source "$GITHUB_WORKSPACE/expanded604-eight" \
-              --management-source "$GITHUB_WORKSPACE/expanded604-management-source" \
-              --welcome-source "$GITHUB_WORKSPACE/expanded604-welcome-source" \
+              --management-source "$GITHUB_WORKSPACE/expanded604-management-source/payload" \
+              --welcome-source "$GITHUB_WORKSPACE/expanded604-welcome-source/payload" \
               --fresh600-decisions "$GITHUB_WORKSPACE/expanded604-fresh600-decisions" \
               --native604-decisions "$GITHUB_WORKSPACE/expanded604-native604-decisions" \
               --audio-inputs "$RUNNER_TEMP/audio-archives" \
