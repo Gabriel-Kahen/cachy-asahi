@@ -1,0 +1,10 @@
+{
+  "candidate_policy_sha256": "ebb3e8f942712b1fce81a72567e8e7f8197ea8c00a00187c7bd4f72e1c934ec9",
+  "profiles": [
+    "minimal",
+    "overlay"
+  ],
+  "schema_version": 1,
+  "scope": "ONE_PROFILE_NOT_FULL_GUI_ACCEPTANCE",
+  "status": "ROOT_BOUND_INDEPENDENT_PROFILES"
+}
