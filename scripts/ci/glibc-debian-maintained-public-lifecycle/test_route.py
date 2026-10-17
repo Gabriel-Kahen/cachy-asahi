@@ -18,7 +18,9 @@ class Controls(unittest.TestCase):
  def test_actual_public21_and_original_both13_compiler_checks(self):
   v=P.validate_packet(ROOT,PACKET);self.assertEqual(v['files'],21);self.assertEqual(v['compile_pair']['run_id'],38994309021);self.assertEqual(v['normal_compiler_receipts'],'PASS_ORIGINAL_BOTH13_COMMAND_CHECKS');self.assertIn('NOT_ALPM_OR16K',v['status'])
  def test_default_unbound_before_any_output_or_actor(self):
-  with self.assertRaisesRegex(ValueError,'UNBOUND'):P.emit(ROOT,self.base/'never')
+  with tempfile.TemporaryDirectory() as td:
+   fixture=Path(td);(fixture/'policy.json').write_bytes(P.encoded(dict(status='UNBOUND_CAA3_PUBLIC_COMPILE_NATIVE_ROUTE',authorization=None,packet=None,future_native_ALPM_authority=None)))
+   with patch.object(P,'HERE',fixture),self.assertRaisesRegex(ValueError,'UNBOUND'):P.emit(ROOT,self.base/'never')
   self.assertFalse((self.base/'never').exists());policy=json.loads((self.out/(P.NEW+'-owner')/'policy.json').read_bytes());self.assertIsNone(policy['packet']);self.assertIn('UNBOUND',policy['status'])
  def test_wrong_index_and_missing_extra_or_alias_refuse(self):
   with tempfile.TemporaryDirectory() as td:
