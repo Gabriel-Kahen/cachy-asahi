@@ -62,3 +62,68 @@ def derive(raw):
     old_apply=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='apply');new_apply=next(n for n in generated.body if isinstance(n,ast.FunctionDef) and n.name=='apply')
     need(ast.dump(old_apply,include_attributes=False)==ast.dump(new_apply,include_attributes=False),'original auxiliary apply changed')
     return result.encode(),dict(status='EXACT_APPS5_TO6_AUXILIARY_SELECTION_ONLY',before=pin(raw),after=pin(result.encode()),before604_sha256=BEFORE,after604_sha256=AFTER,package_sha256=ARCHIVE,payload_files=sorted(FILES),other_packages=603,setup='UNCHANGED0.1.0-5',auxiliary_cache_capability_comparisons='UNCHANGED_EXCEPT_EXACT_SELECTED_APPS_PARENT_DIRECTORY_TIMES',scope='SOURCE_ONLY_NO_TRANSACTION_OR_CACHE_ACCEPTANCE')
+
+
+def apps_scan_difference(before,after,raw_before,raw_after):
+    import hashlib,json
+    def encoded(value):return json.dumps(value,sort_keys=True,separators=(',',':'),allow_nan=False).encode()
+    def summary(mapping,name):
+        if name not in mapping:return {'present':False}
+        row=mapping[name];data=encoded(row)
+        if len(data)>16384:raise ValueError('bounded scan row')
+        out={'present':True,'row_type':type(row).__name__,'row_bytes':len(data),'row_sha256':hashlib.sha256(data).hexdigest()}
+        if type(row) is not dict:
+            if row is None or type(row) in (bool,int) or type(row) is str and len(row)<=128:out['scalar']=row
+            return out
+        out['row_keys']=sorted(str(k)[:128] for k in row)[:16];node=row.get('node')
+        if type(node) is dict:
+            out['node']={k:v for k,v in node.items() if k in ('type','mode','uid','gid','bytes','sha256') and (type(v) in (int,bool) or type(v) is str and len(v)<=128)}
+            if type(node.get('target')) is str:out['node']['target_sha256']=hashlib.sha256(node['target'].encode()).hexdigest()
+        identity=row.get('identity')
+        if type(identity) in (list,tuple) and len(identity)<=9 and all(type(v)is int for v in identity):out['identity']=list(identity)
+        return out
+    old,new=before['scan'],after['scan']
+    if type(old)is not dict or type(new)is not dict or len(old)>8192 or len(new)>8192:raise ValueError('bounded scan maps')
+    names=sorted(set(old)|set(new));path=next((n for n in names if n not in old or n not in new or old[n]!=new[n]),None)
+    if path is None:raise ValueError('no original scan difference')
+    if type(path)is not str or not 0<len(path)<=1024 or not path.isprintable() or path.startswith('/') or any(p in ('','.','..') for p in path.split('/')):raise ValueError('bounded scan path')
+    category,field='ROW_SHAPE_OR_SCALAR','row'
+    if path not in new:category,field='MISSING_NODE','row.presence'
+    elif path not in old:category,field='EXTRA_NODE','row.presence'
+    elif type(old[path])is dict and type(new[path])is dict:
+        a,b=old[path],new[path]
+        if set(a)!=set(b):category,field='ROW_FIELDS','row.keys'
+        elif a.get('node')!=b.get('node'):
+            category,field='NODE_METADATA_OR_SHAPE','node'
+            if type(a.get('node'))is dict and type(b.get('node'))is dict:
+                key=next(k for k in sorted(set(a['node'])|set(b['node'])) if k not in a['node'] or k not in b['node'] or a['node'][k]!=b['node'][k]);field='node.'+str(key)[:128];category='NODE_HASH_OR_LINK' if key in ('sha256','target') else 'NODE_METADATA_OR_SHAPE'
+        elif a.get('identity')!=b.get('identity'):
+            category,field='INODE_IDENTITY','identity'
+            aa,bb=a.get('identity'),b.get('identity');labels=('device','inode','mode','uid','gid','nlink','size','mtime_ns','ctime_ns')
+            if type(aa)in(list,tuple) and type(bb)in(list,tuple) and len(aa)==len(bb)<=9:field='identity.'+labels[next(i for i in range(len(aa)) if aa[i]!=bb[i])]
+    value={'schema_version':1,'status':'BOUNDED_SCAN_DIFFERENCE_DIAGNOSTIC_ONLY','acceptance_authority':False,'path':path,'category':category,'field':field,'before_scan_entries':len(old),'after_scan_entries':len(new),'before':summary(raw_before['scan'],path),'after':summary(raw_after['scan'],path),'comparison_view':'EXISTING_EXACT_APPS_PARENT_TIME_PROJECTION','original_failure':'aux-checkpoint-scan-changed'}
+    if len(encoded(value))>8192:raise ValueError('bounded scan diagnostic')
+    return value
+
+def apps6_linked_compare(runtime,before,after,*,committed):
+    def compare(left,right,comparator,*,committed):
+        try:return aux.compare(left,right,comparator,committed=committed)
+        except ValueError as error:
+            if str(error)=='aux-checkpoint-scan-changed':
+                try:
+                    try:value=apps_scan_difference(left,right,before,after)
+                    except Exception as diagnostic_error:value={'status':'SCAN_DIAGNOSTIC_UNAVAILABLE','error_type':type(diagnostic_error).__name__,'acceptance_authority':False}
+                    runtime.auxiliary_checks.append({'checkpoint':'scan-comparison-failure','diagnostic':value})
+                except Exception:pass # Original refusal always wins over diagnostic failure.
+            raise
+    return aux_runtime.apps6_postcommit_compare(before,after,runtime.comparator,committed=committed,selected=getattr(runtime,'apps6_auxiliary_selected',False),config=runtime.config,need=aux.need,compare=compare)
+
+LINKED_INPUT={'bytes':3539,'sha256':'aabc95cee161d705dbb8fda79a4f0d937afc10ab2bd8a4714deff35470e92ad5'}
+def derive_linked(raw):
+    need(pin(raw)==LINKED_INPUT,'exact original linked Runtime override required')
+    text=raw.decode();before='check=aux.compare(previous,state,self.comparator,committed=committed)';after='check=apps6_linked_compare(self,previous,state,committed=committed)';need(text.count(before)==1,'one exact active linked comparator call');result=text.replace(before,after);anchor='class Runtime(aux_runtime.Runtime):';need(result.count(anchor)==1,'one exact linked Runtime class');result=result.replace(anchor,inspect.getsource(apps_scan_difference)+'\n\n'+inspect.getsource(apps6_linked_compare)+'\n\n'+anchor)
+    old=ast.parse(text);new=ast.parse(result);classes=lambda tree:next(n for n in tree.body if isinstance(n,ast.ClassDef) and n.name=='Runtime');a,b=classes(old),classes(new);methods=lambda cls:{n.name:n for n in cls.body if isinstance(n,ast.FunctionDef)};aa,bb=methods(a),methods(b);need(set(aa)==set(bb),'no linked runtime method added/removed')
+    for name,node in aa.items():
+        expected=ast.parse(ast.get_source_segment(text,node).replace(before,after)).body[0];need(ast.dump(expected,include_attributes=False)==ast.dump(bb[name],include_attributes=False),'linked runtime body changed beyond active comparator: '+name)
+    oa=next(n for n in old.body if isinstance(n,ast.FunctionDef) and n.name=='apply');na=next(n for n in new.body if isinstance(n,ast.FunctionDef) and n.name=='apply');need(ast.dump(oa,include_attributes=False)==ast.dump(na,include_attributes=False),'linked apply/truth/error status changed')
+    return result.encode(),dict(status='EXACT_LINKED_OVERRIDE_ROUTES_EXISTING_APPS_PARENT_TIMES_PLUS_FAILURE_DIAGNOSTIC',before=pin(raw),after=pin(result.encode()),new_allowances='NONE',original_compare='UNCHANGED',failure_status='UNCHANGED',diagnostic_bytes=8192,scope='SOURCE_ONLY_NOT_ACTUAL_ACCEPTANCE')
