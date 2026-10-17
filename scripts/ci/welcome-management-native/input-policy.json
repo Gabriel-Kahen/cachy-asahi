@@ -79,7 +79,7 @@
     "cachy-asahi-orphans": {
       "arch": "any",
       "check_markers": [
-        "^Ran 18 tests in [0-9.]+s$",
+        "^Ran 20 tests in [0-9.]+s$",
         "^OK$"
       ],
       "dependencies": {
@@ -113,11 +113,11 @@
           420
         ]
       },
-      "recipe_sha256": "b7c6055622f57dd3a30101ee418301a2cb3e910f03ccbb99a25ebbbed4cb9391",
+      "recipe_sha256": "b59a1b67a8fd6290549e861bd40f5e94447d5376c86eca6baa94d2cdddb6b91a",
       "source_files": {
         ".SRCINFO": {
           "bytes": 914,
-          "sha256": "1d171298c87606d351e4dc26a5cb83bd66719b419b619f17e82bcbd097fc0188"
+          "sha256": "a324b86100e9a14aa431021f2ed3454920e764708faea4bc0775239dd9765223"
         },
         "LICENSE": {
           "bytes": 1081,
@@ -129,26 +129,26 @@
         },
         "PKGBUILD": {
           "bytes": 1379,
-          "sha256": "b7c6055622f57dd3a30101ee418301a2cb3e910f03ccbb99a25ebbbed4cb9391"
+          "sha256": "b59a1b67a8fd6290549e861bd40f5e94447d5376c86eca6baa94d2cdddb6b91a"
         },
         "README.md": {
-          "bytes": 8282,
-          "sha256": "421e83c8dd3f482ae0d35edf8565d09fa1d3cc2f9f4eb7e5459376b26a54991a"
+          "bytes": 8810,
+          "sha256": "ef96e2cf1e0809a065edd36545c861e4064f3bae2cc4665401455a89dd144529"
         },
         "cachy-asahi-orphans": {
-          "bytes": 19417,
-          "sha256": "2d7d6914482a76f963603ad71aab38f87693a1c7c7ad15f7ae54bf50a3c1d629"
+          "bytes": 20007,
+          "sha256": "559ff8554b9c93f237ddebec8f6c8ac09749ed93b6a179c06fcf513dfffe3292"
         },
         "protection-floor.json": {
           "bytes": 10489,
           "sha256": "0d6dfbf3cd550fe72ddad30058693007f8bb86214de1e83442580677db5005f2"
         },
         "test_orphans.py": {
-          "bytes": 12730,
-          "sha256": "f862b853e90a79314cbf221f440ddd2f679d21d8e94ee002d736b1f26b1ee83c"
+          "bytes": 14653,
+          "sha256": "8f4080979ad3de2b1c27419f27cd6e3f61b122544164f1e16158cc4f8d73bb82"
         }
       },
-      "version": "0.1.0-1"
+      "version": "0.1.0-2"
     },
     "cachy-asahi-welcome": {
       "arch": "aarch64",

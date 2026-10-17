@@ -9,8 +9,8 @@
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "manifests/packages.toml": {
-      "bytes": 35299,
-      "sha256": "b8f1f6414f91a9ce94f892fc4c2b61b69e7ca50c7d97adb16d52bfb2ee24fd0f"
+      "bytes": 35520,
+      "sha256": "bb2e2e30f0420a51a6fc9c65ce47e8508ed1860027219a12a605d1e729c362b2"
     },
     "packages/tools/cachy-asahi-apps/.SRCINFO": {
       "bytes": 1775,
@@ -78,7 +78,7 @@
     },
     "packages/tools/cachy-asahi-orphans/.SRCINFO": {
       "bytes": 914,
-      "sha256": "1d171298c87606d351e4dc26a5cb83bd66719b419b619f17e82bcbd097fc0188"
+      "sha256": "a324b86100e9a14aa431021f2ed3454920e764708faea4bc0775239dd9765223"
     },
     "packages/tools/cachy-asahi-orphans/LICENSE": {
       "bytes": 1081,
@@ -90,15 +90,15 @@
     },
     "packages/tools/cachy-asahi-orphans/PKGBUILD": {
       "bytes": 1379,
-      "sha256": "b7c6055622f57dd3a30101ee418301a2cb3e910f03ccbb99a25ebbbed4cb9391"
+      "sha256": "b59a1b67a8fd6290549e861bd40f5e94447d5376c86eca6baa94d2cdddb6b91a"
     },
     "packages/tools/cachy-asahi-orphans/README.md": {
-      "bytes": 8282,
-      "sha256": "421e83c8dd3f482ae0d35edf8565d09fa1d3cc2f9f4eb7e5459376b26a54991a"
+      "bytes": 8810,
+      "sha256": "ef96e2cf1e0809a065edd36545c861e4064f3bae2cc4665401455a89dd144529"
     },
     "packages/tools/cachy-asahi-orphans/cachy-asahi-orphans": {
-      "bytes": 19417,
-      "sha256": "2d7d6914482a76f963603ad71aab38f87693a1c7c7ad15f7ae54bf50a3c1d629"
+      "bytes": 20007,
+      "sha256": "559ff8554b9c93f237ddebec8f6c8ac09749ed93b6a179c06fcf513dfffe3292"
     },
     "packages/tools/cachy-asahi-orphans/protection-floor.json": {
       "bytes": 10489,

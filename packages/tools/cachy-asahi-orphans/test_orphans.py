@@ -76,6 +76,32 @@ class Orphans(unittest.TestCase):
         self.package('optional-one',provides=['optional-virtual=3']);self.package('optional-two',provides=['optional-virtual=3']);self.package('optional-consumer',0,optional=['optional-virtual>=2: retained feature'])
         _,lost=M.inspect(self.root,self.db,[],['optional-one','optional-two']);self.assertEqual(len(lost),1);self.assertEqual(lost[0]['kind'],'optdepends')
 
+    def test_satisfier_memo_is_bounded_to_each_assessment_and_caches_absence(self):
+        self.package('memo-provider',provides=['memo-virtual=2'])
+        for name in ('memo-first','memo-second'):
+            self.package(name,0,depends=['memo-virtual>=2'],optional=['memo-absent: unavailable '+name])
+        original=M.Installed.satisfier;calls=[]
+        def record(api,head,text):calls.append((head,text));return original(api,head,text)
+        with patch.object(M.Installed,'satisfier',record):
+            first,lost=M.inspect(self.root,self.db,[]);self.assertEqual(lost,[])
+            self.assertEqual(len(calls),3);self.assertEqual(sum(text=='memo-absent' for _,text in calls),1)
+            again,lost=M.inspect(self.root,self.db,[]);self.assertEqual(first,again);self.assertEqual(len(calls),6)
+        self.assertEqual(first['packages']['memo-first']['satisfiers']['optdepends'],{'memo-absent: unavailable memo-first':None})
+        for cap,expected in ((0,6),(1,4)):
+            calls.clear()
+            with patch.object(M,'MAX_SATISFIERS',cap),patch.object(M.Installed,'satisfier',record):
+                bounded,lost=M.inspect(self.root,self.db,[])
+            self.assertEqual(bounded,first);self.assertEqual(lost,[]);self.assertEqual(len(calls),expected)
+
+    def test_memo_keeps_full_and_selected_remaining_provider_lists_separate(self):
+        self.package('memo-provider',provides=['memo-virtual=2'])
+        for name in ('memo-first','memo-second'):self.package(name,0,depends=['memo-virtual>=2'])
+        report,lost=M.inspect(self.root,self.db,[],['memo-provider'])
+        self.assertEqual([row['package'] for row in lost],['memo-first','memo-second'])
+        for name in ('memo-first','memo-second'):
+            self.assertEqual(report['packages'][name]['satisfiers']['depends']['memo-virtual>=2'],'memo-provider')
+        path,_=self.assessment();self.plan(path,['memo-provider'],code=1)
+
     def test_existing_base_platform_floor_and_explicit_user_protection(self):
         for name in ('glibc','linux-asahi','asahi-audio','speakersafetyd','custom-important'):self.package(name)
         path,r=self.assessment(['custom-important']);self.assertEqual(r['candidates'],[])

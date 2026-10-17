@@ -8,6 +8,7 @@ VERSION='0.1.0'
 NAME=re.compile(r'[a-z0-9][a-z0-9+_.-]{0,127}\Z')
 FLOOR_SHA='0d6dfbf3cd550fe72ddad30058693007f8bb86214de1e83442580677db5005f2'
 MAX_NODES=20000;MAX_PACKAGES=2048;MAX_RELATIONS=32768;MAX_JSON=32*1024**2
+MAX_SATISFIERS=MAX_RELATIONS
 SCOPE='LOCAL_INSTALLED_METADATA_ONLY_NOT_PAYLOAD_RELEASE_REMOVAL_OR_HARDWARE_PROOF'
 
 
@@ -199,13 +200,23 @@ def inspect(root,db,extra,selected=(),checkpoint=None):
             candidate=reason==1 and not required and not optional and name not in protected
             rows[name]=dict(version=version,reason='explicit' if reason==0 else 'dependency' if reason==1 else 'unknown',required_by=required,optional_required_by=optional,depends=depends,optdepends=optdepends,provides=provides,protected=name in protected,candidate=candidate)
         need(len(nodes(remaining,MAX_PACKAGES))==len(pointers)-len(set(selected)&set(pointers)),'remaining-list allocation incomplete')
+        # Both ALPM lists are immutable until release. Cache names/None only for
+        # this assessment; distinct lists may choose different providers.
+        full_cache={};remaining_cache={}
+        def satisfier(head,cache,text):
+            # Match the exact optional-description normalization in Installed.satisfier.
+            text=text.split(': ',1)[0]
+            if text in cache:return cache[text]
+            result=api.satisfier(head,text)
+            if len(cache)<MAX_SATISFIERS:cache[text]=result
+            return result
         for name,row in rows.items():
             need(time.monotonic()<until,'dependency query deadline exceeded')
-            row['satisfiers']={kind:{dep:api.satisfier(full,dep) for dep in row[kind]} for kind in ('depends','optdepends')}
+            row['satisfiers']={kind:{dep:satisfier(full,full_cache,dep) for dep in row[kind]} for kind in ('depends','optdepends')}
             for kind in ('depends','optdepends'):
                 for dep,provider in row['satisfiers'][kind].items():
                     if kind=='depends' and provider is None:broken.append(dict(package=name,dependency=dep))
-                    if name not in selected and (kind=='depends' or provider is not None) and api.satisfier(remaining,dep) is None:lost.append(dict(package=name,dependency=dep,kind=kind))
+                    if name not in selected and (kind=='depends' or provider is not None) and satisfier(remaining,remaining_cache,dep) is None:lost.append(dict(package=name,dependency=dep,kind=kind))
         if checkpoint:checkpoint()
         version=api.version
     finally:
