@@ -15,9 +15,9 @@ def args_request(argv,orphan_plan):
   elif name=='applications':
    names=[]
    while i<len(parts) and not parts[i].startswith('--'):names.append(parts[i]);i+=1
-   C.need(names==['cache'],'only exact signed Cache catalog request');values[name]=names
+   C.need(names==['apps'],'only exact signed Apps catalog request');values[name]=names
   else:values[name]=parts[i];i+=1
- values.update(selected=['cachy-asahi-cache'],orphan_plan=str(orphan_plan),orphan_plan_sha256=C.sha(C.read(orphan_plan,16*1024**2)))
+ values.update(selected=['cachy-asahi-apps'],orphan_plan=str(orphan_plan),orphan_plan_sha256=C.sha(C.read(orphan_plan,16*1024**2)))
  return values
 
 def invoke(calls,value,label,expected=0):
@@ -25,13 +25,14 @@ def invoke(calls,value,label,expected=0):
  argv=['/usr/bin/python3','-I','-B','/source/scripts/orphans/selected.py','--request',str(path),'--request-sha256',C.sha(C.read(path))]
  return calls.call(argv,expected=expected),argv
 
-def assessed_plan(calls,workspace,tag):
+def assessed_plan(calls,workspace,tag,select='cachy-asahi-apps'):
  assessment=WORK/(workspace.name+'-'+tag+'-assessment.json');plan=WORK/(workspace.name+'-'+tag+'-plan.json')
  readonly='/source/packages/tools/cachy-asahi-orphans/cachy-asahi-orphans'
  published=calls.call(['/usr/bin/python3','-I','-B',readonly,'assess','--root',str(workspace/'root'),'--dbpath',str(workspace/'root/var/lib/pacman'),'--output',str(assessment)],seconds=45)
  raw=C.read(assessment,4*1024**2);C.need(published['status']=='NOT_APPLIED' and published['sha256']==C.sha(raw),'original complete assessment publication required')
  observed=C.decode(raw)
- calls.call(['/usr/bin/python3','-I','-B',readonly,'plan',str(assessment),'--select','cachy-asahi-cache','--output',str(plan)],seconds=45)
+ if select is None:return observed,None
+ calls.call(['/usr/bin/python3','-I','-B',readonly,'plan',str(assessment),'--select',select,'--output',str(plan)],seconds=45)
  return observed,plan
 
 def main():
@@ -41,13 +42,17 @@ def main():
  value=dict(status='FAIL',hardware='NOT_RUN',rollback='NOT_CLAIMED',source_tree_sha256=source_sha,source_capabilities_sha256=cap_sha)
  try:
   workspace=WORK/('interrupted' if '--interrupt' in sys.argv else 'main');prepared=calls.call([*H.backend('prepare-copy',workspace),'--source','/seed']);C.need(prepared['status']=='OWNED_COPY_PREPARED','original genuine copy required');owner=prepared['ownership_sha256'];H.retain_copy(workspace,owner)
-  path,plan=H.planned(calls,workspace,'interrupted-install' if '--interrupt' in sys.argv else 'install','install',['cache']);install=H.apply_args(calls,workspace,owner,path,plan);install[3]='/source/'+C.LANE+'/install_dependency.py';installed=calls.call(install)
-  C.need(installed['status']=='PASS_OWNED_DISPOSABLE_APPS_TRANSACTION' and installed['prepared_add']=={'cachy-asahi-cache':'0.2.0-1','cachy-asahi-repository-runtime':'0.1.0-1'},'actual exact signed Cache+Runtime install required')
+  path,plan=H.planned(calls,workspace,'interrupted-install' if '--interrupt' in sys.argv else 'install','install',['apps'])
+  index=C.decode(C.checked(Path('/inputs'),dict(C.policy()['packet_index'],path='native-index.json')))
+  value['precommit_install_plan']=C.load('fixture_precommit_checks',C.HERE/'checks.py').install_plan(C,plan,index)
+  install=H.apply_args(calls,workspace,owner,path,plan);install[3]='/source/'+C.LANE+'/install_dependency.py';installed=calls.call(install)
+  C.need(installed['status']=='PASS_OWNED_DISPOSABLE_APPS_TRANSACTION' and installed['prepared_add']=={'cachy-asahi-apps':'0.1.0-5','cachy-asahi-repository-runtime':'0.1.0-1'},'actual exact signed Apps+Runtime install required')
+  after_install=H.count(workspace);C.need(len(after_install)==576 and after_install['cachy-asahi-apps']=='0.1.0-5' and after_install['cachy-asahi-repository-runtime']=='0.1.0-1','actual576 package count and dependency versions required')
   observed,orphan_plan=assessed_plan(calls,workspace,'initial-cleanup')
-  cache=observed['packages']['cachy-asahi-cache'];runtime=observed['packages']['cachy-asahi-repository-runtime']
-  C.need(cache['reason']=='dependency' and cache['candidate'] is True and not cache['required_by'] and not cache['optional_required_by'] and runtime['reason']=='dependency' and runtime['required_by']==['cachy-asahi-cache'],'actual public ALLDEPS reason/leaf/Runtime-needed readback required')
+  apps=observed['packages']['cachy-asahi-apps'];runtime=observed['packages']['cachy-asahi-repository-runtime']
+  C.need(apps['reason']=='dependency' and apps['candidate'] is True and not apps['required_by'] and not apps['optional_required_by'] and runtime['reason']=='dependency' and runtime['required_by']==['cachy-asahi-apps'],'actual public ALLDEPS reason/leaf/Runtime-needed readback required')
   # Original inventory publication names stay finite and outside mutation root.
-  path,plan=H.planned(calls,workspace,'remove-selected','remove',['cache']);argv=H.apply_args(calls,workspace,owner,path,plan);selected=args_request(argv,orphan_plan)
+  path,plan=H.planned(calls,workspace,'remove-selected','remove',['apps']);argv=H.apply_args(calls,workspace,owner,path,plan);selected=args_request(argv,orphan_plan)
   C.save(OUT/'assessment.json',observed);(OUT/'orphan-plan.json').write_bytes(C.read(orphan_plan,16*1024**2))
   if '--interrupt' in sys.argv:
    request_path=WORK/'interruption-request.json';request_path.write_bytes(C.encoded(selected));request_path.chmod(0o600)
@@ -68,12 +73,15 @@ def main():
   C.need({k:v for k,v in fresh.items() if k!='database'}=={k:v for k,v in observed.items() if k!='database'},'lock refusal changed orphan graph or protection facts')
   selected.update(orphan_plan=str(orphan_plan),orphan_plan_sha256=C.sha(C.read(orphan_plan,16*1024**2)))
   C.save(OUT/'after-lock-assessment.json',fresh);(OUT/'after-lock-orphan-plan.json').write_bytes(C.read(orphan_plan,16*1024**2))
-  cases['normal'],_=invoke(calls,selected,'normal');C.need(cases['normal']['status']=='PASS_SELECTED_CATALOG_ORPHAN_REMOVAL_IN_OWNED_COPY' and cases['normal']['prepared_add']=={} and cases['normal']['prepared_remove']=={'cachy-asahi-cache':'0.2.0-1'},'exact selected normal removal required')
+  cases['normal'],_=invoke(calls,selected,'normal');C.need(cases['normal']['status']=='PASS_SELECTED_CATALOG_ORPHAN_REMOVAL_IN_OWNED_COPY' and cases['normal']['prepared_add']=={} and cases['normal']['prepared_remove']=={'cachy-asahi-apps':'0.1.0-5'},'exact selected normal removal required')
   after_normal=calls.call(H.backend('inspect',workspace,owner))['before'];cases['stale'],_=invoke(calls,selected,'stale',1);after_stale=calls.call(H.backend('inspect',workspace,owner))['before'];C.need(cases['stale']['status']=='FAIL' and after_stale==after_normal and not (workspace/'apps-pending.json').exists(),'stale saved plan must refuse without any copied-root changes or transaction marker')
-  rows=H.count(workspace);C.need(len(rows)==575 and 'cachy-asahi-cache' not in rows and rows['cachy-asahi-repository-runtime']=='0.1.0-1','unselected now-orphan Runtime must remain; no recursive cleanup')
+  rows=H.count(workspace);C.need(len(rows)==575 and 'cachy-asahi-apps' not in rows and rows['cachy-asahi-repository-runtime']=='0.1.0-1','unselected now-orphan Runtime must remain; no recursive cleanup')
+  after_cleanup,_=assessed_plan(calls,workspace,'after-selected-removal',select=None);leaf=after_cleanup['packages']['cachy-asahi-repository-runtime']
+  C.need(leaf['reason']=='dependency' and leaf['candidate'] is True and not leaf['required_by'] and not leaf['optional_required_by'] and set(after_cleanup['packages'])==set(observed['packages'])-{'cachy-asahi-apps'},'actual newly orphaned Runtime readback required')
+  C.save(OUT/'after-removal-assessment.json',after_cleanup)
   disposed=calls.call(H.backend('dispose-copy',workspace,owner),seconds=75);C.need(disposed['status']=='OWNED_COPY_DISPOSED','explicit original owner disposal required')
   after=adapter.measure(Path('/seed'),T.limits());adapter.capability_map(Path('/seed'),after,T.limits(),caps);C.need(T.sha(T.encoded(after['nodes']))==source_sha,'readonly source changed')
-  value.update(status='PASS_NATIVE574_SELECTED_ORPHAN_CLEANUP',base_count=574,counts=[576,575],transactions=[installed,cases['normal']],cases=cases,case_preservation=dict(noop_cancel_foreign=dict(before=before_cases,after=after_cases),stale=dict(before=after_normal,after=after_stale),qualification='FULL_ROOT_DIGEST_EQUALITY_NOT_COMMIT_EVENT_PROOF'),actual_reason_graph=observed['packages'],selected=['cachy-asahi-cache'],dependency_reason_readback='ACTUAL_PUBLIC_ALPM_ALLDEPS_AND_ORPHANS2_GRAPH',source_preserved=True,user_trust_protected_preserved=True,workspaces_disposed=True,security_capabilities='EXACT_SOURCE_MAP_PRESERVED',interrupted_copy='NOT_RUN_SEPARATE_ACTOR_REQUIRED')
+  value.update(status='PASS_NATIVE574_SELECTED_ORPHAN_CLEANUP',base_count=574,counts=[len(after_install),len(rows)],transactions=[installed,cases['normal']],cases=cases,case_preservation=dict(noop_cancel_foreign=dict(before=before_cases,after=after_cases),stale=dict(before=after_normal,after=after_stale),qualification='FULL_ROOT_DIGEST_EQUALITY_NOT_COMMIT_EVENT_PROOF'),actual_reason_graph=observed['packages'],after_reason_graph=after_cleanup['packages'],selected=['cachy-asahi-apps'],dependency_reason_readback='ACTUAL_PUBLIC_ALPM_ALLDEPS_AND_ORPHANS2_GRAPH',source_preserved=True,user_trust_protected_preserved=True,workspaces_disposed=True,security_capabilities='EXACT_SOURCE_MAP_PRESERVED',interrupted_copy='NOT_RUN_SEPARATE_ACTOR_REQUIRED')
   C.result(value)
  except BaseException as error:value.update(error_type=type(error).__name__,error=str(error)[:1024]);raise
  finally:

@@ -5,7 +5,7 @@ import argparse,ast,hashlib,json
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
 OLD='scripts/ci/apps-full574-native';NEW='scripts/ci/orphans-full574-native'
-OWN=('prepare.py','policy.json','source-pins.json','lifecycle.py','install_dependency.py','cancel.py','checks.py','test_lane.py','README.md')
+OWN=('prepare.py','policy.json','source-pins.json','lifecycle.py','install_dependency.py','cancel.py','checks.py','test_lane.py','README.md','cache-only-plan-39010123449.json')
 WF='.github/workflows/native-arm-orphans-full574-cleanup.yml'
 def need(ok,why):
  if not ok:raise ValueError(why)
