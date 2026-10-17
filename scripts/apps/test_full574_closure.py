@@ -189,12 +189,112 @@ class DataClosure(unittest.TestCase):
     def test_finite_candidate_db_shapes_only_and_base_never_removed(self):
         base={'usr':dict(type='directory',mode=0o755,uid=0,gid=0)};payloads=C.current_payloads()
         candidate=base|payloads['cachy-asahi-apps']
-        prefix='var/lib/pacman/local/cachy-asahi-apps-0.1.0-5'
+        prefix='var/lib/pacman/local/cachy-asahi-apps-'+C.VERSIONS['cachy-asahi-apps']
         candidate[prefix]=dict(type='directory',mode=0o755,uid=0,gid=0)
         candidate[prefix+'/desc']=dict(type='file',mode=0o644,uid=0,gid=0,bytes=1,sha256='a'*64)
         C.baseline_nodes(base,candidate,payloads)
-        for name in (prefix+'/install','usr/lib/libevil.so','var/lib/pacman/local/cachy-asahi-apps-0.1.0-6/desc'):
+        for name in (prefix+'/install','usr/lib/libevil.so','var/lib/pacman/local/cachy-asahi-apps-0.1.0-7/desc'):
             with self.assertRaisesRegex(ValueError,'unselected-new-node'):C.baseline_nodes(base,candidate|{name:candidate[prefix+'/desc']},payloads)
         with self.assertRaisesRegex(ValueError,'baseline-node-changed'):C.baseline_nodes(base,{},payloads)
+
+class ReinstallRepair(unittest.TestCase):
+    """Owned real leaves; policy/context positives are explicit inert models."""
+    def setUp(self):
+        self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup);self.root=Path(self.temp.name)
+        self.block=patch.object(T.SUP.subprocess,'Popen',side_effect=AssertionError('actors forbidden'));self.block.start();self.addCleanup(self.block.stop)
+        for name in ('usr/share','home/user','etc/pacman.d','var/lib/pacman/local/base-1'):(self.root/name).mkdir(parents=True,exist_ok=True)
+        for name in ('home/user/note','etc/pacman.conf','var/lib/pacman/local/base-1/desc'):(self.root/name).write_bytes(b'original base, user and trust bytes')
+        self.source=self.nodes();self.app='cachy-asahi-apps';self.cache='cachy-asahi-cache';self.path='usr/share/repair-app';self.other='usr/share/repair-cache'
+        (self.root/self.path).write_bytes(b'exact Apps6 model payload');(self.root/self.other).write_bytes(b'exact unselected model cache');allnodes=self.nodes()
+        self.payloads={name:{n:allnodes[n] for n in ('usr','usr/share',leaf)} for name,leaf in ((self.app,self.path),(self.cache,self.other))}
+        self.inventory=dict(packages=[dict(name=r['name'],version=r['version']) for r in json.loads((C.ROOT/'scripts/ci/maintained-desktop574-inputs.json').read_bytes())['packages']]+[dict(name=n,version=C.VERSIONS[n]) for n in (self.app,self.cache)])
+        metadata=dict(name=self.app,version=C.VERSIONS[self.app],arch='any',depend=[],provides=[],conflict=[],replaces=[],files=[self.path]);before=dict(metadata,source='caller-installed-inventory',metadata_sha256=C.digest(metadata));after=dict(metadata,source='signed-release',metadata_sha256=C.digest(metadata),release_archive_sha256='b'*64)
+        self.plan=dict(operation='reinstall',requested_packages=[self.app],reinstalls=[dict(before=before,after=after)],additions=[],upgrades=[],removals=[],dependencies=[],conflicts=[],unchanged_selected=[],before_inventory_sha256='d'*64,after_inventory_sha256='d'*64,repair_policy='EXPLICIT_SELECTED_SAME_VERSION_AND_METADATA_ONLY_NO_DEPENDENCY_EXPANSION')
+        self.context=dict(available={self.app:metadata},release=dict(packages=[dict(name=self.app,version=C.VERSIONS[self.app],sha256='b'*64)]))
+    def nodes(self):
+        value=C.roots.observe(self.root,limits=T.limits(),hardlinks='generic-development-internal');self.assertTrue(value['complete']);return value['nodes']
+    def adapter(self):
+        value=object.__new__(C.Adapter);value.payloads=self.payloads;value.policy=dict(candidates={self.app:dict(archive_sha256='b'*64)},source_capabilities={});value.source_check=lambda:(dict(nodes=self.source),{});return value
+    def authorize(self):
+        value=self.adapter();value.authorize_reinstall(self.plan,self.inventory,self.context,'e'*64);return value
+    def test_default_refusal_then_explicit_selected_byte_damage_and_missing_leaf(self):
+        adapter=self.authorize();target=self.root/self.path;target.write_bytes(b'damaged ordinary bytes')
+        for missing in (False,True):
+            if missing:target.unlink()
+            nodes=self.nodes()
+            with self.assertRaises(ValueError):self.adapter().selection({self.app:C.VERSIONS[self.app]}, {},self.inventory,nodes)
+            if not missing:
+                with self.assertRaises(ValueError):C.baseline_nodes(self.source,nodes,self.payloads)
+            damage=C.reinstall_nodes(self.source,nodes,self.payloads,adapter.repair_names,adapter.repair_installed);self.assertEqual(set(damage),{self.path});self.assertEqual(damage[self.path],nodes.get(self.path))
+            adapter.selection({self.app:C.VERSIONS[self.app]}, {},self.inventory,nodes)
+        self.assertFalse(target.exists())
+        before=self.nodes();old=T.reinstall_old(set(self.payloads[self.app]),before,self.payloads[self.app]);target.write_bytes(b'exact Apps6 model payload');after=self.nodes()
+        T.check_preservation(before,after,old,self.payloads[self.app],set());self.assertEqual(C.reinstall_nodes(self.source,after,self.payloads,adapter.repair_names,adapter.repair_installed),{})
+    def test_base_unselected_trust_user_and_database_drift_are_not_excluded(self):
+        adapter=self.authorize()
+        for name in ('home/user/note','etc/pacman.conf','var/lib/pacman/local/base-1/desc',self.other):
+            path=self.root/name;raw=path.read_bytes();path.write_bytes(b'changed unselected bytes')
+            with self.subTest(name=name),self.assertRaises(ValueError):C.reinstall_nodes(self.source,self.nodes(),self.payloads,adapter.repair_names,adapter.repair_installed)
+            path.write_bytes(raw)
+        (self.root/self.other).unlink()
+        with self.assertRaisesRegex(ValueError,'unselected'):C.reinstall_nodes(self.source,self.nodes(),self.payloads,adapter.repair_names,adapter.repair_installed)
+    def test_type_hardlink_mode_parent_and_unknown_xattr_are_refused(self):
+        adapter=self.authorize();target=self.root/self.path;raw=target.read_bytes();target.chmod(0o600)
+        with self.assertRaisesRegex(ValueError,'metadata'):C.reinstall_nodes(self.source,self.nodes(),self.payloads,adapter.repair_names,adapter.repair_installed)
+        target.chmod(0o644);target.unlink();target.symlink_to('repair-cache')
+        with self.assertRaisesRegex(ValueError,'ordinary'):C.reinstall_nodes(self.source,self.nodes(),self.payloads,adapter.repair_names,adapter.repair_installed)
+        target.unlink();os.link(self.root/self.other,target)
+        with self.assertRaises(ValueError):C.reinstall_nodes(self.source,self.nodes(),self.payloads,adapter.repair_names,adapter.repair_installed)
+        target.unlink();os.mkfifo(target)
+        with self.assertRaises(ValueError):C.reinstall_nodes(self.source,self.nodes(),self.payloads,adapter.repair_names,adapter.repair_installed)
+        target.unlink();target.write_bytes(raw);parent=target.parent;parent.chmod(0o700)
+        with self.assertRaisesRegex(ValueError,'directory|parent'):C.reinstall_nodes(self.source,self.nodes(),self.payloads,adapter.repair_names,adapter.repair_installed)
+        parent.chmod(0o755);os.setxattr(target,'user.repair-unknown',b'no metadata waiver')
+        with self.assertRaisesRegex(ValueError,'unknown xattr'):C.capability_map(self.root,dict(nodes=self.nodes()),T.limits(),{})
+    def test_authentication_selection_version_archive_metadata_and_expansion_refuse(self):
+        for kind in ('operation','addition','version','metadata','archive','selection','declared','inventory'):
+            plan=copy.deepcopy(self.plan);context=copy.deepcopy(self.context);inventory=copy.deepcopy(self.inventory)
+            if kind=='operation':plan['operation']='install'
+            elif kind=='addition':plan['additions']=[plan['reinstalls'][0]['after']]
+            elif kind=='version':plan['reinstalls'][0]['after']['version']='0.1.0-5'
+            elif kind=='metadata':plan['reinstalls'][0]['before']['arch']='aarch64'
+            elif kind=='archive':context['release']['packages'][0]['sha256']='f'*64
+            elif kind=='selection':plan['requested_packages']=[self.cache]
+            elif kind=='declared':plan['reinstalls'][0]['before']['declared_archive_sha256']='f'*64
+            else:inventory['packages'][-1]['version']='forged'
+            with self.subTest(kind=kind),self.assertRaises(ValueError):self.adapter().authorize_reinstall(plan,inventory,context,'e'*64)
+        adapter=self.authorize()
+        with self.assertRaisesRegex(ValueError,'single-authenticated'):adapter.authorize_reinstall(self.plan,self.inventory,self.context,'e'*64)
+        with self.assertRaisesRegex(ValueError,'selection-differs'):adapter.selection({}, {self.app:C.VERSIONS[self.app]},self.inventory,self.nodes())
+    def test_actual_damage_map_old_payload_and_complete_recheck_remain_exact(self):
+        adapter=self.authorize();target=self.root/self.path;target.write_bytes(b'first actual damage');before=self.nodes();adapter.repair_before={n:r for n,r in before.items() if n in self.payloads[self.app]}
+        adapter.old_payload({self.path:before[self.path]})
+        with self.assertRaisesRegex(ValueError,'installed-current'):self.adapter().old_payload({self.path:before[self.path]})
+        target.write_bytes(b'second drift');later=self.nodes();self.assertNotEqual(T.pins(dict(nodes=before),self.inventory),T.pins(dict(nodes=later),self.inventory))
+        with self.assertRaisesRegex(ValueError,'installed-current'):adapter.old_payload({self.path:later[self.path]})
+        for change in (dict(uid=before[self.path]['uid']+1),dict(gid=before[self.path]['gid']+1),dict(bytes=128*1024+1)):
+            altered=copy.deepcopy(before);altered[self.path].update(change)
+            with self.subTest(change=change),self.assertRaises(ValueError):C.reinstall_nodes(self.source,altered,self.payloads,adapter.repair_names,adapter.repair_installed)
+        target.unlink();(self.root/'usr/share').rename(self.root/'usr/moved');(self.root/'usr/share').symlink_to('moved')
+        with self.assertRaises(ValueError):C.reinstall_nodes(self.source,self.nodes(),self.payloads,adapter.repair_names,adapter.repair_installed)
+    def test_repair_cannot_mask_original_base_leaf_or_change_capability_map(self):
+        adapter=self.authorize();nodes=self.nodes();payloads=copy.deepcopy(self.payloads);name='etc/pacman.conf';payloads[self.app][name]=self.source[name]
+        with self.assertRaisesRegex(ValueError,'original574'):C.reinstall_nodes(self.source,nodes,payloads,adapter.repair_names,adapter.repair_installed)
+        with patch.object(C.caps,'observe',return_value={self.path:'0100000240000000000000000000000000000000'}),self.assertRaisesRegex(ValueError,'security-capabilities-changed'):C.capability_map(self.root,dict(nodes=nodes),T.limits(),{})
+
+
+class RepairAuthenticationOrder(unittest.TestCase):
+    def test_reinstall_auth_failure_precedes_any_repair_observation_install_stays_strict(self):
+        from contextlib import nullcontext
+        for operation,expected in (('reinstall','AUTHENTICATED_REPLAN_REFUSED'),('install','DEFAULT_STRICT_OBSERVATION'),('remove','DEFAULT_STRICT_OBSERVATION')):
+            with self.subTest(operation=operation),tempfile.TemporaryDirectory() as temporary:
+                work=Path(temporary);root=work/'root';root.mkdir();plan=work/'plan';plan.write_bytes(b'{}');calls=[]
+                def execute(_):calls.append('authenticate');raise ValueError('AUTHENTICATED_REPLAN_REFUSED')
+                app=SimpleNamespace(inventory_reader=lambda:SimpleNamespace(collect=lambda *a:dict(packages=[])),encoded=T.encoded,execute=execute)
+                client=SimpleNamespace(read_path=lambda p,cap:p.read_bytes());closure=SimpleNamespace(owner=lambda _:None)
+                args=SimpleNamespace(confirm_disposable_transaction=True,operation=operation,plan=str(plan),plan_sha256=T.sha(b'{}'))
+                with patch.object(T,'root_guard',return_value=(work,root,{'copy':{}})),patch.object(T,'app_source',return_value=(app,client,None)),patch.object(T,'closure_for',return_value=closure),patch.object(T,'locked',return_value=nullcontext()),patch.object(T,'observe',side_effect=ValueError('DEFAULT_STRICT_OBSERVATION')) as observation,patch.object(T,'snapshot_inputs',side_effect=lambda a,*_:SimpleNamespace(**vars(a))),patch.object(T.SUP.subprocess,'Popen',side_effect=AssertionError('actors forbidden')):
+                    result=T.apply(args)
+                self.assertEqual(result['status'],'FAIL');self.assertFalse(result['commit_started']);self.assertIn(expected,result['error']);self.assertEqual(observation.call_count,0 if operation=='reinstall' else 1);self.assertEqual(calls,['authenticate'] if operation=='reinstall' else [])
 
 if __name__=='__main__':unittest.main(verbosity=2)
