@@ -319,4 +319,62 @@ class FailureDiagnostic(unittest.TestCase):
   for out,err,change in ((b'a',b'',dict(stdout_sha256='0'*64)),(b'a',b'',dict(argv=['/arbitrary'])),(b'a',b'',dict(output_limit=4*1024**2)),(b'a'*(2*1024**2+1),b'',{})):
    with self.assertRaises(ValueError):self.capture(out,err,self.row(out,err,**change),None)
 
+
+class SourceStateBudget(unittest.TestCase):
+ def _exercise_factory(self,final=False):
+  from types import SimpleNamespace
+  import hashlib,time,zipfile
+  source=Path(os.environ['FULL574_REPAIR16K_SOURCE']);T=C.load('actual_budget_factory',source/'scripts/apps/transaction.py')
+  with tempfile.TemporaryDirectory() as td:
+   base=Path(td);common=dict(schema_version=1,purpose='APPS_ORIGINAL574_READONLY_CLOSURE',execution_budget=dict(backend_seconds=600,caller_seconds=610),**{n:'a'*64 for n in ('snapshot_sha256','extraction_receipt_sha256','source_tree_sha256','source_packages_sha256','source_closure_sha256','source_capabilities_sha256')})
+   policy=dict(common,baseline_lock_sha256='b'*64,candidates={},source_capabilities={});lease=dict(common,token='c'*32,source='/seed',source_identity=[1,2]);paths={}
+   for name,value in [('full574-policy.json',policy),('full574-lease.json',lease)]:
+    p=base/name;p.write_bytes(C.encoded(value));paths['/inputs/'+name]=p
+   def reading(path,cap=2*1024**2):
+    if str(path)=='/out/guest-lease.json':return C.encoded(dict(after_sha256=C.sha(paths['/inputs/full574-lease.json'].read_bytes())))
+    return paths[str(path)].read_bytes()
+   rows=[];nodes={'actual':dict(type='file')};caps={};A=SimpleNamespace(digest=lambda v:C.sha(C.encoded(v)))
+   def measured(path,budget):
+    self.assertEqual(path,Path('/seed'));rows.append(budget);budget.tick();return {'nodes':nodes}
+   def capabilities(path,before,budget,*expected):
+    if expected:self.assertEqual(expected,(caps,))
+    rows.append(budget);self.assertIs(before['nodes'],nodes);budget.tick();return caps
+   A.measure=measured;A.capability_map=capabilities;native=SimpleNamespace(source=lambda _:None,adapter=lambda _:A)
+   scope=dict(C=SimpleNamespace(NATIVE=C.NATIVE,load=lambda name,path:T if name=='native_metrics' else native,decode=C.decode,read=reading,need=C.need),Path=Path)
+   raw=(HERE/'guest.py').read_text();helper=function(raw,'source_budget');node=function(raw,'source_state');exec(compile(ast.Module(body=[helper,node],type_ignores=[]),'<actual-source-state>','exec'),scope)
+   invoke=scope['source_state']
+   if final:
+    worker=function(raw,'worker');start=next(i for i,n in enumerate(worker.body) if isinstance(n,ast.Assign) and any(isinstance(x,ast.Name) and x.id=='limits' for x in n.targets))
+    tail=worker.body[start:start+4];self.assertEqual([type(n).__name__ for n in tail],['Assign','Assign','Expr','Expr'])
+    header=ast.parse('def final_readback(s,A,T,before,caps):\n return (None,A,T,after,caps)').body[0];header.body=tail+header.body;ast.fix_missing_locations(header);exec(compile(ast.Module(body=[header],type_ignores=[]),'<original-final-readback-fragment>','exec'),scope)
+    invoke=lambda s:scope['final_readback'](s,A,T,{'nodes':nodes},caps)
+   selection=dict(input_map={'full574-policy.json':C.row(paths['/inputs/full574-policy.json'])},source_tree_sha256=A.digest(nodes),source_capabilities_sha256=A.digest(caps))
+   factory=T.limits;arguments=[]
+   def capture(args=None):arguments.append(args);return factory(args)
+   def reader(path,*args,**kwargs):return reading(path)
+   with patch.object(T.B.client,'read_path',side_effect=reader),patch.object(T,'limits',side_effect=capture),patch.object(T.time,'monotonic',return_value=1000):
+    result=invoke(selection)
+    self.assertEqual(len(arguments),1);args=arguments[0];self.assertEqual(args.full574_policy,Path('/inputs/full574-policy.json'));self.assertEqual(args.full574_policy_sha256,selection['input_map']['full574-policy.json']['sha256']);self.assertEqual(args.full574_lease,Path('/inputs/full574-lease.json'));self.assertEqual(args.full574_lease_sha256,C.row(paths['/inputs/full574-lease.json'])['sha256'])
+    self.assertEqual(T.execution_seconds(args),600);self.assertEqual(T.execution_seconds(),300);self.assertIs(rows[0],rows[1]);self.assertEqual(rows[0].deadline,1600)
+    with patch.object(T.time,'monotonic',return_value=1600):
+     with self.assertRaisesRegex(ValueError,'root observation deadline'):rows[0].tick()
+   self.assertIs(result[3]['nodes'],nodes)
+   # Real signed-policy shape path remains strict: changed bytes, mixed budget, or missing binding fail before measurement.
+   for variant in ('changed','mixed','missing'):
+    bad=copy.deepcopy(policy)
+    if variant=='mixed':bad['execution_budget']['backend_seconds']=300
+    paths['/inputs/full574-policy.json'].write_bytes(C.encoded(bad)+ (b' ' if variant=='changed' else b''));sel=copy.deepcopy(selection)
+    if variant=='mixed':sel['input_map']['full574-policy.json']=C.row(paths['/inputs/full574-policy.json'])
+    if variant=='missing':sel['input_map'].clear()
+    rows.clear()
+    with patch.object(T.B.client,'read_path',side_effect=reader):
+     with self.assertRaises((ValueError,KeyError)):invoke(sel)
+    self.assertEqual(rows,[])
+ def test_genuine_initial_factory_uses_exact_policy_freshlease_shared600(self):self._exercise_factory()
+ def test_genuine_final_readback_factory_uses_exact_policy_freshlease_shared600(self):self._exercise_factory(final=True)
+ def test_only_source_state_and_final_readback_change_all_other_guards_held(self):
+  original=Path(os.environ['FULL574_REPAIR16K_SOURCE'])/C.LANE/'guest.py';before=original.read_text();after=(HERE/'guest.py').read_text()
+  old={n.name:dump(n) for n in ast.parse(before).body if isinstance(n,ast.FunctionDef)};new={n.name:dump(n) for n in ast.parse(after).body if isinstance(n,ast.FunctionDef)}
+  self.assertEqual([n for n in old if old[n]!=new[n]],['source_state','worker']);self.assertEqual(set(new)-set(old),{'source_budget'});self.assertIn('env,3000,2*1024**2)',after);self.assertEqual(after.count('limits=source_budget(s,T)'),2)
+
 if __name__=='__main__':unittest.main()
