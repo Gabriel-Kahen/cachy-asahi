@@ -55,7 +55,7 @@ jobs:
         timeout-minutes: 2
         with:
           ref: ${{ steps.proof.outputs.packet_source }}
-          path: retained-apps574-inputs/payload
+          path: retained-apps574-inputs
           persist-credentials: false
       - name: Verify closed native packet before secrets
         timeout-minutes: 2

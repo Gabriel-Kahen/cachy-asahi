@@ -22,7 +22,6 @@ def contract(text):
 
 def workflow(text):
  text=text.replace('native-arm-apps-full574-transaction','native-arm-apps-full574-repair').replace(OLD,NEW).replace('apps-full574-transactions-${{','apps-full574-repair-${{')
- text=replace(text,'          path: retained-apps574-inputs\n','          path: retained-apps574-inputs/payload\n')
  text=replace(text,'-p test_lane.py -v',"-p 'test*.py' -v")
  text=replace(text,'      - name: Actual native574 Apps copied-root transactions\n','      - name: Actual native574 Apps copied-root transactions\n        id: repair_trial\n')
  text=replace(text,'python3 -I -B "$SLICE/job.py" run --source','python3 -I -B "$SLICE/supervise.py" run --handoff "$RUNNER_TEMP/apps574-repair-job.json" --source')

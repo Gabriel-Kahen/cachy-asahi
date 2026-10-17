@@ -67,19 +67,25 @@ class Controls(unittest.TestCase):
   with patch.dict(sys.modules,{},clear=False):
    C=load('contract',lane/'contract.py');self.assertEqual(C.VERSIONS,PACK.VERSIONS)
    with self.assertRaisesRegex(ValueError,'UNBOUND'):C.source(out)
-   J=load('repair_job_emitted',lane/'job.py');parts=J.derived((source/'scripts/ci/apps-full574-native/job.py').read_text());self.assertEqual(set(parts),{'check','run','retain'});self.assertNotIn("api,'interruption'",parts['run']);self.assertIn("api,'lifecycle'",parts['run'])
+   J=load('repair_job_emitted',lane/'job.py');parts=J.derived((source/'scripts/ci/apps-full574-native/job.py').read_text());self.assertEqual(set(parts),{'run','retain'});self.assertNotIn("api,'interruption'",parts['run']);self.assertIn("api,'lifecycle'",parts['run'])
    parsed=ast.parse(parts['run']+parts['retain']);self.assertFalse(any(isinstance(n,ast.Name) and n.id=='interruption' for n in ast.walk(parsed)))
- def test_actual_nested_carrier_repository_checks_root_not_parent(self):
+ def test_actual_nested_payload_layout_original_check_and_strict_data(self):
   import subprocess
-  outer=self.root/'outer';outer.mkdir();carrier=outer/'carrier';carrier.mkdir();environment=dict(os.environ,GIT_CONFIG_NOSYSTEM='1',GIT_CONFIG_GLOBAL='/dev/null',GIT_AUTHOR_NAME='Inert control',GIT_AUTHOR_EMAIL='control@test.invalid',GIT_COMMITTER_NAME='Inert control',GIT_COMMITTER_EMAIL='control@test.invalid')
-  for path,message in ((outer,'outer'),(carrier,'carrier')):
-   subprocess.run(['git','-C',str(path),'init','--quiet'],check=True,env=environment,capture_output=True,timeout=10);subprocess.run(['git','-C',str(path),'commit','--quiet','--allow-empty','-m',message],check=True,env=environment,capture_output=True,timeout=10)
-  actual=subprocess.check_output(['git','-C',str(carrier),'rev-parse','HEAD'],text=True,env=environment,timeout=10).strip();parent=subprocess.check_output(['git','-C',str(carrier.parent),'rev-parse','HEAD'],text=True,env=environment,timeout=10).strip();self.assertNotEqual(actual,parent)
+  carrier=self.root/'carrier';carrier.mkdir();payload=carrier/'payload';environment=dict(os.environ,GIT_CONFIG_NOSYSTEM='1',GIT_CONFIG_GLOBAL='/dev/null',GIT_AUTHOR_NAME='Inert control',GIT_AUTHOR_EMAIL='control@test.invalid',GIT_COMMITTER_NAME='Inert control',GIT_COMMITTER_EMAIL='control@test.invalid')
+  if ACTUAL is not None:shutil.copytree(ACTUAL,payload)
+  else:payload.mkdir();(payload/'inert-data').write_bytes(b'ordinary data only')
+  for argv in (['init','--quiet'],['add','payload'],['commit','--quiet','-m','isolated payload carrier']):subprocess.run(['git','-C',str(carrier),*argv],check=True,env=environment,capture_output=True,timeout=10)
+  actual=subprocess.check_output(['git','-C',str(carrier),'rev-parse','HEAD'],text=True,env=environment,timeout=10).strip();self.assertTrue((carrier/'.git').is_dir());self.assertFalse((payload/'.git').exists())
   def need(v,w):
    if not v:raise ValueError(w)
-  C=types.SimpleNamespace(need=need,source=lambda p:dict(packet_source=actual),inputs=lambda *a:({'packages':{}},{},{}));text=(self.source/'scripts/ci/apps-full574-native/job.py').read_text();node=next(n for n in ast.parse(text).body if isinstance(n,ast.FunctionDef) and n.name=='check');original=ast.get_source_segment(text,node)+'\n';old='str(args.packet.parent)';self.assertEqual(original.count(old),1);patched=original.replace(old,'str(args.packet)');space=dict(ast=ast,C=C);definition(HERE/'job.py','function',space);definition(HERE/'job.py','replace',space);derive=definition(HERE/'job.py','derived',space);self.assertEqual(derive(text)['check'],patched);namespace=dict(C=C);exec(compile(derive(text)['check'],'one-carrier-root-check-seam','exec'),namespace);args=types.SimpleNamespace(source=self.source,packet=carrier);self.assertEqual(namespace['check'](args)['status'],'EXACT_NATIVE_INPUTS_CHECKED_NOT_EXECUTED')
-  exec(compile(original,'historical-carrier-parent-control','exec'),namespace)
-  with self.assertRaisesRegex(ValueError,'carrier checkout differs'):namespace['check'](args)
+  calls=[]
+  def inputs(root,path):
+   self.assertEqual(path,payload);calls.append(path)
+   if ACTUAL is not None:
+    M=load('original_packet_payload_layout',self.source/'scripts/ci/management-tools-generic16k/contract.py');dataC=types.SimpleNamespace(**vars(M));dataC.policy=lambda:dict(packet_index=dict(path='index.json',**P.pin((payload/'index.json').read_bytes())));value=PACK.module(dataC,self.source).packet(payload);self.assertEqual(set(value['packages']),set(PACK.VERSIONS));return value,{},{}
+   return {'packages':{}},{},{}
+  C=types.SimpleNamespace(need=need,source=lambda p:dict(packet_source=actual),inputs=inputs);namespace=dict(C=C);original=definition(self.source/'scripts/ci/apps-full574-native/job.py','check',namespace);self.assertEqual(original(types.SimpleNamespace(source=self.source,packet=payload))['status'],'EXACT_NATIVE_INPUTS_CHECKED_NOT_EXECUTED');self.assertEqual(calls,[payload])
+  if ACTUAL is not None:self.assertEqual({p.relative_to(payload).as_posix():P.pin(p.read_bytes()) for p in payload.rglob('*') if p.is_file()},{p.relative_to(ACTUAL).as_posix():P.pin(p.read_bytes()) for p in ACTUAL.rglob('*') if p.is_file()})
  def test_source_drift_refuses_before_output(self):
   source=self.root/'source';shutil.copytree(self.source,source);path=source/'scripts/apps/transaction.py';path.write_bytes(path.read_bytes()+b'\n');out=self.root/'bad'
   with self.assertRaisesRegex(ValueError,'source differs'):P.emit(source,out)
@@ -87,7 +93,7 @@ class Controls(unittest.TestCase):
  def test_workflow_budgets_and_original_retirement(self):
   text=P.workflow((self.source/'.github/workflows/native-arm-apps-full574-transaction.yml').read_text());self.assertIn('3550s',text);self.assertIn('650s',text);self.assertIn('2300s',text);self.assertIn('supervise.py" run',text);self.assertIn('supervise.py" cleanup',text);self.assertIn('steps.repair_trial.outcome',text);self.assertEqual(text.count('actions/upload-artifact@'),1)
  def test_carrier_root_checkout_and_three_packet_arguments_align(self):
-  text=P.workflow((self.source/'.github/workflows/native-arm-apps-full574-transaction.yml').read_text());self.assertEqual(text.count('          path: retained-apps574-inputs/payload\n'),1);self.assertNotIn('          path: retained-apps574-inputs\n',text);self.assertEqual(text.count('--packet "$GITHUB_WORKSPACE/retained-apps574-inputs/payload"'),3)
+  text=P.workflow((self.source/'.github/workflows/native-arm-apps-full574-transaction.yml').read_text());self.assertEqual(text.count('          path: retained-apps574-inputs\n'),1);self.assertNotIn('          path: retained-apps574-inputs/payload\n',text);self.assertEqual(text.count('--packet "$GITHUB_WORKSPACE/retained-apps574-inputs/payload"'),3)
   if ACTUAL is not None:self.assertTrue((ACTUAL/'index.json').is_file());self.assertFalse((ACTUAL/'payload').exists());self.assertEqual(json.loads((ACTUAL/'index.json').read_bytes())['kind'],'ROOT_ACCEPTED_NATIVE_CURRENT4_REPAIR_INPUTS')
  def test_actual_root_decision_hashes_are_exact_and_no_future_fallback(self):
   self.assertEqual(PACK.DECISIONS,{'triple':'f904a28e6e02ce2685eaa438c4c3d6d43a119b0d5d85a6706db5864c2bbd1676','orphans':'4495e3104903c755c230606cd4739e95cd78e9cbb909d64ff42ad53fa470ba05'})
