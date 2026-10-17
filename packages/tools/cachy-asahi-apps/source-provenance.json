@@ -4,6 +4,7 @@
     "catalog": "separate signed finite caller selection bound to exact signed release",
     "local_inventory": "Explicit readonly nofollow ALPM9 database observation, two matching reads, fresh0600 output, metadata-only qualifier, no subprocess or DB writes; separate16MiB inventory capacity; idempotent exact repeated relations; literal POSIX backslash ownership",
     "mutation": "NONE; explicit NOT_APPLIED",
+    "reinstall": "Explicit same-version/metadata signed selection, no dependency expansion; CLI NOT_APPLIED; separate pinned owned-copy backend reauthenticates and verifies real payload repair",
     "relations": "release.relation and release.satisfies with preinstalled ALPM vercmp",
     "semantics": "release.verify_release, pkginfo, database_check, provenance_check, source associations and dependency_check"
   },
@@ -72,8 +73,8 @@
   },
   "runtime_sources": {
     "apps.py": {
-      "bytes": 21983,
-      "sha256": "b64e3fd6fae67bca64fdd804278b7d88b9851eb92da26636ed2beb723e9a4781"
+      "bytes": 22601,
+      "sha256": "c12f8548d5fd3007a61fb366ca279dd061917cc5320ba81ce5e2ab0d02c7d9a6"
     },
     "cachy-asahi-apps": {
       "bytes": 310,
@@ -90,5 +91,5 @@
   },
   "schema_version": 1,
   "source_kind": "original project planner with exact installed three-helper runtime dependency",
-  "version": "0.1.0-5"
+  "version": "0.1.0-6"
 }

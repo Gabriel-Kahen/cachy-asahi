@@ -65,6 +65,18 @@ class Guards(unittest.TestCase):
  def test_prepare_keeps_dependencies_conflicts_lock_and_signatures(self):
   self.assertEqual(T.I.FLAGS,(1<<7)|(1<<10))
   text=Path(T.__file__).read_text();self.assertNotIn('alpm_register_syncdb',text);self.assertNotIn('db.lck\').unlink',text)
+ def test_reinstall_rows_are_exact_after_metadata_not_removal_or_expansion(self):
+  app=SimpleNamespace(indexed=lambda rows,r:{p['name']:dict(p) for p in rows},package=lambda p,r:{k:v for k,v in p.items() if k in ('name','version')},encoded=T.encoded)
+  inventory={'packages':[{'name':'base','version':'1'},{'name':'app','version':'1'}]};after=inventory['packages'];plan={'additions':[],'upgrades':[],'removals':[],'reinstalls':[{'before':after[1],'after':after[1]}],'after_inventory_sha256':T.sha(T.encoded(sorted(after,key=lambda row:row['name'])))}
+  self.assertEqual(T.expected_packages(app,inventory,plan,None),{'base':after[0],'app':after[1]})
+  plan['reinstalls'][0]['after']={'name':'app','version':'2'}
+  with self.assertRaisesRegex(ValueError,'after map'):T.expected_packages(app,inventory,plan,None)
+ def test_repair_allows_only_missing_selected_ordinary_leaf(self):
+  nodes={'usr':DIR,'usr/share':DIR};payload={'usr/share/app':FILE}
+  self.assertEqual(T.reinstall_old({'usr/share/app'},nodes,payload),{})
+  self.assertEqual(T.reinstall_old({'usr/share/app'},nodes|payload,payload),payload)
+  for state,target in ((nodes,{'usr/share/app':DIR}),({'usr':DIR},payload),(nodes|{'usr/share/app':DIR},payload),(nodes|{'usr/share/app':dict(type='symlink',target='elsewhere')},payload),(nodes|{'usr/share/app':FILE|{'hardlink_group':'held'}},payload)):
+   with self.subTest(state=state),self.assertRaises(ValueError):T.reinstall_old({'usr/share/app'},state,target)
  def test_commit_prepare_failure_is_not_commit(self):
   class Bad:
    handle=None

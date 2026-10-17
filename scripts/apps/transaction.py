@@ -145,7 +145,7 @@ def snapshot_inputs(args,work,c):
 def expected_packages(app,inventory,plan,r):
  result=app.indexed(inventory['packages'],r)
  for row in plan['removals']:need(result.pop(row['name'])==app.package(row,r),'remove metadata drift')
- for row in plan['additions']+[x['after'] for x in plan['upgrades']]:result[row['name']]=app.package(row,r)
+ for row in plan['additions']+[x['after'] for x in plan['upgrades']+plan.get('reinstalls',[])]:result[row['name']]=app.package(row,r)
  need(sha(app.encoded([result[n] for n in sorted(result)]))==plan['after_inventory_sha256'],'planner after map differs')
  return result
 
@@ -158,6 +158,15 @@ def payload_guard(nodes,seed):
   need(not name.endswith('.hook'),'Apps hook payload refused')
   for parent in Path(name).parents:
    if parent.as_posix() in seed:need(seed[parent.as_posix()]['type']=='directory','payload symlink ancestor refused')
+
+def reinstall_old(paths,nodes,payload):
+ old={n:nodes[n] for n in paths if n in nodes}
+ for name in paths:
+  target=payload.get(name)
+  if name not in nodes:
+   need(target is not None and target['type']=='file' and nodes.get(str(Path(name).parent),{}).get('type')=='directory','only missing selected ordinary leaf repair permitted')
+  else:need(target is not None and nodes[name]['type']==target['type'] and 'hardlink_group' not in nodes[name],'selected repair type or hardlink differs')
+ return old
 
 def check_preservation(before,after,old,payload,database_changes):
  def held(nodes):return {n:v for n,v in nodes.items() if n not in old and n not in payload and not any(n==p or n.startswith(p+'/') for p in database_changes)}
@@ -188,6 +197,7 @@ def apply(args):
  result=dict(status='FAIL',phase='guard',commit_started=False,packages_committed=False,rollback='NOT_ATTEMPTED_DISPOSABLE_COPY_ONLY',hardware='NOT_RUN',release='NOT_ADMITTED',cleanup='NOT_ESTABLISHED')
  try:
   need(args.confirm_disposable_transaction is True,'explicit disposable transaction confirmation required')
+  need(getattr(args,'operation',None) in ('install','remove','reinstall'),'explicit supported Apps operation required')
   workspace,root,owner=root_guard(args);app,c,r=app_source(args);budget=limits(args);closure=closure_for(args,budget)
   need(closure is not None or 'apps_full574_binding' not in owner['copy'],'full574 copy requires original explicit policy/lease')
   if closure is not None:closure.owner(owner)
@@ -206,7 +216,7 @@ def apply(args):
    need(fresh['synthetic'] or architecture=='aarch64','actual ARM release needs native ARM execution')
    with app.authenticated(copied,c,r) as context:
     protected=set(context['base'])|set(context['spec']['policy']['protected_packages'])
-    add={row['name']:row['version'] for row in plan['additions']+[x['after'] for x in plan['upgrades']]};remove={row['name']:row['version'] for row in plan['removals']}
+    add={row['name']:row['version'] for row in plan['additions']+[x['after'] for x in plan['upgrades']+plan.get('reinstalls',[])]};remove={row['name']:row['version'] for row in plan['removals']}
     changed=set(add)|set(remove);need(not changed&protected,'base/platform selection refused')
     if closure is not None:closure.selection(add,remove,inventory,before['nodes'])
     payload={};archives={};accounting=dict(bytes=0,nodes=0)
@@ -243,7 +253,7 @@ def apply(args):
       need(not (package/'install').exists(),'installed scriptlet outside Apps copy scope')
       files=app.inventory_reader().sections(c.read_path(package/'files',4*1024**2),{'FILES','BACKUP'})
       need(not files.get('BACKUP'),'installed backup/pacsave semantics outside Apps copy scope')
-     old={n:before['nodes'][n] for n in old_paths-others}
+     old=reinstall_old(old_paths-others,before['nodes'],payload) if args.operation=='reinstall' else {n:before['nodes'][n] for n in old_paths-others}
      if closure is not None:closure.old_payload(old)
      payload_guard(old,before['nodes']);need(not any('hardlink_group' in n for n in old.values()),'selected hardlink mutation refused')
      for n,node in payload.items():
@@ -286,7 +296,7 @@ def main():
  p.add_argument('--apps-source',required=True);p.add_argument('--apps-provenance-sha256',required=True);p.add_argument('--repository-source',required=True)
  for name in ('full574-policy','full574-policy-sha256','full574-lease','full574-lease-sha256'):p.add_argument('--'+name)
  for name in ('release','release-sha256','catalog','catalog-sha256','catalog-signature','keyring','signer','plan','plan-sha256','before-tree-sha256','before-database-sha256','before-packages-sha256','before-inventory-sha256'):p.add_argument('--'+name)
- p.add_argument('--operation',choices=('install','remove'));p.add_argument('--applications',nargs='+');p.add_argument('--confirm-disposable-transaction',action='store_true');p.add_argument('--worker',action='store_true',help=argparse.SUPPRESS)
+ p.add_argument('--operation',choices=('install','remove','reinstall'));p.add_argument('--applications',nargs='+');p.add_argument('--confirm-disposable-transaction',action='store_true');p.add_argument('--worker',action='store_true',help=argparse.SUPPRESS)
  a=p.parse_args()
  try:
   if a.action=='prepare-copy':result=prepare_copy(a)
