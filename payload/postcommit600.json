@@ -1,0 +1,69 @@
+{
+  "after600_database_verified": true,
+  "after_sha256": "04fabc5702c8389b7b2a53f6ed6168cc45931f6628c158e7e74b073349327c35",
+  "before_sha256": "d263a3ca9089c204603f2e12b80dc4f209ee6e636f10da940a514040b636db79",
+  "case": "postcommit-exit87",
+  "checkpoint_changed": false,
+  "cleanup": "PASS",
+  "closed_public_bytes": 180243,
+  "closed_public_files": 7,
+  "collection": {
+    "artifacts.json": {
+      "bytes": 42,
+      "sha256": "f7417e1fb877d3f5934f143cc38ad9e2905476e8f5ac6776507d09441efcd6f6"
+    },
+    "collection.json": {
+      "bytes": 103,
+      "sha256": "f117cc0c4035a717ffae2ba88f9a58382eff553bfe424072a56e38bb2b67ead9"
+    },
+    "logs.zip": {
+      "bytes": 3117925,
+      "sha256": "6f2b63d629c82f4fd9a699a7332d1ffab8dff0c821d0ba227c9d67b6659b9ddd"
+    },
+    "public-frame.tar.gz": {
+      "bytes": 26832,
+      "sha256": "9cbe6c87e63ba48953f074cc5b6c8fdb6e68fbee713928ff980aed13a8c8dd8c"
+    },
+    "run.json": {
+      "bytes": 14294,
+      "sha256": "8363926358c3c811ccf9179020fb89f49afbecd430992adcfcb536168a5d37b0"
+    }
+  },
+  "commit_started": true,
+  "committed_transactions": 1,
+  "copy_cleanup": "PASS-owned-workspace-removed",
+  "copy_disposal": "PASS-owned-workspace-removed",
+  "copy_nodes": 125301,
+  "decision_source": "fd42f51b6c32a1cca69df5699760ed2a9e39329f",
+  "evidence_limits": "Private raw node/hash/ownership maps and86/87 fault witnesses remain unexported. Protected/user/no-change/independent-after claims are original frozen-source-enforced retained receipts, not a new raw-map readback. Retired resources are not live-reobserved; auxiliary process exit status remains NOT_OBSERVED.",
+  "fault_exit": 87,
+  "hardware": "NOT_RUN",
+  "held_source": "4b803ba7daa0eacd978a5bf86d62346363c3b6dc",
+  "normal_checkpoint_directory_synced": false,
+  "outer_cleanup": "PASS_RETAINED_SOURCE_BOUND_RECEIPTS",
+  "package_count": 600,
+  "package_sha256": "1aafee365e3bcb04e1fce694c110a997914a07f4359697df5e017375897385fc",
+  "packages_committed": true,
+  "postcommit_libalpm_returncode_evidence": "ZERO_REQUIRED_BY_FROZEN_PRIVATE_WITNESS_NOT_EXPORTED",
+  "postcommit_payload_verified": true,
+  "postcommit_preservation_verified": true,
+  "protected_packages": 599,
+  "recovery": "OWNED_COPY_DISPOSAL_ONLY_NO_ROLLBACK_OR_BOOT_CLAIM",
+  "release": "NOT_ADMITTED",
+  "run_id": 38986915490,
+  "schema_version": 1,
+  "source_joins": {
+    "checked_utc": "2026-10-17T01:33:50.977228+00:00",
+    "files": 182,
+    "snapshot": {
+      "bytes": 56186,
+      "sha256": "f6a48545c1190b5c8fb4a1de30253b800126c7b438802bb36efa11e611082d8d"
+    },
+    "source_sha": "338cca737b28a7aaa411734ee13aad713c10d786",
+    "status": "ROOT_VERIFIED_FULL600_UPDATER_FROZEN_GIT_ROWS"
+  },
+  "source_manifest_sha256": "85241ccd72031dfb13ab545fa224d99f5ffae43f3fa0bb77b60f18f021d44c17",
+  "source_preserved": true,
+  "source_sha": "338cca737b28a7aaa411734ee13aad713c10d786",
+  "status": "ROOT_ACCEPTED_EXPANDED600_COPIED_ROOT_POSTCOMMIT_EXIT87"
+}
