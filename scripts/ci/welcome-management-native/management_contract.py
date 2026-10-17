@@ -113,6 +113,10 @@ def visible_control(proof,pid,label,window):
          (method=='PEER_FOCUS_SCROLL' and not proof['focus_called'] and not proof['focused'] and not proof['unclipped_after_scroll']),
          'scroll return/focus/visibility evidence differs')
     if method=='PEER_FOCUS_SCROLL':
+        need({'peer_focus_reply','peer_focus_error'}<=set(proof),'complete peer focus reply provenance required')
+        need((proof.get('peer_focus_reply')=='REPLIED' and proof.get('peer_focus_error') is None) or
+             (proof.get('peer_focus_reply')=='TIMEOUT_STATE_CONFIRMED' and proof.get('peer_focus_error')=='timeout from dbind'),
+             'exact peer focus reply or timeout-confirmed provenance required')
         expected={'Run Doctor':'Doctor','Assess orphan packages':'Orphan assessment'}
         peer=proof.get('peer_focus');need(type(peer) is dict and type(peer.get('pid')) is int and type(peer.get('role')) is int and
              all(type(peer.get(k)) is bool for k in ('enabled','sensitive','focused','same_panel','target_enabled','target_sensitive')),
@@ -120,7 +124,7 @@ def visible_control(proof,pid,label,window):
         need(label in expected and peer==dict(pid=pid,role=62,name_base64='VmlldyByZXBvcnQ=',scope=expected[label],
              enabled=True,sensitive=True,focused=True,same_panel=True,target_enabled=False,target_sensitive=False),
              'actual enabled same-tool focus peer required for disabled target')
-    else:need('peer_focus' not in proof,'unexpected peer focus evidence')
+    else:need(not {'peer_focus','peer_focus_reply','peer_focus_error'}&set(proof),'unexpected peer focus evidence')
     chain=proof.get('chain');need(type(chain) is list and 3<=len(chain)<=13,'complete owned component ancestor chain required')
     def rectangle(row):
         need(type(row) is dict and row.get('pid')==pid and row.get('visible') is True and row.get('showing') is True and

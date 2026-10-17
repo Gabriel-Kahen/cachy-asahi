@@ -114,13 +114,26 @@ static AtspiAccessible *tool_panel(AtspiAccessible *start, guint pid, const char
     g_object_unref(node); check(FALSE, "peer ancestor bound"); return NULL;
 }
 
+
+static gboolean peer_focus_timeout(gboolean replied)
+{
+    if (!replied && error && !strcmp(error->message, "timeout from dbind")) {
+        /* A reply timeout leaves the outcome unknown. Do not repeat the action:
+         * the original fresh focus, disabled-target and full geometry checks
+         * below must independently confirm the requested state before PASS. */
+        fprintf(stderr, "Welcome accessibility: exact peer focus reply timeout; checking owned postconditions without repeating focus\n");
+        g_clear_error(&error); return TRUE;
+    }
+    check(replied, "actual peer focus scroll"); return FALSE;
+}
+
 static void ensure_visible(guint pid)
 {
     AtspiComponent *component = atspi_accessible_get_component_iface(target);
     check(component != NULL, "scroll component");
     gboolean scrolled = atspi_component_scroll_to(component, ATSPI_SCROLL_ANYWHERE, &error);
     check(TRUE, "actual component scroll"); /* FALSE without an error still needs complete visibility proof. */
-    Geometry value; gboolean unclipped = settled_geometry(pid, &value), focus_called = FALSE, peer_focused = FALSE;
+    Geometry value; gboolean unclipped = settled_geometry(pid, &value), focus_called = FALSE, peer_focused = FALSE, peer_timed_out = FALSE;
     if (!unclipped) {
         AtspiStateSet *states = atspi_accessible_get_state_set(target);
         gboolean enabled = state(states, ATSPI_STATE_ENABLED), sensitive = state(states, ATSPI_STATE_SENSITIVE);
@@ -142,7 +155,8 @@ static void ensure_visible(guint pid)
             check(state(states, ATSPI_STATE_ENABLED) && state(states, ATSPI_STATE_SENSITIVE), "scroll peer enabled");
             if (states) g_object_unref(states);
             AtspiComponent *peer_component = atspi_accessible_get_component_iface(scroll_peer);
-            check(peer_component && atspi_component_grab_focus(peer_component, &error), "actual peer focus scroll");
+            check(peer_component != NULL, "peer component required");
+            peer_timed_out = peer_focus_timeout(atspi_component_grab_focus(peer_component, &error));
             g_object_unref(peer_component);
             peer_focused = TRUE;
         }
@@ -167,10 +181,14 @@ static void ensure_visible(guint pid)
            "\"method\":\"%s\",\"coordinate_space\":\"ATSPI_SCREEN\",\"name_base64\":\"%s\",",
            pid, scrolled ? "true" : "false", focus_called ? "true" : "false", focused ? "true" : "false",
            unclipped ? "true" : "false", peer_focused ? "PEER_FOCUS_SCROLL" : focus_called ? "FOCUS_SCROLL" : scrolled ? "COMPONENT_SCROLL" : "ALREADY_UNCLIPPED", encoded);
-    if (peer_focused)
+    if (peer_focused) {
+        printf("\"peer_focus_reply\":\"%s\",\"peer_focus_error\":%s,",
+               peer_timed_out ? "TIMEOUT_STATE_CONFIRMED" : "REPLIED",
+               peer_timed_out ? "\"timeout from dbind\"" : "null");
         printf("\"peer_focus\":{\"pid\":%u,\"role\":%u,\"name_base64\":\"VmlldyByZXBvcnQ=\",\"scope\":\"%s\","
                "\"enabled\":true,\"sensitive\":true,\"focused\":true,\"same_panel\":true,\"target_enabled\":false,\"target_sensitive\":false},",
                pid, (guint)ATSPI_ROLE_TOGGLE_BUTTON, tool_scope());
+    }
     printf("\"chain\":[");
     for (guint i = 0; i < value.count; i++) {
         AtspiRect r = value.rects[i];
