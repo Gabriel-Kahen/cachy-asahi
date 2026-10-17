@@ -67,6 +67,14 @@ def inspect_actor(name,temporary):
  if row.returncode:
   text=raw.decode(errors='replace').lower();need(row.returncode==1 and name.lower() in text and ('no such container' in text or 'no such object' in text),'unknown native actor inspect');return None
  value=decode(raw);need(type(value) is list and len(value)==1,'one exact native actor');return value[0]
+def phase(actors):
+ need([r['role'] for r in actors]==['export','extract','signer','lifecycle'] and [r['status'] for r in actors]==['PASS_ABSENCE_VERIFIED','EXITED','PASS_ABSENCE_VERIFIED','RESERVED'] and actors[1].get('exit')==0 and actors[2].get('exit')==0 and actors[-1]['id'] is None,'exact original live phase export-absent extract-exited0 signer-absent lifecycle-reserved required')
+ return actors[1]
+def extract_record(value):
+ state=value['state'];need(state['Status']=='exited' and state['Running'] is False and state['Pid']==0 and state['ExitCode']==0 and state['Error']=='' and all(state[k] is False for k in ('Paused','Restarting','OOMKilled','Dead')) and not state['StartedAt'].startswith('0001-') and not state['FinishedAt'].startswith('0001-') and value['restart_count']==0,'original extract must have naturally exited0 and remain nonrunning')
+ expected=dict(Privileged=False,ReadonlyRootfs=True,NetworkMode='none',CapDrop=['ALL'],CapAdd=['CAP_CHOWN','CAP_DAC_OVERRIDE','CAP_FOWNER','CAP_FSETID','CAP_SETFCAP'],SecurityOpt=['no-new-privileges'],Memory=4*1024**3,NanoCpus=2000000000,PidsLimit=128,Ulimits=[dict(Name='nofile',Hard=8192,Soft=8192)])
+ need(value['apparmor']=='docker-default' and value['security']==expected and value['command']==dict(User='0:0',Entrypoint=['/usr/bin/python3'],Cmd=['-I','-B','/source/'+LANE+'/snapshot.py']),'unchanged exact extract security/resource/command identity required');return value
+
 def native_ready(args,C,S,child,supervisor,identity):
  S.same(child,supervisor)
  if not args.handoff.exists() or not (args.output/'owner.json').exists():return None
@@ -80,15 +88,18 @@ def native_ready(args,C,S,child,supervisor,identity):
  need(owner['source_sha']==identity['source_sha'] and owner['trial']=='normal' and owner['token']==identity['consumer_token'] and owner['producer_token']==identity['producer_token'],'actual owner binding')
  actors=owner['actors']
  if not actors or actors[-1]['role']!='lifecycle':return None
- need([r['role'] for r in actors]==['export','extract','signer','lifecycle'] and all(r['status']=='PASS_ABSENCE_VERIFIED' for r in actors[:-1]) and actors[-1]['status']=='RESERVED','exact live normal actor phase required')
+ extract=phase(actors)
  name='caa-apps574-'+identity['consumer_token']+'-lifecycle';need(actors[-1]['name']==name,'exact declared live actor')
  value=inspect_actor(name,args.component/'inspect.pending')
  if value is None:return None
  api=C.load('cancellation_unchanged_owner_api',args.source/'scripts/ci/glibc-gnu-provider-lifecycle-owner/job.py');cid=api.verify_actor(value,name,owner['image'],C.LABEL,owner['token'],actors[-1]['id'])
+ extract_name='caa-apps574-'+identity['consumer_token']+'-extract';need(extract['name']==extract_name,'exact prior extract name')
+ extracted=inspect_actor(extract_name,args.component/'extract-inspect.pending');need(extracted is not None,'original exited extract must remain present until original cleanup');extract_id=api.verify_actor(extracted,extract_name,owner['image'],C.LABEL,owner['token'],extract['id'])
+ extract_proof=extract_record(dict(id=extract_id,name=extract_name,image=owner['image'],label=C.LABEL,token=owner['token'],state=extracted['State'],restart_count=extracted['RestartCount'],apparmor=extracted['AppArmorProfile'],security={k:extracted['HostConfig'][k] for k in ('Privileged','ReadonlyRootfs','NetworkMode','CapDrop','CapAdd','SecurityOpt','Memory','NanoCpus','PidsLimit','Ulimits')},command={k:extracted['Config'][k] for k in ('User','Entrypoint','Cmd')}))
  need(value['State']['Running'] is True and value['State']['Pid']>0 and value['State']['Paused'] is False,'actual lifecycle actor must be running')
  leases=dict(producer=held_lease(args.base,job['pid'],True),owner=held_lease(args.output/'owner.lock',job['pid']))
  S.same(child,supervisor);need(S.process(job['pid'])==job,'job drift before owned cancellation')
- return dict(status='ACTUAL_LIFECYCLE_RUNNING_WITH_BOTH_JOB_OWNED_LEASES',identity=identity,supervisor=supervisor,job=job,actor=dict(id=cid,name=name,image=owner['image'],label=C.LABEL,token=owner['token'],state=value['State'],apparmor=value['AppArmorProfile']),leases=leases,source_snapshot=pin(read(args.output/'snapshot-public/snapshot.json',4*CAP)),held_payloads=pin(read(args.output/'inputs/held-payloads.json',256*1024)))
+ return dict(status='ACTUAL_LIFECYCLE_RUNNING_WITH_BOTH_JOB_OWNED_LEASES',identity=identity,supervisor=supervisor,job=job,actor=dict(id=cid,name=name,image=owner['image'],label=C.LABEL,token=owner['token'],state=value['State'],apparmor=value['AppArmorProfile']),leases=leases,extract=extract_proof,source_snapshot=pin(read(args.output/'snapshot-public/snapshot.json',4*CAP)),held_payloads=pin(read(args.output/'inputs/held-payloads.json',256*1024)))
 def run(args,C,S):
  C.safe(args.component);need(args.component.is_absolute() and not args.component.exists() and args.component.parent.stat().st_uid==os.getuid(),'fresh private cancellation component directory');args.component.mkdir(mode=0o700);identity=S.binding(args,C)
  argv=['/usr/bin/python3','-I','-B',str(args.source/LANE/'supervise.py'),'run','--trial','normal']
@@ -123,6 +134,7 @@ def validate(value,identity):
  need(h['status']=='DIRECT_JOB_REAPED_GROUP_ABSENT_INNER_CLEANUP_STILL_REQUIRED' and h['direct_reaped'] is True and h['group_absent'] is True and h['cancellation_signal']==signal.SIGINT and h['signals'][0]==signal.SIGINT and 0<=h['cancellation_seconds']<=6,'typed original SIGINT retirement required')
  job=h['job'];need(job['pid']==job['pgid']==job['sid'] and job['pid']>1 and job['start']>0,'exact original job identity')
  actor=before['actor'];need(actor['name']=='caa-apps574-'+identity['consumer_token']+'-lifecycle' and actor['token']==identity['consumer_token'] and actor['label']=='org.cachy-asahi.orphans-full574-native' and actor['apparmor']=='docker-default' and actor['state']['Running'] is True and actor['state']['Pid']>0 and actor['state']['Paused'] is False,'genuine owned native lifecycle readiness record')
+ extract=extract_record(before['extract']);need(extract['name']=='caa-apps574-'+identity['consumer_token']+'-extract' and extract['image']==actor['image'] and extract['label']==actor['label'] and extract['token']==identity['consumer_token'],'original extract CID/image/token/security proof required')
  need(set(before['leases'])=={'producer','owner'} and all(v['contended'] is True and v['owner_pid']==job['pid'] and v['identity']['uid']>=0 for v in before['leases'].values()),'both actual job-owned lease observations required')
  cleanup=value['ordered_cleanup'];need(cleanup['status']=='PASS_ORDERED_CONSUMERS_COPIES_KEYS_SOURCE_THEN_PRODUCER' and cleanup['trial']=='normal' and cleanup['consumer']=='PASS_ALL_ACTORS_COPIES_KEYS_AND_SOURCE_RETIRED' and cleanup['authority']=='PASS_REMOVED_AFTER_CONSUMER_ABSENCE' and cleanup['producer']['status']=='PASS' and cleanup['producer']['image']['absence_verified'] is True and cleanup['producer']['probe']['absence_verified'] is True,'original ordered cleanup remains mandatory')
  need(value['original_retention_status']=='FAIL_OR_INCOMPLETE' and value['original_retention_errors'],'cancelled original result must not become normal success');return value
@@ -131,7 +143,7 @@ def complete(args,C,S):
  report=decode(read(args.component/'run.json'));identity=S.binding(args,C);need(report['status']=='OBSERVED_NATIVE_SIGINT_HANDOFF_ORDERED_CLEANUP_STILL_REQUIRED' and report['identity']==identity,'actual typed cancellation, not natural/unknown trial')
  before=decode(read(args.component/'before.json'));handoff=decode(read(args.component/'handoff.json'));need(pin(read(args.component/'before.json'))==report['before'] and pin(read(args.component/'handoff.json'))==report['handoff'],'original component joins');S.check(args.handoff,identity);need(read(args.handoff,16384)==read(args.component/'handoff.json'),'original supervisor receipt unchanged')
  ordered=decode(read(args.receipt));owner=decode(read(args.output/'owner.json',4*CAP));producer=decode(read(args.base/'report.json',4*CAP));need(ordered['status']=='PASS_ORDERED_CONSUMERS_COPIES_KEYS_SOURCE_THEN_PRODUCER' and ordered['trial']=='normal' and ordered['consumer']==owner['consumer_cleanup']=='PASS_ALL_ACTORS_COPIES_KEYS_AND_SOURCE_RETIRED' and ordered['authority']=='PASS_REMOVED_AFTER_CONSUMER_ABSENCE' and ordered['producer']==producer['owned_cleanup'] and producer['owned_cleanup']['status']=='PASS','original complete ordered cleanup required')
- roles=['export','extract','signer','lifecycle','scrub','source-cleanup'];need([r['role'] for r in owner['actors']]==roles and all(r['status']=='PASS_ABSENCE_VERIFIED' for r in owner['actors']) and owner['actors'][3]['id']==before['actor']['id'],'all original cancelled actors must be retired before source/producer')
+ roles=['export','extract','signer','lifecycle','scrub','source-cleanup'];need([r['role'] for r in owner['actors']]==roles and all(r['status']=='PASS_ABSENCE_VERIFIED' for r in owner['actors']) and owner['actors'][3]['id']==before['actor']['id'] and owner['actors'][1]['id']==before['extract']['id'],'all original cancelled actors must be retired before source/producer')
  need(producer['owned_cleanup']['image']['absence_verified'] is True and producer['owned_cleanup']['probe']['absence_verified'] is True,'producer and probe absent')
  retained=decode(read(args.retained/'retention.json',4*CAP));need(retained['status']=='FAIL_OR_INCOMPLETE' and retained['trial']=='normal' and retained['errors'],'intentional cancelled original result must retain failure classification')
  for n,row in retained['files'].items():need(pin(read(args.retained/relative(n),64*CAP))==row,'original retained bytes differ')
