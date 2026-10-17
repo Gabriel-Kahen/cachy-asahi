@@ -63,12 +63,35 @@ class SourceControls(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'closed'):adapter.prepare(self.sources['normal'],self.base/'never','other',git=False)
     def test_original_resources_cleanup_reaping_and_apis_unchanged(self):
         untouched=['scripts/client/client.py','scripts/release/release.py','scripts/update/bound_update.py',
-            'scripts/update/archive_stream.py','scripts/update/generic_policy.py','scripts/update/aux_checkpoint.py',
+            'scripts/update/archive_stream.py','scripts/update/aux_checkpoint.py',
             'scripts/update/aux_initialize.py','scripts/update/aux_copy.py','scripts/update/supervision.py',
             'scripts/ci/full-root-upgrade-caller/persistent_scope.py','scripts/ci/full-root-upgrade-caller/run.py',
             'scripts/port/kernel-native-job/runtime.py']
         for case,code in self.codes.items():
             for name in untouched:self.assertEqual((code/name).read_bytes(),(self.sources[case]/name).read_bytes(),name)
+    def test_complete_protected_policy_uses_the_selected600_inventory(self):
+        before,after=C.locks();protected=sorted(set(before)-{'cachy-asahi-setup'})
+        for case,code in self.codes.items():
+            module=C.load('selected600_policy_'+case,code/'scripts/update/generic_policy.py')
+            original=C.load('original587_policy_'+case,self.sources[case]/'scripts/update/generic_policy.py')
+            kernel=next(n for n in protected if n.startswith('linux-'))
+            policy=dict(schema_version=1,purpose='cachy-asahi-generic-development-update-policy',
+                release_id='selected600-test',protected_packages=protected,
+                protected_versions={n:before[n] for n in protected},platform_roles={'kernel':[kernel]},
+                protected_units={k:sorted(v) for k,v in module.asahi.REQUIRED_UNITS.items()},
+                before_lock_sha256=C.BEFORE,after_lock_sha256=C.AFTER)
+            with self.assertRaisesRegex(ValueError,'invalid identifier list'):original.protected_names(policy)
+            self.assertEqual(len(module.protected_names(policy)),599)
+            settings=dict(purpose='disposable-generic-bound-update',model='generic-development-only',release_id=policy['release_id'])
+            snapshot=dict(release={'release_id':policy['release_id']},spec={'policy':{'protected_packages':protected}})
+            files={kernel:['/usr/lib/modules/6.1/kernel/inert.ko']}
+            self.assertEqual(module.authorize(policy,settings,snapshot,before,after,files,files)['decision'],
+                'generic-development-transaction-allowed')
+            for names in (protected+[protected[0]],list(before)+['extra-invalid-bound']):
+                with self.assertRaises(ValueError):module.protected_names(policy|{'protected_packages':names})
+            bad=dict(before);bad[kernel]='changed'
+            with self.assertRaises(ValueError):module.authorize(policy,settings,snapshot,bad,after,files,files)
+
     def test_only_declared_private_files_change(self):
         allowed=adapter.STRINGS|{'scripts/ci/full-development-composition/expected-updater-v2.lock',
             'scripts/ci/full-development-composition/expected-setup4-v2.lock'}

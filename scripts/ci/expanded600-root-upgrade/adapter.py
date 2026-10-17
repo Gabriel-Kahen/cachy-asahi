@@ -14,6 +14,7 @@ PACKAGE='1aafee365e3bcb04e1fce694c110a997914a07f4359697df5e017375897385fc'
 RECIPE='d31e4bdfb5c0c38e0128bbcb5127926414628f2d8d047f9eb0a2da0142848519'
 BUILD='cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac'
 NUMERIC={'scripts/update/full_root.py':{587:600},'scripts/update/scale_update.py':{587:600},
+ 'scripts/update/generic_policy.py':{587:600},
  'scripts/ci/full-development-composition/setup4_inputs.py':{587:600},
  'scripts/ci/full-root-upgrade/root_upgrade.py':{587:600},
  'scripts/ci/full-root-upgrade/construct_repository.py':{587:600,341:574},

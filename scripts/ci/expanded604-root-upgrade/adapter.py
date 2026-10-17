@@ -14,7 +14,7 @@ OLD_AFTER='04fabc5702c8389b7b2a53f6ed6168cc45931f6628c158e7e74b073349327c35'
 PREFIX='scripts/ci/expanded600-root-upgrade/'  # Held accepted Setup5 inspector API, byte-identical.
 MANAGEMENT={'cachy-asahi-'+n for n in ('apps','repository-runtime','cache','orphans')}
 HELPERS={
-    'adapter.py':(8623,'61320ea8ffc43ad5bdd079a287ec65f13337194a910b2c19b3aba0a613d5e977'),
+    'adapter.py':(8670,'81f985fbc80e0f2888327245414dd59689c87a5fafeb390c1e840cc3c647026c'),
     'contract.py':(5352,'c8a0fc237a10d1f6830407ab2984636b763283653f63b9d9906abf1d9cc16635'),
     'held-pins.json':(27397,'1d2bb9e3a831f0b7c404bf4971699fc530fa139ed881b513cb62e3b339ed7493'),
     'setup5.py':(4708,'b995936917565114d383e3d0d4076cb24cba368e68f7c7e13b401839064c9167'),
@@ -64,6 +64,8 @@ def rules(name):
         if kind=='postcommit':result.append(('run','after600_database_verified','after604_database_verified',1,None))
         return result
     table={
+        'scripts/update/generic_policy.py':[
+            ('protected_names',600,604,1,'keyword:limit'),count('protected_names'),count('authorize')],
         'scripts/update/full_root.py':[('Limits',600,604,1,'annotated:max_packages')],
         'scripts/update/scale_update.py':[
             ('<module>','Opt-in bounded observations/decoder for one update in a copied 600-package root.',
