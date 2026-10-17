@@ -37,6 +37,7 @@ class Candidate(unittest.TestCase):
   self.assertEqual((RECIPE/'stage.py').read_bytes(),(OLD/'provider_stage.py').read_bytes())
  def test_unbound_authority_refuses_materialization_before_gpg_and_output(self):
   target=self.root/'bundle'
+  policy=self.harness/'authority.json';value=json.loads(policy.read_bytes());value['status']='UNBOUND_ROOT_INDEPENDENT_ARCHIVE_KEY_AUTHORITY';value['decision']=None;policy.write_text(json.dumps(value))
   with self.assertRaisesRegex(ValueError,'UNBOUND'):self.m.materialize(RECIPE,self.root/'absent-inputs',target)
   self.assertFalse(target.exists())
  def test_changed_recipe_or_patch_cannot_waive_any_check(self):

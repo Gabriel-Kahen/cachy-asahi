@@ -29,9 +29,12 @@ This establishes source preparation only, not compilation or runtime success.
 The offline Debian Release→Sources→orig verifier checks both complete pinned key
 fingerprint pairs, actual current key/signature expiry, strict statuses, signed
 Date/Valid-Until, exact index/object hashes and the complete source tree. Its
-independent key-bootstrap policy is UNBOUND. Official HTTPS fingerprint-page
-information alone is not accepted authority. Root must bind an independent
-archive-key decision in frozen source before any build bundle/native actor.
+independent key-bootstrap policy is bound by `root-debian-archive-authority.json`:
+preexisting Arch pacman trust verifies a signed Debian keyring package containing
+both exact archive certificates. Root replayed the complete chain independently.
+This establishes source authority only; current metadata checks remain required
+before every build bundle/native actor. Official HTTPS fingerprints alone did
+not establish the trust anchor.
 
 `adapter.py` emits a finite private harness from byte-pinned current provider
 helpers. The original executor/build-entry/ABI/header/compiler/runtime/normal
