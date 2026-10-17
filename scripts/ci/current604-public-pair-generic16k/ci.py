@@ -25,6 +25,9 @@ def derive(text):
  text=C.one(text,"assets=C.assets(args.gui_decisions,value['welcome4_gui'])","C.authorize_assets(args,value);assets=None")
  text=C.one(text,"        original=SimpleNamespace(**{n:getattr(args,n) for n in PRODUCER_PATHS}","        assets=C.prepare_assets(args,value,output,report)\n        original=SimpleNamespace(**{n:getattr(args,n) for n in PRODUCER_PATHS}")
  text=C.one(text,"retain=C.load(args.implementation,C.PREFIX+'retain.py');retain.retain(output,producer_output,runtime,runner,args.kernel_work,args.implementation)","if started:\n                    retain=C.load(args.implementation,C.PREFIX+'retain.py');retain.retain(output,producer_output,runtime,runner,args.kernel_work,args.implementation)\n                else:report.update(runtime_status='NOT_STARTED',cleanup='PRODUCER_RETIRED_NO_RUNTIME_KERNEL_DISPOSAL_NOT_ESTABLISHED')")
+ # Preserve the fixed bounded original offline build log even when retirement
+ # is uncertain; diagnostic bytes grant no GUI/runtime or cleanup acceptance.
+ text=C.one(text,"(runtime/'runtime.json','runtime/runtime.json',16*1024**2)","(runtime/'runtime.json','runtime/runtime.json',16*1024**2),(runtime/'runtime-image.log','runtime/runtime-image.log',16*1024**2)")
  return text.replace('expanded604-current-management-managed16k-runner','current604-public-pair-generic16k-runner').replace('expanded604-current-management-managed16k-runtime','current604-public-pair-generic16k-runtime')
 _BASE=C.module('_profile604_owned_ci',C.OLD+'/ci.py',{'contract':C,'adapter':adapter,'context604':context604},derive)
 parser,retired,preflight,main=_BASE.parser,_BASE.retired,_BASE.preflight,_BASE.main
