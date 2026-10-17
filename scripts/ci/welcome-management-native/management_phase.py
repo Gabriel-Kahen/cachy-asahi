@@ -40,17 +40,38 @@ def report_command(base,tool,path,env,expected=0):
     raw=C.read(path);C.need(not C.read(error_path,65536),'unexpected helper stderr');return raw
 
 
-def completed_report_snapshot(a11y,remember=None):
-    # A full AT-SPI tree read starts a new driver process in the emulated guest.
-    # Wait cheaply on the already-owned pidfds before polling report text. This
-    # remains inside the caller's existing readiness deadline; it cannot extend
-    # the product's command limit or turn a failed helper into a completed view.
+def completed_report_state(remember=None):
+    # Even an accessibility action traverses the GTK tree. Observe only owned
+    # pidfds until both processes retire; never compete with the live helper.
     state=request('observed')
     for key in ('helper_absent','supervisor_absent'):
         C.need(type(state.get(key)) is bool,'owned helper completion state absent')
     if remember is not None:remember({k:state[k] for k in ('helper_absent','supervisor_absent')})
-    if not (state['helper_absent'] and state['supervisor_absent']):return None
+    return state['helper_absent'] and state['supervisor_absent']
+
+
+def completed_report_snapshot(a11y,remember=None):
+    if not completed_report_state(remember):return None
     return a11y('snapshot')
+
+
+def remaining(until):
+    seconds=until-time.monotonic()
+    C.need(seconds>0,'actual management report shared45s deadline')
+    return seconds
+
+
+def wait_before_report(wait,healthy,remember=None):
+    until=time.monotonic()+45
+    wait(lambda:True if completed_report_state(remember) else None,healthy,remaining(until),'actual owned management completion')
+    return until
+
+
+def open_completed_report(wait,healthy,activate,scope,remember=None):
+    until=wait_before_report(wait,healthy,remember)
+    activate('View report',scope=scope)
+    remaining(until)
+    return until
 
 
 def product_timeout(snapshot,pid):
@@ -91,7 +112,7 @@ def exercise(base,stage,env,logs,workspace,old_welcome,doctor,policy,lock,hooks)
         else:C.need(value.get('actions')==1 and value.get('action_name') in ('click','activate','press','switch'),'actual management action failed')
         action_sequence+=1
         base.emit('management_action',stage=stage,sequence=action_sequence,pid=current.process.pid,label=label,scope=scope,scroll=scroll,proof=value,window=window,physical_input='NOT_RUN')
-    def page(view,expected):
+    def page(view,expected,deadline=None):
         def probe():
             nonlocal last_snapshot
             value=completed_report_snapshot(a11y,completion) if view in ('management-doctor','management-orphans','management-failure') else a11y('snapshot')
@@ -104,8 +125,12 @@ def exercise(base,stage,env,logs,workspace,old_welcome,doctor,policy,lock,hooks)
                 return None
             last_snapshot=value
             return dict(snapshot=value,snapshot_sha256=C.sha(C.encoded(value)),summary=summary,expected=expected)
-        return hooks['wait'](probe,healthy,45,'actual '+view)
-    def capture(view,expected):hooks['capture'](view,page(view,expected))
+        return hooks['wait'](probe,healthy,45 if deadline is None else remaining(deadline),'actual '+view)
+    def capture(view,expected,deadline=None):
+        proof=page(view,expected,deadline)
+        if deadline is not None:remaining(deadline)
+        hooks['capture'](view,proof)
+        if deadline is not None:remaining(deadline)
     def close(actor,finish=True):
         target='address:'+hooks['window'](actor.process.pid)['address']
         C.need(hooks['command'](['/usr/bin/hyprctl','dispatch',f'hl.dsp.window.close({{window="{target}"}})'],'management-close').strip()=='ok','actual Welcome close failed')
@@ -141,8 +166,10 @@ def exercise(base,stage,env,logs,workspace,old_welcome,doctor,policy,lock,hooks)
             data,summary=C.report(raw,kind,inventory);C.need(len(raw)<=ui['max_output_bytes'],'actual report exceeds product bound; no limit waiver')
             tool='doctor' if kind=='doctor' else 'orphans';action(ui['labels'][tool],scroll=True)
             child=observed(tool);pending['gui_process']=child
-            # Open only the known tool frame's raw expander; duplicate labels stay scoped.
-            action('View report',scope='Doctor' if tool=='doctor' else 'Orphan assessment')
+            # The expander action also walks the complete GTK tree. Keep it
+            # after owned process retirement, within one shared readiness budget.
+            report_until=open_completed_report(hooks['wait'],healthy,action,
+                'Doctor' if tool=='doctor' else 'Orphan assessment',completion)
             gui_report=None
             if kind=='doctor':
                 # Doctor includes collected_utc and live service observations. Retain its actual GTK report,
@@ -160,11 +187,11 @@ def exercise(base,stage,env,logs,workspace,old_welcome,doctor,policy,lock,hooks)
                             except (ValueError,KeyError,TypeError):continue
                             matches.append((text,conclusion))
                     return matches[0] if len(matches)==1 else None
-                preview,summary=hooks['wait'](actual_doctor,healthy,45,'actual GTK Doctor report')
+                preview,summary=hooks['wait'](actual_doctor,healthy,remaining(report_until),'actual GTK Doctor report')
                 gui_raw=preview.encode();gui_report=dict(base64=base64.b64encode(gui_raw).decode(),sha256=C.sha(gui_raw),bytes=len(gui_raw))
             else:preview=raw[:65536].decode(errors='replace')+(ui['raw_preview_suffix'] if len(raw)>65536 else '')
             expected=dict(text=[ui['strings']['failure' if kind=='failure' else 'complete'],summary,preview],buttons={ui['labels'][tool]:True})
-            capture('management-'+kind,expected)
+            capture('management-'+kind,expected,report_until)
             reports[kind]=dict(gui_report=gui_report,base64=base64.b64encode(raw).decode(),sha256=C.sha(raw),bytes=len(raw),gui_process=child,metadata_only=True)
             action('View report',scope='Doctor' if tool=='doctor' else 'Orphan assessment')
             if kind=='failure':

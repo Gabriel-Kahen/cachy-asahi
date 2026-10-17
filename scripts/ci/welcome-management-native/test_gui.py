@@ -234,8 +234,10 @@ class ReportReadiness(unittest.TestCase):
             for fd in fds:os.close(fd)
     def test_same_deadline_all_operations_and_closing_view_are_preserved(self):
         text=(HERE/'management_phase.py').read_text()
-        self.assertIn("hooks['wait'](probe,healthy,45,'actual '+view)",text)
-        self.assertIn("hooks['wait'](actual_doctor,healthy,45,'actual GTK Doctor report')",text)
+        self.assertIn("hooks['wait'](probe,healthy,45 if deadline is None else remaining(deadline),'actual '+view)",text)
+        self.assertIn("hooks['wait'](actual_doctor,healthy,remaining(report_until),'actual GTK Doctor report')",text)
+        self.assertIn("report_until=open_completed_report(hooks['wait'],healthy,action,",text)
+        self.assertIn("capture('management-'+kind,expected,report_until)",text)
         self.assertIn("if view in ('management-doctor','management-orphans','management-failure') else a11y('snapshot')",text)
         self.assertEqual(len(C.action_plan(UI)),17)
         self.assertEqual(len(C.VIEWS)*2,24)
