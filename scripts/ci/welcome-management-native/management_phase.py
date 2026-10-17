@@ -205,10 +205,16 @@ def exercise(base,stage,env,logs,workspace,old_welcome,doctor,policy,lock,hooks)
                 C.need({n:r for n,r in before['nodes'].items() if n!='.'}=={n:r for n,r in after['nodes'].items() if n!='.'},'held-lock case changed nonlock metadata')
             else:C.need(stable()==before and not Path('/var/lib/pacman/db.lck').exists(),'actual management/independent commands changed metadata or created lock')
         closing_before=stable();action(ui['labels']['orphans'],scroll=True);closing=observed('orphans',True)
+        pending=dict(kind='closing',phase='before-GUI-close',gui_process=closing)
+        last_snapshot=None
         capture('management-closing',dict(text=[ui['strings']['running']],buttons={ui['labels']['orphans']:False}))
         close(current,False);closed=current
+        pending.update(phase='welcome-close-returned',welcome_exit=closed.process.returncode)
         def retired():
             value=request('retired')
+            # Retain the last original reply even when the unchanged wait
+            # rejects it; the preceding lock-refusal report is not this case.
+            pending['retirement_observation']=value
             return value if all(value[k] for k in ('helper_absent','supervisor_absent','group_absent')) else None
         retirement=hooks['wait'](retired,lambda:None,10,'owned management group retirement')
         C.need(stable()==closing_before and not Path('/var/lib/pacman/db.lck').exists(),'closing check changed metadata or created lock')
