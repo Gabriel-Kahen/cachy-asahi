@@ -40,7 +40,7 @@ def report_command(base,tool,path,env,expected=0):
     raw=C.read(path);C.need(not C.read(error_path,65536),'unexpected helper stderr');return raw
 
 
-def completed_report_snapshot(a11y):
+def completed_report_snapshot(a11y,remember=None):
     # A full AT-SPI tree read starts a new driver process in the emulated guest.
     # Wait cheaply on the already-owned pidfds before polling report text. This
     # remains inside the caller's existing readiness deadline; it cannot extend
@@ -48,13 +48,34 @@ def completed_report_snapshot(a11y):
     state=request('observed')
     for key in ('helper_absent','supervisor_absent'):
         C.need(type(state.get(key)) is bool,'owned helper completion state absent')
+    if remember is not None:remember({k:state[k] for k in ('helper_absent','supervisor_absent')})
     if not (state['helper_absent'] and state['supervisor_absent']):return None
     return a11y('snapshot')
+
+
+def product_timeout(snapshot,pid):
+    C.need(snapshot.get('pid')==pid,'owned failure snapshot PID differs')
+    return any(row['showing'] and text and text.startswith('Check stopped: time limit reached.')
+               for _,row,text in C.names(snapshot))
+
+
+def retain_failure(base,stage,pending,snapshot,error):
+    """Failure-only original operands; never a substitute for a completed result."""
+    value=dict(stage=stage,status='FAIL',error_type=type(error).__name__,reason=str(error)[:512],
+               counterpart=pending,hardware='NOT_RUN',physical_input='NOT_RUN',acceptance='NOT_ISSUED')
+    if snapshot is not None:
+        raw=C.encoded(snapshot);C.need(len(raw)<=C.REPORT_CAP,'failure snapshot byte bound')
+        value.update(snapshot=snapshot,snapshot_bytes=len(raw),snapshot_sha256=C.sha(raw))
+    C.need(len(C.encoded(value))<=C.REPORT_CAP,'failure diagnostic byte bound')
+    base.emit('management_failure',**value)
 
 
 def exercise(base,stage,env,logs,workspace,old_welcome,doctor,policy,lock,hooks):
     base.guard(False);C.need(os.getuid()==os.geteuid()==23001 and not os.access('/var/lib/pacman',os.W_OK),'ordinary caller must lack database write/lock access')
     ui=C.interface(policy);reports={};current=old_welcome;closed=None;action_sequence=0
+    pending=None;last_snapshot=None
+    def completion(state):
+        if pending is not None:pending['gui_completion']=state
     M=SimpleNamespace(**runpy.run_path('/usr/bin/cachy-asahi-orphans',run_name='independent_snapshot'))
     def stable():
         value=M.database_snapshot(Path('/var/lib/pacman'))[0]
@@ -72,10 +93,16 @@ def exercise(base,stage,env,logs,workspace,old_welcome,doctor,policy,lock,hooks)
         base.emit('management_action',stage=stage,sequence=action_sequence,pid=current.process.pid,label=label,scope=scope,scroll=scroll,proof=value,window=window,physical_input='NOT_RUN')
     def page(view,expected):
         def probe():
-            value=completed_report_snapshot(a11y) if view in ('management-doctor','management-orphans','management-failure') else a11y('snapshot')
+            nonlocal last_snapshot
+            value=completed_report_snapshot(a11y,completion) if view in ('management-doctor','management-orphans','management-failure') else a11y('snapshot')
             if value is None:return None
             try:summary=C.snapshot(value,current.process.pid,view,expected)
-            except ValueError:return None
+            except ValueError:
+                if product_timeout(value,current.process.pid):
+                    last_snapshot=value
+                    raise ValueError('actual '+view+' reached original product30s command limit')
+                return None
+            last_snapshot=value
             return dict(snapshot=value,snapshot_sha256=C.sha(C.encoded(value)),summary=summary,expected=expected)
         return hooks['wait'](probe,healthy,45,'actual '+view)
     def capture(view,expected):hooks['capture'](view,page(view,expected))
@@ -103,12 +130,17 @@ def exercise(base,stage,env,logs,workspace,old_welcome,doctor,policy,lock,hooks)
         close(current);restored=request('restore');inventory=restored['inventory'];C.need(len(inventory)==594,'exact optional helper profile not restored')
         current=start();action(ui['labels']['management'])
         for kind in ('doctor','orphans','failure'):
+            pending=dict(kind=kind,phase='before-counterpart');last_snapshot=None
             before=stable()
             if kind=='failure':request('lock')
+            started=time.monotonic_ns()
             raw=report_command(base,kind,workspace/(kind+'-actual.json'),env,1 if kind=='failure' else 0)
+            elapsed=time.monotonic_ns()-started
+            pending.update(phase='counterpart-completed-before-GUI',counterpart_elapsed_ns=elapsed,expected_returncode=1 if kind=='failure' else 0,
+                base64=base64.b64encode(raw).decode(),bytes=len(raw),sha256=C.sha(raw))
             data,summary=C.report(raw,kind,inventory);C.need(len(raw)<=ui['max_output_bytes'],'actual report exceeds product bound; no limit waiver')
             tool='doctor' if kind=='doctor' else 'orphans';action(ui['labels'][tool],scroll=True)
-            child=observed(tool)
+            child=observed(tool);pending['gui_process']=child
             # Open only the known tool frame's raw expander; duplicate labels stay scoped.
             action('View report',scope='Doctor' if tool=='doctor' else 'Orphan assessment')
             gui_report=None
@@ -116,8 +148,12 @@ def exercise(base,stage,env,logs,workspace,old_welcome,doctor,policy,lock,hooks)
                 # Doctor includes collected_utc and live service observations. Retain its actual GTK report,
                 # then derive its own conclusion; the independent actual run remains separate evidence.
                 def actual_doctor():
-                    snap=completed_report_snapshot(a11y);matches=[]
+                    nonlocal last_snapshot
+                    snap=completed_report_snapshot(a11y,completion);matches=[]
                     if snap is None:return None
+                    if product_timeout(snap,current.process.pid):
+                        last_snapshot=snap
+                        raise ValueError('actual management-doctor reached original product30s command limit')
                     for _,row,text in C.names(snap):
                         if row['showing'] and text and text.startswith('{'):
                             try:value,conclusion=C.report(text.encode(),'doctor',inventory)
@@ -149,6 +185,12 @@ def exercise(base,stage,env,logs,workspace,old_welcome,doctor,policy,lock,hooks)
             nonselected_database='PRESERVED',inventory=inventory,present_count=594,absent_count=592,
             scope='GENERIC4K_UNPRIVILEGED_ACTUAL_DEFAULT_TOOLS',hardware='NOT_RUN')
         return closed
+    except BaseException as error:
+        try:retain_failure(base,stage,pending,last_snapshot,error)
+        except BaseException as diagnostic:
+            try:base.emit('management_failure_diagnostic_unavailable',stage=stage,error_type=type(diagnostic).__name__,acceptance='NOT_ISSUED')
+            except BaseException:pass # Reporting cannot mask the original failure or skip teardown.
+        raise
     finally:
         if closed is None and current is not None:
             base.terminate(current.process);current.finish();hooks['adopt'](None)
