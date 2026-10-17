@@ -1,0 +1,142 @@
+==> Making package: cachy-asahi-apps 0.1.0-6 (Sat Oct 17 11:13:31 2026)
+==> Retrieving sources...
+  -> Found apps.py
+  -> Found cachy-asahi-apps
+  -> Found helper-pins.json
+  -> Found test_apps.py
+  -> Found check_source.py
+  -> Found README.md
+  -> Found source-provenance.json
+  -> Found NOTICE
+  -> Found LICENSE
+  -> Found prepare-check-inputs.py
+  -> Found check-inputs.json
+  -> Found check-inputs.tar.gz
+  -> Found inventory.py
+==> Validating source files with sha256sums...
+    apps.py ... Passed
+    cachy-asahi-apps ... Passed
+    helper-pins.json ... Passed
+    test_apps.py ... Passed
+    check_source.py ... Passed
+    README.md ... Passed
+    source-provenance.json ... Passed
+    NOTICE ... Passed
+    LICENSE ... Passed
+    prepare-check-inputs.py ... Passed
+    check-inputs.json ... Passed
+    check-inputs.tar.gz ... Passed
+    inventory.py ... Passed
+==> Making package: cachy-asahi-apps 0.1.0-6 (Sat Oct 17 11:13:32 2026)
+==> Checking runtime dependencies...
+==> Checking buildtime dependencies...
+==> Retrieving sources...
+  -> Found apps.py
+  -> Found cachy-asahi-apps
+  -> Found helper-pins.json
+  -> Found test_apps.py
+  -> Found check_source.py
+  -> Found README.md
+  -> Found source-provenance.json
+  -> Found NOTICE
+  -> Found LICENSE
+  -> Found prepare-check-inputs.py
+  -> Found check-inputs.json
+  -> Found check-inputs.tar.gz
+  -> Found inventory.py
+==> Validating source files with sha256sums...
+    apps.py ... Passed
+    cachy-asahi-apps ... Passed
+    helper-pins.json ... Passed
+    test_apps.py ... Passed
+    check_source.py ... Passed
+    README.md ... Passed
+    source-provenance.json ... Passed
+    NOTICE ... Passed
+    LICENSE ... Passed
+    prepare-check-inputs.py ... Passed
+    check-inputs.json ... Passed
+    check-inputs.tar.gz ... Passed
+    inventory.py ... Passed
+==> Removing existing $srcdir/ directory...
+==> Extracting sources...
+==> Starting check()...
+/tmp/work/src/check-source.z44Ronxy/apps.py: OK
+/tmp/work/src/check-source.z44Ronxy/cachy-asahi-apps: OK
+/tmp/work/src/check-source.z44Ronxy/helper-pins.json: OK
+/tmp/work/src/check-source.z44Ronxy/test_apps.py: OK
+/tmp/work/src/check-source.z44Ronxy/check_source.py: OK
+/tmp/work/src/check-source.z44Ronxy/README.md: OK
+/tmp/work/src/check-source.z44Ronxy/source-provenance.json: OK
+/tmp/work/src/check-source.z44Ronxy/NOTICE: OK
+/tmp/work/src/check-source.z44Ronxy/LICENSE: OK
+/tmp/work/src/check-source.z44Ronxy/prepare-check-inputs.py: OK
+/tmp/work/src/check-source.z44Ronxy/check-inputs.json: OK
+/tmp/work/src/check-source.z44Ronxy/check-inputs.tar.gz: OK
+/tmp/work/src/check-source.z44Ronxy/inventory.py: OK
+{"archive": {"bytes": 61046, "sha256": "6d38353fe33e0ce595df507ad9b928d80d3e1d6fe5d45d5418f927e9f50fe6d2"}, "bytes": 229223, "code_execution": "NONE", "files": 16, "status": "PASS_CLOSED_LOCAL_CHECK_INPUTS"}
+{"installed_files": 8, "installed_lifecycle": "NOT_RUN", "native_build": "NOT_RUN", "runtime_helpers": 3, "sources": 13, "stage": "NOT_RUN", "status": "PASS_SOURCE_AND_STAGING_CONTRACT"}
+test_identical_alpm_relations_only_normalize_once (__main__.ActualMetadataTests.test_identical_alpm_relations_only_normalize_once) ... ok
+test_literal_systemd_backslash_is_not_decoded_or_a_separator (__main__.ActualMetadataTests.test_literal_systemd_backslash_is_not_decoded_or_a_separator) ... ok
+test_native_compatibility_aliases_are_metadata_not_foreign_selection (__main__.ActualMetadataTests.test_native_compatibility_aliases_are_metadata_not_foreign_selection) ... ok
+test_bad_archive_hash_existing_output_and_symlink_refuse (__main__.CheckInputsTests.test_bad_archive_hash_existing_output_and_symlink_refuse) ... ok
+test_duplicate_link_escape_and_missing_members_refuse_before_writing (__main__.CheckInputsTests.test_duplicate_link_escape_and_missing_members_refuse_before_writing) ... ok
+test_exact_closed_check_tree_and_original_source_bytes (__main__.CheckInputsTests.test_exact_closed_check_tree_and_original_source_bytes) ... ok
+test_makepkg_local_source_links_stage_private_regular_pinned_inputs (__main__.CheckInputsTests.test_makepkg_local_source_links_stage_private_regular_pinned_inputs) ... ok
+test_cli_observation_needs_no_release_catalog_or_key_credentials (__main__.InventoryTests.test_cli_observation_needs_no_release_catalog_or_key_credentials) ... ok
+test_drift_in_records_membership_or_transient_lock_refuses (__main__.InventoryTests.test_drift_in_records_membership_or_transient_lock_refuses) ... ok
+test_existing_or_alias_output_and_write_failure_preserve_state (__main__.InventoryTests.test_existing_or_alias_output_and_write_failure_preserve_state) ... ok
+test_fileless_raw_hashes_normalization_and_private_publication_without_commands (__main__.InventoryTests.test_fileless_raw_hashes_normalization_and_private_publication_without_commands) ... ok
+test_hardlinks_symlinks_special_and_unknown_records_refuse (__main__.InventoryTests.test_hardlinks_symlinks_special_and_unknown_records_refuse) ... ok
+test_lock_any_type_uncertainty_and_root_alias_refuse_without_output (__main__.InventoryTests.test_lock_any_type_uncertainty_and_root_alias_refuse_without_output) ... ok
+test_malformed_identity_architecture_ownership_and_exact_fileless_rules (__main__.InventoryTests.test_malformed_identity_architecture_ownership_and_exact_fileless_rules) ... ok
+test_observed_qualifier_does_not_relax_base_or_claim_payload (__main__.InventoryTests.test_observed_qualifier_does_not_relax_base_or_claim_payload) ... ok
+test_package_byte_output_and_deadline_bounds_refuse (__main__.InventoryTests.test_package_byte_output_and_deadline_bounds_refuse) ... ok
+test_all_base_packages_are_preserved_and_base_drift_refuses (__main__.PlannerTests.test_all_base_packages_are_preserved_and_base_drift_refuses) ... ok
+test_declared_same_version_byte_mismatch_is_not_silently_reinstalled (__main__.PlannerTests.test_declared_same_version_byte_mismatch_is_not_silently_reinstalled) ... ok
+test_downgrade_same_version_metadata_drift_and_protected_targets_refuse (__main__.PlannerTests.test_downgrade_same_version_metadata_drift_and_protected_targets_refuse) ... ok
+test_explicit_provider_application_resolves_ambiguity_and_cycles_terminate (__main__.PlannerTests.test_explicit_provider_application_resolves_ambiguity_and_cycles_terminate) ... ok
+test_explicit_reinstall_binds_same_metadata_and_signed_archive (__main__.PlannerTests.test_explicit_reinstall_binds_same_metadata_and_signed_archive) ... ok
+test_helper_hash_drift_refuses_before_source_execution (__main__.PlannerTests.test_helper_hash_drift_refuses_before_source_execution) ... ok
+test_install_dependency_closure_records_signed_hashes_without_mutation (__main__.PlannerTests.test_install_dependency_closure_records_signed_hashes_without_mutation) ... ok
+test_noop_unknown_selection_broken_inventory_and_work_cap (__main__.PlannerTests.test_noop_unknown_selection_broken_inventory_and_work_cap) ... ok
+test_package_and_file_conflicts_are_reported (__main__.PlannerTests.test_package_and_file_conflicts_are_reported) ... ok
+test_regular_file_as_parent_of_another_payload_refuses (__main__.PlannerTests.test_regular_file_as_parent_of_another_payload_refuses) ... ok
+test_reinstall_refuses_missing_version_metadata_and_protected_targets (__main__.PlannerTests.test_reinstall_refuses_missing_version_metadata_and_protected_targets) ... ok
+test_removal_is_explicit_and_keeps_unused_dependency (__main__.PlannerTests.test_removal_is_explicit_and_keeps_unused_dependency) ... ok
+test_reverse_dependency_breakage_refuses_including_non_catalog_consumer (__main__.PlannerTests.test_reverse_dependency_breakage_refuses_including_non_catalog_consumer) ... ok
+test_unresolved_or_ambiguous_dependencies_refuse_without_fallback (__main__.PlannerTests.test_unresolved_or_ambiguous_dependencies_refuse_without_fallback) ... ok
+test_upgrades_use_alpm_epoch_and_pkgrel_and_preserve_reverse_dependencies (__main__.PlannerTests.test_upgrades_use_alpm_epoch_and_pkgrel_and_preserve_reverse_dependencies) ... ok
+test_x86_multilib_aur_and_foreign_catalog_package_refuse (__main__.PlannerTests.test_x86_multilib_aur_and_foreign_catalog_package_refuse) ... ok
+test_actual_signed_cli_reinstall_plan_is_explicit_not_applied (__main__.SignedTests.test_actual_signed_cli_reinstall_plan_is_explicit_not_applied) ... ok
+test_actual_signed_install_list_search_show_and_no_source_change (__main__.SignedTests.test_actual_signed_install_list_search_show_and_no_source_change) ... ok
+test_actual_signed_removal_and_already_absent_noop_are_explicit (__main__.SignedTests.test_actual_signed_removal_and_already_absent_noop_are_explicit) ... ok
+test_cli_plan_and_apply_refusal_use_private_home_and_leave_inputs (__main__.SignedTests.test_cli_plan_and_apply_refusal_use_private_home_and_leave_inputs) ... ok
+test_nonsynthetic_release_with_synthetic_provenance_is_not_native (__main__.SignedTests.test_nonsynthetic_release_with_synthetic_provenance_is_not_native) ... ok
+test_observed_inventory_to_genuine_signed_install_remove_and_base_drift_refusal (__main__.SignedTests.test_observed_inventory_to_genuine_signed_install_remove_and_base_drift_refusal) ... ok
+test_payload_tamper_wrong_signer_and_inventory_pin_fail (__main__.SignedTests.test_payload_tamper_wrong_signer_and_inventory_pin_fail) ... ok
+test_signed_catalog_cannot_select_base_or_foreign_release (__main__.SignedTests.test_signed_catalog_cannot_select_base_or_foreign_release) ... ok
+test_staged_default_lookup_without_checkout_and_companion_failures (__main__.SignedTests.test_staged_default_lookup_without_checkout_and_companion_failures) ... ok
+test_unsigned_catalog_and_tampered_signature_refuse (__main__.SignedTests.test_unsigned_catalog_and_tampered_signature_refuse) ... ok
+
+----------------------------------------------------------------------
+Ran 42 tests in 5.342s
+
+OK
+==> Entering fakeroot environment...
+==> Starting package()...
+==> Tidying install...
+  -> Removing libtool files...
+  -> Removing static library files...
+  -> Purging unwanted files...
+  -> Stripping unneeded symbols from binaries and libraries...
+  -> Compressing man and info pages...
+==> Checking for packaging issues...
+==> Creating package "cachy-asahi-apps"...
+  -> Generating .PKGINFO file...
+  -> Generating .BUILDINFO file...
+  -> Generating .MTREE file...
+  -> Compressing package...
+==> Leaving fakeroot environment.
+==> Finished making: cachy-asahi-apps 0.1.0-6 (Sat Oct 17 11:13:40 2026)
+==> Cleaning up...
