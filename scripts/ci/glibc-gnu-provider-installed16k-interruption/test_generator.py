@@ -14,10 +14,11 @@ class Controls(unittest.TestCase):
   output=self.work/'emitted';result=G.emit(ROOT,output);folder=output/G.NEW;C=load('interrupted_contract',folder/'contract.py')
   with patch.dict(sys.modules,{'contract':C}):R=load('interrupted_run',folder/'run.py');A=load('interrupted_adapter',folder/'adapter.py');V=load('interrupted_recovery',folder/'recovery.py')
   return result,folder,C,R,A,V
- def test_exact103_source_pins_and_closed13file_emission(self):
-  self.assertEqual(len(G.source(ROOT)['files']),103);value,folder,C,*_=self.emitted();self.assertEqual(len(value['files']),13);self.assertEqual(C.NATIVE,G.NATIVE);self.assertEqual(C.LANE,G.NEW);self.assertIn('INTERRUPTED_REPLACEMENT',C.PASS)
+ def test_exact104_source_pins_and_closed14file_emission(self):
+  self.assertEqual(len(G.source(ROOT)['files']),104);value,folder,C,*_=self.emitted();self.assertEqual(len(value['files']),14);self.assertEqual(C.NATIVE,G.NATIVE);self.assertEqual(C.LANE,G.NEW);self.assertIn('INTERRUPTED_REPLACEMENT',C.PASS)
   for p in folder.glob('*.py'):ast.parse(p.read_bytes())
   self.assertEqual((folder/'sandbox.py').read_bytes(),(ROOT/G.OLD/'sandbox.py').read_bytes())
+  self.assertEqual((folder/'snapshot_progress.py').read_bytes(),(ROOT/G.OLD/'snapshot_progress.py').read_bytes());self.assertIn("('guest.py','contract.py','sandbox.py','snapshot_progress.py','recovery.py')",(folder/'prepare.py').read_text())
  def test_unbound_gate_blocks_execution_before_any_output_actor(self):
   _,folder,C,R,*_=self.emitted();policy=json.loads((folder/'input-policy.json').read_bytes());self.assertEqual(policy['binding'],dict(native_interruption=None,normal_installed16k=None))
   with self.assertRaisesRegex(ValueError,'UNBOUND'):C.gate(Path('/missing'))

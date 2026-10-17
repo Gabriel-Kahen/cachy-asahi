@@ -65,8 +65,8 @@
       "sha256": "72b3bec510b7bf12017456d05241042c69f1ae70a4792c1678f9cfb3a74fd534"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/test_progress.py": {
-      "bytes": 14833,
-      "sha256": "fb7a02b1bb65f460c2596d4428ae40c2da94690ae6de1babd14ab1f833553e49"
+      "bytes": 16198,
+      "sha256": "6c1eb1c42c68d9b90ec039d1a0d4876b309eef3409d203c5aed208036f41ab16"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/test_snapshot_progress.py": {
       "bytes": 10285,
