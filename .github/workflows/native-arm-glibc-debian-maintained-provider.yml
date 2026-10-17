@@ -39,7 +39,7 @@ jobs:
           [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
           test "$SOURCE_SHA" = "$WORKFLOW_SHA"
           test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
-          printf '%s  %s\n' 'da7f17d0df297038b12a141d0308420a25e7922b84225a1a976ae8daac53cec0' "$SLICE/job.py" 'd6d6145ecd90929f428cce189d145e81da058626573f9665db1ad8e740268086' "$SLICE/integration-manifest.json" | sha256sum --check
+          printf '%s  %s\n' 'da7f17d0df297038b12a141d0308420a25e7922b84225a1a976ae8daac53cec0' "$SLICE/job.py" '95db605ba6da17d50667b88d1f8aed85f7c4cf9e81aa19324ce759cd4f6fb50e' "$SLICE/integration-manifest.json" | sha256sum --check
           python3 -I -B "$SLICE/job.py" proof --workspace "$GITHUB_WORKSPACE" --manifest "$SLICE/integration-manifest.json" --proof "$RUNNER_TEMP/glibc-proof.json"
       - name: Checkout only the Root bound new Debian source packet
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1

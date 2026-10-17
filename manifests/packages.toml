@@ -550,9 +550,9 @@ installation = "NOT RUN"
 hardware_validation = "NOT RUN"
 native_generic16k_runtime = "PASS data-staged standard system paths38983272600; ALPM installation NOT_RUN"
 debian_orig_candidate = "2.43.caa2-1: native38988598760 rejected on missing manual test dependencies; check exit2; no pair/archive acceptance"
-debian_maintained_candidate = "2.43.caa3-1: independent source authority/full85-patch preparation PASS; fresh native pair38992722347 IN_PROGRESS"
+debian_maintained_candidate = "2.43.caa3-1: independent source authority/full85-patch preparation PASS; first native38992722347 FAIL before compile (.asc keys classified as detached signatures); exact .key-copy source fix passes31 controls and actual full source preparation; new native pair PENDING"
 debian_maintained_evidence = "docs/validation/glibc-debian-maintained-source-20261017.md"
-next_step = "Approved public packet is published at ba5dd71b99eb7e117be4ed3e269abd8e5f2b0b5f. GNU lifecycle38992239377 tests a narrow enforced profile after proc mount EACCES; interruption and ALPM-installed16K await their prerequisites. Validate the distinct maintained Debian caa3 pair, then its own lifecycle/16K. Original GNU expiry, historical recipe correspondence, hardware and release/security admission remain open."
+next_step = "Approved public packet is published at ba5dd71b99eb7e117be4ed3e269abd8e5f2b0b5f. GNU lifecycle38993545529 proves direct readonly proc mount under the narrow enforced profile; utility route fails and lifecycle cases remain NOT_RUN; interruption and ALPM-installed16K await their prerequisites. Validate the distinct maintained Debian caa3 pair, then its own lifecycle/16K. Original GNU expiry, historical recipe correspondence, hardware and release/security admission remain open."
 
 
 [[packages]]

@@ -5,7 +5,7 @@ EXPECTED=dict(package='cachy-asahi-glibc-gnu-provider',version='2.43.caa3-1',
  source_packet_ref='60e174c5db7f770c94064198516dd3ee07b51b7b',
  authority_sha256='88643eabd61a39df63ecaeb50bb20041d17cf4fd3adee55d82d43d3c1ca08707',
  prepared_tree='08ea2aef96bd3144cf02cbc68cbbb003dc25ed9f',
- pkgbuild_sha256='5b1da950ca5be27d06ccabff2c83983a4c6791ff184fe0a64d4fce60e5fe9a92')
+ pkgbuild_sha256='9d6d5e688c95febe85321abc69fbfe1b7781a02e318771ae43851d8c29f68bb8')
 def need(ok,why):
  if not ok:raise ValueError(why)
 def encoded(v):return (json.dumps(v,sort_keys=True,indent=2,allow_nan=False)+'\n').encode()

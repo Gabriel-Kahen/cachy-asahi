@@ -53,6 +53,18 @@ class Candidate(unittest.TestCase):
   self.assertNotIn(b'@SOURCE_ARRAYS@',raw);self.assertIn(b"'"+b'a'*64+b"'",raw);result=subprocess.run(['/usr/bin/bash','-n',str(path)],capture_output=True,timeout=5);self.assertEqual(result.returncode,0,result.stderr)
   for name in ('../escape','name\'unsafe','$(exec)'):
    with self.subTest(name=name),self.assertRaises(ValueError):B.render({name:dict(sha256='a'*64)})
+ def test_makepkg_key_data_copies_preserve_original_authentication_inputs(self):
+  row=dict(bytes=3,sha256='a'*64);files={'input.xz':dict(bytes=1,sha256='b'*64)}
+  for original,copy in B.KEY_COPIES.items():files[original]=dict(row);files[copy]=dict(row)
+  recipe=B.render(files).decode();self.assertNotIn("'archive-key-12.asc'",recipe);self.assertNotIn("'archive-key-13.asc'",recipe)
+  for copy in B.KEY_COPIES.values():self.assertIn("'"+copy+"'",recipe)
+  self.assertEqual(recipe.count("'"+'a'*64+"'"),2)
+  for original,copy in B.KEY_COPIES.items():
+   for missing in (original,copy):
+    bad=dict(files);del bad[missing]
+    with self.subTest(missing=missing),self.assertRaisesRegex(ValueError,'exact public key data copy'):B.render(bad)
+   bad=dict(files);bad[copy]=dict(bytes=3,sha256='c'*64)
+   with self.assertRaisesRegex(ValueError,'exact public key data copy'):B.render(bad)
  def test_portable_without_git_or_private_source_paths(self):
   for name in ('materialize.py','authority.py','bundle.py','PKGBUILD.in'):
    raw=(HERE/name).read_text();self.assertNotIn('/home/',raw);self.assertNotIn('artifacts/development/',raw);self.assertNotIn('manifests/packages.toml',raw)
