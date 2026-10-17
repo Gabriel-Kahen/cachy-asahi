@@ -123,6 +123,13 @@ class Controls(unittest.TestCase):
   with patch.object(P,'mounted',return_value=[row]),patch.object(Path,'lstat',return_value=info):self.assertEqual(P.verify_bind(target,info,source)['rdev'],info.st_rdev)
   with patch.object(P,'mounted',return_value=[row.replace('/null ','/zero ')]),patch.object(Path,'lstat',return_value=info),self.assertRaises(ValueError):P.verify_bind(target,info,source)
   with patch.object(P,'mounted',return_value=[row]),patch.object(Path,'lstat',return_value=self.root.stat()),self.assertRaises(ValueError):P.verify_bind(target,info,source)
+ def test_exact_single_role_marker_only_with_unchanged_native_fences(self):
+  with patch.object(P.os,'getuid',return_value=0),patch.object(P.os,'geteuid',return_value=0),patch.object(P.os,'uname',return_value=NS(machine='aarch64')),patch.object(Path,'is_mount',return_value=True),patch.object(Path,'iterdir',return_value=iter([Path('/sys/class/net/lo')])):
+   for key in ('CACHY_GNU_PROVIDER_LIFECYCLE','CACHY_GNU_PROVIDER_INTERRUPTION'):
+    with patch.dict(P.os.environ,{key:'1'},clear=True),patch.object(Path,'iterdir',return_value=iter([Path('/sys/class/net/lo')])):P.guard(Path('/work'))
+   for markers in ({},{'CACHY_GNU_PROVIDER_LIFECYCLE':'1','CACHY_GNU_PROVIDER_INTERRUPTION':'1'},{'CACHY_GNU_PROVIDER_LIFECYCLE':'0'},{'CACHY_GNU_PROVIDER_INTERRUPTION':''},{'CACHY_GNU_PROVIDER_UNKNOWN':'1'},{'CACHY_GNU_PROVIDER_LIFECYCLE':'1','CACHY_GNU_PROVIDER_SNAPSHOT':'1'}):
+    with patch.dict(P.os.environ,markers,clear=True),self.assertRaisesRegex(ValueError,'one exact known'):P.guard(Path('/work'))
+   with patch.dict(P.os.environ,{'CACHY_GNU_PROVIDER_INTERRUPTION':'1'},clear=True),patch.object(Path,'iterdir',return_value=iter([Path('/sys/class/net/lo'),Path('/sys/class/net/eth0')])),self.assertRaises(ValueError):P.guard(Path('/work'))
  def test_host_guard_refuses_before_mount(self):
   with self.assertRaisesRegex(ValueError,'same-role'):P.check(None,Path('/not-work'))
   self.assertFalse(self.events)
