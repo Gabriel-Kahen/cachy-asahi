@@ -18,11 +18,13 @@ static void assert_static_management(GtkWidget *widget)
 static void wait_job(ManagementView *view)
 {
     gint64 until = g_get_monotonic_time() + 10000000;
-    while (view->job && g_get_monotonic_time() < until) {
+    while ((view->job || view->reporting) && g_get_monotonic_time() < until) {
         while (g_main_context_iteration(NULL, FALSE)) {}
         g_usleep(1000);
     }
     g_assert_null(view->job);
+    g_assert_false(view->reporting);
+    g_assert_null(view->report_cancel);
 }
 
 int main(int argc, char **argv)
@@ -90,6 +92,30 @@ int main(int argc, char **argv)
     gtk_button_clicked(GTK_BUTTON(orphans->button));
     wait_job(orphans);
     g_assert_nonnull(strstr(gtk_label_get_text(GTK_LABEL(orphans->summary)), "1 possible orphan"));
+    /* The supervision result's buffer may disappear as soon as its callback
+     * returns. Also refuse duplicate starts throughout report preparation. */
+    char *padding = g_strnfill(9000, 'x');
+    char *owned_raw = g_strdup_printf("{\"schema_version\":1,\"scope\":\"LOCAL_INSTALLED_METADATA_ONLY_NOT_PAYLOAD_RELEASE_REMOVAL_OR_HARDWARE_PROOF\",\"apply_supported\":false,\"padding\":\"%s\",\"packages\":{\"after-preview\":{\"candidate\":true}},\"candidates\":[\"after-preview\"],\"broken_dependencies\":[]}", padding);
+    g_free(padding);
+    char *first_bytes = g_strndup(owned_raw, 8192);
+    char *expected_preview = g_strconcat(first_bytes, "\n[Raw preview truncated at 8 KiB.]", NULL);
+    g_free(first_bytes);
+    ManagementResult owned_result = {MANAGEMENT_COMPLETE, owned_raw, "fixture", 0, TRUE, 1};
+    welcome->refs++; g_application_hold(G_APPLICATION(app));
+    gtk_widget_set_sensitive(orphans->button, FALSE);
+    management_done(NULL, &owned_result, orphans);
+    g_assert_true(orphans->reporting);
+    management_run(NULL, orphans);
+    g_assert_null(orphans->job);
+    memset(owned_raw, 'x', strlen(owned_raw)); g_free(owned_raw);
+    wait_job(orphans);
+    g_assert_nonnull(strstr(gtk_label_get_text(GTK_LABEL(orphans->summary)), "1 possible orphan"));
+    GtkTextBuffer *raw_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(orphans->raw));
+    GtkTextIter first_byte, last_byte;
+    gtk_text_buffer_get_bounds(raw_buffer, &first_byte, &last_byte);
+    char *actual_preview = gtk_text_buffer_get_text(raw_buffer, &first_byte, &last_byte, FALSE);
+    g_assert_cmpstr(actual_preview, ==, expected_preview);
+    g_free(actual_preview); g_free(expected_preview);
     if (snapshot) {
         gtk_window_move(window, 0, 0);
         gtk_window_resize(window, 820, 900);
@@ -118,6 +144,24 @@ int main(int argc, char **argv)
     gtk_widget_destroy(GTK_WIDGET(window));
     g_assert_true(welcome->closing);
     wait_job(doctor);
+    welcome_unref(welcome);
+    /* A second owned window closes while report preparation is pending.
+     * No helper is launched; the complete result is an immutable test datum. */
+    activate(app, NULL);
+    window = gtk_application_get_active_window(app);
+    welcome = g_object_get_data(G_OBJECT(window), "welcome-state");
+    orphans = &welcome->management[MANAGEMENT_ORPHANS];
+    const char *raw = "{\"schema_version\":1,\"scope\":\"LOCAL_INSTALLED_METADATA_ONLY_NOT_PAYLOAD_RELEASE_REMOVAL_OR_HARDWARE_PROOF\",\"apply_supported\":false,\"packages\":{},\"candidates\":[],\"broken_dependencies\":[]}";
+    ManagementResult complete = {MANAGEMENT_COMPLETE, raw, "fixture", 0, TRUE, 1};
+    welcome->refs++; g_application_hold(G_APPLICATION(app));
+    management_done(NULL, &complete, orphans);
+    g_assert_true(orphans->reporting);
+    g_assert_cmpstr(gtk_label_get_text(GTK_LABEL(orphans->summary)), ==, "Preparing report…");
+    welcome->refs++; /* Inspect cancellation through the last worker callback. */
+    gtk_widget_destroy(GTK_WIDGET(window));
+    g_assert_true(welcome->closing);
+    g_assert_true(g_cancellable_is_cancelled(orphans->report_cancel));
+    wait_job(orphans);
     welcome_unref(welcome);
     g_object_unref(app); g_free(self);
     g_print("PASS_GTK_MANAGEMENT: absent tool, no startup job, explicit run, unknown/refusal/candidate summaries, close retirement\n");

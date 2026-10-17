@@ -22,6 +22,8 @@ typedef struct {
     ManagementTool tool;
     GtkWidget *button, *summary, *raw;
     ManagementJob *job;
+    GCancellable *report_cancel;
+    gboolean reporting;
 } ManagementView;
 struct Welcome {
     GtkWidget *window, *stack, *notebook, *system_text;
@@ -45,8 +47,10 @@ static void welcome_close(GtkWidget *widget, gpointer data)
     (void)widget;
     Welcome *welcome = data;
     welcome->closing = TRUE;
-    for (guint i = 0; i < MANAGEMENT_TOOL_COUNT; i++)
+    for (guint i = 0; i < MANAGEMENT_TOOL_COUNT; i++) {
         if (welcome->management[i].job) management_cancel(welcome->management[i].job);
+        if (welcome->management[i].report_cancel) g_cancellable_cancel(welcome->management[i].report_cancel);
+    }
 }
 
 
@@ -70,19 +74,16 @@ static GtkWidget *column(void)
 static void management_raw(ManagementView *view, const char *output)
 {
     gsize length = output ? strlen(output) : 0;
-    gsize shown = MIN(length, (gsize)65536);
+    gsize shown = MIN(length, (gsize)(view->tool == MANAGEMENT_ORPHANS ? 8192 : 65536));
     char *valid = g_utf8_make_valid(output ? output : "", (gssize)shown);
-    char *text = g_strconcat(valid, length > shown ? "\n[Raw preview truncated at 64 KiB.]" : "", NULL);
+    char *text = g_strconcat(valid, length > shown ? (view->tool == MANAGEMENT_ORPHANS ? "\n[Raw preview truncated at 8 KiB.]" : "\n[Raw preview truncated at 64 KiB.]") : "", NULL);
     gtk_text_buffer_set_text(gtk_text_view_get_buffer(GTK_TEXT_VIEW(view->raw)), text, -1);
     g_free(valid); g_free(text);
 }
 
-static void management_done(ManagementJob *job, const ManagementResult *result, gpointer data)
+static void management_present(const ManagementResult *result, ManagementView *view, ManagementReport report)
 {
-    (void)job;
-    ManagementView *view = data;
     Welcome *welcome = view->owner;
-    view->job = NULL;
     if (!welcome->closing) {
         const char *outcome = "Check failed.";
         switch (result->state) {
@@ -95,7 +96,6 @@ static void management_done(ManagementJob *job, const ManagementResult *result, 
         case MANAGEMENT_UNSUPPORTED: outcome = "This check is unsupported in the current session."; break;
         }
         if (!result->retired) outcome = "Check incomplete: process retirement is unconfirmed.";
-        ManagementReport report = management_report_parse(view->tool, result->output ? result->output : "");
         if (!result->retired) {
             management_report_clear(&report);
             report.summary = g_strdup("No assessment conclusion is available from this incomplete run.");
@@ -112,17 +112,91 @@ static void management_done(ManagementJob *job, const ManagementResult *result, 
         gtk_label_set_text(GTK_LABEL(view->summary), text);
         management_raw(view, result->output);
         gtk_widget_set_sensitive(view->button, result->retired && management_available(view->tool) && geteuid() != 0);
-        management_report_clear(&report); g_free(text);
+        g_free(text);
     }
+    management_report_clear(&report);
     g_application_release(G_APPLICATION(welcome->application));
     welcome_unref(welcome);
+}
+
+/* Parsing up to1MiB is pure GLib work. Keep it off the GTK/AT-SPI main
+ * context; all widget updates and lifetime release remain on that context. */
+typedef struct {
+    ManagementTool tool;
+    ManagementResult result;
+    ManagementReport report;
+} ReportWork;
+
+static void report_work_free(gpointer data)
+{
+    ReportWork *work = data;
+    g_free((char *)work->result.output);
+    g_free((char *)work->result.diagnostic);
+    management_report_clear(&work->report);
+    g_free(work);
+}
+
+static void report_prepare(GTask *task, gpointer source, gpointer data, GCancellable *cancel)
+{
+    (void)source; (void)cancel;
+    ReportWork *work = data;
+    if (g_task_return_error_if_cancelled(task)) return;
+    work->report = management_report_parse(work->tool, work->result.output);
+    g_task_return_boolean(task, TRUE);
+}
+
+static void report_ready(GObject *source, GAsyncResult *result, gpointer data)
+{
+    (void)source;
+    ManagementView *view = data;
+    ReportWork *work = g_task_get_task_data(G_TASK(result));
+    GError *error = NULL;
+    gboolean prepared = g_task_propagate_boolean(G_TASK(result), &error);
+    view->reporting = FALSE;
+    g_clear_object(&view->report_cancel);
+    if (!prepared && !view->owner->closing) {
+        management_report_clear(&work->report);
+        work->report.summary = g_strdup("Report preparation was cancelled. No assessment conclusion is available.");
+    }
+    g_clear_error(&error);
+    ManagementReport report = work->report;
+    work->report.summary = NULL;
+    management_present(&work->result, view, report);
+}
+
+static void management_done(ManagementJob *job, const ManagementResult *result, gpointer data)
+{
+    (void)job;
+    ManagementView *view = data;
+    view->job = NULL;
+    if (view->owner->closing) {
+        ManagementReport report = {MANAGEMENT_REPORT_INVALID, NULL};
+        management_present(result, view, report);
+        return;
+    }
+    ReportWork *work = g_new0(ReportWork, 1);
+    work->tool = view->tool;
+    work->result = *result;
+    /* The supervision callback owns these strings only until we return. */
+    work->result.output = g_strdup(result->output ? result->output : "");
+    work->result.diagnostic = g_strdup(result->diagnostic ? result->diagnostic : "");
+    view->reporting = TRUE;
+    view->report_cancel = g_cancellable_new();
+    gtk_label_set_text(GTK_LABEL(view->summary), "Preparing report…");
+    GTask *task = g_task_new(NULL, view->report_cancel, report_ready, view);
+    g_task_set_task_data(task, work, report_work_free);
+    g_task_set_return_on_cancel(task, FALSE);
+    /* Default return-on-cancel=FALSE keeps the existing application/state hold
+     * until the worker has actually returned, including window close. */
+    g_task_run_in_thread(task, report_prepare);
+    g_object_unref(task);
 }
 
 static void management_run(GtkButton *button, gpointer data)
 {
     (void)button;
     ManagementView *view = data;
-    if (view->job || view->owner->closing) return;
+    if (view->job || view->reporting || view->owner->closing) return;
     GError *error = NULL;
     ManagementJob *job = management_start(view->tool, management_done, view, &error);
     if (!job) {
