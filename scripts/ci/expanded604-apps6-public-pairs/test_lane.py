@@ -21,7 +21,11 @@ class Controls(unittest.TestCase):
   for n in ('expected587.lock','expected604.lock'):self.assertEqual((out/P.NEW/n).read_bytes(),(ROOT/P.OLD/n).read_bytes())
  def test_unbound_and_old223_authority_refuse_before_packet_or_actor(self):
   out,C,_=self.emit()
-  with self.assertRaisesRegex(ValueError,'UNBOUND'):C.policy()
+  bound=json.loads((out/P.NEW/'input-policy.json').read_bytes())
+  bound['status']='ROOT_BOUND_PUBLIC_PAIRS_APPS6_CURRENT604_NATIVE_INPUTS';bound['apps6']['status']=H.STATUS
+  with patch.object(C,'read',return_value=bound):self.assertEqual(C.policy(),bound)
+  unbound=copy.deepcopy(bound);unbound['status']='UNBOUND_PUBLIC_PAIRS_APPS6_CURRENT604_NATIVE_INPUTS';unbound['apps6']['status']='UNBOUND'
+  with patch.object(C,'read',return_value=unbound),self.assertRaisesRegex(ValueError,'UNBOUND'):C.policy()
   for bad in ({},dict(self.binding(),status='ROOT_ACCEPTED_APPS6_NATIVE_PAIRS_INSTALLED_LIFECYCLE_AND_SIGNED_SYNTHETIC_REPAIR'),dict(self.binding(),authority_source=None),dict(self.binding(),carrier_source='a'*40),dict(self.binding(),index=dict(path='index.json',bytes=1,sha256='a'*64))):
    with patch.object(C,'checked',side_effect=AssertionError('IO before authority')),self.assertRaises(ValueError):H.validate(C,ROOT,self.root,bad,None,None,self.root)
  def test_only_finite_input_identity_functions_change_all_transactions_held(self):

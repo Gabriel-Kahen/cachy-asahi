@@ -301,8 +301,8 @@
       "sha256": "483208ab78b525ecbe3c73021b2cc1fbc1f161cf7aebbd87cfc6ded0544b9818"
     },
     "scripts/ci/expanded604-apps6-public-pairs/test_lane.py": {
-      "bytes": 6970,
-      "sha256": "ea3378fde8e92d1d3266a739eb72f5ffdd46075193b2fe2527b323184e61707e"
+      "bytes": 7412,
+      "sha256": "2a836a5253477184ad6475e3b5024814cd9b8d5cb04f3ad5598ccd31380741f4"
     },
     "scripts/ci/expanded604-apps6/README.md": {
       "bytes": 4478,
