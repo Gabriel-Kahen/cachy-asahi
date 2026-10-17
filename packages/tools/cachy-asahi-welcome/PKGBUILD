@@ -2,7 +2,7 @@
 # Original project sources; SHA256 pins below are the source snapshot.
 pkgname=cachy-asahi-welcome
 pkgver=0.1.0
-pkgrel=2
+pkgrel=3
 pkgdesc='Independent GTK3 welcome, offline guidance and read-only management checks'
 arch=('aarch64')
 url='https://github.com/Gabriel-Kahen/cachy-asahi'
@@ -17,21 +17,21 @@ optdepends=('alacritty: Terminal launch action' 'thunar: Files launch action'
             'cachy-asahi-orphans: optional installed metadata assessment')
 source=('test_management_ui.c' 'management.c' 'management.h' 'management-report.c' 'management-report.h' 'test_management.c' 'test_management_report.c' 'welcome.c' 'status.c' 'status.h' 'Makefile' 'test_status.c' 'test_cli.py' 'check_source.py' 'README.md' 'first-run.txt' 'updates.txt' 'recovery.txt' 'io.github.GabrielKahen.CachyAsahiWelcome.desktop' 'cachy-asahi-welcome.svg' 'NOTICE' 'LICENSE')
 sha256sums=(
-    'd8b74cffc68bf4cb1c4ed43de491f9abbf2e95a397aee2692ebb2e1dcde14e50'
+    'a302149c41245656e92843e752be4ca24f19ed42817b4834650bde30d807fad6'
     '1703fe13c3055a3f35ec12b85c2ffcb3814a0c364fc9537caf4adf32d24d20b4'
     '5e5e8f196321eb6da75224cbb9f48e9dab7ed20909af4569a9a910ac29f8c212'
     '21bb131d48a34f86f5a7035b6b9032980bb9330afbc409dca69639a5f0ec9e86'
     '2caed0cedfc375577d05b8468ec1c54b98e2c23daa247f217671d033b68b739d'
     '17a23fa7fce5562c3ddeab9a2dda2aa2853c4c2b40dc532bcd3e21fe9a67f18c'
     'a75cf2d71536412cf315d9ab6b0d7337a1ee044847023058c6e40a53102971ed'
-    '3f7979e2e4d9d511628491d77e267a39a4a47936e23cd9c612b56f775b48f414'
+    '576410453d5e0b8acf49cbbf3d9314c5fbdcc33d7388328c1d0bbae1c8f15b65'
     '2bfd5f64c724670546057d01312fc6b9591416f6113c65eae8cbb9a53f3909cf'
     'da0c71ef784debe9ea8ec0be34d8326afe5520ad463efc4a2d432805324b8b78'
     '7bb33f82c36b6c1c07b94afe5eb1615e0896b9755242476f4aff43ac5a95c5e2'
     '710eba6eafd4389bf2bf73bc39c7e727d4d60097cb783c035da60bc4ba8d740e'
     '722182698ca07b14b03787a52f5b3976f2f039ae048f142f2dee72e6176fa972'
-    'a688d4373c2d69a69aa59b314cb1f83dbfb99ccbedd78d159928ead6e00fef5a'
-    'dbc3716ed6fb6264d976e8b49cb07e7b35990f69fa1f190f773aa61384573e54'
+    'dcac1efa79f4b6e4c1da5203eaebc5ffb03417d965b9c476fabba370653ea690'
+    '5ec074aa95d1a5215cd4abd96d751257f77d88a46220f24cca30fc8a02d7d286'
     '2c123deef2cf02b586250c1128907ba294ced83a3671607dd2aef2f3cfa094eb'
     'fcde7d9aa0c6f1a0fc8090c5dc26f405708f18ea760d74b664732e2824d403b8'
     '09e5160543b0739b10f327972e338b01c16269d8bcfc6620325eceed0c6a26a2'

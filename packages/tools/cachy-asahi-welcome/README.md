@@ -33,7 +33,9 @@ autostart entry or stored preference. Existing app settings remain in use.
 The Management page has two optional actions with fixed argument vectors:
 `/usr/bin/cachy-asahi-doctor --json` and
 `/usr/bin/cachy-asahi-orphans assess`. Each runs as the ordinary desktop user,
-only after a click. Missing tools have disabled buttons. Root execution is
+only after a click. During a check, static “Running check…” text and a disabled
+action button show the running state without continuous spinner redraws.
+Missing tools have disabled buttons. Root execution is
 refused. There is no startup scan, shell, PATH lookup, privilege escalation,
 network request, install, removal, apply action or Apps launcher.
 
@@ -51,8 +53,8 @@ recovery or safe removal. Existing Doctor and Orphans tools are unchanged.
 Build dependencies are GCC, make and pkgconf; runtime dependencies remain GTK3
 >=3.24 and GLib >=2.74 (GIO is supplied by GLib). Doctor and Orphans are optional
 runtime dependencies. The source snapshot is local original MIT code pinned by
-SHA256; the coordinator selects the Git freeze. This successor is 0.1.0-2.
-Historical 0.1.0-1 native/GUI evidence does not validate this successor. See the
+SHA256; the coordinator selects the Git freeze. This successor is 0.1.0-3.
+Historical 0.1.0-1 and 0.1.0-2 native/GUI evidence does not validate this successor. See the
 associated development handoff for actual host checks, including the Xvfb GTK
 integration harness. That harness exercises fixtures and window-close cleanup;
 it is not native or installed-tool integration. Successor native ARM, native GUI,

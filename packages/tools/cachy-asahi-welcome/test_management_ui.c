@@ -4,6 +4,17 @@
 #include "welcome.c"
 #undef main
 
+static void assert_static_management(GtkWidget *widget)
+{
+    g_assert_false(GTK_IS_SPINNER(widget));
+    if (GTK_IS_CONTAINER(widget)) {
+        GList *children = gtk_container_get_children(GTK_CONTAINER(widget));
+        for (GList *child = children; child; child = child->next)
+            assert_static_management(GTK_WIDGET(child->data));
+        g_list_free(children);
+    }
+}
+
 static void wait_job(ManagementView *view)
 {
     gint64 until = g_get_monotonic_time() + 10000000;
@@ -58,6 +69,8 @@ int main(int argc, char **argv)
     gtk_button_clicked(GTK_BUTTON(doctor->button));
     g_assert_nonnull(doctor->job);
     g_assert_false(gtk_widget_get_sensitive(doctor->button));
+    g_assert_cmpstr(gtk_label_get_text(GTK_LABEL(doctor->summary)), ==, "Running check…");
+    assert_static_management(gtk_stack_get_child_by_name(GTK_STACK(welcome->stack), "management"));
     wait_job(doctor);
     const char *summary = gtk_label_get_text(GTK_LABEL(doctor->summary));
     g_print("Doctor UI summary: %s\n", summary);
@@ -97,6 +110,10 @@ int main(int argc, char **argv)
     management_test_configure(self, "waiting", 30000, 1048576, TRUE);
     gtk_widget_set_sensitive(doctor->button, TRUE);
     gtk_button_clicked(GTK_BUTTON(doctor->button));
+    g_assert_nonnull(doctor->job);
+    g_assert_false(gtk_widget_get_sensitive(doctor->button));
+    g_assert_cmpstr(gtk_label_get_text(GTK_LABEL(doctor->summary)), ==, "Running check…");
+    assert_static_management(gtk_stack_get_child_by_name(GTK_STACK(welcome->stack), "management"));
     welcome->refs++; /* Keep state inspectable through the close callback. */
     gtk_widget_destroy(GTK_WIDGET(window));
     g_assert_true(welcome->closing);

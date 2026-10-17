@@ -20,7 +20,7 @@ typedef struct Welcome Welcome;
 typedef struct {
     Welcome *owner;
     ManagementTool tool;
-    GtkWidget *button, *spinner, *summary, *raw;
+    GtkWidget *button, *summary, *raw;
     ManagementJob *job;
 } ManagementView;
 struct Welcome {
@@ -111,8 +111,6 @@ static void management_done(ManagementJob *job, const ManagementResult *result, 
         }
         gtk_label_set_text(GTK_LABEL(view->summary), text);
         management_raw(view, result->output);
-        gtk_spinner_stop(GTK_SPINNER(view->spinner));
-        gtk_widget_hide(view->spinner);
         gtk_widget_set_sensitive(view->button, result->retired && management_available(view->tool) && geteuid() != 0);
         management_report_clear(&report); g_free(text);
     }
@@ -137,8 +135,6 @@ static void management_run(GtkButton *button, gpointer data)
     gtk_widget_set_sensitive(view->button, FALSE);
     gtk_label_set_text(GTK_LABEL(view->summary), "Running check…");
     management_raw(view, "");
-    gtk_widget_show(view->spinner);
-    gtk_spinner_start(GTK_SPINNER(view->spinner));
 }
 
 static GtkWidget *management_page(Welcome *welcome)
@@ -164,10 +160,7 @@ static GtkWidget *management_page(Welcome *welcome)
         gtk_box_pack_start(GTK_BOX(content), paragraph(descriptions[i]), FALSE, FALSE, 0);
         GtkWidget *actions = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
         view->button = gtk_button_new_with_label(buttons[i]);
-        view->spinner = gtk_spinner_new();
-        gtk_widget_set_no_show_all(view->spinner, TRUE);
         gtk_box_pack_start(GTK_BOX(actions), view->button, FALSE, FALSE, 0);
-        gtk_box_pack_start(GTK_BOX(actions), view->spinner, FALSE, FALSE, 0);
         gtk_box_pack_start(GTK_BOX(content), actions, FALSE, FALSE, 0);
         gboolean available = management_available(view->tool);
         const char *state = geteuid() == 0 ? "Run Welcome from your regular desktop login to use management checks." :
