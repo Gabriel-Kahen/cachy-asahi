@@ -321,4 +321,29 @@ class Controls(unittest.TestCase):
         self.assertLess(len(json.dumps(rows)),8192)
         self.assertTrue(all(set(f)=={'file','function','line'} for r in rows for f in r['frames']))
 
+
+    def test_trial_alone_has_fsetid_for_foreign_group_mode_preservation(self):
+        import ast
+        tree=ast.parse(Path(run.__file__).read_bytes())
+        assignments=[n for n in ast.walk(tree) if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='caps' for t in n.targets)]
+        self.assertEqual(len(assignments),1)
+        expression=compile(ast.Expression(assignments[0].value),str(run.__file__),'eval')
+        def caps(role):return eval(expression,{'__builtins__':{}},{'role':role})
+        self.assertEqual(caps('trial'),('CHOWN','DAC_OVERRIDE','FOWNER','FSETID','SETUID','SETGID','SYS_CHROOT','SYS_ADMIN','SETFCAP'))
+        self.assertEqual(caps('scrub'),('CHOWN','DAC_OVERRIDE','FOWNER'))
+        self.assertNotIn('FSETID',caps('scrub'))
+
+    def test_real_inert_setid_metadata_still_requires_both_exact_mode_bits(self):
+        # Never execute this owned tempfile. This exercises the actual unchanged
+        # failing metadata guard; foreign-group kernel authority is native-only.
+        path=self.root/'inert-never-executed';path.write_bytes(b'inert mode fixture');path.chmod(0o6755)
+        api=self.capability_api();copier=api['capabilities'].scope.aux_copy.measure_copy
+        expected=dict(mode=0o6755,uid=os.getuid(),gid=os.getgid())
+        copier._metadata_equal(path.stat(),expected)
+        path.chmod(0o4755)
+        with self.assertRaisesRegex(ValueError,'copy metadata differs'):copier._metadata_equal(path.stat(),expected)
+        path.chmod(0o2755)
+        with self.assertRaisesRegex(ValueError,'copy metadata differs'):copier._metadata_equal(path.stat(),expected)
+        path.chmod(0o6755);copier._metadata_equal(path.stat(),expected)
+
 if __name__=='__main__':unittest.main()

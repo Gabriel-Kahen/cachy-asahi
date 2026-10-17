@@ -7,9 +7,9 @@ from pathlib import Path
 import stat
 import contract as C
 
-# Same eight --cap-add entries as native run.py's trial actor. No MKNOD,
+# Same nine --cap-add entries as native run.py's trial actor. No MKNOD,
 # SYS_PTRACE, SYS_BOOT, DAC_READ_SEARCH, NET_ADMIN, BPF or SETPCAP survives.
-CAPS=(0,1,3,6,7,18,21,31)
+CAPS=(0,1,3,4,6,7,18,21,31)
 MASK=sum(1<<n for n in CAPS)
 ENOSYS_CALLS=(428,429,430,431,432,433,442)  # New mount API; old mount fallback only.
 EPERM_CALLS=(33,41,97,117,268,271,280)  # mknodat,pivot_root,unshare,ptrace,setns,process_vm_writev,bpf.
