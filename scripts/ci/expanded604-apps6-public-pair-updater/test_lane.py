@@ -30,8 +30,10 @@ class Controls(unittest.TestCase):
  def test_complete_closed_source_and_exact_bound_composition(self):
   value=self.C.read(self.output/P.NEW/'source-manifest.json')
   for n,row in value['files'].items():self.assertEqual(P.pin((self.output/n).read_bytes()),row,n)
-  fresh=self.C.read(self.output/P.FRESH/'source-manifest.json');self.assertEqual(hashlib.sha256((self.output/P.FRESH/'source-manifest.json').read_bytes()).hexdigest(),'e8981d47dcad4b1451dcf7b0cf00bd4cf4241c2615d2ebeaf6fc3e55702c9733')
+  fresh=self.C.read(self.output/P.FRESH/'source-manifest.json');self.assertEqual(hashlib.sha256((self.output/P.FRESH/'source-manifest.json').read_bytes()).hexdigest(),'b8a35cf9f04c5321db6db9103f3a7ef95d58ebcc0ff960b805362a3867ed715a')
   for n,row in fresh['files'].items():self.assertEqual(P.pin((self.output/n).read_bytes()),row,n)
+  controls=self.C.read(HERE/'source-pins.json')['fresh_control_inputs'];self.assertEqual(len(controls),9)
+  for n,row in controls.items():self.assertEqual(P.pin((self.output/n).read_bytes()),row,n);self.assertEqual(fresh['files'][n],row,n)
   self.assertEqual(P.NATIVE604,'b0154bd3b60434e45d4411b558f3ffda9e415640');self.assertEqual(self.C.read(self.output/P.COMP/'input-policy.json')['status'],'ROOT_BOUND_PUBLIC_PAIRS_APPS6_CURRENT604_NATIVE_INPUTS')
  def test_unbound_three_cases_before_output_or_actor(self):
   G=self.C.scoped('public_updater_gate_controls',self.output/P.NEW/'gate.py',{'contract':self.C})
