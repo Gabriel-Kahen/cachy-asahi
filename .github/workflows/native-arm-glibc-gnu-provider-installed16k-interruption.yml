@@ -45,7 +45,7 @@ jobs:
         timeout-minutes: 2
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '7483637091e30cc12d260ac01c3c4bf9af6b6330b5d7296068bfee9476678ef1' 'scripts/ci/glibc-gnu-provider-installed16k-interruption/ci/wiring.py' 'b8852976f532ea8ec52807ad15abcfbcaaf932fa29c069a2f3dcac7c9741afbb' 'scripts/ci/glibc-gnu-provider-installed16k-interruption/ci/integration-manifest.json' | sha256sum --check
+          printf '%s  %s\n' '7483637091e30cc12d260ac01c3c4bf9af6b6330b5d7296068bfee9476678ef1' 'scripts/ci/glibc-gnu-provider-installed16k-interruption/ci/wiring.py' 'c60722ceb6ffb94404154583a19b69967f0ba408bec7df9e36fef4f5d2ff2134' 'scripts/ci/glibc-gnu-provider-installed16k-interruption/ci/integration-manifest.json' | sha256sum --check
           python3 -I -B scripts/ci/glibc-gnu-provider-installed16k-interruption/ci/wiring.py preflight --workspace "$GITHUB_WORKSPACE"
           printf 'BUNDLE=%s/interrupted16k-source\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
       - name: Read only exact immutable native interruption Root decision
@@ -75,7 +75,7 @@ jobs:
         timeout-minutes: 2
         run: |
           set -euo pipefail
-          printf '%s  %s\n' 'bc402dbc16d667260f235dcb21fb606cbe829f3d1f0c91d8f2d3c0ce3be2454e' "$SLICE/job.py" '04c05e656275567d62d2ab1375d27ee54955e7b9a024f523c24d93d80b05c2a6' "$SLICE/integration-manifest.json" | sha256sum --check
+          printf '%s  %s\n' 'bc402dbc16d667260f235dcb21fb606cbe829f3d1f0c91d8f2d3c0ce3be2454e' "$SLICE/job.py" '67c52a5b795e66e2a53512524adf5b6d80e61e6a04ded29bdc77b5c7bbf7d789' "$SLICE/integration-manifest.json" | sha256sum --check
           python3 -I -B "$SLICE/job.py" proof --workspace "$GITHUB_WORKSPACE" --proof "$RUNNER_TEMP/provider-interruption-proof.json"
       - name: Checkout only the exact Root-bound actual input packet
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1

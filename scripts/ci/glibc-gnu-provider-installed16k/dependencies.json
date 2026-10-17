@@ -69,8 +69,8 @@
       "sha256": "42082d2e773d423d2abc0e1f7ff50e74163c09c9a51c1c073a4cb17f7e79cc72"
     },
     "scripts/ci/glibc-gnu-provider-lifecycle/container.py": {
-      "bytes": 33491,
-      "sha256": "8f5c11d8b4985101f5081c683542eb0b1b4ae9ebdd0818527b22b22bf60fee99"
+      "bytes": 35741,
+      "sha256": "f12e6e057b225b617fd26597edb00ea92c4df01ca426a21fb482b2681044f9a4"
     },
     "scripts/ci/glibc-gnu-provider-lifecycle/copy_scope.py": {
       "bytes": 3470,
@@ -110,11 +110,11 @@
     },
     "scripts/ci/glibc-gnu-provider-lifecycle/source-manifest.json": {
       "bytes": 2212,
-      "sha256": "4871b1107ecaacdbce5334f2a3d6c6ba3eca806cfdfdaaa1a2a880eb0c170d15"
+      "sha256": "9cdd9b9b2f885ef38da119dfe686eddc2d68bfa8d875d2f3c0448762bbec02d7"
     },
     "scripts/ci/glibc-gnu-provider-lifecycle/test_controls.py": {
-      "bytes": 39381,
-      "sha256": "e73e558e1cb71c44c1d5a37580c2ba86e75c7098a9c874d86b5c199dd58a3f6a"
+      "bytes": 44383,
+      "sha256": "f3f4b764764404cdd2670b3db58a1789ab880f3eb050f6af6f3aa63b7c939f0e"
     },
     "scripts/ci/glibc-gnu-provider-lifecycle/test_copy_scope.py": {
       "bytes": 11657,

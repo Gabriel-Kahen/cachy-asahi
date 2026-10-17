@@ -30,7 +30,7 @@
     },
     "scripts/ci/glibc-debian-maintained-system16k/dependencies.json": {
       "bytes": 8985,
-      "sha256": "d0027a5f33eba72e5e79831a3980b1c86f7347370a5e721c3af07ee3d8e2c11a"
+      "sha256": "5f3b574785b5b692f7066c137ae380b3cefaba4fdc02572bfc3b387c690ec6d4"
     },
     "scripts/ci/glibc-debian-maintained-system16k/enter-system.py": {
       "bytes": 1139,
@@ -62,7 +62,7 @@
     },
     "scripts/ci/glibc-debian-maintained-system16k/source-pins.json": {
       "bytes": 9040,
-      "sha256": "f8e180264b5b2f2b82624b99a6761ecf156edd0edd60d0a8cbbea62d7e320b24"
+      "sha256": "5239efbf3625a673b59333216c28cf166fe072e0d4b0f5f0c6d2e751b4eb032d"
     },
     "scripts/ci/glibc-debian-maintained-system16k/test_adapter.py": {
       "bytes": 6875,
@@ -90,7 +90,7 @@
     },
     "scripts/ci/glibc-gnu-provider-lifecycle-owner/integration-manifest.json": {
       "bytes": 9185,
-      "sha256": "35cb292900d2b01c2b8829540caf98c888a5a48dad8c641f26b81b1368470674"
+      "sha256": "80f1c0ac6ee8ac8ba79e2884ecc141af65fc191162f5b21523ee3bd8571a5aa5"
     },
     "scripts/ci/glibc-gnu-provider-lifecycle-owner/job.py": {
       "bytes": 34418,
@@ -105,8 +105,8 @@
       "sha256": "42082d2e773d423d2abc0e1f7ff50e74163c09c9a51c1c073a4cb17f7e79cc72"
     },
     "scripts/ci/glibc-gnu-provider-lifecycle/container.py": {
-      "bytes": 33491,
-      "sha256": "8f5c11d8b4985101f5081c683542eb0b1b4ae9ebdd0818527b22b22bf60fee99"
+      "bytes": 35741,
+      "sha256": "f12e6e057b225b617fd26597edb00ea92c4df01ca426a21fb482b2681044f9a4"
     },
     "scripts/ci/glibc-gnu-provider-lifecycle/proc_mount.py": {
       "bytes": 15565,
@@ -126,7 +126,7 @@
     },
     "scripts/ci/glibc-gnu-provider-system16k/dependencies.json": {
       "bytes": 5619,
-      "sha256": "e9c93a9338383aeb79e69d829de3cfb37cbf94c51b5b32cf4e18f044edf5f5e1"
+      "sha256": "bd51f2ab67b0a112c902df97fdffb060aad4a9a06ed8ad6a6e4b9d0b4ee87733"
     },
     "scripts/ci/glibc-gnu-provider-system16k/enter-system.py": {
       "bytes": 1123,
@@ -158,7 +158,7 @@
     },
     "scripts/ci/glibc-gnu-provider-system16k/source-manifest.json": {
       "bytes": 7792,
-      "sha256": "8d82f49966bde09aa676f4ebff78becd88f82481c107fbd01bffefa96691316c"
+      "sha256": "5049d83965422012615eabbf2475a7e9044847a751f38f0ee52aabf2a03da355"
     },
     "scripts/ci/glibc-gnu-provider-system16k/test_source.py": {
       "bytes": 13848,
