@@ -3,6 +3,7 @@
 import ast,hashlib,importlib.util,json,re,stat,subprocess,sys
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
+SELF=sys.modules[__name__]  # Stable while the original native job temporarily owns 'contract'.
 LANE='scripts/ci/apps-full574-repair16k';NATIVE='scripts/ci/apps-full574-repair-native'
 CASES=('repair-bytes','repair-missing');CAPS=(0,1,3,4,31);MASK=sum(1<<n for n in CAPS)
 PASS='PASS_GENERIC16K_VM_FULL574_AUTHENTICATED_SELECTED_REPAIR_CASE'
@@ -39,7 +40,15 @@ def tree(root):
  return result
 def save(path,value):Path(path).write_bytes(encoded(value))
 def load(name,path):
- spec=importlib.util.spec_from_file_location('_apps574_repair16k_'+name,path);m=importlib.util.module_from_spec(spec);sys.modules[spec.name]=m;spec.loader.exec_module(m);return m
+ spec=importlib.util.spec_from_file_location('_apps574_repair16k_'+name,path);m=importlib.util.module_from_spec(spec);sys.modules[spec.name]=m
+ own=Path(path).absolute().parent==HERE;prior=sys.modules.get('contract')
+ if own:sys.modules['contract']=SELF
+ try:spec.loader.exec_module(m)
+ finally:
+  if own:
+   if prior is None:sys.modules.pop('contract',None)
+   else:sys.modules['contract']=prior
+ return m
 def function(path,name,namespace):
  raw=read(path);tree=ast.parse(raw);nodes=[n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name==name];need(len(nodes)==1,'one finite borrowed function');exec(compile(ast.Module(body=nodes,type_ignores=[]),str(path)+':source-bound-function','exec'),namespace);return namespace[name]
 def check_source(root):
@@ -69,7 +78,7 @@ def prior_kernel(root,case,path):
 
 def authorize(args):
  native,accepted,b=decisions(args.source,args.case,args.native_decisions);prior,authority=prior_kernel(args.source,args.case,args.kernel_authority)
- args.implementation=args.source;kernel=function(args.source/'scripts/ci/current604-apps6-updater16k/vm.py','kernel',dict(C=sys.modules[__name__],Path=Path));profile,image,config=kernel(args)
+ args.implementation=args.source;kernel=function(args.source/'scripts/ci/current604-apps6-updater16k/vm.py','kernel',dict(C=SELF,Path=Path));profile,image,config=kernel(args)
  immutable=set(profile)-{'Image'};need({n:profile[n] for n in immutable}=={n:prior[n] for n in immutable},'fresh kernel must match declared accepted source/helper/fragment/config/profile identities; Image is new evidence')
  return native,accepted,(profile,image,config)
 
