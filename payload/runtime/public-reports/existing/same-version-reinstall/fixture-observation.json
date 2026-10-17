@@ -1,0 +1,29 @@
+{
+  "default_report_sha256": "84fa10526cf9d9786adb6df49d288fe70d5b5d0c4ce66ad73afe5dfcc77bb125",
+  "fixture_payload": "NONE_HAND_AUTHORED_METADATA_ONLY",
+  "fixture_plan_sha256": "37e0aa27f7285db677b3a34355c587f15873a8095383f321a77270e03ae05ba0",
+  "fixture_report_sha256": "3856e62b9bf1553ddc0a8fc26e8c30a28fc0968af21f1fa7a2989a89828fc8de",
+  "foreign_lock": {
+    "apply_supported": false,
+    "reason": "existing ALPM lock: active or uncertain; readonly assessment refused",
+    "status": "NOT_APPLIED",
+    "verification": "REFUSED"
+  },
+  "orphan_removal": "NOT_IMPLEMENTED",
+  "rejected_selections": [
+    "glibc",
+    "linux-asahi",
+    "fixture-user-protected",
+    "fixture-provider",
+    "fixture-optional",
+    "fixture-cycle-a",
+    "fixture-manual",
+    "fixture-missing"
+  ],
+  "scope": "LOCAL_INSTALLED_METADATA_ONLY_NOT_PAYLOAD_RELEASE_REMOVAL_OR_HARDWARE_PROOF",
+  "verified": {
+    "apply_supported": false,
+    "status": "NOT_APPLIED",
+    "verification": "PASS_CURRENT_METADATA_ONLY"
+  }
+}
