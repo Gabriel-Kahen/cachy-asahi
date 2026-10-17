@@ -1,0 +1,52 @@
+{
+  "attempt": 1,
+  "candidate": "cachy-asahi-glibc-gnu-provider-2.43.caa1-1",
+  "cases": [
+    "pristine",
+    "modified"
+  ],
+  "complete_root_maps": 16,
+  "configuration_handoffs": {
+    "ALPM_automatic_active_preservation": "NOT_CLAIMED",
+    "original_modified_gai_retained": true,
+    "original_modified_locale_retained": true,
+    "phases": 3,
+    "root_map_joins": 3,
+    "status": "PASS_THREE_EXPLICIT_CLONE_CONFIGURATION_HANDOFFS"
+  },
+  "created_utc": "2026-10-17T05:13:15.078705+00:00",
+  "frozen_git_joins": 205,
+  "hardware": "NOT_RUN",
+  "installed16k": "NOT_RUN",
+  "interruption": "NOT_RUN",
+  "normal_runtime_observations": 8,
+  "ordered_cleanup": "PASS",
+  "originals": {
+    "artifact.zip": {
+      "bytes": 278491061,
+      "sha256": "3fc9daa75470d04f601635921556e40e6aa5f921094f3dca1047641e29a07df4"
+    },
+    "logs.zip": {
+      "bytes": 93763,
+      "sha256": "37d9f019f49b6d6fb7332accb90c93e4bca488e7b2df606523c7c72ab55e4f61"
+    }
+  },
+  "page_size": 4096,
+  "precommit_refusals": 2,
+  "provider_archive_sha256": "b852e3fc647d63699c5f42003a748cbd2268991dc2615a494dc3cdda4d757d12",
+  "release_admission": false,
+  "root_passive_replay": {
+    "bytes": 3110,
+    "sha256": "9149d62b7277294abaa7b7da5443ed5ed1b8b98a8d6991dd5597bfa829fc4ec1"
+  },
+  "run_id": 39003494818,
+  "schema_version": 1,
+  "scope": "DISPOSABLE_GENERIC_NATIVE_ARM_FULL574_NORMAL_ALPM_INSTALLATION_AND_OUTER_ROLLBACK",
+  "source_authority_repair": "NO_CREDIT",
+  "source_authority_revalidation": "NOT_PERFORMED_UNCHANGED_OLD_GNU",
+  "source_nodes": 123056,
+  "source_nodes_sha256": "72e178474f7a39c94ac99e21183f4e4a7bbc8497588bc807d0ab578d9e539f6c",
+  "source_sha": "393e4742d6f5f461a4a9efbeadb6ebee0aec8d5d",
+  "status": "ROOT_ACCEPTED_CONVENTIONAL_PROVIDER_NORMAL_LIFECYCLE",
+  "transactions_committed": 6
+}
