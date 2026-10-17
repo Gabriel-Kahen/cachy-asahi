@@ -225,7 +225,7 @@ jobs:
             exit "$code"
           }
           trap substring_cleanup EXIT
-          python3 -B -Werror::ResourceWarning scripts/ci/zsh-substring-readiness-wrapper.py packages/tools/cachy-asahi-zsh-history-substring-search/check-module.py --module-dir "$GITHUB_WORKSPACE/packages/tools/cachy-asahi-zsh-history-substring-search" --work "$work"
+          python3 -B -Werror::ResourceWarning scripts/ci/zsh-substring-zle-reset-adapter.py packages/tools/cachy-asahi-zsh-history-substring-search/check-module.py --module-dir "$GITHUB_WORKSPACE/packages/tools/cachy-asahi-zsh-history-substring-search" --work "$work"
           zsh -fn packages/tools/cachy-asahi-zsh-history-substring-search/opt-in.zsh
           bash -n packages/tools/cachy-asahi-zsh-history-substring-search/PKGBUILD
       - name: Check Fish autopair native lifecycle contracts without container actors
