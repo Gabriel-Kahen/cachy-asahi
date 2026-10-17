@@ -1,5 +1,7 @@
 # Implementation and acceptance status
 
+October17 Apps6 implementation: explicit signed same-version reinstall is now integrated after Root acceptance of native39029873349. Both damaged and missing ordinary leaves repair in the signed synthetic owned-copy fixture, with five raw committed transactions/two refusals, original577 lifecycle and ordered cleanup retained. The accepted current604 composition still contains historical Apps5; a new Apps6 composition is being implemented. Separate full574 damaged repair PR30 is source-only pending its native fixture. No M2 or release acceptance follows.
+
 October17 selected-orphan native results: corrected normal39025438484 and interruption39025455152 are independently Root accepted against the same held package/source identities. Normal proves574→576→575 and Runtime retention; interruption proves bounded disposal with commit UNKNOWN and rollback NOT_CLAIMED. Both preserve original protection and ordered cleanup. Outer cancellation, M2 and release admission remain untested.
 
 October17 cancellation implementation: selected-orphan outer supervision now forwards cancellation and proves exact direct-child reap/group absence before the original cleanup lease. Fourteen local controls include real process/flock handoff and source generation. Native cancellation remains untested; original actors and timeout budgets are unchanged.

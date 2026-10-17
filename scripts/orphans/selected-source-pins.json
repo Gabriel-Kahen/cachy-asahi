@@ -9,8 +9,8 @@
       "sha256": "0d6dfbf3cd550fe72ddad30058693007f8bb86214de1e83442580677db5005f2"
     },
     "scripts/apps/transaction.py": {
-      "bytes": 25522,
-      "sha256": "12231752bd96711951dc98b6277880e2b334058b1066639fc5fb2b78a982734e"
+      "bytes": 26300,
+      "sha256": "c1e1ebc4826a6158e7a03cb747bd081f791ccef386a58f291e6d3610edfd79e3"
     }
   },
   "schema_version": 1,

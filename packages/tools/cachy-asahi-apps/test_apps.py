@@ -54,6 +54,21 @@ class PlannerTests(unittest.TestCase):
         self.assertEqual(result['dependencies'],[dict(package='runtime',required_by='editor',dependency='api>=2')])
         self.assertTrue(all(len(p['release_archive_sha256'])==64 for p in result['additions']));self.assertEqual((ctx,old),held)
 
+    def test_explicit_reinstall_binds_same_metadata_and_signed_archive(self):
+        rows=[pkg('editor',depend=['runtime']),pkg('runtime')];ctx=context(rows);old=inventory(pkg('editor',depend=['runtime'],sha256='f'*64),pkg('runtime'));held=copy.deepcopy((ctx,old))
+        result=a.plan(ctx,old,'reinstall',['editor'],r)
+        self.assertEqual([v['after']['name'] for v in result['reinstalls']],['editor']);self.assertEqual(result['reinstalls'][0]['before']['declared_archive_sha256'],'f'*64)
+        self.assertEqual(result['reinstalls'][0]['after']['release_archive_sha256'],ctx['release']['packages'][0]['sha256'])
+        self.assertEqual(result['additions']+result['upgrades']+result['removals']+result['dependencies']+result['unchanged_selected'],[])
+        self.assertEqual(result['before_inventory_sha256'],result['after_inventory_sha256']);self.assertEqual((ctx,old),held)
+    def test_reinstall_refuses_missing_version_metadata_and_protected_targets(self):
+        for old in (inventory(),inventory(pkg('editor','2')),inventory(pkg('editor',files=['usr/other']))):
+            with self.subTest(old=old),self.assertRaisesRegex(a.Refusal,'already-installed exact'):a.plan(context([pkg('editor')]),old,'reinstall',['editor'],r)
+        ctx=context([pkg('editor')]);ctx['apps']['unsafe']=dict(packages=['linux-asahi'])
+        with self.assertRaisesRegex(a.Refusal,'protected'):a.plan(ctx,inventory(),'reinstall',['unsafe'],r)
+        ctx=context([pkg('editor',provides=['linux-asahi=1'])]);old=inventory(pkg('editor',provides=['linux-asahi=1']))
+        with self.assertRaisesRegex(a.Refusal,'protected'):a.plan(ctx,old,'reinstall',['editor'],r)
+
     def test_removal_is_explicit_and_keeps_unused_dependency(self):
         ctx=context([pkg('editor',depend=['runtime']),pkg('runtime')]);old=inventory(pkg('editor',depend=['runtime']),pkg('runtime'))
         result=a.plan(ctx,old,'remove',['editor'],r)
@@ -414,6 +429,14 @@ class SignedTests(unittest.TestCase):
         self.assertNotIn('release_archive_sha256',result['plan']['removals'][0])
         state['packages'].pop();self.installed.write_bytes(a.encoded(state));self.args.installed_sha256=a.digest(self.installed.read_bytes())
         self.assertEqual(a.execute(self.args)['plan']['removals'],[])
+
+    def test_actual_signed_cli_reinstall_plan_is_explicit_not_applied(self):
+        row=json.loads((self.bundle/'release.json').read_bytes())['packages'][0];state=json.loads(self.installed.read_bytes());state['packages'].append(row);self.installed.write_bytes(a.encoded(state));self.args.installed_sha256=a.digest(self.installed.read_bytes());self.args.operation='reinstall';held=self.held()
+        result=a.execute(self.args);self.assertEqual(result['applied'],'NOT_APPLIED');self.assertEqual(result['plan']['operation'],'reinstall');self.assertEqual(len(result['plan']['reinstalls']),1);self.assertEqual(result['plan']['additions']+result['plan']['upgrades']+result['plan']['removals'],[])
+        cli=[sys.executable,'-I','-B',str(HERE/'apps.py')]
+        for name in ('repository-source','release','release-sha256','catalog','catalog-sha256','catalog-signature','keyring','signer','installed','installed-sha256'):cli+=['--'+name,str(getattr(self.args,name.replace('-','_')))]
+        home=self.root/'repair-home';home.mkdir();run=subprocess.run(cli+['plan','reinstall','fixture'],capture_output=True,text=True,timeout=60,env=dict(PATH='/usr/bin:/bin',HOME=str(home),XDG_RUNTIME_DIR=str(home),LC_ALL='C'))
+        self.assertEqual(run.returncode,0,run.stderr);self.assertEqual(json.loads(run.stdout),result);self.assertEqual(list(home.iterdir()),[]);self.assertEqual(self.held(),held)
 
     def test_nonsynthetic_release_with_synthetic_provenance_is_not_native(self):
         self.case.release_spec.update(synthetic=False,release_id='fixture-native-refusal');self.case.stage()

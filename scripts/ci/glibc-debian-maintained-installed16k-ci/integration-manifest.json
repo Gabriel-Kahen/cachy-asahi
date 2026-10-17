@@ -5,8 +5,8 @@
       "sha256": "b3e39fe4873c8cc1a2e6ad4d5b5b6b2791334aad58def6fe1125c73f3815d7b6"
     },
     "manifests/packages.toml": {
-      "bytes": 36727,
-      "sha256": "473d772cc1833c757630271e8e40edce90e14995fca9b1652fb0de695c463135"
+      "bytes": 37484,
+      "sha256": "f530955f736b9c6924f157a733ea988b687186b86f9c51d120cb6deb107aa694"
     },
     "scripts/apps/file_capabilities.py": {
       "bytes": 13562,
@@ -70,7 +70,7 @@
     },
     "scripts/ci/glibc-debian-maintained-installed16k/source-pins.json": {
       "bytes": 19885,
-      "sha256": "1afc4dd181d10aedef95c939b848e8ef0c134fc8e6c63f08b31d0b1ba8e98754"
+      "sha256": "81a3c7f2014ba22ad372de65362a5ab50e131ac980af9efe802bc0c08e3a4e57"
     },
     "scripts/ci/glibc-debian-maintained-installed16k/test_generator.py": {
       "bytes": 12296,
@@ -110,7 +110,7 @@
     },
     "scripts/ci/glibc-debian-maintained-native-lifecycle-next/source-pins.json": {
       "bytes": 17055,
-      "sha256": "388bca385094f5c94f934e8d96f2d76547dddc30155daeb1cd8f521f43c7e618"
+      "sha256": "f63e896c21f1fe59aa61d04a3d315c3b126b70cea0f34c126b6b69a2918289b1"
     },
     "scripts/ci/glibc-debian-maintained-provider/PKGBUILD.in": {
       "bytes": 3925,
@@ -162,7 +162,7 @@
     },
     "scripts/ci/glibc-gnu-provider-installed16k/dependencies.json": {
       "bytes": 10762,
-      "sha256": "aa626d4e2ce07ca4ef60510932dcdd24975ede48afb9fb4742ce7dd4f151fd5d"
+      "sha256": "f743c418182901b26e05f01f9aea85a9d81736bd54c188daf2cbea7b592d98db"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/export.py": {
       "bytes": 1617,
@@ -198,7 +198,7 @@
     },
     "scripts/ci/glibc-gnu-provider-installed16k/source-manifest.json": {
       "bytes": 2691,
-      "sha256": "7c011e90a670d31b3ef3547962149ed3b571d3bcc25b997ec1ec8a5abe619d93"
+      "sha256": "cf6ad29b03cea8e4639a08dd04718226d89061916ca216e345f777064aa5edc5"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/support.py": {
       "bytes": 408,

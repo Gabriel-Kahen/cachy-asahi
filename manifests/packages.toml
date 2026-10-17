@@ -563,15 +563,21 @@ status = "candidate"
 source = "local-original"
 recipe = "packages/tools/cachy-asahi-apps/PKGBUILD"
 license = "MIT"
-candidate_version = "0.1.0-5"
+candidate_version = "0.1.0-6"
+historical_candidate_version = "0.1.0-5"
 selected_for_development = false
 selected_for_release = false
-host_validation = "PASS 38 standalone checks plus real574 archive-derived 7MB metadata fixture: readonly ALPM9 inventory, signed collector-to-plan integration and eight-file staging"
-native_build = "PASS native pair38970264456:22088bytes/SHA2569ec47f6cf506c5d2b6da3ac6f4f42e00ce98b8d1985b1b9eca065c38058c1580;39 checks each"
-installation = "PASS signed574to577/repeat/remove/reinstall/final574; installed signed catalog/plans and complete577 metadata collection38970264456"
-native_generic16k_cli = "PASS generic16384 private data-staged CLI/helper cases38978464494; NOT ALPM-installed inVM; docs/validation/management-generic16k-20261016.md"
+historical_host_validation = "PASS 38 standalone checks plus real574 archive-derived 7MB metadata fixture: readonly ALPM9 inventory, signed collector-to-plan integration and eight-file staging"
+historical_native_build = "PASS native pair38970264456:22088bytes/SHA2569ec47f6cf506c5d2b6da3ac6f4f42e00ce98b8d1985b1b9eca065c38058c1580;39 checks each"
+historical_installation = "PASS signed574to577/repeat/remove/reinstall/final574; installed signed catalog/plans and complete577 metadata collection38970264456"
+historical_native_generic16k_cli = "PASS generic16384 private data-staged CLI/helper cases38978464494; NOT ALPM-installed inVM; docs/validation/management-generic16k-20261016.md"
 hardware_validation = "NOT RUN"
-next_step = "Complete generic16K management integration, copied-root authenticated application transactions and both M2 workflows. Apps plans remain NOT_APPLIED; see docs/validation/management-native-20261016.md."
+next_step = "Integrate Apps6 into a fresh current604 composition and implement full574 signed repair; current604 Apps5 evidence retains its identity. Both M2 workflows remain open. See docs/validation/apps6-signed-reinstall-20261017.md."
+
+host_validation = "PASS42 package checks/15 backend controls and five real signed x86 copied-root transactions, including corrupt/missing ordinary leaf repair; six legacy plans byte-equal"
+native_build = "PASS Apps0.1.0-6 native pair39027622244:22876bytes/SHA2561ce4a540a5ec2fa26353847b93fed953e084cf65e872836f670ac721446cd3d7; Root pair-only replay, lifecycle not reached"
+installation = "PASS native577 lifecycle and five signed synthetic repair transactions39029873349 with complete raw workers/plans and ordered cleanup; full574 damaged repair NOT_RUN"
+native_generic16k_cli = "NOT_RUN Apps6; prior data-staged Apps5 result does not transfer"
 
 
 [[packages]]

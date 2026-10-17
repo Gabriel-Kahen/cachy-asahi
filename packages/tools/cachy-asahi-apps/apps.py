@@ -253,8 +253,12 @@ def plan(context,installed,operation,requested,r):
             name,dep=missing[0];choices=relations.providers(dep,available)
             need(len(choices)==1,'unresolved or ambiguous dependency', [dict(package=name,dependency=dep,candidates=choices)])
             add(choices[0],(name,dep));need(len(after)<=MAX_PACKAGES,'planned inventory exceeds bound')
+    elif operation=='reinstall':
+        for name in names:
+            need(before.get(name)==available[name],'reinstall requires already-installed exact signed version and metadata: '+name)
+            add(name,None)
     else:
-        need(operation=='remove','install or remove only')
+        need(operation=='remove','install, remove or explicit reinstall only')
         for name in names:after.pop(name,None)
         relations.indexes.pop(id(after),None)
     issues=relations.issues(after);need(not issues,'plan would break dependencies or introduce conflicts',issues)
@@ -271,15 +275,20 @@ def plan(context,installed,operation,requested,r):
             value['release_archive_sha256']=next(p['sha256'] for p in context['release']['packages'] if p['name']==name)
         return value
     changed=[n for n in sorted(after) if before.get(n)!=after[n]]
-    return dict(operation=operation,requested_applications=sorted(requested),requested_packages=names,
+    result=dict(operation=operation,requested_applications=sorted(requested),requested_packages=names,
         additions=[record(n,after,True) for n in changed if n not in before],
         upgrades=[dict(before=record(n,before),after=record(n,after,True)) for n in changed if n in before],
         removals=[record(n,before) for n in sorted(before.keys()-after.keys())],dependencies=dependencies,conflicts=[],
-        unchanged_selected=[n for n in names if before.get(n)==after.get(n)],
+        unchanged_selected=[n for n in names if operation!='reinstall' and before.get(n)==after.get(n)],
         before_inventory_sha256=digest(encoded([before[n] for n in sorted(before)])),
         after_inventory_sha256=digest(encoded([after[n] for n in sorted(after)])),
         protection='ALL_SIGNED_BASE_PACKAGES',dependency_policy='unique signed-release provider; no orphan/autoremove',
         installed_inventory=qualifier,inventory_reobserved_by_planner=False)
+    if operation=='reinstall':
+        result['reinstalls']=[dict(before=record(n,before),after=record(n,after,True)) for n in names]
+        result['repair_policy']='EXPLICIT_SELECTED_SAME_VERSION_AND_METADATA_ONLY_NO_DEPENDENCY_EXPANSION'
+        result['installed_payload']='NOT_OBSERVED_BY_PLANNER_REPAIR_NOT_APPLIED'
+    return result
 
 
 def execute(args):
@@ -316,7 +325,7 @@ def main():
     parser.add_argument('--installed');parser.add_argument('--installed-sha256')
     sub=parser.add_subparsers(dest='command',required=True);sub.add_parser('list')
     sub.add_parser('search').add_argument('query');sub.add_parser('show').add_argument('application')
-    command=sub.add_parser('plan');command.add_argument('operation',choices=('install','remove'));command.add_argument('applications',nargs='+')
+    command=sub.add_parser('plan');command.add_argument('operation',choices=('install','remove','reinstall'));command.add_argument('applications',nargs='+')
     inventory=sub.add_parser('inventory',help='readonly local ALPM9 metadata snapshot, no release credentials')
     inventory.add_argument('--dbpath',type=Path,required=True);inventory.add_argument('--output',type=Path,required=True)
     args=parser.parse_args()
