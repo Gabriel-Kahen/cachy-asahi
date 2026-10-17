@@ -1,0 +1,22 @@
+{
+  "adapter": {
+    "bytes": 22621,
+    "path": "scripts/apps/full574_closure.py",
+    "sha256": "f43304982dee768adf48f1c2ae5ecf6afa32e2cc405846046f6ac29604022b55"
+  },
+  "aggregate": "BOTH_INDEPENDENT_ROOT_CASE_DECISIONS_REQUIRED",
+  "cases": [
+    "repair-bytes",
+    "repair-missing"
+  ],
+  "packet_index": null,
+  "packet_source": null,
+  "schema_version": 1,
+  "status": "UNBOUND",
+  "versions": {
+    "cachy-asahi-apps": "0.1.0-6",
+    "cachy-asahi-cache": "0.2.0-1",
+    "cachy-asahi-orphans": "0.1.0-2",
+    "cachy-asahi-repository-runtime": "0.1.0-1"
+  }
+}
