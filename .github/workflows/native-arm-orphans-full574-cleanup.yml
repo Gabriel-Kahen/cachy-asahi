@@ -125,10 +125,11 @@ jobs:
           --inputs scripts/ci/maintained-desktop574-inputs.json
           --output "$RUNNER_TEMP/desktop574" --job-token "$JOB_TOKEN"
       - name: Actual native574 Apps copied-root transactions
+        id: orphan_trial
         timeout-minutes: 60
         run: >-
           timeout --signal=TERM --kill-after=30s 3550s
-          python3 -I -B "$SLICE/job.py" run --trial "$TRIAL" --source "$GITHUB_WORKSPACE"
+          python3 -I -B "$SLICE/supervise.py" run --handoff "$RUNNER_TEMP/orphans-job-handoff.json" --trial "$TRIAL" --source "$GITHUB_WORKSPACE"
           --packet "$GITHUB_WORKSPACE/retained-apps574-inputs/payload"
           --proof "$RUNNER_TEMP/apps574-source-proof.json" --base "$RUNNER_TEMP/desktop574"
           --output "$RUNNER_TEMP/apps574-runtime"
@@ -137,7 +138,7 @@ jobs:
         timeout-minutes: 11
         run: >-
           timeout --signal=TERM --kill-after=10s 650s
-          python3 -I -B "$SLICE/job.py" cleanup --trial "$TRIAL" --source "$GITHUB_WORKSPACE"
+          python3 -I -B "$SLICE/supervise.py" cleanup --handoff "$RUNNER_TEMP/orphans-job-handoff.json" --job-outcome '${{ steps.orphan_trial.outcome }}' --trial "$TRIAL" --source "$GITHUB_WORKSPACE"
           --proof "$RUNNER_TEMP/apps574-source-proof.json" --base "$RUNNER_TEMP/desktop574"
           --output "$RUNNER_TEMP/apps574-runtime" --receipt "$RUNNER_TEMP/apps574-cleanup.json"
       - name: Retain bounded closed actual and failure evidence

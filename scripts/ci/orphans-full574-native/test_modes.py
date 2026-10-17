@@ -66,7 +66,9 @@ class Modes(unittest.TestCase):
    after=before
   else:after=M.workflow(before)
   self.assertIn('  group: native-arm-orphans-full574-cleanup-${{ inputs.trial }}',after);self.assertIn('  cancel-in-progress: false',after);self.assertIn('options: [normal, interruption]',after);self.assertIn('required: true',after)
-  for mode in ('proof','check','run','cleanup','retain'):self.assertEqual(after.count('"$SLICE/job.py" '+mode+' --trial "$TRIAL" --source'),1)
+  for mode in ('proof','check','retain'):self.assertEqual(after.count('"$SLICE/job.py" '+mode+' --trial "$TRIAL" --source'),1)
+  for mode in ('run','cleanup'):self.assertEqual(after.count('"$SLICE/supervise.py" '+mode+' --handoff'),1)
+  self.assertIn("--job-outcome '${{ steps.orphan_trial.outcome }}'",after)
   for bound in ('3550s','timeout-minutes: 120','--kill-after=10s 650s','--kill-after=10s 2300s'):self.assertIn(bound,after)
   self.assertIn("-p 'test*.py' -v",after)
   self.assertIn('orphans-full574-cleanup-${{ inputs.trial }}-',after)

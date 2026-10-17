@@ -5,7 +5,7 @@ import argparse,ast,hashlib,json
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
 OLD='scripts/ci/apps-full574-native';NEW='scripts/ci/orphans-full574-native'
-OWN=('held_payloads.py','fixture_backend.py','selected_fixture.py','test_held_payloads.py','job.py','modes.py','test_modes.py','prepare.py','policy.json','source-pins.json','lifecycle.py','stage_source.py','install_dependency.py','cancel.py','checks.py','test_lane.py','README.md','cache-only-plan-39010123449.json')
+OWN=('supervise.py','test_supervise.py','held_payloads.py','fixture_backend.py','selected_fixture.py','test_held_payloads.py','job.py','modes.py','test_modes.py','prepare.py','policy.json','source-pins.json','lifecycle.py','stage_source.py','install_dependency.py','cancel.py','checks.py','test_lane.py','README.md','cache-only-plan-39010123449.json')
 WF='.github/workflows/native-arm-orphans-full574-cleanup.yml'
 def need(ok,why):
  if not ok:raise ValueError(why)
@@ -37,7 +37,8 @@ def emit(root,output):
  spec=importlib.util.spec_from_file_location('orphan_modes_prepare',HERE/'modes.py');C_modes=importlib.util.module_from_spec(spec);spec.loader.exec_module(C_modes)
  text=(root/'.github/workflows/native-arm-apps-full574-transaction.yml').read_text().replace('native-arm-apps-full574-transaction','native-arm-orphans-full574-cleanup').replace(OLD,NEW).replace('apps-full574-transactions-${{','orphans-full574-cleanup-${{')
  text=text.replace("          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/apps -p 'test_*.py' -v", "          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/apps -p 'test_*.py' -v\n          python3 -I -B scripts/orphans/test_selected.py")
- text=C_modes.workflow(text)
+ spec=importlib.util.spec_from_file_location('orphan_job_supervision_prepare',HERE/'supervise.py');C_supervise=importlib.util.module_from_spec(spec);spec.loader.exec_module(C_supervise)
+ text=C_supervise.workflow(C_modes.workflow(text))
  text=text.replace('        run: >-\n          python3 -I -B "$SLICE/job.py" check --trial "$TRIAL" --source "$GITHUB_WORKSPACE"\n          --packet "$GITHUB_WORKSPACE/retained-apps574-inputs/payload"\n','        run: |\n          python3 -I -B "$SLICE/job.py" check --trial "$TRIAL" --source "$GITHUB_WORKSPACE" \\\n            --packet "$GITHUB_WORKSPACE/retained-apps574-inputs/payload"\n          python3 -I -B "$SLICE/test_held_payloads.py" \\\n            --actual-packet "$GITHUB_WORKSPACE/retained-apps574-inputs/payload"\n')
  wf=output/WF;wf.parent.mkdir(parents=True,exist_ok=True);wf.write_text(text)
  value=dict(status='SOURCE_ONLY_NATIVE_ORPHAN_CLEANUP_UNBOUND',source_files=len(rows),manifest=pin((lane/'source-manifest.json').read_bytes()),workflow=pin(wf.read_bytes()),native='NOT_RUN',baseline_policy='ORIGINAL574_AND_FOUR_APP_GUARD_UNCHANGED',fixture_reason='PUBLIC_ALLDEPS_INSTALL_ONLY_NO_DATABASE_EDIT',cleanup='EXACT_EXISTING_SELECTED_API_NO_REASON_FLAGS',release='NOT_ADMITTED');(output/'native-adaptation.json').write_bytes(encoded(value));return value
