@@ -1,3 +1,0 @@
-# Preserve reviewable validation evidence despite root log exclusions.
-!evidence/*.log
-!evidence/*.BUILDINFO
