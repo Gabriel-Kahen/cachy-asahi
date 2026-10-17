@@ -24,7 +24,12 @@ def ref(root,row):
     return path
 
 
+def diagnostic_policy():
+    return load('done_diagnostic_policy',HERE/'observation.py').diagnostic_policy()
+
+
 def policy():
+    diagnostic_policy()
     value=json.loads(read(HERE/'input-policy.json'))
     need(value['status']=='ROOT_BOUND_RETAINED_DONE_PAIR' and value['checkout_ref']=='de35c384a2e5b14b664d4156897f271b81e467ba' and value['package']==NAME and value['version']=='0.1.0-2', 'UNBOUND exact Root Done input packet')
     return value

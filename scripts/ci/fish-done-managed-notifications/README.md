@@ -227,3 +227,15 @@ real total request age, preserves all deferred checks, records the previously
 missing clocks and rejects absent notification pixels. No successor native run
 or readable first frame is claimed. All source/generated manifests and workflow
 stamps are proposals for Root to revalidate, integrate, freeze and dispatch.
+
+## One explicitly pinned causal probe
+
+Ordinary runs use diagnostic-policy.json with mako_wayland_protocol_probe=false.
+The default passes an unchanged copied environment to Mako and emits no probe
+event. Root may freeze a separate source with the strict boolean true for ONE
+causal investigation. Only the existing owned Mako receives WAYLAND_DEBUG=client;
+its existing bounded256KiB streams are retained byte-exact after normal reap and
+drain. No capture, TTL, resource, cleanup or product change is made. Probe-start
+or trace records always refuse ordinary metadata/visual acceptance, even with
+visible pixels. Client buffer commit/frame callbacks are not presentation proof.
+The separate source policy is included in both source and generated-runner pins.
