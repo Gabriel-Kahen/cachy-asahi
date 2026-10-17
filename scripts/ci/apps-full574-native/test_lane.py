@@ -50,6 +50,8 @@ class Controls(unittest.TestCase):
   with patch.object(C,'HERE',self.root),patch.object(C,'policy',return_value=dict(adapter=pin)):
    C.source(self.root);adapter.write_bytes(b'# changed\n')
    with self.assertRaisesRegex(ValueError,'hash differs'):C.source(self.root)
+ def test_current_source_and_independent_adapter_policy_join_before_actors(self):
+  self.assertEqual(C.source(ROOT),C.policy())
  def test_actual_packet_must_match_root_carrier_before_inspection(self):
   args=SimpleNamespace(source=self.root,packet=self.root/'carrier/payload')
   with patch.object(C,'source',return_value=dict(packet_source='a'*40)),patch.object(subprocess,'check_output',return_value='b'*40+'\n'),patch.object(C,'inputs',side_effect=AssertionError('packet before carrier check')),self.assertRaisesRegex(ValueError,'carrier checkout'):job.check(args)
