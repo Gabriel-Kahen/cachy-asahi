@@ -43,7 +43,7 @@ def prepare(source,output,assets):
         (output/filename).write_text(replace(text,anchor,imports+'\n'+anchor))
     # Adapter contracts are materialized independently of archive bytes, then hash-bound below.
     gui=(output/'gui_contract.py').read_text()
-    gui=replace(gui,"version='0.1.0-1'","version=('0.1.0-1' if name=='cachy-asahi-doctor' else '0.1.0-2')")
+    gui=replace(gui,"version='0.1.0-1'","version={'cachy-asahi-doctor':'0.1.0-1','cachy-asahi-orphans':'0.1.0-2','cachy-asahi-welcome':'0.1.0-3'}[name]")
     gui+='''\nimport management_contract as MG
 BASE_VIEWS=VIEWS
 VIEWS=MG.VIEWS
@@ -54,7 +54,7 @@ def validate_snapshot(value,pid,view,text_sha=None):
     return _original_snapshot(value,pid,view,text_sha)
 '''
     (output/'gui_contract.py').write_text(gui)
-    worker=(output/'doctor_worker.py').read_text().replace('Welcome 0.1.0-1 | Doctor','Welcome 0.1.0-2 | Doctor')
+    worker=(output/'doctor_worker.py').read_text().replace('Welcome 0.1.0-1 | Doctor','Welcome 0.1.0-3 | Doctor')
     (output/'doctor_worker.py').write_text(worker)
     session=(output/'session.py').read_text()
     session=replace(session,'import time\n','import time\nimport management_phase as MG\n')

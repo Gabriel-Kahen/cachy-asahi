@@ -88,10 +88,10 @@ class SourceControls(unittest.TestCase):
     def test_all_final_product_source_and_existing_doctor_archive_bound(self):
         value=C.policy();C.verify_source(ROOT)
         self.assertEqual(value['status'],'ROOT_BOUND_FINAL_PRODUCT_SOURCE')
-        self.assertEqual(value['candidate_source'],'96aa3e7a81840b7eba6ba07188481fd89631fb6b')
+        self.assertEqual(value['candidate_source'],'9baabc5dbe1ae596483263639d5b484b874d65fa')
         self.assertEqual(set(value['products']),set(C.NAMES));self.assertEqual(value['ui']['strings']['complete'],'Elapsed:')
         self.assertEqual(value['ui']['strings']['running'],'Running check…');self.assertEqual(value['ui']['max_output_bytes'],1048576)
-        for name,source_count,payload_count,recipe_sha in ((C.NAME,24,9,'071cada88855ac7e462df8cde264d4ae60263655da4706d9c2c9dc5af7b33f6b'),
+        for name,source_count,payload_count,recipe_sha in ((C.NAME,24,9,'41041876bd8c9ff8b4cb36242f4b092f587244846ed5bb895ff339480c3f9ce2'),
                 (C.DOCTOR,7,4,'119e2b839195e0c18b885b0208928e234af63e2a5f958dbf4fc9edad5a2c04b1'),
                 (C.ORPHANS,8,5,'b59a1b67a8fd6290549e861bd40f5e94447d5376c86eca6baa94d2cdddb6b91a')):
             row=value['products'][name]

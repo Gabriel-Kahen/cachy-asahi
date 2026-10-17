@@ -297,7 +297,7 @@ class Adapter(unittest.TestCase):
             with patch.object(N,'verify_source'),patch.object(A,'verify_source'),patch.object(N,'policy',return_value=dict(ui=UI)),patch.object(A,'stage',side_effect=stage):P.prepare(ROOT,out,root/'assets')
             for path in out.glob('*.py'):compile(path.read_text(),str(path),'exec')
             runtime=(out/'desktop574_runtime.py').read_text();guest=(out/'base_guest.py').read_text();session=(out/'session.py').read_text()
-            self.assertIn("version=('0.1.0-1' if name=='cachy-asahi-doctor' else '0.1.0-2')",(out/'gui_contract.py').read_text())
+            self.assertIn("version={'cachy-asahi-doctor':'0.1.0-1','cachy-asahi-orphans':'0.1.0-2','cachy-asahi-welcome':'0.1.0-3'}[name]",(out/'gui_contract.py').read_text())
             for stage_name in ('minimal','overlay'):
                 for view in C.VIEWS:self.assertIn(stage_name+'-'+view,runtime)
             self.assertIn('management_root.serve',guest);self.assertIn('managed_session.SETPRIV',guest);self.assertNotIn('dbus-run-session',guest)
