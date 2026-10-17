@@ -193,7 +193,19 @@ jobs:
       - name: Check opt-in Zsh substring module without changing user bindings
         run: |
           work=$(mktemp -d "$RUNNER_TEMP/substring.XXXXXX")
-          trap 'rm -rf -- "$work"' EXIT
+          substring_cleanup() {
+            code=$?
+            trap - EXIT
+            if (( code != 0 )); then
+              python3 -I -B scripts/ci/zsh-substring-failure-report.py --work "$work" --checker "$GITHUB_WORKSPACE/packages/tools/cachy-asahi-zsh-history-substring-search/check-module.py" || true
+            fi
+            cleanup=0
+            rm -rf -- "$work" || cleanup=$?
+            if (( cleanup != 0 )); then printf 'ZSH_SUBSTRING_FIXTURE_CLEANUP_EXIT=%s\n' "$cleanup" >&2; fi
+            if (( code == 0 )); then code=$cleanup; fi
+            exit "$code"
+          }
+          trap substring_cleanup EXIT
           python3 -B -Werror::ResourceWarning packages/tools/cachy-asahi-zsh-history-substring-search/check-module.py --module-dir "$GITHUB_WORKSPACE/packages/tools/cachy-asahi-zsh-history-substring-search" --work "$work"
           zsh -fn packages/tools/cachy-asahi-zsh-history-substring-search/opt-in.zsh
           bash -n packages/tools/cachy-asahi-zsh-history-substring-search/PKGBUILD
