@@ -193,8 +193,8 @@
       "sha256": "a682b64a5326fc7edf0d2347c37ae50805f9b7773c2683f1fbae1769c18fa023"
     },
     "scripts/ci/apps6-native-reinstall/README.md": {
-      "bytes": 7213,
-      "sha256": "555c5f5ad6a09612521ff130e5e1be79ecbbafaa9f0447cceec078618b404050"
+      "bytes": 8186,
+      "sha256": "796bdf3628a11035b836e2d8bdd2c9e554918a86efc23894bd904cd8ba2d3dec"
     },
     "scripts/ci/apps6-native-reinstall/adapter.py": {
       "bytes": 9398,
@@ -225,8 +225,8 @@
       "sha256": "d52105cf6471a88fb67f6fa19f07396cc0e1abb092c2fdd5c4763a6b891f2c81"
     },
     "scripts/ci/apps6-native-reinstall/repair.py": {
-      "bytes": 6800,
-      "sha256": "dbd4514ff8fa7810c32acb134e7fd376ed07bdb1d4438d11bc30afc4ce2674cf"
+      "bytes": 10659,
+      "sha256": "b52a2be4cc5c511e2b227ec14d23e0c25fce4578ad116076e4236a6109436782"
     },
     "scripts/ci/apps6-native-reinstall/rules.py": {
       "bytes": 3598,
@@ -237,8 +237,8 @@
       "sha256": "145a401df6837e1882e07103472b2f3f08c1f0aa01182efaf62ad6e015c18796"
     },
     "scripts/ci/apps6-native-reinstall/test_lane.py": {
-      "bytes": 13930,
-      "sha256": "327a0ebfa454ec93e414e258f197c328a6c0a96f8b69074b463e724ec624092a"
+      "bytes": 17255,
+      "sha256": "bae0a5001f672e1ed4a00a51a7e3a5e687030ee9455b7135a1b3fae9c57f67f5"
     },
     "scripts/ci/full-development-composition/run.py": {
       "bytes": 29738,
