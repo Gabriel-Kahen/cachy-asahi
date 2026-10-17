@@ -97,6 +97,18 @@ class Controls(unittest.TestCase):
    row=dict(status='PASS',package_count=604,final_package_count=604,installed_inventory_sha256=before,final_inventory_sha256=before,dependency_checks='PASS-no-waivers',payload_ownership='PASS',full_root_upgrade=dict(status='PASS',persistent_source_preserved=True,persistent_source=dict(source_manifest_sha256='x'),persistent_source_after=dict(source_manifest_sha256='x'),driver=driver))
    self.assertIs(space['verify_result'](row,case),row['full_root_upgrade']);bad=copy.deepcopy(row);bad['full_root_upgrade']['driver']['commit_started']='UNKNOWN'
    with self.assertRaises(ValueError):space['verify_result'](bad,case)
+ def test_genuine_default_fresh_and_4k_emission_match_exact420_updater_role(self):
+  fresh=C.load('default_fresh_emitter_control',ROOT/'scripts/ci/expanded604-apps6-public-pair-installer/prepare.py');updater=C.load('default_updater_emitter_control',ROOT/C.OLD/'prepare.py');pins=C.decode(C.read(C.HERE/'source-pins.json'))
+  with tempfile.TemporaryDirectory() as td:
+   base=Path(td);f=base/'fresh';u=base/'updater';fresh.emit(ROOT,ROOT,f);updater.emit(ROOT,f,u)
+   self.assertEqual(C.row(f/'scripts/ci/expanded604-apps6-public-pair-installer/source-manifest.json')['sha256'],'b8a35cf9f04c5321db6db9103f3a7ef95d58ebcc0ff960b805362a3867ed715a');self.assertEqual(len(pins['groups']['updater']),420)
+   for n,row in pins['groups']['updater'].items():self.assertEqual(C.row(u/n),row,n)
+   P.source(ROOT,u)
+   for n in ('policy.json','input-policy.json'):
+    policy=C.decode(C.read(u/C.OLD/n));self.assertIn('UNBOUND',policy['status']);self.assertIsNone(policy['decision_source']);self.assertIsNone(policy['installer_source']);self.assertIsNone(policy['prerequisites']['fresh604']);self.assertIsNone(policy['prerequisites']['native604'])
+   p=u/'.github/workflows/native-arm-expanded604-apps6-public-pairs.yml';p.write_bytes(p.read_bytes()+b'\n')
+   with self.assertRaisesRegex(ValueError,'pinned source differs: updater'):P.emit(ROOT,u,base/'refused')
+   self.assertFalse((base/'refused').exists())
  def test_emitted_corrected_roles_and_all80_real_runtime_recipe_dependencies(self):
   with tempfile.TemporaryDirectory() as td:
    root=Path(td);out=root/'closed';P.emit(ROOT,UPDATER,out);pins=C.decode(C.read(C.HERE/'source-pins.json'));required=pins['runtime_recipe_inputs'];self.assertEqual(len(required),80)
