@@ -27,6 +27,18 @@ def limits(api,seconds=600):return api['roots'].Limits(deadline=time.monotonic()
 
 def snapshot(api,root,label):
     budget=limits(api);value=api['roots'].observe(root,limits=budget,hardlinks='generic-development-internal')
+    if not (value['complete'] is True and set(value['unsupported_counts'])<={'absolute-symlink','auxiliary-present'}):
+        # Failure facts only: no node/payload map, no changed eligibility gate.
+        counts=value['unsupported_counts'];records=value['unsupported'];footprint=value['footprint']
+        C.need(type(value['complete']) is bool and type(counts) is dict and len(counts)<=64 and all(type(k) is str and len(k)<=256 and type(v) is int and 0<=v<=500000 for k,v in counts.items()),'bounded original observation counts')
+        C.need(type(records) is list and len(records)<=64 and all(type(r) is dict and set(r)=={'reason','path'} and all(type(r[k]) is str and len(r[k])<=(4096 if k=='path' else 256) for k in r) for r in records),'bounded original unsupported records')
+        fields=('nodes','bytes','largest_file_bytes','hardlinks','hardlink_entries','hardlink_inodes','hardlink_declared_links','allocated_bytes','allocated_bytes_by_entry','symlinks','database_bytes','database_files','filesystem_free_bytes','filesystem_free_inodes','filesystem_inode_counts_known','filesystem_inode_source','filesystem_free_bytes_source')
+        selected={k:footprint[k] for k in fields if k in footprint}
+        C.need(all(v is None or type(v) in (bool,int) and (type(v) is bool or 0<=v<=2**64-1) or type(v) is str and v in ('statvfs','unknown','statvfs-f_bavail') for v in selected.values()),'finite original observation footprint')
+        C.need(type(label) is str and len(label)<=128 and len(str(root))<=4096,'bounded original snapshot phase/root')
+        facts=dict(snapshot_phase=label,root=str(root),observer_budget_seconds=600,complete=value['complete'],unsupported_counts=dict(counts),unsupported_records=[dict(r) for r in records],footprint=selected,scope='ORIGINAL_RETURNED_OBSERVATION_FAILURE_FACTS_ONLY_NO_NODE_MAP')
+        C.need(len(json.dumps(facts,sort_keys=True,allow_nan=False).encode())<=2*1024**2,'observation failure facts bound')
+        failures=api.setdefault('root_observation_failures',{});C.need(label not in failures and len(failures)<10,'finite unique observation failure phases');failures[label]=facts
     C.need(value['complete'] is True and set(value['unsupported_counts'])<={'absolute-symlink','auxiliary-present'},'complete bounded root observation')
     mapping=api['capabilities'].observe(api,root,value['nodes'],api['capability_index'],budget)
     api['capability_checks'][label]=dict(status='EXACT_SOURCE_MAP_PRESERVED',sha256=api['capabilities'].digest(mapping),paths=len(mapping))
@@ -310,6 +322,7 @@ def guard():
 def run_case(api,commands,index,base,new,old,case,report):
     C.need(case in C.CASES,'exact configuration case')
     api['capability_checks']={};report['capability_checks']=api['capability_checks']
+    api['root_observation_failures']={};report['root_observation_failures']=api['root_observation_failures']
     report['source_before']=C.sha(json.dumps(snapshot(api,HELD,case+'-source-before')['nodes'],sort_keys=True).encode())
     C.need(report['source_before']==index['source_nodes_sha256'],'frozen original574 source node snapshot')
     C.need(inventory(database(api,HELD))==base,'exact source574 database')

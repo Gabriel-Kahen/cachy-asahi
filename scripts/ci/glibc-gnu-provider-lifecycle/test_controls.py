@@ -492,4 +492,56 @@ class ConfigHandoffControls(unittest.TestCase):
         self.assertEqual(*funcs)
 
 
+import dataclasses
+HERE=Path(__file__).resolve().parent
+REPO=next(p for p in HERE.parents if (p/'manifests/packages.toml').is_file())
+sys.path.insert(0,str(REPO/'scripts/update'))
+import full_root
+
+def load_observation(name,path):
+ spec=importlib.util.spec_from_file_location(name,path);module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);return module
+
+class ObservationFactsControls(unittest.TestCase):
+ def setUp(self):
+  no=patch.object(subprocess,'Popen',side_effect=AssertionError('no observation diagnostic actor'));no.start();self.addCleanup(no.stop)
+ def lanes(self):
+  for lane in ('lifecycle','interruption'):
+   common=load_observation('observation_common_'+lane,REPO/'scripts/ci'/('glibc-gnu-provider-'+lane)/'common.py')
+   folder=HERE.parent/('glibc-gnu-provider-'+lane)
+   with patch.dict(sys.modules,{'common':common}):module=load_observation('observation_lane_'+lane,folder/'container.py')
+   yield lane,module
+ def api(self,observe):
+  return dict(roots=NS(Limits=full_root.Limits,observe=observe),capabilities=NS(observe=lambda *a:(_ for _ in ()).throw(AssertionError('capability observation forbidden after failed gate'))))
+ def test_real_incomplete_observation_preserved_before_unchanged_fatal_gate(self):
+  for lane,module in self.lanes():
+   with self.subTest(lane=lane),tempfile.TemporaryDirectory() as temp:
+    root=Path(temp);(root/'one').write_bytes(b'private-payload-not-exported');(root/'two').write_bytes(b'other');observed=[]
+    def observe(path,*,limits,hardlinks):
+     self.assertEqual(limits.max_nodes,500000);self.assertEqual(limits.max_bytes,8*1024**3)
+     value=full_root.observe(path,limits=dataclasses.replace(limits,max_nodes=1),hardlinks=hardlinks);observed.append(value);return value
+    api=self.api(observe);report={}
+    with patch.object(module,'HELD',root),self.assertRaisesRegex(ValueError,'complete bounded root observation'):module.run_case(api,None,{}, {},{}, {},'pristine',report)
+    facts=report['root_observation_failures']['pristine-source-before'];self.assertFalse(facts['complete']);self.assertEqual(facts['unsupported_counts'],observed[0]['unsupported_counts']);self.assertIn('root node limit',facts['unsupported_counts']);self.assertEqual(facts['unsupported_records'],observed[0]['unsupported']);self.assertEqual(facts['root'],str(root));self.assertEqual(facts['observer_budget_seconds'],600);self.assertEqual(report['capability_checks'],{});self.assertNotIn('nodes',facts);self.assertNotIn('private-payload',json.dumps(report));self.assertEqual(sorted(p.name for p in root.iterdir()),['one','two'])
+ def test_real_complete_unsupported_observation_still_fails_with_exact_facts(self):
+  for lane,module in self.lanes():
+   with self.subTest(lane=lane),tempfile.TemporaryDirectory() as temp:
+    root=Path(temp);os.mkfifo(root/'original-fifo');observed=[]
+    def observe(path,**kwargs):
+     value=full_root.observe(path,**kwargs);observed.append(value);return value
+    api=self.api(observe);report={}
+    with patch.object(module,'HELD',root),self.assertRaisesRegex(ValueError,'complete bounded root observation'):module.run_case(api,None,{}, {},{}, {},'modified',report)
+    facts=report['root_observation_failures']['modified-source-before'];self.assertTrue(facts['complete']);self.assertEqual(facts['unsupported_counts'],{'special-node':1});self.assertEqual(facts['unsupported_records'],[{'reason':'special-node','path':'original-fifo'}]);self.assertEqual(facts['footprint']['nodes'],observed[0]['footprint']['nodes']);self.assertNotIn('nodes',facts)
+ def test_success_keeps_original_snapshot_result_and_no_failure_facts(self):
+  for lane,module in self.lanes():
+   with self.subTest(lane=lane),tempfile.TemporaryDirectory() as temp:
+    root=Path(temp);(root/'payload').write_bytes(b'original');out=root/'evidence';out.mkdir();api=dict(roots=full_root,capability_checks={},capability_index={},capabilities=NS(observe=lambda *a:{},digest=lambda v:'0'*64))
+    with patch.object(module,'OUT',out):value=module.snapshot(api,root,'pristine-source-before')
+    self.assertTrue(value['complete']);self.assertNotIn('root_observation_failures',api);self.assertTrue((out/'pristine-source-before-root.json.gz').is_file());self.assertEqual(api['capability_checks']['pristine-source-before']['status'],'EXACT_SOURCE_MAP_PRESERVED')
+ def test_arbitrary_or_oversized_returned_objects_never_serialized(self):
+  for lane,module in self.lanes():
+   for changes in ({'unsupported_counts':{'reason':object()}},{'unsupported':[{'reason':'bad','path':'x'*4097}]},{'footprint':{'bytes':object()}}):
+    with self.subTest(lane=lane,changes=list(changes)):
+     value=dict(complete=False,unsupported_counts={},unsupported=[],footprint={});value.update(changes);api=self.api(lambda *a,**kw:value);api['root_observation_failures']={}
+     with self.assertRaisesRegex(ValueError,'bounded original|finite original'):module.snapshot(api,Path('/held'),'pristine-source-before')
+     self.assertEqual(api['root_observation_failures'],{})
 if __name__=='__main__':unittest.main()
