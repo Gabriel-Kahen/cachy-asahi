@@ -229,6 +229,7 @@ jobs:
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/apps -p 'test_*.py'
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/orphans -p 'test_*.py'
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/apps-full574-native -p 'test_*.py'
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/apps-full574-repair-native -p 'test_*.py'
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/orphans-full574-native -p 'test*.py'
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/job-retirement-diagnostics -p test_retirement.py
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/orphans-native-cancellation -p 'test_*.py'
@@ -245,6 +246,20 @@ jobs:
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/current604-apps6-generic16k -p test_lane.py
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/current604-apps6-updater16k -p test_lane.py
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/current604-apps6-updater16k -p test_wiring.py
+      - name: Checkout exact historical native repair case source operand
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 5051663cf191e40bdbb3b03e2d62748f69b6afb1
+          path: .ci-inputs/repair-native-baseline
+          persist-credentials: false
+      - name: Assemble full574 repair16K from separate frozen and current sources
+        run: |
+          python3 -B scripts/ci/apps-full574-repair16k/prepare.py --source "$PWD" --native-source "$PWD/.ci-inputs/repair-native-baseline" --output "$RUNNER_TEMP/repair16k-bridge"
+          python3 -B scripts/ci/apps-full574-repair16k-ci/prepare.py --source "$RUNNER_TEMP/repair16k-bridge" --implementation "$PWD" --output "$RUNNER_TEMP/repair16k-ci"
+      - name: Check full574 signed repair generic16K source without actors
+        run: FULL574_REPAIR16K_SOURCE="$RUNNER_TEMP/repair16k-ci" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/apps-full574-repair16k -p 'test*.py'
+      - name: Check full574 repair16K CI source without actors
+        run: CACHY_ASAHI_REPAIR16K_TEST_SOURCE="$RUNNER_TEMP/repair16k-ci" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/apps-full574-repair16k-ci -p test_ci.py
       - name: Check generic 16K tools contracts without VM actors
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/tools-generic16k -p 'test_*.py'
       - name: Check Fish Done generic 16K contracts without VM actors
