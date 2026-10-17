@@ -12,7 +12,7 @@ class Controls(unittest.TestCase):
  def emitted(self):
   out=self.work/'emitted';r=P.derive(ROOT,COMPONENT,out);C=P.load('public_test_contract',out/P.LANE/'contract.py');return out,r,C
  def test_exact_source_roles_and_emission(self):
-  v=P.source(ROOT);self.assertEqual(len(v['implementation']),142);self.assertEqual(len(P.native(COMPONENT)),159);out,r,C=self.emitted();C.check_source(out);self.assertEqual(C.NATIVE,P.NATIVE)
+  v=P.source(ROOT);self.assertEqual(len(v['implementation']),144);self.assertEqual(len(P.native(COMPONENT)),159);out,r,C=self.emitted();C.check_source(out);self.assertEqual(C.NATIVE,P.NATIVE)
   self.assertEqual(r['ALPM_installation'],'NOT_RUN');self.assertEqual(r['original_derivation']['unchanged_native_bodies'],20)
  def test_default_refuses_before_output_or_git(self):
   with self.assertRaisesRegex(ValueError,'UNBOUND public ALPM16K'):P.preflight(ROOT,dict.fromkeys(P.KINDS),{})
@@ -60,4 +60,22 @@ class Controls(unittest.TestCase):
    if term=='wiring.py':self.assertNotIn(term+' native-source',text)
    elif term=='--private-key':continue
    else:self.assertIn(term,text)
+
+class SummaryClosure(unittest.TestCase):
+ def test_exact_helper_is_closed_and_declared_before_secrets(self):
+  helper='scripts/ci/glibc-gnu-failure-log/summary.py';expected=dict(bytes=11924,sha256='9bd52ce4453a3a03d8dc8b5edb6b6a4b8ec421e0c3037dfb64dc31da45687555')
+  table=json.loads((HERE/'source-pins.json').read_bytes());rows=table['implementation']
+  self.assertEqual(rows[helper],expected);self.assertEqual(P.pin((ROOT/helper).read_bytes()),expected)
+  text=(ROOT/'.github/workflows/native-arm-glibc-debian-maintained-public-installed16k.yml').read_text();self.assertLess(text.index('Verify exact retained diagnostic helper before secrets'),text.index('secrets.'));self.assertIn('summary.py" --help',text);self.assertIn(expected['sha256'],text)
+ def test_closed_view_old_missing_hash_refuses_and_corrected_helper_help_runs(self):
+  with tempfile.TemporaryDirectory(prefix='caa3-summary-closed-') as td:
+   work=Path(td);closed=work/'closed'
+   with patch.object(subprocess,'Popen',side_effect=AssertionError('source emission cannot start actors')):
+    P.derive(ROOT,COMPONENT,closed)
+   helper=closed/'scripts/ci/glibc-gnu-failure-log/summary.py';raw=helper.read_bytes();self.assertEqual(P.pin(raw)['sha256'],'9bd52ce4453a3a03d8dc8b5edb6b6a4b8ec421e0c3037dfb64dc31da45687555')
+   manifest=(P.pin(raw)['sha256']+'  '+str(helper)+'\n').encode();helper.unlink()
+   before=subprocess.run(['/usr/bin/sha256sum','--check'],input=manifest,capture_output=True,cwd=work,timeout=10);self.assertNotEqual(before.returncode,0);self.assertIn(b'No such file or directory',before.stderr)
+   helper.write_bytes(raw);after=subprocess.run(['/usr/bin/sha256sum','--check'],input=manifest,capture_output=True,cwd=work,timeout=10);self.assertEqual(after.returncode,0)
+   help=subprocess.run([os.sys.executable,'-I','-B',str(helper),'--help'],capture_output=True,cwd=work,timeout=10);self.assertEqual(help.returncode,0,help.stderr);self.assertLess(len(help.stdout+help.stderr),65536);self.assertIn(b'emit',help.stdout);self.assertIn(b'extract',help.stdout)
+
 if __name__=='__main__':unittest.main()

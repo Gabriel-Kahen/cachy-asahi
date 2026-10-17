@@ -47,7 +47,7 @@ jobs:
         timeout-minutes: 2
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '505ca7d1821a54eda84074c5399dee91c8ef07e47fc1644c55c472a92b12682a' 'scripts/ci/glibc-debian-maintained-public-installed16k/prepare.py' '41480460a6eada115b9cc6c6347dd638cbdea2f6578e21cb4e0a212b6380551a' 'scripts/ci/glibc-debian-maintained-public-installed16k/policy.json' '447e8c14da834c5df1103512d49ded2566c36304293c30187afb7e995702a249' 'scripts/ci/glibc-debian-maintained-public-installed16k/source-pins.json' | sha256sum --check
+          printf '%s  %s\n' '40bdcae82f0ffd9c29490f4c815d7f2794328d5a57f8d1e721558c2d37e08d26' 'scripts/ci/glibc-debian-maintained-public-installed16k/prepare.py' '41480460a6eada115b9cc6c6347dd638cbdea2f6578e21cb4e0a212b6380551a' 'scripts/ci/glibc-debian-maintained-public-installed16k/policy.json' '1f6de1efe3095f0c4be414ba09faeca6927a7a6f6f64eeb2dab872a1bdb4c6ce' 'scripts/ci/glibc-debian-maintained-public-installed16k/source-pins.json' | sha256sum --check
           python3 -I -B scripts/ci/glibc-debian-maintained-public-installed16k/prepare.py preflight --workspace "$GITHUB_WORKSPACE"
           printf 'VM_SOURCE=%s/maintained-installed16k-vm-source\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
       - name: Checkout exact current native normal lifecycle Root decision
@@ -106,6 +106,13 @@ jobs:
           set -euo pipefail
           test "$(git -C lifecycle-packet rev-parse HEAD)" = '${{ steps.proof.outputs.packet_ref }}'
           python3 -I -B "$SLICE/job.py" packet --workspace "$NATIVE_BUNDLE" --packet-root "$GITHUB_WORKSPACE/lifecycle-packet"
+      - name: Verify exact retained diagnostic helper before secrets
+        timeout-minutes: 1
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' '9bd52ce4453a3a03d8dc8b5edb6b6a4b8ec421e0c3037dfb64dc31da45687555' 'scripts/ci/glibc-gnu-failure-log/summary.py' | sha256sum --check
+          cd "$RUNNER_TEMP"
+          python3 -I -B "$GITHUB_WORKSPACE/scripts/ci/glibc-gnu-failure-log/summary.py" --help
       - name: Bounded inert owner and installed-lane controls
         timeout-minutes: 3
         run: |
@@ -113,6 +120,7 @@ jobs:
           python3 -I -B scripts/ci/glibc-gnu-provider-lifecycle-owner/test_owner.py
           python3 -I -B scripts/ci/glibc-debian-maintained-installed16k/test_generator.py
           python3 -I -B scripts/ci/glibc-debian-maintained-public-installed16k/test_route.py
+          python3 -I -B scripts/ci/glibc-gnu-failure-log/test_summary.py
           python3 -I -B scripts/ci/glibc-gnu-provider-lifecycle/test_copy_scope.py
           python3 -I -B scripts/ci/glibc-gnu-provider-lifecycle/test_controls.py
       - name: Seed the six existing private input files using unchanged secrets
