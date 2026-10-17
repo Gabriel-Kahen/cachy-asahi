@@ -46,7 +46,13 @@ def completed_report_state(remember=None):
     state=request('observed')
     for key in ('helper_absent','supervisor_absent'):
         C.need(type(state.get(key)) is bool,'owned helper completion state absent')
-    if remember is not None:remember({k:state[k] for k in ('helper_absent','supervisor_absent')})
+    observed={k:state[k] for k in ('helper_absent','supervisor_absent')}
+    if 'gui_progress' in state:
+        value=state['gui_progress']
+        if type(value) is dict and value.get('schema_version')==1 and len(C.encoded(value))<=16384:
+            observed['gui_progress']=value
+        else:observed['gui_progress']=dict(status='UNAVAILABLE_OR_REFUSED')
+    if remember is not None:remember(observed)
     return state['helper_absent'] and state['supervisor_absent']
 
 

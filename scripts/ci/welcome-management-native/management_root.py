@@ -47,6 +47,82 @@ def completion(fd,superfd):
                 supervisor_absent=superfd is not None and bool(select.select([superfd],[],[],0)[0]))
 
 
+
+# Failure-only progress, not a Python stack or an attribution of a hot path.
+# Use only the two already held process identities; never rescan /proc here.
+PROGRESS_COUNT=7
+PROGRESS_INTERVAL=5
+PROGRESS_BYTES=16384
+
+
+def progress_read(pid,name,cap):
+    root=os.open('/proc/'+str(pid),os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC)
+    try:
+        fd=os.open(name,os.O_RDONLY|os.O_NOFOLLOW|os.O_CLOEXEC|os.O_NONBLOCK,dir_fd=root)
+        try:
+            raw=b''
+            while len(raw)<=cap:
+                part=os.read(fd,cap+1-len(raw))
+                if not part:break
+                raw+=part
+            C.need(len(raw)<=cap,'progress field bound');return raw.decode('ascii')
+        finally:os.close(fd)
+    finally:os.close(root)
+
+
+def progress_stat(raw):
+    fields=raw[raw.rfind(')')+2:].split()
+    C.need(len(fields)>=22 and len(fields[0])==1 and fields[0] in 'RSDZTtXxKWPIN','bounded process stat required')
+    result=dict(state=fields[0],starttime=int(fields[19]),user_ticks=int(fields[11]),system_ticks=int(fields[12]))
+    C.need(all(0<=result[k]<2**64 for k in ('starttime','user_ticks','system_ticks')),'progress counter range');return result
+
+
+def progress_process(pid,starttime,handle):
+    def exited():return bool(select.select([handle],[],[],0)[0])
+    if exited():return dict(status='EXITED_HELD_PIDFD')
+    before=progress_stat(progress_read(pid,'stat',4096));C.need(before['starttime']==starttime,'progress identity changed')
+    status={}
+    for line in progress_read(pid,'status',16384).splitlines():
+        key,_,value=line.partition(':')
+        if key in ('Uid','VmRSS','Threads'):status[key]=value.split()
+    C.need(status.get('Uid')==['23001']*4 and len(status.get('Threads',[]))==1,'ordinary owned progress process required')
+    rss=status.get('VmRSS');C.need(rss is not None and len(rss)==2 and rss[1]=='kB','progress RSS shape')
+    io={}
+    allowed={'rchar','wchar','syscr','syscw','read_bytes','write_bytes','cancelled_write_bytes'}
+    for line in progress_read(pid,'io',4096).splitlines():
+        key,sep,value=line.partition(':');C.need(sep and key in allowed and key not in io,'progress IO shape');io[key]=int(value)
+    C.need(set(io)==allowed and all(0<=v<2**64 for v in io.values()),'complete progress IO counters')
+    wchan=progress_read(pid,'wchan',256).strip()
+    C.need(0<len(wchan)<=128 and all(c.isalnum() or c in '_+.-' for c in wchan),'progress wchan shape')
+    after=progress_stat(progress_read(pid,'stat',4096))
+    if exited():return dict(status='EXITED_DURING_SAMPLE')
+    C.need(after['starttime']==starttime and all(after[k]>=before[k] for k in ('user_ticks','system_ticks')),'progress identity/counter drift')
+    C.need(0<=int(rss[0])<2**64 and 0<int(status['Threads'][0])<2**32,'progress memory/thread counters')
+    return dict(status='OBSERVED_NONATOMIC_COUNTERS',**after,rss_kib=int(rss[0]),threads=int(status['Threads'][0]),wchan=wchan,io=io)
+
+
+class Progress:
+    def __init__(self,observed,fd,superfd):
+        self.started=time.monotonic();self.next=self.started;self.samples=[]
+        self.identities=(('helper',observed['pid'],observed['starttime'],fd),
+                         ('supervisor',observed['supervisor_pid'],observed['supervisor_starttime'],superfd))
+        self.hz=os.sysconf('SC_CLK_TCK')
+    def sample(self):
+        now=time.monotonic()
+        if now<self.next or len(self.samples)>=PROGRESS_COUNT:return
+        self.next=now+PROGRESS_INTERVAL
+        row=dict(elapsed_ms=int((now-self.started)*1000))
+        for role,pid,start,fd in self.identities:
+            try:row[role]=progress_process(pid,start,fd)
+            except (OSError,ValueError,IndexError,UnicodeError) as error:
+                row[role]=dict(status='UNAVAILABLE_OR_REFUSED',error_type=type(error).__name__)
+        self.samples.append(row)
+    def value(self):
+        result=dict(schema_version=1,scope='HELD_OWNED_PROCESS_NONATOMIC_COUNTERS_NOT_STACK_OR_HOTPATH',
+                    clock_ticks_per_second=self.hz,interval_seconds=PROGRESS_INTERVAL,max_samples=PROGRESS_COUNT,samples=self.samples)
+        C.need(len(C.encoded(result))<=PROGRESS_BYTES,'progress receipt bound');return result
+
+
 def metadata():
     result={};root=Path('/var/lib/pacman/local')
     excluded=[p for p in root.iterdir() if any(p.name.startswith(n+'-') for n in TOOLS)]
@@ -80,7 +156,7 @@ def serve(base,session,env,logs,seconds):
     baseline=L.inventory();C.need(len(baseline)==594 and all(n in baseline for n in TOOLS),'exact594 installed management profile required')
     preserved=metadata();CHANNEL.mkdir(mode=0o700);os.chown(CHANNEL,23001,23001)
     nonce=os.urandom(16).hex();(CHANNEL/'nonce').write_text(nonce);(CHANNEL/'nonce').chmod(0o644)
-    until=time.monotonic()+seconds;sequence=0;armed=None;observed=None;fd=None;superfd=None;holder=None;lock_identity=None
+    until=time.monotonic()+seconds;sequence=0;armed=None;observed=None;fd=None;superfd=None;holder=None;lock_identity=None;progress=None
     def inventory():
         current=L.inventory();C.need(current in (baseline,{n:v for n,v in baseline.items() if n not in TOOLS}),'unexpected package composition');return current
     def unlock():
@@ -98,7 +174,9 @@ def serve(base,session,env,logs,seconds):
                     if armed['stop']:
                         C.need(identity(observed['pid'])['starttime']==observed['starttime'],'helper changed before controlled stop')
                         signal.pidfd_send_signal(fd,signal.SIGSTOP);observed['stopped']=True
+                    progress=Progress(observed,fd,superfd)
                     armed=None
+            if progress is not None:progress.sample()
             request=CHANNEL/('request-'+str(sequence)+'.json')
             if not request.exists():time.sleep(.002);continue
             data=json.loads(C.read(request,65536,23001));C.need(data.get('nonce')==nonce and data.get('sequence')==sequence and sequence<1024,'bounded fixture request identity')
@@ -127,8 +205,11 @@ def serve(base,session,env,logs,seconds):
                 welcome=identity(data['welcome_pid']);C.need(welcome['uid']==[23001]*4 and welcome['raw_argv']==['/usr/bin/cachy-asahi-welcome'],'actual Welcome process required')
                 if fd is not None:os.close(fd);fd=None
                 if superfd is not None:os.close(superfd);superfd=None
+                progress=None
                 armed=dict(tool=data['tool'],welcome_pid=data['welcome_pid'],stop=data['stop'],previous={int(p.name) for p in Path('/proc').glob('[0-9]*')});observed=None
-            elif op=='observed':answer.update(process=observed,**completion(fd,superfd))
+            elif op=='observed':
+                answer.update(process=observed,**completion(fd,superfd))
+                if progress is not None:answer['gui_progress']=progress.value()
             elif op=='retired':
                 C.need(observed is not None and fd is not None and superfd is not None,'owned observed group absent')
                 exited=bool(select.select([fd],[],[],0)[0]);superexited=bool(select.select([superfd],[],[],0)[0]);members=[]
