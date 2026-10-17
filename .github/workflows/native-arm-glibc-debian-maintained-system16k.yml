@@ -57,7 +57,9 @@ jobs:
         env:
           DEBIAN_MAINTAINED_SYSTEM16K_PACKET_ROOT: ${{ github.workspace }}/provider-packet-inputs/payload
           DEBIAN_MAINTAINED_SYSTEM16K_SOURCE_ROOT: ${{ github.workspace }}
-        run: python3 -I -B -Werror::ResourceWarning "$SLICE/test_adapter.py"
+        run: |
+          python3 -I -B -Werror::ResourceWarning "$SLICE/test_adapter.py"
+          python3 -I -B -Werror::ResourceWarning "$SLICE/test_protocol.py"
       - name: Provision accepted kernel and QEMU tools on disposable runner
         timeout-minutes: 8
         run: |
