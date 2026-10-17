@@ -86,6 +86,14 @@ class Controls(unittest.TestCase):
   self.assertEqual(r['status'],'FAIL_OR_INCOMPLETE');self.assertIn('build-harness/new-only',r['files'])
   for n in names:self.assertIn('source/'+n,r['files']);self.assertFalse(r['files']['source/'+n]['truncated'])
   self.assertLessEqual(r['total_bytes'],768*1024**2)
+ def test_retention_harness_pin_and_closed_flat_paths(self):
+  h=self.root/'harness';h.mkdir();(h/'one').write_text('data');manifest=self.save(h/'source-manifest.json',dict(files={'one':dict(bytes=4,sha256=hashlib.sha256(b'data').hexdigest())}));pin=hashlib.sha256(manifest.read_bytes()).hexdigest()
+  J.held_harness(self.old,h,pin)
+  with self.assertRaisesRegex(ValueError,'manifest changed'):J.held_harness(self.old,h,'0'*64)
+  (h/'one').write_text('drift')
+  with self.assertRaisesRegex(ValueError,'file changed'):J.held_harness(self.old,h,pin)
+  self.save(manifest,dict(files={'../foreign':dict(bytes=4,sha256='0'*64)}));pin=hashlib.sha256(manifest.read_bytes()).hexdigest()
+  with self.assertRaisesRegex(ValueError,'closed emitted'):J.held_harness(self.old,h,pin)
  def test_manual_workflow_orders_source_auth_controls_secrets_pair_cleanup_export(self):
   w=(HERE.parents[2]/'.github/workflows/native-arm-glibc-debian-provider.yml').read_text()
   markers=('Prove source equals workflow before secrets','Verify seven-file chain','Focused inert controls','secrets.CACHY_','Native Debian-source pair','Retire consumers before the producer','Export closed bounded','Upload only')

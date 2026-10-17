@@ -49,24 +49,24 @@
       "sha256": "a2d08f4786879a86af14cccf1cffe21811aa8dfa4428559848fa4cede839ab64"
     },
     "scripts/ci/glibc-debian-native-provider/README.md": {
-      "bytes": 3991,
-      "sha256": "66f920db2518b2b002002103d6ef65cbce83a988bb54d90c59521703f936455a"
+      "bytes": 4166,
+      "sha256": "af26ab1df6c9ebb29211fc5d0a4cfe5d19ae00eb73fd064e70baf5ad62447db4"
     },
     "scripts/ci/glibc-debian-native-provider/input-policy.json": {
       "bytes": 550,
       "sha256": "a3ad5a3ec1c4c3746dabe4e29caac54ed16c773c03b2a1cf4984e2c208590a28"
     },
     "scripts/ci/glibc-debian-native-provider/job.py": {
-      "bytes": 6562,
-      "sha256": "972d5e41064048f60e975e6a17252f13168b7fdb8684f681c1417b2c9ca78bf1"
+      "bytes": 7448,
+      "sha256": "6b71b0263ab0b9bf5193f96bf2e12b6def9d2280b38c5c7e14e7d9def9f8b6f1"
     },
     "scripts/ci/glibc-debian-native-provider/reuse.py": {
       "bytes": 1558,
       "sha256": "59d6c97b6550cddbe0987a18119670e754c65ef70c01012b375dda03b674b7be"
     },
     "scripts/ci/glibc-debian-native-provider/test_job.py": {
-      "bytes": 9027,
-      "sha256": "9ef2b03a50cfad8efcf6f197cdef516bb0f15a2a683cd85c3000e996a01008b9"
+      "bytes": 9796,
+      "sha256": "560d7274b43d33ed847416654439f1bc4714d73a736ca310578ab7d76de1f56d"
     },
     "scripts/ci/glibc-debian-provider/adapter.py": {
       "bytes": 2859,
