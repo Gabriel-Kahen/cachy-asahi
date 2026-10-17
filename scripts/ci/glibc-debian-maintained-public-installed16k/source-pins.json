@@ -78,7 +78,7 @@
     },
     "scripts/ci/glibc-debian-maintained-installed16k/source-pins.json": {
       "bytes": 20261,
-      "sha256": "ddb17218e4102c76b6a1067ff4a05ee37cbe5a6d92f092cc8657c0bd259e9cb6"
+      "sha256": "6612c37dcf38c987542d03c663f3401b56864b5d44ae0703cd4748e39ce4acd5"
     },
     "scripts/ci/glibc-debian-maintained-installed16k/test_generator.py": {
       "bytes": 12415,
@@ -214,7 +214,7 @@
     },
     "scripts/ci/glibc-gnu-provider-installed16k/source-manifest.json": {
       "bytes": 3248,
-      "sha256": "5aaccbccf2cb00b3f539000652af45f0cd54bbdd144371d6d77c1950f480a413"
+      "sha256": "99f7552779ad3898d47027283eaa6769c0354c02f8cf281ba3d387726d8681b6"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/support.py": {
       "bytes": 408,

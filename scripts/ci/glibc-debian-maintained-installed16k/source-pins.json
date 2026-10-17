@@ -127,7 +127,7 @@
     },
     "scripts/ci/glibc-gnu-provider-installed16k/source-manifest.json": {
       "bytes": 3248,
-      "sha256": "5aaccbccf2cb00b3f539000652af45f0cd54bbdd144371d6d77c1950f480a413"
+      "sha256": "99f7552779ad3898d47027283eaa6769c0354c02f8cf281ba3d387726d8681b6"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/support.py": {
       "bytes": 408,

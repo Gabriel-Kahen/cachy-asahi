@@ -57,8 +57,8 @@ class Controls(unittest.TestCase):
    with self.assertRaises(ValueError):W.decode(raw)
   p=self.work/'alias';p.symlink_to(self.ci/'policy.json')
   with self.assertRaises(ValueError):W.read(p)
- def test_exact141_source_and_shared_derivation(self):
-  W=self.W;self.assertEqual(len(W.check_source(self.root)),141);self.assertEqual(W.derivation['unchanged_shared_validation'],'ALL_OTHER_CODE_BYTE_IDENTICAL')
+ def test_exact143_source_and_shared_derivation(self):
+  W=self.W;self.assertEqual(len(W.check_source(self.root)),143);self.assertEqual(W.derivation['unchanged_shared_validation'],'ALL_OTHER_CODE_BYTE_IDENTICAL')
   self.assertIn('sys.modules[spec.name]=mod',self.A.derive(self.root)[0]);(self.root/self.A.SHARED).write_text('changed')
   with self.assertRaisesRegex(ValueError,'exact shared CI source pin'):self.A.derive(self.root)
  def test_native_packet_must_be_bound_and_identical_before_outputs(self):
@@ -76,8 +76,8 @@ class Controls(unittest.TestCase):
   inputs,roots=self.fixture();(roots['native_lifecycle']/'decision.json').write_text('changed')
   with self.assertRaisesRegex(ValueError,'decision bytes differ'):self.assemble(inputs,roots)
   self.assertFalse((self.work/'vm').exists())
- def test_full146_bundle_preserves114_and15_and_bound_gate(self):
-  inputs,roots=self.fixture();receipt=self.assemble(inputs,roots);self.assertEqual((receipt['source_files'],receipt['derived_files'],receipt['bundle_files']),(114,29,146));self.assertEqual(receipt['runtime'],'NOT_RUN');vm=self.work/'vm';original=json.loads((vm/'adaptation.json').read_bytes());held=json.loads((self.root/LANE/'source-pins.json').read_bytes())['files']
+ def test_full149_bundle_preserves116_and15_and_bound_gate(self):
+  inputs,roots=self.fixture();receipt=self.assemble(inputs,roots);self.assertEqual((receipt['source_files'],receipt['derived_files'],receipt['bundle_files']),(116,30,149));self.assertEqual(receipt['runtime'],'NOT_RUN');vm=self.work/'vm';original=json.loads((vm/'adaptation.json').read_bytes());held=json.loads((self.root/LANE/'source-pins.json').read_bytes())['files']
   for name,row in held.items():self.assertEqual(pin((vm/name).read_bytes()),row)
   changed={n for n,row in original['files'].items() if pin((vm/n).read_bytes())!=row};self.assertEqual(changed,{LANE+'/input-policy.json',LANE+'/source-manifest.json'})
   C=self.W.load('joined_contract',vm/LANE/'contract.py');self.assertIs(sys.modules[C.__name__],C);C.check_source(vm);self.assertEqual(set(C.gate(vm/LANE/'prerequisites')),{'native_lifecycle','system16k'});self.W.public_check(self.work/'public')
