@@ -203,10 +203,13 @@ def apply(args):
   if closure is not None:closure.owner(owner)
   with locked(workspace),tempfile.TemporaryDirectory(prefix='apps-tx-',dir=workspace) as temp:
    work=Path(temp);result['phase']='observe-before'
-   inventory=app.inventory_reader().collect(root/DB,c,lambda row:app.package(row,r));before=observe(root,budget,closure);actual=pins(before,inventory)
-   need(actual==dict(tree_sha256=args.before_tree_sha256,database_sha256=args.before_database_sha256,packages_sha256=args.before_packages_sha256,inventory_sha256=args.before_inventory_sha256),'complete before snapshot differs')
-   need(len(inventory['packages'])<=budget.max_packages,'full-root package bound')
-   if closure is not None:closure.capture(root,before)
+   inventory=app.inventory_reader().collect(root/DB,c,lambda row:app.package(row,r));repair=closure is not None and args.operation=='reinstall'
+   if not repair:
+    before=observe(root,budget,closure);actual=pins(before,inventory)
+    need(actual==dict(tree_sha256=args.before_tree_sha256,database_sha256=args.before_database_sha256,packages_sha256=args.before_packages_sha256,inventory_sha256=args.before_inventory_sha256),'complete before snapshot differs')
+    need(len(inventory['packages'])<=budget.max_packages,'full-root package bound')
+    if closure is not None:closure.capture(root,before)
+   else:need(len(inventory['packages'])<=budget.max_packages,'full-root package bound')
    plan_raw=c.read_path(Path(args.plan).absolute(),MAX_PLAN);need(sha(plan_raw)==args.plan_sha256,'caller plan SHA256 differs')
    copied=snapshot_inputs(args,work,c);iv=work/'installed.json';iv.write_bytes(app.encoded(inventory));copied.installed=str(iv);copied.installed_sha256=sha(iv.read_bytes());copied.command='plan'
    result['phase']='authenticate-and-replan';fresh=app.execute(copied);need(app.encoded(fresh)==plan_raw,'authenticated plan differs from actual copied root')
@@ -218,6 +221,13 @@ def apply(args):
     protected=set(context['base'])|set(context['spec']['policy']['protected_packages'])
     add={row['name']:row['version'] for row in plan['additions']+[x['after'] for x in plan['upgrades']+plan.get('reinstalls',[])]};remove={row['name']:row['version'] for row in plan['removals']}
     changed=set(add)|set(remove);need(not changed&protected,'base/platform selection refused')
+    if repair:
+     closure.authorize_reinstall(plan,inventory,context,args.plan_sha256)
+     current_inventory=app.inventory_reader().collect(root/DB,c,lambda row:app.package(row,r))
+     need(app.indexed(current_inventory['packages'],r)==app.indexed(inventory['packages'],r),'repair-authentication-inventory-drift')
+     before=observe(root,budget,closure);actual=pins(before,inventory)
+     need(actual==dict(tree_sha256=args.before_tree_sha256,database_sha256=args.before_database_sha256,packages_sha256=args.before_packages_sha256,inventory_sha256=args.before_inventory_sha256),'complete before snapshot differs')
+     closure.capture(root,before)
     if closure is not None:closure.selection(add,remove,inventory,before['nodes'])
     payload={};archives={};accounting=dict(bytes=0,nodes=0)
     for row in context['release']['packages']:

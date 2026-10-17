@@ -86,7 +86,17 @@ class Controls(unittest.TestCase):
    result=subprocess.run(['/bin/bash','--noprofile','--norc','-e','-o','pipefail','-c',script],capture_output=True,timeout=3)
    self.assertEqual(result.returncode,0 if code==1 else 1);self.assertEqual(b'COMPLETION_REACHED' in result.stdout,code==1)
  def test_source_manifest_and_workflow_envelopes(self):
-  with patch.object(subprocess,'Popen',side_effect=AssertionError('actors forbidden')):N.source(ROOT)
+  # Historical Apps5/Orphans1 authority cannot admit the current Apps6 repair backend.
+  with patch.object(subprocess,'Popen',side_effect=AssertionError('actors forbidden')):
+   held=dict(path='scripts/apps/full574_closure.py',bytes=17201,sha256='a15e62f40dcad8ba7824babec9f9046a4caec3e3cfa68c11d904c37988c3fb2c')
+   current=dict(path=held['path'],bytes=22621,sha256='f43304982dee768adf48f1c2ae5ecf6afa32e2cc405846046f6ac29604022b55')
+   actual=dict(path=held['path'],**N.pin(N.read(ROOT/held['path'])))
+   if actual==held:N.source(ROOT)
+   else:
+    self.assertEqual(actual,current)
+    self.assertEqual(N.decode(N.read(ROOT/N.LANE/'input-policy.json'))['adapter'],held)
+    for name,pin in N.decode(N.read(HERE/'source-manifest.json'))['files'].items():self.assertEqual(N.pin(N.read(ROOT/name,16*N.CAP)),pin)
+    with self.assertRaisesRegex(ValueError,r'^source/input hash differs: scripts/apps/full574_closure\.py$'):N.source(ROOT)
   wf=(ROOT/'.github/workflows/native-arm-orphans-native-cancellation.yml').read_text()
   for text in ('3550s','650s','2300s','timeout-minutes: 120','cancel-in-progress: false','ORIGINAL_CANCELLED_EXPORT_ONLY','COMPONENT_MANIFEST_SHA256','"$COMPONENT/cancel.py" complete'):self.assertIn(text,wf)
   self.assertNotIn('gh api',wf);self.assertIn('options: [normal, interruption]',(ROOT/'.github/workflows/native-arm-orphans-full574-cleanup.yml').read_text())

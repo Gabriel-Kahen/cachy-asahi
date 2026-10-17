@@ -145,8 +145,8 @@
       "sha256": "c9d36b7c6c21f4889c5c7bd38b8724c135ef310ad9732055b9518aef40624afb"
     },
     "scripts/apps/transaction.py": {
-      "bytes": 26300,
-      "sha256": "c1e1ebc4826a6158e7a03cb747bd081f791ccef386a58f291e6d3610edfd79e3"
+      "bytes": 27125,
+      "sha256": "aedc814f9455f898e78e4944ce3a2b2483faddec11022fc73d9d24deb2a43b43"
     },
     "scripts/build/build.py": {
       "bytes": 11299,
@@ -214,7 +214,7 @@
     },
     "scripts/ci/apps6-native-reinstall/infrastructure-pins.json": {
       "bytes": 5755,
-      "sha256": "4a3814162a7381f9ffb86e2878aaa8c62efe548874d8ee9a4c8458db14959a23"
+      "sha256": "aad7d166e389a0b8ab11297eb3738fad7a2a628de124550e232dc6a9c807a11a"
     },
     "scripts/ci/apps6-native-reinstall/input-policy.json": {
       "bytes": 9150,

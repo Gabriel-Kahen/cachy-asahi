@@ -12,8 +12,8 @@
     "sha256": "c9d36b7c6c21f4889c5c7bd38b8724c135ef310ad9732055b9518aef40624afb"
   },
   "scripts/apps/transaction.py": {
-    "bytes": 26300,
-    "sha256": "c1e1ebc4826a6158e7a03cb747bd081f791ccef386a58f291e6d3610edfd79e3"
+    "bytes": 27125,
+    "sha256": "aedc814f9455f898e78e4944ce3a2b2483faddec11022fc73d9d24deb2a43b43"
   },
   "scripts/build/build.py": {
     "bytes": 11299,
