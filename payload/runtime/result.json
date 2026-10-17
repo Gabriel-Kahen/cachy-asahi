@@ -1,0 +1,4612 @@
+{
+  "archive_bytes_reproduced": true,
+  "base_image": "sha256:97f30a9d2d7322ae544cbca67da0a55e91a24027491faf4aee9ba28b617dbf66",
+  "base_lock_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+  "builds": [
+    {
+      "candidate_headers": "PASS_CANDIDATE_C_HEADERS_COMPILE_ONLY",
+      "container": "caa-glibc-provider-007dcd0c6ae386a72c492c2bb8074c16-a",
+      "makepkg_exit": 0,
+      "normal_clients": {
+        "exec-child": "d2e92fef3ad68e4ad0b2b45d13f9ce452aa92c0c711851f26f61825ef31e6c4b",
+        "plugin.so": "c91a0dab73c81b601484b319de60951d455e456430812f0430f5231c544859c1",
+        "smoke-normal": "f9ee2ae4e6b283cc2531b244ef26a7ca596d38b04740d29885cdc0b4cc10bb93"
+      },
+      "normal_compile_receipt_sha256": "9a578340091e41f6babf3e738172609a17d5ee5247a94f76dfa82f066380dd85",
+      "package": "cachy-asahi-glibc-gnu-provider-2.43.caa3-1-aarch64.pkg.tar.xz",
+      "runtime": "PASS_OWNED_CANDIDATE_GLIBC_RUNTIME_SMOKE",
+      "runtime_receipt_sha256": "9b8ace8b4d5a449bf4b00c8af5882881fb4d03779f9fbdb511a5c1ac621a279a",
+      "sha256": "a8e9f3e1d8ffe049fdc834f62e74c14ff622b98898c2f849e1580ab8aa0fdbd9",
+      "side": "a",
+      "static_abi": "PASS_STATIC_PUBLIC_ABI",
+      "status": "PASS_NATIVE_BUILD_TEST_ABI_RUNTIME",
+      "upstream_tests": {
+        "ERROR": 0,
+        "FAIL": 0,
+        "PASS": 6948,
+        "UNSUPPORTED": 109,
+        "XFAIL": 13,
+        "XPASS": 0
+      }
+    },
+    {
+      "candidate_headers": "PASS_CANDIDATE_C_HEADERS_COMPILE_ONLY",
+      "container": "caa-glibc-provider-007dcd0c6ae386a72c492c2bb8074c16-b",
+      "makepkg_exit": 0,
+      "normal_clients": {
+        "exec-child": "d2e92fef3ad68e4ad0b2b45d13f9ce452aa92c0c711851f26f61825ef31e6c4b",
+        "plugin.so": "c91a0dab73c81b601484b319de60951d455e456430812f0430f5231c544859c1",
+        "smoke-normal": "f9ee2ae4e6b283cc2531b244ef26a7ca596d38b04740d29885cdc0b4cc10bb93"
+      },
+      "normal_compile_receipt_sha256": "60b349b23766d6a7a26bd98e36091f90dc95bb11e9aaab4073b213fd30cdf29e",
+      "package": "cachy-asahi-glibc-gnu-provider-2.43.caa3-1-aarch64.pkg.tar.xz",
+      "runtime": "PASS_OWNED_CANDIDATE_GLIBC_RUNTIME_SMOKE",
+      "runtime_receipt_sha256": "496d7d27850ddefaf5dcdee6ad14c54c8fb43d8f2f84cc165a33b89f64522e8f",
+      "sha256": "a8e9f3e1d8ffe049fdc834f62e74c14ff622b98898c2f849e1580ab8aa0fdbd9",
+      "side": "b",
+      "static_abi": "PASS_STATIC_PUBLIC_ABI",
+      "status": "PASS_NATIVE_BUILD_TEST_ABI_RUNTIME",
+      "upstream_tests": {
+        "ERROR": 0,
+        "FAIL": 0,
+        "PASS": 6948,
+        "UNSUPPORTED": 109,
+        "XFAIL": 13,
+        "XPASS": 0
+      }
+    }
+  ],
+  "cleanup": [
+    {
+      "container": "caa-glibc-provider-007dcd0c6ae386a72c492c2bb8074c16-b-smoke",
+      "status": "PASS-absence-verified"
+    },
+    {
+      "container": "caa-glibc-provider-007dcd0c6ae386a72c492c2bb8074c16-b",
+      "status": "PASS-absence-verified"
+    },
+    {
+      "container": "caa-glibc-provider-007dcd0c6ae386a72c492c2bb8074c16-a-smoke",
+      "status": "PASS-absence-verified"
+    },
+    {
+      "container": "caa-glibc-provider-007dcd0c6ae386a72c492c2bb8074c16-a",
+      "status": "PASS-absence-verified"
+    },
+    {
+      "container": "caa-glibc-provider-007dcd0c6ae386a72c492c2bb8074c16-probe",
+      "status": "PASS-absence-verified"
+    }
+  ],
+  "configured_features": {
+    "gd": "not in accepted bootstrap; optional memusagestat unavailable",
+    "locales": "GNU source C.utf8 only; no ALARM locale-gen/memusagestat copied; broader locale migration not implemented",
+    "multiarch": "disabled",
+    "multiarch_reason": "--disable-multi-arch selects baseline AArch64 assembly FUNC symbols and memchr/strlen WEAK aliases; actual38906503054 multiarch IFUNC/GLOBAL differs. No ABI waiver or performance claim.",
+    "nscd": "disabled",
+    "systemtap": "disabled; no external sdt headers",
+    "test_timeout": "Only tst-malloc-too-large-malloc-hugetlb2: TIMEOUTFACTOR=5, full assertions retained; still bounded/fatal"
+  },
+  "configured_layout": {
+    "abi_expectations": "UNMODIFIED strict GNU abilists and bootstrap OBJECT/TLS-size checks",
+    "compiled_locales": "/usr/lib/locale",
+    "configured_dirname_ascii_bytes": 17,
+    "exported_dirname_object_bytes": 18,
+    "gettext_catalogs": "/usr/share/locale",
+    "loader": "/usr/lib/ld-linux-aarch64.so.1",
+    "localstatedir": "/var",
+    "multiarch": "disabled",
+    "shared_libraries": "/usr/lib",
+    "sysconfdir": "/etc",
+    "versioned_prefix": null
+  },
+  "declared_patches": [
+    {
+      "bytes": 541265,
+      "name": "git-updates.diff",
+      "sha256": "5b9bca7b5d42a3051015230f43db91d59746c96a4de33922db31eb5bb671b28e"
+    },
+    {
+      "bytes": 1136,
+      "name": "locale/check-unknown-symbols.diff",
+      "sha256": "1e012e5e754684ace8d1906e350598a68e481bf04bae23721d114ea37f9a5860"
+    },
+    {
+      "bytes": 1131,
+      "name": "locale/locale-print-LANGUAGE.diff",
+      "sha256": "7380447b8f845724bb7aa66e6a5b30098e3aecad6d1c748d0391218891ecf033"
+    },
+    {
+      "bytes": 1052,
+      "name": "locale/LC_IDENTIFICATION-optional-fields.diff",
+      "sha256": "0d34232f355bcef85e0dbb2cd989b05b256338512b7d4f9955b3da2cd2143c1e"
+    },
+    {
+      "bytes": 1546,
+      "name": "localedata/sort-UTF8-first.diff",
+      "sha256": "03f3214e4b1df6d7cd05a40881f7ab7c0843b125ccc3f455169e41a634911f5c"
+    },
+    {
+      "bytes": 1482,
+      "name": "localedata/supported.diff",
+      "sha256": "f10d7153e7f2e91c6a078fd690e466250c60cb9b54f7967aa8ec70d4697cb91e"
+    },
+    {
+      "bytes": 3832,
+      "name": "localedata/locale-eu_FR.diff",
+      "sha256": "ffb46b48511ee84cf343682f7bdadd1c19e278520c156fece975fd4064292fb3"
+    },
+    {
+      "bytes": 2751,
+      "name": "localedata/locale-ku_TR.diff",
+      "sha256": "f509f475f69f08a785440e40a0c112bb1d13f34631496883456d377c2f031784"
+    },
+    {
+      "bytes": 726,
+      "name": "localedata/fo_FO-date_fmt.diff",
+      "sha256": "4f7c6c5644fe6669563584b770406005cac0d8edd7e8212242492fb1a0c05c96"
+    },
+    {
+      "bytes": 2049,
+      "name": "localedata/locales-fr.diff",
+      "sha256": "6553fa58f80b7f9202d8b32b32ca477e31c8dbda724235c13e28d84820d7c58e"
+    },
+    {
+      "bytes": 1525,
+      "name": "localedata/locale-en_DK.diff",
+      "sha256": "60886407b1a099a1944bee532ae7fa5e021bc6accaaee2e19c5806e79b03bcd9"
+    },
+    {
+      "bytes": 547,
+      "name": "localedata/locale-zh_TW.diff",
+      "sha256": "da2a0d947d065fbfeb39f5ba69482e6fffb5340ba52d101a84dec4e2c2ba365a"
+    },
+    {
+      "bytes": 85111,
+      "name": "localedata/tailor-iso14651_t1.diff",
+      "sha256": "6d0cd73fc196be181b8605f3db9417da3fd371d86f70365052c89ffafe5d6162"
+    },
+    {
+      "bytes": 498,
+      "name": "localedata/submitted-es_MX-decimal_point.diff",
+      "sha256": "b16bf4fb56c3c8a48317a3e926bb742c94a52e38f02c516d61dda2c2bba3c455"
+    },
+    {
+      "bytes": 1831,
+      "name": "alpha/local-gcc4.1.diff",
+      "sha256": "9f2bb61ef79d39ebd75e2988541c5e0e7cdd52e2c8d0caa913e8ef457f9a4fed"
+    },
+    {
+      "bytes": 629,
+      "name": "alpha/submitted-dl-support.diff",
+      "sha256": "e1f29d99b180314d205c04995ea9e66762307f549df579f9caa2040f8332952d"
+    },
+    {
+      "bytes": 341,
+      "name": "alpha/submitted-fts64.diff",
+      "sha256": "fd5c7265ab941829881ee57a1e3b3ac26d55f5478430cd2a8f14bc6f8ee36998"
+    },
+    {
+      "bytes": 675,
+      "name": "alpha/submitted-makecontext.diff",
+      "sha256": "850621247bac6c82a88d85b71b426accd277bda5b57c2c19708eca6a8e499f28"
+    },
+    {
+      "bytes": 855,
+      "name": "arm/local-sigaction.diff",
+      "sha256": "3927c011f6971adf4f164cd5522976e3078d0efa3cfcf5c90cb930fb798701c6"
+    },
+    {
+      "bytes": 602,
+      "name": "arm/unsubmitted-ldso-multilib.diff",
+      "sha256": "af842dd5fc858cefbcbeb7371c49d149f3f76d845cfc891a8905839100d3eae4"
+    },
+    {
+      "bytes": 1035,
+      "name": "arm/local-arm-futex.diff",
+      "sha256": "627c5938baf5ccb990525e2ba2ee71de3db63a70fa1bc04000b5cbda439f710c"
+    },
+    {
+      "bytes": 2159,
+      "name": "hurd-i386/local-pthread_once.diff",
+      "sha256": "d275ce31355e21c5257f848436f54b8614cc51805b45b28131324a0ed55960c7"
+    },
+    {
+      "bytes": 1932,
+      "name": "hurd-i386/local-64b-align.diff",
+      "sha256": "76453cfc583c57e5c5f5e648bd186b45dff28265e80525421230d2959c961b71"
+    },
+    {
+      "bytes": 922,
+      "name": "hurd-i386/local-enable-ldconfig.diff",
+      "sha256": "16e21eb5d5c0a1ac5cc93e9f218d622ceeba58639875198845cdd57c3f97f6e2"
+    },
+    {
+      "bytes": 21953,
+      "name": "hurd-i386/tg-sysvshm.diff",
+      "sha256": "160a37b38e8c2d5432d73e43adfc0125948c109bb8052053d0917bfcf17461e4"
+    },
+    {
+      "bytes": 2887,
+      "name": "hurd-i386/tg-thread-cancel.diff",
+      "sha256": "864d1320e4c51e569bdf58e4b7747781e3559b9d392686cba901c00f158bf651"
+    },
+    {
+      "bytes": 924,
+      "name": "hurd-i386/local-disable-ioctls.diff",
+      "sha256": "f7615babf38f0a63191178d0af3d5c826334fd11de9f530ec305c77c96a2a477"
+    },
+    {
+      "bytes": 7729,
+      "name": "hurd-i386/tg-sendmsg-SCM_CREDS.diff",
+      "sha256": "b561a9617b114f54bab3b1b06fbd794709665414c1aa380b0a9ef2acdd24c782"
+    },
+    {
+      "bytes": 987,
+      "name": "hurd-i386/tg-mach-hurd-link.diff",
+      "sha256": "58e3929cfb0dd3573e9bef0877a9d5480cedf451193bcfcb12adefff8193016b"
+    },
+    {
+      "bytes": 1239,
+      "name": "hurd-i386/local-ED.diff",
+      "sha256": "f1a99a0f668ae4967f45257ddb3ddbf67fe9e825fbd95613175e35bc7210ae26"
+    },
+    {
+      "bytes": 553,
+      "name": "hurd-i386/local-madvise_warn.diff",
+      "sha256": "b9b226e5aa805bc6a884055f41ae8e013ac74f6299ce10fa29686fe78414527c"
+    },
+    {
+      "bytes": 1177,
+      "name": "hurd-i386/local-usr.diff",
+      "sha256": "7ff001cfd98568907adb7be727c84dc1c71420d9aefe2d0ceb0efc13c7c9a35c"
+    },
+    {
+      "bytes": 10986,
+      "name": "hurd-i386/tg-ifaddrs_v6.diff",
+      "sha256": "ec0b3065898fbe48af62def4ed85ad1edf06ae53e989a4caeab16d9bc9b31290"
+    },
+    {
+      "bytes": 1820,
+      "name": "hurd-i386/unsubmitted-clock_t_centiseconds.diff",
+      "sha256": "af3139bf83e29c1be1b34058f1c6965fb26ac22a059566ff546d6daca284fe1f"
+    },
+    {
+      "bytes": 1626,
+      "name": "hurd-i386/submitted-bind_umask2.diff",
+      "sha256": "d4f6e790a8bf02d189d133fbaa03548a0cf72c720702e0f0ea97c8d2b5914ca3"
+    },
+    {
+      "bytes": 775,
+      "name": "hurd-i386/tg-bootstrap.diff",
+      "sha256": "e17d0aa99e83a25772e6caf3e10f4dc55156905611b37733237d2fad8a89e0dc"
+    },
+    {
+      "bytes": 3694,
+      "name": "hurd-i386/tg-libc_rwlock_recursive.diff",
+      "sha256": "d30527ddf52e46b6367a2c885fc4a92761d9abc8e6fed6842e792a1bb4017d7e"
+    },
+    {
+      "bytes": 1997,
+      "name": "hurd-i386/local-no_unsupported_ioctls.diff",
+      "sha256": "1f61964fadcef816c9f4e8cff51fe46fb6a36579e4a0755560ff7d23625b0ab9"
+    },
+    {
+      "bytes": 1434,
+      "name": "hurd-i386/local-stack_chk_guard.diff",
+      "sha256": "7f1bb2efbb7444247b9f8a6aaa4d2b2cd21ae29abe58adad6813106b52f2cadd"
+    },
+    {
+      "bytes": 1611,
+      "name": "hurd-i386/git-fork-gdb.diff",
+      "sha256": "183721d72585c606f71dbc67d40b84824ae5ac6585cc32459a74d66930bed8b0"
+    },
+    {
+      "bytes": 6616,
+      "name": "hurd-i386/git-sig-sig-mmx-fix.diff",
+      "sha256": "ce6c552910915900827836ac2108c0d7ea7fb764e1ce8ff2b2e5859fa46c54ff"
+    },
+    {
+      "bytes": 8754,
+      "name": "hurd-i386/git-cancel-sig.diff",
+      "sha256": "4095a2e6f251a483553e85760848bf29e5d220e25117a3b0ba66d44e8fec9cc7"
+    },
+    {
+      "bytes": 1243,
+      "name": "hurd-i386/git-mach_send_eintr.diff",
+      "sha256": "3ef69639cd4f2f7609d1633a28d64289a295c22f15b4fd878ac01cf9b55b45af"
+    },
+    {
+      "bytes": 4918,
+      "name": "hurd-i386/git-itimer-lock.diff",
+      "sha256": "f6cdd1415a8124fc8e1694efd25725cc65edbbabce03c3224ca481be1ec655e7"
+    },
+    {
+      "bytes": 805,
+      "name": "hurd-i386/git-posix-timers.diff",
+      "sha256": "d1b41e7c0a70d2ba123bcd062031f19763fe3b6094383656d6f5d48b948afa35"
+    },
+    {
+      "bytes": 948,
+      "name": "hurd-i386/git-sig-alarm.diff",
+      "sha256": "8962ddf29a7ac63899e1f9923510793be273f8c4139ac2ece5bed8e0a4b6db9c"
+    },
+    {
+      "bytes": 979,
+      "name": "hurd-i386/git-libio-mtsafe.diff",
+      "sha256": "e40e57a74d5fa1ffd4dbf25a334d44ac1773b2900b730ba2a3655135edf19b3f"
+    },
+    {
+      "bytes": 4371,
+      "name": "hurd-i386/git-timedrwlock-unlock.diff",
+      "sha256": "c9b603a72b5b1e3329800ab4063b509bdfe2b4bcb5ccbf8b7c9b0ccce7007800"
+    },
+    {
+      "bytes": 4736,
+      "name": "hurd-i386/git-sigtimedwait-timeout.diff",
+      "sha256": "fadad23e4a0d5aec7b8cd4735aa00d367b8eb92b468714a7d95b80ea4e51a570"
+    },
+    {
+      "bytes": 5423,
+      "name": "hurd-i386/git-MSG_EXAMINE.diff",
+      "sha256": "fb8bda29ae844c28ce84df10e01166f43513570651879b5c60bb58d31cf4808a"
+    },
+    {
+      "bytes": 6025,
+      "name": "hurd-i386/git-interrupt-EINTR.diff",
+      "sha256": "109daf172e71e8f7a720e29d68d705e039fe52b89ab7c8ad008a8fd3616caab7"
+    },
+    {
+      "bytes": 516,
+      "name": "hurd-i386/git-SEM_FAILED.diff",
+      "sha256": "c0a8e4114784ac7b3a0058ef0ccde64c1481bf4c770b078cda04a8abdbc1bf36"
+    },
+    {
+      "bytes": 676,
+      "name": "hurd-i386/git-tst-fix.diff",
+      "sha256": "0961dffe872d634a872bb57a57ce25f8f010c7b5c784da69c6a7b9b122fdb82f"
+    },
+    {
+      "bytes": 944,
+      "name": "hurd-i386/git-SO_TIMESTAMP.diff",
+      "sha256": "9c96a9a23af06708562763db6d2326ee28a7a2f7c611383b153ba74e24a25169"
+    },
+    {
+      "bytes": 1439,
+      "name": "hurd-i386/git-path_mounted.diff",
+      "sha256": "bf1d4aa6f8abc7190f20fe048e45fe887a0c31e4c0dc7407adf823214a54c4a3"
+    },
+    {
+      "bytes": 1613,
+      "name": "hurd-i386/git-timedblock-signal.diff",
+      "sha256": "193e1ee89086fdfa9b6b6a4b4d98a538e365172cc22ec526a9b02593d72c0688"
+    },
+    {
+      "bytes": 1554,
+      "name": "hurd-i386/git-time_bits_i386.diff",
+      "sha256": "bf3fda4015df38434851ac6748243c978540780a23cbb6e358a89305f7101a47"
+    },
+    {
+      "bytes": 5301,
+      "name": "hurd-i386/git-time_bits_i386_32.diff",
+      "sha256": "f4ccff0e98c3415a8c1d6efa4a6180d99da9e76a8735be0ccb3566790d2708c9"
+    },
+    {
+      "bytes": 3275,
+      "name": "hurd-i386/git-setreugid.diff",
+      "sha256": "82b983a2b92c6a3bd64025ebf247c139845c65239588a1d5de116cae1f4d5adb"
+    },
+    {
+      "bytes": 507,
+      "name": "i386/local-biarch.diff",
+      "sha256": "e04e9f90c9521a562706b0ae14f6fcaf683bec3418949d8c2cf81b5745813259"
+    },
+    {
+      "bytes": 379,
+      "name": "i386/unsubmitted-quiet-ldconfig.diff",
+      "sha256": "826fde5f5b98710efef34e824ae33feb59ed2d13ce94bc8ac3bbdb83fa66c340"
+    },
+    {
+      "bytes": 3142,
+      "name": "i386/local-setcontext-revert-eax-ecx-edx.patch",
+      "sha256": "a19bc16a1d8bfb0da5f2819a83b7bb04fdbf1db8487eddcdbfe3ffab4a82b295"
+    },
+    {
+      "bytes": 806,
+      "name": "m68k/local-reloc.diff",
+      "sha256": "286055e52c8b7bd5677e99c1fdde1fe639f5e4dbca0f22cb707f053366c770df"
+    },
+    {
+      "bytes": 674,
+      "name": "mips/submitted-rld_map.diff",
+      "sha256": "1ee338abf51f73f455040cb6d94d39bb77b456bcae7bf7a7279a41bcc79ddd9d"
+    },
+    {
+      "bytes": 915,
+      "name": "powerpc/local-powerpc8xx-dcbz.diff",
+      "sha256": "c8f2edfc4fe17f0abf22290c0879a8d1b55f9b66bc9b82e7cd04869d7b6c16a3"
+    },
+    {
+      "bytes": 964,
+      "name": "sh4/local-fpscr_values.diff",
+      "sha256": "27454c3a56b3a1d115cfac1185e1e37d66976d1060cc54270b4ac6680d275ecd"
+    },
+    {
+      "bytes": 8078,
+      "name": "all/local-remove-manual.diff",
+      "sha256": "f4cac3b4b80413d5a981d93cfd828bae7a8337e3711186580d6bdba44e943f4a"
+    },
+    {
+      "bytes": 891,
+      "name": "all/local-ldd.diff",
+      "sha256": "221c95bcddc9535e62212eb8d5e4552533145ee27bc6da9b87492adc9b3b9bfd"
+    },
+    {
+      "bytes": 1161,
+      "name": "any/local-asserth-decls.diff",
+      "sha256": "2aacb4700daeca26d43a1f853589591bfa70450ac909cce7cb7085b316e732e3"
+    },
+    {
+      "bytes": 1026,
+      "name": "any/local-fhs-linux-paths.diff",
+      "sha256": "c1c2eff1d40d6913adfcb928176e1a9d9bb63a14a23a84dc576010fd1999b5b8"
+    },
+    {
+      "bytes": 855,
+      "name": "any/local-fhs-nscd.diff",
+      "sha256": "9756e24882ac856b01bc9c9d3f2f5a19b41524970f4f918173e3255787fe0beb"
+    },
+    {
+      "bytes": 1355,
+      "name": "any/local-ld-multiarch.diff",
+      "sha256": "f7c72262826010174c8e432e93bee93254bf60beb96d0294f0418dfc9472b51a"
+    },
+    {
+      "bytes": 432,
+      "name": "any/local-stubs_h.diff",
+      "sha256": "37b1bfd845bdc7317b585c7bfc07079c18212a4c26f7ab70fcfdbf4f2066482c"
+    },
+    {
+      "bytes": 3002,
+      "name": "any/local-tcsetaddr.diff",
+      "sha256": "a8ab148887b0dc44bb8d37813bc6669ae99f3e1d785644860e292cdeeecf3e5f"
+    },
+    {
+      "bytes": 1992,
+      "name": "any/local-nss-overflow.diff",
+      "sha256": "230770e23052edaef0bd70b3eb49d596fb77e6cdc9dab32043d3f1044883b756"
+    },
+    {
+      "bytes": 306,
+      "name": "any/submitted-missing-etc-hosts.diff",
+      "sha256": "1a7d9783b9270b97dbe6df55441f8a47d0cab7ae443720259c75e8ce53f5b477"
+    },
+    {
+      "bytes": 1558,
+      "name": "any/local-ldconfig-multiarch.diff",
+      "sha256": "214e510b8ac7624f2dac8983f2abc7db0a0c72e18f8c2abd0af0bb63d633ee58"
+    },
+    {
+      "bytes": 478,
+      "name": "any/local-disable-libnss-db.diff",
+      "sha256": "3d9654f23dc0b65f5f91a06e07a9bbee188e1f47317351058a9f3078bc811ba3"
+    },
+    {
+      "bytes": 1205,
+      "name": "any/local-revert-bz13979.diff",
+      "sha256": "f10c9b712b83b9430b22bc0b8a4d7553a94122f1e67d960b4270b5a5e2a4fc72"
+    },
+    {
+      "bytes": 556,
+      "name": "any/unsubmitted-ldso-machine-mismatch.diff",
+      "sha256": "5e79fa2421af1a2c6d9a055c7e6d2b0351eea5bf9a40c7ec5d3387f2f533ed63"
+    },
+    {
+      "bytes": 1810,
+      "name": "any/local-ldconfig-ignore-ld.so.diff",
+      "sha256": "d7f3513bf212a124f085bded16f012933c164fe3c500fc54b51b9d4a8787f613"
+    },
+    {
+      "bytes": 3245,
+      "name": "any/local-bootstrap-headers.diff",
+      "sha256": "4651f6bfd4bb62bd7e8372f970a1f5c4a6f4753c96d3577c29a35f123792469b"
+    },
+    {
+      "bytes": 641,
+      "name": "any/local-test-install.diff",
+      "sha256": "ecea70be891e06f0961f713b3dcd8851bc010db8b0c17bb336de00724fc7f167"
+    },
+    {
+      "bytes": 722,
+      "name": "any/local-cross.patch",
+      "sha256": "bc6ee0c521a5e705ad4745820563a15a33645e5358a86254beb8a350c9dbd98c"
+    },
+    {
+      "bytes": 1169,
+      "name": "0002-held-builder-test-expectations.patch",
+      "sha256": "f730c778ba51f9e525c9f6a7949a76af00364d49f41eedb5d73b8e86a3d4c132"
+    }
+  ],
+  "frozen_sources_preserved": true,
+  "hardware": "NOT RUN",
+  "harness_manifest_sha256": "fb65b9f86128eb59d9ef2026305737495cd195747d8a741204ba10ee3434f361",
+  "installation": "NOT RUN_STAGED_EXPLICIT_LOADER_ONLY",
+  "normal_client_bytes_reproduced": true,
+  "old_binary_recipe": "UNRESOLVED-no-waiver",
+  "ownership_token": "007dcd0c6ae386a72c492c2bb8074c16",
+  "package_admission": "NOT REQUESTED",
+  "package_version": "2.43.caa3-1",
+  "performance": "NOT MEASURED",
+  "private16k_admission": {
+    "source_authority": {
+      "candidate": {
+        "archive_sha256": "b8f0d50a7d4255658efe1f608cacdc4be82bb3c009875626df5968cc64c58880",
+        "name": "cachy-asahi-glibc-gnu-provider",
+        "patch_tar_sha256": "9f62b90fb4c7423ed5023698c9014ad0086d26f9b6f46b2a163afcea7e581a02",
+        "prepared_tree": "08ea2aef96bd3144cf02cbc68cbbb003dc25ed9f",
+        "quilt_tree": "aa963b6ef1d55056efbab622411d2530a636422d",
+        "version": "2.43.caa3-1"
+      },
+      "decision_sha256": "88643eabd61a39df63ecaeb50bb20041d17cf4fd3adee55d82d43d3c1ca08707",
+      "native": "NOT_RUN",
+      "release": "NOT_ADMITTED",
+      "security": "NO_CREDIT",
+      "status": "PASS_ROOT_BOUND_MAINTAINED_SOURCE_AUTHORITY_ONLY"
+    },
+    "status": "NOT_RUN_NEW_DEBIAN_SOURCE_NO_OLD_PAIR_CREDIT"
+  },
+  "release_payload_tree": "1fbcd978e2051d72273231f03b921b1503e0e424",
+  "scope": "UNSELECTED_OWNED_CONVENTIONAL_USR_GLIBC_PROVIDER",
+  "security": "NOT_REVIEWED_NO_PATCH_EQUIVALENCE",
+  "smoke_manifest_sha256": "e10336aef200731c7dd4b06546b718e095c1ecf7718e4a25fa57d6bbed6270a6",
+  "source_authentication": {
+    "authority": {
+      "candidate": {
+        "archive_sha256": "b8f0d50a7d4255658efe1f608cacdc4be82bb3c009875626df5968cc64c58880",
+        "name": "cachy-asahi-glibc-gnu-provider",
+        "patch_tar_sha256": "9f62b90fb4c7423ed5023698c9014ad0086d26f9b6f46b2a163afcea7e581a02",
+        "prepared_tree": "08ea2aef96bd3144cf02cbc68cbbb003dc25ed9f",
+        "quilt_tree": "aa963b6ef1d55056efbab622411d2530a636422d",
+        "version": "2.43.caa3-1"
+      },
+      "decision_sha256": "88643eabd61a39df63ecaeb50bb20041d17cf4fd3adee55d82d43d3c1ca08707",
+      "native": "NOT_RUN",
+      "release": "NOT_ADMITTED",
+      "security": "NO_CREDIT",
+      "status": "PASS_ROOT_BOUND_MAINTAINED_SOURCE_AUTHORITY_ONLY"
+    },
+    "chain": {
+      "archive": {
+        "bytes": 21553420,
+        "sha256": "b8f0d50a7d4255658efe1f608cacdc4be82bb3c009875626df5968cc64c58880"
+      },
+      "date": "Fri, 16 Oct 2026 20:10:58 UTC",
+      "diagnostic": "gpgv: Signature made Fri Oct 16 20:12:25 2026 UTC\ngpgv:                using RSA key 4CB50190207B4758A3F73A796ED0E7B82643E131\ngpgv: Good signature from \"Debian Archive Automatic Signing Key (12/bookworm) <ftpmaster@debian.org>\"\ngpgv: Signature made Fri Oct 16 20:12:27 2026 UTC\ngpgv:                using RSA key B8E5F13176D2A7A75220028078DBA3BC47EF2265\ngpgv: Good signature from \"Debian Archive Automatic Signing Key (13/trixie) <ftpmaster@debian.org>\"\n",
+      "gpg_status": "[GNUPG:] PLAINTEXT 74 0 \n[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED B8B80B5B623EAB6AD8775C45B7C5D7D6350947F8 0\n[GNUPG:] SIG_ID /SAPfCvT7Vv440SeF0TUW7WDK8w 2026-10-16 1792181545\n[GNUPG:] GOODSIG 6ED0E7B82643E131 Debian Archive Automatic Signing Key (12/bookworm) <ftpmaster@debian.org>\n[GNUPG:] VALIDSIG 4CB50190207B4758A3F73A796ED0E7B82643E131 2026-10-16 1792181545 0 4 0 1 8 01 B8B80B5B623EAB6AD8775C45B7C5D7D6350947F8\n[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED 04B54C3CDCA79751B16BC6B5225629DF75B188BD 0\n[GNUPG:] SIG_ID +9UYrQqKxFGEJg0Fa6Z9sUUMZrc 2026-10-16 1792181547\n[GNUPG:] GOODSIG 78DBA3BC47EF2265 Debian Archive Automatic Signing Key (13/trixie) <ftpmaster@debian.org>\n[GNUPG:] VALIDSIG B8E5F13176D2A7A75220028078DBA3BC47EF2265 2026-10-16 1792181547 0 4 0 1 8 01 04B54C3CDCA79751B16BC6B5225629DF75B188BD\n",
+      "key_material": [
+        {
+          "created": 1674301461,
+          "expires": 1926589461,
+          "fingerprint": "B8B80B5B623EAB6AD8775C45B7C5D7D6350947F8",
+          "kind": "pub",
+          "primary": "B8B80B5B623EAB6AD8775C45B7C5D7D6350947F8"
+        },
+        {
+          "created": 1674301461,
+          "expires": 1926589461,
+          "fingerprint": "4CB50190207B4758A3F73A796ED0E7B82643E131",
+          "kind": "sub",
+          "primary": "B8B80B5B623EAB6AD8775C45B7C5D7D6350947F8"
+        },
+        {
+          "created": 1743339029,
+          "expires": 2058699029,
+          "fingerprint": "04B54C3CDCA79751B16BC6B5225629DF75B188BD",
+          "kind": "pub",
+          "primary": "04B54C3CDCA79751B16BC6B5225629DF75B188BD"
+        },
+        {
+          "created": 1743339029,
+          "expires": 2058699029,
+          "fingerprint": "B8E5F13176D2A7A75220028078DBA3BC47EF2265",
+          "kind": "sub",
+          "primary": "04B54C3CDCA79751B16BC6B5225629DF75B188BD"
+        }
+      ],
+      "key_pairs": {
+        "04B54C3CDCA79751B16BC6B5225629DF75B188BD": "B8E5F13176D2A7A75220028078DBA3BC47EF2265",
+        "B8B80B5B623EAB6AD8775C45B7C5D7D6350947F8": "4CB50190207B4758A3F73A796ED0E7B82643E131"
+      },
+      "release": {
+        "bytes": 191192,
+        "sha256": "bab0005a134107c790a50ac7a5307fe57fafb1de16693718ed39191ad2ccd1c2"
+      },
+      "release_admission": "NOT_GRANTED",
+      "security": "NO_CREDIT",
+      "source_record": {
+        "bytes": 7730,
+        "sha256": "d26c264ad15a3d5644434ada4813f9e891a8cd98cc78bb72b1dafeeedd8c5078"
+      },
+      "sources": {
+        "bytes": 12028604,
+        "sha256": "781f5a9546d0b41aaa5b4abcf61ba3168fc5dc8c0e74f17d68a2a24670035583"
+      },
+      "status": "CRYPTOGRAPHIC_DEBIAN_CHAIN_ONLY_NOT_BOOTSTRAP_AUTHORITY",
+      "valid_until": "Fri, 23 Oct 2026 20:10:58 UTC"
+    },
+    "old_native_pair": "NOT_REUSED",
+    "source_preparation": {
+      "after_tree": "08ea2aef96bd3144cf02cbc68cbbb003dc25ed9f",
+      "attempted": 85,
+      "before_tree": "1fbcd978e2051d72273231f03b921b1503e0e424",
+      "build": "NOT_RUN",
+      "candidate": "NEW_CAA3_SOURCE_NOT_CAA2",
+      "completed": 85,
+      "delta": {
+        "ADVISORIES": {
+          "after": {
+            "bytes": 138,
+            "mode": 420,
+            "sha256": "b9a59cef019646b86df6f920685f78700c08aee2b96e768d1a7421f60b4fc0fd",
+            "type": "file"
+          },
+          "before": null
+        },
+        "Makeconfig": {
+          "after": {
+            "bytes": 56399,
+            "mode": 420,
+            "sha256": "47177ff732f83c8aa3fe1b148e775f68105afa4c9cce84e663fe71ac31e3f580",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 56202,
+            "mode": 420,
+            "sha256": "4e9c08d05aa774dab9fe87cb6ec9ff1b4a5b1c698a8b5a3382cb4eeb3aab5a86",
+            "type": "file"
+          }
+        },
+        "Makefile": {
+          "after": {
+            "bytes": 24802,
+            "mode": 420,
+            "sha256": "c1fdb2fbf8128a03ca4f106ad19db2362ba259e06c108f96034ff6a5ddf3d7e7",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 24097,
+            "mode": 420,
+            "sha256": "28250be8ee7c2d5721144b8a331643f51a9a366167ab137e388a268104bf0746",
+            "type": "file"
+          }
+        },
+        "Makerules": {
+          "after": {
+            "bytes": 50404,
+            "mode": 420,
+            "sha256": "c73550b8a992615c58241c78b57be87d365ccc73bb8280e8aeb9003ab52c373f",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 50294,
+            "mode": 420,
+            "sha256": "fcbfc5a4e7c0174dd5b404fb2c6459de7e2b90c93784f8e6938ccf171847b87f",
+            "type": "file"
+          }
+        },
+        "NEWS": {
+          "after": {
+            "bytes": 409351,
+            "mode": 420,
+            "sha256": "ee164d204a32b98bbac89a1e5feb36cc9283543e444266d686b24ee1777b0d11",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 408870,
+            "mode": 420,
+            "sha256": "78d5545c9b708621881cd97d085e753774ff7cd125338c7dac22ef94087239bf",
+            "type": "file"
+          }
+        },
+        "Rules": {
+          "after": {
+            "bytes": 17717,
+            "mode": 420,
+            "sha256": "e6516939da9238294c2e0937c8bd21151c9e6d28d6436260cff9b413aa1d43fc",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 17633,
+            "mode": 420,
+            "sha256": "90126ae8f1836fca6671f3b124e3a056e45a3ae1b7cea1629d1caa3ac72cfaf3",
+            "type": "file"
+          }
+        },
+        "advisories": {
+          "after": null,
+          "before": {
+            "mode": 493,
+            "type": "directory"
+          }
+        },
+        "advisories/GLIBC-SA-2023-0001": {
+          "after": null,
+          "before": {
+            "bytes": 696,
+            "mode": 420,
+            "sha256": "ac1d8b7667ba585b173c1ad5a7b7ceaeb096c473ad85f6fd7c6d664d9901c67f",
+            "type": "file"
+          }
+        },
+        "advisories/GLIBC-SA-2023-0002": {
+          "after": null,
+          "before": {
+            "bytes": 701,
+            "mode": 420,
+            "sha256": "1db1cedb04c8c3b6512f43bee0f4ce37bd56b4221e82e1a7fec234e651d79c22",
+            "type": "file"
+          }
+        },
+        "advisories/GLIBC-SA-2023-0003": {
+          "after": null,
+          "before": {
+            "bytes": 686,
+            "mode": 420,
+            "sha256": "1ab14bdbbaf5b5468dd024f489db647b5bd645dd0672f34bd34ead7e8e8e699d",
+            "type": "file"
+          }
+        },
+        "advisories/GLIBC-SA-2023-0004": {
+          "after": null,
+          "before": {
+            "bytes": 796,
+            "mode": 420,
+            "sha256": "5e868d09d8c23ffa906df55bdbca2692510efa4b6f34bb43f2842c8d5061ac95",
+            "type": "file"
+          }
+        },
+        "advisories/GLIBC-SA-2023-0005": {
+          "after": null,
+          "before": {
+            "bytes": 910,
+            "mode": 420,
+            "sha256": "66750ced1acb4fee1a230d61aab42c50991e1e0d24a1a169876c2672a6ae3b68",
+            "type": "file"
+          }
+        },
+        "advisories/GLIBC-SA-2024-0001": {
+          "after": null,
+          "before": {
+            "bytes": 706,
+            "mode": 420,
+            "sha256": "f70e0ea3def5ac74b4e2cdca442cb3110d3153587fc9ca7e57977590ec982bb4",
+            "type": "file"
+          }
+        },
+        "advisories/GLIBC-SA-2024-0002": {
+          "after": null,
+          "before": {
+            "bytes": 715,
+            "mode": 420,
+            "sha256": "1cb8230a6f731376f228e7649f09d8ad7640b4262309ac26093788bb31269eae",
+            "type": "file"
+          }
+        },
+        "advisories/GLIBC-SA-2024-0003": {
+          "after": null,
+          "before": {
+            "bytes": 606,
+            "mode": 420,
+            "sha256": "ca3a5c9f76d9677bf1ccb563d448325e2e01ee8994cdfb4befbff19c0a8fde62",
+            "type": "file"
+          }
+        },
+        "advisories/GLIBC-SA-2024-0004": {
+          "after": null,
+          "before": {
+            "bytes": 1442,
+            "mode": 420,
+            "sha256": "c449d691edec6fe82bbcbd45aad98a124b94a2c9ea05e24b85031d58fd55eef2",
+            "type": "file"
+          }
+        },
+        "advisories/GLIBC-SA-2024-0005": {
+          "after": null,
+          "before": {
+            "bytes": 1118,
+            "mode": 420,
+            "sha256": "72ef2e130dc14d7fc4c06530b3736b76c59fe75fb1163f2da7c7884f05b3cf76",
+            "type": "file"
+          }
+        },
+        "advisories/GLIBC-SA-2024-0006": {
+          "after": null,
+          "before": {
+            "bytes": 1727,
+            "mode": 420,
+            "sha256": "9d4a4264a05100ac290d565e54703ba1c6a29ff13a0fbb5b39dadd3b0b622f76",
+            "type": "file"
+          }
+        },
+        "advisories/GLIBC-SA-2024-0007": {
+          "after": null,
+          "before": {
+            "bytes": 1446,
+            "mode": 420,
+            "sha256": "0a642a0bfc976df5ee0fbc06deead32aa218d75ee3bcc9e4cc0134003d5bcf8e",
+            "type": "file"
+          }
+        },
+        "advisories/GLIBC-SA-2024-0008": {
+          "after": null,
+          "before": {
+            "bytes": 1363,
+            "mode": 420,
+            "sha256": "d7dc4c89f0cfe72b317ddc83445eceb7cabb8b2a3543f81cecd70e14d41c7e48",
+            "type": "file"
+          }
+        },
+        "advisories/GLIBC-SA-2025-0001": {
+          "after": null,
+          "before": {
+            "bytes": 2324,
+            "mode": 420,
+            "sha256": "89489fd47d7bd5dda62bc4d02b10faa1401d608dcbf8cce58abb1555457b9d34",
+            "type": "file"
+          }
+        },
+        "advisories/GLIBC-SA-2025-0002": {
+          "after": null,
+          "before": {
+            "bytes": 1251,
+            "mode": 420,
+            "sha256": "3862b62c9a5703e3e9c8f023134326573c30f8209e57f57ba517fb065a5758d5",
+            "type": "file"
+          }
+        },
+        "advisories/GLIBC-SA-2025-0003": {
+          "after": null,
+          "before": {
+            "bytes": 1477,
+            "mode": 420,
+            "sha256": "6f0b2f43778d2c7028fbceb5bb6b58bb05b32f6fa468f8c6a760f157c340ad63",
+            "type": "file"
+          }
+        },
+        "advisories/GLIBC-SA-2025-0004": {
+          "after": null,
+          "before": {
+            "bytes": 1418,
+            "mode": 420,
+            "sha256": "112745860addabd27d1032085008094353e01bea05c6e4d7c700ac329d210d21",
+            "type": "file"
+          }
+        },
+        "advisories/GLIBC-SA-2025-0005": {
+          "after": null,
+          "before": {
+            "bytes": 657,
+            "mode": 420,
+            "sha256": "6c3195777ad7e8c3c6cb9cf00d80322c9133586295520486d1fefd6dd33890a2",
+            "type": "file"
+          }
+        },
+        "advisories/GLIBC-SA-2026-0001": {
+          "after": null,
+          "before": {
+            "bytes": 2274,
+            "mode": 420,
+            "sha256": "a7d145ad56a134dfe57e9e5b2a3a88b843dfc467ffc25711d65b177194166953",
+            "type": "file"
+          }
+        },
+        "advisories/GLIBC-SA-2026-0002": {
+          "after": null,
+          "before": {
+            "bytes": 2082,
+            "mode": 420,
+            "sha256": "dd0a39b6834a058c2a1e44fdc7e7577f0e88b035ad5d8fe3696b08545e6fc530",
+            "type": "file"
+          }
+        },
+        "advisories/GLIBC-SA-2026-0003": {
+          "after": null,
+          "before": {
+            "bytes": 2034,
+            "mode": 420,
+            "sha256": "7bd9c25e07dba6b6d26fbf425b27fc698474e2a8014d14d2e31f1cde0aeffe04",
+            "type": "file"
+          }
+        },
+        "advisories/README": {
+          "after": null,
+          "before": {
+            "bytes": 2777,
+            "mode": 420,
+            "sha256": "ae5d2eecc4a39629631f0d8904035cedd19ad40f5ba17116c32de804d48c5a6e",
+            "type": "file"
+          }
+        },
+        "assert/assert.h": {
+          "after": {
+            "bytes": 6922,
+            "mode": 420,
+            "sha256": "efd33a1d9224c27a176166d18e82d39630a4bd8ae8956ff5f09d9b40afae693a",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 6841,
+            "mode": 420,
+            "sha256": "bedb320895856c94f58760831b05a86dc7230641c6697e76e1dc70eb864d6b4c",
+            "type": "file"
+          }
+        },
+        "conform/Makefile": {
+          "after": {
+            "bytes": 11316,
+            "mode": 420,
+            "sha256": "769227ad708ad0ab72d865001793af02a9d989289a6d5e44e3349a14392cacd7",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 11454,
+            "mode": 420,
+            "sha256": "f6fc77a91b386fd4b19e7b76de83c33bb0f7e1000e83045b108d526df9898eff",
+            "type": "file"
+          }
+        },
+        "elf/Makefile": {
+          "after": {
+            "bytes": 119676,
+            "mode": 420,
+            "sha256": "2d78b197aae1581782dd8b2ce0f5fb51cfa8e2b2689fedc286e3e78c5d395f1a",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 119192,
+            "mode": 420,
+            "sha256": "9fd3b071751bccb8116d05e8b703172962ebdc437692a81c98578db5d60299ad",
+            "type": "file"
+          }
+        },
+        "elf/dl-load.c": {
+          "after": {
+            "bytes": 69335,
+            "mode": 420,
+            "sha256": "e46e0947d91cb5a43b2bf0cb3ca7472b0a86482bd80d226402c8ef6ce3d2c823",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 68674,
+            "mode": 420,
+            "sha256": "d4e96705a45a1f120f8a8a27e23778a976e9c055fabeeed87cdc8f6888e71109",
+            "type": "file"
+          }
+        },
+        "elf/dl-path-normalize.h": {
+          "after": {
+            "bytes": 3642,
+            "mode": 420,
+            "sha256": "3a3ea25f5a7218a34ae84052eeb16cbc3817ffd1bfba8ef9808110ca936610ab",
+            "type": "file"
+          },
+          "before": null
+        },
+        "elf/dl-reloc-static-pie.c": {
+          "after": {
+            "bytes": 3229,
+            "mode": 420,
+            "sha256": "1d092e7226651d6025d7333e1773012105a155b7c203fdf1491b6310daa84546",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 3194,
+            "mode": 420,
+            "sha256": "5849e8ff08a405728e620e56d50269bfa68e336dc15269056e98a1b1696e43f2",
+            "type": "file"
+          }
+        },
+        "elf/dl-tunables.c": {
+          "after": {
+            "bytes": 11807,
+            "mode": 420,
+            "sha256": "74c47d9b03b397fe5c9f3ba5d8ab1ad63a90585fc4f4e64bda585edd6c7a51d6",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 11880,
+            "mode": 420,
+            "sha256": "19b9cf93932b323ad01c696f18f62a8beb866e808229c448fd1838c85ec45d58",
+            "type": "file"
+          }
+        },
+        "elf/ldconfig.c": {
+          "after": {
+            "bytes": 36055,
+            "mode": 420,
+            "sha256": "2be9b8687cd3c17d77399b15454914aebfbd22a1affe94e4b75c2144a0e47749",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 34808,
+            "mode": 420,
+            "sha256": "0ba98dc9182e70f18f0b22c721cd9a4fbff7ce635250acc41ed1200faf2b6d57",
+            "type": "file"
+          }
+        },
+        "elf/ldd.bash.in": {
+          "after": {
+            "bytes": 5267,
+            "mode": 420,
+            "sha256": "d6bccab96959627c4c0ca6a1b5c52011957dcec821ff8b1185ab31b960f5329c",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 5306,
+            "mode": 420,
+            "sha256": "b65c193c03dd15884d2cd1cb971d62856390418421ddb06ada249e7a72755b86",
+            "type": "file"
+          }
+        },
+        "elf/libtst-origin-secure-mod.c": {
+          "after": {
+            "bytes": 935,
+            "mode": 420,
+            "sha256": "b756d38e87fde9aabebe9295e0e094b3041ec0ba36ef139f0f8f15e8e72500c9",
+            "type": "file"
+          },
+          "before": null
+        },
+        "elf/tst-dl-path-normalize.c": {
+          "after": {
+            "bytes": 4423,
+            "mode": 420,
+            "sha256": "cec0c119f9c299a809a2647ac9edd8601f105b08afb366d2c8547860bfdb35ac",
+            "type": "file"
+          },
+          "before": null
+        },
+        "elf/tst-glibc-hwcaps-prepend-cache.c": {
+          "after": {
+            "bytes": 5054,
+            "mode": 420,
+            "sha256": "c299b11267a4f1a855da582e10b9e987dcb32076229e7c15990051a20ee6d492",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 5040,
+            "mode": 420,
+            "sha256": "2cdcbe6a43076951a0b69e7b607de244900ab4296fdca40a06732e4cc53af341",
+            "type": "file"
+          }
+        },
+        "elf/tst-link-map-contiguous-ldso.c": {
+          "after": {
+            "bytes": 4795,
+            "mode": 420,
+            "sha256": "b0a37722309c18b305e3a2e06024cd8874986a35988cfa0ddefb991b10b0fdaa",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 3089,
+            "mode": 420,
+            "sha256": "5e1d2f54c2e39be0aef2b550e9ec79d1c0d3e25dd282453b338dc6c40c0b2149",
+            "type": "file"
+          }
+        },
+        "elf/tst-origin-secure-evilmod.c": {
+          "after": {
+            "bytes": 1141,
+            "mode": 420,
+            "sha256": "d01857b36d78d00dfba435a23da74f2bcc64e25475e2ab387456f01d733e347c",
+            "type": "file"
+          },
+          "before": null
+        },
+        "elf/tst-origin-secure-victim.c": {
+          "after": {
+            "bytes": 1769,
+            "mode": 420,
+            "sha256": "11c2d6241d14acc239d2a7868e3ed8c04427f279a9988593c6938b21cbe82856",
+            "type": "file"
+          },
+          "before": null
+        },
+        "elf/tst-origin-secure.c": {
+          "after": {
+            "bytes": 8087,
+            "mode": 420,
+            "sha256": "78d863d2bdb5c37e7e0d1873bf7f903f17462955ba2f5a0d73aa38887d927b35",
+            "type": "file"
+          },
+          "before": null
+        },
+        "elf/tst-origin-secure.h": {
+          "after": {
+            "bytes": 1445,
+            "mode": 420,
+            "sha256": "c1cec01c010238b0eaada7be3026585538f436f24f1b86a1d6959e394d6f7fa0",
+            "type": "file"
+          },
+          "before": null
+        },
+        "elf/tst-origin-secure.root": {
+          "after": {
+            "mode": 493,
+            "type": "directory"
+          },
+          "before": null
+        },
+        "elf/tst-origin-secure.root/postclean.req": {
+          "after": {
+            "bytes": 0,
+            "mode": 420,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "type": "file"
+          },
+          "before": null
+        },
+        "elf/tst-rtld-list-tunables.sh": {
+          "after": {
+            "bytes": 1105,
+            "mode": 493,
+            "sha256": "cb5abfb844d3ade601654b78a6e3bea3cd1c941cd3ae0694967eb2af90d91de0",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 1246,
+            "mode": 493,
+            "sha256": "163cba65e6a6d5eccebba06d5668a0f02ab59ecd3cabbfbdb80e123e7a78f044",
+            "type": "file"
+          }
+        },
+        "hesiod/nss_hesiod/hesiod-proto.c": {
+          "after": {
+            "bytes": 3527,
+            "mode": 420,
+            "sha256": "389ba49c28e2662a097d39d830fb97f33482a1dcd868b1040f85503d78897e52",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 3521,
+            "mode": 420,
+            "sha256": "5d50f530349319ff8ea04e265f01166bb351dea41f2c1a42afb588786526309f",
+            "type": "file"
+          }
+        },
+        "hesiod/nss_hesiod/hesiod-service.c": {
+          "after": {
+            "bytes": 3792,
+            "mode": 420,
+            "sha256": "893feff86ee10c8a25311d7fc326da32849fd8ec9722568febdc5f6df99fda14",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 3782,
+            "mode": 420,
+            "sha256": "21c4fe138a7332725e1fb5e1d801a459253a10596791f7fef0f5bad17189ed97",
+            "type": "file"
+          }
+        },
+        "htl/Versions": {
+          "after": {
+            "bytes": 10063,
+            "mode": 420,
+            "sha256": "52ae721fefdec75d3f28297946f2dd25c516f00e6d4e4f98111203ad7f167b95",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 10045,
+            "mode": 420,
+            "sha256": "441c065f2e4be707d392253042f15a08c5d3dd1ac402622ef6f52b076ce48d12",
+            "type": "file"
+          }
+        },
+        "htl/cancellation.c": {
+          "after": {
+            "bytes": 1541,
+            "mode": 420,
+            "sha256": "53ebf725f7169d122a52ad3baa29434a44466b77d603bf8aa27ed73877533e65",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 1428,
+            "mode": 420,
+            "sha256": "b2b1e4f399798bb6a419cb931ef7e811d947ab4b935b5603f6b51ac3a712b8c2",
+            "type": "file"
+          }
+        },
+        "htl/pt-cancel.c": {
+          "after": {
+            "bytes": 2356,
+            "mode": 420,
+            "sha256": "e4cf134b064eaeee8ee39e15734e3e2823292595e68d4d0c2ef5c67370330140",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 1965,
+            "mode": 420,
+            "sha256": "01386749c946beaeb7e90cadfa11446d2a4e99362a13ad698ba85ea0699523c2",
+            "type": "file"
+          }
+        },
+        "htl/pt-create.c": {
+          "after": {
+            "bytes": 9061,
+            "mode": 420,
+            "sha256": "f0fe09062eef64b1cdf8f4aa9874182a496d62444bce0d346f1513b96758f804",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 8994,
+            "mode": 420,
+            "sha256": "29917fcb5cfc9ea8045b529d920fae484b71cd57095e79a23f07fa964137a628",
+            "type": "file"
+          }
+        },
+        "htl/pt-internal.h": {
+          "after": {
+            "bytes": 12907,
+            "mode": 420,
+            "sha256": "4ac9c717579a8e41bda81b74bff2d288db97b78448d4fa0af0a7aebb38b66f52",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 12886,
+            "mode": 420,
+            "sha256": "34ac23a43ae7afd770fee10ad3c9cc92a54b7b99df37f5bb2a3a50e089b69cb3",
+            "type": "file"
+          }
+        },
+        "htl/pt-setcancelstate.c": {
+          "after": {
+            "bytes": 2032,
+            "mode": 420,
+            "sha256": "fa1ccdb8e86b1251b4c16f4345224e8230af611036c68981d954bcfb923cbce6",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 1963,
+            "mode": 420,
+            "sha256": "25b61231d6b474d3c0575f2f5c48659313c5d6586de23c8eabd662944c450087",
+            "type": "file"
+          }
+        },
+        "htl/pt-setcanceltype.c": {
+          "after": {
+            "bytes": 1887,
+            "mode": 420,
+            "sha256": "0492fedb24364ae21e64e9401fe90f212518c1f88c4dc829abd3457f1f2e46a7",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 1818,
+            "mode": 420,
+            "sha256": "72f896fe99135b8ca380ff75d8f94f6aa42ffa245f4950cf696267c2bf73ad91",
+            "type": "file"
+          }
+        },
+        "htl/pt-testcancel.c": {
+          "after": {
+            "bytes": 1582,
+            "mode": 420,
+            "sha256": "f8c2c506a15991fd8bc81805ebb2ce343c0078c2028a2c0734b35240eeb9cd65",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 1513,
+            "mode": 420,
+            "sha256": "befd91b8cd6d5ebe669e1fc3c952e7c7ce6fa8b5703fc1c573bed0603a74277d",
+            "type": "file"
+          }
+        },
+        "hurd/Makefile": {
+          "after": {
+            "bytes": 5366,
+            "mode": 420,
+            "sha256": "e0490150f2584d865030d46dcdfbb3e101f23bcf19ef19e753e311335f6f06f4",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 4722,
+            "mode": 420,
+            "sha256": "f5aff93b54e566c1b3fd16cb8258cd4fe49db78ce825ee673a24f24e08dbbdec",
+            "type": "file"
+          }
+        },
+        "hurd/hurdexec.c": {
+          "after": {
+            "bytes": 15847,
+            "mode": 420,
+            "sha256": "3171020bd53391897c14ed4760d60846a28f8fc94caad9795e0b3c6e246e8405",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 15909,
+            "mode": 420,
+            "sha256": "db4aee006658fcf97d0136bca2f4f6f94a9b8e133398ff417d1c0c3665e9e107",
+            "type": "file"
+          }
+        },
+        "hurd/hurdsig.c": {
+          "after": {
+            "bytes": 53048,
+            "mode": 420,
+            "sha256": "74670710b582f4f3f9aace767539cd578f1a2ef1f26582cd35a7e1f54e87258d",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 52087,
+            "mode": 420,
+            "sha256": "75226b04208f9e4d15862074966b0779829b0aa6ffaf4a2579cca81447189d98",
+            "type": "file"
+          }
+        },
+        "hurd/intr-msg.c": {
+          "after": {
+            "bytes": 12332,
+            "mode": 420,
+            "sha256": "640792bb95aa97b6ed9277592e74be4ef4316e0394dd61ac00d7ee991dba36d1",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 12086,
+            "mode": 420,
+            "sha256": "eb914e1b08820dc2821209e6235728d28eb551372dbc75c44d2d19efe088752d",
+            "type": "file"
+          }
+        },
+        "hurd/report-wait.c": {
+          "after": {
+            "bytes": 7374,
+            "mode": 420,
+            "sha256": "6ff0f819236202bdcb45a8eb3bce13844fb346e8e560793590f0bb2e2f088c44",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 7108,
+            "mode": 420,
+            "sha256": "b0a4d611d357b4ac05fe31071b69a270df2a889b9687719d886b6afb56fae3b1",
+            "type": "file"
+          }
+        },
+        "hurd/sysvshm.c": {
+          "after": {
+            "bytes": 2360,
+            "mode": 420,
+            "sha256": "6fb2442b7c581158cb473d6604d124c944877720ab5a329945f1a55af1cd1b52",
+            "type": "file"
+          },
+          "before": null
+        },
+        "hurd/sysvshm.h": {
+          "after": {
+            "bytes": 1747,
+            "mode": 420,
+            "sha256": "bf68bd81092b87dadae0c8569bcb36f2b04ccfd697d2d3e7eb1040691a25cf84",
+            "type": "file"
+          },
+          "before": null
+        },
+        "hurd/thread-cancel.c": {
+          "after": {
+            "bytes": 2545,
+            "mode": 420,
+            "sha256": "f97aadb2fa9dc59fea4bbe253bfc4b535ef50038ac689f5e672d749d8d8e9cdc",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 2669,
+            "mode": 420,
+            "sha256": "99f70524bbc83d310298541511dd861ad280bde7575e751f6c61f6fac5163be9",
+            "type": "file"
+          }
+        },
+        "iconv/Makefile": {
+          "after": {
+            "bytes": 5429,
+            "mode": 420,
+            "sha256": "4efe113e0ecf7040dcd7767e82c61daf727cd8623e7125b9e7e5cfa3e2a11fff",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 5410,
+            "mode": 420,
+            "sha256": "514bcd4126f85a4946f3eb0bc2429a2dfb02ebd5ed8906df504e22dc3716e125",
+            "type": "file"
+          }
+        },
+        "iconv/loop.c": {
+          "after": {
+            "bytes": 15020,
+            "mode": 420,
+            "sha256": "b461e16a14cff281db7b84060d72ea7cb00d6ebf018543d5746a770f99fbb654",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 14883,
+            "mode": 420,
+            "sha256": "4a13402a5904447b479c2ca8f9cb1b878e47cb6435cd2ec2ca5ffc6039fbf932",
+            "type": "file"
+          }
+        },
+        "iconv/tst-iconv_prog.sh": {
+          "after": {
+            "bytes": 11563,
+            "mode": 420,
+            "sha256": "1019ae41102d8b42d1846a956e44b359f960950b834320b673ae3fa32d7bd333",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 11345,
+            "mode": 420,
+            "sha256": "53535aa84ef86196cd3cb1f4448db805ac1b8fc3ad331fd357f8ed1686d4c159",
+            "type": "file"
+          }
+        },
+        "iconvdata/Makefile": {
+          "after": {
+            "bytes": 14557,
+            "mode": 420,
+            "sha256": "92273083083df70cb4392306dde1890f94b8c1dd74b22468d622881f219745fb",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 14288,
+            "mode": 420,
+            "sha256": "d951823a1fd1fb79264abef7c5959b1d92a4703bcd6df690ad0a03728abd2ac1",
+            "type": "file"
+          }
+        },
+        "iconvdata/euc-jisx0213.c": {
+          "after": {
+            "bytes": 14949,
+            "mode": 420,
+            "sha256": "4940d974aadefab6b318724576b048b8d903db34879959f962994c4051977f09",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 14826,
+            "mode": 420,
+            "sha256": "e3a48a8e5370edb93a8bfcf369794a0fdfa641aae2ba910839b6f7f04b3f8387",
+            "type": "file"
+          }
+        },
+        "iconvdata/ibm1364.c": {
+          "after": {
+            "bytes": 14207,
+            "mode": 420,
+            "sha256": "6ee8a830d10cfc7e4fccc8d18c6e4eab5139591c520d68b25fa1626a7c107928",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 12596,
+            "mode": 420,
+            "sha256": "829d366374f50290f0c5b19cd58e55d1fbf648d6048fa0c2f0d6939b143684ae",
+            "type": "file"
+          }
+        },
+        "iconvdata/shift_jisx0213.c": {
+          "after": {
+            "bytes": 15765,
+            "mode": 420,
+            "sha256": "a507752162900c47f085957e6d9ca1949b553c29cc5cdfbdea13e7ab2bae4dd3",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 15642,
+            "mode": 420,
+            "sha256": "b8d935e8eed4ed303fc0acbef2e17ddb5d295f1830be6a2362f4393386e8a37e",
+            "type": "file"
+          }
+        },
+        "iconvdata/tst-bug33980.c": {
+          "after": {
+            "bytes": 5148,
+            "mode": 420,
+            "sha256": "9208eb83c44762c129181606b862bfe4fd1f3ad0001bb896f5fbacb3fad3f54a",
+            "type": "file"
+          },
+          "before": null
+        },
+        "iconvdata/tst-jisx0213-progress.c": {
+          "after": {
+            "bytes": 3726,
+            "mode": 420,
+            "sha256": "84ad732be8e95aaab2c7ddf8c4dfe669a8cc425b5e42c4c1ce18b80fe6b8ca97",
+            "type": "file"
+          },
+          "before": null
+        },
+        "include/bits/stdio2-decl.h": {
+          "after": {
+            "bytes": 368,
+            "mode": 420,
+            "sha256": "5320e611e5b112d44a8f0c6ebfa42e000f4bdd57b2ba7f1b4156e141eb05a90d",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 216,
+            "mode": 420,
+            "sha256": "2b7c99369dffaa5c39d3f48828dfe7ebcb1830e5bc798023717f49c79f04a160",
+            "type": "file"
+          }
+        },
+        "include/features.h": {
+          "after": {
+            "bytes": 19773,
+            "mode": 420,
+            "sha256": "f6d015d0248056a3091de489abcbadbbd93d7aaf95753d7426f779765f067118",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 19842,
+            "mode": 420,
+            "sha256": "72a5cbeba3c7c842537c9646b4d2d135094313d962d2db6a2c89a52e426ddd11",
+            "type": "file"
+          }
+        },
+        "include/resolv.h": {
+          "after": {
+            "bytes": 2716,
+            "mode": 420,
+            "sha256": "046ab85c28e3f8499ff2cdd0cff3b19d8a05273307af1219bb5e0c49e0783cb6",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 2545,
+            "mode": 420,
+            "sha256": "4e03025f418e7236d8e8cd0b2dc19f938f899bbd97d69aa841a5d1290fd194b8",
+            "type": "file"
+          }
+        },
+        "include/stubs-bootstrap.h": {
+          "after": {
+            "bytes": 530,
+            "mode": 420,
+            "sha256": "37737b921bdb2a58b7973a7e712258bafdc363920e1aea59a2f4ec584c8d5faa",
+            "type": "file"
+          },
+          "before": null
+        },
+        "include/stubs-prologue.h": {
+          "after": {
+            "bytes": 560,
+            "mode": 420,
+            "sha256": "0cccb9f051fb5f1c2c20217c204f40a39f12d9b914ff659e83a2dc719e490260",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 560,
+            "mode": 420,
+            "sha256": "012fc76a08ad4b9a62d2629bdb65739caaa4742fe0813756adc5eb794dccc69b",
+            "type": "file"
+          }
+        },
+        "io/Makefile": {
+          "after": {
+            "bytes": 6717,
+            "mode": 420,
+            "sha256": "0c752dbea59a503218dd7b8d7975da9acd1b8bbb61be80f8ef5959054db3541b",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 6716,
+            "mode": 420,
+            "sha256": "25474a8e13be754595a0232859aa9270e78b6872286ff9997e184cde3ec9e133",
+            "type": "file"
+          }
+        },
+        "io/fcntl.c": {
+          "after": {
+            "bytes": 1179,
+            "mode": 420,
+            "sha256": "50b8f05195040be5f52a5317257cea15a48807e248ae844512085f1481876c17",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 1098,
+            "mode": 420,
+            "sha256": "646e012bf608f20a70a850dcc2f26b383a330069bc8934d6bba62b3cb2e76916",
+            "type": "file"
+          }
+        },
+        "libio/Makefile": {
+          "after": {
+            "bytes": 13934,
+            "mode": 420,
+            "sha256": "1266a6adaed720f7475a7568e34b95b8388941a176e1e8a562a6a6a055e61a3b",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 13886,
+            "mode": 420,
+            "sha256": "46baa564d6c3d1c67ebe0059dd71f54886f37d4d195ce14282edda4bbca37bff",
+            "type": "file"
+          }
+        },
+        "libio/bug-wgenops-bz33998.c": {
+          "after": {
+            "bytes": 1846,
+            "mode": 420,
+            "sha256": "d91652eea668e001cc09cc4260dcb7336a1cf1675ecd1c7faba5ff4890559254",
+            "type": "file"
+          },
+          "before": null
+        },
+        "libio/fileops.c": {
+          "after": {
+            "bytes": 43969,
+            "mode": 420,
+            "sha256": "8c14eb902c1030b898a198b720bb6a9ba4925e05e85cbef71b9f571834a9d735",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 43751,
+            "mode": 420,
+            "sha256": "3a60844aaad0459ae2e3626618a8c9872403a36d07851076aea7f09ef3797f00",
+            "type": "file"
+          }
+        },
+        "libio/tst-fopen-ccs-empty.c": {
+          "after": {
+            "bytes": 1857,
+            "mode": 420,
+            "sha256": "e64eb5d345902f4cdc89a2212c15d2b8f648be7e723e09e5578ad3c9e65c380c",
+            "type": "file"
+          },
+          "before": null
+        },
+        "libio/wgenops.c": {
+          "after": {
+            "bytes": 16608,
+            "mode": 420,
+            "sha256": "5b15002bcaba9729f9cc393becae0f46b41767389124bdebff990b636f1ab8e8",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 16584,
+            "mode": 420,
+            "sha256": "43259007e74eb1561c011a1fd955038b4efebc236a7ead195d095d16032a532c",
+            "type": "file"
+          }
+        },
+        "locale/programs/ld-collate.c": {
+          "after": {
+            "bytes": 109783,
+            "mode": 420,
+            "sha256": "5697dcf6f6c70c40aa5ea9b86e6655ca4f1a13a8774c673750925b4b5ec94483",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 109293,
+            "mode": 420,
+            "sha256": "98212b0d9450406a6c9450f9e66b0fa1746fa30cc7a0faca24ae1a617c923116",
+            "type": "file"
+          }
+        },
+        "locale/programs/ld-identification.c": {
+          "after": {
+            "bytes": 12246,
+            "mode": 420,
+            "sha256": "25b21288f97090d4380c48ea896404d33f37761b231e6d1e01af6720a2616879",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 12104,
+            "mode": 420,
+            "sha256": "7d9937eaad0a63c51904e7402db10b13ef6b6abfdbd9976b874d26cbff686575",
+            "type": "file"
+          }
+        },
+        "locale/programs/locale.c": {
+          "after": {
+            "bytes": 27685,
+            "mode": 420,
+            "sha256": "3f226923f8565d50f367e38a354d79360e26337ca0bfc087ae946e10812b1d64",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 27550,
+            "mode": 420,
+            "sha256": "5edc7045a2c04015f1858dca7e18520d20d5c44ae7c54194d4a51dd0bde7c650",
+            "type": "file"
+          }
+        },
+        "locale/tst-locale-locpath.sh": {
+          "after": {
+            "bytes": 2593,
+            "mode": 420,
+            "sha256": "26529ca0582ac682e50c2792e0bdfac51542c2142d5b0776a10cfdd2c379a20f",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 2583,
+            "mode": 420,
+            "sha256": "71a27ef1b64441605d2f7e22d7b8bf259ccbd0dc1099a5b103ce8a348be1a9d3",
+            "type": "file"
+          }
+        },
+        "localedata/SUPPORTED": {
+          "after": {
+            "bytes": 9465,
+            "mode": 420,
+            "sha256": "63c0c00731a3df2165ac09e65cc9bf366c03c0e216af59ca6bb8c3bbb3762175",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 9229,
+            "mode": 420,
+            "sha256": "c1d553c57fad3c1b471de1f8d362e4c65bf604d983942e670a61fa541e7d1908",
+            "type": "file"
+          }
+        },
+        "localedata/locales/ar_SA": {
+          "after": {
+            "bytes": 3168,
+            "mode": 420,
+            "sha256": "f393f896b2907b1cbabfafe23f01f9437f8972a3ea994d71ed6d4ad1e9a7f39a",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 6937,
+            "mode": 420,
+            "sha256": "a9e8acd0ab42b54a0fc93d40cfc57c250cf9dbb9e9cce4f2ef6114641a23040b",
+            "type": "file"
+          }
+        },
+        "localedata/locales/en_DK": {
+          "after": {
+            "bytes": 3285,
+            "mode": 420,
+            "sha256": "57afca0675e503e96ab469144b3c27abf66b69f5ba04b6a4e801b22747bf5d66",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 3709,
+            "mode": 420,
+            "sha256": "673041ad5cc5e7538d0de3b8bdf8ff7ab6dd4802a6f66310e6ffdf454e60d072",
+            "type": "file"
+          }
+        },
+        "localedata/locales/es_MX": {
+          "after": {
+            "bytes": 3135,
+            "mode": 420,
+            "sha256": "9b0e4560106398495099057eb671b7fd6bff0d7d18802c4d193d172713e9a5ef",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 3135,
+            "mode": 420,
+            "sha256": "51cb47d4647370ef32eb6ec85a009f661b18ae7fa44c570683c4db2d6de12975",
+            "type": "file"
+          }
+        },
+        "localedata/locales/eu_FR": {
+          "after": {
+            "bytes": 1364,
+            "mode": 420,
+            "sha256": "0f81e69a21ce4b752e1f9ffebecdda9f789e5f08afd7a0b2a06e6a78fa992188",
+            "type": "file"
+          },
+          "before": null
+        },
+        "localedata/locales/eu_FR@euro": {
+          "after": {
+            "bytes": 1365,
+            "mode": 420,
+            "sha256": "76df1535c1ec21d81683f9168f048d4a807fde9195d733e73aa56ff26a6d4d85",
+            "type": "file"
+          },
+          "before": null
+        },
+        "localedata/locales/fo_FO": {
+          "after": {
+            "bytes": 3098,
+            "mode": 420,
+            "sha256": "2f20ccd2d84f5a0b9194b956f57451c4bdef483e7d0e7249d9fb784621f64de7",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 3073,
+            "mode": 420,
+            "sha256": "9144cbd0e8cc1e8bf0d5cc015bfb0ec819a7ad00ebeda49b15ec979d5f4ecce0",
+            "type": "file"
+          }
+        },
+        "localedata/locales/fr_BE": {
+          "after": {
+            "bytes": 3263,
+            "mode": 420,
+            "sha256": "27bc6867bb089cba7f05e28040fa0b0f1abcb965e9d4363efc5d2266b77c4eca",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 3239,
+            "mode": 420,
+            "sha256": "b73c0469d850703f5aa65cc83c654fedd634d648c6b4a46ac491b75f2fcf8604",
+            "type": "file"
+          }
+        },
+        "localedata/locales/fr_CH": {
+          "after": {
+            "bytes": 2778,
+            "mode": 420,
+            "sha256": "1fefefc8ff83f435855b11bee3ee381570417319d4c49410c9f983ed062e3ebf",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 2754,
+            "mode": 420,
+            "sha256": "7c43114c81ea717b302fddbd2158fb407b5eee14e2c44638128280636b930051",
+            "type": "file"
+          }
+        },
+        "localedata/locales/fr_FR": {
+          "after": {
+            "bytes": 3773,
+            "mode": 420,
+            "sha256": "e6c8c3f75fc440f611fedf3a9c76662dcdb585663e0e3a71c1f0718a33fead5d",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 3671,
+            "mode": 420,
+            "sha256": "d2c04ecf368821f208af7f1072732d7c9cbe5eba71aa071dc1130e1e95d32e04",
+            "type": "file"
+          }
+        },
+        "localedata/locales/fr_LU": {
+          "after": {
+            "bytes": 3266,
+            "mode": 420,
+            "sha256": "671990a3302d1cd37b2e102c1c00e1c7a478c2e812c73c0a771a2986227d6664",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 3242,
+            "mode": 420,
+            "sha256": "e80b77151570e3022e947bf303d6e25db7004f48a55e9e7d7861460f8bc124ff",
+            "type": "file"
+          }
+        },
+        "localedata/locales/ku_TR": {
+          "after": {
+            "bytes": 4502,
+            "mode": 420,
+            "sha256": "4d5a4adaf5c1593bd35498d410a168ebd6216fc7293bba06091990d60dc21ff1",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 4364,
+            "mode": 420,
+            "sha256": "6d4c81cc6125bd6042a3502c46ab79a270c2b4dfc2a06fe979b337021474064d",
+            "type": "file"
+          }
+        },
+        "localedata/locales/sl_SI": {
+          "after": {
+            "bytes": 3910,
+            "mode": 420,
+            "sha256": "aff89d135db7f2d2334dadbc511e56fbcc33385e573969113952a5d5d9f4b87e",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 80602,
+            "mode": 420,
+            "sha256": "825d1c65cc3ab08b8cdbebd7f05775c95374523370bfca360e0ec4f2a891df63",
+            "type": "file"
+          }
+        },
+        "localedata/locales/zh_TW": {
+          "after": {
+            "bytes": 4044,
+            "mode": 420,
+            "sha256": "73cf949970ce6ef9161296d15270799e3b317ebd402779c7c3d333e7b96c8edc",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 4056,
+            "mode": 420,
+            "sha256": "e60bb254f1bb16a9e6536a4ad3a4d356f020fe4caac68fd43909e42c115c77db",
+            "type": "file"
+          }
+        },
+        "login/Makefile": {
+          "after": {
+            "bytes": 3212,
+            "mode": 420,
+            "sha256": "3717c86e2fd05887c0ba3eeb92c1c176eeada8b93aedcd6a2b1cd2d44a25c3d5",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 3210,
+            "mode": 420,
+            "sha256": "6661aecdc28de1705e6263f0e0e070fd575f4efc5c325d9b1fb0a51657273836",
+            "type": "file"
+          }
+        },
+        "mach/Makefile": {
+          "after": {
+            "bytes": 6889,
+            "mode": 420,
+            "sha256": "6762eca8948262c960d56e4739366d37a17e9b395bda30cbb5d5e6bb7f95dece",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 6754,
+            "mode": 420,
+            "sha256": "22ec4577edd610f9f6d11d5392805dade58fa10634fe237c5cd3b595506bff32",
+            "type": "file"
+          }
+        },
+        "malloc/Makefile": {
+          "after": {
+            "bytes": 18133,
+            "mode": 420,
+            "sha256": "68108241480660877d3f73a1a996b74f074854c7da22f22facace0f671be4b9f",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 18322,
+            "mode": 420,
+            "sha256": "6adb896d8c68d531bb082795972d66cf7c7de433dc40ec98003a777a2f6b4cfc",
+            "type": "file"
+          }
+        },
+        "malloc/malloc.c": {
+          "after": {
+            "bytes": 181052,
+            "mode": 420,
+            "sha256": "bb87b0a45b8b7fd869a1b544258bfc455225280b0ce8718a0b124fe0b541aab0",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 181065,
+            "mode": 420,
+            "sha256": "c0cb1540f6268772fb3abee9a545fd8b436e18620b7d9fd256b95f9e86866302",
+            "type": "file"
+          }
+        },
+        "manual": {
+          "after": {
+            "mode": 493,
+            "type": "directory"
+          },
+          "before": null
+        },
+        "manual/Makefile": {
+          "after": {
+            "bytes": 6263,
+            "mode": 420,
+            "sha256": "b794313a78971e3ebe38d95ae5a465a396cdf86124e635f5585f8e4fbdea9d3a",
+            "type": "file"
+          },
+          "before": null
+        },
+        "math/auto-libm-test-in": {
+          "after": {
+            "bytes": 280472,
+            "mode": 420,
+            "sha256": "b3130ace35184c2a375ac9ae37528182939333ef288b1d3dc38993af3c81ac33",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 280431,
+            "mode": 420,
+            "sha256": "107d59e6beadd2c61a53bd82479f75520ff839a56695ef0b92d33a486b26e7f6",
+            "type": "file"
+          }
+        },
+        "math/auto-libm-test-out-fma": {
+          "after": {
+            "bytes": 1898931,
+            "mode": 420,
+            "sha256": "457c5f88924f14336af4d2cefeab8db7cdc73c476382525975e3b687c4f15eff",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 1896880,
+            "mode": 420,
+            "sha256": "33844689226e166f604cddbbc6cc145440b156baaf3dbf4f55198b45782ed9d5",
+            "type": "file"
+          }
+        },
+        "math/libm-test-ceil.inc": {
+          "after": {
+            "bytes": 12217,
+            "mode": 420,
+            "sha256": "aba65dd1057b7564c27b3eaceeafe33cb2e78bb927dd7d7d416271a83936850b",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 12052,
+            "mode": 420,
+            "sha256": "96a5c67600ce0a3b9b9621d0b732abca0b10baa9bcd7e907ccd03379f4b4c170",
+            "type": "file"
+          }
+        },
+        "math/libm-test-floor.inc": {
+          "after": {
+            "bytes": 11893,
+            "mode": 420,
+            "sha256": "91fa10e920369241dd46124f19ce1a8d0993d84f2b78fc643b241b66d9453e5d",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 11729,
+            "mode": 420,
+            "sha256": "58a92fc1852cd8ff52c9be3589391ce5ed8ec842174299bf0eaa891c804c5346",
+            "type": "file"
+          }
+        },
+        "math/libm-test-round.inc": {
+          "after": {
+            "bytes": 13893,
+            "mode": 420,
+            "sha256": "97068d10c06b1fcb53ff44643b85366d8db8acf9720f1f477ff22614a638ee3b",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 13629,
+            "mode": 420,
+            "sha256": "7ec035eecc56fbe86f1215bf0aad35e88d352dc71caaed6d86918fc836e88ecc",
+            "type": "file"
+          }
+        },
+        "math/libm-test-trunc.inc": {
+          "after": {
+            "bytes": 13142,
+            "mode": 420,
+            "sha256": "854b3254fe834c22326d9d855edf0639a4ec27b3c48e33a37bd8d4160572023e",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 12880,
+            "mode": 420,
+            "sha256": "b86f7ccb5ef0a1c0be3e5b2192ec5ae27e6aaec7af5958b3a623a35d6d9d8254",
+            "type": "file"
+          }
+        },
+        "misc/madvise.c": {
+          "after": {
+            "bytes": 1245,
+            "mode": 420,
+            "sha256": "ed9d2a3b89c6c244ee6a422b293687e6c8a081b7cc1cb93f237ee57e00a9a8a6",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 1239,
+            "mode": 420,
+            "sha256": "5fa560db2a1ce187a50a173b22bd527e5a3457529cd845cbf00dbfb6b17b5983",
+            "type": "file"
+          }
+        },
+        "misc/tsearch.c": {
+          "after": {
+            "bytes": 22343,
+            "mode": 420,
+            "sha256": "2f1b227c71c27f8842d349163b8a734214c7cb4575a599cf7e63dc0c6561fb24",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 22546,
+            "mode": 420,
+            "sha256": "fdc3d3ca67f016a2cc3abfefbe5dfd1809b98f8041792f69e43416e88da6a893",
+            "type": "file"
+          }
+        },
+        "nscd/aicache.c": {
+          "after": {
+            "bytes": 14518,
+            "mode": 420,
+            "sha256": "564d21965c539cff115e501894ab1d91ecfe44ab6339fc176aa357cf86aaee69",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 14334,
+            "mode": 420,
+            "sha256": "36666de22337bd4434c2fb7140d4ea77880afef2fdd5cbd06dc36b7463a579d7",
+            "type": "file"
+          }
+        },
+        "nscd/hstcache.c": {
+          "after": {
+            "bytes": 17098,
+            "mode": 420,
+            "sha256": "03cb65a0700229d02eb440dfb8ba278cfd1e38c716849a74eae0967b960c9cb2",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 16674,
+            "mode": 420,
+            "sha256": "93a2f56daeca0887ba1ceef35bc722cedfd7a025c85a1eed54e7da4cd0111f23",
+            "type": "file"
+          }
+        },
+        "nscd/nscd.h": {
+          "after": {
+            "bytes": 12511,
+            "mode": 420,
+            "sha256": "a4c03cdc46c5c5ebaac754f0c9a89f2ade3a76c241077f461f40c2ef302bc0dc",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 12496,
+            "mode": 420,
+            "sha256": "33ecd93c6ab45606b6d57dc5f47ebcc124c9857e6dbd61598890ffd2c3352d99",
+            "type": "file"
+          }
+        },
+        "nss/Makefile": {
+          "after": {
+            "bytes": 13352,
+            "mode": 420,
+            "sha256": "c1313a142444bf29a5c9e41639c75a75d9dd58b80bf0856c456acf556abfc3a6",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 13317,
+            "mode": 420,
+            "sha256": "7a38cb27caf5ba147ff668cfdf6eca1fa00fbde8fae52ce53bb6c599e222a59c",
+            "type": "file"
+          }
+        },
+        "nss/nss_database.c": {
+          "after": {
+            "bytes": 15667,
+            "mode": 420,
+            "sha256": "3bb231fcd486ac4f87d05be4e5e49967527d57049931bbe5b441f53c6553848a",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 15583,
+            "mode": 420,
+            "sha256": "a2f561078dccc24a9a617c59b67153d790fb10edc8e98b447b2e7496d9d04849",
+            "type": "file"
+          }
+        },
+        "nss/nss_database.h": {
+          "after": {
+            "bytes": 3483,
+            "mode": 420,
+            "sha256": "8ec171684416fa6dc78405a4724048c662c357245008b06425f0fe5c2972a161",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 3294,
+            "mode": 420,
+            "sha256": "3c077d2c4694f036d4419d41d55f3b9a5c13108559c6c5e2a11805b75911ca46",
+            "type": "file"
+          }
+        },
+        "nss/nss_files/files-ethers.c": {
+          "after": {
+            "bytes": 1983,
+            "mode": 420,
+            "sha256": "05fa5523aa807f8218ad985bb12dced7c24c46f1497328a402773487f39e293c",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 1973,
+            "mode": 420,
+            "sha256": "9ed786cdb9f9867568491f4d0af6b3d7a04b2f89b4c3c6a13c2f957817452d52",
+            "type": "file"
+          }
+        },
+        "nss/nss_files/files-hosts.c": {
+          "after": {
+            "bytes": 14892,
+            "mode": 420,
+            "sha256": "4b85eb2f52260e6007cd745487089ae6aa9d9540f2ca0333b5788e062472d351",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 14879,
+            "mode": 420,
+            "sha256": "9e949034b979028213c980e9e454275f719fcc5db56f2f4a92240b99ceb5d0ce",
+            "type": "file"
+          }
+        },
+        "nss/nss_files/files-network.c": {
+          "after": {
+            "bytes": 2158,
+            "mode": 420,
+            "sha256": "dd720fe6b875f07b2fd88a786e5c57f8aa160c6d0c82665937e8bfc2507356b0",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 2152,
+            "mode": 420,
+            "sha256": "32c9e7ff335482f19c06883284a1d789ffa0d36327a9b03660708e333c2d5402",
+            "type": "file"
+          }
+        },
+        "nss/nss_files/files-parse.c": {
+          "after": {
+            "bytes": 10468,
+            "mode": 420,
+            "sha256": "321eca13805b246f9e84d2a2b4f9f1a0d80565690494519de73f7d3d98bfb8ed",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 9990,
+            "mode": 420,
+            "sha256": "092d686591294ea172a975b87cf273985d3d2cf663bbbe8d06ac268e845a850d",
+            "type": "file"
+          }
+        },
+        "nss/nss_files/files-proto.c": {
+          "after": {
+            "bytes": 1441,
+            "mode": 420,
+            "sha256": "361fabcd862df208b9e2052138af043ba177864af75a02d96143f4a9936ae2dd",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 1435,
+            "mode": 420,
+            "sha256": "27112a5da13b3a37d0ae2309726bfd8e8b51419c6f191fe793ccf123f9e2a599",
+            "type": "file"
+          }
+        },
+        "nss/nss_files/files-rpc.c": {
+          "after": {
+            "bytes": 1448,
+            "mode": 420,
+            "sha256": "e8a5adaf22ab9581b1441c12ae98b25811149525a56c0198b9e7c30f150e7148",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 1442,
+            "mode": 420,
+            "sha256": "819e32ba1f26170b820d8811f1d3083bfa5f97990f9379d0d3245377b43d4b79",
+            "type": "file"
+          }
+        },
+        "nss/nss_files/files-service.c": {
+          "after": {
+            "bytes": 2145,
+            "mode": 420,
+            "sha256": "629612a8d7297da4842a3b06e74c2894daa9d83da19f9a895fa97d57ead57cc9",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 2135,
+            "mode": 420,
+            "sha256": "008b10caedf1d86695ef4ac160374600bd8ae6caa67728e60a5d8247a5df2b7e",
+            "type": "file"
+          }
+        },
+        "nss/tst-nss-malloc-failure-getlogin_r.c": {
+          "after": {
+            "bytes": 10498,
+            "mode": 420,
+            "sha256": "c109609e6461e7f9533caad809b7a575871b8169ca7a61a75a0426ec4c0eea96",
+            "type": "file"
+          },
+          "before": null
+        },
+        "po/ar.po": {
+          "after": {
+            "bytes": 236754,
+            "mode": 420,
+            "sha256": "c770ec3e96cc17aa447f571a29f25ee1f9a7378b8b1ea636808449f0002dca3a",
+            "type": "file"
+          },
+          "before": null
+        },
+        "po/nl.po": {
+          "after": {
+            "bytes": 219983,
+            "mode": 420,
+            "sha256": "839da86e54e25fcc2fa8762cecdf6a95788f57432b93e4d11c99b93e2d480993",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 218282,
+            "mode": 420,
+            "sha256": "5ae2f9dead65dcd5903784ce9d664e8c787610bf6d7373fe3d5bb0f017535cac",
+            "type": "file"
+          }
+        },
+        "posix/Makefile": {
+          "after": {
+            "bytes": 20545,
+            "mode": 420,
+            "sha256": "682164b457bbc321b3dd08310d6700fc24d9c87f18a3eff88422bf2b84a4c0d7",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 20496,
+            "mode": 420,
+            "sha256": "cbc5dc2fa77ccf1aae77f5932cdc59a1e419d8f09cac591d6f6757d05a1e2044",
+            "type": "file"
+          }
+        },
+        "posix/fork.c": {
+          "after": {
+            "bytes": 4480,
+            "mode": 420,
+            "sha256": "ddb56992be4604198bc0e321a12a1a8e7700e80816db1614b02087352da2cb8a",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 4476,
+            "mode": 420,
+            "sha256": "b93b521d5ba8f39f0d5b07b391f3710c4a48d8757b628d30d43d34514aa259fa",
+            "type": "file"
+          }
+        },
+        "posix/posix_madvise.c": {
+          "after": {
+            "bytes": 1104,
+            "mode": 420,
+            "sha256": "c6a34b43afecdde844bfd9d4927acc0442757e1ff813d4173cc8cbbdf4819a83",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 1098,
+            "mode": 420,
+            "sha256": "1e8d510c8f3b176cb2056bc19c72ac1789a423510710484a67e8170198d82b0a",
+            "type": "file"
+          }
+        },
+        "posix/tst-wordexp-append.c": {
+          "after": {
+            "bytes": 12183,
+            "mode": 420,
+            "sha256": "4114c800c47b56955b63877dc4a9af39f20751fbe54ee96826519e716c8c9935",
+            "type": "file"
+          },
+          "before": null
+        },
+        "posix/tst-wordexp-tilde.c": {
+          "after": {
+            "bytes": 6650,
+            "mode": 420,
+            "sha256": "7d88df7278cd8c0d5fbfcd4506bed5354e7cefc889c7206b837a14330382d8ff",
+            "type": "file"
+          },
+          "before": null
+        },
+        "posix/tst-wordexp-tilde.root": {
+          "after": {
+            "mode": 493,
+            "type": "directory"
+          },
+          "before": null
+        },
+        "posix/tst-wordexp-tilde.root/etc": {
+          "after": {
+            "mode": 493,
+            "type": "directory"
+          },
+          "before": null
+        },
+        "posix/tst-wordexp-tilde.root/etc/group": {
+          "after": {
+            "bytes": 10,
+            "mode": 420,
+            "sha256": "7a696fcfba89a55a6d73fa1a03c7f071fad2141340027b17a25db249e26b9be8",
+            "type": "file"
+          },
+          "before": null
+        },
+        "posix/tst-wordexp-tilde.root/etc/nsswitch.conf": {
+          "after": {
+            "bytes": 42,
+            "mode": 420,
+            "sha256": "ff97651167954209a12e964e036339484cd81e5c3aca24325140ed0895e8f98c",
+            "type": "file"
+          },
+          "before": null
+        },
+        "posix/tst-wordexp-tilde.root/etc/passwd": {
+          "after": {
+            "bytes": 30,
+            "mode": 420,
+            "sha256": "79492b90d473e2387338ef1518dfbceb9e3392ae5740235a6696621e42218efa",
+            "type": "file"
+          },
+          "before": null
+        },
+        "posix/wordexp.c": {
+          "after": {
+            "bytes": 55080,
+            "mode": 420,
+            "sha256": "f283a59b71ebe31cd2ee9724239fa8aaa4159fbed5825f8e168c3bd6ea9d06b7",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 52901,
+            "mode": 420,
+            "sha256": "1571ce8a6a36899decfc8759c77d4f030acfecd599f0dab767d5badb37832918",
+            "type": "file"
+          }
+        },
+        "resolv/Makefile": {
+          "after": {
+            "bytes": 10672,
+            "mode": 420,
+            "sha256": "fb2ba8f5e5699dd374717dc6da75d068b512aad662a8cd5583a086011093da7d",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 10372,
+            "mode": 420,
+            "sha256": "7eb5cfc43a29fff630f2ea1c4e484bb5464fc23ea2b05e7d3bc259d58a232df2",
+            "type": "file"
+          }
+        },
+        "resolv/ns_print.c": {
+          "after": {
+            "bytes": 16693,
+            "mode": 420,
+            "sha256": "3e2ad956fc9dc612d0f52559c98b7aa0e8fe5882462fce5334a53ae0e9beb257",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 18300,
+            "mode": 420,
+            "sha256": "c8add002f247f56f415f175136d73c98d2ccbf407e0dc77b446cd913a1ac1a70",
+            "type": "file"
+          }
+        },
+        "resolv/nss_dns/dns-host.c": {
+          "after": {
+            "bytes": 38315,
+            "mode": 420,
+            "sha256": "4b9084fcf8e03b5eabeba6c4369c35df544af23618706dba1bf5b115e4ffc6e1",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 38306,
+            "mode": 420,
+            "sha256": "2b1a7d263cbac74b195c66939517ba2055532f11f57dc2f0d1b66fe71cfe6507",
+            "type": "file"
+          }
+        },
+        "resolv/res_debug.c": {
+          "after": {
+            "bytes": 30104,
+            "mode": 420,
+            "sha256": "cc673553d29977916f0fca775a7c82b1ff4b8037d926cb1cfc7e01b58a1f92e6",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 30274,
+            "mode": 420,
+            "sha256": "d25e1eccf6e8b28053a663eaa5eaf78b755e98fe4402398f89e3229eaad2a57b",
+            "type": "file"
+          }
+        },
+        "resolv/resolv_conf.c": {
+          "after": {
+            "bytes": 23047,
+            "mode": 420,
+            "sha256": "73f9a9e4e42a29acbf3161e098e0bb22c81f67e69b41b8aaf84e12303118a46b",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 22832,
+            "mode": 420,
+            "sha256": "1b7b29cf0ab79dfda8dfff1387d039c3f9f8cce946b3caa9bb205278f23c94bf",
+            "type": "file"
+          }
+        },
+        "resolv/tst-ns_sprintrr.c": {
+          "after": {
+            "bytes": 13148,
+            "mode": 420,
+            "sha256": "fb1620f83478e7a02902e977662ec28aa1130cf41be1bf851c91a31fcb2b905e",
+            "type": "file"
+          },
+          "before": null
+        },
+        "resolv/tst-resolv-dns-section.c": {
+          "after": {
+            "bytes": 4805,
+            "mode": 420,
+            "sha256": "8d463c03d4d783b5046f29710d4341780dc9a05576499b5f8ed3d5d508ebe760",
+            "type": "file"
+          },
+          "before": null
+        },
+        "resolv/tst-resolv-invalid-ptr.c": {
+          "after": {
+            "bytes": 8410,
+            "mode": 420,
+            "sha256": "4ac92c16a636eeb3cd1e4762628eb971cd655beefc1009d09a9c0cd1147901a9",
+            "type": "file"
+          },
+          "before": null
+        },
+        "resolv/tst-resolv-res_init-skeleton.c": {
+          "after": {
+            "bytes": 38406,
+            "mode": 420,
+            "sha256": "c7f96cc9d5a4f5123bec990e04141916aef82608576bd250fd3b4e03b7697676",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 36968,
+            "mode": 420,
+            "sha256": "6ce9ebd28bca9d5133c1e22df79a9c841fef202a0d621a45742c71d2a6ca1740",
+            "type": "file"
+          }
+        },
+        "scripts/abilist.awk": {
+          "after": {
+            "bytes": 3172,
+            "mode": 420,
+            "sha256": "89ec8da3af61ba054345efa60624ceacec0b73b5cf77336cee4de58ce9e77cd4",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 3161,
+            "mode": 420,
+            "sha256": "f1be56f7e7dccddf079cb8477d1bc01c0f009494e3a045083ad845c907297fbd",
+            "type": "file"
+          }
+        },
+        "signal/Makefile": {
+          "after": {
+            "bytes": 2839,
+            "mode": 420,
+            "sha256": "26f3e899ebe4d63d0c7452e5165de7f0a2a6e960e157206ec446b61076caec6c",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 2810,
+            "mode": 420,
+            "sha256": "fb0d8e0d7d88a2baff30428b8791780c1abfe5608992dfeea7ed037a8052b7d1",
+            "type": "file"
+          }
+        },
+        "signal/tst-sigtimedwait-timeout.c": {
+          "after": {
+            "bytes": 2826,
+            "mode": 420,
+            "sha256": "b354b92bfb32dc1de8483a30fac119dd9d50190a4ec60d44f735642f751bd4cf",
+            "type": "file"
+          },
+          "before": null
+        },
+        "stdio-common/Makefile": {
+          "after": {
+            "bytes": 22725,
+            "mode": 420,
+            "sha256": "2863ce767c95893a161dd7adc7aa7f91d5b3715e9225f28729cfecfcb617d761",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 22593,
+            "mode": 420,
+            "sha256": "3da4d5bbf045043aeb6d90ea58890fe306dc492ea125fcda24f63e0838bc492e",
+            "type": "file"
+          }
+        },
+        "stdio-common/tst-vfscanf-bz34008.c": {
+          "after": {
+            "bytes": 1425,
+            "mode": 420,
+            "sha256": "583be85aa5058f3eeca2ee29733aab4f1428757c9c8bb9d7735e4293dc4ec798",
+            "type": "file"
+          },
+          "before": null
+        },
+        "stdio-common/vfscanf-internal.c": {
+          "after": {
+            "bytes": 77757,
+            "mode": 420,
+            "sha256": "13aa7b4168d53bb6cac16f1577fc15f9863336e68e0acbf6b7543e82b6536ca7",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 77776,
+            "mode": 420,
+            "sha256": "3ab7e4cbce32b1b31454a7cc00c9abfc7594771c44a1cfc43cb0eb9915efc85c",
+            "type": "file"
+          }
+        },
+        "stdlib/Makefile": {
+          "after": {
+            "bytes": 16649,
+            "mode": 420,
+            "sha256": "2e86607fa4a51380f2dac7a8eb1e9b40e5de794e918bc01912d2b6d8f8384a42",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 16624,
+            "mode": 420,
+            "sha256": "a9f4e9a75907428e8fd2211bdb428becba16ee16a357540e07546b231ba0410d",
+            "type": "file"
+          }
+        },
+        "stdlib/setenv.c": {
+          "after": {
+            "bytes": 11236,
+            "mode": 420,
+            "sha256": "f1dd38aa235ff1b389203f9d535092e8e8add738e89f19b5809cdebddde86767",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 11280,
+            "mode": 420,
+            "sha256": "59c6895b2df0fe6c665464fc3ecbc3faad1a9257a5d191b4e25d6ccdfecc22b5",
+            "type": "file"
+          }
+        },
+        "stdlib/strfmon_l.c": {
+          "after": {
+            "bytes": 16984,
+            "mode": 420,
+            "sha256": "5ad7ee1b3c14629bb5467666421ff48e760dfbd00f2cdc870fd90fef45cc25fe",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 16955,
+            "mode": 420,
+            "sha256": "2d5e30ecff5c53fa581539bb68e14a34e360d244ed96f161659977c2c5f8ceb7",
+            "type": "file"
+          }
+        },
+        "stdlib/tst-strfmon-bug34510.c": {
+          "after": {
+            "bytes": 1215,
+            "mode": 420,
+            "sha256": "e46b97e044228627ea00748fbd9a4b251092a7a30b623f1e72198c87eb799a8e",
+            "type": "file"
+          },
+          "before": null
+        },
+        "string/Makefile": {
+          "after": {
+            "bytes": 6736,
+            "mode": 420,
+            "sha256": "293a46f98ae843207e8fe0d8dd5ecb5610d22acd3f47d094ff8ede8022b91c69",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 6668,
+            "mode": 420,
+            "sha256": "ae3ab7af589756aa997bf54b3ad59a1dc8a0b46af22b268714f5977d4b1a0795",
+            "type": "file"
+          }
+        },
+        "string/test-strncasecmp-nonarray.c": {
+          "after": {
+            "bytes": 120,
+            "mode": 420,
+            "sha256": "92e52b9a3a31db29035b14dc3bd14f437b7911c2e01a4130ddd91731ba842b34",
+            "type": "file"
+          },
+          "before": null
+        },
+        "support/Makefile": {
+          "after": {
+            "bytes": 10468,
+            "mode": 420,
+            "sha256": "7905361ed3f5272f2779d223c9c0bcbe3a333b8909459df2a7940e07de676611",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 10454,
+            "mode": 420,
+            "sha256": "a2c53ccd4d9a9d871b5b2cd64ded77259a7cbc81d0982096deebed35ee5f78de",
+            "type": "file"
+          }
+        },
+        "sysdeps/aarch64/Makefile": {
+          "after": {
+            "bytes": 6822,
+            "mode": 420,
+            "sha256": "ffdf2bba10c3e4157b702f5052bbedda62da1c048c1f6771039fb2cbf07a6d2e",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 6490,
+            "mode": 420,
+            "sha256": "e0b5ef64a406e22ddcf1d5b28527d3eb6d9906b2412847e823f7bbc60340844b",
+            "type": "file"
+          }
+        },
+        "sysdeps/aarch64/dl-gcs.c": {
+          "after": {
+            "bytes": 5116,
+            "mode": 420,
+            "sha256": "ed1ec61fad64724fcd6a922b8d51e65898524f104e8da7e239d872e6f04e3527",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 4949,
+            "mode": 420,
+            "sha256": "f104e4714fd130bd3e6d9f952ab094c2170ee86f95c399a0e5437fbefe91a0e7",
+            "type": "file"
+          }
+        },
+        "sysdeps/aarch64/dl-start.S": {
+          "after": {
+            "bytes": 2633,
+            "mode": 420,
+            "sha256": "852883615654e5d1454d95623be1b6e3bd13965f36dc72b5bb2f3b0498de53b4",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 2196,
+            "mode": 420,
+            "sha256": "1d70536fba801cb161a6a410ce5ba691c219ccd87ed32a47f133474909b8bc14",
+            "type": "file"
+          }
+        },
+        "sysdeps/aarch64/multiarch/dl-symbol-redir-ifunc.h": {
+          "after": {
+            "bytes": 986,
+            "mode": 420,
+            "sha256": "2e22787d0deadd5a81bdd6bbd821ed55aaef22762791f5b98671eb46dec5f2e9",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 951,
+            "mode": 420,
+            "sha256": "db4e337ea7add6bc8cc7d10fe3218b6a33aed054bdb0c7e7048717f5200b659f",
+            "type": "file"
+          }
+        },
+        "sysdeps/aarch64/multiarch/strlen_generic.S": {
+          "after": {
+            "bytes": 1561,
+            "mode": 420,
+            "sha256": "7188d4b3c69aebb0f567544319124658865a202429f07ae78e76fc91069ee2b2",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 1496,
+            "mode": 420,
+            "sha256": "35025dfe3897bb239e2cd851cf7f65643386176882bab4d3ce90659a6d885ea5",
+            "type": "file"
+          }
+        },
+        "sysdeps/alpha/Makefile": {
+          "after": {
+            "bytes": 3242,
+            "mode": 420,
+            "sha256": "d1a618cc654348e05e3801db676206df602c175c05d9e5114a164c09bc546666",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 2392,
+            "mode": 420,
+            "sha256": "221e577a4461804f554181ce59db220977b5718cbaf058677c83a50682deb964",
+            "type": "file"
+          }
+        },
+        "sysdeps/alpha/fpu/bits/fenv.h": {
+          "after": {
+            "bytes": 4323,
+            "mode": 420,
+            "sha256": "fbe18601b6bab920ce7eef4ba1d3a3feff016c599287a210634dc9d8ed99eccc",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 4323,
+            "mode": 420,
+            "sha256": "7975992f12ac4175b33c73f3fe743758c6ffa7f99d932e9000ac36167e992754",
+            "type": "file"
+          }
+        },
+        "sysdeps/arm/Makefile": {
+          "after": {
+            "bytes": 2884,
+            "mode": 420,
+            "sha256": "456dca2057aa7dfe08c875ceed12b1030228b70974773ac2ff3b1abb70a1b422",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 2220,
+            "mode": 420,
+            "sha256": "75905cb1ab10a932c0db97f4ed2729bbd8a23de90f0c23600ada2bd19deed97b",
+            "type": "file"
+          }
+        },
+        "sysdeps/arm/dl-trampoline.S": {
+          "after": {
+            "bytes": 8022,
+            "mode": 420,
+            "sha256": "a12aee1be9e2fe1bf49ccdcceefc0fdf68cbf30332f7189e0460a9c6de6ba01d",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 4869,
+            "mode": 420,
+            "sha256": "7a14ff27ebe3523f170820fc1f13a104b532a0c1afa4ce327ef2743fafb41b40",
+            "type": "file"
+          }
+        },
+        "sysdeps/arm/tst-bz34144-audit.c": {
+          "after": {
+            "bytes": 1213,
+            "mode": 420,
+            "sha256": "518c7d655701246d1eaffbb033b6f5df1b262b290cc09ebb98ca29e2b1dfb460",
+            "type": "file"
+          },
+          "before": null
+        },
+        "sysdeps/arm/tst-bz34144-auditmod.c": {
+          "after": {
+            "bytes": 1578,
+            "mode": 420,
+            "sha256": "a129a4fd6d8ee15cb0f62ce02654ba0bc037fe52e8a82210e2e0f526e651b6c5",
+            "type": "file"
+          },
+          "before": null
+        },
+        "sysdeps/arm/tst-bz34144-mod.c": {
+          "after": {
+            "bytes": 1063,
+            "mode": 420,
+            "sha256": "d4fd2205bb0873b74df0457aa3adfbeb787bee4a20a4dfc425899f1137ac4195",
+            "type": "file"
+          },
+          "before": null
+        },
+        "sysdeps/arm/tst-bz34144.c": {
+          "after": {
+            "bytes": 1189,
+            "mode": 420,
+            "sha256": "2c92874dd36ff9a069e188692dacb1097f472346b3594e2eddce020f644b53d8",
+            "type": "file"
+          },
+          "before": null
+        },
+        "sysdeps/generic/paths.h": {
+          "after": {
+            "bytes": 2986,
+            "mode": 420,
+            "sha256": "e429f3f110cee04a9ca446d59be07222f4d89ef92ddb13ef42e12677e9c935bd",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 2984,
+            "mode": 420,
+            "sha256": "b5acf2b267514a34f5846c0f8286e12d3aefd6c7345272e7f2059edc8d78359b",
+            "type": "file"
+          }
+        },
+        "sysdeps/hppa/fpu/feupdateenv.c": {
+          "after": {
+            "bytes": 1976,
+            "mode": 420,
+            "sha256": "a303b3241a550ad8e2ea90a14a7b77a7686afb45e72d6f2131f6a6536adeb2e7",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 1900,
+            "mode": 420,
+            "sha256": "ac68d7409cadca762b7e6ea30e019127d2b6d5992e137fc2ee23c6600c5b6491",
+            "type": "file"
+          }
+        },
+        "sysdeps/htl/bits/semaphore.h": {
+          "after": {
+            "bytes": 1245,
+            "mode": 420,
+            "sha256": "c83dc874def1d01c4a1e9d77c9b7d2af2a579f6787afd0e8bb26d3146458e0a3",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 1244,
+            "mode": 420,
+            "sha256": "f18b04342d8c662b9e8e75b2e83e07c1ca8cdb56c28e6378f6edf107d24ee8c7",
+            "type": "file"
+          }
+        },
+        "sysdeps/htl/pt-cond-timedwait.c": {
+          "after": {
+            "bytes": 7281,
+            "mode": 420,
+            "sha256": "8bc6aa6c4d8ce8784a2727a7a1433cb8ba7162b92865e61b9bf731f52b07585d",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 7140,
+            "mode": 420,
+            "sha256": "3a021f963ff9ba2be734204813b4ea25c67e6c81319dba03d662d87f842f75dd",
+            "type": "file"
+          }
+        },
+        "sysdeps/htl/pt-once.c": {
+          "after": {
+            "bytes": 1971,
+            "mode": 420,
+            "sha256": "011d2492bb0f60ea40a1314b0915d96b7b318b2e4e4532b722b065fe8f22f260",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 1834,
+            "mode": 420,
+            "sha256": "4be5770105adff1a4036609f0b4ebb23f8223aad8dab15bf57d4b9a3e7ea0805",
+            "type": "file"
+          }
+        },
+        "sysdeps/htl/pt-rwlock-timedrdlock.c": {
+          "after": {
+            "bytes": 4468,
+            "mode": 420,
+            "sha256": "725d52055f0abea35773a3e2257972c4c6927ee7bc732bbbca9bdd409ce47f08",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 4412,
+            "mode": 420,
+            "sha256": "3da8e8d85979c3ae33a776465d69448f696aa4f199d090b2d59d456b08ef6718",
+            "type": "file"
+          }
+        },
+        "sysdeps/htl/pt-rwlock-timedwrlock.c": {
+          "after": {
+            "bytes": 4010,
+            "mode": 420,
+            "sha256": "bc29eb5c866131466cc9c7e9d5384f2a030dec84887897ada5bf81fbf7d97c30",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 3955,
+            "mode": 420,
+            "sha256": "72d82be98046243201ffd8dc55383ad809f8e320c38899fadee61c7838ac888d",
+            "type": "file"
+          }
+        },
+        "sysdeps/ieee754/dbl-64/s_fma.c": {
+          "after": {
+            "bytes": 5605,
+            "mode": 420,
+            "sha256": "0102e6cb42b7d151bfb9cd5a62fa8f3751fcff050f760f259aa031f655146491",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 5513,
+            "mode": 420,
+            "sha256": "9fc8829d140db1d7f477f675ea5b43bc0463c2dd6e9be9419d799dd051b016ec",
+            "type": "file"
+          }
+        },
+        "sysdeps/ieee754/ldbl-128ibm/s_ceill.c": {
+          "after": {
+            "bytes": 1863,
+            "mode": 420,
+            "sha256": "a46765c6b08249b104ca6fde63b6c0c5b557b153854fbbcbb0b2aa5e3f52a573",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 1772,
+            "mode": 420,
+            "sha256": "4357554704c385533294636a2c7a7bc793b78dcdbd37d8cf004ff6926c183845",
+            "type": "file"
+          }
+        },
+        "sysdeps/ieee754/ldbl-128ibm/s_floorl.c": {
+          "after": {
+            "bytes": 1862,
+            "mode": 420,
+            "sha256": "231a084354a9e05380a4f7a9dea45e337dc4596d31c90a59bd684e979c3b1697",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 1771,
+            "mode": 420,
+            "sha256": "cdb269957cefc061c0f4e78ba064bcad42455087df170bc7c0210ef369b6b35f",
+            "type": "file"
+          }
+        },
+        "sysdeps/ieee754/ldbl-128ibm/s_roundl.c": {
+          "after": {
+            "bytes": 2427,
+            "mode": 420,
+            "sha256": "4e61cd49fa6848983a51b0b800dacccf4bee5ad4035a00dc7e269a4dc1985a1d",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 2331,
+            "mode": 420,
+            "sha256": "ef9dc9c488742a65035103dbc05e182fe9de31a04f3c572ea1057b505d14df87",
+            "type": "file"
+          }
+        },
+        "sysdeps/ieee754/ldbl-128ibm/s_truncl.c": {
+          "after": {
+            "bytes": 1969,
+            "mode": 420,
+            "sha256": "6d918724a6f1a12e67a7a02572161956185ec2983a8f36a217d884884e548b68",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 1878,
+            "mode": 420,
+            "sha256": "5798224a7d44dbc305ff674ff9d6927c7419b551490120a5caa921ac9319a541",
+            "type": "file"
+          }
+        },
+        "sysdeps/loongarch/lp64/multiarch/dl-symbol-redir-ifunc.h": {
+          "after": {
+            "bytes": 1042,
+            "mode": 420,
+            "sha256": "8cd3cbe01f72e27ff0518f02d150c8acf778b600ae357ddacff62ba5108362a1",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 1007,
+            "mode": 420,
+            "sha256": "e280b8f34ab2882d4d9a15b3a6d2da9362646043fea3b8894364481bfebdaf2f",
+            "type": "file"
+          }
+        },
+        "sysdeps/m68k/dl-machine.h": {
+          "after": {
+            "bytes": 10071,
+            "mode": 420,
+            "sha256": "55199359390be2ae75fc29d46fbeac7bb85e912917e9d01c08e19443bda7788a",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 10004,
+            "mode": 420,
+            "sha256": "c68b0e487b5023ef71cc830b45f4d3fd774a08fecabd6b8107ff0a92fab29ca3",
+            "type": "file"
+          }
+        },
+        "sysdeps/m68k/m680x0/fpu/e_fmod.c": {
+          "after": {
+            "bytes": 1387,
+            "mode": 420,
+            "sha256": "acee2b785a8466535718d464ce011f0e93745b1868ba4eec61a39e242d039bbc",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 1377,
+            "mode": 420,
+            "sha256": "f47f6204b1c1d97c1498bdfd7567b8ea27918986b7f1bf33a51303c3a1a84bab",
+            "type": "file"
+          }
+        },
+        "sysdeps/m68k/m680x0/fpu/e_fmodf.c": {
+          "after": {
+            "bytes": 1448,
+            "mode": 420,
+            "sha256": "ba8b7c78acb63d0914a82a28aa6b23e8284d4c675eaf6f82a6f5e70ef5a581af",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 1438,
+            "mode": 420,
+            "sha256": "086b2575947b2e980ca5fdfb855a3f40a461a709c4b48dfc8d6dabbb542d54cd",
+            "type": "file"
+          }
+        },
+        "sysdeps/m68k/m680x0/fpu/w_fmod_compat.c": {
+          "after": null,
+          "before": {
+            "bytes": 409,
+            "mode": 420,
+            "sha256": "0f9d9e7d6d6170c623576710a41d112ce7aafb7903946b72e777d7eadb351818",
+            "type": "file"
+          }
+        },
+        "sysdeps/mach/Makefile": {
+          "after": {
+            "bytes": 2960,
+            "mode": 420,
+            "sha256": "3723cde1023df50f9f8eebed114cc6f40974931f09890ee1f3373c7d916b739b",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 2924,
+            "mode": 420,
+            "sha256": "04cb9168f588f156f31a66837d080b0f663f198ae7c4531fccf9b9f0a3d2e2c2",
+            "type": "file"
+          }
+        },
+        "sysdeps/mach/htl/pt-timedblock.c": {
+          "after": {
+            "bytes": 2337,
+            "mode": 420,
+            "sha256": "5b9406952a0ca2b0d49917377a8c9ab43e441419b705870256184b0f0183577a",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 2217,
+            "mode": 420,
+            "sha256": "6ce05d73a278635c96dffe429becb75959c08326d1ba861a51c1ee22fd2379f5",
+            "type": "file"
+          }
+        },
+        "sysdeps/mach/hurd/Makefile": {
+          "after": {
+            "bytes": 11222,
+            "mode": 420,
+            "sha256": "dbb2027e045d06a6628d6418a0851410798a06072bdd34a20638309dcff9e377",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 11213,
+            "mode": 420,
+            "sha256": "d03a5068d1a7806ada37c28c5fb31bb3980a614a0c732e0d19bf86431eff079d",
+            "type": "file"
+          }
+        },
+        "sysdeps/mach/hurd/_Fork.c": {
+          "after": {
+            "bytes": 23833,
+            "mode": 420,
+            "sha256": "b9eddf2b4b395593154ab36bea4660a8bfde990a64bb38122d62db2d23e227c4",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 23482,
+            "mode": 420,
+            "sha256": "4f921bfd599995cf0dcbfd368235b9a5d2f8c087cf26441be474d8ab4c0f97cd",
+            "type": "file"
+          }
+        },
+        "sysdeps/mach/hurd/bind.c": {
+          "after": {
+            "bytes": 3761,
+            "mode": 420,
+            "sha256": "294d4699b8ba2bf59f4229356323a04240e45364614dece417d7489d45685a2f",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 3624,
+            "mode": 420,
+            "sha256": "f8e9ba9ccb885e5c8922b37996df739966545ba5eba22ebf252d21e3281ecb53",
+            "type": "file"
+          }
+        },
+        "sysdeps/mach/hurd/bits/errno.h": {
+          "after": {
+            "bytes": 21854,
+            "mode": 420,
+            "sha256": "df47dc3c45e85e71c4386c7d54543e11c07882998fbceb9a227882a7088dbb4c",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 21828,
+            "mode": 420,
+            "sha256": "a4aa6daa56f4d151b2e0fee6a57027d3478a4eff332d030da81e8e5ecba73cab",
+            "type": "file"
+          }
+        },
+        "sysdeps/mach/hurd/bits/ioctls.h": {
+          "after": {
+            "bytes": 17014,
+            "mode": 420,
+            "sha256": "1796593e919fc21fd3907586fa4805ba25c4cf70b2d01a48a694388c4d656550",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 16961,
+            "mode": 420,
+            "sha256": "8edf14d7bf333ad031ab62b30d4538424e1290cfb79662a3b62f5ab34093ef3c",
+            "type": "file"
+          }
+        },
+        "sysdeps/mach/hurd/bits/posix_opt.h": {
+          "after": {
+            "bytes": 6049,
+            "mode": 420,
+            "sha256": "b32f808ea4ffa193f29dcdedfce145007bb1fb723fda5543afa79fcb04da3f24",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 6086,
+            "mode": 420,
+            "sha256": "cbf1327265e917cff44357e12bf6cd8e5181fa72c770641f70c0666a0d45bb98",
+            "type": "file"
+          }
+        },
+        "sysdeps/mach/hurd/bits/socket.h": {
+          "after": {
+            "bytes": 14357,
+            "mode": 420,
+            "sha256": "d436792734366b8eba5f3df9dd69c9647d2c26954d1bc35a98ffc71959bc6e8f",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 14245,
+            "mode": 420,
+            "sha256": "9bc48b6d41c00f57fabe0d765da22e2a17de53544688309f71d049bba7f1c50c",
+            "type": "file"
+          }
+        },
+        "sysdeps/mach/hurd/configure": {
+          "after": {
+            "bytes": 6899,
+            "mode": 420,
+            "sha256": "0cd8f5bcdd186e2a146e4151acfc48fa8130e41d39a080c96a4ce71e19278c42",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 6882,
+            "mode": 420,
+            "sha256": "7280f5fe41af3f1fe18ab2625b021759f60e84402f2094d0d2bc0e2be65f63df",
+            "type": "file"
+          }
+        },
+        "sysdeps/mach/hurd/configure.ac": {
+          "after": {
+            "bytes": 1517,
+            "mode": 420,
+            "sha256": "a8ea22f5cd54b4f9a96a833121131e0de36d09dafc666a5fe7fc7397e057cd99",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 1499,
+            "mode": 420,
+            "sha256": "2de0c9675ab742beff8eb13c1e145f0b66a6f94150411917fcf678b1aec991fd",
+            "type": "file"
+          }
+        },
+        "sysdeps/mach/hurd/dl-sysdep.c": {
+          "after": {
+            "bytes": 22158,
+            "mode": 420,
+            "sha256": "ea1ec4e2878006004130f60f04ecc4f2df42a797821edb500feac1060efa9e3d",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 22112,
+            "mode": 420,
+            "sha256": "9b070abb04bf83e8d9acdddff49676f722ae3f5d22777bb739f8670c5e0384ca",
+            "type": "file"
+          }
+        },
+        "sysdeps/mach/hurd/ftok.c": {
+          "after": {
+            "bytes": 1441,
+            "mode": 420,
+            "sha256": "3eb9d9082863580fad015f6aaecf4a1162e0010127ce47d2d82eb440bc1b75fa",
+            "type": "file"
+          },
+          "before": null
+        },
+        "sysdeps/mach/hurd/getclktck.c": {
+          "after": {
+            "bytes": 1191,
+            "mode": 420,
+            "sha256": "830130546c374fff799af990dabe028669c31952cd069f3569f1102c28f0fd6b",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 1269,
+            "mode": 420,
+            "sha256": "6bcd674b1531fdc7ceab862f2a5efab7d8d53e1f1930c1a1cd3514737bb464ac",
+            "type": "file"
+          }
+        },
+        "sysdeps/mach/hurd/htl/pt-docancel.c": {
+          "after": {
+            "bytes": 2090,
+            "mode": 420,
+            "sha256": "f286dfe8d7ed164ea068daabd197402ff807d043310d4c9a799a8330bc872c20",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 1956,
+            "mode": 420,
+            "sha256": "f611cc79fdd7df42497e948d9baa4cdd1cd15ef1a10ae5cff3481e98f9dbac60",
+            "type": "file"
+          }
+        },
+        "sysdeps/mach/hurd/i386/Makefile": {
+          "after": {
+            "bytes": 366,
+            "mode": 420,
+            "sha256": "c571d837bde4de685bdbb3d0d8343bb54856467d7a5689b3d0d42673b495381b",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 293,
+            "mode": 420,
+            "sha256": "02e872cff61203d7eaed112725c9f27a477954d204b1d04390ab23a36b10b1ad",
+            "type": "file"
+          }
+        },
+        "sysdeps/mach/hurd/i386/bits/sigcontext.h": {
+          "after": {
+            "bytes": 4651,
+            "mode": 420,
+            "sha256": "d6226440d2cdc44eb1ddb58438ce9842cec7fc12bb673c711b8fa3ec4fcb359f",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 4627,
+            "mode": 420,
+            "sha256": "7f234315ea6f62a459e4d203c4065631bf7de8728a0b06b998656ab6cc99437b",
+            "type": "file"
+          }
+        },
+        "sysdeps/mach/hurd/i386/features-time64.h": {
+          "after": {
+            "bytes": 981,
+            "mode": 420,
+            "sha256": "1036b1c8c25fb716a817a68f0c0e137e8e8fa731e73967200c1e9f1ab94956a9",
+            "type": "file"
+          },
+          "before": null
+        },
+        "sysdeps/mach/hurd/i386/intr-msg.h": {
+          "after": {
+            "bytes": 5775,
+            "mode": 420,
+            "sha256": "c617dc98738453674cfd0a1c5ee4b08782617c724b6e4f0d652a722ec642db56",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 5713,
+            "mode": 420,
+            "sha256": "b6478846020bd748dec4d255f49b68bc5d06154c1f200e0ca9bdfa6b71e77d7c",
+            "type": "file"
+          }
+        },
+        "sysdeps/mach/hurd/i386/ld.abilist": {
+          "after": {
+            "bytes": 527,
+            "mode": 420,
+            "sha256": "434360a1f2513707fe65bf8c0e40074be65a48a11aaded54d75abe71f42d838d",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 493,
+            "mode": 420,
+            "sha256": "aa1d7e1669997e79dd0c96057f68e87072fa60e7464c74333075ac5a9ea2c97f",
+            "type": "file"
+          }
+        },
+        "sysdeps/mach/hurd/i386/libc.abilist": {
+          "after": {
+            "bytes": 76370,
+            "mode": 420,
+            "sha256": "c1e6b6acbb349f23425008e3962cef5c0606f17f6b0441098bbb5076ffeb6491",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 76343,
+            "mode": 420,
+            "sha256": "3f0f1bae699ce9acaaf4930be65749758f52c7d7693a28f13733b71d017a2366",
+            "type": "file"
+          }
+        },
+        "sysdeps/mach/hurd/ifaddrs.c": {
+          "after": {
+            "bytes": 9959,
+            "mode": 420,
+            "sha256": "00efd162dece1f836220785afd9c6382409abad4a848effef617aa691580e0cb",
+            "type": "file"
+          },
+          "before": null
+        },
+        "sysdeps/mach/hurd/jmp-unwind.c": {
+          "after": {
+            "bytes": 2723,
+            "mode": 420,
+            "sha256": "f57fc0b4473218e5e41db75b64e9c149186bc8546b50bcc46b3061d0ca901e15",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 2785,
+            "mode": 420,
+            "sha256": "1d42964562af2963a0a4a25bb56f58a5d19d0c30552cbc598946577ae573671c",
+            "type": "file"
+          }
+        },
+        "sysdeps/mach/hurd/recvmsg.c": {
+          "after": {
+            "bytes": 10986,
+            "mode": 420,
+            "sha256": "886b6e1944681799e71bbf1fd1f18ad6fbb3a1e5342d975aa9e731a0100073e1",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 7134,
+            "mode": 420,
+            "sha256": "d8f9c363d835c53968c2fae7e8dc977ffce60c457c07c890ac3aeffcba04b59c",
+            "type": "file"
+          }
+        },
+        "sysdeps/mach/hurd/sendmsg.c": {
+          "after": {
+            "bytes": 6988,
+            "mode": 420,
+            "sha256": "7dc5730719e51e7c5fda48abe3d4fc0f4935bbd1003ab93158292dd10190869e",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 5779,
+            "mode": 420,
+            "sha256": "7519ff8e762494b4bf2e35ccd45c97a8af7ead06facbf97649c8bba4ee4e4ac1",
+            "type": "file"
+          }
+        },
+        "sysdeps/mach/hurd/setitimer.c": {
+          "after": {
+            "bytes": 11934,
+            "mode": 420,
+            "sha256": "22d6ab4e0f4389e93958a4f620e7ab0dee5e720c5a51aa12415659d823fe4c9c",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 11911,
+            "mode": 420,
+            "sha256": "b49efd4937d2f310cef490bde6e7e0686310a7fbf5e6d99bf6dd44a785f12685",
+            "type": "file"
+          }
+        },
+        "sysdeps/mach/hurd/setregid.c": {
+          "after": {
+            "bytes": 3253,
+            "mode": 420,
+            "sha256": "2710b6a275650321391ca7b4075ff1c4c73ab07ba35fc14bf54976ecff464672",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 2534,
+            "mode": 420,
+            "sha256": "c8645b8c608217545bc3cfcb3c2be4a8a4478ac103a3a4c5da330f33fe4b2cdb",
+            "type": "file"
+          }
+        },
+        "sysdeps/mach/hurd/setreuid.c": {
+          "after": {
+            "bytes": 3253,
+            "mode": 420,
+            "sha256": "e83232eabe52c643cc6bef2e9599d3e84ad2ed3162b920f79d317e8adc0ee8a8",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 2534,
+            "mode": 420,
+            "sha256": "640271bb2b21db68299c97d759a295eb3e8f5018346302a010c1b3095485229a",
+            "type": "file"
+          }
+        },
+        "sysdeps/mach/hurd/shmat.c": {
+          "after": {
+            "bytes": 2190,
+            "mode": 420,
+            "sha256": "ee54dc12f49e514cd4cc3f1bc05fc785766046b2ce188fdda9d61c3f5085b0a6",
+            "type": "file"
+          },
+          "before": null
+        },
+        "sysdeps/mach/hurd/shmctl.c": {
+          "after": {
+            "bytes": 3495,
+            "mode": 420,
+            "sha256": "30e4b81658db7a3ea9c149d034741626697e97d0591a38ec9c50a46d0ca54f15",
+            "type": "file"
+          },
+          "before": null
+        },
+        "sysdeps/mach/hurd/shmdt.c": {
+          "after": {
+            "bytes": 1449,
+            "mode": 420,
+            "sha256": "c6b4e7e99bdebd1bf8530aaa26f47004198f3791bf3387d89490b2db86c5c866",
+            "type": "file"
+          },
+          "before": null
+        },
+        "sysdeps/mach/hurd/shmget.c": {
+          "after": {
+            "bytes": 5727,
+            "mode": 420,
+            "sha256": "d9fc7102aaad787cc20e2c93356bee5e3b0ea79f1889b2d912d4338aab0ad3e9",
+            "type": "file"
+          },
+          "before": null
+        },
+        "sysdeps/mach/hurd/sigtimedwait.c": {
+          "after": {
+            "bytes": 4166,
+            "mode": 420,
+            "sha256": "7af3ba4b804d0c6c9adf351a86b2fd828b3fa2ae5f0126a5d0d30533657fc890",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 4144,
+            "mode": 420,
+            "sha256": "72b57a1d7ef87e19f429bfb51de4f452cfafccf4f60087e50b6f049b20cff49c",
+            "type": "file"
+          }
+        },
+        "sysdeps/mach/hurd/spawni.c": {
+          "after": {
+            "bytes": 31311,
+            "mode": 420,
+            "sha256": "9fb7499b341041bbaa52159b4cd7ba53a5e480a63ed439a37ca51bafdf6035c6",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 31373,
+            "mode": 420,
+            "sha256": "e7b74915c5d25ca6f8730403d1e19dd97cb3e2cb270ce5dc24da7d84f259fcc5",
+            "type": "file"
+          }
+        },
+        "sysdeps/mach/hurd/times.c": {
+          "after": {
+            "bytes": 2848,
+            "mode": 420,
+            "sha256": "aead5611681926214aa34d0e083625e42a22aa3dc59feae0721360032ecda3d9",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 2844,
+            "mode": 420,
+            "sha256": "3668f6005bed3c0c941f94b2909f8b279d846f9bbea44eb9130ed8a727e9181d",
+            "type": "file"
+          }
+        },
+        "sysdeps/mach/hurd/x86/trampoline.c": {
+          "after": {
+            "bytes": 20150,
+            "mode": 420,
+            "sha256": "cb1e012f3c6873d25ace5cff7e72ff1d3c578d458e19bd5494c10202501e966e",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 19592,
+            "mode": 420,
+            "sha256": "d6ccdf817618d90c5415690e0a1fd8d447b9c9b21c0d4fbf1ce512c7ce479aca",
+            "type": "file"
+          }
+        },
+        "sysdeps/mach/hurd/x86_64/bits/sigcontext.h": {
+          "after": {
+            "bytes": 4844,
+            "mode": 420,
+            "sha256": "d14efdc057f888afb8fd386a33fafba2bf137d88c479edf7cbad49cbdf68dc46",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 4820,
+            "mode": 420,
+            "sha256": "5be4b26b1104badfe05167ea55757c7e6f12d7bf4c259adb144f9674426dc0b8",
+            "type": "file"
+          }
+        },
+        "sysdeps/mach/hurd/x86_64/intr-msg.h": {
+          "after": {
+            "bytes": 5393,
+            "mode": 420,
+            "sha256": "6d338013b7b6a0aea31677e2b79d068617d5a468758186f390a64d58c18932d1",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 5461,
+            "mode": 420,
+            "sha256": "bd8484fa8b59f3efaf199661805c00dbbf247d759eeb4e436a3ca7bca3bf2e4b",
+            "type": "file"
+          }
+        },
+        "sysdeps/mach/hurd/x86_64/ld.abilist": {
+          "after": {
+            "bytes": 445,
+            "mode": 420,
+            "sha256": "d7914fa3690ce1a7e768d01d45bddb0e031fedbf07182f4ff9986138ebeb9e5c",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 410,
+            "mode": 420,
+            "sha256": "f2fdaeafb7bb3a5c12ca2e54a83333f80734e98cadc3134a31db069f0f3f09c2",
+            "type": "file"
+          }
+        },
+        "sysdeps/mach/hurd/x86_64/libc.abilist": {
+          "after": {
+            "bytes": 64376,
+            "mode": 420,
+            "sha256": "52bd1142487d6622e5498f9fb143ebfbf19578ba80f4c7485b5f67857d5c83eb",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 64349,
+            "mode": 420,
+            "sha256": "e1fb06e463332fcbab96830d44d3a2a4e75eac02f822fed97f6d66c32192d498",
+            "type": "file"
+          }
+        },
+        "sysdeps/mach/libc-lock.h": {
+          "after": {
+            "bytes": 7646,
+            "mode": 420,
+            "sha256": "ba9a0aee1cb5259761dba88c247daaa2e5df751344fd5ff0079cc46f332abd59",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 7556,
+            "mode": 420,
+            "sha256": "a001f600a758fdaade210b0030c19c30f12f385e978d254493d18fdd474b0765",
+            "type": "file"
+          }
+        },
+        "sysdeps/mips/dl-debug.h": {
+          "after": {
+            "bytes": 1600,
+            "mode": 420,
+            "sha256": "4ed4a17b9c8438b5f39b269b79dd2c5ef504e86485b0ba858773918ab6de7185",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 1548,
+            "mode": 420,
+            "sha256": "b8fc3e36fc61ca6c381ea184cf977480a6f832b2caa782b1d025bf72ab40e1b8",
+            "type": "file"
+          }
+        },
+        "sysdeps/powerpc/nptl/bits/struct_mutex.h": {
+          "after": {
+            "bytes": 1780,
+            "mode": 420,
+            "sha256": "caec26ec03bfb0f9e2fd28a241de154e13a8d9f78dc6fe2a6469fa83a06b45cf",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 1772,
+            "mode": 420,
+            "sha256": "7f63399e9932701ca3847d96e27c0bd640415c6821dabc85a2e9601e50cda180",
+            "type": "file"
+          }
+        },
+        "sysdeps/powerpc/powerpc64/le/power10/memchr.S": {
+          "after": {
+            "bytes": 6731,
+            "mode": 420,
+            "sha256": "dfbafd86429f7ed19d767834fe04f6820202b11f2c417525a3044d732928900a",
+            "type": "file"
+          },
+          "before": null
+        },
+        "sysdeps/powerpc/powerpc64/multiarch/Makefile": {
+          "after": {
+            "bytes": 1818,
+            "mode": 420,
+            "sha256": "52c7a30dd209c8bc86fe0a7aab77bee9ccdaf2d12e862ed874089eb5e5d660f9",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 1803,
+            "mode": 420,
+            "sha256": "6c4407928a4a2d7411248f246645a13a957ce341d11c02977c0d94241e88237d",
+            "type": "file"
+          }
+        },
+        "sysdeps/powerpc/powerpc64/multiarch/ifunc-impl-list.c": {
+          "after": {
+            "bytes": 16322,
+            "mode": 420,
+            "sha256": "342fda7e575e07ae68670e89d58dc2a0679292f2b3546e878db0923a902aca6e",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 16134,
+            "mode": 420,
+            "sha256": "a189d3debb67c14fb54ac44b9fa12cb0ec226ee94c4613e9d1fae0ceefc86c29",
+            "type": "file"
+          }
+        },
+        "sysdeps/powerpc/powerpc64/multiarch/memchr-power10.S": {
+          "after": {
+            "bytes": 1106,
+            "mode": 420,
+            "sha256": "c62b7aeb860af80b4d65a37a13352a0c0838f8a101bb114f59aa066aee973d49",
+            "type": "file"
+          },
+          "before": null
+        },
+        "sysdeps/powerpc/powerpc64/multiarch/memchr.c": {
+          "after": {
+            "bytes": 1753,
+            "mode": 420,
+            "sha256": "1bbfa5380d9985085750833c4ef16578c2c7ec7cc37175ac0411561dfa5a6658",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 1519,
+            "mode": 420,
+            "sha256": "778d989f1976426ce1ec9904ebc63fa77efc7a9a66f1f19f87a3a8a2d38fd9ea",
+            "type": "file"
+          }
+        },
+        "sysdeps/powerpc/powerpc64/power8/strcasecmp.S": {
+          "after": {
+            "bytes": 11057,
+            "mode": 420,
+            "sha256": "826c390ec9e510adc72b4d910b0f2b6f258db2953d7c8858162b76c42ad000a0",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 10561,
+            "mode": 420,
+            "sha256": "eab4394cfc90d4d3dbea0b70edba45976da0baea6f8697dc0b69d5b647a477a0",
+            "type": "file"
+          }
+        },
+        "sysdeps/riscv/multiarch/dl-symbol-redir-ifunc.h": {
+          "after": {
+            "bytes": 1008,
+            "mode": 420,
+            "sha256": "ea95bc057ff26c5d018d19588776144f2f7292aad2f133960600351e37a9218e",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 973,
+            "mode": 420,
+            "sha256": "ec1ac9f0703e220ebdb9228a49f400ba89fd849ebfb092c86c66c7d43e99ac2a",
+            "type": "file"
+          }
+        },
+        "sysdeps/s390/fpu/bits/fenv.h": {
+          "after": {
+            "bytes": 2969,
+            "mode": 420,
+            "sha256": "65c3edff58999e403ec1aaddc1dc4caad12544492a3912a5cb187cd0e0f1f3c8",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 2953,
+            "mode": 420,
+            "sha256": "dbd4034a4daa05d7c25a92886d977d2d0f8cb6e38ec8a4ca3d099515b1186960",
+            "type": "file"
+          }
+        },
+        "sysdeps/s390/nptl/bits/struct_mutex.h": {
+          "after": {
+            "bytes": 1778,
+            "mode": 420,
+            "sha256": "0b8e084748bd431224cdcb89b344a7a1d1557b38e71a571163bcef168fc832fd",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 1770,
+            "mode": 420,
+            "sha256": "a55d28c27513dc4f3cc1edfa004dd198f1b0e431a6ac883028227d6991ce559c",
+            "type": "file"
+          }
+        },
+        "sysdeps/unix/sysv/linux/Makefile": {
+          "after": {
+            "bytes": 19417,
+            "mode": 420,
+            "sha256": "39cbbbf8ad62f3a9b53dbf0bbaec7efc4768736b27493cda2b48083e46976a89",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 19398,
+            "mode": 420,
+            "sha256": "8bbbed05d93c397a76e38144b30dca0152b2fd399ab10ac3078415b32500e6ce",
+            "type": "file"
+          }
+        },
+        "sysdeps/unix/sysv/linux/aarch64/Makefile": {
+          "after": {
+            "bytes": 9412,
+            "mode": 420,
+            "sha256": "8cb921be451a4b472b97dc905aea8ade32ac06250642475ed2b0debbe2640999",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 8409,
+            "mode": 420,
+            "sha256": "5e5bf673a86bc0054b53a7e86bed3f86f8f015901d262cda6e48156619e53649",
+            "type": "file"
+          }
+        },
+        "sysdeps/unix/sysv/linux/aarch64/libc-start.h": {
+          "after": {
+            "bytes": 2555,
+            "mode": 420,
+            "sha256": "2c944a9e5ce2468779e08b0e57578305b654e03e969b4b7e04af6caf0685d4f4",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 1956,
+            "mode": 420,
+            "sha256": "e24f865216cdf20db92b883d7cf92071a4ed564fa16758597c811f1896957a99",
+            "type": "file"
+          }
+        },
+        "sysdeps/unix/sysv/linux/aarch64/tst-gcs-execv.c": {
+          "after": {
+            "bytes": 2866,
+            "mode": 420,
+            "sha256": "4e2104ea22d4d76574f64a906fb7dd9f31915a648011d46271722be0a1e4a385",
+            "type": "file"
+          },
+          "before": null
+        },
+        "sysdeps/unix/sysv/linux/aarch64/tst-gcs-fork.c": {
+          "after": {
+            "bytes": 2315,
+            "mode": 420,
+            "sha256": "16e67238b73f39f5a38ab358d7337449d5a77de53d77c94b7d8275410aaa9c92",
+            "type": "file"
+          },
+          "before": null
+        },
+        "sysdeps/unix/sysv/linux/aarch64/tst-gcs-helper.h": {
+          "after": {
+            "bytes": 1358,
+            "mode": 420,
+            "sha256": "753f8828bb63a5bef4abf276e3cde240dd361fc2dc6925933971fe044cdcbabb",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 1237,
+            "mode": 420,
+            "sha256": "0927a8095ac4eb37dd8e163ee21db71bb95557d46df2f4d19c989ce47db8b8d1",
+            "type": "file"
+          }
+        },
+        "sysdeps/unix/sysv/linux/aarch64/tst-gcs-lock-ptrace.c": {
+          "after": {
+            "bytes": 5061,
+            "mode": 420,
+            "sha256": "b892455f04a59719fb04323985a9332324a056fe3993a0dd789241e06ba1a20c",
+            "type": "file"
+          },
+          "before": null
+        },
+        "sysdeps/unix/sysv/linux/aarch64/tst-gcs-lock-static.c": {
+          "after": {
+            "bytes": 26,
+            "mode": 420,
+            "sha256": "f217d8ac7b680cec27303651bde711adbdfcd7ab2b051675eb749511f1c71ef8",
+            "type": "file"
+          },
+          "before": null
+        },
+        "sysdeps/unix/sysv/linux/aarch64/tst-gcs-lock.c": {
+          "after": {
+            "bytes": 1682,
+            "mode": 420,
+            "sha256": "66e838a8ea9916fca3c31b760bd7a96e5c6f3ac3ba0d24411f4ff89174fec6e0",
+            "type": "file"
+          },
+          "before": null
+        },
+        "sysdeps/unix/sysv/linux/aarch64/tst-gcs-unlock-static.c": {
+          "after": {
+            "bytes": 52,
+            "mode": 420,
+            "sha256": "d8ee1780bc076ec698971d763cd7fc12ca1ca32646766637e9c389309e1680fd",
+            "type": "file"
+          },
+          "before": null
+        },
+        "sysdeps/unix/sysv/linux/aarch64/tst-gcs-unlock.c": {
+          "after": {
+            "bytes": 52,
+            "mode": 420,
+            "sha256": "d8ee1780bc076ec698971d763cd7fc12ca1ca32646766637e9c389309e1680fd",
+            "type": "file"
+          },
+          "before": null
+        },
+        "sysdeps/unix/sysv/linux/alpha/bits/cloexec.h": {
+          "after": {
+            "bytes": 30,
+            "mode": 420,
+            "sha256": "13e29367a1182308fc01339fed78be9c5a4208f48aeee2d2d36f03c42bf02641",
+            "type": "file"
+          },
+          "before": null
+        },
+        "sysdeps/unix/sysv/linux/alpha/dl-support.c": {
+          "after": null,
+          "before": {
+            "bytes": 49,
+            "mode": 420,
+            "sha256": "0399b977b91ac23c3fcb1692ad4bcd0d71327a1c725479ecff6c30ab40a71b8a",
+            "type": "file"
+          }
+        },
+        "sysdeps/unix/sysv/linux/alpha/fts.c": {
+          "after": {
+            "bytes": 20,
+            "mode": 420,
+            "sha256": "e728428e0dc83e1aca1360a50925c35fed6089051b3b1fc543e7f5725a641d78",
+            "type": "file"
+          },
+          "before": null
+        },
+        "sysdeps/unix/sysv/linux/alpha/fts64.c": {
+          "after": {
+            "bytes": 22,
+            "mode": 420,
+            "sha256": "77e736c93d715f08974452b5087a7e8d56c3d9ff2c013f1804ce9d0f6961fb9d",
+            "type": "file"
+          },
+          "before": null
+        },
+        "sysdeps/unix/sysv/linux/alpha/ioperm.c": {
+          "after": {
+            "bytes": 22042,
+            "mode": 420,
+            "sha256": "fc2b3de6a0b5d4f80408c961e03886e84d14c0abd45f3d42f9b59209641a7a4d",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 21998,
+            "mode": 420,
+            "sha256": "d03f04b90f8744ff895d3b3113f8b7d3d8160b56ea2e4d175701706ad5531fa3",
+            "type": "file"
+          }
+        },
+        "sysdeps/unix/sysv/linux/alpha/makecontext.S": {
+          "after": {
+            "bytes": 3992,
+            "mode": 420,
+            "sha256": "58d1de39c0224312cadd07a9e485c14ce1558db907a996bc7df4837009819da0",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 3801,
+            "mode": 420,
+            "sha256": "4932a1dd1118e8fa5c82e3585f445cee92ccecfea86cd394a55e58b029d9d1c1",
+            "type": "file"
+          }
+        },
+        "sysdeps/unix/sysv/linux/alpha/setrlimit64.c": {
+          "after": {
+            "bytes": 2095,
+            "mode": 420,
+            "sha256": "001f9bf15578b9cb66be7446b7cee843945ff991e6f174ed5262b526249a38ea",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 2095,
+            "mode": 420,
+            "sha256": "c1141cce62c1abba0a332489530f1bc17f09e6e5e40a0bc381f74cb98d4880ad",
+            "type": "file"
+          }
+        },
+        "sysdeps/unix/sysv/linux/arm/kernel-features.h": {
+          "after": {
+            "bytes": 2075,
+            "mode": 420,
+            "sha256": "755c3d54e3f0f64ebeb608559ed4a4259ca674c7ce520381aa0ef1a00bb90753",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 2075,
+            "mode": 420,
+            "sha256": "0d7b1d4e4864d48ab2d7dd139f923bee28bdcebfd8c25d6489b458fb1dc98868",
+            "type": "file"
+          }
+        },
+        "sysdeps/unix/sysv/linux/arm/libc_sigaction.c": {
+          "after": {
+            "bytes": 1274,
+            "mode": 420,
+            "sha256": "67a8b562b3ed1b32591e95702c257b47b62b5f0b3c3470e03dd2317a146d2bfe",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 1434,
+            "mode": 420,
+            "sha256": "1efe8870712d7d06959709bcf76886d3fcfe5f9d18c72fb9d30f4402f3289a3e",
+            "type": "file"
+          }
+        },
+        "sysdeps/unix/sysv/linux/bits/cloexec.h": {
+          "after": {
+            "bytes": 29,
+            "mode": 420,
+            "sha256": "fe4bf3585d48939dc11fe267943518a6714acc3cd6abd07efab46bb805376946",
+            "type": "file"
+          },
+          "before": null
+        },
+        "sysdeps/unix/sysv/linux/bits/fcntl-linux.h": {
+          "after": {
+            "bytes": 15793,
+            "mode": 420,
+            "sha256": "71b1942eea0c04d4c98d70b53dacc359f52ba16e445dafd2319be3718ecaa5f7",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 15826,
+            "mode": 420,
+            "sha256": "6a810521494b60bbf1bae3bfca122753641344716d26218b6b3230e8156c0951",
+            "type": "file"
+          }
+        },
+        "sysdeps/unix/sysv/linux/getlogin_r.c": {
+          "after": {
+            "bytes": 3445,
+            "mode": 420,
+            "sha256": "15e86d078707b9ed427b7619fe520b369ab2c671b24e2a3d7eed4ad2bf750375",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 3233,
+            "mode": 420,
+            "sha256": "543ef2b19e362d1c71b163a9b9ac74798ea38a4e3d06286397e115e559e6e3a6",
+            "type": "file"
+          }
+        },
+        "sysdeps/unix/sysv/linux/hppa/bits/cloexec.h": {
+          "after": {
+            "bytes": 30,
+            "mode": 420,
+            "sha256": "13e29367a1182308fc01339fed78be9c5a4208f48aeee2d2d36f03c42bf02641",
+            "type": "file"
+          },
+          "before": null
+        },
+        "sysdeps/unix/sysv/linux/i386/dl-cache.h": {
+          "after": {
+            "bytes": 52,
+            "mode": 420,
+            "sha256": "453c884a8d163ba4c8563aa75eaf8d3984e8eb9490475d9612491ebde6eeb650",
+            "type": "file"
+          },
+          "before": null
+        },
+        "sysdeps/unix/sysv/linux/i386/getcontext.S": {
+          "after": {
+            "bytes": 2527,
+            "mode": 420,
+            "sha256": "032aebe22bf21947b06538a3739f0b6e923d6638c06899fc8852362857faef18",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 2366,
+            "mode": 420,
+            "sha256": "4365f8b39cf4f7f102575c8741d61a1b2713f37e5025a0eab3d7435ee1430481",
+            "type": "file"
+          }
+        },
+        "sysdeps/unix/sysv/linux/i386/setcontext.S": {
+          "after": {
+            "bytes": 2701,
+            "mode": 420,
+            "sha256": "4e925c8319525c935f0c4fe36015a05d95f5ee863b649ec9ba16539149746b85",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 2593,
+            "mode": 420,
+            "sha256": "1f9ee9f715450409534c63db1a195ce1fb9d484519d22bf1dbeb44b80973ecee",
+            "type": "file"
+          }
+        },
+        "sysdeps/unix/sysv/linux/i386/swapcontext.S": {
+          "after": {
+            "bytes": 3150,
+            "mode": 420,
+            "sha256": "9812008150d3637253e9906be326d23a6d2c2e438b9b5c10a41e6bff81bf5e94",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 2928,
+            "mode": 420,
+            "sha256": "d9e153a49bdda4f3f8debc4209edcc9d7d005c00c0e2bb0de125668a44bb24ab",
+            "type": "file"
+          }
+        },
+        "sysdeps/unix/sysv/linux/i386/ucontext_i.sym": {
+          "after": {
+            "bytes": 625,
+            "mode": 420,
+            "sha256": "c3944a7ba1b0f8f85e03dc7639887a417dbd15e18ed7090cd90225430fea13a1",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 574,
+            "mode": 420,
+            "sha256": "c76a5e921044264452937d5883bcfb9f2142b85cebe967c608e3f433c60ca675",
+            "type": "file"
+          }
+        },
+        "sysdeps/unix/sysv/linux/openat2.c": {
+          "after": {
+            "bytes": 1068,
+            "mode": 420,
+            "sha256": "8ea6aa88d743f24d5588687437b90d50b94107d0724c65b7f73d19ec36bfd4a7",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 1094,
+            "mode": 420,
+            "sha256": "5110ba3d9c8f66a3b51aa7a4dd1381c1eb82485ca0314efe6ddecec89d62d127",
+            "type": "file"
+          }
+        },
+        "sysdeps/unix/sysv/linux/paths.h": {
+          "after": {
+            "bytes": 2983,
+            "mode": 420,
+            "sha256": "3aa1ef22eab413648a651535ab40dd193c804bb16123cd09d04d33e99231e7a8",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 2977,
+            "mode": 420,
+            "sha256": "24fd9beb531c7f6a6f0bb548dd4626fd4236b722eee6ecdd7d90838d20c8deda",
+            "type": "file"
+          }
+        },
+        "sysdeps/unix/sysv/linux/powerpc/dl-auxv.h": {
+          "after": {
+            "bytes": 1527,
+            "mode": 420,
+            "sha256": "d0d75665645e8ed876a2d5ec387a65b4446d83529fd2dc049d448043a8e5c49b",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 927,
+            "mode": 420,
+            "sha256": "c38e2e95ae9100f4e3f043b21061f957490cd002bed60b0798ee683817b31034",
+            "type": "file"
+          }
+        },
+        "sysdeps/unix/sysv/linux/riscv/multiarch/Makefile": {
+          "after": {
+            "bytes": 358,
+            "mode": 420,
+            "sha256": "74d9041ac564263bdfe420e65679585645a376921cdaff6b39979325f0c18547",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 222,
+            "mode": 420,
+            "sha256": "bc7b9373100eb812d1d0c29b3817cae623c02dd8aac5ae7c6d44a824225dfda4",
+            "type": "file"
+          }
+        },
+        "sysdeps/unix/sysv/linux/sh/Versions": {
+          "after": {
+            "bytes": 391,
+            "mode": 420,
+            "sha256": "72197ae8825a02e0e21ee974337632165db44818cd508373d8149aaec2c99a8c",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 371,
+            "mode": 420,
+            "sha256": "3185d83565982f5fb2a919a6378913283b579e8d4e1ff18be7f6b0fc4aff83cf",
+            "type": "file"
+          }
+        },
+        "sysdeps/unix/sysv/linux/sh/le/libc.abilist": {
+          "after": {
+            "bytes": 74922,
+            "mode": 420,
+            "sha256": "35328b50f9236c309216ebc5650d506fedd1a07e7ee4f4191606a8b5fc3d4738",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 74891,
+            "mode": 420,
+            "sha256": "4e3d178c7ab1e7b801500ef215bdaf4cf77c5109cc5c46e004b16b6203e7368b",
+            "type": "file"
+          }
+        },
+        "sysdeps/unix/sysv/linux/sh/sysdep.S": {
+          "after": {
+            "bytes": 1447,
+            "mode": 420,
+            "sha256": "a07c725f076f625dd9b8f0295d9ee4bcfef7226a3e98e56eb8cf826c61173643",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 1218,
+            "mode": 420,
+            "sha256": "df1108031f7ddd4b12413ed34b717bd0e9794ffa40fd804cc11b34737b741dd4",
+            "type": "file"
+          }
+        },
+        "sysdeps/unix/sysv/linux/sparc/bits/cloexec.h": {
+          "after": {
+            "bytes": 29,
+            "mode": 420,
+            "sha256": "74118b06c7b52748a3db161ef515a2f0126fae6062a4a36fd927b4be9646b7c8",
+            "type": "file"
+          },
+          "before": null
+        },
+        "sysdeps/unix/sysv/linux/sys/mount.h": {
+          "after": {
+            "bytes": 12176,
+            "mode": 420,
+            "sha256": "9fc8643b971614ce5f35ce09392d9e13e2fff2938c1cdeaef9ea34d7661bdc05",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 12055,
+            "mode": 420,
+            "sha256": "9b1e75adf0cc9b43968fd7f39ee02f7bd8c6154fc0a0b5a61c5c098874291835",
+            "type": "file"
+          }
+        },
+        "sysdeps/unix/sysv/linux/tcsetattr.c": {
+          "after": {
+            "bytes": 5761,
+            "mode": 420,
+            "sha256": "6fe96c07c6bfde58a5f884c9efbbff172b09df5b28a3e6cb2e4c5934bee4d695",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 3782,
+            "mode": 420,
+            "sha256": "e1ce73828279b17707ac5478bccc6a357d4212bfdc0b4b1faca840855ea092b9",
+            "type": "file"
+          }
+        },
+        "sysdeps/unix/sysv/linux/tst-mount.c": {
+          "after": {
+            "bytes": 3404,
+            "mode": 420,
+            "sha256": "697eb1fb0ea9e553ef245f275d1b33fc572e0b2e42788f03a307be8fbb6e2d62",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 3359,
+            "mode": 420,
+            "sha256": "94499cc227d948405808c92a06aac76485ef143fcc37b98daadd8e96e9995cb6",
+            "type": "file"
+          }
+        },
+        "sysdeps/unix/sysv/linux/tst-rseq.c": {
+          "after": {
+            "bytes": 4684,
+            "mode": 420,
+            "sha256": "1ed27b008ef711bff33a49db1777d5db1a574b107ee499057a0569e9f0c8cc37",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 4753,
+            "mode": 420,
+            "sha256": "d5b56c8ef084335efe0ac34572f72e28133e4716ddd26cc22d2722ac178f9203",
+            "type": "file"
+          }
+        },
+        "sysdeps/x86/dl-cacheinfo.h": {
+          "after": {
+            "bytes": 42437,
+            "mode": 420,
+            "sha256": "f70152b8b25faa1de9cb0f9c5a1062d4142f4b76fde50ee27ebf788ecc6ad840",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 40959,
+            "mode": 420,
+            "sha256": "58f0f1cf76a44a89b7718d387bf49ac728348b33feb85ff48114effeb09a0452",
+            "type": "file"
+          }
+        },
+        "sysdeps/x86/nptl/bits/struct_mutex.h": {
+          "after": {
+            "bytes": 1773,
+            "mode": 420,
+            "sha256": "dca410963a519c04fa3ed4175b13d0baaf20c22723c67414cf2433b00237d1e3",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 1765,
+            "mode": 420,
+            "sha256": "d858895f04faa358475bea3160fc2c00bb53017a0c9e1e71c5d99e9a6aa43dfb",
+            "type": "file"
+          }
+        },
+        "sysdeps/x86/readelflib.c": {
+          "after": {
+            "bytes": 2663,
+            "mode": 420,
+            "sha256": "3d77fdaac2e22cf39afe0ca55a07106408eb4c81415851501a1d3b7e884b4065",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 2641,
+            "mode": 420,
+            "sha256": "31a9eb178555015f12709e605adc4924e8b390b7af9fc2de60caabbace0b69aa",
+            "type": "file"
+          }
+        },
+        "sysdeps/x86_64/multiarch/dl-symbol-redir-ifunc.h": {
+          "after": {
+            "bytes": 1849,
+            "mode": 420,
+            "sha256": "e14970a290d4d909265e1b5d4415040c89a01c7e7f746d75c95d27b212bdd43f",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 1572,
+            "mode": 420,
+            "sha256": "926b20ef79bcedee4ce7e4df6cf208f6b00b1ea5b8a21b3bac3f36993bf2597e",
+            "type": "file"
+          }
+        },
+        "timezone/zic.c": {
+          "after": {
+            "bytes": 103391,
+            "mode": 420,
+            "sha256": "104c8abbcdffbf50d097f61bec2eae83031180a292a0b272494864d0b7b044f2",
+            "type": "file"
+          },
+          "before": {
+            "bytes": 103403,
+            "mode": 420,
+            "sha256": "0dc081a76b4a113235ea30b5b058fd8bb9383e42cad3a53dc68f225da192179e",
+            "type": "file"
+          }
+        }
+      },
+      "documentation": {
+        "authenticated_manual_files": [
+          "manual/Makefile"
+        ],
+        "makeinfo": ":",
+        "no_gnu_manual_reinsertion": true,
+        "omitted_files": [
+          "manual/README.pretty-printers",
+          "manual/README.tunables",
+          "manual/argp.texi",
+          "manual/arith.texi",
+          "manual/charset.texi",
+          "manual/check-deftype.sh",
+          "manual/check-safety.sh",
+          "manual/conf.texi",
+          "manual/contrib.texi",
+          "manual/creature.texi",
+          "manual/crypt.texi",
+          "manual/ctype.texi",
+          "manual/debug.texi",
+          "manual/dir",
+          "manual/dynlink.texi",
+          "manual/errno.texi",
+          "manual/examples/README",
+          "manual/examples/add.c",
+          "manual/examples/argp-ex1.c",
+          "manual/examples/argp-ex2.c",
+          "manual/examples/argp-ex3.c",
+          "manual/examples/argp-ex4.c",
+          "manual/examples/atexit.c",
+          "manual/examples/db.c",
+          "manual/examples/dir.c",
+          "manual/examples/dir2.c",
+          "manual/examples/execinfo.c",
+          "manual/examples/filecli.c",
+          "manual/examples/filesrv.c",
+          "manual/examples/fmtmsgexpl.c",
+          "manual/examples/inetcli.c",
+          "manual/examples/inetsrv.c",
+          "manual/examples/isockad.c",
+          "manual/examples/longopt.c",
+          "manual/examples/mbstouwcs.c",
+          "manual/examples/memopen.c",
+          "manual/examples/memstrm.c",
+          "manual/examples/mkdirent.c",
+          "manual/examples/mkfsock.c",
+          "manual/examples/mkisock.c",
+          "manual/examples/mygetpass.c",
+          "manual/examples/ofdlocks.c",
+          "manual/examples/pipe.c",
+          "manual/examples/popen.c",
+          "manual/examples/rprintf.c",
+          "manual/examples/search.c",
+          "manual/examples/select.c",
+          "manual/examples/setjmp.c",
+          "manual/examples/sigh1.c",
+          "manual/examples/sigusr.c",
+          "manual/examples/stpcpy.c",
+          "manual/examples/strdupa.c",
+          "manual/examples/strftim.c",
+          "manual/examples/subopt.c",
+          "manual/examples/swapcontext.c",
+          "manual/examples/termios.c",
+          "manual/examples/testopt.c",
+          "manual/examples/timespec_subtract.c",
+          "manual/examples/twalk.c",
+          "manual/fdl-1.3.texi",
+          "manual/filesys.texi",
+          "manual/freemanuals.texi",
+          "manual/getopt.texi",
+          "manual/header.texi",
+          "manual/install-plain.texi",
+          "manual/install.texi",
+          "manual/intro.texi",
+          "manual/io.texi",
+          "manual/ipc.texi",
+          "manual/job.texi",
+          "manual/lang.texi",
+          "manual/lgpl-2.1.texi",
+          "manual/libc-texinfo.sh",
+          "manual/libc.texinfo",
+          "manual/libcbook.texi",
+          "manual/llio.texi",
+          "manual/locale.texi",
+          "manual/macros.texi",
+          "manual/maint.texi",
+          "manual/math.texi",
+          "manual/memory.texi",
+          "manual/message.texi",
+          "manual/nss.texi",
+          "manual/nsswitch.texi",
+          "manual/pattern.texi",
+          "manual/pipe.texi",
+          "manual/platform.texi",
+          "manual/probes.texi",
+          "manual/process.texi",
+          "manual/resource.texi",
+          "manual/search.texi",
+          "manual/setjmp.texi",
+          "manual/signal.texi",
+          "manual/socket.texi",
+          "manual/startup.texi",
+          "manual/stdbit.texi",
+          "manual/stdio-fp.c",
+          "manual/stdio.texi",
+          "manual/string.texi",
+          "manual/summary.pl",
+          "manual/sysinfo.texi",
+          "manual/syslog.texi",
+          "manual/terminal.texi",
+          "manual/texinfo.tex",
+          "manual/texis.awk",
+          "manual/threads.texi",
+          "manual/time.texi",
+          "manual/tsort.awk",
+          "manual/tunables.texi",
+          "manual/users.texi",
+          "manual/xtract-typefun.awk"
+        ],
+        "orig_omitted_files": [
+          "manual/Makefile",
+          "manual/README.pretty-printers",
+          "manual/README.tunables",
+          "manual/argp.texi",
+          "manual/arith.texi",
+          "manual/charset.texi",
+          "manual/check-deftype.sh",
+          "manual/check-safety.sh",
+          "manual/conf.texi",
+          "manual/contrib.texi",
+          "manual/creature.texi",
+          "manual/crypt.texi",
+          "manual/ctype.texi",
+          "manual/debug.texi",
+          "manual/dir",
+          "manual/dynlink.texi",
+          "manual/errno.texi",
+          "manual/examples/README",
+          "manual/examples/add.c",
+          "manual/examples/argp-ex1.c",
+          "manual/examples/argp-ex2.c",
+          "manual/examples/argp-ex3.c",
+          "manual/examples/argp-ex4.c",
+          "manual/examples/atexit.c",
+          "manual/examples/db.c",
+          "manual/examples/dir.c",
+          "manual/examples/dir2.c",
+          "manual/examples/execinfo.c",
+          "manual/examples/filecli.c",
+          "manual/examples/filesrv.c",
+          "manual/examples/fmtmsgexpl.c",
+          "manual/examples/inetcli.c",
+          "manual/examples/inetsrv.c",
+          "manual/examples/isockad.c",
+          "manual/examples/longopt.c",
+          "manual/examples/mbstouwcs.c",
+          "manual/examples/memopen.c",
+          "manual/examples/memstrm.c",
+          "manual/examples/mkdirent.c",
+          "manual/examples/mkfsock.c",
+          "manual/examples/mkisock.c",
+          "manual/examples/mygetpass.c",
+          "manual/examples/ofdlocks.c",
+          "manual/examples/pipe.c",
+          "manual/examples/popen.c",
+          "manual/examples/rprintf.c",
+          "manual/examples/search.c",
+          "manual/examples/select.c",
+          "manual/examples/setjmp.c",
+          "manual/examples/sigh1.c",
+          "manual/examples/sigusr.c",
+          "manual/examples/stpcpy.c",
+          "manual/examples/strdupa.c",
+          "manual/examples/strftim.c",
+          "manual/examples/subopt.c",
+          "manual/examples/swapcontext.c",
+          "manual/examples/termios.c",
+          "manual/examples/testopt.c",
+          "manual/examples/timespec_subtract.c",
+          "manual/examples/twalk.c",
+          "manual/fdl-1.3.texi",
+          "manual/filesys.texi",
+          "manual/freemanuals.texi",
+          "manual/getopt.texi",
+          "manual/header.texi",
+          "manual/install-plain.texi",
+          "manual/install.texi",
+          "manual/intro.texi",
+          "manual/io.texi",
+          "manual/ipc.texi",
+          "manual/job.texi",
+          "manual/lang.texi",
+          "manual/lgpl-2.1.texi",
+          "manual/libc-texinfo.sh",
+          "manual/libc.texinfo",
+          "manual/libcbook.texi",
+          "manual/llio.texi",
+          "manual/locale.texi",
+          "manual/macros.texi",
+          "manual/maint.texi",
+          "manual/math.texi",
+          "manual/memory.texi",
+          "manual/message.texi",
+          "manual/nss.texi",
+          "manual/nsswitch.texi",
+          "manual/pattern.texi",
+          "manual/pipe.texi",
+          "manual/platform.texi",
+          "manual/probes.texi",
+          "manual/process.texi",
+          "manual/resource.texi",
+          "manual/search.texi",
+          "manual/setjmp.texi",
+          "manual/signal.texi",
+          "manual/socket.texi",
+          "manual/startup.texi",
+          "manual/stdbit.texi",
+          "manual/stdio-fp.c",
+          "manual/stdio.texi",
+          "manual/string.texi",
+          "manual/summary.pl",
+          "manual/sysinfo.texi",
+          "manual/syslog.texi",
+          "manual/terminal.texi",
+          "manual/texinfo.tex",
+          "manual/texis.awk",
+          "manual/threads.texi",
+          "manual/time.texi",
+          "manual/tsort.awk",
+          "manual/tunables.texi",
+          "manual/users.texi",
+          "manual/xtract-typefun.awk"
+        ],
+        "tests": "Debian disables tst-errno-manual, drops list-diagnostics manual comparison, redirects Hurd errno-generation dependency; full original GNU-test equivalence NOT_CLAIMED"
+      },
+      "failed_patch": null,
+      "independent_authority": "NOT_GRANTED_BY_SOURCE_PREPARATION",
+      "mount_guard_policy": {
+        "action": "SUPERSEDED_NOT_APPLIED",
+        "old_patch": "0001-mount-macro-guards.patch",
+        "reason": "Authenticated git-updates already contains upstream guarded OPEN_TREE_CLONE/CLOEXEC and bits/cloexec.h refactor; exact source pins enforce equivalent behavior"
+      },
+      "native": "NOT_RUN",
+      "offset_patches": 40,
+      "patch_tar": {
+        "bytes": 498952,
+        "sha256": "9f62b90fb4c7423ed5023698c9014ad0086d26f9b6f46b2a163afcea7e581a02"
+      },
+      "project_patch_count": 1,
+      "quilt_tree": "aa963b6ef1d55056efbab622411d2530a636422d",
+      "release": "NOT_ADMITTED",
+      "security": "NO_CREDIT_APPLICABILITY_NOT_ESTABLISHED",
+      "series_count": 84,
+      "source_version": "Debian glibc2.43-7 orig+explicit quilt series",
+      "status": "PASS_ALL_AUTHENTICATED_DEBIAN_QUILT_PATCHES_FUZZ0_SOURCE_ONLY",
+      "upstream_code_executed": false
+    }
+  },
+  "source_bundle_manifest_sha256": "e10089ed7f52bca743e9dc436e4e28dcc1daedef0f14260f3a8209ef863ae0e2",
+  "source_bundle_preserved": true,
+  "status": "PASS_UNSELECTED_NATIVE_PAIR",
+  "upstream_release": "2.43"
+}
