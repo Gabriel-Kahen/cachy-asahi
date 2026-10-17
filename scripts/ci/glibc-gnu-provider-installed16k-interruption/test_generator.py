@@ -23,12 +23,12 @@ class Controls(unittest.TestCase):
   with self.assertRaisesRegex(ValueError,'UNBOUND'):C.gate(Path('/missing'))
   with self.assertRaisesRegex(ValueError,'UNBOUND'):R.execute(type('Args',(),dict(acceptances=Path('/missing')))())
   self.assertEqual({p.name for p in self.work.iterdir()},{'emitted'})
- def test_native_four_edits19_bodies_and_unchanged_interruption_sequence(self):
+ def test_native_four_edits20_bodies_and_unchanged_interruption_sequence(self):
   _,folder,C,_,A,_=self.emitted();source=self.work/'source';source.mkdir()
   for name in G.source(ROOT)['files']:
    p=source/name;p.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(ROOT/name,p)
   shutil.copytree(folder,source/G.NEW)
-  text,receipt=A.derive(source);self.assertEqual(receipt['counted_edits'],4);self.assertEqual(len(receipt['unchanged_bodies']),19);self.assertEqual(receipt['changed_bodies'],['guard','validate_runtime'])
+  text,receipt=A.derive(source);self.assertEqual(receipt['counted_edits'],4);self.assertEqual(len(receipt['unchanged_bodies']),20);self.assertIn('config_handoff',receipt['unchanged_bodies']);self.assertEqual(receipt['changed_bodies'],['guard','validate_runtime'])
   raw=(source/G.NATIVE/'container.py').read_text();bodies=lambda t:{n.name:ast.dump(n,include_attributes=False) for n in ast.parse(t).body if isinstance(n,(ast.FunctionDef,ast.ClassDef))}
   a,b=bodies(raw),bodies(text)
   for name in ('transaction','run_case','copy_probes','runtime_mounts','snapshot','main','Commands'):self.assertEqual(a[name],b[name])

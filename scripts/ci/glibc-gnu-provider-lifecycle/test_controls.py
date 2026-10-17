@@ -377,4 +377,119 @@ class Controls(unittest.TestCase):
         text=Path(lane.__file__).read_text();node=next(n for n in ast.parse(text).body if isinstance(n,ast.FunctionDef) and n.name=='run_case');body=ast.get_source_segment(text,node)
         self.assertLess(body.index("case+'-clone'"),body.index("copy_byte_identical_before_initialization"));self.assertLess(body.index("copy_byte_identical_before_initialization"),body.index("report['root_initialization']"));self.assertLess(body.index("report['root_initialization']"),body.index("case+'-before574'"))
 
+# Real tempfile configuration handoff controls, with no actor execution.
+import ast
+import hashlib
+import os
+from pathlib import Path
+import stat
+import tempfile
+from types import SimpleNamespace
+import unittest
+from unittest.mock import patch
+
+HERE=Path(__file__).resolve().parent
+def need(ok,why):
+    if not ok:raise ValueError(why)
+def node(data,mode=0o640):return dict(type='file',bytes=len(data),sha256=hashlib.sha256(data).hexdigest(),mode=mode,uid=os.geteuid(),gid=os.getegid())
+def code(role):
+    path=HERE.parent/('glibc-gnu-provider-'+role)/'container.py';tree=ast.parse(path.read_bytes());function=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='config_handoff')
+    return compile(ast.fix_missing_locations(ast.Module(body=[function],type_ignores=[])),str(path),'exec')
+
+class ConfigHandoffControls(unittest.TestCase):
+    def setUp(self):
+        self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup);self.work=Path(self.tmp.name);self.parent=self.work/'modified';self.root=self.parent/'root';self.root.mkdir(parents=True);self.parent.chmod(0o700);self.root.chmod(0o755)
+        (self.root/'etc').mkdir();(self.root/'tmp/provider-lifecycle').mkdir(parents=True)
+        self.gai=b'original modified gai\n';self.locale=b'original modified locale\n';self.default=b'provider gai default\n';self.held=b'held gai default\n';self.held_locale=b'held locale default\n'
+        self.before=dict(nodes={'etc/gai.conf':node(self.gai),'etc/locale.gen':node(self.locale)})
+        self.new=dict(nodes={'etc/gai.conf':node(self.default,0o644)},data={'etc/gai.conf':self.default})
+        self.old=dict(nodes={'etc/gai.conf':node(self.held,0o644),'etc/locale.gen':node(self.held_locale,0o644)},data={'etc/gai.conf':self.held,'etc/locale.gen':self.held_locale})
+        self.ns=dict(os=os,stat=stat,WORK=self.work,FIXTURE='tmp/provider-lifecycle',C=SimpleNamespace(need=need,sha=lambda b:hashlib.sha256(b).hexdigest()));exec(code('lifecycle'),self.ns);self.call=self.ns['config_handoff']
+        self.write('etc/gai.conf',self.default,0o644);self.write('etc/gai.conf.pacsave',self.gai);self.write('etc/locale.gen.pacsave',self.locale)
+    def write(self,name,data,mode=0o640):
+        p=self.root/name;p.write_bytes(data);p.chmod(mode)
+    def run_phase(self,phase):return self.call(self.root,self.before,self.new,self.old,self.gai,self.locale,phase)
+    def assert_file(self,name,data,mode):
+        p=self.root/name;self.assertEqual(p.read_bytes(),data);s=p.stat();self.assertEqual((stat.S_IMODE(s.st_mode),s.st_uid,s.st_gid,s.st_nlink),(mode,os.geteuid(),os.getegid(),1))
+    def test_provider_handoff_preserves_active_backup_default_and_metadata(self):
+        r=self.run_phase('provider');self.assertEqual(r['status'],'PASS_EXPLICIT_CLONE_CONFIG_HANDOFF');self.assertEqual(r['ALPM_active_configuration_preservation'],'NOT_CLAIMED');self.assertEqual(len(r['operations']),2)
+        self.assert_file('etc/gai.conf',self.gai,0o640);self.assert_file('etc/gai.conf.pacsave',self.gai,0o640);self.assert_file('etc/gai.conf.pacnew',self.default,0o644);self.assert_file('etc/locale.gen.pacsave',self.locale,0o640)
+    def test_full_rollback_stash_recreated_backup_and_restored_active(self):
+        self.run_phase('provider');prepare=self.run_phase('rollback_prepare');self.assertEqual(len(prepare['operations']),2);self.assertFalse((self.root/'etc/gai.conf.pacsave').exists());self.assert_file('tmp/provider-lifecycle/gai-pacsave-before-rollback',self.gai,0o640)
+        # Exact ordinary remove/add outcome required by rollback_finish, not an ALPM test.
+        self.write('etc/gai.conf.pacsave',self.gai);self.write('etc/gai.conf',self.held,0o644);self.write('etc/locale.gen',self.held_locale,0o644)
+        r=self.run_phase('rollback_finish');self.assertEqual(len(r['operations']),1);self.assert_file('etc/gai.conf',self.gai,0o640);self.assert_file('etc/gai.conf.pacsave',self.gai,0o640);self.assert_file('etc/gai.conf.pacnew',self.default,0o644);self.assert_file('etc/locale.gen',self.held_locale,0o644);self.assert_file('etc/locale.gen.pacsave',self.locale,0o640)
+    def test_preexisting_pacnew_refused_before_any_change(self):
+        self.write('etc/gai.conf.pacnew',b'foreign')
+        with self.assertRaisesRegex(ValueError,'fresh configuration'):self.run_phase('provider')
+        self.assert_file('etc/gai.conf',self.default,0o644)
+    def test_unknown_sidecar_refused(self):
+        self.write('etc/gai.conf.pacsave.1',b'foreign')
+        with self.assertRaisesRegex(ValueError,'unknown configuration'):self.run_phase('provider')
+    def test_modified_backup_bytes_refused(self):
+        self.write('etc/gai.conf.pacsave',b'changed')
+        with self.assertRaisesRegex(ValueError,'exact configuration'):self.run_phase('provider')
+        self.assertFalse((self.root/'etc/gai.conf.pacnew').exists())
+    def test_modified_backup_metadata_refused(self):
+        (self.root/'etc/gai.conf.pacsave').chmod(0o600)
+        with self.assertRaisesRegex(ValueError,'exact configuration'):self.run_phase('provider')
+    def test_locale_backup_mismatch_refused(self):
+        self.write('etc/locale.gen.pacsave',b'changed')
+        with self.assertRaisesRegex(ValueError,'exact configuration'):self.run_phase('provider')
+    def test_hardlink_backup_refused(self):
+        os.link(self.root/'etc/gai.conf.pacsave',self.work/'alias')
+        with self.assertRaisesRegex(ValueError,'single-link'):self.run_phase('provider')
+    def test_symbolic_backup_refused(self):
+        (self.root/'etc/gai.conf.pacsave').unlink();(self.root/'etc/gai.conf.pacsave').symlink_to(self.root/'etc/gai.conf')
+        with self.assertRaisesRegex(ValueError,'ordinary configuration'):self.run_phase('provider')
+    def test_foreign_root_and_nonprivate_parent_refused(self):
+        with self.assertRaisesRegex(ValueError,'exact modified'):self.call(self.work,self.before,self.new,self.old,self.gai,self.locale,'provider')
+        self.parent.chmod(0o755)
+        with self.assertRaisesRegex(ValueError,'private parent'):self.run_phase('provider')
+    def test_rollback_foreign_stash_refused_without_unlink(self):
+        self.run_phase('provider');self.write('tmp/provider-lifecycle/gai-pacsave-before-rollback',b'foreign')
+        with self.assertRaisesRegex(ValueError,'fresh configuration'):self.run_phase('rollback_prepare')
+        self.assert_file('etc/gai.conf.pacsave',self.gai,0o640)
+    def test_rollback_finish_requires_exact_recreated_backup(self):
+        self.run_phase('provider');self.run_phase('rollback_prepare');self.write('etc/gai.conf',self.held,0o644);self.write('etc/locale.gen',self.held_locale,0o644);self.write('etc/gai.conf.pacsave',b'foreign')
+        with self.assertRaisesRegex(ValueError,'exact configuration'):self.run_phase('rollback_finish')
+    def test_drift_before_active_write_refused(self):
+        original=os.open
+        def changed(path,flags,*args,**kwargs):
+            if str(path).endswith('gai.conf.pacnew') and flags&os.O_EXCL:self.write('etc/gai.conf.pacsave',b'changed')
+            return original(path,flags,*args,**kwargs)
+        with patch.object(os,'open',side_effect=changed),self.assertRaisesRegex(ValueError,'changed during handoff'):self.run_phase('provider')
+        self.assert_file('etc/gai.conf',self.default,0o644)
+    def test_untrusted_directory_refused_before_any_write(self):
+        (self.root/'etc').chmod(0o777)
+        with self.assertRaisesRegex(ValueError,'nonwritable-by-others'):self.run_phase('provider')
+        self.assertFalse((self.root/'etc/gai.conf.pacnew').exists())
+    def test_unknown_active_default_refused(self):
+        self.write('etc/gai.conf',b'unknown active data',0o644)
+        with self.assertRaisesRegex(ValueError,'exact configuration'):self.run_phase('provider')
+        self.assertFalse((self.root/'etc/gai.conf.pacnew').exists())
+    def test_oversized_backup_refused(self):
+        self.write('etc/gai.conf.pacsave',b'x'*(2*1024**2+1))
+        with self.assertRaisesRegex(ValueError,'bounded plain configuration'):self.run_phase('provider')
+    def test_unknown_phase_refused(self):
+        with self.assertRaisesRegex(ValueError,'finite configuration handoff phase'):self.run_phase('unknown')
+    def test_extended_attribute_refused(self):
+        os.setxattr(self.root/'etc/gai.conf.pacsave','user.UNIT-unknown',b'foreign')
+        with self.assertRaisesRegex(ValueError,'bounded plain configuration'):self.run_phase('provider')
+    def test_partial_operation_evidence_survives_failure(self):
+        evidence={};original=os.pwrite;calls=[]
+        def fail(fd,data,offset):
+            calls.append(fd)
+            if len(calls)==2:raise OSError('inert active write failure')
+            return original(fd,data,offset)
+        with patch.object(os,'pwrite',side_effect=fail),self.assertRaisesRegex(OSError,'inert active'):
+            self.call(self.root,self.before,self.new,self.old,self.gai,self.locale,'provider',evidence=evidence)
+        self.assertEqual(evidence['status'],'STARTED_EXPLICIT_CLONE_CONFIG_HANDOFF');self.assertEqual(len(evidence['operations']),1);self.assertIn('before',evidence);self.assert_file('etc/gai.conf.pacsave',self.gai,0o640)
+    def test_both_roles_share_exact_helper_and_three_explicit_calls(self):
+        funcs=[]
+        for role in ('lifecycle','interruption'):
+            tree=ast.parse((HERE.parent/('glibc-gnu-provider-'+role)/'container.py').read_bytes());funcs.append(ast.dump(next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='config_handoff')));case=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='run_case');calls=[n for n in ast.walk(case) if isinstance(n,ast.Call) and isinstance(n.func,ast.Name) and n.func.id=='config_handoff'];self.assertEqual(sorted(ast.literal_eval(c.args[-1]) for c in calls),['provider','rollback_finish','rollback_prepare'])
+        self.assertEqual(*funcs)
+
+
 if __name__=='__main__':unittest.main()
