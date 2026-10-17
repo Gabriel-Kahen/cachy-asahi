@@ -1,0 +1,61 @@
+{
+  "Root_acceptance": "NOT_GRANTED",
+  "actors": 8,
+  "auxiliary_inode_liveness": "NOT_ESTABLISHED_SOURCE_SNAPSHOT_KEYS",
+  "capability_execution": "NOT_RUN_METADATA_ONLY",
+  "collection": {
+    "artifact.zip": {
+      "bytes": 13005887,
+      "sha256": "691c946b87c4453245b9e6a5ec1f2cdd8277ed9ba9f19c4613d809b451063e3b"
+    },
+    "logs.zip": {
+      "bytes": 96009,
+      "sha256": "d84ddd0b3fe3fb1c7d7edfef8c35f1f2c26c9e2f0c3c234c04693d8858365291"
+    }
+  },
+  "counts": [
+    578,
+    575,
+    574
+  ],
+  "hardware": "NOT_RUN",
+  "interrupted_commit_outcome": "UNKNOWN",
+  "native_packages": 4,
+  "native_payload_files": 25,
+  "ordered_teardown": "PASS",
+  "public_members": 392,
+  "release_admission": false,
+  "retained_bytes": 59212626,
+  "retained_diagnostics": {
+    "lifecycle-public/lifecycle.json": {
+      "status": "PASS_NATIVE574_APPS_ACTUAL_TRANSACTIONS"
+    },
+    "retention.json": {
+      "errors": [],
+      "status": "PASS_NATIVE574_APPS_COPIED_ROOT_TRANSACTIONS_AND_TEARDOWN"
+    },
+    "runtime/owner.json": {
+      "status": "PASS_ACTUAL_TRANSACTIONS_PENDING_ORDERED_CLEANUP"
+    }
+  },
+  "rollback": "NOT_CLAIMED",
+  "run_attempt": 1,
+  "run_conclusion": "success",
+  "run_id": 38988963672,
+  "signature_cryptographic_reverification": "NOT_RUN_PASSIVE_NO_ACTORS",
+  "source_capabilities": {
+    "usr/bin/newgidmap": "0100000240000000000000000000000000000000",
+    "usr/bin/newuidmap": "0100000280000000000000000000000000000000",
+    "usr/lib/gstreamer-1.0/gst-ptp-helper": "0100000200148000000000000000000000000000"
+  },
+  "source_capabilities_sha256": "f51c5419ecea4e63a809c41e45dd04b57befac56d294e06ed555f1656d29c194",
+  "source_manifest_sha256": "9e314e0fb9cf888f8e4083dace259ddc0bebdd06cd8710fe3ce87b00d96d64cc",
+  "source_nodes": 123056,
+  "source_sha": "0c409563d3d62e879cdd6227c26634b4de64bf2e",
+  "status": "PASS_PASSIVE_EXACT_NATIVE574_RECEIPT_JOINS_NOT_ROOT_ACCEPTANCE",
+  "zero_commit_refusals": [
+    "foreign-alpm-lock",
+    "precommit-db-drift",
+    "wrong-plan-sha"
+  ]
+}
