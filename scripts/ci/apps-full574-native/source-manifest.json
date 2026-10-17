@@ -226,7 +226,7 @@
     },
     "scripts/ci/apps-full574-native/input-policy.json": {
       "bytes": 636,
-      "sha256": "c4a1f243fd59be4735ac834c4b908f1d516de199056d42a74dd4c8fb79c21cf8"
+      "sha256": "841f627c6c8cc6c1c47deaaf0999519f535ee88893f46d7574b340aff0f482e4"
     },
     "scripts/ci/apps-full574-native/job.py": {
       "bytes": 24954,
@@ -249,8 +249,8 @@
       "sha256": "fe5670055f2b309640e80049d077ad16022f3a86100f2429104034cfe1ad554b"
     },
     "scripts/ci/apps-full574-native/test_lane.py": {
-      "bytes": 30154,
-      "sha256": "58a6192a48ba9b1c92f59a52219b1436e0e358dd3276fbd9b48fb587deedf515"
+      "bytes": 30282,
+      "sha256": "19ce69c1012643acc272892d3ab1bccc1c0664b68134faa0425e1da29d9f873a"
     },
     "scripts/ci/expanded600-installer-vm/observer600.py": {
       "bytes": 2784,
