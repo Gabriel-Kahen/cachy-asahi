@@ -29,3 +29,30 @@ held foreign ALPM lock; full574 main_cache/auxiliary proofs stay unchanged.
 After Apps-only cleanup, an additional actual readonly assessment must show
 Runtime still installed as a dependency with no required/optional users and
 candidate=true. Nothing auto-removes it. New native behavior remains NOT_RUN.
+
+
+The original39011983979 fixture passed genuine Apps+Runtime install and its exact
+precommit guard, then readonly assessment refused an ordinary bounded single-link
+DB/input file. Inert execution of the exact original floor/read functions proves
+that uid1001 source floor bytes refuse under euid0 even with private=False; the
+actual failing operand was not exported, so this is a demonstrated source hazard,
+not a claim that its exact path was observed. Product reader/floor checks remain
+unchanged.
+
+After C.source('/source'), each actor stages the complete frozen source-manifest
+closure plus source-manifest.json into a fresh /work/source-normal or
+/work/source-interruption sibling, outside mutable /work/main or /work/interrupted.
+Every path is ordinary, source-pinned and bounded (256 declared files plus manifest,
+4MiB/file and8MiB total); every stage directory is root:root0700, every file
+root:root0644 and single-link. Repeated complete source/stage SHA joins and the
+closed path set are retained in source-stage.json under the original supervised
+output retention. Readonly rules and selected.py execute at the real staged path,
+so their unmodified __file__ root discovery, package marker, floor and pinned
+helper resolution all point to the same root-owned bytes. Cancellation requires
+an explicit fixed staged-root argument and revalidates it before importing the
+same selected.py. No __file__ override, floor patch, source chown or reader waiver
+is used. Original /source stays readonly; original scrub removes the entire owned
+/work only after actor absence, including both source stages. Same actor counts,
+command flags,600/610 deadlines and original protected/capability/cleanup checks
+remain. Host tests copy real source bytes/modes/link counts; UID0 observations are
+inertly modeled on an unprivileged host, not native ownership credit.

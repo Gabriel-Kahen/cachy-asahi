@@ -1,12 +1,13 @@
 # SPDX-License-Identifier: MIT
 """Finite source/header/fixture adapter controls, no native/signing/ALPM actors."""
-import ast,copy,importlib.util,json,os,re,subprocess,tempfile,unittest
+import ast,copy,hashlib,importlib.util,json,os,re,stat,subprocess,tempfile,unittest
 from pathlib import Path
 from types import SimpleNamespace as NS
 from unittest.mock import patch
 import contract as C
 import install_dependency as D
 import lifecycle as L
+import stage_source as S
 ROOT=Path(os.environ.get('ORPHAN_NATIVE_SOURCE',Path(__file__).resolve().parents[3]))
 class Controls(unittest.TestCase):
  def setUp(self):
@@ -71,6 +72,84 @@ class Controls(unittest.TestCase):
    elif change=='now-orphan':bad['after_reason_graph']['cachy-asahi-repository-runtime']['candidate']=False
    else:bad['precommit_install_plan']['plan_sha256']='d'*64
    with self.assertRaises(ValueError):C.result(bad)
+ def stage_context(self,source):
+  def checked_source(root):
+   self.assertEqual(root,source)
+   rows=C.decode(C.read(root/(C.LANE+'/source-manifest.json')))['files']
+   for n,r in rows.items():C.checked(root,dict(path=n,**r))
+  return NS(source=checked_source,LANE=C.LANE,safe=C.safe,need=C.need,read=C.read,decode=C.decode,checked=C.checked,sha=C.sha,encoded=C.encoded)
+ def root_owner_observation(self,work):
+  # Host tests are unprivileged: only UID/GID observations are simulated, never
+  # chown, ALPM, a container or a root/native success claim. Bytes/modes/links real.
+  original=Path.lstat
+  def observed(path):
+   row=original(path)
+   if path==work or path.is_relative_to(work):
+    values={n:getattr(row,n) for n in dir(row) if n.startswith('st_')};values.update(st_uid=0,st_gid=0);return NS(**values)
+   return row
+  return patch.object(Path,'lstat',observed)
+ def test_exact_original_floor_reproduces_root_reader_foreign_checkout_refusal(self):
+  names={'need','identity','read','limits','json_file','pairs','absolute','directory','floor'}
+  tree=ast.parse((ROOT/'packages/tools/cachy-asahi-orphans/cachy-asahi-orphans').read_bytes())
+  body=[n for n in tree.body if isinstance(n,(ast.Import,ast.ImportFrom)) or isinstance(n,(ast.FunctionDef,ast.ClassDef)) and n.name in names|{'Refused'}]
+  ns=dict(__file__=str(ROOT/'packages/tools/cachy-asahi-orphans/cachy-asahi-orphans'),MAX_JSON=32*1024**2,FLOOR_SHA='0d6dfbf3cd550fe72ddad30058693007f8bb86214de1e83442580677db5005f2')
+  exec(compile(ast.Module(body=body,type_ignores=[]),'<original-floor-read>','exec'),ns)
+  original_fstat=os.fstat;original_stat=os.stat
+  def owner(row,uid):
+   fields={n:getattr(row,n) for n in dir(row) if n.startswith('st_')};fields['st_uid']=uid;return NS(**fields)
+  for uid,refused in ((1001,True),(0,False)):
+   with patch.object(os,'geteuid',return_value=0),patch.object(os,'fstat',side_effect=lambda fd:owner(original_fstat(fd),uid)),patch.object(os,'stat',side_effect=lambda *a,**kw:owner(original_stat(*a,**kw),uid)):
+    if refused:
+     with self.assertRaisesRegex(ValueError,'ordinary bounded single-link DB/input file required'):ns['floor']()
+    else:self.assertIn('pacman',ns['floor']())
+ def test_full_actual_frozen_source_stage_exact_bytes_modes_and_closure(self):
+  with tempfile.TemporaryDirectory() as name:
+   work=Path(name)/'work';work.mkdir(mode=0o700);api=self.stage_context(ROOT)
+   with self.root_owner_observation(work):
+    stage,receipt=S.copy(api,ROOT,work,'normal')
+    self.assertEqual(receipt['file_count'],len(C.decode(C.read(ROOT/C.LANE/'source-manifest.json'))['files'])+1)
+    self.assertEqual(receipt['staged'],str(work/'source-normal'));self.assertEqual(S.check(api,ROOT,stage,work),receipt)
+    self.assertTrue(all(r['uid']==r['gid']==0 and r['links']==1 and r['mode']==0o644 for r in receipt['files'].values()))
+    for n in receipt['files']:self.assertEqual((ROOT/n).read_bytes(),(stage/n).read_bytes())
+    self.assertTrue((stage/'manifests/packages.toml').is_file());self.assertTrue((stage/'scripts/orphans/selected.py').is_file())
+    selected=C.load('staged_selected_resolution_test',stage/'scripts/orphans/selected.py')
+    self.assertEqual(selected.ROOT,stage);self.assertEqual(selected.T.ROOT,stage)
+    self.assertEqual(Path(selected.O.__file__),stage/'packages/tools/cachy-asahi-orphans/cachy-asahi-orphans');self.assertIn('pacman',selected.O.floor())
+    self.assertTrue(all(stat.S_IMODE(p.stat().st_mode)==0o700 for p in stage.rglob('*') if p.is_dir()))
+    self.assertTrue(all(p.stat().st_uid==os.geteuid() for p in stage.rglob('*')))
+    (stage/'unexpected').write_text('x')
+    with self.assertRaisesRegex(ValueError,'undeclared'):S.check(api,ROOT,stage,work)
+ def test_stage_refuses_hash_drift_hardlinks_symlinks_foreign_and_mixed_roles(self):
+  with tempfile.TemporaryDirectory() as name:
+   source=Path(name)/'source';work=Path(name)/'work';work.mkdir(mode=0o700);source.mkdir();lane=source/C.LANE;lane.mkdir(parents=True)
+   file=source/'sample';file.write_bytes(b'original');rows={'sample':dict(bytes=8,sha256=C.sha(b'original'))}
+   (lane/'source-manifest.json').write_bytes(C.encoded(dict(files=rows)));api=self.stage_context(source)
+   with self.root_owner_observation(work):
+    stage,receipt=S.copy(api,source,work,'interruption')
+    with self.assertRaisesRegex(ValueError,'fresh'):S.copy(api,source,work,'interruption')
+    with self.assertRaisesRegex(ValueError,'actor role'):S.copy(api,source,work,'other')
+    with self.assertRaisesRegex(ValueError,'fixed stage sibling'):S.check(api,source,stage,work/'main')
+    (stage/'sample').unlink();os.link(file,stage/'sample')
+    with self.assertRaises(ValueError):S.check(api,source,stage,work)
+    (stage/'sample').unlink();(stage/'sample').symlink_to(file)
+    with self.assertRaises(ValueError):S.check(api,source,stage,work)
+    (stage/'sample').unlink();(stage/'sample').write_bytes(b'original');(stage/'sample').chmod(0o600)
+    with self.assertRaisesRegex(ValueError,'root-owned'):S.check(api,source,stage,work)
+    (stage/'sample').chmod(0o644);file.write_bytes(b'drift!!!')
+    with self.assertRaisesRegex(ValueError,'hash differs'):S.check(api,source,stage,work)
+   with patch.object(S.os,'getuid',return_value=0),patch.object(S.os,'geteuid',return_value=0):
+    for root in (Path('/source'),Path('/work/main'),stage,Path('/work/source-normal/child')):
+     with self.assertRaisesRegex(ValueError,'explicit fixed'):S.validate(api,root)
+   with self.assertRaisesRegex(ValueError,'root-owned'):S.owned(C,work,True)
+ def test_native_rules_paths_and_cancel_are_explicit_staged_without_budget_changes(self):
+  text=(C.HERE/'lifecycle.py').read_text();cancel=(C.HERE/'cancel.py').read_text();prepare=(C.HERE/'prepare.py').read_text()
+  self.assertIn("RULES,stage_receipt=S.stage(C,'interruption' if '--interrupt' in sys.argv else 'normal')",text)
+  self.assertEqual(text.count("str(RULES/'scripts/orphans/selected.py')"),2)
+  self.assertIn("readonly=str(RULES/'packages/tools/cachy-asahi-orphans/cachy-asahi-orphans')",text)
+  self.assertIn("cancel,'--staged-source',str(RULES)",text);self.assertIn("'stage_source.py'",prepare)
+  self.assertLess(cancel.index('stage.validate(C,a.staged_source)'),cancel.index("selected=C.load('selected_cancel'"))
+  self.assertIn("a.staged_source/'scripts/orphans/selected.py'",cancel)
+  self.assertIn('seconds=45',text);self.assertIn("H.backend('prepare-copy'",text);self.assertNotIn('O.floor=',text)
  def fixture_plan(self):
   raw=C.read(C.HERE/'cache-only-plan-39010123449.json');self.assertEqual(C.sha(raw),'76eb8b8e58eaa3ca5242deabb80ecc312af93e868e6779560c8c8881adb702cd')
   value=C.decode(raw);index=dict(packages={name:dict(version=version,files={'a':dict(sha256=sha)}) for name,version,sha in (
