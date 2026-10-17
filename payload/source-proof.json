@@ -1,0 +1,16 @@
+{
+  "consumer_token": "007dcd0c6ae386a72c492c2bb8074c16",
+  "debian_source_sha": "60e174c5db7f770c94064198516dd3ee07b51b7b",
+  "hardware": "NOT_RUN",
+  "job_token": "be066cf1875ae560",
+  "manifest_sha256": "95db605ba6da17d50667b88d1f8aed85f7c4cf9e81aa19324ce759cd4f6fb50e",
+  "native": "NOT_RUN",
+  "old_GNU_pair": "NOT_REUSED",
+  "packet_index_sha256": "8515e66130d55a718a65053d93f19de06f1d7e33ef621a3cb612f67e1ecbbf07",
+  "release": "NOT_ADMITTED",
+  "run_attempt": "1",
+  "run_id": "38994309021",
+  "source_sha": "78dfd3bbd85a61a84dda2dfc601796ee89edfd5f",
+  "status": "SOURCE_PROOF_PASS_NEW_MAINTAINED_DEBIAN_PAIR",
+  "workflow_sha": "78dfd3bbd85a61a84dda2dfc601796ee89edfd5f"
+}

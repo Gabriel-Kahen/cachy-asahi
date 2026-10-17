@@ -1,0 +1,25 @@
+{
+  "total_count": 1,
+  "artifacts": [
+    {
+      "id": 12088352989,
+      "node_id": "MDg6QXJ0aWZhY3QxMjA4ODM1Mjk4OQ==",
+      "name": "glibc-debian-maintained-provider-38994309021-1",
+      "size_in_bytes": 78712833,
+      "url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/actions/artifacts/12088352989",
+      "archive_download_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/actions/artifacts/12088352989/zip",
+      "expired": false,
+      "digest": "sha256:1376d3badd8f76ab41728442c391e1fa622fa7675d98802aaee08554f59637c7",
+      "created_at": "2026-10-17T03:38:27Z",
+      "updated_at": "2026-10-17T03:38:27Z",
+      "expires_at": "2026-10-20T03:38:26Z",
+      "workflow_run": {
+        "id": 38994309021,
+        "repository_id": 1414857795,
+        "head_repository_id": 1414857795,
+        "head_branch": "codex/glibc-debian-maintained-key-data-v1",
+        "head_sha": "78dfd3bbd85a61a84dda2dfc601796ee89edfd5f"
+      }
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "archive_bytes": 18598440,
+  "archive_sha256": "a8e9f3e1d8ffe049fdc834f62e74c14ff622b98898c2f849e1580ab8aa0fdbd9",
+  "artifact_sha256": "1376d3badd8f76ab41728442c391e1fa622fa7675d98802aaee08554f59637c7",
+  "attempt": 1,
+  "candidate": {
+    "authority_sha256": "88643eabd61a39df63ecaeb50bb20041d17cf4fd3adee55d82d43d3c1ca08707",
+    "package": "cachy-asahi-glibc-gnu-provider",
+    "pkgbuild_sha256": "9d6d5e688c95febe85321abc69fbfe1b7781a02e318771ae43851d8c29f68bb8",
+    "prepared_tree": "08ea2aef96bd3144cf02cbc68cbbb003dc25ed9f",
+    "source_packet_ref": "60e174c5db7f770c94064198516dd3ee07b51b7b",
+    "version": "2.43.caa3-1"
+  },
+  "hardware": "NOT_RUN",
+  "payload": {
+    "node_count": 1592,
+    "node_manifest_sha256": "db12785a1e49a16cefe82bcad2aee0a776c3d5b78b1f767f54c4ebb28700c574"
+  },
+  "performance": "NOT_MEASURED",
+  "provider_pkgbuild_sha256": "9d6d5e688c95febe85321abc69fbfe1b7781a02e318771ae43851d8c29f68bb8",
+  "qualification": "Two clean native builds, byte identity, retained applicable upstream tests, source replay and explicit-loader 4K runtime accepted. Baseline ABI bodies/full574 DB/kernel header contents/raw test bodies are not exported; retained native hashes/counts/source guards are checked. Debian manual test delta retained. No full original GNU equivalence, ALPM installation, normal-interpreter execution, 16K or hardware credit.",
+  "release": "NOT_ADMITTED",
+  "retention_sha256": "660e6567c727334d05eeb7dd969350b458dc32995f0296de81ab17452ddb854e",
+  "root_replay": {
+    "bytes": 8182,
+    "path": "root-actual-replay.json",
+    "sha256": "13fe06065842b7b824aba8e425c6ca62a361572a4932657c7f31b77ca0f68ac0"
+  },
+  "run_id": 38994309021,
+  "schema_version": 1,
+  "security": "NO_CREDIT",
+  "source_joins": {
+    "bytes": 17565,
+    "path": "root-source-joins.json",
+    "sha256": "41adc85076254e7899b07d2738a4c0296d1a0eb623409e3cb2246a70803527b4"
+  },
+  "source_sha": "78dfd3bbd85a61a84dda2dfc601796ee89edfd5f",
+  "status": "ROOT_ACCEPTED_PROVIDER_NATIVE_PAIR",
+  "upstream_per_build": {
+    "ERROR": 0,
+    "FAIL": 0,
+    "PASS": 6948,
+    "UNSUPPORTED": 109,
+    "XFAIL": 13,
+    "XPASS": 0
+  }
+}

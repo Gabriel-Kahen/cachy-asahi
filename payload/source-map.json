@@ -1,0 +1,142 @@
+{
+  "members": {
+    "packages/a/cachy-asahi-glibc-gnu-provider-2.43.caa3-1-aarch64.pkg.tar.xz": {
+      "bytes": 18598440,
+      "member": "packages/a/cachy-asahi-glibc-gnu-provider-2.43.caa3-1-aarch64.pkg.tar.xz",
+      "sha256": "a8e9f3e1d8ffe049fdc834f62e74c14ff622b98898c2f849e1580ab8aa0fdbd9"
+    },
+    "packages/b/cachy-asahi-glibc-gnu-provider-2.43.caa3-1-aarch64.pkg.tar.xz": {
+      "bytes": 18598440,
+      "member": "packages/b/cachy-asahi-glibc-gnu-provider-2.43.caa3-1-aarch64.pkg.tar.xz",
+      "sha256": "a8e9f3e1d8ffe049fdc834f62e74c14ff622b98898c2f849e1580ab8aa0fdbd9"
+    },
+    "retention.json": {
+      "bytes": 49212,
+      "member": "retention.json",
+      "sha256": "660e6567c727334d05eeb7dd969350b458dc32995f0296de81ab17452ddb854e"
+    },
+    "runtime/a/normal-clients/bin/exec-child": {
+      "bytes": 23696,
+      "member": "runtime/a/normal-clients/bin/exec-child",
+      "sha256": "d2e92fef3ad68e4ad0b2b45d13f9ce452aa92c0c711851f26f61825ef31e6c4b"
+    },
+    "runtime/a/normal-clients/bin/plugin.so": {
+      "bytes": 20736,
+      "member": "runtime/a/normal-clients/bin/plugin.so",
+      "sha256": "c91a0dab73c81b601484b319de60951d455e456430812f0430f5231c544859c1"
+    },
+    "runtime/a/normal-clients/bin/smoke-normal": {
+      "bytes": 44000,
+      "member": "runtime/a/normal-clients/bin/smoke-normal",
+      "sha256": "f9ee2ae4e6b283cc2531b244ef26a7ca596d38b04740d29885cdc0b4cc10bb93"
+    },
+    "runtime/a/normal-clients/receipt.json": {
+      "bytes": 62188,
+      "member": "runtime/a/normal-clients/receipt.json",
+      "sha256": "9a578340091e41f6babf3e738172609a17d5ee5247a94f76dfa82f066380dd85"
+    },
+    "runtime/b/normal-clients/bin/exec-child": {
+      "bytes": 23696,
+      "member": "runtime/b/normal-clients/bin/exec-child",
+      "sha256": "d2e92fef3ad68e4ad0b2b45d13f9ce452aa92c0c711851f26f61825ef31e6c4b"
+    },
+    "runtime/b/normal-clients/bin/plugin.so": {
+      "bytes": 20736,
+      "member": "runtime/b/normal-clients/bin/plugin.so",
+      "sha256": "c91a0dab73c81b601484b319de60951d455e456430812f0430f5231c544859c1"
+    },
+    "runtime/b/normal-clients/bin/smoke-normal": {
+      "bytes": 44000,
+      "member": "runtime/b/normal-clients/bin/smoke-normal",
+      "sha256": "f9ee2ae4e6b283cc2531b244ef26a7ca596d38b04740d29885cdc0b4cc10bb93"
+    },
+    "runtime/b/normal-clients/receipt.json": {
+      "bytes": 62186,
+      "member": "runtime/b/normal-clients/receipt.json",
+      "sha256": "60b349b23766d6a7a26bd98e36091f90dc95bb11e9aaab4073b213fd30cdf29e"
+    },
+    "runtime/result.json": {
+      "bytes": 154047,
+      "member": "runtime/result.json",
+      "sha256": "15986a7654e60ddb47b40319a4c6ffd33bd75bbfa1d62de9eca5b68ccae79924"
+    },
+    "source-proof.json": {
+      "bytes": 683,
+      "member": "source-proof.json",
+      "sha256": "32323ac8648b313d18106802cd1ae53c586122c31487c6573c6c424dcd2b54d3"
+    }
+  },
+  "original_artifact": {
+    "bytes": 78712833,
+    "sha256": "1376d3badd8f76ab41728442c391e1fa622fa7675d98802aaee08554f59637c7"
+  },
+  "pinned_helpers": {
+    "scripts/ci/glibc-debian-maintained-lifecycle/candidate_gate.py": {
+      "bytes": 4355,
+      "sha256": "92f390037767a9d1fdfaf9c9837fac75726c16178adc573b416b0ad7f540e5a4"
+    },
+    "scripts/ci/glibc-debian-maintained-system16k/phase_gate.py": {
+      "bytes": 3711,
+      "sha256": "d1731a40d275c5ed74ccf20b654a76754031dbdcbd32b27154164e3953af6da4"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle/common.py": {
+      "bytes": 12892,
+      "sha256": "42082d2e773d423d2abc0e1f7ff50e74163c09c9a51c1c073a4cb17f7e79cc72"
+    },
+    "scripts/ci/glibc-gnu-provider-system16k/common.py": {
+      "bytes": 12315,
+      "sha256": "24ecb33290876dde2cde0dd789d56ecf22098cfcb1728ed09c24ac3c92eb57fd"
+    },
+    "scripts/ci/glibc-gnu-provider/normal-child-exec.patch": {
+      "bytes": 773,
+      "sha256": "1a1f3b1898b0542dfb6bf03d7d6bf0acda33ba3f040055cf710027d69415b9ff"
+    },
+    "scripts/ci/glibc-gnu-provider/normal-client-policy.json": {
+      "bytes": 815,
+      "sha256": "92f8b918ade03b6ad71ff00fe38a3f797d416fe6225082c9d4ba23c2cc71dd8d"
+    },
+    "scripts/ci/glibc-gnu-provider/normal_clients.py": {
+      "bytes": 7824,
+      "sha256": "2382a818358a5e28b81ce789d18cee815a0d0c7d52b96a1cbd1d55d7edf31309"
+    },
+    "scripts/ci/glibc-gnu-provider/provider_stage.py": {
+      "bytes": 8147,
+      "sha256": "43b1b441dcc384379ab80c4864bbf7ffd898d56e4ba629c0faa966c25a979e6c"
+    },
+    "scripts/ci/glibc-owned-runtime/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "scripts/ci/glibc-owned-runtime/abi_smoke.c": {
+      "bytes": 12469,
+      "sha256": "f131a4f11693b15d7916170a685f9c4f6158596134bf5414f3d8ee472be1a9af"
+    },
+    "scripts/ci/glibc-owned-runtime/exec_child.c": {
+      "bytes": 913,
+      "sha256": "0a2b48762f8f7ec6d942ca9fb4af4f04a50fd93d2d7dff42407adfea13b1e4cc"
+    },
+    "scripts/ci/glibc-owned-runtime/plugin.c": {
+      "bytes": 320,
+      "sha256": "d0ce5506b261b5b4582aa35651b68afbf6257e8f4a990155dcac9d4e4596b654"
+    },
+    "scripts/ci/glibc-owned-runtime/probe.c": {
+      "bytes": 5974,
+      "sha256": "8bc857277840264c29845764b6c4d34e40c3d1dcdb91592acbb31ae5dfeb80b6"
+    },
+    "scripts/ci/glibc-owned-runtime/probe.h": {
+      "bytes": 270,
+      "sha256": "3806c2a05e640b8860a2c81e4eba55ae8bf416fcb84637e93a7b3d9b71476724"
+    },
+    "scripts/ci/glibc-owned-runtime/runner.py": {
+      "bytes": 16274,
+      "sha256": "4d9aa954d95032ab9ea9085ced784efc81a5db42e2f1f3401e679ee861c16090"
+    },
+    "scripts/ci/glibc-owned-runtime/source-manifest.json": {
+      "bytes": 1274,
+      "sha256": "e10336aef200731c7dd4b06546b718e095c1ecf7718e4a25fa57d6bbed6270a6"
+    }
+  },
+  "run_id": 38994309021,
+  "scope": "FIRST_STAGED16K_INPUTS_ONLY_NO_PRIOR16K_OR_INSTALLATION_CREDIT",
+  "source_sha": "78dfd3bbd85a61a84dda2dfc601796ee89edfd5f"
+}

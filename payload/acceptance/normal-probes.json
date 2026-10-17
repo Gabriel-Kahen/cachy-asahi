@@ -1,0 +1,63 @@
+{
+  "artifact_sha256": "1376d3badd8f76ab41728442c391e1fa622fa7675d98802aaee08554f59637c7",
+  "attempt": 1,
+  "candidate": {
+    "authority_sha256": "88643eabd61a39df63ecaeb50bb20041d17cf4fd3adee55d82d43d3c1ca08707",
+    "package": "cachy-asahi-glibc-gnu-provider",
+    "pkgbuild_sha256": "9d6d5e688c95febe85321abc69fbfe1b7781a02e318771ae43851d8c29f68bb8",
+    "prepared_tree": "08ea2aef96bd3144cf02cbc68cbbb003dc25ed9f",
+    "source_packet_ref": "60e174c5db7f770c94064198516dd3ee07b51b7b",
+    "version": "2.43.caa3-1"
+  },
+  "compile_receipts": {
+    "a": {
+      "bytes": 62188,
+      "path": "runtime/a/normal-clients/receipt.json",
+      "sha256": "9a578340091e41f6babf3e738172609a17d5ee5247a94f76dfa82f066380dd85"
+    },
+    "b": {
+      "bytes": 62186,
+      "path": "runtime/b/normal-clients/receipt.json",
+      "sha256": "60b349b23766d6a7a26bd98e36091f90dc95bb11e9aaab4073b213fd30cdf29e"
+    }
+  },
+  "execution": "NOT_RUN_PAIR_COMPILE_ONLY",
+  "files": {
+    "exec-child": {
+      "bytes": 23696,
+      "path": "runtime/a/normal-clients/bin/exec-child",
+      "sha256": "d2e92fef3ad68e4ad0b2b45d13f9ce452aa92c0c711851f26f61825ef31e6c4b"
+    },
+    "plugin.so": {
+      "bytes": 20736,
+      "path": "runtime/a/normal-clients/bin/plugin.so",
+      "sha256": "c91a0dab73c81b601484b319de60951d455e456430812f0430f5231c544859c1"
+    },
+    "smoke-normal": {
+      "bytes": 44000,
+      "path": "runtime/a/normal-clients/bin/smoke-normal",
+      "sha256": "f9ee2ae4e6b283cc2531b244ef26a7ca596d38b04740d29885cdc0b4cc10bb93"
+    }
+  },
+  "hardware": "NOT_RUN",
+  "normal_source_sha256": "a766bc7cd31cce18fe7e564432de4e4b63db49763608ae70ef8fab61cd29116c",
+  "performance": "NOT_MEASURED",
+  "qualification": "Both original 13-command compiler receipts and reproduced probe bytes accepted as compiled inputs. Normal system-interpreter execution remains NOT_RUN.",
+  "release": "NOT_ADMITTED",
+  "retention_sha256": "660e6567c727334d05eeb7dd969350b458dc32995f0296de81ab17452ddb854e",
+  "root_replay": {
+    "bytes": 8182,
+    "path": "root-actual-replay.json",
+    "sha256": "13fe06065842b7b824aba8e425c6ca62a361572a4932657c7f31b77ca0f68ac0"
+  },
+  "run_id": 38994309021,
+  "schema_version": 1,
+  "security": "NO_CREDIT",
+  "source_joins": {
+    "bytes": 17565,
+    "path": "root-source-joins.json",
+    "sha256": "41adc85076254e7899b07d2738a4c0296d1a0eb623409e3cb2246a70803527b4"
+  },
+  "source_sha": "78dfd3bbd85a61a84dda2dfc601796ee89edfd5f",
+  "status": "ROOT_ACCEPTED_NORMAL_INTERPRETER_PROBES"
+}
