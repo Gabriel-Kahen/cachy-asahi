@@ -14,9 +14,9 @@ jobs:
       - name: Install test prerequisites on disposable runner
         run: |
           sudo apt-get update
-          sudo apt-get install --no-install-recommends -y bash fish zsh vim build-essential clang lld gnupg libarchive-tools pacman-package-manager makepkg
-          for tool in bash fish zsh vim cc clang ld.lld gpg gpgconf repo-add bsdtar vercmp pacman; do command -v "$tool"; done
-          dpkg-query -W bash fish zsh vim build-essential clang lld gnupg libarchive-tools pacman-package-manager makepkg
+          sudo apt-get install --no-install-recommends -y bash fish zsh vim build-essential clang lld gnupg libarchive-tools pacman-package-manager makepkg e2fsprogs
+          for tool in bash fish zsh vim cc clang ld.lld gpg gpgconf repo-add bsdtar vercmp pacman mkfs.ext4 debugfs; do command -v "$tool"; done
+          dpkg-query -W bash fish zsh vim build-essential clang lld gnupg libarchive-tools pacman-package-manager makepkg e2fsprogs
       - name: Verify packaged setup source and sync boundaries
         env:
           PYTHONDONTWRITEBYTECODE: '1'
@@ -151,6 +151,8 @@ jobs:
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/full-root-failed-update -p 'test_*.py'
       - name: Check controlled postcommit interruption and disposal without actors
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/full-root-postcommit-failure -p 'test_*.py'
+      - name: Check installed GNU provider16K source and disk serialization without actors
+        run: python3 -B -Werror::ResourceWarning scripts/ci/glibc-gnu-provider-installed16k/test_lane.py
       - name: Check full-composition installer VM contracts without actors
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/full-composition-installer-vm -p 'test_*.py'
       - name: Check opt-in Zsh substring module without changing user bindings
