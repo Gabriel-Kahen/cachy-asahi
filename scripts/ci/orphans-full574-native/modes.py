@@ -17,6 +17,8 @@ def function(raw,name):
 def derived(raw,trial):
  if trial not in TRIALS:raise ValueError('explicit normal or interruption trial required')
  run=function(raw,'run');retain=function(raw,'retain');actor=function(raw,'actor')
+ materialize=replace(function(raw,'materialize'),' return packet\n'," return HELD.publish(C,args.source,output/'inputs',packet,payload,origins)\n")
+ bind=replace(function(raw,'bind'),'module=C.adapter(root)',"module=C.adapter(root,output/'inputs')")
  normal="   actor(args.source,args.output,report,command,api,'lifecycle','lifecycle.py');life=C.result(C.decode(C.read(args.output/'lifecycle-public/lifecycle.json',4*1024**2)))\n"
  interrupted="   actor(args.source,args.output,report,command,api,'interruption','lifecycle.py',('--interrupt',));interruption=C.decode(C.read(args.output/'interruption-public/interruption.json'))\n   C.need(interruption['status']=='FAIL_INTERRUPTED_OWNED_COPY_RETAINED' and interruption['worker_group_absent'] is True and interruption['packages_committed']=='UNKNOWN' and interruption['rollback']=='NOT_CLAIMED','genuine interrupted uncertainty retained')\n"
  run=replace(run,interrupted if trial=='normal' else normal,'')
@@ -29,6 +31,7 @@ def derived(raw,trial):
  life="life=C.result(C.decode(C.read(args.output/'lifecycle-public/lifecycle.json',4*1024**2)))"
  interruption="interruption=C.decode(C.read(args.output/'interruption-public/interruption.json'))"
  retain=replace(retain,';'+(interruption if trial=='normal' else life),'')
+ retain=replace(retain,"('native-index.json','control.json','full574-policy.json','full574-lease.json','scrub.json')","('native-index.json','control.json','full574-policy.json','full574-lease.json','scrub.json','held-payloads.json')")
  retain=replace(retain,"result=dict(status='FAIL_OR_INCOMPLETE',files={}","result=dict(status='FAIL_OR_INCOMPLETE',trial=TRIAL,files={}")
  first="  C.need(interruption['status']=='FAIL_INTERRUPTED_OWNED_COPY_RETAINED'"
  last="  snap=C.decode(C.read(args.output/'snapshot-public/snapshot.json'))"
@@ -44,14 +47,14 @@ def derived(raw,trial):
  tree=ast.parse(run+'\n'+retain)
  absent='interruption' if trial=='normal' else 'life'
  if any(isinstance(n,ast.Name) and n.id==absent for n in ast.walk(tree)):raise ValueError('inactive trial result remains')
- return dict(run=run,retain=retain,actor=actor)
+ return dict(run=run,retain=retain,actor=actor,materialize=materialize,bind=bind)
 
 def execute(H,trial,args):
  C=H.C;C.need(trial in TRIALS,'explicit independent trial required');C.source(args.source)
  if args.mode in ('run','cleanup','retain'):
   C.need(C.decode(C.read(args.proof)).get('trial')==trial,'trial differs from original source proof')
  raw=C.read(Path(H.__file__),1024**2).decode();parts=derived(raw,trial)
- H.__dict__['TRIAL']=trial;C.STATUS=STATUS[trial]
+ H.__dict__['TRIAL']=trial;H.__dict__['HELD']=C.load('held_owner_payloads',C.HERE/'held_payloads.py');C.STATUS=STATUS[trial]
  for text in parts.values():exec(compile(text,H.__file__+':'+trial,'exec'),H.__dict__)
  value=getattr(H,args.mode)(args)
  if args.mode=='proof':
@@ -62,6 +65,7 @@ def execute(H,trial,args):
  return value
 
 def workflow(text):
+ text=replace(text,'  group: native-arm-orphans-full574-cleanup\n','  group: native-arm-orphans-full574-cleanup-${{ inputs.trial }}\n')
  text=replace(text,'      manifest_sha256:\n',"      trial:\n        description: One independent selected-orphan trial; separate runs required\n        type: choice\n        required: true\n        options: [normal, interruption]\n      manifest_sha256:\n")
  text=replace(text,'      SLICE: scripts/ci/orphans-full574-native\n','      SLICE: scripts/ci/orphans-full574-native\n      TRIAL: ${{ inputs.trial }}\n')
  for mode in ('proof','check','run','cleanup','retain'):

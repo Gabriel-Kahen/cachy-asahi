@@ -42,7 +42,7 @@ class Modes(unittest.TestCase):
   worker=(ROOT/'scripts/ci/apps-full574-native/lifecycle.py').read_text();self.assertIn('end=time.monotonic()+600',worker);self.assertIn('reap_limit=5',worker)
   self.assertIn("3000 if role=='lifecycle' else 900 if role in ('extract','interruption','source-verify') else 240",original)
   # Only selected owner functions are re-emitted; no copier, lifecycle or cleanup replacement.
-  self.assertEqual(set(M.derived(original,'interruption')),{'run','retain','actor'})
+  self.assertEqual(set(M.derived(original,'interruption')),{'run','retain','actor','materialize','bind'})
  def test_wrong_or_missing_trial_proof_refuses_before_any_owner_or_actor(self):
   for mode in ('run','cleanup','retain'):
    for bad in (None,'normal','unknown'):
@@ -65,7 +65,7 @@ class Modes(unittest.TestCase):
   if '      trial:\n' in before:
    after=before
   else:after=M.workflow(before)
-  self.assertIn('options: [normal, interruption]',after);self.assertIn('required: true',after)
+  self.assertIn('  group: native-arm-orphans-full574-cleanup-${{ inputs.trial }}',after);self.assertIn('  cancel-in-progress: false',after);self.assertIn('options: [normal, interruption]',after);self.assertIn('required: true',after)
   for mode in ('proof','check','run','cleanup','retain'):self.assertEqual(after.count('"$SLICE/job.py" '+mode+' --trial "$TRIAL" --source'),1)
   for bound in ('3550s','timeout-minutes: 120','--kill-after=10s 650s','--kill-after=10s 2300s'):self.assertIn(bound,after)
   self.assertIn("-p 'test*.py' -v",after)

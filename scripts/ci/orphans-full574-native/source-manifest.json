@@ -301,24 +301,24 @@
       "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
     },
     "scripts/ci/orphans-full574-native/README.md": {
-      "bytes": 8596,
-      "sha256": "a8e8861e7ff2e8b33f3157575bcecd3f2ccac84440becfc03fac97173efc272f"
+      "bytes": 11103,
+      "sha256": "71865e03d16d2f956b98c0fc0f0fd2011903f2460bcb151b19607c1c454a54c4"
     },
     "scripts/ci/orphans-full574-native/cache-only-plan-39010123449.json": {
       "bytes": 2890,
       "sha256": "76eb8b8e58eaa3ca5242deabb80ecc312af93e868e6779560c8c8881adb702cd"
     },
     "scripts/ci/orphans-full574-native/cancel.py": {
-      "bytes": 978,
-      "sha256": "31b9a91c6f172e627d0d8fd2cf7959926af1e86cbd841f5f415727a39e936111"
+      "bytes": 1077,
+      "sha256": "7ff06f78d3c6c98f50500befc2c70eaec5333dbfbd2adac4b820edd30eee923e"
     },
     "scripts/ci/orphans-full574-native/checks.py": {
       "bytes": 6366,
       "sha256": "e742d29aebfa20ffff9593fbd02331cbb6a72572588f8e200b1dc2d8c21565ea"
     },
     "scripts/ci/orphans-full574-native/contract.py": {
-      "bytes": 5031,
-      "sha256": "6ec2624a1386f3d3a8d5e10ec460e831d030fd76c5a681a71f9a4b51a21bba1b"
+      "bytes": 5148,
+      "sha256": "26b3970931c4aa7e1c26cba78c8869884341ab5eaf011de9180d534912490172"
     },
     "scripts/ci/orphans-full574-native/export_extract.py": {
       "bytes": 2410,
@@ -328,37 +328,49 @@
       "bytes": 255,
       "sha256": "d1784499f398c8dfd41361247c3495a62e82dd58535ea6261cdd9f3268e2885a"
     },
+    "scripts/ci/orphans-full574-native/fixture_backend.py": {
+      "bytes": 566,
+      "sha256": "c7cca507c5de6c39395b3270029b52ee8847f07a06ee4091eb7d1567989831e5"
+    },
+    "scripts/ci/orphans-full574-native/held_payloads.py": {
+      "bytes": 6247,
+      "sha256": "77b070cc40e8e11a6f60379cf93987aab9f2460ee0679165cb456c4ff2964785"
+    },
     "scripts/ci/orphans-full574-native/input-policy.json": {
       "bytes": 793,
       "sha256": "fe0468961f6e2681d8e6168c543c5dd90657992bcf80b5e9871ab8d5655bcf0f"
     },
     "scripts/ci/orphans-full574-native/install_dependency.py": {
-      "bytes": 3215,
-      "sha256": "652b8cd84f5839f9907ef93a7004ddf4894cf90fab3cd5f0eb188e2d5d79b6ac"
+      "bytes": 3304,
+      "sha256": "c1626cb444e63acc38dd92895ba5da47da67565cc6d6b08d5e5d5aa0165414f2"
     },
     "scripts/ci/orphans-full574-native/job.py": {
       "bytes": 921,
       "sha256": "3821a2a0996207afc65d99dc5f8c1b08a83c0541c53a2a84cbebf71a76086c24"
     },
     "scripts/ci/orphans-full574-native/lifecycle.py": {
-      "bytes": 10899,
-      "sha256": "f5c2e202c2d6cbc7f47e6e2ac2d31ee5db04507184fabeb2fe73a025f8baab4b"
+      "bytes": 11016,
+      "sha256": "e02cf96477428fac620196ca5df6c8aa82f657fe797c9f22b684dda37cfd3b1a"
     },
     "scripts/ci/orphans-full574-native/modes.py": {
-      "bytes": 5824,
-      "sha256": "ab9bab1d49daa2ec1f9187a13722f5ca3581a643ace23af37700e7685c568fc7"
+      "bytes": 6554,
+      "sha256": "b13361e2adc57c2227f3cfce96271d23e541d29887abd6affd701891e597bbcf"
     },
     "scripts/ci/orphans-full574-native/policy.json": {
       "bytes": 790,
       "sha256": "5bbe229f5a86244916ae58cf1266c0c56ea0d9d353287d0d97cad9a623d56f58"
     },
     "scripts/ci/orphans-full574-native/prepare.py": {
-      "bytes": 4999,
-      "sha256": "a2e4d3a20b3b97da461c8276653909ab787b8b400796d77a8debb948e51ab260"
+      "bytes": 5846,
+      "sha256": "c2018d9b37fa8a9812ed2d0bad9958bc1e226486db261c1fc7e6f532dec87ac5"
     },
     "scripts/ci/orphans-full574-native/scrub.py": {
       "bytes": 251,
       "sha256": "b207c34e7811b6ac04cb4cbc1a9666bc667ad0c35d826c84b5336d638e5e3258"
+    },
+    "scripts/ci/orphans-full574-native/selected_fixture.py": {
+      "bytes": 896,
+      "sha256": "8b89498d37798b70451c96f77327c84841f11c7f0ce580448972513791610dad"
     },
     "scripts/ci/orphans-full574-native/snapshot.py": {
       "bytes": 257,
@@ -372,13 +384,17 @@
       "bytes": 3736,
       "sha256": "1ae0cb65023f762eee2e219f9391e3a97d72205dad8d46220d4bcb34c8bc2fbe"
     },
+    "scripts/ci/orphans-full574-native/test_held_payloads.py": {
+      "bytes": 10260,
+      "sha256": "147212ff744359fc5a058a067a96dbb15b78bc3b9780aa644970ba218a74e5d9"
+    },
     "scripts/ci/orphans-full574-native/test_lane.py": {
-      "bytes": 17602,
-      "sha256": "f5eafd970ed9a9ada93adcb2b1a226506e214f920c78af08aa41bba8118acd20"
+      "bytes": 17658,
+      "sha256": "742e7ede8da0a432c1311184dc39e0242cc24d56e9fe8eb02ef2c433bd46f118"
     },
     "scripts/ci/orphans-full574-native/test_modes.py": {
-      "bytes": 6366,
-      "sha256": "b16a1c576b861ff0c3c9f661f176a4b3f7ed279814a068cd92bba17eba654e25"
+      "bytes": 6525,
+      "sha256": "91587efb0ad4999d589819ec865ec4725d0668f34c5a966adb0832fe47427923"
     },
     "scripts/client/client.py": {
       "bytes": 28669,
