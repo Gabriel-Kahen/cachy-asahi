@@ -246,15 +246,15 @@
     },
     "scripts/ci/apps-full574-native/source-manifest.json": {
       "bytes": 14748,
-      "sha256": "dbbec8483ea2f19610524417451afb4f6a60ec731bcca48ee815195eab7d028f"
+      "sha256": "05829ebfd8c1683cec69f482b6f72dd239345ade9c07bbcb9678a2ca9fd8c043"
     },
     "scripts/ci/apps-full574-native/test_copy_scope.py": {
       "bytes": 2286,
       "sha256": "fe5670055f2b309640e80049d077ad16022f3a86100f2429104034cfe1ad554b"
     },
     "scripts/ci/apps-full574-native/test_lane.py": {
-      "bytes": 30282,
-      "sha256": "19ce69c1012643acc272892d3ab1bccc1c0664b68134faa0425e1da29d9f873a"
+      "bytes": 31021,
+      "sha256": "3d658a27e6e26437115f81f06bef30b4078965aa4826dfc883a58759c6e0fd54"
     },
     "scripts/ci/expanded600-installer-vm/observer600.py": {
       "bytes": 2784,
