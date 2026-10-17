@@ -1,5 +1,7 @@
 # Managed Done presentation remains unaccepted
 
+A separate [native x86/Sway counterfactual](fish-done-native-graphics-20261017.md) now passes real notification delivery, original first-frame visuals, three-second expiry signals and owned cleanup for the unchanged Done payload. Its different compositor/environment does not admit this ARM/Hyprland lane or explain the earlier blank images.
+
 Run [38969579802](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38969579802), source `c8b215ed06a166418d66ce500688efde3b4f18dd`, fails the unchanged original-frame pixel check. Root personally viewed all three original minimal/overlay/background captures: desktop and bar are visible, notifications are absent. Their SHA256 values are `6f952f47953135cccbdd14347a7ebbb4e6da04ad156f88f89d2c5c6c1e858dd2`, `878e94006c48233f35d5dee65b15d52b38b7183bec5c89d3a63f32646cab6ca7`, and `cb2d8ff004917e73263af0f2d7d40f2d0289b6341d4388dbb1fe02a8287c6a32`.
 
 The complete diagnostic preserves three genuine Notify/caller/manager sequences, owned mapped notification layers, natural close-reason1 near3 seconds, normal guest/service retirement and all14 outer cleanup rows. Mako stdout/stderr are empty and its exits are0. Main wait-loop CPU is roughly10–11% of its elapsed time, which does not demonstrate busy-spinning or compositor starvation. Layer queries take about1.18 seconds, but removing that cost has not been demonstrated to fix presentation.

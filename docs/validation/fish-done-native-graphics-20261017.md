@@ -1,0 +1,17 @@
+# Native Done notification counterfactual
+
+The unchanged Done0.1.0-2 payload delivers visible notifications for foreground success, foreground exit7 and a watched sleep8 job in a private native x86 Sway session. Root views all three original first frames, replays the raw typed Notify/reply and matching reason1 close signals, and verifies caller continuation and owned-process cleanup. The requested expiry remains3000ms. This is a Sway counterfactual; the failing ARM/Hyprland VM lane and both physical M2 Air sizes remain unaccepted.
+
+| Case | First capture completed after Notify | Caller status | Matching reason1 close after Notify |
+| --- | --- | --- | --- |
+| Foreground success | 62.934ms | 0 | 3000.139ms |
+| Foreground failure | 44.037ms | 7 | 3000.102ms |
+| Watched background success | 78.416ms | 0 | 3000.152ms |
+
+Each original1024×768 RGB PPM contains the readable expected notification; lossless PNG sidecars have identical decoded pixels. No capture was replaced or expiry extended. These are observations from one fixture, not performance measurements or a diagnosis of the earlier blank VM images.
+
+The15380-byte Done archive matches retained native package hash `9ce3c7ba89467f04660014c1b12056dce28bd0c4e69b4cab8a9c2c98e1cce54f`, including all eight payload files. Mako builds privately from the unchanged59 files of official1.11.0 source commit `91c6b799855762ad1eb8b4498967c270a339be0c`. Its native bus reports0.0.0, as hardcoded by that upstream implementation; this is separate from source/tag identity. The shipped Mako configuration is unchanged. Original ARM Mako source-to-binary correspondence is not established.
+
+The fixture uses privately built Sway/wlroots, the GLES renderer and only the selected render node, inside private user/PID/mount/network/IPC namespaces and a private home/runtime/bus. Physical DRM cards, input devices and the existing desktop/session are excluded. The live Sway GL vendor was not captured. Image-derived notification geometry supplies no original Hyprland layer proof. Mako, D-Bus and Sway return normally with owned-group absence; these retained receipts are not new live cleanup observations.
+
+Source/build inputs, all original frames and the frozen160-file evidence index remain under `artifacts/development/fish-done-native-graphics-20261017`. Root independently checks the retained source trees, three unchanged observation helpers and the terminal helper's three explicit path/UID/bus adaptations. Its separate `root-counterfactual-decision.json` accepts only this native x86/Sway fixture. No ALPM installation, normal ARM/Hyprland validation, M2 compatibility or release acceptance follows.
