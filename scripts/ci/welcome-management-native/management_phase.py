@@ -40,6 +40,18 @@ def report_command(base,tool,path,env,expected=0):
     raw=C.read(path);C.need(not C.read(error_path,65536),'unexpected helper stderr');return raw
 
 
+def completed_report_snapshot(a11y):
+    # A full AT-SPI tree read starts a new driver process in the emulated guest.
+    # Wait cheaply on the already-owned pidfds before polling report text. This
+    # remains inside the caller's existing readiness deadline; it cannot extend
+    # the product's command limit or turn a failed helper into a completed view.
+    state=request('observed')
+    for key in ('helper_absent','supervisor_absent'):
+        C.need(type(state.get(key)) is bool,'owned helper completion state absent')
+    if not (state['helper_absent'] and state['supervisor_absent']):return None
+    return a11y('snapshot')
+
+
 def exercise(base,stage,env,logs,workspace,old_welcome,doctor,policy,lock,hooks):
     base.guard(False);C.need(os.getuid()==os.geteuid()==23001 and not os.access('/var/lib/pacman',os.W_OK),'ordinary caller must lack database write/lock access')
     ui=C.interface(policy);reports={};current=old_welcome;closed=None;action_sequence=0
@@ -60,7 +72,8 @@ def exercise(base,stage,env,logs,workspace,old_welcome,doctor,policy,lock,hooks)
         base.emit('management_action',stage=stage,sequence=action_sequence,pid=current.process.pid,label=label,scope=scope,scroll=scroll,proof=value,window=window,physical_input='NOT_RUN')
     def page(view,expected):
         def probe():
-            value=a11y('snapshot')
+            value=completed_report_snapshot(a11y) if view in ('management-doctor','management-orphans','management-failure') else a11y('snapshot')
+            if value is None:return None
             try:summary=C.snapshot(value,current.process.pid,view,expected)
             except ValueError:return None
             return dict(snapshot=value,snapshot_sha256=C.sha(C.encoded(value)),summary=summary,expected=expected)
@@ -103,7 +116,8 @@ def exercise(base,stage,env,logs,workspace,old_welcome,doctor,policy,lock,hooks)
                 # Doctor includes collected_utc and live service observations. Retain its actual GTK report,
                 # then derive its own conclusion; the independent actual run remains separate evidence.
                 def actual_doctor():
-                    snap=a11y('snapshot');matches=[]
+                    snap=completed_report_snapshot(a11y);matches=[]
+                    if snap is None:return None
                     for _,row,text in C.names(snap):
                         if row['showing'] and text and text.startswith('{'):
                             try:value,conclusion=C.report(text.encode(),'doctor',inventory)

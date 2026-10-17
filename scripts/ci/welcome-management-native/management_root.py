@@ -40,6 +40,13 @@ def find(tool,welcome_pid,previous):
     C.need(len(found)<=1,'ambiguous owned helper');return found[0] if found else None
 
 
+def completion(fd,superfd):
+    # Readiness observation only. Keep handles and the later full retirement,
+    # group absence, inventory and database-preservation checks unchanged.
+    return dict(helper_absent=fd is not None and bool(select.select([fd],[],[],0)[0]),
+                supervisor_absent=superfd is not None and bool(select.select([superfd],[],[],0)[0]))
+
+
 def metadata():
     result={};root=Path('/var/lib/pacman/local')
     excluded=[p for p in root.iterdir() if any(p.name.startswith(n+'-') for n in TOOLS)]
@@ -110,7 +117,7 @@ def serve(base,session,env,logs,seconds):
                 if fd is not None:os.close(fd);fd=None
                 if superfd is not None:os.close(superfd);superfd=None
                 armed=dict(tool=data['tool'],welcome_pid=data['welcome_pid'],stop=data['stop'],previous={int(p.name) for p in Path('/proc').glob('[0-9]*')});observed=None
-            elif op=='observed':answer['process']=observed
+            elif op=='observed':answer.update(process=observed,**completion(fd,superfd))
             elif op=='retired':
                 C.need(observed is not None and fd is not None and superfd is not None,'owned observed group absent')
                 exited=bool(select.select([fd],[],[],0)[0]);superexited=bool(select.select([superfd],[],[],0)[0]);members=[]
