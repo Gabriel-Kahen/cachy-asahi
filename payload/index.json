@@ -1,0 +1,36 @@
+{
+  "files": {
+    "archive-key-12.asc": {
+      "bytes": 11861,
+      "sha256": "c2a9a16fde95e037bafd0fa6b7e31f41b4ff1e85851de5558f19a2a2f0e955e2"
+    },
+    "archive-key-13.asc": {
+      "bytes": 11861,
+      "sha256": "6f1d277429dd7ffedcc6f8688a7ad9a458859b1139ffa026d1eeaadcbffb0da7"
+    },
+    "glibc_2.43-7.dsc": {
+      "bytes": 8571,
+      "sha256": "a99e5beb8f568765d191f3d0d074cf6b60d2c89dec84f2f4bb70573e52e0a835"
+    },
+    "glibc_2.43.orig.tar.xz": {
+      "bytes": 21553420,
+      "sha256": "b8f0d50a7d4255658efe1f608cacdc4be82bb3c009875626df5968cc64c58880"
+    },
+    "root-debian-archive-authority.json": {
+      "bytes": 7450,
+      "sha256": "ed9fadd0783e3fdee0f4ad7b6e9a78ca54e3ff562c6c78f4112f8eec47237132"
+    },
+    "sid-InRelease": {
+      "bytes": 192842,
+      "sha256": "7adfcfd12245e14a1198f6340dfb60b19a61d73531ef6cce925a68deb4e06f98"
+    },
+    "sid-Sources.xz": {
+      "bytes": 12028604,
+      "sha256": "781f5a9546d0b41aaa5b4abcf61ba3168fc5dc8c0e74f17d68a2a24670035583"
+    }
+  },
+  "qualification": "SOURCE_AUTHORITY_ONLY_NATIVE_NOT_RUN_RELEASE_NOT_ADMITTED",
+  "schema_version": 1,
+  "status": "ROOT_BOUND_NEW_DEBIAN_SOURCE_INPUT_PACKET",
+  "total_bytes": 33814609
+}
