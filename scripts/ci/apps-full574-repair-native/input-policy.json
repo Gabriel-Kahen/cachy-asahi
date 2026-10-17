@@ -4,6 +4,11 @@
     "path": "scripts/apps/full574_closure.py",
     "sha256": "f43304982dee768adf48f1c2ae5ecf6afa32e2cc405846046f6ac29604022b55"
   },
+  "aggregate": "BOTH_INDEPENDENT_ROOT_CASE_DECISIONS_REQUIRED",
+  "cases": [
+    "repair-bytes",
+    "repair-missing"
+  ],
   "packet_index": {
     "bytes": 55737,
     "path": "index.json",

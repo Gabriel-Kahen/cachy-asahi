@@ -1,17 +1,60 @@
-# Current4 native full574 signed repair
+# Current4 native full574 signed repair cases
 
-Source-only manual lane. Default policy UNBOUND refuses before secrets, producer or consumer actors. No native result, hardware, performance, release, or prior installation/repair credit is claimed.
+Source-only manual lane; default policy UNBOUND refuses before secrets or actors.
+No native, installation, repair, hardware, performance or release credit is claimed.
 
-Inputs are the exact Root-accepted c548/39027622244 Apps6/Runtime1/Cache0.2-1 native pairs (pair-only despite that workflow's failed lifecycle) and 28e2/38993858003 Orphans2 pair/readonly CLI. `packet.py` pins both original Root decision bytes, retains their actual field shapes and qualifications, and reuses the original closed256-reference/64MiB management packet and complete package/source/BUILDINFO/payload validator. Root alone assembles, freezes and publishes the current4 packet and binds policy. Old Apps5/Orphans1 input packets cannot substitute.
+Inputs are exact Root-accepted c548/39027622244 Apps6/Runtime1/Cache0.2 native pairs
+(PAIR_ONLY despite that workflow's failed lifecycle) and28e2/38993858003 Orphans2
+pair/readonly CLI. `packet.py`, both original Root-decision hashes and all94 frozen
+source pins are unchanged from802b97be0139f762e353f1e15dcb5551418362f2. Current4
+carrier65950a7e3ca82d97e21a65556844dab1cfd1a7f7 retains88 exact files under
+payload/, index SHA782fd76c06831786cb74df396f195e8f5f8832e04b668c44bdadd802d1cb268b.
+Old Apps5/Orphans1 packets cannot substitute. TEST signing remains distinct.
 
-The original574 producer, stopped export/extraction, capability restoration, TEST signer, disjoint readonly source/private disk copy, original backend and ordered consumer/copy/key/source/producer cleanup are reused. The original Apps ownership label/name remains exact; the existing three-export guard applies. One normal lifecycle actor installs all four current packages to578, damages an Apps README leaf then performs a real authenticated same-version reinstall, removes that leaf then performs a second genuine repair, and tests default strict inspect, wrong-plan hash, unselected damage and foreign ALPM-lock refusal. The genuine authenticated readonly repair-inspection CLI prepares complete actual damaged-before pins inside the exact owned copy; backend source/default inspect are unchanged and authenticate again before accepting the finite selected differences. Both repair outputs must join the exact original actual damage/missing map and complete before pins. Original explicit removals retain Runtime575 then return574. Source full map/capabilities, base/user/trust/unselected metadata/payload, raw caches, ordinary dependency-aware ALPM commit and owned teardown remain mandatory.
+Every job/supervisor invocation requires `--case repair-bytes` or
+`--case repair-missing`, matching workflow `REPAIR_CASE`, original source proof,
+owner/cleanup/retention reports and `CACHY_APPS574_REPAIR_CASE` in the lifecycle
+actor. One source/workflow accepts the required manual `repair_case` choice;
+Root records it explicitly in each independent dispatch request.
 
-Budgets are unchanged: producer2300s, owner3550s/cleanup650s, lifecycle actor3000s, each backend600s/caller610s, command1MiB/64commands, 40GiB free, 4GiB/2CPU/128pids, nofile8192, readonly/offline/NNP and original role caps, private workspace, 192MiB bounded public evidence. The dedicated workflow uses original R5 outer handoff/check functions before nonblocking cleanup: no forced lease unlock. Its one borrowed supervisor file is explicitly pinned from published5113349d; 89 other source files remain byte-identical to20fab073; one historical binding test now explicitly requires old5/1 authority to refuse the new6/2 backend. No product builders are duplicated; genuine accepted archives are TEST-signed anew solely for these owned-copy transactions.
+One fresh original574 producer, stopped export/extraction, exact capability copy
+and private working root perform install578, ONE authenticated same-version Apps
+README bytes repair or missing-leaf repair578, three actual zero-commit refusals
+(wrong plan SHA, unselected damage, foreign ALPM lock) and one strict default
+inspect refusal, explicit selected removal575, explicit Runtime removal574,
+disposal/full source verification, then original ordered seven-role teardown.
+There are four real commits per run. The genuine source-owned supervised readonly
+`repair_inspection.py inspect-reinstall` still supplies complete actual before
+pins/damage map, with an original raw receipt joined to the selected repair and
+closed export. Its600s worker and610s caller are unchanged. All source/base/user/
+trust/unselected payload, metadata, capabilities, hardlinks and raw-cache checks
+remain mandatory; no generic damaged-root inspect exception is introduced.
 
-Run `python3 -B prepare.py --source <exact source tree> --output <fresh tree>`; source must contain the exact94-file source-pins closure from published1c7910107ce7ad6502e7ac7c973bc1d9df2ef1ba, plus this namespace. The generated workflow is `.github/workflows/native-arm-apps-full574-repair.yml`. Root must update policy `status` to `ROOT_BOUND_NATIVE574_SIGNED_REPAIR_INPUTS`, actual packet source/index and regenerate the closed source manifest before freezing a dispatch. Both native input decisions are exact data; future changed decisions require an explicit source adapter refresh, never an old/new fallback. No workflow dispatch is performed here.
+Lifecycle status is `PASS_NATIVE574_AUTHENTICATED_SELECTED_REPAIR_CASE`; final
+owner retention status is `PASS_NATIVE574_SIGNED_REPAIR_CASE_AND_ORDERED_TEARDOWN`.
+Each result has exactly one selected repair/preparation/inspection-file key, three
+original transaction rows, counts578→575→574 and four refusal keys. Aggregate
+coverage requires TWO independent Root-accepted case decisions from the same
+frozen source/manifest/current4 packet. Historical combined-run partial results
+cannot supply either decision.
 
-## Genuine readonly inspection successor
+Original successful inventory exports are immediately assigned only to recorded
+ordinary OUTPUT_UID/GID, preserving0600, exact leaf identity/bytes and existing
+allowed paths. Private inventories/keys/full copied maps are not exported. A
+fresh owned0600 bounded diagnostic retains the original16KiB outer handoff before
+the unchanged retirement check, including original raw hash/base64 and typed
+status/reaped/absence facts. It has no cleanup authority. Unknown retirement
+continues to refuse cleanup; no forced lock release or actor cleanup waiver.
 
-Both signed repairs obtain their complete actual damaged-before pins/map from normal `scripts/apps/repair_inspection.py inspect-reinstall`, using the original clean610s Calls caller and its600s/512KiB worker. No fixture-only `adapter.measure` supplies either successful repair preparation. Original readonly receipts are retained byte/hash-joined as `repair-bytes-inspection.json` and `repair-missing-inspection.json`; lifecycle, application repair proof and closed export must agree. Existing raw observations remain only for the unchanged negative-case preservation checks. New source/status identities distinguish this successor from historical fixture-prepared repairs.
+All original bounds remain: producer2300s; owner3550s/cleanup650s; actor3000s;
+worker600s/caller610s; command1MiB/64commands;40GiB reserve;4GiB/2CPU/128pids;
+nofile8192; readonly/offline/NNP and original role capabilities;192MiB closed
+public evidence. No cache, skipped full-source check, builder duplication or
+budget increase is introduced.
 
-The exact3 CLI files are independently pinned in cli-pins.json and the full source closure. They are byte-exact published source1c7910107ce7ad6502e7ac7c973bc1d9df2ef1ba. Five commits, three zero-commit refusals, two strict ordinary-inspect refusals, original counts578→575→574, seven roles, source/user/trust/capabilities/raw aux preservation, ordered cleanup and all600/610/3000/3550/650 bounds remain unchanged. Source controls are not a new native or cryptographic positive.
+Generate with `python3 -B prepare.py --source <exact94-source tree> --output
+<fresh tree>`. The113-row emitted manifest excludes itself and workflow; all13
+owned files, including test_cases.py, are retained. Root must bind only the real
+current4 input carrier/index, preserve policy cases/aggregate qualification and
+refresh the manifest/workflow stamps before freezing. No dispatch is performed
+by this preparation.

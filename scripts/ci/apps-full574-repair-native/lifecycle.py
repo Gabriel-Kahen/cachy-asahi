@@ -8,12 +8,23 @@ SOURCE=Path('/source');WORK=Path('/work');OUT=Path('/out');INPUTS=Path('/inputs'
 H=C.load('original_full574_lifecycle',SOURCE/'scripts/ci/apps-full574-native/lifecycle.py');H.C=C
 TARGET='usr/share/doc/cachy-asahi-apps/README.md';UNSELECTED='usr/share/doc/cachy-asahi-cache/README.md'
 
+def publish_inventory(path,summary):
+ # First retain the exact original successful inventory, then publish ONLY that leaf.
+ case=C.case(os.environ.get('CACHY_APPS574_REPAIR_CASE'))
+ C.need(path.parent==WORK and path.name in {n+'-inventory.json' for n in ('install',case,'repair-refusals','remove-selected','remove-runtime')},'fixed successful public inventory leaf')
+ raw=H.retain_inventory(path,summary);target=OUT/path.name;C.safe(target);before=target.lstat()
+ C.need(stat.S_ISREG(before.st_mode) and before.st_nlink==1 and before.st_uid==os.geteuid() and stat.S_IMODE(before.st_mode)==0o600 and C.read(target,16*1024**2)==raw,'original successful inventory export identity')
+ ids=[os.environ[n] for n in ('OUTPUT_UID','OUTPUT_GID')];C.need(all(x.isdecimal() and 0<int(x)<2**31 for x in ids),'original ordinary host output identities')
+ os.chown(target,*map(int,ids));after=target.lstat()
+ C.need((after.st_dev,after.st_ino,after.st_nlink,stat.S_IMODE(after.st_mode),after.st_size)==(before.st_dev,before.st_ino,1,0o600,len(raw)) and (after.st_uid,after.st_gid)==tuple(map(int,ids)) and C.read(target,16*1024**2)==raw,'exact inventory ownership publication readback')
+ return raw
+
 def planned(calls,workspace,label,operation,names):
  C.need(label in ('install','repair-bytes','repair-missing','repair-refusals','remove-selected','remove-runtime') and workspace==WORK/'main','fixed private repair inventory scope required')
  # Reuse every original inventory read, ownership check, signer and plan assertion.
  raw=C.read(SOURCE/'scripts/ci/apps-full574-native/lifecycle.py').decode();node=next(n for n in ast.parse(raw).body if isinstance(n,ast.FunctionDef) and n.name=='planned');body=ast.get_source_segment(raw,node)
  old="('install','remove-selected','remove-runtime','interrupted-install')";C.need(body.count(old)==1,'one original finite inventory-label seam');body=body.replace(old,repr(('install','repair-bytes','repair-missing','repair-refusals','remove-selected','remove-runtime')))
- namespace=dict(vars(H));exec(compile(body,str(SOURCE/'scripts/ci/apps-full574-native/lifecycle.py')+':repair-labels','exec'),namespace);return namespace['planned'](calls,workspace,label,operation,names)
+ namespace=dict(vars(H),retain_inventory=publish_inventory);exec(compile(body,str(SOURCE/'scripts/ci/apps-full574-native/lifecycle.py')+':repair-labels','exec'),namespace);return namespace['planned'](calls,workspace,label,operation,names)
 
 def owned(T,workspace,owner):
  C.need(workspace==WORK/'main','fixed owned repair workspace');C.safe(workspace/'root');info=workspace.lstat();raw=C.read(workspace/'apps-copy.json',65536);value=C.decode(raw);C.need(stat.S_ISDIR(info.st_mode) and info.st_uid==0 and stat.S_IMODE(info.st_mode)==0o700 and C.sha(raw)==owner and value['token']==os.environ['OWNER_TOKEN'] and value['workspace']==T.inode(workspace) and value['root']==T.inode(workspace/'root') and value['source']=='/seed','original actual copy marker and root/workspace identity required')
@@ -53,12 +64,13 @@ def repaired(value,damage_map):
  return value
 
 def main():
+ case=C.case(os.environ.get('CACHY_APPS574_REPAIR_CASE'))
  C.need(os.getuid()==os.geteuid()==0 and os.uname().machine=='aarch64' and Path('/.dockerenv').is_file() and os.environ.get('CACHY_APPS574_LIFECYCLE')=='1' and {p.name for p in Path('/sys/class/net').iterdir()}=={'lo'},'original owned native offline actor only');C.source(SOURCE);C.need(Path('/seed').is_mount() and WORK.is_mount(),'original disjoint source/work mounts required');os.chown(WORK,0,0);WORK.chmod(0o700)
- adapter=C.adapter(SOURCE);T=C.load('repair_source_transaction',SOURCE/'scripts/apps/transaction.py');baseline=adapter.measure(Path('/seed'),T.limits());source_sha=adapter.digest(baseline['nodes']);caps=adapter.capability_map(Path('/seed'),baseline,T.limits());caps_sha=adapter.digest(caps);user={n:v for n,v in baseline['nodes'].items() if n.startswith('home/') and v['type'] in ('file','symlink')};C.need(user,'real original user state required');calls=H.Calls();report=dict(status='FAIL',hardware='NOT_RUN',rollback='NOT_CLAIMED',source_preserved=False,workspaces_disposed=False)
+ adapter=C.adapter(SOURCE);T=C.load('repair_source_transaction',SOURCE/'scripts/apps/transaction.py');baseline=adapter.measure(Path('/seed'),T.limits());source_sha=adapter.digest(baseline['nodes']);caps=adapter.capability_map(Path('/seed'),baseline,T.limits());caps_sha=adapter.digest(caps);user={n:v for n,v in baseline['nodes'].items() if n.startswith('home/') and v['type'] in ('file','symlink')};C.need(user,'real original user state required');calls=H.Calls();report=dict(status='FAIL',case=case,aggregate='BOTH_INDEPENDENT_ROOT_CASE_DECISIONS_REQUIRED',hardware='NOT_RUN',rollback='NOT_CLAIMED',source_preserved=False,workspaces_disposed=False)
  try:
   workspace=WORK/'main';prepared=calls.call([*H.backend('prepare-copy',workspace),'--source','/seed']);C.need(prepared['status']=='OWNED_COPY_PREPARED' and prepared['source_preserved'] is True,'original exact copy required');owner=prepared['ownership_sha256'];H.retain_copy(workspace,owner)
   path,plan=planned(calls,workspace,'install','install',['apps','cache','orphans']);installed=calls.call(H.apply_args(calls,workspace,owner,path,plan));C.need(installed['prepared_add']==C.VERSIONS,'actual current four native packages required');transactions=[installed];counts=[len(H.count(workspace))];C.need(counts==[578],'actual578 after install required');repairs={};refusals={};preparations={}
-  for label,missing in (('repair-bytes',False),('repair-missing',True)):
+  for label,missing in ((case,case=='repair-missing'),):
    path,plan=planned(calls,workspace,label,'reinstall',['apps']);owned(T,workspace,owner);original=damage(workspace,TARGET,missing);preparation=inspected(T,calls,workspace,owner,path,plan,label);pins=preparation['before'];damage_map=preparation['damage'];preparations[label]=preparation
    attempts=argv(calls,workspace,owner,path,plan,pins);refusals[label+'-default-inspect']=calls.call(H.backend('inspect',workspace,owner),expected=1);C.need(refusals[label+'-default-inspect']['status']=='FAIL','default strict inspect must refuse damaged payload');repairs[label]=repaired(calls.call(attempts),damage_map);C.need(C.read(original[0])==original[1] and len(H.count(workspace))==578,'exact original signed leaf restored without inventory expansion')
   path,plan=planned(calls,workspace,'repair-refusals','reinstall',['apps']);before,pins=observed(T,adapter,workspace,owner);attempts=argv(calls,workspace,owner,path,plan,pins);stable_pins=dict(pins);wrong=list(attempts);wrong[wrong.index('--plan-sha256')+1]='0'*64;refusals['wrong-plan-sha']=H.zero(calls.call(wrong,expected=1))
@@ -74,7 +86,7 @@ def main():
    path,plan=planned(calls,workspace,label,'remove',names);transactions.append(calls.call(H.apply_args(calls,workspace,owner,path,plan)));rows=H.count(workspace);counts.append(len(rows));C.need(len(rows)==expected,'actual removal count required')
    if expected==575:C.need(rows.get('cachy-asahi-repository-runtime')=='0.1.0-1','unselected required Runtime retained')
   disposed=calls.call(H.backend('dispose-copy',workspace,owner),seconds=75);C.need(disposed['status']=='OWNED_COPY_DISPOSED' and not workspace.exists(),'original explicit owned copy disposal required');after=adapter.measure(Path('/seed'),T.limits());adapter.capability_map(Path('/seed'),after,T.limits(),caps);C.need(adapter.digest(after['nodes'])==source_sha,'original readonly full source preserved')
-  report.update(status='PASS_NATIVE574_AUTHENTICATED_INSPECTION_AND_SELECTED_REPAIRS',base_count=574,counts=counts,transactions=transactions,repairs=repairs,refusals=refusals,preparations=preparations,inspection_files={label:C.ref(OUT,OUT/(label+'-inspection.json')) for label in preparations},source_preserved=True,workspaces_disposed=True,user_trust_protected_preserved=True,source_tree_sha256=source_sha,source_capabilities_sha256=caps_sha,security_capabilities='EXACT_SOURCE_MAP_PRESERVED',original_user_nodes=len(user));C.result(report)
+  report.update(status='PASS_NATIVE574_AUTHENTICATED_SELECTED_REPAIR_CASE',base_count=574,counts=counts,transactions=transactions,repairs=repairs,refusals=refusals,preparations=preparations,inspection_files={label:C.ref(OUT,OUT/(label+'-inspection.json')) for label in preparations},source_preserved=True,workspaces_disposed=True,user_trust_protected_preserved=True,source_tree_sha256=source_sha,source_capabilities_sha256=caps_sha,security_capabilities='EXACT_SOURCE_MAP_PRESERVED',original_user_nodes=len(user));C.result(report)
  except BaseException as error:report.update(error_type=type(error).__name__,error=str(error)[:1024]);raise
  finally:
   C.save(OUT/'lifecycle.json',report)
