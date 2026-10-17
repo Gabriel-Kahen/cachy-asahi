@@ -26,7 +26,7 @@ jobs:
     env:
       PYTHONDONTWRITEBYTECODE: '1'
       SOURCE_SHA: ${{ inputs.source_sha }}
-      MANIFEST_SHA256: 9b0ec6bb624f5d29d2e4957a0ce6d349d47e1e6c5974f49e64817eeb641e1afd
+      MANIFEST_SHA256: e7b1beb396fe1f1a002990d6f8c834b91817a5e86f6e6d9584e496ba1ee05293
       COMPONENT_MANIFEST_SHA256: ${{ inputs.manifest_sha256 }}
       COMPONENT: scripts/ci/orphans-native-cancellation
       SLICE: scripts/ci/orphans-full574-native
