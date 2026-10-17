@@ -61,7 +61,7 @@ jobs:
         run: |
           set -euo pipefail
           test "$(sha256sum expanded604-current-management-managed16k/scripts/ci/expanded604-current-management-managed16k/ci.py | cut -d ' ' -f 1)" = 2ef121f8abbd34974b08ad1cd638ccb26549b21984d2bb6b43a169a540341b7e
-          test "$(sha256sum expanded604-current-management-managed16k/scripts/ci/expanded604-current-management-managed16k/source-manifest.json | cut -d ' ' -f 1)" = 1b431d2169e36fabf7f5d6ac3a60310fe183a996db37928ba3ab7eb0784627c4
+          test "$(sha256sum expanded604-current-management-managed16k/scripts/ci/expanded604-current-management-managed16k/source-manifest.json | cut -d ' ' -f 1)" = f536485df1f9586b2cf7c14c2c4fdad53c482ab05b4cd8273c81c7ede35f9ebb
           python3 -B expanded604-current-management-managed16k/scripts/ci/expanded604-current-management-managed16k/gate.py \
             --implementation "$GITHUB_WORKSPACE/expanded604-current-management-managed16k" --implementation-revision "$IMPLEMENTATION_SOURCE" \
             --workflow-sha "$WORKFLOW_SOURCE" --preflight

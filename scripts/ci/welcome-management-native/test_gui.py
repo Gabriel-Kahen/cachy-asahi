@@ -152,6 +152,18 @@ class Semantics(unittest.TestCase):
         for field in ('enabled','sensitive','body_base64','text_sha256'):
             bad=copy.deepcopy(value);bad['nodes'][0][field]=True if field in ('enabled','sensitive') else '0'*64
             with self.subTest(field=field),self.assertRaises(Exception):C.snapshot(bad,80,'management-absent',dict(text=['unavailable'],buttons={UI['labels']['orphans']:False}))
+    def test_root_profile_owner_is_once_ordered_and_requires_previous_retirement(self):
+        profiles={};retired=set()
+        with patch.object(R.DL,'parent',side_effect=lambda stage,nonce:dict(stage=stage,profile_nonce=nonce)) as issue:
+            with self.assertRaises(ValueError):R.issue_profile(profiles,retired,'overlay','b'*32)
+            R.issue_profile(profiles,retired,'minimal','a'*32)
+            with self.assertRaises(ValueError):R.issue_profile(profiles,retired,'minimal','a'*32)
+            with self.assertRaises(ValueError):R.issue_profile(profiles,retired,'overlay','b'*32)
+            retired.add('minimal')
+            with self.assertRaises(ValueError):R.issue_profile(profiles,retired,'overlay','a'*32)
+            R.issue_profile(profiles,retired,'overlay','b'*32)
+            with self.assertRaises(ValueError):R.issue_profile(profiles,retired,'overlay','b'*32)
+            self.assertEqual(issue.call_count,2)
     def test_full_finite_management_receipt_replays(self):
         rows,lock=events();self.assertEqual(C.verify_result(rows,lock)['status'],'PASS_MANAGEMENT_NATIVE_METADATA_PIXELS_PENDING_REVIEW')
     def test_missing_firstframe_or_duplicate_view_refuses(self):
@@ -262,7 +274,7 @@ class ClosingRetirement(unittest.TestCase):
         self.assertIs(pending['retirement_observation'],fast);self.assertIs(pending['retirement_proof'],proof)
         self.assertEqual(len(C.action_plan(UI)),17);self.assertEqual(len(C.VIEWS),12)
         self.assertIn('time.monotonic()+90',(HERE/'management_phase.py').read_text())
-        self.assertIn('management_root.serve(managed_base, session, env, logs, 1080)',(HERE/'prepare.py').read_text())
+        self.assertIn("management_root.serve(managed_base, session, env, logs, DL.service_lease()['deadline_ns'])",(HERE/'prepare.py').read_text())
         source=(HERE/'management_phase.py').read_text()
         self.assertIn("stable()==closing_before and not Path('/var/lib/pacman/db.lck').exists()",source)
         self.assertIn('until=time.monotonic()+45',source)
@@ -379,6 +391,13 @@ class Adapter(unittest.TestCase):
             for stage_name in ('minimal','overlay'):
                 for view in C.VIEWS:self.assertIn(stage_name+'-'+view,runtime)
             self.assertIn('management_root.serve',guest);self.assertIn('managed_session.SETPRIV',guest);self.assertNotIn('dbus-run-session',guest)
+            self.assertIn("guard(True)  # Never power off a host that failed the guest guard.\n    DL.service()",guest)
+            self.assertLess(guest.index('    DL.service()'),guest.index('        EVENTS = wait_event_port()'))
+            self.assertNotIn('DL.parent()',guest)
+            self.assertIn("MG.request('profile',stage=stage,profile_nonce=nonce)",session)
+            self.assertIn("MG.request('profile-retired',stage=stage,profile_nonce=nonce",session)
+            self.assertIn('DL.start(workspace,stage,nonce,doctor.process.pid)',session)
+            self.assertIn('DL.validate_profiles(profile_retirements)',(out/'contract.py').read_text())
             self.assertIn('MG.exercise',session);self.assertIn('welcome=actor',session)
             self.assertIn('LocalFileSigLevel = Required',runtime);self.assertIn('/tmp/products/TEST-public.asc',runtime)
             self.assertNotIn('test-signing',runtime);self.assertIn('time.monotonic() + 1300',runtime)

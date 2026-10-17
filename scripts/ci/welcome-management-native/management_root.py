@@ -10,6 +10,7 @@ import signal
 import stat
 import time
 import management_contract as C
+import doctor_lifetime as DL
 
 HOME=Path('/home/desktop574');CHANNEL=HOME/'management-channel';INPUTS=Path('/usr/local/share/desktop574/management-inputs')
 TOOLS=('cachy-asahi-doctor','cachy-asahi-orphans')
@@ -166,7 +167,14 @@ def restore_profile(L,pacman,products,baseline,preserved):
     C.need(L.inventory()==baseline and metadata()==preserved,'final GUI helper profile/nonselected database not restored')
 
 
-def serve(base,session,env,logs,seconds):
+
+def issue_profile(profiles,retired_profiles,stage,nonce):
+    C.need(stage==('minimal' if not profiles else 'overlay') and stage not in profiles and (not profiles or retired_profiles=={'minimal'}),'ordered fresh profile after previous retirement required')
+    C.need(all(p['profile_nonce']!=nonce for p in profiles.values()),'fresh profile nonce required')
+    owner=DL.parent(stage,nonce);profiles[stage]=owner;return owner
+
+
+def serve(base,session,env,logs,deadline_ns):
     base.guard(True);C.need(os.getuid()==0 and 'cachy_asahi_welcome_management=1' in Path('/proc/cmdline').read_text().split(),'owned management4K VM required')
     products=json.loads(C.read(INPUTS/'products.json'));control=json.loads(C.read(INPUTS/'control.json'))
     api=load('management_fixture_installed',base.SHARE/'installed.py');L=load('management_fixture_lifecycle',base.SHARE/'accepted_lifecycle.py')
@@ -174,7 +182,9 @@ def serve(base,session,env,logs,seconds):
     baseline=L.inventory();C.need(len(baseline)==594 and all(n in baseline for n in TOOLS),'exact594 installed management profile required')
     preserved=metadata();CHANNEL.mkdir(mode=0o700);os.chown(CHANNEL,23001,23001)
     nonce=os.urandom(16).hex();(CHANNEL/'nonce').write_text(nonce);(CHANNEL/'nonce').chmod(0o644)
-    until=time.monotonic()+seconds;sequence=0;armed=None;observed=None;fd=None;superfd=None;holder=None;lock_identity=None;progress=None
+    C.need(deadline_ns==DL.service_lease()['deadline_ns'],'original service deadline required')
+    profiles={};retired_profiles=set()
+    sequence=0;armed=None;observed=None;fd=None;superfd=None;holder=None;lock_identity=None;progress=None
     def inventory():
         current=L.inventory();C.need(current in (baseline,{n:v for n,v in baseline.items() if n not in TOOLS}),'unexpected package composition');return current
     def unlock():
@@ -184,7 +194,7 @@ def serve(base,session,env,logs,seconds):
         C.need(holder.lib.alpm_trans_release(holder.handle)==0,'own fixture lock release failed');holder.close();holder=None;lock_identity=None
     try:
         while session.poll() is None:
-            C.need(time.monotonic()<until,'managed session deadline')
+            C.need(time.monotonic_ns()<deadline_ns,'managed session deadline')
             if armed and observed is None:
                 observed=find(armed['tool'],armed['welcome_pid'],armed['previous'])
                 if observed:
@@ -199,7 +209,16 @@ def serve(base,session,env,logs,seconds):
             if not request.exists():time.sleep(.002);continue
             data=json.loads(C.read(request,65536,23001));C.need(data.get('nonce')==nonce and data.get('sequence')==sequence and sequence<1024,'bounded fixture request identity')
             op=data.get('operation');answer=dict(nonce=nonce,sequence=sequence,operation=op,status='PASS')
-            if op in ('remove','restore'):
+            if op=='profile':
+                stage=data.get('stage');nonce_value=data.get('profile_nonce')
+                answer['profile_lease']=issue_profile(profiles,retired_profiles,stage,nonce_value)
+            elif op=='profile-retired':
+                stage=data.get('stage');owner=profiles.get(stage)
+                C.need(owner is not None and stage not in retired_profiles and data.get('profile_nonce')==owner['profile_nonce'],'current profile retirement identity required')
+                value=DL.capture(HOME/('doctor-'+stage+'-'+owner['profile_nonce']),stage,owner['profile_nonce'],data.get('terminal_pid'),data.get('terminal_exit'))
+                proof=DL.validate(value,stage,owner['profile_nonce'],data.get('terminal_pid'),data.get('worker_pid'))
+                C.need(proof['parent']==owner,'retired profile lease differs');retired_profiles.add(stage);answer['profile_retirement']=proof
+            elif op in ('remove','restore'):
                 C.need(holder is None,'cannot transact under held fixture lock')
                 if op=='remove':
                     C.need(inventory()==baseline,'tools already absent');L.command(pacman+['-R',*TOOLS],timeout=60)
@@ -234,6 +253,7 @@ def serve(base,session,env,logs,seconds):
             reply=CHANNEL/('reply-'+str(sequence)+'.json');pending=reply.with_suffix('.pending')
             with pending.open('xb') as stream:stream.write(C.encoded(answer));stream.flush();os.fsync(stream.fileno())
             pending.chmod(0o644);C.need(not reply.exists(),'fresh fixture reply required');pending.rename(reply);sequence+=1
+        if session.returncode==0:C.need(set(profiles)==retired_profiles=={'minimal','overlay'},'both profile companions must retire')
         return session.returncode
     finally:
         unlock()
