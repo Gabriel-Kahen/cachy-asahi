@@ -120,7 +120,7 @@ jobs:
       - name: Checkout whole frozen KSM hosted runtime without activation
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          ref: 5ca1be6f0149612e4443f3a99e957a18a27bc474
+          ref: b97beb3de0c57c29a13741a3b2d42639e4f2ae67
           path: .ci-inputs/ksm2-hosted-runtime
           persist-credentials: false
       - name: Emit and check default KSM hosted source without component activation
@@ -128,6 +128,7 @@ jobs:
           python3 -I -B scripts/ci/ksm2-generic16k-vm-hosted/prepare.py --runtime "$PWD/.ci-inputs/ksm2-hosted-runtime/runtime" --output "$RUNNER_TEMP/ksm2-hosted-source"
           python3 -I -B "$RUNNER_TEMP/ksm2-hosted-source/scripts/ci/ksm2-generic16k-vm-hosted/entry.py" source --source "$RUNNER_TEMP/ksm2-hosted-source"
           python3 -I -B -Werror::ResourceWarning "$RUNNER_TEMP/ksm2-hosted-source/scripts/ci/ksm2-generic16k-vm-hosted/test_lane.py" --source "$RUNNER_TEMP/ksm2-hosted-source" -v
+          python3 -I -B -Werror::ResourceWarning "$RUNNER_TEMP/ksm2-hosted-source/scripts/ci/ksm2-generic16k-vm-hosted/test_archive32.py"
       - name: Check explicit KSM scanning experiments in private fixtures
         run: |
           python3 -I -B packages/tools/cachy-asahi-ksmctl2/check-source.py

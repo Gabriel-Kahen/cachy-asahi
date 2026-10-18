@@ -4,6 +4,7 @@
 import argparse,json,os,signal,stat,sys,time
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parent));import hosted as O
+import archive32 as A
 
 SECRET_NAMES=('CACHY_OLD_FOUR_SCHEMA','CACHY_OLD_FOUR_SOURCE_EPOCH','CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01','CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02','CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01','CACHY_OLD_FOUR_JBIGKIT_01','CACHY_OLD_FOUR_JBIGKIT_02','CACHY_OLD_FOUR_JBIGKIT_SIG_01','CACHY_OLD_FOUR_LIBTIFF_SIG_01')+tuple('CACHY_OLD_FOUR_LIBTIFF_'+str(n).zfill(2)for n in range(1,16))
 
@@ -35,6 +36,10 @@ def run(a):
   for n,pin in O.SEED_PINS.items():O.need(O.pin(O.read(a.seed/n))['sha256']==pin,'whole trusted original public seed source')
   O.need(O.git(a.seed,'rev-parse','HEAD').decode().strip()==O.SEED_SOURCE,'exact public seed checkout')
   command(['/usr/bin/python3','-I','-B',str(a.seed/'seed.py'),'--cache',str(producer/'context/deps')],120)
+  archive_policy=A.policy(root/O.LANE/'archive32-policy.json',runtime/'borrowed/maintained574-inputs.json')
+  archive_custody=A.seed_exact(a.archive_cache,producer/'context/deps',archive_policy)
+  archive_custody.update(policy=O.pin(O.read(root/O.LANE/'archive32-policy.json')),files={n:{k:r[k]for k in('bytes','sha256')}for n,r in archive_policy['files'].items()},versions='UNCHANGED_FROZEN574_LOCK',trust='UNCHANGED_ORIGINAL_SIGNATURE_AND_KEYRING_CHECKS')
+  O.save(a.work/'archive32-custody.json',archive_custody)
   command(['/usr/bin/python3','-I','-B',str(runtime/'borrowed/maintained_desktop574.py'),'build','--inputs',str(runtime/'borrowed/maintained574-inputs.json'),'--output',str(producer),'--job-token',proof['job_token']],2300)
   p=a.inputs/'producer/report.json';p.parent.mkdir(mode=0o700);raw=O.read(producer/'report.json');p.write_bytes(raw);p.chmod(0o600);s['producer_report']=dict(path='producer/report.json',**O.pin(raw));O.save(a.work/'runtime-binding.json',s)
   configure=O.load('_ksm_hosted_configure',runtime/'configure.py');selection=a.work/'selection.json';configure.configure(a.work/'runtime-binding.json',a.inputs,selection)
@@ -56,5 +61,5 @@ def run(a):
    O.save(a.work/'owner-result.json',result)
 if __name__=='__main__':
  p=argparse.ArgumentParser(description=__doc__)
- for n in('source','native','kernel','seed','inputs','work'):p.add_argument('--'+n,type=Path,required=True)
+ for n in('source','native','kernel','seed','inputs','work','archive-cache'):p.add_argument('--'+n,type=Path,required=True)
  a=p.parse_args();print(json.dumps(run(a),sort_keys=True))
