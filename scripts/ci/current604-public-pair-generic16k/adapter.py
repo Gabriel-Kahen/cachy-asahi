@@ -93,8 +93,24 @@ def initialize_image_mtab(raw):
  C.need(len(raw)==6676 and C.sha(raw)=='845df182cc55c8f5c0c89c5829b4e53e940f918c341fa005d236a0c89c4ecd6d','whole account-settled fixture source differs')
  return C.one(raw.decode(),'python3 -I -B /runner/installed604.py capture "$root"','# Settle only the image-owned mtab rule before its offline baseline.\n[[ -L "$root/etc/mtab" ]]\n/usr/bin/systemd-tmpfiles --root="$root" --create --prefix=/etc/mtab\n[[ -L "$root/etc/mtab" ]]\npython3 -I -B /runner/installed604.py capture "$root"').encode()
 
+def align_candidate_locks(output):
+ """Keep host and guest on the same source-owned lifecycle qualification."""
+ guest=C.json_read(output/'candidate-lock.json')
+ host=C.json_read(output/'candidates/candidate-lock.json')
+ C.need(guest.get('producer_lifecycle')=='ROOT_ACCEPTED_NATIVE604_AND_SEPARATE_CURRENT_WELCOME4_GUI' and
+        host.get('producer_lifecycle')=='PASS_SAME_JOB_SIGNED_THREE_PRODUCT_LIFECYCLE',
+        'exact previous and selected candidate lifecycle scopes required')
+ left=dict(guest);right=dict(host)
+ left.pop('producer_lifecycle');right.pop('producer_lifecycle')
+ C.need(left==right,'host and guest candidate inputs differ beyond lifecycle qualification')
+ C.save(output/'candidates/candidate-lock.json',guest)
+ C.need(C.read(output/'candidate-lock.json')==C.read(output/'candidates/candidate-lock.json'),
+        'byte-identical host and guest candidate locks required')
+
+
 def prepare(source,output,assets,ready,selected):
  C.profile(selected);BASE.prepare(source,output,assets,ready)
+ align_candidate_locks(output)
  for name in ('management_contract.py','management_root.py'):
   path=output/name;text=path.read_text()
   if name=='management_contract.py':
