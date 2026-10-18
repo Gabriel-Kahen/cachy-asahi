@@ -80,6 +80,19 @@ def prepare_failure(record,stderr):
  tail=stderr[-4096:]
  return dict(status='FAILED_PREPARE_STDERR_NOT_ACCEPTANCE',stderr=dict(bytes=len(stderr),sha256=C.sha(stderr),tail_bytes=len(tail),tail_base64=base64.b64encode(tail).decode(),omitted_bytes=len(stderr)-len(tail)))
 
+def qemu_failure(record,stdout,stderr,nonce):
+ # Diagnostic only: byte/hash join original captures, preserve existing16MiB
+ # stream and512KiB cleanup receipt caps. Never reinterpret protocol as PASS.
+ C.need(record['argv'][0]=='/usr/bin/qemu-system-aarch64'and re.fullmatch('[a-f0-9]{32}',nonce),'one actual owned QEMU/nonce')
+ def stream(raw,side):
+  C.need(type(raw)is bytes and len(raw)<=16*1024**2 and len(raw)==record[side+'_bytes']and C.sha(raw)==record[side+'_sha256'],'original QEMU stream join')
+  cap=65536 if side=='stdout'else 4096;preview=raw[-cap:]
+  return dict(bytes=len(raw),sha256=C.sha(raw),preview_bytes=len(preview),preview_base64=base64.b64encode(preview).decode(),omitted_bytes=len(raw)-len(preview),truncated=len(preview)<len(raw))
+ out=stream(stdout,'stdout');err=stream(stderr,'stderr');lines=stdout.splitlines();prefix=('APPS6_UPDATE16K '+nonce+' ').encode()
+ counts=dict(protocol_prefix=sum(x.startswith(b'APPS6_UPDATE16K ')for x in lines),nonce_bound_prefix=sum(x.startswith(prefix)for x in lines),guest_error_prefix=sum(x.startswith(b'APPS6_UPDATE16K_ERROR ')for x in lines))
+ value=dict(status='FAILED_QEMU_PROTOCOL_OR_READBACK_DATA_NOT_ACCEPTANCE',nonce=nonce,stdout=out,stderr=err,prefix_counts=counts)
+ C.need(len(C.encoded(value))<=128*1024,'bounded failure QEMU metadata within existing512KiB cleanup receipt');return value
+
 def run(a,argv,image,public,raw,old,seconds):
  C.need(seconds==3900,'unchanged original transaction budget');profile,kimage,_=authorize(a);bindings,env=mounts(argv)
  work=public.parent/'update16k';C.need(not work.exists() and re.fullmatch('sha256:[0-9a-f]{64}',image),'fresh work and exact owned producer image');work.mkdir(mode=0o700);disks=work/'disks';disks.mkdir();nonce=os.urandom(16).hex()
@@ -90,12 +103,13 @@ def run(a,argv,image,public,raw,old,seconds):
  C.need(Path(bindings['/upgrade-signing']['source'])==raw/'test-signing','existing owned TEST signer only')
  old.command(['/usr/bin/gpgconf','--homedir',str(raw/'test-signing'),'--kill','all'],public/'updater16k-signing-retirement.log',15)
  input_before=snapshot(bindings);C.save(work/'input-map.json',input_before)
- runtime=C.load('supervisor',a.implementation/'scripts/ci/glibc-owned-runtime/runner.py');records=[];actors=[];retired=False;error=None;prepare_error=None
+ runtime=C.load('supervisor',a.implementation/'scripts/ci/glibc-owned-runtime/runner.py');records=[];actors=[];retired=False;error=None;prepare_error=None;qemu_capture=None;qemu_error=None
  def command(cmd,timeout=30,cap=2*1024**2,allow=False):
-  nonlocal prepare_error
+  nonlocal prepare_error,qemu_capture
   record,out,err,exc=runtime.run_command(cmd,work,dict(PATH='/usr/bin:/bin',LC_ALL='C',HOME=str(work),TMPDIR=str(work)),timeout,cap)
   records.append(record);C.save(public/'updater16k-commands.json',records)
   if cmd[0]=='/usr/bin/qemu-system-aarch64':
+   qemu_capture=(record,out,err)
    (public/'updater16k-uart.log').write_bytes(out);(public/'updater16k-qemu.stderr').write_bytes(err)
   if cmd[-len(('/workspace/disk.py','prepare')):]==['/workspace/disk.py','prepare'] and record['exit_code']:
    prepare_error=prepare_failure(record,err)
@@ -124,7 +138,11 @@ def run(a,argv,image,public,raw,old,seconds):
   result=protocol(uart,selection,old_verify(a));C.save(work/'guest-files.json',result['files']);actor('export')
   for n,pin in result['files'].items():C.need(C.row(disks/'export'/n)==pin,'exact original debugfs readback');shutil.copyfile(disks/'export'/n,public/n)
   C.save(public/'updater16k-result.json',dict(status=C.PASS,scope='GENERIC16K_VM_NOT_NATIVE_HOST_OR_HARDWARE',guest=result,kernel=profile,source=C.row(a.implementation/C.OLD/'source-manifest.json'),input_map_sha256=C.sha(C.encoded(input_before)),original_uart=C.row(public/'updater16k-uart.log'),natural_qemu=r,kernel_receipt=C.row(a.kernel_receipt),preservation='PASS_EXACT_COMPLETE_ORIGINAL_INPUT_MAP',hardware='NOT_RUN',release='NOT_ADMITTED'))
- except BaseException as e:error=e
+ except BaseException as e:
+  error=e
+  if qemu_capture is not None:
+   try:qemu_error=qemu_failure(*qemu_capture,nonce)
+   except Exception as failure:qemu_error=dict(status='DIAGNOSTIC_UNAVAILABLE',error_type=type(failure).__name__)
  finally:
   try:
    C.need(all(r['group_absence_verified'] is True for r in records),'backing data retained unknown process group')
@@ -138,7 +156,7 @@ def run(a,argv,image,public,raw,old,seconds):
    shutil.rmtree(work);retired=True
   except BaseException as e:
    if error is None:error=e
-  C.save(public/'updater16k-cleanup.json',dict(status='PASS' if retired else 'RETAINED_ABSENCE_UNKNOWN',actors=actors,group_records=records,scope='OWNED_VM_DISKS_AND_CONSUMERS',error=None if error is None else dict(type=type(error).__name__,message=str(error)[:2048]),**({'prepare_failure':prepare_error} if prepare_error is not None else {})))
+  C.save(public/'updater16k-cleanup.json',dict(status='PASS' if retired else 'RETAINED_ABSENCE_UNKNOWN',actors=actors,group_records=records,scope='OWNED_VM_DISKS_AND_CONSUMERS',error=None if error is None else dict(type=type(error).__name__,message=str(error)[:2048]),**({'prepare_failure':prepare_error} if prepare_error is not None else {}),**({'qemu_failure':qemu_error} if qemu_error is not None else {})))
  if error is not None:raise error
  C.need(retired,'VM cleanup incomplete')
 
