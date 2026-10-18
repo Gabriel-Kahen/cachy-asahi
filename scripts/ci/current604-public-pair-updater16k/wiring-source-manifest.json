@@ -566,12 +566,12 @@
       "sha256": "e69d16cadd98f23e29afce9a6be25271d747481df5489e6dc44c568b20722ad3"
     },
     "scripts/ci/current604-public-pair-updater16k/job.py": {
-      "bytes": 4603,
-      "sha256": "e41d56b762cb0b0c9a9b2ee413add00d803eeb085828d4aee55b1d1d10e95c0f"
+      "bytes": 5001,
+      "sha256": "47c560fdc227a0b41e2cca9e1797b55adce2b35bb080d950d8ee1d1993c86c13"
     },
     "scripts/ci/current604-public-pair-updater16k/kernel_job.py": {
-      "bytes": 7494,
-      "sha256": "6dc83cebb5860aa17fe31470b63065e6219640e466d8ada8b64a0673d7ccee92"
+      "bytes": 9295,
+      "sha256": "7830c9ff51fa3605a08785b3af8a11d560a9f9edd46adbadbf39c474579ff1d2"
     },
     "scripts/ci/current604-public-pair-updater16k/policy.json": {
       "bytes": 127,
@@ -590,8 +590,8 @@
       "sha256": "bd0a00aeeaca3fe85d7f8162014f15af5e2a2bbfdddcfef413b440b8f03053bf"
     },
     "scripts/ci/current604-public-pair-updater16k/source-manifest.json": {
-      "bytes": 81856,
-      "sha256": "7dd56bbcb1d97289c6e25cea1953267dfff56afa3f246f839d0fa7b147872cda"
+      "bytes": 81857,
+      "sha256": "438930f2ba888d73cf8a626c9f27b13c765a2575aa7894dd75873c7a334c6f20"
     },
     "scripts/ci/current604-public-pair-updater16k/source-pins.json": {
       "bytes": 143256,
@@ -602,12 +602,12 @@
       "sha256": "6999636b05e65d3bafcb73bf0fd273b744f990475ee34244969a56b7e16d0086"
     },
     "scripts/ci/current604-public-pair-updater16k/test_wiring.py": {
-      "bytes": 6932,
-      "sha256": "1c64343218ba591bfc8603036e235021c8f5921d4540f0a379d050d72bd1052a"
+      "bytes": 18854,
+      "sha256": "9784918e1c22e69b75aedad8a6a5c10c2ddf48eb2ba9ae5d8ae89435c2472e34"
     },
     "scripts/ci/current604-public-pair-updater16k/vm.py": {
-      "bytes": 13338,
-      "sha256": "3793ff1ddf37d911c5fb3aa8729a1612cb73231da9c2a6a183e14c42e1d24db2"
+      "bytes": 14210,
+      "sha256": "11b200721f397ec6a11f137db6f3ea61d1e2afd60418e08204dabd44b7e56c7e"
     },
     "scripts/ci/current604-public-pair-updater16k/wiring.py": {
       "bytes": 1886,
