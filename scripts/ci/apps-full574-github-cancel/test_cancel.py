@@ -83,13 +83,13 @@ class Controls(unittest.TestCase):
   pins=json.loads((HERE/'source-pins.json').read_bytes());self.assertEqual(sum(v=='FROZEN_NATIVE505' for v in pins['origins'].values()),115)
 class LauncherControls(unittest.TestCase):
  # Real local processes/flock only. These signals are NOT a GitHub cancellation.
- def route(self,exec_timeout,number):
+ def route(self,exec_timeout,number,delay_handoff=False):
   import signal,time
   with tempfile.TemporaryDirectory(prefix='cachy-cancel-launcher-') as tmp:
    root=Path(tmp);supervisor=ROOT/'scripts/ci/orphans-full574-native/supervise.py'
-   child=root/'child.py';child.write_text("import fcntl,os,signal,sys,time\nfrom pathlib import Path\nr=Path(sys.argv[1])\nf=(r/'lease').open('a');fcntl.flock(f,fcntl.LOCK_EX|fcntl.LOCK_NB)\ndef stop(n,f):raise SystemExit(0)\nsignal.signal(signal.SIGINT,stop);signal.signal(signal.SIGTERM,stop)\n(r/'ready').write_text(str(os.getpid()))\nwhile True:time.sleep(.02)\n")
-   runner=root/'runner.py';runner.write_text("import importlib.util,json,sys\nfrom pathlib import Path\ns=importlib.util.spec_from_file_location('original',sys.argv[1]);m=importlib.util.module_from_spec(s);s.loader.exec_module(m)\nr=Path(sys.argv[2]);v=m.handoff([sys.executable,'-I','-B',str(r/'child.py'),str(r)],r/'handoff.json',{'local':True})\n(r/'returned').write_text(json.dumps(v))\n")
-   step=root/'step.sh';step.write_text('set -euo pipefail\n'+('exec ' if exec_timeout else '')+'timeout --signal=TERM --kill-after=30s 3550s '+sys.executable+' -I -B '+str(runner)+' '+str(supervisor)+' '+str(root)+'\n')
+   child=root/'child.py';child.write_text("import fcntl,os,signal,sys,time\nfrom pathlib import Path\nr=Path(sys.argv[1])\nf=(r/'lease').open('a');fcntl.flock(f,fcntl.LOCK_EX|fcntl.LOCK_NB)\ndef stop(n,f):raise SystemExit(0)\nsignal.signal(signal.SIGINT,stop);signal.signal(signal.SIGTERM,stop)\nimport json\nend=time.monotonic()+5\nwhile True:\n try:\n  v=json.loads((r/'handoff.json').read_bytes())\n  if v['job'] is not None and v['job']['pid']==os.getpid():break\n except (FileNotFoundError,json.JSONDecodeError):pass\n if time.monotonic()>=end:raise RuntimeError('complete owned fixture frontier unavailable')\n time.sleep(.01)\n(r/'ready').write_text(str(os.getpid()))\nwhile True:time.sleep(.02)\n")
+   runner=root/'runner.py';runner.write_text("import importlib.util,json,sys\nfrom pathlib import Path\ns=importlib.util.spec_from_file_location('original',sys.argv[1]);m=importlib.util.module_from_spec(s);s.loader.exec_module(m)\nr=Path(sys.argv[2])\nif len(sys.argv)>3:\n import time\n original=m.os.pwrite\n def delayed(fd,raw,offset):\n  if b'\"pid\"' in raw:time.sleep(.05)\n  return original(fd,raw,offset)\n m.os.pwrite=delayed\nv=m.handoff([sys.executable,'-I','-B',str(r/'child.py'),str(r)],r/'handoff.json',{'local':True})\n(r/'returned').write_text(json.dumps(v))\n")
+   step=root/'step.sh';step.write_text('set -euo pipefail\n'+('exec ' if exec_timeout else '')+'timeout --signal=TERM --kill-after=30s 3550s '+sys.executable+' -I -B '+str(runner)+' '+str(supervisor)+' '+str(root)+(' delayed' if delay_handoff else '')+'\n')
    proc=subprocess.Popen(['/usr/bin/bash','--noprofile','--norc','-e','-o','pipefail',str(step)],start_new_session=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE);initial=None;timeout_pid=None
    try:
     end=time.monotonic()+5
@@ -130,6 +130,9 @@ class LauncherControls(unittest.TestCase):
  def test_exec_timeout_INT_retires_original_direct_job_and_lease(self):
   import signal
   self.route(True,signal.SIGINT)
+ def test_exec_timeout_INT_waits_for_complete_owned_frontier(self):
+  import signal
+  self.route(True,signal.SIGINT,delay_handoff=True)
  def test_exec_timeout_TERM_retires_original_direct_job_and_lease(self):
   import signal
   self.route(True,signal.SIGTERM)

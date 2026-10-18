@@ -62,6 +62,10 @@ jobs:
         run: |
           python3 -I -B packages/tools/cachy-asahi-repository-client-v2/check_source.py --recipe-root packages/tools/cachy-asahi-repository-client-v2
           python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-repository-client-v2/test_runtime.py --recipe-root packages/tools/cachy-asahi-repository-client-v2 --runtime-recipe-root packages/tools/cachy-asahi-repository-runtime
+      - name: Check default Apps7 and client v2 native source without actors
+        run: |
+          python3 -I -B scripts/ci/apps7-client-native/preflight.py --source "$PWD"
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/apps7-client-native -p test_lane.py -v
       - name: Exercise release and client contracts without skipped tests
         env:
           PYTHONDONTWRITEBYTECODE: '1'
