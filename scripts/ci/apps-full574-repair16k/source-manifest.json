@@ -491,8 +491,8 @@
       "sha256": "d8af65015b425614ac1231f28f64f717822aca0d794c7f6325d61ed95ed36b4f"
     },
     "scripts/ci/apps-full574-repair16k/disk.py": {
-      "bytes": 11520,
-      "sha256": "403c01bb68df7e10619efffb5ad0dd318a416ab3d90f13326fc84930134908b2"
+      "bytes": 14409,
+      "sha256": "3fe2125f13e3f2fc30a856146164ff362d65049f8470124ed66b3222f6500655"
     },
     "scripts/ci/apps-full574-repair16k/guest.py": {
       "bytes": 13859,
@@ -515,8 +515,8 @@
       "sha256": "ad36f839b52fcd83642f5b9643b57ff7eccf2af20670316899584d340d9c2dcc"
     },
     "scripts/ci/apps-full574-repair16k/test_lane.py": {
-      "bytes": 58821,
-      "sha256": "717fbfc56ea628ea7a84d00a9e1eaa0cfca3f1583e127f576087a2c3afdfb530"
+      "bytes": 66048,
+      "sha256": "c4065134957e3e75e3bd18a3cff3116addb404f24dade7b73f050cff1fec05f6"
     },
     "scripts/ci/apps-full574-repair16k/vm.py": {
       "bytes": 11257,

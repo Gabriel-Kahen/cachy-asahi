@@ -289,5 +289,43 @@ class ToolingEnvironmentControls(unittest.TestCase):
     for i,value in enumerate((None,'','relative',str(base/'missing'),str(file),str(alias),str(packet)+'/',str(packet)+'/../packet','/'+'x'*4096)):
      with self.subTest(value=value),self.assertRaises(ValueError):self.prelude(text,base/('refused-'+str(i)),value)
 
+class LauncherClockControls(unittest.TestCase):
+ def setUp(self):
+  p=patch.object(subprocess,'Popen',side_effect=AssertionError('source clock controls forbid actors'));p.start();self.addCleanup(p.stop)
+ def function(self,text,name,scope):
+  node=next(n for n in ast.parse(text).body if isinstance(n,ast.FunctionDef)and n.name==name)
+  exec(compile(ast.Module(body=[node],type_ignores=[]),'<exact-generated-clock-source>','exec'),scope);return scope[name]
+ def test_generated_both_profiles_handoff_immediate_launcher_epoch_without_other_qemu_changes(self):
+  for profile in C.PROFILES:
+   with self.subTest(profile=profile),tempfile.TemporaryDirectory()as td:
+    runner=Controls().generated(Path(td),profile);text=(runner/'desktop574_runtime.py').read_text();g=(runner/'base_guest.py').read_text();scope=dict(time=SimpleNamespace(time=lambda:1792288000.75),require=C.need,docker_args=lambda *a:['OWNED_COMMAND_FIXTURE'])
+    command=self.function(text,'qemu_command',scope)('image','name','out','source','runner');shell=command[-1]
+    self.assertEqual(shell.count('cachy_asahi_public_pair_epoch=1792288000'),1);self.assertIn('-smp 2 -m 4096',shell);self.assertIn('-nic none',shell);self.assertNotIn('faked-system-time',g+text)
+    boot=next(n for n in ast.parse(g).body if isinstance(n,ast.FunctionDef)and n.name=='boot');calls=[n.func.id for n in ast.walk(boot)if isinstance(n,ast.Call)and isinstance(n.func,ast.Name)];self.assertEqual(calls.count('initialize_launcher_clock'),1)
+    self.assertLess(g.index('        initialize_launcher_clock()'),g.index('        code = management_root.serve'))
+    self.assertIn('time.clock_settime(time.CLOCK_REALTIME,epoch)',g)
+    for epoch in (0,1699999999,2**32):
+     scope['time']=SimpleNamespace(time=lambda:epoch)
+     with self.assertRaisesRegex(ValueError,'bounded launcher UTC'):self.function(text,'qemu_command',scope)('image','name','out','source','runner')
+ def clock(self,words,*,guard=True,after=1792288000*10**9):
+  calls=[];ticks=iter((1790293564*10**9,after));scope=dict(Path=lambda _:SimpleNamespace(read_text=lambda:words),time=SimpleNamespace(CLOCK_REALTIME=0,time_ns=lambda:next(ticks),clock_settime=lambda *a:calls.append(('set',a))),guard=lambda root:C.need(guard and root,'owned guest refused'),need=C.need,emit=lambda *a,**k:calls.append(('receipt',a,k)))
+  return self.function(A.CLOCK_GUEST,'initialize_launcher_clock',scope),calls
+ def test_exact_generated_guest_sets_realtime_and_records_original_clock_operands(self):
+  f,calls=self.clock('console=ttyAMA0 cachy_asahi_public_pair_epoch=1792288000');f();self.assertEqual(calls[0],('set',(0,1792288000)));v=calls[1][2];self.assertEqual(v['before_ns'],1790293564*10**9);self.assertEqual(v['after_ns'],1792288000*10**9);self.assertEqual(v['requested_epoch_s'],1792288000);self.assertEqual(v['hardware'],'NOT_RUN');self.assertEqual(v['source'],'OWNED_QEMU_LAUNCHER_NOT_EXTERNAL_TIME_AUTHORITY')
+ def test_guest_absent_foreign_duplicate_malformed_or_unset_clock_refuses_before_trust(self):
+  for words in ('','other_epoch=1792288000','cachy_asahi_public_pair_epoch=1792288000 cachy_asahi_public_pair_epoch=1792288000','cachy_asahi_public_pair_epoch=01792288000','cachy_asahi_public_pair_epoch=+1792288000','cachy_asahi_public_pair_epoch=١٧٩٢٢٨٨٠٠٠','cachy_asahi_public_pair_epoch=0','cachy_asahi_public_pair_epoch=4294967296','x'*65537):
+   with self.subTest(words=words[:70]):
+    f,calls=self.clock(words)
+    with self.assertRaises(ValueError):f()
+    self.assertEqual(calls,[])
+  f,calls=self.clock('cachy_asahi_public_pair_epoch=1792288000',guard=False)
+  with self.assertRaisesRegex(ValueError,'owned guest'):f()
+  self.assertEqual(calls,[])
+  for after in (1790293564*10**9,1792288002*10**9):
+   f,calls=self.clock('cachy_asahi_public_pair_epoch=1792288000',after=after)
+   with self.assertRaisesRegex(ValueError,'handoff failed'):f()
+   self.assertEqual(len(calls),1)
+
+
 if __name__=='__main__':unittest.main(verbosity=2)
 

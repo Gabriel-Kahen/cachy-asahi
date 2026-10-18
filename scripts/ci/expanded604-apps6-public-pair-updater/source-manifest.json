@@ -665,8 +665,8 @@
       "sha256": "5c1387031e244dcf5e9c94fc94151fcc316a56456d727cc0d33c6ffd9a190028"
     },
     "scripts/ci/expanded604-apps6-public-pair-updater/adapter.py": {
-      "bytes": 5112,
-      "sha256": "ab771098df8af2ea90b738208156d75ba97aebeb7bfa4293d81a87ac3cb8da9e"
+      "bytes": 6696,
+      "sha256": "5abe064cf011b106c44bf349c6667d3f483f0508e10cdd86734d4e6e39840063"
     },
     "scripts/ci/expanded604-apps6-public-pair-updater/after604.lock": {
       "bytes": 11992,
@@ -745,8 +745,8 @@
       "sha256": "8ab31658941454cfbf286d9e30bdb3247a300f542a9df2adb444ac8b35410de4"
     },
     "scripts/ci/expanded604-apps6-public-pair-updater/test_lane.py": {
-      "bytes": 15421,
-      "sha256": "8a19bee6ccb5016357d1787af34cc101ab540f63771a5d7e0089f05b92f05c95"
+      "bytes": 20287,
+      "sha256": "92d8d037fc380670041d40b57106159a408d1d2128cc6766b9c7aac0b2f4d94c"
     },
     "scripts/ci/expanded604-apps6-public-pairs/README.md": {
       "bytes": 3360,
