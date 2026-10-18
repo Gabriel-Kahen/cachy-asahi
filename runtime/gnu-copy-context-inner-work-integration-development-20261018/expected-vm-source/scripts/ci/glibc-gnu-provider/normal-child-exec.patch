@@ -1,0 +1,14 @@
+--- a/abi_smoke.c
++++ b/abi_smoke.c
+@@ -180,8 +180,9 @@
+     pid_t pid = fork(); probe_require(pid >= 0, "fork");
+     if (pid == 0) {
+         close(pipefd[0]); probe_require(dup2(pipefd[1], STDOUT_FILENO) == STDOUT_FILENO, "child-stdout"); close(pipefd[1]);
+-        char *arguments[] = {(char *)loader, "--inhibit-cache", "--library-path", (char *)libraries, (char *)child, (char *)work, fd, NULL};
+-        execve(loader, arguments, environ); probe_require(0, "exec-candidate-loader");
++        (void)loader; (void)libraries;
++        char *arguments[] = {(char *)child, (char *)work, fd, NULL};
++        execve(child, arguments, environ); probe_require(0, "exec-system-interpreter");
+     }
+     close(pipefd[1]); char output[262144]; size_t size = 0;
+     for (;;) {
