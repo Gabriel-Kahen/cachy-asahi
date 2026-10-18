@@ -27,7 +27,8 @@ class Controls(unittest.TestCase):
      self.assertIn('for stage in '+repr((selected,))+':',managed);self.assertIn('present_count',managed);self.assertIn('time.monotonic() + 1300',runtime);self.assertIn('signal.ITIMER_REAL, 1750',runtime);self.assertIn('TimeoutStartSec=1200',fixture);self.assertIn("DL.service_lease()['deadline_ns']",guest);self.assertIn("os.sysconf('SC_PAGE_SIZE')==16384",guest);self.assertIn('installed604_preserved',guest);self.assertIn('elf_audit.py --root',fixture);self.assertIn("DL.validate(finals[0]",(runner/'contract.py').read_text());self.assertNotIn('hosted.fetch',runtime)
      self.assertIn('independent-installed-public-pairs-apps6-current604-management-generic16k-profile',runtime)
      self.assertIn('context604.selection(base,expected)',runtime);self.assertNotIn("all(expected.get(n)==v for n,v in base.items())",runtime)
-     for filename,source in (('doctor_lifetime.py','scripts/ci/welcome-management-native/doctor_lifetime.py'),('a11y_driver.c','scripts/ci/welcome-management-native/a11y_driver.c'),('file_capabilities.py','scripts/apps/file_capabilities.py')):self.assertEqual((runner/filename).read_bytes(),(ROOT/source).read_bytes())
+     for filename,source in (('doctor_lifetime.py','scripts/ci/welcome-management-native/doctor_lifetime.py'),('a11y_driver.c','scripts/ci/welcome-management-native/a11y_driver.c'),('file_capabilities.py','scripts/apps/file_capabilities.py')):
+      original=(ROOT/source).read_bytes();self.assertEqual((runner/filename).read_bytes(),A.peer_focus_driver(original) if filename=='a11y_driver.c' else original)
  def test_failed_controller_exports_only_fixed_bounded_original_build_log_without_authority(self):
   for log_name in ('runtime-image.log','qemu-tooling-image.log'):
    # Execute the actual derived owner.main failure/finally path. Every producer,
@@ -325,6 +326,32 @@ class LauncherClockControls(unittest.TestCase):
    f,calls=self.clock('cachy_asahi_public_pair_epoch=1792288000',after=after)
    with self.assertRaisesRegex(ValueError,'handoff failed'):f()
    self.assertEqual(len(calls),1)
+
+
+class PeerFocusControls(unittest.TestCase):
+ def setUp(self):
+  p=patch.object(subprocess,'Popen',side_effect=AssertionError('peer-focus source controls forbid actors'));p.start();self.addCleanup(p.stop)
+ def test_exact_lane_derivation_and_both_composed_profiles_hold_every_other_driver_byte(self):
+  raw=(ROOT/'scripts/ci/welcome-management-native/a11y_driver.c').read_bytes();derived=A.peer_focus_driver(raw);self.assertEqual(len(derived),20790);self.assertEqual(C.sha(derived),'e59b3767a6f4ca6009c2eab194946b84add16a06bcd7f3129993a29a53d84ebe');text=derived.decode()
+  for old,new in reversed(A.FOCUS_EDITS):self.assertEqual(text.count(new),1);text=text.replace(new,old)
+  self.assertEqual(text.encode(),raw);self.assertEqual(derived.count(b'atspi_component_grab_focus(peer_component, &error)'),1);self.assertEqual(derived.count(b'g_get_monotonic_time() + 2 * G_USEC_PER_SEC'),1);self.assertIn(b'alarm(20); atspi_set_timeout(1000, 1000)',derived)
+  for selected in C.PROFILES:
+   with self.subTest(profile=selected),tempfile.TemporaryDirectory()as td:
+    runner=Controls().generated(Path(td),selected);self.assertEqual((runner/'a11y_driver.c').read_bytes(),derived);self.assertIn('initialize_launcher_clock()',(runner/'base_guest.py').read_text())
+ def test_whole_historical_driver_and_deadline_peer_guard_tamper_refuse(self):
+  raw=(ROOT/'scripts/ci/welcome-management-native/a11y_driver.c').read_bytes()
+  for changed in(raw+b' ',raw.replace(b'2 * G_USEC_PER_SEC',b'3 * G_USEC_PER_SEC'),raw.replace(b'peer_matches == 1',b'peer_matches >= 1')):
+   with self.assertRaises(ValueError):A.peer_focus_driver(changed)
+ def held_semantic(self,name):
+  # Compile only the exact held pure assertion and its ordinary data helper.
+  # This avoids loading unrelated GUI/producer test actors or replacing predicates.
+  import base64
+  M=C.module('_peer_focus_held_management_contract','scripts/ci/welcome-management-native/management_contract.py')
+  path='scripts/ci/welcome-management-native/test_gui.py';raw=(ROOT/path).read_bytes();self.assertEqual(dict(bytes=len(raw),sha256=C.sha(raw)),C.pins()[path]);tree=ast.parse(raw);klass=next(n for n in tree.body if isinstance(n,ast.ClassDef)and n.name=='Semantics');klass.body=[n for n in klass.body if isinstance(n,ast.FunctionDef)and n.name==name];self.assertEqual(len(klass.body),1)
+  ui=next(n for n in tree.body if isinstance(n,ast.Assign)and any(isinstance(x,ast.Name)and x.id=='UI'for x in n.targets));helper=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='scroll_proof');scope=dict(C=M,copy=copy,base64=base64,unittest=unittest);exec(compile(ast.Module(body=[ui,helper,klass],type_ignores=[]),'<exact-held-peer-focus-semantic-controls>','exec'),scope);scope['Semantics'](name).__getattribute__(name)()
+ def test_held_disabled_target_enabled_same_panel_peer_and_focus_refusals(self):self.held_semantic('test_disabled_button_visibility_requires_owned_enabled_same_panel_peer')
+ def test_held_genuine_component_geometry_and_target_focus_refusals(self):self.held_semantic('test_visibility_requires_genuine_component_or_unclipped_or_focused_geometry')
+ def test_held_clipped_sentinel_hidden_foreign_and_window_refusals(self):self.held_semantic('test_false_scroll_cannot_hide_clipping_sentinel_missing_owner_or_window')
 
 
 if __name__=='__main__':unittest.main(verbosity=2)
