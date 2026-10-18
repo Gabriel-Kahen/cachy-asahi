@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Finite public-pair routing/source/WF guards; no actual authorities or actors."""
-import ast,json,subprocess,sys,tempfile,unittest
+import ast,json,os,subprocess,sys,tempfile,unittest
 from pathlib import Path
 from unittest.mock import patch
 import contract as C
@@ -24,6 +24,8 @@ class Wiring(unittest.TestCase):
   old=C.ROOT/'scripts/ci/current604-apps6-updater16k'
   for name in ('guest.py','disk.py','vm.py','cap_scope.py','kernel_job.py','retain16k.py','job.py'):
    a,b=(old/name).read_bytes(),(C.HERE/name).read_bytes()
+   if name=='kernel_job.py':
+    tree=ast.parse(b);tree.body=[n for n in tree.body if not(isinstance(n,ast.FunctionDef) and n.name=='home_failure')];b=ast.unparse(tree).encode()
    nums=lambda raw:[n.value for n in ast.walk(ast.parse(raw)) if isinstance(n,ast.Constant) and type(n.value) in (int,float)]
    self.assertEqual(nums(a),nums(b),name)
   self.assertEqual((old/'cap_scope.py').read_bytes(),(C.HERE/'cap_scope.py').read_bytes())
@@ -34,4 +36,35 @@ class Wiring(unittest.TestCase):
     p=root/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(b'inert failure' if name.endswith('.log') else C.encoded(dict(status='FAIL',scope='INERT_ONLY')))
    absent=Path(dest)/'absent';r=T.retain(root,Path(dest)/'public',dict(status='NOT_RUN'),'a'*40,'normal',absent,absent,absent)
    self.assertEqual(r['status'],'ORIGINALS_RETAINED_NOT_ACCEPTED');self.assertFalse(r['proof_complete']);self.assertLessEqual(sum(p.stat().st_size for p in (Path(dest)/'public').rglob('*') if p.is_file()),8*1024**2)
+ def fixture(self,base):
+  work=base/'managed-gui16k-kernel';work.mkdir(mode=0o700);(work/'helper/built').mkdir(parents=True)
+  C.save(work/'helper/built/build-receipt.json',dict(status='BUILT_ONLY'));C.save(work/'wiring-owner.json',dict(source='a'*40,case='normal',identity=[work.stat().st_dev,work.stat().st_ino]))
+  output=base/'absent-output';home=base/'absent-output-job-home';home.mkdir(mode=0o700)
+  C.save(home/'child.json',dict(status='WAIT_RETURNED',source='a'*40,case='normal',child=dict(group_absence_verified=True)))
+  return work,output,home
+ def test_shallow_runtime_contract_import_has_no_invented_source(self):
+  space=dict(__file__='/workspace/contract.py');exec(compile((C.HERE/'contract.py').read_bytes(),'/workspace/contract.py','exec'),space)
+  self.assertEqual(space['HERE'],Path('/workspace'));self.assertIsNone(space['ROOT']);self.assertEqual(C.ROOT,C.HERE.parents[2])
+  with self.assertRaisesRegex(ValueError,'UNBOUND'):space['need'](False,'UNBOUND')
+ def test_real_owned_cleanup_exact_child_completes(self):
+  with tempfile.TemporaryDirectory()as tmp:
+   work,output,home=self.fixture(Path(tmp));self.assertEqual(kernel_job.cleanup(work,output,'a'*40,'normal')['status'],'PASS_OWNED_KERNEL_WORK_REMOVED');self.assertFalse(work.exists());self.assertFalse(home.exists())
+ def test_unknown_home_refuses_before_kernel_deletion_and_projects_no_names(self):
+  with tempfile.TemporaryDirectory()as tmp:
+   work,output,home=self.fixture(Path(tmp));unknown=home/'PRIVATE-ARBITRARY-NAME';unknown.write_bytes(b'untouched original bytes');before=C.row(unknown)
+   with self.assertRaisesRegex(ValueError,'exact owned job HOME closure'):kernel_job.cleanup(work,output,'a'*40,'normal')
+   self.assertTrue(work.exists());self.assertEqual(C.row(unknown),before);self.assertTrue((home/'child.json').exists())
+   row=kernel_job.home_failure(home);self.assertEqual(row['counts'],dict(child_record=1,unexpected=1));self.assertEqual(row['group_absence'],'VERIFIED');self.assertNotIn('PRIVATE',C.encoded(row).decode());self.assertNotIn('untouched',C.encoded(row).decode())
+   receipt=Path(tmp)/'kernel-cleanup.json';C.save(receipt,dict(status='FAIL',job_home_diagnostic=row));absent=Path(tmp)/'absent'
+   retained=T.retain(Path(tmp),Path(tmp)/'retained',{},'a'*40,'normal',receipt,absent,absent)
+   self.assertEqual(retained['kernel_cleanup']['value']['job_home_diagnostic'],row);self.assertFalse(retained['proof_complete']);self.assertIn('NOT_ADMISSIBLE',retained['completion'])
+ def test_uncertain_original_child_and_alias_stay_retained(self):
+  with tempfile.TemporaryDirectory()as tmp:
+   work,output,home=self.fixture(Path(tmp));child=C.decode(C.read(home/'child.json'));child['child']['group_absence_verified']=False;C.save(home/'child.json',child)
+   with self.assertRaisesRegex(ValueError,'GROUP_UNKNOWN'):kernel_job.cleanup(work,output,'a'*40,'normal')
+   self.assertTrue(work.exists());self.assertEqual(kernel_job.home_failure(home)['group_absence'],'UNKNOWN')
+   child['child']['group_absence_verified']=True;C.save(home/'child.json',child);(home/'unknown-alias').symlink_to(work)
+   with self.assertRaisesRegex(ValueError,'exact owned job HOME closure'):kernel_job.cleanup(work,output,'a'*40,'normal')
+   self.assertTrue(work.exists());self.assertTrue((home/'unknown-alias').is_symlink());self.assertEqual(kernel_job.home_failure(home)['types']['symlink'],1)
+
 if __name__=='__main__':unittest.main(verbosity=2)

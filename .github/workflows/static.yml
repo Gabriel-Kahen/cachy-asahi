@@ -14,9 +14,9 @@ jobs:
       - name: Install test prerequisites on disposable runner
         run: |
           sudo apt-get update
-          sudo apt-get install --no-install-recommends -y bash fish zsh vim build-essential clang lld gnupg libarchive-tools pacman-package-manager makepkg e2fsprogs network-manager
+          sudo apt-get install --no-install-recommends -y bash fish zsh vim build-essential clang lld gnupg libarchive-tools pacman-package-manager makepkg e2fsprogs network-manager pkg-config libgtk-3-dev
           for tool in bash fish zsh vim cc clang ld.lld gpg gpgconf repo-add bsdtar vercmp pacman mkfs.ext4 debugfs nmcli; do command -v "$tool"; done
-          dpkg-query -W bash fish zsh vim build-essential clang lld gnupg libarchive-tools pacman-package-manager makepkg e2fsprogs network-manager
+          dpkg-query -W bash fish zsh vim build-essential clang lld gnupg libarchive-tools pacman-package-manager makepkg e2fsprogs network-manager pkg-config libgtk-3-dev
       - name: Verify packaged setup source and sync boundaries
         env:
           PYTHONDONTWRITEBYTECODE: '1'
@@ -153,6 +153,16 @@ jobs:
           bash -n scripts/ci/maintained574-active-trial/ci_sequence.sh
       - name: Check read-only diagnostic product fixtures
         run: python3 -B -Werror::ResourceWarning packages/tools/cachy-asahi-doctor/test_doctor.py
+      - name: Check default native Apps parser experiment without actors
+        run: |
+          python3 -I -B scripts/ci/apps7-parser-native/job.py preflight --source "$PWD"
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/apps7-parser-native -p test_lane.py -v
+      - name: Build and check Welcome stored DNS discovery
+        run: |
+          work=$(mktemp -d)
+          trap 'rm -rf -- "$work"' EXIT
+          cp -a packages/tools/cachy-asahi-welcome5 "$work/recipe"
+          make -C "$work/recipe" RECIPE_ROOT="$PWD/packages/tools/cachy-asahi-welcome5" check
       - name: Check current Welcome2 package source and payload contract
         run: python3 -B packages/tools/cachy-asahi-welcome/check_source.py --root packages/tools/cachy-asahi-welcome
       - name: Check combined managed desktop app workflow without actors

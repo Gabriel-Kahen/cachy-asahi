@@ -1,0 +1,87 @@
+{
+  "files": {
+    "scripts/ci/apps7-parser-native/README.md": {
+      "bytes": 3743,
+      "sha256": "d3e2e4771a76f37039061db6eaf10588dc0d4265f8d220a253224d573859c139"
+    },
+    "scripts/ci/apps7-parser-native/apps_inventory_parser.py": {
+      "bytes": 8708,
+      "sha256": "425800d46abf90534c48664d199b8ad14b4e2b47b1272b9a2a4b5c81cd1cba8b"
+    },
+    "scripts/ci/apps7-parser-native/baseline-inventory.py": {
+      "bytes": 13160,
+      "sha256": "986c8baea2921cf3f58f98c2e76a1adad9013fbe4b1f47743d12397e9e6c2516"
+    },
+    "scripts/ci/apps7-parser-native/candidate-inventory.py": {
+      "bytes": 13206,
+      "sha256": "68f9b0bc6bd5c494ebfc10bdc1e243c014d7fa8e56b1386491b75cdb9ee2e3df"
+    },
+    "scripts/ci/apps7-parser-native/contract.py": {
+      "bytes": 7133,
+      "sha256": "f54aa3c843a3818be1cb8aa88e754567a942f5f5e885deac29eb38b844a618a2"
+    },
+    "scripts/ci/apps7-parser-native/default-input-policy.json": {
+      "bytes": 1134,
+      "sha256": "f1a708b1331d87c65b8cfae35e70be1d77a77b9ae944d68d6ec923b10bffa099"
+    },
+    "scripts/ci/apps7-parser-native/infrastructure-pins.json": {
+      "bytes": 901,
+      "sha256": "191e1ddbfda525777fab6d9ee38584d2fed9e10b75a314d2cadd7c8794bd57aa"
+    },
+    "scripts/ci/apps7-parser-native/input-policy.json": {
+      "bytes": 1134,
+      "sha256": "f1a708b1331d87c65b8cfae35e70be1d77a77b9ae944d68d6ec923b10bffa099"
+    },
+    "scripts/ci/apps7-parser-native/job.py": {
+      "bytes": 4320,
+      "sha256": "8ae180ceea41ac348bc285a4ce638e14055a09701266d46f2cc278c500daf6a1"
+    },
+    "scripts/ci/apps7-parser-native/prepare.py": {
+      "bytes": 3376,
+      "sha256": "3c1e79a7d68a9848e55b35613f976ff09ed72430ab2da764529d661f456b17d4"
+    },
+    "scripts/ci/apps7-parser-native/run.py": {
+      "bytes": 4567,
+      "sha256": "1152f230ca0df06e616db6527e1900afc13101002198e5da9867b7bc076e2403"
+    },
+    "scripts/ci/apps7-parser-native/test_lane.py": {
+      "bytes": 7176,
+      "sha256": "3d3393c8898d5397f00b8fd454f064c157618cd43314baefd16e094e989c5989"
+    },
+    "scripts/ci/apps7-parser-native/worker.py": {
+      "bytes": 9093,
+      "sha256": "612d0c80b903ebed0ab6d19a9f7b561c861588206a1903cc1680e11fa03cec7e"
+    },
+    "scripts/ci/apps7-parser-native/workflow.yml.in": {
+      "bytes": 7009,
+      "sha256": "8448c5615d59348b09c6f230626707a14bd6130e5ace5f42ce6d352ee57625d5"
+    },
+    "scripts/ci/glibc-owned-runtime/runner.py": {
+      "bytes": 16274,
+      "sha256": "4d9aa954d95032ab9ea9085ced784efc81a5db42e2f1f3401e679ee861c16090"
+    },
+    "scripts/ci/maintained-desktop574-inputs.json": {
+      "bytes": 623664,
+      "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+    },
+    "scripts/ci/maintained_desktop574.py": {
+      "bytes": 22367,
+      "sha256": "27ba4be42cf2bd41675073e07cccc917ae033f9d68b07a33cfd7f074ac27b760"
+    },
+    "scripts/ci/old_four_seed.py": {
+      "bytes": 29048,
+      "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
+    },
+    "scripts/ci/tools-native/job.py": {
+      "bytes": 13110,
+      "sha256": "67dc1b888974303e59aa5d68cc68cfd362c3d0fe730ef93585121d69ac6aab1c"
+    },
+    "scripts/ci/welcome-native/ci/caller.py": {
+      "bytes": 8363,
+      "sha256": "cf80f438eff180b73ae9676e2145b56ba6a358fd9a69bb219e0a7a6f53ff01df"
+    }
+  },
+  "native": "NOT_RUN",
+  "schema_version": 1,
+  "scope": "READONLY_NATIVE_ARM_ACTUAL574_PARSER_MICROBENCHMARK"
+}
