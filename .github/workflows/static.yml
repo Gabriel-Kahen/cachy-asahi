@@ -349,6 +349,10 @@ jobs:
           ref: 5051663cf191e40bdbb3b03e2d62748f69b6afb1
           path: .ci-inputs/repair-native-baseline
           persist-credentials: false
+      - name: Check default Apps7 full574 repair source without public inputs or actors
+        run: |
+          python3 -B scripts/ci/apps7-full574-repair-native/prepare.py --source "$PWD" --native-source "$PWD/.ci-inputs/repair-native-baseline" --output "$RUNNER_TEMP/apps7-full574-repair"
+          python3 -B -Werror::ResourceWarning -m unittest discover -s "$RUNNER_TEMP/apps7-full574-repair/scripts/ci/apps7-full574-repair-native" -p 'test*.py' -v
       - name: Assemble full574 repair16K from separate frozen and current sources
         run: |
           python3 -B scripts/ci/apps-full574-repair16k/prepare.py --source "$PWD" --native-source "$PWD/.ci-inputs/repair-native-baseline" --output "$RUNNER_TEMP/repair16k-bridge"
