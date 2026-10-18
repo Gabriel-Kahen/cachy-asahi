@@ -15,6 +15,9 @@ def workflow(raw):
  text=raw.decode();old='native-arm-apps-full574-repair';need(text.count(old)>=2,'original native workflow name/group')
  text=text.replace(old,'native-arm-apps7-full574-repair')
  need(text.count(OLD)==1,'one explicit workflow slice');text=text.replace(OLD,NEW)
+ # Only this longer cumulative test harness changes; product600/caller610 held.
+ for old,new in (("    timeout-minutes: 120","    timeout-minutes: 142"),("        timeout-minutes: 60","        timeout-minutes: 82"),("--kill-after=30s 3550s","--kill-after=30s 4870s")):
+  need(text.count(old)==1,'one exact cumulative harness profile seam: '+old);text=text.replace(old,new)
  return text.encode()
 
 def emit(root,output,native_source=None):
