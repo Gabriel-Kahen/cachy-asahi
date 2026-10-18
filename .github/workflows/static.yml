@@ -110,6 +110,12 @@ jobs:
           python3 -I -B "$RUNNER_TEMP/gnu-verity-boot-default-source/scripts/ci/gnu-verity-kernel-boot-probe/entry.py" check-source --source "$RUNNER_TEMP/gnu-verity-boot-default-source"
           python3 -I -B "$RUNNER_TEMP/gnu-verity-boot-default-source/scripts/ci/gnu-verity-kernel-boot-probe/test_entry.py"
           python3 -I -B -Werror::ResourceWarning scripts/ci/gnu-verity-kernel-boot-probe-source/test_prepare.py
+      - name: Emit standalone GNU verity mapping smoke NULL default source without actors
+        run: |
+          python3 -I -B scripts/ci/gnu-verity-mapping-smoke-source/prepare.py --own "$PWD" --output "$RUNNER_TEMP/gnu-verity-mapping-default-source"
+          python3 -I -B "$RUNNER_TEMP/gnu-verity-mapping-default-source/scripts/ci/gnu-verity-mapping-smoke/entry.py" check-source --source "$RUNNER_TEMP/gnu-verity-mapping-default-source"
+          python3 -I -B "$RUNNER_TEMP/gnu-verity-mapping-default-source/scripts/ci/gnu-verity-mapping-smoke/test_entry.py"
+          python3 -I -B -Werror::ResourceWarning scripts/ci/gnu-verity-mapping-smoke-source/test_prepare.py
       - name: Checkout whole copied606 code basis for optional KSM source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -131,7 +137,7 @@ jobs:
       - name: Checkout whole frozen KSM hosted runtime without activation
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          ref: fa180203f6668073e2aeb727f8e9f5e85ef6c0f9
+          ref: 38839694f78d3929da1735642d8b9e117708612c
           path: .ci-inputs/ksm2-hosted-runtime
           persist-credentials: false
       - name: Emit and check default KSM hosted source without component activation
@@ -643,6 +649,18 @@ jobs:
           python3 -B scripts/ci/asahi-rust-lv2-offline/test_container.py
           python3 -B scripts/ci/asahi-rust-lv2-offline/test_run.py
           python3 -B scripts/ci/asahi-rust-lv2-offline/test_job.py
+      - name: Checkout exact immutable GNU runtime667 source without activation
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: c8886e2ddb2c224750e5da4f3ac35d4c3a6c8d72
+          path: .ci-inputs/gnu-immutable-runtime667
+          persist-credentials: false
+      - name: Check maintained GNU immutable deployment source and NULL gates without actors
+        run: |
+          set -euo pipefail
+          python3 -I -B scripts/ci/gnu-immutable-source-native/prepare.py --runtime "$GITHUB_WORKSPACE/.ci-inputs/gnu-immutable-runtime667" --output "$RUNNER_TEMP/gnu-immutable-default"
+          python3 -I -B "$RUNNER_TEMP/gnu-immutable-default/scripts/ci/gnu-immutable-source-native/entry.py" source --source "$RUNNER_TEMP/gnu-immutable-default"
+          python3 -I -B "$RUNNER_TEMP/gnu-immutable-default/scripts/ci/gnu-immutable-source-native/test_deployment.py" --source "$RUNNER_TEMP/gnu-immutable-default"
       - name: Inspect recipes without sourcing them
         run: python3 scripts/checks/package_checks.py recipes --require-recipes
       - name: Check recipe syntax without executing it
