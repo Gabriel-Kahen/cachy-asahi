@@ -76,6 +76,10 @@ jobs:
           python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-dns/test_dns.py
           python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-sysctl/test_sysctl.py
           bash -n packages/tools/cachy-asahi-dns/PKGBUILD packages/tools/cachy-asahi-sysctl/PKGBUILD
+      - name: Check saved sysctl experiment discovery without host changes
+        run: |
+          python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-sysctl2/test_sysctl.py
+          bash -n packages/tools/cachy-asahi-sysctl2/PKGBUILD
       - name: Exercise release and client contracts without skipped tests
         env:
           PYTHONDONTWRITEBYTECODE: '1'
