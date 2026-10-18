@@ -1,0 +1,26 @@
+{
+  "binding": {
+    "decision_carrier_source": "4828dde937a8c6305331208b09e61342e6d911ed",
+    "decisions": {
+      "normal": {
+        "bytes": 1731,
+        "path": "payload/normal.json",
+        "sha256": "60bb85b4f9c57454266b237e6fbb7ec0ef8b4128e653cd35d81d7e6c391e9888"
+      },
+      "postcommit-exit87": {
+        "bytes": 1836,
+        "path": "payload/postcommit-exit87.json",
+        "sha256": "204b55d930b1d09ae43393cbe46614a8656a978d338c251a2025f3cc029917ac"
+      },
+      "precommit-exit86": {
+        "bytes": 1753,
+        "path": "payload/precommit-exit86.json",
+        "sha256": "8883379ca5726926f2c44b71871ccd090ab03968c0872c7757116c22376d73bc"
+      }
+    },
+    "updater_manifest_sha256": "ec9a759bbb5be161a0a77c2983e731c3b09e71b33688a2ecdf54abce9d1ba41b",
+    "updater_source": "37d9ffa166e0d7262ef8afab56baa0b3ea060b22"
+  },
+  "schema_version": 1,
+  "status": "ROOT_BOUND_PUBLIC_PAIRS_APPS6_CURRENT604_UPDATER16K"
+}
