@@ -1,0 +1,54 @@
+{
+  "baseline_retired_before_candidate": true,
+  "commands": [
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/home/runner/work/_temp/ksm2-kernel-work/baseline/build_kernel.py",
+        "--archive",
+        "/home/runner/work/_temp/ksm2-kernel-work/inputs/kernel.tar.gz",
+        "--output",
+        "/home/runner/work/_temp/ksm2-kernel-work/baseline/built",
+        "--configure-only",
+        "--boot-diagnostics"
+      ],
+      "exit_code": 0,
+      "group_absence_verified": true,
+      "output_limit": 16777216,
+      "seconds": 31.499992,
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "time_limit": 300
+    },
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/home/runner/work/_temp/ksm2-kernel-work/helper/build_kernel.py",
+        "--archive",
+        "/home/runner/work/_temp/ksm2-kernel-work/inputs/kernel.tar.gz",
+        "--output",
+        "/home/runner/work/_temp/ksm2-kernel-work/helper/built",
+        "--build",
+        "--boot-diagnostics"
+      ],
+      "exit_code": 0,
+      "group_absence_verified": true,
+      "output_limit": 16777216,
+      "seconds": 482.54869,
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 6955,
+      "stdout_sha256": "f8c74cfdc438703b0cadbd465bde5f64b5cdcd78358f593f2ea2075f3911f4e7",
+      "time_limit": 3663
+    }
+  ],
+  "controller_seconds": 3700,
+  "seconds": 518.764127,
+  "status": "PASS_NATURAL_KERNEL_HELPERS"
+}
