@@ -1,0 +1,22 @@
+Original cachy-asahi desktop configuration and package recipe.
+Copyright (c) 2026 cachy-asahi contributors
+Licensed under the MIT License; the complete grant is in LICENSE.
+
+No CachyOS configuration, scripts, themes, fonts, wallpapers, or license text is
+bundled. The CachyOS recipe and v1.4.4 assets were inspected, not reused.
+The upstream assets have unresolved license evidence; this grant does not
+relicense them. The original candidate is not a feature-equivalent CachyOS bundle.
+
+Hyprland v0.56.2's example and published Lua API were used as API references:
+https://github.com/hyprwm/Hyprland/tree/efb50993780079460b0cbed1363e2166a2de1d9f
+The upstream compositor is BSD-3-Clause. No compositor code is bundled here.
+Local source/package checks do not establish ARM builds or Asahi/M2 compatibility.
+
+The original cachy-asahi-screenshot helper is also covered by this package's MIT
+License. It invokes separately installed upstream tools; no grim/slurp code or
+binaries are bundled. CLI/license/dependency audit references:
+- grim v1.5.0, b7a99854e46945db9f50ba8d2417ac42321173d1 (MIT):
+  https://gitlab.freedesktop.org/emersion/grim/-/tree/b7a99854e46945db9f50ba8d2417ac42321173d1
+- slurp v1.5.0, fc921b603ee02afff42aba9eb073e82fab900048 (MIT):
+  https://github.com/emersion/slurp/tree/fc921b603ee02afff42aba9eb073e82fab900048
+Pinned API inspection is not a build, installation, capture or M2 test.
