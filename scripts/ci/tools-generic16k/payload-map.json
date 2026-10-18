@@ -107,9 +107,9 @@
       "kind": "EXACT_MAPPED_SOURCE_PAYLOAD_NOT_PACKAGE_INSTALL",
       "payload": {
         "usr/bin/cachy-asahi-mirrors": {
-          "bytes": 24149,
+          "bytes": 24195,
           "mode": 493,
-          "sha256": "7062330db1b4a13659d724d24077dc021c4f2bbabd1412bb9f9cd364da9feac7",
+          "sha256": "b31c0021ab00ad6bca01a139f5887a467f587c9205ce79c9451312d150eb7dcd",
           "source": "packages/tools/cachy-asahi-mirrors/cachy-asahi-mirrors"
         },
         "usr/share/doc/cachy-asahi-mirrors/README.md": {
