@@ -35,6 +35,19 @@ def readback_fresh_mount(raw,source):
  after="spec=importlib.util.spec_from_file_location('current604_owned_capabilities',path);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)\n    m._mount=_mount600(m._mount)\n    return m"
  text=C.one(text,before,after);ast.parse(text);return text.encode()
 
+READBACK_DIRECTORY = 'def _relative604(name):\n    need(type(name) is str and bool(name) and \'\\0\' not in name, \'invalid package path\')\n    # PurePosixPath canonical spelling, without allocating a path per payload.\n    # The original helper also accepts the lone \'.\' spelling; preserve it.\n    need(not name.startswith(\'/\') and (name==\'.\' or all(p not in (\'\',\'.\',\'..\') for p in name.split(\'/\'))), \'unsafe package path\')\n    return name\n\n\n@contextmanager\ndef _directory604(root,name):\n    """Same fresh nofollow directory checks; no identity, path or descriptor cache."""\n    root=Path(root);spelling=os.fspath(root)\n    need(os.path.isabs(spelling) and \'..\' not in spelling.split(\'/\'), \'absolute database root required\')\n    need(os.path.realpath(spelling,strict=True)==spelling, \'database root alias refused\')\n    current=spelling\n    while True:\n        need(not os.path.islink(current), \'database root alias refused\')\n        parent=os.path.dirname(current)\n        if parent==current:break\n        current=parent\n    fds=[os.open(spelling,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC)]\n    device=os.fstat(fds[0]).st_dev\n    try:\n        for component in _relative604(name).split(\'/\'):\n            fd=os.open(component,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=fds[-1])\n            fds.append(fd);need(os.fstat(fd).st_dev==device,\'database mount crossing refused\')\n        yield fds[-1]\n    finally:\n        for fd in reversed(fds):os.close(fd)\n'
+
+def readback_path_hotpath(raw,source):
+ """Equivalent fresh root/path traversal; the complete observation stays held."""
+ C.need(len(raw)==12555 and C.sha(raw)=='9cafcc1d390a50140e5c6c102c40896703f8cb98dd29a22545c629e60df018b8','whole fresh-mount readback required')
+ db=C.read(source/'scripts/ci/full-root-upgrade/root_upgrade.py')
+ C.need(len(db)==23555 and C.sha(db)=='fe1232ae6b510021910b4fb80016ac3b4668c6e4386cdae45e7b95196e400756','whole original readback database helper required')
+ helper=READBACK_DIRECTORY
+ text=C.one(raw.decode(),'def load_db(path):',helper+'\n\ndef load_db(path):')
+ before="    spec=importlib.util.spec_from_file_location('managed604_actual_alpm',path);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m"
+ after="    raw=path.read_bytes();need(len(raw)==23555 and digest(raw)=='fe1232ae6b510021910b4fb80016ac3b4668c6e4386cdae45e7b95196e400756','whole original readback database helper required')\n    spec=importlib.util.spec_from_file_location('managed604_actual_alpm',path);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)\n    m.relative=_relative604;m.directory=_directory604;return m"
+ text=C.one(text,before,after);ast.parse(text);return text.encode()
+
 BASE=C.module('_profile604_original_adapter',C.OLD+'/adapter.py',{'contract':C},lambda text:C.one(text,"C.HERE/'installed604.py'","source/C.OLD/'installed604.py'"))
 
 def prepare(source,output,assets,ready,selected):
@@ -68,7 +81,7 @@ def prepare(source,output,assets,ready,selected):
  guest=C.one(guest,'        EVENTS.chmod(0o600)','        EVENTS.chmod(0o600)\n        initialize_launcher_clock()')
  path.write_text(guest)
  driver=output/'a11y_driver.c';driver.write_bytes(peer_focus_driver(driver.read_bytes()))
- helper=output/'installed604.py';helper.write_bytes(readback_fresh_mount(readback_progress(helper.read_bytes()),source))
+ helper=output/'installed604.py';helper.write_bytes(readback_path_hotpath(readback_fresh_mount(readback_progress(helper.read_bytes()),source),source))
  proof=C.json_read(output/'runner-proof.json');proof.update(profile=selected,scope='ONE_PROFILE_NOT_FULL60416K_ACCEPTANCE',files={p.name:dict(bytes=len(C.read(p)),sha256=C.sha(C.read(p))) for p in output.iterdir() if p.is_file() and p.name not in ('runner-proof.json','candidate-lock.json')});C.save(output/'runner-proof.json',proof)
  for path in output.glob('*.py'):ast.parse(path.read_bytes())
  return output
