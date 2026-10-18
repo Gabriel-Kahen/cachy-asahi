@@ -1,0 +1,411 @@
+#!/usr/bin/python3 -I
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (C) 2026 cachy-asahi contributors
+"""Explicit global KSM scanning experiments; restore scalars, never memory."""
+import argparse
+from contextlib import contextmanager
+import ctypes
+import fcntl
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import secrets
+import stat
+import sys
+import time
+
+KSM = Path('/sys/kernel/mm/ksm')
+BOOT = Path('/proc/sys/kernel/random')
+STORE = Path('/var/lib/cachy-asahi-ksm-experiments')
+NAME = re.compile(r'[a-z][a-z0-9-]{0,47}\Z')
+DIGEST = re.compile(r'[0-9a-f]{64}\Z')
+PHASES = {'PLANNED', 'APPLY_INTENT', 'APPLIED', 'UNDO_INTENT', 'UNDONE'}
+ACTIVE = {'APPLY_INTENT', 'APPLIED', 'UNDO_INTENT'}
+OPEN = os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC
+
+
+def need(ok, reason):
+    if not ok:
+        raise ValueError(reason)
+
+
+def encoded(value):
+    return (json.dumps(value, sort_keys=True, indent=2, allow_nan=False) + '\n').encode()
+
+
+def sha(raw):
+    return hashlib.sha256(raw).hexdigest()
+
+
+def identity(row):
+    return {k: getattr(row, 'st_' + k) for k in ('dev', 'ino', 'mode', 'uid', 'gid', 'nlink')}
+
+
+def file_identity(row):
+    return dict(identity(row), size=row.st_size, mtime_ns=row.st_mtime_ns, ctime_ns=row.st_ctime_ns)
+
+
+def store_identity(row):
+    # Named child directories legitimately change the store's link count.
+    return {k: v for k, v in identity(row).items() if k != 'nlink'}
+
+
+def private(row, mode):
+    need(row.st_uid == os.geteuid() and stat.S_IMODE(row.st_mode) == mode,
+         'state must be owned by this identity with exact private permissions')
+
+
+@contextmanager
+def directory(path, *, model=False):
+    """Keep every ancestor open and recheck its name before any later write."""
+    path = Path(path)
+    need(path.is_absolute() and '..' not in path.parts and str(path) == os.fspath(path),
+         'canonical absolute directory required')
+    handles = [os.open('/', os.O_RDONLY | os.O_DIRECTORY | OPEN)]
+    model_root_uid = os.fstat(handles[0]).st_uid
+    links = []
+    try:
+        for part in path.parts[1:]:
+            parent = handles[-1]
+            fd = os.open(part, os.O_RDONLY | os.O_DIRECTORY | OPEN, dir_fd=parent)
+            handles.append(fd)
+            row = os.fstat(fd)
+            # Only private test trees can pass through a root-owned sticky /tmp.
+            sticky = model and row.st_uid == model_root_uid and bool(row.st_mode & stat.S_ISVTX)
+            need(row.st_uid in ({model_root_uid, os.geteuid()} if model else {0})
+                 and (not row.st_mode & 0o022 or sticky), 'unsafe directory ancestor')
+            expected = {k: v for k, v in identity(row).items() if k != 'nlink'}
+            links.append((parent, part, fd, expected))
+        def check():
+            for parent, part, fd, expected in links:
+                for row in (os.fstat(fd), os.stat(part, dir_fd=parent, follow_symlinks=False)):
+                    need({k: v for k, v in identity(row).items() if k != 'nlink'} == expected,
+                         'directory ancestor or identity changed')
+        check()
+        yield handles[-1], check
+        check()
+    finally:
+        for fd in reversed(handles):
+            os.close(fd)
+
+
+def filesystem(fd):
+    # Linux fstatfs first member is a native long; overallocate its ABI buffer.
+    libc = ctypes.CDLL(None, use_errno=True)
+    buffer = ctypes.create_string_buffer(512)
+    need(libc.fstatfs(fd, buffer) == 0, 'filesystem identity unavailable')
+    return ctypes.c_long.from_buffer(buffer).value
+
+
+def scalar(fd):
+    os.lseek(fd, 0, os.SEEK_SET)
+    raw = os.read(fd, 65)
+    need(raw in (b'0\n', b'1\n', b'2\n'), 'malformed or unsupported KSM run value')
+    return int(raw)
+
+
+class Control:
+    """Production paths are fixed. A private model is available only to Python tests."""
+    def __init__(self, root=KSM, boot=BOOT, *, model=False):
+        self.root, self.boot, self.model = Path(root), Path(boot), model
+        need((not model and self.root == KSM and self.boot == BOOT)
+             or (model and all(p.is_absolute() and not any(p.is_relative_to(x)
+                  for x in (Path('/sys'), Path('/proc'))) for p in (self.root, self.boot))),
+             'only fixed live interfaces or private test models')
+
+    def generation(self):
+        with directory(self.boot, model=self.model) as (parent, check):
+            if self.model:
+                private(os.fstat(parent), 0o700)
+                need(filesystem(parent) not in (0x9fa0, 0x62656572), 'test model must not alias a live pseudo-filesystem')
+            fd = os.open('boot_id', os.O_RDONLY | OPEN, dir_fd=parent)
+            try:
+                before = identity(os.fstat(fd))
+                need(stat.S_ISREG(before['mode']) and before['nlink'] == 1
+                     and before['uid'] == (os.geteuid() if self.model else 0), 'unsafe boot interface')
+                if not self.model:
+                    need(filesystem(fd) == 0x9fa0, 'boot interface must be procfs')
+                raw = os.read(fd, 38)
+                need(re.fullmatch(rb'[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\n', raw),
+                     'malformed boot generation')
+                check()
+                need(before == identity(os.fstat(fd)) == identity(os.stat('boot_id', dir_fd=parent,
+                     follow_symlinks=False)), 'boot interface changed')
+                return sha(raw)
+            finally:
+                os.close(fd)
+
+    @contextmanager
+    def opened(self, write=False):
+        if not self.model:
+            need(os.geteuid() == 0, 'run all experiment steps as the same root identity; no automatic elevation')
+        with directory(self.root, model=self.model) as (parent, check):
+            if self.model:
+                private(os.fstat(parent), 0o700)
+                need(filesystem(parent) not in (0x9fa0, 0x62656572), 'test model must not alias a live pseudo-filesystem')
+            fd = os.open('run', (os.O_RDWR if write else os.O_RDONLY) | OPEN, dir_fd=parent)
+            try:
+                meta = identity(os.fstat(fd))
+                need(stat.S_ISREG(meta['mode']) and meta['nlink'] == 1
+                     and meta['uid'] == (os.geteuid() if self.model else 0)
+                     and not meta['mode'] & 0o6022, 'unsafe KSM run attribute')
+                if not self.model:
+                    need(filesystem(fd) == 0x62656572, 'KSM interface must be sysfs')
+                generation = self.generation()
+                binding = {'directory': identity(os.fstat(parent)), 'run': meta,
+                           'boot_sha256': generation, 'domain': 'PRIVATE_TEST_MODEL' if self.model else 'LIVE_SYSFS'}
+                def current():
+                    check()
+                    need(meta == identity(os.fstat(fd)) == identity(os.stat('run', dir_fd=parent,
+                         follow_symlinks=False)), 'KSM attribute identity changed')
+                    need(self.generation() == generation, 'boot generation changed')
+                    return scalar(fd)
+                current()
+                yield fd, binding, current
+                current()
+            finally:
+                os.close(fd)
+
+    def write(self, fd, current, before, after):
+        need(type(after) is int and after in (0, 1), 'only pause0 or scan1 writes are permitted')
+        need(current() == before, 'KSM changed before write; conflict preserved')
+        os.lseek(fd, 0, os.SEEK_SET)
+        raw = f'{after}\n'.encode()
+        # sysfs consumes the whole scalar in one store call; no truncate, fsync,
+        # st_size/regular-file EOF assumption or automatic write retry is valid.
+        need(os.write(fd, raw) == len(raw), 'short KSM write; durable intent retained')
+        need(current() == after, 'KSM readback differs; durable intent retained')
+
+
+def read_json(parent, name):
+    fd = os.open(name, os.O_RDONLY | OPEN, dir_fd=parent)
+    try:
+        before = os.fstat(fd)
+        private(before, 0o600)
+        need(stat.S_ISREG(before.st_mode) and before.st_nlink == 1 and 0 < before.st_size <= 16384,
+             'ordinary bounded single-link state required')
+        raw = os.read(fd, 16385)
+        need(len(raw) == before.st_size and file_identity(before) == file_identity(os.fstat(fd))
+             == file_identity(os.stat(name, dir_fd=parent, follow_symlinks=False)), 'state changed while reading')
+    finally:
+        os.close(fd)
+    def pairs(items):
+        value = {}
+        for key, item in items:
+            need(key not in value, 'duplicate state key')
+            value[key] = item
+        return value
+    value = json.loads(raw, object_pairs_hook=pairs, parse_constant=lambda _: need(False, 'nonfinite state'))
+    return value, raw
+
+
+def save(parent, name, value, check, previous=None):
+    raw = encoded(value)
+    need(len(raw) <= 16384, 'state size limit')
+    check()
+    if previous is not None:
+        need(read_json(parent, name)[1] == previous, 'state changed; existing data preserved')
+    temp = '.pending-' + secrets.token_hex(12)
+    fd = os.open(temp, os.O_WRONLY | os.O_CREAT | os.O_EXCL | OPEN, 0o600, dir_fd=parent)
+    try:
+        with os.fdopen(fd, 'wb') as stream:
+            stream.write(raw)
+            stream.flush()
+            os.fsync(stream.fileno())
+        check()
+        if previous is None:
+            os.link(temp, name, src_dir_fd=parent, dst_dir_fd=parent, follow_symlinks=False)
+        else:
+            need(read_json(parent, name)[1] == previous, 'state changed; existing data preserved')
+            os.replace(temp, name, src_dir_fd=parent, dst_dir_fd=parent)
+    finally:
+        try:
+            os.unlink(temp, dir_fd=parent)
+        except FileNotFoundError:
+            pass  # Successful rename consumed the temporary name.
+        os.fsync(parent)
+    return raw
+
+
+def names(parent, limit):
+    rows = []
+    with os.scandir(parent) as entries:
+        for entry in entries:
+            need(len(rows) < limit, 'state directory entry bound exceeded')
+            rows.append(entry.name)
+    return rows
+
+
+def checked(parent, name):
+    need(NAME.fullmatch(name), 'invalid experiment name')
+    need(set(names(parent, 2)) == {'plan.json', 'journal.json'}, 'incomplete or unexpected experiment state')
+    plan, raw = read_json(parent, 'plan.json')
+    journal, saved = read_json(parent, 'journal.json')
+    need(type(plan) is dict and set(plan) == {'schema_version', 'name', 'scope', 'baseline', 'desired', 'control', 'store'},
+         'exact experiment plan fields required')
+    need(type(plan['schema_version']) is int and plan['schema_version'] == 1 and plan['name'] == name
+         and plan['scope'] == 'GLOBAL_KSM_RUN_SCALAR_ONLY', 'experiment plan identity differs')
+    need(all(type(plan[k]) is int and plan[k] in (0, 1) for k in ('baseline', 'desired')), 'unrestorable plan value')
+    def meta(row, fields={'dev', 'ino', 'mode', 'uid', 'gid', 'nlink'}):
+        need(type(row) is dict and set(row) == fields
+             and all(type(v) is int and v >= 0 for v in row.values()), 'invalid identity fields')
+    meta(plan['store'], {'dev', 'ino', 'mode', 'uid', 'gid'})
+    control = plan['control']
+    need(type(control) is dict and set(control) == {'directory', 'run', 'boot_sha256', 'domain'}
+         and type(control['boot_sha256']) is str and DIGEST.fullmatch(control['boot_sha256'])
+         and control['domain'] in ('LIVE_SYSFS', 'PRIVATE_TEST_MODEL'), 'invalid control binding')
+    meta(control['directory']); meta(control['run'])
+    need(type(journal) is dict and set(journal) == {'schema_version', 'plan_sha256', 'phase'}
+         and type(journal['schema_version']) is int and journal['schema_version'] == 1
+         and journal['plan_sha256'] == sha(raw) and journal['phase'] in PHASES, 'journal/plan binding differs')
+    return plan, raw, journal, saved
+
+
+@contextmanager
+def store(path, name, *, create=False, model=False):
+    need(type(name) is str and NAME.fullmatch(name), 'name:1..48 lowercase letters/digits/hyphens starting with a letter')
+    path = Path(path)
+    if not model:
+        need(path == STORE and os.geteuid() == 0, 'fixed root-owned state store required')
+    with directory(path.parent, model=model) as (parent, ancestor):
+        if create:
+            try:
+                os.mkdir(path.name, 0o700, dir_fd=parent)
+                os.fsync(parent)
+            except FileExistsError:
+                pass
+        with directory(path, model=model) as (root, root_check):
+            private(os.fstat(root), 0o700)
+            need(filesystem(root) not in (0x9fa0, 0x62656572), 'state must not be on sysfs/procfs')
+            lock = os.open('.lock', os.O_RDWR | (os.O_CREAT if create else 0) | OPEN, 0o600, dir_fd=root)
+            child = None
+            try:
+                row = os.fstat(lock); private(row, 0o600)
+                need(stat.S_ISREG(row.st_mode) and row.st_nlink == 1, 'ordinary single-link state lock required')
+                fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                def check():
+                    ancestor(); root_check()
+                    need(identity(row) == identity(os.fstat(lock)) == identity(os.stat('.lock', dir_fd=root,
+                         follow_symlinks=False)), 'state lock identity changed')
+                check()
+                entries = names(root, 65)
+                need(all(n == '.lock' or NAME.fullmatch(n) for n in entries), 'invalid state-store name')
+                if create:
+                    need(name not in entries and len(entries) < 65, 'experiment already exists or64-entry limit')
+                    other_active(root, name)
+                    os.mkdir(name, 0o700, dir_fd=root); os.fsync(root)
+                child = os.open(name, os.O_RDONLY | os.O_DIRECTORY | OPEN, dir_fd=root)
+                row_child = os.fstat(child); private(row_child, 0o700)
+                def child_check():
+                    check()
+                    need(identity(row_child) == identity(os.fstat(child)) == identity(os.stat(name, dir_fd=root,
+                         follow_symlinks=False)), 'experiment directory changed')
+                child_check()
+                yield root, child, child_check
+                child_check()
+            finally:
+                if child is not None:
+                    os.close(child)
+                os.close(lock)
+
+
+def other_active(root, name):
+    for other in names(root, 65):
+        if other in ('.lock', name):
+            continue
+        fd = os.open(other, os.O_RDONLY | os.O_DIRECTORY | OPEN, dir_fd=root)
+        try:
+            private(os.fstat(fd), 0o700)
+            _, _, journal, _ = checked(fd, other)
+            need(journal['phase'] not in ACTIVE, 'another named experiment is active or uncertain; inspect/undo it first')
+        finally:
+            os.close(fd)
+
+
+def preview(control, state, name, desired):
+    need(type(desired) is int and desired in (0, 1), 'only explicit pause or resume-scanning')
+    with control.opened() as (_, binding, current):
+        baseline = current(); need(baseline in (0, 1), 'unmerge state2 cannot be a restorable baseline')
+        with store(state, name, create=True, model=control.model) as (root, fd, check):
+            plan = dict(schema_version=1, name=name, scope='GLOBAL_KSM_RUN_SCALAR_ONLY', baseline=baseline,
+                        desired=desired, control=binding, store=store_identity(os.fstat(root)))
+            raw = save(fd, 'plan.json', plan, check)
+            save(fd, 'journal.json', dict(schema_version=1, plan_sha256=sha(raw), phase='PLANNED'), check)
+            need(current() == baseline, 'KSM changed during preview; plan is stale')
+            return dict(name=name, phase='PLANNED', baseline=baseline, desired=desired, plan_sha256=sha(raw),
+                        kernel_write=False, scope=plan['scope'])
+
+
+def operate(control, state, name, action, digest=None):
+    need(action in ('inspect', 'apply', 'undo'), 'unsupported action')
+    deadline = time.monotonic() + 5
+    with store(state, name, model=control.model) as (root, fd, check):
+        plan, raw, journal, saved = checked(fd, name)
+        need(plan['store'] == store_identity(os.fstat(root)), 'state store identity differs')
+        if action != 'inspect':
+            need(type(digest) is str and DIGEST.fullmatch(digest) and digest == sha(raw), 'exact preview plan digest required')
+            other_active(root, name)
+        with control.opened(action != 'inspect') as (handle, binding, current):
+            need(plan['control'] == binding, 'control identity or boot differs; no write')
+            observed = current(); baseline, desired, phase = plan['baseline'], plan['desired'], journal['phase']
+            result = dict(name=name, phase=phase, current=observed, baseline=baseline, desired=desired,
+                          plan_sha256=sha(raw), scope=plan['scope'], kernel_write=False)
+            if action == 'inspect':
+                result.update(intent_uncertain=phase in ('APPLY_INTENT', 'UNDO_INTENT'),
+                              observation='SAMPLED_NOW_NOT_A_TRANSACTION_OR_MEMORY_ROLLBACK')
+                return result
+            if action == 'apply':
+                need(phase in ('PLANNED', 'APPLIED'), 'used/interrupted experiment; inspect then explicitly undo')
+                need(observed == (desired if phase == 'APPLIED' else baseline), 'KSM changed; conflict preserved')
+                target, intent, final = desired, 'APPLY_INTENT', 'APPLIED'
+            else:
+                allowed = {desired} if phase == 'APPLIED' else {baseline} if phase in ('PLANNED', 'UNDONE') else {baseline, desired}
+                need(observed in allowed, 'KSM changed; conflict preserved')
+                target, intent, final = baseline, 'UNDO_INTENT', 'UNDONE'
+            check()
+            need(time.monotonic() < deadline, 'checked operation deadline expired; no write')
+            if observed != target:
+                journal['phase'] = intent
+                saved = save(fd, 'journal.json', journal, check, saved)  # durable BEFORE kernel write
+                need(time.monotonic() < deadline, 'deadline expired; intent retained')
+                check(); need(read_json(fd, 'plan.json')[1] == raw, 'immutable plan changed; no write')
+                need(read_json(fd, 'journal.json')[1] == saved, 'intent journal changed; no write')
+                control.write(handle, current, observed, target)
+            need(time.monotonic() < deadline, 'deadline expired; intent retained')
+            journal['phase'] = final
+            save(fd, 'journal.json', journal, check, saved)
+            result.update(phase=final, current=target, kernel_write=observed != target)
+            return result
+
+
+def main(argv=None, *, control=None, state=STORE):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--version', action='version', version='cachy-asahi-ksm-experiment 0.1.0-2')
+    commands = parser.add_subparsers(dest='action', required=True)
+    preview_args = commands.add_parser('preview', help='save a named baseline without a kernel write')
+    preview_args.add_argument('name')
+    choice = preview_args.add_mutually_exclusive_group(required=True)
+    choice.add_argument('--pause', dest='desired', action='store_const', const=0)
+    choice.add_argument('--resume-scanning', dest='desired', action='store_const', const=1)
+    for action in ('apply', 'inspect', 'undo'):
+        sub = commands.add_parser(action); sub.add_argument('name')
+        if action != 'inspect':
+            sub.add_argument('--plan-sha256', required=True)
+            sub.add_argument('--confirm', required=True, choices=['CHANGE_GLOBAL_KSM_SCANNING' if action == 'apply' else 'RESTORE_KSM_SCANNING_BASELINE'])
+    args = parser.parse_args(argv)
+    try:
+        control = Control() if control is None else control
+        result = preview(control, state, args.name, args.desired) if args.action == 'preview' else operate(control, state, args.name, args.action, getattr(args, 'plan_sha256', None))
+        print(json.dumps(result, sort_keys=True, allow_nan=False))
+        return 0
+    except (OSError, ValueError, TypeError, KeyError, RecursionError) as error:
+        # Do not render untrusted paths, raw state or kernel error strings.
+        reason = str(error) if type(error) is ValueError else 'interface/state unavailable or malformed; inspect saved intent before recovery'
+        print('KSM experiment refused: ' + reason, file=sys.stderr)
+        return 1
+
+
+if __name__ == '__main__':
+    sys.exit(main())
