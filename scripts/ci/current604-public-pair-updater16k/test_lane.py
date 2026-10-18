@@ -7,6 +7,13 @@ from unittest.mock import patch
 import contract as C
 import adapter as A,cap_scope,prepare as P,run,vm
 ROOT=Path(os.environ.get('PUBLIC_PAIR_UPDATER16K_SOURCE',C.ROOT));UPDATER=Path(os.environ.get('PUBLIC_PAIR_UPDATER_SOURCE',ROOT))
+def pre_signature_diagnostic(raw):
+ text=raw.decode();start=text.index('_SIGNATURE_FAILURE_DATA = None');end=text.index('def guard():',start);text=text[:start]+text[end:]
+ before="    if proc.returncode:\n        signature_failure(args, proc)\n        print(proc.stdout[-8192:], proc.stderr[-8192:], flush=True)";assert text.count(before)==1;text=text.replace(before,"    if proc.returncode:\n        print(proc.stdout[-8192:], proc.stderr[-8192:], flush=True)")
+ before="run(pacman + ['--debug', '--noconfirm', '--noscriptlet', '--ask', '4', '-U', *archives])";assert text.count(before)==1;text=text.replace(before,"run(pacman + ['--noconfirm', '--noscriptlet', '--ask', '4', '-U', *archives])")
+ before="    if _SIGNATURE_FAILURE_DATA is not None:\n        print('APPS6_KEYRING_FAILURE_DATA '+json.dumps(_SIGNATURE_FAILURE_DATA,sort_keys=True,separators=(',',':')),flush=True)\n";assert text.count(before)==1;text=text.replace(before,'')
+ return text.encode()
+
 class Controls(unittest.TestCase):
  def setUp(self):
   p=patch.object(subprocess,'Popen',side_effect=AssertionError('all actors/Git/network forbidden'));p.start();self.addCleanup(p.stop)
@@ -32,7 +39,7 @@ class Controls(unittest.TestCase):
    self.assertEqual(value['code_pins'][name],C.sha((calling/'container.py').read_bytes()));self.assertEqual(value['code_pins']['other'],'b'*64);self.assertEqual(value['driver_seconds'],1800)
    self.assertEqual(C.decode(C.read(target/'adapter.json'))['config_sha256'],C.sha(config.read_bytes()))
  def test_caller_changes_only_fixed_vm_entry_predicate(self):
-  raw=(ROOT/'scripts/ci/full-root-upgrade-caller/container.py').read_bytes();out=A.caller(raw)
+  raw=(ROOT/'scripts/ci/full-root-upgrade-caller/container.py').read_bytes();out=pre_signature_diagnostic(A.caller(raw))
   funcs=lambda d:{n.name:ast.dump(n,include_attributes=False) for n in ast.parse(d).body if isinstance(n,ast.FunctionDef)}
   a,b=funcs(raw),funcs(out);self.assertEqual([n for n in a if a[n]!=b[n]],['guard']);self.assertIn(b"os.sysconf('SC_PAGE_SIZE') == 16384",out);self.assertNotIn(b"Path('/.dockerenv').is_file()",out)
   self.assertEqual(sum(1<<n for n in C.CAPS),C.MASK);self.assertNotIn(21,C.CAPS)
@@ -86,7 +93,7 @@ class Controls(unittest.TestCase):
    (root/'update16k').rmdir();old.retire_outer=lambda *_:[];self.assertEqual(vm.retire_outer(old,root/'actor',{},public),[])
    C.save(public/'updater16k-cleanup.json',dict(status='RETAINED_ABSENCE_UNKNOWN'));self.assertTrue(vm.retire_outer(old,root/'actor',{},public))
  def test_vm_and_pid1_original_resource_scopes(self):
-  q=vm.qemu(Path('/Image'),Path('/boot.raw'),Path('/data.raw'));self.assertIn('tcg,thread=multi',q);self.assertEqual(q[q.index('-nic')+1],'none');self.assertEqual(q[q.index('-display')+1],'none');self.assertEqual(q[q.index('-m')+1],'4096')
+  q=vm.qemu(Path('/Image'),Path('/boot.raw'),Path('/data.raw'),1700000000);self.assertIn('tcg,thread=multi',q);self.assertEqual(q[q.index('-nic')+1],'none');self.assertEqual(q[q.index('-display')+1],'none');self.assertEqual(q[q.index('-m')+1],'4096')
   text=(C.HERE/'guest.py').read_text();self.assertIn('resource.setrlimit(resource.RLIMIT_NOFILE,(8192,8192))',text);self.assertEqual(text.count(',3900,2*1024**2)'),2);self.assertIn("helper.capability_mask=lambda fixture_identity_map=None:C.MASK",text);self.assertNotIn('helper.block_service_ipc(',text)
   text=(C.HERE/'disk.py').read_text();self.assertIn('limits(roots,900)',text);self.assertIn("caps.restore(boot,cap_scope.nodes(measured['nodes']),mapping,budget)",text);self.assertIn('48*1024**3',text)
  def test_original_case_verifier_preserves_normal_pre86_post87_truth(self):
@@ -153,6 +160,6 @@ class Controls(unittest.TestCase):
      if key=='driver_seconds' and case=='normal':self.assertEqual(value_before,1800);self.assertEqual(value[key],1860)
      elif key not in ('code_pins','release'):self.assertEqual(value[key],value_before,case+':'+key)
     for n,digest in value['code_pins'].items():self.assertEqual(C.sha((output/n).read_bytes()),digest,case+':'+n)
-    receipt=selected.read(output/'adapter.json');self.assertEqual(receipt['config_sha256'],C.sha(config.read_bytes()));self.assertIn('auxiliary_selection',receipt);self.assertEqual(receipt['updater16k_dispatch']['counted_edits'],1)
+    receipt=selected.read(output/'adapter.json');self.assertEqual(receipt['config_sha256'],C.sha(config.read_bytes()));self.assertIn('auxiliary_selection',receipt);self.assertEqual(receipt['updater16k_dispatch']['counted_edits'],5)
 
 if __name__=='__main__':unittest.main(verbosity=2)

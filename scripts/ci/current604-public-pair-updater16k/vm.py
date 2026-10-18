@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Owned original-image disk preparation,16K QEMU, bounded original readback."""
-import base64,json,os,re,shutil
+import base64,json,os,re,shutil,time
 from pathlib import Path
 import contract as C
 MOUNTS={'/inputs','/runner.py','/upgrade-code','/upgrade-config.json','/upgrade-pair','/upgrade-hook.py','/persistent_scope.py','/setup4.py','/footprint.py','/measurement-source','/out','/measurement','/upgrade-signing'}
@@ -44,8 +44,9 @@ def mounts(argv):
  C.need(set(env)=={'CACHY_ASAHI_COMPOSITION','CACHY_ASAHI_BOUND_UPDATE'} and all(re.fullmatch('[0-9a-f]{32}',v) for v in env.values()),'original independent nonce markers')
  return result,env
 
-def qemu(image,boot,data):
- return ['/usr/bin/qemu-system-aarch64','-nodefaults','-machine','virt','-accel','tcg,thread=multi','-cpu','max','-smp','2','-m','4096','-nic','none','-display','none','-monitor','none','-no-reboot','-kernel',str(image),'-append','console=ttyAMA0 root=/dev/vda rw rootwait init=/init-updater16k caa_apps6_update16k=1','-drive','if=none,id=boot,format=raw,file='+str(boot),'-device','virtio-blk-pci,drive=boot','-drive','if=none,id=data,format=raw,file='+str(data),'-device','virtio-blk-pci,drive=data','-serial','stdio']
+def qemu(image,boot,data,epoch):
+ C.need(type(epoch)is int and 1700000000<=epoch<2**32,'bounded launcher UTC epoch required')
+ return ['/usr/bin/qemu-system-aarch64','-nodefaults','-machine','virt','-accel','tcg,thread=multi','-cpu','max','-smp','2','-m','4096','-nic','none','-display','none','-monitor','none','-no-reboot','-kernel',str(image),'-append','console=ttyAMA0 root=/dev/vda rw rootwait init=/init-updater16k caa_apps6_update16k=1 cachy_asahi_updater_epoch='+str(epoch),'-drive','if=none,id=boot,format=raw,file='+str(boot),'-device','virtio-blk-pci,drive=boot','-drive','if=none,id=data,format=raw,file='+str(data),'-device','virtio-blk-pci,drive=data','-serial','stdio']
 
 def protocol(raw,selection,verify):
  C.need(len(raw)<=16*1024**2,'bounded original UART')
@@ -53,11 +54,25 @@ def protocol(raw,selection,verify):
  C.need(len(lines)==3 and all(x.startswith(prefix) for x in lines),'three nonce-bound original guest records')
  boot,result,end=[C.decode(x[len(prefix):]) for x in lines]
  C.need(boot['event']=='boot' and boot['page_size']==16384 and boot['kernel']==selection['kernel']['release'] and boot['architecture']=='aarch64' and boot['kernel_profile_sha256']==C.sha(C.encoded(selection['kernel'])) and boot['nofile']['after']==[8192,8192],'actual16K kernel/profile/descriptor joins')
+ clock=boot['clock'];epoch=selection['launcher_epoch_s'];C.need(set(clock)=={'source','before_ns','requested_epoch_s','after_ns'}and clock['source']=='OWNED_QEMU_LAUNCHER_NOT_EXTERNAL_TIME_AUTHORITY'and clock['requested_epoch_s']==epoch and type(clock['before_ns'])is int and type(clock['after_ns'])is int and epoch*10**9<=clock['after_ns']<(epoch+2)*10**9,'same owned launcher realtime seed and actual PID1 readback')
  C.need(result['event']=='result' and result['status']==C.PASS and result['case']==selection['case'] and result['isolation']['after']==dict(mask=C.MASK,nnp=1,inh=0,amb=0) and result['isolation']['seccomp']==2 and result['isolation']['uid']==result['isolation']['gid']==0 and result['isolation']['groups']==[] and result['child']['exit_code']==0 and result['child']['group_absence_verified'] is True and result['source_capabilities_before']==result['source_capabilities_after']==selection['capabilities_sha256'],'original update child and actual caps retirement')
  C.need(result['elf16k']['status']=='PASS_STAGED_NATIVE_AARCH64_ELF16K_ALIGNMENT' and all(type(result['elf16k'][n]['ELFs']) is int and result['elf16k'][n]['ELFs']>0 and re.fullmatch('[0-9a-f]{64}',result['elf16k'][n]['sha256']) for n in ('before','after')),'complete574/604 ELF audit joins')
  verify(result['caller'],selection['case'])
  C.need(end==dict(event='exit',status=C.PASS,cleanup='PASS_OWNED_MOUNTS_RETIRED'),'actual guest mount retirement')
  return result
+
+def boot_witness(raw,selection):
+ # Exact wire bytes from the same accepted UART, not reconstructed boot JSON.
+ C.need(type(raw)is bytes and len(raw)<=16*1024**2,'bounded original UART boot witness')
+ prefix=('APPS6_UPDATE16K '+selection['nonce']+' ').encode();lines=[];position=0;offsets=[]
+ for line in raw.splitlines(keepends=True):
+  if line.startswith(b'APPS6_UPDATE16K '):lines.append(line);offsets.append(position)
+  position+=len(line)
+ C.need(len(lines)==3 and all(line.startswith(prefix)for line in lines),'three same-nonce original UART frames before boot witness')
+ line=lines[0];C.need(0<len(line)<=4096 and line.endswith(b'\n'),'bounded complete original boot LINE')
+ boot=C.decode(line[len(prefix):].rstrip(b'\r\n'));C.need(boot['event']=='boot'and boot['page_size']==16384 and boot['kernel']==selection['kernel']['release']and boot['architecture']=='aarch64'and boot['kernel_profile_sha256']==C.sha(C.encoded(selection['kernel']))and boot['nofile']['after']==[8192,8192],'same original boot/kernel/profile/descriptor witness')
+ clock=boot['clock'];epoch=selection['launcher_epoch_s'];C.need(set(clock)=={'source','before_ns','requested_epoch_s','after_ns'}and clock['source']=='OWNED_QEMU_LAUNCHER_NOT_EXTERNAL_TIME_AUTHORITY'and type(clock['requested_epoch_s'])is int and clock['requested_epoch_s']==epoch and type(clock['before_ns'])is int and type(clock['after_ns'])is int and epoch*10**9<=clock['after_ns']<(epoch+2)*10**9,'same original clock witness')
+ return dict(status='ORIGINAL_BOOT_LINE_SOURCE_CAPTURED_NOT_FULL_UART_EXPORT',line=dict(bytes=len(line),sha256=C.sha(line),base64=base64.b64encode(line).decode()),offset=offsets[0],stdout=dict(bytes=len(raw),sha256=C.sha(raw)),membership='SOURCE_ENFORCED_SAME_CAPTURE_NOT_INDEPENDENT_FULL_UART_ATTESTATION')
 
 def snapshot(bindings):
  result={};count=0;total=0
@@ -133,11 +148,12 @@ def run(a,argv,image,public,raw,old,seconds):
  try:
   actor('prepare');prep=C.decode(C.read(disks/'prepared.json'));selection['capabilities_sha256']=prep['capabilities_sha256'];C.save(work/'selection.json',selection)
   for n in ('boot','data'):C.need(C.row(disks/(n+'.raw'))==prep[n],'prepared sealed disk bytes')
-  r,uart,stderr=command(qemu(work/'Image',disks/'boot.raw',disks/'data.raw'),seconds,16*1024**2);(public/'updater16k-uart.log').write_bytes(uart);(public/'updater16k-qemu.stderr').write_bytes(stderr)
+  epoch=int(time.time());selection['launcher_epoch_s']=epoch
+  r,uart,stderr=command(qemu(work/'Image',disks/'boot.raw',disks/'data.raw',epoch),seconds,16*1024**2);(public/'updater16k-uart.log').write_bytes(uart);(public/'updater16k-qemu.stderr').write_bytes(stderr)
   C.need(snapshot(bindings)==input_before,'original inputs/signer bytes and metadata changed')
   result=protocol(uart,selection,old_verify(a));C.save(work/'guest-files.json',result['files']);actor('export')
   for n,pin in result['files'].items():C.need(C.row(disks/'export'/n)==pin,'exact original debugfs readback');shutil.copyfile(disks/'export'/n,public/n)
-  C.save(public/'updater16k-result.json',dict(status=C.PASS,scope='GENERIC16K_VM_NOT_NATIVE_HOST_OR_HARDWARE',guest=result,kernel=profile,source=C.row(a.implementation/C.OLD/'source-manifest.json'),input_map_sha256=C.sha(C.encoded(input_before)),original_uart=C.row(public/'updater16k-uart.log'),natural_qemu=r,kernel_receipt=C.row(a.kernel_receipt),preservation='PASS_EXACT_COMPLETE_ORIGINAL_INPUT_MAP',hardware='NOT_RUN',release='NOT_ADMITTED'))
+  C.save(public/'updater16k-result.json',dict(status=C.PASS,scope='GENERIC16K_VM_NOT_NATIVE_HOST_OR_HARDWARE',guest=result,launcher_realtime=boot_witness(uart,selection),kernel=profile,source=C.row(a.implementation/C.OLD/'source-manifest.json'),input_map_sha256=C.sha(C.encoded(input_before)),original_uart=C.row(public/'updater16k-uart.log'),natural_qemu=r,kernel_receipt=C.row(a.kernel_receipt),preservation='PASS_EXACT_COMPLETE_ORIGINAL_INPUT_MAP',hardware='NOT_RUN',release='NOT_ADMITTED'))
  except BaseException as e:
   error=e
   if qemu_capture is not None:
