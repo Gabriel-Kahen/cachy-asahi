@@ -532,6 +532,14 @@
       "bytes": 47833,
       "sha256": "1073ed826e593882d70ba5887ec3a2600756c1915cabe21126355a32053be9bf"
     },
+    "scripts/ci/current604-public-pair-generic16k/archive32-policy.json": {
+      "bytes": 9488,
+      "sha256": "4f6ce49214422579f1cc448ff95d9f311cbfaf47a0d0c4f32d828c9edf843585"
+    },
+    "scripts/ci/current604-public-pair-generic16k/archive32.py": {
+      "bytes": 11102,
+      "sha256": "b1e2fc13644510a613ce09e53b39d4f4471cf47fc03fa62f312258379666c418"
+    },
     "scripts/ci/current604-public-pair-generic16k/ci.py": {
       "bytes": 6667,
       "sha256": "6d3a3f6dd3819f3686076c94e4a41b555c02ecad269821fa72becea34ab6739b"
@@ -561,8 +569,8 @@
       "sha256": "c4a40f7ec429ce53b01091946adb7cb4ca3d3bbabad93ceca45cbffac2a73d9b"
     },
     "scripts/ci/current604-public-pair-generic16k/prepare.py": {
-      "bytes": 5663,
-      "sha256": "23b83c15da36b61006aacd09aba42171619300da1ec3438e44d129917ed24f44"
+      "bytes": 13492,
+      "sha256": "6acdcde4b8941ba53f127c2aac9c380fba74c398d6138931c24b4de6f7cf9b4a"
     },
     "scripts/ci/current604-public-pair-generic16k/public-assets-policy.json": {
       "bytes": 258,
@@ -578,7 +586,7 @@
     },
     "scripts/ci/current604-public-pair-generic16k/test_lane.py": {
       "bytes": 97006,
-      "sha256": "b4a543f606068acbcb84f38e31e6a88ba7d4ea1e60650fec967ad22d4954928a"
+      "sha256": "1ce20f76e75262db2bcd3451396bfd863bb922de5af975ff53f36118158bac9f"
     },
     "scripts/ci/desktop-user-session/prepare.py": {
       "bytes": 6300,

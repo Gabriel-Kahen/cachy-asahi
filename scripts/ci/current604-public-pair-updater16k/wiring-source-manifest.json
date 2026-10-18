@@ -541,6 +541,14 @@
       "bytes": 6275,
       "sha256": "eff6ece3b605cb44599dc3e45335e80a5f17cce4bc1d4683a5ccaa2dd179805c"
     },
+    "scripts/ci/current604-public-pair-updater16k/archive32-policy.json": {
+      "bytes": 9488,
+      "sha256": "4f6ce49214422579f1cc448ff95d9f311cbfaf47a0d0c4f32d828c9edf843585"
+    },
+    "scripts/ci/current604-public-pair-updater16k/archive32.py": {
+      "bytes": 11102,
+      "sha256": "b1e2fc13644510a613ce09e53b39d4f4471cf47fc03fa62f312258379666c418"
+    },
     "scripts/ci/current604-public-pair-updater16k/cap_scope.py": {
       "bytes": 2598,
       "sha256": "4559643fbfaa22657d68e07143e2f7dbc518765c0a9d9e9161acf94c5976ff13"
@@ -578,20 +586,24 @@
       "sha256": "e69d16cadd98f23e29afce9a6be25271d747481df5489e6dc44c568b20722ad3"
     },
     "scripts/ci/current604-public-pair-updater16k/prepare.py": {
-      "bytes": 6076,
-      "sha256": "5a4a7cd93a15aa2baf86192c9f34335936ce32f8dea85fd26e6ea60e6ae4f8e6"
+      "bytes": 13872,
+      "sha256": "e500ccbbe687b9c487813992715d306d6526a1b3e1a0c696a54a726b19f47984"
+    },
+    "scripts/ci/current604-public-pair-updater16k/producer_diagnostic.py": {
+      "bytes": 6483,
+      "sha256": "826c6b1d2e82c911c254cf83474cfeaf0121893ac9261039092519ca99f6ed46"
     },
     "scripts/ci/current604-public-pair-updater16k/retain16k.py": {
       "bytes": 6199,
       "sha256": "ce9007ad34dc1378bda9b65a6393616bed65400c5170a074fbc55545dfcaa892"
     },
     "scripts/ci/current604-public-pair-updater16k/run.py": {
-      "bytes": 1853,
-      "sha256": "bd0a00aeeaca3fe85d7f8162014f15af5e2a2bbfdddcfef413b440b8f03053bf"
+      "bytes": 1927,
+      "sha256": "c71a269d41b8beb077c4e0f557a061acb10d2489baf2ac7b805f087ccff1f5d2"
     },
     "scripts/ci/current604-public-pair-updater16k/source-manifest.json": {
-      "bytes": 81859,
-      "sha256": "e65e39d8481c161d40f7d44afb731db86218e643778b47068c28e3ce14bad954"
+      "bytes": 82414,
+      "sha256": "852c133bd25f2e6fd1d134e9d2c2b583ab7007eaeec19863991b9f8ccc53c654"
     },
     "scripts/ci/current604-public-pair-updater16k/source-pins.json": {
       "bytes": 143256,
