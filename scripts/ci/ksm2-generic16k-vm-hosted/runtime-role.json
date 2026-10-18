@@ -41,8 +41,8 @@
       "sha256": "ba7fd83d9a6cd6d83d8e8a1bfb78f0391b9265a17d2c72815f8b4d62e6b41ad2"
     },
     "guest.py": {
-      "bytes": 22508,
-      "sha256": "5b6949572da21fd967ffcfff198501e2a9215f1a51b9a26633cfba3f9cbe087c"
+      "bytes": 24999,
+      "sha256": "1772cac7f2b1dfa6b7e010e249bc969fbaa5b73bf11a1eca84fe1ad597a3c9e1"
     },
     "host.py": {
       "bytes": 12797,
@@ -2406,11 +2406,11 @@
     },
     "runner-files.json": {
       "bytes": 553,
-      "sha256": "2c6cca5cd1a095964303e21ef1c0b12865e66ee53c7a257e628942960ad1316c"
+      "sha256": "dce8aff8d61a95a9e4b33a6bc679b12b897f30f9da71c85d569ccf585418ab0b"
     },
     "source-files.json": {
       "bytes": 110043,
-      "sha256": "abd2bb385ff03493c6a80b0625379df707b8b258975ac639a5f008b801ae0fda"
+      "sha256": "c18acc5473b51245979c52497db82159a716e007883f0387608f817cda81350c"
     },
     "support-pins.json": {
       "bytes": 108127,
