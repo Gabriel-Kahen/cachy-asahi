@@ -41,6 +41,7 @@ jobs:
           set -euo pipefail
           python3 -I -B "$SLICE/entry.py" source --source "$GITHUB_WORKSPACE"
           python3 -I -B "$SLICE/test_lane.py" --source "$GITHUB_WORKSPACE"
+          python3 -I -B "$SLICE/test_archive32.py"
       - name: Require both published finite component authorities before acquisition
         id: selection
         timeout-minutes: 3
@@ -74,6 +75,12 @@ jobs:
           sudo timeout --signal=TERM --kill-after=10s 120s apt-get -o Acquire::Retries=0 install --no-install-recommends -y qemu-system-arm
           /usr/bin/qemu-system-aarch64 --version
           dpkg-query -W qemu-system-arm
+      - name: Prefetch exact32 frozen574 archive bytes before unchanged producer
+        timeout-minutes: 4
+        run: >-
+          python3 -I -B "$SLICE/archive32.py" --policy "$GITHUB_WORKSPACE/$SLICE/archive32-policy.json"
+          --inputs "$GITHUB_WORKSPACE/runtime/borrowed/maintained574-inputs.json"
+          --cache "$RUNNER_TEMP/ksm2-archive32"
       - name: Original574 producer then owned KSM VM lifecycle
         timeout-minutes: 117
         env:
@@ -106,6 +113,7 @@ jobs:
           --native "$GITHUB_WORKSPACE/.ci-inputs/native" --kernel "$GITHUB_WORKSPACE/.ci-inputs/kernel"
           --seed "$GITHUB_WORKSPACE/.ci-inputs/retained-public-inputs"
           --inputs "$RUNNER_TEMP/ksm2-vm-inputs" --work "$RUNNER_TEMP/ksm2-vm-work"
+          --archive-cache "$RUNNER_TEMP/ksm2-archive32"
       - name: Retain bounded receipts without private maps or package inputs
         if: always()
         timeout-minutes: 2
