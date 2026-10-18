@@ -1,0 +1,43 @@
+{
+  "attempts": [
+    {
+      "requested_url": "https://codeload.github.com/AsahiLinux/linux/tar.gz/refs/tags/asahi-7.1.13-3",
+      "status": "PASS"
+    }
+  ],
+  "bytes": 262965559,
+  "extraction": "NOT_PERFORMED",
+  "historical_manifest_sha256": "bdfa44ed1d017c0d0e15c1f3af87bdf4a91923c20e812c861ca522d2cf428492",
+  "original_input": {
+    "allowed_hosts": [
+      "github.com",
+      "codeload.github.com"
+    ],
+    "bytes": 262965559,
+    "filename": "kernel.tar.gz",
+    "name": "kernel",
+    "sha256": "874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad",
+    "source_evidence": "artifacts/platform/kernel-history-20261012/kernel-source-archive.json",
+    "source_revision": "94fb23346d522edf53722357c426a3e58030beea",
+    "url": "https://github.com/AsahiLinux/linux/archive/asahi-7.1.13-3.tar.gz"
+  },
+  "partial_absent": true,
+  "result": {
+    "attempts": 1,
+    "authentication": "HTTPS plus exact historical SHA256 pin; no fresh signature verification",
+    "bytes": 262965559,
+    "final_url": "https://codeload.github.com/AsahiLinux/linux/tar.gz/refs/tags/asahi-7.1.13-3",
+    "name": "kernel",
+    "path": "/home/runner/work/_temp/ksm2-kernel-work/inputs/kernel.tar.gz",
+    "redirects": [],
+    "requested_url": "https://codeload.github.com/AsahiLinux/linux/tar.gz/refs/tags/asahi-7.1.13-3",
+    "sha256": "874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad",
+    "source_evidence": "artifacts/platform/kernel-history-20261012/kernel-source-archive.json",
+    "source_revision": "94fb23346d522edf53722357c426a3e58030beea"
+  },
+  "sha256": "874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad",
+  "source_revision": "94fb23346d522edf53722357c426a3e58030beea",
+  "status": "FETCHED_HASH_VERIFIED",
+  "total_deadline_seconds": 300,
+  "transport_policy": "TWO_DIRECT_TAG_URLS_NO_REDIRECT_300S"
+}

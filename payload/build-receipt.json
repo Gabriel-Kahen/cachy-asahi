@@ -1,0 +1,209 @@
+{
+  "allocated_bytes": 2071519232,
+  "archive": {
+    "bytes": 262965559,
+    "path": "/home/runner/work/_temp/ksm2-kernel-work/inputs/kernel.tar.gz",
+    "sha256": "874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad"
+  },
+  "boot_diagnostics": true,
+  "build_environment": {
+    "build_seconds": 3600,
+    "host_uname": [
+      "Linux",
+      "runnervmidgih",
+      "6.17.0-1022-azure",
+      "#22-Ubuntu SMP Mon Jul 27 17:12:01 UTC 2026",
+      "aarch64"
+    ],
+    "jobs": 2,
+    "limit_note": "periodic aggregate check; bounded overshoot possible before next poll",
+    "per_file_limit_bytes": 2147483648,
+    "workspace_limit_bytes": 17179869184
+  },
+  "builtin_drivers": [
+    "PL011 console",
+    "generic PCI host",
+    "virtio-pci",
+    "virtio-blk",
+    "virtio-console",
+    "virtio GPU",
+    "ext4",
+    "UNIX98 PTY",
+    "systemd user namespace/cgroup APIs"
+  ],
+  "commands": [
+    {
+      "argv": [
+        "/usr/bin/make",
+        "-C",
+        "/home/runner/work/_temp/ksm2-kernel-work/helper/built/linux-asahi-7.1.13-3",
+        "O=/home/runner/work/_temp/ksm2-kernel-work/helper/built/build",
+        "ARCH=arm64",
+        "LLVM=1",
+        "allnoconfig"
+      ],
+      "log": "/home/runner/work/_temp/ksm2-kernel-work/helper/built/configure.log",
+      "log_bytes": 962,
+      "log_sha256": "dde62ad7c925ef366882cad11b172b825e670a3bc3dd8531ae14beaf0d140114",
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/usr/bin/make",
+        "-C",
+        "/home/runner/work/_temp/ksm2-kernel-work/helper/built/linux-asahi-7.1.13-3",
+        "O=/home/runner/work/_temp/ksm2-kernel-work/helper/built/build",
+        "ARCH=arm64",
+        "LLVM=1",
+        "-j2",
+        "Image"
+      ],
+      "log": "/home/runner/work/_temp/ksm2-kernel-work/helper/built/build.log",
+      "log_bytes": 59571,
+      "log_sha256": "8ef3c80f3d3ead3371aa9c17cafe53e63437fcf47a55abf85556f821ac678ac8",
+      "returncode": 0
+    }
+  ],
+  "config": {
+    "bytes": 63770,
+    "path": "/home/runner/work/_temp/ksm2-kernel-work/helper/built/build/.config",
+    "sha256": "6584bc0b28e40c30b9070d66a5691276d5f259cfc5046548514b443fe782faf4"
+  },
+  "config_check": {
+    "all_fragment_values_match": true,
+    "modules": "DISABLED",
+    "page_size": 16384
+  },
+  "derivation": {
+    "accepted_profiles_modified": false,
+    "base_fragment_sha256": "6d91180b80138d2d8039efafaaa9ca31349baea22b90430cbb15e07bce02e8f6",
+    "base_helper_sha256": "e94adb4474183feea30ce1e2949b55c03e4969eeb1addb4c36892e8664ba9aaa",
+    "workspace_scan": "ACTIVE_CHILD_COMPILER_OUTPUT_ENOENT_ONLY_STRICT_FINAL"
+  },
+  "diagnostic_fragment": {
+    "bytes": 1860,
+    "path": "/home/runner/work/_temp/ksm2-kernel-work/helper/built/diagnostic.fragment",
+    "sha256": "e5149e756f14343c1ac19d6c30f4d00c88980987435445dd76ff35c99ec4659d"
+  },
+  "extraction": {
+    "logical_bytes": 1589202874,
+    "members": 100117
+  },
+  "fragment": {
+    "bytes": 1821,
+    "path": "/home/runner/work/_temp/ksm2-kernel-work/helper/kernel.fragment",
+    "sha256": "c35451687ade456b2d9e09622a95700fdfec99dc6d528bc5d67387ab740ef8e1"
+  },
+  "guest_boot": "NOT RUN",
+  "hardware": "NOT RUN",
+  "helper": {
+    "bytes": 12899,
+    "path": "/home/runner/work/_temp/ksm2-kernel-work/helper/build_kernel.py",
+    "sha256": "f53fb5309a55322d6bdded545ea0cb5f4126a1614c271c17224e14fded8cac43"
+  },
+  "image": {
+    "bytes": 8884232,
+    "path": "/home/runner/work/_temp/ksm2-kernel-work/helper/built/build/arch/arm64/boot/Image",
+    "sha256": "c9353ecd35279915effd09049e5db9ab9a80458bc7f6182b7d0a3cc52c7b5d81"
+  },
+  "image_check": {
+    "boot": "NOT RUN",
+    "flags": 12,
+    "header_page_size": 16384
+  },
+  "kernel_build": "PASS",
+  "kernel_release": "7.1.13-generic16k-managed-gui",
+  "missing_tools": [],
+  "module_policy": {
+    "CONFIG_MODULES": "n",
+    "external_modules_allowed": false
+  },
+  "performance": "NOT RUN",
+  "profile": "KSM_SCALAR_GENERIC16K_DIAGNOSTIC_V1",
+  "source_commit": "94fb23346d522edf53722357c426a3e58030beea",
+  "source_license": "GPL-2.0-only WITH Linux-syscall-note",
+  "source_url": "https://github.com/AsahiLinux/linux/archive/asahi-7.1.13-3.tar.gz",
+  "status": "BUILT_ONLY",
+  "system_map": {
+    "bytes": 1252428,
+    "path": "/home/runner/work/_temp/ksm2-kernel-work/helper/built/build/System.map",
+    "sha256": "b1f65b38ce51fb3cdd1c8cf1dffcd17305dc018d493ac11ae5d4a86998ac2108"
+  },
+  "tools": {
+    "bc": {
+      "bytes": 133728,
+      "path": "/usr/bin/bc",
+      "sha256": "3da7a7527037a868fda18c1a4cfd3534cd009d652cc3f67c31c960febd1df84f"
+    },
+    "bison": {
+      "bytes": 528800,
+      "path": "/usr/bin/bison",
+      "sha256": "746581750f75fe81394562ab14f2d0942addface479685b9a11840ab8d002959"
+    },
+    "clang": {
+      "bytes": 136448,
+      "path": "/usr/lib/llvm-18/bin/clang",
+      "sha256": "6d99f6207153b8b2063ace5d2a6177debaf6a6b6f31649e03afac07b98ba0b4d"
+    },
+    "clang++": {
+      "bytes": 136448,
+      "path": "/usr/lib/llvm-18/bin/clang",
+      "sha256": "6d99f6207153b8b2063ace5d2a6177debaf6a6b6f31649e03afac07b98ba0b4d"
+    },
+    "flex": {
+      "bytes": 463776,
+      "path": "/usr/bin/flex",
+      "sha256": "b0b03937b2b0ed6c8992dbee72c1978c4b545c14c8444b5256fb87d67a30f676"
+    },
+    "ld.lld": {
+      "bytes": 5121920,
+      "path": "/usr/lib/llvm-18/bin/lld",
+      "sha256": "f8835e48488195c65fb3dcb946053284ddf6b1369922893785209a9073c4e57b"
+    },
+    "llvm-ar": {
+      "bytes": 134736,
+      "path": "/usr/lib/llvm-18/bin/llvm-ar",
+      "sha256": "fd64ef012e3b56678f31a80a821fff3882796148713481f90ff1682393b1b515"
+    },
+    "llvm-nm": {
+      "bytes": 135000,
+      "path": "/usr/lib/llvm-18/bin/llvm-nm",
+      "sha256": "1c8ca894bddd7e2fd776a06132600444f2d075a25d9a0953321ed09bc1cb0b99"
+    },
+    "llvm-objcopy": {
+      "bytes": 199656,
+      "path": "/usr/lib/llvm-18/bin/llvm-objcopy",
+      "sha256": "76638bb89898a6d51c7c2c6ca2ac89bc23c38f74a4124f51e56805204de1d604"
+    },
+    "llvm-objdump": {
+      "bytes": 923960,
+      "path": "/usr/lib/llvm-18/bin/llvm-objdump",
+      "sha256": "32b78ffb3f9f14a19716cb7d3d6a5baa59ea98bc502fb183d3ff429df0f20a21"
+    },
+    "llvm-readelf": {
+      "bytes": 1840352,
+      "path": "/usr/lib/llvm-18/bin/llvm-readobj",
+      "sha256": "c0b0e2dddfd6721442dc0de7a6f587bf6bd7e06f7da402cc32268cfe2f027434"
+    },
+    "llvm-strip": {
+      "bytes": 199656,
+      "path": "/usr/lib/llvm-18/bin/llvm-objcopy",
+      "sha256": "76638bb89898a6d51c7c2c6ca2ac89bc23c38f74a4124f51e56805204de1d604"
+    },
+    "make": {
+      "bytes": 267672,
+      "path": "/usr/bin/make",
+      "sha256": "abbecc214fcadef6530d1cc137bde7ceb74cae3f6b992c7d10a8669a7314c7e0"
+    },
+    "perl": {
+      "bytes": 3942240,
+      "path": "/usr/bin/perl",
+      "sha256": "32b632e848ac6d106042c9628ea5ba3c558791e8bbad3c0b89bd5483e9abcb77"
+    },
+    "sh": {
+      "bytes": 133608,
+      "path": "/usr/bin/dash",
+      "sha256": "c883d9c27228339580994a1d0ea960645368c7d1b960a712bd0c655860c2d0d7"
+    }
+  }
+}
