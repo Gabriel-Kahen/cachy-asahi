@@ -9,12 +9,19 @@ def need(ok,why):
  if not ok:raise ValueError(why)
 def validate(v):
  need(type(v) is dict and set(v)=={'operation','elapsed_ms',*COUNTERS} and v['operation'] in OPS and all(type(v[k]) is int and 0<=v[k]<=2**63-1 for k in ('elapsed_ms',*COUNTERS)),'closed bounded postwalk counters');return v
+COPY_OPERATIONS=('SELECTED_OBSERVE','COPY_DATA','COPIED_TREE','CAPABILITY_RESTORE')
+def validate_copy(value):
+ fields={'schema_version','operation','ordinal','elapsed_ms','phase_elapsed_ms','shared_remaining_ms','window_remaining_ms','expiry','acceptance'}
+ need(type(value) is dict and set(value)==fields and type(value['schema_version']) is int and value['schema_version']==1 and value['operation'] in COPY_OPERATIONS,'closed copy phase DATA')
+ need(type(value['ordinal']) is int and 1<=value['ordinal']<=64 and all(type(value[k]) is int and 0<=value[k]<=2**63-1 for k in ('elapsed_ms','phase_elapsed_ms','shared_remaining_ms')),'bounded copy timing DATA')
+ need(value['window_remaining_ms'] is None or type(value['window_remaining_ms']) is int and 0<=value['window_remaining_ms']<=600000,'bounded copy600 window DATA')
+ need(value['expiry'] in ('NONE','PARENT2400','WINDOW600') and value['acceptance'] is False,'copy phase DATA cannot grant acceptance');return value
 class Journal:
  """Bounded diagnostic tail; repeated samples coalesce without losing current seam."""
  def __init__(self,selection):self.selection=selection;self.rows=[];self.sequence=0
  def push(self,stage,edge,context,metrics=None):
   self.sequence+=1
-  row=dict(sequence=self.sequence,stage=stage,edge=edge,**context,**({} if metrics is None else {('observer' if stage=='observer' else 'postwalk'):metrics}))
+  row=dict(sequence=self.sequence,stage=stage,edge=edge,**context,**({} if metrics is None else {('observer' if stage=='observer' else 'copy_context' if stage=='copy' else 'postwalk'):metrics}))
   if edge=='sample' and self.rows and self.rows[-1]['edge']=='sample' and all(self.rows[-1][k]==row[k] for k in ('stage','case','phase')):self.rows.pop()
   self.rows.append(row)
   while True:
