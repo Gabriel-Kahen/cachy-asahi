@@ -76,6 +76,31 @@ class Source(unittest.TestCase):
   self.assertIn('I.preserve_base(L,state)==base_digest',life)
 
 class PrivateProfile(unittest.TestCase):
+ def test_isolated_entry_loads_trusted_siblings_before_native_guard(self):
+  import subprocess
+  with tempfile.TemporaryDirectory()as tmp:
+   runner=Path(tmp);(runner/'profile_actor.py').write_bytes((A.HERE/'profile_actor.py').read_bytes())
+   (runner/'installed.py').write_text("def apis(): raise ValueError('TRUSTED_SIBLING_REACHED')\n")
+   (runner/'private_profile.py').write_text('')
+   result=subprocess.run([os.sys.executable,'-I','-B',str(runner/'profile_actor.py')],capture_output=True,timeout=5)
+   self.assertEqual(result.returncode,1);self.assertIn(b'TRUSTED_SIBLING_REACHED',result.stderr);self.assertNotIn(b'ModuleNotFoundError',result.stderr)
+ def test_flat_export_is_bounded_exclusive_readable_and_retires_private_work(self):
+  module=C.load('profile_export_control',A.HERE/'profile_actor.py')
+  with tempfile.TemporaryDirectory()as tmp:
+   root=Path(tmp);directory=root/'private';directory.mkdir();out=root/'out';out.mkdir()
+   for name in ('receipt.json','NetworkManager.log','dbus.log'):(directory/name).write_bytes(name.encode())
+   with patch.object(module.os,'fstat',wraps=os.fstat),patch.object(module.os,'getuid',return_value=0):
+    # Local test files belong to the current user; all ownership observations are projected to0 only in this model.
+    import types
+    original_stat=Path.stat;original_fstat=os.fstat
+    def owner(s):return types.SimpleNamespace(**{n:(0 if n=='st_uid'else getattr(s,n))for n in ('st_uid','st_nlink','st_mode','st_size','st_dev','st_ino','st_mtime_ns','st_ctime_ns')})
+    with patch.object(Path,'stat',lambda p,*a,**k:owner(original_stat(p,*a,**k))),patch.object(module.os,'fstat',side_effect=lambda fd:owner(original_fstat(fd))):
+     module.export_results(directory,out)
+     private=root/'private2';private.mkdir();(private/'receipt.json').symlink_to(out/'receipt.json')
+     with self.assertRaises(OSError):module.export_results(private,out)
+   self.assertFalse(directory.exists())
+   for name in ('receipt.json','NetworkManager.log','dbus.log'):
+    self.assertEqual((out/name).read_bytes(),name.encode());self.assertEqual((out/name).stat().st_mode&0o777,0o644)
  def test_fixture_refuses_host_before_output_and_native_rules_reject_x86(self):
   F=C.load('profile_host_refusal',A.HERE/'private_profile.py')
   with tempfile.TemporaryDirectory()as tmp,patch('subprocess.Popen',side_effect=AssertionError('host process forbidden')):
@@ -96,6 +121,7 @@ class PrivateProfile(unittest.TestCase):
    with patch('subprocess.Popen',side_effect=AssertionError('actor forbidden')),self.assertRaises(StagedBeforeAnyActor):
     module.launch(C,ROOT,out,'INERT_NO_DAEMON_MODEL',{'cachy-asahi-dns':product},shared.docker,stop,[])
    staged=out/'profile-inputs/dns-command';self.assertEqual(staged.read_bytes(),program.read_bytes());self.assertEqual(staged.stat().st_mode&0o777,0o755)
+   self.assertEqual((out/'private-profile-actor').stat().st_mode&0o777,0o703)
    self.assertFalse(any(a.startswith('--cap-add=')for a in captured[0]));self.assertIn('--cap-drop=ALL',captured[0]);self.assertIn('--network=none',captured[0])
    self.assertIn('type=bind,src='+str(staged)+',dst=/usr/bin/cachy-asahi-dns,readonly',captured[0])
  def test_new_actor_removes_only_original_six_caps_and_preserves_other_guards(self):
