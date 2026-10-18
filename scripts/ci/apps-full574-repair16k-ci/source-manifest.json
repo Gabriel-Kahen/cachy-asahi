@@ -18,8 +18,8 @@
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "manifests/packages.toml": {
-      "bytes": 37484,
-      "sha256": "f530955f736b9c6924f157a733ea988b687186b86f9c51d120cb6deb107aa694"
+      "bytes": 37394,
+      "sha256": "edb1a4fcc10ba2beff81262e6ea01cd73cdb40a7d1cb6a15d9c9a4b838521298"
     },
     "packages/tools/cachy-asahi-apps/.SRCINFO": {
       "bytes": 1775,
@@ -331,11 +331,11 @@
     },
     "scripts/ci/apps-full574-repair-native/source-manifest.json": {
       "bytes": 18640,
-      "sha256": "f83475b549e2ebed886c33dcef95bd6c74050256c1c807bab04d5d033cb2f79a"
+      "sha256": "636baf21fa537ca813b7403b1bc6afb920404d974236bd52d8c1cdf479477ba9"
     },
     "scripts/ci/apps-full574-repair-native/source-pins.json": {
       "bytes": 15477,
-      "sha256": "4c7ddfe7853a8b8766eb796ffe1074a0c556074917507b8b23befe3930d5d884"
+      "sha256": "bb09afe9e99ac754d03693f53b72653b2c1ffe45f731bdcc0d18b6389019e65a"
     },
     "scripts/ci/apps-full574-repair-native/supervise.py": {
       "bytes": 4401,
@@ -390,8 +390,8 @@
       "sha256": "7e5e08c5dbf713e4b4120f6da174b07118e74f338f89c4df6d856204d1b93bd1"
     },
     "scripts/ci/apps-full574-repair16k/adapter.py": {
-      "bytes": 8533,
-      "sha256": "bfd9bd48ed98d4fda9f0faacc5a3aec632ca93e7aeb5a18eda3819cae044df8f"
+      "bytes": 10752,
+      "sha256": "7aea34f601a04bc3b7b38d1a5050a10c90e282936a73c60364b9778a8ea02e90"
     },
     "scripts/ci/apps-full574-repair16k/contract.py": {
       "bytes": 9557,
@@ -418,16 +418,16 @@
       "sha256": "2b7cc4befe43d1f22dfa089566fd15d43ee373a936779900593de1470db3908d"
     },
     "scripts/ci/apps-full574-repair16k/source-manifest.json": {
-      "bytes": 34322,
-      "sha256": "34a434ae6c0a228c5e92a19635852074b490177a030914e353967a7313d0db88"
+      "bytes": 34323,
+      "sha256": "0ade4db36ec4b6fa6766de872d466e71e8049dbff2e103ca3daaa7bc48a924b9"
     },
     "scripts/ci/apps-full574-repair16k/source-pins.json": {
       "bytes": 32215,
       "sha256": "ad36f839b52fcd83642f5b9643b57ff7eccf2af20670316899584d340d9c2dcc"
     },
     "scripts/ci/apps-full574-repair16k/test_lane.py": {
-      "bytes": 48807,
-      "sha256": "4a15c9c7d41ec097eb110633ff233f4e47cf83c14e93dd2532be5ae10839334e"
+      "bytes": 58821,
+      "sha256": "717fbfc56ea628ea7a84d00a9e1eaa0cfca3f1583e127f576087a2c3afdfb530"
     },
     "scripts/ci/apps-full574-repair16k/vm.py": {
       "bytes": 11257,

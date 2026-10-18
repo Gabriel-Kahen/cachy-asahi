@@ -15,7 +15,14 @@ class Lane(unittest.TestCase):
  @classmethod
  def setUpClass(cls):
   cls.original=Path(os.environ['FULL574_REPAIR16K_SOURCE']).absolute();cls.tmp=tempfile.TemporaryDirectory();cls.root=Path(cls.tmp.name)/'source'
-  with patch.object(subprocess,'Popen',side_effect=AssertionError('actors forbidden')):cls.emitted=prepare.emit(cls.original,cls.root,os.environ.get('FULL574_REPAIR16K_NATIVE_SOURCE'))
+  # Bound workflow inputs are not emitter templates. Select an explicit NULL
+  # fixture only for source-emission controls; original bound policy is held.
+  fixture=prepare.C.HERE
+  if C.decode(C.read(fixture/'input-policy.json'))['binding'] is not None:
+   original=fixture;fixture=Path(cls.tmp.name)/'explicit-null-template';fixture.mkdir()
+   for name in prepare.OWN:(fixture/name).write_bytes(C.read(original/name))
+   (fixture/'input-policy.json').write_bytes(C.encoded(dict(schema_version=1,status='UNBOUND_NEW_NATIVE_REPAIR_CASES_AND_ACCEPTED_KERNEL',binding=None)))
+  with patch.object(prepare.C,'HERE',fixture),patch.object(subprocess,'Popen',side_effect=AssertionError('actors forbidden')):cls.emitted=prepare.emit(cls.original,cls.root,os.environ.get('FULL574_REPAIR16K_NATIVE_SOURCE'))
  @classmethod
  def tearDownClass(cls):cls.tmp.cleanup()
  def setUp(self):self.block=patch.object(subprocess,'Popen',side_effect=AssertionError('actors forbidden'));self.block.start()
@@ -25,11 +32,12 @@ class Lane(unittest.TestCase):
   with patch.object(C,'HERE',self.root/C.LANE):rows=C.check_source(self.root)
   self.assertEqual(len(rows),134);self.assertEqual(len(prepare.OWN),11);self.assertEqual(C.row(self.root/C.NATIVE/'source-manifest.json')['sha256'],C.NATIVE_MANIFEST)
   self.assertEqual(C.row(self.root/C.LANE/'vm.py'),C.row(HERE/'vm.py'))
-  with self.assertRaisesRegex(ValueError,'UNBOUND16K'):C.gate(self.root,'repair-bytes')
+  with patch.object(C,'HERE',self.root/C.LANE),self.assertRaisesRegex(ValueError,'UNBOUND16K'):C.gate(self.root,'repair-bytes')
   self.assertEqual(set(C.decode(self.native('source-manifest.json'))['files']),set(C.decode(C.read(Path(os.environ.get('FULL574_REPAIR16K_NATIVE_SOURCE',self.original))/C.NATIVE/'source-manifest.json'))['files']))
  def test_explicit_frozen_baseline_keeps_original113_and_current_helpers(self):
   with tempfile.TemporaryDirectory() as d:
-   out=Path(d)/'source';prepare.emit(self.original,out,self.root)
+   out=Path(d)/'source'
+   with patch.object(prepare.C,'HERE',self.root/C.LANE):prepare.emit(self.original,out,self.root)
    frozen=C.decode(C.read(self.root/C.NATIVE/'source-manifest.json'))
    for name,row in frozen['files'].items():self.assertEqual(C.row(out/name),row)
    self.assertEqual(C.row(out/C.NATIVE/'source-manifest.json')['sha256'],C.NATIVE_MANIFEST)
@@ -482,5 +490,67 @@ class BackendFailureNoteControls(unittest.TestCase):
   env['_vm_original_call']=original
   with self.assertRaisesRegex(ValueError,'^bounded actual command failed: /usr/bin/python3$')as failure:env['_vm_backend_call'](instance,result['argv'])
   self.assertIs(instance.api,api);self.assertEqual(len(failure.exception.__notes__),1);self.assertIn('"group_absence_verified":false',failure.exception.__notes__[0])
+
+
+import base64,traceback,types
+_PHASE_ORIGINAL_NOTE="def _vm_backend_note(record,out,err,error):\n import base64,json\n keys={'argv','exit_code','seconds','time_limit','output_limit','group_absence_verified','stdout_bytes','stdout_sha256','stderr_bytes','stderr_sha256'}\n C.need(set(record)==keys and record['output_limit']==1024**2,'original backend receipt required')\n for side,data in (('stdout',out),('stderr',err)):\n  C.need(record[side+'_bytes']==len(data) and record[side+'_sha256']==C.sha(data),'original backend stream join')\n result=None\n try:\n  v=C.decode(out)\n  if set(v)=={'status','error_type','error','packages_committed','commit_started','recovery','rollback'} and v['status']=='FAIL' and v['packages_committed'] is False and v['commit_started'] is False and v['recovery']=='DISPOSE_OWNED_COPY_IF_COMMIT_OR_CLEANUP_UNCERTAIN' and v['rollback']=='NOT_CLAIMED' and type(v['error_type'])is str and len(v['error_type'])<=128 and type(v['error'])is str and len(v['error'])<=1024:\n   raw=v['error'].encode('utf8');result=dict(status='FAIL',error_type=v['error_type'],error=v['error'][:96],error_utf8_bytes=len(raw),error_sha256=C.sha(raw),truncated=len(v['error'])>96,commit_started=False,packages_committed=False)\n except (ValueError,KeyError,TypeError,UnicodeError):pass\n tail=err[-64:]\n value=dict(schema_version=1,event='prepare_copy_backend_failure',supervisor=record,result=result,stderr_tail=dict(bytes=len(tail),sha256=C.sha(tail),base64=base64.b64encode(tail).decode(),truncated=len(err)>64),supervisor_error=None if error is None else type(error).__name__,acceptance_authority=False,cleanup_authority=False)\n note='APPS574_BACKEND_FAILURE '+json.dumps(value,sort_keys=True,separators=(',',':'),ensure_ascii=True)\n C.need(len(note.encode())<=1900,'complete backend note must fit original2KiB tail');return note\n_vm_original_call=H.Calls.call\ndef _vm_backend_call(self,argv,*,seconds=610,expected=0):\n original=self.api;captured=[]\n def capture(*a,**kw):\n  row=original.run_command(*a,**kw);captured.append(row);return row\n self.api=types.SimpleNamespace(run_command=capture)\n try:return _vm_original_call(self,argv,seconds=seconds,expected=expected)\n except Exception as error:\n  if list(map(str,argv[:5]))==['/usr/bin/python3','-I','-B','/execution/scripts/apps/transaction.py','prepare-copy'] and len(captured)==1:\n   try:error.add_note(_vm_backend_note(*captured[0]))\n   except Exception:pass # Diagnostic loss cannot replace the original exception.\n  raise\n finally:self.api=original\nH.Calls.call=_vm_backend_call\n"
+class BackendPhaseProjectionControls(unittest.TestCase):
+ def setUp(self):
+  self.block=patch.object(subprocess,'Popen',side_effect=AssertionError('no actors'));self.block.start();self.addCleanup(self.block.stop)
+  raw=adapter.BACKEND_NOTE;tree=ast.parse(raw);self.env=dict(C=types.SimpleNamespace(need=C.need,sha=C.sha,decode=C.decode),types=types)
+  exec(compile(ast.Module(body=[n for n in tree.body if isinstance(n,ast.FunctionDef)],type_ignores=[]),'<proposed-data-formatter>','exec'),self.env)
+  self.phase={};exec(compile((Path(os.environ['FULL574_REPAIR16K_SOURCE'])/'scripts/apps/full574_statx.py').read_bytes(),'<trusted-original-phase-producer>','exec'),self.phase)
+  self.saved=[];self.write=patch.object(self.phase['os'],'write',side_effect=lambda fd,b:(self.saved.append(b),len(b))[1]);self.write.start();self.addCleanup(self.write.stop)
+ def row(self,err,out=b''):
+  value={'argv': ['/usr/bin/python3', '-I', '-B', '/execution/scripts/apps/transaction.py', 'prepare-copy', '--workspace', '/work/main', '--apps-source', '/inputs/apps-source', '--apps-provenance-sha256', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', '--repository-source', '/inputs/candidate/usr/share/cachy-asahi/repository-runtime', '--full574-policy', '/inputs/full574-policy.json', '--full574-policy-sha256', 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', '--full574-lease', '/inputs/full574-lease.json', '--full574-lease-sha256', 'cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc', '--source', '/seed'], 'exit_code': -15, 'seconds': 610.047357, 'time_limit': 610, 'output_limit': 1048576, 'group_absence_verified': True};return dict(value,stdout_bytes=len(out),stdout_sha256=C.sha(out),stderr_bytes=len(err),stderr_sha256=C.sha(err))
+ def note(self,err,out=b''):
+  note=self.env['_vm_backend_note'](self.row(err,out),out,err,ValueError('command-time-limit'));self.assertLessEqual(len(note.encode()),1900);return note,json.loads(note.split(' ',1)[1])
+ def nested(self):
+  traced=self.phase['traced']
+  @traced('tree-observe')
+  def tree():return 7
+  @traced('tree-and-aux-observation')
+  def measure():return tree()
+  @traced('capability-scan')
+  def scan():return 9
+  @traced('complete-capability-map')
+  def caps():return scan()
+  @traced('source-revalidation')
+  def source():return measure()+caps()
+  self.assertEqual(source(),16);return b''.join(self.saved)
+ def test_real_existing_producer_exact_phase_timing_counts_and_tail(self):
+  err=self.nested();note,v=self.note(err);p=v['phase_summary'];rows=[json.loads(line.split(b' ',1)[1])for line in err.splitlines()]
+  self.assertEqual(p['records'],10);self.assertEqual(p['first_ns'],rows[0]['monotonic_ns']);self.assertEqual(p['last'][-1],[10,0,1,rows[-1]['monotonic_ns']-p['first_ns']]);self.assertEqual([r[:4]for r in p['stages']],[[s,1,1,0]for s in range(5)]);self.assertTrue(all(r[4]>=0 for r in p['stages']))
+  self.assertEqual(base64.b64decode(v['stderr_tail']['base64']),err[-64:]);self.assertFalse(v['acceptance_authority']);self.assertFalse(v['cleanup_authority']);self.assertEqual(v['schema_version'],2)
+  failure=ValueError('original failure');failure.add_note(note);tail=''.join(traceback.format_exception(failure)).encode()[-2048:];self.assertIn(note.encode()+b'\n',tail)
+ def test_open_phase_stays_open_no_stall_or_success_claim(self):
+  self.phase['emit']('source-revalidation','BEGIN');_,v=self.note(b''.join(self.saved));self.assertEqual(v['phase_summary']['stages'],[[0,1,0,0,0]]);self.assertEqual(v['phase_summary']['last'][0][2],0);self.assertIsNone(v['result'])
+ def test_failed_phase_retains_original_exception_and_closed_span(self):
+  @self.phase['traced']('tree-observe')
+  def fail():raise ValueError('root observation deadline')
+  with self.assertRaisesRegex(ValueError,'^root observation deadline$'):fail()
+  _,v=self.note(b''.join(self.saved));self.assertEqual(v['phase_summary']['stages'][0][:4],[2,1,0,1]);self.assertEqual(v['phase_summary']['last'][-1][2],2)
+ def test_invalid_phase_never_exports_foreign_payload_or_guesses_counts(self):
+  err=self.nested();rows=err.splitlines(keepends=True)
+  bad=[b'APPS574_PHASE PRIVATE_PAYLOAD\n',rows[0].replace(b'"seq":1',b'"seq":2'),rows[0].replace(b'"BEGIN"',b'"UNKNOWN"'),rows[1],rows[0]+rows[0],err[:-2]]
+  for item in bad:
+   with self.subTest(item=item[:20]):
+    _,v=self.note(item);self.assertEqual(v['phase_summary'],dict(version=1,status='INVALID_PHASE_RECORDS'));self.assertNotIn('PRIVATE_PAYLOAD',json.dumps(v['phase_summary']))
+ def test_original_max96_and_512_bounds_fit_note_and_tail(self):
+  for _ in range(60):
+   self.phase['emit']('source-revalidation','BEGIN');self.phase['emit']('source-revalidation','END')
+  self.assertEqual(len(self.saved),96);self.assertTrue(all(len(r)<=512 for r in self.saved));note,v=self.note(b''.join(self.saved));self.assertEqual(v['phase_summary']['records'],96);self.assertEqual(v['phase_summary']['last'][-1][1:3],[7,3]);self.assertLessEqual(len(note.encode()),1900)
+ def test_exact_supervisor_guard_exception_and_api_restoration(self):
+  err=self.nested();row=self.row(err);api=types.SimpleNamespace(run_command=lambda *a,**k:(row,b'',err,ValueError('command-time-limit')));instance=types.SimpleNamespace(api=api)
+  def original(self,argv,*,seconds=610,expected=0):self.api.run_command();raise ValueError('original bounded actual command failed')
+  self.env['_vm_original_call']=original
+  with self.assertRaisesRegex(ValueError,'^original bounded actual command failed$')as exc:self.env['_vm_backend_call'](instance,row['argv'])
+  self.assertIs(instance.api,api);self.assertEqual(len(exc.exception.__notes__),1);self.assertEqual(json.loads(exc.exception.__notes__[0].split(' ',1)[1])['supervisor'],row)
+  with self.assertRaises(ValueError):self.env['_vm_backend_note'](dict(row,stderr_sha256='0'*64),b'',err,None)
+ def test_no_phases_and_full_note_keep_original_diagnostic_byte_exact(self):
+  oldtree=ast.parse(_PHASE_ORIGINAL_NOTE);env=dict(C=self.env['C'],types=types);exec(compile(ast.Module(body=[n for n in oldtree.body if isinstance(n,ast.FunctionDef)],type_ignores=[]),'<trusted-original-formatter>','exec'),env)
+  err=b'original stderr, no phases';row=self.row(err);self.assertEqual(self.env['_vm_backend_note'](row,b'',err,None),env['_vm_backend_note'](row,b'',err,None))
+  err=self.nested();out=json.dumps(dict(status='FAIL',error_type='ValueError'+'X'*118,error='X'*1024,packages_committed=False,commit_started=False,recovery='DISPOSE_OWNED_COPY_IF_COMMIT_OR_CLEANUP_UNCERTAIN',rollback='NOT_CLAIMED')).encode();row=self.row(err,out)
+  old=env['_vm_backend_note'](row,out,err,None);new=self.env['_vm_backend_note'](row,out,err,None);self.assertLessEqual(len(old.encode()),1900);self.assertEqual(new,old)
 
 if __name__=='__main__':unittest.main()

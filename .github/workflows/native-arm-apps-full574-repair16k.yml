@@ -53,7 +53,7 @@ jobs:
           [[ $MANIFEST_SHA256 =~ ^[0-9a-f]{64}$ ]]
           printf '%s  %s\n' "$MANIFEST_SHA256" "$SLICE/source-manifest.json" | sha256sum --check
           test "$(sha256sum "$SLICE/owner.py" | cut -d ' ' -f 1)" = 6ec3723e5d8322ef5730eeb0222bfcaa5b0073d55c8353dc66afa5b29d8070de
-          test "$(sha256sum "$SLICE/source-manifest.json" | cut -d ' ' -f 1)" = 8b3a718084aa22871d64f17e7de8711bd93dc7d65f3b480c7acc0c8ef20054f4
+          test "$(sha256sum "$SLICE/source-manifest.json" | cut -d ' ' -f 1)" = fe9b81a81b5c2b208e6868674f22e451e7647d3fe346a8717b8a7abca66c4cbd
           python3 -I -B "$SLICE/owner.py" proof --case "$REPAIR_CASE" --source "$GITHUB_WORKSPACE" --proof "$RUNNER_TEMP/apps574-source-proof.json"
       - name: Focused source and actual backend guards only
         timeout-minutes: 3
