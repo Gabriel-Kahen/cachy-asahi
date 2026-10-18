@@ -99,7 +99,7 @@ class WorkerCapture(unittest.TestCase):
   return stream.getvalue()
  def test_whole_original_guest_inverse_and_held_positive_guard(self):
   import ast,hashlib
-  text=(ROOT/'runtime/guest.py').read_text();tree=ast.parse(text);n=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='worker_failure_data');helper=ast.get_source_segment(text,n)+'\n\n';call=' worker_failure_data(s,row,out,err,error)\n';self.assertEqual(text.count(call),1);inverse=text.replace(helper,'',1).replace(call,'',1);self.assertEqual(hashlib.sha256(inverse.encode()).hexdigest(),'17c9608949accf0e39459c45e07c18533d02cdb5ca8e5f018b3a4d26f0717e9c')
+  text=pre_inner((ROOT/'runtime/guest.py').read_text());tree=ast.parse(text);n=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='worker_failure_data');helper=ast.get_source_segment(text,n)+'\n\n';call=' worker_failure_data(s,row,out,err,error)\n';self.assertEqual(text.count(call),1);inverse=text.replace(helper,'',1).replace(call,'',1);self.assertEqual(hashlib.sha256(inverse.encode()).hexdigest(),'17c9608949accf0e39459c45e07c18533d02cdb5ca8e5f018b3a4d26f0717e9c')
   guard=" C.need(error is None and row['exit_code']==0 and row['group_absence_verified']is True,'whole KSM guest worker exit/group retirement')";self.assertEqual(text.count(guard),1);self.assertLess(text.index(call),text.index(guard));self.assertEqual(O.decode(O.read(ROOT/'runtime/runner-files.json'))['files']['guest.py'],O.pin((ROOT/'runtime/guest.py').read_bytes()))
  def test_real_inert_child_original_stream_record_and_typed_error_DATA(self):
   argv,row,out,err,error=self.child("import sys;print('KSM2_VM_ERROR ValueError inert private failure');sys.stderr.write('inert stderr\\n');sys.exit(1)")
@@ -121,6 +121,50 @@ class WorkerCapture(unittest.TestCase):
   with patch('builtins.print',side_effect=OSError('inert closed diagnostic stdout')):fn(dict(nonce='a'*32),row,out,err,error)
  def test_real_success_never_emits_failure_or_changes_record(self):
   argv,row,out,err,error=self.child("print('inert success')");before=copy.deepcopy(row);self.assertEqual(row['exit_code'],0);self.assertEqual(self.captured(self.helper(argv),row,out,err,error),'');self.assertEqual(row,before)
+
+def pre_inner(text):
+ import ast
+ for name in('command_failure_data','relay_inner_command'):
+  node=next(n for n in ast.parse(text).body if isinstance(n,ast.FunctionDef)and n.name==name);raw=ast.get_source_segment(text,node)+'\n\n';O.need(text.count(raw)==1,'one explicit inner helper inverse');text=text.replace(raw,'',1)
+ for call in('  command_failure_data(s,r,out,err,error,expected,seconds,len(rows))\n',' relay_inner_command(s,row,out,err,error)\n'):
+  O.need(text.count(call)==1,'one explicit inner call inverse');text=text.replace(call,'',1)
+ return text
+
+class InnerCommand(unittest.TestCase):
+ def source(self):
+  import ast
+  text=(ROOT/'runtime/guest.py').read_text();tree=ast.parse(text);functions={n.name:ast.get_source_segment(text,n)for n in tree.body if isinstance(n,ast.FunctionDef)};run=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='run');node=next(n for n in run.body if isinstance(n,ast.FunctionDef)and n.name=='command');return functions,ast.get_source_segment(text,node)
+ def namespace(self):
+  import types,hashlib
+  functions,command=self.source();C=types.SimpleNamespace(need=O.need,sha=lambda b:hashlib.sha256(b).hexdigest(),pin=lambda b:dict(bytes=len(b),sha256=hashlib.sha256(b).hexdigest()),SHARED_SECONDS=3000,encoded=O.encoded);R=O.load('_inner_held_runtime',ROOT/'runtime/borrowed/runtime.py');space=dict(C=C,json=json,Path=Path,time=__import__('time'),runtime=R,rows=[],deadline=__import__('time').monotonic()+3000,s=dict(nonce='c'*32));exec(compile(functions['command_failure_data'],'<exact-source-helper>','exec'),space);exec(compile(command,'<exact-nested-command>','exec'),space);return space
+ def captured(self,fn,*args,**kw):
+  import contextlib,io
+  out=io.StringIO()
+  with contextlib.redirect_stdout(out):
+   try:value=fn(*args,**kw);error=None
+   except BaseException as e:value=None;error=e
+  return value,error,out.getvalue()
+ def test_whole_source_inverse_and_original_guards(self):
+  import hashlib,ast
+  text=(ROOT/'runtime/guest.py').read_text();self.assertEqual(hashlib.sha256(pre_inner(text).encode()).hexdigest(),'25133a4f0fd9983c02d04f25e2eb8349dd5f5c43895b46803f7d772ad0c09123')
+  guard="C.need(error is None and r['exit_code']==expected and r['group_absence_verified']is True,'natural direct installed command/group retirement')";self.assertEqual(text.count(guard),1);self.assertLess(text.index('  command_failure_data(s,r,'),text.index(guard));self.assertEqual(text.count(' worker_failure_data(s,row,out,err,error)\n'),1)
+ def test_real_nested_natural_failure_and_success_silence(self):
+  ns=self.namespace();argv=[sys.executable,'-I','-B','-c',"import sys;print('inert inner stdout');sys.stderr.write('inert inner stderr\\n');sys.exit(7)"];value,error,text=self.captured(ns['command'],argv);self.assertIsInstance(error,ValueError);self.assertEqual(str(error),'natural direct installed command/group retirement');v=json.loads(text.split(' ',2)[2]);self.assertEqual(v['record'],ns['rows'][0]);self.assertEqual(v['record']['exit_code'],7);self.assertIsNone(v['supervisor_error_type']);self.assertFalse(v['acceptance_authority']);self.assertTrue(v['record']['group_absence_verified'])
+  import base64
+  self.assertEqual(base64.b64decode(v['streams']['stderr']['tail_base64']),b'inert inner stderr\n');value,error,text=self.captured(ns['command'],[sys.executable,'-I','-B','-c',"print('inert success')"]);self.assertIsNone(error);self.assertEqual(value,'inert success\n');self.assertEqual(text,'')
+ def test_real_nested_timeout_and_outputlimit_partial_capture(self):
+  for code,seconds,why in(("import time;print('inert start',flush=True);time.sleep(2)",.15,'command-time-limit'),("import sys;sys.stdout.write('x'*160000);sys.stdout.flush()",5,'command-output-limit')):
+   ns=self.namespace();_,error,text=self.captured(ns['command'],[sys.executable,'-I','-B','-c',code],seconds=seconds);self.assertEqual(str(error),'natural direct installed command/group retirement');v=json.loads(text.split(' ',2)[2]);self.assertEqual(v['supervisor_error_type'],'ValueError');self.assertEqual(v['supervisor_error_code'],why);self.assertTrue(v['record']['group_absence_verified']);self.assertLessEqual(sum(s['bytes']for s in v['streams'].values()),128*1024);self.assertLessEqual(len(text.encode()),16500)
+ def test_relay_full_original_inert_worker_stream_join(self):
+  import types,hashlib,base64
+  functions,command=self.source();setup="import sys,json,time,types,hashlib\nfrom pathlib import Path\n"+"spec=__import__('importlib.util',fromlist=['']).spec_from_file_location('held',"+repr(str((ROOT/'runtime/borrowed/runtime.py').resolve()))+");runtime=__import__('importlib.util',fromlist=['']).module_from_spec(spec);spec.loader.exec_module(runtime)\n"+"def need(v,w):\n if not v:raise ValueError(w)\n"+"C=types.SimpleNamespace(need=need,sha=lambda b:hashlib.sha256(b).hexdigest());s={'nonce':'"+'c'*32+"'};rows=[];deadline=time.monotonic()+3000\n"+functions['command_failure_data']+'\n'+command+'\n'+"try:command([sys.executable,'-I','-B','-c',\"import sys;sys.stderr.write('inert stderr');sys.exit(7)\"])\nexcept ValueError as e:print('KSM2_VM_ERROR ValueError '+str(e),flush=True);raise SystemExit(1)\n"
+  ns=self.namespace();argv=[sys.executable,'-I','-B','-c',setup];R=ns['runtime']
+  with tempfile.TemporaryDirectory()as td:row,out,err,error=R.run_command(argv,Path(td),dict(PATH='/usr/bin:/bin'),3000,512*1024)
+  self.assertEqual(row['exit_code'],1);self.assertTrue(row['group_absence_verified']);relay=functions['relay_inner_command'];old="['/usr/bin/python3','-I','-B','/workspace/guest.py','worker']";self.assertEqual(relay.count(old),1);space=dict(C=ns['C'],json=json);exec(relay,space);self.assertEqual(self.captured(space['relay_inner_command'],ns['s'],row,out,err,error)[2],'');exec(relay.replace(old,repr(argv)),space);_,e,text=self.captured(space['relay_inner_command'],ns['s'],row,out,err,error);self.assertIsNone(e);v=json.loads(text.split(' ',2)[2]);self.assertEqual(base64.b64decode(v['stdout_base64']),out);self.assertEqual(v['worker_record'],row);self.assertFalse(v['acceptance_authority'])
+ def test_tamper_and_failed_diagnostic_do_not_change_original_guard(self):
+  ns=self.namespace();row=dict(argv=['inert'],exit_code=7,group_absence_verified=True,seconds=0,time_limit=1,output_limit=128*1024,stdout_bytes=0,stdout_sha256='0'*64,stderr_bytes=0,stderr_sha256='0'*64);_,e,text=self.captured(ns['command_failure_data'],ns['s'],row,b'',b'',None,0,1,1);self.assertIsNone(e);self.assertEqual(text,'')
+  with patch('builtins.print',side_effect=OSError('INERT_CLOSED_STDOUT')):
+   with self.assertRaisesRegex(ValueError,'natural direct installed command/group retirement'):ns['command']([sys.executable,'-I','-B','-c','raise SystemExit(7)'])
 
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--source',type=Path,required=True);a,left=p.parse_known_args();ROOT=a.source.absolute();unittest.main(argv=[sys.argv[0]]+left)
