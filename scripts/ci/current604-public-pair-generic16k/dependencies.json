@@ -529,8 +529,8 @@
       "sha256": "0df8fca76d1006260e7ed7eee6dddbeaa54bfe8e6e3d7e63cd32a06cf63e7bcc"
     },
     "scripts/ci/current604-public-pair-generic16k/adapter.py": {
-      "bytes": 19658,
-      "sha256": "8202adedbdd2abc8ee20c3a19d6ad6e0462d0432eb89552fd4e2b56f3d90fbc9"
+      "bytes": 27476,
+      "sha256": "6dc4c53993b7d91aa5306b49176010d2387a07dcf0a315f6740cb826516bd238"
     },
     "scripts/ci/current604-public-pair-generic16k/ci.py": {
       "bytes": 5399,
@@ -573,8 +573,8 @@
       "sha256": "71d3f0334c5e0931d69bdc3633ac9ab44e6b53031a079074cfbefc6c8d1a6b6a"
     },
     "scripts/ci/current604-public-pair-generic16k/test_lane.py": {
-      "bytes": 44662,
-      "sha256": "6a8f7f02a2ecdd38e82d389f78fda4ba107d77480e9e94facb4dc01cf0c3c305"
+      "bytes": 58978,
+      "sha256": "debb6890d8297d2e1e646d21267c1e9acf172bb59ec7b26f52e33a2491dfbb2e"
     },
     "scripts/ci/desktop-user-session/prepare.py": {
       "bytes": 6300,
