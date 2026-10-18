@@ -6,8 +6,8 @@
         "sha256": "498a3beec0327b9335dcd6d80ed5919fa2edebebd3284e9ee8b97770328e26a2"
       },
       "scripts/ci/current606-welcome5-source-bridge/bridge.py": {
-        "bytes": 26889,
-        "sha256": "1c412d4fe9670e11587a51c9435f4580a8d9fdf903f416daf421da579224b6b0"
+        "bytes": 27771,
+        "sha256": "d9810c4a0613dd922abec5f7edad16be4b579034e256072aeee28573c03423c2"
       },
       "scripts/ci/current606-welcome5-source-bridge/expected606.lock": {
         "bytes": 12043,
@@ -26,8 +26,8 @@
         "sha256": "92d21f3a7ec5a26c0aeb664a873961bb4b253edcf6d520775da7262a9772b9d2"
       },
       "scripts/ci/current606-welcome5-source-bridge/test_bridge.py": {
-        "bytes": 13052,
-        "sha256": "8475a4066d45c9284206f6539d07b077dbfa7a96e9a20aaae9ae6e34562d5637"
+        "bytes": 16064,
+        "sha256": "3dbd3bc2f8740a6bd79e83d862afa1783cadcfcd4af6500cb971ee22c3b9cc03"
       },
       "scripts/ci/full-root-upgrade-caller/persistent_scope.py": {
         "bytes": 17405,
