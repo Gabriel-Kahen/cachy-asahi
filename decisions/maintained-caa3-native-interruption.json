@@ -1,0 +1,40 @@
+{
+  "ALPM_installation": "PASS",
+  "attempt": 1,
+  "capabilities": "PASS_EXACT_SOURCE_MAP_PRESERVED",
+  "cases": [
+    "pristine",
+    "modified"
+  ],
+  "committed_transactions": 8,
+  "complete574_maps": 20,
+  "configuration_preservation": "PASS",
+  "hardware": "NOT_RUN",
+  "integration_manifest": {
+    "bytes": 26324,
+    "path": "scripts/ci/glibc-debian-maintained-public-provider-interruption-owner/integration-manifest.json",
+    "sha256": "980181310c94a60eaa2734304e7678b29d58e882301da1f620088825c7735469"
+  },
+  "interruption": "REMOVE_PHASE_ONLY_CANDIDATE_EXTRACTION_NOT_TESTED",
+  "normal_runtime_observations": 10,
+  "ordered_cleanup": "PASS",
+  "page_size": 4096,
+  "power_loss": "NOT_TESTED",
+  "provider": "cachy-asahi-glibc-gnu-provider",
+  "provider_archive_sha256": "a8e9f3e1d8ffe049fdc834f62e74c14ff622b98898c2f849e1580ab8aa0fdbd9",
+  "recovery": "PASS_EXACT_LOCK_AND_EXTERNAL_HELD_REINSTALL",
+  "release_admission": false,
+  "run_id": 39113374454,
+  "schema_version": 1,
+  "source_authority_sha256": "88643eabd61a39df63ecaeb50bb20041d17cf4fd3adee55d82d43d3c1ca08707",
+  "source_manifest": {
+    "bytes": 1721,
+    "path": "scripts/ci/glibc-debian-maintained-public-provider-interruption/source-manifest.json",
+    "sha256": "e6b11bfc2f92aacabef814248b9a6505f14694400e727e4176ca036285f3f8e1"
+  },
+  "source_preservation": "PASS",
+  "source_sha": "73da7728469c7c11b5877ba47645bf812ac6dbdc",
+  "status": "ROOT_ACCEPTED_CAA3_PUBLIC_COMPILE_NATIVE_INTERRUPTION_RECOVERY",
+  "version": "2.43.caa3-1",
+  "zero_commit_refusals": 2
+}
