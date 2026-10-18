@@ -57,6 +57,8 @@ class Controls(unittest.TestCase):
     if n=='scripts/ci/full-root-upgrade/construct_repository.py' or n.startswith(self.A.PREFIX) or n in ('upgrade-config.json','adapter.json'):continue
     if n=='scripts/update/linked_runtime.py':
      H=self.C.load('exact_linked_auxiliary_controls',HERE/'aux_transition.py');expected,_=H.derive_linked(p.read_bytes());self.assertEqual((code/n).read_bytes(),expected,case+':'+n)
+    elif case=='postcommit-exit87' and n=='scripts/ci/full-root-postcommit-failure/run.py':
+     H=self.C.load('exact_postcommit_selection_controls',HERE/'aux_transition.py');expected,_=H.derive_postcommit(p.read_bytes());self.assertEqual((code/n).read_bytes(),expected,case+':'+n)
     elif n=='scripts/update/aux_runtime.py':
      H=self.C.load('exact_apps_auxiliary_controls',HERE/'aux_transition.py');expected,_=H.derive(p.read_bytes());self.assertEqual((code/n).read_bytes(),expected,case+':'+n)
     else:self.assertEqual((code/n).read_bytes(),p.read_bytes(),case+':'+n)

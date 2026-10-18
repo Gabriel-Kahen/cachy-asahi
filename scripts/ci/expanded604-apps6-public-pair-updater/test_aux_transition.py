@@ -373,7 +373,7 @@ class RealScannerControls(unittest.TestCase):
     # Live-key/native closure authority is explicitly NOT asserted by this
     # route unit. It still parses the real retained cache; compare is never mocked.
     def key_projection(state,comparator):return {'scope':'INERT_ROUTE_NOT_LIVE_KEY_AUTHORITY','parsed_original_records':len(comparator.parse(state['aux_bytes']))}
-    with self.patch.object(linked.links,'check',return_value=None),self.patch.object(linked.aux,'checkpoint',return_value=self.new),self.patch.object(linked.aux,'live_keys',side_effect=key_projection),self.patch.object(original.Runtime,'view',lambda self,value:value),self.patch.object(linked.Runtime,'view',lambda self,value:value):
+    with self.patch.object(linked.links,'check',return_value=None),self.patch.object(linked.aux,'checkpoint',return_value=self.new),self.patch.object(linked.aux,'live_keys',side_effect=key_projection),self.patch.object(original.Runtime,'view',lambda self,value:value),self.patch.object(linked.Runtime,'view',lambda self,value:dict(value,nodes={n:r for n,r in value['nodes'].items()if n!=linked.aux.HELPER_NODE},eligible=True,unsupported_counts={})):
      prior=runtime(original.Runtime)
      with self.assertRaisesRegex(ValueError,'aux-checkpoint-scan-changed'):original.Runtime.tree(prior,self.root)
      actual=runtime(linked.Runtime)
@@ -382,5 +382,71 @@ class RealScannerControls(unittest.TestCase):
      target=self.root/'usr/lib/libretained.so';data=target.read_bytes();target.write_bytes(data[:-1]+b'X');bad=self.state();actual=runtime(linked.Runtime)
      with self.patch.object(linked.aux,'checkpoint',return_value=bad),self.assertRaisesRegex(ValueError,'aux-checkpoint-scan-changed'):linked.Runtime.tree(actual,self.root)
      diagnostic=actual.auxiliary_checks[-1];self.assertEqual(diagnostic['checkpoint'],'scan-comparison-failure');row=diagnostic['diagnostic'];self.assertEqual(row['path'],'usr/lib/libretained.so');self.assertEqual(row['field'],'node.sha256');self.assertEqual(row['before']['node']['sha256'],self.old['scan']['usr/lib/libretained.so']['node']['sha256']);self.assertEqual(row['after']['node']['sha256'],bad['scan']['usr/lib/libretained.so']['node']['sha256']);self.assertFalse(row['acceptance_authority'])
+
+ def test_composed_post87_parent_preparer_child_selection_and_once_witness_bridge(self):
+  import tempfile,types,importlib,contextlib
+  import prepare as P
+  Cspec=importlib.util.spec_from_file_location('_post87_route_contract',ROOT/P.NEW/'contract.py');C=importlib.util.module_from_spec(Cspec);sys.modules[Cspec.name]=C;Cspec.loader.exec_module(C);A=C.scoped('_post87_route_adapter',ROOT/P.NEW/'adapter.py',{'contract':C})
+  with tempfile.TemporaryDirectory() as td:
+   base=Path(td);source=base/'source';source.mkdir();held=C.read(ROOT/'scripts/ci/expanded600-root-upgrade/held-pins.json')['postcommit-exit87'];fixtures={'scripts/ci/full-root-upgrade-caller/upgrade-config.json':'normal-upgrade-config.json','scripts/ci/full-root-failed-update/lane-config.json':'precommit-lane-config.json','scripts/install/local_transaction.py':'local_transaction.py'}
+   for name,row in held['pins'].items():
+    original=ROOT/name
+    if not original.is_file() or P.pin(original.read_bytes())!=row:original=HERE/'fixtures'/fixtures[name]
+    self.assertEqual(P.pin(original.read_bytes()),row);dest=source/name;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(original.read_bytes())
+   code=base/'code';config_path,_=A.prepare(source,code,'postcommit-exit87',git=False,implementation=ROOT);config=C.read(config_path)['scale']
+   with self.patch.dict(sys.modules),self.patch.object(sys,'path',[str(code/'scripts/update'),*sys.path]):
+    for name in {p.stem for p in (code/'scripts/update').glob('*.py')}:sys.modules.pop(name,None)
+    linked=importlib.import_module('linked_runtime');driver=C.load('_post87_actual_composed_driver',code/'scripts/ci/full-root-postcommit-failure/run.py');normal=C.load('_post87_actual_normal_database',code/'scripts/ci/full-root-upgrade/root_upgrade.py')
+    # Source-route unit only: ALPM/database/archive authentication boundaries are
+    # explicit inert inputs. Real Runtime constructors/selection/preparer/tree,
+    # eight-path projection, Reader captures and original cache comparison run.
+    # No signature, ALPM commit, native/runtime acceptance is claimed by it.
+    for name in H.FILES:
+     p=self.root/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(('old:'+name).encode());p.chmod(0o644)
+    helper=self.root/'usr/bin/ldconfig';helper.write_bytes(b'UNIT inert helper data');helper.chmod(0o755)
+    database=self.root/'var/lib/pacman/local/cachy-asahi-apps-0.1.0-5';database.mkdir(parents=True);(database/'files').write_bytes(b'unit database boundary')
+    before=linked.roots.observe(self.root,limits=linked.roots.Limits(deadline=self.time.monotonic()+20),hardlinks='generic-development-internal');old_state=self.state();payload={n:dict(row)for n,row in before['nodes'].items()if n in H.FILES or any(n==p.as_posix()for leaf in H.FILES for p in Path(leaf).parents if p.as_posix()!='.')}
+    for name in H.FILES:
+     data=('new:'+name).encode();payload[name].update(bytes=len(data),sha256=hashlib.sha256(data).hexdigest())
+    records=[dict(name=n,version=v)for n,v in C.locks()[0].items()];args=types.SimpleNamespace(root=self.root,package=base/'unit-package',data=base/'data',state_dir=base/'state',comparator=code/'scripts/ci/full-development-composition/audio_aux.py');args.package.write_bytes(b'UNIT archive authentication boundary');args.data.mkdir();args.state_dir.mkdir()
+    api=types.SimpleNamespace(linked=linked,driver=normal);old_sha=driver.sha
+    def sha(path):return H.ARCHIVE if Path(path)==args.package else old_sha(path)
+    @contextlib.contextmanager
+    def directory(*a,**kw):yield -1
+    def live_keys(state,comparator):return {'scope':'INERT_ROUTE_NOT_LIVE_KEY_AUTHORITY','parsed_original_records':len(comparator.parse(state['aux_bytes']))}
+    def route_state():
+     lim=self.roots.Limits(deadline=self.time.monotonic()+20);observed=self.roots.observe(self.root,limits=lim)
+     # Tiny route fixture has an inert retained lock, not full-root authority.
+     reader=self.aux.Reader(self.root,dict(observed,complete=True),lim);return dict(old_state,scan={n:reader.capture(n)for n in old_state['scan']})
+    with contextlib.ExitStack()as stack:
+     for obj,name,value in [(linked.links,'check',lambda *a:None),(linked.links,'restore_literals',lambda projected,seed:projected),(linked.Runtime,'view',lambda self,value:dict(value,nodes={n:r for n,r in value['nodes'].items()if n!=linked.aux.HELPER_NODE},eligible=True,unsupported_counts={})),(linked.aux,'checkpoint',lambda *a:route_state()),(linked.aux,'live_keys',live_keys),(normal,'database',lambda *a,**k:records),(normal,'directory',directory),(normal,'read_record',lambda *a,**k:b'UNIT owned file list'),(normal,'fields',lambda raw:{'FILES':sorted(H.FILES)}),(linked.Runtime,'archive_payload',lambda *a:payload),(driver,'sha',sha),(driver,'LOCK_NODE',dict(driver.LOCK_NODE,mode=0o600,uid=os.getuid(),gid=os.getgid()))]:stack.enter_context(self.patch.object(obj,name,value))
+     parent,observed_records,observed_payload=driver.prepare_verifier(api,args,config,before);self.assertIsInstance(parent,linked.Runtime);self.assertFalse(getattr(parent,'apps6_auxiliary_selected',False));self.assertIs(parent.commit_ready,True)
+     spec=dict(schema_version=1,case=driver.CASE,nonce='a'*32,args={k:str(v)for k,v in vars(args).items()},root_identity=driver.identity(self.root),marker=str(args.data/'postcommit-witness.json'),worker_sha256=old_sha(Path(driver.__file__)))
+     driver.write_new(args.data/'failure-worker.json',spec);bound_spec=dict(spec,spec_sha256=old_sha(args.data/'failure-worker.json'));driver.apps6_reserve_selection(parent,bound_spec)
+     child=linked.Runtime(args,config,comparator_path=code/'scripts/ci/full-development-composition/audio_aux.py');child.alpm=types.SimpleNamespace(owned_files=lambda names:sorted(H.FILES),inventory=lambda:C.locks()[1],started=True)
+     snapshot=dict(release=dict(packages=[dict(name='cachy-asahi-apps',version='0.1.0-6',sha256=H.ARCHIVE)]));child.selection(snapshot,C.locks()[0],{'cachy-asahi-apps':'0.1.0-6'});self.assertIs(child.apps6_auxiliary_selected,True);self.assertFalse(getattr(parent,'apps6_auxiliary_selected',False))
+     bad=copy.deepcopy(snapshot);bad['release']['packages'][0]['sha256']='0'*64
+     with self.assertRaises(ValueError):linked.Runtime(args,config,comparator_path=code/'scripts/ci/full-development-composition/audio_aux.py').selection(bad,C.locks()[0],{'cachy-asahi-apps':'0.1.0-6'})
+     child.commit_ready=True;child.commit_calls=1;child.commit_return=0;child.observed_after(C.locks()[1]);exits=[];driver.arm(child,C.locks()[1],bound_spec,Path(spec['marker']),exit_process=exits.append);self.assertEqual(exits,[87]);witness=json.loads(Path(spec['marker']).read_bytes())
+     for name in H.FILES:
+      p=self.root/name;temporary=p.with_name(p.name+'.incoming');temporary.write_bytes(('new:'+name).encode());temporary.chmod(0o644);os.replace(temporary,p)
+     lock=self.root/driver.LOCK;lock.write_bytes(b'');lock.chmod(0o600)
+     with self.assertRaisesRegex(ValueError,'apps604-selected-postcommit-only'):parent.tree(self.root)
+     for bad in (None,{k:v for k,v in witness.items()if k!='apps6_selection'},dict(witness,nonce='b'*32),dict(witness,apps6_selection=witness['apps6_selection']|{'archive_sha256':'0'*64})):
+      with self.subTest(witness=bad),self.assertRaises(ValueError):driver.apps6_bind_selection(parent,bad,bound_spec)
+      self.assertFalse(getattr(parent,'apps6_auxiliary_selected',False))
+     foreign=dict(bound_spec,nonce='b'*32);foreign_witness=dict(witness,nonce='b'*32)
+     with self.assertRaises(ValueError):driver.apps6_bind_selection(parent,foreign_witness,foreign)
+     driver.apps6_bind_selection(parent,witness,bound_spec);self.assertIs(parent.apps6_auxiliary_selected,True)
+     live=parent.retained(linked.roots.observe(self.root,limits=parent.root_limits,hardlinks='generic-development-internal')['nodes']);expected=parent.retained(parent.projected)
+     self.assertEqual({n:(expected.get(n),live.get(n))for n in set(expected)|set(live)if expected.get(n)!=live.get(n)}, {})
+     parent.tree(self.root);self.assertEqual(parent.auxiliary_checks[-1]['selected_scan_directory']['projection'],'DIRECTORY_MTIME_CTIME_ONLY')
+     with self.assertRaisesRegex(ValueError,'reserved-parent-selection'):driver.apps6_bind_selection(parent,witness,bound_spec)
+     target=self.root/'usr/lib/libretained.so';target.write_bytes(b'changed retained sibling')
+     with self.assertRaisesRegex(ValueError,'scan-changed'):parent.tree(self.root)
+     # Core independent database/payload/protection readbacks stay exact.
+     prepared=A.prior.prepare(source,base/'prior','postcommit-exit87',git=False,implementation=ROOT)[0];old=ast.parse((base/'prior/scripts/ci/full-root-postcommit-failure/run.py').read_bytes());new=ast.parse(Path(driver.__file__).read_bytes());methods=lambda tree:{n.name:ast.dump(n,include_attributes=False)for n in tree.body if isinstance(n,ast.FunctionDef)}
+     a,b=methods(old),methods(new)
+     for name in ('prepare_verifier','verify_after','database_after','assess','worker','fault_class'):self.assertEqual(a[name],b[name],name)
 
 if __name__=='__main__':unittest.main(verbosity=2)
