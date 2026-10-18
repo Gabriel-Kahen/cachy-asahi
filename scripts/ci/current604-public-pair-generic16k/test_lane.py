@@ -161,7 +161,7 @@ class Controls(unittest.TestCase):
   self.assertEqual(C.sha((ROOT/P.INSTALLER/'source-manifest.json').read_bytes()),pins['installer_source_manifest_sha256'])
   with tempfile.TemporaryDirectory() as td:
    base=Path(td);output=base/'emitted';receipt=P.emit(ROOT,ROOT,ROOT,output)
-   self.assertEqual(receipt['source_rows'],425)
+   self.assertEqual(receipt['source_rows'],427)
    for n,pin in recipes.items():self.assertEqual(P.pin((output/n).read_bytes()),pin)
    incomplete=base/'old-incomplete';incomplete.mkdir()
    for n in pins['groups']['installer']:

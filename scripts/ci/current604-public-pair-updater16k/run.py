@@ -5,7 +5,7 @@ import argparse,sys
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 import contract as C
-import adapter,vm
+import adapter,vm,producer_diagnostic as PDIAG
 
 def main(argv=None):
  args=sys.argv[1:] if argv is None else argv
@@ -20,8 +20,9 @@ def main(argv=None):
    return adapter.prepare_selected(selected,source,target,case)
  gate=old.scoped('gate',a.implementation/C.OLD/'gate.py',{'contract':old})
  cache=old.scoped('before_cache',a.implementation/C.OLD/'before_cache.py',{'contract':old})
- raw=C.read(a.implementation/C.OLD/'run.py');text=adapter.owner(raw)
+ raw=C.read(a.implementation/C.OLD/'run.py');text=PDIAG.route_owner(adapter.owner(raw))
  namespace=dict(__name__='_updater16k_generated_owner',__file__=str(a.implementation/C.OLD/'run.py'))
+ namespace['PDIAG']=PDIAG
  prior={k:sys.modules.get(k) for k in ('contract','adapter','gate','before_cache')}
  try:
   sys.modules.update(contract=old,adapter=Adapter,gate=gate,before_cache=cache)

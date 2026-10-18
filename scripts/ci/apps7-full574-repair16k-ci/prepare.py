@@ -8,7 +8,7 @@ LANE='scripts/ci/apps7-full574-repair16k-ci';BRIDGE='scripts/ci/apps7-full574-re
 WF='.github/workflows/native-arm-apps7-full574-repair16k.yml'
 NATIVE_WF='.github/workflows/native-arm-apps-full574-repair.yml'
 KERNEL_WF='.github/workflows/native-arm-current604-apps6-updater16k.yml'
-OWN=('support.py','owner.py','kernel.py','retain.py','prepare.py','test_ci.py','README.md','borrowed-pins.json')
+OWN=('support.py','owner.py','kernel.py','retain.py','prepare.py','test_ci.py','README.md','borrowed-pins.json','archive32.py','archive32-policy.json')
 def need(ok,why):
  if not ok:raise ValueError(why)
 def pin(raw):return dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())
@@ -90,6 +90,10 @@ def workflow(native,kernel,owner_sha,manifest_sha):
   '          python3 -B "$GITHUB_WORKSPACE/'+BRIDGE+'/prepare.py" --template --source "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/apps7-repair16k-default-controls"\n          python3 -B -Werror::ResourceWarning -m unittest discover -s "$RUNNER_TEMP/apps7-repair16k-default-controls/'+BRIDGE+'" -p test_lane.py -v\n          python3 -B -Werror::ResourceWarning -m unittest discover -s "$SLICE" -p test_ci.py')
  text=text.replace('native-arm-apps-full574-repair16k','native-arm-apps7-full574-repair16k')
  text=replace(text,'  cancel-in-progress: false\n','  queue: max\n  cancel-in-progress: false\n')
+
+ archive32_marker='      - name: Reconstruct pinned inputs and run offline owned native574 transaction\n'
+ need(text.count(archive32_marker)==1,'one unchanged native574 build entry')
+ text=text.replace(archive32_marker,'      - name: Prefetch and seed exact32 frozen574 bytes before unchanged producer\n        id: frozen574_archive32\n        if: ${{ success() }}\n        timeout-minutes: 4\n        shell: bash\n        run: |\n          set -euo pipefail\n          archive32_helper="$GITHUB_WORKSPACE/scripts/ci/apps7-full574-repair16k-ci/archive32.py"\n          archive32_policy="$GITHUB_WORKSPACE/scripts/ci/apps7-full574-repair16k-ci/archive32-policy.json"\n          archive32_inputs="$GITHUB_WORKSPACE/scripts/ci/maintained-desktop574-inputs.json"\n          printf \'%s  %s\\n\' \'b1e2fc13644510a613ce09e53b39d4f4471cf47fc03fa62f312258379666c418\' "$archive32_helper" \'4f6ce49214422579f1cc448ff95d9f311cbfaf47a0d0c4f32d828c9edf843585\' "$archive32_policy" | sha256sum --check\n          python3 -I -B "$archive32_helper" --policy "$archive32_policy" --inputs "$archive32_inputs" --cache "$RUNNER_TEMP/frozen574-archive32"\n          python3 -I -B - "$archive32_helper" "$archive32_policy" "$archive32_inputs" "$RUNNER_TEMP/frozen574-archive32" "$RUNNER_TEMP/desktop574/context/deps" <<\'PYARCHIVE32\'\n          import importlib.util,sys\n          from pathlib import Path\n          helper,policy,inputs,cache,destination=map(Path,sys.argv[1:])\n          spec=importlib.util.spec_from_file_location(\'held_archive32_cache_seed\',helper)\n          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)\n          selected=module.policy(policy,inputs)\n          result=module.seed_exact(cache,destination,selected)\n          result.update(helper=module.pin(helper.read_bytes()),policy=module.pin(policy.read_bytes()),destination=\'EXISTING_OWNED_DESKTOP574_DEPS\',original_versions=\'UNCHANGED\',original_signature_and_trust_checks=\'UNCHANGED\')\n          print(module.encoded(result).decode(),end=\'\')\n          PYARCHIVE32\n'+archive32_marker,1)
  return text
 
 def emit(root,output,implementation=None):

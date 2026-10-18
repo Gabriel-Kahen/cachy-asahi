@@ -8,7 +8,7 @@ spec=importlib.util.spec_from_file_location('_apps7_16k_ci_prepare_controls',HER
 class Controls(unittest.TestCase):
  def test_genuine_complete195_emission_has_exact_source_maps(self):
   with tempfile.TemporaryDirectory()as td,patch.object(subprocess,'Popen',side_effect=AssertionError('no actor/Git/API')):
-   out=Path(td)/'source';P.emit(ROOT,out);mf=json.loads((out/P.LANE/'source-manifest.json').read_bytes());self.assertEqual(len(mf['files']),193)
+   out=Path(td)/'source';P.emit(ROOT,out);mf=json.loads((out/P.LANE/'source-manifest.json').read_bytes());self.assertEqual(len(mf['files']),195)
    self.assertEqual({p.relative_to(out).as_posix()for p in out.rglob('*')if p.is_file()},set(mf['files'])|{P.LANE+'/source-manifest.json',P.WF})
    for n,r in mf['files'].items():self.assertEqual(P.pin((out/n).read_bytes()),r)
  def test_workflow_source_authorities_before_secrets_queue_and_all_kernel_cleanup(self):
@@ -22,5 +22,5 @@ class Controls(unittest.TestCase):
    for case in('repair-bytes','repair-missing'):
     with self.assertRaisesRegex(ValueError,'UNBOUND16K'):S.authorize(ROOT,case)
  def test_alias_exact_and_closed_source_namespace(self):
-  self.assertEqual((ROOT/P.WF).read_bytes(),(ROOT/'.github/workflows/native-arm-build.yml').read_bytes());C=S.bridge(ROOT);self.assertEqual(len(S.source(ROOT,C)),193)
+  self.assertEqual((ROOT/P.WF).read_bytes(),(ROOT/'.github/workflows/native-arm-build.yml').read_bytes());C=S.bridge(ROOT);self.assertEqual(len(S.source(ROOT,C)),195)
 if __name__=='__main__':unittest.main()

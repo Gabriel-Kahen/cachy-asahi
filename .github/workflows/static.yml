@@ -99,6 +99,11 @@ jobs:
           KSM2_FACTORY_SOURCE="$PWD" python3 -I -B scripts/ci/ksm2-kernel-native/test_prepare.py
           python3 -B "$RUNNER_TEMP/ksm2-kernel-source/scripts/ci/ksm2-kernel-native/lane.py" preflight --source "$RUNNER_TEMP/ksm2-kernel-source"
           python3 -B -Werror::ResourceWarning "$RUNNER_TEMP/ksm2-kernel-source/scripts/ci/ksm2-kernel-native/test_lane.py"
+      - name: Check GNU verity diagnostic kernel source without build or boot
+        run: |
+          python3 -B scripts/ci/gnu-verity-kernel-native/prepare.py --own "$PWD" --inputs "$PWD" --output "$RUNNER_TEMP/gnu-verity-kernel-source"
+          python3 -B "$RUNNER_TEMP/gnu-verity-kernel-source/scripts/ci/gnu-verity-kernel-native/lane.py" preflight --source "$RUNNER_TEMP/gnu-verity-kernel-source"
+          python3 -B -Werror::ResourceWarning "$RUNNER_TEMP/gnu-verity-kernel-source/scripts/ci/gnu-verity-kernel-native/test_lane.py"
       - name: Checkout whole copied606 code basis for optional KSM source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -244,7 +249,7 @@ jobs:
       - name: Checkout whole-pinned Apps-on606 source carrier without activation
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          ref: b6808d7a81e148ef04eef604590428b4d4d88c9c
+          ref: 33b75988d96b5aa31c41b60b5d991de8741a1d5d
           path: .ci-inputs/current606-apps7-source-roles
           persist-credentials: false
       - name: Checkout exact public Apps7 and Runtime1 pair DATA for source controls
