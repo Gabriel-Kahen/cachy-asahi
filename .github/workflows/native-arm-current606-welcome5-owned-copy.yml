@@ -60,7 +60,7 @@ jobs:
           WORKFLOW_SOURCE: ${{ github.sha }}
         run: |
           set -euo pipefail
-          printf '%s  %s\n' 'eb48803aa0dc2caa2ffc0058856d9bbf41e59ed8830714cefcb4a4451877d063' 'expanded604-code/scripts/ci/current606-welcome5-closed-owner/owner.py' 'ad4c932f24b12cf8707061e1196e758a7d341353e158f1ace2e8fc3cf89f9cbc' 'expanded604-code/scripts/ci/current606-welcome5-closed-owner/source-manifest.json' | sha256sum --check
+          printf '%s  %s\n' 'eb48803aa0dc2caa2ffc0058856d9bbf41e59ed8830714cefcb4a4451877d063' 'expanded604-code/scripts/ci/current606-welcome5-closed-owner/owner.py' '400e5e01a5dce21c31c2401cd95a167d5b8c834c12d8a26098dffdffa741760d' 'expanded604-code/scripts/ci/current606-welcome5-closed-owner/source-manifest.json' | sha256sum --check
           python3 -B expanded604-code/scripts/ci/current606-welcome5-closed-owner/owner.py --source-preflight
           python3 -B expanded604-code/scripts/ci/current606-welcome5-closed-owner/owner.py --require-selection
           printf '%s  %s\n' 'ce1cbfdb602b3e67ea844eae7b9bc37768194f95009bdec642997a23801bf02a' 'expanded604-code/held606/scripts/ci/current606-native/run.py' '09dae54c10f76d1a7b0bedd012f82aa513f5cc93102ad4ef5e6406dfee8bdd74' 'expanded604-code/held606/scripts/ci/current606-native/source-manifest.json' | sha256sum --check
