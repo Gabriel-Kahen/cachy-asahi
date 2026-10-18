@@ -12,7 +12,7 @@ from unittest.mock import patch
 
 HERE = Path(__file__).resolve().parent
 LANE = 'scripts/ci/current606-welcome5-closed-owner'
-CARRIER = 'd70eaec6001ad064a43571c67b777cfadf502f71'
+CARRIER = '2217f9361aba464a192fc4a6d28aca0c8ab33118'
 
 
 def need(ok, why):
