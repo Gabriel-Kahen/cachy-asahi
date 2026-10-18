@@ -200,8 +200,8 @@
         "sha256": "cd5c8aa86df5a06a268ecc21297b4cd7d8df1053c90c8bcd4e53ef9bb16194d9"
       },
       "scripts/ci/current606-ksm2-copy/alpm_step.py": {
-        "bytes": 5709,
-        "sha256": "a7c0848bb50bccd6ef4d752be9a4ec6d63a443301380520065e6c42550a51dbf"
+        "bytes": 5804,
+        "sha256": "941aad4a3334add10ef5522fbd415ca2b6c4797d22b7e11e24eaf4c6a0a9b20a"
       },
       "scripts/ci/current606-ksm2-copy/contract.py": {
         "bytes": 6375,
@@ -268,8 +268,8 @@
         "sha256": "efc1094e15bf38ea6e320c2f86bc64106126ebb92261742c298bbc7ed0d97c6d"
       },
       "scripts/ci/current606-ksm2-copy/source-manifest.json": {
-        "bytes": 8286,
-        "sha256": "7347559ba04049ed31d6327611e1d2bd195ebefbf56ac61155220cc48f1f5b39"
+        "bytes": 8287,
+        "sha256": "094f189db50d13e982f9bb3797762ec72c5368bb7568546021d1dbbaedf83330"
       },
       "scripts/ci/current606-ksm2-copy/step_entry.py": {
         "bytes": 741,
@@ -280,8 +280,8 @@
         "sha256": "6ad995704bd7225e86fb9e7b5b7b3ea9e3c551f47d6aec094f2c18e8c9d1baf8"
       },
       "scripts/ci/current606-ksm2-copy/test_worker.py": {
-        "bytes": 7978,
-        "sha256": "51a5b3714a75d086a2536ef672296ef38355f502be40d0ff22cee8d87b1031b2"
+        "bytes": 10419,
+        "sha256": "5805e6268b8f263e77e9bcf6bc256f0d6eae999616a18da59f7a47a08ed42bbf"
       },
       "scripts/ci/current606-ksm2-copy/verification.py": {
         "bytes": 2646,

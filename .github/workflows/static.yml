@@ -137,7 +137,7 @@ jobs:
       - name: Checkout whole frozen KSM hosted runtime without activation
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          ref: 2c05fcc20f1822749492fea8699373338209c7c0
+          ref: 5ab19626eba781efd977ec4a0df18ae44b53d67e
           path: .ci-inputs/ksm2-hosted-runtime
           persist-credentials: false
       - name: Emit and check default KSM hosted source without component activation
