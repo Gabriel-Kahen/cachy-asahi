@@ -10,7 +10,40 @@ import cap_scope
 BOOT_DEV_CHECK = "import os\nfrom pathlib import Path\n\ndef verify(raw, mount_id):\n    if type(raw) is not str or len(raw.encode()) > 1024**2:\n        raise ValueError('bounded bootstrap mount table required')\n    rows = []\n    for line in raw.splitlines():\n        left, right = line.split(' - ', 1)\n        fields, tail = left.split(), right.split()\n        if not (len(fields) >= 6 and len(tail) >= 3 and fields[0].isdigit()\n                and fields[4].startswith('/') and '\\\\' not in fields[4]\n                and (fields[4] == '/' or all(p not in ('', '.', '..') for p in fields[4][1:].split('/')))):\n            raise ValueError('reviewed bootstrap mount encoding required')\n        rows.append(dict(id=int(fields[0]), path=fields[4], root=fields[3], fs=tail[0]))\n    if not rows or len({r['path'] for r in rows}) != len(rows) or len({r['id'] for r in rows}) != len(rows):\n        raise ValueError('unambiguous bootstrap mount table required')\n    dev = [r for r in rows if r['path'] == '/dev']\n    if not (len(dev) == 1 and dev[0]['root'] == '/' and dev[0]['fs'] == 'devtmpfs'\n            and type(mount_id) is int and mount_id > 0 and dev[0]['id'] == mount_id):\n        raise ValueError('one existing kernel devtmpfs identity required')\n    return dev[0]['id']\n\ndef main():\n    with Path('/proc/self/mountinfo').open('r') as stream:\n        raw = stream.read(1024**2 + 1)\n    fd = os.open('/dev', os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)\n    try:\n        with Path('/proc/self/fdinfo/' + str(fd)).open('r') as stream:\n            info = stream.read(16385)\n        values = [line.split()[1:] for line in info.splitlines() if line.startswith('mnt_id:')]\n        if len(info.encode()) > 16384 or len(values) != 1 or len(values[0]) != 1 or not values[0][0].isdigit():\n            raise ValueError('one fresh dev descriptor mount identity required')\n        verify(raw, int(values[0][0]))\n    finally:\n        os.close(fd)\n\nif __name__ == '__main__':\n    main()\n"
 
 def command(argv,seconds=600):
- p=subprocess.run(list(map(str,argv)),stdin=subprocess.DEVNULL,capture_output=True,timeout=seconds);C.need(p.returncode==0 and len(p.stdout)+len(p.stderr)<=2*1024**2,'owned disk command refused: '+str(argv[0]))
+ p=subprocess.run(list(map(str,argv)),stdin=subprocess.DEVNULL,capture_output=True,timeout=seconds);C.need(p.returncode==0 and len(p.stdout)+len(p.stderr)<=2*1024**2,'owned disk command refused: '+str(argv[0]));return p.stdout
+
+def image_directory(raw):
+ """Strict bounded debugfs -p directory DATA; formatter free slots only."""
+ C.need(type(raw)is bytes and 0<len(raw)<=65536,'bounded image directory listing');result={};slots=0
+ for line in raw.splitlines():
+  if not line:continue
+  fields=line.split(b'/');C.need(len(fields)==8 and fields[0]==fields[-1]==b'','typed image directory row')
+  ino,mode,uid,gid,name,size=fields[1:-1]
+  if ino==b'0':
+   C.need((mode,uid,gid,name,size)==(b'000000',b'0',b'0',b'',b'0'),'only zero formatter free slots');slots+=1;C.need(slots<=64,'finite formatter free slots');continue
+  C.need(ino.isdigit()and 0<int(ino)<2**32 and len(mode)==6 and all(c in b'01234567'for c in mode)and uid.isdigit()and gid.isdigit()and int(uid)<2**32 and int(gid)<2**32,'typed image inode metadata')
+  C.need(name and len(name)<=255 and not any(c<32 or c==127 for c in name)and(size==b''or size.isdigit())and len(result)<256,'bounded image entry name/size')
+  key=name.decode('utf8');C.need(key not in result,'unique image entry names');result[key]=dict(inode=int(ino),mode=int(mode,8),uid=int(uid),gid=int(gid),size=None if size==b''else int(size))
+ C.need(set(result)>={'.','..'},'complete image directory dot entries');return result
+
+def formatter_recovery_directory(image,baseline,parent):
+ """Remove only new mkfs empty recovery inode, never omit it from observation."""
+ image=Path(image);parent=Path(parent)
+ C.need(image==parent/'boot.raw'and parent.is_dir()and not any(p.is_symlink()for p in(image,*image.parents)),'fixed owned unmounted boot-image path')
+ held=image.lstat();identity=lambda s:(s.st_dev,s.st_ino,s.st_mode,s.st_uid,s.st_gid,s.st_nlink,s.st_size)
+ C.need(stat.S_ISREG(held.st_mode)and held.st_nlink==1 and held.st_uid==os.geteuid()and not(held.st_mode&0o022),'owned single-link non-writable-by-others image')
+ C.need(type(baseline)is dict,'complete original baseline required')
+ if 'lost+found'in baseline:return # Original data is never removed or normalized.
+ C.need(not any(n.startswith('lost+found/')for n in baseline),'complete absent recovery subtree')
+ def listing(path):return image_directory(command(['/usr/bin/debugfs','-R','ls -p '+path,image],60))
+ before=listing('/');entry=before.get('lost+found')
+ expected=dict(inode=11,mode=0o40700,uid=0,gid=0,size=None)
+ C.need(entry==expected and before['.']['inode']==before['..']['inode']==2 and stat.S_ISDIR(before['.']['mode']),'exact new formatter recovery directory')
+ children=listing('/lost+found');C.need(set(children)=={'.','..'}and children['.']==dict(entry)and children['..']==before['.'],'only empty formatter directory under original root')
+ C.need(identity(image.lstat())==identity(held),'same owned image before fixed removal')
+ command(['/usr/bin/debugfs','-w','-R','rmdir /lost+found',image],60)
+ after=listing('/');C.need(after=={n:r for n,r in before.items()if n!='lost+found'},'exact recovery removal readback; zero debugfs exit alone is insufficient')
+ C.need(identity(image.lstat())==identity(held),'same owned image after fixed removal')
 
 def apis():
  # All updater root/copy/aux/checkpoint source bodies remain the generated exact
@@ -65,6 +98,7 @@ def prepare(s):
   image=out/(name+'.raw')
   with image.open('xb') as f:f.truncate(size)
   command(['/usr/bin/mkfs.ext4','-F','-b','4096','-m','0','-L','APPS6_'+name.upper(),'-d',root,image])
+  if name=='boot':formatter_recovery_directory(image,before,out)
  shutil.rmtree(stage);C.save(out/'prepared.json',dict(status='PREPARED_NOT_EXECUTED',boot=C.row(out/'boot.raw'),data=C.row(out/'data.raw'),capabilities_sha256=s['capabilities_sha256'],source_nodes_sha256=C.sha(C.encoded(before))))
  for p in out.iterdir():os.chown(p,s['uid'],s['gid'])
 
