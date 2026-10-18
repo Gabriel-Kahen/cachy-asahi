@@ -49,10 +49,10 @@ class Controls(unittest.TestCase):
    env=dict(self.env);env[field]=value
    with self.heads(roots),self.subTest(field=field),self.assertRaises(ValueError):W.preflight(self.root,inputs,env)
  def test_exact113_source_closure_refuses_mutation(self):
-  self.assertEqual(len(W.check_source(self.root)),113);(self.root/'scripts/ci/glibc-gnu-provider-interruption/container.py').write_text('changed')
+  self.assertEqual(len(W.check_source(self.root)),114);(self.root/'scripts/ci/glibc-gnu-provider-interruption/container.py').write_text('changed')
   with self.assertRaisesRegex(ValueError,'exact workflow source'):W.check_source(self.root)
  def test_complete121_bundle_preserves104_and_changes_only_effective_policy_manifest(self):
-  inputs,roots=self.fixture();value=self.assemble(inputs,roots);self.assertEqual(value['bundle_files'],121);self.assertEqual(value['runtime'],'NOT_RUN');bundle=self.work/'bundle';original=W.decode(W.read(bundle/'adaptation.json'));pins=W.decode(W.read(self.root/LANE/'source-pins.json'))['files']
+  inputs,roots=self.fixture();value=self.assemble(inputs,roots);self.assertEqual(value['bundle_files'],123);self.assertEqual(value['runtime'],'NOT_RUN');bundle=self.work/'bundle';original=W.decode(W.read(bundle/'adaptation.json'));pins=W.decode(W.read(self.root/LANE/'source-pins.json'))['files']
   for name,row in pins.items():self.assertEqual(W.pin(W.read(bundle/name)),row)
   changed=[name for name,row in original['files'].items() if W.pin(W.read(bundle/name))!=row];self.assertEqual(set(changed),{LANE+'/input-policy.json',LANE+'/source-manifest.json'});W.public_check(self.work/'public')
   for name in original['files']:
