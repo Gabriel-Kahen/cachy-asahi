@@ -28,9 +28,28 @@ def home_failure(home):
  except (OSError,ValueError,KeyError,TypeError):pass
  return result
 
+def docker_config_tree(output,child,source,case):
+ # This directory was separately created before the child, never borrowed from
+ # HOME. Do not read/export client contents or follow/remove aliases/sockets.
+ config=output.with_name(output.name+'-docker-config');owner=child.get('docker_config')
+ C.need(type(owner) is dict and set(owner)=={'path','identity','source','case'} and owner['path']==str(config) and owner['source']==source and owner['case']==case,'exact owned Docker config record')
+ C.need(not any(p.is_symlink() for p in (config,*config.parents)),'ordinary Docker config path')
+ info=config.lstat();C.need(stat.S_ISDIR(info.st_mode) and info.st_uid==os.getuid() and stat.S_IMODE(info.st_mode)==0o700 and owner['identity']==[info.st_dev,info.st_ino],'recorded Docker config directory identity')
+ total=0;pending=[config];count=0
+ while pending:
+  folder=pending.pop()
+  for p in folder.iterdir():
+   count+=1;C.need(count<=2048,'bounded owned Docker config nodes');s=p.lstat()
+   C.need(s.st_uid==os.getuid() and (stat.S_ISDIR(s.st_mode) or stat.S_ISREG(s.st_mode) and s.st_nlink==1),'owned ordinary Docker config nodes only')
+   if stat.S_ISDIR(s.st_mode):pending.append(p)
+   else:total+=s.st_size;C.need(total<=8*1024**2,'bounded owned Docker config bytes')
+ return config
+
 def cleanup(work,output,source,case):
  C.need(work.is_absolute() and work.name=='managed-gui16k-kernel' and not any(p.is_symlink() for p in (work,*work.parents)),'dedicated ordinary kernel work')
- if not work.exists():return dict(status='NOT_CREATED',VM='NOT_RUN')
+ if not work.exists():
+  config=output.with_name(output.name+'-docker-config');C.need(not config.exists() and not config.is_symlink(),'RETAINED_DOCKER_CONFIG_WITHOUT_KERNEL_WORK')
+  return dict(status='NOT_CREATED',VM='NOT_RUN')
  marker=C.decode(C.read(work/'wiring-owner.json'));info=work.stat();C.need(marker['source']==source and marker['case']==case and marker['identity']==[info.st_dev,info.st_ino] and info.st_uid==os.getuid() and info.st_mode&0o7777==0o700,'recorded kernel directory identity')
  receipt=work/'helper/built/build-receipt.json'
  C.need(receipt.exists() and C.decode(C.read(receipt,65536))['status']=='BUILT_ONLY','RETAINED_KERNEL_BUILD_NOT_PROVEN_TERMINAL')
@@ -40,8 +59,13 @@ def cleanup(work,output,source,case):
  if output.exists():
   own=C.decode(C.read(output/'owner.json'));r=C.decode(C.read(output/'result.json'));vm=C.decode(C.read(output/'public/updater16k-cleanup.json'));job=C.decode(C.read(output/'wiring-owner.json'))
   C.need(own['output']==str(output) and own['purpose']=='expanded604-apps6-public-pair-updater' and vm['status']=='PASS' and job['child']['group_absence_verified'] is True and r['producer_cleanup']=='PASS' and r['outer_cleanup']=='PASS' and r['caller_private_cleanup']=='PASS','RETAINED_CONSUMER_OR_PRODUCER_ABSENCE_UNKNOWN')
- if home.exists():C.need({p.name for p in home.iterdir()}=={'child.json'} and home.stat().st_uid==os.getuid() and not home.is_symlink(),'exact owned job HOME closure')
+ config=None
+ if home.exists():
+  C.need({p.name for p in home.iterdir()}=={'child.json'} and home.stat().st_uid==os.getuid() and not home.is_symlink(),'exact owned job HOME closure')
+  config=docker_config_tree(output,child,source,case)
+ else:C.need(not output.with_name(output.name+'-docker-config').exists() and not output.with_name(output.name+'-docker-config').is_symlink(),'Docker config without owned child record')
  C.need(shutil.rmtree.avoids_symlink_attacks,'safe owned tree removal');shutil.rmtree(work)
+ if config is not None:shutil.rmtree(config);C.need(not config.exists(),'Docker config remains')
  if home.exists():
   (home/'child.json').unlink();home.rmdir()
  C.need(not work.exists(),'kernel remains');return dict(status='PASS_OWNED_KERNEL_WORK_REMOVED',source_archive_cache='PRESERVED_VERIFIED_ARCHIVE_ONLY')
