@@ -36,15 +36,18 @@ class Controls(unittest.TestCase):
    root=Path(td);path=root/'progress.log';# Outer-boundary unit fixture uses inert facades; exact capability/snapshot bodies
    # and refusal/return behavior have real small-tree controls in test_snapshot_progress.py.
    outer=types.SimpleNamespace(Journal=S.Journal,validate=S.validate,snapshot=lambda module,record:module.snapshot,capability_facade=lambda module,record,**kw:module)
-   space=scope(('progress_value','install_progress'),PROGRESS=path,S=outer,O=types.SimpleNamespace(facade=lambda module,record,**kw:module));c=space['C'];original_return=object();calls=[]
+   copy_bindings=[]
+   def copy_binding(bridge,source):copy_bindings.append((bridge,source));return bridge
+   space=scope(('progress_value','install_progress'),PROGRESS=path,S=outer,O=types.SimpleNamespace(facade=lambda module,record,**kw:module),_copy_capability_bridge=copy_binding);c=space['C'];original_return=object();calls=[]
    def observe(*a,**k):
     for n in range(10000):str(n)
     calls.append(('observe',a,k));return original_return
-   roots=types.SimpleNamespace(observe=observe);api={'roots':roots,'caps':object()};common=types.SimpleNamespace(helpers=lambda *a,**k:api);module=types.SimpleNamespace(C=common)
+   roots=types.SimpleNamespace(observe=observe);api={'roots':roots,'caps':object(),'capabilities':object()};common=types.SimpleNamespace(helpers=lambda *a,**k:api);module=types.SimpleNamespace(C=common)
    for name in ('main','run_case','snapshot','transaction','smoke','caches','copy_probes','config_handoff'):setattr(module,name,lambda *a,**k:original_return)
    def bad(*a,**k):raise RuntimeError('original exception')
    module.transaction=bad;c.ref=lambda root,row:root/row['path'];c.load=lambda name,path:types.SimpleNamespace(_mount600=lambda old:old,_observer600=lambda roots,*a,**kw:roots.observe(*a,**kw)) if name=='gnu_installed_fresh_mount_query' else module;c.read=lambda *a:json.dumps(dict(nonce=NONCE,source_sha=SOURCE)).encode();c.need=lambda ok,why:need(ok or why=='owned progress replacement',why) # Ordinary host-owned temp; productionroot0 check remains.
    space['install_progress']();wrapped=c.load('guest_worker','/installed16k/container16k.py');self.assertIs(wrapped.main(),original_return);newapi=wrapped.C.helpers(Path('/source'));self.assertIs(newapi['roots'].observe('unchanged',hardlinks='generic-development-internal'),original_return);self.assertEqual(calls,[('observe',('unchanged',),{'hardlinks':'generic-development-internal'})]);self.assertIs(api['roots'].observe, newapi['roots'].observe)
+   self.assertEqual(copy_bindings,[(api['capabilities'],Path('/source'))])
    with self.assertRaisesRegex(RuntimeError,'original exception'):wrapped.transaction('same')
    v=json.loads(path.read_bytes());self.assertEqual(len(v['records']),7);self.assertEqual(stat.S_IMODE(path.stat().st_mode),0o600);self.assertTrue(all(set(r)==set(row()) for r in v['records']))
  def test_real_short_stall_has_live_phase_before_original_group_timeout(self):
