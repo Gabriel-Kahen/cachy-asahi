@@ -145,5 +145,80 @@ class Tests(unittest.TestCase):
     with self.assertRaisesRegex(ValueError,'exact source closure'):D.source(root)
     (root/name).unlink()
    self.assertEqual(D.source(root)['files'],expected_files)
+class MediaPreparationControls(unittest.TestCase):
+ def modules(self):
+  binding.runtime(ROOT)
+  return D.load('_stage_callback_controls',ROOT/'runtime/immutable/stage.py'),D.load('_prepare_handoff_controls',ROOT/'runtime/immutable/native_prepare.py')
+ def test_actual_recovery_function_sees_patched_command_and_original_guards(self):
+  import types
+  stage,prepare=self.modules();images=stage.original_images();recovery=images.prepare.__globals__['recovery'];self.assertIsInstance(recovery,types.ModuleType)
+  dot=b'/2/040755/0/0/.//\n/2/040755/0/0/..//\n';lost=b'/11/040700/0/0/lost+found//\n';children=b'/11/040700/0/0/.//\n/2/040755/0/0/..//\n';calls=[];removed=False
+  def command(argv,seconds):
+   nonlocal removed
+   self.assertEqual(seconds,60);calls.append([str(x)for x in argv])
+   request=argv[-2]
+   if request=='ls -p /':return dot if removed else dot+lost
+   if request=='ls -p /lost+found':return children
+   self.assertEqual(request,'rmdir /lost+found');removed=True;return b''
+  with tempfile.TemporaryDirectory()as td:
+   parent=Path(td);image=parent/'source.raw';image.write_bytes(b'INERT_ORDINARY_IMAGE_DATA');image.chmod(0o600)
+   # Reproduce copied-namespace defect without any tool/image actor.
+   copied=types.SimpleNamespace(**vars(recovery))
+   with patch.object(copied,'command',command):
+    with self.assertRaises(TypeError):copied.formatter_recovery_directory(image,{},parent)
+   with patch.object(recovery,'command',command):recovery.formatter_recovery_directory(image,{},parent)
+   self.assertEqual(len(calls),4);self.assertEqual(image.read_bytes(),b'INERT_ORDINARY_IMAGE_DATA');self.assertIsNone(recovery.command)
+   with patch.object(recovery,'command',side_effect=AssertionError('no unsafe command')):
+    with self.assertRaises(ValueError):recovery.formatter_recovery_directory(image,{'lost+found/foreign':{}},parent)
+ def test_real_private_media_handoff_keeps_child_contents_and_metadata(self):
+  stage,prepare=self.modules()
+  with tempfile.TemporaryDirectory()as td:
+   root=Path(td);root.chmod(0o700);media=root/'immutable-media';media.mkdir(mode=0o700);p=media/'source.raw';p.write_bytes(b'PRIVATE_PARTIAL');p.chmod(0o600);before=p.stat();data=p.read_bytes()
+   prepare.media_handoff(root,os.getuid(),os.getgid());after=p.stat()
+   self.assertEqual(data,p.read_bytes());self.assertEqual((before.st_dev,before.st_ino,before.st_mode,before.st_nlink,before.st_size,before.st_mtime_ns),(after.st_dev,after.st_ino,after.st_mode,after.st_nlink,after.st_size,after.st_mtime_ns));self.assertEqual(media.stat().st_uid,root.stat().st_uid)
+ def test_handoff_uses_exact_drive_fds_preserving0600_hash_and_JSON(self):
+  stage,prepare=self.modules()
+  with tempfile.TemporaryDirectory()as td:
+   root=Path(td);root.chmod(0o700);media=root/'immutable-media';media.mkdir(mode=0o700)
+   for name in ('source.raw','source.hash','source-image.json'):
+    p=media/name;p.write_bytes(name.encode());p.chmod(0o600 if name=='source.hash'else 0o644)
+   metadata=(media/'source-image.json').stat();calls=[];original=os.fchown
+   def chown(fd,uid,gid):calls.append(os.fstat(fd).st_ino);return original(fd,uid,gid)
+   with patch.object(os,'fchown',side_effect=chown):prepare.media_handoff(root,os.getuid(),os.getgid())
+   self.assertEqual(calls,[(media/'source.raw').stat().st_ino,(media/'source.hash').stat().st_ino,media.stat().st_ino]);self.assertEqual((media/'source.hash').stat().st_mode&0o777,0o600);self.assertEqual((media/'source-image.json').stat(),metadata)
+ def test_media_alias_hardlink_extras_and_wrong_owner_refuse(self):
+  stage,prepare=self.modules()
+  for kind in ('alias','hardlink','extra','directory','parent-alias','wrong-owner'):
+   with tempfile.TemporaryDirectory()as td:
+    root=Path(td);root.chmod(0o700);media=root/'immutable-media';media.mkdir(mode=0o700);p=media/'source.raw';p.write_bytes(b'PRIVATE');p.chmod(0o600);uid=os.getuid();gid=os.getgid();target=root
+    if kind=='alias':p.unlink();p.symlink_to(root/'other')
+    if kind=='hardlink':os.link(p,root/'other')
+    if kind=='extra':(media/'foreign').write_bytes(b'REFUSE')
+    if kind=='directory':(media/'nested').mkdir()
+    if kind=='parent-alias':target=root/'alias';target.symlink_to(root,target_is_directory=True)
+    if kind=='wrong-owner':uid+=1
+    with patch.object(os,'fchown',side_effect=AssertionError('must refuse before ownership mutation')):
+     with self.assertRaises((ValueError,OSError)):prepare.media_handoff(target,uid,gid)
+ def test_real_media_name_replacement_refuses_before_chown(self):
+  stage,prepare=self.modules()
+  with tempfile.TemporaryDirectory()as td:
+   root=Path(td);root.chmod(0o700);media=root/'immutable-media';media.mkdir(mode=0o700);p=media/'source.raw';p.write_bytes(b'PRIVATE');p.chmod(0o600);original=os.listdir;count=0
+   def replace(fd):
+    nonlocal count
+    count+=1
+    if count==2:media.rename(root/'replaced');media.mkdir(mode=0o700)
+    return original(fd)
+   with patch.object(os,'listdir',side_effect=replace),patch.object(os,'fchown',side_effect=AssertionError('wrong anchored name')):
+    with self.assertRaises(ValueError):prepare.media_handoff(root,os.getuid(),os.getgid())
+ def test_prepare_failure_handoff_preserves_error_and_NULL_refuses_first(self):
+  stage,prepare=self.modules();policy=json.loads((ROOT/'runtime/immutable/policy.json').read_bytes());calls=[]
+  with patch.object(subprocess,'Popen',side_effect=AssertionError('NO_ACTORS')):
+   with self.assertRaisesRegex(ValueError,'NULL'):prepare.execute(policy)
+  def fail():raise RuntimeError('INERT_PREPARE_FAILURE')
+  with patch.object(prepare.runtime_policy,'gate'),patch.object(prepare,'load',return_value={'prepare':fail}),patch.object(prepare,'media_handoff',side_effect=lambda *a:calls.append(a)),patch.dict(os.environ,OUTPUT_UID=str(os.getuid()),OUTPUT_GID=str(os.getgid())):
+   with self.assertRaisesRegex(RuntimeError,'INERT_PREPARE_FAILURE'):prepare.execute(policy)
+  self.assertEqual(calls,[(Path('/out'),os.getuid(),os.getgid())])
+
+
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--source',type=Path,default=D.ROOT);a,rest=p.parse_known_args();ROOT=a.source.absolute();unittest.main(argv=[sys.argv[0],*rest],verbosity=2)
