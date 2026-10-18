@@ -450,6 +450,28 @@ jobs:
         run: FULL574_REPAIR16K_SOURCE="$RUNNER_TEMP/repair16k-ci" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/apps-full574-repair16k -p 'test*.py'
       - name: Check full574 repair16K CI source without actors
         run: CACHY_ASAHI_REPAIR16K_TEST_SOURCE="$RUNNER_TEMP/repair16k-ci" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/apps-full574-repair16k-ci -p test_ci.py
+      - name: Checkout exact Apps7 native574 repair source operand
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: c89868439988f99d4179d208d1198f6f9c94d5d5
+          path: .ci-inputs/apps7-repair-native-c898
+          persist-credentials: false
+      - name: Checkout exact repair16K kernel and media source operand
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 591470fd0f870cad75b79aff9f87a6cb1ad1bcd8
+          path: .ci-inputs/apps7-repair16k-kernel591
+          persist-credentials: false
+      - name: Check separate Apps7 repair16K emitted source and NULL authorities
+        run: |
+          set -euo pipefail
+          work=$(mktemp -d "$RUNNER_TEMP/apps7-repair16k-source.XXXXXX")
+          trap 'rm -rf -- "$work"' EXIT
+          python3 -B scripts/ci/apps7-full574-repair16k/prepare.py --source "$PWD/.ci-inputs/apps7-repair16k-kernel591" --native-source "$PWD/.ci-inputs/apps7-repair-native-c898" --output "$work/bridge"
+          python3 -B scripts/ci/apps7-full574-repair16k-ci/prepare.py --source "$work/bridge" --implementation "$PWD/.ci-inputs/apps7-repair16k-kernel591" --output "$work/ci"
+          cp "$work/ci/.github/workflows/native-arm-apps7-full574-repair16k.yml" "$work/ci/.github/workflows/native-arm-build.yml"
+          python3 -B -Werror::ResourceWarning -m unittest discover -s "$work/ci/scripts/ci/apps7-full574-repair16k" -p test_lane.py -v
+          python3 -B -Werror::ResourceWarning -m unittest discover -s "$work/ci/scripts/ci/apps7-full574-repair16k-ci" -p test_ci.py -v
       - name: Assemble actual GitHub cancellation diagnostic without actors
         run: python3 -I -B scripts/ci/apps-full574-github-cancel/prepare.py --native-source "$PWD/.ci-inputs/repair-native-baseline" --implementation "$PWD" --output "$RUNNER_TEMP/apps574-github-cancel"
       - name: Check actual GitHub cancellation ownership and source guards
