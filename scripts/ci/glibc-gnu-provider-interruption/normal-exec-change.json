@@ -1,0 +1,8 @@
+{
+  "original_source": "scripts/ci/glibc-owned-runtime/abi_smoke.c",
+  "before_sha256": "f131a4f11693b15d7916170a685f9c4f6158596134bf5414f3d8ee472be1a9af",
+  "after_sha256": "a766bc7cd31cce18fe7e564432de4e4b63db49763608ae70ef8fab61cd29116c",
+  "replacement_before": "        char *arguments[] = {(char *)loader, \"--inhibit-cache\", \"--library-path\", (char *)libraries, (char *)child, (char *)work, fd, NULL};\n        execve(loader, arguments, environ); probe_require(0, \"exec-candidate-loader\");",
+  "replacement_after": "        (void)loader; (void)libraries;\n        char *arguments[] = {(char *)child, (char *)work, fd, NULL};\n        execve(child, arguments, environ); probe_require(0, \"exec-system-interpreter\");",
+  "scope": "Only child execve becomes ordinary executable lookup; all eight runtime case bodies preserved"
+}
