@@ -583,8 +583,8 @@ native_generic16k_cli = "NOT_RUN Apps6; prior data-staged Apps5 result does not 
 development_variant_version = "0.1.0-7"
 development_variant_recipe = "packages/tools/cachy-asahi-apps7/PKGBUILD"
 development_variant_host_validation = "PASS45 product tests,15 large-inventory/metadata controls and signed staged CLI; order-preserving parser sets; original Apps6 and30 consumers unchanged"
-development_variant_native_build = "NOT RUN"
-development_variant_installation = "NOT RUN ALPM; package() staging only"
+development_variant_native_build = "PASS native39095436036/source1dc9ecfee51145ba9cc43a95cc45bee97faed8b9: two clean builds, byte/content/PKGINFO/BUILDINFO identity"
+development_variant_installation = "PASS isolated signed577/574 five-transition ALPM lifecycle, both ordinary users; private574 preservation maps remain source-enforced receipts; no604/16K/M2/release credit"
 
 
 [[packages]]
@@ -652,7 +652,49 @@ candidate_version = "0.1.0-1"
 selected_for_development = false
 selected_for_release = false
 host_validation = "PASS five staged/genuine TEST-signature controls: tilde source lookup/export, tamper refusal, unchanged populated checkpoint and disjoint Runtime ownership; original Apps CLI compatibility passes"
-native_build = "NOT RUN"
-installation = "NOT RUN ALPM; package() staging only"
+native_build = "PASS"
+native_build_commit = "1dc9ecfee51145ba9cc43a95cc45bee97faed8b9"
+native_evidence = "docs/validation/apps7-client-native-20261018.md"
+installation = "PASS isolated signed577/574 five-transition lifecycle, both ordinary users; actual4096 pages, no604/16K/M2/release credit"
 hardware_validation = "NOT RUN"
-next_step = "Build native pairs and exercise signed ALPM install/remove beside exact Runtime0.1.0-1. Opt-in source entrypoint; existing Apps/Runtime and default callers are unchanged."
+next_step = "Extend accepted native component into the full selected composition and target hardware. Opt-in source entrypoint; existing Apps/Runtime and default callers are unchanged."
+
+[[packages]]
+name = "cachy-asahi-dns"
+phase = "later-tools"
+status = "candidate"
+source = "local-original"
+recipe = "packages/tools/cachy-asahi-dns/PKGBUILD"
+license = "MIT"
+audit = "packages/tools/cachy-asahi-dns/README.md"
+selected_for_development = true
+selected_for_release = false
+candidate_version = "0.1.0-1"
+source_commit = "8daeb115740ffb494e8fa91f0749c2edd6dd4284"
+host_validation = "PASS21 controls including real nmcli offline two-family apply/restore; exact5-file staging; no host profile mutation/live DNS/ALPM/M2 result"
+native_build = "PASS"
+native_build_commit = "8f09e6d0f4cc2ba276dbd3241be55a010a0ae438"
+native_evidence = "docs/validation/dns-sysctl-native-20261018.md"
+installation = "PASS signed576/574 five-transition native ALPM lifecycle, both ordinary users, original574 preserved by source-enforced receipts; no live DNS/kernel changes/M2/release credit"
+hardware_validation = "NOT RUN"
+next_step = "Independently scoped live integration and hardware checks; retain explicit opt-in and existing baseline."
+
+[[packages]]
+name = "cachy-asahi-sysctl"
+phase = "later-tools"
+status = "candidate"
+source = "local-original"
+recipe = "packages/tools/cachy-asahi-sysctl/PKGBUILD"
+license = "MIT"
+audit = "packages/tools/cachy-asahi-sysctl/README.md"
+selected_for_development = true
+selected_for_release = false
+candidate_version = "0.1.0-1"
+source_commit = "8daeb115740ffb494e8fa91f0749c2edd6dd4284"
+host_validation = "PASS19 private-tree controls on Python3.12/3.14 including genuine SIGKILL recovery and staged-command checks; no real kernel writes/performance/M2 result"
+native_build = "PASS"
+native_build_commit = "8f09e6d0f4cc2ba276dbd3241be55a010a0ae438"
+native_evidence = "docs/validation/dns-sysctl-native-20261018.md"
+installation = "PASS signed576/574 five-transition native ALPM lifecycle, both ordinary users, original574 preserved by source-enforced receipts; no live DNS/kernel changes/M2/release credit"
+hardware_validation = "NOT RUN"
+next_step = "Independently scoped live integration and hardware checks; retain explicit opt-in and existing baseline."
