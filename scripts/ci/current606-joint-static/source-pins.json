@@ -1,9 +1,9 @@
 {
-  "carrier": "244aa08097515434088606e50df1391483b531b4",
+  "carrier": "1b844adcae6c5dedd7e148dd3f8dc5ce1b41f3ef",
   "files": {
     ".github/workflows/native-arm-current606-latest-tools-owned-copy.yml": {
       "bytes": 31366,
-      "sha256": "64193cef5a2dfff267dacd06e7ccb0d6d667577ff98cb440e736998c70e86453"
+      "sha256": "61a5d6ae0a2783845d165e9bd9e067dfedd85ed6491e973ae9497bce8ebb4e3c"
     },
     "scripts/ci/current606-latest-tools/contract.py": {
       "bytes": 2531,
@@ -11,11 +11,11 @@
     },
     "scripts/ci/current606-latest-tools/historical-pins.json": {
       "bytes": 138617,
-      "sha256": "b0bd2f2e2f9d003f3dd3a12b6fe4e4cb533a18afad720b1e4f89c03e25271b99"
+      "sha256": "e03f395875e826df8bf3fb419bea4f817e77c8609869e38ac61163702077079e"
     },
     "scripts/ci/current606-latest-tools/implementation-pins.json": {
       "bytes": 21163,
-      "sha256": "2519b59d297880a1d3348f5b5a4e3c1f2232271381e3833192bcab8e3cc5ce56"
+      "sha256": "236da9754c31692f86fcf89cb9107802243450ff92ee7447692ce5578f5aa198"
     },
     "scripts/ci/current606-latest-tools/input-policy.json": {
       "bytes": 1928,
@@ -43,19 +43,19 @@
     },
     "scripts/ci/current606-latest-tools/selection-template.py": {
       "bytes": 10483,
-      "sha256": "8786a53ecf00d690a6363761519d12b5c2194ce2155c18675ff37eaa30ec69cb"
+      "sha256": "802e9e0759d56c9258a8ecf9771e213bab43c431dcbfe6d1e1bc3cd2a2f5df2f"
     },
     "scripts/ci/current606-latest-tools/selection.py": {
       "bytes": 10483,
-      "sha256": "8786a53ecf00d690a6363761519d12b5c2194ce2155c18675ff37eaa30ec69cb"
+      "sha256": "802e9e0759d56c9258a8ecf9771e213bab43c431dcbfe6d1e1bc3cd2a2f5df2f"
     },
     "scripts/ci/current606-latest-tools/source-manifest.json": {
       "bytes": 176280,
-      "sha256": "955b51bed167a21edee4c9290fec26504df0cb8d49bcf9ddbce9aef08d7544c2"
+      "sha256": "68043c92606537b0f014257a823be3b414b37f2f011b30e68304744cee4e3d1c"
     },
     "scripts/ci/current606-latest-tools/test_source.py": {
-      "bytes": 27591,
-      "sha256": "a87f0735d640c148eaa5a58379841574afafa598d01e2363d6ee75b7e57d8cde"
+      "bytes": 35589,
+      "sha256": "0b055e7b6120def12380e3ce4fadb0add47e822cd850b268ccdf9a76d4be2cb6"
     }
   },
   "purpose": "SOURCE_CARRIER_ONLY_NOT_NATIVE_AUTHORITY",

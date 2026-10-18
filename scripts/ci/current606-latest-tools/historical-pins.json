@@ -2,11 +2,11 @@
   "apps": {
     ".github/workflows/native-arm-build.yml": {
       "bytes": 31197,
-      "sha256": "66049410caa3af50d7a6be24006f498dab31f0b5ff1bd4767801408782770f7a"
+      "sha256": "0888999da9a2ab42f91a822a07a5c26946d63d0ef059669a24bb0834de1fb05a"
     },
     ".github/workflows/native-arm-current606-apps7-owned-copy.yml": {
       "bytes": 31197,
-      "sha256": "66049410caa3af50d7a6be24006f498dab31f0b5ff1bd4767801408782770f7a"
+      "sha256": "0888999da9a2ab42f91a822a07a5c26946d63d0ef059669a24bb0834de1fb05a"
     },
     "bridge/scripts/apps/file_capabilities.py": {
       "bytes": 13562,
@@ -173,12 +173,12 @@
       "sha256": "3a586c1e3400391f56bd281ac9c16aba85d94d0fca002770e77ee1802c5d9fd1"
     },
     "copyworker/scripts/ci/current606-apps7-copy/fixture_entry.py": {
-      "bytes": 2856,
-      "sha256": "b1b3e9b01dfc09d8fc4f74a9ac8117a0ede5cdfb2b96f89ca297952a7edc27fe"
+      "bytes": 2850,
+      "sha256": "8f68309931a2123590296a2cf55809f454f7ab043815da6c4daeb16853ee04d9"
     },
     "copyworker/scripts/ci/current606-apps7-copy/guard.py": {
-      "bytes": 5422,
-      "sha256": "93055a87842f84f358b59eac1fbdc3f1df1a074ca57dedd2e6cc94a704179503"
+      "bytes": 6366,
+      "sha256": "3814e65f3c1f946a3335e5579882e48e094201f14e8e2216efa350e8899aa340"
     },
     "copyworker/scripts/ci/current606-apps7-copy/input-policy.json": {
       "bytes": 700,
@@ -201,8 +201,8 @@
       "sha256": "d9c8cb0c50abb3620775c7dab55e3943052254a5620b4d6df408d1112079bf09"
     },
     "copyworker/scripts/ci/current606-apps7-copy/plan.py": {
-      "bytes": 3771,
-      "sha256": "533ffa3f5719cc777798f1d45fa49442223350216867c1b9d7d29cb43cb9e776"
+      "bytes": 5123,
+      "sha256": "f8a91840c3140246a3ec1d35f5cb3fdb3cf1e6a354908098acf145229086befe"
     },
     "copyworker/scripts/ci/current606-apps7-copy/prepare.py": {
       "bytes": 1695,
@@ -217,36 +217,36 @@
       "sha256": "c0a7e594ca7faf5a0d10081b5ee3adf2da4c3c273b3058ed7de893c4cd09f97c"
     },
     "copyworker/scripts/ci/current606-apps7-copy/rooted_fixture.py": {
-      "bytes": 6993,
-      "sha256": "43a07d2a9d7fbda44c0092699cd65ca23d33a39fa9df4f1f8ac91dfab6f602a1"
+      "bytes": 8330,
+      "sha256": "af1ad1a0b9c27754a72cd920a4ad6053b865f94e46dc2517ed9a09fc49588211"
     },
     "copyworker/scripts/ci/current606-apps7-copy/source-manifest.json": {
       "bytes": 6836,
-      "sha256": "6bbf5e298c38434f9befb9de28e6c532efa4318268d8b65b44d2ebe0ba8a0fe6"
+      "sha256": "63dcdc66776f68af8787fec1376a705eb064217926aa82ad90d4f3cf884a98b2"
     },
     "copyworker/scripts/ci/current606-apps7-copy/step_entry.py": {
       "bytes": 741,
       "sha256": "fdcef3299e4829995c32ebb9670798b26c3dda55b565c7148bb8970514f7dd82"
     },
     "copyworker/scripts/ci/current606-apps7-copy/supervised.py": {
-      "bytes": 1472,
-      "sha256": "d382a1db17acde4d46a47acd390a26ef3f634ae69a4212ccfd3870fbc28ceb62"
+      "bytes": 3098,
+      "sha256": "6ad995704bd7225e86fb9e7b5b7b3ea9e3c551f47d6aec094f2c18e8c9d1baf8"
     },
     "copyworker/scripts/ci/current606-apps7-copy/templates/owner-api.NULL.json": {
       "bytes": 46,
       "sha256": "bb647153cea5f536ae488eb3f4ee31f5f08e7764d99b3cb99b76b9e5e1d2313d"
     },
     "copyworker/scripts/ci/current606-apps7-copy/test_worker.py": {
-      "bytes": 13771,
-      "sha256": "1732677bdce19d38aaa41ae6536ec635768b70e42036437291fd76548af63256"
+      "bytes": 36092,
+      "sha256": "2f03e95773a53de1c61bc23f37063c5031af57afd0493272f78f1a76976d6779"
     },
     "copyworker/scripts/ci/current606-apps7-copy/verification.py": {
       "bytes": 4356,
       "sha256": "23089503a8f9c224f1444ce7f507040174b77c9017368738093c3a5f1712d19a"
     },
     "copyworker/scripts/ci/current606-apps7-copy/worker.py": {
-      "bytes": 9551,
-      "sha256": "2e03b3757a41a9a6d79dfafd6a626c0ef0dd06fe09f1f10a4ff19309793e9b5d"
+      "bytes": 9617,
+      "sha256": "2a333f8393e68651c1cf4509a6c3f2d1fd36f50844690b2a5dae40ef399d8049"
     },
     "held606/.github/workflows/native-arm-build.yml": {
       "bytes": 29203,
@@ -1334,11 +1334,11 @@
     },
     "scripts/ci/current606-apps7-closed-owner/source-manifest.json": {
       "bytes": 60638,
-      "sha256": "10106b64a520123bd6334de7a58272967f34fd1eb7ac78a06d7daad213590627"
+      "sha256": "64928548ebb2d1534c33f0626d52613d706151c25ec5ce3a2d40b365fb1313e2"
     },
     "scripts/ci/current606-apps7-closed-owner/source-pins.json": {
       "bytes": 58974,
-      "sha256": "06361c8a40171b23218553187cd0f59fb43861f9180240f813aba5af703efcd1"
+      "sha256": "b97b573a0e4660d5518ad3d4891e5971e6d9c2ba53fd40f2e895fa6dd80ff33e"
     },
     "scripts/ci/current606-apps7-closed-owner/test_owner.py": {
       "bytes": 19485,

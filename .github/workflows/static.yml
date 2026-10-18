@@ -270,7 +270,7 @@ jobs:
       - name: Checkout corrected whole joint606 source roles without qualification
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          ref: 244aa08097515434088606e50df1391483b531b4
+          ref: 1b844adcae6c5dedd7e148dd3f8dc5ce1b41f3ef
           path: .ci-inputs/current606-joint-source-roles
           persist-credentials: false
       - name: Check joint latest-tools default source and per-step605 preservation without actors
