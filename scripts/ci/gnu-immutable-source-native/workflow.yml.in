@@ -20,40 +20,41 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: runtime/runtime-vm
+        working-directory: immutable-source/runtime/runtime-vm
     env:
       PYTHONDONTWRITEBYTECODE: '1'
       SOURCE_SHA: ${{ inputs.source_sha }}
       WORKFLOW_SHA: ${{ github.workflow_sha }}
-      SLICE: ${{ github.workspace }}/runtime/runtime-vm/scripts/ci/glibc-debian-maintained-public-provider-lifecycle-owner
-      BUNDLE: ${{ github.workspace }}/runtime/runtime-vm
-      DEPLOY: ${{ github.workspace }}/scripts/ci/gnu-immutable-source-native
+      SLICE: ${{ github.workspace }}/immutable-source/runtime/runtime-vm/scripts/ci/glibc-debian-maintained-public-provider-lifecycle-owner
+      BUNDLE: ${{ github.workspace }}/immutable-source/runtime/runtime-vm
+      DEPLOY: ${{ github.workspace }}/immutable-source/scripts/ci/gnu-immutable-source-native
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         timeout-minutes: 3
         with:
           ref: ${{ inputs.source_sha }}
+          path: immutable-source
           persist-credentials: false
       - name: Whole source and maintained phase gates before credentials or actors
         timeout-minutes: 4
         run: |
           set -euo pipefail
           printf '%s  %s\n' '@ENTRY_SHA@' "$DEPLOY/entry.py" '@MANIFEST_SHA@' "$DEPLOY/source-manifest.json" | sha256sum --check
-          python3 -I -B "$DEPLOY/entry.py" source --source "$GITHUB_WORKSPACE"
-          python3 -I -B "$DEPLOY/test_deployment.py" --source "$GITHUB_WORKSPACE"
-          python3 -I -B "$GITHUB_WORKSPACE/runtime/immutable/test_controls.py"
+          python3 -I -B "$DEPLOY/entry.py" source --source "$GITHUB_WORKSPACE/immutable-source"
+          python3 -I -B "$DEPLOY/test_deployment.py" --source "$GITHUB_WORKSPACE/immutable-source"
+          python3 -I -B "$GITHUB_WORKSPACE/immutable-source/runtime/immutable/test_controls.py"
       - name: Genuine independent boot availability and private input selection
         timeout-minutes: 2
         run: |
           set -euo pipefail
           mkdir -m 0700 "$RUNNER_TEMP/gnu-immutable-parent"
-          python3 -I -B "$DEPLOY/entry.py" bind --source "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/gnu-immutable-parent/selection"
+          python3 -I -B "$DEPLOY/entry.py" bind --source "$GITHUB_WORKSPACE/immutable-source" --output "$RUNNER_TEMP/gnu-immutable-parent/selection"
       - name: Acquire exact existing kernel20 artifact with prior original transport replay
         timeout-minutes: 6
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: >-
-          python3 -I -B "$DEPLOY/entry.py" kernel --source "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/gnu-immutable-parent/selection/kernel"
+          python3 -I -B "$DEPLOY/entry.py" kernel --source "$GITHUB_WORKSPACE/immutable-source" --output "$RUNNER_TEMP/gnu-immutable-parent/selection/kernel"
       - name: Require Root-bound source and immutable packet policy before secrets or native actors
         id: proof
         timeout-minutes: 2
@@ -128,7 +129,7 @@ jobs:
       - name: Seed exact32 verified original bytes before unchanged build
         timeout-minutes: 2
         run: >-
-          python3 -I -B "$DEPLOY/pipeline.py" seed-archive --source "$GITHUB_WORKSPACE"
+          python3 -I -B "$DEPLOY/pipeline.py" seed-archive --source "$GITHUB_WORKSPACE/immutable-source"
           --cache "$RUNNER_TEMP/immutable-archive32" --base "$RUNNER_TEMP/desktop574"
       - name: Reuse unchanged owned574 native producer
         timeout-minutes: 40
@@ -157,7 +158,7 @@ jobs:
         id: immutable
         timeout-minutes: 220
         run: >-
-          python3 -I -B "$DEPLOY/pipeline.py" consume --source "$GITHUB_WORKSPACE"
+          python3 -I -B "$DEPLOY/pipeline.py" consume --source "$GITHUB_WORKSPACE/immutable-source"
           --owner "$RUNNER_TEMP/provider-lifecycle-owner" --base "$RUNNER_TEMP/desktop574"
           --binding "$RUNNER_TEMP/gnu-immutable-parent/selection" --kernel "$RUNNER_TEMP/gnu-immutable-parent/selection/kernel"
           --output /tmp/caa-gnu-immutable-runtime
@@ -165,7 +166,7 @@ jobs:
         if: always() && steps.proof.outcome == 'success'
         timeout-minutes: 15
         run: >-
-          python3 -I -B "$DEPLOY/pipeline.py" cleanup --source "$GITHUB_WORKSPACE"
+          python3 -I -B "$DEPLOY/pipeline.py" cleanup --source "$GITHUB_WORKSPACE/immutable-source"
           --output /tmp/caa-gnu-immutable-runtime --owner "$RUNNER_TEMP/provider-lifecycle-owner"
           --base "$RUNNER_TEMP/desktop574" --proof "$RUNNER_TEMP/provider-lifecycle-proof.json"
           --receipt "$RUNNER_TEMP/provider-lifecycle-cleanup.json"

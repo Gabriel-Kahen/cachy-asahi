@@ -112,5 +112,38 @@ class Tests(unittest.TestCase):
    a=argparse.Namespace(source=ROOT,output=out,proof=None,base=None,owner=None,receipt=None)
    with patch.object(pipeline,'owner',side_effect=AssertionError('NO_PRODUCER_CLEANUP')):
     with self.assertRaisesRegex(ValueError,'unknown new consumer'):pipeline.cleanup(a)
+
+ def test_generated_checkout_source_is_separate_and_all_source_routes_match(self):
+  import re
+  w=D.read(ROOT/'.github/workflows/native-arm-build.yml').decode()
+  self.assertIn('working-directory: immutable-source/runtime/runtime-vm',w)
+  self.assertIn('ref: ${{ inputs.source_sha }}\n          path: immutable-source\n          persist-credentials: false',w)
+  self.assertEqual(re.findall(r'--source "([^"\n]+)"',w),['$GITHUB_WORKSPACE/immutable-source']*7)
+  for name in('SLICE','BUNDLE','DEPLOY'):
+   line=next(v for v in w.splitlines()if v.strip().startswith(name+':'))
+   self.assertIn('${{ github.workspace }}/immutable-source/',line)
+  self.assertIn('"$GITHUB_WORKSPACE/immutable-source/runtime/immutable/test_controls.py"',w)
+  self.assertIn('path: lifecycle-packet',w);self.assertIn('path: retained-public-inputs',w)
+  self.assertIn('--packet-root "$GITHUB_WORKSPACE/lifecycle-packet"',w)
+  self.assertIn('"$GITHUB_WORKSPACE/retained-public-inputs/seed.py"',w)
+  cleanup=w[w.index('      - name: Retire all new'):w.index('      - name: Retain only closed')]
+  self.assertIn('pipeline.py" cleanup --source "$GITHUB_WORKSPACE/immutable-source"',cleanup)
+ def test_real_source_closure_after_both_sibling_checkouts_and_unknown_refusal(self):
+  expected_files=D.source(ROOT)['files']
+  with tempfile.TemporaryDirectory()as td,patch.object(subprocess,'Popen',side_effect=AssertionError('NO_ACTORS')):
+   workspace=Path(td);root=workspace/'immutable-source'
+   shutil.copytree(ROOT,root,ignore=lambda directory,names:{'.git'}if Path(directory)==ROOT else set())
+   for name in('lifecycle-packet','retained-public-inputs'):
+    sibling=workspace/name;sibling.mkdir();(sibling/'index.json').write_text('{"INERT":"NOT_A_PACKET"}');(sibling/'.git').mkdir();(sibling/'.git/config').write_text('INERT')
+   legacy=workspace/'old-layout';shutil.copytree(ROOT,legacy,ignore=lambda directory,names:{'.git'}if Path(directory)==ROOT else set())
+   for name in('lifecycle-packet','retained-public-inputs'):
+    (legacy/name).mkdir();(legacy/name/'index.json').write_text('INERT_UNEXPECTED_CHECKOUT')
+   with self.assertRaisesRegex(ValueError,'exact source closure'):D.source(legacy)
+   self.assertEqual(D.source(root)['files'],expected_files)
+   for name in('extra','lifecycle-packet'):
+    (root/name).write_text('INERT_UNEXPECTED')
+    with self.assertRaisesRegex(ValueError,'exact source closure'):D.source(root)
+    (root/name).unlink()
+   self.assertEqual(D.source(root)['files'],expected_files)
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--source',type=Path,default=D.ROOT);a,rest=p.parse_known_args();ROOT=a.source.absolute();unittest.main(argv=[sys.argv[0],*rest],verbosity=2)
