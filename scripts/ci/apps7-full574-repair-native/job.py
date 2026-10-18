@@ -14,6 +14,7 @@ def derived(text):
  run=function(text,'run');retain=function(text,'retain');actor=function(text,'actor')
  actor=replace(actor," row=reserve(report,output,role);"," C.case(report['case'])\n row=reserve(report,output,role);")
  actor=replace(actor," argv+=['--entrypoint=/usr/bin/python3'"," if role=='lifecycle':argv+=['--env=CACHY_APPS574_REPAIR_CASE='+report['case']]\n argv+=['--entrypoint=/usr/bin/python3'")
+ actor=replace(actor,"3000 if role=='lifecycle'","4320 if role=='lifecycle'")
  run=replace(run,"report=dict(status='FAIL',token=","report=dict(status='FAIL',case=args.case,token=")
  start=run.index("   actor(args.source,args.output,report,command,api,'interruption'");end=run.index("   api.retire(report['actors']",start);run=run[:start]+run[end:]
  run=replace(run,'lifecycle=life,interruption=interruption','lifecycle=life')

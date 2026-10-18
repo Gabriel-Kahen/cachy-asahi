@@ -35,6 +35,8 @@ class Wiring(unittest.TestCase):
     continue
    if name=='cap_scope.py':
     tree=ast.parse(b);tree.body=[n for n in tree.body if not(isinstance(n,ast.FunctionDef) and n.name=='runtime_boundaries')];derive=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='derive');self.assertEqual(ast.unparse(derive.body[0]),'omitted = runtime_boundaries(omitted)');derive.body.pop(0);self.assertEqual(ast.dump(tree,include_attributes=False),ast.dump(ast.parse(a),include_attributes=False));b=ast.unparse(tree).encode()
+   if name=='disk.py':
+    original_file_branch='else:target.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(source,target,follow_symlinks=False)';new_file_branch="else:target.parent.mkdir(parents=True,exist_ok=True);command(['/usr/bin/cp','-a','--reflink=never','--',source,target],900)";self.assertEqual(b.decode().count(new_file_branch),1);b=b.decode().replace(new_file_branch,original_file_branch).encode()
    if name=='guest.py':
     tree=ast.parse(b);tree.body=[n for n in tree.body if not(isinstance(n,ast.FunctionDef)and n.name=='worker_failure')]
     main=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='main');extra=[n for n in main.body if isinstance(n,ast.If)and any(isinstance(q,ast.Call)and isinstance(q.func,ast.Name)and q.func.id=='worker_failure'for q in ast.walk(n))];self.assertEqual(len(extra),1);main.body.remove(extra[0]);b=ast.unparse(tree).encode()
@@ -336,5 +338,51 @@ class RuntimeMountBoundaryControls(unittest.TestCase):
    root=Path(td);p=root/'payload';p.write_bytes(b'original');limits=roots.Limits(deadline=time.monotonic()+10);nodes=roots.observe(root,limits=limits)['nodes'];os.setxattr(p,'user.fixture',b'original-refusal');module=caps.derive(raw,{'dev/pts'})
    with self.assertRaises(ValueError):module.observe(root,nodes,limits)
    self.assertEqual(os.getxattr(p,'user.fixture'),b'original-refusal')
+
+class InputFileStaging(unittest.TestCase):
+ """Only real bounded cp on private files; no Docker/guest/installation actor."""
+ def file_command(self):
+  import disk
+  tree=ast.parse(C.read(C.HERE/'disk.py'));prepare=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='prepare')
+  loops=[n for n in prepare.body if isinstance(n,ast.For)and ast.unparse(n.target)=='dest'];self.assertEqual(len(loops),2)
+  branch=next(n for n in loops[0].body if isinstance(n,ast.If)and ast.unparse(n.test)=="dest == '/measurement'")
+  while branch.orelse and isinstance(branch.orelse[0],ast.If):branch=branch.orelse[0]
+  self.assertEqual(ast.unparse(branch.test),'source.is_dir()');call=branch.orelse[-1].value
+  self.assertEqual(ast.unparse(call),"command(['/usr/bin/cp', '-a', '--reflink=never', '--', source, target], 900)")
+  expression=compile(ast.Expression(call),'<exact-disk-file-command>','eval')
+  return lambda source,target:eval(expression,dict(command=disk.command,source=source,target=target))
+ def guest_readback(self,input_map):
+  tree=ast.parse(C.read(C.HERE/'guest.py'));worker=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='worker');loop=next(n for n in worker.body if isinstance(n,ast.For)and ast.unparse(n.target)=='(n, pin)')
+  exec(compile(ast.Module(body=[loop],type_ignores=[]),'<exact-original-guest-input-loop>','exec'),dict(C=C,Path=Path,input_map=input_map))
+ def test_real_all_standalone_roles_modes_bytes_and_source_preserved(self):
+  names=('runner.py','upgrade-config.json','upgrade-hook.py','persistent_scope.py','setup4.py','footprint.py')
+  with tempfile.TemporaryDirectory(dir='/tmp',prefix='input-files-')as td:
+   root=Path(td);src=root/'source';src.mkdir();dst=root/'target';dst.mkdir();bindings={}
+   for i,name in enumerate(names):
+    p=src/name;p.write_bytes(('INERT_PRIVATE_'+name).encode());p.chmod((0o600,0o640,0o755)[i%3]);bindings[str(dst/name)]=dict(source=str(p))
+   before=vm.snapshot(bindings)
+   for n in names:self.file_command()(src/n,dst/n)
+   self.guest_readback(before);self.assertEqual(vm.snapshot(bindings),before)
+   self.assertEqual(vm.snapshot({n:dict(source=n)for n in before}),before)
+ def test_original_guest_refuses_mode_owner_alias_content_and_hardlink_drift(self):
+  with tempfile.TemporaryDirectory(dir='/tmp',prefix='input-refuse-')as td:
+   root=Path(td);source=root/'source';target=root/'target';source.write_bytes(b'original');source.chmod(0o600);self.file_command()(source,target);expected=vm.snapshot({str(target):dict(source=str(source))})
+   for uid,gid,mode in ((os.getuid()+1,os.getgid(),0o600),(os.getuid(),os.getgid()+1,0o600),(os.getuid(),os.getgid(),0o644)):
+    changed=json.loads(json.dumps(expected));changed[str(target)].update(uid=uid,gid=gid,mode=mode)
+    with self.assertRaisesRegex(ValueError,'copied input metadata'):self.guest_readback(changed)
+   target.write_bytes(b'changed')
+   with self.assertRaisesRegex(ValueError,'copied input source/content'):self.guest_readback(expected)
+   target.unlink();self.file_command()(source,target);os.link(target,root/'alias')
+   with self.assertRaisesRegex(ValueError,'copied input source/content'):self.guest_readback(expected)
+   (root/'alias').unlink();target.unlink();target.symlink_to(source)
+   with self.assertRaisesRegex(ValueError,'copied input metadata'):self.guest_readback(expected)
+ def test_exact_inverse_and_original_staging_command_budgets(self):
+  old=C.read(C.ROOT/'scripts/ci/current604-apps6-updater16k/disk.py');new=C.read(C.HERE/'disk.py')
+  before="else:target.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(source,target,follow_symlinks=False)"
+  after="else:target.parent.mkdir(parents=True,exist_ok=True);command(['/usr/bin/cp','-a','--reflink=never','--',source,target],900)"
+  self.assertEqual(new.decode().count(after),1);self.assertEqual(new.decode().replace(after,before).encode(),old)
+  self.assertIn("elif source.is_dir():command(['/usr/bin/cp','-a','--reflink=never','--',source,target],900)",new.decode())
+  self.assertIn("C.need(not target.exists() and not target.is_symlink(),'fresh staged infrastructure role')",new.decode())
+  self.assertEqual((C.HERE/'guest.py').read_bytes().count(b"'copied input metadata'"),1)
 
 if __name__=='__main__':unittest.main(verbosity=2)

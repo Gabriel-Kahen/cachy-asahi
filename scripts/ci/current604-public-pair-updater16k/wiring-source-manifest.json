@@ -550,8 +550,8 @@
       "sha256": "fa919c55341bfbab57753859582f65b4a4766850bc543c769f23769498bee595"
     },
     "scripts/ci/current604-public-pair-updater16k/disk.py": {
-      "bytes": 7616,
-      "sha256": "2962db19a69e68127fd949ce73304aee04187df3a82f9a8fa828deb36e9c8e0d"
+      "bytes": 7637,
+      "sha256": "1fde29e7d9c714ff2199f2df2035c8815d6b5a172d187721cc23f2a73ec17179"
     },
     "scripts/ci/current604-public-pair-updater16k/freeze_wiring.py": {
       "bytes": 539,
@@ -591,7 +591,7 @@
     },
     "scripts/ci/current604-public-pair-updater16k/source-manifest.json": {
       "bytes": 81858,
-      "sha256": "8df0a88f0c4bcdb4711f4fcc390a39edca2ad76d83c2e0bb07f06c30138c94ba"
+      "sha256": "b15f09af18a600df9d932195892f0d2125a4904435976c5d95300840d4d2415b"
     },
     "scripts/ci/current604-public-pair-updater16k/source-pins.json": {
       "bytes": 143256,
@@ -602,8 +602,8 @@
       "sha256": "6999636b05e65d3bafcb73bf0fd273b744f990475ee34244969a56b7e16d0086"
     },
     "scripts/ci/current604-public-pair-updater16k/test_wiring.py": {
-      "bytes": 35546,
-      "sha256": "2c12315ab529a25f103590f0f9045e92b3e5267c2b1c6ac0559c318b641fb6b3"
+      "bytes": 40182,
+      "sha256": "a3b8b38c59ecaa08a2e7eef7e4be81ee8a820855b1643cf06372e9cdafd5facb"
     },
     "scripts/ci/current604-public-pair-updater16k/vm.py": {
       "bytes": 15918,

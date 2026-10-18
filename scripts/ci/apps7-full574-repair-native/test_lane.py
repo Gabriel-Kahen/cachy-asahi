@@ -59,7 +59,7 @@ class Controls(unittest.TestCase):
   C=load('contract',HERE/'contract.py')
   with patch.dict(sys.modules,{'contract':C}):J=load('apps7_derived_owner',HERE/'job.py')
   source=(ROOT/'scripts/ci/apps-full574-native/job.py').read_text();parts=J.derived(source)
-  self.assertEqual(set(parts),{'run','retain','actor'});self.assertIn('3000 if role',parts['actor']);self.assertIn("'--memory=4g'",parts['actor']);self.assertIn("'--cpus=2'",parts['actor']);self.assertIn('SETFCAP',parts['actor']);self.assertNotIn("api,'interruption'",parts['run'])
+  self.assertEqual(set(parts),{'run','retain','actor'});self.assertIn('4320 if role',parts['actor']);self.assertIn("'--memory=4g'",parts['actor']);self.assertIn("'--cpus=2'",parts['actor']);self.assertIn('SETFCAP',parts['actor']);self.assertNotIn("api,'interruption'",parts['run'])
   closure=load('apps7_real_source_closure',HERE/'closure.py');self.assertEqual(closure.EXECUTION_BUDGET,dict(backend_seconds=600,caller_seconds=610))
   text=(HERE/'lifecycle.py').read_text();self.assertIn("H.backend('inspect',workspace,owner),expected=1",text)
   for label in ('wrong-plan-sha','unselected-damage','foreign-alpm-lock'):self.assertIn(label,text)
@@ -68,8 +68,31 @@ class Controls(unittest.TestCase):
   self.assertFalse((out/'.github/workflows/native-arm-build.yml').exists());self.assertEqual((out/P.WF).read_bytes(),P.workflow((ROOT/'.github/workflows/native-arm-apps-full574-repair.yml').read_bytes()))
   self.assertEqual((out/'scripts/apps/transaction.py').read_bytes(),(ROOT/'scripts/apps/transaction.py').read_bytes())
   text=(out/P.WF).read_text();self.assertIn(P.NEW,text);self.assertEqual(text.count('--case "$REPAIR_CASE" --source "$GITHUB_WORKSPACE"'),5)
-  for limit in ('2300s','3550s','650s'):self.assertIn(limit,text)
+  for limit in ('2300s','4870s','650s'):self.assertIn(limit,text)
   v=json.loads((out/P.NEW/'input-policy.json').read_bytes());self.assertIsNone(v['packet_source']);self.assertIsNone(v['packet_index'])
+
+class HarnessDeadlineControls(unittest.TestCase):
+ def test_actual_generated_actor_argv_has_only_lifecycle_supervisory_extension(self):
+  C=load('contract',HERE/'contract.py')
+  with patch.dict(sys.modules,{'contract':C}):J=load('measured_harness_job',HERE/'job.py')
+  original=(ROOT/'scripts/ci/apps-full574-native/job.py').read_text();parts=J.derived(original);ns=dict(vars(J.H));exec(compile(parts['actor'],'<original actor plus finite repair seams>','exec'),ns)
+  class StoppedBeforeActor(Exception):pass
+  for role,want in(('lifecycle',4320),('extract',900),('source-verify',900),('signer',240),('scrub',240),('source-cleanup',240)):
+   with self.subTest(role=role),tempfile.TemporaryDirectory()as td:
+    out=Path(td);report=dict(case='repair-bytes',actors=[],token='a'*32,image='sha256:'+'1'*64,snapshot_point={'archive_sha256':'2'*64});seen=[]
+    def command(argv,allow,seconds):seen.append((argv,allow,seconds));raise StoppedBeforeActor()
+    api=types.SimpleNamespace(inspect=lambda *args:None)
+    with self.assertRaises(StoppedBeforeActor):ns['actor'](ROOT,out,report,command,api,role,'lifecycle.py')
+    argv,allow,seconds=seen[0];self.assertEqual(seconds,want);self.assertFalse(allow);self.assertIn('--network=none',argv);self.assertIn('--read-only',argv);self.assertIn('--memory=4g',argv);self.assertIn('--cpus=2',argv);self.assertNotIn('--privileged',argv)
+    self.assertEqual('--env=CACHY_APPS574_REPAIR_CASE=repair-bytes'in argv,role=='lifecycle')
+  self.assertEqual(parts['actor'].count('4320'),1)
+ def test_fixed_workflow_profile_preserves_existing_relative_headroom_and_all_other_bytes(self):
+  raw=(ROOT/'.github/workflows/native-arm-apps-full574-repair.yml').read_bytes();current=P.workflow(raw).decode();restored=current
+  for new,old in (("    timeout-minutes: 142","    timeout-minutes: 120"),("        timeout-minutes: 82","        timeout-minutes: 60"),("--kill-after=30s 4870s","--kill-after=30s 3550s")):
+   self.assertEqual(restored.count(new),1);restored=restored.replace(new,old)
+  expected=raw.decode().replace('native-arm-apps-full574-repair','native-arm-apps7-full574-repair').replace(P.OLD,P.NEW)
+  self.assertEqual(restored,expected);self.assertEqual(4870-4320,3550-3000);self.assertEqual(82*60-4870,60*60-3550);self.assertEqual((142-120)*60,4320-3000)
+  T=load('unchanged_product_transaction',HERE/'transaction.py');self.assertEqual(T.SECONDS,300);self.assertEqual(load('unchanged_product_closure',HERE/'closure.py').EXECUTION_BUDGET,dict(backend_seconds=600,caller_seconds=610))
 
 if PACKET is not None:
  class ActualData(unittest.TestCase):
