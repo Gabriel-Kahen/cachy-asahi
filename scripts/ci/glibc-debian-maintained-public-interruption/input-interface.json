@@ -1,0 +1,15 @@
+{
+  "status": "SOURCE_ONLY_ALL_NEW_NATIVE_INTERRUPTION_AUTHORITIES_NULL",
+  "public_input_ref": "132aec86c0946f6c7b7a79c46e1a9ccaf91021e3",
+  "public_input_archive": "a8e9f3e1d8ffe049fdc834f62e74c14ff622b98898c2f849e1580ab8aa0fdbd9",
+  "known_native_normal_carrier": "b07ecd0070859bd6c2b5740778ea7dabda8fe338",
+  "known_native_normal_source": "9aef8b7429fb8dd9f9d8412f4e878c5e0324c58d",
+  "source": null,
+  "ref": null,
+  "run": null,
+  "native_interruption_decision": null,
+  "future_full_normal16k_decision": null,
+  "future_interruption16k_decision": null,
+  "expected_future_Root_status": "ROOT_ACCEPTED_CAA3_PUBLIC_COMPILE_INPUT_NATIVE_INTERRUPTION_RECOVERY",
+  "old_e07_authority_transfer": "FORBIDDEN"
+}
