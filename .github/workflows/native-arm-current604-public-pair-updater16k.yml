@@ -69,7 +69,7 @@ jobs:
           test "$(sha256sum expanded604-upgrade/scripts/ci/expanded604-apps6-public-pair-updater/run.py | cut -d ' ' -f 1)" = ed05eaf1c6263ed5ce1dc2e97c863021c03d232cc5ad3554ab681aa4866993fe
           test "$(sha256sum expanded604-upgrade/scripts/ci/expanded604-apps6-public-pair-updater/source-manifest.json | cut -d ' ' -f 1)" = e575577e178a808e7b10d70daaab75dd25c4c0dd73aa7395b0d1164dd3ad7ff6
           test "$(sha256sum expanded604-upgrade/scripts/ci/current604-public-pair-updater16k/job.py | cut -d ' ' -f 1)" = 47c560fdc227a0b41e2cca9e1797b55adce2b35bb080d950d8ee1d1993c86c13
-          test "$(sha256sum expanded604-upgrade/scripts/ci/current604-public-pair-updater16k/wiring-source-manifest.json | cut -d ' ' -f 1)" = da1b6a2932baa81eec6107dc1c2105c542fdbec2cd6a6663c44be995a686f15a
+          test "$(sha256sum expanded604-upgrade/scripts/ci/current604-public-pair-updater16k/wiring-source-manifest.json | cut -d ' ' -f 1)" = 11d6e96291b54fc5da84da54aa7c3059f281188a769a39c50df4abe85bf64b6f
           python3 -I -B expanded604-upgrade/scripts/ci/current604-public-pair-updater16k/job.py preflight \
             --implementation "$GITHUB_WORKSPACE/expanded604-upgrade" --source "$IMPLEMENTATION_SOURCE" \
             --workflow-sha "$WORKFLOW_SOURCE" --case "$UPGRADE_CASE"
@@ -145,6 +145,16 @@ jobs:
           ref: ${{ steps.root_policy.outputs.updater_decisions }}
           path: apps6-updater-decisions
           persist-credentials: false
+      - name: Provision host ext4 test tools on disposable runner
+        timeout-minutes: 9
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout --kill-after=10s 180s sudo apt-get -o Acquire::Retries=0 -o Acquire::http::Timeout=30 update -qq
+          timeout --kill-after=10s 240s sudo env DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=0 -o Acquire::http::Timeout=30 install -y --no-install-recommends e2fsprogs
+          command -v mkfs.ext4
+          command -v debugfs
+          dpkg-query -W e2fsprogs
       - name: Source-only public-pair updater16K controls
         shell: bash
         run: |

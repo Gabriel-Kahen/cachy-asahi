@@ -39,6 +39,16 @@ def capmap(scope,roots,seconds):
  caps=cap_scope.derive(C.read('/source/scripts/apps/file_capabilities.py'),set(policy['observed_mounts'])|scope.RUNTIME)
  return nodes,caps.observe(Path('/'),cap_scope.nodes(nodes),limits)
 
+def boot_readback_diagnostic(s,before,expected,mapping):
+ """Existing finite maps only; no values, content, new walk or authority."""
+ try:
+  common=set(before)&set(expected);changed={n for n in common if before[n]!=expected[n]};missing=set(expected)-set(before);extra=set(before)-set(expected);different=changed|missing|extra;first=min(different)if different else None;fields=[]
+  if first in changed:
+   fields=sorted(k for k in set(before[first])|set(expected[first])if before[first].get(k)!=expected[first].get(k))
+  value=dict(schema_version=1,status='BOOT_READBACK_MISMATCH_DATA_NOT_ACCEPTANCE',nonce=s['nonce'],node_equal=before==expected,cap_hash_equal=C.sha(C.encoded(mapping))==s['capabilities_sha256'],expected_nodes=len(expected),actual_nodes=len(before),missing_nodes=len(missing),extra_nodes=len(extra),changed_nodes=len(changed),first_key=None if first is None else first[:256],first_key_truncated=first is not None and len(first)>256,differing_fields=[k[:64]for k in fields[:32]],field_names_truncated=len(fields)>32,cleanup_authority=False,acceptance_authority=False)
+  text=json.dumps(value,sort_keys=True,separators=(',',':'));C.need(len(text.encode())<=3072,'bounded fixed boot readback diagnostic');print('APPS6_BOOT_READBACK_DIAGNOSTIC '+text,flush=True)
+ except Exception:pass # Diagnostic loss cannot replace the original predicate.
+
 def worker(s):
  C.need(os.getpid()!=1 and os.getuid()==os.geteuid()==0 and os.uname().machine=='aarch64' and os.sysconf('SC_PAGE_SIZE')==16384 and os.uname().release==s['kernel']['release'],'actual generic16K worker')
  isolation=isolate();
@@ -48,7 +58,9 @@ def worker(s):
   if pin['type']=='file':C.need(p.is_file() and info.st_nlink==1 and C.row(p)=={k:pin[k] for k in ('bytes','sha256')},'copied input source/content')
   else:C.need(p.is_dir(),'copied input directory')
  scope,roots,_,_=disk.apis();before,mapping=capmap(scope,roots,600)
- expected=C.decode(C.read('/workspace/baseline-nodes.json',64*1024**2));C.need(before==expected and C.sha(C.encoded(mapping))==s['capabilities_sha256'],'complete original boot574 metadata/hash/hardlink/capability map readback')
+ expected=C.decode(C.read('/workspace/baseline-nodes.json',64*1024**2))
+ if before!=expected or C.sha(C.encoded(mapping))!=s['capabilities_sha256']:boot_readback_diagnostic(s,before,expected,mapping)
+ C.need(before==expected and C.sha(C.encoded(mapping))==s['capabilities_sha256'],'complete original boot574 metadata/hash/hardlink/capability map readback')
  env=dict(PATH='/usr/bin:/bin',LC_ALL='C',LANG='C',HOME='/tmp',TMPDIR='/tmp',PYTHONDONTWRITEBYTECODE='1',**s['env'])
  os.environ.clear();os.environ.update(env)
  runner=C.load('supervisor','/source/scripts/ci/glibc-owned-runtime/runner.py')

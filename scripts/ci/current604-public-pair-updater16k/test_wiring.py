@@ -24,6 +24,7 @@ class Wiring(unittest.TestCase):
   old=C.ROOT/'scripts/ci/current604-apps6-updater16k'
   for name in ('guest.py','disk.py','vm.py','cap_scope.py','kernel_job.py','retain16k.py','job.py'):
    a,b=(old/name).read_bytes(),(C.HERE/name).read_bytes()
+   if name in ('disk.py','guest.py'):b=pre_boot_readback(b,name)
    if name in ('job.py','kernel_job.py'):
     before={n.name:ast.dump(n,include_attributes=False) for n in ast.parse(a).body if isinstance(n,ast.FunctionDef)}
     after={n.name:ast.dump(n,include_attributes=False) for n in ast.parse(b).body if isinstance(n,ast.FunctionDef)}
@@ -377,7 +378,7 @@ class InputFileStaging(unittest.TestCase):
    (root/'alias').unlink();target.unlink();target.symlink_to(source)
    with self.assertRaisesRegex(ValueError,'copied input metadata'):self.guest_readback(expected)
  def test_exact_inverse_and_original_staging_command_budgets(self):
-  old=C.read(C.ROOT/'scripts/ci/current604-apps6-updater16k/disk.py');new=C.read(C.HERE/'disk.py')
+  old=C.read(C.ROOT/'scripts/ci/current604-apps6-updater16k/disk.py');new=pre_boot_readback(C.read(C.HERE/'disk.py'),'disk.py')
   before="else:target.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(source,target,follow_symlinks=False)"
   after="else:target.parent.mkdir(parents=True,exist_ok=True);command(['/usr/bin/cp','-a','--reflink=never','--',source,target],900)"
   import disk
@@ -454,6 +455,101 @@ class KernelAutoDevMount(unittest.TestCase):
    before=len(os.listdir('/proc/self/fd'))
    with patch.object(Path,'open',opened),patch.object(os,'open',side_effect=dev_open),self.assertRaisesRegex(ValueError,'kernel devtmpfs identity'):space['main']()
    self.assertEqual(len(os.listdir('/proc/self/fd')),before)
+
+
+def pre_boot_readback(raw,name):
+ """Counted byte inverse for only the declared formatter/diagnostic change."""
+ text=raw.decode()
+ additions=('image_directory','formatter_recovery_directory')if name=='disk.py'else('boot_readback_diagnostic',)
+ for function in additions:
+  node=next(n for n in ast.parse(text).body if isinstance(n,ast.FunctionDef)and n.name==function);lines=text.splitlines(keepends=True);assert lines[node.end_lineno]=='\n';segment=''.join(lines[node.lineno-1:node.end_lineno+1]);assert text.count(segment)==1;text=text.replace(segment,'')
+ if name=='disk.py':
+  old="C.need(p.returncode==0 and len(p.stdout)+len(p.stderr)<=2*1024**2,'owned disk command refused: '+str(argv[0]))";new=old+';return p.stdout';assert text.count(new)==1;text=text.replace(new,old)
+  call="\n  if name=='boot':formatter_recovery_directory(image,before,out)";assert text.count(call)==1;text=text.replace(call,'')
+ else:
+  new="expected=C.decode(C.read('/workspace/baseline-nodes.json',64*1024**2))\n if before!=expected or C.sha(C.encoded(mapping))!=s['capabilities_sha256']:boot_readback_diagnostic(s,before,expected,mapping)\n C.need(";old="expected=C.decode(C.read('/workspace/baseline-nodes.json',64*1024**2));C.need(";assert text.count(new)==1;text=text.replace(new,old)
+ return text.encode()
+
+class BootImageReadback(unittest.TestCase):
+ """Real private ext4 regular files, never devices/mounts/native acceptance."""
+ def disk(self):
+  # Host-only fixture seam: Ubuntu uses sbin, runtime Arch paths stay fixed.
+  import shutil,stat
+  disk=C.load('boot_recovery_controls',C.HERE/'disk.py');command=disk.command;tools={}
+  for name in('mkfs.ext4','debugfs'):
+   found=shutil.which(name);C.need(found is not None,'required real host image tool missing: '+name)
+   actual=Path(found).resolve(strict=True);info=actual.stat();C.need(actual.is_absolute()and stat.S_ISREG(info.st_mode)and os.access(actual,os.X_OK),'real executable host image tool required: '+name);tools['/usr/bin/'+name]=str(actual)
+  def host_command(argv,*args):
+   argv=list(argv)
+   if str(argv[0])in tools:argv[0]=tools[str(argv[0])]
+   return command(argv,*args)
+  disk.command=host_command;return disk
+ def test_missing_real_host_tool_refuses_without_skip_or_command(self):
+  import shutil
+  with patch.object(shutil,'which',return_value=None),patch.object(subprocess,'Popen',side_effect=AssertionError('no tool may execute')),self.assertRaisesRegex(ValueError,'required real host image tool missing'):self.disk()
+ def test_unexecutable_host_tool_refuses_without_command(self):
+  import shutil
+  with tempfile.TemporaryDirectory()as td:
+   fake=Path(td)/'mkfs.ext4';fake.write_bytes(b'not executable')
+   with patch.object(shutil,'which',return_value=str(fake)),patch.object(subprocess,'Popen',side_effect=AssertionError('no tool may execute')),self.assertRaisesRegex(ValueError,'real executable host image tool required'):self.disk()
+ def test_real_host_prerequisites_precede_controls_with_bounded_apt(self):
+  text=(C.ROOT/P.WF).read_text();start=text.index('      - name: Provision host ext4 test tools on disposable runner');end=text.index('      - name: Source-only public-pair updater16K controls');self.assertLess(start,end);step=text[start:end]
+  for marker in('timeout-minutes: 9','180s sudo apt-get -o Acquire::Retries=0 -o Acquire::http::Timeout=30 update -qq','240s sudo env DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=0 -o Acquire::http::Timeout=30 install -y --no-install-recommends e2fsprogs','command -v mkfs.ext4','command -v debugfs','dpkg-query -W e2fsprogs'):self.assertIn(marker,step)
+ def image(self,root):
+  seed=root/'seed';seed.mkdir();(seed/'usr').mkdir();(seed/'usr/data').write_bytes(b'exact private payload\n');os.link(seed/'usr/data',seed/'usr/hardlink');(seed/'alias').symlink_to('usr/data');image=root/'boot.raw'
+  with image.open('xb')as f:f.truncate(64*1024**2)
+  disk=self.disk();disk.command(['/usr/bin/mkfs.ext4','-F','-b','4096','-m','0','-L','APPS6_BOOT','-d',seed,image],30);return disk,image,seed
+ def test_real_mkfs_extra_removed_exactly_payload_hardlinks_symlink_preserved(self):
+  with tempfile.TemporaryDirectory()as td:
+   root=Path(td);disk,image,seed=self.image(root);before=disk.image_directory(disk.command(['/usr/bin/debugfs','-R','ls -p /',image]));self.assertIn('lost+found',before)
+   stats={n:disk.command(['/usr/bin/debugfs','-R','stat '+n,image])for n in('/usr/data','/usr/hardlink','/alias')};self.assertEqual(stats['/usr/data'].splitlines()[0],stats['/usr/hardlink'].splitlines()[0])
+   disk.formatter_recovery_directory(image,{},root);after=disk.image_directory(disk.command(['/usr/bin/debugfs','-R','ls -p /',image]));self.assertEqual(after,{n:r for n,r in before.items()if n!='lost+found'})
+   for n,raw in stats.items():self.assertEqual(disk.command(['/usr/bin/debugfs','-R','stat '+n,image]),raw)
+   self.assertEqual(disk.command(['/usr/bin/debugfs','-R','cat /usr/data',image]),b'exact private payload\n');self.assertEqual((seed/'usr/data').read_bytes(),b'exact private payload\n')
+ def test_real_nonempty_formatter_directory_refuses_without_deletion(self):
+  with tempfile.TemporaryDirectory()as td:
+   root=Path(td);disk,image,seed=self.image(root);disk.command(['/usr/bin/debugfs','-w','-R','write '+str(seed/'usr/data')+' /lost+found/foreign',image])
+   with self.assertRaisesRegex(ValueError,'only empty formatter'):disk.formatter_recovery_directory(image,{},root)
+   self.assertEqual(disk.command(['/usr/bin/debugfs','-R','cat /lost+found/foreign',image]),b'exact private payload\n')
+ def test_original_baseline_recovery_directory_never_removed_or_read(self):
+  with tempfile.TemporaryDirectory()as td:
+   root=Path(td);disk,image,seed=self.image(root);before=C.row(image)
+   with patch.object(disk,'command',side_effect=AssertionError('original data must stay')):disk.formatter_recovery_directory(image,{'lost+found':{'type':'directory'}},root)
+   self.assertEqual(C.row(image),before)
+ def test_image_alias_hardlink_and_wrongpath_refuse(self):
+  with tempfile.TemporaryDirectory()as td:
+   root=Path(td);disk,image,seed=self.image(root);alias=root/'alias.raw';alias.symlink_to(image)
+   with self.assertRaises(ValueError):disk.formatter_recovery_directory(alias,{},root)
+   hard=root/'hard';os.link(image,hard)
+   with self.assertRaisesRegex(ValueError,'single-link'):disk.formatter_recovery_directory(image,{},root)
+   hard.unlink()
+   with self.assertRaisesRegex(ValueError,'absent recovery subtree'):disk.formatter_recovery_directory(image,{'lost+found/data':{}},root)
+ def test_changed_formatter_mode_and_zero_exit_without_removal_refuse(self):
+  with tempfile.TemporaryDirectory()as td:
+   root=Path(td);disk,image,seed=self.image(root);disk.command(['/usr/bin/debugfs','-w','-R','set_inode_field /lost+found mode 040755',image])
+   with self.assertRaisesRegex(ValueError,'exact new formatter'):disk.formatter_recovery_directory(image,{},root)
+   disk.command(['/usr/bin/debugfs','-w','-R','set_inode_field /lost+found mode 040700',image]);original=disk.command
+   def no_remove(argv,*args):return b''if argv[1:4]==['-w','-R','rmdir /lost+found']else original(argv,*args)
+   with patch.object(disk,'command',side_effect=no_remove),self.assertRaisesRegex(ValueError,'removal readback'):disk.formatter_recovery_directory(image,{},root)
+ def test_directory_data_rejects_malformed_duplicate_or_fake_free_slots(self):
+  disk=self.disk()
+  for raw in(b'',b'garbage',b'/0/000000/0/0/SECRET/0/\n',b'/11/040700/0/0/.//\n/2/040755/0/0/..//\n/11/040700/0/0/.//\n'):
+   with self.subTest(raw=raw),self.assertRaises(ValueError):disk.image_directory(raw)
+ def test_actual_readback_guard_diagnostic_is_failure_only_bounded_no_values(self):
+  import io,contextlib
+  guest=C.load('boot_readback_diagnostic_controls',C.HERE/'guest.py');tree=ast.parse(C.read(C.HERE/'guest.py'));worker=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='worker');index=next(i for i,n in enumerate(worker.body)if isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id=='expected'for t in n.targets));body=worker.body[index:index+3];self.assertIsInstance(body[1],ast.If);self.assertIn('complete original boot574 metadata/hash/hardlink/capability map readback',ast.unparse(body[2]));code=compile(ast.Module(body=body,type_ignores=[]),'<unchanged-actual-readback-guard>','exec')
+  expected={'private-key':dict(type='file',mode=0o644,uid=0,gid=0,bytes=21,sha256='a'*64)};before=json.loads(json.dumps(expected));before['private-key']['mode']=0o600;secret='DO_NOT_EXPORT_PRIVATE_VALUES';before['private-key']['sha256']=secret;mapping={};api=type('API',(),dict(read=staticmethod(lambda *a:C.encoded(expected)),decode=staticmethod(C.decode),sha=staticmethod(C.sha),encoded=staticmethod(C.encoded),need=staticmethod(C.need)))
+  space=dict(C=api,s=dict(nonce='a'*32,capabilities_sha256=C.sha(C.encoded(mapping))),before=before,mapping=mapping,boot_readback_diagnostic=guest.boot_readback_diagnostic);stream=io.StringIO()
+  with contextlib.redirect_stdout(stream),self.assertRaisesRegex(ValueError,'complete original boot574'):exec(code,space)
+  text=stream.getvalue();self.assertLess(len(text.encode()),3072);self.assertNotIn(secret,text);value=json.loads(text.split(' ',1)[1]);self.assertFalse(value['node_equal']);self.assertTrue(value['cap_hash_equal']);self.assertEqual(value['changed_nodes'],1);self.assertEqual(value['first_key'],'private-key');self.assertEqual(value['differing_fields'],['mode','sha256']);self.assertFalse(value['acceptance_authority']);self.assertFalse(value['cleanup_authority'])
+  space['boot_readback_diagnostic']=lambda *a:None
+  with self.assertRaisesRegex(ValueError,'complete original boot574'):exec(code,space)
+ def test_only_declared_source_seams_are_added_no_guard_or_budget_rewrite(self):
+  # The two original runtime predicates/arguments remain exact after inversion.
+  for name in('disk.py','guest.py'):
+   raw=pre_boot_readback(C.read(C.HERE/name),name);self.assertNotIn(b'formatter_recovery_directory',raw);self.assertNotIn(b'BOOT_READBACK_DIAGNOSTIC',raw)
+  disk=C.read(C.HERE/'disk.py').decode();self.assertEqual(disk.count("if name=='boot':formatter_recovery_directory(image,before,out)"),1)
+  guest=C.read(C.HERE/'guest.py').decode();self.assertEqual(guest.count("C.need(before==expected and C.sha(C.encoded(mapping))==s['capabilities_sha256'],'complete original boot574 metadata/hash/hardlink/capability map readback')"),1)
 
 
 if __name__=='__main__':unittest.main(verbosity=2)
