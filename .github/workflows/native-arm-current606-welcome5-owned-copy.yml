@@ -60,7 +60,7 @@ jobs:
           WORKFLOW_SOURCE: ${{ github.sha }}
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '37202da4439ca157cc2e4f7173eda3a2eaee04e54be91169fba6ff156b7b9646' 'expanded604-code/scripts/ci/current606-welcome5-closed-owner/owner.py' '9959231582fa0165e9c18cb7491b70db22bca3d42ac889162835309a7aab7427' 'expanded604-code/scripts/ci/current606-welcome5-closed-owner/source-manifest.json' | sha256sum --check
+          printf '%s  %s\n' 'eb48803aa0dc2caa2ffc0058856d9bbf41e59ed8830714cefcb4a4451877d063' 'expanded604-code/scripts/ci/current606-welcome5-closed-owner/owner.py' '72057f42a9fb12f8ee0c85fb2556682f96f0482bafc9dd202663e4873248cbf8' 'expanded604-code/scripts/ci/current606-welcome5-closed-owner/source-manifest.json' | sha256sum --check
           python3 -B expanded604-code/scripts/ci/current606-welcome5-closed-owner/owner.py --source-preflight
           python3 -B expanded604-code/scripts/ci/current606-welcome5-closed-owner/owner.py --require-selection
           printf '%s  %s\n' 'ce1cbfdb602b3e67ea844eae7b9bc37768194f95009bdec642997a23801bf02a' 'expanded604-code/held606/scripts/ci/current606-native/run.py' '09dae54c10f76d1a7b0bedd012f82aa513f5cc93102ad4ef5e6406dfee8bdd74' 'expanded604-code/held606/scripts/ci/current606-native/source-manifest.json' | sha256sum --check
@@ -226,6 +226,35 @@ jobs:
             TMPDIR="$RUNNER_TEMP" \
             python3 -I -B "$GITHUB_WORKSPACE/retained-public-inputs/seed.py" \
               --cache "$RUNNER_TEMP/alarm-cache"
+      - name: Checkout the exact frozen574 lock before native base recovery
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 9a2e520dbdfce7e4af417595ff3de9e6a284ef04
+          path: archive32-original-lock
+          persist-credentials: false
+      - name: Recover exact32 frozen inputs before the original native base
+        id: nativebase_archive32
+        if: ${{ success() }}
+        timeout-minutes: 4
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive32_helper="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-welcome5-closed-owner/archive32.py"
+          archive32_policy="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-welcome5-closed-owner/archive32-policy.json"
+          archive32_inputs="$GITHUB_WORKSPACE/archive32-original-lock/scripts/ci/maintained-desktop574-inputs.json"
+          printf '%s  %s\n' 'b1e2fc13644510a613ce09e53b39d4f4471cf47fc03fa62f312258379666c418' "$archive32_helper" '4f6ce49214422579f1cc448ff95d9f311cbfaf47a0d0c4f32d828c9edf843585' "$archive32_policy" | sha256sum --check
+          python3 -I -B "$archive32_helper" --policy "$archive32_policy" --inputs "$archive32_inputs" --cache "$RUNNER_TEMP/frozen574-archive32"
+          python3 -I -B - "$archive32_helper" "$archive32_policy" "$archive32_inputs" "$RUNNER_TEMP/frozen574-archive32" "$RUNNER_TEMP/alarm-cache" <<'PYARCHIVE32'
+          import importlib.util,sys
+          from pathlib import Path
+          helper,policy,inputs,cache,destination=map(Path,sys.argv[1:])
+          spec=importlib.util.spec_from_file_location('held_archive32_cache_seed',helper)
+          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+          selected=module.policy(policy,inputs)
+          result=module.seed_exact(cache,destination,selected)
+          result.update(helper=module.pin(helper.read_bytes()),policy=module.pin(policy.read_bytes()),destination='EXISTING_OWNED_ALARM_CACHE',original_versions='UNCHANGED',original_signature_and_trust_checks='UNCHANGED')
+          print(module.encoded(result).decode(),end='')
+          PYARCHIVE32
       - name: Build the fresh native base and original package pairs
         id: original_build
         timeout-minutes: 50
@@ -448,9 +477,32 @@ jobs:
                   assert name.parts[0] in ('build-1','build-2')
               archive.extractall(target,filter='data')
           PYPAIR
+      - name: Prefetch and seed exact32 frozen574 bytes before unchanged producer
+        id: frozen574_archive32
+        if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' && steps.audio_inputs.outcome == 'success' }}
+        timeout-minutes: 4
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive32_helper="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-welcome5-closed-owner/archive32.py"
+          archive32_policy="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-welcome5-closed-owner/archive32-policy.json"
+          archive32_inputs="$GITHUB_WORKSPACE/composition-desktop/scripts/ci/maintained-desktop574-inputs.json"
+          printf '%s  %s\n' 'b1e2fc13644510a613ce09e53b39d4f4471cf47fc03fa62f312258379666c418' "$archive32_helper" '4f6ce49214422579f1cc448ff95d9f311cbfaf47a0d0c4f32d828c9edf843585' "$archive32_policy" | sha256sum --check
+          python3 -I -B "$archive32_helper" --policy "$archive32_policy" --inputs "$archive32_inputs" --cache "$RUNNER_TEMP/frozen574-archive32"
+          python3 -I -B - "$archive32_helper" "$archive32_policy" "$archive32_inputs" "$RUNNER_TEMP/frozen574-archive32" "$RUNNER_TEMP/alarm-cache" <<'PYARCHIVE32'
+          import importlib.util,sys
+          from pathlib import Path
+          helper,policy,inputs,cache,destination=map(Path,sys.argv[1:])
+          spec=importlib.util.spec_from_file_location('held_archive32_cache_seed',helper)
+          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+          selected=module.policy(policy,inputs)
+          result=module.seed_exact(cache,destination,selected)
+          result.update(helper=module.pin(helper.read_bytes()),policy=module.pin(policy.read_bytes()),destination='EXISTING_OWNED_ALARM_CACHE',original_versions='UNCHANGED',original_signature_and_trust_checks='UNCHANGED')
+          print(module.encoded(result).decode(),end='')
+          PYARCHIVE32
       - name: Required signed604 plus606 additions and restoration lifecycle
         id: composition604
-        if: ${{ always() && !cancelled() }}
+        if: ${{ always() && !cancelled() && steps.frozen574_archive32.outcome == 'success' }}
         timeout-minutes: 115
         shell: bash
         env:

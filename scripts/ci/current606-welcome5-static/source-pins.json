@@ -1,13 +1,21 @@
 {
-  "carrier": "2217f9361aba464a192fc4a6d28aca0c8ab33118",
+  "carrier": "8d6d8866b260ca70e75e8bd0eafb3eb451620218",
   "files": {
     ".github/workflows/native-arm-current606-welcome5-owned-copy.yml": {
-      "bytes": 29893,
-      "sha256": "7bf13308b2d12e33542c93f1b0594f7636ed173765f9d295dd03c0ff7b9f0fe9"
+      "bytes": 34038,
+      "sha256": "ac18c1eb5de06724d52ca519435b06bea53d9fd536d3811447f8cc53cd2c464c"
     },
     "scripts/ci/current606-welcome5-closed-owner/README.md": {
       "bytes": 3839,
       "sha256": "a329bff5def41ca283a0872041974f0c8bcb77615ba79f51b0e0c92c2b0112ca"
+    },
+    "scripts/ci/current606-welcome5-closed-owner/archive32-policy.json": {
+      "bytes": 9488,
+      "sha256": "4f6ce49214422579f1cc448ff95d9f311cbfaf47a0d0c4f32d828c9edf843585"
+    },
+    "scripts/ci/current606-welcome5-closed-owner/archive32.py": {
+      "bytes": 11102,
+      "sha256": "b1e2fc13644510a613ce09e53b39d4f4471cf47fc03fa62f312258379666c418"
     },
     "scripts/ci/current606-welcome5-closed-owner/builds.py": {
       "bytes": 8781,
@@ -22,12 +30,16 @@
       "sha256": "99fda8dd43aaaf88e210e5ea5c89b10c10624e2fbfdde3e6126f762253f5cf96"
     },
     "scripts/ci/current606-welcome5-closed-owner/owner.py": {
-      "bytes": 20803,
-      "sha256": "37202da4439ca157cc2e4f7173eda3a2eaee04e54be91169fba6ff156b7b9646"
+      "bytes": 20865,
+      "sha256": "eb48803aa0dc2caa2ffc0058856d9bbf41e59ed8830714cefcb4a4451877d063"
     },
     "scripts/ci/current606-welcome5-closed-owner/prepare.py": {
-      "bytes": 4513,
-      "sha256": "ed2bc12c52c95ded0ba8c94cbfdcaf4636961474b6854d36d71144f089e40aa3"
+      "bytes": 9909,
+      "sha256": "65267d9c6dea6f141fedaf7683d260827f1293e5b423be731b1c6e9a73ebb487"
+    },
+    "scripts/ci/current606-welcome5-closed-owner/producer_diagnostic.py": {
+      "bytes": 6483,
+      "sha256": "826c6b1d2e82c911c254cf83474cfeaf0121893ac9261039092519ca99f6ed46"
     },
     "scripts/ci/current606-welcome5-closed-owner/runtime.py": {
       "bytes": 14369,
@@ -38,8 +50,8 @@
       "sha256": "01834840686a0531ee7694b4db6cf02f219055a40062760485c66a5de5acb03a"
     },
     "scripts/ci/current606-welcome5-closed-owner/source-manifest.json": {
-      "bytes": 77236,
-      "sha256": "9959231582fa0165e9c18cb7491b70db22bca3d42ac889162835309a7aab7427"
+      "bytes": 77787,
+      "sha256": "72057f42a9fb12f8ee0c85fb2556682f96f0482bafc9dd202663e4873248cbf8"
     },
     "scripts/ci/current606-welcome5-closed-owner/source-pins.json": {
       "bytes": 74960,
