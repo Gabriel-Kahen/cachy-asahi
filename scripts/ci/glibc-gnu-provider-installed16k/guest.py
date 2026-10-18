@@ -122,14 +122,17 @@ def install_progress():
             for function,stage in (('main','lifecycle'),('run_case','case'),('snapshot','snapshot'),('transaction','alpm'),('smoke','runtime'),('caches','cache'),('copy_probes','initialization'),('config_handoff','configuration')):setattr(module,function,wrap(getattr(module,function),stage))
             helpers=module.C.helpers
             def observed_helpers(*args,**kwargs):
-                api=helpers(*args,**kwargs);api['caps']=S.capability_facade(api['caps'],record);roots=api['roots']
+                api=helpers(*args,**kwargs);roots=api['roots']
+                query_path=C.ref(Path('/source'),dict(path='scripts/ci/expanded600-installer-vm/observer600.py',bytes=2784,sha256='c3d804e7f2927c7889835ad187a39a3d7c618a4651700f57b0c5413c46612607'))
+                query=C.load('gnu_installed_fresh_mount_query',query_path)
+                api['caps']=S.capability_facade(api['caps'],record,mount_query=query._mount600)
                 def first_observation(*args,**kwargs):
                     nonlocal observer_pending
                     if observer_pending:
                         observer_pending=False
-                        measured=O.facade(roots,lambda metrics:record('observer','sample',metrics))
+                        measured=O.facade(roots,lambda metrics:record('observer','sample',metrics),mount_query=query._mount600)
                         return measured.observe(*args,**kwargs)
-                    return roots.observe(*args,**kwargs)
+                    return query._observer600(roots,*args,**kwargs)
                 api['roots']=types.SimpleNamespace(**dict(vars(roots),observe=wrap(first_observation,'observer')));return api
             module.C.helpers=observed_helpers
         return module

@@ -13,7 +13,7 @@ def need(ok,why):
 def scope(path,selection,module):
  raw=(HERE/'guest.py').read_text();nodes=[n for n in ast.parse(raw).body if isinstance(n,ast.FunctionDef) and n.name in ('progress_value','install_progress')]
  # Host-user controls exercise the real writer; production uid0 guard is unchanged.
- C=types.SimpleNamespace(need=lambda ok,why:need(ok or why=='owned progress replacement',why),decode=json.loads,read=lambda *a:json.dumps(selection).encode(),load=lambda *a:module)
+ C=types.SimpleNamespace(need=lambda ok,why:need(ok or why=='owned progress replacement',why),decode=json.loads,read=lambda *a:json.dumps(selection).encode(),ref=lambda root,row:ROOT/row['path'],load=lambda name,path:load(name,path) if name=='gnu_installed_fresh_mount_query' else module)
  result=dict(C=C,S=S,O=O,Path=Path,os=os,stat=stat,types=types,sys=sys,json=json,re=re,threading=threading,time=time,PHASES=('source-before','source-after'),PROGRESS=path)
  exec(compile(ast.Module(body=nodes,type_ignores=[]),'<normal-original-progress-installer>','exec'),result)
  return result

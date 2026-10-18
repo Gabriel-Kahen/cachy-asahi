@@ -18,7 +18,7 @@ class Controls(unittest.TestCase):
   with patch.dict(sys.modules,{'contract':C,'adapter':A}):R=G.load('installed_caa3_run',folder/'run.py')
   P=G.load('installed_caa3_phase',folder/'phase_gate.py');return out,result,folder,C,A,R,P
  def test_exact116_source_and30_derived_files_without_framework_copy(self):
-  out,r,folder,C,*_=self.emitted(True);self.assertEqual(len(G.source(ROOT)['files']),118);self.assertEqual(len(r['files']),31);self.assertEqual(r['composed_normal_native_files'],15);self.assertEqual(len(list(out.rglob('*')))>29,True);C.check_source(out)
+  out,r,folder,C,*_=self.emitted(True);self.assertEqual(len(G.source(ROOT)['files']),119);self.assertEqual(len(r['files']),31);self.assertEqual(r['composed_normal_native_files'],15);self.assertEqual(len(list(out.rglob('*')))>29,True);C.check_source(out)
   for p in out.rglob('*.py'):ast.parse(p.read_bytes())
   for name in ('sandbox.py','support.py'):self.assertEqual((folder/name).read_bytes(),(ROOT/G.OLD/name).read_bytes())
   self.assertFalse((out/'scripts/ci/glibc-debian-maintained-provider-interruption').exists())

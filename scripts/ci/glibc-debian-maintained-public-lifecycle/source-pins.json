@@ -3,7 +3,7 @@
   "files": {
     ".github/workflows/native-arm-glibc-debian-maintained-provider-lifecycle.yml": {
       "bytes": 10359,
-      "sha256": "c42a6c296f39605eb997f6a1df10279afd960724126d9dcb56a263b28eb5e655"
+      "sha256": "6fc6c380a8f73d3d2da4655003690747206d5d25a4e3a8491901aed39c1a93a0"
     },
     ".github/workflows/native-arm-glibc-gnu-provider-lifecycle.yml": {
       "bytes": 9441,
@@ -14,8 +14,8 @@
       "sha256": "a95eaf775ac935ebdfe6b9c89aad9382639671aecdaab91503e1453d4782a056"
     },
     "manifests/packages.toml": {
-      "bytes": 38835,
-      "sha256": "66f77b4ba4a02657da92627738000f7a6f805de78fff8dd8682107039755b156"
+      "bytes": 41394,
+      "sha256": "19a8bdb45916e5dffef7a4c1496ebbc489792795ea2906a3d705a67e3906b880"
     },
     "scripts/apps/file_capabilities.py": {
       "bytes": 13562,

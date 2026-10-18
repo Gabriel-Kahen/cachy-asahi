@@ -14,9 +14,9 @@ jobs:
       - name: Install test prerequisites on disposable runner
         run: |
           sudo apt-get update
-          sudo apt-get install --no-install-recommends -y bash fish zsh vim build-essential clang lld gnupg libarchive-tools pacman-package-manager makepkg e2fsprogs
-          for tool in bash fish zsh vim cc clang ld.lld gpg gpgconf repo-add bsdtar vercmp pacman mkfs.ext4 debugfs; do command -v "$tool"; done
-          dpkg-query -W bash fish zsh vim build-essential clang lld gnupg libarchive-tools pacman-package-manager makepkg e2fsprogs
+          sudo apt-get install --no-install-recommends -y bash fish zsh vim build-essential clang lld gnupg libarchive-tools pacman-package-manager makepkg e2fsprogs network-manager
+          for tool in bash fish zsh vim cc clang ld.lld gpg gpgconf repo-add bsdtar vercmp pacman mkfs.ext4 debugfs nmcli; do command -v "$tool"; done
+          dpkg-query -W bash fish zsh vim build-essential clang lld gnupg libarchive-tools pacman-package-manager makepkg e2fsprogs network-manager
       - name: Verify packaged setup source and sync boundaries
         env:
           PYTHONDONTWRITEBYTECODE: '1'
@@ -66,6 +66,16 @@ jobs:
         run: |
           python3 -I -B scripts/ci/apps7-client-native/preflight.py --source "$PWD"
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/apps7-client-native -p test_lane.py -v
+      - name: Check default DNS and sysctl native lane without actors
+        run: |
+          python3 -I -B scripts/ci/dns-sysctl-native/preflight.py --source "$PWD"
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/dns-sysctl-native -p test_lane.py -v
+      - name: Check opt-in DNS and named sysctl controls without host changes
+        run: |
+          python3 -I -B packages/tools/cachy-asahi-dns/check_source.py --recipe-root packages/tools/cachy-asahi-dns
+          python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-dns/test_dns.py
+          python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-sysctl/test_sysctl.py
+          bash -n packages/tools/cachy-asahi-dns/PKGBUILD packages/tools/cachy-asahi-sysctl/PKGBUILD
       - name: Exercise release and client contracts without skipped tests
         env:
           PYTHONDONTWRITEBYTECODE: '1'

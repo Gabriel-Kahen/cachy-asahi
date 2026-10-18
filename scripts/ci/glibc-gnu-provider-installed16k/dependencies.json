@@ -1,8 +1,8 @@
 {
   "files": {
     "manifests/packages.toml": {
-      "bytes": 38835,
-      "sha256": "66f77b4ba4a02657da92627738000f7a6f805de78fff8dd8682107039755b156"
+      "bytes": 41394,
+      "sha256": "19a8bdb45916e5dffef7a4c1496ebbc489792795ea2906a3d705a67e3906b880"
     },
     "scripts/apps/file_capabilities.py": {
       "bytes": 13562,
@@ -15,6 +15,10 @@
     "scripts/ci/apps-full574-native/export_extract.py": {
       "bytes": 2410,
       "sha256": "c7a09bc3996b9bff97dd57a8244d82d562566f1135b0618f87d90fbf09c58978"
+    },
+    "scripts/ci/expanded600-installer-vm/observer600.py": {
+      "bytes": 2784,
+      "sha256": "c3d804e7f2927c7889835ad187a39a3d7c618a4651700f57b0c5413c46612607"
     },
     "scripts/ci/full-composition-installer-vm/prepare.py": {
       "bytes": 15922,

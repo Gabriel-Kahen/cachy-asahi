@@ -484,3 +484,6 @@ individually classified. Temporary primary-source receipts are under
 document are the durable retrieval path. Temporary evidence is not a release
 artifact. Documentation-only work requires no implementation test; no native
 build, installation, hardware or performance test was run for this audit.
+
+
+October18 management implementation: the original MIT DNS candidate provides exact-UUID, explicitly selected family/address settings, preview, saved prior state, guarded apply and conflict-preserving undo. Real nmcli offline apply/restore and21 controls pass; these are stored-profile settings, with no claimed live DNS effect or host connection mutation. The original MIT sysctl candidate provides one available key, vm.swappiness, with named baseline/target plans, inspect, durable intent and explicit apply/undo. Nineteen private-tree controls pass on Python3.12/3.14, including a real fixture SIGKILL and recovery. No preset, persistent boot setting, host sysctl write or performance gain is supplied. Both packages stage five owned files; native ALPM, live integration, Qt/polkit/wider key policy and both-model acceptance remain open. See the package READMEs for exact limits and operating steps.
