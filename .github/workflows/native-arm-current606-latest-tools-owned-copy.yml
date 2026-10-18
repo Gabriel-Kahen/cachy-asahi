@@ -77,7 +77,7 @@ jobs:
           persist-credentials: false
       - name: Complete joint source and future qualification before secrets
         run: |
-          printf '%s  %s\n' 'fe5f3b193e1dc910a5f8355af1640ba658939ce0a022f2d2dca88fee61cd5e74' 'expanded604-code/scripts/ci/current606-latest-tools/owner.py' '955b51bed167a21edee4c9290fec26504df0cb8d49bcf9ddbce9aef08d7544c2' 'expanded604-code/scripts/ci/current606-latest-tools/source-manifest.json' | sha256sum --check
+          printf '%s  %s\n' 'fe5f3b193e1dc910a5f8355af1640ba658939ce0a022f2d2dca88fee61cd5e74' 'expanded604-code/scripts/ci/current606-latest-tools/owner.py' '68043c92606537b0f014257a823be3b414b37f2f011b30e68304744cee4e3d1c' 'expanded604-code/scripts/ci/current606-latest-tools/source-manifest.json' | sha256sum --check
           python3 -I -B expanded604-code/scripts/ci/current606-latest-tools/owner.py --source-preflight
           python3 -I -B expanded604-code/scripts/ci/current606-latest-tools/test_source.py
           python3 -I -B expanded604-code/scripts/ci/current606-latest-tools/owner.py --require-selection

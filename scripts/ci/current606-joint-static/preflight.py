@@ -6,7 +6,7 @@ from pathlib import Path
 from unittest.mock import patch
 HERE=Path(__file__).resolve().parent
 LANE='scripts/ci/current606-latest-tools'
-CARRIER='244aa08097515434088606e50df1391483b531b4'
+CARRIER='1b844adcae6c5dedd7e148dd3f8dc5ce1b41f3ef'
 def need(ok,why):
  if not ok:raise ValueError(why)
 def pin(raw):return dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())
