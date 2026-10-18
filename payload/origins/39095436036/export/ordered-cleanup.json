@@ -1,0 +1,133 @@
+{
+  "authority": "PASS_REMOVED_AFTER_ACTOR_RETIREMENT",
+  "borrowed_images_preserved": true,
+  "consumer_groups": {
+    "apps-consumers": {
+      "containers": [
+        {
+          "absence_verified": true,
+          "container": "cachy-asahi-product-1bb84384a9a57953c6e12aa33a2b5ad4",
+          "status": "PASS"
+        },
+        {
+          "absence_verified": true,
+          "container": "cachy-asahi-product-8dbdc2053eafb0b0f0d8c6b905819054",
+          "status": "PASS"
+        },
+        {
+          "absence_verified": true,
+          "container": "cachy-asahi-product-3a50e8283801bcaa7b498fc6b0fd4191",
+          "status": "PASS"
+        },
+        {
+          "absence_verified": true,
+          "container": "cachy-asahi-product-f206a31908a630a5b99b9096eb72ac02",
+          "status": "PASS"
+        }
+      ],
+      "status": "PASS_CONSUMERS_RETIRED"
+    },
+    "base-consumers": {
+      "containers": [
+        {
+          "absence_verified": true,
+          "container": "cachy-asahi-product-lifecycle-358f516c0915849c882ba090e10c6d4f",
+          "status": "PASS"
+        },
+        {
+          "absence_verified": true,
+          "container": "cachy-asahi-product-1aa7dca5f90bb8326677043bb5ee2e05",
+          "status": "PASS"
+        },
+        {
+          "absence_verified": true,
+          "container": "cachy-asahi-product-fc61965b8232f57477f0e7ffdef1e4d9",
+          "status": "PASS"
+        },
+        {
+          "absence_verified": true,
+          "container": "cachy-asahi-product-8e54e86c2c9c6dea6e359f9157fbcea5",
+          "status": "PASS"
+        },
+        {
+          "absence_verified": true,
+          "container": "cachy-asahi-product-f9217ddac9484dc289f111b998db5f9c",
+          "status": "PASS"
+        },
+        {
+          "absence_verified": true,
+          "container": "cachy-asahi-product-probe-b25f99b38afaa318d4f12b5302cc8d7a",
+          "status": "PASS"
+        }
+      ],
+      "status": "PASS_CONSUMERS_RETIRED"
+    }
+  },
+  "dependency_images": {
+    "runtime-dependency-image": {
+      "build": "COMPLETED",
+      "image": {
+        "absence_verified": true,
+        "id": "sha256:8cf42a52e25978fd42e4dd36de628119bdf26a6242e2a15b08091afda2fa24e8"
+      },
+      "probe": {
+        "absence_verified": true,
+        "cid": null,
+        "name": "cachy-asahi-574-probe-057b274b302e7103"
+      },
+      "status": "PASS"
+    }
+  },
+  "producer": {
+    "consumer": {
+      "containers": [
+        {
+          "absence_verified": true,
+          "container": "cachy-asahi-product-lifecycle-358f516c0915849c882ba090e10c6d4f",
+          "status": "PASS"
+        },
+        {
+          "absence_verified": true,
+          "container": "cachy-asahi-product-1aa7dca5f90bb8326677043bb5ee2e05",
+          "status": "PASS"
+        },
+        {
+          "absence_verified": true,
+          "container": "cachy-asahi-product-fc61965b8232f57477f0e7ffdef1e4d9",
+          "status": "PASS"
+        },
+        {
+          "absence_verified": true,
+          "container": "cachy-asahi-product-8e54e86c2c9c6dea6e359f9157fbcea5",
+          "status": "PASS"
+        },
+        {
+          "absence_verified": true,
+          "container": "cachy-asahi-product-f9217ddac9484dc289f111b998db5f9c",
+          "status": "PASS"
+        },
+        {
+          "absence_verified": true,
+          "container": "cachy-asahi-product-probe-b25f99b38afaa318d4f12b5302cc8d7a",
+          "status": "PASS"
+        }
+      ],
+      "status": "PASS_CONSUMERS_RETIRED"
+    },
+    "producer": {
+      "build": "COMPLETED",
+      "image": {
+        "absence_verified": true,
+        "id": "sha256:0b9967fa05f3f44bfcd596e51d856369f2fb22bb1a17b79c2e8ce81ffcf1c8c3"
+      },
+      "probe": {
+        "absence_verified": true,
+        "cid": "ff4494ff4a0783b4e14cac7fa67d7b258187dfa4577f3890eeaf378ca7a361d8",
+        "name": "cachy-asahi-574-probe-5721d78b3c6094b0"
+      },
+      "status": "PASS"
+    },
+    "status": "PASS_ORDERED_CONSUMER_THEN_PRODUCER_CLEANUP"
+  },
+  "status": "PASS_ORDERED_CONSUMERS_DEPENDENCY_IMAGES_PRODUCER_AND_AUTHORITY"
+}
