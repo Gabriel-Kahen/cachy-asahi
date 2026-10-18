@@ -66,8 +66,8 @@ jobs:
           WORKFLOW_SOURCE: ${{ github.sha }}
         run: |
           set -euo pipefail
-          test "$(sha256sum current604-public-pair-generic16k/scripts/ci/current604-public-pair-generic16k/ci.py | cut -d ' ' -f 1)" = c9b923cccd87d1b38b4b72d4cf8e878271a2b36db059b8bb689432d501ff48a2
-          test "$(sha256sum current604-public-pair-generic16k/scripts/ci/current604-public-pair-generic16k/source-manifest.json | cut -d ' ' -f 1)" = 2d898ed1b7da092a1c8719bf6c4313b2ace9f677187aa114357e358a5e56ecb0
+          test "$(sha256sum current604-public-pair-generic16k/scripts/ci/current604-public-pair-generic16k/ci.py | cut -d ' ' -f 1)" = 6d3a3f6dd3819f3686076c94e4a41b555c02ecad269821fa72becea34ab6739b
+          test "$(sha256sum current604-public-pair-generic16k/scripts/ci/current604-public-pair-generic16k/source-manifest.json | cut -d ' ' -f 1)" = 8de6aa0eae8efda833303f7a0ba50570caa109f154aa0056184d18dd3015ace1
           python3 -B current604-public-pair-generic16k/scripts/ci/current604-public-pair-generic16k/gate.py \
             --profile "$GUI_PROFILE" \
             --implementation "$GITHUB_WORKSPACE/current604-public-pair-generic16k" --implementation-revision "$IMPLEMENTATION_SOURCE" \

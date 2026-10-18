@@ -34,6 +34,9 @@ def derive(text):
  text=C.one(text,"len(report.get('cleanup',[]))==14","len(report.get('cleanup',[]))==15 and context604.launcher_retired(report,C.ROOT)")
  text=C.one(text,'all original14 consumer cleanup records required','all original14 plus owned QEMU image consumer cleanup records required')
  text=C.one(text,"(runtime/'runtime-image.log','runtime/runtime-image.log',16*1024**2)","(runtime/'runtime-image.log','runtime/runtime-image.log',16*1024**2),(runtime/'qemu-tooling-image.log','runtime/qemu-tooling-image.log',16*1024**2)")
+ text=C.one(text,"ready=producer.prepare(original);ready604=output/'ready604'","ready=producer.prepare(original);ready604=output/'ready604'\n        context604.preserve_producer_image(producer_output,report)")
+ text=C.one(text,"        C.need(retired(raw,controller),","        context604.require_producer_image_preserved(raw,report['producer_image_preservation'])\n        C.need(retired(raw,controller),")
+ text=C.one(text,"try:report['producer_cleanup']=producer.cleanup(producer_output)","try:\n                report['producer_cleanup']=producer.cleanup(producer_output)\n                if 'producer_image_preservation' in report:\n                    report['producer_image_retirement']=context604.producer_image_retired(report.get('producer_image_preservation'),report['producer_cleanup'])")
  return text.replace('expanded604-current-management-managed16k-runner','current604-public-pair-generic16k-runner').replace('expanded604-current-management-managed16k-runtime','current604-public-pair-generic16k-runtime')
 _BASE=C.module('_profile604_owned_ci',C.OLD+'/ci.py',{'contract':C,'adapter':adapter,'context604':context604,'KP':KP},derive)
 parser,retired,preflight,main=_BASE.parser,_BASE.retired,_BASE.preflight,_BASE.main
