@@ -1,0 +1,236 @@
+"""Finite source/inert-transport controls; no accepting VM or fabricated boot."""
+import argparse,copy,io,json,os,shutil,subprocess,sys,tempfile,unittest,zipfile
+from pathlib import Path
+from unittest.mock import patch
+sys.path.insert(0,str(Path(__file__).resolve().parent));import deploy as D,binding,kernel_input as K,runtime_adapter,entry
+ROOT=D.ROOT
+class Tests(unittest.TestCase):
+ def test_actual_current_owner_preparer_and_lifecycle_compose(self):
+  v=entry.source(ROOT);self.assertEqual(v['current_provider'],'a8e9_CAA3');self.assertEqual(v['native_owner_seams'],9);self.assertIn('transaction',v['original_lifecycle_bodies_held'])
+ def test_default_boot_refuses_before_output_API_or_environment(self):
+  with tempfile.TemporaryDirectory()as td,patch.object(subprocess,'Popen',side_effect=AssertionError('NO_ACTORS')):
+   out=Path(td)/'out'
+   # Exactly invert the explicitly selected boot DATA operands for this one
+   # original NULL-default assertion; all source/custody assertions stay live.
+   original=D.obj(D.read(ROOT/D.LANE/'input-policy.json'))
+   if original['boot_decision']is None:
+    with self.assertRaisesRegex(ValueError,'NULL'):binding.build(ROOT,out,{})
+   else:
+    with self.assertRaisesRegex(ValueError,'genuine first native'):binding.build(ROOT,out,{})
+    null=dict(original,boot_decision=None,boot_projection=None)
+    def read(path,*args):
+     if Path(path)==ROOT/D.LANE/'input-policy.json':return D.encoded(null)
+     return before(path,*args)
+    before=D.read
+    with patch.object(D,'read',side_effect=read):
+     with self.assertRaisesRegex(ValueError,'NULL'):binding.boot(ROOT)
+   self.assertFalse(out.exists())
+ def test_real_Root_kernel20_provenance_and_whole_reader_source(self):
+  with patch.object(subprocess,'Popen',side_effect=AssertionError('NO_ACTORS')):
+   k,v=K.known();self.assertEqual(len(k['members']),30);self.assertEqual(v['configuration'],dict(active_changes=14,delta=dict(bytes=1582,sha256='8e074cfb3bab7a59e876b2b80d73fbcd7d1832949f60fb4e10e933aaa828087d'),inactive_domain=189))
+   with K.reader()as R:self.assertEqual(R.SOURCE,k['source']);self.assertEqual(R.RUN,k['run'])
+ def test_selected_boot_exact_identity_and_no_mapping_credit(self):
+  p=D.obj(D.read(ROOT/D.LANE/'input-policy.json'))
+  if p['boot_decision']is None:
+   with self.assertRaises(ValueError):binding.boot(ROOT)
+  else:
+   raw,projected=binding.boot(ROOT);v=D.obj(projected)
+   self.assertEqual([v[n]for n in('verity_mapping','integrity','lifecycle')],['NOT_QUALIFIED']*3)
+   import boot_binding
+   k,_=K.known();result=D.read(ROOT/D.LANE/'Root-boot-strict.json')
+   for data in(raw+b' ',D.encoded(dict(D.obj(raw),source='0'*40))):
+    with self.assertRaises(ValueError):boot_binding.projection(data,result,k)
+ def test_bootstrap_requires_fresh_writer_witness_not_prior_Root_literal(self):
+  I=binding.runtime(ROOT);module=D.load('_immutable_writer_refusal',ROOT/'runtime/immutable/bootstrap_loader.py')
+  for v in(None,dict(status='ROOT_VERIFIED_SOURCE_PRODUCERS_RETIRED',source='7d7ccbcb7b5a170999716ed640285806b7cab9bb'),{}):
+   with self.assertRaises(ValueError):module.writer_retired(v)
+  raw=D.read(ROOT/'runtime/immutable/bootstrap_loader.py');self.assertIn(b'data.replace(old,new)',raw);self.assertIn(b'writer_retired=writer_retired',raw)
+ def test_fresh_writer_guard_requires_nonempty_actual_retired_reports(self):
+  import pipeline,types
+  v=dict(status='PASS_LIFECYCLE_PENDING_ORDERED_PRODUCER_CLEANUP',actors=[],commands=[])
+  with patch.object(pipeline,'owner',return_value=types.SimpleNamespace(read=lambda p:v)):
+   with self.assertRaisesRegex(ValueError,'writers retired'):pipeline.native_writer_retirement(ROOT,Path('/INERT'))
+ def test_one_acquisition_intent_failure_no_retry_or_partial_reuse(self):
+  with tempfile.TemporaryDirectory()as td:
+   parent=Path(td);parent.chmod(0o700);out=parent/'acquire';calls=[]
+   def fail(*a):calls.append(a[0]);raise OSError('INERT_NO_NETWORK')
+   with self.assertRaises(OSError):K.acquire(out,fetch=fail,token='INERT')
+   self.assertEqual(len(calls),1);self.assertTrue((out/'acquisition-failure.json').is_file());self.assertFalse((out/'artifact.zip').exists())
+   with self.assertRaises(ValueError):K.acquire(out,fetch=lambda *a:self.fail('retry'),token='INERT')
+ def test_foreign_read_endpoint_refuses_before_subprocess(self):
+  with patch.object(subprocess,'run',side_effect=AssertionError('NO_API')):
+   for endpoint in('https://foreign.invalid/data','repos/foreign/repo/actions/runs/39156901928','repos/Gabriel-Kahen/cachy-asahi/actions/artifacts/12147995918/zip'):
+    with self.assertRaises(ValueError):K.get(endpoint,Path('/tmp/never-created'),1,1,'INERT')
+ def test_partial_changed_fresh_API_never_reaches_artifact_download(self):
+  with tempfile.TemporaryDirectory()as td:
+   out=Path(td)/'acquire';calls=[]
+   def bad(endpoint,path,*args):calls.append(endpoint);path.write_bytes(b'{}')
+   with self.assertRaises((ValueError,KeyError)):K.acquire(out,fetch=bad,token='INERT')
+   self.assertEqual(len(calls),2);self.assertFalse((out/'artifact.zip').exists())
+ def test_missing_or_foreign_artifact_members_rejected_data_only(self):
+  with K.reader()as R:
+   for name in('Image','../Image','unapproved.py'):
+    b=io.BytesIO()
+    with zipfile.ZipFile(b,'w')as z:z.writestr(name,b'INERT_NOT_A_KERNEL')
+    with self.assertRaises(ValueError):R.archive_files(b.getvalue())
+ def test_typed_runtime_derivative_inverse_and_full_roles_held(self):
+  p=D.obj(D.read(ROOT/D.LANE/'runtime-derivation.json'));basis=D.obj(D.read(ROOT/D.LANE/'runtime-basis.json',2*1024**2));self.assertEqual(p['basis_files'],667)
+  for n,row in p['changed'].items():
+   raw=D.read(ROOT/'runtime'/n,4*1024**2);self.assertEqual(D.pin(raw),row['after'])
+   if type(row['inverse'])is list:
+    for e in reversed(row['inverse']):self.assertEqual(raw.decode().count(e['new']),e['count']);raw=raw.replace(e['new'].encode(),e['old'].encode())
+    self.assertEqual(D.pin(raw),row['before'])
+  for n,v in basis.items():
+   if n not in p['changed']:self.assertEqual(D.pin(D.read(ROOT/'runtime'/n,16*1024**2)),v)
+ def test_closed_source_allows_only_topGit_metadata(self):
+  with tempfile.TemporaryDirectory()as td:
+   def top_metadata(folder,names):return {'.git'}if Path(folder)==ROOT else set()
+   self.assertEqual(top_metadata(ROOT/'runtime',['.git']),set())
+   root=Path(td)/'source';shutil.copytree(ROOT,root,ignore=top_metadata);(root/'.git').mkdir();(root/'.git/config').write_text('INERT_METADATA');D.source(root)
+   (root/'.git/config').unlink();(root/'.git').rmdir();(root/'.git').write_text('gitdir: INERT_NOT_FOLLOWED');D.source(root)
+   for extra in(root/'.git-shadow',root/'runtime/.git'):
+    # A canonical runtime carrier clone already has registered nested Git metadata.
+    if extra.is_dir():extra=extra/'INERT_UNEXPECTED'
+    self.assertFalse(extra.exists())
+    extra.write_text('INERT_UNEXPECTED')
+    with self.assertRaises(ValueError):D.source(root)
+    extra.unlink()
+   (root/'extra').write_text('INERT')
+   with self.assertRaises(ValueError):D.source(root)
+   (root/'extra').unlink();(root/'alias').symlink_to(root/'runtime',target_is_directory=True)
+   with self.assertRaises(ValueError):D.source(root)
+ def test_exact_archive32_original_lock_profile(self):
+  A=D.load('_immutable_archive32_test',ROOT/D.LANE/'archive32.py');v=A.policy(ROOT/D.LANE/'archive32-policy.json',ROOT/D.VM/'scripts/ci/maintained-desktop574-inputs.json');self.assertEqual(len(v['files']),32);self.assertEqual(sum(r['bytes']for r in v['files'].values()),209001064)
+ def test_generated_workflow_source_gate_acquisition_and_seed_order(self):
+  w=D.read(ROOT/'.github/workflows/native-arm-build.yml').decode();self.assertIn('  actions: read\n',w);self.assertIn('timeout-minutes: 360',w)
+  names=('Whole source and maintained phase','Genuine independent boot','Acquire exact existing kernel20','Seed the six existing','Seed exact32 verified','Reuse unchanged owned574','Snapshot original574','Actual new-purpose immutable','Retire all new and native')
+  positions=[w.index(n)for n in names];self.assertEqual(positions,sorted(positions));self.assertNotIn('rust6',w.lower());self.assertIn('2300s',w);self.assertIn('timeout-minutes: 220',w)
+ def test_unknown_consumer_state_keeps_original_producer(self):
+  import pipeline
+  with tempfile.TemporaryDirectory()as td:
+   out=Path(td);(out/'owner.json').write_text('{"consumer_cleanup":"UNKNOWN"}')
+   a=argparse.Namespace(source=ROOT,output=out,proof=None,base=None,owner=None,receipt=None)
+   with patch.object(pipeline,'owner',side_effect=AssertionError('NO_PRODUCER_CLEANUP')):
+    with self.assertRaisesRegex(ValueError,'unknown new consumer'):pipeline.cleanup(a)
+
+ def test_generated_checkout_source_is_separate_and_all_source_routes_match(self):
+  import re
+  w=D.read(ROOT/'.github/workflows/native-arm-build.yml').decode()
+  self.assertIn('working-directory: immutable-source/runtime/runtime-vm',w)
+  self.assertIn('ref: ${{ inputs.source_sha }}\n          path: immutable-source\n          persist-credentials: false',w)
+  self.assertEqual(re.findall(r'--source "([^"\n]+)"',w),['$GITHUB_WORKSPACE/immutable-source']*8)
+  for name in('SLICE','BUNDLE','DEPLOY'):
+   line=next(v for v in w.splitlines()if v.strip().startswith(name+':'))
+   self.assertIn('${{ github.workspace }}/immutable-source/',line)
+  self.assertIn('"$GITHUB_WORKSPACE/immutable-source/runtime/immutable/test_controls.py"',w)
+  self.assertIn('path: lifecycle-packet',w);self.assertIn('path: retained-public-inputs',w)
+  self.assertIn('--packet-root "$GITHUB_WORKSPACE/lifecycle-packet"',w)
+  self.assertIn('"$GITHUB_WORKSPACE/retained-public-inputs/seed.py"',w)
+  cleanup=w[w.index('      - name: Retire all new'):w.index('      - name: Retain only closed')]
+  self.assertIn('pipeline.py" cleanup --source "$GITHUB_WORKSPACE/immutable-source"',cleanup)
+ def test_real_source_closure_after_both_sibling_checkouts_and_unknown_refusal(self):
+  expected_files=D.source(ROOT)['files']
+  with tempfile.TemporaryDirectory()as td,patch.object(subprocess,'Popen',side_effect=AssertionError('NO_ACTORS')):
+   workspace=Path(td);root=workspace/'immutable-source'
+   shutil.copytree(ROOT,root,ignore=lambda directory,names:{'.git'}if Path(directory)==ROOT else set())
+   for name in('lifecycle-packet','retained-public-inputs'):
+    sibling=workspace/name;sibling.mkdir();(sibling/'index.json').write_text('{"INERT":"NOT_A_PACKET"}');(sibling/'.git').mkdir();(sibling/'.git/config').write_text('INERT')
+   legacy=workspace/'old-layout';shutil.copytree(ROOT,legacy,ignore=lambda directory,names:{'.git'}if Path(directory)==ROOT else set())
+   for name in('lifecycle-packet','retained-public-inputs'):
+    (legacy/name).mkdir();(legacy/name/'index.json').write_text('INERT_UNEXPECTED_CHECKOUT')
+   with self.assertRaisesRegex(ValueError,'exact source closure'):D.source(legacy)
+   self.assertEqual(D.source(root)['files'],expected_files)
+   for name in('extra','lifecycle-packet'):
+    (root/name).write_text('INERT_UNEXPECTED')
+    with self.assertRaisesRegex(ValueError,'exact source closure'):D.source(root)
+    (root/name).unlink()
+   self.assertEqual(D.source(root)['files'],expected_files)
+class MediaPreparationControls(unittest.TestCase):
+ def modules(self):
+  binding.runtime(ROOT)
+  return D.load('_stage_callback_controls',ROOT/'runtime/immutable/stage.py'),D.load('_prepare_handoff_controls',ROOT/'runtime/immutable/native_prepare.py')
+ def test_actual_recovery_function_sees_patched_command_and_original_guards(self):
+  import types
+  stage,prepare=self.modules();images=stage.original_images();recovery=images.prepare.__globals__['recovery'];self.assertIsInstance(recovery,types.ModuleType)
+  dot=b'/2/040755/0/0/.//\n/2/040755/0/0/..//\n';lost=b'/11/040700/0/0/lost+found//\n';children=b'/11/040700/0/0/.//\n/2/040755/0/0/..//\n';calls=[];removed=False
+  def command(argv,seconds):
+   nonlocal removed
+   self.assertEqual(seconds,60);calls.append([str(x)for x in argv])
+   request=argv[-2]
+   if request=='ls -p /':return dot if removed else dot+lost
+   if request=='ls -p /lost+found':return children
+   self.assertEqual(request,'rmdir /lost+found');removed=True;return b''
+  with tempfile.TemporaryDirectory()as td:
+   parent=Path(td);image=parent/'source.raw';image.write_bytes(b'INERT_ORDINARY_IMAGE_DATA');image.chmod(0o600)
+   # Reproduce copied-namespace defect without any tool/image actor.
+   copied=types.SimpleNamespace(**vars(recovery))
+   with patch.object(copied,'command',command):
+    with self.assertRaises(TypeError):copied.formatter_recovery_directory(image,{},parent)
+   with patch.object(recovery,'command',command):recovery.formatter_recovery_directory(image,{},parent)
+   self.assertEqual(len(calls),4);self.assertEqual(image.read_bytes(),b'INERT_ORDINARY_IMAGE_DATA');self.assertIsNone(recovery.command)
+   with patch.object(recovery,'command',side_effect=AssertionError('no unsafe command')):
+    with self.assertRaises(ValueError):recovery.formatter_recovery_directory(image,{'lost+found/foreign':{}},parent)
+ def test_real_private_media_handoff_keeps_child_contents_and_metadata(self):
+  stage,prepare=self.modules()
+  with tempfile.TemporaryDirectory()as td:
+   root=Path(td);root.chmod(0o700);media=root/'immutable-media';media.mkdir(mode=0o700);p=media/'source.raw';p.write_bytes(b'PRIVATE_PARTIAL');p.chmod(0o600);before=p.stat();data=p.read_bytes()
+   prepare.media_handoff(root,os.getuid(),os.getgid());after=p.stat()
+   self.assertEqual(data,p.read_bytes());self.assertEqual((before.st_dev,before.st_ino,before.st_mode,before.st_nlink,before.st_size,before.st_mtime_ns),(after.st_dev,after.st_ino,after.st_mode,after.st_nlink,after.st_size,after.st_mtime_ns));self.assertEqual(media.stat().st_uid,root.stat().st_uid)
+ def test_handoff_uses_exact_drive_fds_preserving0600_hash_and_JSON(self):
+  stage,prepare=self.modules()
+  with tempfile.TemporaryDirectory()as td:
+   root=Path(td);root.chmod(0o700);media=root/'immutable-media';media.mkdir(mode=0o700)
+   for name in ('source.raw','source.hash','source-image.json'):
+    p=media/name;p.write_bytes(name.encode());p.chmod(0o600 if name=='source.hash'else 0o644)
+   metadata=(media/'source-image.json').stat();calls=[];original=os.fchown
+   def chown(fd,uid,gid):calls.append(os.fstat(fd).st_ino);return original(fd,uid,gid)
+   with patch.object(os,'fchown',side_effect=chown):prepare.media_handoff(root,os.getuid(),os.getgid())
+   self.assertEqual(calls,[(media/'source.raw').stat().st_ino,(media/'source.hash').stat().st_ino,media.stat().st_ino]);self.assertEqual((media/'source.hash').stat().st_mode&0o777,0o600);self.assertEqual((media/'source-image.json').stat(),metadata)
+ def test_media_alias_hardlink_extras_and_wrong_owner_refuse(self):
+  stage,prepare=self.modules()
+  for kind in ('alias','hardlink','extra','directory','parent-alias','wrong-owner'):
+   with tempfile.TemporaryDirectory()as td:
+    root=Path(td);root.chmod(0o700);media=root/'immutable-media';media.mkdir(mode=0o700);p=media/'source.raw';p.write_bytes(b'PRIVATE');p.chmod(0o600);uid=os.getuid();gid=os.getgid();target=root
+    if kind=='alias':p.unlink();p.symlink_to(root/'other')
+    if kind=='hardlink':os.link(p,root/'other')
+    if kind=='extra':(media/'foreign').write_bytes(b'REFUSE')
+    if kind=='directory':(media/'nested').mkdir()
+    if kind=='parent-alias':target=root/'alias';target.symlink_to(root,target_is_directory=True)
+    if kind=='wrong-owner':uid+=1
+    with patch.object(os,'fchown',side_effect=AssertionError('must refuse before ownership mutation')):
+     with self.assertRaises((ValueError,OSError)):prepare.media_handoff(target,uid,gid)
+ def test_real_media_name_replacement_refuses_before_chown(self):
+  stage,prepare=self.modules()
+  with tempfile.TemporaryDirectory()as td:
+   root=Path(td);root.chmod(0o700);media=root/'immutable-media';media.mkdir(mode=0o700);p=media/'source.raw';p.write_bytes(b'PRIVATE');p.chmod(0o600);original=os.listdir;count=0
+   def replace(fd):
+    nonlocal count
+    count+=1
+    if count==2:media.rename(root/'replaced');media.mkdir(mode=0o700)
+    return original(fd)
+   with patch.object(os,'listdir',side_effect=replace),patch.object(os,'fchown',side_effect=AssertionError('wrong anchored name')):
+    with self.assertRaises(ValueError):prepare.media_handoff(root,os.getuid(),os.getgid())
+ def test_prepare_failure_handoff_preserves_error_and_NULL_refuses_first(self):
+  stage,prepare=self.modules();policy=json.loads((ROOT/'runtime/immutable/policy.json').read_bytes());calls=[]
+  with patch.object(subprocess,'Popen',side_effect=AssertionError('NO_ACTORS')):
+   with self.assertRaisesRegex(ValueError,'NULL'):prepare.execute(policy)
+  def fail():raise RuntimeError('INERT_PREPARE_FAILURE')
+  with patch.object(prepare.runtime_policy,'gate'),patch.object(prepare,'load',return_value={'prepare':fail}),patch.object(prepare,'media_handoff',side_effect=lambda *a:calls.append(a)),patch.dict(os.environ,OUTPUT_UID=str(os.getuid()),OUTPUT_GID=str(os.getgid())):
+   with self.assertRaisesRegex(RuntimeError,'INERT_PREPARE_FAILURE'):prepare.execute(policy)
+  self.assertEqual(calls,[(Path('/out'),os.getuid(),os.getgid())])
+
+
+class Archive20ProducerControls(unittest.TestCase):
+ def test_exact20_source_helpers_and_original32_held(self):
+  self.assertEqual(D.pin(D.read(ROOT/D.LANE/'archive20.py')),dict(bytes=11096,sha256='e8ef66fc0431a04deb331f75258457bf4bdeb13a18bcd863fd5bece3b9a54968'));self.assertEqual(D.pin(D.read(ROOT/D.LANE/'archive20-policy.json')),dict(bytes=6155,sha256='1f966afe0c24bb9a928154cb0638a8bb78292c799ffd544132633caddf6217ae'))
+  self.assertEqual(D.pin(D.read(ROOT/D.LANE/'archive32.py')),dict(bytes=11102,sha256='b1e2fc13644510a613ce09e53b39d4f4471cf47fc03fa62f312258379666c418'))
+ def test_full20_prefetch_and_seed_before_unchanged_producer(self):
+  import pipeline
+  w=D.read(ROOT/D.LANE/'workflow.yml.in').decode();self.assertLess(w.index('Prefetch exact20'),w.index('Seed the six existing private'));self.assertLess(w.index('Seed exact20 verified'),w.index('Reuse unchanged owned574 native producer'))
+  self.assertIn('"$DEPLOY/archive20.py" --policy "$DEPLOY/archive20-policy.json"',w);self.assertIn('--cache "$RUNNER_TEMP/immutable-archive20"',w);self.assertIn('seed-archive20 --source "$GITHUB_WORKSPACE/immutable-source"',w)
+  import inspect
+  source=inspect.getsource(pipeline.seed_archive20);self.assertIn("producer/'context/deps'",source);self.assertIn('h.seed_exact(cache',source)
+
+
+if __name__=='__main__':
+ p=argparse.ArgumentParser();p.add_argument('--source',type=Path,default=D.ROOT);a,rest=p.parse_known_args();ROOT=a.source.absolute();unittest.main(argv=[sys.argv[0],*rest],verbosity=2)
