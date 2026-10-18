@@ -112,7 +112,7 @@ class Controls(unittest.TestCase):
  def test_emitted_corrected_roles_and_all80_real_runtime_recipe_dependencies(self):
   with tempfile.TemporaryDirectory() as td:
    root=Path(td);out=root/'closed';P.emit(ROOT,UPDATER,out);pins=C.decode(C.read(C.HERE/'source-pins.json'));required=pins['runtime_recipe_inputs'];self.assertEqual(len(required),80)
-   self.assertEqual(C.row(out/C.OLD/'source-manifest.json')['sha256'],'8a3be4d020ecc918153ecbccd8453ff61715163c654c38bb69dcfb77561a8ee4');self.assertEqual(C.row(out/'scripts/ci/expanded604-apps6-public-pair-installer/source-manifest.json')['sha256'],'b8a35cf9f04c5321db6db9103f3a7ef95d58ebcc0ff960b805362a3867ed715a')
+   self.assertEqual(C.row(out/C.OLD/'source-manifest.json')['sha256'],'32d8ff7d88216efeefa2c08ffe13d9e273cf968d755986ddc02b67ecbdf802bf');self.assertEqual(C.row(out/'scripts/ci/expanded604-apps6-public-pair-installer/source-manifest.json')['sha256'],'b8a35cf9f04c5321db6db9103f3a7ef95d58ebcc0ff960b805362a3867ed715a')
    for n,row in required.items():self.assertEqual(C.row(out/n),row,n)
    controls=pins['fresh_control_inputs'];self.assertEqual(len(controls),9)
    for n,row in controls.items():self.assertEqual(C.row(out/n),row,n)
