@@ -39,7 +39,7 @@ def text(source,name):
    raw=replace(raw,anchor,new)
   raw=replace(raw,"if name==ROLES['cache']:need(meta.get('depends')==['python>=3.11','pacman'],'final ctypes Cache dependency set differs')","if name==ROLES['client']:need(meta.get('depends')==['python>=3.11','cachy-asahi-repository-runtime=0.1.0-1'],'exact companion Runtime1 dependency required')")
   raw=replace(raw,"    return value\n\n\ndef verify_source", "    need(value.get('purpose')=='APPS7_AND_OPT_IN_CLIENT_V2_NATIVE' and {role:r['version'] for role,r in value['products'].items()}=={'runtime':'0.1.0-1','apps':'0.1.0-7','client':'0.1.0-1'},'exact distinct new product identities required')\n    return value\n\n\ndef verify_source")
-  raw=function(raw,'validate_lifecycle',"def validate_lifecycle(value):\n from rules import validate\n return validate(sys.modules[__name__],value)\n")
+  raw=function(raw,'validate_lifecycle',"def validate_lifecycle(value):\n from rules import validate\n from types import SimpleNamespace\n return validate(SimpleNamespace(need=need,re=re,ROLES=ROLES),value)\n")
   raw+="\ndef recipe_directory(source,name):\n need(name in NAMES,'explicit finite recipe role')\n return source/'packages/tools'/('cachy-asahi-apps7' if name==ROLES['apps'] else name)\n"
  elif name=='run.py':
   raw=replace(raw,'import contract as C\n','import contract as C\nimport adapter as A\n')

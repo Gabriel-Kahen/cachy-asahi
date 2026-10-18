@@ -78,4 +78,24 @@ class Controls(unittest.TestCase):
   self.assertIn('ubuntu-24.04-arm',text);self.assertIn('cancel-in-progress: false',text);self.assertIn('timeout-minutes: 100',text)
   for marker in ('--network=none','--read-only'):self.assertIn(marker,A.read(ROOT,'scripts/ci/welcome-native/run.py'))
 
+ def test_actual_generated_contract_loader_needs_no_module_registration(self):
+  # Match lifecycle.main -> installed.load exactly; execute only trusted generated source.
+  import installed as I,sys
+  name='apps_cache_installed_contract';previous=sys.modules.pop(name,None)
+  try:
+   with tempfile.TemporaryDirectory()as d,patch.object(subprocess,'Popen',side_effect=AssertionError('loader control must not start actors')):
+    context=Path(d);runner=A.runner(ROOT,context);path=runner/'contract.py'
+    self.assertEqual((runner/'rules.py').read_bytes(),(C.HERE/'rules.py').read_bytes())
+    loaded=I.load(name,path);self.assertNotIn(name,sys.modules)
+    for value in ({},{'status':'PASS_APPS_CACHE_INSTALLED_LIFECYCLE'},{'status':'PASS_APPS7_CLIENT_V2_INSTALLED_LIFECYCLE','page_size':16384}):
+     with self.assertRaisesRegex(ValueError,'distinct native4K software lifecycle required'):loaded.validate_lifecycle(value)
+    held=" from rules import validate\n from types import SimpleNamespace\n return validate(SimpleNamespace(need=need,re=re,ROLES=ROLES),value)\n"
+    original=" from rules import validate\n return validate(sys.modules[__name__],value)\n"
+    text=path.read_text();self.assertEqual(text.count(held),1)
+    before=runner/'before-contract.py';before.write_text(text.replace(held,original))
+    broken=I.load(name,before);self.assertNotIn(name,sys.modules)
+    with self.assertRaisesRegex(KeyError,name):broken.validate_lifecycle({})
+  finally:
+   if previous is not None:sys.modules[name]=previous
+
 if __name__=='__main__':unittest.main(verbosity=2)
