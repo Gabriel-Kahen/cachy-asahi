@@ -104,6 +104,12 @@ jobs:
           python3 -B scripts/ci/gnu-verity-kernel-native/prepare.py --own "$PWD" --inputs "$PWD" --output "$RUNNER_TEMP/gnu-verity-kernel-source"
           python3 -B "$RUNNER_TEMP/gnu-verity-kernel-source/scripts/ci/gnu-verity-kernel-native/lane.py" preflight --source "$RUNNER_TEMP/gnu-verity-kernel-source"
           python3 -B -Werror::ResourceWarning "$RUNNER_TEMP/gnu-verity-kernel-source/scripts/ci/gnu-verity-kernel-native/test_lane.py"
+      - name: Emit standalone GNU boot and DM probe NULL default source without actors
+        run: |
+          python3 -I -B scripts/ci/gnu-verity-kernel-boot-probe-source/prepare.py --own "$PWD" --output "$RUNNER_TEMP/gnu-verity-boot-default-source"
+          python3 -I -B "$RUNNER_TEMP/gnu-verity-boot-default-source/scripts/ci/gnu-verity-kernel-boot-probe/entry.py" check-source --source "$RUNNER_TEMP/gnu-verity-boot-default-source"
+          python3 -I -B "$RUNNER_TEMP/gnu-verity-boot-default-source/scripts/ci/gnu-verity-kernel-boot-probe/test_entry.py"
+          python3 -I -B -Werror::ResourceWarning scripts/ci/gnu-verity-kernel-boot-probe-source/test_prepare.py
       - name: Checkout whole copied606 code basis for optional KSM source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
