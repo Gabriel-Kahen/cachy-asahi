@@ -82,7 +82,7 @@ def progress_value(raw,selection):
         C.need(type(row) is dict and set(row) in ({'sequence','stage','edge','case','phase'},{'sequence','stage','edge','case','phase','postwalk'},{'sequence','stage','edge','case','phase','observer'},{'sequence','stage','edge','case','phase','copy_context'}) and type(row['sequence']) is int and 0<row['sequence']<=2**63-1 and (n==0 or row['sequence']>rows[n-1]['sequence']) and row['stage'] in ('worker','lifecycle','case','snapshot','observer','alpm','runtime','cache','initialization','configuration','postwalk','copy') and row['edge'] in ('enter','leave','sample','failure') and row['case'] in ('none','pristine','modified') and row['phase'] in ('none',*PHASES),'closed public progress labels')
         C.need((row['stage']=='copy')==('copy_context'in row) and (row['edge']!='failure' or row['stage']=='copy'),'copy phase DATA exclusive schema')
         if 'copy_context' in row:
-            C.need(row['stage']=='copy' and row['edge'] in ('enter','leave','failure'),'closed copy context DATA');S.validate_copy(row['copy_context'])
+            C.need(row['stage']=='copy' and row['edge'] in ('enter','leave','sample','failure'),'closed copy context DATA');S.validate_copy(row['copy_context'])
         if 'postwalk' in row:
             C.need(row['stage']=='postwalk','closed postwalk stage');S.validate(row['postwalk'])
         if 'observer' in row:
@@ -179,6 +179,7 @@ def _copy_context_limits(original,record=None):
     now=time.monotonic()
     if not 0<original.deadline-now<=600:raise ValueError('fresh bounded original copy context required')
     window=[None];active=[None];sequence=[0];emitted=[0];disabled=[False]
+    work_ticks=[0];work_samples=[0];work_last=[now];work_disabled=[False]
     def emit(state,edge,expiry='NONE'):
         if record is None or disabled[0] or state is None or emitted[0]>=64:return
         try:
@@ -188,8 +189,28 @@ def _copy_context_limits(original,record=None):
                 shared_remaining_ms=max(0,int((original.deadline+1800-current)*1000)),
                 window_remaining_ms=None if window[0] is None else max(0,int((window[0]-current)*1000)),
                 expiry=expiry,acceptance=False)
+            if 'work' in state:metrics['work']=dict(state['work'])
             S.validate_copy(metrics);emitted[0]+=1;record('copy',edge,metrics)
         except Exception:disabled[0]=True # Optional DATA cannot change any original guard/outcome.
+    def sample_work():
+        # Piggyback original ticks; no timer actor, scan, added FS operation or
+        # state cache. Reserve32 of the existing64 rows for phase boundaries.
+        state=active[0]
+        if record is None or disabled[0] or work_disabled[0] or state is None or state['operation']!='COPY_DATA':return
+        work_ticks[0]+=1
+        if work_ticks[0]%256:return
+        try:
+            current=time.monotonic()
+            work=S.copy_work()
+            if work is None:return
+            prior=state.get('work',{});due=work['phase']!=prior.get('phase') or current-work_last[0]>=120
+            omitted=prior.get('omitted_samples',0)+(1 if due and work_samples[0]>=32 else 0)
+            work.update(sampled_at_ms=max(0,int((current-now)*1000)),omitted_samples=omitted)
+            S.validate_copy_work(work);state['work']=work
+            if due:
+                work_last[0]=current
+                if work_samples[0]<32:work_samples[0]+=1;emit(state,'sample')
+        except Exception:work_disabled[0]=True # Optional DATA never changes the workload.
     parent=type(original)
     class CopyContextLimits(parent):
         def tick(self):
@@ -202,6 +223,7 @@ def _copy_context_limits(original,record=None):
                 if active[0] is not None:
                     active[0]['expiry']='WINDOW600';active[0]['failed']=True;emit(active[0],'failure','WINDOW600')
                 raise ValueError('root observation deadline')
+            sample_work()
         def _copy_call(self,operation,function,*args,**kwargs):
             sequence[0]+=1
             if sequence[0]>64:return function(*args,**kwargs) # Bounded optional DATA only.

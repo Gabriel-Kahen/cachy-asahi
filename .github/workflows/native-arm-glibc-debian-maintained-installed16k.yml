@@ -47,7 +47,7 @@ jobs:
         run: |
           set -euo pipefail
           # BEGIN CI SOURCE STAMPS
-          printf '%s  %s\n' '64e950ed296e7d83e4cdf9ab6acfcc3cc196036c9b9f323d200f53b74c43f6f7' 'scripts/ci/glibc-debian-maintained-installed16k-ci/wiring.py' 'e75e12f5c66c0509c3bb21b03dc3f733064ed5e30a6a5108d1c47cecc33fef8e' 'scripts/ci/glibc-debian-maintained-installed16k-ci/integration-manifest.json' | sha256sum --check
+          printf '%s  %s\n' '64e950ed296e7d83e4cdf9ab6acfcc3cc196036c9b9f323d200f53b74c43f6f7' 'scripts/ci/glibc-debian-maintained-installed16k-ci/wiring.py' '415482a90bd1a202b08e713d07e02c15509a57177d48ca8f4d9c7c25c9fa10c0' 'scripts/ci/glibc-debian-maintained-installed16k-ci/integration-manifest.json' | sha256sum --check
           # END CI SOURCE STAMPS
           python3 -I -B scripts/ci/glibc-debian-maintained-installed16k-ci/wiring.py preflight --workspace "$GITHUB_WORKSPACE"
           printf 'VM_SOURCE=%s/maintained-installed16k-vm-source\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
