@@ -88,6 +88,11 @@ jobs:
           python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-dns2/test_dns.py
           python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-sysctl2/test_sysctl.py
           bash -n packages/tools/cachy-asahi-dns2/PKGBUILD packages/tools/cachy-asahi-sysctl2/PKGBUILD
+      - name: Check default KSM native upgrade source without actors
+        run: |
+          python3 -I -B scripts/ci/ksm2-upgrade-native/prepare.py --source "$PWD" --output "$RUNNER_TEMP/ksm2-upgrade-source" --baseline-recipe "$PWD/packages/tools/cachy-asahi-ksmctl" --candidate-recipe "$PWD/packages/tools/cachy-asahi-ksmctl2"
+          python3 -I -B "$RUNNER_TEMP/ksm2-upgrade-source/scripts/ci/ksm2-upgrade-native/preflight.py" --source "$RUNNER_TEMP/ksm2-upgrade-source"
+          python3 -B -Werror::ResourceWarning -m unittest discover -s "$RUNNER_TEMP/ksm2-upgrade-source/scripts/ci/ksm2-upgrade-native" -p test_lane.py -v
       - name: Check explicit KSM scanning experiments in private fixtures
         run: |
           python3 -I -B packages/tools/cachy-asahi-ksmctl2/check-source.py
