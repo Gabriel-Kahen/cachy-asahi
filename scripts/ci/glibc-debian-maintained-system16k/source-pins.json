@@ -170,7 +170,7 @@
     },
     "scripts/ci/tools-generic16k/dependencies.json": {
       "bytes": 21413,
-      "sha256": "2996d59cc0488b38797d43e41b05152a59ed27257e7c4428c336c62764c107e9"
+      "sha256": "ce33af72681e305d2d69b8498b8d4b75514adfadd97bbf7b9d7d218102c69b27"
     },
     "scripts/ci/tools-generic16k/kernel.fragment": {
       "bytes": 815,
@@ -186,7 +186,7 @@
     },
     "scripts/ci/tools-generic16k/support.py": {
       "bytes": 2994,
-      "sha256": "68021f907105843fd65549f00da1480e0d7dc13de4f82655a02033dac1a89b68"
+      "sha256": "6cafebc7f0aceaf1b8c97985816a3027befabf4d3e1a0fa43f71a000c3383143"
     },
     "scripts/virtual/generic16k/build_kernel.py": {
       "bytes": 10781,
