@@ -66,8 +66,8 @@ jobs:
           WORKFLOW_SOURCE: ${{ github.sha }}
         run: |
           set -euo pipefail
-          test "$(sha256sum current604-public-pair-generic16k/scripts/ci/current604-public-pair-generic16k/ci.py | cut -d ' ' -f 1)" = 634ef02cbe9d8406b45165a2801ae4486837b691f4e25417751b9b348b107f03
-          test "$(sha256sum current604-public-pair-generic16k/scripts/ci/current604-public-pair-generic16k/source-manifest.json | cut -d ' ' -f 1)" = 65dcfc89b8443fab348068066062be4dae25902d4966f58cc8d43b14a2f33460
+          test "$(sha256sum current604-public-pair-generic16k/scripts/ci/current604-public-pair-generic16k/ci.py | cut -d ' ' -f 1)" = c9b923cccd87d1b38b4b72d4cf8e878271a2b36db059b8bb689432d501ff48a2
+          test "$(sha256sum current604-public-pair-generic16k/scripts/ci/current604-public-pair-generic16k/source-manifest.json | cut -d ' ' -f 1)" = 69182726c0d1addcf5a31e4f6ddfb46995e534061283c451f9e0b6acbad061e5
           python3 -B current604-public-pair-generic16k/scripts/ci/current604-public-pair-generic16k/gate.py \
             --profile "$GUI_PROFILE" \
             --implementation "$GITHUB_WORKSPACE/current604-public-pair-generic16k" --implementation-revision "$IMPLEMENTATION_SOURCE" \
@@ -557,6 +557,7 @@ jobs:
               retained_archive=os.environ['KERNEL_RETAINED_ARCHIVE'] or None)
           helper=work/'helper';helper.mkdir(mode=0o700)
           for name in ('build_kernel.py','kernel.fragment'):shutil.copyfile(root/'scripts/ci/managed-gui-generic16k'/name,helper/name)
+          s.load(root,'scripts/ci/current604-public-pair-generic16k/keyboard_profile.py').prepare_kernel(root,helper)
           PYCODE
       - name: Save verified archive immediately before kernel build or cleanup
         if: steps.kernel_acquire.outcome == 'success' && steps.kernel_cache_restore.outputs.cache-hit != 'true'
