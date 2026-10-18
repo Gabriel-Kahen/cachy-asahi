@@ -665,8 +665,8 @@
       "sha256": "5c1387031e244dcf5e9c94fc94151fcc316a56456d727cc0d33c6ffd9a190028"
     },
     "scripts/ci/expanded604-apps6-public-pair-updater/adapter.py": {
-      "bytes": 4789,
-      "sha256": "df89d494df51c57dd694a867a1246ceea7ea78e6c1530bb0a560b7cab6fc5648"
+      "bytes": 5112,
+      "sha256": "ab771098df8af2ea90b738208156d75ba97aebeb7bfa4293d81a87ac3cb8da9e"
     },
     "scripts/ci/expanded604-apps6-public-pair-updater/after604.lock": {
       "bytes": 11992,
@@ -677,8 +677,8 @@
       "sha256": "0019c1236e1d9294a0149e39e02c048e89431922a445e26b4ae067bcf5f46a5a"
     },
     "scripts/ci/expanded604-apps6-public-pair-updater/aux_transition.py": {
-      "bytes": 14441,
-      "sha256": "911057693c69cd19e420ca7d9c5bafef57fa2384c49cbfdd365df199e95f8b28"
+      "bytes": 19370,
+      "sha256": "65963d8e7472cfdb1b2173b579a4860acb73f98a6cd5596c77fc3159f49c10b6"
     },
     "scripts/ci/expanded604-apps6-public-pair-updater/baseline.py": {
       "bytes": 1589,
@@ -741,12 +741,12 @@
       "sha256": "d8206915ca5d660e08964c25e1b5653e65aa5d0afbacb51a193d16c370bdf8cc"
     },
     "scripts/ci/expanded604-apps6-public-pair-updater/test_aux_transition.py": {
-      "bytes": 41470,
-      "sha256": "e0b88a80dfe9241d968c75a2182bcd361c84d6a54c8a78fa3c01a9f827470bd8"
+      "bytes": 50677,
+      "sha256": "8ab31658941454cfbf286d9e30bdb3247a300f542a9df2adb444ac8b35410de4"
     },
     "scripts/ci/expanded604-apps6-public-pair-updater/test_lane.py": {
-      "bytes": 15139,
-      "sha256": "eb9e8ece09f0b866f1c0ba4a9cd2ea85e24227506d11342961c3bd3bd3ab5c05"
+      "bytes": 15421,
+      "sha256": "8a19bee6ccb5016357d1787af34cc101ab540f63771a5d7e0089f05b92f05c95"
     },
     "scripts/ci/expanded604-apps6-public-pairs/README.md": {
       "bytes": 3360,

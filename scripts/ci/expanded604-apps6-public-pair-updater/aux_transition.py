@@ -127,3 +127,49 @@ def derive_linked(raw):
         expected=ast.parse(ast.get_source_segment(text,node).replace(before,after)).body[0];need(ast.dump(expected,include_attributes=False)==ast.dump(bb[name],include_attributes=False),'linked runtime body changed beyond active comparator: '+name)
     oa=next(n for n in old.body if isinstance(n,ast.FunctionDef) and n.name=='apply');na=next(n for n in new.body if isinstance(n,ast.FunctionDef) and n.name=='apply');need(ast.dump(oa,include_attributes=False)==ast.dump(na,include_attributes=False),'linked apply/truth/error status changed')
     return result.encode(),dict(status='EXACT_LINKED_OVERRIDE_ROUTES_EXISTING_APPS_PARENT_TIMES_PLUS_FAILURE_DIAGNOSTIC',before=pin(raw),after=pin(result.encode()),new_allowances='NONE',original_compare='UNCHANGED',failure_status='UNCHANGED',diagnostic_bytes=8192,scope='SOURCE_ONLY_NOT_ACTUAL_ACCEPTANCE')
+
+
+def apps6_selection_identity(verifier,spec):
+    need(verifier.config['before_lock_sha256']==BEFORE and verifier.config['after_lock_sha256']==AFTER,'apps604-parent-selection-locks')
+    need(identity(verifier.root)==spec['root_identity'] and Path(spec['args']['root'])==verifier.root,'apps604-parent-selection-root')
+    need(spec['worker_sha256']==sha(Path(__file__)),'apps604-parent-selection-worker')
+    raw=read(Path(verifier.args.data)/'failure-worker.json',128*1024)
+    need(hashlib.sha256(raw).hexdigest()==spec['spec_sha256'] and json.loads(raw)=={k:v for k,v in spec.items() if k!='spec_sha256'},'apps604-parent-selection-spec')
+    return dict(nonce=spec['nonce'],spec_sha256=spec['spec_sha256'],worker_sha256=spec['worker_sha256'],root_identity=spec['root_identity'],before_lock_sha256=BEFORE,after_lock_sha256=AFTER,archive_sha256=PACKAGE)
+
+
+def apps6_reserve_selection(verifier,spec):
+    need(getattr(verifier,'apps6_auxiliary_selected',False) is False and not hasattr(verifier,'apps6_selection_reservation') and not hasattr(verifier,'apps6_selection_consumed'),'apps604-fresh-parent-selection')
+    verifier.apps6_selection_reservation=apps6_selection_identity(verifier,spec)
+
+
+def apps6_bind_selection(verifier,witness,spec):
+    # boundary still proves real commit87/nonce/source/root/locks/checkpoint.
+    boundary(witness,spec)
+    expected=apps6_selection_identity(verifier,spec)
+    need(getattr(verifier,'apps6_auxiliary_selected',False) is False and getattr(verifier,'apps6_selection_reservation',None)==expected and not hasattr(verifier,'apps6_selection_consumed'),'apps604-reserved-parent-selection')
+    del verifier.apps6_selection_reservation
+    verifier.apps6_selection_consumed=True
+    verifier.apps6_auxiliary_selected=True
+
+POSTCOMMIT_INPUT={'bytes':26466,'sha256':'c8e876dd407cdd2b8882a34b20f64ec93db98fb9ffa9a6b28dd067a82ec97178'}
+def derive_postcommit(raw):
+    need(pin(raw)==POSTCOMMIT_INPUT,'exact composed Apps6 postcommit driver required')
+    text=raw.decode()
+    def replace(before,after):
+        nonlocal text
+        need(text.count(before)==1,'one exact Apps6 postcommit selection seam');text=text.replace(before,after)
+    replace("    need(runtime.commit_ready is True and runtime.commit_calls==1", "    need(getattr(runtime,'apps6_auxiliary_selected',False) is True and runtime.config['before_lock_sha256']==BEFORE and runtime.config['after_lock_sha256']==AFTER,'apps604-authenticated-child-selection')\n    need(runtime.commit_ready is True and runtime.commit_calls==1")
+    receipt="dict(status='AUTHENTICATED_APPS5_TO6_CHILD_SELECTION',before_lock_sha256=BEFORE,after_lock_sha256=AFTER,archive_sha256=PACKAGE)"
+    replace("worker_sha256=spec['worker_sha256'],prepared_add=", "worker_sha256=spec['worker_sha256'],apps6_selection="+receipt+",prepared_add=")
+    replace("'worker_sha256','prepared_add','prepared_remove'", "'worker_sha256','apps6_selection','prepared_add','prepared_remove'")
+    replace("marker['worker_sha256']==spec['worker_sha256'] and", "marker['worker_sha256']==spec['worker_sha256'] and marker['apps6_selection']=="+receipt+" and")
+    replace("        witness_spec=dict(spec,spec_sha256=spec_pin)\n", "        witness_spec=dict(spec,spec_sha256=spec_pin)\n        apps6_reserve_selection(verifier,witness_spec)\n")
+    replace("            after,proof=verify_after(api,child_args,scale,verifier,records,payload)", "            apps6_bind_selection(verifier,witness,witness_spec)\n            after,proof=verify_after(api,child_args,scale,verifier,records,payload)")
+    anchor='def execute_case(args,api):';replace(anchor,inspect.getsource(apps6_selection_identity)+'\n\n'+inspect.getsource(apps6_reserve_selection)+'\n\n'+inspect.getsource(apps6_bind_selection)+'\n\n'+anchor)
+    before,after=ast.parse(raw),ast.parse(text);functions=lambda tree:{n.name:ast.dump(n,include_attributes=False) for n in tree.body if isinstance(n,ast.FunctionDef)};old,new=functions(before),functions(after)
+    need(set(new)==set(old)|{'apps6_selection_identity','apps6_reserve_selection','apps6_bind_selection'},'only three parent selection helpers added')
+    need({n for n in old if old[n]!=new[n]}=={'arm','boundary','execute_case'},'only child witness boundary and parent bridge may change')
+    for tree in (before,after):tree.body=[n for n in tree.body if not isinstance(n,ast.FunctionDef)]
+    need(ast.dump(before,include_attributes=False)==ast.dump(after,include_attributes=False),'postcommit imports/constants/classes held')
+    return text.encode(),dict(status='SOURCE_BOUND_AUTHENTICATED_CHILD_TO_DISTINCT_PARENT_SELECTION',before=pin(raw),after=pin(text.encode()),changed_functions=['arm','boundary','execute_case'],unchanged_readbacks=['prepare_verifier','verify_after','database_after','assess'],selected_guard='REQUIRES_TRUE_AFTER_EXACT_NONCE_SPEC_WORKER_ROOT_ARCHIVE_LOCK_WITNESS',budgets='UNCHANGED',scope='POSTCOMMIT_EXIT87_ONLY_NO_ACCEPTANCE')
