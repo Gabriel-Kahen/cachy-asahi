@@ -558,8 +558,8 @@
       "sha256": "4394549c5ab5d373629a7a2b18bb3871a194ec556a4f9203600af146c33f2d3f"
     },
     "scripts/ci/current604-public-pair-updater16k/guest.py": {
-      "bytes": 8993,
-      "sha256": "df85f3f3032e521c42d30ad45707032ad9e7f9cf72d302722908172d3316f0a2"
+      "bytes": 11759,
+      "sha256": "26b0bc727718a1287f03389c04a72ad4828d613274a2d192f2b6784fd60fea6f"
     },
     "scripts/ci/current604-public-pair-updater16k/input-policy.json": {
       "bytes": 127,
@@ -598,8 +598,8 @@
       "sha256": "6999636b05e65d3bafcb73bf0fd273b744f990475ee34244969a56b7e16d0086"
     },
     "scripts/ci/current604-public-pair-updater16k/test_wiring.py": {
-      "bytes": 28942,
-      "sha256": "fb07acadc0e16461d767d82052d5395b63aee53c0cec80de9d8f9cabdf1301da"
+      "bytes": 35546,
+      "sha256": "2c12315ab529a25f103590f0f9045e92b3e5267c2b1c6ac0559c318b641fb6b3"
     },
     "scripts/ci/current604-public-pair-updater16k/vm.py": {
       "bytes": 15918,
