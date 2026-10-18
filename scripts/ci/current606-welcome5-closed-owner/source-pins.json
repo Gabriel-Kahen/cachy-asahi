@@ -180,12 +180,12 @@
         "sha256": "755876eefeea1f74d6b92c73a29178798a8ca939650a5e0dd44506bac14225dc"
       },
       "scripts/ci/current606-welcome5-copy/rooted_fixture.py": {
-        "bytes": 9989,
-        "sha256": "ae0c40ea331097cd9638e4e1016bf0032f77a3335023e28d35a0354fed1ce972"
+        "bytes": 16126,
+        "sha256": "d98a97d528f4bffbdd653743486a8fd10cd61e728d6020cf9f7dc49229763243"
       },
       "scripts/ci/current606-welcome5-copy/source-manifest.json": {
-        "bytes": 5466,
-        "sha256": "fbea8d2c54ee5792ecfe77b96bb871948673b8352ea3c5c7ba087d00e064841b"
+        "bytes": 5467,
+        "sha256": "751833a5f2a6df56fdf9af59bf6aeb2dc03cfffc6eff706c220e4e4a6b2fe7ee"
       },
       "scripts/ci/current606-welcome5-copy/step_entry.py": {
         "bytes": 741,
@@ -200,8 +200,8 @@
         "sha256": "bb647153cea5f536ae488eb3f4ee31f5f08e7764d99b3cb99b76b9e5e1d2313d"
       },
       "scripts/ci/current606-welcome5-copy/test_worker.py": {
-        "bytes": 33359,
-        "sha256": "b4d4dca1c4dc762918ab97a03b7cac7f04a38943040c7d180dfb7090d9dc69f3"
+        "bytes": 35799,
+        "sha256": "02d7dc952e498babf13baa7afe3fe7a0c4735aeb4303e86cbddba293fd361fb6"
       },
       "scripts/ci/current606-welcome5-copy/verification.py": {
         "bytes": 2645,
