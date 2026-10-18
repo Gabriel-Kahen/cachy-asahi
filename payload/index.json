@@ -1,0 +1,361 @@
+{
+  "files": {
+    "a": {
+      "bytes": 24128,
+      "path": "packages/cachy-asahi-ksmctl2-a/cachy-asahi-ksmctl-0.1.0-2-any.pkg.tar.xz",
+      "sha256": "bac3d222b6490412c1c9c7bafd72d8169e8679a1e7b411b5794246aed0b57b5f"
+    },
+    "b": {
+      "bytes": 24128,
+      "path": "packages/cachy-asahi-ksmctl2-b/cachy-asahi-ksmctl-0.1.0-2-any.pkg.tar.xz",
+      "sha256": "bac3d222b6490412c1c9c7bafd72d8169e8679a1e7b411b5794246aed0b57b5f"
+    },
+    "control": {
+      "bytes": 59,
+      "path": "TEST-signing/control.json",
+      "sha256": "f50e7c7a96960bb163cbe30f5be6a282da4006fbac5f03c0cdaf82813a2e0a3a"
+    },
+    "public_key": {
+      "bytes": 429,
+      "path": "TEST-signing/TEST-public.asc",
+      "sha256": "fe1694d4616ab2f515e8a28c351c4a76b9de7e275449582ed9211658963a9254"
+    },
+    "runtime_report": {
+      "bytes": 38890,
+      "path": "runtime/report.json",
+      "sha256": "898ca2da29a3cd36c291efc25871fd6c063cf4eb73828a0d990be62be573c71e"
+    },
+    "signature": {
+      "bytes": 119,
+      "path": "TEST-signing/cachy-asahi-ksmctl-0.1.0-2-any.pkg.tar.xz.sig",
+      "sha256": "0d0e9bb33204e965abc615e14c6b9f30cc5b9cdd9ae59669948e43ddf466c6a2"
+    }
+  },
+  "generic16k": "NOT_RUN",
+  "hardware": "NOT_RUN",
+  "kernel_write": "NOT_RUN",
+  "name": "cachy-asahi-ksmctl",
+  "native_artifact_refs": [
+    {
+      "bytes": 59,
+      "path": "TEST-signing/control.json",
+      "sha256": "f50e7c7a96960bb163cbe30f5be6a282da4006fbac5f03c0cdaf82813a2e0a3a"
+    },
+    {
+      "bytes": 429,
+      "path": "TEST-signing/TEST-public.asc",
+      "sha256": "fe1694d4616ab2f515e8a28c351c4a76b9de7e275449582ed9211658963a9254"
+    },
+    {
+      "bytes": 17244,
+      "path": "packages/cachy-asahi-ksmctl-a/cachy-asahi-ksmctl-0.1.0-1-any.pkg.tar.xz",
+      "sha256": "b518e711c41b8d6bcdae71364b5529aaac982d12cef600f1b2fa17f51c895a4a"
+    },
+    {
+      "bytes": 17244,
+      "path": "packages/cachy-asahi-ksmctl-b/cachy-asahi-ksmctl-0.1.0-1-any.pkg.tar.xz",
+      "sha256": "b518e711c41b8d6bcdae71364b5529aaac982d12cef600f1b2fa17f51c895a4a"
+    },
+    {
+      "bytes": 24128,
+      "path": "packages/cachy-asahi-ksmctl2-a/cachy-asahi-ksmctl-0.1.0-2-any.pkg.tar.xz",
+      "sha256": "bac3d222b6490412c1c9c7bafd72d8169e8679a1e7b411b5794246aed0b57b5f"
+    },
+    {
+      "bytes": 24128,
+      "path": "packages/cachy-asahi-ksmctl2-b/cachy-asahi-ksmctl-0.1.0-2-any.pkg.tar.xz",
+      "sha256": "bac3d222b6490412c1c9c7bafd72d8169e8679a1e7b411b5794246aed0b57b5f"
+    },
+    {
+      "bytes": 11539,
+      "path": "runtime/lifecycle.json",
+      "sha256": "15a7c0bf0ac064770eb209db284253707ce337a6e2c10b5dfe549ac49ce95d88"
+    },
+    {
+      "bytes": 17717,
+      "path": "retention.json",
+      "sha256": "b0535edfde656823a02f479abd65343875e7db06639224e7060c1c074b8668a1"
+    },
+    {
+      "bytes": 1343,
+      "path": "runner-derivations.json",
+      "sha256": "92ff369cadeccd208d452f7aa851cb29288695a25a640945001e279934faad7e"
+    },
+    {
+      "bytes": 38890,
+      "path": "runtime/report.json",
+      "sha256": "898ca2da29a3cd36c291efc25871fd6c063cf4eb73828a0d990be62be573c71e"
+    },
+    {
+      "bytes": 119,
+      "path": "TEST-signing/cachy-asahi-ksmctl-0.1.0-1-any.pkg.tar.xz.sig",
+      "sha256": "3f5dc11e2d56f4c404f2b71fc2b3a676836b45b08901cc5b1aa83be91c7af76d"
+    },
+    {
+      "bytes": 119,
+      "path": "TEST-signing/cachy-asahi-ksmctl-0.1.0-2-any.pkg.tar.xz.sig",
+      "sha256": "0d0e9bb33204e965abc615e14c6b9f30cc5b9cdd9ae59669948e43ddf466c6a2"
+    }
+  ],
+  "native_decision": {
+    "bytes": 4672,
+    "path": "Root-acceptance.json",
+    "sha256": "f251675c58cb4086a8885b903d2e9649ad2186526e54e50fa57364e780a13261"
+  },
+  "product": {
+    "builds": [
+      {
+        "archive": "cachy-asahi-ksmctl-0.1.0-2-any.pkg.tar.xz",
+        "payload": {
+          "usr/bin/cachy-asahi-ksm-experiment": {
+            "gid": 0,
+            "link": "",
+            "mode": 493,
+            "mtime": 1791748800,
+            "sha256": "1ea518cc25a0d3099b7723756fd66631c35d7a79d50b300f6387a25588306d79",
+            "size": 20549,
+            "type": "0",
+            "uid": 0
+          },
+          "usr/bin/cachy-asahi-ksmctl": {
+            "gid": 0,
+            "link": "",
+            "mode": 493,
+            "mtime": 1791748800,
+            "sha256": "f9fd76eaa6a205d56fa4bb9123b8c721ea1277249c4cab58d1b57eaf8edc7558",
+            "size": 6433,
+            "type": "0",
+            "uid": 0
+          },
+          "usr/share/doc/cachy-asahi-ksmctl/README.md": {
+            "gid": 0,
+            "link": "",
+            "mode": 420,
+            "mtime": 1791748800,
+            "sha256": "a0422a6b280c5b1583afe5da7575ba6e98c476c8ce1efbe196ba33513e94a4ed",
+            "size": 7590,
+            "type": "0",
+            "uid": 0
+          },
+          "usr/share/doc/cachy-asahi-ksmctl/experiment-provenance.json": {
+            "gid": 0,
+            "link": "",
+            "mode": 420,
+            "mtime": 1791748800,
+            "sha256": "e27da2f0e55a384bf8cb243e59437405391034347d10ff458fea7435898bba21",
+            "size": 2144,
+            "type": "0",
+            "uid": 0
+          },
+          "usr/share/doc/cachy-asahi-ksmctl/source-provenance.json": {
+            "gid": 0,
+            "link": "",
+            "mode": 420,
+            "mtime": 1791748800,
+            "sha256": "d46e93a9893225d205a01fdcd3429782ba51d44c86b78e77fce458b53448b849",
+            "size": 1016,
+            "type": "0",
+            "uid": 0
+          },
+          "usr/share/licenses/cachy-asahi-ksmctl/LICENSE": {
+            "gid": 0,
+            "link": "",
+            "mode": 420,
+            "mtime": 1791748800,
+            "sha256": "edaef632cbb643e4e7a221717a6c441a4c1a7c918e6e4d56debc3d8739b233f6",
+            "size": 17984,
+            "type": "0",
+            "uid": 0
+          },
+          "usr/share/licenses/cachy-asahi-ksmctl/NOTICE": {
+            "gid": 0,
+            "link": "",
+            "mode": 420,
+            "mtime": 1791748800,
+            "sha256": "939ad92c65a6c2f9da2c723a4c6e136add87ccb4a7a6e8ba0dd89692a77f3f10",
+            "size": 1359,
+            "type": "0",
+            "uid": 0
+          }
+        },
+        "sha256": "bac3d222b6490412c1c9c7bafd72d8169e8679a1e7b411b5794246aed0b57b5f",
+        "tests": {
+          "method": "makepkg check() exit0 plus exact markers; installed behavior separate",
+          "status": "PASS_CHECK_EXIT_NO_SKIPS"
+        }
+      },
+      {
+        "archive": "cachy-asahi-ksmctl-0.1.0-2-any.pkg.tar.xz",
+        "payload": {
+          "usr/bin/cachy-asahi-ksm-experiment": {
+            "gid": 0,
+            "link": "",
+            "mode": 493,
+            "mtime": 1791748800,
+            "sha256": "1ea518cc25a0d3099b7723756fd66631c35d7a79d50b300f6387a25588306d79",
+            "size": 20549,
+            "type": "0",
+            "uid": 0
+          },
+          "usr/bin/cachy-asahi-ksmctl": {
+            "gid": 0,
+            "link": "",
+            "mode": 493,
+            "mtime": 1791748800,
+            "sha256": "f9fd76eaa6a205d56fa4bb9123b8c721ea1277249c4cab58d1b57eaf8edc7558",
+            "size": 6433,
+            "type": "0",
+            "uid": 0
+          },
+          "usr/share/doc/cachy-asahi-ksmctl/README.md": {
+            "gid": 0,
+            "link": "",
+            "mode": 420,
+            "mtime": 1791748800,
+            "sha256": "a0422a6b280c5b1583afe5da7575ba6e98c476c8ce1efbe196ba33513e94a4ed",
+            "size": 7590,
+            "type": "0",
+            "uid": 0
+          },
+          "usr/share/doc/cachy-asahi-ksmctl/experiment-provenance.json": {
+            "gid": 0,
+            "link": "",
+            "mode": 420,
+            "mtime": 1791748800,
+            "sha256": "e27da2f0e55a384bf8cb243e59437405391034347d10ff458fea7435898bba21",
+            "size": 2144,
+            "type": "0",
+            "uid": 0
+          },
+          "usr/share/doc/cachy-asahi-ksmctl/source-provenance.json": {
+            "gid": 0,
+            "link": "",
+            "mode": 420,
+            "mtime": 1791748800,
+            "sha256": "d46e93a9893225d205a01fdcd3429782ba51d44c86b78e77fce458b53448b849",
+            "size": 1016,
+            "type": "0",
+            "uid": 0
+          },
+          "usr/share/licenses/cachy-asahi-ksmctl/LICENSE": {
+            "gid": 0,
+            "link": "",
+            "mode": 420,
+            "mtime": 1791748800,
+            "sha256": "edaef632cbb643e4e7a221717a6c441a4c1a7c918e6e4d56debc3d8739b233f6",
+            "size": 17984,
+            "type": "0",
+            "uid": 0
+          },
+          "usr/share/licenses/cachy-asahi-ksmctl/NOTICE": {
+            "gid": 0,
+            "link": "",
+            "mode": 420,
+            "mtime": 1791748800,
+            "sha256": "939ad92c65a6c2f9da2c723a4c6e136add87ccb4a7a6e8ba0dd89692a77f3f10",
+            "size": 1359,
+            "type": "0",
+            "uid": 0
+          }
+        },
+        "sha256": "bac3d222b6490412c1c9c7bafd72d8169e8679a1e7b411b5794246aed0b57b5f",
+        "tests": {
+          "method": "makepkg check() exit0 plus exact markers; installed behavior separate",
+          "status": "PASS_CHECK_EXIT_NO_SKIPS"
+        }
+      }
+    ],
+    "comparison": {
+      "errors": [],
+      "hardware_status": "NOT RUN",
+      "independence_limit": "Distinct recorded container runs; independent machine execution is not attested.",
+      "packages": {
+        "cachy-asahi-ksmctl-0.1.0-2-any.pkg.tar.xz": {
+          "buildinfo_equal": true,
+          "bytes_equal": true,
+          "installed_contents_equal": true,
+          "pkginfo_equal": true
+        }
+      },
+      "status": "contents-reproduced"
+    },
+    "version": "0.1.0-2"
+  },
+  "purpose": "KSM2_NATIVE_INPUTS_ONLY_NO_VM_CREDIT",
+  "recipe": {
+    "files": {
+      ".SRCINFO": {
+        "bytes": 1557,
+        "sha256": "79c491a2930cc6d92648b301cc9af766d1d20dcb7e0687ab2690237b62e30a7f"
+      },
+      "LICENSE": {
+        "bytes": 17984,
+        "sha256": "edaef632cbb643e4e7a221717a6c441a4c1a7c918e6e4d56debc3d8739b233f6"
+      },
+      "NOTICE": {
+        "bytes": 1359,
+        "sha256": "939ad92c65a6c2f9da2c723a4c6e136add87ccb4a7a6e8ba0dd89692a77f3f10"
+      },
+      "PKGBUILD": {
+        "bytes": 2373,
+        "sha256": "c4f2cd4a506181df68edadc5ae36a976f3402910ff63d07ac1d3715bd38a3e9a"
+      },
+      "README.md": {
+        "bytes": 7590,
+        "sha256": "a0422a6b280c5b1583afe5da7575ba6e98c476c8ce1efbe196ba33513e94a4ed"
+      },
+      "adaptation.patch": {
+        "bytes": 8216,
+        "sha256": "0bc6b1f4725eb510a0f890bd616ce682b98332b371c93d2144ad643181727212"
+      },
+      "cachy-asahi-ksm-experiment": {
+        "bytes": 20549,
+        "sha256": "1ea518cc25a0d3099b7723756fd66631c35d7a79d50b300f6387a25588306d79"
+      },
+      "cachy-asahi-ksmctl": {
+        "bytes": 6433,
+        "sha256": "f9fd76eaa6a205d56fa4bb9123b8c721ea1277249c4cab58d1b57eaf8edc7558"
+      },
+      "check-source.py": {
+        "bytes": 2342,
+        "sha256": "7cca209ee6ad36726b03c0f54100b07bd6d08d974473d00c2092bbd5be4089a6"
+      },
+      "experiment-provenance.json": {
+        "bytes": 2144,
+        "sha256": "e27da2f0e55a384bf8cb243e59437405391034347d10ff458fea7435898bba21"
+      },
+      "source-provenance.json": {
+        "bytes": 1016,
+        "sha256": "d46e93a9893225d205a01fdcd3429782ba51d44c86b78e77fce458b53448b849"
+      },
+      "test_experiment.py": {
+        "bytes": 16687,
+        "sha256": "2f13fe326171a7e42dc84d6c4e2ac2bbe6eb8391f9e06393f6e2c09fa8dbb843"
+      },
+      "test_ksmctl.py": {
+        "bytes": 17730,
+        "sha256": "e42602fd16579e30c8cb799f26c897c1e3e89515f20a49a346b1888ce3c94b6f"
+      },
+      "upstream-ksmctl": {
+        "bytes": 2606,
+        "sha256": "cd5c8aa86df5a06a268ecc21297b4cd7d8df1053c90c8bcd4e53ef9bb16194d9"
+      }
+    },
+    "path": "recipes/cachy-asahi-ksmctl2",
+    "source": "e753936b4d90d0b5127647581bed2a7fda64ce70"
+  },
+  "recipe_sources": {
+    "baseline": "e753936b4d90d0b5127647581bed2a7fda64ce70",
+    "candidate": "e753936b4d90d0b5127647581bed2a7fda64ce70"
+  },
+  "release": "NOT_ADMITTED",
+  "run": 39139213293,
+  "signer": "7E73A80AF8FD5DA6529EF27E1AB823DC28925AA5",
+  "source": "72ea5a1e81268f08da9b9cc04cdc7e23a1a9ff8a",
+  "transport": {
+    "bytes": 495,
+    "path": "original-transport.json",
+    "sha256": "0e1c026798f4cb2b4b5f6154816059753d824dceba27ed2545907631212cca0d"
+  },
+  "version": "0.1.0-2"
+}
