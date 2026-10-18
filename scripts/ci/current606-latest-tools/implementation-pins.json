@@ -14,7 +14,7 @@
     },
     "scripts/ci/current606-welcome5-source-bridge/owner-api.json": {
       "bytes": 160,
-      "sha256": "d1806b02ebe37e89728c1654bb02f6d1af83879c0ee6174e7ba847ecf3513fb1"
+      "sha256": "ddb38096ff1514a8d236f2dbe990ad72d6a9cf023ff53f6aaf52cd3b196c0965"
     },
     "scripts/ci/current606-welcome5-source-bridge/selection.json": {
       "bytes": 647,
@@ -448,7 +448,7 @@
     },
     "scripts/ci/current606-latest-tools-copy/owner-api.json": {
       "bytes": 141,
-      "sha256": "b1933ec8dc1bacb9f0a44a5f313bd0ca7c281fa93e5d02ed225b57e5fd395379"
+      "sha256": "4b1c5a1146aab813730a62b2b11cc5a810b77ba5ca73d04fb09601bff93d1b4b"
     },
     "scripts/ci/current606-latest-tools-copy/physical.py": {
       "bytes": 3499,

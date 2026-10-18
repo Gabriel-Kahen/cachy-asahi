@@ -1680,8 +1680,8 @@
       "sha256": "8a0ff10a9d1f777353d506b0a62a75df0affd7c92320fccbaa3aa7c3766c1e2a"
     },
     "scripts/ci/current606-welcome5-closed-owner/runtime.py": {
-      "bytes": 9571,
-      "sha256": "ef1450c48d22f56cb055bedd751b6c41cf5001babe084380b9374531388a4453"
+      "bytes": 14369,
+      "sha256": "01be4a99f9886b2c27cb11a3022db53b9d2c56b7567aa2dfe2350f136e659437"
     },
     "scripts/ci/current606-welcome5-closed-owner/selection.py": {
       "bytes": 7831,
@@ -1696,8 +1696,8 @@
       "sha256": "b9c5ef406aea3726969d0e8151b84d6405877a4fb115340f866e9779f2416d8b"
     },
     "scripts/ci/current606-welcome5-closed-owner/test_runtime.py": {
-      "bytes": 6087,
-      "sha256": "116d4b47ca4647d1fa14621c7711f7dbc192dc506195aa94e1dc6cfb760c517c"
+      "bytes": 14935,
+      "sha256": "866fb8fc3c6ac39d89b4a732c6e86e6c5bb8f7f35fb1cfc945ed422485e216aa"
     },
     "scripts/ci/current606-welcome5-closed-owner/test_selection.py": {
       "bytes": 1226,

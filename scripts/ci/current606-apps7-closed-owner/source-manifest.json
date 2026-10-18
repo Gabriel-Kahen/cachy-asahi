@@ -1320,8 +1320,8 @@
       "sha256": "b28f633104f9ef5cec4aebb2f6e65ac16a87db9126b759f87d8dc46fc41dfe3b"
     },
     "scripts/ci/current606-apps7-closed-owner/runtime.py": {
-      "bytes": 9542,
-      "sha256": "d581bdb8a6366604817d81d99ee47c0d07ef40d97eb23f0c4f945d77901fda50"
+      "bytes": 14340,
+      "sha256": "e30d0a3e0901391dd624b350192d38df8d60632fcac07d93be449f852921fa13"
     },
     "scripts/ci/current606-apps7-closed-owner/selection.py": {
       "bytes": 8431,
@@ -1332,8 +1332,8 @@
       "sha256": "06361c8a40171b23218553187cd0f59fb43861f9180240f813aba5af703efcd1"
     },
     "scripts/ci/current606-apps7-closed-owner/test_owner.py": {
-      "bytes": 10637,
-      "sha256": "e8efd272105b9380da6510b686407275b776b5468cc05108be0cb722c6494965"
+      "bytes": 19485,
+      "sha256": "e8de17312f27eb3fc1254fecf94e207b9d8b311f0a06afdc6872459f69a8a000"
     }
   },
   "schema_version": 1,
