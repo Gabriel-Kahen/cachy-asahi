@@ -5,6 +5,27 @@ from pathlib import Path
 from unittest.mock import patch
 import contract as C
 import wiring as W,job,kernel_job,retain16k as T,prepare as P,vm,base64
+def pre_boot_witness(raw):
+ text=raw.decode();start=text.index('def boot_witness(');end=text.index('def snapshot(bindings):',start);text=text[:start]+text[end:]
+ before='guest=result,launcher_realtime=boot_witness(uart,selection),kernel=profile,source=';assert text.count(before)==1;text=text.replace(before,'guest=result,kernel=profile,source=');return text.encode()
+
+def pre_launcher_clock(raw,name):
+ if name=='vm.py':raw=pre_boot_witness(raw)
+ text=raw.decode()
+ if name=='guest.py':
+  start=text.index('def initialize_launcher_clock():');end=text.index('def main():',start);text=text[:start]+text[end:]
+  before=" clock=initialize_launcher_clock()\n";assert text.count(before)==1;text=text.replace(before,'')
+  before='nofile=dict(before=before,after=after),clock=clock))';assert text.count(before)==1;text=text.replace(before,'nofile=dict(before=before,after=after)))')
+ elif name=='vm.py':
+  text=text.replace('import base64,json,os,re,shutil,time','import base64,json,os,re,shutil')
+  before="def qemu(image,boot,data,epoch):\n C.need(type(epoch)is int and 1700000000<=epoch<2**32,'bounded launcher UTC epoch required')";assert text.count(before)==1;text=text.replace(before,'def qemu(image,boot,data):')
+  before="init=/init-updater16k caa_apps6_update16k=1 cachy_asahi_updater_epoch='+str(epoch)";assert text.count(before)==1;text=text.replace(before,"init=/init-updater16k caa_apps6_update16k=1'")
+  start=text.index(" clock=boot['clock'];");end=text.index('\n',start);text=text[:start]+text[end+1:]
+  before="  epoch=int(time.time());selection['launcher_epoch_s']=epoch\n";assert text.count(before)==1;text=text.replace(before,'')
+  before="qemu(work/'Image',disks/'boot.raw',disks/'data.raw',epoch)";assert text.count(before)==1;text=text.replace(before,"qemu(work/'Image',disks/'boot.raw',disks/'data.raw')")
+ else:raise ValueError('finite clock inverse role')
+ return text.encode()
+
 def pre_caller_failure(raw):
  text=raw.decode();start=text.index('def caller_failure(');end=text.index('def worker(s):',start);text=text[:start]+text[end:]
  a=" if error is not None or record['exit_code']!=0 or record['group_absence_verified']is not True:caller_failure(s,record,stdout,stderr,error)\n";assert text.count(a)==1;text=text.replace(a,'')
@@ -30,6 +51,7 @@ class Wiring(unittest.TestCase):
   old=C.ROOT/'scripts/ci/current604-apps6-updater16k'
   for name in ('guest.py','disk.py','vm.py','cap_scope.py','kernel_job.py','retain16k.py','job.py'):
    a,b=(old/name).read_bytes(),(C.HERE/name).read_bytes()
+   if name in ('guest.py','vm.py'):b=pre_launcher_clock(b,name)
    if name=='guest.py':b=pre_caller_failure(b)
    if name in ('disk.py','guest.py'):b=pre_boot_readback(b,name)
    if name in ('job.py','kernel_job.py'):
@@ -610,9 +632,80 @@ class CallerFailureControls(unittest.TestCase):
     with contextlib.redirect_stdout(stream),self.assertRaisesRegex(ValueError,'original caller exit/group absence'):exec(compile(ast.Module(body=worker.body[start:end+1],type_ignores=[]),'<actual-caller-pre-guard-negative-control>','exec'),namespace)
     self.assertEqual((Path(td)/'updater16k-caller.stdout').read_bytes(),out);self.assertEqual((Path(td)/'updater16k-caller.stderr').read_bytes(),err);v=json.loads(stream.getvalue().split(' ',2)[2]);self.assertEqual(v['record'],record)
  def test_exact_guest_inverse_and_original_success_statements_held(self):
-  raw=(C.HERE/'guest.py').read_bytes();self.assertEqual(C.sha(pre_caller_failure(raw)),'c23eab13a47e5f7ae10c08ee1a29c5ff0c2478bbd675dc9f6013be045861eaef')
+  raw=pre_launcher_clock((C.HERE/'guest.py').read_bytes(),'guest.py');self.assertEqual(C.sha(pre_caller_failure(raw)),'c23eab13a47e5f7ae10c08ee1a29c5ff0c2478bbd675dc9f6013be045861eaef')
   a,b=ast.parse(pre_caller_failure(raw)),ast.parse(raw);before={n.name:ast.dump(n,include_attributes=False)for n in a.body if isinstance(n,ast.FunctionDef)};after={n.name:ast.dump(n,include_attributes=False)for n in b.body if isinstance(n,ast.FunctionDef)}
   self.assertEqual(set(after)-set(before),{'caller_failure','forward_caller_failure'});self.assertEqual({n for n in before if before[n]!=after[n]},{'worker','main'})
   self.assertEqual(raw.count(b'emit(s,'),pre_caller_failure(raw).count(b'emit(s,'))
+
+class LauncherClockAndSignatureData(unittest.TestCase):
+ def guest(self):return C.load('launcher_clock_controls',C.HERE/'guest.py')
+ def clock(self,raw,after=1700000000000000001):
+  g=self.guest()
+  with patch.object(os,'getpid',return_value=1),patch.object(os,'getuid',return_value=0),patch.object(os,'geteuid',return_value=0),patch.object(Path,'read_text',return_value=raw),patch.object(g.time,'clock_settime')as setter,patch.object(g.time,'time_ns',side_effect=[0,after]):
+   value=g.initialize_launcher_clock();setter.assert_called_once_with(g.time.CLOCK_REALTIME,1700000000);return value
+ def test_clock_handoff_real_source_no_host_clock_mutation(self):
+  value=self.clock('root=/dev/vda cachy_asahi_updater_epoch=1700000000');self.assertEqual(value['requested_epoch_s'],1700000000);self.assertEqual(value['before_ns'],0);self.assertGreaterEqual(value['after_ns'],1700000000000000000)
+  self.assertNotIn(25,C.CAPS)
+ def test_clock_missing_duplicate_unicode_noncanonical_refused_before_setter(self):
+  g=self.guest()
+  bad=['root=/dev/vda','cachy_asahi_updater_epoch=1700000000 cachy_asahi_updater_epoch=1700000000','cachy_asahi_updater_epoch=01700000000','cachy_asahi_updater_epoch=+1700000000','cachy_asahi_updater_epoch=١٧٠٠٠٠٠٠٠٠','cachy_asahi_updater_epoch=1699999999','cachy_asahi_updater_epoch=4294967296','x'*65537]
+  for raw in bad:
+   with self.subTest(raw=raw[:80]),patch.object(os,'getpid',return_value=1),patch.object(os,'getuid',return_value=0),patch.object(os,'geteuid',return_value=0),patch.object(Path,'read_text',return_value=raw),patch.object(g.time,'clock_settime',side_effect=AssertionError('clock must not change')),self.assertRaises(ValueError):g.initialize_launcher_clock()
+ def test_clock_worker_and_bad_readback_refused(self):
+  g=self.guest()
+  with patch.object(os,'getpid',return_value=22),patch.object(Path,'read_text',side_effect=AssertionError('worker no clock IO')),self.assertRaisesRegex(ValueError,'PID1'):g.initialize_launcher_clock()
+  for after in(1699999999999999999,1700000002000000000):
+   with self.subTest(after=after),self.assertRaisesRegex(ValueError,'readback|handoff failed'):self.clock('cachy_asahi_updater_epoch=1700000000',after)
+ def test_qemu_only_appends_exact_source_epoch(self):
+  argv=vm.qemu(Path('/Image'),Path('/boot'),Path('/data'),1700000000);self.assertIn('cachy_asahi_updater_epoch=1700000000',argv[argv.index('-append')+1]);self.assertEqual(argv[argv.index('-nic')+1],'none');self.assertEqual(argv[argv.index('-m')+1],'4096')
+  for bad in(None,True,1699999999,4294967296,'1700000000'):
+   with self.assertRaises(ValueError):vm.qemu(Path('/I'),Path('/B'),Path('/D'),bad)
+ def test_exact_clock_receipt_rejects_wrong_launcher_or_shape(self):
+  tree=ast.parse(C.read(C.HERE/'vm.py'));fn=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='protocol');start=next(i for i,n in enumerate(fn.body)if isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id=='clock'for t in n.targets));nodes=fn.body[start:start+3];code=compile(ast.Module(body=nodes,type_ignores=[]),'<exact-source-clock-receipt-predicate>','exec');clock=dict(source='OWNED_QEMU_LAUNCHER_NOT_EXTERNAL_TIME_AUTHORITY',before_ns=0,requested_epoch_s=1700000000,after_ns=1700000000000000001);base=dict(C=C,boot=dict(clock=clock),selection=dict(launcher_epoch_s=1700000000));exec(code,base)
+  for field,value in(('source','external-time-server'),('requested_epoch_s',1700000001),('after_ns',1700000002000000000),('before_ns',True)):
+   broken=dict(clock);broken[field]=value
+   with self.subTest(field=field),self.assertRaises(ValueError):exec(code,dict(C=C,boot=dict(clock=broken),selection=dict(launcher_epoch_s=1700000000)))
+
+ def diagnostic(self):
+  import adapter
+  tree=ast.parse(adapter.SIGNATURE_DIAGNOSTIC);space=dict(Path=Path,need=C.need,os=os,re=__import__('re'),json=json);exec(compile(tree,'<exact-source-failure-data>','exec'),space);return space
+ def test_actual_private_metadata_bounded_no_key_content(self):
+  from types import SimpleNamespace
+  space=self.diagnostic()
+  with tempfile.TemporaryDirectory(prefix='composition-',dir='/tmp')as d:
+   root=Path(d);trust=root/'trust';trust.mkdir(mode=0o700);(trust/'pubring.kbx').write_bytes(b'PRIVATE_CONTENT_NEVER_EXPORT');args=['pacman','--config',str(root/'pacman.conf'),'--debug','-U','/inputs/inert.pkg.tar.xz'];proc=SimpleNamespace(returncode=1,stdout='private unselected text\n'+'gpg error: No public key\n'*12,stderr='GPGME version: 2.0.0\n');space['signature_failure'](args,proc);value=space['_SIGNATURE_FAILURE_DATA'];text=json.dumps(value);self.assertEqual(value['status'],'FAILED_REQUIRED_SIGNATURE_OPERANDS_NOT_ACCEPTANCE');self.assertEqual(value['trust']['uid'],os.geteuid());self.assertFalse(value['files']['pubring.gpg']['present']);self.assertTrue(value['files']['pubring.kbx']['present']);self.assertNotIn('PRIVATE_CONTENT',text);self.assertNotIn('private unselected text',text);self.assertLessEqual(len(text.encode()),2048);self.assertEqual(len(value['GPGME_messages']),4);self.assertEqual(value['GPGME_messages'][-1],'GPGME version: 2.0.0');self.assertFalse(value['acceptance_authority'])
+ def test_failure_data_survives_original_final_json_tail(self):
+  import contextlib,io,adapter
+  space=self.diagnostic();space['_SIGNATURE_FAILURE_DATA']=dict(schema_version=1,status='SIGNATURE_OPERANDS_UNAVAILABLE_NOT_ACCEPTANCE',error_type='ValueError',acceptance_authority=False)
+  raw=adapter.caller((C.ROOT/'scripts/ci/full-root-upgrade-caller/container.py').read_bytes());main=next(n for n in ast.parse(raw).body if isinstance(n,ast.FunctionDef)and n.name=='main');nodes=main.body[-3:-1];self.assertIsInstance(nodes[1],ast.If);space['result']=dict(status='FAIL',error='unchanged original exception '+('x'*3500));stream=io.StringIO()
+  with contextlib.redirect_stdout(stream):exec(compile(ast.Module(body=nodes,type_ignores=[]),'<exact-original-final-json-plus-data>','exec'),space)
+  tail=stream.getvalue().encode()[-4096:];line=next(x for x in tail.splitlines()if x.startswith(b'APPS6_KEYRING_FAILURE_DATA '));self.assertEqual(json.loads(line.split(b' ',1)[1]),space['_SIGNATURE_FAILURE_DATA']);self.assertIn(b'"status": "FAIL"',tail)
+ def test_unrelated_failure_or_unsafe_private_path_does_not_grant_authority(self):
+  from types import SimpleNamespace
+  space=self.diagnostic();proc=SimpleNamespace(returncode=1,stdout='',stderr='');space['signature_failure'](['gpg','--verify','x'],proc);self.assertIsNone(space['_SIGNATURE_FAILURE_DATA']);space['signature_failure'](['pacman','--config','/etc/pacman.conf','-U','x'],proc);self.assertEqual(space['_SIGNATURE_FAILURE_DATA']['status'],'SIGNATURE_OPERANDS_UNAVAILABLE_NOT_ACCEPTANCE');self.assertFalse(space['_SIGNATURE_FAILURE_DATA']['acceptance_authority'])
+
+class OriginalBootWitness(unittest.TestCase):
+ def operand(self):
+  epoch=1700000000;selection=dict(nonce='a'*32,kernel=dict(release='INERT_NOT_A_BOOT_ACCEPTANCE'),launcher_epoch_s=epoch);boot=dict(event='boot',page_size=16384,kernel=selection['kernel']['release'],architecture='aarch64',kernel_profile_sha256=C.sha(C.encoded(selection['kernel'])),nofile=dict(before=[1024,8192],after=[8192,8192]),clock=dict(source='OWNED_QEMU_LAUNCHER_NOT_EXTERNAL_TIME_AUTHORITY',before_ns=0,requested_epoch_s=epoch,after_ns=epoch*10**9+1));return selection,boot
+ def wire(self,s,boot):
+  prefix=('APPS6_UPDATE16K '+s['nonce']+' ').encode();line=prefix+json.dumps(boot,sort_keys=False,separators=(', ',': ')).encode()+b'\r\n';raw=b'UNEXPORTED KERNEL PREFIX\r\n'+line+prefix+b'INERT NOT RESULT\r\n'+prefix+b'INERT NOT EXIT\r\n';return raw,line
+ def test_exact_original_wire_bytes_not_reconstructed_or_accepting_VM(self):
+  s,b=self.operand();raw,line=self.wire(s,b);v=vm.boot_witness(raw,s);self.assertEqual(base64.b64decode(v['line']['base64'],validate=True),line);self.assertEqual(v['line']['sha256'],C.sha(line));self.assertEqual(v['offset'],raw.index(line));self.assertEqual(v['stdout'],dict(bytes=len(raw),sha256=C.sha(raw)));self.assertIn('SOURCE_ENFORCED',v['membership'])
+  with self.assertRaises((ValueError,KeyError)):vm.protocol(raw,s,lambda *a:None)
+ def test_missing_duplicate_wrong_nonce_and_oversize_boot_refuse(self):
+  s,b=self.operand();raw,line=self.wire(s,b)
+  for bad in(raw.replace(line,b''),raw+line,raw.replace(('APPS6_UPDATE16K '+s['nonce']).encode(),b'APPS6_UPDATE16K '+b'b'*32,1),raw.replace(line,line[:-2]+b' '*4096+b'\r\n')):
+   with self.assertRaises(ValueError):vm.boot_witness(bad,s)
+ def test_wrong_clock_kernel_profile_and_types_refuse(self):
+  s,b=self.operand()
+  for field,value in(('page_size',4096),('kernel','WRONG'),('architecture','x86_64'),('kernel_profile_sha256','0'*64)):
+   broken=dict(b);broken[field]=value;raw,_=self.wire(s,broken)
+   with self.subTest(field=field),self.assertRaises(ValueError):vm.boot_witness(raw,s)
+  for field,value in(('requested_epoch_s',1700000001),('requested_epoch_s',True),('after_ns',1700000002000000000),('before_ns',True)):
+   broken=dict(b,clock=dict(b['clock']));broken['clock'][field]=value;raw,_=self.wire(s,broken)
+   with self.subTest(field=field),self.assertRaises(ValueError):vm.boot_witness(raw,s)
+ def test_exact_source_inverse_and_success_only_separate_metadata(self):
+  new=C.read(C.HERE/'vm.py');before=pre_boot_witness(new);self.assertNotIn(b'def boot_witness(',before);self.assertIn(b'guest=result,kernel=profile,source=',before);self.assertEqual(new.count(b'launcher_realtime=boot_witness(uart,selection)'),1)
+  tree=ast.parse(new);run=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='run');calls=[(n.lineno,n.func.id)for n in ast.walk(run)if isinstance(n,ast.Call)and isinstance(n.func,ast.Name)and n.func.id in('protocol','boot_witness')];self.assertLess(next(n for n,k in calls if k=='protocol'),next(n for n,k in calls if k=='boot_witness'))
 
 if __name__=='__main__':unittest.main(verbosity=2)
