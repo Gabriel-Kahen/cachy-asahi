@@ -17,6 +17,9 @@ def workflow(raw,root):
  # Original standalone hash observation is for its whole-held source. New entry
  # identity is checked above; preserve the original lane's source stamp.
  text=text.replace('sha256sum '+lane+'/owner.py','sha256sum expanded604-code/held606/scripts/ci/current606-native/run.py')
+ old_audio='python3 -B expanded604-legacy/scripts/ci/full-development-composition/retrieve_audio.py --output'
+ C.need(text.count(old_audio)==1,'one original fixed audio retrieval entry')
+ text=text.replace(old_audio,'python3 -B '+lane+'/owner.py --retrieve-audio --output')
  return text
 
 def emit(inputs,output,selection=None):

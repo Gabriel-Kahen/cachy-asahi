@@ -4,12 +4,19 @@ from pathlib import Path
 from unittest.mock import patch
 HERE=Path(__file__).resolve().parent;sys.path.insert(0,str(HERE))
 import contract as C,owner as O,runtime as R,selection as S,prepare as E
+NULL_POLICY={'actual_ref': None, 'actual_run': None, 'actual_source': None, 'capture_receipt': None, 'current606': {'decision_base64': None, 'decision_path': None, 'decision_pin': None, 'decision_source': None, 'run': None, 'source': None}, 'expected606_sha256': '3a586c1e3400391f56bd281ac9c16aba85d94d0fca002770e77ee1802c5d9fd1', 'measurement': None, 'nonce': None, 'output': None, 'purpose': 'CURRENT606_WELCOME5_CLOSED_NATIVE', 'retirement': None, 'schema_version': 1, 'source_manifest606': None, 'status': 'UNBOUND_SOURCE_TEMPLATE', 'welcome_source': '85ffec834fc72ef8764cdcae828a12ec8ddf7f20'}
 class Owner(unittest.TestCase):
+ def default_policy(self):
+  real=C.read
+  return patch.object(C,'read',side_effect=lambda p,*a,**k:copy.deepcopy(NULL_POLICY)if p==HERE/'input-policy.json'else real(p,*a,**k))
+ def emit_default(self,*args,**kwargs):
+  with self.default_policy():return E.emit(*args,**kwargs)
+
  def test_real_four_complete_source_roles(self):
   with patch.object(subprocess,'Popen',side_effect=AssertionError('actor')):
    fact=C.verify();self.assertEqual(fact['roles']['held606'],263);self.assertEqual(fact['roles']['heldwelcome'],99)
  def test_actual_default_authority_before_actors(self):
-  with patch.object(subprocess,'Popen',side_effect=AssertionError('actor')):
+  with self.default_policy(),patch.object(subprocess,'Popen',side_effect=AssertionError('actor')):
    with self.assertRaisesRegex(ValueError,'NULL/UNBOUND'):O.main(['--require-selection'])
    with self.assertRaisesRegex(ValueError,'NULL/UNBOUND'):O.main([])
  def test_counted_complete_owner_and_capture_derivations(self):
@@ -38,7 +45,7 @@ class Owner(unittest.TestCase):
   self.assertEqual(bridge,dict(path='/runner/owner/selection.py',pin=actual));self.assertEqual(worker,dict(path='/runner/owner/selection.py',**actual))
  def test_fresh_emission_default_and_all_bash_hash_pairs(self):
   with tempfile.TemporaryDirectory(dir=HERE)as d:
-   output=Path(d)/'source';inputs={r:C.ROOT/r for r in C.ROLES};auth=E.emit(inputs,output)
+   output=Path(d)/'source';inputs={r:C.ROOT/r for r in C.ROLES};auth=self.emit_default(inputs,output)
    self.assertEqual(len(auth),len(C.read(HERE/'source-manifest.json')['files'])+3)
    wf=(output/'.github/workflows/native-arm-build.yml').read_text();self.assertEqual(wf,(output/'.github/workflows/native-arm-current606-welcome5-owned-copy.yml').read_text())
    self.assertIn('/'+C.LANE+'/owner.py"',wf);self.assertIn('--require-selection',wf)
@@ -50,7 +57,7 @@ class Owner(unittest.TestCase):
  def test_second_source_role_drift_refuses_before_output(self):
   with tempfile.TemporaryDirectory(dir=HERE)as d:
    output=Path(d)/'forbidden';inputs={r:C.ROOT/r for r in C.ROLES};inputs['heldwelcome']=C.ROOT/'held606'
-   with self.assertRaisesRegex(ValueError,'whole role set'):E.emit(inputs,output)
+   with self.assertRaisesRegex(ValueError,'whole role set'):self.emit_default(inputs,output)
    self.assertFalse(output.exists())
  def test_real_untouched_measurement_cleanup_before_any_actor(self):
   with tempfile.TemporaryDirectory(dir=HERE)as d:
@@ -121,7 +128,7 @@ class Owner(unittest.TestCase):
   from unittest.mock import patch
   for kind in('file','directory'):
    with self.subTest(kind=kind),tempfile.TemporaryDirectory(dir=HERE)as d:
-    root=Path(d)/'source';E.emit({r:C.ROOT/r for r in C.ROLES},root)
+    root=Path(d)/'source';self.emit_default({r:C.ROOT/r for r in C.ROLES},root)
     if kind=='file':(root/'.git').write_text('gitdir: /owned/metadata\n')
     else:
      (root/'.git/objects').mkdir(parents=True);(root/'.git/objects/ordinary').write_text('metadata');(root/'.git/config').write_text('[core]\n')
@@ -130,16 +137,148 @@ class Owner(unittest.TestCase):
   from unittest.mock import patch
   for name in('.git-shadow','private/unexpected'):
    with self.subTest(path=name),tempfile.TemporaryDirectory(dir=HERE)as d:
-    root=Path(d)/'source';E.emit({r:C.ROOT/r for r in C.ROLES},root);(root/'.git').mkdir();(root/'.git/metadata').write_text('ignored');p=root/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_text('unexpected source')
+    root=Path(d)/'source';self.emit_default({r:C.ROOT/r for r in C.ROLES},root);(root/'.git').mkdir();(root/'.git/metadata').write_text('ignored');p=root/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_text('unexpected source')
     with patch.object(C,'HERE',root/C.LANE),self.assertRaisesRegex(ValueError,'closed exact owner source closure'):C.verify(root)
  def test_advertised_source_drift_refuses_with_git_metadata(self):
   from unittest.mock import patch
   with tempfile.TemporaryDirectory(dir=HERE)as d:
-   root=Path(d)/'source';E.emit({r:C.ROOT/r for r in C.ROLES},root);(root/'.git').write_text('gitdir: /owned/metadata\n');p=root/C.LANE/'selection.py';p.write_bytes(p.read_bytes()+b'\n# drift\n')
+   root=Path(d)/'source';self.emit_default({r:C.ROOT/r for r in C.ROLES},root);(root/'.git').write_text('gitdir: /owned/metadata\n');p=root/C.LANE/'selection.py';p.write_bytes(p.read_bytes()+b'\n# drift\n')
    with patch.object(C,'HERE',root/C.LANE),self.assertRaisesRegex(ValueError,'whole source differs'):C.verify(root)
  def test_unknown_measurement_never_removed(self):
   with tempfile.TemporaryDirectory(dir=HERE)as d:
    i=O.Integration(C.ROOT,None,None,{});i.measurement=Path(d)/'measurement';i.measurement.mkdir(mode=0o700);i.lease=R.measurement_lease(i.measurement);p=i.measurement/'unknown';p.write_bytes(b'held')
    with self.assertRaisesRegex(ValueError,'unknown partial capture retained'):i.failure(None,True,{})
    self.assertEqual(p.read_bytes(),b'held')
+class AudioReadRetry(unittest.TestCase):
+ def helper(self):
+  raw=(C.ROOT/'held606/held604/scripts/ci/full-development-composition/retrieve_audio.py').read_bytes()
+  self.assertEqual(C.pin(raw),dict(bytes=13846,sha256='fac76ea6d0a31bd14cc27d82af79c577370f6307554597d3f7805d0095ea5108'))
+  tree=ast.parse((HERE/'owner.py').read_bytes());fn=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='audio_retrieval')
+  values={n.targets[0].id:ast.literal_eval(n.value)for n in fn.body if isinstance(n,ast.Assign)and isinstance(n.targets[0],ast.Name)and n.targets[0].id in('before','after')}
+  self.assertEqual(raw.decode().count(values['before']),1);candidate=raw.decode().replace(values['before'],values['after']);module=types.ModuleType('inert_source_audio_retry');module.__file__=str(C.ROOT/'held606/held604/scripts/ci/full-development-composition/retrieve_audio.py');exec(compile(candidate,module.__file__+':source-retry-control','exec'),module.__dict__)
+  return module,raw,candidate
+ def response(self,items,headers=None):
+  class Response:
+   status=200;closed=False
+   def __init__(self):self.items=list(items);self.headers={}if headers is None else headers;self.requested=[]
+   def read1(self,n):
+    self.requested.append(n);value=self.items.pop(0)
+    if isinstance(value,BaseException):raise value
+    return value
+   def __enter__(self):return self
+   def __exit__(self,*_):self.closed=True
+  return Response()
+ def fetch(self,m,responses,target,limit=100,deadline=100,clock=None):
+  from unittest.mock import Mock
+  opener=types.SimpleNamespace(open=Mock(side_effect=responses))
+  with patch.object(m.urllib.request,'build_opener',return_value=opener),patch.object(m.time,'monotonic',side_effect=clock or(lambda:0)):
+   m.fetch('https://api.github.com/repos/owned/inert/logs',target,limit,deadline,token='INERT_NOT_A_TOKEN')
+  return opener
+ def test_real_private_partial_is_discarded_once_never_appended(self):
+  from http.client import IncompleteRead
+  m,_,_=self.helper();a=self.response([b'old',IncompleteRead(b'x',10)]);b=self.response([b'complete',b''])
+  with tempfile.TemporaryDirectory()as td:
+   target=Path(td)/'private';opener=self.fetch(m,[a,b],target);self.assertEqual(target.read_bytes(),b'complete');self.assertEqual(target.stat().st_mode&0o777,0o600);self.assertEqual(opener.open.call_count,2);self.assertTrue(a.closed and b.closed)
+   self.assertEqual(opener.open.call_args_list[0].args[0].full_url,opener.open.call_args_list[1].args[0].full_url)
+ def test_second_incomplete_read_refuses_and_never_third_get(self):
+  from http.client import IncompleteRead
+  from unittest.mock import Mock
+  m,_,_=self.helper();opener=types.SimpleNamespace(open=Mock(side_effect=[self.response([IncompleteRead(b'',1)]),self.response([IncompleteRead(b'',1)])]))
+  with tempfile.TemporaryDirectory()as td,patch.object(m.urllib.request,'build_opener',return_value=opener),patch.object(m.time,'monotonic',return_value=0):
+   with self.assertRaisesRegex(m.Refused,'fixed-input-incomplete-read'):m.fetch('https://api.github.com/inert',Path(td)/'out',100,100,token='INERT')
+  self.assertEqual(opener.open.call_count,2)
+ def test_failed_bytes_and_exception_partial_debit_same_original_cap(self):
+  from http.client import IncompleteRead
+  m,_,_=self.helper()
+  with tempfile.TemporaryDirectory()as td:
+   with self.assertRaisesRegex(m.Refused,'download-size-refused'):self.fetch(m,[self.response([b'123456',IncompleteRead(b'x',1)]),self.response([b'78901',b''])],Path(td)/'out',limit=10)
+ def test_other_errors_or_existing_destination_never_retry(self):
+  from unittest.mock import Mock
+  m,_,_=self.helper()
+  for error in(TimeoutError('inert'),OSError('inert')):
+   opener=types.SimpleNamespace(open=Mock(return_value=self.response([error])))
+   with tempfile.TemporaryDirectory()as td,patch.object(m.urllib.request,'build_opener',return_value=opener),patch.object(m.time,'monotonic',return_value=0):
+    with self.assertRaises(type(error)):m.fetch('https://api.github.com/inert',Path(td)/'out',100,100,token='INERT')
+    self.assertEqual(opener.open.call_count,1)
+  with tempfile.TemporaryDirectory()as td:
+   target=Path(td)/'out';target.write_bytes(b'caller-owned')
+   with self.assertRaises(FileExistsError):self.fetch(m,[self.response([b'new',b''])],target)
+   self.assertEqual(target.read_bytes(),b'caller-owned')
+ def test_one_shared_deadline_and_no_retry_after_expiry(self):
+  from http.client import IncompleteRead
+  m,_,_=self.helper();ticks=iter([0,0,100])
+  with tempfile.TemporaryDirectory()as td:
+   with self.assertRaisesRegex(m.Refused,'retrieval-deadline'):self.fetch(m,[self.response([IncompleteRead(b'',1)])],Path(td)/'out',clock=lambda:next(ticks))
+ def test_redirect_total_and_auth_stripping_held_across_retry(self):
+  from http.client import IncompleteRead
+  from urllib.error import HTTPError
+  from unittest.mock import Mock
+  m,_,_=self.helper();urls=['https://owned.blob.core.windows.net/'+str(i)for i in range(5)]
+  def redirect(url):return HTTPError('https://api.github.com/inert',302,'inert',{'Location':url},None)
+  sequence=[redirect(urls[0]),self.response([IncompleteRead(b'',1)]),*[redirect(u)for u in urls[1:]]];opener=types.SimpleNamespace(open=Mock(side_effect=sequence))
+  with tempfile.TemporaryDirectory()as td,patch.object(m.urllib.request,'build_opener',return_value=opener),patch.object(m.time,'monotonic',return_value=0):
+   with self.assertRaisesRegex(m.Refused,'redirect-limit-or-location'):m.fetch('https://api.github.com/inert',Path(td)/'out',100,100,token='INERT')
+  self.assertEqual(opener.open.call_count,6)
+  self.assertIn('Authorization',opener.open.call_args_list[0].args[0].headers)
+  for call in opener.open.call_args_list[1:]:self.assertNotIn('Authorization',call.args[0].headers)
+ def test_partial_replacement_identity_refuses_without_removing_foreign_file(self):
+  from http.client import IncompleteRead
+  m,_,_=self.helper()
+  with tempfile.TemporaryDirectory()as td:
+   target=Path(td)/'out';foreign=Path(td)/'foreign';foreign.write_bytes(b'foreign')
+   response=self.response([IncompleteRead(b'',1)])
+   def replace(*_):response.closed=True;target.unlink();foreign.rename(target)
+   response.__class__.__exit__=replace
+   with self.assertRaisesRegex(m.Refused,'owned-partial-identity-drift'):self.fetch(m,[response],target)
+   self.assertEqual(target.read_bytes(),b'foreign')
+ def test_all_nonfetch_functions_policy_and_exact_payload_validators_held(self):
+  m,raw,candidate=self.helper();functions=lambda t:{n.name:ast.dump(n,include_attributes=False)for n in ast.parse(t).body if isinstance(n,(ast.FunctionDef,ast.ClassDef))};a,b=functions(raw),functions(candidate);self.assertEqual(a.keys(),b.keys())
+  for name in a.keys()-{'fetch'}:self.assertEqual(a[name],b[name],name)
+  self.assertEqual(m.POLICY,'5dae018a1357708e85393048728a6fb44cd9c9eb02a78ab19e60435d370ffdf2');self.assertEqual(len(m.RUNS),2)
+ def test_unbound_audio_entry_refuses_before_any_request(self):
+  with Owner().default_policy(),patch.object(subprocess,'Popen',side_effect=AssertionError('actor')),patch('urllib.request.build_opener',side_effect=AssertionError('unbound GET')):
+   with self.assertRaisesRegex(ValueError,'NULL/UNBOUND'):O.main(['--retrieve-audio','--output','/not-touched/audio-archives'])
+
 if __name__=='__main__':unittest.main()
+
+class AudioCLIProcess(unittest.TestCase):
+ def test_actual_cli_clean_process_reaches_fetch_then_real_decoder_refusal(self):
+  # Genuine prior606 acceptance is a test input only, never a native positive.
+  policy={'actual_ref': None, 'actual_run': None, 'actual_source': None, 'capture_receipt': None, 'current606': {'decision_base64': 'ewogICJjbGVhbnVwIjogIlBBU1MiLAogICJleHBlY3RlZDYwNl9zaGEyNTYiOiAiM2E1ODZjMWUzNDAwMzkxZjU2YmQyODFhYzljMTZhYmE4NWQ5NGQwZmNhMDAyNzcwZTc3ZWUxODAyYzVkOWZkMSIsCiAgImZ1bGw2MDRfcHJlc2VydmVkIjogdHJ1ZSwKICAiaGFyZHdhcmUiOiAiTk9UX1JVTiIsCiAgImluc3RhbGxlZF9jb250cm9scyI6IHsKICAgICJkbnMyIjogMjcsCiAgICAib3JkaW5hcnlfaG9tZXMiOiAyLAogICAgInN5c2N0bDIiOiAyOAogIH0sCiAgInBhY2thZ2VfY291bnQiOiA2MDYsCiAgInJlbGVhc2UiOiAiTk9UX0FETUlUVEVEIiwKICAicnVuX2lkIjogMzkxMDY5NTMyNTcsCiAgInNvdXJjZSI6ICJmM2EzMGYyMDQ5ZjU3ZDlmM2NiMjQzM2ZiZDU5YWY1MWQ0Y2M1NzIwIiwKICAic291cmNlX21hbmlmZXN0IjogewogICAgImJ5dGVzIjogNDU3OTYsCiAgICAic2hhMjU2IjogIjA5ZGFlNTRjMTBmNzZkMWE3YjBiZWRkMDEyZjgyYWE1MTNmNWNjOTMxMDJhZDRlZjVlNjQwNmRmZWU4YmRkNzQiCiAgfSwKICAic3RhdHVzIjogIlJPT1RfQUNDRVBURURfTkFUSVZFNjA2X0ROUzJfU1lTQ1RMMl9SRVRBSU5FRF9TQ09QRSIsCiAgInRyYW5zaXRpb25zIjogWwogICAgNjA2LAogICAgNjA2LAogICAgNjA0LAogICAgNjA2LAogICAgNjA0CiAgXQp9Cg==', 'decision_path': 'decisions/current606-native.json', 'decision_pin': {'bytes': 658, 'sha256': 'c828d76d4198c6db4626a7d85d7c351344a6ad3f4b11ded53c5be00211d1021d'}, 'decision_source': '02d28b794c1a297171d82b5718fd98cddacbfa48', 'run': 39106953257, 'source': 'f3a30f2049f57d9f3cb2433fbd59af51d4cc5720'}, 'expected606_sha256': '3a586c1e3400391f56bd281ac9c16aba85d94d0fca002770e77ee1802c5d9fd1', 'measurement': None, 'nonce': None, 'output': None, 'purpose': 'CURRENT606_WELCOME5_CLOSED_NATIVE', 'retirement': None, 'schema_version': 1, 'source_manifest606': {'bytes': 45796, 'sha256': '09dae54c10f76d1a7b0bedd012f82aa513f5cc93102ad4ef5e6406dfee8bdd74'}, 'status': 'ROOT_BOUND_CURRENT606_WELCOME5_INPUTS', 'welcome_source': '85ffec834fc72ef8764cdcae828a12ec8ddf7f20'}
+  script=r'''
+import contextlib,importlib.util,io,json,os,runpy,socket,sys
+from pathlib import Path
+from unittest.mock import patch
+owner=Path(sys.argv[1]);lane=owner.parent;sys.path.insert(0,str(lane))
+import contract as C
+policy=json.loads(sys.argv[2]);real=C.read
+calls=[]
+class Response:
+ status=200;headers={}
+ def __init__(self):self.chunks=[b'not-a-valid-zip',b'']
+ def read1(self,n):calls.append(('read',n));return self.chunks.pop(0)
+ def __enter__(self):return self
+ def __exit__(self,*_):calls.append(('closed',))
+class Opener:
+ def open(self,request,timeout):
+  assert request.full_url=='https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/actions/runs/38789569155/logs'
+  assert request.headers['Authorization']=='Bearer INERT_TEST_NOT_A_CREDENTIAL' and timeout==30
+  calls.append(('open',));return Response()
+output=Path(os.environ['RUNNER_TEMP'])/'audio-archives'
+# These are external test seams, not injected owner globals; all source, policy,
+# retrieval and decoder guards run. No ast is imported or supplied by this harness.
+with patch.object(C,'read',side_effect=lambda p,*a,**k:policy if p==lane/'input-policy.json'else real(p,*a,**k)),patch('urllib.request.build_opener',return_value=Opener()),patch.object(socket,'socket',side_effect=AssertionError('REAL_NETWORK_FORBIDDEN')):
+ sys.argv=[str(owner),'--retrieve-audio','--output',str(output)]
+ try:runpy.run_path(str(owner),run_name='__main__')
+ except SystemExit as e:status=e.code
+ else:raise AssertionError('real CLI did not terminate')
+assert status==1 and [v[0]for v in calls]==['open','read','read','closed'],(status,calls)
+assert not output.exists() and 'GH_TOKEN'not in os.environ
+print('PASS_REAL_OWNER_CLI_DERIVATION_FETCH_DECODER_REFUSAL_NO_NETWORK')
+'''
+  with tempfile.TemporaryDirectory()as td:
+   os.chmod(td,0o700);env=dict(PATH=os.environ.get('PATH','/usr/bin:/bin'),LANG='C.UTF-8',LC_ALL='C.UTF-8',TZ='UTC',HOME=td,RUNNER_TEMP=td,GH_TOKEN='INERT_TEST_NOT_A_CREDENTIAL')
+   result=subprocess.run([sys.executable,'-I','-B','-c',script,str(HERE/'owner.py'),json.dumps(policy)],env=env,capture_output=True,timeout=30)
+  self.assertEqual(result.returncode,0,result.stderr.decode());self.assertEqual(result.stderr,b'')
+  self.assertIn(b'AUDIO_INPUT_RETRIEVAL=FAIL zip-byte-budget-refused',result.stdout)
+  self.assertIn(b'PASS_REAL_OWNER_CLI_DERIVATION_FETCH_DECODER_REFUSAL_NO_NETWORK',result.stdout)

@@ -168,6 +168,44 @@ def _copy_path_roots(roots,query):
     fresh.check_hardlink_preservation=_copy_clone(roots.check_hardlink_preservation,_group_graph=fresh._group_graph)
     return fresh
 
+def _copy_context_limits(original):
+    # CI-only whole-copy allocation: three full observations plus copy work.
+    # The600 copy-work share is accounting, NOT a separate phase deadline.
+    import dataclasses,time
+    now=time.monotonic()
+    if not 0<original.deadline-now<=600:raise ValueError('fresh bounded original copy context required')
+    window=[None]
+    parent=type(original)
+    class CopyContextLimits(parent):
+        def tick(self):
+            parent.tick(self)
+            if window[0] is not None and not time.monotonic()<window[0]:
+                raise ValueError('root observation deadline')
+        def _copy_observe(self,function,*args,**kwargs):
+            if kwargs.get('limits') is not self or window[0] is not None:
+                raise ValueError('one exact private copy observation context required')
+            self.tick();window[0]=min(self.deadline,time.monotonic()+600)
+            try:return function(*args,**kwargs)
+            finally:window[0]=None
+    # One instance for ALL passes; no per-pass limits/counter reset. Retain
+    # original absolute start accounting and every non-time field by identity.
+    values={field.name:getattr(original,field.name) for field in dataclasses.fields(original)}
+    values['deadline']=original.deadline+1800
+    return CopyContextLimits(**values)
+
+def _copy_context_api(api,limits):
+    # The capability bridge has one additional complete tree observation and
+    # restore after the three copier observations. Keep both original600 caps.
+    value=dict(api);roots=types.SimpleNamespace(**vars(api['roots']))
+    original_observe=roots.observe
+    def observe(*args,**kwargs):return limits._copy_observe(original_observe,*args,**kwargs)
+    observe.__wrapped__=original_observe;roots.observe=observe;value['roots']=roots
+    caps=types.SimpleNamespace(**vars(api['caps']));original_restore=caps.restore
+    def restore(root,nodes,mapping,subject):
+        return limits._copy_observe(lambda **options:original_restore(root,nodes,mapping,options['limits']),limits=subject)
+    restore.__wrapped__=original_restore;caps.restore=restore;value['caps']=caps
+    return value
+
 def _copy_scoped_aux(aux,source):
     # Existing reader verifies bounded/noalias source bytes/identities before exec.
     roots=aux._isolated(source/'scripts/update/full_root.py',_COPY_ROOT_SHA)
@@ -175,6 +213,16 @@ def _copy_scoped_aux(aux,source):
     original=aux._isolated(source/'scripts/update/aux_copy.py',_COPY_AUX_SHA)
     fresh=_copy_path_roots(roots,query)
     binding=_copy_clone(original._copy_binding,roots=fresh)
+    original_binding=binding
+    def binding(limits):
+        module=original_binding(limits)
+        module.roots=types.SimpleNamespace(**vars(module.roots))
+        original_observe=module.roots.observe
+        def observe(*args,**kwargs):return limits._copy_observe(original_observe,*args,**kwargs)
+        observe.__wrapped__=original_observe
+        module.roots.observe=observe
+        return module
+    binding.__wrapped__=original_binding
     value=types.SimpleNamespace(**vars(aux));value._copy_binding=binding
     return value,fresh
 
@@ -191,6 +239,12 @@ def _copy_capability_bridge(original,source):
     private_scope.copied_root=_copy_clone(scope.copied_root,qualified=qualified)
     result=types.SimpleNamespace(**vars(original))
     result.copied_root=contextmanager(_copy_clone(original.copied_root.__wrapped__,scope=private_scope))
+    original_context=result.copied_root
+    def copied_root(api,source,workspace,index,evidence=None,**kwargs):
+        limits=_copy_context_limits(kwargs['limits']);kwargs['limits']=limits
+        return original_context(_copy_context_api(api,limits),source,workspace,index,evidence=evidence,**kwargs)
+    copied_root.__wrapped__=original_context.__wrapped__
+    result.copied_root=copied_root
     return result
 
 def supervised_progress(runtime,selection,nonce):

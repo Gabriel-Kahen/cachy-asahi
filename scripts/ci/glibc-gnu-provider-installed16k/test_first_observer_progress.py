@@ -90,7 +90,7 @@ def _copy_test_helpers():
  raw=(HERE/'guest.py').read_text();tree=ast.parse(raw)
  nodes=[n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name.startswith('_copy_') or isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id.startswith('_COPY_') for t in n.targets)]
  namespace={'types':types};exec(compile(ast.Module(body=nodes,type_ignores=[]),'<source-owned-copy-routing>','exec'),namespace)
- return types.SimpleNamespace(scoped_aux=namespace['_copy_scoped_aux'],capability_bridge=namespace['_copy_capability_bridge'])
+ return types.SimpleNamespace(scoped_aux=namespace['_copy_scoped_aux'],capability_bridge=namespace['_copy_capability_bridge'],context=namespace['_copy_context_limits'],context_api=namespace['_copy_context_api'])
 B=_copy_test_helpers()
 def _copy_test_candidate():
  query=load('copy_test_fresh_query',ROOT/'scripts/ci/expanded600-installer-vm/observer600.py')._mount600(_copy_test_roots._mount_id)
@@ -138,12 +138,12 @@ class CopyMountControls(unittest.TestCase):
    m.copy_data(self.source,self.base/'out',limits=limits,hardlinks='generic-development-internal')
   self.assertFalse((self.base/'out').exists())
  def test_source_pinned_composition_routes_aux_closure_without_global_mutation(self):
-  before=A.roots._mount_id;value,roots=B.scoped_aux(A,P.SOURCE);m=value._copy_binding(self.limits())
+  before=A.roots._mount_id;value,roots=B.scoped_aux(A,P.SOURCE);m=value._copy_binding(B.context(self.limits()))
   self.assertIs(A.roots._mount_id,before);self.assertIs(m.roots._mount_id,roots._mount_id)
-  cells=dict(zip(m.roots.observe.__code__.co_freevars,(c.cell_contents for c in m.roots.observe.__closure__ or ())))
-  self.assertIs(m.roots.observe.__globals__['roots'],roots)
+  cells=dict(zip(m.roots.observe.__wrapped__.__code__.co_freevars,(c.cell_contents for c in m.roots.observe.__wrapped__.__closure__ or ())))
+  self.assertIs(m.roots.observe.__wrapped__.__globals__['roots'],roots)
   self.assertEqual(roots.observe.__code__.co_code,P.R.observe.__code__.co_code)
-  self.assertEqual(value._copy_binding.__code__.co_code,A._copy_binding.__code__.co_code)
+  self.assertEqual(value._copy_binding.__wrapped__.__code__.co_code,A._copy_binding.__code__.co_code)
   self.assertIs(value.measure_copy,A.measure_copy);self.assertIs(value.aux,A.aux);self.assertIs(value.links,A.links)
  def test_original_capability_copy_cleanup_and_scope_receipts_byte_held(self):
   bridge=P.load('old_capability_bridge',P.SOURCE/'scripts/ci/glibc-gnu-provider-lifecycle/capabilities.py')
@@ -173,8 +173,8 @@ class CopyMountControls(unittest.TestCase):
   value=namespace['_copy_capability_bridge'](bridge,P.SOURCE)
   private=value.copied_root.__wrapped__.__globals__['scope']
   derived=private.copied_root.__globals__['qualified']()
-  binding=derived.aux_copy._copy_binding(self.limits())
-  self.assertIs(binding.roots.observe.__globals__['roots']._mount_id,binding.roots._mount_id)
+  binding=derived.aux_copy._copy_binding(B.context(self.limits()))
+  self.assertIs(binding.roots.observe.__wrapped__.__globals__['roots']._mount_id,binding.roots._mount_id)
   self.assertEqual(value.copied_root.__wrapped__.__code__,bridge.copied_root.__wrapped__.__code__)
  def test_original_copy_and_guard_functions_byte_held(self):
   m=P.candidate()
@@ -203,7 +203,7 @@ class CopyPathControls(unittest.TestCase):
   original=P.R.installer.relative;value,fresh=B.scoped_aux(A,P.SOURCE)
   self.assertIs(P.R.installer.relative,original);self.assertIsNot(fresh.installer,P.R.installer)
   for n in('observe','_projected_paths','_group_graph','check_hardlink_preservation'):self.assertEqual(getattr(fresh,n).__code__,getattr(P.R,n).__code__,n)
-  self.assertEqual(value._copy_binding.__code__,A._copy_binding.__code__)
+  self.assertEqual(value._copy_binding.__wrapped__.__code__,A._copy_binding.__code__)
   self.assertIs(value.aux,A.aux);self.assertIs(value.links,A.links)
  def test_private_actual_whole_copy_report_and_all_mount_answers_equal(self):
   reports=[];answers=[]
@@ -217,4 +217,81 @@ class CopyPathControls(unittest.TestCase):
    reports.append(P.strip(m.copy_data(self.source,self.base/role,limits=self.limits(),hardlinks='generic-development-internal')));answers.append(trace)
   self.assertEqual(reports[0],reports[1]);self.assertEqual(answers[0],answers[1])
 
+class CopyContextControls(unittest.TestCase):
+ def limits(self,deadline=600):return P.R.Limits(deadline=deadline,max_packages=574,max_nodes=500000,max_bytes=8*1024**3,max_file_bytes=1024**3)
+ def test_same_limits_instance_and_every_bound_held_across_three_passes(self):
+  import dataclasses
+  clock=[0.0]
+  with patch('time.monotonic',side_effect=lambda:clock[0]):
+   old=self.limits();value=B.context(old);self.assertEqual(value.deadline,2400)
+   for field in dataclasses.fields(old):
+    if field.name!='deadline':self.assertIs(getattr(value,field.name),getattr(old,field.name))
+   seen=[]
+   def original(*args,**kwargs):seen.append(kwargs['limits']);kwargs['limits'].tick();return 'whole-original-observation'
+   for now in(0,800,1600):clock[0]=now;self.assertEqual(value._copy_observe(original,limits=value),'whole-original-observation')
+   self.assertEqual([id(v)for v in seen],[id(value)]*3);self.assertEqual(value.deadline,2400);self.assertEqual(old.deadline,600)
+   clock[0]=2400
+   with self.assertRaisesRegex(ValueError,'root observation deadline'):value.tick()
+ def test_each_observation600_is_enforced_without_resetting_total(self):
+  clock=[0.0]
+  with patch('time.monotonic',side_effect=lambda:clock[0]):
+   value=B.context(self.limits())
+   def original(**kwargs):clock[0]=600;kwargs['limits'].tick()
+   with self.assertRaisesRegex(ValueError,'root observation deadline'):value._copy_observe(original,limits=value)
+   # Failure restores the window, not the2400 total. No error is swallowed.
+   clock[0]=700;value.tick()
+   def later(**kwargs):clock[0]=1300;kwargs['limits'].tick()
+   with self.assertRaisesRegex(ValueError,'root observation deadline'):value._copy_observe(later,limits=value)
+   clock[0]=2400
+   with self.assertRaisesRegex(ValueError,'root observation deadline'):value.tick()
+ def test_total_clamps_last_window_and_wrong_nested_contexts_refuse(self):
+  clock=[0.0]
+  with patch('time.monotonic',side_effect=lambda:clock[0]):
+   value=B.context(self.limits())
+   with self.assertRaisesRegex(ValueError,'one exact'):value._copy_observe(lambda **kw:None,limits=self.limits())
+   def nested(**kwargs):value._copy_observe(lambda **kw:None,limits=value)
+   with self.assertRaisesRegex(ValueError,'one exact'):value._copy_observe(nested,limits=value)
+   clock[0]=2300
+   def last(**kwargs):clock[0]=2400;value.tick()
+   with self.assertRaisesRegex(ValueError,'root observation deadline'):value._copy_observe(last,limits=value)
+ def test_expired_or_unbounded_original_context_refused(self):
+  with patch('time.monotonic',return_value=0):
+   for deadline in(-1,0,600.001,2400):
+    with self.assertRaisesRegex(ValueError,'fresh bounded'):B.context(self.limits(deadline))
+ def test_parent_tick_is_called_for_every_context_tick(self):
+  calls=[];clock=[0.0];original=P.R.Limits.tick
+  def tick(value):calls.append(id(value));return original(value)
+  with patch('time.monotonic',side_effect=lambda:clock[0]),patch.object(P.R.Limits,'tick',tick):
+   value=B.context(self.limits());value.tick()
+   value._copy_observe(lambda **kw:kw['limits'].tick(),limits=value)
+  self.assertEqual(calls,[id(value)]*3)
+ def test_real_whole_copy_reports_nodes_and_caps_equal(self):
+  import tempfile
+  with tempfile.TemporaryDirectory(prefix='copy-ci-profile-') as td:
+   base=Path(td);source=base/'source';source.mkdir();(source/'a').mkdir();(source/'a/file').write_bytes(b'exact original payload');os.link(source/'a/file',source/'alias');(source/'link').symlink_to('a/file')
+   results=[];observations=[];identities=[]
+   for label,profiled in(('original',False),('profiled',True)):
+    module=P.candidate();_,module.roots=B.scoped_aux(A,P.SOURCE);original=module.roots.observe
+    limits=P.R.Limits(deadline=time.monotonic()+600,max_nodes=100,max_bytes=1024**2,max_file_bytes=1024**2)
+    if profiled:
+     limits=B.context(limits)
+     def observe(*args,**kwargs):identities.append(id(kwargs['limits']));return limits._copy_observe(original,*args,**kwargs)
+     module.roots.observe=observe
+    results.append(P.strip(module.copy_data(source,base/label,limits=limits,hardlinks='generic-development-internal')))
+    # Inspect output with original observer, outside the copy profile.
+    after=P.R.observe(base/label,limits=P.R.Limits(deadline=time.monotonic()+600),hardlinks='generic-development-internal')
+    observations.append({n:after[n]for n in('nodes','hardlink_groups','unsupported_counts','complete')})
+   self.assertEqual(results[0],results[1]);self.assertEqual(observations[0],observations[1]);self.assertEqual(len(identities),3);self.assertEqual(len(set(identities)),1)
+
+ def test_extra_original_tree_and_capability_restore_windows_are600(self):
+  clock=[0.0]
+  def root_observe(root,**kwargs):clock[0]+=600;kwargs['limits'].tick()
+  def restore(root,nodes,mapping,limits):clock[0]+=600;limits.tick()
+  api=dict(roots=types.SimpleNamespace(observe=root_observe,held='roots'),caps=types.SimpleNamespace(restore=restore,held='caps'),other=object())
+  with patch('time.monotonic',side_effect=lambda:clock[0]):
+   value=B.context(self.limits());private=B.context_api(api,value)
+   self.assertIs(private['other'],api['other']);self.assertIs(private['roots'].observe.__wrapped__,root_observe);self.assertIs(private['caps'].restore.__wrapped__,restore)
+   with self.assertRaisesRegex(ValueError,'root observation deadline'):private['roots'].observe('/fixture-unrun',limits=value)
+   with self.assertRaisesRegex(ValueError,'root observation deadline'):private['caps'].restore('/fixture-unrun',{}, {},value)
+   self.assertEqual(clock[0],1200);value.tick();self.assertIs(api['roots'].observe,root_observe);self.assertIs(api['caps'].restore,restore)
 if __name__=='__main__':unittest.main(verbosity=2)
