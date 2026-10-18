@@ -84,7 +84,14 @@ class Tests(unittest.TestCase):
    if n not in p['changed']:self.assertEqual(D.pin(D.read(ROOT/'runtime'/n,16*1024**2)),v)
  def test_closed_source_allows_only_topGit_metadata(self):
   with tempfile.TemporaryDirectory()as td:
-   root=Path(td)/'source';shutil.copytree(ROOT,root);(root/'.git').mkdir();(root/'.git/config').write_text('INERT_METADATA');D.source(root)
+   def top_metadata(folder,names):return {'.git'}if Path(folder)==ROOT else set()
+   self.assertEqual(top_metadata(ROOT/'runtime',['.git']),set())
+   root=Path(td)/'source';shutil.copytree(ROOT,root,ignore=top_metadata);(root/'.git').mkdir();(root/'.git/config').write_text('INERT_METADATA');D.source(root)
+   (root/'.git/config').unlink();(root/'.git').rmdir();(root/'.git').write_text('gitdir: INERT_NOT_FOLLOWED');D.source(root)
+   for extra in(root/'.git-shadow',root/'runtime/.git'):
+    extra.write_text('INERT_UNEXPECTED')
+    with self.assertRaises(ValueError):D.source(root)
+    extra.unlink()
    (root/'extra').write_text('INERT')
    with self.assertRaises(ValueError):D.source(root)
    (root/'extra').unlink();(root/'alias').symlink_to(root/'runtime',target_is_directory=True)
