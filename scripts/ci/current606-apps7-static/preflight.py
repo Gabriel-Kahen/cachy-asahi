@@ -12,7 +12,7 @@ from unittest.mock import patch
 
 HERE = Path(__file__).resolve().parent
 LANE = 'scripts/ci/current606-apps7-closed-owner'
-CARRIER = '61b30ec086555f9deb2feac5dcabd6d5e130535d'
+CARRIER = '1c89c4fc2b85b0dc6cfb955a50f8311891bc2751'
 
 
 def need(ok, why):
@@ -50,6 +50,7 @@ def validate(source, pins):
 
 
 def emit(source, basis, output):
+    need(CARRIER is not None, 'Root new copyworker source carrier pending')
     pins = json.loads((HERE / 'source-pins.json').read_bytes())
     need(pins['schema_version'] == 1 and pins['carrier'] == CARRIER and
          pins['purpose'] == 'SOURCE_CARRIER_ONLY_NOT_NATIVE_AUTHORITY', 'fixed public source carrier')
