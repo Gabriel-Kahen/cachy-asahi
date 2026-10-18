@@ -13,7 +13,7 @@ def main():
  control=json.loads(Path('/inputs/control.json').read_bytes());pacman=I.pacman(L,control['signer']);query=pacman[:-2]
  state=I.base_state(L,driver);base_digest=I.preserve_base(L,state);archives={}
  for role,row in products.items():
-  path=Path('/inputs')/row['archive'];L.need(C.package_name(role)==actual and path.parent==Path('/inputs')and path.is_file()and not path.is_symlink()and L.sha(path)==row['sha256']and set(row['payload'])==set(C.files(role))and row['version']==('0.1.0-4'if role==C.NAMES[0]else'0.1.0-5'),'exact signed role/version/archive input required');archives[role]=str(path)
+  path=Path('/inputs')/row['archive'];L.need(C.PACKAGE==actual and path.parent==Path('/inputs')and path.is_file()and not path.is_symlink()and L.sha(path)==row['sha256']and set(row['payload'])==set(C.files(role))and row['version']==('0.1.0-4'if role==C.NAMES[0]else'0.1.0-5'),'exact signed role/version/archive input required');archives[role]=str(path)
  L.need(len(set(archives.values()))==2,'baseline/candidate archives must be distinct')
  account=pwd.getpwnam('alarm');homes=[];events=[];output_pins={};trust=Path('/etc/pacman.d/gnupg');trust_before=L.snapshot(trust)
  for kind in('fresh','existing'):

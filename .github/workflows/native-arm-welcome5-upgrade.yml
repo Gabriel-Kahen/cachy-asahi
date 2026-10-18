@@ -34,7 +34,7 @@ jobs:
         timeout-minutes: 2
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '6065fff6889eac2ce0123d4ea660147f51e204cce4d0b7a5d3a944d870b6c4c1' "$SLICE/job.py" '9ff226e39a7ac4641af32fe222703a0644c55ccea1cf1e8dbe80cc81d3e58b97' "$SLICE/source-manifest.json" | sha256sum --check
+          printf '%s  %s\n' '6065fff6889eac2ce0123d4ea660147f51e204cce4d0b7a5d3a944d870b6c4c1' "$SLICE/job.py" '98a311fa4d2c7318619b397e8408cf1ec6993d83c3572af373ed909f3f15355b' "$SLICE/source-manifest.json" | sha256sum --check
           python3 -I -B "$SLICE/job.py" proof --source "$GITHUB_WORKSPACE" --manifest "$SLICE/source-manifest.json" --proof "$RUNNER_TEMP/welcome5-native-upgrade-source-proof.json"
       - name: Install bounded HOST-only compiler and GIO test prerequisites
         timeout-minutes: 5
