@@ -36,7 +36,7 @@ class Wiring(unittest.TestCase):
    if name=='cap_scope.py':
     tree=ast.parse(b);tree.body=[n for n in tree.body if not(isinstance(n,ast.FunctionDef) and n.name=='runtime_boundaries')];derive=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='derive');self.assertEqual(ast.unparse(derive.body[0]),'omitted = runtime_boundaries(omitted)');derive.body.pop(0);self.assertEqual(ast.dump(tree,include_attributes=False),ast.dump(ast.parse(a),include_attributes=False));b=ast.unparse(tree).encode()
    if name=='vm.py':
-    tree=ast.parse(b);tree.body=[n for n in tree.body if not(isinstance(n,ast.FunctionDef) and n.name=='prepare_failure')];b=ast.unparse(tree).encode()
+    tree=ast.parse(b);tree.body=[n for n in tree.body if not(isinstance(n,ast.FunctionDef) and n.name in ('prepare_failure','qemu_failure'))];b=ast.unparse(tree).encode()
    nums=lambda raw:[n.value for n in ast.walk(ast.parse(raw)) if isinstance(n,ast.Constant) and type(n.value) in (int,float)]
    self.assertEqual(nums(a),nums(b),name)
   self.assertIn('omitted=runtime_boundaries(omitted)',(C.HERE/'cap_scope.py').read_text())
@@ -112,6 +112,43 @@ class Wiring(unittest.TestCase):
    with patch.object(vm,'authorize',return_value=({'Image':C.row(image)},image,None)),patch.object(vm,'mounts',return_value=({'/upgrade-signing':dict(source=str(raw/'test-signing'),readonly=True)},{})),patch.object(vm,'snapshot',return_value={}),patch.object(C,'check_source',return_value={}),patch.object(C,'load',return_value=runtime):
     with self.assertRaisesRegex(ValueError,'VM command/group failure'):vm.run(a,[],'sha256:'+'a'*64,public,raw,old,3900)
    value=C.decode(C.read(public/'updater16k-cleanup.json'));self.assertEqual(value['status'],'PASS');self.assertEqual(base64.b64decode(value['prepare_failure']['stderr']['tail_base64']),original);self.assertFalse((root/'update16k').exists());self.assertFalse(live);self.assertFalse(any('qemu' in r['argv'][0]for r in value['group_records']))
+
+ def test_failed_qemu_original_stream_and_nonce_prefix_data_refusals(self):
+  nonce='a'*32;raw=('APPS6_UPDATE16K '+nonce+' INERT_NOT_A_RECORD\nAPPS6_UPDATE16K '+'b'*32+' INERT_FOREIGN\nAPPS6_UPDATE16K_ERROR InertFailure\n').encode();err=b''
+  record=dict(argv=['/usr/bin/qemu-system-aarch64'],exit_code=0,stdout_bytes=len(raw),stdout_sha256=C.sha(raw),stderr_bytes=0,stderr_sha256=C.sha(err));value=vm.qemu_failure(record,raw,err,nonce)
+  self.assertEqual(base64.b64decode(value['stdout']['preview_base64']),raw);self.assertEqual(value['prefix_counts'],dict(protocol_prefix=2,nonce_bound_prefix=1,guest_error_prefix=1));self.assertIn('NOT_ACCEPTANCE',value['status'])
+  complete=b'INERT_NOT_ORIGINAL_UART'.ljust(11358,b'!');r=dict(record,stdout_bytes=len(complete),stdout_sha256=C.sha(complete));v=vm.qemu_failure(r,complete,err,nonce)['stdout'];self.assertFalse(v['truncated']);self.assertEqual(v['preview_bytes'],11358);self.assertEqual(v['omitted_bytes'],0);self.assertEqual(base64.b64decode(v['preview_base64']),complete)
+  for wrong,n in((dict(record,stdout_sha256='0'*64),nonce),(dict(record,stderr_bytes=1),nonce),(dict(record,argv=['foreign']),nonce),(record,'bad')):
+   with self.assertRaises(ValueError):vm.qemu_failure(wrong,raw,err,n)
+ def test_failed_qemu_tail_and_existing_retention_caps_with_no_success_credit(self):
+  raw=b'INERT_PREFIX '*10000+b'APPS6_UPDATE16K_ERROR InertOnly\n';err=b'INERT_STDERR '*1000;record=dict(argv=['/usr/bin/qemu-system-aarch64'],stdout_bytes=len(raw),stdout_sha256=C.sha(raw),stderr_bytes=len(err),stderr_sha256=C.sha(err));value=vm.qemu_failure(record,raw,err,'a'*32)
+  for key,data in(('stdout',raw),('stderr',err)):
+   v=value[key];limit=65536 if key=='stdout'else 4096;self.assertEqual(base64.b64decode(v['preview_base64']),data[-limit:]);self.assertEqual(v['preview_bytes'],limit);self.assertTrue(v['truncated']);self.assertEqual(v['omitted_bytes'],len(data)-limit);self.assertEqual(v['sha256'],C.sha(data))
+  self.assertLessEqual(len(C.encoded(value)),128*1024)
+  with tempfile.TemporaryDirectory(dir='/tmp')as td,tempfile.TemporaryDirectory()as dest:
+   root=Path(td);(root/'public').mkdir();C.save(root/'owner.json',dict(purpose='expanded604-apps6-public-pair-updater',case='normal',output=str(root)));C.save(root/'public/updater16k-cleanup.json',dict(status='PASS',qemu_failure=value));absent=Path(dest)/'absent'
+   result=T.retain(root,Path(dest)/'retained',{},'a'*40,'normal',absent,absent,absent);self.assertEqual(result['vm_cleanup']['value']['qemu_failure'],value);self.assertFalse(result['proof_complete']);self.assertIn('NOT_ADMISSIBLE',result['completion']);self.assertEqual(T.CAP,8*1024**2)
+ def test_real_vm_natural_qemu_exit_protocol_failure_keeps_diagnostics_and_cleanup(self):
+  types=__import__('types')
+  with tempfile.TemporaryDirectory(dir='/tmp')as td:
+   root=Path(td);public=root/'public';public.mkdir();raw=root/'raw';raw.mkdir();(raw/'test-signing').mkdir();image=root/'Image';image.write_bytes(b'INERT_NO_GUEST');uart=b'INERT_BOOT_NOT_NATIVE\nAPPS6_UPDATE16K_ERROR InertOnly\n';live=set()
+   def command(argv,work,env,seconds,cap):
+    out=err=b'';code=0
+    if argv[0]=='/usr/bin/qemu-system-aarch64':out=uart
+    elif argv[1]=='inspect':
+     if argv[2]in live:out=C.encoded([dict(Id='inert-owned-control',Image='sha256:'+'a'*64,Config=dict(Labels={'org.cachy-asahi.apps6-updater16k':argv[2].split('-')[-2]}))])
+     else:code=1;err=('No such '+argv[2]).encode()
+    elif argv[1]=='run':
+     self.assertEqual(argv[-1],'prepare');live.add(argv[argv.index('--name')+1]);disks=work/'disks'
+     for n in('boot','data'):(disks/(n+'.raw')).write_bytes(b'INERT_DISK_NOT_NATIVE')
+     C.save(disks/'prepared.json',dict(boot=C.row(disks/'boot.raw'),data=C.row(disks/'data.raw'),capabilities_sha256='0'*64))
+    elif argv[1]=='rm':live.clear()
+    else:raise AssertionError('no other command')
+    row=dict(argv=argv,exit_code=code,group_absence_verified=True,stderr_bytes=len(err),stderr_sha256=C.sha(err),stdout_bytes=len(out),stdout_sha256=C.sha(out));return row,out,err,None
+   a=types.SimpleNamespace(implementation=C.ROOT,case='normal');old=types.SimpleNamespace(command=lambda *args:None)
+   with patch.object(vm,'authorize',return_value=({'Image':C.row(image)},image,None)),patch.object(vm,'mounts',return_value=({'/upgrade-signing':dict(source=str(raw/'test-signing'),readonly=True)},{})),patch.object(vm,'snapshot',return_value={}),patch.object(vm,'old_verify',return_value=lambda *_:None),patch.object(C,'check_source',return_value={}),patch.object(C,'load',return_value=types.SimpleNamespace(run_command=command)):
+    with self.assertRaisesRegex(ValueError,'three nonce-bound original guest records'):vm.run(a,[],'sha256:'+'a'*64,public,raw,old,3900)
+   value=C.decode(C.read(public/'updater16k-cleanup.json'));self.assertEqual(value['status'],'PASS');self.assertEqual(value['error']['message'],'three nonce-bound original guest records');self.assertEqual(base64.b64decode(value['qemu_failure']['stdout']['preview_base64']),uart);self.assertEqual(value['qemu_failure']['prefix_counts'],dict(protocol_prefix=0,nonce_bound_prefix=0,guest_error_prefix=1));self.assertFalse((root/'update16k').exists());self.assertFalse(live);self.assertFalse((public/'updater16k-result.json').exists())
 
 class DockerConfigControls(unittest.TestCase):
  def setUp(self):
