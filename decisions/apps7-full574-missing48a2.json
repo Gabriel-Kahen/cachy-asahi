@@ -1,0 +1,49 @@
+{
+  "Git_joins": 352,
+  "Root_acceptance": "ACCEPTED_RETAINED_MISSING_CASE_ONLY",
+  "actual_commits": 4,
+  "actual_repairs": [
+    "repair-missing"
+  ],
+  "aggregate": "NOT_ADMITTED_REPAIR_BYTES_REQUIRES_SEPARATE_SAME_SOURCE_ROOT_DECISION",
+  "attempt": 1,
+  "case": "repair-missing",
+  "copied_root_preservation": "SOURCE_ENFORCED_RAW_MAPS_NOT_EXPORTED",
+  "counts": [
+    578,
+    575,
+    574
+  ],
+  "generic16K": "NOT_RUN",
+  "hardware": "NOT_RUN",
+  "independent_replay": {
+    "bytes": 8145,
+    "sha256": "5f672d2bdeddd547c015847f25ae3ec68ab6bab2e022ee97be65f5d92160ef6c"
+  },
+  "input_packet": "54352850a57a7e34e75c3a021fa20525eee59bf6",
+  "ordered_cleanup": "PASS_RETAINED_ORDERED_SEVEN_ACTORS_THEN_PRODUCER",
+  "originals": {
+    "artifact.zip": {
+      "bytes": 12190085,
+      "sha256": "d6866929947e046e47f8c74eac4f7dfc4fe24ecb4af4a408a4c28b62e4f26005"
+    },
+    "logs.zip": {
+      "bytes": 105364,
+      "sha256": "20e52d60504effbc06e5da1cd7544ca6f720d7f96d9dd7e02ec8cec6b5480db0"
+    }
+  },
+  "ref": "codex/apps7-private-path-validators-v1",
+  "release": "NOT_ADMITTED",
+  "run": 39116528256,
+  "signature_cryptographic_reverification": "NOT_RUN_PASSIVE_NO_SUBPROCESSES",
+  "source": "48a2c1caa2474aee868cd309d235d839c0cf8d7b",
+  "source_full_node_replay": "PASS_ORIGINAL_SOURCE_ONLY",
+  "source_manifest_sha256": "63e814c5d340f8924946b2d9795c3cb44cd8c8e495ffefa953d8f86d2b4290eb",
+  "source_nodes": 123056,
+  "status": "ROOT_ACCEPTED_NATIVE_APPS7_FULL574_REPAIR_MISSING_RETAINED_SCOPE",
+  "zero_commit_refusals": [
+    "wrong-plan-sha",
+    "unselected-damage",
+    "foreign-alpm-lock"
+  ]
+}
