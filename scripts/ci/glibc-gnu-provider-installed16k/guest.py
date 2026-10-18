@@ -126,6 +126,7 @@ def install_progress():
                 query_path=C.ref(Path('/source'),dict(path='scripts/ci/expanded600-installer-vm/observer600.py',bytes=2784,sha256='c3d804e7f2927c7889835ad187a39a3d7c618a4651700f57b0c5413c46612607'))
                 query=C.load('gnu_installed_fresh_mount_query',query_path)
                 api['caps']=S.capability_facade(api['caps'],record,mount_query=query._mount600)
+                api['capabilities']=_copy_capability_bridge(api['capabilities'],Path('/source'))
                 def first_observation(*args,**kwargs):
                     nonlocal observer_pending
                     if observer_pending:
@@ -137,6 +138,43 @@ def install_progress():
             module.C.helpers=observed_helpers
         return module
     C.load=load;record('worker','enter')
+
+_COPY_ROOT_SHA='cece1c597b2e2eb98b0e3087cc7e7c148b54332f8a1c4f18e04e4552a71fb51d'
+_COPY_AUX_SHA='bff93c029e21f9fce0868c80566396984443c8d3438264fac8a91c985175f05b'
+_COPY_QUERY_SHA='c3d804e7f2927c7889835ad187a39a3d7c618a4651700f57b0c5413c46612607'
+
+def _copy_clone(function,**replacements):
+    namespace=dict(function.__globals__,**replacements)
+    value=types.FunctionType(function.__code__,namespace,function.__name__,function.__defaults__,function.__closure__)
+    value.__kwdefaults__=function.__kwdefaults__
+    return value
+
+def _copy_scoped_aux(aux,source):
+    # Existing reader verifies bounded/noalias source bytes/identities before exec.
+    roots=aux._isolated(source/'scripts/update/full_root.py',_COPY_ROOT_SHA)
+    query=aux._isolated(source/'scripts/ci/expanded600-installer-vm/observer600.py',_COPY_QUERY_SHA)
+    original=aux._isolated(source/'scripts/update/aux_copy.py',_COPY_AUX_SHA)
+    fresh=types.SimpleNamespace(**vars(roots))
+    fresh._mount_id=query._mount600(roots._mount_id)
+    fresh.observe=_copy_clone(roots.observe,_mount_id=fresh._mount_id)
+    binding=_copy_clone(original._copy_binding,roots=fresh)
+    value=types.SimpleNamespace(**vars(aux));value._copy_binding=binding
+    return value,fresh
+
+def _copy_capability_bridge(original,source):
+    """Keep original generator/cleanup and receipt; bind only this copy instance."""
+    from contextlib import contextmanager
+    scope=original.scope
+    aux,roots=_copy_scoped_aux(scope.aux_copy,source)
+    def qualified():
+        module=scope.qualified()
+        module.aux_copy=aux;module.roots=roots
+        return module
+    private_scope=types.SimpleNamespace(**vars(scope))
+    private_scope.copied_root=_copy_clone(scope.copied_root,qualified=qualified)
+    result=types.SimpleNamespace(**vars(original))
+    result.copied_root=contextmanager(_copy_clone(original.copied_root.__wrapped__,scope=private_scope))
+    return result
 
 def supervised_progress(runtime,selection,nonce):
     stop=threading.Event()
