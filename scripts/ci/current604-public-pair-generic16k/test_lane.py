@@ -368,9 +368,26 @@ class PeerFocusControls(unittest.TestCase):
  def test_bounded_readback_both_generated_profiles_preserve_timeout_and_helpers(self):
   for selected in C.PROFILES:
    with tempfile.TemporaryDirectory()as tmp:
-    runner=Controls().generated(Path(tmp),selected);self.assertEqual((runner/'installed604.py').read_bytes(),A.readback_progress((ROOT/C.OLD/'installed604.py').read_bytes()))
+    runner=Controls().generated(Path(tmp),selected);self.assertEqual((runner/'installed604.py').read_bytes(),A.readback_fresh_mount(A.readback_progress((ROOT/C.OLD/'installed604.py').read_bytes()),ROOT))
     self.assertIn("'installed604-preserved',timeout=600",(runner/'base_guest.py').read_text())
     for name,path in (('alpm_reader.py','scripts/ci/full-root-upgrade/root_upgrade.py'),('file_capabilities.py','scripts/apps/file_capabilities.py')):self.assertEqual((runner/name).read_bytes(),(ROOT/path).read_bytes())
+
+class ReadbackFreshMountControls(unittest.TestCase):
+ def test_fresh_mount_uses_whole_existing_query_and_holds_complete_observer(self):
+  raw=A.readback_progress((ROOT/C.OLD/'installed604.py').read_bytes());new=A.readback_fresh_mount(raw,ROOT)
+  def funcs(text):return{n.name:ast.get_source_segment(text,n)for n in ast.parse(text).body if isinstance(n,ast.FunctionDef)}
+  a,b=funcs(raw.decode()),funcs(new.decode())
+  for name in set(a)-{'capabilities'}:self.assertEqual(a[name],b[name],name)
+  query=(ROOT/'scripts/ci/expanded600-installer-vm/observer600.py').read_bytes()
+  self.assertEqual(dict(bytes=len(query),sha256=C.sha(query)),dict(bytes=2784,sha256='c3d804e7f2927c7889835ad187a39a3d7c618a4651700f57b0c5413c46612607'))
+  self.assertEqual(b['_mount600'],funcs(query.decode())['_mount600'])
+  with self.assertRaisesRegex(ValueError,'whole progress readback'):A.readback_fresh_mount(raw+b'\n',ROOT)
+  ns={'__file__':str(ROOT/C.OLD/'installed604.py')};exec(compile(new,'<exact source-only generated readback>','exec'),ns)
+  original=ns['capabilities']();limit=type('Limits',(),{'tick':lambda self:None})()
+  with tempfile.TemporaryDirectory()as td:
+   fd=os.open(td,os.O_RDONLY|os.O_DIRECTORY)
+   try:self.assertIsInstance(original._mount(fd,limit),int)
+   finally:os.close(fd)
 
 if __name__=='__main__':unittest.main(verbosity=2)
 

@@ -24,6 +24,17 @@ def readback_progress(raw):
   C.need(text.count(before)==count,'bounded readback progress anchor differs');text=text.replace(before,after)
  ast.parse(text);return text.encode()
 
+def readback_fresh_mount(raw,source):
+ """Same complete600s observation; fresh descriptor query, never a mount cache."""
+ C.need(len(raw)==10676 and C.sha(raw)=='928a9e9f0ada2041873e5a48c6a1c86e5fd39d0073aef7f4343fcab70e12ba34','whole progress readback source pin differs')
+ query=C.read(source/'scripts/ci/expanded600-installer-vm/observer600.py')
+ C.need(len(query)==2784 and C.sha(query)=='c3d804e7f2927c7889835ad187a39a3d7c618a4651700f57b0c5413c46612607','whole existing descriptor query source differs')
+ factory=ast.get_source_segment(query.decode(),next(n for n in ast.parse(query).body if isinstance(n,ast.FunctionDef)and n.name=='_mount600'))
+ text=C.one(raw.decode(),'def capabilities():',factory+'\n\ndef capabilities():')
+ before="spec=importlib.util.spec_from_file_location('current604_owned_capabilities',path);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m"
+ after="spec=importlib.util.spec_from_file_location('current604_owned_capabilities',path);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)\n    m._mount=_mount600(m._mount)\n    return m"
+ text=C.one(text,before,after);ast.parse(text);return text.encode()
+
 BASE=C.module('_profile604_original_adapter',C.OLD+'/adapter.py',{'contract':C},lambda text:C.one(text,"C.HERE/'installed604.py'","source/C.OLD/'installed604.py'"))
 
 def prepare(source,output,assets,ready,selected):
@@ -57,7 +68,7 @@ def prepare(source,output,assets,ready,selected):
  guest=C.one(guest,'        EVENTS.chmod(0o600)','        EVENTS.chmod(0o600)\n        initialize_launcher_clock()')
  path.write_text(guest)
  driver=output/'a11y_driver.c';driver.write_bytes(peer_focus_driver(driver.read_bytes()))
- helper=output/'installed604.py';helper.write_bytes(readback_progress(helper.read_bytes()))
+ helper=output/'installed604.py';helper.write_bytes(readback_fresh_mount(readback_progress(helper.read_bytes()),source))
  proof=C.json_read(output/'runner-proof.json');proof.update(profile=selected,scope='ONE_PROFILE_NOT_FULL60416K_ACCEPTANCE',files={p.name:dict(bytes=len(C.read(p)),sha256=C.sha(C.read(p))) for p in output.iterdir() if p.is_file() and p.name not in ('runner-proof.json','candidate-lock.json')});C.save(output/'runner-proof.json',proof)
  for path in output.glob('*.py'):ast.parse(path.read_bytes())
  return output
