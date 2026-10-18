@@ -1,0 +1,162 @@
+# SPDX-License-Identifier: MIT
+import copy,hashlib,os,stat,subprocess,sys,tempfile,time,unittest
+from pathlib import Path
+from unittest.mock import patch
+HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[2]
+sys.path[:0]=[str(HERE),str(ROOT/'held-copy/scripts/update'),str(ROOT/'held-copy/scripts/apps')]
+import contract as C,guard as G,rooted_fixture as F
+import full_root as R,aux_copy,disposable_copy,file_capabilities as caps,full574_copy as scope
+
+class Controls(unittest.TestCase):
+ def budget(self):return R.Limits(deadline=time.monotonic()+10,max_nodes=100,max_bytes=1024**2,max_file_bytes=1024**2)
+ def test_default_refuses_before_any_actor_or_copy(self):
+  with patch.object(subprocess,'Popen',side_effect=AssertionError('actor')):
+   with self.assertRaisesRegex(ValueError,'UNSUPPLIED'):C.authority(C.decode(C.ordinary(HERE/'input-policy.json')),'copy-worker8','0'*32)
+ def test_real_complete_private_copy_hardlinks_caps_and_disposal(self):
+  with tempfile.TemporaryDirectory()as d:
+   source=Path(d)/'source';source.mkdir();(source/'dir').mkdir();(source/'dir/a').write_bytes(b'real private fixture\n');os.link(source/'dir/a',source/'dir/b');(source/'alias').symlink_to('dir/a')
+   before=R.observe(source,limits=self.budget(),hardlinks='generic-development-internal');original=caps.observe(source,before['nodes'],self.budget())
+   with disposable_copy.copied_root(source,Path(d)/'owned',limits=self.budget())as(target,report):
+    after=R.observe(target,limits=self.budget(),hardlinks='generic-development-internal')
+    self.assertEqual(after['nodes'],before['nodes']);self.assertEqual((target/'dir/a').stat().st_ino,(target/'dir/b').stat().st_ino)
+    self.assertEqual(caps.restore(target,after['nodes'],original,self.budget()),original)
+   self.assertEqual(report['cleanup'],'PASS-owned-workspace-removed');self.assertFalse((Path(d)/'owned').exists());G.same_source(before,R.observe(source,limits=self.budget(),hardlinks='generic-development-internal'))
+ def test_real_failure_disposes_private_copy_preserves_source(self):
+  with tempfile.TemporaryDirectory()as d:
+   source=Path(d)/'source';source.mkdir();(source/'data').write_bytes(b'held')
+   with self.assertRaisesRegex(RuntimeError,'fixture failure'):
+    with disposable_copy.copied_root(source,Path(d)/'owned',limits=self.budget())as(target,report):
+     (target/'data').write_bytes(b'changed');raise RuntimeError('fixture failure')
+   self.assertEqual((source/'data').read_bytes(),b'held');self.assertFalse((Path(d)/'owned').exists());self.assertEqual(report['cleanup'],'PASS-owned-workspace-removed')
+ def test_unknown_xattr_refuses_before_restore(self):
+  with tempfile.TemporaryDirectory()as d:
+   root=Path(d);(root/'file').write_bytes(b'held');before=R.observe(root,limits=self.budget(),hardlinks='generic-development-internal')
+   os.setxattr(root/'file','user.unrecognized',b'not accepted')
+   with self.assertRaisesRegex(ValueError,'unknown xattr'):caps.observe(root,before['nodes'],self.budget())
+   self.assertEqual(os.getxattr(root/'file','user.unrecognized'),b'not accepted')
+ def test_real_source_metadata_and_content_refusals(self):
+  with tempfile.TemporaryDirectory()as d:
+   root=Path(d);(root/'file').write_bytes(b'held');a=R.observe(root,limits=self.budget(),hardlinks='generic-development-internal');(root/'file').write_bytes(b'edit')
+   with self.assertRaisesRegex(ValueError,'source graph'):G.same_source(a,R.observe(root,limits=self.budget(),hardlinks='generic-development-internal'))
+ def test_selected_real_route_refuses_inert_fixture(self):
+  with tempfile.TemporaryDirectory()as d:
+   source=Path(d)/'source';source.mkdir();(source/'file').write_bytes(b'inert')
+   with self.assertRaisesRegex(ValueError,'selected-literal-link-drift'):
+    with aux_copy.copied_root(source,Path(d)/'owned',limits=self.budget()):pass
+   self.assertFalse((Path(d)/'owned').exists())
+ def test_dynamic_capacity_only_two_counters(self):
+  a=dict(complete=True,nodes={},unsupported=[],unsupported_counts={},footprint=dict(filesystem_free_bytes=1,filesystem_free_inodes=2,bytes=0));b=copy.deepcopy(a);b['footprint'].update(filesystem_free_bytes=100,filesystem_free_inodes=20);G.same_source(a,b)
+  b['footprint']['bytes']=1
+  with self.assertRaises(ValueError):G.same_source(a,b)
+ def test_selected_inventory_is_exact_other605(self):
+  base={f'p{i}':'1'for i in range(605)}|{G.NAME:'0.1.0-4'};G.inventory(base|{G.NAME:'0.1.0-5'},base,'0.1.0-5');G.inventory({k:v for k,v in base.items()if k!=G.NAME},base,None)
+  with self.assertRaises(ValueError):G.inventory(base|{'p4':'2',G.NAME:'0.1.0-5'},base,'0.1.0-5')
+ def test_selected_target_preserves_every_other_row_and_raw_db(self):
+  node=dict(type='file',mode=0o644,uid=0,gid=0,bytes=1,sha256='0'*64)
+  before=dict(complete=True,unsupported_counts={},nodes={'usr/bin/welcome':node,'var/lib/pacman/local/other-1/desc':node,'home/alarm/.config/user':node},hardlink_groups={})
+  after=copy.deepcopy(before);after['nodes']['usr/bin/welcome']=dict(node,sha256='1'*64)
+  args=dict(old_paths=['usr/bin/welcome'],new_paths=['usr/bin/welcome'],old_database='var/lib/pacman/local/cachy-asahi-welcome-0.1.0-4',new_database='var/lib/pacman/local/cachy-asahi-welcome-0.1.0-5')
+  G.target(before,after,**args)
+  after['nodes']['var/lib/pacman/local/other-1/desc']=dict(node,sha256='2'*64)
+  with self.assertRaises(ValueError):G.target(before,after,**args)
+ def test_selected_cross_hardlink_refused(self):
+  v=dict(complete=True,unsupported_counts={},nodes={},hardlink_groups={'usr/bin/welcome':dict(members=['usr/bin/welcome','usr/bin/protected'])})
+  with self.assertRaisesRegex(ValueError,'cross hardlink'):G.target(v,v,old_paths=['usr/bin/welcome'],new_paths=['usr/bin/welcome'],old_database=None,new_database=None)
+ def test_exact_new_cap_profile_and_zero_ordinary(self):
+  v=dict(CapEff=C.WORKER_MASK,CapPrm=C.WORKER_MASK,CapBnd=C.WORKER_MASK,CapInh=0,CapAmb=0,NoNewPrivs=1,uid=0,gid=0);C.capability_profile(v)
+  for mask in(0xdb,0x400db,0xffffffffffffffff):
+   with self.assertRaises(ValueError):C.capability_profile(dict(v,CapEff=mask))
+  C.capability_profile(dict(v,CapEff=0,CapPrm=0,uid=1000,gid=1000),ordinary_child=True)
+ def test_fixture_derivative_preserves_assertions_ast(self):
+  import ast
+  original=(ROOT/'held-welcome/scripts/ci/welcome5-native-upgrade/fixture_checks.py').read_bytes();derived=F.derive(original)
+  restored=derived
+  for before,after in reversed(F.ROUTES):restored=restored.replace(after,before)
+  self.assertEqual(restored,original);self.assertEqual(ast.dump(ast.parse(restored)),ast.dump(ast.parse(original)))
+  self.assertIn(b"'Ran 5 tests'",derived);self.assertIn(b"count=8 if role",derived);self.assertIn(b"else 12",derived);self.assertIn(b"ok 1 /management/root-guard",derived)
+  with self.assertRaises(ValueError):F.derive(original+b'\n')
+ def test_fixed_map_paths_bounds_and_duplicate_json_refuse(self):
+  refs={name:dict(path='/bridge-proof/'+name.replace('_','-')+'.json',bytes=1,sha256='0'*64)for name in C.MAPS};G.fixed_maprefs(refs)
+  refs['packages']['path']='/tmp/packages.json'
+  with self.assertRaises(ValueError):G.fixed_maprefs(refs)
+  with self.assertRaises(ValueError):C.decode(b'{"x":1,"x":2}')
+ def test_nofollow_and_hardlinked_inputs_refuse(self):
+  with tempfile.TemporaryDirectory()as d:
+   root=Path(d);(root/'source').write_bytes(b'{}');(root/'alias').symlink_to('source')
+   with self.assertRaises(OSError):C.ordinary(root/'alias')
+   os.link(root/'source',root/'linked')
+   with self.assertRaises(ValueError):C.ordinary(root/'source')
+ def test_mount_scope_refuses_missing_actual_bind_mounts(self):
+  with self.assertRaises(ValueError):scope._rows(b'1 2 0:1 / / rw - tmpfs tmpfs rw\n',3,4,(0,1))
+
+class RuntimeControls(unittest.TestCase):
+ def budget(self):return R.Limits(deadline=time.monotonic()+10,max_nodes=100,max_bytes=1024**2,max_file_bytes=1024**2)
+ # These are small component fixtures, never a synthetic positive native606.
+ def test_real_protected_inode_replacement_refused(self):
+  import physical
+  with tempfile.TemporaryDirectory()as d:
+   root=Path(d);(root/'protected').write_bytes(b'held');a=R.observe(root,limits=self.budget(),hardlinks='generic-development-internal');ids=physical.capture(root,a['nodes'],self.budget());(root/'replacement').write_bytes(b'held');os.replace(root/'replacement',root/'protected');b=R.observe(root,limits=self.budget(),hardlinks='generic-development-internal');after=physical.capture(root,b['nodes'],self.budget())
+   self.assertEqual(a['nodes'],b['nodes'])
+   with self.assertRaisesRegex(ValueError,'inode metadata'):physical.protected(ids,after,a['nodes'],b['nodes'],lambda _:False)
+ def test_real_selected_db_full_fields_and_current_date(self):
+  import driver
+  with tempfile.TemporaryDirectory()as d:
+   root=Path(d);db=root/'var/lib/pacman/local/cachy-asahi-welcome-0.1.0-5';db.mkdir(parents=True)
+   fields={'NAME':['cachy-asahi-welcome'],'VERSION':['0.1.0-5'],'ARCH':['aarch64'],'INSTALLDATE':['123'],'DESC':['inert component fixture'],'REASON':['0']}
+   raw=''.join('%'+k+'%\n'+'\n'.join(v)+'\n\n'for k,v in fields.items()).encode();(db/'desc').write_bytes(raw);(db/'files').write_bytes(b'%FILES%\nusr/bin/cachy-asahi-welcome\n\n');(db/'mtree').write_bytes(b'inert mtree bytes');db.chmod(0o755)
+   for p in db.iterdir():p.chmod(0o644)
+   value=R.observe(root,limits=self.budget(),hardlinks='generic-development-internal');product=dict(version='0.1.0-5',payload={'usr/bin/cachy-asahi-welcome':{}},database_fields=fields,mtree=C.pin((db/'mtree').read_bytes()));rows=[dict(name='cachy-asahi-welcome',version='0.1.0-5',files=['usr/bin/cachy-asahi-welcome'])]
+   if os.getuid()!=0:
+    with self.assertRaisesRegex(ValueError,'metadata'):driver.selected_database(root,rows,value['nodes'],product,window=(120,125))
+   else:self.assertTrue(driver.selected_database(root,rows,value['nodes'],product,window=(120,125)))
+   parsed=driver.database_api().fields(raw);self.assertTrue(driver.validate_fields(parsed,fields,(120,125)))
+   with self.assertRaisesRegex(ValueError,'INSTALLDATE'):driver.validate_fields(parsed,fields,(124,125))
+   changed=copy.deepcopy(fields);changed['DESC']=['different']
+   with self.assertRaisesRegex(ValueError,'metadata'):driver.validate_fields(parsed,changed,(120,125))
+ def test_real_zero_cap_NNP_child_and_retirement(self):
+  import supervised
+  code="import sys,json,os;sys.path.insert(0,"+repr(str(HERE))+");import rooted_fixture as F;fd=os.open('/proc/self/status',os.O_RDONLY);F.zero_caps();print(json.dumps(F.status(fd)));os.close(fd)"
+  r=supervised.run([sys.executable,'-I','-B','-c',code],env={'PATH':'/usr/bin:/bin'},cwd='/',timeout=3,output_limit=4096)
+  self.assertEqual(r['returncode'],0);self.assertTrue(r['direct_child_reaped']);self.assertTrue(r['group_retired']);status=C.decode(r['stdout'])
+  for name in('CapEff','CapPrm','CapInh','CapAmb'):self.assertEqual(status[name],0)
+  self.assertEqual(status['NoNewPrivs'],1)
+ def test_actual_original_restore_not_fresh_sameversion(self):
+  import lifecycle
+  original=dict(version='0.1.0-4',sha256='0'*64,payload={n:{}for n in C.WELCOME_FILES});row=dict(original,source_record=original)
+  new=dict(version='0.1.0-5',sha256='1'*64,payload=original['payload']);lifecycle.operands(row,new,original604_manifest={G.NAME:original})
+  fresh=dict(row,sha256='2'*64)
+  with self.assertRaisesRegex(ValueError,'original4'):lifecycle.operands(fresh,new,original604_manifest={G.NAME:original})
+ def test_exact_five_bind_contract(self):
+  rows=[dict(source='/owned/'+str(i),target=t,readonly=r)for i,(t,r)in enumerate((('/runner',True),('/seed',True),('/bridge-proof',True),('/work',False),('/out',False)))];C.bindings(rows)
+  rows[0]['readonly']=False
+  with self.assertRaises(ValueError):C.bindings(rows)
+ def test_verification_key_refusal_before_process_or_work_write(self):
+  import verification
+  row=dict(path='/tmp/not-a-key',bytes=1,sha256='0'*64,signer='A'*40)
+  with patch.object(subprocess,'Popen',side_effect=AssertionError('actor')):
+   with self.assertRaisesRegex(ValueError,'fixed readonly'):verification.prepare([row],signers={'A'*40},budget=self.budget())
+ def test_archive_db_constructor_calibrates_every_source_field(self):
+  import plan
+  info=dict(pkgname=['cachy-asahi-welcome'],pkgver=['0.1.0-4'],arch=['aarch64'],size=['1'],builddate=['100'],packager=['inert component fixture'],pkgbase=['cachy-asahi-welcome'],xdata=['pkgtype=pkg'],makedepend=['gcc'])
+  source={plan.FIELDS[k]:v for k,v in info.items()if k in plan.FIELDS}|{'INSTALLDATE':['123'],'REASON':['0'],'VALIDATION':['pgp']}
+  self.assertEqual(plan.fields(info,source),source)
+  candidate=dict(info,pkgver=['0.1.0-5']);self.assertEqual(plan.fields(candidate,source)['VERSION'],['0.1.0-5'])
+  with self.assertRaises(ValueError):plan.fields(dict(info,unknown=['unsupported']),source)
+  with self.assertRaises(ValueError):plan.fields(info,dict(source,UNKNOWN=['must not discard']))
+ def test_lock_parent_projection_needs_exact_actual_witness(self):
+  import physical
+  a={'var/lib/pacman':[1,2,0o40755,0,0,3,4096,1,1]};b={'var/lib/pacman':[1,2,0o40755,0,0,3,8192,2,2]};nodes={'var/lib/pacman':dict(type='directory')}
+  with self.assertRaises(ValueError):physical.protected(a,b,nodes,nodes,lambda _:False)
+  proof=dict(path='var/lib/pacman',lock_created=True,lock_removed=True,before=a['var/lib/pacman'],after=b['var/lib/pacman'])
+  physical.protected(a,b,nodes,nodes,lambda _:False,lock_witness=proof)
+  with self.assertRaises(ValueError):physical.protected(a,b,nodes,nodes,lambda _:False,lock_witness=dict(proof,lock_removed=False))
+ def test_all_emitted_worker_programs_compile(self):
+  with patch.object(subprocess,'Popen',side_effect=AssertionError('actor')):
+   for p in HERE.rglob('*.py'):compile(p.read_bytes(),str(p),'exec')
+ def test_generated_worker_main_is_full_lifecycle_not_copy_credit(self):
+  import ast
+  source=(HERE/'worker.py').read_text();tree=ast.parse(source);main=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='main');calls=[ast.unparse(n.func)for n in ast.walk(main)if isinstance(n,ast.Call)]
+  self.assertIn('driver.run',calls);self.assertIn('copy_verified',calls);self.assertIn('C.actor_guard',calls);self.assertIn('C.authority',calls)
+  self.assertNotIn('VERIFIED_606_COPY_ONLY_NO_TRANSACTION_CREDIT',source)
+
+if __name__=='__main__':unittest.main()
