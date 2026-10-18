@@ -1,0 +1,45 @@
+# Public-pair current604 Apps5→6 generic16K update
+
+Separate source-only bridge over expanded604-apps6-public-pair-updater, with normal,
+precommit-exit86 and postcommit-exit87 chosen explicitly in three distinct actual
+runs. Original transaction/recovery/603protected/source/user/trust/capability/
+copy/ALPM/signature/8192nofile/16384kernel/mount/isolation/natural-exit and ordered
+cleanup bodies/budgets remain. Typed public BUILDINFO +original Q digest evidence
+replaces absent raw575 lock only through the held public-pair source adapter.
+No raw223 native lifecycle, old updater, GUI/16K/M2 acceptance is transferred.
+
+prepare.py --source ORIGINAL_BRIDGE_SOURCE --updater PUBLIC_PAIR_UPDATER_SOURCE
+--output ABSENT_ROOT emits both source manifests and the dedicated manual workflow.
+Both roles are exact pin maps; aliases/drift/conflicts refuse before output.
+
+Bridge binding remains NULL. The selected updater source carries already bound
+native/fresh prerequisite receipts; these grant no new updater, GUI or16K authority. It requires separately accepted all3 new PUBLIC_PAIRS updater
+case receipts with exact source/MF/package/before/after/truth and distinct run IDs.
+Future native/fresh/updater binding alone is insufficient if their actual bound
+source/MF differs: an explicit source-role successor must select that exact bound
+updater/fresh/composition source and refresh source/wiring/WF. No future SHA or
+ID is guessed here. Canonical UNBOUND policies may not be silently overwritten.
+
+The original nine caps/mount roles and common nonce-bound wire prefix remain;
+new source/policy/scope/PASS/decision identities refuse old data. There is no
+prior GUI gate or GUI credit. Original VM4096MiB/noNIC/TCG, disk48GiB,3900s caller,
+15600s owner,3700s kernel,350m wholejob and conservative backing-data retention
+on unknown actor/VM lifetime are unchanged. Actual fit/performance is NOT_RUN.
+
+Keep policy.json as the immutable UNBOUND template. Root binds only derived input-policy.json after actual acceptance and refreshes both manifests/WF. Source negative tests use explicit UNBOUND controls/template, so binding the trial does not convert a source-only default test into an actor.
+
+Source assembly selects the corrected418-row updater and271-row fresh installer, including all nine original pre-runtime control dependencies and all80 recipe leaves. This source-only propagation does not bind actual native, fresh, updater, or16K authority.
+
+This successor selects exact committed updater37d9ffa166e0d7262ef8afab56baa0b3ea060b22 and its bd0cf1891083d011b70edab10501c317d3720b78 fresh-source closure. These source roles are SOURCE_ONLY_NOT_ACTUAL_ACCEPTANCE. The held native/fresh prerequisite documents are bound, but new three-case updater acceptance and two-profile GUI acceptance remain NULL; bridge input-policy remains UNBOUND before any source import, secret, output or actor.
+
+The corrected updater role includes the exact authenticated Apps5→Apps6 auxiliary selection and its refusal controls. The updater16K adapter preserves that derivative, plus its existing explicit caller guard change; every other transaction/helper body remains conserved. Future updater and GUI positive authorities remain NULL.
+
+The selected420-file updater role is exact published37d9ffa166e0d7262ef8afab56baa0b3ea060b22, excluding only its registered workflow alias. Its declared Apps directory comparator projects parent-directory times only for the authenticated eight selected paths; genuine parent-time/refusal controls are retained byte-exact. This successor changes source roles and closure metadata only; runtime16K/kernel/deadlines/transaction/cleanup bodies are byte-held. Future updater/GUI/16K authorities and new actual source/run bindings remain NULL.
+
+This source-only successor selects exact published 37d9ffa166e0d7262ef8afab56baa0b3ea060b22 updater420 (excluding only its registered alias), retaining bd0 fresh273. Its original linked-runtime call now uses the existing authenticated Apps selection through derive_linked, with no new allowance; the emitted-derivation fixture independently checks that exact route for all three cases. All future updater/GUI/16K authority and actual source/ref/runs remain NULL. Three genuine same-selected-source Root case decisions are required later; no GUI actual prerequisite is added.
+
+This source-only successor selects exact published 37d9ffa166e0d7262ef8afab56baa0b3ea060b22 updater420 (excluding only its registered alias), retaining bd0 fresh273. The already published updater constructor derivative issues genuine current UTC test metadata with the unchanged original172800-second lifetime and all expiry/signature guards. All future updater/GUI/16K authority and actual source/ref/runs remain NULL. Three genuine same-source Root case decisions are required later; no GUI actual prerequisite is added.
+
+This source-only successor selects exact published 37d9ffa166e0d7262ef8afab56baa0b3ea060b22 updater420 (excluding only its registered alias), retaining bd0 fresh273. The already published post87 correction authenticates the exact selected update while preserving all source/program guards. All future updater/GUI/16K authority and actual source/ref/runs remain NULL. Three genuine same-source Root case decisions are required later; no GUI actual prerequisite is added.
+
+This forward source selects the exact published 37d9ffa166e0d7262ef8afab56baa0b3ea060b22 updater420 with the authenticated post87 Apps DB-prefix correction and its existing normal1860 inherited config. All16K-owned runtime/kernel/owner budgets stay byte held. Future source/ref/runs and all updater/GUI/16K decisions/activation remain NULL. All3 distinct genuine same37d source decisions are required later; none are accepted here.

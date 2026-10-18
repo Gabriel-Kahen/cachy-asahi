@@ -1,0 +1,18 @@
+{
+  "VM_ref": null,
+  "VM_run": null,
+  "VM_source": null,
+  "kernel_authority": null,
+  "kernel_build": null,
+  "kernel_run": null,
+  "kernel_source": null,
+  "kernel_transport": null,
+  "media": null,
+  "native_decision": null,
+  "native_inputs": null,
+  "native_run": null,
+  "native_source": null,
+  "producer_report": null,
+  "schema_version": 1,
+  "status": "UNBOUND_KSM2_GENERIC16K_REAL_SYSFS_TEST"
+}
