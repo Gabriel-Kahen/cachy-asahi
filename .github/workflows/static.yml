@@ -70,12 +70,24 @@ jobs:
         run: |
           python3 -I -B scripts/ci/dns-sysctl-native/preflight.py --source "$PWD"
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/dns-sysctl-native -p test_lane.py -v
+      - name: Check default DNS and sysctl upgrade lanes without actors
+        run: |
+          python3 -I -B scripts/ci/sysctl2-upgrade-native/preflight.py --source "$PWD"
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/sysctl2-upgrade-native -p test_lane.py -v
+          python3 -I -B scripts/ci/dns2-native-upgrade/preflight.py --source "$PWD"
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/dns2-native-upgrade -p test_lane.py -v
       - name: Check opt-in DNS and named sysctl controls without host changes
         run: |
           python3 -I -B packages/tools/cachy-asahi-dns/check_source.py --recipe-root packages/tools/cachy-asahi-dns
           python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-dns/test_dns.py
           python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-sysctl/test_sysctl.py
           bash -n packages/tools/cachy-asahi-dns/PKGBUILD packages/tools/cachy-asahi-sysctl/PKGBUILD
+      - name: Check read-only DNS profile and sysctl experiment discovery
+        run: |
+          python3 -I -B packages/tools/cachy-asahi-dns2/check_source.py --recipe-root packages/tools/cachy-asahi-dns2
+          python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-dns2/test_dns.py
+          python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-sysctl2/test_sysctl.py
+          bash -n packages/tools/cachy-asahi-dns2/PKGBUILD packages/tools/cachy-asahi-sysctl2/PKGBUILD
       - name: Exercise release and client contracts without skipped tests
         env:
           PYTHONDONTWRITEBYTECODE: '1'
