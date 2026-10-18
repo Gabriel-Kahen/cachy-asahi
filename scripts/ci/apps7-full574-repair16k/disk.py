@@ -37,10 +37,37 @@ def phase_summary(data):
    return dict(version=1,records=len(records),first_ns=first,stages=[[s,*counts]for s,counts in sorted(stats.items())],last=records[-2:])
   except (ValueError,TypeError,KeyError,IndexError):return dict(version=1,status='INVALID_PHASE_RECORDS')
 
+def backend_failure_data(record,out,err,error):
+ """Retain bounded ORIGINAL failed capture DATA; never authorize a result."""
+ if record['argv'][:5]!=['/usr/bin/python3','-I','-B','/source/'+C.NATIVE+'/transaction.py','prepare-copy'] or error is None and record['exit_code']==0:return None
+ C.need(type(out)is bytes and type(err)is bytes and len(out)+len(err)<=1024**2,'original bounded backend capture')
+ for side,data in (('stdout',out),('stderr',err)):
+  C.need(record[side+'_bytes']==len(data)and record[side+'_sha256']==C.sha(data),'backend failure original stream join')
+ C.need(type(record['time_limit'])in(int,float)and 0<record['time_limit']<=610 and record['output_limit']==1024**2,'original backend caller capture limits')
+ summary=phase_summary(err);failures=[];count=0
+ status='NO_PHASE_RECORDS'if summary is None else 'INVALID_PHASE_RECORDS'if summary.get('status')=='INVALID_PHASE_RECORDS'else 'VALIDATED_SOURCE_PHASE_FAILURE_FIELDS'
+ if status=='VALIDATED_SOURCE_PHASE_FAILURE_FIELDS':
+  try:
+   for line in err.splitlines():
+    if not line.startswith(b'APPS574_PHASE '):continue
+    v=C.decode(line[len(b'APPS574_PHASE '):])
+    if v['event']!='FAIL':continue
+    kind=v.get('error_type');reason=v.get('error_reason')
+    if type(kind)is not str or re.fullmatch('[A-Za-z_][A-Za-z0-9_]{0,127}',kind)is None or type(reason)is not str or not(reason in('root observation deadline','OTHER_REDACTED')or re.fullmatch('aux-checkpoint-[a-z0-9-]{1,96}',reason)):raise ValueError('source phase failure fields')
+    count+=1
+    if len(failures)<2:failures.append({k:v[k]for k in('seq','stage','error_type','error_reason')})
+  except (ValueError,TypeError,KeyError):status='INVALID_PHASE_FAILURE_FIELDS';failures=[];count=0
+ suffix=err[-2048:]
+ value=dict(schema_version=1,purpose='APPS7_REPAIR16K_PREPARE_COPY_FAILURE_DATA_ONLY',capture='ORIGINAL_SUPERVISOR_RETURNED_STREAMS',stdout=dict(bytes=len(out),sha256=C.sha(out)),stderr=dict(bytes=len(err),sha256=C.sha(err)),stderr_suffix=dict(bytes=len(suffix),sha256=C.sha(suffix),base64=base64.b64encode(suffix).decode(),truncated=len(suffix)!=len(err)),phase_failures=dict(status=status,count=count,first=failures,omitted=count-len(failures)),supervisor_error=None if error is None else type(error).__name__,acceptance_authority=False,cleanup_authority=False)
+ C.need(len(C.encoded(value))<=8192,'bounded original backend failure DATA');return value
+
 def command(s,argv,cap=600):
  runtime=C.load('disk_runtime','/source/scripts/ci/glibc-owned-runtime/runner.py');record,out,err,error=runtime.run_command(list(map(str,argv)),Path('/work'),dict(PATH='/usr/bin:/bin',LC_ALL='C.UTF-8',HOME='/tmp',TMPDIR='/tmp',CACHY_ASAHI_APPS_TRANSACTION=s['env']['OWNER_TOKEN']),remaining(s,cap),1024**2)
  summary=phase_summary(err)
- path=Path('/out/repair16k-media-commands.json');rows=C.decode(C.read(path,2*1024**2)) if path.exists() else [];C.need(len(rows)<192,'finite media command count');rows.append(dict(record=record,error=None if error is None else str(error)[:1024],previews={side:dict(base64=base64.b64encode(raw[:1024]).decode(),truncated=len(raw)>1024,original_bytes=len(raw),original_sha256=C.sha(raw)) for side,raw in (('stdout',out),('stderr',err))},**({} if summary is None else {'phase_summary':summary})));C.need(len(C.encoded(rows))<=2*1024**2,'bounded media diagnostics');C.save(path,rows);os.chown(path,s['uid'],s['gid'])
+ failure=None
+ try:failure=backend_failure_data(record,out,err,error)
+ except Exception:pass # Diagnostic loss cannot replace the original command guard.
+ path=Path('/out/repair16k-media-commands.json');rows=C.decode(C.read(path,2*1024**2)) if path.exists() else [];C.need(len(rows)<192,'finite media command count');rows.append(dict(record=record,error=None if error is None else str(error)[:1024],previews={side:dict(base64=base64.b64encode(raw[:1024]).decode(),truncated=len(raw)>1024,original_bytes=len(raw),original_sha256=C.sha(raw)) for side,raw in (('stdout',out),('stderr',err))},**({} if summary is None else {'phase_summary':summary}),**({}if failure is None else {'backend_failure_data':failure})));C.need(len(C.encoded(rows))<=2*1024**2,'bounded media diagnostics');C.save(path,rows);os.chown(path,s['uid'],s['gid'])
  C.need(error is None and record['exit_code']==0 and record['group_absence_verified'] is True,'bounded owned media command/group retirement: '+str(argv[0]));return record,out,err
 
 def caller_seconds(s):
