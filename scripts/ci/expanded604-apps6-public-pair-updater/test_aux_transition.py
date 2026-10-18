@@ -430,6 +430,11 @@ class RealScannerControls(unittest.TestCase):
      child.commit_ready=True;child.commit_calls=1;child.commit_return=0;child.observed_after(C.locks()[1]);exits=[];driver.arm(child,C.locks()[1],bound_spec,Path(spec['marker']),exit_process=exits.append);self.assertEqual(exits,[87]);witness=json.loads(Path(spec['marker']).read_bytes())
      for name in H.FILES:
       p=self.root/name;temporary=p.with_name(p.name+'.incoming');temporary.write_bytes(('new:'+name).encode());temporary.chmod(0o644);os.replace(temporary,p)
+     # Exercise the actual selected ALPM database replacement, absent from
+     # the earlier route fixture. Unrelated Setup metadata remains protected.
+     import shutil
+     shutil.rmtree(database);new_database=database.with_name('cachy-asahi-apps-0.1.0-6');new_database.mkdir();(new_database/'files').write_bytes(b'new selected database record')
+     self.assertEqual(child.database_changes,('var/lib/pacman/local/cachy-asahi-apps-0.1.0-5','var/lib/pacman/local/cachy-asahi-apps-0.1.0-6'))
      lock=self.root/driver.LOCK;lock.write_bytes(b'');lock.chmod(0o600)
      with self.assertRaisesRegex(ValueError,'apps604-selected-postcommit-only'):parent.tree(self.root)
      for bad in (None,{k:v for k,v in witness.items()if k!='apps6_selection'},dict(witness,nonce='b'*32),dict(witness,apps6_selection=witness['apps6_selection']|{'archive_sha256':'0'*64})):
@@ -438,15 +443,24 @@ class RealScannerControls(unittest.TestCase):
      foreign=dict(bound_spec,nonce='b'*32);foreign_witness=dict(witness,nonce='b'*32)
      with self.assertRaises(ValueError):driver.apps6_bind_selection(parent,foreign_witness,foreign)
      driver.apps6_bind_selection(parent,witness,bound_spec);self.assertIs(parent.apps6_auxiliary_selected,True)
+     self.assertEqual(parent.database_changes,child.database_changes)
      live=parent.retained(linked.roots.observe(self.root,limits=parent.root_limits,hardlinks='generic-development-internal')['nodes']);expected=parent.retained(parent.projected)
      self.assertEqual({n:(expected.get(n),live.get(n))for n in set(expected)|set(live)if expected.get(n)!=live.get(n)}, {})
      parent.tree(self.root);self.assertEqual(parent.auxiliary_checks[-1]['selected_scan_directory']['projection'],'DIRECTORY_MTIME_CTIME_ONLY')
+     # The source fix excludes only the exact Apps5/6 DB records. The
+     # installed unchanged Setup5 row must still fail the original comparator.
+     unrelated=self.root/'var/lib/pacman/local/cachy-asahi-setup-0.1.0-5';unrelated.mkdir();(unrelated/'files').write_bytes(b'forged unrelated database record')
+     with self.assertRaisesRegex(ValueError,'aux-checkpoint-unrelated-root-content-changed'):parent.tree(self.root)
+     shutil.rmtree(unrelated)
+     parent.tree(self.root)
      with self.assertRaisesRegex(ValueError,'reserved-parent-selection'):driver.apps6_bind_selection(parent,witness,bound_spec)
      target=self.root/'usr/lib/libretained.so';target.write_bytes(b'changed retained sibling')
      with self.assertRaisesRegex(ValueError,'scan-changed'):parent.tree(self.root)
      # Core independent database/payload/protection readbacks stay exact.
      prepared=A.prior.prepare(source,base/'prior','postcommit-exit87',git=False,implementation=ROOT)[0];old=ast.parse((base/'prior/scripts/ci/full-root-postcommit-failure/run.py').read_bytes());new=ast.parse(Path(driver.__file__).read_bytes());methods=lambda tree:{n.name:ast.dump(n,include_attributes=False)for n in tree.body if isinstance(n,ast.FunctionDef)}
      a,b=methods(old),methods(new)
-     for name in ('prepare_verifier','verify_after','database_after','assess','worker','fault_class'):self.assertEqual(a[name],b[name],name)
+     for name in ('verify_after','database_after','assess','worker','fault_class'):self.assertEqual(a[name],b[name],name)
+     expected=ast.get_source_segment((base/'prior/scripts/ci/full-root-postcommit-failure/run.py').read_text(),next(n for n in old.body if isinstance(n,ast.FunctionDef) and n.name=='prepare_verifier')).replace("'var/lib/pacman/local/cachy-asahi-setup-'","'var/lib/pacman/local/cachy-asahi-apps-'")
+     self.assertEqual(ast.dump(ast.parse(expected).body[0],include_attributes=False),b['prepare_verifier'])
 
 if __name__=='__main__':unittest.main(verbosity=2)
