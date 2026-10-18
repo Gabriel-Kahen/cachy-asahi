@@ -1,8 +1,8 @@
 {
   "files": {
     "manifests/packages.toml": {
-      "bytes": 37484,
-      "sha256": "f530955f736b9c6924f157a733ea988b687186b86f9c51d120cb6deb107aa694"
+      "bytes": 38835,
+      "sha256": "66f77b4ba4a02657da92627738000f7a6f805de78fff8dd8682107039755b156"
     },
     "packages/tools/cachy-asahi-apps/.SRCINFO": {
       "bytes": 1775,
@@ -214,7 +214,7 @@
     },
     "scripts/ci/apps6-native-reinstall/infrastructure-pins.json": {
       "bytes": 5755,
-      "sha256": "aad7d166e389a0b8ab11297eb3738fad7a2a628de124550e232dc6a9c807a11a"
+      "sha256": "ed6391a20a69fb078c8146aa16e643ac534891712c1eef9cb7dcf837d040db83"
     },
     "scripts/ci/apps6-native-reinstall/input-policy.json": {
       "bytes": 9150,

@@ -54,17 +54,24 @@ def phase(raw):
  text=raw.decode();a="native_lifecycle='ROOT_ACCEPTED_DEBIAN_MAINTAINED_PROVIDER_NORMAL_LIFECYCLE'";need(text.count(a)==1,'one old native phase');text=text.replace(a,"native_lifecycle='"+ROOT_STATUS+"'")
  a="  if kind=='native_lifecycle':C.need(";need(text.count(a)==1,'one native phase qualification');text=text.replace(a,"  if kind=='native_lifecycle':C.need(row['source_sha']=='"+COMPONENT+"' and row.get('input_phase')=='NATIVE_COMPILE_INPUTS' and ",1);ast.parse(text);return text.encode()
 
+def copy_component(held,component,output):
+ # The native input is independently validated in full before this source copy.
+ # Only the shared nonruntime inventory belongs to the current implementation.
+ for n in held['native_component']:
+  if n=='adaptation.json':continue  # Native component's root ledger is not a VM runtime operand.
+  q=output/n;q.parent.mkdir(parents=True,exist_ok=True)
+  if n=='manifests/packages.toml':
+   need(n in held['implementation'] and q.is_file() and pin(read(q))==held['implementation'][n],'exact current implementation inventory required')
+  elif q.exists():need(read(q)==read(component/n),'separate component source conflict: '+n)
+  else:q.write_bytes(read(component/n))
+
 def derive(root,component,output):
  held=source(root);native(component);need(not output.exists() and output.parent.is_dir() and not any(p.is_symlink() for p in (output,*output.parents)),'fresh ordinary output')
  G=load('public_installed_original_generator',root/LANE/'generator.py');receipt=G.emit(root,output)
  # Original VM modules plus bounded progress helper and all native transaction bodies are generated first.
  for n in held['implementation']:
   q=output/n;q.parent.mkdir(parents=True,exist_ok=True);q.write_bytes(read(root/n))
- for n in held['native_component']:
-  if n=='adaptation.json':continue  # Native component's root ledger is not a VM runtime operand.
-  q=output/n;q.parent.mkdir(parents=True,exist_ok=True)
-  if q.exists():need(read(q)==read(component/n),'separate component source conflict: '+n)
-  else:q.write_bytes(read(component/n))
+ copy_component(held,component,output)
  target=output/LANE
  # Restore the generated modules overwritten by implementation source operands.
  for name in G.MODULES:(target/name).write_bytes(G.adapt(read(root/G.OLD/name),name)[0])
@@ -75,6 +82,9 @@ def derive(root,component,output):
  policy=dict(schema_version=1,status='UNBOUND_DO_NOT_EXECUTE',binding=dict.fromkeys(KINDS),candidate=receipt['candidate'],native_pair=receipt['native_pair'],authority='PRIVATE_TEST_ONLY_NO_RELEASE_ADMISSION',interruption='SEPARATE_NOT_A_PREREQUISITE')
  (target/'input-policy.json').write_bytes(encoded(policy))
  deps=held['implementation']|held['native_component']
+ inventory='manifests/packages.toml'
+ need(inventory in held['implementation'] and inventory in held['native_component'] and pin(read(output/inventory))==held['implementation'][inventory],'exact assembled implementation inventory required')
+ deps[inventory]=held['implementation'][inventory]  # No other role has priority over an unequal overlap.
  # Runtime generated leaves have their own independent source manifest.
  deps={n:v for n,v in deps.items() if n!='adaptation.json' and not n.startswith(LANE+'/')}
  (target/'dependencies.json').write_bytes(encoded(dict(schema_version=1,files=deps)))
