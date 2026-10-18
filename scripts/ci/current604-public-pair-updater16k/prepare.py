@@ -39,7 +39,17 @@ def workflow(blobs,output,job,manifest):
  text=raw.decode();anchor='      - name: Require five actual decisions and frozen installer before input retrieval'
  # The inherited transformer keeps this step and its complete decision gate.
  need(text.count(anchor)==1,'same early five-decision step')
- text=text.replace(anchor,'''      - name: Source-only public-pair updater16K controls
+ text=text.replace(anchor,'''      - name: Provision host ext4 test tools on disposable runner
+        timeout-minutes: 9
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout --kill-after=10s 180s sudo apt-get -o Acquire::Retries=0 -o Acquire::http::Timeout=30 update -qq
+          timeout --kill-after=10s 240s sudo env DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=0 -o Acquire::http::Timeout=30 install -y --no-install-recommends e2fsprogs
+          command -v mkfs.ext4
+          command -v debugfs
+          dpkg-query -W e2fsprogs
+      - name: Source-only public-pair updater16K controls
         shell: bash
         run: |
           python3 -B -m unittest discover -s expanded604-upgrade/'''+NEW+''' -p 'test_*.py' -v
