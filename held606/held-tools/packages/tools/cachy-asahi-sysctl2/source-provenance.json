@@ -1,0 +1,16 @@
+{
+  "files": {
+    "LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "cachy-asahi-sysctl": {
+      "bytes": 16250,
+      "sha256": "70e3e35d1bf517b21c84f5ecbe608da551e6f8577c68bbfbbd2412b8dd3ed4f0"
+    }
+  },
+  "implementation": "ORIGINAL_PROJECT_SOURCE",
+  "license": "MIT",
+  "schema_version": 1,
+  "scope": "NAMED_SINGLE_KEY_EXPERIMENT_WITH_READONLY_SAVED_STATE_DISCOVERY_NO_LIVE_STATE_ATTESTATION"
+}
