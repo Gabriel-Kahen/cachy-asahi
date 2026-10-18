@@ -60,7 +60,7 @@ jobs:
           WORKFLOW_SOURCE: ${{ github.sha }}
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '73d4d243588ea82c7c4f7398c379121fdb2403c9ed378bb0e63ec2dce11d1875' 'expanded604-code/scripts/ci/current606-apps7-closed-owner/owner.py' '84689a678adfb2746f44f013775c7c0aaff11f9a68b94af1ca607625fa25ce4f' 'expanded604-code/scripts/ci/current606-apps7-closed-owner/source-manifest.json' | sha256sum --check
+          printf '%s  %s\n' '73d4d243588ea82c7c4f7398c379121fdb2403c9ed378bb0e63ec2dce11d1875' 'expanded604-code/scripts/ci/current606-apps7-closed-owner/owner.py' 'b545ee616c4db73264d3b44ad55f9eb35905be11ce6572815dee83f936694b43' 'expanded604-code/scripts/ci/current606-apps7-closed-owner/source-manifest.json' | sha256sum --check
           python3 -B expanded604-code/scripts/ci/current606-apps7-closed-owner/owner.py --source-preflight
           python3 -B expanded604-code/scripts/ci/current606-apps7-closed-owner/owner.py --require-selection
           printf '%s  %s\n' 'ce1cbfdb602b3e67ea844eae7b9bc37768194f95009bdec642997a23801bf02a' 'expanded604-code/held606/scripts/ci/current606-native/run.py' '09dae54c10f76d1a7b0bedd012f82aa513f5cc93102ad4ef5e6406dfee8bdd74' 'expanded604-code/held606/scripts/ci/current606-native/source-manifest.json' | sha256sum --check
@@ -544,6 +544,22 @@ jobs:
           result.update(helper=module.pin(helper.read_bytes()),policy=module.pin(policy.read_bytes()),destination='EXISTING_OWNED_ALARM_CACHE',original_versions='UNCHANGED',original_signature_and_trust_checks='UNCHANGED')
           print(module.encoded(result).decode(),end='')
           PYARCHIVE32
+          archive6_helper="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-apps7-closed-owner/archive6.py"
+          archive6_policy="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-apps7-closed-owner/archive6-policy.json"
+          archive6_inputs="$GITHUB_WORKSPACE/composition-updater/scripts/port/updater-extension/builder-extension.lock.json"
+          printf '%s  %s\n' '5e448ef6677fc26485e044b3ac2d35a07105703d4f1a719bb7c030678eff87ae' "$archive6_helper" '4d83dbda592b8b6575d02df65de829226cae3ddffc7268e3d47873ac83f3b322' "$archive6_policy" | sha256sum --check
+          python3 -I -B "$archive6_helper" --policy "$archive6_policy" --inputs "$archive6_inputs" --cache "$RUNNER_TEMP/frozen-updater-archive6"
+          python3 -I -B - "$archive6_helper" "$archive6_policy" "$archive6_inputs" "$RUNNER_TEMP/frozen-updater-archive6" "$RUNNER_TEMP/alarm-cache" <<'PYARCHIVE6'
+          import importlib.util,sys
+          from pathlib import Path
+          helper,policy,inputs,cache,destination=map(Path,sys.argv[1:])
+          spec=importlib.util.spec_from_file_location('held_updater_archive6_seed',helper)
+          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+          selected=module.policy(policy,inputs)
+          result=module.seed_exact(cache,destination,selected)
+          result.update(helper=module.pin(helper.read_bytes()),policy=module.pin(policy.read_bytes()),destination='EXISTING_OWNED_ALARM_CACHE',original_versions='UNCHANGED',original_signature_and_trust_checks='UNCHANGED')
+          print(module.encoded(result).decode(),end='')
+          PYARCHIVE6
       - name: Required signed604 plus606 additions and restoration lifecycle
         id: composition604
         if: ${{ always() && !cancelled() && steps.frozen574_archive32.outcome == 'success' }}

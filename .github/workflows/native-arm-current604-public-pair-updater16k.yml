@@ -69,7 +69,7 @@ jobs:
           test "$(sha256sum expanded604-upgrade/scripts/ci/expanded604-apps6-public-pair-updater/run.py | cut -d ' ' -f 1)" = ed05eaf1c6263ed5ce1dc2e97c863021c03d232cc5ad3554ab681aa4866993fe
           test "$(sha256sum expanded604-upgrade/scripts/ci/expanded604-apps6-public-pair-updater/source-manifest.json | cut -d ' ' -f 1)" = e575577e178a808e7b10d70daaab75dd25c4c0dd73aa7395b0d1164dd3ad7ff6
           test "$(sha256sum expanded604-upgrade/scripts/ci/current604-public-pair-updater16k/job.py | cut -d ' ' -f 1)" = 47c560fdc227a0b41e2cca9e1797b55adce2b35bb080d950d8ee1d1993c86c13
-          test "$(sha256sum expanded604-upgrade/scripts/ci/current604-public-pair-updater16k/wiring-source-manifest.json | cut -d ' ' -f 1)" = db9158d94c814e5afc28d417d0a1b1fa45b384e1a51d48f1b15862b29a4a806c
+          test "$(sha256sum expanded604-upgrade/scripts/ci/current604-public-pair-updater16k/wiring-source-manifest.json | cut -d ' ' -f 1)" = 6710e34d6e4b439a6602b6d5abe8d2512b60c2e47295a7bc8a2258962c9bc4b5
           python3 -I -B expanded604-upgrade/scripts/ci/current604-public-pair-updater16k/job.py preflight \
             --implementation "$GITHUB_WORKSPACE/expanded604-upgrade" --source "$IMPLEMENTATION_SOURCE" \
             --workflow-sha "$WORKFLOW_SOURCE" --case "$UPGRADE_CASE"
@@ -660,6 +660,22 @@ jobs:
           result.update(helper=module.pin(helper.read_bytes()),policy=module.pin(policy.read_bytes()),destination='EXISTING_OWNED_ALARM_CACHE',original_versions='UNCHANGED',original_signature_and_trust_checks='UNCHANGED')
           print(module.encoded(result).decode(),end='')
           PYARCHIVE32
+          archive6_helper="$GITHUB_WORKSPACE/expanded604-upgrade/scripts/ci/current604-public-pair-updater16k/archive6.py"
+          archive6_policy="$GITHUB_WORKSPACE/expanded604-upgrade/scripts/ci/current604-public-pair-updater16k/archive6-policy.json"
+          archive6_inputs="$GITHUB_WORKSPACE/composition-updater/scripts/port/updater-extension/builder-extension.lock.json"
+          printf '%s  %s\n' '5e448ef6677fc26485e044b3ac2d35a07105703d4f1a719bb7c030678eff87ae' "$archive6_helper" '4d83dbda592b8b6575d02df65de829226cae3ddffc7268e3d47873ac83f3b322' "$archive6_policy" | sha256sum --check
+          python3 -I -B "$archive6_helper" --policy "$archive6_policy" --inputs "$archive6_inputs" --cache "$RUNNER_TEMP/frozen-updater-archive6"
+          python3 -I -B - "$archive6_helper" "$archive6_policy" "$archive6_inputs" "$RUNNER_TEMP/frozen-updater-archive6" "$RUNNER_TEMP/alarm-cache" <<'PYARCHIVE6'
+          import importlib.util,sys
+          from pathlib import Path
+          helper,policy,inputs,cache,destination=map(Path,sys.argv[1:])
+          spec=importlib.util.spec_from_file_location('held_updater_archive6_seed',helper)
+          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+          selected=module.policy(policy,inputs)
+          result=module.seed_exact(cache,destination,selected)
+          result.update(helper=module.pin(helper.read_bytes()),policy=module.pin(policy.read_bytes()),destination='EXISTING_OWNED_ALARM_CACHE',original_versions='UNCHANGED',original_signature_and_trust_checks='UNCHANGED')
+          print(module.encoded(result).decode(),end='')
+          PYARCHIVE6
       - name: Required separate generic16K Apps5→6 current604 copied-root updater case
         id: composition
         if: ${{ always() && !cancelled() && steps.root_inputs.outcome == 'success' && steps.kernel_build.outcome == 'success' && steps.frozen574_archive32.outcome == 'success' }}

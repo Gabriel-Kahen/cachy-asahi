@@ -1,9 +1,9 @@
 {
-  "carrier": "33b75988d96b5aa31c41b60b5d991de8741a1d5d",
+  "carrier": "3d1669ae72ea485a9599473beee2b3ffd985eee8",
   "files": {
     ".github/workflows/native-arm-current606-apps7-owned-copy.yml": {
-      "bytes": 37525,
-      "sha256": "7398e7dc7ccd5938cc2abfe418ed4da01a1e62a8d807ecde0d8c14864ef85e29"
+      "bytes": 39152,
+      "sha256": "f6c153ebdc527bcd9553bdc618e4fd8334e757cd51efe5705b0dcfbab864e24b"
     },
     "scripts/ci/current606-apps7-closed-owner/archive32-policy.json": {
       "bytes": 9488,
@@ -12,6 +12,14 @@
     "scripts/ci/current606-apps7-closed-owner/archive32.py": {
       "bytes": 11102,
       "sha256": "b1e2fc13644510a613ce09e53b39d4f4471cf47fc03fa62f312258379666c418"
+    },
+    "scripts/ci/current606-apps7-closed-owner/archive6-policy.json": {
+      "bytes": 2036,
+      "sha256": "4d83dbda592b8b6575d02df65de829226cae3ddffc7268e3d47873ac83f3b322"
+    },
+    "scripts/ci/current606-apps7-closed-owner/archive6.py": {
+      "bytes": 11090,
+      "sha256": "5e448ef6677fc26485e044b3ac2d35a07105703d4f1a719bb7c030678eff87ae"
     },
     "scripts/ci/current606-apps7-closed-owner/builds.py": {
       "bytes": 1663,
@@ -34,8 +42,8 @@
       "sha256": "73d4d243588ea82c7c4f7398c379121fdb2403c9ed378bb0e63ec2dce11d1875"
     },
     "scripts/ci/current606-apps7-closed-owner/prepare.py": {
-      "bytes": 13559,
-      "sha256": "5b05a1bb69befaa9316d62283d10694f1d836ec4b35231e9347712330e03798a"
+      "bytes": 15574,
+      "sha256": "90b778f4740e99157641609f5fa2f8c1c8f9feab56de18a3c686749dd9b7f553"
     },
     "scripts/ci/current606-apps7-closed-owner/producer_diagnostic.py": {
       "bytes": 6483,
@@ -50,8 +58,8 @@
       "sha256": "e0f1926872cf771e0fcd31bfff42b55c8a18a269a91ed5e74d4db0ff45c40419"
     },
     "scripts/ci/current606-apps7-closed-owner/source-manifest.json": {
-      "bytes": 61180,
-      "sha256": "84689a678adfb2746f44f013775c7c0aaff11f9a68b94af1ca607625fa25ce4f"
+      "bytes": 61536,
+      "sha256": "b545ee616c4db73264d3b44ad55f9eb35905be11ce6572815dee83f936694b43"
     },
     "scripts/ci/current606-apps7-closed-owner/source-pins.json": {
       "bytes": 58974,
