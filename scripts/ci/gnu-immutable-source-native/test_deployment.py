@@ -129,6 +129,7 @@ class Tests(unittest.TestCase):
   cleanup=w[w.index('      - name: Retire all new'):w.index('      - name: Retain only closed')]
   self.assertIn('pipeline.py" cleanup --source "$GITHUB_WORKSPACE/immutable-source"',cleanup)
  def test_real_source_closure_after_both_sibling_checkouts_and_unknown_refusal(self):
+  expected_files=D.source(ROOT)['files']
   with tempfile.TemporaryDirectory()as td,patch.object(subprocess,'Popen',side_effect=AssertionError('NO_ACTORS')):
    workspace=Path(td);root=workspace/'immutable-source'
    shutil.copytree(ROOT,root,ignore=lambda directory,names:{'.git'}if Path(directory)==ROOT else set())
@@ -138,11 +139,11 @@ class Tests(unittest.TestCase):
    for name in('lifecycle-packet','retained-public-inputs'):
     (legacy/name).mkdir();(legacy/name/'index.json').write_text('INERT_UNEXPECTED_CHECKOUT')
    with self.assertRaisesRegex(ValueError,'exact source closure'):D.source(legacy)
-   self.assertEqual(D.source(root)['files'],741)
+   self.assertEqual(D.source(root)['files'],expected_files)
    for name in('extra','lifecycle-packet'):
     (root/name).write_text('INERT_UNEXPECTED')
     with self.assertRaisesRegex(ValueError,'exact source closure'):D.source(root)
     (root/name).unlink()
-   self.assertEqual(D.source(root)['files'],741)
+   self.assertEqual(D.source(root)['files'],expected_files)
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--source',type=Path,default=D.ROOT);a,rest=p.parse_known_args();ROOT=a.source.absolute();unittest.main(argv=[sys.argv[0],*rest],verbosity=2)
