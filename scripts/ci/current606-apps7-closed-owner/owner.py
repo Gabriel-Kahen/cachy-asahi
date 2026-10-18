@@ -4,7 +4,7 @@
 import argparse,copy,json,os,shutil,sys,time,types
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parent))
-import contract as O,selection as S,runtime as R,builds
+import contract as O,selection as S,runtime as R,builds,producer_diagnostic as PDIAG
 
 CAPTURE_LINE=" checkpoint('baseline604',base);install('install606');install('same-version606');remove('remove604');install('reinstall606');remove('final604')"
 CAPTURE_HOOK=" checkpoint('baseline604',base);install('install606');install('same-version606')\n import runpy\n bridge=runpy.run_path('/runner/bridge/scripts/ci/current606-welcome5-source-bridge/bridge.py',run_name='_closed606_capture')\n need(bridge['main'](['capture','--selection','/plan/bridge-selection.json','--code','/runner/bridge-code','--nonce',os.environ['CAA_CURRENT606_BRIDGE']])==0,'complete counted606 capture')\n remove('remove604');install('reinstall606');remove('final604')"
@@ -50,7 +50,7 @@ def owner_program(raw):
  for before,after in reversed(edits):restored=one(restored,after,before)
  O.need(restored==raw,'all original606 owner bytes conserved outside nine insertions')
  O.need('active.process.wait(timeout=1800)'in derived and 'signal.setitimer(signal.ITIMER_REAL,6600)'in derived,'original consumer/owner budgets held')
- return derived
+ return PDIAG.route_owner(derived)
 
 class Integration:
  def __init__(self,root,X,C,policy,packet):
@@ -144,7 +144,7 @@ def main(argv=None):
  O.verify();policy=O.authorize(O.read(O.HERE/'input-policy.json'));P,A,X,C=source_context(O.ROOT);P.verify()
  O.need(argv.count('--apps-packet')==1,'one actual public Apps packet checkout required');at=argv.index('--apps-packet');O.need(at+1<len(argv),'Apps packet operand missing');packet=Path(argv[at+1]).absolute();argv=argv[:at]+argv[at+2:]
  Y=Integration(O.ROOT,X,C,policy,packet);raw=owner_program(A.owner(P.ROOT))
- m=types.ModuleType('_closed606_welcome_owner');m.__file__=str(P.ROOT/'held604'/P.OLD/'run.py');m.X=Y;m.Y=Y;m.time=time
+ m=types.ModuleType('_closed606_welcome_owner');m.__file__=str(P.ROOT/'held604'/P.OLD/'run.py');m.X=Y;m.Y=Y;m.time=time;m.PDIAG=PDIAG
  prior=sys.modules.get('contract');sys.modules['contract']=C
  try:exec(compile(raw,m.__file__,'exec'),m.__dict__);return m.main(argv)
  finally:

@@ -1,9 +1,17 @@
 {
-  "carrier": "b6808d7a81e148ef04eef604590428b4d4d88c9c",
+  "carrier": "33b75988d96b5aa31c41b60b5d991de8741a1d5d",
   "files": {
     ".github/workflows/native-arm-current606-apps7-owned-copy.yml": {
-      "bytes": 31197,
-      "sha256": "8d52fc01b584e6523d5561be5add0e3acf3d5b0e947d4b029542e42824b7cce8"
+      "bytes": 37525,
+      "sha256": "7398e7dc7ccd5938cc2abfe418ed4da01a1e62a8d807ecde0d8c14864ef85e29"
+    },
+    "scripts/ci/current606-apps7-closed-owner/archive32-policy.json": {
+      "bytes": 9488,
+      "sha256": "4f6ce49214422579f1cc448ff95d9f311cbfaf47a0d0c4f32d828c9edf843585"
+    },
+    "scripts/ci/current606-apps7-closed-owner/archive32.py": {
+      "bytes": 11102,
+      "sha256": "b1e2fc13644510a613ce09e53b39d4f4471cf47fc03fa62f312258379666c418"
     },
     "scripts/ci/current606-apps7-closed-owner/builds.py": {
       "bytes": 1663,
@@ -22,12 +30,16 @@
       "sha256": "4be37a06a51c180451b6a25248258642a8a613d28df6666d8b0c6a54994c7fc8"
     },
     "scripts/ci/current606-apps7-closed-owner/owner.py": {
-      "bytes": 13671,
-      "sha256": "4cb7fa77d2ca75fb64945f9b37c522b39e6d5957d6577cd0c8f33b128abbb0cf"
+      "bytes": 13733,
+      "sha256": "73d4d243588ea82c7c4f7398c379121fdb2403c9ed378bb0e63ec2dce11d1875"
     },
     "scripts/ci/current606-apps7-closed-owner/prepare.py": {
-      "bytes": 5859,
-      "sha256": "b28f633104f9ef5cec4aebb2f6e65ac16a87db9126b759f87d8dc46fc41dfe3b"
+      "bytes": 13559,
+      "sha256": "5b05a1bb69befaa9316d62283d10694f1d836ec4b35231e9347712330e03798a"
+    },
+    "scripts/ci/current606-apps7-closed-owner/producer_diagnostic.py": {
+      "bytes": 6483,
+      "sha256": "826c6b1d2e82c911c254cf83474cfeaf0121893ac9261039092519ca99f6ed46"
     },
     "scripts/ci/current606-apps7-closed-owner/runtime.py": {
       "bytes": 14340,
@@ -38,8 +50,8 @@
       "sha256": "e0f1926872cf771e0fcd31bfff42b55c8a18a269a91ed5e74d4db0ff45c40419"
     },
     "scripts/ci/current606-apps7-closed-owner/source-manifest.json": {
-      "bytes": 60637,
-      "sha256": "d8dd628f3d5ce281720cbd79da2993e8b0bb3d71860f76776e54981e0c1455e7"
+      "bytes": 61180,
+      "sha256": "84689a678adfb2746f44f013775c7c0aaff11f9a68b94af1ca607625fa25ce4f"
     },
     "scripts/ci/current606-apps7-closed-owner/source-pins.json": {
       "bytes": 58974,
