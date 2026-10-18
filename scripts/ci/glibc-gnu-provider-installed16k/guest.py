@@ -79,7 +79,10 @@ def progress_value(raw,selection):
     C.need(type(value) is dict and set(value)=={'status','nonce','source_sha','records','omitted_records'} and value['status']=='DIAGNOSTIC_CALL_BOUNDARIES_NO_ACCEPTANCE' and value['nonce']==selection['nonce'] and value['source_sha']==selection['source_sha'],'source/nonce-bound diagnostic only')
     rows=value['records'];C.need(type(rows) is list and 1<=len(rows)<=256 and type(value['omitted_records']) is int and 0<=value['omitted_records']<=2**63-1 and rows[-1]['sequence']==len(rows)+value['omitted_records'],'finite stage records and explicit omissions')
     for n,row in enumerate(rows):
-        C.need(type(row) is dict and set(row) in ({'sequence','stage','edge','case','phase'},{'sequence','stage','edge','case','phase','postwalk'},{'sequence','stage','edge','case','phase','observer'}) and type(row['sequence']) is int and 0<row['sequence']<=2**63-1 and (n==0 or row['sequence']>rows[n-1]['sequence']) and row['stage'] in ('worker','lifecycle','case','snapshot','observer','alpm','runtime','cache','initialization','configuration','postwalk') and row['edge'] in ('enter','leave','sample') and row['case'] in ('none','pristine','modified') and row['phase'] in ('none',*PHASES),'closed public progress labels')
+        C.need(type(row) is dict and set(row) in ({'sequence','stage','edge','case','phase'},{'sequence','stage','edge','case','phase','postwalk'},{'sequence','stage','edge','case','phase','observer'},{'sequence','stage','edge','case','phase','copy_context'}) and type(row['sequence']) is int and 0<row['sequence']<=2**63-1 and (n==0 or row['sequence']>rows[n-1]['sequence']) and row['stage'] in ('worker','lifecycle','case','snapshot','observer','alpm','runtime','cache','initialization','configuration','postwalk','copy') and row['edge'] in ('enter','leave','sample','failure') and row['case'] in ('none','pristine','modified') and row['phase'] in ('none',*PHASES),'closed public progress labels')
+        C.need((row['stage']=='copy')==('copy_context'in row) and (row['edge']!='failure' or row['stage']=='copy'),'copy phase DATA exclusive schema')
+        if 'copy_context' in row:
+            C.need(row['stage']=='copy' and row['edge'] in ('enter','leave','failure'),'closed copy context DATA');S.validate_copy(row['copy_context'])
         if 'postwalk' in row:
             C.need(row['stage']=='postwalk','closed postwalk stage');S.validate(row['postwalk'])
         if 'observer' in row:
@@ -126,7 +129,7 @@ def install_progress():
                 query_path=C.ref(Path('/source'),dict(path='scripts/ci/expanded600-installer-vm/observer600.py',bytes=2784,sha256='c3d804e7f2927c7889835ad187a39a3d7c618a4651700f57b0c5413c46612607'))
                 query=C.load('gnu_installed_fresh_mount_query',query_path)
                 api['caps']=S.capability_facade(api['caps'],record,mount_query=query._mount600)
-                api['capabilities']=_copy_capability_bridge(api['capabilities'],Path('/source'))
+                api['capabilities']=_copy_capability_bridge(api['capabilities'],Path('/source'),record=record)
                 def first_observation(*args,**kwargs):
                     nonlocal observer_pending
                     if observer_pending:
@@ -142,6 +145,7 @@ def install_progress():
 _COPY_ROOT_SHA='cece1c597b2e2eb98b0e3087cc7e7c148b54332f8a1c4f18e04e4552a71fb51d'
 _COPY_AUX_SHA='bff93c029e21f9fce0868c80566396984443c8d3438264fac8a91c985175f05b'
 _COPY_QUERY_SHA='c3d804e7f2927c7889835ad187a39a3d7c618a4651700f57b0c5413c46612607'
+_COPY_CHECKPOINT_SHA='d51179ca24c981bafd817d7db082c0ceb3b2f5deb922004bfe97d1e2007edda7'
 
 def _copy_clone(function,**replacements):
     namespace=dict(function.__globals__,**replacements)
@@ -168,24 +172,51 @@ def _copy_path_roots(roots,query):
     fresh.check_hardlink_preservation=_copy_clone(roots.check_hardlink_preservation,_group_graph=fresh._group_graph)
     return fresh
 
-def _copy_context_limits(original):
+def _copy_context_limits(original,record=None):
     # CI-only whole-copy allocation: three full observations plus copy work.
     # The600 copy-work share is accounting, NOT a separate phase deadline.
     import dataclasses,time
     now=time.monotonic()
     if not 0<original.deadline-now<=600:raise ValueError('fresh bounded original copy context required')
-    window=[None]
+    window=[None];active=[None];sequence=[0];emitted=[0];disabled=[False]
+    def emit(state,edge,expiry='NONE'):
+        if record is None or disabled[0] or state is None or emitted[0]>=64:return
+        try:
+            current=time.monotonic()
+            metrics=dict(schema_version=1,operation=state['operation'],ordinal=state['ordinal'],
+                elapsed_ms=max(0,int((current-now)*1000)),phase_elapsed_ms=max(0,int((current-state['started'])*1000)),
+                shared_remaining_ms=max(0,int((original.deadline+1800-current)*1000)),
+                window_remaining_ms=None if window[0] is None else max(0,int((window[0]-current)*1000)),
+                expiry=expiry,acceptance=False)
+            S.validate_copy(metrics);emitted[0]+=1;record('copy',edge,metrics)
+        except Exception:disabled[0]=True # Optional DATA cannot change any original guard/outcome.
     parent=type(original)
     class CopyContextLimits(parent):
         def tick(self):
-            parent.tick(self)
+            try:parent.tick(self)
+            except ValueError:
+                if active[0] is not None:
+                    active[0]['expiry']='PARENT2400';active[0]['failed']=True;emit(active[0],'failure','PARENT2400')
+                raise
             if window[0] is not None and not time.monotonic()<window[0]:
+                if active[0] is not None:
+                    active[0]['expiry']='WINDOW600';active[0]['failed']=True;emit(active[0],'failure','WINDOW600')
                 raise ValueError('root observation deadline')
-        def _copy_observe(self,function,*args,**kwargs):
+        def _copy_call(self,operation,function,*args,**kwargs):
+            sequence[0]+=1
+            if sequence[0]>64:return function(*args,**kwargs) # Bounded optional DATA only.
+            state=dict(operation=operation,ordinal=sequence[0],started=time.monotonic(),expiry='NONE',failed=False)
+            previous=active[0];active[0]=state;emit(state,'enter')
+            try:return function(*args,**kwargs)
+            except BaseException:
+                if not state['failed']:emit(state,'failure',state['expiry'])
+                raise
+            finally:emit(state,'leave',state['expiry']);active[0]=previous
+        def _copy_observe(self,function,*args,_phase='SELECTED_OBSERVE',**kwargs):
             if kwargs.get('limits') is not self or window[0] is not None:
                 raise ValueError('one exact private copy observation context required')
             self.tick();window[0]=min(self.deadline,time.monotonic()+600)
-            try:return function(*args,**kwargs)
+            try:return self._copy_call(_phase,function,*args,**kwargs)
             finally:window[0]=None
     # One instance for ALL passes; no per-pass limits/counter reset. Retain
     # original absolute start accounting and every non-time field by identity.
@@ -198,13 +229,24 @@ def _copy_context_api(api,limits):
     # restore after the three copier observations. Keep both original600 caps.
     value=dict(api);roots=types.SimpleNamespace(**vars(api['roots']))
     original_observe=roots.observe
-    def observe(*args,**kwargs):return limits._copy_observe(original_observe,*args,**kwargs)
+    def observe(*args,**kwargs):return limits._copy_observe(original_observe,*args,_phase='COPIED_TREE',**kwargs)
     observe.__wrapped__=original_observe;roots.observe=observe;value['roots']=roots
     caps=types.SimpleNamespace(**vars(api['caps']));original_restore=caps.restore
     def restore(root,nodes,mapping,subject):
-        return limits._copy_observe(lambda **options:original_restore(root,nodes,mapping,options['limits']),limits=subject)
+        return limits._copy_observe(lambda **options:original_restore(root,nodes,mapping,options['limits']),limits=subject,_phase='CAPABILITY_RESTORE')
     restore.__wrapped__=original_restore;caps.restore=restore;value['caps']=caps
     return value
+
+def _copy_path_checkpoint(aux,source,roots):
+    # A private exact-source Reader; only its pure constructor path predicate
+    # uses the already-equivalent copy predicate. Every read/identity/aux gate
+    # and the complete original constructor code object remain unchanged.
+    module=aux._isolated(source/'scripts/update/aux_checkpoint.py',_COPY_CHECKPOINT_SHA)
+    original=module.Reader
+    namespace=types.SimpleNamespace(**dict(vars(module.roots),installer=roots.installer))
+    initializer=_copy_clone(original.__init__,roots=namespace)
+    module.Reader=type('_CopyPathReader',(original,),{'__init__':initializer})
+    return module
 
 def _copy_scoped_aux(aux,source):
     # Existing reader verifies bounded/noalias source bytes/identities before exec.
@@ -212,7 +254,7 @@ def _copy_scoped_aux(aux,source):
     query=aux._isolated(source/'scripts/ci/expanded600-installer-vm/observer600.py',_COPY_QUERY_SHA)
     original=aux._isolated(source/'scripts/update/aux_copy.py',_COPY_AUX_SHA)
     fresh=_copy_path_roots(roots,query)
-    binding=_copy_clone(original._copy_binding,roots=fresh)
+    binding=_copy_clone(original._copy_binding,roots=fresh,aux=_copy_path_checkpoint(aux,source,fresh))
     original_binding=binding
     def binding(limits):
         module=original_binding(limits)
@@ -226,7 +268,7 @@ def _copy_scoped_aux(aux,source):
     value=types.SimpleNamespace(**vars(aux));value._copy_binding=binding
     return value,fresh
 
-def _copy_capability_bridge(original,source):
+def _copy_capability_bridge(original,source,record=None):
     """Keep original generator/cleanup and receipt; bind only this copy instance."""
     from contextlib import contextmanager
     scope=original.scope
@@ -234,6 +276,9 @@ def _copy_capability_bridge(original,source):
     def qualified():
         module=scope.qualified()
         module.aux_copy=aux;module.roots=roots
+        original_copy=module.copy_data
+        def copy_data(*args,**kwargs):return kwargs['limits']._copy_call('COPY_DATA',original_copy,*args,**kwargs)
+        copy_data.__wrapped__=original_copy;module.copy_data=copy_data
         return module
     private_scope=types.SimpleNamespace(**vars(scope))
     private_scope.copied_root=_copy_clone(scope.copied_root,qualified=qualified)
@@ -241,7 +286,7 @@ def _copy_capability_bridge(original,source):
     result.copied_root=contextmanager(_copy_clone(original.copied_root.__wrapped__,scope=private_scope))
     original_context=result.copied_root
     def copied_root(api,source,workspace,index,evidence=None,**kwargs):
-        limits=_copy_context_limits(kwargs['limits']);kwargs['limits']=limits
+        limits=_copy_context_limits(kwargs['limits'],record=record);kwargs['limits']=limits
         return original_context(_copy_context_api(api,limits),source,workspace,index,evidence=evidence,**kwargs)
     copied_root.__wrapped__=original_context.__wrapped__
     result.copied_root=copied_root
