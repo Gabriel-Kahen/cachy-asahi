@@ -54,6 +54,10 @@ jobs:
                   subprocess.run([sys.executable, '-B', '-c', runner, directory], env=env, check=True)
           PY
           bash -n scripts/build/container-entry.sh
+      - name: Check opt-in installed repository client v2
+        run: |
+          python3 -I -B packages/tools/cachy-asahi-repository-client-v2/check_source.py --recipe-root packages/tools/cachy-asahi-repository-client-v2
+          python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-repository-client-v2/test_runtime.py --recipe-root packages/tools/cachy-asahi-repository-client-v2 --runtime-recipe-root packages/tools/cachy-asahi-repository-runtime
       - name: Exercise release and client contracts without skipped tests
         env:
           PYTHONDONTWRITEBYTECODE: '1'
