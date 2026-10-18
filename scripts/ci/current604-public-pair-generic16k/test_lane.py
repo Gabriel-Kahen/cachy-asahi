@@ -29,45 +29,46 @@ class Controls(unittest.TestCase):
      self.assertIn('context604.selection(base,expected)',runtime);self.assertNotIn("all(expected.get(n)==v for n,v in base.items())",runtime)
      for filename,source in (('doctor_lifetime.py','scripts/ci/welcome-management-native/doctor_lifetime.py'),('a11y_driver.c','scripts/ci/welcome-management-native/a11y_driver.c'),('file_capabilities.py','scripts/apps/file_capabilities.py')):self.assertEqual((runner/filename).read_bytes(),(ROOT/source).read_bytes())
  def test_failed_controller_exports_only_fixed_bounded_original_build_log_without_authority(self):
-  # Execute the actual derived owner.main failure/finally path. Every producer,
-  # signer and controller actor is inert; only real ordinary test-file IO occurs.
-  for selected in C.PROFILES:
-   for mode in ('present','missing','symlink','hardlink','over-cap'):
-    with self.subTest(profile=selected,mode=mode),tempfile.TemporaryDirectory(dir='/tmp') as td:
-     base=Path(td);output=base.with_name(base.name+'-output');producer_output=output.with_name(output.name+'-producer');kernel=base/'kernel';kernel.mkdir();image=kernel/'Image';image.write_bytes(b'UNIT_NOT_A_KERNEL');config=kernel/'config';config.write_bytes(b'UNIT_NOT_A_CONFIG');marker=b'UNIT_ORIGINAL_DOCKER_BUILD_STDERR_NOT_RUNTIME_SUCCESS\n'
-     args=SimpleNamespace(**{n:base/'inert-input' for n in (*ci.PRODUCER_PATHS,*ci.CARRIERS,*ci.DECISIONS,'audio_inputs')},implementation=ROOT,implementation_revision='a'*40,profile=selected,output=output,kernel_work=kernel,kernel_receipt=base/'inert-kernel-receipt')
-     cleanup=Mock(side_effect=AssertionError('unknown retirement must preserve producer'))
-     def produce(original):
-      producer_output.mkdir();(producer_output/'producer-owner.json').write_text('{"unit":"inert"}');return base/'inert-ready'
-     producer=SimpleNamespace(prepare=produce,cleanup=cleanup);materializer=SimpleNamespace(prepare=lambda *a:None);installer=SimpleNamespace(LEGACY='b'*40,COMPOSITION=object(),load=lambda *a:producer,scoped_load=lambda *a:materializer)
-     def prepare(*a):a[1].mkdir()
-     controller=dict(exit=1,natural_exit=True,group_absent=True)
-     def supervise(argv,log):
-      runtime=base/'current604-public-pair-generic16k-runtime';runtime.mkdir();raw=dict(status='FAIL',profile=selected,error='command failed: runtime-image',cleanup=[],events=[],frames={});(runtime/'runtime.json').write_bytes(C.encoded(raw));log.write_bytes(b'UNIT_FAILED_CONTROLLER')
-      path=runtime/'runtime-image.log'
-      if mode=='present':path.write_bytes(marker)
-      elif mode=='symlink':
-       other=base/'private-not-exported';other.write_bytes(b'PRIVATE_UNIT_SECRET');path.symlink_to(other)
-      elif mode=='hardlink':path.write_bytes(marker);os.link(path,base/'alias')
-      elif mode=='over-cap':
-       with path.open('wb') as stream:stream.truncate(16*1024**2+1)
-      return controller
-     runtime=SimpleNamespace(kernel=lambda *a:(dict(Image=dict(sha256=C.sha(image.read_bytes()))),{},image,config),supervise=supervise)
-     actual=ci._BASE
-     try:
-      with patch.object(actual,'parser',return_value=SimpleNamespace(parse_args=lambda _:args)),patch.object(actual,'preflight',return_value=({}, {}, object(), {}, base/'inert-assets',installer)),patch.object(actual.platform,'machine',return_value='aarch64'),patch.dict(os.environ,GITHUB_ACTIONS='true',RUNNER_ARCH='ARM64',RUNNER_TEMP=str(base)),patch.object(C,'prepare_assets',return_value=base/'inert-assets'),patch.object(C,'load',side_effect=lambda root,path:runtime if path.endswith('/run.py') else object()),patch.object(A,'prepare',side_effect=prepare),patch.object(ci.context604,'prepare'):
-       if mode in ('hardlink','over-cap'):
-        with self.assertRaisesRegex(ValueError,'bounded ordinary'):ci.main([])
-        self.assertFalse((output/'public/retention.json').exists())
-       else:
-        self.assertEqual(ci.main([]),1);report=C.json_read(output/'result.json');ledger=C.json_read(output/'public/retention.json');self.assertEqual(report['status'],'FAIL');self.assertEqual(report['cleanup'],'RETAINED_CONSUMER_OR_PRODUCER_ABSENCE_UNKNOWN');self.assertEqual(ledger['status'],'NOT_ACCEPTED');self.assertEqual(ledger['ordered_private_cleanup'],report['cleanup']);name='runtime/runtime-image.log'
-        if mode=='present':self.assertEqual((output/'public'/name).read_bytes(),marker);self.assertEqual(ledger['files'][name],dict(bytes=len(marker),sha256=C.sha(marker)))
-        else:self.assertNotIn(name,ledger['files'])
-        self.assertLessEqual(ledger['bytes'],128*1024**2);self.assertNotIn('private-not-exported',str(ledger))
-      cleanup.assert_not_called();self.assertTrue(kernel.exists());self.assertTrue((producer_output/'producer-owner.json').exists())
-     finally:
-      for path in (output,producer_output):
-       if path.exists():shutil.rmtree(path)
+  for log_name in ('runtime-image.log','qemu-tooling-image.log'):
+   # Execute the actual derived owner.main failure/finally path. Every producer,
+   # signer and controller actor is inert; only real ordinary test-file IO occurs.
+   for selected in C.PROFILES:
+    for mode in ('present','missing','symlink','hardlink','over-cap'):
+     with self.subTest(profile=selected,mode=mode),tempfile.TemporaryDirectory(dir='/tmp') as td:
+      base=Path(td);output=base.with_name(base.name+'-output');producer_output=output.with_name(output.name+'-producer');kernel=base/'kernel';kernel.mkdir();image=kernel/'Image';image.write_bytes(b'UNIT_NOT_A_KERNEL');config=kernel/'config';config.write_bytes(b'UNIT_NOT_A_CONFIG');marker=b'UNIT_ORIGINAL_DOCKER_BUILD_STDERR_NOT_RUNTIME_SUCCESS\n'
+      args=SimpleNamespace(**{n:base/'inert-input' for n in (*ci.PRODUCER_PATHS,*ci.CARRIERS,*ci.DECISIONS,'audio_inputs')},implementation=ROOT,implementation_revision='a'*40,profile=selected,output=output,kernel_work=kernel,kernel_receipt=base/'inert-kernel-receipt')
+      cleanup=Mock(side_effect=AssertionError('unknown retirement must preserve producer'))
+      def produce(original):
+       producer_output.mkdir();(producer_output/'producer-owner.json').write_text('{"unit":"inert"}');return base/'inert-ready'
+      producer=SimpleNamespace(prepare=produce,cleanup=cleanup);materializer=SimpleNamespace(prepare=lambda *a:None);installer=SimpleNamespace(LEGACY='b'*40,COMPOSITION=object(),load=lambda *a:producer,scoped_load=lambda *a:materializer)
+      def prepare(*a):a[1].mkdir()
+      controller=dict(exit=1,natural_exit=True,group_absent=True)
+      def supervise(argv,log):
+       runtime=base/'current604-public-pair-generic16k-runtime';runtime.mkdir();raw=dict(status='FAIL',profile=selected,error='command failed: runtime-image',cleanup=[],events=[],frames={});(runtime/'runtime.json').write_bytes(C.encoded(raw));log.write_bytes(b'UNIT_FAILED_CONTROLLER')
+       path=runtime/log_name
+       if mode=='present':path.write_bytes(marker)
+       elif mode=='symlink':
+        other=base/'private-not-exported';other.write_bytes(b'PRIVATE_UNIT_SECRET');path.symlink_to(other)
+       elif mode=='hardlink':path.write_bytes(marker);os.link(path,base/'alias')
+       elif mode=='over-cap':
+        with path.open('wb') as stream:stream.truncate(16*1024**2+1)
+       return controller
+      runtime=SimpleNamespace(kernel=lambda *a:(dict(Image=dict(sha256=C.sha(image.read_bytes()))),{},image,config),supervise=supervise)
+      actual=ci._BASE
+      try:
+       with patch.object(actual,'parser',return_value=SimpleNamespace(parse_args=lambda _:args)),patch.object(actual,'preflight',return_value=({}, {}, object(), {}, base/'inert-assets',installer)),patch.object(actual.platform,'machine',return_value='aarch64'),patch.dict(os.environ,GITHUB_ACTIONS='true',RUNNER_ARCH='ARM64',RUNNER_TEMP=str(base)),patch.object(C,'prepare_assets',return_value=base/'inert-assets'),patch.object(C,'load',side_effect=lambda root,path:runtime if path.endswith('/run.py') else object()),patch.object(A,'prepare',side_effect=prepare),patch.object(ci.context604,'prepare'):
+        if mode in ('hardlink','over-cap'):
+         with self.assertRaisesRegex(ValueError,'bounded ordinary'):ci.main([])
+         self.assertFalse((output/'public/retention.json').exists())
+        else:
+         self.assertEqual(ci.main([]),1);report=C.json_read(output/'result.json');ledger=C.json_read(output/'public/retention.json');self.assertEqual(report['status'],'FAIL');self.assertEqual(report['cleanup'],'RETAINED_CONSUMER_OR_PRODUCER_ABSENCE_UNKNOWN');self.assertEqual(ledger['status'],'NOT_ACCEPTED');self.assertEqual(ledger['ordered_private_cleanup'],report['cleanup']);name='runtime/'+log_name
+         if mode=='present':self.assertEqual((output/'public'/name).read_bytes(),marker);self.assertEqual(ledger['files'][name],dict(bytes=len(marker),sha256=C.sha(marker)))
+         else:self.assertNotIn(name,ledger['files'])
+         self.assertLessEqual(ledger['bytes'],128*1024**2);self.assertNotIn('private-not-exported',str(ledger))
+       cleanup.assert_not_called();self.assertTrue(kernel.exists());self.assertTrue((producer_output/'producer-owner.json').exists())
+      finally:
+       for path in (output,producer_output):
+        if path.exists():shutil.rmtree(path)
 
  def test_exact_provider_replacement_keeps_original573(self):
    base={r['name']:r['version'] for r in C.json_read(ROOT/'scripts/ci/maintained-desktop574-inputs.json')['packages']}
@@ -99,7 +100,7 @@ class Controls(unittest.TestCase):
   self.assertIn('C.authorize_assets(args,value);assets=None',pre);self.assertNotIn('prepare_assets',pre)
   self.assertLess(main.index('ordinary explicit native ARM CI only'),main.index('C.prepare_assets'))
   self.assertLess(main.index('C.prepare_assets'),main.index('producer.prepare'))
-  self.assertEqual(ast.dump(f['retired'],include_attributes=False),ast.dump(next(n for n in ast.parse(raw).body if isinstance(n,ast.FunctionDef) and n.name=='retired'),include_attributes=False))
+  self.assertEqual(ast.dump(f['retired'],include_attributes=False),ast.dump(next(n for n in ast.parse(raw.replace("len(report.get('cleanup',[]))==14","len(report.get('cleanup',[]))==15 and context604.launcher_retired(report,C.ROOT)")).body if isinstance(n,ast.FunctionDef) and n.name=='retired'),include_attributes=False))
   text=(C.HERE/'contract.py').read_text();self.assertIn("receipt['binding']",text);self.assertIn("not work.exists()",text)
   self.assertNotIn("assets_index=dict(path=",text)
  def test_actual_builder_returned_binding_is_forwarded_and_retained(self):
@@ -189,6 +190,75 @@ class BuildContextGuard(unittest.TestCase):
     context=base/'context';context.mkdir();raw=b'UNIT_CONTEXT_BYTES_ONLY';(context/'build-authorization.json').write_bytes(raw);text=ci.context604.dockerfile('cachy-asahi-desktop574-base:'+'a'*32,context)
     self.assertIn('\nUSER 0:0\n',text);self.assertIn('RUN --network=none --mount=type=bind,source=build-authorization.json,target=/run/cachy-asahi-managed604-build.json,ro ',text);self.assertIn('--owned-buildkit-context '+hashlib.sha256(raw).hexdigest(),text);self.assertNotIn('touch /.dockerenv',text);self.assertIn("'runtime-image',300",runtime)
     self.assertIn('build-authorization.json',(C.HERE/'context604.py').read_text())
+
+class SeparateQemuToolingControls(unittest.TestCase):
+ def setUp(self):
+  p=patch.object(subprocess,'Popen',side_effect=AssertionError('no actors/Git/network'));p.start();self.addCleanup(p.stop)
+ def make(self,root,fail=False):
+  import hashlib
+  base={r['name']:r['version']for r in C.json_read(ROOT/'scripts/ci/maintained-desktop574-inputs.json')['packages']};calls=[];build=[];images=['sha256:'+'b'*64]
+  # Explicit inert byte-transport fixture; no package/signature/native PASS.
+  source=root/'unit-source';(source/'scripts/virtual').mkdir(parents=True);packet=root/'unit-packet';packet.mkdir();lock=copy.deepcopy(C.json_read(ROOT/'scripts/virtual/tooling.lock.json'));files={}
+  for row in lock['keyring_files']:
+   raw=('INERT_KEY:'+row['filename']).encode();row.update(size=len(raw),sha256=hashlib.sha256(raw).hexdigest());(packet/row['filename']).write_bytes(raw);files[row['filename']]=dict(bytes=len(raw),sha256=row['sha256'])
+  for row in lock['packages']:
+   for sig in(False,True):
+    n=row['filename']+('.sig'if sig else'');raw=('INERT_INPUT:'+n).encode();(packet/n).write_bytes(raw);row['signature_size'if sig else'size']=len(raw);row['signature_sha256'if sig else'sha256']=hashlib.sha256(raw).hexdigest();files[n]=dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())
+  raw=C.encoded(lock);(source/'scripts/virtual/tooling.lock.json').write_bytes(raw);(packet/'index.json').write_bytes(C.encoded(dict(schema_version=1,purpose='installer-full26-generic-vm-tooling-inputs',tooling_lock_sha256=hashlib.sha256(raw).hexdigest(),files=files)))
+  def execute(argv,label,seconds):
+   build.append((argv,label,seconds))
+   if fail:raise ValueError('UNIT genuine build refusal')
+   Path(argv[argv.index('--iidfile')+1]).write_text('sha256:'+'c'*64+'\n')
+  q=ci.context604.tooling_image(source,base,'sha256:'+'a'*64,'cachy-asahi-desktop574-base:'+'d'*32,root,images,packet,execute)
+  return q,lock,build,images
+ def test_original32_pinned_tooling_transfers_only_build_separate590_image(self):
+  import hashlib
+  with tempfile.TemporaryDirectory()as td:
+   root=Path(td);q,tooling,build,images=self.make(root);self.assertEqual(images,['sha256:'+'b'*64,'sha256:'+'c'*64]);self.assertEqual(q['package_count'],590)
+   selected=list((root/'qemu-tooling-context/tooling').iterdir());self.assertEqual(len(selected),32);self.assertEqual(q['retained_inputs']['files'],45);self.assertEqual(q['retained_inputs']['network'],'NOT_USED')
+   for target in selected:
+    original=next(r for r in tooling['packages']if target.name.removesuffix('.sig')==r['filename']);sig=target.name.endswith('.sig');raw=target.read_bytes();self.assertEqual((hashlib.sha256(raw).hexdigest(),len(raw)),(original['signature_sha256'if sig else'sha256'],original['signature_size'if sig else'size']))
+   text=(root/'qemu-tooling-context/Dockerfile').read_text();self.assertIn('USER 0:0',text);self.assertIn('pacman -U --noconfirm --noscriptlet /tmp/tooling/*.pkg.tar.xz',text);self.assertIn('cmp /expected-qemu-tooling.lock /qemu-tooling-packages.lock',text);self.assertIn('qemu-system-aarch64 --version',text);self.assertNotIn('--nodeps',text);self.assertNotIn('SigLevel',text)
+   argv,label,seconds=build[0];self.assertEqual(argv[:4],['docker','build','--network=none','--pull=false']);self.assertEqual((label,seconds),('qemu-tooling-image',300));self.assertEqual(len((root/'qemu-tooling-context/expected.lock').read_text().splitlines()),590)
+ def test_extra_image_absence_duplicate_failure_or_wrong_identity_blocks_producer_retirement(self):
+  with tempfile.TemporaryDirectory()as td:q,_,_,_=self.make(Path(td))
+  # Inert retirement receipt uses exact source-static expected metadata; it is
+  # neither a collected image nor a positive native construction claim.
+  import hashlib
+  lock=C.json_read(ROOT/'scripts/virtual/tooling.lock.json');base={r['name']for r in C.json_read(ROOT/'scripts/ci/maintained-desktop574-inputs.json')['packages']};extra=[r for r in lock['packages']if r['name']not in base];q['tooling_packages']={r['name']:dict(version=r['version'],sha256=r['sha256'],signature_sha256=r['signature_sha256'])for r in extra};q['tooling_lock_sha256']=hashlib.sha256((ROOT/'scripts/virtual/tooling.lock.json').read_bytes()).hexdigest()
+  blobs=lock['keyring_files']+[v for r in lock['packages']for v in(r,dict(filename=r['filename']+'.sig',size=r['signature_size'],sha256=r['signature_sha256']))];index=dict(schema_version=1,purpose='installer-full26-generic-vm-tooling-inputs',tooling_lock_sha256=q['tooling_lock_sha256'],files={r['filename']:dict(bytes=r['size'],sha256=r['sha256'])for r in blobs});q['retained_inputs']['index_sha256']=hashlib.sha256(C.encoded(index)).hexdigest()
+  cleanup=[dict(action='original-role-'+str(n),exit=0)for n in range(12)]+[dict(action='remove-image:'+'sha256:'+'b'*64,exit=0),dict(guest_disk_removed=True),dict(action='remove-image:'+q['image'],exit=0)]
+  raw=dict(qemu_launcher=q,base_image='sha256:'+'a'*64,runtime_image='sha256:'+'b'*64,base_reference=q['base_reference'],cleanup=cleanup,base_reference_cleanup=dict(ok=True));controller=dict(natural_exit=True,group_absent=True)
+  self.assertTrue(ci.retired(raw,controller))
+  for kind in ('absent','failed','duplicate','identity','group','old-role','package','build'):
+   bad=copy.deepcopy(raw);ctl=dict(controller)
+   if kind=='absent':bad['cleanup'].pop()
+   elif kind=='failed':bad['cleanup'][-1]['exit']=1
+   elif kind=='duplicate':bad['cleanup'].append(dict(bad['cleanup'][-1]))
+   elif kind=='identity':bad['qemu_launcher']['image']=bad['runtime_image']
+   elif kind=='group':ctl['group_absent']=False
+   elif kind=='package':bad['qemu_launcher']['tooling_packages']['qemu-system-aarch64']['sha256']='0'*64
+   elif kind=='build':bad['qemu_launcher']['build']['argv'][2]='--network=host'
+   else:bad['cleanup'][0]['exit']=1
+   self.assertFalse(ci.retired(bad,ctl),kind)
+ def test_changed_missing_or_aliased_tooling_packet_refuses_before_build(self):
+  for kind in ('changed','missing','alias'):
+   with tempfile.TemporaryDirectory()as td:
+    root=Path(td);self.make(root);packet=root/'unit-packet';lock=C.json_read(root/'unit-source/scripts/virtual/tooling.lock.json');raw=(root/'unit-source/scripts/virtual/tooling.lock.json').read_bytes();leaf=packet/lock['packages'][0]['filename']
+    if kind=='changed':leaf.write_bytes(b'CHANGED')
+    elif kind=='missing':leaf.unlink()
+    else:leaf.unlink();leaf.symlink_to(packet/'index.json')
+    with self.assertRaises(ValueError):ci.context604.tooling_packet(packet,lock,raw)
+ def test_failed_tooling_build_cannot_create_positive_image_receipt(self):
+  with tempfile.TemporaryDirectory()as td:
+   with self.assertRaisesRegex(ValueError,'build refusal'):self.make(Path(td),True)
+ def test_both_profile_generators_use_tool_image_only_for_qemu_and_hold_guest604(self):
+  for selected in C.PROFILES:
+   with tempfile.TemporaryDirectory()as td:
+    runner=Controls.generated(self,Path(td),selected);text=(runner/'desktop574_runtime.py').read_text()
+    self.assertEqual(text.count("context604.tooling_image(source,base,image,base_reference,out,images,Path(os.environ['CACHY_ASAHI_QEMU_TOOLING_INPUTS']),execute)"),1);self.assertIn("qemu_command(report['qemu_launcher']['image'], name, fixture, source, runner)",text)
+    self.assertIn('docker_args(derived, name, fixture, source, runner, root=True)',text);self.assertIn('docker_args(derived, name, result, source, verifier)',text);self.assertIn('virt-11.1',text)
+    self.assertIn('signal.ITIMER_REAL, 1750',text);self.assertIn('time.monotonic() + 1300',text);self.assertIn("for owned_image in images:",text);self.assertIn("'remove-image:' + owned_image",text)
 
 if __name__=='__main__':unittest.main(verbosity=2)
 

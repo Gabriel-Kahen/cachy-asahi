@@ -66,8 +66,8 @@ jobs:
           WORKFLOW_SOURCE: ${{ github.sha }}
         run: |
           set -euo pipefail
-          test "$(sha256sum current604-public-pair-generic16k/scripts/ci/current604-public-pair-generic16k/ci.py | cut -d ' ' -f 1)" = 166a7e942beee007baaade5aa3bceb1181e0fe89d80a05449b55c99e46bd10a5
-          test "$(sha256sum current604-public-pair-generic16k/scripts/ci/current604-public-pair-generic16k/source-manifest.json | cut -d ' ' -f 1)" = 944b5ac335d6f45abfac8d1e16a974ab70e040ab6915090f39fa6d26b779239c
+          test "$(sha256sum current604-public-pair-generic16k/scripts/ci/current604-public-pair-generic16k/ci.py | cut -d ' ' -f 1)" = 634ef02cbe9d8406b45165a2801ae4486837b691f4e25417751b9b348b107f03
+          test "$(sha256sum current604-public-pair-generic16k/scripts/ci/current604-public-pair-generic16k/source-manifest.json | cut -d ' ' -f 1)" = 7372dec3698a832bde4ae1507a06d9a27850753d67eaf6c44a0fb10726eef25e
           python3 -B current604-public-pair-generic16k/scripts/ci/current604-public-pair-generic16k/gate.py \
             --profile "$GUI_PROFILE" \
             --implementation "$GITHUB_WORKSPACE/current604-public-pair-generic16k" --implementation-revision "$IMPLEMENTATION_SOURCE" \
@@ -571,6 +571,13 @@ jobs:
         run: |
           set -euo pipefail
           timeout --signal=TERM --kill-after=30s 3700s python3 -I -B "$RUNNER_TEMP/managed-gui16k-kernel/helper/build_kernel.py" --archive "$RUNNER_TEMP/managed-gui16k-kernel/inputs/kernel.tar.gz" --output "$RUNNER_TEMP/managed-gui16k-kernel/helper/built" --build --boot-diagnostics > "$RUNNER_TEMP/managed-gui16k-kernel/controller.log" 2>&1
+      - name: Checkout exact original signed QEMU tooling inputs
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: 9c1fa9e6674ce24edb9655a56436d4c5c0985c54
+          path: current604-qemu-tooling
+          persist-credentials: false
       - name: Required actual ALPM604 current Welcome4 GUI in the separately owned16384 VM
         id: composition
         if: ${{ always() && !cancelled() }}
@@ -587,7 +594,7 @@ jobs:
           install -d -m 700 "$RUNNER_TEMP/current604-public-pair-generic16k-home"
           timeout --signal=TERM --kill-after=60s 15600s \
             env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/current604-public-pair-generic16k-home" LANG=C.UTF-8 TZ=UTC \
-            PYTHONDONTWRITEBYTECODE=1 RUNNER_TEMP="$RUNNER_TEMP" GITHUB_ACTIONS=true RUNNER_ARCH=ARM64 \
+            PYTHONDONTWRITEBYTECODE=1 RUNNER_TEMP="$RUNNER_TEMP" GITHUB_ACTIONS=true RUNNER_ARCH=ARM64 CACHY_ASAHI_QEMU_TOOLING_INPUTS="$GITHUB_WORKSPACE/current604-qemu-tooling/tooling-inputs" \
             python3 -B "$GITHUB_WORKSPACE/current604-public-pair-generic16k/scripts/ci/current604-public-pair-generic16k/ci.py" \
             --profile "$GUI_PROFILE" \
               --implementation "$GITHUB_WORKSPACE/current604-public-pair-generic16k" --implementation-revision "$IMPLEMENTATION_SOURCE" \
