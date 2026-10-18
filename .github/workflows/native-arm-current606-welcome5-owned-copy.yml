@@ -60,7 +60,7 @@ jobs:
           WORKFLOW_SOURCE: ${{ github.sha }}
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '5a03a9584ae0fc657f79f4d42929178bd6a578d14524b229d828ed9516386e0b' 'expanded604-code/scripts/ci/current606-welcome5-closed-owner/owner.py' '2e4ed55d283651f6cbe815bf9c4752397184aec949906b8edcde1a111db507d8' 'expanded604-code/scripts/ci/current606-welcome5-closed-owner/source-manifest.json' | sha256sum --check
+          printf '%s  %s\n' '37202da4439ca157cc2e4f7173eda3a2eaee04e54be91169fba6ff156b7b9646' 'expanded604-code/scripts/ci/current606-welcome5-closed-owner/owner.py' '5dd6c1a2e807c919562528d955cf0e3b1b611003e69c4ce8386bb3ae32705bf1' 'expanded604-code/scripts/ci/current606-welcome5-closed-owner/source-manifest.json' | sha256sum --check
           python3 -B expanded604-code/scripts/ci/current606-welcome5-closed-owner/owner.py --source-preflight
           python3 -B expanded604-code/scripts/ci/current606-welcome5-closed-owner/owner.py --require-selection
           printf '%s  %s\n' 'ce1cbfdb602b3e67ea844eae7b9bc37768194f95009bdec642997a23801bf02a' 'expanded604-code/held606/scripts/ci/current606-native/run.py' '09dae54c10f76d1a7b0bedd012f82aa513f5cc93102ad4ef5e6406dfee8bdd74' 'expanded604-code/held606/scripts/ci/current606-native/source-manifest.json' | sha256sum --check
@@ -124,7 +124,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          python3 -B expanded604-legacy/scripts/ci/full-development-composition/retrieve_audio.py --output "$RUNNER_TEMP/audio-archives"
+          python3 -B expanded604-code/scripts/ci/current606-welcome5-closed-owner/owner.py --retrieve-audio --output "$RUNNER_TEMP/audio-archives"
       - name: Verify every actual accepted pair and source before secrets
         shell: bash
         env:
