@@ -1,0 +1,42 @@
+{
+  "installed_program": {
+    "bytes": 12387,
+    "sha256": "86e91bee103876974c8296874c58ef9e1ea7b7e4b06c99928cda1d9f8cabca99"
+  },
+  "license": "MIT",
+  "nmcli": {
+    "bundled": false,
+    "dependency": "networkmanager>=1.44",
+    "path": "/usr/bin/nmcli",
+    "tested_binary_sha256": "b30c1f4969ef0923619fc0e0faabc304d46d6550a4d0e71029b01929ce6f11b8",
+    "tested_version": "nmcli tool, version 1.58.1-1",
+    "upstream_api_release": "1.58.1",
+    "upstream_reference": "https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/tree/1.58.1"
+  },
+  "operations": [
+    "preview",
+    "apply-stored-profile",
+    "status",
+    "undo-owned-subset"
+  ],
+  "package": "cachy-asahi-dns",
+  "properties": [
+    "ipv4.dns",
+    "ipv4.ignore-auto-dns",
+    "ipv6.dns",
+    "ipv6.ignore-auto-dns"
+  ],
+  "qualification": {
+    "daemon_PolicyKit_lifecycle": "NOT_RUN",
+    "hardware": "NOT_RUN",
+    "host_connection_mutation": "NOT_RUN",
+    "installed_ALPM_lifecycle": "NOT_RUN",
+    "live_reapply": "NOT_PERFORMED",
+    "native_build": "NOT_RUN",
+    "release_admission": "NONE"
+  },
+  "schema_version": 1,
+  "source_kind": "original project code",
+  "source_revision": null,
+  "version": "0.1.0-1"
+}
