@@ -1,9 +1,9 @@
 {
-  "carrier": "8d6d8866b260ca70e75e8bd0eafb3eb451620218",
+  "carrier": "714984e589a01cd550490f1142d67a39833ecfe5",
   "files": {
     ".github/workflows/native-arm-current606-welcome5-owned-copy.yml": {
-      "bytes": 34038,
-      "sha256": "ac18c1eb5de06724d52ca519435b06bea53d9fd536d3811447f8cc53cd2c464c"
+      "bytes": 35671,
+      "sha256": "c49026ea8c5e37288f62eea1356cf361c621a848286e3ef066d502a3b939ae67"
     },
     "scripts/ci/current606-welcome5-closed-owner/README.md": {
       "bytes": 3839,
@@ -16,6 +16,14 @@
     "scripts/ci/current606-welcome5-closed-owner/archive32.py": {
       "bytes": 11102,
       "sha256": "b1e2fc13644510a613ce09e53b39d4f4471cf47fc03fa62f312258379666c418"
+    },
+    "scripts/ci/current606-welcome5-closed-owner/archive6-policy.json": {
+      "bytes": 2036,
+      "sha256": "4d83dbda592b8b6575d02df65de829226cae3ddffc7268e3d47873ac83f3b322"
+    },
+    "scripts/ci/current606-welcome5-closed-owner/archive6.py": {
+      "bytes": 11090,
+      "sha256": "5e448ef6677fc26485e044b3ac2d35a07105703d4f1a719bb7c030678eff87ae"
     },
     "scripts/ci/current606-welcome5-closed-owner/builds.py": {
       "bytes": 8781,
@@ -34,8 +42,8 @@
       "sha256": "eb48803aa0dc2caa2ffc0058856d9bbf41e59ed8830714cefcb4a4451877d063"
     },
     "scripts/ci/current606-welcome5-closed-owner/prepare.py": {
-      "bytes": 9909,
-      "sha256": "65267d9c6dea6f141fedaf7683d260827f1293e5b423be731b1c6e9a73ebb487"
+      "bytes": 11930,
+      "sha256": "057301bcb32f7e52c2e68778d89240de1840fad620e9fa98142e59467c423463"
     },
     "scripts/ci/current606-welcome5-closed-owner/producer_diagnostic.py": {
       "bytes": 6483,
@@ -50,8 +58,8 @@
       "sha256": "01834840686a0531ee7694b4db6cf02f219055a40062760485c66a5de5acb03a"
     },
     "scripts/ci/current606-welcome5-closed-owner/source-manifest.json": {
-      "bytes": 77787,
-      "sha256": "72057f42a9fb12f8ee0c85fb2556682f96f0482bafc9dd202663e4873248cbf8"
+      "bytes": 78150,
+      "sha256": "ad4c932f24b12cf8707061e1196e758a7d341353e158f1ace2e8fc3cf89f9cbc"
     },
     "scripts/ci/current606-welcome5-closed-owner/source-pins.json": {
       "bytes": 74960,

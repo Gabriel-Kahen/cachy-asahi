@@ -540,6 +540,14 @@
       "bytes": 11102,
       "sha256": "b1e2fc13644510a613ce09e53b39d4f4471cf47fc03fa62f312258379666c418"
     },
+    "scripts/ci/current604-public-pair-generic16k/archive6-policy.json": {
+      "bytes": 2036,
+      "sha256": "4d83dbda592b8b6575d02df65de829226cae3ddffc7268e3d47873ac83f3b322"
+    },
+    "scripts/ci/current604-public-pair-generic16k/archive6.py": {
+      "bytes": 11090,
+      "sha256": "5e448ef6677fc26485e044b3ac2d35a07105703d4f1a719bb7c030678eff87ae"
+    },
     "scripts/ci/current604-public-pair-generic16k/ci.py": {
       "bytes": 6667,
       "sha256": "6d3a3f6dd3819f3686076c94e4a41b555c02ecad269821fa72becea34ab6739b"
@@ -553,8 +561,8 @@
       "sha256": "aab6443b6fa9502614275a42c76dce2ed862a592327ab40ac077d9fe56685fbb"
     },
     "scripts/ci/current604-public-pair-generic16k/dependencies.json": {
-      "bytes": 73129,
-      "sha256": "3eb94276e21e8391b635770994a3878ff73220538a0206f51008ba8cd1e4671b"
+      "bytes": 73493,
+      "sha256": "26a6faa822460a5ca325d564852a3ea42676271eca34a24a4c32df07c09f0c3b"
     },
     "scripts/ci/current604-public-pair-generic16k/gate.py": {
       "bytes": 2720,
@@ -573,8 +581,8 @@
       "sha256": "c4a40f7ec429ce53b01091946adb7cb4ca3d3bbabad93ceca45cbffac2a73d9b"
     },
     "scripts/ci/current604-public-pair-generic16k/prepare.py": {
-      "bytes": 13492,
-      "sha256": "6acdcde4b8941ba53f127c2aac9c380fba74c398d6138931c24b4de6f7cf9b4a"
+      "bytes": 15584,
+      "sha256": "718616d383ed8d13dbc757c66a4afbc06756da1e9b39e39e9da2ffca642724ed"
     },
     "scripts/ci/current604-public-pair-generic16k/public-assets-policy.json": {
       "bytes": 258,
@@ -590,7 +598,7 @@
     },
     "scripts/ci/current604-public-pair-generic16k/test_lane.py": {
       "bytes": 97006,
-      "sha256": "1ce20f76e75262db2bcd3451396bfd863bb922de5af975ff53f36118158bac9f"
+      "sha256": "4eb494c8bd452a6c1be8afdeb31246eb10bc88cb730b25db04a1553837faa938"
     },
     "scripts/ci/desktop-user-session/prepare.py": {
       "bytes": 6300,
