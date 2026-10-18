@@ -4,9 +4,40 @@ import hashlib
 import importlib.util
 import json
 import os
+import stat
 from pathlib import Path
 import shutil
 import sys
+
+def preserve_capture(fixture,output):
+    """Copy only the bounded actual capture receipt before owned fixture disposal."""
+    fixture,output=Path(fixture),Path(output)
+    def need(ok,why):
+        if not ok:raise ValueError(why)
+    need(output.is_absolute()and fixture==output/'fixture'and '..'not in output.parts and not any(p.is_symlink()for p in(fixture,output,*output.parents)),'fixed ordinary capture custody paths')
+    flags=os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC
+    parent=os.open(output,flags);source=None;fd=None;target=None
+    try:
+        info=os.fstat(parent);need(info.st_uid==os.geteuid()and stat.S_IMODE(info.st_mode)==0o700,'private caller-owned runtime output')
+        source=os.open('fixture',flags,dir_fd=parent)
+        fd=os.open('installed604-capture.json',os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK|os.O_CLOEXEC,dir_fd=source)
+        before=os.fstat(fd);need(stat.S_ISREG(before.st_mode)and before.st_nlink==1 and 0<before.st_size<=65536,'bounded ordinary capture receipt')
+        raw=bytearray()
+        while len(raw)<=before.st_size:
+            block=os.read(fd,min(65536,before.st_size-len(raw)+1))
+            if not block:break
+            raw.extend(block)
+        identity=lambda s:(s.st_dev,s.st_ino,s.st_mode,s.st_uid,s.st_gid,s.st_nlink,s.st_size,s.st_mtime_ns,s.st_ctime_ns)
+        need(len(raw)==before.st_size and identity(before)==identity(os.fstat(fd))==identity(os.stat('installed604-capture.json',dir_fd=source,follow_symlinks=False)),'actual capture receipt drift')
+        target=os.open('installed604-capture.json',os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,0o600,dir_fd=parent)
+        view=memoryview(raw)
+        while view:
+            count=os.write(target,view);need(count>0,'complete capture custody write');view=view[count:]
+        os.fsync(target)
+        return dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())
+    finally:
+        for descriptor in(target,fd,source,parent):
+            if descriptor is not None:os.close(descriptor)
 
 def load(name,path):
     spec=importlib.util.spec_from_file_location(name,path);m=importlib.util.module_from_spec(spec);sys.modules[name]=m;spec.loader.exec_module(m);return m
