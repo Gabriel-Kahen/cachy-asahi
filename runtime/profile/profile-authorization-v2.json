@@ -1,0 +1,68 @@
+{
+  "actual_run": null,
+  "actual_source": null,
+  "files": {
+    "HANDOFF-V2.md": {
+      "bytes": 1669,
+      "sha256": "044f37204d84416da7ed1a912fbad0af96eb13e981bf395f5137134f934ffe11"
+    },
+    "README.md": {
+      "bytes": 2572,
+      "sha256": "4267852adaa27fd2aaace09722495028cc7deabb1489a4f3f720dd26558aead4"
+    },
+    "all-controls312.stderr": {
+      "bytes": 107,
+      "sha256": "b47837459067d21d4dd8eae06886e9136d71e6634acc4f24e218e31a883c404f"
+    },
+    "all-controls312.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "all-controls314.stderr": {
+      "bytes": 107,
+      "sha256": "33f1079ed811de6d7d0b47b6f913281ea8bd94d84651fb0a1e4b4ba59514596d"
+    },
+    "all-controls314.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "controls312.stderr": {
+      "bytes": 103,
+      "sha256": "38bf320bde0206302c1e57a1b42621b895232f0c74ebfec8c7b81ec6681fa5a0"
+    },
+    "controls312.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "controls314.stderr": {
+      "bytes": 103,
+      "sha256": "38bf320bde0206302c1e57a1b42621b895232f0c74ebfec8c7b81ec6681fa5a0"
+    },
+    "controls314.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ksm_profile.py": {
+      "bytes": 5178,
+      "sha256": "c282dac57279110bae78c8bc995755c617833645a01c1bf7b9d2b1cd1c0c4aaa"
+    },
+    "policy-template.json": {
+      "bytes": 468,
+      "sha256": "5c2f29801aab3799084598ea108df4b5cf34d9779153aa417304e0cd19b50484"
+    },
+    "profile-source-pins.json": {
+      "bytes": 951,
+      "sha256": "eb3b8424afeb9cab5e8fddabde83b83396f1924607f88d16183975dccc1899ca"
+    },
+    "test_profile.py": {
+      "bytes": 2501,
+      "sha256": "d64ed708d10999471321d1019e54178df3700eb13fe4d51863dd2831efc57a59"
+    },
+    "test_receipt.py": {
+      "bytes": 5404,
+      "sha256": "de0614e86f0aae58cf6493f18bc435823f7e0e7fa46dacb5e4bf4f114deb175d"
+    }
+  },
+  "inverse": "EXACT_ONE_COUNTED_DERIVED_HELPER_SHA_ARGUMENT",
+  "status": "FROZEN_OPTIONAL_PROFILE_V2_ONE_GUARD_OPERAND_FIX"
+}
