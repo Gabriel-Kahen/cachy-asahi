@@ -1,0 +1,12 @@
+{
+  "gui_authority": {
+    "bytes": 3344,
+    "path": "payload/gui-component-authority.json",
+    "sha256": "ab18a8281ee7eb1d2f81c13fc83e762aeb812e28f33552904cb717d6b68e45cb"
+  },
+  "gui_authority_carrier": "95fad8f409971551aa38b3bece44b8fdac72fab3",
+  "public_carrier": "77bd2c6ecf2e5c28a04116c3da85c45f70d1cc90",
+  "schema_version": 1,
+  "source_manifest_sha256": "c0708d6b5d2292b6be1b8eb700f375049415e683875ac915b3e61a1ac8d86720",
+  "status": "ROOT_BOUND_PUBLIC_ARCHIVES_AND_SEPARATE_GUI_COMPONENT"
+}
