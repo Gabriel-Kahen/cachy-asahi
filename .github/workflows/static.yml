@@ -99,6 +99,24 @@ jobs:
           KSM2_FACTORY_SOURCE="$PWD" python3 -I -B scripts/ci/ksm2-kernel-native/test_prepare.py
           python3 -B "$RUNNER_TEMP/ksm2-kernel-source/scripts/ci/ksm2-kernel-native/lane.py" preflight --source "$RUNNER_TEMP/ksm2-kernel-source"
           python3 -B -Werror::ResourceWarning "$RUNNER_TEMP/ksm2-kernel-source/scripts/ci/ksm2-kernel-native/test_lane.py"
+      - name: Checkout whole copied606 code basis for optional KSM source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 9afbc5a373b1b027b89bb7ab32b4386269a21360
+          path: ksm606-copy-basis
+          persist-credentials: false
+      - name: Checkout native KSM code and private controls
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 72ea5a1e81268f08da9b9cc04cdc7e23a1a9ff8a
+          path: ksm606-native-source
+          persist-credentials: false
+      - name: Emit complete606 optional KSM2 source without actors
+        run: |
+          python3 -I -B scripts/ci/current606-ksm2-copy/prepare.py --basis-source "$PWD/ksm606-copy-basis" --native-source "$PWD/ksm606-native-source" --owner-source "$PWD/scripts/ci/current606-ksm2-closed-owner" --output "$RUNNER_TEMP/ksm606-roles"
+          python3 -I -B scripts/ci/current606-ksm2-closed-owner/prepare.py --held606-source "$RUNNER_TEMP/ksm606-roles/held606" --bridge-source "$RUNNER_TEMP/ksm606-roles/bridge" --copyworker-source "$RUNNER_TEMP/ksm606-roles/copyworker" --output "$RUNNER_TEMP/ksm606-source" --authorization "$RUNNER_TEMP/ksm606-authorization.json"
+          python3 -I -B "$RUNNER_TEMP/ksm606-source/scripts/ci/current606-ksm2-closed-owner/test_owner.py"
+          python3 -I -B "$RUNNER_TEMP/ksm606-source/copyworker/scripts/ci/current606-ksm2-copy/test_worker.py"
       - name: Check explicit KSM scanning experiments in private fixtures
         run: |
           python3 -I -B packages/tools/cachy-asahi-ksmctl2/check-source.py
