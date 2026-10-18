@@ -3,7 +3,8 @@
 import hashlib,importlib.util,json,re,stat,subprocess,sys
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
-ROOT=HERE.parents[2]
+# Repository-only test reference; copied /workspace helpers take explicit roots.
+ROOT=HERE.parents[2] if len(HERE.parents)>2 else None
 OLD='scripts/ci/expanded604-apps6-public-pair-updater'
 LANE='scripts/ci/current604-public-pair-updater16k'
 PASS='PASS_GENERIC16K_VM_PUBLIC_PAIRS_APPS5_TO6_CURRENT604_UPDATE'

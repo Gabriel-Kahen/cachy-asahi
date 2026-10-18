@@ -153,6 +153,10 @@ jobs:
           bash -n scripts/ci/maintained574-active-trial/ci_sequence.sh
       - name: Check read-only diagnostic product fixtures
         run: python3 -B -Werror::ResourceWarning packages/tools/cachy-asahi-doctor/test_doctor.py
+      - name: Check default native Apps parser experiment without actors
+        run: |
+          python3 -I -B scripts/ci/apps7-parser-native/job.py preflight --source "$PWD"
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/apps7-parser-native -p test_lane.py -v
       - name: Build and check Welcome stored DNS discovery
         run: |
           work=$(mktemp -d)

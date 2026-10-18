@@ -1,13 +1,32 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
 """Existing exact kernel acquisition/build input and conservative owned cleanup."""
-import argparse,base64,json,os,shutil,sys
+import argparse,base64,json,os,shutil,stat,sys
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 import contract as C
 import wiring as W
 import vm as bridge
 SHA='874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad'
+
+def home_failure(home):
+ # Failure-only fixed classes: never export names, paths, environment or contents.
+ result=dict(status='DIAGNOSTIC_NOT_ACCEPTANCE',exists=home.exists(),group_absence='UNKNOWN')
+ if not home.exists():return result
+ info=home.lstat();result.update(kind='directory' if stat.S_ISDIR(info.st_mode) else 'other',mode=stat.S_IMODE(info.st_mode),caller_uid=info.st_uid==os.getuid())
+ if not stat.S_ISDIR(info.st_mode) or home.is_symlink():return result
+ counts=dict(child_record=0,unexpected=0);types={};modes={};uids=dict(caller=0,other=0);digest=[]
+ for index,p in enumerate(home.iterdir()):
+  if index==256:result['truncated']=True;break
+  s=p.lstat();kind='regular' if stat.S_ISREG(s.st_mode) else 'directory' if stat.S_ISDIR(s.st_mode) else 'symlink' if stat.S_ISLNK(s.st_mode) else 'other'
+  counts['child_record' if p.name=='child.json' else 'unexpected']+=1;types[kind]=types.get(kind,0)+1;m=str(stat.S_IMODE(s.st_mode));modes[m]=modes.get(m,0)+1;uids['caller' if s.st_uid==os.getuid() else 'other']+=1
+  digest.append((C.sha(os.fsencode(p.name)),kind,m,s.st_uid==os.getuid()))
+ result.update(counts=counts,types=types,modes=modes,uids=uids,entries_sha256=C.sha(C.encoded(sorted(digest))))
+ try:
+  child=C.decode(C.read(home/'child.json',256*1024))
+  result['group_absence']='VERIFIED' if child.get('status')=='WAIT_RETURNED' and child.get('child',{}).get('group_absence_verified') is True else 'UNKNOWN'
+ except (OSError,ValueError,KeyError,TypeError):pass
+ return result
 
 def cleanup(work,output,source,case):
  C.need(work.is_absolute() and work.name=='managed-gui16k-kernel' and not any(p.is_symlink() for p in (work,*work.parents)),'dedicated ordinary kernel work')
@@ -21,9 +40,10 @@ def cleanup(work,output,source,case):
  if output.exists():
   own=C.decode(C.read(output/'owner.json'));r=C.decode(C.read(output/'result.json'));vm=C.decode(C.read(output/'public/updater16k-cleanup.json'));job=C.decode(C.read(output/'wiring-owner.json'))
   C.need(own['output']==str(output) and own['purpose']=='expanded604-apps6-public-pair-updater' and vm['status']=='PASS' and job['child']['group_absence_verified'] is True and r['producer_cleanup']=='PASS' and r['outer_cleanup']=='PASS' and r['caller_private_cleanup']=='PASS','RETAINED_CONSUMER_OR_PRODUCER_ABSENCE_UNKNOWN')
+ if home.exists():C.need({p.name for p in home.iterdir()}=={'child.json'} and home.stat().st_uid==os.getuid() and not home.is_symlink(),'exact owned job HOME closure')
  C.need(shutil.rmtree.avoids_symlink_attacks,'safe owned tree removal');shutil.rmtree(work)
  if home.exists():
-  C.need({p.name for p in home.iterdir()}=={'child.json'} and home.stat().st_uid==os.getuid() and not home.is_symlink(),'exact owned job HOME closure');(home/'child.json').unlink();home.rmdir()
+  (home/'child.json').unlink();home.rmdir()
  C.need(not work.exists(),'kernel remains');return dict(status='PASS_OWNED_KERNEL_WORK_REMOVED',source_archive_cache='PRESERVED_VERIFIED_ARCHIVE_ONLY')
 
 def main(argv=None):
@@ -41,6 +61,9 @@ def main(argv=None):
     C.save(a.receipt.with_name('updater16k-kernel-metadata.json'),dict(status='ORIGINAL_COMPLETED_KERNEL_RECEIPT',receipt=receipt,receipt_pin=C.row(a.work/'helper/built/build-receipt.json'),config=dict(bytes=len(config),sha256=C.sha(config),base64=base64.b64encode(config).decode()),image_header=dict(bytes=len(header),sha256=C.sha(header),base64=base64.b64encode(header).decode()),whole_Image='NOT_EXPORTED_SOURCE_ENFORCED_JOIN_TO_GUEST_PROFILE'))
    result=cleanup(a.work,a.output,a.source,a.case)
   except Exception as e:result.update(error_type=type(e).__name__,error=str(e)[:2048])
+  if result.get('status')=='FAIL':
+   try:result['job_home_diagnostic']=home_failure(a.output.with_name(a.output.name+'-job-home'))
+   except Exception as e:result['job_home_diagnostic']=dict(status='DIAGNOSTIC_UNAVAILABLE',error_type=type(e).__name__)
   C.save(a.receipt,result);return int(result['status'] not in ('NOT_CREATED','PASS_OWNED_KERNEL_WORK_REMOVED'))
  fetch=W.load(a.implementation,'scripts/virtual/generic16k/fetch_inputs.py');acquire=W.load(a.implementation,'scripts/ci/tools-generic16k/acquire_kernel.py')
  hit=os.environ.get('KERNEL_CACHE_HIT','');matched=os.environ.get('KERNEL_CACHE_MATCHED_KEY','')
