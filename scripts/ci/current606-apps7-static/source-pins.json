@@ -1,0 +1,55 @@
+{
+  "carrier": "ff33dbd486c7cb4796a87e2162de3e23f698597e",
+  "files": {
+    ".github/workflows/native-arm-current606-apps7-owned-copy.yml": {
+      "bytes": 31197,
+      "sha256": "43ac793e87e8f8fb3fc2d9181850645aa4fa602922e812d5f463567affa5e068"
+    },
+    "scripts/ci/current606-apps7-closed-owner/builds.py": {
+      "bytes": 1663,
+      "sha256": "fb94009d7b8e36eeb77cd5332f37ba1ed9af60dd57b2ca9d5e1c0d53ef619b0a"
+    },
+    "scripts/ci/current606-apps7-closed-owner/contract.py": {
+      "bytes": 4460,
+      "sha256": "87f04ebca3393bcd8f21fa1a2e51a6ffdd0789a3217cfc7db5c7c385f83a58ac"
+    },
+    "scripts/ci/current606-apps7-closed-owner/input-policy.json": {
+      "bytes": 700,
+      "sha256": "4be37a06a51c180451b6a25248258642a8a613d28df6666d8b0c6a54994c7fc8"
+    },
+    "scripts/ci/current606-apps7-closed-owner/null-policy.json": {
+      "bytes": 700,
+      "sha256": "4be37a06a51c180451b6a25248258642a8a613d28df6666d8b0c6a54994c7fc8"
+    },
+    "scripts/ci/current606-apps7-closed-owner/owner.py": {
+      "bytes": 13671,
+      "sha256": "4cb7fa77d2ca75fb64945f9b37c522b39e6d5957d6577cd0c8f33b128abbb0cf"
+    },
+    "scripts/ci/current606-apps7-closed-owner/prepare.py": {
+      "bytes": 5859,
+      "sha256": "b28f633104f9ef5cec4aebb2f6e65ac16a87db9126b759f87d8dc46fc41dfe3b"
+    },
+    "scripts/ci/current606-apps7-closed-owner/runtime.py": {
+      "bytes": 9542,
+      "sha256": "d581bdb8a6366604817d81d99ee47c0d07ef40d97eb23f0c4f945d77901fda50"
+    },
+    "scripts/ci/current606-apps7-closed-owner/selection.py": {
+      "bytes": 8431,
+      "sha256": "e0f1926872cf771e0fcd31bfff42b55c8a18a269a91ed5e74d4db0ff45c40419"
+    },
+    "scripts/ci/current606-apps7-closed-owner/source-manifest.json": {
+      "bytes": 60636,
+      "sha256": "bed9680e0fa7dc41315c365b7c37862b7395b1b4a2a684ba0f870ce00f261af0"
+    },
+    "scripts/ci/current606-apps7-closed-owner/source-pins.json": {
+      "bytes": 58974,
+      "sha256": "2b79a5a68fc4c8b60f20eb0daecf5981b78e8628591ecf0681b7505229f14ea6"
+    },
+    "scripts/ci/current606-apps7-closed-owner/test_owner.py": {
+      "bytes": 10637,
+      "sha256": "e8efd272105b9380da6510b686407275b776b5468cc05108be0cb722c6494965"
+    }
+  },
+  "purpose": "SOURCE_CARRIER_ONLY_NOT_NATIVE_AUTHORITY",
+  "schema_version": 1
+}
