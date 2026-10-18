@@ -487,3 +487,9 @@ build, installation, hardware or performance test was run for this audit.
 
 
 October18 management implementation: the original MIT DNS candidate provides exact-UUID, explicitly selected family/address settings, preview, saved prior state, guarded apply and conflict-preserving undo. Real nmcli offline apply/restore and21 controls pass; these are stored-profile settings, with no claimed live DNS effect or host connection mutation. The original MIT sysctl candidate provides one available key, vm.swappiness, with named baseline/target plans, inspect, durable intent and explicit apply/undo. Nineteen private-tree controls pass on Python3.12/3.14, including a real fixture SIGKILL and recovery. No preset, persistent boot setting, host sysctl write or performance gain is supplied. Both packages stage five owned files; native ALPM, live integration, Qt/polkit/wider key policy and both-model acceptance remain open. See the package READMEs for exact limits and operating steps.
+
+## Explicit KSM scanning implementation
+
+The same-name upgrade alternative [ksmctl2](../../packages/tools/cachy-asahi-ksmctl2/README.md) implements named preview, apply, inspect and undo for global scanning values0/1. It retains the original read-only reporter and saves a durable baseline and intent before a kernel write. Undo restores the scanning scalar; it does not restore memory sharing. It adds no service, defaults or unmerge action.
+
+The source and staged helper pass26 new private-filesystem controls and18 retained read-only/provenance controls on Python3.12 and3.14. Native package builds, signed installation/removal, actual kernel writes, both M2 Air sizes and performance/security/energy effects remain unverified. The selected package manifest still uses the existing reporting recipe until integration validation is recorded.
