@@ -33,6 +33,8 @@ def workflow(raw,rows,ci_sha,mf_sha):
  text=text.replace('current604-apps6-generic16k','current604-public-pair-generic16k').replace('apps6_native_source','apps6_authority_source').replace('apps6-native','apps6-authority')
  anchor='--gui-decisions "$GITHUB_WORKSPACE/expanded604-gui-decisions"\n'
  need(text.count(anchor)==1,'one early decisions gate');text=text.replace(anchor,'--gui-decisions "$GITHUB_WORKSPACE/expanded604-gui-decisions" \\\n            --welcome-source "$GITHUB_WORKSPACE/expanded604-welcome-source/payload"\n')
+ anchor='      - name: Required actual ALPM604 current Welcome4 GUI in the separately owned16384 VM\n';need(text.count(anchor)==1,"one original VM entry");text=text.replace(anchor,'      - name: Checkout exact original signed QEMU tooling inputs\n        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1\n        timeout-minutes: 2\n        with:\n          ref: 9c1fa9e6674ce24edb9655a56436d4c5c0985c54\n          path: current604-qemu-tooling\n          persist-credentials: false\n'+anchor)
+ env='PYTHONDONTWRITEBYTECODE=1 RUNNER_TEMP="$RUNNER_TEMP" GITHUB_ACTIONS=true RUNNER_ARCH=ARM64';need(text.count(env)==1,"one original clean runtime environment");text=text.replace(env,env+' CACHY_ASAHI_QEMU_TOOLING_INPUTS="$GITHUB_WORKSPACE/current604-qemu-tooling/tooling-inputs"')
  return text.encode()
 
 def emit(source_root,installer,assets,output):
