@@ -115,10 +115,24 @@ class Controls(unittest.TestCase):
    with patch.object(P,'read',side_effect=lambda p:unbound if p==P.HERE/'input-policy.json' else original_read(p)):P.emit(ROOT,UPDATER,out)
    self.assertEqual(original_read(P.HERE/'input-policy.json'),selected_policy)
    pins=C.decode(C.read(C.HERE/'source-pins.json'));required=pins['runtime_recipe_inputs'];self.assertEqual(len(required),80)
-   self.assertEqual(C.row(out/C.OLD/'source-manifest.json')['sha256'],'ec9a759bbb5be161a0a77c2983e731c3b09e71b33688a2ecdf54abce9d1ba41b');self.assertEqual(C.row(out/'scripts/ci/expanded604-apps6-public-pair-installer/source-manifest.json')['sha256'],'5f4dbc150a5f8ca6a85843b783e7b5472251a4b0761e75e65f7d82b165a7b629')
-   selected=pins['selected_source_roles'];self.assertEqual(selected['status'],'SOURCE_ONLY_NOT_ACTUAL_ACCEPTANCE');self.assertEqual(selected['updater_source'],'37d9ffa166e0d7262ef8afab56baa0b3ea060b22');self.assertEqual(selected['fresh_source'],'bd0cf1891083d011b70edab10501c317d3720b78')
-   self.assertIsNone(selected['updater_three_case_positive_decisions']);self.assertIsNone(selected['GUI_two_profile_positive_decisions'])
-   held=C.load('selected_actual_source_contract',out/C.OLD/'contract.py');held_policy=held.policy();self.assertEqual(held_policy['installer_source'],selected['fresh_source']);self.assertEqual(held_policy['decision_source'],'c38375818f116bfc129a8db853d0c9cd2d360eb9')
+   for manifest,key in ((C.OLD+'/source-manifest.json','updater_source_manifest_sha256'),('scripts/ci/expanded604-apps6-public-pair-installer/source-manifest.json','fresh_source_manifest_sha256')):
+    actual=C.row(out/manifest);self.assertEqual(actual,pins['groups']['updater'][manifest]);self.assertEqual(actual['sha256'],pins[key])
+   if 'selected_source_roles' in pins:
+    self.assertEqual(C.row(out/C.OLD/'source-manifest.json')['sha256'],'ec9a759bbb5be161a0a77c2983e731c3b09e71b33688a2ecdf54abce9d1ba41b');self.assertEqual(C.row(out/'scripts/ci/expanded604-apps6-public-pair-installer/source-manifest.json')['sha256'],'5f4dbc150a5f8ca6a85843b783e7b5472251a4b0761e75e65f7d82b165a7b629')
+    selected=pins['selected_source_roles'];self.assertEqual(selected['status'],'SOURCE_ONLY_NOT_ACTUAL_ACCEPTANCE');self.assertEqual(selected['updater_source'],'37d9ffa166e0d7262ef8afab56baa0b3ea060b22');self.assertEqual(selected['fresh_source'],'bd0cf1891083d011b70edab10501c317d3720b78')
+    self.assertIsNone(selected['updater_three_case_positive_decisions']);self.assertIsNone(selected['GUI_two_profile_positive_decisions'])
+    held=C.load('selected_actual_source_contract',out/C.OLD/'contract.py');held_policy=held.policy();self.assertEqual(held_policy['installer_source'],selected['fresh_source']);self.assertEqual(held_policy['decision_source'],'c38375818f116bfc129a8db853d0c9cd2d360eb9')
+   else:
+    # Canonical factory declares exact NULL-source roles; these are not the
+    # separately published37d/bd0 selected carrier and grant no actual credit.
+    self.assertEqual(set(pins),{'schema_version','groups','runtime_recipe_inputs','fresh_control_inputs','fresh_source_manifest_sha256','updater_source_manifest_sha256'})
+    held=C.load('canonical_default_source_contract',out/C.OLD/'contract.py');policy=held.policy(bound=False)
+    self.assertEqual(policy['status'],'UNBOUND_ACTUAL_PUBLIC_PAIRS_APPS6_CURRENT604_PREREQUISITES')
+    for key in ('installer_source','decision_source'):self.assertIsNone(policy[key])
+    self.assertEqual(policy,held.read(out/C.OLD/'policy.json'))
+    self.assertIsNone(policy['installer_inputs']['native604_decisions'])
+    for key in ('native604','fresh604'):self.assertIsNone(policy['prerequisites'][key])
+    with self.assertRaisesRegex(ValueError,'UNBOUND'):held.policy()
    for n,row in pins['groups']['updater'].items():self.assertEqual(C.row(out/n),row,n)
    for n,row in required.items():self.assertEqual(C.row(out/n),row,n)
    controls=pins['fresh_control_inputs'];self.assertEqual(len(controls),9)
