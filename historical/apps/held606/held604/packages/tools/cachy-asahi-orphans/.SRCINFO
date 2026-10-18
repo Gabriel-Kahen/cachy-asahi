@@ -1,0 +1,23 @@
+pkgbase = cachy-asahi-orphans
+	pkgdesc = Read-only libalpm orphan assessment and protected explicit removal planning
+	pkgver = 0.1.0
+	pkgrel = 2
+	url = https://github.com/Gabriel-Kahen/cachy-asahi
+	arch = any
+	license = MIT
+	depends = python>=3.11
+	depends = pacman
+	source = cachy-asahi-orphans
+	source = test_orphans.py
+	source = protection-floor.json
+	source = README.md
+	source = NOTICE
+	source = LICENSE
+	sha256sums = 559ff8554b9c93f237ddebec8f6c8ac09749ed93b6a179c06fcf513dfffe3292
+	sha256sums = 8f4080979ad3de2b1c27419f27cd6e3f61b122544164f1e16158cc4f8d73bb82
+	sha256sums = 0d6dfbf3cd550fe72ddad30058693007f8bb86214de1e83442580677db5005f2
+	sha256sums = ef96e2cf1e0809a065edd36545c861e4064f3bae2cc4665401455a89dd144529
+	sha256sums = 326f699857d31b8cd4462081aea074d4349721fb9c48965db6208c793a086720
+	sha256sums = 51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7
+
+pkgname = cachy-asahi-orphans

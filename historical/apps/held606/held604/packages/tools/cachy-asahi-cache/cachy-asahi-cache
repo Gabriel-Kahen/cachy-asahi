@@ -1,0 +1,412 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
+"""Exact protected cache cleanup with real ALPM exclusion and quarantine."""
+import argparse,contextlib,hashlib,json,os,re,stat,time
+from pathlib import Path
+
+VERSION='0.2.0'
+ARCHIVE=re.compile(r'[A-Za-z0-9][A-Za-z0-9._+@-]{0,220}\.pkg\.tar(?:\.(?:xz|zst|gz|bz2|lz4))?\Z')
+MAX_ENTRIES=10000
+MAX_FILE=16*1024**3
+MAX_TOTAL=64*1024**3
+MAX_JSON=16*1024**2
+LIMITATION='Local operator policy, not package/signature validity, known-good rollback, boot-recovery or release attestation.'
+PLAN_FIELDS={'schema_version','status','operation','cache','transaction','protection','selected_archives','selected_objects','planned_bytes','apply_supported','limitation','root'}
+FIELDS=('dev','ino','mode','uid','gid','links','bytes','mtime_ns','ctime_ns')
+
+
+class Refused(ValueError):pass
+
+
+def need(ok,why):
+    if not ok:raise Refused(why)
+
+
+def pairs(items):
+    result={}
+    for key,value in items:
+        need(key not in result,'duplicate JSON key');result[key]=value
+    return result
+
+
+def absolute(value):
+    text=os.fspath(value);path=Path(text)
+    need(path.is_absolute() and text==str(path) and '..' not in path.parts and path.name and len(text)<=4096,'explicit canonical absolute path required')
+    return path
+
+
+@contextlib.contextmanager
+def directory(path):
+    """Open every component without following symlinks, like the mirror tool."""
+    path=Path('/') if os.fspath(path)=='/' else absolute(path);fd=os.open('/',os.O_RDONLY|os.O_DIRECTORY|os.O_CLOEXEC);ancestors=set()
+    try:
+        for part in path.parts[1:]:
+            child=os.open(part,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=fd)
+            os.close(fd);fd=child;info=os.fstat(fd);ancestors.add((info.st_dev,info.st_ino))
+        yield fd,ancestors
+    finally:os.close(fd)
+
+
+def metadata(info):
+    return dict(zip(FIELDS,(info.st_dev,info.st_ino,stat.S_IMODE(info.st_mode),info.st_uid,info.st_gid,
+                            info.st_nlink,info.st_size,info.st_mtime_ns,info.st_ctime_ns)))
+
+
+def snapshot(fd,name,budget,cap=MAX_FILE,keep=False):
+    need(Path(name).name==name and name not in ('','.','..'),'ordinary basename required')
+    handle=os.open(name,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK|os.O_CLOEXEC,dir_fd=fd)
+    try:
+        info=os.fstat(handle)
+        need(stat.S_ISREG(info.st_mode) and info.st_nlink==1 and info.st_uid in (0,os.geteuid()) and info.st_size<=cap,'bounded ordinary single-link file required: '+name)
+        digest=hashlib.sha256();parts=[];size=0
+        while True:
+            need(time.monotonic()<budget['deadline'],'read budget exhausted')
+            raw=os.read(handle,1024**2)
+            if not raw:break
+            size+=len(raw);budget['bytes']+=len(raw)
+            need(size<=cap and budget['bytes']<=MAX_TOTAL,'archive byte budget exhausted')
+            digest.update(raw)
+            if keep:parts.append(raw)
+        result=metadata(info)
+        need(size==info.st_size and result==metadata(os.fstat(handle))==metadata(os.stat(name,dir_fd=fd,follow_symlinks=False)),'file drift while reading: '+name)
+        result['sha256']=digest.hexdigest();return result,b''.join(parts)
+    finally:os.close(handle)
+
+
+def budget():return dict(bytes=0,deadline=time.monotonic()+30)
+
+
+def json_file(path):
+    path=absolute(path)
+    with directory(path.parent) as (fd,_):
+        identity,raw=snapshot(fd,path.name,budget(),MAX_JSON,True)
+    need(identity['uid']==os.geteuid() and identity['mode']==0o600,'JSON policy/plan must be caller-owned mode0600')
+    value=json.loads(raw,object_pairs_hook=pairs,parse_constant=lambda _:need(False,'finite JSON required'))
+    need(type(value) is dict,'JSON object required');return value,identity
+
+
+def transaction(dbpath):
+    with directory(dbpath) as (fd,_):
+        identity=metadata(os.fstat(fd))
+        try:os.stat('db.lck',dir_fd=fd,follow_symlinks=False)
+        except FileNotFoundError:state='NO_LOCK_OBSERVED_TRANSACTION_EXCLUSION_UNPROVED'
+        else:state='ACTIVE_OR_UNCERTAIN_DB_LOCK_PRESENT'
+    return dict(dbpath=str(dbpath),directory={k:identity[k] for k in ('dev','ino','mode','uid','gid')},state=state,exclusion_proved=False)
+
+
+def names(fd):
+    result=[];scan=os.open('.',os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=fd)
+    try:
+        need((os.fstat(scan).st_dev,os.fstat(scan).st_ino)==(os.fstat(fd).st_dev,os.fstat(fd).st_ino),'directory scanner identity differs')
+        with os.scandir(scan) as entries:
+            for entry in entries:
+                result.append(entry.name);need(len(result)<=MAX_ENTRIES,'cache entry budget exhausted')
+    finally:os.close(scan)
+    return sorted(result)
+
+
+def inventory(cache):
+    objects={};ignored=[];limits=budget()
+    with directory(cache) as (fd,_):
+        info=os.fstat(fd);identity={k:metadata(info)[k] for k in ('dev','ino','mode','uid','gid')}
+        entries=names(fd)
+        for name in entries:
+            archive=name[:-4] if name.endswith('.sig') else name
+            if not ARCHIVE.fullmatch(archive):ignored.append(name);continue
+            objects[name]=snapshot(fd,name,limits)[0]
+        need(names(fd)==entries,'cache membership drift while inspecting')
+        for name,row in objects.items():
+            need(metadata(os.stat(name,dir_fd=fd,follow_symlinks=False))=={k:row[k] for k in FIELDS},'cache metadata drift: '+name)
+    return dict(path=str(cache),directory=identity,objects=objects,ignored_names=sorted(ignored))
+
+
+def protection(path,cache,inventory):
+    policy,identity=json_file(path)
+    need(set(policy)=={'schema_version','cache','protected'} and type(policy['schema_version']) is int and policy['schema_version']==1 and policy['cache']==str(cache) and type(policy['protected']) is dict,'exact local protection policy required')
+    objects=inventory['objects'];protected={}
+    for name,row in policy['protected'].items():
+        need(type(name) is str and ARCHIVE.fullmatch(name) and type(row) is dict and set(row)=={'bytes','sha256','signature'},'protected ordinary archive and signature declaration required')
+        for target,want in ((name,{k:row[k] for k in ('bytes','sha256')}),(name+'.sig',row['signature'])):
+            if want is None:
+                need(target not in objects,'associated protected signature must be declared with bytes/hash');continue
+            need(type(want) is dict and set(want)=={'bytes','sha256'} and type(want['bytes']) is int and want['bytes']>=0 and type(want['sha256']) is str and re.fullmatch('[0-9a-f]{64}',want['sha256']),'exact protected object bytes/hash required')
+            need(target in objects and all(objects[target][k]==want[k] for k in want),'protected object missing or hash differs: '+target)
+            protected[target]=objects[target]
+    return dict(path=str(path),identity=identity,objects=protected,trust='LOCAL_OPERATOR_POLICY_NOT_RELEASE_OR_RECOVERY_ATTESTATION')
+
+
+def publish(path,raw,forbidden,checkpoint=None):
+    """Fresh0600 output only; fsync then atomic no-replace publication."""
+    path=absolute(path)
+    need(len(raw)<=MAX_JSON,'plan output budget exhausted')
+    with directory(path.parent) as (fd,ancestors):
+        info=os.fstat(fd)
+        need(info.st_uid==os.geteuid() and not info.st_mode&0o022,'output parent must be private to caller')
+        need(not ancestors.intersection(forbidden),'output inside cache or ALPM directory refused')
+        name='.caa-cache-'+os.urandom(16).hex()+'.tmp';handle=None
+        try:
+            handle=os.open(name,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,0o600,dir_fd=fd)
+            with os.fdopen(handle,'wb',closefd=False) as stream:stream.write(raw);stream.flush()
+            os.fchmod(handle,0o600);os.fsync(handle);os.fsync(fd)
+            if checkpoint:checkpoint('staged')
+            os.link(name,path.name,src_dir_fd=fd,dst_dir_fd=fd,follow_symlinks=False);os.fsync(fd)
+        finally:
+            if handle is not None:
+                try:
+                    expected=os.fstat(handle);current=os.stat(name,dir_fd=fd,follow_symlinks=False)
+                    need((expected.st_dev,expected.st_ino)==(current.st_dev,current.st_ino),'own output temporary changed')
+                    os.unlink(name,dir_fd=fd);os.fsync(fd)
+                finally:os.close(handle)
+
+
+def plan(cache,dbpath,policy_path,selected,output,root=Path('/')):
+    cache,dbpath,policy_path,output=map(absolute,(cache,dbpath,policy_path,output))
+    need(cache!=dbpath and not cache.is_relative_to(dbpath) and not dbpath.is_relative_to(cache),'cache and ALPM directories must be separate')
+    need(output!=policy_path and not any(output.is_relative_to(p) or policy_path.is_relative_to(p) for p in (cache,dbpath)),'policy/output must be outside cache and ALPM')
+    state=transaction(dbpath);need(state['state'].startswith('NO_LOCK'),'active or uncertain package transaction; plan refused')
+    contents=inventory(cache);protected=protection(policy_path,cache,contents)
+    need(len(selected)==len(set(selected)) and len(selected)<=MAX_ENTRIES,'unique explicit selected basenames required')
+    chosen={}
+    for name in selected:
+        need(ARCHIVE.fullmatch(name) and name in contents['objects'],'selected ordinary archive missing')
+        for target in (name,name+'.sig'):
+            need(target not in protected['objects'],'selected object is protected: '+target)
+            if target in contents['objects']:chosen[target]=contents['objects'][target]
+    need(transaction(dbpath)==state,'package transaction observation drift')
+    result=dict(schema_version=2,root=root_identity(root),status='NOT_APPLIED',operation='EXPLICIT_CACHE_ARCHIVE_CLEANUP_PLAN',cache=contents,transaction=state,protection=protected,
+                selected_archives=sorted(selected),selected_objects=chosen,planned_bytes=sum(r['bytes'] for r in chosen.values()),apply_supported=True,
+                limitation=LIMITATION)
+    raw=(json.dumps(result,sort_keys=True,indent=2)+'\n').encode()
+    forbidden={(contents['directory']['dev'],contents['directory']['ino']),(state['directory']['dev'],state['directory']['ino'])}
+    publish(output,raw,forbidden)
+    return dict(status='NOT_APPLIED',plan=str(output),plan_sha256=hashlib.sha256(raw).hexdigest(),selected_archives=len(selected),planned_bytes=result['planned_bytes'],apply_supported=True)
+
+
+def validate_plan(path,held=None):
+    saved,plan_identity=json_file(path)
+    need(type(saved.get('schema_version')) is int and saved['schema_version']==2 and saved.get('status')=='NOT_APPLIED' and saved.get('apply_supported') is True and saved.get('operation')=='EXPLICIT_CACHE_ARCHIVE_CLEANUP_PLAN','read-only plan required')
+    need(set(saved)==PLAN_FIELDS and saved['limitation']==LIMITATION and type(saved['selected_archives']) is list and len(saved['selected_archives'])<=MAX_ENTRIES and all(type(n) is str for n in saved['selected_archives']) and len(saved['selected_archives'])==len(set(saved['selected_archives'])) and type(saved['planned_bytes']) is int and saved['planned_bytes']>=0,'exact plan schema/selection required')
+    cache=absolute(saved['cache']['path']);state=transaction(absolute(saved['transaction']['dbpath']))
+    need(root_identity(saved['root']['path'])==saved['root'],'target root identity drift')
+    if held:
+        held.check();need(held.root==saved['root']['path'] and held.dbpath==state['dbpath'] and state['directory']==saved['transaction']['directory'],'owned ALPM root/database differs')
+    else:need(state==saved['transaction'] and state['state'].startswith('NO_LOCK'),'active, uncertain or changed transaction observation')
+    current=inventory(cache);need(current==saved['cache'],'cache content/bytes/hash/mode/inode drift; plan stale')
+    protected=protection(absolute(saved['protection']['path']),cache,current)
+    need(protected==saved['protection'],'local protection policy drift; plan stale')
+    chosen={}
+    for name in saved['selected_archives']:
+        need(ARCHIVE.fullmatch(name) and name in current['objects'],'ordinary selected archive required')
+        for target in (name,name+'.sig'):
+            need(target not in protected['objects'],'protected object cannot be selected')
+            if target in current['objects']:chosen[target]=current['objects'][target]
+    need(chosen==saved['selected_objects'] and sum(r['bytes'] for r in chosen.values())==saved['planned_bytes'],'selected plan objects differ')
+    need(transaction(absolute(state['dbpath']))==state,'transaction observation changed')
+    if held:held.check()
+    return saved,plan_identity
+
+
+def verify(path):
+    saved,_=validate_plan(path)
+    return dict(status='NOT_APPLIED',verification='PASS_CURRENT_EXACT_SNAPSHOT',selected_archives=len(saved['selected_archives']),planned_bytes=saved['planned_bytes'],apply_supported=True)
+
+
+def root_identity(path):
+    path=Path('/') if os.fspath(path)=='/' else absolute(path)
+    with directory(path) as (fd,_):info=metadata(os.fstat(fd))
+    return dict(path=str(path),directory={k:info[k] for k in ('dev','ino','mode','uid','gid')})
+
+
+class AlpmLock:
+    """Only an empty real transaction; no package/DB prepare or commit API."""
+    def __init__(self,root,dbpath):
+        import ctypes
+        self.root=str(root);self.dbpath=str(dbpath);self.handle=None;self.active=False;self.identity=None;self.release_attempted=False
+        library=Path('/usr/lib/libalpm.so.16').resolve(strict=True);info=library.stat()
+        need(library.parent==Path('/usr/lib') and stat.S_ISREG(info.st_mode) and info.st_uid==0 and not info.st_mode&0o022,'trusted system libalpm16 required')
+        self.lib=ctypes.CDLL(str(library),use_errno=True)
+        declarations={'alpm_initialize':([ctypes.c_char_p,ctypes.c_char_p,ctypes.POINTER(ctypes.c_int)],ctypes.c_void_p),
+            'alpm_trans_init':([ctypes.c_void_p,ctypes.c_int],ctypes.c_int),'alpm_trans_release':([ctypes.c_void_p],ctypes.c_int),
+            'alpm_release':([ctypes.c_void_p],ctypes.c_int),'alpm_option_get_lockfile':([ctypes.c_void_p],ctypes.c_char_p),
+            'alpm_version':([],ctypes.c_char_p),'alpm_errno':([ctypes.c_void_p],ctypes.c_int),'alpm_strerror':([ctypes.c_int],ctypes.c_char_p)}
+        for name,(args,result) in declarations.items():getattr(self.lib,name).argtypes=args;getattr(self.lib,name).restype=result
+        self.version=self.lib.alpm_version().decode();need(self.version.startswith('16.'),'supported libalpm ABI16 required')
+        with directory(Path(dbpath)/'local') as (fd,_):
+            _,raw=snapshot(fd,'ALPM_DB_VERSION',budget(),16,True);need(raw==b'9\n','existing ALPM local database version9 required')
+        self.db_identity=transaction(Path(dbpath))['directory']
+
+    def acquire(self):
+        import ctypes
+        error=ctypes.c_int();self.handle=self.lib.alpm_initialize(os.fsencode(self.root),os.fsencode(self.dbpath),ctypes.byref(error))
+        need(bool(self.handle),'ALPM handle initialization refused')
+        if self.lib.alpm_trans_init(self.handle,0)!=0:
+            reason=self.lib.alpm_strerror(self.lib.alpm_errno(self.handle)).decode('utf8','replace')
+            self.lib.alpm_release(self.handle);self.handle=None
+            raise Refused('real ALPM transaction refused: '+reason)
+        self.active=True;self.path=Path(os.fsdecode(self.lib.alpm_option_get_lockfile(self.handle)))
+        need(self.path==Path(self.dbpath)/'db.lck','unexpected ALPM lock path; original handle retained uncertain')
+        info=self.path.lstat();need(stat.S_ISREG(info.st_mode) and info.st_nlink==1 and info.st_uid==os.geteuid(),'uncertain newly acquired ALPM lock')
+        self.identity=metadata(info)  # mode0000/zero bytes: never chmod/read/raw unlink.
+
+    def check(self):
+        need(self.active and self.identity is not None,'owned ALPM acquisition uncertain; do not unlock')
+        with directory(Path(self.dbpath)) as (fd,_):
+            info=metadata(os.fstat(fd));need({k:info[k] for k in self.db_identity}==self.db_identity,'ALPM directory drift')
+            need(metadata(os.stat('db.lck',dir_fd=fd,follow_symlinks=False))==self.identity and
+                 Path(os.fsdecode(self.lib.alpm_option_get_lockfile(self.handle)))==self.path,'owned ALPM lock drift; do not unlock')
+
+    def release(self):
+        self.check();self.release_attempted=True;need(self.lib.alpm_trans_release(self.handle)==0,'ALPM transaction release failed')
+        self.active=False;need(self.lib.alpm_release(self.handle)==0,'ALPM handle release failed');self.handle=None
+        try:current=self.path.lstat()
+        except FileNotFoundError:return 'OWN_LOCK_RELEASED'
+        need((current.st_dev,current.st_ino)!=(self.identity['dev'],self.identity['ino']),'own lock remains after API release')
+        return 'OWN_LOCK_RELEASED_OTHER_LOCK_PRESENT'
+
+
+def rename_exclusive(source_fd,source,target_fd,target):
+    import ctypes
+    libc=ctypes.CDLL(None,use_errno=True);function=libc.renameat2
+    function.argtypes=[ctypes.c_int,ctypes.c_char_p,ctypes.c_int,ctypes.c_char_p,ctypes.c_uint];function.restype=ctypes.c_int
+    if function(source_fd,os.fsencode(source),target_fd,os.fsencode(target),1)!=0:
+        error=ctypes.get_errno();raise OSError(error,os.strerror(error))
+
+
+class Journal:
+    def __init__(self,fd,value):self.fd=fd;self.value=value;self.saved=None
+    def save(self):
+        try:current=snapshot(self.fd,'journal.json',budget(),MAX_JSON)[0]
+        except FileNotFoundError:current=None
+        need(current==self.saved,'private journal drift; retain quarantine')
+        raw=(json.dumps(self.value,sort_keys=True,indent=2)+'\n').encode();need(len(raw)<=MAX_JSON,'journal byte budget')
+        name='.journal-'+os.urandom(16).hex()+'.tmp';handle=os.open(name,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,0o600,dir_fd=self.fd)
+        try:
+            with os.fdopen(handle,'wb',closefd=False) as stream:stream.write(raw);stream.flush()
+            os.fsync(handle)
+            if current is None:rename_exclusive(self.fd,name,self.fd,'journal.json')
+            else:
+                need(snapshot(self.fd,'journal.json',budget(),MAX_JSON)[0]==self.saved,'journal changed before commit')
+                os.replace(name,'journal.json',src_dir_fd=self.fd,dst_dir_fd=self.fd)
+            os.fsync(self.fd);self.saved=snapshot(self.fd,'journal.json',budget(),MAX_JSON)[0]
+        finally:os.close(handle)
+
+
+def apply(plan_path,plan_sha256,quarantine,checkpoint=None):
+    """Never unlink a live cache pathname. Unknown state is retained, not resumed."""
+    held=journal=None;result=dict(status='NOT_APPLIED',reclaimed_bytes=None,quarantine=str(quarantine),lock='NOT_ACQUIRED');cachefd=qfd=None
+    try:
+        initial,identity=json_file(plan_path)
+        need(re.fullmatch('[0-9a-f]{64}',plan_sha256) and identity['sha256']==plan_sha256,'explicit reviewed plan hash differs')
+        need(type(initial.get('selected_objects')) is dict and len(initial['selected_objects'])<MAX_ENTRIES,'selection must leave room for quarantine journal')
+        need(initial.get('schema_version')==2 and initial.get('apply_supported') is True,'fresh version2 plan required')
+        root=root_identity(initial['root']['path']);need(root==initial['root'],'root changed')
+        dbpath=absolute(initial['transaction']['dbpath']);cache=absolute(initial['cache']['path']);quarantine=absolute(quarantine)
+        need(dbpath==Path(root['path'])/'var/lib/pacman' and cache==Path(root['path'])/'var/cache/pacman/pkg','apply requires conventional cache/database paths under the selected root')
+        need(not any(quarantine.is_relative_to(p) for p in (cache,dbpath)) and quarantine not in (plan_path,Path(initial['protection']['path'])),'fresh quarantine must be outside cache/ALPM/inputs')
+        with directory(cache) as (fd,_):cachedev=os.fstat(fd).st_dev
+        with directory(quarantine.parent) as (parent,ancestors):
+            info=os.fstat(parent);need(info.st_uid==os.geteuid() and not info.st_mode&0o022 and info.st_dev==cachedev,'private same-filesystem quarantine parent required')
+            forbidden={(initial[k]['directory']['dev'],initial[k]['directory']['ino']) for k in ('cache','transaction')}
+            need(not ancestors.intersection(forbidden),'quarantine path aliases cache or database')
+            held=AlpmLock(root['path'],dbpath);held.acquire();result['lock']='REAL_ALPM_TRANSACTION_HELD'
+            os.mkdir(quarantine.name,mode=0o700,dir_fd=parent);os.fsync(parent)
+        with directory(cache) as (cachefd,_),directory(quarantine) as (qfd,_):
+            qinfo=os.fstat(qfd);need(qinfo.st_uid==os.geteuid() and stat.S_IMODE(qinfo.st_mode)==0o700 and qinfo.st_dev==cachedev,'fresh private quarantine required')
+            journal=Journal(qfd,dict(schema_version=1,phase='LOCKED_VALIDATION_PENDING',plan=str(plan_path),plan_identity=identity,
+                cache=str(cache),dbpath=str(dbpath),root=root,policy=initial['protection'],expected=initial['selected_objects'],
+                moved={},purged=[],intent=None,alpm=dict(version=held.version,lock=held.identity)))
+            journal.save()
+            if checkpoint:checkpoint('locked')
+            saved,current=validate_plan(plan_path,held);need(current==identity,'plan drift after ALPM lock acquisition')
+            selected=saved['selected_objects'];deadline=time.monotonic()+120
+            def check():
+                need(time.monotonic()<deadline,'bounded apply deadline');held.check()
+                info=os.stat(quarantine,follow_symlinks=False)
+                need((info.st_dev,info.st_ino,stat.S_IMODE(info.st_mode),info.st_uid)==(qinfo.st_dev,qinfo.st_ino,0o700,os.geteuid()),'quarantine directory drift')
+            def remaining():
+                check();need(json_file(plan_path)[1]==identity,'plan changed during apply')
+                contents=inventory(cache);expected=dict(saved['cache']);expected['objects']={n:r for n,r in expected['objects'].items() if n not in selected}
+                need(contents==expected,'unselected/protected/cache membership drift')
+                need(protection(absolute(saved['protection']['path']),cache,contents)==saved['protection'],'protected policy/object drift')
+            # Intent is durable before each same-FS no-replace move. A cache-path
+            # replacement moves to quarantine, fails identity verification, and
+            # is retained; it is never unlinked from the live cache.
+            journal.value['phase']='MOVING'
+            for name,want in sorted(selected.items()):
+                check();journal.value['intent']=dict(action='MOVE',name=name);journal.save()
+                if checkpoint:checkpoint('before_move')
+                rename_exclusive(cachefd,name,qfd,name);os.fsync(cachefd);os.fsync(qfd)
+                if checkpoint:checkpoint('moved')
+                actual=snapshot(qfd,name,budget())[0]
+                need(all(actual[k]==want[k] for k in want if k!='ctime_ns'),'moved object differs; retain without purge')
+                journal.value['moved'][name]=actual;journal.value['intent']=None;journal.save()
+            remaining();check();quarantine_names=names(qfd)
+            need(set(quarantine_names)=={'journal.json'}|set(selected),'unexpected quarantine objects '+repr(quarantine_names)+' expected '+repr(sorted(selected))+'; do not purge')
+            for name,want in journal.value['moved'].items():need(snapshot(qfd,name,budget())[0]==want,'quarantined object drift')
+            journal.value['phase']='PURGING';journal.save()
+            if checkpoint:checkpoint('verified_all')
+            remaining()
+            for name,want in journal.value['moved'].items():
+                check();need(set(names(qfd))=={'journal.json'}|(set(selected)-set(journal.value['purged'])),'unexpected quarantine entry before purge')
+                need(snapshot(qfd,name,budget())[0]==want,'quarantined object changed before purge')
+                journal.value['intent']=dict(action='PURGE',name=name);journal.save()
+                os.unlink(name,dir_fd=qfd);os.fsync(qfd)
+                if checkpoint:checkpoint('purged')
+                journal.value['purged'].append(name);journal.value['intent']=None;journal.save()
+            remaining();need(names(qfd)==['journal.json'],'unexpected quarantine state after purge')
+            journal.value['phase']='AUDITED_LOCK_HELD';journal.save()
+            result['lock']=held.release();journal.value['phase']='APPLIED';journal.value['lock_release']=result['lock'];journal.save()
+            result.update(status='APPLIED',removed_objects=sorted(selected),removed_logical_bytes=sum(r['bytes'] for r in selected.values()),disk_space='NOT_MEASURED',journal=str(quarantine/'journal.json'))
+    except BaseException as error:
+        # No destructor releases an active handle. SIGKILL leaves the real lock;
+        # SIGINT or a detected foreign lock also requires separate recovery.
+        result.update(status='REFUSED_OR_INTERRUPTED',error_type=type(error).__name__,reason=str(error)[:300],removed_logical_bytes=None)
+        if held and held.active:
+            try:
+                if not isinstance(error,Exception) or held.release_attempted:raise Refused('interrupted or failed-release lock retained uncertain')
+                result['lock']=held.release()
+            except BaseException:result['lock']='RETAINED_UNCERTAIN_SEPARATE_RECOVERY_REQUIRED'
+        if held and not held.active and held.handle is not None:result['lock']='API_HANDLE_RELEASE_INCOMPLETE_UNCERTAIN'
+        if journal is not None:
+            result.update(journal=str(quarantine/'journal.json'),phase_before_refusal=journal.value['phase'],pending_intent=journal.value['intent'],purged_recorded=list(journal.value['purged']))
+            journal.value['failed_from_phase']=journal.value['phase']
+            # The with-block has closed qfd here; reopen only the same directory.
+            try:
+                with directory(quarantine) as (fd,_):
+                    need((os.fstat(fd).st_dev,os.fstat(fd).st_ino,stat.S_IMODE(os.fstat(fd).st_mode),os.fstat(fd).st_uid)==(qinfo.st_dev,qinfo.st_ino,0o700,os.geteuid()),'quarantine replaced or unsafe')
+                    journal.fd=fd;journal.value['phase']='REFUSED_OR_INTERRUPTED';journal.value['error']=result['reason'];journal.value['lock_release']=result['lock'];journal.save()
+            except BaseException:result['journal_update']='REFUSED_OR_FAILED_EXISTING_EVIDENCE_RETAINED'
+    return result
+
+
+def main(argv=None):
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--version',action='version',version='cachy-asahi-cache '+VERSION)
+    commands=parser.add_subparsers(dest='command',required=True)
+    for name in ('list','plan'):
+        command=commands.add_parser(name);command.add_argument('--cache',type=Path,default=Path('/var/cache/pacman/pkg'));command.add_argument('--dbpath',type=Path,default=Path('/var/lib/pacman'))
+        command.add_argument('--protect',type=Path,required=name=='plan')
+        if name=='plan':
+            command.add_argument('--select',action='append',default=[]);command.add_argument('--output',type=Path,required=True);command.add_argument('--root',type=Path,default=Path('/'))
+    for name in ('verify','apply'):
+        command=commands.add_parser(name,help='verify a read-only plan' if name=='verify' else 'apply exact confirmed plan under real ALPM lock')
+        command.add_argument('plan',type=Path)
+        if name=='apply':
+            command.add_argument('--confirm',choices=['REMOVE_SELECTED_CACHE_ARCHIVES'],required=True)
+            command.add_argument('--plan-sha256',required=True);command.add_argument('--quarantine',type=Path,required=True)
+    args=parser.parse_args(argv)
+    try:
+        if args.command=='list':
+            cache=absolute(args.cache);contents=inventory(cache);state=transaction(absolute(args.dbpath))
+            protected=protection(absolute(args.protect),cache,contents) if args.protect else None
+            result=dict(status='READ_ONLY_CACHE_INVENTORY',cache=contents,transaction=state,protection=protected,apply_supported=True)
+        elif args.command=='plan':result=plan(args.cache,args.dbpath,args.protect,args.select,args.output,args.root)
+        elif args.command=='verify':result=verify(absolute(args.plan))
+        else:
+            result=apply(absolute(args.plan),args.plan_sha256,absolute(args.quarantine))
+            print(json.dumps(result,sort_keys=True));return 0 if result['status']=='APPLIED' else 1
+        print(json.dumps(result,sort_keys=True));return 0
+    except (Refused,OSError,ValueError,TypeError,KeyError,RecursionError) as error:
+        print(json.dumps(dict(status='NOT_APPLIED',verification='REFUSED',reason=str(error)[:300],apply_supported=True),sort_keys=True));return 1
+
+
+if __name__=='__main__':raise SystemExit(main())
