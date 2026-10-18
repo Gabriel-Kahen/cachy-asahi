@@ -167,6 +167,16 @@ jobs:
         run: |
           python3 -I -B scripts/ci/welcome5-native-upgrade/preflight.py --source "$PWD"
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome5-native-upgrade -p test_lane.py -v
+      - name: Checkout whole-pinned public current606 source roles
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: f3a30f2049f57d9f3cb2433fbd59af51d4cc5720
+          path: .ci-inputs/current606-source-roles
+          persist-credentials: false
+      - name: Check default current606 emission and original cache continuation without actors
+        run: |
+          python3 -B scripts/ci/current606-static/preflight.py --source "$PWD" --basis "$PWD/.ci-inputs/current606-source-roles" --output "$RUNNER_TEMP/current606-default"
+          python3 -B -Werror::ResourceWarning -m unittest discover -s "$RUNNER_TEMP/current606-default/scripts/ci/current606-native" -p test_lane.py -v
       - name: Check current Welcome2 package source and payload contract
         run: python3 -B packages/tools/cachy-asahi-welcome/check_source.py --root packages/tools/cachy-asahi-welcome
       - name: Check combined managed desktop app workflow without actors
