@@ -14,7 +14,7 @@
     },
     "scripts/ci/current606-welcome5-source-bridge/owner-api.json": {
       "bytes": 160,
-      "sha256": "ddb38096ff1514a8d236f2dbe990ad72d6a9cf023ff53f6aaf52cd3b196c0965"
+      "sha256": "312596e3ab09138bf36042c2d14edf19411e0ed323dfb90712248b62d05df917"
     },
     "scripts/ci/current606-welcome5-source-bridge/selection.json": {
       "bytes": 647,
@@ -167,12 +167,12 @@
       "sha256": "3a586c1e3400391f56bd281ac9c16aba85d94d0fca002770e77ee1802c5d9fd1"
     },
     "held-apps-worker/scripts/ci/current606-apps7-copy/fixture_entry.py": {
-      "bytes": 2856,
-      "sha256": "b1b3e9b01dfc09d8fc4f74a9ac8117a0ede5cdfb2b96f89ca297952a7edc27fe"
+      "bytes": 2850,
+      "sha256": "8f68309931a2123590296a2cf55809f454f7ab043815da6c4daeb16853ee04d9"
     },
     "held-apps-worker/scripts/ci/current606-apps7-copy/guard.py": {
-      "bytes": 5422,
-      "sha256": "93055a87842f84f358b59eac1fbdc3f1df1a074ca57dedd2e6cc94a704179503"
+      "bytes": 6366,
+      "sha256": "3814e65f3c1f946a3335e5579882e48e094201f14e8e2216efa350e8899aa340"
     },
     "held-apps-worker/scripts/ci/current606-apps7-copy/input-policy.json": {
       "bytes": 700,
@@ -195,8 +195,8 @@
       "sha256": "d9c8cb0c50abb3620775c7dab55e3943052254a5620b4d6df408d1112079bf09"
     },
     "held-apps-worker/scripts/ci/current606-apps7-copy/plan.py": {
-      "bytes": 3771,
-      "sha256": "533ffa3f5719cc777798f1d45fa49442223350216867c1b9d7d29cb43cb9e776"
+      "bytes": 5123,
+      "sha256": "f8a91840c3140246a3ec1d35f5cb3fdb3cf1e6a354908098acf145229086befe"
     },
     "held-apps-worker/scripts/ci/current606-apps7-copy/prepare.py": {
       "bytes": 1695,
@@ -211,36 +211,36 @@
       "sha256": "c0a7e594ca7faf5a0d10081b5ee3adf2da4c3c273b3058ed7de893c4cd09f97c"
     },
     "held-apps-worker/scripts/ci/current606-apps7-copy/rooted_fixture.py": {
-      "bytes": 6993,
-      "sha256": "43a07d2a9d7fbda44c0092699cd65ca23d33a39fa9df4f1f8ac91dfab6f602a1"
+      "bytes": 8330,
+      "sha256": "af1ad1a0b9c27754a72cd920a4ad6053b865f94e46dc2517ed9a09fc49588211"
     },
     "held-apps-worker/scripts/ci/current606-apps7-copy/source-manifest.json": {
       "bytes": 6836,
-      "sha256": "6bbf5e298c38434f9befb9de28e6c532efa4318268d8b65b44d2ebe0ba8a0fe6"
+      "sha256": "63dcdc66776f68af8787fec1376a705eb064217926aa82ad90d4f3cf884a98b2"
     },
     "held-apps-worker/scripts/ci/current606-apps7-copy/step_entry.py": {
       "bytes": 741,
       "sha256": "fdcef3299e4829995c32ebb9670798b26c3dda55b565c7148bb8970514f7dd82"
     },
     "held-apps-worker/scripts/ci/current606-apps7-copy/supervised.py": {
-      "bytes": 1472,
-      "sha256": "d382a1db17acde4d46a47acd390a26ef3f634ae69a4212ccfd3870fbc28ceb62"
+      "bytes": 3098,
+      "sha256": "6ad995704bd7225e86fb9e7b5b7b3ea9e3c551f47d6aec094f2c18e8c9d1baf8"
     },
     "held-apps-worker/scripts/ci/current606-apps7-copy/templates/owner-api.NULL.json": {
       "bytes": 46,
       "sha256": "bb647153cea5f536ae488eb3f4ee31f5f08e7764d99b3cb99b76b9e5e1d2313d"
     },
     "held-apps-worker/scripts/ci/current606-apps7-copy/test_worker.py": {
-      "bytes": 13771,
-      "sha256": "1732677bdce19d38aaa41ae6536ec635768b70e42036437291fd76548af63256"
+      "bytes": 36092,
+      "sha256": "2f03e95773a53de1c61bc23f37063c5031af57afd0493272f78f1a76976d6779"
     },
     "held-apps-worker/scripts/ci/current606-apps7-copy/verification.py": {
       "bytes": 4356,
       "sha256": "23089503a8f9c224f1444ce7f507040174b77c9017368738093c3a5f1712d19a"
     },
     "held-apps-worker/scripts/ci/current606-apps7-copy/worker.py": {
-      "bytes": 9551,
-      "sha256": "2e03b3757a41a9a6d79dfafd6a626c0ef0dd06fe09f1f10a4ff19309793e9b5d"
+      "bytes": 9617,
+      "sha256": "2a333f8393e68651c1cf4509a6c3f2d1fd36f50844690b2a5dae40ef399d8049"
     },
     "held-copy/scripts/apps/file_capabilities.py": {
       "bytes": 13562,
@@ -435,8 +435,8 @@
       "sha256": "b36ab5a00ea25e5d87aa28294a14cb26d848562e0d962dbb3bd2c4eae400b63e"
     },
     "scripts/ci/current606-latest-tools-copy/guard.py": {
-      "bytes": 2956,
-      "sha256": "c589c4882fde31a86abd7de727640574b3fa7cbcef84fdbe6269b993ecab101e"
+      "bytes": 3900,
+      "sha256": "1b5738686bafeb03dffb7b79a6fc4e046c91b5f35657d11061fd6266e1d33c83"
     },
     "scripts/ci/current606-latest-tools-copy/inputs.py": {
       "bytes": 3490,
@@ -448,7 +448,7 @@
     },
     "scripts/ci/current606-latest-tools-copy/owner-api.json": {
       "bytes": 141,
-      "sha256": "4b1c5a1146aab813730a62b2b11cc5a810b77ba5ca73d04fb09601bff93d1b4b"
+      "sha256": "3069cf1f07a7a41b74eb114e1b1b4dcb8891b84d19fc7b3f40fa61470e08af76"
     },
     "scripts/ci/current606-latest-tools-copy/physical.py": {
       "bytes": 3499,
@@ -459,24 +459,24 @@
       "sha256": "0f0b20cba07b1b04b7fdab870b730068ed0ddfa51d9c07f7d71624acd2b0e513"
     },
     "scripts/ci/current606-latest-tools-copy/rooted_cli.py": {
-      "bytes": 7044,
-      "sha256": "ef17c3ffbdc1e7df0acf9440a14c384361d02d0846035bcd1a78c857f1d58d63"
+      "bytes": 7067,
+      "sha256": "8d747d213e91fc6f955e248cca0d72ff170c6134dadab2dea6dda0296edd52bd"
     },
     "scripts/ci/current606-latest-tools-copy/step_entry.py": {
       "bytes": 938,
       "sha256": "3e5b956a72cdcf43a1b738b7470ce285d90a7e17944021cb746b6902c8ec3922"
     },
     "scripts/ci/current606-latest-tools-copy/supervised.py": {
-      "bytes": 1472,
-      "sha256": "d382a1db17acde4d46a47acd390a26ef3f634ae69a4212ccfd3870fbc28ceb62"
+      "bytes": 3098,
+      "sha256": "6ad995704bd7225e86fb9e7b5b7b3ea9e3c551f47d6aec094f2c18e8c9d1baf8"
     },
     "scripts/ci/current606-latest-tools-copy/transient_cli.py": {
-      "bytes": 2036,
-      "sha256": "32131f9e2a6ba15c4497bff38cda935dc98d4aa20fdb57bb4939ab0bf5b2f606"
+      "bytes": 2030,
+      "sha256": "c12850e3a877f739272a7cfa2e2fdb4830ae7ece11a87f145b2968ee18809f1a"
     },
     "scripts/ci/current606-latest-tools-copy/worker.py": {
-      "bytes": 9551,
-      "sha256": "2e03b3757a41a9a6d79dfafd6a626c0ef0dd06fe09f1f10a4ff19309793e9b5d"
+      "bytes": 9617,
+      "sha256": "2a333f8393e68651c1cf4509a6c3f2d1fd36f50844690b2a5dae40ef399d8049"
     }
   }
 }

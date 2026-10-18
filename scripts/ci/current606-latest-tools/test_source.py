@@ -299,4 +299,71 @@ class FailureRetention(unittest.TestCase):
                 self.assertEqual(json.loads((root/('bridge-output/failed-'+role+'.json')).read_bytes()),value)
 
 
+class JointWireCodec(unittest.TestCase):
+ def budget(self):return R.Limits(deadline=time.monotonic()+10,max_nodes=200,max_bytes=1024**2,max_file_bytes=1024**2)
+ def observe(self,p):return R.observe(p,limits=self.budget(),hardlinks='generic-development-internal',absolute_paths=True)
+ def serialized(self,value):
+  bridge=O.load('_joint_exact_bridge_wire',ROOT/'bridge/scripts/ci/current606-welcome5-source-bridge/bridge.py')
+  return bridge.decode(bridge.encoded(value))
+ def tree(self,p):
+  (p/'nested').mkdir();(p/'a').write_bytes(b'unchanged source');os.link(p/'a',p/'b');(p/'nested/c').write_bytes(b'another source');os.link(p/'nested/c',p/'nested/d');(p/'relative').symlink_to('a')
+ def test_exact_finalizer_JSON_to_full_same_source_real_hardlinks(self):
+  with tempfile.TemporaryDirectory()as tmp:
+   p=Path(tmp);self.tree(p);before=self.observe(p);loaded=self.serialized(before);after=self.observe(p)
+   self.assertEqual(loaded['nodes'],after['nodes']);self.assertEqual(loaded['footprint'],before['footprint']);self.assertEqual(len(loaded['hardlink_groups']),2)
+   self.assertIs(type(loaded['hardlink_groups']['a']['members']),list);self.assertIs(type(after['hardlink_groups']['a']['members']),tuple);self.assertTrue(G.same_source(loaded,after))
+   self.assertEqual(loaded['hardlink_groups']['a']['members'],['a','b']);self.assertEqual(set(G.observation(loaded)),set(loaded))
+ def test_typed_codec_keeps_member_and_every_other_field_refusals(self):
+  with tempfile.TemporaryDirectory()as tmp:
+   p=Path(tmp);self.tree(p);live=self.observe(p);wire=self.serialized(live)
+   for members in (['b','a'],['a','a'],['a'],['a',False],['a','foreign'],'a'):
+    wrong=copy.deepcopy(wire);wrong['hardlink_groups']['a']['members']=members
+    with self.assertRaises(ValueError):G.same_source(wrong,live)
+   for field in ('uid','gid','mode','bytes','sha256'):
+    wrong=copy.deepcopy(wire);wrong['nodes']['a'][field]=('0'*64 if field=='sha256'else wrong['nodes']['a'][field]+1)
+    with self.assertRaises(ValueError):G.same_source(wrong,live)
+   for nlink in (True,1,3,'2'):
+    wrong=copy.deepcopy(wire);wrong['hardlink_groups']['a']['nlink']=nlink
+    with self.assertRaises(ValueError):G.same_source(wrong,live)
+   (p/'a').write_bytes(b'real content mutation')
+   with self.assertRaises(ValueError):G.same_source(wire,self.observe(p))
+ def test_wire_join_does_not_waive_inactive605_payload_DB_inode_or_caps(self):
+  helper=Step605Controls();apis={k:modules['roles'].load(k)for k in G.BASE}
+  for active in G.BASE:
+   inactive=next(k for k in G.BASE if k!=active)
+   for drift in ('payload','DB','inode','mode','hardlink','capability','version'):
+    with self.subTest(active=active,drift=drift),tempfile.TemporaryDirectory()as tmp:
+     p=Path(tmp);inventory=helper.fixture(p);held=p/'held-hardlink';held.write_bytes(b'protected source');os.link(held,p/'held-alias');before=helper.observe(p,inventory)
+     self.assertTrue(G.same_source(self.serialized(before['observation']),before['observation']))
+     path=p/'usr/bin'/G.NAMES[inactive]
+     if drift=='payload':path.write_bytes(b'inactive payload change')
+     elif drift=='DB':(p/'var/lib/pacman/local'/(G.NAMES[inactive]+'-'+G.BASE[inactive])/'desc').write_bytes(b'inactive raw DB change')
+     elif drift=='inode':replacement=path.with_name('replacement');replacement.write_bytes(path.read_bytes());os.replace(replacement,path)
+     elif drift=='mode':path.chmod(0o600)
+     elif drift=='hardlink':path.unlink();os.link(p/'usr/bin'/G.NAMES[active],path)
+     after=helper.observe(p,inventory)
+     if drift=='capability':after['capabilities']['usr/bin/'+G.NAMES[inactive]]='INERT_CHANGED_CAPABILITY'
+     elif drift=='version':after['inventory'][G.NAMES[inactive]]='foreign'
+     with self.assertRaises(ValueError):modules['lifecycle'].step_preserved(before,after,active,apis)
+
+
+class JointInventoryParent(unittest.TestCase):
+ def test_actual_transient_operand_database_parent_and_held40(self):
+  tree=ast.parse((LANE/'transient_cli.py').read_bytes());calls=[n for n in ast.walk(tree)if isinstance(n,ast.Call)and isinstance(n.func,ast.Name)and n.func.id=='call'and isinstance(n.args[0],ast.List)and any(isinstance(v,ast.Constant)and v.value=='--dbpath'for v in n.args[0].elts)];self.assertEqual(len(calls),1);values=calls[0].args[0].elts;i=next(i for i,v in enumerate(values)if isinstance(v,ast.Constant)and v.value=='--dbpath');self.assertEqual(ast.literal_eval(values[i+1]),'/var/lib/pacman');self.assertEqual(ast.literal_eval(calls[0].args[1]),40)
+ def test_real_frontend_old_child_refuses_parent_reads_without_DB_mutation(self):
+  app=ROOT/'historical/apps/copyworker/held-apps/fixture-apps';runtime=ROOT/'historical/apps/held606/held604/packages/tools/cachy-asahi-repository-runtime'
+  with tempfile.TemporaryDirectory()as td:
+   root=Path(td);db=root/'db';package=db/'local/cachy-asahi-apps-0.1.0-7';package.mkdir(parents=True);(db/'local/ALPM_DB_VERSION').write_bytes(b'9\n');(package/'desc').write_bytes(b'%NAME%\ncachy-asahi-apps\n\n%VERSION%\n0.1.0-7\n\n%ARCH%\nany\n\n');(package/'files').write_bytes(b'');repo=root/'repository'
+   for n,wanted in O.read(app/'helper-pins.json')['files'].items():
+    raw=(runtime/Path(n).name).read_bytes();self.assertEqual(O.pin(raw),wanted);p=repo/n;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(raw)
+   command=[sys.executable,'-I','-B',str(app/'apps.py'),'--repository-source',str(repo),'inventory','--dbpath'];output=root/'inventory.json';before={str(p.relative_to(db)):(p.read_bytes(),p.stat().st_ino,p.stat().st_mode,p.stat().st_mtime_ns)for p in db.rglob('*')if p.is_file()}
+   wrong=subprocess.run(command+[str(db/'local'),'--output',str(output)],capture_output=True,timeout=15);self.assertNotEqual(wrong.returncode,0);self.assertIn(b'local',wrong.stdout+wrong.stderr);self.assertFalse(output.exists())
+   good=subprocess.run(command+[str(db),'--output',str(output)],capture_output=True,timeout=15);self.assertEqual(good.returncode,0,good.stderr.decode());receipt=json.loads(good.stdout);value=json.loads(output.read_bytes());self.assertEqual(receipt['applied'],'NOT_APPLIED');self.assertEqual(receipt['package_count'],1);self.assertFalse(value['observation']['payload_verified']);self.assertFalse(value['observation']['hardware_verified']);self.assertEqual(value['observation']['consistency'],'TWO_MATCHING_READS_NO_LOCK_NO_DETECTED_DRIFT');self.assertEqual(output.stat().st_mode&0o777,0o600);self.assertEqual(before,{str(p.relative_to(db)):(p.read_bytes(),p.stat().st_ino,p.stat().st_mode,p.stat().st_mtime_ns)for p in db.rglob('*')if p.is_file()})
+   output.unlink();(db/'db.lck').write_bytes(b'held');refused=subprocess.run(command+[str(db),'--output',str(output)],capture_output=True,timeout=15);self.assertNotEqual(refused.returncode,0);self.assertIn(b'db.lck',refused.stdout+refused.stderr);self.assertFalse(output.exists())
+ def test_new_source_is_not_qualification_and_transient_signals_exact_declared_uid(self):
+  self.assertEqual(S.EXPECTED_SOURCES,{'apps606':'b6808d7a81e148ef04eef604590428b4d4d88c9c','welcome606':'af46d8dd3d24245b2402c9d0397ac88a4f29ae11'});self.assertIsNone(S.EXPECTED_JOINT);self.assertEqual(O.read(HERE/'input-policy.json')['joint_decisions'],{'apps606':None,'welcome606':None})
+  with patch.object(subprocess,'Popen',side_effect=AssertionError('NO_ACTORS')):
+   with self.assertRaisesRegex(ValueError,'future accepted'):Y.authorize(O.read(HERE/'input-policy.json'))
+  tree=ast.parse((LANE/'rooted_cli.py').read_bytes());run=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='run');calls=[n for n in ast.walk(run)if isinstance(n,ast.Call)and isinstance(n.func,ast.Attribute)and isinstance(n.func.value,ast.Name)and n.func.value.id=='supervised'and n.func.attr=='run'];self.assertEqual(len(calls),1);kw=next(k for k in calls[0].keywords if k.arg=='signal_uid');self.assertEqual(ast.unparse(kw.value),"spec['uid']");self.assertIn("value['group_retired']is True",ast.get_source_segment((LANE/'rooted_cli.py').read_text(),run))
+
 if __name__=='__main__':unittest.main(verbosity=2)
