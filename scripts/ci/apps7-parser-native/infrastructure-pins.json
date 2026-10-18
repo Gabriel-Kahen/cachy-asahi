@@ -1,0 +1,26 @@
+{
+  "scripts/ci/glibc-owned-runtime/runner.py": {
+    "bytes": 16274,
+    "sha256": "4d9aa954d95032ab9ea9085ced784efc81a5db42e2f1f3401e679ee861c16090"
+  },
+  "scripts/ci/maintained-desktop574-inputs.json": {
+    "bytes": 623664,
+    "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+  },
+  "scripts/ci/maintained_desktop574.py": {
+    "bytes": 22367,
+    "sha256": "27ba4be42cf2bd41675073e07cccc917ae033f9d68b07a33cfd7f074ac27b760"
+  },
+  "scripts/ci/old_four_seed.py": {
+    "bytes": 29048,
+    "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
+  },
+  "scripts/ci/tools-native/job.py": {
+    "bytes": 13110,
+    "sha256": "67dc1b888974303e59aa5d68cc68cfd362c3d0fe730ef93585121d69ac6aab1c"
+  },
+  "scripts/ci/welcome-native/ci/caller.py": {
+    "bytes": 8363,
+    "sha256": "cf80f438eff180b73ae9676e2145b56ba6a358fd9a69bb219e0a7a6f53ff01df"
+  }
+}
