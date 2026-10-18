@@ -1,0 +1,142 @@
+{
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "base_inventory_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+  "products": {
+    "cachy-asahi-sysctl": {
+      "check_markers": [
+        "Ran 19 tests",
+        "\nOK"
+      ],
+      "payload": {
+        "usr/bin/cachy-asahi-sysctl": [
+          "cachy-asahi-sysctl",
+          493
+        ],
+        "usr/share/doc/cachy-asahi-sysctl/README.md": [
+          "README.md",
+          420
+        ],
+        "usr/share/doc/cachy-asahi-sysctl/source-provenance.json": [
+          "source-provenance.json",
+          420
+        ],
+        "usr/share/licenses/cachy-asahi-sysctl/LICENSE": [
+          "LICENSE",
+          420
+        ],
+        "usr/share/licenses/cachy-asahi-sysctl/NOTICE": [
+          "NOTICE",
+          420
+        ]
+      },
+      "recipe": "packages/tools/cachy-asahi-sysctl",
+      "source_files": {
+        ".SRCINFO": {
+          "bytes": 882,
+          "sha256": "107e151422de3607cd3ec71679b84cad79733f626b8b321fedce29426cf32748"
+        },
+        "LICENSE": {
+          "bytes": 1081,
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "NOTICE": {
+          "bytes": 470,
+          "sha256": "5f75cdf074f7df1736f78f3e8e654196dedabff686ea32bbe92bf95c8863c50e"
+        },
+        "PKGBUILD": {
+          "bytes": 1400,
+          "sha256": "ca35fc44379d22e3ec6b8b0d88455ab51427c48b11b0be9bb281deeda9c6e9e5"
+        },
+        "README.md": {
+          "bytes": 5062,
+          "sha256": "26de39821ec4396f2419e4c59f1f5fe1419d87510ad25b75d68150a71c5ac78f"
+        },
+        "cachy-asahi-sysctl": {
+          "bytes": 12547,
+          "sha256": "48f43f1ccd7b0c70205ddc0cf5b0da60766b25d1181fbc56447722fcff9a5dd0"
+        },
+        "source-provenance.json": {
+          "bytes": 461,
+          "sha256": "c94acfffed76fc1e9379c47ee221aea24ddd642278acad7aa4d62420dda77556"
+        },
+        "test_sysctl.py": {
+          "bytes": 12327,
+          "sha256": "e583bf9932981764adb4ade79b987ef5e2a4e7e395b732c8c948a4447b3d09c5"
+        }
+      },
+      "version": "0.1.0-1"
+    },
+    "cachy-asahi-sysctl2": {
+      "check_markers": [
+        "Ran 28 tests",
+        "\nOK"
+      ],
+      "payload": {
+        "usr/bin/cachy-asahi-sysctl": [
+          "cachy-asahi-sysctl",
+          493
+        ],
+        "usr/share/doc/cachy-asahi-sysctl/README.md": [
+          "README.md",
+          420
+        ],
+        "usr/share/doc/cachy-asahi-sysctl/source-provenance.json": [
+          "source-provenance.json",
+          420
+        ],
+        "usr/share/licenses/cachy-asahi-sysctl/LICENSE": [
+          "LICENSE",
+          420
+        ],
+        "usr/share/licenses/cachy-asahi-sysctl/NOTICE": [
+          "NOTICE",
+          420
+        ]
+      },
+      "recipe": "packages/tools/cachy-asahi-sysctl2",
+      "source_files": {
+        ".SRCINFO": {
+          "bytes": 882,
+          "sha256": "27ce439e50e40568f4d241589d4086e9918bd132ed55a5286e73a4767a66afcc"
+        },
+        "LICENSE": {
+          "bytes": 1081,
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "NOTICE": {
+          "bytes": 470,
+          "sha256": "5f75cdf074f7df1736f78f3e8e654196dedabff686ea32bbe92bf95c8863c50e"
+        },
+        "PKGBUILD": {
+          "bytes": 1400,
+          "sha256": "783b984ad07a31d0d862a8c18ae2bd97fc9492ee61e70dc481a69686b3eefe02"
+        },
+        "README.md": {
+          "bytes": 7860,
+          "sha256": "c9d25d4b56788c81118802080fc3b91b83f5d79087202c58d2a5cfeaa2002f4c"
+        },
+        "cachy-asahi-sysctl": {
+          "bytes": 16250,
+          "sha256": "70e3e35d1bf517b21c84f5ecbe608da551e6f8577c68bbfbbd2412b8dd3ed4f0"
+        },
+        "source-provenance.json": {
+          "bytes": 482,
+          "sha256": "75e01b5ce01a6f7bdef0bd3913456e8d135704886eed7ca85dea156901887f67"
+        },
+        "test_sysctl.py": {
+          "bytes": 19452,
+          "sha256": "e6e24ab48751ef0ec6747eb09c3a0fb3d0110732936d6da21824ba63d6e943f4"
+        }
+      },
+      "version": "0.1.0-2"
+    }
+  },
+  "recipe_sources": {
+    "cachy-asahi-sysctl": null,
+    "cachy-asahi-sysctl2": null
+  },
+  "schema_version": 1,
+  "status": "UNBOUND_SOURCE_TEMPLATE"
+}

@@ -76,6 +76,21 @@ class Source(unittest.TestCase):
   self.assertIn('I.preserve_base(L,state)==base_digest',life)
 
 class PrivateProfile(unittest.TestCase):
+ def test_supervision_receipts_refuse_unknown_parent_or_daemon_binding(self):
+  for value in ({},{'supervision':{}},{'supervision':{'route':'ORIGINAL_SIX_CAP_SUPERVISOR_ZERO_CAP_NM_WORKER'}}):
+   with self.assertRaises(ValueError):rules.supervision(value)
+  for value in ({},{'Pid':'1','PPid':'0'},{'Pid':'2','PPid':'1','CapEff':'db'}):
+   with self.assertRaises(ValueError):rules.frame(value,pid=2,ppid=1)
+ def test_worker_rejects_parent_caps_missing_nnp_or_changed_bounding_set(self):
+  module=C.load('profile_worker_frames',A.HERE/'profile_actor.py')
+  zero=dict(CapInh='0',CapPrm='0',CapEff='0',CapAmb='0',CapBnd='db',NoNewPrivs='1')
+  for key,value in(('CapInh','1'),('CapPrm','db'),('CapEff','db'),('CapAmb','1'),('CapBnd','fff'),('NoNewPrivs','0')):
+   changed=dict(zero);changed[key]=value;self.assertFalse(module.zero_frame(changed))
+  with patch.object(module.os,'getuid',return_value=0),patch.object(module.os,'geteuid',return_value=0),patch.object(module.os,'getpid',return_value=2),patch.object(module.os,'getppid',return_value=9),self.assertRaisesRegex(ValueError,'container PID1'):module.worker_guard('1'*32)
+ def test_fixed_worker_capset_and_exec_guards_not_host_mutation(self):
+  raw=(A.HERE/'profile_actor.py').read_text();self.assertIn('Header(0x20080522,0)',raw);self.assertIn('data=(Data*2)()',raw);self.assertIn('libc.prctl(38,1,0,0,0)',raw);self.assertIn('libc.prctl(47,4,0,0,0)',raw)
+  self.assertIn("os.execve('/usr/bin/python3'",raw);self.assertIn('os.waitpid(pid,0)',raw);self.assertIn("binding['frame']==observed",raw);self.assertIn("namespace_frame(pid)",raw);self.assertNotIn('NET_ADMIN',raw)
+  fixture=(A.HERE/'private_profile.py').read_text();self.assertIn("observed['PPid']==str(os.getpid())",fixture);self.assertIn('zero_frame(observed)',fixture)
  def test_isolated_entry_loads_trusted_siblings_before_native_guard(self):
   import subprocess
   with tempfile.TemporaryDirectory()as tmp:
@@ -109,7 +124,7 @@ class PrivateProfile(unittest.TestCase):
    self.assertFalse(out.exists())
   for value in ({},{'status':'PASS_REAL_PRIVATE_STORED_PROFILE_INTEGRATION','architecture':'x86_64'}):
    with self.assertRaises(ValueError):rules.validate_profile(value,'0'*64)
- def test_real_staged_command_bytes_mode_and_zero_cap_frame_without_actor(self):
+ def test_real_staged_command_bytes_mode_and_original_six_cap_frame_without_actor(self):
   module=C.load('profile_actual_stage_control',A.HERE/'profile_actor.py')
   shared=C.load('profile_original_docker_frame',ROOT/'scripts/ci/welcome-native/run.py')
   program=ROOT/'packages/tools/cachy-asahi-dns/cachy-asahi-dns';captured=[]
@@ -122,10 +137,10 @@ class PrivateProfile(unittest.TestCase):
     module.launch(C,ROOT,out,'INERT_NO_DAEMON_MODEL',{'cachy-asahi-dns':product},shared.docker,stop,[])
    staged=out/'profile-inputs/dns-command';self.assertEqual(staged.read_bytes(),program.read_bytes());self.assertEqual(staged.stat().st_mode&0o777,0o755)
    self.assertEqual((out/'private-profile-actor').stat().st_mode&0o777,0o703)
-   self.assertFalse(any(a.startswith('--cap-add=')for a in captured[0]));self.assertIn('--cap-drop=ALL',captured[0]);self.assertIn('--network=none',captured[0])
+   self.assertEqual([a for a in captured[0]if a.startswith('--cap-add=')],['--cap-add='+c for c in('CHOWN','DAC_OVERRIDE','FOWNER','FSETID','SETUID','SETGID')]);self.assertIn('--cap-drop=ALL',captured[0]);self.assertIn('--network=none',captured[0])
    self.assertIn('type=bind,src='+str(staged)+',dst=/usr/bin/cachy-asahi-dns,readonly',captured[0])
- def test_new_actor_removes_only_original_six_caps_and_preserves_other_guards(self):
-  actor=(A.HERE/'profile_actor.py').read_text();self.assertIn("[a for a in argv if a not in caps]",actor)
+ def test_supervisor_keeps_only_original_six_caps_and_preserves_other_guards(self):
+  actor=(A.HERE/'profile_actor.py').read_text();self.assertNotIn("[a for a in argv if a not in caps]",actor);self.assertIn('drop_capabilities()',actor)
   self.assertIn("I.preserve_base(L,state)==before",actor);self.assertIn("after==network",actor)
   self.assertIn("os.uname().machine=='aarch64'",actor)
   self.assertIn("out/'private-profile.log',600",actor)
