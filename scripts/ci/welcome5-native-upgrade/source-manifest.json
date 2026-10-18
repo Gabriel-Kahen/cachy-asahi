@@ -341,8 +341,8 @@
       "sha256": "6065fff6889eac2ce0123d4ea660147f51e204cce4d0b7a5d3a944d870b6c4c1"
     },
     "scripts/ci/welcome5-native-upgrade/lifecycle.py": {
-      "bytes": 5529,
-      "sha256": "d4ad9efdb7adc0fdafb200e57e99da884e119fb188af073f69acc6a1c353254a"
+      "bytes": 5518,
+      "sha256": "9d98ea880b651fd82ca1ca9bb1ea7ead0836ab53a829b55f313c1b7374bc716f"
     },
     "scripts/ci/welcome5-native-upgrade/original-pins.json": {
       "bytes": 4346,
@@ -369,8 +369,8 @@
       "sha256": "184cf841b93da8ab0b7df7f86998f2b158e59de6d7786796504726e43ec3b0db"
     },
     "scripts/ci/welcome5-native-upgrade/test_lane.py": {
-      "bytes": 7012,
-      "sha256": "b7122a0a1c852f9c0280fd99fcc687584934439b97a04f22753fc26a8fdfa2ad"
+      "bytes": 7592,
+      "sha256": "e7a325da8955918ab3c0f7626ff2d549b9a71cd8eda3f0005972f1bed3eeccfe"
     },
     "scripts/ci/welcome5-native-upgrade/workflow.yml.in": {
       "bytes": 8446,

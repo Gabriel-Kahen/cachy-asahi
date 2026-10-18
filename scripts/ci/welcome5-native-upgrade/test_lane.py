@@ -74,4 +74,10 @@ class Controls(unittest.TestCase):
   with tempfile.TemporaryDirectory()as d:
    path=Path(d)/'f';path.write_bytes(b'wrong')
    with self.assertRaises(ValueError):S.checked(path,dict(bytes=5,sha256='a'*64))
+ def test_generated_lifecycle_contract_API_exists_for_every_reference(self):
+  # Resolve the real generated contract used by the lifecycle, before actors.
+  contract=A.module(ROOT,'contract.py');tree=ast.parse((A.HERE/'lifecycle.py').read_text())
+  names={n.attr for n in ast.walk(tree)if isinstance(n,ast.Attribute)and isinstance(n.value,ast.Name)and n.value.id=='C'}
+  for name in names:self.assertTrue(hasattr(contract,name),'missing generated lifecycle API: '+name)
+  self.assertEqual(contract.PACKAGE,'cachy-asahi-welcome');self.assertEqual(set(contract.NAMES),set(S.NAMES))
 if __name__=='__main__':unittest.main(verbosity=2)
