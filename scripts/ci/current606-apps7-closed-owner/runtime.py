@@ -82,6 +82,90 @@ def group_absent(pid):
     raise ValueError('prior owned process group still present')
 
 
+def failed_role_record(output, role, nonce, command, active, terminal, error, seconds):
+    """DATA from the original merged capture after retirement; no continuation authority."""
+    import base64
+    import hashlib
+    import json
+    need(role in SECONDS and re.fullmatch('[0-9a-f]{32}', nonce or ''), 'fixed failed role/nonce')
+    need(type(command) is list and all(type(x) is str for x in command), 'original command argv')
+    command_raw = json.dumps(command, ensure_ascii=True, separators=(',', ':')).encode()
+    need(len(command) <= 128 and len(command_raw) <= 16384, 'bounded original argv')
+    need(active is not None and type(active.process.returncode) is int, 'actual reaped child result')
+    need(terminal is None or terminal.si_code != os.CLD_EXITED or terminal.si_status != 0 or error is not None,
+         'failure data only')
+    identity = lambda s: (s.st_dev, s.st_ino, s.st_mode, s.st_uid, s.st_gid,
+                          s.st_nlink, s.st_size, s.st_mtime_ns, s.st_ctime_ns)
+    flags = os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC | os.O_NONBLOCK
+    root = os.open(ordinary(output), flags | os.O_DIRECTORY)
+    try:
+        info = os.fstat(root)
+        need(info.st_uid == os.geteuid(), 'caller-owned output')
+        fd = os.open(role + '.log', flags, dir_fd=root)
+        try:
+            before = os.fstat(fd)
+            need(stat.S_ISREG(before.st_mode) and before.st_nlink == 1 and
+                 before.st_uid == os.geteuid() and before.st_size <= 16 * 1024**2,
+                 'bounded original single-link captured log')
+            digest = hashlib.sha256()
+            tail, total = b'', 0
+            while True:
+                block = os.read(fd, 65536)
+                if not block:
+                    break
+                total += len(block)
+                need(total <= 16 * 1024**2, 'captured log grew beyond original cap')
+                digest.update(block)
+                tail = (tail + block)[-8192:]
+            need(total == before.st_size and identity(before) == identity(os.fstat(fd)) ==
+                 identity(os.stat(role + '.log', dir_fd=root, follow_symlinks=False)), 'captured log drift')
+        finally:
+            os.close(fd)
+        value = dict(schema_version=1, status='FAILED_ROLE_DATA_NOT_AUTHORITY', role=role, nonce=nonce,
+                     command=dict(argv=command, bytes=len(command_raw), sha256=hashlib.sha256(command_raw).hexdigest()),
+                     outcome=dict(pid=active.process.pid, returncode=active.process.returncode,
+                                  waitid=None if terminal is None else dict(code=terminal.si_code, status=terminal.si_status),
+                                  error_type=None if error is None else type(error).__name__,
+                                  limit_seconds=seconds, direct_child_reaped=True, group_absent=True, containers_absent=True),
+                     capture=dict(stream='MERGED_STDOUT_STDERR', bytes=total, sha256=digest.hexdigest(),
+                                  original_limit=16 * 1024**2, tail_bytes=len(tail),
+                                  tail_sha256=hashlib.sha256(tail).hexdigest(), tail_base64=base64.b64encode(tail).decode(),
+                                  omitted_bytes=total-len(tail), truncated=total > len(tail),
+                                  scope='ORIGINAL_CAPTURE_ONLY_ATTEMPTED_OUTPUT_COMPLETENESS_NOT_ATTESTED'),
+                     acceptance='NOT_GRANTED')
+        raw = (json.dumps(value, sort_keys=True, ensure_ascii=True, separators=(',', ':'), allow_nan=False) + '\n').encode()
+        need(len(raw) <= 32768, 'bounded failure JSON')
+        target = os.open('bridge-output', flags | os.O_DIRECTORY, dir_fd=root)
+        try:
+            outinfo = os.fstat(target)
+            need(outinfo.st_uid == os.geteuid() and stat.S_IMODE(outinfo.st_mode) == 0o700,
+                 'caller-owned0700 receipt directory')
+            fd = os.open('failed-' + role + '.json', os.O_WRONLY | os.O_CREAT | os.O_EXCL |
+                         os.O_NOFOLLOW | os.O_CLOEXEC, 0o600, dir_fd=target)
+            try:
+                view = memoryview(raw)
+                while view:
+                    count = os.write(fd, view)
+                    need(count > 0, 'failure data write')
+                    view = view[count:]
+                os.fsync(fd)
+            finally:
+                os.close(fd)
+        finally:
+            os.close(target)
+        return value
+    finally:
+        os.close(root)
+
+
+def retain_failed_role(*args):
+    # Missing/drifting diagnostics must not replace the original error/refusal.
+    try:
+        failed_role_record(*args)
+    except BaseException:
+        pass
+
+
 class AfterCapture:
     """Use held Containers/LoggedProcess APIs; preserve the original6600s owner.
 
@@ -144,6 +228,8 @@ class AfterCapture:
         # was verifiably retired; they never authorize the next functional phase.
         self.phase = ({'finalize': 'finalized', 'worker': 'worker-retired', 'dispose': 'disposed'}[role]
                       if ok else 'retired')
+        if not ok:
+            retain_failed_role(self.output, role, self.nonce, command, active, terminal, error, seconds)
         if error is not None:
             raise error
         need(ok, 'phase failed; receipt cannot authorize continuation')
