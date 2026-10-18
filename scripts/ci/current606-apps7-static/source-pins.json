@@ -3,7 +3,7 @@
   "files": {
     ".github/workflows/native-arm-current606-apps7-owned-copy.yml": {
       "bytes": 31197,
-      "sha256": "1fa31dea63f11de7e6c36a611f4f85a86fba1fe873682c4b719c4c2a57e64649"
+      "sha256": "22f49aa16b9ce9b308b2eb24bbbee8010bd27bbadaf24586013d44232a1f3270"
     },
     "scripts/ci/current606-apps7-closed-owner/builds.py": {
       "bytes": 1663,
@@ -30,24 +30,24 @@
       "sha256": "b28f633104f9ef5cec4aebb2f6e65ac16a87db9126b759f87d8dc46fc41dfe3b"
     },
     "scripts/ci/current606-apps7-closed-owner/runtime.py": {
-      "bytes": 9542,
-      "sha256": "d581bdb8a6366604817d81d99ee47c0d07ef40d97eb23f0c4f945d77901fda50"
+      "bytes": 14340,
+      "sha256": "e30d0a3e0901391dd624b350192d38df8d60632fcac07d93be449f852921fa13"
     },
     "scripts/ci/current606-apps7-closed-owner/selection.py": {
       "bytes": 8431,
       "sha256": "e0f1926872cf771e0fcd31bfff42b55c8a18a269a91ed5e74d4db0ff45c40419"
     },
     "scripts/ci/current606-apps7-closed-owner/source-manifest.json": {
-      "bytes": 60636,
-      "sha256": "37e528f6e7c86c564b45cd2c66292fa81d8136d0c8b671b1d10768ec90f2e14f"
+      "bytes": 60637,
+      "sha256": "0cfd4786cf2e34ddaa03c8933d430630ebc07d8d2c0278b19c89a374ba90a179"
     },
     "scripts/ci/current606-apps7-closed-owner/source-pins.json": {
       "bytes": 58974,
       "sha256": "06361c8a40171b23218553187cd0f59fb43861f9180240f813aba5af703efcd1"
     },
     "scripts/ci/current606-apps7-closed-owner/test_owner.py": {
-      "bytes": 10637,
-      "sha256": "e8efd272105b9380da6510b686407275b776b5468cc05108be0cb722c6494965"
+      "bytes": 19485,
+      "sha256": "e8de17312f27eb3fc1254fecf94e207b9d8b311f0a06afdc6872459f69a8a000"
     }
   },
   "purpose": "SOURCE_CARRIER_ONLY_NOT_NATIVE_AUTHORITY",
