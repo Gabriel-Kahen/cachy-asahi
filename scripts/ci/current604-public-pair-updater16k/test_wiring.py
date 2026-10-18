@@ -380,9 +380,80 @@ class InputFileStaging(unittest.TestCase):
   old=C.read(C.ROOT/'scripts/ci/current604-apps6-updater16k/disk.py');new=C.read(C.HERE/'disk.py')
   before="else:target.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(source,target,follow_symlinks=False)"
   after="else:target.parent.mkdir(parents=True,exist_ok=True);command(['/usr/bin/cp','-a','--reflink=never','--',source,target],900)"
+  import disk
+  helper='BOOT_DEV_CHECK = '+repr(disk.BOOT_DEV_CHECK)+'\n\n'
+  initial="'mount -t devtmpfs -o nosuid devtmpfs /dev'"
+  revised="'/usr/bin/python3 -I -B -c '+__import__('shlex').quote(BOOT_DEV_CHECK),'mount -o remount,nosuid /dev'"
+  self.assertEqual(new.decode().count(helper),1);self.assertEqual(new.decode().count(revised),1)
+  new=new.decode().replace(helper,'').replace(revised,initial).encode()
   self.assertEqual(new.decode().count(after),1);self.assertEqual(new.decode().replace(after,before).encode(),old)
   self.assertIn("elif source.is_dir():command(['/usr/bin/cp','-a','--reflink=never','--',source,target],900)",new.decode())
   self.assertIn("C.need(not target.exists() and not target.is_symlink(),'fresh staged infrastructure role')",new.decode())
   self.assertEqual((C.HERE/'guest.py').read_bytes().count(b"'copied input metadata'"),1)
+
+class KernelAutoDevMount(unittest.TestCase):
+ """Controlled kernel-format tables and real owned descriptors, never a guest fixture."""
+ def bootstrap(self):
+  import disk
+  space=dict(__name__='source_bootstrap_control');exec(compile(disk.BOOT_DEV_CHECK,'<exact-generated-dev-check>','exec'),space);return space
+ def table(self,dev=True):
+  rows=['1 0 254:0 / / rw - ext4 /dev/vda rw','2 1 0:1 / /proc ro - proc proc ro','3 1 0:2 / /sys ro - sysfs sysfs ro','4 1 254:1 /measurement /measurement rw - ext4 /dev/vdb rw','5 1 254:1 /upgrade-signing /upgrade-signing rw - ext4 /dev/vdb rw']
+  if dev:rows.append('10 1 0:5 / /dev rw - devtmpfs devtmpfs rw')
+  return '\n'.join(rows)+'\n'
+ def test_kernel_autodev_old_init_stack_refuses_and_single_mount_route_passes(self):
+  import disk
+  scope=C.load('original_mount_stack_scope',C.ROOT/'scripts/ci/full-root-upgrade-caller/persistent_scope.py')
+  fragment=C.read(C.ROOT/'scripts/ci/managed-gui-generic16k/kernel.fragment').decode();self.assertIn('CONFIG_DEVTMPFS_MOUNT=y\n',fragment)
+  initial=self.table();self.assertEqual(self.bootstrap()['verify'](initial,10),10);scope.mounts(initial)
+  # Source-route fixture, not exported actual mountinfo: automatic devtmpfs10,
+  # redundant explicit devtmpfs11, one umount removes11, tmpfs12 leaves10+12.
+  stacked=initial+'11 10 0:5 / /dev rw,nosuid - devtmpfs devtmpfs rw\n'
+  with self.assertRaisesRegex(ValueError,'unambiguous mount table'):scope.mounts(stacked)
+  old_final=initial+'12 10 0:6 / /dev rw,nosuid - tmpfs tmpfs rw\n'
+  with self.assertRaisesRegex(ValueError,'unambiguous mount table'):scope.mounts(old_final)
+  # New route remounts existing10 (same ID), then original umount removes10;
+  # original tmpfs12 has a unique /dev and the strict original policy passes.
+  final=self.table(dev=False)+'12 1 0:6 / /dev rw,nosuid - tmpfs tmpfs rw\n'
+  rows=scope.mounts(final);policy=scope.mount_policy(Path('/'),Path('/measurement/inspection'),rows)
+  self.assertEqual((policy['source_mount'],policy['target_mount']),(1,4));self.assertIn('dev',policy['observed_mounts'])
+  self.assertNotIn("'mount -t devtmpfs -o nosuid devtmpfs /dev'",C.read(C.HERE/'disk.py').decode())
+ def test_missing_wrong_stacked_alias_or_unmatched_existing_mount_refuses(self):
+  verify=self.bootstrap()['verify'];raw=self.table()
+  wrong=[(self.table(dev=False),10),(raw.replace('devtmpfs devtmpfs','tmpfs tmpfs'),10),(raw,11),(raw,True),(raw+'11 10 0:5 / /dev rw - devtmpfs devtmpfs rw\n',10),(raw+'11 1 254:0 / / rw - ext4 /dev/vda rw\n',10),(raw.replace('10 1 0:5 / /dev','10 1 0:5 /sub /dev'),10),(raw.replace('/dev rw - devtmpfs','/dev/../dev rw - devtmpfs'),10),(raw+'10 1 0:9 / /run rw - tmpfs tmpfs rw\n',10)]
+  for text,identity in wrong:
+   with self.subTest(text=text,identity=identity),self.assertRaises(ValueError):verify(text,identity)
+ def test_actual_generated_shell_entry_and_fresh_owned_fd_readback(self):
+  import disk,io,shlex
+  tree=ast.parse(C.read(C.HERE/'disk.py'));prepare=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='prepare');node=next(n for n in prepare.body if isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id=='init'for t in n.targets))
+  script=eval(compile(ast.Expression(body=node.value),'<actual-init-list>','eval'),dict(BOOT_DEV_CHECK=disk.BOOT_DEV_CHECK))
+  entries=[s for s in script if s.startswith('/usr/bin/python3 -I -B -c ')];self.assertEqual(len(entries),1);self.assertEqual(shlex.split(entries[0])[-1],disk.BOOT_DEV_CHECK)
+  self.assertEqual(script.count('mount -o remount,nosuid /dev'),1);self.assertFalse(any(s.startswith('mount -t devtmpfs ')for s in script))
+  original_open=os.open;path_open=Path.open
+  with tempfile.TemporaryDirectory()as tmp:
+   directory=Path(tmp);fd=original_open(directory,os.O_RDONLY|os.O_DIRECTORY)
+   try:mount_id=int(next(line.split()[1]for line in Path('/proc/self/fdinfo/'+str(fd)).read_text().splitlines()if line.startswith('mnt_id:')))
+   finally:os.close(fd)
+   raw=self.table().replace('10 1 0:5 / /dev',str(mount_id)+' 1 0:5 / /dev')
+   def opened(path,*args,**kwargs):return io.StringIO(raw)if str(path)=='/proc/self/mountinfo'else path_open(path,*args,**kwargs)
+   def dev_open(path,flags,*args,**kwargs):
+    if path=='/dev':self.assertTrue(flags&os.O_NOFOLLOW);return original_open(directory,flags,*args,**kwargs)
+    return original_open(path,flags,*args,**kwargs)
+   before=len(os.listdir('/proc/self/fd'))
+   with patch.object(Path,'open',opened),patch.object(os,'open',side_effect=dev_open):exec(compile(shlex.split(entries[0])[-1],'<actual-generated-bootstrap>','exec'),dict(__name__='__main__'))
+   self.assertEqual(len(os.listdir('/proc/self/fd')),before)
+ def test_bad_descriptor_identity_fails_closed_and_retires_fd(self):
+  import io
+  space=self.bootstrap();original_open=os.open;path_open=Path.open
+  with tempfile.TemporaryDirectory()as tmp:
+   directory=Path(tmp)
+   def opened(path,*args,**kwargs):
+    if str(path)=='/proc/self/mountinfo':return io.StringIO(self.table())
+    if str(path).startswith('/proc/self/fdinfo/'):return io.StringIO('mnt_id:\t999\n')
+    return path_open(path,*args,**kwargs)
+   def dev_open(path,flags,*args,**kwargs):return original_open(directory if path=='/dev'else path,flags,*args,**kwargs)
+   before=len(os.listdir('/proc/self/fd'))
+   with patch.object(Path,'open',opened),patch.object(os,'open',side_effect=dev_open),self.assertRaisesRegex(ValueError,'kernel devtmpfs identity'):space['main']()
+   self.assertEqual(len(os.listdir('/proc/self/fd')),before)
+
 
 if __name__=='__main__':unittest.main(verbosity=2)
