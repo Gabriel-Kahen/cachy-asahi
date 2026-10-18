@@ -369,7 +369,7 @@ class PeerFocusControls(unittest.TestCase):
  def test_bounded_readback_both_generated_profiles_preserve_timeout_and_helpers(self):
   for selected in C.PROFILES:
    with tempfile.TemporaryDirectory()as tmp:
-    runner=Controls().generated(Path(tmp),selected);self.assertEqual((runner/'installed604.py').read_bytes(),A.readback_openat2(A.readback_snapshot_mismatch(A.readback_path_hotpath(A.readback_fresh_mount(A.readback_progress((ROOT/C.OLD/'installed604.py').read_bytes()),ROOT),ROOT))))
+    runner=Controls().generated(Path(tmp),selected);self.assertEqual((runner/'installed604.py').read_bytes(),A.readback_more_keys(A.readback_openat2(A.readback_snapshot_mismatch(A.readback_path_hotpath(A.readback_fresh_mount(A.readback_progress((ROOT/C.OLD/'installed604.py').read_bytes()),ROOT),ROOT)))))
     self.assertIn("'installed604-preserved',timeout=600",(runner/'base_guest.py').read_text())
     for name,path in (('alpm_reader.py','scripts/ci/full-root-upgrade/root_upgrade.py'),('file_capabilities.py','scripts/apps/file_capabilities.py')):self.assertEqual((runner/name).read_bytes(),(ROOT/path).read_bytes())
 
@@ -665,3 +665,51 @@ class DoctorPublication(unittest.TestCase):
   for i in range(24):
    path=self.root/str(i);self.new.publish(path,{'nonce':'a'*32},0o600);self.assertEqual(self.new.read(path,os.getuid(),0o600),{'nonce':'a'*32});path.unlink()
   self.assertEqual(count(),before)
+
+class ImageAccountsBeforeSnapshot(unittest.TestCase):
+ def test_whole_fixture_guard_and_exact_order_in_both_composed_profiles(self):
+  with patch.object(subprocess,'Popen',side_effect=AssertionError('no actors/Git/API')):
+   for profile in C.PROFILES:
+    with tempfile.TemporaryDirectory() as td:
+     runner=Controls().generated(Path(td),profile)
+     candidate=(runner/'desktop574_fixture.sh').read_bytes()
+     inserted=b'# Settle the same image-owned account configuration before its offline baseline.\n/usr/bin/systemd-sysusers --root="$root"\n'
+     self.assertEqual(candidate.count(inserted),1)
+     original=candidate.replace(inserted,b'')
+     self.assertEqual(A.initialize_image_accounts(original),candidate)
+     text=candidate.decode()
+     self.assertLess(text.index("'desktop574:!:20000:0:99999:7:::'"),text.index('/usr/bin/systemd-sysusers --root="$root"'))
+     self.assertLess(text.index('/usr/bin/systemd-sysusers --root="$root"'),text.index('/runner/installed604.py capture'))
+     self.assertLess(text.index('/runner/installed604.py capture'),text.index('mkfs.ext4'))
+     for tampered in (original+b'\n',original.replace(b'installed604.py capture',b'installed604.py verify')):
+      with self.assertRaisesRegex(ValueError,'whole generated fixture'):A.initialize_image_accounts(tampered)
+     helper=(runner/'installed604.py').read_text()
+     self.assertIn("need(actual==baseline,'complete installed inventory/payload/hardlink/nonselected DB preservation differs')",helper)
+     self.assertIn('timeout=600',(runner/'base_guest.py').read_text())
+ def test_no_universal_boot_or_snapshot_exception(self):
+  raw=(ROOT/C.NEW/'adapter.py').read_text()
+  tree=ast.parse(raw);fn=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='initialize_image_accounts')
+  text=ast.get_source_segment(raw,fn)
+  self.assertNotIn('tmpfiles',text);self.assertNotIn('baseline.pop',text);self.assertNotIn('ignore',text)
+class FiveMismatchKeys(unittest.TestCase):
+ def test_actual_composed_helper_retains_five_keys_within_original2048bytes(self):
+  with patch.object(subprocess,'Popen',side_effect=AssertionError('no actors/Git/API')),tempfile.TemporaryDirectory() as td:
+   runner=Controls().generated(Path(td),'overlay');space={};exec(compile((runner/'installed604.py').read_bytes(),'trusted_generated_helper','exec'),space)
+   baseline=dict(schema_version=1,packages={},ownership={},nodes={},hardlinks=[],nonselected_database={},capabilities={},payload_bytes=0,qualification='PRIVATE_INERT_DIAGNOSTIC_CONTROL')
+   actual=copy.deepcopy(baseline)
+   names=['etc/group','etc/gshadow','fixture/unknown-three','fixture/unknown-four','fixture/unknown-five']
+   for name in names:baseline['nodes'][name]={'bytes':1,'sha256':'a'*64};actual['nodes'][name]={'bytes':2,'sha256':'b'*64}
+   with patch.object(space['os'],'write')as write:
+    with self.assertRaisesRegex(ValueError,'preservation differs'):space['verify'](actual,baseline)
+   raw=write.call_args.args[1];row=json.loads(raw);self.assertLessEqual(len(raw),2048);self.assertEqual(row['schema_version'],2);self.assertEqual([k['key']for k in row['keys']],sorted(names));self.assertEqual(row['keys_omitted'],0);self.assertEqual(row['counts']['nodes'],[0,0,5]);self.assertEqual(row['status'],'DIAGNOSTIC_ONLY_NOT_ACCEPTANCE')
+   actual['nodes']={('🧪'*100)+str(n):{'bytes':3,'sha256':'c'*64}for n in range(100)}
+   with patch.object(space['os'],'write')as write:space['snapshot_mismatch'](actual,baseline)
+   raw=write.call_args.args[1];row=json.loads(raw);self.assertLessEqual(len(raw),2048);self.assertLessEqual(len(row['keys']),5);self.assertEqual(row['keys_omitted']+len(row['keys']),105)
+ def test_only_failure_formatter_changes_all_comparison_and_readback_functions_held(self):
+  with patch.object(subprocess,'Popen',side_effect=AssertionError('no actors/Git/API')),tempfile.TemporaryDirectory() as td:
+   runner=Controls().generated(Path(td),'minimal');candidate=(runner/'installed604.py').read_bytes()
+   # Remove only the new formatter by selecting the original composed derivation.
+   raw=A.readback_openat2(A.readback_snapshot_mismatch(A.readback_path_hotpath(A.readback_fresh_mount(A.readback_progress((ROOT/C.OLD/'installed604.py').read_bytes()),ROOT),ROOT)))
+   functions=lambda v:{n.name:ast.dump(n,include_attributes=False)for n in ast.parse(v).body if isinstance(n,(ast.FunctionDef,ast.ClassDef))}
+   before,after=functions(raw),functions(candidate);self.assertEqual(before.keys(),after.keys())
+   for name in before.keys()-{'snapshot_mismatch'}:self.assertEqual(before[name],after[name],name)

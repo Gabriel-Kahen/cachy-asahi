@@ -43,7 +43,7 @@ def prepare(s):
    for n,pin in s['source_files'].items():
     src=source/C.relative(n);C.need(C.row(src)==pin,'exact support source');q=target/n;q.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(src,q)
   elif source.is_dir():command(['/usr/bin/cp','-a','--reflink=never','--',source,target],900)
-  else:target.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(source,target,follow_symlinks=False)
+  else:target.parent.mkdir(parents=True,exist_ok=True);command(['/usr/bin/cp','-a','--reflink=never','--',source,target],900)
   q=boot/name
   if not q.exists():q.mkdir(mode=0o755) if target.is_dir() else q.touch()
  s=dict(s,capabilities_sha256=C.sha(C.encoded(mapping)))
