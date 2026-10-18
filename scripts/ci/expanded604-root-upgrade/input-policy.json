@@ -1,0 +1,46 @@
+{
+  "after_sha256": "76c37db5eb097662f4a9ca0465680de285466b0443916a50255ea5b8f6d6c946",
+  "before_sha256": "e52be4b82b824bfbb6f1fb5bc8a742a2a2fb5c555aafe2d82532534385ec7e80",
+  "decision_source": "977f963dbdca260446d280d38aa5b740b27fe9df",
+  "installer_inputs": {
+    "eight_source": "0d7ec3b5ec9b473c9a1b2557735f8dadd8de3f50",
+    "fresh600_decisions": "fd42f51b6c32a1cca69df5699760ed2a9e39329f",
+    "legacy_source": "b6b17e5f6b322f160f7eeb22c8a01380a3c854cd",
+    "management_source": "92e433fa79eb57bfb3e4038feb30e7a7c87c652f",
+    "native604_decisions": "fb2a57ef0b7710d9ec4eb4f207f07dd88ceaa7e1",
+    "setup_source": "79d8d2f53510e4f3a04f39c1b1e24c999aa32e44",
+    "seven_source": "7fee76d68e5fd75437d8b49aaaced8376d2215cd",
+    "welcome_source": "942f8f6036fdd954b9d2d74da08d032c0334b408"
+  },
+  "installer_source": "2d7414053d35ca8427ed2ee072c4507f5a08fc72",
+  "prerequisites": {
+    "fresh604": {
+      "bytes": 4175,
+      "path": "payload/fresh604.json",
+      "sha256": "54d7d836db5cb5191ebbaabcabbfb17b258c87d12cec1e969e5bc246de92804a"
+    },
+    "native604": {
+      "bytes": 3492,
+      "path": "payload/native604.json",
+      "sha256": "ef048476146447cbf4a403a8fa624d223154aa1353f6db3a9b331fc35214470a"
+    },
+    "normal600": {
+      "bytes": 2803,
+      "path": "payload/normal600.json",
+      "sha256": "c23c4582de12499a0c2c9df86c0dc2d1c02e220c12442d9e50ddb2a434699092"
+    },
+    "postcommit600": {
+      "bytes": 2948,
+      "path": "payload/postcommit600.json",
+      "sha256": "22f817d14d208fa604c005cbf470fb68d1c078a6db980b1dcea7f91cb8ffe43b"
+    },
+    "precommit600": {
+      "bytes": 2827,
+      "path": "payload/precommit600.json",
+      "sha256": "b43fac85ce7ef4fb70f8ff8688cd6fc2a1f8afcd9bbfbd29edc69083269ee9a4"
+    }
+  },
+  "schema_version": 1,
+  "setup5_pair_source": "79d8d2f53510e4f3a04f39c1b1e24c999aa32e44",
+  "status": "ROOT_BOUND_ACTUAL_PREREQUISITES"
+}
