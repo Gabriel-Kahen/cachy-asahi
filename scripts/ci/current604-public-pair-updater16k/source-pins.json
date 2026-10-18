@@ -1228,7 +1228,7 @@
       },
       ".github/workflows/native-arm-expanded604-apps6-public-pair-updater.yml": {
         "bytes": 32344,
-        "sha256": "22e81013207743cae7ae4f8a32bf48636fd7682a6724fe07a515aae8235b7ea5"
+        "sha256": "a0e5ce13e9791e43e673f994d516f338b88f75f9ff3103c70614f8582ab8aa73"
       },
       ".github/workflows/native-arm-expanded604-apps6-public-pairs.yml": {
         "bytes": 28894,
@@ -1952,7 +1952,7 @@
       },
       "scripts/ci/expanded604-apps6-public-pair-updater/source-manifest.json": {
         "bytes": 71831,
-        "sha256": "8a3be4d020ecc918153ecbccd8453ff61715163c654c38bb69dcfb77561a8ee4"
+        "sha256": "32d8ff7d88216efeefa2c08ffe13d9e273cf968d755986ddc02b67ecbdf802bf"
       },
       "scripts/ci/expanded604-apps6-public-pair-updater/source-pins.json": {
         "bytes": 123222,
@@ -1963,8 +1963,8 @@
         "sha256": "e0b88a80dfe9241d968c75a2182bcd361c84d6a54c8a78fa3c01a9f827470bd8"
       },
       "scripts/ci/expanded604-apps6-public-pair-updater/test_lane.py": {
-        "bytes": 14394,
-        "sha256": "70cb0d8b812fff260bfe5a4821bfcc04e2064f157a4f02da7fe6d708b6299310"
+        "bytes": 15139,
+        "sha256": "eb9e8ece09f0b866f1c0ba4a9cd2ea85e24227506d11342961c3bd3bd3ab5c05"
       },
       "scripts/ci/expanded604-apps6-public-pairs/README.md": {
         "bytes": 3360,
@@ -3215,5 +3215,5 @@
     }
   },
   "schema_version": 1,
-  "updater_source_manifest_sha256": "8a3be4d020ecc918153ecbccd8453ff61715163c654c38bb69dcfb77561a8ee4"
+  "updater_source_manifest_sha256": "32d8ff7d88216efeefa2c08ffe13d9e273cf968d755986ddc02b67ecbdf802bf"
 }
