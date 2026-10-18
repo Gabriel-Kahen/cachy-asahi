@@ -1,0 +1,229 @@
+{
+  "basis_files": 667,
+  "changed": {
+    "immutable/bootstrap_loader.py": {
+      "after": {
+        "bytes": 3237,
+        "sha256": "fd67e50c97c798a2de61d391fe91bbf2a485d454066d5e8340a465c083ebc5b8"
+      },
+      "before": {
+        "bytes": 2058,
+        "sha256": "975d293e35590ba986dd4de680517137f717abe34abe3dd6baaf2840d3d1c4b5"
+      },
+      "inverse": [
+        {
+          "count": 1,
+          "new": " data=integration.derive(data)\n old=b\"need(value['producer_retirement']=={'status':'ROOT_VERIFIED_SOURCE_PRODUCERS_RETIRED','source':SOURCE},'source writer retirement authority required')\";new=b\"writer_retired(value['producer_retirement'])\";P.need(data.count(old)==1,'one exact new-purpose writer guard');data=data.replace(old,new)",
+          "old": " data=integration.derive(data)"
+        },
+        {
+          "count": 1,
+          "new": "vars(module).update(SOURCE_BROKER=proxy,SOURCE_CLIENT=client,dm=dm,R=R,writer_retired=writer_retired)",
+          "old": "vars(module).update(SOURCE_BROKER=proxy,SOURCE_CLIENT=client,dm=dm,R=R)"
+        },
+        {
+          "count": 1,
+          "new": "def writer_retired(value):\n import re\n policy=P.decode((inputs.D/'policy.json').read_bytes())\n P.need(type(value)is dict and set(value)=={'status','source','token','owner_report','inner_report','prior_Root_decision'}and value['status']=='SOURCE_ENFORCED_CURRENT_NATIVE_WRITERS_RETIRED'and value['source']==policy['actual_source']and re.fullmatch('[a-f0-9]{40}',value['source']or'')and re.fullmatch('[a-f0-9]{32}',value['token'])and value['prior_Root_decision']=='INPUT_AUTHORITY_ONLY_NOT_CURRENT_NATIVE_ACCEPTANCE','fresh source-owned writer retirement witness, never Root acceptance')\n for n in('owner_report','inner_report'):\n  r=value[n];P.need(type(r)is dict and set(r)=={'bytes','sha256'}and type(r['bytes'])is int and 0<r['bytes']<=4*1024**2 and re.fullmatch('[a-f0-9]{64}',r['sha256']),'whole retired native report identity')\n return value\n\ndef load(leases,native):",
+          "old": "def load(leases,native):"
+        }
+      ]
+    },
+    "immutable/disk_adapter.py": {
+      "after": {
+        "bytes": 2288,
+        "sha256": "128839afdd8f49b56e00813414ea4c610a996df970bc6d9ff3431a75fe687b76"
+      },
+      "before": {
+        "bytes": 2171,
+        "sha256": "ac36b8a4aecbf1f127d435b36e1d634e1c43ef4c8e1d34e0df4f86b2cef2d646"
+      },
+      "inverse": [
+        {
+          "count": 2,
+          "new": "/debian-maintained-installed16k",
+          "old": "/installed16k"
+        },
+        {
+          "count": 3,
+          "new": "init-debian-maintained-installed16k",
+          "old": "init-installed16k"
+        },
+        {
+          "count": 1,
+          "new": "caa_debian_maintained_installed16k=1",
+          "old": "caa_gnu_installed16k=1"
+        },
+        {
+          "count": 1,
+          "new": "init=/init-debian-maintained-installed16k caa_debian_maintained_installed16k=1 arm64.nomops'",
+          "old": "init=/init-debian-maintained-installed16k caa_debian_maintained_installed16k=1'"
+        }
+      ]
+    },
+    "immutable/inputs.py": {
+      "after": {
+        "bytes": 2783,
+        "sha256": "f6d6aa97418aa7b73153e75329163a46ef3a7f854709d1c5462b3b0e41b33e87"
+      },
+      "before": {
+        "bytes": 1559,
+        "sha256": "dcfe02a8ee3b5246ab050b7cdc1d57d570cca43d77c6b7668f6a6d327b359a43"
+      },
+      "inverse": "ONE_CONTRACT_IMPORT_ENTRY_PLUS_SOURCE_OWNED_CURRENT_MODULE_IMPORT_ISOLATOR"
+    },
+    "immutable/native_controller.py": {
+      "after": {
+        "bytes": 8743,
+        "sha256": "2828f4414b992b0bf9387b1732249f309fda3483f304e265914872e6c210c1ca"
+      },
+      "before": {
+        "bytes": 8702,
+        "sha256": "e50de132196ee41d3e88f66cd84da54cd56c248f6fd28eb793cc8869daee2f9d"
+      },
+      "inverse": [
+        {
+          "count": 1,
+          "new": "glibc-debian-maintained-installed16k",
+          "old": "glibc-gnu-provider-installed16k"
+        },
+        {
+          "count": 2,
+          "new": "/debian-maintained-installed16k",
+          "old": "/installed16k"
+        }
+      ]
+    },
+    "immutable/native_prepare.py": {
+      "after": {
+        "bytes": 806,
+        "sha256": "212549cc90d14f332c7348685a942c7118f0b2ddf7c524f9be7a619bb79ef0bb"
+      },
+      "before": {
+        "bytes": 801,
+        "sha256": "03011613cd172eae37a8e5698849d226da457e9c174e7b2152c4c18443ee8163"
+      },
+      "inverse": [
+        {
+          "count": 1,
+          "new": "glibc-debian-maintained-installed16k",
+          "old": "glibc-gnu-provider-installed16k"
+        }
+      ]
+    },
+    "immutable/owner.py": {
+      "after": {
+        "bytes": 4784,
+        "sha256": "9a1d0ef63a7b0231c3acaf38f47ac1ead874f98dac4eb373d19c9484369ea3f8"
+      },
+      "before": {
+        "bytes": 4761,
+        "sha256": "b411b093d37edebb5f564cb67b6ba6e9040d8dc8c793eb426607e60b7d2f8c20"
+      },
+      "inverse": [
+        {
+          "count": 1,
+          "new": "glibc-debian-maintained-installed16k",
+          "old": "glibc-gnu-provider-installed16k"
+        },
+        {
+          "count": 1,
+          "new": "/debian-maintained-installed16k",
+          "old": "/installed16k"
+        }
+      ]
+    },
+    "immutable/runtime_check.py": {
+      "after": {
+        "bytes": 3459,
+        "sha256": "2136153e232379fb2712a449f33afbb467009a4ec43682d717b2735ad48e8694"
+      },
+      "before": {
+        "bytes": 3444,
+        "sha256": "97c50535e6331cebb6fc49316d355662a0f45b7e9a92d2a87e6c9294aba2eb1b"
+      },
+      "inverse": [
+        {
+          "count": 3,
+          "new": "glibc-debian-maintained-installed16k",
+          "old": "glibc-gnu-provider-installed16k"
+        }
+      ]
+    },
+    "immutable/stage.py": {
+      "after": {
+        "bytes": 7206,
+        "sha256": "7113496dcff93ed488e0ce7bab67b985f2198caaad4385cd7ac73f916b54b4e7"
+      },
+      "before": {
+        "bytes": 6720,
+        "sha256": "36889252c8a1ad41c67c819caf6bb9e57ee210d9767d84becae6d8ea3337a471"
+      },
+      "inverse": [
+        {
+          "count": 1,
+          "new": "CAA_DEBIAN_MAINTAINED_INSTALLED16K_PREPARE",
+          "old": "CAA_INSTALLED16K_PREPARE"
+        },
+        {
+          "count": 1,
+          "new": " compat=boot/'installed16k';P.need(not compat.exists(),'fresh fixed source-only fence namespace');compat.mkdir(mode=0o755);sandbox=Path('/debian-maintained-installed16k/sandbox.py');held=P.decode((inputs.D.parent/'gnu-verity-bootstrap-development-20261018/runtime-pins.json').read_bytes())['/installed16k/sandbox.py'];P.need(P.pin(sandbox.read_bytes())==held,'identical whole old/current sandbox filter source');(compat/'sandbox.py').write_bytes(sandbox.read_bytes())\n policy=boot/'immutable/policy.json';policy.write_bytes(P.encode(value))",
+          "old": " policy=boot/'immutable/policy.json';policy.write_bytes(P.encode(value))"
+        }
+      ]
+    },
+    "immutable/test_controls.py": {
+      "after": {
+        "bytes": 10193,
+        "sha256": "7e2cda89fd12e03fbb37bffafa4e946b5e2d4689a7bfb6bd185595d83038c3f8"
+      },
+      "before": {
+        "bytes": 10183,
+        "sha256": "26c6c0b7a656b77cca222148f2ff5168a6a99c3df72e91d1f30339664016e663"
+      },
+      "inverse": [
+        {
+          "count": 2,
+          "new": "glibc-debian-maintained-installed16k",
+          "old": "glibc-gnu-provider-installed16k"
+        }
+      ]
+    },
+    "immutable/worker.py": {
+      "after": {
+        "bytes": 4469,
+        "sha256": "0c2a8f23ed573c90abd9db43ba5d7bfe6dee6293ab165c745876485b75b2d91d"
+      },
+      "before": {
+        "bytes": 4410,
+        "sha256": "5e3b82fe2c3c1dc1cb3fec7ff85a3c8dea6e672e7bdca8e73d1ddf7921d5ebd5"
+      },
+      "inverse": [
+        {
+          "count": 1,
+          "new": "glibc-debian-maintained-installed16k",
+          "old": "glibc-gnu-provider-installed16k"
+        },
+        {
+          "count": 3,
+          "new": "/debian-maintained-installed16k",
+          "old": "/installed16k"
+        }
+      ]
+    },
+    "runtime-source.json": {
+      "after": {
+        "bytes": 147888,
+        "sha256": "5283f8f4ec30931aeca5fba58ee5f0b8e7a7fceee654546b6cbea8d65cfadbde"
+      },
+      "before": {
+        "bytes": 147888,
+        "sha256": "97434ce12009b1595f67a52f171834cd673c3fec632f35cb2ea44d0a053149a8"
+      },
+      "inverse": "EXACT_DERIVED_OWN_ROWS_ONLY"
+    }
+  },
+  "current_pair": "a8e9f3e1d8ffe049fdc834f62e74c14ff622b98898c2f849e1580ab8aa0fdbd9",
+  "held": 656,
+  "legacy_pair": "NOT_SELECTED",
+  "scope": "CURRENT_CAA3_FULL_LIFECYCLE_WITH_NEW_PID1_SOURCE_PURPOSE_NOT_NATIVE_ACCEPTANCE"
+}
