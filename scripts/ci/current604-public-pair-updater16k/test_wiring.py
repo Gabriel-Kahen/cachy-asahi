@@ -5,6 +5,12 @@ from pathlib import Path
 from unittest.mock import patch
 import contract as C
 import wiring as W,job,kernel_job,retain16k as T,prepare as P,vm,base64
+def pre_caller_failure(raw):
+ text=raw.decode();start=text.index('def caller_failure(');end=text.index('def worker(s):',start);text=text[:start]+text[end:]
+ a=" if error is not None or record['exit_code']!=0 or record['group_absence_verified']is not True:caller_failure(s,record,stdout,stderr,error)\n";assert text.count(a)==1;text=text.replace(a,'')
+ a=" if error is not None or record['exit_code']!=0 or record['group_absence_verified']is not True:\n  forward_caller_failure(s,record,out)\n  worker_failure(s,record,out,err,error)";b=" if error is not None or record['exit_code']!=0 or record['group_absence_verified']is not True:worker_failure(s,record,out,err,error)";assert text.count(a)==1;text=text.replace(a,b)
+ return text.encode()
+
 class Wiring(unittest.TestCase):
  def setUp(self):
   p=patch.object(subprocess,'Popen',side_effect=AssertionError('no actors/Git/network'));p.start();self.addCleanup(p.stop)
@@ -24,6 +30,7 @@ class Wiring(unittest.TestCase):
   old=C.ROOT/'scripts/ci/current604-apps6-updater16k'
   for name in ('guest.py','disk.py','vm.py','cap_scope.py','kernel_job.py','retain16k.py','job.py'):
    a,b=(old/name).read_bytes(),(C.HERE/name).read_bytes()
+   if name=='guest.py':b=pre_caller_failure(b)
    if name in ('disk.py','guest.py'):b=pre_boot_readback(b,name)
    if name in ('job.py','kernel_job.py'):
     before={n.name:ast.dump(n,include_attributes=False) for n in ast.parse(a).body if isinstance(n,ast.FunctionDef)}
@@ -189,7 +196,7 @@ class WorkerFailureControls(unittest.TestCase):
   G=self.guest();raw=(C.HERE/'guest.py').read_text();tree=ast.parse(raw);main=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='main');start=next(i for i,n in enumerate(main.body)if isinstance(n,ast.Assign)and any(isinstance(v,ast.Call)and isinstance(v.func,ast.Attribute)and v.func.attr=='load'and v.args and isinstance(v.args[0],ast.Constant)and v.args[0].value=='supervisor'for v in ast.walk(n)));guard=next(i for i,n in enumerate(main.body)if isinstance(n,ast.Expr)and isinstance(n.value,ast.Call)and any(isinstance(x,ast.Constant)and x.value=='whole updater worker exit/group absence'for x in ast.walk(n)))
   def run(argv,work,env,seconds,cap):
    self.assertEqual(argv,['/usr/bin/python3','-I','-B','/workspace/guest.py','worker']);self.assertEqual((work,seconds,cap),(Path('/tmp'),3900,2*1024**2));return record,out,err,error
-  space=dict(C=types.SimpleNamespace(load=lambda *a:types.SimpleNamespace(run_command=run),need=C.need),Path=Path,s=dict(nonce='a'*32),worker_failure=G.worker_failure);stream=io.StringIO();code=compile(ast.Module(body=main.body[start:guard+1],type_ignores=[]),'<actual-source-worker-call-and-held-guard>','exec')
+  space=dict(C=types.SimpleNamespace(load=lambda *a:types.SimpleNamespace(run_command=run),need=C.need),Path=Path,s=dict(nonce='a'*32),worker_failure=G.worker_failure,forward_caller_failure=G.forward_caller_failure);stream=io.StringIO();code=compile(ast.Module(body=main.body[start:guard+1],type_ignores=[]),'<actual-source-worker-call-and-held-guard>','exec')
   with contextlib.redirect_stdout(stream):
    if broken:
     with patch('builtins.print',side_effect=OSError('closed UART')):exec(code,space)
@@ -551,5 +558,61 @@ class BootImageReadback(unittest.TestCase):
   disk=C.read(C.HERE/'disk.py').decode();self.assertEqual(disk.count("if name=='boot':formatter_recovery_directory(image,before,out)"),1)
   guest=C.read(C.HERE/'guest.py').decode();self.assertEqual(guest.count("C.need(before==expected and C.sha(C.encoded(mapping))==s['capabilities_sha256'],'complete original boot574 metadata/hash/hardlink/capability map readback')"),1)
 
+
+
+
+
+class CallerFailureControls(unittest.TestCase):
+ def guest(self):return WorkerFailureControls().guest()
+ def record(self,out=b'',err=b'',**extra):return WorkerFailureControls().record(out,err,argv=['/usr/bin/python3','-I','-B','/runner.py'],**extra)
+ def capture(self,record,out,err,error=None):
+  import contextlib,io
+  stream=io.StringIO()
+  with contextlib.redirect_stdout(stream):self.guest().caller_failure(dict(nonce='a'*32),record,out,err,error)
+  raw=stream.getvalue().encode();self.assertTrue(raw.startswith(b'APPS6_UPDATE16K_CALLER_FAILURE '+'a'.encode()*32+b' '));return raw,json.loads(raw.split(b' ',2)[2])
+ def test_small_complete_caller_streams_and_exact_record(self):
+  out=b'INERT_CALLER_OUT\n';err=b'INERT_CALLER_FAILURE\n';record=self.record(out,err);raw,v=self.capture(record,out,err)
+  self.assertEqual(v['record'],record);self.assertEqual(v['status'],'FAILED_ORIGINAL_GUEST_CALLER_DATA_NOT_ACCEPTANCE');self.assertIsNone(v['error_type'])
+  for side,data in(('stdout',out),('stderr',err)):
+   self.assertEqual(base64.b64decode(v[side]['tail_base64']),data);self.assertFalse(v[side]['truncated']);self.assertEqual(v[side]['sha256'],C.sha(data))
+  self.assertFalse(any(line.startswith(b'APPS6_UPDATE16K ')for line in raw.splitlines()))
+ def test_tails_and_partial_error_scope_do_not_claim_timeout(self):
+  out=b'O'*5000;err=b'E'*9000;raw,v=self.capture(self.record(out,err),out,err,TimeoutError('PRIVATE_NOT_EXPORTED'))
+  self.assertLessEqual(len(raw),25*1024);self.assertEqual(v['error_type'],'TimeoutError');self.assertNotIn('PRIVATE',raw.decode())
+  for side,data,cap in(('stdout',out,4096),('stderr',err,8192)):
+   self.assertEqual(base64.b64decode(v[side]['tail_base64']),data[-cap:]);self.assertEqual(v[side]['omitted_bytes'],len(data)-cap);self.assertTrue(v[side]['truncated'])
+  self.assertEqual(v['capture_scope'],'ORIGINAL_RUN_COMMAND_CAPTURE_MAY_BE_PARTIAL_ON_ERROR')
+ def test_foreign_argv_bad_hash_budget_success_and_group_type_unavailable(self):
+  record=self.record()
+  for extra in(dict(argv=['/foreign.py']),dict(stdout_sha256='0'*64),dict(time_limit=3901),dict(output_limit=1),dict(exit_code=0),dict(group_absence_verified=1)):
+   raw,v=self.capture(dict(record,**extra),b'',b'');self.assertEqual(v['status'],'DIAGNOSTIC_UNAVAILABLE_NOT_ACCEPTANCE');self.assertNotIn('record',v)
+ def test_forward_long_caller_frame_from_original_capture_with_no_success_prefix(self):
+  import contextlib,io
+  raw,original=self.capture(self.record(b'O'*5000,b'E'*9000),b'O'*5000,b'E'*9000)
+  data=b'INERT_WORKER_PREFIX\n'+raw+b'APPS6_UPDATE16K_ERROR inert failure\n';record=WorkerFailureControls().record(data,b'');stream=io.StringIO()
+  with contextlib.redirect_stdout(stream):self.guest().forward_caller_failure(dict(nonce='a'*32),record,data)
+  forwarded=stream.getvalue().encode();value=json.loads(forwarded.split(b' ',2)[2]);meta=value.pop('worker_capture');self.assertEqual(value,original);self.assertEqual(meta['sha256'],C.sha(data));self.assertEqual(meta['bytes'],len(data));self.assertEqual(meta['frame_offset'],len(b'INERT_WORKER_PREFIX\n'));self.assertEqual(meta['frame_sha256'],C.sha(raw.rstrip(b'\n')))
+  self.assertFalse(any(x.startswith(b'APPS6_UPDATE16K ')for x in forwarded.splitlines()));self.assertLessEqual(len(forwarded),33*1024)
+  for invalid,body in((dict(record,stdout_sha256='0'*64),data),(record,data+raw),(record,data.replace(b'a'*32,b'b'*32))):
+   stream=io.StringIO()
+   with contextlib.redirect_stdout(stream):self.guest().forward_caller_failure(dict(nonce='a'*32),invalid,body)
+   self.assertEqual(stream.getvalue(),'')
+ def test_actual_worker_caller_pre_guard_route_with_private_out_files(self):
+  import contextlib,io,types
+  guest=self.guest();tree=ast.parse((C.HERE/'guest.py').read_bytes());worker=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='worker');start=next(i for i,n in enumerate(worker.body)if isinstance(n,ast.Assign)and any(isinstance(x,ast.Constant)and x.value=='supervisor'for x in ast.walk(n)));end=next(i for i,n in enumerate(worker.body)if any(isinstance(x,ast.Constant)and x.value=='original caller exit/group absence'for x in ast.walk(n)))
+  for group,error,code in((True,None,7),(False,None,0),(True,ValueError('PRIVATE'),0)):
+   out=b'INERT_ONLY';err=b'INERT_ERROR';record=self.record(out,err,group_absence_verified=group,exit_code=code)
+   def run(argv,work,env,seconds,cap):self.assertEqual(argv,['/usr/bin/python3','-I','-B','/runner.py']);self.assertEqual((work,seconds,cap),(Path('/tmp'),3900,2*1024**2));return record,out,err,error
+   with tempfile.TemporaryDirectory()as td:
+    def private_path(name):
+     self.assertIn(name,('/tmp','/out/updater16k-caller.stdout','/out/updater16k-caller.stderr'));return Path('/tmp')if name=='/tmp'else Path(td)/Path(name).name
+    namespace=dict(C=types.SimpleNamespace(load=lambda *a:types.SimpleNamespace(run_command=run),need=C.need),Path=private_path,s=dict(nonce='a'*32),env={},caller_failure=guest.caller_failure);stream=io.StringIO()
+    with contextlib.redirect_stdout(stream),self.assertRaisesRegex(ValueError,'original caller exit/group absence'):exec(compile(ast.Module(body=worker.body[start:end+1],type_ignores=[]),'<actual-caller-pre-guard-negative-control>','exec'),namespace)
+    self.assertEqual((Path(td)/'updater16k-caller.stdout').read_bytes(),out);self.assertEqual((Path(td)/'updater16k-caller.stderr').read_bytes(),err);v=json.loads(stream.getvalue().split(' ',2)[2]);self.assertEqual(v['record'],record)
+ def test_exact_guest_inverse_and_original_success_statements_held(self):
+  raw=(C.HERE/'guest.py').read_bytes();self.assertEqual(C.sha(pre_caller_failure(raw)),'c23eab13a47e5f7ae10c08ee1a29c5ff0c2478bbd675dc9f6013be045861eaef')
+  a,b=ast.parse(pre_caller_failure(raw)),ast.parse(raw);before={n.name:ast.dump(n,include_attributes=False)for n in a.body if isinstance(n,ast.FunctionDef)};after={n.name:ast.dump(n,include_attributes=False)for n in b.body if isinstance(n,ast.FunctionDef)}
+  self.assertEqual(set(after)-set(before),{'caller_failure','forward_caller_failure'});self.assertEqual({n for n in before if before[n]!=after[n]},{'worker','main'})
+  self.assertEqual(raw.count(b'emit(s,'),pre_caller_failure(raw).count(b'emit(s,'))
 
 if __name__=='__main__':unittest.main(verbosity=2)
