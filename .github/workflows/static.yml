@@ -110,6 +110,12 @@ jobs:
           python3 -I -B "$RUNNER_TEMP/gnu-verity-boot-default-source/scripts/ci/gnu-verity-kernel-boot-probe/entry.py" check-source --source "$RUNNER_TEMP/gnu-verity-boot-default-source"
           python3 -I -B "$RUNNER_TEMP/gnu-verity-boot-default-source/scripts/ci/gnu-verity-kernel-boot-probe/test_entry.py"
           python3 -I -B -Werror::ResourceWarning scripts/ci/gnu-verity-kernel-boot-probe-source/test_prepare.py
+      - name: Emit standalone GNU verity mapping smoke NULL default source without actors
+        run: |
+          python3 -I -B scripts/ci/gnu-verity-mapping-smoke-source/prepare.py --own "$PWD" --output "$RUNNER_TEMP/gnu-verity-mapping-default-source"
+          python3 -I -B "$RUNNER_TEMP/gnu-verity-mapping-default-source/scripts/ci/gnu-verity-mapping-smoke/entry.py" check-source --source "$RUNNER_TEMP/gnu-verity-mapping-default-source"
+          python3 -I -B "$RUNNER_TEMP/gnu-verity-mapping-default-source/scripts/ci/gnu-verity-mapping-smoke/test_entry.py"
+          python3 -I -B -Werror::ResourceWarning scripts/ci/gnu-verity-mapping-smoke-source/test_prepare.py
       - name: Checkout whole copied606 code basis for optional KSM source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
