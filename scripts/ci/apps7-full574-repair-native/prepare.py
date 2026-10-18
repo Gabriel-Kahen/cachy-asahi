@@ -18,6 +18,11 @@ def workflow(raw):
  # Only this longer cumulative test harness changes; product600/caller610 held.
  for old,new in (("    timeout-minutes: 120","    timeout-minutes: 142"),("        timeout-minutes: 60","        timeout-minutes: 82"),("--kill-after=30s 3550s","--kill-after=30s 4870s")):
   need(text.count(old)==1,'one exact cumulative harness profile seam: '+old);text=text.replace(old,new)
+ # https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-workflow-concurrency
+ # Keep up to100 pending serial runs; FIFO follows queue entry, not dispatch.
+ before='concurrency:\n  group: native-arm-apps7-full574-repair\n  cancel-in-progress: false\n'
+ after='concurrency:\n  group: native-arm-apps7-full574-repair\n  queue: max\n  cancel-in-progress: false\n'
+ need(text.count(before)==1,'one exact serial noncancelling Apps7 queue');text=text.replace(before,after)
  return text.encode()
 
 def emit(root,output,native_source=None):

@@ -69,6 +69,9 @@ class Controls(unittest.TestCase):
   self.assertEqual((out/'scripts/apps/transaction.py').read_bytes(),(ROOT/'scripts/apps/transaction.py').read_bytes())
   text=(out/P.WF).read_text();self.assertIn(P.NEW,text);self.assertEqual(text.count('--case "$REPAIR_CASE" --source "$GITHUB_WORKSPACE"'),5)
   for limit in ('2300s','4870s','650s'):self.assertIn(limit,text)
+  self.assertEqual(text.count('concurrency:\n  group: native-arm-apps7-full574-repair\n  queue: max\n  cancel-in-progress: false\n'),1)
+  original=(ROOT/'.github/workflows/native-arm-apps-full574-repair.yml').read_bytes()
+  with self.assertRaises(ValueError):P.workflow(original.replace(b'cancel-in-progress: false',b'cancel-in-progress: true'))
   v=json.loads((out/P.NEW/'input-policy.json').read_bytes());self.assertIsNone(v['packet_source']);self.assertIsNone(v['packet_index'])
 
 class HarnessDeadlineControls(unittest.TestCase):
@@ -90,6 +93,7 @@ class HarnessDeadlineControls(unittest.TestCase):
   raw=(ROOT/'.github/workflows/native-arm-apps-full574-repair.yml').read_bytes();current=P.workflow(raw).decode();restored=current
   for new,old in (("    timeout-minutes: 142","    timeout-minutes: 120"),("        timeout-minutes: 82","        timeout-minutes: 60"),("--kill-after=30s 4870s","--kill-after=30s 3550s")):
    self.assertEqual(restored.count(new),1);restored=restored.replace(new,old)
+  self.assertEqual(restored.count('  queue: max\n'),1);restored=restored.replace('  queue: max\n','',1)
   expected=raw.decode().replace('native-arm-apps-full574-repair','native-arm-apps7-full574-repair').replace(P.OLD,P.NEW)
   self.assertEqual(restored,expected);self.assertEqual(4870-4320,3550-3000);self.assertEqual(82*60-4870,60*60-3550);self.assertEqual((142-120)*60,4320-3000)
   T=load('unchanged_product_transaction',HERE/'transaction.py');self.assertEqual(T.SECONDS,300);self.assertEqual(load('unchanged_product_closure',HERE/'closure.py').EXECUTION_BUDGET,dict(backend_seconds=600,caller_seconds=610))
