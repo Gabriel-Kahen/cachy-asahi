@@ -12,21 +12,7 @@ S_PATH=ROOT/'scripts/ci/orphans-full574-native/supervise.py'
 S=load('original_job_retirement',S_PATH)
 IDENTITY=dict(source_sha='a'*40,trial='full574-signed-repair',proof_sha256='b'*64,consumer_token='c'*32,producer_token='d'*16,case='repair-bytes')
 PINS={'manifest':D.pin(b'inert-control-manifest'),'files':{'scripts/ci/orphans-full574-native/supervise.py':D.pin(S_PATH.read_bytes())}}
-CHILD="""import os,signal,subprocess,sys,time
-from pathlib import Path
-r=Path(sys.argv[1]);mode=sys.argv[2]
-def leave(n,f):
- (r/'forwarded').write_text(str(n))
- if mode=='tree':grand.wait(timeout=1)
- raise SystemExit(0)
-for n in (signal.SIGINT,signal.SIGTERM):signal.signal(n,signal.SIG_IGN if mode=='ignore' else leave)
-if mode=='tree':
- code="import os,signal,time;from pathlib import Path;r=Path("+repr(str(r))+");signal.signal(signal.SIGINT,lambda n,f:((r/'grand-signal').write_text(str(n)),exit(0)));signal.signal(signal.SIGTERM,lambda n,f:((r/'grand-signal').write_text(str(n)),exit(0)));(r/'grand-ready').write_text(str(os.getpid()));time.sleep(10)"
- grand=subprocess.Popen([sys.executable,'-c',code]);end=time.monotonic()+2
- while not (r/'grand-ready').exists() and time.monotonic()<end:time.sleep(.01)
-(r/'ready').write_text(str(os.getpid()))
-while True:time.sleep(.02)
-"""
+CHILD='import os,signal,subprocess,sys,time\nfrom pathlib import Path\nr=Path(sys.argv[1]);mode=sys.argv[2];received=[]\ndef leave(n,f):received.append(n)\nfor n in (signal.SIGINT,signal.SIGTERM):signal.signal(n,signal.SIG_IGN if mode==\'ignore\' else leave)\nif mode==\'tree\':\n code="""import os,signal,time\nfrom pathlib import Path\nr=Path("""+repr(str(r))+""");received=[]\ndef leave(n,f):received.append(n)\nfor n in (signal.SIGINT,signal.SIGTERM):signal.signal(n,leave)\n(r/\'grand-ready\').write_text(str(os.getpid()))\nwhile not received:time.sleep(.01)\nsignal.pthread_sigmask(signal.SIG_BLOCK,{signal.SIGINT,signal.SIGTERM})\n(r/\'grand-signal\').write_text(str(received[0]))\n"""\n grand=subprocess.Popen([sys.executable,\'-c\',code]);end=time.monotonic()+2\n while not (r/\'grand-ready\').exists() and time.monotonic()<end:time.sleep(.01)\n(r/\'ready\').write_text(str(os.getpid()))\nwhile not received:time.sleep(.02)\n# No wait or I/O in a Python signal handler: a second cancellation must not\n# reenter Popen.wait while its non-reentrant waitpid lock is already held.\nsignal.pthread_sigmask(signal.SIG_BLOCK,{signal.SIGINT,signal.SIGTERM})\n(r/\'forwarded\').write_text(str(received[0]))\nif mode==\'tree\':grand.wait(timeout=1)\nraise SystemExit(0)\n'
 LAUNCH="""import importlib.util,json,sys
 from pathlib import Path
 spec=importlib.util.spec_from_file_location('S',sys.argv[1]);S=importlib.util.module_from_spec(spec);spec.loader.exec_module(S)
@@ -79,6 +65,21 @@ class Retention(unittest.TestCase):
    with self.subTest(signal=n):self.run_owned('tree',n,False)
  def test_real_process_tree_SIGINT_and_ignored_TERM_are_bounded(self):
   self.run_owned('tree',signal.SIGINT,True);self.run_owned('ignore',signal.SIGTERM,False)
+ def test_real_second_signal_inside_grandchild_wait_is_not_reentrant(self):
+  # Force a real second cancellation exactly inside Popen's waitpid lock.
+  # This is fixture-only scheduling, not a mocked retirement or wait result.
+  seam="if mode=='tree':grand.wait(timeout=1)"
+  replacement="""if mode=='tree':
+ original_try_wait=grand._try_wait
+ signalled=[False]
+ def signal_during_wait(flags):
+  if not signalled[0]:signalled[0]=True;os.kill(os.getpid(),signal.SIGTERM)
+  return original_try_wait(flags)
+ grand._try_wait=signal_during_wait
+ grand.wait(timeout=1)"""
+  self.assertEqual(CHILD.count(seam),1)
+  with patch.dict(globals(),CHILD=CHILD.replace(seam,replacement)):
+   self.run_owned('tree',signal.SIGINT,True)
  def run_owned(self,mode,number,whole_tree):
   with tempfile.TemporaryDirectory(dir=self.root) as td:
    work=Path(td);p=subprocess.Popen([sys.executable,'-I','-B','-c',LAUNCH,str(S_PATH),CHILD,str(work),mode,json.dumps(IDENTITY)],start_new_session=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
