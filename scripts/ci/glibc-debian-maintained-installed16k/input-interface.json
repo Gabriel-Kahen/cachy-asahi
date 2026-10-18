@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "status": "DESCRIPTION_ONLY_CURRENT_MAINTAINED_INSTALLED16K_UNBOUND",
+  "scope": "DISPOSABLE_FULL574_ALPM_NORMAL_LIFECYCLE_AND_RECOVERY",
+  "candidate": "Exact canonical maintained-lifecycle/candidate_gate.EXPECTED; no old GNU/caa2 identity",
+  "current_native_pair": {
+    "source_sha": "78dfd3bbd85a61a84dda2dfc601796ee89edfd5f",
+    "run_id": 38994309021,
+    "archive_bytes": 18598440,
+    "archive_sha256": "a8e9f3e1d8ffe049fdc834f62e74c14ff622b98898c2f849e1580ab8aa0fdbd9",
+    "payload": {
+      "node_count": 1592,
+      "node_manifest_sha256": "db12785a1e49a16cefe82bcad2aee0a776c3d5b78b1f767f54c4ebb28700c574"
+    },
+    "credit": "Existing Root accepted native package metadata only; supplies no normal installed or16K acceptance"
+  },
+  "policy": {
+    "status": "UNBOUND_DO_NOT_EXECUTE",
+    "binding": {"native_lifecycle": null, "system16k": null},
+    "candidate": "Exact current candidate descriptor",
+    "native_pair": "Exact phase_gate.PAIR four-field provenance object (archive_bytes is a separate decision field)"
+  },
+  "both_future_Root_decisions": {
+    "reference": "Ordinary path/bytes/sha256 in policy.binding; max128KiB each",
+    "candidate": "Exact current EXPECTED",
+    "native_pair": "Exact phase_gate.PAIR, including current measured payload",
+    "source_authority_sha256": "88643eabd61a39df63ecaeb50bb20041d17cf4fd3adee55d82d43d3c1ca08707",
+    "provider_archive_sha256": "a8e9f3e1d8ffe049fdc834f62e74c14ff622b98898c2f849e1580ab8aa0fdbd9",
+    "provider_archive_bytes": 18598440,
+    "source_sha": "Actual future40hex runtime source, not the source-only packet carrier",
+    "run_id": "Actual positive future runtime run, not native pair run38994309021",
+    "hardware": "NOT_RUN",
+    "release": "NOT_ADMITTED"
+  },
+  "native_lifecycle": {
+    "status": "ROOT_ACCEPTED_DEBIAN_MAINTAINED_PROVIDER_NORMAL_LIFECYCLE",
+    "ordered_cleanup": "PASS",
+    "ALPM_installation": "PASS",
+    "page_size": 4096
+  },
+  "system16k": {
+    "status": "ROOT_ACCEPTED_DEBIAN_MAINTAINED_SYSTEM_PATHS_GENERIC16K",
+    "cleanup": "PASS",
+    "page_size": 16384,
+    "scope": "DATA_STAGED_PRIVATE_ROOT_NOT_ALPM_INSTALLATION",
+    "ALPM_installation": "NOT_RUN"
+  },
+  "runtime_handoff": "Actual maintained native owner statusPASS_LIFECYCLE_PENDING_ORDERED_PRODUCER_CLEANUP, complete original574 data/original574, current bound lifecycle-runner/inputs, live owned producer lease; original signature/archive/metadata/payload/config/hardlink/capability/normal-interpreter gates all remain",
+  "interruption": "SEPARATE_NOT_A_PREREQUISITE",
+  "authority": "PRIVATE_TEST_ONLY_NO_RELEASE_ADMISSION"
+}
