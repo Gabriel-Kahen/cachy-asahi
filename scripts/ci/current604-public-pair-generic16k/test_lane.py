@@ -369,7 +369,7 @@ class PeerFocusControls(unittest.TestCase):
  def test_bounded_readback_both_generated_profiles_preserve_timeout_and_helpers(self):
   for selected in C.PROFILES:
    with tempfile.TemporaryDirectory()as tmp:
-    runner=Controls().generated(Path(tmp),selected);self.assertEqual((runner/'installed604.py').read_bytes(),A.readback_path_hotpath(A.readback_fresh_mount(A.readback_progress((ROOT/C.OLD/'installed604.py').read_bytes()),ROOT),ROOT))
+    runner=Controls().generated(Path(tmp),selected);self.assertEqual((runner/'installed604.py').read_bytes(),A.readback_openat2(A.readback_snapshot_mismatch(A.readback_path_hotpath(A.readback_fresh_mount(A.readback_progress((ROOT/C.OLD/'installed604.py').read_bytes()),ROOT),ROOT))))
     self.assertIn("'installed604-preserved',timeout=600",(runner/'base_guest.py').read_text())
     for name,path in (('alpm_reader.py','scripts/ci/full-root-upgrade/root_upgrade.py'),('file_capabilities.py','scripts/apps/file_capabilities.py')):self.assertEqual((runner/name).read_bytes(),(ROOT/path).read_bytes())
 
@@ -428,6 +428,145 @@ class ReadbackPathHotpathControls(unittest.TestCase):
   with tempfile.TemporaryDirectory()as td:
    p=Path(td)/'untrusted.py';p.write_text("raise AssertionError('untrusted code must never execute')")
    with self.assertRaisesRegex(ValueError,'whole original readback database'):space['load_db'](p)
+
+class SnapshotMismatchControls(unittest.TestCase):
+ def helper(self):
+  raw=A.readback_path_hotpath(A.readback_fresh_mount(A.readback_progress((ROOT/C.OLD/'installed604.py').read_bytes()),ROOT),ROOT);new=A.readback_snapshot_mismatch(raw);space={'__file__':str(ROOT/C.OLD/'installed604.py')};exec(compile(new,'<whole-source-failed-snapshot-diagnostic>','exec'),space);return raw,new,space
+ def diagnose(self,space,actual,baseline):
+  writes=[]
+  with patch.object(os,'write',side_effect=lambda fd,raw:(writes.append((fd,raw)),len(raw))[1]):
+   with self.assertRaisesRegex(ValueError,'complete installed inventory/payload/hardlink/nonselected DB preservation differs'):space['verify'](actual,baseline)
+  self.assertEqual(len(writes),1);self.assertEqual(writes[0][0],2);self.assertLessEqual(len(writes[0][1]),2048);self.assertEqual(len(writes[0][1].splitlines()),1)
+  return json.loads(writes[0][1]),writes[0][1]
+ def template(self):return dict(schema_version=1,packages={},ownership={},nodes={},hardlinks=[],nonselected_database={},capabilities={},payload_bytes=0,qualification='INERT_COMPARISON_CONTROL_NOT_NATIVE')
+ def test_all_observer_functions_and_original_equality_held_success_silent(self):
+  raw,new,space=self.helper();funcs=lambda text:{n.name:ast.get_source_segment(text.decode(),n)for n in ast.parse(text).body if isinstance(n,(ast.FunctionDef,ast.ClassDef))};old,now=funcs(raw),funcs(new)
+  self.assertEqual(set(now)-set(old),{'snapshot_mismatch'})
+  for name in set(old)-{'verify'}:self.assertEqual(now[name],old[name],name)
+  self.assertEqual(now['verify'].replace('    if actual!=baseline:snapshot_mismatch(actual,baseline)\n',''),old['verify'])
+  with patch.object(os,'write',side_effect=AssertionError('successful comparison is silent')):self.assertTrue(space['verify'](self.template(),self.template()))
+  with self.assertRaisesRegex(ValueError,'whole hotpath readback'):A.readback_snapshot_mismatch(raw+b'\n')
+ def test_real_complete604_observation_payload_mismatch_retains_exact_whole_pins(self):
+  raw,new,space=self.helper()
+  with tempfile.TemporaryDirectory()as directory:
+   root=Path(directory);db=root/'var/lib/pacman/local';db.mkdir(parents=True);(db/'ALPM_DB_VERSION').write_bytes(b'9\n');expected={}
+   for i in range(604):
+    name=('cachy-asahi-doctor','cachy-asahi-orphans')[i]if i<2 else'finite'+str(i);expected[name]='1-1';payload=root/'usr/share/finite'/name;payload.mkdir(parents=True);(payload/'file').write_bytes(b'BASELINE');owned=[str((payload/'file').relative_to(root))]
+    if i==0:
+     os.link(payload/'file',payload/'alias');(payload/'symlink').symlink_to('file');owned.extend(str((payload/n).relative_to(root))for n in('alias','symlink'))
+    row=db/(name+'-1-1');row.mkdir();(row/'desc').write_text('%NAME%\n'+name+'\n\n%VERSION%\n1-1\n\n%ARCH%\nany\n\n');(row/'files').write_text('%FILES%\n'+'\n'.join(owned)+'\n\n')
+   helper=space['load_db'](ROOT/'scripts/ci/full-root-upgrade/root_upgrade.py');baseline=space['observe'](root,helper,expected);self.assertEqual(len(baseline['nodes']),606);self.assertEqual(len(baseline['packages']),604);(root/'usr/share/finite/finite2/file').write_bytes(b'MUTATION');actual=space['observe'](root,helper,expected)
+   row,data=self.diagnose(space,actual,baseline);self.assertEqual(row['fields'],['nodes']);self.assertEqual(row['counts']['nodes'],[0,0,1]);self.assertEqual(row['node_fields']['sha256'],1);self.assertEqual(row['examples'][0]['key'],'usr/share/finite/finite2/file');self.assertEqual(row['actual'],dict(bytes=len(space['encoded'](actual)),sha256=space['digest'](space['encoded'](actual))));self.assertEqual(row['baseline'],dict(bytes=len(space['encoded'](baseline)),sha256=space['digest'](space['encoded'](baseline))))
+   self.assertNotIn(b'MUTATION',data);self.assertNotIn(b'BASELINE',data)
+ def test_each_node_db_cap_ownership_package_and_hardlink_category_counted(self):
+  raw,new,space=self.helper();baseline=self.template();actual=copy.deepcopy(baseline)
+  for category in ('nodes','nonselected_database','capabilities','ownership','packages'):
+   baseline[category]={'removed':'PRIVATE_CONFIG_CONTENT','changed':'OLD_PRIVATE_VALUE'};actual[category]={'added':'NEW_PRIVATE_VALUE','changed':'NEW_PRIVATE_VALUE'}
+  baseline['nodes']['changed']={'mode':420,'uid':1,'target':'PRIVATE_TARGET'};actual['nodes']['changed']={'mode':384,'uid':2,'target':'CHANGED_PRIVATE_TARGET'};baseline['hardlinks']=[['a','b']];actual['hardlinks']=[['c','d']]
+  row,data=self.diagnose(space,actual,baseline)
+  for category in ('nodes','nonselected_database','capabilities','ownership','packages','hardlinks'):self.assertEqual(row['counts'][category],[1,1,1])
+  self.assertEqual(row['node_fields']['mode'],1);self.assertEqual(row['node_fields']['uid'],1);self.assertEqual(row['node_fields']['target'],1);self.assertEqual(row['examples_omitted'],17-len(row['examples']));self.assertNotIn(b'PRIVATE_',data)
+ def test_bounded_many_unicode_paths_and_original4096_tail_failure_retention(self):
+  import traceback
+  raw,new,space=self.helper();baseline=self.template();actual=copy.deepcopy(baseline)
+  for i in range(1000):actual['nodes']['\\u00e9'.encode().decode('unicode_escape')*200+str(i)]={'mode':420,'type':'file','sha256':'a'*64}
+  writes=[]
+  with patch.object(os,'write',side_effect=lambda fd,data:(writes.append(data),len(data))[1]):
+   try:space['verify'](actual,baseline)
+   except ValueError:trace=traceback.format_exc().encode()
+  self.assertEqual(len(writes),1);data=writes[0];self.assertLessEqual(len(data),2048);row=json.loads(data);self.assertEqual(row['counts']['nodes'],[1000,0,0]);self.assertEqual(row['examples_omitted'],1000-len(row['examples']));self.assertTrue(all(r['key_truncated']for r in row['examples']))
+  terminal=b'{"event":"installed604_progress","phase":"snapshot_validation","status":"FAILED"}\n';tail=(b'OLD_PROGRESS\n'*400+data+terminal+trace)[-4096:];self.assertIn(data,tail);self.assertIn(b'complete installed inventory/payload/hardlink/nonselected DB preservation differs',tail)
+ def test_diagnostic_failure_never_replaces_original_refusal_or_opens_files(self):
+  raw,new,space=self.helper();actual=self.template();baseline=copy.deepcopy(actual);actual['payload_bytes']=1
+  with patch.object(os,'open',side_effect=AssertionError('diagnostics never scan filesystem')),patch.object(os,'write',side_effect=OSError('closed stderr')):
+   with self.assertRaisesRegex(ValueError,'complete installed inventory/payload/hardlink/nonselected DB preservation differs'):space['verify'](actual,baseline)
+  malformed=copy.deepcopy(baseline);malformed['nodes']=None;row,data=self.diagnose(space,actual,malformed);self.assertEqual(row['status'],'DIAGNOSTIC_UNAVAILABLE_NOT_ACCEPTANCE');self.assertEqual(row['error_type'],'ValueError')
+ def test_hardlink_multiplicity_or_order_is_not_collapsed_to_a_set(self):
+  raw,new,space=self.helper();baseline=self.template();actual=copy.deepcopy(baseline);baseline['hardlinks']=[['a','b']];actual['hardlinks']=[['a','b'],['a','b']]
+  row,data=self.diagnose(space,actual,baseline);self.assertEqual(row['counts']['hardlinks'],[0,0,1]);self.assertIn('hardlinks',row['fields'])
+
+class Openat2ReadbackControls(unittest.TestCase):
+ def helper(self):
+  old=A.readback_snapshot_mismatch(A.readback_path_hotpath(A.readback_fresh_mount(A.readback_progress((ROOT/C.OLD/'installed604.py').read_bytes()),ROOT),ROOT));new=A.readback_openat2(old)
+  def module(raw):
+   scope={'__file__':str(ROOT/C.OLD/'installed604.py')};exec(compile(raw,'<source-owned-openat2-readback>','exec'),scope);return scope
+  return old,new,module(old),module(new)
+ def test_exact_factory_and_all_observer_verifier_diagnostic_bodies_held(self):
+  old,new,before,after=self.helper();funcs=lambda raw:{n.name:ast.get_source_segment(raw.decode(),n)for n in ast.parse(raw).body if isinstance(n,(ast.FunctionDef,ast.ClassDef))};a,b=funcs(old),funcs(new);self.assertEqual(set(b)-set(a),{'_openat2_directory604'})
+  for name in set(a)-{'load_db'}:self.assertEqual(a[name],b[name],name)
+  factory=b['_openat2_directory604'].replace('def _openat2_directory604(relative, need):\n    import ctypes, platform','def factory(relative, need):',1);self.assertEqual((len(factory.encode()),C.sha(factory.encode())),(2060,'e0b7f5c5fd90070b5f85b0d7c2cc123448f9971ea698b86720515d20c21f1a58'))
+  self.assertEqual(b['load_db'].replace('m.directory=_openat2_directory604(m.relative,need)','m.directory=_directory604'),a['load_db'])
+  with self.assertRaisesRegex(ValueError,'whole mismatch diagnostic'):A.readback_openat2(old+b'\n')
+ def test_real_kernel_fresh_lookup_and_fd_retirement_on_success_body_and_stat_error(self):
+  old,new,before,after=self.helper();fast=after['load_db'](ROOT/'scripts/ci/full-root-upgrade/root_upgrade.py').directory
+  with tempfile.TemporaryDirectory()as td:
+   root=Path(td);(root/'a/b').mkdir(parents=True);(root/'a/b/file').write_bytes(b'ORDINARY_PRIVATE_CONTROL');count=lambda:len(os.listdir('/proc/self/fd'));start=count()
+   for _ in range(8):
+    with fast(root,'a/b')as fd:
+     self.assertEqual(os.fstat(fd).st_ino,(root/'a/b').stat().st_ino);leaf=os.open('file',os.O_RDONLY|os.O_NOFOLLOW,dir_fd=fd)
+     try:self.assertEqual(os.read(leaf,128),b'ORDINARY_PRIVATE_CONTROL')
+     finally:os.close(leaf)
+   self.assertEqual(count(),start)
+   with self.assertRaisesRegex(RuntimeError,'body failure'):
+    with fast(root,'a/b'):raise RuntimeError('body failure')
+   self.assertEqual(count(),start);real=os.fstat;calls=[]
+   def fail_second(fd):
+    calls.append(fd)
+    if len(calls)==2:raise OSError('injected final descriptor failure')
+    return real(fd)
+   with patch.object(os,'fstat',side_effect=fail_second):
+    with self.assertRaisesRegex(OSError,'injected final descriptor'):
+     with fast(root,'a/b'):pass
+   self.assertEqual(len(calls),2);self.assertEqual(count(),start)
+ def test_real_invalid_roots_paths_symlinks_and_mount_crossing_fail_closed(self):
+  import errno
+  old,new,before,after=self.helper();fast=after['load_db'](ROOT/'scripts/ci/full-root-upgrade/root_upgrade.py').directory
+  with tempfile.TemporaryDirectory()as td:
+   root=Path(td);(root/'a/b').mkdir(parents=True);(root/'a/b/file').write_bytes(b'INERT');(root/'alias').symlink_to('a',target_is_directory=True);(root/'root-alias').symlink_to(root,target_is_directory=True);start=len(os.listdir('/proc/self/fd'))
+   for name in('../a','/a','a//b','a/./b','a/../b','alias/b','missing','a/b/file','a\0b',None):
+    with self.subTest(path=name),self.assertRaises((ValueError,OSError)):
+     with fast(root,name):pass
+   for base in(Path('relative-root'),root/'root-alias',Path(str(root)+'/a/..')):
+    with self.subTest(root=base),self.assertRaises((ValueError,OSError)):
+     with fast(base,'a/b'):pass
+   with self.assertRaises(OSError)as caught:
+    with fast(Path('/'),'proc'):pass
+   self.assertEqual(caught.exception.errno,errno.EXDEV);self.assertEqual(len(os.listdir('/proc/self/fd')),start)
+ def test_unsupported_abi_syscall_and_race_errors_have_no_fallback_or_fd_leak(self):
+  import ctypes,errno,platform
+  old,new,before,after=self.helper();factory=after['_openat2_directory604']
+  with patch.object(platform,'machine',return_value='unreviewed'),patch.object(ctypes,'CDLL',side_effect=AssertionError('ABI refusal before libc')):
+   with self.assertRaisesRegex(ValueError,'reviewed syscall ABI'):factory(after['_relative604'],after['need'])
+  real_sizeof=ctypes.sizeof
+  def wrong_how(value):return 16 if isinstance(value,type)and value.__name__=='How'else real_sizeof(value)
+  with patch.object(ctypes,'sizeof',side_effect=wrong_how):
+   with self.assertRaisesRegex(ValueError,'exact Linux open_how ABI'):factory(after['_relative604'],after['need'])
+  with tempfile.TemporaryDirectory()as td:
+   root=Path(td);(root/'a').mkdir();start=len(os.listdir('/proc/self/fd'))
+   for code in(errno.ENOSYS,errno.EAGAIN,errno.EXDEV):
+    syscall=Mock(return_value=-1)
+    with patch.object(ctypes,'CDLL',return_value=SimpleNamespace(syscall=syscall)),patch.object(ctypes,'get_errno',return_value=code):
+     fast=factory(after['_relative604'],after['need'])
+     with self.assertRaises(OSError)as caught:
+      with fast(root,'a'):pass
+     self.assertEqual(caught.exception.errno,code)
+    self.assertEqual(syscall.call_count,1);args=syscall.call_args.args;self.assertEqual(args[0].value,437);self.assertEqual(args[4].value,24);how=args[3]._obj;self.assertEqual(how.mode,0);self.assertEqual(how.resolve,15);self.assertEqual(how.flags,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC);self.assertEqual(len(os.listdir('/proc/self/fd')),start)
+ def test_complete_actual604_observations_progress_and_unknown_xattr_refusals_match(self):
+  old,new,before,after=self.helper();path=ROOT/'scripts/ci/full-root-upgrade/root_upgrade.py'
+  with tempfile.TemporaryDirectory()as td:
+   root=Path(td);db=root/'var/lib/pacman/local';db.mkdir(parents=True);(db/'ALPM_DB_VERSION').write_bytes(b'9\n');expected={}
+   for i in range(604):
+    name=('cachy-asahi-doctor','cachy-asahi-orphans')[i]if i<2 else'finite'+str(i);expected[name]='1-1';parent=root/'usr/share/finite'/name;parent.mkdir(parents=True);(parent/'file').write_bytes(b'COMPLETE_PRIVATE_PAYLOAD');owned=[str((parent/'file').relative_to(root))]
+    if i==0:
+     os.link(parent/'file',parent/'alias');(parent/'link').symlink_to('file');owned.extend(str((parent/n).relative_to(root))for n in('alias','link'))
+    record=db/(name+'-1-1');record.mkdir();(record/'desc').write_text('%NAME%\n'+name+'\n\n%VERSION%\n1-1\n\n%ARCH%\nany\n\n');(record/'files').write_text('%FILES%\n'+'\n'.join(owned)+'\n\n')
+   results=[];counts=[]
+   for scope in(before,after):
+    progress=scope['Progress']();value=scope['observe'](root,scope['load_db'](path),expected,progress=progress);results.append(value);counts.append(progress.counts);self.assertEqual(len(value['packages']),604);self.assertEqual(len(value['nodes']),606)
+   self.assertEqual(results[0],results[1]);self.assertEqual(before['encoded'](results[0]),after['encoded'](results[1]));self.assertEqual(counts[0],counts[1]);self.assertEqual(counts[0]['nodes'],606)
+   os.setxattr(root/'usr/share/finite/finite2/file','user.unreviewed',b'REFUSE')
+   for scope in(before,after):
+    with self.assertRaisesRegex(ValueError,'unknown xattr'):scope['observe'](root,scope['load_db'](path),expected)
 
 if __name__=='__main__':unittest.main(verbosity=2)
 
