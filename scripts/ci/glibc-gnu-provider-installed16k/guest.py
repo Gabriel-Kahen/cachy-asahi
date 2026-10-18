@@ -17,6 +17,7 @@ import types
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 import contract as C
 import snapshot_progress as S
+import observer_progress as O
 
 def emit(nonce,value):
     raw=json.dumps(value,sort_keys=True,separators=(',',':'));C.need(len(raw)<=512*1024,'guest receipt bound')
@@ -78,14 +79,16 @@ def progress_value(raw,selection):
     C.need(type(value) is dict and set(value)=={'status','nonce','source_sha','records','omitted_records'} and value['status']=='DIAGNOSTIC_CALL_BOUNDARIES_NO_ACCEPTANCE' and value['nonce']==selection['nonce'] and value['source_sha']==selection['source_sha'],'source/nonce-bound diagnostic only')
     rows=value['records'];C.need(type(rows) is list and 1<=len(rows)<=256 and type(value['omitted_records']) is int and 0<=value['omitted_records']<=2**63-1 and rows[-1]['sequence']==len(rows)+value['omitted_records'],'finite stage records and explicit omissions')
     for n,row in enumerate(rows):
-        C.need(type(row) is dict and set(row) in ({'sequence','stage','edge','case','phase'},{'sequence','stage','edge','case','phase','postwalk'}) and type(row['sequence']) is int and 0<row['sequence']<=2**63-1 and (n==0 or row['sequence']>rows[n-1]['sequence']) and row['stage'] in ('worker','lifecycle','case','snapshot','observer','alpm','runtime','cache','initialization','configuration','postwalk') and row['edge'] in ('enter','leave','sample') and row['case'] in ('none','pristine','modified') and row['phase'] in ('none',*PHASES),'closed public progress labels')
+        C.need(type(row) is dict and set(row) in ({'sequence','stage','edge','case','phase'},{'sequence','stage','edge','case','phase','postwalk'},{'sequence','stage','edge','case','phase','observer'}) and type(row['sequence']) is int and 0<row['sequence']<=2**63-1 and (n==0 or row['sequence']>rows[n-1]['sequence']) and row['stage'] in ('worker','lifecycle','case','snapshot','observer','alpm','runtime','cache','initialization','configuration','postwalk') and row['edge'] in ('enter','leave','sample') and row['case'] in ('none','pristine','modified') and row['phase'] in ('none',*PHASES),'closed public progress labels')
         if 'postwalk' in row:
             C.need(row['stage']=='postwalk','closed postwalk stage');S.validate(row['postwalk'])
+        if 'observer' in row:
+            C.need(row['stage']=='observer','closed inner observer stage');O.validate(row['observer'])
     return value
 
 def install_progress():
     selection=C.decode(C.read('/installed16k/selection.json'));C.need(re.fullmatch('[0-9a-f]{32}',selection['nonce']) and re.fullmatch('[0-9a-f]{40}',selection['source_sha']),'exact progress source/nonce')
-    journal=S.Journal(selection);lock=threading.Lock();context=dict(case='none',phase='none');disabled=False
+    journal=S.Journal(selection);lock=threading.Lock();context=dict(case='none',phase='none');disabled=False;observer_pending=True
     def record(stage,edge,metrics=None):
         nonlocal disabled
         if disabled:return
@@ -119,7 +122,15 @@ def install_progress():
             for function,stage in (('main','lifecycle'),('run_case','case'),('snapshot','snapshot'),('transaction','alpm'),('smoke','runtime'),('caches','cache'),('copy_probes','initialization'),('config_handoff','configuration')):setattr(module,function,wrap(getattr(module,function),stage))
             helpers=module.C.helpers
             def observed_helpers(*args,**kwargs):
-                api=helpers(*args,**kwargs);api['caps']=S.capability_facade(api['caps'],record);roots=api['roots'];api['roots']=types.SimpleNamespace(**dict(vars(roots),observe=wrap(roots.observe,'observer')));return api
+                api=helpers(*args,**kwargs);api['caps']=S.capability_facade(api['caps'],record);roots=api['roots']
+                def first_observation(*args,**kwargs):
+                    nonlocal observer_pending
+                    if observer_pending:
+                        observer_pending=False
+                        measured=O.facade(roots,lambda metrics:record('observer','sample',metrics))
+                        return measured.observe(*args,**kwargs)
+                    return roots.observe(*args,**kwargs)
+                api['roots']=types.SimpleNamespace(**dict(vars(roots),observe=wrap(first_observation,'observer')));return api
             module.C.helpers=observed_helpers
         return module
     C.load=load;record('worker','enter')
