@@ -35,6 +35,9 @@ class Wiring(unittest.TestCase):
     continue
    if name=='cap_scope.py':
     tree=ast.parse(b);tree.body=[n for n in tree.body if not(isinstance(n,ast.FunctionDef) and n.name=='runtime_boundaries')];derive=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='derive');self.assertEqual(ast.unparse(derive.body[0]),'omitted = runtime_boundaries(omitted)');derive.body.pop(0);self.assertEqual(ast.dump(tree,include_attributes=False),ast.dump(ast.parse(a),include_attributes=False));b=ast.unparse(tree).encode()
+   if name=='guest.py':
+    tree=ast.parse(b);tree.body=[n for n in tree.body if not(isinstance(n,ast.FunctionDef)and n.name=='worker_failure')]
+    main=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='main');extra=[n for n in main.body if isinstance(n,ast.If)and any(isinstance(q,ast.Call)and isinstance(q.func,ast.Name)and q.func.id=='worker_failure'for q in ast.walk(n))];self.assertEqual(len(extra),1);main.body.remove(extra[0]);b=ast.unparse(tree).encode()
    if name=='vm.py':
     tree=ast.parse(b);tree.body=[n for n in tree.body if not(isinstance(n,ast.FunctionDef) and n.name in ('prepare_failure','qemu_failure'))];b=ast.unparse(tree).encode()
    nums=lambda raw:[n.value for n in ast.walk(ast.parse(raw)) if isinstance(n,ast.Constant) and type(n.value) in (int,float)]
@@ -149,6 +152,60 @@ class Wiring(unittest.TestCase):
    with patch.object(vm,'authorize',return_value=({'Image':C.row(image)},image,None)),patch.object(vm,'mounts',return_value=({'/upgrade-signing':dict(source=str(raw/'test-signing'),readonly=True)},{})),patch.object(vm,'snapshot',return_value={}),patch.object(vm,'old_verify',return_value=lambda *_:None),patch.object(C,'check_source',return_value={}),patch.object(C,'load',return_value=types.SimpleNamespace(run_command=command)):
     with self.assertRaisesRegex(ValueError,'three nonce-bound original guest records'):vm.run(a,[],'sha256:'+'a'*64,public,raw,old,3900)
    value=C.decode(C.read(public/'updater16k-cleanup.json'));self.assertEqual(value['status'],'PASS');self.assertEqual(value['error']['message'],'three nonce-bound original guest records');self.assertEqual(base64.b64decode(value['qemu_failure']['stdout']['preview_base64']),uart);self.assertEqual(value['qemu_failure']['prefix_counts'],dict(protocol_prefix=0,nonce_bound_prefix=0,guest_error_prefix=1));self.assertFalse((root/'update16k').exists());self.assertFalse(live);self.assertFalse((public/'updater16k-result.json').exists())
+
+class WorkerFailureControls(unittest.TestCase):
+ def guest(self):
+  import importlib.util
+  spec=importlib.util.spec_from_file_location('_source_worker_failure_guest',C.HERE/'guest.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m
+ def record(self,out=b'',err=b'',**values):return dict(dict(argv=['/usr/bin/python3','-I','-B','/workspace/guest.py','worker'],exit_code=7,seconds=.1,time_limit=3900,output_limit=2*1024**2,group_absence_verified=True,stdout_bytes=len(out),stdout_sha256=C.sha(out),stderr_bytes=len(err),stderr_sha256=C.sha(err)),**values)
+ def project(self,record,out,err,error=None,nonce='a'*32):
+  import io,contextlib
+  text=io.StringIO();G=self.guest()
+  with contextlib.redirect_stdout(text):G.worker_failure(dict(nonce=nonce),record,out,err,error)
+  raw=text.getvalue().encode()
+  if not raw:return None,raw
+  self.assertLessEqual(len(raw),33*1024);self.assertTrue(raw.startswith(('APPS6_UPDATE16K_WORKER_FAILURE '+nonce+' ').encode()));value=json.loads(raw.split(b' ',2)[2]);self.assertLessEqual(len(raw.split(b' ',2)[2]),32*1024);self.assertNotIn('APPS6_UPDATE16K ',raw.decode());return value,raw
+ def test_real_inert_child_record_and_original_streams_project_without_native_credit(self):
+  runner=C.load('_source_inert_worker_runner',C.ROOT/'scripts/ci/glibc-owned-runtime/runner.py')
+  with tempfile.TemporaryDirectory()as td:
+   # This exact real negative child is a component control, not /workspace/guest
+   # or a fabricated accepting native outcome. Its record is retained unmodified.
+   argv=[sys.executable,'-I','-B','-c',"import sys;sys.stdout.buffer.write(b'INERT_OUT\\n');sys.stderr.buffer.write(b'INERT_WORKER_ERROR\\n');raise SystemExit(7)"]
+   record,out,err,error=runner.run_command(argv,Path(td),dict(PATH='/usr/bin:/bin',LC_ALL='C',HOME=td),3900,2*1024**2)
+   self.assertIsNone(error);self.assertEqual(record['exit_code'],7);self.assertTrue(record['group_absence_verified']);value,raw=self.project(record,out,err,error);self.assertEqual(value['record'],record);self.assertEqual(value['status'],'FAILED_ORIGINAL_GUEST_WORKER_DATA_NOT_ACCEPTANCE');self.assertEqual(base64.b64decode(value['stdout']['tail_base64']),out);self.assertEqual(base64.b64decode(value['stderr']['tail_base64']),err);self.assertEqual(value['stdout']['sha256'],C.sha(out));self.assertEqual(value['stderr']['sha256'],C.sha(err));self.assertEqual(value['cleanup_acceptance'],'NOT_GRANTED')
+ def test_bounded_tail_pin_truncation_nonce_and_tamper_unavailable(self):
+  out=b'O'*5000;err=b'E'*9000;record=self.record(out,err);value,raw=self.project(record,out,err)
+  for side,data,cap in(('stdout',out,4096),('stderr',err,8192)):
+   row=value[side];self.assertEqual(row['bytes'],len(data));self.assertEqual(row['sha256'],C.sha(data));self.assertEqual(row['tail_bytes'],cap);self.assertEqual(base64.b64decode(row['tail_base64']),data[-cap:]);self.assertEqual(row['omitted_bytes'],len(data)-cap);self.assertTrue(row['truncated'])
+  for changed in(dict(stdout_sha256='0'*64),dict(stderr_bytes=1),dict(time_limit=3901),dict(output_limit=2*1024**2+1),dict(argv=['x'*8193]),dict(group_absence_verified=1)):
+   row,_=self.project(dict(record,**changed),out,err);self.assertEqual(row['status'],'DIAGNOSTIC_UNAVAILABLE_NOT_ACCEPTANCE');self.assertNotIn('message',row)
+  self.assertEqual(self.project(record,out,err,nonce='bad'),(None,b''))
+  record=self.record(b'',b'',exit_code=0);row,_=self.project(record,b'',b'',ValueError('PRIVATE_ERROR_TEXT_NOT_EXPORTED'));self.assertEqual(row['error_type'],'ValueError');self.assertNotIn('PRIVATE',C.encoded(row).decode())
+ def route(self,record,out,err,error=None,broken=False):
+  import io,contextlib,types
+  G=self.guest();raw=(C.HERE/'guest.py').read_text();tree=ast.parse(raw);main=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='main');start=next(i for i,n in enumerate(main.body)if isinstance(n,ast.Assign)and any(isinstance(v,ast.Call)and isinstance(v.func,ast.Attribute)and v.func.attr=='load'and v.args and isinstance(v.args[0],ast.Constant)and v.args[0].value=='supervisor'for v in ast.walk(n)));guard=next(i for i,n in enumerate(main.body)if isinstance(n,ast.Expr)and isinstance(n.value,ast.Call)and any(isinstance(x,ast.Constant)and x.value=='whole updater worker exit/group absence'for x in ast.walk(n)))
+  def run(argv,work,env,seconds,cap):
+   self.assertEqual(argv,['/usr/bin/python3','-I','-B','/workspace/guest.py','worker']);self.assertEqual((work,seconds,cap),(Path('/tmp'),3900,2*1024**2));return record,out,err,error
+  space=dict(C=types.SimpleNamespace(load=lambda *a:types.SimpleNamespace(run_command=run),need=C.need),Path=Path,s=dict(nonce='a'*32),worker_failure=G.worker_failure);stream=io.StringIO();code=compile(ast.Module(body=main.body[start:guard+1],type_ignores=[]),'<actual-source-worker-call-and-held-guard>','exec')
+  with contextlib.redirect_stdout(stream):
+   if broken:
+    with patch('builtins.print',side_effect=OSError('closed UART')):exec(code,space)
+   else:exec(code,space)
+  return stream.getvalue()
+ def test_actual_worker_guard_positive_protocol_and_failed_output_order_conserved(self):
+  original=(C.ROOT/'scripts/ci/current604-apps6-updater16k/guest.py').read_text();new=(C.HERE/'guest.py').read_text()
+  self.assertEqual(original.count("emit(s,"),new.count("emit(s,"));self.assertEqual(new.count("'whole updater worker exit/group absence'"),1)
+  self.assertEqual(self.route(self.record(exit_code=0),b'',b''), '')
+  for group in(True,False):
+   with self.assertRaisesRegex(ValueError,'whole updater worker exit/group absence'):self.route(self.record(group_absence_verified=group),b'',b'')
+  with self.assertRaisesRegex(ValueError,'whole updater worker exit/group absence'):self.route(self.record(),b'',b'',broken=True)
+  import io,contextlib
+  buffer=io.StringIO()
+  with contextlib.redirect_stdout(buffer):
+   # Original emit() still emits only its exact old positive prefix/record.
+   self.guest().emit(dict(nonce='a'*32),dict(event='boot'))
+  self.assertTrue(buffer.getvalue().startswith('APPS6_UPDATE16K '+'a'*32+' '));self.assertNotIn('WORKER_FAILURE',buffer.getvalue())
+
 
 class DockerConfigControls(unittest.TestCase):
  def setUp(self):
