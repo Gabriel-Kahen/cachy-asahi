@@ -33,11 +33,13 @@ class Wiring(unittest.TestCase):
     if name=='job.py':self.assertIn(',15600,4*1024**2)',b.decode())
     else:self.assertEqual(C.sha(ast.get_source_segment(b.decode(),next(n for n in ast.parse(b).body if isinstance(n,ast.FunctionDef) and n.name=='main')).encode()),'028606ac467be8c5ac4c7bc58ce9a57bd9721efb04f6dfcff486dbbac3f3756a')
     continue
+   if name=='cap_scope.py':
+    tree=ast.parse(b);tree.body=[n for n in tree.body if not(isinstance(n,ast.FunctionDef) and n.name=='runtime_boundaries')];derive=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='derive');self.assertEqual(ast.unparse(derive.body[0]),'omitted = runtime_boundaries(omitted)');derive.body.pop(0);self.assertEqual(ast.dump(tree,include_attributes=False),ast.dump(ast.parse(a),include_attributes=False));b=ast.unparse(tree).encode()
    if name=='vm.py':
     tree=ast.parse(b);tree.body=[n for n in tree.body if not(isinstance(n,ast.FunctionDef) and n.name=='prepare_failure')];b=ast.unparse(tree).encode()
    nums=lambda raw:[n.value for n in ast.walk(ast.parse(raw)) if isinstance(n,ast.Constant) and type(n.value) in (int,float)]
    self.assertEqual(nums(a),nums(b),name)
-  self.assertEqual((old/'cap_scope.py').read_bytes(),(C.HERE/'cap_scope.py').read_bytes())
+  self.assertIn('omitted=runtime_boundaries(omitted)',(C.HERE/'cap_scope.py').read_text())
  def test_failed_originals_remain_retained_not_accepted(self):
   with tempfile.TemporaryDirectory(dir='/tmp') as td,tempfile.TemporaryDirectory() as dest:
    root=Path(td);C.save(root/'owner.json',dict(purpose='expanded604-apps6-public-pair-updater',case='normal',output=str(root)))
@@ -198,5 +200,47 @@ class DockerConfigControls(unittest.TestCase):
     shutil.rmtree(work if missing=='work' else home)
     with self.assertRaisesRegex(ValueError,'CONFIG_WITHOUT_KERNEL_WORK|without owned child record'):kernel_job.cleanup(work,output,'a'*40,'normal')
     self.assertTrue(config.exists())
+
+
+class RuntimeMountBoundaryControls(unittest.TestCase):
+ def setUp(self):
+  p=patch.object(subprocess,'Popen',side_effect=AssertionError('no actors/Git/network'));p.start();self.addCleanup(p.stop)
+ def modules(self):
+  return C.load('runtime_boundary_scope',C.ROOT/'scripts/ci/full-root-upgrade-caller/persistent_scope.py'),C.load('runtime_boundary_roots',C.ROOT/'scripts/update/full_root.py'),C.load('runtime_boundary_caps',C.HERE/'cap_scope.py')
+ def test_real_mount_policy_to_complete_cap_observer_and_restore(self):
+  import time
+  scope,roots,caps=self.modules();raw=C.read(C.ROOT/'scripts/apps/file_capabilities.py')
+  with tempfile.TemporaryDirectory() as td:
+   base=Path(td);root=base/'root';root.mkdir();(root/'usr').mkdir();(root/'usr/payload').write_bytes(b'ordinary persistent data');os.link(root/'usr/payload',root/'usr/hardlink');(root/'usr/relative').symlink_to('payload')
+   for n in scope.RUNTIME:(root/n).mkdir()
+   (root/'proc/private-runtime').write_bytes(b'excluded exact original runtime scope')
+   rows=[dict(id=1,path=str(root),fs='ext4'),dict(id=2,path=str(base),fs='ext4')]
+   for i,n in enumerate(('proc','proc/bus','proc/sys','sys','sys/fs/cgroup','dev','dev/pts','dev/shm','run','run/credentials','tmp','tmp/fixture'),10):rows.append(dict(id=i,path=str(root/n),fs='tmpfs'))
+   policy=scope.mount_policy(root,base/'stage',rows);self.assertIn('proc/bus',policy['observed_mounts']);omitted=set(policy['observed_mounts'])|scope.RUNTIME
+   limits=roots.Limits(deadline=time.monotonic()+10);observed=roots.observe(root,limits=limits,hardlinks='generic-development-internal',absolute_paths=True);nodes=caps.nodes(observed['nodes'])
+   module=caps.derive(raw,omitted);self.assertEqual(module.OMITTED,set(scope.RUNTIME));self.assertEqual(module.observe(root,nodes,limits),{});self.assertEqual(module.restore(root,nodes,{},limits),{})
+   self.assertEqual((root/'usr/payload').read_bytes(),b'ordinary persistent data');self.assertEqual((root/'usr/hardlink').stat().st_ino,(root/'usr/payload').stat().st_ino);self.assertEqual(os.readlink(root/'usr/relative'),'payload')
+   (root/'usr/foreign').write_bytes(b'not omitted')
+   with self.assertRaisesRegex(ValueError,'actual node graph'):module.observe(root,nodes,limits)
+ def test_all_original_literal_infrastructure_and_mount_files_exact(self):
+  scope,roots,caps=self.modules();raw=C.read(C.ROOT/'scripts/apps/file_capabilities.py');literal=set(scope.RUNTIME|scope.INFRASTRUCTURE|scope.MOUNT_FILES);module=caps.derive(raw,literal)
+  self.assertEqual(module.OMITTED,literal-set(scope.MOUNT_FILES));self.assertEqual(module.MOUNT_FILES,set(scope.MOUNT_FILES))
+  for n in scope.INFRASTRUCTURE|scope.MOUNT_FILES:
+   with self.subTest(n=n),self.assertRaisesRegex(ValueError,'only existing persistent-scope'):caps.derive(raw,{n+'/unexpected'})
+ def test_unsafe_or_unrelated_mount_names_refuse_before_compile(self):
+  scope,roots,caps=self.modules();raw=C.read(C.ROOT/'scripts/apps/file_capabilities.py')
+  for name in ('','/proc/bus','proc//bus','proc/../usr','proc/./bus','proc/bus/','proc\\bus','proc/evil\0','usr/mounted','var/lib/runtime','proctools','etc/hosts/child',None):
+   with self.subTest(name=repr(name)),self.assertRaises(ValueError):caps.derive(raw,{name})
+  with tempfile.TemporaryDirectory()as td:
+   root=Path(td)/'root';root.mkdir();rows=[dict(id=1,path=str(root),fs='ext4'),dict(id=2,path=td,fs='ext4'),dict(id=3,path=str(root/'usr/mounted'),fs='tmpfs')]
+   with self.assertRaisesRegex(ValueError,'unrecognized source mount'):scope.mount_policy(root,Path(td)/'stage',rows)
+ def test_original_observer_source_anchor_and_xattr_refusals_held(self):
+  import time
+  scope,roots,caps=self.modules();raw=C.read(C.ROOT/'scripts/apps/file_capabilities.py')
+  with self.assertRaisesRegex(ValueError,'source anchor'):caps.derive(raw.replace(b'actual node graph differs',b'foreign node graph differs'),{'proc/bus'})
+  with tempfile.TemporaryDirectory()as td:
+   root=Path(td);p=root/'payload';p.write_bytes(b'original');limits=roots.Limits(deadline=time.monotonic()+10);nodes=roots.observe(root,limits=limits)['nodes'];os.setxattr(p,'user.fixture',b'original-refusal');module=caps.derive(raw,{'dev/pts'})
+   with self.assertRaises(ValueError):module.observe(root,nodes,limits)
+   self.assertEqual(os.getxattr(p,'user.fixture'),b'original-refusal')
 
 if __name__=='__main__':unittest.main(verbosity=2)
