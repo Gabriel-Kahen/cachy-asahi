@@ -1,0 +1,72 @@
+{
+  "held-copy/scripts/apps/file_capabilities.py": {
+    "bytes": 13562,
+    "sha256": "498a3beec0327b9335dcd6d80ed5919fa2edebebd3284e9ee8b97770328e26a2",
+    "source": "2f4b8de59f555681427710212bc28b8addb876cd"
+  },
+  "held-copy/scripts/apps/full574_copy.py": {
+    "bytes": 7799,
+    "sha256": "33d49316c28dee344e78e17d7e7ffa409c9d7ad09bb48a82651f7d44f1cb61a0",
+    "source": "4716f66a49954c416b6d1000431506c0b7c14364"
+  },
+  "held-copy/scripts/ci/full-root-upgrade/root_upgrade.py": {
+    "bytes": 23555,
+    "sha256": "fe1232ae6b510021910b4fb80016ac3b4668c6e4386cdae45e7b95196e400756",
+    "source": "37d9ffa166e0d7262ef8afab56baa0b3ea060b22"
+  },
+  "held-copy/scripts/install/local_transaction.py": {
+    "bytes": 93752,
+    "sha256": "14381d049506b52770059bf7af415f7a079f69872543e74417aca11ce24ac3c5",
+    "source": "37d9ffa166e0d7262ef8afab56baa0b3ea060b22"
+  },
+  "held-copy/scripts/update/aux_checkpoint.py": {
+    "bytes": 18456,
+    "sha256": "d51179ca24c981bafd817d7db082c0ceb3b2f5deb922004bfe97d1e2007edda7",
+    "source": "37d9ffa166e0d7262ef8afab56baa0b3ea060b22"
+  },
+  "held-copy/scripts/update/aux_copy.py": {
+    "bytes": 3736,
+    "sha256": "bff93c029e21f9fce0868c80566396984443c8d3438264fac8a91c985175f05b",
+    "source": "37d9ffa166e0d7262ef8afab56baa0b3ea060b22"
+  },
+  "held-copy/scripts/update/capacity.py": {
+    "bytes": 1449,
+    "sha256": "dcb9899cd24daa21f75e6da6b0214393f093d140a70769092da091e0cfdf7c87",
+    "source": "37d9ffa166e0d7262ef8afab56baa0b3ea060b22"
+  },
+  "held-copy/scripts/update/disposable_copy.py": {
+    "bytes": 6098,
+    "sha256": "fb05d12a0d67a598cc940e0bc7edb5aa9ffc8cf87ce7b9f695ba5fbd26747667",
+    "source": "37d9ffa166e0d7262ef8afab56baa0b3ea060b22"
+  },
+  "held-copy/scripts/update/full_root.py": {
+    "bytes": 35970,
+    "sha256": "cece1c597b2e2eb98b0e3087cc7e7c148b54332f8a1c4f18e04e4552a71fb51d",
+    "source": "37d9ffa166e0d7262ef8afab56baa0b3ea060b22"
+  },
+  "held-copy/scripts/update/measure_copy.py": {
+    "bytes": 25734,
+    "sha256": "e582245bd114b0b9d83f2de4fdc81a35d2f48493ba6147879871af794476813b",
+    "source": "37d9ffa166e0d7262ef8afab56baa0b3ea060b22"
+  },
+  "held-copy/scripts/update/root_link_selection.py": {
+    "bytes": 25684,
+    "sha256": "4b47223e9c66874193c2b38a620aa892871e93e556178c478dac1929d2540db9",
+    "source": "37d9ffa166e0d7262ef8afab56baa0b3ea060b22"
+  },
+  "held-copy/scripts/update/root_path.py": {
+    "bytes": 3435,
+    "sha256": "2efcbc1057e117a406488f05a3e0213751b00ab09f845a7830a71a4cf60fd2b4",
+    "source": "37d9ffa166e0d7262ef8afab56baa0b3ea060b22"
+  },
+  "held-copy/scripts/update/supervision.py": {
+    "bytes": 3293,
+    "sha256": "f18bcbd2a6279cff8fe6c7e9c9f80fc01c9818844b01df8c4e97b83d61704b10",
+    "source": "37d9ffa166e0d7262ef8afab56baa0b3ea060b22"
+  },
+  "held-welcome/scripts/ci/welcome5-native-upgrade/fixture_checks.py": {
+    "bytes": 4034,
+    "sha256": "2807126de1544ef4eac48b94159891a2cf0443e5fcc5b4d0c1af5831e90d7753",
+    "source": "85ffec834fc72ef8764cdcae828a12ec8ddf7f20"
+  }
+}

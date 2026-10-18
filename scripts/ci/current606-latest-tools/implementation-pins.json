@@ -1,0 +1,482 @@
+{
+  "bridge": {
+    "scripts/apps/file_capabilities.py": {
+      "bytes": 13562,
+      "sha256": "498a3beec0327b9335dcd6d80ed5919fa2edebebd3284e9ee8b97770328e26a2"
+    },
+    "scripts/ci/current606-welcome5-source-bridge/bridge.py": {
+      "bytes": 27785,
+      "sha256": "611087872cb288e97ce3cec1aba6dad9b11d957fc391733d8d11143925aed69a"
+    },
+    "scripts/ci/current606-welcome5-source-bridge/expected606.lock": {
+      "bytes": 12043,
+      "sha256": "3a586c1e3400391f56bd281ac9c16aba85d94d0fca002770e77ee1802c5d9fd1"
+    },
+    "scripts/ci/current606-welcome5-source-bridge/owner-api.json": {
+      "bytes": 160,
+      "sha256": "312596e3ab09138bf36042c2d14edf19411e0ed323dfb90712248b62d05df917"
+    },
+    "scripts/ci/current606-welcome5-source-bridge/selection.json": {
+      "bytes": 647,
+      "sha256": "99fda8dd43aaaf88e210e5ea5c89b10c10624e2fbfdde3e6126f762253f5cf96"
+    },
+    "scripts/ci/current606-welcome5-source-bridge/source-pins.json": {
+      "bytes": 2037,
+      "sha256": "92d21f3a7ec5a26c0aeb664a873961bb4b253edcf6d520775da7262a9772b9d2"
+    },
+    "scripts/ci/current606-welcome5-source-bridge/test_bridge.py": {
+      "bytes": 13052,
+      "sha256": "8475a4066d45c9284206f6539d07b077dbfa7a96e9a20aaae9ae6e34562d5637"
+    },
+    "scripts/ci/full-root-upgrade-caller/persistent_scope.py": {
+      "bytes": 17405,
+      "sha256": "cd1f23bd252b77e9b3a9e907e1c0defd5141025408e92ae5c2500152076b6f3a"
+    },
+    "scripts/ci/full-root-upgrade/root_upgrade.py": {
+      "bytes": 23555,
+      "sha256": "fe1232ae6b510021910b4fb80016ac3b4668c6e4386cdae45e7b95196e400756"
+    },
+    "scripts/install/local_transaction.py": {
+      "bytes": 93752,
+      "sha256": "14381d049506b52770059bf7af415f7a079f69872543e74417aca11ce24ac3c5"
+    },
+    "scripts/update/aux_checkpoint.py": {
+      "bytes": 18456,
+      "sha256": "d51179ca24c981bafd817d7db082c0ceb3b2f5deb922004bfe97d1e2007edda7"
+    },
+    "scripts/update/capacity.py": {
+      "bytes": 1449,
+      "sha256": "dcb9899cd24daa21f75e6da6b0214393f093d140a70769092da091e0cfdf7c87"
+    },
+    "scripts/update/disposable_copy.py": {
+      "bytes": 6098,
+      "sha256": "fb05d12a0d67a598cc940e0bc7edb5aa9ffc8cf87ce7b9f695ba5fbd26747667"
+    },
+    "scripts/update/full_root.py": {
+      "bytes": 35970,
+      "sha256": "cece1c597b2e2eb98b0e3087cc7e7c148b54332f8a1c4f18e04e4552a71fb51d"
+    },
+    "scripts/update/measure_copy.py": {
+      "bytes": 25734,
+      "sha256": "e582245bd114b0b9d83f2de4fdc81a35d2f48493ba6147879871af794476813b"
+    },
+    "scripts/update/root_link_selection.py": {
+      "bytes": 25684,
+      "sha256": "4b47223e9c66874193c2b38a620aa892871e93e556178c478dac1929d2540db9"
+    },
+    "scripts/update/root_path.py": {
+      "bytes": 3435,
+      "sha256": "2efcbc1057e117a406488f05a3e0213751b00ab09f845a7830a71a4cf60fd2b4"
+    },
+    "scripts/update/supervision.py": {
+      "bytes": 3293,
+      "sha256": "f18bcbd2a6279cff8fe6c7e9c9f80fc01c9818844b01df8c4e97b83d61704b10"
+    }
+  },
+  "worker": {
+    "held-apps-worker/held-apps/checks/package_checks.py": {
+      "bytes": 17706,
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+    },
+    "held-apps-worker/held-apps/fixture-apps/apps.py": {
+      "bytes": 22601,
+      "sha256": "c12f8548d5fd3007a61fb366ca279dd061917cc5320ba81ce5e2ab0d02c7d9a6"
+    },
+    "held-apps-worker/held-apps/fixture-apps/helper-pins.json": {
+      "bytes": 493,
+      "sha256": "33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a"
+    },
+    "held-apps-worker/held-apps/fixture-apps/inventory.py": {
+      "bytes": 13206,
+      "sha256": "68f9b0bc6bd5c494ebfc10bdc1e243c014d7fa8e56b1386491b75cdb9ee2e3df"
+    },
+    "held-apps-worker/held-apps/fixture-apps/test_apps.py": {
+      "bytes": 40942,
+      "sha256": "6d55ca76da60b7f1121d04cb3e16435f6db477b39e7ae8985bec01e7227d4987"
+    },
+    "held-apps-worker/held-apps/fixture_checks.py": {
+      "bytes": 2829,
+      "sha256": "209bb363c0824ad5d6aababadf776c43cae653bf27c77ec79a9501fbab2a5fe9"
+    },
+    "held-apps-worker/held-copy/scripts/apps/file_capabilities.py": {
+      "bytes": 13562,
+      "sha256": "498a3beec0327b9335dcd6d80ed5919fa2edebebd3284e9ee8b97770328e26a2"
+    },
+    "held-apps-worker/held-copy/scripts/apps/full574_copy.py": {
+      "bytes": 7799,
+      "sha256": "33d49316c28dee344e78e17d7e7ffa409c9d7ad09bb48a82651f7d44f1cb61a0"
+    },
+    "held-apps-worker/held-copy/scripts/ci/full-root-upgrade/root_upgrade.py": {
+      "bytes": 23555,
+      "sha256": "fe1232ae6b510021910b4fb80016ac3b4668c6e4386cdae45e7b95196e400756"
+    },
+    "held-apps-worker/held-copy/scripts/install/local_transaction.py": {
+      "bytes": 93752,
+      "sha256": "14381d049506b52770059bf7af415f7a079f69872543e74417aca11ce24ac3c5"
+    },
+    "held-apps-worker/held-copy/scripts/update/aux_checkpoint.py": {
+      "bytes": 18456,
+      "sha256": "d51179ca24c981bafd817d7db082c0ceb3b2f5deb922004bfe97d1e2007edda7"
+    },
+    "held-apps-worker/held-copy/scripts/update/aux_copy.py": {
+      "bytes": 3736,
+      "sha256": "bff93c029e21f9fce0868c80566396984443c8d3438264fac8a91c985175f05b"
+    },
+    "held-apps-worker/held-copy/scripts/update/capacity.py": {
+      "bytes": 1449,
+      "sha256": "dcb9899cd24daa21f75e6da6b0214393f093d140a70769092da091e0cfdf7c87"
+    },
+    "held-apps-worker/held-copy/scripts/update/disposable_copy.py": {
+      "bytes": 6098,
+      "sha256": "fb05d12a0d67a598cc940e0bc7edb5aa9ffc8cf87ce7b9f695ba5fbd26747667"
+    },
+    "held-apps-worker/held-copy/scripts/update/full_root.py": {
+      "bytes": 35970,
+      "sha256": "cece1c597b2e2eb98b0e3087cc7e7c148b54332f8a1c4f18e04e4552a71fb51d"
+    },
+    "held-apps-worker/held-copy/scripts/update/measure_copy.py": {
+      "bytes": 25734,
+      "sha256": "e582245bd114b0b9d83f2de4fdc81a35d2f48493ba6147879871af794476813b"
+    },
+    "held-apps-worker/held-copy/scripts/update/root_link_selection.py": {
+      "bytes": 25684,
+      "sha256": "4b47223e9c66874193c2b38a620aa892871e93e556178c478dac1929d2540db9"
+    },
+    "held-apps-worker/held-copy/scripts/update/root_path.py": {
+      "bytes": 3435,
+      "sha256": "2efcbc1057e117a406488f05a3e0213751b00ab09f845a7830a71a4cf60fd2b4"
+    },
+    "held-apps-worker/held-copy/scripts/update/supervision.py": {
+      "bytes": 3293,
+      "sha256": "f18bcbd2a6279cff8fe6c7e9c9f80fc01c9818844b01df8c4e97b83d61704b10"
+    },
+    "held-apps-worker/scripts/ci/current606-apps7-copy/alpm_step.py": {
+      "bytes": 5712,
+      "sha256": "6b49141703f31b793c088678b65c65d74606c7d36f8aa71c9790c65067bd865f"
+    },
+    "held-apps-worker/scripts/ci/current606-apps7-copy/contract.py": {
+      "bytes": 6312,
+      "sha256": "5f72a00e45feee86967e6a8b90431c312f346dad66fbdc4e4f97ad780d680339"
+    },
+    "held-apps-worker/scripts/ci/current606-apps7-copy/driver.py": {
+      "bytes": 12254,
+      "sha256": "fcae30b15dde418eb2b93593b547a39a74685cd2dea652c1a9aa01407815c2c6"
+    },
+    "held-apps-worker/scripts/ci/current606-apps7-copy/expected606.lock": {
+      "bytes": 12043,
+      "sha256": "3a586c1e3400391f56bd281ac9c16aba85d94d0fca002770e77ee1802c5d9fd1"
+    },
+    "held-apps-worker/scripts/ci/current606-apps7-copy/fixture_entry.py": {
+      "bytes": 2850,
+      "sha256": "8f68309931a2123590296a2cf55809f454f7ab043815da6c4daeb16853ee04d9"
+    },
+    "held-apps-worker/scripts/ci/current606-apps7-copy/guard.py": {
+      "bytes": 6366,
+      "sha256": "3814e65f3c1f946a3335e5579882e48e094201f14e8e2216efa350e8899aa340"
+    },
+    "held-apps-worker/scripts/ci/current606-apps7-copy/input-policy.json": {
+      "bytes": 700,
+      "sha256": "4be37a06a51c180451b6a25248258642a8a613d28df6666d8b0c6a54994c7fc8"
+    },
+    "held-apps-worker/scripts/ci/current606-apps7-copy/inputs.py": {
+      "bytes": 8834,
+      "sha256": "2b1101582078853abf612c0de79f0a62217295e017fc6a6a31579292ecb71246"
+    },
+    "held-apps-worker/scripts/ci/current606-apps7-copy/lifecycle.py": {
+      "bytes": 6083,
+      "sha256": "579410157170252aa569ebf3b81aa506ec6c5c5458bae978bcb96742e55b5653"
+    },
+    "held-apps-worker/scripts/ci/current606-apps7-copy/owner-api.json": {
+      "bytes": 140,
+      "sha256": "c15a9891197276874ee4fc45f49ca076a5aedbf1b34b075d49cee35cc202b5ac"
+    },
+    "held-apps-worker/scripts/ci/current606-apps7-copy/physical.py": {
+      "bytes": 3499,
+      "sha256": "d9c8cb0c50abb3620775c7dab55e3943052254a5620b4d6df408d1112079bf09"
+    },
+    "held-apps-worker/scripts/ci/current606-apps7-copy/plan.py": {
+      "bytes": 5123,
+      "sha256": "f8a91840c3140246a3ec1d35f5cb3fdb3cf1e6a354908098acf145229086befe"
+    },
+    "held-apps-worker/scripts/ci/current606-apps7-copy/prepare.py": {
+      "bytes": 1695,
+      "sha256": "167b19d1cf38a31a52587fd31946041c2a90cf2927a8fc0d95d685423f8f0d2a"
+    },
+    "held-apps-worker/scripts/ci/current606-apps7-copy/prerequisite-pins.json": {
+      "bytes": 38343,
+      "sha256": "e5af8fb375f3d61f46c6bd35c1242e37dc26e248eea798390a808612d612963f"
+    },
+    "held-apps-worker/scripts/ci/current606-apps7-copy/role-pins.json": {
+      "bytes": 4000,
+      "sha256": "c0a7e594ca7faf5a0d10081b5ee3adf2da4c3c273b3058ed7de893c4cd09f97c"
+    },
+    "held-apps-worker/scripts/ci/current606-apps7-copy/rooted_fixture.py": {
+      "bytes": 8330,
+      "sha256": "af1ad1a0b9c27754a72cd920a4ad6053b865f94e46dc2517ed9a09fc49588211"
+    },
+    "held-apps-worker/scripts/ci/current606-apps7-copy/source-manifest.json": {
+      "bytes": 6836,
+      "sha256": "63dcdc66776f68af8787fec1376a705eb064217926aa82ad90d4f3cf884a98b2"
+    },
+    "held-apps-worker/scripts/ci/current606-apps7-copy/step_entry.py": {
+      "bytes": 741,
+      "sha256": "fdcef3299e4829995c32ebb9670798b26c3dda55b565c7148bb8970514f7dd82"
+    },
+    "held-apps-worker/scripts/ci/current606-apps7-copy/supervised.py": {
+      "bytes": 3098,
+      "sha256": "6ad995704bd7225e86fb9e7b5b7b3ea9e3c551f47d6aec094f2c18e8c9d1baf8"
+    },
+    "held-apps-worker/scripts/ci/current606-apps7-copy/templates/owner-api.NULL.json": {
+      "bytes": 46,
+      "sha256": "bb647153cea5f536ae488eb3f4ee31f5f08e7764d99b3cb99b76b9e5e1d2313d"
+    },
+    "held-apps-worker/scripts/ci/current606-apps7-copy/test_worker.py": {
+      "bytes": 36092,
+      "sha256": "2f03e95773a53de1c61bc23f37063c5031af57afd0493272f78f1a76976d6779"
+    },
+    "held-apps-worker/scripts/ci/current606-apps7-copy/verification.py": {
+      "bytes": 4356,
+      "sha256": "23089503a8f9c224f1444ce7f507040174b77c9017368738093c3a5f1712d19a"
+    },
+    "held-apps-worker/scripts/ci/current606-apps7-copy/worker.py": {
+      "bytes": 9617,
+      "sha256": "2a333f8393e68651c1cf4509a6c3f2d1fd36f50844690b2a5dae40ef399d8049"
+    },
+    "held-copy/scripts/apps/file_capabilities.py": {
+      "bytes": 13562,
+      "sha256": "498a3beec0327b9335dcd6d80ed5919fa2edebebd3284e9ee8b97770328e26a2"
+    },
+    "held-copy/scripts/apps/full574_copy.py": {
+      "bytes": 7799,
+      "sha256": "33d49316c28dee344e78e17d7e7ffa409c9d7ad09bb48a82651f7d44f1cb61a0"
+    },
+    "held-copy/scripts/ci/full-root-upgrade/root_upgrade.py": {
+      "bytes": 23555,
+      "sha256": "fe1232ae6b510021910b4fb80016ac3b4668c6e4386cdae45e7b95196e400756"
+    },
+    "held-copy/scripts/install/local_transaction.py": {
+      "bytes": 93752,
+      "sha256": "14381d049506b52770059bf7af415f7a079f69872543e74417aca11ce24ac3c5"
+    },
+    "held-copy/scripts/update/aux_checkpoint.py": {
+      "bytes": 18456,
+      "sha256": "d51179ca24c981bafd817d7db082c0ceb3b2f5deb922004bfe97d1e2007edda7"
+    },
+    "held-copy/scripts/update/aux_copy.py": {
+      "bytes": 3736,
+      "sha256": "bff93c029e21f9fce0868c80566396984443c8d3438264fac8a91c985175f05b"
+    },
+    "held-copy/scripts/update/capacity.py": {
+      "bytes": 1449,
+      "sha256": "dcb9899cd24daa21f75e6da6b0214393f093d140a70769092da091e0cfdf7c87"
+    },
+    "held-copy/scripts/update/disposable_copy.py": {
+      "bytes": 6098,
+      "sha256": "fb05d12a0d67a598cc940e0bc7edb5aa9ffc8cf87ce7b9f695ba5fbd26747667"
+    },
+    "held-copy/scripts/update/full_root.py": {
+      "bytes": 35970,
+      "sha256": "cece1c597b2e2eb98b0e3087cc7e7c148b54332f8a1c4f18e04e4552a71fb51d"
+    },
+    "held-copy/scripts/update/measure_copy.py": {
+      "bytes": 25734,
+      "sha256": "e582245bd114b0b9d83f2de4fdc81a35d2f48493ba6147879871af794476813b"
+    },
+    "held-copy/scripts/update/root_link_selection.py": {
+      "bytes": 25684,
+      "sha256": "4b47223e9c66874193c2b38a620aa892871e93e556178c478dac1929d2540db9"
+    },
+    "held-copy/scripts/update/root_path.py": {
+      "bytes": 3435,
+      "sha256": "2efcbc1057e117a406488f05a3e0213751b00ab09f845a7830a71a4cf60fd2b4"
+    },
+    "held-copy/scripts/update/supervision.py": {
+      "bytes": 3293,
+      "sha256": "f18bcbd2a6279cff8fe6c7e9c9f80fc01c9818844b01df8c4e97b83d61704b10"
+    },
+    "held-welcome-worker/held-copy/scripts/apps/file_capabilities.py": {
+      "bytes": 13562,
+      "sha256": "498a3beec0327b9335dcd6d80ed5919fa2edebebd3284e9ee8b97770328e26a2"
+    },
+    "held-welcome-worker/held-copy/scripts/apps/full574_copy.py": {
+      "bytes": 7799,
+      "sha256": "33d49316c28dee344e78e17d7e7ffa409c9d7ad09bb48a82651f7d44f1cb61a0"
+    },
+    "held-welcome-worker/held-copy/scripts/ci/full-root-upgrade/root_upgrade.py": {
+      "bytes": 23555,
+      "sha256": "fe1232ae6b510021910b4fb80016ac3b4668c6e4386cdae45e7b95196e400756"
+    },
+    "held-welcome-worker/held-copy/scripts/install/local_transaction.py": {
+      "bytes": 93752,
+      "sha256": "14381d049506b52770059bf7af415f7a079f69872543e74417aca11ce24ac3c5"
+    },
+    "held-welcome-worker/held-copy/scripts/update/aux_checkpoint.py": {
+      "bytes": 18456,
+      "sha256": "d51179ca24c981bafd817d7db082c0ceb3b2f5deb922004bfe97d1e2007edda7"
+    },
+    "held-welcome-worker/held-copy/scripts/update/aux_copy.py": {
+      "bytes": 3736,
+      "sha256": "bff93c029e21f9fce0868c80566396984443c8d3438264fac8a91c985175f05b"
+    },
+    "held-welcome-worker/held-copy/scripts/update/capacity.py": {
+      "bytes": 1449,
+      "sha256": "dcb9899cd24daa21f75e6da6b0214393f093d140a70769092da091e0cfdf7c87"
+    },
+    "held-welcome-worker/held-copy/scripts/update/disposable_copy.py": {
+      "bytes": 6098,
+      "sha256": "fb05d12a0d67a598cc940e0bc7edb5aa9ffc8cf87ce7b9f695ba5fbd26747667"
+    },
+    "held-welcome-worker/held-copy/scripts/update/full_root.py": {
+      "bytes": 35970,
+      "sha256": "cece1c597b2e2eb98b0e3087cc7e7c148b54332f8a1c4f18e04e4552a71fb51d"
+    },
+    "held-welcome-worker/held-copy/scripts/update/measure_copy.py": {
+      "bytes": 25734,
+      "sha256": "e582245bd114b0b9d83f2de4fdc81a35d2f48493ba6147879871af794476813b"
+    },
+    "held-welcome-worker/held-copy/scripts/update/root_link_selection.py": {
+      "bytes": 25684,
+      "sha256": "4b47223e9c66874193c2b38a620aa892871e93e556178c478dac1929d2540db9"
+    },
+    "held-welcome-worker/held-copy/scripts/update/root_path.py": {
+      "bytes": 3435,
+      "sha256": "2efcbc1057e117a406488f05a3e0213751b00ab09f845a7830a71a4cf60fd2b4"
+    },
+    "held-welcome-worker/held-copy/scripts/update/supervision.py": {
+      "bytes": 3293,
+      "sha256": "f18bcbd2a6279cff8fe6c7e9c9f80fc01c9818844b01df8c4e97b83d61704b10"
+    },
+    "held-welcome-worker/held-welcome/scripts/ci/welcome5-native-upgrade/fixture_checks.py": {
+      "bytes": 4034,
+      "sha256": "2807126de1544ef4eac48b94159891a2cf0443e5fcc5b4d0c1af5831e90d7753"
+    },
+    "held-welcome-worker/scripts/ci/current606-welcome5-copy/alpm_step.py": {
+      "bytes": 5718,
+      "sha256": "711a00d87656e12f9ca7fe7a4fad2e3954652974827bbb7dde08b11fa94de151"
+    },
+    "held-welcome-worker/scripts/ci/current606-welcome5-copy/contract.py": {
+      "bytes": 6397,
+      "sha256": "bf218d6b3c1a0bfee87de2abf019c358e8dd22d6038ce2a7b8894138dbfae206"
+    },
+    "held-welcome-worker/scripts/ci/current606-welcome5-copy/driver.py": {
+      "bytes": 11911,
+      "sha256": "68cf4c6bc12c42baad61fa0fd955e748d5aec88880e1cd2737e70b5bd2b7c112"
+    },
+    "held-welcome-worker/scripts/ci/current606-welcome5-copy/guard.py": {
+      "bytes": 5428,
+      "sha256": "bd5fe381c1614122980fd28bf53e1d119f76af6264a63c1d1884f781e544fe1d"
+    },
+    "held-welcome-worker/scripts/ci/current606-welcome5-copy/input-policy.json": {
+      "bytes": 647,
+      "sha256": "99fda8dd43aaaf88e210e5ea5c89b10c10624e2fbfdde3e6126f762253f5cf96"
+    },
+    "held-welcome-worker/scripts/ci/current606-welcome5-copy/lifecycle.py": {
+      "bytes": 5722,
+      "sha256": "aa7db2c43e465915617890b252ebb9f073a5e3938aa33c938f8dc5674a0c8d5d"
+    },
+    "held-welcome-worker/scripts/ci/current606-welcome5-copy/owner-api.json": {
+      "bytes": 140,
+      "sha256": "7305ff9f16dfb12683d9e7d7e6a8793ecc7663eea1669d8efcdd4583871607e8"
+    },
+    "held-welcome-worker/scripts/ci/current606-welcome5-copy/physical.py": {
+      "bytes": 3499,
+      "sha256": "d9c8cb0c50abb3620775c7dab55e3943052254a5620b4d6df408d1112079bf09"
+    },
+    "held-welcome-worker/scripts/ci/current606-welcome5-copy/plan.py": {
+      "bytes": 4261,
+      "sha256": "5f8b94ca23a27dcb9d432766270b5f5ec19397517ba096a0a9a37f61419eb302"
+    },
+    "held-welcome-worker/scripts/ci/current606-welcome5-copy/prepare.py": {
+      "bytes": 1695,
+      "sha256": "167b19d1cf38a31a52587fd31946041c2a90cf2927a8fc0d95d685423f8f0d2a"
+    },
+    "held-welcome-worker/scripts/ci/current606-welcome5-copy/role-pins.json": {
+      "bytes": 3007,
+      "sha256": "755876eefeea1f74d6b92c73a29178798a8ca939650a5e0dd44506bac14225dc"
+    },
+    "held-welcome-worker/scripts/ci/current606-welcome5-copy/rooted_fixture.py": {
+      "bytes": 8652,
+      "sha256": "07f6ec3d3098878d6ef9d8b05f8d524fd36ff7e127f6caacdfbfbccbb1205cb8"
+    },
+    "held-welcome-worker/scripts/ci/current606-welcome5-copy/source-manifest.json": {
+      "bytes": 5466,
+      "sha256": "a9cae8426e49fc9a574ffafe88f6ee201357ee3c8c332213f549adb6f8c82143"
+    },
+    "held-welcome-worker/scripts/ci/current606-welcome5-copy/step_entry.py": {
+      "bytes": 741,
+      "sha256": "fdcef3299e4829995c32ebb9670798b26c3dda55b565c7148bb8970514f7dd82"
+    },
+    "held-welcome-worker/scripts/ci/current606-welcome5-copy/supervised.py": {
+      "bytes": 1472,
+      "sha256": "d382a1db17acde4d46a47acd390a26ef3f634ae69a4212ccfd3870fbc28ceb62"
+    },
+    "held-welcome-worker/scripts/ci/current606-welcome5-copy/templates/owner-api.NULL.json": {
+      "bytes": 46,
+      "sha256": "bb647153cea5f536ae488eb3f4ee31f5f08e7764d99b3cb99b76b9e5e1d2313d"
+    },
+    "held-welcome-worker/scripts/ci/current606-welcome5-copy/test_worker.py": {
+      "bytes": 14288,
+      "sha256": "17e0cd7b5192fb8a1c3847e9c1bbb6d745fc601701880bfe4d6f920a977614dc"
+    },
+    "held-welcome-worker/scripts/ci/current606-welcome5-copy/verification.py": {
+      "bytes": 2645,
+      "sha256": "9c073fdf051b765741365a25c10d220df9b9dd56f76f3cc6ebf9a7ecacb8fdb5"
+    },
+    "held-welcome-worker/scripts/ci/current606-welcome5-copy/worker.py": {
+      "bytes": 9551,
+      "sha256": "2e03b3757a41a9a6d79dfafd6a626c0ef0dd06fe09f1f10a4ff19309793e9b5d"
+    },
+    "scripts/ci/current606-latest-tools-copy/contract.py": {
+      "bytes": 6767,
+      "sha256": "b2c7dbc2e0a57643d4c6c30dd6863756bdf95de1e757fc0f1ce1dc0e0303c38f"
+    },
+    "scripts/ci/current606-latest-tools-copy/driver.py": {
+      "bytes": 12200,
+      "sha256": "b36ab5a00ea25e5d87aa28294a14cb26d848562e0d962dbb3bd2c4eae400b63e"
+    },
+    "scripts/ci/current606-latest-tools-copy/guard.py": {
+      "bytes": 3900,
+      "sha256": "1b5738686bafeb03dffb7b79a6fc4e046c91b5f35657d11061fd6266e1d33c83"
+    },
+    "scripts/ci/current606-latest-tools-copy/inputs.py": {
+      "bytes": 3490,
+      "sha256": "61c7bd9e37f1d34a37b7df330916f306bd3187e4d57cdbf1f4074077ecf12145"
+    },
+    "scripts/ci/current606-latest-tools-copy/lifecycle.py": {
+      "bytes": 7031,
+      "sha256": "54a120a601fcdfafa481fbb58672e5081f76d35607e7f4badf435a9125b70a59"
+    },
+    "scripts/ci/current606-latest-tools-copy/owner-api.json": {
+      "bytes": 141,
+      "sha256": "3069cf1f07a7a41b74eb114e1b1b4dcb8891b84d19fc7b3f40fa61470e08af76"
+    },
+    "scripts/ci/current606-latest-tools-copy/physical.py": {
+      "bytes": 3499,
+      "sha256": "d9c8cb0c50abb3620775c7dab55e3943052254a5620b4d6df408d1112079bf09"
+    },
+    "scripts/ci/current606-latest-tools-copy/roles.py": {
+      "bytes": 1135,
+      "sha256": "0f0b20cba07b1b04b7fdab870b730068ed0ddfa51d9c07f7d71624acd2b0e513"
+    },
+    "scripts/ci/current606-latest-tools-copy/rooted_cli.py": {
+      "bytes": 7067,
+      "sha256": "8d747d213e91fc6f955e248cca0d72ff170c6134dadab2dea6dda0296edd52bd"
+    },
+    "scripts/ci/current606-latest-tools-copy/step_entry.py": {
+      "bytes": 938,
+      "sha256": "3e5b956a72cdcf43a1b738b7470ce285d90a7e17944021cb746b6902c8ec3922"
+    },
+    "scripts/ci/current606-latest-tools-copy/supervised.py": {
+      "bytes": 3098,
+      "sha256": "6ad995704bd7225e86fb9e7b5b7b3ea9e3c551f47d6aec094f2c18e8c9d1baf8"
+    },
+    "scripts/ci/current606-latest-tools-copy/transient_cli.py": {
+      "bytes": 2030,
+      "sha256": "c12850e3a877f739272a7cfa2e2fdb4830ae7ece11a87f145b2968ee18809f1a"
+    },
+    "scripts/ci/current606-latest-tools-copy/worker.py": {
+      "bytes": 9617,
+      "sha256": "2a333f8393e68651c1cf4509a6c3f2d1fd36f50844690b2a5dae40ef399d8049"
+    }
+  }
+}
