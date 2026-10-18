@@ -37,7 +37,7 @@ class Controls(unittest.TestCase):
    # and refusal/return behavior have real small-tree controls in test_snapshot_progress.py.
    outer=types.SimpleNamespace(Journal=S.Journal,validate=S.validate,snapshot=lambda module,record:module.snapshot,capability_facade=lambda module,record,**kw:module)
    copy_bindings=[]
-   def copy_binding(bridge,source):copy_bindings.append((bridge,source));return bridge
+   def copy_binding(bridge,source,*,record=None):self.assertTrue(callable(record));copy_bindings.append((bridge,source));return bridge
    space=scope(('progress_value','install_progress'),PROGRESS=path,S=outer,O=types.SimpleNamespace(facade=lambda module,record,**kw:module),_copy_capability_bridge=copy_binding);c=space['C'];original_return=object();calls=[]
    def observe(*a,**k):
     for n in range(10000):str(n)

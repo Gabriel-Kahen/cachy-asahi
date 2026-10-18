@@ -16,7 +16,7 @@ def scope(path,selection,module):
  C=types.SimpleNamespace(need=lambda ok,why:need(ok or why=='owned progress replacement',why),decode=json.loads,read=lambda *a:json.dumps(selection).encode(),ref=lambda root,row:ROOT/row['path'],load=lambda name,path:load(name,path) if name=='gnu_installed_fresh_mount_query' else module)
  result=dict(C=C,S=S,O=O,Path=Path,os=os,stat=stat,types=types,sys=sys,json=json,re=re,threading=threading,time=time,PHASES=('source-before','source-after'),PROGRESS=path)
  exec(compile(ast.Module(body=nodes,type_ignores=[]),'<normal-original-progress-installer>','exec'),result)
- original_copy=result['_copy_capability_bridge'];result['_copy_capability_bridge']=lambda bridge,source:original_copy(bridge,ROOT) # Test-only checkout root; fixed runtime /source argument is held.
+ original_copy=result['_copy_capability_bridge'];result['_copy_capability_bridge']=lambda bridge,source,**kwargs:original_copy(bridge,ROOT,**kwargs) # Test-only checkout root; fixed runtime /source argument is held.
  return result
 class Controls(unittest.TestCase):
  def test_normal_installer_real_before_enter_then_inner_counts_and_complete_snapshot(self):
@@ -154,7 +154,7 @@ class CopyMountControls(unittest.TestCase):
   self.assertIs(private.receipt,bridge.scope.receipt)
   derived=private.copied_root.__globals__['qualified']()
   old=bridge.scope.qualified()
-  self.assertEqual(derived.copy_data.__code__,old.copy_data.__code__)
+  self.assertEqual(derived.copy_data.__wrapped__.__code__,old.copy_data.__code__)
   self.assertEqual(derived.gnu_proof_sha256,old.gnu_proof_sha256)
   self.assertIsNot(derived.aux_copy,bridge.scope.aux_copy)
   self.assertIs(derived.aux_copy.measure_copy,bridge.scope.aux_copy.measure_copy)
@@ -166,7 +166,7 @@ class CopyMountControls(unittest.TestCase):
  def test_exact_proposed_guest_facade_runs_same_source_pinned_composition(self):
   import ast
   raw=(HERE/'guest.py').read_text()
-  tree=ast.parse(raw);names={'_COPY_ROOT_SHA','_COPY_AUX_SHA','_COPY_QUERY_SHA'}
+  tree=ast.parse(raw);names={'_COPY_ROOT_SHA','_COPY_AUX_SHA','_COPY_QUERY_SHA','_COPY_CHECKPOINT_SHA'}
   nodes=[n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name.startswith('_copy_')or isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id in names for t in n.targets)]
   namespace={'types':types};exec(compile(ast.Module(body=nodes,type_ignores=[]),'<exact-proposed-guest>','exec'),namespace)
   bridge=P.load('proposed_capability_bridge',P.SOURCE/'scripts/ci/glibc-gnu-provider-lifecycle/capabilities.py')
