@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "status": "UNBOUND_DO_NOT_EXECUTE",
+  "binding": {
+    "native_lifecycle": null,
+    "system16k": {
+      "path": "system16k.json",
+      "bytes": 2655,
+      "sha256": "5a5377a6619d024f618dab79136ec2f6354fe483a92974dc7c5dccb12e3b045c"
+    }
+  },
+  "system16k_carrier": {
+    "ref": "808ce8fc5669d292e264fb7e109395a8ba73249c",
+    "path": "payload/system16k.json"
+  },
+  "required_before_binding": [
+    "Actual Root accepted native normal installed lifecycle and ordered cleanup",
+    "Actual Root accepted generic16384 conventional system-path runtime and ordered cleanup",
+    "Exact provider package b852e3fc647d63699c5f42003a748cbd2268991dc2615a494dc3cdda4d757d12",
+    "Existing owner-created full574 snapshot plus bound lifecycle-runner and inputs"
+  ],
+  "interrupted_lane": "SEPARATE_FUTURE_CASE_NOT_IMPLEMENTED_NOT_A_PREREQUISITE",
+  "authority": "PRIVATE_TEST_ONLY_NO_RELEASE_ADMISSION"
+}
