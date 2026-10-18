@@ -117,6 +117,17 @@ jobs:
           python3 -I -B scripts/ci/current606-ksm2-closed-owner/prepare.py --held606-source "$RUNNER_TEMP/ksm606-roles/held606" --bridge-source "$RUNNER_TEMP/ksm606-roles/bridge" --copyworker-source "$RUNNER_TEMP/ksm606-roles/copyworker" --output "$RUNNER_TEMP/ksm606-source" --authorization "$RUNNER_TEMP/ksm606-authorization.json"
           python3 -I -B "$RUNNER_TEMP/ksm606-source/scripts/ci/current606-ksm2-closed-owner/test_owner.py"
           python3 -I -B "$RUNNER_TEMP/ksm606-source/copyworker/scripts/ci/current606-ksm2-copy/test_worker.py"
+      - name: Checkout whole frozen KSM hosted runtime without activation
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 5ca1be6f0149612e4443f3a99e957a18a27bc474
+          path: .ci-inputs/ksm2-hosted-runtime
+          persist-credentials: false
+      - name: Emit and check default KSM hosted source without component activation
+        run: |
+          python3 -I -B scripts/ci/ksm2-generic16k-vm-hosted/prepare.py --runtime "$PWD/.ci-inputs/ksm2-hosted-runtime/runtime" --output "$RUNNER_TEMP/ksm2-hosted-source"
+          python3 -I -B "$RUNNER_TEMP/ksm2-hosted-source/scripts/ci/ksm2-generic16k-vm-hosted/entry.py" source --source "$RUNNER_TEMP/ksm2-hosted-source"
+          python3 -I -B -Werror::ResourceWarning "$RUNNER_TEMP/ksm2-hosted-source/scripts/ci/ksm2-generic16k-vm-hosted/test_lane.py" --source "$RUNNER_TEMP/ksm2-hosted-source" -v
       - name: Check explicit KSM scanning experiments in private fixtures
         run: |
           python3 -I -B packages/tools/cachy-asahi-ksmctl2/check-source.py
