@@ -66,4 +66,61 @@ class Controls(unittest.TestCase):
   self.assertIn("'--full574-policy'",disk);self.assertIn('group_absence_verified',disk)
  def test_no_case_acceptance_substitution_constants(self):
   self.assertEqual(C.NATIVE_SOURCE,'c89868439988f99d4179d208d1198f6f9c94d5d5');self.assertEqual(C.PACKET,'54352850a57a7e34e75c3a021fa20525eee59bf6');text=C.read(HERE/'contract.py').decode();self.assertIn('qualified.validate(records)',text);Q=C.load('qualification_constants',HERE/'native_qualification.py');self.assertEqual(Q.SOURCE,C.NATIVE_SOURCE);self.assertEqual(Q.VERSIONS['cachy-asahi-apps'],'0.1.0-7');self.assertEqual(Q.default_decisions(),{case:None for case in C.CASES})
+class BackendFailureData(unittest.TestCase):
+ """Inert returned-capture controls, never an accepted backend/native fixture."""
+ def setUp(self):
+  block=patch.object(subprocess,'Popen',side_effect=AssertionError('no actor/network/Git'));block.start();self.addCleanup(block.stop)
+  self.disk=C.load('failure_data_disk',HERE/'disk.py')
+ def capture(self,error_reason='root observation deadline'):
+  out=b'';rows=[]
+  for seq,stage,event in((1,'complete-capability-map','BEGIN'),(2,'capability-scan','BEGIN'),(3,'capability-scan','FAIL'),(4,'complete-capability-map','FAIL')):
+   row=dict(schema_version=1,seq=seq,stage=stage,event=event,monotonic_ns=1000+seq)
+   if event=='FAIL':row.update(error_type='ValueError',error_reason=error_reason)
+   rows.append(b'APPS574_PHASE '+json.dumps(row,separators=(',',':')).encode()+b'\n')
+  err=b'non-record inert capture\n'*450+b''.join(rows)
+  record=dict(argv=['/usr/bin/python3','-I','-B','/source/'+C.NATIVE+'/transaction.py','prepare-copy'],exit_code=-15,seconds=610.01,time_limit=610,output_limit=1024**2,group_absence_verified=True,stdout_bytes=len(out),stdout_sha256=C.sha(out),stderr_bytes=len(err),stderr_sha256=C.sha(err))
+  return record,out,err,ValueError('command-time-limit')
+ def test_original_failures_and_suffix_survive_prefix_truncation(self):
+  row,out,err,error=self.capture();v=self.disk.backend_failure_data(row,out,err,error)
+  self.assertGreater(len(err),1024);self.assertNotIn(b'root observation deadline',err[:1024]);self.assertEqual(v['phase_failures']['count'],2);self.assertEqual([r['error_reason']for r in v['phase_failures']['first']],['root observation deadline']*2)
+  self.assertEqual(v['stderr'],dict(bytes=len(err),sha256=C.sha(err)));tail=v['stderr_suffix'];import base64
+  self.assertEqual(base64.b64decode(tail['base64'],validate=True),err[-2048:]);self.assertEqual(tail['sha256'],C.sha(err[-2048:]));self.assertTrue(tail['truncated']);self.assertLessEqual(len(C.encoded(v)),8192);self.assertFalse(v['acceptance_authority']);self.assertFalse(v['cleanup_authority'])
+ def test_tampered_stream_limits_or_untrusted_phase_fields_refuse_or_mark_invalid(self):
+  row,out,err,error=self.capture()
+  for change in(dict(stderr_bytes=len(err)+1),dict(stderr_sha256='0'*64),dict(time_limit=611),dict(output_limit=2*1024**2)):
+   with self.subTest(change=change),self.assertRaises(ValueError):self.disk.backend_failure_data(dict(row,**change),out,err,error)
+  for reason in('/private/untrusted/path','aux-checkpoint-'+('x'*97)):
+   row,out,err,error=self.capture(reason);v=self.disk.backend_failure_data(row,out,err,error);self.assertEqual(v['phase_failures']['status'],'INVALID_PHASE_FAILURE_FIELDS');self.assertEqual(v['phase_failures']['first'],[])
+  broken=err.replace(b'"seq":4',b'"seq":6');row=dict(row,stderr_bytes=len(broken),stderr_sha256=C.sha(broken));v=self.disk.backend_failure_data(row,out,broken,error);self.assertEqual(v['phase_failures']['status'],'INVALID_PHASE_RECORDS')
+ def test_only_failed_original_prepare_route_is_projected(self):
+  row,out,err,error=self.capture();self.assertIsNone(self.disk.backend_failure_data(dict(row,exit_code=0),out,err,None));self.assertIsNone(self.disk.backend_failure_data(dict(row,argv=['/usr/bin/mkfs.ext4']),out,err,error))
+  row,out,err,error=self.capture('OTHER_REDACTED');v=self.disk.backend_failure_data(row,out,err,None);self.assertIsNone(v['supervisor_error']);self.assertEqual(v['phase_failures']['first'][0]['error_reason'],'OTHER_REDACTED')
+ def test_actual_command_retains_returned_failure_before_unchanged_guard(self):
+  row,out,err,error=self.capture();D=self.disk;original_path=Path;calls=[]
+  with tempfile.TemporaryDirectory()as td:
+   receipt=original_path(td)/'repair16k-media-commands.json'
+   def path(value):return receipt if str(value)=='/out/repair16k-media-commands.json'else original_path(value)
+   def run(*args):calls.append(args);return row,out,err,error
+   runtime=type('InertReturnedCapture',(),{'run_command':staticmethod(run)})
+   s=dict(deadline_monotonic=__import__('time').monotonic()+3000,env={'OWNER_TOKEN':'inert-only'},uid=os.getuid(),gid=os.getgid())
+   with patch.object(C,'load',return_value=runtime),patch.object(D,'Path',side_effect=path),patch.object(D.os,'chown'):
+    with self.assertRaisesRegex(ValueError,'bounded owned media command/group retirement'):D.command(s,row['argv'],610)
+   retained=C.decode(receipt.read_bytes());self.assertEqual(len(calls),1);self.assertEqual(calls[0][-2:],(610,1024**2));self.assertEqual(retained[0]['record'],row);self.assertEqual(retained[0]['phase_summary'],D.phase_summary(err));self.assertEqual(retained[0]['backend_failure_data'],D.backend_failure_data(row,out,err,error));self.assertLessEqual(receipt.stat().st_size,2*1024**2)
+ def test_diagnostic_loss_does_not_replace_original_failure(self):
+  row,out,err,error=self.capture();D=self.disk;original_path=Path
+  with tempfile.TemporaryDirectory()as td:
+   receipt=original_path(td)/'repair16k-media-commands.json';runtime=type('InertReturnedCapture',(),{'run_command':staticmethod(lambda *args:(row,out,err,error))})
+   s=dict(deadline_monotonic=__import__('time').monotonic()+3000,env={'OWNER_TOKEN':'inert-only'},uid=os.getuid(),gid=os.getgid())
+   with patch.object(C,'load',return_value=runtime),patch.object(D,'Path',side_effect=lambda value:receipt if str(value)=='/out/repair16k-media-commands.json'else original_path(value)),patch.object(D.os,'chown'),patch.object(D,'backend_failure_data',side_effect=ValueError('inert diagnostic loss')):
+    with self.assertRaisesRegex(ValueError,'bounded owned media command/group retirement'):D.command(s,row['argv'],610)
+   self.assertEqual(set(C.decode(receipt.read_bytes())[0]),{'record','error','previews','phase_summary'})
+ def test_success_command_preserves_tuple_and_old_receipt_shape(self):
+  row,out,err,error=self.capture();row=dict(row,exit_code=0,seconds=0.1);D=self.disk;original_path=Path
+  with tempfile.TemporaryDirectory()as td:
+   receipt=original_path(td)/'repair16k-media-commands.json';runtime=type('InertReturnedCapture',(),{'run_command':staticmethod(lambda *args:(row,out,err,None))})
+   s=dict(deadline_monotonic=__import__('time').monotonic()+3000,env={'OWNER_TOKEN':'inert-only'},uid=os.getuid(),gid=os.getgid())
+   with patch.object(C,'load',return_value=runtime),patch.object(D,'Path',side_effect=lambda value:receipt if str(value)=='/out/repair16k-media-commands.json'else original_path(value)),patch.object(D.os,'chown'):
+    self.assertEqual(D.command(s,row['argv'],610),(row,out,err))
+   self.assertEqual(set(C.decode(receipt.read_bytes())[0]),{'record','error','previews','phase_summary'})
+
 if __name__=='__main__':unittest.main()
