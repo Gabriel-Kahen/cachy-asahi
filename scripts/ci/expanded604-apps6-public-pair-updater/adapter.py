@@ -1,16 +1,22 @@
 # SPDX-License-Identifier: MIT
 """Original Apps6 transaction adapter plus explicit public input evidence seams."""
-import ast
+import ast,hashlib
 from pathlib import Path
 import contract as C
 OLD='scripts/ci/expanded604-apps6-updater';PREFIX='scripts/ci/expanded604-apps6-public-pair-updater/'
 prior=C.scoped('_public_pairs_original_apps6_adapter',C.HERE.parent/'expanded604-apps6-updater/adapter.py',{'contract':C});prior.PREFIX=PREFIX
 # Only data inspection dependencies are added; existing transaction bodies stay held.
 def constructor(raw):
+ C.need(len(raw)==13124 and hashlib.sha256(raw).hexdigest()=='f25b0969fbd8fe9b8818cc1be0107c43cfe1124779372ddfdf9e12099bd9671e','exact whole Apps6 constructor source required')
  text=raw.decode()
  for before,after,count in [('build_lock','build_evidence',3),('build575.lock','public-build-evidence.json',2)]:
   C.need(text.count(before)==count,'exact public constructor evidence seam: '+before);text=text.replace(before,after)
- node=next(n for n in ast.parse(text).body if isinstance(n,ast.FunctionDef) and n.name=='convert_provenance');body=ast.get_source_segment(text,node);before="'inventory_count': 575";C.need(body.count(before)==1,'one explicit public build provenance scope');body=body.replace(before,before+", 'inventory_evidence': 'PUBLIC_ROOT_PAIR_AUTHORITY_AND_COMPLETE_BUILDINFO', 'raw_pacman_Q_lock': 'NOT_PRESENT_NOT_FABRICATED'");text=text[:text.index(ast.get_source_segment(text,node))]+body+text[text.index(ast.get_source_segment(text,node))+len(ast.get_source_segment(text,node)):];ast.parse(text);return text.encode()
+ node=next(n for n in ast.parse(text).body if isinstance(n,ast.FunctionDef) and n.name=='convert_provenance');body=ast.get_source_segment(text,node);before="'inventory_count': 575";C.need(body.count(before)==1,'one explicit public build provenance scope');body=body.replace(before,before+", 'inventory_evidence': 'PUBLIC_ROOT_PAIR_AUTHORITY_AND_COMPLETE_BUILDINFO', 'raw_pacman_Q_lock': 'NOT_PRESENT_NOT_FABRICATED'");text=text[:text.index(ast.get_source_segment(text,node))]+body+text[text.index(ast.get_source_segment(text,node))+len(ast.get_source_segment(text,node)):]
+ # Only issuance operands change at the immediate build seam; validators stay held.
+ anchor="def stage(args, *, prepared):";C.need(text.count(anchor)==1,'one actual metadata stage');text=text.replace(anchor,'def fresh_test_metadata_window(api, args):\n    """Issue this exact disposable TEST fixture at use with its unchanged lifetime."""\n    need((args.issued_utc, args.expires_utc) == (\'2026-10-16T00:00:00Z\', \'2026-10-18T00:00:00Z\'),\n         \'exact original TEST fixture metadata window required\')\n    lifetime = api.client.stamp(args.expires_utc) - api.client.stamp(args.issued_utc)\n    need(lifetime.total_seconds() == 172800, \'original two-day TEST metadata lifetime required\')\n    now = api.client.datetime.now(api.client.timezone.utc).replace(microsecond=0)\n    return api.client.utc(now), api.client.utc(now + lifetime)\n\n\n'+anchor)
+ anchor="    metadata = out / 'metadata.json'\n";C.need(text.count(anchor)==1,'one immediate metadata creation seam');text=text.replace(anchor,anchor+"    issued_utc, expires_utc = fresh_test_metadata_window(api, args)\n")
+ anchor='issued_utc=args.issued_utc, expires_utc=args.expires_utc';C.need(text.count(anchor)==1,'one unchanged client build issuance call');text=text.replace(anchor,'issued_utc=issued_utc, expires_utc=expires_utc')
+ ast.parse(text);return text.encode()
 
 def prepare(source,target,case,*,git=True,implementation=None):
  implementation=Path(implementation or C.SOURCE);config,caller=prior.prepare(source,target,case,git=git,implementation=implementation)

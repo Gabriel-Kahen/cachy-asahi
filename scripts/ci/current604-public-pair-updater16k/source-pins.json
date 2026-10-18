@@ -1228,7 +1228,7 @@
       },
       ".github/workflows/native-arm-expanded604-apps6-public-pair-updater.yml": {
         "bytes": 32344,
-        "sha256": "1910fa48cd712716888bdba2f7c950626040a2a410bab427c4d7e5432e381261"
+        "sha256": "a0e5ce13e9791e43e673f994d516f338b88f75f9ff3103c70614f8582ab8aa73"
       },
       ".github/workflows/native-arm-expanded604-apps6-public-pairs.yml": {
         "bytes": 28894,
@@ -1879,8 +1879,8 @@
         "sha256": "5c1387031e244dcf5e9c94fc94151fcc316a56456d727cc0d33c6ffd9a190028"
       },
       "scripts/ci/expanded604-apps6-public-pair-updater/adapter.py": {
-        "bytes": 3306,
-        "sha256": "adcb8127d429ce65eb8e0e3e30fe5faf85a528b5c8dc8e86a3b31645869d19a2"
+        "bytes": 4789,
+        "sha256": "df89d494df51c57dd694a867a1246ceea7ea78e6c1530bb0a560b7cab6fc5648"
       },
       "scripts/ci/expanded604-apps6-public-pair-updater/after604.lock": {
         "bytes": 11992,
@@ -1952,7 +1952,7 @@
       },
       "scripts/ci/expanded604-apps6-public-pair-updater/source-manifest.json": {
         "bytes": 71831,
-        "sha256": "bac983e875e5b85020fd185c3b4e12bc185a52d171bef3d12924eb8bf724f378"
+        "sha256": "32d8ff7d88216efeefa2c08ffe13d9e273cf968d755986ddc02b67ecbdf802bf"
       },
       "scripts/ci/expanded604-apps6-public-pair-updater/source-pins.json": {
         "bytes": 123222,
@@ -1963,8 +1963,8 @@
         "sha256": "e0b88a80dfe9241d968c75a2182bcd361c84d6a54c8a78fa3c01a9f827470bd8"
       },
       "scripts/ci/expanded604-apps6-public-pair-updater/test_lane.py": {
-        "bytes": 10785,
-        "sha256": "754fd58498c50166da3657c0eb024c43bc45ac073326b4edf08f24d90cab453a"
+        "bytes": 15139,
+        "sha256": "eb9e8ece09f0b866f1c0ba4a9cd2ea85e24227506d11342961c3bd3bd3ab5c05"
       },
       "scripts/ci/expanded604-apps6-public-pairs/README.md": {
         "bytes": 3360,
@@ -3215,5 +3215,5 @@
     }
   },
   "schema_version": 1,
-  "updater_source_manifest_sha256": "bac983e875e5b85020fd185c3b4e12bc185a52d171bef3d12924eb8bf724f378"
+  "updater_source_manifest_sha256": "32d8ff7d88216efeefa2c08ffe13d9e273cf968d755986ddc02b67ecbdf802bf"
 }
