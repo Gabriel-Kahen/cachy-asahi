@@ -1,0 +1,147 @@
+{
+  "held-copy/scripts/apps/file_capabilities.py": {
+    "bytes": 13562,
+    "scope": "EXACT_SOURCE_ONLY_NOT_NATIVE_ACCEPTANCE",
+    "sha256": "498a3beec0327b9335dcd6d80ed5919fa2edebebd3284e9ee8b97770328e26a2"
+  },
+  "held-copy/scripts/apps/full574_copy.py": {
+    "bytes": 7799,
+    "scope": "EXACT_SOURCE_ONLY_NOT_NATIVE_ACCEPTANCE",
+    "sha256": "33d49316c28dee344e78e17d7e7ffa409c9d7ad09bb48a82651f7d44f1cb61a0"
+  },
+  "held-copy/scripts/ci/full-root-upgrade/root_upgrade.py": {
+    "bytes": 23555,
+    "scope": "EXACT_SOURCE_ONLY_NOT_NATIVE_ACCEPTANCE",
+    "sha256": "fe1232ae6b510021910b4fb80016ac3b4668c6e4386cdae45e7b95196e400756"
+  },
+  "held-copy/scripts/install/local_transaction.py": {
+    "bytes": 93752,
+    "scope": "EXACT_SOURCE_ONLY_NOT_NATIVE_ACCEPTANCE",
+    "sha256": "14381d049506b52770059bf7af415f7a079f69872543e74417aca11ce24ac3c5"
+  },
+  "held-copy/scripts/update/aux_checkpoint.py": {
+    "bytes": 18456,
+    "scope": "EXACT_SOURCE_ONLY_NOT_NATIVE_ACCEPTANCE",
+    "sha256": "d51179ca24c981bafd817d7db082c0ceb3b2f5deb922004bfe97d1e2007edda7"
+  },
+  "held-copy/scripts/update/aux_copy.py": {
+    "bytes": 3736,
+    "scope": "EXACT_SOURCE_ONLY_NOT_NATIVE_ACCEPTANCE",
+    "sha256": "bff93c029e21f9fce0868c80566396984443c8d3438264fac8a91c985175f05b"
+  },
+  "held-copy/scripts/update/capacity.py": {
+    "bytes": 1449,
+    "scope": "EXACT_SOURCE_ONLY_NOT_NATIVE_ACCEPTANCE",
+    "sha256": "dcb9899cd24daa21f75e6da6b0214393f093d140a70769092da091e0cfdf7c87"
+  },
+  "held-copy/scripts/update/disposable_copy.py": {
+    "bytes": 6098,
+    "scope": "EXACT_SOURCE_ONLY_NOT_NATIVE_ACCEPTANCE",
+    "sha256": "fb05d12a0d67a598cc940e0bc7edb5aa9ffc8cf87ce7b9f695ba5fbd26747667"
+  },
+  "held-copy/scripts/update/full_root.py": {
+    "bytes": 35970,
+    "scope": "EXACT_SOURCE_ONLY_NOT_NATIVE_ACCEPTANCE",
+    "sha256": "cece1c597b2e2eb98b0e3087cc7e7c148b54332f8a1c4f18e04e4552a71fb51d"
+  },
+  "held-copy/scripts/update/measure_copy.py": {
+    "bytes": 25734,
+    "scope": "EXACT_SOURCE_ONLY_NOT_NATIVE_ACCEPTANCE",
+    "sha256": "e582245bd114b0b9d83f2de4fdc81a35d2f48493ba6147879871af794476813b"
+  },
+  "held-copy/scripts/update/root_link_selection.py": {
+    "bytes": 25684,
+    "scope": "EXACT_SOURCE_ONLY_NOT_NATIVE_ACCEPTANCE",
+    "sha256": "4b47223e9c66874193c2b38a620aa892871e93e556178c478dac1929d2540db9"
+  },
+  "held-copy/scripts/update/root_path.py": {
+    "bytes": 3435,
+    "scope": "EXACT_SOURCE_ONLY_NOT_NATIVE_ACCEPTANCE",
+    "sha256": "2efcbc1057e117a406488f05a3e0213751b00ab09f845a7830a71a4cf60fd2b4"
+  },
+  "held-copy/scripts/update/supervision.py": {
+    "bytes": 3293,
+    "scope": "EXACT_SOURCE_ONLY_NOT_NATIVE_ACCEPTANCE",
+    "sha256": "f18bcbd2a6279cff8fe6c7e9c9f80fc01c9818844b01df8c4e97b83d61704b10"
+  },
+  "held-ksm/checks/package_checks.py": {
+    "bytes": 17706,
+    "scope": "EXACT_SOURCE_ONLY_NOT_NATIVE_ACCEPTANCE",
+    "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+  },
+  "held-ksm/fixture_checks.py": {
+    "bytes": 4504,
+    "scope": "EXACT_SOURCE_ONLY_NOT_NATIVE_ACCEPTANCE",
+    "sha256": "fb3f6972f85e30fe53e98577fedddcbdb2b4d8fd336674c31271c1579300874c"
+  },
+  "held-ksm/source/.SRCINFO": {
+    "bytes": 1557,
+    "scope": "EXACT_SOURCE_ONLY_NOT_NATIVE_ACCEPTANCE",
+    "sha256": "79c491a2930cc6d92648b301cc9af766d1d20dcb7e0687ab2690237b62e30a7f"
+  },
+  "held-ksm/source/LICENSE": {
+    "bytes": 17984,
+    "scope": "EXACT_SOURCE_ONLY_NOT_NATIVE_ACCEPTANCE",
+    "sha256": "edaef632cbb643e4e7a221717a6c441a4c1a7c918e6e4d56debc3d8739b233f6"
+  },
+  "held-ksm/source/NOTICE": {
+    "bytes": 1359,
+    "scope": "EXACT_SOURCE_ONLY_NOT_NATIVE_ACCEPTANCE",
+    "sha256": "939ad92c65a6c2f9da2c723a4c6e136add87ccb4a7a6e8ba0dd89692a77f3f10"
+  },
+  "held-ksm/source/PKGBUILD": {
+    "bytes": 2373,
+    "scope": "EXACT_SOURCE_ONLY_NOT_NATIVE_ACCEPTANCE",
+    "sha256": "c4f2cd4a506181df68edadc5ae36a976f3402910ff63d07ac1d3715bd38a3e9a"
+  },
+  "held-ksm/source/README.md": {
+    "bytes": 7590,
+    "scope": "EXACT_SOURCE_ONLY_NOT_NATIVE_ACCEPTANCE",
+    "sha256": "a0422a6b280c5b1583afe5da7575ba6e98c476c8ce1efbe196ba33513e94a4ed"
+  },
+  "held-ksm/source/adaptation.patch": {
+    "bytes": 8216,
+    "scope": "EXACT_SOURCE_ONLY_NOT_NATIVE_ACCEPTANCE",
+    "sha256": "0bc6b1f4725eb510a0f890bd616ce682b98332b371c93d2144ad643181727212"
+  },
+  "held-ksm/source/cachy-asahi-ksm-experiment": {
+    "bytes": 20549,
+    "scope": "EXACT_SOURCE_ONLY_NOT_NATIVE_ACCEPTANCE",
+    "sha256": "1ea518cc25a0d3099b7723756fd66631c35d7a79d50b300f6387a25588306d79"
+  },
+  "held-ksm/source/cachy-asahi-ksmctl": {
+    "bytes": 6433,
+    "scope": "EXACT_SOURCE_ONLY_NOT_NATIVE_ACCEPTANCE",
+    "sha256": "f9fd76eaa6a205d56fa4bb9123b8c721ea1277249c4cab58d1b57eaf8edc7558"
+  },
+  "held-ksm/source/check-source.py": {
+    "bytes": 2342,
+    "scope": "EXACT_SOURCE_ONLY_NOT_NATIVE_ACCEPTANCE",
+    "sha256": "7cca209ee6ad36726b03c0f54100b07bd6d08d974473d00c2092bbd5be4089a6"
+  },
+  "held-ksm/source/experiment-provenance.json": {
+    "bytes": 2144,
+    "scope": "EXACT_SOURCE_ONLY_NOT_NATIVE_ACCEPTANCE",
+    "sha256": "e27da2f0e55a384bf8cb243e59437405391034347d10ff458fea7435898bba21"
+  },
+  "held-ksm/source/source-provenance.json": {
+    "bytes": 1016,
+    "scope": "EXACT_SOURCE_ONLY_NOT_NATIVE_ACCEPTANCE",
+    "sha256": "d46e93a9893225d205a01fdcd3429782ba51d44c86b78e77fce458b53448b849"
+  },
+  "held-ksm/source/test_experiment.py": {
+    "bytes": 16687,
+    "scope": "EXACT_SOURCE_ONLY_NOT_NATIVE_ACCEPTANCE",
+    "sha256": "2f13fe326171a7e42dc84d6c4e2ac2bbe6eb8391f9e06393f6e2c09fa8dbb843"
+  },
+  "held-ksm/source/test_ksmctl.py": {
+    "bytes": 17730,
+    "scope": "EXACT_SOURCE_ONLY_NOT_NATIVE_ACCEPTANCE",
+    "sha256": "e42602fd16579e30c8cb799f26c897c1e3e89515f20a49a346b1888ce3c94b6f"
+  },
+  "held-ksm/source/upstream-ksmctl": {
+    "bytes": 2606,
+    "scope": "EXACT_SOURCE_ONLY_NOT_NATIVE_ACCEPTANCE",
+    "sha256": "cd5c8aa86df5a06a268ecc21297b4cd7d8df1053c90c8bcd4e53ef9bb16194d9"
+  }
+}
