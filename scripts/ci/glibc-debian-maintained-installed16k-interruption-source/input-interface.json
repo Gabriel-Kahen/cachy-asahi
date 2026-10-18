@@ -1,0 +1,13 @@
+{
+  "GUI_barrier": "NONE",
+  "full_normal16k_decision": null,
+  "hardware": "NOT_RUN",
+  "interruption16k_decision": null,
+  "native_interruption_decision": null,
+  "old_e07_credit": "FORBIDDEN",
+  "purpose": "MAINTAINED_CAA3_FULL574_INSTALLED16K_INTERRUPTION_REMOVE_PHASE_ONLY",
+  "ref": null,
+  "release": "NOT_ADMITTED",
+  "run": null,
+  "source": null
+}
