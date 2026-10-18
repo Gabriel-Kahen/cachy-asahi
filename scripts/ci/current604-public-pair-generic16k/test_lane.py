@@ -354,5 +354,23 @@ class PeerFocusControls(unittest.TestCase):
  def test_held_clipped_sentinel_hidden_foreign_and_window_refusals(self):self.held_semantic('test_false_scroll_cannot_hide_clipping_sentinel_missing_owner_or_window')
 
 
+ def test_bounded_readback_progress_derives_only_exact_original(self):
+  raw=(ROOT/C.OLD/'installed604.py').read_bytes();derived=A.readback_progress(raw);self.assertNotEqual(raw,derived)
+  for before,after,count in reversed(A.READBACK_EDITS):
+   self.assertEqual(derived.decode().count(after),count);derived=derived.decode().replace(after,before).encode()
+  self.assertEqual(derived,raw)
+  text=A.readback_progress(raw).decode()
+  for marker in ('INTERVAL=45','MAX_ROWS=32','MAX_BYTES=4096',"MAX_BYTES-512",'deadline=600','max_packages=604','6*1024**3','200000','database/root drift','snapshot_validation'):self.assertIn(marker,text)
+ def test_bounded_readback_whole_source_and_validation_tamper_refused(self):
+  raw=(ROOT/C.OLD/'installed604.py').read_bytes()
+  for changed in (raw+b'\n',raw.replace(b'deadline=600',b'deadline=601'),raw.replace(b'200000',b'200001')):
+   with self.assertRaisesRegex(ValueError,'whole original installed604'):A.readback_progress(changed)
+ def test_bounded_readback_both_generated_profiles_preserve_timeout_and_helpers(self):
+  for selected in C.PROFILES:
+   with tempfile.TemporaryDirectory()as tmp:
+    runner=Controls().generated(Path(tmp),selected);self.assertEqual((runner/'installed604.py').read_bytes(),A.readback_progress((ROOT/C.OLD/'installed604.py').read_bytes()))
+    self.assertIn("'installed604-preserved',timeout=600",(runner/'base_guest.py').read_text())
+    for name,path in (('alpm_reader.py','scripts/ci/full-root-upgrade/root_upgrade.py'),('file_capabilities.py','scripts/apps/file_capabilities.py')):self.assertEqual((runner/name).read_bytes(),(ROOT/path).read_bytes())
+
 if __name__=='__main__':unittest.main(verbosity=2)
 
