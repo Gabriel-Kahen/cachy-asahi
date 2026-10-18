@@ -152,16 +152,16 @@
       "sha256": "f18bcbd2a6279cff8fe6c7e9c9f80fc01c9818844b01df8c4e97b83d61704b10"
     },
     "copyworker/scripts/ci/current606-apps7-copy/alpm_step.py": {
-      "bytes": 5712,
-      "sha256": "6b49141703f31b793c088678b65c65d74606c7d36f8aa71c9790c65067bd865f"
+      "bytes": 5964,
+      "sha256": "ee7c41fe5057d200b05b941f853cc74e51bba90f679c7667a7d5c6a5ad600d35"
     },
     "copyworker/scripts/ci/current606-apps7-copy/contract.py": {
       "bytes": 6312,
       "sha256": "5f72a00e45feee86967e6a8b90431c312f346dad66fbdc4e4f97ad780d680339"
     },
     "copyworker/scripts/ci/current606-apps7-copy/driver.py": {
-      "bytes": 12254,
-      "sha256": "fcae30b15dde418eb2b93593b547a39a74685cd2dea652c1a9aa01407815c2c6"
+      "bytes": 13935,
+      "sha256": "8cc76bc59aa1666f66583ff111c40eb8456ed708672195aea7b8b42d9fb52184"
     },
     "copyworker/scripts/ci/current606-apps7-copy/expected606.lock": {
       "bytes": 12043,
@@ -217,7 +217,7 @@
     },
     "copyworker/scripts/ci/current606-apps7-copy/source-manifest.json": {
       "bytes": 6836,
-      "sha256": "63dcdc66776f68af8787fec1376a705eb064217926aa82ad90d4f3cf884a98b2"
+      "sha256": "bc9e4921e36e8f6947fd6dc0d218f83319bbe690032674909255af3b8d9b79cc"
     },
     "copyworker/scripts/ci/current606-apps7-copy/step_entry.py": {
       "bytes": 741,
@@ -232,8 +232,8 @@
       "sha256": "bb647153cea5f536ae488eb3f4ee31f5f08e7764d99b3cb99b76b9e5e1d2313d"
     },
     "copyworker/scripts/ci/current606-apps7-copy/test_worker.py": {
-      "bytes": 36092,
-      "sha256": "2f03e95773a53de1c61bc23f37063c5031af57afd0493272f78f1a76976d6779"
+      "bytes": 40538,
+      "sha256": "2441047cb36a89a3377d8a728e5a13d0953668b305a667d2cb4d3efee046fe25"
     },
     "copyworker/scripts/ci/current606-apps7-copy/verification.py": {
       "bytes": 4356,
@@ -1349,7 +1349,7 @@
     },
     "scripts/ci/current606-apps7-closed-owner/source-pins.json": {
       "bytes": 58974,
-      "sha256": "b97b573a0e4660d5518ad3d4891e5971e6d9c2ba53fd40f2e895fa6dd80ff33e"
+      "sha256": "6fb3668e302e4c2d2355eb2f2f47725fe8678d927b9185a1c4cf4d100bbe13cc"
     },
     "scripts/ci/current606-apps7-closed-owner/test_owner.py": {
       "bytes": 19485,

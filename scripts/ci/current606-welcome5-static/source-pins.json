@@ -1,9 +1,9 @@
 {
-  "carrier": "714984e589a01cd550490f1142d67a39833ecfe5",
+  "carrier": "7a2af096f6a981c4b86714ebf2f572a682c9753a",
   "files": {
     ".github/workflows/native-arm-current606-welcome5-owned-copy.yml": {
       "bytes": 35671,
-      "sha256": "c49026ea8c5e37288f62eea1356cf361c621a848286e3ef066d502a3b939ae67"
+      "sha256": "18c5c852bb0bd2087941ae94752af331b71be3c935f5d4f944862ff0fae58315"
     },
     "scripts/ci/current606-welcome5-closed-owner/README.md": {
       "bytes": 3839,
@@ -59,11 +59,11 @@
     },
     "scripts/ci/current606-welcome5-closed-owner/source-manifest.json": {
       "bytes": 78150,
-      "sha256": "ad4c932f24b12cf8707061e1196e758a7d341353e158f1ace2e8fc3cf89f9cbc"
+      "sha256": "400e5e01a5dce21c31c2401cd95a167d5b8c834c12d8a26098dffdffa741760d"
     },
     "scripts/ci/current606-welcome5-closed-owner/source-pins.json": {
       "bytes": 74960,
-      "sha256": "02c98c4b8f75de64dc67ebb9cd0bacfbb031f02932bdeb0134b5c2954dd8a35e"
+      "sha256": "8ed3b0b6101506e900a1247bb1ee5b8db6ee5b140e0a1bb641d03d7a66d36685"
     },
     "scripts/ci/current606-welcome5-closed-owner/test_owner.py": {
       "bytes": 27797,
