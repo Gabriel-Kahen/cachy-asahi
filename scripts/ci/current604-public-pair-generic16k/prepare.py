@@ -7,7 +7,7 @@ HERE=Path(__file__).resolve().parent
 OLD='scripts/ci/current604-apps6-generic16k';NEW='scripts/ci/current604-public-pair-generic16k'
 INSTALLER='scripts/ci/expanded604-apps6-public-pair-installer';ASSETS='scripts/ci/current604-public-gui-assets'
 WF='.github/workflows/native-arm-current604-public-pair-generic16k.yml'
-OWN=('contract.py','adapter.py','ci.py','gate.py','retain.py','context604.py','install604.py','prepare.py','test_lane.py','README.md','source-pins.json','input-policy.json','public-assets-policy.json')
+OWN=('contract.py','adapter.py','ci.py','gate.py','retain.py','context604.py','install604.py','prepare.py','test_lane.py','README.md','source-pins.json','input-policy.json','public-assets-policy.json','keyboard_profile.py')
 def need(v,why):
  if not v:raise ValueError(why)
 def pin(raw):return dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())
@@ -35,6 +35,9 @@ def workflow(raw,rows,ci_sha,mf_sha):
  need(text.count(anchor)==1,'one early decisions gate');text=text.replace(anchor,'--gui-decisions "$GITHUB_WORKSPACE/expanded604-gui-decisions" \\\n            --welcome-source "$GITHUB_WORKSPACE/expanded604-welcome-source/payload"\n')
  anchor='      - name: Required actual ALPM604 current Welcome4 GUI in the separately owned16384 VM\n';need(text.count(anchor)==1,"one original VM entry");text=text.replace(anchor,'      - name: Checkout exact original signed QEMU tooling inputs\n        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1\n        timeout-minutes: 2\n        with:\n          ref: 9c1fa9e6674ce24edb9655a56436d4c5c0985c54\n          path: current604-qemu-tooling\n          persist-credentials: false\n'+anchor)
  env='PYTHONDONTWRITEBYTECODE=1 RUNNER_TEMP="$RUNNER_TEMP" GITHUB_ACTIONS=true RUNNER_ARCH=ARM64';need(text.count(env)==1,"one original clean runtime environment");text=text.replace(env,env+' CACHY_ASAHI_QEMU_TOOLING_INPUTS="$GITHUB_WORKSPACE/current604-qemu-tooling/tooling-inputs"')
+ anchor="          for name in ('build_kernel.py','kernel.fragment'):shutil.copyfile(root/'scripts/ci/managed-gui-generic16k'/name,helper/name)\n"
+ need(text.count(anchor)==1,'one whole-pinned copied GUI kernel preparation seam')
+ text=text.replace(anchor,anchor+"          s.load(root,'scripts/ci/current604-public-pair-generic16k/keyboard_profile.py').prepare_kernel(root,helper)\n")
  return text.encode()
 
 def emit(source_root,installer,assets,output):

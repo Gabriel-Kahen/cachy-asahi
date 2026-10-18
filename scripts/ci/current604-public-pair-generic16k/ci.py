@@ -4,9 +4,12 @@
 import sys
 import contract as C
 import adapter
+KP=C.module('_profile604_ci_keyboard',C.NEW+'/keyboard_profile.py')
 context604=C.module('_profile604_held_context',C.NEW+'/context604.py')
 
 def derive(text):
+ text=C.one(text,'import context604\n','import context604\nimport KP\n')
+ text=C.one(text,"profile,receipt,image,config=R.kernel(SimpleNamespace(kernel_work=args.kernel_work,kernel_receipt=args.kernel_receipt,source=args.implementation))","profile,receipt,image,config=KP.kernel(R,SimpleNamespace(kernel_work=args.kernel_work,kernel_receipt=args.kernel_receipt,source=args.implementation))")
  text=C.one(text,"p.add_argument('--implementation-revision',required=True);return p","p.add_argument('--implementation-revision',required=True);p.add_argument('--profile',choices=C.PROFILES,required=True);return p")
  text=C.one(text,'adapter.prepare(args.implementation,runner,assets,ready604)','adapter.prepare(args.implementation,runner,assets,ready604,args.profile)')
  text=C.one(text,"shutil.copyfile(C.HERE/'context604.py',runner/'context604.py')","shutil.copyfile(args.implementation/C.OLD/'context604.py',runner/'context604.py')")
@@ -32,7 +35,7 @@ def derive(text):
  text=C.one(text,'all original14 consumer cleanup records required','all original14 plus owned QEMU image consumer cleanup records required')
  text=C.one(text,"(runtime/'runtime-image.log','runtime/runtime-image.log',16*1024**2)","(runtime/'runtime-image.log','runtime/runtime-image.log',16*1024**2),(runtime/'qemu-tooling-image.log','runtime/qemu-tooling-image.log',16*1024**2)")
  return text.replace('expanded604-current-management-managed16k-runner','current604-public-pair-generic16k-runner').replace('expanded604-current-management-managed16k-runtime','current604-public-pair-generic16k-runtime')
-_BASE=C.module('_profile604_owned_ci',C.OLD+'/ci.py',{'contract':C,'adapter':adapter,'context604':context604},derive)
+_BASE=C.module('_profile604_owned_ci',C.OLD+'/ci.py',{'contract':C,'adapter':adapter,'context604':context604,'KP':KP},derive)
 parser,retired,preflight,main=_BASE.parser,_BASE.retired,_BASE.preflight,_BASE.main
 PRODUCER_PATHS,CARRIERS,DECISIONS=_BASE.PRODUCER_PATHS,_BASE.CARRIERS,_BASE.DECISIONS
 if __name__=='__main__':raise SystemExit(main())
