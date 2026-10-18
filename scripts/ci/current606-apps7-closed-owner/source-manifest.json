@@ -196,8 +196,8 @@
       "sha256": "d9c8cb0c50abb3620775c7dab55e3943052254a5620b4d6df408d1112079bf09"
     },
     "copyworker/scripts/ci/current606-apps7-copy/plan.py": {
-      "bytes": 3771,
-      "sha256": "533ffa3f5719cc777798f1d45fa49442223350216867c1b9d7d29cb43cb9e776"
+      "bytes": 5123,
+      "sha256": "f8a91840c3140246a3ec1d35f5cb3fdb3cf1e6a354908098acf145229086befe"
     },
     "copyworker/scripts/ci/current606-apps7-copy/prepare.py": {
       "bytes": 1695,
@@ -217,7 +217,7 @@
     },
     "copyworker/scripts/ci/current606-apps7-copy/source-manifest.json": {
       "bytes": 6836,
-      "sha256": "3dd6e2ae89eca419025e90be5d009cea476a7e89c251a370c0f7c96581bb9a85"
+      "sha256": "0ac5bf9b14f977cfca8d12357f4342816bea176025c8b14c45a5f1248e80e8a8"
     },
     "copyworker/scripts/ci/current606-apps7-copy/step_entry.py": {
       "bytes": 741,
@@ -232,8 +232,8 @@
       "sha256": "bb647153cea5f536ae488eb3f4ee31f5f08e7764d99b3cb99b76b9e5e1d2313d"
     },
     "copyworker/scripts/ci/current606-apps7-copy/test_worker.py": {
-      "bytes": 24878,
-      "sha256": "26496e5f50ea76d8b8a8310ca72ead6da4a822ae4683a886f1ad08a2e06abb2d"
+      "bytes": 28868,
+      "sha256": "27b3340e767c9aeabee0d1c1753eaa2bc60b41fcc3a4268dc5803dc479084f6b"
     },
     "copyworker/scripts/ci/current606-apps7-copy/verification.py": {
       "bytes": 4356,
@@ -1329,7 +1329,7 @@
     },
     "scripts/ci/current606-apps7-closed-owner/source-pins.json": {
       "bytes": 58974,
-      "sha256": "6e56ab2e8ad4cca926cabb40bd9b6e7a5322187f83023850d7018a551d3dcdce"
+      "sha256": "a427f0853e0bbd0571e017638e6efe8ce15db2a252781800dde9bf8fe6def4ba"
     },
     "scripts/ci/current606-apps7-closed-owner/test_owner.py": {
       "bytes": 19485,
