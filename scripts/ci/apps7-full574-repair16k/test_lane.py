@@ -123,4 +123,31 @@ class BackendFailureData(unittest.TestCase):
     self.assertEqual(D.command(s,row['argv'],610),(row,out,err))
    self.assertEqual(set(C.decode(receipt.read_bytes())[0]),{'record','error','previews','phase_summary'})
 
+
+class InventoryObserverSource(unittest.TestCase):
+ def test_actual_rendered_app_source_gate_then_explicit_inventory_derivative(self):
+  import types
+  rendered,proof=A.rendered_backend(ROOT)
+  m=types.ModuleType('_tests_vm_inventory_backend');m.__file__=str(ROOT/C.NATIVE/'transaction.py');sys.modules[m.__name__]=m
+  with patch.object(subprocess,'Popen',side_effect=AssertionError('no actor')),patch.object(subprocess,'run',side_effect=AssertionError('no actor')):
+   exec(compile(rendered,m.__file__,'exec'),m.__dict__)
+   source=ROOT/'packages/tools/cachy-asahi-apps7';args=types.SimpleNamespace(apps_source=source,apps_provenance_sha256=C.sha(C.read(source/'source-provenance.json')),repository_source=ROOT)
+   app,client,release=m.app_source(args);reader=app.inventory_reader()
+   self.assertTrue(reader.scan.__code__.co_filename.endswith(':source-owned-ancestor-walk'))
+   self.assertEqual(proof['inventory_source_before'],'68f9b0bc6bd5c494ebfc10bdc1e243c014d7fa8e56b1386491b75cdb9ee2e3df')
+   self.assertEqual(proof['inventory_source_after'],'faca184446aa9214c53bc78b797813cbad9768f7d8276a733fb15e4ecc7c2630')
+   args.apps_provenance_sha256='0'*64
+   with self.assertRaises(ValueError):m.app_source(args)
+ def test_inventory_whole_source_and_all_canonical_parent_checks_held(self):
+  import types
+  scope=types.ModuleType('_source_inventory_test');exec(A.INVENTORY_OBSERVER,scope.__dict__)
+  raw=C.read(ROOT/'packages/tools/cachy-asahi-apps7/inventory.py')
+  self.assertEqual(scope.derive(raw).replace(scope.AFTER.encode(),scope.BEFORE.encode()),raw)
+  with self.assertRaises(ValueError):scope.derive(raw+b'\n')
+  from pathlib import PurePosixPath
+  for path in ('a','a/b','a/b/c','usr/share/fixture/path','unicode-ä/child'):
+   old=[p.as_posix()for p in PurePosixPath(path).parents if p.as_posix()!='.'];new=[];parent=path.rpartition('/')[0]
+   while parent:new.append(parent);parent=parent.rpartition('/')[0]
+   self.assertEqual(old,new)
+
 if __name__=='__main__':unittest.main()
