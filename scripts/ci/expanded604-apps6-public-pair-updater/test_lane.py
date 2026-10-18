@@ -143,6 +143,15 @@ class Controls(unittest.TestCase):
    for n in ast.walk(stage):
     if isinstance(n,ast.keyword)and n.arg in ('issued_utc','expires_utc'):
      self.assertIsInstance(n.value,ast.Name);self.assertEqual(n.value.id,n.arg);n.value=ast.Attribute(value=ast.Name(id='args',ctx=ast.Load()),attr=n.arg,ctx=ast.Load())
-   self.assertEqual(hashlib.sha256(ast.dump(stage,include_attributes=False).encode()).hexdigest(),'122d9842b6f76631782da012ebd199e9e0bab7d917ff67c814d4f15fc8f71cf7')
+   # Parse both operands in this interpreter: AST dump fields differ by Python
+   # version. The exact prior constructor and existing public evidence renames
+   # remain fixed; no metadata validator or build/sign stage statement is waived.
+   raw=(self.old[case]/'scripts/ci/full-root-upgrade/construct_repository.py').read_bytes()
+   self.assertEqual(P.pin(raw),dict(bytes=13124,sha256='f25b0969fbd8fe9b8818cc1be0107c43cfe1124779372ddfdf9e12099bd9671e'))
+   expected=raw.decode()
+   for before,after,count in (('build_lock','build_evidence',3),('build575.lock','public-build-evidence.json',2)):
+    self.assertEqual(expected.count(before),count);expected=expected.replace(before,after)
+   expected_stage=next(n for n in ast.parse(expected).body if isinstance(n,ast.FunctionDef)and n.name=='stage')
+   self.assertEqual(ast.dump(stage,include_attributes=False),ast.dump(expected_stage,include_attributes=False))
 
 if __name__=='__main__':unittest.main(verbosity=2)
