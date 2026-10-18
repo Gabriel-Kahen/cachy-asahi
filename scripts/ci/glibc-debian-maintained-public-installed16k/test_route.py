@@ -63,6 +63,24 @@ class Controls(unittest.TestCase):
    elif term=='--private-key':continue
    else:self.assertIn(term,text)
 
+class InventoryRoleCollision(unittest.TestCase):
+ def test_exact_current_inventory_is_selected_after_full_native159_verification(self):
+  with tempfile.TemporaryDirectory()as td,patch.object(subprocess,'Popen',side_effect=AssertionError('no actors')):
+   out=Path(td)/'emitted';held=P.source(ROOT);self.assertEqual(len(P.native(COMPONENT)),159);P.derive(ROOT,COMPONENT,out)
+   name='manifests/packages.toml';self.assertNotEqual(held['implementation'][name],held['native_component'][name]);self.assertEqual(P.pin(P.read(out/name)),held['implementation'][name])
+   deps=json.loads(P.read(out/P.LANE/'dependencies.json'))['files'];self.assertEqual(deps[name],held['implementation'][name]);native_deps=json.loads(P.read(out/P.NATIVE/'dependencies.json'))['files'];self.assertNotIn(name,native_deps)
+   common=P.load('native_inventory_scope_control',out/P.NATIVE/'common.py');self.assertNotIn(name,common.read(out/P.NATIVE/'dependencies.json').decode());api=common.helpers(out);self.assertIn('roots',api);self.assertIn('db',api)
+ def test_copy_exception_is_one_exact_leaf_and_wrong_inventory_or_second_overlap_refuses(self):
+  with tempfile.TemporaryDirectory()as td:
+   root=Path(td);component=root/'component';output=root/'output';component.mkdir();output.mkdir();name='manifests/packages.toml';a=b'UNIT_CURRENT_INVENTORY';b=b'UNIT_HISTORICAL_INVENTORY'
+   for base,raw in ((component,b),(output,a)):
+    p=base/name;p.parent.mkdir();p.write_bytes(raw)
+   held=dict(implementation={name:P.pin(a)},native_component={name:P.pin(b)});P.copy_component(held,component,output);self.assertEqual((output/name).read_bytes(),a)
+   (output/name).write_bytes(b'wrong')
+   with self.assertRaisesRegex(ValueError,'current implementation inventory'):P.copy_component(held,component,output)
+   (output/name).write_bytes(a);second='runtime.py';(component/second).write_bytes(b'UNIT_NATIVE');(output/second).write_bytes(b'UNIT_OTHER');held['native_component'][second]=P.pin(b'UNIT_NATIVE')
+   with self.assertRaisesRegex(ValueError,'separate component source conflict'):P.copy_component(held,component,output)
+
 class SummaryClosure(unittest.TestCase):
  def test_exact_helper_is_closed_and_declared_before_secrets(self):
   helper='scripts/ci/glibc-gnu-failure-log/summary.py';expected=dict(bytes=11924,sha256='9bd52ce4453a3a03d8dc8b5edb6b6a4b8ec421e0c3037dfb64dc31da45687555')

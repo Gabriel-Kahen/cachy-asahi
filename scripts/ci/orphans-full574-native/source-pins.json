@@ -9,8 +9,8 @@
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "manifests/packages.toml": {
-      "bytes": 37484,
-      "sha256": "f530955f736b9c6924f157a733ea988b687186b86f9c51d120cb6deb107aa694"
+      "bytes": 38835,
+      "sha256": "66f77b4ba4a02657da92627738000f7a6f805de78fff8dd8682107039755b156"
     },
     "packages/tools/cachy-asahi-apps/.SRCINFO": {
       "bytes": 1775,
@@ -246,7 +246,7 @@
     },
     "scripts/ci/apps-full574-native/source-manifest.json": {
       "bytes": 14748,
-      "sha256": "5c9447d1b1a73bcefa061a624701af0236d98c575d2ff0e8a2c3ddd91c34aec2"
+      "sha256": "6d61055750956461f1ca7df90313ba8956fdb3a26a6df55d123a7bdefa9e3cbd"
     },
     "scripts/ci/apps-full574-native/test_copy_scope.py": {
       "bytes": 2286,
