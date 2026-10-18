@@ -34,7 +34,8 @@ class Controls(unittest.TestCase):
   with tempfile.TemporaryDirectory() as tmp:
    target=Path(tmp)/'target';calling=target/'scripts/ci/full-root-upgrade-caller';calling.mkdir(parents=True)
    raw=(ROOT/'scripts/ci/full-root-upgrade-caller/container.py').read_bytes();(calling/'container.py').write_bytes(raw);config=target/'upgrade-config.json';name='scripts/ci/full-root-upgrade-caller/container.py'
-   C.save(config,dict(code_pins={name:C.sha(raw),'other':'b'*64},copy_seconds=600,driver_seconds=1800,stage_seconds=900,verify_seconds=600));C.save(target/'adapter.json',dict(config_sha256='prior'))
+   scope=(ROOT/'scripts/ci/full-root-upgrade-caller/persistent_scope.py').read_bytes();(calling/'persistent_scope.py').write_bytes(scope)
+   C.save(config,dict(code_pins={name:C.sha(raw),'scripts/ci/full-root-upgrade-caller/persistent_scope.py':C.sha(scope),'other':'b'*64},external_pins={'/persistent_scope.py':C.sha(scope)},copy_seconds=600,driver_seconds=1800,stage_seconds=900,verify_seconds=600));C.save(target/'adapter.json',dict(config_sha256='prior'))
    original=SimpleNamespace(prepare=lambda *a,**kw:(config,calling));A.prepare_selected(original,ROOT,target,'normal');value=C.decode(C.read(config))
    self.assertEqual(value['code_pins'][name],C.sha((calling/'container.py').read_bytes()));self.assertEqual(value['code_pins']['other'],'b'*64);self.assertEqual(value['driver_seconds'],1800)
    self.assertEqual(C.decode(C.read(target/'adapter.json'))['config_sha256'],C.sha(config.read_bytes()))
@@ -104,22 +105,35 @@ class Controls(unittest.TestCase):
    row=dict(status='PASS',package_count=604,final_package_count=604,installed_inventory_sha256=before,final_inventory_sha256=before,dependency_checks='PASS-no-waivers',payload_ownership='PASS',full_root_upgrade=dict(status='PASS',persistent_source_preserved=True,persistent_source=dict(source_manifest_sha256='x'),persistent_source_after=dict(source_manifest_sha256='x'),driver=driver))
    self.assertIs(space['verify_result'](row,case),row['full_root_upgrade']);bad=copy.deepcopy(row);bad['full_root_upgrade']['driver']['commit_started']='UNKNOWN'
    with self.assertRaises(ValueError):space['verify_result'](bad,case)
- def test_genuine_default_fresh_and_4k_emission_match_exact420_updater_role(self):
-  fresh=C.load('default_fresh_emitter_control',ROOT/'scripts/ci/expanded604-apps6-public-pair-installer/prepare.py');updater=C.load('default_updater_emitter_control',ROOT/C.OLD/'prepare.py');pins=C.decode(C.read(C.HERE/'source-pins.json'))
-  with tempfile.TemporaryDirectory() as td:
-   base=Path(td);f=base/'fresh';u=base/'updater';fresh.emit(ROOT,ROOT,f);updater.emit(ROOT,f,u)
-   self.assertEqual(C.row(f/'scripts/ci/expanded604-apps6-public-pair-installer/source-manifest.json')['sha256'],'b8a35cf9f04c5321db6db9103f3a7ef95d58ebcc0ff960b805362a3867ed715a');self.assertEqual(len(pins['groups']['updater']),420)
-   for n,row in pins['groups']['updater'].items():self.assertEqual(C.row(u/n),row,n)
-   P.source(ROOT,u)
-   for n in ('policy.json','input-policy.json'):
-    policy=C.decode(C.read(u/C.OLD/n));self.assertIn('UNBOUND',policy['status']);self.assertIsNone(policy['decision_source']);self.assertIsNone(policy['installer_source']);self.assertIsNone(policy['prerequisites']['fresh604']);self.assertIsNone(policy['prerequisites']['native604'])
-   p=u/'.github/workflows/native-arm-expanded604-apps6-public-pairs.yml';p.write_bytes(p.read_bytes()+b'\n')
-   with self.assertRaisesRegex(ValueError,'pinned source differs: updater'):P.emit(ROOT,u,base/'refused')
-   self.assertFalse((base/'refused').exists())
  def test_emitted_corrected_roles_and_all80_real_runtime_recipe_dependencies(self):
   with tempfile.TemporaryDirectory() as td:
-   root=Path(td);out=root/'closed';P.emit(ROOT,UPDATER,out);pins=C.decode(C.read(C.HERE/'source-pins.json'));required=pins['runtime_recipe_inputs'];self.assertEqual(len(required),80)
-   self.assertEqual(C.row(out/C.OLD/'source-manifest.json')['sha256'],'e575577e178a808e7b10d70daaab75dd25c4c0dd73aa7395b0d1164dd3ad7ff6');self.assertEqual(C.row(out/'scripts/ci/expanded604-apps6-public-pair-installer/source-manifest.json')['sha256'],'b8a35cf9f04c5321db6db9103f3a7ef95d58ebcc0ff960b805362a3867ed715a')
+   root=Path(td);out=root/'closed';original_read=P.read
+   # Reuse the explicit NULL fixture from test_all_cases_unbound_before_source_output_or_actor.
+   # This source-role test does not assume that the selected trial itself is unbound.
+   selected_policy=original_read(P.HERE/'input-policy.json')
+   unbound=C.encoded(dict(schema_version=1,status='INERT_UNBOUND',binding=None))
+   with patch.object(P,'read',side_effect=lambda p:unbound if p==P.HERE/'input-policy.json' else original_read(p)):P.emit(ROOT,UPDATER,out)
+   self.assertEqual(original_read(P.HERE/'input-policy.json'),selected_policy)
+   pins=C.decode(C.read(C.HERE/'source-pins.json'));required=pins['runtime_recipe_inputs'];self.assertEqual(len(required),80)
+   for manifest,key in ((C.OLD+'/source-manifest.json','updater_source_manifest_sha256'),('scripts/ci/expanded604-apps6-public-pair-installer/source-manifest.json','fresh_source_manifest_sha256')):
+    actual=C.row(out/manifest);self.assertEqual(actual,pins['groups']['updater'][manifest]);self.assertEqual(actual['sha256'],pins[key])
+   if 'selected_source_roles' in pins:
+    self.assertEqual(C.row(out/C.OLD/'source-manifest.json')['sha256'],'ec9a759bbb5be161a0a77c2983e731c3b09e71b33688a2ecdf54abce9d1ba41b');self.assertEqual(C.row(out/'scripts/ci/expanded604-apps6-public-pair-installer/source-manifest.json')['sha256'],'5f4dbc150a5f8ca6a85843b783e7b5472251a4b0761e75e65f7d82b165a7b629')
+    selected=pins['selected_source_roles'];self.assertEqual(selected['status'],'SOURCE_ONLY_NOT_ACTUAL_ACCEPTANCE');self.assertEqual(selected['updater_source'],'37d9ffa166e0d7262ef8afab56baa0b3ea060b22');self.assertEqual(selected['fresh_source'],'bd0cf1891083d011b70edab10501c317d3720b78')
+    self.assertIsNone(selected['updater_three_case_positive_decisions']);self.assertIsNone(selected['GUI_two_profile_positive_decisions'])
+    held=C.load('selected_actual_source_contract',out/C.OLD/'contract.py');held_policy=held.policy();self.assertEqual(held_policy['installer_source'],selected['fresh_source']);self.assertEqual(held_policy['decision_source'],'c38375818f116bfc129a8db853d0c9cd2d360eb9')
+   else:
+    # Canonical factory declares exact NULL-source roles; these are not the
+    # separately published37d/bd0 selected carrier and grant no actual credit.
+    self.assertEqual(set(pins),{'schema_version','groups','runtime_recipe_inputs','fresh_control_inputs','fresh_source_manifest_sha256','updater_source_manifest_sha256'})
+    held=C.load('canonical_default_source_contract',out/C.OLD/'contract.py');policy=held.policy(bound=False)
+    self.assertEqual(policy['status'],'UNBOUND_ACTUAL_PUBLIC_PAIRS_APPS6_CURRENT604_PREREQUISITES')
+    for key in ('installer_source','decision_source'):self.assertIsNone(policy[key])
+    self.assertEqual(policy,held.read(out/C.OLD/'policy.json'))
+    self.assertIsNone(policy['installer_inputs']['native604_decisions'])
+    for key in ('native604','fresh604'):self.assertIsNone(policy['prerequisites'][key])
+    with self.assertRaisesRegex(ValueError,'UNBOUND'):held.policy()
+   for n,row in pins['groups']['updater'].items():self.assertEqual(C.row(out/n),row,n)
    for n,row in required.items():self.assertEqual(C.row(out/n),row,n)
    controls=pins['fresh_control_inputs'];self.assertEqual(len(controls),9)
    for n,row in controls.items():self.assertEqual(C.row(out/n),row,n)
@@ -129,6 +143,7 @@ class Controls(unittest.TestCase):
    with self.assertRaises((ValueError,FileNotFoundError)):P.emit(out,out,root/'refused')
    self.assertFalse((root/'refused').exists());leaf.write_bytes(raw)
    for n in ('policy.json','input-policy.json'):self.assertIsNone(C.decode(C.read(out/C.LANE/n))['binding'])
+
 
  def test_all_three_corrected_auxiliary_and_16k_adapter_derivations_exact(self):
   selected=C.load('corrected_selected_contract',ROOT/C.OLD/'contract.py');adapter=selected.scoped('corrected_selected_adapter',ROOT/C.OLD/'adapter.py',{'contract':selected});helper=selected.load('corrected_auxiliary',ROOT/C.OLD/'aux_transition.py')
@@ -154,12 +169,59 @@ class Controls(unittest.TestCase):
      elif n=='scripts/ci/full-root-postcommit-failure/run.py':raw,postcommit_proof=helper.derive_postcommit(raw);self.assertEqual(postcommit_proof['status'],'SOURCE_BOUND_AUTHENTICATED_CHILD_TO_DISTINCT_PARENT_SELECTION')
      elif n=='scripts/ci/full-root-upgrade/construct_repository.py':raw=adapter.constructor(raw)
      elif n=='scripts/ci/full-root-upgrade-caller/container.py':raw=A.caller(raw)
+     elif n=='scripts/ci/full-root-upgrade-caller/persistent_scope.py':raw=A.persistent_stage(raw)
      self.assertEqual((output/n).read_bytes(),raw,case+':'+n)
     value=C.decode(C.read(config));oldvalue=selected.read(prior/'upgrade-config.json')
     for key,value_before in oldvalue.items():
      if key=='driver_seconds' and case=='normal':self.assertEqual(value_before,1800);self.assertEqual(value[key],1860)
+     elif key=='external_pins':
+      wanted=dict(value_before);wanted['/persistent_scope.py']=C.sha((calling/'persistent_scope.py').read_bytes());self.assertEqual(value[key],wanted,case+':'+key)
      elif key not in ('code_pins','release'):self.assertEqual(value[key],value_before,case+':'+key)
     for n,digest in value['code_pins'].items():self.assertEqual(C.sha((output/n).read_bytes()),digest,case+':'+n)
     receipt=selected.read(output/'adapter.json');self.assertEqual(receipt['config_sha256'],C.sha(config.read_bytes()));self.assertIn('auxiliary_selection',receipt);self.assertEqual(receipt['updater16k_dispatch']['counted_edits'],5)
+
+
+class PersistentStageFailureData(unittest.TestCase):
+ def scope(self):
+  import types
+  raw=(ROOT/'scripts/ci/full-root-upgrade-caller/persistent_scope.py').read_bytes();derived=A.persistent_stage(raw);m=types.ModuleType('_source_derived_stage_diagnostic');exec(compile(derived,'<source-pinned-persistent-scope>','exec'),m.__dict__);return raw,derived,m
+ def test_whole_original_helper_inverse_and_failclosed_source(self):
+  raw,new,m=self.scope();self.assertEqual(new.decode().replace(A.PERSISTENT_STAGE_DATA,'',1).replace(A.PERSISTENT_STAGE_WRAPPER,A.PERSISTENT_STAGE_GUARD,1).encode(),raw)
+  self.assertEqual(new.count(b'persistent_stage_failure(before, staged, limits)'),2)
+  with self.assertRaises(ValueError):A.persistent_stage(raw+b'\n')
+ def record(self,m,before,staged):
+  import contextlib,io,json
+  s=io.StringIO()
+  with contextlib.redirect_stderr(s):m.persistent_stage_failure(before,staged,SimpleNamespace(deadline=time.monotonic()+1))
+  text=s.getvalue();self.assertLessEqual(len(text.encode()),6144+40)
+  return None if not text else json.loads(text.split(' ',1)[1])
+ def test_complete_mismatch_hashes_fields_first5_no_values(self):
+  raw,new,m=self.scope();before={f'usr/payload-{i}':dict(type='file',mode=420,uid=0,gid=0,bytes=9,sha256='a'*64)for i in range(9)};after=copy.deepcopy(before)
+  for v in after.values():v['sha256']='b'*64
+  row=self.record(m,before,dict(complete=True,nodes=after,unsupported_counts={}))
+  self.assertTrue(row['observation_complete']);self.assertFalse(row['node_maps_equal']);self.assertEqual(row['changed_nodes'],9);self.assertEqual(len(row['examples']),5);self.assertEqual(row['omitted_examples'],4)
+  for e in row['examples']:self.assertEqual(e['fields'],['sha256']);self.assertEqual(e['kind'],'changed');self.assertNotEqual(e['before'],e['after']);self.assertNotIn('a'*64,str(e))
+  self.assertFalse(row['acceptance_authority']);self.assertFalse(row['cleanup_authority'])
+ def test_incomplete_vs_equal_complete_and_original_guard(self):
+  import contextlib,io
+  raw,new,m=self.scope();before={'etc/a':dict(type='file',mode=420,uid=0,gid=0,bytes=1,sha256='a'*64)};partial=dict(complete=False,nodes={},unsupported_counts={'root observation deadline':1})
+  row=self.record(m,before,partial);self.assertEqual(row['comparison_scope'],'PARTIAL_OBSERVATION_NOT_EVIDENCE_OF_SOURCE_DRIFT');self.assertEqual(row['unsupported_counts'],partial['unsupported_counts']);self.assertFalse(row['observation_complete'])
+  self.assertIsNone(self.record(m,before,dict(complete=True,nodes=before,unsupported_counts={})))
+  module=ast.parse(new);fn=next(n for n in module.body if isinstance(n,ast.FunctionDef)and n.name=='materialize');gate=next(n for n in fn.body if isinstance(n,ast.Try)and any(isinstance(v,ast.Constant)and v.value=='complete persistent stage differs'for v in ast.walk(n)))
+  stream=io.StringIO()
+  with contextlib.redirect_stderr(stream),self.assertRaisesRegex(ValueError,'complete persistent stage differs'):
+   exec(compile(ast.Module(body=[gate],type_ignores=[]),'<unchanged-original-stage-guard>','exec'),dict(need=m.need,persistent_stage_failure=m.persistent_stage_failure,before=before,staged=partial,limits=SimpleNamespace(deadline=time.monotonic()+1)))
+  self.assertIn('PERSISTENT_STAGE_FAILURE',stream.getvalue())
+ def test_diagnostic_loss_malformed_and_huge_maps_grant_nothing(self):
+  raw,new,m=self.scope()
+  for before,staged in(({},{}),({},dict(complete=False,nodes={},unsupported_counts={'bad':-1})),({},dict(complete=False,nodes={'x':None},unsupported_counts={}))):
+   self.assertIsNone(self.record(m,before,staged))
+  with patch.object(m.json,'dumps',side_effect=OSError('INERT_DIAGNOSTIC_LOSS')):self.assertIsNone(self.record(m,{},dict(complete=False,nodes={},unsupported_counts={})))
+ def test_actual_prepare_updates_exact_externalpin_without_budget_change(self):
+  with tempfile.TemporaryDirectory()as td:
+   target=Path(td)/'target';caller=target/'scripts/ci/full-root-upgrade-caller';caller.mkdir(parents=True)
+   raw=(ROOT/'scripts/ci/full-root-upgrade-caller/persistent_scope.py').read_bytes();(caller/'persistent_scope.py').write_bytes(raw);(caller/'container.py').write_bytes((ROOT/'scripts/ci/full-root-upgrade-caller/container.py').read_bytes())
+   name='scripts/ci/full-root-upgrade-caller/container.py';config=target/'config.json';C.save(config,dict(code_pins={name:C.sha((caller/'container.py').read_bytes()),'scripts/ci/full-root-upgrade-caller/persistent_scope.py':C.sha(raw)},external_pins={'/persistent_scope.py':C.sha(raw),'unchanged':'a'*64},stage_seconds=900,verify_seconds=600,driver_seconds=1800,copy_seconds=600));C.save(target/'adapter.json',{})
+   A.prepare_selected(SimpleNamespace(prepare=lambda *a,**k:(config,caller)),ROOT,target,'normal');v=C.decode(C.read(config));self.assertEqual(v['external_pins']['/persistent_scope.py'],C.sha((caller/'persistent_scope.py').read_bytes()));self.assertEqual(v['external_pins']['unchanged'],'a'*64);self.assertEqual([v[n]for n in('stage_seconds','verify_seconds','driver_seconds','copy_seconds')],[900,600,1800,600])
 
 if __name__=='__main__':unittest.main(verbosity=2)

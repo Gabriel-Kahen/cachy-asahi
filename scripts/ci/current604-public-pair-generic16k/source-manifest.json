@@ -529,8 +529,8 @@
       "sha256": "0df8fca76d1006260e7ed7eee6dddbeaa54bfe8e6e3d7e63cd32a06cf63e7bcc"
     },
     "scripts/ci/current604-public-pair-generic16k/adapter.py": {
-      "bytes": 47833,
-      "sha256": "1073ed826e593882d70ba5887ec3a2600756c1915cabe21126355a32053be9bf"
+      "bytes": 48131,
+      "sha256": "917ba1afa98b445830e7702d6c74be931896340f106daa27bb628c170a4c45fa"
     },
     "scripts/ci/current604-public-pair-generic16k/archive32-policy.json": {
       "bytes": 9488,
@@ -553,16 +553,16 @@
       "sha256": "6d3a3f6dd3819f3686076c94e4a41b555c02ecad269821fa72becea34ab6739b"
     },
     "scripts/ci/current604-public-pair-generic16k/context604.py": {
-      "bytes": 19899,
-      "sha256": "07b11abda319996a3dda2052197c7894aa2b78e1b2dd222bf2fe4d11e1a6c868"
+      "bytes": 21954,
+      "sha256": "fdb7a21f39db9e430e33c5e0f8e16cba9d2ac0394e856b3db4c548fae34bad91"
     },
     "scripts/ci/current604-public-pair-generic16k/contract.py": {
       "bytes": 11780,
       "sha256": "aab6443b6fa9502614275a42c76dce2ed862a592327ab40ac077d9fe56685fbb"
     },
     "scripts/ci/current604-public-pair-generic16k/dependencies.json": {
-      "bytes": 73493,
-      "sha256": "26a6faa822460a5ca325d564852a3ea42676271eca34a24a4c32df07c09f0c3b"
+      "bytes": 73494,
+      "sha256": "b315385f5d19b8a192ad261d946028f63952ba26f8dc9e128d096dcc13531077"
     },
     "scripts/ci/current604-public-pair-generic16k/gate.py": {
       "bytes": 2720,
@@ -581,24 +581,24 @@
       "sha256": "c4a40f7ec429ce53b01091946adb7cb4ca3d3bbabad93ceca45cbffac2a73d9b"
     },
     "scripts/ci/current604-public-pair-generic16k/prepare.py": {
-      "bytes": 15584,
-      "sha256": "718616d383ed8d13dbc757c66a4afbc06756da1e9b39e39e9da2ffca642724ed"
+      "bytes": 15866,
+      "sha256": "b04ef6e5a5275f8c82b6ea41f66cd5e03baf63b8f5ec4da7e2a257b34a489110"
     },
     "scripts/ci/current604-public-pair-generic16k/public-assets-policy.json": {
       "bytes": 258,
       "sha256": "88e3ae987f9047e93513fae841379f48b6f1ecf319a311d8cb59d9951d7e213e"
     },
     "scripts/ci/current604-public-pair-generic16k/retain.py": {
-      "bytes": 2828,
-      "sha256": "9ad9b31bd05e224ce320691875e50558a6d8629b32d6dcd731850f3a66400a41"
+      "bytes": 3322,
+      "sha256": "cc6305a49b05011a6bc0cacc4525de15f48d87602a5c872c6e7f6f65af740aca"
     },
     "scripts/ci/current604-public-pair-generic16k/source-pins.json": {
       "bytes": 119962,
       "sha256": "71d3f0334c5e0931d69bdc3633ac9ab44e6b53031a079074cfbefc6c8d1a6b6a"
     },
     "scripts/ci/current604-public-pair-generic16k/test_lane.py": {
-      "bytes": 97006,
-      "sha256": "4eb494c8bd452a6c1be8afdeb31246eb10bc88cb730b25db04a1553837faa938"
+      "bytes": 101745,
+      "sha256": "8177dafff85465537a6c0721d94a515a8ce28a9ba87b580a0dd2e4adf2c5e873"
     },
     "scripts/ci/desktop-user-session/prepare.py": {
       "bytes": 6300,
