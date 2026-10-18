@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Owned original-image disk preparation,16K QEMU, bounded original readback."""
-import json,os,re,shutil
+import base64,json,os,re,shutil
 from pathlib import Path
 import contract as C
 MOUNTS={'/inputs','/runner.py','/upgrade-code','/upgrade-config.json','/upgrade-pair','/upgrade-hook.py','/persistent_scope.py','/setup4.py','/footprint.py','/measurement-source','/out','/measurement','/upgrade-signing'}
@@ -73,6 +73,13 @@ def snapshot(bindings):
     total+=info.st_size;C.need(total<=8*1024**3,'input aggregate bytes');result[key]=dict(type='file',mode=info.st_mode&0o7777,uid=info.st_uid,gid=info.st_gid,**C.row(p))
  return result
 
+def prepare_failure(record,stderr):
+ # Failed owned preparation only: exact original stream pin plus bounded tail.
+ C.need(record['argv'][-2:]==['/workspace/disk.py','prepare'] and record['exit_code']!=0,'failed prepare diagnostic only')
+ C.need(len(stderr)==record['stderr_bytes'] and C.sha(stderr)==record['stderr_sha256'],'original prepare stderr join')
+ tail=stderr[-4096:]
+ return dict(status='FAILED_PREPARE_STDERR_NOT_ACCEPTANCE',stderr=dict(bytes=len(stderr),sha256=C.sha(stderr),tail_bytes=len(tail),tail_base64=base64.b64encode(tail).decode(),omitted_bytes=len(stderr)-len(tail)))
+
 def run(a,argv,image,public,raw,old,seconds):
  C.need(seconds==3900,'unchanged original transaction budget');profile,kimage,_=authorize(a);bindings,env=mounts(argv)
  work=public.parent/'update16k';C.need(not work.exists() and re.fullmatch('sha256:[0-9a-f]{64}',image),'fresh work and exact owned producer image');work.mkdir(mode=0o700);disks=work/'disks';disks.mkdir();nonce=os.urandom(16).hex()
@@ -83,12 +90,15 @@ def run(a,argv,image,public,raw,old,seconds):
  C.need(Path(bindings['/upgrade-signing']['source'])==raw/'test-signing','existing owned TEST signer only')
  old.command(['/usr/bin/gpgconf','--homedir',str(raw/'test-signing'),'--kill','all'],public/'updater16k-signing-retirement.log',15)
  input_before=snapshot(bindings);C.save(work/'input-map.json',input_before)
- runtime=C.load('supervisor',a.implementation/'scripts/ci/glibc-owned-runtime/runner.py');records=[];actors=[];retired=False;error=None
+ runtime=C.load('supervisor',a.implementation/'scripts/ci/glibc-owned-runtime/runner.py');records=[];actors=[];retired=False;error=None;prepare_error=None
  def command(cmd,timeout=30,cap=2*1024**2,allow=False):
+  nonlocal prepare_error
   record,out,err,exc=runtime.run_command(cmd,work,dict(PATH='/usr/bin:/bin',LC_ALL='C',HOME=str(work),TMPDIR=str(work)),timeout,cap)
   records.append(record);C.save(public/'updater16k-commands.json',records)
   if cmd[0]=='/usr/bin/qemu-system-aarch64':
    (public/'updater16k-uart.log').write_bytes(out);(public/'updater16k-qemu.stderr').write_bytes(err)
+  if cmd[-len(('/workspace/disk.py','prepare')):]==['/workspace/disk.py','prepare'] and record['exit_code']:
+   prepare_error=prepare_failure(record,err)
   C.need(exc is None and record['group_absence_verified'] is True and (allow or record['exit_code']==0),'VM command/group failure')
   return record,out,err
  def inspect(name):
@@ -128,7 +138,7 @@ def run(a,argv,image,public,raw,old,seconds):
    shutil.rmtree(work);retired=True
   except BaseException as e:
    if error is None:error=e
-  C.save(public/'updater16k-cleanup.json',dict(status='PASS' if retired else 'RETAINED_ABSENCE_UNKNOWN',actors=actors,group_records=records,scope='OWNED_VM_DISKS_AND_CONSUMERS',error=None if error is None else dict(type=type(error).__name__,message=str(error)[:2048])))
+  C.save(public/'updater16k-cleanup.json',dict(status='PASS' if retired else 'RETAINED_ABSENCE_UNKNOWN',actors=actors,group_records=records,scope='OWNED_VM_DISKS_AND_CONSUMERS',error=None if error is None else dict(type=type(error).__name__,message=str(error)[:2048]),**({'prepare_failure':prepare_error} if prepare_error is not None else {})))
  if error is not None:raise error
  C.need(retired,'VM cleanup incomplete')
 
