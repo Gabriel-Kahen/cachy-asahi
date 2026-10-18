@@ -260,5 +260,34 @@ class SeparateQemuToolingControls(unittest.TestCase):
     self.assertIn('docker_args(derived, name, fixture, source, runner, root=True)',text);self.assertIn('docker_args(derived, name, result, source, verifier)',text);self.assertIn('virt-11.1',text)
     self.assertIn('signal.ITIMER_REAL, 1750',text);self.assertIn('time.monotonic() + 1300',text);self.assertIn("for owned_image in images:",text);self.assertIn("'remove-image:' + owned_image",text)
 
+class ToolingEnvironmentControls(unittest.TestCase):
+ def setUp(self):
+  p=patch.object(subprocess,'Popen',side_effect=AssertionError('no actors/Git/network'));p.start();self.addCleanup(p.stop)
+ def prelude(self,text,out,value):
+  tree=ast.parse(text);node=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='main')
+  clear=next(i for i,n in enumerate(node.body)if isinstance(n,ast.Expr)and isinstance(n.value,ast.Call)and ast.unparse(n.value.func)=='os.environ.clear')
+  # Execute the exact generated cleanenv boundary, including every newly
+  # required path validation. Earlier source/native guards are held elsewhere.
+  start=next((i for i,n in enumerate(node.body[:clear])if isinstance(n,ast.Assign)and any(isinstance(a,ast.Name)and a.id=='tooling_inputs'for a in n.targets)),clear)
+  body=copy.deepcopy(node.body[start:clear+2]);space=dict(Path=Path,os=os,ENV={'PATH':'/usr/bin:/bin','LANG':'C.UTF-8','LC_ALL':'C.UTF-8'},require=C.need,out=out)
+  env=dict(PRIVATE_UNRELATED_SECRET='NEVER_FORWARD',GITHUB_TOKEN='NEVER_FORWARD')
+  if value is not None:env['CACHY_ASAHI_QEMU_TOOLING_INPUTS']=value
+  with patch.dict(os.environ,env,clear=True):
+   exec(compile(ast.fix_missing_locations(ast.Module(body=body,type_ignores=[])),'<exact-generated-delegated-cleanenv>','exec'),space)
+   return dict(os.environ)
+ def test_exact_delegated_clean_environment_keeps_only_tooling_path_both_profiles(self):
+  for selected in C.PROFILES:
+   with self.subTest(profile=selected),tempfile.TemporaryDirectory()as td:
+    base=Path(td);runner=Controls.generated(self,base,selected);text=(runner/'desktop574_runtime.py').read_text();packet=base/'packet';packet.mkdir()
+    original=self.prelude((ROOT/'scripts/ci/desktop574_runtime.py').read_text(),base/'original',str(packet));self.assertNotIn('CACHY_ASAHI_QEMU_TOOLING_INPUTS',original)
+    env=self.prelude(text,base/'corrected',str(packet));self.assertEqual(env,dict(PATH='/usr/bin:/bin',LANG='C.UTF-8',LC_ALL='C.UTF-8',HOME=str(base/'corrected/home'),CACHY_ASAHI_QEMU_TOOLING_INPUTS=str(packet)))
+    self.assertIn('explicit bounded tooling input path required',text);self.assertIn('ordinary owned tooling input directory required',text)
+ def test_missing_malformed_or_aliased_path_refuses_before_any_actor(self):
+  for selected in C.PROFILES:
+   with self.subTest(profile=selected),tempfile.TemporaryDirectory()as td:
+    base=Path(td);runner=Controls.generated(self,base,selected);text=(runner/'desktop574_runtime.py').read_text();packet=base/'packet';packet.mkdir();alias=base/'alias';alias.symlink_to(packet);file=base/'not-directory';file.write_bytes(b'inert')
+    for i,value in enumerate((None,'','relative',str(base/'missing'),str(file),str(alias),str(packet)+'/',str(packet)+'/../packet','/'+'x'*4096)):
+     with self.subTest(value=value),self.assertRaises(ValueError):self.prelude(text,base/('refused-'+str(i)),value)
+
 if __name__=='__main__':unittest.main(verbosity=2)
 
