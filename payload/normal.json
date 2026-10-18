@@ -1,0 +1,34 @@
+{
+  "actual_page_size": 4096,
+  "after_sha256": "7bc6caa51301bf076aeda4d137277a128c53a16e5bfd25f02e7309c4b3a408c3",
+  "before_sha256": "3f64a13c4af7ab8b1598583f534af3347c8df2397a0afa33fb8b0f5f06b19cf5",
+  "case": "normal",
+  "checkpoint_changed": true,
+  "checkpoint_directory_synced": true,
+  "cleanup": "PASS",
+  "commit_started": true,
+  "committed_transactions": 1,
+  "copy_cleanup": "PASS-owned-workspace-removed",
+  "emitted_case_manifest_sha256": "ee217273e8632d46d08b6764b910dd306dcf7d58c5a004afff6b5eaa7459c345",
+  "evidence_limits": "Private raw node/hash/ownership maps and86/87 fault witnesses remain unexported. Protected/user/no-change/independent-after claims are original frozen-source-enforced retained receipts, not a new raw-map readback. Retired resources are not live-reobserved; auxiliary process exit status remains NOT_OBSERVED.",
+  "hardware": "NOT_RUN",
+  "independent_strict_replay": "PASS_BYTE_EQUAL_RETAINED_FACTS",
+  "matrix_acceptance": {
+    "bytes": 13642,
+    "sha256": "7d8884c1aa1f85f10ff744d3cc73e2ae0884156fe8418a3ad5e11f60db250e88"
+  },
+  "package_count": 604,
+  "package_sha256": "1ce4a540a5ec2fa26353847b93fed953e084cf65e872836f670ac721446cd3d7",
+  "packages_committed": true,
+  "protected_packages": 603,
+  "recovery": "OWNED_COPY_DISPOSAL_ONLY_NO_ROLLBACK_OR_BOOT_CLAIM",
+  "release": "NOT_ADMITTED",
+  "retained_facts": {
+    "bytes": 3632,
+    "sha256": "1724967489f530ade1cd4156f9ccbd2dfa80389b8d3f528b4b220d3eefe90ddb"
+  },
+  "run_id": 39091792591,
+  "source_manifest_sha256": "ec9a759bbb5be161a0a77c2983e731c3b09e71b33688a2ecdf54abce9d1ba41b",
+  "source_sha": "37d9ffa166e0d7262ef8afab56baa0b3ea060b22",
+  "status": "ROOT_ACCEPTED_PUBLIC_PAIRS_APPS6_CURRENT604_COPIED_ROOT_NORMAL"
+}

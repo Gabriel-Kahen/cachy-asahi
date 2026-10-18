@@ -1,0 +1,279 @@
+{
+  "cleanup": "OWNED_COPY_DISPOSAL_AND_RETAINED_ORDERED_OUTER_CLEANUP",
+  "facts": {
+    "all_three_cases": true,
+    "cases": [
+      {
+        "after_sha256": "7bc6caa51301bf076aeda4d137277a128c53a16e5bfd25f02e7309c4b3a408c3",
+        "before_sha256": "3f64a13c4af7ab8b1598583f534af3347c8df2397a0afa33fb8b0f5f06b19cf5",
+        "case": "normal",
+        "checkpoint_changed": true,
+        "closed_public_bytes": 416287,
+        "closed_public_files": 7,
+        "collection": {
+          "artifacts.json": {
+            "bytes": 32,
+            "sha256": "244563f989470892c537c9a4622920af0d228ee4528f7d00c64a06d6cd95856c"
+          },
+          "collection.json": {
+            "bytes": 103,
+            "sha256": "7f43046adb6432ac27e344d602214bfa7edb399de8f69267bdba1d93036e996c"
+          },
+          "logs.zip": {
+            "bytes": 3334257,
+            "sha256": "622198cf1f040b1e7a085c6223300d1545fadf94c410fd4053506bb523a1cf2f"
+          },
+          "public-frame.tar.gz": {
+            "bytes": 101715,
+            "sha256": "ad74f087bb13f38c128d99cf2ff97c9badf973b50c247caa97eddc0a783c709b"
+          },
+          "run.json": {
+            "bytes": 13010,
+            "sha256": "d3c4c3fea80de612035f5dacde2abbc73a08a8c2ba4143778e76a5e19469f36f"
+          }
+        },
+        "commit_started": true,
+        "committed_transactions": 1,
+        "copy_disposal": "PASS-owned-workspace-removed",
+        "copy_nodes": 125358,
+        "decision_source": "c38375818f116bfc129a8db853d0c9cd2d360eb9",
+        "evidence_limits": "Private raw node/hash/ownership maps and86/87 fault witnesses remain unexported. Protected/user/no-change/independent-after claims are original frozen-source-enforced retained receipts, not a new raw-map readback. Retired resources are not live-reobserved; auxiliary process exit status remains NOT_OBSERVED.",
+        "hardware": "NOT_RUN",
+        "held_source": "de04c6b102890218da4f0b77e938315d601e824f",
+        "normal_checkpoint_directory_synced": true,
+        "outer_cleanup": "PASS_RETAINED_SOURCE_BOUND_RECEIPTS",
+        "package_count": 604,
+        "packages_committed": true,
+        "postcommit_libalpm_returncode_evidence": "NOT_APPLICABLE",
+        "protected_packages": 603,
+        "public_pair_evidence": {
+          "BUILDINFO_entries": [
+            575,
+            575
+          ],
+          "BUILDINFO_list_sha256": [
+            "080fac02800b8324e868ca07789e51275e7149e8acdcfe991a59338a90edac28",
+            "080fac02800b8324e868ca07789e51275e7149e8acdcfe991a59338a90edac28"
+          ],
+          "byte_case": {
+            "bytes": 1481,
+            "path": "payload/repair-bytes-root-decision.json",
+            "sha256": "f8e106a882b7fc9b553c8a399f6d9296d17d77f9aadbdcf46135b090f88b4157"
+          },
+          "expected_pacman_Q_sha256": "66c46d4645fa443d23df0e97765905555fe5bc2607787dca3f30ee2084cf597f",
+          "native_run": 39027622244,
+          "native_source": "c5481ad6bfd1539ab9a289bc9541133b979858f7",
+          "package_sha256": "1ce4a540a5ec2fa26353847b93fed953e084cf65e872836f670ac721446cd3d7",
+          "pair_decision": {
+            "bytes": 2017,
+            "path": "origins/39027622244/root-decision.json",
+            "sha256": "f904a28e6e02ce2685eaa438c4c3d6d43a119b0d5d85a6706db5864c2bbd1676"
+          },
+          "payload_leaves": 8,
+          "qualification": "NATIVE_PAIR_ONLY",
+          "raw_pacman_Q_lock": "NOT_PRESENT_NOT_FABRICATED",
+          "runtime_evidence": "PRIVATE_CONSTRUCTOR_FILE_NOT_EXPORTED_SOURCE_ENFORCED_HASH_SELECTED",
+          "scope": "PUBLIC_ROOT_PAIR_AUTHORITY_PROVENANCE_AND_COMPLETE_BUILDINFO_NOT_RAW_Q_LOCK_REPLAY"
+        },
+        "recovery": "OWNED_COPY_DISPOSAL_ONLY_NO_ROLLBACK_OR_BOOT_CLAIM",
+        "release": "NOT_ADMITTED",
+        "run_id": 39091792591,
+        "selected_package": "cachy-asahi-apps",
+        "selected_package_sha256": "1ce4a540a5ec2fa26353847b93fed953e084cf65e872836f670ac721446cd3d7",
+        "source_manifest_sha256": "ee217273e8632d46d08b6764b910dd306dcf7d58c5a004afff6b5eaa7459c345",
+        "source_preserved": true,
+        "source_sha": "37d9ffa166e0d7262ef8afab56baa0b3ea060b22",
+        "status": "VERIFIED_PUBLIC_PAIRS_APPS5_TO6_CURRENT604_UPDATER_CASE_NOT_ROOT_ACCEPTANCE"
+      },
+      {
+        "after_sha256": "7bc6caa51301bf076aeda4d137277a128c53a16e5bfd25f02e7309c4b3a408c3",
+        "before_sha256": "3f64a13c4af7ab8b1598583f534af3347c8df2397a0afa33fb8b0f5f06b19cf5",
+        "case": "precommit-exit86",
+        "checkpoint_changed": false,
+        "closed_public_bytes": 199009,
+        "closed_public_files": 7,
+        "collection": {
+          "artifacts.json": {
+            "bytes": 32,
+            "sha256": "244563f989470892c537c9a4622920af0d228ee4528f7d00c64a06d6cd95856c"
+          },
+          "collection.json": {
+            "bytes": 103,
+            "sha256": "26a911a4a6016bd90843606e75583575e9469db8e43f44b193d6260db84e81bd"
+          },
+          "logs.zip": {
+            "bytes": 3173715,
+            "sha256": "ab6401f43164e366b4762cf0b11197f88f491059c9f3774251fb1324e4780a1e"
+          },
+          "public-frame.tar.gz": {
+            "bytes": 30437,
+            "sha256": "d47ed8ed5b077acbb0020931dcabead14cde2c8f40b23b152acaebd600bc6b39"
+          },
+          "run.json": {
+            "bytes": 13010,
+            "sha256": "b531ab701a7499d8eb0cf3c31000c1ffd2f2314e183166aa9d610b107b7ed947"
+          }
+        },
+        "commit_started": false,
+        "committed_transactions": 0,
+        "copy_disposal": "PASS-owned-workspace-removed",
+        "copy_nodes": 125358,
+        "decision_source": "c38375818f116bfc129a8db853d0c9cd2d360eb9",
+        "evidence_limits": "Private raw node/hash/ownership maps and86/87 fault witnesses remain unexported. Protected/user/no-change/independent-after claims are original frozen-source-enforced retained receipts, not a new raw-map readback. Retired resources are not live-reobserved; auxiliary process exit status remains NOT_OBSERVED.",
+        "hardware": "NOT_RUN",
+        "held_source": "001f0484ab8b599ddc03a84e62fd81af315a2a03",
+        "normal_checkpoint_directory_synced": false,
+        "outer_cleanup": "PASS_RETAINED_SOURCE_BOUND_RECEIPTS",
+        "package_count": 604,
+        "packages_committed": false,
+        "postcommit_libalpm_returncode_evidence": "NOT_APPLICABLE",
+        "protected_packages": 603,
+        "public_pair_evidence": {
+          "BUILDINFO_entries": [
+            575,
+            575
+          ],
+          "BUILDINFO_list_sha256": [
+            "080fac02800b8324e868ca07789e51275e7149e8acdcfe991a59338a90edac28",
+            "080fac02800b8324e868ca07789e51275e7149e8acdcfe991a59338a90edac28"
+          ],
+          "byte_case": {
+            "bytes": 1481,
+            "path": "payload/repair-bytes-root-decision.json",
+            "sha256": "f8e106a882b7fc9b553c8a399f6d9296d17d77f9aadbdcf46135b090f88b4157"
+          },
+          "expected_pacman_Q_sha256": "66c46d4645fa443d23df0e97765905555fe5bc2607787dca3f30ee2084cf597f",
+          "native_run": 39027622244,
+          "native_source": "c5481ad6bfd1539ab9a289bc9541133b979858f7",
+          "package_sha256": "1ce4a540a5ec2fa26353847b93fed953e084cf65e872836f670ac721446cd3d7",
+          "pair_decision": {
+            "bytes": 2017,
+            "path": "origins/39027622244/root-decision.json",
+            "sha256": "f904a28e6e02ce2685eaa438c4c3d6d43a119b0d5d85a6706db5864c2bbd1676"
+          },
+          "payload_leaves": 8,
+          "qualification": "NATIVE_PAIR_ONLY",
+          "raw_pacman_Q_lock": "NOT_PRESENT_NOT_FABRICATED",
+          "runtime_evidence": "PRIVATE_CONSTRUCTOR_FILE_NOT_EXPORTED_SOURCE_ENFORCED_HASH_SELECTED",
+          "scope": "PUBLIC_ROOT_PAIR_AUTHORITY_PROVENANCE_AND_COMPLETE_BUILDINFO_NOT_RAW_Q_LOCK_REPLAY"
+        },
+        "recovery": "OWNED_COPY_DISPOSAL_ONLY_NO_ROLLBACK_OR_BOOT_CLAIM",
+        "release": "NOT_ADMITTED",
+        "run_id": 39091241107,
+        "selected_package": "cachy-asahi-apps",
+        "selected_package_sha256": "1ce4a540a5ec2fa26353847b93fed953e084cf65e872836f670ac721446cd3d7",
+        "source_manifest_sha256": "625793a157e9fbc06a0381025350d404528d1caaeda9387688b0556e9345d02b",
+        "source_preserved": true,
+        "source_sha": "37d9ffa166e0d7262ef8afab56baa0b3ea060b22",
+        "status": "VERIFIED_PUBLIC_PAIRS_APPS5_TO6_CURRENT604_UPDATER_CASE_NOT_ROOT_ACCEPTANCE"
+      },
+      {
+        "after_sha256": "7bc6caa51301bf076aeda4d137277a128c53a16e5bfd25f02e7309c4b3a408c3",
+        "before_sha256": "3f64a13c4af7ab8b1598583f534af3347c8df2397a0afa33fb8b0f5f06b19cf5",
+        "case": "postcommit-exit87",
+        "checkpoint_changed": false,
+        "closed_public_bytes": 210647,
+        "closed_public_files": 7,
+        "collection": {
+          "artifacts.json": {
+            "bytes": 32,
+            "sha256": "244563f989470892c537c9a4622920af0d228ee4528f7d00c64a06d6cd95856c"
+          },
+          "collection.json": {
+            "bytes": 103,
+            "sha256": "6b57406d37761fa3b3585037f420a435e8792750663f1ed5f9a51efb187c61d1"
+          },
+          "logs.zip": {
+            "bytes": 3178208,
+            "sha256": "4b1a7d20cc7a0bfa6193f9094efc8564d1cfd0cc18b5228d2870cb8f588270ac"
+          },
+          "public-frame.tar.gz": {
+            "bytes": 32655,
+            "sha256": "d70de2d044639acdb3922eb4c7a9669b57904c60ded154b8bda3306e77f6286c"
+          },
+          "run.json": {
+            "bytes": 13010,
+            "sha256": "eaeb94a5fa379e2d12abcca17fda6a9513848b498d14aa12ebf93bfb93f82aa3"
+          }
+        },
+        "commit_started": true,
+        "committed_transactions": 1,
+        "copy_disposal": "PASS-owned-workspace-removed",
+        "copy_nodes": 125358,
+        "decision_source": "c38375818f116bfc129a8db853d0c9cd2d360eb9",
+        "evidence_limits": "Private raw node/hash/ownership maps and86/87 fault witnesses remain unexported. Protected/user/no-change/independent-after claims are original frozen-source-enforced retained receipts, not a new raw-map readback. Retired resources are not live-reobserved; auxiliary process exit status remains NOT_OBSERVED.",
+        "hardware": "NOT_RUN",
+        "held_source": "4b803ba7daa0eacd978a5bf86d62346363c3b6dc",
+        "normal_checkpoint_directory_synced": false,
+        "outer_cleanup": "PASS_RETAINED_SOURCE_BOUND_RECEIPTS",
+        "package_count": 604,
+        "packages_committed": true,
+        "postcommit_libalpm_returncode_evidence": "ZERO_REQUIRED_BY_FROZEN_PRIVATE_WITNESS_NOT_EXPORTED",
+        "protected_packages": 603,
+        "public_pair_evidence": {
+          "BUILDINFO_entries": [
+            575,
+            575
+          ],
+          "BUILDINFO_list_sha256": [
+            "080fac02800b8324e868ca07789e51275e7149e8acdcfe991a59338a90edac28",
+            "080fac02800b8324e868ca07789e51275e7149e8acdcfe991a59338a90edac28"
+          ],
+          "byte_case": {
+            "bytes": 1481,
+            "path": "payload/repair-bytes-root-decision.json",
+            "sha256": "f8e106a882b7fc9b553c8a399f6d9296d17d77f9aadbdcf46135b090f88b4157"
+          },
+          "expected_pacman_Q_sha256": "66c46d4645fa443d23df0e97765905555fe5bc2607787dca3f30ee2084cf597f",
+          "native_run": 39027622244,
+          "native_source": "c5481ad6bfd1539ab9a289bc9541133b979858f7",
+          "package_sha256": "1ce4a540a5ec2fa26353847b93fed953e084cf65e872836f670ac721446cd3d7",
+          "pair_decision": {
+            "bytes": 2017,
+            "path": "origins/39027622244/root-decision.json",
+            "sha256": "f904a28e6e02ce2685eaa438c4c3d6d43a119b0d5d85a6706db5864c2bbd1676"
+          },
+          "payload_leaves": 8,
+          "qualification": "NATIVE_PAIR_ONLY",
+          "raw_pacman_Q_lock": "NOT_PRESENT_NOT_FABRICATED",
+          "runtime_evidence": "PRIVATE_CONSTRUCTOR_FILE_NOT_EXPORTED_SOURCE_ENFORCED_HASH_SELECTED",
+          "scope": "PUBLIC_ROOT_PAIR_AUTHORITY_PROVENANCE_AND_COMPLETE_BUILDINFO_NOT_RAW_Q_LOCK_REPLAY"
+        },
+        "recovery": "OWNED_COPY_DISPOSAL_ONLY_NO_ROLLBACK_OR_BOOT_CLAIM",
+        "release": "NOT_ADMITTED",
+        "run_id": 39091221521,
+        "selected_package": "cachy-asahi-apps",
+        "selected_package_sha256": "1ce4a540a5ec2fa26353847b93fed953e084cf65e872836f670ac721446cd3d7",
+        "source_manifest_sha256": "ef8c8261d45d48971871a15f98496eca1c2b96aae38720b1cabf04b180ced008",
+        "source_preserved": true,
+        "source_sha": "37d9ffa166e0d7262ef8afab56baa0b3ea060b22",
+        "status": "VERIFIED_PUBLIC_PAIRS_APPS5_TO6_CURRENT604_UPDATER_CASE_NOT_ROOT_ACCEPTANCE"
+      }
+    ],
+    "root_acceptance": "NOT_ISSUED",
+    "source_snapshot": {
+      "bytes": 164238,
+      "sha256": "5fb808d94876f7a6c915f2d79f0e8973ec66ce6fe0f35174d2659532488c90f9"
+    },
+    "status": "VERIFIED_PUBLIC_PAIRS_APPS5_TO6_CURRENT604_UPDATER_CASES_NOT_ROOT_ACCEPTANCE"
+  },
+  "generic16k": "NOT_RUN",
+  "hardware": "NOT_RUN",
+  "independent_strict_replay": "PASS_ALL_THREE_BYTE_EQUAL_COMPONENT_FACTS",
+  "normal": "ONE_COMMIT_SYNCED_CHECKPOINT",
+  "package_count": 604,
+  "pages": 4096,
+  "postcommit_exit87": "ONE_COMMIT_INDEPENDENT_AFTER604_CHECKPOINT_HELD",
+  "precommit_exit86": "ZERO_COMMITS_CHECKPOINT_HELD",
+  "preservation": "FROZEN_SOURCE_ENFORCED_PRIVATE_MAPS_UNEXPORTED",
+  "protected_packages": 603,
+  "recovery": "NO_BOOT_OR_INSTALLED_SYSTEM_ROLLBACK_CLAIM",
+  "release": "NOT_ADMITTED",
+  "runs": {
+    "normal": 39091792591,
+    "postcommit-exit87": 39091221521,
+    "precommit-exit86": 39091241107
+  },
+  "source": "37d9ffa166e0d7262ef8afab56baa0b3ea060b22",
+  "status": "ROOT_ACCEPTED_SAME_SOURCE_CURRENT604_UPDATER_THREE_CASE_MATRIX_RETAINED_SCOPE"
+}
