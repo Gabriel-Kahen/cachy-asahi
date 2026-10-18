@@ -27,7 +27,7 @@ def load(name,path):
  spec=importlib.util.spec_from_file_location(name,path);module=importlib.util.module_from_spec(spec);sys.modules[name]=module;spec.loader.exec_module(module);return module
 
 def source(root):
- value=json.loads((HERE/'source-pins.json').read_bytes());need(len(value['files'])==118,'finite current118 source closure')
+ value=json.loads((HERE/'source-pins.json').read_bytes());need(len(value['files'])==119,'finite current119 source closure')
  for name,row in value['files'].items():
   p=root/name;need(not any(x.is_symlink() for x in (p,*p.parents)) and p.is_file() and p.stat().st_nlink==1 and p.stat().st_size<=2*1024**2 and pin(p.read_bytes())==row,'exact current full-root/candidate helper differs: '+name)
  return value

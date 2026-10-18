@@ -35,7 +35,7 @@ def selection(policy,inputs):
  return policy['binding']
 def check_source(root):
  files=decode(read(HERE/'integration-manifest.json'))['files']
- need(type(files) is dict and len(files)==114,'finite original105 plus adapter5 plus CI4 source closure')
+ need(type(files) is dict and len(files)==115,'finite original106 plus adapter5 plus CI4 source closure')
  for name,row in files.items():need(pin(read(root/relative(name)))==row,'exact workflow source: '+name)
  return files
 def head(root):
@@ -65,8 +65,8 @@ def assemble(root,output,decision_roots,inputs,env,public):
  (lane/'source-manifest.json').write_bytes(encoded(manifest))
  contract=load('interrupted16k_contract',lane/'contract.py');decisions=contract.gate(prereqs);contract.check_source(output)
  closed=set(held['files'])|set(original['files'])|{'adaptation.json'}|{LANE+'/prerequisites/'+k+'.json' for k in KINDS}
- actual={p.relative_to(output).as_posix() for p in output.rglob('*') if p.is_file()};need(actual==closed and len(actual)==123,'closed105+15+adaptation+2 source bundle')
- receipt=dict(schema_version=1,status='BOUND_SOURCE_ONLY_NO_RUNTIME_CREDIT',source_sha=env['SOURCE_SHA'],source_files=105,derived_files=15,bundle_files=123,decisions=bound,decision_results={k:dict(status=v['status'],source_sha=v['source_sha'],run_id=v['run_id']) for k,v in decisions.items()},effective_input_policy=pin(read(lane/'input-policy.json')),effective_source_manifest=pin(read(lane/'source-manifest.json')),authority='PRIVATE_TEST_ONLY_NO_RELEASE_ADMISSION',hardware='NOT_RUN',runtime='NOT_RUN')
+ actual={p.relative_to(output).as_posix() for p in output.rglob('*') if p.is_file()};need(actual==closed and len(actual)==124,'closed106+15+adaptation+2 source bundle')
+ receipt=dict(schema_version=1,status='BOUND_SOURCE_ONLY_NO_RUNTIME_CREDIT',source_sha=env['SOURCE_SHA'],source_files=106,derived_files=15,bundle_files=124,decisions=bound,decision_results={k:dict(status=v['status'],source_sha=v['source_sha'],run_id=v['run_id']) for k,v in decisions.items()},effective_input_policy=pin(read(lane/'input-policy.json')),effective_source_manifest=pin(read(lane/'source-manifest.json')),authority='PRIVATE_TEST_ONLY_NO_RELEASE_ADMISSION',hardware='NOT_RUN',runtime='NOT_RUN')
  public.mkdir(mode=0o700)
  for name,raw in {'wiring.json':encoded(receipt),'adaptation.json':read(output/'adaptation.json'),'input-policy.json':read(lane/'input-policy.json'),'source-manifest.json':read(lane/'source-manifest.json'),**{k+'.json':raws[k] for k in KINDS}}.items():(public/name).write_bytes(raw)
  rows={p.name:pin(read(p,LIMIT)) for p in public.iterdir()};need(len(rows)==6 and sum(v['bytes'] for v in rows.values())<=512*1024,'six-file bounded public metadata only');(public/'retention.json').write_bytes(encoded(dict(schema_version=1,status='BOUNDED_WIRING_METADATA_ONLY',files=rows,bytes=sum(v['bytes'] for v in rows.values()))));return receipt

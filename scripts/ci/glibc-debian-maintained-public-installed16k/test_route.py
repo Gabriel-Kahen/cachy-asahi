@@ -12,7 +12,7 @@ class Controls(unittest.TestCase):
  def emitted(self):
   out=self.work/'emitted';r=P.derive(ROOT,COMPONENT,out);C=P.load('public_test_contract',out/P.LANE/'contract.py');return out,r,C
  def test_exact_source_roles_and_emission(self):
-  v=P.source(ROOT);self.assertEqual(len(v['implementation']),148);self.assertEqual(len(P.native(COMPONENT)),159);out,r,C=self.emitted();C.check_source(out);self.assertEqual(C.NATIVE,P.NATIVE)
+  v=P.source(ROOT);self.assertEqual(len(v['implementation']),149);self.assertEqual(len(P.native(COMPONENT)),159);out,r,C=self.emitted();C.check_source(out);self.assertEqual(C.NATIVE,P.NATIVE)
   self.assertEqual(r['ALPM_installation'],'NOT_RUN');self.assertEqual(r['original_derivation']['unchanged_native_bodies'],20)
  def test_default_refuses_before_output_or_git(self):
   with tempfile.TemporaryDirectory() as td:

@@ -9,8 +9,8 @@
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "manifests/packages.toml": {
-      "bytes": 38835,
-      "sha256": "66f77b4ba4a02657da92627738000f7a6f805de78fff8dd8682107039755b156"
+      "bytes": 41394,
+      "sha256": "19a8bdb45916e5dffef7a4c1496ebbc489792795ea2906a3d705a67e3906b880"
     },
     "packages/tools/cachy-asahi-apps/.SRCINFO": {
       "bytes": 1775,
@@ -322,7 +322,7 @@
     },
     "scripts/ci/apps-full574-repair-native/source-pins.json": {
       "bytes": 15477,
-      "sha256": "660a5b6678b98136ed3c3118c14ed7ac2d8067aad9eb0773067451b0a321494c"
+      "sha256": "3e5e34ba890c199ce122a9aead8cb8fc4709e6f4e6972508c978acac612f4610"
     },
     "scripts/ci/apps-full574-repair-native/supervise.py": {
       "bytes": 4401,
