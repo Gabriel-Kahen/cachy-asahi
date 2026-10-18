@@ -42,8 +42,10 @@ After genuine Root carrier binding:
 ```
 python3 -I -B scripts/ci/welcome5-native-gui/prepare.py --source SOURCE \
   --assets ASSETS --output FRESH_RUNNER --profile minimal
-python3 -I -B scripts/ci/welcome5-native-gui/run.py --source SOURCE \
-  --base OWNED_574_PRODUCER --assets ASSETS --output FRESH_RUNTIME --profile minimal
+python3 -I -B scripts/ci/welcome5-native-gui/job.py run --source SOURCE \
+  --profile minimal --proof OWNER_TEMP/welcome5-proof.json \
+  --base OWNER_TEMP/desktop574-minimal --runtime OWNER_TEMP/welcome5-runtime \
+  --assets OWNER_TEMP/welcome5-assets
 ```
 
 The emitted dedicated workflow and identical registered-name alias use the
@@ -109,3 +111,11 @@ Canonical main workflow is not changed. Closed emitted-tree validation permits
 only a top-level `.git` file/subtree in addition to declared files; every other
 unexpected entry is refused. Actual/public binding, clean-Git native preflight
 and both genuine profiles remain separate required work.
+
+The owner source proof binds the actual source and runtime absolute operands.
+Before its child starts, a create-once bounded `profile-invocation.json` joins
+exact outer run argv/profile/paths, complete source-proof bytes, source manifest
+and generated runner-proof. The original retainer requires and revalidates it.
+The receipt does not itself admit a workflow/run; passive verification must also
+join actual metadata and the exact source. Direct `run.py` CLI use is refused;
+use the proof-bound `job.py run` owner path shown above.

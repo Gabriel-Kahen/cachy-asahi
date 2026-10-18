@@ -6,13 +6,15 @@ from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 import candidates as C
 import prepare
+import invocation as I
 
-def execute(source,base,assets,out,selected):
+def execute(source,base,assets,out,selected,context=None):
     C.selection(source)
     C.need(selected in ('minimal','overlay')and platform.system()=='Linux'and platform.machine()=='aarch64'and os.getuid()==os.geteuid()>0 and
         not any(k.startswith('DOCKER_')for k in os.environ),'explicit profile/ordinary native ARM/local daemon required')
     for path in (source,base,assets,out):C.need(path.is_absolute()and not any(p.is_symlink()for p in (path,*path.parents)),'ordinary explicit path required')
     C.need(not out.exists()and not any(out.is_relative_to(p)or p.is_relative_to(out)for p in (source,base,assets)),'fresh disjoint output required')
+    C.need(type(context)is dict and set(context)=={'argv','proof','source_proof','source_manifest'}and context['proof'].get('profile')==selected and context['proof'].get('source_path')==str(source)and context['proof'].get('runtime_path')==str(out),'authenticated actual wrapper context required')
     original=C.read(base/'report.json');C.need(original.get('status')=='PASS_NATIVE_OFFLINE_574_TRANSACTION'and original.get('image')==(base/'image-id').read_text().strip(),'actual owned producer required')
     out.mkdir(mode=0o700);lease=os.open(out/'runtime.lock',os.O_CREAT|os.O_EXCL|os.O_RDWR|os.O_CLOEXEC,0o600);fcntl.flock(lease,fcntl.LOCK_EX|fcntl.LOCK_NB)
     common=C.load('held_GUI_bounded_process',source/'scripts/virtual/common.py')
@@ -21,6 +23,7 @@ def execute(source,base,assets,out,selected):
     previous={s:signal.signal(s,interrupted)for s in (signal.SIGTERM,signal.SIGINT)}
     try:
         runner=prepare.prepare(source,assets,out/'runner',selected)
+        I.write(out/'profile-invocation.json',context['argv'],context['proof'],context['source_proof'],context['source_manifest'],I.pin(runner/'runner-proof.json'))
         env=dict(PATH='/usr/bin:/bin',LANG='C.UTF-8',LC_ALL='C.UTF-8',TZ='UTC',HOME=str(out/'home'));(out/'home').mkdir(mode=0o700)
         started=True
         active=common.LoggedProcess([sys.executable,'-B',str(runner/'desktop574_runtime.py'),'--source',str(source),'--base-dir',str(base),'--output',str(out/'runtime')],out/'runtime-child.log',env=env,limit=16*1024**2)
@@ -57,4 +60,4 @@ if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     for n in ('source','base','assets','output'):p.add_argument('--'+n,type=Path,required=True)
     p.add_argument('--profile',required=True,choices=('minimal','overlay'))
-    a=p.parse_args();raise SystemExit(execute(a.source.absolute(),a.base.absolute(),a.assets.absolute(),a.output.absolute(),a.profile))
+    a=p.parse_args();p.error('invoke job.py run with the authenticated source proof; direct runtime invocation is unsupported')

@@ -40,8 +40,8 @@ jobs:
         timeout-minutes: 2
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '8288e0a11223dae4782b4d076e8ed4f8e5e139f42db06552feadfaa690af4f85' "$SLICE/job.py" '6c34d473e535da7dd79379acdb2c935a1ca54c1a6435688708b3ed4456963034' "$SLICE/source-manifest.json" | sha256sum --check
-          python3 -I -B "$SLICE/job.py" proof --source "$GITHUB_WORKSPACE" --profile "$PROFILE" --proof "$RUNNER_TEMP/welcome5-proof.json"
+          printf '%s  %s\n' '76039a763e72468118bf5a43a61342d385a42de8279f8bfc7e5dae3b5384a752' "$SLICE/job.py" '7bcbfb6ebd07cac379d9c55173da56276e6afe6ca3072fe0fbb51159948bfa8d' "$SLICE/source-manifest.json" | sha256sum --check
+          python3 -I -B "$SLICE/job.py" proof --source "$GITHUB_WORKSPACE" --profile "$PROFILE" --proof "$RUNNER_TEMP/welcome5-proof.json" --runtime "$RUNNER_TEMP/welcome5-runtime"
       - name: Checkout the already public original native helper inputs
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
