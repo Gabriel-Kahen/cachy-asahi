@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Actor-blocked finite controls; no native or signing success fixtures."""
+import stat
 import ast,copy,json,os,shutil,subprocess,sys,tempfile,unittest
 from pathlib import Path
 from types import SimpleNamespace
@@ -368,7 +369,7 @@ class PeerFocusControls(unittest.TestCase):
  def test_bounded_readback_both_generated_profiles_preserve_timeout_and_helpers(self):
   for selected in C.PROFILES:
    with tempfile.TemporaryDirectory()as tmp:
-    runner=Controls().generated(Path(tmp),selected);self.assertEqual((runner/'installed604.py').read_bytes(),A.readback_fresh_mount(A.readback_progress((ROOT/C.OLD/'installed604.py').read_bytes()),ROOT))
+    runner=Controls().generated(Path(tmp),selected);self.assertEqual((runner/'installed604.py').read_bytes(),A.readback_path_hotpath(A.readback_fresh_mount(A.readback_progress((ROOT/C.OLD/'installed604.py').read_bytes()),ROOT),ROOT))
     self.assertIn("'installed604-preserved',timeout=600",(runner/'base_guest.py').read_text())
     for name,path in (('alpm_reader.py','scripts/ci/full-root-upgrade/root_upgrade.py'),('file_capabilities.py','scripts/apps/file_capabilities.py')):self.assertEqual((runner/name).read_bytes(),(ROOT/path).read_bytes())
 
@@ -388,6 +389,45 @@ class ReadbackFreshMountControls(unittest.TestCase):
    fd=os.open(td,os.O_RDONLY|os.O_DIRECTORY)
    try:self.assertIsInstance(original._mount(fd,limit),int)
    finally:os.close(fd)
+
+
+class ReadbackPathHotpathControls(unittest.TestCase):
+ def helper(self):
+  raw=A.readback_fresh_mount(A.readback_progress((ROOT/C.OLD/'installed604.py').read_bytes()),ROOT);new=A.readback_path_hotpath(raw,ROOT);space={'__file__':str(ROOT/C.OLD/'installed604.py')};exec(compile(new,'<source-owned-path-helper>','exec'),space);return raw,new,space
+ def test_complete_walk_progress_caps_and_mount_query_byte_held(self):
+  raw,new,space=self.helper();funcs=lambda data:{n.name:ast.get_source_segment(data.decode(),n)for n in ast.parse(data).body if isinstance(n,(ast.FunctionDef,ast.ClassDef))};a,b=funcs(raw),funcs(new)
+  self.assertEqual(set(b)-set(a),{'_relative604','_directory604'})
+  for n in set(a)-{'load_db'}:self.assertEqual(a[n],b[n],n)
+  original=C.module('_hotpath_original_database','scripts/ci/full-root-upgrade/root_upgrade.py');selected=space['load_db'](ROOT/'scripts/ci/full-root-upgrade/root_upgrade.py')
+  self.assertEqual(original.identity.__code__.co_code,selected.identity.__code__.co_code)
+  self.assertEqual(original.read_record.__code__.co_code,selected.read_record.__code__.co_code)
+  self.assertEqual(original.database.__code__.co_code,selected.database.__code__.co_code)
+ def test_relative_grammar_matches_original_including_literal_backslash(self):
+  import itertools
+  raw,new,space=self.helper();original=C.module('_hotpath_relative_oracle','scripts/ci/full-root-upgrade/root_upgrade.py');selected=space['load_db'](ROOT/'scripts/ci/full-root-upgrade/root_upgrade.py')
+  def result(fn,name):
+   try:return ('return',fn(name))
+   except ValueError as e:return ('refuse',str(e))
+  values=['','/','.','..','a','a/','/a','a//b','a/./b','a/../b','a\\b','é','a\0b',None,1]
+  for parts in itertools.product(('a','','.','..','é','\\'),repeat=3):values.append('/'.join(parts))
+  for name in values:self.assertEqual(result(original.relative,name),result(selected.relative,name),repr(name))
+ def test_real_fresh_directory_alias_and_mount_refusals(self):
+  raw,new,space=self.helper();original=C.module('_hotpath_directory_oracle','scripts/ci/full-root-upgrade/root_upgrade.py');selected=space['load_db'](ROOT/'scripts/ci/full-root-upgrade/root_upgrade.py')
+  with tempfile.TemporaryDirectory()as td:
+   base=Path(td);root=base/'root';(root/'real').mkdir(parents=True);(root/'alias').symlink_to('real',target_is_directory=True);(base/'root-alias').symlink_to(root,target_is_directory=True)
+   for module in (original,selected):
+    with module.directory(root,'real')as fd:self.assertTrue(stat.S_ISDIR(os.fstat(fd).st_mode))
+    for path,name in ((root,'alias'),(base/'root-alias','real'),(root,'../other')):
+     with self.subTest(module=module.__name__,path=path,name=name),self.assertRaises((ValueError,OSError)):
+      with module.directory(path,name):pass
+    with self.assertRaisesRegex(ValueError,'mount crossing'):
+     with module.directory(Path('/'),'proc'):pass
+ def test_whole_helper_guards_fail_before_unpinned_import(self):
+  raw,new,space=self.helper()
+  with self.assertRaisesRegex(ValueError,'whole fresh-mount'):A.readback_path_hotpath(raw+b'\n',ROOT)
+  with tempfile.TemporaryDirectory()as td:
+   p=Path(td)/'untrusted.py';p.write_text("raise AssertionError('untrusted code must never execute')")
+   with self.assertRaisesRegex(ValueError,'whole original readback database'):space['load_db'](p)
 
 if __name__=='__main__':unittest.main(verbosity=2)
 
