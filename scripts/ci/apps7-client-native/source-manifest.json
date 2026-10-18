@@ -221,8 +221,8 @@
       "sha256": "089caafa94cc1b53f1c94c2d5f1570c13caba6fb71e3b89a871434a6ea58c28a"
     },
     "scripts/ci/apps7-client-native/adapter.py": {
-      "bytes": 10968,
-      "sha256": "0816dbc26d26d726fd68dd0f6b907a8e4388de87569a0df88d148b2e1bc43f60"
+      "bytes": 11027,
+      "sha256": "db5b3f9dfeb2047ea1d2400a0cd3cdd4b560e427978074897370bcdf124ec19a"
     },
     "scripts/ci/apps7-client-native/contract.py": {
       "bytes": 380,
@@ -277,8 +277,8 @@
       "sha256": "a682b64a5326fc7edf0d2347c37ae50805f9b7773c2683f1fbae1769c18fa023"
     },
     "scripts/ci/apps7-client-native/test_lane.py": {
-      "bytes": 6806,
-      "sha256": "863268007e555dcd989e696a95848e3b43e93f24d98ac397d5e66a9238fd03a2"
+      "bytes": 8324,
+      "sha256": "3543b5a41b31e637697143790c644fc33ee31a34ffb25f10bd7785adab5c9e19"
     },
     "scripts/ci/apps7-client-native/workflow.yml": {
       "bytes": 7222,
