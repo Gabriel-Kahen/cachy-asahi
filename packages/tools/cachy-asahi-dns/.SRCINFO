@@ -1,0 +1,25 @@
+pkgbase = cachy-asahi-dns
+	pkgdesc = Explicit per-connection NetworkManager DNS preview and prior-setting undo
+	pkgver = 0.1.0
+	pkgrel = 1
+	url = https://github.com/Gabriel-Kahen/cachy-asahi
+	arch = any
+	license = MIT
+	depends = python>=3.11
+	depends = networkmanager>=1.44
+	source = cachy-asahi-dns
+	source = test_dns.py
+	source = check_source.py
+	source = README.md
+	source = source-provenance.json
+	source = NOTICE
+	source = LICENSE
+	sha256sums = 86e91bee103876974c8296874c58ef9e1ea7b7e4b06c99928cda1d9f8cabca99
+	sha256sums = f11a175e757e65959c2ed7902f041efb6be0becb772b34207cdd7b626ab50543
+	sha256sums = 74fc9aa8dbba61cfaaca9cadba5f78ea080969bb2d9a58dc38f36dde35ddd7a1
+	sha256sums = c1e0c9d4ca17e48587ad0070388c0f2c05191ee2537d079a2cca84c199d0d3d0
+	sha256sums = 80fc23caeb1d6b87a6ca8407106359a951cc7f880442954fde7d86647dd706ad
+	sha256sums = 1ff77dc69e120adfacea23ac77a756ff5931b888c7535f0e2f2b928114a5873e
+	sha256sums = 51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7
+
+pkgname = cachy-asahi-dns
