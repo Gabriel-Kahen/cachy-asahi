@@ -579,6 +579,13 @@ native_build = "PASS Apps0.1.0-6 native pair39027622244:22876bytes/SHA2561ce4a54
 installation = "PASS native577 lifecycle and five signed synthetic repair transactions39029873349 with complete raw workers/plans and ordered cleanup; full574 damaged repair NOT_RUN"
 native_generic16k_cli = "NOT_RUN Apps6; prior data-staged Apps5 result does not transfer"
 
+# Separately selectable upgrade recipe; historical Apps6 evidence above is retained.
+development_variant_version = "0.1.0-7"
+development_variant_recipe = "packages/tools/cachy-asahi-apps7/PKGBUILD"
+development_variant_host_validation = "PASS45 product tests,15 large-inventory/metadata controls and signed staged CLI; order-preserving parser sets; original Apps6 and30 consumers unchanged"
+development_variant_native_build = "NOT RUN"
+development_variant_installation = "NOT RUN ALPM; package() staging only"
+
 
 [[packages]]
 name = "cachy-asahi-repository-runtime"

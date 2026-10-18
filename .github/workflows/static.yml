@@ -54,6 +54,10 @@ jobs:
                   subprocess.run([sys.executable, '-B', '-c', runner, directory], env=env, check=True)
           PY
           bash -n scripts/build/container-entry.sh
+      - name: Check explicit Apps7 inventory parser candidate
+        run: |
+          python3 -I -B packages/tools/cachy-asahi-apps7/check_source.py --repository-source "$PWD" --recipe-root packages/tools/cachy-asahi-apps7
+          python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-apps7/test_apps.py --repository-source "$PWD" --app-recipe-root packages/tools/cachy-asahi-apps7 --runtime-recipe-root packages/tools/cachy-asahi-repository-runtime -v
       - name: Check opt-in installed repository client v2
         run: |
           python3 -I -B packages/tools/cachy-asahi-repository-client-v2/check_source.py --recipe-root packages/tools/cachy-asahi-repository-client-v2
