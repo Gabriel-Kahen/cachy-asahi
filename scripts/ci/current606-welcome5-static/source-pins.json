@@ -2,8 +2,8 @@
   "carrier": "48acfa97e9852e783a3365ac10d24c3b28b84fd8",
   "files": {
     ".github/workflows/native-arm-current606-welcome5-owned-copy.yml": {
-      "bytes": 29883,
-      "sha256": "5d5c7c3cddc0509fbcf0eb9581dac2b43633a365a376488e0b278158a992b32f"
+      "bytes": 29893,
+      "sha256": "b738f78a57a29ba809f44891503850bdd68aa3cacf662240a846679ba3c5537c"
     },
     "scripts/ci/current606-welcome5-closed-owner/README.md": {
       "bytes": 3839,
@@ -22,12 +22,12 @@
       "sha256": "99fda8dd43aaaf88e210e5ea5c89b10c10624e2fbfdde3e6126f762253f5cf96"
     },
     "scripts/ci/current606-welcome5-closed-owner/owner.py": {
-      "bytes": 13331,
-      "sha256": "5a03a9584ae0fc657f79f4d42929178bd6a578d14524b229d828ed9516386e0b"
+      "bytes": 20803,
+      "sha256": "37202da4439ca157cc2e4f7173eda3a2eaee04e54be91169fba6ff156b7b9646"
     },
     "scripts/ci/current606-welcome5-closed-owner/prepare.py": {
-      "bytes": 4239,
-      "sha256": "8a0ff10a9d1f777353d506b0a62a75df0affd7c92320fccbaa3aa7c3766c1e2a"
+      "bytes": 4513,
+      "sha256": "ed2bc12c52c95ded0ba8c94cbfdcaf4636961474b6854d36d71144f089e40aa3"
     },
     "scripts/ci/current606-welcome5-closed-owner/runtime.py": {
       "bytes": 14369,
@@ -39,23 +39,23 @@
     },
     "scripts/ci/current606-welcome5-closed-owner/source-manifest.json": {
       "bytes": 77235,
-      "sha256": "2e4ed55d283651f6cbe815bf9c4752397184aec949906b8edcde1a111db507d8"
+      "sha256": "5dd6c1a2e807c919562528d955cf0e3b1b611003e69c4ce8386bb3ae32705bf1"
     },
     "scripts/ci/current606-welcome5-closed-owner/source-pins.json": {
       "bytes": 74959,
       "sha256": "7cce4201c085e3127dc5ef46bdf3d7e9763a7d50673730ed477413764ccd4cbf"
     },
     "scripts/ci/current606-welcome5-closed-owner/test_owner.py": {
-      "bytes": 15214,
-      "sha256": "b9c5ef406aea3726969d0e8151b84d6405877a4fb115340f866e9779f2416d8b"
+      "bytes": 27797,
+      "sha256": "6fee7bf9410c773b4616ed881be6d0c1a49beb3e5c03444363953bd5cf8d5092"
     },
     "scripts/ci/current606-welcome5-closed-owner/test_runtime.py": {
       "bytes": 14935,
       "sha256": "866fb8fc3c6ac39d89b4a732c6e86e6c5bb8f7f35fb1cfc945ed422485e216aa"
     },
     "scripts/ci/current606-welcome5-closed-owner/test_selection.py": {
-      "bytes": 1226,
-      "sha256": "315bcecb1cadcb4a0bbec5eced23fc0c76c1b1d5efdbd5ad0adb29116b56e08e"
+      "bytes": 1248,
+      "sha256": "fa3a04ef6e12e463a9b6c3c3f7ce39558b4048d799757e6a093cd9299571331e"
     }
   },
   "purpose": "SOURCE_CARRIER_ONLY_NOT_NATIVE_AUTHORITY",
