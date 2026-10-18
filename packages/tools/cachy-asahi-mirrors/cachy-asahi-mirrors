@@ -6,6 +6,7 @@ import base64
 import contextlib
 import fcntl
 import hashlib
+import http.client
 import json
 import os
 from pathlib import Path
@@ -119,7 +120,7 @@ def probe(row, config, opener, deadline):
             need(count == expected['bytes'] and digest.hexdigest() == expected['sha256'],
                  'database does not match selected snapshot')
         result.update(status='PASS_EXACT_SNAPSHOT', bytes=count, sha256=digest.hexdigest())
-    except (MirrorError, OSError, urllib.error.URLError) as error:
+    except (MirrorError, OSError, urllib.error.URLError, http.client.HTTPException) as error:
         result['reason'] = str(error)[:200]
     result['elapsed_seconds'] = round(time.monotonic() - started, 6)
     return result
