@@ -172,4 +172,38 @@ class PureDatabaseChecks(unittest.TestCase):
  def test_all_current_filesystem_scan_and_30s_collect_bodies_byte_held(self):
   scope,raw,before,after=self.modules();current=raw.decode().replace(scope.BEFORE,scope.AFTER);a=A.functions(current.encode());b=A.functions(scope.derive(raw));self.assertEqual([n for n in a if a[n]!=b[n]],['sections','relative']);self.assertEqual(scope.restore(scope.derive(raw)),raw);self.assertIn('deadline=time.monotonic()+30',scope.derive(raw).decode());self.assertIn('first=scan(dbpath,c,normalize,deadline);second=scan(dbpath,c,normalize,deadline)',scope.derive(raw).decode())
 
+class IndependentPackagePaths(unittest.TestCase):
+ def setup_package(self):
+  import types
+  s=types.ModuleType('_package_paths');exec(A.INVENTORY_OBSERVER,s.__dict__)
+  p=ROOT/'packages/tools/cachy-asahi-apps7/apps.py';raw=C.read(p);app=types.ModuleType('_whole_apps_package');app.__file__=str(p);exec(compile(raw,str(p),'exec'),app.__dict__)
+  before=app.package;client,release,_=app.helpers(ROOT);s.bind_package(app);return s,raw,before,app.package,release
+ def test_exhaustive_component_and_error_equivalence(self):
+  import itertools
+  s,raw,before,after,r=self.setup_package()
+  def outcome(fn,path):
+   row=dict(name='probe',version='1-1',arch='aarch64',files=[path],depend=[],provides=[],conflict=[],replaces=[])
+   try:return ('PASS',fn(row,r))
+   except Exception as e:return(type(e).__name__,str(e))
+  parts=('','a','.','..','b','ü','a\\b','x\x00y','x\ny')
+  paths=['/'.join(v)for length in range(1,5)for v in itertools.product(parts,repeat=length)]
+  paths+=['pre'+chr(i)+'post'for i in range(256)]+['a'*512,'a'*513,'//host/a','a/',1,None]
+  for path in paths:self.assertEqual(outcome(before,path),outcome(after,path),repr(path))
+ def test_whole_source_inverse_and_all_other_package_predicates(self):
+  s,raw,before,after,r=self.setup_package();derived=raw.decode().replace(s.PACKAGE_BEFORE,s.PACKAGE_AFTER)
+  self.assertEqual(derived.replace(s.PACKAGE_AFTER,s.PACKAGE_BEFORE).encode(),raw)
+  with self.assertRaisesRegex(ValueError,'whole selected Apps7'):s.package_source(raw+b'\n')
+  base=dict(name='probe',version='1-1',arch='aarch64',files=['usr/share/a'],depend=[],provides=[],conflict=[],replaces=[])
+  def outcome(fn,row):
+   try:return ('PASS',fn(row,r))
+   except Exception as e:return(type(e).__name__,str(e))
+  variants=[{},dict(base),dict(base,files=['a','a']),dict(base,files=['a/../b']),dict(base,depend=['x86_64-only']),dict(base,provides=['foreign-x86=1']),dict(base,repository='lib32-bad'),dict(base,sha256='bad'),dict(base,arch='x86_64'),dict(base,version='bad/1')]
+  for row in variants:self.assertEqual(outcome(before,row),outcome(after,row))
+ def test_current_inventory_scans_and_deadline_whole_held(self):
+  import types
+  s,raw,before,after,r=self.setup_package();original=C.read(ROOT/'packages/tools/cachy-asahi-apps7/inventory.py');derived=s.derive(original)
+  self.assertEqual(C.sha(derived),'60b4e5be36b727bdcd514667d5808903759e8f673f5e09d05e442d8ddf0610cf')
+  self.assertIn(b'first=scan(dbpath,c,normalize,deadline);second=scan(dbpath,c,normalize,deadline)',derived)
+  self.assertIn(b'deadline=time.monotonic()+30',derived)
+
 if __name__=='__main__':unittest.main()
