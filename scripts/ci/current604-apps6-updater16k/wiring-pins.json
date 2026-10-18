@@ -1,0 +1,35 @@
+{
+  "base": "7aff5012e33478e9bba46502a45725af661310f9",
+  "files": {
+    ".github/workflows/native-arm-current604-apps6-generic16k.yml": {
+      "bytes": 36574,
+      "sha256": "05e7b5ce18003c810223453bb31abb8224ff3a0ac1ba20160063f9efd6fd9e3f"
+    },
+    ".github/workflows/native-arm-expanded604-apps6-updater.yml": {
+      "bytes": 32227,
+      "sha256": "1b6fb05b2d2f640cb96d44da1c7e0d1a086ffb94288b061bf073b1db4d2444ff"
+    },
+    "scripts/ci/log_evidence.py": {
+      "bytes": 1708,
+      "sha256": "a25f0089759c12afae3eea23bab8b22fa05cf5bbaa9eddc1611ce78b0405f8f5"
+    },
+    "scripts/ci/tools-generic16k/acquire_kernel.py": {
+      "bytes": 8844,
+      "sha256": "4a372e1f4bfbd1f8604579873fc6fbdec91ac2555bb36f028646017b44b8c23f"
+    },
+    "scripts/ci/tools-generic16k/retained_kernel.py": {
+      "bytes": 5444,
+      "sha256": "bddb14537790a484d770215e55cc2c59de50c764d15e4d677f6fbcaab84cd735"
+    },
+    "scripts/virtual/generic16k/fetch_inputs.py": {
+      "bytes": 7768,
+      "sha256": "212a0a9efc7c386158526ce40683a3646a899a9c7fd2c3140d6e24a02d778043"
+    },
+    "scripts/virtual/generic16k/inputs.json": {
+      "bytes": 1057,
+      "sha256": "bdfa44ed1d017c0d0e15c1f3af87bdf4a91923c20e812c861ca522d2cf428492"
+    }
+  },
+  "git_reobserved": false,
+  "schema_version": 1
+}
