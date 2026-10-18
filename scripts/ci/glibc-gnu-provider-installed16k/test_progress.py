@@ -36,7 +36,7 @@ class Controls(unittest.TestCase):
    root=Path(td);path=root/'progress.log';# Outer-boundary unit fixture uses inert facades; exact capability/snapshot bodies
    # and refusal/return behavior have real small-tree controls in test_snapshot_progress.py.
    outer=types.SimpleNamespace(Journal=S.Journal,validate=S.validate,snapshot=lambda module,record:module.snapshot,capability_facade=lambda module,record:module)
-   space=scope(('progress_value','install_progress'),PROGRESS=path,S=outer);c=space['C'];original_return=object();calls=[]
+   space=scope(('progress_value','install_progress'),PROGRESS=path,S=outer,O=types.SimpleNamespace(facade=lambda module,record:module));c=space['C'];original_return=object();calls=[]
    def observe(*a,**k):
     for n in range(10000):str(n)
     calls.append(('observe',a,k));return original_return

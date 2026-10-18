@@ -8,14 +8,14 @@ OLD='scripts/ci/glibc-gnu-provider-installed16k'
 NEW='scripts/ci/glibc-debian-maintained-installed16k'
 MAINTAINED='scripts/ci/glibc-debian-maintained-lifecycle'
 NATIVE='scripts/ci/glibc-debian-maintained-provider-lifecycle'
-MODULES=('contract.py','adapter.py','prepare.py','guest.py','run.py','export.py','sandbox.py','scrub.py','support.py','snapshot_progress.py')
+MODULES=('contract.py','adapter.py','prepare.py','guest.py','run.py','export.py','sandbox.py','scrub.py','support.py','snapshot_progress.py','observer_progress.py')
 RULES={
  'contract.py':[(OLD,NEW,1),("NATIVE='scripts/ci/glibc-gnu-provider-lifecycle'","NATIVE='"+NATIVE+"'",1),('org.cachy-asahi.gnu-installed16k','org.cachy-asahi.debian-maintained-installed16k',1),('_installed16k_','_debian_maintained_installed16k_',1),('PASS_GENERIC16K_ALPM_PROVIDER_NORMAL_LIFECYCLE_AND_RECOVERY','PASS_DEBIAN_MAINTAINED_GENERIC16K_ALPM_PROVIDER_NORMAL_LIFECYCLE_AND_RECOVERY',1)],
  'adapter.py':[('caa_gnu_installed16k=1','caa_debian_maintained_installed16k=1',1)],
  'prepare.py':[('/installed16k','/debian-maintained-installed16k',2),("'installed16k'","'debian-maintained-installed16k'",2),("'installed16k/","'debian-maintained-installed16k/",3),('init-installed16k','init-debian-maintained-installed16k',2),('CAA_INSTALLED16K_PREPARE','CAA_DEBIAN_MAINTAINED_INSTALLED16K_PREPARE',1),('GNU16K_','C3ALPM16K_',1),('b852e3fc647d63699c5f42003a748cbd2268991dc2615a494dc3cdda4d757d12','a8e9f3e1d8ffe049fdc834f62e74c14ff622b98898c2f849e1580ab8aa0fdbd9',1)],
  'guest.py':[('/installed16k','/debian-maintained-installed16k',7),('caa_gnu_installed16k=1','caa_debian_maintained_installed16k=1',1),('GNU_INSTALLED16K','DEBIAN_MAINTAINED_INSTALLED16K',4)],
  'run.py':[('/installed16k','/debian-maintained-installed16k',2),('init-installed16k','init-debian-maintained-installed16k',1),('caa_gnu_installed16k=1','caa_debian_maintained_installed16k=1',1),('GNU_INSTALLED16K','DEBIAN_MAINTAINED_INSTALLED16K',2),('CAA_INSTALLED16K_PREPARE','CAA_DEBIAN_MAINTAINED_INSTALLED16K_PREPARE',1),('caa-gnu-installed16k-','caa-debian-maintained-installed16k-',1)],
- 'export.py':[('CAA_INSTALLED16K_PREPARE','CAA_DEBIAN_MAINTAINED_INSTALLED16K_PREPARE',1)],'snapshot_progress.py':[], 'sandbox.py':[],'scrub.py':[('CAA_INSTALLED16K_PREPARE','CAA_DEBIAN_MAINTAINED_INSTALLED16K_PREPARE',1)],'support.py':[]}
+ 'export.py':[('CAA_INSTALLED16K_PREPARE','CAA_DEBIAN_MAINTAINED_INSTALLED16K_PREPARE',1)],'snapshot_progress.py':[], 'observer_progress.py':[], 'sandbox.py':[],'scrub.py':[('CAA_INSTALLED16K_PREPARE','CAA_DEBIAN_MAINTAINED_INSTALLED16K_PREPARE',1)],'support.py':[]}
 GATE="""def gate(acceptances):
     return load('maintained_installed_phase_gate',HERE/'phase_gate.py').validate(sys.modules[__name__],acceptances)
 """
@@ -27,7 +27,7 @@ def load(name,path):
  spec=importlib.util.spec_from_file_location(name,path);module=importlib.util.module_from_spec(spec);sys.modules[name]=module;spec.loader.exec_module(module);return module
 
 def source(root):
- value=json.loads((HERE/'source-pins.json').read_bytes());need(len(value['files'])==116,'finite current114 source closure')
+ value=json.loads((HERE/'source-pins.json').read_bytes());need(len(value['files'])==118,'finite current118 source closure')
  for name,row in value['files'].items():
   p=root/name;need(not any(x.is_symlink() for x in (p,*p.parents)) and p.is_file() and p.stat().st_nlink==1 and p.stat().st_size<=2*1024**2 and pin(p.read_bytes())==row,'exact current full-root/candidate helper differs: '+name)
  return value

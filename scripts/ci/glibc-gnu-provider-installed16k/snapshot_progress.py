@@ -14,7 +14,7 @@ class Journal:
  def __init__(self,selection):self.selection=selection;self.rows=[];self.sequence=0
  def push(self,stage,edge,context,metrics=None):
   self.sequence+=1
-  row=dict(sequence=self.sequence,stage=stage,edge=edge,**context,**({} if metrics is None else {'postwalk':metrics}))
+  row=dict(sequence=self.sequence,stage=stage,edge=edge,**context,**({} if metrics is None else {('observer' if stage=='observer' else 'postwalk'):metrics}))
   if edge=='sample' and self.rows and self.rows[-1]['edge']=='sample' and all(self.rows[-1][k]==row[k] for k in ('stage','case','phase')):self.rows.pop()
   self.rows.append(row)
   while True:
