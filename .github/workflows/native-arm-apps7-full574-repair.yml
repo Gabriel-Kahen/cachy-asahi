@@ -26,7 +26,7 @@ jobs:
   native:
     if: github.repository == 'Gabriel-Kahen/cachy-asahi'
     runs-on: ubuntu-24.04-arm
-    timeout-minutes: 120
+    timeout-minutes: 142
     defaults:
       run:
         shell: bash
@@ -125,9 +125,9 @@ jobs:
           --output "$RUNNER_TEMP/desktop574" --job-token "$JOB_TOKEN"
       - name: Actual native574 Apps copied-root transactions
         id: repair_trial
-        timeout-minutes: 60
+        timeout-minutes: 82
         run: >-
-          timeout --signal=TERM --kill-after=30s 3550s
+          timeout --signal=TERM --kill-after=30s 4870s
           python3 -I -B "$SLICE/supervise.py" run --handoff "$RUNNER_TEMP/apps574-repair-job.json" --case "$REPAIR_CASE" --source "$GITHUB_WORKSPACE"
           --packet "$GITHUB_WORKSPACE/retained-apps574-inputs/payload"
           --proof "$RUNNER_TEMP/apps574-source-proof.json" --base "$RUNNER_TEMP/desktop574"
