@@ -162,4 +162,49 @@ class Controls(unittest.TestCase):
         self.assertEqual(R.protocol(progress+self.uart(self.events()),self.selection())['status'],C.PASS)
         with self.assertRaises(ValueError):R.protocol(progress,self.selection())
 
+
+class BootSources(unittest.TestCase):
+    query='scripts/ci/expanded600-installer-vm/observer600.py'
+    @classmethod
+    def setUpClass(cls):
+        cls.repo=next(p for p in C.HERE.parents if (p/'manifests/packages.toml').is_file())
+        cls.native=C.decode(C.read(cls.repo/C.NATIVE/'dependencies.json'))['files']
+        cls.query_pin=C.decode(C.read(C.HERE/'dependencies.json'))['files'][cls.query]
+    def test_native_only_copy_reproduces_missing_query_and_corrected_copy_is_complete(self):
+        with tempfile.TemporaryDirectory()as td:
+            old=Path(td)/'old';old.mkdir()
+            for name,row in self.native.items():
+                p=old/name;p.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(C.ref(self.repo,dict(path=name,**row)),p)
+            with self.assertRaises(FileNotFoundError):C.ref(old,dict(path=self.query,**self.query_pin))
+            new=Path(td)/'new';new.mkdir();prepare.copy_guest_sources(self.repo,new,self.native)
+            actual={p.relative_to(new).as_posix():C.row(p)for p in new.rglob('*')if p.is_file()}
+            self.assertEqual(actual,self.native|{self.query:self.query_pin})
+            C.ref(new,dict(path=self.query,**self.query_pin))
+            # Import the genuinely staged helper, then make a real fresh query.
+            helper=C.load('staged_observer_query',new/self.query)
+            import os,types
+            def original(fd,limits):
+                limits.tick()
+                return int(next(v.split(':',1)[1]for v in Path('/proc/self/fdinfo/'+str(fd)).read_text().splitlines()if v.startswith('mnt_id:')))
+            fd=os.open(td,os.O_RDONLY|os.O_DIRECTORY)
+            try:self.assertEqual(helper._mount600(original)(fd,types.SimpleNamespace(tick=lambda:None)),original(fd,types.SimpleNamespace(tick=lambda:None)))
+            finally:os.close(fd)
+    def test_missing_or_tampered_lane_query_refuses_before_copy(self):
+        with tempfile.TemporaryDirectory()as td:
+            source=Path(td)/'source';source.mkdir();out=Path(td)/'out';out.mkdir()
+            with self.assertRaises(FileNotFoundError):prepare.copy_guest_sources(source,out,self.native)
+            self.assertEqual(list(out.iterdir()),[])
+            q=source/self.query;q.parent.mkdir(parents=True);q.write_bytes(C.read(self.repo/self.query)+b' ')
+            with self.assertRaisesRegex(ValueError,'pinned file differs'):prepare.copy_guest_sources(source,out,self.native)
+            self.assertEqual(list(out.iterdir()),[])
+    def test_query_role_collision_refuses(self):
+        with tempfile.TemporaryDirectory()as td:
+            with self.assertRaisesRegex(ValueError,'source overlap'):prepare.copy_guest_sources(self.repo,Path(td),self.native|{self.query:self.query_pin})
+            self.assertEqual(list(Path(td).iterdir()),[])
+    def test_preoccupied_guest_leaf_never_overwritten(self):
+        with tempfile.TemporaryDirectory()as td:
+            q=Path(td)/self.query;q.parent.mkdir(parents=True);q.write_bytes(b'owned sentinel')
+            with self.assertRaisesRegex(ValueError,'fresh guest source leaf'):prepare.copy_guest_sources(self.repo,Path(td),self.native)
+            self.assertEqual(q.read_bytes(),b'owned sentinel')
+
 if __name__=='__main__':unittest.main()

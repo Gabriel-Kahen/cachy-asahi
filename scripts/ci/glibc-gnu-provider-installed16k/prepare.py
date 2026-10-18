@@ -47,6 +47,19 @@ def copy_tree(source,target):
     target.mkdir(mode=0o700)
     command(['/usr/bin/cp','-a','--reflink=never','--',str(source)+'/.',target])
 
+def copy_guest_sources(source,target,native_dependencies):
+    # The guest hook has one lane-only dependency outside the native runner's
+    # historical dependency map. Keep both roles pinned; never shadow a row.
+    query='scripts/ci/expanded600-installer-vm/observer600.py'
+    C.need(query not in native_dependencies,'lane-only observer query source overlap')
+    pin=C.decode(C.read(C.HERE/'dependencies.json'))['files'][query]
+    C.ref(source,dict(path=query,**pin))
+    for name,row in (*native_dependencies.items(),(query,pin)):
+        origin=C.ref(source,dict(path=name,**row));destination=target/name
+        C.need(not destination.exists() and not destination.is_symlink(),'fresh guest source leaf required')
+        destination.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(origin,destination)
+    C.ref(target,dict(path=query,**pin))
+
 def prepare():
     C.need(os.getuid()==os.geteuid()==0 and os.uname().machine=='aarch64' and Path('/.dockerenv').is_file() and os.environ.get('CAA_INSTALLED16K_PREPARE')=='1','owned native preparation container only')
     C.need({p.name for p in Path('/sys/class/net').iterdir()}=={'lo'},'offline preparation required')
@@ -68,8 +81,7 @@ def prepare():
     for n in ('work','out'):(volume/n).mkdir(mode=0o700)
     for n in ('volume','held','work','out','source','inputs','runner','installed16k'):
         C.need(not (boot/n).exists() and not (boot/n).is_symlink(),'reserved boot namespace occupied: '+n);(boot/n).mkdir(mode=0o755)
-    for name,pin in C.decode(C.read(Path('/runner/dependencies.json')))['files'].items():
-        source=C.ref(Path('/source'),dict(path=name,**pin));target=boot/'source'/name;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source,target)
+    copy_guest_sources(Path('/source'),boot/'source',C.decode(C.read(Path('/runner/dependencies.json')))['files'])
     # The exact original copy-scope helper finds its source root through this marker.
     marker=boot/'source/manifests/packages.toml';marker.parent.mkdir(parents=True);shutil.copyfile('/source/manifests/packages.toml',marker)
     for folder in ('inputs','runner'):
