@@ -14,8 +14,8 @@
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "manifests/packages.toml": {
-      "bytes": 37484,
-      "sha256": "f530955f736b9c6924f157a733ea988b687186b86f9c51d120cb6deb107aa694"
+      "bytes": 38835,
+      "sha256": "66f77b4ba4a02657da92627738000f7a6f805de78fff8dd8682107039755b156"
     },
     "packages/tools/cachy-asahi-apps/.SRCINFO": {
       "bytes": 1775,
@@ -251,7 +251,7 @@
     },
     "scripts/ci/apps-full574-native/source-manifest.json": {
       "bytes": 14748,
-      "sha256": "5c9447d1b1a73bcefa061a624701af0236d98c575d2ff0e8a2c3ddd91c34aec2"
+      "sha256": "6d61055750956461f1ca7df90313ba8956fdb3a26a6df55d123a7bdefa9e3cbd"
     },
     "scripts/ci/apps-full574-native/test_copy_scope.py": {
       "bytes": 2286,
@@ -383,11 +383,11 @@
     },
     "scripts/ci/orphans-full574-native/source-manifest.json": {
       "bytes": 19930,
-      "sha256": "240867c6b038d7696c10daf1efcf4069617bafc6d0283678c50c25d2145c3728"
+      "sha256": "556b89d2e6c44999dbed8b8f9fe9a4a95a9ac05fa638f1bba85ee8336772cf46"
     },
     "scripts/ci/orphans-full574-native/source-pins.json": {
       "bytes": 15441,
-      "sha256": "1307ca42688c324579306ca555eec111fed2d815e95b1577aa335a1a0b414618"
+      "sha256": "816b17fd100dbe28113de4315091f1c8c51e32ffd109c77537de36dab08230e1"
     },
     "scripts/ci/orphans-full574-native/stage_source.py": {
       "bytes": 3736,
