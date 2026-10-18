@@ -108,4 +108,41 @@ class Controls(unittest.TestCase):
    p=root/'scripts/setup/setup.py';p.write_bytes(p.read_bytes()+b'\n')
    with self.assertRaisesRegex(ValueError,'provenance'):P.setup_recipe(root)
 
+ def test_real_client_fresh_window_crosses_original_expiry_without_relaxing_guard(self):
+  from datetime import datetime,timezone,timedelta
+  client=load('fresh_metadata_real_client',self.output/'scripts/client/client.py')
+  now=datetime(2026,10,18,0,5,26,tzinfo=timezone.utc)
+  class Clock(datetime):
+   @classmethod
+   def now(cls,tz):return now
+  args=SimpleNamespace(issued_utc='2026-10-16T00:00:00Z',expires_utc='2026-10-18T00:00:00Z')
+  for case,code in self.codes.items():
+   M=load('fresh_constructor_'+case,code/'scripts/ci/full-root-upgrade/construct_repository.py')
+   with patch.object(client,'datetime',Clock):issued,expires=M.fresh_test_metadata_window(SimpleNamespace(client=client),args)
+   self.assertEqual(issued,'2026-10-18T00:05:26Z');self.assertEqual(expires,'2026-10-20T00:05:26Z')
+   value=dict(schema_version=1,type=client.TYPE,scope=client.SCOPE,namespace='cachy-asahi-test-window',sequence=1,signer='A'*40,synthetic=False,release_id='inert-clock-control',repo_name='inert',targets={},issued_utc=args.issued_utc,expires_utc=args.expires_utc)
+   with self.assertRaisesRegex(client.Error,'expired or issued in the future'):client.validate_envelope(value,now)
+   value.update(issued_utc=issued,expires_utc=expires);client.validate_envelope(value,now)
+   for observed in (now-timedelta(seconds=1),now+timedelta(seconds=172800)):
+    with self.assertRaisesRegex(client.Error,'expired or issued in the future'):client.validate_envelope(value,observed)
+ def test_exact_fixture_lifetime_constructor_and_signature_refusals_remain(self):
+  client=load('fresh_metadata_refusal_client',self.output/'scripts/client/client.py');api=SimpleNamespace(client=client)
+  for case,code in self.codes.items():
+   M=load('fresh_refusal_constructor_'+case,code/'scripts/ci/full-root-upgrade/construct_repository.py')
+   for issued,expires in (('2026-10-16T00:00:00Z','2026-10-19T00:00:00Z'),('2026-10-17T00:00:00Z','2026-10-19T00:00:00Z'),('bad','2026-10-18T00:00:00Z')):
+    with self.assertRaisesRegex(ValueError,'exact original TEST fixture'):M.fresh_test_metadata_window(api,SimpleNamespace(issued_utc=issued,expires_utc=expires))
+   raw=(self.old[case]/'scripts/ci/full-root-upgrade/construct_repository.py').read_bytes()
+   with self.assertRaisesRegex(ValueError,'exact whole Apps6 constructor'):self.A.constructor(raw+b' ')
+  from datetime import datetime,timezone
+  for status in ('EXPKEYSIG','KEYEXPIRED','REVKEYSIG','BADSIG','SIGEXPIRED'):
+   with self.assertRaisesRegex(client.Error,'invalid/expired/revoked'):client.signature_status(('[GNUPG:] '+status+'\n').encode(),'A'*40,datetime(2026,10,18,tzinfo=timezone.utc))
+ def test_metadata_stage_changes_only_immediate_issuance_operands(self):
+  for case,code in self.codes.items():
+   tree=ast.parse((code/'scripts/ci/full-root-upgrade/construct_repository.py').read_bytes());stage=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='stage')
+   issuance=[n for n in stage.body if isinstance(n,ast.Assign)and isinstance(n.value,ast.Call)and isinstance(n.value.func,ast.Name)and n.value.func.id=='fresh_test_metadata_window'];self.assertEqual(len(issuance),1);stage.body.remove(issuance[0])
+   for n in ast.walk(stage):
+    if isinstance(n,ast.keyword)and n.arg in ('issued_utc','expires_utc'):
+     self.assertIsInstance(n.value,ast.Name);self.assertEqual(n.value.id,n.arg);n.value=ast.Attribute(value=ast.Name(id='args',ctx=ast.Load()),attr=n.arg,ctx=ast.Load())
+   self.assertEqual(hashlib.sha256(ast.dump(stage,include_attributes=False).encode()).hexdigest(),'122d9842b6f76631782da012ebd199e9e0bab7d917ff67c814d4f15fc8f71cf7')
+
 if __name__=='__main__':unittest.main(verbosity=2)
