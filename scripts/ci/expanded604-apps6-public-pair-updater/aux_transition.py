@@ -159,6 +159,10 @@ def derive_postcommit(raw):
     def replace(before,after):
         nonlocal text
         need(text.count(before)==1,'one exact Apps6 postcommit selection seam');text=text.replace(before,after)
+    # The Apps source transform rewrites exact package names and versions,
+    # but this concatenated Setup DB prefix escaped it. Match the authenticated
+    # child's existing exact Apps5/6 exclusions; all later readbacks stay held.
+    replace("    verifier.database_changes=tuple('var/lib/pacman/local/cachy-asahi-setup-'+v for v in ('0.1.0-5','0.1.0-6'))","    verifier.database_changes=tuple('var/lib/pacman/local/cachy-asahi-apps-'+v for v in ('0.1.0-5','0.1.0-6'))")
     replace("    need(runtime.commit_ready is True and runtime.commit_calls==1", "    need(getattr(runtime,'apps6_auxiliary_selected',False) is True and runtime.config['before_lock_sha256']==BEFORE and runtime.config['after_lock_sha256']==AFTER,'apps604-authenticated-child-selection')\n    need(runtime.commit_ready is True and runtime.commit_calls==1")
     receipt="dict(status='AUTHENTICATED_APPS5_TO6_CHILD_SELECTION',before_lock_sha256=BEFORE,after_lock_sha256=AFTER,archive_sha256=PACKAGE)"
     replace("worker_sha256=spec['worker_sha256'],prepared_add=", "worker_sha256=spec['worker_sha256'],apps6_selection="+receipt+",prepared_add=")
@@ -169,7 +173,10 @@ def derive_postcommit(raw):
     anchor='def execute_case(args,api):';replace(anchor,inspect.getsource(apps6_selection_identity)+'\n\n'+inspect.getsource(apps6_reserve_selection)+'\n\n'+inspect.getsource(apps6_bind_selection)+'\n\n'+anchor)
     before,after=ast.parse(raw),ast.parse(text);functions=lambda tree:{n.name:ast.dump(n,include_attributes=False) for n in tree.body if isinstance(n,ast.FunctionDef)};old,new=functions(before),functions(after)
     need(set(new)==set(old)|{'apps6_selection_identity','apps6_reserve_selection','apps6_bind_selection'},'only three parent selection helpers added')
-    need({n for n in old if old[n]!=new[n]}=={'arm','boundary','execute_case'},'only child witness boundary and parent bridge may change')
+    need({n for n in old if old[n]!=new[n]}=={'prepare_verifier','arm','boundary','execute_case'},'only exact selected DB prefix plus child witness boundary and parent bridge may change')
+    expected=next(n for n in before.body if isinstance(n,ast.FunctionDef) and n.name=='prepare_verifier')
+    expected=ast.parse(ast.get_source_segment(raw.decode(),expected).replace("'var/lib/pacman/local/cachy-asahi-setup-'","'var/lib/pacman/local/cachy-asahi-apps-'")).body[0]
+    need(ast.dump(expected,include_attributes=False)==new['prepare_verifier'],'parent preparer changed beyond exact Apps DB prefix')
     for tree in (before,after):tree.body=[n for n in tree.body if not isinstance(n,ast.FunctionDef)]
     need(ast.dump(before,include_attributes=False)==ast.dump(after,include_attributes=False),'postcommit imports/constants/classes held')
-    return text.encode(),dict(status='SOURCE_BOUND_AUTHENTICATED_CHILD_TO_DISTINCT_PARENT_SELECTION',before=pin(raw),after=pin(text.encode()),changed_functions=['arm','boundary','execute_case'],unchanged_readbacks=['prepare_verifier','verify_after','database_after','assess'],selected_guard='REQUIRES_TRUE_AFTER_EXACT_NONCE_SPEC_WORKER_ROOT_ARCHIVE_LOCK_WITNESS',budgets='UNCHANGED',scope='POSTCOMMIT_EXIT87_ONLY_NO_ACCEPTANCE')
+    return text.encode(),dict(status='SOURCE_BOUND_AUTHENTICATED_CHILD_TO_DISTINCT_PARENT_SELECTION',before=pin(raw),after=pin(text.encode()),changed_functions=['prepare_verifier','arm','boundary','execute_case'],parent_database_selection='EXACT_APPS5_AND_APPS6_PREFIXES_MATCH_AUTHENTICATED_CHILD',unchanged_readbacks=['verify_after','database_after','assess'],selected_guard='REQUIRES_TRUE_AFTER_EXACT_NONCE_SPEC_WORKER_ROOT_ARCHIVE_LOCK_WITNESS',budgets='UNCHANGED',scope='POSTCOMMIT_EXIT87_ONLY_NO_ACCEPTANCE')
