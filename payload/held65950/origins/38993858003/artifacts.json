@@ -1,0 +1,25 @@
+{
+  "total_count": 1,
+  "artifacts": [
+    {
+      "id": 12087030757,
+      "node_id": "MDg6QXJ0aWZhY3QxMjA4NzAzMDc1Nw==",
+      "name": "welcome-management-native-candidates-38993858003-1",
+      "size_in_bytes": 3268626,
+      "url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/actions/artifacts/12087030757",
+      "archive_download_url": "https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/actions/artifacts/12087030757/zip",
+      "expired": false,
+      "digest": "sha256:21213d295bb6cce4fe55f5a4c98ed466a375a0ed31bc3bfe4a75b8444f1b890e",
+      "created_at": "2026-10-17T02:24:46Z",
+      "updated_at": "2026-10-17T02:24:46Z",
+      "expires_at": "2026-10-20T02:24:45Z",
+      "workflow_run": {
+        "id": 38993858003,
+        "repository_id": 1414857795,
+        "head_repository_id": 1414857795,
+        "head_branch": "codex/welcome-orphans-memo-v1",
+        "head_sha": "28e2a6b348751db98951ceb4d56fef48fa586dbe"
+      }
+    }
+  ]
+}
