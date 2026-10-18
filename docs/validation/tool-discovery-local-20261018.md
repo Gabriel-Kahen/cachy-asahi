@@ -6,7 +6,7 @@ This is an alternative recipe for the same package name and installed command. S
 
 Twenty-eight local controls passed on Python3.12 and3.14, including the original19 mutation/conflict/interruption controls and9 read-only discovery controls. All writes use private model files. Actual package staging installed the five expected paths; the staged CLI read a plan created by the originalv1 program with saved bytes and model value unchanged. A saved journal is explicitly reported as `live_state: NOT_READ`.
 
-Native ARM paired builds, signed installation/upgrade/removal, actual kernel restoration, M2 behavior and release selection remain NOT_RUN. This development variant is not selected by the supported-system inventory.
+[Native ARM paired builds and signed v1→v2 upgrade/removal/reinstall now pass](sysctl2-native-upgrade-20261018.md), including preservation and discovery of original private v1 records in two ordinary homes. Actual kernel restoration, M2 behavior and release selection remain NOT_RUN. This development variant is not selected by the supported-system inventory.
 
 The alternative [DNS0.1.0-2 recipe](../../packages/tools/cachy-asahi-dns2/README.md) adds `cachy-asahi-dns profiles` and `cachy-asahi-dns --json profiles`. It lists stored UUIDs, types and display names using two bounded metadata queries. It does not request secrets/full profiles, write receipts, or modify/activate/reapply connections. Names are display data; UUID remains the explicit transaction selector. Malformed/multiline frames and changed identity sets refuse with an editor fallback.
 

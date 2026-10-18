@@ -3,6 +3,7 @@
 """Real stored-profile integration on a container-private system bus; never activation."""
 import hashlib,json,os,resource,shutil,signal,stat,subprocess,time
 from pathlib import Path
+from profile_actor import process_frame,namespace_frame,worker_guard,zero_frame
 
 UUID='5f7d4f36-a20e-4bd8-9f15-4e6e68731410'
 BUS='unix:path=/run/dbus/system_bus_socket'
@@ -47,10 +48,10 @@ def remove_new(path,before):
   item.rmdir()if stat.S_ISDIR(after[name]['kind'])else item.unlink()
  need(snapshot(path)==before,'private NM state retirement differs')
 
-def run(out):
- need(os.getuid()==os.geteuid()==0 and os.getpid()==1 and Path('/.dockerenv').is_file()and os.environ.get('CACHY_ASAHI_DNS_PRIVATE_PROFILE')=='1','dedicated root PID1 actor required')
+def run(out,*,nonce=None):
+ binding=worker_guard(nonce)
  status=dict(line.split(':',1)for line in Path('/proc/self/status').read_text().splitlines()if':'in line)
- need(int(status['CapEff'].strip(),16)==0 and set(p.name for p in Path('/sys/class/net').iterdir())=={'lo'},'cap-dropALL/network-none actor required')
+ need(int(status['CapEff'].strip(),16)==0 and set(p.name for p in Path('/sys/class/net').iterdir())=={'lo'},'zero-cap/network-none worker required')
  need(os.environ.get('DBUS_SYSTEM_BUS_ADDRESS')==BUS and not out.exists()and out.is_absolute()and out.parent.is_dir(),'fixed private bus/fresh owned output required')
  socket=Path('/run/dbus/system_bus_socket');need(not os.path.lexists(socket),'preexisting system socket refused')
  roots=[Path('/run/dbus'),Path('/run/NetworkManager'),Path('/var/lib/NetworkManager')];before={p:snapshot(p)for p in roots}
@@ -61,11 +62,19 @@ def run(out):
  dbus_config=work/'dbus.conf';dbus_config.write_text('<!DOCTYPE busconfig PUBLIC "-//freedesktop//DTD D-Bus Bus Configuration 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/busconfig.dtd">\n<busconfig><type>system</type><listen>'+BUS+'</listen><auth>EXTERNAL</auth><policy user="root"><allow own="*"/><allow send_destination="*"/><allow receive_sender="*"/></policy></busconfig>\n')
  config=work/'NetworkManager.conf';config.write_text('[main]\nplugins=keyfile\nauth-polkit=false\ndns=none\nrc-manager=unmanaged\nno-auto-default=*\n[connectivity]\nenabled=false\n[keyfile]\npath='+str(work/'profiles')+'\nunmanaged-devices=*\n[device-all]\nmatch-device=*\nmanaged=0\n')
  children=[];logs=[];events=[];failure=None;retirement=[]
- result=dict(status='FAIL_PRIVATE_PROFILE_INTEGRATION',architecture=os.uname().machine,source_program_sha256=digest(PROGRAM),fixture_uuid=UUID,PolicyKit='NOT_TESTED_PRIVATE_AUTH_POLKIT_FALSE',live_DNS='NOT_RUN',interface_activation='NOT_RUN',host_mutation='NOT_RUN',cap_eff=status['CapEff'].strip(),interfaces=sorted(p.name for p in Path('/sys/class/net').iterdir()),events=events)
+ result=dict(worker_binding=binding,status='FAIL_PRIVATE_PROFILE_INTEGRATION',architecture=os.uname().machine,source_program_sha256=digest(PROGRAM),fixture_uuid=UUID,PolicyKit='NOT_TESTED_PRIVATE_AUTH_POLKIT_FALSE',live_DNS='NOT_RUN',interface_activation='NOT_RUN',host_mutation='NOT_RUN',cap_eff=status['CapEff'].strip(),interfaces=sorted(p.name for p in Path('/sys/class/net').iterdir()),events=events)
  def bounded_log():resource.setrlimit(resource.RLIMIT_FSIZE,(LIMIT,LIMIT))
  def start(role,argv):
   log=(out/(role+'.log')).open('xb');logs.append(log);process=subprocess.Popen(argv,stdin=subprocess.DEVNULL,stdout=log,stderr=subprocess.STDOUT,start_new_session=True,preexec_fn=bounded_log,env=dict(PATH='/usr/bin:/bin',LANG='C',LC_ALL='C',DBUS_SYSTEM_BUS_ADDRESS=BUS,DBUS_SESSION_BUS_ADDRESS='unix:path=/nonexistent'))
-  children.append((role,process));events.append(dict(kind='daemon-start',role=role,pid=process.pid,pgid=process.pid,argv=argv));return process
+  children.append((role,process));deadline=time.monotonic()+2
+  while True:
+   try:
+    if os.readlink('/proc/'+str(process.pid)+'/exe')==argv[0]:break
+   except FileNotFoundError:pass
+   need(process.poll()is None and time.monotonic()<deadline,'exact private daemon exec absent');time.sleep(.01)
+  observed=process_frame(process.pid);namespace=namespace_frame(process.pid)
+  need(zero_frame(observed)and observed['PPid']==str(os.getpid())and namespace==binding['namespaces'],'NM/dbus exec privilege or namespace changed')
+  events.append(dict(kind='daemon-start',role=role,pid=process.pid,pgid=process.pid,argv=argv,observed_after_exec=observed,namespaces=namespace));return process
  previous=signal.signal(signal.SIGALRM,lambda *_:(_ for _ in()).throw(TimeoutError('private profile overall90s deadline')));signal.setitimer(signal.ITIMER_REAL,90)
  try:
   bus=start('dbus',['/usr/bin/dbus-daemon','--nofork','--nopidfile','--config-file='+str(dbus_config)])
