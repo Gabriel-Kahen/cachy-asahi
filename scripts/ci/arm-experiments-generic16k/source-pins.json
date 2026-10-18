@@ -138,19 +138,19 @@
     },
     "packages/tools/cachy-asahi-mirrors/PKGBUILD": {
       "bytes": 1131,
-      "sha256": "671e8ef2eca10731b67c5fc35f88ead564e19749e64cc749fade86f510fd7955"
+      "sha256": "5c7662982ab46bdedf77c093e6247a1c2282489e327c3e657cc3c6cd2605035f"
     },
     "packages/tools/cachy-asahi-mirrors/README.md": {
       "bytes": 6479,
       "sha256": "1c084b18b0c49dffbf32f7c4c3eaef1a417a0c1cddf048b0808991f6b4deddd8"
     },
     "packages/tools/cachy-asahi-mirrors/cachy-asahi-mirrors": {
-      "bytes": 24149,
-      "sha256": "7062330db1b4a13659d724d24077dc021c4f2bbabd1412bb9f9cd364da9feac7"
+      "bytes": 24195,
+      "sha256": "b31c0021ab00ad6bca01a139f5887a467f587c9205ce79c9451312d150eb7dcd"
     },
     "packages/tools/cachy-asahi-mirrors/test_mirrors.py": {
-      "bytes": 19971,
-      "sha256": "538d613da1d249b83989f301e7d4ff6f8f6171bd8c3b9281b8af883716de22c5"
+      "bytes": 21971,
+      "sha256": "5a3e8bb1bc47efb8621557f0c33edbc687487bd59d5f70d6621431fd67477f0f"
     },
     "packages/tools/cachy-asahi-welcome/LICENSE": {
       "bytes": 1081,
@@ -406,7 +406,7 @@
     },
     "scripts/ci/tools-generic16k/dependencies.json": {
       "bytes": 21413,
-      "sha256": "2996d59cc0488b38797d43e41b05152a59ed27257e7c4428c336c62764c107e9"
+      "sha256": "ce33af72681e305d2d69b8498b8d4b75514adfadd97bbf7b9d7d218102c69b27"
     },
     "scripts/ci/tools-generic16k/guest.py": {
       "bytes": 16338,
@@ -418,7 +418,7 @@
     },
     "scripts/ci/tools-generic16k/payload-map.json": {
       "bytes": 13970,
-      "sha256": "eb903b15cc9be6fb0b549d710bb54e6bf12628a244253801bbfe38a389376460"
+      "sha256": "5c6aac7dc012a3ecabdbd15c5e0c66158656da15cb822789e1f52527024e73db"
     },
     "scripts/ci/tools-generic16k/retained-kernel-asset.json": {
       "bytes": 554,
@@ -434,7 +434,7 @@
     },
     "scripts/ci/tools-generic16k/source-manifest.json": {
       "bytes": 24048,
-      "sha256": "af8256bcb619a7a62e455e28c62d96bd2dfb0ebba6241a10e7fc3fe7a1df073e"
+      "sha256": "03e2934f7b8a2e9f8f50ce078272d5b9086be7ef19194dfe03d1d16177f89a84"
     },
     "scripts/ci/tools-generic16k/substring_observer.py": {
       "bytes": 8349,
@@ -442,7 +442,7 @@
     },
     "scripts/ci/tools-generic16k/support.py": {
       "bytes": 2994,
-      "sha256": "68021f907105843fd65549f00da1480e0d7dc13de4f82655a02033dac1a89b68"
+      "sha256": "6cafebc7f0aceaf1b8c97985816a3027befabf4d3e1a0fa43f71a000c3383143"
     },
     "scripts/ci/tools-generic16k/test_cache.py": {
       "bytes": 13059,

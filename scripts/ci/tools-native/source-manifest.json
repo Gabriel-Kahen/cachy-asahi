@@ -48,19 +48,19 @@
     },
     "packages/tools/cachy-asahi-mirrors/PKGBUILD": {
       "bytes": 1131,
-      "sha256": "671e8ef2eca10731b67c5fc35f88ead564e19749e64cc749fade86f510fd7955"
+      "sha256": "5c7662982ab46bdedf77c093e6247a1c2282489e327c3e657cc3c6cd2605035f"
     },
     "packages/tools/cachy-asahi-mirrors/README.md": {
       "bytes": 6479,
       "sha256": "1c084b18b0c49dffbf32f7c4c3eaef1a417a0c1cddf048b0808991f6b4deddd8"
     },
     "packages/tools/cachy-asahi-mirrors/cachy-asahi-mirrors": {
-      "bytes": 24149,
-      "sha256": "7062330db1b4a13659d724d24077dc021c4f2bbabd1412bb9f9cd364da9feac7"
+      "bytes": 24195,
+      "sha256": "b31c0021ab00ad6bca01a139f5887a467f587c9205ce79c9451312d150eb7dcd"
     },
     "packages/tools/cachy-asahi-mirrors/test_mirrors.py": {
-      "bytes": 19971,
-      "sha256": "538d613da1d249b83989f301e7d4ff6f8f6171bd8c3b9281b8af883716de22c5"
+      "bytes": 21971,
+      "sha256": "5a3e8bb1bc47efb8621557f0c33edbc687487bd59d5f70d6621431fd67477f0f"
     },
     "packages/tools/cachy-asahi-zsh-history-substring-search/.SRCINFO": {
       "bytes": 1212,
@@ -248,7 +248,7 @@
     },
     "scripts/ci/tools-native/product-spec.json": {
       "bytes": 4760,
-      "sha256": "db6374ff516ad5f3e9b7a568bdcd17de57ebea2993f0ca94d4de59dc2a36c29a"
+      "sha256": "cc8f6f64a0cbdcaaeb94726ccc7d9bec902ea6d6896dbcbf8670f4fdf638b7c5"
     },
     "scripts/ci/tools-native/run.py": {
       "bytes": 8992,
@@ -256,7 +256,7 @@
     },
     "scripts/ci/tools-native/source-pins.json": {
       "bytes": 7613,
-      "sha256": "7a96bf8d97a401b20d3d00c6caa6fd678665be3d1a37ba9b1ff5ed2e33ff755c"
+      "sha256": "4ecd96135cf73c6c813f49eb60730fc67af28f54bd679a2f884af128abeb00fa"
     },
     "scripts/ci/tools-native/test_native.py": {
       "bytes": 15756,
@@ -289,10 +289,10 @@
       "input_sha256": {
         "LICENSE": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
         "NOTICE": "adb0cb8dcd123c5fb6cd905abd3245a6decf34cda55fd901a633b772987a747a",
-        "PKGBUILD": "671e8ef2eca10731b67c5fc35f88ead564e19749e64cc749fade86f510fd7955",
+        "PKGBUILD": "5c7662982ab46bdedf77c093e6247a1c2282489e327c3e657cc3c6cd2605035f",
         "README.md": "1c084b18b0c49dffbf32f7c4c3eaef1a417a0c1cddf048b0808991f6b4deddd8",
-        "cachy-asahi-mirrors": "7062330db1b4a13659d724d24077dc021c4f2bbabd1412bb9f9cd364da9feac7",
-        "test_mirrors.py": "538d613da1d249b83989f301e7d4ff6f8f6171bd8c3b9281b8af883716de22c5"
+        "cachy-asahi-mirrors": "b31c0021ab00ad6bca01a139f5887a467f587c9205ce79c9451312d150eb7dcd",
+        "test_mirrors.py": "5a3e8bb1bc47efb8621557f0c33edbc687487bd59d5f70d6621431fd67477f0f"
       },
       "metadata": {
         "arch": [
@@ -312,14 +312,14 @@
           "cachy-asahi-mirrors"
         ],
         "pkgrel": [
-          "1"
+          "2"
         ],
         "pkgver": [
           "0.2.0"
         ],
         "sha256sums": [
-          "7062330db1b4a13659d724d24077dc021c4f2bbabd1412bb9f9cd364da9feac7",
-          "538d613da1d249b83989f301e7d4ff6f8f6171bd8c3b9281b8af883716de22c5",
+          "b31c0021ab00ad6bca01a139f5887a467f587c9205ce79c9451312d150eb7dcd",
+          "5a3e8bb1bc47efb8621557f0c33edbc687487bd59d5f70d6621431fd67477f0f",
           "1c084b18b0c49dffbf32f7c4c3eaef1a417a0c1cddf048b0808991f6b4deddd8",
           "adb0cb8dcd123c5fb6cd905abd3245a6decf34cda55fd901a633b772987a747a",
           "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"

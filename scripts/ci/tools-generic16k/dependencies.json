@@ -138,19 +138,19 @@
     },
     "packages/tools/cachy-asahi-mirrors/PKGBUILD": {
       "bytes": 1131,
-      "sha256": "671e8ef2eca10731b67c5fc35f88ead564e19749e64cc749fade86f510fd7955"
+      "sha256": "5c7662982ab46bdedf77c093e6247a1c2282489e327c3e657cc3c6cd2605035f"
     },
     "packages/tools/cachy-asahi-mirrors/README.md": {
       "bytes": 6479,
       "sha256": "1c084b18b0c49dffbf32f7c4c3eaef1a417a0c1cddf048b0808991f6b4deddd8"
     },
     "packages/tools/cachy-asahi-mirrors/cachy-asahi-mirrors": {
-      "bytes": 24149,
-      "sha256": "7062330db1b4a13659d724d24077dc021c4f2bbabd1412bb9f9cd364da9feac7"
+      "bytes": 24195,
+      "sha256": "b31c0021ab00ad6bca01a139f5887a467f587c9205ce79c9451312d150eb7dcd"
     },
     "packages/tools/cachy-asahi-mirrors/test_mirrors.py": {
-      "bytes": 19971,
-      "sha256": "538d613da1d249b83989f301e7d4ff6f8f6171bd8c3b9281b8af883716de22c5"
+      "bytes": 21971,
+      "sha256": "5a3e8bb1bc47efb8621557f0c33edbc687487bd59d5f70d6621431fd67477f0f"
     },
     "packages/tools/cachy-asahi-welcome/LICENSE": {
       "bytes": 1081,

@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 import copy
 import hashlib
+import http.client
 import io
 import json
 from pathlib import Path
@@ -91,6 +92,45 @@ class Mirrors(unittest.TestCase):
         for body in [BODY[:-1], BODY+b'x', b'x'*len(BODY)]:
             result, _ = self.probe(body)
             self.assertEqual(result['status'], 'FAIL')
+
+    def http_response(self, wire):
+        # Exercise the actual stdlib HTTP parser without a network connection.
+        class Socket:
+            def makefile(self, *args):
+                return io.BytesIO(wire)
+        response = http.client.HTTPResponse(Socket())
+        response.begin()
+        return response
+
+    def test_truncated_chunked_mirror_does_not_abort_healthy_fallback(self):
+        broken = self.http_response(b'HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n20\r\nshort')
+        good = self.http_response(b'HTTP/1.1 200 OK\r\nContent-Length: ' +
+                                  str(len(BODY)).encode() + b'\r\n\r\n' + BODY)
+        responses, urls = [broken, good], []
+        class Opener:
+            def open(self, request, timeout):
+                urls.append(request.full_url)
+                return responses.pop(0)
+        output = self.root/'fallback-candidate'
+        with patch('urllib.request.build_opener', return_value=Opener()):
+            report = M['rank'](fixture(), 'a'*64, output)
+        self.assertEqual(report['status'], 'PASS_CANDIDATE_WRITTEN')
+        self.assertEqual([r['status'] for r in report['results']], ['FAIL', 'PASS_EXACT_SNAPSHOT'])
+        self.assertIn('IncompleteRead', report['results'][0]['reason'])
+        self.assertEqual(len(urls), 2)
+        self.assertNotIn('one.example', output.read_text())
+        self.assertIn('two.example', output.read_text())
+        self.assertEqual(report['activation'], 'NOT_PERFORMED')
+        self.assertEqual(output.stat().st_mode & 0o777, 0o600)
+
+    def test_invalid_http_status_is_a_failed_probe(self):
+        test = self
+        class Opener:
+            def open(self, request, timeout):
+                return test.http_response(b'not an HTTP status\r\n\r\n')
+        result = M['probe'](fixture()['mirrors'][0], fixture(), Opener(), float('inf'))
+        self.assertEqual(result['status'], 'FAIL')
+        self.assertIn('not an HTTP status', result['reason'])
 
     def test_headers_and_total_deadline(self):
         for headers in [{'Content-Length': '1'}, {'Content-Encoding': 'gzip'}]:
