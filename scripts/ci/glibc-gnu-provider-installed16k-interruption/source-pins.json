@@ -57,8 +57,8 @@
       "sha256": "61e4bad870252dab3ca9580817247c9b88f0e6cdc6b40c5956a06e7b9e42a5a7"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/guest.py": {
-      "bytes": 16311,
-      "sha256": "61c4c3a2038c6c323e21b194c8e311e2374ddf61d72cace5eb807ce109f6b61c"
+      "bytes": 18327,
+      "sha256": "6c2159140e9099e01b47445ddbae9c4870047b37353a753aacdce7de13ed0c9a"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/input-policy.json": {
       "bytes": 927,
@@ -93,8 +93,8 @@
       "sha256": "d789db4ac9fe0c62e2721352cf4c5ff3eb549136df95ce73349f2814a4425853"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/source-manifest.json": {
-      "bytes": 3627,
-      "sha256": "d55e56e4d87c144b4dd40134c464f1a7a4c6d89a1fcd5feb2ffa956691403845"
+      "bytes": 3628,
+      "sha256": "c3f86a14db6b981a0e71f1e91511ca67cce9565112623b31afc6aa759a49133a"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/support.py": {
       "bytes": 408,
