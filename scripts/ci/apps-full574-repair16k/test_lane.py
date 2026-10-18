@@ -70,11 +70,12 @@ class Lane(unittest.TestCase):
   raw={Path('/inputs/apps-source/source-provenance.json'):b'bounded actual temporary provenance',Path('/inputs/full574-policy.json'):b'bounded policy',Path('/inputs/full574-lease.json'):b'bounded lease'}
   read=lambda path:raw[Path(path)];api=SimpleNamespace(read=read,sha=C.sha)
   common=C.function(self.root/'scripts/ci/apps-full574-native/lifecycle.py','common',dict(C=api,INPUTS=Path('/inputs')))
-  for mode,owner,seconds in (('prepare-copy',None,600),('dispose-copy','a'*64,75)):
+  for mode,owner,seconds in (('prepare-copy',None,610),('dispose-copy','a'*64,75)):
    with self.subTest(mode=mode):
     recorded=[]
     def command(s,argv,cap):recorded.append((argv,cap));return {},b'{}',b''
-    with patch.object(D.C,'read',side_effect=read),patch.object(D.C,'row',side_effect=lambda path:dict(sha256=C.sha(read(path)))),patch.object(D,'command',side_effect=command):D.backend({},mode,Path('/work/main'),owner)
+    # Parser-only boundary; the new independent control exercises actual pinned policy authentication.
+    with patch.object(D,'caller_seconds',return_value=610),patch.object(D.C,'read',side_effect=read),patch.object(D.C,'row',side_effect=lambda path:dict(sha256=C.sha(read(path)))),patch.object(D,'command',side_effect=command):D.backend({},mode,Path('/work/main'),owner)
     argv,cap=recorded[0];self.assertEqual(cap,seconds)
     expected=common(Path('/work/main'),owner)+(['--source','/seed'] if mode=='prepare-copy' else [])
     self.assertEqual(argv[:5],captured[:4]+[mode]);self.assertEqual(argv[5:],expected)
@@ -553,4 +554,73 @@ class BackendPhaseProjectionControls(unittest.TestCase):
   err=self.nested();out=json.dumps(dict(status='FAIL',error_type='ValueError'+'X'*118,error='X'*1024,packages_committed=False,commit_started=False,recovery='DISPOSE_OWNED_COPY_IF_COMMIT_OR_CLEANUP_UNCERTAIN',rollback='NOT_CLAIMED')).encode();row=self.row(err,out)
   old=env['_vm_backend_note'](row,out,err,None);new=self.env['_vm_backend_note'](row,out,err,None);self.assertLessEqual(len(old.encode()),1900);self.assertEqual(new,old)
 
+
+class NativeMediaPhaseControls(unittest.TestCase):
+ def disk(self):return C.load('_media_phase_controls',HERE/'disk.py')
+ def phase(self,seq,stage,event,now):return b'APPS574_PHASE '+C.encoded(dict(schema_version=1,seq=seq,stage=stage,event=event,monotonic_ns=now)).replace(b'\n',b'').replace(b'  ',b'')+b'\n'
+ def test_exact_existing_guest_projection_and_no_runtime_budget_change(self):
+  disk=self.disk();node=next(n for n in ast.walk(ast.parse(adapter.BACKEND_NOTE))if isinstance(n,ast.FunctionDef)and n.name=='phase_summary')
+  self.assertEqual(dump(node),dump(function(C.read(HERE/'disk.py'),'phase_summary')))
+  text=(HERE/'disk.py').read_text()
+  for original in ("remaining(s,cap),1024**2)","command(s,args,seconds)","for name in ('main','interrupted')", "raw[:1024]", "len(rows)<192", "len(C.encoded(rows))<=2*1024**2"):
+   self.assertIn(original,text)
+  self.assertIsNone(disk.phase_summary(b'no phase records'))
+  self.assertEqual(disk.phase_summary(b'APPS574_PHASE {}\n'),dict(version=1,status='INVALID_PHASE_RECORDS'))
+ def test_genuine_failed_child_full_phase_projection_survives_original_prefix(self):
+  import time,base64
+  disk=self.disk();root=Path(os.environ['FULL574_REPAIR16K_SOURCE']);runtime=C.load('_real_media_failure_runtime',root/'scripts/ci/glibc-owned-runtime/runner.py')
+  with tempfile.TemporaryDirectory()as td:
+   work=Path(td);out=work/'commands.json';child=work/'failed.py';lines=[];seq=0
+   for i in range(20):
+    for event in ('BEGIN','END'):
+     seq+=1;lines.append(self.phase(seq,'tree-observe',event,seq*1000).decode())
+   seq+=1;lines.append(self.phase(seq,'copy-data','BEGIN',seq*1000).decode());seq+=1;lines.append(self.phase(seq,'copy-data','FAIL',seq*1000).decode())
+   err=''.join(lines);self.assertGreater(len(err.encode()),1024);child.write_text('import sys\nsys.stderr.write('+repr(err)+')\nsys.exit(7)\n')
+   realpath=Path
+   def path(value):return work if str(value)=='/work'else out if str(value)=='/out/repair16k-media-commands.json'else realpath(value)
+   state=dict(deadline_monotonic=time.monotonic()+10,env=dict(OWNER_TOKEN='INERT_NEGATIVE_CHILD_NO_NATIVE_AUTHORITY'),uid=os.getuid(),gid=os.getgid())
+   with patch.object(disk.C,'load',return_value=runtime),patch.object(disk,'Path',side_effect=path),self.assertRaisesRegex(ValueError,'bounded owned media command/group retirement'):
+    disk.command(state,[sys.executable,'-I','-B',str(child)],2)
+   rows=C.decode(C.read(out));self.assertEqual(len(rows),1);row=rows[0];self.assertEqual(row['record']['exit_code'],7);self.assertIsNone(row['error']);self.assertTrue(row['record']['group_absence_verified']);self.assertEqual(row['record']['time_limit'],2);self.assertEqual(row['record']['stderr_sha256'],C.sha(err.encode()))
+   self.assertEqual(base64.b64decode(row['previews']['stderr']['base64']),err.encode()[:1024]);self.assertTrue(row['previews']['stderr']['truncated']);self.assertEqual(row['phase_summary']['records'],42);self.assertEqual(row['phase_summary']['last'][-1],[42,6,2,41000]);self.assertEqual(row['phase_summary']['stages'],[[2,20,20,0,20000],[6,1,0,1,1000]])
+   self.assertLess(len(C.encoded(row['phase_summary'])),1024);self.assertNotIn('native',row['phase_summary']);self.assertNotIn('status',row['phase_summary']);self.assertNotIn('nodes',row['phase_summary'])
+ def test_nested_closed_spans_stay_distinct_and_open_call_has_no_credit(self):
+  raw=b''.join(self.phase(*v)for v in ((1,'source-revalidation','BEGIN',10),(2,'tree-observe','BEGIN',20),(3,'tree-observe','END',70),(4,'source-revalidation','END',100),(5,'copy-data','BEGIN',110)))
+  summary=self.disk().phase_summary(raw);self.assertEqual(summary['stages'],[[0,1,1,0,90],[2,1,1,0,50],[6,1,0,0,0]]);self.assertEqual(summary['last'][-1],[5,6,0,100]);self.assertNotIn('elapsed',summary);self.assertNotIn('complete',summary)
+
+
+class NativeMediaCallerBudget(unittest.TestCase):
+ def test_trusted_policy_routes610_not_outer600_and_refuses_unbound_or_mutated(self):
+  from types import SimpleNamespace
+  import time
+  source=Path(os.environ['FULL574_REPAIR16K_SOURCE']);helper=source/'scripts/apps/full574_closure.py';policy_api=C.load('_actual_native_media_policy',helper);disk=C.load('_media_caller_budget',HERE/'disk.py')
+  with tempfile.TemporaryDirectory()as td:
+   base=Path(td);common=dict(schema_version=1,purpose=policy_api.PURPOSE,execution_budget=dict(backend_seconds=600,caller_seconds=610),**{n:'a'*64 for n in ('snapshot_sha256','extraction_receipt_sha256','source_tree_sha256','source_packages_sha256','source_closure_sha256','source_capabilities_sha256')})
+   policy=dict(common,baseline_lock_sha256='b'*64,candidates={},source_capabilities={});lease=dict(common,token='c'*32,source='/seed',source_identity=[1,2]);paths={}
+   for name,value in(('full574-policy.json',policy),('full574-lease.json',lease)):
+    p=base/name;p.write_bytes(C.encoded(value));paths['/inputs/'+name]=p
+   provenance=base/'source-provenance.json';provenance.write_bytes(b'inert negative/source-route fixture only');paths['/inputs/apps-source/source-provenance.json']=provenance
+   state=dict(source_files={'scripts/apps/full574_closure.py':C.row(helper)},input_map={n:C.row(paths['/inputs/'+n])for n in ('full574-policy.json','full574-lease.json')})
+   realread,realrow=C.read,C.row;calls=[]
+   def read(path,cap=4*1024**2):return realread(paths[str(path)],cap)
+   def row(path):return realrow(helper if str(path)=='/source/scripts/apps/full574_closure.py'else paths[str(path)])
+   def command(s,argv,cap):calls.append((argv,cap));return None,b'{}',b''
+   with patch.object(C,'row',side_effect=row),patch.object(C,'read',side_effect=read),patch.object(C,'load',return_value=policy_api),patch.object(disk,'command',side_effect=command):
+    for work in('/work/main','/work/interrupted'):
+     disk.backend(state,'prepare-copy',Path(work));self.assertEqual(calls[-1][1],610);self.assertEqual(calls[-1][0][5:7],['--workspace',work]);self.assertEqual(calls[-1][0][-2:],['--source','/seed'])
+    self.assertEqual(policy_api.EXECUTION_BUDGET,dict(backend_seconds=600,caller_seconds=610));
+    with patch.object(disk.time,'monotonic',return_value=100):self.assertEqual(disk.remaining(dict(deadline_monotonic=105),610),5)
+    for variant in('missing','changed','mixed','duplicate','helper'):
+     value=copy.deepcopy(state);raw=C.encoded(policy)
+     if variant=='missing':value['input_map'].clear()
+     if variant=='changed':raw+=b' '
+     if variant=='mixed':
+      bad=copy.deepcopy(policy);bad['execution_budget']['caller_seconds']=611;raw=C.encoded(bad)
+     if variant=='duplicate':raw=raw.replace(b'{',b'{"purpose":"duplicate",',1)
+     paths['/inputs/full574-policy.json'].write_bytes(raw)
+     if variant in('mixed','duplicate'):value['input_map']['full574-policy.json']=realrow(paths['/inputs/full574-policy.json'])
+     if variant=='helper':value['source_files']['scripts/apps/full574_closure.py']={'bytes':1,'sha256':'0'*64}
+     before=len(calls)
+     with self.assertRaises((ValueError,KeyError)):disk.backend(value,'prepare-copy',Path('/work/main'))
+     self.assertEqual(len(calls),before)
 if __name__=='__main__':unittest.main()
