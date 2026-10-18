@@ -212,28 +212,28 @@
       "sha256": "c0a7e594ca7faf5a0d10081b5ee3adf2da4c3c273b3058ed7de893c4cd09f97c"
     },
     "copyworker/scripts/ci/current606-apps7-copy/rooted_fixture.py": {
-      "bytes": 6993,
-      "sha256": "43a07d2a9d7fbda44c0092699cd65ca23d33a39fa9df4f1f8ac91dfab6f602a1"
+      "bytes": 8330,
+      "sha256": "af1ad1a0b9c27754a72cd920a4ad6053b865f94e46dc2517ed9a09fc49588211"
     },
     "copyworker/scripts/ci/current606-apps7-copy/source-manifest.json": {
       "bytes": 6836,
-      "sha256": "0ac5bf9b14f977cfca8d12357f4342816bea176025c8b14c45a5f1248e80e8a8"
+      "sha256": "795ca75262620d2450c2d419a60006984d80a9a0277c0e1f76a5128c022d629d"
     },
     "copyworker/scripts/ci/current606-apps7-copy/step_entry.py": {
       "bytes": 741,
       "sha256": "fdcef3299e4829995c32ebb9670798b26c3dda55b565c7148bb8970514f7dd82"
     },
     "copyworker/scripts/ci/current606-apps7-copy/supervised.py": {
-      "bytes": 1472,
-      "sha256": "d382a1db17acde4d46a47acd390a26ef3f634ae69a4212ccfd3870fbc28ceb62"
+      "bytes": 3098,
+      "sha256": "6ad995704bd7225e86fb9e7b5b7b3ea9e3c551f47d6aec094f2c18e8c9d1baf8"
     },
     "copyworker/scripts/ci/current606-apps7-copy/templates/owner-api.NULL.json": {
       "bytes": 46,
       "sha256": "bb647153cea5f536ae488eb3f4ee31f5f08e7764d99b3cb99b76b9e5e1d2313d"
     },
     "copyworker/scripts/ci/current606-apps7-copy/test_worker.py": {
-      "bytes": 28868,
-      "sha256": "27b3340e767c9aeabee0d1c1753eaa2bc60b41fcc3a4268dc5803dc479084f6b"
+      "bytes": 32842,
+      "sha256": "ebbbf27504103c86bf96e2c10dcdc4815f80a528457fe201f9380cb2309b8d57"
     },
     "copyworker/scripts/ci/current606-apps7-copy/verification.py": {
       "bytes": 4356,
@@ -1329,7 +1329,7 @@
     },
     "scripts/ci/current606-apps7-closed-owner/source-pins.json": {
       "bytes": 58974,
-      "sha256": "a427f0853e0bbd0571e017638e6efe8ce15db2a252781800dde9bf8fe6def4ba"
+      "sha256": "8650a283b0f05e4eadefd67c11bad9a82a53822fe09eaf5893181d579015cffb"
     },
     "scripts/ci/current606-apps7-closed-owner/test_owner.py": {
       "bytes": 19485,
