@@ -89,7 +89,7 @@ def _copy_test_clone(function,**replace):
 def _copy_test_helpers():
  raw=(HERE/'guest.py').read_text();tree=ast.parse(raw)
  nodes=[n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name.startswith('_copy_') or isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id.startswith('_COPY_') for t in n.targets)]
- namespace={'types':types};exec(compile(ast.Module(body=nodes,type_ignores=[]),'<source-owned-copy-routing>','exec'),namespace)
+ namespace={'types':types,'S':S};exec(compile(ast.Module(body=nodes,type_ignores=[]),'<source-owned-copy-routing>','exec'),namespace)
  return types.SimpleNamespace(scoped_aux=namespace['_copy_scoped_aux'],capability_bridge=namespace['_copy_capability_bridge'],context=namespace['_copy_context_limits'],context_api=namespace['_copy_context_api'])
 B=_copy_test_helpers()
 def _copy_test_candidate():
@@ -294,4 +294,82 @@ class CopyContextControls(unittest.TestCase):
    with self.assertRaisesRegex(ValueError,'root observation deadline'):private['roots'].observe('/fixture-unrun',limits=value)
    with self.assertRaisesRegex(ValueError,'root observation deadline'):private['caps'].restore('/fixture-unrun',{}, {},value)
    self.assertEqual(clock[0],1200);value.tick();self.assertIs(api['roots'].observe,root_observe);self.assertIs(api['caps'].restore,restore)
+class CopyWorkControls(unittest.TestCase):
+ def limits(self):return P.R.Limits(deadline=time.monotonic()+600,max_nodes=20000,max_bytes=64*1024**2,max_file_bytes=4*1024**2)
+ def tree(self,base):
+  source=base/'source';source.mkdir()
+  for n in range(100):
+   directory=source/('d%03d'%n);directory.mkdir()
+   for k in range(4):(directory/('f%d'%k)).write_bytes(bytes([k])*2048)
+   (directory/'alias').symlink_to('f0')
+  os.link(source/'d000/f0',source/'hardlink');return source
+ def copy(self,source,target,record,*,simulated=False):
+  module=P.candidate();_,module.roots=B.scoped_aux(A,P.SOURCE);old=module.roots.observe;subject=B.context(self.limits(),record=record)
+  def observe(*args,**kwargs):return subject._copy_observe(old,*args,**kwargs)
+  module.roots.observe=observe
+  return subject._copy_call('COPY_DATA',module.copy_data,source,target,limits=subject,hardlinks='generic-development-internal')
+ def test_actual_original_copy_frames_advance_real_counters_without_paths(self):
+  clock=[100.0];events=[]
+  def now():clock[0]+=.01;return clock[0]
+  with tempfile.TemporaryDirectory() as td:
+   base=Path(td);source=self.tree(base)
+   with patch('time.monotonic',side_effect=now):self.copy(source,base/'target',lambda *v:events.append(v))
+   samples=[v[2]for v in events if v[1]=='sample'];self.assertTrue(samples)
+   works=[v['work']for v in samples];self.assertTrue(any(v['phase']=='FILE_COPY' and v['scheduled_file_entries']>0 for v in works));self.assertTrue(any(v['phase']=='SYMLINK_COPY' for v in works))
+   self.assertTrue(all(v['nodes']==601 for v in works));self.assertGreater(max(v['destination_parent_identities']for v in works),0)
+   self.assertNotIn(str(base),json.dumps(events));self.assertNotIn('d000',json.dumps(events));self.assertLessEqual(len(samples),32)
+   self.assertTrue(all(S.validate_copy(v) is v for v in samples))
+ def test_real_directory_metadata_phase_is_visible(self):
+  clock=[100.0];events=[]
+  def now():clock[0]+=.01;return clock[0]
+  with tempfile.TemporaryDirectory() as td:
+   base=Path(td);source=base/'source';source.mkdir()
+   for n in range(600):(source/('directory%03d'%n)).mkdir()
+   with patch('time.monotonic',side_effect=now):self.copy(source,base/'target',lambda *v:events.append(v))
+   works=[v[2]['work']for v in events if v[1]=='sample'];self.assertTrue(any(v['phase']=='DIRECTORY_METADATA' and v['destination_parent_identities']==600 for v in works))
+ def test_full_observations_reports_and_original_tick_count_are_identical(self):
+  with tempfile.TemporaryDirectory() as td:
+   base=Path(td);source=self.tree(base);reports=[];observations=[];ticks=[]
+   original=P.R.Limits.tick
+   for label,enabled in(('off',False),('on',True)):
+    calls=[0]
+    def tick(subject):calls[0]+=1;return original(subject)
+    with patch.object(P.R.Limits,'tick',tick):reports.append(P.strip(self.copy(source,base/label,(lambda *v:None) if enabled else None)))
+    ticks.append(calls[0]);v=P.R.observe(base/label,limits=self.limits(),hardlinks='generic-development-internal');observations.append({k:v[k]for k in('nodes','hardlink_groups','unsupported_counts','complete')})
+   self.assertEqual(ticks[0],ticks[1]);self.assertEqual(reports[0],reports[1]);self.assertEqual(observations[0],observations[1])
+ def test_saturation_preserves_terminal_boundaries_and_original_deadline(self):
+  clock=[0.0];events=[];selection=dict(nonce='a'*32,source_sha='b'*40);j=S.Journal(selection)
+  def record(stage,edge,v):events.append((edge,v));j.push(stage,edge,dict(case='pristine',phase='none'),v)
+  with patch('time.monotonic',side_effect=lambda:clock[0]),patch.object(S,'copy_work',side_effect=lambda:dict(phase='FILE_COPY' if int(clock[0])%40 else 'SYMLINK_COPY',caller='OTHER',line=144 if int(clock[0])%40 else 164,nodes=10,scheduled_file_entries=4,source_parent_identities=2,destination_parent_identities=2,current_file_bytes=8 if int(clock[0])%40 else 0)):
+   subject=B.context(P.R.Limits(deadline=600),record=record)
+   def work():
+    for n in range(100):
+     clock[0]=(n+1)*20
+     for _ in range(256):subject.tick()
+    clock[0]=2400;subject.tick()
+   with self.assertRaisesRegex(ValueError,'root observation deadline'):subject._copy_call('COPY_DATA',work)
+  self.assertEqual(sum(e=='sample'for e,v in events),32);self.assertEqual(events[-2][0],'failure');self.assertEqual(events[-1][0],'leave');self.assertEqual(events[-1][1]['expiry'],'PARENT2400');self.assertGreater(events[-1][1]['work']['omitted_samples'],0)
+  raw=j.push('lifecycle','leave',dict(case='none',phase='none'));self.assertLessEqual(len(raw),65536);self.assertLessEqual(len(json.loads(raw)['records']),256)
+ def test_broken_projection_sink_and_wrong_frame_are_optional_only(self):
+  self.assertIsNone(S.copy_work())
+  with tempfile.TemporaryDirectory() as td:
+   base=Path(td);source=self.tree(base)
+   def broken(*args):raise OSError('diagnostic sink')
+   with patch.object(S,'copy_work',side_effect=RuntimeError('projection unavailable')):self.copy(source,base/'one',lambda *v:None)
+   self.copy(source,base/'two',broken)
+   for p in(base/'one',base/'two'):self.assertEqual((p/'d000/f0').read_bytes(),(source/'d000/f0').read_bytes())
+ def test_unknown_projection_labels_counts_and_scope_refuse(self):
+  work=dict(phase='FILE_COPY',caller='_write',line=144,nodes=10,scheduled_file_entries=4,source_parent_identities=2,destination_parent_identities=2,current_file_bytes=8,sampled_at_ms=100,omitted_samples=0)
+  for changes in(dict(phase='/private/name'),dict(phase='SYMLINK_COPY'),dict(caller='open'),dict(line=194),dict(nodes=True),dict(scheduled_file_entries=11),dict(unexpected=1)):
+   with self.assertRaises(ValueError):S.validate_copy_work(dict(work,**changes))
+  metrics=dict(schema_version=1,operation='SELECTED_OBSERVE',ordinal=1,elapsed_ms=100,phase_elapsed_ms=100,shared_remaining_ms=2300000,window_remaining_ms=599900,expiry='NONE',acceptance=False,work=work)
+  with self.assertRaises(ValueError):S.validate_copy(metrics)
+ def test_no_path_operations_or_copier_source_changes_and_exact_line_anchors(self):
+  raw=(ROOT/'scripts/update/measure_copy.py').read_bytes();self.assertEqual(hashlib.sha256(raw).hexdigest(),A.COPY_SHA256)
+  lines=raw.decode().splitlines();self.assertTrue(lines[93].startswith('def _copy_internal('))
+  for line,anchor in((119,'for name in directories:'),(127,'for name,value in sorted(nodes.items()):'),(163,'for name,value in sorted(nodes.items()):'),(172,'for name in reversed(directories):'),(179,'observation=roots.observe(target,')):
+   self.assertIn(anchor,lines[line-1])
+  tree=ast.parse(Path(S.__file__).read_text());node=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='copy_work');calls={ast.unparse(n.func)for n in ast.walk(node)if isinstance(n,ast.Call)}
+  self.assertFalse(any(v.startswith(('os.','Path','open','subprocess.'))for v in calls))
+
 if __name__=='__main__':unittest.main(verbosity=2)
