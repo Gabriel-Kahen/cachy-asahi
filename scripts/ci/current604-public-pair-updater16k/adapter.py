@@ -1,0 +1,59 @@
+# SPDX-License-Identifier: MIT
+"""Only outer dispatch and the native-Docker entry predicate change."""
+import ast
+from pathlib import Path
+import contract as C
+
+def change(raw,before,after):
+ text=raw.decode();C.need(text.count(before)==1,'one exact16K adapter anchor: '+before[:90]);text=text.replace(before,after);ast.parse(text);return text.encode()
+
+SIGNATURE_DIAGNOSTIC = '_SIGNATURE_FAILURE_DATA = None\n\ndef signature_failure(args, proc):\n    """Existing failed -U capture only. No key contents or acceptance authority."""\n    global _SIGNATURE_FAILURE_DATA\n    if not (args[0] == \'pacman\' and \'-U\' in args and proc.returncode):\n        return\n    import stat, time\n    try:\n        conf = Path(args[args.index(\'--config\') + 1])\n        need(re.fullmatch(r\'/tmp/composition-[a-z0-9_]{8}/pacman\\.conf\', str(conf)), \'owned private signature diagnostic path\')\n        trust = conf.parent / \'trust\'\n        need(not any(p.is_symlink() for p in (trust, *trust.parents)), \'ordinary private trust diagnostic\')\n        st = trust.lstat()\n        need(stat.S_ISDIR(st.st_mode) and st.st_uid == os.geteuid() and stat.S_IMODE(st.st_mode) == 0o700, \'exact original private keyring lease\')\n        files = {}\n        for name in (\'pubring.gpg\', \'pubring.kbx\', \'trustdb.gpg\', \'common.conf\', \'gpg.conf\'):\n            p = trust / name\n            try:\n                v = p.lstat()\n            except FileNotFoundError:\n                files[name] = {\'present\': False}\n                continue\n            files[name] = dict(present=True, regular=stat.S_ISREG(v.st_mode), symlink=stat.S_ISLNK(v.st_mode), mode=stat.S_IMODE(v.st_mode), uid=v.st_uid, bytes=v.st_size)\n        messages = []\n        for line in (proc.stdout + \'\\n\' + proc.stderr).splitlines():\n            for marker in (\'gpg error: \', \'GPGME version: \', \'signature timestamp is greater than system time.\'):\n                if marker in line:\n                    messages.append((marker + line.split(marker, 1)[1])[:160])\n        _SIGNATURE_FAILURE_DATA = dict(schema_version=1, status=\'FAILED_REQUIRED_SIGNATURE_OPERANDS_NOT_ACCEPTANCE\', epoch_ns=time.time_ns(), exit_code=proc.returncode, trust=dict(mode=stat.S_IMODE(st.st_mode), uid=st.st_uid, gid=st.st_gid, readonly=bool(os.statvfs(trust).f_flag & os.ST_RDONLY), read=os.access(trust,os.R_OK), write=os.access(trust,os.W_OK), search=os.access(trust,os.X_OK)), files=files, GPGME_messages=messages[-4:], messages_omitted=max(0,len(messages)-4), original_crypto_error=\'UNKNOWN_IF_NOT_IN_CAPTURE\', acceptance_authority=False)\n        need(len(json.dumps(_SIGNATURE_FAILURE_DATA).encode()) <= 2048, \'bounded signature diagnostic\')\n    except Exception as error:\n        _SIGNATURE_FAILURE_DATA = dict(schema_version=1, status=\'SIGNATURE_OPERANDS_UNAVAILABLE_NOT_ACCEPTANCE\', error_type=type(error).__name__, acceptance_authority=False)\n\n\n'
+
+def caller(raw):
+ out=change(raw,"and os.geteuid() == 0 and Path('/.dockerenv').is_file()", "and os.geteuid() == 0 and os.sysconf('SC_PAGE_SIZE') == 16384 and 'caa_apps6_update16k=1' in Path('/proc/cmdline').read_text().split()")
+ out=change(out,'def guard():',SIGNATURE_DIAGNOSTIC+'def guard():')
+ out=change(out,"run(pacman + ['--noconfirm', '--noscriptlet', '--ask', '4', '-U', *archives])", "run(pacman + ['--debug', '--noconfirm', '--noscriptlet', '--ask', '4', '-U', *archives])")
+ out=change(out,"    if proc.returncode:\n        print(proc.stdout[-8192:], proc.stderr[-8192:], flush=True)","    if proc.returncode:\n        signature_failure(args, proc)\n        print(proc.stdout[-8192:], proc.stderr[-8192:], flush=True)")
+ out=change(out,"    print(json.dumps(result, sort_keys=True), flush=True)","    print(json.dumps(result, sort_keys=True), flush=True)\n    if _SIGNATURE_FAILURE_DATA is not None:\n        print('APPS6_KEYRING_FAILURE_DATA '+json.dumps(_SIGNATURE_FAILURE_DATA,sort_keys=True,separators=(',',':')),flush=True)")
+ return out
+
+def owner(raw):
+ old="old.command(argv+['--entrypoint=/usr/bin/python3',image,'-I','-B','/runner.py'],public/'transaction.log',3900)"
+ new="vm.run(a,argv,image,public,raw,old,3900)"
+ out=change(raw,old,new)
+ out=change(out,"'audio-inputs','output')", "'audio-inputs','output','kernel-work','kernel-receipt','updater-decisions')")
+ out=change(out,"a=p.parse_args(argv);policy=C.policy()", "a=p.parse_args(argv);vm.authorize(a);policy=C.policy()")
+ out=change(out,"scope='GENERIC4K_PUBLIC_PAIRS_APPS5_TO6_CURRENT604_COPIED_ROOT_SOFTWARE_ONLY'", "scope='GENERIC16K_VM_PUBLIC_PAIRS_APPS5_TO6_CURRENT604_COPIED_ROOT_SOFTWARE_ONLY'")
+ out=change(out,"result.update(status='PASS',composition=row)","result.update(status='PASS',composition=row,generic16k=C.read(public/'updater16k-result.json'))")
+ # Never alter transaction/case verification or producer/cache/volume disposal bodies.
+ out=change(out,"failures=old.retire_outer(actor_owned,result);retired=not failures","failures=vm.retire_outer(old,actor_owned,result,public);retired=not failures")
+ funcs=lambda r:{n.name:ast.dump(n,include_attributes=False) for n in ast.parse(r).body if isinstance(n,ast.FunctionDef)}
+ a,b=funcs(raw),funcs(out);C.need([n for n in a if a[n]!=b[n]]==['main'],'only owner main routing may change')
+ return out
+
+
+PERSISTENT_STAGE_DATA = 'def persistent_stage_failure(before, staged, limits):\n    """Existing map DATA only. Equality and incomplete observation still refuse."""\n    try:\n        import math, time\n        actual = staged[\'nodes\']\n        need(type(before) is dict and type(actual) is dict and max(len(before), len(actual)) <= 200000, \'bounded original stage maps\')\n        need(all(type(n) is str and type(v) is dict for rows in (before,actual) for n,v in rows.items()), \'typed original node maps\')\n        need(type(staged[\'complete\']) is bool and not (staged[\'complete\'] is True and actual == before), \'failed stage predicate only\')\n        common = before.keys() & actual.keys()\n        changed = {n for n in common if before[n] != actual[n]}\n        missing, extra = before.keys() - actual.keys(), actual.keys() - before.keys()\n        examples = []\n        def node_pin(value):\n            raw = json.dumps(value, sort_keys=True, separators=(\',\', \':\'), allow_nan=False).encode()\n            need(len(raw) <= 32768, \'bounded original node metadata\')\n            return dict(bytes=len(raw), sha256=hashlib.sha256(raw).hexdigest())\n        for name in sorted(changed | missing | extra)[:5]:\n            old, new = before.get(name), actual.get(name)\n            fields = sorted(k for k in (old or {}).keys() | (new or {}).keys() if (old or {}).get(k) != (new or {}).get(k))\n            examples.append(dict(path=name[:256], path_truncated=len(name)>256, path_sha256=hashlib.sha256(name.encode()).hexdigest(), kind=\'changed\' if name in changed else \'missing\' if name in missing else \'extra\', fields=[n[:64] for n in fields[:16]], fields_truncated=len(fields)>16, before=None if old is None else node_pin(old), after=None if new is None else node_pin(new)))\n        reasons = staged[\'unsupported_counts\']\n        need(type(reasons) is dict and len(reasons) <= 64 and all(type(k) is str and type(v) is int and 0 < v <= 200000 for k,v in reasons.items()), \'bounded original observation reasons\')\n        remaining = limits.deadline - time.monotonic()\n        need(math.isfinite(remaining), \'finite original stage clock\')\n        value = dict(schema_version=1, status=\'PERSISTENT_STAGE_FAILURE_DATA_NOT_ACCEPTANCE\', observation_complete=staged[\'complete\'], node_maps_equal=actual==before, comparison_scope=\'COMPLETE_MAPS\' if staged[\'complete\'] else \'PARTIAL_OBSERVATION_NOT_EVIDENCE_OF_SOURCE_DRIFT\', expected_nodes=len(before), observed_nodes=len(actual), missing_nodes=len(missing), extra_nodes=len(extra), changed_nodes=len(changed), examples=examples, omitted_examples=max(0,len(changed|missing|extra)-len(examples)), unsupported_counts={k[:96]:v for k,v in sorted(reasons.items())[:8]}, unsupported_reasons_omitted=max(0,len(reasons)-8), stage_remaining_seconds=remaining, stage_deadline_exhausted=remaining<=0, cleanup_authority=False, acceptance_authority=False)\n        raw = json.dumps(value, sort_keys=True, separators=(\',\', \':\'), allow_nan=False)\n        need(len(raw.encode()) <= 6144, \'bounded persistent stage diagnostic\')\n        print(\'APPS6_PERSISTENT_STAGE_FAILURE \'+raw, file=sys.stderr, flush=True)\n    except Exception:\n        pass  # Diagnostic loss never replaces the unchanged original refusal.\n\n\n'
+PERSISTENT_STAGE_GUARD = "    need(staged['complete'] is True and staged['nodes'] == before, 'complete persistent stage differs')"
+PERSISTENT_STAGE_WRAPPER = "    try:\n        need(staged['complete'] is True and staged['nodes'] == before, 'complete persistent stage differs')\n    except ValueError:\n        persistent_stage_failure(before, staged, limits)\n        raise"
+
+def persistent_stage(raw):
+ """Exact original persistent helper, one failure-only pre-existing guard seam."""
+ C.need(C.sha(raw)=='cd1f23bd252b77e9b3a9e907e1c0defd5141025408e92ae5c2500152076b6f3a','whole original persistent helper source')
+ text=raw.decode();helper=PERSISTENT_STAGE_DATA
+ C.need(text.count('def materialize(')==1 and text.count(PERSISTENT_STAGE_GUARD)==1,'one original persistent-stage guard')
+ text=text.replace('def materialize(',helper+'def materialize(',1).replace(PERSISTENT_STAGE_GUARD,PERSISTENT_STAGE_WRAPPER,1)
+ ast.parse(text)
+ C.need(text.replace(helper,'',1).replace(PERSISTENT_STAGE_WRAPPER,PERSISTENT_STAGE_GUARD,1).encode()==raw,'whole persistent helper inverse')
+ return text.encode()
+
+def prepare_selected(selected,source,target,case,**options):
+ config,calling=selected.prepare(source,target,case,**options)
+ q=calling/'container.py';original=q.read_bytes();q.write_bytes(caller(original))
+ scope=calling/'persistent_scope.py';scope_before=scope.read_bytes();scope.write_bytes(persistent_stage(scope_before))
+ value=C.decode(C.read(config));name='scripts/ci/full-root-upgrade-caller/container.py'
+ C.need(value['external_pins'].get('/persistent_scope.py')==C.sha(scope_before),'original persistent helper external pin required');value['external_pins']['/persistent_scope.py']=C.sha(scope.read_bytes());scope_name='scripts/ci/full-root-upgrade-caller/persistent_scope.py';C.need(value['code_pins'].get(scope_name)==C.sha(scope_before),'original persistent helper code pin required');value['code_pins'][scope_name]=C.sha(scope.read_bytes())
+ C.need(value['code_pins'].get(name)==C.sha(original),'original caller source pin required');value['code_pins'][name]=C.sha(q.read_bytes());C.save(config,value)
+ proof=dict(status='SOURCE_DERIVED_NOT_EXECUTED',before=C.sha(original),after=C.sha(q.read_bytes()),counted_edits=5,persistent_stage_diagnostic=dict(before=C.sha(scope_before),after=C.sha(scope.read_bytes()),original_guard='UNCHANGED_RERAISED',new_walks=0,acceptance_authority=False),config_sha256=C.sha(config.read_bytes()),unchanged='ALL_TRANSACTION_DECISIONS_GUARDS_AND_REQUIRED_SIGNATURE_POLICY',diagnostic='FAILURE_ONLY_ORIGINAL_LIBALPM_DEBUG_AND_BOUNDED_METADATA')
+ C.save(calling/'updater16k-adapter.json',proof)
+ receipt=C.decode(C.read(target/'adapter.json'));receipt['config_sha256']=proof['config_sha256'];receipt['updater16k_dispatch']=proof;C.save(target/'adapter.json',receipt)
+ return config,calling
