@@ -183,4 +183,38 @@ class CopyMountControls(unittest.TestCase):
   self.assertEqual(P.R.observe.__code__,m.roots.observe.__code__)
 
 
+
+class CopyPathControls(unittest.TestCase):
+ setUp=CopyMountControls.setUp
+ limits=CopyMountControls.limits
+ # Reuse only the finite fixture setup; original nine controls remain distinct.
+ def test_private_unicode_roundtrip_grammar_and_exact_errors(self):
+  import itertools,random
+  _,fresh=B.scoped_aux(A,P.SOURCE)
+  def result(fn,v):
+   try:return ('return',fn(v))
+   except Exception as e:return(type(e).__name__,str(e))
+  values=[None,False,0,[],Path('a')];alphabet=['a','.','/','\\','\0','\n','é','\udc80']
+  values +=[''.join(v)for n in range(5)for v in itertools.product(alphabet,repeat=n)]
+  rng=random.Random(607);chars=['a','.','/','\\','\t','\r','\x1f','\x7f','é','中','😀','\udc80','\udcff','\ud800']
+  values +=[''.join(rng.choice(chars)for _ in range(rng.randrange(1,120)))for _ in range(3000)]
+  for v in values:self.assertEqual(result(P.R.installer.relative,v),result(fresh.installer.relative,v),repr(v))
+ def test_private_original_observer_graph_and_aux_code_objects_held(self):
+  original=P.R.installer.relative;value,fresh=B.scoped_aux(A,P.SOURCE)
+  self.assertIs(P.R.installer.relative,original);self.assertIsNot(fresh.installer,P.R.installer)
+  for n in('observe','_projected_paths','_group_graph','check_hardlink_preservation'):self.assertEqual(getattr(fresh,n).__code__,getattr(P.R,n).__code__,n)
+  self.assertEqual(value._copy_binding.__code__,A._copy_binding.__code__)
+  self.assertIs(value.aux,A.aux);self.assertIs(value.links,A.links)
+ def test_private_actual_whole_copy_report_and_all_mount_answers_equal(self):
+  reports=[];answers=[]
+  for role,new in(('baseline-path',False),('private-path',True)):
+   m=P.candidate()
+   if new:_,m.roots=B.scoped_aux(A,P.SOURCE)
+   roots=m.roots;original=roots._mount_id;trace=[]
+   def query(fd,limits):
+    answer=original(fd,limits);trace.append(answer);return answer
+   roots._mount_id=query;roots.observe=P.clone(roots.observe,_mount_id=query)
+   reports.append(P.strip(m.copy_data(self.source,self.base/role,limits=self.limits(),hardlinks='generic-development-internal')));answers.append(trace)
+  self.assertEqual(reports[0],reports[1]);self.assertEqual(answers[0],answers[1])
+
 if __name__=='__main__':unittest.main(verbosity=2)

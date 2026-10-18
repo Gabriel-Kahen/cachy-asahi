@@ -7,7 +7,7 @@ import derive as D
 HERE=Path(__file__).resolve().parent
 OLD='scripts/ci/apps-full574-repair-native';NEW=D.LANE
 WF='.github/workflows/native-arm-apps7-full574-repair.yml'
-OWN=('prepare.py','derive.py','derivation-pins.json','source-pins.json','packet.py','policy.json','README.md','test_lane.py','test_inspection.py','cli-pins.json','job.py','supervise.py','snapshot.py','fixture.py','scrub.py','export_extract.py','closure.py','transaction.py','inspection.py','source_only.py')
+OWN=('prepare.py','derive.py','derivation-pins.json','source-pins.json','packet.py','policy.json','README.md','test_lane.py','test_inspection.py','cli-pins.json','job.py','supervise.py','snapshot.py','fixture.py','scrub.py','export_extract.py','closure.py','transaction.py','inspection.py','source_only.py','path_view.py','test_path_view.py')
 need=D.need;pin=D.pin
 encoded=lambda value:(json.dumps(value,sort_keys=True,indent=2)+'\n').encode()
 

@@ -184,7 +184,7 @@ jobs:
       - name: Checkout whole-pinned Welcome-on606 source carrier without native authority
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          ref: c06cc8c456b3c0f04802a8dab54a0e9b1a8595e6
+          ref: 48acfa97e9852e783a3365ac10d24c3b28b84fd8
           path: .ci-inputs/current606-welcome5-source-roles
           persist-credentials: false
       - name: Check closed Welcome-on606 default source and interfaces without actors
@@ -195,7 +195,7 @@ jobs:
       - name: Checkout whole-pinned Apps-on606 source carrier without activation
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          ref: ff33dbd486c7cb4796a87e2162de3e23f698597e
+          ref: 61b30ec086555f9deb2feac5dcabd6d5e130535d
           path: .ci-inputs/current606-apps7-source-roles
           persist-credentials: false
       - name: Checkout exact public Apps7 and Runtime1 pair DATA for source controls
