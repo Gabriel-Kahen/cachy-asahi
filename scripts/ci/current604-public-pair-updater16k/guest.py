@@ -134,14 +134,24 @@ def worker_failure(s,record,stdout,stderr,error):
  try:print('APPS6_UPDATE16K_WORKER_FAILURE '+nonce+' '+text,flush=True)
  except Exception:pass
 
+def initialize_launcher_clock():
+ # Exact existing desktop handoff bounds; PID1 only, before worker capability drop.
+ C.need(os.getpid()==1 and os.getuid()==os.geteuid()==0,'privileged owned PID1 clock initialization only')
+ raw=Path('/proc/cmdline').read_text();C.need(len(raw)<=65536,'bounded guest clock command line required');prefix='cachy_asahi_updater_epoch='
+ rows=[word[len(prefix):]for word in raw.split()if word.startswith(prefix)]
+ C.need(len(rows)==1 and rows[0].isascii()and rows[0].isdecimal()and len(rows[0])==10 and str(int(rows[0]))==rows[0],'one canonical launcher UTC epoch required')
+ epoch=int(rows[0]);C.need(1700000000<=epoch<2**32,'bounded launcher UTC epoch required');before=time.time_ns();time.clock_settime(time.CLOCK_REALTIME,epoch);after=time.time_ns();C.need(epoch*10**9<=after<(epoch+2)*10**9,'guest realtime clock handoff failed')
+ return dict(source='OWNED_QEMU_LAUNCHER_NOT_EXTERNAL_TIME_AUTHORITY',before_ns=before,requested_epoch_s=epoch,after_ns=after)
+
 def main():
  s=C.decode(C.read('/workspace/selection.json'));C.need('caa_apps6_update16k=1' in Path('/proc/cmdline').read_text().split(),'owned16K boot marker')
  for n,pin in s['runner_files'].items():C.need(C.row(Path('/workspace')/n)==pin,'source-pinned guest module')
  if sys.argv[1:]==['worker']:return worker(s)
  C.need(os.getpid()==1 and os.getuid()==os.geteuid()==0 and os.sysconf('SC_PAGE_SIZE')==16384 and os.uname().release==s['kernel']['release'],'actual root16K PID1')
+ clock=initialize_launcher_clock()
  before=list(resource.getrlimit(resource.RLIMIT_NOFILE));resource.setrlimit(resource.RLIMIT_NOFILE,(8192,8192));after=list(resource.getrlimit(resource.RLIMIT_NOFILE));C.need(after==[8192,8192],'exact native8192 descriptor budget')
  libc=ctypes.CDLL(None,use_errno=True);C.need(libc.prctl(4,0,0,0,0)==0,'protect privileged PID1')
- emit(s,dict(event='boot',page_size=16384,kernel=os.uname().release,architecture=os.uname().machine,kernel_profile_sha256=C.sha(C.encoded(s['kernel'])),nofile=dict(before=before,after=after)))
+ emit(s,dict(event='boot',page_size=16384,kernel=os.uname().release,architecture=os.uname().machine,kernel_profile_sha256=C.sha(C.encoded(s['kernel'])),nofile=dict(before=before,after=after),clock=clock))
  runner=C.load('supervisor','/source/scripts/ci/glibc-owned-runtime/runner.py');record,out,err,error=runner.run_command(['/usr/bin/python3','-I','-B','/workspace/guest.py','worker'],Path('/tmp'),dict(PATH='/usr/bin:/bin',LC_ALL='C',HOME='/tmp',TMPDIR='/tmp'),3900,2*1024**2)
  if error is not None or record['exit_code']!=0 or record['group_absence_verified']is not True:
   forward_caller_failure(s,record,out)
