@@ -89,6 +89,9 @@ class Tests(unittest.TestCase):
    root=Path(td)/'source';shutil.copytree(ROOT,root,ignore=top_metadata);(root/'.git').mkdir();(root/'.git/config').write_text('INERT_METADATA');D.source(root)
    (root/'.git/config').unlink();(root/'.git').rmdir();(root/'.git').write_text('gitdir: INERT_NOT_FOLLOWED');D.source(root)
    for extra in(root/'.git-shadow',root/'runtime/.git'):
+    # A canonical runtime carrier clone already has registered nested Git metadata.
+    if extra.is_dir():extra=extra/'INERT_UNEXPECTED'
+    self.assertFalse(extra.exists())
     extra.write_text('INERT_UNEXPECTED')
     with self.assertRaises(ValueError):D.source(root)
     extra.unlink()
