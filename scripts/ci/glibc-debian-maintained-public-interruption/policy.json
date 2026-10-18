@@ -1,0 +1,8 @@
+{
+  "authorization": null,
+  "future_native_interruption_authority": null,
+  "native_normal": null,
+  "packet": null,
+  "schema_version": 1,
+  "status": "UNBOUND_CAA3_PUBLIC_COMPILE_NATIVE_INTERRUPTION_ROUTE"
+}
