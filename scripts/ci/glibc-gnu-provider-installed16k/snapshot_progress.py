@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Optional finite hooks in exact original capability/snapshot methods only."""
-import ast,hashlib,inspect,json,threading,time,types
+import ast,hashlib,inspect,json,sys,threading,time,types
 SNAPSHOT_SHA='f4a1b8b24df17650a2aeeb6cc7f074071135f8a773c1ab1511a42194c834372a'
 CAP_SHA='498a3beec0327b9335dcd6d80ed5919fa2edebebd3284e9ee8b97770328e26a2'
 COUNTERS=('graph_nodes','walk_nodes','recheck_nodes','capability_entries','hashed_inodes','hashed_bytes','mount_queries','attribute_queries','json_bytes','compressed_bytes')
@@ -9,13 +9,50 @@ def need(ok,why):
  if not ok:raise ValueError(why)
 def validate(v):
  need(type(v) is dict and set(v)=={'operation','elapsed_ms',*COUNTERS} and v['operation'] in OPS and all(type(v[k]) is int and 0<=v[k]<=2**63-1 for k in ('elapsed_ms',*COUNTERS)),'closed bounded postwalk counters');return v
+COPY_WORK_PHASES=('SETUP','DIRECTORY_CREATE','FILE_COPY','SYMLINK_COPY','DIRECTORY_METADATA','VALIDATION')
+COPY_WORK_CALLS=('_copy_internal','_parent','_write','_source_alias','_root_check','OTHER')
+def validate_copy_work(value):
+ fields={'phase','caller','line','nodes','scheduled_file_entries','source_parent_identities','destination_parent_identities','current_file_bytes','sampled_at_ms','omitted_samples'}
+ need(type(value) is dict and set(value)==fields and value['phase'] in COPY_WORK_PHASES and value['caller'] in COPY_WORK_CALLS,'closed copy work DATA')
+ need(all(type(value[k]) is int and 0<=value[k]<=2**63-1 for k in fields-{'phase','caller'}),'bounded copy work counters')
+ need(94<=value['line']<=193 and value['scheduled_file_entries']<=value['nodes'] and value['source_parent_identities']<=value['nodes'] and value['destination_parent_identities']<=value['nodes'],'source-bound copy counters')
+ line=value['line'];phase='SETUP' if line<119 else 'DIRECTORY_CREATE' if line<126 else 'FILE_COPY' if line<163 else 'SYMLINK_COPY' if line<172 else 'DIRECTORY_METADATA' if line<179 else 'VALIDATION'
+ need(value['phase']==phase and (phase=='FILE_COPY' or value['current_file_bytes']==0),'copy work source-line/phase identity');return value
+
+def copy_work():
+ """Read only bounded scalar/length DATA from the pinned original copier frame.
+
+ No path, payload, frame or mutable mapping escapes; no filesystem query/scan.
+ The unchanged factory compiles exact measure_copy.py with one existing scope
+ predicate substitution, preserving all line anchors and operations.
+ """
+ frame=sys._getframe(1);caller='OTHER'
+ try:
+  for _ in range(12):
+   if frame is None:return None
+   code=frame.f_code
+   if code.co_filename.endswith('/scripts/update/measure_copy.py'):
+    if caller=='OTHER' and code.co_name in COPY_WORK_CALLS:caller=code.co_name
+    if code.co_name=='_copy_internal' and code.co_firstlineno==94 and 94<=frame.f_lineno<=193:
+     line=frame.f_lineno;local=frame.f_locals
+     phase='SETUP' if line<119 else 'DIRECTORY_CREATE' if line<126 else 'FILE_COPY' if line<163 else 'SYMLINK_COPY' if line<172 else 'DIRECTORY_METADATA' if line<179 else 'VALIDATION'
+     nodes=local.get('nodes',{});copied=local.get('copied',set());source=local.get('source_dirs',{});destination=local.get('dest_dirs',{})
+     if type(nodes) is not dict or type(copied) is not set or type(source) is not dict or type(destination) is not dict:return None
+     return dict(phase=phase,caller=caller,line=line,nodes=len(nodes),scheduled_file_entries=len(copied),source_parent_identities=len(source),destination_parent_identities=len(destination),current_file_bytes=local.get('total',0) if phase=='FILE_COPY' else 0)
+   frame=frame.f_back
+  return None
+ finally:del frame
+
 COPY_OPERATIONS=('SELECTED_OBSERVE','COPY_DATA','COPIED_TREE','CAPABILITY_RESTORE')
 def validate_copy(value):
  fields={'schema_version','operation','ordinal','elapsed_ms','phase_elapsed_ms','shared_remaining_ms','window_remaining_ms','expiry','acceptance'}
- need(type(value) is dict and set(value)==fields and type(value['schema_version']) is int and value['schema_version']==1 and value['operation'] in COPY_OPERATIONS,'closed copy phase DATA')
+ need(type(value) is dict and set(value) in (fields,fields|{'work'}) and type(value['schema_version']) is int and value['schema_version']==1 and value['operation'] in COPY_OPERATIONS,'closed copy phase DATA')
  need(type(value['ordinal']) is int and 1<=value['ordinal']<=64 and all(type(value[k]) is int and 0<=value[k]<=2**63-1 for k in ('elapsed_ms','phase_elapsed_ms','shared_remaining_ms')),'bounded copy timing DATA')
  need(value['window_remaining_ms'] is None or type(value['window_remaining_ms']) is int and 0<=value['window_remaining_ms']<=600000,'bounded copy600 window DATA')
- need(value['expiry'] in ('NONE','PARENT2400','WINDOW600') and value['acceptance'] is False,'copy phase DATA cannot grant acceptance');return value
+ need(value['expiry'] in ('NONE','PARENT2400','WINDOW600') and value['acceptance'] is False,'copy phase DATA cannot grant acceptance')
+ if 'work' in value:
+  need(value['operation']=='COPY_DATA','copy work DATA exclusive scope');validate_copy_work(value['work'])
+ return value
 class Journal:
  """Bounded diagnostic tail; repeated samples coalesce without losing current seam."""
  def __init__(self,selection):self.selection=selection;self.rows=[];self.sequence=0
