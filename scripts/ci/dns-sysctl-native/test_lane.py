@@ -42,7 +42,7 @@ class Source(unittest.TestCase):
   original=A.read(ROOT,'scripts/ci/welcome-native/run.py')
   self.assertIn("execute(argv,directory/'build.log',240)",original)
   self.assertIn("'--network=none'",original);self.assertIn("'--cap-drop=ALL'",original)
-  self.assertIn('len(self)<6',new)
+  self.assertIn('len(self)<7',new)
   job=A.text(ROOT,'job.py');self.assertIn('MAX_TOTAL=192*1024**2',job)
   self.assertEqual(function(A.read(ROOT,'scripts/ci/tools-native/job.py'),'cleanup'),function(job,'cleanup'))
  def test_runner_emission_exact_installed_load_and_held_signing_helpers(self):
@@ -74,6 +74,37 @@ class Source(unittest.TestCase):
   life=(A.HERE/'lifecycle.py').read_text();self.assertIn("I.guard(L,'lifecycle')",life)
   self.assertEqual(life.count("pacman+['-R',*reversed(C.NAMES)]"),2)
   self.assertIn('I.preserve_base(L,state)==base_digest',life)
+
+class PrivateProfile(unittest.TestCase):
+ def test_fixture_refuses_host_before_output_and_native_rules_reject_x86(self):
+  F=C.load('profile_host_refusal',A.HERE/'private_profile.py')
+  with tempfile.TemporaryDirectory()as tmp,patch('subprocess.Popen',side_effect=AssertionError('host process forbidden')):
+   out=Path(tmp)/'absent'
+   with self.assertRaisesRegex(ValueError,'dedicated root'):F.run(out)
+   self.assertFalse(out.exists())
+  for value in ({},{'status':'PASS_REAL_PRIVATE_STORED_PROFILE_INTEGRATION','architecture':'x86_64'}):
+   with self.assertRaises(ValueError):rules.validate_profile(value,'0'*64)
+ def test_real_staged_command_bytes_mode_and_zero_cap_frame_without_actor(self):
+  module=C.load('profile_actual_stage_control',A.HERE/'profile_actor.py')
+  shared=C.load('profile_original_docker_frame',ROOT/'scripts/ci/welcome-native/run.py')
+  program=ROOT/'packages/tools/cachy-asahi-dns/cachy-asahi-dns';captured=[]
+  product={'payload':{'usr/bin/cachy-asahi-dns':{'sha256':C.digest(program),'mode':0o755}},'sha256':'0'*64,'version':'0.1.0-1'}
+  class StagedBeforeAnyActor(Exception):pass
+  def stop(argv,log,seconds):captured.append(argv);raise StagedBeforeAnyActor()
+  with tempfile.TemporaryDirectory()as tmp:
+   out=Path(tmp);(out/'base-inventory.log').write_text('fixture-only 0-1\n')
+   with patch('subprocess.Popen',side_effect=AssertionError('actor forbidden')),self.assertRaises(StagedBeforeAnyActor):
+    module.launch(C,ROOT,out,'INERT_NO_DAEMON_MODEL',{'cachy-asahi-dns':product},shared.docker,stop,[])
+   staged=out/'profile-inputs/dns-command';self.assertEqual(staged.read_bytes(),program.read_bytes());self.assertEqual(staged.stat().st_mode&0o777,0o755)
+   self.assertFalse(any(a.startswith('--cap-add=')for a in captured[0]));self.assertIn('--cap-drop=ALL',captured[0]);self.assertIn('--network=none',captured[0])
+   self.assertIn('type=bind,src='+str(staged)+',dst=/usr/bin/cachy-asahi-dns,readonly',captured[0])
+ def test_new_actor_removes_only_original_six_caps_and_preserves_other_guards(self):
+  actor=(A.HERE/'profile_actor.py').read_text();self.assertIn("[a for a in argv if a not in caps]",actor)
+  self.assertIn("I.preserve_base(L,state)==before",actor);self.assertIn("after==network",actor)
+  self.assertIn("os.uname().machine=='aarch64'",actor)
+  self.assertIn("out/'private-profile.log',600",actor)
+  emitted=A.text(ROOT,'run.py');self.assertIn('profile.launch(C,source,out,image,products,docker,command,containers)',emitted)
+  self.assertEqual(emitted.count("'--env=CACHY_ASAHI_APPS_CACHE_OPERATION=lifecycle'"),1)
 
 # Reuse eight original cleanup controls, original source/refusal controls and exact byte pair gate.
 original=C.load('dns_sysctl_original_controls',ROOT/'scripts/ci/tools-native/test_native.py')

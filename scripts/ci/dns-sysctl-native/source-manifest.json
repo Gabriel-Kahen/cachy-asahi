@@ -89,12 +89,12 @@
       "sha256": "10d210905f770854ddf9ebb72b46002d414787aa0a878a498ba4b21b663d9d8e"
     },
     "scripts/ci/dns-sysctl-native/README.md": {
-      "bytes": 2388,
-      "sha256": "7e240640b58b123392d2533dce82f26f197736468ed70c20a947d14876973737"
+      "bytes": 2534,
+      "sha256": "44c896c2802be44b69a4450c42594b05af89cadf6804202b11a2262e4cbfeff3"
     },
     "scripts/ci/dns-sysctl-native/adapter.py": {
-      "bytes": 8720,
-      "sha256": "78ee8e094f6c69ea5a1f10639888f86fc81025b7d0f0dd067dd43c3ff04ff898"
+      "bytes": 10264,
+      "sha256": "6382bde38b4234a010d4bf54045146298f8bee86b36458e68c32ac3ec42b5bc1"
     },
     "scripts/ci/dns-sysctl-native/contract.py": {
       "bytes": 380,
@@ -132,9 +132,17 @@
       "bytes": 5020,
       "sha256": "3fbb6d809b193602b502d5f1bd7e22e5ee3cd7ed0bee63709667992766e247ce"
     },
+    "scripts/ci/dns-sysctl-native/private_profile.py": {
+      "bytes": 11849,
+      "sha256": "ecc294d1c0d4b95f0789448f8a96a54ada450b96d831f8ed6c9f371941a56bcb"
+    },
+    "scripts/ci/dns-sysctl-native/profile_actor.py": {
+      "bytes": 5104,
+      "sha256": "dcad9910058625be83678f793f5e0fcf1b5da496a52de69e3c7a5f175fbea40b"
+    },
     "scripts/ci/dns-sysctl-native/rules.py": {
-      "bytes": 2067,
-      "sha256": "3331c5bd53e0f158cf02f7740c855b5a699bffa012285f326139fd33a91dc807"
+      "bytes": 4961,
+      "sha256": "c2a6ba6abe7f4af5a15a2d1593585250f9853343527522aaeb01441c0709d5ed"
     },
     "scripts/ci/dns-sysctl-native/run.py": {
       "bytes": 370,
@@ -145,8 +153,8 @@
       "sha256": "cfe1fc02fe0038fcb3edded598777be92d25f2a7362246b4f2ca134570762e88"
     },
     "scripts/ci/dns-sysctl-native/test_lane.py": {
-      "bytes": 6019,
-      "sha256": "ca198b7f4b5d08cb125ec72dd64f5d930d3d4e05e42795281fde718388d431bc"
+      "bytes": 8584,
+      "sha256": "584611549bf4bba07f656628eb8539838b9ca4ec4509fb47e769764599513433"
     },
     "scripts/ci/dns-sysctl-native/workflow.yml.in": {
       "bytes": 7145,
