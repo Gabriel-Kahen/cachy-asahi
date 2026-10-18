@@ -83,7 +83,7 @@ class Source(unittest.TestCase):
 class WorkerCapture(unittest.TestCase):
  def helper(self,argv=None):
   import ast,contextlib,io,types
-  text=(ROOT/'runtime/guest.py').read_text();tree=ast.parse(text);n=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='worker_failure_data');raw=ast.get_source_segment(text,n)
+  text=prior_retirement((ROOT/'runtime/guest.py').read_text());tree=ast.parse(text);n=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='worker_failure_data');raw=ast.get_source_segment(text,n)
   if argv is not None:
    old="['/usr/bin/python3','-I','-B','/workspace/guest.py','worker']";self.assertEqual(raw.count(old),1);raw=raw.replace(old,repr(argv),1)
   C=types.SimpleNamespace(need=O.need,sha=lambda b:__import__('hashlib').sha256(b).hexdigest(),SHARED_SECONDS=3000)
@@ -99,7 +99,7 @@ class WorkerCapture(unittest.TestCase):
   return stream.getvalue()
  def test_whole_original_guest_inverse_and_held_positive_guard(self):
   import ast,hashlib
-  text=pre_inner((ROOT/'runtime/guest.py').read_text());tree=ast.parse(text);n=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='worker_failure_data');helper=ast.get_source_segment(text,n)+'\n\n';call=' worker_failure_data(s,row,out,err,error)\n';self.assertEqual(text.count(call),1);inverse=text.replace(helper,'',1).replace(call,'',1);self.assertEqual(hashlib.sha256(inverse.encode()).hexdigest(),'17c9608949accf0e39459c45e07c18533d02cdb5ca8e5f018b3a4d26f0717e9c')
+  text=pre_inner(prior_retirement((ROOT/'runtime/guest.py').read_text()));tree=ast.parse(text);n=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='worker_failure_data');helper=ast.get_source_segment(text,n)+'\n\n';call=' worker_failure_data(s,row,out,err,error)\n';self.assertEqual(text.count(call),1);inverse=text.replace(helper,'',1).replace(call,'',1);self.assertEqual(hashlib.sha256(inverse.encode()).hexdigest(),'17c9608949accf0e39459c45e07c18533d02cdb5ca8e5f018b3a4d26f0717e9c')
   guard=" C.need(error is None and row['exit_code']==0 and row['group_absence_verified']is True,'whole KSM guest worker exit/group retirement')";self.assertEqual(text.count(guard),1);self.assertLess(text.index(call),text.index(guard));self.assertEqual(O.decode(O.read(ROOT/'runtime/runner-files.json'))['files']['guest.py'],O.pin((ROOT/'runtime/guest.py').read_bytes()))
  def test_real_inert_child_original_stream_record_and_typed_error_DATA(self):
   argv,row,out,err,error=self.child("import sys;print('KSM2_VM_ERROR ValueError inert private failure');sys.stderr.write('inert stderr\\n');sys.exit(1)")
@@ -133,7 +133,7 @@ def pre_inner(text):
 class InnerCommand(unittest.TestCase):
  def source(self):
   import ast
-  text=(ROOT/'runtime/guest.py').read_text();tree=ast.parse(text);functions={n.name:ast.get_source_segment(text,n)for n in tree.body if isinstance(n,ast.FunctionDef)};run=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='run');node=next(n for n in run.body if isinstance(n,ast.FunctionDef)and n.name=='command');return functions,ast.get_source_segment(text,node)
+  text=prior_retirement((ROOT/'runtime/guest.py').read_text());tree=ast.parse(text);functions={n.name:ast.get_source_segment(text,n)for n in tree.body if isinstance(n,ast.FunctionDef)};run=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='run');node=next(n for n in run.body if isinstance(n,ast.FunctionDef)and n.name=='command');return functions,ast.get_source_segment(text,node)
  def namespace(self):
   import types,hashlib
   functions,command=self.source();C=types.SimpleNamespace(need=O.need,sha=lambda b:hashlib.sha256(b).hexdigest(),pin=lambda b:dict(bytes=len(b),sha256=hashlib.sha256(b).hexdigest()),SHARED_SECONDS=3000,encoded=O.encoded);R=O.load('_inner_held_runtime',ROOT/'runtime/borrowed/runtime.py');space=dict(C=C,json=json,Path=Path,time=__import__('time'),runtime=R,rows=[],deadline=__import__('time').monotonic()+3000,s=dict(nonce='c'*32));exec(compile(functions['command_failure_data'],'<exact-source-helper>','exec'),space);exec(compile(command,'<exact-nested-command>','exec'),space);return space
@@ -146,7 +146,7 @@ class InnerCommand(unittest.TestCase):
   return value,error,out.getvalue()
  def test_whole_source_inverse_and_original_guards(self):
   import hashlib,ast
-  text=(ROOT/'runtime/guest.py').read_text();self.assertEqual(hashlib.sha256(pre_inner(text).encode()).hexdigest(),'25133a4f0fd9983c02d04f25e2eb8349dd5f5c43895b46803f7d772ad0c09123')
+  text=prior_retirement((ROOT/'runtime/guest.py').read_text());self.assertEqual(hashlib.sha256(pre_inner(text).encode()).hexdigest(),'25133a4f0fd9983c02d04f25e2eb8349dd5f5c43895b46803f7d772ad0c09123')
   guard="C.need(error is None and r['exit_code']==expected and r['group_absence_verified']is True,'natural direct installed command/group retirement')";self.assertEqual(text.count(guard),1);self.assertLess(text.index('  command_failure_data(s,r,'),text.index(guard));self.assertEqual(text.count(' worker_failure_data(s,row,out,err,error)\n'),1)
  def test_real_nested_natural_failure_and_success_silence(self):
   ns=self.namespace();argv=[sys.executable,'-I','-B','-c',"import sys;print('inert inner stdout');sys.stderr.write('inert inner stderr\\n');sys.exit(7)"];value,error,text=self.captured(ns['command'],argv);self.assertIsInstance(error,ValueError);self.assertEqual(str(error),'natural direct installed command/group retirement');v=json.loads(text.split(' ',2)[2]);self.assertEqual(v['record'],ns['rows'][0]);self.assertEqual(v['record']['exit_code'],7);self.assertIsNone(v['supervisor_error_type']);self.assertFalse(v['acceptance_authority']);self.assertTrue(v['record']['group_absence_verified'])
@@ -165,6 +165,54 @@ class InnerCommand(unittest.TestCase):
   ns=self.namespace();row=dict(argv=['inert'],exit_code=7,group_absence_verified=True,seconds=0,time_limit=1,output_limit=128*1024,stdout_bytes=0,stdout_sha256='0'*64,stderr_bytes=0,stderr_sha256='0'*64);_,e,text=self.captured(ns['command_failure_data'],ns['s'],row,b'',b'',None,0,1,1);self.assertIsNone(e);self.assertEqual(text,'')
   with patch('builtins.print',side_effect=OSError('INERT_CLOSED_STDOUT')):
    with self.assertRaisesRegex(ValueError,'natural direct installed command/group retirement'):ns['command']([sys.executable,'-I','-B','-c','raise SystemExit(7)'])
+
+
+RETIREMENT_HELPERS='\ndef supervision_runtime(runtime,worker=False):\n """Exact borrowed supervisor; reap owned adopted children before real absence."""\n import types\n raw=C.read(Path(runtime.__file__),128*1024)\n C.need(C.sha(raw)==\'4d9aa954d95032ab9ea9085ced784efc81a5db42e2f1f3401e679ee861c16090\',\'whole original command supervisor\')\n before="""            for sig in (signal.SIGTERM,signal.SIGKILL):\n                try:os.killpg(proc.pid,sig)\n                except ProcessLookupError:pass\n            code=proc.wait(timeout=5)\n            try:os.killpg(proc.pid,0)\n            except ProcessLookupError:group_absent=True\n"""\n after="""            # One existing five-second finalization window, including leader wait.\n            finish=time.monotonic()+5\n            for sig in (signal.SIGTERM,signal.SIGKILL):\n                try:os.killpg(proc.pid,sig)\n                except ProcessLookupError:pass\n            code=proc.wait(timeout=max(0,finish-time.monotonic()))\n            # The guest worker is a child subreaper. Adopted descendants in this\n            # exact PGID must be genuinely reaped; zombies are never ignored.\n            reaped=0\n            while True:\n                try:\n                    while True:\n                        child,_status=os.waitpid(-proc.pid,os.WNOHANG)\n                        if child==0:break\n                        reaped+=1;need(reaped<=512,\'owned-command-child-bound\')\n                except ChildProcessError:pass\n                try:os.killpg(proc.pid,0)\n                except ProcessLookupError:group_absent=True;break\n                remaining=finish-time.monotonic()\n                if remaining<=0:break\n                time.sleep(min(.01,remaining))\n"""\n C.need(raw.count(before.encode())==1,\'one exact owned-group finalization seam\')\n derived=raw.replace(before.encode(),after.encode())\n C.need(derived.replace(after.encode(),before.encode())==raw,\'whole supervisor finalization inverse\')\n if worker:\n  # Only the already guarded dedicated guest worker changes its own adoption.\n  libc=ctypes.CDLL(None,use_errno=True);value=ctypes.c_int(-1)\n  C.need(libc.prctl(36,1,0,0,0)==0 and libc.prctl(37,ctypes.byref(value),0,0,0)==0 and value.value==1,\'worker child subreaper verified\')\n module=types.ModuleType(\'_ksm_owned_group_supervisor\');module.__file__=runtime.__file__\n exec(compile(derived,runtime.__file__+\':owned-group-retirement\',\'exec\'),module.__dict__)\n return module\n\n'
+RETIREMENT_PROCESS_CONTROL='"""Real isolated Linux fork/group controls; never a native/VM or package actor."""\nimport argparse,ast,ctypes,hashlib,importlib.util,json,os,signal,subprocess,sys,time,types\nfrom pathlib import Path\nHERE=Path(__file__).resolve().parent\nSOURCE=Path(os.environ.get(\'KSM_RETIREMENT_SOURCE\',str(HERE/\'source-ready\')))\nif not SOURCE.exists():SOURCE=HERE.parent/\'ksm2-inner-command-trial-root-20261018/source\'\ndef module(name,path):\n s=importlib.util.spec_from_file_location(name,path);m=importlib.util.module_from_spec(s);s.loader.exec_module(m);return m\ndef helper():\n path=SOURCE/\'runtime/guest.py\';tree=ast.parse(path.read_bytes());node=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name==\'supervision_runtime\')\n contract=module(\'local_retirement_contract\',SOURCE/\'runtime/contract.py\');ns=dict(C=contract,Path=Path,ctypes=ctypes)\n exec(compile(ast.Module(body=[node],type_ignores=[]),str(path),\'exec\'),ns);return ns[\'supervision_runtime\']\nLEADER="""import os,time\nr,w=os.pipe();child=os.fork()\nif child==0:\n os.close(r);os.close(0);os.close(1);os.close(2);os.write(w,b\'X\');os.close(w);time.sleep(60);os._exit(0)\nos.close(w);assert os.read(r,1)==b\'X\';os.close(r);print(str(os.getpid())+\' \'+str(child),flush=True);os._exit(0)\n"""\ndef enable():\n v=ctypes.c_int(-1);libc=ctypes.CDLL(None,use_errno=True)\n assert libc.prctl(36,1,0,0,0)==0 and libc.prctl(37,ctypes.byref(v),0,0,0)==0 and v.value==1\ndef worker(mode):\n runtime=module(\'local_original_supervisor\',SOURCE/\'runtime/borrowed/runtime.py\')\n if mode!=\'old\':runtime=helper()(runtime,worker=mode==\'fixed\')\n # This unrelated same-parent zombie is not a member of the command PGID.\n # The command-specific reaper must leave its wait status for this owner.\n unrelated=os.fork()\n if unrelated==0:os.setsid();os._exit(19)\n end=time.monotonic()+2\n while os.waitid(os.P_PID,unrelated,os.WEXITED|os.WNOHANG|os.WNOWAIT)is None:\n  assert time.monotonic()<end;time.sleep(.001)\n row,out,err,error=runtime.run_command([sys.executable,\'-I\',\'-B\',\'-c\',LEADER],Path(\'/tmp\'),dict(PATH=\'/usr/bin:/bin\',LANG=\'C\'),2,4096)\n unconsumed=os.waitid(os.P_PID,unrelated,os.WEXITED|os.WNOHANG|os.WNOWAIT);assert unconsumed.si_pid==unrelated and unconsumed.si_status==19;assert os.waitpid(unrelated,0)[0]==unrelated\n group,grandchild=map(int,out.split());print(json.dumps(dict(mode=mode,row=row,group=group,grandchild=grandchild,error=None if error is None else type(error).__name__,unrelated_status_held=True)),flush=True)\ndef outer(mode):\n # Emulate the pinned PID1 adoption relationship only in this private process.\n enable();p=subprocess.run([sys.executable,\'-I\',\'-B\',str(Path(__file__).resolve()),\'worker\',mode],capture_output=True,timeout=12)\n assert p.returncode==0,p.stderr.decode();v=json.loads(p.stdout);pid=v[\'grandchild\'];state=None\n try:\n  status=Path(\'/proc\')/str(pid)/\'status\';text=status.read_text();fields=dict(line.split(\':\',1)for line in text.splitlines()if \':\'in line);state=dict(state=fields[\'State\'].strip().split()[0],parent=int(fields[\'PPid\']),group=os.getpgid(pid))\n except FileNotFoundError:pass\n v[\'adopted_state_before_outer_reap\']=state\n reaped=[]\n while True:\n  try:\n   child,status=os.waitpid(-1,os.WNOHANG)\n   if child==0:break\n   reaped.append(child)\n  except ChildProcessError:break\n v[\'outer_adopted_reaped_count\']=len(reaped)\n try:os.killpg(v[\'group\'],0);absent=False\n except ProcessLookupError:absent=True\n assert absent,\'owned local fixture group must be retired even on refusal\'\n if mode==\'fixed\':assert v[\'row\'][\'group_absence_verified\']is True and state is None\n else:assert v[\'row\'][\'group_absence_verified\']is False and state and state[\'state\']==\'Z\'and state[\'parent\']==os.getpid()and state[\'group\']==v[\'group\']\n assert v[\'row\'][\'exit_code\']==0 and v[\'error\']is None and v[\'unrelated_status_held\']is True\n assert v[\'row\'][\'seconds\']<=7 and v[\'row\'][\'time_limit\']==2 and v[\'row\'][\'output_limit\']==4096\n print(json.dumps(dict(context=\'LOCAL_INERT_FORK_GROUP_CONTROL_NOT_NATIVE_VM_OR_PACKAGE\',**v)))\ndef main():\n p=argparse.ArgumentParser();p.add_argument(\'role\',choices=[\'worker\',\'outer\']);p.add_argument(\'mode\',choices=[\'old\',\'adapter-only\',\'fixed\']);a=p.parse_args()\n (worker if a.role==\'worker\'else outer)(a.mode)\nif __name__==\'__main__\':main()\n'
+
+def prior_retirement(text):
+ import hashlib
+ original="runtime=C.load('_ksm_vm_supervision','/source/borrowed/runtime.py')"
+ changed=original+';runtime=supervision_runtime(runtime,worker=True)'
+ old_pid1="R=C.load('_ksm_pid1_supervision','/source/borrowed/runtime.py');row,out,err,error="
+ new_pid1="R=C.load('_ksm_pid1_supervision','/source/borrowed/runtime.py');R=supervision_runtime(R);row,out,err,error="
+ O.need(text.count(RETIREMENT_HELPERS)==text.count(changed)==text.count(new_pid1)==1,'one exact worker/guest group-retirement seam')
+ raw=text.replace(RETIREMENT_HELPERS,'',1).replace(changed,original,1).replace(new_pid1,old_pid1,1)
+ O.need(hashlib.sha256(raw.encode()).hexdigest()=='5b6949572da21fd967ffcfff198501e2a9215f1a51b9a26633cfba3f9cbe087c','whole prior guest inverse')
+ return raw
+
+class OwnedProcessRetirement(unittest.TestCase):
+ def check_mode(self,mode):
+  with tempfile.TemporaryDirectory()as td:
+   script=Path(td)/'process_control.py';script.write_text(RETIREMENT_PROCESS_CONTROL)
+   env=dict(os.environ,KSM_RETIREMENT_SOURCE=str(ROOT))
+   p=subprocess.run([sys.executable,'-I','-B',str(script),'outer',mode],env=env,capture_output=True,timeout=14)
+  self.assertEqual(p.returncode,0,p.stderr.decode());v=json.loads(p.stdout);self.assertEqual(v['context'],'LOCAL_INERT_FORK_GROUP_CONTROL_NOT_NATIVE_VM_OR_PACKAGE');self.assertIsNone(v['error']);self.assertEqual(v['row']['exit_code'],0);self.assertTrue(v['unrelated_status_held']);return v
+ def test_real_orphan_zombie_old_refusal_and_subreaper_group_retirement(self):
+  old=self.check_mode('old');new=self.check_mode('fixed');self.assertFalse(old['row']['group_absence_verified']);self.assertEqual(old['adopted_state_before_outer_reap']['state'],'Z');self.assertEqual(old['outer_adopted_reaped_count'],1);self.assertTrue(new['row']['group_absence_verified']);self.assertIsNone(new['adopted_state_before_outer_reap']);self.assertEqual(new['outer_adopted_reaped_count'],0)
+ def test_real_no_subreaper_does_not_ignore_existing_zombies(self):
+  v=self.check_mode('adapter-only');self.assertFalse(v['row']['group_absence_verified']);self.assertEqual(v['adopted_state_before_outer_reap']['state'],'Z');self.assertGreaterEqual(v['row']['seconds'],5);self.assertLess(v['row']['seconds'],7)
+ def test_whole_guest_inverse_and_original_guards_protocol_limits_held(self):
+  text=(ROOT/'runtime/guest.py').read_text();old=prior_retirement(text)
+  import ast,hashlib
+  before={n.name:ast.get_source_segment(old,n)for n in ast.parse(old).body if isinstance(n,ast.FunctionDef)}
+  after={n.name:ast.get_source_segment(text,n)for n in ast.parse(text).body if isinstance(n,ast.FunctionDef)}
+  self.assertEqual(set(after)-set(before),{'supervision_runtime'})
+  self.assertEqual({n for n in before if before[n]!=after[n]},{'run','main'})
+  for guard in("natural direct installed command/group retirement","whole KSM guest worker exit/group retirement","unknown non-kernel guest process remains"):
+   self.assertEqual(text.count(guard),old.count(guard))
+  self.assertIn('finish=time.monotonic()+5',RETIREMENT_HELPERS);self.assertIn('os.waitpid(-proc.pid,os.WNOHANG)',RETIREMENT_HELPERS)
+  self.assertIn('code=proc.wait(timeout=max(0,finish-time.monotonic()))',RETIREMENT_HELPERS)
+ def test_changed_borrowed_source_and_failed_subreaper_refuse_before_command(self):
+  import ast,ctypes,types
+  raw=(ROOT/'runtime/guest.py').read_text();node=next(n for n in ast.parse(raw).body if isinstance(n,ast.FunctionDef)and n.name=='supervision_runtime')
+  C=types.SimpleNamespace(read=lambda *a:(ROOT/'runtime/borrowed/runtime.py').read_bytes(),sha=lambda raw:__import__('hashlib').sha256(raw).hexdigest(),need=O.need)
+  ns=dict(C=C,Path=Path,ctypes=ctypes);exec(compile(ast.Module(body=[node],type_ignores=[]),'<source-owned-group-helper>','exec'),ns);runtime=types.SimpleNamespace(__file__=str(ROOT/'runtime/borrowed/runtime.py'))
+  with patch.object(C,'read',return_value=b'INERT_DRIFT'):
+   with self.assertRaisesRegex(ValueError,'whole original'):ns['supervision_runtime'](runtime,worker=True)
+  libc=types.SimpleNamespace(prctl=lambda *a:-1)
+  with patch.object(ctypes,'CDLL',return_value=libc):
+   with self.assertRaisesRegex(ValueError,'subreaper verified'):ns['supervision_runtime'](runtime,worker=True)
 
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--source',type=Path,required=True);a,left=p.parse_known_args();ROOT=a.source.absolute();unittest.main(argv=[sys.argv[0]]+left)
