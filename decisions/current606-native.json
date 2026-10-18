@@ -1,0 +1,27 @@
+{
+  "cleanup": "PASS",
+  "expected606_sha256": "3a586c1e3400391f56bd281ac9c16aba85d94d0fca002770e77ee1802c5d9fd1",
+  "full604_preserved": true,
+  "hardware": "NOT_RUN",
+  "installed_controls": {
+    "dns2": 27,
+    "ordinary_homes": 2,
+    "sysctl2": 28
+  },
+  "package_count": 606,
+  "release": "NOT_ADMITTED",
+  "run_id": 39106953257,
+  "source": "f3a30f2049f57d9f3cb2433fbd59af51d4cc5720",
+  "source_manifest": {
+    "bytes": 45796,
+    "sha256": "09dae54c10f76d1a7b0bedd012f82aa513f5cc93102ad4ef5e6406dfee8bdd74"
+  },
+  "status": "ROOT_ACCEPTED_NATIVE606_DNS2_SYSCTL2_RETAINED_SCOPE",
+  "transitions": [
+    606,
+    606,
+    604,
+    606,
+    604
+  ]
+}
