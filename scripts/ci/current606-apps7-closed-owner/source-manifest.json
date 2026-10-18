@@ -1303,6 +1303,14 @@
       "bytes": 11102,
       "sha256": "b1e2fc13644510a613ce09e53b39d4f4471cf47fc03fa62f312258379666c418"
     },
+    "scripts/ci/current606-apps7-closed-owner/archive6-policy.json": {
+      "bytes": 2036,
+      "sha256": "4d83dbda592b8b6575d02df65de829226cae3ddffc7268e3d47873ac83f3b322"
+    },
+    "scripts/ci/current606-apps7-closed-owner/archive6.py": {
+      "bytes": 11090,
+      "sha256": "5e448ef6677fc26485e044b3ac2d35a07105703d4f1a719bb7c030678eff87ae"
+    },
     "scripts/ci/current606-apps7-closed-owner/builds.py": {
       "bytes": 1663,
       "sha256": "fb94009d7b8e36eeb77cd5332f37ba1ed9af60dd57b2ca9d5e1c0d53ef619b0a"
@@ -1324,8 +1332,8 @@
       "sha256": "73d4d243588ea82c7c4f7398c379121fdb2403c9ed378bb0e63ec2dce11d1875"
     },
     "scripts/ci/current606-apps7-closed-owner/prepare.py": {
-      "bytes": 13559,
-      "sha256": "5b05a1bb69befaa9316d62283d10694f1d836ec4b35231e9347712330e03798a"
+      "bytes": 15574,
+      "sha256": "90b778f4740e99157641609f5fa2f8c1c8f9feab56de18a3c686749dd9b7f553"
     },
     "scripts/ci/current606-apps7-closed-owner/producer_diagnostic.py": {
       "bytes": 6483,

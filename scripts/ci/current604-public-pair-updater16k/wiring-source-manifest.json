@@ -549,6 +549,14 @@
       "bytes": 11102,
       "sha256": "b1e2fc13644510a613ce09e53b39d4f4471cf47fc03fa62f312258379666c418"
     },
+    "scripts/ci/current604-public-pair-updater16k/archive6-policy.json": {
+      "bytes": 2036,
+      "sha256": "4d83dbda592b8b6575d02df65de829226cae3ddffc7268e3d47873ac83f3b322"
+    },
+    "scripts/ci/current604-public-pair-updater16k/archive6.py": {
+      "bytes": 11090,
+      "sha256": "5e448ef6677fc26485e044b3ac2d35a07105703d4f1a719bb7c030678eff87ae"
+    },
     "scripts/ci/current604-public-pair-updater16k/cap_scope.py": {
       "bytes": 2598,
       "sha256": "4559643fbfaa22657d68e07143e2f7dbc518765c0a9d9e9161acf94c5976ff13"
@@ -586,8 +594,8 @@
       "sha256": "e69d16cadd98f23e29afce9a6be25271d747481df5489e6dc44c568b20722ad3"
     },
     "scripts/ci/current604-public-pair-updater16k/prepare.py": {
-      "bytes": 13872,
-      "sha256": "e500ccbbe687b9c487813992715d306d6526a1b3e1a0c696a54a726b19f47984"
+      "bytes": 15936,
+      "sha256": "7891efe10a03f2becf9a4deb3c6aa602e4d99efa71b8aaaa037dfcb40dfe8477"
     },
     "scripts/ci/current604-public-pair-updater16k/producer_diagnostic.py": {
       "bytes": 6483,
@@ -602,8 +610,8 @@
       "sha256": "c71a269d41b8beb077c4e0f557a061acb10d2489baf2ac7b805f087ccff1f5d2"
     },
     "scripts/ci/current604-public-pair-updater16k/source-manifest.json": {
-      "bytes": 82414,
-      "sha256": "852c133bd25f2e6fd1d134e9d2c2b583ab7007eaeec19863991b9f8ccc53c654"
+      "bytes": 82778,
+      "sha256": "286253fe7ecf5ada43d4d2cf290f0d05914656c7d967677b8f011f1faaeb481d"
     },
     "scripts/ci/current604-public-pair-updater16k/source-pins.json": {
       "bytes": 143256,

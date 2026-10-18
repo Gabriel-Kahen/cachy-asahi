@@ -80,5 +80,47 @@ class Source(unittest.TestCase):
    with tempfile.TemporaryDirectory()as d:row,out,err,error=R.run_command([sys.executable,'-I','-B','-c','import time; print("owned",flush=True); time.sleep(10)'],Path(d),dict(PATH='/usr/bin:/bin'),3,4096)
    self.assertIsInstance(error,owner.OwnerInterrupted);self.assertTrue(row['group_absence_verified']);self.assertEqual(out,b'owned\n');self.assertNotEqual(row['exit_code'],0)
   finally:signal.setitimer(signal.ITIMER_REAL,0);signal.signal(signal.SIGALRM,saved)
+class WorkerCapture(unittest.TestCase):
+ def helper(self,argv=None):
+  import ast,contextlib,io,types
+  text=(ROOT/'runtime/guest.py').read_text();tree=ast.parse(text);n=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='worker_failure_data');raw=ast.get_source_segment(text,n)
+  if argv is not None:
+   old="['/usr/bin/python3','-I','-B','/workspace/guest.py','worker']";self.assertEqual(raw.count(old),1);raw=raw.replace(old,repr(argv),1)
+  C=types.SimpleNamespace(need=O.need,sha=lambda b:__import__('hashlib').sha256(b).hexdigest(),SHARED_SECONDS=3000)
+  ns=dict(C=C,json=json);exec(compile(raw,'<source-pinned-failure-helper-test-argv-only>','exec'),ns);return ns['worker_failure_data']
+ def child(self,code):
+  R=O.load('_ksm_capture_real_held_supervision',ROOT/'runtime/borrowed/runtime.py');argv=[sys.executable,'-I','-B','-c',code]
+  with tempfile.TemporaryDirectory()as td:r,out,err,error=R.run_command(argv,Path(td),dict(PATH='/usr/bin:/bin'),3000,512*1024)
+  self.assertTrue(r['group_absence_verified']);return argv,r,out,err,error
+ def captured(self,fn,row,out,err,error):
+  import contextlib,io
+  stream=io.StringIO()
+  with contextlib.redirect_stdout(stream):fn(dict(nonce='a'*32),row,out,err,error)
+  return stream.getvalue()
+ def test_whole_original_guest_inverse_and_held_positive_guard(self):
+  import ast,hashlib
+  text=(ROOT/'runtime/guest.py').read_text();tree=ast.parse(text);n=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='worker_failure_data');helper=ast.get_source_segment(text,n)+'\n\n';call=' worker_failure_data(s,row,out,err,error)\n';self.assertEqual(text.count(call),1);inverse=text.replace(helper,'',1).replace(call,'',1);self.assertEqual(hashlib.sha256(inverse.encode()).hexdigest(),'17c9608949accf0e39459c45e07c18533d02cdb5ca8e5f018b3a4d26f0717e9c')
+  guard=" C.need(error is None and row['exit_code']==0 and row['group_absence_verified']is True,'whole KSM guest worker exit/group retirement')";self.assertEqual(text.count(guard),1);self.assertLess(text.index(call),text.index(guard));self.assertEqual(O.decode(O.read(ROOT/'runtime/runner-files.json'))['files']['guest.py'],O.pin((ROOT/'runtime/guest.py').read_bytes()))
+ def test_real_inert_child_original_stream_record_and_typed_error_DATA(self):
+  argv,row,out,err,error=self.child("import sys;print('KSM2_VM_ERROR ValueError inert private failure');sys.stderr.write('inert stderr\\n');sys.exit(1)")
+  # Production command-identity guard correctly refuses this different local command.
+  self.assertEqual(self.captured(self.helper(),row,out,err,error),'')
+  raw=self.captured(self.helper(argv),row,out,err,error);prefix='KSM2_WORKER_FAILURE_DATA '+'a'*32+' ';self.assertTrue(raw.startswith(prefix));value=json.loads(raw[len(prefix):]);self.assertEqual(value['record'],row);self.assertEqual(value['inner_result']['error_type'],'ValueError');self.assertFalse(value['positive_authority']);self.assertFalse(value['cleanup_authority'])
+  import base64
+  self.assertEqual(base64.b64decode(value['streams']['stdout']['tail_base64']),out);self.assertEqual(base64.b64decode(value['streams']['stderr']['tail_base64']),err)
+ def test_real_long_inert_streams_bounded_tails_and_no_positive_frame(self):
+  argv,row,out,err,error=self.child("import sys;sys.stdout.write('a'*20000);sys.stderr.write('b'*22000);sys.exit(1)");raw=self.captured(self.helper(argv),row,out,err,error);self.assertLessEqual(len(raw.encode()),32768+80);self.assertNotIn('KSM2_VM ',raw);v=json.loads(raw.split(' ',2)[2]);self.assertEqual(v['inner_result']['status'],'UNKNOWN')
+  for name,data,cap in(('stdout',out,4096),('stderr',err,8192)):
+   import base64,hashlib
+   s=v['streams'][name];self.assertEqual(s['bytes'],len(data));self.assertEqual(s['sha256'],hashlib.sha256(data).hexdigest());self.assertEqual(base64.b64decode(s['tail_base64']),data[-cap:]);self.assertEqual(s['omitted_bytes'],len(data)-cap);self.assertTrue(s['truncated'])
+  argv,row,out,err,error=self.child("import sys;sys.stdout.write('KSM2_VM_ERROR ValueError');sys.exit(1)");v=json.loads(self.captured(self.helper(argv),row,out,err,error).split(' ',2)[2]);self.assertEqual(v['inner_result']['status'],'UNKNOWN')
+ def test_capture_mismatch_or_diagnostic_io_failure_cannot_replace_original(self):
+  argv,row,out,err,error=self.child("raise SystemExit(1)");fn=self.helper(argv)
+  for key,val in(('stdout_sha256','0'*64),('stdout_bytes',True),('time_limit',3001),('output_limit',1),('argv',['foreign'])):
+   self.assertEqual(self.captured(fn,dict(row,**{key:val}),out,err,error),'')
+  with patch('builtins.print',side_effect=OSError('inert closed diagnostic stdout')):fn(dict(nonce='a'*32),row,out,err,error)
+ def test_real_success_never_emits_failure_or_changes_record(self):
+  argv,row,out,err,error=self.child("print('inert success')");before=copy.deepcopy(row);self.assertEqual(row['exit_code'],0);self.assertEqual(self.captured(self.helper(argv),row,out,err,error),'');self.assertEqual(row,before)
+
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--source',type=Path,required=True);a,left=p.parse_known_args();ROOT=a.source.absolute();unittest.main(argv=[sys.argv[0]]+left)
