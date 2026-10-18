@@ -5,6 +5,15 @@ import contract as C
 
 CLOCK_GUEST = 'def initialize_launcher_clock():\n    """Owned offline VM clock handoff; no external time or trust authority."""\n    guard(True)\n    raw=Path(\'/proc/cmdline\').read_text()\n    need(len(raw)<=65536,\'bounded guest clock command line required\')\n    prefix=\'cachy_asahi_public_pair_epoch=\'\n    rows=[word[len(prefix):] for word in raw.split() if word.startswith(prefix)]\n    need(len(rows)==1 and rows[0].isascii() and rows[0].isdecimal() and len(rows[0])==10 and str(int(rows[0]))==rows[0],\'one canonical launcher UTC epoch required\')\n    epoch=int(rows[0]);need(1700000000<=epoch<2**32,\'bounded launcher UTC epoch required\')\n    before=time.time_ns()\n    time.clock_settime(time.CLOCK_REALTIME,epoch)\n    after=time.time_ns()\n    need(epoch*10**9<=after<(epoch+2)*10**9,\'guest realtime clock handoff failed\')\n    emit(\'launcher_realtime\',source=\'OWNED_QEMU_LAUNCHER_NOT_EXTERNAL_TIME_AUTHORITY\',before_ns=before,requested_epoch_s=epoch,after_ns=after,hardware=\'NOT_RUN\')\n\n\n'
 
+FOCUS_EDITS = (('static gboolean settled_geometry(guint pid, Geometry *value)', 'static gboolean settled_geometry(guint pid, Geometry *value, AtspiAccessible *focus)'), ('        if (geometry(pid, value)) return TRUE;', '        if (geometry(pid, value)) {\n            if (!focus) return TRUE;\n            atspi_accessible_clear_cache(focus);\n            AtspiStateSet *states = atspi_accessible_get_state_set(focus);\n            gboolean focused = state(states, ATSPI_STATE_FOCUSED);\n            if (states) g_object_unref(states);\n            if (focused) return TRUE;\n        }'), ('settled_geometry(pid, &value), focus_called', 'settled_geometry(pid, &value, NULL), focus_called'), ('check(settled_geometry(pid, &value), "focused control remains clipped");', 'check(settled_geometry(pid, &value, peer_focused ? scroll_peer : target), "focused control remains clipped or unfocused");'))
+
+def peer_focus_driver(raw):
+ """Only the exact historical driver admits this lane-local joint readiness edit."""
+ C.need(len(raw)==20397 and C.sha(raw)=='ecc55ceb452a43056d3328c41b05435bdf70ce097f86bc98630dd482e7decce2','whole original a11y source pin differs')
+ text=raw.decode()
+ for before,after in FOCUS_EDITS:text=C.one(text,before,after)
+ return text.encode()
+
 BASE=C.module('_profile604_original_adapter',C.OLD+'/adapter.py',{'contract':C},lambda text:C.one(text,"C.HERE/'installed604.py'","source/C.OLD/'installed604.py'"))
 
 def prepare(source,output,assets,ready,selected):
@@ -37,6 +46,7 @@ def prepare(source,output,assets,ready,selected):
  guest=C.one(guest,'def boot():',CLOCK_GUEST+'def boot():')
  guest=C.one(guest,'        EVENTS.chmod(0o600)','        EVENTS.chmod(0o600)\n        initialize_launcher_clock()')
  path.write_text(guest)
+ driver=output/'a11y_driver.c';driver.write_bytes(peer_focus_driver(driver.read_bytes()))
  proof=C.json_read(output/'runner-proof.json');proof.update(profile=selected,scope='ONE_PROFILE_NOT_FULL60416K_ACCEPTANCE',files={p.name:dict(bytes=len(C.read(p)),sha256=C.sha(C.read(p))) for p in output.iterdir() if p.is_file() and p.name not in ('runner-proof.json','candidate-lock.json')});C.save(output/'runner-proof.json',proof)
  for path in output.glob('*.py'):ast.parse(path.read_bytes())
  return output
