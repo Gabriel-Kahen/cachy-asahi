@@ -112,7 +112,7 @@ class Controls(unittest.TestCase):
  def test_emitted_corrected_roles_and_all80_real_runtime_recipe_dependencies(self):
   with tempfile.TemporaryDirectory() as td:
    root=Path(td);out=root/'closed';P.emit(ROOT,UPDATER,out);pins=C.decode(C.read(C.HERE/'source-pins.json'));required=pins['runtime_recipe_inputs'];self.assertEqual(len(required),80)
-   self.assertEqual(C.row(out/C.OLD/'source-manifest.json')['sha256'],'da228a285f32430dfd5081d04c1d391de0eb68e6cdddd94931e2d18618b33578');self.assertEqual(C.row(out/'scripts/ci/expanded604-apps6-public-pair-installer/source-manifest.json')['sha256'],'b8a35cf9f04c5321db6db9103f3a7ef95d58ebcc0ff960b805362a3867ed715a')
+   self.assertEqual(C.row(out/C.OLD/'source-manifest.json')['sha256'],'17b407d1bd5d051de16446977001be92742a31012f0b7bc6ef8df14e2bcd9649');self.assertEqual(C.row(out/'scripts/ci/expanded604-apps6-public-pair-installer/source-manifest.json')['sha256'],'b8a35cf9f04c5321db6db9103f3a7ef95d58ebcc0ff960b805362a3867ed715a')
    for n,row in required.items():self.assertEqual(C.row(out/n),row,n)
    controls=pins['fresh_control_inputs'];self.assertEqual(len(controls),9)
    for n,row in controls.items():self.assertEqual(C.row(out/n),row,n)
@@ -150,7 +150,8 @@ class Controls(unittest.TestCase):
      self.assertEqual((output/n).read_bytes(),raw,case+':'+n)
     value=C.decode(C.read(config));oldvalue=selected.read(prior/'upgrade-config.json')
     for key,value_before in oldvalue.items():
-     if key not in ('code_pins','release'):self.assertEqual(value[key],value_before,case+':'+key)
+     if key=='driver_seconds' and case=='normal':self.assertEqual(value_before,1800);self.assertEqual(value[key],1860)
+     elif key not in ('code_pins','release'):self.assertEqual(value[key],value_before,case+':'+key)
     for n,digest in value['code_pins'].items():self.assertEqual(C.sha((output/n).read_bytes()),digest,case+':'+n)
     receipt=selected.read(output/'adapter.json');self.assertEqual(receipt['config_sha256'],C.sha(config.read_bytes()));self.assertIn('auxiliary_selection',receipt);self.assertEqual(receipt['updater16k_dispatch']['counted_edits'],1)
 
