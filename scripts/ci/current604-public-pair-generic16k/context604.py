@@ -136,3 +136,61 @@ def launcher_retired(report,source):
     except (OSError,ValueError,KeyError,TypeError,IndexError):return False
     expected='remove-image:'+image;rows=report.get('cleanup',[]);selected=[r for r in rows if r.get('action')==expected]
     return len(rows)==15 and len(selected)==1 and selected[0]==dict(action=expected,exit=0) and len([r for r in rows if r.get('action','').startswith('remove-image:')])==2
+
+def _producer_input(path,maximum):
+    import stat
+    path=Path(path)
+    if any(p.is_symlink() for p in (path,*path.parents)):raise ValueError('producer receipt alias')
+    before=path.lstat()
+    if not(stat.S_ISREG(before.st_mode) and before.st_uid==os.getuid() and before.st_nlink==1 and 0<before.st_size<=maximum):raise ValueError('owned ordinary producer receipt required')
+    raw=path.read_bytes();after=path.lstat()
+    identity=lambda s:(s.st_dev,s.st_ino,s.st_mode,s.st_uid,s.st_gid,s.st_nlink,s.st_size,s.st_mtime_ns,s.st_ctime_ns)
+    if len(raw)!=before.st_size or identity(before)!=identity(after):raise ValueError('producer receipt drift')
+    return raw
+
+def _producer_image(reference):
+    import re,subprocess
+    if not re.fullmatch(r'(sha256:[0-9a-f]{64}|cachy-asahi-desktop574-producer:[0-9a-f]{32})',reference):raise ValueError('fixed owned producer image operand')
+    row=subprocess.run(['docker','image','inspect','--format','{{.Id}}',reference],stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=20)
+    if len(row.stdout)+len(row.stderr)>65536:raise ValueError('bounded producer image observation')
+    if row.returncode==0:
+        image=row.stdout.decode('ascii').strip()
+        if not re.fullmatch(r'sha256:[0-9a-f]{64}',image):raise ValueError('exact immutable producer image readback')
+        return image
+    if row.returncode!=1 or row.stdout.strip() or b'No such image' not in row.stderr:raise ValueError('producer image absence unknown')
+    return None
+
+def _producer_preservation(receipt):
+    import re
+    keys={'schema_version','status','image','reference','token','producer_owner_sha256','image_receipt_sha256'}
+    if not(type(receipt)is dict and set(receipt)==keys and receipt['schema_version']==1 and receipt['status']=='PINNED_UNTIL_ORIGINAL_PRODUCER_CLEANUP' and re.fullmatch('[0-9a-f]{32}',receipt['token']) and receipt['reference']=='cachy-asahi-desktop574-producer:'+receipt['token'] and re.fullmatch('sha256:[0-9a-f]{64}',receipt['image']) and all(re.fullmatch('[0-9a-f]{64}',receipt[k])for k in('producer_owner_sha256','image_receipt_sha256'))):raise ValueError('exact producer preservation receipt')
+    return receipt
+
+def preserve_producer_image(output,report):
+    """Keep a new, unborrowed producer image alive until its ORIGINAL cleanup."""
+    import re,subprocess
+    output=Path(output)
+    if not(output.is_absolute() and output.parent==Path('/tmp') and output.is_dir() and output.stat().st_uid==os.getuid() and not any(p.is_symlink()for p in(output,*output.parents)) and 'producer_image_preservation' not in report):raise ValueError('fresh owned producer image preservation')
+    owner_raw=_producer_input(output/'producer-owner.json',1024**2);owner=json.loads(owner_raw)
+    image_raw=_producer_input(output/'private/desktop574/image-id',128);image=image_raw.decode('ascii').strip()
+    if not(type(owner)is dict and owner.get('schema_version')==1 and re.fullmatch('[0-9a-f]{32}',owner.get('token','')) and re.fullmatch('sha256:[0-9a-f]{64}',image) and re.fullmatch('sha256:[0-9a-f]{64}',owner.get('core_image','')) and type(owner.get('images_preexisting'))is list and len(owner['images_preexisting'])<=10000 and all(type(v)is str and re.fullmatch('sha256:[0-9a-f]{64}',v)for v in owner['images_preexisting']) and image!=owner['core_image'] and image not in owner['images_preexisting']):raise ValueError('only new exact producer-owned image, never borrowed')
+    reference='cachy-asahi-desktop574-producer:'+owner['token']
+    if _producer_image(image)!=image or _producer_image(reference)is not None:raise ValueError('producer image must exist and new owned reference must be absent')
+    receipt=dict(schema_version=1,status='RESERVED_NOT_YET_PINNED',image=image,reference=reference,token=owner['token'],producer_owner_sha256=hashlib.sha256(owner_raw).hexdigest(),image_receipt_sha256=hashlib.sha256(image_raw).hexdigest());report['producer_image_preservation']=receipt
+    row=subprocess.run(['docker','image','tag',image,reference],stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=30)
+    if row.returncode!=0 or len(row.stdout)+len(row.stderr)>65536:raise ValueError('owned producer preservation tag failed')
+    if _producer_image(reference)!=image or _producer_image(image)!=image:raise ValueError('preservation tag exact producer image join failed')
+    receipt['status']='PINNED_UNTIL_ORIGINAL_PRODUCER_CLEANUP';return receipt
+
+def require_producer_image_preserved(runtime,receipt):
+    receipt=_producer_preservation(receipt)
+    if not(runtime.get('base_image')==receipt['image'] and runtime.get('base_reference')!=receipt['reference'] and runtime.get('base_reference_cleanup')==dict(ok=True,base_image_present=True)):raise ValueError('producer image must survive consumer alias retirement')
+    if _producer_image(receipt['image'])!=receipt['image'] or _producer_image(receipt['reference'])!=receipt['image']:raise ValueError('exact producer image/reference lost before original cleanup')
+    return True
+
+def producer_image_retired(receipt,cleanup):
+    """Observe original cleanup; never remove tags or accept a missing image early."""
+    receipt=_producer_preservation(receipt)
+    if not(type(cleanup)is dict and cleanup.get('status')=='PASS' and cleanup.get('failures')==[]):raise ValueError('unchanged original producer cleanup must pass first')
+    if _producer_image(receipt['image'])is not None or _producer_image(receipt['reference'])is not None:raise ValueError('original producer image/preservation reference remains')
+    return dict(status='PASS_ORIGINAL_PRODUCER_IMAGE_AND_PRESERVATION_REFERENCE_ABSENT',image=receipt['image'],reference=receipt['reference'],original_cleanup_canonical_sha256=hashlib.sha256((json.dumps(cleanup,sort_keys=True,indent=2)+'\n').encode()).hexdigest(),removed_by='UNCHANGED_ORIGINAL_PRODUCER_IMAGE_ID_CLEANUP')
