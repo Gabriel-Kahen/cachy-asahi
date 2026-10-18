@@ -4,7 +4,16 @@ import ast,types
 from pathlib import Path
 import contract as C
 
+def runtime_boundaries(omitted):
+ """Only exact runtime-root descendants collapse to their already omitted root."""
+ runtime={'proc','sys','dev','run','tmp'};result=set()
+ for name in omitted:
+  C.need(type(name) is str and name and not name.startswith('/') and '\\' not in name and '\0' not in name and all(p not in ('','.','..') for p in name.split('/')),'safe relative persistent-scope boundary required')
+  first=name.split('/')[0];result.add(first if first in runtime else name)
+ return result
+
 def derive(raw,omitted):
+ omitted=runtime_boundaries(omitted)
  C.need(set(omitted)<={'proc','sys','dev','run','tmp','inputs','out','source','workspace','measurement','measurement-source','footprint.py','runner.py','lifecycle.py','setup4.py','upgrade-code','upgrade-config.json','upgrade-pair','upgrade-hook.py','persistent_scope.py','upgrade-signing','etc/hosts','etc/hostname','etc/resolv.conf'},'only existing persistent-scope boundaries')
  text=raw.decode();rules=[("   need(actual==set(children[prefix]),'actual node graph differs')","   if not prefix:actual-=OMITTED\n   need(actual==set(children[prefix]),'actual node graph differs')"),("need(_identity(os.fstat(fd))==identity and _mount(fd,limits)==mount,'node identity/mount drift')","need(_identity(os.fstat(fd))==identity and (_mount(fd,limits)==mount or relative in MOUNT_FILES),'node identity/mount drift')")]
  for a,b in rules:C.need(text.count(a)==1,'exact scoped capability source anchor');text=text.replace(a,b)
