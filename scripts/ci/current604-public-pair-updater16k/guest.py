@@ -49,6 +49,41 @@ def boot_readback_diagnostic(s,before,expected,mapping):
   text=json.dumps(value,sort_keys=True,separators=(',',':'));C.need(len(text.encode())<=3072,'bounded fixed boot readback diagnostic');print('APPS6_BOOT_READBACK_DIAGNOSTIC '+text,flush=True)
  except Exception:pass # Diagnostic loss cannot replace the original predicate.
 
+def caller_failure(s,record,stdout,stderr,error):
+ # Failure DATA only. Existing guard below still decides failure and cleanup.
+ import base64,math
+ try:nonce=s.get('nonce')
+ except Exception:return
+ if type(nonce)is not str or len(nonce)!=32 or any(c not in '0123456789abcdef'for c in nonce):return
+ try:
+  keys={'argv','exit_code','seconds','time_limit','output_limit','group_absence_verified','stdout_bytes','stdout_sha256','stderr_bytes','stderr_sha256'}
+  C.need(type(record)is dict and set(record)==keys,'exact original worker command fields')
+  C.need(record['argv']==['/usr/bin/python3','-I','-B','/runner.py']and type(record['argv'])is list and 1<=len(record['argv'])<=16 and all(type(v)is str and 0<len(v)<=4096 and '\0'not in v for v in record['argv'])and sum(len(v)for v in record['argv'])<=8192,'bounded original worker argv')
+  C.need(type(record['exit_code'])is int and type(record['group_absence_verified'])is bool and type(record['seconds'])in(int,float)and math.isfinite(record['seconds'])and 0<=record['seconds']<2**63 and type(record['time_limit'])is int and record['time_limit']==3900 and type(record['output_limit'])is int and record['output_limit']==2*1024**2,'original worker command budgets/result')
+  C.need(error is not None or record['exit_code']!=0 or record['group_absence_verified']is not True,'worker diagnostic only for failed original predicate')
+  def stream(raw,side,cap):
+   C.need(type(raw)is bytes and type(record[side+'_bytes'])is int and len(raw)==record[side+'_bytes']and C.sha(raw)==record[side+'_sha256'],'original captured worker stream pin')
+   tail=raw[-cap:]
+   return dict(bytes=len(raw),sha256=C.sha(raw),tail_bytes=len(tail),tail_base64=base64.b64encode(tail).decode(),omitted_bytes=len(raw)-len(tail),truncated=len(tail)<len(raw))
+  C.need(type(stdout)is type(stderr)is bytes and len(stdout)+len(stderr)<=2*1024**2,'original combined worker capture cap')
+  value=dict(schema_version=1,status='FAILED_ORIGINAL_GUEST_CALLER_DATA_NOT_ACCEPTANCE',nonce=nonce,record=record,error_type=None if error is None else type(error).__name__[:64],stdout=stream(stdout,'stdout',4096),stderr=stream(stderr,'stderr',8192),capture_scope='ORIGINAL_RUN_COMMAND_CAPTURE_MAY_BE_PARTIAL_ON_ERROR',cleanup_acceptance='NOT_GRANTED')
+  text=json.dumps(value,sort_keys=True,separators=(',',':'));C.need(len(text.encode())<=24*1024,'bounded original worker failure JSON')
+ except Exception as failure:text=json.dumps(dict(schema_version=1,status='DIAGNOSTIC_UNAVAILABLE_NOT_ACCEPTANCE',nonce=nonce,error_type=type(failure).__name__[:64]),sort_keys=True,separators=(',',':'))
+ try:print('APPS6_UPDATE16K_CALLER_FAILURE '+nonce+' '+text,flush=True)
+ except Exception:pass
+
+def forward_caller_failure(s,record,stdout):
+ # Source-captured frame DATA only; never an additional regular guest record.
+ try:
+  nonce=s['nonce'];C.need(type(nonce)is str and len(nonce)==32 and all(x in '0123456789abcdef'for x in nonce),'caller frame nonce')
+  C.need(type(stdout)is bytes and len(stdout)<=2*1024**2 and record['argv']==['/usr/bin/python3','-I','-B','/workspace/guest.py','worker']and record['stdout_bytes']==len(stdout)and record['stdout_sha256']==C.sha(stdout),'original captured worker stdout join')
+  prefix=('APPS6_UPDATE16K_CALLER_FAILURE '+nonce+' ').encode();lines=[x for x in stdout.splitlines()if x.startswith(prefix)]
+  C.need(len(lines)==1 and len(lines[0])<=25*1024,'one bounded original caller frame')
+  line=lines[0];value=C.decode(line[len(prefix):]);C.need(value['nonce']==nonce and value['status']in('FAILED_ORIGINAL_GUEST_CALLER_DATA_NOT_ACCEPTANCE','DIAGNOSTIC_UNAVAILABLE_NOT_ACCEPTANCE')and 'worker_capture'not in value,'failure-only original caller data')
+  value['worker_capture']=dict(bytes=len(stdout),sha256=C.sha(stdout),frame_offset=stdout.index(line),frame_bytes=len(line),frame_sha256=C.sha(line),scope='SOURCE_CAPTURED_WORKER_STDOUT_FRAME_NOT_FULL_STREAM_EXPORT')
+  text=json.dumps(value,sort_keys=True,separators=(',',':'));C.need(len(text.encode())<=32*1024,'bounded forwarded caller data');print(prefix.decode()+text,flush=True)
+ except Exception:pass # Missing/invalid diagnostic never changes the original guard.
+
 def worker(s):
  C.need(os.getpid()!=1 and os.getuid()==os.geteuid()==0 and os.uname().machine=='aarch64' and os.sysconf('SC_PAGE_SIZE')==16384 and os.uname().release==s['kernel']['release'],'actual generic16K worker')
  isolation=isolate();
@@ -66,6 +101,7 @@ def worker(s):
  runner=C.load('supervisor','/source/scripts/ci/glibc-owned-runtime/runner.py')
  record,stdout,stderr,error=runner.run_command(['/usr/bin/python3','-I','-B','/runner.py'],Path('/tmp'),env,3900,2*1024**2)
  Path('/out/updater16k-caller.stdout').write_bytes(stdout);Path('/out/updater16k-caller.stderr').write_bytes(stderr)
+ if error is not None or record['exit_code']!=0 or record['group_absence_verified']is not True:caller_failure(s,record,stdout,stderr,error)
  C.need(error is None and record['exit_code']==0 and record['group_absence_verified'] is True,'original caller exit/group absence')
  # The caller writes only after all original helper/groups/source/copy checks.
  raw=C.read('/out/result.json',2*1024**2);caller=C.decode(raw);C.need(caller['status']=='PASS','original caller failed')
@@ -107,7 +143,9 @@ def main():
  libc=ctypes.CDLL(None,use_errno=True);C.need(libc.prctl(4,0,0,0,0)==0,'protect privileged PID1')
  emit(s,dict(event='boot',page_size=16384,kernel=os.uname().release,architecture=os.uname().machine,kernel_profile_sha256=C.sha(C.encoded(s['kernel'])),nofile=dict(before=before,after=after)))
  runner=C.load('supervisor','/source/scripts/ci/glibc-owned-runtime/runner.py');record,out,err,error=runner.run_command(['/usr/bin/python3','-I','-B','/workspace/guest.py','worker'],Path('/tmp'),dict(PATH='/usr/bin:/bin',LC_ALL='C',HOME='/tmp',TMPDIR='/tmp'),3900,2*1024**2)
- if error is not None or record['exit_code']!=0 or record['group_absence_verified']is not True:worker_failure(s,record,out,err,error)
+ if error is not None or record['exit_code']!=0 or record['group_absence_verified']is not True:
+  forward_caller_failure(s,record,out)
+  worker_failure(s,record,out,err,error)
  C.need(error is None and record['exit_code']==0 and record['group_absence_verified'] is True,'whole updater worker exit/group absence')
  v=C.decode(C.read('/out/updater16k-worker.json',2*1024**2));v.update(event='result',status=C.PASS,files={n:C.row('/out/'+n) for n in ('result.json','updater16k-worker.json','updater16k-caller.stdout','updater16k-caller.stderr')},page_size=16384,hardware='NOT_RUN',release='NOT_ADMITTED')
  emit(s,v)
