@@ -13,8 +13,8 @@
       "sha256": "502734225082f5b3212dc162634bd8e152ab66ebe3c4b6f64d8798484cc8728c"
     },
     "manifests/packages.toml": {
-      "bytes": 38835,
-      "sha256": "66f77b4ba4a02657da92627738000f7a6f805de78fff8dd8682107039755b156"
+      "bytes": 41394,
+      "sha256": "19a8bdb45916e5dffef7a4c1496ebbc489792795ea2906a3d705a67e3906b880"
     },
     "scripts/apps/file_capabilities.py": {
       "bytes": 13562,
@@ -27,6 +27,10 @@
     "scripts/ci/apps-full574-native/export_extract.py": {
       "bytes": 2410,
       "sha256": "c7a09bc3996b9bff97dd57a8244d82d562566f1135b0618f87d90fbf09c58978"
+    },
+    "scripts/ci/expanded600-installer-vm/observer600.py": {
+      "bytes": 2784,
+      "sha256": "c3d804e7f2927c7889835ad187a39a3d7c618a4651700f57b0c5413c46612607"
     },
     "scripts/ci/full-composition-installer-vm/prepare.py": {
       "bytes": 15922,
@@ -54,11 +58,11 @@
     },
     "scripts/ci/glibc-debian-maintained-installed16k-ci/test_wiring.py": {
       "bytes": 11935,
-      "sha256": "536e484d052238843423ac0aa8bc0af79e141fbd9113a4f0d4a7f7a4afd56a57"
+      "sha256": "0cd4a4d76edffc98e659cb836ea36c6f9a19bc02379e4306f418dc986ea9c544"
     },
     "scripts/ci/glibc-debian-maintained-installed16k-ci/wiring.py": {
       "bytes": 4997,
-      "sha256": "1a729d283c88cb8ea1ee7e8b53e201097c38ebd4c4419f706d6972f8a20bb830"
+      "sha256": "64e950ed296e7d83e4cdf9ab6acfcc3cc196036c9b9f323d200f53b74c43f6f7"
     },
     "scripts/ci/glibc-debian-maintained-installed16k/README.md": {
       "bytes": 5003,
@@ -66,7 +70,7 @@
     },
     "scripts/ci/glibc-debian-maintained-installed16k/generator.py": {
       "bytes": 7269,
-      "sha256": "f53e99ad0839a15de3bf0472bdbe47536eb614d04471ca38414fcd6fd9454c5c"
+      "sha256": "d7eaa524229c54246f8fd1e2151acee51831633db69ed1e3c7048ca876eb7088"
     },
     "scripts/ci/glibc-debian-maintained-installed16k/input-interface.json": {
       "bytes": 2639,
@@ -77,12 +81,12 @@
       "sha256": "4e765b694ed3edeaec0dc1da3d311cc0b360702779dc65f8fc1ddd791843a7df"
     },
     "scripts/ci/glibc-debian-maintained-installed16k/source-pins.json": {
-      "bytes": 20640,
-      "sha256": "7d921761115db0314638f685a1ae868f74b944e79be6ddc85f3c7dc84eb48213"
+      "bytes": 20811,
+      "sha256": "9ac27be2d386784baae567f6fba7bcfaa442a6c7cdc4ea25513a649d8fe8c09d"
     },
     "scripts/ci/glibc-debian-maintained-installed16k/test_generator.py": {
       "bytes": 12415,
-      "sha256": "3241097ecf45398721f9e8e0d3a0287a05ca5f6e2e6bb53455e574db1ef55f99"
+      "sha256": "f3e6cddf701a6c76260617cc2793265ac2c59d124c2468e4a882d1c052afb422"
     },
     "scripts/ci/glibc-debian-maintained-lifecycle/README.md": {
       "bytes": 4098,
@@ -118,7 +122,7 @@
     },
     "scripts/ci/glibc-debian-maintained-native-lifecycle-next/source-pins.json": {
       "bytes": 17055,
-      "sha256": "37fbe38e4ea066a4499e3fd7a3939e6e962bbc663868fc65b2b8f9b72e8952fd"
+      "sha256": "f4d669436d84d2909e8294406bcf1d3e9e3a52a4b48e54857b520e45038e6c0f"
     },
     "scripts/ci/glibc-debian-maintained-provider/PKGBUILD.in": {
       "bytes": 3925,
@@ -158,7 +162,7 @@
     },
     "scripts/ci/glibc-gnu-provider-installed16k-interruption/ci/wiring.py": {
       "bytes": 8198,
-      "sha256": "1998b59e03ea0471de43e91d895fe08538e606629e22e75c439868274eb1d7fc"
+      "sha256": "e4f60a46a136bf9320c79ebe682aee91769dcfa9fefcae8249112c638ddbdbeb"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/README.md": {
       "bytes": 10343,
@@ -173,24 +177,24 @@
       "sha256": "ef83b59045a4b04798f9fbb75cc78f41a0d52dcdbf827e9f616533b8f72067a2"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/dependencies.json": {
-      "bytes": 10762,
-      "sha256": "3ab1c76859a03ae4d3b0f89e0dbee40a40a58e5d1f6a9567bb85bf211b1a4774"
+      "bytes": 10933,
+      "sha256": "6526eb2cdcf0de1fdd738d10d46d77ebd974006cb35ffa3aecedbf7131651ee6"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/export.py": {
       "bytes": 9914,
       "sha256": "61e4bad870252dab3ca9580817247c9b88f0e6cdc6b40c5956a06e7b9e42a5a7"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/guest.py": {
-      "bytes": 15954,
-      "sha256": "47bb2cbc7e1799a474d27010c9f9780137c015b2bcd377a05dddc4d1e734565e"
+      "bytes": 16311,
+      "sha256": "61c4c3a2038c6c323e21b194c8e311e2374ddf61d72cace5eb807ce109f6b61c"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/input-policy.json": {
       "bytes": 927,
       "sha256": "f0d4a61d6322dfd56d95d6353a2ff6953f7852381cd48d0feae862498d060902"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/observer_progress.py": {
-      "bytes": 8127,
-      "sha256": "a5c41353c6459861660ef64e1531ce999182f0302019e3946f042f114812d3e1"
+      "bytes": 8229,
+      "sha256": "f427ce27bd8c90d1cc4aa68a9fb41abbc8b4fb1d7a9cdfa4153b1fafc7a2941a"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/prepare.py": {
       "bytes": 6192,
@@ -213,20 +217,20 @@
       "sha256": "012682ddc164737db1696f5dda3c43008febc32f865662c16f3c77637a426549"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/snapshot_progress.py": {
-      "bytes": 6974,
-      "sha256": "a8f617768958494d33b91fd5952c5e4793db1ac89656654d4a8ceb53c88a8180"
+      "bytes": 7188,
+      "sha256": "d789db4ac9fe0c62e2721352cf4c5ff3eb549136df95ce73349f2814a4425853"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/source-manifest.json": {
       "bytes": 3627,
-      "sha256": "666e7b036ab69e4ca1cb300443b0031efaa2bcaebfbbfc2b4d499788ee0e147f"
+      "sha256": "a145b6d069e7bc74bc93a66a265ce0f6e69a1b4549f1a660f661e9469034ec03"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/support.py": {
       "bytes": 408,
       "sha256": "e3a3b3fa7d4ab84e088f6ea206799359164e8f6b92bf3dfbe152cd8df4d9ded1"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/test_first_observer_progress.py": {
-      "bytes": 8713,
-      "sha256": "10069f157bec496ebf2b7580563cd625e923c2737ad74dbe5631075b329b6aff"
+      "bytes": 8821,
+      "sha256": "72e05adf2721d75619e9a18ff58e81d27a4b2ec6942b4558dc01cd02bf4fc7b1"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/test_lane.py": {
       "bytes": 13282,

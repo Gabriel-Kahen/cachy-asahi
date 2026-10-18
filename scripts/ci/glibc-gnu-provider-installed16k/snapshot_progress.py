@@ -46,7 +46,7 @@ class Probe:
   self.stop.set()
   if self.thread is not None and self.thread.ident is not None:self.thread.join(timeout=1)
 
-def capability_facade(original,record):
+def capability_facade(original,record,*,mount_query=None):
  raw=inspect.getsource(original);need(hashlib.sha256(raw.encode()).hexdigest()==CAP_SHA,'exact original capability observer required');text=raw
  rules=(
   (' children,groups=_graph(nodes,limits);result={};identities={};inodes={};hashed=set()'," _p.event('graph','enter')\n children,groups=_graph(nodes,limits);result={};identities={};inodes={};hashed=set()\n _p.values['graph_nodes']=len(nodes)\n _p.views.update(walk_nodes=identities,capability_entries=result,hashed_inodes=hashed)\n _p.event('graph','leave')"),
@@ -64,6 +64,12 @@ def capability_facade(original,record):
  for before,after in reversed(rules):restored=restored.replace(after,before)
  need(restored==raw,'all original capability/check/hash/cleanup bodies restored byte exact')
  namespace=dict(vars(original));exec(compile(text,'<exact-original-capability-progress>','exec'),namespace);observe=namespace['observe']
+ if mount_query is not None:
+  query=mount_query(original._mount)
+  def mounted(fd,limits):
+   namespace['_p'].values['mount_queries']+=1
+   return query(fd,limits)
+  namespace['_mount']=mounted
  def measured(*args,**kwargs):
   p=Probe(record);namespace['_p']=p;p.start();p.event('capability','enter')
   try:return observe(*args,**kwargs)

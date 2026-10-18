@@ -15,7 +15,7 @@ class Controls(unittest.TestCase):
   with patch.dict(sys.modules,{'contract':C}):R=load('interrupted_run',folder/'run.py');A=load('interrupted_adapter',folder/'adapter.py');V=load('interrupted_recovery',folder/'recovery.py')
   return result,folder,C,R,A,V
  def test_exact104_source_pins_and_closed14file_emission(self):
-  self.assertEqual(len(G.source(ROOT)['files']),105);value,folder,C,*_=self.emitted();self.assertEqual(len(value['files']),15);self.assertEqual(C.NATIVE,G.NATIVE);self.assertEqual(C.LANE,G.NEW);self.assertIn('INTERRUPTED_REPLACEMENT',C.PASS)
+  self.assertEqual(len(G.source(ROOT)['files']),106);value,folder,C,*_=self.emitted();self.assertEqual(len(value['files']),15);self.assertEqual(C.NATIVE,G.NATIVE);self.assertEqual(C.LANE,G.NEW);self.assertIn('INTERRUPTED_REPLACEMENT',C.PASS)
   for p in folder.glob('*.py'):ast.parse(p.read_bytes())
   self.assertEqual((folder/'sandbox.py').read_bytes(),(ROOT/G.OLD/'sandbox.py').read_bytes())
   self.assertEqual((folder/'snapshot_progress.py').read_bytes(),(ROOT/G.OLD/'snapshot_progress.py').read_bytes());self.assertIn("('guest.py','contract.py','sandbox.py','snapshot_progress.py','observer_progress.py','recovery.py')",(folder/'prepare.py').read_text())

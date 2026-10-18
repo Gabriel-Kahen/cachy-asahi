@@ -72,7 +72,7 @@ RULES=(
     ("        report['complete'] = True","        report['complete'] = True\n        _probe('final','leave')"),
 )
 
-def facade(roots,callback):
+def facade(roots,callback,*,mount_query=None):
     """Compile only exact original function definitions with counted hook insertions."""
     raw=inspect.getsource(roots)
     need(hashlib.sha256(raw.encode()).hexdigest()==SOURCE_SHA256,'exact original full-root observer required')
@@ -113,6 +113,7 @@ def facade(roots,callback):
             try:return function(*args,**kwargs)
             finally:probe(operation,'leave')
         return call
+    if mount_query is not None:namespace['_mount_id']=mount_query(roots._mount_id)
     for name,operation,counter in (('_file_hash','file-hash','hashes'),('_mount_id','mount-id','mount_queries'),('_open_root','open-root',None)):
         namespace[name]=wrap(namespace[name],operation,counter)
     original_observe=namespace['observe']
