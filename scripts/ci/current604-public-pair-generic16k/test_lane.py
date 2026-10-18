@@ -605,6 +605,54 @@ class Openat2ReadbackControls(unittest.TestCase):
    for scope in(before,after):
     with self.assertRaisesRegex(ValueError,'unknown xattr'):scope['observe'](root,scope['load_db'](path),expected)
 
+class PrivateKeyboardBuildReceipt(unittest.TestCase):
+ # A source-owned kernel-guard fragment with real private files. This is not a
+ # built Image, VM fixture, native build receipt, boot or acceptance document.
+ def receipt_files(self,base):
+  K=A.KP;work=base/'managed-gui16k-kernel';helper=work/'helper';helper.mkdir(parents=True)
+  for name in('build_kernel.py','kernel.fragment'):(helper/name).write_bytes(K.held(ROOT,name))
+  K.prepare_kernel(ROOT,helper);H=K.helper(ROOT);H.HERE=helper
+  build=helper/'built/build';image=build/'arch/arm64/boot/Image';image.parent.mkdir(parents=True);header=bytearray(64);header[24]=4;header[56:60]=b'ARM\x64';image.write_bytes(header)
+  config=build/'.config';config.write_bytes((helper/'kernel.fragment').read_bytes()+H.DIAGNOSTIC_FRAGMENT.encode()+b'CONFIG_VIRTIO=y\n')
+  contract=K.contract(ROOT)
+  receipt=dict(status='BUILT_ONLY',kernel_build='PASS',profile=K.PROFILE,
+   derivation=dict(base_helper_sha256='e94adb4474183feea30ce1e2949b55c03e4969eeb1addb4c36892e8664ba9aaa',base_fragment_sha256='6d91180b80138d2d8039efafaaa9ca31349baea22b90430cbb15e07bce02e8f6',workspace_scan='ACTIVE_CHILD_COMPILER_OUTPUT_ENOENT_ONLY_STRICT_FINAL',accepted_profiles_modified=False),
+   source_commit=contract.REVISION,archive=dict(bytes=262965559,sha256=contract.ARCHIVE),boot_diagnostics=True,kernel_release=contract.RELEASE,module_policy=dict(CONFIG_MODULES='n'),
+   helper=H.identity(helper/'build_kernel.py'),fragment=H.identity(helper/'kernel.fragment'),image=H.identity(image),config=H.identity(config),diagnostic_fragment=dict(sha256=K.sha((helper/'kernel.fragment').read_bytes()+H.DIAGNOSTIC_FRAGMENT.encode())))
+  path=helper/'built/build-receipt.json';path.write_bytes(C.encoded(receipt))
+  # Compile ONLY the source-pinned original ordinary-directory guard. The kernel
+  # function itself is the real K.kernel derivation and original from_receipt.
+  raw=K.held(ROOT,'run.py');node=next(n for n in ast.parse(raw).body if isinstance(n,ast.FunctionDef)and n.name=='ordinary')
+  s=SimpleNamespace(HERE=ROOT/K.BASE,need=C.need,read=lambda p,cap=65536:K.read(p),sha=K.sha)
+  namespace=dict(Path=Path,os=os,stat=stat,json=json,s=s);exec(compile(ast.Module(body=[node],type_ignores=[]),'<pinned-ordinary-kernel-guard>','exec'),namespace)
+  return K,H,contract,receipt,path,SimpleNamespace(**namespace),SimpleNamespace(source=ROOT,kernel_work=work,kernel_receipt=path),image,config
+ def test_actual_copied_helper_hash_reaches_original_receipt_and_file_guards(self):
+  with tempfile.TemporaryDirectory()as td,patch.dict(os.environ,RUNNER_TEMP=td):
+   K,H,contract,r,p,original,args,image,config=self.receipt_files(Path(td));old=K.sha(K.held(ROOT,'build_kernel.py'))
+   self.assertNotEqual(old,r['helper']['sha256']);self.assertEqual(r['helper']['sha256'],contract.HELPER_SHA)
+   with self.assertRaisesRegex(ValueError,'completed exact diagnostic build required'):contract.from_receipt(r,H,K.fragment(K.held(ROOT,'kernel.fragment')),old,r['fragment']['sha256'])
+   result=K.kernel(original,args);self.assertEqual(result[0]['helper_sha256'],r['helper']['sha256']);self.assertEqual(result[1],r);self.assertEqual(result[2:],(image,config))
+ def test_original_status_profile_archive_and_hash_refusals_remain(self):
+  with tempfile.TemporaryDirectory()as td,patch.dict(os.environ,RUNNER_TEMP=td):
+   K,H,contract,r,p,original,args,image,config=self.receipt_files(Path(td))
+   for change in(dict(status='CONFIGURED_ONLY'),dict(profile=K.OLD),dict(kernel_build='FAIL'),dict(boot_diagnostics=False),dict(archive=dict(bytes=262965559,sha256='0'*64)),dict(helper=dict(r['helper'],sha256='0'*64))):
+    bad=copy.deepcopy(r);bad.update(change);p.write_bytes(C.encoded(bad))
+    with self.subTest(change=change),self.assertRaises(ValueError):K.kernel(original,args)
+ def test_original_real_image_config_and_copied_helper_drift_refusals_remain(self):
+  with tempfile.TemporaryDirectory()as td,patch.dict(os.environ,RUNNER_TEMP=td):
+   K,H,contract,r,p,original,args,image,config=self.receipt_files(Path(td))
+   for target in(image,config,Path(r['helper']['path']),Path(r['fragment']['path'])):
+    raw=target.read_bytes();target.write_bytes(raw+b'\n')
+    with self.subTest(target=target.name),self.assertRaises(ValueError):K.kernel(original,args)
+    target.write_bytes(raw)
+   alias=image.with_name('original');image.rename(alias);image.symlink_to(alias.name)
+   with self.assertRaisesRegex(ValueError,'symlink'):K.kernel(original,args)
+ def test_only_one_kernel_hash_operand_rewrite_and_original_contract_functions_held(self):
+  K=A.KP;original=K.held(ROOT,'run.py');self.assertEqual(original.count(b"s.sha(s.read(s.HERE/'build_kernel.py'))"),1)
+  contract=K.held(ROOT,'kernel_contract.py');new=K.contract_bytes(ROOT)
+  fs=lambda raw:{n.name:ast.get_source_segment(raw.decode(),n)for n in ast.parse(raw).body if isinstance(n,ast.FunctionDef)}
+  self.assertEqual(fs(contract),fs(new));self.assertIn(b"receipt['status']=='BUILT_ONLY'",new)
+
 if __name__=='__main__':unittest.main(verbosity=2)
 
 

@@ -53,5 +53,6 @@ def kernel(original,args):
  text=one(text,"helper=s.load(args.source,'scripts/ci/managed-gui-generic16k/build_kernel.py')","helper=KP.helper(args.source);helper.HERE=Path(receipt['helper']['path']).parent")
  text=one(text,"K=s.load(args.source,'scripts/ci/managed-gui-generic16k/kernel_contract.py')","K=KP.contract(args.source)")
  text=one(text,"fragment=s.read(s.HERE/'kernel.fragment')","fragment=KP.fragment(s.read(s.HERE/'kernel.fragment'))")
+ text=one(text,"s.sha(s.read(s.HERE/'build_kernel.py'))","KP.sha(KP.build_helper(KP.held(args.source,'build_kernel.py')))")
  text=one(text,'    return profile,receipt,image,config','    KP.check_config(config)\n    return profile,receipt,image,config')
  namespace=dict(original.__dict__,KP=sys.modules[__name__]);exec(compile(text,'<whole-pinned-private-gui-keyboard-kernel>','exec'),namespace);return namespace['kernel'](args)
