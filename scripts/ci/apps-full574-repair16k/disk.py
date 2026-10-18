@@ -1,22 +1,63 @@
 #!/usr/bin/python3 -I
 # SPDX-License-Identifier: MIT
 """Two exact source copies and sealed ext4 media inside the original owned role."""
-import base64,os,re,shutil,stat,subprocess,sys,time
+import base64,json,os,re,shutil,stat,subprocess,sys,time
 from pathlib import Path
+from types import SimpleNamespace
 sys.path.insert(0,str(Path(__file__).resolve().parent));import contract as C
 
 def remaining(s,cap):
  value=min(cap,s['deadline_monotonic']-time.monotonic());C.need(value>0,'shared original3000 lifecycle deadline');return value
 
+def phase_summary(data):
+  # Data-only projection of existing records; never inspect a root again.
+  stages=('source-revalidation','tree-and-aux-observation','tree-observe','complete-capability-map','capability-scan','copy-with-capability-restoration','copy-data','diagnostic-limit')
+  events=('BEGIN','END','FAIL','FURTHER_PHASE_RECORDS_OMITTED')
+  records=[];stats={};stack=[];first=None;previous=None
+  try:
+   for line in data.splitlines():
+    if not line.startswith(b'APPS574_PHASE '):continue
+    if len(line)>511 or len(records)>=96:raise ValueError('phase record bound')
+    v=json.loads(line[len(b'APPS574_PHASE '):]);base={'schema_version','seq','stage','event','monotonic_ns'}
+    if type(v)is not dict or set(v)not in (base,base|{'error_type','error_reason'}):raise ValueError('phase fields')
+    if type(v['schema_version'])is not int or v['schema_version']!=1 or type(v['seq'])is not int or v['seq']!=len(records)+1 or type(v['monotonic_ns'])is not int or not 0<=v['monotonic_ns']<2**63:raise ValueError('phase scalar')
+    stage=stages.index(v['stage']);event=events.index(v['event']);now=v['monotonic_ns']
+    if previous is not None and now<previous:raise ValueError('phase clock order')
+    if first is None:first=now
+    if stage==7 or event==3:
+     if (stage,event,v['seq'])!=(7,3,96):raise ValueError('phase limit marker')
+    else:
+     counts=stats.setdefault(stage,[0,0,0,0]);counts[event]+=1
+     if event==0:stack.append((stage,now))
+     else:
+      if not stack or stack[-1][0]!=stage:raise ValueError('phase nesting')
+      counts[3]+=now-stack.pop()[1]
+    records.append([v['seq'],stage,event,now-first]);previous=now
+   if not records:return None
+   return dict(version=1,records=len(records),first_ns=first,stages=[[s,*counts]for s,counts in sorted(stats.items())],last=records[-2:])
+  except (ValueError,TypeError,KeyError,IndexError):return dict(version=1,status='INVALID_PHASE_RECORDS')
+
 def command(s,argv,cap=600):
  runtime=C.load('disk_runtime','/source/scripts/ci/glibc-owned-runtime/runner.py');record,out,err,error=runtime.run_command(list(map(str,argv)),Path('/work'),dict(PATH='/usr/bin:/bin',LC_ALL='C.UTF-8',HOME='/tmp',TMPDIR='/tmp',CACHY_ASAHI_APPS_TRANSACTION=s['env']['OWNER_TOKEN']),remaining(s,cap),1024**2)
- path=Path('/out/repair16k-media-commands.json');rows=C.decode(C.read(path,2*1024**2)) if path.exists() else [];C.need(len(rows)<192,'finite media command count');rows.append(dict(record=record,error=None if error is None else str(error)[:1024],previews={side:dict(base64=base64.b64encode(raw[:1024]).decode(),truncated=len(raw)>1024,original_bytes=len(raw),original_sha256=C.sha(raw)) for side,raw in (('stdout',out),('stderr',err))}));C.need(len(C.encoded(rows))<=2*1024**2,'bounded media diagnostics');C.save(path,rows);os.chown(path,s['uid'],s['gid'])
+ summary=phase_summary(err)
+ path=Path('/out/repair16k-media-commands.json');rows=C.decode(C.read(path,2*1024**2)) if path.exists() else [];C.need(len(rows)<192,'finite media command count');rows.append(dict(record=record,error=None if error is None else str(error)[:1024],previews={side:dict(base64=base64.b64encode(raw[:1024]).decode(),truncated=len(raw)>1024,original_bytes=len(raw),original_sha256=C.sha(raw)) for side,raw in (('stdout',out),('stderr',err))},**({} if summary is None else {'phase_summary':summary})));C.need(len(C.encoded(rows))<=2*1024**2,'bounded media diagnostics');C.save(path,rows);os.chown(path,s['uid'],s['gid'])
  C.need(error is None and record['exit_code']==0 and record['group_absence_verified'] is True,'bounded owned media command/group retirement: '+str(argv[0]));return record,out,err
 
+def caller_seconds(s):
+ name='scripts/apps/full574_closure.py';path=Path('/source')/name
+ C.need(C.row(path)==s['source_files'][name],'exact trusted native media policy helper')
+ policy=C.load('native_media_policy',path)
+ args=SimpleNamespace(full574_policy=Path('/inputs/full574-policy.json'),full574_policy_sha256=s['input_map']['full574-policy.json']['sha256'],full574_lease=Path('/inputs/full574-lease.json'),full574_lease_sha256=s['input_map']['full574-lease.json']['sha256'])
+ backend=SimpleNamespace(B=SimpleNamespace(client=SimpleNamespace(read_path=C.read)))
+ selected,_=policy.policy_pair(args,backend)
+ C.need(selected['execution_budget']==dict(backend_seconds=600,caller_seconds=610),'original authenticated native media execution budget')
+ return selected['execution_budget']['caller_seconds']
+
 def backend(s,mode,work,owner=None):
+ seconds=caller_seconds(s) if mode=='prepare-copy' else 75
  args=['/usr/bin/python3','-I','-B','/source/scripts/apps/transaction.py',mode,'--workspace',str(work),'--apps-source','/inputs/apps-source','--apps-provenance-sha256',C.sha(C.read('/inputs/apps-source/source-provenance.json')),'--repository-source','/inputs/candidate/usr/share/cachy-asahi/repository-runtime','--full574-policy','/inputs/full574-policy.json','--full574-policy-sha256',C.row('/inputs/full574-policy.json')['sha256'],'--full574-lease','/inputs/full574-lease.json','--full574-lease-sha256',C.row('/inputs/full574-lease.json')['sha256']]
  args+=['--source','/seed'] if mode=='prepare-copy' else ['--ownership-sha256',owner]
- return C.decode(command(s,args,600 if mode=='prepare-copy' else 75)[1])
+ return C.decode(command(s,args,seconds)[1])
 
 def stage_guard(s,stage,proof=None,roots=()):
  work=Path('/work');C.need(stage==work/'repair16k-stage' and not stage.is_symlink(),'fixed private work staging path')
