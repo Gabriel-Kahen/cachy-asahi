@@ -675,7 +675,7 @@ class ImageAccountsBeforeSnapshot(unittest.TestCase):
      candidate=(runner/'desktop574_fixture.sh').read_bytes()
      inserted=b'# Settle the same image-owned account configuration before its offline baseline.\n/usr/bin/systemd-sysusers --root="$root"\n'
      self.assertEqual(candidate.count(inserted),1)
-     original=candidate.replace(inserted,b'')
+     candidate=candidate.replace(b'# Settle only the image-owned mtab rule before its offline baseline.\n[[ -L "$root/etc/mtab" ]]\n/usr/bin/systemd-tmpfiles --root="$root" --create --prefix=/etc/mtab\n[[ -L "$root/etc/mtab" ]]\n',b'');original=candidate.replace(inserted,b'')
      self.assertEqual(A.initialize_image_accounts(original),candidate)
      text=candidate.decode()
      self.assertLess(text.index("'desktop574:!:20000:0:99999:7:::'"),text.index('/usr/bin/systemd-sysusers --root="$root"'))
@@ -713,3 +713,40 @@ class FiveMismatchKeys(unittest.TestCase):
    functions=lambda v:{n.name:ast.dump(n,include_attributes=False)for n in ast.parse(v).body if isinstance(n,(ast.FunctionDef,ast.ClassDef))}
    before,after=functions(raw),functions(candidate);self.assertEqual(before.keys(),after.keys())
    for name in before.keys()-{'snapshot_mismatch'}:self.assertEqual(before[name],after[name],name)
+
+class ImageMtabBeforeSnapshot(unittest.TestCase):
+ def test_exact_whole_fixture_and_order_both_profiles(self):
+  with patch.object(subprocess,'Popen',side_effect=AssertionError('no native actors/Git/API')):
+   for profile in C.PROFILES:
+    with tempfile.TemporaryDirectory()as td:
+     runner=Controls().generated(Path(td),profile);raw=(runner/'desktop574_fixture.sh').read_bytes()
+     inserted=b'# Settle only the image-owned mtab rule before its offline baseline.\n[[ -L "$root/etc/mtab" ]]\n/usr/bin/systemd-tmpfiles --root="$root" --create --prefix=/etc/mtab\n[[ -L "$root/etc/mtab" ]]\n'
+     self.assertEqual(raw.count(inserted),1);old=raw.replace(inserted,b'');self.assertEqual(A.initialize_image_mtab(old),raw)
+     text=raw.decode();self.assertLess(text.index('systemd-sysusers --root='),text.index('systemd-tmpfiles --root='));self.assertLess(text.index('systemd-tmpfiles --root='),text.index('/runner/installed604.py capture'));self.assertLess(text.index('/runner/installed604.py capture'),text.index('mkfs.ext4'))
+     for changed in (old+b'\n',old.replace(b'installed604.py capture',b'installed604.py verify')):
+      with self.assertRaisesRegex(ValueError,'whole account-settled fixture'):A.initialize_image_mtab(changed)
+     self.assertIn("need(actual==baseline,'complete installed inventory/payload/hardlink/nonselected DB preservation differs')",(runner/'installed604.py').read_text());self.assertIn('timeout=600',(runner/'base_guest.py').read_text())
+ def tmpfiles(self,root,*args):
+  return subprocess.run(['/usr/bin/systemd-tmpfiles','--root='+str(root),*args],env={'PATH':'/usr/bin:/bin','LC_ALL':'C'},capture_output=True,timeout=20,check=True)
+ def root(self,root,config):
+  (root/'etc').mkdir();(root/'etc/tmpfiles.d').mkdir();(root/'etc/tmpfiles.d/owned-mtab.conf').write_bytes(config)
+ def test_real_tmpfiles_image_rule_before_boot_is_idempotent(self):
+  # Explicit owned test DATA; never reads the host or claims a native image rule.
+  config=b'L+ /etc/mtab - - - - ../proc/self/mounts\n';rules=[line for line in config.splitlines()if line.startswith(b'L+ /etc/mtab ')]
+  self.assertEqual(len(rules),1)
+  with tempfile.TemporaryDirectory()as td:
+   root=Path(td);self.root(root,rules[0]+b'\n');(root/'etc/mtab').symlink_to('/proc/mounts')
+   self.tmpfiles(root,'--create','--prefix=/etc/mtab');target=os.readlink(root/'etc/mtab');self.assertEqual(target,rules[0].decode().split()[-1]);before=(root/'etc/mtab').lstat()
+   self.tmpfiles(root,'--create','--remove','--boot','--exclude-prefix=/dev');self.assertEqual(os.readlink(root/'etc/mtab'),target);self.assertEqual((root/'etc/mtab').lstat().st_ino,before.st_ino)
+ def test_real_tmpfiles_uses_owned_root_rule_and_leaves_other_paths_whole(self):
+  with tempfile.TemporaryDirectory()as td:
+   root=Path(td);self.root(root,b'L+ /etc/mtab - - - - ../proc/CONTROL_ONLY/mounts\nL+ /etc/mtab-shadow - - - - /MUST_NOT_REPLACE\nf /etc/other - - - - MUST_NOT_WRITE\n');(root/'etc/mtab').symlink_to('/OLD_CONTROL_ONLY');(root/'etc/mtab-shadow').symlink_to('/OWNED_OTHER');(root/'etc/other').write_bytes(b'KEEP')
+   old={n:(p.lstat().st_ino,p.read_bytes()if p.is_file()else os.readlink(p))for n in('etc/mtab-shadow','etc/other')for p in(root/n,)}
+   self.tmpfiles(root,'--create','--prefix=/etc/mtab');self.assertEqual(os.readlink(root/'etc/mtab'),'../proc/CONTROL_ONLY/mounts')
+   self.assertEqual({n:(p.lstat().st_ino,p.read_bytes()if p.is_file()else os.readlink(p))for n in old for p in(root/n,)},old)
+ def test_real_tmpfiles_refusal_stops_before_capture(self):
+  with tempfile.TemporaryDirectory()as td:
+   root=Path(td);self.root(root,b'L+ /etc/mtab - - - - ../proc/self/mounts\n');(root/'etc/mtab').mkdir();(root/'etc/mtab/unknown').write_bytes(b'KEEP')
+   marker=root/'capture-was-not-run';script='set -e\nroot="$1"\n[[ -L "$root/etc/mtab" ]]\n/usr/bin/systemd-tmpfiles --root="$root" --create --prefix=/etc/mtab\nprintf unexpected > "$root/capture-was-not-run"\n'
+   result=subprocess.run(['/bin/bash','-c',script,'private-fixture',str(root)],env={'PATH':'/usr/bin:/bin','LC_ALL':'C'},capture_output=True,timeout=20)
+   self.assertNotEqual(result.returncode,0);self.assertFalse(marker.exists());self.assertEqual((root/'etc/mtab/unknown').read_bytes(),b'KEEP')
