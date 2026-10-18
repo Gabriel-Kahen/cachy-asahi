@@ -132,16 +132,16 @@
       "sha256": "2807126de1544ef4eac48b94159891a2cf0443e5fcc5b4d0c1af5831e90d7753"
     },
     "copyworker/scripts/ci/current606-welcome5-copy/alpm_step.py": {
-      "bytes": 5718,
-      "sha256": "711a00d87656e12f9ca7fe7a4fad2e3954652974827bbb7dde08b11fa94de151"
+      "bytes": 5970,
+      "sha256": "5f464d021671b73f4e848c8ca0171852b587b6b5c639eb79c6cb678a77658f62"
     },
     "copyworker/scripts/ci/current606-welcome5-copy/contract.py": {
       "bytes": 6397,
       "sha256": "bf218d6b3c1a0bfee87de2abf019c358e8dd22d6038ce2a7b8894138dbfae206"
     },
     "copyworker/scripts/ci/current606-welcome5-copy/driver.py": {
-      "bytes": 11911,
-      "sha256": "68cf4c6bc12c42baad61fa0fd955e748d5aec88880e1cd2737e70b5bd2b7c112"
+      "bytes": 13592,
+      "sha256": "d2d093c22a6b2304dd444675ddfb64bad6dfa6347a7167a639df91ae58417b79"
     },
     "copyworker/scripts/ci/current606-welcome5-copy/guard.py": {
       "bytes": 6372,
@@ -181,7 +181,7 @@
     },
     "copyworker/scripts/ci/current606-welcome5-copy/source-manifest.json": {
       "bytes": 5467,
-      "sha256": "751833a5f2a6df56fdf9af59bf6aeb2dc03cfffc6eff706c220e4e4a6b2fe7ee"
+      "sha256": "812b1f34e2f21829a7f165a5f9c4d393d78b350134f33fdb839fcd1f1dd89d3d"
     },
     "copyworker/scripts/ci/current606-welcome5-copy/step_entry.py": {
       "bytes": 741,
@@ -196,8 +196,8 @@
       "sha256": "bb647153cea5f536ae488eb3f4ee31f5f08e7764d99b3cb99b76b9e5e1d2313d"
     },
     "copyworker/scripts/ci/current606-welcome5-copy/test_worker.py": {
-      "bytes": 35799,
-      "sha256": "02d7dc952e498babf13baa7afe3fe7a0c4735aeb4303e86cbddba293fd361fb6"
+      "bytes": 40251,
+      "sha256": "8844cde532311d93a988b59534cb935c3bcec620ea3abbd1b1c476c378479481"
     },
     "copyworker/scripts/ci/current606-welcome5-copy/verification.py": {
       "bytes": 2645,
@@ -1709,7 +1709,7 @@
     },
     "scripts/ci/current606-welcome5-closed-owner/source-pins.json": {
       "bytes": 74960,
-      "sha256": "02c98c4b8f75de64dc67ebb9cd0bacfbb031f02932bdeb0134b5c2954dd8a35e"
+      "sha256": "8ed3b0b6101506e900a1247bb1ee5b8db6ee5b140e0a1bb641d03d7a66d36685"
     },
     "scripts/ci/current606-welcome5-closed-owner/test_owner.py": {
       "bytes": 27797,

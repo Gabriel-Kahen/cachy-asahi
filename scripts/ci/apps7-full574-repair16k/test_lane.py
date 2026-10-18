@@ -133,21 +133,43 @@ class InventoryObserverSource(unittest.TestCase):
    exec(compile(rendered,m.__file__,'exec'),m.__dict__)
    source=ROOT/'packages/tools/cachy-asahi-apps7';args=types.SimpleNamespace(apps_source=source,apps_provenance_sha256=C.sha(C.read(source/'source-provenance.json')),repository_source=ROOT)
    app,client,release=m.app_source(args);reader=app.inventory_reader()
-   self.assertTrue(reader.scan.__code__.co_filename.endswith(':source-owned-ancestor-walk'))
+   self.assertTrue(reader.scan.__code__.co_filename.endswith(':source-owned-pure-checks'))
    self.assertEqual(proof['inventory_source_before'],'68f9b0bc6bd5c494ebfc10bdc1e243c014d7fa8e56b1386491b75cdb9ee2e3df')
-   self.assertEqual(proof['inventory_source_after'],'faca184446aa9214c53bc78b797813cbad9768f7d8276a733fb15e4ecc7c2630')
+   self.assertEqual(proof['inventory_source_after'],'60b4e5be36b727bdcd514667d5808903759e8f673f5e09d05e442d8ddf0610cf')
    args.apps_provenance_sha256='0'*64
    with self.assertRaises(ValueError):m.app_source(args)
  def test_inventory_whole_source_and_all_canonical_parent_checks_held(self):
   import types
   scope=types.ModuleType('_source_inventory_test');exec(A.INVENTORY_OBSERVER,scope.__dict__)
   raw=C.read(ROOT/'packages/tools/cachy-asahi-apps7/inventory.py')
-  self.assertEqual(scope.derive(raw).replace(scope.AFTER.encode(),scope.BEFORE.encode()),raw)
+  self.assertEqual(scope.restore(scope.derive(raw)),raw)
   with self.assertRaises(ValueError):scope.derive(raw+b'\n')
   from pathlib import PurePosixPath
   for path in ('a','a/b','a/b/c','usr/share/fixture/path','unicode-ä/child'):
    old=[p.as_posix()for p in PurePosixPath(path).parents if p.as_posix()!='.'];new=[];parent=path.rpartition('/')[0]
    while parent:new.append(parent);parent=parent.rpartition('/')[0]
    self.assertEqual(old,new)
+
+
+class PureDatabaseChecks(unittest.TestCase):
+ def modules(self):
+  import types
+  scope=types.ModuleType('_source_pure_checks');exec(A.INVENTORY_OBSERVER,scope.__dict__);raw=C.read(ROOT/'packages/tools/cachy-asahi-apps7/inventory.py');before=types.ModuleType('_before_inventory');after=types.ModuleType('_after_inventory');exec(raw,before.__dict__);exec(scope.derive(raw),after.__dict__);return scope,raw,before,after
+ def test_canonical_component_and_every_control_character_equivalence(self):
+  scope,raw,before,after=self.modules()
+  def outcome(fn):
+   try:return ('PASS',fn())
+   except Exception as e:return(type(e).__name__,str(e))
+  for value in ('a','a/','a/b','a//b','/a','a/./b','a/../b','a\\b','ü/文件','a'*512,'a'*513)+tuple('pre'+chr(i)+'post'for i in range(256)):
+   self.assertEqual(outcome(lambda:before.relative(value)),outcome(lambda:after.relative(value)))
+ def test_raw_sections_error_order_duplicate_relations_and_CR_refusal(self):
+  scope,raw,before,after=self.modules()
+  def outcome(fn):
+   try:return ('PASS',fn())
+   except Exception as e:return(type(e).__name__,str(e))
+  for value in (b'%FILES%\na\na\n',b'%DEPENDS%\na\nb\na\n',b'%FILES%\na\r\n',b'%FILES%\na',b'%UNKNOWN%\na\n',b'\xff\n'):
+   self.assertEqual(outcome(lambda:before.sections(value,{'FILES','DEPENDS'})),outcome(lambda:after.sections(value,{'FILES','DEPENDS'})))
+ def test_all_current_filesystem_scan_and_30s_collect_bodies_byte_held(self):
+  scope,raw,before,after=self.modules();current=raw.decode().replace(scope.BEFORE,scope.AFTER);a=A.functions(current.encode());b=A.functions(scope.derive(raw));self.assertEqual([n for n in a if a[n]!=b[n]],['sections','relative']);self.assertEqual(scope.restore(scope.derive(raw)),raw);self.assertIn('deadline=time.monotonic()+30',scope.derive(raw).decode());self.assertIn('first=scan(dbpath,c,normalize,deadline);second=scan(dbpath,c,normalize,deadline)',scope.derive(raw).decode())
 
 if __name__=='__main__':unittest.main()
