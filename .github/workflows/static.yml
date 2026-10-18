@@ -232,7 +232,7 @@ jobs:
       - name: Checkout whole-pinned Welcome-on606 source carrier without native authority
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          ref: 2217f9361aba464a192fc4a6d28aca0c8ab33118
+          ref: 8d6d8866b260ca70e75e8bd0eafb3eb451620218
           path: .ci-inputs/current606-welcome5-source-roles
           persist-credentials: false
       - name: Check closed Welcome-on606 default source and interfaces without actors
