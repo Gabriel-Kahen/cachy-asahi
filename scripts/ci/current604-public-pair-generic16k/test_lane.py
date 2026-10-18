@@ -16,7 +16,7 @@ class Controls(unittest.TestCase):
  def generated(self,base,selected):
    native=C.load(ROOT,'scripts/ci/welcome-management-native/prepare.py');N=native.C;candidate=native.candidates;UI=N.policy(False)['ui']
    def stage(source,assets,output):
-    output.mkdir();lock=dict(status='INERT_SOURCE_TEMPLATE_ONLY',eligibility='PRIVATE_GUI_TRIAL_ONLY',products={},policy=dict(ui=UI));(output/'candidate-lock.json').write_bytes(C.encoded(lock));return lock
+    output.mkdir();lock=dict(status='INERT_SOURCE_TEMPLATE_ONLY',eligibility='PRIVATE_GUI_TRIAL_ONLY',products={},policy=dict(ui=UI),producer_lifecycle='PASS_SAME_JOB_SIGNED_THREE_PRODUCT_LIFECYCLE');(output/'candidate-lock.json').write_bytes(C.encoded(lock));return lock
    ready=base/'ready';ready.mkdir();(ready/'manifest.json').write_text('{"packages":[]}')
    with patch.object(C,'check_source'),patch.object(N,'verify_source'),patch.object(candidate,'verify_source'),patch.object(N,'policy',return_value=dict(ui=UI)),patch.object(candidate,'stage',side_effect=stage):A.prepare(ROOT,base/'runner',base/'assets',ready,selected)
    return base/'runner'
@@ -31,6 +31,23 @@ class Controls(unittest.TestCase):
      self.assertIn('context604.selection(base,expected)',runtime);self.assertNotIn("all(expected.get(n)==v for n,v in base.items())",runtime)
      for filename,source in (('doctor_lifetime.py','scripts/ci/welcome-management-native/doctor_lifetime.py'),('a11y_driver.c','scripts/ci/welcome-management-native/a11y_driver.c'),('file_capabilities.py','scripts/apps/file_capabilities.py')):
       original=(ROOT/source).read_bytes();self.assertEqual((runner/filename).read_bytes(),A.peer_focus_driver(original) if filename=='a11y_driver.c' else A.doctor_publication(original) if filename=='doctor_lifetime.py' else original)
+ def test_generated_host_and_guest_locks_are_exactly_equal_both_profiles(self):
+  for selected in C.PROFILES:
+   with self.subTest(profile=selected),tempfile.TemporaryDirectory()as td:
+    runner=self.generated(Path(td),selected)
+    self.assertEqual((runner/'candidate-lock.json').read_bytes(),(runner/'candidates/candidate-lock.json').read_bytes())
+    self.assertEqual(C.json_read(runner/'candidate-lock.json')['producer_lifecycle'],'ROOT_ACCEPTED_NATIVE604_AND_SEPARATE_CURRENT_WELCOME4_GUI')
+ def test_candidate_lock_alignment_refuses_foreign_inputs_and_qualification(self):
+  for changed in ('products','producer_lifecycle','extra'):
+   with self.subTest(changed=changed),tempfile.TemporaryDirectory()as td:
+    root=Path(td);(root/'candidates').mkdir()
+    guest=dict(products={'unit':'inert'},producer_lifecycle='ROOT_ACCEPTED_NATIVE604_AND_SEPARATE_CURRENT_WELCOME4_GUI')
+    host=dict(guest,producer_lifecycle='PASS_SAME_JOB_SIGNED_THREE_PRODUCT_LIFECYCLE')
+    host[changed]={'foreign':'inert'} if changed=='products' else 'foreign'
+    C.save(root/'candidate-lock.json',guest);C.save(root/'candidates/candidate-lock.json',host)
+    before=C.read(root/'candidates/candidate-lock.json')
+    with self.assertRaises(ValueError):A.align_candidate_locks(root)
+    self.assertEqual(C.read(root/'candidates/candidate-lock.json'),before)
  def test_failed_controller_exports_only_fixed_bounded_original_build_log_without_authority(self):
   for log_name in ('runtime-image.log','qemu-tooling-image.log'):
    # Execute the actual derived owner.main failure/finally path. Every producer,
