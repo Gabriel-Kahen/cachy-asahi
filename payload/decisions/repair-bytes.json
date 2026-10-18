@@ -1,0 +1,36 @@
+{
+  "attempt": 1,
+  "case": "repair-bytes",
+  "cleanup": "PASS",
+  "committed_transactions": 4,
+  "counts": [
+    578,
+    575,
+    574
+  ],
+  "generic16K": "NOT_RUN",
+  "hardware": "NOT_RUN",
+  "ordered_cleanup": "PASS_RETAINED_ORDERED_SEVEN_ACTORS_THEN_PRODUCER",
+  "packet_source": "54352850a57a7e34e75c3a021fa20525eee59bf6",
+  "readonly_inspection": "PASS_AUTHENTICATED_NONCOMMIT_BEFORE_PINS",
+  "release": "NOT_ADMITTED",
+  "retained_scope": {
+    "copied_root_preservation": "SOURCE_ENFORCED_RAW_MAPS_NOT_EXPORTED",
+    "live_cleanup_reobservation": "NOT_RUN_RETAINED_ORDERED_RECEIPTS_ONLY",
+    "signature_cryptographic_reverification": "NOT_RUN_PASSIVE_NO_SUBPROCESSES",
+    "source_full_node_replay": "PASS_ORIGINAL_SOURCE_ONLY"
+  },
+  "run_id": 39124316211,
+  "schema_version": 1,
+  "source_manifest_sha256": "c37c946199b43052594ece0ac24ae89a5cc77aa615ccf0b0abda9f28e3950a65",
+  "source_sha": "c89868439988f99d4179d208d1198f6f9c94d5d5",
+  "status": "ROOT_ACCEPTED_NATIVE_APPS7_FULL574_SIGNED_REPAIR_CASE",
+  "strict_inspect_refusals": 1,
+  "versions": {
+    "cachy-asahi-apps": "0.1.0-7",
+    "cachy-asahi-cache": "0.2.0-1",
+    "cachy-asahi-orphans": "0.1.0-2",
+    "cachy-asahi-repository-runtime": "0.1.0-1"
+  },
+  "zero_commit_refusals": 3
+}

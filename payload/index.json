@@ -1,0 +1,22 @@
+{
+  "decisions": {
+    "repair-bytes": {
+      "bytes": 1256,
+      "path": "payload/decisions/repair-bytes.json",
+      "sha256": "c5300f02b3ff2d23235ef5f9753c281accb5f1eab18c3d3a12092689d077fb66"
+    },
+    "repair-missing": {
+      "bytes": 1258,
+      "path": "payload/decisions/repair-missing.json",
+      "sha256": "7daceefecbd549149869ca8a589632ef9a842ac920a2170c1eae48a2c49d131c"
+    }
+  },
+  "generic16K": "NOT_RUN",
+  "hardware": "NOT_RUN",
+  "packet_source": "54352850a57a7e34e75c3a021fa20525eee59bf6",
+  "release": "NOT_ADMITTED",
+  "schema_version": 1,
+  "source_manifest_sha256": "c37c946199b43052594ece0ac24ae89a5cc77aa615ccf0b0abda9f28e3950a65",
+  "source_sha": "c89868439988f99d4179d208d1198f6f9c94d5d5",
+  "status": "ROOT_ACCEPTED_NATIVE_APPS7_FULL574_SIGNED_REPAIR_PAIR"
+}
