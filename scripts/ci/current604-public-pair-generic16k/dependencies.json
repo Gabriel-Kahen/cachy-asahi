@@ -557,8 +557,8 @@
       "sha256": "db432e9245b83148819b9fdba8dd683a89ef19c10142f44e041ec7b265561bd7"
     },
     "scripts/ci/current604-public-pair-generic16k/keyboard_profile.py": {
-      "bytes": 5181,
-      "sha256": "b9b2b1b46848d551468aa177ec61a12ef40d0e9d05ebff9b06c3f148d364d00a"
+      "bytes": 5305,
+      "sha256": "c4a40f7ec429ce53b01091946adb7cb4ca3d3bbabad93ceca45cbffac2a73d9b"
     },
     "scripts/ci/current604-public-pair-generic16k/prepare.py": {
       "bytes": 5663,
@@ -577,8 +577,8 @@
       "sha256": "71d3f0334c5e0931d69bdc3633ac9ab44e6b53031a079074cfbefc6c8d1a6b6a"
     },
     "scripts/ci/current604-public-pair-generic16k/test_lane.py": {
-      "bytes": 82185,
-      "sha256": "c8a22ad5f657d76eebc2b18b354c6e79a8aee2b64ddebf8a9117a59150e44f07"
+      "bytes": 87144,
+      "sha256": "ea7a582d1f934431396ad4407cb09383148ffef163f195e675f4aa862708a21f"
     },
     "scripts/ci/desktop-user-session/prepare.py": {
       "bytes": 6300,
