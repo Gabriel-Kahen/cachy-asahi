@@ -5,6 +5,8 @@ context604=C.module('_profile604_qemu_context',C.NEW+'/context604.py')
 
 def derive(text):
  text=C.one(text,'import contract as C','import contract as C\nimport context604')
+ text=C.one(text,"copy(runtime/name,'runtime/'+name,cap,required=name in ('runtime.json','events.log','elf16k.json'))","copy(runtime/('installed604-capture.json' if name=='fixture/installed604-capture.json' else name),'runtime/'+name,cap,required=name in ('runtime.json','events.log','elf16k.json','fixture/installed604-capture.json'))")
+ text=C.one(text,"capture=C.json_read(runtime/'fixture/installed604-capture.json',65536)","capture=C.json_read(runtime/'installed604-capture.json',65536)")
  text=C.one(text,"('runtime-image.log',16*1024**2)","('runtime-image.log',16*1024**2),('qemu-tooling-image.log',16*1024**2)")
  text=C.one(text,"raw=C.json_read(runtime/'runtime.json',16*1024**2);lock=C.json_read(runner/'candidate-lock.json')","raw=C.json_read(runtime/'runtime.json',16*1024**2);lock=C.json_read(runner/'candidate-lock.json')\n        C.need(len(raw.get('cleanup',[]))==15 and all(r.get('exit',0)==0 for r in raw['cleanup']) and context604.launcher_retired(raw,C.ROOT),'all original roles plus exact owned QEMU image retirement required')")
  text=C.one(text,"raw['workflow_scope']=='installed604-welcome4-management-generic16k'","raw['workflow_scope']=='independent-installed-public-pairs-apps6-current604-management-generic16k-profile' and raw.get('profile')==selected")

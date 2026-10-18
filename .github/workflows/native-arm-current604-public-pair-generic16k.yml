@@ -67,7 +67,7 @@ jobs:
         run: |
           set -euo pipefail
           test "$(sha256sum current604-public-pair-generic16k/scripts/ci/current604-public-pair-generic16k/ci.py | cut -d ' ' -f 1)" = 6d3a3f6dd3819f3686076c94e4a41b555c02ecad269821fa72becea34ab6739b
-          test "$(sha256sum current604-public-pair-generic16k/scripts/ci/current604-public-pair-generic16k/source-manifest.json | cut -d ' ' -f 1)" = 9791265a8bcfd47a1a02ebbaeb18a075a43b1bd1fed57bd7f41f2a15f98f15d2
+          test "$(sha256sum current604-public-pair-generic16k/scripts/ci/current604-public-pair-generic16k/source-manifest.json | cut -d ' ' -f 1)" = 7bf5eca7ada8d55c5746970d50c3e8b334628f70664af40c9aef282f7873927b
           python3 -B current604-public-pair-generic16k/scripts/ci/current604-public-pair-generic16k/gate.py \
             --profile "$GUI_PROFILE" \
             --implementation "$GITHUB_WORKSPACE/current604-public-pair-generic16k" --implementation-revision "$IMPLEMENTATION_SOURCE" \
@@ -718,3 +718,4 @@ jobs:
           retention-days: 3
           if-no-files-found: ignore
           path: /tmp/cachy-asahi-current604-public-pair-generic16k-${{ github.run_id }}-${{ github.run_attempt }}/public/
+          include-hidden-files: true

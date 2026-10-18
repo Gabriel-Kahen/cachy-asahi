@@ -979,3 +979,60 @@ class ProducerImagePreservation(unittest.TestCase):
   self.assertEqual(text.count('producer.cleanup(producer_output)'),1);self.assertEqual(text.count('context604.preserve_producer_image(producer_output,report)'),1);self.assertEqual(text.count("context604.require_producer_image_preserved(raw,report['producer_image_preservation'])"),1);self.assertEqual(text.count("context604.producer_image_retired(report.get('producer_image_preservation'),report['producer_cleanup'])"),1)
   self.assertLess(text.index('context604.preserve_producer_image(producer_output,report)'),text.index('materializer.prepare('));self.assertLess(text.index('context604.require_producer_image_preserved'),text.index("C.need(retired(raw,controller)"));self.assertLess(text.index('producer.cleanup(producer_output)'),text.index('context604.producer_image_retired'))
   self.assertIn("len(report.get('cleanup',[]))==15 and context604.launcher_retired(report,C.ROOT)",text);self.assertIn("C.need(report['producer_cleanup']['status']=='PASS','original producer retirement required')",text)
+
+class CaptureCustody(unittest.TestCase):
+ def helper(self):return C.module('_actual604_capture_custody',C.NEW+'/context604.py')
+ def paths(self,base):
+  output=Path(base)/'runtime';output.mkdir(mode=0o700);fixture=output/'fixture';fixture.mkdir();return output,fixture
+ def test_real_bounded_receipt_survives_original_private_fixture_deletion(self):
+  h=self.helper()
+  with tempfile.TemporaryDirectory()as td:
+   output,fixture=self.paths(td);raw=b'{"status":"INERT_NOT_NATIVE_CAPTURE","bytes":"unchanged"}\n';source=fixture/'installed604-capture.json';source.write_bytes(raw)
+   row=h.preserve_capture(fixture,output);self.assertEqual(row,dict(bytes=len(raw),sha256=C.sha(raw)));shutil.rmtree(fixture)
+   self.assertFalse(fixture.exists());self.assertEqual((output/'installed604-capture.json').read_bytes(),raw);self.assertEqual(stat.S_IMODE((output/'installed604-capture.json').stat().st_mode),0o600)
+   # It is the preserved original bytes, never a result reconstructed from events.
+   self.assertNotIn('PASS_COMPLETE',raw.decode())
+ def test_receipt_source_alias_hardlink_oversize_and_target_alias_refuse(self):
+  h=self.helper()
+  for mode in('source-symlink','source-hardlink','oversize','target-alias','fixture-alias'):
+   with self.subTest(mode=mode),tempfile.TemporaryDirectory()as td:
+    output,fixture=self.paths(td);source=fixture/'installed604-capture.json';other=Path(td)/'held';other.write_bytes(b'PRIVATE_INERT_HELD')
+    if mode=='source-symlink':source.symlink_to(other)
+    elif mode=='source-hardlink':os.link(other,source)
+    elif mode=='oversize':source.write_bytes(b'X'*65537)
+    elif mode=='target-alias':source.write_bytes(b'INERT');(output/'installed604-capture.json').symlink_to(other)
+    else:fixture.rmdir();fixture.symlink_to(Path(td),target_is_directory=True)
+    with self.assertRaises((OSError,ValueError)):h.preserve_capture(fixture,output)
+    self.assertEqual(other.read_bytes(),b'PRIVATE_INERT_HELD')
+    if mode!='target-alias':self.assertFalse((output/'installed604-capture.json').exists())
+ def test_both_generated_profiles_copy_before_qemu_and_hold_original_cleanup(self):
+  for profile in C.PROFILES:
+   with tempfile.TemporaryDirectory()as td:
+    runtime=(Controls().generated(Path(td),profile)/'desktop574_runtime.py').read_text()
+    original="        execute(cmd + ['/runner/desktop574_fixture.sh'], 'fixture', 600)"
+    copy='        context604.preserve_capture(fixture,out)';self.assertEqual(runtime.count(copy),1)
+    self.assertLess(runtime.index(original),runtime.index(copy));self.assertLess(runtime.index(copy),runtime.index("name = 'desktop574-vm-"))
+    self.assertIn("fixture.rmdir()",runtime);self.assertIn("'guest_disk_removed': True",runtime)
+    self.assertIn('signal.ITIMER_REAL, 1750',runtime)
+ def test_retention_keeps_original_public_path_and_all_capture_join_guards(self):
+  before=(ROOT/C.OLD/'retain.py').read_text();after=retain.derive(before)
+  self.assertIn("('fixture/installed604-capture.json',65536)",after)
+  self.assertIn("runtime/('installed604-capture.json' if name=='fixture/installed604-capture.json' else name)",after)
+  self.assertIn("capture=C.json_read(runtime/'installed604-capture.json',65536)",after)
+  for text in("capture['status']=='PASS_COMPLETE_ACTUAL604_CAPTURE'","all(capture[k]==final[k]","len(raw.get('cleanup',[]))==15","context604.launcher_retired(raw,C.ROOT)"):
+   self.assertIn(text,after)
+ def test_workflow_only_existing_bounded_public_root_includes_hidden_config(self):
+  raw=(ROOT/'.github/workflows/native-arm-current604-public-pair-generic16k.yml').read_text()
+  marker='          path: /tmp/cachy-asahi-current604-public-pair-generic16k-${{ github.run_id }}-${{ github.run_attempt }}/public/\n'
+  self.assertEqual(raw.count(marker+'          include-hidden-files: true\n'),1);self.assertEqual(raw.count('include-hidden-files:'),1)
+  # Real tiny ordinary-file ZIP transport reproduces the default hidden-file loss.
+  import zipfile
+  with tempfile.TemporaryDirectory()as td:
+   root=Path(td);public=root/'public';(public/'kernel').mkdir(parents=True);(public/'kernel/.config').write_bytes(b'INERT_NOT_A_KERNEL_CONFIG');(public/'retention.json').write_bytes(b'INERT_NOT_A_NATIVE_RECEIPT');(root/'private').write_bytes(b'NOT_PUBLIC')
+   expected={p.relative_to(public).as_posix()for p in public.rglob('*')if p.is_file()}
+   old={n for n in expected if not any(part.startswith('.')for part in Path(n).parts)};self.assertEqual(expected-old,{'kernel/.config'})
+   path=root/'bounded-public.zip'
+   with zipfile.ZipFile(path,'w')as z:
+    for name in sorted(expected):z.writestr(name,(public/name).read_bytes())
+   with zipfile.ZipFile(path)as z:self.assertEqual(set(z.namelist()),expected);self.assertNotIn('private',z.namelist())
+
