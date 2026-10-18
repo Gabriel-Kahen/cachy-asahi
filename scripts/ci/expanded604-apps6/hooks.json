@@ -1,0 +1,26 @@
+{
+  "Apps": "0.1.0-6",
+  "fresh": {
+    "held_adapter": "scripts/ci/expanded604-current-management-installer",
+    "status": "UNBOUND_REQUIRES_NEW_APPS6_NATIVE604_DECISION"
+  },
+  "hardware": "NOT_RUN",
+  "managed16k": "UNBOUND_REQUIRES_NEW_TARGET_NATIVE_FRESH_AND_PROFILE_RESULTS",
+  "native_composition": "UNBOUND_NO_PRIOR604_CREDIT",
+  "release": "NOT_ADMITTED",
+  "same_other_packages": 603,
+  "schema_version": 1,
+  "target604_sha256": "7bc6caa51301bf076aeda4d137277a128c53a16e5bfd25f02e7309c4b3a408c3",
+  "update": {
+    "after": "Apps0.1.0-6/current6047bc6",
+    "before": "Apps0.1.0-5/current6043f64",
+    "cases": [
+      "normal",
+      "precommit-exit86",
+      "postcommit-exit87"
+    ],
+    "held_adapter": "scripts/ci/expanded604-current-management-updater",
+    "held_other_packages": 603,
+    "status": "UNBOUND_REQUIRES_NEW_APPS6_NATIVE604_AND_FRESH_DECISIONS"
+  }
+}
