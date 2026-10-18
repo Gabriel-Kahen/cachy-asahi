@@ -181,6 +181,17 @@ jobs:
         run: |
           python3 -B scripts/ci/current606-static/preflight.py --source "$PWD" --basis "$PWD/.ci-inputs/current606-source-roles" --output "$RUNNER_TEMP/current606-default"
           python3 -B -Werror::ResourceWarning -m unittest discover -s "$RUNNER_TEMP/current606-default/scripts/ci/current606-native" -p test_lane.py -v
+      - name: Checkout whole-pinned Welcome-on606 source carrier without native authority
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: c06cc8c456b3c0f04802a8dab54a0e9b1a8595e6
+          path: .ci-inputs/current606-welcome5-source-roles
+          persist-credentials: false
+      - name: Check closed Welcome-on606 default source and interfaces without actors
+        run: |
+          python3 -B scripts/ci/current606-welcome5-static/preflight.py --source "$PWD" --basis "$PWD/.ci-inputs/current606-welcome5-source-roles" --output "$RUNNER_TEMP/current606-welcome5-default"
+          python3 -B -Werror::ResourceWarning -m unittest discover -s "$RUNNER_TEMP/current606-welcome5-default/scripts/ci/current606-welcome5-closed-owner" -p 'test_*.py' -v
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/current606-welcome5-static -p test_registration.py -v
       - name: Check current Welcome2 package source and payload contract
         run: python3 -B packages/tools/cachy-asahi-welcome/check_source.py --root packages/tools/cachy-asahi-welcome
       - name: Check combined managed desktop app workflow without actors
