@@ -149,14 +149,31 @@ def _copy_clone(function,**replacements):
     value.__kwdefaults__=function.__kwdefaults__
     return value
 
+def _copy_relative(value):
+    # Equivalent canonical POSIX Path roundtrip; the lone '.' remains valid.
+    if not (type(value) is str and value and '\0' not in value and not value.startswith('/') and
+            (value=='.' or all(part not in ('','.','..') for part in value.split('/')))):
+        raise ValueError('noncanonical payload path')
+    return value
+
+def _copy_path_roots(roots,query):
+    # Only private globals change. Every observer/graph/copy code object and
+    # filesystem operation remains original; no descriptor/hash identity cache.
+    fresh=types.SimpleNamespace(**vars(roots))
+    fresh.installer=types.SimpleNamespace(**dict(vars(roots.installer),relative=_copy_relative))
+    fresh._mount_id=query._mount600(roots._mount_id)
+    fresh.observe=_copy_clone(roots.observe,_mount_id=fresh._mount_id,installer=fresh.installer)
+    fresh._projected_paths=_copy_clone(roots._projected_paths,installer=fresh.installer)
+    fresh._group_graph=_copy_clone(roots._group_graph,installer=fresh.installer,_projected_paths=fresh._projected_paths)
+    fresh.check_hardlink_preservation=_copy_clone(roots.check_hardlink_preservation,_group_graph=fresh._group_graph)
+    return fresh
+
 def _copy_scoped_aux(aux,source):
     # Existing reader verifies bounded/noalias source bytes/identities before exec.
     roots=aux._isolated(source/'scripts/update/full_root.py',_COPY_ROOT_SHA)
     query=aux._isolated(source/'scripts/ci/expanded600-installer-vm/observer600.py',_COPY_QUERY_SHA)
     original=aux._isolated(source/'scripts/update/aux_copy.py',_COPY_AUX_SHA)
-    fresh=types.SimpleNamespace(**vars(roots))
-    fresh._mount_id=query._mount600(roots._mount_id)
-    fresh.observe=_copy_clone(roots.observe,_mount_id=fresh._mount_id)
+    fresh=_copy_path_roots(roots,query)
     binding=_copy_clone(original._copy_binding,roots=fresh)
     value=types.SimpleNamespace(**vars(aux));value._copy_binding=binding
     return value,fresh

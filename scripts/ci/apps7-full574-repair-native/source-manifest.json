@@ -437,8 +437,8 @@
       "sha256": "28206bb37e000218119aca092e78abd00ed3d9617f9b900197f3dde35b9bd381"
     },
     "scripts/ci/apps7-full574-repair-native/derive.py": {
-      "bytes": 3572,
-      "sha256": "0fde9a3536fe6e72362b063dc2d39670e54baaed757ac7764f382d81f78e2ef0"
+      "bytes": 3993,
+      "sha256": "2b923d838b81caedad92a7788a79163ddca5f3055c6299249053ed035b138a21"
     },
     "scripts/ci/apps7-full574-repair-native/export_extract.py": {
       "bytes": 2410,
@@ -468,13 +468,17 @@
       "bytes": 3035,
       "sha256": "6a0b71ec6e7f72018872abe25c5d7a415f7b3853dd39ac1b86b4f5a3fbb5277d"
     },
+    "scripts/ci/apps7-full574-repair-native/path_view.py": {
+      "bytes": 3329,
+      "sha256": "e39a7cd753ec34bdb976168749686a4cefaa1c2f3112cfc51e74a16237c9cd8d"
+    },
     "scripts/ci/apps7-full574-repair-native/policy.json": {
       "bytes": 583,
       "sha256": "ff54c480e1a2529d2366ab64805aece1deb33b1de15e06d0f61772e04f2b9cfb"
     },
     "scripts/ci/apps7-full574-repair-native/prepare.py": {
-      "bytes": 3132,
-      "sha256": "5f2a0955aaa1e15290062e6305c78d1fb68a170c2f0d28a5fb5bbaecb18a8d5c"
+      "bytes": 3167,
+      "sha256": "9954c5d21cb7545da90ee8c3c8d93e9fd8e6537588fc8591f286fb2bff61d7fc"
     },
     "scripts/ci/apps7-full574-repair-native/scrub.py": {
       "bytes": 257,
@@ -503,6 +507,10 @@
     "scripts/ci/apps7-full574-repair-native/test_lane.py": {
       "bytes": 9375,
       "sha256": "3db6157fb4cddbb2aba1020c4d9370dbd3f41e0ea1a44d85cd48ce100f730948"
+    },
+    "scripts/ci/apps7-full574-repair-native/test_path_view.py": {
+      "bytes": 8944,
+      "sha256": "2873905a5a6fd819d9c6fcf41962239da21a21994b1c6437d2199790c415419f"
     },
     "scripts/ci/apps7-full574-repair-native/transaction.py": {
       "bytes": 195,
