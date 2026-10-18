@@ -1,0 +1,18 @@
+{
+  "artifact": {
+    "bytes": 340133,
+    "sha256": "f1ca6bad038639e2427394743b3224eb21609df6d84cde53f9bda2776f7c943d"
+  },
+  "artifact_metadata": {
+    "bytes": 778,
+    "sha256": "a77e5985af810e2795f0aca853fcab28050af81209c79e01aea00c595dfc0ab6"
+  },
+  "logs": {
+    "bytes": 91789,
+    "sha256": "72abf776dac43b80abcde35e44c02186eb579c372043939645452fdd4e20b1dc"
+  },
+  "metadata": {
+    "bytes": 12992,
+    "sha256": "85d8f092bd92f3d46c9df0ff524e1e6c511fdb6386c01a92a0c45e9a9f81631b"
+  }
+}
