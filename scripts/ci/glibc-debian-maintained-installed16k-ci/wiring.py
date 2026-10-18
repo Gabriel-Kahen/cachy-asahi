@@ -10,9 +10,9 @@ NEXT='scripts/ci/glibc-debian-maintained-native-lifecycle-next'
 RULES=(
  ("LANE='scripts/ci/glibc-gnu-provider-installed16k-interruption'","LANE='"+LANE+"'",1),
  ('native_interruption','native_lifecycle',2),('normal_installed16k','system16k',2),
- ('len(files)==113','len(files)==143',1),('finite original104 plus adapter5 plus CI4 source closure','finite maintained installed/native/CI143 source closure',1),
- ('len(actual)==121','len(actual)==149',1),('closed104+14+adaptation+2 source bundle','closed116+30+adaptation+2 source bundle',1),
- ('source_files=104,derived_files=14,bundle_files=121','source_files=116,derived_files=30,bundle_files=149',1),
+ ('len(files)==114','len(files)==145',1),('finite original105 plus adapter5 plus CI4 source closure','finite maintained installed/native/CI145 source closure',1),
+ ('len(actual)==123','len(actual)==152',1),('closed105+15+adaptation+2 source bundle','closed118+31+adaptation+2 source bundle',1),
+ ('source_files=105,derived_files=15,bundle_files=123','source_files=118,derived_files=31,bundle_files=152',1),
  ('interrupted16k_generator','maintained_installed16k_generator',1),('interrupted16k_contract','maintained_installed16k_contract',1),
  ('import argparse,hashlib,importlib.util,json,os,re,stat,subprocess','import argparse,hashlib,importlib.util,json,os,re,stat,subprocess,sys',1),
  ('mod=importlib.util.module_from_spec(spec);spec.loader.exec_module(mod)','mod=importlib.util.module_from_spec(spec);sys.modules[spec.name]=mod;spec.loader.exec_module(mod)',1))

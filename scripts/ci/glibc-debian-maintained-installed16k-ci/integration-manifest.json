@@ -46,19 +46,19 @@
     },
     "scripts/ci/glibc-debian-maintained-installed16k-ci/test_wiring.py": {
       "bytes": 11935,
-      "sha256": "afd26647bf9748706e39c37afcc81c0d27d79c324910d46eb3c69bfb024c857b"
+      "sha256": "536e484d052238843423ac0aa8bc0af79e141fbd9113a4f0d4a7f7a4afd56a57"
     },
     "scripts/ci/glibc-debian-maintained-installed16k-ci/wiring.py": {
       "bytes": 4997,
-      "sha256": "c0cc704af0b77ee22e3ed70980afacac0385fee0e084259a8bbb73f7455ce627"
+      "sha256": "1a729d283c88cb8ea1ee7e8b53e201097c38ebd4c4419f706d6972f8a20bb830"
     },
     "scripts/ci/glibc-debian-maintained-installed16k/README.md": {
       "bytes": 5003,
       "sha256": "1394e080561be5e15397184a11138999943d80c774cd5fc09c19a75aa27fdc96"
     },
     "scripts/ci/glibc-debian-maintained-installed16k/generator.py": {
-      "bytes": 7219,
-      "sha256": "d8ba803ac76d56e1707b7f403426914e6d0e42371882bcb32339f17ec5ed2af4"
+      "bytes": 7269,
+      "sha256": "f53e99ad0839a15de3bf0472bdbe47536eb614d04471ca38414fcd6fd9454c5c"
     },
     "scripts/ci/glibc-debian-maintained-installed16k/input-interface.json": {
       "bytes": 2639,
@@ -69,12 +69,12 @@
       "sha256": "4e765b694ed3edeaec0dc1da3d311cc0b360702779dc65f8fc1ddd791843a7df"
     },
     "scripts/ci/glibc-debian-maintained-installed16k/source-pins.json": {
-      "bytes": 20261,
-      "sha256": "6612c37dcf38c987542d03c663f3401b56864b5d44ae0703cd4748e39ce4acd5"
+      "bytes": 20640,
+      "sha256": "404aee4520f6d8f755366ad13f9a054c80b24686fc32853db4eb9f87f1af2793"
     },
     "scripts/ci/glibc-debian-maintained-installed16k/test_generator.py": {
       "bytes": 12415,
-      "sha256": "12d2c971aeb095f4e40676f9315c21c4ddc7b235a9d7482f65fbd6271b61b3c6"
+      "sha256": "3241097ecf45398721f9e8e0d3a0287a05ca5f6e2e6bb53455e574db1ef55f99"
     },
     "scripts/ci/glibc-debian-maintained-lifecycle/README.md": {
       "bytes": 4098,
@@ -146,7 +146,7 @@
     },
     "scripts/ci/glibc-gnu-provider-installed16k-interruption/ci/wiring.py": {
       "bytes": 8198,
-      "sha256": "452b5ae1838ae77bb8fb7eb03a082b9af3e981f410190611e9aedde9790ef997"
+      "sha256": "1998b59e03ea0471de43e91d895fe08538e606629e22e75c439868274eb1d7fc"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/README.md": {
       "bytes": 10343,
@@ -169,16 +169,20 @@
       "sha256": "61e4bad870252dab3ca9580817247c9b88f0e6cdc6b40c5956a06e7b9e42a5a7"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/guest.py": {
-      "bytes": 15285,
-      "sha256": "f9828a6b587ae33c5d88b06e582c7a6176001891c097e1cf34bf0ebf6ac72da0"
+      "bytes": 15954,
+      "sha256": "47bb2cbc7e1799a474d27010c9f9780137c015b2bcd377a05dddc4d1e734565e"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/input-policy.json": {
       "bytes": 927,
       "sha256": "f0d4a61d6322dfd56d95d6353a2ff6953f7852381cd48d0feae862498d060902"
     },
+    "scripts/ci/glibc-gnu-provider-installed16k/observer_progress.py": {
+      "bytes": 8127,
+      "sha256": "a5c41353c6459861660ef64e1531ce999182f0302019e3946f042f114812d3e1"
+    },
     "scripts/ci/glibc-gnu-provider-installed16k/prepare.py": {
-      "bytes": 6169,
-      "sha256": "f8ba20f32bc60896ad491aa1deaa62525a7836586db1a55aa97d2757e863b45e"
+      "bytes": 6192,
+      "sha256": "909409021da24dda3cca05b105dcaafca9a9b6777ee7d01da068c1a3e6193a25"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/prerequisites/system16k.json": {
       "bytes": 2655,
@@ -197,16 +201,20 @@
       "sha256": "012682ddc164737db1696f5dda3c43008febc32f865662c16f3c77637a426549"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/snapshot_progress.py": {
-      "bytes": 6935,
-      "sha256": "10a27a600874e80716278e8838e1fe8af4c51a29d5ca4e03b5919252ec82af84"
+      "bytes": 6974,
+      "sha256": "a8f617768958494d33b91fd5952c5e4793db1ac89656654d4a8ceb53c88a8180"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/source-manifest.json": {
-      "bytes": 3248,
-      "sha256": "99f7552779ad3898d47027283eaa6769c0354c02f8cf281ba3d387726d8681b6"
+      "bytes": 3627,
+      "sha256": "6fa1acd2cd41f08e5192f02eab1bb225e6d9ff9f0fb03419bbb6a61df79a9fb7"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/support.py": {
       "bytes": 408,
       "sha256": "e3a3b3fa7d4ab84e088f6ea206799359164e8f6b92bf3dfbe152cd8df4d9ded1"
+    },
+    "scripts/ci/glibc-gnu-provider-installed16k/test_first_observer_progress.py": {
+      "bytes": 8713,
+      "sha256": "10069f157bec496ebf2b7580563cd625e923c2737ad74dbe5631075b329b6aff"
     },
     "scripts/ci/glibc-gnu-provider-installed16k/test_lane.py": {
       "bytes": 13282,
