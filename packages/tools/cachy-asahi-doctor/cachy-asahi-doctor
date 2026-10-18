@@ -1,0 +1,247 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
+"""Small read-only local diagnostic; observations never certify hardware health."""
+import argparse
+from datetime import datetime, timezone
+import json
+import os
+from pathlib import Path
+import re
+import selectors
+import shutil
+import signal
+import stat
+import subprocess
+import sys
+import time
+import uuid
+
+VERSION='0.1.0'
+PACKAGES={
+    'platform':('asahi-meta','linux-asahi','m1n1','uboot-asahi','asahi-alarm-keyring','asahi-firmware',
+                'asahi-scripts','asahi-configs','asahi-audio','alsa-ucm-conf-asahi','speakersafetyd','mesa','mesa-asahi','libdrm'),
+    'desktop':('hyprland','pipewire','pipewire-pulse','wireplumber'),
+    'project':('cachy-asahi-hyprland-settings','cachy-asahi-fish-config','cachy-asahi-zsh-config','cachy-asahi-setup',
+               'cachy-asahi-update','cachy-asahi-fdk-aac','cachy-asahi-ksmctl','cachy-asahi-topmem',
+               'cachy-asahi-zsh-autosuggestions','cachy-asahi-fish-bang-bang','cachy-asahi-doctor','cachy-asahi-welcome')}
+UNITS={'system':('speakersafetyd.service','asahi-audio.service','display-manager.service'),
+       'user':('pipewire.service','pipewire-pulse.service','wireplumber.service',
+               'xdg-desktop-portal.service','xdg-desktop-portal-hyprland.service')}
+TOOLS=('pacman','systemctl','Hyprland','hyprctl','wpctl','pipewire','wireplumber','cachy-asahi-setup','cachy-asahi-update')
+MODELS={'apple,j413':'MacBook Air 13-inch (M2)','apple,j415':'MacBook Air 15-inch (M2)'}
+MAX_OUTPUT=65536
+LIMITS={'command_seconds':2,'total_query_seconds':20,'command_output_bytes':MAX_OUTPUT,'device_tree_bytes':4096}
+
+
+def item(name,state,value,note):return dict(check=name,state=state,value=value,note=note)
+
+
+def fixed_read(path):
+    try:
+        with open(path,'rb') as source:data=source.read(4097)
+        return data if len(data)<=4096 else None
+    except OSError:return None
+
+
+def available(name):return shutil.which(name,path='/usr/bin:/bin') is not None
+
+
+def local_user_bus():
+    # Never inherit a TCP/remote D-Bus address from the environment.
+    path=Path('/run/user')/str(os.getuid())/'bus'
+    try:
+        info=path.lstat()
+        return str(path) if stat.S_ISSOCK(info.st_mode) and info.st_uid==os.getuid() else None
+    except OSError:return None
+
+
+def query(argv,seconds,bus=None):
+    """Fixed read-only clients, capped output/time, no pager or inherited loader env."""
+    env={'PATH':'/usr/bin:/bin','LC_ALL':'C','SYSTEMD_PAGER':'','SYSTEMD_COLORS':'0'}
+    if bus:env.update(XDG_RUNTIME_DIR=str(Path(bus).parent),DBUS_SESSION_BUS_ADDRESS='unix:path='+bus)
+    try:
+        process=subprocess.Popen(argv,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                                 start_new_session=True,env=env)
+    except FileNotFoundError:return ('unavailable',None,b'',b'')
+    except OSError:return ('unknown',None,b'',b'')
+    selector=None;parts=[bytearray(),bytearray()];state='checked';end=time.monotonic()+seconds
+    try:
+        selector=selectors.DefaultSelector()
+        for index,stream in enumerate((process.stdout,process.stderr)):
+            os.set_blocking(stream.fileno(),False);selector.register(stream,selectors.EVENT_READ,index)
+        while selector.get_map() or os.waitid(os.P_PID,process.pid,os.WEXITED|os.WNOHANG|os.WNOWAIT) is None:
+            remaining=end-time.monotonic()
+            if remaining<=0:state='unknown';break
+            for key,_ in selector.select(min(.1,remaining)):
+                data=os.read(key.fd,8192)
+                if not data:selector.unregister(key.fileobj);continue
+                if sum(map(len,parts))+len(data)>MAX_OUTPUT:state='unknown';break
+                parts[key.data].extend(data)
+            if state!='checked':break
+    except (OSError,ValueError):state='unknown'
+    finally:
+        # The child stays unreaped until the last group signal; never signal a
+        # reused numeric process ID. systemctl/pacman are read-only clients here.
+        try:
+            try:os.killpg(process.pid,signal.SIGKILL)
+            except ProcessLookupError:pass
+            try:process.wait(timeout=1)
+            except subprocess.TimeoutExpired:state='unknown'
+        finally:
+            if selector is not None:selector.close()
+            process.stdout.close();process.stderr.close()
+    return state,process.returncode,bytes(parts[0]),bytes(parts[1])
+
+
+def package_rows(result):
+    names={n for group in PACKAGES.values() for n in group};found={};missing=set()
+    state,code,out,err=result
+    if state=='checked' and code in (0,1):
+        try:
+            for line in out.decode('ascii').splitlines():
+                pair=line.split()
+                if len(pair)!=2 or pair[0] not in names or pair[0] in found or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._+~:@-]{0,127}',pair[1]):raise ValueError()
+                found[pair[0]]=pair[1]
+            for line in err.decode('ascii').splitlines():
+                match=re.fullmatch(r"error: package '([a-z0-9+_.-]+)' was not found",line)
+                if not match or match[1] not in names:raise ValueError()
+                missing.add(match[1])
+            if found.keys() & missing or code==0 and missing:raise ValueError()
+        except (ValueError,UnicodeError):found={};missing=set();state='unknown'
+    else:state='unavailable' if state=='unavailable' else 'unknown'
+    return [item('package/'+name,'checked' if name in found or name in missing else state if state!='checked' else 'unknown',
+            {'group':group,'presence':'present','version':found[name]} if name in found else
+            {'group':group,'presence':'absent' if name in missing else 'unknown','version':None},
+            'Installed version observed.' if name in found else 'Not installed; this reference list is not an installation plan.'
+            if name in missing else 'Package query unavailable or incomplete; no absence was inferred.')
+            for group,rows in PACKAGES.items() for name in rows]
+
+
+def service_row(scope,unit,result):
+    state,code,out,_=result;value=None
+    if state=='checked' and code==0:
+        try:
+            rows={}
+            for line in out.decode('ascii').splitlines():
+                key,text=line.split('=',1)
+                if key in rows or key not in {'LoadState','ActiveState','SubState'} or not re.fullmatch('[a-z-]{1,64}',text):raise ValueError()
+                rows[key]=text
+            if set(rows)!={'LoadState','ActiveState','SubState'}:raise ValueError()
+            if rows['LoadState'] not in {'loaded','not-found','error','masked','bad-setting','merged','stub'} or rows['ActiveState'] not in {'active','reloading','inactive','failed','activating','deactivating','maintenance','refreshing'}:raise ValueError()
+            value=rows
+        except (ValueError,UnicodeError):state='unknown'
+    elif state!='unavailable':state='unknown'
+    note='Service state only; successful application/audio operation is not tested.'
+    if value and value['LoadState']=='not-found':note='Unit is not installed. Some session launch methods do not use it.'
+    elif value and value['ActiveState']=='failed':note='Unit reports failed. Diagnose it locally before changing or restarting services.'
+    elif value and value['ActiveState']!='active':note='Unit is not active. Check from the affected graphical/audio session if expected.'
+    elif not value:note='Could not query the local service manager; no service state was inferred.'
+    return item(scope+'/'+unit,state,value,note)
+
+
+def collect(*,run=query,read=fixed_read,has=available,bus_check=local_user_bus,machine=None,environ=None):
+    env=os.environ if environ is None else environ
+    machine=machine or dict(architecture=os.uname().machine,page_size_bytes=os.sysconf('SC_PAGE_SIZE'),kernel=os.uname().release)
+    checks=[item('platform','checked',machine,'Observed running kernel/architecture/page size; no target compatibility test.')]
+    compatible=read('/proc/device-tree/compatible');model=read('/proc/device-tree/model')
+    try:identifiers=[] if compatible is None else compatible.decode('ascii').strip('\0').split('\0')
+    except UnicodeError:identifiers=[]
+    boards=sorted({text for text in identifiers if re.fullmatch('apple,j[0-9]{3,4}[a-z]?',text)})
+    known=[text for text in boards if text in MODELS]
+    identified=known[0] if len(boards)==len(known)==1 and machine['architecture']=='aarch64' else None
+    checks.append(item('apple-model','checked' if identified else 'unavailable' if compatible is None else 'unknown',
+        dict(identifier=identified,observed_board=boards[0] if len(boards)==1 else None,
+             model=MODELS.get(identified),model_property_available=model is not None),
+        'Device-tree compatible identifier observed; physical execution is not established.' if identified else
+        'Apple model unknown. No model is inferred from the kernel name or generic architecture.'))
+    session_type=env.get('XDG_SESSION_TYPE','')
+    session=dict(type=session_type if session_type in ('wayland','x11','tty') else 'unknown',
+        wayland_environment=bool(env.get('WAYLAND_DISPLAY')),hyprland_environment=bool(env.get('HYPRLAND_INSTANCE_SIGNATURE')))
+    checks.append(item('session','checked' if session['type']!='unknown' else 'unknown',session,
+                       'Environment hints only; compositor responsiveness and rendering are not tested.'))
+    tools={name:has(name) for name in TOOLS}
+    checks.append(item('tools','checked',tools,'Executable availability in /usr/bin:/bin; tools were not launched for this check.'))
+    end=time.monotonic()+LIMITS['total_query_seconds'];bus=bus_check()
+    def probe(argv,tool,*,user=False):
+        if not tools[tool] or user and not bus:return ('unavailable',None,b'',b'')
+        left=end-time.monotonic()
+        if left<=0:return ('unknown',None,b'',b'')
+        return run(argv,min(left,LIMITS['command_seconds']),bus if user else None)
+    names=[name for group in PACKAGES.values() for name in group]
+    checks.extend(package_rows(probe(['/usr/bin/pacman','-Q','--',*names],'pacman')))
+    for scope,units in UNITS.items():
+        for unit in units:
+            argv=['/usr/bin/systemctl','--'+scope,'--no-pager','--no-ask-password','show',unit,'--property=LoadState,ActiveState,SubState']
+            row=service_row(scope,unit,probe(argv,'systemctl',user=scope=='user'))
+            if scope=='user' and not bus:row['note']='Local user bus unavailable. Run doctor from your affected login session.'
+            checks.append(row)
+    return dict(schema_version=1,tool='cachy-asahi-doctor',version=VERSION,collected_utc=datetime.now(timezone.utc).isoformat(),
+        checks=checks,coverage={state:sum(r['state']==state for r in checks) for state in ('checked','unavailable','unknown')},
+        limits=dict(LIMITS),scope='local observations only',
+        limitations=['Fixed package/unit/tool selection; missing alternatives are not install instructions.',
+                    'No journal, process arguments, home/key contents, network addresses or machine/serial IDs collected.',
+                    'No hardware, speaker safety, rendering, boot/recovery, performance or production-trust certification.'])
+
+
+def publish(path,data):
+    """Private complete JSON publication, atomic no-overwrite, no parent creation."""
+    path=Path(os.path.abspath(path))
+    if len(data)>128*1024:raise ValueError('report size refused')
+    fd=os.open('/',os.O_RDONLY|os.O_DIRECTORY);temporary='.cachy-asahi-doctor-'+uuid.uuid4().hex+'.tmp'
+    try:
+        for part in path.parts[1:-1]:
+            child=os.open(part,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW,dir_fd=fd);os.close(fd);fd=child
+        stream=os.open(temporary,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600,dir_fd=fd)
+        try:
+            os.fchmod(stream,0o600)
+            pending=memoryview(data)
+            while pending:
+                count=os.write(stream,pending)
+                if count<=0:raise OSError('report write stalled')
+                pending=pending[count:]
+            os.fsync(stream)
+        finally:os.close(stream)
+        os.link(temporary,path.name,src_dir_fd=fd,dst_dir_fd=fd,follow_symlinks=False)
+        os.unlink(temporary,dir_fd=fd);os.fsync(fd)
+    finally:
+        try:os.unlink(temporary,dir_fd=fd)
+        except FileNotFoundError:pass
+        os.close(fd)
+
+
+def human(report):
+    lines=['cachy-asahi doctor '+VERSION+' — local read-only observations']
+    for row in report['checks']:
+        value=row['value'];name=row['check']
+        if value is None:text='state unavailable'
+        elif name=='platform':text=f"{value['architecture']}; {value['page_size_bytes']}-byte pages; kernel {value['kernel']}"
+        elif name=='apple-model':text=(value['model'] or 'unknown model')+'; DT board '+(value['observed_board'] or 'unknown')
+        elif name=='session':text=value['type']+'; Wayland environment '+str(value['wayland_environment'])+'; Hyprland environment '+str(value['hyprland_environment'])
+        elif name=='tools':text='available: '+', '.join(n for n,present in value.items() if present)+'; unavailable: '+', '.join(n for n,present in value.items() if not present)
+        elif name.startswith('package/'):text=value['version'] or value['presence']
+        else:text=value['LoadState']+'; '+value['ActiveState']+'/'+value['SubState']
+        lines.append('['+row['state']+'] '+name+': '+text)
+        if row['state']!='checked' or name.startswith(('system/','user/')):lines.append('  '+row['note'])
+    lines.append('Coverage: '+', '.join(str(v)+' '+k for k,v in report['coverage'].items()))
+    lines.extend(report['limitations'])
+    lines.append('Exit 0 means the report was generated; it is not an all-healthy result.')
+    return '\n'.join(lines)+'\n'
+
+
+def main(argv=None):
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--json',action='store_true',help='Print the same bounded JSON to stdout')
+    parser.add_argument('--output',type=Path,help='Publish private JSON to a new file; parent must exist')
+    args=parser.parse_args(argv)
+    report=collect();raw=(json.dumps(report,indent=2,sort_keys=True)+'\n').encode()
+    if args.output:
+        try:publish(args.output,raw)
+        except (OSError,ValueError):
+            print('Could not publish report. Choose a new file in an existing ordinary directory; no existing file is replaced.',file=sys.stderr)
+            return 2
+    sys.stdout.write(raw.decode() if args.json else human(report))
+    if args.output and not args.json:sys.stdout.write('Private JSON report written to the requested new file.\n')
+    return 0
+
+
+if __name__=='__main__':raise SystemExit(main())
