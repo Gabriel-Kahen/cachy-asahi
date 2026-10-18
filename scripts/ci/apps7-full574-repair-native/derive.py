@@ -26,6 +26,7 @@ def derive(root,name):
  elif name=='closure':
   replace("'cachy-asahi-apps':'0.1.0-6'","'cachy-asahi-apps':'0.1.0-7'")
   replace("recipe=ROOT/'packages/tools'/package","recipe=ROOT/'packages/tools'/('cachy-asahi-apps7' if package=='cachy-asahi-apps' else package)")
+  replace("scoped=fast.bind(ROOT,roots,caps,copy_scope,aux_copy,source_bytes)","_native_spec=importlib.util.spec_from_file_location('_apps7_native_path_view',ROOT/'"+LANE+"/path_view.py')\n_native_view=importlib.util.module_from_spec(_native_spec);sys.modules[_native_spec.name]=_native_view;_native_spec.loader.exec_module(_native_view)\nscoped=_native_view.bind(fast,ROOT,roots,caps,copy_scope,aux_copy,source_bytes)")
  elif name=='transaction':
   replace("Path(__file__).with_name('full574_closure.py')","ROOT/'"+LANE+"/closure.py'",2)
   replace("str(Path(__file__).resolve())","str(ROOT/'"+LANE+"/transaction.py')")
