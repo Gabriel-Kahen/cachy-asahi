@@ -632,3 +632,20 @@ installation = "PASS current0.1.0-2 signed three-product574to577/repeat/remove/r
 native_generic16k_cli = "Current0.1.0-2 NOT RUN; historical0.1.0-1 PASS generic16384 private data-staged CLI/helper cases38978464494; NOT ALPM-installed inVM; docs/validation/management-generic16k-20261016.md"
 hardware_validation = "NOT RUN"
 next_step = "Complete current Welcome3 GUI39000068077 after earlier Orphans helper deadline failures, then current0.1.0-2 generic16K and both M2 workflows. Native pair/CLI: docs/validation/orphans2-native-20261017.md. Native GUI performance remains unestablished; actual orphan removal remains unimplemented; release selection false."
+
+
+[[packages]]
+name = "cachy-asahi-repository-client-v2"
+phase = "tools-experience"
+status = "candidate"
+source = "local-original-pinned-project-helper"
+recipe = "packages/tools/cachy-asahi-repository-client-v2/PKGBUILD"
+license = "MIT"
+candidate_version = "0.1.0-1"
+selected_for_development = false
+selected_for_release = false
+host_validation = "PASS five staged/genuine TEST-signature controls: tilde source lookup/export, tamper refusal, unchanged populated checkpoint and disjoint Runtime ownership; original Apps CLI compatibility passes"
+native_build = "NOT RUN"
+installation = "NOT RUN ALPM; package() staging only"
+hardware_validation = "NOT RUN"
+next_step = "Build native pairs and exercise signed ALPM install/remove beside exact Runtime0.1.0-1. Opt-in source entrypoint; existing Apps/Runtime and default callers are unchanged."
