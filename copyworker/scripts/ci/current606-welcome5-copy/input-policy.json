@@ -1,0 +1,24 @@
+{
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "capture_receipt": null,
+  "current606": {
+    "decision_base64": null,
+    "decision_path": null,
+    "decision_pin": null,
+    "decision_source": null,
+    "run": null,
+    "source": null
+  },
+  "expected606_sha256": "3a586c1e3400391f56bd281ac9c16aba85d94d0fca002770e77ee1802c5d9fd1",
+  "measurement": null,
+  "nonce": null,
+  "output": null,
+  "purpose": "CURRENT606_WELCOME5_CLOSED_NATIVE",
+  "retirement": null,
+  "schema_version": 1,
+  "source_manifest606": null,
+  "status": "UNBOUND_SOURCE_TEMPLATE",
+  "welcome_source": "85ffec834fc72ef8764cdcae828a12ec8ddf7f20"
+}
