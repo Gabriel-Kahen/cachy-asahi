@@ -1122,8 +1122,8 @@
       "sha256": "52112b49ea98b5aef131b8bcbcc188bcc59cc3a4827161091d4e86af14d2757c"
     },
     "scripts/ci/welcome5-native-gui/README.md": {
-      "bytes": 6703,
-      "sha256": "46bacea9b66d9da963ca03910a1c98625b7440c6e402bd092af99e2ea73de2ec"
+      "bytes": 7335,
+      "sha256": "e060ee1e48c5e3cb4909c253b4d48b19442143a0244c9d5b4761aff52652c18e"
     },
     "scripts/ci/welcome5-native-gui/assets.py": {
       "bytes": 3300,
@@ -1161,9 +1161,13 @@
       "bytes": 864,
       "sha256": "2312589577b3efec9c011bf94ac5e0783bc7c69fcf1100487778bcb5faf8e209"
     },
+    "scripts/ci/welcome5-native-gui/invocation.py": {
+      "bytes": 2957,
+      "sha256": "eb007cead2a0d69d61d483156bb41e944fe05f45dd87a4bf6b4d497ee9e15dd6"
+    },
     "scripts/ci/welcome5-native-gui/job.py": {
-      "bytes": 10252,
-      "sha256": "8288e0a11223dae4782b4d076e8ed4f8e5e139f42db06552feadfaa690af4f85"
+      "bytes": 11569,
+      "sha256": "76039a763e72468118bf5a43a61342d385a42de8279f8bfc7e5dae3b5384a752"
     },
     "scripts/ci/welcome5-native-gui/null-policy.json": {
       "bytes": 864,
@@ -1174,16 +1178,16 @@
       "sha256": "560c119d10a1fc508ba5d16e1ee76e4513b1396d9c8f1998a5747a66f1eb32e5"
     },
     "scripts/ci/welcome5-native-gui/run.py": {
-      "bytes": 4501,
-      "sha256": "56229fbb139053efb54b770ab2fb1e418a5ff8ca5f27253eb435eaec3442489e"
+      "bytes": 4991,
+      "sha256": "bf4baa3cae3ba40e22d617e8a752fca3fb0283effa7161f2bdf391bd7a742bfa"
     },
     "scripts/ci/welcome5-native-gui/source_check.py": {
       "bytes": 3392,
       "sha256": "0abc72f2e400d36b77cab2833b2259f55053cf5f0494eaee83d57b72b688aa3e"
     },
     "scripts/ci/welcome5-native-gui/test_lane.py": {
-      "bytes": 11758,
-      "sha256": "360ccaf737364f305ca7934fdece117476056a844e60e60b36b5604f65b05076"
+      "bytes": 13503,
+      "sha256": "4600563481000e62f26cd9aab1c2d6020919a8752cadd59130c1a58e4836966c"
     },
     "scripts/ci/welcome5-native-gui/trust.py": {
       "bytes": 1586,

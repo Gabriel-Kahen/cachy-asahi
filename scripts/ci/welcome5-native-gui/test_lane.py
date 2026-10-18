@@ -111,13 +111,13 @@ class Controls(unittest.TestCase):
    try:
     fcntl.flock(lease,fcntl.LOCK_EX|fcntl.LOCK_NB)
     with patch.object(job,'binding'),patch('subprocess.run',side_effect=AssertionError('producer must remain')):
-     result=job.cleanup(SOURCE,'minimal',{},root/'base',runtime,root/'locked.json')
+     result=job.cleanup(SOURCE,'minimal',dict(runtime_path=str(runtime)),root/'base',runtime,root/'locked.json')
     self.assertEqual(result['status'],'FAIL');self.assertEqual(result['producer'],'NOT_RETIRED')
     fcntl.flock(lease,fcntl.LOCK_UN)
     for n,row in enumerate([dict(child_started=True,reaped=False,group_absent=False),dict(child_started=True,reaped=True,group_absent=False)]):
      (runtime/'runtime-terminal.json').write_text(json.dumps(row))
      with patch.object(job,'binding'),patch('subprocess.run',side_effect=AssertionError('producer must remain')):
-      result=job.cleanup(SOURCE,'minimal',{},root/'base',runtime,root/('unknown'+str(n)+'.json'))
+      result=job.cleanup(SOURCE,'minimal',dict(runtime_path=str(runtime)),root/'base',runtime,root/('unknown'+str(n)+'.json'))
      self.assertEqual(result['status'],'FAIL');self.assertEqual(result['producer'],'NOT_RETIRED')
    finally:os.close(lease)
  def test_clean_no_actor_prefix_is_not_native_gui_acceptance(self):
@@ -125,9 +125,29 @@ class Controls(unittest.TestCase):
   with tempfile.TemporaryDirectory()as tmp:
    root=Path(tmp)
    with patch.object(job,'binding'),patch('subprocess.run',side_effect=AssertionError('actor')):
-    result=job.cleanup(SOURCE,'minimal',{},root/'base',root/'runtime',root/'cleanup.json')
+    result=job.cleanup(SOURCE,'minimal',dict(runtime_path=str(root/'runtime')),root/'base',root/'runtime',root/'cleanup.json')
    self.assertEqual(result['runtime'],'NOT_STARTED');self.assertEqual(result['producer'],'NOT_STARTED')
    self.assertNotEqual(result['status'],job.SUCCESS)
+ def test_wrapper_receipt_exact_argv_pin_joins_and_create_once(self):
+  import invocation as I
+  # Data-shape control only: no actual source or run ID and no GUI admission.
+  proof=dict(profile='minimal',source_path='/source-control-only',runtime_path='/control/welcome5-runtime',manifest_sha256=D.sha(b'manifest-source-control'))
+  pins=[dict(bytes=len(raw),sha256=D.sha(raw))for raw in (b'proof-source-control',b'manifest-source-control',b'runner-source-control')]
+  with tempfile.TemporaryDirectory()as tmp:
+   path=Path(tmp)/'profile-invocation.json';value=I.write(path,I.expected(proof),proof,*pins)
+   self.assertEqual(I.validate(value,proof,*pins),value)
+   with self.assertRaises(FileExistsError):I.write(path,I.expected(proof),proof,*pins)
+   for key in ('source_proof','source_manifest','runner_proof'):
+    altered=copy.deepcopy(value);altered[key]['sha256']=D.sha(b'foreign')
+    with self.subTest(key=key),self.assertRaises(ValueError):I.validate(altered,proof,*pins)
+   for argv in (value['argv']+['--profile','overlay'],value['argv'][1:],['run','--profile','minimal']):
+    with self.subTest(argv=argv),self.assertRaises(ValueError):I.validate(dict(value,argv=argv),proof,*pins)
+ def test_actual_receipt_is_before_child_and_retention_is_required(self):
+  import job
+  text=(HERE/'run.py').read_text();self.assertLess(text.index('I.write('),text.index('active=common.LoggedProcess('))
+  self.assertIn("'profile-invocation.json'",(HERE/'job.py').read_text())
+  self.assertIn('invocation.validate(C.read(runtime/',(HERE/'job.py').read_text())
+  self.assertIn("proof['runtime_path']==str(a.runtime.absolute())",(HERE/'job.py').read_text())
  def test_emitted_workflow_exact_alias_hashes_and_source_clocks(self):
   import hashlib,re
   a=(SOURCE/'.github/workflows/native-arm-build.yml').read_bytes();b=(SOURCE/'.github/workflows/native-arm-welcome5-dns-gui.yml').read_bytes();self.assertEqual(a,b)

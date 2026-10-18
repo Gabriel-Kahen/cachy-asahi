@@ -7,6 +7,7 @@ sys.path.insert(0,str(Path(__file__).resolve().parent))
 import candidates as C
 import assets
 import run
+import invocation
 HERE=Path(__file__).resolve().parent
 VIEWS=('home','terminal-action','files-action','system','first-steps','updates','recovery','management-absent','management-doctor','management-orphans','management-failure','management-dns','management-closing')
 SUCCESS='PASS_WELCOME5_DNS_SINGLE_PROFILE_METADATA_PIXELS_PENDING_ROOT_REVIEW'
@@ -17,20 +18,23 @@ def save(path,value):
     temp.replace(path)
 def manifest(source):
     C.verify_source(source);return C.read(HERE/'source-manifest.json')
-def prove(source,profile,environment):
+def prove(source,profile,environment,runtime=None):
     policy=C.selection(source);C.need(profile in ('minimal','overlay'),'one independent profile required')
+    C.need(runtime is not None,'explicit proof-bound runtime path required')
+    runtime=invocation.absolute(str(runtime));C.need(runtime.name=='welcome5-runtime','fixed runtime path required')
     old=C.load('held_native_source_proof',source/'scripts/ci/welcome-native/ci/caller.py')
     value=old.prove(source,manifest(source),environment)
-    value.update(profile=profile,manifest_sha256=C.digest(HERE/'source-manifest.json'),scope='ONE_PROFILE_NOT_FULL_GUI_ACCEPTANCE',carrier_source=policy['inputs']['welcome5']['carrier_source'])
+    value.update(profile=profile,manifest_sha256=C.digest(HERE/'source-manifest.json'),scope='ONE_PROFILE_NOT_FULL_GUI_ACCEPTANCE',source_path=str(source),runtime_path=str(runtime),carrier_source=policy['inputs']['welcome5']['carrier_source'])
     return value
 
 def binding(source,profile,proof):
     manifest(source);C.selection(source)
+    C.need(proof.get('source_path')==str(source)and str(invocation.absolute(proof['runtime_path']))==proof['runtime_path'],'proof-bound actual source/runtime path differs')
     C.need(proof.get('status')=='SOURCE_PROOF_PASS'and proof.get('profile')==profile and proof.get('manifest_sha256')==C.digest(HERE/'source-manifest.json')and
         re.fullmatch('[0-9a-f]{16}',proof.get('job_token')or'')and proof.get('scope')=='ONE_PROFILE_NOT_FULL_GUI_ACCEPTANCE','source/profile/owner proof differs')
 
 def cleanup(source,profile,proof,base,runtime,out):
-    binding(source,profile,proof);value=dict(status='FAIL',runtime='UNKNOWN',producer='NOT_RETIRED')
+    binding(source,profile,proof);C.need(proof['runtime_path']==str(runtime),'actual cleanup runtime differs from proof');value=dict(status='FAIL',runtime='UNKNOWN',producer='NOT_RETIRED')
     try:
         if runtime.exists():
             lease=os.open(runtime/'runtime.lock',os.O_RDONLY|os.O_NOFOLLOW|os.O_CLOEXEC)
@@ -68,7 +72,7 @@ def retain(source,profile,proof_path,base,runtime,cleanup_path,out):
         except Exception as error:value['errors'].append(name+': '+str(error)[:256])
     copy(proof_path,'source-proof.json',65536);copy(cleanup_path,'ordered-cleanup.json',65536)
     for name in ('report.json','installed-packages.lock'):copy(base/name,'base/'+name,1024**2)
-    for name in ('result.json','runtime-terminal.json'):copy(runtime/name,name,2*1024**2)
+    for name in ('result.json','runtime-terminal.json','profile-invocation.json'):copy(runtime/name,name,2*1024**2)
     copy(runtime/'runtime-child.log','runtime-child.log',16*1024**2,False)
     gui=runtime/'runtime';runner=runtime/'runner'
     for name,cap in (('runtime.json',16*1024**2),('guest.log',8*1024**2),('events.log',8*1024**2),('configuration.log',16*1024**2),('package-build.log',16*1024**2),('base-reference.log',16*1024**2),('runtime-image.log',16*1024**2),('fixture.log',16*1024**2),('config/desktop/desktop.json',2*1024**2),('package/provenance.json',2*1024**2),('package/validation.json',2*1024**2),('package/expected-packages.lock',256*1024)):
@@ -89,6 +93,8 @@ def retain(source,profile,proof_path,base,runtime,cleanup_path,out):
             original['status']=='PASS_NATIVE_OFFLINE_574_TRANSACTION'and original['ownership']['token']==proof['job_token']and
             original['owned_cleanup']['status']=='PASS'and original['owned_cleanup']['image']==dict(id=original['image'],absence_verified=True)and original['owned_cleanup']['probe']['absence_verified']is True,'original producer source/ownership/cleanup required')
         validate_cleanup(gui_result)
+        C.need(proof['runtime_path']==str(runtime),'actual retained runtime path differs')
+        invocation.validate(C.read(runtime/'profile-invocation.json'),proof,invocation.pin(proof_path),invocation.pin(HERE/'source-manifest.json'),invocation.pin(runner/'runner-proof.json'))
         C.need(result['status']=='PASS_WELCOME5_DNS_GUI_METADATA_PIXELS_PENDING_REVIEW'and gui_result['status']=='PASS_INSTALLED_WELCOME_SINGLE_PROFILE_GUI_METADATA'and
             gui_result['runtime_package_count']==595 and gui_result['configuration']=='desktop-container-verifier-pass'and gui_result['base_image']==original['image'],'actual GUI composition/result differs')
         # Import only our source-regenerated trusted runner, never retained export code.
@@ -109,13 +115,18 @@ def main():
     for name in ('source','proof','base','runtime','assets','public','carrier','cleanup','output'):p.add_argument('--'+name,type=Path)
     a=p.parse_args();source=a.source.absolute()
     if a.phase=='proof':
-        value=prove(source,a.profile,os.environ);save(a.proof,value)
+        value=prove(source,a.profile,os.environ,a.runtime.absolute()if a.runtime is not None else None);save(a.proof,value)
         with open(os.environ['GITHUB_OUTPUT'],'a')as stream:stream.write('job_token='+value['job_token']+'\ncarrier_source='+value['carrier_source']+'\n')
     else:
         proof=C.read(a.proof);binding(source,a.profile,proof)
         if a.phase=='inputs':value=assets.prepare(source,a.public.absolute(),a.carrier.absolute(),a.output.absolute());save(a.output/'provenance.json',value)
-        elif a.phase=='run':return run.execute(source,a.base.absolute(),a.assets.absolute(),a.runtime.absolute(),a.profile)
-        elif a.phase=='cleanup':value=cleanup(source,a.profile,proof,a.base.absolute(),a.runtime.absolute(),a.output.absolute())
+        elif a.phase=='run':
+            C.need(proof['runtime_path']==str(a.runtime.absolute()),'actual run runtime differs from source proof')
+            return run.execute(source,a.base.absolute(),a.assets.absolute(),a.runtime.absolute(),a.profile,
+                dict(argv=list(sys.argv[1:]),proof=proof,source_proof=invocation.pin(a.proof),source_manifest=invocation.pin(HERE/'source-manifest.json')))
+        elif a.phase=='cleanup':
+            C.need(proof['runtime_path']==str(a.runtime.absolute()),'actual cleanup runtime differs from source proof')
+            value=cleanup(source,a.profile,proof,a.base.absolute(),a.runtime.absolute(),a.output.absolute())
         else:value=retain(source,a.profile,a.proof,a.base.absolute(),a.runtime.absolute(),a.cleanup,a.output.absolute())
     print(json.dumps(value,sort_keys=True,indent=2));return int(value['status']not in ('SOURCE_PROOF_PASS','PREPARED_PUBLIC_NATIVE_INPUTS_ONLY','PASS_RUNTIME_RETIRED_BEFORE_ORIGINAL_PRODUCER',SUCCESS))
 if __name__=='__main__':raise SystemExit(main())
