@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 """Actor-blocked finite controls; no native or signing success fixtures."""
 import stat
+import textwrap
 import ast,copy,json,os,shutil,subprocess,sys,tempfile,unittest
 from pathlib import Path
 from types import SimpleNamespace
@@ -58,7 +59,7 @@ class Controls(unittest.TestCase):
       runtime=SimpleNamespace(kernel=lambda *a:(dict(Image=dict(sha256=C.sha(image.read_bytes()))),{},image,config),supervise=supervise)
       actual=ci._BASE
       try:
-       with patch.object(actual,'parser',return_value=SimpleNamespace(parse_args=lambda _:args)),patch.object(actual,'preflight',return_value=({}, {}, object(), {}, base/'inert-assets',installer)),patch.object(actual.platform,'machine',return_value='aarch64'),patch.dict(os.environ,GITHUB_ACTIONS='true',RUNNER_ARCH='ARM64',RUNNER_TEMP=str(base)),patch.object(C,'prepare_assets',return_value=base/'inert-assets'),patch.object(C,'load',side_effect=lambda root,path:runtime if path.endswith('/run.py') else object()),patch.object(A,'prepare',side_effect=prepare),patch.object(ci.context604,'prepare'):
+       with patch.object(actual,'parser',return_value=SimpleNamespace(parse_args=lambda _:args)),patch.object(actual,'preflight',return_value=({}, {}, object(), {}, base/'inert-assets',installer)),patch.object(actual.platform,'machine',return_value='aarch64'),patch.dict(os.environ,GITHUB_ACTIONS='true',RUNNER_ARCH='ARM64',RUNNER_TEMP=str(base)),patch.object(C,'prepare_assets',return_value=base/'inert-assets'),patch.object(C,'load',side_effect=lambda root,path:runtime if path.endswith('/run.py') else object()),patch.object(A,'prepare',side_effect=prepare),patch.object(ci.context604,'prepare'),patch.object(ci.KP,'kernel',side_effect=lambda original,args:original.kernel(args)):
         if mode in ('hardlink','over-cap'):
          with self.assertRaisesRegex(ValueError,'bounded ordinary'):ci.main([])
          self.assertFalse((output/'public/retention.json').exists())
@@ -71,7 +72,6 @@ class Controls(unittest.TestCase):
       finally:
        for path in (output,producer_output):
         if path.exists():shutil.rmtree(path)
-
  def test_exact_provider_replacement_keeps_original573(self):
    base={r['name']:r['version'] for r in C.json_read(ROOT/'scripts/ci/maintained-desktop574-inputs.json')['packages']}
    expected=dict(row.split() for row in (ROOT/'scripts/ci/expanded604-apps6-public-pairs/expected604.lock').read_text().splitlines())
@@ -87,9 +87,14 @@ class Controls(unittest.TestCase):
    observer=(ROOT/C.OLD/'installed604.py').read_text()
    for check in ('complete actual payload hardlink set required','capability hardlink aliases','deadline=600','max_packages=604','6*1024**3','200000','database/root drift'):self.assertIn(check,observer)
  def test_unbound_and_exact_new_carriers(self):
-  with patch.object(C,'revision',side_effect=AssertionError('Git before binding')):
-   with self.assertRaisesRegex(ValueError,'UNBOUND'):ci.preflight(SimpleNamespace())
-  value=C.policy(False)
+  null=copy.deepcopy(C.policy(False));null['status']='UNBOUND_PUBLIC_PAIRS_APPS6_NATIVE_FRESH_AND_GUI_COMPONENT'
+  for key in ('native604','fresh604'):null[key]={k:None for k in null[key]}
+  null['welcome4_gui']['carrier_source']=None
+  original=C.json_read
+  with patch.object(C,'json_read',side_effect=lambda path,*args:copy.deepcopy(null) if path==C.HERE/'input-policy.json' else original(path,*args)):
+   with patch.object(C,'revision',side_effect=AssertionError('Git before binding')):
+    with self.assertRaisesRegex(ValueError,'UNBOUND'):ci.preflight(SimpleNamespace())
+   value=C.policy(False)
   self.assertTrue(all(v is None for v in value['native604'].values()));self.assertTrue(all(v is None for v in value['fresh604'].values()))
   self.assertIsNone(value['welcome4_gui']['carrier_source']);self.assertNotIn('assets_index',value['welcome4_gui'])
   self.assertEqual(set(ci.CARRIERS)-{'legacy_source','eight_source','seven_source','management_source','setup_source','welcome_source'},{'apps6_source','apps6_authority_source'})
@@ -138,7 +143,7 @@ class Controls(unittest.TestCase):
   self.assertEqual(C.sha((ROOT/P.INSTALLER/'source-manifest.json').read_bytes()),pins['installer_source_manifest_sha256'])
   with tempfile.TemporaryDirectory() as td:
    base=Path(td);output=base/'emitted';receipt=P.emit(ROOT,ROOT,ROOT,output)
-   self.assertEqual(receipt['source_rows'],424)
+   self.assertEqual(receipt['source_rows'],425)
    for n,pin in recipes.items():self.assertEqual(P.pin((output/n).read_bytes()),pin)
    incomplete=base/'old-incomplete';incomplete.mkdir()
    for n in pins['groups']['installer']:
@@ -333,8 +338,8 @@ class PeerFocusControls(unittest.TestCase):
  def setUp(self):
   p=patch.object(subprocess,'Popen',side_effect=AssertionError('peer-focus source controls forbid actors'));p.start();self.addCleanup(p.stop)
  def test_exact_lane_derivation_and_both_composed_profiles_hold_every_other_driver_byte(self):
-  raw=(ROOT/'scripts/ci/welcome-management-native/a11y_driver.c').read_bytes();derived=A.peer_focus_driver(raw);self.assertEqual(len(derived),20790);self.assertEqual(C.sha(derived),'e59b3767a6f4ca6009c2eab194946b84add16a06bcd7f3129993a29a53d84ebe');text=derived.decode()
-  for old,new in reversed(A.FOCUS_EDITS):self.assertEqual(text.count(new),1);text=text.replace(new,old)
+  raw=(ROOT/'scripts/ci/welcome-management-native/a11y_driver.c').read_bytes();derived=A.peer_focus_driver(raw);self.assertEqual(len(derived),23323);self.assertEqual(C.sha(derived),'20a7c6f0aed6740fcdce989174f682fc3433d40dbeab9cd677a80df07069a19e');text=derived.decode()
+  for old,new in reversed((*A.FOCUS_EDITS,*A.JOINT_OPERAND_EDITS)):self.assertEqual(text.count(new),1);text=text.replace(new,old)
   self.assertEqual(text.encode(),raw);self.assertEqual(derived.count(b'atspi_component_grab_focus(peer_component, &error)'),1);self.assertEqual(derived.count(b'g_get_monotonic_time() + 2 * G_USEC_PER_SEC'),1);self.assertIn(b'alarm(20); atspi_set_timeout(1000, 1000)',derived)
   for selected in C.PROFILES:
    with self.subTest(profile=selected),tempfile.TemporaryDirectory()as td:
@@ -372,6 +377,38 @@ class PeerFocusControls(unittest.TestCase):
     runner=Controls().generated(Path(tmp),selected);self.assertEqual((runner/'installed604.py').read_bytes(),A.readback_more_keys(A.readback_openat2(A.readback_snapshot_mismatch(A.readback_path_hotpath(A.readback_fresh_mount(A.readback_progress((ROOT/C.OLD/'installed604.py').read_bytes()),ROOT),ROOT)))))
     self.assertIn("'installed604-preserved',timeout=600",(runner/'base_guest.py').read_text())
     for name,path in (('alpm_reader.py','scripts/ci/full-root-upgrade/root_upgrade.py'),('file_capabilities.py','scripts/apps/file_capabilities.py')):self.assertEqual((runner/name).read_bytes(),(ROOT/path).read_bytes())
+
+
+class JointOperandControls(unittest.TestCase):
+ def intermediate(self):
+  raw=(ROOT/'scripts/ci/welcome-management-native/a11y_driver.c').read_bytes();text=raw.decode()
+  for before,after in A.FOCUS_EDITS:text=C.one(text,before,after)
+  self.assertEqual((len(text.encode()),C.sha(text.encode())),(20790,'e59b3767a6f4ca6009c2eab194946b84add16a06bcd7f3129993a29a53d84ebe'))
+  return raw,text
+ def test_one_failure_row_preserves_ATSPI_queries_and_positive_body(self):
+  import collections,re
+  raw,old=self.intermediate();new=A.peer_focus_driver(raw).decode()
+  calls=lambda text:collections.Counter(re.findall(r'\batspi_[a-z0-9_]+\s*\(',text))
+  self.assertEqual(calls(old),calls(new));marker='static void ensure_visible(guint pid)'
+  self.assertEqual(old.split(marker)[1],new.split(marker)[1]);self.assertEqual(new.count('welcome_settle_failure'),1)
+  self.assertEqual(len(A.JOINT_OPERAND_EDITS),9)
+  for before,after in reversed(A.JOINT_OPERAND_EDITS):self.assertEqual(new.count(after),1);new=new.replace(after,before)
+  self.assertEqual(new,old)
+ def test_final_failure_only_formatter_fits_original_stderr_tail(self):
+  import re
+  raw,_=self.intermediate();text=A.peer_focus_driver(raw).decode();start=text.index('    /* At most one row, only if the final joint check refuses')
+  body=text[start:text.index('static AtspiAccessible *tool_panel',start)]
+  self.assertIn('if (focus) {',body);self.assertEqual(body.count('fprintf(stderr,'),1)
+  part=body.split('fprintf(stderr,',1)[1].split('focus ? "after_focus"',1)[0]
+  fmt=''.join(ast.literal_eval(v)for v in re.findall(r'"(?:\\.|[^"\\])*"',part))
+  fields=re.findall(r'%[sud]',fmt);values=tuple('after_focus'if v=='%s'else 4294967295 if v=='%u'else -2147483648 for v in fields)
+  raw=(fmt%values).encode();self.assertLessEqual(len(raw),1024);self.assertEqual(json.loads(raw)['event'],'welcome_settle_failure');self.assertLess(len(raw)+94,4096)
+ def test_both_profiles_emit_exact_new_C_and_hold_readback_deadline(self):
+  raw,_=self.intermediate();derived=A.peer_focus_driver(raw)
+  for selected in C.PROFILES:
+   with tempfile.TemporaryDirectory()as td:
+    runner=Controls().generated(Path(td),selected);self.assertEqual((runner/'a11y_driver.c').read_bytes(),derived)
+    self.assertIn("'installed604-preserved',timeout=600",(runner/'base_guest.py').read_text())
 
 class ReadbackFreshMountControls(unittest.TestCase):
  def test_fresh_mount_uses_whole_existing_query_and_holds_complete_observer(self):
@@ -750,3 +787,50 @@ class ImageMtabBeforeSnapshot(unittest.TestCase):
    marker=root/'capture-was-not-run';script='set -e\nroot="$1"\n[[ -L "$root/etc/mtab" ]]\n/usr/bin/systemd-tmpfiles --root="$root" --create --prefix=/etc/mtab\nprintf unexpected > "$root/capture-was-not-run"\n'
    result=subprocess.run(['/bin/bash','-c',script,'private-fixture',str(root)],env={'PATH':'/usr/bin:/bin','LC_ALL':'C'},capture_output=True,timeout=20)
    self.assertNotEqual(result.returncode,0);self.assertFalse(marker.exists());self.assertEqual((root/'etc/mtab/unknown').read_bytes(),b'KEEP')
+
+class PrivateKeyboardProfile(unittest.TestCase):
+ def test_whole_historical_inputs_and_only_one_fragment_symbol(self):
+  K=A.KP;raw=K.held(ROOT,'kernel.fragment');new=K.fragment(raw)
+  self.assertEqual(new,raw+b'CONFIG_VIRTIO_INPUT=y\n');self.assertNotIn(b'CONFIG_INPUT_KEYBOARD=y',new);self.assertNotIn(b'CONFIG_INPUT_MISC=y',new)
+  for bad in(raw+b'\n',raw.replace(b'CONFIG_INPUT=y',b'CONFIG_INPUT=n')):
+   with self.assertRaises(ValueError):K.fragment(bad)
+ def test_distinct_kernel_profile_and_old_profile_refusal(self):
+  K=A.KP;derived=K.contract(ROOT);old=C.module('_held_no_keyboard_contract','scripts/ci/managed-gui-generic16k/kernel_contract.py')
+  self.assertNotEqual(derived.PROFILE,old.PROFILE);self.assertNotEqual(derived.FRAGMENT_SHA,old.FRAGMENT_SHA);self.assertNotEqual(derived.HELPER_SHA,old.HELPER_SHA)
+  self.assertEqual(derived.REVISION,old.REVISION);self.assertEqual(derived.RELEASE,old.RELEASE)
+  for value in(dict(profile=old.PROFILE),dict(profile=derived.PROFILE)):
+   with self.assertRaises(ValueError):derived.validate(value)
+ def test_actual_copied_kernel_derivative_and_drift_refusal(self):
+  K=A.KP
+  with tempfile.TemporaryDirectory()as td:
+   root=Path(td)
+   for n in('build_kernel.py','kernel.fragment'):(root/n).write_bytes(K.held(ROOT,n))
+   K.prepare_kernel(ROOT,root);self.assertEqual((root/'kernel.fragment').read_bytes(),K.fragment(K.held(ROOT,'kernel.fragment')))
+   self.assertEqual((root/'build_kernel.py').read_bytes(),K.build_helper(K.held(ROOT,'build_kernel.py')))
+   with self.assertRaises(ValueError):K.prepare_kernel(ROOT,root)
+ def test_configuration_requires_builtin_keyboard_and_all_prior_dependencies(self):
+  K=A.KP
+  with tempfile.TemporaryDirectory()as td:
+   p=Path(td)/'config';raw=b'CONFIG_INPUT=y\nCONFIG_INPUT_EVDEV=y\nCONFIG_VIRTIO=y\nCONFIG_VIRTIO_PCI=y\nCONFIG_VIRTIO_INPUT=y\n# CONFIG_MODULES is not set\n';p.write_bytes(raw);K.check_config(p)
+   for name in('CONFIG_INPUT','CONFIG_INPUT_EVDEV','CONFIG_VIRTIO','CONFIG_VIRTIO_PCI','CONFIG_VIRTIO_INPUT'):
+    p.write_bytes(raw.replace((name+'=y').encode(),(name+'=m').encode()))
+    with self.assertRaises(ValueError):K.check_config(p)
+   p.write_bytes(raw+b'CONFIG_VIRTIO_INPUT=y\n')
+   with self.assertRaises(ValueError):K.check_config(p)
+ def test_generated_device_profile_seat_guard_and_unchanged_focus_driver(self):
+  for profile in C.PROFILES:
+   with tempfile.TemporaryDirectory()as td:
+    runner=Controls().generated(Path(td),profile);runtime=(runner/'desktop574_runtime.py').read_text();session=(runner/'session.py').read_text()
+    self.assertEqual(runtime.count('-device virtio-keyboard-pci'),1);self.assertIn('-nodefaults',runtime);self.assertNotIn('input-send-event',runtime)
+    self.assertIn("'one actual private QEMU US keyboard seat required'",session);self.assertIn("'virtual_keyboard_ready'",session)
+    self.assertLess(session.index("'one actual private QEMU US keyboard seat required'"),session.index("checkpoint='doctor-startup'"))
+    self.assertEqual((runner/'kernel_contract.py').read_bytes(),A.KP.contract_bytes(ROOT));self.assertEqual((runner/'a11y_driver.c').read_bytes(),A.peer_focus_driver((ROOT/'scripts/ci/welcome-management-native/a11y_driver.c').read_bytes()))
+    for value in('time.monotonic() + 1300','signal.ITIMER_REAL, 1750'):self.assertIn(value,runtime)
+    self.assertIn('TimeoutStartSec=1200',(runner/'desktop574_fixture.sh').read_text())
+
+class PrivateKeyboardSeatRefusals(unittest.TestCase):
+ def test_actual_emitted_mandatory_seat_query_refuses_missing_duplicate_foreign_or_bad_state(self):
+  for keyboards in ([],[dict(name='gpio-keys',layout='us',capsLock=False)],[dict(name='qemu-virtio-keyboard',layout='us',capsLock=False)]*2,[dict(name='qemu-virtio-keyboard',layout='de',capsLock=False)],[dict(name='qemu-virtio-keyboard',layout='us',capsLock=True)]):
+   emitted=[];scope=dict(json=json,C=C,stage='minimal',base=SimpleNamespace(emit=lambda *a,**kw:emitted.append((a,kw))),command=lambda *a:json.dumps(dict(keyboards=keyboards)))
+   with self.assertRaisesRegex(ValueError,'one actual private QEMU US keyboard seat required'):exec(compile(textwrap.dedent(A.KEYBOARD_GUEST),'<exact-emitted-guest-seat-guard>','exec'),scope)
+   self.assertEqual(emitted,[])
