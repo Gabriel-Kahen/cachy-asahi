@@ -598,12 +598,12 @@
       "sha256": "6999636b05e65d3bafcb73bf0fd273b744f990475ee34244969a56b7e16d0086"
     },
     "scripts/ci/current604-public-pair-updater16k/test_wiring.py": {
-      "bytes": 23655,
-      "sha256": "679fafd65d8b51be32f651cc8f514f0442d1090a317f0db2c5754a49a6d0c451"
+      "bytes": 28942,
+      "sha256": "fb07acadc0e16461d767d82052d5395b63aee53c0cec80de9d8f9cabdf1301da"
     },
     "scripts/ci/current604-public-pair-updater16k/vm.py": {
-      "bytes": 14210,
-      "sha256": "11b200721f397ec6a11f137db6f3ea61d1e2afd60418e08204dabd44b7e56c7e"
+      "bytes": 15918,
+      "sha256": "a4f542e6f384683ffc54bfda00fe7f9e111fe8dc918562f1c82e8a76098cde73"
     },
     "scripts/ci/current604-public-pair-updater16k/wiring.py": {
       "bytes": 1886,
