@@ -12,7 +12,7 @@ from unittest.mock import patch
 
 HERE = Path(__file__).resolve().parent
 LANE = 'scripts/ci/current606-welcome5-closed-owner'
-CARRIER = '2217f9361aba464a192fc4a6d28aca0c8ab33118'
+CARRIER = '8d6d8866b260ca70e75e8bd0eafb3eb451620218'
 
 
 def need(ok, why):
@@ -65,10 +65,10 @@ def emit(source, basis, output):
     with patch.object(subprocess, 'Popen', side_effect=AssertionError('no actor/network/Git process')):
         spec.loader.exec_module(prepare)
         rows = prepare.emit({role: basis / role for role in prepare.C.ROLES}, output)
-        need(len(rows) == 428, 'genuine complete428 source emission')
+        need(len(rows) == 431, 'genuine complete431 source emission')
         for name, wanted in pins['files'].items():
             need(pin((output / name).read_bytes()) == wanted, 'emitted default differs: ' + name)
-    return dict(status='PASS_CANONICAL_NULL_WELCOME606_SOURCE428_NO_ACTORS', files=len(rows),
+    return dict(status='PASS_CANONICAL_NULL_WELCOME606_SOURCE431_NO_ACTORS', files=len(rows),
                 source_carrier=CARRIER, source_carrier_scope='SOURCE_BYTES_ONLY',
                 actual_source=None, actual_ref=None, actual_run=None,
                 native='NOT_RUN', hardware='NOT_RUN', release='NOT_ADMITTED')
