@@ -529,8 +529,8 @@
       "sha256": "0df8fca76d1006260e7ed7eee6dddbeaa54bfe8e6e3d7e63cd32a06cf63e7bcc"
     },
     "scripts/ci/current604-public-pair-generic16k/adapter.py": {
-      "bytes": 16853,
-      "sha256": "d6d6db5ccdaafccf6e7da26ee133f20aa412f2755b57e4906ba31e7ac0324509"
+      "bytes": 19658,
+      "sha256": "8202adedbdd2abc8ee20c3a19d6ad6e0462d0432eb89552fd4e2b56f3d90fbc9"
     },
     "scripts/ci/current604-public-pair-generic16k/ci.py": {
       "bytes": 5399,
@@ -546,7 +546,7 @@
     },
     "scripts/ci/current604-public-pair-generic16k/dependencies.json": {
       "bytes": 72577,
-      "sha256": "3a2e294a16aa8a1431b299b1ae0c39b8ef59208f4f1800c0dc85e98b33024a89"
+      "sha256": "6abd38d18c33fc8c704f45a3a3661af4d0adf294763d4aa8f5970de3d617a6d6"
     },
     "scripts/ci/current604-public-pair-generic16k/gate.py": {
       "bytes": 2720,
@@ -577,8 +577,8 @@
       "sha256": "71d3f0334c5e0931d69bdc3633ac9ab44e6b53031a079074cfbefc6c8d1a6b6a"
     },
     "scripts/ci/current604-public-pair-generic16k/test_lane.py": {
-      "bytes": 41288,
-      "sha256": "bcfea54e01bc401acc23395fd004888993a2b0867db34a32d5e2a332e0d9ba04"
+      "bytes": 44662,
+      "sha256": "6a8f7f02a2ecdd38e82d389f78fda4ba107d77480e9e94facb4dc01cf0c3c305"
     },
     "scripts/ci/desktop-user-session/prepare.py": {
       "bytes": 6300,
