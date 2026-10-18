@@ -88,6 +88,13 @@ jobs:
           python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-dns2/test_dns.py
           python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-sysctl2/test_sysctl.py
           bash -n packages/tools/cachy-asahi-dns2/PKGBUILD packages/tools/cachy-asahi-sysctl2/PKGBUILD
+      - name: Check explicit KSM scanning experiments in private fixtures
+        run: |
+          python3 -I -B packages/tools/cachy-asahi-ksmctl2/check-source.py
+          python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-ksmctl2/test_ksmctl.py
+          python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-ksmctl2/test_experiment.py
+          python3 -I -B packages/tools/cachy-asahi-ksmctl2/cachy-asahi-ksm-experiment --help >/dev/null
+          bash -n packages/tools/cachy-asahi-ksmctl2/PKGBUILD
       - name: Exercise release and client contracts without skipped tests
         env:
           PYTHONDONTWRITEBYTECODE: '1'
