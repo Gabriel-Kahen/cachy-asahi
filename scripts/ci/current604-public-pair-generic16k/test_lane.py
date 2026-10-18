@@ -29,7 +29,7 @@ class Controls(unittest.TestCase):
      self.assertIn('independent-installed-public-pairs-apps6-current604-management-generic16k-profile',runtime)
      self.assertIn('context604.selection(base,expected)',runtime);self.assertNotIn("all(expected.get(n)==v for n,v in base.items())",runtime)
      for filename,source in (('doctor_lifetime.py','scripts/ci/welcome-management-native/doctor_lifetime.py'),('a11y_driver.c','scripts/ci/welcome-management-native/a11y_driver.c'),('file_capabilities.py','scripts/apps/file_capabilities.py')):
-      original=(ROOT/source).read_bytes();self.assertEqual((runner/filename).read_bytes(),A.peer_focus_driver(original) if filename=='a11y_driver.c' else original)
+      original=(ROOT/source).read_bytes();self.assertEqual((runner/filename).read_bytes(),A.peer_focus_driver(original) if filename=='a11y_driver.c' else A.doctor_publication(original) if filename=='doctor_lifetime.py' else original)
  def test_failed_controller_exports_only_fixed_bounded_original_build_log_without_authority(self):
   for log_name in ('runtime-image.log','qemu-tooling-image.log'):
    # Execute the actual derived owner.main failure/finally path. Every producer,
@@ -570,3 +570,98 @@ class Openat2ReadbackControls(unittest.TestCase):
 
 if __name__=='__main__':unittest.main(verbosity=2)
 
+
+class DoctorPublication(unittest.TestCase):
+ def setUp(self):
+  self.temp=tempfile.TemporaryDirectory(dir='/tmp',prefix='doctor-publish-');self.addCleanup(self.temp.cleanup);self.root=Path(self.temp.name)
+  self.original=(ROOT/'scripts/ci/welcome-management-native/doctor_lifetime.py').read_bytes()
+  import types
+  self.old=types.ModuleType('held_doctor_lifetime');exec(compile(self.original,'held_doctor_lifetime','exec'),self.old.__dict__)
+  self.new=types.ModuleType('private_atomic_doctor_lifetime');exec(compile(A.doctor_publication(self.original),'private_atomic_doctor_lifetime','exec'),self.new.__dict__)
+ def concurrent(self,module,name,expect_visible,partial=False):
+  import threading
+  ready=threading.Event();release=threading.Event();errors=[];real=os.fdopen;path=self.root/name;value={'nonce':'a'*32}
+  class Paused:
+   def __init__(self,stream):self.stream=stream
+   def __enter__(self):return self
+   def __exit__(self,*args):return self.stream.__exit__(*args)
+   def __getattr__(self,name):return getattr(self.stream,name)
+   def write(self,raw):
+    split=len(raw)//2 if partial else 0
+    if split:self.stream.write(raw[:split]);self.stream.flush()
+    ready.set()
+    if not release.wait(5):raise AssertionError('bounded writer rendezvous')
+    return split+self.stream.write(raw[split:])
+  def writer():
+   try:module.publish(path,value,0o600)
+   except BaseException as error:errors.append(error)
+  with patch.object(module.os,'fdopen',side_effect=lambda *a,**k:Paused(real(*a,**k))):
+   thread=threading.Thread(target=writer);thread.start()
+   try:
+    self.assertTrue(ready.wait(5));self.assertEqual(path.exists(),expect_visible)
+    if expect_visible:
+     if partial:
+      self.assertGreater(path.stat().st_size,0)
+      with self.assertRaises(json.JSONDecodeError):module.read(path,os.getuid(),0o600)
+     else:
+      self.assertEqual(path.stat().st_size,0)
+      with self.assertRaisesRegex(ValueError,'private lifetime metadata differs'):module.read(path,os.getuid(),0o600)
+    else:
+     with self.assertRaises(FileNotFoundError):module.read(path,os.getuid(),0o600)
+   finally:release.set();thread.join(5)
+  self.assertFalse(thread.is_alive());self.assertEqual(errors,[]);self.assertEqual(module.read(path,os.getuid(),0o600),value);self.assertEqual(path.stat().st_nlink,1)
+ def test_real_original_zero_length_visibility_and_atomic_candidate(self):
+  self.concurrent(self.old,'original.json',True);self.concurrent(self.new,'candidate.json',False)
+ def test_real_partial_visibility_is_excluded_before_atomic_publication(self):
+  self.concurrent(self.old,'original-partial.json',True,True);self.concurrent(self.new,'candidate-partial.json',False,True)
+ def test_real_no_clobber_existing_file_and_symlink(self):
+  for kind in ('file','symlink'):
+   with self.subTest(kind=kind):
+    path=self.root/(kind+'.json');target=self.root/(kind+'-target');target.write_bytes(b'untouched')
+    if kind=='file':path.write_bytes(b'original')
+    else:path.symlink_to(target)
+    with self.assertRaises(FileExistsError):self.new.publish(path,{'nonce':'b'*32},0o600)
+    self.assertEqual(target.read_bytes(),b'untouched');self.assertEqual(path.read_bytes(),b'original' if kind=='file' else b'untouched');self.assertEqual(path.is_symlink(),kind=='symlink');self.assertFalse(list(self.root.glob('.*.partial')))
+ def test_real_complete_single_link_permissions_all_original_modes(self):
+  for mode in (0o444,0o600):
+   path=self.root/str(mode);self.new.publish(path,{'nonce':'c'*32},mode)
+   self.assertEqual(self.new.read(path,os.getuid(),mode),{'nonce':'c'*32});self.assertEqual(stat.S_IMODE(path.stat().st_mode),mode);self.assertEqual(path.stat().st_nlink,1)
+ def test_failed_rename_has_no_fallback_and_retires_only_staging_file(self):
+  import ctypes,errno
+  class Refuse:
+   calls=[]
+   def __call__(self,*args):self.calls.append(args);ctypes.set_errno(errno.ENOSYS);return -1
+  rename=Refuse();path=self.root/'failed.json';library=SimpleNamespace(renameat2=rename)
+  with patch.object(ctypes,'CDLL',return_value=library),patch.object(os,'rename',side_effect=AssertionError('no fallback')),patch.object(os,'replace',side_effect=AssertionError('no fallback')):
+   with self.assertRaises(OSError)as error:self.new.publish(path,{'nonce':'d'*32},0o600)
+  self.assertEqual(error.exception.errno,errno.ENOSYS);self.assertEqual(len(rename.calls),1);self.assertEqual(rename.calls[0][-1],1);self.assertEqual(rename.calls[0][0],rename.calls[0][2]);self.assertFalse(path.exists());self.assertFalse(list(self.root.iterdir()))
+ def test_failed_flush_retires_staging_without_final_visibility(self):
+  with patch.object(os,'fsync',side_effect=OSError('inert fsync refusal')):
+   with self.assertRaisesRegex(OSError,'inert fsync refusal'):self.new.publish(self.root/'failed.json',{'nonce':'e'*32},0o600)
+  self.assertEqual(list(self.root.iterdir()),[])
+ def test_original_metadata_predicate_and_bounded_typed_refusals(self):
+  old=ast.parse(self.original);new=ast.parse(A.doctor_publication(self.original))
+  def predicate(tree):
+   function=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='read')
+   return ast.dump(next(n for n in ast.walk(function)if isinstance(n,ast.Call)and isinstance(n.func,ast.Name)and n.func.id=='need').args[0],include_attributes=False)
+  self.assertEqual(predicate(old),predicate(new))
+  path=self.root/'empty';path.touch(mode=0o600)
+  with self.assertRaises(ValueError)as error:self.new.read(path,os.getuid(),0o600)
+  message=str(error.exception);self.assertLess(len(message),512);row=json.loads(message.split(': ',1)[1]);self.assertEqual(row['bytes'],0);self.assertTrue(row['regular']);self.assertEqual(row['uid'],os.getuid())
+  path.unlink();self.new.publish(path,{'nonce':'f'*32},0o600)
+  for uid,mode in ((os.getuid()+1,0o600),(os.getuid(),0o444)):
+   with self.assertRaisesRegex(ValueError,'private lifetime metadata differs'):self.new.read(path,uid,mode)
+  os.link(path,self.root/'alias')
+  with self.assertRaisesRegex(ValueError,'private lifetime metadata differs'):self.new.read(path,os.getuid(),0o600)
+ def test_original_lifetime_and_retirement_algorithms_whole_held(self):
+  old=ast.parse(self.original);new=ast.parse(A.doctor_publication(self.original))
+  functions=lambda t:{n.name:ast.dump(n,include_attributes=False)for n in t.body if isinstance(n,(ast.FunctionDef,ast.ClassDef))}
+  before=functions(old);after=functions(new);self.assertEqual(before.keys(),after.keys())
+  for name in before.keys()-{'publish','read'}:self.assertEqual(before[name],after[name],name)
+  self.assertEqual(self.new.SECONDS,1080);self.assertEqual(self.new.SERVICE_SECONDS,1200);self.assertEqual(self.new.CAP,8192)
+ def test_real_repeat_retirement_has_no_fd_leak(self):
+  count=lambda:len(os.listdir('/proc/self/fd'))
+  before=count()
+  for i in range(24):
+   path=self.root/str(i);self.new.publish(path,{'nonce':'a'*32},0o600);self.assertEqual(self.new.read(path,os.getuid(),0o600),{'nonce':'a'*32});path.unlink()
+  self.assertEqual(count(),before)
