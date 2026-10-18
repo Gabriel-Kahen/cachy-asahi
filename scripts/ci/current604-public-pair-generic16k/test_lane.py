@@ -76,7 +76,7 @@ class Controls(unittest.TestCase):
       runtime=SimpleNamespace(kernel=lambda *a:(dict(Image=dict(sha256=C.sha(image.read_bytes()))),{},image,config),supervise=supervise)
       actual=ci._BASE
       try:
-       with patch.object(actual,'parser',return_value=SimpleNamespace(parse_args=lambda _:args)),patch.object(actual,'preflight',return_value=({}, {}, object(), {}, base/'inert-assets',installer)),patch.object(actual.platform,'machine',return_value='aarch64'),patch.dict(os.environ,GITHUB_ACTIONS='true',RUNNER_ARCH='ARM64',RUNNER_TEMP=str(base)),patch.object(C,'prepare_assets',return_value=base/'inert-assets'),patch.object(C,'load',side_effect=lambda root,path:runtime if path.endswith('/run.py') else object()),patch.object(A,'prepare',side_effect=prepare),patch.object(ci.context604,'prepare'),patch.object(ci.KP,'kernel',side_effect=lambda original,args:original.kernel(args)):
+       with patch.object(actual,'parser',return_value=SimpleNamespace(parse_args=lambda _:args)),patch.object(actual,'preflight',return_value=({}, {}, object(), {}, base/'inert-assets',installer)),patch.object(actual.platform,'machine',return_value='aarch64'),patch.dict(os.environ,GITHUB_ACTIONS='true',RUNNER_ARCH='ARM64',RUNNER_TEMP=str(base)),patch.object(C,'prepare_assets',return_value=base/'inert-assets'),patch.object(C,'load',side_effect=lambda root,path:runtime if path.endswith('/run.py') else object()),patch.object(A,'prepare',side_effect=prepare),patch.object(ci.context604,'prepare'),patch.object(ci.context604,'preserve_producer_image') as preservation,patch.object(ci.KP,'kernel',side_effect=lambda original,args:original.kernel(args)):
         if mode in ('hardlink','over-cap'):
          with self.assertRaisesRegex(ValueError,'bounded ordinary'):ci.main([])
          self.assertFalse((output/'public/retention.json').exists())
@@ -85,6 +85,7 @@ class Controls(unittest.TestCase):
          if mode=='present':self.assertEqual((output/'public'/name).read_bytes(),marker);self.assertEqual(ledger['files'][name],dict(bytes=len(marker),sha256=C.sha(marker)))
          else:self.assertNotIn(name,ledger['files'])
          self.assertLessEqual(ledger['bytes'],128*1024**2);self.assertNotIn('private-not-exported',str(ledger))
+       preservation.assert_called_once_with(producer_output,unittest.mock.ANY)
        cleanup.assert_not_called();self.assertTrue(kernel.exists());self.assertTrue((producer_output/'producer-owner.json').exists())
       finally:
        for path in (output,producer_output):
@@ -899,3 +900,82 @@ class PrivateKeyboardSeatRefusals(unittest.TestCase):
    emitted=[];scope=dict(json=json,C=C,stage='minimal',base=SimpleNamespace(emit=lambda *a,**kw:emitted.append((a,kw))),command=lambda *a:json.dumps(dict(keyboards=keyboards)))
    with self.assertRaisesRegex(ValueError,'one actual private QEMU US keyboard seat required'):exec(compile(textwrap.dedent(A.KEYBOARD_GUEST),'<exact-emitted-guest-seat-guard>','exec'),scope)
    self.assertEqual(emitted,[])
+
+
+class ProducerImagePreservation(unittest.TestCase):
+ class Docker:
+  """Inert finite command model, never a native or Docker-positive fixture."""
+  image='sha256:'+'1'*64;core='sha256:'+'2'*64;foreign='sha256:'+'3'*64
+  def __init__(self):self.images={self.image};self.refs={};self.calls=[];self.error=False
+  def run(self,argv,**kwargs):
+   self.calls.append(list(argv));exit=0;stdout=b'';stderr=b''
+   if self.error:return SimpleNamespace(returncode=125,stdout=b'',stderr=b'permission denied')
+   if argv[:3]==['docker','image','inspect']:
+    ref=argv[-1];image=self.refs.get(ref,ref)
+    if image in self.images:stdout=(image+'\n').encode()
+    else:exit=1;stdout=b'\n';stderr=('Error: No such image: '+ref).encode()
+   elif argv[:3]==['docker','image','tag']:
+    image,ref=argv[-2:]
+    if image not in self.images:exit=1;stderr=b'No such image'
+    else:self.refs[ref]=image
+   elif argv[:3]==['docker','image','ls']:
+    refs=[v.split('=',1)[1]for v in argv if v.startswith('reference=')];values={self.refs[refs[0]]}if refs and refs[0]in self.refs else set()if refs else self.images;stdout=''.join(x+'\n'for x in sorted(values)).encode()
+   elif argv[:3]==['docker','image','rm']:
+    ref=argv[-1];image=self.refs.get(ref,ref)
+    if image not in self.images:exit=1;stderr=b'No such image'
+    elif ref in self.refs:
+     del self.refs[ref]
+     if image not in self.refs.values():self.images.remove(image)
+    else:
+     self.images.remove(image);self.refs={k:v for k,v in self.refs.items()if v!=image}
+   else:raise AssertionError('unlisted command '+repr(argv))
+   if kwargs.get('check')and exit:raise subprocess.CalledProcessError(exit,argv,stdout,stderr)
+   return SimpleNamespace(returncode=exit,stdout=stdout,stderr=stderr)
+ def setUp(self):
+  self.temp=tempfile.TemporaryDirectory(prefix='producer-image-private-',dir='/tmp');self.addCleanup(self.temp.cleanup);self.root=Path(self.temp.name);self.docker=self.Docker();self.context=ci.context604
+  (self.root/'private/desktop574').mkdir(parents=True);(self.root/'public').mkdir();(self.root/'private/desktop574/image-id').write_text(self.docker.image+'\n');self.owner=dict(schema_version=1,token='a'*32,core_image=self.docker.core,images_preexisting=[],preparation_source='/inert/private/source');self.owner_path=self.root/'producer-owner.json';self.owner_path.write_bytes(C.encoded(self.owner))
+  self.actor=patch.object(subprocess,'run',side_effect=self.docker.run);self.actor.start();self.addCleanup(self.actor.stop)
+ def old_release(self):
+  original=(ROOT/'scripts/ci/desktop574_runtime.py').read_text();tree=ast.parse(original);scope=dict(re=__import__('re'),require=C.need)
+  for name in('bind_local_base','release_local_base'):
+   n=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name==name);exec(compile(ast.get_source_segment(original,n),'<exact-original-image-operation>','exec'),scope)
+  def execute(argv,*_):
+   r=self.docker.run(argv);C.need(r.returncode==0,'inert source operation');return r.stdout
+  def inspect(argv):return execute(argv).decode().strip()
+  def cleanup(argv,*_):
+   r=self.docker.run(argv);return r.stdout if r.returncode==0 else None
+  ref='cachy-asahi-desktop574-base:'+'b'*32;scope['bind_local_base'](self.docker.image,ref,execute,inspect);return ref,scope['release_local_base'](self.docker.image,ref,cleanup)
+ def producer(self):return C.module('_test_whole_original_producer_image_cleanup','scripts/ci/full-composition-installer-vm/producer.py')
+ def test_real_private_receipts_original_cleanup_fails_without_hold_model(self):
+  _,released=self.old_release();self.assertEqual(released,dict(ok=True,base_image_present=False))
+  with self.assertRaisesRegex(ValueError,'owned-image:desktop574/image-id'):self.producer().cleanup(self.root)
+  self.assertTrue((self.root/'private').exists());self.assertEqual(json.loads((self.root/'public/producer-cleanup.json').read_bytes())['status'],'FAIL')
+ def test_exact_original_cleanup_body_removes_image_and_preservation_tag(self):
+  report={};lease=self.context.preserve_producer_image(self.root,report);self.assertIs(report['producer_image_preservation'],lease);ref,released=self.old_release();self.assertEqual(released,dict(ok=True,base_image_present=True));runtime=dict(base_image=self.docker.image,base_reference=ref,base_reference_cleanup=released);self.assertTrue(self.context.require_producer_image_preserved(runtime,lease))
+  old=self.producer().cleanup(self.root);self.assertEqual(old['status'],'PASS');retired=self.context.producer_image_retired(lease,old);self.assertEqual(retired['status'],'PASS_ORIGINAL_PRODUCER_IMAGE_AND_PRESERVATION_REFERENCE_ABSENT');self.assertFalse((self.root/'private').exists());self.assertEqual(self.docker.images,set());self.assertEqual(self.docker.refs,{});self.assertEqual([a for a in self.docker.calls if a[:3]==['docker','image','rm']and a[-1]==self.docker.image],[['docker','image','rm','--no-prune',self.docker.image]])
+ def test_borrowed_changed_reference_alias_or_uncertain_observation_refuse(self):
+  for mode in('preexisting','core','foreign-reference','API-error','receipt-alias'):
+   with self.subTest(mode=mode):
+    self.owner.update(core_image=self.docker.core,images_preexisting=[]);self.owner_path.write_bytes(C.encoded(self.owner));self.docker.refs={};self.docker.error=False;report={}
+    if mode=='preexisting':self.owner['images_preexisting']=[self.docker.image];self.owner_path.write_bytes(C.encoded(self.owner))
+    elif mode=='core':self.owner['core_image']=self.docker.image;self.owner_path.write_bytes(C.encoded(self.owner))
+    elif mode=='foreign-reference':self.docker.images.add(self.docker.foreign);self.docker.refs['cachy-asahi-desktop574-producer:'+'a'*32]=self.docker.foreign
+    elif mode=='API-error':self.docker.error=True
+    else:self.owner_path.rename(self.root/'held-owner');self.owner_path.symlink_to('held-owner')
+    before=len(self.docker.calls)
+    with self.assertRaises(ValueError):self.context.preserve_producer_image(self.root,report)
+    self.assertFalse(any(a[:3]in(['docker','image','tag'],['docker','image','rm'])for a in self.docker.calls[before:]))
+    if self.owner_path.is_symlink():self.owner_path.unlink();(self.root/'held-owner').rename(self.owner_path)
+ def test_missing_image_is_not_cleanup_pass_and_runtime_or_foreign_ref_refuses(self):
+  lease=self.context.preserve_producer_image(self.root,{});runtime=dict(base_image=self.docker.image,base_reference='cachy-asahi-desktop574-base:'+'b'*32,base_reference_cleanup=dict(ok=True,base_image_present=True))
+  for bad in(dict(runtime,base_image=self.docker.foreign),dict(runtime,base_reference_cleanup=dict(ok=True,base_image_present=False))):
+   with self.assertRaises(ValueError):self.context.require_producer_image_preserved(bad,lease)
+  with self.assertRaises(ValueError):self.context.producer_image_retired(lease,dict(status='FAIL',failures=['owned-image:desktop574/image-id']))
+  with self.assertRaises(ValueError):self.context.producer_image_retired(lease,dict(status='PASS',failures=[]))
+  self.docker.images.clear();self.docker.refs.clear()
+  with self.assertRaisesRegex(ValueError,'owned-image:desktop574/image-id'):self.producer().cleanup(self.root)
+ def test_actual_ci_order_and_all_original_consumer_guards_held(self):
+  old=C.read(ROOT/C.OLD/'ci.py').decode();text=ci.derive(old)
+  self.assertEqual(text.count('producer.cleanup(producer_output)'),1);self.assertEqual(text.count('context604.preserve_producer_image(producer_output,report)'),1);self.assertEqual(text.count("context604.require_producer_image_preserved(raw,report['producer_image_preservation'])"),1);self.assertEqual(text.count("context604.producer_image_retired(report.get('producer_image_preservation'),report['producer_cleanup'])"),1)
+  self.assertLess(text.index('context604.preserve_producer_image(producer_output,report)'),text.index('materializer.prepare('));self.assertLess(text.index('context604.require_producer_image_preserved'),text.index("C.need(retired(raw,controller)"));self.assertLess(text.index('producer.cleanup(producer_output)'),text.index('context604.producer_image_retired'))
+  self.assertIn("len(report.get('cleanup',[]))==15 and context604.launcher_retired(report,C.ROOT)",text);self.assertIn("C.need(report['producer_cleanup']['status']=='PASS','original producer retirement required')",text)
