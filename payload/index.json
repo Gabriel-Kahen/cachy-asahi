@@ -1,0 +1,979 @@
+{
+  "GUI": "NOT_RUN",
+  "authority_scope": "NATIVE_PAIRS_ONLY_NO_GUI_OR_CURRENT606_ACCEPTANCE",
+  "files": {
+    "decisions/dns2.json": {
+      "bytes": 2444,
+      "sha256": "a8e9c5b767a27ae04a54a86fa741a8332f4ed6d8b14f96cfb0bc7f072e7835d5"
+    },
+    "decisions/welcome45.json": {
+      "bytes": 3491,
+      "sha256": "90424bbdbb8208460f174606a56f01a5a7b81f02a9826c054d3ccd5fedbfda47"
+    },
+    "packages/dns2/a/cachy-asahi-dns-0.1.0-2-any.pkg.tar.xz": {
+      "bytes": 15632,
+      "sha256": "588301342503ab23869d78e212f50a7b363fe45dcaf7c2ad4c411a33bab22d1d"
+    },
+    "packages/dns2/b/cachy-asahi-dns-0.1.0-2-any.pkg.tar.xz": {
+      "bytes": 15632,
+      "sha256": "588301342503ab23869d78e212f50a7b363fe45dcaf7c2ad4c411a33bab22d1d"
+    },
+    "packages/welcome4/a/cachy-asahi-welcome-0.1.0-4-aarch64.pkg.tar.xz": {
+      "bytes": 32268,
+      "sha256": "80cd962d35d8652ab7891d61f856e37502f365adb842329a680b4fa88558503d"
+    },
+    "packages/welcome4/b/cachy-asahi-welcome-0.1.0-4-aarch64.pkg.tar.xz": {
+      "bytes": 32268,
+      "sha256": "80cd962d35d8652ab7891d61f856e37502f365adb842329a680b4fa88558503d"
+    },
+    "packages/welcome5/a/cachy-asahi-welcome-0.1.0-5-aarch64.pkg.tar.xz": {
+      "bytes": 34796,
+      "sha256": "d73924709c071082cb0c2cf7903435c994ed4a49177311396ee28096851a945d"
+    },
+    "packages/welcome5/b/cachy-asahi-welcome-0.1.0-5-aarch64.pkg.tar.xz": {
+      "bytes": 34796,
+      "sha256": "d73924709c071082cb0c2cf7903435c994ed4a49177311396ee28096851a945d"
+    },
+    "recipes/packages/tools/cachy-asahi-dns2/.SRCINFO": {
+      "bytes": 1027,
+      "sha256": "9a71d77853351e76649415f1851ecf23844c580fd6845d60cd36ace6a40c82af"
+    },
+    "recipes/packages/tools/cachy-asahi-dns2/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "recipes/packages/tools/cachy-asahi-dns2/NOTICE": {
+      "bytes": 362,
+      "sha256": "1ff77dc69e120adfacea23ac77a756ff5931b888c7535f0e2f2b928114a5873e"
+    },
+    "recipes/packages/tools/cachy-asahi-dns2/PKGBUILD": {
+      "bytes": 1538,
+      "sha256": "f59423ab444744edce3df774687e1be226662fadaa73243d9bb7269c81c94543"
+    },
+    "recipes/packages/tools/cachy-asahi-dns2/README.md": {
+      "bytes": 7235,
+      "sha256": "a8192e1e96fe1bc5a8cfe0269dcef7961b79e590a50a9c93ddb9921e8c349582"
+    },
+    "recipes/packages/tools/cachy-asahi-dns2/cachy-asahi-dns": {
+      "bytes": 14882,
+      "sha256": "d708cbe54a8e96a62ff7d85e4eadfb7a980401adb3a9fe8465052f754b4c8c88"
+    },
+    "recipes/packages/tools/cachy-asahi-dns2/check_source.py": {
+      "bytes": 2430,
+      "sha256": "78b3080f5ee9c3a003de0719eff08ad85f6f862db608d9a3465ddcb40028b265"
+    },
+    "recipes/packages/tools/cachy-asahi-dns2/source-provenance.json": {
+      "bytes": 1704,
+      "sha256": "9f5af4c43a17754de5f9e2e77b0f271c74993a5f519b0c73094b103b744b2470"
+    },
+    "recipes/packages/tools/cachy-asahi-dns2/test_dns.py": {
+      "bytes": 14684,
+      "sha256": "c9f93d49bcf6d9c15cd6b2b098972c4494dee5774b1ed1a707c981bfbb8c6cc2"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome/.SRCINFO": {
+      "bytes": 3200,
+      "sha256": "64599d58f989a198dccaf85c5bb8f5f8fcc2c607d1e7dc8f054f36da52e5d10a"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome/Makefile": {
+      "bytes": 3364,
+      "sha256": "6cf2898bc0ea6f20acd09cc78b6873b7e7483e3da97cd5af809e431d8f5a54b7"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome/NOTICE": {
+      "bytes": 665,
+      "sha256": "71e80969d77f4079bff80b62c53c84866489d91206a420384fc1622319d8021a"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome/PKGBUILD": {
+      "bytes": 3075,
+      "sha256": "06f3d380b27cdc0e4299d098d32706fbb89afcd2f9296bb7bdace2474e10e48e"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome/README.md": {
+      "bytes": 5517,
+      "sha256": "b2ecbb4a13549c069d9f7216fbbff47e282be1806dcacc8730788e0cc47a9c00"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome/cachy-asahi-welcome.svg": {
+      "bytes": 531,
+      "sha256": "0db6f69c16766172942551b512e89842d086f4a04320a20bfd9a4473b17a1b73"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome/check_source.py": {
+      "bytes": 3837,
+      "sha256": "cb66f2bc2651003d89e0c6054013dc1ebb57aaf518e64266be8705ac9b024c8b"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome/first-run.txt": {
+      "bytes": 1484,
+      "sha256": "2c123deef2cf02b586250c1128907ba294ced83a3671607dd2aef2f3cfa094eb"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome/io.github.GabrielKahen.CachyAsahiWelcome.desktop": {
+      "bytes": 358,
+      "sha256": "2c2159a75c7b0303eebf47e77e89d6d1f6241372f7ecb006c6b11002135cb441"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome/management-report.c": {
+      "bytes": 11343,
+      "sha256": "21bb131d48a34f86f5a7035b6b9032980bb9330afbc409dca69639a5f0ec9e86"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome/management-report.h": {
+      "bytes": 647,
+      "sha256": "2caed0cedfc375577d05b8468ec1c54b98e2c23daa247f217671d033b68b739d"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome/management.c": {
+      "bytes": 19484,
+      "sha256": "1703fe13c3055a3f35ec12b85c2ffcb3814a0c364fc9537caf4adf32d24d20b4"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome/management.h": {
+      "bytes": 1564,
+      "sha256": "5e5e8f196321eb6da75224cbb9f48e9dab7ed20909af4569a9a910ac29f8c212"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome/recovery.txt": {
+      "bytes": 1555,
+      "sha256": "09e5160543b0739b10f327972e338b01c16269d8bcfc6620325eceed0c6a26a2"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome/status.c": {
+      "bytes": 6735,
+      "sha256": "2bfd5f64c724670546057d01312fc6b9591416f6113c65eae8cbb9a53f3909cf"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome/status.h": {
+      "bytes": 833,
+      "sha256": "da0c71ef784debe9ea8ec0be34d8326afe5520ad463efc4a2d432805324b8b78"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome/test_cli.py": {
+      "bytes": 3170,
+      "sha256": "722182698ca07b14b03787a52f5b3976f2f039ae048f142f2dee72e6176fa972"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome/test_management.c": {
+      "bytes": 11388,
+      "sha256": "17a23fa7fce5562c3ddeab9a2dda2aa2853c4c2b40dc532bcd3e21fe9a67f18c"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome/test_management_report.c": {
+      "bytes": 8746,
+      "sha256": "a75cf2d71536412cf315d9ab6b0d7337a1ee044847023058c6e40a53102971ed"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome/test_management_ui.c": {
+      "bytes": 9411,
+      "sha256": "7a33f4d44d3739acb53f15b5b91d394ee0ba186482a12999e3bca6970d9fa230"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome/test_report_work.c": {
+      "bytes": 4943,
+      "sha256": "0cb5df7b5e3c302c1732a5f85f684421a58c34404582300fb47f24d580e48ea2"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome/test_status.c": {
+      "bytes": 5152,
+      "sha256": "710eba6eafd4389bf2bf73bc39c7e727d4d60097cb783c035da60bc4ba8d740e"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome/updates.txt": {
+      "bytes": 1445,
+      "sha256": "fcde7d9aa0c6f1a0fc8090c5dc26f405708f18ea760d74b664732e2824d403b8"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome/welcome.c": {
+      "bytes": 23991,
+      "sha256": "0a3e7e34bf9ebf66e9932cfeb116ce5a202754956a41f9f5481d70784d3c0f66"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome5/.SRCINFO": {
+      "bytes": 3284,
+      "sha256": "8bcd3819165417fa4caa840b42d28fb7459b0da342c34afc2c56c52c6469c9d1"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome5/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome5/Makefile": {
+      "bytes": 3424,
+      "sha256": "bdd1251de23e128b1f7be43f29c823066d39c5ac5efe579beb47be25b8e133e5"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome5/NOTICE": {
+      "bytes": 828,
+      "sha256": "0c1a76c63e14d5d5bdaf0a70521ee4820ca01589dbb0c9ef133d2931865fe212"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome5/PKGBUILD": {
+      "bytes": 3159,
+      "sha256": "af7b4cd7ff8597569dbb567ce4b94cd2bbf16e254c01b2267beadbd7d06919db"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome5/README.md": {
+      "bytes": 7253,
+      "sha256": "c905cbee0bf47c9c07e1171284815a6f626d598accde1bd83d195a6822f93957"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome5/cachy-asahi-welcome.svg": {
+      "bytes": 531,
+      "sha256": "0db6f69c16766172942551b512e89842d086f4a04320a20bfd9a4473b17a1b73"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome5/check_source.py": {
+      "bytes": 3932,
+      "sha256": "a95472cbeeda449e5f2aa156273f34a6d55131220288ed3164754aecc4bbede0"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome5/first-run.txt": {
+      "bytes": 1484,
+      "sha256": "2c123deef2cf02b586250c1128907ba294ced83a3671607dd2aef2f3cfa094eb"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome5/io.github.GabrielKahen.CachyAsahiWelcome.desktop": {
+      "bytes": 358,
+      "sha256": "2c2159a75c7b0303eebf47e77e89d6d1f6241372f7ecb006c6b11002135cb441"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome5/management-report.c": {
+      "bytes": 15499,
+      "sha256": "9881cb2e76b764b552f7e05b22de09c5359d83d1d7cf942d91a4e39160052151"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome5/management-report.h": {
+      "bytes": 794,
+      "sha256": "0163de5b5894c2c1b0302d81799687bc07ea0abbb850f6b2fd0dd4fc1e5a02ca"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome5/management.c": {
+      "bytes": 21066,
+      "sha256": "bf5856b30826e799dff74670b2aac8275da8c7d120c0c11b09eb66de3f644f33"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome5/management.h": {
+      "bytes": 1642,
+      "sha256": "b5bb9d8dc29750e5db296136aa35a442481ac772644f9dbeb19d114900fc3485"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome5/recovery.txt": {
+      "bytes": 1555,
+      "sha256": "09e5160543b0739b10f327972e338b01c16269d8bcfc6620325eceed0c6a26a2"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome5/status.c": {
+      "bytes": 6735,
+      "sha256": "2bfd5f64c724670546057d01312fc6b9591416f6113c65eae8cbb9a53f3909cf"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome5/status.h": {
+      "bytes": 833,
+      "sha256": "da0c71ef784debe9ea8ec0be34d8326afe5520ad463efc4a2d432805324b8b78"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome5/test_cli.py": {
+      "bytes": 3170,
+      "sha256": "722182698ca07b14b03787a52f5b3976f2f039ae048f142f2dee72e6176fa972"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome5/test_management.c": {
+      "bytes": 13964,
+      "sha256": "f784eb12fcda76574fed49603ce6f276b87cd8649695e7bb63a659c70d83c1d1"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome5/test_management_report.c": {
+      "bytes": 14345,
+      "sha256": "f60e4915427dba8244a99f803a63c24a58b807accf3a0c9f958f85496af73212"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome5/test_management_ui.c": {
+      "bytes": 11251,
+      "sha256": "53d08f3d985cd7f081a777c59b6c375a3b2ad71b0541279e37aa273bcead06fb"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome5/test_report_work.c": {
+      "bytes": 4943,
+      "sha256": "0cb5df7b5e3c302c1732a5f85f684421a58c34404582300fb47f24d580e48ea2"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome5/test_status.c": {
+      "bytes": 5152,
+      "sha256": "710eba6eafd4389bf2bf73bc39c7e727d4d60097cb783c035da60bc4ba8d740e"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome5/updates.txt": {
+      "bytes": 1445,
+      "sha256": "fcde7d9aa0c6f1a0fc8090c5dc26f405708f18ea760d74b664732e2824d403b8"
+    },
+    "recipes/packages/tools/cachy-asahi-welcome5/welcome.c": {
+      "bytes": 24289,
+      "sha256": "adb0a08228701c7917997c303f77dcdac8232fd271656b528e54ad08f01e1292"
+    },
+    "signing/cachy-asahi-dns-0.1.0-2-any.pkg.tar.xz.sig": {
+      "bytes": 119,
+      "sha256": "a1d484eed5f6ed9197e2ddfe1885e1f0f11884aa31bfbae28cd45c6a48e47ba6"
+    },
+    "signing/cachy-asahi-welcome-0.1.0-4-aarch64.pkg.tar.xz.sig": {
+      "bytes": 119,
+      "sha256": "edffc7434cc15e964d2ac9cdac23f4d63d99ca67749d251197e8ecb57593e1f7"
+    },
+    "signing/cachy-asahi-welcome-0.1.0-5-aarch64.pkg.tar.xz.sig": {
+      "bytes": 119,
+      "sha256": "0a8ac3271c317c3d8dbb7ec0b33779cdab1c23019c98e6ae4ea06ab5817a4182"
+    },
+    "signing/dns2-TEST-public.asc": {
+      "bytes": 429,
+      "sha256": "7c510d33ac053a7d2519e0eea3884138ce2f4ac9a848dbf6438c51cf5ace7d2e"
+    },
+    "signing/welcome-TEST-public.asc": {
+      "bytes": 429,
+      "sha256": "7aa7caf2df5b9f09bb04445ed866f623038f172f7041dbdc17672652816fadd6"
+    }
+  },
+  "full606": "NO_AUTHORITY_FROM_THIS_CARRIER",
+  "hardware": "NOT_RUN",
+  "kind": "PROJECT_WELCOME45_DNS2_NATIVE_PAIR_INPUTS_ONLY",
+  "packaged_BUILDINFO_disclosure": "ALL_SIX_ARCHIVES_ARE_UNMODIFIED_AND_RETAIN_THEIR_FULL_PACKAGED_BUILDER_INSTALLED_INVENTORIES_574_ROWS_PER_ARCHIVE;NO_EXTRA_CI_BUILD_HOST_OR_KERNEL_METADATA_ADDED",
+  "release": "NOT_ADMITTED",
+  "roles": {
+    "dns2": {
+      "Root_decision": "decisions/dns2.json",
+      "files": {
+        "a": "packages/dns2/a/cachy-asahi-dns-0.1.0-2-any.pkg.tar.xz",
+        "b": "packages/dns2/b/cachy-asahi-dns-0.1.0-2-any.pkg.tar.xz"
+      },
+      "key": "signing/dns2-TEST-public.asc",
+      "metadata": {
+        ".BUILDINFO": {
+          "bytes": 22901,
+          "disclosure": "UNMODIFIED_PACKAGED_BUILDINFO_INCLUDES_FULL_BUILDER_INSTALLED_INVENTORY_NO_EXTRA_BUILD_PROVENANCE",
+          "installed_inventory_rows": 574,
+          "retained_inside_archive": true,
+          "sha256": "9e2531c5fbdfc671f43d72579e325abe8c58d8bea9be981aef5aa18b5e71e3ce"
+        },
+        ".MTREE": {
+          "bytes": 582,
+          "sha256": "825dba6a41b03317a8fbf7372df651c63386b27e6ac9450ca6834377b899c7bf"
+        },
+        ".PKGINFO": {
+          "bytes": 437,
+          "identity": {
+            "arch": [
+              "any"
+            ],
+            "conflict": [],
+            "depend": [
+              "python>=3.11",
+              "networkmanager>=1.44"
+            ],
+            "license": [
+              "MIT"
+            ],
+            "pkgname": [
+              "cachy-asahi-dns"
+            ],
+            "pkgver": [
+              "0.1.0-2"
+            ],
+            "provides": [],
+            "replaces": []
+          },
+          "sha256": "69a5a04aae2c06d286f6d9d74e15740d2335c68b0201652157fe4ba9c3fcfd28"
+        }
+      },
+      "name": "cachy-asahi-dns",
+      "native_run": 39101228683,
+      "native_source": "59a9aee351226e93e22574fd14bd3e0b45c8368d",
+      "payload": {
+        "usr/bin/cachy-asahi-dns": {
+          "gid": 0,
+          "link": "",
+          "mode": 493,
+          "mtime": 1791748800,
+          "sha256": "d708cbe54a8e96a62ff7d85e4eadfb7a980401adb3a9fe8465052f754b4c8c88",
+          "size": 14882,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/doc/cachy-asahi-dns/README.md": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "a8192e1e96fe1bc5a8cfe0269dcef7961b79e590a50a9c93ddb9921e8c349582",
+          "size": 7235,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/doc/cachy-asahi-dns/source-provenance.json": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "9f5af4c43a17754de5f9e2e77b0f271c74993a5f519b0c73094b103b744b2470",
+          "size": 1704,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/licenses/cachy-asahi-dns/LICENSE": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+          "size": 1081,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/licenses/cachy-asahi-dns/NOTICE": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "1ff77dc69e120adfacea23ac77a756ff5931b888c7535f0e2f2b928114a5873e",
+          "size": 362,
+          "type": "0",
+          "uid": 0
+        }
+      },
+      "payload_sources": {
+        "usr/bin/cachy-asahi-dns": "cachy-asahi-dns",
+        "usr/share/doc/cachy-asahi-dns/README.md": "README.md",
+        "usr/share/doc/cachy-asahi-dns/source-provenance.json": "source-provenance.json",
+        "usr/share/licenses/cachy-asahi-dns/LICENSE": "LICENSE",
+        "usr/share/licenses/cachy-asahi-dns/NOTICE": "NOTICE"
+      },
+      "qualification": "NATIVE_PAIR_INPUT_ONLY_NO_GUI_OR606_AUTHORITY",
+      "recipe_directory": "packages/tools/cachy-asahi-dns2",
+      "recipe_source": "351cf8c52edc82ca7a776e782df82d731a72e54b",
+      "recipe_storage_prefix": "recipes",
+      "signature": "signing/cachy-asahi-dns-0.1.0-2-any.pkg.tar.xz.sig",
+      "signature_trust": "DISPOSABLE_TEST_KEY_NOT_RELEASE_TRUST",
+      "signer": "A949828FB66A1F1B9EDB9AFBEBE3CF6CC8020BEE",
+      "source_files": {
+        "packages/tools/cachy-asahi-dns2/.SRCINFO": {
+          "bytes": 1027,
+          "sha256": "9a71d77853351e76649415f1851ecf23844c580fd6845d60cd36ace6a40c82af"
+        },
+        "packages/tools/cachy-asahi-dns2/LICENSE": {
+          "bytes": 1081,
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "packages/tools/cachy-asahi-dns2/NOTICE": {
+          "bytes": 362,
+          "sha256": "1ff77dc69e120adfacea23ac77a756ff5931b888c7535f0e2f2b928114a5873e"
+        },
+        "packages/tools/cachy-asahi-dns2/PKGBUILD": {
+          "bytes": 1538,
+          "sha256": "f59423ab444744edce3df774687e1be226662fadaa73243d9bb7269c81c94543"
+        },
+        "packages/tools/cachy-asahi-dns2/README.md": {
+          "bytes": 7235,
+          "sha256": "a8192e1e96fe1bc5a8cfe0269dcef7961b79e590a50a9c93ddb9921e8c349582"
+        },
+        "packages/tools/cachy-asahi-dns2/cachy-asahi-dns": {
+          "bytes": 14882,
+          "sha256": "d708cbe54a8e96a62ff7d85e4eadfb7a980401adb3a9fe8465052f754b4c8c88"
+        },
+        "packages/tools/cachy-asahi-dns2/check_source.py": {
+          "bytes": 2430,
+          "sha256": "78b3080f5ee9c3a003de0719eff08ad85f6f862db608d9a3465ddcb40028b265"
+        },
+        "packages/tools/cachy-asahi-dns2/source-provenance.json": {
+          "bytes": 1704,
+          "sha256": "9f5af4c43a17754de5f9e2e77b0f271c74993a5f519b0c73094b103b744b2470"
+        },
+        "packages/tools/cachy-asahi-dns2/test_dns.py": {
+          "bytes": 14684,
+          "sha256": "c9f93d49bcf6d9c15cd6b2b098972c4494dee5774b1ed1a707c981bfbb8c6cc2"
+        }
+      },
+      "version": "0.1.0-2"
+    },
+    "welcome4": {
+      "Root_decision": "decisions/welcome45.json",
+      "files": {
+        "a": "packages/welcome4/a/cachy-asahi-welcome-0.1.0-4-aarch64.pkg.tar.xz",
+        "b": "packages/welcome4/b/cachy-asahi-welcome-0.1.0-4-aarch64.pkg.tar.xz"
+      },
+      "key": "signing/welcome-TEST-public.asc",
+      "metadata": {
+        ".BUILDINFO": {
+          "bytes": 22913,
+          "disclosure": "UNMODIFIED_PACKAGED_BUILDINFO_INCLUDES_FULL_BUILDER_INSTALLED_INVENTORY_NO_EXTRA_BUILD_PROVENANCE",
+          "installed_inventory_rows": 574,
+          "retained_inside_archive": true,
+          "sha256": "2c39694cfb34431b2dcb5785f6ce9c8bb0370f462010b0abebdf208d05cd00af"
+        },
+        ".MTREE": {
+          "bytes": 878,
+          "sha256": "97318c2be231167945fe90f1ca9126f0c9dc9c7077fec4b1c77f19327bb40389"
+        },
+        ".PKGINFO": {
+          "bytes": 893,
+          "identity": {
+            "arch": [
+              "aarch64"
+            ],
+            "conflict": [],
+            "depend": [
+              "gtk3>=3.24",
+              "glib2>=2.74"
+            ],
+            "license": [
+              "MIT"
+            ],
+            "pkgname": [
+              "cachy-asahi-welcome"
+            ],
+            "pkgver": [
+              "0.1.0-4"
+            ],
+            "provides": [],
+            "replaces": []
+          },
+          "sha256": "108653cf948d699c7acf54465f2c7f7c1cd39b271975e67fcc17a1e4c8a707e6"
+        }
+      },
+      "name": "cachy-asahi-welcome",
+      "native_run": 39104384568,
+      "native_source": "85ffec834fc72ef8764cdcae828a12ec8ddf7f20",
+      "payload": {
+        "usr/bin/cachy-asahi-welcome": {
+          "gid": 0,
+          "link": "",
+          "mode": 493,
+          "mtime": 1791748800,
+          "sha256": "c22aa5dbab5391ff2394290d70b124859faccc980d5ccf6597b94b6fdd842f32",
+          "size": 67816,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/applications/io.github.GabrielKahen.CachyAsahiWelcome.desktop": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "2c2159a75c7b0303eebf47e77e89d6d1f6241372f7ecb006c6b11002135cb441",
+          "size": 358,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/doc/cachy-asahi-welcome/README.md": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "b2ecbb4a13549c069d9f7216fbbff47e282be1806dcacc8730788e0cc47a9c00",
+          "size": 5517,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/doc/cachy-asahi-welcome/first-run.txt": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "2c123deef2cf02b586250c1128907ba294ced83a3671607dd2aef2f3cfa094eb",
+          "size": 1484,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/doc/cachy-asahi-welcome/recovery.txt": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "09e5160543b0739b10f327972e338b01c16269d8bcfc6620325eceed0c6a26a2",
+          "size": 1555,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/doc/cachy-asahi-welcome/updates.txt": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "fcde7d9aa0c6f1a0fc8090c5dc26f405708f18ea760d74b664732e2824d403b8",
+          "size": 1445,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/icons/hicolor/scalable/apps/cachy-asahi-welcome.svg": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "0db6f69c16766172942551b512e89842d086f4a04320a20bfd9a4473b17a1b73",
+          "size": 531,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/licenses/cachy-asahi-welcome/LICENSE": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+          "size": 1081,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/licenses/cachy-asahi-welcome/NOTICE": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "71e80969d77f4079bff80b62c53c84866489d91206a420384fc1622319d8021a",
+          "size": 665,
+          "type": "0",
+          "uid": 0
+        }
+      },
+      "payload_sources": {
+        "usr/share/applications/io.github.GabrielKahen.CachyAsahiWelcome.desktop": "io.github.GabrielKahen.CachyAsahiWelcome.desktop",
+        "usr/share/doc/cachy-asahi-welcome/README.md": "README.md",
+        "usr/share/doc/cachy-asahi-welcome/first-run.txt": "first-run.txt",
+        "usr/share/doc/cachy-asahi-welcome/recovery.txt": "recovery.txt",
+        "usr/share/doc/cachy-asahi-welcome/updates.txt": "updates.txt",
+        "usr/share/icons/hicolor/scalable/apps/cachy-asahi-welcome.svg": "cachy-asahi-welcome.svg",
+        "usr/share/licenses/cachy-asahi-welcome/LICENSE": "LICENSE",
+        "usr/share/licenses/cachy-asahi-welcome/NOTICE": "NOTICE"
+      },
+      "qualification": "NATIVE_PAIR_INPUT_ONLY_NO_GUI_OR606_AUTHORITY",
+      "recipe_directory": "packages/tools/cachy-asahi-welcome",
+      "recipe_source": "2f9a1a7b7c0e928758539e005290cc65d9fd0cd4",
+      "recipe_storage_prefix": "recipes",
+      "signature": "signing/cachy-asahi-welcome-0.1.0-4-aarch64.pkg.tar.xz.sig",
+      "signature_trust": "DISPOSABLE_TEST_KEY_NOT_RELEASE_TRUST",
+      "signer": "114955FFB7FC1F461B9CD46808C777CE3FB66DEE",
+      "source_files": {
+        "packages/tools/cachy-asahi-welcome/.SRCINFO": {
+          "bytes": 3200,
+          "sha256": "64599d58f989a198dccaf85c5bb8f5f8fcc2c607d1e7dc8f054f36da52e5d10a"
+        },
+        "packages/tools/cachy-asahi-welcome/LICENSE": {
+          "bytes": 1081,
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "packages/tools/cachy-asahi-welcome/Makefile": {
+          "bytes": 3364,
+          "sha256": "6cf2898bc0ea6f20acd09cc78b6873b7e7483e3da97cd5af809e431d8f5a54b7"
+        },
+        "packages/tools/cachy-asahi-welcome/NOTICE": {
+          "bytes": 665,
+          "sha256": "71e80969d77f4079bff80b62c53c84866489d91206a420384fc1622319d8021a"
+        },
+        "packages/tools/cachy-asahi-welcome/PKGBUILD": {
+          "bytes": 3075,
+          "sha256": "06f3d380b27cdc0e4299d098d32706fbb89afcd2f9296bb7bdace2474e10e48e"
+        },
+        "packages/tools/cachy-asahi-welcome/README.md": {
+          "bytes": 5517,
+          "sha256": "b2ecbb4a13549c069d9f7216fbbff47e282be1806dcacc8730788e0cc47a9c00"
+        },
+        "packages/tools/cachy-asahi-welcome/cachy-asahi-welcome.svg": {
+          "bytes": 531,
+          "sha256": "0db6f69c16766172942551b512e89842d086f4a04320a20bfd9a4473b17a1b73"
+        },
+        "packages/tools/cachy-asahi-welcome/check_source.py": {
+          "bytes": 3837,
+          "sha256": "cb66f2bc2651003d89e0c6054013dc1ebb57aaf518e64266be8705ac9b024c8b"
+        },
+        "packages/tools/cachy-asahi-welcome/first-run.txt": {
+          "bytes": 1484,
+          "sha256": "2c123deef2cf02b586250c1128907ba294ced83a3671607dd2aef2f3cfa094eb"
+        },
+        "packages/tools/cachy-asahi-welcome/io.github.GabrielKahen.CachyAsahiWelcome.desktop": {
+          "bytes": 358,
+          "sha256": "2c2159a75c7b0303eebf47e77e89d6d1f6241372f7ecb006c6b11002135cb441"
+        },
+        "packages/tools/cachy-asahi-welcome/management-report.c": {
+          "bytes": 11343,
+          "sha256": "21bb131d48a34f86f5a7035b6b9032980bb9330afbc409dca69639a5f0ec9e86"
+        },
+        "packages/tools/cachy-asahi-welcome/management-report.h": {
+          "bytes": 647,
+          "sha256": "2caed0cedfc375577d05b8468ec1c54b98e2c23daa247f217671d033b68b739d"
+        },
+        "packages/tools/cachy-asahi-welcome/management.c": {
+          "bytes": 19484,
+          "sha256": "1703fe13c3055a3f35ec12b85c2ffcb3814a0c364fc9537caf4adf32d24d20b4"
+        },
+        "packages/tools/cachy-asahi-welcome/management.h": {
+          "bytes": 1564,
+          "sha256": "5e5e8f196321eb6da75224cbb9f48e9dab7ed20909af4569a9a910ac29f8c212"
+        },
+        "packages/tools/cachy-asahi-welcome/recovery.txt": {
+          "bytes": 1555,
+          "sha256": "09e5160543b0739b10f327972e338b01c16269d8bcfc6620325eceed0c6a26a2"
+        },
+        "packages/tools/cachy-asahi-welcome/status.c": {
+          "bytes": 6735,
+          "sha256": "2bfd5f64c724670546057d01312fc6b9591416f6113c65eae8cbb9a53f3909cf"
+        },
+        "packages/tools/cachy-asahi-welcome/status.h": {
+          "bytes": 833,
+          "sha256": "da0c71ef784debe9ea8ec0be34d8326afe5520ad463efc4a2d432805324b8b78"
+        },
+        "packages/tools/cachy-asahi-welcome/test_cli.py": {
+          "bytes": 3170,
+          "sha256": "722182698ca07b14b03787a52f5b3976f2f039ae048f142f2dee72e6176fa972"
+        },
+        "packages/tools/cachy-asahi-welcome/test_management.c": {
+          "bytes": 11388,
+          "sha256": "17a23fa7fce5562c3ddeab9a2dda2aa2853c4c2b40dc532bcd3e21fe9a67f18c"
+        },
+        "packages/tools/cachy-asahi-welcome/test_management_report.c": {
+          "bytes": 8746,
+          "sha256": "a75cf2d71536412cf315d9ab6b0d7337a1ee044847023058c6e40a53102971ed"
+        },
+        "packages/tools/cachy-asahi-welcome/test_management_ui.c": {
+          "bytes": 9411,
+          "sha256": "7a33f4d44d3739acb53f15b5b91d394ee0ba186482a12999e3bca6970d9fa230"
+        },
+        "packages/tools/cachy-asahi-welcome/test_report_work.c": {
+          "bytes": 4943,
+          "sha256": "0cb5df7b5e3c302c1732a5f85f684421a58c34404582300fb47f24d580e48ea2"
+        },
+        "packages/tools/cachy-asahi-welcome/test_status.c": {
+          "bytes": 5152,
+          "sha256": "710eba6eafd4389bf2bf73bc39c7e727d4d60097cb783c035da60bc4ba8d740e"
+        },
+        "packages/tools/cachy-asahi-welcome/updates.txt": {
+          "bytes": 1445,
+          "sha256": "fcde7d9aa0c6f1a0fc8090c5dc26f405708f18ea760d74b664732e2824d403b8"
+        },
+        "packages/tools/cachy-asahi-welcome/welcome.c": {
+          "bytes": 23991,
+          "sha256": "0a3e7e34bf9ebf66e9932cfeb116ce5a202754956a41f9f5481d70784d3c0f66"
+        }
+      },
+      "version": "0.1.0-4"
+    },
+    "welcome5": {
+      "Root_decision": "decisions/welcome45.json",
+      "files": {
+        "a": "packages/welcome5/a/cachy-asahi-welcome-0.1.0-5-aarch64.pkg.tar.xz",
+        "b": "packages/welcome5/b/cachy-asahi-welcome-0.1.0-5-aarch64.pkg.tar.xz"
+      },
+      "key": "signing/welcome-TEST-public.asc",
+      "metadata": {
+        ".BUILDINFO": {
+          "bytes": 22913,
+          "disclosure": "UNMODIFIED_PACKAGED_BUILDINFO_INCLUDES_FULL_BUILDER_INSTALLED_INVENTORY_NO_EXTRA_BUILD_PROVENANCE",
+          "installed_inventory_rows": 574,
+          "retained_inside_archive": true,
+          "sha256": "ca24cba0674e92a0e24648bd5f9fd85cfd5c6d14f9e618f5763eba363c46c9f3"
+        },
+        ".MTREE": {
+          "bytes": 878,
+          "sha256": "b3efef04626b44c3fcfdf7ed2768780d10063529d612954c30a31a5d560f9cb7"
+        },
+        ".PKGINFO": {
+          "bytes": 975,
+          "identity": {
+            "arch": [
+              "aarch64"
+            ],
+            "conflict": [],
+            "depend": [
+              "gtk3>=3.24",
+              "glib2>=2.74"
+            ],
+            "license": [
+              "MIT"
+            ],
+            "pkgname": [
+              "cachy-asahi-welcome"
+            ],
+            "pkgver": [
+              "0.1.0-5"
+            ],
+            "provides": [],
+            "replaces": []
+          },
+          "sha256": "843c7553d212b8fb85e5a0920ae5de970b6dc27cd974cffccdbfedb1a22f2f37"
+        }
+      },
+      "name": "cachy-asahi-welcome",
+      "native_run": 39104384568,
+      "native_source": "85ffec834fc72ef8764cdcae828a12ec8ddf7f20",
+      "payload": {
+        "usr/bin/cachy-asahi-welcome": {
+          "gid": 0,
+          "link": "",
+          "mode": 493,
+          "mtime": 1791748800,
+          "sha256": "229b3bdcf1bfa2c70a19933a9b12471baeec24daa17eab074f8cb215a280239d",
+          "size": 67816,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/applications/io.github.GabrielKahen.CachyAsahiWelcome.desktop": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "2c2159a75c7b0303eebf47e77e89d6d1f6241372f7ecb006c6b11002135cb441",
+          "size": 358,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/doc/cachy-asahi-welcome/README.md": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "c905cbee0bf47c9c07e1171284815a6f626d598accde1bd83d195a6822f93957",
+          "size": 7253,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/doc/cachy-asahi-welcome/first-run.txt": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "2c123deef2cf02b586250c1128907ba294ced83a3671607dd2aef2f3cfa094eb",
+          "size": 1484,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/doc/cachy-asahi-welcome/recovery.txt": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "09e5160543b0739b10f327972e338b01c16269d8bcfc6620325eceed0c6a26a2",
+          "size": 1555,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/doc/cachy-asahi-welcome/updates.txt": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "fcde7d9aa0c6f1a0fc8090c5dc26f405708f18ea760d74b664732e2824d403b8",
+          "size": 1445,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/icons/hicolor/scalable/apps/cachy-asahi-welcome.svg": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "0db6f69c16766172942551b512e89842d086f4a04320a20bfd9a4473b17a1b73",
+          "size": 531,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/licenses/cachy-asahi-welcome/LICENSE": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+          "size": 1081,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/licenses/cachy-asahi-welcome/NOTICE": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "0c1a76c63e14d5d5bdaf0a70521ee4820ca01589dbb0c9ef133d2931865fe212",
+          "size": 828,
+          "type": "0",
+          "uid": 0
+        }
+      },
+      "payload_sources": {
+        "usr/share/applications/io.github.GabrielKahen.CachyAsahiWelcome.desktop": "io.github.GabrielKahen.CachyAsahiWelcome.desktop",
+        "usr/share/doc/cachy-asahi-welcome/README.md": "README.md",
+        "usr/share/doc/cachy-asahi-welcome/first-run.txt": "first-run.txt",
+        "usr/share/doc/cachy-asahi-welcome/recovery.txt": "recovery.txt",
+        "usr/share/doc/cachy-asahi-welcome/updates.txt": "updates.txt",
+        "usr/share/icons/hicolor/scalable/apps/cachy-asahi-welcome.svg": "cachy-asahi-welcome.svg",
+        "usr/share/licenses/cachy-asahi-welcome/LICENSE": "LICENSE",
+        "usr/share/licenses/cachy-asahi-welcome/NOTICE": "NOTICE"
+      },
+      "qualification": "NATIVE_PAIR_INPUT_ONLY_NO_GUI_OR606_AUTHORITY",
+      "recipe_directory": "packages/tools/cachy-asahi-welcome5",
+      "recipe_source": "2f9a1a7b7c0e928758539e005290cc65d9fd0cd4",
+      "recipe_storage_prefix": "recipes",
+      "signature": "signing/cachy-asahi-welcome-0.1.0-5-aarch64.pkg.tar.xz.sig",
+      "signature_trust": "DISPOSABLE_TEST_KEY_NOT_RELEASE_TRUST",
+      "signer": "114955FFB7FC1F461B9CD46808C777CE3FB66DEE",
+      "source_files": {
+        "packages/tools/cachy-asahi-welcome5/.SRCINFO": {
+          "bytes": 3284,
+          "sha256": "8bcd3819165417fa4caa840b42d28fb7459b0da342c34afc2c56c52c6469c9d1"
+        },
+        "packages/tools/cachy-asahi-welcome5/LICENSE": {
+          "bytes": 1081,
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "packages/tools/cachy-asahi-welcome5/Makefile": {
+          "bytes": 3424,
+          "sha256": "bdd1251de23e128b1f7be43f29c823066d39c5ac5efe579beb47be25b8e133e5"
+        },
+        "packages/tools/cachy-asahi-welcome5/NOTICE": {
+          "bytes": 828,
+          "sha256": "0c1a76c63e14d5d5bdaf0a70521ee4820ca01589dbb0c9ef133d2931865fe212"
+        },
+        "packages/tools/cachy-asahi-welcome5/PKGBUILD": {
+          "bytes": 3159,
+          "sha256": "af7b4cd7ff8597569dbb567ce4b94cd2bbf16e254c01b2267beadbd7d06919db"
+        },
+        "packages/tools/cachy-asahi-welcome5/README.md": {
+          "bytes": 7253,
+          "sha256": "c905cbee0bf47c9c07e1171284815a6f626d598accde1bd83d195a6822f93957"
+        },
+        "packages/tools/cachy-asahi-welcome5/cachy-asahi-welcome.svg": {
+          "bytes": 531,
+          "sha256": "0db6f69c16766172942551b512e89842d086f4a04320a20bfd9a4473b17a1b73"
+        },
+        "packages/tools/cachy-asahi-welcome5/check_source.py": {
+          "bytes": 3932,
+          "sha256": "a95472cbeeda449e5f2aa156273f34a6d55131220288ed3164754aecc4bbede0"
+        },
+        "packages/tools/cachy-asahi-welcome5/first-run.txt": {
+          "bytes": 1484,
+          "sha256": "2c123deef2cf02b586250c1128907ba294ced83a3671607dd2aef2f3cfa094eb"
+        },
+        "packages/tools/cachy-asahi-welcome5/io.github.GabrielKahen.CachyAsahiWelcome.desktop": {
+          "bytes": 358,
+          "sha256": "2c2159a75c7b0303eebf47e77e89d6d1f6241372f7ecb006c6b11002135cb441"
+        },
+        "packages/tools/cachy-asahi-welcome5/management-report.c": {
+          "bytes": 15499,
+          "sha256": "9881cb2e76b764b552f7e05b22de09c5359d83d1d7cf942d91a4e39160052151"
+        },
+        "packages/tools/cachy-asahi-welcome5/management-report.h": {
+          "bytes": 794,
+          "sha256": "0163de5b5894c2c1b0302d81799687bc07ea0abbb850f6b2fd0dd4fc1e5a02ca"
+        },
+        "packages/tools/cachy-asahi-welcome5/management.c": {
+          "bytes": 21066,
+          "sha256": "bf5856b30826e799dff74670b2aac8275da8c7d120c0c11b09eb66de3f644f33"
+        },
+        "packages/tools/cachy-asahi-welcome5/management.h": {
+          "bytes": 1642,
+          "sha256": "b5bb9d8dc29750e5db296136aa35a442481ac772644f9dbeb19d114900fc3485"
+        },
+        "packages/tools/cachy-asahi-welcome5/recovery.txt": {
+          "bytes": 1555,
+          "sha256": "09e5160543b0739b10f327972e338b01c16269d8bcfc6620325eceed0c6a26a2"
+        },
+        "packages/tools/cachy-asahi-welcome5/status.c": {
+          "bytes": 6735,
+          "sha256": "2bfd5f64c724670546057d01312fc6b9591416f6113c65eae8cbb9a53f3909cf"
+        },
+        "packages/tools/cachy-asahi-welcome5/status.h": {
+          "bytes": 833,
+          "sha256": "da0c71ef784debe9ea8ec0be34d8326afe5520ad463efc4a2d432805324b8b78"
+        },
+        "packages/tools/cachy-asahi-welcome5/test_cli.py": {
+          "bytes": 3170,
+          "sha256": "722182698ca07b14b03787a52f5b3976f2f039ae048f142f2dee72e6176fa972"
+        },
+        "packages/tools/cachy-asahi-welcome5/test_management.c": {
+          "bytes": 13964,
+          "sha256": "f784eb12fcda76574fed49603ce6f276b87cd8649695e7bb63a659c70d83c1d1"
+        },
+        "packages/tools/cachy-asahi-welcome5/test_management_report.c": {
+          "bytes": 14345,
+          "sha256": "f60e4915427dba8244a99f803a63c24a58b807accf3a0c9f958f85496af73212"
+        },
+        "packages/tools/cachy-asahi-welcome5/test_management_ui.c": {
+          "bytes": 11251,
+          "sha256": "53d08f3d985cd7f081a777c59b6c375a3b2ad71b0541279e37aa273bcead06fb"
+        },
+        "packages/tools/cachy-asahi-welcome5/test_report_work.c": {
+          "bytes": 4943,
+          "sha256": "0cb5df7b5e3c302c1732a5f85f684421a58c34404582300fb47f24d580e48ea2"
+        },
+        "packages/tools/cachy-asahi-welcome5/test_status.c": {
+          "bytes": 5152,
+          "sha256": "710eba6eafd4389bf2bf73bc39c7e727d4d60097cb783c035da60bc4ba8d740e"
+        },
+        "packages/tools/cachy-asahi-welcome5/updates.txt": {
+          "bytes": 1445,
+          "sha256": "fcde7d9aa0c6f1a0fc8090c5dc26f405708f18ea760d74b664732e2824d403b8"
+        },
+        "packages/tools/cachy-asahi-welcome5/welcome.c": {
+          "bytes": 24289,
+          "sha256": "adb0a08228701c7917997c303f77dcdac8232fd271656b528e54ad08f01e1292"
+        }
+      },
+      "version": "0.1.0-5"
+    }
+  },
+  "schema_version": 1,
+  "signature_cryptographic_reverification": "NOT_RUN_SOURCE_ENFORCED_NATIVE_TEST_SIGNATURES_RETAINED_AS_INPUTS"
+}

@@ -1,0 +1,71 @@
+{
+  "actual_architecture": "aarch64",
+  "actual_page_size": 4096,
+  "builds": "FOUR_DISTINCT_SAME_JOB_NATIVE_BUILDERS_TWO_COMPLETE_BYTE_PAIRS",
+  "candidate_program_sha256": "d708cbe54a8e96a62ff7d85e4eadfb7a980401adb3a9fe8465052f754b4c8c88",
+  "full604": "NOT_RUN",
+  "generic16k": "NOT_RUN",
+  "hardware": "NOT_RUN",
+  "installed_controls": {
+    "ordinary_homes": 2,
+    "v1": 21,
+    "v2": 27
+  },
+  "lifecycle": {
+    "bytes": 5125,
+    "sha256": "1666701f556bda40f92e18fdc567dbf12dd7f4cd3e5e6b75e7df45078705672a"
+  },
+  "limits": [
+    "PRIVATE574_PRESERVATION_MAPS_UNEXPORTED",
+    "INSTALLED_SUITE_TEXT_UNEXPORTED_STREAM_IDENTITIES_RETAINED",
+    "TEST_SIGNATURES_SOURCE_ENFORCED_NOT_INDEPENDENT_CRYPTO_OR_RELEASE_TRUST",
+    "NO_INDEPENDENT_MACHINE_ATTESTATION"
+  ],
+  "live_DNS": "NOT_RUN",
+  "original_transport": {
+    "artifact.zip": {
+      "bytes": 294326,
+      "sha256": "4967bb8d83b4fff2ba94e775d462f058be473762fd3477a25e13e76c0c2abf01"
+    },
+    "artifacts.json": {
+      "bytes": 778,
+      "sha256": "bbedb2c01cc77a858942c913dbf20cf4bfd45ffa2835e4d0a70c535e10a2fcbe"
+    },
+    "logs.zip": {
+      "bytes": 91244,
+      "sha256": "9b87aad6b67506d6b621ab626e5c5f80a5fb38207c72eb5f3afe38593d39c3f4"
+    },
+    "run.json": {
+      "bytes": 12975,
+      "sha256": "6570bcae8c63e1e3f35ef927f11b68c6fd837cf75195659f42f7e1c8c1d28ae6"
+    }
+  },
+  "performance": "NOT_MEASURED",
+  "private_NetworkManager": "1.58.1-2",
+  "private_discovery_cases": 7,
+  "private_network_and_base574": "SOURCE_ENFORCED_PRESERVED_RAW_MAPS_UNEXPORTED",
+  "private_profile": {
+    "bytes": 12413,
+    "sha256": "a5b3bdb10d6ba8db3c52e749336e16e3acc826111cb7cd102a8a25871fffee89"
+  },
+  "production_PolicyKit": "NOT_RUN",
+  "program_delivery": "SOURCE_BYTES_EQUAL_VERIFIED_NATIVE_BUILD_A_PAYLOAD_READONLY_MOUNT",
+  "recipe_source": "351cf8c52edc82ca7a776e782df82d731a72e54b",
+  "release": "NOT_ADMITTED",
+  "retirement": "DIRECT_WAIT0_WORKER_DAEMON_GROUP_ABSENCE_THEN_SEVEN_CONSUMERS_BEFORE_PRODUCER",
+  "run": 39101228683,
+  "source": "59a9aee351226e93e22574fd14bd3e0b45c8368d",
+  "status": "ROOT_ACCEPTED_NATIVE_DNS1_TO2_UPGRADE_AND_REAL_PRIVATE_DISCOVERY_RETAINED_SCOPE",
+  "strict_replay": {
+    "bytes": 633,
+    "sha256": "782352c6a2bb3c3bdc4f1402d17a1bbae76a067df41164359bf1cdded0cc616e"
+  },
+  "supervision": "ORIGINAL_SIX_CAP_SUPERVISOR_ZERO_EPIA_NNP1_NM_WORKER_AND_DAEMONS",
+  "transitions": [
+    575,
+    575,
+    574,
+    575,
+    574
+  ]
+}

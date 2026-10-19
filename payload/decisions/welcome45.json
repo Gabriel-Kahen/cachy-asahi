@@ -1,0 +1,114 @@
+{
+  "CLI_controls_each_home": 5,
+  "GUI": "NOT_RUN",
+  "actual16k_execution": "NOT_RUN",
+  "actual_package": "cachy-asahi-welcome",
+  "architecture": "aarch64",
+  "attempt": 1,
+  "base574_payload_raw_database_users_and_system_trust": "SOURCE_ENFORCED_PRESERVED",
+  "byte_identical_versioned_pairs": 2,
+  "compiled_schema_controls": {
+    "0.1.0-4": 8,
+    "0.1.0-5": 12
+  },
+  "consumer_cleanup": "SIX_CONSUMERS_REVERSED_BEFORE_PRODUCER_RETAINED_SOURCE_BOUND_RECEIPTS",
+  "events": [
+    {
+      "base574_preserved": true,
+      "count": 575,
+      "phase": "install-v4",
+      "production_trust_preserved": true,
+      "recipe_role": "cachy-asahi-welcome",
+      "user_preserved": true,
+      "version": "0.1.0-4"
+    },
+    {
+      "base574_preserved": true,
+      "count": 575,
+      "phase": "upgrade-v4-to-v5",
+      "production_trust_preserved": true,
+      "recipe_role": "cachy-asahi-welcome5",
+      "user_preserved": true,
+      "version": "0.1.0-5"
+    },
+    {
+      "base574_preserved": true,
+      "count": 574,
+      "phase": "remove-v5",
+      "production_trust_preserved": true,
+      "user_preserved": true
+    },
+    {
+      "base574_preserved": true,
+      "count": 575,
+      "phase": "reinstall-v5",
+      "production_trust_preserved": true,
+      "recipe_role": "cachy-asahi-welcome5",
+      "user_preserved": true,
+      "version": "0.1.0-5"
+    },
+    {
+      "base574_preserved": true,
+      "count": 574,
+      "phase": "final-remove-v5",
+      "production_trust_preserved": true,
+      "user_preserved": true
+    }
+  ],
+  "full604": "NOT_RUN",
+  "hardware": "NOT_RUN",
+  "installed_program_sha256": {
+    "0.1.0-4": "c22aa5dbab5391ff2394290d70b124859faccc980d5ccf6597b94b6fdd842f32",
+    "0.1.0-5": "229b3bdcf1bfa2c70a19933a9b12471baeec24daa17eab074f8cb215a280239d"
+  },
+  "limits": [
+    "PRIVATE574_PAYLOAD_DATABASE_USER_AND_SYSTEM_TRUST_MAPS_SOURCE_ENFORCED_UNEXPORTED",
+    "INSTALLED_SUITE_TEXT_UNEXPORTED_STREAM_IDENTITIES_RETAINED",
+    "TEST_SIGNATURES_SOURCE_ENFORCED_NOT_INDEPENDENT_CRYPTO_OR_RELEASE_TRUST",
+    "NO_INDEPENDENT_MACHINE_ATTESTATION"
+  ],
+  "live_DNS": "NOT_RUN",
+  "native_builds": 4,
+  "ordinary_homes": [
+    "fresh",
+    "existing"
+  ],
+  "originals": {
+    "artifact": {
+      "bytes": 438213,
+      "sha256": "1ba8d0d959b6469a65cc53b55ffe0647b6b853ac871bc40b11f205b8f6a7f41b"
+    },
+    "artifact_metadata": {
+      "bytes": 798,
+      "sha256": "00b33c559e5ea8c25d6540002bc72257e573475a0d1aae6b5e7cde8455149258"
+    },
+    "logs": {
+      "bytes": 100652,
+      "sha256": "9bb6cc14243129632f74055ec4196c2793abfafdee1c2fe5f6807755fc0a92c0"
+    },
+    "metadata": {
+      "bytes": 13000,
+      "sha256": "8d8bc846f084d7ca6e723336768af2a249b6158ac70e7f10ca3dc591e9348aba"
+    }
+  },
+  "page_size": 4096,
+  "recipe_source": "2f9a1a7b7c0e928758539e005290cc65d9fd0cd4",
+  "ref": "codex/welcome5-lifecycle-package-role-fix-v1",
+  "release": "NOT_ADMITTED",
+  "root_assertion": "SOURCE_ENFORCED_ACTUAL_EXIT0_NO_SKIP",
+  "root_decision_utc": "2026-10-18T06:42:27.246537+00:00",
+  "run_id": 39104384568,
+  "schema_version": 1,
+  "source": "85ffec834fc72ef8764cdcae828a12ec8ddf7f20",
+  "source_git_files": 99,
+  "source_preflight": "ROOT_GENUINE99_GIT_22_CONTROLS_FOUR_WORKFLOW_HASHES_PASS",
+  "status": "ROOT_ACCEPTED_NATIVE_WELCOME4_TO5_UPGRADE_RETAINED_SCOPE",
+  "strict_reader": {
+    "bytes": 1233,
+    "sha256": "60c6f9ea39da4fa43e63f52e78bf279c873cca5357345b39485e355b6cabf650"
+  },
+  "versions": [
+    "0.1.0-4",
+    "0.1.0-5"
+  ]
+}
