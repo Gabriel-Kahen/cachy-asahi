@@ -333,5 +333,70 @@ class DMLookupControls(unittest.TestCase):
   for bad in(dict(failure,nonce='a'*32),dict(failure,error='x'*4097),dict(failure,cleanup='PASS')):
    with self.assertRaises(ValueError):space['protocol']((json.dumps(bad)+'\n').encode(),{})
 
+
+
+# Fixed diagnostic DATA only; these controls grant no native authority.
+import ast,types
+PHASE_LABELS=(b'OBSERVE_BEGIN', b'OBSERVE_END', b'OBSERVE_FAIL', b'CAPABILITIES_BEGIN', b'CAPABILITIES_END', b'CAPABILITIES_FAIL', b'SELECTED_LINKS_BEGIN', b'SELECTED_LINKS_END', b'SELECTED_LINKS_FAIL', b'AUXILIARY_1_BEGIN', b'AUXILIARY_1_END', b'AUXILIARY_1_FAIL', b'AUXILIARY_2_BEGIN', b'AUXILIARY_2_END', b'AUXILIARY_2_FAIL', b'LIFECYCLE_BEGIN', b'LIFECYCLE_END', b'LIFECYCLE_FAIL', b'READBACK_BEGIN', b'READBACK_END', b'READBACK_FAIL', b'CLEANUP_BEGIN', b'CLEANUP_END', b'CLEANUP_FAIL')
+def marker(node):
+ return isinstance(node,ast.Expr)and isinstance(node.value,ast.Call)and len(node.value.args)in(1,2) and isinstance(node.value.args[0],ast.Constant)and node.value.args[0].value in PHASE_LABELS and (isinstance(node.value.func,ast.Name)and node.value.func.id=='_phase'or isinstance(node.value.func,ast.Subscript)and isinstance(node.value.func.value,ast.Name)and node.value.func.value.id=='api'and isinstance(node.value.func.slice,ast.Constant)and node.value.func.slice.value=='_phase')
+def strip(tree):
+ class Strip(ast.NodeTransformer):
+  def visit_Module(self,node):
+   node.body=[n for n in node.body if not(isinstance(n,ast.Import)and any(a.asname=='_phase_os'for a in n.names))and not(isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id in('_PHASE_LABELS','_PHASE_ROOT_TYPE')for t in n.targets))and not(isinstance(n,ast.FunctionDef)and n.name=='_phase')];return self.generic_visit(node)
+  def visit_Expr(self,node):return None if marker(node)else self.generic_visit(node)
+  def visit_Try(self,node):
+   if len(node.handlers)==1 and len(node.handlers[0].body)==2 and isinstance(node.handlers[0].body[0],ast.Try)and marker(node.handlers[0].body[0].body[0])and isinstance(node.handlers[0].body[1],ast.Raise):
+    return [self.visit(n)for n in node.body]
+   return self.generic_visit(node)
+ return Strip().visit(copy.deepcopy(tree))
+def module(raw):
+ tree=ast.parse(raw);body=[n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name in('raw_maps','observe','_phase')or isinstance(n,ast.Import)and any(a.asname=='_phase_os'for a in n.names)or isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id in('_PHASE_LABELS','_PHASE_ROOT_TYPE')for t in n.targets)];namespace=dict(__name__='_gnu_broker_original_snapshot',C=types.SimpleNamespace(need=D.need),Path=Path);exec(compile(ast.Module(body=body,type_ignores=[]),'<trusted-source-diagnostic-unit-only>','exec'),namespace);return namespace
+class PhaseDiagnosticControls(unittest.TestCase):
+ def test_whole_action_guard_budget_AST_strip_only(self):
+  self.assertEqual(len(runtime_adapter.PHASE_RULES),3)
+  for row in runtime_adapter.PHASE_RULES.values():self.assertEqual(ast.dump(strip(ast.parse(row["after"]))),ast.dump(ast.parse(row["before"])))
+ def operation(self,raw,failure=None,write=None,root=Path('/held')):
+   namespace=module(raw);actions=[];observation=dict(complete=True,nodes={});limits=object()
+   def observe(*args,**kw):actions.append(('full_observe',args[0],kw));return observation
+   def caps(*args):actions.append(('fresh_capabilities',args));return ({},{})
+   def links(*args):actions.append(('selected_links',args))
+   def aux(*args):actions.append(('fresh_auxiliary',args))
+   methods=dict(full_root=types.SimpleNamespace(observe=observe),file_capabilities=types.SimpleNamespace(_scan=caps),root_link_selection=types.SimpleNamespace(check=links),aux_checkpoint=types.SimpleNamespace(checkpoint=aux))
+   if failure:
+    def bad(*a,**kw):raise failure
+    methods['file_capabilities']._scan=bad
+   with patch.object(os,'write',side_effect=write or(lambda fd,data:len(data))):return namespace['observe'](methods,root,limits),actions
+ def test_original_actions_and_return_unchanged(self):
+   old=runtime_adapter.PHASE_RULES['gnu-verity-bootstrap-development-20261018/source_snapshot.py']['before'].encode();new=runtime_adapter.PHASE_RULES['gnu-verity-bootstrap-development-20261018/source_snapshot.py']['after'].encode();a,actions=self.operation(old);writes=[];b,other=self.operation(new,write=lambda fd,data:writes.append((fd,data))or len(data));self.assertEqual(a,b);self.assertEqual([x[0]for x in actions],[x[0]for x in other]);self.assertEqual([data for fd,data in writes],[b'GNU_PHASE_DATA '+(p+'_'+s).encode()+b'\n'for p in('OBSERVE','CAPABILITIES','SELECTED_LINKS','AUXILIARY_1')for s in('BEGIN','END')]);self.assertTrue(all(fd==2 for fd,_ in writes))
+ def test_action_exception_and_cancellation_objects_reraised(self):
+   raw=runtime_adapter.PHASE_RULES['gnu-verity-bootstrap-development-20261018/source_snapshot.py']['after'].encode()
+   for error in(ValueError('original-action-error'),KeyboardInterrupt('original-cancel'),SystemExit(8)):
+    with self.subTest(error=type(error).__name__),self.assertRaises(type(error))as caught:self.operation(raw,failure=error)
+    self.assertIs(caught.exception,error)
+ def test_failure_marker_never_replaces_existing_exception(self):
+   raw=runtime_adapter.PHASE_RULES['gnu-verity-bootstrap-development-20261018/source_snapshot.py']['after'].encode();error=ValueError('ORIGINAL')
+   def write(fd,data):
+    if data.endswith(b'CAPABILITIES_FAIL\n'):raise KeyboardInterrupt('diagnostic-only-failure')
+    return len(data)
+   with self.assertRaises(ValueError)as caught:self.operation(raw,failure=error,write=write)
+   self.assertIs(caught.exception,error)
+ def test_write_oserror_has_no_action_effect_or_retry(self):
+   raw=runtime_adapter.PHASE_RULES['gnu-verity-bootstrap-development-20261018/source_snapshot.py']['after'].encode();attempts=[]
+   def write(fd,data):attempts.append(data);raise OSError('DIAGNOSTIC_LOSS')
+   result,actions=self.operation(raw,write=write);self.assertTrue(result['observation']['complete']);self.assertEqual(len(attempts),8);self.assertEqual(len(actions),4)
+ def test_finite_payloads_no_identity_path_time_or_per_node_counter(self):
+   raw=runtime_adapter.PHASE_RULES['gnu-verity-bootstrap-development-20261018/source_snapshot.py']['after'].encode();namespace=module(raw);writes=[]
+   with patch.object(os,'write',side_effect=lambda fd,b:writes.append(b)or len(b)):
+    for value in PHASE_LABELS:namespace['_phase'](value)
+    namespace['_phase'](b'UNKNOWN');namespace['_phase'](b'/private/path')
+   for value in PHASE_LABELS:namespace['_phase'](value,Path('/work/private-fixture'))
+   class Foreign:
+    def __str__(self):raise AssertionError('NO_USER_DEFINED_CONVERSION')
+    def __eq__(self,other):raise AssertionError('NO_USER_DEFINED_EQUALITY')
+   for value in PHASE_LABELS:namespace['_phase'](value,Foreign())
+   self.assertEqual(len(writes),24);self.assertTrue(all(len(b)<=64 and b.startswith(b'GNU_PHASE_DATA ')and not b.startswith(b'{')for b in writes));self.assertLessEqual(sum(map(len,writes)),1536)
+   quiet=[];result,actions=self.operation(raw,root=Path('/work/private-fixture'),write=lambda fd,b:quiet.append(b)or len(b));self.assertEqual(quiet,[]);self.assertTrue(result['observation']['complete']);self.assertEqual(len(actions),4)
+
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--source',type=Path,default=D.ROOT);a,rest=p.parse_known_args();ROOT=a.source.absolute();unittest.main(argv=[sys.argv[0],*rest],verbosity=2)
