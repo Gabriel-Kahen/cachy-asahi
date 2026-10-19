@@ -84,7 +84,7 @@
   },
   "ref": "codex/current606-ksm-validation3600-v1",
   "release": "NOT_ADMITTED",
-  "reviewed_at": "2026-10-19T23:58:02.561126+00:00",
+  "reviewed_at": "2026-10-19T23:59:07.294953+00:00",
   "run": 39337741854,
   "selected_KSM_transactions": 5,
   "source": "a69921a214a9db4df8be6772bf1b3da344cd0eb4",
@@ -96,5 +96,5 @@
     "sha256": "bf6cb65100d3559440a59c919486ee8a704488203519cffe13cb81302fbf307a"
   },
   "test_domain": "PRIVATE_REGULAR_FILES_ONLY_NO_LIVE_KERNEL_WRITES",
-  "validation_profile": "EXPLICIT_CURRENT606_KSM_WORKER3600_OWNER8400_V1"
+  "validation_profile": "KSM_CURRENT606_WHOLE_PROOF_3600_V1"
 }
