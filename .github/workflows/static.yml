@@ -145,7 +145,7 @@ jobs:
           import hashlib,importlib.util,json,os,subprocess,sys
           from pathlib import Path
           from unittest.mock import patch
-          root=Path(os.environ['RUNNER_TEMP'])/'ksm606-source';raw=(root.parent/'ksm606-authorization.json').read_bytes();assert len(raw)==62168 and hashlib.sha256(raw).hexdigest()=='11e1af5642fb5b74d43c3fa4b5d195f6a7eb8ca54e6e84c11d0cf69871faffa1';rows=json.loads(raw);assert len(rows)==360
+          root=Path(os.environ['RUNNER_TEMP'])/'ksm606-source';raw=(root.parent/'ksm606-authorization.json').read_bytes();assert len(raw)==62169 and hashlib.sha256(raw).hexdigest()=='f3353f6c43425237ee2a3b5bb0c07c8c4399fe7306f78f80469001bb2e25b7bd';rows=json.loads(raw);assert len(rows)==360
           assert {p.relative_to(root).as_posix()for p in root.rglob('*')if p.is_file()}==set(rows)
           assert all(not p.is_symlink()and(p.is_file()or p.is_dir())for p in root.rglob('*'))
           for n,row in rows.items():
@@ -296,6 +296,16 @@ jobs:
         run: |
           python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-boot-report/test_boot_report.py
           bash -n packages/tools/cachy-asahi-boot-report/PKGBUILD
+          python3 -I -B - <<'PYBOOTRECIPE'
+          import importlib.util,json
+          from pathlib import Path
+          root=Path.cwd();spec=importlib.util.spec_from_file_location('trusted_boot_recipe_checks',root/'scripts/checks/package_checks.py');checks=importlib.util.module_from_spec(spec);spec.loader.exec_module(checks)
+          report=checks.recipe(root/'packages/tools/cachy-asahi-boot-report/PKGBUILD')
+          assert report['status']=='static-pass'and report['errors']==[],report
+          assert report['metadata']['pkgname']==['cachy-asahi-boot-report']and report['metadata']['arch']==['any']and report['metadata']['depends']==['python>=3.11','systemd>=251']
+          assert report['input_sha256']['.SRCINFO']=='42d541331daf875b951d8583914bd889c24ddd46f7a1a22e11a927396584d046'
+          print(json.dumps(dict(status='PASS_DIRECT_BOOT_RECIPE_METADATA_AND_LOCAL_SOURCES_ONLY',report=report),sort_keys=True))
+          PYBOOTRECIPE
       - name: Check default native Apps parser experiment without actors
         run: |
           python3 -I -B scripts/ci/apps7-parser-native/job.py preflight --source "$PWD"
