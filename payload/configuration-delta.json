@@ -1,0 +1,26 @@
+{
+  "before": {
+    "bytes": 63765,
+    "sha256": "c1ba2738d00616e289582033cc9638a804e964ae8d542ec3dfaf51e25cbf8606"
+  },
+  "boot": "NOT_RUN",
+  "changed": {
+    "CONFIG_ADVISE_SYSCALLS": {
+      "before": "n",
+      "proposed": "y"
+    },
+    "CONFIG_KSM": {
+      "before": "n",
+      "proposed": "y"
+    },
+    "CONFIG_XXHASH": {
+      "before": "n",
+      "proposed": "y"
+    }
+  },
+  "proposed": {
+    "bytes": 63793,
+    "sha256": "5f1f5e507586734c0955607960ceecfe822b5c908bfc1da9d29fe80ac627a8e9"
+  },
+  "status": "PASS_ACTUAL_SAME_BUILD_ENV_BASELINE_CONFIG_DELTA"
+}
