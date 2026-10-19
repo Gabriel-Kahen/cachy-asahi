@@ -1,0 +1,62 @@
+{
+  "actual_lifecycle": "NOT_RUN",
+  "archive": {
+    "bytes": 24128,
+    "sha256": "bac3d222b6490412c1c9c7bafd72d8169e8679a1e7b411b5794246aed0b57b5f"
+  },
+  "created": 1792434846,
+  "current_verification": {
+    "returncode": 0,
+    "status_stdout": "[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED D0B033AD1C44F88A1B64A645D72B18C8C32E249A 0\n[GNUPG:] SIG_ID 0eg8WgSawdnGNZ12+PWuDERUOvY 2026-10-19 1792434846\n[GNUPG:] GOODSIG D72B18C8C32E249A TEST ONLY KSM signature renewal <ksm-renewal@test.invalid>\n[GNUPG:] VALIDSIG D0B033AD1C44F88A1B64A645D72B18C8C32E249A 2026-10-19 1792434846 0 4 0 22 10 00 D0B033AD1C44F88A1B64A645D72B18C8C32E249A\n[GNUPG:] TRUST_UNDEFINED 0 pgp\n",
+    "stderr": {
+      "bytes": 442,
+      "sha256": "23e4eb79f29b89df33eec407478764383566e9f07387feeb8c2256b515df299a"
+    }
+  },
+  "hardware": "NOT_RUN",
+  "historical_expired_signature_verification": {
+    "acceptance": "REFUSED_EXPIRED_KEY_EVEN_IF_GPG_EXIT_ZERO",
+    "returncode": 0,
+    "status_stdout": "[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED 7E73A80AF8FD5DA6529EF27E1AB823DC28925AA5 0\n[GNUPG:] KEYEXPIRED 1792422808\n[GNUPG:] SIG_ID ZOlzNBkBfvEjzwFHcgemyrJ7pXE 2026-10-18 1792336408\n[GNUPG:] EXPKEYSIG 1AB823DC28925AA5 TEST ONLY composition <composition@test.invalid>\n[GNUPG:] VALIDSIG 7E73A80AF8FD5DA6529EF27E1AB823DC28925AA5 2026-10-18 1792336408 0 4 0 22 10 00 7E73A80AF8FD5DA6529EF27E1AB823DC28925AA5\n",
+    "stderr": {
+      "bytes": 321,
+      "sha256": "8b8600cfcb32afe0be5381a930053da17baf2ea55eb3677d73aeed192c4e1e55"
+    }
+  },
+  "historical_native": {
+    "archive_bodies": "EXACT_BYTE_HELD",
+    "build_credit": "HISTORICAL_NATIVE_BUILD_ONLY_NO_NEW_BUILD",
+    "native_decision": {
+      "bytes": 4672,
+      "path": "Root-acceptance.json",
+      "sha256": "f251675c58cb4086a8885b903d2e9649ad2186526e54e50fa57364e780a13261"
+    },
+    "recipe_sources": {
+      "baseline": "e753936b4d90d0b5127647581bed2a7fda64ce70",
+      "candidate": "e753936b4d90d0b5127647581bed2a7fda64ce70"
+    },
+    "run": 39139213293,
+    "source": "72ea5a1e81268f08da9b9cc04cdc7e23a1a9ff8a"
+  },
+  "old_signer": "7E73A80AF8FD5DA6529EF27E1AB823DC28925AA5",
+  "original_carrier": "7a976288a9e67b93e23860c7ee1664775ccb2dbd",
+  "private_material": "GENERATED_IN_OWNED0700_HOME_NEVER_EXPORTED_RETIRED_AFTER_SIGNING",
+  "public_key": {
+    "bytes": 441,
+    "sha256": "f4a8ffaa7a9b476f26523bfbe4bc41efb7cd0364f25c04502f1a3c28351ef4f5"
+  },
+  "purpose": "ARCHITECTURE_NEUTRAL_EPHEMERAL_TEST_SIGNATURE_RENEWAL_ONLY",
+  "release": "NOT_ADMITTED",
+  "schema_version": 1,
+  "signature": {
+    "bytes": 119,
+    "sha256": "5c6163ec3b4da098fd1f02f59d4fe71b3cd328a00eac6f1900856da8aff79bbf"
+  },
+  "signer": {
+    "authority": "EPHEMERAL_TEST_ONLY_NOT_PRODUCTION_TRUST",
+    "created": 1792434846,
+    "expires": 1793039646,
+    "fingerprint": "D0B033AD1C44F88A1B64A645D72B18C8C32E249A",
+    "validity_seconds": 604800
+  }
+}
