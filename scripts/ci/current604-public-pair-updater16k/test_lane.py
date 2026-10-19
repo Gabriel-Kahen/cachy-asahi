@@ -238,6 +238,69 @@ class PersistentObservation(unittest.TestCase):
   finally:sys.path.pop(0)
   fresh,copyfresh,_,_=scope.persistent_apis(roots,copier,None,None);return scope,roots,copier,fresh,copyfresh
  def limits(self,roots):return roots.Limits(deadline=time.monotonic()+20,max_nodes=1000,max_bytes=8*1024**2,max_file_bytes=1024**2,max_package_files=1000)
+ def test_internal_copy_complete_private_namespace_and_real_hardlink_equivalence(self):
+  scope,roots,copier,fresh,copyfresh=self.apis()
+  namespace=copyfresh.copy_data.__globals__;self.assertIs(namespace['roots'],fresh)
+  for name in('_parent','_root_check','_source_alias','_copy_internal','copy_data'):
+   old=getattr(copier,name);new=getattr(copyfresh,name)
+   if name=='_parent':old,new=old.__wrapped__,new.__wrapped__
+   self.assertIs(old.__code__,new.__code__);self.assertIs(new.__globals__,namespace);self.assertIsNot(old.__globals__,namespace)
+  with tempfile.TemporaryDirectory()as td:
+   base=Path(td);os.chmod(base,0o700);source=base/'source';source.mkdir();(source/'dir').mkdir();(source/'dir/a').write_bytes(b'fresh copy bytes');os.link(source/'dir/a',source/'dir/b');(source/'alias').symlink_to('dir/a')
+   calls=[];query=fresh._mount_id
+   def fresh_query(fd,limits):calls.append((fd,os.fstat(fd).st_ino));return query(fd,limits)
+   fresh._mount_id=fresh_query
+   # observe carries its own exact private globals; copy functions must also
+   # reach the private facade rather than silently escaping into originals.
+   copied=[]
+   for name,m in(('old',copier),('new',copyfresh)):
+    target=base/name;report=m.copy_data(source,target,limits=self.limits(roots),hardlinks='generic-development-internal')
+    value=roots.observe(target,limits=self.limits(roots),hardlinks='generic-development-internal');self.assertTrue(value['eligible']);copied.append((report,value['nodes']))
+    self.assertEqual((target/'dir/a').stat().st_ino,(target/'dir/b').stat().st_ino);self.assertEqual(os.readlink(target/'alias'),'dir/a')
+   self.assertEqual(copied[0][1],copied[1][1]);self.assertEqual(copied[0][0]['copied_nodes'],copied[1][0]['copied_nodes']);self.assertGreater(len(calls),20)
+   os.link(source/'dir/a',base/'external')
+   for m in(copier,copyfresh):
+    with self.assertRaisesRegex(ValueError,'unsupported or incomplete root observation'):m.copy_data(source,base/('refused'+str(id(m))),limits=self.limits(roots),hardlinks='generic-development-internal')
+   fd=os.open(source,os.O_RDONLY|os.O_DIRECTORY);other=os.open('/proc',os.O_RDONLY|os.O_DIRECTORY)
+   try:
+    first=namespace['roots']._mount_id(fd,self.limits(roots));os.dup2(other,fd);second=namespace['roots']._mount_id(fd,self.limits(roots));self.assertNotEqual(first,second);self.assertEqual(second,roots._mount_id(fd,self.limits(roots)))
+   finally:os.close(other);os.close(fd)
+   for m in(copier,copyfresh):
+    with self.assertRaisesRegex(ValueError,'root observation deadline'):m.copy_data(source,base/('deadline'+str(id(m))),limits=roots.Limits(deadline=time.monotonic()-1),hardlinks='generic-development-internal')
+
+ def test_selected604_actual_apis_origin_and_complete_source_inverse(self):
+  import shutil,sys,types
+  raw=(ROOT/'scripts/update/full_root.py').read_bytes()
+  anchor=b'max_packages: int = 587';self.assertEqual(raw.count(anchor),1)
+  selected=raw.replace(anchor,b'max_packages: int = 604',1)
+  with tempfile.TemporaryDirectory()as td:
+   code=Path(td)/'code'
+   names=['scripts/update/'+n+'.py'for n in('full_root','measure_copy','root_path','capacity','supervision')]+['scripts/install/local_transaction.py','scripts/ci/full-root-upgrade/root_upgrade.py']
+   for name in names:
+    target=code/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(selected if name=='scripts/update/full_root.py'else(ROOT/name).read_bytes())
+   rendered=A.persistent_stage((ROOT/'scripts/ci/full-root-upgrade-caller/persistent_scope.py').read_bytes())
+   helper=types.ModuleType('_selected604_persistent_apis');exec(compile(rendered,'<selected604-original-apis>','exec'),helper.__dict__)
+   with patch.dict(sys.modules):
+    for name in('full_root','measure_copy','root_path','capacity','supervision'):sys.modules.pop(name,None)
+    roots,copier,resolver,driver=helper._apis(code)
+    self.assertEqual(roots.Limits.__dataclass_fields__['max_packages'].default,604)
+    self.assertEqual(Path(roots.__file__),code/'scripts/update/full_root.py')
+    self.assertEqual(Path(copier.__file__),code/'scripts/update/measure_copy.py')
+    with (code/'scripts/update/full_root.py').open('rb')as stream:self.assertEqual(stream.read(),selected)
+    root=Path(td)/'payload';root.mkdir();(root/'ordinary').write_bytes(b'selected604 unchanged payload')
+    observed=roots.observe(root,limits=self.limits(roots),hardlinks='generic-development-internal')
+    self.assertTrue(observed['complete']);self.assertEqual(observed['nodes']['ordinary']['bytes'],29)
+    # Every other source byte and any other composition default still refuses
+    # before libc setup or the first fresh-descriptor query can run.
+    for bad in(raw.replace(anchor,b'max_packages: int = 600'),raw.replace(anchor,b'max_packages: int = 605'),selected+b'\n',selected.replace(b'def observe(',b'def changed_observe(')):
+     (code/'scripts/update/full_root.py').write_bytes(bad)
+     with patch.object(helper,'_mount600',side_effect=AssertionError('source proof precedes query')),self.assertRaisesRegex(ValueError,'whole persistent observation API source'):
+      helper.persistent_apis(roots,copier,resolver,driver)
+    (code/'scripts/update/full_root.py').write_bytes(selected)
+    old=(code/'scripts/update/measure_copy.py').read_bytes();(code/'scripts/update/measure_copy.py').write_bytes(old+b'\n')
+    with patch.object(helper,'_mount600',side_effect=AssertionError('whole copier proof precedes query')),self.assertRaisesRegex(ValueError,'whole persistent observation API source'):
+     helper.persistent_apis(roots,copier,resolver,driver)
+
  def test_whole_rendered_inverse_and_all_walker_copy_code_held(self):
   scope,roots,copier,fresh,copyfresh=self.apis();raw=(ROOT/'scripts/ci/full-root-upgrade-caller/persistent_scope.py').read_bytes();rendered=A.persistent_stage(raw);prior=pre_observation(rendered)
   self.assertEqual(prior.decode().replace(A.PERSISTENT_STAGE_DATA,'',1).replace(A.PERSISTENT_STAGE_WRAPPER,A.PERSISTENT_STAGE_GUARD,1).encode(),raw)
