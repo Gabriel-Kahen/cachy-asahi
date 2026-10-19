@@ -6,7 +6,7 @@ sys.path.insert(0,str(Path(__file__).resolve().parent));import deploy as D,bindi
 ROOT=D.ROOT
 class Tests(unittest.TestCase):
  def test_actual_current_owner_preparer_and_lifecycle_compose(self):
-  v=entry.source(ROOT);self.assertEqual(v['current_provider'],'a8e9_CAA3');self.assertEqual(v['native_owner_seams'],9);self.assertIn('transaction',v['original_lifecycle_bodies_held'])
+  v=entry.source(ROOT);self.assertEqual(v['current_provider'],'a8e9_CAA3');self.assertEqual(v['native_owner_seams'],10);self.assertIn('transaction',v['original_lifecycle_bodies_held'])
  def test_default_boot_refuses_before_output_API_or_environment(self):
   with tempfile.TemporaryDirectory()as td,patch.object(subprocess,'Popen',side_effect=AssertionError('NO_ACTORS')):
    out=Path(td)/'out'
@@ -170,6 +170,31 @@ class MediaPreparationControls(unittest.TestCase):
    self.assertEqual(len(calls),4);self.assertEqual(image.read_bytes(),b'INERT_ORDINARY_IMAGE_DATA');self.assertIsNone(recovery.command)
    with patch.object(recovery,'command',side_effect=AssertionError('no unsafe command')):
     with self.assertRaises(ValueError):recovery.formatter_recovery_directory(image,{'lost+found/foreign':{}},parent)
+ def test_actual_owner_allocation_satisfies_unchanged_strict_media_handoff(self):
+  import ast,types
+  stage,prepare=self.modules()
+  controller=D.load('_private_media_owner_allocation',ROOT/'runtime/immutable/native_controller.py')
+  original=ROOT/'runtime/runtime-vm/scripts/ci/glibc-debian-maintained-installed16k/run.py'
+  raw=D.read(original);derived,proof=controller.derive(raw);self.assertEqual(proof['seams'],10)
+  def allocation(text,output):
+   function=next(n for n in ast.parse(text).body if isinstance(n,ast.FunctionDef)and n.name=='execute')
+   start=next(i for i,n in enumerate(function.body)if isinstance(n,ast.Expr)and isinstance(n.value,ast.Call)and ast.unparse(n.value.func)=='args.output.mkdir')
+   statements=function.body[start:start+6]
+   self.assertEqual([ast.unparse(n)for n in statements[1::2]],["out = args.output", "disks.mkdir()"if text==raw.decode()else "disks.mkdir(mode=448)", "public.mkdir()"])
+   scope=dict(args=types.SimpleNamespace(output=output));exec(compile(ast.Module(body=statements,type_ignores=[]),'<actual-owner-output-allocation>','exec'),scope);return scope['disks']
+  for mask in(0o022,0o002,0o077):
+   with self.subTest(umask=oct(mask)),tempfile.TemporaryDirectory()as td:
+    parent=Path(td);previous=os.umask(mask)
+    try:
+     before=allocation(raw.decode(),parent/'before');after=allocation(derived,parent/'after')
+    finally:os.umask(previous)
+    self.assertEqual(after.stat().st_mode&0o777,0o700);self.assertEqual((after.stat().st_uid,after.stat().st_gid),(os.getuid(),os.getgid()))
+    for directory in(before,after):
+     media=directory/'immutable-media';media.mkdir(mode=0o700);drive=media/'source.hash';drive.write_bytes(b'PRIVATE_HASH_BYTES');drive.chmod(0o600)
+    if mask!=0o077:
+     self.assertNotEqual(before.stat().st_mode&0o777,0o700)
+     with self.assertRaisesRegex(ValueError,'exact original private output owner'):prepare.media_handoff(before,os.getuid(),os.getgid())
+    prepare.media_handoff(after,os.getuid(),os.getgid());self.assertEqual((after/'immutable-media/source.hash').read_bytes(),b'PRIVATE_HASH_BYTES');self.assertEqual((after/'immutable-media/source.hash').stat().st_mode&0o777,0o600)
  def test_real_private_media_handoff_keeps_child_contents_and_metadata(self):
   stage,prepare=self.modules()
   with tempfile.TemporaryDirectory()as td:
