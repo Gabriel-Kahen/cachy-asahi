@@ -364,6 +364,10 @@ jobs:
         run: >-
           python3 -I -B -Werror::ResourceWarning scripts/ci/welcome5-native-gui/test_lane.py
           GuestTrustProjectionControls
+      - name: Check exact DNS report focus scope and original visibility refusals
+        run: >-
+          python3 -I -B -Werror::ResourceWarning scripts/ci/welcome5-native-gui/test_lane.py
+          DNSReportFocusControls
       - name: Checkout whole-pinned public current606 source roles
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
