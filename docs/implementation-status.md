@@ -1,5 +1,7 @@
 # Implementation and acceptance status
 
+October 19: [Doctor2 native builds and offline installed CLI pass](validation/doctor2-native-20261019.md), including byte-identical pairs and honest unavailable-output observations. [Boot-report native builds and installed synthetic-journal lifecycle also pass](validation/boot-report-native-products-20261019.md). Live audio, real boot/crash history, target recovery,16K/M2 and release remain separate.
+
 October 19: [native Welcome5 preservation on current606, including the complete440-source durable artifact continuation, passes](validation/welcome5-current606-native-20261019.md), including signed upgrade/removal/reinstall/original restoration with the other605 protected and all raw auxiliary checks. GUI,16K and M2 remain separate.
 
 October 19: [installed KSM2 scalar lifecycle passes on generic ARM16K](validation/ksm2-generic16k-scalar-20261019.md): signed574/575/574 transactions, real run-scalar apply/restore and foreign-edit refusal. Memory sharing, interruption recovery and M2 remain untested.
