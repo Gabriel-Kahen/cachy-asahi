@@ -199,7 +199,7 @@ class DNSReportFocusControls(unittest.TestCase):
    with self.subTest(change=change),self.assertRaises(ValueError):C.visible_control(row,pid,'View report',window,report_scope=scope)
   with self.assertRaises(ValueError):C.visible_control(proof,pid,'View report',window)
  def test_exact_report_scroll_precedes_original_activation_and_preserves_gates(self):
-  phase=(HERE/'dns_phase.py').read_text();self.assertEqual(phase.count("action('View report',D.TITLE,scroll=True)"),1)
+  phase=(HERE/'dns_phase.py').read_text();self.assertEqual(phase.count("action('View report',D.TITLE,scroll=True)"),2)
   self.assertIn("action('View report',D.TITLE,scroll=True)\n        action('View report',D.TITLE)",phase)
   for held in("until=time.monotonic()+45","remaining(until)","D.process(child,current.process.pid)","C.retirement_proof(fast,proof,child,proof['inventory'])","stable()==baseline","hooks['capture'](D.VIEW,semantic)"):self.assertIn(held,phase)
   for driver in (X.driver(X.source_text(SOURCE,'a11y_driver.c')),):
@@ -207,5 +207,49 @@ class DNSReportFocusControls(unittest.TestCase):
    self.assertIn('candidate_rows[2][13]',driver);self.assertIn('FAILURE_DATA_ONLY',driver);self.assertIn('NONATOMIC_SAME_CALL_AFTER_REFUSED_MATCH',driver);self.assertIn('valid_mask',driver)
    self.assertIn('if (matches != 1 || !target) failed_candidates((guint)pid);',driver)
    self.assertIn('clear_candidates();\n        check(matches == 1 && target',driver)
+
+class DNSReportPreviewControls(unittest.TestCase):
+ def test_exact_quoted_fixed_caption_and_unquoted_snapshot_refusal(self):
+  raw=report();_,summary=D.report(raw)
+  self.assertEqual(summary,'1 stored connection profile. Read only; live DNS was not reapplied.\nbdb74c1f-1e9e-44b1-820a-705dca6cb760 | 802-3-ethernet | "Owned GUI DNS profile"')
+  C=A.load('dns_preview_management',SOURCE/'scripts/ci/welcome-management-native/management_contract.py')
+  expected=dict(text=['Elapsed:',summary,raw.decode()],buttons={D.LABEL:True});snap=dict(status='PASS',pid=80,nodes=[node(t)for t in expected['text']]+[node(name=D.LABEL)])
+  self.assertTrue(D.snapshot(C,snap,80,expected))
+  bad=copy.deepcopy(snap);bad['nodes'][1]=node(summary.replace('"Owned GUI DNS profile"','Owned GUI DNS profile'))
+  with self.assertRaises(ValueError):D.snapshot(C,bad,80,expected)
+ def test_production_route_scrolls_expanded_report_before_preview_without_capture_authority(self):
+  import dns_phase
+  from types import SimpleNamespace
+  class PreviewStop(Exception):pass
+  events=[];calls=[];requests=[];raw=report()
+  C=SimpleNamespace(need=D.need,visible_control=lambda *a,**k:None)
+  def request(kind,**kwargs):
+   requests.append(kind)
+   if kind=='observed':return dict(process=child())
+   return {}
+  def a11y(kind,label=None,**kwargs):
+   calls.append((kind,label,kwargs.get('scope')))
+   return dict(actions=1,action_name='click')
+  def wait(check,healthy,seconds,label):
+   self.assertGreater(seconds,0)
+   if label=='actual DNS report preview':raise PreviewStop()
+   return check()
+  helpers=SimpleNamespace(report_command=lambda *a:raw,completed_report_state=lambda:True,remaining=lambda until:until-__import__('time').monotonic())
+  hooks=dict(a11y=a11y,window=lambda pid:{},wait=wait,healthy=lambda:True,capture=lambda *a:self.fail('no accepting frame in this control'))
+  with patch.dict(sys.modules,{'management_phase':helpers}),self.assertRaises(PreviewStop):
+   dns_phase.exercise(SimpleNamespace(emit=lambda event,**kw:events.append(dict(event=event,**kw))),'minimal',{},Path('/source-control-only'),SimpleNamespace(process=SimpleNamespace(pid=80)),hooks,request,lambda:'unchanged',C)
+  self.assertEqual(calls,[('scroll',D.LABEL,None),('activate',D.LABEL,None),('scroll','View report',D.TITLE),('activate','View report',D.TITLE),('scroll','View report',D.TITLE)])
+  self.assertEqual([e['sequence']for e in events],[1,2,3,4,5]);self.assertEqual(requests[-1],'dns-close')
+  self.assertNotIn('dns_result',[e['event']for e in events])
+ def test_verifier_requires_exact_six_actions_and_post_open_scroll_before_frame(self):
+  tree=ast.parse((HERE/'dns_contract.py').read_text());verify=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='verify')
+  plans=[n.comparators[0]for n in ast.walk(verify)if isinstance(n,ast.Compare)and isinstance(n.left,ast.ListComp)and isinstance(n.comparators[0],ast.List)]
+  self.assertEqual(len(plans),1)
+  expression=ast.Expression(plans[0]);plan=eval(compile(ast.fix_missing_locations(expression),'<exact-six-action-source-plan>','eval'),{'LABEL':D.LABEL,'TITLE':D.TITLE})
+  self.assertEqual(plan,[(D.LABEL,None,True),(D.LABEL,None,False),('View report',D.TITLE,True),('View report',D.TITLE,False),('View report',D.TITLE,True),('View report',D.TITLE,False)])
+  code=(HERE/'dns_contract.py').read_text()
+  self.assertIn('events.index(actions[2])<events.index(actions[3])<events.index(actions[4])<events.index(frame)<events.index(actions[5])<events.index(result)',code)
+  phase=(HERE/'dns_phase.py').read_text();self.assertEqual(phase.count('until=time.monotonic()+45'),1)
+  self.assertIn("semantic=hooks['wait'](page,hooks['healthy'],remaining(until),'actual DNS report preview')",phase)
 
 if __name__=='__main__':unittest.main(verbosity=2)
