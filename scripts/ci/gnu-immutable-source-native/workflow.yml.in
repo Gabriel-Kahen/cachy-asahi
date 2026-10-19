@@ -81,6 +81,16 @@ jobs:
         run: >-
           python3 -I -B "$DEPLOY/archive32.py" --policy "$DEPLOY/archive32-policy.json"
           --inputs "$BUNDLE/scripts/ci/maintained-desktop574-inputs.json" --cache "$RUNNER_TEMP/immutable-archive32"
+      - name: Prefetch exact20 additional original frozen574 archive files
+        timeout-minutes: 4
+        run: >-
+          python3 -I -B "$DEPLOY/archive20.py" --policy "$DEPLOY/archive20-policy.json"
+          --inputs "$BUNDLE/scripts/ci/maintained-desktop574-inputs.json" --cache "$RUNNER_TEMP/immutable-archive20"
+      - name: Prefetch exact8 additional original frozen574 archive files
+        timeout-minutes: 4
+        run: >-
+          python3 -I -B "$DEPLOY/archive8.py" --policy "$DEPLOY/archive8-policy.json"
+          --inputs "$BUNDLE/scripts/ci/maintained-desktop574-inputs.json" --cache "$RUNNER_TEMP/immutable-archive8"
       - name: Seed the six existing private input files using unchanged secrets
         timeout-minutes: 2
         env:
@@ -131,6 +141,16 @@ jobs:
         run: >-
           python3 -I -B "$DEPLOY/pipeline.py" seed-archive --source "$GITHUB_WORKSPACE/immutable-source"
           --cache "$RUNNER_TEMP/immutable-archive32" --base "$RUNNER_TEMP/desktop574"
+      - name: Seed exact20 verified original bytes before unchanged build
+        timeout-minutes: 2
+        run: >-
+          python3 -I -B "$DEPLOY/pipeline.py" seed-archive20 --source "$GITHUB_WORKSPACE/immutable-source"
+          --cache "$RUNNER_TEMP/immutable-archive20" --base "$RUNNER_TEMP/desktop574"
+      - name: Seed exact8 verified original bytes before unchanged build
+        timeout-minutes: 2
+        run: >-
+          python3 -I -B "$DEPLOY/pipeline.py" seed-archive8 --source "$GITHUB_WORKSPACE/immutable-source"
+          --cache "$RUNNER_TEMP/immutable-archive8" --base "$RUNNER_TEMP/desktop574"
       - name: Reuse unchanged owned574 native producer
         timeout-minutes: 40
         env:
