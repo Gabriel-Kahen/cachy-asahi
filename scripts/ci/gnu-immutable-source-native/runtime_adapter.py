@@ -85,10 +85,29 @@ PHASE_RULES={'gnu-verity-bootstrap-development-20261018/source_snapshot.py': {'b
 def phase_derivative(raw,name):
  row=PHASE_RULES[name];D.need(raw.decode()==row['before'],'entire exact prior phase source');new=row['after'].encode();compile(new,name,'exec');return new,[dict(old=row['before'],new=row['after'],count=1)]
 
+# Separate bounded validation profile; no claim that the original600 fits.
+COLD_VALIDATION_PROFILE={'name':'GNU_GENERIC16K_COLD_VALIDATION_1200_V1','seconds':1200,'shared_owner_ceiling':10500,'qemu_ceiling':10800,'fit_600':'NOT_ESTABLISHED'}
+def cold_profile_derivative(raw,name):
+ text=raw.decode();edits=[]
+ D.need('COLD_VALIDATION_PROFILE'not in text and "v.get('cold_validation')"not in text,'cold profile derivative applies exactly once')
+ if name=='immutable/owner.py':
+  pairs=[('P,C,_,B=inputs.broker()\n','P,C,_,B=inputs.broker()\nCOLD_VALIDATION_PROFILE='+repr(COLD_VALIDATION_PROFILE)+'\n'),('time.monotonic() + 600','time.monotonic() + COLD_VALIDATION_PROFILE[\'seconds\']'),("return dict(purpose='GNU_IMMUTABLE_RUNTIME_V1', status=","return dict(cold_validation=dict(COLD_VALIDATION_PROFILE), purpose='GNU_IMMUTABLE_RUNTIME_V1', status=")]
+ elif name=='immutable/native_controller.py':
+  anchor=" P.need(v['purpose']=='GNU_IMMUTABLE_RUNTIME_V1'"
+  pairs=[(anchor," P.need(v.get('cold_validation')=="+repr(COLD_VALIDATION_PROFILE)+",'exact explicit1200 cold-validation TEST profile; no600-fit claim')\n"+anchor)]
+ else:raise ValueError('fixed two profile-owned source bodies only')
+ for before,after in pairs:
+  D.need(text.count(before)==1,'one exact cold TEST profile seam');text=text.replace(before,after);edits.append(dict(old=before,new=after,count=1))
+ restored=text
+ for edit in reversed(edits):
+  D.need(restored.count(edit['new'])==1,'one exact cold profile inverse');restored=restored.replace(edit['new'],edit['old'])
+ D.need(restored.encode()==raw,'entire original cold validation body recovered');compile(text,name,'exec');return text.encode(),edits
+
 def apply(runtime):
  basis=D.obj(D.read(D.HERE/'runtime-basis.json',2*1024**2));before={n:D.pin(D.read(runtime/n,16*1024**2))for n in basis};D.need(before==basis,'whole frozen runtime667 before derivative');changes={}
  for name in FILES:
   p=runtime/'immutable'/name;old=p.read_bytes();new,edits=derive(old,name)
+  if name=='native_controller.py':new,extra=cold_profile_derivative(new,'immutable/native_controller.py');edits+=extra
   if new!=old:p.write_bytes(new);changes['immutable/'+name]=dict(before=D.pin(old),after=D.pin(new),inverse=edits)
  p=runtime/'immutable/inputs.py';old=p.read_bytes();new=input_derivative(old);p.write_bytes(new);changes['immutable/inputs.py']=dict(before=D.pin(old),after=D.pin(new),inverse='ONE_CONTRACT_IMPORT_ENTRY_PLUS_SOURCE_OWNED_CURRENT_MODULE_IMPORT_ISOLATOR')
  # The complete original667 basis was checked above. Derive only the exact
@@ -99,7 +118,9 @@ def apply(runtime):
  p=runtime/'gnu-immutable-source-broker-development-20261018/input-pins.json';old=p.read_bytes();broker=D.obj(old);D.need(broker[BOOT_PATH]==basis[BOOT_PATH],'whole original broker bootstrap source row');broker[BOOT_PATH]=D.pin(new);new=D.encoded(broker);p.write_bytes(new);broker_name=p.relative_to(runtime).as_posix();changes[broker_name]=dict(before=basis[broker_name],after=D.pin(new),inverse='EXACT_SINGLE_BROKER_BOOTSTRAP_SOURCE_ROW_ONLY')
  p=runtime/'immutable/source-pins.json';old=p.read_bytes();table=D.obj(old);D.need(table['files'][BOOT_PATH]==basis[BOOT_PATH]and table['files'][broker_name]==basis[broker_name],'whole original bootstrap and broker source rows');table['files'][BOOT_PATH]=broker[BOOT_PATH];table['files'][broker_name]=D.pin(new);new=D.encoded(table);p.write_bytes(new);changes['immutable/source-pins.json']=dict(before=basis['immutable/source-pins.json'],after=D.pin(new),inverse='EXACT_DM_BOOTSTRAP_AND_BROKER_SOURCE_ROWS_ONLY')
  for name in PHASE_RULES:
-  p=runtime/name;old=p.read_bytes();new,edits=phase_derivative(old,name);p.write_bytes(new)
+  p=runtime/name;old=p.read_bytes();new,edits=phase_derivative(old,name)
+  if name=='immutable/owner.py':new,extra=cold_profile_derivative(new,name);edits+=extra
+  p.write_bytes(new)
   prior=changes.get(name);changes[name]=dict(before=basis[name],after=D.pin(new),inverse=(prior['inverse']if prior else[])+edits)
  p=runtime/'gnu-immutable-source-broker-development-20261018/input-pins.json';old=p.read_bytes();broker=D.obj(old);name='gnu-verity-bootstrap-development-20261018/source_snapshot.py';D.need(broker[name]==basis[name],'whole old source-snapshot input row');broker[name]=changes[name]['after'];p.write_bytes(D.encoded(broker));broker_name=p.relative_to(runtime).as_posix();changes[broker_name]=dict(before=basis[broker_name],after=D.pin(p.read_bytes()),inverse='ONLY_ORIGINAL_BOOTSTRAP_AND_EXACT_PHASE_SNAPSHOT_ROWS')
  p=runtime/'immutable/source-pins.json';table=D.obj(p.read_bytes())
