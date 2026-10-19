@@ -37,16 +37,16 @@
       "sha256": "82f3f16a7749b372fda2f173d892cddc6cc26a2024b5ce2a1395379ba0ef59be"
     },
     "contract.py": {
-      "bytes": 10781,
-      "sha256": "ba7fd83d9a6cd6d83d8e8a1bfb78f0391b9265a17d2c72815f8b4d62e6b41ad2"
+      "bytes": 22481,
+      "sha256": "4421d3af122a555339479871af48f879cc2f4a5e7417aa6e3950cc38961a0b26"
     },
     "guest.py": {
-      "bytes": 27481,
-      "sha256": "8e7572c75747701c7c73c745efa67f4d66d5ab71e56231c924b34c29da70c5d3"
+      "bytes": 32612,
+      "sha256": "a91e86a1db7d5123f02c2d99e101f04ef4075cea3be248cc279b06e4dd5ca24a"
     },
     "host.py": {
-      "bytes": 12797,
-      "sha256": "cf194e29554ea96ce786ce5ddddd48e674b9384da76e54d5fba3e91b04f81ba0"
+      "bytes": 18084,
+      "sha256": "64eda6ea0eb9fc3433ca56b85202e0df972bb70286c6ec3b213b77cec69351eb"
     },
     "input-policy.json": {
       "bytes": 408,
@@ -2406,11 +2406,11 @@
     },
     "runner-files.json": {
       "bytes": 553,
-      "sha256": "d7e992227ea376f7bc03ab7cb7d59fb5e7e51dbb4b579482d8ee744aa4e1a8ed"
+      "sha256": "0f7f1c5c0d675e310a298ef936bc264d667f309bcab9be494152548b8c86fb79"
     },
     "source-files.json": {
       "bytes": 110043,
-      "sha256": "6801834277bd6fa59aad0538303fd81c409c3251fd3ac196ace392f27b29328c"
+      "sha256": "2c88974d70b595e0816e04a828c33584d84ab80a5e8b1c378894295b10d2e0c6"
     },
     "support-pins.json": {
       "bytes": 108127,

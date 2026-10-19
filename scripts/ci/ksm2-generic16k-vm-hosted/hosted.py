@@ -86,6 +86,7 @@ def components(root,v,proof,native,kernel,destination):
  selected(v);root=Path(root);runtime=root/'runtime';sys.path.insert(0,str(runtime));import contract as C
  C.source_check(runtime);C.support(runtime);s=binding(v,proof)
  native_rows=carrier_files(native,v['native_carrier']);kernel_rows=carrier_files(kernel,v['kernel_carrier'])
+ need({n:pin(r)for n,r in native_rows.items()}==C.RENEWAL_FILES and v['native_carrier']=='fe67aaaae7ef4ea94dfc8a42cd2c806cc5436fc7','exact genuine32 renewal carrier role before any staging or actors')
  C.native_gate(s,Path(native)/'payload',runtime)
  K=load('_ksm_hosted_kernel_input',runtime/'kernel_input.py');projected=dict(s)
  for n in('kernel_authority','kernel_transport','kernel_build'):projected[n]=dict(s[n],path=s[n]['path'].removeprefix('kernel/'))

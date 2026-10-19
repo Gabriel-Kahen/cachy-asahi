@@ -1,9 +1,9 @@
 {
-  "carrier": "1c1d5620f18f08966aff49cdb128ac98f5fe4c1c",
+  "carrier": "feb313b3f0e8e08bc2e167039642d86a832df1b9",
   "files": {
     ".github/workflows/native-arm-current606-apps7-owned-copy.yml": {
-      "bytes": 46080,
-      "sha256": "e995917f497183ecf0a0bbfda62331747eb498de4471dc6e165d695c26dfdad0"
+      "bytes": 47090,
+      "sha256": "5022417738b4f41083eeec9711b0c936f1b67a4934d3ee90e8ca19615ee0d470"
     },
     "scripts/ci/current606-apps7-closed-owner/archive20-policy.json": {
       "bytes": 6155,
@@ -58,8 +58,8 @@
       "sha256": "73d4d243588ea82c7c4f7398c379121fdb2403c9ed378bb0e63ec2dce11d1875"
     },
     "scripts/ci/current606-apps7-closed-owner/prepare.py": {
-      "bytes": 29364,
-      "sha256": "a08045f13d107d965bc5c8c51866712140d4e1419554b1d224d7bf8b5fd65a7e"
+      "bytes": 31657,
+      "sha256": "7ebbc0d1313188bcca35744f13495648de61f41f026a3b6ee34720c0cc9ae4cb"
     },
     "scripts/ci/current606-apps7-closed-owner/producer_diagnostic.py": {
       "bytes": 6483,
@@ -74,16 +74,24 @@
       "sha256": "c786a82a2e8c8f5ebb2b936bac04e7909e4ff4fae6dd72dc62820c0fb4da136c"
     },
     "scripts/ci/current606-apps7-closed-owner/source-manifest.json": {
-      "bytes": 62250,
-      "sha256": "48346ef221d2717fb124dfa4b5da874764c16ee5ce8b1d10be8a470eaf8b913a"
+      "bytes": 62781,
+      "sha256": "ab269ca7f81f1a673fba74fc44fa2d745b16d37f89c58495befe344230a7f168"
     },
     "scripts/ci/current606-apps7-closed-owner/source-pins.json": {
-      "bytes": 58974,
-      "sha256": "6c50f7b6bfa4efcf6e8e76f18cd7b12337b71ea18c8b09422acfed1c6bb25af2"
+      "bytes": 59158,
+      "sha256": "49b23802129ccf2e5ecd42a08462cfe322cf2a039d2a79722d5c974728cb2fb5"
     },
     "scripts/ci/current606-apps7-closed-owner/test_owner.py": {
       "bytes": 23085,
       "sha256": "a9d28aac2692d39a8e3a2a83c0bbe336d0da597535be688d23d923a10de17d0f"
+    },
+    "scripts/ci/native-evidence-transport/apps-policy.json": {
+      "bytes": 435,
+      "sha256": "fcee26a99507c33b97fa23605912513d6b7b44d78c7cda924a75437ec55eeedd"
+    },
+    "scripts/ci/native-evidence-transport/transport.py": {
+      "bytes": 17577,
+      "sha256": "f5e9074a13d321be2ef0ce1cb034de1278f88cc9cf484cd36a330fae6b65d0f1"
     }
   },
   "purpose": "SOURCE_CARRIER_ONLY_NOT_NATIVE_AUTHORITY",
