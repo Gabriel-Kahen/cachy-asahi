@@ -77,14 +77,14 @@ def verify(events,lock,C,G):
              snapshot(C,semantic['snapshot'],frame['welcome_pid'],expected)==semantic['summary'],'DNS raw snapshot/report semantics differ')
         need(frame.get('capture_after_ms',0)>=5000 and frame.get('physical_input')==frame.get('hardware')=='NOT_RUN','original firstframe timing/scope required')
         actions=[r for r in events if r.get('stage')==stage and r.get('event')=='dns_action']
-        need([(r.get('label'),r.get('scope'),r.get('scroll'))for r in actions]==[(LABEL,None,True),(LABEL,None,False),('View report',TITLE,False),('View report',TITLE,False)],'actual DNS action sequence differs')
+        need([(r.get('label'),r.get('scope'),r.get('scroll'))for r in actions]==[(LABEL,None,True),(LABEL,None,False),('View report',TITLE,True),('View report',TITLE,False),('View report',TITLE,False)],'actual DNS action sequence differs')
         for i,row in enumerate(actions):
             need(row.get('sequence')==i+1,'DNS action ordinal differs');C.action(row,frame['welcome_pid'],row['label'],row['scope'],row['scroll'])
         fast=result['retirement_observation'];proof=result['retirement_proof'];C.retirement_proof(fast,proof,result['gui_process'],result['inventory'])
         fixture(result['fixture'])
         need(result.get('metadata_readonly')is True and result.get('live_DNS')=='NOT_REAPPLIED_STORED_PROFILE_ONLY'and result.get('hardware')=='NOT_RUN','actual readonly result/scope required')
         G.together(list(frame['windows'].values()),frame['welcome_pid'],frame['doctor_pid'],VIEW)
-        need(events.index(actions[2])<events.index(frame)<events.index(actions[3])<events.index(result),'DNS report capture/retirement order differs')
+        need(events.index(actions[2])<events.index(actions[3])<events.index(frame)<events.index(actions[4])<events.index(result),'DNS report capture/retirement order differs')
         original=next(r for r in events if r.get('stage')==stage and r.get('event')=='management_result')
         need(result['inventory']==original['inventory']and len(result['inventory'])==595,'same complete595 inventory required')
         previous=next(r for r in events if r.get('stage')==stage and r.get('event')=='frame_ready'and r.get('view')=='management-failure')

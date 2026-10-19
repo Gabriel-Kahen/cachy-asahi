@@ -10,7 +10,7 @@ def exercise(base,stage,env,workspace,current,hooks,request,stable,C):
         nonlocal sequence
         proof=hooks['a11y']('scroll'if scroll else'activate',label,scope=scope)
         window=hooks['window'](current.process.pid)if scroll else None
-        if scroll:C.visible_control(proof,current.process.pid,label,window)
+        if scroll:C.visible_control(proof,current.process.pid,label,window,report_scope=scope)
         else:C.need(proof.get('actions')==1 and proof.get('action_name')in('click','activate','press','switch'),'actual DNS action failed')
         sequence+=1;base.emit('dns_action',stage=stage,sequence=sequence,pid=current.process.pid,label=label,scope=scope,scroll=scroll,proof=proof,window=window,physical_input='NOT_RUN')
     def ready():return completed_report_state()
@@ -23,6 +23,7 @@ def exercise(base,stage,env,workspace,current,hooks,request,stable,C):
         D.process(child,current.process.pid)
         until=time.monotonic()+45
         hooks['wait'](ready,hooks['healthy'],remaining(until),'DNS helper and supervisor completion')
+        action('View report',D.TITLE,scroll=True)
         action('View report',D.TITLE)
         expected=dict(text=['Elapsed:',summary,raw.decode()],buttons={D.LABEL:True})
         def page():
