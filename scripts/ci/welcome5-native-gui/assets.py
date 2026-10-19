@@ -12,14 +12,16 @@ def revision(root,expected):
     result=subprocess.run(['git','-C',str(root),'status','--porcelain','--untracked-files=all'],capture_output=True,timeout=10)
     C.need(result.returncode==0 and not result.stdout and len(result.stderr)<=4096,'clean public carrier required')
 
-def prepare(source,public,carrier,out):
+def prepare(source,public,carrier,out,renewal=None):
     policy=C.selection(source);C.need(not out.exists(),'fresh assets required')
     selected=list(policy['inputs'].values());C.need(len({(r['carrier_source'],r['carrier_ref'],r['index_path'],r['index_pin']['sha256'])for r in selected})==1,'one explicit new carrier required')
+    R=C.load('welcome5_gui_renewal_public',source/C.ROLE/'renewal.py');R.selection(source)
+    C.need(renewal is not None,'explicit genuine renewal checkout required');revision(renewal,R.CARRIER)
     revision(public,PUBLIC);revision(carrier,selected[0]['carrier_source'])
-    value=assemble_data(source,public/'payload',carrier/'payload',out,policy)
+    value=assemble_data(source,public/'payload',carrier/'payload',out,policy,renewal)
     return dict(value,status='PREPARED_PUBLIC_NATIVE_INPUTS_ONLY',new_carrier=selected[0]['carrier_source'])
 
-def assemble_data(source,public,packet,out,policy):
+def assemble_data(source,public,packet,out,policy,renewal=None):
     """Pure local data/source proof; never attests a public carrier revision."""
     C.need(not out.exists(),'fresh source-control assets required')
     selected=list(policy['inputs'].values())
@@ -42,4 +44,9 @@ def assemble_data(source,public,packet,out,policy):
     for role in ('welcome5','dns2'):shutil.copytree(packet,out/role)
     # Full new pair/metadata/payload/Root joins also run before any secrets.
     C.stage_data(source,out,out/'checked-candidates',policy)
+    if renewal is not None:
+        R=C.load('welcome5_gui_renewal_data',source/C.ROLE/'renewal.py');R.inspect(renewal,packet,public)
+        destination=out/'renewal';destination.mkdir(mode=0o700)
+        for name in R.overlay(renewal)['files']|{'index.json':R.INDEX}:
+            target=destination/name;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(renewal/name,target)
     return dict(status='PREPARED_NATIVE_DATA_ONLY_PUBLICATION_NOT_ATTESTED',held_carrier=PUBLIC,new_carrier=None,native_GUI='NOT_RUN',historical_GUI_authority='NOT_CONSUMED')
