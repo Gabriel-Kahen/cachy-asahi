@@ -160,4 +160,24 @@ class Controls(unittest.TestCase):
   for selected in ('minimal','overlay'):
    row=json.loads((BASE/('source-control-'+selected+'.json')).read_text());self.assertEqual(row['status'],'PASS_SOURCE_ONLY_NO_ACTORS');self.assertIsNone(row['actuals'])
 
+class GuestTrustProjectionControls(unittest.TestCase):
+ def test_closed_legacy_signer_is_replaced_with_same_current_certificate_for_guest(self):
+  import importlib.util
+  from unittest.mock import patch
+  spec=importlib.util.spec_from_file_location('guest_trust_projection_unit',HERE/'renewal.py');R=importlib.util.module_from_spec(spec);spec.loader.exec_module(R)
+  with tempfile.TemporaryDirectory()as td:
+   base=Path(td);overlay=base/'assets'/'renewal';overlay.mkdir(parents=True);out=base/'output';out.mkdir();(overlay/'TEST-public.asc').write_bytes(b'UNIT_PUBLIC_CERTIFICATE_NOT_CRYPTO_AUTHORITY');(out/'TEST-public.asc').write_bytes(b'UNIT_LEGACY_CERTIFICATE');(out/'control.json').write_bytes(R.encoded(dict(signer='A'*40)))
+   with patch.object(R,'selection'),patch.object(R,'overlay',return_value=dict(roles={},created=1,expires=2)):
+    token=object();self.assertIs(R.apply(base,base/'assets',out,token),token)
+   self.assertEqual((out/'TEST-public.asc').read_bytes(),(overlay/'TEST-public.asc').read_bytes());self.assertEqual((out/'welcome5-TEST.asc').read_bytes(),(overlay/'TEST-public.asc').read_bytes());self.assertEqual(R.read(out/'control.json'),dict(signer=R.SIGNER));self.assertEqual(R.read(out/'trust.json'),[dict(key='welcome5-TEST.asc',signer=R.SIGNER)])
+ def test_extra_or_invalid_guest_control_refuses_before_signature_or_certificate_writes(self):
+  import importlib.util
+  from unittest.mock import patch
+  spec=importlib.util.spec_from_file_location('guest_trust_projection_refusal',HERE/'renewal.py');R=importlib.util.module_from_spec(spec);spec.loader.exec_module(R)
+  for value in(dict(signer='A'*40,extra=True),dict(signer=None),dict(signer=True),dict(signer='A'*39),dict(other='A'*40)):
+   with self.subTest(value=value),tempfile.TemporaryDirectory()as td:
+    base=Path(td);out=base/'output';out.mkdir();(out/'control.json').write_bytes(R.encoded(value));before={p.name:p.read_bytes()for p in out.iterdir()}
+    with patch.object(R,'selection'),patch.object(R,'overlay',return_value=dict(roles={},created=1,expires=2)),self.assertRaises(ValueError):R.apply(base,base/'assets',out,{})
+    self.assertEqual({p.name:p.read_bytes()for p in out.iterdir()},before)
+
 if __name__=='__main__':unittest.main(verbosity=2)
