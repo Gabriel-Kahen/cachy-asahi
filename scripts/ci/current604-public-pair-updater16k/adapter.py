@@ -41,6 +41,57 @@ PERSISTENT_OBSERVATION_API = 'def _mount600(original):\n    import ctypes\n    i
 PERSISTENT_API_OLD = '    return full_root, measure_copy, root_path, driver'
 PERSISTENT_API_NEW = '    return persistent_apis(full_root, measure_copy, root_path, driver)'
 
+PHASE_LABELS=('PATHS','APIS','PARENT','MOUNTS','SOURCE_BEFORE','SOURCE_DB','SELECTION','OWN_BEFORE','COPY','RESTORE','STAGED_OBSERVE','STAGED_EQUALITY','STAGED_DB','OWN_AFTER','SOURCE_AFTER','SOURCE_EQUALITY','MOUNT_EQUALITY','MANIFEST','SOURCE_WALK','SOURCE_HARDLINKS')
+PHASE_HELPER='''_UPDATER_PHASE_BYTES = 4096
+_UPDATER_PHASE_LABELS = LABELS_PLACEHOLDER
+
+def _updater_phase_write(state, label):
+    global _UPDATER_PHASE_BYTES
+    if state not in ('BEGIN','END','FAIL') or label not in _UPDATER_PHASE_LABELS:
+        return
+    raw = ('UPDATER489_STAGE_PHASE '+state+' '+label+'\\n').encode('ascii')
+    if len(raw) > _UPDATER_PHASE_BYTES:
+        return
+    _UPDATER_PHASE_BYTES -= len(raw)
+    try:
+        os.write(2, raw)
+    except OSError:
+        pass
+
+@contextmanager
+def _updater_phase(label):
+    _updater_phase_write('BEGIN', label)
+    try:
+        yield
+    except BaseException:
+        _updater_phase_write('FAIL', label)
+        raise
+    else:
+        _updater_phase_write('END', label)
+
+
+'''.replace('LABELS_PLACEHOLDER',repr(PHASE_LABELS))
+
+def strip_phase(raw):
+ text=raw.decode();assert text.count(PHASE_HELPER)==1,'whole fixed phase helper required';text=text.replace(PHASE_HELPER,'',1);tree=ast.parse(text);lines=text.splitlines(keepends=True);remove=set();depth={}
+ for n in ast.walk(tree):
+  if not isinstance(n,ast.With):continue
+  call=n.items[0].context_expr
+  if not(isinstance(call,ast.Call)and isinstance(call.func,ast.Name)and call.func.id=='_updater_phase'):continue
+  assert len(n.items)==1 and n.items[0].optional_vars is None and len(call.args)==1 and not call.keywords and ast.literal_eval(call.args[0])in PHASE_LABELS,'fixed phase wrapper only'
+  assert lines[n.lineno-1]==' '*n.col_offset+"with _updater_phase("+repr(ast.literal_eval(call.args[0]))+"):\n",'exact phase syntax';remove.add(n.lineno)
+  for i in range(n.lineno+1,n.end_lineno+1):depth[i]=depth.get(i,0)+4
+ return ''.join(line[depth.get(i,0):]if line.strip()else line for i,line in enumerate(lines,1)if i not in remove).encode()
+
+def phase_scope(raw):
+ text=raw.decode();tree=ast.parse(text);functions={n.name:n for n in tree.body if isinstance(n,ast.FunctionDef)};material=functions['materialize'];source=functions['source_manifest'];assert len(material.body)==29 and len(source.body)==13,'whole original phase statement counts'
+ groups=[('PATHS',1,6),('APIS',7,7),('PARENT',8,9),('MOUNTS',10,11),('SOURCE_BEFORE',12,12),('SOURCE_DB',13,13),('SELECTION',14,15),('OWN_BEFORE',16,16),('COPY',17,18),('RESTORE',19,19),('STAGED_OBSERVE',20,20),('STAGED_EQUALITY',21,21),('STAGED_DB',22,22),('OWN_AFTER',23,23),('SOURCE_AFTER',24,24),('SOURCE_EQUALITY',25,25),('MOUNT_EQUALITY',26,26),('MANIFEST',27,28)]
+ wraps=[(label,material.body[a],material.body[b])for label,a,b in groups]+[('SOURCE_WALK',source.body[6],source.body[7]),('SOURCE_HARDLINKS',source.body[8],source.body[11])];lines=text.splitlines(keepends=True)
+ for label,first,last in sorted(wraps,key=lambda r:r[1].lineno,reverse=True):
+  a,b=first.lineno-1,last.end_lineno;old=lines[a:b];lines[a:b]=[' '*first.col_offset+"with _updater_phase("+repr(label)+"):\n"]+['    '+line if line.strip()else line for line in old]
+ out=''.join(lines);anchor='def materialize(';assert out.count(anchor)==1;out=out.replace(anchor,PHASE_HELPER+anchor,1).encode();assert strip_phase(out)==raw,'complete strip-only source inverse';return out
+
+
 def persistent_stage(raw):
  """Exact original persistent helper, one failure-only pre-existing guard seam."""
  C.need(C.sha(raw)=='cd1f23bd252b77e9b3a9e907e1c0defd5141025408e92ae5c2500152076b6f3a','whole original persistent helper source')
@@ -50,7 +101,7 @@ def persistent_stage(raw):
  C.need(text.count(PERSISTENT_API_OLD)==1,'one private observation API seam');text=text.replace(PERSISTENT_API_OLD,PERSISTENT_API_NEW,1)
  ast.parse(text)
  C.need(text.replace(helper,'',1).replace(PERSISTENT_STAGE_WRAPPER,PERSISTENT_STAGE_GUARD,1).replace(PERSISTENT_API_NEW,PERSISTENT_API_OLD,1).encode()==raw,'whole persistent helper inverse')
- return text.encode()
+ return phase_scope(text.encode())
 
 def prepare_selected(selected,source,target,case,**options):
  config,calling=selected.prepare(source,target,case,**options)
