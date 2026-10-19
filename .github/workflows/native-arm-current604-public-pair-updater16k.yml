@@ -67,9 +67,9 @@ jobs:
         run: |
           set -euo pipefail
           test "$(sha256sum expanded604-upgrade/scripts/ci/expanded604-apps6-public-pair-updater/run.py | cut -d ' ' -f 1)" = ed05eaf1c6263ed5ce1dc2e97c863021c03d232cc5ad3554ab681aa4866993fe
-          test "$(sha256sum expanded604-upgrade/scripts/ci/expanded604-apps6-public-pair-updater/source-manifest.json | cut -d ' ' -f 1)" = ec9a759bbb5be161a0a77c2983e731c3b09e71b33688a2ecdf54abce9d1ba41b
+          test "$(sha256sum expanded604-upgrade/scripts/ci/expanded604-apps6-public-pair-updater/source-manifest.json | cut -d ' ' -f 1)" = e575577e178a808e7b10d70daaab75dd25c4c0dd73aa7395b0d1164dd3ad7ff6
           test "$(sha256sum expanded604-upgrade/scripts/ci/current604-public-pair-updater16k/job.py | cut -d ' ' -f 1)" = 47c560fdc227a0b41e2cca9e1797b55adce2b35bb080d950d8ee1d1993c86c13
-          test "$(sha256sum expanded604-upgrade/scripts/ci/current604-public-pair-updater16k/wiring-source-manifest.json | cut -d ' ' -f 1)" = abd6b27535381063da09bd0c37109250b7c274841fee7635fb5187548330f19a
+          test "$(sha256sum expanded604-upgrade/scripts/ci/current604-public-pair-updater16k/wiring-source-manifest.json | cut -d ' ' -f 1)" = 4cee71608b95111d8f90219ff87dbd82b414115e34a5cc377a0104e25f9a7aab
           python3 -I -B expanded604-upgrade/scripts/ci/current604-public-pair-updater16k/job.py preflight \
             --implementation "$GITHUB_WORKSPACE/expanded604-upgrade" --source "$IMPLEMENTATION_SOURCE" \
             --workflow-sha "$WORKFLOW_SOURCE" --case "$UPGRADE_CASE"
@@ -361,6 +361,57 @@ jobs:
           result.update(helper=module.pin(helper.read_bytes()),policy=module.pin(policy.read_bytes()),destination='EXISTING_OWNED_ALARM_CACHE',original_versions='UNCHANGED',original_signature_and_trust_checks='UNCHANGED')
           print(module.encoded(result).decode(),end='')
           PYARCHIVE32
+      - name: Prefetch full20 original frozen574 and seed only exact4 native-base files
+        id: frozen574_archive20_early
+        if: ${{ success() && inputs.mode == 'build' }}
+        timeout-minutes: 4
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive20_owner="$GITHUB_WORKSPACE/expanded604-upgrade/scripts/ci/current604-public-pair-updater16k"
+          archive20_helper="$archive20_owner/archive20.py"
+          archive20_policy="$archive20_owner/archive20-policy.json"
+          archive20_inputs="$GITHUB_WORKSPACE/archive32-original-lock/scripts/ci/maintained-desktop574-inputs.json"
+          printf '%s  %s\n' 'e8ef66fc0431a04deb331f75258457bf4bdeb13a18bcd863fd5bece3b9a54968' "$archive20_helper" '1f966afe0c24bb9a928154cb0638a8bb78292c799ffd544132633caddf6217ae' "$archive20_policy" | sha256sum --check
+          python3 -I -B "$archive20_helper" --policy "$archive20_policy" --inputs "$archive20_inputs" --cache "$RUNNER_TEMP/frozen574-archive20"
+          python3 -I -B - "$archive20_owner/prepare.py" "$archive20_helper" "$archive20_policy" "$archive20_inputs" "$GITHUB_WORKSPACE/scripts/ci/inputs.lock.json" "$RUNNER_TEMP/frozen574-archive20" "$RUNNER_TEMP/alarm-cache" <<'PYARCHIVE20NATIVE'
+          import importlib.util,sys
+          from pathlib import Path
+          prepare,helper,policy,inputs,native,cache,destination=map(Path,sys.argv[1:])
+          sys.path.insert(0,str(prepare.parent))
+          spec=importlib.util.spec_from_file_location('source_owned_archive20_native4',prepare)
+          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+          print(module.encoded(module.seed_archive20_native(helper,policy,inputs,native,cache,destination)).decode(),end='')
+          PYARCHIVE20NATIVE
+      - name: Recover and seed exact8 additional native-base inputs
+        id: frozen574_archive8_early
+        if: ${{ success() && inputs.mode == 'build' }}
+        timeout-minutes: 4
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive8_helper="$GITHUB_WORKSPACE/expanded604-upgrade/scripts/ci/current604-public-pair-updater16k/archive8.py"
+          archive8_policy="$GITHUB_WORKSPACE/expanded604-upgrade/scripts/ci/current604-public-pair-updater16k/archive8-policy.json"
+          archive8_inputs="$GITHUB_WORKSPACE/archive32-original-lock/scripts/ci/maintained-desktop574-inputs.json"
+          printf '%s  %s\n' '5e24808152c727f5dcd19252c66e1ab121bdb9dbd6b90becb943820634898565' "$archive8_helper" '2b21c05d30a9c5efd2f717cfa8475c9de3150d7729f710b348b70a84f5b16e20' "$archive8_policy" | sha256sum --check
+          python3 -I -B "$archive8_helper" --policy "$archive8_policy" --inputs "$archive8_inputs" --cache "$RUNNER_TEMP/frozen574-archive8"
+          python3 -I -B - "$archive8_helper" "$archive8_policy" "$archive8_inputs" "$GITHUB_WORKSPACE/scripts/ci/inputs.lock.json" "$RUNNER_TEMP/frozen574-archive8" "$RUNNER_TEMP/alarm-cache" <<'PYARCHIVE8'
+          import importlib.util,json,sys
+          from pathlib import Path
+          helper,policy,inputs,native,cache,destination=map(Path,sys.argv[1:])
+          spec=importlib.util.spec_from_file_location('source_owned_archive8_seed',helper)
+          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+          selected=module.policy(policy,inputs)
+          raw=module.read(native,1024**2)
+          module.need(module.pin(raw)==dict(bytes=328101,sha256='beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'),'whole original native input lock')
+          rows={}
+          for row in json.loads(raw)['packages']:
+           for suffix,size,digest in(('',row['size'],row['sha256']),('.sig',row['signature_size'],row['signature_sha256'])):rows[row['filename']+suffix]=dict(bytes=size,sha256=digest)
+          module.need(len(selected['files'])==8 and all(rows.get(n)=={k:r[k]for k in('bytes','sha256')}for n,r in selected['files'].items()),'all eight exact native and original574 members')
+          result=module.seed_exact(cache,destination,selected)
+          result.update(destination='EXISTING_OWNED_ALARM_CACHE',original_versions='UNCHANGED',original_signature_and_trust_checks='UNCHANGED')
+          print(module.encoded(result).decode(),end='')
+          PYARCHIVE8
       - name: Build the fresh native base and original package pairs
         id: original_build
         timeout-minutes: 50
@@ -676,9 +727,53 @@ jobs:
           result.update(helper=module.pin(helper.read_bytes()),policy=module.pin(policy.read_bytes()),destination='EXISTING_OWNED_ALARM_CACHE',original_versions='UNCHANGED',original_signature_and_trust_checks='UNCHANGED')
           print(module.encoded(result).decode(),end='')
           PYARCHIVE6
+      - name: Prefetch and seed full20 original frozen574 files before unchanged producer
+        id: frozen574_archive20
+        if: ${{ !cancelled() && steps.frozen574_archive32.outcome == 'success' }}
+        timeout-minutes: 4
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive20_helper="$GITHUB_WORKSPACE/expanded604-upgrade/scripts/ci/current604-public-pair-updater16k/archive20.py"
+          archive20_policy="$GITHUB_WORKSPACE/expanded604-upgrade/scripts/ci/current604-public-pair-updater16k/archive20-policy.json"
+          archive20_inputs="$GITHUB_WORKSPACE/composition-desktop/scripts/ci/maintained-desktop574-inputs.json"
+          printf '%s  %s\n' 'e8ef66fc0431a04deb331f75258457bf4bdeb13a18bcd863fd5bece3b9a54968' "$archive20_helper" '1f966afe0c24bb9a928154cb0638a8bb78292c799ffd544132633caddf6217ae' "$archive20_policy" | sha256sum --check
+          python3 -I -B "$archive20_helper" --policy "$archive20_policy" --inputs "$archive20_inputs" --cache "$RUNNER_TEMP/frozen574-archive20"
+          python3 -I -B - "$archive20_helper" "$archive20_policy" "$archive20_inputs" "$RUNNER_TEMP/frozen574-archive20" "$RUNNER_TEMP/alarm-cache" <<'PYARCHIVE20'
+          import importlib.util,sys
+          from pathlib import Path
+          helper,policy,inputs,cache,destination=map(Path,sys.argv[1:])
+          spec=importlib.util.spec_from_file_location('held_archive20_full_seed',helper)
+          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+          result=module.seed_exact(cache,destination,module.policy(policy,inputs))
+          print(module.encoded(result).decode(),end='')
+          PYARCHIVE20
+      - name: Recover and seed exact8 additional original574 inputs
+        id: frozen574_archive8
+        if: ${{ !cancelled() && steps.frozen574_archive20.outcome == 'success' }}
+        timeout-minutes: 4
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive8_helper="$GITHUB_WORKSPACE/expanded604-upgrade/scripts/ci/current604-public-pair-updater16k/archive8.py"
+          archive8_policy="$GITHUB_WORKSPACE/expanded604-upgrade/scripts/ci/current604-public-pair-updater16k/archive8-policy.json"
+          archive8_inputs="$GITHUB_WORKSPACE/composition-desktop/scripts/ci/maintained-desktop574-inputs.json"
+          printf '%s  %s\n' '5e24808152c727f5dcd19252c66e1ab121bdb9dbd6b90becb943820634898565' "$archive8_helper" '2b21c05d30a9c5efd2f717cfa8475c9de3150d7729f710b348b70a84f5b16e20' "$archive8_policy" | sha256sum --check
+          python3 -I -B "$archive8_helper" --policy "$archive8_policy" --inputs "$archive8_inputs" --cache "$RUNNER_TEMP/frozen574-archive8"
+          python3 -I -B - "$archive8_helper" "$archive8_policy" "$archive8_inputs" "$GITHUB_WORKSPACE/scripts/ci/inputs.lock.json" "$RUNNER_TEMP/frozen574-archive8" "$RUNNER_TEMP/alarm-cache" <<'PYARCHIVE8'
+          import importlib.util,json,sys
+          from pathlib import Path
+          helper,policy,inputs,native,cache,destination=map(Path,sys.argv[1:])
+          spec=importlib.util.spec_from_file_location('source_owned_archive8_seed',helper)
+          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+          selected=module.policy(policy,inputs)
+          result=module.seed_exact(cache,destination,selected)
+          result.update(destination='EXISTING_OWNED_ALARM_CACHE',original_versions='UNCHANGED',original_signature_and_trust_checks='UNCHANGED')
+          print(module.encoded(result).decode(),end='')
+          PYARCHIVE8
       - name: Required separate generic16K Apps5→6 current604 copied-root updater case
         id: composition
-        if: ${{ always() && !cancelled() && steps.root_inputs.outcome == 'success' && steps.kernel_build.outcome == 'success' && steps.frozen574_archive32.outcome == 'success' }}
+        if: ${{ always() && !cancelled() && steps.root_inputs.outcome == 'success' && steps.kernel_build.outcome == 'success' && steps.frozen574_archive32.outcome == 'success' && steps.frozen574_archive20.outcome == 'success' && steps.frozen574_archive8.outcome == 'success' }}
         timeout-minutes: 270
         shell: bash
         env:
