@@ -1162,16 +1162,16 @@
       "sha256": "fbe2bf01f67bc6a05c1bb67d2f10f71de22782b5ecaad10ce3c52c5ca89df525"
     },
     "scripts/ci/welcome5-native-gui/dns_contract.py": {
-      "bytes": 8289,
-      "sha256": "df0efcb4ef93ceddcce2d853e717faf7c38f749b6cd2f0b972997d5bfed8cfe2"
+      "bytes": 8348,
+      "sha256": "6467e70e7cde94e6e24eaf1f3ce2b0cb5ead0d86feecd99ece08aceda20f541c"
     },
     "scripts/ci/welcome5-native-gui/dns_fixture.py": {
       "bytes": 10358,
       "sha256": "fc8cb6a2f1c3833a4cb19facd216d3da4371826fa1993ed92eca4baa1d0aa805"
     },
     "scripts/ci/welcome5-native-gui/dns_phase.py": {
-      "bytes": 3369,
-      "sha256": "8c7a28da65fbd4c6d2a0d2b5c69b0cf56b5bc6146418da0ae34acbb8062f9d94"
+      "bytes": 3419,
+      "sha256": "aabd343ee065d1cd773b43f595c2d237fdae24fdbe9e45e4e8f42e550094c103"
     },
     "scripts/ci/welcome5-native-gui/emit.py": {
       "bytes": 2960,
@@ -1218,8 +1218,8 @@
       "sha256": "7d3b6d1d42497f3cc4b8dd006e2f42db1ebbdfa966bc984ed961477c9f93777f"
     },
     "scripts/ci/welcome5-native-gui/test_lane.py": {
-      "bytes": 18614,
-      "sha256": "f59d76ccbc144249621b14dbea2579fb7b6e4ca8dff482f59b0544d39bcca82f"
+      "bytes": 22339,
+      "sha256": "07e023b3e751be117c7de7882281eadfc7a3fe161e6a570ab4ba6e31099bd09b"
     },
     "scripts/ci/welcome5-native-gui/trust.py": {
       "bytes": 1586,
