@@ -532,6 +532,14 @@
       "bytes": 48131,
       "sha256": "917ba1afa98b445830e7702d6c74be931896340f106daa27bb628c170a4c45fa"
     },
+    "scripts/ci/current604-public-pair-generic16k/archive20-policy.json": {
+      "bytes": 6155,
+      "sha256": "1f966afe0c24bb9a928154cb0638a8bb78292c799ffd544132633caddf6217ae"
+    },
+    "scripts/ci/current604-public-pair-generic16k/archive20.py": {
+      "bytes": 11096,
+      "sha256": "e8ef66fc0431a04deb331f75258457bf4bdeb13a18bcd863fd5bece3b9a54968"
+    },
     "scripts/ci/current604-public-pair-generic16k/archive32-policy.json": {
       "bytes": 9488,
       "sha256": "4f6ce49214422579f1cc448ff95d9f311cbfaf47a0d0c4f32d828c9edf843585"
@@ -547,6 +555,14 @@
     "scripts/ci/current604-public-pair-generic16k/archive6.py": {
       "bytes": 11090,
       "sha256": "5e448ef6677fc26485e044b3ac2d35a07105703d4f1a719bb7c030678eff87ae"
+    },
+    "scripts/ci/current604-public-pair-generic16k/archive8-policy.json": {
+      "bytes": 2589,
+      "sha256": "2b21c05d30a9c5efd2f717cfa8475c9de3150d7729f710b348b70a84f5b16e20"
+    },
+    "scripts/ci/current604-public-pair-generic16k/archive8.py": {
+      "bytes": 11040,
+      "sha256": "5e24808152c727f5dcd19252c66e1ab121bdb9dbd6b90becb943820634898565"
     },
     "scripts/ci/current604-public-pair-generic16k/ci.py": {
       "bytes": 6667,
@@ -577,8 +593,8 @@
       "sha256": "c4a40f7ec429ce53b01091946adb7cb4ca3d3bbabad93ceca45cbffac2a73d9b"
     },
     "scripts/ci/current604-public-pair-generic16k/prepare.py": {
-      "bytes": 15866,
-      "sha256": "b04ef6e5a5275f8c82b6ea41f66cd5e03baf63b8f5ec4da7e2a257b34a489110"
+      "bytes": 29206,
+      "sha256": "10271d6edf163e5d3ee312fcb23252ecd178aa3cc0a4a8d6caaf7dc54e8b223c"
     },
     "scripts/ci/current604-public-pair-generic16k/public-assets-policy.json": {
       "bytes": 258,
@@ -593,8 +609,8 @@
       "sha256": "71d3f0334c5e0931d69bdc3633ac9ab44e6b53031a079074cfbefc6c8d1a6b6a"
     },
     "scripts/ci/current604-public-pair-generic16k/test_lane.py": {
-      "bytes": 101745,
-      "sha256": "8177dafff85465537a6c0721d94a515a8ce28a9ba87b580a0dd2e4adf2c5e873"
+      "bytes": 101784,
+      "sha256": "58be72dacaf6855724971422eb123f21d10505e88f954c1a2ed7dbd4ca1722a1"
     },
     "scripts/ci/desktop-user-session/prepare.py": {
       "bytes": 6300,

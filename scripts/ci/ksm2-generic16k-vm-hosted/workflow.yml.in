@@ -87,6 +87,12 @@ jobs:
           python3 -I -B "$GITHUB_WORKSPACE/$SLICE/archive20.py" --policy "$GITHUB_WORKSPACE/$SLICE/archive20-policy.json"
           --inputs "$GITHUB_WORKSPACE/runtime/borrowed/maintained574-inputs.json"
           --cache "$RUNNER_TEMP/ksm2-archive20"
+      - name: Prefetch exact8 additional frozen574 archive bytes before unchanged producer
+        timeout-minutes: 4
+        run: >-
+          python3 -I -B "$GITHUB_WORKSPACE/$SLICE/archive8.py" --policy "$GITHUB_WORKSPACE/$SLICE/archive8-policy.json"
+          --inputs "$GITHUB_WORKSPACE/runtime/borrowed/maintained574-inputs.json"
+          --cache "$RUNNER_TEMP/ksm2-archive8"
       - name: Original574 producer then owned KSM VM lifecycle
         timeout-minutes: 117
         env:
