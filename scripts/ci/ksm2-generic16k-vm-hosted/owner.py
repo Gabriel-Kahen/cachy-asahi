@@ -5,12 +5,23 @@ import argparse,json,os,signal,stat,sys,time
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parent));import hosted as O
 import archive32 as A
+import archive20 as A20
 
 SECRET_NAMES=('CACHY_OLD_FOUR_SCHEMA','CACHY_OLD_FOUR_SOURCE_EPOCH','CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01','CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02','CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01','CACHY_OLD_FOUR_JBIGKIT_01','CACHY_OLD_FOUR_JBIGKIT_02','CACHY_OLD_FOUR_JBIGKIT_SIG_01','CACHY_OLD_FOUR_LIBTIFF_SIG_01')+tuple('CACHY_OLD_FOUR_LIBTIFF_'+str(n).zfill(2)for n in range(1,16))
 
 class OwnerInterrupted(RuntimeError):pass
 
 def interrupted(signum,_frame):raise OwnerInterrupted('owned KSM hosted interruption '+str(signum))
+
+def seed_archive20(root,runtime,archive32_cache,deps,work):
+ """Seed only whole-pinned original20; no version/trust or producer command changes."""
+ cache=archive32_cache.parent/'ksm2-archive20'
+ policy_path=root/O.LANE/'archive20-policy.json'
+ value=A20.policy(policy_path,runtime/'borrowed/maintained574-inputs.json')
+ custody=A20.seed_exact(cache,deps,value)
+ custody.update(policy=O.pin(O.read(policy_path)),files={n:{k:r[k]for k in('bytes','sha256')}for n,r in value['files'].items()},versions='UNCHANGED_FROZEN574_LOCK',trust='UNCHANGED_ORIGINAL_SIGNATURE_AND_KEYRING_CHECKS')
+ O.save(work/'archive20-custody.json',custody)
+ return custody
 
 def run(a):
  root=a.source.absolute();v=O.selected(O.policy(root));proof=O.prove(root,os.environ);runtime=root/'runtime';sys.path.insert(0,str(runtime));import contract as C
@@ -40,6 +51,7 @@ def run(a):
   archive_custody=A.seed_exact(a.archive_cache,producer/'context/deps',archive_policy)
   archive_custody.update(policy=O.pin(O.read(root/O.LANE/'archive32-policy.json')),files={n:{k:r[k]for k in('bytes','sha256')}for n,r in archive_policy['files'].items()},versions='UNCHANGED_FROZEN574_LOCK',trust='UNCHANGED_ORIGINAL_SIGNATURE_AND_KEYRING_CHECKS')
   O.save(a.work/'archive32-custody.json',archive_custody)
+  seed_archive20(root,runtime,a.archive_cache,producer/'context/deps',a.work)
   command(['/usr/bin/python3','-I','-B',str(runtime/'borrowed/maintained_desktop574.py'),'build','--inputs',str(runtime/'borrowed/maintained574-inputs.json'),'--output',str(producer),'--job-token',proof['job_token']],2300)
   p=a.inputs/'producer/report.json';p.parent.mkdir(mode=0o700);raw=O.read(producer/'report.json');p.write_bytes(raw);p.chmod(0o600);s['producer_report']=dict(path='producer/report.json',**O.pin(raw));O.save(a.work/'runtime-binding.json',s)
   configure=O.load('_ksm_hosted_configure',runtime/'configure.py');selection=a.work/'selection.json';configure.configure(a.work/'runtime-binding.json',a.inputs,selection)

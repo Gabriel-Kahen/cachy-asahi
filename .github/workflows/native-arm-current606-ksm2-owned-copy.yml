@@ -60,7 +60,7 @@ jobs:
           WORKFLOW_SOURCE: ${{ github.sha }}
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '90660b5073cea66926071b90bcc4e998358592fb8371a5d9a46b556d933c687d' 'expanded604-code/scripts/ci/current606-ksm2-closed-owner/owner.py' 'f3ad90e0e5c1d246d6086d376ebe935095ec579691d537871c61aa5c3f77eaa6' 'expanded604-code/scripts/ci/current606-ksm2-closed-owner/source-manifest.json' | sha256sum --check
+          printf '%s  %s\n' '90660b5073cea66926071b90bcc4e998358592fb8371a5d9a46b556d933c687d' 'expanded604-code/scripts/ci/current606-ksm2-closed-owner/owner.py' '054fb9cf8d54f518a7e3223e37023163e4c58e31c31c3b2a1530c281304c5857' 'expanded604-code/scripts/ci/current606-ksm2-closed-owner/source-manifest.json' | sha256sum --check
           python3 -B expanded604-code/scripts/ci/current606-ksm2-closed-owner/owner.py --source-preflight
           python3 -B expanded604-code/scripts/ci/current606-ksm2-closed-owner/owner.py --require-selection
           printf '%s  %s\n' 'ce1cbfdb602b3e67ea844eae7b9bc37768194f95009bdec642997a23801bf02a' 'expanded604-code/held606/scripts/ci/current606-native/run.py' '09dae54c10f76d1a7b0bedd012f82aa513f5cc93102ad4ef5e6406dfee8bdd74' 'expanded604-code/held606/scripts/ci/current606-native/source-manifest.json' | sha256sum --check
@@ -230,6 +230,71 @@ jobs:
             TMPDIR="$RUNNER_TEMP" \
             python3 -I -B "$GITHUB_WORKSPACE/retained-public-inputs/seed.py" \
               --cache "$RUNNER_TEMP/alarm-cache"
+      - name: Checkout exact original574 archive lock before native base
+        if: ${{ success() && inputs.mode == 'build' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: 9a2e520dbdfce7e4af417595ff3de9e6a284ef04
+          path: archive32-original-lock
+          persist-credentials: false
+      - name: Prefetch exact original26 native-base plus six extra574 bytes before original build
+        id: frozen574_archive32_early
+        if: ${{ success() && inputs.mode == 'build' }}
+        timeout-minutes: 4
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive32_helper="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-ksm2-closed-owner/archive32.py"
+          archive32_policy="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-ksm2-closed-owner/archive32-policy.json"
+          archive32_inputs="$GITHUB_WORKSPACE/archive32-original-lock/scripts/ci/maintained-desktop574-inputs.json"
+          printf '%s  %s\n' 'b1e2fc13644510a613ce09e53b39d4f4471cf47fc03fa62f312258379666c418' "$archive32_helper" '4f6ce49214422579f1cc448ff95d9f311cbfaf47a0d0c4f32d828c9edf843585' "$archive32_policy" | sha256sum --check
+          python3 -I -B - "$archive32_helper" "$archive32_policy" "$archive32_inputs" "$GITHUB_WORKSPACE/scripts/ci/inputs.lock.json" <<'PYARCHIVE32NATIVE'
+          import importlib.util,json,sys
+          from pathlib import Path
+          helper,policy,inputs,native_inputs=map(Path,sys.argv[1:])
+          spec=importlib.util.spec_from_file_location('held_archive32_native_join',helper)
+          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+          selected=module.policy(policy,inputs)
+          raw=module.read(native_inputs,1024**2)
+          expected=dict(bytes=328101,sha256='beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f')
+          module.need(module.pin(raw)==expected,'whole original native-base lock required')
+          native={}
+          for row in json.loads(raw)['packages']:
+              native[row['filename']]=dict(bytes=row['size'],sha256=row['sha256'])
+              native[row['filename']+'.sig']=dict(bytes=row['signature_size'],sha256=row['signature_sha256'])
+          files={name:{key:row[key]for key in('bytes','sha256')}for name,row in selected['files'].items()}
+          common={name:row for name,row in files.items()if name in native}
+          extra={name:row for name,row in files.items()if name not in native}
+          expected_extra={'firefox-157.0.1-1-aarch64.pkg.tar.xz','firefox-157.0.1-1-aarch64.pkg.tar.xz.sig','libnotify-0.8.8-1-aarch64.pkg.tar.xz','libnotify-0.8.8-1-aarch64.pkg.tar.xz.sig','pcsclite-2.5.2-1-aarch64.pkg.tar.xz','pcsclite-2.5.2-1-aarch64.pkg.tar.xz.sig'}
+          module.need(len(common)==26 and all(native[name]==row for name,row in common.items())and set(extra)==expected_extra,'exact original26 native-base and six extra574 operands')
+          print(module.encoded(dict(status='EXACT_ORIGINAL_NATIVE26_AND_SIX_EXTRA574_DATA_ONLY',native_inputs=expected,original574_inputs=selected['original_inputs'],common26=common,extra6=extra,versions='UNCHANGED',trust='UNCHANGED_ORIGINAL_CHECKS_REQUIRED')).decode(),end='')
+          PYARCHIVE32NATIVE
+          python3 -I -B "$archive32_helper" --policy "$archive32_policy" --inputs "$archive32_inputs" --cache "$RUNNER_TEMP/frozen574-archive32"
+          python3 -I -B - "$archive32_helper" "$archive32_policy" "$archive32_inputs" "$RUNNER_TEMP/frozen574-archive32" "$RUNNER_TEMP/alarm-cache" <<'PYARCHIVE32'
+          import importlib.util,sys
+          from pathlib import Path
+          helper,policy,inputs,cache,destination=map(Path,sys.argv[1:])
+          spec=importlib.util.spec_from_file_location('held_archive32_cache_seed',helper)
+          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+          selected=module.policy(policy,inputs)
+          result=module.seed_exact(cache,destination,selected)
+          result.update(helper=module.pin(helper.read_bytes()),policy=module.pin(policy.read_bytes()),destination='EXISTING_OWNED_ALARM_CACHE',original_versions='UNCHANGED',original_signature_and_trust_checks='UNCHANGED')
+          print(module.encoded(result).decode(),end='')
+          PYARCHIVE32
+      - name: Prefetch full20 and seed exact native4 before unchanged native base
+        id: frozen574_archive20_native
+        if: ${{ success() && inputs.mode == 'build' }}
+        timeout-minutes: 4
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive20_helper="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-ksm2-closed-owner/archive20.py"
+          archive20_policy="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-ksm2-closed-owner/archive20-policy.json"
+          archive20_inputs="$GITHUB_WORKSPACE/archive32-original-lock/scripts/ci/maintained-desktop574-inputs.json"
+          printf '%s  %s\n' 'e8ef66fc0431a04deb331f75258457bf4bdeb13a18bcd863fd5bece3b9a54968' "$archive20_helper" '1f966afe0c24bb9a928154cb0638a8bb78292c799ffd544132633caddf6217ae' "$archive20_policy" | sha256sum --check
+          python3 -I -B "$archive20_helper" --policy "$archive20_policy" --inputs "$archive20_inputs" --cache "$RUNNER_TEMP/frozen574-archive20"
+          python3 -I -B "$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-ksm2-closed-owner/prepare.py" --seed-native-archive20 "$archive20_helper" "$archive20_policy" "$archive20_inputs" "$GITHUB_WORKSPACE/scripts/ci/inputs.lock.json" "$RUNNER_TEMP/frozen574-archive20" "$RUNNER_TEMP/alarm-cache"
       - name: Build the fresh native base and original package pairs
         id: original_build
         timeout-minutes: 50
@@ -452,9 +517,71 @@ jobs:
                   assert name.parts[0] in ('build-1','build-2')
               archive.extractall(target,filter='data')
           PYPAIR
+      - name: Prefetch and seed exact32 frozen574 bytes before unchanged producer
+        id: frozen574_archive32
+        if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' && steps.audio_inputs.outcome == 'success' }}
+        timeout-minutes: 4
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive32_helper="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-ksm2-closed-owner/archive32.py"
+          archive32_policy="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-ksm2-closed-owner/archive32-policy.json"
+          archive32_inputs="$GITHUB_WORKSPACE/composition-desktop/scripts/ci/maintained-desktop574-inputs.json"
+          printf '%s  %s\n' 'b1e2fc13644510a613ce09e53b39d4f4471cf47fc03fa62f312258379666c418' "$archive32_helper" '4f6ce49214422579f1cc448ff95d9f311cbfaf47a0d0c4f32d828c9edf843585' "$archive32_policy" | sha256sum --check
+          python3 -I -B "$archive32_helper" --policy "$archive32_policy" --inputs "$archive32_inputs" --cache "$RUNNER_TEMP/frozen574-archive32"
+          python3 -I -B - "$archive32_helper" "$archive32_policy" "$archive32_inputs" "$RUNNER_TEMP/frozen574-archive32" "$RUNNER_TEMP/alarm-cache" <<'PYARCHIVE32'
+          import importlib.util,sys
+          from pathlib import Path
+          helper,policy,inputs,cache,destination=map(Path,sys.argv[1:])
+          spec=importlib.util.spec_from_file_location('held_archive32_cache_seed',helper)
+          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+          selected=module.policy(policy,inputs)
+          result=module.seed_exact(cache,destination,selected)
+          result.update(helper=module.pin(helper.read_bytes()),policy=module.pin(policy.read_bytes()),destination='EXISTING_OWNED_ALARM_CACHE',original_versions='UNCHANGED',original_signature_and_trust_checks='UNCHANGED')
+          print(module.encoded(result).decode(),end='')
+          PYARCHIVE32
+          archive6_helper="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-ksm2-closed-owner/archive6.py"
+          archive6_policy="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-ksm2-closed-owner/archive6-policy.json"
+          archive6_inputs="$GITHUB_WORKSPACE/composition-updater/scripts/port/updater-extension/builder-extension.lock.json"
+          printf '%s  %s\n' '5e448ef6677fc26485e044b3ac2d35a07105703d4f1a719bb7c030678eff87ae' "$archive6_helper" '4d83dbda592b8b6575d02df65de829226cae3ddffc7268e3d47873ac83f3b322' "$archive6_policy" | sha256sum --check
+          python3 -I -B "$archive6_helper" --policy "$archive6_policy" --inputs "$archive6_inputs" --cache "$RUNNER_TEMP/frozen-updater-archive6"
+          python3 -I -B - "$archive6_helper" "$archive6_policy" "$archive6_inputs" "$RUNNER_TEMP/frozen-updater-archive6" "$RUNNER_TEMP/alarm-cache" <<'PYARCHIVE6'
+          import importlib.util,sys
+          from pathlib import Path
+          helper,policy,inputs,cache,destination=map(Path,sys.argv[1:])
+          spec=importlib.util.spec_from_file_location('held_updater_archive6_seed',helper)
+          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+          selected=module.policy(policy,inputs)
+          result=module.seed_exact(cache,destination,selected)
+          result.update(helper=module.pin(helper.read_bytes()),policy=module.pin(policy.read_bytes()),destination='EXISTING_OWNED_ALARM_CACHE',original_versions='UNCHANGED',original_signature_and_trust_checks='UNCHANGED')
+          print(module.encoded(result).decode(),end='')
+          PYARCHIVE6
+      - name: Prefetch and seed exact20 frozen574 bytes before unchanged producer
+        id: frozen574_archive20
+        if: ${{ !cancelled() && steps.frozen574_archive32.outcome == 'success' }}
+        timeout-minutes: 4
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive20_helper="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-ksm2-closed-owner/archive20.py"
+          archive20_policy="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-ksm2-closed-owner/archive20-policy.json"
+          archive20_inputs="$GITHUB_WORKSPACE/composition-desktop/scripts/ci/maintained-desktop574-inputs.json"
+          printf '%s  %s\n' 'e8ef66fc0431a04deb331f75258457bf4bdeb13a18bcd863fd5bece3b9a54968' "$archive20_helper" '1f966afe0c24bb9a928154cb0638a8bb78292c799ffd544132633caddf6217ae' "$archive20_policy" | sha256sum --check
+          python3 -I -B "$archive20_helper" --policy "$archive20_policy" --inputs "$archive20_inputs" --cache "$RUNNER_TEMP/frozen574-archive20"
+          python3 -I -B - "$archive20_helper" "$archive20_policy" "$archive20_inputs" "$RUNNER_TEMP/frozen574-archive20" "$RUNNER_TEMP/alarm-cache" <<'PYARCHIVE20'
+          import importlib.util,sys
+          from pathlib import Path
+          helper,policy,inputs,cache,destination=map(Path,sys.argv[1:])
+          spec=importlib.util.spec_from_file_location('held_archive20_cache_seed',helper)
+          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+          selected=module.policy(policy,inputs)
+          result=module.seed_exact(cache,destination,selected)
+          result.update(helper=module.pin(helper.read_bytes()),policy=module.pin(policy.read_bytes()),destination='EXISTING_OWNED_ALARM_CACHE',original_versions='UNCHANGED',original_signature_and_trust_checks='UNCHANGED')
+          print(module.encoded(result).decode(),end='')
+          PYARCHIVE20
       - name: Required signed604 plus606 additions and restoration lifecycle
         id: composition604
-        if: ${{ always() && !cancelled() }}
+        if: ${{ always() && !cancelled() && steps.frozen574_archive32.outcome == 'success' && steps.frozen574_archive20.outcome == 'success' }}
         timeout-minutes: 115
         shell: bash
         env:

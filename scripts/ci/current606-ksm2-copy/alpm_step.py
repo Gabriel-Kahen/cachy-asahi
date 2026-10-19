@@ -5,7 +5,7 @@ The closed owner supervises this primitive for90s (same per-transaction limit
 as the accepted Welcome lifecycle), then proves retirement before observation.
 No hooks/scriptlets, architecture/source/library/signature/dependency bypass.
 """
-import ctypes,os,re,stat
+import ctypes,os,re,stat,time
 from pathlib import Path
 import contract as C
 import full_root as roots
@@ -14,6 +14,7 @@ NAME='cachy-asahi-ksmctl'
 
 def apply(root,*,before,after,archive,keys,log):
  C.need(Path(root)==Path('/work/main/root')and Path(keys)==Path('/work/test-verification')and Path(log).parent==Path('/out'),'fixed owned copy/ephemeral TEST verification scope')
+ limits=roots.Limits(deadline=time.monotonic()+90,**C.BOUNDS)
  C.need(len(before)in(605,606)and len(after)in(605,606)and {k:v for k,v in before.items()if k!=NAME}=={k:v for k,v in after.items()if k!=NAME}and len({k:v for k,v in before.items()if k!=NAME})==605,'exact other605 versions held')
  C.need(before.get(NAME)in(None,'0.1.0-1','0.1.0-2')and after.get(NAME)in(None,'0.1.0-1','0.1.0-2'),'only KSM1/2 selection')
  if archive is not None:
@@ -28,7 +29,7 @@ def apply(root,*,before,after,archive,keys,log):
  else:C.need(after.get(NAME)is None and before.get(NAME)is not None,'only explicit selected removal')
  parent=Path(root)/'var/lib/pacman';parent_before=roots._identity(parent.stat());names_before=sorted(os.listdir(parent));C.need('db.lck'not in names_before,'preexisting transaction lock refused')
  lock_seen=False
- engine=roots.Alpm(Path(root),Path(keys),Path(log),'aarch64')
+ engine=roots.Alpm(Path(root),Path(keys),Path(log),'aarch64',limits=limits)
  try:
   C.need(engine.inventory()==before,'exact complete precommit606/605 inventory')
   engine.ok(engine.alpm_trans_init(engine.handle,roots.installer.FLAGS),'transaction lock/NOHOOKS/NOSCRIPTLET');engine.started=True
@@ -44,7 +45,7 @@ def apply(root,*,before,after,archive,keys,log):
   roots.installer.check_prepared(engine.packages(engine.alpm_trans_get_add(engine.handle)),engine.packages(engine.alpm_trans_get_remove(engine.handle)),added,removed)
   details=roots.installer.Ptr();engine.ok(engine.alpm_trans_commit(engine.handle,ctypes.byref(details)),'signed selected commit')
  finally:engine.close()
- engine=roots.Alpm(Path(root),Path(keys),Path(log),'aarch64')
+ engine=roots.Alpm(Path(root),Path(keys),Path(log),'aarch64',limits=limits)
  try:C.need(engine.inventory()==after,'independent complete postcommit inventory')
  finally:engine.close()
  parent_after=roots._identity(parent.stat());C.need(lock_seen and not os.path.lexists(parent/'db.lck')and sorted(os.listdir(parent))==names_before and parent_before[:6]==parent_after[:6],'exact transient lock removed; parent structural identity/names held')
