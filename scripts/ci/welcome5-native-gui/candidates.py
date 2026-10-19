@@ -43,9 +43,12 @@ def selection(source):
         row=value['inputs'][role];need((row.get('name'),row.get('version'),row.get('native_source'),row.get('native_run'))==expected and
             re.fullmatch('[0-9a-f]{40}',row.get('carrier_source')or'')and re.fullmatch('refs/heads/codex/[a-z0-9-]+',row.get('carrier_ref')or''),
             'genuine public native source/run/carrier role required')
+    load('welcome5_gui_renewal_selection',HERE/'renewal.py').selection(source)
     return value
 
-def stage(source,assets,output):return stage_data(source,assets,output,selection(source))
+def stage(source,assets,output):
+    lock=stage_data(source,assets,output,selection(source))
+    return load('welcome5_gui_renewed_signatures',HERE/'renewal.py').apply(source,assets,output,lock)
 
 def stage_data(source,assets,output,policy):
     # Pure package/source inspection API also supports local source calibration.

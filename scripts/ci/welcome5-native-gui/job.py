@@ -25,6 +25,7 @@ def prove(source,profile,environment,runtime=None):
     old=C.load('held_native_source_proof',source/'scripts/ci/welcome-native/ci/caller.py')
     value=old.prove(source,manifest(source),environment)
     value.update(profile=profile,manifest_sha256=C.digest(HERE/'source-manifest.json'),scope='ONE_PROFILE_NOT_FULL_GUI_ACCEPTANCE',source_path=str(source),runtime_path=str(runtime),carrier_source=policy['inputs']['welcome5']['carrier_source'])
+    value['renewal_source']=C.load('welcome5_gui_renewal_proof',HERE/'renewal.py').selection(source)['carrier_source']
     return value
 
 def binding(source,profile,proof):
@@ -112,14 +113,14 @@ def retain(source,profile,proof_path,base,runtime,cleanup_path,out):
 
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('phase',choices=('proof','inputs','run','cleanup','retain'));p.add_argument('--profile',choices=('minimal','overlay'),required=True)
-    for name in ('source','proof','base','runtime','assets','public','carrier','cleanup','output'):p.add_argument('--'+name,type=Path)
+    for name in ('source','proof','base','runtime','assets','public','carrier','renewal','cleanup','output'):p.add_argument('--'+name,type=Path)
     a=p.parse_args();source=a.source.absolute()
     if a.phase=='proof':
         value=prove(source,a.profile,os.environ,a.runtime.absolute()if a.runtime is not None else None);save(a.proof,value)
-        with open(os.environ['GITHUB_OUTPUT'],'a')as stream:stream.write('job_token='+value['job_token']+'\ncarrier_source='+value['carrier_source']+'\n')
+        with open(os.environ['GITHUB_OUTPUT'],'a')as stream:stream.write('job_token='+value['job_token']+'\ncarrier_source='+value['carrier_source']+'\nrenewal_source='+value['renewal_source']+'\n')
     else:
         proof=C.read(a.proof);binding(source,a.profile,proof)
-        if a.phase=='inputs':value=assets.prepare(source,a.public.absolute(),a.carrier.absolute(),a.output.absolute());save(a.output/'provenance.json',value)
+        if a.phase=='inputs':value=assets.prepare(source,a.public.absolute(),a.carrier.absolute(),a.output.absolute(),a.renewal.absolute());save(a.output/'provenance.json',value)
         elif a.phase=='run':
             C.need(proof['runtime_path']==str(a.runtime.absolute()),'actual run runtime differs from source proof')
             return run.execute(source,a.base.absolute(),a.assets.absolute(),a.runtime.absolute(),a.profile,
