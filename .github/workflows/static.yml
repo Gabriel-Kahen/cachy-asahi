@@ -368,6 +368,10 @@ jobs:
         run: >-
           python3 -I -B -Werror::ResourceWarning scripts/ci/welcome5-native-gui/test_lane.py
           DNSReportFocusControls
+      - name: Check exact quoted DNS caption and post-open report scroll ordering
+        run: >-
+          python3 -I -B -Werror::ResourceWarning scripts/ci/welcome5-native-gui/test_lane.py
+          DNSReportPreviewControls
       - name: Checkout whole-pinned public current606 source roles
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -417,6 +421,10 @@ jobs:
           python3 -I -B "$RUNNER_TEMP/current606-apps7-default/scripts/ci/current606-apps7-closed-owner/test_owner.py"
           python3 -I -B "$RUNNER_TEMP/current606-apps7-default/copyworker/scripts/ci/current606-apps7-copy/test_worker.py"
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/current606-apps7-static -p test_registration.py -v
+      - name: Check exact Doctor353 default source without native actors
+        run: |
+          python3 -B scripts/ci/doctor2-current606-source/test_prepare.py --predecessor-root "$GITHUB_WORKSPACE/.ci-inputs/current606-apps7-source-roles"
+          python3 -B scripts/ci/doctor2-current606-source/prepare.py --predecessor-root "$GITHUB_WORKSPACE/.ci-inputs/current606-apps7-source-roles" --output "$RUNNER_TEMP/doctor353-default"
       - name: Checkout corrected whole joint606 source roles without qualification
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
