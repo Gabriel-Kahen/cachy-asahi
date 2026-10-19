@@ -10,6 +10,7 @@ from pathlib import Path
 import contract as C
 import full_root as roots
 from supervised import run
+from no_transaction_exec import deny_exec
 NAME='cachy-asahi-ksmctl'
 
 def apply(root,*,before,after,archive,keys,log):
@@ -43,6 +44,7 @@ def apply(root,*,before,after,archive,keys,log):
   details=roots.installer.Ptr();engine.ok(engine.alpm_trans_prepare(engine.handle,ctypes.byref(details)),'dependency/conflict prepare')
   added={NAME:after[NAME]}if archive is not None else{};removed={NAME:before[NAME]}if archive is None else{}
   roots.installer.check_prepared(engine.packages(engine.alpm_trans_get_add(engine.handle)),engine.packages(engine.alpm_trans_get_remove(engine.handle)),added,removed)
+  deny_exec() # Signed load and exact prepare completed; no commit helper may mutate protected605.
   details=roots.installer.Ptr();engine.ok(engine.alpm_trans_commit(engine.handle,ctypes.byref(details)),'signed selected commit')
  finally:engine.close()
  engine=roots.Alpm(Path(root),Path(keys),Path(log),'aarch64',limits=limits)

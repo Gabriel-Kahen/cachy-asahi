@@ -269,5 +269,69 @@ class Archive8ProducerControls(unittest.TestCase):
   source=inspect.getsource(pipeline.seed_archive8);self.assertIn("producer/'context/deps'",source);self.assertIn('h.seed_exact(cache',source)
 
 
+class DMLookupControls(unittest.TestCase):
+ """Inert ioctl-structure controls only; no kernel DM, mount, block or VM actor."""
+ def api(self):
+  import ast,ctypes,fcntl,stat,types
+  I=binding.runtime(ROOT);R=I.broker()[1].reader();path=ROOT/'runtime/gnu-verity-bootstrap-development-20261018/dm.py';raw=path.read_bytes();space=dict(__name__='_inert_dm_structure',__file__=str(path),need=D.need,Header=R.Header,Target=R.Target,validate_table=R.validate_table,kernel_table=lambda *a:self.fail('NO_ACTUAL_DM_TABLE'))
+  for anchor in(b'from common import need\n',b'from borrowed.reader import Header,Target,validate_table,kernel_table\n'):self.assertEqual(raw.count(anchor),1);raw=raw.replace(anchor,b'')
+  M=types.ModuleType('_inert_dm_structure');vars(M).update(space);exec(compile(raw,str(path),'exec'),vars(M));obj=M.Device.__new__(M.Device);obj.name=M.NAME;obj.uuid='CAA-GNU-VERITY-'+'a'*32;obj.dev=None;obj.created=False;return M,obj,R
+ def invoke(self,M,obj,cmd,*,foreign=None,bad=None):
+  import ctypes,errno,stat,types
+  events=[];closed=[];gates=[];dev=os.makedev(253,7);mapping=dict(name=obj.name,uuid=obj.uuid,dev=dev)
+  if foreign:mapping.update(foreign)
+  def kernel(fd,op,raw,mutate):
+   self.assertEqual((fd,mutate),(73,True));h=M.Header.from_buffer(raw);number=op&255;events.append(dict(cmd=number,name=bytes(h.name),uuid=bytes(h.uuid),dev=h.dev))
+   # Linux v6.18.20 validate_params and __find_device_hash_cell semantics:
+   # CREATE accepts name+UUID; every lookup accepts exactly one identifier.
+   if number==3:
+    if not bytes(h.name):raise OSError(errno.EINVAL,'inert kernel CREATE name required')
+    h.dev=dev
+   else:
+    if sum(bool(v)for v in(bytes(h.name),bytes(h.uuid),h.dev))!=1:raise OSError(errno.EINVAL,'inert kernel exclusive lookup identifier')
+    if h.dev!=mapping['dev']:raise OSError(errno.ENXIO,'inert kernel no mapping')
+    h.name=mapping['name'].encode();h.uuid=mapping['uuid'].encode()
+   if bad=='version':h.version[0]=5
+   if bad=='buffer':h.flags|=M.BUFFER_FULL
+   if bad=='device':h.dev=dev+1
+  info=types.SimpleNamespace(st_mode=stat.S_IFCHR|0o600,st_rdev=os.makedev(10,236)if bad!='control'else 0)
+  def opening(path,flags):self.assertEqual(path,'/dev/mapper/control');return 73
+  with patch.object(M,'pid1',side_effect=lambda:gates.append(True)),patch.object(M.os,'open',side_effect=opening),patch.object(M.os,'fstat',return_value=info),patch.object(M.os,'close',side_effect=lambda fd:closed.append(fd)),patch.object(M.fcntl,'ioctl',side_effect=kernel):
+   try:result=obj.request(cmd)
+   except BaseException as e:e.inert_events=events;raise
+  self.assertEqual(closed,[73]*len(events));self.assertGreaterEqual(len(gates),len(events));return result,events
+ def test_create_metadata_then_exclusive_device_lookup_for_all_commands(self):
+  M,obj,R=self.api();dev,events=self.invoke(M,obj,3);self.assertEqual(events,[dict(cmd=3,name=obj.name.encode(),uuid=obj.uuid.encode(),dev=0)]);obj.dev=dev;obj.created=True
+  for cmd in(4,6,7,9,12):
+   result,events=self.invoke(M,obj,cmd);self.assertEqual(result,dev);self.assertEqual([r['cmd']for r in events],[7,cmd]if cmd in(4,6,9)else[cmd]);self.assertTrue(all(r['name']==r['uuid']==b''and r['dev']==dev for r in events))
+ def test_foreign_mapping_refused_before_any_mutating_ioctl(self):
+  for field,bad in(('name','FOREIGN'),('uuid','FOREIGN')):
+   for cmd in(4,6,9):
+    M,obj,R=self.api();obj.dev=os.makedev(253,7);obj.created=True
+    with self.assertRaisesRegex(ValueError,'foreign mapping')as caught:self.invoke(M,obj,cmd,foreign={field:bad})
+    self.assertEqual([r['cmd']for r in caught.exception.inert_events],[7])
+ def test_bad_control_response_version_capacity_and_device_refuse(self):
+  for bad in('control','version','buffer','device'):
+   M,obj,R=self.api();obj.dev=os.makedev(253,7);obj.created=True
+   with self.assertRaises(ValueError):self.invoke(M,obj,9,bad=bad)
+ def test_uncreated_or_invalid_command_refuses_before_control_open(self):
+  M,obj,R=self.api()
+  with patch.object(M,'pid1'),patch.object(M.os,'open',side_effect=AssertionError('NO_DM_OPEN')):
+   for cmd in(4,6,7,9,12):
+    with self.assertRaises(ValueError):obj.request(cmd)
+   for cmd in(0,1,5,8,13):
+    with self.assertRaises(ValueError):obj.request(cmd)
+ def test_original_pid1_16k_and_verity_backing_checks_remain(self):
+  M,obj,R=self.api();text=(ROOT/'runtime/gnu-verity-bootstrap-development-20261018/dm.py').read_text();tree=__import__('ast').parse(text)
+  f=lambda name:__import__('ast').get_source_segment(text,next(n for n in __import__('ast').walk(tree)if isinstance(n,__import__('ast').FunctionDef)and n.name==name))
+  self.assertIn("os.getpid()==1",f('pid1'));self.assertIn("os.sysconf('SC_PAGE_SIZE')==16384",f('pid1'));self.assertIn("'exact selected backing devices, not foreign target'",f('create'));self.assertIn('kernel_table(self.dev)',f('create'));self.assertIn("need(self.created,'only owned created mapping removed')",f('remove'))
+ def test_closed_fail_without_nonce_still_refuses_with_genuine_error(self):
+  import ast,types
+  path=ROOT/'runtime/immutable/native_controller.py';text=path.read_text();f=next(n for n in ast.parse(text).body if isinstance(n,ast.FunctionDef)and n.name=='protocol');space=dict(P=types.SimpleNamespace(need=D.need,decode=D.obj),json=json);exec(compile(ast.get_source_segment(text,f),str(path),'exec'),space)
+  failure=dict(cleanup='NOT_ACCEPTED_UNKNOWN_STATE_RETAIN_BACKING_FILES',error='[Errno 22] Invalid argument',error_type='OSError',purpose='GNU_IMMUTABLE_RUNTIME_V1',status='FAIL')
+  with self.assertRaisesRegex(ValueError,'guest FAIL DATA only.*OSError'):space['protocol']((json.dumps(failure)+'\n').encode(),{})
+  for bad in(dict(failure,nonce='a'*32),dict(failure,error='x'*4097),dict(failure,cleanup='PASS')):
+   with self.assertRaises(ValueError):space['protocol']((json.dumps(bad)+'\n').encode(),{})
+
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--source',type=Path,default=D.ROOT);a,rest=p.parse_known_args();ROOT=a.source.absolute();unittest.main(argv=[sys.argv[0],*rest],verbosity=2)

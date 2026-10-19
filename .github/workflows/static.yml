@@ -128,12 +128,36 @@ jobs:
           ref: 72ea5a1e81268f08da9b9cc04cdc7e23a1a9ff8a
           path: ksm606-native-source
           persist-credentials: false
+      - name: Checkout renewed KSM TEST signature DATA without activation
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: fe67aaaae7ef4ea94dfc8a42cd2c806cc5436fc7
+          path: ksm606-native-data
+          persist-credentials: false
       - name: Emit complete606 optional KSM2 source without actors
         run: |
           python3 -I -B scripts/ci/current606-ksm2-copy/prepare.py --basis-source "$PWD/ksm606-copy-basis" --native-source "$PWD/ksm606-native-source" --owner-source "$PWD/scripts/ci/current606-ksm2-closed-owner" --output "$RUNNER_TEMP/ksm606-roles"
           python3 -I -B scripts/ci/current606-ksm2-closed-owner/prepare.py --held606-source "$RUNNER_TEMP/ksm606-roles/held606" --bridge-source "$RUNNER_TEMP/ksm606-roles/bridge" --copyworker-source "$RUNNER_TEMP/ksm606-roles/copyworker" --output "$RUNNER_TEMP/ksm606-source" --authorization "$RUNNER_TEMP/ksm606-authorization.json"
           python3 -I -B "$RUNNER_TEMP/ksm606-source/scripts/ci/current606-ksm2-closed-owner/test_owner.py"
           python3 -I -B "$RUNNER_TEMP/ksm606-source/copyworker/scripts/ci/current606-ksm2-copy/test_worker.py"
+          python3 -I -B - <<'PYKSM360SOURCE'
+          """Exact360 NULL source and complete32 native DATA provenance; no activation."""
+          import hashlib,importlib.util,json,os,subprocess,sys
+          from pathlib import Path
+          from unittest.mock import patch
+          root=Path(os.environ['RUNNER_TEMP'])/'ksm606-source';raw=(root.parent/'ksm606-authorization.json').read_bytes();assert len(raw)==62168 and hashlib.sha256(raw).hexdigest()=='11e1af5642fb5b74d43c3fa4b5d195f6a7eb8ca54e6e84c11d0cf69871faffa1';rows=json.loads(raw);assert len(rows)==360
+          assert {p.relative_to(root).as_posix()for p in root.rglob('*')if p.is_file()}==set(rows)
+          assert all(not p.is_symlink()and(p.is_file()or p.is_dir())for p in root.rglob('*'))
+          for n,row in rows.items():
+           p=root/n;assert not any(q.is_symlink()for q in(p,*p.parents));value=p.read_bytes();assert dict(bytes=len(value),sha256=hashlib.sha256(value).hexdigest())==row
+          lane=root/'scripts/ci/current606-ksm2-closed-owner';policy=json.loads((lane/'input-policy.json').read_bytes());assert policy==(json.loads((lane/'null-policy.json').read_bytes()));assert all(policy[k]is None for k in('actual_source','actual_ref','actual_run','nonce','measurement','output','retirement','capture_receipt','native_pair_source','native_pair_index'));assert all(v is None for v in policy['current606'].values())
+          worker=root/'copyworker/scripts/ci/current606-ksm2-copy';sys.path.insert(0,str(worker))
+          for name,file in(('contract','contract.py'),('_canonical_native_data_inputs','inputs.py')):
+           spec=importlib.util.spec_from_file_location(name,worker/file);module=importlib.util.module_from_spec(spec);sys.modules[name]=module;spec.loader.exec_module(module)
+          with patch.object(subprocess,'Popen',side_effect=AssertionError('SOURCE_ONLY_NO_ACTORS')),patch.object(subprocess,'run',side_effect=AssertionError('SOURCE_ONLY_NO_ACTORS')),patch.object(subprocess,'check_output',side_effect=AssertionError('SOURCE_ONLY_NO_ACTORS')):native=module.inspect(Path.cwd()/'ksm606-native-data/payload')
+          assert native['signer']=='D0B033AD1C44F88A1B64A645D72B18C8C32E249A'and native['version']=='0.1.0-2'
+          print(json.dumps(dict(status='PASS_CANONICAL_COMPLETE360_NULL_AND_NATIVE32_DATA_ONLY',files=360,native_data_source='fe67aaaae7ef4ea94dfc8a42cd2c806cc5436fc7',actual_source=None,actual_ref=None,actual_run=None,acceptance='NOT_GRANTED'),sort_keys=True))
+          PYKSM360SOURCE
       - name: Checkout whole frozen KSM hosted runtime without activation
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
