@@ -200,8 +200,8 @@
         "sha256": "cd5c8aa86df5a06a268ecc21297b4cd7d8df1053c90c8bcd4e53ef9bb16194d9"
       },
       "scripts/ci/current606-ksm2-copy/alpm_step.py": {
-        "bytes": 5804,
-        "sha256": "941aad4a3334add10ef5522fbd415ca2b6c4797d22b7e11e24eaf4c6a0a9b20a"
+        "bytes": 5945,
+        "sha256": "1ac3f194147598169a86fd8d830571fcb889246568f748b3df30f8a298d68bfb"
       },
       "scripts/ci/current606-ksm2-copy/contract.py": {
         "bytes": 6375,
@@ -232,12 +232,16 @@
         "sha256": "3f3776302e0bf633d87bdfda0e6b42dee998a04f71bb7996a8f5781074e8e731"
       },
       "scripts/ci/current606-ksm2-copy/inputs.py": {
-        "bytes": 7681,
-        "sha256": "40ae09ce242dfceb4ff39d8a8a7dbbd3167b81cc8ecdca2529f53dcec5f8a5f7"
+        "bytes": 10799,
+        "sha256": "1014094d0cfc3460019097b436d513496d9758a1b1f4230c8a7d060d842b3278"
       },
       "scripts/ci/current606-ksm2-copy/lifecycle.py": {
         "bytes": 6064,
         "sha256": "afb1078b30691fde92c29b3a932268598e5d4a954aa44e8a3de20630d484e7d1"
+      },
+      "scripts/ci/current606-ksm2-copy/no_transaction_exec.py": {
+        "bytes": 1922,
+        "sha256": "961562420220bc3f54bd1888bd71a4ceadae12b2879dde48a0cfd55c794e6666"
       },
       "scripts/ci/current606-ksm2-copy/owner-api.json": {
         "bytes": 140,
@@ -256,8 +260,8 @@
         "sha256": "82cd6db44cdebb0d637c966d39f15339c7a7d53ec01903c6c4b672b9a29c8af7"
       },
       "scripts/ci/current606-ksm2-copy/prerequisite-pins.json": {
-        "bytes": 5281,
-        "sha256": "0debcd409a7fcc852ca1d151221738ffc2878b90c3a2452efc4172151a54b3ad"
+        "bytes": 10665,
+        "sha256": "b2967e4314997c613e005791352ba5caee24a368669385e0440efec0f90abedd"
       },
       "scripts/ci/current606-ksm2-copy/role-pins.json": {
         "bytes": 5945,
@@ -268,8 +272,8 @@
         "sha256": "efc1094e15bf38ea6e320c2f86bc64106126ebb92261742c298bbc7ed0d97c6d"
       },
       "scripts/ci/current606-ksm2-copy/source-manifest.json": {
-        "bytes": 8287,
-        "sha256": "131f1af89137ce9d4a49e5ee5e00bf65359ee94c693d844888762f358f53c7d6"
+        "bytes": 8464,
+        "sha256": "3a1b819a116c12f8c18add2383e1685f1e6f785953194d856f34e47a539ead72"
       },
       "scripts/ci/current606-ksm2-copy/step_entry.py": {
         "bytes": 741,
