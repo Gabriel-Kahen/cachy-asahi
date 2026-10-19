@@ -1,0 +1,41 @@
+{
+  "add_only": {
+    "development_alternative_recipe": "packages/tools/cachy-asahi-doctor2/PKGBUILD",
+    "development_alternative_state": "SOURCE_AND_LOCAL_X86_PACKAGE_ONLY_NATIVE_ARM_NOT_RUN",
+    "development_alternative_version": "0.2.0-1"
+  },
+  "default_composition_unchanged": true,
+  "entry": "cachy-asahi-doctor",
+  "existing_native_evidence_unchanged": true,
+  "hardware": "NOT_RUN",
+  "native_ARM": "NOT_RUN",
+  "package": "cachy-asahi-doctor",
+  "path": "manifests/packages.toml",
+  "preserve_original_entry": {
+    "candidate_version": "0.1.0-1",
+    "hardware_validation": "NOT RUN",
+    "license": "MIT",
+    "name": "cachy-asahi-doctor",
+    "native_build": "PASS native ARM byte-identical pairs in38884680631 and38886781500",
+    "native_cli_lifecycle": "PASS fresh/existing users, install/reinstall/remove/report preservation in38886781500",
+    "native_generic16k_cli": "PASS unchanged unpacked CLI payloads in38904917140; not installed or GUI",
+    "native_generic16k_managed_report": "PASS private reports and readable co-present terminal in both installed593 GUI profiles38952428172; no hardware certification",
+    "native_generic_managed_report": "PASS actual CLI private report and co-present readable terminal in both GUI profiles38905814219",
+    "next_step": "Exercise the installed read-only report with unavailable model/bus and real managed session states; complete signed admission and target validation before selection.",
+    "phase": "tools-experience",
+    "recipe": "packages/tools/cachy-asahi-doctor/PKGBUILD",
+    "selected_for_development": false,
+    "selected_for_release": false,
+    "source": "local-original",
+    "status": "candidate"
+  },
+  "recipe": "packages/tools/cachy-asahi-doctor2/PKGBUILD",
+  "registration_scope": "Existing default Doctor1 inventory and historical native source pins are byte held. This separate recipe is a proposed upgrade only.",
+  "release_selected": false,
+  "release_selection": false,
+  "schema_version": 1,
+  "source": "local-original",
+  "status": "UNSELECTED_DEVELOPMENT_UPGRADE_PROPOSAL",
+  "validation": "Both Python3.12/3.14:16 retained plus11 audio controls; local x86 makepkg --nodeps only",
+  "version": "0.2.0-1"
+}
