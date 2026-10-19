@@ -261,13 +261,13 @@ jobs:
       - name: Checkout whole-pinned Apps-on606 source carrier without activation
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          ref: 32f20a42532121c5ae9d927418a09c055cf53adf
+          ref: 1c1d5620f18f08966aff49cdb128ac98f5fe4c1c
           path: .ci-inputs/current606-apps7-source-roles
           persist-credentials: false
       - name: Checkout exact public Apps7 and Runtime1 pair DATA for source controls
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          ref: 54352850a57a7e34e75c3a021fa20525eee59bf6
+          ref: 02734c705565868b0b964c48399a4f659fc6f271
           path: .ci-inputs/current606-apps7-native-data
           persist-credentials: false
       - name: Checkout finite accepted606 decision DATA for source controls
