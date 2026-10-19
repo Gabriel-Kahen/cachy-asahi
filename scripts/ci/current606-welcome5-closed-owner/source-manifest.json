@@ -132,8 +132,8 @@
       "sha256": "2807126de1544ef4eac48b94159891a2cf0443e5fcc5b4d0c1af5831e90d7753"
     },
     "copyworker/scripts/ci/current606-welcome5-copy/alpm_step.py": {
-      "bytes": 5970,
-      "sha256": "5f464d021671b73f4e848c8ca0171852b587b6b5c639eb79c6cb678a77658f62"
+      "bytes": 6111,
+      "sha256": "d49856b998061210834de1c239e5783291c115a43125ad7d664cef1a1cb421bc"
     },
     "copyworker/scripts/ci/current606-welcome5-copy/contract.py": {
       "bytes": 6397,
@@ -154,6 +154,10 @@
     "copyworker/scripts/ci/current606-welcome5-copy/lifecycle.py": {
       "bytes": 5722,
       "sha256": "aa7db2c43e465915617890b252ebb9f073a5e3938aa33c938f8dc5674a0c8d5d"
+    },
+    "copyworker/scripts/ci/current606-welcome5-copy/no_transaction_exec.py": {
+      "bytes": 1892,
+      "sha256": "9d44aa39fa4343ccaa7894c56213ff3a152be0616a8082f50d768da840357237"
     },
     "copyworker/scripts/ci/current606-welcome5-copy/owner-api.json": {
       "bytes": 140,
@@ -180,8 +184,8 @@
       "sha256": "d98a97d528f4bffbdd653743486a8fd10cd61e728d6020cf9f7dc49229763243"
     },
     "copyworker/scripts/ci/current606-welcome5-copy/source-manifest.json": {
-      "bytes": 5467,
-      "sha256": "e89fcde65181d67a39100ae6dbc9ac9f54799da42fb2ffe5d1677af2fb4344e5"
+      "bytes": 5646,
+      "sha256": "5cc34cff68a6edad0617e3c624f27b16e25fbbe377474df3982e1a5ab8d11cdc"
     },
     "copyworker/scripts/ci/current606-welcome5-copy/step_entry.py": {
       "bytes": 741,
@@ -1708,8 +1712,8 @@
       "sha256": "eb48803aa0dc2caa2ffc0058856d9bbf41e59ed8830714cefcb4a4451877d063"
     },
     "scripts/ci/current606-welcome5-closed-owner/prepare.py": {
-      "bytes": 24742,
-      "sha256": "825ab770a0e1424e5f29fabd930b42aed6f106b61c7ca27fbeb19cefb10a9e38"
+      "bytes": 27041,
+      "sha256": "08da68ea51b38faf9f6bbef70eed81dfb992afb4d41bded385fb7ca5053cfa80"
     },
     "scripts/ci/current606-welcome5-closed-owner/producer_diagnostic.py": {
       "bytes": 6483,
@@ -1724,8 +1728,8 @@
       "sha256": "01834840686a0531ee7694b4db6cf02f219055a40062760485c66a5de5acb03a"
     },
     "scripts/ci/current606-welcome5-closed-owner/source-pins.json": {
-      "bytes": 74960,
-      "sha256": "6ff962744b4aaa5a2c86ffcc3c4e4270e0387a8adc31cb25e4781351542b978c"
+      "bytes": 75147,
+      "sha256": "a267a207d0ab650b7936aee1573943437c89babdedb8bad2f800eee12f3d43b3"
     },
     "scripts/ci/current606-welcome5-closed-owner/test_owner.py": {
       "bytes": 27797,
@@ -1738,6 +1742,14 @@
     "scripts/ci/current606-welcome5-closed-owner/test_selection.py": {
       "bytes": 1248,
       "sha256": "fa3a04ef6e12e463a9b6c3c3f7ce39558b4048d799757e6a093cd9299571331e"
+    },
+    "scripts/ci/native-evidence-transport/transport.py": {
+      "bytes": 17577,
+      "sha256": "f5e9074a13d321be2ef0ce1cb034de1278f88cc9cf484cd36a330fae6b65d0f1"
+    },
+    "scripts/ci/native-evidence-transport/welcome-policy.json": {
+      "bytes": 438,
+      "sha256": "89d089a93c73589a2b407c03fe6522b4d7c26fb93e56f12fd72a94886cc93bb8"
     }
   },
   "schema_version": 1,

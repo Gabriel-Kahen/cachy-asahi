@@ -6,6 +6,33 @@ from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 import contract as C
 
+TRANSPORT_PINS={'transport.py': {'bytes': 17577, 'sha256': 'f5e9074a13d321be2ef0ce1cb034de1278f88cc9cf484cd36a330fae6b65d0f1'}, 'welcome-policy.json': {'bytes': 438, 'sha256': '89d089a93c73589a2b407c03fe6522b4d7c26fb93e56f12fd72a94886cc93bb8'}}
+
+def durable_workflow(raw):
+ text=raw.decode();old='      - name: Retain the separate bounded604 public closure and lifecycle\n        if: always()\n';new='      - name: Retain the separate bounded604 public closure and lifecycle\n        id: native_public_retention\n        if: always()\n        env:\n          CAA_EVIDENCE_SOURCE_SHA: ${{ inputs.source }}\n          CAA_EVIDENCE_WORKFLOW_SHA: ${{ github.sha }}\n';assert text.count(old)==1;text=text.replace(old,new)
+ before='''          for packet in "$RUNNER_TEMP/expanded604-public"/part-*; do
+            python3 -B scripts/ci/log_evidence.py "$packet"
+          done
+'''
+ after='''          python3 -I -B "$GITHUB_WORKSPACE/expanded604-code/scripts/ci/native-evidence-transport/transport.py" \\
+            --policy "$GITHUB_WORKSPACE/expanded604-code/scripts/ci/native-evidence-transport/welcome-policy.json" \\
+            --packets "$RUNNER_TEMP/expanded604-public" \\
+            --encoder "$GITHUB_WORKSPACE/scripts/ci/log_evidence.py" \\
+            --output "$RUNNER_TEMP/native-framed-evidence"
+      - name: Upload original native framed evidence with source-bound transport receipt
+        if: always() && steps.native_public_retention.outcome == 'success'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        timeout-minutes: 5
+        with:
+          name: native-framed-evidence-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
+          path: ${{ runner.temp }}/native-framed-evidence/
+          retention-days: 3
+          compression-level: 0
+          include-hidden-files: false
+          if-no-files-found: error
+'''
+ assert text.count(before)==1;text=text.replace(before,after);assert text.replace(after,before).replace(new,old).encode()==raw;return text
+
 def workflow(raw,root):
  text=raw.decode();old='native-arm-current606-dns-sysctl2';C.need(text.count(old)==2,'two dedicated identity seams');text=text.replace(old,'native-arm-current606-welcome5-owned-copy')
  text=text.replace('expanded604-code/','expanded604-code/held606/').replace('CURRENT604_NATIVE_SOURCE: ${{ github.workspace }}/expanded604-code','CURRENT604_NATIVE_SOURCE: ${{ github.workspace }}/expanded604-code/held606')
@@ -41,7 +68,7 @@ def workflow(raw,root):
  C.need(text.count(archive6_marker)==1,'one exact late archive32 source step')
  archive6_start=text.index(archive6_marker);archive6_end=text.index('      - name:',archive6_start+len(archive6_marker))
  text=text[:archive6_end]+'          archive6_helper="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-welcome5-closed-owner/archive6.py"\n          archive6_policy="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-welcome5-closed-owner/archive6-policy.json"\n          archive6_inputs="$GITHUB_WORKSPACE/composition-updater/scripts/port/updater-extension/builder-extension.lock.json"\n          printf \'%s  %s\\n\' \'5e448ef6677fc26485e044b3ac2d35a07105703d4f1a719bb7c030678eff87ae\' "$archive6_helper" \'4d83dbda592b8b6575d02df65de829226cae3ddffc7268e3d47873ac83f3b322\' "$archive6_policy" | sha256sum --check\n          python3 -I -B "$archive6_helper" --policy "$archive6_policy" --inputs "$archive6_inputs" --cache "$RUNNER_TEMP/frozen-updater-archive6"\n          python3 -I -B - "$archive6_helper" "$archive6_policy" "$archive6_inputs" "$RUNNER_TEMP/frozen-updater-archive6" "$RUNNER_TEMP/alarm-cache" <<\'PYARCHIVE6\'\n          import importlib.util,sys\n          from pathlib import Path\n          helper,policy,inputs,cache,destination=map(Path,sys.argv[1:])\n          spec=importlib.util.spec_from_file_location(\'held_updater_archive6_seed\',helper)\n          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)\n          selected=module.policy(policy,inputs)\n          result=module.seed_exact(cache,destination,selected)\n          result.update(helper=module.pin(helper.read_bytes()),policy=module.pin(policy.read_bytes()),destination=\'EXISTING_OWNED_ALARM_CACHE\',original_versions=\'UNCHANGED\',original_signature_and_trust_checks=\'UNCHANGED\')\n          print(module.encoded(result).decode(),end=\'\')\n          PYARCHIVE6\n'+text[archive6_end:]
- return extra8_workflow(extra20_workflow(text,root))
+ return durable_workflow(extra8_workflow(extra20_workflow(text,root)).encode())
 
 
 def extra20_workflow(text,root):
@@ -148,6 +175,8 @@ def emit(inputs,output,selection=None):
  for role,home in inputs.items():
   for n in rows[role]['files']:
    p=output/role/n;p.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(home/n,p)
+ for n,row in TRANSPORT_PINS.items():
+  source=C.HERE.parent/'native-evidence-transport'/n;C.checked(source,row);dest=output/'scripts/ci/native-evidence-transport'/n;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source,dest)
  lane=output/C.LANE;lane.mkdir(parents=True)
  for p in C.HERE.iterdir():
   if p.is_file()and p.name not in('input-policy.json','source-manifest.json'):shutil.copyfile(p,lane/p.name)
