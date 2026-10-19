@@ -60,7 +60,7 @@ jobs:
           WORKFLOW_SOURCE: ${{ github.sha }}
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '90660b5073cea66926071b90bcc4e998358592fb8371a5d9a46b556d933c687d' 'expanded604-code/scripts/ci/current606-ksm2-closed-owner/owner.py' 'b0b95e5b16a140c7862619cfcd9c6b987f0669733c4b897623a459a67ead3d60' 'expanded604-code/scripts/ci/current606-ksm2-closed-owner/source-manifest.json' | sha256sum --check
+          printf '%s  %s\n' '90660b5073cea66926071b90bcc4e998358592fb8371a5d9a46b556d933c687d' 'expanded604-code/scripts/ci/current606-ksm2-closed-owner/owner.py' '8fed26311cec0ed2daf176b70009280f9530e3e1096aa189687ab7c15896c3f6' 'expanded604-code/scripts/ci/current606-ksm2-closed-owner/source-manifest.json' | sha256sum --check
           python3 -B expanded604-code/scripts/ci/current606-ksm2-closed-owner/owner.py --source-preflight
           python3 -B expanded604-code/scripts/ci/current606-ksm2-closed-owner/owner.py --require-selection
           printf '%s  %s\n' 'ce1cbfdb602b3e67ea844eae7b9bc37768194f95009bdec642997a23801bf02a' 'expanded604-code/held606/scripts/ci/current606-native/run.py' '09dae54c10f76d1a7b0bedd012f82aa513f5cc93102ad4ef5e6406dfee8bdd74' 'expanded604-code/held606/scripts/ci/current606-native/source-manifest.json' | sha256sum --check
@@ -662,7 +662,11 @@ jobs:
             --audio-inputs "$RUNNER_TEMP/audio-archives" \
               --output "/tmp/cachy-asahi-expanded604-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
       - name: Retain the separate bounded604 public closure and lifecycle
+        id: native_public_retention
         if: always()
+        env:
+          CAA_EVIDENCE_SOURCE_SHA: ${{ inputs.source }}
+          CAA_EVIDENCE_WORKFLOW_SHA: ${{ github.sha }}
         timeout-minutes: 2
         shell: bash
         run: |
@@ -698,6 +702,19 @@ jobs:
               reconstruction='concatenate each file chunks in listed order and verify full bytes and sha256',
               scope='accepted public pairs and native604 metadata lifecycle; hardware NOT_RUN'),sort_keys=True)+'\n')
           PYRETAIN
-          for packet in "$RUNNER_TEMP/expanded604-public"/part-*; do
-            python3 -B scripts/ci/log_evidence.py "$packet"
-          done
+          python3 -I -B "$GITHUB_WORKSPACE/expanded604-code/scripts/ci/native-evidence-transport/transport.py" \
+            --policy "$GITHUB_WORKSPACE/expanded604-code/scripts/ci/native-evidence-transport/ksm-policy.json" \
+            --packets "$RUNNER_TEMP/expanded604-public" \
+            --encoder "$GITHUB_WORKSPACE/scripts/ci/log_evidence.py" \
+            --output "$RUNNER_TEMP/native-framed-evidence"
+      - name: Upload original native framed evidence with source-bound transport receipt
+        if: always() && steps.native_public_retention.outcome == 'success'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        timeout-minutes: 5
+        with:
+          name: native-framed-evidence-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
+          path: ${{ runner.temp }}/native-framed-evidence/
+          retention-days: 3
+          compression-level: 0
+          include-hidden-files: false
+          if-no-files-found: error

@@ -87,6 +87,33 @@ def archive20_workflow(text,root):
  C.need(text.count(native_marker)==text.count(producer_marker)==1,'one native base and one producer insertion')
  return text.replace(native_marker,early+native_marker,1).replace(producer_marker,late+producer_marker,1)
 
+TRANSPORT_PINS={'transport.py': {'bytes': 17577, 'sha256': 'f5e9074a13d321be2ef0ce1cb034de1278f88cc9cf484cd36a330fae6b65d0f1'}, 'ksm-policy.json': {'bytes': 434, 'sha256': '4aae3fecb34041e930abf74ab105d42d7a562ee08524c86c3ede3d6c54c8218c'}}
+
+def durable_workflow(raw):
+ text=raw.decode();old='      - name: Retain the separate bounded604 public closure and lifecycle\n        if: always()\n';new='      - name: Retain the separate bounded604 public closure and lifecycle\n        id: native_public_retention\n        if: always()\n        env:\n          CAA_EVIDENCE_SOURCE_SHA: ${{ inputs.source }}\n          CAA_EVIDENCE_WORKFLOW_SHA: ${{ github.sha }}\n';assert text.count(old)==1;text=text.replace(old,new)
+ before='''          for packet in "$RUNNER_TEMP/expanded604-public"/part-*; do
+            python3 -B scripts/ci/log_evidence.py "$packet"
+          done
+'''
+ after='''          python3 -I -B "$GITHUB_WORKSPACE/expanded604-code/scripts/ci/native-evidence-transport/transport.py" \\
+            --policy "$GITHUB_WORKSPACE/expanded604-code/scripts/ci/native-evidence-transport/ksm-policy.json" \\
+            --packets "$RUNNER_TEMP/expanded604-public" \\
+            --encoder "$GITHUB_WORKSPACE/scripts/ci/log_evidence.py" \\
+            --output "$RUNNER_TEMP/native-framed-evidence"
+      - name: Upload original native framed evidence with source-bound transport receipt
+        if: always() && steps.native_public_retention.outcome == 'success'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        timeout-minutes: 5
+        with:
+          name: native-framed-evidence-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
+          path: ${{ runner.temp }}/native-framed-evidence/
+          retention-days: 3
+          compression-level: 0
+          include-hidden-files: false
+          if-no-files-found: error
+'''
+ assert text.count(before)==1;text=text.replace(before,after);assert text.replace(after,before).replace(new,old).encode()==raw;return text
+
 def workflow(raw,root,policy):
  text=raw.decode();old='native-arm-current606-dns-sysctl2';C.need(text.count(old)==2,'two dedicated identity seams');text=text.replace(old,'native-arm-current606-ksm2-owned-copy')
  text=text.replace('expanded604-code/','expanded604-code/held606/').replace('CURRENT604_NATIVE_SOURCE: ${{ github.workspace }}/expanded604-code','CURRENT604_NATIVE_SOURCE: ${{ github.workspace }}/expanded604-code/held606');lane='expanded604-code/'+C.LANE
@@ -134,7 +161,7 @@ def extra8_workflow(text):
  C.need(len(guards)==1,'one unchanged original producer condition')
  i=guards[0];old=lines[i];C.need(old.rstrip().endswith(' }}'),'original producer expression')
  lines[i]=old.rstrip()[:-3]+" && steps.frozen574_archive8.outcome == 'success' }}\n"
- return text[:at]+'      - name: Recover and seed exact8 additional original574 inputs\n        id: frozen574_archive8\n        if: ${{ !cancelled() && steps.frozen574_archive20.outcome == \'success\' }}\n        timeout-minutes: 4\n        shell: bash\n        run: |\n          set -euo pipefail\n          archive8_helper="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-ksm2-closed-owner/archive8.py"\n          archive8_policy="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-ksm2-closed-owner/archive8-policy.json"\n          archive8_inputs="$GITHUB_WORKSPACE/composition-desktop/scripts/ci/maintained-desktop574-inputs.json"\n          printf \'%s  %s\\n\' \'5e24808152c727f5dcd19252c66e1ab121bdb9dbd6b90becb943820634898565\' "$archive8_helper" \'2b21c05d30a9c5efd2f717cfa8475c9de3150d7729f710b348b70a84f5b16e20\' "$archive8_policy" | sha256sum --check\n          python3 -I -B "$archive8_helper" --policy "$archive8_policy" --inputs "$archive8_inputs" --cache "$RUNNER_TEMP/frozen574-archive8"\n          python3 -I -B - "$archive8_helper" "$archive8_policy" "$archive8_inputs" "$GITHUB_WORKSPACE/scripts/ci/inputs.lock.json" "$RUNNER_TEMP/frozen574-archive8" "$RUNNER_TEMP/alarm-cache" <<\'PYARCHIVE8\'\n          import importlib.util,json,sys\n          from pathlib import Path\n          helper,policy,inputs,native,cache,destination=map(Path,sys.argv[1:])\n          spec=importlib.util.spec_from_file_location(\'source_owned_archive8_seed\',helper)\n          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)\n          selected=module.policy(policy,inputs)\n          result=module.seed_exact(cache,destination,selected)\n          result.update(destination=\'EXISTING_OWNED_ALARM_CACHE\',original_versions=\'UNCHANGED\',original_signature_and_trust_checks=\'UNCHANGED\')\n          print(module.encoded(result).decode(),end=\'\')\n          PYARCHIVE8\n'+''.join(lines)+text[end:]
+ return durable_workflow((text[:at]+'      - name: Recover and seed exact8 additional original574 inputs\n        id: frozen574_archive8\n        if: ${{ !cancelled() && steps.frozen574_archive20.outcome == \'success\' }}\n        timeout-minutes: 4\n        shell: bash\n        run: |\n          set -euo pipefail\n          archive8_helper="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-ksm2-closed-owner/archive8.py"\n          archive8_policy="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-ksm2-closed-owner/archive8-policy.json"\n          archive8_inputs="$GITHUB_WORKSPACE/composition-desktop/scripts/ci/maintained-desktop574-inputs.json"\n          printf \'%s  %s\\n\' \'5e24808152c727f5dcd19252c66e1ab121bdb9dbd6b90becb943820634898565\' "$archive8_helper" \'2b21c05d30a9c5efd2f717cfa8475c9de3150d7729f710b348b70a84f5b16e20\' "$archive8_policy" | sha256sum --check\n          python3 -I -B "$archive8_helper" --policy "$archive8_policy" --inputs "$archive8_inputs" --cache "$RUNNER_TEMP/frozen574-archive8"\n          python3 -I -B - "$archive8_helper" "$archive8_policy" "$archive8_inputs" "$GITHUB_WORKSPACE/scripts/ci/inputs.lock.json" "$RUNNER_TEMP/frozen574-archive8" "$RUNNER_TEMP/alarm-cache" <<\'PYARCHIVE8\'\n          import importlib.util,json,sys\n          from pathlib import Path\n          helper,policy,inputs,native,cache,destination=map(Path,sys.argv[1:])\n          spec=importlib.util.spec_from_file_location(\'source_owned_archive8_seed\',helper)\n          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)\n          selected=module.policy(policy,inputs)\n          result=module.seed_exact(cache,destination,selected)\n          result.update(destination=\'EXISTING_OWNED_ALARM_CACHE\',original_versions=\'UNCHANGED\',original_signature_and_trust_checks=\'UNCHANGED\')\n          print(module.encoded(result).decode(),end=\'\')\n          PYARCHIVE8\n'+''.join(lines)+text[end:]).encode())
 
 def emit(inputs,output,selection=None,publication=None):
  C.need(set(inputs)==set(C.ROLES),'three explicit complete source roots');C.need(output.is_absolute()and output.parent.is_dir()and not output.exists()and not any(p.is_symlink()for p in(output,*output.parents)),'fresh ordinary output')
@@ -146,7 +173,7 @@ def emit(inputs,output,selection=None,publication=None):
  source=None
  if selection is not None:
   pins=C.read(inputs['copyworker']/'scripts/ci/current606-ksm2-copy/prerequisite-pins.json')
-  C.need(type(publication)is dict and publication.get('status')=='PUBLISHED_VERIFIED_REMOTE'and re.fullmatch('[0-9a-f]{40}',publication.get('source')or'')and publication.get('index')==pins['index']and publication.get('files')==pins['files'],'Root exact public carrier publication required')
+  C.need(type(publication)is dict and publication=={'actual': 'NOT_RUN', 'files': 32, 'git_joins': 32, 'hardware': 'NOT_RUN', 'native_build_credit': 'HISTORICAL_NATIVE_SOURCE72ea5a_RUN39139213293_ONLY', 'ref': 'codex/ksm-test-signature-renewal-v1', 'release': 'NOT_ADMITTED', 'source': 'fe67aaaae7ef4ea94dfc8a42cd2c806cc5436fc7', 'status': 'PUBLISHED_VERIFIED_REMOTE_PUBLIC_TEST_SIGNATURE_CARRIER'},'Root exact public carrier publication required')
   C.need(selection.get('native_pair_source')==publication['source']and selection.get('native_pair_index')==pins['index'],'source-bound public tuple')
   import selection as S
   old=(S.PAIR_SOURCE,S.PAIR_INDEX);S.PAIR_SOURCE,S.PAIR_INDEX=publication['source'],pins['index']
@@ -157,6 +184,8 @@ def emit(inputs,output,selection=None,publication=None):
  for role,home in inputs.items():
   for n in rows[role]['files']:
    p=output/role/n;p.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(home/n,p)
+ for n,row in TRANSPORT_PINS.items():
+  transport_input=C.HERE.parent/'native-evidence-transport'/n;C.checked(transport_input,row);dest=output/'scripts/ci/native-evidence-transport'/n;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(transport_input,dest)
  lane=output/C.LANE;lane.mkdir(parents=True)
  for p in C.HERE.iterdir():
   if p.is_file()and p.name not in('input-policy.json','source-manifest.json'):shutil.copyfile(p,lane/p.name)
