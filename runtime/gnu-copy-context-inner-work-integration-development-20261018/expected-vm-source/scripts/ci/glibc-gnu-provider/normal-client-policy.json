@@ -1,0 +1,16 @@
+{
+  "note": "Only the worker reviewed child execve statement changes. All original staged runtime files remain unchanged; normal clients are compiled separately and never executed in this pair lane.",
+  "patch": {
+    "bytes": 773,
+    "path": "normal-child-exec.patch",
+    "sha256": "1a1f3b1898b0542dfb6bf03d7d6bf0acda33ba3f040055cf710027d69415b9ff"
+  },
+  "patched_abi_smoke": {
+    "bytes": 12437,
+    "sha256": "a766bc7cd31cce18fe7e564432de4e4b63db49763608ae70ef8fab61cd29116c"
+  },
+  "runtime_manifest_sha256": "e10336aef200731c7dd4b06546b718e095c1ecf7718e4a25fa57d6bbed6270a6",
+  "schema_version": 1,
+  "source_alias": "Exact lifecycle smoke-normal.c bytes staged as abi_smoke.c for the unchanged compile_suite driver; output renamed smoke-normal",
+  "status": "BOUND_EXACT_NORMAL_CHILD_EXEC_SOURCE_PATCH"
+}
