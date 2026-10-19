@@ -445,6 +445,11 @@ native_generic16k_managed_report = "PASS private reports and readable co-present
 hardware_validation = "NOT RUN"
 next_step = "Exercise the installed read-only report with unavailable model/bus and real managed session states; complete signed admission and target validation before selection."
 
+# Separate Doctor2 upgrade candidate; Doctor1 native evidence above is held.
+development_alternative_recipe = "packages/tools/cachy-asahi-doctor2/PKGBUILD"
+development_alternative_state = "SOURCE_AND_LOCAL_X86_PACKAGE_ONLY_NATIVE_ARM_NOT_RUN"
+development_alternative_version = "0.2.0-1"
+
 [[packages]]
 name = "cachy-asahi-mirrors"
 phase = "tools-experience"
