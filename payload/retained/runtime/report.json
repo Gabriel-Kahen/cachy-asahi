@@ -1,0 +1,1546 @@
+{
+  "GUI": "NOT_RUN",
+  "base_count": 574,
+  "base_image": "sha256:85e1f58a0b6c2620cef3349910e251e69558480640e26018f7653ad3f4d77cc4",
+  "base_lock_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+  "cleanup": [
+    {
+      "absence_verified": true,
+      "container": "cachy-asahi-product-lifecycle-eb34f248dfd14e965a7cccd5ead4b496",
+      "status": "PASS"
+    },
+    {
+      "absence_verified": true,
+      "container": "cachy-asahi-product-af6ba50e7ea57bd70fdd8a8267af3655",
+      "status": "PASS"
+    },
+    {
+      "absence_verified": true,
+      "container": "cachy-asahi-product-aec3684e3ae4d17e90ad64d86821e51c",
+      "status": "PASS"
+    },
+    {
+      "absence_verified": true,
+      "container": "cachy-asahi-product-probe-23750176855c1b402672a6b2e24d3e4a",
+      "status": "PASS"
+    }
+  ],
+  "commands": [
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--name",
+        "cachy-asahi-product-probe-23750176855c1b402672a6b2e24d3e4a",
+        "--pull=never",
+        "--network=none",
+        "--read-only",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges",
+        "--entrypoint=/usr/bin/pacman",
+        "sha256:85e1f58a0b6c2620cef3349910e251e69558480640e26018f7653ad3f4d77cc4",
+        "-Q"
+      ],
+      "log": "base-inventory.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--name",
+        "cachy-asahi-product-aec3684e3ae4d17e90ad64d86821e51c",
+        "--pull=never",
+        "--platform=linux/arm64",
+        "--network=none",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges",
+        "--pids-limit=256",
+        "--memory=3g",
+        "--cpus=4",
+        "--user",
+        "1001:1001",
+        "--tmpfs",
+        "/tmp:rw,nosuid,nodev,exec,size=2g",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/product-native-runtime/cachy-asahi-boot-report-a/artifacts,dst=/out",
+        "--read-only",
+        "--env=CACHY_ASAHI_CONTAINER=1",
+        "--env=SOURCE_DATE_EPOCH=1791748800",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/product-native-runtime/cachy-asahi-boot-report-a/inputs,dst=/inputs,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/product-native-runtime/cachy-asahi-boot-report-a/expected-packages.lock,dst=/expected-packages.lock,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/cachy-asahi/cachy-asahi/scripts/build/container-entry.sh,dst=/builder-entry.sh,readonly",
+        "--entrypoint=/bin/bash",
+        "sha256:85e1f58a0b6c2620cef3349910e251e69558480640e26018f7653ad3f4d77cc4",
+        "/builder-entry.sh"
+      ],
+      "log": "cachy-asahi-boot-report-a/build.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--name",
+        "cachy-asahi-product-af6ba50e7ea57bd70fdd8a8267af3655",
+        "--pull=never",
+        "--platform=linux/arm64",
+        "--network=none",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges",
+        "--pids-limit=256",
+        "--memory=3g",
+        "--cpus=4",
+        "--user",
+        "1001:1001",
+        "--tmpfs",
+        "/tmp:rw,nosuid,nodev,exec,size=2g",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/product-native-runtime/cachy-asahi-boot-report-b/artifacts,dst=/out",
+        "--read-only",
+        "--env=CACHY_ASAHI_CONTAINER=1",
+        "--env=SOURCE_DATE_EPOCH=1791748800",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/product-native-runtime/cachy-asahi-boot-report-b/inputs,dst=/inputs,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/product-native-runtime/cachy-asahi-boot-report-b/expected-packages.lock,dst=/expected-packages.lock,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/cachy-asahi/cachy-asahi/scripts/build/container-entry.sh,dst=/builder-entry.sh,readonly",
+        "--entrypoint=/bin/bash",
+        "sha256:85e1f58a0b6c2620cef3349910e251e69558480640e26018f7653ad3f4d77cc4",
+        "/builder-entry.sh"
+      ],
+      "log": "cachy-asahi-boot-report-b/build.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--name",
+        "cachy-asahi-product-lifecycle-eb34f248dfd14e965a7cccd5ead4b496",
+        "--pull=never",
+        "--platform=linux/arm64",
+        "--network=none",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges",
+        "--pids-limit=256",
+        "--memory=3g",
+        "--cpus=4",
+        "--user",
+        "0:0",
+        "--tmpfs",
+        "/tmp:rw,nosuid,nodev,exec,size=2g",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/product-native-runtime,dst=/out",
+        "--cap-add=CHOWN",
+        "--cap-add=DAC_OVERRIDE",
+        "--cap-add=FOWNER",
+        "--cap-add=FSETID",
+        "--cap-add=SETUID",
+        "--cap-add=SETGID",
+        "--env=CACHY_ASAHI_PRODUCT_LIFECYCLE=1",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/product-native-runtime/lifecycle-inputs,dst=/inputs,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/cachy-asahi/cachy-asahi/scripts/ci/welcome-native,dst=/runner,readonly",
+        "--entrypoint=/usr/bin/python3",
+        "sha256:85e1f58a0b6c2620cef3349910e251e69558480640e26018f7653ad3f4d77cc4",
+        "-I",
+        "-B",
+        "/runner/lifecycle.py"
+      ],
+      "log": "lifecycle.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "rm",
+        "-f",
+        "cachy-asahi-product-lifecycle-eb34f248dfd14e965a7cccd5ead4b496"
+      ],
+      "log": "cleanup-cachy-asahi-product-lifecycle-eb34f248dfd14e965a7cccd5ead4b496.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "rm",
+        "-f",
+        "cachy-asahi-product-af6ba50e7ea57bd70fdd8a8267af3655"
+      ],
+      "log": "cleanup-cachy-asahi-product-af6ba50e7ea57bd70fdd8a8267af3655.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "rm",
+        "-f",
+        "cachy-asahi-product-aec3684e3ae4d17e90ad64d86821e51c"
+      ],
+      "log": "cleanup-cachy-asahi-product-aec3684e3ae4d17e90ad64d86821e51c.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "rm",
+        "-f",
+        "cachy-asahi-product-probe-23750176855c1b402672a6b2e24d3e4a"
+      ],
+      "log": "cleanup-cachy-asahi-product-probe-23750176855c1b402672a6b2e24d3e4a.log"
+    }
+  ],
+  "hardware": "NOT_RUN",
+  "lifecycle": {
+    "GUI": "NOT_RUN",
+    "actual_page_size": 4096,
+    "base_count": 574,
+    "events": [
+      {
+        "config_preserved": true,
+        "inventory_count": 575,
+        "observations": [
+          {
+            "boot": {
+              "checks": [
+                "exact_two_synthetic_boots",
+                "complete_selected_record_equality_no_other_boot_or_transport",
+                "captured_raw_provenance",
+                "no_real_history_crash_or_pstore_attribution",
+                "exact_synthetic_pstore",
+                "private_report_modes",
+                "no_overwrite_unchanged",
+                "missing_boot_unknown",
+                "empty_rotated_history_unknown",
+                "explicit_rotated_journal_read",
+                "unreadable_history_never_inferred",
+                "invalid_boot_refused_before_output",
+                "unsafe_parent_refused",
+                "all_private_input_bytes_and_metadata_held",
+                "hostile_pager_not_executed"
+              ],
+              "history_completeness": "UNKNOWN",
+              "journal_sha256": "77c326d908442852de51e66c660153d4c6051390b14466e48fa9c037cc1c573e",
+              "kernel_crash_diagnosis": "NOT_ESTABLISHED",
+              "label": "SYNTHETIC_JOURNAL_INSTALLED_CLI",
+              "no_overwrite": "PASS",
+              "record": {
+                "MESSAGE": "SYNTHETIC TEST ONLY 11111111111111111111111111111111 kernel",
+                "PRIORITY": "3",
+                "_BOOT_ID": "11111111111111111111111111111111",
+                "_HOSTNAME": "synthetic-boot-fixture",
+                "_MACHINE_ID": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "_TRANSPORT": "kernel",
+                "_UID": "65534",
+                "__CURSOR": "s=7af4dfa3b67648f69ed2399b3f01a07e;i=1;b=11111111111111111111111111111111;m=1;t=60a24181e4000;x=87378640ffe93f74",
+                "__MONOTONIC_TIMESTAMP": "1",
+                "__REALTIME_TIMESTAMP": "1700000000000000",
+                "__SEQNUM": "1",
+                "__SEQNUM_ID": "7af4dfa3b67648f69ed2399b3f01a07e"
+              },
+              "report": {
+                "action": "export",
+                "boot_listing": {
+                  "argv": [
+                    "/usr/bin/journalctl",
+                    "--no-pager",
+                    "--system",
+                    "--directory=/tmp/boot-product-home-fresh-install/journal",
+                    "--list-boots",
+                    "--output=json"
+                  ],
+                  "child_reaped": true,
+                  "elapsed_seconds": 0.002032,
+                  "environment": {
+                    "LC_ALL": "C",
+                    "PAGER": "cat",
+                    "PATH": "/usr/bin:/bin",
+                    "SYSTEMD_COLORS": "0",
+                    "SYSTEMD_LOG_TARGET": "console",
+                    "SYSTEMD_PAGER": "cat",
+                    "TZ": "UTC"
+                  },
+                  "exit_code": 0,
+                  "state": "complete"
+                },
+                "boot_listing_raw": {
+                  "bytes": 239,
+                  "sha256": "15995f87df4e97264f4ae54e35e323c1880fc2745839b11cbf9e0d296583988f"
+                },
+                "boot_listing_stderr": {
+                  "bytes": 0,
+                  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                },
+                "boots": [
+                  {
+                    "boot_id": "11111111111111111111111111111111",
+                    "first_entry": 1700000000000000,
+                    "index": -1,
+                    "last_entry": 1700000000000000
+                  },
+                  {
+                    "boot_id": "22222222222222222222222222222222",
+                    "first_entry": 1700000000000001,
+                    "index": 0,
+                    "last_entry": 1700000000000001
+                  }
+                ],
+                "created_utc": "2026-10-19T21:05:00.762159+00:00",
+                "history_completeness": "UNKNOWN",
+                "journal_source": "/tmp/boot-product-home-fresh-install/journal",
+                "kernel_crash_diagnosis": "NOT_ESTABLISHED",
+                "kernel_journal": {
+                  "argv": [
+                    "/usr/bin/journalctl",
+                    "--no-pager",
+                    "--system",
+                    "--directory=/tmp/boot-product-home-fresh-install/journal",
+                    "--output=json",
+                    "--all",
+                    "--lines=all",
+                    "--boot=11111111111111111111111111111111",
+                    "_TRANSPORT=kernel"
+                  ],
+                  "child_reaped": true,
+                  "elapsed_seconds": 0.001764,
+                  "environment": {
+                    "LC_ALL": "C",
+                    "PAGER": "cat",
+                    "PATH": "/usr/bin:/bin",
+                    "SYSTEMD_COLORS": "0",
+                    "SYSTEMD_LOG_TARGET": "console",
+                    "SYSTEMD_PAGER": "cat",
+                    "TZ": "UTC"
+                  },
+                  "exit_code": 0,
+                  "raw": {
+                    "bytes": 518,
+                    "sha256": "5c9aa0356430afa69d4d426753cc8c45af1f0e6b610d925f8c51998b47d2ab91"
+                  },
+                  "state": "complete",
+                  "stderr": {
+                    "bytes": 0,
+                    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                  },
+                  "validated_records": 1
+                },
+                "limits": {
+                  "boots": 4096,
+                  "command_seconds": 20,
+                  "journal_bytes": 8388608,
+                  "list_bytes": 1048576,
+                  "pstore_file_bytes": 1048576,
+                  "pstore_files": 32,
+                  "pstore_seconds": 5,
+                  "pstore_total_bytes": 8388608,
+                  "stderr_bytes": 65536
+                },
+                "pstore": {
+                  "boot_attribution": "UNKNOWN",
+                  "bytes": 24,
+                  "completeness": "UNKNOWN",
+                  "files": [
+                    {
+                      "after": {
+                        "ctime_ns": 1792443900643144919,
+                        "device": 65,
+                        "gid": 1000,
+                        "inode": 54,
+                        "mode": 33152,
+                        "mtime_ns": 1792443900643144919,
+                        "size": 24,
+                        "uid": 1000
+                      },
+                      "before": {
+                        "ctime_ns": 1792443900643144919,
+                        "device": 65,
+                        "gid": 1000,
+                        "inode": 54,
+                        "mode": 33152,
+                        "mtime_ns": 1792443900643144919,
+                        "size": 24,
+                        "uid": 1000
+                      },
+                      "bytes": 24,
+                      "file": "pstore-0000.bin",
+                      "name": "synthetic-record",
+                      "path_after": {
+                        "ctime_ns": 1792443900643144919,
+                        "device": 65,
+                        "gid": 1000,
+                        "inode": 54,
+                        "mode": 33152,
+                        "mtime_ns": 1792443900643144919,
+                        "size": 24,
+                        "uid": 1000
+                      },
+                      "sha256": "a97dc6550c17e00021d0fcb60a6186c694cdaae04d491446ecd2b95b418c4d25",
+                      "stable_metadata": true,
+                      "state": "captured"
+                    }
+                  ],
+                  "path": "/tmp/boot-product-home-fresh-install/pstore",
+                  "state": "enumerated"
+                },
+                "schema_version": 1,
+                "selected_boot_id": "11111111111111111111111111111111",
+                "sensitive_local_contents": true,
+                "state": "captured",
+                "tool": "cachy-asahi-boot-report"
+              },
+              "report_mode": "0600",
+              "report_sha256": "28933b59ea38791256905fcb1cd7c24a7d17b0119fee3a079e674af2c775883e",
+              "status": "PASS_INSTALLED_SYNTHETIC_FIXTURE_ONLY"
+            },
+            "home": "product-home-fresh"
+          },
+          {
+            "boot": {
+              "checks": [
+                "exact_two_synthetic_boots",
+                "complete_selected_record_equality_no_other_boot_or_transport",
+                "captured_raw_provenance",
+                "no_real_history_crash_or_pstore_attribution",
+                "exact_synthetic_pstore",
+                "private_report_modes",
+                "no_overwrite_unchanged",
+                "missing_boot_unknown",
+                "empty_rotated_history_unknown",
+                "explicit_rotated_journal_read",
+                "unreadable_history_never_inferred",
+                "invalid_boot_refused_before_output",
+                "unsafe_parent_refused",
+                "all_private_input_bytes_and_metadata_held",
+                "hostile_pager_not_executed"
+              ],
+              "history_completeness": "UNKNOWN",
+              "journal_sha256": "77c326d908442852de51e66c660153d4c6051390b14466e48fa9c037cc1c573e",
+              "kernel_crash_diagnosis": "NOT_ESTABLISHED",
+              "label": "SYNTHETIC_JOURNAL_INSTALLED_CLI",
+              "no_overwrite": "PASS",
+              "record": {
+                "MESSAGE": "SYNTHETIC TEST ONLY 11111111111111111111111111111111 kernel",
+                "PRIORITY": "3",
+                "_BOOT_ID": "11111111111111111111111111111111",
+                "_HOSTNAME": "synthetic-boot-fixture",
+                "_MACHINE_ID": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "_TRANSPORT": "kernel",
+                "_UID": "65534",
+                "__CURSOR": "s=7af4dfa3b67648f69ed2399b3f01a07e;i=1;b=11111111111111111111111111111111;m=1;t=60a24181e4000;x=87378640ffe93f74",
+                "__MONOTONIC_TIMESTAMP": "1",
+                "__REALTIME_TIMESTAMP": "1700000000000000",
+                "__SEQNUM": "1",
+                "__SEQNUM_ID": "7af4dfa3b67648f69ed2399b3f01a07e"
+              },
+              "report": {
+                "action": "export",
+                "boot_listing": {
+                  "argv": [
+                    "/usr/bin/journalctl",
+                    "--no-pager",
+                    "--system",
+                    "--directory=/tmp/boot-product-home-existing-install/journal",
+                    "--list-boots",
+                    "--output=json"
+                  ],
+                  "child_reaped": true,
+                  "elapsed_seconds": 0.001991,
+                  "environment": {
+                    "LC_ALL": "C",
+                    "PAGER": "cat",
+                    "PATH": "/usr/bin:/bin",
+                    "SYSTEMD_COLORS": "0",
+                    "SYSTEMD_LOG_TARGET": "console",
+                    "SYSTEMD_PAGER": "cat",
+                    "TZ": "UTC"
+                  },
+                  "exit_code": 0,
+                  "state": "complete"
+                },
+                "boot_listing_raw": {
+                  "bytes": 239,
+                  "sha256": "15995f87df4e97264f4ae54e35e323c1880fc2745839b11cbf9e0d296583988f"
+                },
+                "boot_listing_stderr": {
+                  "bytes": 0,
+                  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                },
+                "boots": [
+                  {
+                    "boot_id": "11111111111111111111111111111111",
+                    "first_entry": 1700000000000000,
+                    "index": -1,
+                    "last_entry": 1700000000000000
+                  },
+                  {
+                    "boot_id": "22222222222222222222222222222222",
+                    "first_entry": 1700000000000001,
+                    "index": 0,
+                    "last_entry": 1700000000000001
+                  }
+                ],
+                "created_utc": "2026-10-19T21:05:01.455120+00:00",
+                "history_completeness": "UNKNOWN",
+                "journal_source": "/tmp/boot-product-home-existing-install/journal",
+                "kernel_crash_diagnosis": "NOT_ESTABLISHED",
+                "kernel_journal": {
+                  "argv": [
+                    "/usr/bin/journalctl",
+                    "--no-pager",
+                    "--system",
+                    "--directory=/tmp/boot-product-home-existing-install/journal",
+                    "--output=json",
+                    "--all",
+                    "--lines=all",
+                    "--boot=11111111111111111111111111111111",
+                    "_TRANSPORT=kernel"
+                  ],
+                  "child_reaped": true,
+                  "elapsed_seconds": 0.00178,
+                  "environment": {
+                    "LC_ALL": "C",
+                    "PAGER": "cat",
+                    "PATH": "/usr/bin:/bin",
+                    "SYSTEMD_COLORS": "0",
+                    "SYSTEMD_LOG_TARGET": "console",
+                    "SYSTEMD_PAGER": "cat",
+                    "TZ": "UTC"
+                  },
+                  "exit_code": 0,
+                  "raw": {
+                    "bytes": 518,
+                    "sha256": "da5d886bac4616cae07afef696b4e1c2b69ae0ed09b9c26167b2f604c2cf8cb2"
+                  },
+                  "state": "complete",
+                  "stderr": {
+                    "bytes": 0,
+                    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                  },
+                  "validated_records": 1
+                },
+                "limits": {
+                  "boots": 4096,
+                  "command_seconds": 20,
+                  "journal_bytes": 8388608,
+                  "list_bytes": 1048576,
+                  "pstore_file_bytes": 1048576,
+                  "pstore_files": 32,
+                  "pstore_seconds": 5,
+                  "pstore_total_bytes": 8388608,
+                  "stderr_bytes": 65536
+                },
+                "pstore": {
+                  "boot_attribution": "UNKNOWN",
+                  "bytes": 24,
+                  "completeness": "UNKNOWN",
+                  "files": [
+                    {
+                      "after": {
+                        "ctime_ns": 1792443901336595231,
+                        "device": 65,
+                        "gid": 1000,
+                        "inode": 78,
+                        "mode": 33152,
+                        "mtime_ns": 1792443901336595231,
+                        "size": 24,
+                        "uid": 1000
+                      },
+                      "before": {
+                        "ctime_ns": 1792443901336595231,
+                        "device": 65,
+                        "gid": 1000,
+                        "inode": 78,
+                        "mode": 33152,
+                        "mtime_ns": 1792443901336595231,
+                        "size": 24,
+                        "uid": 1000
+                      },
+                      "bytes": 24,
+                      "file": "pstore-0000.bin",
+                      "name": "synthetic-record",
+                      "path_after": {
+                        "ctime_ns": 1792443901336595231,
+                        "device": 65,
+                        "gid": 1000,
+                        "inode": 78,
+                        "mode": 33152,
+                        "mtime_ns": 1792443901336595231,
+                        "size": 24,
+                        "uid": 1000
+                      },
+                      "sha256": "a97dc6550c17e00021d0fcb60a6186c694cdaae04d491446ecd2b95b418c4d25",
+                      "stable_metadata": true,
+                      "state": "captured"
+                    }
+                  ],
+                  "path": "/tmp/boot-product-home-existing-install/pstore",
+                  "state": "enumerated"
+                },
+                "schema_version": 1,
+                "selected_boot_id": "11111111111111111111111111111111",
+                "sensitive_local_contents": true,
+                "state": "captured",
+                "tool": "cachy-asahi-boot-report"
+              },
+              "report_mode": "0600",
+              "report_sha256": "77020878f0e305dff290cbe8e016f22c99f1477c9aadba1d773f573ffbb8c1c0",
+              "status": "PASS_INSTALLED_SYNTHETIC_FIXTURE_ONLY"
+            },
+            "home": "product-home-existing"
+          }
+        ],
+        "phase": "install",
+        "reports_preserved": true,
+        "status": "PASS"
+      },
+      {
+        "config_preserved": true,
+        "inventory_count": 575,
+        "observations": [
+          {
+            "boot": {
+              "checks": [
+                "exact_two_synthetic_boots",
+                "complete_selected_record_equality_no_other_boot_or_transport",
+                "captured_raw_provenance",
+                "no_real_history_crash_or_pstore_attribution",
+                "exact_synthetic_pstore",
+                "private_report_modes",
+                "no_overwrite_unchanged",
+                "missing_boot_unknown",
+                "empty_rotated_history_unknown",
+                "explicit_rotated_journal_read",
+                "unreadable_history_never_inferred",
+                "invalid_boot_refused_before_output",
+                "unsafe_parent_refused",
+                "all_private_input_bytes_and_metadata_held",
+                "hostile_pager_not_executed"
+              ],
+              "history_completeness": "UNKNOWN",
+              "journal_sha256": "77c326d908442852de51e66c660153d4c6051390b14466e48fa9c037cc1c573e",
+              "kernel_crash_diagnosis": "NOT_ESTABLISHED",
+              "label": "SYNTHETIC_JOURNAL_INSTALLED_CLI",
+              "no_overwrite": "PASS",
+              "record": {
+                "MESSAGE": "SYNTHETIC TEST ONLY 11111111111111111111111111111111 kernel",
+                "PRIORITY": "3",
+                "_BOOT_ID": "11111111111111111111111111111111",
+                "_HOSTNAME": "synthetic-boot-fixture",
+                "_MACHINE_ID": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "_TRANSPORT": "kernel",
+                "_UID": "65534",
+                "__CURSOR": "s=7af4dfa3b67648f69ed2399b3f01a07e;i=1;b=11111111111111111111111111111111;m=1;t=60a24181e4000;x=87378640ffe93f74",
+                "__MONOTONIC_TIMESTAMP": "1",
+                "__REALTIME_TIMESTAMP": "1700000000000000",
+                "__SEQNUM": "1",
+                "__SEQNUM_ID": "7af4dfa3b67648f69ed2399b3f01a07e"
+              },
+              "report": {
+                "action": "export",
+                "boot_listing": {
+                  "argv": [
+                    "/usr/bin/journalctl",
+                    "--no-pager",
+                    "--system",
+                    "--directory=/tmp/boot-product-home-fresh-same-version-reinstall/journal",
+                    "--list-boots",
+                    "--output=json"
+                  ],
+                  "child_reaped": true,
+                  "elapsed_seconds": 0.002007,
+                  "environment": {
+                    "LC_ALL": "C",
+                    "PAGER": "cat",
+                    "PATH": "/usr/bin:/bin",
+                    "SYSTEMD_COLORS": "0",
+                    "SYSTEMD_LOG_TARGET": "console",
+                    "SYSTEMD_PAGER": "cat",
+                    "TZ": "UTC"
+                  },
+                  "exit_code": 0,
+                  "state": "complete"
+                },
+                "boot_listing_raw": {
+                  "bytes": 239,
+                  "sha256": "15995f87df4e97264f4ae54e35e323c1880fc2745839b11cbf9e0d296583988f"
+                },
+                "boot_listing_stderr": {
+                  "bytes": 0,
+                  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                },
+                "boots": [
+                  {
+                    "boot_id": "11111111111111111111111111111111",
+                    "first_entry": 1700000000000000,
+                    "index": -1,
+                    "last_entry": 1700000000000000
+                  },
+                  {
+                    "boot_id": "22222222222222222222222222222222",
+                    "first_entry": 1700000000000001,
+                    "index": 0,
+                    "last_entry": 1700000000000001
+                  }
+                ],
+                "created_utc": "2026-10-19T21:05:02.266695+00:00",
+                "history_completeness": "UNKNOWN",
+                "journal_source": "/tmp/boot-product-home-fresh-same-version-reinstall/journal",
+                "kernel_crash_diagnosis": "NOT_ESTABLISHED",
+                "kernel_journal": {
+                  "argv": [
+                    "/usr/bin/journalctl",
+                    "--no-pager",
+                    "--system",
+                    "--directory=/tmp/boot-product-home-fresh-same-version-reinstall/journal",
+                    "--output=json",
+                    "--all",
+                    "--lines=all",
+                    "--boot=11111111111111111111111111111111",
+                    "_TRANSPORT=kernel"
+                  ],
+                  "child_reaped": true,
+                  "elapsed_seconds": 0.001664,
+                  "environment": {
+                    "LC_ALL": "C",
+                    "PAGER": "cat",
+                    "PATH": "/usr/bin:/bin",
+                    "SYSTEMD_COLORS": "0",
+                    "SYSTEMD_LOG_TARGET": "console",
+                    "SYSTEMD_PAGER": "cat",
+                    "TZ": "UTC"
+                  },
+                  "exit_code": 0,
+                  "raw": {
+                    "bytes": 518,
+                    "sha256": "2c36810e96f88a209e98121ba40d1407f57832514250ddb87f61397dfdbc3836"
+                  },
+                  "state": "complete",
+                  "stderr": {
+                    "bytes": 0,
+                    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                  },
+                  "validated_records": 1
+                },
+                "limits": {
+                  "boots": 4096,
+                  "command_seconds": 20,
+                  "journal_bytes": 8388608,
+                  "list_bytes": 1048576,
+                  "pstore_file_bytes": 1048576,
+                  "pstore_files": 32,
+                  "pstore_seconds": 5,
+                  "pstore_total_bytes": 8388608,
+                  "stderr_bytes": 65536
+                },
+                "pstore": {
+                  "boot_attribution": "UNKNOWN",
+                  "bytes": 24,
+                  "completeness": "UNKNOWN",
+                  "files": [
+                    {
+                      "after": {
+                        "ctime_ns": 1792443902147144802,
+                        "device": 65,
+                        "gid": 1000,
+                        "inode": 102,
+                        "mode": 33152,
+                        "mtime_ns": 1792443902147144802,
+                        "size": 24,
+                        "uid": 1000
+                      },
+                      "before": {
+                        "ctime_ns": 1792443902147144802,
+                        "device": 65,
+                        "gid": 1000,
+                        "inode": 102,
+                        "mode": 33152,
+                        "mtime_ns": 1792443902147144802,
+                        "size": 24,
+                        "uid": 1000
+                      },
+                      "bytes": 24,
+                      "file": "pstore-0000.bin",
+                      "name": "synthetic-record",
+                      "path_after": {
+                        "ctime_ns": 1792443902147144802,
+                        "device": 65,
+                        "gid": 1000,
+                        "inode": 102,
+                        "mode": 33152,
+                        "mtime_ns": 1792443902147144802,
+                        "size": 24,
+                        "uid": 1000
+                      },
+                      "sha256": "a97dc6550c17e00021d0fcb60a6186c694cdaae04d491446ecd2b95b418c4d25",
+                      "stable_metadata": true,
+                      "state": "captured"
+                    }
+                  ],
+                  "path": "/tmp/boot-product-home-fresh-same-version-reinstall/pstore",
+                  "state": "enumerated"
+                },
+                "schema_version": 1,
+                "selected_boot_id": "11111111111111111111111111111111",
+                "sensitive_local_contents": true,
+                "state": "captured",
+                "tool": "cachy-asahi-boot-report"
+              },
+              "report_mode": "0600",
+              "report_sha256": "1c6ef8b0f12337cb2e0a8a85867bc24eaba437c41c28d970900ba8bd5a967a4c",
+              "status": "PASS_INSTALLED_SYNTHETIC_FIXTURE_ONLY"
+            },
+            "home": "product-home-fresh"
+          },
+          {
+            "boot": {
+              "checks": [
+                "exact_two_synthetic_boots",
+                "complete_selected_record_equality_no_other_boot_or_transport",
+                "captured_raw_provenance",
+                "no_real_history_crash_or_pstore_attribution",
+                "exact_synthetic_pstore",
+                "private_report_modes",
+                "no_overwrite_unchanged",
+                "missing_boot_unknown",
+                "empty_rotated_history_unknown",
+                "explicit_rotated_journal_read",
+                "unreadable_history_never_inferred",
+                "invalid_boot_refused_before_output",
+                "unsafe_parent_refused",
+                "all_private_input_bytes_and_metadata_held",
+                "hostile_pager_not_executed"
+              ],
+              "history_completeness": "UNKNOWN",
+              "journal_sha256": "77c326d908442852de51e66c660153d4c6051390b14466e48fa9c037cc1c573e",
+              "kernel_crash_diagnosis": "NOT_ESTABLISHED",
+              "label": "SYNTHETIC_JOURNAL_INSTALLED_CLI",
+              "no_overwrite": "PASS",
+              "record": {
+                "MESSAGE": "SYNTHETIC TEST ONLY 11111111111111111111111111111111 kernel",
+                "PRIORITY": "3",
+                "_BOOT_ID": "11111111111111111111111111111111",
+                "_HOSTNAME": "synthetic-boot-fixture",
+                "_MACHINE_ID": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "_TRANSPORT": "kernel",
+                "_UID": "65534",
+                "__CURSOR": "s=7af4dfa3b67648f69ed2399b3f01a07e;i=1;b=11111111111111111111111111111111;m=1;t=60a24181e4000;x=87378640ffe93f74",
+                "__MONOTONIC_TIMESTAMP": "1",
+                "__REALTIME_TIMESTAMP": "1700000000000000",
+                "__SEQNUM": "1",
+                "__SEQNUM_ID": "7af4dfa3b67648f69ed2399b3f01a07e"
+              },
+              "report": {
+                "action": "export",
+                "boot_listing": {
+                  "argv": [
+                    "/usr/bin/journalctl",
+                    "--no-pager",
+                    "--system",
+                    "--directory=/tmp/boot-product-home-existing-same-version-reinstall/journal",
+                    "--list-boots",
+                    "--output=json"
+                  ],
+                  "child_reaped": true,
+                  "elapsed_seconds": 0.002084,
+                  "environment": {
+                    "LC_ALL": "C",
+                    "PAGER": "cat",
+                    "PATH": "/usr/bin:/bin",
+                    "SYSTEMD_COLORS": "0",
+                    "SYSTEMD_LOG_TARGET": "console",
+                    "SYSTEMD_PAGER": "cat",
+                    "TZ": "UTC"
+                  },
+                  "exit_code": 0,
+                  "state": "complete"
+                },
+                "boot_listing_raw": {
+                  "bytes": 239,
+                  "sha256": "15995f87df4e97264f4ae54e35e323c1880fc2745839b11cbf9e0d296583988f"
+                },
+                "boot_listing_stderr": {
+                  "bytes": 0,
+                  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                },
+                "boots": [
+                  {
+                    "boot_id": "11111111111111111111111111111111",
+                    "first_entry": 1700000000000000,
+                    "index": -1,
+                    "last_entry": 1700000000000000
+                  },
+                  {
+                    "boot_id": "22222222222222222222222222222222",
+                    "first_entry": 1700000000000001,
+                    "index": 0,
+                    "last_entry": 1700000000000001
+                  }
+                ],
+                "created_utc": "2026-10-19T21:05:02.966792+00:00",
+                "history_completeness": "UNKNOWN",
+                "journal_source": "/tmp/boot-product-home-existing-same-version-reinstall/journal",
+                "kernel_crash_diagnosis": "NOT_ESTABLISHED",
+                "kernel_journal": {
+                  "argv": [
+                    "/usr/bin/journalctl",
+                    "--no-pager",
+                    "--system",
+                    "--directory=/tmp/boot-product-home-existing-same-version-reinstall/journal",
+                    "--output=json",
+                    "--all",
+                    "--lines=all",
+                    "--boot=11111111111111111111111111111111",
+                    "_TRANSPORT=kernel"
+                  ],
+                  "child_reaped": true,
+                  "elapsed_seconds": 0.001753,
+                  "environment": {
+                    "LC_ALL": "C",
+                    "PAGER": "cat",
+                    "PATH": "/usr/bin:/bin",
+                    "SYSTEMD_COLORS": "0",
+                    "SYSTEMD_LOG_TARGET": "console",
+                    "SYSTEMD_PAGER": "cat",
+                    "TZ": "UTC"
+                  },
+                  "exit_code": 0,
+                  "raw": {
+                    "bytes": 518,
+                    "sha256": "4ca4ff8bac9e2044c99b712ce94cefccded854fd3d8a05be45efaf206a99c993"
+                  },
+                  "state": "complete",
+                  "stderr": {
+                    "bytes": 0,
+                    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                  },
+                  "validated_records": 1
+                },
+                "limits": {
+                  "boots": 4096,
+                  "command_seconds": 20,
+                  "journal_bytes": 8388608,
+                  "list_bytes": 1048576,
+                  "pstore_file_bytes": 1048576,
+                  "pstore_files": 32,
+                  "pstore_seconds": 5,
+                  "pstore_total_bytes": 8388608,
+                  "stderr_bytes": 65536
+                },
+                "pstore": {
+                  "boot_attribution": "UNKNOWN",
+                  "bytes": 24,
+                  "completeness": "UNKNOWN",
+                  "files": [
+                    {
+                      "after": {
+                        "ctime_ns": 1792443902848138150,
+                        "device": 65,
+                        "gid": 1000,
+                        "inode": 126,
+                        "mode": 33152,
+                        "mtime_ns": 1792443902848138150,
+                        "size": 24,
+                        "uid": 1000
+                      },
+                      "before": {
+                        "ctime_ns": 1792443902848138150,
+                        "device": 65,
+                        "gid": 1000,
+                        "inode": 126,
+                        "mode": 33152,
+                        "mtime_ns": 1792443902848138150,
+                        "size": 24,
+                        "uid": 1000
+                      },
+                      "bytes": 24,
+                      "file": "pstore-0000.bin",
+                      "name": "synthetic-record",
+                      "path_after": {
+                        "ctime_ns": 1792443902848138150,
+                        "device": 65,
+                        "gid": 1000,
+                        "inode": 126,
+                        "mode": 33152,
+                        "mtime_ns": 1792443902848138150,
+                        "size": 24,
+                        "uid": 1000
+                      },
+                      "sha256": "a97dc6550c17e00021d0fcb60a6186c694cdaae04d491446ecd2b95b418c4d25",
+                      "stable_metadata": true,
+                      "state": "captured"
+                    }
+                  ],
+                  "path": "/tmp/boot-product-home-existing-same-version-reinstall/pstore",
+                  "state": "enumerated"
+                },
+                "schema_version": 1,
+                "selected_boot_id": "11111111111111111111111111111111",
+                "sensitive_local_contents": true,
+                "state": "captured",
+                "tool": "cachy-asahi-boot-report"
+              },
+              "report_mode": "0600",
+              "report_sha256": "befdfb845714a8f6d3410cb316980a578f4a276e9f5195441bef3a287dda8874",
+              "status": "PASS_INSTALLED_SYNTHETIC_FIXTURE_ONLY"
+            },
+            "home": "product-home-existing"
+          }
+        ],
+        "phase": "same-version-reinstall",
+        "reports_preserved": true,
+        "status": "PASS"
+      },
+      {
+        "config_preserved": true,
+        "inventory_count": 574,
+        "phase": "remove",
+        "reports_preserved": true,
+        "status": "PASS"
+      },
+      {
+        "config_preserved": true,
+        "inventory_count": 575,
+        "observations": [
+          {
+            "boot": {
+              "checks": [
+                "exact_two_synthetic_boots",
+                "complete_selected_record_equality_no_other_boot_or_transport",
+                "captured_raw_provenance",
+                "no_real_history_crash_or_pstore_attribution",
+                "exact_synthetic_pstore",
+                "private_report_modes",
+                "no_overwrite_unchanged",
+                "missing_boot_unknown",
+                "empty_rotated_history_unknown",
+                "explicit_rotated_journal_read",
+                "unreadable_history_never_inferred",
+                "invalid_boot_refused_before_output",
+                "unsafe_parent_refused",
+                "all_private_input_bytes_and_metadata_held",
+                "hostile_pager_not_executed"
+              ],
+              "history_completeness": "UNKNOWN",
+              "journal_sha256": "77c326d908442852de51e66c660153d4c6051390b14466e48fa9c037cc1c573e",
+              "kernel_crash_diagnosis": "NOT_ESTABLISHED",
+              "label": "SYNTHETIC_JOURNAL_INSTALLED_CLI",
+              "no_overwrite": "PASS",
+              "record": {
+                "MESSAGE": "SYNTHETIC TEST ONLY 11111111111111111111111111111111 kernel",
+                "PRIORITY": "3",
+                "_BOOT_ID": "11111111111111111111111111111111",
+                "_HOSTNAME": "synthetic-boot-fixture",
+                "_MACHINE_ID": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "_TRANSPORT": "kernel",
+                "_UID": "65534",
+                "__CURSOR": "s=7af4dfa3b67648f69ed2399b3f01a07e;i=1;b=11111111111111111111111111111111;m=1;t=60a24181e4000;x=87378640ffe93f74",
+                "__MONOTONIC_TIMESTAMP": "1",
+                "__REALTIME_TIMESTAMP": "1700000000000000",
+                "__SEQNUM": "1",
+                "__SEQNUM_ID": "7af4dfa3b67648f69ed2399b3f01a07e"
+              },
+              "report": {
+                "action": "export",
+                "boot_listing": {
+                  "argv": [
+                    "/usr/bin/journalctl",
+                    "--no-pager",
+                    "--system",
+                    "--directory=/tmp/boot-product-home-fresh-reinstall-after-removal/journal",
+                    "--list-boots",
+                    "--output=json"
+                  ],
+                  "child_reaped": true,
+                  "elapsed_seconds": 0.002137,
+                  "environment": {
+                    "LC_ALL": "C",
+                    "PAGER": "cat",
+                    "PATH": "/usr/bin:/bin",
+                    "SYSTEMD_COLORS": "0",
+                    "SYSTEMD_LOG_TARGET": "console",
+                    "SYSTEMD_PAGER": "cat",
+                    "TZ": "UTC"
+                  },
+                  "exit_code": 0,
+                  "state": "complete"
+                },
+                "boot_listing_raw": {
+                  "bytes": 239,
+                  "sha256": "15995f87df4e97264f4ae54e35e323c1880fc2745839b11cbf9e0d296583988f"
+                },
+                "boot_listing_stderr": {
+                  "bytes": 0,
+                  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                },
+                "boots": [
+                  {
+                    "boot_id": "11111111111111111111111111111111",
+                    "first_entry": 1700000000000000,
+                    "index": -1,
+                    "last_entry": 1700000000000000
+                  },
+                  {
+                    "boot_id": "22222222222222222222222222222222",
+                    "first_entry": 1700000000000001,
+                    "index": 0,
+                    "last_entry": 1700000000000001
+                  }
+                ],
+                "created_utc": "2026-10-19T21:05:03.877215+00:00",
+                "history_completeness": "UNKNOWN",
+                "journal_source": "/tmp/boot-product-home-fresh-reinstall-after-removal/journal",
+                "kernel_crash_diagnosis": "NOT_ESTABLISHED",
+                "kernel_journal": {
+                  "argv": [
+                    "/usr/bin/journalctl",
+                    "--no-pager",
+                    "--system",
+                    "--directory=/tmp/boot-product-home-fresh-reinstall-after-removal/journal",
+                    "--output=json",
+                    "--all",
+                    "--lines=all",
+                    "--boot=11111111111111111111111111111111",
+                    "_TRANSPORT=kernel"
+                  ],
+                  "child_reaped": true,
+                  "elapsed_seconds": 0.001744,
+                  "environment": {
+                    "LC_ALL": "C",
+                    "PAGER": "cat",
+                    "PATH": "/usr/bin:/bin",
+                    "SYSTEMD_COLORS": "0",
+                    "SYSTEMD_LOG_TARGET": "console",
+                    "SYSTEMD_PAGER": "cat",
+                    "TZ": "UTC"
+                  },
+                  "exit_code": 0,
+                  "raw": {
+                    "bytes": 518,
+                    "sha256": "126cece5731b92564113ca999952cb449cd81d71b90aa2edf1e8dae7e283f470"
+                  },
+                  "state": "complete",
+                  "stderr": {
+                    "bytes": 0,
+                    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                  },
+                  "validated_records": 1
+                },
+                "limits": {
+                  "boots": 4096,
+                  "command_seconds": 20,
+                  "journal_bytes": 8388608,
+                  "list_bytes": 1048576,
+                  "pstore_file_bytes": 1048576,
+                  "pstore_files": 32,
+                  "pstore_seconds": 5,
+                  "pstore_total_bytes": 8388608,
+                  "stderr_bytes": 65536
+                },
+                "pstore": {
+                  "boot_attribution": "UNKNOWN",
+                  "bytes": 24,
+                  "completeness": "UNKNOWN",
+                  "files": [
+                    {
+                      "after": {
+                        "ctime_ns": 1792443903759661486,
+                        "device": 65,
+                        "gid": 1000,
+                        "inode": 150,
+                        "mode": 33152,
+                        "mtime_ns": 1792443903759661486,
+                        "size": 24,
+                        "uid": 1000
+                      },
+                      "before": {
+                        "ctime_ns": 1792443903759661486,
+                        "device": 65,
+                        "gid": 1000,
+                        "inode": 150,
+                        "mode": 33152,
+                        "mtime_ns": 1792443903759661486,
+                        "size": 24,
+                        "uid": 1000
+                      },
+                      "bytes": 24,
+                      "file": "pstore-0000.bin",
+                      "name": "synthetic-record",
+                      "path_after": {
+                        "ctime_ns": 1792443903759661486,
+                        "device": 65,
+                        "gid": 1000,
+                        "inode": 150,
+                        "mode": 33152,
+                        "mtime_ns": 1792443903759661486,
+                        "size": 24,
+                        "uid": 1000
+                      },
+                      "sha256": "a97dc6550c17e00021d0fcb60a6186c694cdaae04d491446ecd2b95b418c4d25",
+                      "stable_metadata": true,
+                      "state": "captured"
+                    }
+                  ],
+                  "path": "/tmp/boot-product-home-fresh-reinstall-after-removal/pstore",
+                  "state": "enumerated"
+                },
+                "schema_version": 1,
+                "selected_boot_id": "11111111111111111111111111111111",
+                "sensitive_local_contents": true,
+                "state": "captured",
+                "tool": "cachy-asahi-boot-report"
+              },
+              "report_mode": "0600",
+              "report_sha256": "01d1849df03e541a2cd21127d522e9d05eaefd4865294d180bfffffe44ed8d46",
+              "status": "PASS_INSTALLED_SYNTHETIC_FIXTURE_ONLY"
+            },
+            "home": "product-home-fresh"
+          },
+          {
+            "boot": {
+              "checks": [
+                "exact_two_synthetic_boots",
+                "complete_selected_record_equality_no_other_boot_or_transport",
+                "captured_raw_provenance",
+                "no_real_history_crash_or_pstore_attribution",
+                "exact_synthetic_pstore",
+                "private_report_modes",
+                "no_overwrite_unchanged",
+                "missing_boot_unknown",
+                "empty_rotated_history_unknown",
+                "explicit_rotated_journal_read",
+                "unreadable_history_never_inferred",
+                "invalid_boot_refused_before_output",
+                "unsafe_parent_refused",
+                "all_private_input_bytes_and_metadata_held",
+                "hostile_pager_not_executed"
+              ],
+              "history_completeness": "UNKNOWN",
+              "journal_sha256": "77c326d908442852de51e66c660153d4c6051390b14466e48fa9c037cc1c573e",
+              "kernel_crash_diagnosis": "NOT_ESTABLISHED",
+              "label": "SYNTHETIC_JOURNAL_INSTALLED_CLI",
+              "no_overwrite": "PASS",
+              "record": {
+                "MESSAGE": "SYNTHETIC TEST ONLY 11111111111111111111111111111111 kernel",
+                "PRIORITY": "3",
+                "_BOOT_ID": "11111111111111111111111111111111",
+                "_HOSTNAME": "synthetic-boot-fixture",
+                "_MACHINE_ID": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "_TRANSPORT": "kernel",
+                "_UID": "65534",
+                "__CURSOR": "s=7af4dfa3b67648f69ed2399b3f01a07e;i=1;b=11111111111111111111111111111111;m=1;t=60a24181e4000;x=87378640ffe93f74",
+                "__MONOTONIC_TIMESTAMP": "1",
+                "__REALTIME_TIMESTAMP": "1700000000000000",
+                "__SEQNUM": "1",
+                "__SEQNUM_ID": "7af4dfa3b67648f69ed2399b3f01a07e"
+              },
+              "report": {
+                "action": "export",
+                "boot_listing": {
+                  "argv": [
+                    "/usr/bin/journalctl",
+                    "--no-pager",
+                    "--system",
+                    "--directory=/tmp/boot-product-home-existing-reinstall-after-removal/journal",
+                    "--list-boots",
+                    "--output=json"
+                  ],
+                  "child_reaped": true,
+                  "elapsed_seconds": 0.001992,
+                  "environment": {
+                    "LC_ALL": "C",
+                    "PAGER": "cat",
+                    "PATH": "/usr/bin:/bin",
+                    "SYSTEMD_COLORS": "0",
+                    "SYSTEMD_LOG_TARGET": "console",
+                    "SYSTEMD_PAGER": "cat",
+                    "TZ": "UTC"
+                  },
+                  "exit_code": 0,
+                  "state": "complete"
+                },
+                "boot_listing_raw": {
+                  "bytes": 239,
+                  "sha256": "15995f87df4e97264f4ae54e35e323c1880fc2745839b11cbf9e0d296583988f"
+                },
+                "boot_listing_stderr": {
+                  "bytes": 0,
+                  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                },
+                "boots": [
+                  {
+                    "boot_id": "11111111111111111111111111111111",
+                    "first_entry": 1700000000000000,
+                    "index": -1,
+                    "last_entry": 1700000000000000
+                  },
+                  {
+                    "boot_id": "22222222222222222222222222222222",
+                    "first_entry": 1700000000000001,
+                    "index": 0,
+                    "last_entry": 1700000000000001
+                  }
+                ],
+                "created_utc": "2026-10-19T21:05:04.577533+00:00",
+                "history_completeness": "UNKNOWN",
+                "journal_source": "/tmp/boot-product-home-existing-reinstall-after-removal/journal",
+                "kernel_crash_diagnosis": "NOT_ESTABLISHED",
+                "kernel_journal": {
+                  "argv": [
+                    "/usr/bin/journalctl",
+                    "--no-pager",
+                    "--system",
+                    "--directory=/tmp/boot-product-home-existing-reinstall-after-removal/journal",
+                    "--output=json",
+                    "--all",
+                    "--lines=all",
+                    "--boot=11111111111111111111111111111111",
+                    "_TRANSPORT=kernel"
+                  ],
+                  "child_reaped": true,
+                  "elapsed_seconds": 0.001815,
+                  "environment": {
+                    "LC_ALL": "C",
+                    "PAGER": "cat",
+                    "PATH": "/usr/bin:/bin",
+                    "SYSTEMD_COLORS": "0",
+                    "SYSTEMD_LOG_TARGET": "console",
+                    "SYSTEMD_PAGER": "cat",
+                    "TZ": "UTC"
+                  },
+                  "exit_code": 0,
+                  "raw": {
+                    "bytes": 518,
+                    "sha256": "a68cb9e20fa699d0cf7a971ba9520e25516dfab9a17e7b16acc3bfc1d2a79d6c"
+                  },
+                  "state": "complete",
+                  "stderr": {
+                    "bytes": 0,
+                    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                  },
+                  "validated_records": 1
+                },
+                "limits": {
+                  "boots": 4096,
+                  "command_seconds": 20,
+                  "journal_bytes": 8388608,
+                  "list_bytes": 1048576,
+                  "pstore_file_bytes": 1048576,
+                  "pstore_files": 32,
+                  "pstore_seconds": 5,
+                  "pstore_total_bytes": 8388608,
+                  "stderr_bytes": 65536
+                },
+                "pstore": {
+                  "boot_attribution": "UNKNOWN",
+                  "bytes": 24,
+                  "completeness": "UNKNOWN",
+                  "files": [
+                    {
+                      "after": {
+                        "ctime_ns": 1792443904458136681,
+                        "device": 65,
+                        "gid": 1000,
+                        "inode": 174,
+                        "mode": 33152,
+                        "mtime_ns": 1792443904458136681,
+                        "size": 24,
+                        "uid": 1000
+                      },
+                      "before": {
+                        "ctime_ns": 1792443904458136681,
+                        "device": 65,
+                        "gid": 1000,
+                        "inode": 174,
+                        "mode": 33152,
+                        "mtime_ns": 1792443904458136681,
+                        "size": 24,
+                        "uid": 1000
+                      },
+                      "bytes": 24,
+                      "file": "pstore-0000.bin",
+                      "name": "synthetic-record",
+                      "path_after": {
+                        "ctime_ns": 1792443904458136681,
+                        "device": 65,
+                        "gid": 1000,
+                        "inode": 174,
+                        "mode": 33152,
+                        "mtime_ns": 1792443904458136681,
+                        "size": 24,
+                        "uid": 1000
+                      },
+                      "sha256": "a97dc6550c17e00021d0fcb60a6186c694cdaae04d491446ecd2b95b418c4d25",
+                      "stable_metadata": true,
+                      "state": "captured"
+                    }
+                  ],
+                  "path": "/tmp/boot-product-home-existing-reinstall-after-removal/pstore",
+                  "state": "enumerated"
+                },
+                "schema_version": 1,
+                "selected_boot_id": "11111111111111111111111111111111",
+                "sensitive_local_contents": true,
+                "state": "captured",
+                "tool": "cachy-asahi-boot-report"
+              },
+              "report_mode": "0600",
+              "report_sha256": "26134b446baff598619377a646d243875472f4c5f9c376748d1564bb77e96c30",
+              "status": "PASS_INSTALLED_SYNTHETIC_FIXTURE_ONLY"
+            },
+            "home": "product-home-existing"
+          }
+        ],
+        "phase": "reinstall-after-removal",
+        "reports_preserved": true,
+        "status": "PASS"
+      },
+      {
+        "config_preserved": true,
+        "inventory_count": 574,
+        "phase": "final-remove",
+        "reports_preserved": true,
+        "status": "PASS"
+      }
+    ],
+    "hardware": "NOT_RUN",
+    "history_completeness": "UNKNOWN",
+    "installed_count": 575,
+    "kernel_crash_diagnosis": "NOT_ESTABLISHED",
+    "masked_hooks": 41,
+    "status": "PASS_PRODUCTS_INSTALLED_CLI_LIFECYCLE",
+    "user_config_preserved": true,
+    "user_reports_preserved": true
+  },
+  "original_ten_composition": "UNCHANGED",
+  "products": {
+    "cachy-asahi-boot-report": {
+      "builds": [
+        {
+          "archive": "cachy-asahi-boot-report-0.1.0-1-any.pkg.tar.xz",
+          "elf": null,
+          "payload": {
+            "usr/bin/cachy-asahi-boot-report": {
+              "gid": 0,
+              "link": "",
+              "mode": 493,
+              "mtime": 1791748800,
+              "sha256": "d88fa9523b33900b06b8fbfbdb167ecdff98d3787fc620494d738ecf11646cb7",
+              "size": 17370,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-boot-report/README.md": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "6fca46e91f295568944249db1eda2b7d2719e5f16e940ce0e7f87190f7967a5d",
+              "size": 5454,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-boot-report/LICENSE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+              "size": 1081,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-boot-report/NOTICE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "6e20e714d7d5afcc327260ef23f53cfcba2aa4c2de7e427725c45deed1bb4e65",
+              "size": 274,
+              "type": "0",
+              "uid": 0
+            }
+          },
+          "sha256": "4400e766391b27021c6f40d29c35eb215d9fad12e4555f0d8b6637967baa6472",
+          "tests": {
+            "boot_fixtures": 18,
+            "check_enabled": true,
+            "cli_cases": 0,
+            "glib_cases": 0,
+            "source_payload": "PINNED_SHARED_RECIPE_CHECK",
+            "status": "PASS"
+          }
+        },
+        {
+          "archive": "cachy-asahi-boot-report-0.1.0-1-any.pkg.tar.xz",
+          "elf": null,
+          "payload": {
+            "usr/bin/cachy-asahi-boot-report": {
+              "gid": 0,
+              "link": "",
+              "mode": 493,
+              "mtime": 1791748800,
+              "sha256": "d88fa9523b33900b06b8fbfbdb167ecdff98d3787fc620494d738ecf11646cb7",
+              "size": 17370,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-boot-report/README.md": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "6fca46e91f295568944249db1eda2b7d2719e5f16e940ce0e7f87190f7967a5d",
+              "size": 5454,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-boot-report/LICENSE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+              "size": 1081,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-boot-report/NOTICE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "6e20e714d7d5afcc327260ef23f53cfcba2aa4c2de7e427725c45deed1bb4e65",
+              "size": 274,
+              "type": "0",
+              "uid": 0
+            }
+          },
+          "sha256": "4400e766391b27021c6f40d29c35eb215d9fad12e4555f0d8b6637967baa6472",
+          "tests": {
+            "boot_fixtures": 18,
+            "check_enabled": true,
+            "cli_cases": 0,
+            "glib_cases": 0,
+            "source_payload": "PINNED_SHARED_RECIPE_CHECK",
+            "status": "PASS"
+          }
+        }
+      ],
+      "comparison": {
+        "errors": [],
+        "hardware_status": "NOT RUN",
+        "independence_limit": "Distinct recorded container runs; independent machine execution is not attested.",
+        "packages": {
+          "cachy-asahi-boot-report-0.1.0-1-any.pkg.tar.xz": {
+            "buildinfo_equal": true,
+            "bytes_equal": true,
+            "installed_contents_equal": true,
+            "pkginfo_equal": true
+          }
+        },
+        "status": "contents-reproduced"
+      }
+    }
+  },
+  "scope": "TWO_UNSELECTED_ORIGINAL_PRODUCT_CANDIDATES",
+  "status": "PASS_NATIVE_PRODUCTS_PAIR_CONTENTS_AND_INSTALLED_CLI_LIFECYCLE"
+}

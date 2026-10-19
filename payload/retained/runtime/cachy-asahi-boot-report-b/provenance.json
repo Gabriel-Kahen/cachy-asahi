@@ -1,0 +1,110 @@
+{
+  "artifacts": {
+    "cachy-asahi-boot-report-0.1.0-1-any.pkg.tar.xz": "4400e766391b27021c6f40d29c35eb215d9fad12e4555f0d8b6637967baa6472"
+  },
+  "clean_environment_id": "cachy-asahi-product-af6ba50e7ea57bd70fdd8a8267af3655",
+  "command": [
+    "docker",
+    "run",
+    "--name",
+    "cachy-asahi-product-af6ba50e7ea57bd70fdd8a8267af3655",
+    "--pull=never",
+    "--platform=linux/arm64",
+    "--network=none",
+    "--cap-drop=ALL",
+    "--security-opt=no-new-privileges",
+    "--pids-limit=256",
+    "--memory=3g",
+    "--cpus=4",
+    "--user",
+    "1001:1001",
+    "--tmpfs",
+    "/tmp:rw,nosuid,nodev,exec,size=2g",
+    "--mount",
+    "type=bind,src=/home/runner/work/_temp/product-native-runtime/cachy-asahi-boot-report-b/artifacts,dst=/out",
+    "--read-only",
+    "--env=CACHY_ASAHI_CONTAINER=1",
+    "--env=SOURCE_DATE_EPOCH=1791748800",
+    "--mount",
+    "type=bind,src=/home/runner/work/_temp/product-native-runtime/cachy-asahi-boot-report-b/inputs,dst=/inputs,readonly",
+    "--mount",
+    "type=bind,src=/home/runner/work/_temp/product-native-runtime/cachy-asahi-boot-report-b/expected-packages.lock,dst=/expected-packages.lock,readonly",
+    "--mount",
+    "type=bind,src=/home/runner/work/cachy-asahi/cachy-asahi/scripts/build/container-entry.sh,dst=/builder-entry.sh,readonly",
+    "--entrypoint=/bin/bash",
+    "sha256:85e1f58a0b6c2620cef3349910e251e69558480640e26018f7653ad3f4d77cc4",
+    "/builder-entry.sh"
+  ],
+  "entry_script_sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24",
+  "expected_packages_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+  "files": {
+    "artifacts/cachy-asahi-boot-report-0.1.0-1-any.pkg.tar.xz": "4400e766391b27021c6f40d29c35eb215d9fad12e4555f0d8b6637967baa6472",
+    "artifacts/config.sha256": "8309cb4c0409ccdc1ca922475dde9377aec434911efc453299f41e8fadb234ec",
+    "artifacts/environment.txt": "d4223589c1b8b77792c361201bc26b7ff8c759c6f82317bb38b8ea6fb926529c",
+    "artifacts/generated.SRCINFO": "42d541331daf875b951d8583914bd889c24ddd46f7a1a22e11a927396584d046",
+    "artifacts/makepkg.conf": "cfcf0bd2601d887724c5ca7d9a48ac5dd347abad9e8ac5efa436080e45822a60",
+    "artifacts/packages.lock": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+    "artifacts/pacman.conf": "14d304eeb83baf1379279356c232580fd095c2d508b41c74677347801a0bafe7",
+    "build.log": "b4596843de7515b51df61c634a5554b9c24c5aded30663a87775f2b414494a1f",
+    "expected-packages.lock": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+    "validation.json": "47d44cc1320869ee605068cc1d24eba97e43d06231941443d809329b121f59f6"
+  },
+  "hardware_status": "NOT RUN",
+  "image": "sha256:85e1f58a0b6c2620cef3349910e251e69558480640e26018f7653ad3f4d77cc4",
+  "image_id": "sha256:85e1f58a0b6c2620cef3349910e251e69558480640e26018f7653ad3f4d77cc4",
+  "mode": "native",
+  "recipe_inputs": {
+    "LICENSE": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+    "NOTICE": "6e20e714d7d5afcc327260ef23f53cfcba2aa4c2de7e427725c45deed1bb4e65",
+    "PKGBUILD": "07031123e32fb142d64bc0cdc5385f1794746965b4c7cb21195047429dc840a1",
+    "README.md": "6fca46e91f295568944249db1eda2b7d2719e5f16e940ce0e7f87190f7967a5d",
+    "cachy-asahi-boot-report": "d88fa9523b33900b06b8fbfbdb167ecdff98d3787fc620494d738ecf11646cb7",
+    "test_boot_report.py": "35170f432adafd37b719e1033f29fa0b97a78c61a2dade25e99dc0e095efc4a4"
+  },
+  "recipe_metadata": {
+    "arch": [
+      "any"
+    ],
+    "depends": [
+      "python>=3.11",
+      "systemd>=251"
+    ],
+    "license": [
+      "MIT"
+    ],
+    "pkgbase": [
+      "cachy-asahi-boot-report"
+    ],
+    "pkgdesc": [
+      "Explicit read-only local boot kernel-journal and pstore diagnostics"
+    ],
+    "pkgname": [
+      "cachy-asahi-boot-report"
+    ],
+    "pkgrel": [
+      "1"
+    ],
+    "pkgver": [
+      "0.1.0"
+    ],
+    "sha256sums": [
+      "d88fa9523b33900b06b8fbfbdb167ecdff98d3787fc620494d738ecf11646cb7",
+      "35170f432adafd37b719e1033f29fa0b97a78c61a2dade25e99dc0e095efc4a4",
+      "6fca46e91f295568944249db1eda2b7d2719e5f16e940ce0e7f87190f7967a5d",
+      "6e20e714d7d5afcc327260ef23f53cfcba2aa4c2de7e427725c45deed1bb4e65",
+      "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    ],
+    "source": [
+      "cachy-asahi-boot-report",
+      "test_boot_report.py",
+      "README.md",
+      "NOTICE",
+      "LICENSE"
+    ],
+    "url": [
+      "https://github.com/Gabriel-Kahen/cachy-asahi"
+    ]
+  },
+  "source_date_epoch": 1791748800,
+  "status": "built-package-static-pass"
+}
