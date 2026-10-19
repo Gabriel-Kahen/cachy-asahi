@@ -230,6 +230,40 @@ def pre_observation(raw):
  text=raw.decode();C.need(text.count(A.PERSISTENT_OBSERVATION_API)==text.count(A.PERSISTENT_API_NEW)==1,'one private persistent observer seam');return text.replace(A.PERSISTENT_OBSERVATION_API,'',1).replace(A.PERSISTENT_API_NEW,A.PERSISTENT_API_OLD,1).encode()
 
 class PersistentObservation(unittest.TestCase):
+ def test_no_cache_relative_oracle_and_complete_original_fallback(self):
+  import itertools,random
+  scope,roots,copier,fresh,copyfresh=self.apis()
+  driver=C.load('_relative_original_driver',ROOT/'scripts/ci/full-root-upgrade/root_upgrade.py')
+  _,_,_,private=scope.persistent_apis(roots,copier,None,driver)
+  self.assertIs(fresh.observe.__code__,roots.observe.__code__);self.assertIs(fresh.observe.__globals__['installer'],fresh.installer)
+  self.assertIs(private.database.__code__,driver.database.__code__);self.assertIs(private.database.__globals__['relative'],private.relative);self.assertIs(driver.database.__globals__['relative'],driver.relative)
+  self.assertIsNot(fresh.installer,roots.installer);self.assertIsNot(private,driver)
+  values=[None,[],{},0,True,b'a',Path('a')];alphabet=['','a','.','..','/','\\','\0','é','\udcff',':',' ','\n']
+  values+=[''.join(parts)for size in range(4)for parts in itertools.product(alphabet,repeat=size)]
+  randomizer=random.Random(489);values+=[''.join(randomizer.choices(alphabet,k=randomizer.randrange(1,15)))for _ in range(10000)]
+  class String(str):pass
+  values += [String('usr/lib/a'),'.','..','a/','a//b','//server/a','usr/lib/a']
+  for original,candidate in((roots.installer.relative,fresh.installer.relative),(driver.relative,private.relative)):
+   for value in values:
+    outputs=[]
+    for fn in(original,candidate):
+     try:outputs.append(('return',fn(value)))
+     except Exception as error:outputs.append((type(error).__name__,str(error)))
+    self.assertEqual(outputs[0],outputs[1],repr(value))
+   for value in('usr/lib/a','a','é/x','a\\b/c',':/a','a\n/b'):self.assertIs(candidate(value),value)
+  self.assertIs(copyfresh.copy_data.__globals__['roots'],fresh)
+
+ def test_no_cache_relative_real_independent_fresh_payload_and_aliases(self):
+  scope,roots,copier,fresh,copyfresh=self.apis()
+  with tempfile.TemporaryDirectory()as td:
+   root=Path(td);(root/'dir').mkdir();(root/'dir/a').write_bytes(b'original');os.link(root/'dir/a',root/'dir/b');(root/'link').symlink_to('dir/a')
+   before=fresh.observe(root,limits=self.limits(roots),hardlinks='generic-development-internal')
+   self.assertEqual(before['nodes'],roots.observe(root,limits=self.limits(roots),hardlinks='generic-development-internal')['nodes'])
+   (root/'dir/a').write_bytes(b'changed independently')
+   after=fresh.observe(root,limits=self.limits(roots),hardlinks='generic-development-internal')
+   self.assertEqual(after['nodes'],roots.observe(root,limits=self.limits(roots),hardlinks='generic-development-internal')['nodes']);self.assertNotEqual(before['nodes']['dir/a']['sha256'],after['nodes']['dir/a']['sha256']);self.assertEqual(after['nodes']['dir/a']['hardlink_group'],after['nodes']['dir/b']['hardlink_group'])
+
+
  def apis(self):
   import sys,types
   text=A.persistent_stage((ROOT/'scripts/ci/full-root-upgrade-caller/persistent_scope.py').read_bytes()).decode();scope=types.ModuleType('_private_persistent_observation');exec(compile(text,'<source-pinned-persistent-observer>','exec'),scope.__dict__)
