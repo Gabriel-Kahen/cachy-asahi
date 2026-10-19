@@ -41,17 +41,23 @@ def exercise(*,expected,original1,new2,original606_manifest,observe,transact,fix
  No exported code or arbitrary fixture/callback supplied by runtime data is
  imported. Every step requires independent full readback and source proof.
  """
- products=operands(original1,new2,original606_manifest=original606_manifest);initial=observe();G.inventory(initial['inventory'],expected)
+ with C.phase('baseline-capture'):
+  products=operands(original1,new2,original606_manifest=original606_manifest);initial=observe();G.inventory(initial['inventory'],expected)
  events=[];previous=initial
  for phase,version in PHASES:
   if phase!='baseline1':
-   result=transact(phase,previous['inventory'],None if version is None else products[version]);C.need(result['direct_child_reaped']is True and result['group_retired']is True and result['returncode']==0,'real transaction retirement before readback')
-  current=observe()
-  event=verify_readback(initial,current,expected=expected,version=version,products=products,physical_before=initial['physical'],physical_after=current['physical'],caps_before=initial['capabilities'],caps_after=current['capabilities'])
+   with C.phase(phase+'.transaction'):
+    result=transact(phase,previous['inventory'],None if version is None else products[version]);C.need(result['direct_child_reaped']is True and result['group_retired']is True and result['returncode']==0,'real transaction retirement before readback')
+  with C.phase(phase+'.readback'):
+   current=observe()
+   event=verify_readback(initial,current,expected=expected,version=version,products=products,physical_before=initial['physical'],physical_after=current['physical'],caps_before=initial['capabilities'],caps_after=current['capabilities'])
   event['transaction']='NOT_RUN_BASELINE'if phase=='baseline1'else result
   if version is not None:
-   checks=fixtures(phase,version,products[version]);C.need(checks.get('homes')=={'fresh':{'CLI':4 if version=='0.1.0-2'else 2,'installed_controls':44 if version=='0.1.0-2'else 18,'live_kernel_write':'NOT_RUN'},'existing':{'CLI':4 if version=='0.1.0-2'else 2,'installed_controls':44 if version=='0.1.0-2'else 18,'live_kernel_write':'NOT_RUN'}}and checks.get('zero_capabilities')is True and checks.get('NNP')==1,'actual installed CLI/readonly inventory/source fixtures in both ordinary homes')
+   with C.phase(phase+'.fixtures'):
+    checks=fixtures(phase,version,products[version]);C.need(checks.get('homes')=={'fresh':{'CLI':4 if version=='0.1.0-2'else 2,'installed_controls':44 if version=='0.1.0-2'else 18,'live_kernel_write':'NOT_RUN'},'existing':{'CLI':4 if version=='0.1.0-2'else 2,'installed_controls':44 if version=='0.1.0-2'else 18,'live_kernel_write':'NOT_RUN'}}and checks.get('zero_capabilities')is True and checks.get('NNP')==1,'actual installed CLI/readonly inventory/source fixtures in both ordinary homes')
    event['fixtures']=checks
-   current=observe();verify_readback(initial,current,expected=expected,version=version,products=products,physical_before=initial['physical'],physical_after=current['physical'],caps_before=initial['capabilities'],caps_after=current['capabilities'])
-  C.need(source_unchanged()is True,'complete original source606 changed');events.append(dict(phase=phase,**event));previous=current
+   with C.phase(phase+'.post-fixture-readback'):
+    current=observe();verify_readback(initial,current,expected=expected,version=version,products=products,physical_before=initial['physical'],physical_after=current['physical'],caps_before=initial['capabilities'],caps_after=current['capabilities'])
+  with C.phase(phase+'.source-proof'):
+   C.need(source_unchanged()is True,'complete original source606 changed');events.append(dict(phase=phase,**event));previous=current
  return dict(status='COPY_PROTOCOL_COMPLETED_REQUIRES_OUTER_ORDERED_DISPOSAL',counts=[606,606,606,605,606,606],events=events,restoration='EXACT_ORIGINAL1_ARCHIVE_PAYLOAD_CURRENT_ALPM_DB',hardware='NOT_RUN',release='NOT_ADMITTED')
