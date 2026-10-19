@@ -38,6 +38,35 @@ reliable process-tree peak. Use a separately reviewed instrument that includes
 the entire build process tree if a memory acceptance budget depends on that
 metric. Document shared-memory double counting and instrument overhead. Do not
 rename parent RSS to whole-workload memory.
+The harness additionally records `process_group_memory` from the workload's
+original session/process group, including ordinary child processes. A bounded
+read-only `/proc` scan records each process's PID, start ticks, group/session,
+state and `VmRSS`; it checks identity while reading and rechecks membership.
+Observed forks, exits, PID reuse, unreadable live RSS, session changes, scan limits
+or sampling-budget failures make that snapshot incomplete. Threads are counted
+once through their thread-group leader. No cgroup, process, service, kernel
+setting, or host cache is changed by this sampler.
+
+`process_group_sampled_rss_kib` is the maximum RSS sum only when every applicable
+snapshot is complete and the leader identity is stable. Missing/incomplete
+snapshots leave that field null. `process_group_observed_rss_kib` separately
+retains the maximum among completed snapshots, with explicit coverage counts;
+it cannot substitute for missing coverage. The original `root_rss_kib` fields
+and existing guardrails retain their original meanings. The new observations
+do not add an acceptance guardrail or grant optimization acceptance. New frozen
+plans also pin the harness and memory-sampler source files.
+
+Summed RSS double-counts shared pages and is not unique physical memory. The
+snapshot is sequential, not atomic: a process can fork/exit between scans, and
+short-lived peaks can remain unseen. Detached/new-group descendants are outside
+the supported workload contract and measurement scope. The sampler has a
+100 ms per-snapshot budget, at most 4096 visible process entries and 512 group
+members. Actual collection can overrun that budget if a proc read stalls; the
+existing asynchronous sampler and workload timeout/cleanup still apply. Record
+sampling overhead and coverage before choosing a measurement interval. This is
+useful compiler/workload memory instrumentation, not a true process-tree peak
+or a replacement for a separately justified memory acceptance instrument.
+
 The runner's RSS summary requires every observed live-process reading and at
 least one live sample. It exposes missing live observations, unknown lifecycle
 and excluded exited samples in `rss_coverage`; unknown lifecycle makes RSS

@@ -1,5 +1,7 @@
 # Implementation and acceptance status
 
+October 19: [installed KSM2 scalar lifecycle passes on generic ARM16K](validation/ksm2-generic16k-scalar-20261019.md): signed574/575/574 transactions, real run-scalar apply/restore and foreign-edit refusal. Memory sharing, interruption recovery and M2 remain untested.
+
 October 19: [both same-source current604 desktop profiles pass on generic ARM16K](validation/desktop604-two-profiles-generic16k-20261019.md), including 17 management actions and 12 visually reviewed original frames per profile. Hardware and release acceptance remain open.
 
 October18 current606 result: [native DNS2/Sysctl2 composition now passes](validation/current606-native-20261018.md), including both byte-identical build pairs, signed606/604 transitions, both ordinary homes, all original604 preservation and raw8+6 auxiliary checkpoints. This accepts its exact4096-page software scope; Welcome5-on606, GUI/16K/M2 and release gates remain open.
