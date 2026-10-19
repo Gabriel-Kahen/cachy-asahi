@@ -1,0 +1,147 @@
+{
+  "actual_acceptance": null,
+  "artifact_path_derivation": {
+    "authority": "original retained DATA references only; published carrier and actual Root decision remain separately required for future VM",
+    "baseline_a_b": "packages/cachy-asahi-ksmctl-{a,b}/report.products['cachy-asahi-ksmctl'].builds[0|1].archive",
+    "basename": "source-pinned retainer requires cachy-asahi-ksmctl-{0.1.0-1,0.1.0-2}-any.pkg.tar.{xz,zst}",
+    "candidate_a_b": "packages/cachy-asahi-ksmctl2-{a,b}/report.products['cachy-asahi-ksmctl2'].builds[0|1].archive",
+    "index": "retention.json is whole original retained files/length/hash index; transport outcome pins original artifact/logs/API/metadata separately",
+    "pair": "each original package hash joins build row; pair equality required before DATA projection",
+    "signatures": "TEST-signing/{exact product buildA archive}.sig"
+  },
+  "decision_status": "ROOT_ACCEPTED_NATIVE_KSM1_TO2_UPGRADE_RETAINED_SCOPE",
+  "extension_basis": {
+    "bytes": 1611,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/ksm2-native-trial-root-20261018/Root-proposed-decision-schema.json",
+    "sha256": "60c1bed8ded65e8806586b3ab4e80e065219462763c669db67a0b15bda1bc929"
+  },
+  "finite_expectations": {
+    "builds": "FOUR_DISTINCT_SAME_JOB_NATIVE_BUILDERS_TWO_COMPLETE_BYTE_PAIRS",
+    "cleanup": "RETAINED_ORDERED_SIX_CONSUMERS_THEN_PRODUCER",
+    "generic16k": "NOT_RUN",
+    "hardware": "NOT_RUN",
+    "installed_controls": {
+      "ordinary_homes": 2,
+      "v1": 18,
+      "v2": 44
+    },
+    "live_kernel_write": "NOT_RUN",
+    "performance": "NOT_MEASURED",
+    "release": "NOT_ADMITTED",
+    "source_enforced_preservation": "ORIGINAL574_PAYLOAD_RAWDB_USER_SYSTEM_TRUST_PRIVATE_MAPS_UNEXPORTED",
+    "transitions": [
+      575,
+      575,
+      574,
+      575,
+      574
+    ]
+  },
+  "known_run": 39139213293,
+  "known_source": "72ea5a1e81268f08da9b9cc04cdc7e23a1a9ff8a",
+  "native_artifacts": {
+    "TEST_control": {
+      "bytes": null,
+      "path": "TEST-signing/control.json",
+      "sha256": null
+    },
+    "TEST_public_key": {
+      "bytes": null,
+      "path": "TEST-signing/TEST-public.asc",
+      "sha256": null
+    },
+    "baseline": {
+      "a": {
+        "bytes": null,
+        "path": null,
+        "sha256": null
+      },
+      "b": {
+        "bytes": null,
+        "path": null,
+        "sha256": null
+      }
+    },
+    "baseline_version": "0.1.0-1",
+    "candidate": {
+      "a": {
+        "bytes": null,
+        "path": null,
+        "sha256": null
+      },
+      "b": {
+        "bytes": null,
+        "path": null,
+        "sha256": null
+      }
+    },
+    "candidate_version": "0.1.0-2",
+    "lifecycle": {
+      "bytes": null,
+      "path": "runtime/lifecycle.json",
+      "sha256": null
+    },
+    "package_name": "cachy-asahi-ksmctl",
+    "path_scope": "ORIGINAL_PUBLIC_ARTIFACT_ROOT_NOT_A_PUBLISHED_CARRIER",
+    "retained_package_output_index": {
+      "bytes": null,
+      "path": "retention.json",
+      "sha256": null
+    },
+    "runner_derivations": {
+      "bytes": null,
+      "path": "runner-derivations.json",
+      "sha256": null
+    },
+    "runtime_report": {
+      "bytes": null,
+      "path": "runtime/report.json",
+      "sha256": null
+    },
+    "signatures": {
+      "baseline": {
+        "bytes": null,
+        "path": null,
+        "sha256": null
+      },
+      "candidate": {
+        "bytes": null,
+        "path": null,
+        "sha256": null
+      }
+    }
+  },
+  "published_future_carrier": null,
+  "recipe_sources": {
+    "baseline": "e753936b4d90d0b5127647581bed2a7fda64ce70",
+    "candidate": "e753936b4d90d0b5127647581bed2a7fda64ce70"
+  },
+  "required_fields": [
+    "status",
+    "source",
+    "run",
+    "recipe_sources",
+    "actual_architecture",
+    "actual_page_size",
+    "builds",
+    "transitions",
+    "installed_controls",
+    "native_artifacts",
+    "original_transport",
+    "strict_replay",
+    "lifecycle",
+    "cleanup",
+    "source_enforced_preservation",
+    "live_kernel_write",
+    "generic16k",
+    "hardware",
+    "performance",
+    "release",
+    "limits"
+  ],
+  "source_proposal": {
+    "bytes": 4168,
+    "sha256": "c67c6cc93d1b601f5013e36109ee71fabdfe71cbdfcadf6b9a35b35309a25375"
+  },
+  "status": "ROOT_DECLARED_FUTURE_NATIVE_DECISION_CONTRACT_NOT_ACCEPTANCE"
+}
