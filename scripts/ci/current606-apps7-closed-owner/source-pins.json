@@ -156,8 +156,8 @@
         "sha256": "f18bcbd2a6279cff8fe6c7e9c9f80fc01c9818844b01df8c4e97b83d61704b10"
       },
       "scripts/ci/current606-apps7-copy/alpm_step.py": {
-        "bytes": 5964,
-        "sha256": "ee7c41fe5057d200b05b941f853cc74e51bba90f679c7667a7d5c6a5ad600d35"
+        "bytes": 6105,
+        "sha256": "c4efe235fd0a7ebe4ee65da5e139cfe272308b5c6c11ffa7a3bdf48600f1a087"
       },
       "scripts/ci/current606-apps7-copy/contract.py": {
         "bytes": 6312,
@@ -191,6 +191,10 @@
         "bytes": 6083,
         "sha256": "579410157170252aa569ebf3b81aa506ec6c5c5458bae978bcb96742e55b5653"
       },
+      "scripts/ci/current606-apps7-copy/no_transaction_exec.py": {
+        "bytes": 1922,
+        "sha256": "961562420220bc3f54bd1888bd71a4ceadae12b2879dde48a0cfd55c794e6666"
+      },
       "scripts/ci/current606-apps7-copy/owner-api.json": {
         "bytes": 140,
         "sha256": "c15a9891197276874ee4fc45f49ca076a5aedbf1b34b075d49cee35cc202b5ac"
@@ -220,8 +224,8 @@
         "sha256": "af1ad1a0b9c27754a72cd920a4ad6053b865f94e46dc2517ed9a09fc49588211"
       },
       "scripts/ci/current606-apps7-copy/source-manifest.json": {
-        "bytes": 6836,
-        "sha256": "1049de9595e4c3147cf915ca28c479a87d3745c4cac49cccca3a513e6683c654"
+        "bytes": 7012,
+        "sha256": "8c17581cc0d0860b2bb2ed49635457d01386399a515944a068bcad271d98720f"
       },
       "scripts/ci/current606-apps7-copy/step_entry.py": {
         "bytes": 741,
