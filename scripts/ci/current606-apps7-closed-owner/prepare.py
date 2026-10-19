@@ -44,7 +44,151 @@ def workflow(raw,root):
  C.need(text.count(archive6_marker)==1,'one exact late archive32 source step')
  archive6_start=text.index(archive6_marker);archive6_end=text.index('      - name:',archive6_start+len(archive6_marker))
  text=text[:archive6_end]+'          archive6_helper="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-apps7-closed-owner/archive6.py"\n          archive6_policy="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-apps7-closed-owner/archive6-policy.json"\n          archive6_inputs="$GITHUB_WORKSPACE/composition-updater/scripts/port/updater-extension/builder-extension.lock.json"\n          printf \'%s  %s\\n\' \'5e448ef6677fc26485e044b3ac2d35a07105703d4f1a719bb7c030678eff87ae\' "$archive6_helper" \'4d83dbda592b8b6575d02df65de829226cae3ddffc7268e3d47873ac83f3b322\' "$archive6_policy" | sha256sum --check\n          python3 -I -B "$archive6_helper" --policy "$archive6_policy" --inputs "$archive6_inputs" --cache "$RUNNER_TEMP/frozen-updater-archive6"\n          python3 -I -B - "$archive6_helper" "$archive6_policy" "$archive6_inputs" "$RUNNER_TEMP/frozen-updater-archive6" "$RUNNER_TEMP/alarm-cache" <<\'PYARCHIVE6\'\n          import importlib.util,sys\n          from pathlib import Path\n          helper,policy,inputs,cache,destination=map(Path,sys.argv[1:])\n          spec=importlib.util.spec_from_file_location(\'held_updater_archive6_seed\',helper)\n          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)\n          selected=module.policy(policy,inputs)\n          result=module.seed_exact(cache,destination,selected)\n          result.update(helper=module.pin(helper.read_bytes()),policy=module.pin(policy.read_bytes()),destination=\'EXISTING_OWNED_ALARM_CACHE\',original_versions=\'UNCHANGED\',original_signature_and_trust_checks=\'UNCHANGED\')\n          print(module.encoded(result).decode(),end=\'\')\n          PYARCHIVE6\n'+text[archive6_end:]
+ archive20_early_marker='      - name: Build the fresh native base and original package pairs\n'
+ C.need(text.count(archive20_early_marker)==1,'one original native-base entry for exact4 seed')
+ archive20_early='''      - name: Prefetch full20 original frozen574 and seed only exact4 native-base files
+        id: frozen574_archive20_early
+        if: ${{ success() && inputs.mode == 'build' }}
+        timeout-minutes: 4
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive20_owner="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-apps7-closed-owner"
+          archive20_helper="$archive20_owner/archive20.py"
+          archive20_policy="$archive20_owner/archive20-policy.json"
+          archive20_inputs="$GITHUB_WORKSPACE/archive32-original-lock/scripts/ci/maintained-desktop574-inputs.json"
+          printf '%s  %s\\n' 'e8ef66fc0431a04deb331f75258457bf4bdeb13a18bcd863fd5bece3b9a54968' "$archive20_helper" '1f966afe0c24bb9a928154cb0638a8bb78292c799ffd544132633caddf6217ae' "$archive20_policy" | sha256sum --check
+          python3 -I -B "$archive20_helper" --policy "$archive20_policy" --inputs "$archive20_inputs" --cache "$RUNNER_TEMP/frozen574-archive20"
+          python3 -I -B - "$archive20_owner/prepare.py" "$archive20_helper" "$archive20_policy" "$archive20_inputs" "$GITHUB_WORKSPACE/scripts/ci/inputs.lock.json" "$RUNNER_TEMP/frozen574-archive20" "$RUNNER_TEMP/alarm-cache" <<'PYARCHIVE20NATIVE'
+          import importlib.util,sys
+          from pathlib import Path
+          prepare,helper,policy,inputs,native,cache,destination=map(Path,sys.argv[1:])
+          sys.path.insert(0,str(prepare.parent))
+          spec=importlib.util.spec_from_file_location('source_owned_archive20_native4',prepare)
+          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+          print(module.C.encoded(module.seed_archive20_native(helper,policy,inputs,native,cache,destination)).decode(),end='')
+          PYARCHIVE20NATIVE
+'''
+ text=text.replace(archive20_early_marker,archive20_early+archive20_early_marker,1)
+ archive20_marker='      - name: Required signed604 plus606 additions and restoration lifecycle\n'
+ C.need(text.count(archive20_marker)==1,'one unchanged producer entry for full20 seed')
+ archive20_late='''      - name: Prefetch and seed full20 original frozen574 files before unchanged producer
+        id: frozen574_archive20
+        if: ${{ !cancelled() && steps.frozen574_archive32.outcome == 'success' }}
+        timeout-minutes: 4
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive20_helper="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-apps7-closed-owner/archive20.py"
+          archive20_policy="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-apps7-closed-owner/archive20-policy.json"
+          archive20_inputs="$GITHUB_WORKSPACE/composition-desktop/scripts/ci/maintained-desktop574-inputs.json"
+          printf '%s  %s\\n' 'e8ef66fc0431a04deb331f75258457bf4bdeb13a18bcd863fd5bece3b9a54968' "$archive20_helper" '1f966afe0c24bb9a928154cb0638a8bb78292c799ffd544132633caddf6217ae' "$archive20_policy" | sha256sum --check
+          python3 -I -B "$archive20_helper" --policy "$archive20_policy" --inputs "$archive20_inputs" --cache "$RUNNER_TEMP/frozen574-archive20"
+          python3 -I -B - "$archive20_helper" "$archive20_policy" "$archive20_inputs" "$RUNNER_TEMP/frozen574-archive20" "$RUNNER_TEMP/alarm-cache" <<'PYARCHIVE20'
+          import importlib.util,sys
+          from pathlib import Path
+          helper,policy,inputs,cache,destination=map(Path,sys.argv[1:])
+          spec=importlib.util.spec_from_file_location('held_archive20_full_seed',helper)
+          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+          result=module.seed_exact(cache,destination,module.policy(policy,inputs))
+          print(module.encoded(result).decode(),end='')
+          PYARCHIVE20
+'''
+ # Require successful full20 before the exact old producer command may start.
+ start=text.index(archive20_marker);end=text.find('      - name:',start+len(archive20_marker));end=len(text)if end<0 else end
+ body=text[start:end];lines=body.splitlines(keepends=True);conditions=[i for i,line in enumerate(lines)if line.startswith('        if: ')];C.need(len(conditions)==1,'one original full574 producer condition');i=conditions[0];old=lines[i];C.need(old.rstrip().endswith(' }}'),'original producer expression');lines[i]=old.rstrip()[:-3]+" && steps.frozen574_archive20.outcome == 'success' }}\n"
+ text=text[:start]+archive20_late+''.join(lines)+text[end:]
+ archive8_early_marker='      - name: Build the fresh native base and original package pairs\n'
+ C.need(text.count(archive8_early_marker)==1,'one original native-base entry for exact8 seed')
+ archive8_early='''      - name: Prefetch full8 original frozen574 and seed full8 native-base files
+        id: frozen574_archive8_early
+        if: ${{ success() && inputs.mode == 'build' }}
+        timeout-minutes: 4
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive8_owner="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-apps7-closed-owner"
+          archive8_helper="$archive8_owner/archive8.py"
+          archive8_policy="$archive8_owner/archive8-policy.json"
+          archive8_inputs="$GITHUB_WORKSPACE/archive32-original-lock/scripts/ci/maintained-desktop574-inputs.json"
+          printf '%s  %s\\n' '5e24808152c727f5dcd19252c66e1ab121bdb9dbd6b90becb943820634898565' "$archive8_helper" '2b21c05d30a9c5efd2f717cfa8475c9de3150d7729f710b348b70a84f5b16e20' "$archive8_policy" | sha256sum --check
+          python3 -I -B "$archive8_helper" --policy "$archive8_policy" --inputs "$archive8_inputs" --cache "$RUNNER_TEMP/frozen574-archive8"
+          python3 -I -B - "$archive8_owner/prepare.py" "$archive8_helper" "$archive8_policy" "$archive8_inputs" "$GITHUB_WORKSPACE/scripts/ci/inputs.lock.json" "$RUNNER_TEMP/frozen574-archive8" "$RUNNER_TEMP/alarm-cache" <<'PYARCHIVE8NATIVE'
+          import importlib.util,sys
+          from pathlib import Path
+          prepare,helper,policy,inputs,native,cache,destination=map(Path,sys.argv[1:])
+          sys.path.insert(0,str(prepare.parent))
+          spec=importlib.util.spec_from_file_location('source_owned_archive8_native8',prepare)
+          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+          print(module.C.encoded(module.seed_archive8_native(helper,policy,inputs,native,cache,destination)).decode(),end='')
+          PYARCHIVE8NATIVE
+'''
+ text=text.replace(archive8_early_marker,archive8_early+archive8_early_marker,1)
+ archive8_marker='      - name: Required signed604 plus606 additions and restoration lifecycle\n'
+ C.need(text.count(archive8_marker)==1,'one unchanged producer entry for full8 seed')
+ archive8_late='''      - name: Prefetch and seed full8 original frozen574 files before unchanged producer
+        id: frozen574_archive8
+        if: ${{ !cancelled() && steps.frozen574_archive20.outcome == 'success' }}
+        timeout-minutes: 4
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive8_helper="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-apps7-closed-owner/archive8.py"
+          archive8_policy="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-apps7-closed-owner/archive8-policy.json"
+          archive8_inputs="$GITHUB_WORKSPACE/composition-desktop/scripts/ci/maintained-desktop574-inputs.json"
+          printf '%s  %s\\n' '5e24808152c727f5dcd19252c66e1ab121bdb9dbd6b90becb943820634898565' "$archive8_helper" '2b21c05d30a9c5efd2f717cfa8475c9de3150d7729f710b348b70a84f5b16e20' "$archive8_policy" | sha256sum --check
+          python3 -I -B "$archive8_helper" --policy "$archive8_policy" --inputs "$archive8_inputs" --cache "$RUNNER_TEMP/frozen574-archive8"
+          python3 -I -B - "$archive8_helper" "$archive8_policy" "$archive8_inputs" "$RUNNER_TEMP/frozen574-archive8" "$RUNNER_TEMP/alarm-cache" <<'PYARCHIVE8'
+          import importlib.util,sys
+          from pathlib import Path
+          helper,policy,inputs,cache,destination=map(Path,sys.argv[1:])
+          spec=importlib.util.spec_from_file_location('held_archive8_full_seed',helper)
+          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+          result=module.seed_exact(cache,destination,module.policy(policy,inputs))
+          print(module.encoded(result).decode(),end='')
+          PYARCHIVE8
+'''
+ # Require successful full8 before the exact old producer command may start.
+ start=text.index(archive8_marker);end=text.find('      - name:',start+len(archive8_marker));end=len(text)if end<0 else end
+ body=text[start:end];lines=body.splitlines(keepends=True);conditions=[i for i,line in enumerate(lines)if line.startswith('        if: ')];C.need(len(conditions)==1,'one original full574 producer condition');i=conditions[0];old=lines[i];C.need(old.rstrip().endswith(' }}'),'original producer expression');lines[i]=old.rstrip()[:-3]+" && steps.frozen574_archive8.outcome == 'success' }}\n"
+ text=text[:start]+archive8_late+''.join(lines)+text[end:]
  return text
+
+ARCHIVE20_NATIVE4={'libei-1.6.0-1-aarch64.pkg.tar.xz','libei-1.6.0-1-aarch64.pkg.tar.xz.sig','libgudev-238-3-aarch64.pkg.tar.xz','libgudev-238-3-aarch64.pkg.tar.xz.sig'}
+def seed_archive20_native(helper,policy,inputs,native_inputs,cache,destination):
+ """Full20 cache custody; exactly four native-base files copied, never full20 credit."""
+ import ast,importlib.util
+ raw=Path(helper).read_bytes();C.need(C.pin(raw)==dict(bytes=11096,sha256='e8ef66fc0431a04deb331f75258457bf4bdeb13a18bcd863fd5bece3b9a54968'),'whole archive20 helper source')
+ C.need(C.pin(Path(policy).read_bytes())==dict(bytes=6155,sha256='1f966afe0c24bb9a928154cb0638a8bb78292c799ffd544132633caddf6217ae'),'whole archive20 policy source')
+ spec=importlib.util.spec_from_file_location('_archive20_native_subset',helper);module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);v=module.policy(policy,inputs)
+ native_raw=module.read(native_inputs,1024**2);module.need(module.pin(native_raw)==dict(bytes=328101,sha256='beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'),'whole original native-base lock')
+ native={}
+ for row in json.loads(native_raw)['packages']:
+  native[row['filename']]=dict(bytes=row['size'],sha256=row['sha256']);native[row['filename']+'.sig']=dict(bytes=row['signature_size'],sha256=row['signature_sha256'])
+ selected={n:r for n,r in v['files'].items()if n in native};module.need(set(selected)==ARCHIVE20_NATIVE4 and all({k:r[k]for k in('bytes','sha256')}==native[n]for n,r in selected.items()),'exact4 native-base intersection of whole20; no other files')
+ module.checked_index(cache,v)
+ for n,row in v['files'].items():module.digest_file(Path(cache)/n,row)
+ # Derive only the original exact copy loop's finite iterable and honest receipt.
+ tree=ast.parse(raw);node=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='seed_exact');old=ast.get_source_segment(raw.decode(),node)
+ before="for name,row in v['files'].items():";after='for name,row in selected.items():';module.need(old.count(before)==1,'one original exact seed loop')
+ receipt="return dict(status='EXACT_ORIGINAL20_SEEDED_BEFORE_UNCHANGED_BUILD',files=20,bytes=TOTAL,original_inputs=v['original_inputs'])"
+ replacement="return dict(status='EXACT_NATIVE_BASE4_FROM_ARCHIVE20_SEEDED_NOT_FULL20',files=4,bytes=sum(r['bytes']for r in selected.values()),original_inputs=v['original_inputs'])"
+ module.need(old.count(receipt)==1,'one original seed receipt');new=old.replace(before,after).replace(receipt,replacement);module.need(new.replace(after,before).replace(replacement,receipt)==old,'whole seed function inverse')
+ space=dict(vars(module),selected=selected);exec(compile(new,'<source-owned-exact4-archive20-subset>','exec'),space)
+ return space['seed_exact'](cache,destination,v)
+
+ARCHIVE8_NATIVE8={name+suffix for name in('libx11-1.8.13-2-aarch64.pkg.tar.xz','libxi-1.8.3-1-aarch64.pkg.tar.xz','libxrender-0.9.12-1-aarch64.pkg.tar.xz','libxtst-1.2.5-1-aarch64.pkg.tar.xz')for suffix in('','.sig')}
+def seed_archive8_native(helper,policy,inputs,native_inputs,cache,destination):
+ import importlib.util
+ C.checked(Path(helper),dict(bytes=11040,sha256='5e24808152c727f5dcd19252c66e1ab121bdb9dbd6b90becb943820634898565'));C.checked(Path(policy),dict(bytes=2589,sha256='2b21c05d30a9c5efd2f717cfa8475c9de3150d7729f710b348b70a84f5b16e20'))
+ spec=importlib.util.spec_from_file_location('_source_owned_archive8_native_seed',helper);module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+ v=module.policy(Path(policy),Path(inputs));raw=module.read(Path(native_inputs),1024**2);expected=dict(bytes=328101,sha256='beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f');module.need(module.pin(raw)==expected,'whole original native-base lock required')
+ native={}
+ for row in json.loads(raw)['packages']:
+  native[row['filename']]=dict(bytes=row['size'],sha256=row['sha256']);native[row['filename']+'.sig']=dict(bytes=row['signature_size'],sha256=row['signature_sha256'])
+ files={n:{k:row[k]for k in('bytes','sha256')}for n,row in v['files'].items()}
+ module.need(set(files)==ARCHIVE8_NATIVE8 and len(files)==8 and set(files)&set(native)==set(files)and all(native[n]==row for n,row in files.items())and sum(row['bytes']for row in files.values())==2220315,'exact full8 original native-base intersection required')
+ result=module.seed_exact(Path(cache),Path(destination),v);module.need(result['files']==8 and result['bytes']==2220315,'complete8 native seed required');result.update(native_inputs=expected,native_base_files=8,native_base_scope='EXACT_FULL8_UNCHANGED_ORIGINAL_NATIVE_INPUTS_DATA_ONLY');return result
 
 def emit(inputs,output,selection=None):
  C.need(set(inputs)==set(C.ROLES),'three explicit source roots');C.need(output.is_absolute()and output.parent.is_dir()and not output.exists()and not any(p.is_symlink()for p in(output,*output.parents)),'fresh ordinary output')

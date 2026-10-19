@@ -206,4 +206,85 @@ class IndependentPackagePaths(unittest.TestCase):
   self.assertIn(b'first=scan(dbpath,c,normalize,deadline);second=scan(dbpath,c,normalize,deadline)',derived)
   self.assertIn(b'deadline=time.monotonic()+30',derived)
 
+
+from collections import Counter
+import types,time,hashlib
+def _fusion_helper():
+ value=types.ModuleType('actual_fused_observer_test');exec(A.FUSED_OBSERVER,value.__dict__);return value
+def _fusion_closure(name):
+ derive=C.load(name+'_derive',ROOT/C.NATIVE/'derive.py')
+ with patch.dict(sys.modules,{'derive':derive}):
+  for key in('full_root','measure_copy','root_link_selection','root_path','aux_checkpoint','aux_copy','disposable_copy','capacity'):sys.modules.pop(key,None)
+  return C.load(name,ROOT/C.NATIVE/'closure.py')
+def _fusion_stable(v):
+ v=json.loads(json.dumps(v));v['footprint'].pop('filesystem_free_bytes');v['footprint'].pop('filesystem_free_inodes');return v
+def _fusion_corpus(r,n=16):
+ for i in range(n):
+  p=r/('usr/share/pkg%03d/deep/leaf'%i);p.mkdir(parents=True)
+  for j in range(32):(p/('file%03d'%j)).write_bytes(hashlib.sha256(('%s/%s'%(i,j)).encode()).digest()*8)
+  (p/'alias').symlink_to('file000');os.link(p/'file001',p/'hard')
+ (r/'absolute').symlink_to('/usr/share');(r/'usr/bin').mkdir();(r/'usr/bin/ldconfig').write_bytes(b'INERT_NOT_EXECUTED')
+class FusedObservationControls(unittest.TestCase):
+ def test_real_complete_maps_and_lower_repeated_traversal(self):
+  old=_fusion_closure('old_fused_compare');new=_fusion_closure('new_fused_compare');_fusion_helper().bind(new)
+  with tempfile.TemporaryDirectory()as td:
+   root=Path(td);_fusion_corpus(root);results=[];counts=[]
+   for m,candidate in((old,False),(new,True)):
+    calls=Counter();original={n:getattr(os,n)for n in('stat','fstat','open','close','read','listxattr','getxattr','scandir','readlink')}
+    def traced(n):
+     def call(*a,**kw):calls[n]+=1;return original[n](*a,**kw)
+     return call
+    with __import__('contextlib').ExitStack()as stack:
+     for n in original:stack.enter_context(patch.object(os,n,traced(n)))
+     limits=m.roots.Limits(time.monotonic()+60)
+     if candidate:v=m._fused_observe(root,limits=limits,hardlinks='generic-development-internal');c=m._fused_capabilities(root,v['nodes'],limits)
+     else:v=m.roots.observe(root,limits=limits,hardlinks='generic-development-internal');c=m.caps.observe(root,v['nodes'],limits)
+     self.assertTrue(v['complete']);results.append((_fusion_stable(v),c))
+    counts.append(calls)
+   self.assertEqual(results[0],results[1]);self.assertEqual(counts[0]['read'],counts[1]['read']);self.assertEqual(counts[0]['listxattr'],counts[1]['listxattr']);self.assertLess(counts[1]['scandir'],counts[0]['scandir']);self.assertLess(counts[1]['open'],counts[0]['open'])
+   with patch.object(new.caps,'observe',wraps=new.caps.observe)as original:
+    self.assertEqual(new._fused_capabilities(root,v['nodes'],limits),{});original.assert_called_once_with(root,v['nodes'],limits)
+ def test_post_tree_mutation_and_unknown_attrs_refuse(self):
+  for operation in('mode','content','inode','unknown','hardlink','directory'):
+   m=_fusion_closure('fused_mutation_'+operation);_fusion_helper().bind(m)
+   with tempfile.TemporaryDirectory()as td:
+    root=Path(td);_fusion_corpus(root,1);limits=m.roots.Limits(time.monotonic()+60);v=m._fused_observe(root,limits=limits,hardlinks='generic-development-internal');self.assertTrue(v['complete']);p=root/'usr/share/pkg000/deep/leaf/file000'
+    if operation=='mode':p.chmod(0o600)
+    if operation=='content':p.write_bytes(b'x'*p.stat().st_size)
+    if operation=='inode':data=p.read_bytes();q=p.with_name('replacement');q.write_bytes(data);q.replace(p)
+    if operation=='unknown':os.setxattr(p,'user.no',b'x')
+    if operation=='hardlink':os.link(p,p.with_name('foreign'))
+    if operation=='directory':(p.parent/'new').write_bytes(b'x')
+    with self.assertRaises(ValueError):m._fused_capabilities(root,v['nodes'],limits)
+ def test_during_read_mutation_and_deadline_close_descriptors(self):
+  m=_fusion_closure('fused_live_mutation');_fusion_helper().bind(m)
+  with tempfile.TemporaryDirectory()as td:
+   root=Path(td);_fusion_corpus(root,1);p=root/'usr/share/pkg000/deep/leaf/file000';original=os.read;changed=False
+   def change(fd,n):
+    nonlocal changed
+    data=original(fd,n)
+    if not changed and os.fstat(fd).st_ino==p.stat().st_ino:
+     changed=True;p.write_bytes(b'z'*p.stat().st_size)
+    return data
+   baseline=len(os.listdir('/proc/self/fd'))
+   with patch.object(os,'read',change):v=m._fused_observe(root,limits=m.roots.Limits(time.monotonic()+60),hardlinks='generic-development-internal')
+   self.assertTrue(changed);self.assertFalse(v['complete']);self.assertEqual(len(os.listdir('/proc/self/fd')),baseline)
+   with self.assertRaisesRegex(ValueError,'root observation deadline'):m._fused_observe(root,limits=m.roots.Limits(time.monotonic()-1),hardlinks='generic-development-internal')
+   self.assertEqual(len(os.listdir('/proc/self/fd')),baseline)
+ def test_source_inverse_and_original_bodies_held(self):
+  S=ROOT
+  raw=(S/'scripts/update/full_root.py').read_bytes();out=_fusion_helper().observer_source(raw)
+  for before,after in reversed(_fusion_helper().EDITS):out=out.replace(after,before)
+  self.assertEqual(out,_fusion_helper().function(raw,'observe',_fusion_helper().ROOT_SHA))
+  with self.assertRaises(ValueError):_fusion_helper().observer_source(raw+b'\n')
+  m=_fusion_closure('fused_body_conservation');before=m.measure.__code__;restore=m.caps.restore;_fusion_helper().bind(m);self.assertIs(before,m.measure.__code__);self.assertIs(restore,m.caps.restore)
+ def test_actual_rendered_backend_loads_fused_closure_only(self):
+  native=C.decode(C.read(ROOT/C.NATIVE/'source-manifest.json'))
+  with tempfile.TemporaryDirectory()as td:
+   out=Path(td)/'execution';A.execution(ROOT,out,native);module=C.load('actual_rendered_fusion_backend',out/C.NATIVE/'transaction.py')
+   closure=module.load('actual_rendered_fusion_closure',out/C.NATIVE/'closure.py');self.assertTrue(hasattr(closure,'_fused_observe'));self.assertTrue(hasattr(closure,'_fused_capabilities'))
+   raw,_=C.load('fusion_native_derive',ROOT/C.NATIVE/'derive.py').derive(ROOT,'transaction');base=A.inventory_backend(A.backend(raw));derived=A.fused_backend(base);self.assertEqual([n for n in A.functions(base)if A.functions(base)[n]!=A.functions(derived)[n]],['load'])
+   self.assertEqual(C.read(out/'scripts/update/full_root.py'),C.read(ROOT/'scripts/update/full_root.py'));self.assertEqual(C.read(out/'scripts/apps/file_capabilities.py'),C.read(ROOT/'scripts/apps/file_capabilities.py'))
+
+
 if __name__=='__main__':unittest.main()
