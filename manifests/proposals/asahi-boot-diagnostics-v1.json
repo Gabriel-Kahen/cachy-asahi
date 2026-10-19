@@ -1,0 +1,23 @@
+{
+  "default_inventory": "BYTE_HELD",
+  "hardware": "NOT_RUN",
+  "native": "NOT_RUN",
+  "package": {
+    "hardware_validation": "NOT RUN",
+    "installation": "NOT RUN",
+    "license": "MIT",
+    "name": "cachy-asahi-boot-report",
+    "native_build": "NOT RUN",
+    "next_step": "Original local boot-list/explicit kernel-journal and optional pstore export implementation passes disposable host controls and four-file staging; native package build/lifecycle, target permission/history/pstore behavior and actual Apple crash/recovery remain open.",
+    "phase": "complete-port-tools",
+    "recipe": "packages/tools/cachy-asahi-boot-report/PKGBUILD",
+    "selected_for_development": true,
+    "selected_for_release": false,
+    "source": "local-original",
+    "status": "candidate"
+  },
+  "release_selected": false,
+  "schema_version": 1,
+  "source_checks": "Both Python3.12/3.14:18 unit methods and16 real disposable-journal CLI assertions each; four exact staged files",
+  "status": "UNSELECTED_DEVELOPMENT_PACKAGE_PROPOSAL"
+}
