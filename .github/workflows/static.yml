@@ -352,6 +352,12 @@ jobs:
           trap 'rm -rf -- "$work"' EXIT
           cp -a packages/tools/cachy-asahi-welcome5 "$work/recipe"
           make -C "$work/recipe" RECIPE_ROOT="$PWD/packages/tools/cachy-asahi-welcome5" check
+      - name: Check unselected Welcome6 boot-history product source
+        run: |
+          work=$(mktemp -d)
+          trap 'rm -rf -- "$work"' EXIT
+          cp -a packages/tools/cachy-asahi-welcome6 "$work/recipe"
+          make -C "$work/recipe" RECIPE_ROOT="$PWD/packages/tools/cachy-asahi-welcome6" check
       - name: Check Welcome4 to Welcome5 signed native trial source without actors
         run: |
           python3 -I -B scripts/ci/welcome5-native-upgrade/preflight.py --source "$PWD"
