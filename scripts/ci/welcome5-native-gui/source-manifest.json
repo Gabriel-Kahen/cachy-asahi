@@ -1206,8 +1206,8 @@
       "sha256": "bb6f8997e6fa0b09dcfb22b5fc34d96c6a69870ad61f95f0ebb88963bf9afe9d"
     },
     "scripts/ci/welcome5-native-gui/renewal.py": {
-      "bytes": 8062,
-      "sha256": "3910eee19eb793356e2a30277cb87e880010ccdd07f0873660ec61dfefbd3f38"
+      "bytes": 8510,
+      "sha256": "7cb3295fdb9817701139f931f2a840e25ba3437839f7748f380b844b40fb4986"
     },
     "scripts/ci/welcome5-native-gui/run.py": {
       "bytes": 4991,
@@ -1218,8 +1218,8 @@
       "sha256": "0abc72f2e400d36b77cab2833b2259f55053cf5f0494eaee83d57b72b688aa3e"
     },
     "scripts/ci/welcome5-native-gui/test_lane.py": {
-      "bytes": 13503,
-      "sha256": "4600563481000e62f26cd9aab1c2d6020919a8752cadd59130c1a58e4836966c"
+      "bytes": 15695,
+      "sha256": "54674d125c9492a700c1935af9d1064d31e6cc8dd76d3231cbdf7163461e48c4"
     },
     "scripts/ci/welcome5-native-gui/trust.py": {
       "bytes": 1586,

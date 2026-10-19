@@ -1,0 +1,5 @@
+# Doctor2 native source continuation
+
+This additive factory closes exactly62 source files from genuine public705c5a095f9cabbfd2f3cd137127f4bbc7665f52 and checks all current Doctor2 eight recipe inputs match. It preserves the original Welcome16/Doctor1seven source contexts and avoids overwriting canonical welcome-native or the historical119 replay. Source-only default emission is byteequal to the frozen Doctor2 UNBOUND default, with source/ref/run NULL; explicit --selected reproduces the genuine selected62 source exactly, retaining actual identities NULL. Neither emission confers native acceptance.
+
+The separate static checkout and factory controls require no Git/API calls within this code, package/native actors, host installation or new dependencies. All current Doctor1 inventory/default choices and unrelated products remain unchanged. The component evidence record documents actual39321557701, including byte equality and honest unavailable audio, with Root acceptance limited to this finite offline component. Current0.2.0-1 has no live audio/default-sink/playback, production signing,16K/M2 or target-installation acceptance.

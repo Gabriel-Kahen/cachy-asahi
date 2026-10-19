@@ -1,0 +1,193 @@
+{
+  "cleanup": "FOUR_ORIGINAL_CONSUMER_ABSENCES_AND_OWNED_BUILDER_IMAGE_PROBE_RETIREMENT_REPLAY_NOT_LATER_LIVE_INSPECTION",
+  "environment": {
+    "build_independence": "TWO_RECORDED_CONTAINERS_ONE_HOST",
+    "host": "GENERIC_AARCH64",
+    "masked_hooks": 41,
+    "offline": true,
+    "page_size": 4096
+  },
+  "evidence": {
+    "independent_replay": {
+      "bytes": 1671,
+      "sha256": "96aae590ddec88d031f1d94442bda180d383896594df55d0d00e288be97414a7"
+    },
+    "lifecycle": {
+      "bytes": 48699,
+      "sha256": "41c2d05ec8e47ac3e3c4747797f37de1a83983a2bcb0f9bef5f9e848d144d179"
+    },
+    "original_artifact": {
+      "bytes": 109100,
+      "sha256": "a7e9da199201cdd02e69b44674de2b3fa8d9431b60b7e7dc8693be990cca10be"
+    },
+    "report": {
+      "bytes": 62122,
+      "sha256": "d5cecbffaa626cde5555f5658489c97c1f3a10b47d49b50239a6078e48da8e1d"
+    }
+  },
+  "limitations": {
+    "Asahi_boot": "NOT_RUN",
+    "GUI": "NOT_RUN",
+    "M2": "NOT_RUN",
+    "boot_recovery": "NOT_RUN",
+    "crash_diagnosis": "NOT_ESTABLISHED",
+    "default_inventory": "UNCHANGED",
+    "physical16K": "NOT_RUN",
+    "production_signing": "NOT_ADMITTED",
+    "pstore": "SYNTHETIC_FIXTURE_ONLY_NO_LIVE_ACCESS",
+    "real_boot_history": "UNKNOWN",
+    "release": "NOT_ADMITTED"
+  },
+  "observations": [
+    {
+      "checks": 15,
+      "home": "product-home-fresh",
+      "phase": "install",
+      "pstore": {
+        "attribution": "UNKNOWN",
+        "bytes": 24,
+        "sha256": "a97dc6550c17e00021d0fcb60a6186c694cdaae04d491446ecd2b95b418c4d25"
+      },
+      "report_mode": "0600",
+      "report_sha256": "28933b59ea38791256905fcb1cd7c24a7d17b0119fee3a079e674af2c775883e",
+      "selected_record": "EXACT_SYNTHETIC_DECODED_RECORD"
+    },
+    {
+      "checks": 15,
+      "home": "product-home-existing",
+      "phase": "install",
+      "pstore": {
+        "attribution": "UNKNOWN",
+        "bytes": 24,
+        "sha256": "a97dc6550c17e00021d0fcb60a6186c694cdaae04d491446ecd2b95b418c4d25"
+      },
+      "report_mode": "0600",
+      "report_sha256": "77020878f0e305dff290cbe8e016f22c99f1477c9aadba1d773f573ffbb8c1c0",
+      "selected_record": "EXACT_SYNTHETIC_DECODED_RECORD"
+    },
+    {
+      "checks": 15,
+      "home": "product-home-fresh",
+      "phase": "same-version-reinstall",
+      "pstore": {
+        "attribution": "UNKNOWN",
+        "bytes": 24,
+        "sha256": "a97dc6550c17e00021d0fcb60a6186c694cdaae04d491446ecd2b95b418c4d25"
+      },
+      "report_mode": "0600",
+      "report_sha256": "1c6ef8b0f12337cb2e0a8a85867bc24eaba437c41c28d970900ba8bd5a967a4c",
+      "selected_record": "EXACT_SYNTHETIC_DECODED_RECORD"
+    },
+    {
+      "checks": 15,
+      "home": "product-home-existing",
+      "phase": "same-version-reinstall",
+      "pstore": {
+        "attribution": "UNKNOWN",
+        "bytes": 24,
+        "sha256": "a97dc6550c17e00021d0fcb60a6186c694cdaae04d491446ecd2b95b418c4d25"
+      },
+      "report_mode": "0600",
+      "report_sha256": "befdfb845714a8f6d3410cb316980a578f4a276e9f5195441bef3a287dda8874",
+      "selected_record": "EXACT_SYNTHETIC_DECODED_RECORD"
+    },
+    {
+      "checks": 15,
+      "home": "product-home-fresh",
+      "phase": "reinstall-after-removal",
+      "pstore": {
+        "attribution": "UNKNOWN",
+        "bytes": 24,
+        "sha256": "a97dc6550c17e00021d0fcb60a6186c694cdaae04d491446ecd2b95b418c4d25"
+      },
+      "report_mode": "0600",
+      "report_sha256": "01d1849df03e541a2cd21127d522e9d05eaefd4865294d180bfffffe44ed8d46",
+      "selected_record": "EXACT_SYNTHETIC_DECODED_RECORD"
+    },
+    {
+      "checks": 15,
+      "home": "product-home-existing",
+      "phase": "reinstall-after-removal",
+      "pstore": {
+        "attribution": "UNKNOWN",
+        "bytes": 24,
+        "sha256": "a97dc6550c17e00021d0fcb60a6186c694cdaae04d491446ecd2b95b418c4d25"
+      },
+      "report_mode": "0600",
+      "report_sha256": "26134b446baff598619377a646d243875472f4c5f9c376748d1564bb77e96c30",
+      "selected_record": "EXACT_SYNTHETIC_DECODED_RECORD"
+    }
+  ],
+  "package": {
+    "architecture": "any",
+    "archives": [
+      {
+        "bytes": 13920,
+        "sha256": "4400e766391b27021c6f40d29c35eb215d9fad12e4555f0d8b6637967baa6472",
+        "side": "a"
+      },
+      {
+        "bytes": 13920,
+        "sha256": "4400e766391b27021c6f40d29c35eb215d9fad12e4555f0d8b6637967baa6472",
+        "side": "b"
+      }
+    ],
+    "comparison": {
+      "buildinfo_equal": true,
+      "bytes_equal": true,
+      "installed_contents_equal": true,
+      "pkginfo_equal": true
+    },
+    "name": "cachy-asahi-boot-report",
+    "native_checks_each": 18,
+    "payload": "FOUR_ROOT_OWNED_REGULAR_SOURCE_BOUND_FILES_NO_ELF",
+    "unsigned": true,
+    "version": "0.1.0-1"
+  },
+  "phases": [
+    {
+      "config_preserved": true,
+      "inventory_count": 575,
+      "phase": "install",
+      "reports_preserved": true
+    },
+    {
+      "config_preserved": true,
+      "inventory_count": 575,
+      "phase": "same-version-reinstall",
+      "reports_preserved": true
+    },
+    {
+      "config_preserved": true,
+      "inventory_count": 574,
+      "phase": "remove",
+      "reports_preserved": true
+    },
+    {
+      "config_preserved": true,
+      "inventory_count": 575,
+      "phase": "reinstall-after-removal",
+      "reports_preserved": true
+    },
+    {
+      "config_preserved": true,
+      "inventory_count": 574,
+      "phase": "final-remove",
+      "reports_preserved": true
+    }
+  ],
+  "preservation": "SOURCE_ENFORCED_WITH_EXPORTED_PRIVATE_REPORT_HASH_JOINS_NOT_INDEPENDENT_RAW_HOME_SNAPSHOTS",
+  "ref": "codex/boot-report-native-products-v1",
+  "root_acceptance": {
+    "path": "artifacts/development/boot79-native-products-actual-20261019/Root-component-acceptance.json",
+    "pin": {
+      "bytes": 4494,
+      "sha256": "9e84021cd5fcdbb7b4009ea6341b7f737887f0334e28639430fbb0416d4ec0f2"
+    }
+  },
+  "run": 39323942218,
+  "schema_version": 1,
+  "source": "2c524830adb007e3b49392ceb54dd4cc5236c77d",
+  "source_files": 79,
+  "status": "ROOT_ACCEPTED_FINITE_NATIVE_BOOT_REPORT_PAIR_AND_SYNTHETIC_INSTALLED_CLI_LIFECYCLE"
+}

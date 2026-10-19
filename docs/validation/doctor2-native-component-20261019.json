@@ -1,0 +1,591 @@
+{
+  "cleanup": [
+    {
+      "absence_verified": true,
+      "container": "cachy-asahi-product-lifecycle-4b1963a36a71dcb8d2d5380a8affcc1d",
+      "status": "PASS"
+    },
+    {
+      "absence_verified": true,
+      "container": "cachy-asahi-product-67cfd42225db8b8844153d1429f3c822",
+      "status": "PASS"
+    },
+    {
+      "absence_verified": true,
+      "container": "cachy-asahi-product-3e963c0c24254a2300c49aa71a167712",
+      "status": "PASS"
+    },
+    {
+      "absence_verified": true,
+      "container": "cachy-asahi-product-19bb4d99a5f9d38a1703154e5ba900b6",
+      "status": "PASS"
+    },
+    {
+      "absence_verified": true,
+      "container": "cachy-asahi-product-7af62a20edd51e013ab5f9c3315c3f7a",
+      "status": "PASS"
+    },
+    {
+      "absence_verified": true,
+      "container": "cachy-asahi-product-probe-3b6013e0793cfb28111938a9e21ea602",
+      "status": "PASS"
+    }
+  ],
+  "defaults_and_inventory": "UNCHANGED",
+  "independent_replay_result": {
+    "bytes": 2094,
+    "sha256": "ab1404175b8062a16afe6a2cd90d6553b2096b0c0615f50dcc63dcae8fee54cb"
+  },
+  "job": {
+    "job_id": 118296620145,
+    "native_label": "ubuntu-24.04-arm",
+    "steps": [
+      3,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ]
+  },
+  "lifecycle": {
+    "actual_architecture": "aarch64",
+    "actual_page_size": 4096,
+    "masked_hooks": 41,
+    "observations": [
+      {
+        "audio": {
+          "check": "audio/default-output",
+          "note": "Default output was not observed. Check output selection and run Doctor from the affected login session; active services alone do not establish an output.",
+          "state": "unavailable",
+          "value": null
+        },
+        "doctor_version": "0.2.0",
+        "home": "product-home-fresh",
+        "no_overwrite": "PASS",
+        "phase": "install",
+        "report_mode": "0600",
+        "report_sha256": "eeab336a4e072d98a84438ac3878aaf927d5619cc363b08808a843d6a6b1ee17"
+      },
+      {
+        "audio": {
+          "check": "audio/default-output",
+          "note": "Default output was not observed. Check output selection and run Doctor from the affected login session; active services alone do not establish an output.",
+          "state": "unavailable",
+          "value": null
+        },
+        "doctor_version": "0.2.0",
+        "home": "product-home-existing",
+        "no_overwrite": "PASS",
+        "phase": "install",
+        "report_mode": "0600",
+        "report_sha256": "dde0006e1a586ddefdc5d8f4e983f77291ef2c6e500a29561d8c79c6aad131e9"
+      },
+      {
+        "audio": {
+          "check": "audio/default-output",
+          "note": "Default output was not observed. Check output selection and run Doctor from the affected login session; active services alone do not establish an output.",
+          "state": "unavailable",
+          "value": null
+        },
+        "doctor_version": "0.2.0",
+        "home": "product-home-fresh",
+        "no_overwrite": "PASS",
+        "phase": "same-version-reinstall",
+        "report_mode": "0600",
+        "report_sha256": "d0b8d650589935b58ee58c3537aee83106925e25adebb197bd75757416fe30fb"
+      },
+      {
+        "audio": {
+          "check": "audio/default-output",
+          "note": "Default output was not observed. Check output selection and run Doctor from the affected login session; active services alone do not establish an output.",
+          "state": "unavailable",
+          "value": null
+        },
+        "doctor_version": "0.2.0",
+        "home": "product-home-existing",
+        "no_overwrite": "PASS",
+        "phase": "same-version-reinstall",
+        "report_mode": "0600",
+        "report_sha256": "be0eb4d12ce09bf1ce01f4554ea6cc07ed5efd38621aa27246b950a2f787afff"
+      },
+      {
+        "audio": {
+          "check": "audio/default-output",
+          "note": "Default output was not observed. Check output selection and run Doctor from the affected login session; active services alone do not establish an output.",
+          "state": "unavailable",
+          "value": null
+        },
+        "doctor_version": "0.2.0",
+        "home": "product-home-fresh",
+        "no_overwrite": "PASS",
+        "phase": "reinstall-after-removal",
+        "report_mode": "0600",
+        "report_sha256": "761937d59bd1d4ae7d4853dc892f043d3957afe12391307def033c25a18579b8"
+      },
+      {
+        "audio": {
+          "check": "audio/default-output",
+          "note": "Default output was not observed. Check output selection and run Doctor from the affected login session; active services alone do not establish an output.",
+          "state": "unavailable",
+          "value": null
+        },
+        "doctor_version": "0.2.0",
+        "home": "product-home-existing",
+        "no_overwrite": "PASS",
+        "phase": "reinstall-after-removal",
+        "report_mode": "0600",
+        "report_sha256": "5c4dacf6033bfbf79d4ea50d0cb8024c1e9988636a7f19dc0116b13b0e159e43"
+      }
+    ],
+    "phases": [
+      {
+        "config_preserved": true,
+        "inventory_count": 576,
+        "phase": "install",
+        "status": "PASS"
+      },
+      {
+        "config_preserved": true,
+        "inventory_count": 576,
+        "phase": "same-version-reinstall",
+        "status": "PASS"
+      },
+      {
+        "config_preserved": true,
+        "inventory_count": 574,
+        "phase": "remove",
+        "reports_preserved": true,
+        "status": "PASS"
+      },
+      {
+        "config_preserved": true,
+        "inventory_count": 576,
+        "phase": "reinstall-after-removal",
+        "status": "PASS"
+      },
+      {
+        "config_preserved": true,
+        "inventory_count": 574,
+        "phase": "final-remove",
+        "reports_preserved": true,
+        "status": "PASS"
+      }
+    ],
+    "user_config_preserved": true,
+    "user_reports_preserved": true
+  },
+  "limitations": [
+    "Four original recipe input snapshots were not exported. Passive replay regenerated them only from independently source-authorized exact705 source and joined their hashes to original build provenance; no collected code executed.",
+    "Private report files and raw in-container HOME/configuration preservation snapshots were not exported. Fresh/existing user ownership/mode/no-overwrite/preservation remain source-enforced assertions with exported report JSON/hash receipts.",
+    "The consumer cleanup observer records six source-created container absences. This is not an independent host-wide actor inventory.",
+    "The source-owned producer token is derived from original source/run/attempt, not an independently observed external Root nonce.",
+    "Distinct clean containers ran on one native host; no independent-machine reproducibility claim.",
+    "Unsigned local candidates and41 masked hooks qualify this disposable lifecycle only, not production trust/signatures, hooks/services or supported target installation.",
+    "Installed audio scalar is unavailable/None in the offline fixture. No native live PipeWire connection/default-sink scalar/playback/speaker-safety acceptance.",
+    "Welcome0.1.0-1 is historical build support; no current Welcome5/6 GUI credit.",
+    "Actual4096-byte generic native pages do not establish16K/M2/Asahi boot/hardware/recovery acceptance."
+  ],
+  "original_acquisition": {
+    "acceptance_authority": false,
+    "artifact": {
+      "bytes": 222566,
+      "sha256": "35d2c809ac72c0166b0013db26e802fe97d41b027cfccdf49883e71a6a188f11"
+    },
+    "artifact_id": 12220113038,
+    "artifact_metadata": {
+      "bytes": 782,
+      "sha256": "d26948229b9158db233ea71132238928b7df095ca1656697e2616fb1bd443677"
+    },
+    "jobs": {
+      "bytes": 4466,
+      "sha256": "3f4c7d42f3546f4e828c1a1f4eae49f021e6c4b12060b8911ef67b7aa4393bed"
+    },
+    "logs": {
+      "bytes": 95333,
+      "sha256": "090dfd3bc32abf1dd44b51e8e71f967292fc988cf34f6234f0436f548b52b9a1"
+    },
+    "metadata": {
+      "bytes": 12987,
+      "sha256": "300c4f6867b23d26522cbc80248081630f6f1a6439bd1ce0984948c0182d24f1"
+    },
+    "retry": false,
+    "run": 39321557701,
+    "source": "705c5a095f9cabbfd2f3cd137127f4bbc7665f52",
+    "status": "ORIGINALS_COLLECTED_ONCE_NOT_ACCEPTED",
+    "workflow_conclusion": "success"
+  },
+  "original_files": {
+    "artifact.zip": {
+      "bytes": 222566,
+      "sha256": "35d2c809ac72c0166b0013db26e802fe97d41b027cfccdf49883e71a6a188f11"
+    },
+    "artifact.zip.request.json": {
+      "bytes": 191,
+      "sha256": "ec7ad6af60703c60fc32192460cd3a560a693ea304432cd7e2e87c94d33015b0"
+    },
+    "artifact.zip.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "artifacts.json": {
+      "bytes": 782,
+      "sha256": "d26948229b9158db233ea71132238928b7df095ca1656697e2616fb1bd443677"
+    },
+    "artifacts.json.request.json": {
+      "bytes": 202,
+      "sha256": "ee29c10f587a7520a5bb4537d34ddfaa416caad5a62a5cb033d242068c25bb40"
+    },
+    "artifacts.json.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "collection-intent.json": {
+      "bytes": 176,
+      "sha256": "2e68dd4bf33d53201b746d2d2b8b5ab7f4846e01df8571b01b3d96511230fd7b"
+    },
+    "collection-outcome.json": {
+      "bytes": 860,
+      "sha256": "cadd12981ced34f59c0dfdc7241ff2c883ba3fff9463445c367fc14e7a7d9ed7"
+    },
+    "jobs.json": {
+      "bytes": 4466,
+      "sha256": "3f4c7d42f3546f4e828c1a1f4eae49f021e6c4b12060b8911ef67b7aa4393bed"
+    },
+    "jobs.json.request.json": {
+      "bytes": 208,
+      "sha256": "3c143da6ed9fc3f699529387703fb018ca7f59c7e67c64b958f88bd513564330"
+    },
+    "jobs.json.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "logs.zip": {
+      "bytes": 95333,
+      "sha256": "090dfd3bc32abf1dd44b51e8e71f967292fc988cf34f6234f0436f548b52b9a1"
+    },
+    "logs.zip.request.json": {
+      "bytes": 186,
+      "sha256": "6a95c390885ecb9dfb87e24ceed658f3f842404e351bf9b863847a08fa2dafb9"
+    },
+    "logs.zip.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "run.json": {
+      "bytes": 12987,
+      "sha256": "300c4f6867b23d26522cbc80248081630f6f1a6439bd1ce0984948c0182d24f1"
+    }
+  },
+  "producer_cleanup": {
+    "build": "COMPLETED",
+    "image": {
+      "absence_verified": true,
+      "id": "sha256:6b7aa40bda9d7880d641614b2289fa5e3cd5fc6d03e84ac55946c692aff79168"
+    },
+    "probe": {
+      "absence_verified": true,
+      "cid": "70da34f44284ff8d70151bda1c5b9662680d44b4e4b189a0b37915402179bbb7",
+      "name": "cachy-asahi-574-probe-ac077743f2c87f5f"
+    },
+    "status": "PASS"
+  },
+  "products": {
+    "cachy-asahi-doctor": {
+      "builds": [
+        {
+          "architecture": "any",
+          "archive": "cachy-asahi-doctor-0.2.0-1-any.pkg.tar.xz",
+          "buildinfo_installed": 574,
+          "generated_srcinfo": {
+            "bytes": 997,
+            "sha256": "f05482cd59d8d70a62ec05d472f84dee16cfb8521970c8cf7476e6eaf99c05a9"
+          },
+          "input_files": 8,
+          "pin": {
+            "bytes": 16000,
+            "sha256": "5d27ef618bfc571c0238cfbbbcf382d0e4c689df509d1f62123ad5fe53245ee7"
+          },
+          "side": "a",
+          "tests": {
+            "check_enabled": true,
+            "cli_cases": 0,
+            "doctor_fixtures": 27,
+            "glib_cases": 0,
+            "source_payload": "PINNED_SHARED_RECIPE_CHECK",
+            "status": "PASS"
+          },
+          "version": "0.2.0-1"
+        },
+        {
+          "architecture": "any",
+          "archive": "cachy-asahi-doctor-0.2.0-1-any.pkg.tar.xz",
+          "buildinfo_installed": 574,
+          "generated_srcinfo": {
+            "bytes": 997,
+            "sha256": "f05482cd59d8d70a62ec05d472f84dee16cfb8521970c8cf7476e6eaf99c05a9"
+          },
+          "input_files": 8,
+          "pin": {
+            "bytes": 16000,
+            "sha256": "5d27ef618bfc571c0238cfbbbcf382d0e4c689df509d1f62123ad5fe53245ee7"
+          },
+          "side": "b",
+          "tests": {
+            "check_enabled": true,
+            "cli_cases": 0,
+            "doctor_fixtures": 27,
+            "glib_cases": 0,
+            "source_payload": "PINNED_SHARED_RECIPE_CHECK",
+            "status": "PASS"
+          },
+          "version": "0.2.0-1"
+        }
+      ],
+      "comparison": {
+        "errors": [],
+        "hardware_status": "NOT RUN",
+        "independence_limit": "Distinct recorded container runs; independent machine execution is not attested.",
+        "packages": {
+          "cachy-asahi-doctor-0.2.0-1-any.pkg.tar.xz": {
+            "buildinfo_equal": true,
+            "bytes_equal": true,
+            "installed_contents_equal": true,
+            "pkginfo_equal": true
+          }
+        },
+        "status": "contents-reproduced"
+      }
+    },
+    "cachy-asahi-welcome": {
+      "builds": [
+        {
+          "architecture": "aarch64",
+          "archive": "cachy-asahi-welcome-0.1.0-1-aarch64.pkg.tar.xz",
+          "buildinfo_installed": 574,
+          "generated_srcinfo": {
+            "bytes": 2193,
+            "sha256": "f428bc44d7d1efea67b7a048df55ca457786a5df0cbccfa7d4aa322de1a88e07"
+          },
+          "input_files": 16,
+          "pin": {
+            "bytes": 20368,
+            "sha256": "3108858d2625b7339f2b3161e83cef071ccee1770127dd362bec0e738568d295"
+          },
+          "side": "a",
+          "tests": {
+            "check_enabled": true,
+            "cli_cases": 5,
+            "doctor_fixtures": 0,
+            "glib_cases": 7,
+            "source_payload": "PASS",
+            "status": "PASS"
+          },
+          "version": "0.1.0-1"
+        },
+        {
+          "architecture": "aarch64",
+          "archive": "cachy-asahi-welcome-0.1.0-1-aarch64.pkg.tar.xz",
+          "buildinfo_installed": 574,
+          "generated_srcinfo": {
+            "bytes": 2193,
+            "sha256": "f428bc44d7d1efea67b7a048df55ca457786a5df0cbccfa7d4aa322de1a88e07"
+          },
+          "input_files": 16,
+          "pin": {
+            "bytes": 20368,
+            "sha256": "3108858d2625b7339f2b3161e83cef071ccee1770127dd362bec0e738568d295"
+          },
+          "side": "b",
+          "tests": {
+            "check_enabled": true,
+            "cli_cases": 5,
+            "doctor_fixtures": 0,
+            "glib_cases": 7,
+            "source_payload": "PASS",
+            "status": "PASS"
+          },
+          "version": "0.1.0-1"
+        }
+      ],
+      "comparison": {
+        "errors": [],
+        "hardware_status": "NOT RUN",
+        "independence_limit": "Distinct recorded container runs; independent machine execution is not attested.",
+        "packages": {
+          "cachy-asahi-welcome-0.1.0-1-aarch64.pkg.tar.xz": {
+            "buildinfo_equal": true,
+            "bytes_equal": true,
+            "installed_contents_equal": true,
+            "pkginfo_equal": true
+          }
+        },
+        "status": "contents-reproduced"
+      }
+    }
+  },
+  "ref": "refs/heads/codex/doctor2-native-products-v1",
+  "release": "NOT_ADMITTED",
+  "root_acceptance": {
+    "path": "artifacts/development/doctor2-native-products-actual-20261019/Root-component-acceptance.json",
+    "pin": {
+      "bytes": 3978,
+      "sha256": "870f5e45cd817bb37852a11e71a9b7294e329ba8ba9242e2996eb5df91d42d54"
+    },
+    "record": {
+      "GUI": "NOT_RUN",
+      "M2": "NOT_RUN",
+      "audio_playback": "NOT_RUN",
+      "cleanup": "SIX_ORIGINAL_CONSUMER_ABSENCE_AND_PRODUCER_RETIREMENT_REPLAY_NOT_FRESH_LIVE_INSPECTION",
+      "independent_git_blob_joins": 62,
+      "installed_audio_observations": [
+        {
+          "home": "product-home-fresh",
+          "phase": "install",
+          "state": "unavailable",
+          "value": null
+        },
+        {
+          "home": "product-home-existing",
+          "phase": "install",
+          "state": "unavailable",
+          "value": null
+        },
+        {
+          "home": "product-home-fresh",
+          "phase": "same-version-reinstall",
+          "state": "unavailable",
+          "value": null
+        },
+        {
+          "home": "product-home-existing",
+          "phase": "same-version-reinstall",
+          "state": "unavailable",
+          "value": null
+        },
+        {
+          "home": "product-home-fresh",
+          "phase": "reinstall-after-removal",
+          "state": "unavailable",
+          "value": null
+        },
+        {
+          "home": "product-home-existing",
+          "phase": "reinstall-after-removal",
+          "state": "unavailable",
+          "value": null
+        }
+      ],
+      "lifecycle": {
+        "bytes": 106805,
+        "sha256": "197fff1163420b793a18abeb5ea910ba8085d9b00cf54ed4bf1fd1902cb5da02"
+      },
+      "limitations": [
+        "Input snapshots regenerated only from independently authorized exact source; collected code never imported or executed.",
+        "Fresh/existing user/private payload properties remain original source-enforced, with exported report/hash joins.",
+        "Recorded native containers are one-host independence, not two independent machines.",
+        "No live PipeWire/default-output playback, GUI,16K,M2, speaker safety or release-trust acceptance."
+      ],
+      "masked_hooks": 41,
+      "original_job": {
+        "job_id": 118296620145,
+        "native_label": "ubuntu-24.04-arm",
+        "steps": [
+          3,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "page_size": 4096,
+      "pairs": {
+        "cachy-asahi-doctor": {
+          "errors": [],
+          "hardware_status": "NOT RUN",
+          "independence_limit": "Distinct recorded container runs; independent machine execution is not attested.",
+          "packages": {
+            "cachy-asahi-doctor-0.2.0-1-any.pkg.tar.xz": {
+              "buildinfo_equal": true,
+              "bytes_equal": true,
+              "installed_contents_equal": true,
+              "pkginfo_equal": true
+            }
+          },
+          "status": "contents-reproduced"
+        },
+        "cachy-asahi-welcome": {
+          "errors": [],
+          "hardware_status": "NOT RUN",
+          "independence_limit": "Distinct recorded container runs; independent machine execution is not attested.",
+          "packages": {
+            "cachy-asahi-welcome-0.1.0-1-aarch64.pkg.tar.xz": {
+              "buildinfo_equal": true,
+              "bytes_equal": true,
+              "installed_contents_equal": true,
+              "pkginfo_equal": true
+            }
+          },
+          "status": "contents-reproduced"
+        }
+      },
+      "phases": [
+        {
+          "inventory_count": 576,
+          "phase": "install"
+        },
+        {
+          "inventory_count": 576,
+          "phase": "same-version-reinstall"
+        },
+        {
+          "inventory_count": 574,
+          "phase": "remove"
+        },
+        {
+          "inventory_count": 576,
+          "phase": "reinstall-after-removal"
+        },
+        {
+          "inventory_count": 574,
+          "phase": "final-remove"
+        }
+      ],
+      "physical16K": "NOT_RUN",
+      "ref": "codex/doctor2-native-products-v1",
+      "release": "NOT_ADMITTED",
+      "report": {
+        "bytes": 136813,
+        "sha256": "ef16cff5759015c26e564a99780631b1e47b553d6099c21a40f649b129275050"
+      },
+      "reviewed_at": "2026-10-19T21:03:24.236343+00:00",
+      "run": 39321557701,
+      "source": "705c5a095f9cabbfd2f3cd137127f4bbc7665f52",
+      "source_files": 62,
+      "speaker_safety": "NOT_TESTED",
+      "status": "ROOT_ACCEPTED_FINITE_NATIVE_DOCTOR2_PAIR_AND_OFFLINE_INSTALLED_CLI_LIFECYCLE",
+      "strict_result": {
+        "bytes": 2094,
+        "sha256": "ab1404175b8062a16afe6a2cd90d6553b2096b0c0615f50dcc63dcae8fee54cb"
+      },
+      "user_preservation": "SOURCE_ENFORCED_WITH_EXPORTED_REPORT_HASH_JOINS"
+    }
+  },
+  "root_replay_result": {
+    "bytes": 2094,
+    "sha256": "ab1404175b8062a16afe6a2cd90d6553b2096b0c0615f50dcc63dcae8fee54cb"
+  },
+  "run": 39321557701,
+  "run_url": "https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/39321557701",
+  "schema_version": 1,
+  "scope": "DOCTOR2_0.2.0-1_NATIVE_PAIR_AND_DISPOSABLE_INSTALLED_CLI_ONLY",
+  "source": "705c5a095f9cabbfd2f3cd137127f4bbc7665f52",
+  "status": "ROOT_ACCEPTED_FINITE_NATIVE_DOCTOR2_PAIR_AND_OFFLINE_INSTALLED_CLI_LIFECYCLE"
+}
