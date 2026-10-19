@@ -111,8 +111,7 @@ except BaseException as error:
         self.assertTrue(any(line.startswith('[GNUPG:] TRUST_FULLY') for line in status), status)
         bad = {'EXPKEYSIG', 'KEYEXPIRED', 'REVKEYSIG', 'KEYREVOKED', 'EXPSIG', 'SIGEXPIRED', 'BADSIG', 'ERRSIG', 'NO_PUBKEY'}
         self.assertFalse(any(len(line.split()) > 1 and line.split()[1] in bad for line in status), status)
-        query = T.command(['unshare', '--user', '--map-root-user', '--', 'pacman-conf', '--sysroot', self.target,
-                           '--config', '/etc/pacman.conf', '--repo', 'cachy-asahi', 'SigLevel', 'Server'])
+        query = T.effective_configuration(self.target)
         self.assertEqual(query.returncode, 0, query.stderr.decode())
         for token in ('PackageRequired', 'DatabaseRequired', 'PackageTrustedOnly', 'DatabaseTrustedOnly', T.URL):
             self.assertIn(token, query.stdout.decode())
