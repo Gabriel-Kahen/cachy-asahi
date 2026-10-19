@@ -1,0 +1,22 @@
+pkgbase = cachy-asahi-sysctl
+	pkgdesc = Named sysctl experiments with guarded saved-baseline restoration
+	pkgver = 0.1.0
+	pkgrel = 2
+	url = https://github.com/Gabriel-Kahen/cachy-asahi
+	arch = any
+	license = MIT
+	depends = python>=3.11
+	source = cachy-asahi-sysctl
+	source = test_sysctl.py
+	source = README.md
+	source = NOTICE
+	source = LICENSE
+	source = source-provenance.json
+	sha256sums = 70e3e35d1bf517b21c84f5ecbe608da551e6f8577c68bbfbbd2412b8dd3ed4f0
+	sha256sums = e6e24ab48751ef0ec6747eb09c3a0fb3d0110732936d6da21824ba63d6e943f4
+	sha256sums = c9d25d4b56788c81118802080fc3b91b83f5d79087202c58d2a5cfeaa2002f4c
+	sha256sums = 5f75cdf074f7df1736f78f3e8e654196dedabff686ea32bbe92bf95c8863c50e
+	sha256sums = 51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7
+	sha256sums = 75e01b5ce01a6f7bdef0bd3913456e8d135704886eed7ca85dea156901887f67
+
+pkgname = cachy-asahi-sysctl
