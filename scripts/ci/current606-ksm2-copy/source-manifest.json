@@ -129,8 +129,8 @@
       "sha256": "6b582273b3fd485604159ae997d6f15808e14cc016d7713a47f8ca7ba341163e"
     },
     "scripts/ci/current606-ksm2-copy/driver.py": {
-      "bytes": 11320,
-      "sha256": "3703f755ac1c12c05ec9da9f13d12917178ef1bc2bd956ac150ecb050736121d"
+      "bytes": 11339,
+      "sha256": "b2fd71a67f1c7fc4eb528b585bf2fe2da229c7d77f84009b1e2d4a113af02f38"
     },
     "scripts/ci/current606-ksm2-copy/expected606.lock": {
       "bytes": 12043,

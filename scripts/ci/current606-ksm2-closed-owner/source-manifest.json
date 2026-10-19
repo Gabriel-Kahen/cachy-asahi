@@ -208,8 +208,8 @@
       "sha256": "6b582273b3fd485604159ae997d6f15808e14cc016d7713a47f8ca7ba341163e"
     },
     "copyworker/scripts/ci/current606-ksm2-copy/driver.py": {
-      "bytes": 11320,
-      "sha256": "3703f755ac1c12c05ec9da9f13d12917178ef1bc2bd956ac150ecb050736121d"
+      "bytes": 11339,
+      "sha256": "b2fd71a67f1c7fc4eb528b585bf2fe2da229c7d77f84009b1e2d4a113af02f38"
     },
     "copyworker/scripts/ci/current606-ksm2-copy/expected606.lock": {
       "bytes": 12043,
@@ -265,7 +265,7 @@
     },
     "copyworker/scripts/ci/current606-ksm2-copy/source-manifest.json": {
       "bytes": 8287,
-      "sha256": "094f189db50d13e982f9bb3797762ec72c5368bb7568546021d1dbbaedf83330"
+      "sha256": "131f1af89137ce9d4a49e5ee5e00bf65359ee94c693d844888762f358f53c7d6"
     },
     "copyworker/scripts/ci/current606-ksm2-copy/step_entry.py": {
       "bytes": 741,
@@ -1413,7 +1413,7 @@
     },
     "scripts/ci/current606-ksm2-closed-owner/source-pins.json": {
       "bytes": 60719,
-      "sha256": "cc48bdcebca834212459e108f6a2480c7c2e1eb637e58f27fd24d1040444c7c6"
+      "sha256": "63f23c4afe2b5297de9a6df392d704efff8f69402c3fba7a3af9a44c639eb617"
     },
     "scripts/ci/current606-ksm2-closed-owner/test_owner.py": {
       "bytes": 5698,
