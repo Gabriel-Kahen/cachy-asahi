@@ -1,0 +1,10 @@
+{
+  "logs.zip": {
+    "bytes": 89676,
+    "sha256": "d2a60ee3f527b7af726034ff7c424c7278ae0d8a0ffd89c4fae2a0a421c343a4"
+  },
+  "artifact.zip": {
+    "bytes": 579889,
+    "sha256": "79618471a154ceab86bea828735e38424d50397ff44f40b49dd262e5dc571464"
+  }
+}

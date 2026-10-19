@@ -1,0 +1,115 @@
+{
+  "artifacts": {
+    "cachy-asahi-orphans-0.1.0-2-any.pkg.tar.xz": "2543a13b584bf974efc4ce79f4da585d9e4513c2bc3907750fe5c962d20c8c02"
+  },
+  "clean_environment_id": "cachy-asahi-product-837f0acd7bc4d055b267511084d28209",
+  "command": [
+    "docker",
+    "run",
+    "--name",
+    "cachy-asahi-product-837f0acd7bc4d055b267511084d28209",
+    "--pull=never",
+    "--platform=linux/arm64",
+    "--network=none",
+    "--cap-drop=ALL",
+    "--security-opt=no-new-privileges",
+    "--pids-limit=256",
+    "--memory=3g",
+    "--cpus=4",
+    "--user",
+    "1001:1001",
+    "--tmpfs",
+    "/tmp:rw,nosuid,nodev,exec,size=2g",
+    "--mount",
+    "type=bind,src=/home/runner/work/_temp/welcome-management-native-runtime/cachy-asahi-orphans-a/artifacts,dst=/out",
+    "--read-only",
+    "--label=org.cachy-asahi.welcome-management-native.job=89fcf16337c5c8f14425baa9fc802b69",
+    "--env=CACHY_ASAHI_CONTAINER=1",
+    "--env=SOURCE_DATE_EPOCH=1791748800",
+    "--mount",
+    "type=bind,src=/home/runner/work/_temp/welcome-management-native-runtime/cachy-asahi-orphans-a/inputs,dst=/inputs,readonly",
+    "--mount",
+    "type=bind,src=/home/runner/work/_temp/welcome-management-native-runtime/cachy-asahi-orphans-a/expected-packages.lock,dst=/expected-packages.lock,readonly",
+    "--mount",
+    "type=bind,src=/home/runner/work/cachy-asahi/cachy-asahi/scripts/build/container-entry.sh,dst=/builder-entry.sh,readonly",
+    "--entrypoint=/bin/bash",
+    "sha256:7e369bcc3194f2af69796c8aa1d0dc3eba953db535b75887f97c0b19aa454590",
+    "/builder-entry.sh"
+  ],
+  "entry_script_sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24",
+  "expected_packages_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+  "files": {
+    "artifacts/cachy-asahi-orphans-0.1.0-2-any.pkg.tar.xz": "2543a13b584bf974efc4ce79f4da585d9e4513c2bc3907750fe5c962d20c8c02",
+    "artifacts/config.sha256": "8309cb4c0409ccdc1ca922475dde9377aec434911efc453299f41e8fadb234ec",
+    "artifacts/environment.txt": "8c7b34c22a408eea840491b28475180cff35a47ead43c04511055966733077ee",
+    "artifacts/generated.SRCINFO": "a324b86100e9a14aa431021f2ed3454920e764708faea4bc0775239dd9765223",
+    "artifacts/makepkg.conf": "cfcf0bd2601d887724c5ca7d9a48ac5dd347abad9e8ac5efa436080e45822a60",
+    "artifacts/packages.lock": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+    "artifacts/pacman.conf": "14d304eeb83baf1379279356c232580fd095c2d508b41c74677347801a0bafe7",
+    "build.log": "ba027c936fb367bbc862b23aa808ce9f4fb7c50ebb7829e56a4d7edc9773e7ae",
+    "expected-packages.lock": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+    "validation.json": "6d577220c1f8527a038608eb1f2f421d0e5b98ef485600eb6fa1547a72ae5e97"
+  },
+  "hardware_status": "NOT RUN",
+  "image": "sha256:7e369bcc3194f2af69796c8aa1d0dc3eba953db535b75887f97c0b19aa454590",
+  "image_id": "sha256:7e369bcc3194f2af69796c8aa1d0dc3eba953db535b75887f97c0b19aa454590",
+  "mode": "native",
+  "recipe_inputs": {
+    ".SRCINFO": "a324b86100e9a14aa431021f2ed3454920e764708faea4bc0775239dd9765223",
+    "LICENSE": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+    "NOTICE": "326f699857d31b8cd4462081aea074d4349721fb9c48965db6208c793a086720",
+    "PKGBUILD": "b59a1b67a8fd6290549e861bd40f5e94447d5376c86eca6baa94d2cdddb6b91a",
+    "README.md": "ef96e2cf1e0809a065edd36545c861e4064f3bae2cc4665401455a89dd144529",
+    "cachy-asahi-orphans": "559ff8554b9c93f237ddebec8f6c8ac09749ed93b6a179c06fcf513dfffe3292",
+    "protection-floor.json": "0d6dfbf3cd550fe72ddad30058693007f8bb86214de1e83442580677db5005f2",
+    "test_orphans.py": "8f4080979ad3de2b1c27419f27cd6e3f61b122544164f1e16158cc4f8d73bb82"
+  },
+  "recipe_metadata": {
+    "arch": [
+      "any"
+    ],
+    "depends": [
+      "python>=3.11",
+      "pacman"
+    ],
+    "license": [
+      "MIT"
+    ],
+    "pkgbase": [
+      "cachy-asahi-orphans"
+    ],
+    "pkgdesc": [
+      "Read-only libalpm orphan assessment and protected explicit removal planning"
+    ],
+    "pkgname": [
+      "cachy-asahi-orphans"
+    ],
+    "pkgrel": [
+      "2"
+    ],
+    "pkgver": [
+      "0.1.0"
+    ],
+    "sha256sums": [
+      "559ff8554b9c93f237ddebec8f6c8ac09749ed93b6a179c06fcf513dfffe3292",
+      "8f4080979ad3de2b1c27419f27cd6e3f61b122544164f1e16158cc4f8d73bb82",
+      "0d6dfbf3cd550fe72ddad30058693007f8bb86214de1e83442580677db5005f2",
+      "ef96e2cf1e0809a065edd36545c861e4064f3bae2cc4665401455a89dd144529",
+      "326f699857d31b8cd4462081aea074d4349721fb9c48965db6208c793a086720",
+      "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    ],
+    "source": [
+      "cachy-asahi-orphans",
+      "test_orphans.py",
+      "protection-floor.json",
+      "README.md",
+      "NOTICE",
+      "LICENSE"
+    ],
+    "url": [
+      "https://github.com/Gabriel-Kahen/cachy-asahi"
+    ]
+  },
+  "source_date_epoch": 1791748800,
+  "status": "built-package-static-pass"
+}
