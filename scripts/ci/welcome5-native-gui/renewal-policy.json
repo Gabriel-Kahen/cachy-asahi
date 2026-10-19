@@ -1,0 +1,14 @@
+{
+  "actual_ref": null,
+  "actual_source": null,
+  "carrier_ref": "refs/heads/codex/welcome5-dns2-gui-test-renewal-v1",
+  "carrier_source": "409bfb8fb66969a5f7dd395997342ae7404d1384",
+  "index_pin": {
+    "bytes": 38428,
+    "sha256": "543c5c6d9e190c60e1068cb07b68518e2e20ce4a6ff2ff427d55054189724f19"
+  },
+  "minimal_run": null,
+  "overlay_run": null,
+  "schema_version": 1,
+  "status": "ROOT_SELECTED_CURRENT_TEST_SIGNATURES"
+}
