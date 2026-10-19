@@ -1,0 +1,18 @@
+{
+  "GPG_returncode": 1,
+  "GPG_status": "[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED 68B3537F39A313B3E574D06777193F152BDBE6A6 0\n[GNUPG:] BADSIG 77193F152BDBE6A6 Arch Linux ARM Build System <builder@archlinuxarm.org>\n[GNUPG:] FAILURE gpg-exit 33554433\n",
+  "old_full_status_guard_refused": true,
+  "original": {
+    "name": "perl-mime-base32",
+    "pin": {
+      "bytes": 6700,
+      "sha256": "0b4f11f3a95ada9c62b3996e36bffcee316f278d1bd6fec2f81792b27c085342"
+    }
+  },
+  "private_home_retired_after_exit": true,
+  "scope": "PUBLIC_ARCHIVE_DATA_ONLY_NO_PACKAGE_EXECUTION",
+  "tampered": {
+    "bytes": 6700,
+    "sha256": "43521cd7820b7ce2f8d33fbd4487933a352074a29a818797422ad3d3d3d5ce7a"
+  }
+}

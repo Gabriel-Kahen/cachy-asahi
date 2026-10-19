@@ -1,0 +1,4272 @@
+{
+  "ELF": [],
+  "buildinfo": {
+    "bytes": 6473,
+    "fields": {
+      "builddate": [
+        "1783301761"
+      ],
+      "builddir": [
+        "/build"
+      ],
+      "buildenv": [
+        "distcc",
+        "color",
+        "!ccache",
+        "check",
+        "!sign"
+      ],
+      "buildtool": [
+        "devtools"
+      ],
+      "buildtoolver": [
+        "1:1.4.0-3-any"
+      ],
+      "format": [
+        "2"
+      ],
+      "installed": [
+        "acl-2.4.0-1-aarch64",
+        "archlinux-keyring-20260612-1-any",
+        "attr-2.6.0-1-aarch64",
+        "audit-4.1.4-2-aarch64",
+        "autoconf-2.73-1-any",
+        "automake-1.18.1-1-any",
+        "base-devel-1-2-any",
+        "bash-5.3.15-1-aarch64",
+        "binutils-2.46+r70+g155188ea10a7-1-aarch64",
+        "bison-3.8.2-8-aarch64",
+        "boost-libs-1.91.0-1-aarch64",
+        "brotli-1.2.0-1-aarch64",
+        "bzip2-1.0.8-6-aarch64",
+        "ca-certificates-20240618-1-any",
+        "ca-certificates-mozilla-3.125-1-aarch64",
+        "ca-certificates-utils-20240618-1-any",
+        "coreutils-9.11-1-aarch64",
+        "cpio-2.15-3-aarch64",
+        "cryptsetup-2.8.6-1-aarch64",
+        "curl-8.21.0-1-aarch64",
+        "db5.3-5.3.28-7-aarch64",
+        "dbus-1.16.2-1-aarch64",
+        "dbus-broker-37-3-aarch64",
+        "dbus-broker-units-37-3-aarch64",
+        "dbus-units-37-3-aarch64",
+        "debugedit-5.3-1-aarch64",
+        "device-mapper-2.03.41-1-aarch64",
+        "diffutils-3.12-2-aarch64",
+        "distcc-3.4-15-aarch64",
+        "e2fsprogs-1.47.4-1-aarch64",
+        "elfutils-0.195-1-aarch64",
+        "expat-2.8.2-1-aarch64",
+        "fakeroot-1:1.37.2-2-aarch64",
+        "file-5.48-1-aarch64",
+        "filesystem-2025.10.12-1-any",
+        "findutils-4.10.0-3-aarch64",
+        "flex-2.6.4-6-aarch64",
+        "gawk-5.4.0-1-aarch64",
+        "gc-8.2.12-1-aarch64",
+        "gcc-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "gcc-libs-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "gdb-17.2-1-aarch64",
+        "gdb-common-17.2-1-aarch64",
+        "gdbm-1.26-2-aarch64",
+        "gettext-1.0-2-aarch64",
+        "glib2-2.88.2-1-aarch64",
+        "glibc-2.43+r22+g8362e8ce10b2-2-aarch64",
+        "gmp-6.3.0-3-aarch64",
+        "gnulib-l10n-20241231-1-any",
+        "gnupg-2.4.9-1-aarch64",
+        "gnutls-3.8.13-2-aarch64",
+        "gpgme-2.1.2-1-aarch64",
+        "grep-3.12-2-aarch64",
+        "groff-1.24.1-1-aarch64",
+        "guile-3.0.11-1-aarch64",
+        "gzip-1.14-2-aarch64",
+        "hwdata-0.409-1-any",
+        "iana-etc-20260530-1-any",
+        "icu-78.3-1-aarch64",
+        "jansson-2.15.0-1-aarch64",
+        "json-c-0.19-1-aarch64",
+        "kbd-2.10.0-1-aarch64",
+        "keyutils-1.6.3-4-aarch64",
+        "kmod-34.2-1-aarch64",
+        "krb5-1.22.2-1-aarch64",
+        "leancrypto-1.8.0-1-aarch64",
+        "libarchive-3.8.8-2-aarch64",
+        "libasan-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libassuan-3.0.0-1-aarch64",
+        "libatomic-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libcap-2.78-1-aarch64",
+        "libcap-ng-0.9.3-1-aarch64",
+        "libelf-0.195-1-aarch64",
+        "libevent-2.1.13-1-aarch64",
+        "libffi-3.6.0-1-aarch64",
+        "libgcc-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libgcrypt-1.12.2-1-aarch64",
+        "libgfortran-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libgomp-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libgpg-error-1.61-1-aarch64",
+        "libidn2-2.3.8-1-aarch64",
+        "libisl-0.27-1-aarch64",
+        "libksba-1.8.0-1-aarch64",
+        "libldap-2.6.13-1-aarch64",
+        "liblsan-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libmakepkg-dropins-20-1-any",
+        "libmpc-1.4.1-1-aarch64",
+        "libnghttp2-1.69.0-1-aarch64",
+        "libnghttp3-1.17.0-1-aarch64",
+        "libngtcp2-1.24.0-1-aarch64",
+        "libnsl-2.0.1-2-aarch64",
+        "libobjc-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libp11-kit-0.26.2-1-aarch64",
+        "libpsl-0.21.5-2-aarch64",
+        "libquadmath-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libsasl-2.1.28-5-aarch64",
+        "libseccomp-2.6.0-1-aarch64",
+        "libsecret-0.21.7-1-aarch64",
+        "libssh2-1.11.1-5-aarch64",
+        "libstdc++-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libsysprof-capture-50.0-2.1-aarch64",
+        "libtasn1-4.21.0-1-aarch64",
+        "libtirpc-1.3.7-1-aarch64",
+        "libtool-2.6.0+r23+gb08cb0a0-1-aarch64",
+        "libtsan-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libubsan-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libunistring-1.4.2-1-aarch64",
+        "libusb-1.0.30-1-aarch64",
+        "libverto-0.3.2-6-aarch64",
+        "libxcrypt-4.5.2-1-aarch64",
+        "libxml2-2.15.3-1-aarch64",
+        "linux-api-headers-7.1-1-aarch64",
+        "lmdb-0.9.35-1-aarch64",
+        "lz4-1:1.10.0-2-aarch64",
+        "m4-1.4.21-2-aarch64",
+        "make-4.4.1-3-aarch64",
+        "mpdecimal-4.0.1-3-aarch64",
+        "mpfr-4.2.2-1-aarch64",
+        "ncurses-6.6-2-aarch64",
+        "nettle-4.0-1-aarch64",
+        "npth-1.8-1-aarch64",
+        "openssl-3.6.3-1-aarch64",
+        "p11-kit-0.26.2-1-aarch64",
+        "pacman-7.1.0.r9.g54d9411-2-aarch64",
+        "pacman-mirrorlist-20260411-2-any",
+        "pam-1.7.2-2-aarch64",
+        "pambase-20260616-1-any",
+        "patch-2.8-1-aarch64",
+        "pcre2-10.47-1-aarch64",
+        "perl-5.42.2-1-aarch64",
+        "pinentry-1.3.2-2-aarch64",
+        "pkgconf-2.5.1-1-aarch64",
+        "popt-1.19-2-aarch64",
+        "python-3.14.6-1-aarch64",
+        "readline-8.3.003-1-aarch64",
+        "sed-4.10-1-aarch64",
+        "shadow-4.19.4.arch1-1-aarch64",
+        "source-highlight-3.1.9-18-aarch64",
+        "sqlite-3.53.3-1-aarch64",
+        "sudo-1.9.17.p2-6-aarch64",
+        "systemd-261.1-1-aarch64",
+        "systemd-libs-261.1-1-aarch64",
+        "tar-1.35-2-aarch64",
+        "texinfo-7.3-1-aarch64",
+        "tpm2-tss-4.1.3-1-aarch64",
+        "tzdata-2026b-1-aarch64",
+        "util-linux-2.42.2-1-aarch64",
+        "util-linux-libs-2.42.2-1-aarch64",
+        "which-2.25-1-aarch64",
+        "xxhash-0.8.3-1-aarch64",
+        "xz-5.8.3-1-aarch64",
+        "zlib-1:1.3.2-3-aarch64",
+        "zstd-1.5.7-3-aarch64"
+      ],
+      "options": [
+        "strip",
+        "docs",
+        "!libtool",
+        "!staticlibs",
+        "emptydirs",
+        "zipman",
+        "purge",
+        "!debug",
+        "!lto"
+      ],
+      "packager": [
+        "Arch Linux ARM Build System <builder+n0@archlinuxarm.org>"
+      ],
+      "pkgarch": [
+        "any"
+      ],
+      "pkgbase": [
+        "bash-completion"
+      ],
+      "pkgbuild_sha256sum": [
+        "10e217cd51de0229afe28d9fca238d178b83a925cd9c041e8a547c037562a121"
+      ],
+      "pkgname": [
+        "bash-completion"
+      ],
+      "pkgver": [
+        "2.18.0-1"
+      ],
+      "startdir": [
+        "/startdir"
+      ]
+    },
+    "sha256": "0e877efecbf53e4803396a4e22845d849b3b1e7c46389eb2029f5010a35f0fec"
+  },
+  "complete_corresponding_source_license_closure": "NOT ESTABLISHED; declared package metadata only",
+  "hooks_and_scriptlets": [],
+  "installed_paths": [
+    "usr",
+    "usr/share",
+    "usr/share/bash-completion",
+    "usr/share/bash-completion/bash_completion",
+    "usr/share/bash-completion/completions",
+    "usr/share/bash-completion/completions-core",
+    "usr/share/bash-completion/completions-core/2to3.bash",
+    "usr/share/bash-completion/completions-core/7z.bash",
+    "usr/share/bash-completion/completions-core/7za.bash",
+    "usr/share/bash-completion/completions-core/7zr.bash",
+    "usr/share/bash-completion/completions-core/7zz.bash",
+    "usr/share/bash-completion/completions-core/7zzs.bash",
+    "usr/share/bash-completion/completions-core/a2x.bash",
+    "usr/share/bash-completion/completions-core/abook.bash",
+    "usr/share/bash-completion/completions-core/aclocal-1.10.bash",
+    "usr/share/bash-completion/completions-core/aclocal-1.11.bash",
+    "usr/share/bash-completion/completions-core/aclocal-1.12.bash",
+    "usr/share/bash-completion/completions-core/aclocal-1.13.bash",
+    "usr/share/bash-completion/completions-core/aclocal-1.14.bash",
+    "usr/share/bash-completion/completions-core/aclocal-1.15.bash",
+    "usr/share/bash-completion/completions-core/aclocal-1.16.bash",
+    "usr/share/bash-completion/completions-core/aclocal-1.17.bash",
+    "usr/share/bash-completion/completions-core/aclocal-1.18.bash",
+    "usr/share/bash-completion/completions-core/aclocal.bash",
+    "usr/share/bash-completion/completions-core/acpi.bash",
+    "usr/share/bash-completion/completions-core/add_members.bash",
+    "usr/share/bash-completion/completions-core/alias.bash",
+    "usr/share/bash-completion/completions-core/alpine.bash",
+    "usr/share/bash-completion/completions-core/alternatives.bash",
+    "usr/share/bash-completion/completions-core/animate.bash",
+    "usr/share/bash-completion/completions-core/ant.bash",
+    "usr/share/bash-completion/completions-core/apache2ctl.bash",
+    "usr/share/bash-completion/completions-core/appdata-validate.bash",
+    "usr/share/bash-completion/completions-core/apropos.bash",
+    "usr/share/bash-completion/completions-core/apt-build.bash",
+    "usr/share/bash-completion/completions-core/apt-cache.bash",
+    "usr/share/bash-completion/completions-core/apt-get.bash",
+    "usr/share/bash-completion/completions-core/apt-mark.bash",
+    "usr/share/bash-completion/completions-core/aptitude-curses.bash",
+    "usr/share/bash-completion/completions-core/aptitude.bash",
+    "usr/share/bash-completion/completions-core/arch.bash",
+    "usr/share/bash-completion/completions-core/arm-koji.bash",
+    "usr/share/bash-completion/completions-core/arp.bash",
+    "usr/share/bash-completion/completions-core/arping.bash",
+    "usr/share/bash-completion/completions-core/arpspoof.bash",
+    "usr/share/bash-completion/completions-core/asciidoc.bash",
+    "usr/share/bash-completion/completions-core/asciidoc.py.bash",
+    "usr/share/bash-completion/completions-core/aspell.bash",
+    "usr/share/bash-completion/completions-core/autoconf.bash",
+    "usr/share/bash-completion/completions-core/autoheader.bash",
+    "usr/share/bash-completion/completions-core/automake-1.10.bash",
+    "usr/share/bash-completion/completions-core/automake-1.11.bash",
+    "usr/share/bash-completion/completions-core/automake-1.12.bash",
+    "usr/share/bash-completion/completions-core/automake-1.13.bash",
+    "usr/share/bash-completion/completions-core/automake-1.14.bash",
+    "usr/share/bash-completion/completions-core/automake-1.15.bash",
+    "usr/share/bash-completion/completions-core/automake-1.16.bash",
+    "usr/share/bash-completion/completions-core/automake-1.17.bash",
+    "usr/share/bash-completion/completions-core/automake-1.18.bash",
+    "usr/share/bash-completion/completions-core/automake.bash",
+    "usr/share/bash-completion/completions-core/autoreconf.bash",
+    "usr/share/bash-completion/completions-core/autorpm.bash",
+    "usr/share/bash-completion/completions-core/autoscan.bash",
+    "usr/share/bash-completion/completions-core/autossh.bash",
+    "usr/share/bash-completion/completions-core/autoupdate.bash",
+    "usr/share/bash-completion/completions-core/avahi-browse-domains.bash",
+    "usr/share/bash-completion/completions-core/avahi-browse.bash",
+    "usr/share/bash-completion/completions-core/avctrl.bash",
+    "usr/share/bash-completion/completions-core/b2sum.bash",
+    "usr/share/bash-completion/completions-core/badblocks.bash",
+    "usr/share/bash-completion/completions-core/bind.bash",
+    "usr/share/bash-completion/completions-core/bk.bash",
+    "usr/share/bash-completion/completions-core/bmake.bash",
+    "usr/share/bash-completion/completions-core/brave-browser.bash",
+    "usr/share/bash-completion/completions-core/brave.bash",
+    "usr/share/bash-completion/completions-core/brctl.bash",
+    "usr/share/bash-completion/completions-core/bsdtar.bash",
+    "usr/share/bash-completion/completions-core/btdownloadcurses.py.bash",
+    "usr/share/bash-completion/completions-core/btdownloadgui.py.bash",
+    "usr/share/bash-completion/completions-core/btdownloadheadless.py.bash",
+    "usr/share/bash-completion/completions-core/bts.bash",
+    "usr/share/bash-completion/completions-core/bzip2.bash",
+    "usr/share/bash-completion/completions-core/c++.bash",
+    "usr/share/bash-completion/completions-core/cancel.bash",
+    "usr/share/bash-completion/completions-core/cardctl.bash",
+    "usr/share/bash-completion/completions-core/carton.bash",
+    "usr/share/bash-completion/completions-core/cc.bash",
+    "usr/share/bash-completion/completions-core/ccache.bash",
+    "usr/share/bash-completion/completions-core/ccze.bash",
+    "usr/share/bash-completion/completions-core/cd.bash",
+    "usr/share/bash-completion/completions-core/cdrecord.bash",
+    "usr/share/bash-completion/completions-core/cfagent.bash",
+    "usr/share/bash-completion/completions-core/cfrun.bash",
+    "usr/share/bash-completion/completions-core/chage.bash",
+    "usr/share/bash-completion/completions-core/change_pw.bash",
+    "usr/share/bash-completion/completions-core/check_db.bash",
+    "usr/share/bash-completion/completions-core/check_perms.bash",
+    "usr/share/bash-completion/completions-core/checksec.bash",
+    "usr/share/bash-completion/completions-core/chflags.bash",
+    "usr/share/bash-completion/completions-core/chgrp.bash",
+    "usr/share/bash-completion/completions-core/chkconfig.bash",
+    "usr/share/bash-completion/completions-core/chmod.bash",
+    "usr/share/bash-completion/completions-core/chown.bash",
+    "usr/share/bash-completion/completions-core/chpasswd.bash",
+    "usr/share/bash-completion/completions-core/chrome.bash",
+    "usr/share/bash-completion/completions-core/chromium-browser.bash",
+    "usr/share/bash-completion/completions-core/chromium.bash",
+    "usr/share/bash-completion/completions-core/chronyc.bash",
+    "usr/share/bash-completion/completions-core/chrpath.bash",
+    "usr/share/bash-completion/completions-core/ci.bash",
+    "usr/share/bash-completion/completions-core/ciptool.bash",
+    "usr/share/bash-completion/completions-core/civclient.bash",
+    "usr/share/bash-completion/completions-core/civserver.bash",
+    "usr/share/bash-completion/completions-core/cksfv.bash",
+    "usr/share/bash-completion/completions-core/cksum.bash",
+    "usr/share/bash-completion/completions-core/cleanarch.bash",
+    "usr/share/bash-completion/completions-core/clisp.bash",
+    "usr/share/bash-completion/completions-core/clone_member.bash",
+    "usr/share/bash-completion/completions-core/clzip.bash",
+    "usr/share/bash-completion/completions-core/co.bash",
+    "usr/share/bash-completion/completions-core/colormake.bash",
+    "usr/share/bash-completion/completions-core/compare.bash",
+    "usr/share/bash-completion/completions-core/compgen.bash",
+    "usr/share/bash-completion/completions-core/complete.bash",
+    "usr/share/bash-completion/completions-core/composite.bash",
+    "usr/share/bash-completion/completions-core/config_list.bash",
+    "usr/share/bash-completion/completions-core/configure.bash",
+    "usr/share/bash-completion/completions-core/conjure.bash",
+    "usr/share/bash-completion/completions-core/convert.bash",
+    "usr/share/bash-completion/completions-core/cowsay.bash",
+    "usr/share/bash-completion/completions-core/cowthink.bash",
+    "usr/share/bash-completion/completions-core/cpan2dist.bash",
+    "usr/share/bash-completion/completions-core/cpio.bash",
+    "usr/share/bash-completion/completions-core/cppcheck.bash",
+    "usr/share/bash-completion/completions-core/createdb.bash",
+    "usr/share/bash-completion/completions-core/createuser.bash",
+    "usr/share/bash-completion/completions-core/crontab.bash",
+    "usr/share/bash-completion/completions-core/cryptsetup.bash",
+    "usr/share/bash-completion/completions-core/curl.bash",
+    "usr/share/bash-completion/completions-core/curlie.bash",
+    "usr/share/bash-completion/completions-core/cvs.bash",
+    "usr/share/bash-completion/completions-core/cvsps.bash",
+    "usr/share/bash-completion/completions-core/dcop.bash",
+    "usr/share/bash-completion/completions-core/dd.bash",
+    "usr/share/bash-completion/completions-core/declare.bash",
+    "usr/share/bash-completion/completions-core/deja-dup.bash",
+    "usr/share/bash-completion/completions-core/desktop-file-validate.bash",
+    "usr/share/bash-completion/completions-core/dfutool.bash",
+    "usr/share/bash-completion/completions-core/dhclient.bash",
+    "usr/share/bash-completion/completions-core/dict.bash",
+    "usr/share/bash-completion/completions-core/display.bash",
+    "usr/share/bash-completion/completions-core/dmypy.bash",
+    "usr/share/bash-completion/completions-core/dnssec-keygen.bash",
+    "usr/share/bash-completion/completions-core/dnsspoof.bash",
+    "usr/share/bash-completion/completions-core/doas.bash",
+    "usr/share/bash-completion/completions-core/dot.bash",
+    "usr/share/bash-completion/completions-core/dpkg-reconfigure.bash",
+    "usr/share/bash-completion/completions-core/dropdb.bash",
+    "usr/share/bash-completion/completions-core/dropuser.bash",
+    "usr/share/bash-completion/completions-core/dsniff.bash",
+    "usr/share/bash-completion/completions-core/dumpdb.bash",
+    "usr/share/bash-completion/completions-core/dumpe2fs.bash",
+    "usr/share/bash-completion/completions-core/e2freefrag.bash",
+    "usr/share/bash-completion/completions-core/e2label.bash",
+    "usr/share/bash-completion/completions-core/ebtables.bash",
+    "usr/share/bash-completion/completions-core/ecryptfs-migrate-home.bash",
+    "usr/share/bash-completion/completions-core/edquota.bash",
+    "usr/share/bash-completion/completions-core/env.bash",
+    "usr/share/bash-completion/completions-core/eog.bash",
+    "usr/share/bash-completion/completions-core/ether-wake.bash",
+    "usr/share/bash-completion/completions-core/etherwake.bash",
+    "usr/share/bash-completion/completions-core/evince.bash",
+    "usr/share/bash-completion/completions-core/explodepkg.bash",
+    "usr/share/bash-completion/completions-core/export.bash",
+    "usr/share/bash-completion/completions-core/f77.bash",
+    "usr/share/bash-completion/completions-core/f95.bash",
+    "usr/share/bash-completion/completions-core/faillog.bash",
+    "usr/share/bash-completion/completions-core/fbgs.bash",
+    "usr/share/bash-completion/completions-core/fbi.bash",
+    "usr/share/bash-completion/completions-core/feh.bash",
+    "usr/share/bash-completion/completions-core/file-roller.bash",
+    "usr/share/bash-completion/completions-core/file.bash",
+    "usr/share/bash-completion/completions-core/filebucket.bash",
+    "usr/share/bash-completion/completions-core/filefrag.bash",
+    "usr/share/bash-completion/completions-core/filesnarf.bash",
+    "usr/share/bash-completion/completions-core/find.bash",
+    "usr/share/bash-completion/completions-core/find_member.bash",
+    "usr/share/bash-completion/completions-core/fio.bash",
+    "usr/share/bash-completion/completions-core/firefox-esr.bash",
+    "usr/share/bash-completion/completions-core/firefox.bash",
+    "usr/share/bash-completion/completions-core/flake8.bash",
+    "usr/share/bash-completion/completions-core/fprintd-delete.bash",
+    "usr/share/bash-completion/completions-core/fprintd-enroll.bash",
+    "usr/share/bash-completion/completions-core/fprintd-list.bash",
+    "usr/share/bash-completion/completions-core/fprintd-verify.bash",
+    "usr/share/bash-completion/completions-core/free.bash",
+    "usr/share/bash-completion/completions-core/freeciv-gtk2.bash",
+    "usr/share/bash-completion/completions-core/freeciv-gtk3.bash",
+    "usr/share/bash-completion/completions-core/freeciv-sdl.bash",
+    "usr/share/bash-completion/completions-core/freeciv-server.bash",
+    "usr/share/bash-completion/completions-core/freeciv-xaw.bash",
+    "usr/share/bash-completion/completions-core/freeciv.bash",
+    "usr/share/bash-completion/completions-core/fsnotifywait.bash",
+    "usr/share/bash-completion/completions-core/fsnotifywatch.bash",
+    "usr/share/bash-completion/completions-core/function.bash",
+    "usr/share/bash-completion/completions-core/fusermount.bash",
+    "usr/share/bash-completion/completions-core/g++-5.bash",
+    "usr/share/bash-completion/completions-core/g++-6.bash",
+    "usr/share/bash-completion/completions-core/g++-7.bash",
+    "usr/share/bash-completion/completions-core/g++-8.bash",
+    "usr/share/bash-completion/completions-core/g++.bash",
+    "usr/share/bash-completion/completions-core/g4.bash",
+    "usr/share/bash-completion/completions-core/g77.bash",
+    "usr/share/bash-completion/completions-core/g95.bash",
+    "usr/share/bash-completion/completions-core/gcc-5.bash",
+    "usr/share/bash-completion/completions-core/gcc-6.bash",
+    "usr/share/bash-completion/completions-core/gcc-7.bash",
+    "usr/share/bash-completion/completions-core/gcc-8.bash",
+    "usr/share/bash-completion/completions-core/gcc.bash",
+    "usr/share/bash-completion/completions-core/gccgo-5.bash",
+    "usr/share/bash-completion/completions-core/gccgo-6.bash",
+    "usr/share/bash-completion/completions-core/gccgo-7.bash",
+    "usr/share/bash-completion/completions-core/gccgo-8.bash",
+    "usr/share/bash-completion/completions-core/gccgo.bash",
+    "usr/share/bash-completion/completions-core/gcj.bash",
+    "usr/share/bash-completion/completions-core/gcl.bash",
+    "usr/share/bash-completion/completions-core/gdb.bash",
+    "usr/share/bash-completion/completions-core/genaliases.bash",
+    "usr/share/bash-completion/completions-core/gendiff.bash",
+    "usr/share/bash-completion/completions-core/genisoimage.bash",
+    "usr/share/bash-completion/completions-core/geoiplookup.bash",
+    "usr/share/bash-completion/completions-core/geoiplookup6.bash",
+    "usr/share/bash-completion/completions-core/getconf.bash",
+    "usr/share/bash-completion/completions-core/getent.bash",
+    "usr/share/bash-completion/completions-core/gfortran-5.bash",
+    "usr/share/bash-completion/completions-core/gfortran-6.bash",
+    "usr/share/bash-completion/completions-core/gfortran-7.bash",
+    "usr/share/bash-completion/completions-core/gfortran-8.bash",
+    "usr/share/bash-completion/completions-core/gfortran.bash",
+    "usr/share/bash-completion/completions-core/gkrellm.bash",
+    "usr/share/bash-completion/completions-core/gkrellm2.bash",
+    "usr/share/bash-completion/completions-core/gm.bash",
+    "usr/share/bash-completion/completions-core/gmake.bash",
+    "usr/share/bash-completion/completions-core/gmplayer.bash",
+    "usr/share/bash-completion/completions-core/gnatmake.bash",
+    "usr/share/bash-completion/completions-core/gnokii.bash",
+    "usr/share/bash-completion/completions-core/gnome-mplayer.bash",
+    "usr/share/bash-completion/completions-core/gnome-screenshot.bash",
+    "usr/share/bash-completion/completions-core/gnumake.bash",
+    "usr/share/bash-completion/completions-core/google-chrome-stable.bash",
+    "usr/share/bash-completion/completions-core/google-chrome.bash",
+    "usr/share/bash-completion/completions-core/gpasswd.bash",
+    "usr/share/bash-completion/completions-core/gpc.bash",
+    "usr/share/bash-completion/completions-core/gpg.bash",
+    "usr/share/bash-completion/completions-core/gpg2.bash",
+    "usr/share/bash-completion/completions-core/gpgv.bash",
+    "usr/share/bash-completion/completions-core/gpgv2.bash",
+    "usr/share/bash-completion/completions-core/gphoto2.bash",
+    "usr/share/bash-completion/completions-core/gprof.bash",
+    "usr/share/bash-completion/completions-core/groupadd.bash",
+    "usr/share/bash-completion/completions-core/groupdel.bash",
+    "usr/share/bash-completion/completions-core/groupmems.bash",
+    "usr/share/bash-completion/completions-core/groupmod.bash",
+    "usr/share/bash-completion/completions-core/growisofs.bash",
+    "usr/share/bash-completion/completions-core/grpck.bash",
+    "usr/share/bash-completion/completions-core/gssdp-device-sniffer.bash",
+    "usr/share/bash-completion/completions-core/gssdp-discover.bash",
+    "usr/share/bash-completion/completions-core/gtar.bash",
+    "usr/share/bash-completion/completions-core/gzip.bash",
+    "usr/share/bash-completion/completions-core/hash.bash",
+    "usr/share/bash-completion/completions-core/hciattach.bash",
+    "usr/share/bash-completion/completions-core/hciconfig.bash",
+    "usr/share/bash-completion/completions-core/hcitool.bash",
+    "usr/share/bash-completion/completions-core/hddtemp.bash",
+    "usr/share/bash-completion/completions-core/helium.bash",
+    "usr/share/bash-completion/completions-core/help.bash",
+    "usr/share/bash-completion/completions-core/hid2hci.bash",
+    "usr/share/bash-completion/completions-core/host.bash",
+    "usr/share/bash-completion/completions-core/hostname.bash",
+    "usr/share/bash-completion/completions-core/hping.bash",
+    "usr/share/bash-completion/completions-core/hping2.bash",
+    "usr/share/bash-completion/completions-core/hping3.bash",
+    "usr/share/bash-completion/completions-core/htop.bash",
+    "usr/share/bash-completion/completions-core/htpasswd.bash",
+    "usr/share/bash-completion/completions-core/hunspell.bash",
+    "usr/share/bash-completion/completions-core/iceweasel.bash",
+    "usr/share/bash-completion/completions-core/iconv.bash",
+    "usr/share/bash-completion/completions-core/id.bash",
+    "usr/share/bash-completion/completions-core/identify.bash",
+    "usr/share/bash-completion/completions-core/idn.bash",
+    "usr/share/bash-completion/completions-core/ifdown.bash",
+    "usr/share/bash-completion/completions-core/ifquery.bash",
+    "usr/share/bash-completion/completions-core/ifstat.bash",
+    "usr/share/bash-completion/completions-core/ifstatus.bash",
+    "usr/share/bash-completion/completions-core/iftop.bash",
+    "usr/share/bash-completion/completions-core/ifup.bash",
+    "usr/share/bash-completion/completions-core/import.bash",
+    "usr/share/bash-completion/completions-core/influx.bash",
+    "usr/share/bash-completion/completions-core/info.bash",
+    "usr/share/bash-completion/completions-core/inject.bash",
+    "usr/share/bash-completion/completions-core/inotifywait.bash",
+    "usr/share/bash-completion/completions-core/inotifywatch.bash",
+    "usr/share/bash-completion/completions-core/installpkg.bash",
+    "usr/share/bash-completion/completions-core/invoke-rc.d.bash",
+    "usr/share/bash-completion/completions-core/ip.bash",
+    "usr/share/bash-completion/completions-core/ipcalc.bash",
+    "usr/share/bash-completion/completions-core/iperf.bash",
+    "usr/share/bash-completion/completions-core/iperf3.bash",
+    "usr/share/bash-completion/completions-core/ipmitool.bash",
+    "usr/share/bash-completion/completions-core/ipsec.bash",
+    "usr/share/bash-completion/completions-core/iptables.bash",
+    "usr/share/bash-completion/completions-core/ipv6calc.bash",
+    "usr/share/bash-completion/completions-core/iscsiadm.bash",
+    "usr/share/bash-completion/completions-core/isort.bash",
+    "usr/share/bash-completion/completions-core/isql.bash",
+    "usr/share/bash-completion/completions-core/iwconfig.bash",
+    "usr/share/bash-completion/completions-core/iwlist.bash",
+    "usr/share/bash-completion/completions-core/iwpriv.bash",
+    "usr/share/bash-completion/completions-core/iwspy.bash",
+    "usr/share/bash-completion/completions-core/jar.bash",
+    "usr/share/bash-completion/completions-core/jarsigner.bash",
+    "usr/share/bash-completion/completions-core/java.bash",
+    "usr/share/bash-completion/completions-core/javac.bash",
+    "usr/share/bash-completion/completions-core/javadoc.bash",
+    "usr/share/bash-completion/completions-core/javaws.bash",
+    "usr/share/bash-completion/completions-core/jpegoptim.bash",
+    "usr/share/bash-completion/completions-core/jps.bash",
+    "usr/share/bash-completion/completions-core/jq.bash",
+    "usr/share/bash-completion/completions-core/jshint.bash",
+    "usr/share/bash-completion/completions-core/json_xs.bash",
+    "usr/share/bash-completion/completions-core/jsonschema.bash",
+    "usr/share/bash-completion/completions-core/k3b.bash",
+    "usr/share/bash-completion/completions-core/kcov.bash",
+    "usr/share/bash-completion/completions-core/kill.bash",
+    "usr/share/bash-completion/completions-core/killall.bash",
+    "usr/share/bash-completion/completions-core/koji.bash",
+    "usr/share/bash-completion/completions-core/kplayer.bash",
+    "usr/share/bash-completion/completions-core/ktutil.bash",
+    "usr/share/bash-completion/completions-core/l2ping.bash",
+    "usr/share/bash-completion/completions-core/larch.bash",
+    "usr/share/bash-completion/completions-core/lastlog.bash",
+    "usr/share/bash-completion/completions-core/lbzip2.bash",
+    "usr/share/bash-completion/completions-core/ldapadd.bash",
+    "usr/share/bash-completion/completions-core/ldapcompare.bash",
+    "usr/share/bash-completion/completions-core/ldapdelete.bash",
+    "usr/share/bash-completion/completions-core/ldapmodify.bash",
+    "usr/share/bash-completion/completions-core/ldapmodrdn.bash",
+    "usr/share/bash-completion/completions-core/ldappasswd.bash",
+    "usr/share/bash-completion/completions-core/ldapsearch.bash",
+    "usr/share/bash-completion/completions-core/ldapvi.bash",
+    "usr/share/bash-completion/completions-core/ldapwhoami.bash",
+    "usr/share/bash-completion/completions-core/lftp.bash",
+    "usr/share/bash-completion/completions-core/lftpget.bash",
+    "usr/share/bash-completion/completions-core/lilo.bash",
+    "usr/share/bash-completion/completions-core/links.bash",
+    "usr/share/bash-completion/completions-core/links2.bash",
+    "usr/share/bash-completion/completions-core/lintian-info.bash",
+    "usr/share/bash-completion/completions-core/lintian.bash",
+    "usr/share/bash-completion/completions-core/lisp.bash",
+    "usr/share/bash-completion/completions-core/list_admins.bash",
+    "usr/share/bash-completion/completions-core/list_lists.bash",
+    "usr/share/bash-completion/completions-core/list_members.bash",
+    "usr/share/bash-completion/completions-core/list_owners.bash",
+    "usr/share/bash-completion/completions-core/locale-gen.bash",
+    "usr/share/bash-completion/completions-core/lpq.bash",
+    "usr/share/bash-completion/completions-core/lpr.bash",
+    "usr/share/bash-completion/completions-core/lrzip.bash",
+    "usr/share/bash-completion/completions-core/lsof.bash",
+    "usr/share/bash-completion/completions-core/lsscsi.bash",
+    "usr/share/bash-completion/completions-core/lsusb.bash",
+    "usr/share/bash-completion/completions-core/lua.bash",
+    "usr/share/bash-completion/completions-core/lua5.0.bash",
+    "usr/share/bash-completion/completions-core/lua5.1.bash",
+    "usr/share/bash-completion/completions-core/lua5.2.bash",
+    "usr/share/bash-completion/completions-core/lua5.3.bash",
+    "usr/share/bash-completion/completions-core/lua5.4.bash",
+    "usr/share/bash-completion/completions-core/lua50.bash",
+    "usr/share/bash-completion/completions-core/lua51.bash",
+    "usr/share/bash-completion/completions-core/lua52.bash",
+    "usr/share/bash-completion/completions-core/lua53.bash",
+    "usr/share/bash-completion/completions-core/lua54.bash",
+    "usr/share/bash-completion/completions-core/luac.bash",
+    "usr/share/bash-completion/completions-core/luac5.0.bash",
+    "usr/share/bash-completion/completions-core/luac5.1.bash",
+    "usr/share/bash-completion/completions-core/luac5.2.bash",
+    "usr/share/bash-completion/completions-core/luac5.3.bash",
+    "usr/share/bash-completion/completions-core/luac5.4.bash",
+    "usr/share/bash-completion/completions-core/luac50.bash",
+    "usr/share/bash-completion/completions-core/luac51.bash",
+    "usr/share/bash-completion/completions-core/luac52.bash",
+    "usr/share/bash-completion/completions-core/luac53.bash",
+    "usr/share/bash-completion/completions-core/luac54.bash",
+    "usr/share/bash-completion/completions-core/luseradd.bash",
+    "usr/share/bash-completion/completions-core/luserdel.bash",
+    "usr/share/bash-completion/completions-core/lusermod.bash",
+    "usr/share/bash-completion/completions-core/lvchange.bash",
+    "usr/share/bash-completion/completions-core/lvcreate.bash",
+    "usr/share/bash-completion/completions-core/lvdisplay.bash",
+    "usr/share/bash-completion/completions-core/lvextend.bash",
+    "usr/share/bash-completion/completions-core/lvm.bash",
+    "usr/share/bash-completion/completions-core/lvmdiskscan.bash",
+    "usr/share/bash-completion/completions-core/lvreduce.bash",
+    "usr/share/bash-completion/completions-core/lvremove.bash",
+    "usr/share/bash-completion/completions-core/lvrename.bash",
+    "usr/share/bash-completion/completions-core/lvresize.bash",
+    "usr/share/bash-completion/completions-core/lvs.bash",
+    "usr/share/bash-completion/completions-core/lvscan.bash",
+    "usr/share/bash-completion/completions-core/lz4.bash",
+    "usr/share/bash-completion/completions-core/lz4c.bash",
+    "usr/share/bash-completion/completions-core/lzip.bash",
+    "usr/share/bash-completion/completions-core/lzma.bash",
+    "usr/share/bash-completion/completions-core/lzop.bash",
+    "usr/share/bash-completion/completions-core/macof.bash",
+    "usr/share/bash-completion/completions-core/mailmanctl.bash",
+    "usr/share/bash-completion/completions-core/mailsnarf.bash",
+    "usr/share/bash-completion/completions-core/make.bash",
+    "usr/share/bash-completion/completions-core/makepkg.bash",
+    "usr/share/bash-completion/completions-core/man.bash",
+    "usr/share/bash-completion/completions-core/mc.bash",
+    "usr/share/bash-completion/completions-core/mcrypt.bash",
+    "usr/share/bash-completion/completions-core/md5sum.bash",
+    "usr/share/bash-completion/completions-core/mdadm.bash",
+    "usr/share/bash-completion/completions-core/mdecrypt.bash",
+    "usr/share/bash-completion/completions-core/mdtool.bash",
+    "usr/share/bash-completion/completions-core/medusa.bash",
+    "usr/share/bash-completion/completions-core/mencoder.bash",
+    "usr/share/bash-completion/completions-core/mfiutil.bash",
+    "usr/share/bash-completion/completions-core/micropython.bash",
+    "usr/share/bash-completion/completions-core/mii-diag.bash",
+    "usr/share/bash-completion/completions-core/mii-tool.bash",
+    "usr/share/bash-completion/completions-core/minicom.bash",
+    "usr/share/bash-completion/completions-core/mkinitrd.bash",
+    "usr/share/bash-completion/completions-core/mkisofs.bash",
+    "usr/share/bash-completion/completions-core/mktemp.bash",
+    "usr/share/bash-completion/completions-core/mmsitepass.bash",
+    "usr/share/bash-completion/completions-core/mogrify.bash",
+    "usr/share/bash-completion/completions-core/monodevelop.bash",
+    "usr/share/bash-completion/completions-core/montage.bash",
+    "usr/share/bash-completion/completions-core/mozilla-firefox.bash",
+    "usr/share/bash-completion/completions-core/mplayer.bash",
+    "usr/share/bash-completion/completions-core/mplayer2.bash",
+    "usr/share/bash-completion/completions-core/mr.bash",
+    "usr/share/bash-completion/completions-core/mrsasutil.bash",
+    "usr/share/bash-completion/completions-core/msgsnarf.bash",
+    "usr/share/bash-completion/completions-core/msynctool.bash",
+    "usr/share/bash-completion/completions-core/mtx.bash",
+    "usr/share/bash-completion/completions-core/munin-node-configure.bash",
+    "usr/share/bash-completion/completions-core/munin-run.bash",
+    "usr/share/bash-completion/completions-core/munin-update.bash",
+    "usr/share/bash-completion/completions-core/munindoc.bash",
+    "usr/share/bash-completion/completions-core/mussh.bash",
+    "usr/share/bash-completion/completions-core/mutt.bash",
+    "usr/share/bash-completion/completions-core/muttng.bash",
+    "usr/share/bash-completion/completions-core/mypy.bash",
+    "usr/share/bash-completion/completions-core/mysql.bash",
+    "usr/share/bash-completion/completions-core/mysqladmin.bash",
+    "usr/share/bash-completion/completions-core/nc.bash",
+    "usr/share/bash-completion/completions-core/ncftp.bash",
+    "usr/share/bash-completion/completions-core/neomutt.bash",
+    "usr/share/bash-completion/completions-core/nethogs.bash",
+    "usr/share/bash-completion/completions-core/newlist.bash",
+    "usr/share/bash-completion/completions-core/newusers.bash",
+    "usr/share/bash-completion/completions-core/ngrep.bash",
+    "usr/share/bash-completion/completions-core/nload.bash",
+    "usr/share/bash-completion/completions-core/nmap.bash",
+    "usr/share/bash-completion/completions-core/nproc.bash",
+    "usr/share/bash-completion/completions-core/nslookup.bash",
+    "usr/share/bash-completion/completions-core/nsupdate.bash",
+    "usr/share/bash-completion/completions-core/ntpdate.bash",
+    "usr/share/bash-completion/completions-core/oggdec.bash",
+    "usr/share/bash-completion/completions-core/openssl.bash",
+    "usr/share/bash-completion/completions-core/opera.bash",
+    "usr/share/bash-completion/completions-core/optipng.bash",
+    "usr/share/bash-completion/completions-core/p4.bash",
+    "usr/share/bash-completion/completions-core/pack200.bash",
+    "usr/share/bash-completion/completions-core/passwd.bash",
+    "usr/share/bash-completion/completions-core/patch.bash",
+    "usr/share/bash-completion/completions-core/pbzip2.bash",
+    "usr/share/bash-completion/completions-core/pccardctl.bash",
+    "usr/share/bash-completion/completions-core/pdftoppm.bash",
+    "usr/share/bash-completion/completions-core/pdftotext.bash",
+    "usr/share/bash-completion/completions-core/pdlzip.bash",
+    "usr/share/bash-completion/completions-core/perl.bash",
+    "usr/share/bash-completion/completions-core/perlcritic.bash",
+    "usr/share/bash-completion/completions-core/perldoc.bash",
+    "usr/share/bash-completion/completions-core/perltidy.bash",
+    "usr/share/bash-completion/completions-core/pgrep.bash",
+    "usr/share/bash-completion/completions-core/phing.bash",
+    "usr/share/bash-completion/completions-core/pidof.bash",
+    "usr/share/bash-completion/completions-core/pigz.bash",
+    "usr/share/bash-completion/completions-core/pine.bash",
+    "usr/share/bash-completion/completions-core/pinfo.bash",
+    "usr/share/bash-completion/completions-core/ping.bash",
+    "usr/share/bash-completion/completions-core/ping4.bash",
+    "usr/share/bash-completion/completions-core/ping6.bash",
+    "usr/share/bash-completion/completions-core/pkg-config.bash",
+    "usr/share/bash-completion/completions-core/pkg-get.bash",
+    "usr/share/bash-completion/completions-core/pkgadd.bash",
+    "usr/share/bash-completion/completions-core/pkgconf.bash",
+    "usr/share/bash-completion/completions-core/pkgrm.bash",
+    "usr/share/bash-completion/completions-core/pkgtool.bash",
+    "usr/share/bash-completion/completions-core/pkill.bash",
+    "usr/share/bash-completion/completions-core/plague-client.bash",
+    "usr/share/bash-completion/completions-core/plzip.bash",
+    "usr/share/bash-completion/completions-core/pm-hibernate.bash",
+    "usr/share/bash-completion/completions-core/pm-is-supported.bash",
+    "usr/share/bash-completion/completions-core/pm-powersave.bash",
+    "usr/share/bash-completion/completions-core/pm-suspend-hybrid.bash",
+    "usr/share/bash-completion/completions-core/pm-suspend.bash",
+    "usr/share/bash-completion/completions-core/pmake.bash",
+    "usr/share/bash-completion/completions-core/pngfix.bash",
+    "usr/share/bash-completion/completions-core/postalias.bash",
+    "usr/share/bash-completion/completions-core/postcat.bash",
+    "usr/share/bash-completion/completions-core/postconf.bash",
+    "usr/share/bash-completion/completions-core/postfix.bash",
+    "usr/share/bash-completion/completions-core/postmap.bash",
+    "usr/share/bash-completion/completions-core/postsuper.bash",
+    "usr/share/bash-completion/completions-core/povray.bash",
+    "usr/share/bash-completion/completions-core/ppc-koji.bash",
+    "usr/share/bash-completion/completions-core/prelink.bash",
+    "usr/share/bash-completion/completions-core/printenv.bash",
+    "usr/share/bash-completion/completions-core/protoc.bash",
+    "usr/share/bash-completion/completions-core/ps.bash",
+    "usr/share/bash-completion/completions-core/psql.bash",
+    "usr/share/bash-completion/completions-core/puppet.bash",
+    "usr/share/bash-completion/completions-core/puppetca.bash",
+    "usr/share/bash-completion/completions-core/puppetd.bash",
+    "usr/share/bash-completion/completions-core/puppetdoc.bash",
+    "usr/share/bash-completion/completions-core/puppetmasterd.bash",
+    "usr/share/bash-completion/completions-core/puppetqd.bash",
+    "usr/share/bash-completion/completions-core/puppetrun.bash",
+    "usr/share/bash-completion/completions-core/pushd.bash",
+    "usr/share/bash-completion/completions-core/pv.bash",
+    "usr/share/bash-completion/completions-core/pvchange.bash",
+    "usr/share/bash-completion/completions-core/pvcreate.bash",
+    "usr/share/bash-completion/completions-core/pvdisplay.bash",
+    "usr/share/bash-completion/completions-core/pvmove.bash",
+    "usr/share/bash-completion/completions-core/pvremove.bash",
+    "usr/share/bash-completion/completions-core/pvs.bash",
+    "usr/share/bash-completion/completions-core/pvscan.bash",
+    "usr/share/bash-completion/completions-core/pwck.bash",
+    "usr/share/bash-completion/completions-core/pwd.bash",
+    "usr/share/bash-completion/completions-core/pwdx.bash",
+    "usr/share/bash-completion/completions-core/pwgen.bash",
+    "usr/share/bash-completion/completions-core/pxz.bash",
+    "usr/share/bash-completion/completions-core/py.test-2.bash",
+    "usr/share/bash-completion/completions-core/py.test-3.bash",
+    "usr/share/bash-completion/completions-core/py.test.bash",
+    "usr/share/bash-completion/completions-core/pycodestyle.bash",
+    "usr/share/bash-completion/completions-core/pydoc.bash",
+    "usr/share/bash-completion/completions-core/pydoc3.13.bash",
+    "usr/share/bash-completion/completions-core/pydoc3.14.bash",
+    "usr/share/bash-completion/completions-core/pydoc3.15.bash",
+    "usr/share/bash-completion/completions-core/pydoc3.bash",
+    "usr/share/bash-completion/completions-core/pydocstyle.bash",
+    "usr/share/bash-completion/completions-core/pyflakes.bash",
+    "usr/share/bash-completion/completions-core/pylint-2.bash",
+    "usr/share/bash-completion/completions-core/pylint-3.bash",
+    "usr/share/bash-completion/completions-core/pylint.bash",
+    "usr/share/bash-completion/completions-core/pypy.bash",
+    "usr/share/bash-completion/completions-core/pypy3.bash",
+    "usr/share/bash-completion/completions-core/pyston.bash",
+    "usr/share/bash-completion/completions-core/pyston3.bash",
+    "usr/share/bash-completion/completions-core/pytest-2.bash",
+    "usr/share/bash-completion/completions-core/pytest-3.bash",
+    "usr/share/bash-completion/completions-core/pytest.bash",
+    "usr/share/bash-completion/completions-core/python.bash",
+    "usr/share/bash-completion/completions-core/python2.7.bash",
+    "usr/share/bash-completion/completions-core/python2.bash",
+    "usr/share/bash-completion/completions-core/python3.10.bash",
+    "usr/share/bash-completion/completions-core/python3.11.bash",
+    "usr/share/bash-completion/completions-core/python3.12.bash",
+    "usr/share/bash-completion/completions-core/python3.13.bash",
+    "usr/share/bash-completion/completions-core/python3.14.bash",
+    "usr/share/bash-completion/completions-core/python3.15.bash",
+    "usr/share/bash-completion/completions-core/python3.3.bash",
+    "usr/share/bash-completion/completions-core/python3.4.bash",
+    "usr/share/bash-completion/completions-core/python3.5.bash",
+    "usr/share/bash-completion/completions-core/python3.6.bash",
+    "usr/share/bash-completion/completions-core/python3.7.bash",
+    "usr/share/bash-completion/completions-core/python3.8.bash",
+    "usr/share/bash-completion/completions-core/python3.9.bash",
+    "usr/share/bash-completion/completions-core/python3.bash",
+    "usr/share/bash-completion/completions-core/pyvenv-3.10.bash",
+    "usr/share/bash-completion/completions-core/pyvenv-3.11.bash",
+    "usr/share/bash-completion/completions-core/pyvenv-3.12.bash",
+    "usr/share/bash-completion/completions-core/pyvenv-3.13.bash",
+    "usr/share/bash-completion/completions-core/pyvenv-3.14.bash",
+    "usr/share/bash-completion/completions-core/pyvenv-3.15.bash",
+    "usr/share/bash-completion/completions-core/pyvenv-3.4.bash",
+    "usr/share/bash-completion/completions-core/pyvenv-3.5.bash",
+    "usr/share/bash-completion/completions-core/pyvenv-3.6.bash",
+    "usr/share/bash-completion/completions-core/pyvenv-3.7.bash",
+    "usr/share/bash-completion/completions-core/pyvenv-3.8.bash",
+    "usr/share/bash-completion/completions-core/pyvenv-3.9.bash",
+    "usr/share/bash-completion/completions-core/pyvenv.bash",
+    "usr/share/bash-completion/completions-core/qdbus.bash",
+    "usr/share/bash-completion/completions-core/qemu-kvm.bash",
+    "usr/share/bash-completion/completions-core/qemu-system-i386.bash",
+    "usr/share/bash-completion/completions-core/qemu-system-x86_64.bash",
+    "usr/share/bash-completion/completions-core/qemu.bash",
+    "usr/share/bash-completion/completions-core/qrunner.bash",
+    "usr/share/bash-completion/completions-core/querybts.bash",
+    "usr/share/bash-completion/completions-core/quota.bash",
+    "usr/share/bash-completion/completions-core/quotacheck.bash",
+    "usr/share/bash-completion/completions-core/quotaoff.bash",
+    "usr/share/bash-completion/completions-core/quotaon.bash",
+    "usr/share/bash-completion/completions-core/radvdump.bash",
+    "usr/share/bash-completion/completions-core/ralsh.bash",
+    "usr/share/bash-completion/completions-core/rcs.bash",
+    "usr/share/bash-completion/completions-core/rcsdiff.bash",
+    "usr/share/bash-completion/completions-core/rdesktop.bash",
+    "usr/share/bash-completion/completions-core/rdict.bash",
+    "usr/share/bash-completion/completions-core/remove_members.bash",
+    "usr/share/bash-completion/completions-core/removepkg.bash",
+    "usr/share/bash-completion/completions-core/reportbug.bash",
+    "usr/share/bash-completion/completions-core/repquota.bash",
+    "usr/share/bash-completion/completions-core/resolvconf.bash",
+    "usr/share/bash-completion/completions-core/rfcomm.bash",
+    "usr/share/bash-completion/completions-core/ri.bash",
+    "usr/share/bash-completion/completions-core/rlog.bash",
+    "usr/share/bash-completion/completions-core/rmlist.bash",
+    "usr/share/bash-completion/completions-core/route.bash",
+    "usr/share/bash-completion/completions-core/rpcdebug.bash",
+    "usr/share/bash-completion/completions-core/rpm.bash",
+    "usr/share/bash-completion/completions-core/rpm2targz.bash",
+    "usr/share/bash-completion/completions-core/rpm2tgz.bash",
+    "usr/share/bash-completion/completions-core/rpm2txz.bash",
+    "usr/share/bash-completion/completions-core/rpmbuild-md5.bash",
+    "usr/share/bash-completion/completions-core/rpmbuild.bash",
+    "usr/share/bash-completion/completions-core/rpmcheck.bash",
+    "usr/share/bash-completion/completions-core/rrdtool.bash",
+    "usr/share/bash-completion/completions-core/rsync.bash",
+    "usr/share/bash-completion/completions-core/s390-koji.bash",
+    "usr/share/bash-completion/completions-core/sbcl-mt.bash",
+    "usr/share/bash-completion/completions-core/sbcl.bash",
+    "usr/share/bash-completion/completions-core/sbopkg.bash",
+    "usr/share/bash-completion/completions-core/scp.bash",
+    "usr/share/bash-completion/completions-core/screen.bash",
+    "usr/share/bash-completion/completions-core/scrub.bash",
+    "usr/share/bash-completion/completions-core/sdptool.bash",
+    "usr/share/bash-completion/completions-core/set.bash",
+    "usr/share/bash-completion/completions-core/setquota.bash",
+    "usr/share/bash-completion/completions-core/sftp.bash",
+    "usr/share/bash-completion/completions-core/sh.bash",
+    "usr/share/bash-completion/completions-core/sha1sum.bash",
+    "usr/share/bash-completion/completions-core/sha224sum.bash",
+    "usr/share/bash-completion/completions-core/sha256sum.bash",
+    "usr/share/bash-completion/completions-core/sha384sum.bash",
+    "usr/share/bash-completion/completions-core/sha512sum.bash",
+    "usr/share/bash-completion/completions-core/shasum.bash",
+    "usr/share/bash-completion/completions-core/shellcheck.bash",
+    "usr/share/bash-completion/completions-core/sidedoor.bash",
+    "usr/share/bash-completion/completions-core/sitecopy.bash",
+    "usr/share/bash-completion/completions-core/slabtop.bash",
+    "usr/share/bash-completion/completions-core/slapt-get.bash",
+    "usr/share/bash-completion/completions-core/slapt-src.bash",
+    "usr/share/bash-completion/completions-core/slogin.bash",
+    "usr/share/bash-completion/completions-core/smartctl.bash",
+    "usr/share/bash-completion/completions-core/smbcacls.bash",
+    "usr/share/bash-completion/completions-core/smbclient.bash",
+    "usr/share/bash-completion/completions-core/smbcquotas.bash",
+    "usr/share/bash-completion/completions-core/smbget.bash",
+    "usr/share/bash-completion/completions-core/smbpasswd.bash",
+    "usr/share/bash-completion/completions-core/smbtar.bash",
+    "usr/share/bash-completion/completions-core/smbtree.bash",
+    "usr/share/bash-completion/completions-core/snownews.bash",
+    "usr/share/bash-completion/completions-core/sparc-koji.bash",
+    "usr/share/bash-completion/completions-core/spovray.bash",
+    "usr/share/bash-completion/completions-core/sqlite3.bash",
+    "usr/share/bash-completion/completions-core/ss.bash",
+    "usr/share/bash-completion/completions-core/ssh-add.bash",
+    "usr/share/bash-completion/completions-core/ssh-copy-id.bash",
+    "usr/share/bash-completion/completions-core/ssh-keygen.bash",
+    "usr/share/bash-completion/completions-core/ssh-keyscan.bash",
+    "usr/share/bash-completion/completions-core/ssh.bash",
+    "usr/share/bash-completion/completions-core/sshfs.bash",
+    "usr/share/bash-completion/completions-core/sshmitm.bash",
+    "usr/share/bash-completion/completions-core/sshow.bash",
+    "usr/share/bash-completion/completions-core/star.bash",
+    "usr/share/bash-completion/completions-core/strace.bash",
+    "usr/share/bash-completion/completions-core/stream.bash",
+    "usr/share/bash-completion/completions-core/strings.bash",
+    "usr/share/bash-completion/completions-core/sudo-rs.bash",
+    "usr/share/bash-completion/completions-core/sudo.bash",
+    "usr/share/bash-completion/completions-core/sudo.ws.bash",
+    "usr/share/bash-completion/completions-core/sudoedit.bash",
+    "usr/share/bash-completion/completions-core/svcadm.bash",
+    "usr/share/bash-completion/completions-core/svk.bash",
+    "usr/share/bash-completion/completions-core/sync_members.bash",
+    "usr/share/bash-completion/completions-core/synclient.bash",
+    "usr/share/bash-completion/completions-core/sysbench.bash",
+    "usr/share/bash-completion/completions-core/sysctl.bash",
+    "usr/share/bash-completion/completions-core/tar.bash",
+    "usr/share/bash-completion/completions-core/tcpdump.bash",
+    "usr/share/bash-completion/completions-core/tcpkill.bash",
+    "usr/share/bash-completion/completions-core/tcpnice.bash",
+    "usr/share/bash-completion/completions-core/tightvncviewer.bash",
+    "usr/share/bash-completion/completions-core/timeout.bash",
+    "usr/share/bash-completion/completions-core/tipc.bash",
+    "usr/share/bash-completion/completions-core/tmux.bash",
+    "usr/share/bash-completion/completions-core/tracepath.bash",
+    "usr/share/bash-completion/completions-core/tracepath6.bash",
+    "usr/share/bash-completion/completions-core/tree.bash",
+    "usr/share/bash-completion/completions-core/truncate.bash",
+    "usr/share/bash-completion/completions-core/tshark.bash",
+    "usr/share/bash-completion/completions-core/tsig-keygen.bash",
+    "usr/share/bash-completion/completions-core/tune2fs.bash",
+    "usr/share/bash-completion/completions-core/typeset.bash",
+    "usr/share/bash-completion/completions-core/ulimit.bash",
+    "usr/share/bash-completion/completions-core/unace.bash",
+    "usr/share/bash-completion/completions-core/unpack200.bash",
+    "usr/share/bash-completion/completions-core/unrar.bash",
+    "usr/share/bash-completion/completions-core/unshunt.bash",
+    "usr/share/bash-completion/completions-core/update-rc.d.bash",
+    "usr/share/bash-completion/completions-core/upgradepkg.bash",
+    "usr/share/bash-completion/completions-core/urlsnarf.bash",
+    "usr/share/bash-completion/completions-core/useradd.bash",
+    "usr/share/bash-completion/completions-core/userdel.bash",
+    "usr/share/bash-completion/completions-core/usermod.bash",
+    "usr/share/bash-completion/completions-core/valgrind.bash",
+    "usr/share/bash-completion/completions-core/vgcfgbackup.bash",
+    "usr/share/bash-completion/completions-core/vgcfgrestore.bash",
+    "usr/share/bash-completion/completions-core/vgchange.bash",
+    "usr/share/bash-completion/completions-core/vgck.bash",
+    "usr/share/bash-completion/completions-core/vgconvert.bash",
+    "usr/share/bash-completion/completions-core/vgcreate.bash",
+    "usr/share/bash-completion/completions-core/vgdisplay.bash",
+    "usr/share/bash-completion/completions-core/vgexport.bash",
+    "usr/share/bash-completion/completions-core/vgextend.bash",
+    "usr/share/bash-completion/completions-core/vgimport.bash",
+    "usr/share/bash-completion/completions-core/vgmerge.bash",
+    "usr/share/bash-completion/completions-core/vgmknodes.bash",
+    "usr/share/bash-completion/completions-core/vgreduce.bash",
+    "usr/share/bash-completion/completions-core/vgremove.bash",
+    "usr/share/bash-completion/completions-core/vgrename.bash",
+    "usr/share/bash-completion/completions-core/vgs.bash",
+    "usr/share/bash-completion/completions-core/vgscan.bash",
+    "usr/share/bash-completion/completions-core/vgsplit.bash",
+    "usr/share/bash-completion/completions-core/vigr.bash",
+    "usr/share/bash-completion/completions-core/vipw.bash",
+    "usr/share/bash-completion/completions-core/vmstat.bash",
+    "usr/share/bash-completion/completions-core/vncviewer.bash",
+    "usr/share/bash-completion/completions-core/vpnc.bash",
+    "usr/share/bash-completion/completions-core/watch.bash",
+    "usr/share/bash-completion/completions-core/webmitm.bash",
+    "usr/share/bash-completion/completions-core/wget.bash",
+    "usr/share/bash-completion/completions-core/whatis.bash",
+    "usr/share/bash-completion/completions-core/wine-development.bash",
+    "usr/share/bash-completion/completions-core/wine-stable.bash",
+    "usr/share/bash-completion/completions-core/wine.bash",
+    "usr/share/bash-completion/completions-core/wine64-development.bash",
+    "usr/share/bash-completion/completions-core/wine64-stable.bash",
+    "usr/share/bash-completion/completions-core/wine64.bash",
+    "usr/share/bash-completion/completions-core/withlist.bash",
+    "usr/share/bash-completion/completions-core/wodim.bash",
+    "usr/share/bash-completion/completions-core/wol.bash",
+    "usr/share/bash-completion/completions-core/wsimport.bash",
+    "usr/share/bash-completion/completions-core/wtf.bash",
+    "usr/share/bash-completion/completions-core/wvdial.bash",
+    "usr/share/bash-completion/completions-core/xdg-mime.bash",
+    "usr/share/bash-completion/completions-core/xdg-settings.bash",
+    "usr/share/bash-completion/completions-core/xev.bash",
+    "usr/share/bash-completion/completions-core/xfreerdp.bash",
+    "usr/share/bash-completion/completions-core/xgamma.bash",
+    "usr/share/bash-completion/completions-core/xhost.bash",
+    "usr/share/bash-completion/completions-core/xmllint.bash",
+    "usr/share/bash-completion/completions-core/xmlwf.bash",
+    "usr/share/bash-completion/completions-core/xmms.bash",
+    "usr/share/bash-completion/completions-core/xmodmap.bash",
+    "usr/share/bash-completion/completions-core/xpovray.bash",
+    "usr/share/bash-completion/completions-core/xrandr.bash",
+    "usr/share/bash-completion/completions-core/xrdb.bash",
+    "usr/share/bash-completion/completions-core/xsltproc.bash",
+    "usr/share/bash-completion/completions-core/xvfb-run.bash",
+    "usr/share/bash-completion/completions-core/xvnc4viewer.bash",
+    "usr/share/bash-completion/completions-core/xxd.bash",
+    "usr/share/bash-completion/completions-core/xz.bash",
+    "usr/share/bash-completion/completions-core/xzdec.bash",
+    "usr/share/bash-completion/completions-core/ypcat.bash",
+    "usr/share/bash-completion/completions-core/ypmatch.bash",
+    "usr/share/bash-completion/completions-core/yum-arch.bash",
+    "usr/share/bash-completion/completions-core/zopfli.bash",
+    "usr/share/bash-completion/completions-core/zopflipng.bash",
+    "usr/share/bash-completion/completions-fallback",
+    "usr/share/bash-completion/completions-fallback/adb.bash",
+    "usr/share/bash-completion/completions-fallback/airflow.bash",
+    "usr/share/bash-completion/completions-fallback/allero.bash",
+    "usr/share/bash-completion/completions-fallback/alp.bash",
+    "usr/share/bash-completion/completions-fallback/ansible-config.bash",
+    "usr/share/bash-completion/completions-fallback/ansible-console.bash",
+    "usr/share/bash-completion/completions-fallback/ansible-doc.bash",
+    "usr/share/bash-completion/completions-fallback/ansible-galaxy.bash",
+    "usr/share/bash-completion/completions-fallback/ansible-inventory.bash",
+    "usr/share/bash-completion/completions-fallback/ansible-playbook.bash",
+    "usr/share/bash-completion/completions-fallback/ansible-pull.bash",
+    "usr/share/bash-completion/completions-fallback/ansible-vault.bash",
+    "usr/share/bash-completion/completions-fallback/ansible.bash",
+    "usr/share/bash-completion/completions-fallback/apko.bash",
+    "usr/share/bash-completion/completions-fallback/aqua.bash",
+    "usr/share/bash-completion/completions-fallback/arduino-cli.bash",
+    "usr/share/bash-completion/completions-fallback/argc.bash",
+    "usr/share/bash-completion/completions-fallback/argo.bash",
+    "usr/share/bash-completion/completions-fallback/asdf.bash",
+    "usr/share/bash-completion/completions-fallback/atlas.bash",
+    "usr/share/bash-completion/completions-fallback/atmos.bash",
+    "usr/share/bash-completion/completions-fallback/bao.bash",
+    "usr/share/bash-completion/completions-fallback/bashbot.bash",
+    "usr/share/bash-completion/completions-fallback/black.bash",
+    "usr/share/bash-completion/completions-fallback/blackd.bash",
+    "usr/share/bash-completion/completions-fallback/bombadil.bash",
+    "usr/share/bash-completion/completions-fallback/bosh.bash",
+    "usr/share/bash-completion/completions-fallback/buf.bash",
+    "usr/share/bash-completion/completions-fallback/caddy.bash",
+    "usr/share/bash-completion/completions-fallback/cal.bash",
+    "usr/share/bash-completion/completions-fallback/cargo.bash",
+    "usr/share/bash-completion/completions-fallback/chamber.bash",
+    "usr/share/bash-completion/completions-fallback/changie.bash",
+    "usr/share/bash-completion/completions-fallback/chezmoi.bash",
+    "usr/share/bash-completion/completions-fallback/chfn.bash",
+    "usr/share/bash-completion/completions-fallback/chsh.bash",
+    "usr/share/bash-completion/completions-fallback/cilium.bash",
+    "usr/share/bash-completion/completions-fallback/cloudquery.bash",
+    "usr/share/bash-completion/completions-fallback/clusterctl.bash",
+    "usr/share/bash-completion/completions-fallback/cmctl.bash",
+    "usr/share/bash-completion/completions-fallback/coder.bash",
+    "usr/share/bash-completion/completions-fallback/codex.bash",
+    "usr/share/bash-completion/completions-fallback/colima.bash",
+    "usr/share/bash-completion/completions-fallback/conda.bash",
+    "usr/share/bash-completion/completions-fallback/conform.bash",
+    "usr/share/bash-completion/completions-fallback/conftest.bash",
+    "usr/share/bash-completion/completions-fallback/constellation.bash",
+    "usr/share/bash-completion/completions-fallback/consul.bash",
+    "usr/share/bash-completion/completions-fallback/container-structure-test.bash",
+    "usr/share/bash-completion/completions-fallback/copilot.bash",
+    "usr/share/bash-completion/completions-fallback/cosign.bash",
+    "usr/share/bash-completion/completions-fallback/crane.bash",
+    "usr/share/bash-completion/completions-fallback/crc.bash",
+    "usr/share/bash-completion/completions-fallback/crictl.bash",
+    "usr/share/bash-completion/completions-fallback/ctlptl.bash",
+    "usr/share/bash-completion/completions-fallback/cue.bash",
+    "usr/share/bash-completion/completions-fallback/cz.bash",
+    "usr/share/bash-completion/completions-fallback/dagger.bash",
+    "usr/share/bash-completion/completions-fallback/dapr.bash",
+    "usr/share/bash-completion/completions-fallback/dasel.bash",
+    "usr/share/bash-completion/completions-fallback/datree.bash",
+    "usr/share/bash-completion/completions-fallback/deck.bash",
+    "usr/share/bash-completion/completions-fallback/delta.bash",
+    "usr/share/bash-completion/completions-fallback/deno.bash",
+    "usr/share/bash-completion/completions-fallback/depot.bash",
+    "usr/share/bash-completion/completions-fallback/devspace.bash",
+    "usr/share/bash-completion/completions-fallback/diesel.bash",
+    "usr/share/bash-completion/completions-fallback/diffoci.bash",
+    "usr/share/bash-completion/completions-fallback/dive.bash",
+    "usr/share/bash-completion/completions-fallback/dlv.bash",
+    "usr/share/bash-completion/completions-fallback/dmesg.bash",
+    "usr/share/bash-completion/completions-fallback/docker.bash",
+    "usr/share/bash-completion/completions-fallback/dpkg-deb.bash",
+    "usr/share/bash-completion/completions-fallback/dpkg-query.bash",
+    "usr/share/bash-completion/completions-fallback/dpkg-source.bash",
+    "usr/share/bash-completion/completions-fallback/dpkg.bash",
+    "usr/share/bash-completion/completions-fallback/dprint.bash",
+    "usr/share/bash-completion/completions-fallback/driftctl.bash",
+    "usr/share/bash-completion/completions-fallback/dselect.bash",
+    "usr/share/bash-completion/completions-fallback/dyff.bash",
+    "usr/share/bash-completion/completions-fallback/eject.bash",
+    "usr/share/bash-completion/completions-fallback/encore.bash",
+    "usr/share/bash-completion/completions-fallback/esc.bash",
+    "usr/share/bash-completion/completions-fallback/etcdctl.bash",
+    "usr/share/bash-completion/completions-fallback/etcdutl.bash",
+    "usr/share/bash-completion/completions-fallback/flamegraph.bash",
+    "usr/share/bash-completion/completions-fallback/flask.bash",
+    "usr/share/bash-completion/completions-fallback/flux.bash",
+    "usr/share/bash-completion/completions-fallback/furyctl.bash",
+    "usr/share/bash-completion/completions-fallback/fx.bash",
+    "usr/share/bash-completion/completions-fallback/gaiacli.bash",
+    "usr/share/bash-completion/completions-fallback/gaiad.bash",
+    "usr/share/bash-completion/completions-fallback/gardenctl.bash",
+    "usr/share/bash-completion/completions-fallback/gcrane.bash",
+    "usr/share/bash-completion/completions-fallback/gh-label.bash",
+    "usr/share/bash-completion/completions-fallback/gh.bash",
+    "usr/share/bash-completion/completions-fallback/ghorg.bash",
+    "usr/share/bash-completion/completions-fallback/git-bump.bash",
+    "usr/share/bash-completion/completions-fallback/gitconfig.bash",
+    "usr/share/bash-completion/completions-fallback/gitleaks.bash",
+    "usr/share/bash-completion/completions-fallback/gitsign.bash",
+    "usr/share/bash-completion/completions-fallback/glab.bash",
+    "usr/share/bash-completion/completions-fallback/glances.bash",
+    "usr/share/bash-completion/completions-fallback/glen.bash",
+    "usr/share/bash-completion/completions-fallback/glow.bash",
+    "usr/share/bash-completion/completions-fallback/go-licenses.bash",
+    "usr/share/bash-completion/completions-fallback/golangci-lint.bash",
+    "usr/share/bash-completion/completions-fallback/gomarklint.bash",
+    "usr/share/bash-completion/completions-fallback/gopass.bash",
+    "usr/share/bash-completion/completions-fallback/gopherjs.bash",
+    "usr/share/bash-completion/completions-fallback/goreleaser.bash",
+    "usr/share/bash-completion/completions-fallback/grype.bash",
+    "usr/share/bash-completion/completions-fallback/gsctl.bash",
+    "usr/share/bash-completion/completions-fallback/gup.bash",
+    "usr/share/bash-completion/completions-fallback/hd.bash",
+    "usr/share/bash-completion/completions-fallback/helm.bash",
+    "usr/share/bash-completion/completions-fallback/helmfile.bash",
+    "usr/share/bash-completion/completions-fallback/hexdump.bash",
+    "usr/share/bash-completion/completions-fallback/hostctl.bash",
+    "usr/share/bash-completion/completions-fallback/httpx.bash",
+    "usr/share/bash-completion/completions-fallback/hugo.bash",
+    "usr/share/bash-completion/completions-fallback/hwclock.bash",
+    "usr/share/bash-completion/completions-fallback/ignite.bash",
+    "usr/share/bash-completion/completions-fallback/imgpkg.bash",
+    "usr/share/bash-completion/completions-fallback/incus.bash",
+    "usr/share/bash-completion/completions-fallback/infracost.bash",
+    "usr/share/bash-completion/completions-fallback/insmod.bash",
+    "usr/share/bash-completion/completions-fallback/insmod.static.bash",
+    "usr/share/bash-completion/completions-fallback/interdiff.bash",
+    "usr/share/bash-completion/completions-fallback/ionice.bash",
+    "usr/share/bash-completion/completions-fallback/istioctl.bash",
+    "usr/share/bash-completion/completions-fallback/jj.bash",
+    "usr/share/bash-completion/completions-fallback/jreleaser.bash",
+    "usr/share/bash-completion/completions-fallback/jungle.bash",
+    "usr/share/bash-completion/completions-fallback/just.bash",
+    "usr/share/bash-completion/completions-fallback/jwt.bash",
+    "usr/share/bash-completion/completions-fallback/k0sctl.bash",
+    "usr/share/bash-completion/completions-fallback/k3d.bash",
+    "usr/share/bash-completion/completions-fallback/k3s.bash",
+    "usr/share/bash-completion/completions-fallback/k3sup.bash",
+    "usr/share/bash-completion/completions-fallback/k6.bash",
+    "usr/share/bash-completion/completions-fallback/k9s.bash",
+    "usr/share/bash-completion/completions-fallback/kafkactl.bash",
+    "usr/share/bash-completion/completions-fallback/kapp.bash",
+    "usr/share/bash-completion/completions-fallback/kata-runtime.bash",
+    "usr/share/bash-completion/completions-fallback/kconf.bash",
+    "usr/share/bash-completion/completions-fallback/keyring.bash",
+    "usr/share/bash-completion/completions-fallback/kind.bash",
+    "usr/share/bash-completion/completions-fallback/kn.bash",
+    "usr/share/bash-completion/completions-fallback/ko.bash",
+    "usr/share/bash-completion/completions-fallback/kompose.bash",
+    "usr/share/bash-completion/completions-fallback/kontena.bash",
+    "usr/share/bash-completion/completions-fallback/kool.bash",
+    "usr/share/bash-completion/completions-fallback/kops.bash",
+    "usr/share/bash-completion/completions-fallback/krane.bash",
+    "usr/share/bash-completion/completions-fallback/kratos.bash",
+    "usr/share/bash-completion/completions-fallback/kube-capacity.bash",
+    "usr/share/bash-completion/completions-fallback/kube-linter.bash",
+    "usr/share/bash-completion/completions-fallback/kubeadm.bash",
+    "usr/share/bash-completion/completions-fallback/kubebuilder.bash",
+    "usr/share/bash-completion/completions-fallback/kubecm.bash",
+    "usr/share/bash-completion/completions-fallback/kubectl-argo-rollouts.bash",
+    "usr/share/bash-completion/completions-fallback/kubectl-kuttl.bash",
+    "usr/share/bash-completion/completions-fallback/kubectl.bash",
+    "usr/share/bash-completion/completions-fallback/kubelogin.bash",
+    "usr/share/bash-completion/completions-fallback/kubemqctl.bash",
+    "usr/share/bash-completion/completions-fallback/kubescape.bash",
+    "usr/share/bash-completion/completions-fallback/kubesec.bash",
+    "usr/share/bash-completion/completions-fallback/kubeshark.bash",
+    "usr/share/bash-completion/completions-fallback/kubespy.bash",
+    "usr/share/bash-completion/completions-fallback/kustomize.bash",
+    "usr/share/bash-completion/completions-fallback/kyverno.bash",
+    "usr/share/bash-completion/completions-fallback/lefthook.bash",
+    "usr/share/bash-completion/completions-fallback/limactl.bash",
+    "usr/share/bash-completion/completions-fallback/linkerd.bash",
+    "usr/share/bash-completion/completions-fallback/look.bash",
+    "usr/share/bash-completion/completions-fallback/mado.bash",
+    "usr/share/bash-completion/completions-fallback/mago.bash",
+    "usr/share/bash-completion/completions-fallback/mattermost.bash",
+    "usr/share/bash-completion/completions-fallback/mdbook.bash",
+    "usr/share/bash-completion/completions-fallback/melange.bash",
+    "usr/share/bash-completion/completions-fallback/metalctl.bash",
+    "usr/share/bash-completion/completions-fallback/minikube.bash",
+    "usr/share/bash-completion/completions-fallback/minishift.bash",
+    "usr/share/bash-completion/completions-fallback/mise.bash",
+    "usr/share/bash-completion/completions-fallback/mmctl.bash",
+    "usr/share/bash-completion/completions-fallback/mock.bash",
+    "usr/share/bash-completion/completions-fallback/mockery.bash",
+    "usr/share/bash-completion/completions-fallback/modinfo.bash",
+    "usr/share/bash-completion/completions-fallback/modprobe.bash",
+    "usr/share/bash-completion/completions-fallback/modules.bash",
+    "usr/share/bash-completion/completions-fallback/moldy.bash",
+    "usr/share/bash-completion/completions-fallback/mount.bash",
+    "usr/share/bash-completion/completions-fallback/mount.linux.bash",
+    "usr/share/bash-completion/completions-fallback/mtr.bash",
+    "usr/share/bash-completion/completions-fallback/multi-gitter.bash",
+    "usr/share/bash-completion/completions-fallback/ncal.bash",
+    "usr/share/bash-completion/completions-fallback/nerdctl.bash",
+    "usr/share/bash-completion/completions-fallback/newgrp.bash",
+    "usr/share/bash-completion/completions-fallback/nfpm.bash",
+    "usr/share/bash-completion/completions-fallback/ngrok.bash",
+    "usr/share/bash-completion/completions-fallback/nmcli.bash",
+    "usr/share/bash-completion/completions-fallback/nomad.bash",
+    "usr/share/bash-completion/completions-fallback/notation.bash",
+    "usr/share/bash-completion/completions-fallback/nova.bash",
+    "usr/share/bash-completion/completions-fallback/nox.bash",
+    "usr/share/bash-completion/completions-fallback/npm.bash",
+    "usr/share/bash-completion/completions-fallback/nvm.bash",
+    "usr/share/bash-completion/completions-fallback/oc.bash",
+    "usr/share/bash-completion/completions-fallback/odo.bash",
+    "usr/share/bash-completion/completions-fallback/okteto.bash",
+    "usr/share/bash-completion/completions-fallback/op.bash",
+    "usr/share/bash-completion/completions-fallback/opa.bash",
+    "usr/share/bash-completion/completions-fallback/opencode.bash",
+    "usr/share/bash-completion/completions-fallback/oras.bash",
+    "usr/share/bash-completion/completions-fallback/ory.bash",
+    "usr/share/bash-completion/completions-fallback/packer.bash",
+    "usr/share/bash-completion/completions-fallback/pip.bash",
+    "usr/share/bash-completion/completions-fallback/pip3.bash",
+    "usr/share/bash-completion/completions-fallback/pipenv.bash",
+    "usr/share/bash-completion/completions-fallback/pitchfork.bash",
+    "usr/share/bash-completion/completions-fallback/pluto.bash",
+    "usr/share/bash-completion/completions-fallback/pnpm.bash",
+    "usr/share/bash-completion/completions-fallback/polygon-edge.bash",
+    "usr/share/bash-completion/completions-fallback/popeye.bash",
+    "usr/share/bash-completion/completions-fallback/pulumi.bash",
+    "usr/share/bash-completion/completions-fallback/px.bash",
+    "usr/share/bash-completion/completions-fallback/qrpc.bash",
+    "usr/share/bash-completion/completions-fallback/random.bash",
+    "usr/share/bash-completion/completions-fallback/rclone.bash",
+    "usr/share/bash-completion/completions-fallback/regal.bash",
+    "usr/share/bash-completion/completions-fallback/regctl.bash",
+    "usr/share/bash-completion/completions-fallback/release-plz.bash",
+    "usr/share/bash-completion/completions-fallback/renice.bash",
+    "usr/share/bash-completion/completions-fallback/repomanage.bash",
+    "usr/share/bash-completion/completions-fallback/reptyr.bash",
+    "usr/share/bash-completion/completions-fallback/rfkill.bash",
+    "usr/share/bash-completion/completions-fallback/rg.bash",
+    "usr/share/bash-completion/completions-fallback/rmmod.bash",
+    "usr/share/bash-completion/completions-fallback/rtcwake.bash",
+    "usr/share/bash-completion/completions-fallback/ruff.bash",
+    "usr/share/bash-completion/completions-fallback/rumdl.bash",
+    "usr/share/bash-completion/completions-fallback/runuser.bash",
+    "usr/share/bash-completion/completions-fallback/rustic.bash",
+    "usr/share/bash-completion/completions-fallback/rustup.bash",
+    "usr/share/bash-completion/completions-fallback/secret-tool.bash",
+    "usr/share/bash-completion/completions-fallback/sentry-cli.bash",
+    "usr/share/bash-completion/completions-fallback/shtab.bash",
+    "usr/share/bash-completion/completions-fallback/sinker.bash",
+    "usr/share/bash-completion/completions-fallback/skaffold.bash",
+    "usr/share/bash-completion/completions-fallback/skupper.bash",
+    "usr/share/bash-completion/completions-fallback/slackpkg.bash",
+    "usr/share/bash-completion/completions-fallback/slsa-verifier.bash",
+    "usr/share/bash-completion/completions-fallback/sops.bash",
+    "usr/share/bash-completion/completions-fallback/sopstool.bash",
+    "usr/share/bash-completion/completions-fallback/spacectl.bash",
+    "usr/share/bash-completion/completions-fallback/ssh-inscribe.bash",
+    "usr/share/bash-completion/completions-fallback/sshi.bash",
+    "usr/share/bash-completion/completions-fallback/starship.bash",
+    "usr/share/bash-completion/completions-fallback/steampipe.bash",
+    "usr/share/bash-completion/completions-fallback/stern.bash",
+    "usr/share/bash-completion/completions-fallback/stripe.bash",
+    "usr/share/bash-completion/completions-fallback/su.bash",
+    "usr/share/bash-completion/completions-fallback/svn.bash",
+    "usr/share/bash-completion/completions-fallback/svnadmin.bash",
+    "usr/share/bash-completion/completions-fallback/svnlook.bash",
+    "usr/share/bash-completion/completions-fallback/syft.bash",
+    "usr/share/bash-completion/completions-fallback/syncthing.bash",
+    "usr/share/bash-completion/completions-fallback/talhelper.bash",
+    "usr/share/bash-completion/completions-fallback/tanzu-core.bash",
+    "usr/share/bash-completion/completions-fallback/tanzu.bash",
+    "usr/share/bash-completion/completions-fallback/task.bash",
+    "usr/share/bash-completion/completions-fallback/tctl.bash",
+    "usr/share/bash-completion/completions-fallback/tendermint.bash",
+    "usr/share/bash-completion/completions-fallback/terraform.bash",
+    "usr/share/bash-completion/completions-fallback/tfctl.bash",
+    "usr/share/bash-completion/completions-fallback/tilt.bash",
+    "usr/share/bash-completion/completions-fallback/timoni.bash",
+    "usr/share/bash-completion/completions-fallback/tkn-pac.bash",
+    "usr/share/bash-completion/completions-fallback/tkn.bash",
+    "usr/share/bash-completion/completions-fallback/tldr.bash",
+    "usr/share/bash-completion/completions-fallback/todoist.bash",
+    "usr/share/bash-completion/completions-fallback/tofu.bash",
+    "usr/share/bash-completion/completions-fallback/tokio-console.bash",
+    "usr/share/bash-completion/completions-fallback/tox.bash",
+    "usr/share/bash-completion/completions-fallback/trash-empty.bash",
+    "usr/share/bash-completion/completions-fallback/trash-list.bash",
+    "usr/share/bash-completion/completions-fallback/trash-put.bash",
+    "usr/share/bash-completion/completions-fallback/trash-restore.bash",
+    "usr/share/bash-completion/completions-fallback/trash.bash",
+    "usr/share/bash-completion/completions-fallback/trivy.bash",
+    "usr/share/bash-completion/completions-fallback/ty.bash",
+    "usr/share/bash-completion/completions-fallback/udevadm.bash",
+    "usr/share/bash-completion/completions-fallback/umount.bash",
+    "usr/share/bash-completion/completions-fallback/umount.linux.bash",
+    "usr/share/bash-completion/completions-fallback/upctl.bash",
+    "usr/share/bash-completion/completions-fallback/update-alternatives.bash",
+    "usr/share/bash-completion/completions-fallback/uv.bash",
+    "usr/share/bash-completion/completions-fallback/uvx.bash",
+    "usr/share/bash-completion/completions-fallback/vacuum.bash",
+    "usr/share/bash-completion/completions-fallback/vault.bash",
+    "usr/share/bash-completion/completions-fallback/vela.bash",
+    "usr/share/bash-completion/completions-fallback/velero.bash",
+    "usr/share/bash-completion/completions-fallback/venom.bash",
+    "usr/share/bash-completion/completions-fallback/virtctl.bash",
+    "usr/share/bash-completion/completions-fallback/wasmer-headless.bash",
+    "usr/share/bash-completion/completions-fallback/wasmer.bash",
+    "usr/share/bash-completion/completions-fallback/watchexec.bash",
+    "usr/share/bash-completion/completions-fallback/waydroid.bash",
+    "usr/share/bash-completion/completions-fallback/write.bash",
+    "usr/share/bash-completion/completions-fallback/xc.bash",
+    "usr/share/bash-completion/completions-fallback/xm.bash",
+    "usr/share/bash-completion/completions-fallback/yq.bash",
+    "usr/share/bash-completion/completions-fallback/ytt.bash",
+    "usr/share/bash-completion/completions-fallback/yum.bash",
+    "usr/share/bash-completion/completions-fallback/zarf.bash",
+    "usr/share/bash-completion/completions-fallback/zed.bash",
+    "usr/share/bash-completion/completions-fallback/zitadel.bash",
+    "usr/share/bash-completion/completions-fallback/zola.bash",
+    "usr/share/bash-completion/completions/README.md",
+    "usr/share/bash-completion/helpers",
+    "usr/share/bash-completion/helpers-core",
+    "usr/share/bash-completion/helpers-core/make-extract-targets.awk",
+    "usr/share/bash-completion/helpers-core/perl",
+    "usr/share/bash-completion/helpers-core/python",
+    "usr/share/bash-completion/helpers/README.md",
+    "usr/share/bash-completion/startup",
+    "usr/share/bash-completion/startup-core",
+    "usr/share/bash-completion/startup-core/000_bash_completion_compat.bash",
+    "usr/share/bash-completion/startup/README.md",
+    "usr/share/cmake",
+    "usr/share/cmake/bash-completion",
+    "usr/share/cmake/bash-completion/bash-completion-config-version.cmake",
+    "usr/share/cmake/bash-completion/bash-completion-config.cmake",
+    "usr/share/pkgconfig",
+    "usr/share/pkgconfig/bash-completion.pc"
+  ],
+  "license_declaration": [
+    "GPL-2.0-only"
+  ],
+  "license_notice_files": [],
+  "links": [
+    {
+      "path": "usr/share/bash-completion/completions-core/7za.bash",
+      "target": "7z.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/7zr.bash",
+      "target": "7z.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/7zz.bash",
+      "target": "7z.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/7zzs.bash",
+      "target": "7z.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/aclocal-1.10.bash",
+      "target": "aclocal.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/aclocal-1.11.bash",
+      "target": "aclocal.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/aclocal-1.12.bash",
+      "target": "aclocal.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/aclocal-1.13.bash",
+      "target": "aclocal.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/aclocal-1.14.bash",
+      "target": "aclocal.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/aclocal-1.15.bash",
+      "target": "aclocal.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/aclocal-1.16.bash",
+      "target": "aclocal.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/aclocal-1.17.bash",
+      "target": "aclocal.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/aclocal-1.18.bash",
+      "target": "aclocal.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/alpine.bash",
+      "target": "pine.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/animate.bash",
+      "target": "convert.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/apropos.bash",
+      "target": "man.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/aptitude-curses.bash",
+      "target": "aptitude.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/arm-koji.bash",
+      "target": "koji.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/asciidoc.py.bash",
+      "target": "asciidoc.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/autoheader.bash",
+      "target": "autoreconf.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/automake-1.10.bash",
+      "target": "automake.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/automake-1.11.bash",
+      "target": "automake.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/automake-1.12.bash",
+      "target": "automake.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/automake-1.13.bash",
+      "target": "automake.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/automake-1.14.bash",
+      "target": "automake.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/automake-1.15.bash",
+      "target": "automake.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/automake-1.16.bash",
+      "target": "automake.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/automake-1.17.bash",
+      "target": "automake.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/automake-1.18.bash",
+      "target": "automake.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/autossh.bash",
+      "target": "ssh.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/autoupdate.bash",
+      "target": "autoscan.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/avahi-browse-domains.bash",
+      "target": "avahi-browse.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/b2sum.bash",
+      "target": "sha256sum.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/bmake.bash",
+      "target": "make.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/brave-browser.bash",
+      "target": "chromium-browser.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/brave.bash",
+      "target": "chromium-browser.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/bsdtar.bash",
+      "target": "tar.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/btdownloadcurses.py.bash",
+      "target": "btdownloadheadless.py.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/btdownloadgui.py.bash",
+      "target": "btdownloadheadless.py.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/c++.bash",
+      "target": "gcc.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/cc.bash",
+      "target": "gcc.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/cdrecord.bash",
+      "target": "wodim.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/chrome.bash",
+      "target": "chromium-browser.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/chromium.bash",
+      "target": "chromium-browser.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/ci.bash",
+      "target": "rcs.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/ciptool.bash",
+      "target": "hcitool.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/civclient.bash",
+      "target": "freeciv.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/civserver.bash",
+      "target": "freeciv-server.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/cksum.bash",
+      "target": "sha256sum.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/clzip.bash",
+      "target": "lzip.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/co.bash",
+      "target": "rcs.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/colormake.bash",
+      "target": "make.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/compare.bash",
+      "target": "convert.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/compgen.bash",
+      "target": "complete.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/composite.bash",
+      "target": "convert.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/conjure.bash",
+      "target": "convert.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/cowthink.bash",
+      "target": "cowsay.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/createdb.bash",
+      "target": "psql.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/createuser.bash",
+      "target": "psql.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/curlie.bash",
+      "target": "curl.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/dcop.bash",
+      "target": "qdbus.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/dfutool.bash",
+      "target": "hcitool.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/display.bash",
+      "target": "convert.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/dropdb.bash",
+      "target": "psql.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/dropuser.bash",
+      "target": "psql.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/edquota.bash",
+      "target": "quota.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/etherwake.bash",
+      "target": "ether-wake.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/f77.bash",
+      "target": "gcc.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/f95.bash",
+      "target": "gcc.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/filebucket.bash",
+      "target": "puppet.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/firefox-esr.bash",
+      "target": "firefox.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/fprintd-list.bash",
+      "target": "fprintd-delete.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/fprintd-verify.bash",
+      "target": "fprintd-enroll.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/freeciv-gtk2.bash",
+      "target": "freeciv.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/freeciv-gtk3.bash",
+      "target": "freeciv.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/freeciv-sdl.bash",
+      "target": "freeciv.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/freeciv-xaw.bash",
+      "target": "freeciv.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/fsnotifywait.bash",
+      "target": "inotifywait.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/fsnotifywatch.bash",
+      "target": "inotifywait.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/g++-5.bash",
+      "target": "gcc.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/g++-6.bash",
+      "target": "gcc.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/g++-7.bash",
+      "target": "gcc.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/g++-8.bash",
+      "target": "gcc.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/g++.bash",
+      "target": "gcc.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/g4.bash",
+      "target": "p4.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/g77.bash",
+      "target": "gcc.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/g95.bash",
+      "target": "gcc.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/gcc-5.bash",
+      "target": "gcc.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/gcc-6.bash",
+      "target": "gcc.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/gcc-7.bash",
+      "target": "gcc.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/gcc-8.bash",
+      "target": "gcc.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/gccgo-5.bash",
+      "target": "gcc.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/gccgo-6.bash",
+      "target": "gcc.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/gccgo-7.bash",
+      "target": "gcc.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/gccgo-8.bash",
+      "target": "gcc.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/gccgo.bash",
+      "target": "gcc.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/gcj.bash",
+      "target": "gcc.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/geoiplookup6.bash",
+      "target": "geoiplookup.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/gfortran-5.bash",
+      "target": "gcc.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/gfortran-6.bash",
+      "target": "gcc.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/gfortran-7.bash",
+      "target": "gcc.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/gfortran-8.bash",
+      "target": "gcc.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/gfortran.bash",
+      "target": "gcc.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/gkrellm2.bash",
+      "target": "gkrellm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/gmake.bash",
+      "target": "make.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/gmplayer.bash",
+      "target": "mplayer.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/gnumake.bash",
+      "target": "make.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/google-chrome-stable.bash",
+      "target": "chromium-browser.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/google-chrome.bash",
+      "target": "chromium-browser.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/gpc.bash",
+      "target": "gcc.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/gpgv2.bash",
+      "target": "gpgv.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/gssdp-device-sniffer.bash",
+      "target": "gssdp-discover.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/gtar.bash",
+      "target": "tar.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/hciattach.bash",
+      "target": "hcitool.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/hciconfig.bash",
+      "target": "hcitool.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/helium.bash",
+      "target": "chromium-browser.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/host.bash",
+      "target": "nslookup.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/hping.bash",
+      "target": "hping2.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/hping3.bash",
+      "target": "hping2.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/iceweasel.bash",
+      "target": "firefox.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/identify.bash",
+      "target": "convert.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/ifdown.bash",
+      "target": "ifup.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/ifquery.bash",
+      "target": "ifup.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/ifstatus.bash",
+      "target": "ifup.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/import.bash",
+      "target": "convert.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/inotifywatch.bash",
+      "target": "inotifywait.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/iperf3.bash",
+      "target": "iperf.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/javac.bash",
+      "target": "java.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/javadoc.bash",
+      "target": "java.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/kplayer.bash",
+      "target": "mplayer.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/l2ping.bash",
+      "target": "hcitool.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/lbzip2.bash",
+      "target": "bzip2.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/ldapadd.bash",
+      "target": "ldapsearch.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/ldapcompare.bash",
+      "target": "ldapsearch.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/ldapdelete.bash",
+      "target": "ldapsearch.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/ldapmodify.bash",
+      "target": "ldapsearch.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/ldapmodrdn.bash",
+      "target": "ldapsearch.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/ldappasswd.bash",
+      "target": "ldapsearch.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/ldapwhoami.bash",
+      "target": "ldapsearch.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/links2.bash",
+      "target": "links.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/lintian-info.bash",
+      "target": "lintian.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/lua5.0.bash",
+      "target": "lua.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/lua5.1.bash",
+      "target": "lua.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/lua5.2.bash",
+      "target": "lua.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/lua5.3.bash",
+      "target": "lua.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/lua5.4.bash",
+      "target": "lua.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/lua50.bash",
+      "target": "lua.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/lua51.bash",
+      "target": "lua.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/lua52.bash",
+      "target": "lua.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/lua53.bash",
+      "target": "lua.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/lua54.bash",
+      "target": "lua.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/luac5.0.bash",
+      "target": "luac.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/luac5.1.bash",
+      "target": "luac.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/luac5.2.bash",
+      "target": "luac.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/luac5.3.bash",
+      "target": "luac.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/luac5.4.bash",
+      "target": "luac.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/luac50.bash",
+      "target": "luac.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/luac51.bash",
+      "target": "luac.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/luac52.bash",
+      "target": "luac.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/luac53.bash",
+      "target": "luac.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/luac54.bash",
+      "target": "luac.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/lusermod.bash",
+      "target": "luseradd.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/lvchange.bash",
+      "target": "lvm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/lvcreate.bash",
+      "target": "lvm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/lvdisplay.bash",
+      "target": "lvm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/lvextend.bash",
+      "target": "lvm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/lvmdiskscan.bash",
+      "target": "lvm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/lvreduce.bash",
+      "target": "lvm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/lvremove.bash",
+      "target": "lvm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/lvrename.bash",
+      "target": "lvm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/lvresize.bash",
+      "target": "lvm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/lvs.bash",
+      "target": "lvm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/lvscan.bash",
+      "target": "lvm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/lz4c.bash",
+      "target": "lz4.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/mailsnarf.bash",
+      "target": "filesnarf.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/md5sum.bash",
+      "target": "sha256sum.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/mdecrypt.bash",
+      "target": "mcrypt.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/mencoder.bash",
+      "target": "mplayer.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/micropython.bash",
+      "target": "python.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/mkisofs.bash",
+      "target": "genisoimage.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/mogrify.bash",
+      "target": "convert.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/montage.bash",
+      "target": "convert.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/mozilla-firefox.bash",
+      "target": "firefox.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/mplayer2.bash",
+      "target": "mplayer.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/mrsasutil.bash",
+      "target": "mfiutil.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/msgsnarf.bash",
+      "target": "filesnarf.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/muttng.bash",
+      "target": "mutt.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/neomutt.bash",
+      "target": "mutt.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pbzip2.bash",
+      "target": "bzip2.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pccardctl.bash",
+      "target": "cardctl.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pdlzip.bash",
+      "target": "lzip.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/perldoc.bash",
+      "target": "perl.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/phing.bash",
+      "target": "ant.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pigz.bash",
+      "target": "gzip.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pinfo.bash",
+      "target": "info.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/ping4.bash",
+      "target": "ping.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/ping6.bash",
+      "target": "ping.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pkgconf.bash",
+      "target": "pkg-config.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pkill.bash",
+      "target": "pgrep.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/plzip.bash",
+      "target": "lzip.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pm-suspend-hybrid.bash",
+      "target": "pm-hibernate.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pm-suspend.bash",
+      "target": "pm-hibernate.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pmake.bash",
+      "target": "make.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/postalias.bash",
+      "target": "postmap.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/ppc-koji.bash",
+      "target": "koji.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/puppetca.bash",
+      "target": "puppet.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/puppetd.bash",
+      "target": "puppet.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/puppetdoc.bash",
+      "target": "puppet.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/puppetmasterd.bash",
+      "target": "puppet.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/puppetqd.bash",
+      "target": "puppet.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/puppetrun.bash",
+      "target": "puppet.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pushd.bash",
+      "target": "cd.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pvchange.bash",
+      "target": "lvm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pvcreate.bash",
+      "target": "lvm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pvdisplay.bash",
+      "target": "lvm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pvmove.bash",
+      "target": "lvm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pvremove.bash",
+      "target": "lvm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pvs.bash",
+      "target": "lvm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pvscan.bash",
+      "target": "lvm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pxz.bash",
+      "target": "xz.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/py.test-2.bash",
+      "target": "pytest.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/py.test-3.bash",
+      "target": "pytest.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/py.test.bash",
+      "target": "pytest.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pydoc3.13.bash",
+      "target": "pydoc.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pydoc3.14.bash",
+      "target": "pydoc.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pydoc3.15.bash",
+      "target": "pydoc.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pydoc3.bash",
+      "target": "pydoc.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pylint-2.bash",
+      "target": "pylint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pylint-3.bash",
+      "target": "pylint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pypy.bash",
+      "target": "python.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pypy3.bash",
+      "target": "python.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pyston.bash",
+      "target": "python.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pyston3.bash",
+      "target": "python.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pytest-2.bash",
+      "target": "pytest.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pytest-3.bash",
+      "target": "pytest.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/python2.7.bash",
+      "target": "python.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/python2.bash",
+      "target": "python.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/python3.10.bash",
+      "target": "python.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/python3.11.bash",
+      "target": "python.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/python3.12.bash",
+      "target": "python.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/python3.13.bash",
+      "target": "python.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/python3.14.bash",
+      "target": "python.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/python3.15.bash",
+      "target": "python.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/python3.3.bash",
+      "target": "python.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/python3.4.bash",
+      "target": "python.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/python3.5.bash",
+      "target": "python.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/python3.6.bash",
+      "target": "python.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/python3.7.bash",
+      "target": "python.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/python3.8.bash",
+      "target": "python.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/python3.9.bash",
+      "target": "python.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/python3.bash",
+      "target": "python.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pyvenv-3.10.bash",
+      "target": "pyvenv.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pyvenv-3.11.bash",
+      "target": "pyvenv.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pyvenv-3.12.bash",
+      "target": "pyvenv.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pyvenv-3.13.bash",
+      "target": "pyvenv.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pyvenv-3.14.bash",
+      "target": "pyvenv.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pyvenv-3.15.bash",
+      "target": "pyvenv.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pyvenv-3.4.bash",
+      "target": "pyvenv.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pyvenv-3.5.bash",
+      "target": "pyvenv.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pyvenv-3.6.bash",
+      "target": "pyvenv.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pyvenv-3.7.bash",
+      "target": "pyvenv.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pyvenv-3.8.bash",
+      "target": "pyvenv.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/pyvenv-3.9.bash",
+      "target": "pyvenv.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/qemu-kvm.bash",
+      "target": "qemu.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/qemu-system-i386.bash",
+      "target": "qemu.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/qemu-system-x86_64.bash",
+      "target": "qemu.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/quotacheck.bash",
+      "target": "quota.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/quotaoff.bash",
+      "target": "quota.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/quotaon.bash",
+      "target": "quota.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/ralsh.bash",
+      "target": "puppet.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/rcsdiff.bash",
+      "target": "rcs.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/rdict.bash",
+      "target": "dict.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/repquota.bash",
+      "target": "quota.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/rfcomm.bash",
+      "target": "hcitool.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/rlog.bash",
+      "target": "rcs.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/rpm2targz.bash",
+      "target": "rpm2tgz.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/rpm2txz.bash",
+      "target": "rpm2tgz.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/rpmbuild-md5.bash",
+      "target": "rpm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/rpmbuild.bash",
+      "target": "rpm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/s390-koji.bash",
+      "target": "koji.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/sbcl-mt.bash",
+      "target": "sbcl.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/scp.bash",
+      "target": "ssh.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/sdptool.bash",
+      "target": "hcitool.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/setquota.bash",
+      "target": "quota.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/sftp.bash",
+      "target": "ssh.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/sha1sum.bash",
+      "target": "sha256sum.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/sha224sum.bash",
+      "target": "sha256sum.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/sha384sum.bash",
+      "target": "sha256sum.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/sha512sum.bash",
+      "target": "sha256sum.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/shasum.bash",
+      "target": "sha256sum.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/sidedoor.bash",
+      "target": "ssh.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/slogin.bash",
+      "target": "ssh.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/smbcacls.bash",
+      "target": "smbclient.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/smbcquotas.bash",
+      "target": "smbclient.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/smbget.bash",
+      "target": "smbclient.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/smbpasswd.bash",
+      "target": "smbclient.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/smbtar.bash",
+      "target": "smbclient.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/smbtree.bash",
+      "target": "smbclient.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/sparc-koji.bash",
+      "target": "koji.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/spovray.bash",
+      "target": "povray.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/star.bash",
+      "target": "tar.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/stream.bash",
+      "target": "convert.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/sudo-rs.bash",
+      "target": "sudo.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/sudo.ws.bash",
+      "target": "sudo.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/sudoedit.bash",
+      "target": "sudo.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/tightvncviewer.bash",
+      "target": "vncviewer.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/tracepath6.bash",
+      "target": "tracepath.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/typeset.bash",
+      "target": "declare.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/vgcfgbackup.bash",
+      "target": "lvm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/vgcfgrestore.bash",
+      "target": "lvm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/vgchange.bash",
+      "target": "lvm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/vgck.bash",
+      "target": "lvm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/vgconvert.bash",
+      "target": "lvm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/vgcreate.bash",
+      "target": "lvm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/vgdisplay.bash",
+      "target": "lvm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/vgexport.bash",
+      "target": "lvm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/vgextend.bash",
+      "target": "lvm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/vgimport.bash",
+      "target": "lvm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/vgmerge.bash",
+      "target": "lvm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/vgmknodes.bash",
+      "target": "lvm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/vgreduce.bash",
+      "target": "lvm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/vgremove.bash",
+      "target": "lvm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/vgrename.bash",
+      "target": "lvm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/vgs.bash",
+      "target": "lvm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/vgscan.bash",
+      "target": "lvm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/vgsplit.bash",
+      "target": "lvm.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/vigr.bash",
+      "target": "vipw.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/whatis.bash",
+      "target": "man.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/wine-development.bash",
+      "target": "wine.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/wine-stable.bash",
+      "target": "wine.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/wine64-development.bash",
+      "target": "wine.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/wine64-stable.bash",
+      "target": "wine.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/wine64.bash",
+      "target": "wine.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/xpovray.bash",
+      "target": "povray.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/xvnc4viewer.bash",
+      "target": "vncviewer.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-core/ypcat.bash",
+      "target": "ypmatch.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/airflow.bash",
+      "target": "nox.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/allero.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/alp.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/ansible-config.bash",
+      "target": "nox.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/ansible-console.bash",
+      "target": "nox.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/ansible-doc.bash",
+      "target": "nox.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/ansible-galaxy.bash",
+      "target": "nox.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/ansible-inventory.bash",
+      "target": "nox.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/ansible-playbook.bash",
+      "target": "nox.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/ansible-pull.bash",
+      "target": "nox.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/ansible-vault.bash",
+      "target": "nox.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/ansible.bash",
+      "target": "nox.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/apko.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/aqua.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/arduino-cli.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/argo.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/asdf.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/atlas.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/atmos.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/bao.bash",
+      "target": "vault.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/bashbot.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/black.bash",
+      "target": "pipenv.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/blackd.bash",
+      "target": "pipenv.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/bosh.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/buf.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/caddy.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/chamber.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/changie.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/chezmoi.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/cilium.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/cloudquery.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/clusterctl.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/cmctl.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/codex.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/colima.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/conda.bash",
+      "target": "nox.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/conform.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/conftest.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/constellation.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/consul.bash",
+      "target": "vault.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/container-structure-test.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/copilot.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/cosign.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/crane.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/crc.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/crictl.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/ctlptl.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/cue.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/cz.bash",
+      "target": "nox.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/dagger.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/dapr.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/dasel.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/datree.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/deck.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/deno.bash",
+      "target": "mdbook.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/depot.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/devspace.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/diesel.bash",
+      "target": "mdbook.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/diffoci.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/dive.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/dlv.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/docker.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/dpkg-deb.bash",
+      "target": "dpkg.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/dpkg-query.bash",
+      "target": "dpkg.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/dprint.bash",
+      "target": "mdbook.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/driftctl.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/dyff.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/encore.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/esc.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/etcdctl.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/etcdutl.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/flask.bash",
+      "target": "pipenv.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/flux.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/furyctl.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/fx.bash",
+      "target": "vault.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/gaiad.bash",
+      "target": "gaiacli.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/gardenctl.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/gcrane.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/gh-label.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/ghorg.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/git-bump.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/gitconfig.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/gitleaks.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/gitsign.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/glab.bash",
+      "target": "gh.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/glances.bash",
+      "target": "keyring.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/glen.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/glow.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/go-licenses.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/gomarklint.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/gopass.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/gopherjs.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/goreleaser.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/grype.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/gup.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/hd.bash",
+      "target": "hexdump.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/helm.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/helmfile.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/hostctl.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/httpx.bash",
+      "target": "pipenv.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/hugo.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/ignite.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/imgpkg.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/incus.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/infracost.bash",
+      "target": "gh.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/insmod.static.bash",
+      "target": "insmod.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/istioctl.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/just.bash",
+      "target": "flamegraph.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/jwt.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/k0sctl.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/k3d.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/k3s.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/k3sup.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/k6.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/k9s.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/kafkactl.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/kapp.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/kata-runtime.bash",
+      "target": "sops.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/kconf.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/kind.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/kn.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/ko.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/kompose.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/kool.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/kops.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/krane.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/kratos.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/kube-capacity.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/kube-linter.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/kubeadm.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/kubebuilder.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/kubecm.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/kubectl-argo-rollouts.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/kubectl-kuttl.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/kubectl.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/kubelogin.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/kubemqctl.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/kubescape.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/kubesec.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/kubeshark.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/kubespy.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/kustomize.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/kyverno.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/lefthook.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/limactl.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/linkerd.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/mado.bash",
+      "target": "ruff.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/mago.bash",
+      "target": "bombadil.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/mattermost.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/melange.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/metalctl.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/minikube.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/minishift.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/mise.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/mmctl.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/mockery.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/moldy.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/multi-gitter.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/ncal.bash",
+      "target": "cal.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/nerdctl.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/nfpm.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/ngrok.bash",
+      "target": "gaiacli.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/nomad.bash",
+      "target": "vault.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/notation.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/nova.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/npm.bash",
+      "target": "gaiacli.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/oc.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/odo.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/okteto.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/op.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/opa.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/opencode.bash",
+      "target": "gaiacli.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/oras.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/ory.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/packer.bash",
+      "target": "vault.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/pip3.bash",
+      "target": "pip.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/pitchfork.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/pluto.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/pnpm.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/polygon-edge.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/popeye.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/pulumi.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/px.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/qrpc.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/random.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/rclone.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/regal.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/regctl.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/release-plz.bash",
+      "target": "bombadil.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/rumdl.bash",
+      "target": "mdbook.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/rustic.bash",
+      "target": "mdbook.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/sentry-cli.bash",
+      "target": "mdbook.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/sinker.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/skaffold.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/skupper.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/slsa-verifier.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/sopstool.bash",
+      "target": "gaiacli.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/spacectl.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/ssh-inscribe.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/sshi.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/starship.bash",
+      "target": "mdbook.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/steampipe.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/syft.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/talhelper.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/tanzu-core.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/tanzu.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/tctl.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/tendermint.bash",
+      "target": "gaiacli.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/terraform.bash",
+      "target": "vault.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/tfctl.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/tilt.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/timoni.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/tkn-pac.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/tkn.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/tldr.bash",
+      "target": "keyring.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/todoist.bash",
+      "target": "sops.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/tofu.bash",
+      "target": "vault.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/trash-empty.bash",
+      "target": "keyring.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/trash-list.bash",
+      "target": "keyring.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/trash-put.bash",
+      "target": "keyring.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/trash-restore.bash",
+      "target": "keyring.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/trash.bash",
+      "target": "keyring.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/trivy.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/ty.bash",
+      "target": "ruff.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/upctl.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/uv.bash",
+      "target": "ruff.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/vacuum.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/vela.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/velero.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/venom.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/virtctl.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/wasmer-headless.bash",
+      "target": "wasmer.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/watchexec.bash",
+      "target": "flamegraph.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/waydroid.bash",
+      "target": "nox.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/xc.bash",
+      "target": "vault.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/ytt.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/zarf.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/zed.bash",
+      "target": "flamegraph.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/zitadel.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/bash-completion/completions-fallback/zola.bash",
+      "target": "golangci-lint.bash",
+      "type": "symlink"
+    }
+  ],
+  "metadata": {
+    "arch": [
+      "any"
+    ],
+    "backup": [
+      "etc/bash_completion.d/000_bash_completion_compat.bash"
+    ],
+    "builddate": [
+      "1783301761"
+    ],
+    "depend": [
+      "bash"
+    ],
+    "license": [
+      "GPL-2.0-only"
+    ],
+    "packager": [
+      "Arch Linux ARM Build System <builder+n0@archlinuxarm.org>"
+    ],
+    "pkgbase": [
+      "bash-completion"
+    ],
+    "pkgdesc": [
+      "Programmable completion for the bash shell"
+    ],
+    "pkgname": [
+      "bash-completion"
+    ],
+    "pkgver": [
+      "2.18.0-1"
+    ],
+    "size": [
+      "1043228"
+    ],
+    "url": [
+      "https://github.com/scop/bash-completion"
+    ],
+    "xdata": [
+      "pkgtype=pkg"
+    ]
+  },
+  "package_execution": "NOT RUN",
+  "path_count": 1121
+}

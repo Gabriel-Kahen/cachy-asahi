@@ -1,0 +1,10 @@
+{
+  "expected_packages": null,
+  "image": null,
+  "image_config_sha256": null,
+  "profile": null,
+  "root_source_authorization": null,
+  "schema": 1,
+  "scope": "UNSELECTED_CORE_NATIVE_BUILD_ONLY",
+  "source_date_epoch": null
+}
