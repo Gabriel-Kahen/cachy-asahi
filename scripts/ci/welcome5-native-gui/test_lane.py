@@ -252,4 +252,41 @@ class DNSReportPreviewControls(unittest.TestCase):
   phase=(HERE/'dns_phase.py').read_text();self.assertEqual(phase.count('until=time.monotonic()+45'),1)
   self.assertIn("semantic=hooks['wait'](page,hooks['healthy'],remaining(until),'actual DNS report preview')",phase)
 
+class ExpandedDNSReportControls(unittest.TestCase):
+ def contract(self):
+  from types import SimpleNamespace
+  namespace={'__name__':'inert_expanded_dns_contract'};exec(compile(X.management(SOURCE),'<source-owned-management-contract>','exec'),namespace);return SimpleNamespace(**namespace)
+ def values(self):
+  pid=91;chain=[dict(pid=pid,role=r,visible=True,showing=True,rect=[0,0,1000,550])for r in(62,20,39,68,49,23)]
+  inner=[dict(pid=pid,role=r,visible=True,showing=True,rect=[0,0,1000,550])for r in(61,49,68,62)]
+  report=dict(scope='Stored DNS profiles',pid=pid,role=61,matches=1,reply='REPLIED',target_checked=True,enabled=True,sensitive=True,visible=True,showing=True,focusable=True,focused=True,chain=inner)
+  proof=dict(status='PASS',pid=pid,interface='Component',action_name='ensure-visible',actions=0,scroll_called=True,coordinate_space='ATSPI_SCREEN',scroll_returned=False,focus_called=True,focused=False,unclipped_after_scroll=False,method='EXPANDED_DNS_REPORT_TEXT_FOCUS_SCROLL',name_base64=base64.b64encode(b'View report').decode(),chain=chain,report_focus=report)
+  window=dict(pid=pid,mapped=True,visible=True,floating=True,hidden=False,xwayland=False,at=[12,12],size=[1000,550],title='cachy-asahi Welcome',**{'class':'cachy-asahi-welcome'},address='0x123')
+  return proof,window
+ def test_exact_typed_descendant_focus_and_complete_final_geometry(self):
+  C=self.contract();proof,window=self.values();C.visible_control(proof,91,'View report',window,report_scope='Stored DNS profiles')
+  for key,value in [('pid',True),('pid',92),('role',43),('matches',True),('matches',2),('reply','TIMEOUT_STATE_CONFIRMED'),('target_checked',False),('enabled',False),('sensitive',False),('visible',False),('showing',False),('focusable',False),('focused',False),('scope','Doctor')]:
+   row=copy.deepcopy(proof);row['report_focus'][key]=value
+   with self.subTest(key=key,value=value),self.assertRaises(ValueError):C.visible_control(row,91,'View report',window,report_scope='Stored DNS profiles')
+ def test_wrong_scope_unexpanded_foreign_ancestry_and_clipping_refuse(self):
+  C=self.contract();proof,window=self.values()
+  for kind in('scope','unscoped','foreign','child_hidden','child_clipped','bad_join','outer_clipped','window','extra','nonfallback'):
+   row=copy.deepcopy(proof);win=copy.deepcopy(window);scope='Stored DNS profiles'
+   if kind=='scope':scope='Doctor'
+   elif kind=='unscoped':scope=None
+   elif kind=='foreign':row['report_focus']['chain'][1]['pid']=92
+   elif kind=='child_hidden':row['report_focus']['chain'][1]['showing']=False
+   elif kind=='child_clipped':row['report_focus']['chain'][0]['rect']=[0,540,100,20]
+   elif kind=='bad_join':row['report_focus']['chain'][-1]['rect']=[0,0,1000,549]
+   elif kind=='outer_clipped':row['chain'][0]['rect']=[0,540,100,20]
+   elif kind=='window':win['size']=[1000,551]
+   elif kind=='extra':row['report_focus']['arbitrary']=True
+   else:row.update(method='FOCUS_SCROLL',focused=True)
+   with self.subTest(kind=kind),self.assertRaises(ValueError):C.visible_control(row,91,'View report',win,report_scope=scope)
+ def test_production_actor_scope_reply_and_fresh_chain_guards(self):
+  driver=X.driver(X.source_text(SOURCE,'a11y_driver.c'))
+  for required in('strcmp(wanted_scope, "Stored DNS profiles")','strcmp(wanted, "View report")','ATSPI_STATE_CHECKED','ATSPI_ROLE_TEXT','report_matches == 1 && report_text','report_ancestry(pid, FALSE)','actual DNS report text focus reply','report_ancestry(pid, TRUE)','DNS report geometry join','focused control remains clipped','getuid() == 23001 && geteuid() == 23001','alarm(20)','peer_focus_timeout(atspi_component_grab_focus(peer_component, &error))'):
+   self.assertIn(required,driver)
+  self.assertEqual(driver.count('focus_report_text(pid);'),1)
+
 if __name__=='__main__':unittest.main(verbosity=2)
