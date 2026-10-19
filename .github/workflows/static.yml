@@ -670,6 +670,30 @@ jobs:
           cp "$work/ci/.github/workflows/native-arm-apps7-full574-repair16k.yml" "$work/ci/.github/workflows/native-arm-build.yml"
           python3 -B -Werror::ResourceWarning -m unittest discover -s "$work/ci/scripts/ci/apps7-full574-repair16k" -p test_lane.py -v
           python3 -B -Werror::ResourceWarning -m unittest discover -s "$work/ci/scripts/ci/apps7-full574-repair16k-ci" -p test_ci.py -v
+      - name: Checkout genuine compiled-parent Repair204 diagnostic base
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 33b9bcee3b42dd21f4317d3b400744839cdd38be
+          path: .ci-inputs/repair204-diagnostic-base
+          persist-credentials: false
+      - name: Check finite Repair16K inner diagnostics factory and NULL actuals
+        timeout-minutes: 4
+        env:
+          REPAIR_INNER_BASE_SOURCE: ${{ github.workspace }}/.ci-inputs/repair204-diagnostic-base
+        run: |
+          set -euo pipefail
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/repair16k-inner-diagnostics-source -p test_prepare.py
+          work=$(mktemp -d "$RUNNER_TEMP/repair-inner-source.XXXXXX")
+          trap 'rm -rf -- "$work"' EXIT
+          for view in default selected; do
+            selection=()
+            if [[ "$view" == selected ]]; then selection+=(--selected); fi
+            python3 -B scripts/ci/repair16k-inner-diagnostics-source/prepare.py --base-root "$REPAIR_INNER_BASE_SOURCE" --output "$work/$view" "${selection[@]}"
+            python3 -B "$work/$view/scripts/ci/apps7-full574-repair16k/prepare.py" --template --source "$work/$view" --output "$work/$view-bridge"
+            python3 -B -Werror::ResourceWarning -m unittest discover -s "$work/$view-bridge/scripts/ci/apps7-full574-repair16k" -p test_lane.py -v
+            python3 -B -Werror::ResourceWarning -m unittest discover -s "$work/$view/scripts/ci/apps7-full574-repair16k-ci" -p test_ci.py -v
+            (cd "$work/$view" && python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/apps -p 'test_*.py' -v)
+          done
       - name: Assemble actual GitHub cancellation diagnostic without actors
         run: python3 -I -B scripts/ci/apps-full574-github-cancel/prepare.py --native-source "$PWD/.ci-inputs/repair-native-baseline" --implementation "$PWD" --output "$RUNNER_TEMP/apps574-github-cancel"
       - name: Check actual GitHub cancellation ownership and source guards
