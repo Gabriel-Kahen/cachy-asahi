@@ -1367,6 +1367,14 @@
       "bytes": 11090,
       "sha256": "5e448ef6677fc26485e044b3ac2d35a07105703d4f1a719bb7c030678eff87ae"
     },
+    "scripts/ci/current606-ksm2-closed-owner/archive8-policy.json": {
+      "bytes": 2589,
+      "sha256": "2b21c05d30a9c5efd2f717cfa8475c9de3150d7729f710b348b70a84f5b16e20"
+    },
+    "scripts/ci/current606-ksm2-closed-owner/archive8.py": {
+      "bytes": 11040,
+      "sha256": "5e24808152c727f5dcd19252c66e1ab121bdb9dbd6b90becb943820634898565"
+    },
     "scripts/ci/current606-ksm2-closed-owner/builds.py": {
       "bytes": 1658,
       "sha256": "09e69e779617797523559a019d7cffca9994041726218341ae8cfc6ec1526195"
@@ -1392,8 +1400,8 @@
       "sha256": "90660b5073cea66926071b90bcc4e998358592fb8371a5d9a46b556d933c687d"
     },
     "scripts/ci/current606-ksm2-closed-owner/prepare.py": {
-      "bytes": 23528,
-      "sha256": "167f0103dfecd4e2753aedf01b2516370ed1b62bb0c937444beff3e620d22a1f"
+      "bytes": 28850,
+      "sha256": "bcd4c86536786dc7104d5032c743dc360aebf62be21949f51b239142b3c54e7c"
     },
     "scripts/ci/current606-ksm2-closed-owner/runtime.py": {
       "bytes": 14337,

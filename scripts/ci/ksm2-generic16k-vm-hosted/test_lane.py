@@ -299,13 +299,13 @@ class Archive20Integration(unittest.TestCase):
   self.assertEqual((len(a['files']),sum(r['bytes']for r in a['files'].values())),(20,2793312));self.assertFalse(set(a['files'])&set(b['files']));self.assertEqual(a['original_inputs'],b['original_inputs']);self.assertEqual(a['original_inputs'],dict(bytes=623664,sha256='b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9'))
  def test_exact_owner_workflow_retainer_inverse_and_three_commands_held(self):
   import ast,hashlib
-  text=(ROOT/O.LANE/'owner.py').read_text();self.assertEqual(text.count(ARCHIVE20_OWNER_HELPER),1);self.assertEqual(text.count(ARCHIVE20_OWNER_CALL),1)
+  text=before_archive8((ROOT/O.LANE/'owner.py').read_text(),'owner.py');self.assertEqual(text.count(ARCHIVE20_OWNER_HELPER),1);self.assertEqual(text.count(ARCHIVE20_OWNER_CALL),1)
   old=text.replace('import archive20 as A20\n','',1).replace(ARCHIVE20_OWNER_HELPER,'',1).replace(ARCHIVE20_OWNER_CALL,'',1)
   self.assertEqual(O.pin(old.encode()),ARCHIVE20_BEFORE_PINS['owner.py'])
   calls=lambda raw:[ast.dump(n,include_attributes=False)for n in ast.walk(ast.parse(raw))if isinstance(n,ast.Call)and isinstance(n.func,ast.Name)and n.func.id=='command']
   self.assertEqual(len(calls(old)),3);self.assertEqual(calls(old),calls(text));self.assertLess(text.index(ARCHIVE20_OWNER_CALL),text.index("'build','--inputs'"));self.assertGreater(text.index(ARCHIVE20_OWNER_CALL),text.index("O.save(a.work/'archive32-custody.json'"))
-  template=(ROOT/O.LANE/'workflow.yml.in').read_text();self.assertEqual(template.count(ARCHIVE20_WORKFLOW_STEP),1);self.assertEqual(O.pin(template.replace(ARCHIVE20_WORKFLOW_STEP,'',1).encode()),ARCHIVE20_BEFORE_PINS['workflow.yml.in'])
-  raw=(ROOT/O.LANE/'retain.py').read_text();self.assertEqual(O.pin(raw.replace("FIXED={'archive20-custody.json','archive32-custody.json',","FIXED={'archive32-custody.json',",1).encode()),ARCHIVE20_BEFORE_PINS['retain.py'])
+  template=before_archive8((ROOT/O.LANE/'workflow.yml.in').read_text(),'workflow.yml.in');self.assertEqual(template.count(ARCHIVE20_WORKFLOW_STEP),1);self.assertEqual(O.pin(template.replace(ARCHIVE20_WORKFLOW_STEP,'',1).encode()),ARCHIVE20_BEFORE_PINS['workflow.yml.in'])
+  raw=before_archive8((ROOT/O.LANE/'retain.py').read_text(),'retain.py');self.assertEqual(O.pin(raw.replace("FIXED={'archive20-custody.json','archive32-custody.json',","FIXED={'archive32-custody.json',",1).encode()),ARCHIVE20_BEFORE_PINS['retain.py'])
   self.assertEqual(O.BOUNDS,dict(owner_seconds=6600,producer_seconds=2300,seed_seconds=120,prepare_seconds=1900,VM_seconds=3000,QEMU_output_bytes=16777216,public_output_bytes=201326592));self.assertIn('timeout-minutes: 4',ARCHIVE20_WORKFLOW_STEP)
  def test_actual_workflow_absolute_cli_policy_under_foreign_cwd_before_network(self):
   import shlex
@@ -357,6 +357,35 @@ else:raise AssertionError('No real CLI refusal')
   with tempfile.TemporaryDirectory()as td:
    work=Path(td)/'work';work.mkdir(mode=0o700);value=dict(status='EXACT_ORIGINAL20_SEEDED_BEFORE_UNCHANGED_BUILD',context='INERT_RETENTION_INTERFACE_NOT_ACCEPTANCE');raw=O.encoded(value);(work/'archive20-custody.json').write_bytes(raw);(work/'a.pkg').write_bytes(b'NO_PACKAGE_BODY_EXPORT');out=Path(td)/'public';result=retain.run(work,out)
    self.assertEqual(set(result['files']),{'archive20-custody.json'});self.assertEqual((out/'archive20-custody.json').read_bytes(),raw);self.assertEqual(result['files']['archive20-custody.json'],O.pin(raw));self.assertFalse((out/'a.pkg').exists())
+
+
+ARCHIVE8_HELPER='def seed_archive8(root,runtime,archive32_cache,deps,work):\n """Seed only whole-pinned original8; no version/trust or producer command changes."""\n cache=archive32_cache.parent/\'ksm2-archive8\'\n policy_path=root/O.LANE/\'archive8-policy.json\'\n value=A8.policy(policy_path,runtime/\'borrowed/maintained574-inputs.json\')\n custody=A8.seed_exact(cache,deps,value)\n custody.update(policy=O.pin(O.read(policy_path)),files={n:{k:r[k]for k in(\'bytes\',\'sha256\')}for n,r in value[\'files\'].items()},versions=\'UNCHANGED_FROZEN574_LOCK\',trust=\'UNCHANGED_ORIGINAL_SIGNATURE_AND_KEYRING_CHECKS\')\n O.save(work/\'archive8-custody.json\',custody)\n return custody\n\n'
+ARCHIVE8_CALL="  seed_archive8(root,runtime,a.archive_cache,producer/'context/deps',a.work)\n"
+ARCHIVE8_STEP='      - name: Prefetch exact8 additional frozen574 archive bytes before unchanged producer\n        timeout-minutes: 4\n        run: >-\n          python3 -I -B "$GITHUB_WORKSPACE/$SLICE/archive8.py" --policy "$GITHUB_WORKSPACE/$SLICE/archive8-policy.json"\n          --inputs "$GITHUB_WORKSPACE/runtime/borrowed/maintained574-inputs.json"\n          --cache "$RUNNER_TEMP/ksm2-archive8"\n'
+ARCHIVE8_BEFORE={'owner.py': {'bytes': 7566, 'sha256': 'dc62442754d70516ea445fb613853fb101b5023b6224803b2e3c7790c4ebdd8a'}, 'workflow.yml.in': {'bytes': 6980, 'sha256': 'ef72bb686d682ac2f83bcaf376dc56bf2bb2df11e102a39aa797a8f863249e71'}, 'retain.py': {'bytes': 2265, 'sha256': '7315b772be7cd44c42ce1b6921784459d27ccbde4cc7b80343c7befd7f422713'}}
+def before_archive8(text,leaf):
+ if leaf=='owner.py':
+  O.need(text.count('import archive8 as A8\n')==text.count(ARCHIVE8_HELPER)==text.count(ARCHIVE8_CALL)==1,'finite eight-input owner inverse')
+  old=text.replace('import archive8 as A8\n','',1).replace(ARCHIVE8_HELPER,'',1).replace(ARCHIVE8_CALL,'',1)
+ elif leaf=='workflow.yml.in':
+  O.need(text.count(ARCHIVE8_STEP)==1,'finite eight-input step inverse');old=text.replace(ARCHIVE8_STEP,'',1)
+ else:
+  O.need(leaf=='retain.py','exact known retainer inverse');old=text.replace("FIXED={'archive8-custody.json','archive20-custody.json',","FIXED={'archive20-custody.json',",1)
+ O.need(O.pin(old.encode())==ARCHIVE8_BEFORE[leaf],'whole previous623 production bytes');return old
+
+class Archive8(unittest.TestCase):
+ def test_exact_policy_whole_original_lock_disjoint_both_previous_policies(self):
+  import archive8 as A8,archive20 as A20,archive32 as A32
+  p=ROOT/O.LANE;lock=ROOT/'runtime/borrowed/maintained574-inputs.json';v=A8.policy(p/'archive8-policy.json',lock)
+  self.assertEqual((len(v['files']),sum(r['bytes']for r in v['files'].values())),(8,2220315))
+  for m,n in [(A20,'archive20'),(A32,'archive32')]:self.assertFalse(set(v['files'])&set(m.policy(p/(n+'-policy.json'),lock)['files']))
+  self.assertEqual(O.pin(O.read(p/'archive8.py')),dict(bytes=11040,sha256='5e24808152c727f5dcd19252c66e1ab121bdb9dbd6b90becb943820634898565'))
+ def test_complete_previous_owner_and_workflow_retainer_inverse(self):
+  for leaf in ARCHIVE8_BEFORE:before_archive8((ROOT/O.LANE/leaf).read_text(),leaf)
+  self.assertLess((ROOT/O.LANE/'owner.py').read_text().index(ARCHIVE8_CALL),(ROOT/O.LANE/'owner.py').read_text().index("'build','--inputs'"))
+ def test_bounded_retention_declares_eight_custody_only(self):
+  import retain
+  self.assertTrue(retain.permitted('archive8-custody.json'));self.assertFalse(retain.permitted('archive8/packages.pkg'))
 
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--source',type=Path,required=True);a,left=p.parse_known_args();ROOT=a.source.absolute();unittest.main(argv=[sys.argv[0]]+left)
