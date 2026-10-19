@@ -287,6 +287,11 @@ jobs:
           bash -n scripts/ci/maintained574-active-trial/ci_sequence.sh
       - name: Check read-only diagnostic product fixtures
         run: python3 -B -Werror::ResourceWarning packages/tools/cachy-asahi-doctor/test_doctor.py
+      - name: Check optional Doctor2 default audio diagnostics
+        run: |
+          python3 -B -Werror::ResourceWarning packages/tools/cachy-asahi-doctor2/test_doctor.py
+          python3 -B -Werror::ResourceWarning packages/tools/cachy-asahi-doctor2/test_audio.py
+          bash -n packages/tools/cachy-asahi-doctor2/PKGBUILD
       - name: Check default native Apps parser experiment without actors
         run: |
           python3 -I -B scripts/ci/apps7-parser-native/job.py preflight --source "$PWD"
