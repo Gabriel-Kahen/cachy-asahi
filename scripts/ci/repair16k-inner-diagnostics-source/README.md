@@ -1,0 +1,7 @@
+# Repair16K inner failure diagnostics source
+
+Finite additive source factory from genuine published compiled-parent source33b9bcee3b42dd21f4317d3b400744839cdd38be. Pass its exact whole203-file checkout via --base-root, plus a fresh --output. Default emits the complete UNBOUND diagnostic source; --selected emits the same selected prerequisite DATA as the frozen trial. Actual source/ref/run remain NULL in both. No Git/API, builds, installation or system changes run.
+
+Only failed native prepare-copy stderr is retained completely in the existing bounded media JSON, joined to its original supervisor pin; source-private exception-only labels distinguish tree observation, selected links and auxiliary checkpoint. All original clocks, fresh source checks, maps/hashes/capabilities, per-lease namespaces/FDs, source roles and positive host state/nonce/cleanup gates remain held. The measured microfastpath is excluded. These diagnostics are DATA only, never guest/commit/cleanup or hardware authority.
+
+The sibling source.json holds the complete genuine base table, both complete203 output tables and finite changed text bodies. Existing canonical repair factories and all shared observers remain untouched. Root owns publication, actual dispatch, once collection and strict acceptance. Use the separately frozen strict929-file reader with its full published204/predecessor proofs for actual replay; static source checks provide no native credit.
