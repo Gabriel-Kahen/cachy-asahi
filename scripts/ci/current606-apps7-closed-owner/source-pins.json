@@ -189,7 +189,7 @@
       },
       "scripts/ci/current606-apps7-copy/lifecycle.py": {
         "bytes": 6083,
-        "sha256": "579410157170252aa569ebf3b81aa506ec6c5c5458bae978bcb96742e55b5653"
+        "sha256": "bd6564bf351d5a79b40a0bf8d7cf0d5daf22996888342800b9fa144a70198682"
       },
       "scripts/ci/current606-apps7-copy/no_transaction_exec.py": {
         "bytes": 1922,
@@ -225,7 +225,7 @@
       },
       "scripts/ci/current606-apps7-copy/source-manifest.json": {
         "bytes": 7012,
-        "sha256": "d201f7e8a155092b81bbc5281ac7134dbd3bbf187c206ab66b3d9036ddf4dd9f"
+        "sha256": "f45e63ab6edfee0ca62f5a5d346bc0f9f16a9d8e206387089382e77f21bf80d0"
       },
       "scripts/ci/current606-apps7-copy/step_entry.py": {
         "bytes": 741,
@@ -241,7 +241,7 @@
       },
       "scripts/ci/current606-apps7-copy/test_worker.py": {
         "bytes": 45164,
-        "sha256": "d07b587b09e3f45103a31329f16f3fb5143a38e694cd1053c6d966ee8ade467f"
+        "sha256": "516f987718a23c3cfeca27f5537d4670796488cb2d8a437c2b485d9de3348075"
       },
       "scripts/ci/current606-apps7-copy/verification.py": {
         "bytes": 4356,
