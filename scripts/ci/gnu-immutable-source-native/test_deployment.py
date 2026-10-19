@@ -398,5 +398,36 @@ class PhaseDiagnosticControls(unittest.TestCase):
    self.assertEqual(len(writes),24);self.assertTrue(all(len(b)<=64 and b.startswith(b'GNU_PHASE_DATA ')and not b.startswith(b'{')for b in writes));self.assertLessEqual(sum(map(len,writes)),1536)
    quiet=[];result,actions=self.operation(raw,root=Path('/work/private-fixture'),write=lambda fd,b:quiet.append(b)or len(b));self.assertEqual(quiet,[]);self.assertTrue(result['observation']['complete']);self.assertEqual(len(actions),4)
 
+# Explicit1200 TEST validation profile; unchanged original phase controls above.
+class ColdValidationProfileControls(unittest.TestCase):
+ def test_two_exact_profile_derivatives_and_entire_inverse(self):
+  names=('immutable/owner.py','immutable/native_controller.py')
+  before={names[0]:runtime_adapter.PHASE_RULES[names[0]]['after'].encode(),names[1]:(ROOT/'runtime'/names[1]).read_bytes()}
+  # Native-controller source is already derived; recover only this new guard.
+  marker=" P.need(v.get('cold_validation')=="+repr(runtime_adapter.COLD_VALIDATION_PROFILE)+",'exact explicit1200 cold-validation TEST profile; no600-fit claim')\n"
+  before[names[1]]=before[names[1]].replace(marker.encode(),b'')
+  for name in names:
+   raw=before[name];new,edits=runtime_adapter.cold_profile_derivative(raw,name);restored=new.decode()
+   for edit in reversed(edits):self.assertEqual(restored.count(edit['new']),1);restored=restored.replace(edit['new'],edit['old'])
+   self.assertEqual(restored.encode(),raw)
+   with self.assertRaises(ValueError):runtime_adapter.cold_profile_derivative(new,name)
+ def test_explicit_profile_real_clock_arithmetic_shared_outer_ceilings(self):
+  import time
+  text=(ROOT/'runtime/immutable/owner.py').read_text();tree=ast.parse(text);profile=next(ast.literal_eval(n.value)for n in tree.body if isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id=='COLD_VALIDATION_PROFILE'for t in n.targets));self.assertEqual(profile,runtime_adapter.COLD_VALIDATION_PROFILE)
+  self.assertEqual(profile,dict(name='GNU_GENERIC16K_COLD_VALIDATION_1200_V1',seconds=1200,shared_owner_ceiling=10500,qemu_ceiling=10800,fit_600='NOT_ESTABLISHED'))
+  call=next(n for n in ast.walk(tree)if isinstance(n,ast.Call)and isinstance(n.func,ast.Attribute)and n.func.attr=='Limits');expr=next(k.value for k in call.keywords if k.arg=='deadline');code=compile(ast.Expression(expr),'<exact-source-cold-deadline>','eval')
+  for remaining in(-1,30,10500):
+   started=time.monotonic();outer=started+remaining;result=eval(code,dict(deadline=outer,time=time,COLD_VALIDATION_PROFILE=profile));after=time.monotonic();self.assertLessEqual(result,outer);self.assertTrue(result==outer or started+1200<=result<=after+1200)
+  self.assertIn('deadline = started + 10500',text);self.assertIn('seconds = int(deadline - time.monotonic())',text);self.assertIn('0 < seconds <= 10500',text)
+ def test_all_fresh_validation_and_both_auxiliary_calls_byte_held(self):
+  snapshot=(ROOT/'runtime/gnu-verity-bootstrap-development-20261018/source_snapshot.py').read_bytes();self.assertEqual(snapshot,runtime_adapter.PHASE_RULES['gnu-verity-bootstrap-development-20261018/source_snapshot.py']['after'].encode())
+  context=(ROOT/'runtime/gnu-immutable-source-broker-development-20261018/context.py').read_bytes();self.assertEqual(context,runtime_adapter.PHASE_RULES['gnu-immutable-source-broker-development-20261018/context.py']['after'].encode())
+  self.assertEqual(snapshot.count(b"modules['aux_checkpoint'].checkpoint("),1);self.assertEqual(context.count(b"modules['aux_checkpoint'].checkpoint("),1)
+ def test_old_or_missing_profile_never_enters_positive_protocol(self):
+  import types
+  raw=(ROOT/'runtime/immutable/native_controller.py').read_text();node=next(n for n in ast.parse(raw).body if isinstance(n,ast.FunctionDef)and n.name=='protocol');space=dict(P=types.SimpleNamespace(need=D.need,decode=D.obj),json=json);exec(compile(ast.get_source_segment(raw,node),'<trusted-source-protocol-refusal-only>','exec'),space)
+  for value in({},dict(cold_validation=dict(runtime_adapter.COLD_VALIDATION_PROFILE,seconds=600))):
+   with self.assertRaisesRegex(ValueError,'explicit1200'):space['protocol']((json.dumps(value,sort_keys=True,separators=(',',':'))+'\n').encode(),{})
+
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--source',type=Path,default=D.ROOT);a,rest=p.parse_known_args();ROOT=a.source.absolute();unittest.main(argv=[sys.argv[0],*rest],verbosity=2)
