@@ -1,0 +1,16 @@
+{
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "boot_decision": {
+    "bytes": 9265,
+    "sha256": "301c4cb3c9edddac92064f6f9845d8255d5940e30175ea8c8ff286a5bbf87492"
+  },
+  "boot_projection": {
+    "bytes": 641,
+    "sha256": "7ecc974121ed851fdacb24d2d88f48d07373d082ab26c72703930d061bf0b2d1"
+  },
+  "purpose": "GNU_IMMUTABLE_RUNTIME_NATIVE_V1",
+  "schema_version": 1,
+  "scope": "NEW_IMMUTABLE_SOURCE_LIFECYCLE_OBSERVATIONAL_NO_FIT_CREDIT"
+}
