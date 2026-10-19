@@ -1,0 +1,16 @@
+# Separate public-pair Apps6 current604 native route
+
+This is an alternative explicitly UNBOUND source/authority route, not a rewrite of the existing223-member Apps6 raw-bundle gate. It consumes only already public659 packet88 for current4 package evidence and public1b04's sanitized accepted native574 repair-bytes decision. Other603 source/input selection and target7bc6caa51301bf076aeda4d137277a128c53a16e5bfd25f02e7309c4b3a408c3 stay unchanged. Original historical604, Apps6 V4/raw223, missing-repair, GUI, generic16K, M2 and release acceptance do not transfer.
+
+The finite source emitter copies the original Apps6 source closure unchanged and derives a separate owner/input namespace and manual workflow with counted anchors. Original signature/dependency/payload/config/ownership/protection/source/auxiliary checks,19 incoming packages/17 additions/two baseline upgrades, six phases/eight ldconfig checkpoints, native574 producer, 6600 owner/1800 consumer/6660 wrapper/220-minute workflow/64MiB retention/resources/caps/ordered cleanup remain unchanged. Only input authority/plumbing and result/token identities differ. No transaction implementation is duplicated or loosened.
+
+Root must set top status ROOT_BOUND_PUBLIC_PAIRS_APPS6_CURRENT604_NATIVE_INPUTS and apps6.status ROOT_BOUND_PUBLIC_CURRENT4_PAIRS_AND_NATIVE_BYTECASE, then regenerate manifest/workflow stamps. All public carrier/ref identities are fixed actual data. New flags are --apps6-source PUBLIC659_CHECKOUT/payload and --apps6-authority-source PUBLIC1b04_CHECKOUT; the latter is a data-only authority checkout, not executable native source. Both exact Git revisions and all byte pins are checked before secrets/actors. The byte-case JSON is retained as a separate public authority role. Default UNBOUND refuses immediately. Fresh/update/16K hooks remain UNBOUND pending this route's own new native604 acceptance.
+
+The packet factory/payload checks reuse the exact trusted505 source derivative and existing management/package/build readers. All88 byte refs, original pair-only and Orphans2 decisions, comparisons/checks/cleanup, eight distinct native builds, all41 source/license/check files, eight archives, complete25 exact payload leaves, recipe/dependency/BUILDINFO hashes, full matching installed lists and provenance are checked. Runtime/Cache and Orphans packages in the public88 are additionally validated; their existing selected other603 input records remain unchanged. Only Apps6 selection uses the alternative authority. BUILDINFO contains complete575-entry Apps inventory and574-entry other build inventories; its serialization is not the original pacman-Q lock bytes. Expected lock hashes join retained provenance and original Root pair authority; no raw lock is fabricated or claimed independently replayed. Public source/data is never executed.
+
+```
+python3 -B scripts/ci/expanded604-apps6-public-pairs/prepare.py --source COMPLETE_CURRENT_TREE --output FRESH_SOURCE
+APPS6_PUBLIC_HELD_SOURCE=COMPLETE_CURRENT_TREE python3 -I -B scripts/ci/expanded604-apps6-public-pairs/test_lane.py
+```
+
+This source-only overlay must be integrated into a full tree before freeze. Root owns policy, manifest/workflow generation, registration, publication and new actual dispatch/admission. No blocked223, rawGUI or maintained-GNU raw data is read/copied/encoded/published by this route.
