@@ -118,7 +118,7 @@ class Tests(unittest.TestCase):
   w=D.read(ROOT/'.github/workflows/native-arm-build.yml').decode()
   self.assertIn('working-directory: immutable-source/runtime/runtime-vm',w)
   self.assertIn('ref: ${{ inputs.source_sha }}\n          path: immutable-source\n          persist-credentials: false',w)
-  self.assertEqual(re.findall(r'--source "([^"\n]+)"',w),['$GITHUB_WORKSPACE/immutable-source']*7)
+  self.assertEqual(re.findall(r'--source "([^"\n]+)"',w),['$GITHUB_WORKSPACE/immutable-source']*9)
   for name in('SLICE','BUNDLE','DEPLOY'):
    line=next(v for v in w.splitlines()if v.strip().startswith(name+':'))
    self.assertIn('${{ github.workspace }}/immutable-source/',line)
@@ -218,6 +218,30 @@ class MediaPreparationControls(unittest.TestCase):
   with patch.object(prepare.runtime_policy,'gate'),patch.object(prepare,'load',return_value={'prepare':fail}),patch.object(prepare,'media_handoff',side_effect=lambda *a:calls.append(a)),patch.dict(os.environ,OUTPUT_UID=str(os.getuid()),OUTPUT_GID=str(os.getgid())):
    with self.assertRaisesRegex(RuntimeError,'INERT_PREPARE_FAILURE'):prepare.execute(policy)
   self.assertEqual(calls,[(Path('/out'),os.getuid(),os.getgid())])
+
+
+class Archive20ProducerControls(unittest.TestCase):
+ def test_exact20_source_helpers_and_original32_held(self):
+  self.assertEqual(D.pin(D.read(ROOT/D.LANE/'archive20.py')),dict(bytes=11096,sha256='e8ef66fc0431a04deb331f75258457bf4bdeb13a18bcd863fd5bece3b9a54968'));self.assertEqual(D.pin(D.read(ROOT/D.LANE/'archive20-policy.json')),dict(bytes=6155,sha256='1f966afe0c24bb9a928154cb0638a8bb78292c799ffd544132633caddf6217ae'))
+  self.assertEqual(D.pin(D.read(ROOT/D.LANE/'archive32.py')),dict(bytes=11102,sha256='b1e2fc13644510a613ce09e53b39d4f4471cf47fc03fa62f312258379666c418'))
+ def test_full20_prefetch_and_seed_before_unchanged_producer(self):
+  import pipeline
+  w=D.read(ROOT/D.LANE/'workflow.yml.in').decode();self.assertLess(w.index('Prefetch exact20'),w.index('Seed the six existing private'));self.assertLess(w.index('Seed exact20 verified'),w.index('Reuse unchanged owned574 native producer'))
+  self.assertIn('"$DEPLOY/archive20.py" --policy "$DEPLOY/archive20-policy.json"',w);self.assertIn('--cache "$RUNNER_TEMP/immutable-archive20"',w);self.assertIn('seed-archive20 --source "$GITHUB_WORKSPACE/immutable-source"',w)
+  import inspect
+  source=inspect.getsource(pipeline.seed_archive20);self.assertIn("producer/'context/deps'",source);self.assertIn('h.seed_exact(cache',source)
+
+
+class Archive8ProducerControls(unittest.TestCase):
+ def test_exact8_source_helpers_and_prior20_held(self):
+  self.assertEqual(D.pin(D.read(ROOT/D.LANE/'archive8.py')),dict(bytes=11040,sha256='5e24808152c727f5dcd19252c66e1ab121bdb9dbd6b90becb943820634898565'));self.assertEqual(D.pin(D.read(ROOT/D.LANE/'archive8-policy.json')),dict(bytes=2589,sha256='2b21c05d30a9c5efd2f717cfa8475c9de3150d7729f710b348b70a84f5b16e20'))
+  self.assertEqual(D.pin(D.read(ROOT/D.LANE/'archive20.py')),dict(bytes=11096,sha256='e8ef66fc0431a04deb331f75258457bf4bdeb13a18bcd863fd5bece3b9a54968'))
+ def test_full8_prefetch_seed_after20_before_original_producer(self):
+  import pipeline
+  w=D.read(ROOT/D.LANE/'workflow.yml.in').decode();self.assertLess(w.index('Prefetch exact20'),w.index('Prefetch exact8'));self.assertLess(w.index('Prefetch exact8'),w.index('Seed the six existing private'));self.assertLess(w.index('Seed exact20 verified'),w.index('Seed exact8 verified'));self.assertLess(w.index('Seed exact8 verified'),w.index('Reuse unchanged owned574 native producer'))
+  self.assertIn('"$DEPLOY/archive8.py" --policy "$DEPLOY/archive8-policy.json"',w);self.assertIn('--cache "$RUNNER_TEMP/immutable-archive8"',w);self.assertIn('seed-archive8 --source "$GITHUB_WORKSPACE/immutable-source"',w)
+  import inspect
+  source=inspect.getsource(pipeline.seed_archive8);self.assertIn("producer/'context/deps'",source);self.assertIn('h.seed_exact(cache',source)
 
 
 if __name__=='__main__':

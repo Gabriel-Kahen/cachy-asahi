@@ -1,13 +1,21 @@
 {
-  "carrier": "7a2af096f6a981c4b86714ebf2f572a682c9753a",
+  "carrier": "c18897198788296956c1db619505b10d716b155c",
   "files": {
     ".github/workflows/native-arm-current606-welcome5-owned-copy.yml": {
-      "bytes": 35671,
-      "sha256": "18c5c852bb0bd2087941ae94752af331b71be3c935f5d4f944862ff0fae58315"
+      "bytes": 43579,
+      "sha256": "c67dc367d9f2a5540e4ba748ef4301f32eae87d3479306519273a98c05a8a0e4"
     },
     "scripts/ci/current606-welcome5-closed-owner/README.md": {
       "bytes": 3839,
       "sha256": "a329bff5def41ca283a0872041974f0c8bcb77615ba79f51b0e0c92c2b0112ca"
+    },
+    "scripts/ci/current606-welcome5-closed-owner/archive20-policy.json": {
+      "bytes": 6155,
+      "sha256": "1f966afe0c24bb9a928154cb0638a8bb78292c799ffd544132633caddf6217ae"
+    },
+    "scripts/ci/current606-welcome5-closed-owner/archive20.py": {
+      "bytes": 11096,
+      "sha256": "e8ef66fc0431a04deb331f75258457bf4bdeb13a18bcd863fd5bece3b9a54968"
     },
     "scripts/ci/current606-welcome5-closed-owner/archive32-policy.json": {
       "bytes": 9488,
@@ -24,6 +32,14 @@
     "scripts/ci/current606-welcome5-closed-owner/archive6.py": {
       "bytes": 11090,
       "sha256": "5e448ef6677fc26485e044b3ac2d35a07105703d4f1a719bb7c030678eff87ae"
+    },
+    "scripts/ci/current606-welcome5-closed-owner/archive8-policy.json": {
+      "bytes": 2589,
+      "sha256": "2b21c05d30a9c5efd2f717cfa8475c9de3150d7729f710b348b70a84f5b16e20"
+    },
+    "scripts/ci/current606-welcome5-closed-owner/archive8.py": {
+      "bytes": 11040,
+      "sha256": "5e24808152c727f5dcd19252c66e1ab121bdb9dbd6b90becb943820634898565"
     },
     "scripts/ci/current606-welcome5-closed-owner/builds.py": {
       "bytes": 8781,
@@ -42,8 +58,8 @@
       "sha256": "eb48803aa0dc2caa2ffc0058856d9bbf41e59ed8830714cefcb4a4451877d063"
     },
     "scripts/ci/current606-welcome5-closed-owner/prepare.py": {
-      "bytes": 11930,
-      "sha256": "057301bcb32f7e52c2e68778d89240de1840fad620e9fa98142e59467c423463"
+      "bytes": 24742,
+      "sha256": "825ab770a0e1424e5f29fabd930b42aed6f106b61c7ca27fbeb19cefb10a9e38"
     },
     "scripts/ci/current606-welcome5-closed-owner/producer_diagnostic.py": {
       "bytes": 6483,
@@ -58,12 +74,12 @@
       "sha256": "01834840686a0531ee7694b4db6cf02f219055a40062760485c66a5de5acb03a"
     },
     "scripts/ci/current606-welcome5-closed-owner/source-manifest.json": {
-      "bytes": 78150,
-      "sha256": "400e5e01a5dce21c31c2401cd95a167d5b8c834c12d8a26098dffdffa741760d"
+      "bytes": 78876,
+      "sha256": "3dc45f15b8b850c26ff6f1cae8ee285568bfd6d5feef9969f24113937a8a78e7"
     },
     "scripts/ci/current606-welcome5-closed-owner/source-pins.json": {
       "bytes": 74960,
-      "sha256": "8ed3b0b6101506e900a1247bb1ee5b8db6ee5b140e0a1bb641d03d7a66d36685"
+      "sha256": "6ff962744b4aaa5a2c86ffcc3c4e4270e0387a8adc31cb25e4781351542b978c"
     },
     "scripts/ci/current606-welcome5-closed-owner/test_owner.py": {
       "bytes": 27797,
