@@ -12,7 +12,7 @@ from unittest.mock import patch
 
 HERE = Path(__file__).resolve().parent
 LANE = 'scripts/ci/current606-apps7-closed-owner'
-CARRIER = '1c1d5620f18f08966aff49cdb128ac98f5fe4c1c'
+CARRIER = 'feb313b3f0e8e08bc2e167039642d86a832df1b9'
 
 
 def need(ok, why):
@@ -66,7 +66,7 @@ def emit(source, basis, output):
     with patch.object(subprocess, 'Popen', side_effect=AssertionError('no actor/network/Git process')), patch.object(subprocess, 'run', side_effect=AssertionError('no source emission actor')):
         spec.loader.exec_module(prepare)
         rows = prepare.emit({role: basis / role for role in prepare.C.ROLES}, output)
-        need(len(rows) == 345, 'genuine complete345 source emission')
+        need(len(rows) == 348, 'genuine complete348 source emission')
         for name, wanted in pins['files'].items():
             need(pin((output / name).read_bytes()) == wanted, 'emitted default differs: ' + name)
         entry = importlib.util.spec_from_file_location('_canonical_apps606_default_entry', lane / 'owner.py')
@@ -78,7 +78,7 @@ def emit(source, basis, output):
             need('NULL/UNBOUND' in str(error), 'exact default owner authority refusal')
         else:
             raise ValueError('default actual owner entry accepted without selection')
-    return dict(status='PASS_CANONICAL_NULL_APPS606_SOURCE345_NO_ACTORS', files=len(rows),
+    return dict(status='PASS_CANONICAL_NULL_APPS606_SOURCE348_NO_ACTORS', files=len(rows),
                 source_carrier=CARRIER, source_carrier_scope='SOURCE_BYTES_ONLY', default_owner_entry='REFUSED_NULL_BEFORE_ACTORS',
                 actual_source=None, actual_ref=None, actual_run=None,
                 native='NOT_RUN', hardware='NOT_RUN', release='NOT_ADMITTED')

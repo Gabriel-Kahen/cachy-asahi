@@ -137,7 +137,7 @@ jobs:
       - name: Checkout whole frozen KSM hosted runtime without activation
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          ref: 5ab19626eba781efd977ec4a0df18ae44b53d67e
+          ref: fe43a83e80aef1463202e348a8dd795ea48264a4
           path: .ci-inputs/ksm2-hosted-runtime
           persist-credentials: false
       - name: Emit and check default KSM hosted source without component activation
@@ -261,7 +261,7 @@ jobs:
       - name: Checkout whole-pinned Apps-on606 source carrier without activation
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          ref: 1c1d5620f18f08966aff49cdb128ac98f5fe4c1c
+          ref: feb313b3f0e8e08bc2e167039642d86a832df1b9
           path: .ci-inputs/current606-apps7-source-roles
           persist-credentials: false
       - name: Checkout exact public Apps7 and Runtime1 pair DATA for source controls

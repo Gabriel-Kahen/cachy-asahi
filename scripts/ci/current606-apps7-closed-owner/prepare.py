@@ -6,6 +6,33 @@ from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 import contract as C
 
+TRANSPORT_PINS={'transport.py': {'bytes': 17577, 'sha256': 'f5e9074a13d321be2ef0ce1cb034de1278f88cc9cf484cd36a330fae6b65d0f1'}, 'apps-policy.json': {'bytes': 435, 'sha256': 'fcee26a99507c33b97fa23605912513d6b7b44d78c7cda924a75437ec55eeedd'}}
+
+def durable_workflow(raw):
+ text=raw.decode();old='      - name: Retain the separate bounded604 public closure and lifecycle\n        if: always()\n';new='      - name: Retain the separate bounded604 public closure and lifecycle\n        id: native_public_retention\n        if: always()\n        env:\n          CAA_EVIDENCE_SOURCE_SHA: ${{ inputs.source }}\n          CAA_EVIDENCE_WORKFLOW_SHA: ${{ github.sha }}\n';assert text.count(old)==1;text=text.replace(old,new)
+ before='''          for packet in "$RUNNER_TEMP/expanded604-public"/part-*; do
+            python3 -B scripts/ci/log_evidence.py "$packet"
+          done
+'''
+ after='''          python3 -I -B "$GITHUB_WORKSPACE/expanded604-code/scripts/ci/native-evidence-transport/transport.py" \\
+            --policy "$GITHUB_WORKSPACE/expanded604-code/scripts/ci/native-evidence-transport/apps-policy.json" \\
+            --packets "$RUNNER_TEMP/expanded604-public" \\
+            --encoder "$GITHUB_WORKSPACE/scripts/ci/log_evidence.py" \\
+            --output "$RUNNER_TEMP/native-framed-evidence"
+      - name: Upload original native framed evidence with source-bound transport receipt
+        if: always() && steps.native_public_retention.outcome == 'success'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        timeout-minutes: 5
+        with:
+          name: native-framed-evidence-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
+          path: ${{ runner.temp }}/native-framed-evidence/
+          retention-days: 3
+          compression-level: 0
+          include-hidden-files: false
+          if-no-files-found: error
+'''
+ assert text.count(before)==1;text=text.replace(before,after);assert text.replace(after,before).replace(new,old).encode()==raw;return text
+
 def workflow(raw,root):
  text=raw.decode();old='native-arm-current606-dns-sysctl2';C.need(text.count(old)==2,'two dedicated identity seams');text=text.replace(old,'native-arm-current606-apps7-owned-copy')
  text=text.replace('expanded604-code/','expanded604-code/held606/').replace('CURRENT604_NATIVE_SOURCE: ${{ github.workspace }}/expanded604-code','CURRENT604_NATIVE_SOURCE: ${{ github.workspace }}/expanded604-code/held606')
@@ -152,7 +179,7 @@ def workflow(raw,root):
  start=text.index(archive8_marker);end=text.find('      - name:',start+len(archive8_marker));end=len(text)if end<0 else end
  body=text[start:end];lines=body.splitlines(keepends=True);conditions=[i for i,line in enumerate(lines)if line.startswith('        if: ')];C.need(len(conditions)==1,'one original full574 producer condition');i=conditions[0];old=lines[i];C.need(old.rstrip().endswith(' }}'),'original producer expression');lines[i]=old.rstrip()[:-3]+" && steps.frozen574_archive8.outcome == 'success' }}\n"
  text=text[:start]+archive8_late+''.join(lines)+text[end:]
- return text
+ return durable_workflow(text.encode())
 
 ARCHIVE20_NATIVE4={'libei-1.6.0-1-aarch64.pkg.tar.xz','libei-1.6.0-1-aarch64.pkg.tar.xz.sig','libgudev-238-3-aarch64.pkg.tar.xz','libgudev-238-3-aarch64.pkg.tar.xz.sig'}
 def seed_archive20_native(helper,policy,inputs,native_inputs,cache,destination):
@@ -203,6 +230,8 @@ def emit(inputs,output,selection=None):
  for role,home in inputs.items():
   for n in rows[role]['files']:
    p=output/role/n;p.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(home/n,p)
+ for n,row in TRANSPORT_PINS.items():
+  source=C.HERE.parent/'native-evidence-transport'/n;C.checked(source,row);dest=output/'scripts/ci/native-evidence-transport'/n;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source,dest)
  lane=output/C.LANE;lane.mkdir(parents=True)
  for p in C.HERE.iterdir():
   if p.is_file()and p.name not in('input-policy.json','source-manifest.json'):shutil.copyfile(p,lane/p.name)
