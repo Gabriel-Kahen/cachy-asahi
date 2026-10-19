@@ -1,0 +1,27 @@
+{
+  "expected604_sha256": "76c37db5eb097662f4a9ca0465680de285466b0443916a50255ea5b8f6d6c946",
+  "fresh600": {
+    "carrier_source": "fd42f51b6c32a1cca69df5699760ed2a9e39329f",
+    "decision": {
+      "bytes": 3332,
+      "path": "payload/fresh600.json",
+      "sha256": "bea4b56374ef779756ffdc3e0aba680e3c74fac7316257c2433eb14417f210ef"
+    },
+    "run_id": "38965999704",
+    "source_sha": "3cbd856315adb30ba7a1b9246739a520c19c9728"
+  },
+  "native604": {
+    "carrier_source": "fb2a57ef0b7710d9ec4eb4f207f07dd88ceaa7e1",
+    "decision": {
+      "bytes": 3492,
+      "path": "payload/native604.json",
+      "sha256": "ef048476146447cbf4a403a8fa624d223154aa1353f6db3a9b331fc35214470a"
+    },
+    "input_policy_sha256": "f505068025efa934ec0ab5cbcd826d3cc45473fdcc965aa3d47a362a7ad1f6b1",
+    "run_id": "38979740492",
+    "source_manifest_sha256": "26aec1dbceee69dd49cf2cd01af4670f8a63700789ef4e710144312f71b21a7f",
+    "source_sha": "0b255f22c84279ea92fb6f710f2f24bd16871590"
+  },
+  "schema_version": 1,
+  "status": "ROOT_BOUND_NATIVE604_ACCEPTANCE"
+}
