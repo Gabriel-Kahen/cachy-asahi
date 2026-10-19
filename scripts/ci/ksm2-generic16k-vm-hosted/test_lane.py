@@ -83,7 +83,7 @@ class Source(unittest.TestCase):
 class WorkerCapture(unittest.TestCase):
  def helper(self,argv=None):
   import ast,contextlib,io,types
-  text=prior_retirement((ROOT/'runtime/guest.py').read_text());tree=ast.parse(text);n=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='worker_failure_data');raw=ast.get_source_segment(text,n)
+  text=prior_retirement(prior_post_removal((ROOT/'runtime/guest.py').read_text()));tree=ast.parse(text);n=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='worker_failure_data');raw=ast.get_source_segment(text,n)
   if argv is not None:
    old="['/usr/bin/python3','-I','-B','/workspace/guest.py','worker']";self.assertEqual(raw.count(old),1);raw=raw.replace(old,repr(argv),1)
   C=types.SimpleNamespace(need=O.need,sha=lambda b:__import__('hashlib').sha256(b).hexdigest(),SHARED_SECONDS=3000)
@@ -99,7 +99,7 @@ class WorkerCapture(unittest.TestCase):
   return stream.getvalue()
  def test_whole_original_guest_inverse_and_held_positive_guard(self):
   import ast,hashlib
-  text=pre_inner(prior_retirement((ROOT/'runtime/guest.py').read_text()));tree=ast.parse(text);n=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='worker_failure_data');helper=ast.get_source_segment(text,n)+'\n\n';call=' worker_failure_data(s,row,out,err,error)\n';self.assertEqual(text.count(call),1);inverse=text.replace(helper,'',1).replace(call,'',1);self.assertEqual(hashlib.sha256(inverse.encode()).hexdigest(),'17c9608949accf0e39459c45e07c18533d02cdb5ca8e5f018b3a4d26f0717e9c')
+  text=pre_inner(prior_retirement(prior_post_removal((ROOT/'runtime/guest.py').read_text())));tree=ast.parse(text);n=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='worker_failure_data');helper=ast.get_source_segment(text,n)+'\n\n';call=' worker_failure_data(s,row,out,err,error)\n';self.assertEqual(text.count(call),1);inverse=text.replace(helper,'',1).replace(call,'',1);self.assertEqual(hashlib.sha256(inverse.encode()).hexdigest(),'17c9608949accf0e39459c45e07c18533d02cdb5ca8e5f018b3a4d26f0717e9c')
   guard=" C.need(error is None and row['exit_code']==0 and row['group_absence_verified']is True,'whole KSM guest worker exit/group retirement')";self.assertEqual(text.count(guard),1);self.assertLess(text.index(call),text.index(guard));self.assertEqual(O.decode(O.read(ROOT/'runtime/runner-files.json'))['files']['guest.py'],O.pin((ROOT/'runtime/guest.py').read_bytes()))
  def test_real_inert_child_original_stream_record_and_typed_error_DATA(self):
   argv,row,out,err,error=self.child("import sys;print('KSM2_VM_ERROR ValueError inert private failure');sys.stderr.write('inert stderr\\n');sys.exit(1)")
@@ -133,7 +133,7 @@ def pre_inner(text):
 class InnerCommand(unittest.TestCase):
  def source(self):
   import ast
-  text=prior_retirement((ROOT/'runtime/guest.py').read_text());tree=ast.parse(text);functions={n.name:ast.get_source_segment(text,n)for n in tree.body if isinstance(n,ast.FunctionDef)};run=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='run');node=next(n for n in run.body if isinstance(n,ast.FunctionDef)and n.name=='command');return functions,ast.get_source_segment(text,node)
+  text=prior_retirement(prior_post_removal((ROOT/'runtime/guest.py').read_text()));tree=ast.parse(text);functions={n.name:ast.get_source_segment(text,n)for n in tree.body if isinstance(n,ast.FunctionDef)};run=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='run');node=next(n for n in run.body if isinstance(n,ast.FunctionDef)and n.name=='command');return functions,ast.get_source_segment(text,node)
  def namespace(self):
   import types,hashlib
   functions,command=self.source();C=types.SimpleNamespace(need=O.need,sha=lambda b:hashlib.sha256(b).hexdigest(),pin=lambda b:dict(bytes=len(b),sha256=hashlib.sha256(b).hexdigest()),SHARED_SECONDS=3000,encoded=O.encoded);R=O.load('_inner_held_runtime',ROOT/'runtime/borrowed/runtime.py');space=dict(C=C,json=json,Path=Path,time=__import__('time'),runtime=R,rows=[],deadline=__import__('time').monotonic()+3000,s=dict(nonce='c'*32));exec(compile(functions['command_failure_data'],'<exact-source-helper>','exec'),space);exec(compile(command,'<exact-nested-command>','exec'),space);return space
@@ -146,7 +146,7 @@ class InnerCommand(unittest.TestCase):
   return value,error,out.getvalue()
  def test_whole_source_inverse_and_original_guards(self):
   import hashlib,ast
-  text=prior_retirement((ROOT/'runtime/guest.py').read_text());self.assertEqual(hashlib.sha256(pre_inner(text).encode()).hexdigest(),'25133a4f0fd9983c02d04f25e2eb8349dd5f5c43895b46803f7d772ad0c09123')
+  text=prior_retirement(prior_post_removal((ROOT/'runtime/guest.py').read_text()));self.assertEqual(hashlib.sha256(pre_inner(text).encode()).hexdigest(),'25133a4f0fd9983c02d04f25e2eb8349dd5f5c43895b46803f7d772ad0c09123')
   guard="C.need(error is None and r['exit_code']==expected and r['group_absence_verified']is True,'natural direct installed command/group retirement')";self.assertEqual(text.count(guard),1);self.assertLess(text.index('  command_failure_data(s,r,'),text.index(guard));self.assertEqual(text.count(' worker_failure_data(s,row,out,err,error)\n'),1)
  def test_real_nested_natural_failure_and_success_silence(self):
   ns=self.namespace();argv=[sys.executable,'-I','-B','-c',"import sys;print('inert inner stdout');sys.stderr.write('inert inner stderr\\n');sys.exit(7)"];value,error,text=self.captured(ns['command'],argv);self.assertIsInstance(error,ValueError);self.assertEqual(str(error),'natural direct installed command/group retirement');v=json.loads(text.split(' ',2)[2]);self.assertEqual(v['record'],ns['rows'][0]);self.assertEqual(v['record']['exit_code'],7);self.assertIsNone(v['supervisor_error_type']);self.assertFalse(v['acceptance_authority']);self.assertTrue(v['record']['group_absence_verified'])
@@ -193,7 +193,7 @@ class OwnedProcessRetirement(unittest.TestCase):
  def test_real_no_subreaper_does_not_ignore_existing_zombies(self):
   v=self.check_mode('adapter-only');self.assertFalse(v['row']['group_absence_verified']);self.assertEqual(v['adopted_state_before_outer_reap']['state'],'Z');self.assertGreaterEqual(v['row']['seconds'],5);self.assertLess(v['row']['seconds'],7)
  def test_whole_guest_inverse_and_original_guards_protocol_limits_held(self):
-  text=(ROOT/'runtime/guest.py').read_text();old=prior_retirement(text)
+  text=prior_post_removal((ROOT/'runtime/guest.py').read_text());old=prior_retirement(text)
   import ast,hashlib
   before={n.name:ast.get_source_segment(old,n)for n in ast.parse(old).body if isinstance(n,ast.FunctionDef)}
   after={n.name:ast.get_source_segment(text,n)for n in ast.parse(text).body if isinstance(n,ast.FunctionDef)}
@@ -205,7 +205,7 @@ class OwnedProcessRetirement(unittest.TestCase):
   self.assertIn('code=proc.wait(timeout=max(0,finish-time.monotonic()))',RETIREMENT_HELPERS)
  def test_changed_borrowed_source_and_failed_subreaper_refuse_before_command(self):
   import ast,ctypes,types
-  raw=(ROOT/'runtime/guest.py').read_text();node=next(n for n in ast.parse(raw).body if isinstance(n,ast.FunctionDef)and n.name=='supervision_runtime')
+  raw=prior_post_removal((ROOT/'runtime/guest.py').read_text());node=next(n for n in ast.parse(raw).body if isinstance(n,ast.FunctionDef)and n.name=='supervision_runtime')
   C=types.SimpleNamespace(read=lambda *a:(ROOT/'runtime/borrowed/runtime.py').read_bytes(),sha=lambda raw:__import__('hashlib').sha256(raw).hexdigest(),need=O.need)
   ns=dict(C=C,Path=Path,ctypes=ctypes);exec(compile(ast.Module(body=[node],type_ignores=[]),'<source-owned-group-helper>','exec'),ns);runtime=types.SimpleNamespace(__file__=str(ROOT/'runtime/borrowed/runtime.py'))
   with patch.object(C,'read',return_value=b'INERT_DRIFT'):
@@ -213,6 +213,150 @@ class OwnedProcessRetirement(unittest.TestCase):
   libc=types.SimpleNamespace(prctl=lambda *a:-1)
   with patch.object(ctypes,'CDLL',return_value=libc):
    with self.assertRaisesRegex(ValueError,'subreaper verified'):ns['supervision_runtime'](runtime,worker=True)
+
+POST_REMOVAL_HELPER='def post_removal_data(s,expected,actual):\n """Existing failed maps only; bounded path/field/hash DATA, never acceptance."""\n try:\n  if expected==actual:return\n  import re\n  C.need(type(s.get(\'nonce\'))is str and re.fullmatch(\'[a-f0-9]{32}\',s[\'nonce\'])and type(expected)is type(actual)is dict and len(expected)<=200000 and len(actual)<=200000,\'bounded original map failure context\')\n  def whole(value):\n   raw=C.encoded(value);C.need(len(raw)<=64*1024**2,\'original node-map byte cap\');return dict(nodes=len(value),**C.pin(raw))\n  before_map=whole(expected);after_map=whole(actual);counts=dict(added=0,removed=0,changed=0);first=None\n  for name in expected.keys()|actual.keys():\n   C.need(type(name)is str,\'typed existing node path\')\n   if name not in expected:kind=\'added\'\n   elif name not in actual:kind=\'removed\'\n   elif expected[name]!=actual[name]:kind=\'changed\'\n   else:continue\n   counts[kind]+=1\n   if first is None or name<first:first=name\n  C.need(first is not None,\'actual map mismatch required\')\n  a=expected.get(first);b=actual.get(first);C.need((a is None or type(a)is dict)and(b is None or type(b)is dict),\'typed existing node records\')\n  fields=sorted(k for k in set(a or{})|set(b or{})if a is None or b is None or a.get(k)!=b.get(k))\n  C.need(set(fields)<={\'type\',\'mode\',\'uid\',\'gid\',\'bytes\',\'sha256\',\'target\',\'hardlink_group\'},\'source-owned node fields only\')\n  path=first.encode(\'utf8\');preview=first[:80]\n  value=dict(schema_version=1,status=\'POST_REMOVAL_NODE_MAP_FAILURE_DATA_ONLY\',nonce=s[\'nonce\'],expected=before_map,actual=after_map,counts=counts,first=dict(path=preview,path_utf8_bytes=len(path),path_sha256=C.sha(path),path_truncated=preview!=first,kind=(\'added\'if a is None else\'removed\'if b is None else\'changed\'),fields=fields,before=None if a is None else C.pin(C.encoded(a)),after=None if b is None else C.pin(C.encoded(b))),acceptance_authority=False,cleanup_authority=False)\n  prefix=\'KSM2_POST_REMOVAL_DATA \'+s[\'nonce\']+\' \'\n  raw=json.dumps(value,sort_keys=True,separators=(\',\',\':\'),allow_nan=False)\n  if len((prefix+raw+\'\\n\').encode())>2048:\n   value[\'first\'][\'path\']=first[:16];value[\'first\'][\'path_truncated\']=value[\'first\'][\'path\']!=first;raw=json.dumps(value,sort_keys=True,separators=(\',\',\':\'),allow_nan=False)\n  C.need(len((prefix+raw+\'\\n\').encode())<=2048,\'post-removal DATA2KiB including frame\')\n  print(prefix+raw,flush=True)\n except BaseException:return\n\n'
+POST_REMOVAL_OLD=";C.need(last_nodes==permitted,'complete post-removal node/hash/hardlink map; only existing ALPM log append permitted');command("
+POST_REMOVAL_NEW=";\n try:\n  C.need(last_nodes==permitted,'complete post-removal node/hash/hardlink map; only existing ALPM log append permitted')\n except BaseException:\n  post_removal_data(s,permitted,last_nodes)\n  raise\n command("
+def prior_post_removal(text):
+ import hashlib
+ O.need(text.count(POST_REMOVAL_HELPER)==text.count(POST_REMOVAL_NEW)==1,'one exact post-removal diagnostic seam')
+ old=text.replace(POST_REMOVAL_HELPER,'',1).replace(POST_REMOVAL_NEW,POST_REMOVAL_OLD,1)
+ O.need(hashlib.sha256(old.encode()).hexdigest()=='1772cac7f2b1dfa6b7e010e249bc969fbaa5b73bf11a1eca84fe1ad597a3c9e1','whole group-retirement guest inverse')
+ return old
+
+class PostRemovalData(unittest.TestCase):
+ def helper(self):
+  import ast,types
+  text=(ROOT/'runtime/guest.py').read_text();node=next(n for n in ast.parse(text).body if isinstance(n,ast.FunctionDef)and n.name=='post_removal_data')
+  c=types.SimpleNamespace(need=O.need,encoded=O.encoded,pin=O.pin,sha=lambda b:__import__('hashlib').sha256(b).hexdigest());ns=dict(C=c,json=json);exec(compile(ast.Module(body=[node],type_ignores=[]),'<source-owned-map-data>','exec'),ns);return ns,c,text
+ def output(self,fn,before,after):
+  import contextlib,io
+  stream=io.StringIO()
+  with contextlib.redirect_stdout(stream):fn(dict(nonce='e'*32),before,after)
+  raw=stream.getvalue().encode();self.assertLessEqual(len(raw),2048)
+  if raw:
+   prefix=b'KSM2_POST_REMOVAL_DATA '+b'e'*32+b' ';self.assertTrue(raw.startswith(prefix)and raw.endswith(b'\n'));v=json.loads(raw[len(prefix):]);self.assertFalse(v['acceptance_authority']);self.assertFalse(v['cleanup_authority']);self.assertEqual(v['expected'],dict(nodes=len(before),**O.pin(O.encoded(before))));self.assertEqual(v['actual'],dict(nodes=len(after),**O.pin(O.encoded(after))));return raw,v
+  return raw,None
+ def observe(self,root):
+  # Real private filesystem rows matching the admitted node DATA vocabulary;
+  # this is not a complete native574 preservation or accepting fixture.
+  import stat,hashlib
+  rows={};groups={}
+  for p in sorted(root.rglob('*')):
+   n=p.relative_to(root).as_posix();s=p.lstat();v=dict(mode=stat.S_IMODE(s.st_mode),uid=s.st_uid,gid=s.st_gid)
+   if p.is_symlink():v.update(type='symlink',target=os.readlink(p))
+   elif p.is_dir():v.update(type='directory')
+   else:
+    raw=p.read_bytes();v.update(type='file',bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())
+    if s.st_nlink>1:groups.setdefault((s.st_dev,s.st_ino),[]).append(n)
+   rows[n]=v
+  for members in groups.values():
+   for n in members:rows[n]['hardlink_group']=members[0]
+  return rows
+ def test_real_private_node_hash_mode_link_graph_membership_changes(self):
+  ns,c,_=self.helper()
+  for kind in('content','mode','target','hardlink','added','removed'):
+   with self.subTest(kind=kind),tempfile.TemporaryDirectory()as td:
+    root=Path(td);(root/'a').write_bytes(b'private-before-content');(root/'b').write_bytes(b'private-before-content');(root/'link').symlink_to('a');before=self.observe(root)
+    if kind=='content':(root/'a').write_bytes(b'private-after-content')
+    if kind=='mode':(root/'a').chmod(0o600)
+    if kind=='target':(root/'link').unlink();(root/'link').symlink_to('b')
+    if kind=='hardlink':(root/'b').unlink();os.link(root/'a',root/'b')
+    if kind=='added':(root/'new').write_bytes(b'PRIVATE_NOT_EXPORTED')
+    if kind=='removed':(root/'a').unlink()
+    after=self.observe(root);raw,v=self.output(ns['post_removal_data'],before,after);self.assertIsNotNone(v);names=sorted(n for n in before.keys()|after.keys()if before.get(n)!=after.get(n));first=names[0];self.assertEqual(v['first']['path'],first);self.assertEqual(sum(v['counts'].values()),len(names));self.assertEqual(v['first']['before'],None if first not in before else O.pin(O.encoded(before[first])));self.assertEqual(v['first']['after'],None if first not in after else O.pin(O.encoded(after[first])));self.assertNotIn(b'private-before-content',raw);self.assertNotIn(b'private-after-content',raw);self.assertNotIn(b'PRIVATE_NOT_EXPORTED',raw)
+ def test_unicode_bound_no_values_and_success_silence(self):
+  ns,c,_=self.helper();name='dir/'+chr(0x1f600)*1000;before={name:dict(type='symlink',mode=511,uid=0,gid=0,target='PRIVATE_TARGET_A')};after={name:dict(before[name],target='PRIVATE_TARGET_B')};raw,v=self.output(ns['post_removal_data'],before,after);self.assertIsNotNone(v);self.assertTrue(v['first']['path_truncated']);self.assertEqual(v['first']['fields'],['target']);self.assertNotIn(b'PRIVATE_TARGET',raw);self.assertEqual(v['first']['path_sha256'],__import__('hashlib').sha256(name.encode()).hexdigest());self.assertEqual(self.output(ns['post_removal_data'],before,before),(b'',None))
+ def test_whole_guard_inverse_bare_reraise_and_no_new_scan(self):
+  import ast,contextlib,io
+  ns,c,text=self.helper();old=prior_post_removal(text);before={n.name:ast.get_source_segment(old,n)for n in ast.parse(old).body if isinstance(n,ast.FunctionDef)};after={n.name:ast.get_source_segment(text,n)for n in ast.parse(text).body if isinstance(n,ast.FunctionDef)};self.assertEqual(set(after)-set(before),{'post_removal_data'});self.assertEqual({n for n in before if before[n]!=after[n]},{'run'})
+  helper=after['post_removal_data'];self.assertFalse(any(s in helper for s in('C.read(','.source_nodes(','.stat(','.open(','.walk(','.iterdir(')));run=next(n for n in ast.parse(text).body if isinstance(n,ast.FunctionDef)and n.name=='run');guard=next(n for n in ast.walk(run)if isinstance(n,ast.Try)and any(isinstance(x,ast.ExceptHandler)and any(isinstance(y,ast.Raise)and y.exc is None for y in x.body)for x in n.handlers));expected=ValueError('complete post-removal node/hash/hardlink map; only existing ALPM log append permitted')
+  def need(ok,why):
+   if not ok:raise expected
+  c.need=need;ns.update(s=dict(nonce='e'*32),permitted={'a':dict(type='file',bytes=1)},last_nodes={'a':dict(type='file',bytes=2)})
+  with patch.object(c,'encoded',side_effect=RuntimeError('DIAGNOSTIC_LOSS')):
+   with self.assertRaises(ValueError)as caught:exec(compile(ast.Module(body=[guard],type_ignores=[]),'<exact-guard-test>','exec'),ns)
+  self.assertIs(caught.exception,expected);ns['last_nodes']=ns['permitted'];stream=io.StringIO()
+  with contextlib.redirect_stdout(stream):exec(compile(ast.Module(body=[guard],type_ignores=[]),'<exact-guard-pass>','exec'),ns)
+  self.assertEqual(stream.getvalue(),'')
+ def test_original_real_worker_capture_keeps_complete_bounded_marker(self):
+  ns,c,_=self.helper();before={'a':dict(type='file',mode=420,uid=0,gid=0,bytes=1,sha256='0'*64)};after={'a':dict(before['a'],sha256='1'*64)};marker,_=self.output(ns['post_removal_data'],before,after);error=b'KSM2_VM_ERROR ValueError complete post-removal node/hash/hardlink map; only existing ALPM log append permitted\n';case=WorkerCapture(methodName='runTest');argv,row,out,err,exc=case.child('import sys;sys.stdout.buffer.write('+repr(marker+error)+');sys.exit(1)');
+  import contextlib,io
+  stream=io.StringIO()
+  with contextlib.redirect_stdout(stream):case.helper(argv)(dict(nonce='e'*32),row,out,err,exc)
+  captured=json.loads(stream.getvalue().split(' ',2)[2]);self.assertEqual(captured['nonce'],'e'*32);self.assertEqual(out,marker+error);self.assertLess(len(out),4096);self.assertEqual(captured['streams']['stdout']['bytes'],len(out));self.assertEqual(captured['streams']['stdout']['omitted_bytes'],0);self.assertFalse(captured['streams']['stdout']['truncated']);self.assertFalse(captured['positive_authority'])
+
+ARCHIVE20_OWNER_HELPER='def seed_archive20(root,runtime,archive32_cache,deps,work):\n """Seed only whole-pinned original20; no version/trust or producer command changes."""\n cache=archive32_cache.parent/\'ksm2-archive20\'\n policy_path=root/O.LANE/\'archive20-policy.json\'\n value=A20.policy(policy_path,runtime/\'borrowed/maintained574-inputs.json\')\n custody=A20.seed_exact(cache,deps,value)\n custody.update(policy=O.pin(O.read(policy_path)),files={n:{k:r[k]for k in(\'bytes\',\'sha256\')}for n,r in value[\'files\'].items()},versions=\'UNCHANGED_FROZEN574_LOCK\',trust=\'UNCHANGED_ORIGINAL_SIGNATURE_AND_KEYRING_CHECKS\')\n O.save(work/\'archive20-custody.json\',custody)\n return custody\n\n'
+ARCHIVE20_OWNER_CALL="  seed_archive20(root,runtime,a.archive_cache,producer/'context/deps',a.work)\n"
+ARCHIVE20_WORKFLOW_STEP='      - name: Prefetch exact20 additional frozen574 archive bytes before unchanged producer\n        timeout-minutes: 4\n        run: >-\n          python3 -I -B "$GITHUB_WORKSPACE/$SLICE/archive20.py" --policy "$GITHUB_WORKSPACE/$SLICE/archive20-policy.json"\n          --inputs "$GITHUB_WORKSPACE/runtime/borrowed/maintained574-inputs.json"\n          --cache "$RUNNER_TEMP/ksm2-archive20"\n'
+ARCHIVE20_BEFORE_PINS={'owner.py': {'bytes': 6817, 'sha256': '6fe48adbd135485bc950f1a81182b45f4bc83acd9e53817ae6f58623e737117e'}, 'workflow.yml.in': {'bytes': 6593, 'sha256': 'b0fb2c242121730bf47c8027446e974c802371689dd9ab41acc08a43078babd6'}, 'retain.py': {'bytes': 2240, 'sha256': 'c49661a126bf0a16d1ec720379fefb786d50099d292baa972958d8a392c9fe9a'}}
+class Archive20Integration(unittest.TestCase):
+ def test_exact_frozen_helper_policy_whole_lock_and_disjoint_original32(self):
+  import archive20 as A20,archive32 as A32,hashlib
+  self.assertEqual(O.pin(O.read(ROOT/O.LANE/'archive20.py')),dict(bytes=11096,sha256='e8ef66fc0431a04deb331f75258457bf4bdeb13a18bcd863fd5bece3b9a54968'))
+  self.assertEqual(O.pin(O.read(ROOT/O.LANE/'archive20-policy.json')),dict(bytes=6155,sha256='1f966afe0c24bb9a928154cb0638a8bb78292c799ffd544132633caddf6217ae'))
+  lock=ROOT/'runtime/borrowed/maintained574-inputs.json';a=A20.policy(ROOT/O.LANE/'archive20-policy.json',lock);b=A32.policy(ROOT/O.LANE/'archive32-policy.json',lock)
+  self.assertEqual((len(a['files']),sum(r['bytes']for r in a['files'].values())),(20,2793312));self.assertFalse(set(a['files'])&set(b['files']));self.assertEqual(a['original_inputs'],b['original_inputs']);self.assertEqual(a['original_inputs'],dict(bytes=623664,sha256='b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9'))
+ def test_exact_owner_workflow_retainer_inverse_and_three_commands_held(self):
+  import ast,hashlib
+  text=(ROOT/O.LANE/'owner.py').read_text();self.assertEqual(text.count(ARCHIVE20_OWNER_HELPER),1);self.assertEqual(text.count(ARCHIVE20_OWNER_CALL),1)
+  old=text.replace('import archive20 as A20\n','',1).replace(ARCHIVE20_OWNER_HELPER,'',1).replace(ARCHIVE20_OWNER_CALL,'',1)
+  self.assertEqual(O.pin(old.encode()),ARCHIVE20_BEFORE_PINS['owner.py'])
+  calls=lambda raw:[ast.dump(n,include_attributes=False)for n in ast.walk(ast.parse(raw))if isinstance(n,ast.Call)and isinstance(n.func,ast.Name)and n.func.id=='command']
+  self.assertEqual(len(calls(old)),3);self.assertEqual(calls(old),calls(text));self.assertLess(text.index(ARCHIVE20_OWNER_CALL),text.index("'build','--inputs'"));self.assertGreater(text.index(ARCHIVE20_OWNER_CALL),text.index("O.save(a.work/'archive32-custody.json'"))
+  template=(ROOT/O.LANE/'workflow.yml.in').read_text();self.assertEqual(template.count(ARCHIVE20_WORKFLOW_STEP),1);self.assertEqual(O.pin(template.replace(ARCHIVE20_WORKFLOW_STEP,'',1).encode()),ARCHIVE20_BEFORE_PINS['workflow.yml.in'])
+  raw=(ROOT/O.LANE/'retain.py').read_text();self.assertEqual(O.pin(raw.replace("FIXED={'archive20-custody.json','archive32-custody.json',","FIXED={'archive32-custody.json',",1).encode()),ARCHIVE20_BEFORE_PINS['retain.py'])
+  self.assertEqual(O.BOUNDS,dict(owner_seconds=6600,producer_seconds=2300,seed_seconds=120,prepare_seconds=1900,VM_seconds=3000,QEMU_output_bytes=16777216,public_output_bytes=201326592));self.assertIn('timeout-minutes: 4',ARCHIVE20_WORKFLOW_STEP)
+ def test_actual_workflow_absolute_cli_policy_under_foreign_cwd_before_network(self):
+  import shlex
+  text=O.workflow(ROOT).decode();start=text.index('      - name: Prefetch exact20');block=text[start:text.index('      - name:',start+10)];command=block.split('        run: >-\n',1)[1];command=' '.join(line.strip()for line in command.splitlines()if line.startswith('          '))
+  script=r'''import runpy,sys,types,urllib.request
+mode=sys.argv[1];sys.argv=[sys.argv[2],*sys.argv[3:]];calls=[]
+def blocked(*args,**kwargs):
+ calls.append(1);raise RuntimeError('NETWORK_FORBIDDEN_AFTER_VALIDATED_POLICY')
+urllib.request.build_opener=lambda *args:types.SimpleNamespace(open=blocked)
+try:runpy.run_path(sys.argv[0],run_name='__main__')
+except ValueError as error:
+ assert mode=='relative'and str(error)=='ordinary archive20 path'and not calls;print('RELATIVE_POLICY_REFUSED_BEFORE_NETWORK')
+except RuntimeError as error:
+ assert mode=='absolute'and str(error)=='NETWORK_FORBIDDEN_AFTER_VALIDATED_POLICY'and calls==[1];print('ABSOLUTE_POLICY_AND_LOCK_VALIDATED_NETWORK_BLOCKED')
+else:raise AssertionError('No real CLI refusal')
+'''
+  with tempfile.TemporaryDirectory()as td:
+   for mode in('relative','absolute'):
+    expanded=command.replace('$GITHUB_WORKSPACE',str(ROOT)).replace('$SLICE',O.LANE).replace('$RUNNER_TEMP',td);argv=shlex.split(expanded);self.assertEqual(argv[:3],['python3','-I','-B']);args=argv[4:]
+    for key in('--policy','--inputs','--cache'):self.assertTrue(Path(args[args.index(key)+1]).is_absolute())
+    self.assertEqual(Path(args[args.index('--cache')+1]),Path(td)/'ksm2-archive20')
+    if mode=='relative':args[args.index('--policy')+1]=O.LANE+'/archive20-policy.json'
+    row=subprocess.run([sys.executable,'-I','-B','-c',script,mode,argv[3],*args],cwd=td,capture_output=True,timeout=10);self.assertEqual(row.returncode,0,(row.stdout,row.stderr));self.assertEqual(row.stderr,b'');self.assertIn(b'RELATIVE_POLICY_REFUSED_BEFORE_NETWORK'if mode=='relative'else b'ABSOLUTE_POLICY_AND_LOCK_VALIDATED_NETWORK_BLOCKED',row.stdout)
+ def tiny(self):
+  import archive20 as A20
+  data={'a.pkg':b'one','a.pkg.sig':b'two'};v=dict(files={n:dict(bytes=len(b),sha256=O.pin(b)['sha256'],url='https://pkgmirror.sametimetomorrow.net/'+n)for n,b in data.items()},original_inputs=dict(bytes=1,sha256='0'*64));return A20,data,v
+ def test_private_seed_exact_unrelated_preservation_idempotence_and_drift_refusal(self):
+  A20,data,v=self.tiny()
+  with tempfile.TemporaryDirectory()as td,patch.object(A20,'TOTAL',6):
+   root=Path(td);cache=root/'cache';cache.mkdir(mode=0o700);deps=root/'deps';deps.mkdir(mode=0o700);unrelated=deps/'original-other';unrelated.write_bytes(b'ORIGINAL_OTHER_KEEP');before=A20.ordinary(unrelated)
+   for n,b in data.items():(cache/n).write_bytes(b)
+   index=dict(schema_version=1,status='EXACT_FROZEN574_ARCHIVE20_BYTES_ONLY_NOT_NATIVE_ACCEPTANCE',original_inputs=v['original_inputs'],files={n:O.pin(b)for n,b in data.items()},bytes=6,requests=0,reused=2,seconds_limit=180);(cache/'archive20-index.json').write_bytes(A20.encoded(index));A20.seed_exact(cache,deps,v);A20.seed_exact(cache,deps,v)
+   self.assertEqual({n:(deps/n).read_bytes()for n in data},data);self.assertEqual(unrelated.read_bytes(),b'ORIGINAL_OTHER_KEEP');self.assertEqual(A20.ordinary(unrelated),before)
+   (deps/'a.pkg').write_bytes(b'BAD')
+   with self.assertRaisesRegex(ValueError,'hash'):A20.seed_exact(cache,deps,v)
+   self.assertEqual((deps/'a.pkg').read_bytes(),b'BAD')
+ def test_private_cache_and_seed_alias_foreign_entry_refusal(self):
+  A20,data,v=self.tiny()
+  for kind in('symlink','hardlink','unknown'):
+   with self.subTest(kind=kind),tempfile.TemporaryDirectory()as td:
+    root=Path(td);cache=root/'cache';cache.mkdir(mode=0o700);p=cache/'a.pkg';p.write_bytes(b'one');deps=root/'deps';deps.mkdir(mode=0o700)
+    if kind=='symlink':p.unlink();p.symlink_to(root/'outside')
+    elif kind=='hardlink':os.link(p,root/'alias')
+    else:(cache/'foreign').write_bytes(b'FOREIGN_KEEP')
+    with self.assertRaises(ValueError):A20.prefetch(cache,v,lambda *a,**k:self.fail('HTTP before refusal'))
+    self.assertEqual(list(deps.iterdir()),[])
+    if kind=='unknown':self.assertEqual((cache/'foreign').read_bytes(),b'FOREIGN_KEEP')
+ def test_only_bounded_custody_data_retained_not_archive_bodies(self):
+  with tempfile.TemporaryDirectory()as td:
+   work=Path(td)/'work';work.mkdir(mode=0o700);value=dict(status='EXACT_ORIGINAL20_SEEDED_BEFORE_UNCHANGED_BUILD',context='INERT_RETENTION_INTERFACE_NOT_ACCEPTANCE');raw=O.encoded(value);(work/'archive20-custody.json').write_bytes(raw);(work/'a.pkg').write_bytes(b'NO_PACKAGE_BODY_EXPORT');out=Path(td)/'public';result=retain.run(work,out)
+   self.assertEqual(set(result['files']),{'archive20-custody.json'});self.assertEqual((out/'archive20-custody.json').read_bytes(),raw);self.assertEqual(result['files']['archive20-custody.json'],O.pin(raw));self.assertFalse((out/'a.pkg').exists())
 
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--source',type=Path,required=True);a,left=p.parse_known_args();ROOT=a.source.absolute();unittest.main(argv=[sys.argv[0]]+left)

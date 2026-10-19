@@ -4,7 +4,7 @@
 import argparse,os,re,stat,sys
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parent));import hosted as O
-FIXED={'archive32-custody.json','owner-lease.json','source-proof.json','component-custody.json','commands.json','owner-result.json','cleanup-commands.json','failure-cleanup.json','runtime/qemu.json','runtime/uart.log','runtime/qemu.stderr','runtime/guest-result.json','runtime/producer-retirement.json','runtime/preparation-retirement.json','prepare/commands.json','prepare/preparation-result.json'}
+FIXED={'archive20-custody.json','archive32-custody.json','owner-lease.json','source-proof.json','component-custody.json','commands.json','owner-result.json','cleanup-commands.json','failure-cleanup.json','runtime/qemu.json','runtime/uart.log','runtime/qemu.stderr','runtime/guest-result.json','runtime/producer-retirement.json','runtime/preparation-retirement.json','prepare/commands.json','prepare/preparation-result.json'}
 def permitted(name):return name in FIXED or re.fullmatch(r'(command|cleanup)-[0-9]{2}\.(stdout|stderr)',name)is not None or re.fullmatch(r'prepare/command-[0-9]{2}\.(stdout|stderr)',name)is not None
 
 def run(work,output):

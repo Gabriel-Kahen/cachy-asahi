@@ -69,4 +69,33 @@ class Worker(unittest.TestCase):
   # Refusal requires no successful package or real606 fixture.
   wrong=copy.deepcopy(original);wrong['source_record']['sha256']='b'*64
   with self.assertRaises(ValueError):lifecycle.operands(wrong,candidate,original606_manifest={G.NAME:original['source_record']})
+
+class SignedTransactionLimits(unittest.TestCase):
+ def test_actual_pinned_constructor_missing_limits_refuses_before_ALPM(self):
+  with patch.object(R.installer.Alpm,'__init__',side_effect=AssertionError('NO_NATIVE_ALPM')):
+   with self.assertRaisesRegex(TypeError,'limits'):R.Alpm(Path('/INERT'),Path('/INERT'),Path('/INERT'),'aarch64')
+ def test_real_apply_passes_exact_single_bounded_limits_before_native_ALPM(self):
+  import alpm_step as S
+  class StopBeforeNative(Exception):pass
+  captured=[]
+  def stop(handle,*args,**kwargs):
+   captured.append(handle.limits);raise StopBeforeNative()
+  before={f'held-{i}':'1-1'for i in range(605)};before['cachy-asahi-ksmctl']='0.1.0-1';after={k:v for k,v in before.items()if k!='cachy-asahi-ksmctl'}
+  with tempfile.TemporaryDirectory()as td:
+   info=os.stat(td)
+   with patch.object(R.installer.Alpm,'__init__',new=stop),patch.object(S.Path,'stat',return_value=info),patch.object(S.os,'listdir',return_value=[]),patch.object(S.time,'monotonic',return_value=100.):
+    with self.assertRaises(StopBeforeNative):S.apply('/work/main/root',before=before,after=after,archive=None,keys='/work/test-verification',log='/out/remove2-alpm.log')
+  self.assertEqual(len(captured),1);limits=captured[0];self.assertIsInstance(limits,R.Limits);self.assertEqual(limits.deadline,190.)
+  for name,value in C.BOUNDS.items():self.assertEqual(getattr(limits,name),value)
+ def test_both_handles_share_one_original90s606_limits_and_guard(self):
+  import ast,inspect,alpm_step as S,driver
+  tree=ast.parse(inspect.getsource(S.apply));calls=[n for n in ast.walk(tree)if isinstance(n,ast.Call)and isinstance(n.func,ast.Attribute)and n.func.attr=='Alpm']
+  self.assertEqual(len(calls),2)
+  for call in calls:
+   self.assertEqual([(v.arg,ast.unparse(v.value))for v in call.keywords],[('limits','limits')])
+  limits=[n for n in ast.walk(tree)if isinstance(n,ast.Call)and isinstance(n.func,ast.Attribute)and n.func.attr=='Limits'];self.assertEqual(len(limits),1)
+  self.assertEqual(ast.unparse(limits[0]),'roots.Limits(deadline=time.monotonic() + 90, **C.BOUNDS)')
+  raw=inspect.getsource(driver.run);self.assertIn('timeout=min(90,budget.deadline-time.monotonic())',raw);self.assertIn('output_limit=128*1024,grace=1',raw)
+  self.assertIn("C.need(result['returncode']==0 and result['termination']is None and result['direct_child_reaped']and result['group_retired'],'signed transaction child failed or group not retired')",raw)
+
 if __name__=='__main__':unittest.main(verbosity=2)
