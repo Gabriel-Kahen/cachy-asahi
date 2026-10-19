@@ -8,6 +8,7 @@ import argparse
 from contextlib import contextmanager
 from datetime import datetime, timezone
 import hashlib
+import importlib.util
 import json
 import math
 import os
@@ -20,6 +21,10 @@ import subprocess
 import sys
 import threading
 import time
+
+_memory_spec = importlib.util.spec_from_file_location('process_group_memory', Path(__file__).with_name('process_group_memory.py'))
+process_group_memory = importlib.util.module_from_spec(_memory_spec)
+_memory_spec.loader.exec_module(process_group_memory)
 
 CLEANUP_SECONDS = 0.25
 _active_sampler = None
@@ -253,6 +258,9 @@ def freeze(config_path, baseline_path, candidate_path, output):
                     or identity["packages"] is None):
                 raise Invalid("physical acceptance plan needs an exact M2 Air record and package inventory")
     paths = list(config["inputs"])
+    for source in (str(Path(__file__).resolve()), str(Path(process_group_memory.__file__).resolve())):
+        if source not in paths:
+            paths.append(source)
     for values in config.get("variant_inputs", {}).values():
         paths.extend(values)
     pins = [pin_file(p) for p in paths]
@@ -332,6 +340,7 @@ def telemetry(pid, sysroot=Path("/sys"), procroot=Path("/proc")):
     available = next((int(line.split()[1]) for line in meminfo.splitlines()
                       if line.startswith("MemAvailable:")), None)
     return {"monotonic_ns": time.monotonic_ns(), "thermal": thermal, "power": power, "battery": battery,
+            "process_group_memory": process_group_memory.sample(pid, procroot),
             "memory": {"root_rss_kib": rss, "system_available_kib": available,
                        "lifecycle": lifecycle, "proc_state": state, "path": str(status_path),
                        "scope": "sampled root process only; children/shared mappings excluded"},
@@ -443,6 +452,7 @@ def metrics(samples):
                 "unknown_lifecycle_samples": unknown}
     result = {"root_rss_kib": max(live) if live and not unknown and all(v is not None for v in live) else None,
               "rss_coverage": coverage, "thermal": {}, "power": {}}
+    result.update(process_group_memory.summarize([s.get("process_group_memory") for s in samples]))
     for group in ("thermal", "power"):
         paths = sorted({r["path"] for s in samples for r in s[group]})
         for path in paths:
