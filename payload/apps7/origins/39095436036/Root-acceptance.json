@@ -1,0 +1,56 @@
+{
+  "actual_pages": 4096,
+  "builds": 6,
+  "cache": "NOT_RUN",
+  "counts": [
+    577,
+    577,
+    574,
+    577,
+    574
+  ],
+  "full604": "NOT_RUN",
+  "generic16k": "NOT_RUN",
+  "hardware": "NOT_RUN",
+  "lifecycle": {
+    "bytes": 10052,
+    "sha256": "42cb86b8ede1fc6ce08266373fa367c0d0b67fc8bdbdfb685beec0f306255770"
+  },
+  "live_cleanup_reobservation": false,
+  "ordered_cleanup": {
+    "bytes": 4052,
+    "sha256": "bbf29175d6382c75226061f9df6cac9f2d5624008a402c12c051b28b366ab41e"
+  },
+  "original_archive": {
+    "bytes": 579586,
+    "sha256": "895e4fe9c9f768cac2d4330ffd50207e113b10a481a67b6380fa448c56738c3a"
+  },
+  "pairs": 3,
+  "private_preservation_maps": "SOURCE_ENFORCED_UNEXPORTED",
+  "recipe_source": "134e02ba0c73dab4eb4a22cbfd562599b9e7a411",
+  "release": "NOT_ADMITTED",
+  "run": 39095436036,
+  "same_host_independence_limit": true,
+  "signature_scope": "REQUIRED_ISOLATED_TEST_NOT_RELEASE_TRUST",
+  "source": "1dc9ecfee51145ba9cc43a95cc45bee97faed8b9",
+  "status": "ROOT_ACCEPTED_NATIVE_APPS7_CLIENT_RETAINED_SCOPE",
+  "strict_replay": {
+    "cache": "NOT_RUN",
+    "full604": "NOT_RUN",
+    "generic16k": "NOT_RUN",
+    "hardware": "NOT_RUN",
+    "limits": [
+      "PRIVATE574_PRESERVATION_MAPS_UNEXPORTED",
+      "SUCCESSFUL_UNITTEST_TEXT_UNEXPORTED",
+      "NO_INDEPENDENT_MACHINE_ATTESTATION",
+      "TEST_SIGNATURES_SOURCE_ENFORCED_NOT_RELEASE_TRUST"
+    ],
+    "release": "NOT_ADMITTED",
+    "run": "39095436036",
+    "scope": "SIX_SAME_JOB_NATIVE_BUILDS_THREE_PAIRS_AND_SOURCE_ENFORCED_INSTALLED_RECEIPTS",
+    "source": "1dc9ecfee51145ba9cc43a95cc45bee97faed8b9",
+    "status": "PASS_ORIGINAL_APPS7_CLIENT_NATIVE_REPLAY"
+  },
+  "successful_test_text": "UNEXPORTED_SOURCE_ENFORCED_COUNTS_HASH_RECEIPTS",
+  "utc": "2026-10-18T04:10:40.530899+00:00"
+}

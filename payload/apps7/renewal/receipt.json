@@ -1,0 +1,89 @@
+{
+  "actual_lifecycle": "NOT_RUN",
+  "created": 1792433507,
+  "hardware": "NOT_RUN",
+  "historical_native": {
+    "archive_bodies": "EXACT_BYTE_HELD",
+    "build_credit": "HISTORICAL_NATIVE_BUILD_ONLY_NO_NEW_BUILD",
+    "recipe_source": "134e02ba0c73dab4eb4a22cbfd562599b9e7a411",
+    "root_decision": {
+      "bytes": 1777,
+      "path": "origins/39095436036/Root-acceptance.json",
+      "sha256": "589498543381db1124fbfbdea85810b7ff1e60261be3dde098ad060cbb2b1b22"
+    },
+    "run": 39095436036,
+    "source": "1dc9ecfee51145ba9cc43a95cc45bee97faed8b9"
+  },
+  "old_signer": "BB72BF4516582447EFADBC7449BBCF091F4C8599",
+  "private_material": "GENERATED_IN_OWNED0700_HOME_NEVER_EXPORTED_RETIRED_AFTER_SIGNING",
+  "public_key": {
+    "bytes": 445,
+    "sha256": "de8eb727f60248fd80446c2b272cd100f5a2e599a79a14ef244277cb6f1c7093"
+  },
+  "purpose": "ARCHITECTURE_NEUTRAL_EPHEMERAL_TEST_SIGNATURE_RENEWAL_ONLY",
+  "release": "NOT_ADMITTED",
+  "schema_version": 1,
+  "signer": {
+    "authority": "EPHEMERAL_TEST_ONLY_NOT_PRODUCTION_TRUST",
+    "created": 1792433507,
+    "expires": 1793038307,
+    "fingerprint": "DA8AD638E79414E661656E4C23132CAA1000DA38",
+    "validity_seconds": 604800
+  },
+  "verification": {
+    "cachy-asahi-apps": {
+      "archive": {
+        "bytes": 23212,
+        "sha256": "23fc2fe5707606b0f3bd8c6322b9e7ae0c47a6ff1024cd239f4486679638be39"
+      },
+      "current_verification": {
+        "returncode": 0,
+        "status_stdout": "[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED DA8AD638E79414E661656E4C23132CAA1000DA38 0\n[GNUPG:] SIG_ID UKHJSE7PN+DG/RHp+UrIDjW5R98 2026-10-19 1792433507\n[GNUPG:] GOODSIG 23132CAA1000DA38 TEST ONLY Apps7 signature renewal <apps7-renewal@test.invalid>\n[GNUPG:] VALIDSIG DA8AD638E79414E661656E4C23132CAA1000DA38 2026-10-19 1792433507 0 4 0 22 10 00 DA8AD638E79414E661656E4C23132CAA1000DA38\n[GNUPG:] TRUST_UNDEFINED 0 pgp\n",
+        "stderr": {
+          "bytes": 446,
+          "sha256": "8b9eb337f1a1a6d516b9991fb0b47ba89858ecf25ad4ca303fe699fc1f9131d6"
+        }
+      },
+      "historical_expired_signature_verification": {
+        "acceptance": "REFUSED_EXPIRED_KEY_EVEN_IF_GPG_EXIT_ZERO",
+        "returncode": 0,
+        "status_stdout": "[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED BB72BF4516582447EFADBC7449BBCF091F4C8599 0\n[GNUPG:] KEYEXPIRED 1792382456\n[GNUPG:] SIG_ID vH0gDweZDsM6hhGoR1R8uOoCWwo 2026-10-18 1792296109\n[GNUPG:] EXPKEYSIG 49BBCF091F4C8599 TEST ONLY composition <composition@test.invalid>\n[GNUPG:] VALIDSIG BB72BF4516582447EFADBC7449BBCF091F4C8599 2026-10-18 1792296109 0 4 0 22 8 00 BB72BF4516582447EFADBC7449BBCF091F4C8599\n",
+        "stderr": {
+          "bytes": 321,
+          "sha256": "4f365edfcf5ab6e8b56ddc11a77169e0d457aae62f1e57eaa90a1a217fd79e6c"
+        }
+      },
+      "new_signature": {
+        "bytes": 119,
+        "sha256": "eec298f0d06f83d9e7f230422e12e5d62c3b5afcfcccffddbcd9ac5fffddf39f"
+      }
+    },
+    "cachy-asahi-repository-runtime": {
+      "archive": {
+        "bytes": 28888,
+        "sha256": "1c8a9149da02e60a4c14598cdf7007d6dbffcd6150757fcf6711977aa00cf8aa"
+      },
+      "current_verification": {
+        "returncode": 0,
+        "status_stdout": "[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED DA8AD638E79414E661656E4C23132CAA1000DA38 0\n[GNUPG:] SIG_ID uzQw0Z2aBR83ObHRC/KxlfZEJYA 2026-10-19 1792433507\n[GNUPG:] GOODSIG 23132CAA1000DA38 TEST ONLY Apps7 signature renewal <apps7-renewal@test.invalid>\n[GNUPG:] VALIDSIG DA8AD638E79414E661656E4C23132CAA1000DA38 2026-10-19 1792433507 0 4 0 22 10 00 DA8AD638E79414E661656E4C23132CAA1000DA38\n[GNUPG:] TRUST_UNDEFINED 0 pgp\n",
+        "stderr": {
+          "bytes": 446,
+          "sha256": "8b9eb337f1a1a6d516b9991fb0b47ba89858ecf25ad4ca303fe699fc1f9131d6"
+        }
+      },
+      "historical_expired_signature_verification": {
+        "acceptance": "REFUSED_EXPIRED_KEY_EVEN_IF_GPG_EXIT_ZERO",
+        "returncode": 0,
+        "status_stdout": "[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED BB72BF4516582447EFADBC7449BBCF091F4C8599 0\n[GNUPG:] KEYEXPIRED 1792382456\n[GNUPG:] SIG_ID mUO/7IYNiLa2TT5EwxnYYWAXAV8 2026-10-18 1792296109\n[GNUPG:] EXPKEYSIG 49BBCF091F4C8599 TEST ONLY composition <composition@test.invalid>\n[GNUPG:] VALIDSIG BB72BF4516582447EFADBC7449BBCF091F4C8599 2026-10-18 1792296109 0 4 0 22 8 00 BB72BF4516582447EFADBC7449BBCF091F4C8599\n",
+        "stderr": {
+          "bytes": 321,
+          "sha256": "4f365edfcf5ab6e8b56ddc11a77169e0d457aae62f1e57eaa90a1a217fd79e6c"
+        }
+      },
+      "new_signature": {
+        "bytes": 119,
+        "sha256": "ff096b1dfa75a374f529e4c8967e3be715fd097b67ce2cd8570ee9c58c171dfe"
+      }
+    }
+  }
+}

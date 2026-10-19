@@ -1,0 +1,54 @@
+{
+  "apps_consumer_absence": 2,
+  "authority": "PASS_REMOVED_AFTER_ACTOR_RETIREMENT",
+  "base_consumer_absence": 7,
+  "borrowed_images_preserved": true,
+  "cleanup": "PASS_ORDERED_CONSUMERS_DEPENDENCY_IMAGES_PRODUCER_AND_AUTHORITY",
+  "closed_public_members": 148,
+  "first_failure": "Docker bind source scripts/ci/apps6-native-reinstall/catalog_fixture.py absent",
+  "git_blobs": 86,
+  "installed_apps_lifecycle": "NOT_RUN",
+  "limits": [
+    "No Root admission",
+    "Native generic ARM container package components only; no hardware/M2",
+    "Native installed Runtime575 preparation exists; Apps lifecycle/repair absent",
+    "No independent OpenPGP or live cleanup re-observation"
+  ],
+  "native_builds": 6,
+  "overall": "FAIL",
+  "pairs": 3,
+  "products": {
+    "cachy-asahi-apps": {
+      "bytes": 22876,
+      "native_builds": 2,
+      "payload_files": 8,
+      "sha256": "1ce4a540a5ec2fa26353847b93fed953e084cf65e872836f670ac721446cd3d7",
+      "version": "0.1.0-6"
+    },
+    "cachy-asahi-cache": {
+      "bytes": 18304,
+      "native_builds": 2,
+      "payload_files": 4,
+      "sha256": "450706e2899f57b44ca2f446560c8aeab710a4726a13561d09a2cb4a8bf1da40",
+      "version": "0.2.0-1"
+    },
+    "cachy-asahi-repository-runtime": {
+      "bytes": 28888,
+      "native_builds": 2,
+      "payload_files": 8,
+      "sha256": "1c8a9149da02e60a4c14598cdf7007d6dbffcd6150757fcf6711977aa00cf8aa",
+      "version": "0.1.0-1"
+    }
+  },
+  "retainer_errors": [
+    "runtime/lifecycle.json: [Errno 2] No such file or directory: '/home/runner/work/_temp/apps6-native-reinstall-runtime/lifecycle.json'",
+    "runtime/lifecycle.log: [Errno 2] No such file or directory: '/home/runner/work/_temp/apps6-native-reinstall-runtime/lifecycle.log'",
+    "'lifecycle'"
+  ],
+  "root_acceptance": "SCOPED_NATIVE_PACKAGE_PAIRS_ONLY",
+  "run": 39027622244,
+  "signed_repair": "NOT_RUN",
+  "source": "c5481ad6bfd1539ab9a289bc9541133b979858f7",
+  "source_rows": 83,
+  "status": "ROOT_ACCEPTED_APPS6_NATIVE_PAIRS_FAILED_LIFECYCLE_LANE"
+}

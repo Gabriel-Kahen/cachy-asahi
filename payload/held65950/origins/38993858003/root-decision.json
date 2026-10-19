@@ -1,0 +1,136 @@
+{
+  "GUI": "FAIL_NOT_ACCEPTED",
+  "actual_orphan_removal": "NOT_IMPLEMENTED",
+  "cleanup": "PASS_ORDERED_CONSUMER_THEN_PRODUCER_CLEANUP",
+  "crypto": [
+    {
+      "archive": "cachy-asahi-doctor-0.1.0-1-any.pkg.tar.xz",
+      "exit": 0,
+      "status": "[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED 2AE9FB54E7AC0C9949DB022094261EDD3E2B8567 0\n[GNUPG:] SIG_ID nWyiaWs6VSnEZksY7BjhkfsGZfI 2026-10-17 1792203253\n[GNUPG:] GOODSIG 94261EDD3E2B8567 TEST ONLY composition <composition@test.invalid>\n[GNUPG:] VALIDSIG 2AE9FB54E7AC0C9949DB022094261EDD3E2B8567 2026-10-17 1792203253 0 4 0 22 10 00 2AE9FB54E7AC0C9949DB022094261EDD3E2B8567\n",
+      "stderr_sha256": "74919b643ea670966f1af982119b1559dce6c50c1d54d09d1eddc3acfd1ffb4f"
+    },
+    {
+      "archive": "cachy-asahi-orphans-0.1.0-2-any.pkg.tar.xz",
+      "exit": 0,
+      "status": "[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED 2AE9FB54E7AC0C9949DB022094261EDD3E2B8567 0\n[GNUPG:] SIG_ID 6oJKwSe8ML5mcHVsMlF1OsvTma4 2026-10-17 1792203253\n[GNUPG:] GOODSIG 94261EDD3E2B8567 TEST ONLY composition <composition@test.invalid>\n[GNUPG:] VALIDSIG 2AE9FB54E7AC0C9949DB022094261EDD3E2B8567 2026-10-17 1792203253 0 4 0 22 10 00 2AE9FB54E7AC0C9949DB022094261EDD3E2B8567\n",
+      "stderr_sha256": "74919b643ea670966f1af982119b1559dce6c50c1d54d09d1eddc3acfd1ffb4f"
+    },
+    {
+      "archive": "cachy-asahi-welcome-0.1.0-2-aarch64.pkg.tar.xz",
+      "exit": 0,
+      "status": "[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED 2AE9FB54E7AC0C9949DB022094261EDD3E2B8567 0\n[GNUPG:] SIG_ID mshv5SB1QuAs5ZXMaFLnCkZfQJM 2026-10-17 1792203253\n[GNUPG:] GOODSIG 94261EDD3E2B8567 TEST ONLY composition <composition@test.invalid>\n[GNUPG:] VALIDSIG 2AE9FB54E7AC0C9949DB022094261EDD3E2B8567 2026-10-17 1792203253 0 4 0 22 10 00 2AE9FB54E7AC0C9949DB022094261EDD3E2B8567\n",
+      "stderr_sha256": "74919b643ea670966f1af982119b1559dce6c50c1d54d09d1eddc3acfd1ffb4f"
+    }
+  ],
+  "generic16k": "NOT_RUN_FOR_ORPHANS2",
+  "hardware": "NOT_RUN",
+  "lifecycle": "PASS_MANAGEMENT_INSTALLED_READONLY_LIFECYCLE",
+  "native_GUI_performance": "NOT_ESTABLISHED",
+  "originals": {
+    "artifact.zip": {
+      "bytes": 3268626,
+      "sha256": "21213d295bb6cce4fe55f5a4c98ed466a375a0ed31bc3bfe4a75b8444f1b890e"
+    },
+    "logs.zip": {
+      "bytes": 112068,
+      "sha256": "11e047c871f161dd3a50f81633e2ca1a28fe04738a015eed56b62de1bee364c6"
+    }
+  },
+  "packages": {
+    "cachy-asahi-doctor": {
+      "archive": "cachy-asahi-doctor-0.1.0-1-any.pkg.tar.xz",
+      "builds": 2,
+      "bytes": 13708,
+      "check_markers": {
+        "check_enabled": true,
+        "markers": [
+          "^Ran 16 tests in [0-9.]+s$",
+          "^OK$"
+        ],
+        "skipped": 0,
+        "status": "PASS_COMPLETE_ROOT_BOUND_CHECKS_NO_SKIPS"
+      },
+      "sha256": "06898669fdd6c9e5bdcc9909e6b0e75e958bdbd57520a7082c0e9f5f7fac7482",
+      "version": "0.1.0-1"
+    },
+    "cachy-asahi-orphans": {
+      "archive": "cachy-asahi-orphans-0.1.0-2-any.pkg.tar.xz",
+      "builds": 2,
+      "bytes": 18900,
+      "check_markers": {
+        "check_enabled": true,
+        "markers": [
+          "^Ran 20 tests in [0-9.]+s$",
+          "^OK$"
+        ],
+        "skipped": 0,
+        "status": "PASS_COMPLETE_ROOT_BOUND_CHECKS_NO_SKIPS"
+      },
+      "sha256": "2543a13b584bf974efc4ce79f4da585d9e4513c2bc3907750fe5c962d20c8c02",
+      "version": "0.1.0-2"
+    },
+    "cachy-asahi-welcome": {
+      "archive": "cachy-asahi-welcome-0.1.0-2-aarch64.pkg.tar.xz",
+      "builds": 2,
+      "bytes": 31496,
+      "check_markers": {
+        "check_enabled": true,
+        "expected_skip": "ok 13 /management/root-guard # SKIP Root guard requires an actual root test process",
+        "markers": [
+          "^1\\.\\.7$",
+          "^ok [0-9]+ /status/installed$",
+          "^ok [0-9]+ /status/unavailable$",
+          "^ok [0-9]+ /status/duplicate$",
+          "^ok [0-9]+ /status/lookalike$",
+          "^ok [0-9]+ /status/malformed$",
+          "^ok [0-9]+ /status/oversized$",
+          "^ok [0-9]+ /status/json\\-controls$",
+          "^1\\.\\.13$",
+          "^ok [0-9]+ /management/api$",
+          "^ok [0-9]+ /management/success$",
+          "^ok [0-9]+ /management/nonzero$",
+          "^ok [0-9]+ /management/missing$",
+          "^ok [0-9]+ /management/output\\-limit$",
+          "^ok [0-9]+ /management/timeout$",
+          "^ok [0-9]+ /management/cancel\\-detached$",
+          "^ok [0-9]+ /management/complete\\-detached$",
+          "^ok [0-9]+ /management/unrelated\\-child\\-isolation$",
+          "^ok [0-9]+ /management/environment$",
+          "^ok [0-9]+ /management/binary\\-output$",
+          "^ok [0-9]+ /management/invalid\\-utf8$",
+          "^ok 13 /management/root\\-guard # SKIP Root guard requires an actual root test process$",
+          "^1\\.\\.8$",
+          "^ok [0-9]+ /report/doctor/valid$",
+          "^ok [0-9]+ /report/doctor/schema$",
+          "^ok [0-9]+ /report/orphans/valid$",
+          "^ok [0-9]+ /report/orphans/schema$",
+          "^ok [0-9]+ /report/json$",
+          "^ok [0-9]+ /report/unicode$",
+          "^ok [0-9]+ /report/refusal$",
+          "^ok [0-9]+ /report/bounds$",
+          "^Ran 5 tests in [0-9.]+s$",
+          "^OK$",
+          "PASS_SOURCE_PAYLOAD_CONTRACT"
+        ],
+        "passed": 32,
+        "registered": 33,
+        "root_guard": "REQUIRES_SEPARATE_REAL_UID0_CASE",
+        "skipped": 1,
+        "status": "PASS_32_ORDINARY_TESTS_AND_ONE_SCOPED_ROOT_GUARD_SKIP"
+      },
+      "sha256": "61d6b2b2ec09dbbdaa29908cb8797527fd347c4f8c8dc23967dc161b57014280",
+      "version": "0.1.0-2"
+    }
+  },
+  "preserved_nodes": 114738,
+  "qualifications": [
+    "Frozen-source-enforced full copied-root and DB preservation; raw private maps not exported",
+    "Two native runs on same builder; independent machine reproducibility not attested"
+  ],
+  "release": "NOT_ADMITTED",
+  "report_count": 36,
+  "run_id": 38993858003,
+  "source_join_count": 111,
+  "source_sha": "28e2a6b348751db98951ceb4d56fef48fa586dbe",
+  "status": "ROOT_ACCEPTED_ORPHANS2_NATIVE_PAIR_AND_SIGNED_INSTALLED_READONLY_CLI_ONLY"
+}
