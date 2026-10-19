@@ -1,0 +1,445 @@
+{
+  "errors": [],
+  "external_mirror_rank": "NOT_RUN",
+  "files": {
+    "TEST-signing/TEST-public.asc": {
+      "bytes": 429,
+      "sha256": "fe1694d4616ab2f515e8a28c351c4a76b9de7e275449582ed9211658963a9254"
+    },
+    "TEST-signing/cachy-asahi-ksmctl-0.1.0-1-any.pkg.tar.xz.sig": {
+      "bytes": 119,
+      "sha256": "3f5dc11e2d56f4c404f2b71fc2b3a676836b45b08901cc5b1aa83be91c7af76d"
+    },
+    "TEST-signing/cachy-asahi-ksmctl-0.1.0-2-any.pkg.tar.xz.sig": {
+      "bytes": 119,
+      "sha256": "0d0e9bb33204e965abc615e14c6b9f30cc5b9cdd9ae59669948e43ddf466c6a2"
+    },
+    "TEST-signing/control.json": {
+      "bytes": 59,
+      "sha256": "f50e7c7a96960bb163cbe30f5be6a282da4006fbac5f03c0cdaf82813a2e0a3a"
+    },
+    "base/installed-packages.lock": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "base/report.json": {
+      "bytes": 1650,
+      "sha256": "8894a6386863085c81cce12ba3e3b88e6257b43a1820e3a4bb384732cf65b980"
+    },
+    "harness/README.md": {
+      "bytes": 1656,
+      "sha256": "c6f838c69fc0c21255a81a5af271aef8712c9a39b013dac9fde280ddd7347e90"
+    },
+    "harness/adapter.py": {
+      "bytes": 3607,
+      "sha256": "e8e463d1ba0ac81f2a7f1ef4aae18903c89937bb011bbc5f2751952b50151f7c"
+    },
+    "harness/base_adapter.py": {
+      "bytes": 8720,
+      "sha256": "78ee8e094f6c69ea5a1f10639888f86fc81025b7d0f0dd067dd43c3ff04ff898"
+    },
+    "harness/contract.py": {
+      "bytes": 380,
+      "sha256": "575e55e9dcc7e006130ff549eddde8ce2a71396efb502baca6c93ee0c87eed00"
+    },
+    "harness/fixture_checks.py": {
+      "bytes": 4504,
+      "sha256": "fb3f6972f85e30fe53e98577fedddcbdb2b4d8fd336674c31271c1579300874c"
+    },
+    "harness/infrastructure-pins.json": {
+      "bytes": 4196,
+      "sha256": "dbd98f2229f0bd18904fc9f11585ffbfd67c369b0c28bd7c552942cc2d1ad779"
+    },
+    "harness/input-policy.json": {
+      "bytes": 6658,
+      "sha256": "33507d7e8356b465f8b267b8ac4c1e399e0b93834e750664f8ca610145b8a1e5"
+    },
+    "harness/job.py": {
+      "bytes": 370,
+      "sha256": "6065fff6889eac2ce0123d4ea660147f51e204cce4d0b7a5d3a944d870b6c4c1"
+    },
+    "harness/lifecycle.py": {
+      "bytes": 5073,
+      "sha256": "b2dd55312eed76a1ee1dd79fe55f9124514962c74448d8b44f6ed051deb8321e"
+    },
+    "harness/original-pins.json": {
+      "bytes": 4196,
+      "sha256": "dbd98f2229f0bd18904fc9f11585ffbfd67c369b0c28bd7c552942cc2d1ad779"
+    },
+    "harness/preflight.py": {
+      "bytes": 1052,
+      "sha256": "9c0ad95b45c7113dc8d08ca61b4b78d09c7487479d2b936cce3098a9d8067e66"
+    },
+    "harness/prepare.py": {
+      "bytes": 4279,
+      "sha256": "580d9575a67639685137b49d3d87acdd80b53c75f01f4eb788bec0a86765937d"
+    },
+    "harness/rules.py": {
+      "bytes": 3155,
+      "sha256": "f5e6035fefca8ef21041af8ab746d94a4c39fe4b67dece2fe2632d36b0dfd01e"
+    },
+    "harness/run.py": {
+      "bytes": 370,
+      "sha256": "e11ed6953cb566e0684a72dfc62415df537478f9a2dbf873529c06ca57693880"
+    },
+    "harness/selection.py": {
+      "bytes": 3985,
+      "sha256": "027115761c0abce4e0305fe863ab5d7c27fef38b457474adcec40486048c43a6"
+    },
+    "harness/source-manifest.json": {
+      "bytes": 12263,
+      "sha256": "5a38deb4cddb4678faa02e6f11763cfa1dbc9505942cb0a015ceee3f0b57a7d4"
+    },
+    "harness/test_lane.py": {
+      "bytes": 5499,
+      "sha256": "cc22c0012d2feb432c53f0dc371ce663e79965ec1464f98c76c42d5138d77d4f"
+    },
+    "harness/workflow.yml.in": {
+      "bytes": 7173,
+      "sha256": "2a29fcd5a7280669b899ec35a6b491a628698be3790c12790072ca9e864f20d2"
+    },
+    "ordered-cleanup.json": {
+      "bytes": 1480,
+      "sha256": "9778605704634b8f40964db14741a24ee15d1d2a99dd4181d431c37c5035375a"
+    },
+    "packages/cachy-asahi-ksmctl-a/cachy-asahi-ksmctl-0.1.0-1-any.pkg.tar.xz": {
+      "bytes": 17244,
+      "sha256": "b518e711c41b8d6bcdae71364b5529aaac982d12cef600f1b2fa17f51c895a4a"
+    },
+    "packages/cachy-asahi-ksmctl-b/cachy-asahi-ksmctl-0.1.0-1-any.pkg.tar.xz": {
+      "bytes": 17244,
+      "sha256": "b518e711c41b8d6bcdae71364b5529aaac982d12cef600f1b2fa17f51c895a4a"
+    },
+    "packages/cachy-asahi-ksmctl2-a/cachy-asahi-ksmctl-0.1.0-2-any.pkg.tar.xz": {
+      "bytes": 24128,
+      "sha256": "bac3d222b6490412c1c9c7bafd72d8169e8679a1e7b411b5794246aed0b57b5f"
+    },
+    "packages/cachy-asahi-ksmctl2-b/cachy-asahi-ksmctl-0.1.0-2-any.pkg.tar.xz": {
+      "bytes": 24128,
+      "sha256": "bac3d222b6490412c1c9c7bafd72d8169e8679a1e7b411b5794246aed0b57b5f"
+    },
+    "runner-derivations.json": {
+      "bytes": 1343,
+      "sha256": "92ff369cadeccd208d452f7aa851cb29288695a25a640945001e279934faad7e"
+    },
+    "runtime/base-inventory.log": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "runtime/cachy-asahi-ksmctl-a/artifacts/config.sha256": {
+      "bytes": 167,
+      "sha256": "8309cb4c0409ccdc1ca922475dde9377aec434911efc453299f41e8fadb234ec"
+    },
+    "runtime/cachy-asahi-ksmctl-a/artifacts/environment.txt": {
+      "bytes": 11501,
+      "sha256": "ef37eeb786a6c3e33e623e1bb2eda9f4a59a4a6cc6373f7bec1bae26b0639d0d"
+    },
+    "runtime/cachy-asahi-ksmctl-a/artifacts/generated.SRCINFO": {
+      "bytes": 1623,
+      "sha256": "60740b4d54a4ad38ba432b98784fdb804ec370154e93614afb40e204c2ebd196"
+    },
+    "runtime/cachy-asahi-ksmctl-a/artifacts/makepkg.conf": {
+      "bytes": 6651,
+      "sha256": "cfcf0bd2601d887724c5ca7d9a48ac5dd347abad9e8ac5efa436080e45822a60"
+    },
+    "runtime/cachy-asahi-ksmctl-a/artifacts/packages.lock": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "runtime/cachy-asahi-ksmctl-a/artifacts/pacman.conf": {
+      "bytes": 116,
+      "sha256": "14d304eeb83baf1379279356c232580fd095c2d508b41c74677347801a0bafe7"
+    },
+    "runtime/cachy-asahi-ksmctl-a/build.log": {
+      "bytes": 2849,
+      "sha256": "489281d4651ffb4177e770f3a95a920c804b56815077ba8ab4422e90c07be6c5"
+    },
+    "runtime/cachy-asahi-ksmctl-a/expected-packages.lock": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "runtime/cachy-asahi-ksmctl-a/provenance.json": {
+      "bytes": 6197,
+      "sha256": "ef5754221951672087a64e004ed1b97a8a1175738ae0a1850a9a07805a7a00c0"
+    },
+    "runtime/cachy-asahi-ksmctl-a/validation.json": {
+      "bytes": 30437,
+      "sha256": "3a0a4525e18169a9c60f4d62d009360b216cd0a21dcbff9da2f8a9a1aba8b74a"
+    },
+    "runtime/cachy-asahi-ksmctl-b/artifacts/config.sha256": {
+      "bytes": 167,
+      "sha256": "8309cb4c0409ccdc1ca922475dde9377aec434911efc453299f41e8fadb234ec"
+    },
+    "runtime/cachy-asahi-ksmctl-b/artifacts/environment.txt": {
+      "bytes": 11501,
+      "sha256": "0e61780f5a7bab3be491865b9b2eeb623ee74146f0179c855844c49a34bdfa98"
+    },
+    "runtime/cachy-asahi-ksmctl-b/artifacts/generated.SRCINFO": {
+      "bytes": 1623,
+      "sha256": "60740b4d54a4ad38ba432b98784fdb804ec370154e93614afb40e204c2ebd196"
+    },
+    "runtime/cachy-asahi-ksmctl-b/artifacts/makepkg.conf": {
+      "bytes": 6651,
+      "sha256": "cfcf0bd2601d887724c5ca7d9a48ac5dd347abad9e8ac5efa436080e45822a60"
+    },
+    "runtime/cachy-asahi-ksmctl-b/artifacts/packages.lock": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "runtime/cachy-asahi-ksmctl-b/artifacts/pacman.conf": {
+      "bytes": 116,
+      "sha256": "14d304eeb83baf1379279356c232580fd095c2d508b41c74677347801a0bafe7"
+    },
+    "runtime/cachy-asahi-ksmctl-b/build.log": {
+      "bytes": 2849,
+      "sha256": "36cc2ca4ee20393528d9bba0d62eddc187aca2a24ea8da14b16068d38a47ec67"
+    },
+    "runtime/cachy-asahi-ksmctl-b/expected-packages.lock": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "runtime/cachy-asahi-ksmctl-b/provenance.json": {
+      "bytes": 6197,
+      "sha256": "304988f6d2123f4b0ff91987bd33e7a500c99d894096d52fc92cee6ef0310949"
+    },
+    "runtime/cachy-asahi-ksmctl-b/validation.json": {
+      "bytes": 30437,
+      "sha256": "3a0a4525e18169a9c60f4d62d009360b216cd0a21dcbff9da2f8a9a1aba8b74a"
+    },
+    "runtime/cachy-asahi-ksmctl-comparison.json": {
+      "bytes": 398,
+      "sha256": "9db519306390fa6e2398464b47542a8b97dd2bd1b3e688fe9b7c50439a9aa0c0"
+    },
+    "runtime/cachy-asahi-ksmctl2-a/artifacts/config.sha256": {
+      "bytes": 167,
+      "sha256": "8309cb4c0409ccdc1ca922475dde9377aec434911efc453299f41e8fadb234ec"
+    },
+    "runtime/cachy-asahi-ksmctl2-a/artifacts/environment.txt": {
+      "bytes": 11501,
+      "sha256": "05e68c293c8ed573563dd07ad4c3571954846d0558579f5f6c7257626cb3bf30"
+    },
+    "runtime/cachy-asahi-ksmctl2-a/artifacts/generated.SRCINFO": {
+      "bytes": 1557,
+      "sha256": "79c491a2930cc6d92648b301cc9af766d1d20dcb7e0687ab2690237b62e30a7f"
+    },
+    "runtime/cachy-asahi-ksmctl2-a/artifacts/makepkg.conf": {
+      "bytes": 6651,
+      "sha256": "cfcf0bd2601d887724c5ca7d9a48ac5dd347abad9e8ac5efa436080e45822a60"
+    },
+    "runtime/cachy-asahi-ksmctl2-a/artifacts/packages.lock": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "runtime/cachy-asahi-ksmctl2-a/artifacts/pacman.conf": {
+      "bytes": 116,
+      "sha256": "14d304eeb83baf1379279356c232580fd095c2d508b41c74677347801a0bafe7"
+    },
+    "runtime/cachy-asahi-ksmctl2-a/build.log": {
+      "bytes": 2849,
+      "sha256": "671508891ca272a2827b20fca2e10e53c2a47561d913baf34360e9cd7bf57b10"
+    },
+    "runtime/cachy-asahi-ksmctl2-a/expected-packages.lock": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "runtime/cachy-asahi-ksmctl2-a/provenance.json": {
+      "bytes": 6076,
+      "sha256": "fe3677aa18081f11e0ca1a1924d2dd8e0fce43b359e7635121c35efc39df212b"
+    },
+    "runtime/cachy-asahi-ksmctl2-a/validation.json": {
+      "bytes": 31617,
+      "sha256": "ef4740235b99492ced1236e1b79687437c56d668bd3b8b12d12d40372736d232"
+    },
+    "runtime/cachy-asahi-ksmctl2-b/artifacts/config.sha256": {
+      "bytes": 167,
+      "sha256": "8309cb4c0409ccdc1ca922475dde9377aec434911efc453299f41e8fadb234ec"
+    },
+    "runtime/cachy-asahi-ksmctl2-b/artifacts/environment.txt": {
+      "bytes": 11501,
+      "sha256": "670337135587b1b9be4e9b09fbea66c75fef073dcc9e872da18a26304a455682"
+    },
+    "runtime/cachy-asahi-ksmctl2-b/artifacts/generated.SRCINFO": {
+      "bytes": 1557,
+      "sha256": "79c491a2930cc6d92648b301cc9af766d1d20dcb7e0687ab2690237b62e30a7f"
+    },
+    "runtime/cachy-asahi-ksmctl2-b/artifacts/makepkg.conf": {
+      "bytes": 6651,
+      "sha256": "cfcf0bd2601d887724c5ca7d9a48ac5dd347abad9e8ac5efa436080e45822a60"
+    },
+    "runtime/cachy-asahi-ksmctl2-b/artifacts/packages.lock": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "runtime/cachy-asahi-ksmctl2-b/artifacts/pacman.conf": {
+      "bytes": 116,
+      "sha256": "14d304eeb83baf1379279356c232580fd095c2d508b41c74677347801a0bafe7"
+    },
+    "runtime/cachy-asahi-ksmctl2-b/build.log": {
+      "bytes": 2849,
+      "sha256": "204a5b0a73263363115f2d256511f2d99df2d600243267fb0f8b7487e3fbc4ec"
+    },
+    "runtime/cachy-asahi-ksmctl2-b/expected-packages.lock": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "runtime/cachy-asahi-ksmctl2-b/provenance.json": {
+      "bytes": 6076,
+      "sha256": "5f265da6e59cafed0e16d03c6a84281517b7ed1da4cf4d5f0035ec9ac3164709"
+    },
+    "runtime/cachy-asahi-ksmctl2-b/validation.json": {
+      "bytes": 31617,
+      "sha256": "ef4740235b99492ced1236e1b79687437c56d668bd3b8b12d12d40372736d232"
+    },
+    "runtime/cachy-asahi-ksmctl2-comparison.json": {
+      "bytes": 398,
+      "sha256": "401e0d8e8350d5f2732561882932e11dfd30666dd4b967d49b78aff32487c215"
+    },
+    "runtime/lifecycle.json": {
+      "bytes": 11539,
+      "sha256": "15a7c0bf0ac064770eb209db284253707ce337a6e2c10b5dfe549ac49ce95d88"
+    },
+    "runtime/lifecycle.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "runtime/owner.json": {
+      "bytes": 611,
+      "sha256": "3ce26d549f9e1051229f3c902cffe026a45a1d5bc97c7561a1ca9faf0e50cce5"
+    },
+    "runtime/report.json": {
+      "bytes": 38890,
+      "sha256": "898ca2da29a3cd36c291efc25871fd6c063cf4eb73828a0d990be62be573c71e"
+    },
+    "source-proof.json": {
+      "bytes": 320,
+      "sha256": "76d720227b86c2d63493f65978de9861a3b7487cb1a5ec72e52bbf104a13d225"
+    },
+    "source/cachy-asahi-ksmctl/.SRCINFO": {
+      "bytes": 1623,
+      "sha256": "60740b4d54a4ad38ba432b98784fdb804ec370154e93614afb40e204c2ebd196"
+    },
+    "source/cachy-asahi-ksmctl/LICENSE": {
+      "bytes": 17984,
+      "sha256": "edaef632cbb643e4e7a221717a6c441a4c1a7c918e6e4d56debc3d8739b233f6"
+    },
+    "source/cachy-asahi-ksmctl/NOTICE": {
+      "bytes": 1359,
+      "sha256": "939ad92c65a6c2f9da2c723a4c6e136add87ccb4a7a6e8ba0dd89692a77f3f10"
+    },
+    "source/cachy-asahi-ksmctl/PKGBUILD": {
+      "bytes": 2423,
+      "sha256": "b3714b1ef1136589081c69ed1f4aa48909d874c11f9c2d67ddb4b545309499d4"
+    },
+    "source/cachy-asahi-ksmctl/README.md": {
+      "bytes": 4832,
+      "sha256": "e7f806f7c81d5ddb2388faa4f7ddc53e04c004596a4f346bb270b47f8aad023d"
+    },
+    "source/cachy-asahi-ksmctl/adaptation.patch": {
+      "bytes": 8216,
+      "sha256": "0bc6b1f4725eb510a0f890bd616ce682b98332b371c93d2144ad643181727212"
+    },
+    "source/cachy-asahi-ksmctl/cachy-asahi-ksmctl": {
+      "bytes": 6433,
+      "sha256": "f9fd76eaa6a205d56fa4bb9123b8c721ea1277249c4cab58d1b57eaf8edc7558"
+    },
+    "source/cachy-asahi-ksmctl/check-source.py": {
+      "bytes": 2342,
+      "sha256": "7cca209ee6ad36726b03c0f54100b07bd6d08d974473d00c2092bbd5be4089a6"
+    },
+    "source/cachy-asahi-ksmctl/management-policy.md": {
+      "bytes": 5345,
+      "sha256": "ba5ca032b7e3b4757be38c18b24c295399ab1ec43c0ba3552ae5e2ff75d32437"
+    },
+    "source/cachy-asahi-ksmctl/native-stage.md": {
+      "bytes": 4762,
+      "sha256": "a2f0ea5fc896f06843bdf56a6b655cc93421d36fc3b59a864814a5c248bd6259"
+    },
+    "source/cachy-asahi-ksmctl/policy.py": {
+      "bytes": 6497,
+      "sha256": "53cea58f017b06ac55f5a39c388abf050e034f67132578e384e20c00bfe68281"
+    },
+    "source/cachy-asahi-ksmctl/source-provenance.json": {
+      "bytes": 1016,
+      "sha256": "d46e93a9893225d205a01fdcd3429782ba51d44c86b78e77fce458b53448b849"
+    },
+    "source/cachy-asahi-ksmctl/test_ksmctl.py": {
+      "bytes": 17730,
+      "sha256": "e42602fd16579e30c8cb799f26c897c1e3e89515f20a49a346b1888ce3c94b6f"
+    },
+    "source/cachy-asahi-ksmctl/test_policy.py": {
+      "bytes": 14446,
+      "sha256": "1ed306235087a760b8199829c35e99ecdb4ab6b6ddb2eb27562a9659d518121f"
+    },
+    "source/cachy-asahi-ksmctl/upstream-ksmctl": {
+      "bytes": 2606,
+      "sha256": "cd5c8aa86df5a06a268ecc21297b4cd7d8df1053c90c8bcd4e53ef9bb16194d9"
+    },
+    "source/cachy-asahi-ksmctl2/.SRCINFO": {
+      "bytes": 1557,
+      "sha256": "79c491a2930cc6d92648b301cc9af766d1d20dcb7e0687ab2690237b62e30a7f"
+    },
+    "source/cachy-asahi-ksmctl2/LICENSE": {
+      "bytes": 17984,
+      "sha256": "edaef632cbb643e4e7a221717a6c441a4c1a7c918e6e4d56debc3d8739b233f6"
+    },
+    "source/cachy-asahi-ksmctl2/NOTICE": {
+      "bytes": 1359,
+      "sha256": "939ad92c65a6c2f9da2c723a4c6e136add87ccb4a7a6e8ba0dd89692a77f3f10"
+    },
+    "source/cachy-asahi-ksmctl2/PKGBUILD": {
+      "bytes": 2373,
+      "sha256": "c4f2cd4a506181df68edadc5ae36a976f3402910ff63d07ac1d3715bd38a3e9a"
+    },
+    "source/cachy-asahi-ksmctl2/README.md": {
+      "bytes": 7590,
+      "sha256": "a0422a6b280c5b1583afe5da7575ba6e98c476c8ce1efbe196ba33513e94a4ed"
+    },
+    "source/cachy-asahi-ksmctl2/adaptation.patch": {
+      "bytes": 8216,
+      "sha256": "0bc6b1f4725eb510a0f890bd616ce682b98332b371c93d2144ad643181727212"
+    },
+    "source/cachy-asahi-ksmctl2/cachy-asahi-ksm-experiment": {
+      "bytes": 20549,
+      "sha256": "1ea518cc25a0d3099b7723756fd66631c35d7a79d50b300f6387a25588306d79"
+    },
+    "source/cachy-asahi-ksmctl2/cachy-asahi-ksmctl": {
+      "bytes": 6433,
+      "sha256": "f9fd76eaa6a205d56fa4bb9123b8c721ea1277249c4cab58d1b57eaf8edc7558"
+    },
+    "source/cachy-asahi-ksmctl2/check-source.py": {
+      "bytes": 2342,
+      "sha256": "7cca209ee6ad36726b03c0f54100b07bd6d08d974473d00c2092bbd5be4089a6"
+    },
+    "source/cachy-asahi-ksmctl2/experiment-provenance.json": {
+      "bytes": 2144,
+      "sha256": "e27da2f0e55a384bf8cb243e59437405391034347d10ff458fea7435898bba21"
+    },
+    "source/cachy-asahi-ksmctl2/source-provenance.json": {
+      "bytes": 1016,
+      "sha256": "d46e93a9893225d205a01fdcd3429782ba51d44c86b78e77fce458b53448b849"
+    },
+    "source/cachy-asahi-ksmctl2/test_experiment.py": {
+      "bytes": 16687,
+      "sha256": "2f13fe326171a7e42dc84d6c4e2ac2bbe6eb8391f9e06393f6e2c09fa8dbb843"
+    },
+    "source/cachy-asahi-ksmctl2/test_ksmctl.py": {
+      "bytes": 17730,
+      "sha256": "e42602fd16579e30c8cb799f26c897c1e3e89515f20a49a346b1888ce3c94b6f"
+    },
+    "source/cachy-asahi-ksmctl2/upstream-ksmctl": {
+      "bytes": 2606,
+      "sha256": "cd5c8aa86df5a06a268ecc21297b4cd7d8df1053c90c8bcd4e53ef9bb16194d9"
+    },
+    "source/source-manifest.json": {
+      "bytes": 12263,
+      "sha256": "5a38deb4cddb4678faa02e6f11763cfa1dbc9505942cb0a015ceee3f0b57a7d4"
+    }
+  },
+  "hardware": "NOT_RUN",
+  "original_selected_inventory": "UNCHANGED",
+  "performance": "NOT_MEASURED",
+  "release_signatures": "NOT_RUN",
+  "selection": "UNSELECTED",
+  "status": "PASS_NATIVE_KSM2_CANDIDATES_SIGNED_UPGRADE",
+  "total_bytes": 787018
+}
