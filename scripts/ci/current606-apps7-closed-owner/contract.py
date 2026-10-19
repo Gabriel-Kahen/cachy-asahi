@@ -32,6 +32,20 @@ def owner_api(bridge,copyworker):
  need(read(copyworker/'scripts/ci/current606-apps7-copy/owner-api.json')==dict(path=path,**wanted),'worker whole owner API source join')
  return wanted
 
+def renewed_signer(copyworker):
+ """Whole source roles must agree on the exact renewed public TEST signer."""
+ import ast
+ wanted='DA8AD638E79414E661656E4C23132CAA1000DA38'
+ home=copyworker/'scripts/ci/current606-apps7-copy'
+ for filename,function,expression in(('lifecycle.py','operands',"new7['signer']"),('inputs.py','inspect','signer')):
+  tree=ast.parse((home/filename).read_bytes())
+  nodes=[n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name==function]
+  need(len(nodes)==1,'one exact signer authority function')
+  expected=ast.dump(ast.parse(expression,mode='eval').body,include_attributes=False)
+  values=[n.comparators[0].value for n in ast.walk(nodes[0])if isinstance(n,ast.Compare)and len(n.ops)==len(n.comparators)==1 and isinstance(n.ops[0],ast.Eq)and ast.dump(n.left,include_attributes=False)==expected and isinstance(n.comparators[0],ast.Constant)]
+  need(values==[wanted],'lifecycle/native renewed TEST signer source join')
+ return wanted
+
 def roles(root=ROOT):
  data=read(HERE/'source-pins.json');need(set(data)==set(ROLES),'four complete separated roles')
  for prefix,(purpose,source)in ROLES.items():
@@ -42,6 +56,7 @@ def roles(root=ROOT):
   need(files(home)==set(role['files']),'exact complete role file set')
  need(len(data['held606']['files'])==263 ,'whole native source roles, not reduced recipes')
  owner_api(root/'bridge',root/'copyworker')
+ renewed_signer(root/'copyworker')
  return data
 
 def verify(root=ROOT):

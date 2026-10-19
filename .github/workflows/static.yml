@@ -292,6 +292,10 @@ jobs:
           python3 -B -Werror::ResourceWarning packages/tools/cachy-asahi-doctor2/test_doctor.py
           python3 -B -Werror::ResourceWarning packages/tools/cachy-asahi-doctor2/test_audio.py
           bash -n packages/tools/cachy-asahi-doctor2/PKGBUILD
+      - name: Check read-only selected-boot diagnostic controls
+        run: |
+          python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-boot-report/test_boot_report.py
+          bash -n packages/tools/cachy-asahi-boot-report/PKGBUILD
       - name: Check default native Apps parser experiment without actors
         run: |
           python3 -I -B scripts/ci/apps7-parser-native/job.py preflight --source "$PWD"
@@ -335,7 +339,7 @@ jobs:
       - name: Checkout whole-pinned Apps-on606 source carrier without activation
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          ref: 7ab35ac32acf370da9ad188204b14c56768adf4e
+          ref: 3660e6cb87b4cb5591b1d295c62c8b02cca4b7e6
           path: .ci-inputs/current606-apps7-source-roles
           persist-credentials: false
       - name: Checkout exact public Apps7 and Runtime1 pair DATA for source controls
