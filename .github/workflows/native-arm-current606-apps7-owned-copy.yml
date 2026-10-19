@@ -60,7 +60,7 @@ jobs:
           WORKFLOW_SOURCE: ${{ github.sha }}
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '73d4d243588ea82c7c4f7398c379121fdb2403c9ed378bb0e63ec2dce11d1875' 'expanded604-code/scripts/ci/current606-apps7-closed-owner/owner.py' '8062caa4687b46e0051e9d610ad858fd5038d3dfc18fbe172a7a6eb16453d75b' 'expanded604-code/scripts/ci/current606-apps7-closed-owner/source-manifest.json' | sha256sum --check
+          printf '%s  %s\n' '73d4d243588ea82c7c4f7398c379121fdb2403c9ed378bb0e63ec2dce11d1875' 'expanded604-code/scripts/ci/current606-apps7-closed-owner/owner.py' '48346ef221d2717fb124dfa4b5da874764c16ee5ce8b1d10be8a470eaf8b913a' 'expanded604-code/scripts/ci/current606-apps7-closed-owner/source-manifest.json' | sha256sum --check
           python3 -B expanded604-code/scripts/ci/current606-apps7-closed-owner/owner.py --source-preflight
           python3 -B expanded604-code/scripts/ci/current606-apps7-closed-owner/owner.py --require-selection
           printf '%s  %s\n' 'ce1cbfdb602b3e67ea844eae7b9bc37768194f95009bdec642997a23801bf02a' 'expanded604-code/held606/scripts/ci/current606-native/run.py' '09dae54c10f76d1a7b0bedd012f82aa513f5cc93102ad4ef5e6406dfee8bdd74' 'expanded604-code/held606/scripts/ci/current606-native/source-manifest.json' | sha256sum --check
@@ -72,7 +72,7 @@ jobs:
       - name: Checkout exact accepted Apps7 and Runtime1 native input pairs
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          ref: 54352850a57a7e34e75c3a021fa20525eee59bf6
+          ref: 02734c705565868b0b964c48399a4f659fc6f271
           path: apps7-native-pairs
           persist-credentials: false
       - name: Checkout finite accepted606 Root decision DATA

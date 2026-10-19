@@ -47,7 +47,7 @@ def run(target,*,data,plan,budget,worker):
  seed=worker.observe(target,budget);C.need(CONTEXT not in seed['nodes'],'fixture context absent in complete original606 graph')
  # Runtime1 and all other605 remain protected, never reinstalled.
  for directory in C.KSM_DIRS:
-  actual={n for n in seed['nodes']if n.startswith(directory+'/')};wanted={n for n in C.KSM_FILES if n.startswith(directory+'/')};C.need(actual==wanted,'no unowned/foreign descendants in selected exclusive directory')
+  actual={n for n in seed['nodes']if n.startswith(directory+'/')};wanted={n for n in products['0.1.0-1']['payload'] if n.startswith(directory+'/')};C.need(actual==wanted,'no unowned/foreign descendants in selected exclusive directory')
  for package in data['packages']:
   if package['name']==lifecycle.NAME:continue
   name='var/lib/pacman/local/'+package['name']+'-'+package['version'];db=database_api()
