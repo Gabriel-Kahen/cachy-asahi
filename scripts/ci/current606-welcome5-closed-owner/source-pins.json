@@ -136,8 +136,8 @@
         "sha256": "2807126de1544ef4eac48b94159891a2cf0443e5fcc5b4d0c1af5831e90d7753"
       },
       "scripts/ci/current606-welcome5-copy/alpm_step.py": {
-        "bytes": 5970,
-        "sha256": "5f464d021671b73f4e848c8ca0171852b587b6b5c639eb79c6cb678a77658f62"
+        "bytes": 6111,
+        "sha256": "d49856b998061210834de1c239e5783291c115a43125ad7d664cef1a1cb421bc"
       },
       "scripts/ci/current606-welcome5-copy/contract.py": {
         "bytes": 6397,
@@ -158,6 +158,10 @@
       "scripts/ci/current606-welcome5-copy/lifecycle.py": {
         "bytes": 5722,
         "sha256": "aa7db2c43e465915617890b252ebb9f073a5e3938aa33c938f8dc5674a0c8d5d"
+      },
+      "scripts/ci/current606-welcome5-copy/no_transaction_exec.py": {
+        "bytes": 1892,
+        "sha256": "9d44aa39fa4343ccaa7894c56213ff3a152be0616a8082f50d768da840357237"
       },
       "scripts/ci/current606-welcome5-copy/owner-api.json": {
         "bytes": 140,
@@ -184,8 +188,8 @@
         "sha256": "d98a97d528f4bffbdd653743486a8fd10cd61e728d6020cf9f7dc49229763243"
       },
       "scripts/ci/current606-welcome5-copy/source-manifest.json": {
-        "bytes": 5467,
-        "sha256": "e89fcde65181d67a39100ae6dbc9ac9f54799da42fb2ffe5d1677af2fb4344e5"
+        "bytes": 5646,
+        "sha256": "5cc34cff68a6edad0617e3c624f27b16e25fbbe377474df3982e1a5ab8d11cdc"
       },
       "scripts/ci/current606-welcome5-copy/step_entry.py": {
         "bytes": 741,

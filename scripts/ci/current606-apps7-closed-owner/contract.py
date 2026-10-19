@@ -24,6 +24,14 @@ def files(root):
   result.update((Path(base)/n).relative_to(root).as_posix()for n in names)
  return result
 
+def owner_api(bridge,copyworker):
+ """Both actor authorities must name the whole exact source-owned API."""
+ source=HERE/'selection.py';wanted=pin(source.read_bytes());checked(source,wanted)
+ path='/runner/owner/selection.py'
+ need(read(bridge/'scripts/ci/current606-welcome5-source-bridge/owner-api.json')==dict(path=path,pin=wanted),'bridge whole owner API source join')
+ need(read(copyworker/'scripts/ci/current606-apps7-copy/owner-api.json')==dict(path=path,**wanted),'worker whole owner API source join')
+ return wanted
+
 def roles(root=ROOT):
  data=read(HERE/'source-pins.json');need(set(data)==set(ROLES),'four complete separated roles')
  for prefix,(purpose,source)in ROLES.items():
@@ -33,6 +41,7 @@ def roles(root=ROOT):
    need(type(n)is str and Path(n).as_posix()==n and not Path(n).is_absolute()and not any(x in('','.','..')for x in n.split('/')),'contained role path');checked(home/n,row)
   need(files(home)==set(role['files']),'exact complete role file set')
  need(len(data['held606']['files'])==263 ,'whole native source roles, not reduced recipes')
+ owner_api(root/'bridge',root/'copyworker')
  return data
 
 def verify(root=ROOT):
