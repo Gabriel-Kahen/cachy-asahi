@@ -292,6 +292,24 @@ jobs:
           python3 -B -Werror::ResourceWarning packages/tools/cachy-asahi-doctor2/test_doctor.py
           python3 -B -Werror::ResourceWarning packages/tools/cachy-asahi-doctor2/test_audio.py
           bash -n packages/tools/cachy-asahi-doctor2/PKGBUILD
+      - name: Checkout exact Doctor2 native source context
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 705c5a095f9cabbfd2f3cd137127f4bbc7665f52
+          path: .ci-inputs/doctor2-native-source
+          persist-credentials: false
+      - name: Check and stage separate Doctor2 native default source
+        env:
+          DOCTOR2_CURRENT_SOURCE: ${{ github.workspace }}
+          DOCTOR2_NATIVE_SOURCE: ${{ github.workspace }}/.ci-inputs/doctor2-native-source
+        run: |
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/doctor2-native-source -p test_prepare.py
+          python3 -B scripts/ci/doctor2-native-source/prepare.py --current-root "$GITHUB_WORKSPACE" --native-root "$GITHUB_WORKSPACE/.ci-inputs/doctor2-native-source" --output "$RUNNER_TEMP/doctor2-native-static"
+      - name: Check complete Doctor2 native default context without actors
+        working-directory: ${{ runner.temp }}/doctor2-native-static
+        run: |
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-native -p test_native.py
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-native/ci -p test_caller.py
       - name: Check read-only selected-boot diagnostic controls
         run: |
           python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-boot-report/test_boot_report.py
@@ -306,6 +324,24 @@ jobs:
           assert report['input_sha256']['.SRCINFO']=='42d541331daf875b951d8583914bd889c24ddd46f7a1a22e11a927396584d046'
           print(json.dumps(dict(status='PASS_DIRECT_BOOT_RECIPE_METADATA_AND_LOCAL_SOURCES_ONLY',report=report),sort_keys=True))
           PYBOOTRECIPE
+      - name: Checkout exact boot-report native source context
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 2c524830adb007e3b49392ceb54dd4cc5236c77d
+          path: .ci-inputs/boot-report-native-source
+          persist-credentials: false
+      - name: Check and stage separate boot-report native source
+        env:
+          BOOT_CURRENT_SOURCE: ${{ github.workspace }}
+          BOOT_NATIVE_SOURCE: ${{ github.workspace }}/.ci-inputs/boot-report-native-source
+        run: |
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/boot-report-native-source -p test_prepare.py
+          python3 -B scripts/ci/boot-report-native-source/prepare.py --current-root "$GITHUB_WORKSPACE" --native-root "$GITHUB_WORKSPACE/.ci-inputs/boot-report-native-source" --output "$RUNNER_TEMP/boot-report-native-unbound"
+          python3 -B scripts/ci/boot-report-native-source/prepare.py --current-root "$GITHUB_WORKSPACE" --native-root "$GITHUB_WORKSPACE/.ci-inputs/boot-report-native-source" --output "$RUNNER_TEMP/boot-report-native-selected" --selected
+      - name: Check emitted boot-report native source without actors
+        working-directory: ${{ runner.temp }}/boot-report-native-selected
+        run: |
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-native -p test_boot_native.py
       - name: Check default native Apps parser experiment without actors
         run: |
           python3 -I -B scripts/ci/apps7-parser-native/job.py preflight --source "$PWD"
@@ -324,6 +360,10 @@ jobs:
         run: >-
           python3 -I -B scripts/ci/welcome5-native-gui/source_check.py
           --source "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/welcome5-gui-default-source"
+      - name: Check current TEST certificate projection for the Welcome5 guest fixture
+        run: >-
+          python3 -I -B -Werror::ResourceWarning scripts/ci/welcome5-native-gui/test_lane.py
+          GuestTrustProjectionControls
       - name: Checkout whole-pinned public current606 source roles
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:

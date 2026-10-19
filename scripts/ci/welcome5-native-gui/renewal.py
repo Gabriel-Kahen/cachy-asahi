@@ -78,12 +78,16 @@ def inspect(root,native,held):
 
 def apply(source,assets,output,lock):
  selection(source);root=assets/'renewal';value=overlay(root)
+ control=read(output/'control.json');need(type(control)is dict and set(control)=={'signer'}and type(control['signer'])is str and re.fullmatch('[0-9A-F]{40}',control['signer']),'closed installed fixture signer control required')
  for role,row in value['roles'].items():
   archive=output/Path(row['archive']).name;need(pin(archive)==row['archive_pin'],'installed archive body changed during signature renewal')
   shutil.copyfile(root/row['signature'],output/(archive.name+'.sig'))
  # This existing runtime filename is already projected into /tmp/products.
  # Its fresh explicit signer is shared by these four TEST input signatures.
  shutil.copyfile(root/'TEST-public.asc',output/'welcome5-TEST.asc')
+ # The guest restoration uses these existing names, independently of image trust.json.
+ shutil.copyfile(root/'TEST-public.asc',output/'TEST-public.asc')
+ (output/'control.json').write_bytes(encoded(dict(signer=SIGNER)))
  (output/'trust.json').write_bytes(encoded([dict(key='welcome5-TEST.asc',signer=SIGNER)]))
  receipt=dict(status='CURRENT_TEST_SIGNATURES_ONLY_NATIVE_CREDIT_UNCHANGED',carrier=CARRIER,index_pin=INDEX,signer=SIGNER,
   created=value['created'],expires=value['expires'],archives={k:v['archive_pin']for k,v in value['roles'].items()},GUI='NOT_RUN')
