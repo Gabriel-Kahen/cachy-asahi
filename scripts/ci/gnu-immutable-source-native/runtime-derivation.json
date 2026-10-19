@@ -1,0 +1,244 @@
+{
+  "basis_files": 667,
+  "changed": {
+    "immutable/bootstrap_loader.py": {
+      "after": {
+        "bytes": 3237,
+        "sha256": "fd67e50c97c798a2de61d391fe91bbf2a485d454066d5e8340a465c083ebc5b8"
+      },
+      "before": {
+        "bytes": 2058,
+        "sha256": "975d293e35590ba986dd4de680517137f717abe34abe3dd6baaf2840d3d1c4b5"
+      },
+      "inverse": [
+        {
+          "count": 1,
+          "new": " data=integration.derive(data)\n old=b\"need(value['producer_retirement']=={'status':'ROOT_VERIFIED_SOURCE_PRODUCERS_RETIRED','source':SOURCE},'source writer retirement authority required')\";new=b\"writer_retired(value['producer_retirement'])\";P.need(data.count(old)==1,'one exact new-purpose writer guard');data=data.replace(old,new)",
+          "old": " data=integration.derive(data)"
+        },
+        {
+          "count": 1,
+          "new": "vars(module).update(SOURCE_BROKER=proxy,SOURCE_CLIENT=client,dm=dm,R=R,writer_retired=writer_retired)",
+          "old": "vars(module).update(SOURCE_BROKER=proxy,SOURCE_CLIENT=client,dm=dm,R=R)"
+        },
+        {
+          "count": 1,
+          "new": "def writer_retired(value):\n import re\n policy=P.decode((inputs.D/'policy.json').read_bytes())\n P.need(type(value)is dict and set(value)=={'status','source','token','owner_report','inner_report','prior_Root_decision'}and value['status']=='SOURCE_ENFORCED_CURRENT_NATIVE_WRITERS_RETIRED'and value['source']==policy['actual_source']and re.fullmatch('[a-f0-9]{40}',value['source']or'')and re.fullmatch('[a-f0-9]{32}',value['token'])and value['prior_Root_decision']=='INPUT_AUTHORITY_ONLY_NOT_CURRENT_NATIVE_ACCEPTANCE','fresh source-owned writer retirement witness, never Root acceptance')\n for n in('owner_report','inner_report'):\n  r=value[n];P.need(type(r)is dict and set(r)=={'bytes','sha256'}and type(r['bytes'])is int and 0<r['bytes']<=4*1024**2 and re.fullmatch('[a-f0-9]{64}',r['sha256']),'whole retired native report identity')\n return value\n\ndef load(leases,native):",
+          "old": "def load(leases,native):"
+        }
+      ]
+    },
+    "immutable/disk_adapter.py": {
+      "after": {
+        "bytes": 2288,
+        "sha256": "128839afdd8f49b56e00813414ea4c610a996df970bc6d9ff3431a75fe687b76"
+      },
+      "before": {
+        "bytes": 2171,
+        "sha256": "ac36b8a4aecbf1f127d435b36e1d634e1c43ef4c8e1d34e0df4f86b2cef2d646"
+      },
+      "inverse": [
+        {
+          "count": 2,
+          "new": "/debian-maintained-installed16k",
+          "old": "/installed16k"
+        },
+        {
+          "count": 3,
+          "new": "init-debian-maintained-installed16k",
+          "old": "init-installed16k"
+        },
+        {
+          "count": 1,
+          "new": "caa_debian_maintained_installed16k=1",
+          "old": "caa_gnu_installed16k=1"
+        },
+        {
+          "count": 1,
+          "new": "init=/init-debian-maintained-installed16k caa_debian_maintained_installed16k=1 arm64.nomops'",
+          "old": "init=/init-debian-maintained-installed16k caa_debian_maintained_installed16k=1'"
+        }
+      ]
+    },
+    "immutable/inputs.py": {
+      "after": {
+        "bytes": 2783,
+        "sha256": "f6d6aa97418aa7b73153e75329163a46ef3a7f854709d1c5462b3b0e41b33e87"
+      },
+      "before": {
+        "bytes": 1559,
+        "sha256": "dcfe02a8ee3b5246ab050b7cdc1d57d570cca43d77c6b7668f6a6d327b359a43"
+      },
+      "inverse": "ONE_CONTRACT_IMPORT_ENTRY_PLUS_SOURCE_OWNED_CURRENT_MODULE_IMPORT_ISOLATOR"
+    },
+    "immutable/native_controller.py": {
+      "after": {
+        "bytes": 8789,
+        "sha256": "0c681cad74173636da2cd0762c8a69ea621eca77f69b590e20f9e0271bab0585"
+      },
+      "before": {
+        "bytes": 8702,
+        "sha256": "e50de132196ee41d3e88f66cd84da54cd56c248f6fd28eb793cc8869daee2f9d"
+      },
+      "inverse": [
+        {
+          "count": 1,
+          "new": "glibc-debian-maintained-installed16k",
+          "old": "glibc-gnu-provider-installed16k"
+        },
+        {
+          "count": 2,
+          "new": "/debian-maintained-installed16k",
+          "old": "/installed16k"
+        },
+        {
+          "count": 1,
+          "new": "changes=((\"disks.mkdir();\",\"disks.mkdir(mode=0o700);\"),(kernel,replacement),",
+          "old": "changes=((kernel,replacement),"
+        }
+      ]
+    },
+    "immutable/native_prepare.py": {
+      "after": {
+        "bytes": 4338,
+        "sha256": "11341bbbdc928d226660d53af8c8e333464c5dc8d59a02a0fa5c5887ea025564"
+      },
+      "before": {
+        "bytes": 801,
+        "sha256": "03011613cd172eae37a8e5698849d226da457e9c174e7b2152c4c18443ee8163"
+      },
+      "inverse": [
+        {
+          "count": 1,
+          "new": "glibc-debian-maintained-installed16k",
+          "old": "glibc-gnu-provider-installed16k"
+        },
+        {
+          "count": 1,
+          "new": "def media_handoff(parent,uid,gid):\n # Fixed descriptor ownership handback, no traversal, content/mode edit or deletion.\n import os,stat\n parent=Path(parent)\n P.need(parent.is_absolute()and not any(p.is_symlink()for p in(parent,*parent.parents)),'ordinary anchored media parent')\n flags=os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC\n pfd=os.open(parent,flags);fd=None\n identity=lambda s:(s.st_dev,s.st_ino,s.st_mode,s.st_nlink,s.st_size,s.st_uid,s.st_gid,s.st_mtime_ns,s.st_ctime_ns)\n try:\n  base=os.fstat(pfd);P.need(stat.S_IMODE(base.st_mode)==0o700 and (base.st_uid,base.st_gid)==(uid,gid)and identity(base)==identity(parent.lstat()),'exact original private output owner')\n  try:fd=os.open('immutable-media',flags,dir_fd=pfd)\n  except FileNotFoundError:return\n  before=os.fstat(fd)\n  P.need(before.st_dev==base.st_dev and before.st_uid in(os.geteuid(),uid)and stat.S_IMODE(before.st_mode)==0o700 and before.st_nlink==2,'ordinary original media directory')\n  caps={'source.raw':8*1024**3,'source.hash':128*1024**2,'source-before.json':96*1024**2,'source-after.json':96*1024**2,'source-image.json':4*1024**2}\n  names=os.listdir(fd);P.need(set(names)<=set(caps),'finite exact media child paths')\n  entries={}\n  for name in names:\n   info=os.stat(name,dir_fd=fd,follow_symlinks=False)\n   P.need(stat.S_ISREG(info.st_mode)and info.st_nlink==1 and info.st_uid in(os.geteuid(),uid)and not(info.st_mode&0o022)and info.st_dev==before.st_dev and 0<=info.st_size<=caps[name],'ordinary bounded single-link media child')\n   entries[name]=identity(info)\n  P.need(set(os.listdir(fd))==set(names)and all(identity(os.stat(n,dir_fd=fd,follow_symlinks=False))==v for n,v in entries.items())and identity(os.fstat(fd))==identity(before)==identity(os.stat('immutable-media',dir_fd=pfd,follow_symlinks=False)),'same anchored media directory and children before handoff')\n  # Only the two exact QEMU drive files need host-caller access (hash is0600).\n  for name in ('source.raw','source.hash'):\n   if name not in entries:continue\n   child=os.open(name,os.O_RDONLY|os.O_NOFOLLOW|os.O_CLOEXEC|os.O_NONBLOCK,dir_fd=fd)\n   try:\n    held=os.fstat(child);P.need(identity(held)==entries[name]and stat.S_IMODE(held.st_mode)in(0o600,0o644),'same exact ordinary drive descriptor')\n    os.fchown(child,uid,gid);now=os.fstat(child)\n    P.need((now.st_uid,now.st_gid)==(uid,gid)and (now.st_dev,now.st_ino,now.st_mode,now.st_nlink,now.st_size,now.st_mtime_ns)==(held.st_dev,held.st_ino,held.st_mode,held.st_nlink,held.st_size,held.st_mtime_ns)and identity(now)==identity(os.stat(name,dir_fd=fd,follow_symlinks=False)),'same drive bytes/metadata handed only to output owner')\n    entries[name]=identity(now)\n   finally:os.close(child)\n  os.fchown(fd,uid,gid)\n  after=os.fstat(fd)\n  P.need((after.st_uid,after.st_gid)==(uid,gid)and (after.st_dev,after.st_ino,after.st_mode,after.st_nlink,after.st_size,after.st_mtime_ns)==(before.st_dev,before.st_ino,before.st_mode,before.st_nlink,before.st_size,before.st_mtime_ns)and identity(after)==identity(os.stat('immutable-media',dir_fd=pfd,follow_symlinks=False)),'same media inode handed only to original parent owner')\n  P.need(set(os.listdir(fd))==set(names)and all(identity(os.stat(n,dir_fd=fd,follow_symlinks=False))==v for n,v in entries.items()),'media child metadata held through handoff')\n finally:\n  if fd is not None:os.close(fd)\n  os.close(pfd)\n\ndef execute(value):\n runtime_policy.gate(value,preparing=True)\n try:return load(value)['prepare']()\n finally:\n  import os\n  media_handoff(Path('/out'),int(os.environ['OUTPUT_UID']),int(os.environ['OUTPUT_GID']))\n\nif __name__=='__main__':\n value=P.decode(runtime_policy.read(Path('/runtime-selection/policy.json'),1024**2));execute(value)",
+          "old": "if __name__=='__main__':\n value=P.decode(runtime_policy.read(Path('/runtime-selection/policy.json'),1024**2));runtime_policy.gate(value,preparing=True);load(value)['prepare']()"
+        }
+      ]
+    },
+    "immutable/owner.py": {
+      "after": {
+        "bytes": 4784,
+        "sha256": "9a1d0ef63a7b0231c3acaf38f47ac1ead874f98dac4eb373d19c9484369ea3f8"
+      },
+      "before": {
+        "bytes": 4761,
+        "sha256": "b411b093d37edebb5f564cb67b6ba6e9040d8dc8c793eb426607e60b7d2f8c20"
+      },
+      "inverse": [
+        {
+          "count": 1,
+          "new": "glibc-debian-maintained-installed16k",
+          "old": "glibc-gnu-provider-installed16k"
+        },
+        {
+          "count": 1,
+          "new": "/debian-maintained-installed16k",
+          "old": "/installed16k"
+        }
+      ]
+    },
+    "immutable/runtime_check.py": {
+      "after": {
+        "bytes": 3459,
+        "sha256": "2136153e232379fb2712a449f33afbb467009a4ec43682d717b2735ad48e8694"
+      },
+      "before": {
+        "bytes": 3444,
+        "sha256": "97c50535e6331cebb6fc49316d355662a0f45b7e9a92d2a87e6c9294aba2eb1b"
+      },
+      "inverse": [
+        {
+          "count": 3,
+          "new": "glibc-debian-maintained-installed16k",
+          "old": "glibc-gnu-provider-installed16k"
+        }
+      ]
+    },
+    "immutable/stage.py": {
+      "after": {
+        "bytes": 7216,
+        "sha256": "eb270b6f5df37f4962ce26082a805ea39b0ccef85c88906cf0a7bcc097a37c92"
+      },
+      "before": {
+        "bytes": 6720,
+        "sha256": "36889252c8a1ad41c67c819caf6bb9e57ee210d9767d84becae6d8ea3337a471"
+      },
+      "inverse": [
+        {
+          "count": 1,
+          "new": "CAA_DEBIAN_MAINTAINED_INSTALLED16K_PREPARE",
+          "old": "CAA_INSTALLED16K_PREPARE"
+        },
+        {
+          "count": 1,
+          "new": " compat=boot/'installed16k';P.need(not compat.exists(),'fresh fixed source-only fence namespace');compat.mkdir(mode=0o755);sandbox=Path('/debian-maintained-installed16k/sandbox.py');held=P.decode((inputs.D.parent/'gnu-verity-bootstrap-development-20261018/runtime-pins.json').read_bytes())['/installed16k/sandbox.py'];P.need(P.pin(sandbox.read_bytes())==held,'identical whole old/current sandbox filter source');(compat/'sandbox.py').write_bytes(sandbox.read_bytes())\n policy=boot/'immutable/policy.json';policy.write_bytes(P.encode(value))",
+          "old": " policy=boot/'immutable/policy.json';policy.write_bytes(P.encode(value))"
+        },
+        {
+          "count": 1,
+          "new": "  path=root/name;raw=path.read_bytes();value=types.ModuleType('_runtime_stage_'+Path(name).stem);space=vars(value);space.update(__file__=str(path),**replacements)\n  for a in anchors:P.need(raw.count(a)==1,'one explicit original offline import');raw=raw.replace(a,b'')\n  exec(compile(raw,str(path),'exec'),space);return value",
+          "old": "  path=root/name;raw=path.read_bytes();space=dict(__name__='_runtime_stage_'+Path(name).stem,__file__=str(path),**replacements)\n  for a in anchors:P.need(raw.count(a)==1,'one explicit original offline import');raw=raw.replace(a,b'')\n  exec(compile(raw,str(path),'exec'),space);return types.SimpleNamespace(**space)"
+        }
+      ]
+    },
+    "immutable/test_controls.py": {
+      "after": {
+        "bytes": 10193,
+        "sha256": "7e2cda89fd12e03fbb37bffafa4e946b5e2d4689a7bfb6bd185595d83038c3f8"
+      },
+      "before": {
+        "bytes": 10183,
+        "sha256": "26c6c0b7a656b77cca222148f2ff5168a6a99c3df72e91d1f30339664016e663"
+      },
+      "inverse": [
+        {
+          "count": 2,
+          "new": "glibc-debian-maintained-installed16k",
+          "old": "glibc-gnu-provider-installed16k"
+        }
+      ]
+    },
+    "immutable/worker.py": {
+      "after": {
+        "bytes": 4469,
+        "sha256": "0c2a8f23ed573c90abd9db43ba5d7bfe6dee6293ab165c745876485b75b2d91d"
+      },
+      "before": {
+        "bytes": 4410,
+        "sha256": "5e3b82fe2c3c1dc1cb3fec7ff85a3c8dea6e672e7bdca8e73d1ddf7921d5ebd5"
+      },
+      "inverse": [
+        {
+          "count": 1,
+          "new": "glibc-debian-maintained-installed16k",
+          "old": "glibc-gnu-provider-installed16k"
+        },
+        {
+          "count": 3,
+          "new": "/debian-maintained-installed16k",
+          "old": "/installed16k"
+        }
+      ]
+    },
+    "runtime-source.json": {
+      "after": {
+        "bytes": 147889,
+        "sha256": "d04e96c46dfdb5ade367801a1cc0a5c1a002c1395a5123ff213cb7b175a6f598"
+      },
+      "before": {
+        "bytes": 147888,
+        "sha256": "97434ce12009b1595f67a52f171834cd673c3fec632f35cb2ea44d0a053149a8"
+      },
+      "inverse": "EXACT_DERIVED_OWN_ROWS_ONLY"
+    }
+  },
+  "current_pair": "a8e9f3e1d8ffe049fdc834f62e74c14ff622b98898c2f849e1580ab8aa0fdbd9",
+  "held": 656,
+  "legacy_pair": "NOT_SELECTED",
+  "scope": "CURRENT_CAA3_FULL_LIFECYCLE_WITH_NEW_PID1_SOURCE_PURPOSE_NOT_NATIVE_ACCEPTANCE"
+}
