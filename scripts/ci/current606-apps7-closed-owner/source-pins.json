@@ -15,7 +15,7 @@
       },
       "scripts/ci/current606-welcome5-source-bridge/owner-api.json": {
         "bytes": 159,
-        "sha256": "5ee13c1734089109ba448c04b75ecb56f5987e25b84620dff78f6564d967f26c"
+        "sha256": "57de68ccd488bf9f9b04492dbba016863349e7826b82d3abb631f1ec34c44b57"
       },
       "scripts/ci/current606-welcome5-source-bridge/selection.json": {
         "bytes": 647,
@@ -197,7 +197,7 @@
       },
       "scripts/ci/current606-apps7-copy/owner-api.json": {
         "bytes": 140,
-        "sha256": "c15a9891197276874ee4fc45f49ca076a5aedbf1b34b075d49cee35cc202b5ac"
+        "sha256": "1b1d81c2f3493e77105d075d7b6e9eaf6f08f35d77f6a0416dffc4a90f26f59b"
       },
       "scripts/ci/current606-apps7-copy/physical.py": {
         "bytes": 3499,
@@ -225,7 +225,7 @@
       },
       "scripts/ci/current606-apps7-copy/source-manifest.json": {
         "bytes": 7012,
-        "sha256": "8c17581cc0d0860b2bb2ed49635457d01386399a515944a068bcad271d98720f"
+        "sha256": "d201f7e8a155092b81bbc5281ac7134dbd3bbf187c206ab66b3d9036ddf4dd9f"
       },
       "scripts/ci/current606-apps7-copy/step_entry.py": {
         "bytes": 741,

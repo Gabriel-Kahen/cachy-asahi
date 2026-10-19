@@ -12,7 +12,7 @@ from unittest.mock import patch
 
 HERE = Path(__file__).resolve().parent
 LANE = 'scripts/ci/current606-apps7-closed-owner'
-CARRIER = 'feb313b3f0e8e08bc2e167039642d86a832df1b9'
+CARRIER = '7ab35ac32acf370da9ad188204b14c56768adf4e'
 
 
 def need(ok, why):
@@ -66,7 +66,7 @@ def emit(source, basis, output):
     with patch.object(subprocess, 'Popen', side_effect=AssertionError('no actor/network/Git process')), patch.object(subprocess, 'run', side_effect=AssertionError('no source emission actor')):
         spec.loader.exec_module(prepare)
         rows = prepare.emit({role: basis / role for role in prepare.C.ROLES}, output)
-        need(len(rows) == 348, 'genuine complete348 source emission')
+        need(rows == pins['emitted_files'] and len(rows) == 348, 'genuine complete348 source emission')
         for name, wanted in pins['files'].items():
             need(pin((output / name).read_bytes()) == wanted, 'emitted default differs: ' + name)
         entry = importlib.util.spec_from_file_location('_canonical_apps606_default_entry', lane / 'owner.py')
