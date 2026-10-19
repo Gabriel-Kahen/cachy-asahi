@@ -228,7 +228,7 @@ jobs:
         run: |
           python3 -B - <<'PY'
           import unittest
-          for directory in ('scripts/release', 'scripts/client'):
+          for directory in ('scripts/release', 'scripts/client', 'scripts/benchmarks'):
               suite = unittest.TestLoader().discover(directory, pattern='test_*.py')
               result = unittest.TextTestRunner(verbosity=2).run(suite)
               if not result.wasSuccessful() or result.skipped or result.testsRun == 0:
