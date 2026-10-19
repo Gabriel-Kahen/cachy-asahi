@@ -15,7 +15,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y bash fish zsh vim build-essential clang lld gnupg libarchive-tools pacman-package-manager makepkg e2fsprogs network-manager pkg-config libgtk-3-dev
-          for tool in bash fish zsh vim cc clang ld.lld gpg gpgconf repo-add bsdtar vercmp pacman mkfs.ext4 debugfs nmcli; do command -v "$tool"; done
+          for tool in bash fish zsh vim cc clang ld.lld gpg gpgconf pacman-key pacman-conf unshare repo-add bsdtar vercmp pacman mkfs.ext4 debugfs nmcli; do command -v "$tool"; done
           dpkg-query -W bash fish zsh vim build-essential clang lld gnupg libarchive-tools pacman-package-manager makepkg e2fsprogs network-manager pkg-config libgtk-3-dev
       - name: Verify packaged setup source and sync boundaries
         env:
@@ -177,6 +177,51 @@ jobs:
           python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-ksmctl2/test_experiment.py
           python3 -I -B packages/tools/cachy-asahi-ksmctl2/cachy-asahi-ksm-experiment --help >/dev/null
           bash -n packages/tools/cachy-asahi-ksmctl2/PKGBUILD
+      - name: Exercise planned repository key rotation without skipped controls
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          test "$(id -u)" -ne 0
+          for tool in gpg gpgconf pacman-key pacman-conf unshare; do command -v "$tool"; done
+          userns_previous=
+          restore_userns() {
+            if [ -n "$userns_previous" ]; then
+              sudo sysctl -w "kernel.apparmor_restrict_unprivileged_userns=$userns_previous"
+            fi
+          }
+          trap restore_userns EXIT
+          trap 'exit 129' HUP
+          trap 'exit 130' INT
+          trap 'exit 143' TERM
+          if ! unshare --user --map-root-user -- true; then
+            test "${GITHUB_ACTIONS:-}" = true
+            test "${RUNNER_OS:-}" = Linux
+            userns_previous=$(sysctl -n kernel.apparmor_restrict_unprivileged_userns)
+            test "$userns_previous" = 1
+            sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          fi
+          unshare --user --map-root-user -- true
+          TMPDIR=/tmp python3 -I -B -Werror::ResourceWarning - <<'PY'
+          import importlib.util
+          import os
+          from pathlib import Path
+          import tempfile
+          import unittest
+
+          if os.getuid() == 0 or os.geteuid() == 0:
+              raise SystemExit('repository fixtures require an ordinary non-root runner')
+          spec = importlib.util.spec_from_file_location('rotation_controls', Path('scripts/repository/test_rotate.py'))
+          module = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(module)
+          with tempfile.TemporaryDirectory(prefix='repository-ci-') as temporary:
+              home = Path(temporary) / 'home'
+              home.mkdir(mode=0o700)
+              os.environ['HOME'] = str(home)
+              suite = unittest.defaultTestLoader.loadTestsFromModule(module)
+              result = unittest.TextTestRunner(verbosity=2).run(suite)
+              if not result.wasSuccessful() or result.skipped or result.testsRun < 24:
+                  raise SystemExit('repository rotation: failures, skips, or incomplete control suite')
+          PY
       - name: Exercise release and client contracts without skipped tests
         env:
           PYTHONDONTWRITEBYTECODE: '1'
@@ -273,7 +318,7 @@ jobs:
       - name: Checkout whole-pinned Welcome-on606 source carrier without native authority
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          ref: c18897198788296956c1db619505b10d716b155c
+          ref: deaf5d618fbc7be87b4e0296481beb7e336a9155
           path: .ci-inputs/current606-welcome5-source-roles
           persist-credentials: false
       - name: Check closed Welcome-on606 default source and interfaces without actors
@@ -285,7 +330,7 @@ jobs:
       - name: Checkout whole-pinned Apps-on606 source carrier without activation
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          ref: feb313b3f0e8e08bc2e167039642d86a832df1b9
+          ref: 7ab35ac32acf370da9ad188204b14c56768adf4e
           path: .ci-inputs/current606-apps7-source-roles
           persist-credentials: false
       - name: Checkout exact public Apps7 and Runtime1 pair DATA for source controls
