@@ -24,7 +24,7 @@ def check(source,out):
         C.need(policy==C.read(C.HERE/'null-policy.json')and policy['status']=='UNBOUND','canonical default input policy must remain exact NULL fixture')
         for row in policy['inputs'].values():C.need(all(row[k]is None for k in ('carrier_source','carrier_ref','index_path','index_pin','decision_pin','decision_status')),'public packet approval/selection not supplied')
         for operation in (lambda:C.selection(source),lambda:job.prove(source,'minimal',{}),lambda:run.execute(source,source,source,out,'minimal')):refusal(operation)
-        for name,derive,changed in [('management_phase.py',D.phase,{'exercise','report_command'}),('management_root.py',D.root_fixture,{'serve','find'}),('management_contract.py',D.management,{'verify_result'})]:
+        for name,derive,changed in [('management_phase.py',D.phase,{'exercise','report_command'}),('management_root.py',D.root_fixture,{'serve','find'}),('management_contract.py',D.management,{'verify_result','visible_control','action'})]:
             old=functions((source/'scripts/ci/welcome-management-native'/name).read_text());new=functions(derive(source))
             C.need(set(old)==set(new)and {k:v for k,v in old.items()if k not in changed}=={k:v for k,v in new.items()if k not in changed},'unaffected original function changed')
         for path in C.HERE.glob('*.py'):ast.parse(path.read_text(),filename=str(path))

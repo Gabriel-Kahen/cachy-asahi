@@ -83,7 +83,7 @@ class Controls(unittest.TestCase):
    root=Path(tmp);file=root/'scripts/ci/welcome-management-native/management_phase.py';file.parent.mkdir(parents=True);file.write_text((SOURCE/'scripts/ci/welcome-management-native/management_phase.py').read_text()+'\n# foreign\n')
    with self.assertRaisesRegex(ValueError,'whole held'):X.phase(root)
  def test_unaffected_management_functions_ast_held(self):
-  for name,derive,changed in [('management_phase.py',X.phase,{'exercise','report_command'}),('management_root.py',X.root_fixture,{'serve','find'}),('management_contract.py',X.management,{'verify_result'})]:
+  for name,derive,changed in [('management_phase.py',X.phase,{'exercise','report_command'}),('management_root.py',X.root_fixture,{'serve','find'}),('management_contract.py',X.management,{'verify_result','visible_control','action'})]:
    old=functions((SOURCE/'scripts/ci/welcome-management-native'/name).read_text());new=functions(derive(SOURCE))
    self.assertEqual(set(old),set(new));self.assertEqual({k:v for k,v in old.items()if k not in changed},{k:v for k,v in new.items()if k not in changed})
  def test_both_real_generated_profile_routes_keep_all_original_frames_limits(self):
@@ -179,5 +179,33 @@ class GuestTrustProjectionControls(unittest.TestCase):
     base=Path(td);out=base/'output';out.mkdir();(out/'control.json').write_bytes(R.encoded(value));before={p.name:p.read_bytes()for p in out.iterdir()}
     with patch.object(R,'selection'),patch.object(R,'overlay',return_value=dict(roles={},created=1,expires=2)),self.assertRaises(ValueError):R.apply(base,base/'assets',out,{})
     self.assertEqual({p.name:p.read_bytes()for p in out.iterdir()},before)
+
+class DNSReportFocusControls(unittest.TestCase):
+ def test_report_scroll_contract_rejects_foreign_scope_and_role_or_clipping(self):
+  from types import SimpleNamespace
+  namespace={'__name__':'inert_dns_focus_contract'};exec(compile(X.management(SOURCE),'<source-owned-management-contract>','exec'),namespace);C=SimpleNamespace(**namespace)
+  pid=91;chain=[dict(pid=pid,role=r,visible=True,showing=True,rect=[0,0,1000,550])for r in(62,20,39,68,49,23)]
+  proof=dict(status='PASS',pid=pid,interface='Component',action_name='ensure-visible',actions=0,scroll_called=True,coordinate_space='ATSPI_SCREEN',scroll_returned=False,focus_called=True,focused=True,unclipped_after_scroll=False,method='FOCUS_SCROLL',name_base64=base64.b64encode(b'View report').decode(),chain=chain)
+  window=dict(pid=pid,mapped=True,visible=True,floating=True,hidden=False,xwayland=False,at=[12,12],size=[1000,550],title='cachy-asahi Welcome',**{'class':'cachy-asahi-welcome'},address='0x123')
+  C.visible_control(proof,pid,'View report',window,report_scope='Stored DNS profiles')
+  for change in('scope','role','clip','foreign_pid','hidden','focus'):
+   row=copy.deepcopy(proof);scope='Stored DNS profiles'
+   if change=='scope':scope='Doctor'
+   elif change=='role':row['chain'][0]['role']=43
+   elif change=='clip':row['chain'][0]['rect']=[0,540,100,20]
+   elif change=='foreign_pid':row['chain'][1]['pid']=92
+   elif change=='hidden':row['chain'][1]['showing']=False
+   else:row['focused']=False
+   with self.subTest(change=change),self.assertRaises(ValueError):C.visible_control(row,pid,'View report',window,report_scope=scope)
+  with self.assertRaises(ValueError):C.visible_control(proof,pid,'View report',window)
+ def test_exact_report_scroll_precedes_original_activation_and_preserves_gates(self):
+  phase=(HERE/'dns_phase.py').read_text();self.assertEqual(phase.count("action('View report',D.TITLE,scroll=True)"),1)
+  self.assertIn("action('View report',D.TITLE,scroll=True)\n        action('View report',D.TITLE)",phase)
+  for held in("until=time.monotonic()+45","remaining(until)","D.process(child,current.process.pid)","C.retirement_proof(fast,proof,child,proof['inventory'])","stable()==baseline","hooks['capture'](D.VIEW,semantic)"):self.assertIn(held,phase)
+  for driver in (X.driver(X.source_text(SOURCE,'a11y_driver.c')),):
+   for held in('getuid() == 23001 && geteuid() == 23001','matches == 1 && target','depth <= 12 && nodes < 192','focused control remains clipped','alarm(20)','atspi_set_timeout(1000, 1000)'):self.assertIn(held,driver)
+   self.assertIn('candidate_rows[2][13]',driver);self.assertIn('FAILURE_DATA_ONLY',driver);self.assertIn('NONATOMIC_SAME_CALL_AFTER_REFUSED_MATCH',driver);self.assertIn('valid_mask',driver)
+   self.assertIn('if (matches != 1 || !target) failed_candidates((guint)pid);',driver)
+   self.assertIn('clear_candidates();\n        check(matches == 1 && target',driver)
 
 if __name__=='__main__':unittest.main(verbosity=2)
