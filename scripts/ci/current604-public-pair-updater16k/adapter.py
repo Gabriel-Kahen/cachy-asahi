@@ -103,14 +103,48 @@ def persistent_stage(raw):
  C.need(text.replace(helper,'',1).replace(PERSISTENT_STAGE_WRAPPER,PERSISTENT_STAGE_GUARD,1).replace(PERSISTENT_API_NEW,PERSISTENT_API_OLD,1).encode()==raw,'whole persistent helper inverse')
  return phase_scope(text.encode())
 
+MATERIALIZATION_PROFILE='MATERIALIZE1200_NONRESERVED_CALLER3900_V1'
+MATERIALIZATION_HOOKS={
+ 'normal':(14121,'43d51c985c3164e6e8d8fb7b62b764580a4a096fbf1b3a02de471cbcefcac2a3'),
+ 'precommit-exit86':(14745,'b0bb74f125d74521ad488c07fdefe0ab251eaeafda6d7061e11bdeda880bcd8a'),
+ 'postcommit-exit87':(15123,'b64fbdcad25d9f62d268809067d46ac2e9da4394da1a864eb8ad8851067e1fdb')}
+MATERIALIZATION_STAGE_BEFORE="('stage_seconds', 900)"
+MATERIALIZATION_STAGE_AFTER="('stage_seconds', 1200)"
+
+def validation_hook(raw,case):
+ """Only the private prepared validator's stage ceiling; all bodies held."""
+ C.need(case in MATERIALIZATION_HOOKS,'explicit materialization validation case')
+ size,digest=MATERIALIZATION_HOOKS[case]
+ C.need(len(raw)==size and C.sha(raw)==digest,'whole prepared materialization hook source')
+ text=raw.decode();C.need(text.count(MATERIALIZATION_STAGE_BEFORE)==1,'one exact stage capacity ceiling')
+ changed=text.replace(MATERIALIZATION_STAGE_BEFORE,MATERIALIZATION_STAGE_AFTER,1)
+ C.need(changed.replace(MATERIALIZATION_STAGE_AFTER,MATERIALIZATION_STAGE_BEFORE,1)==text,'whole hook stage-ceiling inverse')
+ ast.parse(changed);return changed.encode()
+
+def materialization_validation_profile(value,calling,case):
+ """Prospective allowance; caller/worker3900 remain hard enclosing ceilings.
+
+ Failure maxima total4200, previously3900 before setup. Nested allowances are
+ NOT reserved time, an additive-fit proof, or a promise of actual completion.
+ """
+ C.need(case in MATERIALIZATION_HOOKS,'explicit1200 capacity case')
+ driver=1860 if case=='normal' else 2400
+ C.need({k:value[k] for k in ('stage_seconds','driver_seconds','verify_seconds','copy_seconds')}==dict(stage_seconds=900,driver_seconds=driver,verify_seconds=600,copy_seconds=600),'exact preceding per-case budgets; no product/transaction increase')
+ name='scripts/ci/full-root-upgrade-caller/upgrade_hook.py';path=calling/'upgrade_hook.py';before=path.read_bytes()
+ C.need(value['code_pins'].get(name)==C.sha(before),'whole original prepared hook pin required')
+ after=validation_hook(before,case);path.write_bytes(after)
+ value['code_pins'][name]=C.sha(after);value['stage_seconds']=1200
+ return dict(profile=MATERIALIZATION_PROFILE,case=case,semantics='NONRESERVED_NESTED_STAGE_ALLOWANCE_HARD3900_ENCLOSING_CEILINGS',stage_before_seconds=900,stage_seconds=1200,driver_seconds=driver,verify_seconds=600,copy_seconds=600,caller_seconds=3900,worker_seconds=3900,nested_stage_driver_verify_sum=1200+driver+600,prior_nested_stage_driver_verify_sum=900+driver+600,additive_composition_fit='NOT_ESTABLISHED',reserved_setup_or_cleanup_seconds=0,old900_fit='NOT_ESTABLISHED',future_case_runtime_fit='REQUIRES_ORIGINAL_ACTUAL_EACH_CASE',original_rereads_security_and_product_limits='HELD',hook_before=dict(bytes=len(before),sha256=C.sha(before)),hook_after=dict(bytes=len(after),sha256=C.sha(after)))
+
+
 def prepare_selected(selected,source,target,case,**options):
  config,calling=selected.prepare(source,target,case,**options)
  q=calling/'container.py';original=q.read_bytes();q.write_bytes(caller(original))
  scope=calling/'persistent_scope.py';scope_before=scope.read_bytes();scope.write_bytes(persistent_stage(scope_before))
  value=C.decode(C.read(config));name='scripts/ci/full-root-upgrade-caller/container.py'
  C.need(value['external_pins'].get('/persistent_scope.py')==C.sha(scope_before),'original persistent helper external pin required');value['external_pins']['/persistent_scope.py']=C.sha(scope.read_bytes());scope_name='scripts/ci/full-root-upgrade-caller/persistent_scope.py';C.need(value['code_pins'].get(scope_name)==C.sha(scope_before),'original persistent helper code pin required');value['code_pins'][scope_name]=C.sha(scope.read_bytes())
- C.need(value['code_pins'].get(name)==C.sha(original),'original caller source pin required');value['code_pins'][name]=C.sha(q.read_bytes());C.save(config,value)
- proof=dict(status='SOURCE_DERIVED_NOT_EXECUTED',before=C.sha(original),after=C.sha(q.read_bytes()),counted_edits=5,persistent_stage_diagnostic=dict(before=C.sha(scope_before),after=C.sha(scope.read_bytes()),original_guard='UNCHANGED_RERAISED',new_walks=0,acceptance_authority=False),config_sha256=C.sha(config.read_bytes()),unchanged='ALL_TRANSACTION_DECISIONS_GUARDS_AND_REQUIRED_SIGNATURE_POLICY',diagnostic='FAILURE_ONLY_ORIGINAL_LIBALPM_DEBUG_AND_BOUNDED_METADATA')
+ C.need(value['code_pins'].get(name)==C.sha(original),'original caller source pin required');value['code_pins'][name]=C.sha(q.read_bytes());profile=materialization_validation_profile(value,calling,case);C.save(config,value)
+ proof=dict(validation_capacity_profile=profile,status='SOURCE_DERIVED_NOT_EXECUTED',before=C.sha(original),after=C.sha(q.read_bytes()),counted_edits=5,persistent_stage_diagnostic=dict(before=C.sha(scope_before),after=C.sha(scope.read_bytes()),original_guard='UNCHANGED_RERAISED',new_walks=0,acceptance_authority=False),config_sha256=C.sha(config.read_bytes()),unchanged='ALL_TRANSACTION_DECISIONS_GUARDS_AND_REQUIRED_SIGNATURE_POLICY',diagnostic='FAILURE_ONLY_ORIGINAL_LIBALPM_DEBUG_AND_BOUNDED_METADATA')
  C.save(calling/'updater16k-adapter.json',proof)
  receipt=C.decode(C.read(target/'adapter.json'));receipt['config_sha256']=proof['config_sha256'];receipt['updater16k_dispatch']=proof;C.save(target/'adapter.json',receipt)
  return config,calling

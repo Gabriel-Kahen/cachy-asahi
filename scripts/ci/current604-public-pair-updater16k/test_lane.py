@@ -14,6 +14,9 @@ def pre_signature_diagnostic(raw):
  before="    if _SIGNATURE_FAILURE_DATA is not None:\n        print('APPS6_KEYRING_FAILURE_DATA '+json.dumps(_SIGNATURE_FAILURE_DATA,sort_keys=True,separators=(',',':')),flush=True)\n";assert text.count(before)==1;text=text.replace(before,'')
  return text.encode()
 
+def focused_prepare_without_capacity(*args,**kwargs):
+ with patch.object(A,'materialization_validation_profile',return_value=None):return A.prepare_selected(*args,**kwargs)
+
 class Controls(unittest.TestCase):
  def setUp(self):
   p=patch.object(subprocess,'Popen',side_effect=AssertionError('all actors/Git/network forbidden'));p.start();self.addCleanup(p.stop)
@@ -36,7 +39,7 @@ class Controls(unittest.TestCase):
    raw=(ROOT/'scripts/ci/full-root-upgrade-caller/container.py').read_bytes();(calling/'container.py').write_bytes(raw);config=target/'upgrade-config.json';name='scripts/ci/full-root-upgrade-caller/container.py'
    scope=(ROOT/'scripts/ci/full-root-upgrade-caller/persistent_scope.py').read_bytes();(calling/'persistent_scope.py').write_bytes(scope)
    C.save(config,dict(code_pins={name:C.sha(raw),'scripts/ci/full-root-upgrade-caller/persistent_scope.py':C.sha(scope),'other':'b'*64},external_pins={'/persistent_scope.py':C.sha(scope)},copy_seconds=600,driver_seconds=1800,stage_seconds=900,verify_seconds=600));C.save(target/'adapter.json',dict(config_sha256='prior'))
-   original=SimpleNamespace(prepare=lambda *a,**kw:(config,calling));A.prepare_selected(original,ROOT,target,'normal');value=C.decode(C.read(config))
+   original=SimpleNamespace(prepare=lambda *a,**kw:(config,calling));focused_prepare_without_capacity(original,ROOT,target,'normal');value=C.decode(C.read(config))
    self.assertEqual(value['code_pins'][name],C.sha((calling/'container.py').read_bytes()));self.assertEqual(value['code_pins']['other'],'b'*64);self.assertEqual(value['driver_seconds'],1800)
    self.assertEqual(C.decode(C.read(target/'adapter.json'))['config_sha256'],C.sha(config.read_bytes()))
  def test_caller_changes_only_fixed_vm_entry_predicate(self):
@@ -170,15 +173,18 @@ class Controls(unittest.TestCase):
      elif n=='scripts/ci/full-root-upgrade/construct_repository.py':raw=adapter.constructor(raw)
      elif n=='scripts/ci/full-root-upgrade-caller/container.py':raw=A.caller(raw)
      elif n=='scripts/ci/full-root-upgrade-caller/persistent_scope.py':raw=A.persistent_stage(raw)
+     elif n=='scripts/ci/full-root-upgrade-caller/upgrade_hook.py':raw=A.validation_hook(raw,case)
      self.assertEqual((output/n).read_bytes(),raw,case+':'+n)
     value=C.decode(C.read(config));oldvalue=selected.read(prior/'upgrade-config.json')
     for key,value_before in oldvalue.items():
      if key=='driver_seconds' and case=='normal':self.assertEqual(value_before,1800);self.assertEqual(value[key],1860)
+     elif key=='stage_seconds':self.assertEqual(value_before,900);self.assertEqual(value[key],1200)
      elif key=='external_pins':
       wanted=dict(value_before);wanted['/persistent_scope.py']=C.sha((calling/'persistent_scope.py').read_bytes());self.assertEqual(value[key],wanted,case+':'+key)
      elif key not in ('code_pins','release'):self.assertEqual(value[key],value_before,case+':'+key)
     for n,digest in value['code_pins'].items():self.assertEqual(C.sha((output/n).read_bytes()),digest,case+':'+n)
     receipt=selected.read(output/'adapter.json');self.assertEqual(receipt['config_sha256'],C.sha(config.read_bytes()));self.assertIn('auxiliary_selection',receipt);self.assertEqual(receipt['updater16k_dispatch']['counted_edits'],5)
+    profile=receipt['updater16k_dispatch']['validation_capacity_profile'];self.assertEqual(profile['profile'],A.MATERIALIZATION_PROFILE);self.assertEqual(profile['stage_seconds'],1200);self.assertEqual(profile['caller_seconds'],3900);self.assertEqual(profile['worker_seconds'],3900);self.assertEqual(profile['nested_stage_driver_verify_sum'],3660 if case=='normal' else 4200);self.assertEqual(profile['additive_composition_fit'],'NOT_ESTABLISHED');self.assertEqual(profile['old900_fit'],'NOT_ESTABLISHED')
 
 
 class PersistentStageFailureData(unittest.TestCase):
@@ -222,7 +228,7 @@ class PersistentStageFailureData(unittest.TestCase):
    target=Path(td)/'target';caller=target/'scripts/ci/full-root-upgrade-caller';caller.mkdir(parents=True)
    raw=(ROOT/'scripts/ci/full-root-upgrade-caller/persistent_scope.py').read_bytes();(caller/'persistent_scope.py').write_bytes(raw);(caller/'container.py').write_bytes((ROOT/'scripts/ci/full-root-upgrade-caller/container.py').read_bytes())
    name='scripts/ci/full-root-upgrade-caller/container.py';config=target/'config.json';C.save(config,dict(code_pins={name:C.sha((caller/'container.py').read_bytes()),'scripts/ci/full-root-upgrade-caller/persistent_scope.py':C.sha(raw)},external_pins={'/persistent_scope.py':C.sha(raw),'unchanged':'a'*64},stage_seconds=900,verify_seconds=600,driver_seconds=1800,copy_seconds=600));C.save(target/'adapter.json',{})
-   A.prepare_selected(SimpleNamespace(prepare=lambda *a,**k:(config,caller)),ROOT,target,'normal');v=C.decode(C.read(config));self.assertEqual(v['external_pins']['/persistent_scope.py'],C.sha((caller/'persistent_scope.py').read_bytes()));self.assertEqual(v['external_pins']['unchanged'],'a'*64);self.assertEqual([v[n]for n in('stage_seconds','verify_seconds','driver_seconds','copy_seconds')],[900,600,1800,600])
+   focused_prepare_without_capacity(SimpleNamespace(prepare=lambda *a,**k:(config,caller)),ROOT,target,'normal');v=C.decode(C.read(config));self.assertEqual(v['external_pins']['/persistent_scope.py'],C.sha((caller/'persistent_scope.py').read_bytes()));self.assertEqual(v['external_pins']['unchanged'],'a'*64);self.assertEqual([v[n]for n in('stage_seconds','verify_seconds','driver_seconds','copy_seconds')],[900,600,1800,600])
 
 
 
