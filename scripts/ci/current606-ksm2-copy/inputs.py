@@ -11,9 +11,10 @@ def inspector():
  p=ROOT/'held-ksm/checks/package_checks.py';s=importlib.util.spec_from_file_location('_ksm606_inspector',p);m=importlib.util.module_from_spec(s);s.loader.exec_module(m);return m
 def inspect(packet):
  pins=C.decode(C.ordinary(HERE/'prerequisite-pins.json',1024**2));wanted=pins['files'];actual={p.relative_to(packet).as_posix()for p in packet.rglob('*')if p.is_file()}
- C.need(actual==set(wanted)and len(actual)==29 and not any(p.is_symlink()for p in packet.rglob('*')),'whole29 carrier DATA closure')
+ C.need(actual==set(wanted)and len(actual)==32 and not any(p.is_symlink()for p in packet.rglob('*')),'whole32 carrier DATA closure')
  for n,v in wanted.items():checked(packet,dict(path=n,**v))
  index=C.decode(C.ordinary(packet/'index.json',1024**2));C.need(C.pin(C.ordinary(packet/'index.json',1024**2))==pins['index'],'exact carrier index')
+ renewed_test_signature(packet,index,pins)
  C.need((index['source'],index['run'],index['name'],index['version'])==(pins['native_source'],pins['native_run'],NAME,'0.1.0-2'),'exact accepted native pair identity')
  d=checked(packet,index['native_decision']);raw=C.ordinary(d,65536);decision=C.decode(raw)
  C.need(C.pin(raw)==pins['native_decision']and decision['source']==pins['native_source']and decision['run']==pins['native_run']and decision['status']=='ROOT_ACCEPTED_NATIVE_KSM1_TO2_UPGRADE_RETAINED_SCOPE'and decision['installed_controls']=={'ordinary_homes':2,'v1':18,'v2':44}and decision['transitions']==[575,575,574,575,574],'whole exact Root native qualification')
@@ -29,8 +30,25 @@ def inspect(packet):
    row=payload[name];C.need(row['type']=='0'and row['uid']==row['gid']==0 and row['mode']==(0o755 if name.startswith('usr/bin/')else 0o644)and dict(bytes=row['size'],sha256=row['sha256'])==recipe['files'][leaf],'all native payload/source bytes')
   C.need(r['metadata']['.BUILDINFO']['pkgbuild_sha256sum']==[recipe['files']['PKGBUILD']['sha256']],'whole BUILDINFO recipe join');reports.append(r);paths.append(p)
  C.need(reports[0]==reports[1]and paths[0].read_bytes()==paths[1].read_bytes(),'native complete pair equality')
- sig=checked(packet,index['files']['signature']);key=checked(packet,index['files']['public_key']);C.need(index['signer']=='7E73A80AF8FD5DA6529EF27E1AB823DC28925AA5','exact TEST signer')
+ sig=checked(packet,index['files']['signature']);key=checked(packet,index['files']['public_key']);C.need(index['signer']=='D0B033AD1C44F88A1B64A645D72B18C8C32E249A','exact renewed TEST signer; runtime GPG still mandatory')
  return dict(path=paths[0],signature=sig,key=key,signer=index['signer'],version='0.1.0-2',payload=payload,report=reports[0],authority='NATIVE_PAIR_ONLY_NOT606_ACCEPTANCE')
+def renewed_test_signature(packet,index,pins):
+ """Exact renewed TEST operands; all historical native DATA remains byte held."""
+ import copy
+ before=pins['historical_files'];wanted=pins['files'];C.need(len(before)==29 and len(wanted)==32 and set(wanted)-set(before)=={'renewal/TEST-public.asc','renewal/cachy-asahi-ksmctl-0.1.0-2-any.pkg.tar.xz.sig','renewal/receipt.json'},'exact original29 plus three explicit TEST renewal DATA leaves')
+ for n,row in before.items():
+  if n!='index.json':C.need(wanted[n]==row,'all28 historical native/recipe/transport/key/signature bodies byte held')
+ prior=copy.deepcopy(index);C.need(prior.pop('test_signature_renewal')==dict(path='renewal/receipt.json',**wanted['renewal/receipt.json']),'whole explicit renewal receipt join')
+ prior['signer']='7E73A80AF8FD5DA6529EF27E1AB823DC28925AA5'
+ for role,path in(('public_key','TEST-signing/TEST-public.asc'),('signature','TEST-signing/cachy-asahi-ksmctl-0.1.0-2-any.pkg.tar.xz.sig')):prior['files'][role]=dict(path=path,**before[path])
+ C.need(C.pin(C.encoded(prior))==before['index.json']==pins['historical_index'],'whole original native index reconstructed; no native build/provenance rewrite')
+ receipt=C.decode(C.ordinary(checked(packet,index['test_signature_renewal']),65536));C.need(receipt['purpose']=='ARCHITECTURE_NEUTRAL_EPHEMERAL_TEST_SIGNATURE_RENEWAL_ONLY'and receipt['historical_native']==dict(archive_bodies='EXACT_BYTE_HELD',build_credit='HISTORICAL_NATIVE_BUILD_ONLY_NO_NEW_BUILD',native_decision=index['native_decision'],recipe_sources=index['recipe_sources'],run=index['run'],source=index['source'])and receipt['original_carrier']==pins['historical_carrier'],'exact historical native qualification retained without renewed build credit')
+ signer=receipt['signer'];C.need(index['signer']==signer['fingerprint'],'current renewed TEST signer joins explicit receipt');C.need(signer==dict(authority='EPHEMERAL_TEST_ONLY_NOT_PRODUCTION_TRUST',created=1792434846,expires=1793039646,fingerprint='D0B033AD1C44F88A1B64A645D72B18C8C32E249A',validity_seconds=604800)and receipt['old_signer']==prior['signer']and receipt['archive']=={k:index['files']['a'][k]for k in('bytes','sha256')},'finite new TEST signer and identical original archive')
+ for role,key,path in(('public_key','public_key','renewal/TEST-public.asc'),('signature','signature','renewal/cachy-asahi-ksmctl-0.1.0-2-any.pkg.tar.xz.sig')):C.need(index['files'][role]==dict(path=path,**receipt[key])and receipt[key]==wanted[path],'exact current TEST public key/signature only')
+ C.need(receipt['actual_lifecycle']=='NOT_RUN'and receipt['hardware']=='NOT_RUN'and receipt['release']=='NOT_ADMITTED','renewal DATA grants no lifecycle/hardware/release credit')
+ historical=receipt['historical_expired_signature_verification'];C.need(historical['acceptance']=='REFUSED_EXPIRED_KEY_EVEN_IF_GPG_EXIT_ZERO'and '[GNUPG:] KEYEXPIRED 'in historical['status_stdout']and '[GNUPG:] EXPKEYSIG 'in historical['status_stdout'],'retain authenticated expired historical TEST failure DATA')
+ return receipt
+
 def original_key(ready,manifest,signer):
  roles=manifest['preparation']['signer_roles'];C.need(set(roles)=={'ephemeral_TEST','upstream_ALARM'}and len(set(roles.values()))==2 and roles['ephemeral_TEST']==signer,'exact original signer roles')
  rows=manifest['keyrings'];C.need(type(rows)is list and len(rows)==2 and {r['path']for r in rows}=={'keys/archlinuxarm.gpg','keys/TEST-public.asc'},'exact original keyring set')

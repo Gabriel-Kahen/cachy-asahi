@@ -43,7 +43,7 @@ class Activation(unittest.TestCase):
   if p['native_pair_source']is None:
    with self.assertRaisesRegex(ValueError,'NULL|UNBOUND'):C.authorize(p)
   else:
-   self.assertEqual(p['native_pair_source'],'7a976288a9e67b93e23860c7ee1664775ccb2dbd');self.assertIs(C.authorize(p),p);self.assertEqual(S.decision(p['current606'])['package_count'],606)
+   self.assertEqual(p['native_pair_source'],'fe67aaaae7ef4ea94dfc8a42cd2c806cc5436fc7');self.assertIs(C.authorize(p),p);self.assertEqual(S.decision(p['current606'])['package_count'],606)
    wrong=dict(p,actual_run=1)
    with self.assertRaises(ValueError):C.authorize(wrong)
  def test_worker_and_lifecycle_budgets_runtime_and_six_checkpoints_held(self):
