@@ -1,0 +1,10 @@
+{
+  "actual": "NOT_RUN",
+  "files": 79,
+  "git_joins": 79,
+  "hardware": "NOT_RUN",
+  "ref": "codex/boot-report-native-products-v1",
+  "release": "NOT_ADMITTED",
+  "source": "2c524830adb007e3b49392ceb54dd4cc5236c77d",
+  "status": "COMMITTED_EXACT_CLOSED_TRIAL_SOURCE"
+}
