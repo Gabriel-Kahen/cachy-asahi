@@ -207,7 +207,7 @@ class PersistentStageFailureData(unittest.TestCase):
   raw,new,m=self.scope();before={'etc/a':dict(type='file',mode=420,uid=0,gid=0,bytes=1,sha256='a'*64)};partial=dict(complete=False,nodes={},unsupported_counts={'root observation deadline':1})
   row=self.record(m,before,partial);self.assertEqual(row['comparison_scope'],'PARTIAL_OBSERVATION_NOT_EVIDENCE_OF_SOURCE_DRIFT');self.assertEqual(row['unsupported_counts'],partial['unsupported_counts']);self.assertFalse(row['observation_complete'])
   self.assertIsNone(self.record(m,before,dict(complete=True,nodes=before,unsupported_counts={})))
-  module=ast.parse(new);fn=next(n for n in module.body if isinstance(n,ast.FunctionDef)and n.name=='materialize');gate=next(n for n in fn.body if isinstance(n,ast.Try)and any(isinstance(v,ast.Constant)and v.value=='complete persistent stage differs'for v in ast.walk(n)))
+  module=ast.parse(A.strip_phase(new));fn=next(n for n in module.body if isinstance(n,ast.FunctionDef)and n.name=='materialize');gate=next(n for n in fn.body if isinstance(n,ast.Try)and any(isinstance(v,ast.Constant)and v.value=='complete persistent stage differs'for v in ast.walk(n)))
   stream=io.StringIO()
   with contextlib.redirect_stderr(stream),self.assertRaisesRegex(ValueError,'complete persistent stage differs'):
    exec(compile(ast.Module(body=[gate],type_ignores=[]),'<unchanged-original-stage-guard>','exec'),dict(need=m.need,persistent_stage_failure=m.persistent_stage_failure,before=before,staged=partial,limits=SimpleNamespace(deadline=time.monotonic()+1)))
@@ -227,6 +227,7 @@ class PersistentStageFailureData(unittest.TestCase):
 
 
 def pre_observation(raw):
+ raw=A.strip_phase(raw)
  text=raw.decode();C.need(text.count(A.PERSISTENT_OBSERVATION_API)==text.count(A.PERSISTENT_API_NEW)==1,'one private persistent observer seam');return text.replace(A.PERSISTENT_OBSERVATION_API,'',1).replace(A.PERSISTENT_API_NEW,A.PERSISTENT_API_OLD,1).encode()
 
 class PersistentObservation(unittest.TestCase):
@@ -338,7 +339,7 @@ class PersistentObservation(unittest.TestCase):
  def test_whole_rendered_inverse_and_all_walker_copy_code_held(self):
   scope,roots,copier,fresh,copyfresh=self.apis();raw=(ROOT/'scripts/ci/full-root-upgrade-caller/persistent_scope.py').read_bytes();rendered=A.persistent_stage(raw);prior=pre_observation(rendered)
   self.assertEqual(prior.decode().replace(A.PERSISTENT_STAGE_DATA,'',1).replace(A.PERSISTENT_STAGE_WRAPPER,A.PERSISTENT_STAGE_GUARD,1).encode(),raw)
-  fn=lambda b:{n.name:ast.dump(n,include_attributes=False)for n in ast.parse(b).body if isinstance(n,ast.FunctionDef)};before,after=fn(prior),fn(rendered);self.assertEqual(set(after)-set(before),{'_mount600','persistent_apis'});self.assertEqual({n for n in before if before[n]!=after[n]},{'_apis'})
+  fn=lambda b:{n.name:ast.dump(n,include_attributes=False)for n in ast.parse(b).body if isinstance(n,ast.FunctionDef)};before,after=fn(prior),fn(A.strip_phase(rendered));self.assertEqual(set(after)-set(before),{'_mount600','persistent_apis'});self.assertEqual({n for n in before if before[n]!=after[n]},{'_apis'})
   self.assertIs(roots.observe.__code__,fresh.observe.__code__);self.assertIs(copier.copy_data.__code__,copyfresh.copy_data.__code__);self.assertIs(roots.observe.__globals__['_mount_id'],roots._mount_id);self.assertIsNot(fresh._mount_id,roots._mount_id);self.assertIs(copyfresh.copy_data.__globals__['roots'],fresh);self.assertEqual(roots._file_hash,fresh._file_hash)
  def test_real_descriptor_reuse_is_fresh_not_identity_cached(self):
   scope,roots,copier,fresh,copyfresh=self.apis()
@@ -397,3 +398,45 @@ class PersistentObservation(unittest.TestCase):
   text=(C.HERE/'prepare.py').read_text();self.assertIn('timeout-minutes: 4',text);self.assertIn('$GITHUB_WORKSPACE/archive32-original-lock/',text);self.assertIn('$GITHUB_WORKSPACE/composition-desktop/',text);self.assertIn('steps.frozen574_archive20.outcome',text);self.assertIn('EXACT_NATIVE_BASE4_FROM_ARCHIVE20_SEEDED_NOT_FULL20',text);self.assertNotIn('module.C.encoded(module.seed_archive20_native',text);self.assertTrue(callable(P.encoded))
 
 if __name__=='__main__':unittest.main(verbosity=2)
+
+class PersistentPhaseMarkers(unittest.TestCase):
+ def scope(self):
+  import types
+  raw=(ROOT/'scripts/ci/full-root-upgrade-caller/persistent_scope.py').read_bytes();new=A.persistent_stage(raw);m=types.ModuleType('_bounded_phase_scope');exec(compile(new,'<source-owned-phase-scope>','exec'),m.__dict__);return raw,new,m
+ def test_complete_strip_only_inverse_and_unchanged_actions(self):
+  raw,new,m=self.scope();self.assertEqual(pre_observation(new).decode().replace(A.PERSISTENT_STAGE_DATA,'',1).replace(A.PERSISTENT_STAGE_WRAPPER,A.PERSISTENT_STAGE_GUARD,1).encode(),raw)
+  tree=ast.parse(new);labels=[ast.literal_eval(n.items[0].context_expr.args[0])for n in ast.walk(tree)if isinstance(n,ast.With)and isinstance(n.items[0].context_expr,ast.Call)and isinstance(n.items[0].context_expr.func,ast.Name)and n.items[0].context_expr.func.id=='_updater_phase'];self.assertEqual(set(labels),set(A.PHASE_LABELS));self.assertEqual(len(labels),20)
+ def test_fixed_begin_end_fail_and_exception_identity(self):
+  _,_,m=self.scope();out=[]
+  with patch.object(m.os,'write',side_effect=lambda fd,raw:out.append((fd,raw))or len(raw)):
+   with m._updater_phase('COPY'):pass
+   error=ValueError('original-error')
+   with self.assertRaises(ValueError)as caught:
+    with m._updater_phase('SOURCE_BEFORE'):raise error
+  self.assertIs(caught.exception,error);self.assertEqual(out,[(2,b'UPDATER489_STAGE_PHASE BEGIN COPY\n'),(2,b'UPDATER489_STAGE_PHASE END COPY\n'),(2,b'UPDATER489_STAGE_PHASE BEGIN SOURCE_BEFORE\n'),(2,b'UPDATER489_STAGE_PHASE FAIL SOURCE_BEFORE\n')])
+ def test_cancellation_identity_and_marker_loss(self):
+  _,_,m=self.scope();error=KeyboardInterrupt('original-cancel')
+  with patch.object(m.os,'write',side_effect=OSError('lost-marker')):
+   with self.assertRaises(KeyboardInterrupt)as caught:
+    with m._updater_phase('COPY'):raise error
+  self.assertIs(caught.exception,error)
+ def test_whole_stream_cap_no_runtime_values_or_paths(self):
+  _,_,m=self.scope();out=[]
+  with patch.object(m.os,'write',side_effect=lambda fd,raw:out.append(raw)or len(raw)):
+   for _ in range(1000):
+    with m._updater_phase('COPY'):pass
+   m._updater_phase_write('BEGIN','/private/path');m._updater_phase_write('other','COPY')
+  self.assertLessEqual(sum(map(len,out)),4096);self.assertEqual(m._UPDATER_PHASE_BYTES,4096-sum(map(len,out)));self.assertTrue(all(x in(b'UPDATER489_STAGE_PHASE BEGIN COPY\n',b'UPDATER489_STAGE_PHASE END COPY\n')for x in out))
+ def test_existing_complete_caller_frame_forwards_stderr_not_stdout_tail(self):
+  import base64,contextlib,io,json
+  _,_,m=self.scope();markers=[]
+  with patch.object(m.os,'write',side_effect=lambda fd,raw:markers.append(raw)or len(raw)):
+   for label in A.PHASE_LABELS:
+    with m._updater_phase(label):pass
+  stderr=b''.join(markers);stdout=b'original-stdout-prefix\n'+b'x'*9000
+  raw=(ROOT/C.LANE/'guest.py').read_bytes();tree=ast.parse(raw);selected=[n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name in('caller_failure','forward_caller_failure')];namespace=dict(C=C,json=json);exec(compile(ast.Module(body=selected,type_ignores=[]),'<whole-held-caller-frame-functions>','exec'),namespace)
+  nonce='1'*32;record=dict(argv=['/usr/bin/python3','-I','-B','/runner.py'],exit_code=1,seconds=1,time_limit=3900,output_limit=2*1024**2,group_absence_verified=False,stdout_bytes=len(stdout),stdout_sha256=C.sha(stdout),stderr_bytes=len(stderr),stderr_sha256=C.sha(stderr));capture=io.StringIO()
+  with contextlib.redirect_stdout(capture):namespace['caller_failure'](dict(nonce=nonce),record,stdout,stderr,None)
+  frame=capture.getvalue().encode();worker=dict(argv=['/usr/bin/python3','-I','-B','/workspace/guest.py','worker'],stdout_bytes=len(frame),stdout_sha256=C.sha(frame));capture=io.StringIO()
+  with contextlib.redirect_stdout(capture):namespace['forward_caller_failure'](dict(nonce=nonce),worker,frame)
+  forwarded=json.loads(capture.getvalue().split(' ',2)[2]);self.assertEqual(base64.b64decode(forwarded['stderr']['tail_base64'],validate=True),stderr);self.assertFalse(forwarded['stderr']['truncated']);self.assertTrue(forwarded['stdout']['truncated']);self.assertEqual(forwarded['worker_capture']['frame_sha256'],C.sha(frame.rstrip(b'\n')));self.assertLess(len(frame),25*1024);self.assertEqual(forwarded['nonce'],nonce)
