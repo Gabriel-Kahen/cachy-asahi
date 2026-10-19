@@ -186,7 +186,7 @@ class PersistentStageFailureData(unittest.TestCase):
   import types
   raw=(ROOT/'scripts/ci/full-root-upgrade-caller/persistent_scope.py').read_bytes();derived=A.persistent_stage(raw);m=types.ModuleType('_source_derived_stage_diagnostic');exec(compile(derived,'<source-pinned-persistent-scope>','exec'),m.__dict__);return raw,derived,m
  def test_whole_original_helper_inverse_and_failclosed_source(self):
-  raw,new,m=self.scope();self.assertEqual(new.decode().replace(A.PERSISTENT_STAGE_DATA,'',1).replace(A.PERSISTENT_STAGE_WRAPPER,A.PERSISTENT_STAGE_GUARD,1).encode(),raw)
+  raw,new,m=self.scope();self.assertEqual(pre_observation(new).decode().replace(A.PERSISTENT_STAGE_DATA,'',1).replace(A.PERSISTENT_STAGE_WRAPPER,A.PERSISTENT_STAGE_GUARD,1).encode(),raw)
   self.assertEqual(new.count(b'persistent_stage_failure(before, staged, limits)'),2)
   with self.assertRaises(ValueError):A.persistent_stage(raw+b'\n')
  def record(self,m,before,staged):
@@ -223,5 +223,80 @@ class PersistentStageFailureData(unittest.TestCase):
    raw=(ROOT/'scripts/ci/full-root-upgrade-caller/persistent_scope.py').read_bytes();(caller/'persistent_scope.py').write_bytes(raw);(caller/'container.py').write_bytes((ROOT/'scripts/ci/full-root-upgrade-caller/container.py').read_bytes())
    name='scripts/ci/full-root-upgrade-caller/container.py';config=target/'config.json';C.save(config,dict(code_pins={name:C.sha((caller/'container.py').read_bytes()),'scripts/ci/full-root-upgrade-caller/persistent_scope.py':C.sha(raw)},external_pins={'/persistent_scope.py':C.sha(raw),'unchanged':'a'*64},stage_seconds=900,verify_seconds=600,driver_seconds=1800,copy_seconds=600));C.save(target/'adapter.json',{})
    A.prepare_selected(SimpleNamespace(prepare=lambda *a,**k:(config,caller)),ROOT,target,'normal');v=C.decode(C.read(config));self.assertEqual(v['external_pins']['/persistent_scope.py'],C.sha((caller/'persistent_scope.py').read_bytes()));self.assertEqual(v['external_pins']['unchanged'],'a'*64);self.assertEqual([v[n]for n in('stage_seconds','verify_seconds','driver_seconds','copy_seconds')],[900,600,1800,600])
+
+
+
+def pre_observation(raw):
+ text=raw.decode();C.need(text.count(A.PERSISTENT_OBSERVATION_API)==text.count(A.PERSISTENT_API_NEW)==1,'one private persistent observer seam');return text.replace(A.PERSISTENT_OBSERVATION_API,'',1).replace(A.PERSISTENT_API_NEW,A.PERSISTENT_API_OLD,1).encode()
+
+class PersistentObservation(unittest.TestCase):
+ def apis(self):
+  import sys,types
+  text=A.persistent_stage((ROOT/'scripts/ci/full-root-upgrade-caller/persistent_scope.py').read_bytes()).decode();scope=types.ModuleType('_private_persistent_observation');exec(compile(text,'<source-pinned-persistent-observer>','exec'),scope.__dict__)
+  roots=C.load('_source_observation_roots',ROOT/'scripts/update/full_root.py');sys.path.insert(0,str(ROOT/'scripts/update'))
+  try:copier=C.load('_source_observation_copy',ROOT/'scripts/update/measure_copy.py')
+  finally:sys.path.pop(0)
+  fresh,copyfresh,_,_=scope.persistent_apis(roots,copier,None,None);return scope,roots,copier,fresh,copyfresh
+ def limits(self,roots):return roots.Limits(deadline=time.monotonic()+20,max_nodes=1000,max_bytes=8*1024**2,max_file_bytes=1024**2,max_package_files=1000)
+ def test_whole_rendered_inverse_and_all_walker_copy_code_held(self):
+  scope,roots,copier,fresh,copyfresh=self.apis();raw=(ROOT/'scripts/ci/full-root-upgrade-caller/persistent_scope.py').read_bytes();rendered=A.persistent_stage(raw);prior=pre_observation(rendered)
+  self.assertEqual(prior.decode().replace(A.PERSISTENT_STAGE_DATA,'',1).replace(A.PERSISTENT_STAGE_WRAPPER,A.PERSISTENT_STAGE_GUARD,1).encode(),raw)
+  fn=lambda b:{n.name:ast.dump(n,include_attributes=False)for n in ast.parse(b).body if isinstance(n,ast.FunctionDef)};before,after=fn(prior),fn(rendered);self.assertEqual(set(after)-set(before),{'_mount600','persistent_apis'});self.assertEqual({n for n in before if before[n]!=after[n]},{'_apis'})
+  self.assertIs(roots.observe.__code__,fresh.observe.__code__);self.assertIs(copier.copy_data.__code__,copyfresh.copy_data.__code__);self.assertIs(roots.observe.__globals__['_mount_id'],roots._mount_id);self.assertIsNot(fresh._mount_id,roots._mount_id);self.assertIs(copyfresh.copy_data.__globals__['roots'],fresh);self.assertEqual(roots._file_hash,fresh._file_hash)
+ def test_real_descriptor_reuse_is_fresh_not_identity_cached(self):
+  scope,roots,copier,fresh,copyfresh=self.apis()
+  with tempfile.TemporaryDirectory()as td:
+   fd=os.open(td,os.O_RDONLY|os.O_DIRECTORY);other=os.open('/proc',os.O_RDONLY|os.O_DIRECTORY)
+   try:
+    before=fresh._mount_id(fd,self.limits(roots));self.assertEqual(before,roots._mount_id(fd,self.limits(roots)));os.dup2(other,fd);after=fresh._mount_id(fd,self.limits(roots));self.assertEqual(after,roots._mount_id(fd,self.limits(roots)));self.assertNotEqual(before,after)
+   finally:os.close(other);os.close(fd)
+ def test_exact_fallback_mismatch_and_unexpected_errno_refuse(self):
+  import ctypes,errno
+  scope,roots,copier,fresh,copyfresh=self.apis()
+  class Call:
+   def __init__(self,mode):self.mode=mode;self.calls=0
+   def __call__(self,fd,path,flags,mask,result):
+    self.calls+=1
+    if self.mode in('fallback','error'):ctypes.set_errno(errno.ENOSYS if self.mode=='fallback'else errno.EIO);return -1
+    result._obj.mask=0x1000;result._obj.mnt_id=2**63;return 0
+  with tempfile.TemporaryDirectory()as td:
+   fd=os.open(td,os.O_RDONLY|os.O_DIRECTORY)
+   try:
+    for mode in('fallback','mismatch','error'):
+     call=Call(mode);old=[]
+     def original(descriptor,limits):old.append(descriptor);return roots._mount_id(descriptor,limits)
+     with patch.object(ctypes,'CDLL',return_value=SimpleNamespace(statx=call)):query=scope._mount600(original)
+     if mode=='fallback':
+      self.assertEqual(query(fd,self.limits(roots)),roots._mount_id(fd,self.limits(roots)));query(fd,self.limits(roots));self.assertEqual((call.calls,old),(1,[fd,fd]))
+     else:
+      with self.assertRaises(ValueError if mode=='mismatch'else OSError):query(fd,self.limits(roots))
+   finally:os.close(fd)
+ def test_real_literal_absolute_hardlink_copy_and_complete_observation_equal(self):
+  scope,roots,copier,fresh,copyfresh=self.apis()
+  with tempfile.TemporaryDirectory()as td:
+   base=Path(td);source=base/'source';source.mkdir();(source/'usr').mkdir();(source/'etc').mkdir();(source/'usr/a').write_bytes(b'private unchanged');os.link(source/'usr/a',source/'usr/b');(source/'usr/alias').symlink_to('/usr/a')
+   for n in scope.RUNTIME:(source/n).mkdir()
+   for n in scope.MOUNT_FILES:(source/n).write_bytes(b'ordinary boundary')
+   fd=roots._open_root(source)
+   try:mount=roots._mount_id(fd,self.limits(roots))
+   finally:os.close(fd)
+   before,excluded=scope.source_manifest(source,self.limits(roots),fresh,dict(source_mount=mount,observed_mounts=[]))
+   for name,r,m in(('old',roots,copier),('new',fresh,copyfresh)):
+    target=base/name;report=m.copy_data(source,target,limits=self.limits(roots),excluded=scope.RUNTIME|scope.MOUNT_FILES,absolute_paths=True);self.assertFalse(report['unsupported_counts']);scope._restore_boundaries(source,target,before,r,m,self.limits(roots));v=r.observe(target,limits=self.limits(roots),hardlinks='generic-development-internal',absolute_paths=True);self.assertTrue(v['complete']);self.assertEqual(v['nodes'],before);self.assertGreater(v['unsupported_counts']['absolute-symlink'],0);self.assertFalse(v['eligible']);self.assertEqual((target/'usr/a').stat().st_ino,(target/'usr/b').stat().st_ino)
+ def test_original_deadline_special_hardlink_and_source_drift_refuse(self):
+  scope,roots,copier,fresh,copyfresh=self.apis()
+  with tempfile.TemporaryDirectory()as td:
+   root=Path(td)/'root';root.mkdir();(root/'a').write_bytes(b'payload');os.link(root/'a',Path(td)/'outside')
+   for r in(roots,fresh):
+    observed=r.observe(root,limits=self.limits(roots),hardlinks='generic-development-internal');self.assertFalse(observed['complete']);self.assertIn('hardlink group not closed',observed['unsupported_counts'])
+    with self.assertRaisesRegex(ValueError,'root observation deadline'):r.observe(root,limits=r.Limits(deadline=time.monotonic()-1))
+   (Path(td)/'outside').unlink();os.mkfifo(root/'fifo')
+   for r in(roots,fresh):self.assertIn('special-node',r.observe(root,limits=self.limits(roots))['unsupported_counts'])
+   fake=SimpleNamespace(**vars(roots));fake.__file__=str(Path(td)/'wrong.py');Path(fake.__file__).write_bytes(b'INERT_SOURCE_DRIFT')
+   with self.assertRaisesRegex(ValueError,'whole persistent observation API source'):scope.persistent_apis(fake,copier,None,None)
+ def test_exact_archive20_factory_native_subset_and_absolute_routes(self):
+  self.assertEqual(P.ARCHIVE20_NATIVE4,{'libei-1.6.0-1-aarch64.pkg.tar.xz','libei-1.6.0-1-aarch64.pkg.tar.xz.sig','libgudev-238-3-aarch64.pkg.tar.xz','libgudev-238-3-aarch64.pkg.tar.xz.sig'})
+  for n,pin in [('archive20.py',dict(bytes=11096,sha256='e8ef66fc0431a04deb331f75258457bf4bdeb13a18bcd863fd5bece3b9a54968')),('archive20-policy.json',dict(bytes=6155,sha256='1f966afe0c24bb9a928154cb0638a8bb78292c799ffd544132633caddf6217ae'))]:self.assertEqual(C.row(C.HERE/n),pin)
+  text=(C.HERE/'prepare.py').read_text();self.assertIn('timeout-minutes: 4',text);self.assertIn('$GITHUB_WORKSPACE/archive32-original-lock/',text);self.assertIn('$GITHUB_WORKSPACE/composition-desktop/',text);self.assertIn('steps.frozen574_archive20.outcome',text);self.assertIn('EXACT_NATIVE_BASE4_FROM_ARCHIVE20_SEEDED_NOT_FULL20',text);self.assertNotIn('module.C.encoded(module.seed_archive20_native',text);self.assertTrue(callable(P.encoded))
 
 if __name__=='__main__':unittest.main(verbosity=2)
