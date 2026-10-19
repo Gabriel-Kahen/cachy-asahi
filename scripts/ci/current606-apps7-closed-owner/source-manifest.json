@@ -1295,6 +1295,14 @@
       "bytes": 7327,
       "sha256": "3302bddecdf4a5c0eeed4fc7bf2c906af7102d90b564c3656b87699fbae61f5f"
     },
+    "scripts/ci/current606-apps7-closed-owner/archive20-policy.json": {
+      "bytes": 6155,
+      "sha256": "1f966afe0c24bb9a928154cb0638a8bb78292c799ffd544132633caddf6217ae"
+    },
+    "scripts/ci/current606-apps7-closed-owner/archive20.py": {
+      "bytes": 11096,
+      "sha256": "e8ef66fc0431a04deb331f75258457bf4bdeb13a18bcd863fd5bece3b9a54968"
+    },
     "scripts/ci/current606-apps7-closed-owner/archive32-policy.json": {
       "bytes": 9488,
       "sha256": "4f6ce49214422579f1cc448ff95d9f311cbfaf47a0d0c4f32d828c9edf843585"
@@ -1310,6 +1318,14 @@
     "scripts/ci/current606-apps7-closed-owner/archive6.py": {
       "bytes": 11090,
       "sha256": "5e448ef6677fc26485e044b3ac2d35a07105703d4f1a719bb7c030678eff87ae"
+    },
+    "scripts/ci/current606-apps7-closed-owner/archive8-policy.json": {
+      "bytes": 2589,
+      "sha256": "2b21c05d30a9c5efd2f717cfa8475c9de3150d7729f710b348b70a84f5b16e20"
+    },
+    "scripts/ci/current606-apps7-closed-owner/archive8.py": {
+      "bytes": 11040,
+      "sha256": "5e24808152c727f5dcd19252c66e1ab121bdb9dbd6b90becb943820634898565"
     },
     "scripts/ci/current606-apps7-closed-owner/builds.py": {
       "bytes": 1663,
@@ -1332,8 +1348,8 @@
       "sha256": "73d4d243588ea82c7c4f7398c379121fdb2403c9ed378bb0e63ec2dce11d1875"
     },
     "scripts/ci/current606-apps7-closed-owner/prepare.py": {
-      "bytes": 15574,
-      "sha256": "90b778f4740e99157641609f5fa2f8c1c8f9feab56de18a3c686749dd9b7f553"
+      "bytes": 29364,
+      "sha256": "9f8cbc1b3138a0b4bf1b578976e88dbdb7a416c49f5a0b113a99d92dcf704e7e"
     },
     "scripts/ci/current606-apps7-closed-owner/producer_diagnostic.py": {
       "bytes": 6483,
@@ -1352,8 +1368,8 @@
       "sha256": "36fbd3b1afe8a42140578281980a4d17bc279bc782cce8b402e167af81d8c94c"
     },
     "scripts/ci/current606-apps7-closed-owner/test_owner.py": {
-      "bytes": 19485,
-      "sha256": "e8de17312f27eb3fc1254fecf94e207b9d8b311f0a06afdc6872459f69a8a000"
+      "bytes": 23085,
+      "sha256": "a9d28aac2692d39a8e3a2a83c0bbe336d0da597535be688d23d923a10de17d0f"
     }
   },
   "schema_version": 1,

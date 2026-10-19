@@ -54,7 +54,7 @@ jobs:
           [[ $MANIFEST_SHA256 =~ ^[0-9a-f]{64}$ ]]
           printf '%s  %s\n' "$MANIFEST_SHA256" "$SLICE/source-manifest.json" | sha256sum --check
           test "$(sha256sum "$SLICE/owner.py" | cut -d ' ' -f 1)" = 6ec3723e5d8322ef5730eeb0222bfcaa5b0073d55c8353dc66afa5b29d8070de
-          test "$(sha256sum "$SLICE/source-manifest.json" | cut -d ' ' -f 1)" = d26cdeb9b434defc384777b8e133241ff08f028bb1d995d36cb653e6acc1905d
+          test "$(sha256sum "$SLICE/source-manifest.json" | cut -d ' ' -f 1)" = d07c6898e7e8f3a16f099c62add67e36586313ba1771a02125daefb4b8f8fe18
           python3 -I -B "$SLICE/owner.py" proof --case "$REPAIR_CASE" --source "$GITHUB_WORKSPACE" --proof "$RUNNER_TEMP/apps574-source-proof.json"
       - name: Focused source and actual backend guards only
         timeout-minutes: 3
@@ -164,6 +164,54 @@ jobs:
           result.update(helper=module.pin(helper.read_bytes()),policy=module.pin(policy.read_bytes()),destination='EXISTING_OWNED_DESKTOP574_DEPS',original_versions='UNCHANGED',original_signature_and_trust_checks='UNCHANGED')
           print(module.encoded(result).decode(),end='')
           PYARCHIVE32
+      - name: Recover and seed exact20 additional frozen574 files
+        id: frozen574_archive20
+        if: ${{ success() }}
+        timeout-minutes: 4
+        shell: bash
+        run: |
+          set -euo pipefail
+          helper="$GITHUB_WORKSPACE/scripts/ci/apps7-full574-repair16k-ci/archive20.py"
+          policy="$GITHUB_WORKSPACE/scripts/ci/apps7-full574-repair16k-ci/archive20-policy.json"
+          inputs="$GITHUB_WORKSPACE/scripts/ci/maintained-desktop574-inputs.json"
+          printf '%s  %s\n' 'e8ef66fc0431a04deb331f75258457bf4bdeb13a18bcd863fd5bece3b9a54968' "$helper" '1f966afe0c24bb9a928154cb0638a8bb78292c799ffd544132633caddf6217ae' "$policy" | sha256sum --check
+          python3 -I -B "$helper" --policy "$policy" --inputs "$inputs" --cache "$RUNNER_TEMP/frozen574-archive20"
+          python3 -I -B - "$helper" "$policy" "$inputs" "$RUNNER_TEMP/frozen574-archive20" "$RUNNER_TEMP/desktop574/context/deps" <<'PYARCHIVE20'
+          import importlib.util,sys
+          from pathlib import Path
+          helper,policy,inputs,cache,destination=map(Path,sys.argv[1:])
+          spec=importlib.util.spec_from_file_location('held_archive20_cache_seed',helper)
+          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+          selected=module.policy(policy,inputs)
+          result=module.seed_exact(cache,destination,selected)
+          assert result['files']==20 and result['bytes']==2793312
+          result.update(destination='EXISTING_OWNED_DESKTOP574_DEPS',original_versions='UNCHANGED',original_signature_and_trust_checks='UNCHANGED')
+          print(module.encoded(result).decode(),end='')
+          PYARCHIVE20
+      - name: Recover and seed exact8 additional frozen574 files
+        id: frozen574_archive8
+        if: ${{ success() }}
+        timeout-minutes: 4
+        shell: bash
+        run: |
+          set -euo pipefail
+          helper="$GITHUB_WORKSPACE/scripts/ci/apps7-full574-repair16k-ci/archive8.py"
+          policy="$GITHUB_WORKSPACE/scripts/ci/apps7-full574-repair16k-ci/archive8-policy.json"
+          inputs="$GITHUB_WORKSPACE/scripts/ci/maintained-desktop574-inputs.json"
+          printf '%s  %s\n' '5e24808152c727f5dcd19252c66e1ab121bdb9dbd6b90becb943820634898565' "$helper" '2b21c05d30a9c5efd2f717cfa8475c9de3150d7729f710b348b70a84f5b16e20' "$policy" | sha256sum --check
+          python3 -I -B "$helper" --policy "$policy" --inputs "$inputs" --cache "$RUNNER_TEMP/frozen574-archive8"
+          python3 -I -B - "$helper" "$policy" "$inputs" "$RUNNER_TEMP/frozen574-archive8" "$RUNNER_TEMP/desktop574/context/deps" <<'PYARCHIVE8'
+          import importlib.util,sys
+          from pathlib import Path
+          helper,policy,inputs,cache,destination=map(Path,sys.argv[1:])
+          spec=importlib.util.spec_from_file_location('held_archive8_cache_seed',helper)
+          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+          selected=module.policy(policy,inputs)
+          result=module.seed_exact(cache,destination,selected)
+          assert result['files']==8 and result['bytes']==2220315
+          result.update(destination='EXISTING_OWNED_DESKTOP574_DEPS',original_versions='UNCHANGED',original_signature_and_trust_checks='UNCHANGED')
+          print(module.encoded(result).decode(),end='')
+          PYARCHIVE8
       - name: Reconstruct pinned inputs and run offline owned native574 transaction
         timeout-minutes: 40
         env:

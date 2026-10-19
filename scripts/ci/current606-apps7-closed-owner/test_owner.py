@@ -226,4 +226,30 @@ class FailureRetention(unittest.TestCase):
                 self.assertEqual(json.loads((root/('bridge-output/failed-'+role+'.json')).read_bytes()),value)
 
 
+class Archive20SourceControls(unittest.TestCase):
+ def test_exact20_helpers_and_four_file_native_subset_are_source_bound(self):
+  self.assertEqual(O.pin((HERE/'archive20.py').read_bytes()),dict(bytes=11096,sha256='e8ef66fc0431a04deb331f75258457bf4bdeb13a18bcd863fd5bece3b9a54968'))
+  self.assertEqual(O.pin((HERE/'archive20-policy.json').read_bytes()),dict(bytes=6155,sha256='1f966afe0c24bb9a928154cb0638a8bb78292c799ffd544132633caddf6217ae'))
+  self.assertEqual(E.ARCHIVE20_NATIVE4,{'libei-1.6.0-1-aarch64.pkg.tar.xz','libei-1.6.0-1-aarch64.pkg.tar.xz.sig','libgudev-238-3-aarch64.pkg.tar.xz','libgudev-238-3-aarch64.pkg.tar.xz.sig'})
+  import inspect
+  text=inspect.getsource(E.seed_archive20_native);self.assertIn('EXACT_NATIVE_BASE4_FROM_ARCHIVE20_SEEDED_NOT_FULL20',text);self.assertIn('module.checked_index(cache,v)',text);self.assertIn('module.digest_file(Path(cache)/n,row)',text);self.assertIn('whole seed function inverse',text)
+ def test_native_four_and_full20_order_and_absolute_operands(self):
+  w=(ROOT/'.github/workflows/native-arm-current606-apps7-owned-copy.yml').read_text();self.assertLess(w.index('seed only exact4 native-base'),w.index('Build the fresh native base'));self.assertLess(w.index('seed full20 original frozen574'),w.index('Required signed604 plus606'))
+  self.assertIn("&& steps.frozen574_archive20.outcome == 'success'",w);self.assertIn('"$RUNNER_TEMP/frozen574-archive20"',w);self.assertIn('"$RUNNER_TEMP/alarm-cache"',w)
+  self.assertIn('"$GITHUB_WORKSPACE/archive32-original-lock/scripts/ci/maintained-desktop574-inputs.json"',w);self.assertIn('"$GITHUB_WORKSPACE/composition-desktop/scripts/ci/maintained-desktop574-inputs.json"',w);self.assertIn('seed_archive20_native(helper,policy,inputs,native,cache,destination)',w)
+  self.assertIn('module.seed_exact(cache,destination,module.policy(policy,inputs))',w)
+
+
+class Archive8SourceControls(unittest.TestCase):
+ def test_exact8_helpers_and_native_join_are_source_bound(self):
+  self.assertEqual(O.pin((HERE/'archive8.py').read_bytes()),dict(bytes=11040,sha256='5e24808152c727f5dcd19252c66e1ab121bdb9dbd6b90becb943820634898565'));self.assertEqual(O.pin((HERE/'archive8-policy.json').read_bytes()),dict(bytes=2589,sha256='2b21c05d30a9c5efd2f717cfa8475c9de3150d7729f710b348b70a84f5b16e20'))
+  self.assertEqual(len(E.ARCHIVE8_NATIVE8),8)
+  import inspect
+  text=inspect.getsource(E.seed_archive8_native);self.assertIn('whole original native-base lock required',text);self.assertIn('set(files)&set(native)==set(files)',text);self.assertIn('module.seed_exact(Path(cache),Path(destination),v)',text)
+ def test_full8_native_and_full8_producer_separate_order_and_absolute_operands(self):
+  w=(ROOT/'.github/workflows/native-arm-current606-apps7-owned-copy.yml').read_text();self.assertLess(w.index('seed only exact4 native-base'),w.index('seed full8 native-base'));self.assertLess(w.index('seed full8 native-base'),w.index('Build the fresh native base'));self.assertLess(w.index('seed full20 original frozen574'),w.index('seed full8 original frozen574'));self.assertLess(w.index('seed full8 original frozen574'),w.index('Required signed604 plus606'))
+  self.assertIn("&& steps.frozen574_archive8.outcome == 'success'",w);self.assertIn('"$RUNNER_TEMP/frozen574-archive8"',w);self.assertIn('"$RUNNER_TEMP/alarm-cache"',w)
+  self.assertIn('"$GITHUB_WORKSPACE/archive32-original-lock/scripts/ci/maintained-desktop574-inputs.json"',w);self.assertIn('"$GITHUB_WORKSPACE/composition-desktop/scripts/ci/maintained-desktop574-inputs.json"',w);self.assertIn('seed_archive8_native(helper,policy,inputs,native,cache,destination)',w)
+
+
 if __name__=='__main__':unittest.main(verbosity=2)
