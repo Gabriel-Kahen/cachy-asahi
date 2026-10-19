@@ -1,0 +1,118 @@
+{
+  "artifacts": {
+    "cachy-asahi-doctor-0.2.0-1-any.pkg.tar.xz": "5d27ef618bfc571c0238cfbbbcf382d0e4c689df509d1f62123ad5fe53245ee7"
+  },
+  "clean_environment_id": "cachy-asahi-product-67cfd42225db8b8844153d1429f3c822",
+  "command": [
+    "docker",
+    "run",
+    "--name",
+    "cachy-asahi-product-67cfd42225db8b8844153d1429f3c822",
+    "--pull=never",
+    "--platform=linux/arm64",
+    "--network=none",
+    "--cap-drop=ALL",
+    "--security-opt=no-new-privileges",
+    "--pids-limit=256",
+    "--memory=3g",
+    "--cpus=4",
+    "--user",
+    "1001:1001",
+    "--tmpfs",
+    "/tmp:rw,nosuid,nodev,exec,size=2g",
+    "--mount",
+    "type=bind,src=/home/runner/work/_temp/product-native-runtime/cachy-asahi-doctor-b/artifacts,dst=/out",
+    "--read-only",
+    "--env=CACHY_ASAHI_CONTAINER=1",
+    "--env=SOURCE_DATE_EPOCH=1791748800",
+    "--mount",
+    "type=bind,src=/home/runner/work/_temp/product-native-runtime/cachy-asahi-doctor-b/inputs,dst=/inputs,readonly",
+    "--mount",
+    "type=bind,src=/home/runner/work/_temp/product-native-runtime/cachy-asahi-doctor-b/expected-packages.lock,dst=/expected-packages.lock,readonly",
+    "--mount",
+    "type=bind,src=/home/runner/work/cachy-asahi/cachy-asahi/scripts/build/container-entry.sh,dst=/builder-entry.sh,readonly",
+    "--entrypoint=/bin/bash",
+    "sha256:6b7aa40bda9d7880d641614b2289fa5e3cd5fc6d03e84ac55946c692aff79168",
+    "/builder-entry.sh"
+  ],
+  "entry_script_sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24",
+  "expected_packages_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+  "files": {
+    "artifacts/cachy-asahi-doctor-0.2.0-1-any.pkg.tar.xz": "5d27ef618bfc571c0238cfbbbcf382d0e4c689df509d1f62123ad5fe53245ee7",
+    "artifacts/config.sha256": "8309cb4c0409ccdc1ca922475dde9377aec434911efc453299f41e8fadb234ec",
+    "artifacts/environment.txt": "dbc487911ae6ba3a054c667b02757393527214631303d52039ac1c3edddfbf61",
+    "artifacts/generated.SRCINFO": "f05482cd59d8d70a62ec05d472f84dee16cfb8521970c8cf7476e6eaf99c05a9",
+    "artifacts/makepkg.conf": "cfcf0bd2601d887724c5ca7d9a48ac5dd347abad9e8ac5efa436080e45822a60",
+    "artifacts/packages.lock": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+    "artifacts/pacman.conf": "14d304eeb83baf1379279356c232580fd095c2d508b41c74677347801a0bafe7",
+    "build.log": "daa8bbc0ce7da9208b46a167a29c6d6eeccc929a04bf047dccd86c6de0ba27d3",
+    "expected-packages.lock": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+    "validation.json": "f2f838cdf1bc068fdd0226ca41cee8a5a9ec1554ae9614ebe8a9f5c5c3fd32b3"
+  },
+  "hardware_status": "NOT RUN",
+  "image": "sha256:6b7aa40bda9d7880d641614b2289fa5e3cd5fc6d03e84ac55946c692aff79168",
+  "image_id": "sha256:6b7aa40bda9d7880d641614b2289fa5e3cd5fc6d03e84ac55946c692aff79168",
+  "mode": "native",
+  "recipe_inputs": {
+    ".SRCINFO": "f05482cd59d8d70a62ec05d472f84dee16cfb8521970c8cf7476e6eaf99c05a9",
+    "LICENSE": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+    "NOTICE": "fc77ae01a573c84a5a9970a5f563b3f044de7f04d4f01745c7ab6e9f8ec9b568",
+    "PKGBUILD": "6db586b51bda2c0a97b9a581b90495d7aae47db4ce9d904779ade5e3c1d376c7",
+    "README.md": "1958eddf33857813874140ae22533f9a2a878fc64f6b18ab277a556107656a52",
+    "cachy-asahi-doctor": "f4b6dce36a44037cf6e28003c9da9514c511161ff1926be78c155e8f64f15ced",
+    "test_audio.py": "e1ff1fd9bbe932d0e869ed9810543df1ea52b648e71f0a12186854270d3736c8",
+    "test_doctor.py": "2f669a6c37b43521edb76717ac0c01818651041d479520676eaac1808195218f"
+  },
+  "recipe_metadata": {
+    "arch": [
+      "any"
+    ],
+    "depends": [
+      "python>=3.11",
+      "pacman",
+      "systemd"
+    ],
+    "license": [
+      "MIT"
+    ],
+    "optdepends": [
+      "wireplumber: read-only default audio output volume and mute observation"
+    ],
+    "pkgbase": [
+      "cachy-asahi-doctor"
+    ],
+    "pkgdesc": [
+      "Read-only local platform and session observations for cachy-asahi"
+    ],
+    "pkgname": [
+      "cachy-asahi-doctor"
+    ],
+    "pkgrel": [
+      "1"
+    ],
+    "pkgver": [
+      "0.2.0"
+    ],
+    "sha256sums": [
+      "f4b6dce36a44037cf6e28003c9da9514c511161ff1926be78c155e8f64f15ced",
+      "2f669a6c37b43521edb76717ac0c01818651041d479520676eaac1808195218f",
+      "e1ff1fd9bbe932d0e869ed9810543df1ea52b648e71f0a12186854270d3736c8",
+      "1958eddf33857813874140ae22533f9a2a878fc64f6b18ab277a556107656a52",
+      "fc77ae01a573c84a5a9970a5f563b3f044de7f04d4f01745c7ab6e9f8ec9b568",
+      "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    ],
+    "source": [
+      "cachy-asahi-doctor",
+      "test_doctor.py",
+      "test_audio.py",
+      "README.md",
+      "NOTICE",
+      "LICENSE"
+    ],
+    "url": [
+      "https://github.com/Gabriel-Kahen/cachy-asahi"
+    ]
+  },
+  "source_date_epoch": 1791748800,
+  "status": "built-package-static-pass"
+}

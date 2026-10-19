@@ -1,0 +1,142 @@
+{
+  "GUI": "NOT_RUN",
+  "M2": "NOT_RUN",
+  "audio_playback": "NOT_RUN",
+  "cleanup": "SIX_ORIGINAL_CONSUMER_ABSENCE_AND_PRODUCER_RETIREMENT_REPLAY_NOT_FRESH_LIVE_INSPECTION",
+  "independent_git_blob_joins": 62,
+  "installed_audio_observations": [
+    {
+      "home": "product-home-fresh",
+      "phase": "install",
+      "state": "unavailable",
+      "value": null
+    },
+    {
+      "home": "product-home-existing",
+      "phase": "install",
+      "state": "unavailable",
+      "value": null
+    },
+    {
+      "home": "product-home-fresh",
+      "phase": "same-version-reinstall",
+      "state": "unavailable",
+      "value": null
+    },
+    {
+      "home": "product-home-existing",
+      "phase": "same-version-reinstall",
+      "state": "unavailable",
+      "value": null
+    },
+    {
+      "home": "product-home-fresh",
+      "phase": "reinstall-after-removal",
+      "state": "unavailable",
+      "value": null
+    },
+    {
+      "home": "product-home-existing",
+      "phase": "reinstall-after-removal",
+      "state": "unavailable",
+      "value": null
+    }
+  ],
+  "lifecycle": {
+    "bytes": 106805,
+    "sha256": "197fff1163420b793a18abeb5ea910ba8085d9b00cf54ed4bf1fd1902cb5da02"
+  },
+  "limitations": [
+    "Input snapshots regenerated only from independently authorized exact source; collected code never imported or executed.",
+    "Fresh/existing user/private payload properties remain original source-enforced, with exported report/hash joins.",
+    "Recorded native containers are one-host independence, not two independent machines.",
+    "No live PipeWire/default-output playback, GUI,16K,M2, speaker safety or release-trust acceptance."
+  ],
+  "masked_hooks": 41,
+  "original_job": {
+    "job_id": 118296620145,
+    "native_label": "ubuntu-24.04-arm",
+    "steps": [
+      3,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ]
+  },
+  "page_size": 4096,
+  "pairs": {
+    "cachy-asahi-doctor": {
+      "errors": [],
+      "hardware_status": "NOT RUN",
+      "independence_limit": "Distinct recorded container runs; independent machine execution is not attested.",
+      "packages": {
+        "cachy-asahi-doctor-0.2.0-1-any.pkg.tar.xz": {
+          "buildinfo_equal": true,
+          "bytes_equal": true,
+          "installed_contents_equal": true,
+          "pkginfo_equal": true
+        }
+      },
+      "status": "contents-reproduced"
+    },
+    "cachy-asahi-welcome": {
+      "errors": [],
+      "hardware_status": "NOT RUN",
+      "independence_limit": "Distinct recorded container runs; independent machine execution is not attested.",
+      "packages": {
+        "cachy-asahi-welcome-0.1.0-1-aarch64.pkg.tar.xz": {
+          "buildinfo_equal": true,
+          "bytes_equal": true,
+          "installed_contents_equal": true,
+          "pkginfo_equal": true
+        }
+      },
+      "status": "contents-reproduced"
+    }
+  },
+  "phases": [
+    {
+      "inventory_count": 576,
+      "phase": "install"
+    },
+    {
+      "inventory_count": 576,
+      "phase": "same-version-reinstall"
+    },
+    {
+      "inventory_count": 574,
+      "phase": "remove"
+    },
+    {
+      "inventory_count": 576,
+      "phase": "reinstall-after-removal"
+    },
+    {
+      "inventory_count": 574,
+      "phase": "final-remove"
+    }
+  ],
+  "physical16K": "NOT_RUN",
+  "ref": "codex/doctor2-native-products-v1",
+  "release": "NOT_ADMITTED",
+  "report": {
+    "bytes": 136813,
+    "sha256": "ef16cff5759015c26e564a99780631b1e47b553d6099c21a40f649b129275050"
+  },
+  "reviewed_at": "2026-10-19T21:03:24.236343+00:00",
+  "run": 39321557701,
+  "source": "705c5a095f9cabbfd2f3cd137127f4bbc7665f52",
+  "source_files": 62,
+  "speaker_safety": "NOT_TESTED",
+  "status": "ROOT_ACCEPTED_FINITE_NATIVE_DOCTOR2_PAIR_AND_OFFLINE_INSTALLED_CLI_LIFECYCLE",
+  "strict_result": {
+    "bytes": 2094,
+    "sha256": "ab1404175b8062a16afe6a2cd90d6553b2096b0c0615f50dcc63dcae8fee54cb"
+  },
+  "user_preservation": "SOURCE_ENFORCED_WITH_EXPORTED_REPORT_HASH_JOINS"
+}
