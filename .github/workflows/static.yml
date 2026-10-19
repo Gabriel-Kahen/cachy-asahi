@@ -425,6 +425,17 @@ jobs:
         run: |
           python3 -B scripts/ci/doctor2-current606-source/test_prepare.py --predecessor-root "$GITHUB_WORKSPACE/.ci-inputs/current606-apps7-source-roles"
           python3 -B scripts/ci/doctor2-current606-source/prepare.py --predecessor-root "$GITHUB_WORKSPACE/.ci-inputs/current606-apps7-source-roles" --output "$RUNNER_TEMP/doctor353-default"
+      - name: Checkout exact Boot387 source without native activation
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 5beee1c993471669c165ef6adcf7e648371c0d9f
+          path: .ci-inputs/boot607-native-source
+          persist-credentials: false
+      - name: Check exact unbound Boot387 source factory without actors
+        run: |
+          python3 -B scripts/ci/boot607-native-source/test_prepare.py --predecessor-root "$GITHUB_WORKSPACE/.ci-inputs/boot607-native-source"
+          python3 -B scripts/ci/boot607-native-source/prepare.py --predecessor-root "$GITHUB_WORKSPACE/.ci-inputs/boot607-native-source" --output "$RUNNER_TEMP/boot387-default"
+          python3 -I -B "$RUNNER_TEMP/boot387-default/boot607/run.py" --source-preflight
       - name: Checkout corrected whole joint606 source roles without qualification
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
