@@ -1,6 +1,6 @@
 # Implementation and acceptance status
 
-October 19: [native Welcome5 preservation on current606 passes](validation/welcome5-current606-native-20261019.md), including signed upgrade/removal/reinstall/original restoration with the other605 protected and all raw auxiliary checks. GUI,16K and M2 remain separate.
+October 19: [native Welcome5 preservation on current606, including the complete440-source durable artifact continuation, passes](validation/welcome5-current606-native-20261019.md), including signed upgrade/removal/reinstall/original restoration with the other605 protected and all raw auxiliary checks. GUI,16K and M2 remain separate.
 
 October 19: [installed KSM2 scalar lifecycle passes on generic ARM16K](validation/ksm2-generic16k-scalar-20261019.md): signed574/575/574 transactions, real run-scalar apply/restore and foreign-edit refusal. Memory sharing, interruption recovery and M2 remain untested.
 

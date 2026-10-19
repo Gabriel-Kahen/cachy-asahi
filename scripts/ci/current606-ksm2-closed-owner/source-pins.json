@@ -204,16 +204,16 @@
         "sha256": "1ac3f194147598169a86fd8d830571fcb889246568f748b3df30f8a298d68bfb"
       },
       "scripts/ci/current606-ksm2-copy/contract.py": {
-        "bytes": 6375,
-        "sha256": "a94b16a1954e6b55ee3e983c7f61b49ddc326eb708348a993dc81c507c3f6948"
+        "bytes": 8531,
+        "sha256": "8166e898b00f5aa774c678112ba1dea7623bc37851e4b84cfe6d418d9801e64d"
       },
       "scripts/ci/current606-ksm2-copy/dependency-pins.json": {
         "bytes": 73782,
         "sha256": "6b582273b3fd485604159ae997d6f15808e14cc016d7713a47f8ca7ba341163e"
       },
       "scripts/ci/current606-ksm2-copy/driver.py": {
-        "bytes": 11339,
-        "sha256": "b2fd71a67f1c7fc4eb528b585bf2fe2da229c7d77f84009b1e2d4a113af02f38"
+        "bytes": 11998,
+        "sha256": "2110789a39755a8137785f43e5c0e8c600b95da33974e37a4bf5ddee3bf3263b"
       },
       "scripts/ci/current606-ksm2-copy/expected606.lock": {
         "bytes": 12043,
@@ -236,8 +236,8 @@
         "sha256": "1014094d0cfc3460019097b436d513496d9758a1b1f4230c8a7d060d842b3278"
       },
       "scripts/ci/current606-ksm2-copy/lifecycle.py": {
-        "bytes": 6064,
-        "sha256": "afb1078b30691fde92c29b3a932268598e5d4a954aa44e8a3de20630d484e7d1"
+        "bytes": 6304,
+        "sha256": "4cafc210b96e06a59605839d3887611ceb5a62c341faab329b7d9a1aeb226e20"
       },
       "scripts/ci/current606-ksm2-copy/no_transaction_exec.py": {
         "bytes": 1922,
@@ -272,8 +272,8 @@
         "sha256": "efc1094e15bf38ea6e320c2f86bc64106126ebb92261742c298bbc7ed0d97c6d"
       },
       "scripts/ci/current606-ksm2-copy/source-manifest.json": {
-        "bytes": 8464,
-        "sha256": "3a1b819a116c12f8c18add2383e1685f1e6f785953194d856f34e47a539ead72"
+        "bytes": 8465,
+        "sha256": "c6c6ce2a4ef14bb821e5467291b2d8eff6be1030ed8e1f44fdf594e4cd97b7f9"
       },
       "scripts/ci/current606-ksm2-copy/step_entry.py": {
         "bytes": 741,
@@ -292,8 +292,8 @@
         "sha256": "57d5d92c1cac9c803ddc6636568624ec73e0550f152963033cc048a0988e26fa"
       },
       "scripts/ci/current606-ksm2-copy/worker.py": {
-        "bytes": 9617,
-        "sha256": "2a333f8393e68651c1cf4509a6c3f2d1fd36f50844690b2a5dae40ef399d8049"
+        "bytes": 10278,
+        "sha256": "f79bac47b5fe78c1df051437615ef5c432b3cf6c5de4e2aeed8a100b6d97323f"
       }
     },
     "purpose": "KSM2_COPIED_ROOT_WORKER",

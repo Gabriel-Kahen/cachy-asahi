@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: MIT
 """New copy-only actor contract; original six-capability actor is not modified."""
+import contextlib
 import hashlib,json,os,re,stat
 from pathlib import Path
 PURPOSE='CURRENT606_KSM2_OWNED_ORDINARY_SOURCE'
@@ -11,6 +12,27 @@ MAPS=('ordinary_observation','packages','capabilities','bridge_proof')
 SOURCE_ROOT=Path('/seed');WORK_ROOT=Path('/work');PROOF_ROOT=Path('/bridge-proof')
 BOUNDS=dict(max_packages=606,max_nodes=200000,max_bytes=6*1024**3,max_file_bytes=1024**3,max_depth=128)
 COPY_SECONDS=600;WORKER_SECONDS=1800;CLEANUP_SECONDS=60;MAP_BYTES=64*1024**2;ALL_MAP_BYTES=128*1024**2
+
+# Diagnostic-only fixed vocabulary: no paths, contents, nonce, timing or authority.
+PHASE_LABELS=frozenset(('startup', 'authority', 'sealed-maps', 'mount-proof', 'plan-load', 'source-observe', 'source-database', 'source-capabilities', 'copy-context', 'copy-observe', 'copy-hardlinks-root', 'copy-capabilities', 'copy-retire', 'lifecycle', 'driver-plan', 'driver-baseline', 'exclusive-ownership', 'keyring', 'private-fixtures', 'graph', 'fixture-preservation', 'database', 'capabilities', 'physical', 'home-preservation', 'selected-database', 'transaction-plan', 'transaction-child', 'transaction-receipt', 'installed-fixture', 'source-proof', 'source-proof-capabilities', 'baseline-capture', 'result-publish', 'baseline1.transaction', 'baseline1.readback', 'baseline1.fixtures', 'baseline1.post-fixture-readback', 'baseline1.source-proof', 'upgrade2.transaction', 'upgrade2.readback', 'upgrade2.fixtures', 'upgrade2.post-fixture-readback', 'upgrade2.source-proof', 'same-version2.transaction', 'same-version2.readback', 'same-version2.fixtures', 'same-version2.post-fixture-readback', 'same-version2.source-proof', 'remove2.transaction', 'remove2.readback', 'remove2.fixtures', 'remove2.post-fixture-readback', 'remove2.source-proof', 'reinstall2.transaction', 'reinstall2.readback', 'reinstall2.fixtures', 'reinstall2.post-fixture-readback', 'reinstall2.source-proof', 'restore-original1.transaction', 'restore-original1.readback', 'restore-original1.fixtures', 'restore-original1.post-fixture-readback', 'restore-original1.source-proof'))
+PHASE_LINE_CAP=512;PHASE_BYTE_CAP=32768
+_phase_counts=[0,0]
+def phase_marker(event,label):
+ if event not in('BEGIN','END','FAIL')or label not in PHASE_LABELS:return
+ raw=('KSM361_PHASE '+event+' '+label+'\n').encode('ascii')
+ if len(raw)>96 or _phase_counts[0]>=PHASE_LINE_CAP or _phase_counts[1]+len(raw)>PHASE_BYTE_CAP:return
+ _phase_counts[0]+=1;_phase_counts[1]+=len(raw)
+ try:os.write(2,raw)
+ except OSError:pass
+
+@contextlib.contextmanager
+def phase(label):
+ phase_marker('BEGIN',label)
+ try:yield
+ except BaseException:
+  phase_marker('FAIL',label)
+  raise
+ else:phase_marker('END',label)
 
 def need(ok,why):
  if not ok:raise ValueError(why)
