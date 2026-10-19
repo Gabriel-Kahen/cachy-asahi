@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: MIT
+# Original read-only diagnostic; development candidate, not release-selected.
+pkgname=cachy-asahi-doctor
+pkgver=0.2.0
+pkgrel=1
+pkgdesc='Read-only local platform and session observations for cachy-asahi'
+arch=('any')
+url='https://github.com/Gabriel-Kahen/cachy-asahi'
+license=('MIT')
+depends=('python>=3.11' 'pacman' 'systemd')
+optdepends=('wireplumber: read-only default audio output volume and mute observation')
+source=('cachy-asahi-doctor' 'test_doctor.py' 'test_audio.py' 'README.md' 'NOTICE' 'LICENSE')
+sha256sums=(
+  'f4b6dce36a44037cf6e28003c9da9514c511161ff1926be78c155e8f64f15ced'
+  '2f669a6c37b43521edb76717ac0c01818651041d479520676eaac1808195218f'
+  'e1ff1fd9bbe932d0e869ed9810543df1ea52b648e71f0a12186854270d3736c8'
+  '1958eddf33857813874140ae22533f9a2a878fc64f6b18ab277a556107656a52'
+  'fc77ae01a573c84a5a9970a5f563b3f044de7f04d4f01745c7ab6e9f8ec9b568'
+  '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
+)
+
+check() {
+    python -B -Werror::ResourceWarning "$srcdir/test_doctor.py"
+    python -B -Werror::ResourceWarning "$srcdir/test_audio.py"
+}
+
+package() {
+    install -Dm755 "$srcdir/cachy-asahi-doctor" "$pkgdir/usr/bin/cachy-asahi-doctor"
+    install -Dm644 "$srcdir/README.md" "$pkgdir/usr/share/doc/$pkgname/README.md"
+    install -Dm644 "$srcdir/NOTICE" "$pkgdir/usr/share/licenses/$pkgname/NOTICE"
+    install -Dm644 "$srcdir/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}
