@@ -25,6 +25,7 @@ def exercise(base,stage,env,workspace,current,hooks,request,stable,C):
         hooks['wait'](ready,hooks['healthy'],remaining(until),'DNS helper and supervisor completion')
         action('View report',D.TITLE,scroll=True)
         action('View report',D.TITLE)
+        action('View report',D.TITLE,scroll=True)
         expected=dict(text=['Elapsed:',summary,raw.decode()],buttons={D.LABEL:True})
         def page():
             value=hooks['a11y']('snapshot')
