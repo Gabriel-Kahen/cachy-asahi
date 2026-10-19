@@ -1,0 +1,127 @@
+==> Making package: cachy-asahi-welcome 0.1.0-1 (Mon Oct 19 20:47:51 2026)
+==> Retrieving sources...
+  -> Found welcome.c
+  -> Found status.c
+  -> Found status.h
+  -> Found Makefile
+  -> Found test_status.c
+  -> Found test_cli.py
+  -> Found check_source.py
+  -> Found README.md
+  -> Found first-run.txt
+  -> Found updates.txt
+  -> Found recovery.txt
+  -> Found io.github.GabrielKahen.CachyAsahiWelcome.desktop
+  -> Found cachy-asahi-welcome.svg
+  -> Found NOTICE
+  -> Found LICENSE
+==> Validating source files with sha256sums...
+    welcome.c ... Passed
+    status.c ... Passed
+    status.h ... Passed
+    Makefile ... Passed
+    test_status.c ... Passed
+    test_cli.py ... Passed
+    check_source.py ... Passed
+    README.md ... Passed
+    first-run.txt ... Passed
+    updates.txt ... Passed
+    recovery.txt ... Passed
+    io.github.GabrielKahen.CachyAsahiWelcome.desktop ... Passed
+    cachy-asahi-welcome.svg ... Passed
+    NOTICE ... Passed
+    LICENSE ... Passed
+==> Making package: cachy-asahi-welcome 0.1.0-1 (Mon Oct 19 20:47:53 2026)
+==> Checking runtime dependencies...
+==> Checking buildtime dependencies...
+==> Retrieving sources...
+  -> Found welcome.c
+  -> Found status.c
+  -> Found status.h
+  -> Found Makefile
+  -> Found test_status.c
+  -> Found test_cli.py
+  -> Found check_source.py
+  -> Found README.md
+  -> Found first-run.txt
+  -> Found updates.txt
+  -> Found recovery.txt
+  -> Found io.github.GabrielKahen.CachyAsahiWelcome.desktop
+  -> Found cachy-asahi-welcome.svg
+  -> Found NOTICE
+  -> Found LICENSE
+==> Validating source files with sha256sums...
+    welcome.c ... Passed
+    status.c ... Passed
+    status.h ... Passed
+    Makefile ... Passed
+    test_status.c ... Passed
+    test_cli.py ... Passed
+    check_source.py ... Passed
+    README.md ... Passed
+    first-run.txt ... Passed
+    updates.txt ... Passed
+    recovery.txt ... Passed
+    io.github.GabrielKahen.CachyAsahiWelcome.desktop ... Passed
+    cachy-asahi-welcome.svg ... Passed
+    NOTICE ... Passed
+    LICENSE ... Passed
+==> Removing existing $srcdir/ directory...
+==> Extracting sources...
+==> Starting build()...
+make: Entering directory '/tmp/work/src'
+cc -DWELCOME_DOC_DIR='"/usr/share/doc/cachy-asahi-welcome"' -march=armv8-a -mno-omit-leaf-frame-pointer -O2 -pipe -fstack-protector-strong -fno-plt -fexceptions         -Wp,-D_FORTIFY_SOURCE=3 -Wformat -Werror=format-security         -fstack-clash-protection         -fno-omit-frame-pointer -std=c11 -Wall -Wextra -Wformat=2 -Werror -I/usr/include/gtk-3.0 -I/usr/include/pango-1.0 -I/usr/include/cloudproviders -I/usr/include/cairo -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/glycin-2 -I/usr/include/at-spi2-atk/2.0 -I/usr/include/at-spi-2.0 -I/usr/include/atk-1.0 -I/usr/include/dbus-1.0 -I/usr/lib/dbus-1.0/include -I/usr/include/fribidi -I/usr/include/pixman-1 -I/usr/include/harfbuzz -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/gio-unix-2.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/sysprof-6 -pthread welcome.c status.c -o cachy-asahi-welcome -Wl,-O1 -Wl,--sort-common -Wl,--as-needed -Wl,-z,relro -Wl,-z,now          -Wl,-z,pack-relative-relocs -Wl,-z,max-page-size=16384 -lgtk-3 -lgdk-3 -lpangocairo-1.0 -lcairo-gobject -lgdk_pixbuf-2.0 -latk-1.0 -lpango-1.0 -lcairo -lharfbuzz -lgio-2.0 -lgobject-2.0 -lglib-2.0 -lz
+make: Leaving directory '/tmp/work/src'
+==> Starting check()...
+make: Entering directory '/tmp/work/src'
+cc -march=armv8-a -mno-omit-leaf-frame-pointer -O2 -pipe -fstack-protector-strong -fno-plt -fexceptions         -Wp,-D_FORTIFY_SOURCE=3 -Wformat -Werror=format-security         -fstack-clash-protection         -fno-omit-frame-pointer -std=c11 -Wall -Wextra -Wformat=2 -Werror -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/sysprof-6 -pthread test_status.c status.c -o test-status -Wl,-O1 -Wl,--sort-common -Wl,--as-needed -Wl,-z,relro -Wl,-z,now          -Wl,-z,pack-relative-relocs -Wl,-z,max-page-size=16384 -lglib-2.0
+./test-status
+TAP version 14
+# random seed: R02Sfd0f2b699c0e06024ac7bf4082105422
+1..7
+# Start of status tests
+ok 1 /status/installed
+ok 2 /status/unavailable
+ok 3 /status/duplicate
+ok 4 /status/lookalike
+ok 5 /status/malformed
+ok 6 /status/oversized
+ok 7 /status/json-controls
+# End of status tests
+python3 -B test_cli.py ./cachy-asahi-welcome
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.124s
+
+OK
+python3 -B check_source.py --root "/tmp/work"
+{'status': 'PASS_SOURCE_PAYLOAD_CONTRACT', 'pinned_sources': 15, 'installed_files': 9, 'native_build': 'NOT RUN', 'GUI': 'NOT RUN'}
+make: Leaving directory '/tmp/work/src'
+==> Entering fakeroot environment...
+==> Starting package()...
+make: Entering directory '/tmp/work/src'
+install -Dm755 cachy-asahi-welcome /tmp/work/pkg/cachy-asahi-welcome/usr/bin/cachy-asahi-welcome
+install -Dm644 io.github.GabrielKahen.CachyAsahiWelcome.desktop /tmp/work/pkg/cachy-asahi-welcome/usr/share/applications/io.github.GabrielKahen.CachyAsahiWelcome.desktop
+install -Dm644 cachy-asahi-welcome.svg /tmp/work/pkg/cachy-asahi-welcome/usr/share/icons/hicolor/scalable/apps/cachy-asahi-welcome.svg
+install -Dm644 first-run.txt /tmp/work/pkg/cachy-asahi-welcome/usr/share/doc/cachy-asahi-welcome/first-run.txt
+install -Dm644 updates.txt /tmp/work/pkg/cachy-asahi-welcome/usr/share/doc/cachy-asahi-welcome/updates.txt
+install -Dm644 recovery.txt /tmp/work/pkg/cachy-asahi-welcome/usr/share/doc/cachy-asahi-welcome/recovery.txt
+install -Dm644 README.md /tmp/work/pkg/cachy-asahi-welcome/usr/share/doc/cachy-asahi-welcome/README.md
+install -Dm644 LICENSE /tmp/work/pkg/cachy-asahi-welcome/usr/share/licenses/cachy-asahi-welcome/LICENSE
+install -Dm644 NOTICE /tmp/work/pkg/cachy-asahi-welcome/usr/share/licenses/cachy-asahi-welcome/NOTICE
+make: Leaving directory '/tmp/work/src'
+==> Tidying install...
+  -> Removing libtool files...
+  -> Removing static library files...
+  -> Purging unwanted files...
+  -> Stripping unneeded symbols from binaries and libraries...
+  -> Compressing man and info pages...
+==> Checking for packaging issues...
+==> Creating package "cachy-asahi-welcome"...
+  -> Generating .PKGINFO file...
+  -> Generating .BUILDINFO file...
+  -> Generating .MTREE file...
+  -> Compressing package...
+==> Leaving fakeroot environment.
+==> Finished making: cachy-asahi-welcome 0.1.0-1 (Mon Oct 19 20:47:56 2026)
+==> Cleaning up...

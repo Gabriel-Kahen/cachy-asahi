@@ -1,0 +1,10 @@
+{
+  "actual": "NOT_RUN",
+  "files": 62,
+  "git_joins": 62,
+  "hardware": "NOT_RUN",
+  "ref": "codex/doctor2-native-products-v1",
+  "release": "NOT_ADMITTED",
+  "source": "705c5a095f9cabbfd2f3cd137127f4bbc7665f52",
+  "status": "COMMITTED_EXACT_CLOSED_TRIAL_SOURCE"
+}
