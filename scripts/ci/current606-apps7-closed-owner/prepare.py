@@ -227,6 +227,7 @@ def emit(inputs,output,selection=None):
  policy=C.read(C.HERE/'null-policy.json');C.need(policy['status']=='UNBOUND_SOURCE_TEMPLATE'and all(v is None for v in policy['current606'].values()),'default native606 selection NULL')
  if selection is not None:policy=C.authorize(selection)
  C.owner_api(inputs['bridge'],inputs['copyworker'])
+ C.renewed_signer(inputs['copyworker'])
  output.mkdir(mode=0o700)
  for role,home in inputs.items():
   for n in rows[role]['files']:
