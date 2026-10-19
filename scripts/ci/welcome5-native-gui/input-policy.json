@@ -1,0 +1,46 @@
+{
+  "actual_ref": null,
+  "actual_source": null,
+  "inputs": {
+    "dns2": {
+      "carrier_ref": "refs/heads/codex/welcome5-dns2-original-gui-inputs-v1",
+      "carrier_source": "31fddcfcae34903f95aa2d34556d2b9497dd7b12",
+      "decision_pin": {
+        "bytes": 2444,
+        "sha256": "a8e9c5b767a27ae04a54a86fa741a8332f4ed6d8b14f96cfb0bc7f072e7835d5"
+      },
+      "decision_status": "ROOT_ACCEPTED_NATIVE_DNS1_TO2_UPGRADE_AND_REAL_PRIVATE_DISCOVERY_RETAINED_SCOPE",
+      "index_path": "index.json",
+      "index_pin": {
+        "bytes": 39808,
+        "sha256": "e92a0d58e247c7cc87f1282e318daf50d8f4201f03cd2a94ec773716f375079a"
+      },
+      "name": "cachy-asahi-dns",
+      "native_run": 39101228683,
+      "native_source": "59a9aee351226e93e22574fd14bd3e0b45c8368d",
+      "version": "0.1.0-2"
+    },
+    "welcome5": {
+      "carrier_ref": "refs/heads/codex/welcome5-dns2-original-gui-inputs-v1",
+      "carrier_source": "31fddcfcae34903f95aa2d34556d2b9497dd7b12",
+      "decision_pin": {
+        "bytes": 3491,
+        "sha256": "90424bbdbb8208460f174606a56f01a5a7b81f02a9826c054d3ccd5fedbfda47"
+      },
+      "decision_status": "ROOT_ACCEPTED_NATIVE_WELCOME4_TO5_UPGRADE_RETAINED_SCOPE",
+      "index_path": "index.json",
+      "index_pin": {
+        "bytes": 39808,
+        "sha256": "e92a0d58e247c7cc87f1282e318daf50d8f4201f03cd2a94ec773716f375079a"
+      },
+      "name": "cachy-asahi-welcome",
+      "native_run": 39104384568,
+      "native_source": "85ffec834fc72ef8764cdcae828a12ec8ddf7f20",
+      "version": "0.1.0-5"
+    }
+  },
+  "minimal_run": null,
+  "overlay_run": null,
+  "schema_version": 1,
+  "status": "ROOT_SELECTED_PUBLIC_NATIVE_INPUTS"
+}
