@@ -429,5 +429,45 @@ class ColdValidationProfileControls(unittest.TestCase):
   for value in({},dict(cold_validation=dict(runtime_adapter.COLD_VALIDATION_PROFILE,seconds=600))):
    with self.assertRaisesRegex(ValueError,'explicit1200'):space['protocol']((json.dumps(value,sort_keys=True,separators=(',',':'))+'\n').encode(),{})
 
+# Complete real graph regression; these owned files carry no VM/native authority.
+class GraphDiagnostics(unittest.TestCase):
+ def test_real_reverse_creation_full_projection_not_sorted_sample(self):
+  saved=dict(sys.modules);paths=list(sys.path)
+  try:
+   for name in('inputs','map_join','protocol','context','client','broker'):sys.modules.pop(name,None)
+   sys.path.insert(0,str(ROOT/'runtime/immutable'))
+   import inputs,map_join,time,types
+   api,modules=inputs.broker()[1].source_api();F=modules['full_root']
+   def snapshot(root):
+    value=api['raw_maps'](modules,root,F.Limits(deadline=time.monotonic()+30,max_nodes=1000,max_bytes=1024**2,max_file_bytes=65536));value['auxiliary']={n:{}for n in('helper','configs','aliases','scan','targets','caches')};value['auxiliary'].update(main_bytes=b'INERT_NOT574',aux_bytes=b'INERT_AUX_NOT574',closure=(),scan_directories=());return value
+   with tempfile.TemporaryDirectory()as td:
+    roots=[Path(td)/n for n in('a','b')]
+    for root,order in zip(roots,(range(90),reversed(range(90)))):
+     root.mkdir()
+     for n in order:(root/('absolute%03d'%n)).symlink_to('/INERT_NOT574')
+     (root/'relative').symlink_to('absolute000');(root/'cycle').symlink_to('cycle');(root/'escape').symlink_to('../escape')
+     for p in(*root.iterdir(),root):os.utime(p,ns=(1000000000,1000000000),follow_symlinks=False)
+    # ext4 hash directories need not preserve creation order. Only this unit
+    # control orders REAL DirEntry objects; production observe is untouched.
+    import contextlib
+    real_scandir=F.os.scandir
+    @contextlib.contextmanager
+    def ordered(directory,reverse):
+     with real_scandir(directory)as entries:
+      yield iter(sorted(entries,key=lambda entry:entry.name,reverse=reverse))
+    with patch.object(F.os,'scandir',side_effect=lambda directory:ordered(directory,False)):a=snapshot(roots[0])
+    with patch.object(F.os,'scandir',side_effect=lambda directory:ordered(directory,True)):b=snapshot(roots[1])
+    self.assertEqual(a['nodes'],b['nodes']);self.assertNotEqual(a['observation']['unsupported'],b['observation']['unsupported']);before=copy.deepcopy((a,b));self.assertEqual(map_join.join(a,b)['nodes'],93);self.assertEqual((a,b),before);self.assertEqual(len(map_join.diagnostics(a)),93)
+    raw=(ROOT/'runtime/immutable/map_join.py').read_text();old=raw.replace(runtime_adapter.GRAPH_REPLACEMENT,runtime_adapter.GRAPH_ANCHOR,1).replace(runtime_adapter.GRAPH_DIAGNOSTICS,'',1);self.assertEqual(D.pin(old.encode()),dict(bytes=6281,sha256='d918ed1faef7a9b31b0085eae464eeca7d2481bed13fcc0f977b30c7aa4a83b3'));prior=types.ModuleType('_graph_original');exec(compile(old,'<whole-pinned-original-map-join>','exec'),vars(prior))
+    with self.assertRaisesRegex(ValueError,'complete original observation field unsupported'):prior.join(a,b)
+    P=inputs.broker()[0];wire=P.unpack(P.decode(P.encode(P.pack(a))));self.assertEqual(map_join.join(wire,b)['nodes'],93)
+    for change in(lambda v:v['observation']['unsupported'][0].__setitem__('path','FOREIGN'),lambda v:v['observation']['unsupported'].pop(),lambda v:v['observation']['unsupported_counts'].__setitem__('absolute-symlink',90),lambda v:v['observation'].__setitem__('eligible',True)):
+     value=copy.deepcopy(b);change(value)
+     with self.assertRaises(ValueError):map_join.join(a,value)
+  finally:
+   sys.path[:]=paths
+   for n in set(sys.modules)-set(saved):sys.modules.pop(n,None)
+   sys.modules.update(saved)
+
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--source',type=Path,default=D.ROOT);a,rest=p.parse_known_args();ROOT=a.source.absolute();unittest.main(argv=[sys.argv[0],*rest],verbosity=2)
