@@ -1,0 +1,22 @@
+{
+  "ref": "refs/heads/codex/welcome7-native-build-pair-v1",
+  "run": 39348847325,
+  "schema_version": 1,
+  "source": "4b2074d4376b572c2aaf958dc3dae7b0971a23c4",
+  "source_authorization": {
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/welcome7-native-build-trial-root-20261020/source-authorization.json",
+    "pin": {
+      "bytes": 16992,
+      "sha256": "fb6357557e4f84116765599d2341b45083f45b020da700667ba8d0c162b5db12"
+    }
+  },
+  "source_path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/welcome7-native-build-trial-root-20261020/source",
+  "source_publication": {
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/welcome7-native-build-trial-root-20261020/Root-committed-publication.json",
+    "pin": {
+      "bytes": 271,
+      "sha256": "91840ff120eaf37d314a6034376070280d575b4c3a587b7aac2f88394b8547c1"
+    }
+  },
+  "workflow_id": 381664314
+}
