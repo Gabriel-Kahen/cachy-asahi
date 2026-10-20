@@ -1,0 +1,12 @@
+{
+  "Root_acceptance": null,
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "component_inputs": null,
+  "current606": null,
+  "packet_checkouts": null,
+  "purpose": "CURRENT607_LATEST_FIVE_TOOLS_NATIVE_COMPOSITION",
+  "schema_version": 1,
+  "status": "UNBOUND_SOURCE_ONLY"
+}

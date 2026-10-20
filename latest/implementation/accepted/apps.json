@@ -1,0 +1,87 @@
+{
+  "GUI": "NOT_RUN",
+  "Runtime1": "PROTECTED_EXACT_ACCEPTED_NATIVE_PAIR_NO_NEW_TRANSACTION_OR_BUILD",
+  "cleanup": "ORIGINAL_SOURCE_BOUND_RETIREMENT_RECEIPTS_NOT_FRESH_LIVE_REOBSERVATION",
+  "corrected_positive": {
+    "bytes": 90286,
+    "sha256": "c90a63ac021f71eec77e374d2593fd6b019456320bf394a6454cd0bd308dced6"
+  },
+  "correction": "ENTIRE_FROZEN_PIPELINE_INVERSE_WITH_ONE_TUPLE_SLOT_EDIT_ALL_ORIGINAL_PREDICATES_REPLAYED",
+  "crypto": "SOURCE_ENFORCED_TYPED_SIGNATURE_STREAM_PINS_NO_FRESH_GPG",
+  "hardware": "NOT_RUN",
+  "independent_Git_blob_joins": 348,
+  "limitations": [
+    "Public659 original package pair decisions are joined separately from the sanitized native574 repair-bytes authority. That authority establishes no missing-repair/aggregate/604/VM/GUI credit. No raw223 evidence is consumed.",
+    "Complete BUILDINFO lists and expected pacman-Q lock hashes are provenance/original-pair-authority joins; the corresponding raw Q-lock bytes are not exported or reconstructed.",
+    "Root must independently join every actual source record to the supplied frozen Git commit. This tool performs no Git or collected code execution and cannot establish remote publication.",
+    "All fresh target-cache signatures, public keyrings and585 original system archive pairs are not exported. Signature-role/hash/unchanged-row declarations and source-enforced verification are joined; no fresh cryptographic verification is performed.",
+    "The six audio archive payloads and private full installed node/database/ownership/user maps are not exported. Incoming audio identity is joined to frozen policy; actual installed comparisons remain original source-enforced receipts.",
+    "Raw eight auxiliary-cache blobs and ldconfig state JSON are independently replayed using the exact frozen comparator. Helper exit remains NOT_OBSERVED; no helper execution, regeneration or source/binary correspondence claim.",
+    "Normal lifecycle exit0 and preservation/absence observations are original source-enforced records, not fresh process/root/container probes. Owned cleanup is disposal, not rollback or boot recovery.",
+    "Public-pair Apps6 native ARM604 metadata lifecycle and installed shell coexistence only; notification delivery, GUI,16K/Apple/M2,services/audio execution,installer,performance and release acceptance are not established.",
+    "Four new clean native containers on the same574 image, not independent machines. Two new script-only complete archive/PKGINFO/BUILDINFO pairs and source payloads are replayed; no hardware/performance credit.",
+    "New two detached signatures are retained and source-enforced by the same producer TEST signer. No fresh GPG execution or independent replay of the private signature trust path is performed.",
+    "Full private604 payload/inode/rawDB/user/trust/ownership maps and successful installed27/28 suite text are not exported. Source-enforced typed receipts/hashes are joined, never a fresh host observation.",
+    "Six new raw auxiliary states are compared with the unchanged complete historical comparator starting from original install604. Helper exit stays NOT_OBSERVED. No live NetworkManager or kernel sysctl mutation was requested.",
+    "Original151/MF148 and supplementary47 b015 metadata are source-bound; Root independently joins the closed263 Git source. Failed workflow/log-only evidence never passes positive verification.",
+    "Complete606 source/copy node/rawDB/inode/hardlink/capability/user/trust maps remain private. Their equality is source-enforced, not independent exported-map replay.",
+    "Five selected Apps transactions, protected Runtime1 signature and both ordinary users CLI/Apps15 observations are typed receipts with stream hashes. No fresh GPG/ALPM/fixture or collected code is executed.",
+    "Native Apps7/Runtime pairs are reused accepted inputs, not new independent builds. Four DNS/Sysctl builders and original fourteen raw auxiliary states remain independently joined.",
+    "Successful Apps15 unittest text and complete readonly inventory snapshots are unexported. No GUI,16K/M2, hardware, performance or release credit. Root alone issues actual acceptance."
+  ],
+  "original_artifact": {
+    "bytes": 12373702,
+    "sha256": "1fa02a796b102607ccdaa100a427f390c05331eefdf219dc1c6fc52a02330026"
+  },
+  "other605": "SOURCE_ENFORCED_FULL_PAYLOAD_RAW_DB_INODE_HARDLINK_CAPS",
+  "page_scope": "NO_16K_EXECUTION_CREDIT_FROM_NATIVE_CONTAINER_LIFECYCLE",
+  "phases": [
+    {
+      "count": 606,
+      "phase": "baseline6",
+      "selected_version": "0.1.0-6"
+    },
+    {
+      "count": 606,
+      "phase": "upgrade7",
+      "selected_version": "0.1.0-7"
+    },
+    {
+      "count": 606,
+      "phase": "same-version7",
+      "selected_version": "0.1.0-7"
+    },
+    {
+      "count": 605,
+      "phase": "remove7",
+      "selected_version": null
+    },
+    {
+      "count": 606,
+      "phase": "reinstall7",
+      "selected_version": "0.1.0-7"
+    },
+    {
+      "count": 606,
+      "phase": "restore-original6",
+      "selected_version": "0.1.0-6"
+    }
+  ],
+  "public_bytes": 42486465,
+  "public_files": 941,
+  "raw_auxiliary_comparisons": {
+    "base604": 8,
+    "new606": 6
+  },
+  "ref": "codex/current606-apps-renewed-signer-v1",
+  "release": "NOT_ADMITTED",
+  "reviewed_at": "2026-10-19T21:51:28.450931+00:00",
+  "run": 39320580643,
+  "selected_apps_transactions": 5,
+  "source": "3660e6cb87b4cb5591b1d295c62c8b02cca4b7e6",
+  "source_files": 348,
+  "source_owned_nonce": "aadbb4811741baefb6a3f7155f72fd3b",
+  "status": "ROOT_ACCEPTED_FINITE_CURRENT606_APPS7_NATIVE_ARTIFACT_PRESERVATION",
+  "strict_original_exit": 1,
+  "strict_original_refusal": "KNOWN_PASSIVE_SOURCE606_RUNNER_TUPLE_SLOT"
+}

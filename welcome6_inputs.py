@@ -1,0 +1,40 @@
+# SPDX-License-Identifier: MIT
+"""Exact Welcome6 accepted native DATA carrier; never execute its source."""
+import hashlib,json,stat,zipfile
+from pathlib import Path
+SOURCE='f14cfdf82280c22ba644b971d6bb26b75bad4bb2';REF='codex/welcome6-native-build-pair-v1';RUN=39344263189
+NAME='cachy-asahi-welcome';VERSION='0.1.0-6'
+INDEX=dict(bytes=29403,sha256='c92e97dfd3bfdf2f4f577ea6c4c637ed51cf7cb2fb389f5865c96307bb83597f')
+ARCHIVE=dict(bytes=37800,sha256='96b1a743f66de959e2fea6125cc3400ae54dbb0cd7d5e1b1b88e683935c8d512')
+def need(ok,why):
+ if not ok:raise ValueError(why)
+def pin(raw):return dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())
+def decode(raw):
+ def pairs(rows):
+  out={}
+  for k,v in rows:need(k not in out,'duplicate DATA key');out[k]=v
+  return out
+ return json.loads(raw,object_pairs_hook=pairs,parse_constant=lambda _:need(False,'finite DATA'))
+def read(path,cap=16*1024**2):
+ path=Path(path);need(path.is_absolute()and not any(p.is_symlink()for p in(path,*path.parents)),'ordinary absolute DATA path');a=path.lstat();need(stat.S_ISREG(a.st_mode)and a.st_nlink==1 and 0<=a.st_size<=cap,'bounded single-link DATA');raw=path.read_bytes();b=path.lstat();key=lambda s:(s.st_dev,s.st_ino,s.st_mode,s.st_uid,s.st_gid,s.st_nlink,s.st_size,s.st_mtime_ns,s.st_ctime_ns);need(key(a)==key(b)and len(raw)==a.st_size,'stable complete DATA');return raw
+def relative(name):
+ p=Path(name);need(type(name)is str and name and not p.is_absolute()and p.as_posix()==name and '..'not in p.parts,'contained exact DATA member');return name
+def inspect(root,checks):
+ root=Path(root).absolute();indexraw=read(root/'index.json');need(pin(indexraw)==INDEX,'exact Welcome6 carrier index');index=decode(indexraw);files=index['files'];need(len(files)==148 and index['kind']=='WELCOME6_ACCEPTED_NATIVE_PAIR_INPUTS_ONLY'and index['native']==dict(source=SOURCE,ref=REF,run=RUN,source_files=107)and index['authority_scope']=='UNSIGNED_ACCEPTED_PAIR_NO_CURRENT606_OR607_CREDIT','finite source/native input scope')
+ entries=list(root.rglob('*'));need(all(not p.is_symlink()for p in entries)and{p.relative_to(root).as_posix()for p in entries if p.is_file()}==set(files)|{'index.json'},'complete149 public carrier closure');raw={}
+ for name,row in files.items():relative(name);raw[name]=read(root/name);need(pin(raw[name])==row,'whole carrier DATA pin '+name)
+ def ref(row):
+  need(set(row)=={'path','bytes','sha256'}and row['path']in raw and pin(raw[row['path']])=={k:row[k]for k in('bytes','sha256')},'indexed whole DATA reference');return raw[row['path']]
+ auth=decode(ref(index['source_authorization']));git=decode(ref(index['git_source_authorization']));pub=decode(ref(index['publication']));need(len(auth)==107 and git==dict(status='PASS_INDEPENDENT_FULL_GIT_BLOB_JOIN',source=SOURCE,ref=REF,files=auth),'all107 genuine Git source joins');need(pub==dict(status='COMMITTED_EXACT_CLOSED_TRIAL_SOURCE',source=SOURCE,ref=REF,files=107,git_joins=107,actual='NOT_RUN',hardware='NOT_RUN',release='NOT_ADMITTED'),'exact native source publication');need({n.removeprefix('source/')for n in raw if n.startswith('source/')}==set(auth),'whole source role');need(all(pin(raw['source/'+relative(n)])==row for n,row in auth.items()),'all native source bytes')
+ run=decode(ref(index['original_metadata']['run']));need((run['id'],run['head_sha'],run['head_branch'],run['run_attempt'],run['status'],run['conclusion'])==(RUN,SOURCE,REF,1,'completed','success'),'successful original first-attempt run');jobs=decode(ref(index['original_metadata']['jobs']));need(jobs['total_count']==len(jobs['jobs'])==1,'one native original job');job=jobs['jobs'][0];need((job['run_id'],job['head_sha'],job['head_branch'],job['run_attempt'],job['name'],job['labels'],job['status'],job['conclusion'])==(RUN,SOURCE,REF,1,'native',['ubuntu-24.04-arm'],'completed','success'),'exact native job source/label');steps={r['number']:r for r in job['steps']};need(all(steps[n]['status']=='completed'and steps[n]['conclusion']=='success'for n in(3,8,9,10,11,12,13,14,15))and steps[12]['name']=='Native Welcome6 fresh build pair only'and steps[14]['completed_at']<=steps[15]['completed_at'],'all original source/build/retirement/retention/upload steps')
+ artifact=ref(index['original_artifact']);api=decode(ref(index['original_metadata']['artifacts']));need(api['total_count']==len(api['artifacts'])==1,'one original native artifact');a=api['artifacts'][0];need(a['size_in_bytes']==len(artifact)and a['digest']=='sha256:'+pin(artifact)['sha256']and a['expired']is False and(a['workflow_run']['id'],a['workflow_run']['head_sha'],a['workflow_run']['head_branch'])==(RUN,SOURCE,REF),'original ZIP API digest/source')
+ with zipfile.ZipFile(root/index['original_artifact']['path'])as z:
+  members=z.infolist();need(len(members)==len({m.filename for m in members})==32 and z.testzip()is None,'all32 unique original ZIP members/CRC');need({'retained/'+m.filename for m in members}=={n for n in raw if n.startswith('retained/')},'complete original member closure')
+  for m in members:relative(m.filename);need(not m.is_dir()and not m.flag_bits&1 and not stat.S_ISLNK(m.external_attr>>16)and m.file_size<=16*1024**2 and z.read(m)==raw['retained/'+m.filename],'complete bounded original member bytes')
+ retention=decode(raw['retained/retention.json']);need(retention['status']=='PASS_NATIVE_WELCOME6_BUILD_PAIR_RETAINED_ONLY'and retention['errors']==[]and set(retention['files'])=={n.removeprefix('retained/')for n in raw if n.startswith('retained/')}-{'retention.json'},'whole original31-file retention');need(all(pin(raw['retained/'+n])==row for n,row in retention['files'].items()),'all original retained hashes')
+ decision=decode(ref(index['decision']));strict=decode(ref(index['strict_result']));need(decision['status']=='ROOT_ACCEPTED_FINITE_NATIVE_WELCOME6_BUILD_PAIR_ONLY'and strict['status']=='PASS_PASSIVE_NATIVE_WELCOME6_BUILD_PAIR_ONLY_PENDING_ROOT'and all((v['source'],v['run'],v['source_files'])==(SOURCE,RUN,107)for v in(decision,strict))and decision['strict_result']==pin(ref(index['strict_result'])),'Root finite decision/exact strict replay')
+ package=index['package'];need((package['name'],package['version'],package['arch'])==(NAME,VERSION,'aarch64'),'exact native product');reports=[];paths=[]
+ for side in('a','b'):
+  archive=ref(package['archives'][side]);need(pin(archive)==ARCHIVE,'exact byte-held unsigned native archive');path=root/package['archives'][side]['path'];report=checks.package(path);validation=decode(ref(package['validation'][side]));need(not report['errors']and validation['errors']==[]and validation['package']==report and validation['tests']==decision['builds'][0 if side=='a'else 1]['tests'],'original full package inspector/build checks');meta=report['metadata']['.PKGINFO'];need(meta['pkgname']==[NAME]and meta['pkgver']==[VERSION]and meta['arch']==['aarch64']and meta['license']==['MIT']and not any(meta.get(k)for k in('install','backup','replaces','conflict')),'exact signed-candidate metadata boundaries');need(report['metadata']['.BUILDINFO']['pkgbuild_sha256sum']==[auth['packages/tools/cachy-asahi-welcome6/PKGBUILD']['sha256']],'native BUILDINFO recipe');provenance=decode(ref(package['provenance'][side]));need(provenance['mode']=='native'and provenance['status']=='built-package-static-pass'and all(auth['packages/tools/cachy-asahi-welcome6/'+relative(n)]['sha256']==sha for n,sha in provenance['recipe_inputs'].items()),'complete native recipe/source/license inputs');reports.append(report);paths.append(path)
+ need(read(paths[0])==read(paths[1])and reports[0]==reports[1],'both native archive/content/metadata bytes');comparison=decode(ref(package['comparison']));need(not comparison['errors']and comparison['status']=='contents-reproduced'and all(comparison['packages'][paths[0].name].values()),'full native pair comparison')
+ return dict(archive=paths[0],payload={n:r for n,r in reports[0]['members'].items()if r['type']!='5'and n not in('.PKGINFO','.BUILDINFO','.MTREE')},source=SOURCE,run=RUN,index=INDEX,authority='ACCEPTED_NATIVE_PAIR_INPUTS_ONLY_NO_COMBINED_CREDIT',signature='NONE_FRESH_ORIGINAL_PRODUCER_TEST_SIGNATURE_REQUIRED')
