@@ -1,0 +1,14 @@
+{
+  "actual_ref": null,
+  "actual_source": null,
+  "carrier_ref": "refs/heads/codex/welcome7-dns2-gui-test-signatures-v2",
+  "carrier_source": "66b36943341f33f946834ebd5871f01e473fb324",
+  "index_pin": {
+    "bytes": 69417,
+    "sha256": "c86ab3b941b0d6e8c354ffb3800cdb2bfcb726560483cc798edc6a7fa44f7435"
+  },
+  "minimal_run": null,
+  "overlay_run": null,
+  "schema_version": 1,
+  "status": "ROOT_SELECTED_CURRENT_TEST_SIGNATURES"
+}
