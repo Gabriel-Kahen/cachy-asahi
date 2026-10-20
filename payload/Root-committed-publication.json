@@ -1,0 +1,10 @@
+{
+  "actual": "NOT_RUN",
+  "files": 107,
+  "git_joins": 107,
+  "hardware": "NOT_RUN",
+  "ref": "codex/welcome6-native-build-pair-v1",
+  "release": "NOT_ADMITTED",
+  "source": "f14cfdf82280c22ba644b971d6bb26b75bad4bb2",
+  "status": "COMMITTED_EXACT_CLOSED_TRIAL_SOURCE"
+}
