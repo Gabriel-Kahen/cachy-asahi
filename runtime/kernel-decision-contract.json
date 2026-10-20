@@ -1,0 +1,45 @@
+{
+  "actual_acceptance": null,
+  "decision_status": "ROOT_ACCEPTED_KSM_ADVICE_DIAGNOSTIC16K_BUILD_ONLY",
+  "finite_expectations": {
+    "VM": "NOT_RUN",
+    "boot": "NOT_RUN",
+    "cleanup": "PASS_OWNED_BUILD_WORK_REMOVED",
+    "hardware": "NOT_RUN",
+    "live_kernel_write": "NOT_RUN",
+    "performance": "NOT_MEASURED",
+    "profile": "KSM_ADVICE_GENERIC16K_DIAGNOSTIC_V1",
+    "release": "NOT_ADMITTED"
+  },
+  "known_ref": "codex/ksm16k-advice-kernel-v1",
+  "known_source": "80aa47304123106133832c11a9e4a405af5f1f67",
+  "limits": [
+    "NO_BOOT_OR_SYSFS_EXECUTION_CREDIT",
+    "ORIGINAL_ABSOLUTE_RECEIPT_PATHS_ARE_PROVENANCE_NOT_LATER_JOB_PATHS",
+    "NO_INDEPENDENT_MACHINE_ATTESTATION"
+  ],
+  "required_fields": [
+    "status",
+    "source",
+    "run",
+    "descriptor",
+    "source_manifest",
+    "profile",
+    "archive",
+    "configuration_delta",
+    "Image",
+    "config",
+    "original_transport",
+    "build_receipt",
+    "cleanup",
+    "boot",
+    "VM",
+    "live_kernel_write",
+    "hardware",
+    "performance",
+    "release",
+    "limits"
+  ],
+  "scope": "ACTUAL_SOURCE_BOUND_KERNEL_BUILD_CONFIG_HEADER_AND_OWNED_CLEANUP_ONLY",
+  "status": "ROOT_DECLARED_FUTURE_KERNEL_BUILD_DECISION_CONTRACT_NOT_ACCEPTANCE"
+}
