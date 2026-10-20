@@ -149,3 +149,47 @@ PATCHES={'native_controller.py': (("changes=((kernel,replacement),", "changes=((
 
 # Failure-only diagnostic; original positive protocol is byte recoverable.
 PATCHES['native_controller.py']=PATCHES.get('native_controller.py',())+(("v=P.decode(lines[0]);P.need(v['purpose']","v=P.decode(lines[0]);\n if type(v)is dict and v.get('purpose')=='GNU_IMMUTABLE_RUNTIME_V1'and v.get('status')=='FAIL':\n  P.need(set(v)=={'cleanup','error','error_type','purpose','status'}and v['cleanup']=='NOT_ACCEPTED_UNKNOWN_STATE_RETAIN_BACKING_FILES'and type(v['error'])is str and len(v['error'].encode())<=4096 and type(v['error_type'])is str and 0<len(v['error_type'].encode())<=128,'closed bounded guest failure DATA only')\n  raise ValueError('guest FAIL DATA only; nonce/lifecycle/cleanup NOT_ACCEPTED: '+json.dumps(v,sort_keys=True,separators=(',',':')))\n P.need(v['purpose']"),)
+WORKER_FRAGMENT='\n# Explicit TEST-only copied-root observation capacity; never product timeouts.\nWORKER_VALIDATION_PROFILE={\'name\':\'GNU_IMMUTABLE_WORKER_VALIDATION_1200_4800_V1\',\'observation_seconds\':1200,\'copy_context_seconds\':4800,\'old_600_2400_fit\':\'NOT_ESTABLISHED\',\'owner_ceiling\':10500,\'qemu_ceiling\':10800}\n_VALIDATION_LABELS=tuple(\'SNAPSHOT_\'+case.upper()+\'_\'+phase.upper().replace(\'-\',\'_\')for case in(\'pristine\',\'modified\')for phase in(\'source-before\',\'clone\',\'before574\',\'precommit-refused\',\'provider574\',\'reinstalled574\',\'held574\',\'source-after\'))+(\'COPY_SELECTED_OBSERVE\',\'COPY_COPIED_TREE\',\'COPY_CAPABILITY_RESTORE\',\'COPY_COPY_DATA\')\n_validation_writes=0\n\ndef validation_failure(label):\n global _validation_writes\n # Exception-only fixed literals, no message/path/identity/time serialization.\n try:\n  if type(label)is not str or label not in _VALIDATION_LABELS or _validation_writes>=8:return\n  _validation_writes+=1;os.write(2,b\'GNU_WORKER_FAILURE_DATA \'+label.encode(\'ascii\')+b\'\\n\')\n except BaseException:pass\n\ndef validation_limits(guest,original):\n import ast\n text=Path(guest.__file__).read_text();tree=ast.parse(text)\n nodes=[n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name==\'_copy_context_limits\'];P.need(len(nodes)==1,\'one whole trusted copy-context function\')\n before=ast.get_source_segment(text,nodes[0]);after=before\n pairs=((\'<=600:\', \'<=1200:\'),(\'original.deadline+1800\',\'original.deadline+3600\'),("\'PARENT2400\'","\'PARENT4800\'"),("\'WINDOW600\'","\'WINDOW1200\'"),(\'time.monotonic()+600\',\'time.monotonic()+1200\'))\n # The extension appears twice (diagnostic arithmetic and actual deadline).\n for old,new in dict(pairs).items():\n  count=2 if old in(\'original.deadline+1800\',"\'PARENT2400\'","\'WINDOW600\'")else 1\n  P.need(after.count(old)==count,\'finite worker capacity source seam\');after=after.replace(old,new)\n old=\'            except BaseException:\\n                if not state[\\\'failed\\\']:emit(state,\\\'failure\\\',state[\\\'expiry\\\'])\'\n new=\'            except BaseException:\\n                try:validation_failure(\\\'COPY_\\\'+operation)\\n                except BaseException:pass\\n                if not state[\\\'failed\\\']:emit(state,\\\'failure\\\',state[\\\'expiry\\\'])\'\n P.need(after.count(old)==1,\'one exception-only copy diagnostic seam\');after=after.replace(old,new)\n restored=after.replace(new,old)\n for old,new in reversed(tuple(dict(pairs).items())):restored=restored.replace(new,old)\n P.need(restored==before,\'entire original copy-context function inverse\')\n space=dict(vars(guest),validation_failure=validation_failure);exec(compile(after,guest.__file__,\'exec\'),space)\n return space[\'_copy_context_limits\'](original)\n\ndef install_validation(module):\n original_limits=module.limits;original_snapshot=module.snapshot\n def limits(api,seconds=1200):return original_limits(api,seconds)\n def snapshot(api,root,label):\n  try:return original_snapshot(api,root,label)\n  except BaseException:\n   if type(label)is str:validation_failure(\'SNAPSHOT_\'+label.upper().replace(\'-\',\'_\'))\n   raise\n module.limits=limits;module.snapshot=snapshot\n'
+
+# Worker-only validation envelope; original guest/native source stays byte-held.
+_original_apply=apply
+def apply(runtime):
+ basis=D.obj(D.read(D.HERE/'runtime-basis.json',2*1024**2));originals={n:D.read(runtime/n,16*1024**2)for n in basis};proof=_original_apply(runtime);updates={}
+ def edit(name,old,new):
+  p=runtime/name;text=p.read_text();D.need(text.count(old)==1,'one worker profile seam '+name);p.write_text(text.replace(old,new));updates[name]=True
+ p=runtime/'immutable/worker_api.py';p.write_text(p.read_text()+WORKER_FRAGMENT);updates['immutable/worker_api.py']=True
+ edit('immutable/worker_api.py',"budget=guest._copy_context_limits(kwargs['limits'])","budget=validation_limits(guest,kwargs['limits'])")
+ edit('immutable/worker.py','module.C.helpers=bound_helpers','module.C.helpers=bound_helpers;worker_api.install_validation(module)')
+ edit('immutable/worker.py',"dict(files=files,bytes=total,purpose=","dict(validation_profile=dict(worker_api.WORKER_VALIDATION_PROFILE),files=files,bytes=total,purpose=")
+ profile=eval(WORKER_FRAGMENT.split('WORKER_VALIDATION_PROFILE=',1)[1].split('\n',1)[0])
+ edit('immutable/native_controller.py',"w=v['worker'];files=w['files'];", "w=v['worker'];P.need(w.get('validation_profile')=="+repr(profile)+",'exact worker1200/copy4800 TEST profile; no old-fit claim');files=w['files'];")
+ # Relay only bounded fixed failure labels from the already captured worker stderr.
+ relay="""            if error is not None or row['exit_code'] != 0 or err:
+                relay_worker_failure(err)
+"""
+ edit('immutable/owner.py',"            P.need(error is None and row['exit_code']",relay+"            P.need(error is None and row['exit_code']")
+ labels=eval(WORKER_FRAGMENT.split('_VALIDATION_LABELS=',1)[1].split('\n',1)[0])
+ helper="""def relay_worker_failure(raw):
+ # Bounded already-captured exception DATA only; empty-stderr success stays mandatory.
+ try:
+  if type(raw)is not bytes or len(raw)>512*1024:return
+  allowed=LABELS;count=0
+  for line in raw.splitlines(keepends=True)[:64]:
+   if count<8 and line.endswith(bytes([10]))and line[:-1]in allowed:
+    count+=1
+    try:os.write(2,line)
+    except BaseException:pass
+ except BaseException:pass
+
+""".replace('LABELS',repr(tuple(b'GNU_WORKER_FAILURE_DATA '+v.encode()for v in labels)))
+ p=runtime/'immutable/owner.py';p.write_text(p.read_text().replace("if __name__=='__main__':",helper+"if __name__=='__main__':",1))
+ manifest=D.obj((runtime/'runtime-source.json').read_bytes())
+ for n in updates:manifest['files'][n]=D.pin((runtime/n).read_bytes())
+ (runtime/'runtime-source.json').write_bytes(D.encoded(manifest));updates['runtime-source.json']=True
+ # Full original667 inverse, including all earlier required source derivatives.
+ for n in updates:
+  old=(runtime/n).read_bytes()
+  # Exact basis bodies are supplied only from the pinned original667 root.
+  raw=originals[n];D.need(D.pin(raw)==basis[n],'whole original667 worker inverse operand')
+  proof['changed'][n]=dict(before=basis[n],after=D.pin(old),inverse=[dict(old=raw.decode(),new=old.decode(),count=1)])
+ proof['held']=667-len(proof['changed']);return proof
