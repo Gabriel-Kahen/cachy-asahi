@@ -1,0 +1,11 @@
+# KSM2 native current606 preservation
+
+Run [39337741854](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/39337741854), source `a69921a214a9db4df8be6772bf1b3da344cd0eb4`, passed CI and the unchanged strict artifact reader. Root independently accepted **ROOT_ACCEPTED_FINITE_CURRENT606_KSM2_NATIVE_ARTIFACT_PRESERVATION**. This is the explicit3600-second worker/8400-second owner validation profile; earlier1800-second trials remain failed.
+
+The native fixture upgrades KSM1 to KSM2, repeats installation, removes KSM2, reinstalls it and restores the exact original KSM1 archive/signature/payload/current ALPM database. Counts are606/606/606/605/606/606. All other605 packages and Runtime1 remain protected through source-enforced complete payload/raw database/inode/hardlink/capability maps. Eight original base auxiliary comparisons and six new component comparisons pass. This is an independent component fixture, not a combined latest-tools composition.
+
+The installed suites run18 KSM1 and44 KSM2 private regular-file controls under both existing and fresh homes, with two CLI checks per home. They perform no live kernel writes. Four DNS2/Sysctl2 build containers produce two native package pairs on the same574 image; they are not independent machines. KSM2’s accepted native pair is reused input authority, not a new KSM build.
+
+The coordinator joined all360 Git source blobs, original API artifact digest, exact two ZIP members, every indexed frame/chunk, and all939 public files totaling42,435,586 bytes. The source-owned nonce, six phases, raw auxiliary comparisons and ordered retirement records agree. See the [finite machine-readable record](../../manifests/ksm2-current606-native-result.json).
+
+Complete private maps, producer TEST signatures and installed suite stream receipts remain source-enforced. Passive replay executes no collected code, GPG, ALPM, sysfs or live cleanup probe. It grants no memory sharing, interruption/unmerge, performance, GUI,16K execution, Asahi/M2 hardware, production trust or release acceptance. The separate accepted generic16K scalar trial and advice-capable diagnostic kernel retain their own finite scopes. Both M2 Air sizes remain NOT RUN; release remains NOT ADMITTED.
