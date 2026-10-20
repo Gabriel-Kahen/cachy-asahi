@@ -1,0 +1,50 @@
+{
+  "bootstrap-derived.py": {
+    "bytes": 10561,
+    "sha256": "7fd69761a16064c68f61fbdc625db21309aae8358a1b6ffe91629c4eb9b458b2"
+  },
+  "broker.py": {
+    "bytes": 2574,
+    "sha256": "9659c0a8d549301d38cf8ccc9b507b59dc83907857343354e9a4090249c00540"
+  },
+  "check_handoff.py": {
+    "bytes": 621,
+    "sha256": "96366466c1683a3034859dc82e3faef154db3e4d92e123379c9427322b86ac99"
+  },
+  "check_source.py": {
+    "bytes": 1128,
+    "sha256": "efe5f5828a303fe575764ca174f9c05a042b881cc1484da29e86bd8bc94655ac"
+  },
+  "client.py": {
+    "bytes": 3690,
+    "sha256": "60d1c8fe32f17ddf357beba78958145e907847d8f00010c136485bff2da6aef0"
+  },
+  "context.py": {
+    "bytes": 7164,
+    "sha256": "2854d0dcc0f0b49d3cf8530a8f5bc7e7ada93b113bf07c34c0508768176d3903"
+  },
+  "input-pins.json": {
+    "bytes": 882,
+    "sha256": "08afe2607d9fd16d1ee38dfd6236388d08d683f4d019f1b7e6e12d84162abc90"
+  },
+  "integration.py": {
+    "bytes": 2779,
+    "sha256": "2c15ef61f688f87bddd3cbb716c1a8698953a8c21219f019285f7931b69e98bc"
+  },
+  "protocol.py": {
+    "bytes": 5056,
+    "sha256": "232fe2e013ebc80fe284bcc605e1e9ff58aff635b121e70bceb1e0a661222e6c"
+  },
+  "scope.py": {
+    "bytes": 1229,
+    "sha256": "6eab2aa0cc7759c27153febbebfee7f52660a16259d1426b2fd2b994509d1fbf"
+  },
+  "selection.template.json": {
+    "bytes": 172,
+    "sha256": "6eb4ea510228d1834e83fb822602988227fb98e9dac3ae92f4a21f1aa801dfb3"
+  },
+  "test_broker.py": {
+    "bytes": 8631,
+    "sha256": "1b2c4e2e6da7131cd72682e7711506cd9085f13983ec4fdb2b86f25fe5e7da59"
+  }
+}
