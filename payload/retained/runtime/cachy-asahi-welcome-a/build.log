@@ -1,0 +1,235 @@
+==> Making package: cachy-asahi-welcome 0.1.0-6 (Mon Oct 19 23:58:07 2026)
+==> Retrieving sources...
+  -> Found boot-fixtures.h
+  -> Found test_boot_history.c
+  -> Found test_report_work.c
+  -> Found test_management_ui.c
+  -> Found management.c
+  -> Found management.h
+  -> Found management-report.c
+  -> Found management-report.h
+  -> Found test_management.c
+  -> Found test_management_report.c
+  -> Found welcome.c
+  -> Found status.c
+  -> Found status.h
+  -> Found Makefile
+  -> Found test_status.c
+  -> Found test_cli.py
+  -> Found check_source.py
+  -> Found README.md
+  -> Found first-run.txt
+  -> Found updates.txt
+  -> Found recovery.txt
+  -> Found io.github.GabrielKahen.CachyAsahiWelcome.desktop
+  -> Found cachy-asahi-welcome.svg
+  -> Found NOTICE
+  -> Found LICENSE
+==> Validating source files with sha256sums...
+    boot-fixtures.h ... Passed
+    test_boot_history.c ... Passed
+    test_report_work.c ... Passed
+    test_management_ui.c ... Passed
+    management.c ... Passed
+    management.h ... Passed
+    management-report.c ... Passed
+    management-report.h ... Passed
+    test_management.c ... Passed
+    test_management_report.c ... Passed
+    welcome.c ... Passed
+    status.c ... Passed
+    status.h ... Passed
+    Makefile ... Passed
+    test_status.c ... Passed
+    test_cli.py ... Passed
+    check_source.py ... Passed
+    README.md ... Passed
+    first-run.txt ... Passed
+    updates.txt ... Passed
+    recovery.txt ... Passed
+    io.github.GabrielKahen.CachyAsahiWelcome.desktop ... Passed
+    cachy-asahi-welcome.svg ... Passed
+    NOTICE ... Passed
+    LICENSE ... Passed
+==> Making package: cachy-asahi-welcome 0.1.0-6 (Mon Oct 19 23:58:08 2026)
+==> Checking runtime dependencies...
+==> Checking buildtime dependencies...
+==> Retrieving sources...
+  -> Found boot-fixtures.h
+  -> Found test_boot_history.c
+  -> Found test_report_work.c
+  -> Found test_management_ui.c
+  -> Found management.c
+  -> Found management.h
+  -> Found management-report.c
+  -> Found management-report.h
+  -> Found test_management.c
+  -> Found test_management_report.c
+  -> Found welcome.c
+  -> Found status.c
+  -> Found status.h
+  -> Found Makefile
+  -> Found test_status.c
+  -> Found test_cli.py
+  -> Found check_source.py
+  -> Found README.md
+  -> Found first-run.txt
+  -> Found updates.txt
+  -> Found recovery.txt
+  -> Found io.github.GabrielKahen.CachyAsahiWelcome.desktop
+  -> Found cachy-asahi-welcome.svg
+  -> Found NOTICE
+  -> Found LICENSE
+==> Validating source files with sha256sums...
+    boot-fixtures.h ... Passed
+    test_boot_history.c ... Passed
+    test_report_work.c ... Passed
+    test_management_ui.c ... Passed
+    management.c ... Passed
+    management.h ... Passed
+    management-report.c ... Passed
+    management-report.h ... Passed
+    test_management.c ... Passed
+    test_management_report.c ... Passed
+    welcome.c ... Passed
+    status.c ... Passed
+    status.h ... Passed
+    Makefile ... Passed
+    test_status.c ... Passed
+    test_cli.py ... Passed
+    check_source.py ... Passed
+    README.md ... Passed
+    first-run.txt ... Passed
+    updates.txt ... Passed
+    recovery.txt ... Passed
+    io.github.GabrielKahen.CachyAsahiWelcome.desktop ... Passed
+    cachy-asahi-welcome.svg ... Passed
+    NOTICE ... Passed
+    LICENSE ... Passed
+==> Removing existing $srcdir/ directory...
+==> Extracting sources...
+==> Starting build()...
+make: Entering directory '/tmp/work/src'
+cc -DWELCOME_DOC_DIR='"/usr/share/doc/cachy-asahi-welcome"' -march=armv8-a -mno-omit-leaf-frame-pointer -O2 -pipe -fstack-protector-strong -fno-plt -fexceptions         -Wp,-D_FORTIFY_SOURCE=3 -Wformat -Werror=format-security         -fstack-clash-protection         -fno-omit-frame-pointer -std=c11 -Wall -Wextra -Wformat=2 -Werror -I/usr/include/gtk-3.0 -I/usr/include/pango-1.0 -I/usr/include/cloudproviders -I/usr/include/cairo -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/glycin-2 -I/usr/include/at-spi2-atk/2.0 -I/usr/include/at-spi-2.0 -I/usr/include/atk-1.0 -I/usr/include/dbus-1.0 -I/usr/lib/dbus-1.0/include -I/usr/include/fribidi -I/usr/include/pixman-1 -I/usr/include/harfbuzz -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/gio-unix-2.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/sysprof-6 -pthread welcome.c status.c management.c management-report.c -o cachy-asahi-welcome -Wl,-O1 -Wl,--sort-common -Wl,--as-needed -Wl,-z,relro -Wl,-z,now          -Wl,-z,pack-relative-relocs -Wl,-z,max-page-size=16384 -lgtk-3 -lgdk-3 -lpangocairo-1.0 -lcairo-gobject -lgdk_pixbuf-2.0 -latk-1.0 -lpango-1.0 -lcairo -lharfbuzz -lgio-2.0 -lgobject-2.0 -lglib-2.0 -lz
+make: Leaving directory '/tmp/work/src'
+==> Starting check()...
+make: Entering directory '/tmp/work/src'
+cc -march=armv8-a -mno-omit-leaf-frame-pointer -O2 -pipe -fstack-protector-strong -fno-plt -fexceptions         -Wp,-D_FORTIFY_SOURCE=3 -Wformat -Werror=format-security         -fstack-clash-protection         -fno-omit-frame-pointer -std=c11 -Wall -Wextra -Wformat=2 -Werror -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/sysprof-6 -pthread test_status.c status.c -o test-status -Wl,-O1 -Wl,--sort-common -Wl,--as-needed -Wl,-z,relro -Wl,-z,now          -Wl,-z,pack-relative-relocs -Wl,-z,max-page-size=16384 -lgio-2.0 -lgobject-2.0 -lglib-2.0
+cc -march=armv8-a -mno-omit-leaf-frame-pointer -O2 -pipe -fstack-protector-strong -fno-plt -fexceptions         -Wp,-D_FORTIFY_SOURCE=3 -Wformat -Werror=format-security         -fstack-clash-protection         -fno-omit-frame-pointer -std=c11 -Wall -Wextra -Wformat=2 -Werror -DMANAGEMENT_TEST -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/sysprof-6 -pthread test_management.c management.c management-report.c -o test-management -Wl,-O1 -Wl,--sort-common -Wl,--as-needed -Wl,-z,relro -Wl,-z,now          -Wl,-z,pack-relative-relocs -Wl,-z,max-page-size=16384 -lgio-2.0 -lgobject-2.0 -lglib-2.0
+cc -march=armv8-a -mno-omit-leaf-frame-pointer -O2 -pipe -fstack-protector-strong -fno-plt -fexceptions         -Wp,-D_FORTIFY_SOURCE=3 -Wformat -Werror=format-security         -fstack-clash-protection         -fno-omit-frame-pointer -std=c11 -Wall -Wextra -Wformat=2 -Werror -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/sysprof-6 -pthread test_management_report.c management-report.c -o test-management-report -Wl,-O1 -Wl,--sort-common -Wl,--as-needed -Wl,-z,relro -Wl,-z,now          -Wl,-z,pack-relative-relocs -Wl,-z,max-page-size=16384 -lgio-2.0 -lgobject-2.0 -lglib-2.0
+cc -DWELCOME_DOC_DIR='"/usr/share/doc/cachy-asahi-welcome"' -march=armv8-a -mno-omit-leaf-frame-pointer -O2 -pipe -fstack-protector-strong -fno-plt -fexceptions         -Wp,-D_FORTIFY_SOURCE=3 -Wformat -Werror=format-security         -fstack-clash-protection         -fno-omit-frame-pointer -std=c11 -Wall -Wextra -Wformat=2 -Werror -I/usr/include/gtk-3.0 -I/usr/include/pango-1.0 -I/usr/include/cloudproviders -I/usr/include/cairo -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/glycin-2 -I/usr/include/at-spi2-atk/2.0 -I/usr/include/at-spi-2.0 -I/usr/include/atk-1.0 -I/usr/include/dbus-1.0 -I/usr/lib/dbus-1.0/include -I/usr/include/fribidi -I/usr/include/pixman-1 -I/usr/include/harfbuzz -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/gio-unix-2.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/sysprof-6 -pthread test_report_work.c status.c management.c management-report.c -o test-report-work -Wl,-O1 -Wl,--sort-common -Wl,--as-needed -Wl,-z,relro -Wl,-z,now          -Wl,-z,pack-relative-relocs -Wl,-z,max-page-size=16384 -lgtk-3 -lgdk-3 -lpangocairo-1.0 -lcairo-gobject -lgdk_pixbuf-2.0 -latk-1.0 -lpango-1.0 -lcairo -lharfbuzz -lgio-2.0 -lgobject-2.0 -lglib-2.0 -lz
+cc -march=armv8-a -mno-omit-leaf-frame-pointer -O2 -pipe -fstack-protector-strong -fno-plt -fexceptions         -Wp,-D_FORTIFY_SOURCE=3 -Wformat -Werror=format-security         -fstack-clash-protection         -fno-omit-frame-pointer -std=c11 -Wall -Wextra -Wformat=2 -Werror -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/sysprof-6 -pthread test_boot_history.c management-report.c -o test-boot-history -Wl,-O1 -Wl,--sort-common -Wl,--as-needed -Wl,-z,relro -Wl,-z,now          -Wl,-z,pack-relative-relocs -Wl,-z,max-page-size=16384 -lgio-2.0 -lgobject-2.0 -lglib-2.0
+./test-status
+TAP version 14
+# random seed: R02Sd57abf05c359607378d50281623cdcc5
+1..7
+# Start of status tests
+ok 1 /status/installed
+ok 2 /status/unavailable
+ok 3 /status/duplicate
+ok 4 /status/lookalike
+ok 5 /status/malformed
+ok 6 /status/oversized
+ok 7 /status/json-controls
+# End of status tests
+./test-management
+TAP version 14
+# random seed: R02Sd9c97c1aeb45891996b873d98cef176e
+1..16
+# Start of management tests
+ok 1 /management/boot-fixed-list-argv
+ok 2 /management/dns-fixed-argv
+ok 3 /management/dns-metadata-files
+ok 4 /management/api
+ok 5 /management/success
+ok 6 /management/nonzero
+ok 7 /management/missing
+ok 8 /management/output-limit
+ok 9 /management/timeout
+ok 10 /management/cancel-detached
+ok 11 /management/complete-detached
+ok 12 /management/unrelated-child-isolation
+ok 13 /management/environment
+ok 14 /management/binary-output
+ok 15 /management/invalid-utf8
+ok 16 /management/root-guard # SKIP Root guard requires an actual root test process
+# End of management tests
+./test-management-report
+TAP version 14
+# random seed: R02S66bc2170b73d9232c1c0dee573217be0
+1..12
+# Start of report tests
+ok 1 /report/json
+ok 2 /report/unicode
+ok 3 /report/refusal
+ok 4 /report/bounds
+# Start of dns tests
+ok 5 /report/dns/valid
+ok 6 /report/dns/schema
+ok 7 /report/dns/bounds
+ok 8 /report/dns/versions
+# End of dns tests
+# Start of doctor tests
+ok 9 /report/doctor/valid
+ok 10 /report/doctor/schema
+# End of doctor tests
+# Start of orphans tests
+ok 11 /report/orphans/valid
+ok 12 /report/orphans/schema
+# End of orphans tests
+# End of report tests
+./test-report-work
+TAP version 14
+# random seed: R02Sd1aea3af9bac65546b57d152ab016461
+1..3
+# Start of report-work tests
+ok 1 /report-work/copied-buffer-and-display
+ok 2 /report-work/close-pending-lifetime
+ok 3 /report-work/no-second-start
+# End of report-work tests
+./test-boot-history
+TAP version 14
+# random seed: R02S28d463018e10eb5362283f62623c44a6
+1..3
+# Start of boot-history tests
+ok 1 /boot-history/listed-empty-unavailable
+ok 2 /boot-history/schema-refusals
+ok 3 /boot-history/bounds-duplicate-full-json
+# End of boot-history tests
+python3 -B test_cli.py ./cachy-asahi-welcome
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.146s
+
+OK
+python3 -B check_source.py --root "/tmp/work"
+{'status': 'PASS_SOURCE_PAYLOAD_CONTRACT', 'pinned_sources': 25, 'installed_files': 9, 'native_build': 'NOT RUN', 'GUI': 'NOT RUN'}
+make: Leaving directory '/tmp/work/src'
+==> Entering fakeroot environment...
+==> Starting package()...
+make: Entering directory '/tmp/work/src'
+install -Dm755 cachy-asahi-welcome /tmp/work/pkg/cachy-asahi-welcome/usr/bin/cachy-asahi-welcome
+install -Dm644 io.github.GabrielKahen.CachyAsahiWelcome.desktop /tmp/work/pkg/cachy-asahi-welcome/usr/share/applications/io.github.GabrielKahen.CachyAsahiWelcome.desktop
+install -Dm644 cachy-asahi-welcome.svg /tmp/work/pkg/cachy-asahi-welcome/usr/share/icons/hicolor/scalable/apps/cachy-asahi-welcome.svg
+install -Dm644 first-run.txt /tmp/work/pkg/cachy-asahi-welcome/usr/share/doc/cachy-asahi-welcome/first-run.txt
+install -Dm644 updates.txt /tmp/work/pkg/cachy-asahi-welcome/usr/share/doc/cachy-asahi-welcome/updates.txt
+install -Dm644 recovery.txt /tmp/work/pkg/cachy-asahi-welcome/usr/share/doc/cachy-asahi-welcome/recovery.txt
+install -Dm644 README.md /tmp/work/pkg/cachy-asahi-welcome/usr/share/doc/cachy-asahi-welcome/README.md
+install -Dm644 LICENSE /tmp/work/pkg/cachy-asahi-welcome/usr/share/licenses/cachy-asahi-welcome/LICENSE
+install -Dm644 NOTICE /tmp/work/pkg/cachy-asahi-welcome/usr/share/licenses/cachy-asahi-welcome/NOTICE
+make: Leaving directory '/tmp/work/src'
+==> Tidying install...
+  -> Removing libtool files...
+  -> Removing static library files...
+  -> Purging unwanted files...
+  -> Stripping unneeded symbols from binaries and libraries...
+  -> Compressing man and info pages...
+==> Checking for packaging issues...
+==> Creating package "cachy-asahi-welcome"...
+  -> Generating .PKGINFO file...
+  -> Generating .BUILDINFO file...
+  -> Generating .MTREE file...
+  -> Compressing package...
+==> Leaving fakeroot environment.
+==> Finished making: cachy-asahi-welcome 0.1.0-6 (Mon Oct 19 23:58:17 2026)
+==> Cleaning up...

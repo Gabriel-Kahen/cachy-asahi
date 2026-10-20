@@ -1,0 +1,10 @@
+{
+  "status": "SOURCE_PROOF_PASS",
+  "source_sha": "f14cfdf82280c22ba644b971d6bb26b75bad4bb2",
+  "workflow_sha": "f14cfdf82280c22ba644b971d6bb26b75bad4bb2",
+  "run_id": "39344263189",
+  "run_attempt": "1",
+  "source_files": 104,
+  "job_token": "56f12ded52f1f9b6",
+  "manifest_sha256": "071ab7f5b08f3dc02ba5cc1f7584e682fd7fefe8fcaee4e02c77902d2321723b"
+}
