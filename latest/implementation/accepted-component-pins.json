@@ -1,0 +1,56 @@
+{
+  "apps": {
+    "authority": "HISTORICAL_FINITE_COMPONENT_INPUT_ONLY_NO_COMBINED_CREDIT",
+    "bytes": 5690,
+    "path": "apps.json",
+    "run": 39320580643,
+    "sha256": "8bc8c386059edaf710522d381d319924493fb010452d82369d1b62252101ec06",
+    "source": "3660e6cb87b4cb5591b1d295c62c8b02cca4b7e6",
+    "status": "ROOT_ACCEPTED_FINITE_CURRENT606_APPS7_NATIVE_ARTIFACT_PRESERVATION"
+  },
+  "boot": {
+    "authority": "HISTORICAL_FINITE_COMPONENT_INPUT_ONLY_NO_COMBINED_CREDIT",
+    "bytes": 4494,
+    "path": "boot.json",
+    "run": 39323942218,
+    "sha256": "9e84021cd5fcdbb7b4009ea6341b7f737887f0334e28639430fbb0416d4ec0f2",
+    "source": "2c524830adb007e3b49392ceb54dd4cc5236c77d",
+    "status": "ROOT_ACCEPTED_FINITE_NATIVE_BOOT_REPORT_PAIR_AND_SYNTHETIC_INSTALLED_CLI_LIFECYCLE"
+  },
+  "doctor": {
+    "authority": "HISTORICAL_FINITE_COMPONENT_INPUT_ONLY_NO_COMBINED_CREDIT",
+    "bytes": 5821,
+    "path": "doctor.json",
+    "run": 39335483055,
+    "sha256": "31fb552e9bc8e9c27c10367472834ca6474f8205e7cf01d7245b647ec47bfba6",
+    "source": "6f824cac64cd44f765e54fd3b5a853689ea0ce7b",
+    "status": "ROOT_ACCEPTED_FINITE_CURRENT606_DOCTOR2_NATIVE_ARTIFACT_PRESERVATION"
+  },
+  "ksm": {
+    "authority": "HISTORICAL_FINITE_COMPONENT_INPUT_ONLY_NO_COMBINED_CREDIT",
+    "bytes": 6190,
+    "path": "ksm.json",
+    "run": 39337741854,
+    "sha256": "8f797eac9f28f5b1c96f9bfa8104d5b844cb684de7f97da61cf18ccb30634e1d",
+    "source": "a69921a214a9db4df8be6772bf1b3da344cd0eb4",
+    "status": "ROOT_ACCEPTED_FINITE_CURRENT606_KSM2_NATIVE_ARTIFACT_PRESERVATION"
+  },
+  "welcome5": {
+    "authority": "HISTORICAL_FINITE_COMPONENT_INPUT_ONLY_NO_COMBINED_CREDIT",
+    "bytes": 6137,
+    "path": "welcome5.json",
+    "run": 39308892579,
+    "sha256": "980fbe098bfa0eed7226cdc998b6be274b7918c4d4f5935d2e7c4a8717f9487f",
+    "source": "deaf5d618fbc7be87b4e0296481beb7e336a9155",
+    "status": "ROOT_ACCEPTED_FINITE_CURRENT606_WELCOME5_NATIVE_ARTIFACT_PRESERVATION"
+  },
+  "welcome6": {
+    "authority": "HISTORICAL_FINITE_COMPONENT_INPUT_ONLY_NO_COMBINED_CREDIT",
+    "bytes": 5158,
+    "path": "welcome6.json",
+    "run": 39344263189,
+    "sha256": "c29d3be92ef9b238efb848e4ff13a39f7ce019f7d623f2fdf86797467cdd6324",
+    "source": "f14cfdf82280c22ba644b971d6bb26b75bad4bb2",
+    "status": "ROOT_ACCEPTED_FINITE_NATIVE_WELCOME6_BUILD_PAIR_ONLY"
+  }
+}
