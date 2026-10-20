@@ -3,7 +3,7 @@ import ast,hashlib,json
 from pathlib import Path
 import deploy as D
 RULES=(('glibc-gnu-provider-installed16k','glibc-debian-maintained-installed16k'),('/installed16k','/debian-maintained-installed16k'),('init-installed16k','init-debian-maintained-installed16k'),('caa_gnu_installed16k=1','caa_debian_maintained_installed16k=1'),('CAA_INSTALLED16K_PREPARE','CAA_DEBIAN_MAINTAINED_INSTALLED16K_PREPARE'))
-FILES=('native_controller.py','native_prepare.py','disk_adapter.py','stage.py','worker.py','owner.py','runtime_check.py','test_controls.py','bootstrap_loader.py')
+FILES=('native_controller.py','native_prepare.py','disk_adapter.py','stage.py','worker.py','owner.py','runtime_check.py','test_controls.py','bootstrap_loader.py','map_join.py')
 def derive(raw,name):
  text=raw.decode();edits=[]
  for before,after in RULES:
@@ -103,11 +103,23 @@ def cold_profile_derivative(raw,name):
   D.need(restored.count(edit['new'])==1,'one exact cold profile inverse');restored=restored.replace(edit['new'],edit['old'])
  D.need(restored.encode()==raw,'entire original cold validation body recovered');compile(text,name,'exec');return text.encode(),edits
 
+
+GRAPH_DIAGNOSTICS="def diagnostics(value):\n # Complete source-owned graph, not a sorted bounded traversal sample.\n import collections\n import inputs\n _,context,_,_=inputs.broker();_,modules=context.source_api()\n F=modules['full_root'];resolve=F.installer.resolve_nodes\n need(F.Limits.__dataclass_fields__['max_unsupported'].default==64,'exact original diagnostic sample bound')\n report=value['observation'];nodes=value['nodes'];rows=[]\n need({'unsupported','unsupported_counts','eligible'}<=set(report),'all original diagnostic report fields present')\n for name,node in nodes.items():\n  if node['type']=='symlink'and node['target'].startswith('/'):\n   rows.append({'reason':'absolute-symlink','path':name})\n for name,node in nodes.items():\n  if node['type']!='symlink'or node['target'].startswith('/'):continue\n  try:resolve(nodes,name)\n  except ValueError as error:\n   reason={'escaping payload link':'escaping-symlink','cyclic payload link':'cyclic-symlink','absolute payload link':'absolute-symlink'}.get(str(error),'unsupported-symlink')\n   rows.append({'reason':reason,'path':name})\n for name in('usr/bin/ldconfig','usr/sbin/ldconfig','sbin/ldconfig'):\n  try:\n   resolved=resolve(nodes,name)\n   if name in nodes or resolved in nodes:rows.append({'reason':'auxiliary-present','path':name})\n  except ValueError:pass\n counts=dict(collections.Counter(row['reason']for row in rows))\n need(report['unsupported_counts']==counts and report['eligible']is(not counts),'complete graph unsupported counts/eligibility')\n sample=report['unsupported'];need(type(sample)is list and len(sample)==min(64,len(rows)),'exact original bounded64 diagnostic sample')\n remaining=collections.Counter((row['reason'],row['path'][:4096])for row in rows)\n for row in sample:\n  need(type(row)is dict and set(row)=={'reason','path'}and type(row['reason'])is str and type(row['path'])is str,'exact original diagnostic sample row')\n  key=(row['reason'],row['path']);need(remaining[key]>0,'every sampled diagnostic belongs to complete graph');remaining[key]-=1\n return sorted(rows,key=lambda row:(row['reason'],row['path']))\n\n"
+GRAPH_ANCHOR=" if key not in('footprint','nodes','hardlink_groups'):need(native['observation'].get(key)==mounted['observation'].get(key),'complete original observation field '+key)"
+GRAPH_REPLACEMENT=" if key=='unsupported':need(diagnostics(native)==diagnostics(mounted),'complete graph unsupported diagnostic projection')\n  elif key not in('footprint','nodes','hardlink_groups'):need(native['observation'].get(key)==mounted['observation'].get(key),'complete original observation field '+key)"
+def graph_derivative(raw):
+ D.need(D.pin(raw)==dict(bytes=6281,sha256='d918ed1faef7a9b31b0085eae464eeca7d2481bed13fcc0f977b30c7aa4a83b3'),'whole exact original map join source')
+ text=raw.decode();D.need(text.count('def join(native,mounted):')==text.count(GRAPH_ANCHOR)==1,'two exact graph diagnostic seams')
+ text=text.replace('def join(native,mounted):',GRAPH_DIAGNOSTICS+'def join(native,mounted):',1).replace(GRAPH_ANCHOR,GRAPH_REPLACEMENT,1)
+ D.need(text.replace(GRAPH_REPLACEMENT,GRAPH_ANCHOR,1).replace(GRAPH_DIAGNOSTICS,'',1).encode()==raw,'whole original graph/security/metadata/auxiliary inverse');compile(text,'map_join.py','exec')
+ return text.encode(),[dict(old='def join(native,mounted):',new=GRAPH_DIAGNOSTICS+'def join(native,mounted):',count=1),dict(old=GRAPH_ANCHOR,new=GRAPH_REPLACEMENT,count=1)]
+
 def apply(runtime):
  basis=D.obj(D.read(D.HERE/'runtime-basis.json',2*1024**2));before={n:D.pin(D.read(runtime/n,16*1024**2))for n in basis};D.need(before==basis,'whole frozen runtime667 before derivative');changes={}
  for name in FILES:
   p=runtime/'immutable'/name;old=p.read_bytes();new,edits=derive(old,name)
   if name=='native_controller.py':new,extra=cold_profile_derivative(new,'immutable/native_controller.py');edits+=extra
+  if name=='map_join.py':new,extra=graph_derivative(new);edits+=extra
   if new!=old:p.write_bytes(new);changes['immutable/'+name]=dict(before=D.pin(old),after=D.pin(new),inverse=edits)
  p=runtime/'immutable/inputs.py';old=p.read_bytes();new=input_derivative(old);p.write_bytes(new);changes['immutable/inputs.py']=dict(before=D.pin(old),after=D.pin(new),inverse='ONE_CONTRACT_IMPORT_ENTRY_PLUS_SOURCE_OWNED_CURRENT_MODULE_IMPORT_ISOLATOR')
  # The complete original667 basis was checked above. Derive only the exact
