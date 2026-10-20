@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "status": "DESCRIPTION_ONLY_UNBOUND_NOT_EXECUTABLE_AUTHORITY",
+  "dispatch_inputs": ["source_sha", "native_lifecycle_decision", "system16k_decision"],
+  "source_sha": "Exact workflow/Git checkout SHA; ARM64/Linux disposable runner",
+  "decision_descriptor": {"ref":"Root-published immutable40hex", "path":"ordinary relative JSON path", "bytes":"integer1..131072", "sha256":"exact64hex"},
+  "native_lifecycle": "ROOT_ACCEPTED_DEBIAN_MAINTAINED_PROVIDER_NORMAL_LIFECYCLE, page4096, ALPM_installation PASS, ordered_cleanup PASS; exact current candidate/native pair/archive/authority",
+  "system16k": "ROOT_ACCEPTED_DEBIAN_MAINTAINED_SYSTEM_PATHS_GENERIC16K, page16384, DATA_STAGED_PRIVATE_ROOT_NOT_ALPM_INSTALLATION, ALPM_installation NOT_RUN, cleanup PASS; same candidate/native pair/archive/authority",
+  "native_packet": "Exact NEXT Root-bound published {ref,directory:payload,index_sha256}; never original staged-only packet or old GNU/caa2",
+  "source_bundles": {"ci_pins":141,"vm_originals":114,"vm_derived":29,"vm_total_with_ledger_and_decisions":146,"native":"Separate fresh checkout child from canonical NEXT.emit; do not alter VM's15 pinned native files"},
+  "artifact_roles": {"native_lifecycle":"glibc-debian-maintained-provider-lifecycle-RUN-ATTEMPT", "installed16k":"glibc-debian-maintained-installed16k-RUN-ATTEMPT", "wiring_metadata":"glibc-debian-maintained-installed16k-wiring-RUN-ATTEMPT"},
+  "authority":"PRIVATE_TEST_ONLY_NO_RELEASE_ADMISSION",
+  "actual_execution":"NOT_RUN"
+}
