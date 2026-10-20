@@ -469,5 +469,51 @@ class GraphDiagnostics(unittest.TestCase):
    for n in set(sys.modules)-set(saved):sys.modules.pop(n,None)
    sys.modules.update(saved)
 
+
+class WorkerValidationControls(unittest.TestCase):
+ def helpers(self):
+  import dataclasses,time
+  text=(ROOT/'runtime/immutable/worker_api.py').read_text();tree=ast.parse(text);names={'WORKER_VALIDATION_PROFILE','_VALIDATION_LABELS','_validation_writes','validation_failure','validation_limits','install_validation'}
+  nodes=[n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name in names or isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id in names for t in n.targets)]
+  space=dict(P=types.SimpleNamespace(need=D.need),Path=Path,os=os,types=types);exec(compile(ast.Module(body=nodes,type_ignores=[]),'<whole-source-worker-profile>','exec'),space)
+  guest_path=ROOT/D.VM/'scripts/ci/glibc-debian-maintained-installed16k/guest.py';raw=guest_path.read_text();function=next(n for n in ast.parse(raw).body if isinstance(n,ast.FunctionDef)and n.name=='_copy_context_limits');old={};exec(compile(ast.get_source_segment(raw,function),str(guest_path),'exec'),old)
+  @dataclasses.dataclass
+  class Limits:
+   deadline:float
+   max_nodes:int=500000
+   def tick(self):
+    if time.monotonic()>=self.deadline:raise ValueError('root observation deadline')
+  return space,types.SimpleNamespace(__file__=str(guest_path),_copy_context_limits=old['_copy_context_limits']),Limits
+ def test_real_source_profile_arithmetic_and_original600_refusal(self):
+  import time
+  s,g,Limits=self.helpers()
+  with patch.object(time,'monotonic',return_value=100):
+   with self.assertRaisesRegex(ValueError,'fresh bounded'):g._copy_context_limits(Limits(1300))
+   value=s['validation_limits'](g,Limits(1300));self.assertEqual(value.deadline,4900);self.assertEqual(value.max_nodes,500000)
+  with patch.object(time,'monotonic',return_value=4900),self.assertRaisesRegex(ValueError,'root observation deadline'):value.tick()
+ def test_real_source_window1200_and_same_exception(self):
+  import time
+  s,g,Limits=self.helpers();now=[100.0]
+  with patch.object(time,'monotonic',side_effect=lambda:now[0]),patch.object(os,'write',return_value=1):
+   value=s['validation_limits'](g,Limits(1300));error=KeyboardInterrupt('original')
+   def original(**kw):now[0]=1299;value.tick();raise error
+   with self.assertRaises(KeyboardInterrupt)as caught:value._copy_observe(original,limits=value)
+   self.assertIs(caught.exception,error)
+   now[0]=100
+   def deadline(**kw):now[0]=1300;value.tick()
+   with self.assertRaisesRegex(ValueError,'root observation deadline'):value._copy_observe(deadline,limits=value)
+ def test_original_snapshot_function_operands_and_explicit_product_limit(self):
+  s,_,_=self.helpers();calls=[];error=ValueError('original')
+  def snapshot(*a):calls.append(a);raise error
+  m=types.SimpleNamespace(limits=lambda api,seconds=600:seconds,snapshot=snapshot);s['install_validation'](m);self.assertEqual(m.limits(None),1200);self.assertEqual(m.limits(None,120),120)
+  with patch.object(os,'write',side_effect=OSError('lost')),self.assertRaises(ValueError)as caught:m.snapshot('api','root','pristine-clone')
+  self.assertIs(caught.exception,error);self.assertEqual(calls,[('api','root','pristine-clone')])
+ def test_failure_relay_finite_literals_cap_partial_and_write_failure(self):
+  raw=(ROOT/'runtime/immutable/owner.py').read_text();node=next(n for n in ast.parse(raw).body if isinstance(n,ast.FunctionDef)and n.name=='relay_worker_failure');space=dict(os=os);exec(compile(ast.get_source_segment(raw,node),'<source-owned-failure-relay>','exec'),space);writes=[];valid=b'GNU_WORKER_FAILURE_DATA COPY_COPY_DATA\n'
+  with patch.object(os,'write',side_effect=lambda fd,b:writes.append(b)or len(b)):
+   space['relay_worker_failure'](valid*100);space['relay_worker_failure'](b'GNU_WORKER_FAILURE_DATA /private/path\n');space['relay_worker_failure'](valid[:-1]);space['relay_worker_failure'](valid*(512*1024//len(valid)+1))
+  self.assertEqual(writes,[valid]*8)
+  with patch.object(os,'write',side_effect=KeyboardInterrupt('lost')):space['relay_worker_failure'](valid)
+
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--source',type=Path,default=D.ROOT);a,rest=p.parse_known_args();ROOT=a.source.absolute();unittest.main(argv=[sys.argv[0],*rest],verbosity=2)
