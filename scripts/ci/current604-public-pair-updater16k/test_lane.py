@@ -15,7 +15,7 @@ def pre_signature_diagnostic(raw):
  return text.encode()
 
 def focused_prepare_without_capacity(*args,**kwargs):
- with patch.object(A,'materialization_validation_profile',return_value=None):return A.prepare_selected(*args,**kwargs)
+ with patch.object(A,'materialization_validation_profile',return_value=None),patch.object(A,'driver_copy_validation_profile',return_value=None):return A.prepare_selected(*args,**kwargs)
 
 class Controls(unittest.TestCase):
  def setUp(self):
@@ -173,17 +173,19 @@ class Controls(unittest.TestCase):
      elif n=='scripts/ci/full-root-upgrade/construct_repository.py':raw=adapter.constructor(raw)
      elif n=='scripts/ci/full-root-upgrade-caller/container.py':raw=A.caller(raw)
      elif n=='scripts/ci/full-root-upgrade-caller/persistent_scope.py':raw=A.persistent_stage(raw)
-     elif n=='scripts/ci/full-root-upgrade-caller/upgrade_hook.py':raw=A.validation_hook(raw,case)
+     elif n=='scripts/ci/full-root-upgrade-caller/upgrade_hook.py':raw=A.driver_copy_hook(A.validation_hook(raw,case),case)
      self.assertEqual((output/n).read_bytes(),raw,case+':'+n)
     value=C.decode(C.read(config));oldvalue=selected.read(prior/'upgrade-config.json')
     for key,value_before in oldvalue.items():
      if key=='driver_seconds' and case=='normal':self.assertEqual(value_before,1800);self.assertEqual(value[key],1860)
+     elif key=='copy_seconds':self.assertEqual(value_before,600);self.assertEqual(value[key],1200)
      elif key=='stage_seconds':self.assertEqual(value_before,900);self.assertEqual(value[key],1200)
      elif key=='external_pins':
       wanted=dict(value_before);wanted['/persistent_scope.py']=C.sha((calling/'persistent_scope.py').read_bytes());self.assertEqual(value[key],wanted,case+':'+key)
      elif key not in ('code_pins','release'):self.assertEqual(value[key],value_before,case+':'+key)
     for n,digest in value['code_pins'].items():self.assertEqual(C.sha((output/n).read_bytes()),digest,case+':'+n)
     receipt=selected.read(output/'adapter.json');self.assertEqual(receipt['config_sha256'],C.sha(config.read_bytes()));self.assertIn('auxiliary_selection',receipt);self.assertEqual(receipt['updater16k_dispatch']['counted_edits'],5)
+    copy_profile=receipt['updater16k_dispatch']['driver_copy_validation_profile'];self.assertEqual(copy_profile['profile'],A.DRIVER_COPY_PROFILE);self.assertEqual(copy_profile['copy_before_seconds'],600);self.assertEqual(copy_profile['copy_seconds'],1200);self.assertEqual(copy_profile['caller_seconds'],3900);self.assertEqual(copy_profile['worker_seconds'],3900);self.assertEqual(copy_profile['additive_composition_fit'],'NOT_ESTABLISHED');self.assertEqual(copy_profile['old600_copy_fit'],'NOT_ESTABLISHED')
     profile=receipt['updater16k_dispatch']['validation_capacity_profile'];self.assertEqual(profile['profile'],A.MATERIALIZATION_PROFILE);self.assertEqual(profile['stage_seconds'],1200);self.assertEqual(profile['caller_seconds'],3900);self.assertEqual(profile['worker_seconds'],3900);self.assertEqual(profile['nested_stage_driver_verify_sum'],3660 if case=='normal' else 4200);self.assertEqual(profile['additive_composition_fit'],'NOT_ESTABLISHED');self.assertEqual(profile['old900_fit'],'NOT_ESTABLISHED')
 
 

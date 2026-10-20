@@ -137,14 +137,40 @@ def materialization_validation_profile(value,calling,case):
  return dict(profile=MATERIALIZATION_PROFILE,case=case,semantics='NONRESERVED_NESTED_STAGE_ALLOWANCE_HARD3900_ENCLOSING_CEILINGS',stage_before_seconds=900,stage_seconds=1200,driver_seconds=driver,verify_seconds=600,copy_seconds=600,caller_seconds=3900,worker_seconds=3900,nested_stage_driver_verify_sum=1200+driver+600,prior_nested_stage_driver_verify_sum=900+driver+600,additive_composition_fit='NOT_ESTABLISHED',reserved_setup_or_cleanup_seconds=0,old900_fit='NOT_ESTABLISHED',future_case_runtime_fit='REQUIRES_ORIGINAL_ACTUAL_EACH_CASE',original_rereads_security_and_product_limits='HELD',hook_before=dict(bytes=len(before),sha256=C.sha(before)),hook_after=dict(bytes=len(after),sha256=C.sha(after)))
 
 
+DRIVER_COPY_PROFILE='DRIVER_COLD_COPY1200_NONRESERVED_CALLER3900_V1'
+DRIVER_COPY_HOOKS={'normal': {'bytes': 14122, 'sha256': '554f1b434925796de48149b498a2ff26f04ef173bab5d7afc8469bb96f7a0a3a'}, 'postcommit-exit87': {'bytes': 15124, 'sha256': '2322852090e24b97037acce9960ade809ee97b1713968a17a9554ee11df565b8'}, 'precommit-exit86': {'bytes': 14746, 'sha256': 'bfdd6101336e72660cfb6f38c4a640e308c2142e0b9725f84fd2ca5f0ac2dde2'}}
+DRIVER_COPY_BEFORE="('copy_seconds', 900)"
+DRIVER_COPY_AFTER="('copy_seconds', 1200)"
+
+def driver_copy_hook(raw,case):
+ """Only the private selected copy allowance; whole original driver is held."""
+ C.need(case in DRIVER_COPY_HOOKS,'exact cold-copy validation case')
+ C.need(dict(bytes=len(raw),sha256=C.sha(raw))==DRIVER_COPY_HOOKS[case],'whole materialization1200 private hook source')
+ text=raw.decode();C.need(text.count(DRIVER_COPY_BEFORE)==1,'one exact private copy ceiling')
+ changed=text.replace(DRIVER_COPY_BEFORE,DRIVER_COPY_AFTER,1)
+ C.need(changed.replace(DRIVER_COPY_AFTER,DRIVER_COPY_BEFORE,1)==text,'whole private hook copy-ceiling inverse')
+ ast.parse(changed);return changed.encode()
+
+def driver_copy_validation_profile(value,calling,case):
+ """Copy1200 is nested, nonreserved time inside unchanged driver/3900 ceilings."""
+ C.need(case in DRIVER_COPY_HOOKS,'explicit cold-copy profile case')
+ driver=1860 if case=='normal'else 2400
+ keys=('stage_seconds','driver_seconds','verify_seconds','copy_seconds')
+ C.need(all(type(value[k])is int for k in keys)and {k:value[k]for k in keys}==dict(stage_seconds=1200,driver_seconds=driver,verify_seconds=600,copy_seconds=600),'whole prior stage/driver/verify/copy capacity profile')
+ name='scripts/ci/full-root-upgrade-caller/upgrade_hook.py';path=calling/'upgrade_hook.py';before=path.read_bytes()
+ C.need(value['code_pins'].get(name)==C.sha(before),'whole preceding hook code pin')
+ after=driver_copy_hook(before,case);path.write_bytes(after);value['code_pins'][name]=C.sha(after);value['copy_seconds']=1200
+ return dict(profile=DRIVER_COPY_PROFILE,case=case,semantics='NONRESERVED_COPY_ALLOWANCE_WITHIN_UNCHANGED_DRIVER_AND_HARD3900',copy_before_seconds=600,copy_seconds=1200,copy_is_nested_within_driver=True,stage_seconds=1200,driver_seconds=driver,verify_seconds=600,caller_seconds=3900,worker_seconds=3900,nested_stage_driver_verify_sum=1200+driver+600,additive_composition_fit='NOT_ESTABLISHED',reserved_setup_or_cleanup_seconds=0,old600_copy_fit='NOT_ESTABLISHED',future_case_runtime_fit='REQUIRES_ORIGINAL_ACTUAL_EACH_CASE',original_driver_aux_runtime_and_product_defaults='BYTE_HELD',independent_materialization_profile=MATERIALIZATION_PROFILE,hook_before=dict(bytes=len(before),sha256=C.sha(before)),hook_after=dict(bytes=len(after),sha256=C.sha(after)))
+
+
 def prepare_selected(selected,source,target,case,**options):
  config,calling=selected.prepare(source,target,case,**options)
  q=calling/'container.py';original=q.read_bytes();q.write_bytes(caller(original))
  scope=calling/'persistent_scope.py';scope_before=scope.read_bytes();scope.write_bytes(persistent_stage(scope_before))
  value=C.decode(C.read(config));name='scripts/ci/full-root-upgrade-caller/container.py'
  C.need(value['external_pins'].get('/persistent_scope.py')==C.sha(scope_before),'original persistent helper external pin required');value['external_pins']['/persistent_scope.py']=C.sha(scope.read_bytes());scope_name='scripts/ci/full-root-upgrade-caller/persistent_scope.py';C.need(value['code_pins'].get(scope_name)==C.sha(scope_before),'original persistent helper code pin required');value['code_pins'][scope_name]=C.sha(scope.read_bytes())
- C.need(value['code_pins'].get(name)==C.sha(original),'original caller source pin required');value['code_pins'][name]=C.sha(q.read_bytes());profile=materialization_validation_profile(value,calling,case);C.save(config,value)
- proof=dict(validation_capacity_profile=profile,status='SOURCE_DERIVED_NOT_EXECUTED',before=C.sha(original),after=C.sha(q.read_bytes()),counted_edits=5,persistent_stage_diagnostic=dict(before=C.sha(scope_before),after=C.sha(scope.read_bytes()),original_guard='UNCHANGED_RERAISED',new_walks=0,acceptance_authority=False),config_sha256=C.sha(config.read_bytes()),unchanged='ALL_TRANSACTION_DECISIONS_GUARDS_AND_REQUIRED_SIGNATURE_POLICY',diagnostic='FAILURE_ONLY_ORIGINAL_LIBALPM_DEBUG_AND_BOUNDED_METADATA')
+ C.need(value['code_pins'].get(name)==C.sha(original),'original caller source pin required');value['code_pins'][name]=C.sha(q.read_bytes());profile=materialization_validation_profile(value,calling,case);copy_profile=driver_copy_validation_profile(value,calling,case);C.save(config,value)
+ proof=dict(driver_copy_validation_profile=copy_profile,validation_capacity_profile=profile,status='SOURCE_DERIVED_NOT_EXECUTED',before=C.sha(original),after=C.sha(q.read_bytes()),counted_edits=5,persistent_stage_diagnostic=dict(before=C.sha(scope_before),after=C.sha(scope.read_bytes()),original_guard='UNCHANGED_RERAISED',new_walks=0,acceptance_authority=False),config_sha256=C.sha(config.read_bytes()),unchanged='ALL_TRANSACTION_DECISIONS_GUARDS_AND_REQUIRED_SIGNATURE_POLICY',diagnostic='FAILURE_ONLY_ORIGINAL_LIBALPM_DEBUG_AND_BOUNDED_METADATA')
  C.save(calling/'updater16k-adapter.json',proof)
  receipt=C.decode(C.read(target/'adapter.json'));receipt['config_sha256']=proof['config_sha256'];receipt['updater16k_dispatch']=proof;C.save(target/'adapter.json',receipt)
  return config,calling
