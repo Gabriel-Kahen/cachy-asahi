@@ -1,0 +1,39 @@
+{
+  "GUI_prerequisite": "CURRENT_GUI_FAIL_NOT_ACCEPTED_SEPARATE",
+  "after_sha256": "3f64a13c4af7ab8b1598583f534af3347c8df2397a0afa33fb8b0f5f06b19cf5",
+  "before_sha256": "5553e3c67423dffa54e521a211ff471faf6b384f61ff5bb56495b05b39600566",
+  "decision_source": null,
+  "installer_inputs": {
+    "eight_source": "0d7ec3b5ec9b473c9a1b2557735f8dadd8de3f50",
+    "fresh600_decisions": "fd42f51b6c32a1cca69df5699760ed2a9e39329f",
+    "legacy_source": "b6b17e5f6b322f160f7eeb22c8a01380a3c854cd",
+    "management_source": "92e433fa79eb57bfb3e4038feb30e7a7c87c652f",
+    "native604_decisions": null,
+    "setup_source": "79d8d2f53510e4f3a04f39c1b1e24c999aa32e44",
+    "seven_source": "7fee76d68e5fd75437d8b49aaaced8376d2215cd",
+    "welcome_source": "77bd2c6ecf2e5c28a04116c3da85c45f70d1cc90"
+  },
+  "installer_source": null,
+  "prerequisites": {
+    "fresh604": null,
+    "native604": null,
+    "normal600": {
+      "bytes": 2803,
+      "path": "payload/normal600.json",
+      "sha256": "c23c4582de12499a0c2c9df86c0dc2d1c02e220c12442d9e50ddb2a434699092"
+    },
+    "postcommit600": {
+      "bytes": 2948,
+      "path": "payload/postcommit600.json",
+      "sha256": "22f817d14d208fa604c005cbf470fb68d1c078a6db980b1dcea7f91cb8ffe43b"
+    },
+    "precommit600": {
+      "bytes": 2827,
+      "path": "payload/precommit600.json",
+      "sha256": "b43fac85ce7ef4fb70f8ff8688cd6fc2a1f8afcd9bbfbd29edc69083269ee9a4"
+    }
+  },
+  "schema_version": 1,
+  "setup5_pair_source": "79d8d2f53510e4f3a04f39c1b1e24c999aa32e44",
+  "status": "UNBOUND_ACTUAL_CURRENT604_PREREQUISITES"
+}
