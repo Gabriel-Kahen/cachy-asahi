@@ -1,0 +1,47 @@
+{
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "bounds": {
+    "QEMU_output_bytes": 16777216,
+    "VM_seconds": 3000,
+    "owner_seconds": 6600,
+    "prepare_seconds": 1900,
+    "producer_seconds": 2300,
+    "public_output_bytes": 201326592,
+    "seed_seconds": 120
+  },
+  "kernel_authority": {
+    "bytes": 1651,
+    "path": "kernel/Root-acceptance.json",
+    "sha256": "882d0c24882fda0b99a5041e6ea31a8c6f34ab2d758c585f8cc22d57a69bacf6"
+  },
+  "kernel_build": {
+    "bytes": 5699,
+    "path": "kernel/kernel-artifacts.json",
+    "sha256": "e11098ddab0e45bc9fec297bae2b6f8b22530835b9e8b60e177af48ca87f982f"
+  },
+  "kernel_carrier": "247123187cb1aceae5e61bc89f3c01dbf2986311",
+  "kernel_run": 39340364029,
+  "kernel_transport": {
+    "bytes": 496,
+    "path": "kernel/original-transport.json",
+    "sha256": "a6891003f76bb75cd4c69f20a448254a4f93f35c6f3c41ee8dda966b48f81d1b"
+  },
+  "known_kernel_source": "80aa47304123106133832c11a9e4a405af5f1f67",
+  "known_native_run": 39139213293,
+  "known_native_source": "72ea5a1e81268f08da9b9cc04cdc7e23a1a9ff8a",
+  "native_carrier": "fe67aaaae7ef4ea94dfc8a42cd2c806cc5436fc7",
+  "native_decision": {
+    "bytes": 4672,
+    "path": "Root-acceptance.json",
+    "sha256": "f251675c58cb4086a8885b903d2e9649ad2186526e54e50fa57364e780a13261"
+  },
+  "native_inputs": {
+    "bytes": 12513,
+    "path": "index.json",
+    "sha256": "4fa63d8a633efc3f337110917d69abf6a932461354e9452ca8632990bf0120ec"
+  },
+  "purpose": "KSM2_GENERIC16K_OWNED_SYSFS_TEST_ONLY",
+  "schema_version": 1
+}
