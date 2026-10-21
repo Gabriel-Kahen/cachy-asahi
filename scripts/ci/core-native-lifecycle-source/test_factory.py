@@ -25,7 +25,7 @@ class Controls(unittest.TestCase):
                          'lifecycle': 3600, 'observation': 600, 'owner': 4800,
                          'producer': 2300, 'transaction': 120})
         self.assertIsNone(value['actual'])
-        self.assertEqual(value['default_mode'], 'evidence-transport')
+        self.assertEqual(value['default_mode'], 'auth-import')
 
     def test_parent_payload_and_output_refuse_before_emitter(self):
         value = F.profile()
@@ -125,6 +125,47 @@ class Controls(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, 'whole original export membership'):
                     owner.transport(types.SimpleNamespace(public=public, output=root / 'never'))
                 self.assertFalse((root / 'never').exists())
+
+    def test_auth_import_exact_body_inverse_dependency_and_preoutput_drift_refusal(self):
+        value = F.profile()
+        record = value['auth_import']
+        self.assertEqual(set(record['replacements']), {'entry.py', 'owner.py', 'workflow.yml.in', 'assemble.py'})
+        self.assertEqual(set(record['additions']), {'core-tools/package_checks.py'})
+        self.assertEqual(len(record['files']), 797)
+        self.assertIsNone(record['actual'])
+        for name, row in record['replacements'].items():
+            self.assertEqual(F.pin(F.read(HERE / row['path'])), {k: row[k] for k in ('bytes', 'sha256')})
+            self.assertEqual(F.pin(F.read(HERE / 'payload' / name)), row['before'])
+        row = record['additions']['core-tools/package_checks.py']
+        self.assertEqual(F.pin(F.read(HERE / row['path'])), {k: row[k] for k in ('bytes', 'sha256')})
+        self.assertEqual(row['origin'], {'source': '3dbd3180c74045786ba6ab1a444367a0aaf8f0d9',
+                                        'path': 'scripts/checks/package_checks.py'})
+        text = F.read(HERE / record['replacements']['assemble.py']['path']).decode()
+        helper = "def authentication_module():\n sys.path.insert(0,str(Path(__file__).resolve().parent/'core-tools'));import authenticate as A\n return A\n\n"
+        self.assertEqual(text.count(helper), 1)
+        text = text.replace(helper, '', 1)
+        text = text.replace(" A=authentication_module()", " sys.path.insert(0,str(SOURCE/'core-tools'));import authenticate as A", 1)
+        text = text.replace('if args.source_only:authentication_module();signer_module();print(',
+                            'if args.source_only:signer_module();print(', 1)
+        self.assertEqual(text.encode(), F.read(HERE / 'payload/assemble.py'))
+        workflow = F.read(HERE / record['replacements']['workflow.yml.in']['path'])
+        addition = b'          python3 -I -B "$OWN/assemble.py" --source-only\n'
+        self.assertEqual(workflow.count(addition), 1)
+        self.assertEqual(workflow.replace(addition, b'', 1), F.read(HERE / 'templates/transport-workflow.yml.in'))
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            runtime = root / 'runtime'
+            runtime.mkdir()
+            original = F.read
+            def read(path, *args):
+                return b'drift' if Path(path) == HERE / row['path'] else original(path, *args)
+            def files(path, **kwargs):
+                return value['payload'] if Path(path) == HERE / 'payload' else value['parent']['files']
+            with patch.object(F, 'files', side_effect=files), patch.object(F, 'read', side_effect=read), \
+                 patch.object(F, 'load', side_effect=AssertionError('EMITTER_MUST_NOT_START')):
+                with self.assertRaisesRegex(ValueError, 'added dependency'):
+                    F.assemble(runtime, root / 'must-not-exist')
+            self.assertFalse((root / 'must-not-exist').exists())
 
     def test_whole_original_sign_body_and_all_seven_inert_calls(self):
         """Only the GPG subprocess boundary is fake; the complete sign() body runs."""

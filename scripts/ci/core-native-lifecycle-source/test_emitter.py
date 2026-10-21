@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-"""All three exact public source modes and real isolated entries; never native actors."""
+"""All four exact public source modes and real isolated entries; never native actors."""
 import json
 import os
 from pathlib import Path
@@ -16,13 +16,15 @@ import prepare as F
 
 RUNTIME = os.environ.get('CORE_LIFECYCLE_RUNTIME')
 EXPECTED = os.environ.get('CORE_LIFECYCLE_EXPECTED')
+AUTH_EXPECTED = os.environ.get('CORE_LIFECYCLE_AUTH_EXPECTED')
 TRANSPORT_EXPECTED = os.environ.get('CORE_LIFECYCLE_TRANSPORT_EXPECTED')
 LAUNCH_EXPECTED = os.environ.get('CORE_LIFECYCLE_LAUNCH_EXPECTED')
-if not RUNTIME or not EXPECTED or not LAUNCH_EXPECTED or not TRANSPORT_EXPECTED:
+if not RUNTIME or not EXPECTED or not LAUNCH_EXPECTED or not TRANSPORT_EXPECTED or not AUTH_EXPECTED:
     raise SystemExit('Set CORE_LIFECYCLE_RUNTIME to complete public d268745, '
                      'CORE_LIFECYCLE_EXPECTED to complete public 7be796 and '
                      'CORE_LIFECYCLE_LAUNCH_EXPECTED to public4ae796 and '
-                     'CORE_LIFECYCLE_TRANSPORT_EXPECTED to public1450796; no test is skipped.')
+                     'CORE_LIFECYCLE_TRANSPORT_EXPECTED to public1450796 and '
+                     'CORE_LIFECYCLE_AUTH_EXPECTED to public070797; no test is skipped.')
 
 
 class Controls(unittest.TestCase):
@@ -30,7 +32,7 @@ class Controls(unittest.TestCase):
         runtime, expected = Path(RUNTIME).absolute(), Path(expected_path).absolute()
         profile = F.profile()
         target = {'original796': profile['expected'], 'workflow-launch': profile['workflow_launch'],
-                  'evidence-transport': profile['evidence_transport']}[mode]
+                  'evidence-transport': profile['evidence_transport'], 'auth-import': profile['auth_import']}[mode]
         self.assertEqual(F.files(expected, checkout=True), target['files'])
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -41,9 +43,13 @@ class Controls(unittest.TestCase):
                  patch.object(subprocess, 'Popen', side_effect=AssertionError('NO_ACTORS')):
                 receipt = F.assemble(runtime, generated, mode)
                 self.assertIs(sys.modules['contract'], sentinel)
-            self.assertEqual(receipt['files'], 796)
+            self.assertEqual(receipt['files'], len(target['files']))
             self.assertEqual(receipt['source_mode'], mode)
             self.assertEqual(receipt['native_lifecycle'], 'NOT_RUN_BY_FACTORY')
+            if mode == 'auth-import':
+                self.assertEqual(receipt['dispatch'], 'SEPARATE_ROOT_NATIVE_DISPATCH_AND_ACCEPTANCE_REQUIRED')
+            else:
+                self.assertTrue(receipt['dispatch'].endswith('DO_NOT_DISPATCH'))
             self.assertEqual(F.files(generated), F.files(expected, checkout=True))
             lane = generated / 'scripts/ci/core-native-lifecycle'
             with F.modules(lane):
@@ -67,17 +73,17 @@ class Controls(unittest.TestCase):
                            'run.py', 'test_signer.py', 'capability_snapshot.py'))):
                 self.assertIn(b'usage:', python([str(entry), '--help']))
             source = json.loads(python([str(lane / 'entry.py'), 'source', '--source', str(generated)]))
-            self.assertEqual(source['files'], 796)
+            self.assertEqual(source['files'], len(target['files']))
             self.assertEqual(source['status'], 'PASS_CLOSED_CORE7_SOURCE_ONLY')
             imported = json.loads(python([str(lane / 'assemble.py'), '--source-only']))
             self.assertEqual(imported['signing'], 'NOT_RUN')
             python([str(lane / 'test_contract.py')])  # All six existing meaningful controls.
             arguments = [str(HERE / 'prepare.py'), '--runtime', str(runtime),
                          '--output', str(root / 'cli-emitted')]
-            if mode != 'evidence-transport':
-                arguments += ['--mode', mode]  # Latest transport mode also verifies the exact default CLI.
+            if mode != 'auth-import':
+                arguments += ['--mode', mode]  # Auth-import mode also verifies the exact default CLI.
             emitted = json.loads(python(arguments))
-            self.assertEqual(emitted['files'], 796)
+            self.assertEqual(emitted['files'], len(target['files']))
             self.assertEqual(emitted['source_mode'], mode)
             self.assertEqual(F.files(root / 'cli-emitted'), target['files'])
 
@@ -87,8 +93,11 @@ class Controls(unittest.TestCase):
     def test_whole_historical_workflow_launch_explicit_and_self_reproduction(self):
         self.check_mode('workflow-launch', LAUNCH_EXPECTED)
 
-    def test_whole_latest_transport_default_and_self_reproduction(self):
+    def test_whole_historical_transport_explicit_and_self_reproduction(self):
         self.check_mode('evidence-transport', TRANSPORT_EXPECTED)
+
+    def test_whole_auth_import797_default_and_self_reproduction(self):
+        self.check_mode('auth-import', AUTH_EXPECTED)
 
     def test_real_parent_drift_refuses_before_output(self):
         runtime = Path(RUNTIME).absolute()
