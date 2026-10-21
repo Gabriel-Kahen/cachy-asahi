@@ -1,2 +1,0 @@
-{"name": "test - systemd:test-process-util", "stdout": "CAA_OWNED_USERNS_CHROOT_ASSERTIONS_COMPLETE\n", "result": "OK", "is_fail": false, "starttime": 1.0, "duration": 0.1, "returncode": 0, "env": {}, "command": ["/tmp/work/src/systemd-8cc40e0c5e9234bf45084751ac53b1fbfe70b492/tools/test-crash-trace.sh", "/tmp/work/src/build/test-process-util"]}
-{"name": "test - systemd:empty-argument", "stdout": "", "result": "OK", "is_fail": false, "starttime": 1.0, "duration": 0.1, "returncode": 0, "env": {"EMPTY": ""}, "command": ["/usr/bin/true", ""]}
