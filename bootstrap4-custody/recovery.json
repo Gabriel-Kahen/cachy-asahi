@@ -1,0 +1,530 @@
+{
+  "keys": "NOT_USED",
+  "missing": {
+    "cachy-asahi-fdk-aac-3.0.0-1-aarch64.pkg.tar.xz": {
+      "archive": "packages/cachy-asahi-fdk-aac-3.0.0-1-aarch64.pkg.tar.xz",
+      "name": "cachy-asahi-fdk-aac",
+      "sha256": "237b7812435bd78456d72c157f5703f258f5b6b7455cb99e5b075f642071c247",
+      "signature": "packages/cachy-asahi-fdk-aac-3.0.0-1-aarch64.pkg.tar.xz.sig",
+      "signature_sha256": "1746a61558a13a9f1317f79a6e98a8252b14b632b3b8d2bf1fa9165c9ee1f71e",
+      "signature_size": 119,
+      "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+      "size": 1209964,
+      "version": "3.0.0-1"
+    },
+    "cachy-asahi-update-4.4.2-2-aarch64.pkg.tar.xz": {
+      "archive": "packages/cachy-asahi-update-4.4.2-2-aarch64.pkg.tar.xz",
+      "name": "cachy-asahi-update",
+      "sha256": "88e6ebad51700499bc2f0c608409e06983b0146ebf555101b526c7a32d5ba4f6",
+      "signature": "packages/cachy-asahi-update-4.4.2-2-aarch64.pkg.tar.xz.sig",
+      "signature_sha256": "15ae01f1273778c418747917a358c7e4e926a85f3969095c96b184c7a680fa7d",
+      "signature_size": 119,
+      "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+      "size": 3083884,
+      "version": "4.4.2-2"
+    }
+  },
+  "native": "NOT_RUN",
+  "recovered": {
+    "cachy-asahi-fish-config-0.1.0-1-any.pkg.tar.xz": {
+      "custody": [
+        {
+          "frame": "208c78401d7faa42edda7d2e6d5fb4e8ddeea30c13ae4bf010a08514472c3fee",
+          "member": "native-evidence/cachy-asahi-fish-config-1/artifacts/cachy-asahi-fish-config-0.1.0-1-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2542915533,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/desktop-run38763443973/logs.zip"
+          }
+        },
+        {
+          "frame": "208c78401d7faa42edda7d2e6d5fb4e8ddeea30c13ae4bf010a08514472c3fee",
+          "member": "native-evidence/cachy-asahi-fish-config-2/artifacts/cachy-asahi-fish-config-0.1.0-1-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2542915533,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/desktop-run38763443973/logs.zip"
+          }
+        },
+        {
+          "frame": "1b5021bba69490d131c74c5b22935f557738deb0bdc02a980af48ce3909dfc07",
+          "member": "repository-public-artifacts/TEST-repositories/baseline-A/cachy-asahi-fish-config-0.1.0-1-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2542915533,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/desktop-run38763443973/logs.zip"
+          }
+        },
+        {
+          "frame": "268ee1e45dd2f6d1a89b8d1ee622132ea8049bc1c26f82b76a109da1797ed5c2",
+          "member": "native-evidence/cachy-asahi-fish-config-1/artifacts/cachy-asahi-fish-config-0.1.0-1-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2105531586,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/desktop-canonical-run38767488680/logs.zip"
+          }
+        },
+        {
+          "frame": "268ee1e45dd2f6d1a89b8d1ee622132ea8049bc1c26f82b76a109da1797ed5c2",
+          "member": "native-evidence/cachy-asahi-fish-config-2/artifacts/cachy-asahi-fish-config-0.1.0-1-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2105531586,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/desktop-canonical-run38767488680/logs.zip"
+          }
+        },
+        {
+          "frame": "6dffc20280e00ffa45863456f51eae0d836921adc0a452fafcd9ea718f19a206",
+          "member": "repository-public-artifacts/TEST-repositories/baseline-A/cachy-asahi-fish-config-0.1.0-1-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2105531586,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/desktop-canonical-run38767488680/logs.zip"
+          }
+        },
+        {
+          "frame": "e4c672a26367f1aaa8e3a7e049f73431402222e02d4bcc8d4efe579adef8bdef",
+          "member": "native-evidence/cachy-asahi-fish-config-1/artifacts/cachy-asahi-fish-config-0.1.0-1-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2128468018,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/tools-run38765227491/logs.zip"
+          }
+        },
+        {
+          "frame": "e4c672a26367f1aaa8e3a7e049f73431402222e02d4bcc8d4efe579adef8bdef",
+          "member": "native-evidence/cachy-asahi-fish-config-2/artifacts/cachy-asahi-fish-config-0.1.0-1-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2128468018,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/tools-run38765227491/logs.zip"
+          }
+        },
+        {
+          "frame": "07343dd2fbcd81622fa9a7c0e1dcc0f4ab3d0d01124b14eabb0bd3c8a56aaa66",
+          "member": "native-evidence/cachy-asahi-fish-config-1/artifacts/cachy-asahi-fish-config-0.1.0-1-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2537464380,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/full-composition-run38774794165/logs.zip"
+          }
+        },
+        {
+          "frame": "07343dd2fbcd81622fa9a7c0e1dcc0f4ab3d0d01124b14eabb0bd3c8a56aaa66",
+          "member": "native-evidence/cachy-asahi-fish-config-2/artifacts/cachy-asahi-fish-config-0.1.0-1-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2537464380,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/full-composition-run38774794165/logs.zip"
+          }
+        },
+        {
+          "frame": "9449617eb67753bbbac067de80502ce7f6cff8399fb9e1590e8c21e725fea642",
+          "member": "native-evidence/cachy-asahi-fish-config-1/artifacts/cachy-asahi-fish-config-0.1.0-1-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2041916124,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/full-composition-lifecycle-run38780072830/logs.zip"
+          }
+        },
+        {
+          "frame": "9449617eb67753bbbac067de80502ce7f6cff8399fb9e1590e8c21e725fea642",
+          "member": "native-evidence/cachy-asahi-fish-config-2/artifacts/cachy-asahi-fish-config-0.1.0-1-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2041916124,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/full-composition-lifecycle-run38780072830/logs.zip"
+          }
+        }
+      ],
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/current606-bootstrap6-custody-recovery-development-20261021/recovered/cachy-asahi-fish-config-0.1.0-1-any.pkg.tar.xz",
+      "pin": {
+        "bytes": 5396,
+        "sha256": "38e766158d13a0e13b8f811766119d10c018ccc256f5d99c3561b74c99d12705"
+      },
+      "required": {
+        "archive": "packages/cachy-asahi-fish-config-0.1.0-1-any.pkg.tar.xz",
+        "name": "cachy-asahi-fish-config",
+        "sha256": "38e766158d13a0e13b8f811766119d10c018ccc256f5d99c3561b74c99d12705",
+        "signature": "packages/cachy-asahi-fish-config-0.1.0-1-any.pkg.tar.xz.sig",
+        "signature_sha256": "3caf2518e5b73c14a4e59a9c2aa5e0ab6ec7c3c95e2e817009ce1868fe9088d7",
+        "signature_size": 119,
+        "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+        "size": 5396,
+        "version": "0.1.0-1"
+      }
+    },
+    "cachy-asahi-hyprland-settings-0.1.0-2-any.pkg.tar.xz": {
+      "custody": [
+        {
+          "frame": "208c78401d7faa42edda7d2e6d5fb4e8ddeea30c13ae4bf010a08514472c3fee",
+          "member": "native-evidence/cachy-asahi-hyprland-settings-1/artifacts/cachy-asahi-hyprland-settings-0.1.0-2-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2542915533,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/desktop-run38763443973/logs.zip"
+          }
+        },
+        {
+          "frame": "208c78401d7faa42edda7d2e6d5fb4e8ddeea30c13ae4bf010a08514472c3fee",
+          "member": "native-evidence/cachy-asahi-hyprland-settings-2/artifacts/cachy-asahi-hyprland-settings-0.1.0-2-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2542915533,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/desktop-run38763443973/logs.zip"
+          }
+        },
+        {
+          "frame": "1b5021bba69490d131c74c5b22935f557738deb0bdc02a980af48ce3909dfc07",
+          "member": "repository-public-artifacts/TEST-repositories/baseline-A/cachy-asahi-hyprland-settings-0.1.0-2-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2542915533,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/desktop-run38763443973/logs.zip"
+          }
+        },
+        {
+          "frame": "268ee1e45dd2f6d1a89b8d1ee622132ea8049bc1c26f82b76a109da1797ed5c2",
+          "member": "native-evidence/cachy-asahi-hyprland-settings-1/artifacts/cachy-asahi-hyprland-settings-0.1.0-2-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2105531586,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/desktop-canonical-run38767488680/logs.zip"
+          }
+        },
+        {
+          "frame": "268ee1e45dd2f6d1a89b8d1ee622132ea8049bc1c26f82b76a109da1797ed5c2",
+          "member": "native-evidence/cachy-asahi-hyprland-settings-2/artifacts/cachy-asahi-hyprland-settings-0.1.0-2-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2105531586,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/desktop-canonical-run38767488680/logs.zip"
+          }
+        },
+        {
+          "frame": "6dffc20280e00ffa45863456f51eae0d836921adc0a452fafcd9ea718f19a206",
+          "member": "repository-public-artifacts/TEST-repositories/baseline-A/cachy-asahi-hyprland-settings-0.1.0-2-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2105531586,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/desktop-canonical-run38767488680/logs.zip"
+          }
+        },
+        {
+          "frame": "e4c672a26367f1aaa8e3a7e049f73431402222e02d4bcc8d4efe579adef8bdef",
+          "member": "native-evidence/cachy-asahi-hyprland-settings-1/artifacts/cachy-asahi-hyprland-settings-0.1.0-2-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2128468018,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/tools-run38765227491/logs.zip"
+          }
+        },
+        {
+          "frame": "e4c672a26367f1aaa8e3a7e049f73431402222e02d4bcc8d4efe579adef8bdef",
+          "member": "native-evidence/cachy-asahi-hyprland-settings-2/artifacts/cachy-asahi-hyprland-settings-0.1.0-2-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2128468018,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/tools-run38765227491/logs.zip"
+          }
+        },
+        {
+          "frame": "07343dd2fbcd81622fa9a7c0e1dcc0f4ab3d0d01124b14eabb0bd3c8a56aaa66",
+          "member": "native-evidence/cachy-asahi-hyprland-settings-1/artifacts/cachy-asahi-hyprland-settings-0.1.0-2-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2537464380,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/full-composition-run38774794165/logs.zip"
+          }
+        },
+        {
+          "frame": "07343dd2fbcd81622fa9a7c0e1dcc0f4ab3d0d01124b14eabb0bd3c8a56aaa66",
+          "member": "native-evidence/cachy-asahi-hyprland-settings-2/artifacts/cachy-asahi-hyprland-settings-0.1.0-2-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2537464380,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/full-composition-run38774794165/logs.zip"
+          }
+        },
+        {
+          "frame": "9449617eb67753bbbac067de80502ce7f6cff8399fb9e1590e8c21e725fea642",
+          "member": "native-evidence/cachy-asahi-hyprland-settings-1/artifacts/cachy-asahi-hyprland-settings-0.1.0-2-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2041916124,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/full-composition-lifecycle-run38780072830/logs.zip"
+          }
+        },
+        {
+          "frame": "9449617eb67753bbbac067de80502ce7f6cff8399fb9e1590e8c21e725fea642",
+          "member": "native-evidence/cachy-asahi-hyprland-settings-2/artifacts/cachy-asahi-hyprland-settings-0.1.0-2-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2041916124,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/full-composition-lifecycle-run38780072830/logs.zip"
+          }
+        }
+      ],
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/current606-bootstrap6-custody-recovery-development-20261021/recovered/cachy-asahi-hyprland-settings-0.1.0-2-any.pkg.tar.xz",
+      "pin": {
+        "bytes": 12740,
+        "sha256": "0b22b778ec83d8b98d98d06fa4f016bd4e3f581b69efa83d6526c5265c2adf5e"
+      },
+      "required": {
+        "archive": "packages/cachy-asahi-hyprland-settings-0.1.0-2-any.pkg.tar.xz",
+        "name": "cachy-asahi-hyprland-settings",
+        "sha256": "0b22b778ec83d8b98d98d06fa4f016bd4e3f581b69efa83d6526c5265c2adf5e",
+        "signature": "packages/cachy-asahi-hyprland-settings-0.1.0-2-any.pkg.tar.xz.sig",
+        "signature_sha256": "69e9e548af6dc2fa45047136e5cc82f686946bb87331b3080ec94e1a6d4120c1",
+        "signature_size": 119,
+        "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+        "size": 12740,
+        "version": "0.1.0-2"
+      }
+    },
+    "cachy-asahi-topmem-0.1.0-1-any.pkg.tar.xz": {
+      "custody": [
+        {
+          "frame": "05ac35a2c613fced89b723fd5dff161fb3f3c4152ff16779d83ee84429e467ce",
+          "member": "tools-evidence/cachy-asahi-topmem/current-1/artifacts/cachy-asahi-topmem-0.1.0-1-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2128468018,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/tools-run38765227491/logs.zip"
+          }
+        },
+        {
+          "frame": "05ac35a2c613fced89b723fd5dff161fb3f3c4152ff16779d83ee84429e467ce",
+          "member": "tools-evidence/cachy-asahi-topmem/current-2/artifacts/cachy-asahi-topmem-0.1.0-1-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2128468018,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/tools-run38765227491/logs.zip"
+          }
+        },
+        {
+          "frame": "05ac35a2c613fced89b723fd5dff161fb3f3c4152ff16779d83ee84429e467ce",
+          "member": "tools-evidence/lifecycle-inputs/cachy-asahi-topmem-0.1.0-1-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2128468018,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/tools-run38765227491/logs.zip"
+          }
+        }
+      ],
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/current606-bootstrap6-custody-recovery-development-20261021/recovered/cachy-asahi-topmem-0.1.0-1-any.pkg.tar.xz",
+      "pin": {
+        "bytes": 8092,
+        "sha256": "583ffacd614bd741722486d5fbc64b79bb283d62c87974063fc1484dfcbe199b"
+      },
+      "required": {
+        "archive": "packages/cachy-asahi-topmem-0.1.0-1-any.pkg.tar.xz",
+        "name": "cachy-asahi-topmem",
+        "sha256": "583ffacd614bd741722486d5fbc64b79bb283d62c87974063fc1484dfcbe199b",
+        "signature": "packages/cachy-asahi-topmem-0.1.0-1-any.pkg.tar.xz.sig",
+        "signature_sha256": "22436a628a79bbf7728ad078fbf6e723100406b9c12cd6856f753d3824938eb9",
+        "signature_size": 119,
+        "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+        "size": 8092,
+        "version": "0.1.0-1"
+      }
+    },
+    "cachy-asahi-zsh-config-0.1.0-1-any.pkg.tar.xz": {
+      "custody": [
+        {
+          "frame": "208c78401d7faa42edda7d2e6d5fb4e8ddeea30c13ae4bf010a08514472c3fee",
+          "member": "native-evidence/cachy-asahi-zsh-config-1/artifacts/cachy-asahi-zsh-config-0.1.0-1-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2542915533,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/desktop-run38763443973/logs.zip"
+          }
+        },
+        {
+          "frame": "208c78401d7faa42edda7d2e6d5fb4e8ddeea30c13ae4bf010a08514472c3fee",
+          "member": "native-evidence/cachy-asahi-zsh-config-2/artifacts/cachy-asahi-zsh-config-0.1.0-1-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2542915533,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/desktop-run38763443973/logs.zip"
+          }
+        },
+        {
+          "frame": "1b5021bba69490d131c74c5b22935f557738deb0bdc02a980af48ce3909dfc07",
+          "member": "repository-public-artifacts/TEST-repositories/baseline-A/cachy-asahi-zsh-config-0.1.0-1-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2542915533,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/desktop-run38763443973/logs.zip"
+          }
+        },
+        {
+          "frame": "268ee1e45dd2f6d1a89b8d1ee622132ea8049bc1c26f82b76a109da1797ed5c2",
+          "member": "native-evidence/cachy-asahi-zsh-config-1/artifacts/cachy-asahi-zsh-config-0.1.0-1-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2105531586,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/desktop-canonical-run38767488680/logs.zip"
+          }
+        },
+        {
+          "frame": "268ee1e45dd2f6d1a89b8d1ee622132ea8049bc1c26f82b76a109da1797ed5c2",
+          "member": "native-evidence/cachy-asahi-zsh-config-2/artifacts/cachy-asahi-zsh-config-0.1.0-1-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2105531586,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/desktop-canonical-run38767488680/logs.zip"
+          }
+        },
+        {
+          "frame": "6dffc20280e00ffa45863456f51eae0d836921adc0a452fafcd9ea718f19a206",
+          "member": "repository-public-artifacts/TEST-repositories/baseline-A/cachy-asahi-zsh-config-0.1.0-1-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2105531586,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/desktop-canonical-run38767488680/logs.zip"
+          }
+        },
+        {
+          "frame": "e4c672a26367f1aaa8e3a7e049f73431402222e02d4bcc8d4efe579adef8bdef",
+          "member": "native-evidence/cachy-asahi-zsh-config-1/artifacts/cachy-asahi-zsh-config-0.1.0-1-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2128468018,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/tools-run38765227491/logs.zip"
+          }
+        },
+        {
+          "frame": "e4c672a26367f1aaa8e3a7e049f73431402222e02d4bcc8d4efe579adef8bdef",
+          "member": "native-evidence/cachy-asahi-zsh-config-2/artifacts/cachy-asahi-zsh-config-0.1.0-1-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2128468018,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/tools-run38765227491/logs.zip"
+          }
+        },
+        {
+          "frame": "07343dd2fbcd81622fa9a7c0e1dcc0f4ab3d0d01124b14eabb0bd3c8a56aaa66",
+          "member": "native-evidence/cachy-asahi-zsh-config-1/artifacts/cachy-asahi-zsh-config-0.1.0-1-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2537464380,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/full-composition-run38774794165/logs.zip"
+          }
+        },
+        {
+          "frame": "07343dd2fbcd81622fa9a7c0e1dcc0f4ab3d0d01124b14eabb0bd3c8a56aaa66",
+          "member": "native-evidence/cachy-asahi-zsh-config-2/artifacts/cachy-asahi-zsh-config-0.1.0-1-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2537464380,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/full-composition-run38774794165/logs.zip"
+          }
+        },
+        {
+          "frame": "9449617eb67753bbbac067de80502ce7f6cff8399fb9e1590e8c21e725fea642",
+          "member": "native-evidence/cachy-asahi-zsh-config-1/artifacts/cachy-asahi-zsh-config-0.1.0-1-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2041916124,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/full-composition-lifecycle-run38780072830/logs.zip"
+          }
+        },
+        {
+          "frame": "9449617eb67753bbbac067de80502ce7f6cff8399fb9e1590e8c21e725fea642",
+          "member": "native-evidence/cachy-asahi-zsh-config-2/artifacts/cachy-asahi-zsh-config-0.1.0-1-any.pkg.tar.xz",
+          "source": {
+            "CRC": 2041916124,
+            "member": "0_native.txt",
+            "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/full-composition-lifecycle-run38780072830/logs.zip"
+          }
+        }
+      ],
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/current606-bootstrap6-custody-recovery-development-20261021/recovered/cachy-asahi-zsh-config-0.1.0-1-any.pkg.tar.xz",
+      "pin": {
+        "bytes": 6244,
+        "sha256": "be2ef8ed4f0263720ed6290bff9992d5df53c7bf689a40478f2be329ba2d50e7"
+      },
+      "required": {
+        "archive": "packages/cachy-asahi-zsh-config-0.1.0-1-any.pkg.tar.xz",
+        "name": "cachy-asahi-zsh-config",
+        "sha256": "be2ef8ed4f0263720ed6290bff9992d5df53c7bf689a40478f2be329ba2d50e7",
+        "signature": "packages/cachy-asahi-zsh-config-0.1.0-1-any.pkg.tar.xz.sig",
+        "signature_sha256": "114da94955a65892b3da49afb5a073a665ec44fdcfb44cc14f9693fb563c43d0",
+        "signature_size": 119,
+        "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+        "size": 6244,
+        "version": "0.1.0-1"
+      }
+    }
+  },
+  "required": {
+    "cachy-asahi-fdk-aac-3.0.0-1-aarch64.pkg.tar.xz": {
+      "archive": "packages/cachy-asahi-fdk-aac-3.0.0-1-aarch64.pkg.tar.xz",
+      "name": "cachy-asahi-fdk-aac",
+      "sha256": "237b7812435bd78456d72c157f5703f258f5b6b7455cb99e5b075f642071c247",
+      "signature": "packages/cachy-asahi-fdk-aac-3.0.0-1-aarch64.pkg.tar.xz.sig",
+      "signature_sha256": "1746a61558a13a9f1317f79a6e98a8252b14b632b3b8d2bf1fa9165c9ee1f71e",
+      "signature_size": 119,
+      "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+      "size": 1209964,
+      "version": "3.0.0-1"
+    },
+    "cachy-asahi-fish-config-0.1.0-1-any.pkg.tar.xz": {
+      "archive": "packages/cachy-asahi-fish-config-0.1.0-1-any.pkg.tar.xz",
+      "name": "cachy-asahi-fish-config",
+      "sha256": "38e766158d13a0e13b8f811766119d10c018ccc256f5d99c3561b74c99d12705",
+      "signature": "packages/cachy-asahi-fish-config-0.1.0-1-any.pkg.tar.xz.sig",
+      "signature_sha256": "3caf2518e5b73c14a4e59a9c2aa5e0ab6ec7c3c95e2e817009ce1868fe9088d7",
+      "signature_size": 119,
+      "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+      "size": 5396,
+      "version": "0.1.0-1"
+    },
+    "cachy-asahi-hyprland-settings-0.1.0-2-any.pkg.tar.xz": {
+      "archive": "packages/cachy-asahi-hyprland-settings-0.1.0-2-any.pkg.tar.xz",
+      "name": "cachy-asahi-hyprland-settings",
+      "sha256": "0b22b778ec83d8b98d98d06fa4f016bd4e3f581b69efa83d6526c5265c2adf5e",
+      "signature": "packages/cachy-asahi-hyprland-settings-0.1.0-2-any.pkg.tar.xz.sig",
+      "signature_sha256": "69e9e548af6dc2fa45047136e5cc82f686946bb87331b3080ec94e1a6d4120c1",
+      "signature_size": 119,
+      "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+      "size": 12740,
+      "version": "0.1.0-2"
+    },
+    "cachy-asahi-topmem-0.1.0-1-any.pkg.tar.xz": {
+      "archive": "packages/cachy-asahi-topmem-0.1.0-1-any.pkg.tar.xz",
+      "name": "cachy-asahi-topmem",
+      "sha256": "583ffacd614bd741722486d5fbc64b79bb283d62c87974063fc1484dfcbe199b",
+      "signature": "packages/cachy-asahi-topmem-0.1.0-1-any.pkg.tar.xz.sig",
+      "signature_sha256": "22436a628a79bbf7728ad078fbf6e723100406b9c12cd6856f753d3824938eb9",
+      "signature_size": 119,
+      "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+      "size": 8092,
+      "version": "0.1.0-1"
+    },
+    "cachy-asahi-update-4.4.2-2-aarch64.pkg.tar.xz": {
+      "archive": "packages/cachy-asahi-update-4.4.2-2-aarch64.pkg.tar.xz",
+      "name": "cachy-asahi-update",
+      "sha256": "88e6ebad51700499bc2f0c608409e06983b0146ebf555101b526c7a32d5ba4f6",
+      "signature": "packages/cachy-asahi-update-4.4.2-2-aarch64.pkg.tar.xz.sig",
+      "signature_sha256": "15ae01f1273778c418747917a358c7e4e926a85f3969095c96b184c7a680fa7d",
+      "signature_size": 119,
+      "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+      "size": 3083884,
+      "version": "4.4.2-2"
+    },
+    "cachy-asahi-zsh-config-0.1.0-1-any.pkg.tar.xz": {
+      "archive": "packages/cachy-asahi-zsh-config-0.1.0-1-any.pkg.tar.xz",
+      "name": "cachy-asahi-zsh-config",
+      "sha256": "be2ef8ed4f0263720ed6290bff9992d5df53c7bf689a40478f2be329ba2d50e7",
+      "signature": "packages/cachy-asahi-zsh-config-0.1.0-1-any.pkg.tar.xz.sig",
+      "signature_sha256": "114da94955a65892b3da49afb5a073a665ec44fdcfb44cc14f9693fb563c43d0",
+      "signature_size": 119,
+      "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+      "size": 6244,
+      "version": "0.1.0-1"
+    }
+  },
+  "status": "EXACT_RAW_BODY_RECOVERY_ONLY_NOT_AUTHENTICATED"
+}

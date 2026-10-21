@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "status": "built-package-static-pass",
+  "hardware_status": "NOT RUN",
+  "mode": "native",
+  "image": "sha256:67f6e6a58fadc742d28583820452a48122f0df286646b645bca6547e0305b93f",
+  "source_date_epoch": 1791748800,
+  "network": "none",
+  "started_utc": "2026-10-15T16:18:28.693220+00:00",
+  "recipe_inputs": {
+    ".SRCINFO": "6c2fd7e245f5ac15627ebef3fe34f7b5f6120b310055e9e934708c06c2126419",
+    "LICENSE": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+    "NOTICE": "0c8c331ce87a95b154e0e83c358a5cafc39bf08f2129ecc5be2438c6a97a325c",
+    "PKGBUILD": "fcaa62480565b8bb3b88b330a989b7bb37355e3908a9251285ce15765c985436",
+    "README.md": "68fe115241e834594d8c43330b0564c4171e21f5c039dbd48f72ad27b8fbb17c",
+    "cachy-asahi-screenshot": "5a920a5dd7a40463417a9b15e64a6620acfe7b2328960bf7014c9f587c4b69a8",
+    "hyprland.lua": "f75aebb1111123dc86c7f1a85e00bff0320edef6e6f071e28370fbabd6a40a6a",
+    "mako.conf": "c6ab55ae475611bf2df2b7120b97a924eed5d65c149561d4da4f12b5b8c25504",
+    "waybar.css": "a97930965a4e622adc920491c7d433a803173bb6e644c4c3c88efb79187e11d5",
+    "waybar.json": "4c7adb2deb0403fefc4562d39105635cebfc44ce88e44fe84c4a90a00b2be3c0"
+  },
+  "recipe_metadata": {
+    "pkgbase": [
+      "cachy-asahi-hyprland-settings"
+    ],
+    "pkgdesc": [
+      "Opt-in Hyprland Lua configuration preserving the existing Asahi platform"
+    ],
+    "pkgver": [
+      "0.1.0"
+    ],
+    "pkgrel": [
+      "2"
+    ],
+    "url": [
+      "https://github.com/Gabriel-Kahen/cachy-asahi"
+    ],
+    "arch": [
+      "any"
+    ],
+    "license": [
+      "MIT"
+    ],
+    "makedepends": [
+      "lua",
+      "python"
+    ],
+    "depends": [
+      "hyprland>=0.56.2",
+      "hyprland<0.57.0",
+      "alacritty",
+      "wofi",
+      "swaylock",
+      "wireplumber",
+      "brightnessctl",
+      "python"
+    ],
+    "optdepends": [
+      "waybar: optional status bar template",
+      "mako: optional notification template",
+      "noto-fonts: readable sans-serif text",
+      "xdg-desktop-portal-hyprland: base-session screencast integration",
+      "xdg-desktop-portal-gtk: base-session file chooser integration",
+      "hyprpolkitagent: authorization agent if absent from the base session",
+      "grim: optional explicit screenshot-to-file capture",
+      "slurp: optional screenshot region selection"
+    ],
+    "source": [
+      "hyprland.lua",
+      "waybar.json",
+      "waybar.css",
+      "mako.conf",
+      "README.md",
+      "NOTICE",
+      "LICENSE",
+      "cachy-asahi-screenshot"
+    ],
+    "sha256sums": [
+      "f75aebb1111123dc86c7f1a85e00bff0320edef6e6f071e28370fbabd6a40a6a",
+      "4c7adb2deb0403fefc4562d39105635cebfc44ce88e44fe84c4a90a00b2be3c0",
+      "a97930965a4e622adc920491c7d433a803173bb6e644c4c3c88efb79187e11d5",
+      "c6ab55ae475611bf2df2b7120b97a924eed5d65c149561d4da4f12b5b8c25504",
+      "68fe115241e834594d8c43330b0564c4171e21f5c039dbd48f72ad27b8fbb17c",
+      "0c8c331ce87a95b154e0e83c358a5cafc39bf08f2129ecc5be2438c6a97a325c",
+      "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+      "5a920a5dd7a40463417a9b15e64a6620acfe7b2328960bf7014c9f587c4b69a8"
+    ],
+    "pkgname": [
+      "cachy-asahi-hyprland-settings"
+    ]
+  },
+  "builder_host_arch": "aarch64",
+  "image_id": "sha256:67f6e6a58fadc742d28583820452a48122f0df286646b645bca6547e0305b93f",
+  "expected_packages_sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25",
+  "entry_script_sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24",
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "--name",
+    "cachy-asahi-7457053fe991b641",
+    "--pull=never",
+    "--platform",
+    "linux/arm64",
+    "--user",
+    "1001:1001",
+    "--cap-drop=ALL",
+    "--security-opt=no-new-privileges",
+    "--read-only",
+    "--pids-limit",
+    "512",
+    "--memory",
+    "4g",
+    "--cpus",
+    "4",
+    "--network",
+    "none",
+    "--tmpfs",
+    "/tmp:rw,nosuid,nodev,exec,size=4g",
+    "--env",
+    "CACHY_ASAHI_CONTAINER=1",
+    "--env",
+    "SOURCE_DATE_EPOCH=1791748800",
+    "--mount",
+    "type=bind,src=/home/runner/work/_temp/native-evidence/cachy-asahi-hyprland-settings-1/inputs,dst=/inputs,readonly",
+    "--mount",
+    "type=bind,src=/home/runner/work/_temp/native-evidence/cachy-asahi-hyprland-settings-1/artifacts,dst=/out",
+    "--mount",
+    "type=bind,src=/home/runner/work/cachy-asahi/cachy-asahi/scripts/build/container-entry.sh,dst=/builder-entry.sh,readonly",
+    "--mount",
+    "type=bind,src=/home/runner/work/_temp/native-evidence/cachy-asahi-hyprland-settings-1/expected-packages.lock,dst=/expected-packages.lock,readonly",
+    "--entrypoint",
+    "/bin/bash",
+    "sha256:67f6e6a58fadc742d28583820452a48122f0df286646b645bca6547e0305b93f",
+    "/builder-entry.sh"
+  ],
+  "clean_environment_id": "cachy-asahi-7457053fe991b641",
+  "exit_code": 0,
+  "artifacts": {
+    "cachy-asahi-hyprland-settings-0.1.0-2-any.pkg.tar.xz": "0b22b778ec83d8b98d98d06fa4f016bd4e3f581b69efa83d6526c5265c2adf5e"
+  },
+  "files": {
+    "artifacts/cachy-asahi-hyprland-settings-0.1.0-2-any.pkg.tar.xz": "0b22b778ec83d8b98d98d06fa4f016bd4e3f581b69efa83d6526c5265c2adf5e",
+    "artifacts/config.sha256": "8309cb4c0409ccdc1ca922475dde9377aec434911efc453299f41e8fadb234ec",
+    "artifacts/environment.txt": "69b9446a4e2e6ffd1598142230eb97ae7ce4db387aa503aafc19c42d07ea0396",
+    "artifacts/generated.SRCINFO": "6c2fd7e245f5ac15627ebef3fe34f7b5f6120b310055e9e934708c06c2126419",
+    "artifacts/makepkg.conf": "cfcf0bd2601d887724c5ca7d9a48ac5dd347abad9e8ac5efa436080e45822a60",
+    "artifacts/packages.lock": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25",
+    "artifacts/pacman.conf": "14d304eeb83baf1379279356c232580fd095c2d508b41c74677347801a0bafe7",
+    "expected-packages.lock": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25",
+    "build.log": "cd3031fc050f18c1bb8793f5e3f35f1a06ac764869030ad65ade10e264f43a07",
+    "validation.json": "f35f674536d7a59bbdf081a5779f27219611da3ddac93a37db81ca7da62e2d90"
+  },
+  "finished_utc": "2026-10-15T16:18:33.175597+00:00"
+}

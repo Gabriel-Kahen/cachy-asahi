@@ -1,0 +1,25 @@
+{
+  "artifact": {
+    "bytes": 12355615,
+    "sha256": "925cdfd57881a833553cb19091b5ea120702b7e67f3a734ba29d1d208e251cf6"
+  },
+  "artifact_id": 12229407921,
+  "attempt": 1,
+  "metadata": {
+    "artifacts.json": {
+      "bytes": 798,
+      "sha256": "4211e39011a9a462d15f114908e794b1380d54d7d6a2fb022a222050f52594b3"
+    },
+    "jobs.json": {
+      "bytes": 13752,
+      "sha256": "b0214f4d8f80de1d8aa4db536fe271d87a7cb17ec51d192904df92c8f9ff4a1c"
+    },
+    "run.json": {
+      "bytes": 13022,
+      "sha256": "2357b1d8d6fb0756671a130a841d7d716634e36f294f6ba70e7aa603efcff53d"
+    }
+  },
+  "role": "SOURCE_OWNED_NATIVE_FRAMED_TRANSPORT_V1",
+  "run_id": 39335483055,
+  "source": "6f824cac64cd44f765e54fd3b5a853689ea0ce7b"
+}

@@ -1,0 +1,185 @@
+{
+  "found": {
+    "alsa-ucm-conf-asahi-10-2-any.pkg.tar.xz": {
+      "bytes": 9836,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/full-composition-audio-run38805368269/local-retrieval-aggregate/audio-archives/alsa-ucm-conf-asahi-10-2-any.pkg.tar.xz",
+      "sha256": "b4eeab98e530489a9e4b5f0d46cf6946f556efedb76d4489be936bbbb8216ee4"
+    },
+    "archlinux-contrib-20261009-1-any.pkg.tar.xz": {
+      "bytes": 24792,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/updater-runtime-native-20261015/dependencies/private-cache/archlinux-contrib-20261009-1-any.pkg.tar.xz",
+      "sha256": "0cda9e6618956615a9065265300af78d1c4b5693bbfe3f6aab7f58b8aa0eeca3"
+    },
+    "asahi-audio-4.1-2-aarch64.pkg.tar.xz": {
+      "bytes": 1395012,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/full-composition-audio-run38805368269/local-retrieval-aggregate/audio-archives/asahi-audio-4.1-2-aarch64.pkg.tar.xz",
+      "sha256": "9adbdd1862d975bbbbb10e62f6c68ffad08bed8e32575f1681cbd40bbf533cfa"
+    },
+    "bankstown-1.1.0-4-aarch64.pkg.tar.xz": {
+      "bytes": 144404,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/full-composition-audio-run38805368269/local-retrieval-aggregate/audio-archives/bankstown-1.1.0-4-aarch64.pkg.tar.xz",
+      "sha256": "5ce529103e77d6cc509e270d925f9ecaa126d6a9b14302cdb41c14b72ed0d3af"
+    },
+    "cachy-asahi-apps-0.1.0-7-any.pkg.tar.xz": {
+      "bytes": 23212,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/current607-prefill-path-trial-root-20261021/reader/inputs/apps/payload/apps7/origins/39095436036/export/packages/cachy-asahi-apps-b/cachy-asahi-apps-0.1.0-7-any.pkg.tar.xz",
+      "sha256": "23fc2fe5707606b0f3bd8c6322b9e7ae0c47a6ff1024cd239f4486679638be39"
+    },
+    "cachy-asahi-cache-0.2.0-1-any.pkg.tar.xz": {
+      "bytes": 18304,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/management-tools-native-inputs-20261016/payload/origins/38970264456/export/packages/cachy-asahi-cache-b/cachy-asahi-cache-0.2.0-1-any.pkg.tar.xz",
+      "sha256": "450706e2899f57b44ca2f446560c8aeab710a4726a13561d09a2cb4a8bf1da40"
+    },
+    "cachy-asahi-dns-0.1.0-2-any.pkg.tar.xz": {
+      "bytes": 15632,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/current607-prefill-path-trial-root-20261021/reader/inputs/welcome/payload/dns2-original/packages/dns2/b/cachy-asahi-dns-0.1.0-2-any.pkg.tar.xz",
+      "sha256": "588301342503ab23869d78e212f50a7b363fe45dcaf7c2ad4c411a33bab22d1d"
+    },
+    "cachy-asahi-doctor-0.2.0-1-any.pkg.tar.xz": {
+      "bytes": 16000,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/current607-prefill-path-trial-root-20261021/reader/inputs/doctor/payload/retained/packages/cachy-asahi-doctor-b/cachy-asahi-doctor-0.2.0-1-any.pkg.tar.xz",
+      "sha256": "5d27ef618bfc571c0238cfbbbcf382d0e4c689df509d1f62123ad5fe53245ee7"
+    },
+    "cachy-asahi-fish-autopair-0.1.0-1-any.pkg.tar.xz": {
+      "bytes": 11024,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/expanded-candidate-inputs-20261016/payload/packages/cachy-asahi-fish-autopair-b/cachy-asahi-fish-autopair-0.1.0-1-any.pkg.tar.xz",
+      "sha256": "ea5dbb98856e8226b133b08ab2332b170244edb743248a5a98d8c2c3930f9f78"
+    },
+    "cachy-asahi-fish-bang-bang-0.1.0-2-any.pkg.tar.xz": {
+      "bytes": 9652,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/expanded600-run38931212471/public/cachy-asahi-fish-bang-bang-a/artifacts/cachy-asahi-fish-bang-bang-0.1.0-2-any.pkg.tar.xz",
+      "sha256": "542585b5c6d50f379deca86cc394afbb0eca51174ee9e11d7ec895181ef73f8e"
+    },
+    "cachy-asahi-fish-config-0.1.0-1-any.pkg.tar.xz": {
+      "bytes": 5396,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/current606-bootstrap6-custody-recovery-development-20261021/recovered/cachy-asahi-fish-config-0.1.0-1-any.pkg.tar.xz",
+      "sha256": "38e766158d13a0e13b8f811766119d10c018ccc256f5d99c3561b74c99d12705"
+    },
+    "cachy-asahi-fish-done-0.1.0-2-any.pkg.tar.xz": {
+      "bytes": 15380,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/expanded-candidate-inputs-20261016/payload/packages/cachy-asahi-fish-done-b/cachy-asahi-fish-done-0.1.0-2-any.pkg.tar.xz",
+      "sha256": "9ce3c7ba89467f04660014c1b12056dce28bd0c4e69b4cab8a9c2c98e1cce54f"
+    },
+    "cachy-asahi-hyprland-settings-0.1.0-2-any.pkg.tar.xz": {
+      "bytes": 12740,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/current606-bootstrap6-custody-recovery-development-20261021/recovered/cachy-asahi-hyprland-settings-0.1.0-2-any.pkg.tar.xz",
+      "sha256": "0b22b778ec83d8b98d98d06fa4f016bd4e3f581b69efa83d6526c5265c2adf5e"
+    },
+    "cachy-asahi-ksmctl-0.1.0-2-any.pkg.tar.xz": {
+      "bytes": 24128,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/current607-prefill-path-trial-root-20261021/reader/inputs/ksm/payload/packages/cachy-asahi-ksmctl2-b/cachy-asahi-ksmctl-0.1.0-2-any.pkg.tar.xz",
+      "sha256": "bac3d222b6490412c1c9c7bafd72d8169e8679a1e7b411b5794246aed0b57b5f"
+    },
+    "cachy-asahi-mirrors-0.2.0-1-any.pkg.tar.xz": {
+      "bytes": 15616,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/tools-native-run38909646797/public/packages/cachy-asahi-mirrors-b/cachy-asahi-mirrors-0.2.0-1-any.pkg.tar.xz",
+      "sha256": "003ed932012ecc4ebb2f5a43c911db8eece30d532dc8e6d3f54c4bf249668c3c"
+    },
+    "cachy-asahi-orphans-0.1.0-2-any.pkg.tar.xz": {
+      "bytes": 18900,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/current607-prefill-path-trial-root-20261021/reader/inputs/apps/payload/held65950/origins/38993858003/export/packages/cachy-asahi-orphans-b/cachy-asahi-orphans-0.1.0-2-any.pkg.tar.xz",
+      "sha256": "2543a13b584bf974efc4ce79f4da585d9e4513c2bc3907750fe5c962d20c8c02"
+    },
+    "cachy-asahi-repository-runtime-0.1.0-1-any.pkg.tar.xz": {
+      "bytes": 28888,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/apps4-cache-native-run38967303862/runtime-pair-replay/b/artifacts/cachy-asahi-repository-runtime-0.1.0-1-any.pkg.tar.xz",
+      "sha256": "1c8a9149da02e60a4c14598cdf7007d6dbffcd6150757fcf6711977aa00cf8aa"
+    },
+    "cachy-asahi-setup-0.1.0-5-any.pkg.tar.xz": {
+      "bytes": 26872,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/setup5-accepted-pair-inputs-20261016/payload/packages/cachy-asahi-setup-b/cachy-asahi-setup-0.1.0-5-any.pkg.tar.xz",
+      "sha256": "1aafee365e3bcb04e1fce694c110a997914a07f4359697df5e017375897385fc"
+    },
+    "cachy-asahi-sysctl-0.1.0-2-any.pkg.tar.xz": {
+      "bytes": 14840,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/sysctl2-native-upgrade-native-actual-20261018/passive-replay/retained-replay/packages/cachy-asahi-sysctl2-b/cachy-asahi-sysctl-0.1.0-2-any.pkg.tar.xz",
+      "sha256": "f569ddfb8b1a5347f26db05b9f702706bebc9d8b88369f1a5861544a285659c3"
+    },
+    "cachy-asahi-topmem-0.1.0-1-any.pkg.tar.xz": {
+      "bytes": 8092,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/current606-bootstrap6-custody-recovery-development-20261021/recovered/cachy-asahi-topmem-0.1.0-1-any.pkg.tar.xz",
+      "sha256": "583ffacd614bd741722486d5fbc64b79bb283d62c87974063fc1484dfcbe199b"
+    },
+    "cachy-asahi-welcome-0.1.0-7-aarch64.pkg.tar.xz": {
+      "bytes": 39904,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/current607-prefill-path-trial-root-20261021/reader/inputs/welcome/payload/native7/retained/packages/cachy-asahi-welcome-b/cachy-asahi-welcome-0.1.0-7-aarch64.pkg.tar.xz",
+      "sha256": "3dec4a467a712908e5f06a481ca7b3206a232c4cf2fc3cc1d933bf3389e2ee35"
+    },
+    "cachy-asahi-zsh-autosuggestions-0.7.1-1-any.pkg.tar.xz": {
+      "bytes": 13652,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/setup5-six-module-inputs-20261016/payload/evidence/run38765227491/cachy-asahi-zsh-autosuggestions-b/artifacts/cachy-asahi-zsh-autosuggestions-0.7.1-1-any.pkg.tar.xz",
+      "sha256": "ff59a185f52e80dc4fd08c666d093cccefa3e57f2513085c900602da597f29b9"
+    },
+    "cachy-asahi-zsh-config-0.1.0-1-any.pkg.tar.xz": {
+      "bytes": 6244,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/current606-bootstrap6-custody-recovery-development-20261021/recovered/cachy-asahi-zsh-config-0.1.0-1-any.pkg.tar.xz",
+      "sha256": "be2ef8ed4f0263720ed6290bff9992d5df53c7bf689a40478f2be329ba2d50e7"
+    },
+    "cachy-asahi-zsh-history-substring-search-0.1.0-1-any.pkg.tar.xz": {
+      "bytes": 15728,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/tools-native-run38909646797/public/packages/cachy-asahi-zsh-history-substring-search-b/cachy-asahi-zsh-history-substring-search-0.1.0-1-any.pkg.tar.xz",
+      "sha256": "dc5cdffcc7d59bd93986bfbb5279aaff3760f469dc3ce4a2eb5244e1e80ceb15"
+    },
+    "cachy-asahi-zsh-syntax-highlighting-0.8.1.dev.e6683f2-1-any.pkg.tar.xz": {
+      "bytes": 35720,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/tools-native-run38909646797/public/packages/cachy-asahi-zsh-syntax-highlighting-b/cachy-asahi-zsh-syntax-highlighting-0.8.1.dev.e6683f2-1-any.pkg.tar.xz",
+      "sha256": "1b253d7676a4ab48f1c423d163f5a4614a01fac9d884d3c253db84c6a72b84a6"
+    },
+    "htmlq-0.4.0-3-aarch64.pkg.tar.xz": {
+      "bytes": 609268,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/updater-runtime-native-20261015/dependencies/private-cache/htmlq-0.4.0-3-aarch64.pkg.tar.xz",
+      "sha256": "325ab19a2414dc47d118a48dfce4dee082c65f058afb994ffac2cbc1498055f8"
+    },
+    "lsp-plugins-lv2-1.2.35-1-aarch64.pkg.tar.xz": {
+      "bytes": 5587560,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/full-composition-audio-run38805368269/local-retrieval-aggregate/audio-archives/lsp-plugins-lv2-1.2.35-1-aarch64.pkg.tar.xz",
+      "sha256": "dd6295c2735fd69c258cb21c219138fe444eb131998cd4fa442e9026805bb31b"
+    },
+    "pacman-contrib-1.13.1-1-aarch64.pkg.tar.xz": {
+      "bytes": 49604,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/updater-runtime-native-20261015/dependencies/private-cache/pacman-contrib-1.13.1-1-aarch64.pkg.tar.xz",
+      "sha256": "7f89d02bae727950f543ec969145212b93abea947675de27280c6978cfe9b946"
+    },
+    "pyalpm-0.12.0-1-aarch64.pkg.tar.xz": {
+      "bytes": 53640,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/updater-runtime-native-20261015/dependencies/private-cache/pyalpm-0.12.0-1-aarch64.pkg.tar.xz",
+      "sha256": "1fba3d5b99aba62d4e7b85481e19a993863995f44b20a6a5bf2e30b37be845f5"
+    },
+    "speakersafetyd-2.0.1-3-aarch64.pkg.tar.xz": {
+      "bytes": 371904,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/full-composition-audio-run38805368269/local-retrieval-aggregate/audio-archives/speakersafetyd-2.0.1-3-aarch64.pkg.tar.xz",
+      "sha256": "259c27439420d6b18b04caf5ced5d0db5f27fb6a040a437e8fad48d8569c1232"
+    },
+    "triforce-lv2-0.3.2-3-aarch64.pkg.tar.xz": {
+      "bytes": 334900,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/full-composition-audio-run38805368269/local-retrieval-aggregate/audio-archives/triforce-lv2-0.3.2-3-aarch64.pkg.tar.xz",
+      "sha256": "d123dca2cd67099dfe3e45af9edc7f61ba11bf650a482695350184badd7dfa3c"
+    }
+  },
+  "missing": {
+    "cachy-asahi-fdk-aac-3.0.0-1-aarch64.pkg.tar.xz": {
+      "archive": "packages/cachy-asahi-fdk-aac-3.0.0-1-aarch64.pkg.tar.xz",
+      "name": "cachy-asahi-fdk-aac",
+      "sha256": "237b7812435bd78456d72c157f5703f258f5b6b7455cb99e5b075f642071c247",
+      "signature": "packages/cachy-asahi-fdk-aac-3.0.0-1-aarch64.pkg.tar.xz.sig",
+      "signature_sha256": "1746a61558a13a9f1317f79a6e98a8252b14b632b3b8d2bf1fa9165c9ee1f71e",
+      "signature_size": 119,
+      "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+      "size": 1209964,
+      "version": "3.0.0-1"
+    },
+    "cachy-asahi-update-4.4.2-2-aarch64.pkg.tar.xz": {
+      "archive": "packages/cachy-asahi-update-4.4.2-2-aarch64.pkg.tar.xz",
+      "name": "cachy-asahi-update",
+      "sha256": "88e6ebad51700499bc2f0c608409e06983b0146ebf555101b526c7a32d5ba4f6",
+      "signature": "packages/cachy-asahi-update-4.4.2-2-aarch64.pkg.tar.xz.sig",
+      "signature_sha256": "15ae01f1273778c418747917a358c7e4e926a85f3969095c96b184c7a680fa7d",
+      "signature_size": 119,
+      "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+      "size": 3083884,
+      "version": "4.4.2-2"
+    }
+  },
+  "rg_status": 2,
+  "status": "RAW_EXACT_BODY_RECOVERY_NOT_AUTHENTICATED"
+}

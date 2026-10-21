@@ -1,0 +1,134 @@
+{
+  "cachy-asahi-dns2": {
+    "archive": "cachy-asahi-dns-0.1.0-2-any.pkg.tar.xz",
+    "bytes": 15632,
+    "name": "cachy-asahi-dns",
+    "payload": {
+      "usr/bin/cachy-asahi-dns": {
+        "gid": 0,
+        "link": "",
+        "mode": 493,
+        "mtime": 1791748800,
+        "sha256": "d708cbe54a8e96a62ff7d85e4eadfb7a980401adb3a9fe8465052f754b4c8c88",
+        "size": 14882,
+        "type": "0",
+        "uid": 0
+      },
+      "usr/share/doc/cachy-asahi-dns/README.md": {
+        "gid": 0,
+        "link": "",
+        "mode": 420,
+        "mtime": 1791748800,
+        "sha256": "a8192e1e96fe1bc5a8cfe0269dcef7961b79e590a50a9c93ddb9921e8c349582",
+        "size": 7235,
+        "type": "0",
+        "uid": 0
+      },
+      "usr/share/doc/cachy-asahi-dns/source-provenance.json": {
+        "gid": 0,
+        "link": "",
+        "mode": 420,
+        "mtime": 1791748800,
+        "sha256": "9f5af4c43a17754de5f9e2e77b0f271c74993a5f519b0c73094b103b744b2470",
+        "size": 1704,
+        "type": "0",
+        "uid": 0
+      },
+      "usr/share/licenses/cachy-asahi-dns/LICENSE": {
+        "gid": 0,
+        "link": "",
+        "mode": 420,
+        "mtime": 1791748800,
+        "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+        "size": 1081,
+        "type": "0",
+        "uid": 0
+      },
+      "usr/share/licenses/cachy-asahi-dns/NOTICE": {
+        "gid": 0,
+        "link": "",
+        "mode": 420,
+        "mtime": 1791748800,
+        "sha256": "1ff77dc69e120adfacea23ac77a756ff5931b888c7535f0e2f2b928114a5873e",
+        "size": 362,
+        "type": "0",
+        "uid": 0
+      }
+    },
+    "role": "cachy-asahi-dns2",
+    "sha256": "588301342503ab23869d78e212f50a7b363fe45dcaf7c2ad4c411a33bab22d1d",
+    "signature": "cachy-asahi-dns-0.1.0-2-any.pkg.tar.xz.sig",
+    "signature_pin": {
+      "bytes": 119,
+      "sha256": "713791b1014bb4f0a652923dac6496dd5c38f38a89122046c37b49d66637c357"
+    },
+    "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+    "version": "0.1.0-2"
+  },
+  "cachy-asahi-sysctl2": {
+    "archive": "cachy-asahi-sysctl-0.1.0-2-any.pkg.tar.xz",
+    "bytes": 14840,
+    "name": "cachy-asahi-sysctl",
+    "payload": {
+      "usr/bin/cachy-asahi-sysctl": {
+        "gid": 0,
+        "link": "",
+        "mode": 493,
+        "mtime": 1791748800,
+        "sha256": "70e3e35d1bf517b21c84f5ecbe608da551e6f8577c68bbfbbd2412b8dd3ed4f0",
+        "size": 16250,
+        "type": "0",
+        "uid": 0
+      },
+      "usr/share/doc/cachy-asahi-sysctl/README.md": {
+        "gid": 0,
+        "link": "",
+        "mode": 420,
+        "mtime": 1791748800,
+        "sha256": "c9d25d4b56788c81118802080fc3b91b83f5d79087202c58d2a5cfeaa2002f4c",
+        "size": 7860,
+        "type": "0",
+        "uid": 0
+      },
+      "usr/share/doc/cachy-asahi-sysctl/source-provenance.json": {
+        "gid": 0,
+        "link": "",
+        "mode": 420,
+        "mtime": 1791748800,
+        "sha256": "75e01b5ce01a6f7bdef0bd3913456e8d135704886eed7ca85dea156901887f67",
+        "size": 482,
+        "type": "0",
+        "uid": 0
+      },
+      "usr/share/licenses/cachy-asahi-sysctl/LICENSE": {
+        "gid": 0,
+        "link": "",
+        "mode": 420,
+        "mtime": 1791748800,
+        "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+        "size": 1081,
+        "type": "0",
+        "uid": 0
+      },
+      "usr/share/licenses/cachy-asahi-sysctl/NOTICE": {
+        "gid": 0,
+        "link": "",
+        "mode": 420,
+        "mtime": 1791748800,
+        "sha256": "5f75cdf074f7df1736f78f3e8e654196dedabff686ea32bbe92bf95c8863c50e",
+        "size": 470,
+        "type": "0",
+        "uid": 0
+      }
+    },
+    "role": "cachy-asahi-sysctl2",
+    "sha256": "f569ddfb8b1a5347f26db05b9f702706bebc9d8b88369f1a5861544a285659c3",
+    "signature": "cachy-asahi-sysctl-0.1.0-2-any.pkg.tar.xz.sig",
+    "signature_pin": {
+      "bytes": 119,
+      "sha256": "cf3bdd3ee5e4d1e7b8fdf5b04f7d3832b220100d13d35bcb6cc3282fe520d754"
+    },
+    "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+    "version": "0.1.0-2"
+  }
+}
