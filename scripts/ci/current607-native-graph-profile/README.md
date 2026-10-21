@@ -50,3 +50,15 @@ All whole graphs were equal. Native speedup and1800s completion are UNKNOWN. Ori
 normal hook execution is not claimed. Run test_ancestry.py for six portable real
 controls and test_ancestry_profile.py --source ABS555 --expected ABS566 for
 complete default563 and opt-in566 emission/refusal controls. No actor is run.
+
+
+Explicit `--profile correctness2400` emits the separate published568 source
+`b274ef846322ffdf82665a209c855fe96fced75a` after checking the exact563 and566
+intermediates. Defaults remain unchanged. Its consumer/component budget is2400s;
+owner6600, transaction90, fixture100, cleanup60 and all51 fresh full graphs and25
+transactions remain required. The native1800s trial failed after all51 scans
+took1350.37s, near the end of integration. That result stays failed. This profile
+tests complete correctness with a bounded larger integration budget and makes no
+performance, native success, hardware or release claim. Run
+`test_correctness2400.py --source ABS555 --expected ABS568` for actual isolated CLI,
+exact three-profile emission and support-drift-before-output controls.

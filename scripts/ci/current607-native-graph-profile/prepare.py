@@ -30,8 +30,9 @@ def inputs():
  p=json.loads(bodies['lifecycle-successor.json']);expected=json.loads(bodies['source559.json']);final=json.loads(bodies['source561.json']);q=json.loads(bodies['prefill-path-successor.json']);need(len(p['before'])==555 and len(expected)==559 and len(final)==561 and q['before']==expected and p['publication']['source']==profile['source_before']and set(p['added'])=={I+n for n in('latest_descriptor.py','latest_graph_timing.py','lifecycle_successor.py','lifecycle-successor.json')},'one exact555 to559 profile, no generic source input');r=json.loads(bodies['failure-retention-successor.json']);last=json.loads(bodies['source563.json']);need(r['before']==final and len(last)==563,'whole fixed561-to563 failure-data profile');return profile,p,expected,final,q,r,last,bodies
 
 def emit(source,output,profile='fresh_descriptor563'):
- need(profile in('fresh_descriptor563','fresh_ancestry566'),'explicit corrected finite graph profile');_,p,expected,final,q,r,last,bodies=inputs()
- if profile=='fresh_ancestry566':ancestry_inputs()
+ need(profile in('fresh_descriptor563','fresh_ancestry566','correctness2400'),'explicit corrected finite graph profile');_,p,expected,final,q,r,last,bodies=inputs()
+ if profile in('fresh_ancestry566','correctness2400'):ancestry_inputs()
+ if profile=='correctness2400':correctness_inputs()
  source=ordinary(source);output=ordinary(output);need(files(source)==p['before'],'entire original555 source before any output');need(not output.exists()and output.parent.is_dir()and not output.is_relative_to(source)and not source.is_relative_to(output),'fresh separate source-only output');shutil.copytree(source,output,ignore=shutil.ignore_patterns('.git'));need(files(output)==p['before'],'whole original555 copied without drift')
  for name,edits in p['edits'].items():
   text=read(output/name).decode()
@@ -68,7 +69,9 @@ def emit(source,output,profile='fresh_descriptor563'):
  for name in r['workflows']:
   raw=read(output/name);old=r['before'][MANIFEST]['sha256'].encode();need(raw.count(old)==1,'one failure-data source stamp, workflow/clocks held');(output/name).write_bytes(raw.replace(old,manifest['sha256'].encode(),1))
  actual=files(output);need(actual==last,'whole exact published563 failure-data source')
- if profile=='fresh_ancestry566':return ancestry(output,last)
+ if profile in('fresh_ancestry566','correctness2400'):
+  value=ancestry(output,last)
+  return correctness(output,value['files'])if profile=='correctness2400'else value
  return dict(status='SOURCE_ONLY_EXACT563_FAILED_PUBLIC_DATA_CAPTURE_UNQUALIFIED',files=actual,consumer_seconds=1800,owner_seconds=6600,actual=None,native='NOT_RUN',hardware='NOT_RUN',release='NOT_ADMITTED')
 
 ANCESTRY_PROFILE={'bytes': 1327, 'sha256': 'f4a265501c26adc5577affd624deb593c1121b4f4ba3c5e3846e51b0c6bc97f0'}
@@ -92,6 +95,31 @@ def ancestry(output,before):
   raw=read(output/n);old=before[MANIFEST]['sha256'].encode();need(raw.count(old)==1,'one optional source stamp; original workflow/clocks held');(output/n).write_bytes(raw.replace(old,manifest['sha256'].encode(),1))
  need(files(output)==expected,'entire public566 exact output');return dict(status='SOURCE_ONLY_EXACT566_FRESH_ANCESTRY_NATIVE_FIT_UNKNOWN',files=expected,consumer_seconds=1800,owner_seconds=6600,actual=None,native='NOT_RUN',hardware='NOT_RUN',release='NOT_ADMITTED')
 
+
+CORRECTNESS_PROFILE={'bytes': 707, 'sha256': '045fc3eb5fbf788f3fbb7f54f811712e1ed68af5b21d40c3a9718332c5e6f18a'}
+def correctness_inputs():
+ raw=read(HERE/'correctness2400-profile.json');need(pin(raw)==CORRECTNESS_PROFILE,'whole explicit correctness profile');v=json.loads(raw)
+ need(v['profile']=='correctness2400'and v['default']is False and v['original1800_fit']=='FAILED_NOT_RECLASSIFIED','separate correctness profile; original failed budget not reclassified')
+ bodies={n:read(HERE/n)for n in v['support']}
+ need(all(pin(bodies[n])==row for n,row in v['support'].items()),'whole correctness support before output')
+ p=json.loads(bodies['correctness2400/correctness2400-successor.json']);expected=json.loads(bodies['correctness2400/source568.json'])
+ need(len(p['before'])==566 and len(expected)==568 and p['budgets']==dict(consumer=2400,owner=6600,transaction=90,fixture=100,cleanup=60),'exact new full correctness bounds')
+ return p,expected,bodies
+
+def correctness(output,before):
+ p,expected,bodies=correctness_inputs();need(p['before']==before and files(output)==before,'entire original566 before correctness2400')
+ for n,edits in p['edits'].items():
+  text=read(output/n).decode()
+  for old,new in edits:need(text.count(old)==1,'one exact explicit budget/source test seam');text=text.replace(old,new,1)
+  (output/n).write_text(text)
+ for n in p['added']:(output/n).write_bytes(bodies['correctness2400/'+Path(n).name])
+ raw=bodies['correctness2400/correctness2400-successor.json'];text=read(output/GUARD).decode()+'\n# BEGIN_CORRECTNESS2400_PROFILE\ndef verify():\n import budget_successor\n return budget_successor.verify(ROOT, '+repr(I+'correctness2400-successor.json')+', '+repr(pin(raw))+')\n';(output/GUARD).write_text(text)
+ value=json.loads(read(output/MANIFEST));value['files']={n:row for n,row in files(output).items()if n not in{MANIFEST,*p['workflows']}};(output/MANIFEST).write_bytes(encoded(value));manifest=pin(read(output/MANIFEST))
+ for n in p['workflows']:
+  raw=read(output/n);old=before[MANIFEST]['sha256'].encode();need(raw.count(old)==1,'one explicit profile source stamp; all outer clocks held');(output/n).write_bytes(raw.replace(old,manifest['sha256'].encode(),1))
+ need(files(output)==expected,'whole exact published568 correctness output')
+ return dict(status='SOURCE_ONLY_EXACT568_CORRECTNESS2400_UNQUALIFIED',files=expected,consumer_seconds=2400,owner_seconds=6600,original1800_fit='FAILED_NOT_RECLASSIFIED',performance='NOT_CLAIMED',actual=None,native='NOT_RUN',hardware='NOT_RUN',release='NOT_ADMITTED')
+
 if __name__=='__main__':
- parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--source',type=Path,required=True);parser.add_argument('--output',type=Path,required=True);parser.add_argument('--profile',choices=('fresh_descriptor563','fresh_ancestry566'),default='fresh_descriptor563');parser.add_argument('--authorization',type=Path,required=True);a=parser.parse_args();authorization=ordinary(a.authorization);need(not authorization.exists()and authorization.parent.is_dir(),'fresh output authorization');result=emit(a.source,a.output,a.profile)
+ parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--source',type=Path,required=True);parser.add_argument('--output',type=Path,required=True);parser.add_argument('--profile',choices=('fresh_descriptor563','fresh_ancestry566','correctness2400'),default='fresh_descriptor563');parser.add_argument('--authorization',type=Path,required=True);a=parser.parse_args();authorization=ordinary(a.authorization);need(not authorization.exists()and authorization.parent.is_dir(),'fresh output authorization');result=emit(a.source,a.output,a.profile)
  with authorization.open('xb')as stream:stream.write(encoded(result))

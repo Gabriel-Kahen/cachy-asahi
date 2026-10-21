@@ -44,6 +44,13 @@ jobs:
           ref: 1c5d0fa3ffd55f323225782958f8199eccb80ebc
           path: fixtures/source566
           persist-credentials: false
+      - name: Check out the separate correctness568 fixture
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: ${{ github.repository }}
+          ref: b274ef846322ffdf82665a209c855fe96fced75a
+          path: fixtures/source568
+          persist-credentials: false
       - name: Run five real descriptor controls
         shell: bash
         run: |
@@ -73,3 +80,10 @@ jobs:
           python3 -W error -B scripts/ci/current607-native-graph-profile/test_ancestry_profile.py \
             --source "$GITHUB_WORKSPACE/fixtures/source555" \
             --expected "$GITHUB_WORKSPACE/fixtures/source566"
+      - name: Check exact optional correctness2400 factory and isolated CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -W error -B scripts/ci/current607-native-graph-profile/test_correctness2400.py \
+            --source "$GITHUB_WORKSPACE/fixtures/source555" \
+            --expected "$GITHUB_WORKSPACE/fixtures/source568"
