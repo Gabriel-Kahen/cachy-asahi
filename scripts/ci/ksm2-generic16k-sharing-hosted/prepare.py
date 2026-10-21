@@ -85,4 +85,9 @@ def assemble(runtime,output,binding=None):
  return dict(status='EMITTED_EXACT_SHARING628_SOURCE_ONLY',view=view,files=628,base_runtime_files=605,whole_runtime_files=608,actual_source=None,actual_ref=None,actual_run=None,acceptance='NOT_GRANTED',hardware='NOT_RUN',performance='NOT_MEASURED',bounds=bounds)
 
 if __name__=='__main__':
- parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--runtime',type=Path,required=True,help='Exact whole frozen scalar605 runtime; sharing deltas are maintained here');parser.add_argument('--output',type=Path,required=True);parser.add_argument('--binding',type=Path,help='Explicit existing Root component selection, never an actual run identity');args=parser.parse_args();print(json.dumps(assemble(args.runtime,args.output,args.binding),sort_keys=True))
+ parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--runtime',type=Path,required=True,help='Exact whole frozen scalar605 runtime; sharing deltas are maintained here');parser.add_argument('--output',type=Path,required=True);parser.add_argument('--binding',type=Path,help='Explicit existing Root component selection, never an actual run identity');parser.add_argument('--controlled-interruption',action='store_true',help='Emit the fixed controlled-SIGTERM sharing637 source; actual execution remains untested');args=parser.parse_args()
+ if args.controlled_interruption:
+  path=HERE.parent/'ksm2-generic16k-interrupted-sharing-hosted/prepare.py';module=types.ModuleType('_ksm_controlled_interruption_factory');module.__file__=str(path)
+  exec(compile(read(path),str(path),'exec'),module.__dict__);result=module.assemble(args.runtime,args.output,args.binding)
+ else:result=assemble(args.runtime,args.output,args.binding)
+ print(json.dumps(result,sort_keys=True))
