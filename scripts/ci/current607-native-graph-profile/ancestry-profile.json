@@ -1,0 +1,38 @@
+{
+  "deadline_fit": "UNKNOWN",
+  "default": false,
+  "files": 566,
+  "native": "NOT_RUN",
+  "profile": "fresh_ancestry566",
+  "purpose": "EXPLICIT_FRESH_ANCESTRY566_SOURCE_ONLY_NO_NATIVE_FIT",
+  "ref_after": "codex/current607-ancestry-cost-v1",
+  "schema_version": 1,
+  "source_after": "1c5d0fa3ffd55f323225782958f8199eccb80ebc",
+  "source_before": "9c49f8d12e5aea864bcf6bca6ed836874c1f06e5",
+  "support": {
+    "ancestry/latest_ancestry.py": {
+      "bytes": 2111,
+      "sha256": "f903a152ffa4f1f2c610b5912c976bf24d8c19bce9ca10124b955cbe4dee031a"
+    },
+    "ancestry/latest_descriptor.py": {
+      "bytes": 3977,
+      "sha256": "e4df45062cf5c4125a0cb9e9c70b56ce0d6ab7ffe8b11b0e7e98c1a60b77584d"
+    },
+    "ancestry/latest_graph_timing.py": {
+      "bytes": 2522,
+      "sha256": "8e31e250da834923be509fed5b8cfe263d4452b36a3744c2e037e3d641dcf873"
+    },
+    "ancestry/lifecycle-cost-successor.json": {
+      "bytes": 689441,
+      "sha256": "96982f8c625ad925b7f4d2f203785b41d973dc2d8c418b272cec37c6478eee37"
+    },
+    "ancestry/lifecycle_cost_successor.py": {
+      "bytes": 4492,
+      "sha256": "f5f973d2bf4e0a72e080fc3b43cfe7a9f827986e65397b8247fa396e8a651ced"
+    },
+    "ancestry/source566.json": {
+      "bytes": 103405,
+      "sha256": "73c12e1ef518fcbe9a84f8fb6b824e8c6844ad0799bc8316727d44fdef3e7cca"
+    }
+  }
+}

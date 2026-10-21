@@ -36,3 +36,17 @@ with `python3 -B -W error`. Complete emitter controls additionally take
 `test_profile.py --source ABS555 --expected ABS563`. Public retention fixtures are
 explicitly constructed local controls, not invented native evidence. Source
 qualification grants no native, cleanup, performance, hardware or release credit.
+
+Explicit `--profile fresh_ancestry566` emits the complete public566 source
+1c5d0fa3ffd55f323225782958f8199eccb80ebc after verifying the entire existing563
+output. The default remains exact563. Fresh openat2 ancestry resolution reduces
+Python ancestry opens while preserving every original node/hash/identity/mount/
+capability/hardlink/full capture and all25 transactions/51 observations. The
+optional API has original-helper fallback and no observation cache. Bounded
+scalar graph timing becomes readable by its original host retainer. Six interleaved local x86 captures of8247 nodes and22,929,081 hashed bytes
+measured median0.897452896s for original9c49 versus0.811853655s for the fresh
+ancestry implementation on kernel7.2.7-1-cachyos/Python3.14.7 (9.54% lower).
+All whole graphs were equal. Native speedup and1800s completion are UNKNOWN. Original scriptlet execv EPERM remains;
+normal hook execution is not claimed. Run test_ancestry.py for six portable real
+controls and test_ancestry_profile.py --source ABS555 --expected ABS566 for
+complete default563 and opt-in566 emission/refusal controls. No actor is run.
