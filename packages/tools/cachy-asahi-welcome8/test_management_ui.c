@@ -199,7 +199,7 @@ int main(int argc, char **argv)
     if (argc == 2 && !strcmp(argv[1], "boot-unavailable")) { g_print("%s", BOOT_UNAVAILABLE); return 1; }
     if (argc == 2 && !strcmp(argv[1], "boot-bad")) { g_print("{\"state\":\"captured\"}"); return 0; }
     if (argc == 3 && !strcmp(argv[1], "--json") && !strcmp(argv[2], "profiles")) {
-        g_print("{\"status\":\"STORED_CONNECTION_PROFILES\",\"profiles\":[{\"uuid\":\"11111111-2222-4333-8444-555555555555\",\"type\":\"vpn\",\"name\":\"Café 東京 <b>\\t\\u001b\"}],\"live_dns\":\"NOT_REAPPLIED_STORED_PROFILE_ONLY\"}");
+        if (fputs("{\"status\":\"STORED_CONNECTION_PROFILES\",\"profiles\":[{\"uuid\":\"11111111-2222-4333-8444-555555555555\",\"type\":\"vpn\",\"name\":\"Café 東京 <b>\\t\\u001b\"}],\"live_dns\":\"NOT_REAPPLIED_STORED_PROFILE_ONLY\"}", stdout) == EOF || fflush(stdout) == EOF) return 1;
         return 0;
     }
     if (argc == 2 && !strcmp(argv[1], "dns-bad")) { g_print("{\"status\":\"APPLIED\"}"); return 0; }

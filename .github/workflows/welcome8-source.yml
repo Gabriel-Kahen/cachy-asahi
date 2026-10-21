@@ -24,7 +24,7 @@ jobs:
       - name: Install host-only build and isolated display dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends build-essential pkg-config libgtk-3-dev xvfb xauth dbus-x11
+          sudo apt-get install -y --no-install-recommends build-essential pkg-config libgtk-3-dev xvfb xauth dbus-x11 librsvg2-common
       - name: Run source and process controls
         run: make -C packages/tools/cachy-asahi-welcome8 check test-management-ui
       - name: Cancel an actual owned check and retry on an isolated display
