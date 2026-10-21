@@ -1,0 +1,21 @@
+{
+  "Image": {
+    "bytes": 8884232,
+    "sha256": "039fbeaff5942de2317f47feec30a5c073691edf5f8cef8849b25d08006d4ddb"
+  },
+  "architecture": "aarch64",
+  "archive_sha256": "874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad",
+  "config": {
+    "bytes": 63793,
+    "sha256": "5f1f5e507586734c0955607960ceecfe822b5c908bfc1da9d29fe80ac627a8e9"
+  },
+  "diagnostic_fragment_sha256": "c482bd228f969e3424cb256a41512f12a0fc9d0f72eb25d70228108b3df329ae",
+  "fragment_sha256": "f4a6dc3fbebd5f0e184422cddc490e47e6737d208c55b7df255b678604fe9267",
+  "helper_sha256": "7372ebfece249fae202652f3c3bb419f730bd0e466dc076907270dac1ac873ed",
+  "modules": "DISABLED",
+  "page_size": 16384,
+  "profile": "KSM_ADVICE_GENERIC16K_DIAGNOSTIC_V1",
+  "release": "7.1.13-generic16k-managed-gui",
+  "schema_version": 1,
+  "source_revision": "94fb23346d522edf53722357c426a3e58030beea"
+}

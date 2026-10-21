@@ -1,0 +1,10 @@
+{
+  "actual": "NOT_RUN",
+  "files": 19,
+  "git_joins": 19,
+  "hardware": "NOT_RUN",
+  "ref": "codex/ksm16k-advice-kernel-v1",
+  "release": "NOT_ADMITTED",
+  "source": "80aa47304123106133832c11a9e4a405af5f1f67",
+  "status": "COMMITTED_EXACT_CLOSED_TRIAL_SOURCE"
+}
