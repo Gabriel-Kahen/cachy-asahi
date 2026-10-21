@@ -1,0 +1,21 @@
+{
+  "authority": "UNSIGNED_DATABASE_DISCOVERY_DATA_ONLY",
+  "final_url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/core.db",
+  "headers": {
+    "Accept-Ranges": "bytes",
+    "Connection": "close",
+    "Content-Length": "256699",
+    "Content-Type": "application/octet-stream",
+    "Date": "Mon, 19 Oct 2026 22:59:44 GMT",
+    "ETag": "\"6ad4f637-3eabb\"",
+    "Last-Modified": "Sun, 18 Oct 2026 16:39:19 GMT",
+    "Server": "nginx/1.22.1"
+  },
+  "name": "core",
+  "pin": {
+    "bytes": 256699,
+    "sha256": "3397088cfa622e7a140f29b1f7a15f2f1c2689246a962c2551670d301ff5805c"
+  },
+  "status": 200,
+  "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/core.db"
+}
