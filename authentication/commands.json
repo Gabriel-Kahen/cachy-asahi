@@ -1,0 +1,622 @@
+[
+  {
+    "command": [
+      "/usr/bin/gpg",
+      "--batch",
+      "--no-options",
+      "--no-autostart",
+      "--homedir",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/private-current-gpg-x84iiijh",
+      "--no-auto-key-retrieve",
+      "--no-auto-key-import",
+      "--auto-key-locate",
+      "clear",
+      "--import",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/keyring/archlinuxarm.gpg"
+    ],
+    "elapsed_seconds": 0.0032295760029228404,
+    "exit": 0,
+    "home_mode": "0700",
+    "limit_seconds": 30,
+    "private_home": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/private-current-gpg-x84iiijh",
+    "started_utc": "2026-10-21T09:34:40.313772+00:00",
+    "stderr": {
+      "bytes": 586,
+      "sha256": "6f4a639116bbcfc41b7bc94f40405ab1c10b8b435fcc8fc0375c2a02ef8b5ffb"
+    },
+    "stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "command": [
+      "/usr/bin/gpg",
+      "--batch",
+      "--no-options",
+      "--no-autostart",
+      "--homedir",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/private-current-gpg-x84iiijh",
+      "--no-auto-key-retrieve",
+      "--no-auto-key-import",
+      "--auto-key-locate",
+      "clear",
+      "--import-ownertrust",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/keyring/archlinuxarm-trusted"
+    ],
+    "elapsed_seconds": 0.0018208649998996407,
+    "exit": 0,
+    "home_mode": "0700",
+    "limit_seconds": 30,
+    "private_home": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/private-current-gpg-x84iiijh",
+    "started_utc": "2026-10-21T09:34:40.317098+00:00",
+    "stderr": {
+      "bytes": 31,
+      "sha256": "79fb54aa0d14d4a5f75afa668175178b67b0cc596394ec5f3f16e4f85849bd58"
+    },
+    "stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "command": [
+      "/usr/bin/gpg",
+      "--batch",
+      "--no-options",
+      "--no-autostart",
+      "--homedir",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/private-current-gpg-x84iiijh",
+      "--no-auto-key-retrieve",
+      "--no-auto-key-import",
+      "--auto-key-locate",
+      "clear",
+      "--with-colons",
+      "--with-fingerprint",
+      "--list-keys",
+      "68B3537F39A313B3E574D06777193F152BDBE6A6"
+    ],
+    "elapsed_seconds": 0.0019899059989256784,
+    "exit": 0,
+    "home_mode": "0700",
+    "limit_seconds": 30,
+    "private_home": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/private-current-gpg-x84iiijh",
+    "started_utc": "2026-10-21T09:34:40.319064+00:00",
+    "stderr": {
+      "bytes": 64,
+      "sha256": "dd130aa6af252149cb26cbb07cc3438a4f027d2c6d0290b7ceffdfb0aa578441"
+    },
+    "stdout": {
+      "bytes": 387,
+      "sha256": "c9a7416a28c04624570c3591f87934b48c888d7e0224246fdd4252399b086953"
+    }
+  },
+  {
+    "command": [
+      "/usr/bin/gpg",
+      "--batch",
+      "--no-options",
+      "--no-autostart",
+      "--homedir",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/private-current-gpg-x84iiijh",
+      "--no-auto-key-retrieve",
+      "--no-auto-key-import",
+      "--auto-key-locate",
+      "clear",
+      "--status-fd",
+      "1",
+      "--verify",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/packages/capstone-5.0.9-1-aarch64.pkg.tar.xz.sig",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/packages/capstone-5.0.9-1-aarch64.pkg.tar.xz"
+    ],
+    "elapsed_seconds": 0.0037455280107678846,
+    "exit": 0,
+    "home_mode": "0700",
+    "limit_seconds": 30,
+    "private_home": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/private-current-gpg-x84iiijh",
+    "started_utc": "2026-10-21T09:34:40.322209+00:00",
+    "stderr": {
+      "bytes": 436,
+      "sha256": "4814e3a95c16334c005d5a520a10fd154d49cd5f4ca2d6dc1013ea60599448be"
+    },
+    "stdout": {
+      "bytes": 405,
+      "sha256": "1dc1a127de5e62fa9a9abf48216943815b5e8b8a9a02185772a96d5950301b3e"
+    }
+  },
+  {
+    "command": [
+      "/usr/bin/gpg",
+      "--batch",
+      "--no-options",
+      "--no-autostart",
+      "--homedir",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/private-current-gpg-x84iiijh",
+      "--no-auto-key-retrieve",
+      "--no-auto-key-import",
+      "--auto-key-locate",
+      "clear",
+      "--status-fd",
+      "1",
+      "--verify",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/packages/dtc-1:1.8.1-1-aarch64.pkg.tar.xz.sig",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/packages/dtc-1:1.8.1-1-aarch64.pkg.tar.xz"
+    ],
+    "elapsed_seconds": 0.002635364988236688,
+    "exit": 0,
+    "home_mode": "0700",
+    "limit_seconds": 30,
+    "private_home": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/private-current-gpg-x84iiijh",
+    "started_utc": "2026-10-21T09:34:40.408498+00:00",
+    "stderr": {
+      "bytes": 436,
+      "sha256": "2ecb4510522846005fbfbfacbe24f5784ecfb92be7f76ff5fe43ee02a8552f42"
+    },
+    "stdout": {
+      "bytes": 405,
+      "sha256": "72692b519eed802b346d23ec4f47652e341ca21a989c02d2fbf36e4228c6624b"
+    }
+  },
+  {
+    "command": [
+      "/usr/bin/gpg",
+      "--batch",
+      "--no-options",
+      "--no-autostart",
+      "--homedir",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/private-current-gpg-x84iiijh",
+      "--no-auto-key-retrieve",
+      "--no-auto-key-import",
+      "--auto-key-locate",
+      "clear",
+      "--status-fd",
+      "1",
+      "--verify",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/packages/libaio-0.3.113-5-aarch64.pkg.tar.xz.sig",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/packages/libaio-0.3.113-5-aarch64.pkg.tar.xz"
+    ],
+    "elapsed_seconds": 0.0021636169985868037,
+    "exit": 0,
+    "home_mode": "0700",
+    "limit_seconds": 30,
+    "private_home": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/private-current-gpg-x84iiijh",
+    "started_utc": "2026-10-21T09:34:40.418753+00:00",
+    "stderr": {
+      "bytes": 436,
+      "sha256": "ec16ce8f85eed98cef5a32028fade3ef864e8a05b8239630d0b7cb47a809096c"
+    },
+    "stdout": {
+      "bytes": 405,
+      "sha256": "3ae120cb165bb0260124106a32405a668224f33d422c4771b6a17d05b092b5bb"
+    }
+  },
+  {
+    "command": [
+      "/usr/bin/gpg",
+      "--batch",
+      "--no-options",
+      "--no-autostart",
+      "--homedir",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/private-current-gpg-x84iiijh",
+      "--no-auto-key-retrieve",
+      "--no-auto-key-import",
+      "--auto-key-locate",
+      "clear",
+      "--status-fd",
+      "1",
+      "--verify",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/packages/libslirp-4.9.5-1-aarch64.pkg.tar.xz.sig",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/packages/libslirp-4.9.5-1-aarch64.pkg.tar.xz"
+    ],
+    "elapsed_seconds": 0.0024316570052178577,
+    "exit": 0,
+    "home_mode": "0700",
+    "limit_seconds": 30,
+    "private_home": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/private-current-gpg-x84iiijh",
+    "started_utc": "2026-10-21T09:34:40.423410+00:00",
+    "stderr": {
+      "bytes": 436,
+      "sha256": "24ce00fb178f98c7787d0ca7fb45a0b47843dd2c9a43188b707420a0a888ac22"
+    },
+    "stdout": {
+      "bytes": 405,
+      "sha256": "25b4c39452954aec9655565a2db79163183e951031b82739fe1dc5a908d440da"
+    }
+  },
+  {
+    "command": [
+      "/usr/bin/gpg",
+      "--batch",
+      "--no-options",
+      "--no-autostart",
+      "--homedir",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/private-current-gpg-x84iiijh",
+      "--no-auto-key-retrieve",
+      "--no-auto-key-import",
+      "--auto-key-locate",
+      "clear",
+      "--status-fd",
+      "1",
+      "--verify",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/packages/libtraceevent-1:1.9.0-1-aarch64.pkg.tar.xz.sig",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/packages/libtraceevent-1:1.9.0-1-aarch64.pkg.tar.xz"
+    ],
+    "elapsed_seconds": 0.002667035994818434,
+    "exit": 0,
+    "home_mode": "0700",
+    "limit_seconds": 30,
+    "private_home": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/private-current-gpg-x84iiijh",
+    "started_utc": "2026-10-21T09:34:40.430103+00:00",
+    "stderr": {
+      "bytes": 436,
+      "sha256": "9e4d9f0934a7b3e72873969dfbfd43a4eb9af919efc314a6d15095ea40122aba"
+    },
+    "stdout": {
+      "bytes": 405,
+      "sha256": "9e612e0cf2a28ff2ed9fcca731b5308ff9c24345eb5dd5a1406d7f8b5e36d729"
+    }
+  },
+  {
+    "command": [
+      "/usr/bin/gpg",
+      "--batch",
+      "--no-options",
+      "--no-autostart",
+      "--homedir",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/private-current-gpg-x84iiijh",
+      "--no-auto-key-retrieve",
+      "--no-auto-key-import",
+      "--auto-key-locate",
+      "clear",
+      "--status-fd",
+      "1",
+      "--verify",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/packages/libtracefs-1.8.3-1-aarch64.pkg.tar.xz.sig",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/packages/libtracefs-1.8.3-1-aarch64.pkg.tar.xz"
+    ],
+    "elapsed_seconds": 0.0025754810048965737,
+    "exit": 0,
+    "home_mode": "0700",
+    "limit_seconds": 30,
+    "private_home": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/private-current-gpg-x84iiijh",
+    "started_utc": "2026-10-21T09:34:40.444791+00:00",
+    "stderr": {
+      "bytes": 436,
+      "sha256": "c07e8d2145fc0984980e9f2675f1570d993ca7738af4862dabb6b4726ad20165"
+    },
+    "stdout": {
+      "bytes": 405,
+      "sha256": "d35f46846b747f038c0b38db3df21b657712c47b3fc5cbc71c8e6ae88debdd4d"
+    }
+  },
+  {
+    "command": [
+      "/usr/bin/gpg",
+      "--batch",
+      "--no-options",
+      "--no-autostart",
+      "--homedir",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/private-current-gpg-x84iiijh",
+      "--no-auto-key-retrieve",
+      "--no-auto-key-import",
+      "--auto-key-locate",
+      "clear",
+      "--status-fd",
+      "1",
+      "--verify",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/packages/libxdp-1.6.3-2-aarch64.pkg.tar.xz.sig",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/packages/libxdp-1.6.3-2-aarch64.pkg.tar.xz"
+    ],
+    "elapsed_seconds": 0.0024669239937793463,
+    "exit": 0,
+    "home_mode": "0700",
+    "limit_seconds": 30,
+    "private_home": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/private-current-gpg-x84iiijh",
+    "started_utc": "2026-10-21T09:34:40.460544+00:00",
+    "stderr": {
+      "bytes": 436,
+      "sha256": "020c9751fd014ae45ca894f09f8f9ac92d4a2b9a0dc56e616b489a5166127f02"
+    },
+    "stdout": {
+      "bytes": 405,
+      "sha256": "8804cb635c7db954692242c09972e47b428313d5b091546b8b2ed450b86fc1bd"
+    }
+  },
+  {
+    "command": [
+      "/usr/bin/gpg",
+      "--batch",
+      "--no-options",
+      "--no-autostart",
+      "--homedir",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/private-current-gpg-x84iiijh",
+      "--no-auto-key-retrieve",
+      "--no-auto-key-import",
+      "--auto-key-locate",
+      "clear",
+      "--status-fd",
+      "1",
+      "--verify",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/packages/libyaml-0.2.5-3-aarch64.pkg.tar.xz.sig",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/packages/libyaml-0.2.5-3-aarch64.pkg.tar.xz"
+    ],
+    "elapsed_seconds": 0.0023616940015926957,
+    "exit": 0,
+    "home_mode": "0700",
+    "limit_seconds": 30,
+    "private_home": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/private-current-gpg-x84iiijh",
+    "started_utc": "2026-10-21T09:34:40.469851+00:00",
+    "stderr": {
+      "bytes": 436,
+      "sha256": "74a28fc9b3e628bba45453660a759ba7a28c8e8f00e3f66d36256ea1ed00172f"
+    },
+    "stdout": {
+      "bytes": 404,
+      "sha256": "513eb3c859d2f31f4eeb858c1e921da8600923db7bd40eea7b84ac246c35236c"
+    }
+  },
+  {
+    "command": [
+      "/usr/bin/gpg",
+      "--batch",
+      "--no-options",
+      "--no-autostart",
+      "--homedir",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/private-current-gpg-x84iiijh",
+      "--no-auto-key-retrieve",
+      "--no-auto-key-import",
+      "--auto-key-locate",
+      "clear",
+      "--status-fd",
+      "1",
+      "--verify",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/packages/ndctl-85-1-aarch64.pkg.tar.xz.sig",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/packages/ndctl-85-1-aarch64.pkg.tar.xz"
+    ],
+    "elapsed_seconds": 0.002832540005329065,
+    "exit": 0,
+    "home_mode": "0700",
+    "limit_seconds": 30,
+    "private_home": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/private-current-gpg-x84iiijh",
+    "started_utc": "2026-10-21T09:34:40.476084+00:00",
+    "stderr": {
+      "bytes": 436,
+      "sha256": "39fac4f4e09cbd97f8993bd55616a537ee8e05ee3f40f1b357c31b7b678167d3"
+    },
+    "stdout": {
+      "bytes": 405,
+      "sha256": "7f6121e449f601c685893ec25506fdee94f8b47b59ecdb7d514d99b03e008097"
+    }
+  },
+  {
+    "command": [
+      "/usr/bin/gpg",
+      "--batch",
+      "--no-options",
+      "--no-autostart",
+      "--homedir",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/private-current-gpg-x84iiijh",
+      "--no-auto-key-retrieve",
+      "--no-auto-key-import",
+      "--auto-key-locate",
+      "clear",
+      "--status-fd",
+      "1",
+      "--verify",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/packages/qemu-common-11.1.2-1-aarch64.pkg.tar.xz.sig",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/packages/qemu-common-11.1.2-1-aarch64.pkg.tar.xz"
+    ],
+    "elapsed_seconds": 0.005653607993735932,
+    "exit": 0,
+    "home_mode": "0700",
+    "limit_seconds": 30,
+    "private_home": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/private-current-gpg-x84iiijh",
+    "started_utc": "2026-10-21T09:34:40.496616+00:00",
+    "stderr": {
+      "bytes": 436,
+      "sha256": "ce63bec23d00dbcabdab5f26ff44fade494443750e789b659fffb36f03957a5b"
+    },
+    "stdout": {
+      "bytes": 405,
+      "sha256": "fed7a6fd23690ac403f70f116437a0f846edeabed0cd77ede73f93b36641103c"
+    }
+  },
+  {
+    "command": [
+      "/usr/bin/gpg",
+      "--batch",
+      "--no-options",
+      "--no-autostart",
+      "--homedir",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/private-current-gpg-x84iiijh",
+      "--no-auto-key-retrieve",
+      "--no-auto-key-import",
+      "--auto-key-locate",
+      "clear",
+      "--status-fd",
+      "1",
+      "--verify",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/packages/qemu-hw-display-virtio-gpu-11.1.2-1-aarch64.pkg.tar.xz.sig",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/packages/qemu-hw-display-virtio-gpu-11.1.2-1-aarch64.pkg.tar.xz"
+    ],
+    "elapsed_seconds": 0.0024538190045859665,
+    "exit": 0,
+    "home_mode": "0700",
+    "limit_seconds": 30,
+    "private_home": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/private-current-gpg-x84iiijh",
+    "started_utc": "2026-10-21T09:34:40.557882+00:00",
+    "stderr": {
+      "bytes": 436,
+      "sha256": "ccff5619cadd21cdbc198a56e1d238beb4b67b76f15585b59b6cffe1276718f8"
+    },
+    "stdout": {
+      "bytes": 405,
+      "sha256": "9155a17436ba50684cb2ae31e459740f76de9d549f597e558d6b019985faae76"
+    }
+  },
+  {
+    "command": [
+      "/usr/bin/gpg",
+      "--batch",
+      "--no-options",
+      "--no-autostart",
+      "--homedir",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/private-current-gpg-x84iiijh",
+      "--no-auto-key-retrieve",
+      "--no-auto-key-import",
+      "--auto-key-locate",
+      "clear",
+      "--status-fd",
+      "1",
+      "--verify",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/packages/qemu-hw-display-virtio-gpu-pci-11.1.2-1-aarch64.pkg.tar.xz.sig",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/packages/qemu-hw-display-virtio-gpu-pci-11.1.2-1-aarch64.pkg.tar.xz"
+    ],
+    "elapsed_seconds": 0.002286820992594585,
+    "exit": 0,
+    "home_mode": "0700",
+    "limit_seconds": 30,
+    "private_home": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/private-current-gpg-x84iiijh",
+    "started_utc": "2026-10-21T09:34:40.563891+00:00",
+    "stderr": {
+      "bytes": 436,
+      "sha256": "ccff5619cadd21cdbc198a56e1d238beb4b67b76f15585b59b6cffe1276718f8"
+    },
+    "stdout": {
+      "bytes": 405,
+      "sha256": "4e39d6a9c3ca9d6ab79d7b9dcdf8d625b0c046ba92471addcd965e6b18d7d3e9"
+    }
+  },
+  {
+    "command": [
+      "/usr/bin/gpg",
+      "--batch",
+      "--no-options",
+      "--no-autostart",
+      "--homedir",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/private-current-gpg-x84iiijh",
+      "--no-auto-key-retrieve",
+      "--no-auto-key-import",
+      "--auto-key-locate",
+      "clear",
+      "--status-fd",
+      "1",
+      "--verify",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/packages/qemu-system-aarch64-11.1.2-1-aarch64.pkg.tar.xz.sig",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/packages/qemu-system-aarch64-11.1.2-1-aarch64.pkg.tar.xz"
+    ],
+    "elapsed_seconds": 0.00911270099459216,
+    "exit": 0,
+    "home_mode": "0700",
+    "limit_seconds": 30,
+    "private_home": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/private-current-gpg-x84iiijh",
+    "started_utc": "2026-10-21T09:34:40.572444+00:00",
+    "stderr": {
+      "bytes": 436,
+      "sha256": "6676287c6438fde63fe4c80c7426aaba1ab354d7bbbdb0d1abf924b095161a3b"
+    },
+    "stdout": {
+      "bytes": 405,
+      "sha256": "56e725a8df02259fe3804f13be72ad754d5a6a404c4cf925fd245a763e3718da"
+    }
+  },
+  {
+    "command": [
+      "/usr/bin/gpg",
+      "--batch",
+      "--no-options",
+      "--no-autostart",
+      "--homedir",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/private-current-gpg-x84iiijh",
+      "--no-auto-key-retrieve",
+      "--no-auto-key-import",
+      "--auto-key-locate",
+      "clear",
+      "--status-fd",
+      "1",
+      "--verify",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/packages/rdma-core-65.0-1-aarch64.pkg.tar.xz.sig",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/packages/rdma-core-65.0-1-aarch64.pkg.tar.xz"
+    ],
+    "elapsed_seconds": 0.005146634008269757,
+    "exit": 0,
+    "home_mode": "0700",
+    "limit_seconds": 30,
+    "private_home": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/private-current-gpg-x84iiijh",
+    "started_utc": "2026-10-21T09:34:41.233080+00:00",
+    "stderr": {
+      "bytes": 436,
+      "sha256": "20fc73be33ea01cd7d782a4cf04e6865e95d57bdb00d83de77684bc5254b20b1"
+    },
+    "stdout": {
+      "bytes": 405,
+      "sha256": "38b1440ab70bd1598ee7fed1348aaa9c0f8a4dc3e3a750c97613c2c56f0cee01"
+    }
+  },
+  {
+    "command": [
+      "/usr/bin/gpg",
+      "--batch",
+      "--no-options",
+      "--no-autostart",
+      "--homedir",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/private-current-gpg-x84iiijh",
+      "--no-auto-key-retrieve",
+      "--no-auto-key-import",
+      "--auto-key-locate",
+      "clear",
+      "--status-fd",
+      "1",
+      "--verify",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/packages/vde2-2.3.3-10-aarch64.pkg.tar.xz.sig",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/packages/vde2-2.3.3-10-aarch64.pkg.tar.xz"
+    ],
+    "elapsed_seconds": 0.002632830000948161,
+    "exit": 0,
+    "home_mode": "0700",
+    "limit_seconds": 30,
+    "private_home": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/private-current-gpg-x84iiijh",
+    "started_utc": "2026-10-21T09:34:41.322588+00:00",
+    "stderr": {
+      "bytes": 436,
+      "sha256": "5be3cb88bb73751fb0f689bb468e3038c7f93c402df67b34baf1a6f21e1a5643"
+    },
+    "stdout": {
+      "bytes": 405,
+      "sha256": "3fd9711a85635b0a5921d2d9b4cbf0b1c07853f5f3918e68c02eb47ac650df48"
+    }
+  },
+  {
+    "command": [
+      "/usr/bin/gpg",
+      "--batch",
+      "--no-options",
+      "--no-autostart",
+      "--homedir",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/private-current-gpg-x84iiijh",
+      "--no-auto-key-retrieve",
+      "--no-auto-key-import",
+      "--auto-key-locate",
+      "clear",
+      "--status-fd",
+      "1",
+      "--verify",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/packages/wolfssl-5.9.4-1-aarch64.pkg.tar.xz.sig",
+      "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/packages/wolfssl-5.9.4-1-aarch64.pkg.tar.xz"
+    ],
+    "elapsed_seconds": 0.004191897009150125,
+    "exit": 0,
+    "home_mode": "0700",
+    "limit_seconds": 30,
+    "private_home": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/gui16-tooling-input-recovery-development-20261021/current-auth/private-current-gpg-x84iiijh",
+    "started_utc": "2026-10-21T09:34:41.338184+00:00",
+    "stderr": {
+      "bytes": 436,
+      "sha256": "60188af32fd2a59fc899810d17eb94b7ea0a3ef604dbafd0e109094678c2a97e"
+    },
+    "stdout": {
+      "bytes": 405,
+      "sha256": "34a6b0b1a6426809bdbfdb64b471db4a949f9d3748fe1dcfd59e0ee2a7a29776"
+    }
+  }
+]
