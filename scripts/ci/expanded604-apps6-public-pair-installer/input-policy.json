@@ -1,0 +1,28 @@
+{
+  "GUI_prerequisite": "SEPARATE_GUI_AUTHORITY_NOT_INSTALLER_CREDIT",
+  "expected604_sha256": "7bc6caa51301bf076aeda4d137277a128c53a16e5bfd25f02e7309c4b3a408c3",
+  "fresh600": {
+    "carrier_source": "fd42f51b6c32a1cca69df5699760ed2a9e39329f",
+    "decision": {
+      "bytes": 3332,
+      "path": "payload/fresh600.json",
+      "sha256": "bea4b56374ef779756ffdc3e0aba680e3c74fac7316257c2433eb14417f210ef"
+    },
+    "run_id": "38965999704",
+    "source_sha": "3cbd856315adb30ba7a1b9246739a520c19c9728"
+  },
+  "native604": {
+    "carrier_source": "1bc7a5698a459e33e957656040a00c3eae53e482",
+    "decision": {
+      "bytes": 3435,
+      "path": "payload/native604.json",
+      "sha256": "874eccfc7ca34008b07f912d1e6ca2e1f7e5f3f8febd336782522e517d2e4eb8"
+    },
+    "input_policy_sha256": "a97b82d79e5aa967cde1b65c2f0a8b47cfd24d8cd3854b070dc919753a479e30",
+    "run_id": "39044616267",
+    "source_manifest_sha256": "e2b1f8ac11fa119493e22f44722d265293887de7edda80f4b61c00f8a80bf51c",
+    "source_sha": "b0154bd3b60434e45d4411b558f3ffda9e415640"
+  },
+  "schema_version": 1,
+  "status": "ROOT_BOUND_PUBLIC_PAIRS_APPS6_CURRENT604_NATIVE_ACCEPTANCE"
+}
