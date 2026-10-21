@@ -1,0 +1,50 @@
+name: core-systemd-host-btf-input-diagnostic
+on:
+  workflow_dispatch:
+    inputs:
+      source:
+        description: Exact reviewed read-only diagnostic source commit
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: core-systemd-host-btf-input-diagnostic
+  cancel-in-progress: false
+jobs:
+  native:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 8
+    defaults:
+      run:
+        working-directory: core-source
+    env:
+      SOURCE_SHA: ${{ inputs.source }}
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - name: Checkout explicit reviewed diagnostic source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: ${{ inputs.source }}
+          path: core-source
+          persist-credentials: false
+      - name: Read only native host BTF and generate full header
+        timeout-minutes: 4
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' 'e5170af45967b9d931327c15da88dbdca6bf29074a90d6274a40edbbd6970190' source-manifest.json | sha256sum --check
+          timeout --signal=TERM --kill-after=10s 190s python3 -I -B capture.py --source "$SOURCE_SHA" --run "$GITHUB_RUN_ID" --attempt "$GITHUB_RUN_ATTEMPT" --output "$RUNNER_TEMP/core-host-btf-input"
+      - name: Retain bounded host BTF input DATA
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        timeout-minutes: 2
+        with:
+          name: core-host-btf-input-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/core-host-btf-input/
+          retention-days: 3
+          compression-level: 0
+          include-hidden-files: false
+          if-no-files-found: error
