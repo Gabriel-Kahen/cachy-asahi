@@ -66,6 +66,10 @@ source=(
   'cachy-asahi-owned-userns.patch'
   'caa-owned-userns.h'
   'cachy-asahi-testlog.py'
+  'vmlinux.btf'
+  'vmlinux-input.json'
+  'cachy-asahi-btf.py'
+  'BTF-COPYING'
 )
 sha512sums=(
   '8c9ab5bdfb63fb9ce38d396039400db64c4a87baab211ee687823973a136149d4766416f1ed6ef8495451bb5caa65b154d02a5a5056477642b48d88462225f33'
@@ -90,12 +94,17 @@ sha512sums=(
   '41bf2b1f9bdcbc5ee0d9f77557c74ef2a4791a530e51fc56837ae82ee929b19888c72f172b52d3cba4d7c19133fd09c6339e71eda8cb995446841ee3d494b8f8'
   'ae10e8eb3efac18d7eb94ec4e1376e63065e040d7a2d9a22242e930dcf5cc621767b28a1effc7c47ccc93601b636bbe25973a72b8a2b5b26adee7465e46b1d39'
   '4aa21e54d65795afebad6c1f8f18c891824e75c3d6c454207fdbb3cb02571c289ee21e5074ad0fbf80961106fbf5f6cf93c9f366a6fb570f85ba035ccbd5ac5c'
+  'f04594d3ab0a6582174b7a37eb4f0a245319e0f81aaa82c4b740ea4f87b137ccb55aabfc7655c1a55d3f91ab09e0836b145cf2e7a13126849d394409cd89cffd'
+  '8abf051dad295d912ef5d41c5288da6620c6a339f5402719a1c01b976845afbb05ad571b72cd9d80fbab77fe93d4f735454e5cea7079c879d269a2108228f085'
+  '9a2a628d6389dce25cfbb65f425cc95a4711ccb14aab55f3a74ee9371ee8abc0de5e96e99478f815dd1e8265d224e5648cfe9f331d8dc9c691d73df542c18332'
+  'b8ba52e29962d7f15526b2d25e720fa22518f9d0d126ac6265820eae9c5038d4860f4c7aa57c416527f5d246af209e5e67a07976b9532215bb77b0eba83d01b3'
 )
 
 _meson_version="${pkgver}-${pkgrel}"
 _systemd_src_dir="systemd-8cc40e0c5e9234bf45084751ac53b1fbfe70b492"
 
 prepare() {
+  python3 -I -B "${startdir}/cachy-asahi-btf.py" --root "$startdir" --header "$startdir/vmlinux.h" --receipt /out/systemd-btf-input.json
   cd "${_systemd_src_dir}"
   # The archive is already the exact release commit; apply the held ALARM patch.
   patch -Np1 -i ../0001-Use-Arch-Linux-device-access-groups.patch
@@ -133,6 +142,8 @@ build() {
     -Dbootloader=enabled
     -Dxenctrl=disabled
     -Dbpf-framework=enabled
+    -Dvmlinux-h=provided
+    -Dvmlinux-h-path="$startdir/vmlinux.h"
     -Dima=false
     -Dinstall-tests=true
     -Dlibidn2=enabled
