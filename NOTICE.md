@@ -1,0 +1,3 @@
+Original updater compiler input DATA
+
+The six package/signature files are unchanged official Arch Linux ARM archives and public signatures. The index and original archive6 policy retain exact original pins; original-extension.lock.json records package metadata, source URLs and license closure. compiler-rt and lld: Apache-2.0 WITH LLVM-exception. Rust: Apache-2.0 OR MIT. Upstream package licenses remain applicable. Project metadata uses the accompanying MIT license. No private key is present. Cache preparation does not authenticate or install packages; all original current GPG, acquisition, package, runtime and retirement checks remain mandatory. Native and M2 acceptance: NOT RUN.
