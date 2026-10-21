@@ -86,5 +86,32 @@ class Welcome8Factory(unittest.TestCase):
   self.assertEqual(cleanup(self.out),cleanup(WELCOME8));self.assertIn("factory();out=state/'ordered-cleanup.json'",(self.out/'native.py').read_text())
  def test_explicit_isolated_Welcome8_CLI_no_actual_authority(self):
   done=subprocess.run([sys.executable,'-I','-B',HERE/'prepare.py','--welcome8','--predecessor-root',WELCOME8,'--output',self.out],capture_output=True,text=True,timeout=30);self.assertEqual(done.returncode,0,done.stderr);v=json.loads(done.stdout);self.assertEqual(v['files'],544);self.assertEqual(v['acceptance'],'NOT_GRANTED');self.assertIsNone(v['actual_source']);self.assertIn('welcome8_stop.exercise',(self.out/'factory/extend_welcome8.py').read_text());self.assertEqual((self.out/'.github/workflows/native-arm-build.yml').read_bytes(),(self.out/'.github/workflows/native-arm-current606-welcome8-gui.yml').read_bytes())
+class Transport(unittest.TestCase):
+ def setUp(self):
+  if TRANSPORT is None:self.skipTest('explicit source544 fixture required')
+  self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup);self.home=Path(self.temp.name);self.out=self.home/'out'
+ def test_exact546_repeat_full_admission_and539_held(self):
+  fact=P.prepare_transport(TRANSPORT,self.out);other=self.home/'again';P.prepare_transport(TRANSPORT,other);self.assertEqual(P.files(self.out),P.files(other));self.assertEqual({n:P.pin(b)for n,b in P.files(self.out).items()},P.profile()['transport']['output']['files']);self.assertEqual(fact['files'],546);self.assertEqual(fact['acceptance'],'NOT_GRANTED');self.assertIsNone(fact['actual_run']);self.assertEqual(fact['runtime_image_failure'],'UNRESOLVED_REQUIRES_GENUINE_ERROR_BYTES')
+  spec=importlib.util.spec_from_file_location('_portable_whole546_admission',self.out/'admission.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);proof=m.prove(self.out);self.assertEqual((proof['files'],proof['original348'],proof['published_factory53']),(546,348,53))
+  changed=set(P.profile()['transport']['changed']);self.assertEqual(len(changed),5)
+  for n in set(P.profile()['transport']['predecessor']['files'])-changed:self.assertEqual((self.out/n).read_bytes(),(TRANSPORT/n).read_bytes())
+ def test_transport_predecessor_drift_refused_before_output(self):
+  for kind in('changed','missing','extra'):
+   copied=self.home/kind;shutil.copytree(TRANSPORT,copied);leaf=next(iter(P.profile()['transport']['predecessor']['files']))
+   if kind=='changed':(copied/leaf).write_bytes(b'drift')
+   elif kind=='missing':(copied/leaf).unlink()
+   else:(copied/'extra').write_bytes(b'extra')
+   with self.subTest(kind=kind),self.assertRaisesRegex(ValueError,'complete genuine544'):P.prepare_transport(copied,self.out)
+   self.assertFalse(self.out.exists())
+ def test_explicit_CLI_mutual_exclusion_and_old_function_bodies_held(self):
+  done=subprocess.run([sys.executable,'-I','-B',HERE/'prepare.py','--transport','--predecessor-root',TRANSPORT,'--output',self.out],capture_output=True,text=True,timeout=30);self.assertEqual(done.returncode,0,done.stderr);self.assertEqual(json.loads(done.stdout)['source_authority'],'ac70245709f336d2c670b2b511bec40c99248370')
+  refused=subprocess.run([sys.executable,'-I','-B',HERE/'prepare.py','--transport','--welcome8','--predecessor-root',TRANSPORT,'--output',self.home/'forbidden'],capture_output=True,text=True,timeout=30);self.assertEqual(refused.returncode,2);self.assertFalse((self.home/'forbidden').exists())
+  text=(HERE/'prepare.py').read_text();functions={n.name:ast.get_source_segment(text,n)for n in ast.parse(text).body if isinstance(n,ast.FunctionDef)}
+  self.assertEqual(P.pin(functions['prepare'].encode())['sha256'],'692658e23db894163ad617417b1dd288c90f896e792ead457e9b3213e70d2ce6');self.assertEqual(P.pin(functions['prepare_welcome8'].encode())['sha256'],'ad97ab861c65b05c3d53490cd171ffa1e62b75c32de8ece2c32f8c9f385b7174')
+ def test_emitted_transport_real_zip_keeps_literal_colon_data(self):
+  import zipfile
+  P.prepare_transport(TRANSPORT,self.out);spec=importlib.util.spec_from_file_location('_portable_exact_transport',self.out/'transport.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);public=self.home/'public';public.mkdir();name='generated/qemu-context/packages/dtc-1:1.8.1-1-aarch64.pkg.tar.xz';leaf=public/name;leaf.parent.mkdir(parents=True);leaf.write_bytes(b'SYNTHETIC public route DATA, not a package');raw=leaf.read_bytes();(public/'retention.json').write_bytes(P.encoded(dict(status='FAIL_OR_INCOMPLETE',case='minimal-generic4k',files={name:P.pin(raw)},total_bytes=len(raw))));wrapped=self.home/'wrapped';value=m.pack(public,wrapped,dict(source='0'*40,run=1,attempt=1,case='minimal-generic4k',job_token='0'*16));self.assertFalse(value['actual_authority']);self.assertEqual(value['status'],'PACKED_PUBLIC_EVIDENCE_DATA_ONLY');self.assertTrue(all(':'not in p.name for p in wrapped.iterdir()))
+  with zipfile.ZipFile(wrapped/'evidence.zip')as z:self.assertEqual(z.read(name),raw);self.assertIsNone(z.testzip())
+
 if __name__=='__main__':
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('--predecessor-root',type=Path,required=True);p.add_argument('--welcome8-predecessor-root',type=Path);a,rest=p.parse_known_args();WELCOME8=a.welcome8_predecessor_root.absolute()if a.welcome8_predecessor_root else None;PREDECESSOR=a.predecessor_root.absolute();unittest.main(argv=[__file__,*rest])
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--predecessor-root',type=Path,required=True);p.add_argument('--welcome8-predecessor-root',type=Path);p.add_argument('--transport-predecessor-root',type=Path);a,rest=p.parse_known_args();TRANSPORT=a.transport_predecessor_root.absolute()if a.transport_predecessor_root else None;WELCOME8=a.welcome8_predecessor_root.absolute()if a.welcome8_predecessor_root else None;PREDECESSOR=a.predecessor_root.absolute();unittest.main(argv=[__file__,*rest])

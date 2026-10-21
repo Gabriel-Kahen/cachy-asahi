@@ -4,7 +4,7 @@
 import argparse,base64,hashlib,json,os,stat
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
-PROFILE={'bytes': 1659700, 'sha256': '03c2eea41a4da76a9866a4b589f826167f12e8754a7bbd8abaf409df50235f77'}
+PROFILE={'bytes': 2447858, 'sha256': '463f2457f26929c640a6cc4e9504a9d25714ba354beaa227ee1c249e637857f9'}
 def need(ok,why):
  if not ok:raise ValueError(why)
 def pin(raw):return dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())
@@ -70,5 +70,17 @@ def prepare_welcome8(predecessor,output):
  for name,raw in result.items():target=output/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(raw)
  need({n:pin(b)for n,b in files(output).items()}==wanted,'whole544 emitted source equality');return dict(status='SOURCE_ONLY_WELCOME8_INSTALLED606_GUI_NOT_NATIVE',files=544,source_authority=v['output']['source'],profiles=['minimal','overlay'],page_modes=['generic4k','generic16k'],guest_packages=606,controller_packages=590,actual_source=None,actual_ref=None,actual_run=None,acceptance='NOT_GRANTED')
 
+def prepare_transport(predecessor,output):
+ p=profile();v=p['transport'];before=files(predecessor);need(v['predecessor']['source']=='7b8be687a3562640d5f7d4a7c57f2e2d61d39dc1'and len(before)==544 and {n:pin(b)for n,b in before.items()}==v['predecessor']['files'],'complete genuine544 before transport output')
+ wanted=v['output']['files'];need(v['output']['source']=='ac70245709f336d2c670b2b511bec40c99248370'and len(wanted)==546 and set(wanted)-set(before)==set(v['added'])and set(before)-set(wanted)==set(v['removed'])and {n for n in before if pin(before[n])!=wanted[n]}==set(v['changed'])and(len(v['changed']),len(v['added']),len(v['removed']))==(5,2,0),'finite transport-only546 delta')
+ result={}
+ for name,row in wanted.items():
+  relative(name);raw=before[name]if name in before and pin(before[name])==row else base64.b64decode(p['blobs'][row['sha256']],validate=True);need(pin(raw)==row,'whole exact transport source body');result[name]=raw
+ for name in set(before)-set(v['changed']):need(result[name]==before[name],'all539 original product/runtime/positive source leaves held')
+ need({n:pin(b)for n,b in result.items()}==wanted,'whole546 equality before output');output=Path(output).absolute();need(not output.exists()and output.parent.is_dir()and not any(q.is_symlink()for q in(output,*output.parents))and not output.is_relative_to(predecessor)and not predecessor.is_relative_to(output),'fresh disjoint ordinary source output')
+ output.mkdir(mode=0o700)
+ for name,raw in result.items():target=output/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(raw)
+ need({n:pin(b)for n,b in files(output).items()}==wanted,'whole546 emitted equality');return dict(status='SOURCE_ONLY_GUI_DIAGNOSTIC_TRANSPORT_NOT_NATIVE',files=546,source_authority=v['output']['source'],actual_source=None,actual_ref=None,actual_run=None,acceptance='NOT_GRANTED',runtime_image_failure='UNRESOLVED_REQUIRES_GENUINE_ERROR_BYTES')
+
 if __name__=='__main__':
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('--predecessor-root',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--welcome8',action='store_true',help='explicit exact544 variant from whole corrective540; default536-to540 unchanged');a=p.parse_args();emit=prepare_welcome8 if a.welcome8 else prepare;print(encoded(emit(a.predecessor_root.absolute(),a.output.absolute())).decode(),end='')
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--predecessor-root',type=Path,required=True);p.add_argument('--output',type=Path,required=True);group=p.add_mutually_exclusive_group();group.add_argument('--welcome8',action='store_true',help='exact544 from corrective540');group.add_argument('--transport',action='store_true',help='explicit exact546 diagnostic transport from whole544; default540 andWelcome8 outputs held');a=p.parse_args();emit=prepare_transport if a.transport else prepare_welcome8 if a.welcome8 else prepare;print(encoded(emit(a.predecessor_root.absolute(),a.output.absolute())).decode(),end='')
