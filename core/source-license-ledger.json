@@ -1,0 +1,30 @@
+{
+  "dependencies": "64 signed declarations/notice observations retained; complete corresponding source closure NOT_ESTABLISHED",
+  "fresh_artifact_shipping": "NOT_RUN",
+  "packaging_license": "0BSD; authentic LICENSE and REUSE.toml byte-held per recipe",
+  "pacman_patches": "GPL-2.0-or-later modifications of retained GPL pacman source, copyright and authors preserved",
+  "scope": "NEW_RECIPES_UPSTREAM_SOURCE_AND_PACKAGING_NOTICES",
+  "source_notices": {
+    "licenses/pacman/COPYING": {
+      "bytes": 17987,
+      "sha256": "ab15fd526bd8dd18a9e77ebc139656bf4d33e97fc7238cd11bf60e2b9b8666c6"
+    },
+    "licenses/systemd/LICENSE.GPL2": {
+      "bytes": 17977,
+      "sha256": "ac4985facb553559981f507982444d779115e3e3a4c8b7847ae956198490c1b3"
+    },
+    "licenses/systemd/LICENSE.LGPL2.1": {
+      "bytes": 26518,
+      "sha256": "6d9bb3b7fc818a8facc4cc296060a0883fef8710d6498f86165335846e82ee9d"
+    },
+    "licenses/systemd/LICENSES/CC0-1.0.txt": {
+      "bytes": 7048,
+      "sha256": "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499"
+    },
+    "licenses/systemd/LICENSES/MIT-0.txt": {
+      "bytes": 915,
+      "sha256": "8a6fc0879cecc0b96bf4c08159b9d733bf0f15fcf32879aec98c4ffd05424554"
+    }
+  },
+  "systemd_group_patch": "LGPL-2.1-or-later per held REUSE annotation"
+}
