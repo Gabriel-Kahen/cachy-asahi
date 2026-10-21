@@ -1,0 +1,66 @@
+{
+  "current_GPG_authentication": "MANDATORY_NATIVE_NOT_RUN",
+  "files": {
+    "packages/bats-1.14.0-1-any.pkg.tar.xz": {
+      "bytes": 49984,
+      "license": [
+        "MIT"
+      ],
+      "original_url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/bats-1.14.0-1-any.pkg.tar.xz",
+      "role": "ORIGINAL_OFFICIAL_PACKAGE",
+      "sha256": "7bc31235cfe496b982698980b14c9c14b3e17f2b71ee13f72a58271ed199710a"
+    },
+    "packages/bats-1.14.0-1-any.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "license": [
+        "MIT"
+      ],
+      "original_url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/bats-1.14.0-1-any.pkg.tar.xz.sig",
+      "role": "ORIGINAL_OFFICIAL_SIGNATURE",
+      "sha256": "726bca1178bdda048b61b3c84df28e075b49a9ee6034a26c22f3aab9be2fb092"
+    },
+    "packages/parallel-20260922-1-any.pkg.tar.xz": {
+      "bytes": 369204,
+      "license": [
+        "GPL-3.0-only"
+      ],
+      "original_url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/parallel-20260922-1-any.pkg.tar.xz",
+      "role": "ORIGINAL_OFFICIAL_PACKAGE",
+      "sha256": "abd4a16e9348cc1bb0f39b7affb92a18c81efae1e791dee30c548b170a7ba4ec"
+    },
+    "packages/parallel-20260922-1-any.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "license": [
+        "GPL-3.0-only"
+      ],
+      "original_url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/parallel-20260922-1-any.pkg.tar.xz.sig",
+      "role": "ORIGINAL_OFFICIAL_SIGNATURE",
+      "sha256": "9f6f122076bee134ca13bf08dfe5a66a76f88a63e5bc1f636e4ab948db9e9f60"
+    },
+    "packages/scdoc-1.11.5-1-aarch64.pkg.tar.xz": {
+      "bytes": 14820,
+      "license": [
+        "MIT"
+      ],
+      "original_url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/scdoc-1.11.5-1-aarch64.pkg.tar.xz",
+      "role": "ORIGINAL_OFFICIAL_PACKAGE",
+      "sha256": "d8afceb6ff7714f0b0086062a26c0296661f7532e69ec2143155fdbbd466175b"
+    },
+    "packages/scdoc-1.11.5-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "license": [
+        "MIT"
+      ],
+      "original_url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/scdoc-1.11.5-1-aarch64.pkg.tar.xz.sig",
+      "role": "ORIGINAL_OFFICIAL_SIGNATURE",
+      "sha256": "aea9be05cabe35a6ad52323f33794a7d9ff4655317c51cf6851883d0250bca03"
+    }
+  },
+  "native": "NOT_RUN",
+  "original_extension_lock": {
+    "bytes": 14048,
+    "sha256": "287b627528f3fd9cf4a63ef3a3bbf269e83f83d35c87dd3b3efd69e91a92a56f"
+  },
+  "schema": 1,
+  "status": "EXACT_RETAINED_ORIGINAL_UPDATER13_MISSING_THREE_PAIRS_DATA"
+}
