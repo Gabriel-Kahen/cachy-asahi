@@ -1,0 +1,10 @@
+{
+  "actual": "NOT_RUN",
+  "files": 391,
+  "git_joins": 391,
+  "hardware": "NOT_RUN",
+  "ref": "codex/current606-boot607-transport-fixed-v1",
+  "release": "NOT_ADMITTED",
+  "source": "203202ec05b428f9a5e9979e6ac30abedda08d3b",
+  "status": "COMMITTED_EXACT_CLOSED_TRIAL_SOURCE"
+}
