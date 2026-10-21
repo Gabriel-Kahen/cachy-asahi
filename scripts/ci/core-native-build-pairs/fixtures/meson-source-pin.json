@@ -1,0 +1,32 @@
+{
+  "package": {
+    "arch": "any",
+    "conflicts": [],
+    "depends": [
+      "bash",
+      "ninja",
+      "python",
+      "python-tqdm"
+    ],
+    "filename": "meson-1.12.1-2-any.pkg.tar.xz",
+    "isize": 17699599,
+    "license": [
+      "Apache-2.0"
+    ],
+    "name": "meson",
+    "provides": [],
+    "replaces": [],
+    "repo": "extra",
+    "sha256": "8b5f5b2168be053485f512debbb935f189c4b19f9a79d0e201fc91ccb5d15492",
+    "signature_sha256": "6baec90eff01db452ce849b11d9322a29c362989f794cbd8ca555b99aa022891",
+    "signature_size": 566,
+    "size": 2529168,
+    "source_url": [
+      "https://mesonbuild.com/"
+    ],
+    "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/meson-1.12.1-2-any.pkg.tar.xz",
+    "version": "1.12.1-2"
+  },
+  "scope": "PINNED_ORIGINAL_MESON_PYTHON_SOURCE_ONLY_NOT_NATIVE",
+  "source_files": 243
+}

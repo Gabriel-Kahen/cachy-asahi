@@ -1,0 +1,32 @@
+{
+  "actual_offending_definition": "UNKNOWN_NO_ORIGINAL_RAW_OPERAND_EXPORT",
+  "all_other_bytes": "HELD_WHOLE_INVERSE",
+  "before": {
+    "bytes": 6315,
+    "sha256": "d3625c3b72ead85e759c579e40be1b0bc53d8513e971adb5477c82aae4fbc7d8"
+  },
+  "edits": [
+    [
+      "any(type(x)is not str or not x for x in v['cmd'])",
+      "any(type(x)is not str for x in v['cmd'])or not v['cmd'][0]"
+    ],
+    [
+      "any(type(x)is not str or not x for x in v['command'])",
+      "any(type(x)is not str for x in v['command'])or not v['command'][0]"
+    ],
+    [
+      "raw=read(Path(sys.argv[1]));intro=read(Path(sys.argv[2]));result=audit(raw,intro)",
+      "raw=read(Path(sys.argv[1]));intro=read(Path(sys.argv[2]))"
+    ],
+    [
+      "  save('/out/systemd-testlog.jsonl',raw);save('/out/systemd-intro-tests.json',intro);save('/out/systemd-testlog-audit.json',enc(result))",
+      "  save('/out/systemd-testlog.jsonl',raw);save('/out/systemd-intro-tests.json',intro)\n result=audit(raw,intro)\n if mode is not None:save('/out/systemd-testlog-audit.json',enc(result))"
+    ]
+  ],
+  "path": "effective-profile/systemd/cachy-asahi-testlog.py",
+  "proposed": {
+    "bytes": 6359,
+    "sha256": "ca92026e9729fdea418b067442477db6c9c925ecbd5a08b0c75953cdf440288a"
+  },
+  "scope": "VALID_EMPTY_ARGV_TAIL_PLUS_RAW_FAILURE_DATA_NO_ACCEPTANCE_WAIVER"
+}
