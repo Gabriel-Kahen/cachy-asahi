@@ -1,0 +1,6 @@
+gpg: Signature made Sun Oct 20 10:45:50 2024 EDT
+gpg:                using RSA key 68B3537F39A313B3E574D06777193F152BDBE6A6
+gpg: Good signature from "Arch Linux ARM Build System <builder@archlinuxarm.org>" [unknown]
+gpg: WARNING: This key is not certified with a trusted signature!
+gpg:          There is no indication that the signature belongs to the owner.
+Primary key fingerprint: 68B3 537F 39A3 13B3 E574  D067 7719 3F15 2BDB E6A6
