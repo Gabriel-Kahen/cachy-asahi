@@ -1,0 +1,21 @@
+{
+  "authority": "UNSIGNED_DATABASE_DISCOVERY_DATA_ONLY",
+  "final_url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/extra.db",
+  "headers": {
+    "Accept-Ranges": "bytes",
+    "Connection": "close",
+    "Content-Length": "10614001",
+    "Content-Type": "application/octet-stream",
+    "Date": "Mon, 19 Oct 2026 22:59:44 GMT",
+    "ETag": "\"6ad5a0de-a1f4f1\"",
+    "Last-Modified": "Mon, 19 Oct 2026 04:47:26 GMT",
+    "Server": "nginx/1.22.1"
+  },
+  "name": "extra",
+  "pin": {
+    "bytes": 10614001,
+    "sha256": "8f1f6fbcc3e397c8228de1d36f825ed445ef21483693d17e221741023beffff2"
+  },
+  "status": 200,
+  "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/extra.db"
+}

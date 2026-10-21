@@ -1,0 +1,2731 @@
+{
+  "additional_packages": [
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "audit",
+        "bash",
+        "glibc",
+        "libgcc",
+        "pam",
+        "python",
+        "python-legacy-cgi"
+      ],
+      "filename": "apparmor-4.1.7-1-aarch64.pkg.tar.xz",
+      "isize": 5916955,
+      "license": [
+        "GPL-2.0-only",
+        "LGPL-2.0-only",
+        "LGPL-2.1-only"
+      ],
+      "name": "apparmor",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmmwXRwACgkQdxk/FSvb5qZpCg//dyX7BtRNqeLB+o5BQcwwi2T1zMogSW5UH3kaNN9503LRa4DRw9z0KCQwJk1ekpN4K5u5XSeSlloiAnjefQdNS5aqyHDvLR8q5HhNgmCpuq8zxKQVpIxi09U7adyBz33vFPVOoLM6N5XPnaqeg65ML7cuS5989e4UJsWcu4K6NkMOiGtUEbHcM1Vn9hDvkbjqe7TbI7+5efKOYe7aKZtnkdn4oi6hjwE2v3Sr194bPLmyYsI9T4OtjmhGXpFpwYUD+qXuqnGANPJycc7DsMHVA9SyYlxe5MWWI8dTl+Ot6pp6+GRNPs971CH9DT+J7CDo47kTFuI5BzEsqJRKSGPTvn6TESX3mMBSUBOcyyOKWvjI7FT6XJHNHNxVhAf51PP7wdOvIXL9VIORe8rTmhfsgdib1Nbnatv1bQGltz2ilkpW2g0RAAMSPCgmfWTGKrJfivUxunDQz7JLzPnxSJUuIDMwJWx86zs9rfkDy/A4F8tebQ2OS6YrV9jQjqOCUlQtuDbNqnaELk1o4tTph5p2fDv2fpwjtguzQT1u3hvM26vBvYN2k7x4R0lrO5osifoszeHBSaLNs/VnCNZwrKdureHgmd17IrGyn/suRecFOYUOwLAXZMXw0G8JwhTyV+aFCzdJfAZjeTdJqcLCq+1BK81TGNT4CnV3leL1RqeRxhs=",
+      "provides": [
+        "libapparmor.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "d7616429036ff78fda1e5b1c3da82554f93419806787f4c884cabf45e5614f7a",
+      "size": 1208196,
+      "source_url": [
+        "https://gitlab.com/apparmor/apparmor"
+      ],
+      "version": "4.1.7-1"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "docbook-xsl",
+        "libxslt",
+        "python"
+      ],
+      "filename": "asciidoc-10.2.1-3-any.pkg.tar.xz",
+      "isize": 2498254,
+      "license": [
+        "GPL-2.0-or-later"
+      ],
+      "name": "asciidoc",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmlkuZIACgkQdxk/FSvb5qaL2g/9HaAq9QYhlRSz47Y7QKqGjGAQHRUTl7s4L+a7m/+Xc/J/mckH2yylqBhZCdIZJY3m2aFTCvqdSZNx6lEzXEuG1NKZSHsS57IOXOo8R5Q6mwL9WQ7yhNR/qdDr4MVNl6KUIs9f4Jbk5TaNbQR1aJfSVYAN+Q4A7BooiqDkoLJgi8+DPTOlzuVCxPKFMmMnMAre5Ns4qLh6qy7JeoB9OMnbp0/bdnP0wkHUESkDrFC0IV+995uXq3M3p0ZFtSUbSqG1Axvo36P78K5NuPvrJIH4ffUoFE7Jd0y2oYxf1rEZbqIzgSNJrDCkQzqRYyrYWiEQvMLT7iRO6fJ43SCe5b7gO+zkZ00nshvExpmrynJgdcGLdgZrx40c/kDbY2zKDN9yVUFhwg91R+JB6bPQqqXsTM4QJ8c7EjPrswJWBMkHEvTBnXW/PU6wl66Y0gBcFTyfdeFT5eRQhXzHGZPeMdQaIucgqGYakZJvhvMn9c5lNyfuDJMD8aXiJj3dbsu5xO6BI7Opb16Td5tjk/iB4XORSe1lxQCukpS/5nELtkdp2HGolrDa3PV89wtX5kiQgc7ZkieNDxOVNBz3KA1L5PgRcHbYzvUKLG9gB9Ttw2WcDhq3l7uR4CMdII0+Ww6MuSR43QOER/iO2f8jPY6UVtSspY7UXpcskTEsim+V8rD4LC0=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "f0181fc78ef3a5ed851bcd0aecbfa5471a81fec75d2774dfcd19b8b506d4f924",
+      "size": 603396,
+      "source_url": [
+        "https://asciidoc-py.github.io"
+      ],
+      "version": "10.2.1-3"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "bash"
+      ],
+      "filename": "bash-completion-2.18.0-1-any.pkg.tar.xz",
+      "isize": 1043228,
+      "license": [
+        "GPL-2.0-only"
+      ],
+      "name": "bash-completion",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmpLBpsACgkQdxk/FSvb5qZkrRAAivUdQLgj2KtyiS1P+abeHl46ckyJ2c+RBUG7M+Q6u8Hf4YDR/1puSN/QkpIJZYK6QEnp9e9JjsMxB5mLtmNFM+UX/lM6bNkPQriTjTEmmZ3AyPUCIfSA1DPgJpjoZWYu5+VMJ6xoZdXEzyCEmFK4g0a+dw7sRS17BYTZCE7Ot/xZEFSnGabmqiu/ONEgVZQTjCB5qc6al1QTGTyYj+EwZo3QYB9cxiKAoUl+87Vjh+v6q+GgR8VHkHv6lmlOwCsdt87H8b0/Va34Xqa7JyaleNKsSyHPtB0WR1tKyrSna35M+GIpZRg4CnzWunGaOdr9XuSJvCl6fhDp0w+8jX91L6O3oMsXT50SR8O6/tEavuMIcacwUTdzNpJHuVRqi6756jRqLiD5c1aDYvY+kcES8R6Tu2sGaxjEvj2WxvKP64sEQexby3E847YHKAgAFjCBLxYJSMgX64tmtf1RmrMbuYnRZv1jzj6j+lad25s0wRg6MnrhSV02S+rYDgT7RejLVH0J3Hp6VVqmwjhF3p64RVGRmt7Wts6hFjbti2kvXKyW4yozTSGiKL1olqb87q1GM+/PljFM2OvqYVXXaNBpMhhQMsgYY6/QjATW5QpQ8PE+r/d8tFgDO35iMsgrQg+yUiZNSA2mQL7jnukY5QL9H6CRXPgYIRQEqGzNIig62sM=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "82716e3508156d038fe80af85bb4693b6eb80e14fb3766e726d8ff689af0d593",
+      "size": 228076,
+      "source_url": [
+        "https://github.com/scop/bash-completion"
+      ],
+      "version": "2.18.0-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "readline",
+        "zlib",
+        "libelf",
+        "libcap",
+        "zstd",
+        "llvm-libs",
+        "binutils",
+        "libsframe.so=3-64"
+      ],
+      "filename": "bpf-7.2.11-1-aarch64.pkg.tar.xz",
+      "isize": 5716566,
+      "license": [
+        "GPL-2.0-only"
+      ],
+      "name": "bpf",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmrUEP8ACgkQdxk/FSvb5qYlvg/6Anc2F1doObYYYNmP7FZqG4KSFbU/F8NBWK0Jqf3CKQLioVuxOqqKNprUil3Jv06EOCiG0rRdcCuF48ccrGuqN6Mk7rRo2HRvGEOtnbeuMSt8PMAmpAcJrnXCkm8H7QC0fv6bA+BOFQuT5gMU0JSj1ZYtOexmZcUNKMu2Fpm8dSrVIFMtbwC5149gaQa/w7tq01iTJ2JYBvYMz0x4JnCqMG4LHiMb/ywIOektWK/dSu/7a3DVJL4FEwlMwz9XjOADEGDyGGGj/59/q0kmvCYVm0NnFWvPkiNhZuWIco5plv+LZdnPdcekxJ9gNC+271RgoFRFJcrqIzrVsWAJl5Q2RsIgLd/K0RbDlY09fv+gzhVVzLL8TNmecC7+gqfv/OeNKIPxyAPc7DbD5ySAPTDJhKFjvLkZtbkN+g4eWLxXTIFy05RSiwTSjQknz+SzdOOdecxI42/EIS5pReltDA6HorPhHhFV5UTLB+UygtPc/BLZ2ijwjEmf3lKJOTNv7UsfG+NbbM/PG1VafxU5PIZ96crYS+Bp5UkGT2OQcAdfdGUJyFSzo7EGJcvUJYN+pFXs6afxW8WlO1V2ibQ5fdJl8+fB5gFhWyrCWO3ZEIuwKCPKSt07GWkpxds9eOLIii0+iDrymHWNQmtVqfQsvGbdA44TDAkVkUOeJY4zXkl5fSc=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "1165ae5debba5bfdb7a77981dcffd6e3a2702c9d6557ec248317a71a40de9619",
+      "size": 1503864,
+      "source_url": [
+        "https://www.kernel.org"
+      ],
+      "version": "7.2.11-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [
+        "clang-analyzer",
+        "clang-tools-extra"
+      ],
+      "depends": [
+        "llvm-libs",
+        "llvm",
+        "gcc",
+        "compiler-rt",
+        "libgcc",
+        "libxml2"
+      ],
+      "filename": "clang-23.1.3-3-aarch64.pkg.tar.xz",
+      "isize": 261550235,
+      "license": [
+        "Apache-2.0 WITH LLVM-exception"
+      ],
+      "name": "clang",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmrUAtwACgkQdxk/FSvb5qZYDhAAkxXE9mqnVqvQrf7o2Q0FTTY+CLRZNnH2XGDf046Ox0mHNtFd101EyWlYpv9nqgPNXErNepycM4JATs9HeXrZMr179/PmMdVin1HUg/dTnyT+LbkBKmdhV6lV4U3cMHqaXzN1k7ZXNdervDczOOJkR3fI/z+DIPMvZmAyG36T55ZW7Hm+D2Siay1JwGhuKzR74F2mMMxPk++UfzsPCydFvy5QwiThXFkF6w7xJx/YqLfUNl9TeKR4cTGeP/DP1qyp4IPuJnIBo5mjnbsTKwty5vpHWPkgoaQl2LWgUkeelFgTJI3iKbzcn2fIM24uBqJDCgVNZ/YBxR2vjR8hdZzBxSE/T2wAqX4W6rbDbO3dn/MRnQmiK3hakGxTiHzFtmeUCg0Hl9nRkBWzi3AWRQmT1ox1mzSxgmpBhz05Wa/vGgNE6HRUNJ2jb5SZs7WHfJGcJvy80KKGkJSHf82qdjiEl7/QLUmjMvVUnmy66d07X16Vk7YBQvAKkkX3enfBL7NdIs34RN/IqTQBmi22jpMP1ZLawkyyXhFZHxiS5fmrVBWxU04xEHyEMcVpLh8ooPRLMZIqkyq/OegKs+Z6b8K3jpP6d9P6TKKLlIxWvCdDrDVMkitcM/zMlneY5hsp6JubMcxQi/WVOxGJ27MXMbEy/92TT+cYWWih+LJiAT6r4MM=",
+      "provides": [
+        "clang-analyzer=23.1.3",
+        "clang-tools-extra=23.1.3"
+      ],
+      "replaces": [
+        "clang-analyzer",
+        "clang-tools-extra"
+      ],
+      "repo": "extra",
+      "sha256": "8c70552dff6d71bd0f34aabae9804eb6ffc74d92a0b5980bc85f0842ae869f59",
+      "size": 52347720,
+      "source_url": [
+        "https://llvm.org/"
+      ],
+      "version": "23.1.3-3"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "libgcc",
+        "libstdc++"
+      ],
+      "filename": "compiler-rt-23.1.3-3-aarch64.pkg.tar.xz",
+      "isize": 38240312,
+      "license": [
+        "Apache-2.0 WITH LLVM-exception"
+      ],
+      "name": "compiler-rt",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmrUAtwACgkQdxk/FSvb5qbusw/8DNLLd60vggECLpzDFZmbCKc7NrYiP+7+ni7mYgoeIzP5NsHG2brFuJZmBi9GujVLtWq/MS7j7ikA5I8LriIJdxEdIWuSAmQ3s6d+ne+9oaVCLbOUwmacXiT9bPC+1zC8rwsIFzTyhYbrxpMwLK16GO75ZhqNeyz1XY+FIOwnj4HWIlW7t1NF64FV4Q+OCcBWtj6OMUhldodLHwVHBqMwopol1abjNUClAUTYm8opQizkvOgYc97+I8b1Lb+TA4ELWslAluPQpoIPuamWPobUZx0g+TFmlYM3ILLk7p2AJdFcDW6SAQt5miG7fjKvQUi3klghZTv8NXZYNhsmHrS142BkUIxdh+k1m0VOfRJbvM1Pxxq61P6MT4qIH9HHauMUxMbW27MmyzEJkIVNE/mbpUjo8fww2gQ28xOAiUZHZJ83Tf6GFn5SiFhF29XD2bDV2Gk9Nfm2n1y7phYPTzGjK5lYAGNNOAiXwOqS/HyxAmxJzpZdCAacWP028M3/TfFdAwer51HiaK8E2S05oTnCIvOljix9xI+S5+iTVVrldWxtygUqRODxkAuVc1+GPM3y+7FlmMoYhDB0tesZsRY5hvF4/KczGWtKznJ3NxPqBerQxmp0dd0ZfpVf8bK9wwBcEFsKBlScuhBRmP+uOCSQyBpkwlxEps5xE6fmDLxkfgg=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "4377638f83be35aac622d0b7ba4840db77583dbbbc655d6bc9d24b771d64a104",
+      "size": 2377008,
+      "source_url": [
+        "https://llvm.org/"
+      ],
+      "version": "23.1.3-3"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "zlib"
+      ],
+      "filename": "cracklib-2.10.3-1-aarch64.pkg.tar.xz",
+      "isize": 1147377,
+      "license": [
+        "GPL-2.0-or-later"
+      ],
+      "name": "cracklib",
+      "pgpsig": "iQIzBAABCAAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmdyYXQACgkQdxk/FSvb5qZA3g//dY4yVPPnc4ab9X+Y9LVsbKZZfpQAm7+okOlxqcbAGsQ0iRH62UUdULg38muvGxMnZPsGMDGWsvMHHzw5j4sCe5vmC2dBS54HD3RPV9n2IZnGJ4CGXxWVdDIifS8NIqull7EdCidFbXLeUWyXefjhbMDkMQE3OL5XGmsYNHnwzz8wGjLs/QN2wKK8dNQc6JTYG/wNz14jKfO0G7aweKOrBostzGZ+wlWEzsb9CrphrUi4SoxL/488gwX6C7hAgL9NRu4uY/uUrsHlYZYAWeFdvACIy5Qvo7L0lCM74NrYnQUBMfhVg3Upw07dHWNrg/m3LgOa4XYvjIZwSLnz3Xbn4eN6gJl95j0jGFmMQh9J9oZ5s+xSy6/9bi/BLTB+SiJuQG0YTpDq2v3Ga96wnwAde95cxD5EF2LIGEofOpSKt1V01Hihcbn/iEnKh1gZRx7GGxDwiOej+ts+2APWvQtatf0qtbjt7kL9uLfgA/R5Yxuc8fNj0CQtVBMoQ5moZvwO3aDl+ii+UaY0unEjsAJNDybnFSDBjkNssy45IOQu/BiWzu/hw7ObXJ9XZVE83DRWWJalpcZTFsbJtYQ51DA2mpg+rQQk3sLLfFuYMmOn7P/vjqu8FnBhe8298OSddcHtojtS1JKM3GrC2xe1MuLq0Im+sBAX4H1gxR26wlhVVdw=",
+      "provides": [],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "fcbd38683b4baf6caf696f2ba6478c14d551c981e7d1697a7e45c9172082c21a",
+      "size": 267888,
+      "source_url": [
+        "https://github.com/cracklib/cracklib"
+      ],
+      "version": "2.10.3-1"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "libxml2"
+      ],
+      "filename": "docbook-xml-4.5-11-any.pkg.tar.xz",
+      "isize": 2058639,
+      "license": [
+        "MIT"
+      ],
+      "name": "docbook-xml",
+      "pgpsig": "iQIzBAABCAAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmhMX3cACgkQdxk/FSvb5qYmYRAAjh9CnETW6IkGIBr7tnU2HjBZqIy2WaDIwntOfBkvk4+gGaQk0zYH1TeswCbLvmi16DA5cK0AGEOkXFhD23z4d3RxTU04RTK56J0dtuGGgMgvb3qZ8jVnIadMUpvlnhdmyBYRTxMG9lh6zADi5HmNk/u8qccrGkLzovbf2Ut/G4wswBIJCrlKcn7sq+ucVeCBlfXfA3+Q8cHYPEvPNnyr+IT92giQ86xwOCpxo0hNSINcWaBNlkrbdpDDACE9HdMkTOq3bpM1Rcr75INS4rTRbE1IJ+k6De7r89+aBYIsyE8LlBma4UAu9+la1KTwUr6hD1R/ciRnbE7B51iE0bNhJJom0T3kFrnVRKxqHsu68yrU7dv6KYbRZ6KztDJBeqKiUkjRu+2vVRfO9XRDV7qaf91scMqZmKXyedKvh8qzA8KRjEOdKFA541tp/+A63aB0SBPWxS54oJdS6MFurOgvOHRVOjAfWx+y2Iw14BpyY1yOFM+V30GXHBIR93nSgJAgieJR035xp+4lAXOcT7BhUpu+kiGJOou0MH3LAamZmAXfv07OS5Ax1NX2HCrRtvQMAtwCmNgz9WM2fuEZRGmViJjjlZ8WuJhKJ6JLFZlw7kxMuRSK9FtBAnFYZLZFZP5F8JmRmXXUpSNK+tVSrDr834zw8bCu121FYaaGmtmV1Gg=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "bcfe760c01b18cc8725509c3ed6b862df8db42eb3bdf2812a91054edb5b44c7f",
+      "size": 84244,
+      "source_url": [
+        "https://www.oasis-open.org/docbook/"
+      ],
+      "version": "4.5-11"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "docbook-xml",
+        "libxml2",
+        "libxslt"
+      ],
+      "filename": "docbook-xsl-1.79.2-9-any.pkg.tar.xz",
+      "isize": 27602025,
+      "license": [
+        "LicenseRef-docbook-XSL"
+      ],
+      "name": "docbook-xsl",
+      "pgpsig": "iQIzBAABCAAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmcVF54ACgkQdxk/FSvb5qZlsxAAgqe9Kb3I+5eP4AoH1Vqxey3zIKGGiy2PCdXUpsI7XSZ0BK1fAhc2emSRpc99iCEN3s31U0eUPkZwmLs34LO+79qpT0IOHAaV2kv6YxjOgVrogN9hsdeFFiv1V3rIby9d7goEIcwISBYY9r7AgpiSaz+ye60105Diz+KesY839DdVJCBCfgGciPnCtNjHSNdwoSWav8GCmPLXWKiJhhjJ3NsiqvtMTQDzzqnXzNhghzOvL1nI0597aQfYXTYUsh8wKiEoYHH3SfSLjGcfcWhcqbEfi7Cd0Jwdv4Gal338QXEZwhZf1pO6Pj6Q6LqZddGuV4byTJpM/Ly7zd+n2Olj5/E/q5S8O4j+KYWcH/0jbHP44W5VsM/glmfLpXjJ5BAgqxpw0ApN2J6Ks4hHQC3ueTaavVHCbBVIpUQy5FZEyMTiTGyrkYyz5FsHx9AVfbm4W69sUJhsAN2IwFmpRNyALyRtRXYf0CLNkYgIgJNZvleHEKe3SVwKxMlJptMuklAplzUJvB1UkX01MTpbxd0TO4tKPsC8xSEQ6zMlKfchaJweRnFGxAaawuR67DkbjFcDFe+Ohp96P8GdgmOdFbqrRPCoXc10O/M8kAxn9SL6Hzd5AdPScAv0v7/l/qGXHXWaVY7mtt4/4HJbF4Cccx7W6AghY6A4cvK4V88xEePX4t8=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "08b37365fb00e8db4662b20beb91fa11ce6bf4913729dae9582a3ca30b63856f",
+      "size": 1455900,
+      "source_url": [
+        "https://docbook.org/"
+      ],
+      "version": "1.79.2-9"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "clang",
+        "fmt",
+        "libfmt.so=12-64",
+        "glibc",
+        "libgcc",
+        "libstdc++",
+        "llvm-libs",
+        "spdlog",
+        "libspdlog.so=1.17-64",
+        "sqlite",
+        "libsqlite3.so=0-64"
+      ],
+      "filename": "doxygen-1.18.0-2-aarch64.pkg.tar.xz",
+      "isize": 26824553,
+      "license": [
+        "GPL-2.0-or-later"
+      ],
+      "name": "doxygen",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmq+c6sACgkQdxk/FSvb5qYORQ/+LrZi8QOwL4tNeqzuqI/jO8aS6NvXkFYj2L5lXOnifegeuliM1VladuDbM+i4LNPw8PEYHVbqeq+IKigVy7d1eTk58LCAMNf8qXplZKgiWmTMz3hANPAVm3k911/3E7e0cFQWsPCcJjc6mE8GL/v+fySq1w+LFp6ZAbVYXsty3Uom84R+Wlt5KY1psXK/JS8sUXk1nps4CwQIAvw9jN+SnVHF+YBvXhdFvyWMKJmtL8i8lBq1WH5DE91ION+SKWxufcEJdoAy27K9rj95t2iUPpuRm3tbJ1QGJxIk8rPdJrw5cln8i+gQsqIpaizZ6ezNIIOcrLxq1apzvvzOGb3AEdjtOTtWKkQ66oIFhAu+DH5/IuUz/AvOJgsGYntFGDIMUIB24N79HhQDXpHrtl77lMMsclA4g7VxWU5xVc4Mtd0nisghvgESLq8S+w5PbPzOu4/5P/kCbH8DpFhERPhH3ReviskjWzBJoCTX2Z0UV481NCPfKS/QIkT2BYlAHBDFmCPkijguerX8vIalqtlS8S5Ck1E2NivNQ/KyoyMEmfApEJz5gEZg6OZfjE6uI8I7rOD1cgMh5EWdIc3qMIeFQ2dJ56x8HetDc9dWTMXIQTXl1nt30BuhxMAfJa8VcmPVikWzlqKLqtsPCRwt4ZU9y2w/ylgjvvQ1ZRAvG43Fn4s=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "af9c4c29ae7c41aff0ce8f59c03f3c2a5962d0275aad8597c442d1757c970d35",
+      "size": 5946268,
+      "source_url": [
+        "http://www.doxygen.nl"
+      ],
+      "version": "1.18.0-2"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "sh",
+        "perl"
+      ],
+      "filename": "fakechroot-2.20.1-5-aarch64.pkg.tar.xz",
+      "isize": 236269,
+      "license": [
+        "LGPL-2.1-or-later"
+      ],
+      "name": "fakechroot",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmpa1hAACgkQdxk/FSvb5qZoqxAAscNLmgKdgw885K+Q0+ZFrdx1oAXspxixWklr+uvgSSTQsDimMXiw9mEpuSyTE9BRpPJGdiBsPrdmuzmY9+qa+sHvNHq5afr7V3ANj/piCQlIQFdqU1rXcHacpy+we5W090oW/CPg+1rKOKpU7QTT1n88q9j2IquET4k8Axhw93myRVPdiokyz4aVVSDagJEdFIQYRyH3xnjthUTpQPUpRhrU2BUPmIUbOW0syAbtcCOBf7RMUcjVQZCohR9510dIc7khYOKdiHRneaisfE/s9/UDuBG8aaGa01O9Zhtssj64SVzxs4B+tA3uBox8X0Pd5e4U6jh1jGuQOwgLqkLcyDewZ9OOG6Y4FnUrpAkcdqnDCzCTeBIuTYp57Vx6jCPLSt1zeM4GtnRrzwkjGmM7p1Su7YEkcfq5dsvwnDomaA/GspsNd6fdHfVj76eLFsJBCqwgopiDG+jLq9v+hutVjF2lcCpUgYumcZ6nTCft9ijZLne3bsDWzpQTLoJTacc+KXoNHb3KjhQ/t0FUoY7wAMCbm6Mue6zS6rQ213esR6eMhQBtNehewNy6wnnQ2vMjlu6khPIjsyHakKpAw5ADLoExhaSucOVr36RqLZSpz49xJEX2EeQPO8rJuwLZs8f9l+0jC9gcm24xj+zjTBHhwhl8vzdl9qLD2FVVbM+Whw0=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "d4bd1e0841344a973816e1ff6a96348fa58b73b0703283a09467ba3f7fd66941",
+      "size": 51100,
+      "source_url": [
+        "https://github.com/dex4er/fakechroot/wiki"
+      ],
+      "version": "2.20.1-5"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "libgcc",
+        "libstdc++"
+      ],
+      "filename": "gperf-3.3-2-aarch64.pkg.tar.xz",
+      "isize": 272373,
+      "license": [
+        "GPL-3.0-or-later"
+      ],
+      "name": "gperf",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmmUc2UACgkQdxk/FSvb5qYJBA//eTZJsrO6I14OZqouRi9sIetqnHc54O5FOJ6rKS9E5lDPJjmbQvUbQvBFMhuoA1/QdZ3M5zd/t7wSogUMXwu5Q6hjEV6T1J7xVfn2Dqyb7dOIL1V6ssSs6GB/1ycq6bVS/VjG7LxXFlVUBeOzD98umu0I4/2ZMux3QoERdA7T1zvEfc2rU1CoNUeYB2f2szInBQOiqGTTnoNrK/lqun9vquJ8G1HvyrWNu2ZU14WGfWNCnQ7XgGIPYpXWYjKRslbdwOEnWNSvqP2GrPytqtJ2QaVwfwNOz0w8Z/9GvPOnY4EN8H1p7HDEZ2IfZ1LUouV8ExerEsK3Vs//nCvcQPYXT/ZS7iH9Wy48ieQxON2m57DgvFIX7Ep3J9WeGl/yQlHN3wF/FVOExE3KlLdCpd3k3/WsPH9zW7BlIzaRep85ZwxPrslM5DeX9r3yDeKQrU28HGIiQkdHgFGv12ngZwi01qDhtIdK6Bx45eweXuq1pNVynT5488/Azc5BccpPXdXSYsalPrFWhnQ6JzjNe/7TC4ezUYnWwOKBLsfxlxp4v3fZvVLpO3mGYqukJZRfbITks9atff2xWMY0qJrvMDIZK8Ms4bT/Ovih5ZKUahVTLRk8P1LqgLKdvJ3za9DLvaefrWlTpwqRXRhNKZDgy44KaQUFmS7RaABf2CIblF3QqOw=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "8e6dd83edfd4355fa30b9630122a5eb0b1f28118bf354c8e154356c1be97782e",
+      "size": 100916,
+      "source_url": [
+        "https://www.gnu.org/software/gperf/"
+      ],
+      "version": "3.3-2"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "perl-xml-parser"
+      ],
+      "filename": "intltool-0.51.0-6-any.pkg.tar.xz",
+      "isize": 153149,
+      "license": [
+        "GPL"
+      ],
+      "name": "intltool",
+      "pgpsig": "iQIzBAABCAAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAl7vkDQACgkQdxk/FSvb5qb+nA/9EK7z+zJDhTbg9MpqS9Dis7r2Xq0u6LyNwUfN0J/alpJsgjreraOH8lNYqKr3IB6b6/UV8ofLRlbN/rpvuBhLZBOsPo5h8VqlXVtNgNGgYXO1/Eb6BKfL0+SOzhmSNlIq8WcyoxV6P75EM/zm0YoZ4zJfa4N2xZkdvzed6c/fATD4EaTkUOexfEpByEJ+P+gUivcLUCH2kE50Wu+EoKPvQNuYKB0+ValgOTcpZnf8q3ZKEi40c4btrrKXQlLptZ580nt89/qwtCZJOF86HTRaf1AhEFi2Co7YVqM3GUy1QHrSFe2hHv0Whpsj9Uy5m13ilJmChI7zMDShRj62tl6d6zcfBAqvAdktOlAzd/8WrWh+qdDVBr95ZPlp3UjibGOSJ1pzhD7exCXVrupIINosx/2cw7BSj70fExxO8sEVJX5nZesBVk0hk0TQMcBwSrPNUOBfoAY2iY9xi8wws2BrpPcwqi/nLOIUMDgyLmcC+QqCJ/16rvtVzFf63SH3VhcBl+qyNDlULb4Z0aoz0PaBLWZSy1DdfYF1/CAgPQS87FA+PkIham8/ygna3+rCS35vW2HA+g9wuLlf8orJMY21jK5OR7cQBQPRPo9tsEDsLM1rGWsQ9Xkc553axV0LKrgE1mojgjHYxx7x7vRyHwr/HweyaUpFTH7O5nx9bnBGTww=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "2d755ce2e580326dd5fce35855af076875490f2c21eb3f6de0c73bb2f538c973",
+      "size": 42112,
+      "source_url": [
+        "https://launchpad.net/intltool"
+      ],
+      "version": "0.51.0-6"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "xz",
+        "zlib",
+        "zstd"
+      ],
+      "filename": "kexec-tools-2.0.32-1-aarch64.pkg.tar.xz",
+      "isize": 271044,
+      "license": [
+        "GPL-2.0-or-later"
+      ],
+      "name": "kexec-tools",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmmqho4ACgkQdxk/FSvb5qac6A/9HZUy9T79Bwlbg5GKAsKpjv1NC4QY2coS/nArdPgSZKUBaZsZ3NqJvdfw8YQpea4/R1XsCN9b0XzfVKd3r6f82X/C67CbBsKAKIgo4yKnCJE0XI5ZEhrLkNPPq/ZO1UySBETXUrTAOJv41WYy0x+lEm30yqrnTiMUj12gKqSyb9dxSFK+gqs47s9bgf6lxZWKPgYr63yVy+xS3hS4KjVjacxgME682tlDFEBiCMNVg5sx+G8BaUpyTXxVNWworPbyz2Vq7C6RgjSStIXiL+6WNe8ebmnQZEA8dmsQk7qIGoJzjIWeP3VwBNj4neqvaxQRm5jsgAUb7O9zTdi+nUTHDaExmAbpEW65ckhvm8tCHijC0q92PrI8bMwSz7xiPvVDS0OwFNMdlvpWNyVc+t2erC1HLb8+HAKE07IitAwRq/k0Smb1IXxhTGT5De+C2nNSfM+HeyI7d4pbYExY1FLQgyWXwL+YCVK4gb7ji5dGSCBnIVs/DmRrp98S9tu0b5d+awAspC9wC5+FnvGj1U32IXO6IgrNQHGp2CBBdpIv/fDLxFmq5a5Dp0rbglojMlWHzGrndDJWMK9UBs+Dw5FDqLPdJCNEeN9T8kAzkBo31zRZRdzhklsjpNeg8JjbdAIbEfKcQqPIBlyw73ovCB4rgVbPr9qm0m8HTX18x//0U5Q=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "3ad703c3bd9e689e80401bee9f8a2ae13e5fc140285d79c2df463f50e03577c8",
+      "size": 74344,
+      "source_url": [
+        "https://kernel.org/pub/linux/utils/kernel/kexec/"
+      ],
+      "version": "2.0.32-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "libcbor-0.14.0-1-aarch64.pkg.tar.xz",
+      "isize": 254920,
+      "license": [
+        "MIT"
+      ],
+      "name": "libcbor",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmnYUlIACgkQdxk/FSvb5qbRuA/9FkfAu6aq4hO4koBQLhFw7Zt6wnOI5gXtSrQWoU26mtC27w1OAeV4vH4P1pyemm/nMkkQyvOLuz5UFBK7bHnXv0lwY07ydEKBQvZuLPEsK/3ZMGE/3WZa3HvS9xasCD5kmO7xzk0aGS1JawNYHBgfnJXAbPvyrafn8pmRJcm0NPfBy1YTtKHmKmDe3fBVjj+l/stNA5Bz4ax0ptxtErv20ytwqUykG44ZubH0nRiOpCGFSYzzoFsvPyWfI97c58dUojhTpAHOu4keqgjAtimC4bWrIlpMKRD7sx7Y2W5GvUUdKoppk1KdvQHH2kJhOGQ9ug8/vHjosJSK3o7Tf3aUxRK/JqxlTxPxZ160mQPXUb5A6NshqpCpRmFqxkoqaYHU0QzfR0jtMEkkPFI8JX6rtvH3VmQPxD1kPw3tk4fQpOQJulQVg2ACZlImSvJCHkpqBlL/G5Pf65vDns39G/2urdB/ToOYuUowo0V5eQcG/QZqoF/UrXyhlzWJ/g6zOedry9KmQDSb+wuA+Hneopf06MOTR0+2biROEBs3cHi7oj1IiFOPJ12ZR61VrkeaML4J6CLJ4xaZ9oIto3DNppKLYyDVSQT0im4J4PUQV7B/HH7D6nkMX2iNgj1fYEafOVUpu3Hbok454Zo1vUop3t5m5tpTP3PXuB0i+1p8Vp+MUb8=",
+      "provides": [
+        "libcbor.so=0.14-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "6e6d2ddc7c902b4841cfd40dd030326e2895c364a6151df60c864867582b4b02",
+      "size": 46960,
+      "source_url": [
+        "https://github.com/PJK/libcbor"
+      ],
+      "version": "0.14.0-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "openssl",
+        "libcbor",
+        "libcbor.so=0.14-64",
+        "hidapi",
+        "systemd-libs",
+        "libudev.so=1-64",
+        "zlib"
+      ],
+      "filename": "libfido2-1.17.0-1-aarch64.pkg.tar.xz",
+      "isize": 743549,
+      "license": [
+        "BSD-2-Clause"
+      ],
+      "name": "libfido2",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmnj5MkACgkQdxk/FSvb5qY5jBAAuOilZVtFYeSGhVSoNnX7GXbXrHvj7WlywmDV8lHRlRf4d/ZuTMGwlJj3UTlVo3iUMcIM6qhK/R57ZyZMrc7z9ViY4ElE7eSbBvISmzoxrXZ1cb+1pWNieVausGZ2lI0nTF5kb8zCxR4NycuMtV1v/RDe64IxK23Y8/DNHtkVSI7XtmTWiPBQrXhM7L7L4epa/OkJW34vdtOF8o5qv1Whcmk0RYAECxMGkhuPGhGq9gwtR0ss3+37+lIdhT1PPFw0wEveffZz4CpxX0EEgzAnW/N+vwbYGO8LfJ/5RnYxKfVfqT4DbxQtRTnt7i+0lv7G1TLVvxR/sIN5p/PjPDkPH0mtv2kVw0jMki1U+ieS2jXr5uzpMp7xoDObBytZvhG83prIzNpR1+00uYbLTa0ItUuXorNQWuxcnSvSdaOuV/bUTsJJCkA4evZuu5mJFFHzzLnSQVMduEddEGuoS1hAZ6UimQwiW4+Pw8unGbksuRoT0fogaF6IpJdyRwRjKhpDRLUUdPk8pmRpDJ5XyUISBUC516DIihdwjYJo81SV1vIfQT9L4/rhi80KeQ1nlfuk4YHH9sWtYFXBTBOInfEi9QU3McRwDBuoB5GOJZGexVXhjkY1zUgNwR3g27T41Gd1Adf5j1+y1927xAE8glPUbQXDIMm5O8pBR5LE+AEJSKI=",
+      "provides": [
+        "libfido2.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "dc0cc62611c94e9b659071d5b60d29ffccdc06f41bc5badd741c59bb2bbd92cb",
+      "size": 190508,
+      "source_url": [
+        "https://developers.yubico.com/libfido2/"
+      ],
+      "version": "1.17.0-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "gnutls"
+      ],
+      "filename": "libmicrohttpd-1.0.10-1-aarch64.pkg.tar.xz",
+      "isize": 667515,
+      "license": [
+        "LGPL-2.1-or-later"
+      ],
+      "name": "libmicrohttpd",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmp3T44ACgkQdxk/FSvb5qY18hAAjK8gwPcX7CvQpN4FX+wHLA+e7aWjuZKhbzBes9BLcI+vHFvAs8KjpTWla+G8Bx6erU914ukvN33P7AVQ8MY6iBlpGSkB0hdnxe4PxdERPixMhHLe4DMUejq6H/rCpDtIXHDYocK3+4MYNlcc7aNwlRa9/R6w2PNP3KXIPV/80uaxlgz96+XpfnEZezix0dxrCktFrvGclkAPwOqNsqqqFLm3lJITz6ue4ZS5U+Ek4rWXWZhJbj9vGtVzc+UsUCAhGh7M0vVvSfzHsGAB7Kls3FDFGHxxfcE8qkIvAXKoQ0wG0LFyIO9YfCGxUsrCotoLuXqvGHjjD+2+KCkNvfyUqRc7etdDt0DibzotLMDFlrXL3ZPP+hfU8Yi28/u00SmLIEtBHxUu9qgdVVzkSS9SOJNt29Ge3OGR9+PJ9+rTDf7iqrQTrPSoCqAy+6QbVckO1TF00635UARQgHsLznDaiMvZny2LJJ2PhkBN39m0jjbqIyPSByI9Q1wJv7eZW2DdONzq21ZVLNIojlz1Gt3Ps6rxWwcgn5DrKAfW9PR1PbfYUCJ6tQtOS2KwHeZhy+sb4qrAAxtj88Htg/7SIm+Kl0JX6pzMOaix41mCBIUe7wyvalzCP/PQUJpenUQaTCH+eeAON+hMS/bzqkTBOdpgaHUBlVdm1Q+RX0bi0Q5DDNs=",
+      "provides": [
+        "libmicrohttpd.so=12-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "9b829a70b65b2457bd04ed9fd79795f71d9336a02991640de3e9e5728a2a13ce",
+      "size": 283032,
+      "source_url": [
+        "https://www.gnu.org/software/libmicrohttpd/"
+      ],
+      "version": "1.0.10-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "cracklib",
+        "glibc",
+        "pam"
+      ],
+      "filename": "libpwquality-1.4.5-7-aarch64.pkg.tar.xz",
+      "isize": 692051,
+      "license": [
+        "BSD-3-Clause OR GPL-2.0-or-later"
+      ],
+      "name": "libpwquality",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmljirEACgkQdxk/FSvb5qbDxw//Y080bBCltN6zBBEMgJ0APbVZR//W/aZC7ije0dhx+KdmDyD3peQWinV7Nb5Z/mDhu1XKeOXDR1NsHhMIe1V0kw2+LyYtzEsTAa9CBIvwCLePhtR4fjhoUTM0SpNp/BuMlEIc4/SW7q1r8UQ8w5NtQp3j5VKbpmgCkYCFOU3/pe/b0yhgPzAXT0pTVsqDpbNP6HdIrmvwJfiQaIDp+3ApyBZbPYr3jclifs0H1UgzTVFdF1v6dRbtPvMFmKilu4IdD/L82mnhLJjfGVd21bNeZKOGr/CBw97JoTwSAUTcYO+ZHamsxC16+TepBn6HIHk40lBDolWIVxhHvzJb8iW1J6VAdmiDMdT+kymBKo5J9FoDQggkk9Ikcp6OQdL2Ce7p1aciGJfeVGI5VzpYis2F/VhOuwmAVK6rvcEaWzA//y9ADEdoGQuu4VAwEsAZQIb7XxUuGy3jeO338UFjwWBKTCxWdIOwO9xb9A0svwTZlJR/THKe0eJt3JkBBS2ze+BlHASpjaDv2KVfgSDHSrgkEUm0+gnnJdYs2B6JMj++s6JzfOsuISwbcmS/xpKteJ+GM+UZoW6xmvYVluCKyu7wgKgLDmLo7lI/KZ9TKJLLmkJ730DTIKWN0tTOA6TfQd/C24pMNKzg1s0YGsAh+wyQ5Lfub9UneTD5hLoUlOPqiEg=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "2b0da2e50f2ac88af4e3e11468f13c4873f0757a6891815ef93658aef0260ee2",
+      "size": 89888,
+      "source_url": [
+        "https://github.com/libpwquality/libpwquality"
+      ],
+      "version": "1.4.5-7"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "bash",
+        "glibc",
+        "libgcrypt",
+        "libxml2",
+        "xz"
+      ],
+      "filename": "libxslt-1.1.45-2-aarch64.pkg.tar.xz",
+      "isize": 972877,
+      "license": [
+        "MIT"
+      ],
+      "name": "libxslt",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmlkd04ACgkQdxk/FSvb5qYsEhAArnaW75lAfALXrgW7Rj5+B1dwn6iPenZHlj2KJk/1/7GuJxL3qsHpbXL3qkZLgP6CFtz1aqsR7rm8pGHChdzJ+rcI/d9nIA7VTi1O9lcvrwwShmIGVjig/OVQyeL9UfnW24BA2EiN4Jg/FiWF6AVaY2zOYbUhDH0i2/ICr4wz+oXPcWDYb79RmbO66RgovobEeac6TZujVbyPTDOQwcXoLyqcn7ssGXxQI8+WPsEnWOGYt6j5WbbKOwEaXgOblF0Z4kGG6FbZ8SnMxDPrVO2gluenBAP41we+NBzcbl9yhalQFv5UGQFbiXVB8LdJM4mTzLHbaa0Nrsxqq9keSYvdI54qj2OtoPJXJuKqsGDyuKdu4vxR5+X1/2FrBgFI4KqpE3lx6z2eXsvpxl03+FSacrJMcmkCnCFCmikvWrszBpG+J84ygm+djTrqrpT8Q+jXYbrEGAVM5+oHHhSUx9Ke6wCAmrJl4tMCpTRH/CPcJKtoPzlRsdXGKVEih7p2DXrHX5AaJlL4WmULYOOjh34XAckXn1tXzPAooFmsJHrpYCymhEsfd9hUTcQMa9Y8Lj6/6Y4xWELoOeClf2MG3twzeW5BctqiQYuc6BNsFj0IZYCfAVm32ZI0c94VU0TCI9vmrvNyRMhGS0ypThjUKHAKDw8mZ/0S3WLP1n4DjKVkklM=",
+      "provides": [
+        "libxslt.so=1-64",
+        "libexslt.so=0-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "dd508d0060063ed5d833001a125d6b427c8a623d669758c44ac10cc84a92392f",
+      "size": 189964,
+      "source_url": [
+        "https://gitlab.gnome.org/GNOME/libxslt/-/wikis/home"
+      ],
+      "version": "1.1.45-2"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "llvm-libs",
+        "llvm-lit",
+        "curl",
+        "perl",
+        "libstdc++",
+        "glibc",
+        "libgcc"
+      ],
+      "filename": "llvm-23.1.3-3-aarch64.pkg.tar.xz",
+      "isize": 91169012,
+      "license": [
+        "Apache-2.0 WITH LLVM-exception"
+      ],
+      "name": "llvm",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmrUAt0ACgkQdxk/FSvb5qZpgw//aBRn3vzV5l9A7xIrOn9xz7mV18g6lp5oHILDdO04W0tSnaEzx6XQVzycdCtVdEnPdyoLzodbBOPiElIhuEqMYBpgI8gbCxe2tqJNY7ShkcDyYZObbj8aSHccyFs7OnUOeNlD5LjRGSyCBXcdG/1kfBv19ANjhyQBXqHq7SlMH8JfnEUGRVrk59cLrdgqF2rXQQblrmv9L0wjBEsK/QkisJhaJsWvCuHJeK2XPNDHxZVMA7lYF11hDGLmAV4/mpgLzCtmc5pG9Yz6S+mrc/z/HFyli7jItu0o5tRP6mkDJM2o/0O6NllYrNqzIgm+wYGO8hbC16Q96rj42nrfosqsxiGqi2x8D86hjy4QmPNL7zM+BLxjMWV1YQgrnKaS5E76CNn1akMvW0y4Dk73N9KeO4q7SvVhD0mGW1lYG+2dujLcOTS24/L6VkqdenKP6m8R2FG+sus8AdCzLdi3HY4x6N54DZFrqzXD3onbXzJiPeleY5MguBWi1+4QhPKpL0uwJt0ecvKcHXraLb5CF0tqev0F1xTbM9maMGHqPZlH+MEp8HKbdg2qt+e8Y/z8G7QJjDyPq94rS2+zpF9Qj89XJbVNmQ/rdAVj2fkrdFeWQzNTd2QvudBlNeRt0wOAQXoeTuHB/RPFOE0Crxtj115dJlnr+GFRz0H3d12lHL5F8x0=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "0109a45698ae731790760c4acd624047f511604d2cee3060cb9bc8fcf64a9068",
+      "size": 15814896,
+      "source_url": [
+        "https://llvm.org/"
+      ],
+      "version": "23.1.3-3"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "python"
+      ],
+      "filename": "llvm-lit-23.1.3-3-aarch64.pkg.tar.xz",
+      "isize": 1215005,
+      "license": [
+        "Apache-2.0 WITH LLVM-exception"
+      ],
+      "name": "llvm-lit",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmrUAt4ACgkQdxk/FSvb5qb+hxAAxPf2LDfiY1o2hrl4g2rWUYzZkvquB3lSB7FkIK0fMV2fxvSRBFifkotstU2a6y6JjDEo/3B+7MnTSvw3ZCGHTN9q18pQZxmoxbyNpVKhrC1v5t8ZoG4+NkDxntSb/t93/o2K0MlaBo9W8jCtjVz7kSlaReCFfF4ETlYnm+E0hNGDT1zVk5YHMPpAK4I63ZmkXnvvBcxGH/hE4w2v4dsAivgo963Hh2J9g+Qu6gtsoD8tqE1uRbhv062SEBlMeQMxCkLYPWMzqJ1/8tjB+XbvvajMfKPtxbLygPAG2rDnj0DFs2vBpbXO/a9IPXyFdE/PRW0+rdeSB8BLb0266GZnKfVrRl230Zvhz7AlCA3SFTiAkUABmtXwRyBXtYjeerTXcuJ9X8y7iLcEDAPxmjxjiZtAxV66Uz7XHe613NEBrFYGzsKZvZWQIyNfgXIRWHtlwveDMBnRxdzdJMGm/2Sc5oEH2la9iLoHzuIA6QFalgT9Uu2qlgOoZhiyMXE6IBhsq5p0Xn9TbUEjUpDkLEvfbJgLSlxnM7uR5TA7eo4CGk5kuehiBhRWAknPMdEr56ERQglQwWqautYTOIe+i5uw+IZ5J74RtW8WZTgMXqGFMoREgvz6qp9xRLKE+Azgu208/GQai4VMjO0rdLa8OL/dmtCbnyD4ko5GhGog4+02Ht8=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "d7b7803704c306a2c2227e11787fc564714e687b7a7dfb959e15214260ffe949",
+      "size": 226580,
+      "source_url": [
+        "https://llvm.org/"
+      ],
+      "version": "23.1.3-3"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "perl"
+      ],
+      "filename": "perl-class-inspector-1.36-10-any.pkg.tar.xz",
+      "isize": 26677,
+      "license": [
+        "PerlArtistic",
+        "GPL"
+      ],
+      "name": "perl-class-inspector",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmk92kwACgkQdxk/FSvb5qZm9hAAvsFIsJ1CXFjtXbcKEK0Tmgr5TqJawJSY5h6HOlt6RChGkwTrDbUNzmVe/suMs/EJjjrKI9qiVsOmkWYdzi3hdU5sJLF1KGdq3FhiBUwn3gRLPrXbJ40tcCbQ6AifdcvpN2q2b2dZ1M5BUtDakJ0VbDmnWdM9IcHFgH8fwOqoOHr5akHySgoyjbqR5LDuXmQsNRyRGI7czLq+vrLtn+D9XdxcfU+uiBPHm3Bg3S0RmlMLdRt5W5sX6qTo5Bf7rZ/TnWSOj1h8QJHav4JQ+blCAg4HVko7F+xm3VXundeUTfPkClDCmJVLm+8EmwGDLiTlzdxsgbD6gZSplmkuMlzvrgZ9DDVZFBDF1ISK9+WhGio2R4ULEWI/OFnMVdRYTXmFaRmT2t1AhogvaK+pODEEOCtAYeFGBBg9yy6Zvw/gyq44KdtVLOlbXa9pqbBemaiFebYhJMIqa2v6KmiFpYXiPqaPU6dFbsscoYtwXfYE+ILFrl8cfnXeCTSWMNZ8i+N6U0lyC1pXJDeOeN8X3xtOIcjxKldcEjzoInb/2LP+xRD97RzzM5kv88oA9IaccGg280WAEMB7TylqoEXbzrLi/Ao8bJL+KXpVoDsgLmxksvjRD80ENoKKewgbYeO1omjWGi0jWexBSn/ZNM10IR2KQP+o6WvMvJPS4wTjBL7iu0o=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "7330c23fe3a84a3478524c540b614f49d1fac9214a4f9e9c2254503c0e0df0c6",
+      "size": 14352,
+      "source_url": [
+        "https://search.cpan.org/dist/Class-Inspector"
+      ],
+      "version": "1.36-10"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "perl"
+      ],
+      "filename": "perl-clone-0.51-1-aarch64.pkg.tar.xz",
+      "isize": 82739,
+      "license": [
+        "Artistic-1.0-Perl",
+        "GPL-1.0-or-later"
+      ],
+      "name": "perl-clone",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmq/tw4ACgkQdxk/FSvb5qZnKg/9EZmeyqaE40qt5xBXgpOqtvcr2atkaiZQ6c+cLTSpDbQPazfC92lNd+bWV1drC3IinMVYej6WIa0RMoLY+Xkys15JihvGS74Fcvo4RkKP1nwkDUas1HvBcVuJfI62CoO9Hb/5KL5I0VDfGECz+H+p2c2Y02BZM3hslfTe2yb21SPIdW+/19DFghRbmSKGAfFlWJzXQ5YWlVzONmnD+xTRX3rahe4NKALPBPlHz15Gt2zVwWV4SZZPH+qANg/W0D1iyACJvkAJGPZbCS/puEkBT/VtfafYeWElVGdndN5PiSLAhzTRuiIV3rX8yGYlf5c9YOTaiV8X+H2yvujYYTEZZSorssIwt0KEu2q9Z3X6QjnJ/VemmWaKNU2SwwBknAx9l2qG4C8otH/o6w5W2QTVfLY0VjQ/ew0/2dYnoWVOockq6GlupexhEZpx+smybAr6cANCSjUMOY7ryATdjs1uaydWv4EvPFb6uFXzXrJwBtzprKzwOXHtBkQLhPsKy8UwLJnDooY41GN8T2Gn2f+cVzutok3ZM4cMaCZFonp8ZsFJbEptmrAuFEdJ1B+Nuzknk9Ghe4qpLayqg6J2wh7Uo1doKazeTdTrZBfFx0Vwf6Sb2/UjZuypZUTnwFzizYTDb5UEgAfOOwUmRcS8s9aTQl9YaP00AvErqKSXux/Z29Q=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "093b3cec58cdb0e1c7c4c865eda64d4d010bad1e309bfa62d931d19613f15ef9",
+      "size": 17640,
+      "source_url": [
+        "https://github.com/garu/Clone"
+      ],
+      "version": "0.51-1"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "perl"
+      ],
+      "filename": "perl-encode-locale-1.05-15-any.pkg.tar.xz",
+      "isize": 16271,
+      "license": [
+        "PerlArtistic",
+        "GPL"
+      ],
+      "name": "perl-encode-locale",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmk+oZEACgkQdxk/FSvb5qaadw/+K6DBKX4DulSg/uFyITdTSXTDML2p7nFdJCJIECb0uhSaVBh7tLRicJ1txPLnwbtKqElWJJmWTdZJOQNBvLbNqcFsMmSDgEzkkqTj6aeM6PUbKARl4ufxkypDrM6VjNVI25pL7I6JlIbMkgmTqYn/J4DjYLU1YtqVdUpxMnWhBIGbJBQnVErJ/Go5z9hcddCUIWEBt/x+VYgycOay1s1MLL2yHFX8kzmAHeNH+ww3OZaiTNl1jWjhfvQrophzi3WKiSzq79OxTHcuD4cQ1U+CaMyCklE/np/rTsdZeRB8PmieW4fyTxF5qydXb73+jWkfJZQZkFfYcrKlDjA2nZOOYjyT+nVYvLo/+fdXbtKzWiAVn1vWcB/QVFm2F5wZ6gPphAN4/ik5rWER8M0Ah9uerDc7aM50rzWu7UNYlM8grrtJqFOnBNDgp/1y92SGsOgNqcqrUgh7yhkljg9wIVdoTT7EKUf1q6G02Sm18ZK5reQapiGoPD0GgMSl+WsQvVfXE03dfzeNUWdY8b/Pb5pQ15aMQo9VGV7g6KowR1UO8O486T28KA7CPZyD835mCDpqPKpnr3x4vhqLOIxvsccZfSv6stNvya7/JWfnmxWTg3LjEi+kuz3Q3r59Wq0D2cprgp/euH2rCEp88y/1rl6FYg1/yaKkm1V7rmqxH4NEvqI=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "f5a5d588b5e0310330c955543874ef68b23501828eccf8db33c4c8ae882ececd",
+      "size": 10684,
+      "source_url": [
+        "https://search.cpan.org/dist/Encode-Locale"
+      ],
+      "version": "1.05-15"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "perl",
+        "perl-http-date"
+      ],
+      "filename": "perl-file-listing-6.16-6-any.pkg.tar.xz",
+      "isize": 16859,
+      "license": [
+        "PerlArtistic",
+        "GPL"
+      ],
+      "name": "perl-file-listing",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmk+5rMACgkQdxk/FSvb5qavxRAArganq+Xgkf4T8ZXHa9r/FbrCpdUzryZ3tpt/eAYt8rIGCvQZN299nBMQFg90JL5c6JcDEJLQy0Rlm9t7l+z4ybQGicKb9+PsQS3GrfF3DvhgnAdfFf/QN1pd29rlQ3K+bI0T3CDaRhH/qVlCJUYkHhatHpPpbXb0sjECFaU0aWE3xSTv9fHoN0DGD27gjLdgdg+nGYV24VR/NQvcRK26+wr4MAIvE+T2pqlIJPLMKjYAoFqNJ9t8d8amUX0UUdmBXAaRVwz2Oe77OemTkfQ+46d4QFy7jgIF/D57wy2ccp3/pdCkDkDr5eORiG4DNUpV5FNsdIfr6cBb6HMRhursSdDxPSAI5utCpkGtAVmY10MOUy4WRSs9JcVAtkT779RV9Gxs04Ax10dixSeqYfvc/PdvxNuKjFXheZPTBK9iX+DeLM7RecLvCLYusWJ2+vAZDZvOkJENrJmMbNMgdDtqsVwRO8b3Dry8/pmUGDjjbDCO2v2lbfh0ASfQT4jpuG94W411ZKB+8puXkbJSjC07Yq8IhDad9STusPKnlJl0SxSRt5g/PAZTpw22gLVGqFhrDpS1LrM9oWVOoXJVin2PPdj7FsupyJGffSUBzGS/cWCPtmaCA1q7SocoY/RRWsYn+yBGKNvNkdgRK/FHqCIEmcSuXfR4Ti0t6IuKCbxv+yk=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "69df868d2ad0d68e09c04c07b0232971f4c8a5c004263c43a9d38561c3c2b9d4",
+      "size": 10220,
+      "source_url": [
+        "https://search.cpan.org/dist/File-Listing"
+      ],
+      "version": "6.16-6"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "perl",
+        "perl-class-inspector"
+      ],
+      "filename": "perl-file-sharedir-1.118-8-any.pkg.tar.xz",
+      "isize": 23179,
+      "license": [
+        "Artistic-1.0-Perl OR GPL-1.0-or-later"
+      ],
+      "name": "perl-file-sharedir",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmk+v/8ACgkQdxk/FSvb5qa5ShAAwKdr6t3lUa1JMb4xuxIKd7LuT355nt8G0uBQp5MLGy6FSlluU+EnW6WekZnRE+3q2Xr/AaYHTkVOEovymo3ju2Q+0Yr+y6WIAJp49FYzEfhN7GI8ri+hp7sha8KG5YnpgKhro1eecX2khK71hJocOEO7FgmPL07psDqkUID5S17MEm2syn8y/xWo1srMER4kByA5EQfvHu8jBLzuM5/SH8X2oAfwy8ULcAqqGxcCCjsudYQ3ga8y/80jz63RaB03o1u9P90IW7E8Wl71Qa3NjsWqNW3tJ09gT6AiTV5Ij8AQoMKzkWvuK+QnNBeiUgSsNIfJU0wXSkEq9VoUv1d5wOS4kufzMTQXU0T2v/ZwIvn/nE5kgVzeFwflK5KXayOjEzLDT0641VdOs1xd7VQPr/onll1YJh7BcxKA65rEcznwtkUeg72CkTopZG4C5T099oiJ8dv6KAmnE3KmOhCgBo6UUAuyiM4xTVvBw4lec6FDSeGeWcYnwuDeINq4rXjtbtX9t82hhqSeO+0WX6wCOZLXhSGZCkQbgLEYPs8e5Z5EA1V32BIgu2fC8IkZMxm2EbGTp5/YtPMKS2WvxDPYjxAG1/YHUGCdlvDvQVH8N6YqA4vUmxYlXRglPNvMRghyenv7ZtS/FZ1Su2tAzM4X4H435kBLXoWcJ6NAZmIVUpU=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "bdd9ba0b5ef96e0d1e0a80b7bf12dd23c7ededc16e13fe72d989bb3366268858",
+      "size": 13424,
+      "source_url": [
+        "https://metacpan.org/dist/File-ShareDir"
+      ],
+      "version": "1.118-8"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "perl-html-tagset",
+        "perl-http-message",
+        "perl-uri"
+      ],
+      "filename": "perl-html-parser-3.86-1-aarch64.pkg.tar.xz",
+      "isize": 191658,
+      "license": [
+        "Artistic-1.0-Perl",
+        "GPL-1.0-or-later"
+      ],
+      "name": "perl-html-parser",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmqwQd8ACgkQdxk/FSvb5qaaQRAAhfK57Nzx/XOMwFNClfUwnNZs/0UXCyDhmtMXzMjwwchZjb3/r6uoFxzbWkIvtZVG52h4RYousCxCkMEpFsWlMuDrqcZD46DD3a9PlCCSU03abBHTeEla6gxu4YqeG6FA+Z2UJZ4595eAInH2VcTpPVM0DBdaRNCMS20w7w9pNwLgM75GGzigULSmrQ5AIKTPHuSXZWoRQxnQV97UdUodSLm9UfB0zYix1X57agoT486hWarL8i0PkJFGNbT0/le1YcFakAboEukrjoYArfQQYa+uQz8WFLziWwxUWGqsmFWNAGGibhUz14uTauG4al97YZ8O0W3t3BhNutF4gy+NmVSpYwDuOMqhiDasKCrGYScGO65zpOnrI2RdN+ORyoyWsPtiIiHgZemCg/PeYNnTAlUkYh1ncLRsctfCSv0txMBrnImeDs+YXqbUCPehoHX9w0G4rwBuu/ODFAXwGFWv7XNhBYvzUm200/VwHlX6NR5ZjxT3lXwyXF1OcgBSs629xGOpKs1bxLimz6xTaKkpKz97DrjeSsN5KWL1LxAU4d5wMkiY5nwvbqNRS5o4ecnwtJvhrnLKScBAccq1SJXq9Tbbd4Ls4EedgT46EoyuTW6k6NeziSh1BsB6/90CHnHTt8EPya/wJ4QGxujKYQDhX5O/2iSkKe7pS+SPSXSwWls=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "d155948c0f4e28df76c870844344f15077164b99de7bd399a2741e834d0a1c5c",
+      "size": 78988,
+      "source_url": [
+        "https://search.cpan.org/dist/HTML-Parser/"
+      ],
+      "version": "3.86-1"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "perl"
+      ],
+      "filename": "perl-html-tagset-3.24-4-any.pkg.tar.xz",
+      "isize": 16314,
+      "license": [
+        "PerlArtistic"
+      ],
+      "name": "perl-html-tagset",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmk+sVsACgkQdxk/FSvb5qblxA//dUjfJgdpIGPexHTZiKKxK5ioiciWzPaJf8M9QFFefUWBuWasvq7EcNiX9GGYAwjU6hsnV3cydTHG163EvH2/3nCLIzfpG/hL+z5dp8SyXKzIZJW5CurxAyqL91ajcv6dFmbEjfYPjsTikgoFKCF/VCWm6hOvB/WMzCQjCUWiOER9kxCpgNqynbIa5KSTaFa27yiqDncN0oQrsBBpRPNLhX0fq8PomZpaLORmiaTpT6+JQv33renRmJIKmV0cnFFVPWcqDZPkB9GYoLW6v1QNFN4TwHNFa+MdBqp2Z993wy3umKLLrfDhLsj0KSF7SUmI7yS8O8TFhpk2rZ1RCx4fzhzDxFJivMOeE6XoOlrPQU69igbQ875reEER30ZbrHCpGv4pDw1QNBQiK0pcIXjlFYxdke0NzQUD87Rq2dzPlwcl5+qV/x2dt/tiDJlMw9HXxXr2rLiTfiRySvU46ZDKKEP+vXsCj4YrlaxGKiClqAXRZe1x7OMo3PLNXIk2HDDWL863528oeqboPCszC0epTSfvyGT6Zhls2+Ejncq3OsnRJvMTUSpqeE8Jya7N12hGSOltaJUwbsB2ZDMQKGyXoJdll/oLV5jTG3bX76QiRm6sPMfF6wkbCe8Zzd4VQdAjLsz3bfLg3b2ONaB1RhGWFVOMuoSnuNpA9/0z9ZGs1j4=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "45cb27e120a077bfb7726a705a7de2232613de99b20819134e53ff80cb6fb0aa",
+      "size": 10756,
+      "source_url": [
+        "https://search.cpan.org/dist/HTML-Tagset/"
+      ],
+      "version": "3.24-4"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "perl-http-date"
+      ],
+      "filename": "perl-http-cookiejar-0.014-5-any.pkg.tar.xz",
+      "isize": 26830,
+      "license": [
+        "Apache"
+      ],
+      "name": "perl-http-cookiejar",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmk+qY8ACgkQdxk/FSvb5qb/vw//UGy5paAihNQVlJwcq8tShFTfeE9X7a46Plq8yl9zDRVe7joojAgvLLj6SKyp67vK0kyOi6FYPA+kAbzSYAX3fS5OUfJeTrZk9rlfmmEVLi9ngiBtdw1KmgUf8N4SNig8hbLjSxaoGU0HpNC3eb9oUh+YBX4c1RXF/IAMYpJTsYwnhRc7MON6H61nKLVNZTyxVAAfeJHgYUzd87mg7imWs0OBN+mf3/4TBipQVKcdWTMR+EwmpEgwg2M4Uf7Rj7v3tvz7PTikUBh/qCiKi2COUubKlcGDEnloJ/onMQpb+X4ew8aNrn9SikngLxWH5ZkpVPnlnptEWV8T7uxPr4JmMBrAZim6ULv9DjHhWIo7zIBlt1O2j1aGzCyPrGjwAZBcoIXr/cEHhuLbcJgAkY/3zZEMYXyd1cLLpeeTLvFzq1lWNpdj+WpvwjFgdbqATyf9GwT0+h20JZWqjO+9mJGiFdRSq1rAsGb3vqH8J/6nhlCt4INHjoQNm9ZL4PNLzJBlGLNYAc90rTFDq4ecS91LvSjOVtSYakuZUyqvkt8QkI4dRRv8Az8Q4HI2Z/7h0Cicp69LxtTEfJFOljALgLQg103Z8BKAiD45Z9vb6MVKk6yLqasifAldTKavkm1MtzLn+3JhiDD/wjD30d4W20fTkryIkHp/DvntqovkOAS9bBE=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "8765b5130e22b2548b87456d38aaa368a6c5948f68e03a90146ac9d085fda5fa",
+      "size": 13732,
+      "source_url": [
+        "http://search.cpan.org/dist/HTTP-CookieJar"
+      ],
+      "version": "0.014-5"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "perl",
+        "perl-http-date",
+        "perl-http-message"
+      ],
+      "filename": "perl-http-cookies-6.12-1-any.pkg.tar.xz",
+      "isize": 50653,
+      "license": [
+        "Artistic-1.0-Perl",
+        "GPL-1.0-or-later"
+      ],
+      "name": "perl-http-cookies",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmppZdAACgkQdxk/FSvb5qbbVQ/8CxEkp4s0IShnq0vLc7tL2QFG9XvJAzqRV1FfrQ11j4bYUmsgEzrV5NjS68CusyO1aqFRUNtmUuoeMi9Qv2Te1vBijrT71SAh9f4BDPI3vz8qHWbGBtafEh2mrmB3iwsu7fmZhjLVtPpd/ZUEJ4lGs7Idagk9rNgZH0ka+LJOwh6PJlzpOX4xjSjBQ5Otp84WobcofyU/UJAfhcQb9TkEGRSbJnH8MTWTScjg/yiT1ZT6U/POmEYefFJl+BaVMzKWVwzIAXzIyutznRAcU+CapOD7OxSZaskpUuFM+viaQeGTaEAC2EverP2EVaLBqnCV7HxhvSxH6JupDrbs6/4FFrTSXyEkxPxWZAkYxN4YyowMgItzMt97FBeVU5qkQ6hFSq7ITuY+hCMUJqqlhHnJL6tpA7PBSBRet+vRRwefxKR++x8z+KcDS/+kntz4pmUNtiFbqxsE+sU4f0rmsIwgNE0SnMJqSDqZSG6ck3CDftVnvZMMsVIn6Hw9uR7ik8+j0qRZq1m2sCLsIIaOTD6F3S/YLCJrRM0OHYaxxdtuJFcCOn2igc/TXtzYMIHp9oz4Qff5B94Hj37FElCrXG3JabukMiSeLZcdnVCzIq+lB4eA1tHBRXadtg38XQH28JKthkKzI7qxow9JUtPHszXdPphQrI2kcqv4JOYDF9WrmME=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "dd4c72b6c579940891c9ebe46e6cf50b4ca0d343021f5565828ef21118c59a0d",
+      "size": 22260,
+      "source_url": [
+        "https://search.cpan.org/dist/HTTP-Cookies"
+      ],
+      "version": "6.12-1"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "perl",
+        "perl-http-date",
+        "perl-http-message",
+        "perl-lwp-mediatypes"
+      ],
+      "filename": "perl-http-daemon-6.17-1-any.pkg.tar.xz",
+      "isize": 39936,
+      "license": [
+        "GPL-1.0-or-later OR Artistic-1.0-Perl"
+      ],
+      "name": "perl-http-daemon",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmoOWukACgkQdxk/FSvb5qZSaw//YeEzY96B2j0zs8dkLygPmWJV6i7jpxRG+YrLI0VELf/x/xV3yU2SciaGkhY4frVAKUsh/WL1L3lElDMQtadnqwsuMwibf10qGI3BzVSqEmaAkZ9L1VHui+7SsYsaMjNzLvBS6kv8en1/9zitFDc+YUIIeMbwOZtbql6sHgxkHWMyXjGS4Kfo186AdCB4Ya+a8lM4+qiwYSDwduAY3JmTf9KIJ2sn4BBkt7n5xsGrnm62vakV5eeUqBEs0HJrYrBnW/k4daqZu9SoSbjF4gMa3GiJ7xISTMapwakNDzStqgeUp2WgQKVT2iE3MTpLu17EDZLOkpXm5CXQkbtxFsH1V3qcSBQZ7bDsy7Y3uxrtX6+W9Sk8bra94h38DwlmsBT09rv/0dB0KsDablqZ19dI1dlZC24oWaEmMy3jKgVz2pmsBpJ3PfDWHxtdRlfP6GAflML+YmLA5nv0TZTAQ1CHoKm6vUZaO7u+Z+9Z1L2KOwmTbsEHT8V/tzmfa2QIJt3WLmm6xkZN10mmgSpv1ckFjEr4buh/IVZC5grqrKOJcn64qUxVwpWOZRXv8n09k/GNLU+rXAaTryipSBl07S0bfJQwD9PdOX8v9g1GwfAAVybSdn3EQjbMSToS+cMWITxjL7ir1U4ACd5fYKb01dEMMn2JKOCkP8bl7MyUl8eSQpY=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "fb8fff944a7ef6b15f2d6c595840cb6fe78cebad862ced1b9e41d7823524957c",
+      "size": 20208,
+      "source_url": [
+        "https://metacpan.org/pod/HTTP::Daemon"
+      ],
+      "version": "6.17-1"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "perl-timedate"
+      ],
+      "filename": "perl-http-date-6.08-1-any.pkg.tar.xz",
+      "isize": 16625,
+      "license": [
+        "PerlArtistic",
+        "GPL"
+      ],
+      "name": "perl-http-date",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmpQCigACgkQdxk/FSvb5qYGQxAAsbb7JFjSgnrEXOSoCl/NAaiaoLH0xTKAt2ODqO1a9jDZjn1t0RAji04QLq8A8yTqKigTS3atoEf44zy0bjTIXZO7ftLygSFXLSFtRWNQ90LzK03LUiOVAfVmu5cJJqRSHBgp0cwCqxRY/IRatKtRSI0+2G2zXjC70d+b4H6uzhOUMVstUFT2V3CS+Ons869AVTIKBlcShMgT8zO1EOfH3pZU+3/9maIqWCRzjvyRtMGcFL9SrY4ZT0oNS017CIAtC/+BvNpd1FbZ++2NsW8COCdpvzFsTHBszV1f8GzIcT0a0kU1fuvrhhE+9wNpJKFIHervA6C7DxM56bbyX72wAZjBTiosHdXlvj8dk1pyVw+b7YYremOSoINOH0CIszxEqOVhSyQLt4ouuMCq3B0rBONrRAzSdo0qi3pchb0qhYkly5gypIPU2Zh1gijTKH8g/DA9S1P1/66niLDuvoKfOk0rKnEYAYebx+5c9D4o7na1mf2zRZLl7LF2LkksKZwnHkbg4YIiDwSDqZCzFwOwLSpxKwO3ilnEilhCjo/5bAUJDUNjclaoPsx/Og1Td/yiKBQrDax+YpXXfS9/4Kn8aBcjMbSlcdzWO2hiKnMIP/1BT2RPhEpeGOdtbpzwQOtDw/9WyJ2yvWCC5dRUfagMLMk40bEt9pz9BKqqCAJwtt0=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "03d30ab07305ea088db895067d805d0c37e512a6d37d95b30a2b8c356fd9a3e2",
+      "size": 10440,
+      "source_url": [
+        "https://search.cpan.org/dist/HTTP-Date"
+      ],
+      "version": "6.08-1"
+    },
+    {
+      "arch": "any",
+      "conflicts": [
+        "perl-libwww<6"
+      ],
+      "depends": [
+        "perl",
+        "perl-clone",
+        "perl-encode-locale",
+        "perl-http-date",
+        "perl-io-html",
+        "perl-lwp-mediatypes",
+        "perl-uri"
+      ],
+      "filename": "perl-http-message-7.04-1-any.pkg.tar.xz",
+      "isize": 167394,
+      "license": [
+        "Artistic-1.0-Perl OR GPL-1.0-or-later"
+      ],
+      "name": "perl-http-message",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmpj9FoACgkQdxk/FSvb5qaLsQ/+ODPQQgDqYclNmvCToBu70lj2laHaUW2h7Ca3l2JqBODroaRibBxBk9NQGrDYmtmzSr/zv25RT8/ac8V8hcs/W1mkRTD2q7poAv9J0X29zRZZj1pZTN2vDltq+07ETHzfxoE7eloXu6ZVO8+0vcfYCCqO7CNM0/KkDBvBtFBbXez22Xl1KxXZOMfE0rIM283NZjgBP3dHTFwPhOO7U1gxCwXEA4s6jS7wDR/xdv2ZwN6vofCWmmkBYyTw+T04PHh7XIP24a9Fwh0ZW37fzKWzeX8yoTVmPm/3xU098DGav8yBzIljUaFcDo2iJ5vzrMc/Zt9vS6J2vI3Middn8pv5L1eDx19kceuEJGA47Y18H0ZLFTEunevN+7u2OtxlOWHQEo0SYFBTFwNza/5sOV7wxpzjAjsG1v+JWAmAYnhmwp/cjeN+rqU16bWM9yqVhjwVuQkHNtcGlptglOz5IPMNPYBahB5F6HVaTBel/tgMrjYx/xzY3y1oUkw++FOhTKtT4tLr4Vna8c7ued+n7oTciqViwsXQ7LEJnEjQaQo3eErDQljFCMQwrzZv+ticp4QIinMv1SpnDOsF0jLwYmtDlz75fyR60tKJQgLqEn7WCZzhUqa6zBmGygFtzcnXwDHfW5r6pXd4JM58dECLOefltmKowkzJGzWZWadkrseA3xQ=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "db2506deeeba8474fbd16a9cbf44be64c6f5ea3fefb7791df13dcaace4e99f65",
+      "size": 71704,
+      "source_url": [
+        "https://search.cpan.org/dist/HTTP-Message"
+      ],
+      "version": "7.04-1"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "perl",
+        "perl-http-message"
+      ],
+      "filename": "perl-http-negotiate-6.01-16-any.pkg.tar.xz",
+      "isize": 20043,
+      "license": [
+        "PerlArtistic",
+        "GPL"
+      ],
+      "name": "perl-http-negotiate",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmk/E6YACgkQdxk/FSvb5qa3pw/8CYKqr+xEw7YDx9okqfQ3cZzztLsI/AloVpXySZCsDNs0L9uYvXDBWPXCLxEAV4k55w3tVNFVZWLAp7KFF0SYAFKyts1OMfZyR/aHgXM8JqHUScZJSamHet45g+R5auvqIIFSw42nx6w3kctqEaIkQPIY7vjyGUvIWif046J7MRC75QnjGPjv7kAhW/MEbS30t+jwg6YNT6NhaQP1IBdHJarTNKQ3km5NF+Lxhe7QzVCzv7e5T/Y93R+4AGoF1rX1q8RoVmjqIsPw2ve2OSKI6NYxt8VpljSrcCZtVmgR8xKRMKR49F7W8eD0s+3i4RIzIVNBkho5meamJl9VtvVkg1pxorjSARIpRLDji+mlf2Dyx0Riws0IG7VMlPOXv4XuVAbb86smsteIB4/OYUxHpXSm0T89Sw8HFksjHpjkJyU6IzbS7SvfWa1EURQY5htQypUI4Ieu4nTdA5hGcs32HTDkY1+UoZK/Mpe7jwih9yD7G3vAes598jcjfFecIDY8zMCAKZzWs0/RYijeJuyVf97JrknzSmlixSvphQJ+nmEXUqvJQsoCN7aEG7KSziiIBKz9XXLIz7XvtrVvg/trJyRsWWbFV0A0i/h/EQiHvc9GDSgotfrkSjzPe/XgjGEuoCjIiJQADOw2fQdC1aZlhNWcQZuz77amIh1Ja4wnQ44=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "809bf107ac02b31fa091c31639c25e5dc960f7f39f66cec75eb7066c20f42cf6",
+      "size": 12120,
+      "source_url": [
+        "https://search.cpan.org/dist/HTTP-Negotiate"
+      ],
+      "version": "6.01-16"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "perl"
+      ],
+      "filename": "perl-io-html-1.004-8-any.pkg.tar.xz",
+      "isize": 25099,
+      "license": [
+        "PerlArtistic",
+        "GPL"
+      ],
+      "name": "perl-io-html",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmk+o7UACgkQdxk/FSvb5qbUUA/8CqeFxLstBURSj9axU6rL0ULI7UnYyE7gr6TZWxG8C0LeQSabk6JxfgJgFve5hE6cXH1rMMnBcvpuy7Cz32e1f0JyFgCi50eNDpmVnMr3HyyRKRIdn5qlBQnAAaTtiDfDfT9w4QoHczkqqgsw8gRMpFYEfMLewMTiOQUfNdDoLD8EivC1qz60l+kbkN1s4zqxGQv3yzT+9POLXyXI7GzCNZGjQboDht8wUs8XuuAqAYLFJnQHN8smM5lS3MoYYm/vNOshp0CPW2YJwiSeW+mOy9r/PbThBvRc400VyL8uY6lec7Nk+tpGdbgo7MQjvYHq3gVIKo/iUX0MvxcWXPszARnWruPfvtuo3m+E8F4DPYsrJhenv9Yf9926GX0FuTccNVURFgcixjSh4CE+1f8IjnPPJRQZCkxZvflEynFXs7rtMGtFC6KWQmp3rZC1AmBOw6ni20Kx5Qce9w0UM92o0n+Ar3pObMRbW2WiuWmGoaWSSBeLreLN7zExAce1LeEOUYL2E3JST2A93mFv1hKVeVkeJa8jWg5vuzC2lGl4KSWzBXEy05ZGcGRnMO40ALTK+zAXXaSuBeCkf+vgYlyia7uVMCW7WxE1Ke61DdNX6DEEiPYS3TvD+K50/SbINTyqBQgkExB837n3y9tj9sp4x/NvosJ6Ie3ZLomcLmnqoVA=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "3caa68638561be6fd99e16bb3464c4effb1528e2bf9bcf361efd7c5e40e9deb4",
+      "size": 14320,
+      "source_url": [
+        "https://search.cpan.org/dist/IO-HTML"
+      ],
+      "version": "1.004-8"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "perl",
+        "perl-encode-locale",
+        "perl-file-listing",
+        "perl-html-parser",
+        "perl-http-cookies",
+        "perl-http-daemon",
+        "perl-http-cookiejar",
+        "perl-http-date",
+        "perl-http-negotiate",
+        "perl-lwp-mediatypes",
+        "perl-net-http",
+        "perl-try-tiny",
+        "perl-uri",
+        "perl-www-robotrules"
+      ],
+      "filename": "perl-libwww-6.83-1-any.pkg.tar.xz",
+      "isize": 299336,
+      "license": [
+        "GPL-1.0-or-later OR Artistic-1.0-Perl"
+      ],
+      "name": "perl-libwww",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmoDhyAACgkQdxk/FSvb5qYgJRAApZSyt667pKp71/829hjp2DKgtKjDhcnFIEceoQ4TWWyLu3MeQNpngIFtE4SNucIB8O1iCyz5fa/uBe7joxR5RAvcYmwzwRtvcbr+F1JKWX3ygt1ZQIGBOv73nzrdTRgHdH0x0cRIEdgjoS80J8IMM6dDByFlB+9glQeJST4wXngrdPw+oIZpuBxmpkt0/NvMlSEOARpovEwqqlwYFR9S9d9DigMISSgN1jkpG+Vxcy6KuiEbKyY4A8t0Ok/b4nWu05wU2N+jNBz6T/esLpv2mbcorvH51ZRL1EwXbi3lZvUkdny5g9XyaGz4PcrRXz1ZG9cxr76n9Wj++6MAzu5yRlqIWFqakYOo7cGUikTUMhqIwe1xbvpAJRtzfY/hn0axQROJ5Ik28NLRa3yNNHQVIeb/Aj7vNPCHMOeIp7+zIgndDGty8qwz2PgaGwFCpzILRaeXu/xSbECkM3b2lggK3xXp5e9aLCwlpuk/QPnZIQdReC4OfP8r0Ai9mKhRA6mcQPof9XSNblNteyvIP8XCr6/uQZqug8CBhVhA7UDD7KK+54jIT4OHOy2mgBhyi4fmLpKnr3Y7T86YVFNGaBB+jotLt3aUxTIa+o/3dKCtGqD2tD2Uh2c+0KBZH68VQbs/tFJHhR7HFs2skTjJRsOylQsOjZN89ip3t6LtSaOu/pY=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "856d3d27a1ce66761304ea70c9da5cddd2753afde9de222f34d80266d13f5d01",
+      "size": 129632,
+      "source_url": [
+        "https://metacpan.org/release/libwww-perl"
+      ],
+      "version": "6.83-1"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "perl"
+      ],
+      "filename": "perl-lwp-mediatypes-6.05-1-any.pkg.tar.xz",
+      "isize": 58991,
+      "license": [
+        "Artistic-1.0-Perl",
+        "GPL-1.0-or-later"
+      ],
+      "name": "perl-lwp-mediatypes",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmqbV/MACgkQdxk/FSvb5qa9ZQ/+Jb5MdodVxmb6J/haj3hlSko/VfHXV3L46rTMN9IBE4+XWqZLxyl+GjggZsJQW0U0ST2rfzRLM8wF5YByex3mHKX363RHf0JBcVNNulkt18L3h4BlhjfnnGuOKc4TdS4mVOzQ3f4ZxhXyOHXjXxXKUn18sTpcSv57Z2m28KVyxgG2E+9Zo9fsQQcaioUtpXFswh9XqJKcgnqtv0ALTpWQ0PjqIqSs+H3A8+wNGOap+Mm+n3txkRLk7HLuVDGltE88SktzfVM603lnS+o7+gu51TYEF1lZ1tpx6jyMMBqCQyjLCLQ0F+V7Udh3dcn537ZeN2eG9gsYy2V36BczXPbvY+3eDeIF8a/fgaPm2FI6m8cwQxgMbxu12/3NRYbh+52bTB82BGJ9BhdeV3aICzncsSwsJaW+ql2gZ3RlQDDqdKSLsDmHMDVIzEgTDbaY8E5SyVU4ZLaNEsJSFLvPgO9Sof9LohbL2hpz+DTv4rrg2+dN/nJug3MjqbQZqYN1R4NsaL2PrgUex62u3R/UMnxIKN0IVgnGVSzPxqeYxxy/Cd7Y/fmjh2C/ihtv/5woe+BaxnMq9iR1wxVfpy9K4A45mrH3T2TmGX7XIwOEIh31Fkn2BU2LBTUDLvU0BfXe/r+Im35VTcjCNki42pjyRDqqutXOBAFaEqOMlLFH1cTNkaM=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "10a5030f3f312bf3332cdcde791518570316eb7a2238e8682ee9d740dbf094e8",
+      "size": 19132,
+      "source_url": [
+        "https://metacpan.org/release/LWP-MediaTypes"
+      ],
+      "version": "6.05-1"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "perl"
+      ],
+      "filename": "perl-mime-base32-1.303-13-any.pkg.tar.xz",
+      "isize": 7889,
+      "license": [
+        "PerlArtistic",
+        "GPL"
+      ],
+      "name": "perl-mime-base32",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmk+qY4ACgkQdxk/FSvb5qYaLhAAyNyagbhlN9V47KDUZk4RYZqYGyyWS2EMb2yMguTAESzDKyC0OM34QORuqaDtr4E0oCUta/NrmefVv85jtnhiry3gVzzqIm3TPcaUfY2Odj7NIOQ0gS1L0Cb8eWUYs3wRUQ9pID+xUYzxSkNlXrD3KWfSid5QCSXYmic7kjNdm0Z8cOFsq2kd5yJrBYcmhD3h8Nth+6RwImFcTBeKb0dPpK0HBHHIeyogsvze5K16ez6G+Qon0wVypX4nOHQ34GY4MepC9adsNCKSKQ4WbNZsYsUokscO5IfGuoafDIOMK4xAm8WCfBTTsay8a7zX66mVhbVsbmKdqQJSUq65bOYz5wOazNxB5+yU/hQUvgEuVIFWlY8TRzVuZU+ofN7335+Xd+CkGDdIa/0gsTskNQwuXdpXfPffxy4tHheywBdcbLsr/v2D70cjzCmhdL4pSN2Ty17jHeY+fWPUa+VIRbvutjsTuqH9C360yAs2akqBBtOzGaD9WXVO1wZTrB5EymhQWRDyZgBwk5ggxPMq7oZFl5ceK5x41gYWmJXsM+NFYbrwSN7MEUqtLmvdGQx3I4nNtwOG+Cv6vrOM6CJIZnMOEAnJXwCcFoDy290DEEMjRUa7mAoxeH7ZRRPt+dMEvSCnD9+aXhHxkZHn4pMX4Fy/hsA1FlIWiW/2rcQ1TP4vBVo=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "0b4f11f3a95ada9c62b3996e36bffcee316f278d1bd6fec2f81792b27c085342",
+      "size": 6700,
+      "source_url": [
+        "https://search.cpan.org/dist/MIME-Base32"
+      ],
+      "version": "1.303-13"
+    },
+    {
+      "arch": "any",
+      "conflicts": [
+        "perl-libwww<6"
+      ],
+      "depends": [
+        "perl"
+      ],
+      "filename": "perl-net-http-6.24-2-any.pkg.tar.xz",
+      "isize": 42889,
+      "license": [
+        "PerlArtistic",
+        "GPL"
+      ],
+      "name": "perl-net-http",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmk+qnIACgkQdxk/FSvb5qZbpxAAtuA2OKk6ZFOc6h+yqwYlfNB8rAhT2datk+yhtN9BAyL1uFPvAKpVfYb2btC2yMsv0tirNNIECbu80rt7JRwiNLxDlZuy36ksNLUqffuPCyvyONO3se10vrl1yceG31f2qrHdC4VpPcLQHKEPba23IfyPAy+Ps6orh5Z2pJAlYOq7K2TA3soo4NIZ1Dr/ap38lJhlw0l2EzTzGY3SIaa9nY8lfqTmRjUq64bWcxugqaRq+5o1oVZ5XeeukPgT+gfah2/mmsLoTOVy/QtJUbBXoO14iT6Artm5fXrvIf2LJyvmBNaTpAFhyr3bffl/SyCvMlnVF50qMx4UDjLMewz+nzgKD3jKeZhOLBv2AmWg6tVEl0ZBmkFmuoYaSSX2nWL+S3lSNGffzUIayr2C7IGfxu5pDSgSrCj0fGfbd/7mHK4N2fE/soHHDOVUP3RD8NRpm3sv1K1U2pWgEjUuDpindnHT5RhOwqcj2QLiz2IlfWkLmkgQ/yv5u9m4vs80IB6MuXWqhk1z1HoNpVIC4xuFhOM9lQ86KNULavGq5Y4wkW8A9IjJkNMs8YXigEawF2Lg0HLNq8kZzGzA/4nMif1YHvYDGIe3Oh0CgvTrN51Sfejk/E/C9tyX19v+D1DGmhaet/nZNgEQbB4WPWtM+d72tWrhb85DIfigtcSG9dKtFMA=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "4558c95d82500dcb2da8e591382dc3afb8a76ec4fa30150dfe28eadd5f8e4d28",
+      "size": 22156,
+      "source_url": [
+        "https://search.cpan.org/dist/Net-HTTP"
+      ],
+      "version": "6.24-2"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "perl"
+      ],
+      "filename": "perl-try-tiny-0.32-4-any.pkg.tar.xz",
+      "isize": 29930,
+      "license": [
+        "MIT"
+      ],
+      "name": "perl-try-tiny",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmk+vH4ACgkQdxk/FSvb5qYubg/9F5kTjr2P4PALcvMlKmhP3jC6o9Q18+xS35sewhlNKk6zpIvBZHTjjvNNL2jrasKJeO1pn0J5iv59KY2rLesHQ31Wd6Thosi+kAp+tq5umvWqSJ630tlNAWqs1qVQ2l3kbBN2AoWxC35UwO/9KaFF4O8U4urx72Hjo8nvIK6bTqb0abYDpNDD3qcyjZh6W7mP7bNAioIbFT+if+LuyNbZlvkVV3wAhzc0URPY8QjmbPKliP2GzMla4wMkWBeQYnkILDby4psykHSjLrb4jiUMxgU8LC8Y+6ntoV67iCSgYx47Vp9g0QZY+oed7r1SGh8y7B7LWYz6pR4abRiy1zKxFSbBU0jvPQWho0jhIDWmNTQ1bahCsZWdRQ0SuF3VKtGxSi7B45vrcMl3I9ZkGX67KuvzmhaOH8LNg+MlFM9Tzbazd/ZsGsACFqJL3CZ3xvRBL8YOJj5+1w30TDMlgFUH+EpCsjdU3TMte3NHSJ8T2JPgq5wwQeJ3XflMxDwyZBs83kQ0VIBfL5wewAzLTgha/pO/8+R4blFtUsYU/D2KHNzqvetHWN6yCyqb/SrT7XynqeZCqk9tx4Y4DgshEJG9SIDuiuxjEuUstnXeAckltdo4kr+NrKrtkfpnHbXm/BUYZlhbXhwHx4AjjnkMK2uAUC3zGIq/q7kasosMWmz1Jtk=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "1a3bbc5d695573bc03522105a4676e400fe3573e23d259eb440f6410ee54c4b3",
+      "size": 18952,
+      "source_url": [
+        "https://search.cpan.org/dist/Try-Tiny"
+      ],
+      "version": "0.32-4"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "perl",
+        "perl-mime-base32"
+      ],
+      "filename": "perl-uri-5.37-1-any.pkg.tar.xz",
+      "isize": 226655,
+      "license": [
+        "Artistic-1.0-Perl",
+        "GPL-1.0-or-later"
+      ],
+      "name": "perl-uri",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmqbvZMACgkQdxk/FSvb5qa7Zw//TAIpODI/AbCmJKTuZizr8RFHaPEVi9uoJcZ5ORxwAQONJeNPZPptAperIqEOTa9OywHFtvkCTxV0iGxOivyRKks9t6OpRofHtu3XDYl23jhGvGuoxYAkfowCovbT+J4ejl9cIll8Sqzf3/qOCZDhizAUTx3bpPUVQ8vctWvXHtmdhUEwH/ECQOQAmKOgcUKs3AUQVj2pbgCqlIMVHFQQ6qlPePdABgB10M6jr99RoeqCrhWV6oNjFWYB5x31QQ9pqOl59AmSE6mvsABd5z7vTt+0l2XkecBbzAdz80vIuQEO5lFsDU8eOZIqfS/miHlH8X40vtVv42ZS8Phd6ifBOEJfQkAmu4IuyiDAXSxC13eq5WFGgfxhZMN40jX0idoZa93dcioM11jekv3Y9Qqun8p/8VByieSR62QrSSgzoHvi/H4EXF1dj48sfQ4yLBxeS84wUBfywyC5jTBjxVrMNICpKviBrNdLoSc45p9fZ2XvqhADVt9dNa3DAp880EwfEq2uBYXP0lhEhBsBWHudmpKLytdxJcyehN/AUp/GruewPA3NWOEilsfLeC9qA/Wgzh2/u9sMo/wNm6DhqS8jiq6LV+Fl6+fgtoBJsbXuCLjbu8nVZg5aqb1FhTgClHCRWSdeAKfl9kWHlLsEsbRtm3wwKtgLImfjJypgS6xnWv4=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "d1e764c909ed06def94667acb4306990a8e9a003e8d382d50cc184b2dfef1de9",
+      "size": 100248,
+      "source_url": [
+        "https://search.cpan.org/dist/URI/"
+      ],
+      "version": "5.37-1"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "perl",
+        "perl-uri"
+      ],
+      "filename": "perl-www-robotrules-6.03-1-any.pkg.tar.xz",
+      "isize": 25675,
+      "license": [
+        "Artistic-1.0-Perl",
+        "GPL-1.0-or-later"
+      ],
+      "name": "perl-www-robotrules",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmoRiSgACgkQdxk/FSvb5qYt8BAApv+etO/GprsWoAqfeDpIs/hwPAht/5dJ+O9NhlbDKszwxN80X2fo7oqq+VUqzk3ydvtpQHYXFvs20nocg+eCdtEj/kUpzSRXatbLztOs8c7CHoznzKlfD+odEII4HUR0yAM5T/oEMhgsWyahPTaKk60t8R+1roYCsjPirmtxjNmqIuslWnBuY5aclOXbFBFP0nEFzciNh2aa5S54MBPdFcXCFBTtvv2XNF4O1J+r+Q01h2W9mZd8ilZAC0U0Dk02P3V2NKEB8PaicEqg2gUG1IiiuP91G4y3TmStFzwgIRzWJmcYXfs7zxnT7cZ41HBI6EG5/uNqfHus70Jc8cmXnh9+Jlo8hk6T8+kb51jse58TiZzS+M9KzbUF77DxOBBprNbikDtuEqCeI6Ct/Hee08GJ8ONYweEYIoBFcPkbawNPOWEG3oBgtHdBCLunrtJWo+jgTwAQnX+MHUf3JNgINADvrlvySCJYK0Kf+I4c0vGF8LWTMPc37UFP7TpMxA0usVc6CrFuE63OFliLoGPopbhieXhOlzOy4S9d5iq9lY4BBqMa+E7fgg0qZxnwTLGls1zdyUM7nFg8NR1uWsPyjNQXd3K6S3WGtS9ymilcMCCYFBRnBFhUEeGpK1AHsX7f9fWdSJik7XAyp/avd3yQdvLoQunoSPTSKSDrY7ovTq8=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "c3cd34054c3cd36249c419396fd45a6f04b27d76d21637403138c942e5f3d4e9",
+      "size": 14700,
+      "source_url": [
+        "https://metacpan.org/dist/WWW-RobotRules"
+      ],
+      "version": "6.03-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "perl-file-sharedir",
+        "perl-libwww",
+        "expat"
+      ],
+      "filename": "perl-xml-parser-2.59-1-aarch64.pkg.tar.xz",
+      "isize": 523207,
+      "license": [
+        "GPL-1.0-or-later",
+        "Artistic-1.0-Perl"
+      ],
+      "name": "perl-xml-parser",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmoNk+kACgkQdxk/FSvb5qYGWQ//fVFZc8s01PQjQ3Z1awu6HKE4tBTi5Gw5rozzqW6eWcDONSaD2TY1YG7Od99boweKCIoqzjYJpmSGczZt/caKFaG3wVajlI1vQsABAcJZoQu1zKuPcoVbL4JaQBJR44JYCRuNCCIl5ZbByF081C33sz8huRVhrOSOh/WE/RsCLChkikB+R6rMwwSoMoJf+/M4aS/WtqEHWl2HTSaqXtbiREF+ahPGjVVG3l8sIWntRumW9+OQbah/2u7xiY+S5ZmE2RT0G8YgZu+pq7DsfU3XCP4wKFLXUJBiAhs2Z1VBls5PzOAk5rUw2+r0V27msQ0oA0/hQyDwRJ7KbAootmb+iIgT0KG2xXNYGrgdzsgV02xHOCjXYxFBsK05k4ZbS2ElTXff5PXRJulBWTS1SEL+ZRonpckqgW+jCuip1z9cPhC9eaNR1pBMP7V1Nr9NUAlQ8rWc3wiYF+n8nAHMPk/RiYYKpgDr5NvzR7xrVdUI1/WdVe2o4SXapeOriPoVjhNqIsDy76JbJE8dfGy0psZgaNzLJLyXeb1tiO36EHsGZr3X5pSX23mwju/9uBgE6LDB2NBLHTog+Yyxc/+p7KJv2lH9jCnHTAwZ12GDFHsy3DLFa68fQePL4jNe3m4wAUeDXJ3VyGi7SJ6zMr+/zi1tx5Z7/omolLdXiHkb8KWswFs=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "1f97d335e6c23ade2127dacc525d3c5a6655412945f57ebe2e077c096798724a",
+      "size": 152188,
+      "source_url": [
+        "https://github.com/cpan-authors/XML-Parser"
+      ],
+      "version": "2.59-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "python-pycparser"
+      ],
+      "filename": "python-cffi-2.1.1-1-aarch64.pkg.tar.xz",
+      "isize": 1536204,
+      "license": [
+        "MIT-0"
+      ],
+      "name": "python-cffi",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmpyZ6EACgkQdxk/FSvb5qYSHA/9F6lCkLOfChtNS9dDW/B3vu3uu7fJyzDv9y7KQsIjBzip9xzzep8zCvRJhQ7mfIozsG3EldrmUP0vFWuwOqjogKndhApWTFEIYkfs2NC6qFkdTV5HnRvlS9XCIgNlth9ZoizR7DEih68xiTct64v68WexXIj8+jFUSaKPToEAYYpgvskHCZmoE+bPyfRk6a07AV8NQziaz6k5rHsG4L1CqxCs+kywibRafprALh0fqbHjSVqZo0e4qdvT2WH1VFjchVPTOdcU5WJRx0aeIpZBgL3g93MzgufCoPwnPX31XK4Y2q5RpRptzIPdvmFI688uns5AVQhdWaOzGJ499yiVbrbdW5+Kg+xtqO9a7j2f1dxjdEkDjXss1X/OpLHMfZynaboUCtgdU/DNAYTPPJAa+xtRjfnWuFkL9P1YtmjJp9qlmKz8Xza+fSiDlDSgXVk0UP/R00zuEkmn5UtQXvMghwnasC2X3/iat80UVs0tB3UyVXHKUsyU9swkcnb6h73kmXiukMl8Zw7rcOSF8aGhg/f3L+V/W2wcef5r4rvEjWcURDB2TdzbZEYf6Lg+iMAdnuX9+oydZOX60AoLAF7mn8x9/4ENcI7hry6wWdjkyWLdICKexdV8bfOhSp9d7+1MxGg53B4T7fbtdBGC3EMvRZmeffRbU45BP61wPnyiK3I=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "261dad7b3a50cacd4b86eb3494ccccc5f6a6cf99532ab5b5bbbf9445f5afaa63",
+      "size": 286416,
+      "source_url": [
+        "https://cffi.readthedocs.org/"
+      ],
+      "version": "2.1.1-1"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "python"
+      ],
+      "filename": "python-colorama-0.4.6-6-any.pkg.tar.xz",
+      "isize": 267373,
+      "license": [
+        "BSD"
+      ],
+      "name": "python-colorama",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmlj2YIACgkQdxk/FSvb5qa/CQ//XHQJOHnnklL5T92UrMJziZmOLkk3gvfg2VHu1dk1t6IMhw0TyV8CcV7RUizrai/yLPH+vkIxpGH5t54VOz3r5v4qXn5bXI8xR2MPCN/VLpk/PDVm2sdHy3T42bW6F3T2pdE+LkxRWi+iBsstrIV9l4dI6+Jx6Q2aaDQ5CJ8/pp9RSJokjvntBkBTz92fIDJKt/opdJha39zcjMXbz9WYpiPsGqlft0COLN3zJY+dm/skbpUkWfbCXyLsIacAA1TRJ7HPmIV6WqakFfjTdo4RAVRmUR3Y+UZhrjc01Wleoni5oTfWW8k2EghIQ1W/sHDgQhfs+VpBivZMMPvzESWpwc/7LFyM3EzVWlURGr2USaNn5ryCmBGCnzY1gHlaYjr4u1qNs8iLiw7BmTBrEftDP0WcwJtpT80n+ZZE1eQFVREpB+y23XSZ1A7Zt6G8jaSzEonzF4jEGKIRnJxkG84o4Y7en9HdDK0o+UpBXSjYBaFEIhQMp5WkbAPcsiptOerXvbg/O9I/4o7RVZdQBVsxllTWYGtglnR/DHfwmVP3b9fWW1V4FldjyTVfjRS7rJ9xbaNiR3MgkakVJ5oE1hyZFN/Dclbl/kMTeb7XxOE49zexTZOH1Me5SCg3V3x8vVZfFS2QwMQDwBrF9nJye7AU2vKR5vwRHFmZBvS2G4QRIJ8=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "c5835d785d93c6551fdcd890bf12bb1ad0cc8fe57e947d0eb79f5a58d650cff8",
+      "size": 47844,
+      "source_url": [
+        "https://pypi.python.org/pypi/colorama"
+      ],
+      "version": "0.4.6-6"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "libgcc",
+        "openssl",
+        "python",
+        "python-cffi"
+      ],
+      "filename": "python-cryptography-50.0.2-1-aarch64.pkg.tar.xz",
+      "isize": 6915801,
+      "license": [
+        "Apache-2.0",
+        "BSD-3-Clause"
+      ],
+      "name": "python-cryptography",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmq9dSYACgkQdxk/FSvb5qbjHRAAyxbXkY0FBqxKC6PyWVbDwwyLCKiEwpUXSau+HGF/9QvNsu5PruHMs7HFmk5JhrDK19tf+pOdM93T9DJT0QbNAbPqPS44aYib8ChSOknJx/r5fbePGgxjWT/X74D1AtynO6sW+SEqz2RFzr9/etNvhLqRRBNjk5HVUgnSw5CwOqhKurON9zLxbj3PFiN64b+OXaJNtIwkqNx+l8dRzyuyt08lA9FL8OsKoe3hcjmJeU38eunJPxVLLcRlvwvtv4n+l2AFJ0fDjCrxFWVN1hC6cC0tAETyLAv9iwTbDY3vC+YYlsye11aERW3pUSlNECxliI3jwaUWOrTrckFpOMHIxIBj7w8+GF/tl0GOJTD1TOk1QmjKX8TfbzJGBZwSkmkh1oE3h6DPlUfgppj4Zmk0UsZp9t4J6jyLEBNPVoFyJLJuomxRbc2Xu36MtTRBBWXI4TVueObYSwQetp60XCD4Ncz7545ZWV9PMRjuzXaLovcBxU1hQ/Jyn8cbW5i22JN9WXyTzTuHAoYrekZmvDPIfNaO7KGk8GEkEbOsZo+cl/Sgg7NGEP9bTCmduG/ZpXybiGFQ/aoXjJvLIrvLw1MYF4M7RImV3fPrm1WEEjTWzCmR9GAdUsBU9NiS4OFFdZjDA4xZ7VbPmvCnZfC6jUBxmTW1sk9b6qdxsmGfDycfwFI=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "16a92fd803c345f3cc8feb5e18385c13b9b97d1d560334a47828c1c03f2f5f42",
+      "size": 1312840,
+      "source_url": [
+        "https://github.com/pyca/cryptography"
+      ],
+      "version": "50.0.2-1"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "python"
+      ],
+      "filename": "python-iniconfig-2.3.0-1-any.pkg.tar.xz",
+      "isize": 70427,
+      "license": [
+        "MIT"
+      ],
+      "name": "python-iniconfig",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmm+eFsACgkQdxk/FSvb5qboJhAAy6zcaTXwOoq76wuiRRMbrfQ2V6C3BW1obCVkmmCXqAdpa1fqsauzxcaNmcHhNre07le5VpU5qaXDdbzIIr6xKVjQloS+VQBIXlL7jw641hipcZlBRpsc1idb8VhfaWGLY6M2DrOKi+30Ve46Ios+/okANrCiW2mthRXmMaGS5aOAbR9gCJdPHQ6TQI5THZNKllqVbmA9Qst+Oa1YT378ZHQ9vKa9ztMURG5zIOlGZnhYFuo9wM+PucR2YaK4XmdS8NHRiWXc4RPvWeSXLjZl7DU7jyJSQFdu985GBCMjsKmh3eG9R9LSWIwyGgPyrVYMCzGIIATDkEtQdxmpox/EE77Y/LQEsMINu1EA/rjbAfAz8/FZWeLW1zd8iLVahHpQAFfdxszDD50JsbURbTVpAQapDAxJjdaJ/OxrDqQd3yzSpwuwmc5XoqtsUD2lOAECEwSxXJaB/xAqSjZUcJHTY5mtqskqP2r2DSFcizGIXoA+yX9l4nxKqQxmML5uFwuANaE4PD/dX4QAxhzkTvCvhKd/SOK1puUnby7Oy6J88Q3oPFfaQZKDFq9JKXK88/K1v5ra9FQI4SNqURrhiQ+TrnhIuTX1ywjobYAcjvxqrm+rFXWOXD5ivJtgxPzSL/88ufOk+KU3JYQ8pJnWlC4/F8nYBpIwfZeLMLeQlyaWLfI=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "a5f5a9c92556e087a991a82507b2ce1b7e55f0a5d5909f3439e6bb4feed012d8",
+      "size": 17504,
+      "source_url": [
+        "https://github.com/pytest-dev/iniconfig"
+      ],
+      "version": "2.3.0-1"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "python",
+        "python-markupsafe"
+      ],
+      "filename": "python-jinja-1:3.1.6-3-any.pkg.tar.xz",
+      "isize": 2141842,
+      "license": [
+        "BSD-3-Clause"
+      ],
+      "name": "python-jinja",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmlj96MACgkQdxk/FSvb5qZCSQ//TNaIPDmT2K58ukn1GfgHInFUZA2xlrwqFmWa7pIcM0DhFIvcOXq9Tzvgp2bHC1pAXCjQiWG+qXh/22XK2aVa0/qSSsG+Vke1boz/UVBhvkJY6T766yJoyntr5qegomMWOWntwP3CRSD4xzhbeKajoDyqjyD4nP2KN/Ve27Liwb/t/CM6QBt54nJnf1vWZZSABiuJL5Uswfjsk3Mjm+j8f+ZOrhIcfpqUBudH6Rgbf6SHT0O9yGeRpelX50Z3/asZgVoXOyXLZ/dj7ypLP/M8NPPS2O9hHf29X82M/8+0WUjhoMVQhAkOSbkYOHPmKNRuS41Sj95vP1FSddRvyUMRZycWa/lJOSL636wUo/yLBXBNLIuP0YpZGQBGWrJUu4uzYv3TsY3r3QAb+T7IEsoDUIS+Mk1FxWdOYCit3KciJ1LsLNY1LhwiyUhbyzi3cx9eAMjWgF9/jwsV4ubMzL1YVCnn58BCL+p8zuJBTk1PnK7y4PM0yUu2/Xc+4bBq2txZpSBCOMQFcX/1VzB3jfPikFacV9oFmRED0A+I4PFoQReP0E3bseDoZYBTdMcmQ6rB15ean77XKzqBJQkiC5nkcWaEA1DOEJKT7guzWxWaf3TO2N40rMBLzBiWXViWPRPO7z4kWZBrD+1tdmNZMQ4AtYYfs3Hty1OPLdKO1SlREPg=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "898d1c55083822214eb871c15f06cf27b8048896894f804d0f9149ff7a095d99",
+      "size": 311324,
+      "source_url": [
+        "https://palletsprojects.com/p/jinja/"
+      ],
+      "version": "1:3.1.6-3"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "python"
+      ],
+      "filename": "python-legacy-cgi-2.6.4-2-any.pkg.tar.xz",
+      "isize": 183846,
+      "license": [
+        "PSF-2.0"
+      ],
+      "name": "python-legacy-cgi",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmljyHwACgkQdxk/FSvb5qZXjA/+MB4hI+wXKnyDctF4ecDKV9UKBpJrGbXGYjOqKWMJ35tPNzriIa+GsBnOYNeGtu1Hs9Hk0CT/aNsOMKnE+0qPBhRfq0XHSpVGBXgE05IDGqnlnZZqWia/Ra1FU6jbnVLd9SWAYQnwzkNZ4m49jfRoR6ri5099b5mFNY7KxPY9Gan+v5UwmOWFxAT/CtOuvFvWlBshFXKU/ignATYkRRDP0YOg/iWqas6IxeNlBNpphdzQBk+UlRMbyFjxPLS5fTZ3giRnKGz79WPzY+SuN0iNUJCD+Ri5zJVfGGx7MqPoRlIHYRDtg6VHT2tiwjACmnqEWgGQtPL2lXqfX91I50YXaW9x1I/ErDoXx+WqyIp86e1w6ulev9lhPzH5eHphGlhVvtzJNExXyv0GzMFhopN9LuJIcAFRJp8kN6eRFnnxWU+FmLn68pek58dlT4/FZd+wGmli8rjZuJMhMnoU+R94A/+hDYeDwr+m66pBIYjYcOEj2TtCjcDFSRrm6UTsMoTBLkWr+c4orKTR54JRacxueUnV1lP6KigzZsZ+5yXQHKKmHcsQ/08zQmhL6VGWWJabiyBCYrzb9Mjh1tiilcREndoobpSLnizHCK1Cb12EhbhbjAcdLkBXrVZuOMJz0Syr+djP9D6kKg6B44rxZJHRODfY9j7E4bEP7LnJNSC0LpM=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "ecb4f702b560f8e15e1750c4c8d0d141f3df26721d50cc1470663cf82ca28ceb",
+      "size": 39200,
+      "source_url": [
+        "https://github.com/jackrosenthal/legacy-cgi"
+      ],
+      "version": "2.6.4-2"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "python",
+        "libxslt",
+        "libxml2"
+      ],
+      "filename": "python-lxml-6.1.3_1-1-aarch64.pkg.tar.xz",
+      "isize": 6352867,
+      "license": [
+        "BSD-3-Clause",
+        "MIT",
+        "MIT-CMU",
+        "GPL-2.0-only",
+        "LicenseRef-RNG2Schtrn",
+        "LicenseRef-XSD2Schtrn"
+      ],
+      "name": "python-lxml",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmqYavkACgkQdxk/FSvb5qaPOw/8CetTPMkg0LGOlLGelPSyn+qM8dEUcGgDg6OjbM/HCHcazDRPzz3dV7GOCpYXw/5tzqYow+wKcSSHLyJV147aHA2F6EUNcGmEMT3th7hGPn3FlTOuKKLTzHNxTt+rC5/O2liC4X31fQBAb1g5W9jm7xyVe9YuxYg3gDCyJdCnQNbP8JdH9VUaZbGRkxfuKwz2zFtP+OJMRYRI0pHwMERPl5k9LinswH6ywaNb4zeBqM/4RK2lYEpUjH1pNG3ZdWlAxyiWvfsIbVv/UfJkS0Essg6Nhe7PhzwoJzqwKavlAlPb3L0ai9akL8OjABtN9DG+iyPFwCZDmTCLFg58OC1vIFaCFzHDYsK3AMnyMPEzj1EoAJCn6JEHqM2XtcqQctRIPf5C4HsWCtjqVN5GjD6Uw9oy/WZiVaZ9NhPQMzNXge8zRgK1dSyPEkcWCsGCWf66pNHx8ZxtxGk/i94nkmSUyO6lW2hEiuDwT3aD/x5++bE+ZrmRbbFWE2bL6loeWuGZFSqrReNSPEJIwM60nNlyMMbPVHSiAp7P+QwQUanUxIMb6TFM3JoDfij+dSW9RPJVULCVWuB5pLwQJjnJxMa2vcFcSF0Q5FripVEr4oEjWfXNJporiK+dJpfmmZAeh+yOatxItoZvzMO1B3BU0gVWn3v9qL48mSG44HfCzNMlFAU=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "2a0137777140080e9bc3a2f69d1dc050fffe5f373a0eb32dddf7608dfbdbdac2",
+      "size": 1352580,
+      "source_url": [
+        "https://lxml.de/"
+      ],
+      "version": "6.1.3_1-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "python"
+      ],
+      "filename": "python-markupsafe-3.0.4-1-aarch64.pkg.tar.xz",
+      "isize": 150976,
+      "license": [
+        "BSD-3-Clause"
+      ],
+      "name": "python-markupsafe",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmrAPTUACgkQdxk/FSvb5qYYPxAAw+JwoCWJsqrN9oVHcu50tFPOkx4axq4EzTARKJ2rMFTWaHqlF/dUAYJbjQdXhrxqMAofnpXARsxbNXOQ/d5Stdclf61WvVEk/c1QKG8CExbX42+UGGtBEbCNuAnWC9lpdAePYrBLr/nHtqLoLrz3faWneS+OwfnSZeCqvQbVmH55x7/BZfhr3nWCPbJtKV33BW68LgrZscUiLHlDNBNJ97tGzXSeXlFntFBLAr2yEMNnEs9Bez0wZiPi8Ij8MeoVERZreICJedHYKUs778bGGyp1iYBQ2XywUbW36SYCZy6Nt7WD/6anvYX0BNKGUyxNQZKejbOeo96UFU5RUtOC0R3d2yYDJ82eT6/mKYK7nzBrUDFaS/VQH63rCRSADe1mrY1zded5Lik9yTMROiu06uSUhEttSj2CVoG02UxxEcV1xFO9m8/IGy0bQPolMDROnpguGRtdZhMrfR/PtiqzqaLexeYm4umO8jSfX2ul7buU+wHz60Lno9GkL7IwBXewvAN9fmcEfbbSkBjowcl15plIjT52yYg5OC607wQ3Rpryrt1bXZQ7Ew+6LIZjOUbpV33SLhBDntCEjvgMGx1pO4aM2Skxqqwof98avpT/BFpeQySttK85Ljp3or8AQscvEpajEserGM69ydb4q8uwKwHBvazdT+y4mbEW+wSu0V4=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "1c786d2eb1d704a523b0cb726aa8c993cb681230db052e93970962b608922d7c",
+      "size": 20852,
+      "source_url": [
+        "https://pypi.python.org/pypi/MarkupSafe"
+      ],
+      "version": "3.0.4-1"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "python"
+      ],
+      "filename": "python-packaging-26.3-1-any.pkg.tar.xz",
+      "isize": 1655058,
+      "license": [
+        "Apache-2.0 OR BSD-2-Clause"
+      ],
+      "name": "python-packaging",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmp2L4oACgkQdxk/FSvb5qZmiBAAov2s/MF8Xg2YIMGWGUq9030ojqJxd/NYOc0Qgb0W8VnPXn0oSmcUekzqWljUATrQWdJTM5kMZxgpyAXK5M2PbZDSwEIwPVoxHC6WzE0zkiorsC2U1bAft00T4yVcXnAwkMDjTGxHYH0jXbnaGoK1Rkbn0ZHIqfYiKqYl7X7UB+XElIl/yuJLnl9jJB5xtxJwe5qWWuH9XHzOCmd5aOVUCdnMBHpppKxOZeWUJOXBzC+zJu3zGCB9E7QMdao6ubhfRr0Xgs5pO3R5TNcuWfauC7EP2Oy3Pc0KTkCLg5wj96XXBMS62bMmPqoTPMvBA51m9BOxDmIHUS6FbbLlMH+5R/kM/9otP2aK0K1puIrBu5IZZhEKpOM+DhxJklwoHxUMEJ7cSPTR6JIKPaPmpc8o7I0kZuEhjsbLI1DjXe2PeEweJsjpTBZYE7pKvNvH++YNRVUlm9Kx8JOueCYYWdg6VklQW0lLYVqBAFHwNsorqw0vpL/G88kp7Ql2cGp0V/eHDj8TWMDjTlV1rrF+S6HkJO0CwCnvvFU9sQpuz0kbQA/Oa46LgRv+l3eEo1U62aYD4b4WUEzbNCMNIBgCaV59eLDqS3Y+tRLmQmbLn8i/9lC34ETKjz1v9ct5lSPcLejtWgoCRZXw6R8KenHKuQHZB40TOzLC2hA78OctR1Odn3k=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "2b36fdacebebfb9dfb495c55359a00b62bc0afab09980696821d787d084be34a",
+      "size": 247404,
+      "source_url": [
+        "https://github.com/pypa/packaging"
+      ],
+      "version": "26.3-1"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "python"
+      ],
+      "filename": "python-pefile-2024.8.26-2-any.pkg.tar.xz",
+      "isize": 1029511,
+      "license": [
+        "MIT"
+      ],
+      "name": "python-pefile",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmli5vwACgkQdxk/FSvb5qaIgQ//eDS0umb1onfb2LR1jjQQCgJIoZSwDhrH7Tb3o8lW1YgaTW6YTKzeVXdkMGrv+SKatUQIz8ww8gn1rrOEp4tds7JozJblx3PHIqrgHgrOWMrQd8hZ1zVdM6bZxZecGvq5x1wpwdHYknSXTDq16U8IKfhod9IE2/PNZxMnP0TEPzQDYVEmYD5bK2eBJOJdTeYaExp5gRfLNRJ/+1HsVpyHDLCl+pzZ8ueU41o2SrJXgSpsIkVCYPMH8Lm5kjwGXlxbzcL20dPgvNWfVwGvQTQmsd0aaTD6mTKEEEg/8nK7jsq8fYFKXznEYIa/L3VJ6Jf9sB6U2S03h0mxTsgGmrjUURl4M6aMGMVo98Uy8vv+jEgGGPyGVSK937OVH6rArvZ0r1jZYZ9AunoOMV97VEe3o+Stu0c+WfxY0kxF4XXA6PKfDL8E3vobfbdH+LHLsfArchosxiXeJD9TzERZ+uxpKfZXVAHW9dCbgpLFNdpq85E1WnZ1V7Bs7RAd97WHatRysDLwuviJQ0neSe9cyNknB/MgmSe7Fjg06piBm5x+By2aSwK8vqG8i6TzKmr8AqoLVj/z7T1LAMu8ALDsUxpb6G7wzJattWdnjUsX7Lq0//iea85yDE3HzcO/H0b8uVG4vtMtlmdQbOw8923TvWGnYPM4TgoUyrL4e1F9OF9VYAs=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "363dd1b93cffd414706bb3a000b3930b0a54d207f7f4eeb6e6ef97738ed166a5",
+      "size": 160200,
+      "source_url": [
+        "https://github.com/erocarrera/pefile"
+      ],
+      "version": "2024.8.26-2"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "python",
+        "python-ptyprocess"
+      ],
+      "filename": "python-pexpect-4.9.0-7-any.pkg.tar.xz",
+      "isize": 637035,
+      "license": [
+        "MIT"
+      ],
+      "name": "python-pexpect",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmljf+MACgkQdxk/FSvb5qbZqw/9ENymub6tZL/E+dWW7PAG8BrSqLPC4xEiUZ/l9jx35UmmlVaA8t/f/03tZEkHFWeg9rUBbsIVKxDX/1kLJZaaVzjj7BXmS6BeLrXTnpPGohJ3+4h7b2mr9Zg1LEDe3gadTyJEwTa+eO7LDugFx5uz8eLMFVBTUGhdlrtbFY6937hW8l5YFGiORo8JwmWaFRtfFMcxby/zrjOlTv5KR1jeJrn+AHdM8v+X8sw2BuWQ90SR1+ZiYHgGM8a+rIX3Y7jm2ssLNnqWrh5KCYvKTNg8tvh721zcfHAEQngTcMeesGOKpvvkXwo3kMky4ABqYnJAPr+93P4viifacCjQvOea13QrorDGxZNmha2wSIdUgVr/F7QCWgXd6qihSoqNOR1KF1QB+95sX3Wlj2Tqb/ChDWD+vDFi99LeUJB9XRV7EYks5/JHjnuYLC5t5u3QTtg+qVn6WHj1qri3sU8CiYOQMrETLz0cEZd2UI9xvhT1tyETuQP/HyE4Ox7/o0CuOIC2lrmwv3uirRUdNDWCfeGoWj16d4tWt/Oblfsqiu1YTgqyXAu1R3BJas50wrMVpH+cO9SpGTvrVGXwFg8OZIGA8Uyh+9vdhwLo6yjs6blmEHobs3o0tJzSO/XQ3ITL7JyQcNmkC+AwVi9TKyuTs2uoWZE7St7p3iSGNADk4N9xRo8=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "619a1a21398843aed88500ed30f0742a3656414158e669773f253adc8fc770e3",
+      "size": 100640,
+      "source_url": [
+        "https://github.com/pexpect/pexpect"
+      ],
+      "version": "4.9.0-7"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "python"
+      ],
+      "filename": "python-pluggy-1.7.0-1-any.pkg.tar.xz",
+      "isize": 291241,
+      "license": [
+        "MIT"
+      ],
+      "name": "python-pluggy",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmrQvEMACgkQdxk/FSvb5qacvxAAqA2ijOwAmrvOeH3fMYb5QkDAerAxd7IJ9PPhTlidP9ZP8uyGQA32Vw3bzgEmonBBZKZMun4agAtu7ZYAvc+v9UamaEDN/j7TRLlIFpEYpvcMgNghHb+rXLHNoV2FUHPartr0yMon6L0vv1koPz7UIMkMLJUE9hDXhwrDxWHk54lW/8aKF7thyuaAwYdKlP/317+TLFujcHCY9d/Y+1212rl8KoSZ3toUZ6TjbxUuCj0GsjLxssSKOunoXXsb0DsP5iJmq61yA819lcs2t2Aru9CvjqJV6AYbPN9UZ9xFM1UdQYLv+5qWCAXiE2a0eEcwQxvRq8ge2Lwe0UGQ+yEif+1SYvPOpVZiRv4CGLp9U6KnUUm3cqOU/478eYYUejtNlQvy82twoI3LfAWrBefDNu1ZOGoGmLfL8wZm3FQNz6I0OXUJLzTK2oSUQOO78UcDhK5eDp5olpFw8yb7z4dZNDa6lU1BDEVFiYYt8gMD0uKsKMOWPomq6MnJRUueZ5Ae2dBYIXFWH3gjpw3vAcpTDzlHlc82zIfFbBH169iUfZ0AwR4VmTFqlSsQl0jA1wgspNOQ5A1kwqZU8XpxgG3Yg7ZKrtYEolBoJZ7XJ/ehna/sgfBheCTen8j/vczGl7xCRZ7WpTO2CgoGJS57gMp1SyrnQsc9NjF1rfBMOrd9NpI=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "077290b74dd1b5e8f7b4fd59e5d19c508d472cfd1464916e61f7d2732ca326bc",
+      "size": 55588,
+      "source_url": [
+        "https://github.com/pytest-dev/pluggy"
+      ],
+      "version": "1.7.0-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "python"
+      ],
+      "filename": "python-psutil-7.2.2-1-aarch64.pkg.tar.xz",
+      "isize": 1227509,
+      "license": [
+        "BSD-3-Clause"
+      ],
+      "name": "python-psutil",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmmB6hYACgkQdxk/FSvb5qY6mxAAg3X9ZXbjbtTKnoJdNMXixJeRafW6HZpVKu4gXKmkIZFpVPmC3x6CFTQbOFQk97KKnUdAP/oKLSmuiaqrcQn5npzUqPtz5UBzuZjhc4ocMJFi5mPMHfKdLQ7V0N33E91t8LDXCgxdckjKiFVBd5i73fARoY4l+sfQltAWUQTbshh+2o7PTF3NUk3UpNc+qzoWLyQnfGRkuS/mb+iTgXKPJvTO/0tWo1d7W4Nh8CvCZu51ejatKplqWo/PNYsHy5t/KhgyHy7dd4Vq07qjeiMyDQCtWwXkyHMwrZCEo5fPAqEQgKAFT0OQFS4C4yWitmHlSBZcZ/YSQF57PuNyhIVioYQxE2wz5HB72UCAhSR1CD+uodTcKDAWzo5Ot+Aj+WjFPw7uTbe5tiQ4nfC4vIDoX9RNWFuzf2qT7Kw6Xd7hQr/s7ITxB/alOrQ17TqG74HCSMcyG0zivc3Ju9wZjCFefMV4n/qbXJuou/q0VDrOSITHxcDY3eYZP+9CX9fp0Fgt970YVEH8XoSh5FIIXy4xsz7rZA3IjoD0R9yLalmxqbQgUpHN3Caow6ekj7RtKeD8RNvfGAXl16jCX+mX8azekHwYAiWXZROQrBa5lA68svHkoDLIe15Yn/rkfinUqwb1Nk2klh5iO1ZB6ju0o3J+/SAGAm7q6jf2PqATnV5V3BY=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "ae4315b6c0a73fa5f310828858ba9b347b2f04ed64b4cb69f0347ade4fe2e01c",
+      "size": 199252,
+      "source_url": [
+        "https://github.com/giampaolo/psutil"
+      ],
+      "version": "7.2.2-1"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "python"
+      ],
+      "filename": "python-ptyprocess-0.7.0-9-any.pkg.tar.xz",
+      "isize": 124404,
+      "license": [
+        "ISC"
+      ],
+      "name": "python-ptyprocess",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmljP3EACgkQdxk/FSvb5qYrZA/+IgYtT6PNAUNBkrpOGH9OWhSdxLn5EK3WiTEMPrpaUqElE8cMnLIV8zcLd1h+Fp+1aT/ubcQgaKcjzADCY6haT+o/nFWoM7FNzTHmDEVICM5/OajQIioL7uvA/G7gTbqHKHYe845c1NjK+7jVKsCazJlTozdkPSlIbytzL2o1TYk+SMkKJf2Wa5zbFDcvHtAGICnP0mVzvWZIM92lzhogwIxRn2uPEDXqBslZf+axR9vSqDyFXnNxk+XcndxE9wLxjG1lKgY36NuvgIqJ45PG9eSKD21HphtTVjYistHCrDrdnBrmARuUUQ0C8eKfuv+Kyv8VjNzwY6/JEQNTnqmhiz3hndBi9qcPSUwonnLXicnHF6N+x4xc0lEROijsBOe2qKVc3ujc60yRLOC6juS1bHPzzbc2ZbR5smWAK/JoqfLx6Ld3MNOcvaXTeKD5MjkKlPKleh7qk708k0G9ZbJwGW6LJE0gkHKrO9SqNbOO8X9Q1tokgtZj6zvY7Tz/dnZ/BxPvfmXmtvUnvll/XzP4DpfzPquOZHyu8Sa3SWJlxD84zJePabnQjcFKP2uRHPpHMYj/qs9p9vyLdAAeschAZlej/tulrrMOuia0zXcm4FTvKqCVApZh5bUozlCTiC+VkeEqhR7q3HYLaVUO69F39+EdYlC9ykocydZem2J7/Ik=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "7138e31477bbe62a9ad2819f78f3054e3e22b0655e9ccf2b752ada03d3cbd26c",
+      "size": 28188,
+      "source_url": [
+        "https://github.com/pexpect/ptyprocess"
+      ],
+      "version": "0.7.0-9"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "python"
+      ],
+      "filename": "python-pycparser-3.11-1-any.pkg.tar.xz",
+      "isize": 775857,
+      "license": [
+        "BSD-3-Clause"
+      ],
+      "name": "python-pycparser",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmrJjJkACgkQdxk/FSvb5qY9nQ/6AstL4muyxgDQMqG3Hdk5EQt5F1Dy1CEd8Ryp3Yhr2wdRhDa3URae7psMvqV6WR5ikuy/ZDg51dUl7fbrYYYQY12hSn/eoOTjkGJW9Ae4KZlfh+uXpdZOwO+FshCqBFvTcGrfKVdKnGG/mpB2f4x+ainYQEMGOZqeV0ZmMf9uf9nTBOEwM6rCK6gvOA0Ebhx5n3mY90KnjyWT3G9tsXk6twXLvk/dZ0yBObGtKgrmmCm4lb5kTnrgldpREpqyjXfVLg5u0mhSxe6Z3xQiDWTBCLkVs2elDP3+RbDonvnL64hpMOcGNCTa5dBJ5tDqUYcG7/YLr+xEGuBfjYBuhO55Iomm3rs7G85IGhXzvhi4HKgK9Mhzu0gvbdmMdmSfmpQyekQVp262wDIFv0uHjfyIqRkTuU2pzQ1GzVx+SoyQEwxqBdlrTAg31McfUumpPmNtfCNS5lnu9vxdzY4Twh8AKWTn9PA5GTj11d+w0ZJkP5DMyHKhhdtRrgVBTTxh9psQB16rtUpHIcvfK6iZoS9+sv3fGwVExX28Enb+7M+7h6IDwdqJ2Y9FKjb2swLuKIcTo3Af3FbxRqZ6erdIPFZdxajOk3DPvCFDe4cxRdnSmtkcGj69VZV3qyHA2A8yxqYCVtJ0NmcpcjiUVm7pX3syePj4E3soSXOUrZKJ+Sutzyg=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "ea35c78ad6202608f63446f207e265d70809817253cf46088c9a2e4d88e8d510",
+      "size": 109632,
+      "source_url": [
+        "https://github.com/eliben/pycparser"
+      ],
+      "version": "3.11-1"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "python"
+      ],
+      "filename": "python-pyelftools-0.33-1-any.pkg.tar.xz",
+      "isize": 2695592,
+      "license": [
+        "Unlicense"
+      ],
+      "name": "python-pyelftools",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmojbA8ACgkQdxk/FSvb5qZVUA/9ESsy4U2xyzbpxDppb7kMIL4mxoRTu4Uh8EeJbZjx7kvz1PyHzyK5lfRWzWd7Lgix5popR3EyhuvrHRpNLVjJy8i0s1QwY2VMEblSo/fBhTnpNu4wBs9xi1KKEeOIqerZCIzxSalbD1OKjpd2t+bVoO6wsBQXbpbe/G0iosC19RtTuQ8dIP1Tdj6og6rnMAHFsc0SbfCi4cR6DxvWz8XLiHUicnrnlEGsGCINBzPmnRzFBhE7F0neaJ+pllsRmIxmZTIT2laW47BLxABE2cs93FMvB+DPo8zX1THFJxcdohPJvUBwhVUhSkyvFVWDbMoc0PUMJlQBoPvXkwjtpW9segvAqT3VuQa5HFlWTzo1zc2DIVdLnhJhrYjxOmPT5rLtk49cRvvE0f7SuMNZNI0Xgsw0xOWA+v5bWBtAFcO5ad3Rjsc50cVgNencZudB0G8qbmi8vkRinggFhLCxb4Wn8WSsxC4Ws95oXytaTgWD8cNoZDeomyNQLbB+SLQ8ORZ/vg8XsKT7Ey4w2zTZwE4WeNA7t9FQH92w36/1ZD/3Fx6S+IUKHTYzqhRrWVehnyW4smbjF8XUye9E6eBr24FTOjj9Avr6sLu40uV5DhXIymdXWA70eDIQm6rV6Rgh2/YC15KQXKGRIe1icOwtWehtpnEl8Ldjbewl+lrpKL9zsu0=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "f6217743d87dfe2c8bffdd0313c3394057dfac05499c891469faeb5c0c2bed85",
+      "size": 389256,
+      "source_url": [
+        "https://github.com/eliben/pyelftools"
+      ],
+      "version": "0.33-1"
+    },
+    {
+      "arch": "any",
+      "conflicts": [
+        "pygmentize"
+      ],
+      "depends": [
+        "python"
+      ],
+      "filename": "python-pygments-2.21.0-1-any.pkg.tar.xz",
+      "isize": 16348684,
+      "license": [
+        "BSD-2-Clause"
+      ],
+      "name": "python-pygments",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmqbI9wACgkQdxk/FSvb5qZbHA/9HLFnmQxODx5klM4NrxLQcrOkwDpMP5vI1YulnQ2UeQrRGktbvZ77AnpfIlGQt1RL7JqvcFBdwJ218aeIEneLPl9eY+Fd6RX+CUMTdjUpN8QZKzaNlYfC6ddpbPUQ4uQzXBkjJ9gUvCLpssvuG+5oUk1B2+ZM6UCtNA8i+JzK/eXmk/AIwajlZCy1b6PEUjU5w1whA/XrS8LriQVhguc1YNcv8fg3LJRnnLVC3UBqY50VKKN2ExLb7lK29yhyXi7p7/uFQUEnzXXeQ2k2PHToxHpOd25cNAtGSf3jky/u2NFLJ+3b56Ldna/gY6KZEmKGWywrJChb6/WV5H+sVMTV4H4weR298K3ohZ+jvRgiqOHFJFKYuBUBxZwnF/QSuBlPzoP2wJdWJXFdISfaWswQY2j35fIgGm+0SYIKu/hIoEYs45TNxqsY9irVmgHstLT42yGgbvlnUb8VkZCwJJJ6fJTVqntS/gSnA/EJ6qzWsnNypagnMRR1Wag768kPK7L9R8dTpvnIi9jtchXnk4Xcbh7vUrDCV+hMN4TsXiwx2HYS5xumeMMOZezx1Ji5F4UbmkRLtdd2DP7SYgrUi4CxLBElbxjXKdiKTOFi04x7K/TsXOj/rn/LKJK/HTAlIwcezBrj5zjG16u5pvmIL0EUeOiFm5Q3e3kcnhaVL3BnufI=",
+      "provides": [
+        "pygmentize"
+      ],
+      "replaces": [
+        "pygmentize"
+      ],
+      "repo": "extra",
+      "sha256": "599962a7b0f5f3387682977065f045b0f9ab93e6c1f0dd840d06c302a8e4d113",
+      "size": 2439236,
+      "source_url": [
+        "https://pygments.org/"
+      ],
+      "version": "2.21.0-1"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "python-iniconfig",
+        "python-packaging",
+        "python-pluggy",
+        "python-pygments"
+      ],
+      "filename": "python-pytest-1:9.1.1-1-any.pkg.tar.xz",
+      "isize": 5194687,
+      "license": [
+        "MIT"
+      ],
+      "name": "python-pytest",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmqfb7gACgkQdxk/FSvb5qYRpw//cJ4MI3puvsEpTxWwbuvHbK1pwARRbB2os3IxmOdXKKaaAfDSM4+4ly9mKixLDNGWJ7cf6B1rnmJCOap0vWlEkZVv/RgiHAsxu2wSQJP1GAP5JMEZgelRrx6lcBbSMi9nqONLMv/TQkVySQSOFZZota2vW3OfPceRAV4vPX0+dHznxvnvXpOYGXMOtq6AvBHExls/DyI+1GqhhDgjDdUO2D253zHDPwZNoN6RFJTow9I0yE+0xfFyqhoBRK6DwHZiA1vWUoZGRXxf6iSuPdGPDDGIfdsVsDFGLm1vhEGT2WSom4r2f6dfaXw6AEETfq+YvvpVRk8P0Da66MZfDfymQ10VHZTWo8tZrM1fGuFe0ln33lizyAhn+s0ApWBDmLVPgkZHDrzh85zN+kJoeLlw1752OgVrR6V2u89lWEklv4MQTxupMzN8DQwmO+gdrWa5HbfGC5oapPreCUUVcUh1mwmSwol6tBjHpeyDxbtAs6bAEJEyMdhbZ2e+4NVNmiIqdyQULbpVivV8rQAp8JhFvxrrMfyaplnGbL7ljXik1TVbdBoQoVmJEJigLBXeb1FLTEw/ZK945SkPwV4vTksZCTU6JtGV4/a9aaPS2cWMgNAph4aV2a4wppeCfyn9PGDEubmnRgmP4lHaSWpUV35eOnNJtomx1CMxi0fXtpc8NLU=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "434c448501105c3720c4d6e4a8077a5888cd258da9a4de60555719375181f97c",
+      "size": 802772,
+      "source_url": [
+        "https://docs.pytest.org"
+      ],
+      "version": "1:9.1.1-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "libpng"
+      ],
+      "filename": "qrencode-4.1.1-4-aarch64.pkg.tar.xz",
+      "isize": 158146,
+      "license": [
+        "GPL"
+      ],
+      "name": "qrencode",
+      "pgpsig": "iQIzBAABCAAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmgrjKEACgkQdxk/FSvb5qa3CQ/9EP7kNopkZFDYojJ3Gs912TjIkUJgd2/WFd+IJwWBZXlSofOxqAUcn2zjaO0atYrWWN4P696kgRlXlPcUsVjYLe7XtDf7ygH3gQ3R7+BLgFuZGYnW4dG02j1VaedasVLTkfAd0m4ec9g29/7x6I2tZCIF5Plt1SiR34BcdeiFBRu/NZa0t3cbsxgOntGoozbg9JQiY0oRvtFIvvNtsAWpmQbpAWGBNPzKNQtyMkZu7HOS/gCvo75WAiWs3WtkFCmi4O56YgwRgta5SC4ML9uD0MEKk9bncPuem4aGQJzJNfiBO88tpIOCZG2MxfbxRarS0VfShNI2L5OcMUtIllkNbXhA3Hu0zTDPYqVCs2R2a5+2eTn2D1WCCwoJ6QWknS9uek9Wz/lDzzblxCTktbdB8e782lfa/fGIBuBux1t0YOoa9iCVHyc6Po5l93EUPYYJXAM1WU5IJpZzmyEXRFhb5P8IEXRq7jBvqOdAGN7jEOEQ1/8l3wpybwf0Nms7asvz7EJibWYHxONWN0o8hjsk4LOIVzLJQ1GO3ys0ntZaAiw8Ycyrj9fpQQeqElVmulspx6LjV3oIuZvsiiRFBhq/amw6HJro7LyRaRAbEW28VKmNBagt43W0mrqxNdHbypA3AcVsV3U74GJyiYuELq2jRValE3c4musrazuCH3L5qls=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "dd4fdce79fc61dd0271714c5e2cac90bc4967121556fa4af132ee835f097713a",
+      "size": 38320,
+      "source_url": [
+        "https://fukuchi.org/works/qrencode/"
+      ],
+      "version": "4.1.1-4"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "dbus",
+        "e2fsprogs",
+        "glibc",
+        "libldap",
+        "libnl",
+        "libtirpc"
+      ],
+      "filename": "quota-tools-1:4.11-1-aarch64.pkg.tar.xz",
+      "isize": 1950102,
+      "license": [
+        "GPL-2.0-or-later"
+      ],
+      "name": "quota-tools",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmk7RTgACgkQdxk/FSvb5qYpIQ//VtdIidE6hslAagd4OyUy+1F2zPeXlpN5Nve0yiMCCPHqgpcWNIM0a8XgYdlCCS5Biu2OP8m7Lse5V0owf0++IXzytP7Oave0rAFpYHvZgZBknUR1hNYjoD5n1Hv9PaImB+b1h6nVDi2PHGYMZKbPtqqCLH2TLPKPZ5TbRq7DA44Gr6nJGQAvXc/eRbQMXQ2n84ufss8sJ3wnDlir8qGcBbLb27Ysfx23tqkfrhRrLidbfOjMVxEHKpvxE96EUiQ7E2T6hor4CSATxJKrXrPpYOpkSQ6fzOK+XjrMMIKuAf1yIn60gLx1T30FKubOPaiuj9eOL5GdV9SrR/06xB0lp5FbN7k0ik/MxeNukdEPodYkszuUqTNZPGt281z12qS6PLC8E/CpCYUgVTjJrvakfWsNVqE17ox5Sx1ZuMJVsqO94EQrILUvwVWTOQEmM617vvQQWcs1Ii+a/KZCll7ehJrsVltaov9NqWneVknGD8qhRjUd1lJ6RMG+kg0mVUkvlRc2/2u3F2FVbR4ueVjUO/3fduffEgpDRIAovOUX9EQ1Ke1hoa9fwP9DBg/jN9QKkN1YX2dyyfXf4zVcKZ1UclPGpgX1eclh/hZ88c2JztdyWDDKUFzXMC2Rn/Run/QHjCz/XFn4qkeGdHtu7CVpvSGfJCjj8fKC3ponVbkW2OA=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "25cb1ddd6dc5f8711955a881c400f07fe0ddb8f100d10e86cf68c1afa6336279",
+      "size": 215520,
+      "source_url": [
+        "https://sourceforge.net/projects/linuxquota/"
+      ],
+      "version": "1:4.11-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "acl",
+        "libacl.so=1-64",
+        "lz4",
+        "openssl",
+        "popt",
+        "xxhash",
+        "libxxhash.so=0-64",
+        "zlib",
+        "zstd"
+      ],
+      "filename": "rsync-3.5.1-3-aarch64.pkg.tar.xz",
+      "isize": 1023088,
+      "license": [
+        "GPL-3.0-or-later"
+      ],
+      "name": "rsync",
+      "pgpsig": "iQIzBAABCgAdFiEEaLNTfzmjE7PldNBndxk/FSvb5qYFAmrPxykACgkQdxk/FSvb5qYjzxAAuP4UQ2RWYGMpRigCvk/SoLteYCu4MD0m+SKJe5oYNTIOqJKOklMrcAIIXfx7wS73S11BDOn6X5rCzya9YkBcQOuZcrx3kiarPSOatFPIVYwzLO0OUT4haB+KRFEYBDPj5SXFMLtB3RZrg0uNLj9TUU8CzyAS5N9wwtQhht4z7U72oOb7jk3ziL372EjI6v4Zc5ZKOIcSV8DBi4iLfiwvDQ+MFssyVMLqNTYi5VgbES/cLhS2Iw59iKfOFSMzz5+j9qMAWkfUd1fUaNU2dVQusDbbvaGJdGnePQUpC6woERUwwzkDXQSszLZgd9krT3b9QRA6yWiFLOCHAkcwcTybrIqeUwK9us0bDOYE/H3oRKdk5NoacFnnLA0Uvgmzu3IBpkUbRPiHuIrhVXwgkx4T2BbzE6CPnSdk0O5yqGQU47vdymyCJZHdebpc6t6XCZvDv85pkixdJryhwIEpf6Obh/3hjrzuexDpm6jUD131RO+ocEIXZaGQD8XbfTUvzUXK/Q+yACQM0/k8ymJfXBE5Tdp2D/yTVAxBKeCjne1JuB3PsSwjLuHVIOJyzww5AbxT0caBVzF+hshLk5wmo3nWsOqT2RdvZJRWc1ctcDnG1QJYuz4ZJw8uZ1KnwANOCtHBWklFdbM6xvMfzmVPEotM0WcFFgwaryBUWSJaWk1/4v8=",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "8be90974a6ea14812340c6ba6457dc326b44d1655cae8e80737899a9f666cb9f",
+      "size": 397300,
+      "source_url": [
+        "https://rsync.samba.org/"
+      ],
+      "version": "3.5.1-3"
+    }
+  ],
+  "base574": {
+    "lock": {
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/maintained-desktop-auth-next-20261015/context/expected-packages.lock",
+      "pin": {
+        "bytes": 11117,
+        "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+      }
+    },
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/maintained-desktop-auth-next-20261015/inputs574.json",
+    "pin": {
+      "bytes": 622184,
+      "sha256": "6fd846f3c115899daa90e189b74fde8bf3b7adf25aa20f98b871217fbd09e39d"
+    }
+  },
+  "conflicts": [],
+  "dependency_edges": [
+    {
+      "dependency": "acl",
+      "providers": [
+        "acl"
+      ]
+    },
+    {
+      "dependency": "apparmor",
+      "providers": [
+        "apparmor"
+      ]
+    },
+    {
+      "dependency": "asciidoc",
+      "providers": [
+        "asciidoc"
+      ]
+    },
+    {
+      "dependency": "audit",
+      "providers": [
+        "audit"
+      ]
+    },
+    {
+      "dependency": "bash",
+      "providers": [
+        "bash"
+      ]
+    },
+    {
+      "dependency": "bash-completion",
+      "providers": [
+        "bash-completion"
+      ]
+    },
+    {
+      "dependency": "binutils",
+      "providers": [
+        "binutils"
+      ]
+    },
+    {
+      "dependency": "bpf",
+      "providers": [
+        "bpf"
+      ]
+    },
+    {
+      "dependency": "clang",
+      "providers": [
+        "clang"
+      ]
+    },
+    {
+      "dependency": "coreutils",
+      "providers": [
+        "coreutils"
+      ]
+    },
+    {
+      "dependency": "cryptsetup",
+      "providers": [
+        "cryptsetup"
+      ]
+    },
+    {
+      "dependency": "curl",
+      "providers": [
+        "curl"
+      ]
+    },
+    {
+      "dependency": "dbus",
+      "providers": [
+        "dbus"
+      ]
+    },
+    {
+      "dependency": "dbus-units",
+      "providers": [
+        "dbus-broker-units",
+        "dbus-units"
+      ]
+    },
+    {
+      "dependency": "docbook-xsl",
+      "providers": [
+        "docbook-xsl"
+      ]
+    },
+    {
+      "dependency": "doxygen",
+      "providers": [
+        "doxygen"
+      ]
+    },
+    {
+      "dependency": "fakechroot",
+      "providers": [
+        "fakechroot"
+      ]
+    },
+    {
+      "dependency": "gawk",
+      "providers": [
+        "gawk"
+      ]
+    },
+    {
+      "dependency": "gettext",
+      "providers": [
+        "gettext"
+      ]
+    },
+    {
+      "dependency": "git",
+      "providers": [
+        "git"
+      ]
+    },
+    {
+      "dependency": "glibc",
+      "providers": [
+        "glibc"
+      ]
+    },
+    {
+      "dependency": "gnupg",
+      "providers": [
+        "gnupg"
+      ]
+    },
+    {
+      "dependency": "gnutls",
+      "providers": [
+        "gnutls"
+      ]
+    },
+    {
+      "dependency": "gperf",
+      "providers": [
+        "gperf"
+      ]
+    },
+    {
+      "dependency": "gpgme",
+      "providers": [
+        "gpgme"
+      ]
+    },
+    {
+      "dependency": "grep",
+      "providers": [
+        "grep"
+      ]
+    },
+    {
+      "dependency": "hwdata",
+      "providers": [
+        "hwdata"
+      ]
+    },
+    {
+      "dependency": "intltool",
+      "providers": [
+        "intltool"
+      ]
+    },
+    {
+      "dependency": "iptables",
+      "providers": [
+        "iptables"
+      ]
+    },
+    {
+      "dependency": "kbd",
+      "providers": [
+        "kbd"
+      ]
+    },
+    {
+      "dependency": "kexec-tools",
+      "providers": [
+        "kexec-tools"
+      ]
+    },
+    {
+      "dependency": "kmod",
+      "providers": [
+        "kmod"
+      ]
+    },
+    {
+      "dependency": "libarchive",
+      "providers": [
+        "libarchive"
+      ]
+    },
+    {
+      "dependency": "libarchive.so",
+      "providers": [
+        "libarchive"
+      ]
+    },
+    {
+      "dependency": "libbpf",
+      "providers": [
+        "libbpf"
+      ]
+    },
+    {
+      "dependency": "libcrypto.so",
+      "providers": [
+        "openssl"
+      ]
+    },
+    {
+      "dependency": "libcurl.so",
+      "providers": [
+        "curl"
+      ]
+    },
+    {
+      "dependency": "libelf",
+      "providers": [
+        "libelf"
+      ]
+    },
+    {
+      "dependency": "libfido2",
+      "providers": [
+        "libfido2"
+      ]
+    },
+    {
+      "dependency": "libgcc",
+      "providers": [
+        "libgcc"
+      ]
+    },
+    {
+      "dependency": "libgcc_s.so",
+      "providers": [
+        "libgcc"
+      ]
+    },
+    {
+      "dependency": "libgcrypt",
+      "providers": [
+        "libgcrypt"
+      ]
+    },
+    {
+      "dependency": "libgpgme.so",
+      "providers": [
+        "gpgme"
+      ]
+    },
+    {
+      "dependency": "libidn2",
+      "providers": [
+        "libidn2"
+      ]
+    },
+    {
+      "dependency": "libmakepkg-dropins",
+      "providers": [
+        "libmakepkg-dropins"
+      ]
+    },
+    {
+      "dependency": "libmicrohttpd",
+      "providers": [
+        "libmicrohttpd"
+      ]
+    },
+    {
+      "dependency": "libpwquality",
+      "providers": [
+        "libpwquality"
+      ]
+    },
+    {
+      "dependency": "libseccomp",
+      "providers": [
+        "libseccomp"
+      ]
+    },
+    {
+      "dependency": "libxcrypt",
+      "providers": [
+        "libxcrypt"
+      ]
+    },
+    {
+      "dependency": "libxkbcommon",
+      "providers": [
+        "libxkbcommon"
+      ]
+    },
+    {
+      "dependency": "libxslt",
+      "providers": [
+        "libxslt"
+      ]
+    },
+    {
+      "dependency": "linux-api-headers",
+      "providers": [
+        "linux-api-headers"
+      ]
+    },
+    {
+      "dependency": "llvm",
+      "providers": [
+        "llvm"
+      ]
+    },
+    {
+      "dependency": "lz4",
+      "providers": [
+        "lz4"
+      ]
+    },
+    {
+      "dependency": "meson",
+      "providers": [
+        "meson"
+      ]
+    },
+    {
+      "dependency": "openssl",
+      "providers": [
+        "openssl"
+      ]
+    },
+    {
+      "dependency": "p11-kit",
+      "providers": [
+        "p11-kit"
+      ]
+    },
+    {
+      "dependency": "pacman-mirrorlist",
+      "providers": [
+        "pacman-mirrorlist"
+      ]
+    },
+    {
+      "dependency": "pam",
+      "providers": [
+        "pam"
+      ]
+    },
+    {
+      "dependency": "pcre2",
+      "providers": [
+        "pcre2"
+      ]
+    },
+    {
+      "dependency": "python",
+      "providers": [
+        "python"
+      ]
+    },
+    {
+      "dependency": "python-colorama",
+      "providers": [
+        "python-colorama"
+      ]
+    },
+    {
+      "dependency": "python-cryptography",
+      "providers": [
+        "python-cryptography"
+      ]
+    },
+    {
+      "dependency": "python-jinja",
+      "providers": [
+        "python-jinja"
+      ]
+    },
+    {
+      "dependency": "python-lxml",
+      "providers": [
+        "python-lxml"
+      ]
+    },
+    {
+      "dependency": "python-packaging",
+      "providers": [
+        "python-packaging"
+      ]
+    },
+    {
+      "dependency": "python-pefile",
+      "providers": [
+        "python-pefile"
+      ]
+    },
+    {
+      "dependency": "python-pexpect",
+      "providers": [
+        "python-pexpect"
+      ]
+    },
+    {
+      "dependency": "python-psutil",
+      "providers": [
+        "python-psutil"
+      ]
+    },
+    {
+      "dependency": "python-pyelftools",
+      "providers": [
+        "python-pyelftools"
+      ]
+    },
+    {
+      "dependency": "python-pytest",
+      "providers": [
+        "python-pytest"
+      ]
+    },
+    {
+      "dependency": "qrencode",
+      "providers": [
+        "qrencode"
+      ]
+    },
+    {
+      "dependency": "quota-tools",
+      "providers": [
+        "quota-tools"
+      ]
+    },
+    {
+      "dependency": "rsync",
+      "providers": [
+        "rsync"
+      ]
+    },
+    {
+      "dependency": "shadow",
+      "providers": [
+        "shadow"
+      ]
+    },
+    {
+      "dependency": "systemd",
+      "providers": [
+        "systemd"
+      ]
+    },
+    {
+      "dependency": "tpm2-tss",
+      "providers": [
+        "tpm2-tss"
+      ]
+    },
+    {
+      "dependency": "util-linux",
+      "providers": [
+        "util-linux"
+      ]
+    },
+    {
+      "dependency": "xz",
+      "providers": [
+        "xz"
+      ]
+    },
+    {
+      "dependency": "zstd",
+      "providers": [
+        "zstd"
+      ]
+    },
+    {
+      "dependency": "python-legacy-cgi",
+      "providers": [
+        "python-legacy-cgi"
+      ]
+    },
+    {
+      "dependency": "readline",
+      "providers": [
+        "readline"
+      ]
+    },
+    {
+      "dependency": "zlib",
+      "providers": [
+        "zlib"
+      ]
+    },
+    {
+      "dependency": "libcap",
+      "providers": [
+        "libcap"
+      ]
+    },
+    {
+      "dependency": "llvm-libs",
+      "providers": [
+        "llvm-libs"
+      ]
+    },
+    {
+      "dependency": "libsframe.so=3-64",
+      "providers": [
+        "binutils"
+      ]
+    },
+    {
+      "dependency": "gcc",
+      "providers": [
+        "gcc"
+      ]
+    },
+    {
+      "dependency": "compiler-rt",
+      "providers": [
+        "compiler-rt"
+      ]
+    },
+    {
+      "dependency": "libxml2",
+      "providers": [
+        "libxml2"
+      ]
+    },
+    {
+      "dependency": "docbook-xml",
+      "providers": [
+        "docbook-xml"
+      ]
+    },
+    {
+      "dependency": "fmt",
+      "providers": [
+        "fmt"
+      ]
+    },
+    {
+      "dependency": "libfmt.so=12-64",
+      "providers": [
+        "fmt"
+      ]
+    },
+    {
+      "dependency": "libstdc++",
+      "providers": [
+        "libstdc++"
+      ]
+    },
+    {
+      "dependency": "spdlog",
+      "providers": [
+        "spdlog"
+      ]
+    },
+    {
+      "dependency": "libspdlog.so=1.17-64",
+      "providers": [
+        "spdlog"
+      ]
+    },
+    {
+      "dependency": "sqlite",
+      "providers": [
+        "sqlite"
+      ]
+    },
+    {
+      "dependency": "libsqlite3.so=0-64",
+      "providers": [
+        "sqlite"
+      ]
+    },
+    {
+      "dependency": "sh",
+      "providers": [
+        "bash"
+      ]
+    },
+    {
+      "dependency": "perl",
+      "providers": [
+        "perl"
+      ]
+    },
+    {
+      "dependency": "perl-xml-parser",
+      "providers": [
+        "perl-xml-parser"
+      ]
+    },
+    {
+      "dependency": "libcbor",
+      "providers": [
+        "libcbor"
+      ]
+    },
+    {
+      "dependency": "libcbor.so=0.14-64",
+      "providers": [
+        "libcbor"
+      ]
+    },
+    {
+      "dependency": "hidapi",
+      "providers": [
+        "hidapi"
+      ]
+    },
+    {
+      "dependency": "systemd-libs",
+      "providers": [
+        "systemd-libs"
+      ]
+    },
+    {
+      "dependency": "libudev.so=1-64",
+      "providers": [
+        "systemd-libs"
+      ]
+    },
+    {
+      "dependency": "cracklib",
+      "providers": [
+        "cracklib"
+      ]
+    },
+    {
+      "dependency": "llvm-lit",
+      "providers": [
+        "llvm-lit"
+      ]
+    },
+    {
+      "dependency": "python-cffi",
+      "providers": [
+        "python-cffi"
+      ]
+    },
+    {
+      "dependency": "python-markupsafe",
+      "providers": [
+        "python-markupsafe"
+      ]
+    },
+    {
+      "dependency": "python-ptyprocess",
+      "providers": [
+        "python-ptyprocess"
+      ]
+    },
+    {
+      "dependency": "python-iniconfig",
+      "providers": [
+        "python-iniconfig"
+      ]
+    },
+    {
+      "dependency": "python-pluggy",
+      "providers": [
+        "python-pluggy"
+      ]
+    },
+    {
+      "dependency": "python-pygments",
+      "providers": [
+        "python-pygments"
+      ]
+    },
+    {
+      "dependency": "libpng",
+      "providers": [
+        "libpng"
+      ]
+    },
+    {
+      "dependency": "e2fsprogs",
+      "providers": [
+        "e2fsprogs"
+      ]
+    },
+    {
+      "dependency": "libldap",
+      "providers": [
+        "libldap"
+      ]
+    },
+    {
+      "dependency": "libnl",
+      "providers": [
+        "libnl"
+      ]
+    },
+    {
+      "dependency": "libtirpc",
+      "providers": [
+        "libtirpc"
+      ]
+    },
+    {
+      "dependency": "libacl.so=1-64",
+      "providers": [
+        "acl"
+      ]
+    },
+    {
+      "dependency": "popt",
+      "providers": [
+        "popt"
+      ]
+    },
+    {
+      "dependency": "xxhash",
+      "providers": [
+        "xxhash"
+      ]
+    },
+    {
+      "dependency": "libxxhash.so=0-64",
+      "providers": [
+        "xxhash"
+      ]
+    },
+    {
+      "dependency": "perl-file-sharedir",
+      "providers": [
+        "perl-file-sharedir"
+      ]
+    },
+    {
+      "dependency": "perl-libwww",
+      "providers": [
+        "perl-libwww"
+      ]
+    },
+    {
+      "dependency": "expat",
+      "providers": [
+        "expat"
+      ]
+    },
+    {
+      "dependency": "python-pycparser",
+      "providers": [
+        "python-pycparser"
+      ]
+    },
+    {
+      "dependency": "perl-class-inspector",
+      "providers": [
+        "perl-class-inspector"
+      ]
+    },
+    {
+      "dependency": "perl-encode-locale",
+      "providers": [
+        "perl-encode-locale"
+      ]
+    },
+    {
+      "dependency": "perl-file-listing",
+      "providers": [
+        "perl-file-listing"
+      ]
+    },
+    {
+      "dependency": "perl-html-parser",
+      "providers": [
+        "perl-html-parser"
+      ]
+    },
+    {
+      "dependency": "perl-http-cookies",
+      "providers": [
+        "perl-http-cookies"
+      ]
+    },
+    {
+      "dependency": "perl-http-daemon",
+      "providers": [
+        "perl-http-daemon"
+      ]
+    },
+    {
+      "dependency": "perl-http-cookiejar",
+      "providers": [
+        "perl-http-cookiejar"
+      ]
+    },
+    {
+      "dependency": "perl-http-date",
+      "providers": [
+        "perl-http-date"
+      ]
+    },
+    {
+      "dependency": "perl-http-negotiate",
+      "providers": [
+        "perl-http-negotiate"
+      ]
+    },
+    {
+      "dependency": "perl-lwp-mediatypes",
+      "providers": [
+        "perl-lwp-mediatypes"
+      ]
+    },
+    {
+      "dependency": "perl-net-http",
+      "providers": [
+        "perl-net-http"
+      ]
+    },
+    {
+      "dependency": "perl-try-tiny",
+      "providers": [
+        "perl-try-tiny"
+      ]
+    },
+    {
+      "dependency": "perl-uri",
+      "providers": [
+        "perl-uri"
+      ]
+    },
+    {
+      "dependency": "perl-www-robotrules",
+      "providers": [
+        "perl-www-robotrules"
+      ]
+    },
+    {
+      "dependency": "perl-html-tagset",
+      "providers": [
+        "perl-html-tagset"
+      ]
+    },
+    {
+      "dependency": "perl-http-message",
+      "providers": [
+        "perl-http-message"
+      ]
+    },
+    {
+      "dependency": "perl-timedate",
+      "providers": [
+        "perl-timedate"
+      ]
+    },
+    {
+      "dependency": "perl-mime-base32",
+      "providers": [
+        "perl-mime-base32"
+      ]
+    },
+    {
+      "dependency": "perl-clone",
+      "providers": [
+        "perl-clone"
+      ]
+    },
+    {
+      "dependency": "perl-io-html",
+      "providers": [
+        "perl-io-html"
+      ]
+    }
+  ],
+  "image_digest": null,
+  "malformed_unselected_entries": [
+    {
+      "entry": "extra/findnewest-0.3-4",
+      "reason": "missing/non-singleton NAME; unselectable"
+    }
+  ],
+  "old261": "UNCHANGED",
+  "per_recipe": {
+    "pacman": {
+      "missing_from574": [
+        "asciidoc",
+        "doxygen",
+        "fakechroot"
+      ],
+      "required": [
+        "asciidoc",
+        "bash",
+        "coreutils",
+        "curl",
+        "doxygen",
+        "fakechroot",
+        "gawk",
+        "gettext",
+        "git",
+        "glibc",
+        "gnupg",
+        "gpgme",
+        "grep",
+        "libarchive",
+        "libarchive.so",
+        "libcrypto.so",
+        "libcurl.so",
+        "libgpgme.so",
+        "libmakepkg-dropins",
+        "meson",
+        "openssl",
+        "pacman-mirrorlist",
+        "python",
+        "systemd"
+      ]
+    },
+    "systemd": {
+      "missing_from574": [
+        "apparmor",
+        "bash-completion",
+        "bpf",
+        "clang",
+        "docbook-xsl",
+        "gperf",
+        "intltool",
+        "kexec-tools",
+        "libfido2",
+        "libmicrohttpd",
+        "libpwquality",
+        "libxslt",
+        "llvm",
+        "python-colorama",
+        "python-cryptography",
+        "python-jinja",
+        "python-lxml",
+        "python-packaging",
+        "python-pefile",
+        "python-pexpect",
+        "python-psutil",
+        "python-pyelftools",
+        "python-pytest",
+        "qrencode",
+        "quota-tools",
+        "rsync"
+      ],
+      "required": [
+        "acl",
+        "apparmor",
+        "audit",
+        "bash",
+        "bash-completion",
+        "binutils",
+        "bpf",
+        "clang",
+        "cryptsetup",
+        "curl",
+        "dbus",
+        "dbus-units",
+        "docbook-xsl",
+        "git",
+        "glibc",
+        "gnutls",
+        "gperf",
+        "hwdata",
+        "intltool",
+        "iptables",
+        "kbd",
+        "kexec-tools",
+        "kmod",
+        "libarchive",
+        "libbpf",
+        "libelf",
+        "libfido2",
+        "libgcc",
+        "libgcc_s.so",
+        "libgcrypt",
+        "libidn2",
+        "libmicrohttpd",
+        "libpwquality",
+        "libseccomp",
+        "libxcrypt",
+        "libxkbcommon",
+        "libxslt",
+        "linux-api-headers",
+        "llvm",
+        "lz4",
+        "meson",
+        "openssl",
+        "p11-kit",
+        "pam",
+        "pcre2",
+        "python",
+        "python-colorama",
+        "python-cryptography",
+        "python-jinja",
+        "python-lxml",
+        "python-packaging",
+        "python-pefile",
+        "python-pexpect",
+        "python-psutil",
+        "python-pyelftools",
+        "python-pytest",
+        "qrencode",
+        "quota-tools",
+        "rsync",
+        "shadow",
+        "tpm2-tss",
+        "util-linux",
+        "xz",
+        "zstd"
+      ]
+    }
+  },
+  "repositories": [
+    {
+      "authority": "UNSIGNED_DATABASE_DISCOVERY_DATA_ONLY",
+      "final_url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/core.db",
+      "headers": {
+        "Accept-Ranges": "bytes",
+        "Connection": "close",
+        "Content-Length": "256699",
+        "Content-Type": "application/octet-stream",
+        "Date": "Mon, 19 Oct 2026 22:59:44 GMT",
+        "ETag": "\"6ad4f637-3eabb\"",
+        "Last-Modified": "Sun, 18 Oct 2026 16:39:19 GMT",
+        "Server": "nginx/1.22.1"
+      },
+      "name": "core",
+      "pin": {
+        "bytes": 256699,
+        "sha256": "3397088cfa622e7a140f29b1f7a15f2f1c2689246a962c2551670d301ff5805c"
+      },
+      "status": 200,
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/core.db"
+    },
+    {
+      "authority": "UNSIGNED_DATABASE_DISCOVERY_DATA_ONLY",
+      "final_url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/extra.db",
+      "headers": {
+        "Accept-Ranges": "bytes",
+        "Connection": "close",
+        "Content-Length": "10614001",
+        "Content-Type": "application/octet-stream",
+        "Date": "Mon, 19 Oct 2026 22:59:44 GMT",
+        "ETag": "\"6ad5a0de-a1f4f1\"",
+        "Last-Modified": "Mon, 19 Oct 2026 04:47:26 GMT",
+        "Server": "nginx/1.22.1"
+      },
+      "name": "extra",
+      "pin": {
+        "bytes": 10614001,
+        "sha256": "8f1f6fbcc3e397c8228de1d36f825ed445ef21483693d17e221741023beffff2"
+      },
+      "status": 200,
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/extra.db"
+    }
+  ],
+  "scope": "UNSELECTED_NATIVE_BUILDER_CANDIDATE_DATA_NOT_INSTALLED_OR_ACCEPTED",
+  "selected_builder": null,
+  "unresolved": []
+}
