@@ -1,0 +1,258 @@
+{
+  "build-1/artifacts/cachy-asahi-setup-0.1.0-4-any.pkg.tar.xz": {
+    "bytes": 22632,
+    "sha256": "c817c01aad875fcf5a34073d4c9d0e830c577301189148b3c0e0969f001bea1a"
+  },
+  "build-1/expected-packages.lock": {
+    "bytes": 6674,
+    "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
+  },
+  "build-1/inputs/.SRCINFO": {
+    "bytes": 1427,
+    "sha256": "44565399f604017ab7084ec5d9cf62c1fa988dc3242bb24705adb92de79a2a5c"
+  },
+  "build-1/inputs/LICENSE": {
+    "bytes": 1081,
+    "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+  },
+  "build-1/inputs/NOTICE": {
+    "bytes": 970,
+    "sha256": "a885656c42b81e413549976eb56fa1aad59018af1cad8954f00f45cbd1c2d018"
+  },
+  "build-1/inputs/PKGBUILD": {
+    "bytes": 3922,
+    "sha256": "ec816728a154f77723d34e56bcbf04bb39ef436be1d883fb90c1af8d43dae31e"
+  },
+  "build-1/inputs/README.md": {
+    "bytes": 8390,
+    "sha256": "e868fe3ab18b6a4a175b2be011847ae830e2a589d8264bf8d3e6974dc6529a78"
+  },
+  "build-1/inputs/cachy-asahi-repository": {
+    "bytes": 19778,
+    "sha256": "38db2d45955b569a4c74c3f31d6b6c79611126238e1bbe1e5cf819f81d0fb54f"
+  },
+  "build-1/inputs/cachy-asahi-setup": {
+    "bytes": 30396,
+    "sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919"
+  },
+  "build-1/inputs/check-packaged.py": {
+    "bytes": 7628,
+    "sha256": "a36c6b0c5e5e51cee5a88b2bc2d21b292de413e3ea5664936f4097ff52e55ca6"
+  },
+  "build-1/inputs/check-sync.py": {
+    "bytes": 4256,
+    "sha256": "9fb6ff8f1a9304f6e55895b5d83845a8776c77669aac0ec55a58c47b25150a1a"
+  },
+  "build-1/inputs/evidence/artifact-check-1.json": {
+    "bytes": 55897,
+    "sha256": "f39576fe7d072cc964479d8b4477e547ef885a69f55b42b85fdbafc84f95226f"
+  },
+  "build-1/inputs/evidence/artifact-check-2.json": {
+    "bytes": 55897,
+    "sha256": "c6fa3a00eda45aca371b651e37634600cde621d53c8e1081c66f141273b41808"
+  },
+  "build-1/inputs/evidence/host-build-1-BUILDINFO.txt": {
+    "bytes": 52355,
+    "sha256": "d027509d0d0bc7c74b293d781c36001df48427a726f9e0778730e9fa554b7346"
+  },
+  "build-1/inputs/evidence/host-build-1-PKGINFO.txt": {
+    "bytes": 578,
+    "sha256": "c02a9e4ac9e0d305b97fe63a6e6124446154dafdc4195254c1cac30b17e8761e"
+  },
+  "build-1/inputs/evidence/host-build-1.txt": {
+    "bytes": 1503,
+    "sha256": "52b0a5112c6f23fa04567b6d60a50bd80d087f8691e9c066e91ddca8cd902923"
+  },
+  "build-1/inputs/evidence/host-build-2-BUILDINFO.txt": {
+    "bytes": 52355,
+    "sha256": "e5e6c09c8f6bf62064c0200046d22a0e3b9611d57e199dc835c30e8bd55778d9"
+  },
+  "build-1/inputs/evidence/host-build-2-PKGINFO.txt": {
+    "bytes": 578,
+    "sha256": "d04e52761ae002dd63fc6a684a073d68da2e994fa6dd90395039e861070e3dae"
+  },
+  "build-1/inputs/evidence/host-build-2.txt": {
+    "bytes": 1451,
+    "sha256": "c744d661c373fab100ec930c50e4fe42f70c2ab319b37490e98124ef9e6d4a0e"
+  },
+  "build-1/inputs/evidence/old-c7d-regression-reproducer.json": {
+    "bytes": 1575,
+    "sha256": "0a8be1068e9c98e31fe07816065422cad6d59e10828cceda1967bea01a956a11"
+  },
+  "build-1/inputs/evidence/packaged-cli-smoke.json": {
+    "bytes": 5282,
+    "sha256": "b42c30a6469ea52d0b129c22aaac337081a0c7052736412cd640796d59e3495e"
+  },
+  "build-1/inputs/evidence/packaged-regressions-1.json": {
+    "bytes": 808,
+    "sha256": "d449d77dfc618dcc3a042d2e80884f1d9dd6c0a9beee11edafdd97846412b6a5"
+  },
+  "build-1/inputs/evidence/packaged-regressions-2.json": {
+    "bytes": 808,
+    "sha256": "d449d77dfc618dcc3a042d2e80884f1d9dd6c0a9beee11edafdd97846412b6a5"
+  },
+  "build-1/inputs/evidence/prepare-drift-refusal.txt": {
+    "bytes": 863,
+    "sha256": "37701db28f3eef8d78855fc97130dc5b34737b689564d66775924bdc3a913edd"
+  },
+  "build-1/inputs/evidence/recipe-check.json": {
+    "bytes": 4424,
+    "sha256": "c03666a59699d36af0ecdba565c65fcba2be2a9b7f5b3f867f42f58714400b29"
+  },
+  "build-1/inputs/evidence/superseded-c7d-host-validation.json": {
+    "bytes": 2706,
+    "sha256": "1c4c1522612bb9f35c11745889d5cedabad6ea89b312f7812bbd65951d537ee3"
+  },
+  "build-1/inputs/host-validation.json": {
+    "bytes": 3210,
+    "sha256": "e64e15a48b1636216c1419074ba7ae3280bddd42c5db76b7954a3da882f7766c"
+  },
+  "build-1/inputs/repository-enrollment.md": {
+    "bytes": 7786,
+    "sha256": "a14a53311e7c995b468ddcec1e4996611d7cfe9bb08eb255e0cb6bfee6dcc7e1"
+  },
+  "build-1/inputs/runtime-dependency-observation.json": {
+    "bytes": 484,
+    "sha256": "0f2382d15eb1c07c94826b1467492b248576350a43b96550cf23b94e018fa74c"
+  },
+  "build-1/inputs/source-provenance.json": {
+    "bytes": 1687,
+    "sha256": "ccdf67333850ed7e862b969b88423523c4a9e36ffc31bab0f529533626ddec2e"
+  },
+  "build-1/inputs/test-sync.py": {
+    "bytes": 8042,
+    "sha256": "9596373cef5469512b6bae3e0bf1dc6a1b093012779f1488765281aef27de9b3"
+  },
+  "build-1/provenance.json": {
+    "bytes": 7720,
+    "sha256": "ceaa6ac12f311e3067508de427b33ea7abc4d0e7459b4ef2291ada3cbb210898"
+  },
+  "build-2/artifacts/cachy-asahi-setup-0.1.0-4-any.pkg.tar.xz": {
+    "bytes": 22632,
+    "sha256": "c817c01aad875fcf5a34073d4c9d0e830c577301189148b3c0e0969f001bea1a"
+  },
+  "build-2/expected-packages.lock": {
+    "bytes": 6674,
+    "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
+  },
+  "build-2/inputs/.SRCINFO": {
+    "bytes": 1427,
+    "sha256": "44565399f604017ab7084ec5d9cf62c1fa988dc3242bb24705adb92de79a2a5c"
+  },
+  "build-2/inputs/LICENSE": {
+    "bytes": 1081,
+    "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+  },
+  "build-2/inputs/NOTICE": {
+    "bytes": 970,
+    "sha256": "a885656c42b81e413549976eb56fa1aad59018af1cad8954f00f45cbd1c2d018"
+  },
+  "build-2/inputs/PKGBUILD": {
+    "bytes": 3922,
+    "sha256": "ec816728a154f77723d34e56bcbf04bb39ef436be1d883fb90c1af8d43dae31e"
+  },
+  "build-2/inputs/README.md": {
+    "bytes": 8390,
+    "sha256": "e868fe3ab18b6a4a175b2be011847ae830e2a589d8264bf8d3e6974dc6529a78"
+  },
+  "build-2/inputs/cachy-asahi-repository": {
+    "bytes": 19778,
+    "sha256": "38db2d45955b569a4c74c3f31d6b6c79611126238e1bbe1e5cf819f81d0fb54f"
+  },
+  "build-2/inputs/cachy-asahi-setup": {
+    "bytes": 30396,
+    "sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919"
+  },
+  "build-2/inputs/check-packaged.py": {
+    "bytes": 7628,
+    "sha256": "a36c6b0c5e5e51cee5a88b2bc2d21b292de413e3ea5664936f4097ff52e55ca6"
+  },
+  "build-2/inputs/check-sync.py": {
+    "bytes": 4256,
+    "sha256": "9fb6ff8f1a9304f6e55895b5d83845a8776c77669aac0ec55a58c47b25150a1a"
+  },
+  "build-2/inputs/evidence/artifact-check-1.json": {
+    "bytes": 55897,
+    "sha256": "f39576fe7d072cc964479d8b4477e547ef885a69f55b42b85fdbafc84f95226f"
+  },
+  "build-2/inputs/evidence/artifact-check-2.json": {
+    "bytes": 55897,
+    "sha256": "c6fa3a00eda45aca371b651e37634600cde621d53c8e1081c66f141273b41808"
+  },
+  "build-2/inputs/evidence/host-build-1-BUILDINFO.txt": {
+    "bytes": 52355,
+    "sha256": "d027509d0d0bc7c74b293d781c36001df48427a726f9e0778730e9fa554b7346"
+  },
+  "build-2/inputs/evidence/host-build-1-PKGINFO.txt": {
+    "bytes": 578,
+    "sha256": "c02a9e4ac9e0d305b97fe63a6e6124446154dafdc4195254c1cac30b17e8761e"
+  },
+  "build-2/inputs/evidence/host-build-1.txt": {
+    "bytes": 1503,
+    "sha256": "52b0a5112c6f23fa04567b6d60a50bd80d087f8691e9c066e91ddca8cd902923"
+  },
+  "build-2/inputs/evidence/host-build-2-BUILDINFO.txt": {
+    "bytes": 52355,
+    "sha256": "e5e6c09c8f6bf62064c0200046d22a0e3b9611d57e199dc835c30e8bd55778d9"
+  },
+  "build-2/inputs/evidence/host-build-2-PKGINFO.txt": {
+    "bytes": 578,
+    "sha256": "d04e52761ae002dd63fc6a684a073d68da2e994fa6dd90395039e861070e3dae"
+  },
+  "build-2/inputs/evidence/host-build-2.txt": {
+    "bytes": 1451,
+    "sha256": "c744d661c373fab100ec930c50e4fe42f70c2ab319b37490e98124ef9e6d4a0e"
+  },
+  "build-2/inputs/evidence/old-c7d-regression-reproducer.json": {
+    "bytes": 1575,
+    "sha256": "0a8be1068e9c98e31fe07816065422cad6d59e10828cceda1967bea01a956a11"
+  },
+  "build-2/inputs/evidence/packaged-cli-smoke.json": {
+    "bytes": 5282,
+    "sha256": "b42c30a6469ea52d0b129c22aaac337081a0c7052736412cd640796d59e3495e"
+  },
+  "build-2/inputs/evidence/packaged-regressions-1.json": {
+    "bytes": 808,
+    "sha256": "d449d77dfc618dcc3a042d2e80884f1d9dd6c0a9beee11edafdd97846412b6a5"
+  },
+  "build-2/inputs/evidence/packaged-regressions-2.json": {
+    "bytes": 808,
+    "sha256": "d449d77dfc618dcc3a042d2e80884f1d9dd6c0a9beee11edafdd97846412b6a5"
+  },
+  "build-2/inputs/evidence/prepare-drift-refusal.txt": {
+    "bytes": 863,
+    "sha256": "37701db28f3eef8d78855fc97130dc5b34737b689564d66775924bdc3a913edd"
+  },
+  "build-2/inputs/evidence/recipe-check.json": {
+    "bytes": 4424,
+    "sha256": "c03666a59699d36af0ecdba565c65fcba2be2a9b7f5b3f867f42f58714400b29"
+  },
+  "build-2/inputs/evidence/superseded-c7d-host-validation.json": {
+    "bytes": 2706,
+    "sha256": "1c4c1522612bb9f35c11745889d5cedabad6ea89b312f7812bbd65951d537ee3"
+  },
+  "build-2/inputs/host-validation.json": {
+    "bytes": 3210,
+    "sha256": "e64e15a48b1636216c1419074ba7ae3280bddd42c5db76b7954a3da882f7766c"
+  },
+  "build-2/inputs/repository-enrollment.md": {
+    "bytes": 7786,
+    "sha256": "a14a53311e7c995b468ddcec1e4996611d7cfe9bb08eb255e0cb6bfee6dcc7e1"
+  },
+  "build-2/inputs/runtime-dependency-observation.json": {
+    "bytes": 484,
+    "sha256": "0f2382d15eb1c07c94826b1467492b248576350a43b96550cf23b94e018fa74c"
+  },
+  "build-2/inputs/source-provenance.json": {
+    "bytes": 1687,
+    "sha256": "ccdf67333850ed7e862b969b88423523c4a9e36ffc31bab0f529533626ddec2e"
+  },
+  "build-2/inputs/test-sync.py": {
+    "bytes": 8042,
+    "sha256": "9596373cef5469512b6bae3e0bf1dc6a1b093012779f1488765281aef27de9b3"
+  },
+  "build-2/provenance.json": {
+    "bytes": 7720,
+    "sha256": "43bef646fc3b568e44112fbbd223a00bd2e3c570ec27df699444d166c69b69be"
+  }
+}
