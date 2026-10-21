@@ -1,0 +1,68 @@
+# Complete retained public core build inputs
+
+All64 original packages and detached signatures match the original builder lock. This complete cache prevents loss when moving mirrors retire these pinned versions. The unchanged full64 native GPG/metadata gates remain mandatory. No packages are executed by this carrier. Archives retain upstream licensing; original source URLs/licenses are recorded below and in the untouched lock. This is a development cache, not an admitted release. The seed helper is project MIT code.
+
+- apparmor 4.1.7-1: GPL-2.0-only, LGPL-2.0-only, LGPL-2.1-only; https://gitlab.com/apparmor/apparmor
+- asciidoc 10.2.1-3: GPL-2.0-or-later; https://asciidoc-py.github.io
+- bash-completion 2.18.0-1: GPL-2.0-only; https://github.com/scop/bash-completion
+- bpf 7.2.11-1: GPL-2.0-only; https://www.kernel.org
+- clang 23.1.3-3: Apache-2.0 WITH LLVM-exception; https://llvm.org/
+- compiler-rt 23.1.3-3: Apache-2.0 WITH LLVM-exception; https://llvm.org/
+- cracklib 2.10.3-1: GPL-2.0-or-later; https://github.com/cracklib/cracklib
+- docbook-xml 4.5-11: MIT; https://www.oasis-open.org/docbook/
+- docbook-xsl 1.79.2-9: LicenseRef-docbook-XSL; https://docbook.org/
+- doxygen 1.18.0-2: GPL-2.0-or-later; http://www.doxygen.nl
+- fakechroot 2.20.1-5: LGPL-2.1-or-later; https://github.com/dex4er/fakechroot/wiki
+- gperf 3.3-2: GPL-3.0-or-later; https://www.gnu.org/software/gperf/
+- intltool 0.51.0-6: GPL; https://launchpad.net/intltool
+- kexec-tools 2.0.32-1: GPL-2.0-or-later; https://kernel.org/pub/linux/utils/kernel/kexec/
+- libcbor 0.14.0-1: MIT; https://github.com/PJK/libcbor
+- libfido2 1.17.0-1: BSD-2-Clause; https://developers.yubico.com/libfido2/
+- libmicrohttpd 1.0.10-1: LGPL-2.1-or-later; https://www.gnu.org/software/libmicrohttpd/
+- libpwquality 1.4.5-7: BSD-3-Clause OR GPL-2.0-or-later; https://github.com/libpwquality/libpwquality
+- libxslt 1.1.45-2: MIT; https://gitlab.gnome.org/GNOME/libxslt/-/wikis/home
+- llvm 23.1.3-3: Apache-2.0 WITH LLVM-exception; https://llvm.org/
+- llvm-lit 23.1.3-3: Apache-2.0 WITH LLVM-exception; https://llvm.org/
+- perl-class-inspector 1.36-10: PerlArtistic, GPL; https://search.cpan.org/dist/Class-Inspector
+- perl-clone 0.51-1: Artistic-1.0-Perl, GPL-1.0-or-later; https://github.com/garu/Clone
+- perl-encode-locale 1.05-15: PerlArtistic, GPL; https://search.cpan.org/dist/Encode-Locale
+- perl-file-listing 6.16-6: PerlArtistic, GPL; https://search.cpan.org/dist/File-Listing
+- perl-file-sharedir 1.118-8: Artistic-1.0-Perl OR GPL-1.0-or-later; https://metacpan.org/dist/File-ShareDir
+- perl-html-parser 3.86-1: Artistic-1.0-Perl, GPL-1.0-or-later; https://search.cpan.org/dist/HTML-Parser/
+- perl-html-tagset 3.24-4: PerlArtistic; https://search.cpan.org/dist/HTML-Tagset/
+- perl-http-cookiejar 0.014-5: Apache; http://search.cpan.org/dist/HTTP-CookieJar
+- perl-http-cookies 6.12-1: Artistic-1.0-Perl, GPL-1.0-or-later; https://search.cpan.org/dist/HTTP-Cookies
+- perl-http-daemon 6.17-1: GPL-1.0-or-later OR Artistic-1.0-Perl; https://metacpan.org/pod/HTTP::Daemon
+- perl-http-date 6.08-1: PerlArtistic, GPL; https://search.cpan.org/dist/HTTP-Date
+- perl-http-message 7.04-1: Artistic-1.0-Perl OR GPL-1.0-or-later; https://search.cpan.org/dist/HTTP-Message
+- perl-http-negotiate 6.01-16: PerlArtistic, GPL; https://search.cpan.org/dist/HTTP-Negotiate
+- perl-io-html 1.004-8: PerlArtistic, GPL; https://search.cpan.org/dist/IO-HTML
+- perl-libwww 6.83-1: GPL-1.0-or-later OR Artistic-1.0-Perl; https://metacpan.org/release/libwww-perl
+- perl-lwp-mediatypes 6.05-1: Artistic-1.0-Perl, GPL-1.0-or-later; https://metacpan.org/release/LWP-MediaTypes
+- perl-mime-base32 1.303-13: PerlArtistic, GPL; https://search.cpan.org/dist/MIME-Base32
+- perl-net-http 6.24-2: PerlArtistic, GPL; https://search.cpan.org/dist/Net-HTTP
+- perl-try-tiny 0.32-4: MIT; https://search.cpan.org/dist/Try-Tiny
+- perl-uri 5.37-1: Artistic-1.0-Perl, GPL-1.0-or-later; https://search.cpan.org/dist/URI/
+- perl-www-robotrules 6.03-1: Artistic-1.0-Perl, GPL-1.0-or-later; https://metacpan.org/dist/WWW-RobotRules
+- perl-xml-parser 2.59-1: GPL-1.0-or-later, Artistic-1.0-Perl; https://github.com/cpan-authors/XML-Parser
+- python-cffi 2.1.1-1: MIT-0; https://cffi.readthedocs.org/
+- python-colorama 0.4.6-6: BSD; https://pypi.python.org/pypi/colorama
+- python-cryptography 50.0.2-1: Apache-2.0, BSD-3-Clause; https://github.com/pyca/cryptography
+- python-iniconfig 2.3.0-1: MIT; https://github.com/pytest-dev/iniconfig
+- python-jinja 1:3.1.6-3: BSD-3-Clause; https://palletsprojects.com/p/jinja/
+- python-legacy-cgi 2.6.4-2: PSF-2.0; https://github.com/jackrosenthal/legacy-cgi
+- python-lxml 6.1.3_1-1: BSD-3-Clause, MIT, MIT-CMU, GPL-2.0-only, LicenseRef-RNG2Schtrn, LicenseRef-XSD2Schtrn; https://lxml.de/
+- python-markupsafe 3.0.4-1: BSD-3-Clause; https://pypi.python.org/pypi/MarkupSafe
+- python-packaging 26.3-1: Apache-2.0 OR BSD-2-Clause; https://github.com/pypa/packaging
+- python-pefile 2024.8.26-2: MIT; https://github.com/erocarrera/pefile
+- python-pexpect 4.9.0-7: MIT; https://github.com/pexpect/pexpect
+- python-pluggy 1.7.0-1: MIT; https://github.com/pytest-dev/pluggy
+- python-psutil 7.2.2-1: BSD-3-Clause; https://github.com/giampaolo/psutil
+- python-ptyprocess 0.7.0-9: ISC; https://github.com/pexpect/ptyprocess
+- python-pycparser 3.11-1: BSD-3-Clause; https://github.com/eliben/pycparser
+- python-pyelftools 0.33-1: Unlicense; https://github.com/eliben/pyelftools
+- python-pygments 2.21.0-1: BSD-2-Clause; https://pygments.org/
+- python-pytest 1:9.1.1-1: MIT; https://docs.pytest.org
+- qrencode 4.1.1-4: GPL; https://fukuchi.org/works/qrencode/
+- quota-tools 1:4.11-1: GPL-2.0-or-later; https://sourceforge.net/projects/linuxquota/
+- rsync 3.5.1-3: GPL-3.0-or-later; https://rsync.samba.org/
