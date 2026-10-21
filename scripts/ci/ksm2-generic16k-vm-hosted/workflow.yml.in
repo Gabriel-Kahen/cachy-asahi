@@ -1,0 +1,161 @@
+name: native-arm-ksm2-generic16k
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact source SHA equal to the workflow revision
+        type: string
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: native-arm-ksm2-generic16k
+  cancel-in-progress: false
+jobs:
+  native:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi'
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 125
+    defaults:
+      run:
+        shell: bash
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      SLICE: scripts/ci/ksm2-generic16k-vm-hosted
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: ${{ inputs.source_sha }}
+          persist-credentials: false
+      - name: Exact source proof before secrets or component acquisition
+        timeout-minutes: 3
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' '@ENTRY_SHA@' "$SLICE/entry.py" '@HOSTED_SHA@' "$SLICE/hosted.py" '@MANIFEST_SHA@' "$SLICE/source-manifest.json" | sha256sum --check
+          python3 -I -B "$SLICE/entry.py" proof --source "$GITHUB_WORKSPACE"
+      - name: Source factory and finite refusal controls
+        timeout-minutes: 3
+        run: |
+          set -euo pipefail
+          python3 -I -B "$SLICE/entry.py" source --source "$GITHUB_WORKSPACE"
+          python3 -I -B "$SLICE/test_lane.py" --source "$GITHUB_WORKSPACE"
+          python3 -I -B "$SLICE/test_archive32.py"
+          python3 -I -B runtime/test_sharing.py
+          python3 -I -B runtime/test_interrupted.py
+      - name: Require both published finite component authorities before acquisition
+        id: selection
+        timeout-minutes: 3
+        run: python3 -I -B "$SLICE/entry.py" select --source "$GITHUB_WORKSPACE"
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: ${{ steps.selection.outputs.native_carrier }}
+          path: .ci-inputs/native
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: ${{ steps.selection.outputs.kernel_carrier }}
+          path: .ci-inputs/kernel
+          persist-credentials: false
+      - name: Exact component DATA and Root decision joins before host prerequisites and secrets
+        timeout-minutes: 3
+        run: python3 -I -B "$SLICE/entry.py" inputs --source "$GITHUB_WORKSPACE" --native "$GITHUB_WORKSPACE/.ci-inputs/native" --kernel "$GITHUB_WORKSPACE/.ci-inputs/kernel"
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: 04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd
+          path: .ci-inputs/retained-public-inputs
+          persist-credentials: false
+      - name: Bounded disposable runner QEMU prerequisite
+        timeout-minutes: 5
+        run: |
+          set -euo pipefail
+          sudo timeout --signal=TERM --kill-after=10s 120s apt-get -o Acquire::Retries=0 update
+          sudo timeout --signal=TERM --kill-after=10s 120s apt-get -o Acquire::Retries=0 install --no-install-recommends -y qemu-system-arm
+          /usr/bin/qemu-system-aarch64 --version
+          dpkg-query -W qemu-system-arm
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad
+          path: .ci-inputs/retained574
+          persist-credentials: false
+      - name: Exact retained574 source proof and original legacy cache prefills
+        timeout-minutes: 3
+        run: |
+          python3 -I -B - <<'PYKSMPREFILL'
+          import importlib.util,json,os,time
+          from pathlib import Path
+          root=Path(os.environ['GITHUB_WORKSPACE']).absolute()
+          path=root/'scripts/ci/ksm2-generic16k-vm-hosted/retained-inputs/ksm_retained_inputs.py'
+          spec=importlib.util.spec_from_file_location('_ksm_retained_early',path)
+          m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+          print(json.dumps(m.early(root,Path(os.environ['RUNNER_TEMP']).absolute(),time.monotonic()+170),sort_keys=True))
+          PYKSMPREFILL
+      - name: Prefetch exact32 frozen574 archive bytes before unchanged producer
+        timeout-minutes: 4
+        run: >-
+          python3 -I -B "$SLICE/archive32.py" --policy "$GITHUB_WORKSPACE/$SLICE/archive32-policy.json"
+          --inputs "$GITHUB_WORKSPACE/runtime/borrowed/maintained574-inputs.json"
+          --cache "$RUNNER_TEMP/ksm2-archive32"
+      - name: Prefetch exact20 additional frozen574 archive bytes before unchanged producer
+        timeout-minutes: 4
+        run: >-
+          python3 -I -B "$GITHUB_WORKSPACE/$SLICE/archive20.py" --policy "$GITHUB_WORKSPACE/$SLICE/archive20-policy.json"
+          --inputs "$GITHUB_WORKSPACE/runtime/borrowed/maintained574-inputs.json"
+          --cache "$RUNNER_TEMP/ksm2-archive20"
+      - name: Prefetch exact8 additional frozen574 archive bytes before unchanged producer
+        timeout-minutes: 4
+        run: >-
+          python3 -I -B "$GITHUB_WORKSPACE/$SLICE/archive8.py" --policy "$GITHUB_WORKSPACE/$SLICE/archive8-policy.json"
+          --inputs "$GITHUB_WORKSPACE/runtime/borrowed/maintained574-inputs.json"
+          --cache "$RUNNER_TEMP/ksm2-archive8"
+      - name: Original574 producer then owned KSM VM lifecycle
+        timeout-minutes: 117
+        env:
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01 }}
+          CACHY_OLD_FOUR_SCHEMA: '1'
+          CACHY_OLD_FOUR_SOURCE_EPOCH: '1791748800'
+          CACHY_OLD_FOUR_JBIGKIT_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_01 }}
+          CACHY_OLD_FOUR_JBIGKIT_02: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_02 }}
+          CACHY_OLD_FOUR_JBIGKIT_SIG_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_SIG_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_02: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_02 }}
+          CACHY_OLD_FOUR_LIBTIFF_03: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_03 }}
+          CACHY_OLD_FOUR_LIBTIFF_04: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_04 }}
+          CACHY_OLD_FOUR_LIBTIFF_05: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_05 }}
+          CACHY_OLD_FOUR_LIBTIFF_06: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_06 }}
+          CACHY_OLD_FOUR_LIBTIFF_07: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_07 }}
+          CACHY_OLD_FOUR_LIBTIFF_08: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_08 }}
+          CACHY_OLD_FOUR_LIBTIFF_09: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_09 }}
+          CACHY_OLD_FOUR_LIBTIFF_10: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_10 }}
+          CACHY_OLD_FOUR_LIBTIFF_11: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_11 }}
+          CACHY_OLD_FOUR_LIBTIFF_12: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_12 }}
+          CACHY_OLD_FOUR_LIBTIFF_13: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_13 }}
+          CACHY_OLD_FOUR_LIBTIFF_14: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_14 }}
+          CACHY_OLD_FOUR_LIBTIFF_15: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_15 }}
+          CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}
+        run: >-
+          python3 -I -B "$SLICE/entry.py" run --source "$GITHUB_WORKSPACE"
+          --native "$GITHUB_WORKSPACE/.ci-inputs/native" --kernel "$GITHUB_WORKSPACE/.ci-inputs/kernel"
+          --seed "$GITHUB_WORKSPACE/.ci-inputs/retained-public-inputs"
+          --inputs "$RUNNER_TEMP/ksm2-vm-inputs" --work "$RUNNER_TEMP/ksm2-vm-work"
+          --archive-cache "$RUNNER_TEMP/ksm2-archive32"
+      - name: Retain bounded receipts without private maps or package inputs
+        if: always()
+        timeout-minutes: 2
+        run: python3 -I -B "$SLICE/retain.py" --work "$RUNNER_TEMP/ksm2-vm-work" --output "$RUNNER_TEMP/ksm2-vm-public"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        if: always()
+        timeout-minutes: 3
+        with:
+          name: ksm2-generic16k-original
+          path: ${{ runner.temp }}/ksm2-vm-public
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
