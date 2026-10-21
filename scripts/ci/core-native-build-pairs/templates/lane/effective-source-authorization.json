@@ -3,7 +3,7 @@
   "cleanup_acceptance": false,
   "effective_profile": {
     "bytes": 8615,
-    "sha256": "7f1f1a3d401ce986f8824bb9e8b0109f500f2ef8eb9c8c7a33c3e534119e80bf"
+    "sha256": "3964a74c105e29010eb3c7277289890c7d621edcb04a461c2125a67a07d77e51"
   },
   "effective_profile_files": {
     "pacman/.SRCINFO": {
@@ -72,11 +72,11 @@
     },
     "profile.json": {
       "bytes": 8615,
-      "sha256": "7f1f1a3d401ce986f8824bb9e8b0109f500f2ef8eb9c8c7a33c3e534119e80bf"
+      "sha256": "3964a74c105e29010eb3c7277289890c7d621edcb04a461c2125a67a07d77e51"
     },
     "systemd/.SRCINFO": {
       "bytes": 8993,
-      "sha256": "5b9b3a841360c19bd1b71418349be74d4208b0d7d0cd6c2577ca0671452a33c0"
+      "sha256": "67d071a1526bcc48501c0b3d8210d2628e720f112bb15fb253b708f65e92cda0"
     },
     "systemd/0001-Use-Arch-Linux-device-access-groups.patch": {
       "bytes": 6920,
@@ -140,7 +140,7 @@
     },
     "systemd/PKGBUILD": {
       "bytes": 16104,
-      "sha256": "a8c6d3d0f6db1a1fb4a49d93308f879bbca5fc12e650e449ba20aa814a9069a1"
+      "sha256": "65170140c979b9496e36f5039301474c5177eea29a7c6bd952a83c0c612a8198"
     },
     "systemd/arch.conf": {
       "bytes": 243,
@@ -155,8 +155,8 @@
       "sha256": "3f2183b5f54a9aa4d0a7fcff61bfd407bd427b91c4b9e320c2b9359a57430f16"
     },
     "systemd/cachy-asahi-testlog.py": {
-      "bytes": 6359,
-      "sha256": "ca92026e9729fdea418b067442477db6c9c925ecbd5a08b0c75953cdf440288a"
+      "bytes": 7271,
+      "sha256": "b9b24eb4b0726f556097cb0b05b423aa14a5f147898e9e03519523f5ad523b1a"
     },
     "systemd/loader.conf": {
       "bytes": 18,
@@ -185,7 +185,7 @@
   },
   "effective_profile_proof": {
     "bytes": 162867,
-    "sha256": "a13af4fc6a125684d0bb0799ee141ee317bfe8c23aa25a6361a056ed5e13b3e0"
+    "sha256": "439806f298bb02067c3e060d54e94da85e0566306fc394e05cb205a61a2e92ac"
   },
   "namespace_header": {
     "bytes": 4600,
