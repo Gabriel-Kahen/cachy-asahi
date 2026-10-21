@@ -8,6 +8,8 @@ Each build passes 40 C cases and five CLI cases. The existing UID0-only guard re
 
 Separate host checks execute the real GTK fixture on a fresh authenticated displayfd Xvfb display. They verify actual owned helper and separate-session descendant retirement, duplicate stop/start refusal, a live window/other panel and successful retry. An unconfirmed-retirement case keeps both controls disabled. The permanent `welcome8-source` workflow runs source/build and GTK/process controls; it does not certify installed ARM desktop behavior.
 
+The native pair above qualifies the original recipe and fixture only. The current source keeps the installed program unchanged and fixes the private JSON child to write raw UTF-8; the original GTK test fails on Ubuntu24.04 GLib2.80, and the corrected whole test passes with every Unicode and Stop assertion intact. A fresh native pair for the changed test-source pins is pending.
+
 The recipe is an unselected development candidate. Installed lifecycle/GUI Stop behavior, actual 16K execution, both M2 Air sizes, performance and supported release acceptance remain NOT RUN. Welcome7 and its existing current606 results remain separate. Full composition must explicitly consume this new qualified archive.
 
 Retained local decision: `artifacts/development/welcome8-native-build-pair-actual-20261021/Root-component-acceptance.json`. The build pair uses distinct recorded containers on one host; physical-machine independence is not attested.
