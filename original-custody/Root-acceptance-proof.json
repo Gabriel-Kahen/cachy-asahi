@@ -1,0 +1,154 @@
+{
+  "VM": "NOT_RUN",
+  "acceptance": {
+    "bytes": 1651,
+    "sha256": "882d0c24882fda0b99a5041e6ea31a8c6f34ab2d758c585f8cc22d57a69bacf6"
+  },
+  "boot": "NOT_RUN",
+  "cleanup": {
+    "absence_verified": true,
+    "identity": [
+      2049,
+      3730699,
+      1001
+    ],
+    "status": "PASS_OWNED_BUILD_WORK_REMOVED"
+  },
+  "cleanup_scope": "SOURCE_ENFORCED_OWNED_WORK_REMOVAL_NOT_LIVE_HOST_OBSERVATION",
+  "configuration_delta": {
+    "before": {
+      "bytes": 63765,
+      "sha256": "c1ba2738d00616e289582033cc9638a804e964ae8d542ec3dfaf51e25cbf8606"
+    },
+    "boot": "NOT_RUN",
+    "changed": {
+      "CONFIG_ADVISE_SYSCALLS": {
+        "before": "n",
+        "proposed": "y"
+      },
+      "CONFIG_KSM": {
+        "before": "n",
+        "proposed": "y"
+      },
+      "CONFIG_XXHASH": {
+        "before": "n",
+        "proposed": "y"
+      }
+    },
+    "proposed": {
+      "bytes": 63793,
+      "sha256": "5f1f5e507586734c0955607960ceecfe822b5c908bfc1da9d29fe80ac627a8e9"
+    },
+    "status": "PASS_ACTUAL_SAME_BUILD_ENV_BASELINE_CONFIG_DELTA"
+  },
+  "hardware": "NOT_RUN",
+  "original_files": {
+    "Image": {
+      "bytes": 8884232,
+      "sha256": "039fbeaff5942de2317f47feec30a5c073691edf5f8cef8849b25d08006d4ddb"
+    },
+    "Image.header": {
+      "bytes": 64,
+      "sha256": "88e21a4947e11f150950cd4ffbf62e5b09f18fbb0a41c1fbe10beee596697604"
+    },
+    "acquisition.json": {
+      "bytes": 1849,
+      "sha256": "2850b28a900a16fcb23f77024d191417cc3acff7d139b2ab05ab478cd5baedbc"
+    },
+    "archive-header.bin": {
+      "bytes": 64,
+      "sha256": "7b55a2f470041a15cdb0a883366ddd1c1ebc6167bd940bf89eba49b316659cd6"
+    },
+    "baseline-build-receipt.json": {
+      "bytes": 5534,
+      "sha256": "5c6656c600b89dc4b1da2d1b96d7b2d9e1319e4f44a61091268ba7a94f4f2d5c"
+    },
+    "baseline-controller.json": {
+      "bytes": 692,
+      "sha256": "ed19c50312403a683c627acc03d484db98aa43f84a3edefffad8d240e779065f"
+    },
+    "baseline-controller.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "baseline-controller.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "baseline.config": {
+      "bytes": 63765,
+      "sha256": "c1ba2738d00616e289582033cc9638a804e964ae8d542ec3dfaf51e25cbf8606"
+    },
+    "build-receipt.json": {
+      "bytes": 6955,
+      "sha256": "fdd538c9e3c73f906da0c82f0b381b0385306a52d0dc1539ab13ceaa69938398"
+    },
+    "build.log": {
+      "bytes": 59594,
+      "sha256": "d4af282252b62fb5b52378612c04025cdaecd0b01d2257735bb1541439e68bc4"
+    },
+    "build_kernel.py": {
+      "bytes": 12899,
+      "sha256": "7372ebfece249fae202652f3c3bb419f730bd0e466dc076907270dac1ac873ed"
+    },
+    "candidate-controller.json": {
+      "bytes": 684,
+      "sha256": "b972eec3758962f523d19e9c838a73291fd5b46143a4935ffc6a35b527866fc9"
+    },
+    "candidate-controller.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "candidate-controller.stdout": {
+      "bytes": 6955,
+      "sha256": "fdd538c9e3c73f906da0c82f0b381b0385306a52d0dc1539ab13ceaa69938398"
+    },
+    "config": {
+      "bytes": 63793,
+      "sha256": "5f1f5e507586734c0955607960ceecfe822b5c908bfc1da9d29fe80ac627a8e9"
+    },
+    "configuration-delta.json": {
+      "bytes": 574,
+      "sha256": "27c0a7e0919843056a85bf4c8786cdee2b7ceed909154611a3dd526f1741ddac"
+    },
+    "configure.log": {
+      "bytes": 962,
+      "sha256": "dde62ad7c925ef366882cad11b172b825e670a3bc3dd8531ae14beaf0d140114"
+    },
+    "controller.json": {
+      "bytes": 1727,
+      "sha256": "0ea8e5764272141524631e7bf727a7d7e1d623bc6f41fa5efe0c5f3650c7130b"
+    },
+    "diagnostic.fragment": {
+      "bytes": 1885,
+      "sha256": "c482bd228f969e3424cb256a41512f12a0fc9d0f72eb25d70228108b3df329ae"
+    },
+    "kernel-profile.json": {
+      "bytes": 870,
+      "sha256": "32f07f6b229f0049cc71f8483977f9cdf371ff5ff1efff949659189637892569"
+    },
+    "kernel.fragment": {
+      "bytes": 1846,
+      "sha256": "f4a6dc3fbebd5f0e184422cddc490e47e6737d208c55b7df255b678604fe9267"
+    },
+    "ordered-cleanup.json": {
+      "bytes": 129,
+      "sha256": "062bc47b993a0966a6fcd8d3b16ebf0c1eecef35b534625dbc8ac879525c490e"
+    },
+    "source-manifest.json": {
+      "bytes": 2764,
+      "sha256": "f9901c25b09612d493b3a7751ca15a07133090b07f99e337c27c904c50add927"
+    },
+    "source-proof.json": {
+      "bytes": 433,
+      "sha256": "20d54194a75dbf33a92e2b0ca6e86578dc3e37d56361ac54256eb0afb054904c"
+    }
+  },
+  "performance": "NOT_MEASURED",
+  "release": "NOT_ADMITTED",
+  "run": 39340364029,
+  "sharing": "NOT_RUN",
+  "source": "80aa47304123106133832c11a9e4a405af5f1f67",
+  "source_files": 19,
+  "status": "ROOT_INDEPENDENT_SOURCE19_API_ZIP26_CONFIG_AND_IMAGE_JOINS_PASS"
+}

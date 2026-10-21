@@ -1,0 +1,51 @@
+{
+  "Image": {
+    "bytes": 8884232,
+    "sha256": "039fbeaff5942de2317f47feec30a5c073691edf5f8cef8849b25d08006d4ddb"
+  },
+  "VM": "NOT_RUN",
+  "archive": {
+    "bytes": 262965559,
+    "sha256": "874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad",
+    "source_revision": "94fb23346d522edf53722357c426a3e58030beea"
+  },
+  "boot": "NOT_RUN",
+  "build_receipt": {
+    "bytes": 6955,
+    "sha256": "fdd538c9e3c73f906da0c82f0b381b0385306a52d0dc1539ab13ceaa69938398"
+  },
+  "cleanup": "PASS_OWNED_BUILD_WORK_REMOVED",
+  "config": {
+    "bytes": 63793,
+    "sha256": "5f1f5e507586734c0955607960ceecfe822b5c908bfc1da9d29fe80ac627a8e9"
+  },
+  "configuration_delta": {
+    "bytes": 574,
+    "sha256": "27c0a7e0919843056a85bf4c8786cdee2b7ceed909154611a3dd526f1741ddac"
+  },
+  "descriptor": {
+    "bytes": 5699,
+    "sha256": "e11098ddab0e45bc9fec297bae2b6f8b22530835b9e8b60e177af48ca87f982f"
+  },
+  "hardware": "NOT_RUN",
+  "limits": [
+    "NO_BOOT_OR_SYSFS_EXECUTION_CREDIT",
+    "ORIGINAL_ABSOLUTE_RECEIPT_PATHS_ARE_PROVENANCE_NOT_LATER_JOB_PATHS",
+    "NO_INDEPENDENT_MACHINE_ATTESTATION"
+  ],
+  "live_kernel_write": "NOT_RUN",
+  "original_transport": {
+    "bytes": 496,
+    "sha256": "a6891003f76bb75cd4c69f20a448254a4f93f35c6f3c41ee8dda966b48f81d1b"
+  },
+  "performance": "NOT_MEASURED",
+  "profile": "KSM_ADVICE_GENERIC16K_DIAGNOSTIC_V1",
+  "release": "NOT_ADMITTED",
+  "run": 39340364029,
+  "source": "80aa47304123106133832c11a9e4a405af5f1f67",
+  "source_manifest": {
+    "bytes": 2764,
+    "sha256": "f9901c25b09612d493b3a7751ca15a07133090b07f99e337c27c904c50add927"
+  },
+  "status": "ROOT_ACCEPTED_KSM_ADVICE_DIAGNOSTIC16K_BUILD_ONLY"
+}

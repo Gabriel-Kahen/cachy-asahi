@@ -1,0 +1,79 @@
+{
+  "Git_API": "NOT_USED",
+  "files": {
+    "COPYING": {
+      "bytes": 496,
+      "http": 200,
+      "request_attempts": 1,
+      "sha256": "fb5a425bd3b3cd6071a3a9aff9909a859e7c1158d54d32e07658398cd67eb6a0",
+      "source_revision": "94fb23346d522edf53722357c426a3e58030beea",
+      "url": "https://raw.githubusercontent.com/AsahiLinux/linux/94fb23346d522edf53722357c426a3e58030beea/COPYING"
+    },
+    "LICENSES/exceptions/Linux-syscall-note": {
+      "bytes": 1258,
+      "http": 200,
+      "request_attempts": 1,
+      "sha256": "8e378ab93586eb55135d3bc119cce787f7324f48394777d00c34fa3d0be3303f",
+      "source_revision": "94fb23346d522edf53722357c426a3e58030beea",
+      "url": "https://raw.githubusercontent.com/AsahiLinux/linux/94fb23346d522edf53722357c426a3e58030beea/LICENSES/exceptions/Linux-syscall-note"
+    },
+    "LICENSES/preferred/GPL-2.0": {
+      "bytes": 18600,
+      "http": 200,
+      "request_attempts": 1,
+      "sha256": "8780e78a1a737e127f25a65f6d95269bffd36158dc261114de7859b490bfc5aa",
+      "source_revision": "94fb23346d522edf53722357c426a3e58030beea",
+      "url": "https://raw.githubusercontent.com/AsahiLinux/linux/94fb23346d522edf53722357c426a3e58030beea/LICENSES/preferred/GPL-2.0"
+    },
+    "arch/arm64/Kconfig": {
+      "bytes": 88260,
+      "http": 200,
+      "request_attempts": 1,
+      "sha256": "eb68af2f4d189ff950a5b9ce392afef8dc8e068636c19a851798fac09fd63124",
+      "source_revision": "94fb23346d522edf53722357c426a3e58030beea",
+      "url": "https://raw.githubusercontent.com/AsahiLinux/linux/94fb23346d522edf53722357c426a3e58030beea/arch/arm64/Kconfig"
+    },
+    "arch/arm64/include/uapi/asm/hwcap.h": {
+      "bytes": 4859,
+      "http": 200,
+      "request_attempts": 1,
+      "sha256": "f1f7d0d218620306b4a6be91153623b7b9460e132f754d378030a621b0cd7569",
+      "source_revision": "94fb23346d522edf53722357c426a3e58030beea",
+      "url": "https://raw.githubusercontent.com/AsahiLinux/linux/94fb23346d522edf53722357c426a3e58030beea/arch/arm64/include/uapi/asm/hwcap.h"
+    },
+    "arch/arm64/kernel/cpufeature.c": {
+      "bytes": 145646,
+      "http": 200,
+      "request_attempts": 1,
+      "sha256": "900435e3356a95bf4d7c3286c97a7b19d53192941898cb4e6ed9ad1fe6b8bb15",
+      "source_revision": "94fb23346d522edf53722357c426a3e58030beea",
+      "url": "https://raw.githubusercontent.com/AsahiLinux/linux/94fb23346d522edf53722357c426a3e58030beea/arch/arm64/kernel/cpufeature.c"
+    },
+    "arch/arm64/kernel/pi/idreg-override.c": {
+      "bytes": 10715,
+      "http": 200,
+      "request_attempts": 1,
+      "sha256": "749bb2b397543cae21fd1f4446e92b92c5a17f8dabc354618a0154cccc3cd108",
+      "source_revision": "94fb23346d522edf53722357c426a3e58030beea",
+      "url": "https://raw.githubusercontent.com/AsahiLinux/linux/94fb23346d522edf53722357c426a3e58030beea/arch/arm64/kernel/pi/idreg-override.c"
+    },
+    "arch/arm64/lib/memset.S": {
+      "bytes": 4929,
+      "http": 200,
+      "request_attempts": 1,
+      "sha256": "3f13114283d30974642c88413ee02a2911761528ea634f1fa0cdaac385d937af",
+      "source_revision": "94fb23346d522edf53722357c426a3e58030beea",
+      "url": "https://raw.githubusercontent.com/AsahiLinux/linux/94fb23346d522edf53722357c426a3e58030beea/arch/arm64/lib/memset.S"
+    },
+    "arch/arm64/tools/cpucaps": {
+      "bytes": 2239,
+      "http": 200,
+      "request_attempts": 1,
+      "sha256": "29ae4b1f7f30bac65fc64fa050259fda7b0f5d8ee175a2bd97153bb71c0eca6b",
+      "source_revision": "94fb23346d522edf53722357c426a3e58030beea",
+      "url": "https://raw.githubusercontent.com/AsahiLinux/linux/94fb23346d522edf53722357c426a3e58030beea/arch/arm64/tools/cpucaps"
+    }
+  },
+  "native": "NOT_RUN",
+  "status": "EXACT_REVISION_HTTPS_PRIMARY_BYTES_SOURCE_ONLY"
+}
