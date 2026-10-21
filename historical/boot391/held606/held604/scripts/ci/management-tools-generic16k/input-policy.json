@@ -1,0 +1,16 @@
+{
+  "packet_index": {
+    "bytes": 104659,
+    "path": "index.json",
+    "sha256": "b60048aa1312d22b1012a5d2d2e4c5185c8087b3a8f2b6c410ff9ec6a1dddfcf"
+  },
+  "packet_source": "92e433fa79eb57bfb3e4038feb30e7a7c87c652f",
+  "schema_version": 1,
+  "status": "ROOT_BOUND_NATIVE_INPUT_PACKET",
+  "versions": {
+    "cachy-asahi-apps": "0.1.0-5",
+    "cachy-asahi-cache": "0.2.0-1",
+    "cachy-asahi-orphans": "0.1.0-1",
+    "cachy-asahi-repository-runtime": "0.1.0-1"
+  }
+}
