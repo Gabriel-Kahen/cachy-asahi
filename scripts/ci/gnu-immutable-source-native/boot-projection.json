@@ -1,0 +1,25 @@
+{
+  "DM_VERSION": true,
+  "PID1": true,
+  "integrity": "NOT_QUALIFIED",
+  "kernel_build_decision": {
+    "bytes": 6667,
+    "sha256": "f615551a21aa60195ca62884bc0359f4630da9cb12f8e10ad949b41798a4764a"
+  },
+  "lifecycle": "NOT_QUALIFIED",
+  "page_size": 16384,
+  "poweroff": "NATURAL",
+  "purpose": "GNU_VERITY_KERNEL_BOOT_AVAILABILITY_ONLY_V1",
+  "run": 39159992802,
+  "scope": [
+    "GENERIC16K_BOOT",
+    "ACTUAL_PID1",
+    "AT_PAGESZ_16384",
+    "DM_VERSION",
+    "VERITY_TARGET_AVAILABLE",
+    "NATURAL_POWEROFF"
+  ],
+  "source": "bd31022395cc9231dfd966a4c0efc589ac1d49c2",
+  "verity_mapping": "NOT_QUALIFIED",
+  "verity_target": true
+}
