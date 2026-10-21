@@ -39,7 +39,7 @@ def audit(raw,intro_raw):
   project=v['suite'][0].split(':')[0];suites=[x.split(':')[1]for x in v['suite']if x.split(':')[1]]
   name=('+'.join(suites)+' - 'if suites else'')+project+':'+v['name']
   if name in expected:raise ValueError('unique introspection identity')
-  if type(v['cmd'])is not list or not v['cmd']or any(type(x)is not str or not x for x in v['cmd'])or type(v['env'])is not dict or any(type(k)is not str or type(x)is not str for k,x in v['env'].items()):raise ValueError('typed introspection invocation')
+  if type(v['cmd'])is not list or not v['cmd']or any(type(x)is not str for x in v['cmd'])or not v['cmd'][0]or type(v['env'])is not dict or any(type(k)is not str or type(x)is not str for k,x in v['env'].items()):raise ValueError('typed introspection invocation')
   expected[name]=v
  rows=[];seen=set();counts=collections.Counter()
  for line in raw.splitlines():
@@ -52,7 +52,7 @@ def audit(raw,intro_raw):
   if v['result']not in RESULTS or type(v['is_fail'])is not bool or v['is_fail']!=(v['result']in BAD):raise ValueError('finished typed Meson result')
   if type(v['returncode'])is not int or type(v['env'])is not dict or any(type(k)is not str or type(x)is not str for k,x in v['env'].items()):raise ValueError('typed Meson process record')
   if any(type(v[k])not in(int,float)or not math.isfinite(v[k])or v[k]<0 for k in('starttime','duration')):raise ValueError('finite Meson clock')
-  if type(v['command'])is not list or not v['command']or any(type(x)is not str or not x for x in v['command']):raise ValueError('complete test argv')
+  if type(v['command'])is not list or not v['command']or any(type(x)is not str for x in v['command'])or not v['command'][0]:raise ValueError('complete test argv')
   if any(type(v.get(k,''))is not str for k in('stdout','stderr')):raise ValueError('complete captured text')
   if v['is_fail']:raise ValueError('failed Meson test remains failed')
   counts[v['result']]+=1;rows.append(v)
@@ -75,10 +75,12 @@ def save(path,raw):
  finally:os.close(fd)
 def main():
  if len(sys.argv)!=3:raise ValueError('complete test log and introspection operands')
- raw=read(Path(sys.argv[1]));intro=read(Path(sys.argv[2]));result=audit(raw,intro)
+ raw=read(Path(sys.argv[1]));intro=read(Path(sys.argv[2]))
  mode=os.environ.get('CACHY_ASAHI_CORE_TESTLOG_EXPORT')
  if mode is not None:
   if mode!='1'or os.environ.get('CACHY_ASAHI_CORE_CONTAINER')!='1'or os.environ.get('CORE_RECIPE')!='systemd':raise ValueError('fixed owned build export scope')
-  save('/out/systemd-testlog.jsonl',raw);save('/out/systemd-intro-tests.json',intro);save('/out/systemd-testlog-audit.json',enc(result))
+  save('/out/systemd-testlog.jsonl',raw);save('/out/systemd-intro-tests.json',intro)
+ result=audit(raw,intro)
+ if mode is not None:save('/out/systemd-testlog-audit.json',enc(result))
  print(enc(result).decode(),end='')
 if __name__=='__main__':main()

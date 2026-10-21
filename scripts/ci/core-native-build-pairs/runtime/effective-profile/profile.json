@@ -96,7 +96,7 @@
       "inputs": {
         ".SRCINFO": {
           "bytes": 8993,
-          "sha256": "5b9b3a841360c19bd1b71418349be74d4208b0d7d0cd6c2577ca0671452a33c0"
+          "sha256": "67d071a1526bcc48501c0b3d8210d2628e720f112bb15fb253b708f65e92cda0"
         },
         "0001-Use-Arch-Linux-device-access-groups.patch": {
           "bytes": 6920,
@@ -160,7 +160,7 @@
         },
         "PKGBUILD": {
           "bytes": 16104,
-          "sha256": "a8c6d3d0f6db1a1fb4a49d93308f879bbca5fc12e650e449ba20aa814a9069a1"
+          "sha256": "65170140c979b9496e36f5039301474c5177eea29a7c6bd952a83c0c612a8198"
         },
         "arch.conf": {
           "bytes": 243,
@@ -175,8 +175,8 @@
           "sha256": "3f2183b5f54a9aa4d0a7fcff61bfd407bd427b91c4b9e320c2b9359a57430f16"
         },
         "cachy-asahi-testlog.py": {
-          "bytes": 6359,
-          "sha256": "ca92026e9729fdea418b067442477db6c9c925ecbd5a08b0c75953cdf440288a"
+          "bytes": 7271,
+          "sha256": "b9b24eb4b0726f556097cb0b05b423aa14a5f147898e9e03519523f5ad523b1a"
         },
         "loader.conf": {
           "bytes": 18,
@@ -209,7 +209,7 @@
       "project_packager": "Cachy-Asahi Experimental Core Builder",
       "recipe": {
         "bytes": 16104,
-        "sha256": "a8c6d3d0f6db1a1fb4a49d93308f879bbca5fc12e650e449ba20aa814a9069a1"
+        "sha256": "65170140c979b9496e36f5039301474c5177eea29a7c6bd952a83c0c612a8198"
       },
       "selected_for_target": false,
       "source_commit": "8cc40e0c5e9234bf45084751ac53b1fbfe70b492",
