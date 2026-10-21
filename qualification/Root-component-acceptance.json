@@ -1,0 +1,34 @@
+{
+  "M2": "NOT_RUN",
+  "actual16K": "NOT_RUN",
+  "actual_architecture": "aarch64",
+  "actual_page_size": 4096,
+  "build_independence": "Two recorded builds on one nativehost",
+  "current606": "NOT_RUN",
+  "direct_accepted5_transitions": 6,
+  "fixture_scope": "INERT_NAMESPACED_MODULES_AND_PRIVATE_USER_RECOVERY_FIXTURES_ONLY",
+  "full574_restored": true,
+  "installed_interrupted_recovery_cases": 6,
+  "legacy_cases": 60,
+  "manifest_files": 70,
+  "masked_hooks": 41,
+  "ordered_cleanup": "PASS",
+  "ordinary_legacy_transitions": 8,
+  "ordinary_observations": 24,
+  "package": {
+    "bytes": 27188,
+    "sha256": "a4fc772da0fd460f07380c4bc6bc1396688745907a993fe2591778082dae05c8"
+  },
+  "real_setup_modules": "NOT_RUN",
+  "ref": "codex/setup6-isolated-producer-v1",
+  "release": "NOT_ADMITTED",
+  "run": 39595642635,
+  "source": "141ba835bb632483342c6a7f0246c7fe0f2bc5c3",
+  "source_files": 73,
+  "status": "ROOT_ACCEPTED_FINITE_NATIVE_SETUP6_PAIR_AND_INSTALLED_FIXTURE_LIFECYCLE",
+  "strict": {
+    "bytes": 861,
+    "sha256": "b4cb16096528d1aa60f6a91baa33b66a25ed61f0050bb92021a5949a68236b12"
+  },
+  "time_utc": "2026-10-21T12:03:31.892668+00:00"
+}

@@ -1,0 +1,23 @@
+{
+  "status": "PASS_PASSIVE_SETUP6_PAIR_AND_INSTALLED_RECOVERY_DATA_NOT_ROOT_ADMISSION",
+  "run_id": 39595642635,
+  "source": "141ba835bb632483342c6a7f0246c7fe0f2bc5c3",
+  "closed_files": 300,
+  "closed_bytes": 3022792,
+  "source_files": 70,
+  "retained_setup4_files": 64,
+  "package_bytes": 27188,
+  "package_sha256": "a4fc772da0fd460f07380c4bc6bc1396688745907a993fe2591778082dae05c8",
+  "package_transitions": 8,
+  "ordinary_user_observations": 24,
+  "legacy_profiles": 5,
+  "new_grouped_profile": 1,
+  "cases_per_profile": 10,
+  "full574_restored": true,
+  "ordered_cleanup": "PASS",
+  "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY",
+  "real_modules": "NOT_RUN",
+  "actual_page_size": 4096,
+  "hardware": "NOT_RUN",
+  "release": "UNSELECTED"
+}

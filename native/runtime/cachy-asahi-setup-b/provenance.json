@@ -1,0 +1,137 @@
+{
+  "artifacts": {
+    "cachy-asahi-setup-0.1.0-6-any.pkg.tar.xz": "a4fc772da0fd460f07380c4bc6bc1396688745907a993fe2591778082dae05c8"
+  },
+  "clean_environment_id": "cachy-asahi-product-adda84edb8f3e863a9c05e914fe4eb23",
+  "command": [
+    "docker",
+    "run",
+    "--name",
+    "cachy-asahi-product-adda84edb8f3e863a9c05e914fe4eb23",
+    "--pull=never",
+    "--platform=linux/arm64",
+    "--network=none",
+    "--cap-drop=ALL",
+    "--security-opt=no-new-privileges",
+    "--pids-limit=256",
+    "--memory=3g",
+    "--cpus=4",
+    "--user",
+    "1001:1001",
+    "--tmpfs",
+    "/tmp:rw,nosuid,nodev,exec,size=2g",
+    "--mount",
+    "type=bind,src=/home/runner/work/_temp/setup6-native-runtime/cachy-asahi-setup-b/artifacts,dst=/out",
+    "--read-only",
+    "--label=org.cachy-asahi.setup6-native.job=6db21402725cf15731bd56878c204d5c",
+    "--env=CACHY_ASAHI_CONTAINER=1",
+    "--env=SOURCE_DATE_EPOCH=1791748800",
+    "--mount",
+    "type=bind,src=/home/runner/work/_temp/setup6-native-runtime/cachy-asahi-setup-b/inputs,dst=/inputs,readonly",
+    "--mount",
+    "type=bind,src=/home/runner/work/_temp/setup6-native-runtime/cachy-asahi-setup-b/expected-packages.lock,dst=/expected-packages.lock,readonly",
+    "--mount",
+    "type=bind,src=/home/runner/work/cachy-asahi/cachy-asahi/scripts/build/container-entry.sh,dst=/builder-entry.sh,readonly",
+    "--entrypoint=/bin/bash",
+    "sha256:f2123329f09bb86f0f50bc38fda5e0c91d38a4cdad81534c9301bc94a2588ce0",
+    "/builder-entry.sh"
+  ],
+  "entry_script_sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24",
+  "expected_packages_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+  "files": {
+    "artifacts/cachy-asahi-setup-0.1.0-6-any.pkg.tar.xz": "a4fc772da0fd460f07380c4bc6bc1396688745907a993fe2591778082dae05c8",
+    "artifacts/config.sha256": "8309cb4c0409ccdc1ca922475dde9377aec434911efc453299f41e8fadb234ec",
+    "artifacts/environment.txt": "51b9b9bed34fad4e7dca9daea20f2b63ad40f03bc0afa53df98ea3d1358ca76d",
+    "artifacts/generated.SRCINFO": "13a9aa43d9a00cd4de4c4f34728ae47899c18c2b4668354757111c1e9c7e9550",
+    "artifacts/makepkg.conf": "cfcf0bd2601d887724c5ca7d9a48ac5dd347abad9e8ac5efa436080e45822a60",
+    "artifacts/packages.lock": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+    "artifacts/pacman.conf": "14d304eeb83baf1379279356c232580fd095c2d508b41c74677347801a0bafe7",
+    "build.log": "281d446b82ea2d1b8360ed17104a26ef51a01d2e73c2cc2046eecc5520ed6552",
+    "expected-packages.lock": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+    "validation.json": "c8e5a49324c904c896ff23a633feb68e00408be51f059bc8b94e2bd05c05458f"
+  },
+  "hardware_status": "NOT RUN",
+  "image": "sha256:f2123329f09bb86f0f50bc38fda5e0c91d38a4cdad81534c9301bc94a2588ce0",
+  "image_id": "sha256:f2123329f09bb86f0f50bc38fda5e0c91d38a4cdad81534c9301bc94a2588ce0",
+  "mode": "native",
+  "recipe_inputs": {
+    ".SRCINFO": "13a9aa43d9a00cd4de4c4f34728ae47899c18c2b4668354757111c1e9c7e9550",
+    "LICENSE": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+    "NOTICE": "a885656c42b81e413549976eb56fa1aad59018af1cad8954f00f45cbd1c2d018",
+    "PKGBUILD": "4a113d14db9d8fa225d67491532b5d2b182da1ca21e564925999966c612bd91b",
+    "README.md": "ac3033357bf2443c65ec5e257b9504086c5b412f256de00aff12d07c93292e35",
+    "cachy-asahi-repository": "38db2d45955b569a4c74c3f31d6b6c79611126238e1bbe1e5cf819f81d0fb54f",
+    "cachy-asahi-setup": "29d68d371071487ffd9b5453c2c056105e73f6b2971c98873731193eab6534b0",
+    "check-packaged.py": "a36c6b0c5e5e51cee5a88b2bc2d21b292de413e3ea5664936f4097ff52e55ca6",
+    "check-sync.py": "9fb6ff8f1a9304f6e55895b5d83845a8776c77669aac0ec55a58c47b25150a1a",
+    "repository-enrollment.md": "a14a53311e7c995b468ddcec1e4996611d7cfe9bb08eb255e0cb6bfee6dcc7e1",
+    "source-provenance.json": "988c363cd9024ae7e29867cf8153ac19fc824a39a58692fe0c8bddb79d0aa8cf",
+    "test-sync.py": "9596373cef5469512b6bae3e0bf1dc6a1b093012779f1488765281aef27de9b3"
+  },
+  "recipe_metadata": {
+    "arch": [
+      "any"
+    ],
+    "depends": [
+      "python>=3.11",
+      "gnupg",
+      "pacman"
+    ],
+    "license": [
+      "MIT"
+    ],
+    "optdepends": [
+      "cachy-asahi-hyprland-settings: optional desktop template",
+      "cachy-asahi-fish-config: optional Fish template",
+      "cachy-asahi-zsh-config: optional Zsh template",
+      "cachy-asahi-fish-bang-bang: explicit optional Fish history expansion",
+      "cachy-asahi-fish-autopair: explicit optional Fish pairing",
+      "cachy-asahi-fish-done: explicit optional Fish completion notifications",
+      "cachy-asahi-zsh-autosuggestions: explicit optional Zsh history suggestions",
+      "cachy-asahi-zsh-syntax-highlighting: explicit optional Zsh highlighting",
+      "cachy-asahi-zsh-history-substring-search: explicit optional Zsh substring search"
+    ],
+    "pkgbase": [
+      "cachy-asahi-setup"
+    ],
+    "pkgdesc": [
+      "Explicit cachy-asahi user setup and repository enrollment"
+    ],
+    "pkgname": [
+      "cachy-asahi-setup"
+    ],
+    "pkgrel": [
+      "6"
+    ],
+    "pkgver": [
+      "0.1.0"
+    ],
+    "sha256sums": [
+      "29d68d371071487ffd9b5453c2c056105e73f6b2971c98873731193eab6534b0",
+      "ac3033357bf2443c65ec5e257b9504086c5b412f256de00aff12d07c93292e35",
+      "a885656c42b81e413549976eb56fa1aad59018af1cad8954f00f45cbd1c2d018",
+      "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+      "988c363cd9024ae7e29867cf8153ac19fc824a39a58692fe0c8bddb79d0aa8cf",
+      "9fb6ff8f1a9304f6e55895b5d83845a8776c77669aac0ec55a58c47b25150a1a",
+      "9596373cef5469512b6bae3e0bf1dc6a1b093012779f1488765281aef27de9b3",
+      "38db2d45955b569a4c74c3f31d6b6c79611126238e1bbe1e5cf819f81d0fb54f",
+      "a14a53311e7c995b468ddcec1e4996611d7cfe9bb08eb255e0cb6bfee6dcc7e1"
+    ],
+    "source": [
+      "cachy-asahi-setup",
+      "README.md",
+      "NOTICE",
+      "LICENSE",
+      "source-provenance.json",
+      "check-sync.py",
+      "test-sync.py",
+      "cachy-asahi-repository",
+      "repository-enrollment.md"
+    ],
+    "url": [
+      "https://github.com/Gabriel-Kahen/cachy-asahi"
+    ]
+  },
+  "source_date_epoch": 1791748800,
+  "status": "built-package-static-pass"
+}

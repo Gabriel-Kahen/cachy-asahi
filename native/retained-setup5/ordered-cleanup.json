@@ -1,0 +1,41 @@
+{
+  "consumer": {
+    "containers": [
+      {
+        "absence_verified": true,
+        "container": "cachy-asahi-product-lifecycle-d44126a245ec602f220c2be122de1273",
+        "status": "PASS"
+      },
+      {
+        "absence_verified": true,
+        "container": "cachy-asahi-product-10536fac8c5fac8be5b5ee33507721ce",
+        "status": "PASS"
+      },
+      {
+        "absence_verified": true,
+        "container": "cachy-asahi-product-b42569b2bdc758cc6febc3e0aa4c042b",
+        "status": "PASS"
+      },
+      {
+        "absence_verified": true,
+        "container": "cachy-asahi-product-probe-f8cdcb77366e1211fedff19595d13c63",
+        "status": "PASS"
+      }
+    ],
+    "status": "PASS_CONSUMERS_RETIRED"
+  },
+  "producer": {
+    "build": "COMPLETED",
+    "image": {
+      "absence_verified": true,
+      "id": "sha256:abe1441d4e1edba42255899a46cb33fcb832efdedbb5ce97ea7bdcdb9e434bdb"
+    },
+    "probe": {
+      "absence_verified": true,
+      "cid": "7f283124f32c93f3e5d270531048962a11459a642f91c82d9b0971e980d7e260",
+      "name": "cachy-asahi-574-probe-dfc6ab2e25452289"
+    },
+    "status": "PASS"
+  },
+  "status": "PASS_ORDERED_CONSUMER_THEN_PRODUCER_CLEANUP"
+}

@@ -1,0 +1,22 @@
+{
+  "actual_page_size": 4096,
+  "adapter_sha256": "b1ce6d0d7d760e047c0935108b1dc46c7920e750c29ac2a13cf5d71fc800ba7b",
+  "cases": {
+    "test_after_state_commit_preview_is_all_applied_and_never_duplicates_blocks": "PASS",
+    "test_changed_required_template_refuses_preview_and_retains_journal": "PASS",
+    "test_edited_target_is_reported_before_apply_without_content_or_writes": "PASS",
+    "test_preview_and_apply_share_exact_preparation_and_apply_rechecks": "PASS",
+    "test_real_interrupted_activate_lists_applied_and_pending_then_recovers": "PASS",
+    "test_real_interrupted_remove_reports_remaining_removals": "PASS"
+  },
+  "hardware": "NOT_RUN",
+  "installed_helper": true,
+  "installed_helper_sha256": "29d68d371071487ffd9b5453c2c056105e73f6b2971c98873731193eab6534b0",
+  "native_architecture": "aarch64",
+  "private_fixtures_retired": true,
+  "source_test_sha256": "275105797d301bc718fd494573a087ed3494c521cf004970570cbef68e3952cb",
+  "status": "PASS_ACTUAL_INSTALLED_SETUP6_INTERRUPTED_RECOVERY_PREVIEW",
+  "system_mutation": "NONE_USER_FIXTURES_ONLY",
+  "tests": 6,
+  "uid": 1000
+}

@@ -1,0 +1,15 @@
+{
+  "consumer_token": "6db21402725cf15731bd56878c204d5c",
+  "job_token": "dbeecf87e13dba42",
+  "run_attempt": "1",
+  "run_id": "39595642635",
+  "setup6_adapter_sha256": {
+    "job": "e4bdc54c80ee0a834eb8a4b2e08bcfbc7df9cfdf5a33851deff11ab7466de338",
+    "run": "f7438641bfc9b2e0f2b534d49bd01a2920e8e6c221bf9a97b8f2a6099c9d9655",
+    "welcome_build": "897a7c65cbacae0d08ece4244b32c102b5e2a252e75035f50237c0968b508d52"
+  },
+  "source_files": 70,
+  "source_sha": "141ba835bb632483342c6a7f0246c7fe0f2bc5c3",
+  "status": "SOURCE_PROOF_PASS",
+  "workflow_sha": "141ba835bb632483342c6a7f0246c7fe0f2bc5c3"
+}
