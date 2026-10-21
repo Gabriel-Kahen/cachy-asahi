@@ -170,3 +170,16 @@ interrupted recovery, Asahi integration, either M2 Air size, performance gains,
 production trust or release selection. Earlier failures remain failed. Detailed
 local decisions: `artifacts/development/welcome7-gui-pair-acceptance-root-20261021/Root-pair-acceptance.json`
 and `artifacts/development/ksm16k-counter-epoch-native-actual-20261020/Root-component-acceptance.json`.
+
+
+## Boot607 and controlled KSM interruption (2026-10-21)
+
+[Boot607 run39567514315](boot607-native-component-20261021.md) qualifies the finite
+native-container606/607 installation lifecycle and six offline synthetic fixture
+executions. It does not qualify real boot history or recovery.
+
+[KSM run39573487748](ksm16k-controlled-interruption-20261021.md) additionally
+qualifies controlled SIGTERM after actual owned-page sharing in a generic16K VM:
+unmerge, contents, settings and process retirement pass. Installed scalar-command
+interruption remains NOT RUN. Both records preserve their original artifacts and
+complete reader predicates. Neither supplies M2, performance or release acceptance.
