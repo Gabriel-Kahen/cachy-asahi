@@ -1,0 +1,28 @@
+name: retained-build-inputs
+on:
+  push:
+    paths:
+      - scripts/ci/retained-build-inputs/**
+      - .github/workflows/retained-build-inputs.yml
+  pull_request:
+    paths:
+      - scripts/ci/retained-build-inputs/**
+      - .github/workflows/retained-build-inputs.yml
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: ubuntu-24.04
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Check retained-input cache preservation and CLI routing
+        run: |
+          python3 -B -Werror::ResourceWarning scripts/ci/retained-build-inputs/test_seed.py
+          python3 -B -Werror::ResourceWarning scripts/ci/retained-build-inputs/test_cli.py
+      - name: Check standalone CLI help outside the source directory
+        working-directory: ${{ runner.temp }}
+        run: python3 -B "$GITHUB_WORKSPACE/scripts/ci/retained-build-inputs/prepare.py" --help
