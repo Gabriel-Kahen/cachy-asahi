@@ -1,0 +1,51 @@
+name: current607-native-graph-profile
+on:
+  pull_request:
+    paths:
+      - 'scripts/ci/current607-native-graph-profile/**'
+      - '.github/workflows/current607-native-graph-profile.yml'
+  push:
+    paths:
+      - 'scripts/ci/current607-native-graph-profile/**'
+      - '.github/workflows/current607-native-graph-profile.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONWARNINGS: error
+    steps:
+      - name: Check out the current factory
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Check out the exact input555 fixture
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: ${{ github.repository }}
+          ref: 4c8a7046ce3a42deb6630229607f54d0e2b8cf63
+          path: fixtures/source555
+          persist-credentials: false
+      - name: Check out the exact expected561 fixture
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: ${{ github.repository }}
+          ref: e8cface65674ec4a6072c5675754ad37faa15c9c
+          path: fixtures/source561
+          persist-credentials: false
+      - name: Run five real descriptor controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -W error -B scripts/ci/current607-native-graph-profile/test_descriptor.py
+      - name: Run four factory controls against both exact fixtures
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -W error -B scripts/ci/current607-native-graph-profile/test_profile.py \
+            --source "$GITHUB_WORKSPACE/fixtures/source555" \
+            --expected "$GITHUB_WORKSPACE/fixtures/source561"
