@@ -1,0 +1,150 @@
+{
+  "status": "PASS_NATIVE_WELCOME8_BUILD_PAIR_RETAINED_ONLY",
+  "files": {
+    "retained-inputs.json": {
+      "bytes": 370464,
+      "sha256": "e91d149422be69507a69092fbe875f9005bed068d232c8b23e473cce8133b85f"
+    },
+    "source-proof.json": {
+      "bytes": 354,
+      "sha256": "373d289c0301224d85baa6f9d02a57b78fe2a3b08c91e71103abc3129ea63470"
+    },
+    "base/report.json": {
+      "bytes": 1650,
+      "sha256": "4b3149b3c18fd80fc237559f5c6cbc60c360ad8126990b86444ece73b37d866c"
+    },
+    "base/installed-packages.lock": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "runtime/report.json": {
+      "bytes": 15198,
+      "sha256": "8f1e71ee71a7ddbbc94082ff58fe3a35e5b5faceecbd1211ccc572292758b979"
+    },
+    "runtime/base-inventory.log": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "runtime/cleanup-cachy-asahi-product-6dcf76aa2bd92a988ee9d5e9bf4fd5b2.log": {
+      "bytes": 53,
+      "sha256": "1b498c6339cc6d4179badf69e54d867c9b3a747aae9f3e3a8b900667457fcddd"
+    },
+    "runtime/cleanup-cachy-asahi-product-8d67921300a6e4e51e6b51109f4a0c45.log": {
+      "bytes": 53,
+      "sha256": "e464da58e2ea53a762b30e27aa508fab2ab0617a9dcb0b6be79b28ec9d921d38"
+    },
+    "runtime/cleanup-cachy-asahi-product-probe-6bedfc4d06efb3948bce9d0521fe8256.log": {
+      "bytes": 59,
+      "sha256": "c03a6b3697aa5049ed5ee405967ccd075dccfd693ac7b6edd843fce7fef33b72"
+    },
+    "runtime/cachy-asahi-welcome-comparison.json": {
+      "bytes": 403,
+      "sha256": "f2d420e9277dfed228a6f33b1615e320ab9322d59b8e8b9a6bcbb1675cbe103c"
+    },
+    "runtime/cachy-asahi-welcome-a/provenance.json": {
+      "bytes": 9142,
+      "sha256": "e354640d7892557fe8187e22110f76a40fe1c2f0a24f4ef46a9a815d072e7914"
+    },
+    "runtime/cachy-asahi-welcome-a/validation.json": {
+      "bytes": 35782,
+      "sha256": "3031196a4e37d206f9e13666b904602d93d74e053a0e889ccc7e05c23162297b"
+    },
+    "runtime/cachy-asahi-welcome-a/build.log": {
+      "bytes": 12775,
+      "sha256": "446ac5211b51418a95af01344516570ac26442f483cf456e459f4f64669cfdf3"
+    },
+    "runtime/cachy-asahi-welcome-a/expected-packages.lock": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "runtime/cachy-asahi-welcome-a/artifacts/environment.txt": {
+      "bytes": 11501,
+      "sha256": "540090ff8e3b7c4cdf450f40713e3147c95b7a8c654cfd5e654e5dad11dc7191"
+    },
+    "runtime/cachy-asahi-welcome-a/artifacts/packages.lock": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "runtime/cachy-asahi-welcome-a/artifacts/config.sha256": {
+      "bytes": 167,
+      "sha256": "8309cb4c0409ccdc1ca922475dde9377aec434911efc453299f41e8fadb234ec"
+    },
+    "runtime/cachy-asahi-welcome-a/artifacts/makepkg.conf": {
+      "bytes": 6651,
+      "sha256": "cfcf0bd2601d887724c5ca7d9a48ac5dd347abad9e8ac5efa436080e45822a60"
+    },
+    "runtime/cachy-asahi-welcome-a/artifacts/pacman.conf": {
+      "bytes": 116,
+      "sha256": "14d304eeb83baf1379279356c232580fd095c2d508b41c74677347801a0bafe7"
+    },
+    "runtime/cachy-asahi-welcome-a/artifacts/generated.SRCINFO": {
+      "bytes": 3610,
+      "sha256": "30e212168a7841517921f1909890618badedf2b1bc7d126e4a9345cd5416dd47"
+    },
+    "packages/cachy-asahi-welcome-a/cachy-asahi-welcome-0.1.0-8-aarch64.pkg.tar.xz": {
+      "bytes": 40400,
+      "sha256": "1cbb8f5f9fd5f072ba2974837cf10dc7e90edbd236cbf3a34916cd0af3d4b240"
+    },
+    "runtime/cachy-asahi-welcome-b/provenance.json": {
+      "bytes": 9142,
+      "sha256": "e148bdefa59f2cc25fef8d8c74b0a190b48ad9c1cd62e759fe3544e34338b606"
+    },
+    "runtime/cachy-asahi-welcome-b/validation.json": {
+      "bytes": 35782,
+      "sha256": "3031196a4e37d206f9e13666b904602d93d74e053a0e889ccc7e05c23162297b"
+    },
+    "runtime/cachy-asahi-welcome-b/build.log": {
+      "bytes": 12775,
+      "sha256": "575efa13359f8f6278e227e12dffb2b2143977416208d6a90f1216fc59fc81f1"
+    },
+    "runtime/cachy-asahi-welcome-b/expected-packages.lock": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "runtime/cachy-asahi-welcome-b/artifacts/environment.txt": {
+      "bytes": 11501,
+      "sha256": "f8cf376fafae6c77a756410c330b5a3cf5c65ab9448d5ba429dce567540f5fc4"
+    },
+    "runtime/cachy-asahi-welcome-b/artifacts/packages.lock": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "runtime/cachy-asahi-welcome-b/artifacts/config.sha256": {
+      "bytes": 167,
+      "sha256": "8309cb4c0409ccdc1ca922475dde9377aec434911efc453299f41e8fadb234ec"
+    },
+    "runtime/cachy-asahi-welcome-b/artifacts/makepkg.conf": {
+      "bytes": 6651,
+      "sha256": "cfcf0bd2601d887724c5ca7d9a48ac5dd347abad9e8ac5efa436080e45822a60"
+    },
+    "runtime/cachy-asahi-welcome-b/artifacts/pacman.conf": {
+      "bytes": 116,
+      "sha256": "14d304eeb83baf1379279356c232580fd095c2d508b41c74677347801a0bafe7"
+    },
+    "runtime/cachy-asahi-welcome-b/artifacts/generated.SRCINFO": {
+      "bytes": 3610,
+      "sha256": "30e212168a7841517921f1909890618badedf2b1bc7d126e4a9345cd5416dd47"
+    },
+    "packages/cachy-asahi-welcome-b/cachy-asahi-welcome-0.1.0-8-aarch64.pkg.tar.xz": {
+      "bytes": 40400,
+      "sha256": "1cbb8f5f9fd5f072ba2974837cf10dc7e90edbd236cbf3a34916cd0af3d4b240"
+    }
+  },
+  "errors": [],
+  "total_bytes": 695224,
+  "GUI": "NOT_RUN",
+  "hardware": "NOT_RUN",
+  "selection": "UNSELECTED_CANDIDATES",
+  "release_trust": "NOT_RUN",
+  "original_ten_composition": "UNCHANGED",
+  "reproducibility": {
+    "cachy-asahi-welcome": {
+      "cachy-asahi-welcome-0.1.0-8-aarch64.pkg.tar.xz": {
+        "buildinfo_equal": true,
+        "bytes_equal": true,
+        "installed_contents_equal": true,
+        "pkginfo_equal": true
+      }
+    }
+  }
+}
