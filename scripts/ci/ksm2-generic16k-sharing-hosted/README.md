@@ -22,3 +22,12 @@ KSM_SHARING_SCALAR_RUNTIME=/absolute/path/to/pinned-scalar605/runtime \
 ```
 
 Controls include exact default/selected628 emission, original608 and scalar605 self-reproduction, pre-output tamper/selection refusal, all14 original sharing/owned-FD controls, and the exact partial scan-epoch relation. They do not construct a passing VM receipt, access host KSM sysfs, or run a VM. Source emission carries no new performance, M2, native execution, hardware, interruption or release claim.
+
+The optional `--controlled-interruption` flag selects the maintained sibling
+`ksm2-generic16k-interrupted-sharing-hosted` factory and emits its fixed637 source.
+It adds a controlled owned-controller SIGTERM case and immutable complete574
+cache preparation. The ordinary command above continues to emit the exact628
+source. Component binding is still explicit and actual source/ref/run stay NULL.
+This source option grants no native interruption, scalar interruption, M2,
+performance or release acceptance. See the sibling README for exact scope and
+unchanged budgets.
