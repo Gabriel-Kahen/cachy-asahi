@@ -1,0 +1,52 @@
+{
+  "GUI": "NOT_RUN",
+  "M2": "NOT_RUN",
+  "boot_history": "UNKNOWN",
+  "cleanup": "ORIGINAL_SOURCE_3_BUILD_CONTAINERS_AND_OWNED_BUILDER_FULL_REPLAY",
+  "crash_diagnosis": "NOT_ESTABLISHED",
+  "hardware": "NOT_RUN",
+  "installed_scope": "NOT_RUN_BUILD_PAIR_ONLY",
+  "limitations": [
+    "Input snapshots regenerated only from independently authorized exact source; collected code never imported or executed.",
+    "No installed lifecycle, user/configuration preservation or real boot history is established by build-pair evidence.",
+    "Recorded native containers are one-host independence, not two independent machines.",
+    "No real boot/crash history, recovery, live pstore, Asahi, GUI,16K,M2 or release-trust acceptance."
+  ],
+  "original_job": {
+    "job_id": 119194638874,
+    "native_label": "ubuntu-24.04-arm",
+    "steps": [
+      3,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16
+    ]
+  },
+  "pairs": {
+    "cachy-asahi-welcome": {
+      "errors": [],
+      "hardware_status": "NOT RUN",
+      "independence_limit": "Distinct recorded container runs; independent machine execution is not attested.",
+      "packages": {
+        "cachy-asahi-welcome-0.1.0-8-aarch64.pkg.tar.xz": {
+          "buildinfo_equal": true,
+          "bytes_equal": true,
+          "installed_contents_equal": true,
+          "pkginfo_equal": true
+        }
+      },
+      "status": "contents-reproduced"
+    }
+  },
+  "release": "NOT_ADMITTED",
+  "run": 39591889512,
+  "source": "23e1205414dc74c577f1ee61baf0ee661ed5e678",
+  "source_files": 117,
+  "status": "PASS_PASSIVE_NATIVE_WELCOME8_BUILD_PAIR_ONLY_PENDING_ROOT"
+}

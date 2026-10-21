@@ -1,0 +1,447 @@
+{
+  "GUI": "NOT_RUN",
+  "base_count": 574,
+  "base_image": "sha256:2a4cb2b30aa867da433d2febb97fc97ca39bef791c08f5ee5106edca80be465a",
+  "base_lock_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+  "cleanup": [
+    {
+      "absence_verified": true,
+      "container": "cachy-asahi-product-6dcf76aa2bd92a988ee9d5e9bf4fd5b2",
+      "status": "PASS"
+    },
+    {
+      "absence_verified": true,
+      "container": "cachy-asahi-product-8d67921300a6e4e51e6b51109f4a0c45",
+      "status": "PASS"
+    },
+    {
+      "absence_verified": true,
+      "container": "cachy-asahi-product-probe-6bedfc4d06efb3948bce9d0521fe8256",
+      "status": "PASS"
+    }
+  ],
+  "commands": [
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--name",
+        "cachy-asahi-product-probe-6bedfc4d06efb3948bce9d0521fe8256",
+        "--pull=never",
+        "--network=none",
+        "--read-only",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges",
+        "--entrypoint=/usr/bin/pacman",
+        "sha256:2a4cb2b30aa867da433d2febb97fc97ca39bef791c08f5ee5106edca80be465a",
+        "-Q"
+      ],
+      "log": "base-inventory.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--name",
+        "cachy-asahi-product-8d67921300a6e4e51e6b51109f4a0c45",
+        "--pull=never",
+        "--platform=linux/arm64",
+        "--network=none",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges",
+        "--pids-limit=256",
+        "--memory=3g",
+        "--cpus=4",
+        "--user",
+        "1001:1001",
+        "--tmpfs",
+        "/tmp:rw,nosuid,nodev,exec,size=2g",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/product-native-runtime/cachy-asahi-welcome-a/artifacts,dst=/out",
+        "--read-only",
+        "--env=CACHY_ASAHI_CONTAINER=1",
+        "--env=SOURCE_DATE_EPOCH=1791748800",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/product-native-runtime/cachy-asahi-welcome-a/inputs,dst=/inputs,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/product-native-runtime/cachy-asahi-welcome-a/expected-packages.lock,dst=/expected-packages.lock,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/cachy-asahi/cachy-asahi/scripts/build/container-entry.sh,dst=/builder-entry.sh,readonly",
+        "--entrypoint=/bin/bash",
+        "sha256:2a4cb2b30aa867da433d2febb97fc97ca39bef791c08f5ee5106edca80be465a",
+        "/builder-entry.sh"
+      ],
+      "log": "cachy-asahi-welcome-a/build.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--name",
+        "cachy-asahi-product-6dcf76aa2bd92a988ee9d5e9bf4fd5b2",
+        "--pull=never",
+        "--platform=linux/arm64",
+        "--network=none",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges",
+        "--pids-limit=256",
+        "--memory=3g",
+        "--cpus=4",
+        "--user",
+        "1001:1001",
+        "--tmpfs",
+        "/tmp:rw,nosuid,nodev,exec,size=2g",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/product-native-runtime/cachy-asahi-welcome-b/artifacts,dst=/out",
+        "--read-only",
+        "--env=CACHY_ASAHI_CONTAINER=1",
+        "--env=SOURCE_DATE_EPOCH=1791748800",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/product-native-runtime/cachy-asahi-welcome-b/inputs,dst=/inputs,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/product-native-runtime/cachy-asahi-welcome-b/expected-packages.lock,dst=/expected-packages.lock,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/cachy-asahi/cachy-asahi/scripts/build/container-entry.sh,dst=/builder-entry.sh,readonly",
+        "--entrypoint=/bin/bash",
+        "sha256:2a4cb2b30aa867da433d2febb97fc97ca39bef791c08f5ee5106edca80be465a",
+        "/builder-entry.sh"
+      ],
+      "log": "cachy-asahi-welcome-b/build.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "rm",
+        "-f",
+        "cachy-asahi-product-6dcf76aa2bd92a988ee9d5e9bf4fd5b2"
+      ],
+      "log": "cleanup-cachy-asahi-product-6dcf76aa2bd92a988ee9d5e9bf4fd5b2.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "rm",
+        "-f",
+        "cachy-asahi-product-8d67921300a6e4e51e6b51109f4a0c45"
+      ],
+      "log": "cleanup-cachy-asahi-product-8d67921300a6e4e51e6b51109f4a0c45.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "rm",
+        "-f",
+        "cachy-asahi-product-probe-6bedfc4d06efb3948bce9d0521fe8256"
+      ],
+      "log": "cleanup-cachy-asahi-product-probe-6bedfc4d06efb3948bce9d0521fe8256.log"
+    }
+  ],
+  "hardware": "NOT_RUN",
+  "original_ten_composition": "UNCHANGED",
+  "products": {
+    "cachy-asahi-welcome": {
+      "builds": [
+        {
+          "archive": "cachy-asahi-welcome-0.1.0-8-aarch64.pkg.tar.xz",
+          "elf": {
+            "actual_16k_execution": "NOT_RUN",
+            "errors": [],
+            "hardware_status": "NOT RUN",
+            "interpreter": "/lib/ld-linux-aarch64.so.1",
+            "load_segments": 2,
+            "loads": [
+              {
+                "alignment": 16384,
+                "filesz": 70592,
+                "memsz": 70592,
+                "offset": 0,
+                "vaddr": 0
+              },
+              {
+                "alignment": 16384,
+                "filesz": 3736,
+                "memsz": 3784,
+                "offset": 78768,
+                "vaddr": 95152
+              }
+            ],
+            "machine": 183,
+            "needed": [
+              "libgtk-3.so.0",
+              "libatk-1.0.so.0",
+              "libpango-1.0.so.0",
+              "libgio-2.0.so.0",
+              "libgobject-2.0.so.0",
+              "libglib-2.0.so.0",
+              "libc.so.6",
+              "ld-linux-aarch64.so.1"
+            ]
+          },
+          "payload": {
+            "usr/bin/cachy-asahi-welcome": {
+              "gid": 0,
+              "link": "",
+              "mode": 493,
+              "mtime": 1791748800,
+              "sha256": "ffa90b076c34afeead4d566c07b3ac7adba405a0681ff24c84877255d0b0d620",
+              "size": 84768,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/applications/io.github.GabrielKahen.CachyAsahiWelcome.desktop": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "2c2159a75c7b0303eebf47e77e89d6d1f6241372f7ecb006c6b11002135cb441",
+              "size": 358,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-welcome/README.md": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "56284b326cbc6a604fb33866e0acb8d9bc57ba43d36b1e81b448242c97fa9c34",
+              "size": 11515,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-welcome/first-run.txt": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "2c123deef2cf02b586250c1128907ba294ced83a3671607dd2aef2f3cfa094eb",
+              "size": 1484,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-welcome/recovery.txt": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "09e5160543b0739b10f327972e338b01c16269d8bcfc6620325eceed0c6a26a2",
+              "size": 1555,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-welcome/updates.txt": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "fcde7d9aa0c6f1a0fc8090c5dc26f405708f18ea760d74b664732e2824d403b8",
+              "size": 1445,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/icons/hicolor/scalable/apps/cachy-asahi-welcome.svg": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "0db6f69c16766172942551b512e89842d086f4a04320a20bfd9a4473b17a1b73",
+              "size": 531,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-welcome/LICENSE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+              "size": 1081,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-welcome/NOTICE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "824d3bd893458e840530c044d3899b43debca97cd5f5b9ebcf9cbd4785c9d6f0",
+              "size": 1053,
+              "type": "0",
+              "uid": 0
+            }
+          },
+          "sha256": "1cbb8f5f9fd5f072ba2974837cf10dc7e90edbd236cbf3a34916cd0af3d4b240",
+          "tests": {
+            "CLI_cases": 5,
+            "C_cases": 41,
+            "C_pass": 40,
+            "GUI": "NOT_RUN",
+            "check_enabled": true,
+            "installed_lifecycle": "NOT_RUN",
+            "pinned_sources": 25,
+            "root_guard": "NOT_EXERCISED_ORDINARY_UID_REQUIRES_UID0",
+            "source_payload": "PASS",
+            "status": "PASS_REQUIRED_WELCOME8_BUILD_CHECKS"
+          }
+        },
+        {
+          "archive": "cachy-asahi-welcome-0.1.0-8-aarch64.pkg.tar.xz",
+          "elf": {
+            "actual_16k_execution": "NOT_RUN",
+            "errors": [],
+            "hardware_status": "NOT RUN",
+            "interpreter": "/lib/ld-linux-aarch64.so.1",
+            "load_segments": 2,
+            "loads": [
+              {
+                "alignment": 16384,
+                "filesz": 70592,
+                "memsz": 70592,
+                "offset": 0,
+                "vaddr": 0
+              },
+              {
+                "alignment": 16384,
+                "filesz": 3736,
+                "memsz": 3784,
+                "offset": 78768,
+                "vaddr": 95152
+              }
+            ],
+            "machine": 183,
+            "needed": [
+              "libgtk-3.so.0",
+              "libatk-1.0.so.0",
+              "libpango-1.0.so.0",
+              "libgio-2.0.so.0",
+              "libgobject-2.0.so.0",
+              "libglib-2.0.so.0",
+              "libc.so.6",
+              "ld-linux-aarch64.so.1"
+            ]
+          },
+          "payload": {
+            "usr/bin/cachy-asahi-welcome": {
+              "gid": 0,
+              "link": "",
+              "mode": 493,
+              "mtime": 1791748800,
+              "sha256": "ffa90b076c34afeead4d566c07b3ac7adba405a0681ff24c84877255d0b0d620",
+              "size": 84768,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/applications/io.github.GabrielKahen.CachyAsahiWelcome.desktop": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "2c2159a75c7b0303eebf47e77e89d6d1f6241372f7ecb006c6b11002135cb441",
+              "size": 358,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-welcome/README.md": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "56284b326cbc6a604fb33866e0acb8d9bc57ba43d36b1e81b448242c97fa9c34",
+              "size": 11515,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-welcome/first-run.txt": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "2c123deef2cf02b586250c1128907ba294ced83a3671607dd2aef2f3cfa094eb",
+              "size": 1484,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-welcome/recovery.txt": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "09e5160543b0739b10f327972e338b01c16269d8bcfc6620325eceed0c6a26a2",
+              "size": 1555,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-welcome/updates.txt": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "fcde7d9aa0c6f1a0fc8090c5dc26f405708f18ea760d74b664732e2824d403b8",
+              "size": 1445,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/icons/hicolor/scalable/apps/cachy-asahi-welcome.svg": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "0db6f69c16766172942551b512e89842d086f4a04320a20bfd9a4473b17a1b73",
+              "size": 531,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-welcome/LICENSE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+              "size": 1081,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-welcome/NOTICE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "824d3bd893458e840530c044d3899b43debca97cd5f5b9ebcf9cbd4785c9d6f0",
+              "size": 1053,
+              "type": "0",
+              "uid": 0
+            }
+          },
+          "sha256": "1cbb8f5f9fd5f072ba2974837cf10dc7e90edbd236cbf3a34916cd0af3d4b240",
+          "tests": {
+            "CLI_cases": 5,
+            "C_cases": 41,
+            "C_pass": 40,
+            "GUI": "NOT_RUN",
+            "check_enabled": true,
+            "installed_lifecycle": "NOT_RUN",
+            "pinned_sources": 25,
+            "root_guard": "NOT_EXERCISED_ORDINARY_UID_REQUIRES_UID0",
+            "source_payload": "PASS",
+            "status": "PASS_REQUIRED_WELCOME8_BUILD_CHECKS"
+          }
+        }
+      ],
+      "comparison": {
+        "errors": [],
+        "hardware_status": "NOT RUN",
+        "independence_limit": "Distinct recorded container runs; independent machine execution is not attested.",
+        "packages": {
+          "cachy-asahi-welcome-0.1.0-8-aarch64.pkg.tar.xz": {
+            "buildinfo_equal": true,
+            "bytes_equal": true,
+            "installed_contents_equal": true,
+            "pkginfo_equal": true
+          }
+        },
+        "status": "contents-reproduced"
+      }
+    }
+  },
+  "scope": "UNSELECTED_WELCOME8_BUILD_PAIR_ONLY_NO_ALPM_GUI",
+  "status": "PASS_NATIVE_WELCOME8_BUILD_PAIR_CONTENTS_ONLY"
+}
