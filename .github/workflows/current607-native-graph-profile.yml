@@ -30,12 +30,12 @@ jobs:
           ref: 4c8a7046ce3a42deb6630229607f54d0e2b8cf63
           path: fixtures/source555
           persist-credentials: false
-      - name: Check out the exact expected561 fixture
+      - name: Check out the exact expected563 fixture
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           repository: ${{ github.repository }}
-          ref: e8cface65674ec4a6072c5675754ad37faa15c9c
-          path: fixtures/source561
+          ref: 9c49f8d12e5aea864bcf6bca6ed836874c1f06e5
+          path: fixtures/source563
           persist-credentials: false
       - name: Run five real descriptor controls
         shell: bash
@@ -48,4 +48,9 @@ jobs:
           set -euo pipefail
           python3 -W error -B scripts/ci/current607-native-graph-profile/test_profile.py \
             --source "$GITHUB_WORKSPACE/fixtures/source555" \
-            --expected "$GITHUB_WORKSPACE/fixtures/source561"
+            --expected "$GITHUB_WORKSPACE/fixtures/source563"
+      - name: Run six original public failure retention controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -W error -B scripts/ci/current607-native-graph-profile/test_retention.py
