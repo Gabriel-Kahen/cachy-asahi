@@ -24,6 +24,17 @@ class Factory(unittest.TestCase):
  @classmethod
  def setUpClass(cls):
   cls.profile=F.profile();cls.default,_,_=F.render(RUNTIME)
+ def test_real_relatime_read_and_metadata_drift(self):
+  # A first read may change atime on the native runner. It cannot change identity/content.
+  with tempfile.TemporaryDirectory(prefix='ksm-source-atime-',dir='/dev/shm')as directory:
+   path=Path(directory)/'source';path.write_bytes(b'complete unchanged source\n');mtime=path.stat().st_mtime_ns;os.utime(path,ns=(1,mtime));before=path.stat()
+   self.assertEqual(F.read(path),b'complete unchanged source\n');after=path.stat()
+   self.assertGreater(after.st_atime_ns,before.st_atime_ns);self.assertEqual(F.stable_identity(after),F.stable_identity(before));self.assertNotEqual(after,before)
+   original=Path.read_bytes
+   def changed_mode(target):
+    raw=original(target);target.chmod(0o640);return raw
+   with patch.object(Path,'read_bytes',changed_mode):
+    with self.assertRaisesRegex(ValueError,'source drift'):F.read(path)
  def test_default_emitter_exact628_and_all_actual_selectors_null(self):
   with tempfile.TemporaryDirectory()as directory:
    out=Path(directory)/'source'

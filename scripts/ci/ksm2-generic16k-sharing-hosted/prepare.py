@@ -22,10 +22,13 @@ def decode(raw):
 def relative(name):
  need(type(name)is str and name and not name.startswith('/')and '\\'not in name and '\0'not in name and all(p not in('','.','..')for p in name.split('/')),'contained source role required');return name
 
+def stable_identity(info):
+ return(info.st_dev,info.st_ino,info.st_mode,info.st_uid,info.st_gid,info.st_nlink,info.st_size,info.st_mtime_ns,info.st_ctime_ns)
+
 def read(path,cap=16*1024**2):
  path=Path(path);need(path.is_absolute()and not any(p.is_symlink()for p in(path,*path.parents)),'ordinary absolute source required')
  before=path.lstat();need(stat.S_ISREG(before.st_mode)and before.st_nlink==1 and 0<=before.st_size<=cap,'bounded ordinary source required')
- raw=path.read_bytes();need(path.lstat()==before and len(raw)==before.st_size,'source drift');return raw
+ raw=path.read_bytes();need(stable_identity(path.lstat())==stable_identity(before) and len(raw)==before.st_size,'source drift');return raw
 
 def files(root):
  root=Path(root);need(root.is_absolute()and root.is_dir()and not any(p.is_symlink()for p in(root,*root.parents)),'ordinary runtime directory required');result={}
