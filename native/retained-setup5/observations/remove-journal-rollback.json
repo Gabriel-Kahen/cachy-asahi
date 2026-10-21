@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "phase": "rollback",
+  "profile": "remove-journal",
+  "cases": {
+    "rollback-refusal": "PASS"
+  },
+  "uid": 1000,
+  "installed_helper_sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
+  "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY"
+}

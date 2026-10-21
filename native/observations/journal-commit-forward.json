@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "phase": "forward",
+  "profile": "journal-commit",
+  "cases": {
+    "new-interruption-recovery": "PASS"
+  },
+  "uid": 1000,
+  "installed_helper_sha256": "29d68d371071487ffd9b5453c2c056105e73f6b2971c98873731193eab6534b0",
+  "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY"
+}

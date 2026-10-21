@@ -1,0 +1,1 @@
+Exact accepted Setup0.1.0-5 native pair and legacy lifecycle inputs from38934198468. All original exported files, retention manifest, hashes and Root acceptance are retained. This input-only checkout does not install a package or change the original587/current600 selections. Real module activation,16K/M2 and release admission remain separate.

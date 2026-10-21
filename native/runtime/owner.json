@@ -1,0 +1,12 @@
+{
+  "containers": [
+    "cachy-asahi-product-probe-27cf73d57a58784661fcbd6b3a38fc53",
+    "cachy-asahi-product-94e1d4624e5c7c7f798662e343c32b1b",
+    "cachy-asahi-product-adda84edb8f3e863a9c05e914fe4eb23",
+    "cachy-asahi-product-lifecycle-c5cfd2f1ddbf8c44b7e41eae0db51a87"
+  ],
+  "image": "sha256:f2123329f09bb86f0f50bc38fda5e0c91d38a4cdad81534c9301bc94a2588ce0",
+  "label": "org.cachy-asahi.setup6-native.job",
+  "schema_version": 1,
+  "token": "6db21402725cf15731bd56878c204d5c"
+}

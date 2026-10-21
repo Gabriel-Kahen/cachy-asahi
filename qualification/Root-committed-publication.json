@@ -1,0 +1,10 @@
+{
+  "actual": "NOT_RUN",
+  "files": 73,
+  "git_joins": 73,
+  "hardware": "NOT_RUN",
+  "ref": "codex/setup6-isolated-producer-v1",
+  "release": "NOT_ADMITTED",
+  "source": "141ba835bb632483342c6a7f0246c7fe0f2bc5c3",
+  "status": "COMMITTED_EXACT_CLOSED_TRIAL_SOURCE"
+}

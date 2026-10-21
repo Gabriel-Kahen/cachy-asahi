@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "phase": "upgrade",
+  "profile": "journal-after",
+  "cases": {
+    "preview-readonly": "PASS",
+    "apply": "PASS",
+    "repeat": "PASS",
+    "custom-config": "PASS",
+    "missing-preview": "PASS",
+    "missing-module": "PASS",
+    "edited-module": "PASS",
+    "legacy-state-journal": "PASS"
+  },
+  "uid": 1000,
+  "installed_helper_sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+  "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY"
+}
