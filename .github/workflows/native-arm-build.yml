@@ -1,0 +1,47 @@
+name: native-arm-kvm-capability-probe
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact committed source SHA equal to this workflow revision
+        type: string
+        required: true
+permissions:
+  contents: read
+jobs:
+  probe:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi'
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: ${{ inputs.source_sha }}
+          persist-credentials: false
+      - name: Bind exact workflow source
+        env:
+          EXPECTED_SOURCE: ${{ inputs.source_sha }}
+        run: |
+          set -euo pipefail
+          test "$EXPECTED_SOURCE" = "$GITHUB_SHA"
+          test "$GITHUB_RUN_ATTEMPT" = 1
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SOURCE"
+      - name: Install QEMU in disposable hosted runner
+        timeout-minutes: 4
+        run: |
+          set -euo pipefail
+          timeout --kill-after=5s 90s sudo apt-get -o Acquire::Retries=0 -o Acquire::http::Timeout=20 update -qq
+          timeout --kill-after=5s 120s sudo env DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=0 -o Acquire::http::Timeout=20 install -y --no-install-recommends qemu-system-arm
+      - name: Probe stopped diskless networkless KVM machine
+        timeout-minutes: 1
+        run: |
+          set -euo pipefail
+          python3 -I -B scripts/ci/repair16k-kvm-capability/probe.py --output "$RUNNER_TEMP/kvm-capability.json"
+      - name: Retain capability DATA
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: kvm-capability-${{ github.run_id }}-1
+          path: ${{ runner.temp }}/kvm-capability.json
+          if-no-files-found: error
