@@ -25,7 +25,7 @@ class Controls(unittest.TestCase):
                          'lifecycle': 3600, 'observation': 600, 'owner': 4800,
                          'producer': 2300, 'transaction': 120})
         self.assertIsNone(value['actual'])
-        self.assertEqual(value['default_mode'], 'workflow-launch')
+        self.assertEqual(value['default_mode'], 'evidence-transport')
 
     def test_parent_payload_and_output_refuse_before_emitter(self):
         value = F.profile()
@@ -87,6 +87,44 @@ class Controls(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             with self.assertRaisesRegex(ValueError, 'mode'):
                 F.assemble(Path(temporary), Path(temporary) / 'out', 'unknown')
+
+    def test_transport_replacements_and_real_failed_public_packing(self):
+        import json
+        import zipfile
+        value = F.profile()
+        record = value['evidence_transport']
+        self.assertEqual(set(record['replacements']), {'entry.py', 'owner.py', 'workflow.yml.in'})
+        for name, row in record['replacements'].items():
+            self.assertEqual(F.pin(F.read(HERE / row['path'])),
+                             {key: row[key] for key in ('bytes', 'sha256')})
+            self.assertEqual(F.pin(F.read(HERE / 'payload' / name)), row['before'])
+        self.assertEqual(len(record['files']), 796)
+        self.assertIsNone(record['actual'])
+        with F.modules(HERE / 'payload'):
+            owner = F.load(HERE / 'templates/transport-owner.py', '_source_transport_control')
+            with tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                public = root / 'public'
+                public.mkdir()
+                name = 'inputs/packages/python-pytest-1:9.1.1-1-any.pkg.tar.xz'
+                path = public / name
+                path.parent.mkdir(parents=True)
+                path.write_bytes(b'INERT_CONTROL_ONLY_NO_PACKAGE_AUTHORITY')
+                owner.save(public / 'owner.json', {'status': 'FAIL', 'error': 'retained failure bytes'})
+                wanted = {n: F.pin(F.read(public / n)) for n in (name, 'owner.json')}
+                owner.save(public / 'export.json', {'status': 'FAIL_OR_INCOMPLETE', 'files': wanted})
+                args = types.SimpleNamespace(public=public, output=root / 'transport')
+                self.assertEqual(owner.transport(args), 0)
+                self.assertEqual({p.name for p in args.output.iterdir()}, {'public.zip', 'transport.json'})
+                with zipfile.ZipFile(args.output / 'public.zip') as archive:
+                    self.assertIsNone(archive.testzip())
+                    self.assertEqual(archive.read(name), path.read_bytes())
+                    self.assertEqual(archive.read('owner.json'), (public / 'owner.json').read_bytes())
+                self.assertFalse(json.loads((args.output / 'transport.json').read_bytes())['acceptance'])
+                path.write_bytes(b'drift')
+                with self.assertRaisesRegex(ValueError, 'whole original export membership'):
+                    owner.transport(types.SimpleNamespace(public=public, output=root / 'never'))
+                self.assertFalse((root / 'never').exists())
 
     def test_whole_original_sign_body_and_all_seven_inert_calls(self):
         """Only the GPG subprocess boundary is fake; the complete sign() body runs."""
