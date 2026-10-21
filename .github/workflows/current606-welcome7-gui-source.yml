@@ -48,21 +48,29 @@ jobs:
           ref: 7b8be687a3562640d5f7d4a7c57f2e2d61d39dc1
           path: .ci-fixtures/welcome8-544
           persist-credentials: false
+      - name: Check out exact public expected transport546 source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: ac70245709f336d2c670b2b511bec40c99248370
+          path: .ci-fixtures/gui-transport546
+          persist-credentials: false
       - name: Select the explicit Python version
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
           python-version: ${{ matrix.python }}
-      - name: Check eleven portable controls and exact540 plus Welcome8_544 equality
+      - name: Check fifteen portable controls and exact540 plus Welcome8_544 equality
         shell: bash
         run: |
           set -euo pipefail
           stage=$(mktemp -d "$RUNNER_TEMP/current606-gui-source.XXXXXXXX")
           trap 'rm -rf -- "$stage"' EXIT
-          mkdir -m700 "$stage/parent" "$stage/expected" "$stage/welcome8-expected"
+          mkdir -m700 "$stage/parent" "$stage/expected" "$stage/welcome8-expected" "$stage/transport-expected"
           git -C "$GITHUB_WORKSPACE/.ci-fixtures/gui-media536" archive --format=tar 3ed3da9c3393cbc56522db7311005049413204f3 | tar -x -C "$stage/parent"
           git -C "$GITHUB_WORKSPACE/.ci-fixtures/gui540" archive --format=tar bb72a0fc5e84af5621f0b783056137efdd780282 | tar -x -C "$stage/expected"
           git -C "$GITHUB_WORKSPACE/.ci-fixtures/welcome8-544" archive --format=tar 7b8be687a3562640d5f7d4a7c57f2e2d61d39dc1 | tar -x -C "$stage/welcome8-expected"
-          python3 -B -W error scripts/ci/current606-welcome7-gui-source/test_prepare.py --predecessor-root "$stage/parent" --welcome8-predecessor-root "$stage/expected"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/gui-transport546" archive --format=tar ac70245709f336d2c670b2b511bec40c99248370 | tar -x -C "$stage/transport-expected"
+          python3 -B -W error scripts/ci/current606-welcome7-gui-source/test_prepare.py --predecessor-root "$stage/parent" --welcome8-predecessor-root "$stage/expected" --transport-predecessor-root "$stage/welcome8-expected"
           python3 -I -B -W error scripts/ci/current606-welcome7-gui-source/prepare.py --predecessor-root "$stage/parent" --output "$stage/generated"
           python3 -I -B - "$stage/generated" "$stage/expected" <<'PY'
           import hashlib,json,sys
@@ -93,3 +101,18 @@ jobs:
           assert len(actual)==len(wanted)==544 and actual==wanted, 'whole exact public544 Welcome8 source differs'
           print(json.dumps({'status':'PASS_WHOLE_PUBLIC544_WELCOME8_SOURCE_ONLY','files':544,'native':'NOT_RUN','GUI':'NOT_RUN','M2':'NOT_RUN'},sort_keys=True))
           PY8
+          python3 -I -B -W error scripts/ci/current606-welcome7-gui-source/prepare.py --transport --predecessor-root "$stage/welcome8-expected" --output "$stage/transport-generated"
+          python3 -I -B - "$stage/transport-generated" "$stage/transport-expected" <<'PYT'
+          import hashlib,json,sys
+          from pathlib import Path
+          def rows(root):
+              result={}
+              for p in root.rglob('*'):
+                  assert not p.is_symlink()
+                  if p.is_file():
+                      body=p.read_bytes();result[p.relative_to(root).as_posix()]={'bytes':len(body),'sha256':hashlib.sha256(body).hexdigest()}
+              return result
+          got,wanted=map(Path,sys.argv[1:]);a,b=rows(got),rows(wanted)
+          assert a==b and len(a)==546, 'whole public546 diagnostic transport source'
+          print(json.dumps({'status':'PASS_EXACT_PUBLIC546_DIAGNOSTIC_SOURCE_ONLY','native':'NOT_RUN','GUI':'NOT_RUN'}))
+          PYT
