@@ -1,6 +1,7 @@
 # Original setup and repository CLIs
 
-Development candidate 0.1.0-5. This package ships original helpers as
+Development candidate 0.1.0-6; source/host-fixture validation only. Native package
+build, installation and hardware results for this revision are NOT RUN. This package ships original helpers as
 `/usr/bin/cachy-asahi-setup` and `/usr/bin/cachy-asahi-repository`, plus the repository
 guide under `/usr/share/doc/cachy-asahi-setup/repository-enrollment.md`. Runtime
 dependencies are Python 3.11+, gnupg, and pacman. The existing per-user helper still
@@ -73,6 +74,14 @@ ZDOTDIR/template-root/state options to inspect and explicitly resume:
 cachy-asahi-setup recover
 cachy-asahi-setup recover --apply
 ```
+
+Recovery preview lists each recorded component/path as `would-add`, `would-update`,
+`would-remove` or `already-applied`. It checks the same pending file hashes,
+ordered blocks and required template contents that apply will check, without
+creating locks, state or configuration. A user edit or changed required template
+stops the preview with exit1 and retains the journal. Review the error and
+reconcile the affected path before retrying. Preview cannot reserve files;
+`--apply` repeats all checks before writing.
 
 Existing edits that conflict with replay stop recovery and retain the journal.
 Exit codes distinguish success (0), error/refusal (1) and preserved conflicts or
