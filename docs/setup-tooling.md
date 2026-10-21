@@ -1,6 +1,6 @@
 # Per-user setup and removal tooling
 
-The standalone stdlib helper is `scripts/setup/setup.py`. It is designed for packaging as `/usr/bin/cachy-asahi-setup`; source implementation and temporary-user lifecycle tests are complete, while native package builds, actual Asahi installation and exact-M2 onboarding remain **NOT RUN**. The separate package worker owns the setup recipe. This helper does not install/remove packages, select a login shell, register/launch a session, enable services, or change boot, graphics, audio or system policy.
+The standalone stdlib helper is `scripts/setup/setup.py`, packaged as `/usr/bin/cachy-asahi-setup`. Setup6 passes the finite native ARM build pair, package lifecycle and installed recovery-fixture checks in [the native validation record](validation/setup6-native-recovery-20261021.md). Real configuration-module workflows are being tested separately; actual Asahi installation and exact-M2 onboarding remain **NOT RUN**. The separate package worker owns the setup recipe. This helper does not install/remove packages, select a login shell, register/launch a session, enable services, or change boot, graphics, audio or system policy.
 
 ## Preview, then explicitly apply
 
@@ -66,7 +66,7 @@ Default private state is `${XDG_STATE_HOME:-$HOME/.local/state}/cachy-asahi/setu
 
 Before any config change, the helper fsyncs a private journal. It prepares every pending delta before new writes, writes/fsyncs a private sibling temporary file, rechecks the current target and atomically publishes each file. New targets use atomic no-clobber creation. It then fsyncs state and removes the journal. This is a recoverable sequence of atomic file operations, not an all-or-nothing multi-file filesystem transaction. A second apply fails while another helper holds its lock.
 
-After an interruption, preview reports the pending transaction. Use the original home/config/ZDOTDIR/state/template-root options:
+After an interruption, preview lists each recorded component and relative path as `would-add`, `would-update`, `would-remove` or `already-applied`. It runs the same read-only preparation and conflict checks used by replay, with no configuration, state or lock writes. A changed target or required template stops the preview with exit1 and retains the journal, so conflicts are visible before applying. Preview cannot reserve a file; apply repeats every check. Use the original home/config/ZDOTDIR/state/template-root options:
 
 ```sh
 cachy-asahi-setup recover
@@ -90,4 +90,4 @@ python3 -m unittest discover -s scripts/setup -p 'test_*.py' -v
 python3 -m py_compile scripts/setup/setup.py scripts/setup/test_setup.py
 ```
 
-There are 40 passing temporary-user tests on the development host. Installed Fish/Zsh also parsed and executed generated guarded blocks with quoted fixture paths, and continued cleanly after fixture templates disappeared; all homes/XDG roots were temporary. If those interpreters or extended-attribute support are unavailable, the corresponding tests visibly skip and do not establish their integration result. Static CI includes this suite. Actual package install/upgrade/remove, both M2 Air sizes, base launcher/UWSM selection, real existing-user profiles, filesystem power-loss recovery and an independent complete onboarding exercise remain execution gates.
+All 74 current temporary-user tests pass on Python3.12 and3.14 on the development host. Installed Fish/Zsh also parsed and executed generated guarded blocks with quoted fixture paths, and continued cleanly after fixture templates disappeared; all homes/XDG roots were temporary. If those interpreters or extended-attribute support are unavailable, the corresponding tests visibly skip and do not establish their integration result. Static CI includes this suite. Actual package install/upgrade/remove, both M2 Air sizes, base launcher/UWSM selection, real existing-user profiles, filesystem power-loss recovery and an independent complete onboarding exercise remain execution gates.
