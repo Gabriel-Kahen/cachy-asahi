@@ -1,0 +1,58 @@
+{
+  "discovery": {
+    "fields": [
+      "UUID",
+      "TYPE",
+      "NAME"
+    ],
+    "max_name_utf8_bytes": 1024,
+    "max_profiles": 64,
+    "multiline_names": "REFUSE_AMBIGUOUS_FRAME",
+    "per_query_combined_output_bytes": 65536,
+    "per_query_seconds": 15,
+    "queries": 2,
+    "stored_names": "EXPLICIT_OUTPUT_ONLY_NO_RECEIPT"
+  },
+  "installed_program": {
+    "bytes": 14882,
+    "sha256": "d708cbe54a8e96a62ff7d85e4eadfb7a980401adb3a9fe8465052f754b4c8c88"
+  },
+  "license": "MIT",
+  "nmcli": {
+    "bundled": false,
+    "dependency": "networkmanager>=1.44",
+    "path": "/usr/bin/nmcli",
+    "tested_binary_sha256": "b30c1f4969ef0923619fc0e0faabc304d46d6550a4d0e71029b01929ce6f11b8",
+    "tested_version": "nmcli tool, version 1.58.1-1",
+    "upstream_api_release": "1.58.1",
+    "upstream_reference": "https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/tree/1.58.1"
+  },
+  "operations": [
+    "profiles-read-only-uuid-type-display-name",
+    "preview",
+    "apply-stored-profile",
+    "status",
+    "undo-owned-subset"
+  ],
+  "package": "cachy-asahi-dns",
+  "properties": [
+    "ipv4.dns",
+    "ipv4.ignore-auto-dns",
+    "ipv6.dns",
+    "ipv6.ignore-auto-dns"
+  ],
+  "qualification": {
+    "daemon_PolicyKit_lifecycle": "NOT_RUN_PRODUCTION_POLICYKIT",
+    "hardware": "NOT_RUN",
+    "host_connection_mutation": "NOT_RUN",
+    "installed_ALPM_lifecycle": "NOT_RUN",
+    "live_reapply": "NOT_PERFORMED",
+    "native_build": "NOT_RUN",
+    "private_x86_stored_profile_discovery": "PASS_STAGED_BYTES_SYNTHETIC_PRIVATE_PROFILES",
+    "release_admission": "NONE"
+  },
+  "schema_version": 1,
+  "source_kind": "original project code",
+  "source_revision": null,
+  "version": "0.1.0-2"
+}
