@@ -1,0 +1,315 @@
+{
+  "pacman": {
+    "archive": {
+      "bytes": 1938264,
+      "sha256": "871a9616e5c82e265e4b2ff9eb4d1b4ae4e37bcc1387a48d04992a7b10af7336"
+    },
+    "changed": {
+      "doc/PKGBUILD.5.asciidoc": {
+        "after": {
+          "bytes": 23311,
+          "sha256": "371723e6176201a0e235a100139463017b7feea8180e3022cbc020b6bd627e78"
+        },
+        "before": {
+          "bytes": 22840,
+          "sha256": "15e8007bb11829b4d0474e647b0d08c2bffdf5191ceac949336de3d14a621154"
+        }
+      },
+      "doc/PKGBUILD.5.asciidoc.orig": {
+        "after": {
+          "bytes": 22840,
+          "sha256": "15e8007bb11829b4d0474e647b0d08c2bffdf5191ceac949336de3d14a621154"
+        },
+        "before": null
+      },
+      "lib/libalpm/add.c": {
+        "after": {
+          "bytes": 22867,
+          "sha256": "c63fb24d5f7a458d1a1c0fb1f0bd9cadf8b23e461f6f9cf7598e31310f672dda"
+        },
+        "before": {
+          "bytes": 22431,
+          "sha256": "fd3136291885cae73ad00abab3d83de49ea0276f040e53cca3902cfb93cf58f1"
+        }
+      },
+      "lib/libalpm/trans.c": {
+        "after": {
+          "bytes": 12033,
+          "sha256": "2d39138b3de4debe9c461890734ba7177ac4f5723dd09581144fd2e0087426e2"
+        },
+        "before": {
+          "bytes": 11957,
+          "sha256": "637c1165790ddd1c9d80bb0bfed9d85b1f5baa9b8e5a2e323243c5764ac4ed07"
+        }
+      },
+      "lib/libalpm/util.c": {
+        "after": {
+          "bytes": 44432,
+          "sha256": "31ddae013f89e6caad42a76734c6d38f6fbf5cc228ad93a30661476acbef56a8"
+        },
+        "before": {
+          "bytes": 44327,
+          "sha256": "381618b6054859ec76807956328b78b330237273bebe10022a559b243cb5bdd2"
+        }
+      },
+      "lib/libalpm/util.c.orig": {
+        "after": {
+          "bytes": 44432,
+          "sha256": "a0085c1943eab2247129b64be2c515376d60d7517d8baa7a8d890c9e49482c3f"
+        },
+        "before": null
+      },
+      "scripts/makepkg.sh.in": {
+        "after": {
+          "bytes": 43780,
+          "sha256": "c8276a84e08dbaa547864a45fe5f18a5b994d7a1bc04266a53bead912b18bc45"
+        },
+        "before": {
+          "bytes": 40453,
+          "sha256": "d588222586b2432b4169c82e6ebcd464acfdc20a663172fd444b8f98e1104e86"
+        }
+      },
+      "scripts/makepkg.sh.in.orig": {
+        "after": {
+          "bytes": 40453,
+          "sha256": "d588222586b2432b4169c82e6ebcd464acfdc20a663172fd444b8f98e1104e86"
+        },
+        "before": null
+      },
+      "test/pacman/README": {
+        "after": {
+          "bytes": 9795,
+          "sha256": "63c01e3cf5565fbd8d3b619d4681561c4721b2245c63355f112594a65ae2a81d"
+        },
+        "before": {
+          "bytes": 9766,
+          "sha256": "817070f92dbdfb4763b931b73f292f2847cc5e5ed65034dd5be5d5dc03a32ba0"
+        }
+      },
+      "test/pacman/meson.build": {
+        "after": {
+          "bytes": 10233,
+          "sha256": "1e450e3fa0273c58efaab1973094eb882acde3a09357f45fb470fb6bef8a36a0"
+        },
+        "before": {
+          "bytes": 10193,
+          "sha256": "e2dd0335810c873c8842c8a755767aa098a6b7a5cf82d2db5dd9ade72a5d0c9f"
+        }
+      },
+      "test/pacman/pmrule.py": {
+        "after": {
+          "bytes": 7557,
+          "sha256": "53115ae0da9f012cbea64a43391b7a43589bf4b3c4fc5aaa904679f0a2a458da"
+        },
+        "before": {
+          "bytes": 7425,
+          "sha256": "60376b855132985142e167c005d808c1e87ef67360592f7b1d46aea1463332c9"
+        }
+      },
+      "test/pacman/pmtest.py": {
+        "after": {
+          "bytes": 13099,
+          "sha256": "33b2557cc76f33a13f6b60233487207befaa1f2787a4801a537cace5e1a8182e"
+        },
+        "before": {
+          "bytes": 13065,
+          "sha256": "12ffffa4c5b91fa561e7a22cc0009ac7537a78e4fbefcd2f677c2e359596e4dc"
+        }
+      },
+      "test/pacman/tests/source_date_epoch_install.py": {
+        "after": {
+          "bytes": 344,
+          "sha256": "1fc74f65a0af15100197b7c36525d9304dcdab48dbcc73a68f63ee51a1184bbb"
+        },
+        "before": null
+      }
+    },
+    "patches": [
+      {
+        "command": [
+          "patch",
+          "--fuzz=0",
+          "--batch",
+          "-RNp1",
+          "-i",
+          "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/target-core-rebuild-development-20261019/profile/pacman/revertme-makepkg-remove-libdepends-and-libprovides.patch"
+        ],
+        "log": {
+          "bytes": 248,
+          "sha256": "3da00e57042735df25f68236fc8b3da9db3b08129695932d25e39a0fdcd3ba7a"
+        },
+        "patch": "revertme-makepkg-remove-libdepends-and-libprovides.patch",
+        "returncode": 0
+      },
+      {
+        "command": [
+          "patch",
+          "--fuzz=0",
+          "--batch",
+          "-Np1",
+          "-i",
+          "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/target-core-rebuild-development-20261019/profile/pacman/patch-reproducible-builds.patch"
+        ],
+        "log": {
+          "bytes": 236,
+          "sha256": "7b119b9eb270aea28f23aa626ad34e59e7c6d3dfba27f31ecf0c85ce2e6c622a"
+        },
+        "patch": "patch-reproducible-builds.patch",
+        "returncode": 0
+      },
+      {
+        "command": [
+          "patch",
+          "--fuzz=0",
+          "--batch",
+          "-Np1",
+          "-i",
+          "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/target-core-rebuild-development-20261019/profile/pacman/0001-libalpm-invalidate-curl-data-in-child.patch"
+        ],
+        "log": {
+          "bytes": 33,
+          "sha256": "b84dca9e1b07d463651220b5e8dd57445fe081f752aad27a4f7b419cb3dd4a12"
+        },
+        "patch": "0001-libalpm-invalidate-curl-data-in-child.patch",
+        "returncode": 0
+      },
+      {
+        "command": [
+          "patch",
+          "--fuzz=0",
+          "--batch",
+          "-Np1",
+          "-i",
+          "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/target-core-rebuild-development-20261019/profile/pacman/0001-Sychronize-filesystem.patch"
+        ],
+        "log": {
+          "bytes": 34,
+          "sha256": "0ec7a738bd95fb7e03f61450c9a69b92fe8e00fecf90afe2c1969d95f9032cb3"
+        },
+        "patch": "0001-Sychronize-filesystem.patch",
+        "returncode": 0
+      },
+      {
+        "command": [
+          "patch",
+          "--fuzz=0",
+          "--batch",
+          "-Np1",
+          "-i",
+          "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/target-core-rebuild-development-20261019/profile/pacman/0002-Revert-close-stdin-before-running-install-scripts.patch"
+        ],
+        "log": {
+          "bytes": 33,
+          "sha256": "b84dca9e1b07d463651220b5e8dd57445fe081f752aad27a4f7b419cb3dd4a12"
+        },
+        "patch": "0002-Revert-close-stdin-before-running-install-scripts.patch",
+        "returncode": 0
+      },
+      {
+        "command": [
+          "patch",
+          "--fuzz=0",
+          "--batch",
+          "-Np1",
+          "-i",
+          "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/target-core-rebuild-development-20261019/profile/pacman/0003-Revert-alpm_run_chroot-always-connect-parent2child-p.patch"
+        ],
+        "log": {
+          "bytes": 76,
+          "sha256": "0db375068bebd6c3fb3839960fb4ae2acfa27afe026fd398baaf408a17e8cc47"
+        },
+        "patch": "0003-Revert-alpm_run_chroot-always-connect-parent2child-p.patch",
+        "returncode": 0
+      }
+    ],
+    "scope": "SOURCE_DATA_PATCH_APPLICABILITY_ONLY_NO_BUILD_OR_EXECUTION"
+  },
+  "systemd": {
+    "archive": {
+      "bytes": 19057032,
+      "sha256": "a8d72c03431860cefaafaa2f8cf6f68bcba817184c3708896e4b65471ab0f9ef"
+    },
+    "changed": {
+      "meson.build": {
+        "after": {
+          "bytes": 123167,
+          "sha256": "236eb1f7d7d41fc0e341056781bd63c8138fda5dfe8ae728d7b953e9a3612a53"
+        },
+        "before": {
+          "bytes": 123165,
+          "sha256": "34abd1e8b703835f289bda28d2a4f060f93732185b910cfd89e588d9f363a927"
+        }
+      },
+      "meson.build.orig": {
+        "after": {
+          "bytes": 123165,
+          "sha256": "34abd1e8b703835f289bda28d2a4f060f93732185b910cfd89e588d9f363a927"
+        },
+        "before": null
+      },
+      "meson_options.txt": {
+        "after": {
+          "bytes": 33984,
+          "sha256": "16d3c750752704b89dc9677d991a2fbc8b9ce72265ce44c9888606f8b0b04646"
+        },
+        "before": {
+          "bytes": 33974,
+          "sha256": "3fc0cb52e97bbbc283849bb410720c0cc3d51413247f8922cb86676cd7501012"
+        }
+      },
+      "meson_options.txt.orig": {
+        "after": {
+          "bytes": 33974,
+          "sha256": "3fc0cb52e97bbbc283849bb410720c0cc3d51413247f8922cb86676cd7501012"
+        },
+        "before": null
+      },
+      "rules.d/50-udev-default.rules.in": {
+        "after": {
+          "bytes": 5643,
+          "sha256": "371e83da057636b39d25b88172f750c560ab8f7d3f1452c7ce6bb249228d4d38"
+        },
+        "before": {
+          "bytes": 5633,
+          "sha256": "7cda50bce04424af4e999854b75a736be74c6f6206a997ef6b087a913a6163b3"
+        }
+      },
+      "rules.d/50-udev-default.rules.in.orig": {
+        "after": {
+          "bytes": 5633,
+          "sha256": "7cda50bce04424af4e999854b75a736be74c6f6206a997ef6b087a913a6163b3"
+        },
+        "before": null
+      },
+      "sysusers.d/basic.conf.in": {
+        "after": {
+          "bytes": 1642,
+          "sha256": "d29a31226ccee34bcde47cc6d980521aab2ca9da13d8a2e62f604c10e014e3ac"
+        },
+        "before": {
+          "bytes": 1642,
+          "sha256": "1b042f05975e2bc0172490be6a5968e6b3d579ff132339680cecdd2c4aa9f980"
+        }
+      }
+    },
+    "patches": [
+      {
+        "command": [
+          "patch",
+          "--fuzz=0",
+          "--batch",
+          "-Np1",
+          "-i",
+          "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/target-core-rebuild-development-20261019/profile/systemd/0001-Use-Arch-Linux-device-access-groups.patch"
+        ],
+        "log": {
+          "bytes": 358,
+          "sha256": "9de8b2577df8bad039097f248d0776620b9163bab35b233c51399a96e347f942"
+        },
+        "patch": "0001-Use-Arch-Linux-device-access-groups.patch",
+        "returncode": 0
+      }
+    ],
+    "scope": "SOURCE_DATA_PATCH_APPLICABILITY_ONLY_NO_BUILD_OR_EXECUTION"
+  }
+}
