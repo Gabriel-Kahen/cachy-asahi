@@ -1,0 +1,61 @@
+name: core-systemd-userns-seccomp-probe
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact Root-reviewed closed diagnostic source
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: core-systemd-userns-seccomp-probe
+  cancel-in-progress: false
+jobs:
+  probe:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi'
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.source_sha }}
+          persist-credentials: false
+      - name: Verify exact reviewed source and workflow
+        shell: bash
+        env:
+          SOURCE_SHA: ${{ inputs.source_sha }}
+          WORKFLOW_SHA: ${{ github.workflow_sha }}
+        run: |
+          set -euo pipefail
+          test "$SOURCE_SHA" = "$GITHUB_SHA"
+          test "$SOURCE_SHA" = "$WORKFLOW_SHA"
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          python3 -I -B - <<'PY'
+          import importlib.util
+          from pathlib import Path
+          p=Path('run.py').absolute()
+          spec=importlib.util.spec_from_file_location('source_only_probe',p)
+          m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+          m.source()
+          PY
+      - name: Run three bounded native diagnostic configurations
+        timeout-minutes: 8
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout --signal=TERM --kill-after=20s 420s python3 -I -B run.py --output "$RUNNER_TEMP/core-userns-probe"
+      - name: Retain exact bounded diagnostic originals
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: core-userns-probe-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/core-userns-probe/*.json
+            ${{ runner.temp }}/core-userns-probe/*.stdout
+            ${{ runner.temp }}/core-userns-probe/*.stderr
+            ${{ runner.temp }}/core-userns-probe/*.txt
+            ${{ runner.temp }}/core-userns-probe/default/*
+            ${{ runner.temp }}/core-userns-probe/user-only/*
+            ${{ runner.temp }}/core-userns-probe/user-and-chroot/*
+          if-no-files-found: error
