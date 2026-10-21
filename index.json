@@ -1,0 +1,199 @@
+{
+  "files": {
+    "apparmor-4.1.7-1-aarch64.pkg.tar.xz": {
+      "bytes": 1208196,
+      "sha256": "d7616429036ff78fda1e5b1c3da82554f93419806787f4c884cabf45e5614f7a"
+    },
+    "apparmor-4.1.7-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "93291e6417feb16854729d7dfc8cb16b83bf4036aa9d3439a3adef4d6701deeb"
+    },
+    "perl-clone-0.51-1-aarch64.pkg.tar.xz": {
+      "bytes": 17640,
+      "sha256": "093b3cec58cdb0e1c7c4c865eda64d4d010bad1e309bfa62d931d19613f15ef9"
+    },
+    "perl-clone-0.51-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "c2a9052980f8dcee42491f5025dc8d7e3d0e7db46a33d1feb0ecf7c7f44db3db"
+    },
+    "perl-html-parser-3.86-1-aarch64.pkg.tar.xz": {
+      "bytes": 78988,
+      "sha256": "d155948c0f4e28df76c870844344f15077164b99de7bd399a2741e834d0a1c5c"
+    },
+    "perl-html-parser-3.86-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "dcf4390d835b9820bba0469442401703498b01e0ca6575ac1102fbae7b5db7a6"
+    },
+    "perl-uri-5.37-1-any.pkg.tar.xz": {
+      "bytes": 100248,
+      "sha256": "d1e764c909ed06def94667acb4306990a8e9a003e8d382d50cc184b2dfef1de9"
+    },
+    "perl-uri-5.37-1-any.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "1d8ab8b8839c6b3580f580a40bc3025255a8b5259c20ab2235031b8ebdcf73a3"
+    },
+    "perl-xml-parser-2.59-1-aarch64.pkg.tar.xz": {
+      "bytes": 152188,
+      "sha256": "1f97d335e6c23ade2127dacc525d3c5a6655412945f57ebe2e077c096798724a"
+    },
+    "perl-xml-parser-2.59-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "5098bc4689c26556436e44a0abcf6424b1e8ff4a12921f7726e1f25ec4154cbc"
+    }
+  },
+  "original_lock": {
+    "bytes": 54747,
+    "sha256": "de54465d351183e904c92bb2870ca2d7703aa1ea227b1624bf2f20556ebc9325"
+  },
+  "packages": [
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "audit",
+        "bash",
+        "glibc",
+        "libgcc",
+        "pam",
+        "python",
+        "python-legacy-cgi"
+      ],
+      "filename": "apparmor-4.1.7-1-aarch64.pkg.tar.xz",
+      "isize": 5916955,
+      "license": [
+        "GPL-2.0-only",
+        "LGPL-2.0-only",
+        "LGPL-2.1-only"
+      ],
+      "name": "apparmor",
+      "provides": [
+        "libapparmor.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "d7616429036ff78fda1e5b1c3da82554f93419806787f4c884cabf45e5614f7a",
+      "signature_sha256": "93291e6417feb16854729d7dfc8cb16b83bf4036aa9d3439a3adef4d6701deeb",
+      "signature_size": 566,
+      "size": 1208196,
+      "source_url": [
+        "https://gitlab.com/apparmor/apparmor"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/apparmor-4.1.7-1-aarch64.pkg.tar.xz",
+      "version": "4.1.7-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "perl"
+      ],
+      "filename": "perl-clone-0.51-1-aarch64.pkg.tar.xz",
+      "isize": 82739,
+      "license": [
+        "Artistic-1.0-Perl",
+        "GPL-1.0-or-later"
+      ],
+      "name": "perl-clone",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "093b3cec58cdb0e1c7c4c865eda64d4d010bad1e309bfa62d931d19613f15ef9",
+      "signature_sha256": "c2a9052980f8dcee42491f5025dc8d7e3d0e7db46a33d1feb0ecf7c7f44db3db",
+      "signature_size": 566,
+      "size": 17640,
+      "source_url": [
+        "https://github.com/garu/Clone"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/perl-clone-0.51-1-aarch64.pkg.tar.xz",
+      "version": "0.51-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "perl-html-tagset",
+        "perl-http-message",
+        "perl-uri"
+      ],
+      "filename": "perl-html-parser-3.86-1-aarch64.pkg.tar.xz",
+      "isize": 191658,
+      "license": [
+        "Artistic-1.0-Perl",
+        "GPL-1.0-or-later"
+      ],
+      "name": "perl-html-parser",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "d155948c0f4e28df76c870844344f15077164b99de7bd399a2741e834d0a1c5c",
+      "signature_sha256": "dcf4390d835b9820bba0469442401703498b01e0ca6575ac1102fbae7b5db7a6",
+      "signature_size": 566,
+      "size": 78988,
+      "source_url": [
+        "https://search.cpan.org/dist/HTML-Parser/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/perl-html-parser-3.86-1-aarch64.pkg.tar.xz",
+      "version": "3.86-1"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "perl",
+        "perl-mime-base32"
+      ],
+      "filename": "perl-uri-5.37-1-any.pkg.tar.xz",
+      "isize": 226655,
+      "license": [
+        "Artistic-1.0-Perl",
+        "GPL-1.0-or-later"
+      ],
+      "name": "perl-uri",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "d1e764c909ed06def94667acb4306990a8e9a003e8d382d50cc184b2dfef1de9",
+      "signature_sha256": "1d8ab8b8839c6b3580f580a40bc3025255a8b5259c20ab2235031b8ebdcf73a3",
+      "signature_size": 566,
+      "size": 100248,
+      "source_url": [
+        "https://search.cpan.org/dist/URI/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/perl-uri-5.37-1-any.pkg.tar.xz",
+      "version": "5.37-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "perl-file-sharedir",
+        "perl-libwww",
+        "expat"
+      ],
+      "filename": "perl-xml-parser-2.59-1-aarch64.pkg.tar.xz",
+      "isize": 523207,
+      "license": [
+        "GPL-1.0-or-later",
+        "Artistic-1.0-Perl"
+      ],
+      "name": "perl-xml-parser",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "1f97d335e6c23ade2127dacc525d3c5a6655412945f57ebe2e077c096798724a",
+      "signature_sha256": "5098bc4689c26556436e44a0abcf6424b1e8ff4a12921f7726e1f25ec4154cbc",
+      "signature_size": 566,
+      "size": 152188,
+      "source_url": [
+        "https://github.com/cpan-authors/XML-Parser"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/perl-xml-parser-2.59-1-aarch64.pkg.tar.xz",
+      "version": "2.59-1"
+    }
+  ],
+  "purpose": "EXACT_FIVE_MOVED_OFFICIAL_SIGNED_CORE_INPUTS_NOT_RELEASE_OR_TRUST_AUTHORITY",
+  "schema_version": 1,
+  "signature_verification": "UNCHANGED_ORIGINAL_ACQUIRE64_REQUIRED_AFTER_OWNED_CACHE_SEED",
+  "signer": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+  "versions_changed": false
+}
