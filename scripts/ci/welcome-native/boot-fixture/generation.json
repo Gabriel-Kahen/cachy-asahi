@@ -1,0 +1,62 @@
+{
+  "argv": [
+    "/usr/lib/systemd/systemd-journal-remote",
+    "--output=/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/boot-report-native-successor-development-20261019/fixture/system.journal",
+    "--split-mode=none",
+    "--compress=no",
+    "--seal=no",
+    "-"
+  ],
+  "decoded": {
+    "bytes": 2072,
+    "sha256": "cabb2767f5a5b185d30965a095e8f0bf2765306482ef0d5fde0add9978e0b83e"
+  },
+  "decoded_fields": "EXACT_AUTHORED_FIELDS_PLUS_ONLY_GENERATED_CURSOR_AND_SEQUENCE_METADATA",
+  "environment": {
+    "LC_ALL": "C",
+    "PATH": "/usr/bin:/bin",
+    "SYSTEMD_JOURNAL_REMOTE_CONFIG_FILE": "/dev/null",
+    "SYSTEMD_LOG_TARGET": "console"
+  },
+  "generator": {
+    "bytes": 3123,
+    "sha256": "e6d0370267b1bae8343a9f16ec4a79da2b74d6bc09dcd8958bb3e57d84b2c60e"
+  },
+  "host_history_read": false,
+  "input": {
+    "bytes": 1164,
+    "sha256": "4f67b2043c9d9aa48d087a09b0a24aa2b3f2591b4486447989249153e9c48074"
+  },
+  "journal": {
+    "bytes": 8388608,
+    "sha256": "77c326d908442852de51e66c660153d4c6051390b14466e48fa9c037cc1c573e"
+  },
+  "network": false,
+  "records": 4,
+  "scope": "SYNTHETIC_PRIVATE_JOURNAL_FIXTURE_DATA_ONLY_NEVER_REAL_BOOT_CRASH_AUTHORITY",
+  "stderr": "Creating journal file /home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/boot-report-native-successor-development-20261019/fixture/system.journal on a btrfs file system, and copy-on-write is enabled. This is likely to slow down journal access substantially, please consider turning off the copy-on-write file attribute on the journal directory, using chattr +C.\nFinishing after writing 4 entries\n",
+  "stdout": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "tools": {
+    "importer": {
+      "binary": {
+        "bytes": 65680,
+        "sha256": "a84ab4dad242feba7702995385a4f9e6fcd46221dfdd789c6d09993550fbde8f"
+      },
+      "path": "/usr/lib/systemd/systemd-journal-remote",
+      "version_stderr": "",
+      "version_stdout": "systemd 262 (262-1-arch)\n+PAM +AUDIT -SELINUX +APPARMOR -IMA +IPE +SMACK +SECCOMP +GNUTLS +OPENSSL +ACL +BLKID +CURL +ELFUTILS +FIDO2 +IDN2 +KMOD +LIBCRYPTSETUP +LIBCRYPTSETUP_PLUGINS +LIBFDISK +PCRE2 +PWQUALITY +P11KIT +QRENCODE +TPM2 +BZIP2 +LZ4 +XZ +ZLIB +ZSTD +BPF_FRAMEWORK +BTF +XKBCOMMON +UTMP +LIBARCHIVE\n"
+    },
+    "journalctl": {
+      "binary": {
+        "bytes": 110016,
+        "sha256": "981a2e174c0e46d22ef0f8d89e842eb272d92648873f759c251f7c3d74e1ee22"
+      },
+      "path": "/usr/bin/journalctl",
+      "version_stderr": "",
+      "version_stdout": "systemd 262 (262-1-arch)\n+PAM +AUDIT -SELINUX +APPARMOR -IMA +IPE +SMACK +SECCOMP +GNUTLS +OPENSSL +ACL +BLKID +CURL +ELFUTILS +FIDO2 +IDN2 +KMOD +LIBCRYPTSETUP +LIBCRYPTSETUP_PLUGINS +LIBFDISK +PCRE2 +PWQUALITY +P11KIT +QRENCODE +TPM2 +BZIP2 +LZ4 +XZ +ZLIB +ZSTD +BPF_FRAMEWORK +BTF +XKBCOMMON +UTMP +LIBARCHIVE\n"
+    }
+  }
+}
