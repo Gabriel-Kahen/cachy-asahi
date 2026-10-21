@@ -1,0 +1,1 @@
+Exact public ALARM archive and detached-signature bytes retained from the original signed native-base lock. Package versions, sources and license declarations remain in the complete original lock. This carrier supplies bytes only; it grants no signature, build, hardware or release acceptance. The original native_arm.py full authentication and metadata checks remain required.
