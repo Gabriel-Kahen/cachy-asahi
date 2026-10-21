@@ -10,13 +10,13 @@ class Refusals(unittest.TestCase):
  def test_wrong_source_and_unknown_profile_refuse_before_output(self):
   with tempfile.TemporaryDirectory()as tmp:
    root=Path(tmp);source=root/'source';source.mkdir();output=root/'output'
-   for profile in('fresh_descriptor561','original555','fresh_descriptor559','unbounded'):
+   for profile in('fresh_descriptor563','original555','fresh_descriptor559','unbounded'):
     with self.subTest(profile=profile),self.assertRaises(ValueError):P.emit(source,output,profile)
     self.assertFalse(output.exists())
  def test_exact_runtime_support_drift_refuses_before_output(self):
   with tempfile.TemporaryDirectory()as tmp:
    root=Path(tmp);support=root/'support';shutil.copytree(HERE,support);path=support/'latest_descriptor.py';path.write_bytes(path.read_bytes()+b'\n');source=root/'source';source.mkdir();output=root/'output'
-   with patch.object(P,'HERE',support),self.assertRaisesRegex(ValueError,'support body'):P.emit(source,output,'fresh_descriptor561')
+   with patch.object(P,'HERE',support),self.assertRaisesRegex(ValueError,'support body'):P.emit(source,output,'fresh_descriptor563')
    self.assertFalse(output.exists())
 class CompleteEmission:
  def emit_cli(self,root,profile=None):
@@ -25,21 +25,21 @@ class CompleteEmission:
   p=subprocess.run(argv,capture_output=True,timeout=120);self.assertEqual(p.returncode,0,p.stderr.decode());self.assertEqual(p.stdout,b'');return output,json.loads(authorization.read_bytes())
  def test_default_cli_exact_corrected561_and_full_source_guard(self):
   with tempfile.TemporaryDirectory()as tmp:
-   output,receipt=self.emit_cli(Path(tmp));self.assertEqual(P.files(output),P.files(EXPECTED));self.assertEqual(len(receipt['files']),561);self.assertEqual(receipt['status'],'SOURCE_ONLY_EXACT561_CORRECTED_PREFILL_DESCRIPTOR_TIMING_UNQUALIFIED')
+   output,receipt=self.emit_cli(Path(tmp));self.assertEqual(P.files(output),P.files(EXPECTED));self.assertEqual(len(receipt['files']),563);self.assertEqual(receipt['status'],'SOURCE_ONLY_EXACT563_FAILED_PUBLIC_DATA_CAPTURE_UNQUALIFIED')
    for n in receipt['files']:self.assertEqual((output/n).read_bytes(),(EXPECTED/n).read_bytes())
    saved,paths=dict(sys.modules),sys.path[:]
    try:
     lane=output/'latest/implementation';sys.path.insert(0,str(lane))
     for f in output.rglob('*.py'):sys.modules.pop(f.stem,None)
     spec=importlib.util.spec_from_file_location('_maintained_corrected561_full_guard',lane/'latest_guard.py');G=importlib.util.module_from_spec(spec);spec.loader.exec_module(G)
-    with patch.object(subprocess,'run',side_effect=AssertionError('NO_ACTORS')),patch.object(subprocess,'Popen',side_effect=AssertionError('NO_ACTORS')):self.assertEqual(G.verify()['files'],561);G.authorize()
+    with patch.object(subprocess,'run',side_effect=AssertionError('NO_ACTORS')),patch.object(subprocess,'Popen',side_effect=AssertionError('NO_ACTORS')):self.assertEqual(G.verify()['files'],563);G.authorize()
    finally:
     sys.path[:]=paths
     for n in set(sys.modules)-set(saved):sys.modules.pop(n,None)
     sys.modules.update(saved)
  def test_explicit_cli_exact_published561_and_existing_retained_member(self):
   with tempfile.TemporaryDirectory()as tmp:
-   root=Path(tmp);output,receipt=self.emit_cli(root,'fresh_descriptor561');self.assertEqual(P.files(output),P.files(EXPECTED));self.assertEqual(len(receipt['files']),561)
+   root=Path(tmp);output,receipt=self.emit_cli(root,'fresh_descriptor563');self.assertEqual(P.files(output),P.files(EXPECTED));self.assertEqual(len(receipt['files']),563)
    for n in receipt['files']:self.assertEqual((output/n).read_bytes(),(EXPECTED/n).read_bytes())
    # Execute the exact unchanged source-owned export function over inert receipts.
    text=(output/'latest/implementation/latest_owner.py').read_text();tree=ast.parse(text);cls=next(n for n in tree.body if isinstance(n,ast.ClassDef)and n.name=='Integration');fn=next(n for n in cls.body if isinstance(n,ast.FunctionDef)and n.name=='export_names');space={};exec(compile(ast.Module(body=[fn],type_ignores=[]),'<exact-existing-export-closure>','exec'),space)
