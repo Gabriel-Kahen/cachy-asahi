@@ -1,0 +1,1255 @@
+{
+  "all_target_vendor_distribution_accepted": false,
+  "audit_date": "2026-10-11",
+  "cargo_lock_sha256": "0f12cdc2bd6e3838d67b08f0566f75f477bc83121196cf14d0ea5ce07faa3753",
+  "entries": [
+    {
+      "branch_tree_search": [
+        {
+          "commit": "3b07aba96d9a5cc710d5147839e691d783a815ed",
+          "name": "dev_encode",
+          "notice_filename_matches": [],
+          "retrieval": {
+            "bytes": 2398,
+            "path": "/tmp/cachy-update-historical-notice-followup/block-tree-dev_encode.json",
+            "sha256": "2940402acaec880e9fb7140fd77b73f04291b9cfe9e9beccf2c3572413078078"
+          },
+          "truncated": false
+        },
+        {
+          "commit": "eb77c140c6a58557360d16d6525c319e2b812ace",
+          "name": "gnustep",
+          "notice_filename_matches": [],
+          "retrieval": {
+            "bytes": 2399,
+            "path": "/tmp/cachy-update-historical-notice-followup/block-tree-gnustep.json",
+            "sha256": "ba2e29f0f224d5fcbb7b9076b9d1007681a3bd0b65f1dcf38bc4c136a970ae3d"
+          },
+          "truncated": false
+        },
+        {
+          "commit": "642ea4a4a5853a21b55b05c34832a5f1bb1af61c",
+          "name": "master",
+          "notice_filename_matches": [],
+          "retrieval": {
+            "bytes": 3736,
+            "path": "/tmp/cachy-update-historical-notice-followup/block-tree-master.json",
+            "sha256": "b3b643e0cbad722f0a0af1348fa160674f3a39dd673d0ba91922a3eb4e7fba88"
+          },
+          "truncated": false
+        }
+      ],
+      "complete_historical_notice_found": false,
+      "distribution_accepted": false,
+      "documentation_search": {
+        "author_hosted_docs": "No complete license/copyright/permission notice identified in retrieved crate landing page; mutable generated documentation is not historical exact-version source proof.",
+        "docs_rs": "Exact-version crate page retrieved; no additional full notice found. Registry-hosted rendering is not copyright holder confirmation.",
+        "html_snapshot_hashes": [
+          {
+            "key": "block-author-docs",
+            "sha256": "879a28347004130e95222756f9abfc793bbe1f8a55355e01529dc7d7469a2fc3"
+          },
+          {
+            "key": "block-docsrs",
+            "sha256": "1bcf806e25ad565b0eaa434bdad2f25d09b2560f99c5b8a72eb167157e335cd8"
+          }
+        ]
+      },
+      "historical_source_comparison": {
+        "byte_identical_file_count": 4,
+        "different_source_bytes": [],
+        "manifest": {
+          "declared_license_matches": true,
+          "original_manifest_match": true,
+          "registry_manifest_sha256": "24df2f33b48c9e756a4f864f882c1ab07a159b6c2b790f45af2e8162499b6719",
+          "upstream_manifest_sha256": "24df2f33b48c9e756a4f864f882c1ab07a159b6c2b790f45af2e8162499b6719",
+          "version_matches": true
+        },
+        "matched_files_manifest_path": "/tmp/cachy-update-extra-cargo-notices/block-matched-files.json",
+        "matched_files_manifest_sha256": "4dd14dab4c0f02faa43ac068c5b4fa11862d41987f9674cf08696671f30e35d3",
+        "method": "Read-only tar/crate byte comparison. Normalized Cargo.toml retained as declaration; Cargo.toml.orig compared when present. Cargo packaging checksums/VCS info and generated Cargo.lock excluded. No execution.",
+        "missing_source_paths": [],
+        "result": "PASS"
+      },
+      "matched_historical_source_pin": {
+        "archive_bytes": 5618,
+        "archive_sha256": "41307468f6ea30759b6397441af749aa23666863c894a6cfbd996cda0e4056d3",
+        "archive_url": "https://codeload.github.com/SSheldon/rust-block/tar.gz/47178790cfc9d4a8b092051d8b413b78bd31254a",
+        "basis": "matching immutable upstream release/history revision; no crate VCS provenance asserted",
+        "commit": "47178790cfc9d4a8b092051d8b413b78bd31254a",
+        "repository": "https://github.com/SSheldon/rust-block",
+        "subdirectory": ""
+      },
+      "name": "block",
+      "named_license_path_history": {
+        "COPYING": [],
+        "LICENSE": [],
+        "LICENSE-MIT": []
+      },
+      "notice_issue": {
+        "assessment": "Request for license file, not a grant.",
+        "author": "fhoehle",
+        "comment_count": 1,
+        "comments_retrieval": {
+          "bytes": 3235,
+          "path": "/tmp/cachy-update-historical-notice-followup/block-issue-13-comments.json",
+          "sha256": "adb2643441edcd97e6f4166179221d1fcd5eed27d27957c581306c6ebe919061"
+        },
+        "latest_downstream_request": "A downstream clarification request is present; it is not maintainer confirmation. This agent did not post or reply.",
+        "maintainer_scope_confirmations": 0,
+        "retrieval": {
+          "bytes": 2421,
+          "path": "/tmp/cachy-update-historical-notice-followup/block-issue-13.json",
+          "sha256": "1c3c4c0d35b9cb77017b4b546c78383a40263e2874f868c45a3cc69f36993506"
+        },
+        "state": "open",
+        "url": "https://github.com/SSheldon/rust-block/issues/13"
+      },
+      "notice_pull_request": {
+        "assessment": "Open/unmerged contributor proposal copies generic Rust MIT text without package copyright notice. No maintainer scope/grant confirmation was found; a PR head or synthetic merge_commit_sha is not an adopted upstream notice.",
+        "author": "fhoehle",
+        "created_at": "2021-05-08T13:02:19Z",
+        "files_retrieval": {
+          "bytes": 2329,
+          "path": "/tmp/cachy-update-historical-notice-followup/block-pr-14-files.json",
+          "sha256": "a3e6d5bf6ec5d126aa5af0a928363535ec313d128e489109c13b4959b1442c1f"
+        },
+        "head_commit": "0c123b7be1e5e5fb14d561352a461c909b931baf",
+        "historical_scope_confirmed": false,
+        "maintainer_comments": [],
+        "merge_commit": "848cb92472207675d58b3be7f6251c8139e3e2f6",
+        "merged": false,
+        "merged_at": null,
+        "proposed_license_paths": [
+          "LICENSE-MIT"
+        ],
+        "retrieval": {
+          "bytes": 15575,
+          "path": "/tmp/cachy-update-historical-notice-followup/block-pr-14.json",
+          "sha256": "9eda78fe5302b5cc3e661b6b8fa8db1c44802a00a766d40a55591fc46fd77ab6"
+        },
+        "state": "open",
+        "url": "https://github.com/SSheldon/rust-block/pull/14"
+      },
+      "registry_version_metadata": {
+        "archive_checksum": "0d8c1fef690941d3e7788d328517591fecc684c084084702d6ff1641e993699a",
+        "created_at": "2016-05-08T18:37:19.417724Z",
+        "description": "Rust interface for Apple's C language extension of blocks.",
+        "license": "MIT",
+        "retrieval": {
+          "bytes": 1072,
+          "path": "/tmp/cachy-update-historical-notice-followup/block-registry.json",
+          "sha256": "5666ea7f3bac1ad35aa5bae4da3880850d69caf24df305ae4abb2133ff641bd4"
+        },
+        "scope": "Published exact-version declaration confirms MIT selection, not a full copyright/permission notice.",
+        "url": "https://crates.io/api/v1/crates/block/0.1.6"
+      },
+      "release_records": {
+        "published_release_count": 0,
+        "retrieval": {
+          "bytes": 2,
+          "path": "/tmp/cachy-update-historical-notice-followup/block-releases.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      },
+      "remaining_blocker": "Exact historical source and published MIT declaration are bound, but complete applicable permission/copyright notice remains absent. No fabricated copyright year/holder, foreign license, unmerged contribution or later nonmatching notice adopted.",
+      "status": "INCOMPLETE",
+      "version": "0.1.6"
+    },
+    {
+      "branch_tree_search": [
+        {
+          "commit": "55e668ed36262ee9cacbe2d4c643d58806afc088",
+          "name": "gh-pages",
+          "notice_filename_matches": [],
+          "retrieval": {
+            "bytes": 6108,
+            "path": "/tmp/cachy-update-historical-notice-followup/malloc_buf-tree-gh-pages.json",
+            "sha256": "4089741f9b40e1f28d025cf785b1702a070e64a0f74d526a0af62359d821f37e"
+          },
+          "truncated": false
+        },
+        {
+          "commit": "d9a3e539642bd90e07df458d226b19cdfa606863",
+          "name": "master",
+          "notice_filename_matches": [
+            "LICENSE"
+          ],
+          "retrieval": {
+            "bytes": 1265,
+            "path": "/tmp/cachy-update-historical-notice-followup/malloc_buf-tree-master.json",
+            "sha256": "53d4c51452e95eeafbddf2b9a4884a7a8f89a00d5968a61e9464f207e417efa3"
+          },
+          "truncated": false
+        }
+      ],
+      "complete_historical_notice_found": false,
+      "distribution_accepted": false,
+      "documentation_search": {
+        "author_hosted_docs": "No complete license/copyright/permission notice identified in retrieved crate landing page; mutable generated documentation is not historical exact-version source proof.",
+        "docs_rs": "Exact-version crate page retrieved; no additional full notice found. Registry-hosted rendering is not copyright holder confirmation.",
+        "html_snapshot_hashes": [
+          {
+            "key": "malloc_buf-author-docs",
+            "sha256": "c907e0b739dc163c929ab632dc0f93404a2f70f9315fd7b918140e9f1b33cf4e"
+          },
+          {
+            "key": "malloc_buf-docsrs",
+            "sha256": "8e9161c45929c3b621539fecc2904aa695729a3eab10cc568a36607f51d1c4c9"
+          }
+        ]
+      },
+      "existing_later_notice_pin": {
+        "commit": "d9a3e539642bd90e07df458d226b19cdfa606863",
+        "license_sha256": "aced7b57e474a63edb5a724954222bf7659c01ceef0e648a03af799582991db7",
+        "source_matches_locked_version": false
+      },
+      "historical_source_comparison": {
+        "byte_identical_file_count": 1,
+        "different_source_bytes": [],
+        "manifest": {
+          "declared_license_matches": true,
+          "original_manifest_match": false,
+          "packaging_difference": "Registry legacy manifest adds exclude=[\".gitignore\"] absent at release tag; sole source file matches byte-for-byte and version/author/license/dependency declarations match.",
+          "registry_manifest_sha256": "d87624d9d117489bd49dbaeb70077a0721e00ac2a76eb371faec818a92da5661",
+          "upstream_manifest_sha256": "1c70c91688d9850272e43cee9b189ffe3fe667151d7caf576a36a720f8b28194",
+          "version_matches": true
+        },
+        "matched_files_manifest_path": "/tmp/cachy-update-extra-cargo-notices/malloc_buf-matched-files.json",
+        "matched_files_manifest_sha256": "5b8e7558dbe7aa3a30f151300b484391e5d389a5551ba890f27e203cdcf2bd50",
+        "method": "Read-only tar/crate byte comparison. Normalized Cargo.toml retained as declaration; Cargo.toml.orig compared when present. Cargo packaging checksums/VCS info and generated Cargo.lock excluded. No execution.",
+        "missing_source_paths": [],
+        "result": "PASS"
+      },
+      "matched_historical_source_pin": {
+        "archive_bytes": 1384,
+        "archive_sha256": "9149a293334084c8adda5a139f3b882d0a564f6953d1b2ea5216a10974b21352",
+        "archive_url": "https://codeload.github.com/SSheldon/malloc_buf/tar.gz/a7811e5f4c6f9685dd57ad9bfe34e9bf6b0ba4f9",
+        "basis": "matching immutable upstream release/history revision; no crate VCS provenance asserted",
+        "commit": "a7811e5f4c6f9685dd57ad9bfe34e9bf6b0ba4f9",
+        "repository": "https://github.com/SSheldon/malloc_buf",
+        "subdirectory": ""
+      },
+      "name": "malloc_buf",
+      "named_license_path_history": {
+        "COPYING": [],
+        "LICENSE": [
+          {
+            "commit": "d9a3e539642bd90e07df458d226b19cdfa606863",
+            "message": "Add LICENSE\n\nAdding an MIT license since crates.io indicates the intention was to license as MIT."
+          }
+        ],
+        "LICENSE-MIT": []
+      },
+      "notice_pull_request": {
+        "assessment": "Merged LICENSE introduces Copyright (c) 2020 Steven Sheldon with full MIT text; maintainer acknowledgement says Thank you. This establishes adoption at the later revision, whose code differs from locked 0.0.6, not explicit scope confirmation for 0.0.6. No retroactive application made.",
+        "author": "fpotter",
+        "created_at": "2020-06-29T22:03:35Z",
+        "files_retrieval": {
+          "bytes": 1614,
+          "path": "/tmp/cachy-update-historical-notice-followup/malloc_buf-pr-3-files.json",
+          "sha256": "55bf0032f6499fbd3146cd13600c78fae6f9263fbab1cf454f1ec3eeb639038d"
+        },
+        "head_commit": "d9a3e539642bd90e07df458d226b19cdfa606863",
+        "historical_scope_confirmed": false,
+        "maintainer_comments": [
+          {
+            "body": "Thank you!",
+            "created_at": "2020-07-12T17:50:38Z",
+            "url": "https://github.com/SSheldon/malloc_buf/pull/3#issuecomment-657254585"
+          }
+        ],
+        "merge_commit": "d9a3e539642bd90e07df458d226b19cdfa606863",
+        "merged": true,
+        "merged_at": "2020-07-12T17:50:30Z",
+        "proposed_license_paths": [
+          "LICENSE"
+        ],
+        "retrieval": {
+          "bytes": 16902,
+          "path": "/tmp/cachy-update-historical-notice-followup/malloc_buf-pr-3.json",
+          "sha256": "aa698e8ffd003d187f14732a6697b24975948deff8b65d370d4947cfa32e8744"
+        },
+        "state": "closed",
+        "url": "https://github.com/SSheldon/malloc_buf/pull/3"
+      },
+      "registry_version_metadata": {
+        "archive_checksum": "62bb907fe88d54d8d9ce32a3cceab4218ed2f6b7d35617cafe9adf84e43919cb",
+        "created_at": "2015-11-06T16:33:16.183418Z",
+        "description": "Structs for handling malloc'd memory passed to Rust.",
+        "license": "MIT",
+        "retrieval": {
+          "bytes": 1099,
+          "path": "/tmp/cachy-update-historical-notice-followup/malloc_buf-registry.json",
+          "sha256": "324c0c3d11f30f2b3c76e3ef9a8fe0e65e59268b63208cb363e2651955284ddb"
+        },
+        "scope": "Published exact-version declaration confirms MIT selection, not a full copyright/permission notice.",
+        "url": "https://crates.io/api/v1/crates/malloc_buf/0.0.6"
+      },
+      "release_records": {
+        "published_release_count": 0,
+        "retrieval": {
+          "bytes": 2,
+          "path": "/tmp/cachy-update-historical-notice-followup/malloc_buf-releases.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      },
+      "remaining_blocker": "Exact historical source and published MIT declaration are bound, but complete applicable permission/copyright notice remains absent. No fabricated copyright year/holder, foreign license, unmerged contribution or later nonmatching notice adopted.",
+      "status": "INCOMPLETE",
+      "version": "0.0.6"
+    },
+    {
+      "branch_tree_search": [
+        {
+          "commit": "60aef4b3a812a440d11374e53407f5fc1d891768",
+          "name": "derive",
+          "notice_filename_matches": [],
+          "retrieval": {
+            "bytes": 5032,
+            "path": "/tmp/cachy-update-historical-notice-followup/objc-foundation-tree-derive.json",
+            "sha256": "37cb9daf5a06c24b434bf17b0f35bc4d8a39171a90fc17ffa8b522ceb5491a72"
+          },
+          "truncated": false
+        },
+        {
+          "commit": "15f9ebec1190889e48a4bc2d36601e61d303071f",
+          "name": "master",
+          "notice_filename_matches": [],
+          "retrieval": {
+            "bytes": 4584,
+            "path": "/tmp/cachy-update-historical-notice-followup/objc-foundation-tree-master.json",
+            "sha256": "b6133a6297a1a7e64cf67fed882ca7f9a2fc90e044a323cb379b1e21f238dc9e"
+          },
+          "truncated": false
+        },
+        {
+          "commit": "1114ecefbf5227958cbb1e3f516429bd4bb627b1",
+          "name": "objc_0.3",
+          "notice_filename_matches": [],
+          "retrieval": {
+            "bytes": 4584,
+            "path": "/tmp/cachy-update-historical-notice-followup/objc-foundation-tree-objc_0.3.json",
+            "sha256": "b29f73be1e5be82f9e8baf82a23b7464cf07027aec5ffb029aba6cb1feeb3ac2"
+          },
+          "truncated": false
+        }
+      ],
+      "complete_historical_notice_found": false,
+      "distribution_accepted": false,
+      "documentation_search": {
+        "author_hosted_docs": "No complete license/copyright/permission notice identified in retrieved crate landing page; mutable generated documentation is not historical exact-version source proof.",
+        "docs_rs": "Exact-version crate page retrieved; no additional full notice found. Registry-hosted rendering is not copyright holder confirmation.",
+        "html_snapshot_hashes": [
+          {
+            "key": "objc-foundation-author-docs",
+            "sha256": "f56af7e2987cd8e920294f156f480f974eba1636046acf5b5fe60a2a84ef5856"
+          },
+          {
+            "key": "objc-foundation-docsrs",
+            "sha256": "dcf513d6e07fc3a13c1c45d8c93ef2556e6a6fc708c75fd6cc6ef14e7abe9ace"
+          }
+        ]
+      },
+      "historical_source_comparison": {
+        "byte_identical_file_count": 12,
+        "different_source_bytes": [],
+        "manifest": {
+          "declared_license_matches": true,
+          "original_manifest_match": true,
+          "registry_manifest_sha256": "27c851b122617cfbf263603bcf05d637aaddbc87c12c2e78f8f91675739928a8",
+          "upstream_manifest_sha256": "27c851b122617cfbf263603bcf05d637aaddbc87c12c2e78f8f91675739928a8",
+          "version_matches": true
+        },
+        "matched_files_manifest_path": "/tmp/cachy-update-extra-cargo-notices/objc-foundation-matched-files.json",
+        "matched_files_manifest_sha256": "a43cbbb7def643088b1c973a85c8ce228fb62a4eb7715d98d64c483cc3dd89e4",
+        "method": "Read-only tar/crate byte comparison. Normalized Cargo.toml retained as declaration; Cargo.toml.orig compared when present. Cargo packaging checksums/VCS info and generated Cargo.lock excluded. No execution.",
+        "missing_source_paths": [],
+        "result": "PASS"
+      },
+      "matched_historical_source_pin": {
+        "archive_bytes": 9265,
+        "archive_sha256": "e8dcb8550d94b6c9dab6c229c01703df1d39288023899e893f7f447efe6d8481",
+        "archive_url": "https://codeload.github.com/SSheldon/rust-objc-foundation/tar.gz/0c157a59b7931430ed5ac7839381470b0c516d3c",
+        "basis": "matching immutable upstream release/history revision; no crate VCS provenance asserted",
+        "commit": "0c157a59b7931430ed5ac7839381470b0c516d3c",
+        "repository": "https://github.com/SSheldon/rust-objc-foundation",
+        "subdirectory": ""
+      },
+      "name": "objc-foundation",
+      "named_license_path_history": {
+        "COPYING": [],
+        "LICENSE": [],
+        "LICENSE-MIT": []
+      },
+      "notice_issue": {
+        "assessment": "Request for license file, not a grant.",
+        "author": "fhoehle",
+        "comment_count": 0,
+        "comments_retrieval": {
+          "bytes": 2,
+          "path": "/tmp/cachy-update-historical-notice-followup/objc-foundation-issue-12-comments.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "maintainer_scope_confirmations": 0,
+        "retrieval": {
+          "bytes": 2501,
+          "path": "/tmp/cachy-update-historical-notice-followup/objc-foundation-issue-12.json",
+          "sha256": "8ba67585bde98128db379dd694ff2d47af2cb082a01d05e6efef995df4eac47c"
+        },
+        "state": "open",
+        "url": "https://github.com/SSheldon/rust-objc-foundation/issues/12"
+      },
+      "notice_pull_request": {
+        "assessment": "Open/unmerged contributor proposal copies generic Rust MIT text without package copyright notice. No maintainer scope/grant confirmation was found; a PR head or synthetic merge_commit_sha is not an adopted upstream notice.",
+        "author": "fhoehle",
+        "created_at": "2021-05-06T11:40:57Z",
+        "files_retrieval": {
+          "bytes": 2454,
+          "path": "/tmp/cachy-update-historical-notice-followup/objc-foundation-pr-13-files.json",
+          "sha256": "29dd7253c569d44ce8edfa5e28a83a174a4b5b0be3318134f17851e3a3fea832"
+        },
+        "head_commit": "0cab118566327e578a753d8c328191af1e9e073e",
+        "historical_scope_confirmed": false,
+        "maintainer_comments": [],
+        "merge_commit": "86bdec7f9d52015adb1314edaa89f0d7a8db9f77",
+        "merged": false,
+        "merged_at": null,
+        "proposed_license_paths": [
+          "LICENSE-MIT"
+        ],
+        "retrieval": {
+          "bytes": 16643,
+          "path": "/tmp/cachy-update-historical-notice-followup/objc-foundation-pr-13.json",
+          "sha256": "5b9dd291d8cd877cf4edafd1a69995139f47daa13e2cfa40a2a924b43d4078d1"
+        },
+        "state": "open",
+        "url": "https://github.com/SSheldon/rust-objc-foundation/pull/13"
+      },
+      "registry_version_metadata": {
+        "archive_checksum": "1add1b659e36c9607c7aab864a76c7a4c2760cd0cd2e120f3fb8b952c7e22bf9",
+        "created_at": "2016-06-19T20:47:04.951799Z",
+        "description": "Rust wrapper for Objective-C's Foundation framework.",
+        "license": "MIT",
+        "retrieval": {
+          "bytes": 1148,
+          "path": "/tmp/cachy-update-historical-notice-followup/objc-foundation-registry.json",
+          "sha256": "7d8e2e65bf6a8a9108a87ed5ad69fb0d99c135f050f1d6cbff1eb2ee40b8db33"
+        },
+        "scope": "Published exact-version declaration confirms MIT selection, not a full copyright/permission notice.",
+        "url": "https://crates.io/api/v1/crates/objc-foundation/0.1.1"
+      },
+      "release_records": {
+        "published_release_count": 0,
+        "retrieval": {
+          "bytes": 2,
+          "path": "/tmp/cachy-update-historical-notice-followup/objc-foundation-releases.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      },
+      "relicensing_proposal": {
+        "assessment": "Automatically generated dual-license proposal with unchecked contributor approval entries; no approved grant/copyright notice supplied. Proposed boilerplate is not accepted as an existing license.",
+        "author": "emberian",
+        "comment_count": 0,
+        "retrieval": {
+          "bytes": 6839,
+          "path": "/tmp/cachy-update-historical-notice-followup/objc-foundation-issue-5.json",
+          "sha256": "e470b08d3d6c427b744b6c1544060bc8f5f9b576c24b690fe5e92867ff89c579"
+        },
+        "state": "open",
+        "url": "https://github.com/SSheldon/rust-objc-foundation/issues/5"
+      },
+      "remaining_blocker": "Exact historical source and published MIT declaration are bound, but complete applicable permission/copyright notice remains absent. No fabricated copyright year/holder, foreign license, unmerged contribution or later nonmatching notice adopted.",
+      "status": "INCOMPLETE",
+      "version": "0.1.1"
+    },
+    {
+      "branch_tree_search": [
+        {
+          "commit": "6527cdf28fef2b155c67c1681f548ecfd794003c",
+          "name": "master",
+          "notice_filename_matches": [],
+          "retrieval": {
+            "bytes": 1501,
+            "path": "/tmp/cachy-update-historical-notice-followup/objc_id-tree-master.json",
+            "sha256": "581e84676d21b9d5add2b564fb28ebced49a4fdd61b9a241fd44c214440a0c1a"
+          },
+          "truncated": false
+        }
+      ],
+      "complete_historical_notice_found": false,
+      "distribution_accepted": false,
+      "documentation_search": {
+        "author_hosted_docs": "No complete license/copyright/permission notice identified in retrieved crate landing page; mutable generated documentation is not historical exact-version source proof.",
+        "docs_rs": "Exact-version crate page retrieved; no additional full notice found. Registry-hosted rendering is not copyright holder confirmation.",
+        "html_snapshot_hashes": [
+          {
+            "key": "objc_id-author-docs",
+            "sha256": "342dd667d32895e2572a3522508c6fb9315650f77f045fe2c63d57b39dbad819"
+          },
+          {
+            "key": "objc_id-docsrs",
+            "sha256": "441ad93e04f4d6a4155bab7f2d3a5fa74f188e68a000d8664aeda91323ff705f"
+          }
+        ]
+      },
+      "historical_source_comparison": {
+        "byte_identical_file_count": 4,
+        "different_source_bytes": [],
+        "manifest": {
+          "declared_license_matches": true,
+          "original_manifest_match": true,
+          "registry_manifest_sha256": "7d444ee847aa9b34cbe6cddeaf4001b28be86b28c2855e09c2e7fbfa797a66dd",
+          "upstream_manifest_sha256": "8a219f5fdd84d366e0298e543d5a0c537d68ff2aceb0459698c047c4ffc082dc",
+          "version_matches": true
+        },
+        "matched_files_manifest_path": "/tmp/cachy-update-extra-cargo-notices/objc_id-matched-files.json",
+        "matched_files_manifest_sha256": "c4ba3439008f0bd819657becec47e913db0ffc5e37299ac14b601a4bbd786014",
+        "method": "Read-only tar/crate byte comparison. Normalized Cargo.toml retained as declaration; Cargo.toml.orig compared when present. Cargo packaging checksums/VCS info and generated Cargo.lock excluded. No execution.",
+        "missing_source_paths": [],
+        "result": "PASS"
+      },
+      "matched_historical_source_pin": {
+        "archive_bytes": 3047,
+        "archive_sha256": "a6d6adf9f3afed35520e648199cfe9273b251b840fb05ab0bbe189bed7cfeb3f",
+        "archive_url": "https://codeload.github.com/SSheldon/rust-objc-id/tar.gz/6527cdf28fef2b155c67c1681f548ecfd794003c",
+        "basis": "matching immutable upstream release/history revision; no crate VCS provenance asserted",
+        "commit": "6527cdf28fef2b155c67c1681f548ecfd794003c",
+        "repository": "https://github.com/SSheldon/rust-objc-id",
+        "subdirectory": ""
+      },
+      "name": "objc_id",
+      "named_license_path_history": {
+        "COPYING": [],
+        "LICENSE": [],
+        "LICENSE-MIT": []
+      },
+      "notice_issue": {
+        "assessment": "Request for license file, not a grant.",
+        "author": "fhoehle",
+        "comment_count": 0,
+        "comments_retrieval": {
+          "bytes": 2,
+          "path": "/tmp/cachy-update-historical-notice-followup/objc_id-issue-6-comments.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "maintainer_scope_confirmations": 0,
+        "retrieval": {
+          "bytes": 2429,
+          "path": "/tmp/cachy-update-historical-notice-followup/objc_id-issue-6.json",
+          "sha256": "82287091bd5da6c39e589deb619f311848b558911df4b47bc5f62c19f5004b86"
+        },
+        "state": "open",
+        "url": "https://github.com/SSheldon/rust-objc-id/issues/6"
+      },
+      "notice_pull_request": {
+        "assessment": "Open/unmerged contributor proposal copies generic Rust MIT text without package copyright notice. No maintainer scope/grant confirmation was found; a PR head or synthetic merge_commit_sha is not an adopted upstream notice.",
+        "author": "fhoehle",
+        "created_at": "2021-05-08T12:59:09Z",
+        "files_retrieval": {
+          "bytes": 2343,
+          "path": "/tmp/cachy-update-historical-notice-followup/objc_id-pr-7-files.json",
+          "sha256": "8eb3111f0f8656233ff5032403148eedeb93e3f813f2b5c31b0e427ca0a7c47c"
+        },
+        "head_commit": "ec98876b91ad281e216f465460891232cf749e29",
+        "historical_scope_confirmed": false,
+        "maintainer_comments": [],
+        "merge_commit": "f4c3157265f97bb38306ec2cd2f341e2ab5863f7",
+        "merged": false,
+        "merged_at": null,
+        "proposed_license_paths": [
+          "LICENSE-MIT"
+        ],
+        "retrieval": {
+          "bytes": 15701,
+          "path": "/tmp/cachy-update-historical-notice-followup/objc_id-pr-7.json",
+          "sha256": "a29dd962e413b2aecafcfbd015de342ee55c179096be86192392b831a62e5b0f"
+        },
+        "state": "open",
+        "url": "https://github.com/SSheldon/rust-objc-id/pull/7"
+      },
+      "registry_version_metadata": {
+        "archive_checksum": "c92d4ddb4bd7b50d730c215ff871754d0da6b2178849f8a2a2ab69712d0c073b",
+        "created_at": "2018-07-22T18:50:39.296097Z",
+        "description": "Rust smart pointers for Objective-C reference counting.",
+        "license": "MIT",
+        "retrieval": {
+          "bytes": 1086,
+          "path": "/tmp/cachy-update-historical-notice-followup/objc_id-registry.json",
+          "sha256": "937c3e2a46760bc315dc82eee15386b7b024db16485dfccb4272b4933df9d90c"
+        },
+        "scope": "Published exact-version declaration confirms MIT selection, not a full copyright/permission notice.",
+        "url": "https://crates.io/api/v1/crates/objc_id/0.1.1"
+      },
+      "release_records": {
+        "published_release_count": 0,
+        "retrieval": {
+          "bytes": 2,
+          "path": "/tmp/cachy-update-historical-notice-followup/objc_id-releases.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      },
+      "relicensing_proposal": {
+        "assessment": "Automatically generated dual-license proposal with unchecked contributor approval entries; no approved grant/copyright notice supplied. Proposed boilerplate is not accepted as an existing license.",
+        "author": "emberian",
+        "comment_count": 0,
+        "retrieval": {
+          "bytes": 6748,
+          "path": "/tmp/cachy-update-historical-notice-followup/objc_id-issue-3.json",
+          "sha256": "58115f25af0f71fd168c4d743317ee9bff640949b0cec47eeaa9815628b226dc"
+        },
+        "state": "open",
+        "url": "https://github.com/SSheldon/rust-objc-id/issues/3"
+      },
+      "remaining_blocker": "Exact historical source and published MIT declaration are bound, but complete applicable permission/copyright notice remains absent. No fabricated copyright year/holder, foreign license, unmerged contribution or later nonmatching notice adopted.",
+      "status": "INCOMPLETE",
+      "version": "0.1.1"
+    }
+  ],
+  "errors": [],
+  "exact_historical_notice_entries_closed": 0,
+  "kind": "Bounded read-only primary-source historical notice follow-up",
+  "license_closure": "INCOMPLETE",
+  "linux_compilation_scope": "Not evaluated by this notice search. Coordinator may separately prove an actual native Cargo filtered graph excludes these target-specific crates; that cannot accept redistribution of the complete all-target vendor bundle.",
+  "operations": "Only public HTTP reads and local data hashing/inspection. No outreach, messages to maintainers, Cargo/build/source execution, install or host mutation. Only this owned JSON changed in the repository.",
+  "parent_notice_audit_sha256": "74a1dbfa75de13df5c82525af8d684e38b772c31bdf912d61f7fe74e7646c591",
+  "retrievals": [
+    {
+      "bytes": 5040,
+      "key": "block-issues",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/block-issues.json",
+      "result": "RETRIEVED",
+      "sha256": "20b4cae1dbf6c82440af99825f144aaae7e19d90afe0e5bc88f945232e0fbbd6",
+      "url": "https://api.github.com/search/issues?q=repo:SSheldon/rust-block+license"
+    },
+    {
+      "bytes": 2949,
+      "key": "malloc-issues",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/malloc-issues.json",
+      "result": "RETRIEVED",
+      "sha256": "521ea408e78dd17ec6543b93254d9b7c4baee9922695dc061d502a3e8dba2ee7",
+      "url": "https://api.github.com/search/issues?q=repo:SSheldon/malloc_buf+license"
+    },
+    {
+      "bytes": 12073,
+      "key": "foundation-issues",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/foundation-issues.json",
+      "result": "RETRIEVED",
+      "sha256": "f42267beb5ad47a8c8866ee7506437b7acf84abda2cf120ee6a02b1578e4d6a1",
+      "url": "https://api.github.com/search/issues?q=repo:SSheldon/rust-objc-foundation+license"
+    },
+    {
+      "bytes": 11803,
+      "key": "objc-id-issues",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/objc-id-issues.json",
+      "result": "RETRIEVED",
+      "sha256": "b35e5224144f7b06c6204e0c134f78453076f5a8fffee733bc7886f1189ec769",
+      "url": "https://api.github.com/search/issues?q=repo:SSheldon/rust-objc-id+license"
+    },
+    {
+      "bytes": 1072,
+      "key": "block-registry",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/block-registry.json",
+      "result": "RETRIEVED",
+      "sha256": "5666ea7f3bac1ad35aa5bae4da3880850d69caf24df305ae4abb2133ff641bd4",
+      "url": "https://crates.io/api/v1/crates/block/0.1.6"
+    },
+    {
+      "bytes": 1099,
+      "key": "malloc_buf-registry",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/malloc_buf-registry.json",
+      "result": "RETRIEVED",
+      "sha256": "324c0c3d11f30f2b3c76e3ef9a8fe0e65e59268b63208cb363e2651955284ddb",
+      "url": "https://crates.io/api/v1/crates/malloc_buf/0.0.6"
+    },
+    {
+      "bytes": 1148,
+      "key": "objc-foundation-registry",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/objc-foundation-registry.json",
+      "result": "RETRIEVED",
+      "sha256": "7d8e2e65bf6a8a9108a87ed5ad69fb0d99c135f050f1d6cbff1eb2ee40b8db33",
+      "url": "https://crates.io/api/v1/crates/objc-foundation/0.1.1"
+    },
+    {
+      "bytes": 1086,
+      "key": "objc_id-registry",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/objc_id-registry.json",
+      "result": "RETRIEVED",
+      "sha256": "937c3e2a46760bc315dc82eee15386b7b024db16485dfccb4272b4933df9d90c",
+      "url": "https://crates.io/api/v1/crates/objc_id/0.1.1"
+    },
+    {
+      "bytes": 2,
+      "key": "block-history-LICENSE",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/block-history-LICENSE.json",
+      "result": "RETRIEVED",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "url": "https://api.github.com/repos/SSheldon/rust-block/commits?path=LICENSE&per_page=100"
+    },
+    {
+      "bytes": 2,
+      "key": "block-history-LICENSE-MIT",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/block-history-LICENSE-MIT.json",
+      "result": "RETRIEVED",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "url": "https://api.github.com/repos/SSheldon/rust-block/commits?path=LICENSE-MIT&per_page=100"
+    },
+    {
+      "bytes": 2,
+      "key": "block-history-COPYING",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/block-history-COPYING.json",
+      "result": "RETRIEVED",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "url": "https://api.github.com/repos/SSheldon/rust-block/commits?path=COPYING&per_page=100"
+    },
+    {
+      "bytes": 6513,
+      "key": "block-history-README.md",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/block-history-README.md.json",
+      "result": "RETRIEVED",
+      "sha256": "5fd8fecefe7796c9008c5b747e81eae30ad985908755d087a0b399eb6e98471b",
+      "url": "https://api.github.com/repos/SSheldon/rust-block/commits?path=README.md&per_page=100"
+    },
+    {
+      "bytes": 4097,
+      "key": "malloc_buf-history-LICENSE",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/malloc_buf-history-LICENSE.json",
+      "result": "RETRIEVED",
+      "sha256": "a2808cadc114218edf9fa9d804e2819ea2a5fd3ec8f028d580cfca792cb63bce",
+      "url": "https://api.github.com/repos/SSheldon/malloc_buf/commits?path=LICENSE&per_page=100"
+    },
+    {
+      "bytes": 2,
+      "key": "malloc_buf-history-LICENSE-MIT",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/malloc_buf-history-LICENSE-MIT.json",
+      "result": "RETRIEVED",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "url": "https://api.github.com/repos/SSheldon/malloc_buf/commits?path=LICENSE-MIT&per_page=100"
+    },
+    {
+      "bytes": 2,
+      "key": "malloc_buf-history-COPYING",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/malloc_buf-history-COPYING.json",
+      "result": "RETRIEVED",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "url": "https://api.github.com/repos/SSheldon/malloc_buf/commits?path=COPYING&per_page=100"
+    },
+    {
+      "bytes": 2,
+      "key": "malloc_buf-history-README.md",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/malloc_buf-history-README.md.json",
+      "result": "RETRIEVED",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "url": "https://api.github.com/repos/SSheldon/malloc_buf/commits?path=README.md&per_page=100"
+    },
+    {
+      "bytes": 2,
+      "key": "objc-foundation-history-LICENSE",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/objc-foundation-history-LICENSE.json",
+      "result": "RETRIEVED",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "url": "https://api.github.com/repos/SSheldon/rust-objc-foundation/commits?path=LICENSE&per_page=100"
+    },
+    {
+      "bytes": 2,
+      "key": "objc-foundation-history-LICENSE-MIT",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/objc-foundation-history-LICENSE-MIT.json",
+      "result": "RETRIEVED",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "url": "https://api.github.com/repos/SSheldon/rust-objc-foundation/commits?path=LICENSE-MIT&per_page=100"
+    },
+    {
+      "bytes": 2,
+      "key": "objc-foundation-history-COPYING",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/objc-foundation-history-COPYING.json",
+      "result": "RETRIEVED",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "url": "https://api.github.com/repos/SSheldon/rust-objc-foundation/commits?path=COPYING&per_page=100"
+    },
+    {
+      "bytes": 2,
+      "key": "objc-foundation-history-README.md",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/objc-foundation-history-README.md.json",
+      "result": "RETRIEVED",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "url": "https://api.github.com/repos/SSheldon/rust-objc-foundation/commits?path=README.md&per_page=100"
+    },
+    {
+      "bytes": 2,
+      "key": "objc_id-history-LICENSE",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/objc_id-history-LICENSE.json",
+      "result": "RETRIEVED",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "url": "https://api.github.com/repos/SSheldon/rust-objc-id/commits?path=LICENSE&per_page=100"
+    },
+    {
+      "bytes": 2,
+      "key": "objc_id-history-LICENSE-MIT",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/objc_id-history-LICENSE-MIT.json",
+      "result": "RETRIEVED",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "url": "https://api.github.com/repos/SSheldon/rust-objc-id/commits?path=LICENSE-MIT&per_page=100"
+    },
+    {
+      "bytes": 2,
+      "key": "objc_id-history-COPYING",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/objc_id-history-COPYING.json",
+      "result": "RETRIEVED",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "url": "https://api.github.com/repos/SSheldon/rust-objc-id/commits?path=COPYING&per_page=100"
+    },
+    {
+      "bytes": 3299,
+      "key": "objc_id-history-README.md",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/objc_id-history-README.md.json",
+      "result": "RETRIEVED",
+      "sha256": "5a6409df43c5d36ed8508621610023e75277a739b8d9a789b67652f9c829d8f8",
+      "url": "https://api.github.com/repos/SSheldon/rust-objc-id/commits?path=README.md&per_page=100"
+    },
+    {
+      "bytes": 2421,
+      "key": "block-issue-13",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/block-issue-13.json",
+      "result": "RETRIEVED",
+      "sha256": "1c3c4c0d35b9cb77017b4b546c78383a40263e2874f868c45a3cc69f36993506",
+      "url": "https://api.github.com/repos/SSheldon/rust-block/issues/13"
+    },
+    {
+      "bytes": 3235,
+      "key": "block-issue-13-comments",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/block-issue-13-comments.json",
+      "result": "RETRIEVED",
+      "sha256": "adb2643441edcd97e6f4166179221d1fcd5eed27d27957c581306c6ebe919061",
+      "url": "https://api.github.com/repos/SSheldon/rust-block/issues/13/comments"
+    },
+    {
+      "bytes": 2549,
+      "key": "block-issue-14",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/block-issue-14.json",
+      "result": "RETRIEVED",
+      "sha256": "1624b7c685f7bdcc92242187d6f5522f15df8809f9b73b636e8c492fa7d66854",
+      "url": "https://api.github.com/repos/SSheldon/rust-block/issues/14"
+    },
+    {
+      "bytes": 2,
+      "key": "block-issue-14-comments",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/block-issue-14-comments.json",
+      "result": "RETRIEVED",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "url": "https://api.github.com/repos/SSheldon/rust-block/issues/14/comments"
+    },
+    {
+      "bytes": 15575,
+      "key": "block-pr-14",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/block-pr-14.json",
+      "result": "RETRIEVED",
+      "sha256": "9eda78fe5302b5cc3e661b6b8fa8db1c44802a00a766d40a55591fc46fd77ab6",
+      "url": "https://api.github.com/repos/SSheldon/rust-block/pulls/14"
+    },
+    {
+      "bytes": 2329,
+      "key": "block-pr-14-files",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/block-pr-14-files.json",
+      "result": "RETRIEVED",
+      "sha256": "a3e6d5bf6ec5d126aa5af0a928363535ec313d128e489109c13b4959b1442c1f",
+      "url": "https://api.github.com/repos/SSheldon/rust-block/pulls/14/files"
+    },
+    {
+      "bytes": 3800,
+      "key": "malloc_buf-issue-3",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/malloc_buf-issue-3.json",
+      "result": "RETRIEVED",
+      "sha256": "0d764ea797f8de83a2674eb99a6a7f69871277d207dee799539b61dd9e2fb9b1",
+      "url": "https://api.github.com/repos/SSheldon/malloc_buf/issues/3"
+    },
+    {
+      "bytes": 1612,
+      "key": "malloc_buf-issue-3-comments",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/malloc_buf-issue-3-comments.json",
+      "result": "RETRIEVED",
+      "sha256": "1c3e037abd8b4928fbd96a7c165de1ce06f7205d883f524a886086f78664d4dc",
+      "url": "https://api.github.com/repos/SSheldon/malloc_buf/issues/3/comments"
+    },
+    {
+      "bytes": 16902,
+      "key": "malloc_buf-pr-3",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/malloc_buf-pr-3.json",
+      "result": "RETRIEVED",
+      "sha256": "aa698e8ffd003d187f14732a6697b24975948deff8b65d370d4947cfa32e8744",
+      "url": "https://api.github.com/repos/SSheldon/malloc_buf/pulls/3"
+    },
+    {
+      "bytes": 1614,
+      "key": "malloc_buf-pr-3-files",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/malloc_buf-pr-3-files.json",
+      "result": "RETRIEVED",
+      "sha256": "55bf0032f6499fbd3146cd13600c78fae6f9263fbab1cf454f1ec3eeb639038d",
+      "url": "https://api.github.com/repos/SSheldon/malloc_buf/pulls/3/files"
+    },
+    {
+      "bytes": 2501,
+      "key": "objc-foundation-issue-12",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/objc-foundation-issue-12.json",
+      "result": "RETRIEVED",
+      "sha256": "8ba67585bde98128db379dd694ff2d47af2cb082a01d05e6efef995df4eac47c",
+      "url": "https://api.github.com/repos/SSheldon/rust-objc-foundation/issues/12"
+    },
+    {
+      "bytes": 2,
+      "key": "objc-foundation-issue-12-comments",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/objc-foundation-issue-12-comments.json",
+      "result": "RETRIEVED",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "url": "https://api.github.com/repos/SSheldon/rust-objc-foundation/issues/12/comments"
+    },
+    {
+      "bytes": 2667,
+      "key": "objc-foundation-issue-13",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/objc-foundation-issue-13.json",
+      "result": "RETRIEVED",
+      "sha256": "04ecc7e3aacb3a331e38a0e5654ebc6788ec7f3517498de418c306f674ba6ff2",
+      "url": "https://api.github.com/repos/SSheldon/rust-objc-foundation/issues/13"
+    },
+    {
+      "bytes": 2,
+      "key": "objc-foundation-issue-13-comments",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/objc-foundation-issue-13-comments.json",
+      "result": "RETRIEVED",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "url": "https://api.github.com/repos/SSheldon/rust-objc-foundation/issues/13/comments"
+    },
+    {
+      "bytes": 6839,
+      "key": "objc-foundation-issue-5",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/objc-foundation-issue-5.json",
+      "result": "RETRIEVED",
+      "sha256": "e470b08d3d6c427b744b6c1544060bc8f5f9b576c24b690fe5e92867ff89c579",
+      "url": "https://api.github.com/repos/SSheldon/rust-objc-foundation/issues/5"
+    },
+    {
+      "bytes": 2,
+      "key": "objc-foundation-issue-5-comments",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/objc-foundation-issue-5-comments.json",
+      "result": "RETRIEVED",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "url": "https://api.github.com/repos/SSheldon/rust-objc-foundation/issues/5/comments"
+    },
+    {
+      "bytes": 16643,
+      "key": "objc-foundation-pr-13",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/objc-foundation-pr-13.json",
+      "result": "RETRIEVED",
+      "sha256": "5b9dd291d8cd877cf4edafd1a69995139f47daa13e2cfa40a2a924b43d4078d1",
+      "url": "https://api.github.com/repos/SSheldon/rust-objc-foundation/pulls/13"
+    },
+    {
+      "bytes": 2454,
+      "key": "objc-foundation-pr-13-files",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/objc-foundation-pr-13-files.json",
+      "result": "RETRIEVED",
+      "sha256": "29dd7253c569d44ce8edfa5e28a83a174a4b5b0be3318134f17851e3a3fea832",
+      "url": "https://api.github.com/repos/SSheldon/rust-objc-foundation/pulls/13/files"
+    },
+    {
+      "bytes": 2429,
+      "key": "objc_id-issue-6",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/objc_id-issue-6.json",
+      "result": "RETRIEVED",
+      "sha256": "82287091bd5da6c39e589deb619f311848b558911df4b47bc5f62c19f5004b86",
+      "url": "https://api.github.com/repos/SSheldon/rust-objc-id/issues/6"
+    },
+    {
+      "bytes": 2,
+      "key": "objc_id-issue-6-comments",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/objc_id-issue-6-comments.json",
+      "result": "RETRIEVED",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "url": "https://api.github.com/repos/SSheldon/rust-objc-id/issues/6/comments"
+    },
+    {
+      "bytes": 2560,
+      "key": "objc_id-issue-7",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/objc_id-issue-7.json",
+      "result": "RETRIEVED",
+      "sha256": "04a6f9f1cda3c7d69d81aa116270c8b756207e2eb68526b4195992398392d0e0",
+      "url": "https://api.github.com/repos/SSheldon/rust-objc-id/issues/7"
+    },
+    {
+      "bytes": 2,
+      "key": "objc_id-issue-7-comments",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/objc_id-issue-7-comments.json",
+      "result": "RETRIEVED",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "url": "https://api.github.com/repos/SSheldon/rust-objc-id/issues/7/comments"
+    },
+    {
+      "bytes": 6748,
+      "key": "objc_id-issue-3",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/objc_id-issue-3.json",
+      "result": "RETRIEVED",
+      "sha256": "58115f25af0f71fd168c4d743317ee9bff640949b0cec47eeaa9815628b226dc",
+      "url": "https://api.github.com/repos/SSheldon/rust-objc-id/issues/3"
+    },
+    {
+      "bytes": 2,
+      "key": "objc_id-issue-3-comments",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/objc_id-issue-3-comments.json",
+      "result": "RETRIEVED",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "url": "https://api.github.com/repos/SSheldon/rust-objc-id/issues/3/comments"
+    },
+    {
+      "bytes": 15701,
+      "key": "objc_id-pr-7",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/objc_id-pr-7.json",
+      "result": "RETRIEVED",
+      "sha256": "a29dd962e413b2aecafcfbd015de342ee55c179096be86192392b831a62e5b0f",
+      "url": "https://api.github.com/repos/SSheldon/rust-objc-id/pulls/7"
+    },
+    {
+      "bytes": 2343,
+      "key": "objc_id-pr-7-files",
+      "local_path": "/tmp/cachy-update-historical-notice-followup/objc_id-pr-7-files.json",
+      "result": "RETRIEVED",
+      "sha256": "8eb3111f0f8656233ff5032403148eedeb93e3f813f2b5c31b0e427ca0a7c47c",
+      "url": "https://api.github.com/repos/SSheldon/rust-objc-id/pulls/7/files"
+    },
+    {
+      "bytes": 612,
+      "final_url": "https://api.github.com/repos/SSheldon/rust-block/branches?per_page=100",
+      "key": "block-branches",
+      "path": "/tmp/cachy-update-historical-notice-followup/block-branches.json",
+      "result": "RETRIEVED",
+      "sha256": "f750532f57f8a6f0c232901fea88016e3700dc5425508c156557f5644fbdb2e2",
+      "url": "https://api.github.com/repos/SSheldon/rust-block/branches?per_page=100"
+    },
+    {
+      "bytes": 2,
+      "final_url": "https://api.github.com/repos/SSheldon/rust-block/releases?per_page=100",
+      "key": "block-releases",
+      "path": "/tmp/cachy-update-historical-notice-followup/block-releases.json",
+      "result": "RETRIEVED",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "url": "https://api.github.com/repos/SSheldon/rust-block/releases?per_page=100"
+    },
+    {
+      "bytes": 407,
+      "final_url": "https://api.github.com/repos/SSheldon/malloc_buf/branches?per_page=100",
+      "key": "malloc_buf-branches",
+      "path": "/tmp/cachy-update-historical-notice-followup/malloc_buf-branches.json",
+      "result": "RETRIEVED",
+      "sha256": "87e40901ab8eea615ce6b5c25388db06e136609f0a49554bd0934e663a0ef48f",
+      "url": "https://api.github.com/repos/SSheldon/malloc_buf/branches?per_page=100"
+    },
+    {
+      "bytes": 2,
+      "final_url": "https://api.github.com/repos/SSheldon/malloc_buf/releases?per_page=100",
+      "key": "malloc_buf-releases",
+      "path": "/tmp/cachy-update-historical-notice-followup/malloc_buf-releases.json",
+      "result": "RETRIEVED",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "url": "https://api.github.com/repos/SSheldon/malloc_buf/releases?per_page=100"
+    },
+    {
+      "bytes": 639,
+      "final_url": "https://api.github.com/repos/SSheldon/rust-objc-foundation/branches?per_page=100",
+      "key": "objc-foundation-branches",
+      "path": "/tmp/cachy-update-historical-notice-followup/objc-foundation-branches.json",
+      "result": "RETRIEVED",
+      "sha256": "3cd8865818be50c66b54bbc2453cb91d056f823a3d453172af657caecd6ddbcc",
+      "url": "https://api.github.com/repos/SSheldon/rust-objc-foundation/branches?per_page=100"
+    },
+    {
+      "bytes": 2,
+      "final_url": "https://api.github.com/repos/SSheldon/rust-objc-foundation/releases?per_page=100",
+      "key": "objc-foundation-releases",
+      "path": "/tmp/cachy-update-historical-notice-followup/objc-foundation-releases.json",
+      "result": "RETRIEVED",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "url": "https://api.github.com/repos/SSheldon/rust-objc-foundation/releases?per_page=100"
+    },
+    {
+      "bytes": 205,
+      "final_url": "https://api.github.com/repos/SSheldon/rust-objc-id/branches?per_page=100",
+      "key": "objc_id-branches",
+      "path": "/tmp/cachy-update-historical-notice-followup/objc_id-branches.json",
+      "result": "RETRIEVED",
+      "sha256": "460a183cf413f3553387627cd04d16a39ac7954a924ee7f3fc459d79841c544f",
+      "url": "https://api.github.com/repos/SSheldon/rust-objc-id/branches?per_page=100"
+    },
+    {
+      "bytes": 2,
+      "final_url": "https://api.github.com/repos/SSheldon/rust-objc-id/releases?per_page=100",
+      "key": "objc_id-releases",
+      "path": "/tmp/cachy-update-historical-notice-followup/objc_id-releases.json",
+      "result": "RETRIEVED",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "url": "https://api.github.com/repos/SSheldon/rust-objc-id/releases?per_page=100"
+    },
+    {
+      "bytes": 8403,
+      "final_url": "http://sasheldon.com/rust-objc/block/",
+      "key": "block-author-docs",
+      "path": "/tmp/cachy-update-historical-notice-followup/block-author-docs.html",
+      "result": "RETRIEVED",
+      "sha256": "879a28347004130e95222756f9abfc793bbe1f8a55355e01529dc7d7469a2fc3",
+      "url": "https://ssheldon.github.io/rust-objc/block/"
+    },
+    {
+      "bytes": 3658,
+      "final_url": "http://sasheldon.com/malloc_buf/malloc_buf/",
+      "key": "malloc_buf-author-docs",
+      "path": "/tmp/cachy-update-historical-notice-followup/malloc_buf-author-docs.html",
+      "result": "RETRIEVED",
+      "sha256": "c907e0b739dc163c929ab632dc0f93404a2f70f9315fd7b918140e9f1b33cf4e",
+      "url": "https://ssheldon.github.io/malloc_buf/malloc_buf/"
+    },
+    {
+      "bytes": 9369,
+      "final_url": "http://sasheldon.com/rust-objc/objc_foundation/",
+      "key": "objc-foundation-author-docs",
+      "path": "/tmp/cachy-update-historical-notice-followup/objc-foundation-author-docs.html",
+      "result": "RETRIEVED",
+      "sha256": "f56af7e2987cd8e920294f156f480f974eba1636046acf5b5fe60a2a84ef5856",
+      "url": "https://ssheldon.github.io/rust-objc/objc_foundation/"
+    },
+    {
+      "bytes": 9155,
+      "final_url": "http://sasheldon.com/rust-objc/objc_id/",
+      "key": "objc_id-author-docs",
+      "path": "/tmp/cachy-update-historical-notice-followup/objc_id-author-docs.html",
+      "result": "RETRIEVED",
+      "sha256": "342dd667d32895e2572a3522508c6fb9315650f77f045fe2c63d57b39dbad819",
+      "url": "https://ssheldon.github.io/rust-objc/objc_id/"
+    },
+    {
+      "bytes": 27564,
+      "final_url": "https://docs.rs/crate/block/0.1.6",
+      "key": "block-docsrs",
+      "path": "/tmp/cachy-update-historical-notice-followup/block-docsrs.html",
+      "result": "RETRIEVED",
+      "sha256": "1bcf806e25ad565b0eaa434bdad2f25d09b2560f99c5b8a72eb167157e335cd8",
+      "url": "https://docs.rs/crate/block/0.1.6"
+    },
+    {
+      "bytes": 18377,
+      "final_url": "https://docs.rs/crate/malloc_buf/0.0.6",
+      "key": "malloc_buf-docsrs",
+      "path": "/tmp/cachy-update-historical-notice-followup/malloc_buf-docsrs.html",
+      "result": "RETRIEVED",
+      "sha256": "8e9161c45929c3b621539fecc2904aa695729a3eab10cc568a36607f51d1c4c9",
+      "url": "https://docs.rs/crate/malloc_buf/0.0.6"
+    },
+    {
+      "bytes": 20764,
+      "final_url": "https://docs.rs/crate/objc-foundation/0.1.1",
+      "key": "objc-foundation-docsrs",
+      "path": "/tmp/cachy-update-historical-notice-followup/objc-foundation-docsrs.html",
+      "result": "RETRIEVED",
+      "sha256": "dcf513d6e07fc3a13c1c45d8c93ef2556e6a6fc708c75fd6cc6ef14e7abe9ace",
+      "url": "https://docs.rs/crate/objc-foundation/0.1.1"
+    },
+    {
+      "bytes": 29817,
+      "final_url": "https://docs.rs/crate/objc_id/0.1.1",
+      "key": "objc_id-docsrs",
+      "path": "/tmp/cachy-update-historical-notice-followup/objc_id-docsrs.html",
+      "result": "RETRIEVED",
+      "sha256": "441ad93e04f4d6a4155bab7f2d3a5fa74f188e68a000d8664aeda91323ff705f",
+      "url": "https://docs.rs/crate/objc_id/0.1.1"
+    },
+    {
+      "bytes": 2398,
+      "key": "block-tree-dev_encode",
+      "matching_paths": [],
+      "path": "/tmp/cachy-update-historical-notice-followup/block-tree-dev_encode.json",
+      "result": "RETRIEVED",
+      "sha256": "2940402acaec880e9fb7140fd77b73f04291b9cfe9e9beccf2c3572413078078",
+      "truncated": false,
+      "url": "https://api.github.com/repos/SSheldon/rust-block/git/trees/3b07aba96d9a5cc710d5147839e691d783a815ed?recursive=1"
+    },
+    {
+      "bytes": 2399,
+      "key": "block-tree-gnustep",
+      "matching_paths": [],
+      "path": "/tmp/cachy-update-historical-notice-followup/block-tree-gnustep.json",
+      "result": "RETRIEVED",
+      "sha256": "ba2e29f0f224d5fcbb7b9076b9d1007681a3bd0b65f1dcf38bc4c136a970ae3d",
+      "truncated": false,
+      "url": "https://api.github.com/repos/SSheldon/rust-block/git/trees/eb77c140c6a58557360d16d6525c319e2b812ace?recursive=1"
+    },
+    {
+      "bytes": 3736,
+      "key": "block-tree-master",
+      "matching_paths": [],
+      "path": "/tmp/cachy-update-historical-notice-followup/block-tree-master.json",
+      "result": "RETRIEVED",
+      "sha256": "b3b643e0cbad722f0a0af1348fa160674f3a39dd673d0ba91922a3eb4e7fba88",
+      "truncated": false,
+      "url": "https://api.github.com/repos/SSheldon/rust-block/git/trees/642ea4a4a5853a21b55b05c34832a5f1bb1af61c?recursive=1"
+    },
+    {
+      "bytes": 6108,
+      "key": "malloc_buf-tree-gh-pages",
+      "matching_paths": [],
+      "path": "/tmp/cachy-update-historical-notice-followup/malloc_buf-tree-gh-pages.json",
+      "result": "RETRIEVED",
+      "sha256": "4089741f9b40e1f28d025cf785b1702a070e64a0f74d526a0af62359d821f37e",
+      "truncated": false,
+      "url": "https://api.github.com/repos/SSheldon/malloc_buf/git/trees/55e668ed36262ee9cacbe2d4c643d58806afc088?recursive=1"
+    },
+    {
+      "bytes": 1265,
+      "key": "malloc_buf-tree-master",
+      "matching_paths": [
+        "LICENSE"
+      ],
+      "path": "/tmp/cachy-update-historical-notice-followup/malloc_buf-tree-master.json",
+      "result": "RETRIEVED",
+      "sha256": "53d4c51452e95eeafbddf2b9a4884a7a8f89a00d5968a61e9464f207e417efa3",
+      "truncated": false,
+      "url": "https://api.github.com/repos/SSheldon/malloc_buf/git/trees/d9a3e539642bd90e07df458d226b19cdfa606863?recursive=1"
+    },
+    {
+      "bytes": 5032,
+      "key": "objc-foundation-tree-derive",
+      "matching_paths": [],
+      "path": "/tmp/cachy-update-historical-notice-followup/objc-foundation-tree-derive.json",
+      "result": "RETRIEVED",
+      "sha256": "37cb9daf5a06c24b434bf17b0f35bc4d8a39171a90fc17ffa8b522ceb5491a72",
+      "truncated": false,
+      "url": "https://api.github.com/repos/SSheldon/rust-objc-foundation/git/trees/60aef4b3a812a440d11374e53407f5fc1d891768?recursive=1"
+    },
+    {
+      "bytes": 4584,
+      "key": "objc-foundation-tree-master",
+      "matching_paths": [],
+      "path": "/tmp/cachy-update-historical-notice-followup/objc-foundation-tree-master.json",
+      "result": "RETRIEVED",
+      "sha256": "b6133a6297a1a7e64cf67fed882ca7f9a2fc90e044a323cb379b1e21f238dc9e",
+      "truncated": false,
+      "url": "https://api.github.com/repos/SSheldon/rust-objc-foundation/git/trees/15f9ebec1190889e48a4bc2d36601e61d303071f?recursive=1"
+    },
+    {
+      "bytes": 4584,
+      "key": "objc-foundation-tree-objc_0.3",
+      "matching_paths": [],
+      "path": "/tmp/cachy-update-historical-notice-followup/objc-foundation-tree-objc_0.3.json",
+      "result": "RETRIEVED",
+      "sha256": "b29f73be1e5be82f9e8baf82a23b7464cf07027aec5ffb029aba6cb1feeb3ac2",
+      "truncated": false,
+      "url": "https://api.github.com/repos/SSheldon/rust-objc-foundation/git/trees/1114ecefbf5227958cbb1e3f516429bd4bb627b1?recursive=1"
+    },
+    {
+      "bytes": 1501,
+      "key": "objc_id-tree-master",
+      "matching_paths": [],
+      "path": "/tmp/cachy-update-historical-notice-followup/objc_id-tree-master.json",
+      "result": "RETRIEVED",
+      "sha256": "581e84676d21b9d5add2b564fb28ebced49a4fdd61b9a241fd44c214440a0c1a",
+      "truncated": false,
+      "url": "https://api.github.com/repos/SSheldon/rust-objc-id/git/trees/6527cdf28fef2b155c67c1681f548ecfd794003c?recursive=1"
+    }
+  ],
+  "schema_version": 1,
+  "scope": "Four exact historical SSheldon crates; repository notice file history, all current branch trees, licensing issues/PRs/comments, release API, exact-version registry metadata, author-hosted docs and docs.rs landing pages. This is bounded search, not proof no grant exists anywhere."
+}
