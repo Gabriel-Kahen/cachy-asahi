@@ -1,0 +1,75 @@
+name: repair16k-copy-cost-source
+on:
+  push:
+    paths:
+      - scripts/ci/repair16k-inner-diagnostics-source/**
+      - .github/workflows/repair16k-copy-cost-source.yml
+  pull_request:
+    paths:
+      - scripts/ci/repair16k-inner-diagnostics-source/**
+      - .github/workflows/repair16k-copy-cost-source.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONWARNINGS: error
+    steps:
+      - name: Check out the maintained opt-in factory
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Check out exact prior repair210 source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 08e8095a17043b84fb84a4160674a4bee5778607
+          path: .ci-fixtures/repair-base
+          persist-credentials: false
+      - name: Check out exact diagnostic repair210 source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 62c7a42c5288d83d23291a7f042ad8fa97a98bce
+          path: .ci-fixtures/repair-cost
+          persist-credentials: false
+      - name: Select the explicit Python version
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Check opt-in behavior and whole210 source equality
+        shell: bash
+        run: |
+          set -euo pipefail
+          stage=$(mktemp -d "$RUNNER_TEMP/repair-copy-cost.XXXXXXXX")
+          trap 'rm -rf -- "$stage"' EXIT
+          mkdir -m700 "$stage/base" "$stage/expected"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/repair-base" archive --format=tar 08e8095a17043b84fb84a4160674a4bee5778607 | tar -x -C "$stage/base"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/repair-cost" archive --format=tar 62c7a42c5288d83d23291a7f042ad8fa97a98bce | tar -x -C "$stage/expected"
+          export REPAIR_COPY_COST_BASE_SOURCE="$stage/base"
+          export REPAIR_COPY_COST_EXPECTED_SOURCE="$stage/expected"
+          python3 -B -W error scripts/ci/repair16k-inner-diagnostics-source/test_cost210.py
+          python3 -B -W error scripts/ci/repair16k-inner-diagnostics-source/cost210.py --help
+          python3 -B -W error scripts/ci/repair16k-inner-diagnostics-source/cost210.py --profile cost-data-lifetime210 --base-root "$stage/base" --output "$stage/generated" --authorization "$stage/authorization.json"
+          python3 -I -B - "$stage/generated" "$stage/expected" <<'PYCOMPARE'
+          import hashlib,json,sys
+          from pathlib import Path
+          def files(root):
+              rows={}
+              for p in root.rglob('*'):
+                  assert not p.is_symlink(), 'source alias'
+                  if p.is_file():
+                      raw=p.read_bytes();rows[p.relative_to(root).as_posix()]={'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()}
+              return rows
+          generated,expected=map(Path,sys.argv[1:]);actual=files(generated);wanted=files(expected)
+          assert len(actual)==len(wanted)==210 and actual==wanted, 'whole public210 differs'
+          print(json.dumps({'status':'PASS_WHOLE_PUBLIC210_SOURCE_ONLY','files':210,'native':'NOT_RUN','deadline_fit':'NOT_ESTABLISHED'},sort_keys=True))
+          PYCOMPARE
