@@ -5,6 +5,7 @@ import argparse,base64,hashlib,json,os,stat
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
 PROFILE={'bytes': 2447858, 'sha256': '463f2457f26929c640a6cc4e9504a9d25714ba354beaa227ee1c249e637857f9'}
+BUILDKIT_PROFILE={'bytes': 206903, 'sha256': 'a199a2959a6b2fca5254466cc809ae2e199ab6d9fa8c27d4f09b7a6cee8744b3'}
 def need(ok,why):
  if not ok:raise ValueError(why)
 def pin(raw):return dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())
@@ -82,5 +83,24 @@ def prepare_transport(predecessor,output):
  for name,raw in result.items():target=output/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(raw)
  need({n:pin(b)for n,b in files(output).items()}==wanted,'whole546 emitted equality');return dict(status='SOURCE_ONLY_GUI_DIAGNOSTIC_TRANSPORT_NOT_NATIVE',files=546,source_authority=v['output']['source'],actual_source=None,actual_ref=None,actual_run=None,acceptance='NOT_GRANTED',runtime_image_failure='UNRESOLVED_REQUIRES_GENUINE_ERROR_BYTES')
 
+def buildkit_profile():
+ raw=ordinary(HERE/'buildkit.json');need(pin(raw)==BUILDKIT_PROFILE,'whole frozen BuildKit source authority');return json.loads(raw)
+
+def prepare_buildkit(predecessor,output):
+ p=buildkit_profile();before=files(predecessor);prior=p['predecessor'];wanted=p['output']['files']
+ need(p['status']=='FINITE_GUI548_BUILDKIT_SOURCE_ONLY'and p['actual']is None and prior['source']=='ac70245709f336d2c670b2b511bec40c99248370'and len(before)==546 and {n:pin(b)for n,b in before.items()}==prior['files'],'complete genuine546 before BuildKit output')
+ need(p['output']['source']=='865cc33c8f114c15cef75b3472fbb8d1f4e8da06'and len(wanted)==548 and set(wanted)-set(before)==set(p['added'])and not(set(before)-set(wanted))and {n for n in before if pin(before[n])!=wanted[n]}==set(p['changed'])and(len(p['changed']),len(p['added']),len(p['removed']))==(8,2,0),'finite exact BuildKit548 source delta')
+ names={'admission.py','factory/context606.py','factory/factory.py','factory/install606.py','factory/install_tooling.py','factory/qemu_context.py','native.py','factory/build_scope.py'};need(set(p['templates'])==names and set(p['added'])=={'build-parent.json','factory/build_scope.py'},'eight exact readable BuildKit source bodies')
+ result=dict(before)
+ for name,row in p['templates'].items():
+  relative(name);relative(row['path']);raw=ordinary(HERE/row['path']);need(pin(raw)=={k:row[k]for k in('bytes','sha256')}==wanted[name],'whole exact readable BuildKit template');result[name]=raw
+ result['build-parent.json']=encoded(dict(source=prior['source'],files=prior['files'],before_bodies={n:base64.b64encode(before[n]).decode()for n in p['changed']},actual=None))
+ manifest=json.loads(before['source-manifest.json']);manifest.update(status='SOURCE_ONLY_CURRENT606_WELCOME8_BUILDKIT_SCOPE_NOT_ACCEPTED',files={n:pin(raw)for n,raw in result.items()if n!='source-manifest.json'});result['source-manifest.json']=encoded(manifest)
+ need({n:pin(raw)for n,raw in result.items()}==wanted,'whole548 equality before output')
+ for name in set(before)-set(p['changed']):need(result[name]==before[name],'all538 original source bodies held')
+ output=Path(output).absolute();need(not output.exists()and output.parent.is_dir()and not any(q.is_symlink()for q in(output,*output.parents))and not output.is_relative_to(predecessor)and not predecessor.is_relative_to(output),'fresh disjoint ordinary BuildKit output');output.mkdir(mode=0o700)
+ for name,raw in result.items():target=output/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(raw)
+ need({n:pin(raw)for n,raw in files(output).items()}==wanted,'whole548 emitted equality');return dict(status='SOURCE_ONLY_GUI_BUILDKIT548_NOT_NATIVE',files=548,source_authority=p['output']['source'],actual_source=None,actual_ref=None,actual_run=None,acceptance='NOT_GRANTED',native_GUI='NOT_RUN',default='UNCHANGED540')
+
 if __name__=='__main__':
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('--predecessor-root',type=Path,required=True);p.add_argument('--output',type=Path,required=True);group=p.add_mutually_exclusive_group();group.add_argument('--welcome8',action='store_true',help='exact544 from corrective540');group.add_argument('--transport',action='store_true',help='explicit exact546 diagnostic transport from whole544; default540 andWelcome8 outputs held');a=p.parse_args();emit=prepare_transport if a.transport else prepare_welcome8 if a.welcome8 else prepare;print(encoded(emit(a.predecessor_root.absolute(),a.output.absolute())).decode(),end='')
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--predecessor-root',type=Path,required=True);p.add_argument('--output',type=Path,required=True);group=p.add_mutually_exclusive_group();group.add_argument('--welcome8',action='store_true',help='exact544 from corrective540');group.add_argument('--transport',action='store_true',help='explicit exact546 diagnostic transport from whole544; default540 andWelcome8 outputs held');group.add_argument('--buildkit',action='store_true',help='explicit exact548 BuildKit scope from whole546; old540/544/546 outputs held');a=p.parse_args();emit=prepare_buildkit if a.buildkit else prepare_transport if a.transport else prepare_welcome8 if a.welcome8 else prepare;print(encoded(emit(a.predecessor_root.absolute(),a.output.absolute())).decode(),end='')

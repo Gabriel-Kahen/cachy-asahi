@@ -55,21 +55,29 @@ jobs:
           ref: ac70245709f336d2c670b2b511bec40c99248370
           path: .ci-fixtures/gui-transport546
           persist-credentials: false
+      - name: Check out exact public expected BuildKit548 source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 865cc33c8f114c15cef75b3472fbb8d1f4e8da06
+          path: .ci-fixtures/gui-buildkit548
+          persist-credentials: false
       - name: Select the explicit Python version
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
           python-version: ${{ matrix.python }}
-      - name: Check fifteen portable controls and exact540 plus Welcome8_544 equality
+      - name: Check original fifteen and ten BuildKit source-only controls
         shell: bash
         run: |
           set -euo pipefail
           stage=$(mktemp -d "$RUNNER_TEMP/current606-gui-source.XXXXXXXX")
           trap 'rm -rf -- "$stage"' EXIT
-          mkdir -m700 "$stage/parent" "$stage/expected" "$stage/welcome8-expected" "$stage/transport-expected"
+          mkdir -m700 "$stage/parent" "$stage/expected" "$stage/welcome8-expected" "$stage/transport-expected" "$stage/buildkit-expected"
           git -C "$GITHUB_WORKSPACE/.ci-fixtures/gui-media536" archive --format=tar 3ed3da9c3393cbc56522db7311005049413204f3 | tar -x -C "$stage/parent"
           git -C "$GITHUB_WORKSPACE/.ci-fixtures/gui540" archive --format=tar bb72a0fc5e84af5621f0b783056137efdd780282 | tar -x -C "$stage/expected"
           git -C "$GITHUB_WORKSPACE/.ci-fixtures/welcome8-544" archive --format=tar 7b8be687a3562640d5f7d4a7c57f2e2d61d39dc1 | tar -x -C "$stage/welcome8-expected"
           git -C "$GITHUB_WORKSPACE/.ci-fixtures/gui-transport546" archive --format=tar ac70245709f336d2c670b2b511bec40c99248370 | tar -x -C "$stage/transport-expected"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/gui-buildkit548" archive --format=tar 865cc33c8f114c15cef75b3472fbb8d1f4e8da06 | tar -x -C "$stage/buildkit-expected"
           python3 -B -W error scripts/ci/current606-welcome7-gui-source/test_prepare.py --predecessor-root "$stage/parent" --welcome8-predecessor-root "$stage/expected" --transport-predecessor-root "$stage/welcome8-expected"
           python3 -I -B -W error scripts/ci/current606-welcome7-gui-source/prepare.py --predecessor-root "$stage/parent" --output "$stage/generated"
           python3 -I -B - "$stage/generated" "$stage/expected" <<'PY'
@@ -116,3 +124,4 @@ jobs:
           assert a==b and len(a)==546, 'whole public546 diagnostic transport source'
           print(json.dumps({'status':'PASS_EXACT_PUBLIC546_DIAGNOSTIC_SOURCE_ONLY','native':'NOT_RUN','GUI':'NOT_RUN'}))
           PYT
+          python3 -I -B -W error scripts/ci/current606-welcome7-gui-source/test_buildkit.py --predecessor-root "$stage/transport-expected" --expected-root "$stage/buildkit-expected"
