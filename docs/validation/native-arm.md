@@ -136,3 +136,37 @@ transactions, both M2 Air sizes, 16K-page execution and performance remain open.
 Final container/image/daemon/cache absence is not established; retained-cache
 finish records a handoff. Historical integration snapshots remain unselected
 and must be refreshed explicitly before accepting the current package set.
+
+
+## Welcome7 GUI pair and KSM 16K sharing (2026-10-21)
+
+Welcome7 `0.1.0-7` passed both generic native ARM **4K** GUI profiles at source
+`4bbf44cd6962c17956bce7dc2dfcc50801cd0634`:
+[minimal39358836494](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/39358836494)
+and [overlay39358896031](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/39358896031).
+Original collections and full passive replays pass, joining 348 source files,
+138 artifact members and 13 frames per profile. Root qualified the pair after
+source and visual review. Installed actions include navigation, terminal/files
+launch, Doctor1 reports, Orphans2 assessment/lock refusal, stored-only DNS2,
+missing helpers and close-during-helper retirement. Doctor/Orphans removal and
+restoration gives **595 → 593 → 595**, preserving user configuration and stored
+DNS state. The failure report is fully visible; long reports exceed the captured
+viewport, with hidden text checked separately.
+
+KSM2 passed owned anonymous-page sharing and unmerge in a generic ARM **16K** VM:
+[source0fc2af64f741b9dc2adf708f82f7bf3f4b1beb1f/run39356862528](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/39356862528).
+The signed package lifecycle is **574 → 575 → 574**. Two children each hold2MiB
+(128 pages), with per-child merging counts **0 → 128 → 0** and unchanged contents.
+Shared/sharing counters reach128/128 then zero after synchronous unmerge; scan
+counts correctly reset for that epoch. Both children exit/reap and original KSM
+settings return. Root's independent original-byte replay passes against the pinned
+diagnostic kernel and628-file source.
+
+These are finite software results. Preservation/security and retirement claims
+come from the bound source and original recorded evidence; private full maps were
+not exported and this is not a fresh live host inspection. The GUI pair gives no
+Doctor2/current606, installed Boot-history or16K GUI credit. Neither result qualifies
+interrupted recovery, Asahi integration, either M2 Air size, performance gains,
+production trust or release selection. Earlier failures remain failed. Detailed
+local decisions: `artifacts/development/welcome7-gui-pair-acceptance-root-20261021/Root-pair-acceptance.json`
+and `artifacts/development/ksm16k-counter-epoch-native-actual-20261020/Root-component-acceptance.json`.
