@@ -1,0 +1,906 @@
+{
+  "M2": "NOT_RUN",
+  "acceptance": {
+    "bytes": 3682,
+    "sha256": "044fc82c8b806971052adb4f05bfbe1cfe93a00080a46b4e8ec468474a0a2ce4"
+  },
+  "attempt": 1,
+  "installed": "NOT_RUN",
+  "old_target261": "UNCHANGED_UNACCEPTED",
+  "original_archives": {
+    "pacman-a": {
+      "bytes": 2120598,
+      "sha256": "9f602e4c0eb27736a2a19acf594e0b4794a1c7499e2adbc69d7f66d39e8492f7"
+    },
+    "pacman-b": {
+      "bytes": 2120563,
+      "sha256": "e93c7a8e1d33781de5b8d56d3b52fa24cbadea47bd132b6b36547905d8e01f6b"
+    },
+    "systemd-a": {
+      "bytes": 20634923,
+      "sha256": "287f6c0afe4cd0937718deb8d476e539c53aa22e6ca167a6b417c7b905be48a7"
+    },
+    "systemd-b": {
+      "bytes": 20632537,
+      "sha256": "fee963485e42b84faa073a2a129919b90b328236e543da1c9a8737d6fdb72894"
+    }
+  },
+  "packages": {
+    "pacman": {
+      "bytes": 909196,
+      "fields": {
+        "arch": [
+          "aarch64"
+        ],
+        "backup": [
+          "etc/pacman.conf",
+          "etc/makepkg.conf",
+          "etc/makepkg.conf.d/fortran.conf",
+          "etc/makepkg.conf.d/rust.conf"
+        ],
+        "builddate": [
+          "1792368000"
+        ],
+        "checkdepend": [
+          "fakechroot",
+          "python"
+        ],
+        "depend": [
+          "bash",
+          "coreutils",
+          "curl",
+          "libcurl.so=4-64",
+          "gawk",
+          "gettext",
+          "glibc",
+          "gnupg",
+          "gpgme",
+          "libgpgme.so=45-64",
+          "grep",
+          "libarchive",
+          "libarchive.so=13-64",
+          "openssl",
+          "libcrypto.so=3-64",
+          "pacman-mirrorlist",
+          "systemd",
+          "libmakepkg-dropins"
+        ],
+        "license": [
+          "GPL-2.0-or-later"
+        ],
+        "makedepend": [
+          "asciidoc",
+          "doxygen",
+          "git",
+          "meson"
+        ],
+        "optdepend": [
+          "base-devel: required to use makepkg",
+          "perl-locale-gettext: translation support in makepkg-template"
+        ],
+        "packager": [
+          "Cachy-Asahi Experimental Core Builder"
+        ],
+        "pkgbase": [
+          "pacman"
+        ],
+        "pkgdesc": [
+          "A library-based package manager with dependency support"
+        ],
+        "pkgname": [
+          "pacman"
+        ],
+        "pkgver": [
+          "7.1.0.r9.g54d9411-2.1"
+        ],
+        "provides": [
+          "libalpm.so=16-64"
+        ],
+        "size": [
+          "5571699"
+        ],
+        "url": [
+          "https://www.archlinux.org/pacman/"
+        ],
+        "xdata": [
+          "pkgtype=pkg"
+        ]
+      },
+      "file": "packages/pacman-7.1.0.r9.g54d9411-2.1-aarch64.pkg.tar.xz",
+      "metadata": {
+        "buildinfo": {
+          "bytes": 25469,
+          "sha256": "e2a3cd8c9e499f1e3c92a55b48996c0cc9cfa9c6a4cd9c0262df4a9498b8b4b3"
+        },
+        "pkginfo": {
+          "bytes": 1139,
+          "sha256": "34a065597b16139c733165f89bcfc3976ed3c197441199675272d6579b21cc47"
+        }
+      },
+      "original_members": {
+        "a": "package-build/artifacts/pacman-7.1.0.r9.g54d9411-2.1-aarch64.pkg.tar.xz",
+        "b": "package-build/artifacts/pacman-7.1.0.r9.g54d9411-2.1-aarch64.pkg.tar.xz"
+      },
+      "sha256": "66d52fbcec4b520eafae960578a6d2116782d37c83014b0a363768a230f2a59f"
+    },
+    "systemd": {
+      "bytes": 9658964,
+      "fields": {
+        "arch": [
+          "aarch64"
+        ],
+        "backup": [
+          "etc/systemd/coredump.conf",
+          "etc/systemd/homed.conf",
+          "etc/systemd/journald.conf",
+          "etc/systemd/journal-remote.conf",
+          "etc/systemd/journal-upload.conf",
+          "etc/systemd/logind.conf",
+          "etc/systemd/networkd.conf",
+          "etc/systemd/oomd.conf",
+          "etc/systemd/pstore.conf",
+          "etc/systemd/resolved.conf",
+          "etc/systemd/sleep.conf",
+          "etc/systemd/system.conf",
+          "etc/systemd/timesyncd.conf",
+          "etc/systemd/user.conf",
+          "etc/udev/iocost.conf",
+          "etc/udev/udev.conf"
+        ],
+        "builddate": [
+          "1792368000"
+        ],
+        "conflict": [
+          "nss-myhostname",
+          "systemd-tools",
+          "udev"
+        ],
+        "depend": [
+          "systemd-libs=262",
+          "acl",
+          "bash",
+          "cryptsetup",
+          "dbus",
+          "dbus-units",
+          "glibc",
+          "kbd",
+          "kmod",
+          "hwdata",
+          "libgcrypt",
+          "libxcrypt",
+          "libidn2",
+          "lz4",
+          "pam",
+          "libelf",
+          "libgcc",
+          "libseccomp",
+          "util-linux",
+          "xz",
+          "pcre2",
+          "audit",
+          "openssl"
+        ],
+        "license": [
+          "LGPL-2.1-or-later",
+          "CC0-1.0",
+          "GPL-2.0-or-later",
+          "MIT-0"
+        ],
+        "makedepend": [
+          "acl",
+          "apparmor",
+          "cryptsetup",
+          "docbook-xsl",
+          "gperf",
+          "lz4",
+          "xz",
+          "pam",
+          "libelf",
+          "intltool",
+          "iptables",
+          "kmod",
+          "libarchive",
+          "libidn2",
+          "libgcrypt",
+          "libmicrohttpd",
+          "libxcrypt",
+          "libxslt",
+          "util-linux",
+          "linux-api-headers",
+          "python-jinja",
+          "python-lxml",
+          "quota-tools",
+          "shadow",
+          "git",
+          "meson",
+          "libseccomp",
+          "pcre2",
+          "audit",
+          "kexec-tools",
+          "libxkbcommon",
+          "bash-completion",
+          "p11-kit",
+          "systemd",
+          "libfido2",
+          "tpm2-tss",
+          "rsync",
+          "bpf",
+          "libbpf",
+          "clang",
+          "llvm",
+          "curl",
+          "gnutls",
+          "python-pyelftools",
+          "libpwquality",
+          "qrencode",
+          "python-pefile"
+        ],
+        "optdepend": [
+          "apparmor: additional security features",
+          "curl: systemd-journal-upload, machinectl pull-tar and pull-raw",
+          "gnutls: systemd-journal-gatewayd and systemd-journal-remote",
+          "iptables: firewall features",
+          "libarchive: convert DDIs to tarballs",
+          "libbpf: support BPF programs",
+          "libfido2: unlocking LUKS2 volumes with FIDO2 token",
+          "libmicrohttpd: systemd-journal-gatewayd and systemd-journal-remote",
+          "libp11-kit: support PKCS#11",
+          "libpwquality: check password quality",
+          "polkit: allow administration as unprivileged user",
+          "qemu-base: systemd-vmspawn",
+          "qrencode: show QR codes",
+          "quota-tools: kernel-level quota management",
+          "systemd-sysvcompat: symlink package to provide sysvinit binaries",
+          "systemd-ukify: combine kernel and initrd into a signed Unified Kernel Image",
+          "tpm2-tss: unlocking LUKS2 volumes with TPM2"
+        ],
+        "packager": [
+          "Cachy-Asahi Experimental Core Builder"
+        ],
+        "pkgbase": [
+          "systemd"
+        ],
+        "pkgdesc": [
+          "system and service manager"
+        ],
+        "pkgname": [
+          "systemd"
+        ],
+        "pkgver": [
+          "262-1.2"
+        ],
+        "provides": [
+          "nss-myhostname",
+          "systemd-tools=262",
+          "udev=262"
+        ],
+        "replaces": [
+          "nss-myhostname",
+          "systemd-tools",
+          "udev"
+        ],
+        "size": [
+          "49652216"
+        ],
+        "url": [
+          "https://www.github.com/systemd/systemd"
+        ],
+        "xdata": [
+          "pkgtype=split"
+        ]
+      },
+      "file": "packages/systemd-262-1.2-aarch64.pkg.tar.xz",
+      "metadata": {
+        "buildinfo": {
+          "bytes": 25457,
+          "sha256": "42e98786ca77ad0f8999904e0bafd35e5a164e857cc5a6689cbd356720d1c46c"
+        },
+        "pkginfo": {
+          "bytes": 3539,
+          "sha256": "de0ac31d8c9095c740acfb0c99f8bfd0f804b226fdfcf3452997a780e42e8511"
+        }
+      },
+      "original_members": {
+        "a": "package-build/artifacts/systemd-262-1.2-aarch64.pkg.tar.xz",
+        "b": "package-build/artifacts/systemd-262-1.2-aarch64.pkg.tar.xz"
+      },
+      "sha256": "45cab17c4a866bd132dc1389b9c6a2e74d44d46f9813100aa8ca6a9d3378e43f"
+    },
+    "systemd-libs": {
+      "bytes": 1283492,
+      "fields": {
+        "arch": [
+          "aarch64"
+        ],
+        "builddate": [
+          "1792368000"
+        ],
+        "conflict": [
+          "libsystemd"
+        ],
+        "depend": [
+          "glibc",
+          "libgcc",
+          "libgcc_s.so=1-64",
+          "libgcrypt",
+          "lz4",
+          "xz",
+          "zstd"
+        ],
+        "license": [
+          "LGPL-2.1-or-later",
+          "CC0-1.0",
+          "GPL-2.0-or-later WITH Linux-syscall-note"
+        ],
+        "makedepend": [
+          "acl",
+          "apparmor",
+          "cryptsetup",
+          "docbook-xsl",
+          "gperf",
+          "lz4",
+          "xz",
+          "pam",
+          "libelf",
+          "intltool",
+          "iptables",
+          "kmod",
+          "libarchive",
+          "libidn2",
+          "libgcrypt",
+          "libmicrohttpd",
+          "libxcrypt",
+          "libxslt",
+          "util-linux",
+          "linux-api-headers",
+          "python-jinja",
+          "python-lxml",
+          "quota-tools",
+          "shadow",
+          "git",
+          "meson",
+          "libseccomp",
+          "pcre2",
+          "audit",
+          "kexec-tools",
+          "libxkbcommon",
+          "bash-completion",
+          "p11-kit",
+          "systemd",
+          "libfido2",
+          "tpm2-tss",
+          "rsync",
+          "bpf",
+          "libbpf",
+          "clang",
+          "llvm",
+          "curl",
+          "gnutls",
+          "python-pyelftools",
+          "libpwquality",
+          "qrencode",
+          "python-pefile"
+        ],
+        "packager": [
+          "Cachy-Asahi Experimental Core Builder"
+        ],
+        "pkgbase": [
+          "systemd"
+        ],
+        "pkgdesc": [
+          "systemd client libraries"
+        ],
+        "pkgname": [
+          "systemd-libs"
+        ],
+        "pkgver": [
+          "262-1.2"
+        ],
+        "provides": [
+          "libsystemd",
+          "libsystemd.so=0-64",
+          "libudev.so=1-64"
+        ],
+        "replaces": [
+          "libsystemd"
+        ],
+        "size": [
+          "5053372"
+        ],
+        "url": [
+          "https://www.github.com/systemd/systemd"
+        ],
+        "xdata": [
+          "pkgtype=split"
+        ]
+      },
+      "file": "packages/systemd-libs-262-1.2-aarch64.pkg.tar.xz",
+      "metadata": {
+        "buildinfo": {
+          "bytes": 25462,
+          "sha256": "6aeeccba4d96bfd6ac6931609006c1028e17d4fb0559130bb8a07dfe7c3d54f8"
+        },
+        "pkginfo": {
+          "bytes": 1688,
+          "sha256": "187fbed734c2a775b31ae4bc56fa16d5e8f47951f7d1e186626570a4fe5b3edc"
+        }
+      },
+      "original_members": {
+        "a": "package-build/artifacts/systemd-libs-262-1.2-aarch64.pkg.tar.xz",
+        "b": "package-build/artifacts/systemd-libs-262-1.2-aarch64.pkg.tar.xz"
+      },
+      "sha256": "8b9bb613c2d6e5a96ff6ea210822f9882692389897b1f071b44593327d795b44"
+    },
+    "systemd-resolvconf": {
+      "bytes": 6640,
+      "fields": {
+        "arch": [
+          "aarch64"
+        ],
+        "builddate": [
+          "1792368000"
+        ],
+        "conflict": [
+          "resolvconf"
+        ],
+        "depend": [
+          "systemd=262"
+        ],
+        "license": [
+          "LGPL-2.1-or-later"
+        ],
+        "makedepend": [
+          "acl",
+          "apparmor",
+          "cryptsetup",
+          "docbook-xsl",
+          "gperf",
+          "lz4",
+          "xz",
+          "pam",
+          "libelf",
+          "intltool",
+          "iptables",
+          "kmod",
+          "libarchive",
+          "libidn2",
+          "libgcrypt",
+          "libmicrohttpd",
+          "libxcrypt",
+          "libxslt",
+          "util-linux",
+          "linux-api-headers",
+          "python-jinja",
+          "python-lxml",
+          "quota-tools",
+          "shadow",
+          "git",
+          "meson",
+          "libseccomp",
+          "pcre2",
+          "audit",
+          "kexec-tools",
+          "libxkbcommon",
+          "bash-completion",
+          "p11-kit",
+          "systemd",
+          "libfido2",
+          "tpm2-tss",
+          "rsync",
+          "bpf",
+          "libbpf",
+          "clang",
+          "llvm",
+          "curl",
+          "gnutls",
+          "python-pyelftools",
+          "libpwquality",
+          "qrencode",
+          "python-pefile"
+        ],
+        "packager": [
+          "Cachy-Asahi Experimental Core Builder"
+        ],
+        "pkgbase": [
+          "systemd"
+        ],
+        "pkgdesc": [
+          "systemd resolvconf replacement (for use with systemd-resolved)"
+        ],
+        "pkgname": [
+          "systemd-resolvconf"
+        ],
+        "pkgver": [
+          "262-1.2"
+        ],
+        "provides": [
+          "openresolv",
+          "resolvconf"
+        ],
+        "size": [
+          "0"
+        ],
+        "url": [
+          "https://www.github.com/systemd/systemd"
+        ],
+        "xdata": [
+          "pkgtype=split"
+        ]
+      },
+      "file": "packages/systemd-resolvconf-262-1.2-aarch64.pkg.tar.xz",
+      "metadata": {
+        "buildinfo": {
+          "bytes": 25468,
+          "sha256": "2b499e27060d1c975ec5b356f776af4d93998937371c998858f25023fe6ed9d1"
+        },
+        "pkginfo": {
+          "bytes": 1506,
+          "sha256": "8ff1af26d1b6b85600c64efa6fddc2ee940a833ddc32d128bec68bf37c2fdc94"
+        }
+      },
+      "original_members": {
+        "a": "package-build/artifacts/systemd-resolvconf-262-1.2-aarch64.pkg.tar.xz",
+        "b": "package-build/artifacts/systemd-resolvconf-262-1.2-aarch64.pkg.tar.xz"
+      },
+      "sha256": "69d04a69afc0b439bc88564c016265fc4d7868a38d6abfa0244981cd83e7caca"
+    },
+    "systemd-sysvcompat": {
+      "bytes": 9936,
+      "fields": {
+        "arch": [
+          "aarch64"
+        ],
+        "builddate": [
+          "1792368000"
+        ],
+        "conflict": [
+          "sysvinit"
+        ],
+        "depend": [
+          "systemd=262"
+        ],
+        "license": [
+          "LGPL-2.1-or-later"
+        ],
+        "makedepend": [
+          "acl",
+          "apparmor",
+          "cryptsetup",
+          "docbook-xsl",
+          "gperf",
+          "lz4",
+          "xz",
+          "pam",
+          "libelf",
+          "intltool",
+          "iptables",
+          "kmod",
+          "libarchive",
+          "libidn2",
+          "libgcrypt",
+          "libmicrohttpd",
+          "libxcrypt",
+          "libxslt",
+          "util-linux",
+          "linux-api-headers",
+          "python-jinja",
+          "python-lxml",
+          "quota-tools",
+          "shadow",
+          "git",
+          "meson",
+          "libseccomp",
+          "pcre2",
+          "audit",
+          "kexec-tools",
+          "libxkbcommon",
+          "bash-completion",
+          "p11-kit",
+          "systemd",
+          "libfido2",
+          "tpm2-tss",
+          "rsync",
+          "bpf",
+          "libbpf",
+          "clang",
+          "llvm",
+          "curl",
+          "gnutls",
+          "python-pyelftools",
+          "libpwquality",
+          "qrencode",
+          "python-pefile"
+        ],
+        "packager": [
+          "Cachy-Asahi Experimental Core Builder"
+        ],
+        "pkgbase": [
+          "systemd"
+        ],
+        "pkgdesc": [
+          "sysvinit compat for systemd"
+        ],
+        "pkgname": [
+          "systemd-sysvcompat"
+        ],
+        "pkgver": [
+          "262-1.2"
+        ],
+        "size": [
+          "2910"
+        ],
+        "url": [
+          "https://www.github.com/systemd/systemd"
+        ],
+        "xdata": [
+          "pkgtype=split"
+        ]
+      },
+      "file": "packages/systemd-sysvcompat-262-1.2-aarch64.pkg.tar.xz",
+      "metadata": {
+        "buildinfo": {
+          "bytes": 25468,
+          "sha256": "91d2f8e3e7aa36d8b3eafe3f08bbacc9a52a0c778033b8984b11ce28484f3075"
+        },
+        "pkginfo": {
+          "bytes": 1428,
+          "sha256": "ab1120bf75d75155fd701e3d9f68f2e45302d458e545b86535b8d3ce09df60ca"
+        }
+      },
+      "original_members": {
+        "a": "package-build/artifacts/systemd-sysvcompat-262-1.2-aarch64.pkg.tar.xz",
+        "b": "package-build/artifacts/systemd-sysvcompat-262-1.2-aarch64.pkg.tar.xz"
+      },
+      "sha256": "af008505692a613aeae5b8bba3ed1364d177637bde11e0cb9ab68c2b9c285824"
+    },
+    "systemd-tests": {
+      "bytes": 6263532,
+      "fields": {
+        "arch": [
+          "aarch64"
+        ],
+        "builddate": [
+          "1792368000"
+        ],
+        "conflict": [
+          "mkinitcpio<38-1"
+        ],
+        "depend": [
+          "bash",
+          "glibc",
+          "libgcc",
+          "python",
+          "python-packaging",
+          "python-colorama",
+          "python-pexpect",
+          "python-pytest",
+          "python-psutil",
+          "systemd=262-1.2",
+          "systemd-libs=262-1.2"
+        ],
+        "license": [
+          "LGPL-2.1-or-later"
+        ],
+        "makedepend": [
+          "acl",
+          "apparmor",
+          "cryptsetup",
+          "docbook-xsl",
+          "gperf",
+          "lz4",
+          "xz",
+          "pam",
+          "libelf",
+          "intltool",
+          "iptables",
+          "kmod",
+          "libarchive",
+          "libidn2",
+          "libgcrypt",
+          "libmicrohttpd",
+          "libxcrypt",
+          "libxslt",
+          "util-linux",
+          "linux-api-headers",
+          "python-jinja",
+          "python-lxml",
+          "quota-tools",
+          "shadow",
+          "git",
+          "meson",
+          "libseccomp",
+          "pcre2",
+          "audit",
+          "kexec-tools",
+          "libxkbcommon",
+          "bash-completion",
+          "p11-kit",
+          "systemd",
+          "libfido2",
+          "tpm2-tss",
+          "rsync",
+          "bpf",
+          "libbpf",
+          "clang",
+          "llvm",
+          "curl",
+          "gnutls",
+          "python-pyelftools",
+          "libpwquality",
+          "qrencode",
+          "python-pefile"
+        ],
+        "packager": [
+          "Cachy-Asahi Experimental Core Builder"
+        ],
+        "pkgbase": [
+          "systemd"
+        ],
+        "pkgdesc": [
+          "systemd tests"
+        ],
+        "pkgname": [
+          "systemd-tests"
+        ],
+        "pkgver": [
+          "262-1.2"
+        ],
+        "size": [
+          "49354646"
+        ],
+        "url": [
+          "https://www.github.com/systemd/systemd"
+        ],
+        "xdata": [
+          "pkgtype=split"
+        ]
+      },
+      "file": "packages/systemd-tests-262-1.2-aarch64.pkg.tar.xz",
+      "metadata": {
+        "buildinfo": {
+          "bytes": 25463,
+          "sha256": "fba3bd5c6c85708acebdac6c7e0df7bc4772d2cca09e85288d074ea880b59d36"
+        },
+        "pkginfo": {
+          "bytes": 1636,
+          "sha256": "8789e109c429c3992caea978cea3a2c0aa60d1d3f2a810570faba1f66c1ff612"
+        }
+      },
+      "original_members": {
+        "a": "package-build/artifacts/systemd-tests-262-1.2-aarch64.pkg.tar.xz",
+        "b": "package-build/artifacts/systemd-tests-262-1.2-aarch64.pkg.tar.xz"
+      },
+      "sha256": "854c2789b5bc254c73ef79dabbc9db5280d787f54cc0ac7b253a493707e5052a"
+    },
+    "systemd-ukify": {
+      "bytes": 42760,
+      "fields": {
+        "arch": [
+          "aarch64"
+        ],
+        "builddate": [
+          "1792368000"
+        ],
+        "conflict": [
+          "mkinitcpio<38-1"
+        ],
+        "depend": [
+          "systemd=262",
+          "binutils",
+          "python-cryptography",
+          "python",
+          "python-pefile"
+        ],
+        "license": [
+          "LGPL-2.1-or-later"
+        ],
+        "makedepend": [
+          "acl",
+          "apparmor",
+          "cryptsetup",
+          "docbook-xsl",
+          "gperf",
+          "lz4",
+          "xz",
+          "pam",
+          "libelf",
+          "intltool",
+          "iptables",
+          "kmod",
+          "libarchive",
+          "libidn2",
+          "libgcrypt",
+          "libmicrohttpd",
+          "libxcrypt",
+          "libxslt",
+          "util-linux",
+          "linux-api-headers",
+          "python-jinja",
+          "python-lxml",
+          "quota-tools",
+          "shadow",
+          "git",
+          "meson",
+          "libseccomp",
+          "pcre2",
+          "audit",
+          "kexec-tools",
+          "libxkbcommon",
+          "bash-completion",
+          "p11-kit",
+          "systemd",
+          "libfido2",
+          "tpm2-tss",
+          "rsync",
+          "bpf",
+          "libbpf",
+          "clang",
+          "llvm",
+          "curl",
+          "gnutls",
+          "python-pyelftools",
+          "libpwquality",
+          "qrencode",
+          "python-pefile"
+        ],
+        "optdepend": [
+          "python-pillow: Show the size of splash image",
+          "sbsigntools: Sign the embedded kernel"
+        ],
+        "packager": [
+          "Cachy-Asahi Experimental Core Builder"
+        ],
+        "pkgbase": [
+          "systemd"
+        ],
+        "pkgdesc": [
+          "Combine kernel and initrd into a signed Unified Kernel Image"
+        ],
+        "pkgname": [
+          "systemd-ukify"
+        ],
+        "pkgver": [
+          "262-1.2"
+        ],
+        "provides": [
+          "ukify"
+        ],
+        "size": [
+          "117049"
+        ],
+        "url": [
+          "https://www.github.com/systemd/systemd"
+        ],
+        "xdata": [
+          "pkgtype=split"
+        ]
+      },
+      "file": "packages/systemd-ukify-262-1.2-aarch64.pkg.tar.xz",
+      "metadata": {
+        "buildinfo": {
+          "bytes": 25463,
+          "sha256": "1f99a0003ed9e80336b4bf63c35cfe1b66fde76eed12981dbf5e6d2df002f9eb"
+        },
+        "pkginfo": {
+          "bytes": 1675,
+          "sha256": "8ee03e59f16b583f25f2a2ce24df7856ac00916f9607d9ce0c7586819dd0506b"
+        }
+      },
+      "original_members": {
+        "a": "package-build/artifacts/systemd-ukify-262-1.2-aarch64.pkg.tar.xz",
+        "b": "package-build/artifacts/systemd-ukify-262-1.2-aarch64.pkg.tar.xz"
+      },
+      "sha256": "d9f9f16b27f392ec29de3cb7d4714c2272ce0b3c4e7d40475e9eeba60f1fbe68"
+    }
+  },
+  "positive": {
+    "bytes": 10087,
+    "sha256": "cf7ccf55343f83332a9a9be3d5379fc371af9d4f0bb4c74b8cde50d456444c34"
+  },
+  "ref": "codex/target-core262-btf-input-root-v1",
+  "run": 39589633375,
+  "schema": 1,
+  "signature_authority": false,
+  "source": "eee19066ce9f90d1cd902815072c0b4ae2dfc9c9",
+  "status": "EXACT_ACCEPTED_CORE7_BUILD_INPUT_DATA_ONLY"
+}
