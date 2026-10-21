@@ -45,6 +45,12 @@ jobs:
           ref: 141ba835bb632483342c6a7f0246c7fe0f2bc5c3
           path: .ci-fixtures/setup6-expected
           persist-credentials: false
+      - name: Install actual shell interpreters required by recovery controls
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends fish zsh
+          command -v fish
+          command -v zsh
       - name: Select the exact Python series
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:

@@ -11,7 +11,10 @@ def check(source,carrier,context,output):
  for label,start,count in [('setup6-lane',source/'scripts/ci/setup6-native',27),('setup6-recovery',source/'scripts/setup',74),('setup5-original',context/'scripts/ci/setup5-native',23)]:
   command=[sys.executable,'-I','-B','-Werror','-m','unittest','discover','-s',str(start),'-p','test_*.py','-v'];t=time.monotonic()
   with(output/(label+'.stdout')).open('xb')as a,(output/(label+'.stderr')).open('xb')as b:r=subprocess.run(command,env=env,stdout=a,stderr=b,timeout=120)
-  raw=P.read(output/(label+'.stderr'));need(r.returncode==0 and re.search(rb'Ran '+str(count).encode()+rb' tests?\b',raw)and b'\nOK\n'in raw and b'skipped'not in raw,'complete original '+label+' suite required');rows.append(dict(suite=label,tests=count,exit=r.returncode,seconds=time.monotonic()-t,command=command))
+  raw=P.read(output/(label+'.stderr'))
+  if r.returncode!=0 or b'skipped'in raw or b'\nOK\n'not in raw:
+   sys.stderr.write('FAILED_SOURCE_CONTROL '+label+'\n'+raw[-65536:].decode(errors='replace'));sys.stderr.flush()
+  need(r.returncode==0 and re.search(rb'Ran '+str(count).encode()+rb' tests?\b',raw)and b'\nOK\n'in raw and b'skipped'not in raw,'complete original '+label+' suite required');rows.append(dict(suite=label,tests=count,exit=r.returncode,seconds=time.monotonic()-t,command=command))
  need(P.files(source)==expected and P.files(context)==old,'complete source contexts held after controls');P.carrier(carrier,P.profile(),old);value=dict(status='PASS_SOURCE_ONLY_27_74_23_NO_NATIVE_TRANSFER',python=sys.version,rows=rows,actual_run=None,native='NOT_RUN',hardware='NOT_RUN');(output/'result.json').write_text(json.dumps(value,sort_keys=True,indent=2)+'\n');return value
 if __name__=='__main__':
  p=argparse.ArgumentParser(description=__doc__)
