@@ -1,0 +1,52 @@
+name: setup6-current606-source
+on:
+  pull_request:
+    paths: ['scripts/ci/setup6-current606-source/**', '.github/workflows/setup6-current606-source.yml']
+  push:
+    paths: ['scripts/ci/setup6-current606-source/**', '.github/workflows/setup6-current606-source.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        python: ['3.12', '3.14']
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONWARNINGS: error
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Checkout the complete accepted Apps6 baseline source353
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 6f824cac64cd44f765e54fd3b5a853689ea0ce7b
+          path: fixtures/original
+          persist-credentials: false
+      - name: Checkout whole accepted real-module source240
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: d41d28d870227b0256a8980d3c305287fbfb6ffb
+          path: fixtures/setup6
+          persist-credentials: false
+      - name: Checkout exact Setup606 source608
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 55e37c5fb0c01899cd474028c266a0208006db99
+          path: fixtures/expected
+          persist-credentials: false
+      - name: Verify exact608 emission and isolated source CLI with refusal controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -B -W error scripts/ci/setup6-current606-source/test_factory.py \
+            --original-source "$GITHUB_WORKSPACE/fixtures/original" \
+            --setup-source "$GITHUB_WORKSPACE/fixtures/setup6" \
+            --expected "$GITHUB_WORKSPACE/fixtures/expected"
