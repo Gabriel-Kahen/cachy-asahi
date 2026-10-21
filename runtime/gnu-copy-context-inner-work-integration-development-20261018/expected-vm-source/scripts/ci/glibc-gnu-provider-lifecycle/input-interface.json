@@ -1,0 +1,56 @@
+{
+  "archives": {
+    "a": "reference",
+    "b": "reference"
+  },
+  "capability_scope": "Unknown xattrs/PAX refuse; all source/copy/stage maps exact; selected provider/held package files must be capability-free and disjoint from original map",
+  "held_root": "Separate ordinary complete original574 source root, mounted readonly; prepared by Root owned producer/export handshake, not by inspecting host /",
+  "input_file": "lifecycle-input.json",
+  "mode": "DESCRIPTION_ONLY_NO_BOUND_INPUT",
+  "policy_binding": "Root fills input-policy.json only after prerequisites; refresh source-manifest.json afterward",
+  "probe_receipt": {
+    "files": "same three actual binary refs as index.probes",
+    "normal_source_sha256": "smoke-normal.c actual SHA from normal-exec-change.json",
+    "status": "ROOT_ACCEPTED_NORMAL_INTERPRETER_PROBES"
+  },
+  "probes": {
+    "exec-child": "reference",
+    "plugin.so": "reference",
+    "smoke-normal": "reference"
+  },
+  "provider_pair_receipt": {
+    "archive_sha256": "actual new pair hash",
+    "hardware": "NOT_RUN",
+    "status": "ROOT_ACCEPTED_PROVIDER_NATIVE_PAIR"
+  },
+  "reference_type": {
+    "bytes": "actual positive byte count",
+    "path": "closed relative ordinary file",
+    "sha256": "actual SHA256"
+  },
+  "required_references": [
+    "base_lock",
+    "producer_report",
+    "private16k",
+    "provider_pair",
+    "held",
+    "probe_receipt"
+  ],
+  "required_scalar_fields": {
+    "base_lock_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+    "image_id": "Exact owned original574 immutable sha256 image ID",
+    "package": "cachy-asahi-glibc-gnu-provider",
+    "private16k_archive_sha256": "Actual Rootaccepted private candidate package hash",
+    "producer_token": "Existing original574 producer token",
+    "provider_pair_archive_sha256": "Actual NEW conventional provider package pair hash",
+    "provider_pkgbuild_sha256": "Actual .BUILDINFO PKGBUILD SHA",
+    "schema_version": "integer1",
+    "source_capabilities": "Complete actual original574 path -> lowercase20/24-byte raw capability hex; includes all hardlink aliases, never a path allowlist",
+    "source_capabilities_sha256": "sha256(sorted indent2 canonical JSON capability map plus newline); runtime-only original snapshot-derived",
+    "source_nodes_sha256": "sha256(json.dumps(full_root observed source nodes,sort_keys=True).encode())",
+    "status": "ROOT_BOUND_UNSELECTED_PROVIDER_LIFECYCLE",
+    "token": "32 lowercase hex lifecycle consumer token",
+    "version": "2.43.caa1-1"
+  },
+  "schema_version": 1
+}
