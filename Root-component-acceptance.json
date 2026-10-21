@@ -1,0 +1,98 @@
+{
+  "M2_13": "NOT_RUN",
+  "M2_15": "NOT_RUN",
+  "archives": {
+    "pacman": {
+      "bytes": 909196,
+      "sha256": "66d52fbcec4b520eafae960578a6d2116782d37c83014b0a363768a230f2a59f"
+    },
+    "systemd": {
+      "bytes": 9658964,
+      "sha256": "45cab17c4a866bd132dc1389b9c6a2e74d44d46f9813100aa8ca6a9d3378e43f"
+    },
+    "systemd-libs": {
+      "bytes": 1283492,
+      "sha256": "8b9bb613c2d6e5a96ff6ea210822f9882692389897b1f071b44593327d795b44"
+    },
+    "systemd-resolvconf": {
+      "bytes": 6640,
+      "sha256": "69d04a69afc0b439bc88564c016265fc4d7868a38d6abfa0244981cd83e7caca"
+    },
+    "systemd-sysvcompat": {
+      "bytes": 9936,
+      "sha256": "af008505692a613aeae5b8bba3ed1364d177637bde11e0cb9ab68c2b9c285824"
+    },
+    "systemd-tests": {
+      "bytes": 6263532,
+      "sha256": "854c2789b5bc254c73ef79dabbc9db5280d787f54cc0ac7b253a493707e5052a"
+    },
+    "systemd-ukify": {
+      "bytes": 42760,
+      "sha256": "d9f9f16b27f392ec29de3cb7d4714c2272ce0b3c4e7d40475e9eeba60f1fbe68"
+    }
+  },
+  "attempt": 1,
+  "byte_identical_packages": 7,
+  "fixed_BTF": {
+    "authority": false,
+    "header": {
+      "bytes": 4582286,
+      "sha256": "541017e1f57d3db3a9a7759a8b96e140be240b36160892fe1e813a78044dcdf1"
+    },
+    "input": {
+      "bytes": 8430525,
+      "sha256": "bb0d29de550d1cf6f63cbc8792f4ad75e1b1f9b4df2d480a1015749949e4d5a2"
+    },
+    "provenance": {
+      "bytes": 65768,
+      "sha256": "d28d901747a09b3473220a4c1fbe0ccf7dd2f9d777524bba41b08b66bf3ec973"
+    },
+    "source_archives": {
+      "linux-azure-7.0_7.0.0-1017.17~24.04.1.diff.gz": {
+        "bytes": 4121122,
+        "sha256": "067230d08d88c8cb4218a9b154c78d060b61ec925961cc08db1e42af07a26635"
+      },
+      "linux-azure-7.0_7.0.0.orig.tar.gz": {
+        "bytes": 254937830,
+        "sha256": "c6343795c8c7e4feff55f5b309365c8e0eaf49cd6abcb412e32315313f149536"
+      }
+    },
+    "status": "PASS_SAME_FIXED_INPUT_AND_WHOLE_HEADER_IN_BOTH_BUILDERS",
+    "tool": {
+      "bytes": 2307416,
+      "path": "/usr/bin/bpftool",
+      "sha256": "f442f9512d1c43601dd2fe0a70616d397889fb1c532daba1fd9b18547d171637"
+    },
+    "version": {
+      "bytes": 56,
+      "sha256": "b0f07eb9f97029d232b3a41beea42921846ed26f5680632bdd2fd77d79b35015"
+    }
+  },
+  "installed": "NOT_RUN",
+  "limitations": [
+    "Four distinct source-owned native build cells; physical machine independence is not attested.",
+    "Content/PKGINFO equality required; exact byte/BUILDINFO equality is reported separately unless --require-bytes.",
+    "Structural native AArch64/16K ELF checks only; runtime ABI, installation, Asahi boot/M2/hardware/performance not established.",
+    "Old target261 provenance/selection remains unchanged and unaccepted.",
+    "systemd effective262-1.2 uses explicit private scratch and child-only USER namespace; original assertions mandatory, upstream skips reported without assertion credit.",
+    "Scratch tmpfs ceilings and mechanism sub-bounds are nonreserved inside original16g memory,14400 package,19680 owner and360min job caps; no worst-case fit guarantee."
+  ],
+  "old_target261": "UNCHANGED_UNACCEPTED",
+  "performance": "NOT_MEASURED",
+  "positive": {
+    "bytes": 10087,
+    "sha256": "cf7ccf55343f83332a9a9be3d5379fc371af9d4f0bb4c74b8cde50d456444c34"
+  },
+  "ref": "codex/target-core262-btf-input-root-v1",
+  "release": "NOT_ADMITTED",
+  "run": 39589633375,
+  "scope": "NATIVE_AARCH64_BUILD_PAIRS_AND_STRUCTURAL16K_ELF_ONLY",
+  "source": "eee19066ce9f90d1cd902815072c0b4ae2dfc9c9",
+  "status": "ROOT_ACCEPTED_FINITE_NATIVE_CORE_BUILD_PAIRS",
+  "systemd_tests_per_build": {
+    "FAIL": 0,
+    "OK": 1930,
+    "upstream_SKIP": 32
+  },
+  "time_utc": "2026-10-21T11:24:30.926731+00:00"
+}
