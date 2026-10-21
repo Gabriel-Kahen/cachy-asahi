@@ -157,7 +157,7 @@ native_build_commit = "2db02a279cf7dcee90167858f96a543689e45198"
 native_evidence = "docs/validation/ksm-lifecycle-native-20261015.md"
 installation = "NOT RUN"
 hardware_validation = "NOT RUN"
-next_step = "KSM2 signed574-to575-to574 lifecycle and owned2MiB-per-child sharing/unmerge passed generic16K run39356862528; see docs/validation/native-arm.md. Complete interruption recovery, target lifecycle and measured policy on both M2 sizes before selection."
+next_step = "Current native build pair, signed disposable install/status/remove/reinstall and owned cleanup passed. Test target lifecycle and interruption recovery; safe management and measured target policy remain unfinished."
 
 [[packages]]
 name = "cachy-asahi-update"
@@ -423,7 +423,7 @@ native_generic_managed_gui = "HISTORICAL0.1.0-1: PASS fourteen Root-viewed captu
 native_generic16k_managed_gui = "HISTORICAL0.1.0-1: PASS installed593, sixteen GTK actions and fourteen Root-viewed first frames in38952428172; docs/validation/managed-gui-generic16k-native-20261016.md"
 hardware_validation = "NOT RUN"
 native_evidence = "docs/validation/welcome2-native-cli-20261016.md"
-next_step = "Welcome7 generic4K same-source GUI pair39358836494/39358896031 has a finite Root qualification in docs/validation/native-arm.md; older Welcome4 GUI failures remain failed. Explicitly rebase a selected current composition before current606, actual16K and both M2 workflows. This pair gives no installed Boot-history, Welcome7 upgrade/removal, performance or release credit; preserve historical locks."
+next_step = "Complete Doctor reference actor lifetime/final-outcome correction and fresh full24-frame/17-operation GUI; actual39002929704 retains exact8KiB Orphans accessible preview but fails absent Doctor capture. Then rebase604 Welcome4/Orphans2 before current16K/M2; historical locks remain separate."
 
 
 installation = "PASS current0.1.0-4 native signed installed CLI lifecycle; full managed GUI remains FAIL and release unselected"
@@ -443,7 +443,7 @@ native_generic16k_cli = "PASS unchanged unpacked CLI payloads in38904917140; not
 native_generic_managed_report = "PASS actual CLI private report and co-present readable terminal in both GUI profiles38905814219"
 native_generic16k_managed_report = "PASS private reports and readable co-present terminal in both installed593 GUI profiles38952428172; no hardware certification"
 hardware_validation = "NOT RUN"
-next_step = "Doctor0.1.0-1 reports are exercised in qualified Welcome7 generic4K GUI pair39358836494/39358896031; see docs/validation/native-arm.md. Exercise unavailable model/bus and real target session states, then complete selected-composition trust and both M2 workflows. This pair does not qualify Doctor2/current606, installed Boot history or hardware."
+next_step = "Exercise the installed read-only report with unavailable model/bus and real managed session states; complete signed admission and target validation before selection."
 
 [[packages]]
 name = "cachy-asahi-mirrors"
@@ -638,7 +638,7 @@ native_build = "PASS current0.1.0-2 byte-identical native ARM pair38993858003:18
 installation = "PASS current0.1.0-2 signed three-product574to577/repeat/remove/reinstall/final574 and ordinary readonly CLI lifecycle38993858003; GUI FAIL before management helpers"
 native_generic16k_cli = "Current0.1.0-2 NOT RUN; historical0.1.0-1 PASS generic16384 private data-staged CLI/helper cases38978464494; NOT ALPM-installed inVM; docs/validation/management-generic16k-20261016.md"
 hardware_validation = "NOT RUN"
-next_step = "Orphans0.1.0-2 assessment and held-lock refusal are exercised in qualified Welcome7 generic4K GUI pair39358836494/39358896031; see docs/validation/native-arm.md. Earlier Welcome3/4 GUI failures remain failed. Complete selected-composition actual16K and both M2 workflows; GUI performance remains unestablished, actual orphan removal unimplemented and release selection false."
+next_step = "Complete current Welcome3 GUI39000068077 after earlier Orphans helper deadline failures, then current0.1.0-2 generic16K and both M2 workflows. Native pair/CLI: docs/validation/orphans2-native-20261017.md. Native GUI performance remains unestablished; actual orphan removal remains unimplemented; release selection false."
 
 
 [[packages]]
@@ -677,7 +677,7 @@ native_build_commit = "8f09e6d0f4cc2ba276dbd3241be55a010a0ae438"
 native_evidence = "docs/validation/dns-sysctl-native-20261018.md"
 installation = "PASS signed576/574 five-transition native ALPM lifecycle, both ordinary users, original574 preserved by source-enforced receipts; no live DNS/kernel changes/M2/release credit"
 hardware_validation = "NOT RUN"
-next_step = "DNS0.1.0-2 stored-only listing is exercised in qualified Welcome7 generic4K GUI pair39358836494/39358896031; see docs/validation/native-arm.md. Existing selected candidate0.1.0-1 is not upgraded by this record. Explicitly integrate the desired variant, then complete live integration and hardware checks while retaining opt-in and baseline preservation; no live DNS/current606/16K/M2 credit follows."
+next_step = "Independently scoped live integration and hardware checks; retain explicit opt-in and existing baseline."
 
 [[packages]]
 name = "cachy-asahi-sysctl"
