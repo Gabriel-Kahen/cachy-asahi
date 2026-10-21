@@ -1,0 +1,19 @@
+{
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "input_sha256": {
+    ".SRCINFO": "f05482cd59d8d70a62ec05d472f84dee16cfb8521970c8cf7476e6eaf99c05a9",
+    "LICENSE": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+    "NOTICE": "fc77ae01a573c84a5a9970a5f563b3f044de7f04d4f01745c7ab6e9f8ec9b568",
+    "PKGBUILD": "6db586b51bda2c0a97b9a581b90495d7aae47db4ce9d904779ade5e3c1d376c7",
+    "README.md": "1958eddf33857813874140ae22533f9a2a878fc64f6b18ab277a556107656a52",
+    "cachy-asahi-doctor": "f4b6dce36a44037cf6e28003c9da9514c511161ff1926be78c155e8f64f15ced",
+    "test_audio.py": "e1ff1fd9bbe932d0e869ed9810543df1ea52b648e71f0a12186854270d3736c8",
+    "test_doctor.py": "2f669a6c37b43521edb76717ac0c01818651041d479520676eaac1808195218f"
+  },
+  "recipe": "packages/tools/cachy-asahi-doctor2",
+  "schema_version": 1,
+  "status": "ROOT_SELECTED_DOCTOR2_NATIVE_PAIR",
+  "version": "0.2.0-1"
+}

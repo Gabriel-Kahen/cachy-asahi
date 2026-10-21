@@ -1,0 +1,21 @@
+pkgbase = cachy-asahi-boot-report
+	pkgdesc = Explicit read-only local boot kernel-journal and pstore diagnostics
+	pkgver = 0.1.0
+	pkgrel = 1
+	url = https://github.com/Gabriel-Kahen/cachy-asahi
+	arch = any
+	license = MIT
+	depends = python>=3.11
+	depends = systemd>=251
+	source = cachy-asahi-boot-report
+	source = test_boot_report.py
+	source = README.md
+	source = NOTICE
+	source = LICENSE
+	sha256sums = d88fa9523b33900b06b8fbfbdb167ecdff98d3787fc620494d738ecf11646cb7
+	sha256sums = 35170f432adafd37b719e1033f29fa0b97a78c61a2dade25e99dc0e095efc4a4
+	sha256sums = 6fca46e91f295568944249db1eda2b7d2719e5f16e940ce0e7f87190f7967a5d
+	sha256sums = 6e20e714d7d5afcc327260ef23f53cfcba2aa4c2de7e427725c45deed1bb4e65
+	sha256sums = 51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7
+
+pkgname = cachy-asahi-boot-report
