@@ -1,0 +1,8 @@
+#!/usr/bin/python3 -I
+# SPDX-License-Identifier: MIT
+"""Launch the planner from this installation prefix."""
+import os
+from pathlib import Path
+import sys
+script=Path(__file__).absolute().parent.parent/'lib/cachy-asahi-apps/apps.py'
+os.execv('/usr/bin/python3',['python3','-I','-B',str(script),*sys.argv[1:]])
