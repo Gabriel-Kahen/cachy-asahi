@@ -1,0 +1,22 @@
+{
+  "actual": null,
+  "default": false,
+  "original1800_fit": "FAILED_NOT_RECLASSIFIED",
+  "performance": "NOT_CLAIMED",
+  "profile": "correctness2400",
+  "source": "b274ef846322ffdf82665a209c855fe96fced75a",
+  "support": {
+    "correctness2400/budget_successor.py": {
+      "bytes": 4709,
+      "sha256": "92937eb06c613bcfad0d328b47690efe288352829b612144457943fc2bcfec5f"
+    },
+    "correctness2400/correctness2400-successor.json": {
+      "bytes": 739351,
+      "sha256": "c6215e855680f4f4bc43ed4bb8b0d8378e517d5c43c379d5be8c45ff49d5c6f2"
+    },
+    "correctness2400/source568.json": {
+      "bytes": 103726,
+      "sha256": "f93f135afe0d9f9bd2ede6ee0a48f35dbcf47087ee4b7684745e7d8d04f697b7"
+    }
+  }
+}
