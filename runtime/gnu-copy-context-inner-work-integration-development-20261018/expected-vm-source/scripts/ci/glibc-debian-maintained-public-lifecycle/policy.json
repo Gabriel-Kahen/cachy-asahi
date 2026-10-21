@@ -1,0 +1,15 @@
+{
+  "authorization": {
+    "archive_sha256": "a8e9f3e1d8ffe049fdc834f62e74c14ff622b98898c2f849e1580ab8aa0fdbd9",
+    "packet_source": "132aec86c0946f6c7b7a79c46e1a9ccaf91021e3",
+    "scope": "NATIVE_COMPILE_INPUTS_ONLY_NO_INSTALLATION_OR16K_ACCEPTANCE",
+    "status": "ROOT_AUTHORIZED_CAA3_PUBLIC_COMPILE_INPUTS_NATIVE_TRIAL"
+  },
+  "future_native_ALPM_authority": null,
+  "packet": {
+    "directory": "payload",
+    "index_sha256": "a8e3317cabb3fe914a6b3898b2bfbc900905c3823495f15166c419564f7e4956",
+    "ref": "132aec86c0946f6c7b7a79c46e1a9ccaf91021e3"
+  },
+  "status": "ROOT_BOUND_CAA3_PUBLIC_COMPILE_INPUTS_NATIVE_SOURCE"
+}
