@@ -1,0 +1,64 @@
+{
+  "actual_kernel_mutation": "NOT_RUN",
+  "files": {
+    "LICENSE": {
+      "bytes": 17984,
+      "sha256": "edaef632cbb643e4e7a221717a6c441a4c1a7c918e6e4d56debc3d8739b233f6"
+    },
+    "NOTICE": {
+      "bytes": 1359,
+      "sha256": "939ad92c65a6c2f9da2c723a4c6e136add87ccb4a7a6e8ba0dd89692a77f3f10"
+    },
+    "README.md": {
+      "bytes": 7590,
+      "sha256": "a0422a6b280c5b1583afe5da7575ba6e98c476c8ce1efbe196ba33513e94a4ed"
+    },
+    "adaptation.patch": {
+      "bytes": 8216,
+      "sha256": "0bc6b1f4725eb510a0f890bd616ce682b98332b371c93d2144ad643181727212"
+    },
+    "cachy-asahi-ksm-experiment": {
+      "bytes": 20549,
+      "sha256": "1ea518cc25a0d3099b7723756fd66631c35d7a79d50b300f6387a25588306d79"
+    },
+    "cachy-asahi-ksmctl": {
+      "bytes": 6433,
+      "sha256": "f9fd76eaa6a205d56fa4bb9123b8c721ea1277249c4cab58d1b57eaf8edc7558"
+    },
+    "check-source.py": {
+      "bytes": 2342,
+      "sha256": "7cca209ee6ad36726b03c0f54100b07bd6d08d974473d00c2092bbd5be4089a6"
+    },
+    "source-provenance.json": {
+      "bytes": 1016,
+      "sha256": "d46e93a9893225d205a01fdcd3429782ba51d44c86b78e77fce458b53448b849"
+    },
+    "test_experiment.py": {
+      "bytes": 16687,
+      "sha256": "2f13fe326171a7e42dc84d6c4e2ac2bbe6eb8391f9e06393f6e2c09fa8dbb843"
+    },
+    "test_ksmctl.py": {
+      "bytes": 17730,
+      "sha256": "e42602fd16579e30c8cb799f26c897c1e3e89515f20a49a346b1888ce3c94b6f"
+    },
+    "upstream-ksmctl": {
+      "bytes": 2606,
+      "sha256": "cd5c8aa86df5a06a268ecc21297b4cd7d8df1053c90c8bcd4e53ef9bb16194d9"
+    }
+  },
+  "hardware": "NOT_RUN",
+  "license": "GPL-2.0-or-later",
+  "management_scope": "EXPLICIT_GLOBAL_KSM_RUN0_OR1_SCALAR_ONLY",
+  "native_build": "NOT_RUN",
+  "origin": "Original2026 project experiment helper; original v1 diagnostic bundle is byte-held separately",
+  "performance": "NOT_MEASURED",
+  "project_git_revision": null,
+  "release": "NOT_ADMITTED",
+  "revision_status": "UNCOMMITTED_PROPOSAL_ROOT_WILL_PIN_AFTER_REVIEW",
+  "runtime_dependencies": [
+    "python>=3.11",
+    "Linux sysfs/procfs with available KSM run control"
+  ],
+  "schema_version": 1,
+  "version": "0.1.0-2"
+}
