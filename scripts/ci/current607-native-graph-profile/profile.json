@@ -11,19 +11,27 @@
   "intermediate_status": "NOT_RUNNABLE_PREFILL_PATH_FAILURE_RETAINED",
   "native": "NOT_RUN",
   "profiles": {
-    "fresh_descriptor561": {
+    "fresh_descriptor563": {
       "acceptance": "UNQUALIFIED_NATIVE_TRIAL",
       "default": true,
-      "files": 561
+      "files": 563
     }
   },
-  "purpose": "SOURCE_ONLY_EXACT_CURRENT607_CORRECTED_GRAPH_PROFILE",
-  "ref_after": "codex/current607-prefill-path-v1",
+  "purpose": "SOURCE_ONLY_EXACT_CURRENT607_FAILED_PUBLIC_DATA_PROFILE",
+  "ref_after": "codex/current607-failure-retention-v1",
   "release": "NOT_ADMITTED",
   "schema": 1,
-  "source_after": "e8cface65674ec4a6072c5675754ad37faa15c9c",
+  "source_after": "9c49f8d12e5aea864bcf6bca6ed836874c1f06e5",
   "source_before": "4c8a7046ce3a42deb6630229607f54d0e2b8cf63",
   "support": {
+    "failure-retention-successor.json": {
+      "bytes": 694661,
+      "sha256": "58a56da3d9877aba7fee4e67a2f4d8de068542665f397f11c37b117dabe4c91c"
+    },
+    "failure_retention.py": {
+      "bytes": 16227,
+      "sha256": "7377c74d10bd16066bd0756d1e9f953ebcae5fb92e85a8fbce281058c7a93b88"
+    },
     "latest_descriptor.py": {
       "bytes": 3409,
       "sha256": "d185d8a418fcda97510a8a40127e2b0f0e53af2103dc1751fef46c12c4047fd1"
@@ -55,6 +63,10 @@
     "source561.json": {
       "bytes": 102599,
       "sha256": "136722b4ce7501a95d0e3300a2c4cd60f79af0f692a5db07ae251de79b467917"
+    },
+    "source563.json": {
+      "bytes": 102924,
+      "sha256": "56a0572279c4d6e29db2304325a566f1c7baa59388a265d21b54043f2ce5c945"
     },
     "testdata/package_graph.py": {
       "bytes": 18177,

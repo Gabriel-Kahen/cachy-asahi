@@ -1,0 +1,18 @@
+[
+  {
+    "ref": {
+      "bytes": 1481,
+      "path": "payload/repair-bytes-root-decision.json",
+      "sha256": "f8e106a882b7fc9b553c8a399f6d9296d17d77f9aadbdcf46135b090f88b4157"
+    },
+    "root": "apps6_authority_source"
+  },
+  {
+    "ref": {
+      "bytes": 55737,
+      "path": "index.json",
+      "sha256": "782fd76c06831786cb74df396f195e8f5f8832e04b668c44bdadd802d1cb268b"
+    },
+    "root": "apps6_source"
+  }
+]
