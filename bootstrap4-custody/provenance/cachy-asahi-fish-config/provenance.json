@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "status": "built-package-static-pass",
+  "hardware_status": "NOT RUN",
+  "mode": "native",
+  "image": "sha256:67f6e6a58fadc742d28583820452a48122f0df286646b645bca6547e0305b93f",
+  "source_date_epoch": 1791748800,
+  "network": "none",
+  "started_utc": "2026-10-15T16:18:49.919419+00:00",
+  "recipe_inputs": {
+    ".SRCINFO": "7cffffec6d267324bf285edbfd69567aa8b27b617e405091e2a2696ae90c69a4",
+    ".gitignore": "fe48a6c62c3b98bfd773529a7fd8a2ba2c505b0932d1376c822d821126623c5c",
+    "LICENSE": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+    "NOTICE": "19eb85ed65396056e59782ddf80fb5285ee26cad5ddf77ccb378936a2d5601c9",
+    "PKGBUILD": "a3f0e5f693a48126086ff0e8279d8d833efb8e625dfa4644fdfd2c04ff0175fa",
+    "README.md": "a78bba7de90fb6111fcbedd29a65d75dac93b8f1e38b3ae768f8e9e08e91d9e0",
+    "arm-dependency-audit.json": "70c4f30683a3f70bee3b7fe86598b59e0db01c753e2a1a2636cff8c85cc1765d",
+    "check-config.py": "a76ea238dfbb9bb650c46e676cff741404e504fa7b05a489e06fd2759ff8f39f",
+    "config.fish": "223df59fe83948e1d83676f4571cd2d4ce186862adf1cc23da6d5bbd28370a1c",
+    "evidence/host-build-1.BUILDINFO": "080d91a9f57905a06f85df994b9d124c9fa707f880a95e04fd19b49b1d9fe2a3",
+    "evidence/host-build-1.PKGINFO": "86968ab0e100931aa0e3458ea7940dbe402a4114cac063262f3ad43d8e4fc75e",
+    "evidence/host-build-2.BUILDINFO": "824d68cf8a98b489883562cbb094c82304c320e0ee67daf718a46e1cb63e1890",
+    "evidence/host-build-2.PKGINFO": "f6cc29b1d0f787cae53e9473688bb67de82c7afac8226d2d5c89b8cc01474004",
+    "evidence/makepkg-host-1.log": "e3e97f0dd05fecabcdd28f16cb5e1b9d57853708bd667ffde683cf3ed0a5f76e",
+    "evidence/makepkg-host-2.log": "e3290261826439933092938825d3086f8dc315d0ce2ad90fc69882df0e0fb6b0",
+    "host-validation.json": "b0ce5882f96929057840ab3675cd28c784139812493877dfc3d4a4066045db2a",
+    "runtime-dependency-observation.json": "eef8a925e0f07882f9b587e418c0362fe2784742a31c5a5bead9adc0d44ca5f1",
+    "upstream-audit.json": "7fa40f3a83a3933b3eebeab7394026029e41f15d52042e74d0cb893ce30a5c62"
+  },
+  "recipe_metadata": {
+    "pkgbase": [
+      "cachy-asahi-fish-config"
+    ],
+    "pkgdesc": [
+      "Explicitly enabled Fish helpers for the cachy-asahi overlay"
+    ],
+    "pkgver": [
+      "0.1.0"
+    ],
+    "pkgrel": [
+      "1"
+    ],
+    "arch": [
+      "any"
+    ],
+    "license": [
+      "MIT"
+    ],
+    "depends": [
+      "fish",
+      "coreutils"
+    ],
+    "source": [
+      "config.fish",
+      "NOTICE",
+      "LICENSE"
+    ],
+    "sha256sums": [
+      "223df59fe83948e1d83676f4571cd2d4ce186862adf1cc23da6d5bbd28370a1c",
+      "19eb85ed65396056e59782ddf80fb5285ee26cad5ddf77ccb378936a2d5601c9",
+      "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    ],
+    "pkgname": [
+      "cachy-asahi-fish-config"
+    ]
+  },
+  "builder_host_arch": "aarch64",
+  "image_id": "sha256:67f6e6a58fadc742d28583820452a48122f0df286646b645bca6547e0305b93f",
+  "expected_packages_sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25",
+  "entry_script_sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24",
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "--name",
+    "cachy-asahi-9787dcbf02a1cac5",
+    "--pull=never",
+    "--platform",
+    "linux/arm64",
+    "--user",
+    "1001:1001",
+    "--cap-drop=ALL",
+    "--security-opt=no-new-privileges",
+    "--read-only",
+    "--pids-limit",
+    "512",
+    "--memory",
+    "4g",
+    "--cpus",
+    "4",
+    "--network",
+    "none",
+    "--tmpfs",
+    "/tmp:rw,nosuid,nodev,exec,size=4g",
+    "--env",
+    "CACHY_ASAHI_CONTAINER=1",
+    "--env",
+    "SOURCE_DATE_EPOCH=1791748800",
+    "--mount",
+    "type=bind,src=/home/runner/work/_temp/native-evidence/cachy-asahi-fish-config-1/inputs,dst=/inputs,readonly",
+    "--mount",
+    "type=bind,src=/home/runner/work/_temp/native-evidence/cachy-asahi-fish-config-1/artifacts,dst=/out",
+    "--mount",
+    "type=bind,src=/home/runner/work/cachy-asahi/cachy-asahi/scripts/build/container-entry.sh,dst=/builder-entry.sh,readonly",
+    "--mount",
+    "type=bind,src=/home/runner/work/_temp/native-evidence/cachy-asahi-fish-config-1/expected-packages.lock,dst=/expected-packages.lock,readonly",
+    "--entrypoint",
+    "/bin/bash",
+    "sha256:67f6e6a58fadc742d28583820452a48122f0df286646b645bca6547e0305b93f",
+    "/builder-entry.sh"
+  ],
+  "clean_environment_id": "cachy-asahi-9787dcbf02a1cac5",
+  "exit_code": 0,
+  "artifacts": {
+    "cachy-asahi-fish-config-0.1.0-1-any.pkg.tar.xz": "38e766158d13a0e13b8f811766119d10c018ccc256f5d99c3561b74c99d12705"
+  },
+  "files": {
+    "artifacts/cachy-asahi-fish-config-0.1.0-1-any.pkg.tar.xz": "38e766158d13a0e13b8f811766119d10c018ccc256f5d99c3561b74c99d12705",
+    "artifacts/config.sha256": "8309cb4c0409ccdc1ca922475dde9377aec434911efc453299f41e8fadb234ec",
+    "artifacts/environment.txt": "8fa888d224d03794d012c39cc7a4a997df1fff0ff5e097a09847cb54d37cf2bb",
+    "artifacts/generated.SRCINFO": "7cffffec6d267324bf285edbfd69567aa8b27b617e405091e2a2696ae90c69a4",
+    "artifacts/makepkg.conf": "cfcf0bd2601d887724c5ca7d9a48ac5dd347abad9e8ac5efa436080e45822a60",
+    "artifacts/packages.lock": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25",
+    "artifacts/pacman.conf": "14d304eeb83baf1379279356c232580fd095c2d508b41c74677347801a0bafe7",
+    "expected-packages.lock": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25",
+    "build.log": "31ab09bea3adc4cb712cecab0905d07e17269d155ee062dffb0aaeb8e4fe6844",
+    "validation.json": "65ebe3ed3f84476c1a95b12e4ae6eda542a74b8c56f86419020836e481e790d3"
+  },
+  "finished_utc": "2026-10-15T16:18:53.843630+00:00"
+}

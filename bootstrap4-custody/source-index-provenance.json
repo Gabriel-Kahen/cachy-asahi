@@ -1,0 +1,486 @@
+{
+  "keys": "NOT_READ_NOT_USED",
+  "packages": {
+    "cachy-asahi-fish-config-0.1.0-1-any.pkg.tar.xz": {
+      "custody": {
+        "frame": "268ee1e45dd2f6d1a89b8d1ee622132ea8049bc1c26f82b76a109da1797ed5c2",
+        "member": "native-evidence/cachy-asahi-fish-config-1/artifacts/cachy-asahi-fish-config-0.1.0-1-any.pkg.tar.xz",
+        "source": {
+          "CRC": 2105531586,
+          "member": "0_native.txt",
+          "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/desktop-canonical-run38767488680/logs.zip"
+        }
+      },
+      "metadata": {
+        "artifacts/config.sha256": {
+          "bytes": 167,
+          "member": "native-evidence/cachy-asahi-fish-config-1/artifacts/config.sha256",
+          "sha256": "8309cb4c0409ccdc1ca922475dde9377aec434911efc453299f41e8fadb234ec"
+        },
+        "artifacts/environment.txt": {
+          "bytes": 7058,
+          "member": "native-evidence/cachy-asahi-fish-config-1/artifacts/environment.txt",
+          "sha256": "8fa888d224d03794d012c39cc7a4a997df1fff0ff5e097a09847cb54d37cf2bb"
+        },
+        "artifacts/generated.SRCINFO": {
+          "bytes": 526,
+          "member": "native-evidence/cachy-asahi-fish-config-1/artifacts/generated.SRCINFO",
+          "sha256": "7cffffec6d267324bf285edbfd69567aa8b27b617e405091e2a2696ae90c69a4"
+        },
+        "artifacts/makepkg.conf": {
+          "bytes": 6651,
+          "member": "native-evidence/cachy-asahi-fish-config-1/artifacts/makepkg.conf",
+          "sha256": "cfcf0bd2601d887724c5ca7d9a48ac5dd347abad9e8ac5efa436080e45822a60"
+        },
+        "artifacts/packages.lock": {
+          "bytes": 6674,
+          "member": "native-evidence/cachy-asahi-fish-config-1/artifacts/packages.lock",
+          "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
+        },
+        "artifacts/pacman.conf": {
+          "bytes": 116,
+          "member": "native-evidence/cachy-asahi-fish-config-1/artifacts/pacman.conf",
+          "sha256": "14d304eeb83baf1379279356c232580fd095c2d508b41c74677347801a0bafe7"
+        },
+        "build.log": {
+          "bytes": 1373,
+          "member": "native-evidence/cachy-asahi-fish-config-1/build.log",
+          "sha256": "31ab09bea3adc4cb712cecab0905d07e17269d155ee062dffb0aaeb8e4fe6844"
+        },
+        "expected-packages.lock": {
+          "bytes": 6674,
+          "member": "native-evidence/cachy-asahi-fish-config-1/expected-packages.lock",
+          "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
+        },
+        "inputs/.SRCINFO": {
+          "bytes": 526,
+          "member": "native-evidence/cachy-asahi-fish-config-1/inputs/.SRCINFO",
+          "sha256": "7cffffec6d267324bf285edbfd69567aa8b27b617e405091e2a2696ae90c69a4"
+        },
+        "inputs/PKGBUILD": {
+          "bytes": 899,
+          "member": "native-evidence/cachy-asahi-fish-config-1/inputs/PKGBUILD",
+          "sha256": "a3f0e5f693a48126086ff0e8279d8d833efb8e625dfa4644fdfd2c04ff0175fa"
+        },
+        "provenance.json": {
+          "bytes": 5640,
+          "member": "native-evidence/cachy-asahi-fish-config-1/provenance.json",
+          "sha256": "ec9b236b755f47f83b14667d13bd033afa430927b53b4d28f9ff081520905f02"
+        }
+      },
+      "package_metadata": {
+        ".BUILDINFO": {
+          "fields": {
+            "builddate": [
+              "1791748800"
+            ],
+            "builddir": [
+              "/tmp/work"
+            ],
+            "pkgarch": [
+              "any"
+            ],
+            "pkgbuild_sha256sum": [
+              "a3f0e5f693a48126086ff0e8279d8d833efb8e625dfa4644fdfd2c04ff0175fa"
+            ],
+            "pkgname": [
+              "cachy-asahi-fish-config"
+            ],
+            "pkgver": [
+              "0.1.0-1"
+            ]
+          },
+          "pin": {
+            "bytes": 13882,
+            "sha256": "9bc9e5be6f0b84154aa66cb36c4cdda6ecd94d3fc09d73663517445fdd8df870"
+          }
+        },
+        ".PKGINFO": {
+          "fields": {
+            "builddate": [
+              "1791748800"
+            ],
+            "builddir": null,
+            "pkgarch": null,
+            "pkgbuild_sha256sum": null,
+            "pkgname": [
+              "cachy-asahi-fish-config"
+            ],
+            "pkgver": [
+              "0.1.0-1"
+            ]
+          },
+          "pin": {
+            "bytes": 364,
+            "sha256": "6893ddd1b27e5276a2cfaaa5c448d082f13ba6dc8cbc083e334c6a4155337cbd"
+          }
+        }
+      },
+      "raw": {
+        "bytes": 5396,
+        "sha256": "38e766158d13a0e13b8f811766119d10c018ccc256f5d99c3561b74c99d12705"
+      }
+    },
+    "cachy-asahi-hyprland-settings-0.1.0-2-any.pkg.tar.xz": {
+      "custody": {
+        "frame": "268ee1e45dd2f6d1a89b8d1ee622132ea8049bc1c26f82b76a109da1797ed5c2",
+        "member": "native-evidence/cachy-asahi-hyprland-settings-1/artifacts/cachy-asahi-hyprland-settings-0.1.0-2-any.pkg.tar.xz",
+        "source": {
+          "CRC": 2105531586,
+          "member": "0_native.txt",
+          "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/desktop-canonical-run38767488680/logs.zip"
+        }
+      },
+      "metadata": {
+        "artifacts/config.sha256": {
+          "bytes": 167,
+          "member": "native-evidence/cachy-asahi-hyprland-settings-1/artifacts/config.sha256",
+          "sha256": "8309cb4c0409ccdc1ca922475dde9377aec434911efc453299f41e8fadb234ec"
+        },
+        "artifacts/environment.txt": {
+          "bytes": 7058,
+          "member": "native-evidence/cachy-asahi-hyprland-settings-1/artifacts/environment.txt",
+          "sha256": "69b9446a4e2e6ffd1598142230eb97ae7ce4db387aa503aafc19c42d07ea0396"
+        },
+        "artifacts/generated.SRCINFO": {
+          "bytes": 1811,
+          "member": "native-evidence/cachy-asahi-hyprland-settings-1/artifacts/generated.SRCINFO",
+          "sha256": "6c2fd7e245f5ac15627ebef3fe34f7b5f6120b310055e9e934708c06c2126419"
+        },
+        "artifacts/makepkg.conf": {
+          "bytes": 6651,
+          "member": "native-evidence/cachy-asahi-hyprland-settings-1/artifacts/makepkg.conf",
+          "sha256": "cfcf0bd2601d887724c5ca7d9a48ac5dd347abad9e8ac5efa436080e45822a60"
+        },
+        "artifacts/packages.lock": {
+          "bytes": 6674,
+          "member": "native-evidence/cachy-asahi-hyprland-settings-1/artifacts/packages.lock",
+          "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
+        },
+        "artifacts/pacman.conf": {
+          "bytes": 116,
+          "member": "native-evidence/cachy-asahi-hyprland-settings-1/artifacts/pacman.conf",
+          "sha256": "14d304eeb83baf1379279356c232580fd095c2d508b41c74677347801a0bafe7"
+        },
+        "build.log": {
+          "bytes": 1925,
+          "member": "native-evidence/cachy-asahi-hyprland-settings-1/build.log",
+          "sha256": "cd3031fc050f18c1bb8793f5e3f35f1a06ac764869030ad65ade10e264f43a07"
+        },
+        "expected-packages.lock": {
+          "bytes": 6674,
+          "member": "native-evidence/cachy-asahi-hyprland-settings-1/expected-packages.lock",
+          "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
+        },
+        "inputs/.SRCINFO": {
+          "bytes": 1811,
+          "member": "native-evidence/cachy-asahi-hyprland-settings-1/inputs/.SRCINFO",
+          "sha256": "6c2fd7e245f5ac15627ebef3fe34f7b5f6120b310055e9e934708c06c2126419"
+        },
+        "inputs/PKGBUILD": {
+          "bytes": 2486,
+          "member": "native-evidence/cachy-asahi-hyprland-settings-1/inputs/PKGBUILD",
+          "sha256": "fcaa62480565b8bb3b88b330a989b7bb37355e3908a9251285ce15765c985436"
+        },
+        "provenance.json": {
+          "bytes": 6082,
+          "member": "native-evidence/cachy-asahi-hyprland-settings-1/provenance.json",
+          "sha256": "f6f49a3375245d227de76e49263c4a61998bc752f364904230faf8789787ea02"
+        }
+      },
+      "package_metadata": {
+        ".BUILDINFO": {
+          "fields": {
+            "builddate": [
+              "1791748800"
+            ],
+            "builddir": [
+              "/tmp/work"
+            ],
+            "pkgarch": [
+              "any"
+            ],
+            "pkgbuild_sha256sum": [
+              "fcaa62480565b8bb3b88b330a989b7bb37355e3908a9251285ce15765c985436"
+            ],
+            "pkgname": [
+              "cachy-asahi-hyprland-settings"
+            ],
+            "pkgver": [
+              "0.1.0-2"
+            ]
+          },
+          "pin": {
+            "bytes": 13894,
+            "sha256": "549a7209d872d6f438341205138bd94a904ee7c0583325ada70075032289100f"
+          }
+        },
+        ".PKGINFO": {
+          "fields": {
+            "builddate": [
+              "1791748800"
+            ],
+            "builddir": null,
+            "pkgarch": null,
+            "pkgbuild_sha256sum": null,
+            "pkgname": [
+              "cachy-asahi-hyprland-settings"
+            ],
+            "pkgver": [
+              "0.1.0-2"
+            ]
+          },
+          "pin": {
+            "bytes": 1098,
+            "sha256": "2b0e23b8988099139784875b8e0472e4ac918dfe3a2e60459aa74da3823ad581"
+          }
+        }
+      },
+      "raw": {
+        "bytes": 12740,
+        "sha256": "0b22b778ec83d8b98d98d06fa4f016bd4e3f581b69efa83d6526c5265c2adf5e"
+      }
+    },
+    "cachy-asahi-topmem-0.1.0-1-any.pkg.tar.xz": {
+      "custody": {
+        "frame": "05ac35a2c613fced89b723fd5dff161fb3f3c4152ff16779d83ee84429e467ce",
+        "member": "tools-evidence/cachy-asahi-topmem/current-1/artifacts/cachy-asahi-topmem-0.1.0-1-any.pkg.tar.xz",
+        "source": {
+          "CRC": 2128468018,
+          "member": "0_native.txt",
+          "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/tools-run38765227491/logs.zip"
+        }
+      },
+      "metadata": {
+        "artifacts/config.sha256": {
+          "bytes": 167,
+          "member": "tools-evidence/cachy-asahi-topmem/current-1/artifacts/config.sha256",
+          "sha256": "8309cb4c0409ccdc1ca922475dde9377aec434911efc453299f41e8fadb234ec"
+        },
+        "artifacts/environment.txt": {
+          "bytes": 7058,
+          "member": "tools-evidence/cachy-asahi-topmem/current-1/artifacts/environment.txt",
+          "sha256": "713f1a12a5644029db37d6b262845c1d6bce82afa6adaab314aadd3cb833b9f5"
+        },
+        "artifacts/generated.SRCINFO": {
+          "bytes": 779,
+          "member": "tools-evidence/cachy-asahi-topmem/current-1/artifacts/generated.SRCINFO",
+          "sha256": "fa8b8e01ce36cfe9c5b3cd0f94ae5303c6d8e6444d91831eacf9a762f7490459"
+        },
+        "artifacts/makepkg.conf": {
+          "bytes": 6651,
+          "member": "tools-evidence/cachy-asahi-topmem/current-1/artifacts/makepkg.conf",
+          "sha256": "cfcf0bd2601d887724c5ca7d9a48ac5dd347abad9e8ac5efa436080e45822a60"
+        },
+        "artifacts/packages.lock": {
+          "bytes": 6674,
+          "member": "tools-evidence/cachy-asahi-topmem/current-1/artifacts/packages.lock",
+          "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
+        },
+        "artifacts/pacman.conf": {
+          "bytes": 116,
+          "member": "tools-evidence/cachy-asahi-topmem/current-1/artifacts/pacman.conf",
+          "sha256": "14d304eeb83baf1379279356c232580fd095c2d508b41c74677347801a0bafe7"
+        },
+        "build.log": {
+          "bytes": 1697,
+          "member": "tools-evidence/cachy-asahi-topmem/current-1/build.log",
+          "sha256": "fc1aeadc4d611fa2b61b972493c470e45af9c50e5ef1b9bbc0e5646a854f2e72"
+        },
+        "expected-packages.lock": {
+          "bytes": 6674,
+          "member": "tools-evidence/cachy-asahi-topmem/current-1/expected-packages.lock",
+          "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
+        },
+        "inputs/.SRCINFO": {
+          "bytes": 779,
+          "member": "tools-evidence/cachy-asahi-topmem/current-1/inputs/.SRCINFO",
+          "sha256": "fa8b8e01ce36cfe9c5b3cd0f94ae5303c6d8e6444d91831eacf9a762f7490459"
+        },
+        "inputs/PKGBUILD": {
+          "bytes": 1195,
+          "member": "tools-evidence/cachy-asahi-topmem/current-1/inputs/PKGBUILD",
+          "sha256": "fc17b0af876ae0dfb97b00e2293bb01fb8c054702d19252804e8ab11196315d2"
+        },
+        "provenance.json": {
+          "bytes": 4787,
+          "member": "tools-evidence/cachy-asahi-topmem/current-1/provenance.json",
+          "sha256": "db3ec1d6a1e57bcbe299fba4bbe1a8a8f226d888787037b19296d5fe31b07191"
+        }
+      },
+      "package_metadata": {
+        ".BUILDINFO": {
+          "fields": {
+            "builddate": [
+              "1791748800"
+            ],
+            "builddir": [
+              "/tmp/work"
+            ],
+            "pkgarch": [
+              "any"
+            ],
+            "pkgbuild_sha256sum": [
+              "fc17b0af876ae0dfb97b00e2293bb01fb8c054702d19252804e8ab11196315d2"
+            ],
+            "pkgname": [
+              "cachy-asahi-topmem"
+            ],
+            "pkgver": [
+              "0.1.0-1"
+            ]
+          },
+          "pin": {
+            "bytes": 13872,
+            "sha256": "62f7d061978eeb07422db9cb5d46fbc6930f4b7c34a4846e9aff21b2075530a9"
+          }
+        },
+        ".PKGINFO": {
+          "fields": {
+            "builddate": [
+              "1791748800"
+            ],
+            "builddir": null,
+            "pkgarch": null,
+            "pkgbuild_sha256sum": null,
+            "pkgname": [
+              "cachy-asahi-topmem"
+            ],
+            "pkgver": [
+              "0.1.0-1"
+            ]
+          },
+          "pin": {
+            "bytes": 401,
+            "sha256": "cf5370244e226ba8baab6b90628e0bda9e473a212bd7ea4a268c40864bc9ffd6"
+          }
+        }
+      },
+      "raw": {
+        "bytes": 8092,
+        "sha256": "583ffacd614bd741722486d5fbc64b79bb283d62c87974063fc1484dfcbe199b"
+      }
+    },
+    "cachy-asahi-zsh-config-0.1.0-1-any.pkg.tar.xz": {
+      "custody": {
+        "frame": "268ee1e45dd2f6d1a89b8d1ee622132ea8049bc1c26f82b76a109da1797ed5c2",
+        "member": "native-evidence/cachy-asahi-zsh-config-1/artifacts/cachy-asahi-zsh-config-0.1.0-1-any.pkg.tar.xz",
+        "source": {
+          "CRC": 2105531586,
+          "member": "0_native.txt",
+          "zip": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/desktop-canonical-run38767488680/logs.zip"
+        }
+      },
+      "metadata": {
+        "artifacts/config.sha256": {
+          "bytes": 167,
+          "member": "native-evidence/cachy-asahi-zsh-config-1/artifacts/config.sha256",
+          "sha256": "8309cb4c0409ccdc1ca922475dde9377aec434911efc453299f41e8fadb234ec"
+        },
+        "artifacts/environment.txt": {
+          "bytes": 7058,
+          "member": "native-evidence/cachy-asahi-zsh-config-1/artifacts/environment.txt",
+          "sha256": "2272e96c728bb2ae5b3a82e528f1bec41e0c974a8376ee827f55f23850237be2"
+        },
+        "artifacts/generated.SRCINFO": {
+          "bytes": 607,
+          "member": "native-evidence/cachy-asahi-zsh-config-1/artifacts/generated.SRCINFO",
+          "sha256": "efb12bb5e6afbf584f1feb58a3fc057877faa3e9f0a4a452e9554eefd524bfdd"
+        },
+        "artifacts/makepkg.conf": {
+          "bytes": 6651,
+          "member": "native-evidence/cachy-asahi-zsh-config-1/artifacts/makepkg.conf",
+          "sha256": "cfcf0bd2601d887724c5ca7d9a48ac5dd347abad9e8ac5efa436080e45822a60"
+        },
+        "artifacts/packages.lock": {
+          "bytes": 6674,
+          "member": "native-evidence/cachy-asahi-zsh-config-1/artifacts/packages.lock",
+          "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
+        },
+        "artifacts/pacman.conf": {
+          "bytes": 116,
+          "member": "native-evidence/cachy-asahi-zsh-config-1/artifacts/pacman.conf",
+          "sha256": "14d304eeb83baf1379279356c232580fd095c2d508b41c74677347801a0bafe7"
+        },
+        "build.log": {
+          "bytes": 1453,
+          "member": "native-evidence/cachy-asahi-zsh-config-1/build.log",
+          "sha256": "51cae70b77139c0d9a22931d15dd681e24755dde39eac9f8fa30c8f26a273978"
+        },
+        "expected-packages.lock": {
+          "bytes": 6674,
+          "member": "native-evidence/cachy-asahi-zsh-config-1/expected-packages.lock",
+          "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
+        },
+        "inputs/.SRCINFO": {
+          "bytes": 607,
+          "member": "native-evidence/cachy-asahi-zsh-config-1/inputs/.SRCINFO",
+          "sha256": "efb12bb5e6afbf584f1feb58a3fc057877faa3e9f0a4a452e9554eefd524bfdd"
+        },
+        "inputs/PKGBUILD": {
+          "bytes": 1012,
+          "member": "native-evidence/cachy-asahi-zsh-config-1/inputs/PKGBUILD",
+          "sha256": "a0d86c532654f01edac764ad39d1173bb981a13752ad0216ea49907cd49b53e1"
+        },
+        "provenance.json": {
+          "bytes": 5588,
+          "member": "native-evidence/cachy-asahi-zsh-config-1/provenance.json",
+          "sha256": "a942a9f3266ef7f39bbcca03ca22d9e972b62d1e274f64e0e3f3113a5b0d2bbe"
+        }
+      },
+      "package_metadata": {
+        ".BUILDINFO": {
+          "fields": {
+            "builddate": [
+              "1791748800"
+            ],
+            "builddir": [
+              "/tmp/work"
+            ],
+            "pkgarch": [
+              "any"
+            ],
+            "pkgbuild_sha256sum": [
+              "a0d86c532654f01edac764ad39d1173bb981a13752ad0216ea49907cd49b53e1"
+            ],
+            "pkgname": [
+              "cachy-asahi-zsh-config"
+            ],
+            "pkgver": [
+              "0.1.0-1"
+            ]
+          },
+          "pin": {
+            "bytes": 13880,
+            "sha256": "7a9e989ee82e80d40bf20b15432d948f0dbd6d29826daca980f12ade25efbade"
+          }
+        },
+        ".PKGINFO": {
+          "fields": {
+            "builddate": [
+              "1791748800"
+            ],
+            "builddir": null,
+            "pkgarch": null,
+            "pkgbuild_sha256sum": null,
+            "pkgname": [
+              "cachy-asahi-zsh-config"
+            ],
+            "pkgver": [
+              "0.1.0-1"
+            ]
+          },
+          "pin": {
+            "bytes": 350,
+            "sha256": "062f0362f6c673da3329b65b910cded97942cc635000c0d43faee8fa2920130d"
+          }
+        }
+      },
+      "raw": {
+        "bytes": 6244,
+        "sha256": "be2ef8ed4f0263720ed6290bff9992d5df53c7bf689a40478f2be329ba2d50e7"
+      }
+    }
+  },
+  "status": "EXACT_FOUR_RAW_AND_ORIGINAL_RECIPE_BUILDINFO_JOIN"
+}
