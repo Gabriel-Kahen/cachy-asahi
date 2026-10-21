@@ -1,0 +1,20 @@
+{
+  "acceptance": false,
+  "actual": null,
+  "files": {
+    "LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "README.md": {
+      "bytes": 1815,
+      "sha256": "d793bcf6c755682f461455aeed4f7fe679febe1bff02a8db1f4eacc7df6be7ca"
+    },
+    "capture.py": {
+      "bytes": 8854,
+      "sha256": "24c9dfc2f134086611d0340de4392b0ba9e53257b2f0fda856ed0a1416153729"
+    }
+  },
+  "schema": 1,
+  "status": "SOURCE_ONLY_READ_ONLY_HOST_BTF_INPUT_DIAGNOSTIC"
+}
