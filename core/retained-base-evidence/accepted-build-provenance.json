@@ -1,0 +1,119 @@
+{
+  "artifacts": {
+    "cachy-asahi-dns-0.1.0-2-any.pkg.tar.xz": "588301342503ab23869d78e212f50a7b363fe45dcaf7c2ad4c411a33bab22d1d"
+  },
+  "clean_environment_id": "cachy-asahi-product-cef53e8d1420e94e8899771987dfadd7",
+  "command": [
+    "docker",
+    "run",
+    "--label",
+    "org.cachy-asahi.expanded604.apps6-public-pairs.job=d9c5dcf1e790cf97e69fa13ced813fee",
+    "--name",
+    "cachy-asahi-product-cef53e8d1420e94e8899771987dfadd7",
+    "--pull=never",
+    "--platform=linux/arm64",
+    "--network=none",
+    "--cap-drop=ALL",
+    "--security-opt=no-new-privileges",
+    "--pids-limit=256",
+    "--memory=3g",
+    "--cpus=4",
+    "--user",
+    "1001:1001",
+    "--tmpfs",
+    "/tmp:rw,nosuid,nodev,exec,size=2g",
+    "--mount",
+    "type=bind,src=/tmp/cachy-asahi-expanded604-39320580643-1/tools-builds/cachy-asahi-dns2-a/artifacts,dst=/out",
+    "--read-only",
+    "--env=CACHY_ASAHI_CONTAINER=1",
+    "--env=SOURCE_DATE_EPOCH=1791748800",
+    "--mount",
+    "type=bind,src=/tmp/cachy-asahi-expanded604-39320580643-1/tools-builds/cachy-asahi-dns2-a/inputs,dst=/inputs,readonly",
+    "--mount",
+    "type=bind,src=/tmp/cachy-asahi-expanded604-39320580643-1/tools-builds/cachy-asahi-dns2-a/expected-packages.lock,dst=/expected-packages.lock,readonly",
+    "--mount",
+    "type=bind,src=/home/runner/work/cachy-asahi/cachy-asahi/expanded604-code/held606/held-tools/scripts/build/container-entry.sh,dst=/builder-entry.sh,readonly",
+    "--entrypoint=/bin/bash",
+    "sha256:56c943397886b0fa4059db58689fe2f07fd7076e5a5387f861e7c27b86b1b9f7",
+    "/builder-entry.sh"
+  ],
+  "entry_script_sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24",
+  "expected_packages_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+  "files": {
+    "artifacts/cachy-asahi-dns-0.1.0-2-any.pkg.tar.xz": "588301342503ab23869d78e212f50a7b363fe45dcaf7c2ad4c411a33bab22d1d",
+    "artifacts/config.sha256": "8309cb4c0409ccdc1ca922475dde9377aec434911efc453299f41e8fadb234ec",
+    "artifacts/environment.txt": "a23501ccec9885600dd0af3b43d3659fe2d2b5aba2c10ccc5c142441c167d2ae",
+    "artifacts/generated.SRCINFO": "9a71d77853351e76649415f1851ecf23844c580fd6845d60cd36ace6a40c82af",
+    "artifacts/makepkg.conf": "cfcf0bd2601d887724c5ca7d9a48ac5dd347abad9e8ac5efa436080e45822a60",
+    "artifacts/packages.lock": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+    "artifacts/pacman.conf": "14d304eeb83baf1379279356c232580fd095c2d508b41c74677347801a0bafe7",
+    "build.log": "606c2d0aa7d40dab4bd7c7bd986fb1a81abf7224e5dee0dee9e4206d38b7241d",
+    "expected-packages.lock": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+    "validation.json": "7356b2b423fa2a47870dd377bf7f8d0f68e533b33c98a70368291d65584b1e39"
+  },
+  "hardware_status": "NOT RUN",
+  "image": "sha256:56c943397886b0fa4059db58689fe2f07fd7076e5a5387f861e7c27b86b1b9f7",
+  "image_id": "sha256:56c943397886b0fa4059db58689fe2f07fd7076e5a5387f861e7c27b86b1b9f7",
+  "mode": "native",
+  "recipe_inputs": {
+    ".SRCINFO": "9a71d77853351e76649415f1851ecf23844c580fd6845d60cd36ace6a40c82af",
+    "LICENSE": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+    "NOTICE": "1ff77dc69e120adfacea23ac77a756ff5931b888c7535f0e2f2b928114a5873e",
+    "PKGBUILD": "f59423ab444744edce3df774687e1be226662fadaa73243d9bb7269c81c94543",
+    "README.md": "a8192e1e96fe1bc5a8cfe0269dcef7961b79e590a50a9c93ddb9921e8c349582",
+    "cachy-asahi-dns": "d708cbe54a8e96a62ff7d85e4eadfb7a980401adb3a9fe8465052f754b4c8c88",
+    "check_source.py": "78b3080f5ee9c3a003de0719eff08ad85f6f862db608d9a3465ddcb40028b265",
+    "source-provenance.json": "9f5af4c43a17754de5f9e2e77b0f271c74993a5f519b0c73094b103b744b2470",
+    "test_dns.py": "c9f93d49bcf6d9c15cd6b2b098972c4494dee5774b1ed1a707c981bfbb8c6cc2"
+  },
+  "recipe_metadata": {
+    "arch": [
+      "any"
+    ],
+    "depends": [
+      "python>=3.11",
+      "networkmanager>=1.44"
+    ],
+    "license": [
+      "MIT"
+    ],
+    "pkgbase": [
+      "cachy-asahi-dns"
+    ],
+    "pkgdesc": [
+      "Explicit per-connection NetworkManager DNS discovery, preview and prior-setting undo"
+    ],
+    "pkgname": [
+      "cachy-asahi-dns"
+    ],
+    "pkgrel": [
+      "2"
+    ],
+    "pkgver": [
+      "0.1.0"
+    ],
+    "sha256sums": [
+      "d708cbe54a8e96a62ff7d85e4eadfb7a980401adb3a9fe8465052f754b4c8c88",
+      "c9f93d49bcf6d9c15cd6b2b098972c4494dee5774b1ed1a707c981bfbb8c6cc2",
+      "78b3080f5ee9c3a003de0719eff08ad85f6f862db608d9a3465ddcb40028b265",
+      "a8192e1e96fe1bc5a8cfe0269dcef7961b79e590a50a9c93ddb9921e8c349582",
+      "9f5af4c43a17754de5f9e2e77b0f271c74993a5f519b0c73094b103b744b2470",
+      "1ff77dc69e120adfacea23ac77a756ff5931b888c7535f0e2f2b928114a5873e",
+      "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    ],
+    "source": [
+      "cachy-asahi-dns",
+      "test_dns.py",
+      "check_source.py",
+      "README.md",
+      "source-provenance.json",
+      "NOTICE",
+      "LICENSE"
+    ],
+    "url": [
+      "https://github.com/Gabriel-Kahen/cachy-asahi"
+    ]
+  },
+  "source_date_epoch": 1791748800,
+  "status": "built-package-static-pass"
+}
