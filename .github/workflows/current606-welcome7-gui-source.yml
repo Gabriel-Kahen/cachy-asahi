@@ -41,20 +41,28 @@ jobs:
           ref: bb72a0fc5e84af5621f0b783056137efdd780282
           path: .ci-fixtures/gui540
           persist-credentials: false
+      - name: Check out exact public expected Welcome8 source544
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 7b8be687a3562640d5f7d4a7c57f2e2d61d39dc1
+          path: .ci-fixtures/welcome8-544
+          persist-credentials: false
       - name: Select the explicit Python version
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
           python-version: ${{ matrix.python }}
-      - name: Check seven portable controls and exact540 equality
+      - name: Check eleven portable controls and exact540 plus Welcome8_544 equality
         shell: bash
         run: |
           set -euo pipefail
           stage=$(mktemp -d "$RUNNER_TEMP/current606-gui-source.XXXXXXXX")
           trap 'rm -rf -- "$stage"' EXIT
-          mkdir -m700 "$stage/parent" "$stage/expected"
+          mkdir -m700 "$stage/parent" "$stage/expected" "$stage/welcome8-expected"
           git -C "$GITHUB_WORKSPACE/.ci-fixtures/gui-media536" archive --format=tar 3ed3da9c3393cbc56522db7311005049413204f3 | tar -x -C "$stage/parent"
           git -C "$GITHUB_WORKSPACE/.ci-fixtures/gui540" archive --format=tar bb72a0fc5e84af5621f0b783056137efdd780282 | tar -x -C "$stage/expected"
-          python3 -B -W error scripts/ci/current606-welcome7-gui-source/test_prepare.py --predecessor-root "$stage/parent"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/welcome8-544" archive --format=tar 7b8be687a3562640d5f7d4a7c57f2e2d61d39dc1 | tar -x -C "$stage/welcome8-expected"
+          python3 -B -W error scripts/ci/current606-welcome7-gui-source/test_prepare.py --predecessor-root "$stage/parent" --welcome8-predecessor-root "$stage/expected"
           python3 -I -B -W error scripts/ci/current606-welcome7-gui-source/prepare.py --predecessor-root "$stage/parent" --output "$stage/generated"
           python3 -I -B - "$stage/generated" "$stage/expected" <<'PY'
           import hashlib,json,sys
@@ -70,3 +78,18 @@ jobs:
           assert len(actual)==len(wanted)==540 and actual==wanted, 'whole exact public540 source differs'
           print(json.dumps({'status':'PASS_WHOLE_PUBLIC540_SOURCE_ONLY','files':540,'native':'NOT_RUN','GUI':'NOT_RUN','M2':'NOT_RUN'},sort_keys=True))
           PY
+          python3 -I -B -W error scripts/ci/current606-welcome7-gui-source/prepare.py --welcome8 --predecessor-root "$stage/expected" --output "$stage/welcome8-generated"
+          python3 -I -B - "$stage/welcome8-generated" "$stage/welcome8-expected" <<'PY8'
+          import hashlib,json,sys
+          from pathlib import Path
+          def files(root):
+              rows={}
+              for p in root.rglob('*'):
+                  assert not p.is_symlink(), 'source alias'
+                  if p.is_file():
+                      raw=p.read_bytes();rows[p.relative_to(root).as_posix()]={'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()}
+              return rows
+          generated,expected=map(Path,sys.argv[1:]);actual=files(generated);wanted=files(expected)
+          assert len(actual)==len(wanted)==544 and actual==wanted, 'whole exact public544 Welcome8 source differs'
+          print(json.dumps({'status':'PASS_WHOLE_PUBLIC544_WELCOME8_SOURCE_ONLY','files':544,'native':'NOT_RUN','GUI':'NOT_RUN','M2':'NOT_RUN'},sort_keys=True))
+          PY8

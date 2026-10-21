@@ -4,7 +4,7 @@
 import argparse,base64,hashlib,json,os,stat
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
-PROFILE={'bytes': 392506, 'sha256': '582526a1c7b82c5b07c34b022882b678d27e41a9afe0e39330b5567aa1b2509a'}
+PROFILE={'bytes': 1659700, 'sha256': '03c2eea41a4da76a9866a4b589f826167f12e8754a7bbd8abaf409df50235f77'}
 def need(ok,why):
  if not ok:raise ValueError(why)
 def pin(raw):return dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())
@@ -57,5 +57,18 @@ def prepare(predecessor,output):
  for name,raw in result.items():target=output/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(raw)
  need({n:pin(b)for n,b in files(output).items()}==wanted,'whole540 emitted source equality');return dict(status='SOURCE_ONLY_CURRENT606_WELCOME7_GUI_NOT_NATIVE',files=540,source_authority=p['output']['source'],profiles=['minimal','overlay'],page_modes=['generic4k','generic16k'],guest_packages=606,controller_packages=590,actual_source=None,actual_ref=None,actual_run=None,acceptance='NOT_GRANTED')
 
+def prepare_welcome8(predecessor,output):
+ p=profile();v=p['welcome8'];before=files(predecessor);need(v['predecessor']['source']=='bb72a0fc5e84af5621f0b783056137efdd780282'and len(before)==540 and {n:pin(b)for n,b in before.items()}==v['predecessor']['files'],'complete genuine corrective540 predecessor before Welcome8 output')
+ wanted=v['output']['files'];need(len(wanted)==544 and set(wanted)-set(before)==set(v['added'])and set(before)-set(wanted)==set(v['removed'])and {n for n in before if n in wanted and pin(before[n])!=wanted[n]}==set(v['changed'])and(len(v['changed']),len(v['added']),len(v['removed']))==(13,5,1),'finite exact Welcome8 graph/Stop/metadata/cleanup successor')
+ result={}
+ for name,row in wanted.items():
+  relative(name);raw=before[name]if name in before and pin(before[name])==row else base64.b64decode(p['blobs'][row['sha256']],validate=True);need(pin(raw)==row,'whole exact Welcome8 source body');result[name]=raw
+ for name in('bootstrap2.py','bootstrap-plan.json','extension_inputs.py','extension-input-profile.json','factory/hwcap_probe.c','factory/user_hwcap.py','factory/kernel_stage.py','kernel-media-profile.json','factory/current_products.py'):
+  need(result[name]==before[name],'original bootstrap, ALPM/input routes, media, actual probes and current product commands held')
+ need({n:pin(b)for n,b in result.items()}==wanted,'whole544 equality before output');output=Path(output).absolute();need(not output.exists()and output.parent.is_dir()and not any(q.is_symlink()for q in(output,*output.parents))and not output.is_relative_to(predecessor)and not predecessor.is_relative_to(output),'fresh disjoint ordinary source output')
+ output.mkdir(mode=0o700)
+ for name,raw in result.items():target=output/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(raw)
+ need({n:pin(b)for n,b in files(output).items()}==wanted,'whole544 emitted source equality');return dict(status='SOURCE_ONLY_WELCOME8_INSTALLED606_GUI_NOT_NATIVE',files=544,source_authority=v['output']['source'],profiles=['minimal','overlay'],page_modes=['generic4k','generic16k'],guest_packages=606,controller_packages=590,actual_source=None,actual_ref=None,actual_run=None,acceptance='NOT_GRANTED')
+
 if __name__=='__main__':
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('--predecessor-root',type=Path,required=True);p.add_argument('--output',type=Path,required=True);a=p.parse_args();print(encoded(prepare(a.predecessor_root.absolute(),a.output.absolute())).decode(),end='')
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--predecessor-root',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--welcome8',action='store_true',help='explicit exact544 variant from whole corrective540; default536-to540 unchanged');a=p.parse_args();emit=prepare_welcome8 if a.welcome8 else prepare;print(encoded(emit(a.predecessor_root.absolute(),a.output.absolute())).decode(),end='')
