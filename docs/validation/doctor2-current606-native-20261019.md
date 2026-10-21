@@ -11,3 +11,5 @@ The original one-shot collector succeeded. Its first positive reader refused an 
 The coordinator independently joined all353 source blobs, the original API artifact digest and exact two ZIP members, every indexed frame/chunk and all942 public files totaling42,878,543 bytes. The original nonce, six phase records and raw auxiliary comparisons agree. See the [finite machine-readable record](../../manifests/doctor2-current606-native-result.json).
 
 Full private maps and fresh producer TEST-signature operations remain source-enforced. This review does not supply a fresh independent GPG run or live host cleanup observation. It grants no new build, GUI,16K execution, performance, Asahi/M2 hardware, production-trust or release acceptance. GitHub artifact retention and durable release retention remain separate obligations.
+
+The later [27-control native qualification](doctor2-real27-current606-native-20261021.md) passes the three real private IPC controls on its separate exact source/run. The earlier24-control result above retains its original limits.

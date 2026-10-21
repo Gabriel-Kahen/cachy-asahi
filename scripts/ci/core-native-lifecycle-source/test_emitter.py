@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-"""Both exact public source modes and real isolated entries; never native actors."""
+"""All three exact public source modes and real isolated entries; never native actors."""
 import json
 import os
 from pathlib import Path
@@ -16,18 +16,21 @@ import prepare as F
 
 RUNTIME = os.environ.get('CORE_LIFECYCLE_RUNTIME')
 EXPECTED = os.environ.get('CORE_LIFECYCLE_EXPECTED')
+TRANSPORT_EXPECTED = os.environ.get('CORE_LIFECYCLE_TRANSPORT_EXPECTED')
 LAUNCH_EXPECTED = os.environ.get('CORE_LIFECYCLE_LAUNCH_EXPECTED')
-if not RUNTIME or not EXPECTED or not LAUNCH_EXPECTED:
+if not RUNTIME or not EXPECTED or not LAUNCH_EXPECTED or not TRANSPORT_EXPECTED:
     raise SystemExit('Set CORE_LIFECYCLE_RUNTIME to complete public d268745, '
                      'CORE_LIFECYCLE_EXPECTED to complete public 7be796 and '
-                     'CORE_LIFECYCLE_LAUNCH_EXPECTED to complete public 4ae796; no test is skipped.')
+                     'CORE_LIFECYCLE_LAUNCH_EXPECTED to public4ae796 and '
+                     'CORE_LIFECYCLE_TRANSPORT_EXPECTED to public1450796; no test is skipped.')
 
 
 class Controls(unittest.TestCase):
     def check_mode(self, mode, expected_path):
         runtime, expected = Path(RUNTIME).absolute(), Path(expected_path).absolute()
         profile = F.profile()
-        target = profile['expected'] if mode == 'original796' else profile['workflow_launch']
+        target = {'original796': profile['expected'], 'workflow-launch': profile['workflow_launch'],
+                  'evidence-transport': profile['evidence_transport']}[mode]
         self.assertEqual(F.files(expected, checkout=True), target['files'])
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -71,8 +74,8 @@ class Controls(unittest.TestCase):
             python([str(lane / 'test_contract.py')])  # All six existing meaningful controls.
             arguments = [str(HERE / 'prepare.py'), '--runtime', str(runtime),
                          '--output', str(root / 'cli-emitted')]
-            if mode != 'workflow-launch':
-                arguments += ['--mode', mode]  # Launch mode also verifies the exact default CLI.
+            if mode != 'evidence-transport':
+                arguments += ['--mode', mode]  # Latest transport mode also verifies the exact default CLI.
             emitted = json.loads(python(arguments))
             self.assertEqual(emitted['files'], 796)
             self.assertEqual(emitted['source_mode'], mode)
@@ -81,8 +84,11 @@ class Controls(unittest.TestCase):
     def test_whole_historical796_explicit_and_self_reproduction(self):
         self.check_mode('original796', EXPECTED)
 
-    def test_whole_corrected_workflow_launch_default_and_self_reproduction(self):
+    def test_whole_historical_workflow_launch_explicit_and_self_reproduction(self):
         self.check_mode('workflow-launch', LAUNCH_EXPECTED)
+
+    def test_whole_latest_transport_default_and_self_reproduction(self):
+        self.check_mode('evidence-transport', TRANSPORT_EXPECTED)
 
     def test_real_parent_drift_refuses_before_output(self):
         runtime = Path(RUNTIME).absolute()
