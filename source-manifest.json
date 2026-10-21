@@ -1,0 +1,54 @@
+{
+  "actual": null,
+  "files": {
+    ".github/workflows/native-arm-build.yml": {
+      "bytes": 2319,
+      "sha256": "d57a83a6df9b98428d0565f3c3747600261f82346409b259fa4d52ae2bf31710"
+    },
+    "LICENSE.moby": {
+      "bytes": 10765,
+      "sha256": "7c87873291f289713ac5df48b1f2010eb6963752bbd6b530416ab99fc37914a8"
+    },
+    "LICENSE.systemd-LGPL2.1": {
+      "bytes": 26518,
+      "sha256": "6d9bb3b7fc818a8facc4cc296060a0883fef8710d6498f86165335846e82ee9d"
+    },
+    "NOTICE.moby": {
+      "bytes": 642,
+      "sha256": "b40ec5b16182103ef1cd69d42a21c98369e35bd483b3973902da4807c0755446"
+    },
+    "caa-owned-userns.h": {
+      "bytes": 4600,
+      "sha256": "a5b8cf1847e9d7f0d06228b251a40a55827681a6994baa1c95b1b8cbc03c0402"
+    },
+    "diagnostics.c": {
+      "bytes": 5702,
+      "sha256": "39c69877a381a0e588c17a9132349747299a1d7fde1e60165bb2e6b6bb2758d5"
+    },
+    "moby-default.json": {
+      "bytes": 12828,
+      "sha256": "9c1025c88ccaa517b648da571961838744ea2137f176bfe6a48b21294cae9c76"
+    },
+    "probe.c": {
+      "bytes": 6223,
+      "sha256": "253ae8d734862f8588c732718461393028f6a1852e114dac062b36791377e505"
+    },
+    "probe_receipt.py": {
+      "bytes": 1668,
+      "sha256": "832d160eb7b1c46e8a96b03158bdbab75c116f3f2a82dab5cfade2b493cc8537"
+    },
+    "profiles.py": {
+      "bytes": 770,
+      "sha256": "8f36a5c7a434ce5e6abe25d2173b3a410f9dc5c968369be0089ca57614265af2"
+    },
+    "run.py": {
+      "bytes": 8951,
+      "sha256": "fbd98c9e9bd644b533544860dfe122c38823bb81d6ef05fbbc56a760c7dba2d6"
+    },
+    "source-pins.json": {
+      "bytes": 1563,
+      "sha256": "14c1ec5617f68d8d5b75c28dada623027eb708370ef153f50638560b95b27c31"
+    }
+  },
+  "status": "SOURCE_ONLY_NATIVE_DIAGNOSTIC_NOT_PACKAGE_ACCEPTANCE"
+}
