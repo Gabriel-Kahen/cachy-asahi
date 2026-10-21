@@ -5,7 +5,7 @@ import argparse,hashlib,json,os,stat,sys
 from pathlib import Path
 sys.dont_write_bytecode=True
 HERE=Path(__file__).resolve().parent
-PROFILE_SHA='d0b6bbad3399ed96efe2d69e767a0a7cd9d2347709054a80c311c06c83ef7d6d'
+PROFILE_SHA='52cc03a6f8c099b0a47a1555b096b154c01667a533a51f06603622db85d2625c'
 def need(ok,why):
  if not ok:raise ValueError(why)
 def enc(v):return(json.dumps(v,sort_keys=True,indent=2,allow_nan=False)+'\n').encode()

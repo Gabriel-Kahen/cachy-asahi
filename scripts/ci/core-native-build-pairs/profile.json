@@ -1519,11 +1519,11 @@
     "default": {
       ".github/workflows/native-arm-build.yml": {
         "bytes": 5914,
-        "sha256": "05ee596ad5d8f1b2d34bb5e99664ff7e9e5a7cdd86e274a8610dfc282f01cb3f"
+        "sha256": "8fee7c2d3a388763b441d9b42c0cac204f142e5ee82720fb7057a544688b47ad"
       },
       ".github/workflows/target-core-native-build-pairs.yml": {
         "bytes": 5914,
-        "sha256": "05ee596ad5d8f1b2d34bb5e99664ff7e9e5a7cdd86e274a8610dfc282f01cb3f"
+        "sha256": "8fee7c2d3a388763b441d9b42c0cac204f142e5ee82720fb7057a544688b47ad"
       },
       "LICENSE": {
         "bytes": 1081,
@@ -2819,11 +2819,11 @@
       },
       "effective-profile/profile.json": {
         "bytes": 8615,
-        "sha256": "7f1f1a3d401ce986f8824bb9e8b0109f500f2ef8eb9c8c7a33c3e534119e80bf"
+        "sha256": "3964a74c105e29010eb3c7277289890c7d621edcb04a461c2125a67a07d77e51"
       },
       "effective-profile/systemd/.SRCINFO": {
         "bytes": 8993,
-        "sha256": "5b9b3a841360c19bd1b71418349be74d4208b0d7d0cd6c2577ca0671452a33c0"
+        "sha256": "67d071a1526bcc48501c0b3d8210d2628e720f112bb15fb253b708f65e92cda0"
       },
       "effective-profile/systemd/0001-Use-Arch-Linux-device-access-groups.patch": {
         "bytes": 6920,
@@ -2887,7 +2887,7 @@
       },
       "effective-profile/systemd/PKGBUILD": {
         "bytes": 16104,
-        "sha256": "a8c6d3d0f6db1a1fb4a49d93308f879bbca5fc12e650e449ba20aa814a9069a1"
+        "sha256": "65170140c979b9496e36f5039301474c5177eea29a7c6bd952a83c0c612a8198"
       },
       "effective-profile/systemd/arch.conf": {
         "bytes": 243,
@@ -2902,8 +2902,8 @@
         "sha256": "3f2183b5f54a9aa4d0a7fcff61bfd407bd427b91c4b9e320c2b9359a57430f16"
       },
       "effective-profile/systemd/cachy-asahi-testlog.py": {
-        "bytes": 6359,
-        "sha256": "ca92026e9729fdea418b067442477db6c9c925ecbd5a08b0c75953cdf440288a"
+        "bytes": 7271,
+        "sha256": "b9b24eb4b0726f556097cb0b05b423aa14a5f147898e9e03519523f5ad523b1a"
       },
       "effective-profile/systemd/loader.conf": {
         "bytes": 18,
@@ -2967,15 +2967,15 @@
       },
       "lane/effective-profile-proof.json": {
         "bytes": 162867,
-        "sha256": "a13af4fc6a125684d0bb0799ee141ee317bfe8c23aa25a6361a056ed5e13b3e0"
+        "sha256": "439806f298bb02067c3e060d54e94da85e0566306fc394e05cb205a61a2e92ac"
       },
       "lane/effective-selection-template.json": {
         "bytes": 8366,
-        "sha256": "c06c175e265daf6aa087af4d3ea1d8352ad36806dd32726ce45681572d610697"
+        "sha256": "5b155011becd18b582c039300e64cda32cf7f8efab2e2e007aac8755171a5af0"
       },
       "lane/effective-source-authorization.json": {
         "bytes": 8366,
-        "sha256": "c06c175e265daf6aa087af4d3ea1d8352ad36806dd32726ce45681572d610697"
+        "sha256": "5b155011becd18b582c039300e64cda32cf7f8efab2e2e007aac8755171a5af0"
       },
       "lane/effective_profile.py": {
         "bytes": 4283,
@@ -3051,17 +3051,17 @@
       },
       "source-manifest.json": {
         "bytes": 63576,
-        "sha256": "76d0cea4021b7990b4ec58f55881d6606ae4ccaa902a8e6a568e263b445bfc76"
+        "sha256": "3f97b14b680127ae0c75d8559670ecabe067937fde0975c157015b871e99979e"
       }
     },
     "selected": {
       ".github/workflows/native-arm-build.yml": {
         "bytes": 5914,
-        "sha256": "89b4b7576deb507f0e24e9ca6c57fcb8e5ecfbd2aeb18a760c44fde9c2c06a59"
+        "sha256": "d218d83f5084394f38d68e397b1b6e3a1098e76451e1fec9a9f3403ab29cbd7e"
       },
       ".github/workflows/target-core-native-build-pairs.yml": {
         "bytes": 5914,
-        "sha256": "89b4b7576deb507f0e24e9ca6c57fcb8e5ecfbd2aeb18a760c44fde9c2c06a59"
+        "sha256": "d218d83f5084394f38d68e397b1b6e3a1098e76451e1fec9a9f3403ab29cbd7e"
       },
       "LICENSE": {
         "bytes": 1081,
@@ -4357,11 +4357,11 @@
       },
       "effective-profile/profile.json": {
         "bytes": 8615,
-        "sha256": "7f1f1a3d401ce986f8824bb9e8b0109f500f2ef8eb9c8c7a33c3e534119e80bf"
+        "sha256": "3964a74c105e29010eb3c7277289890c7d621edcb04a461c2125a67a07d77e51"
       },
       "effective-profile/systemd/.SRCINFO": {
         "bytes": 8993,
-        "sha256": "5b9b3a841360c19bd1b71418349be74d4208b0d7d0cd6c2577ca0671452a33c0"
+        "sha256": "67d071a1526bcc48501c0b3d8210d2628e720f112bb15fb253b708f65e92cda0"
       },
       "effective-profile/systemd/0001-Use-Arch-Linux-device-access-groups.patch": {
         "bytes": 6920,
@@ -4425,7 +4425,7 @@
       },
       "effective-profile/systemd/PKGBUILD": {
         "bytes": 16104,
-        "sha256": "a8c6d3d0f6db1a1fb4a49d93308f879bbca5fc12e650e449ba20aa814a9069a1"
+        "sha256": "65170140c979b9496e36f5039301474c5177eea29a7c6bd952a83c0c612a8198"
       },
       "effective-profile/systemd/arch.conf": {
         "bytes": 243,
@@ -4440,8 +4440,8 @@
         "sha256": "3f2183b5f54a9aa4d0a7fcff61bfd407bd427b91c4b9e320c2b9359a57430f16"
       },
       "effective-profile/systemd/cachy-asahi-testlog.py": {
-        "bytes": 6359,
-        "sha256": "ca92026e9729fdea418b067442477db6c9c925ecbd5a08b0c75953cdf440288a"
+        "bytes": 7271,
+        "sha256": "b9b24eb4b0726f556097cb0b05b423aa14a5f147898e9e03519523f5ad523b1a"
       },
       "effective-profile/systemd/loader.conf": {
         "bytes": 18,
@@ -4505,15 +4505,15 @@
       },
       "lane/effective-profile-proof.json": {
         "bytes": 162867,
-        "sha256": "a13af4fc6a125684d0bb0799ee141ee317bfe8c23aa25a6361a056ed5e13b3e0"
+        "sha256": "439806f298bb02067c3e060d54e94da85e0566306fc394e05cb205a61a2e92ac"
       },
       "lane/effective-selection-template.json": {
         "bytes": 8366,
-        "sha256": "c06c175e265daf6aa087af4d3ea1d8352ad36806dd32726ce45681572d610697"
+        "sha256": "5b155011becd18b582c039300e64cda32cf7f8efab2e2e007aac8755171a5af0"
       },
       "lane/effective-source-authorization.json": {
         "bytes": 8369,
-        "sha256": "ec1487c5c542a359c1dd466a4e734ab5525b59d6c0941b4172641939fdfdac7d"
+        "sha256": "fada93f6b2841a8d29d20bb6350b532f7087bee2033c0a1dcd04d18ebd61bafb"
       },
       "lane/effective_profile.py": {
         "bytes": 4283,
@@ -4589,7 +4589,7 @@
       },
       "source-manifest.json": {
         "bytes": 63576,
-        "sha256": "f70f45a8bcdf39f819d3f1a88334cdcea393587011de54a6ba88a2856619bd54"
+        "sha256": "9ee11e108f77285cd1a77413555d362bf316c67f957a784293a5bee86fd130e6"
       }
     }
   },
@@ -4603,7 +4603,7 @@
       "path": "templates/lane/effective-source-authorization.json",
       "pin": {
         "bytes": 8366,
-        "sha256": "c06c175e265daf6aa087af4d3ea1d8352ad36806dd32726ce45681572d610697"
+        "sha256": "5b155011becd18b582c039300e64cda32cf7f8efab2e2e007aac8755171a5af0"
       }
     },
     "lane/root-source-authorization.json": {
@@ -4621,7 +4621,7 @@
       "cleanup_acceptance": false,
       "effective_profile": {
         "bytes": 8615,
-        "sha256": "7f1f1a3d401ce986f8824bb9e8b0109f500f2ef8eb9c8c7a33c3e534119e80bf"
+        "sha256": "3964a74c105e29010eb3c7277289890c7d621edcb04a461c2125a67a07d77e51"
       },
       "effective_profile_files": {
         "pacman/.SRCINFO": {
@@ -4690,11 +4690,11 @@
         },
         "profile.json": {
           "bytes": 8615,
-          "sha256": "7f1f1a3d401ce986f8824bb9e8b0109f500f2ef8eb9c8c7a33c3e534119e80bf"
+          "sha256": "3964a74c105e29010eb3c7277289890c7d621edcb04a461c2125a67a07d77e51"
         },
         "systemd/.SRCINFO": {
           "bytes": 8993,
-          "sha256": "5b9b3a841360c19bd1b71418349be74d4208b0d7d0cd6c2577ca0671452a33c0"
+          "sha256": "67d071a1526bcc48501c0b3d8210d2628e720f112bb15fb253b708f65e92cda0"
         },
         "systemd/0001-Use-Arch-Linux-device-access-groups.patch": {
           "bytes": 6920,
@@ -4758,7 +4758,7 @@
         },
         "systemd/PKGBUILD": {
           "bytes": 16104,
-          "sha256": "a8c6d3d0f6db1a1fb4a49d93308f879bbca5fc12e650e449ba20aa814a9069a1"
+          "sha256": "65170140c979b9496e36f5039301474c5177eea29a7c6bd952a83c0c612a8198"
         },
         "systemd/arch.conf": {
           "bytes": 243,
@@ -4773,8 +4773,8 @@
           "sha256": "3f2183b5f54a9aa4d0a7fcff61bfd407bd427b91c4b9e320c2b9359a57430f16"
         },
         "systemd/cachy-asahi-testlog.py": {
-          "bytes": 6359,
-          "sha256": "ca92026e9729fdea418b067442477db6c9c925ecbd5a08b0c75953cdf440288a"
+          "bytes": 7271,
+          "sha256": "b9b24eb4b0726f556097cb0b05b423aa14a5f147898e9e03519523f5ad523b1a"
         },
         "systemd/loader.conf": {
           "bytes": 18,
@@ -4803,7 +4803,7 @@
       },
       "effective_profile_proof": {
         "bytes": 162867,
-        "sha256": "a13af4fc6a125684d0bb0799ee141ee317bfe8c23aa25a6361a056ed5e13b3e0"
+        "sha256": "439806f298bb02067c3e060d54e94da85e0566306fc394e05cb205a61a2e92ac"
       },
       "namespace_header": {
         "bytes": 4600,
@@ -4879,9 +4879,9 @@
     }
   },
   "reviewed_source": {
-    "authority": "SOURCE_ONLY_NOT_NATIVE_ACCEPTANCE",
-    "ref": "codex/target-core262-testlog-shape-v1",
-    "source": "755ee4e6ebbc7c1cb9298872f1b7a536aa76ec4a"
+    "ref": "codex/target-core262-default-plan-v1",
+    "source": "8cd4a49c611877f342d048680233e79d1eab5f38",
+    "status": "SOURCE_ONLY_NO_ACCEPTANCE_TRANSFER"
   },
   "runtime_overrides": {
     "effective-profile/profile.json": {
@@ -4892,7 +4892,7 @@
       "path": "runtime/effective-profile/profile.json",
       "proposed": {
         "bytes": 8615,
-        "sha256": "7f1f1a3d401ce986f8824bb9e8b0109f500f2ef8eb9c8c7a33c3e534119e80bf"
+        "sha256": "3964a74c105e29010eb3c7277289890c7d621edcb04a461c2125a67a07d77e51"
       }
     },
     "effective-profile/systemd/.SRCINFO": {
@@ -4903,7 +4903,7 @@
       "path": "runtime/effective-profile/systemd/.SRCINFO",
       "proposed": {
         "bytes": 8993,
-        "sha256": "5b9b3a841360c19bd1b71418349be74d4208b0d7d0cd6c2577ca0671452a33c0"
+        "sha256": "67d071a1526bcc48501c0b3d8210d2628e720f112bb15fb253b708f65e92cda0"
       }
     },
     "effective-profile/systemd/PKGBUILD": {
@@ -4914,7 +4914,7 @@
       "path": "runtime/effective-profile/systemd/PKGBUILD",
       "proposed": {
         "bytes": 16104,
-        "sha256": "a8c6d3d0f6db1a1fb4a49d93308f879bbca5fc12e650e449ba20aa814a9069a1"
+        "sha256": "65170140c979b9496e36f5039301474c5177eea29a7c6bd952a83c0c612a8198"
       }
     },
     "effective-profile/systemd/cachy-asahi-testlog.py": {
@@ -4924,8 +4924,8 @@
       },
       "path": "runtime/effective-profile/systemd/cachy-asahi-testlog.py",
       "proposed": {
-        "bytes": 6359,
-        "sha256": "ca92026e9729fdea418b067442477db6c9c925ecbd5a08b0c75953cdf440288a"
+        "bytes": 7271,
+        "sha256": "b9b24eb4b0726f556097cb0b05b423aa14a5f147898e9e03519523f5ad523b1a"
       }
     },
     "lane/LICENSE.moby": {
@@ -4971,7 +4971,7 @@
       "path": "runtime/lane/effective-profile-proof.json",
       "proposed": {
         "bytes": 162867,
-        "sha256": "a13af4fc6a125684d0bb0799ee141ee317bfe8c23aa25a6361a056ed5e13b3e0"
+        "sha256": "439806f298bb02067c3e060d54e94da85e0566306fc394e05cb205a61a2e92ac"
       }
     },
     "lane/effective-selection-template.json": {
@@ -4982,7 +4982,7 @@
       "path": "runtime/lane/effective-selection-template.json",
       "proposed": {
         "bytes": 8366,
-        "sha256": "c06c175e265daf6aa087af4d3ea1d8352ad36806dd32726ce45681572d610697"
+        "sha256": "5b155011becd18b582c039300e64cda32cf7f8efab2e2e007aac8755171a5af0"
       }
     },
     "lane/native248-cache-profile.json": {
@@ -5070,37 +5070,38 @@
     }
   },
   "testlog_correction": {
-    "actual_offending_definition": "UNKNOWN_NOT_EXPORTED",
+    "acceptance": "NOT_GRANTED",
+    "actual_raw_replays": "BOTH_COMPLETE_PASS_5031_DEFINITIONS_1962_RESULTS_1930OK_32SKIP",
     "helper": {
-      "bytes": 6359,
-      "sha256": "ca92026e9729fdea418b067442477db6c9c925ecbd5a08b0c75953cdf440288a"
+      "bytes": 7271,
+      "sha256": "b9b24eb4b0726f556097cb0b05b423aa14a5f147898e9e03519523f5ad523b1a"
     },
-    "scope": "VALID_EMPTY_ARGV_TAIL_RAW_FAILURE_OPERANDS_NO_ASSERTION_WAIVER",
-    "source_freeze": {
-      "bytes": 128309,
-      "sha256": "8f5748e4d6ad155bdb81705e03fb6dfdd638b5922c3359bf1df33bf57993225f"
-    }
+    "owner_source_freeze": {
+      "bytes": 142223,
+      "sha256": "c0176712eada95aa0e9cf521d153e41ffae993b33225e5dee10bc80785b3305a"
+    },
+    "scope": "EXACT_SOURCE_PINNED_UPSTREAM_DEFAULT_SETUP_BARE_PROJECT_WRAPPER_AND_FULL_DEFINITION_COUNTS"
   },
   "testlog_fixtures": {
+    "fixtures/actual-testlog-subset.jsonl": {
+      "bytes": 16848,
+      "sha256": "74e0ca2082b685e1298e81de1fa399ef0cce9af39a61396c3c13e36df9d09b95"
+    },
     "fixtures/auditor-delta.json": {
-      "bytes": 1331,
-      "sha256": "709c20ff5f2796734ac2ff137b6f1aae0f1266d4f8afa4efa4644e2394144184"
+      "bytes": 6714,
+      "sha256": "ce10cd3e1c2faacc3fb6f7f4acd6ce0012bd4ebdb1ef34c3e1203de4c91893aa"
     },
     "fixtures/meson-1.12.1-intro.json": {
-      "bytes": 570,
-      "sha256": "a3843a3c02c7382bf5a96cc8f2d6a656d129260c4df218551212be054c96d72b"
+      "bytes": 8173,
+      "sha256": "fb90d719fa98d843df20b49e8c1548044f3940cf3adf81a5b670f884fc0b52d1"
     },
     "fixtures/meson-source-pin.json": {
-      "bytes": 841,
-      "sha256": "8d131145598bc0d7d135523d24352b452442222431888a6785513766cd0fd40b"
-    },
-    "fixtures/synthetic-testlog.jsonl": {
-      "bytes": 545,
-      "sha256": "bfe6c0178059642c2fdba0a6e4072f573ac448c054e9542eba0b44a0f2c52bd3"
+      "bytes": 3906,
+      "sha256": "ee26f7ee6247373f9a81df94378bcd9764a23747d14dd3cbf853848088ff2a02"
     },
     "test_support/testlog-before.py": {
-      "bytes": 6315,
-      "sha256": "d3625c3b72ead85e759c579e40be1b0bc53d8513e971adb5477c82aae4fbc7d8"
+      "bytes": 6359,
+      "sha256": "ca92026e9729fdea418b067442477db6c9c925ecbd5a08b0c75953cdf440288a"
     }
   },
   "workflow_template": {
