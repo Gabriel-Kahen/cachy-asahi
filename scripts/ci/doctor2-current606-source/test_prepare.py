@@ -6,6 +6,7 @@ from pathlib import Path
 HERE=Path(__file__).resolve().parent
 s=importlib.util.spec_from_file_location('doctor_source_factory',HERE/'prepare.py');P=importlib.util.module_from_spec(s);s.loader.exec_module(P)
 PREDECESSOR=None
+REAL27=None
 class SourceFactory(unittest.TestCase):
  def setUp(self):
   self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup);self.root=Path(self.temp.name);self.out=self.root/'out'
@@ -43,5 +44,19 @@ class SourceFactory(unittest.TestCase):
  def test_selected_requires_boolean(self):
   with self.assertRaisesRegex(ValueError,'explicit selected'):P.prepare(PREDECESSOR,self.out,selected=1)
   self.assertFalse(self.out.exists())
+class Real27Factory(unittest.TestCase):
+ def setUp(self):
+  if REAL27 is None:self.skipTest("--real27-predecessor-root required")
+  SourceFactory.setUp(self)
+ def test_real27_exact361_counter_and_all357_held(self):
+  fact=P.prepare_real27(REAL27,self.out);v=P.profile()['real27'];self.assertEqual({n:P.pin(b)for n,b in P.files(self.out).items()},v['files']);self.assertEqual(fact['acceptance'],'NOT_GRANTED');self.assertIsNone(fact['actual_run'])
+  name='scripts/ci/current606-doctor2-closed-owner/owner.py';old=(REAL27/name).read_text();new=(self.out/name).read_text();self.assertEqual(new.replace("installed_controls=27 if e['selected_version']=='0.2.0-1'else 0","installed_controls=24 if e['selected_version']=='0.2.0-1'else 0",1),old)
+  self.assertEqual(len([n for n in v['files']if v['files'][n]==v['predecessor']['files'][n]]),357)
+ def test_real27_drift_and_extra_refused_before_output(self):
+  copied=self.root/'before';shutil.copytree(REAL27,copied);name=next(iter(P.profile()['real27']['files']));held=(copied/name).read_bytes();(copied/name).write_bytes(b'drift')
+  with self.assertRaisesRegex(ValueError,'complete genuine nullfd361'):P.prepare_real27(copied,self.out)
+  self.assertFalse(self.out.exists());(copied/name).write_bytes(held);(copied/'extra').write_bytes(b'extra')
+  with self.assertRaisesRegex(ValueError,'complete genuine nullfd361'):P.prepare_real27(copied,self.out)
+  self.assertFalse(self.out.exists())
 if __name__=='__main__':
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('--predecessor-root',type=Path,required=True);a,rest=p.parse_known_args();PREDECESSOR=a.predecessor_root.absolute();unittest.main(argv=[__file__,*rest])
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--predecessor-root',type=Path,required=True);p.add_argument('--real27-predecessor-root',type=Path);a,rest=p.parse_known_args();REAL27=a.real27_predecessor_root.absolute()if a.real27_predecessor_root else None;PREDECESSOR=a.predecessor_root.absolute();unittest.main(argv=[__file__,*rest])
