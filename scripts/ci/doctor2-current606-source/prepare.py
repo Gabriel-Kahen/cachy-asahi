@@ -4,7 +4,7 @@
 import argparse,base64,hashlib,json,os,stat
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
-PROFILE={'bytes': 1105917, 'sha256': '71663bb3d96a5769dd92c0f790a6d4d3d2ae5ee4080213cde5800c4a17e50341'}
+PROFILE={'bytes': 1426795, 'sha256': '39459c6aab766b1a31207628dbac9c24e1a11af197fab6c554063df6f118f5ac'}
 def need(ok,why):
  if not ok:raise ValueError(why)
 def pin(raw):return dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())
@@ -56,6 +56,20 @@ def prepare(predecessor,output,*,selected=False):
   target=output/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(raw)
  need({n:pin(v)for n,v in files(output).items()}==view['files'],'whole emitted source equality');return dict(status='SOURCE_ONLY_DOCTOR2_CURRENT606_NOT_NATIVE',files=353,view='selected'if selected else'default',source_authority=p['source_authority'],actual_source=None,actual_ref=None,actual_run=None,acceptance='NOT_GRANTED')
 
+def prepare_real27(predecessor,output):
+ p=profile();v=p['real27'];before=files(predecessor)
+ need(len(before)==361 and {n:pin(b)for n,b in before.items()}==v['predecessor']['files'],'complete genuine nullfd361 predecessor required before output')
+ need(len(v['files'])==361 and set(v['files'])==set(before)and len(v['changed'])==4,'finite real27 source closure');result={}
+ for name,wanted in v['files'].items():
+  relative(name);raw=before[name]if pin(before[name])==wanted else base64.b64decode(p['blobs'][wanted['sha256']],validate=True);need(pin(raw)==wanted,'exact real27 source body');result[name]=raw
+ need({n for n in before if result[n]!=before[n]}==set(v['changed']),'only four real27 source leaves')
+ output=Path(output).absolute();need(not output.exists()and output.parent.is_dir()and not any(x.is_symlink()for x in(output,*output.parents))and not output.is_relative_to(predecessor)and not predecessor.is_relative_to(output),'fresh disjoint ordinary source output')
+ output.mkdir(mode=0o700)
+ for name,raw in result.items():
+  target=output/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(raw)
+ need({n:pin(b)for n,b in files(output).items()}==v['files'],'whole emitted real27 source equality')
+ return dict(status='SOURCE_ONLY_DOCTOR2_REAL27_NOT_NATIVE',files=361,source_authority=v['source'],actual_source=None,actual_ref=None,actual_run=None,acceptance='NOT_GRANTED')
+
 def main():
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('--predecessor-root',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--selected',action='store_true');a=p.parse_args();print(encoded(prepare(a.predecessor_root.absolute(),a.output.absolute(),selected=a.selected)).decode(),end='')
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--predecessor-root',type=Path,required=True);p.add_argument('--output',type=Path,required=True);g=p.add_mutually_exclusive_group();g.add_argument('--selected',action='store_true');g.add_argument('--real27',action='store_true',help='emit exact94a45 source from complete60b574361 predecessor');a=p.parse_args();result=prepare_real27(a.predecessor_root.absolute(),a.output.absolute())if a.real27 else prepare(a.predecessor_root.absolute(),a.output.absolute(),selected=a.selected);print(encoded(result).decode(),end='')
 if __name__=='__main__':main()
