@@ -1,0 +1,41 @@
+# SPDX-License-Identifier: MIT
+# Exactly three original MIT helper sources, preserved byte-for-byte.
+pkgname=cachy-asahi-repository-runtime
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Pinned MIT repository authentication and semantic helper sources'
+arch=('any')
+url='https://github.com/Gabriel-Kahen/cachy-asahi'
+license=('MIT')
+depends=('python>=3.11' 'gnupg' 'libarchive' 'pacman')
+source=('client.py' 'release.py' 'source_delivery.py' 'helper-pins.json' 'check_source.py' 'README.md' 'source-provenance.json' 'NOTICE' 'LICENSE')
+sha256sums=(
+    '48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7'
+    'e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435'
+    '8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e'
+    '33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a'
+    '4d002bc596e29cb83426fd5b7d185b2aa30e9211c0da79fcb616cf003c11f4a7'
+    'faf56df41bb5783d566d5e186141b47688ef770f3b7e2baef6c62302b599d316'
+    '09cf1f6f0a7490e5c99bd8bc5caa67ba7c3ecf7cdb55e382dbe502d7e1042972'
+    '5c4ed38dd7675728134d292afb2e61f2a09342c0eefa0becf89b9bda011166df'
+    '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
+)
+
+check() {
+    python -I -B "$srcdir/check_source.py" --recipe-root "$startdir"
+}
+
+package() {
+    [[ -n $pkgdir && $pkgdir != / ]] || return 1
+    local base="$pkgdir/usr/share/cachy-asahi/repository-runtime"
+    install -Dm644 "$srcdir/client.py" "$base/scripts/client/client.py" || return
+    install -Dm644 "$srcdir/release.py" "$base/scripts/release/release.py" || return
+    install -Dm644 "$srcdir/source_delivery.py" "$base/scripts/release/source_delivery.py" || return
+    local file
+    for file in README.md source-provenance.json helper-pins.json; do
+        install -Dm644 "$srcdir/$file" "$pkgdir/usr/share/doc/$pkgname/$file" || return
+    done
+    for file in NOTICE LICENSE; do
+        install -Dm644 "$srcdir/$file" "$pkgdir/usr/share/licenses/$pkgname/$file" || return
+    done
+}
