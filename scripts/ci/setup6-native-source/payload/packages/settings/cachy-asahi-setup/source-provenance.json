@@ -1,0 +1,30 @@
+{
+  "observed_date": "2026-10-21",
+  "source_kind": "original-local",
+  "project_url": "https://github.com/Gabriel-Kahen/cachy-asahi",
+  "canonical_path": "scripts/setup/setup.py",
+  "packaged_source": "cachy-asahi-setup",
+  "sha256": "29d68d371071487ffd9b5453c2c056105e73f6b2971c98873731193eab6534b0",
+  "license_sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+  "canonical_handoff": "Setup6 actionable read-only pending recovery preview sharing exact replay preparation; source/temporary-user host fixtures only; native/package-install/hardware NOT RUN",
+  "runtime": "Python 3.11+ standard library; Linux fcntl/path operations; repository CLI additionally invokes GnuPG and pacman-key",
+  "native_build": "NOT RUN",
+  "installed": "NOT RUN",
+  "hardware_tested": "NOT RUN",
+  "supersedes": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+  "additional_sources": {
+    "repository": {
+      "canonical_path": "scripts/repository/enroll.py",
+      "packaged_source": "cachy-asahi-repository",
+      "sha256": "38db2d45955b569a4c74c3f31d6b6c79611126238e1bbe1e5cf819f81d0fb54f",
+      "source_commit": "e178aba248f6ba75e460f0e4f1cfc8c582df45c4"
+    },
+    "repository-doc": {
+      "canonical_path": "docs/repository-enrollment.md",
+      "packaged_source": "repository-enrollment.md",
+      "sha256": "a14a53311e7c995b468ddcec1e4996611d7cfe9bb08eb255e0cb6bfee6dcc7e1",
+      "source_commit": "e178aba248f6ba75e460f0e4f1cfc8c582df45c4"
+    }
+  },
+  "package_revision": "0.1.0-6 source candidate; checked pending recovery actions before explicit apply; optional shell modules and repository helper/guide unchanged"
+}

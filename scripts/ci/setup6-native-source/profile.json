@@ -1,0 +1,922 @@
+{
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "bounds": {
+    "cleanup": 330,
+    "consumers": 4,
+    "job_minutes": 95,
+    "lifecycle": 600,
+    "pair": 1500,
+    "producer": 2300,
+    "retention": 100663296
+  },
+  "carrier_path": "payload/scripts/ci/setup6-native/setup5-carrier.json",
+  "context_path": "payload/predecessor.json",
+  "delta": {
+    ".github/workflows/native-arm-build.yml": {
+      "before": null,
+      "path": "payload/.github/workflows/native-arm-build.yml",
+      "proposed": {
+        "bytes": 8694,
+        "sha256": "f1083a21d0d5d4d90f0e0f4fa393eefbedf82ea48db955057958c3f4807c784f"
+      }
+    },
+    ".github/workflows/native-arm-setup6-candidate.yml": {
+      "before": null,
+      "path": "payload/.github/workflows/native-arm-setup6-candidate.yml",
+      "proposed": {
+        "bytes": 8694,
+        "sha256": "f1083a21d0d5d4d90f0e0f4fa393eefbedf82ea48db955057958c3f4807c784f"
+      }
+    },
+    "Root-source-only-decision.json": {
+      "before": null,
+      "path": "payload/Root-source-only-decision.json",
+      "proposed": {
+        "bytes": 1172,
+        "sha256": "b3a7146edf62fa1fc0e7c7999c9f6cb016a5385395d1d81c10d54ccbf4e2f071"
+      }
+    },
+    "docs/setup-tooling.md": {
+      "before": null,
+      "path": "payload/docs/setup-tooling.md",
+      "proposed": {
+        "bytes": 12471,
+        "sha256": "4f74cda9d70d1e600dfa0928a2016d23d1349c1e834f3c1b69716439f1f188be"
+      }
+    },
+    "packages/settings/cachy-asahi-setup/.SRCINFO": {
+      "before": {
+        "bytes": 1937,
+        "sha256": "cf98371cd63dee77de47a0b93805caf7639443e064a95dd584d77d50b790dcd8"
+      },
+      "path": "payload/packages/settings/cachy-asahi-setup/.SRCINFO",
+      "proposed": {
+        "bytes": 1937,
+        "sha256": "13a9aa43d9a00cd4de4c4f34728ae47899c18c2b4668354757111c1e9c7e9550"
+      }
+    },
+    "packages/settings/cachy-asahi-setup/PKGBUILD": {
+      "before": {
+        "bytes": 4432,
+        "sha256": "d31e4bdfb5c0c38e0128bbcb5127926414628f2d8d047f9eb0a2da0142848519"
+      },
+      "path": "payload/packages/settings/cachy-asahi-setup/PKGBUILD",
+      "proposed": {
+        "bytes": 4432,
+        "sha256": "4a113d14db9d8fa225d67491532b5d2b182da1ca21e564925999966c612bd91b"
+      }
+    },
+    "packages/settings/cachy-asahi-setup/README.md": {
+      "before": {
+        "bytes": 12485,
+        "sha256": "b5ab05066ad4b3cede6a300079f1a67a883dcc9f4b3f3a5d109280c9cba60221"
+      },
+      "path": "payload/packages/settings/cachy-asahi-setup/README.md",
+      "proposed": {
+        "bytes": 13124,
+        "sha256": "ac3033357bf2443c65ec5e257b9504086c5b412f256de00aff12d07c93292e35"
+      }
+    },
+    "packages/settings/cachy-asahi-setup/cachy-asahi-setup": {
+      "before": {
+        "bytes": 36348,
+        "sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd"
+      },
+      "path": "payload/packages/settings/cachy-asahi-setup/cachy-asahi-setup",
+      "proposed": {
+        "bytes": 37032,
+        "sha256": "29d68d371071487ffd9b5453c2c056105e73f6b2971c98873731193eab6534b0"
+      }
+    },
+    "packages/settings/cachy-asahi-setup/source-provenance.json": {
+      "before": {
+        "bytes": 1685,
+        "sha256": "3d49de8f6a69e9efeebeb5b4b73e2016a80f4a419096078c7eb3234adfe68021"
+      },
+      "path": "payload/packages/settings/cachy-asahi-setup/source-provenance.json",
+      "proposed": {
+        "bytes": 1664,
+        "sha256": "988c363cd9024ae7e29867cf8153ac19fc824a39a58692fe0c8bddb79d0aa8cf"
+      }
+    },
+    "predecessor.json": {
+      "before": null,
+      "path": "payload/predecessor.json",
+      "proposed": {
+        "bytes": 1575010,
+        "sha256": "98b8e31aae82ba88170cd869a2e6198057b165dd7a6a27303acdf7feeae2b0df"
+      }
+    },
+    "scripts/ci/setup6-native/README.md": {
+      "before": null,
+      "path": "payload/scripts/ci/setup6-native/README.md",
+      "proposed": {
+        "bytes": 2719,
+        "sha256": "c460855afaf701431e12dc42754b66838af62c46c698801bac678d1e5c65405c"
+      }
+    },
+    "scripts/ci/setup6-native/contract.py": {
+      "before": null,
+      "path": "payload/scripts/ci/setup6-native/contract.py",
+      "proposed": {
+        "bytes": 12188,
+        "sha256": "4091e9051fe7d185415fbc3af1e108db617c2acc5764fe759306a3d8e942e205"
+      }
+    },
+    "scripts/ci/setup6-native/exercise.py": {
+      "before": null,
+      "path": "payload/scripts/ci/setup6-native/exercise.py",
+      "proposed": {
+        "bytes": 7751,
+        "sha256": "e5f97ec085939bc64c608764b06d56e11ac0d6c3e8b4be7e1fdb7d1d6aa953cd"
+      }
+    },
+    "scripts/ci/setup6-native/freeze.py": {
+      "before": null,
+      "path": "payload/scripts/ci/setup6-native/freeze.py",
+      "proposed": {
+        "bytes": 2545,
+        "sha256": "8e96ff3575d39390a5981d8f52fb77945b495215508ba3d7c1253ed28f39cd8e"
+      }
+    },
+    "scripts/ci/setup6-native/job.py": {
+      "before": null,
+      "path": "payload/scripts/ci/setup6-native/job.py",
+      "proposed": {
+        "bytes": 492,
+        "sha256": "587aaa642f3f7f8b594d2a0b7409f791696bb8dbf7a597696959c809ecbdffc1"
+      }
+    },
+    "scripts/ci/setup6-native/lifecycle.py": {
+      "before": null,
+      "path": "payload/scripts/ci/setup6-native/lifecycle.py",
+      "proposed": {
+        "bytes": 9323,
+        "sha256": "87152575d7b86073427227e4f0834e3de6de129361d5857fab85c5cef97b9543"
+      }
+    },
+    "scripts/ci/setup6-native/prepare.py": {
+      "before": null,
+      "path": "payload/scripts/ci/setup6-native/prepare.py",
+      "proposed": {
+        "bytes": 5537,
+        "sha256": "a00988b48d700ee685134ddd0ffe31273369bb80c77a9b0c38d78f83241b0319"
+      }
+    },
+    "scripts/ci/setup6-native/producer.py": {
+      "before": null,
+      "path": "payload/scripts/ci/setup6-native/producer.py",
+      "proposed": {
+        "bytes": 1424,
+        "sha256": "f17262b1bded675d5139a827f79f7b18874b608d32f3a0ad0e601cd3ee76ddd8"
+      }
+    },
+    "scripts/ci/setup6-native/recovery_preview.py": {
+      "before": null,
+      "path": "payload/scripts/ci/setup6-native/recovery_preview.py",
+      "proposed": {
+        "bytes": 3731,
+        "sha256": "5bd309a57dbce01ca13404c80bdb720a47ecf8f82fff83761068080112aef9dc"
+      }
+    },
+    "scripts/ci/setup6-native/retained-inputs.json": {
+      "before": null,
+      "path": "payload/scripts/ci/setup6-native/retained-inputs.json",
+      "proposed": {
+        "bytes": 9761,
+        "sha256": "3a980f857aa4831a7dedadbddaf60525ff9d4965570963506c6ebae328431c33"
+      }
+    },
+    "scripts/ci/setup6-native/retained.py": {
+      "before": null,
+      "path": "payload/scripts/ci/setup6-native/retained.py",
+      "proposed": {
+        "bytes": 4007,
+        "sha256": "445047812eb9d244ffda0aa9c6b3eabe9fae1dd9a06536283284f7c1aac6338a"
+      }
+    },
+    "scripts/ci/setup6-native/retained5.py": {
+      "before": null,
+      "path": "payload/scripts/ci/setup6-native/retained5.py",
+      "proposed": {
+        "bytes": 2947,
+        "sha256": "c71b7217f6258ccc7eeb3e3b1ab9409f5d02705cd4dd04c7443d1ff2f8b098e6"
+      }
+    },
+    "scripts/ci/setup6-native/run.py": {
+      "before": null,
+      "path": "payload/scripts/ci/setup6-native/run.py",
+      "proposed": {
+        "bytes": 1284,
+        "sha256": "bafda8ffc0b0522f50c3dfe4abc03a1ac0326777c6f95d8f2a6f8db4fcf85041"
+      }
+    },
+    "scripts/ci/setup6-native/setup5-carrier.json": {
+      "before": null,
+      "path": "payload/scripts/ci/setup6-native/setup5-carrier.json",
+      "proposed": {
+        "bytes": 24900,
+        "sha256": "2b99611f2b364f81c3ebcc39e776240b4e21d8beb0f35dafb0c5d357d1ad4c0a"
+      }
+    },
+    "scripts/ci/setup6-native/source-manifest.json": {
+      "before": null,
+      "path": "payload/scripts/ci/setup6-native/source-manifest.json",
+      "proposed": {
+        "bytes": 18749,
+        "sha256": "b505bb78d76d2042bc64353674be451f3da64b5aff5db564a4e1256f267e31f1"
+      }
+    },
+    "scripts/ci/setup6-native/source-pins.json": {
+      "before": null,
+      "path": "payload/scripts/ci/setup6-native/source-pins.json",
+      "proposed": {
+        "bytes": 7938,
+        "sha256": "5347e21fca3be8550ca06934575b01414483397a0d755c39b2e63b58e668ae23"
+      }
+    },
+    "scripts/ci/setup6-native/test_native.py": {
+      "before": null,
+      "path": "payload/scripts/ci/setup6-native/test_native.py",
+      "proposed": {
+        "bytes": 25168,
+        "sha256": "485641e05a2f7a21e8315ea982dc1704ea7f50f6888efa0d26ae322345bed424"
+      }
+    },
+    "scripts/ci/setup6-retained-helpers/LICENSE": {
+      "before": null,
+      "path": "payload/scripts/ci/setup6-retained-helpers/LICENSE",
+      "proposed": {
+        "bytes": 1081,
+        "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+      }
+    },
+    "scripts/ci/setup6-retained-helpers/NOTICE.md": {
+      "before": null,
+      "path": "payload/scripts/ci/setup6-retained-helpers/NOTICE.md",
+      "proposed": {
+        "bytes": 1018,
+        "sha256": "6a3649fc4e0d0ee18a7399ada57d9fa8c1b8c97232ba46efd5da511c72a74141"
+      }
+    },
+    "scripts/ci/setup6-retained-helpers/README.md": {
+      "before": null,
+      "path": "payload/scripts/ci/setup6-retained-helpers/README.md",
+      "proposed": {
+        "bytes": 5928,
+        "sha256": "8adfe6bcbbf4e923e7211ed2d0fec62f999c05d1e2cfc87fa8c30f38397c1f29"
+      }
+    },
+    "scripts/ci/setup6-retained-helpers/archive_prefill.py": {
+      "before": null,
+      "path": "payload/scripts/ci/setup6-retained-helpers/archive_prefill.py",
+      "proposed": {
+        "bytes": 4717,
+        "sha256": "2090bd8098783834ac7b11a19eb3d8cd047b7de5b01f77ddc4bb60cd57bea726"
+      }
+    },
+    "scripts/ci/setup6-retained-helpers/caller-adoption.json": {
+      "before": null,
+      "path": "payload/scripts/ci/setup6-retained-helpers/caller-adoption.json",
+      "proposed": {
+        "bytes": 1591,
+        "sha256": "af0304c071a79910b0206b347e697190305307b7aec920770db40fd2b40654c3"
+      }
+    },
+    "scripts/ci/setup6-retained-helpers/carrier-profile.json": {
+      "before": null,
+      "path": "payload/scripts/ci/setup6-retained-helpers/carrier-profile.json",
+      "proposed": {
+        "bytes": 195440,
+        "sha256": "4089fd798849cafda23d03c0dd95ac896a83fd63ad21e331ae420c147535586c"
+      }
+    },
+    "scripts/ci/setup6-retained-helpers/compiler6-profile.json": {
+      "before": null,
+      "path": "payload/scripts/ci/setup6-retained-helpers/compiler6-profile.json",
+      "proposed": {
+        "bytes": 1898,
+        "sha256": "74a1ee6d14507f35f52692da7cac580a993c9a2fe2a64cf1d7766f830a3693d1"
+      }
+    },
+    "scripts/ci/setup6-retained-helpers/compiler_policy.py": {
+      "before": null,
+      "path": "payload/scripts/ci/setup6-retained-helpers/compiler_policy.py",
+      "proposed": {
+        "bytes": 11090,
+        "sha256": "5e448ef6677fc26485e044b3ac2d35a07105703d4f1a719bb7c030678eff87ae"
+      }
+    },
+    "scripts/ci/setup6-retained-helpers/compiler_prefill.py": {
+      "before": null,
+      "path": "payload/scripts/ci/setup6-retained-helpers/compiler_prefill.py",
+      "proposed": {
+        "bytes": 4486,
+        "sha256": "a0d9e765deb7d31f6b4e1d608cb0459a0244e19990a1da2b83452d7c53202810"
+      }
+    },
+    "scripts/ci/setup6-retained-helpers/control-evidence.json": {
+      "before": null,
+      "path": "payload/scripts/ci/setup6-retained-helpers/control-evidence.json",
+      "proposed": {
+        "bytes": 4140,
+        "sha256": "ae9aca642ea8d8ad9e69ba1251898e6cfb85db0248c8243202cc29c3651dd5be"
+      }
+    },
+    "scripts/ci/setup6-retained-helpers/desktop574-inputs.lock.json": {
+      "before": null,
+      "path": "payload/scripts/ci/setup6-retained-helpers/desktop574-inputs.lock.json",
+      "proposed": {
+        "bytes": 623664,
+        "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+      }
+    },
+    "scripts/ci/setup6-retained-helpers/genuine-publications.json": {
+      "before": null,
+      "path": "payload/scripts/ci/setup6-retained-helpers/genuine-publications.json",
+      "proposed": {
+        "bytes": 219793,
+        "sha256": "64e56c2631b40625a39eeba2306d0e9ee3e48c81f48563eff844a01ac26eb72d"
+      }
+    },
+    "scripts/ci/setup6-retained-helpers/index.json": {
+      "before": null,
+      "path": "payload/scripts/ci/setup6-retained-helpers/index.json",
+      "proposed": {
+        "bytes": 184344,
+        "sha256": "51a53c9e0d9eab1728f350f9ab8d3d7b8932891ab0ed68c7876a1440166ff486"
+      }
+    },
+    "scripts/ci/setup6-retained-helpers/legacy-prefill-profile.json": {
+      "before": null,
+      "path": "payload/scripts/ci/setup6-retained-helpers/legacy-prefill-profile.json",
+      "proposed": {
+        "bytes": 1510,
+        "sha256": "9cc82d4e0947415ecad9d40094a4c0a2709d01be54513e78af8c739fd76fb696"
+      }
+    },
+    "scripts/ci/setup6-retained-helpers/legacy_prefill.py": {
+      "before": null,
+      "path": "payload/scripts/ci/setup6-retained-helpers/legacy_prefill.py",
+      "proposed": {
+        "bytes": 5986,
+        "sha256": "05a91a91efd69b3b2e06561f5bbf08bdbb105998d42dbf133e75fd1fe25945ac"
+      }
+    },
+    "scripts/ci/setup6-retained-helpers/native-inputs.lock.json": {
+      "before": null,
+      "path": "payload/scripts/ci/setup6-retained-helpers/native-inputs.lock.json",
+      "proposed": {
+        "bytes": 328101,
+        "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f"
+      }
+    },
+    "scripts/ci/setup6-retained-helpers/prepare.py": {
+      "before": null,
+      "path": "payload/scripts/ci/setup6-retained-helpers/prepare.py",
+      "proposed": {
+        "bytes": 3749,
+        "sha256": "6c688c315cb962c641b8c0b1d9d88f94778d57ae19bcef251e88e49cb4be6316"
+      }
+    },
+    "scripts/ci/setup6-retained-helpers/seed.py": {
+      "before": null,
+      "path": "payload/scripts/ci/setup6-retained-helpers/seed.py",
+      "proposed": {
+        "bytes": 6658,
+        "sha256": "76b787fa71b121ec1bf83b86e4d5db849913614bc90e03239b869d7061af1db4"
+      }
+    },
+    "scripts/ci/setup6-retained-helpers/test_cli.py": {
+      "before": null,
+      "path": "payload/scripts/ci/setup6-retained-helpers/test_cli.py",
+      "proposed": {
+        "bytes": 5285,
+        "sha256": "3e768a7ed16c5533411207559be747dfae0649b6d7bbdfb47914b447a49ad7dd"
+      }
+    },
+    "scripts/ci/setup6-retained-helpers/test_seed.py": {
+      "before": null,
+      "path": "payload/scripts/ci/setup6-retained-helpers/test_seed.py",
+      "proposed": {
+        "bytes": 2644,
+        "sha256": "0f4e34d3cb7024b656b3288b22eb0e6303b642153bb7d571841617329ac6cf0c"
+      }
+    },
+    "scripts/setup/setup.py": {
+      "before": {
+        "bytes": 36348,
+        "sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd"
+      },
+      "path": "payload/scripts/setup/setup.py",
+      "proposed": {
+        "bytes": 37032,
+        "sha256": "29d68d371071487ffd9b5453c2c056105e73f6b2971c98873731193eab6534b0"
+      }
+    },
+    "scripts/setup/test_recovery_preview.py": {
+      "before": null,
+      "path": "payload/scripts/setup/test_recovery_preview.py",
+      "proposed": {
+        "bytes": 4922,
+        "sha256": "275105797d301bc718fd494573a087ed3494c521cf004970570cbef68e3952cb"
+      }
+    }
+  },
+  "files": {
+    ".github/workflows/native-arm-build.yml": {
+      "bytes": 8694,
+      "sha256": "f1083a21d0d5d4d90f0e0f4fa393eefbedf82ea48db955057958c3f4807c784f"
+    },
+    ".github/workflows/native-arm-setup6-candidate.yml": {
+      "bytes": 8694,
+      "sha256": "f1083a21d0d5d4d90f0e0f4fa393eefbedf82ea48db955057958c3f4807c784f"
+    },
+    "LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "Root-source-only-decision.json": {
+      "bytes": 1172,
+      "sha256": "b3a7146edf62fa1fc0e7c7999c9f6cb016a5385395d1d81c10d54ccbf4e2f071"
+    },
+    "docs/setup-tooling.md": {
+      "bytes": 12471,
+      "sha256": "4f74cda9d70d1e600dfa0928a2016d23d1349c1e834f3c1b69716439f1f188be"
+    },
+    "packages/settings/cachy-asahi-setup/.SRCINFO": {
+      "bytes": 1937,
+      "sha256": "13a9aa43d9a00cd4de4c4f34728ae47899c18c2b4668354757111c1e9c7e9550"
+    },
+    "packages/settings/cachy-asahi-setup/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/settings/cachy-asahi-setup/NOTICE": {
+      "bytes": 970,
+      "sha256": "a885656c42b81e413549976eb56fa1aad59018af1cad8954f00f45cbd1c2d018"
+    },
+    "packages/settings/cachy-asahi-setup/PKGBUILD": {
+      "bytes": 4432,
+      "sha256": "4a113d14db9d8fa225d67491532b5d2b182da1ca21e564925999966c612bd91b"
+    },
+    "packages/settings/cachy-asahi-setup/README.md": {
+      "bytes": 13124,
+      "sha256": "ac3033357bf2443c65ec5e257b9504086c5b412f256de00aff12d07c93292e35"
+    },
+    "packages/settings/cachy-asahi-setup/cachy-asahi-repository": {
+      "bytes": 19778,
+      "sha256": "38db2d45955b569a4c74c3f31d6b6c79611126238e1bbe1e5cf819f81d0fb54f"
+    },
+    "packages/settings/cachy-asahi-setup/cachy-asahi-setup": {
+      "bytes": 37032,
+      "sha256": "29d68d371071487ffd9b5453c2c056105e73f6b2971c98873731193eab6534b0"
+    },
+    "packages/settings/cachy-asahi-setup/check-packaged.py": {
+      "bytes": 7628,
+      "sha256": "a36c6b0c5e5e51cee5a88b2bc2d21b292de413e3ea5664936f4097ff52e55ca6"
+    },
+    "packages/settings/cachy-asahi-setup/check-sync.py": {
+      "bytes": 4256,
+      "sha256": "9fb6ff8f1a9304f6e55895b5d83845a8776c77669aac0ec55a58c47b25150a1a"
+    },
+    "packages/settings/cachy-asahi-setup/repository-enrollment.md": {
+      "bytes": 7786,
+      "sha256": "a14a53311e7c995b468ddcec1e4996611d7cfe9bb08eb255e0cb6bfee6dcc7e1"
+    },
+    "packages/settings/cachy-asahi-setup/source-provenance.json": {
+      "bytes": 1664,
+      "sha256": "988c363cd9024ae7e29867cf8153ac19fc824a39a58692fe0c8bddb79d0aa8cf"
+    },
+    "packages/settings/cachy-asahi-setup/test-sync.py": {
+      "bytes": 8042,
+      "sha256": "9596373cef5469512b6bae3e0bf1dc6a1b093012779f1488765281aef27de9b3"
+    },
+    "predecessor.json": {
+      "bytes": 1575010,
+      "sha256": "98b8e31aae82ba88170cd869a2e6198057b165dd7a6a27303acdf7feeae2b0df"
+    },
+    "scripts/build/build.py": {
+      "bytes": 11299,
+      "sha256": "e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45"
+    },
+    "scripts/build/compare.py": {
+      "bytes": 5820,
+      "sha256": "4198864c264642b196a090a67b36185e5c194e38edc4cb928d08eb65b9f710cd"
+    },
+    "scripts/build/container-entry.sh": {
+      "bytes": 1787,
+      "sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24"
+    },
+    "scripts/checks/package_checks.py": {
+      "bytes": 17706,
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+    },
+    "scripts/ci/maintained-desktop574-inputs.json": {
+      "bytes": 623664,
+      "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+    },
+    "scripts/ci/maintained_desktop574.py": {
+      "bytes": 22367,
+      "sha256": "27ba4be42cf2bd41675073e07cccc917ae033f9d68b07a33cfd7f074ac27b760"
+    },
+    "scripts/ci/old_four_seed.py": {
+      "bytes": 29048,
+      "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
+    },
+    "scripts/ci/setup6-native/README.md": {
+      "bytes": 2719,
+      "sha256": "c460855afaf701431e12dc42754b66838af62c46c698801bac678d1e5c65405c"
+    },
+    "scripts/ci/setup6-native/contract.py": {
+      "bytes": 12188,
+      "sha256": "4091e9051fe7d185415fbc3af1e108db617c2acc5764fe759306a3d8e942e205"
+    },
+    "scripts/ci/setup6-native/exercise.py": {
+      "bytes": 7751,
+      "sha256": "e5f97ec085939bc64c608764b06d56e11ac0d6c3e8b4be7e1fdb7d1d6aa953cd"
+    },
+    "scripts/ci/setup6-native/freeze.py": {
+      "bytes": 2545,
+      "sha256": "8e96ff3575d39390a5981d8f52fb77945b495215508ba3d7c1253ed28f39cd8e"
+    },
+    "scripts/ci/setup6-native/job.py": {
+      "bytes": 492,
+      "sha256": "587aaa642f3f7f8b594d2a0b7409f791696bb8dbf7a597696959c809ecbdffc1"
+    },
+    "scripts/ci/setup6-native/lifecycle.py": {
+      "bytes": 9323,
+      "sha256": "87152575d7b86073427227e4f0834e3de6de129361d5857fab85c5cef97b9543"
+    },
+    "scripts/ci/setup6-native/prepare.py": {
+      "bytes": 5537,
+      "sha256": "a00988b48d700ee685134ddd0ffe31273369bb80c77a9b0c38d78f83241b0319"
+    },
+    "scripts/ci/setup6-native/producer.py": {
+      "bytes": 1424,
+      "sha256": "f17262b1bded675d5139a827f79f7b18874b608d32f3a0ad0e601cd3ee76ddd8"
+    },
+    "scripts/ci/setup6-native/recovery_preview.py": {
+      "bytes": 3731,
+      "sha256": "5bd309a57dbce01ca13404c80bdb720a47ecf8f82fff83761068080112aef9dc"
+    },
+    "scripts/ci/setup6-native/retained-inputs.json": {
+      "bytes": 9761,
+      "sha256": "3a980f857aa4831a7dedadbddaf60525ff9d4965570963506c6ebae328431c33"
+    },
+    "scripts/ci/setup6-native/retained.py": {
+      "bytes": 4007,
+      "sha256": "445047812eb9d244ffda0aa9c6b3eabe9fae1dd9a06536283284f7c1aac6338a"
+    },
+    "scripts/ci/setup6-native/retained5.py": {
+      "bytes": 2947,
+      "sha256": "c71b7217f6258ccc7eeb3e3b1ab9409f5d02705cd4dd04c7443d1ff2f8b098e6"
+    },
+    "scripts/ci/setup6-native/run.py": {
+      "bytes": 1284,
+      "sha256": "bafda8ffc0b0522f50c3dfe4abc03a1ac0326777c6f95d8f2a6f8db4fcf85041"
+    },
+    "scripts/ci/setup6-native/setup5-carrier.json": {
+      "bytes": 24900,
+      "sha256": "2b99611f2b364f81c3ebcc39e776240b4e21d8beb0f35dafb0c5d357d1ad4c0a"
+    },
+    "scripts/ci/setup6-native/source-manifest.json": {
+      "bytes": 18749,
+      "sha256": "b505bb78d76d2042bc64353674be451f3da64b5aff5db564a4e1256f267e31f1"
+    },
+    "scripts/ci/setup6-native/source-pins.json": {
+      "bytes": 7938,
+      "sha256": "5347e21fca3be8550ca06934575b01414483397a0d755c39b2e63b58e668ae23"
+    },
+    "scripts/ci/setup6-native/test_native.py": {
+      "bytes": 25168,
+      "sha256": "485641e05a2f7a21e8315ea982dc1704ea7f50f6888efa0d26ae322345bed424"
+    },
+    "scripts/ci/setup6-retained-helpers/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "scripts/ci/setup6-retained-helpers/NOTICE.md": {
+      "bytes": 1018,
+      "sha256": "6a3649fc4e0d0ee18a7399ada57d9fa8c1b8c97232ba46efd5da511c72a74141"
+    },
+    "scripts/ci/setup6-retained-helpers/README.md": {
+      "bytes": 5928,
+      "sha256": "8adfe6bcbbf4e923e7211ed2d0fec62f999c05d1e2cfc87fa8c30f38397c1f29"
+    },
+    "scripts/ci/setup6-retained-helpers/archive_prefill.py": {
+      "bytes": 4717,
+      "sha256": "2090bd8098783834ac7b11a19eb3d8cd047b7de5b01f77ddc4bb60cd57bea726"
+    },
+    "scripts/ci/setup6-retained-helpers/caller-adoption.json": {
+      "bytes": 1591,
+      "sha256": "af0304c071a79910b0206b347e697190305307b7aec920770db40fd2b40654c3"
+    },
+    "scripts/ci/setup6-retained-helpers/carrier-profile.json": {
+      "bytes": 195440,
+      "sha256": "4089fd798849cafda23d03c0dd95ac896a83fd63ad21e331ae420c147535586c"
+    },
+    "scripts/ci/setup6-retained-helpers/compiler6-profile.json": {
+      "bytes": 1898,
+      "sha256": "74a1ee6d14507f35f52692da7cac580a993c9a2fe2a64cf1d7766f830a3693d1"
+    },
+    "scripts/ci/setup6-retained-helpers/compiler_policy.py": {
+      "bytes": 11090,
+      "sha256": "5e448ef6677fc26485e044b3ac2d35a07105703d4f1a719bb7c030678eff87ae"
+    },
+    "scripts/ci/setup6-retained-helpers/compiler_prefill.py": {
+      "bytes": 4486,
+      "sha256": "a0d9e765deb7d31f6b4e1d608cb0459a0244e19990a1da2b83452d7c53202810"
+    },
+    "scripts/ci/setup6-retained-helpers/control-evidence.json": {
+      "bytes": 4140,
+      "sha256": "ae9aca642ea8d8ad9e69ba1251898e6cfb85db0248c8243202cc29c3651dd5be"
+    },
+    "scripts/ci/setup6-retained-helpers/desktop574-inputs.lock.json": {
+      "bytes": 623664,
+      "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+    },
+    "scripts/ci/setup6-retained-helpers/genuine-publications.json": {
+      "bytes": 219793,
+      "sha256": "64e56c2631b40625a39eeba2306d0e9ee3e48c81f48563eff844a01ac26eb72d"
+    },
+    "scripts/ci/setup6-retained-helpers/index.json": {
+      "bytes": 184344,
+      "sha256": "51a53c9e0d9eab1728f350f9ab8d3d7b8932891ab0ed68c7876a1440166ff486"
+    },
+    "scripts/ci/setup6-retained-helpers/legacy-prefill-profile.json": {
+      "bytes": 1510,
+      "sha256": "9cc82d4e0947415ecad9d40094a4c0a2709d01be54513e78af8c739fd76fb696"
+    },
+    "scripts/ci/setup6-retained-helpers/legacy_prefill.py": {
+      "bytes": 5986,
+      "sha256": "05a91a91efd69b3b2e06561f5bbf08bdbb105998d42dbf133e75fd1fe25945ac"
+    },
+    "scripts/ci/setup6-retained-helpers/native-inputs.lock.json": {
+      "bytes": 328101,
+      "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f"
+    },
+    "scripts/ci/setup6-retained-helpers/prepare.py": {
+      "bytes": 3749,
+      "sha256": "6c688c315cb962c641b8c0b1d9d88f94778d57ae19bcef251e88e49cb4be6316"
+    },
+    "scripts/ci/setup6-retained-helpers/seed.py": {
+      "bytes": 6658,
+      "sha256": "76b787fa71b121ec1bf83b86e4d5db849913614bc90e03239b869d7061af1db4"
+    },
+    "scripts/ci/setup6-retained-helpers/test_cli.py": {
+      "bytes": 5285,
+      "sha256": "3e768a7ed16c5533411207559be747dfae0649b6d7bbdfb47914b447a49ad7dd"
+    },
+    "scripts/ci/setup6-retained-helpers/test_seed.py": {
+      "bytes": 2644,
+      "sha256": "0f4e34d3cb7024b656b3288b22eb0e6303b642153bb7d571841617329ac6cf0c"
+    },
+    "scripts/ci/test_maintained_desktop574.py": {
+      "bytes": 19082,
+      "sha256": "e5d7dc11d1a59cf37a273e9a7103c7e55b169335b17c599990946f4e677ca974"
+    },
+    "scripts/ci/tools-native/job.py": {
+      "bytes": 13110,
+      "sha256": "67dc1b888974303e59aa5d68cc68cfd362c3d0fe730ef93585121d69ac6aab1c"
+    },
+    "scripts/ci/tools-native/run.py": {
+      "bytes": 8992,
+      "sha256": "d13738494fd6cf66cb4f243a53eb2a33b91f74f0c692f42fe5464d48acd69f48"
+    },
+    "scripts/ci/welcome-native/ci/caller.py": {
+      "bytes": 8363,
+      "sha256": "cf80f438eff180b73ae9676e2145b56ba6a358fd9a69bb219e0a7a6f53ff01df"
+    },
+    "scripts/ci/welcome-native/lifecycle.py": {
+      "bytes": 12278,
+      "sha256": "b87831eea710dbf18cb3ab3aa7bf49856d26bebbd3e684861dcab7dc1d337c74"
+    },
+    "scripts/ci/welcome-native/run.py": {
+      "bytes": 12766,
+      "sha256": "52112b49ea98b5aef131b8bcbcc188bcc59cc3a4827161091d4e86af14d2757c"
+    },
+    "scripts/setup/setup.py": {
+      "bytes": 37032,
+      "sha256": "29d68d371071487ffd9b5453c2c056105e73f6b2971c98873731193eab6534b0"
+    },
+    "scripts/setup/test_recovery_preview.py": {
+      "bytes": 4922,
+      "sha256": "275105797d301bc718fd494573a087ed3494c521cf004970570cbef68e3952cb"
+    },
+    "scripts/setup/test_setup.py": {
+      "bytes": 36670,
+      "sha256": "7738057b82125bcdc08086686821fa9ce74a82b4131cdbbcdcb9ebc7d9cefb1b"
+    },
+    "scripts/setup/test_shell_modules.py": {
+      "bytes": 18618,
+      "sha256": "0997d3b20d82b36ef26ff3c8dec0842f42a2fc8b67ae169e6e0aef053af5c831"
+    },
+    "scripts/virtual/common.py": {
+      "bytes": 84361,
+      "sha256": "aef2b4f09a91c4cfd66dd4504e69ef18396a94214c82ae0ec0a43c2716894a03"
+    }
+  },
+  "predecessor_files": {
+    ".github/workflows/native-arm-setup5-candidate.yml": {
+      "bytes": 7850,
+      "sha256": "6f6f239cdb1a08f43c108ecdc13eaa2a216c8feb61d927e8ff77fa6ea9b2ccd6"
+    },
+    "LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/settings/cachy-asahi-setup/.SRCINFO": {
+      "bytes": 1937,
+      "sha256": "cf98371cd63dee77de47a0b93805caf7639443e064a95dd584d77d50b790dcd8"
+    },
+    "packages/settings/cachy-asahi-setup/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/settings/cachy-asahi-setup/NOTICE": {
+      "bytes": 970,
+      "sha256": "a885656c42b81e413549976eb56fa1aad59018af1cad8954f00f45cbd1c2d018"
+    },
+    "packages/settings/cachy-asahi-setup/PKGBUILD": {
+      "bytes": 4432,
+      "sha256": "d31e4bdfb5c0c38e0128bbcb5127926414628f2d8d047f9eb0a2da0142848519"
+    },
+    "packages/settings/cachy-asahi-setup/README.md": {
+      "bytes": 12485,
+      "sha256": "b5ab05066ad4b3cede6a300079f1a67a883dcc9f4b3f3a5d109280c9cba60221"
+    },
+    "packages/settings/cachy-asahi-setup/cachy-asahi-repository": {
+      "bytes": 19778,
+      "sha256": "38db2d45955b569a4c74c3f31d6b6c79611126238e1bbe1e5cf819f81d0fb54f"
+    },
+    "packages/settings/cachy-asahi-setup/cachy-asahi-setup": {
+      "bytes": 36348,
+      "sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd"
+    },
+    "packages/settings/cachy-asahi-setup/check-packaged.py": {
+      "bytes": 7628,
+      "sha256": "a36c6b0c5e5e51cee5a88b2bc2d21b292de413e3ea5664936f4097ff52e55ca6"
+    },
+    "packages/settings/cachy-asahi-setup/check-sync.py": {
+      "bytes": 4256,
+      "sha256": "9fb6ff8f1a9304f6e55895b5d83845a8776c77669aac0ec55a58c47b25150a1a"
+    },
+    "packages/settings/cachy-asahi-setup/repository-enrollment.md": {
+      "bytes": 7786,
+      "sha256": "a14a53311e7c995b468ddcec1e4996611d7cfe9bb08eb255e0cb6bfee6dcc7e1"
+    },
+    "packages/settings/cachy-asahi-setup/source-provenance.json": {
+      "bytes": 1685,
+      "sha256": "3d49de8f6a69e9efeebeb5b4b73e2016a80f4a419096078c7eb3234adfe68021"
+    },
+    "packages/settings/cachy-asahi-setup/test-sync.py": {
+      "bytes": 8042,
+      "sha256": "9596373cef5469512b6bae3e0bf1dc6a1b093012779f1488765281aef27de9b3"
+    },
+    "scripts/build/build.py": {
+      "bytes": 11299,
+      "sha256": "e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45"
+    },
+    "scripts/build/compare.py": {
+      "bytes": 5820,
+      "sha256": "4198864c264642b196a090a67b36185e5c194e38edc4cb928d08eb65b9f710cd"
+    },
+    "scripts/build/container-entry.sh": {
+      "bytes": 1787,
+      "sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24"
+    },
+    "scripts/checks/package_checks.py": {
+      "bytes": 17706,
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+    },
+    "scripts/ci/maintained-desktop574-inputs.json": {
+      "bytes": 623664,
+      "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+    },
+    "scripts/ci/maintained_desktop574.py": {
+      "bytes": 22367,
+      "sha256": "27ba4be42cf2bd41675073e07cccc917ae033f9d68b07a33cfd7f074ac27b760"
+    },
+    "scripts/ci/old_four_seed.py": {
+      "bytes": 29048,
+      "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
+    },
+    "scripts/ci/setup5-native/README.md": {
+      "bytes": 8354,
+      "sha256": "a6ab452971de36fd94d8fb74226892afd45afdb31b84668f35d077bbd410927b"
+    },
+    "scripts/ci/setup5-native/contract.py": {
+      "bytes": 10085,
+      "sha256": "59761adacc10ce0d86a8f4f70408a879834ffbea0d556492dc3be0954ee6ee5a"
+    },
+    "scripts/ci/setup5-native/exercise.py": {
+      "bytes": 7751,
+      "sha256": "bf202fc410422b2bfa56b0843f7139904712434bd6e57ac6a4b5e718323b97ad"
+    },
+    "scripts/ci/setup5-native/freeze.py": {
+      "bytes": 3053,
+      "sha256": "408619ac3bc269ca5651b3beff1c361512fe7d15e14cad7bd457050f4c457fbf"
+    },
+    "scripts/ci/setup5-native/job.py": {
+      "bytes": 492,
+      "sha256": "8f42ae9830b9ea9fa9d57eba334ddab24408d0d3f8402f3c2e605ad8ad1640d7"
+    },
+    "scripts/ci/setup5-native/lifecycle.py": {
+      "bytes": 8249,
+      "sha256": "4e220a8b21b0607854dde65c51f32bf013d58dfcbeab3d912493f835ea7eb5bc"
+    },
+    "scripts/ci/setup5-native/prepare.py": {
+      "bytes": 4812,
+      "sha256": "76fdb72ddc5b2fd8d6b5842679477080b5e3124efd4a73c8e7b1a2314477f5c9"
+    },
+    "scripts/ci/setup5-native/retained-inputs.json": {
+      "bytes": 9761,
+      "sha256": "3a980f857aa4831a7dedadbddaf60525ff9d4965570963506c6ebae328431c33"
+    },
+    "scripts/ci/setup5-native/retained.py": {
+      "bytes": 4007,
+      "sha256": "445047812eb9d244ffda0aa9c6b3eabe9fae1dd9a06536283284f7c1aac6338a"
+    },
+    "scripts/ci/setup5-native/run.py": {
+      "bytes": 1025,
+      "sha256": "5a891c53aa02c6d5a7514eddd24eedfb1cef47dca4e06e0c814b68e35539e890"
+    },
+    "scripts/ci/setup5-native/source-manifest.json": {
+      "bytes": 14044,
+      "sha256": "7dcf25b24caff398a8fdd5c2d3b2db5100b946a952f0ee58885ce860d6dbcee0"
+    },
+    "scripts/ci/setup5-native/source-pins.json": {
+      "bytes": 4568,
+      "sha256": "a12ffb482aed89f16acaab12537df39630fd98a6ab2599b4edd3a0a00006c244"
+    },
+    "scripts/ci/setup5-native/test_native.py": {
+      "bytes": 20502,
+      "sha256": "c38bb9aec7d81d9836dbdcc0e56b5d8aa25946505e9c1619cf8f167b002d4e1f"
+    },
+    "scripts/ci/test_maintained_desktop574.py": {
+      "bytes": 19082,
+      "sha256": "e5d7dc11d1a59cf37a273e9a7103c7e55b169335b17c599990946f4e677ca974"
+    },
+    "scripts/ci/tools-native/job.py": {
+      "bytes": 13110,
+      "sha256": "67dc1b888974303e59aa5d68cc68cfd362c3d0fe730ef93585121d69ac6aab1c"
+    },
+    "scripts/ci/tools-native/run.py": {
+      "bytes": 8992,
+      "sha256": "d13738494fd6cf66cb4f243a53eb2a33b91f74f0c692f42fe5464d48acd69f48"
+    },
+    "scripts/ci/welcome-native/ci/caller.py": {
+      "bytes": 8363,
+      "sha256": "cf80f438eff180b73ae9676e2145b56ba6a358fd9a69bb219e0a7a6f53ff01df"
+    },
+    "scripts/ci/welcome-native/lifecycle.py": {
+      "bytes": 12278,
+      "sha256": "b87831eea710dbf18cb3ab3aa7bf49856d26bebbd3e684861dcab7dc1d337c74"
+    },
+    "scripts/ci/welcome-native/run.py": {
+      "bytes": 12766,
+      "sha256": "52112b49ea98b5aef131b8bcbcc188bcc59cc3a4827161091d4e86af14d2757c"
+    },
+    "scripts/setup/setup.py": {
+      "bytes": 36348,
+      "sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd"
+    },
+    "scripts/setup/test_setup.py": {
+      "bytes": 36670,
+      "sha256": "7738057b82125bcdc08086686821fa9ce74a82b4131cdbbcdcb9ebc7d9cefb1b"
+    },
+    "scripts/setup/test_shell_modules.py": {
+      "bytes": 18618,
+      "sha256": "0997d3b20d82b36ef26ff3c8dec0842f42a2fc8b67ae169e6e0aef053af5c831"
+    },
+    "scripts/virtual/common.py": {
+      "bytes": 84361,
+      "sha256": "aef2b4f09a91c4cfd66dd4504e69ef18396a94214c82ae0ec0a43c2716894a03"
+    }
+  },
+  "predecessor_run": 38934198468,
+  "predecessor_source": "4cf9884dacb2816532b07c8107982d7157656046",
+  "purpose": "MAINTAINED_EXACT_SETUP6_NATIVE_SOURCE_ONLY",
+  "removed": [
+    ".github/workflows/native-arm-setup5-candidate.yml",
+    "scripts/ci/setup5-native/README.md",
+    "scripts/ci/setup5-native/contract.py",
+    "scripts/ci/setup5-native/exercise.py",
+    "scripts/ci/setup5-native/freeze.py",
+    "scripts/ci/setup5-native/job.py",
+    "scripts/ci/setup5-native/lifecycle.py",
+    "scripts/ci/setup5-native/prepare.py",
+    "scripts/ci/setup5-native/retained-inputs.json",
+    "scripts/ci/setup5-native/retained.py",
+    "scripts/ci/setup5-native/run.py",
+    "scripts/ci/setup5-native/source-manifest.json",
+    "scripts/ci/setup5-native/source-pins.json",
+    "scripts/ci/setup5-native/test_native.py"
+  ],
+  "schema_version": 1,
+  "target_ref": "codex/setup6-isolated-producer-v1",
+  "target_source": "141ba835bb632483342c6a7f0246c7fe0f2bc5c3"
+}

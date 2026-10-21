@@ -577,8 +577,6 @@ jobs:
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/fish-autopair-native -p 'test_*.py'
       - name: Check Fish Done native lifecycle contracts without container actors
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/fish-done-native -p 'test_*.py'
-      - name: Check setup5 native upgrade contracts without container actors
-        run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/setup5-native -p 'test_*.py'
       - name: Fetch exact updater sources for the complete passive replay suite
         run: >-
           git -c credential.helper= -c core.hooksPath=/dev/null fetch --no-tags --depth=1 origin
@@ -600,6 +598,15 @@ jobs:
           install -d -m 700 "$target"
           git -C .ci-inputs/setup5-accepted-pair archive --format=tar 79d8d2f53510e4f3a04f39c1b1e24c999aa32e44 | tar -xf - -C "$target"
           printf '%s  %s\n' b1e4208d2f32935f2e5cb1c1e3535cc49f44c7bfe08e7d64692b8ac3781d5a5d "$target/index.json" | sha256sum --check
+      - name: Check setup5 native upgrade contracts without container actors
+        run: |
+          set -euo pipefail
+          work=$(mktemp -d "$RUNNER_TEMP/setup5-held-context.XXXXXXXX")
+          trap 'rm -rf -- "$work"' EXIT
+          python3 -I -B scripts/ci/setup6-native-source/prepare.py --setup5-context \
+            --setup5-carrier "$GITHUB_WORKSPACE/artifacts/development/setup5-accepted-pair-inputs-20261016/payload" \
+            --output "$work/source"
+          python3 -B -Werror::ResourceWarning -m unittest discover -s "$work/source/scripts/ci/setup5-native" -p 'test_*.py'
       - name: Check Apps transactions and management source contracts
         run: |
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/apps -p 'test_*.py'

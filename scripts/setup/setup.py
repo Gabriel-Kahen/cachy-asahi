@@ -536,14 +536,18 @@ class Setup:
                     entry['component'] == component and entry.get('new_record') == record for entry in flat):
                 raise Error('Pending ownership change lacks a validated operation')
 
-    def replay(self, journal):
+    def prepare_replay(self, journal):
         self.validate_journal(journal)
         new_state = journal['new_state']
         # Prepare every delta first; a missing/upgraded template cannot cause a new partial run.
-        prepared = []
+        prepared, actions = [], []
         for group in journal['entries']:
             before = self.fs.read(group['path'])['data']
             actual = checksum(before)
+            for entry in group.get('chain', [group]):
+                action = 'remove' if entry.get('new_record') is None else 'add' if entry.get('old_record') is None else 'update'
+                actions.append({'component': entry['component'], 'path': group['path'],
+                                'status': 'already-applied' if actual == group['after'] else 'would-' + action})
             if actual == group['after']:
                 self.check_order(before, new_state['components'], group['path'])
                 continue
@@ -574,6 +578,11 @@ class Setup:
                     raise Error('Pending operation checksum differs')
             self.check_order(after, new_state['components'], group['path'])
             prepared.append((group, after))
+        return prepared, actions
+
+    def replay(self, journal):
+        prepared, _ = self.prepare_replay(journal)
+        new_state = journal['new_state']
         for group, after in prepared:
             self.fs.atomic(group['path'], after, group['before'])
         self.save(self.state_path, new_state)
@@ -596,8 +605,9 @@ class Setup:
             if journal:
                 self.validate_journal(journal)
                 if not apply:
-                    return {'mode': 'preview', 'operation': operation, 'pending_transaction': journal.get('id'),
-                            'actions': [], 'guidance': ['Run recover --apply with the same home/config/template-root options.']}
+                    _, actions = self.prepare_replay(journal)
+                    return {'mode': 'preview', 'operation': operation, 'pending_transaction': journal['id'],
+                            'actions': actions, 'guidance': ['Review these recovery actions, then run recover --apply with the same home/config/template-root options. No files were changed.']}
                 self.replay(journal)
                 recovered = True
             state = self.load(self.state_path, {'schema_version': 1, 'roots': self.roots, 'components': {}})
