@@ -15,7 +15,7 @@ import sys
 
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
-PROFILE_SHA256 = '7811e0acd37ebf9f4b19876b320b88f05cc1a57018b97a192a6ad98a0b37ce4f'
+PROFILE_SHA256 = 'ffb4a916f462e0c2f06662299d0321572f43c5527da2fdea6c363e4921e4bb75'
 
 
 def need(ok, message):
@@ -76,7 +76,9 @@ def profile():
          and len(value['expected']['files']) == len(value['workflow_launch']['files']) == 796
          and value['actual'] is value['workflow_launch']['actual'] is None
          and value['old_target261'] == 'UNCHANGED_UNACCEPTED'
-         and value['default_mode'] == 'workflow-launch', 'fixed source-only scope')
+         and len(value['evidence_transport']['files']) == 796
+         and value['evidence_transport']['actual'] is None
+         and value['default_mode'] == 'evidence-transport', 'fixed source-only scope')
     return value
 
 
@@ -104,11 +106,12 @@ def load(path, name):
     return module
 
 
-def assemble(runtime, output, mode='workflow-launch'):
+def assemble(runtime, output, mode='evidence-transport'):
     runtime, output = Path(runtime).absolute(), Path(output).absolute()
     value = profile()
-    need(mode in ('original796', 'workflow-launch'), 'explicit fixed source mode')
-    expected = value['expected'] if mode == 'original796' else value['workflow_launch']
+    need(mode in ('original796', 'workflow-launch', 'evidence-transport'), 'explicit fixed source mode')
+    expected = {'original796': value['expected'], 'workflow-launch': value['workflow_launch'],
+                'evidence-transport': value['evidence_transport']}[mode]
     payload = HERE / 'payload'
     need(files(payload) == value['payload'], 'whole exact49 maintained payload')
     need(files(runtime, checkout=True) == value['parent']['files'], 'whole exact public745 predecessor')
@@ -122,6 +125,23 @@ def assemble(runtime, output, mode='workflow-launch'):
             return factory.emit(runtime, output)  # The frozen source-contained emitter.
     if mode == 'original796':
         receipt = emit(payload)
+    elif mode == 'evidence-transport':
+        replacements = expected['replacements']
+        need(set(replacements) == {'owner.py', 'entry.py', 'workflow.yml.in'},
+             'exact three source-owned evidence transport bodies')
+        bodies = {}
+        for name, row in replacements.items():
+            raw = read(HERE / row['path'])
+            need(pin(raw) == {key: row[key] for key in ('bytes', 'sha256')}
+                 and pin(read(payload / name)) == row['before'],
+                 'whole fixed transport replacement and original body')
+            bodies[name] = raw
+        with tempfile.TemporaryDirectory(prefix='core796-evidence-factory-') as temporary:
+            factory_root = Path(temporary) / 'factory'
+            shutil.copytree(payload, factory_root)
+            for name, raw in bodies.items():
+                (factory_root / name).write_bytes(raw)
+            receipt = emit(factory_root)
     else:
         template = read(HERE / expected['template']['path'])
         need(pin(template) == {key: expected['template'][key] for key in ('bytes', 'sha256')},
@@ -146,6 +166,8 @@ def assemble(runtime, output, mode='workflow-launch'):
             'payload_files': 49, 'held_parent_files': 744, 'bounds': value['bounds'],
             'actual': None, 'GPG': 'NOT_RUN', 'native_lifecycle': 'NOT_RUN_BY_FACTORY',
             'dispatch': ('HISTORICAL_HTTP422_NO_RUN_DO_NOT_DISPATCH' if mode == 'original796'
+                         else 'HISTORICAL_NATIVE_FAILURE_ZERO_ARTIFACTS_DO_NOT_DISPATCH'
+                         if mode == 'workflow-launch'
                          else 'SEPARATE_ROOT_NATIVE_DISPATCH_AND_ACCEPTANCE_REQUIRED'),
             'M2': 'NOT_RUN', 'old_target261': 'UNCHANGED_UNACCEPTED', 'release': 'NOT_ADMITTED'}
 
@@ -155,7 +177,7 @@ if __name__ == '__main__':
     parser.add_argument('--runtime', type=Path, required=True,
                         help='Complete exact public d268745 source checkout; never fetched here')
     parser.add_argument('--output', type=Path, required=True, help='Fresh disjoint source directory')
-    parser.add_argument('--mode', choices=('original796', 'workflow-launch'), default='workflow-launch',
-                        help='Corrected workflow-launch by default; original796 is historical byte reproduction only')
+    parser.add_argument('--mode', choices=('original796', 'workflow-launch', 'evidence-transport'), default='evidence-transport',
+                        help='Latest evidence-transport by default; earlier modes reproduce historical failed source only')
     args = parser.parse_args()
     print(json.dumps(assemble(args.runtime, args.output, args.mode), sort_keys=True, indent=2))
