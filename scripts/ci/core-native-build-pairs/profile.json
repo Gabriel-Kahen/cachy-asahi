@@ -1519,11 +1519,11 @@
     "default": {
       ".github/workflows/native-arm-build.yml": {
         "bytes": 5914,
-        "sha256": "8fee7c2d3a388763b441d9b42c0cac204f142e5ee82720fb7057a544688b47ad"
+        "sha256": "5e15aeacf995356c6930d7adea3ccc7b9c00bb1e0f292e22f9931b3883f1d9ab"
       },
       ".github/workflows/target-core-native-build-pairs.yml": {
         "bytes": 5914,
-        "sha256": "8fee7c2d3a388763b441d9b42c0cac204f142e5ee82720fb7057a544688b47ad"
+        "sha256": "5e15aeacf995356c6930d7adea3ccc7b9c00bb1e0f292e22f9931b3883f1d9ab"
       },
       "LICENSE": {
         "bytes": 1081,
@@ -2818,12 +2818,12 @@
         "sha256": "3d7579f4fa52ef512dc82187c010f273aa45e6e8349f8fda9839f808c7dae042"
       },
       "effective-profile/profile.json": {
-        "bytes": 8615,
-        "sha256": "3964a74c105e29010eb3c7277289890c7d621edcb04a461c2125a67a07d77e51"
+        "bytes": 9227,
+        "sha256": "2c4ca550699576cb71fa5d0733b94e0a1d8d3e352150903b6d19261d6b0ed043"
       },
       "effective-profile/systemd/.SRCINFO": {
-        "bytes": 8993,
-        "sha256": "67d071a1526bcc48501c0b3d8210d2628e720f112bb15fb253b708f65e92cda0"
+        "bytes": 9667,
+        "sha256": "4fffb659a30ea694fa146708e42f3a42f60170aee6bbee5350471cbf7c4b8494"
       },
       "effective-profile/systemd/0001-Use-Arch-Linux-device-access-groups.patch": {
         "bytes": 6920,
@@ -2877,6 +2877,10 @@
         "bytes": 321,
         "sha256": "53e1ac2a7ddcd696f7c8c930bd36c8764b9d46502cf56340c67a579b128dae4c"
       },
+      "effective-profile/systemd/BTF-COPYING": {
+        "bytes": 21767,
+        "sha256": "8c2e788450b96fff746385c42d3985bf33aef09f10c94c5c66505165cdd0103a"
+      },
       "effective-profile/systemd/PACKAGING-LICENSE": {
         "bytes": 646,
         "sha256": "7056c04df17a4e0f0bac9f787f347c9cd892cee6323d1c89528090afd0b934a3"
@@ -2886,8 +2890,8 @@
         "sha256": "720d9d7e602fa68c2b0adb890af4e227cd7f75a2872c6886e459e5c454088c9f"
       },
       "effective-profile/systemd/PKGBUILD": {
-        "bytes": 16104,
-        "sha256": "65170140c979b9496e36f5039301474c5177eea29a7c6bd952a83c0c612a8198"
+        "bytes": 16919,
+        "sha256": "b9cebe3d9ba506784f8f6f6a0fb83ca3be51c52570801d9d91cecd92e41a55ab"
       },
       "effective-profile/systemd/arch.conf": {
         "bytes": 243,
@@ -2896,6 +2900,10 @@
       "effective-profile/systemd/caa-owned-userns.h": {
         "bytes": 4600,
         "sha256": "a5b8cf1847e9d7f0d06228b251a40a55827681a6994baa1c95b1b8cbc03c0402"
+      },
+      "effective-profile/systemd/cachy-asahi-btf.py": {
+        "bytes": 12106,
+        "sha256": "4662b67524db7a25e9194588cb477d81d84e854f49e90f7ac8f71a07b5a1e046"
       },
       "effective-profile/systemd/cachy-asahi-owned-userns.patch": {
         "bytes": 1959,
@@ -2928,6 +2936,14 @@
       "effective-profile/systemd/systemd.install": {
         "bytes": 2247,
         "sha256": "a726c5ae26164ccbbc7036daa7b00f3b0cc06f4d1bfa18aabc771c51b7c2081a"
+      },
+      "effective-profile/systemd/vmlinux-input.json": {
+        "bytes": 65768,
+        "sha256": "d28d901747a09b3473220a4c1fbe0ccf7dd2f9d777524bba41b08b66bf3ec973"
+      },
+      "effective-profile/systemd/vmlinux.btf": {
+        "bytes": 8430525,
+        "sha256": "bb0d29de550d1cf6f63cbc8792f4ad75e1b1f9b4df2d480a1015749949e4d5a2"
       },
       "lane/LICENSE.moby": {
         "bytes": 10765,
@@ -2966,20 +2982,20 @@
         "sha256": "77f11f9e092bde149562b4db785702b130e6c6d89db518078bb198c69a97dea6"
       },
       "lane/effective-profile-proof.json": {
-        "bytes": 162867,
-        "sha256": "439806f298bb02067c3e060d54e94da85e0566306fc394e05cb205a61a2e92ac"
+        "bytes": 166831,
+        "sha256": "508857b443593238a89d1c0c3420bb958442ebb72118e0d0316db7021932eea9"
       },
       "lane/effective-selection-template.json": {
-        "bytes": 8366,
-        "sha256": "5b155011becd18b582c039300e64cda32cf7f8efab2e2e007aac8755171a5af0"
+        "bytes": 8946,
+        "sha256": "3158dd1ba9478b57dd6349ba32cc035de2cfe181c5608174ea668b836f5cd59d"
       },
       "lane/effective-source-authorization.json": {
-        "bytes": 8366,
-        "sha256": "5b155011becd18b582c039300e64cda32cf7f8efab2e2e007aac8755171a5af0"
+        "bytes": 8946,
+        "sha256": "3158dd1ba9478b57dd6349ba32cc035de2cfe181c5608174ea668b836f5cd59d"
       },
       "lane/effective_profile.py": {
-        "bytes": 4283,
-        "sha256": "fdb104876148ca64bc5987fd26726208442244bc778a8ef3f1373397a8fae390"
+        "bytes": 4477,
+        "sha256": "bea32352c1ca0f3c69dcdbdd7b78ec8c512ecc0730bcc6b72ae034f065345b96"
       },
       "lane/finish.py": {
         "bytes": 1391,
@@ -3050,18 +3066,18 @@
         "sha256": "6e0653b774b1534045f90d75c5ee1e954be1dae94330e3c4f50d49b0a84ffc0e"
       },
       "source-manifest.json": {
-        "bytes": 63576,
-        "sha256": "3f97b14b680127ae0c75d8559670ecabe067937fde0975c157015b871e99979e"
+        "bytes": 64228,
+        "sha256": "edbf715dc0b79674b301c0cf83519e37c1ed4f077fb10d32c63902b200a834ec"
       }
     },
     "selected": {
       ".github/workflows/native-arm-build.yml": {
         "bytes": 5914,
-        "sha256": "d218d83f5084394f38d68e397b1b6e3a1098e76451e1fec9a9f3403ab29cbd7e"
+        "sha256": "b88ea124f617f3e7bc824385711df5baff128ec3239e6a44c79051590f8cb810"
       },
       ".github/workflows/target-core-native-build-pairs.yml": {
         "bytes": 5914,
-        "sha256": "d218d83f5084394f38d68e397b1b6e3a1098e76451e1fec9a9f3403ab29cbd7e"
+        "sha256": "b88ea124f617f3e7bc824385711df5baff128ec3239e6a44c79051590f8cb810"
       },
       "LICENSE": {
         "bytes": 1081,
@@ -4356,12 +4372,12 @@
         "sha256": "3d7579f4fa52ef512dc82187c010f273aa45e6e8349f8fda9839f808c7dae042"
       },
       "effective-profile/profile.json": {
-        "bytes": 8615,
-        "sha256": "3964a74c105e29010eb3c7277289890c7d621edcb04a461c2125a67a07d77e51"
+        "bytes": 9227,
+        "sha256": "2c4ca550699576cb71fa5d0733b94e0a1d8d3e352150903b6d19261d6b0ed043"
       },
       "effective-profile/systemd/.SRCINFO": {
-        "bytes": 8993,
-        "sha256": "67d071a1526bcc48501c0b3d8210d2628e720f112bb15fb253b708f65e92cda0"
+        "bytes": 9667,
+        "sha256": "4fffb659a30ea694fa146708e42f3a42f60170aee6bbee5350471cbf7c4b8494"
       },
       "effective-profile/systemd/0001-Use-Arch-Linux-device-access-groups.patch": {
         "bytes": 6920,
@@ -4415,6 +4431,10 @@
         "bytes": 321,
         "sha256": "53e1ac2a7ddcd696f7c8c930bd36c8764b9d46502cf56340c67a579b128dae4c"
       },
+      "effective-profile/systemd/BTF-COPYING": {
+        "bytes": 21767,
+        "sha256": "8c2e788450b96fff746385c42d3985bf33aef09f10c94c5c66505165cdd0103a"
+      },
       "effective-profile/systemd/PACKAGING-LICENSE": {
         "bytes": 646,
         "sha256": "7056c04df17a4e0f0bac9f787f347c9cd892cee6323d1c89528090afd0b934a3"
@@ -4424,8 +4444,8 @@
         "sha256": "720d9d7e602fa68c2b0adb890af4e227cd7f75a2872c6886e459e5c454088c9f"
       },
       "effective-profile/systemd/PKGBUILD": {
-        "bytes": 16104,
-        "sha256": "65170140c979b9496e36f5039301474c5177eea29a7c6bd952a83c0c612a8198"
+        "bytes": 16919,
+        "sha256": "b9cebe3d9ba506784f8f6f6a0fb83ca3be51c52570801d9d91cecd92e41a55ab"
       },
       "effective-profile/systemd/arch.conf": {
         "bytes": 243,
@@ -4434,6 +4454,10 @@
       "effective-profile/systemd/caa-owned-userns.h": {
         "bytes": 4600,
         "sha256": "a5b8cf1847e9d7f0d06228b251a40a55827681a6994baa1c95b1b8cbc03c0402"
+      },
+      "effective-profile/systemd/cachy-asahi-btf.py": {
+        "bytes": 12106,
+        "sha256": "4662b67524db7a25e9194588cb477d81d84e854f49e90f7ac8f71a07b5a1e046"
       },
       "effective-profile/systemd/cachy-asahi-owned-userns.patch": {
         "bytes": 1959,
@@ -4466,6 +4490,14 @@
       "effective-profile/systemd/systemd.install": {
         "bytes": 2247,
         "sha256": "a726c5ae26164ccbbc7036daa7b00f3b0cc06f4d1bfa18aabc771c51b7c2081a"
+      },
+      "effective-profile/systemd/vmlinux-input.json": {
+        "bytes": 65768,
+        "sha256": "d28d901747a09b3473220a4c1fbe0ccf7dd2f9d777524bba41b08b66bf3ec973"
+      },
+      "effective-profile/systemd/vmlinux.btf": {
+        "bytes": 8430525,
+        "sha256": "bb0d29de550d1cf6f63cbc8792f4ad75e1b1f9b4df2d480a1015749949e4d5a2"
       },
       "lane/LICENSE.moby": {
         "bytes": 10765,
@@ -4504,20 +4536,20 @@
         "sha256": "77f11f9e092bde149562b4db785702b130e6c6d89db518078bb198c69a97dea6"
       },
       "lane/effective-profile-proof.json": {
-        "bytes": 162867,
-        "sha256": "439806f298bb02067c3e060d54e94da85e0566306fc394e05cb205a61a2e92ac"
+        "bytes": 166831,
+        "sha256": "508857b443593238a89d1c0c3420bb958442ebb72118e0d0316db7021932eea9"
       },
       "lane/effective-selection-template.json": {
-        "bytes": 8366,
-        "sha256": "5b155011becd18b582c039300e64cda32cf7f8efab2e2e007aac8755171a5af0"
+        "bytes": 8946,
+        "sha256": "3158dd1ba9478b57dd6349ba32cc035de2cfe181c5608174ea668b836f5cd59d"
       },
       "lane/effective-source-authorization.json": {
-        "bytes": 8369,
-        "sha256": "fada93f6b2841a8d29d20bb6350b532f7087bee2033c0a1dcd04d18ebd61bafb"
+        "bytes": 8949,
+        "sha256": "a8a07ffa792b9cd391cc16c987344a0a75f3b0b3bb126c365d68b05f442902e3"
       },
       "lane/effective_profile.py": {
-        "bytes": 4283,
-        "sha256": "fdb104876148ca64bc5987fd26726208442244bc778a8ef3f1373397a8fae390"
+        "bytes": 4477,
+        "sha256": "bea32352c1ca0f3c69dcdbdd7b78ec8c512ecc0730bcc6b72ae034f065345b96"
       },
       "lane/finish.py": {
         "bytes": 1391,
@@ -4588,10 +4620,42 @@
         "sha256": "6e0653b774b1534045f90d75c5ee1e954be1dae94330e3c4f50d49b0a84ffc0e"
       },
       "source-manifest.json": {
-        "bytes": 63576,
-        "sha256": "9ee11e108f77285cd1a77413555d362bf316c67f957a784293a5bee86fd130e6"
+        "bytes": 64228,
+        "sha256": "04d6e36ac0247e157f686ce78e0be08bde659cb45725d7b58d2f00fb16ec9163"
       }
     }
+  },
+  "fixed_btf": {
+    "diagnostic_run": 39584141217,
+    "diagnostic_status": "CI_FAILURE_RAW_BTF_RETAINED_HEADER_ABSENT",
+    "failed_source_shape": {
+      "CI": "failure",
+      "acceptance": false,
+      "run": 39587000259,
+      "source": "630cd536f7e11e0fa0def4667eae9bf39d7d39dd",
+      "source_controls": "REAL_HOST_MAKEPKG_OLD_REFUSAL_NEW_FULL_PREPARE_STATIC_HEADER_AND_BOTH_PATCHES_PASS_NATIVE_PLATFORM_PRECONDITION_NOT_CLAIMED"
+    },
+    "hardware": "NOT_RUN",
+    "header_mode": "PROVIDED_FROM_SAME_FIXED_RAW_BTF_BY_ORIGINAL_PINNED638_BPFTOOL_IN_EACH_BUILDER",
+    "license": {
+      "bytes": 21767,
+      "sha256": "8c2e788450b96fff746385c42d3985bf33aef09f10c94c5c66505165cdd0103a"
+    },
+    "native_full4": "REQUIRED_NOT_RUN_BY_FACTORY",
+    "ordinary_source_root": "MAKEPKG_STARTDIR_REGULAR_PROFILE_INPUTS_NOT_EXTRACTED_SRCDIR_SYMLINKS",
+    "pair_run": 39580569812,
+    "pair_status": "CI_SUCCESS_ALL4_STRICT_PAIR_REPRODUCIBILITY_REFUSED",
+    "provenance": {
+      "bytes": 65768,
+      "sha256": "d28d901747a09b3473220a4c1fbe0ccf7dd2f9d777524bba41b08b66bf3ec973"
+    },
+    "raw": {
+      "bytes": 8430525,
+      "sha256": "bb0d29de550d1cf6f63cbc8792f4ad75e1b1f9b4df2d480a1015749949e4d5a2"
+    },
+    "release": "NOT_ADMITTED",
+    "source_availability": "PUBLISHER_HTTPS_WHOLE_DSC_AND_COMPLETE_SOURCE_ARCHIVE_HASHES_NOT_FRESH_DSC_SIGNATURE_VERIFICATION",
+    "source_bit_correspondence": "NOT_ESTABLISHED_NO_REBUILD_CLAIM"
   },
   "mechanism": {
     "run": 39571303203,
@@ -4602,8 +4666,8 @@
     "lane/effective-source-authorization.json": {
       "path": "templates/lane/effective-source-authorization.json",
       "pin": {
-        "bytes": 8366,
-        "sha256": "5b155011becd18b582c039300e64cda32cf7f8efab2e2e007aac8755171a5af0"
+        "bytes": 8946,
+        "sha256": "3158dd1ba9478b57dd6349ba32cc035de2cfe181c5608174ea668b836f5cd59d"
       }
     },
     "lane/root-source-authorization.json": {
@@ -4614,14 +4678,14 @@
       }
     }
   },
-  "purpose": "MAINTAINED_CORE_NATIVE_384_FACTORY_SOURCE_ONLY",
+  "purpose": "MAINTAINED_CORE_NATIVE_388_FACTORY_SOURCE_ONLY",
   "reviewed_selection": {
     "lane/effective-source-authorization.json": {
       "actual": null,
       "cleanup_acceptance": false,
       "effective_profile": {
-        "bytes": 8615,
-        "sha256": "3964a74c105e29010eb3c7277289890c7d621edcb04a461c2125a67a07d77e51"
+        "bytes": 9227,
+        "sha256": "2c4ca550699576cb71fa5d0733b94e0a1d8d3e352150903b6d19261d6b0ed043"
       },
       "effective_profile_files": {
         "pacman/.SRCINFO": {
@@ -4689,12 +4753,12 @@
           "sha256": "3d7579f4fa52ef512dc82187c010f273aa45e6e8349f8fda9839f808c7dae042"
         },
         "profile.json": {
-          "bytes": 8615,
-          "sha256": "3964a74c105e29010eb3c7277289890c7d621edcb04a461c2125a67a07d77e51"
+          "bytes": 9227,
+          "sha256": "2c4ca550699576cb71fa5d0733b94e0a1d8d3e352150903b6d19261d6b0ed043"
         },
         "systemd/.SRCINFO": {
-          "bytes": 8993,
-          "sha256": "67d071a1526bcc48501c0b3d8210d2628e720f112bb15fb253b708f65e92cda0"
+          "bytes": 9667,
+          "sha256": "4fffb659a30ea694fa146708e42f3a42f60170aee6bbee5350471cbf7c4b8494"
         },
         "systemd/0001-Use-Arch-Linux-device-access-groups.patch": {
           "bytes": 6920,
@@ -4748,6 +4812,10 @@
           "bytes": 321,
           "sha256": "53e1ac2a7ddcd696f7c8c930bd36c8764b9d46502cf56340c67a579b128dae4c"
         },
+        "systemd/BTF-COPYING": {
+          "bytes": 21767,
+          "sha256": "8c2e788450b96fff746385c42d3985bf33aef09f10c94c5c66505165cdd0103a"
+        },
         "systemd/PACKAGING-LICENSE": {
           "bytes": 646,
           "sha256": "7056c04df17a4e0f0bac9f787f347c9cd892cee6323d1c89528090afd0b934a3"
@@ -4757,8 +4825,8 @@
           "sha256": "720d9d7e602fa68c2b0adb890af4e227cd7f75a2872c6886e459e5c454088c9f"
         },
         "systemd/PKGBUILD": {
-          "bytes": 16104,
-          "sha256": "65170140c979b9496e36f5039301474c5177eea29a7c6bd952a83c0c612a8198"
+          "bytes": 16919,
+          "sha256": "b9cebe3d9ba506784f8f6f6a0fb83ca3be51c52570801d9d91cecd92e41a55ab"
         },
         "systemd/arch.conf": {
           "bytes": 243,
@@ -4767,6 +4835,10 @@
         "systemd/caa-owned-userns.h": {
           "bytes": 4600,
           "sha256": "a5b8cf1847e9d7f0d06228b251a40a55827681a6994baa1c95b1b8cbc03c0402"
+        },
+        "systemd/cachy-asahi-btf.py": {
+          "bytes": 12106,
+          "sha256": "4662b67524db7a25e9194588cb477d81d84e854f49e90f7ac8f71a07b5a1e046"
         },
         "systemd/cachy-asahi-owned-userns.patch": {
           "bytes": 1959,
@@ -4799,11 +4871,19 @@
         "systemd/systemd.install": {
           "bytes": 2247,
           "sha256": "a726c5ae26164ccbbc7036daa7b00f3b0cc06f4d1bfa18aabc771c51b7c2081a"
+        },
+        "systemd/vmlinux-input.json": {
+          "bytes": 65768,
+          "sha256": "d28d901747a09b3473220a4c1fbe0ccf7dd2f9d777524bba41b08b66bf3ec973"
+        },
+        "systemd/vmlinux.btf": {
+          "bytes": 8430525,
+          "sha256": "bb0d29de550d1cf6f63cbc8792f4ad75e1b1f9b4df2d480a1015749949e4d5a2"
         }
       },
       "effective_profile_proof": {
-        "bytes": 162867,
-        "sha256": "439806f298bb02067c3e060d54e94da85e0566306fc394e05cb205a61a2e92ac"
+        "bytes": 166831,
+        "sha256": "508857b443593238a89d1c0c3420bb958442ebb72118e0d0316db7021932eea9"
       },
       "namespace_header": {
         "bytes": 4600,
@@ -4879,8 +4959,8 @@
     }
   },
   "reviewed_source": {
-    "ref": "codex/target-core262-default-plan-v1",
-    "source": "8cd4a49c611877f342d048680233e79d1eab5f38",
+    "ref": "codex/target-core262-btf-input-root-v1",
+    "source": "eee19066ce9f90d1cd902815072c0b4ae2dfc9c9",
     "status": "SOURCE_ONLY_NO_ACCEPTANCE_TRANSFER"
   },
   "runtime_overrides": {
@@ -4891,8 +4971,8 @@
       },
       "path": "runtime/effective-profile/profile.json",
       "proposed": {
-        "bytes": 8615,
-        "sha256": "3964a74c105e29010eb3c7277289890c7d621edcb04a461c2125a67a07d77e51"
+        "bytes": 9227,
+        "sha256": "2c4ca550699576cb71fa5d0733b94e0a1d8d3e352150903b6d19261d6b0ed043"
       }
     },
     "effective-profile/systemd/.SRCINFO": {
@@ -4902,8 +4982,16 @@
       },
       "path": "runtime/effective-profile/systemd/.SRCINFO",
       "proposed": {
-        "bytes": 8993,
-        "sha256": "67d071a1526bcc48501c0b3d8210d2628e720f112bb15fb253b708f65e92cda0"
+        "bytes": 9667,
+        "sha256": "4fffb659a30ea694fa146708e42f3a42f60170aee6bbee5350471cbf7c4b8494"
+      }
+    },
+    "effective-profile/systemd/BTF-COPYING": {
+      "before": null,
+      "path": "runtime/effective-profile/systemd/BTF-COPYING",
+      "proposed": {
+        "bytes": 21767,
+        "sha256": "8c2e788450b96fff746385c42d3985bf33aef09f10c94c5c66505165cdd0103a"
       }
     },
     "effective-profile/systemd/PKGBUILD": {
@@ -4913,8 +5001,16 @@
       },
       "path": "runtime/effective-profile/systemd/PKGBUILD",
       "proposed": {
-        "bytes": 16104,
-        "sha256": "65170140c979b9496e36f5039301474c5177eea29a7c6bd952a83c0c612a8198"
+        "bytes": 16919,
+        "sha256": "b9cebe3d9ba506784f8f6f6a0fb83ca3be51c52570801d9d91cecd92e41a55ab"
+      }
+    },
+    "effective-profile/systemd/cachy-asahi-btf.py": {
+      "before": null,
+      "path": "runtime/effective-profile/systemd/cachy-asahi-btf.py",
+      "proposed": {
+        "bytes": 12106,
+        "sha256": "4662b67524db7a25e9194588cb477d81d84e854f49e90f7ac8f71a07b5a1e046"
       }
     },
     "effective-profile/systemd/cachy-asahi-testlog.py": {
@@ -4926,6 +5022,22 @@
       "proposed": {
         "bytes": 7271,
         "sha256": "b9b24eb4b0726f556097cb0b05b423aa14a5f147898e9e03519523f5ad523b1a"
+      }
+    },
+    "effective-profile/systemd/vmlinux-input.json": {
+      "before": null,
+      "path": "runtime/effective-profile/systemd/vmlinux-input.json",
+      "proposed": {
+        "bytes": 65768,
+        "sha256": "d28d901747a09b3473220a4c1fbe0ccf7dd2f9d777524bba41b08b66bf3ec973"
+      }
+    },
+    "effective-profile/systemd/vmlinux.btf": {
+      "before": null,
+      "path": "runtime/effective-profile/systemd/vmlinux.btf",
+      "proposed": {
+        "bytes": 8430525,
+        "sha256": "bb0d29de550d1cf6f63cbc8792f4ad75e1b1f9b4df2d480a1015749949e4d5a2"
       }
     },
     "lane/LICENSE.moby": {
@@ -4970,8 +5082,8 @@
       },
       "path": "runtime/lane/effective-profile-proof.json",
       "proposed": {
-        "bytes": 162867,
-        "sha256": "439806f298bb02067c3e060d54e94da85e0566306fc394e05cb205a61a2e92ac"
+        "bytes": 166831,
+        "sha256": "508857b443593238a89d1c0c3420bb958442ebb72118e0d0316db7021932eea9"
       }
     },
     "lane/effective-selection-template.json": {
@@ -4981,8 +5093,19 @@
       },
       "path": "runtime/lane/effective-selection-template.json",
       "proposed": {
-        "bytes": 8366,
-        "sha256": "5b155011becd18b582c039300e64cda32cf7f8efab2e2e007aac8755171a5af0"
+        "bytes": 8946,
+        "sha256": "3158dd1ba9478b57dd6349ba32cc035de2cfe181c5608174ea668b836f5cd59d"
+      }
+    },
+    "lane/effective_profile.py": {
+      "before": {
+        "bytes": 4283,
+        "sha256": "fdb104876148ca64bc5987fd26726208442244bc778a8ef3f1373397a8fae390"
+      },
+      "path": "runtime/lane/effective_profile.py",
+      "proposed": {
+        "bytes": 4477,
+        "sha256": "bea32352c1ca0f3c69dcdbdd7b78ec8c512ecc0730bcc6b72ae034f065345b96"
       }
     },
     "lane/native248-cache-profile.json": {
