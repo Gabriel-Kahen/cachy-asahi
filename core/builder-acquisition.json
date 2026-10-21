@@ -1,0 +1,1356 @@
+{
+  "image_digest": null,
+  "installation": "NOT_RUN",
+  "native_build": "NOT_RUN",
+  "packages": [
+    {
+      "archive": {
+        "bytes": 1208196,
+        "sha256": "d7616429036ff78fda1e5b1c3da82554f93419806787f4c884cabf45e5614f7a"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "f3980da88e3036294b0bf115f075eafe52447533ec1762ca38482df1e44b0112"
+      },
+      "inspection": {
+        "bytes": 69995,
+        "sha256": "43f62657631b5e17a0e5d5b713f4c60c954f3258f839b9538968a8e8c0635080"
+      },
+      "name": "apparmor",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "93291e6417feb16854729d7dfc8cb16b83bf4036aa9d3439a3adef4d6701deeb"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 603396,
+        "sha256": "f0181fc78ef3a5ed851bcd0aecbfa5471a81fec75d2774dfcd19b8b506d4f924"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "b37bfd375a3e7e877e3c07f3a529c38b42f1f0b1b9d5deacdc86fcbc71c41d8a"
+      },
+      "inspection": {
+        "bytes": 25294,
+        "sha256": "6b88af0f594721d79f8194b1f66cd842634d878cb2084d2c7ee5067add10ef25"
+      },
+      "name": "asciidoc",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "0ab0fc1d03f7393a6fef9b21fb8d9c0b6099d468f1a9a77b537862dc0c47fc10"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 228076,
+        "sha256": "82716e3508156d038fe80af85bb4693b6eb80e14fb3766e726d8ff689af0d593"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "aedad0a66429faf5f29d85e9a6bf44a1b5cf297b1461ceda76d0fa40b5510385"
+      },
+      "inspection": {
+        "bytes": 163065,
+        "sha256": "f88e8243ae6f98eecf0708763eb39dfd5cb6b772e2b51522e03126c71e7a3a8d"
+      },
+      "name": "bash-completion",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "7d79e663daa3987a362d051bd4da59a646f23cf016a5279f895acfbc2261b127"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 1503864,
+        "sha256": "1165ae5debba5bfdb7a77981dcffd6e3a2702c9d6557ec248317a71a40de9619"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "2ac6d5513ff145f930e941b5407b81c6e6da7eb86a0bd5cdaed5986a1968deca"
+      },
+      "inspection": {
+        "bytes": 11446,
+        "sha256": "75bfe00052782eb43dbcb9e15b419f38eeca40f78f649f67769e4b563035c7f9"
+      },
+      "name": "bpf",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "27efac4d5f69a6a0ddef99a9c6062285a0a2745667a4e1a0f4bfd5d59f705643"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 52347720,
+        "sha256": "8c70552dff6d71bd0f34aabae9804eb6ffc74d92a0b5980bc85f0842ae869f59"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "e4a97590f208459fdc6f86383d770865cbabad39c813677b7beeb6175ace7a07"
+      },
+      "inspection": {
+        "bytes": 135902,
+        "sha256": "88da8e5569c63453a2d8794df24e08538d349f1b7a2951771da88b78720827ef"
+      },
+      "name": "clang",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "32095e6e7420c576e4a22e506759567b08bb26e48c0760faf09ab49cdf8aed32"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 2377008,
+        "sha256": "4377638f83be35aac622d0b7ba4840db77583dbbbc655d6bc9d24b771d64a104"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "2491bf85145bfb95840f840d573052dc43b60b9f43fe904007b274b6b3504fbe"
+      },
+      "inspection": {
+        "bytes": 18941,
+        "sha256": "0924f804ed3e9dc21a8ff961b04400bfa90f6f546525af3b88075de8c094878d"
+      },
+      "name": "compiler-rt",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "a77acd7dc1f3dfaf4cb0031b2a7087a4b5cd59d8111df983f27644554b7a374d"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 267888,
+        "sha256": "fcbd38683b4baf6caf696f2ba6478c14d551c981e7d1697a7e45c9172082c21a"
+      },
+      "gpg_status": {
+        "bytes": 404,
+        "sha256": "cc0ef62c0aa5886248c62ed36940830ce95cbc66cb0796ad2a3ee3f59ca52261"
+      },
+      "inspection": {
+        "bytes": 14724,
+        "sha256": "364597508459c450cf6c7fcf0ddbc63d842dc732e02ffe338fe19858090a88ab"
+      },
+      "name": "cracklib",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "f0fdddf88accc8e93cca0ff60a3c16847206f9c02e1bd66da1ddb86c484f73b2"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 84244,
+        "sha256": "bcfe760c01b18cc8725509c3ed6b862df8db42eb3bdf2812a91054edb5b44c7f"
+      },
+      "gpg_status": {
+        "bytes": 404,
+        "sha256": "41f1beec465c47785748c43bbcb092849f71566a92ebcf4f86ce7f36d3576694"
+      },
+      "inspection": {
+        "bytes": 16458,
+        "sha256": "673548fc631f078ec188621c0f4c2b0956cd04ff82aa15e1054e22f1ad6677ee"
+      },
+      "name": "docbook-xml",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "a9a7ec7a4e4e4c4467577189a5ede53f115c576361f873d24a673a1183ba9006"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 1455900,
+        "sha256": "08b37365fb00e8db4662b20beb91fa11ce6bf4913729dae9582a3ca30b63856f"
+      },
+      "gpg_status": {
+        "bytes": 404,
+        "sha256": "b002212af83b8eaf248ef8f17e9309b86bd44d58716a9b9012a01fa0083b7722"
+      },
+      "inspection": {
+        "bytes": 212519,
+        "sha256": "7b44328925c8390959c965655df966974dc8109e8cf9dd30b8a6cab6dcc814dc"
+      },
+      "name": "docbook-xsl",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "bb7667d726460d0fea89694522e3e3a767bf9aafccf33ae9eb6b6a75fc1f2c27"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 5946268,
+        "sha256": "af9c4c29ae7c41aff0ce8f59c03f3c2a5962d0275aad8597c442d1757c970d35"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "c6456a3f38f172cd9651399b7c64f5c3fc8d6ab8430b4e1500de771333334660"
+      },
+      "inspection": {
+        "bytes": 14734,
+        "sha256": "a9636f0c0a723b260bb81db17b1d6b219ff930a5eead78a51cea5cc374262280"
+      },
+      "name": "doxygen",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "a0b5dd595df0254bd5bc4dd4515770f8cd9ca786d63ccd40f0254c1b1e7dbd5e"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 51100,
+        "sha256": "d4bd1e0841344a973816e1ff6a96348fa58b73b0703283a09467ba3f7fd66941"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "7038197fa84d482de7c6f96e95d16122b401bf48713bd1a908c4b565a23028c6"
+      },
+      "inspection": {
+        "bytes": 8641,
+        "sha256": "d3575477b7574cd4dfd7e696a98d3cd3f8fd68a989ddede862332180a462e992"
+      },
+      "name": "fakechroot",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "5300b6ffdfe80b7b362d04e380127ae9bcfc7f4b08483da2d007870e389f92f4"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 100916,
+        "sha256": "8e6dd83edfd4355fa30b9630122a5eb0b1f28118bf354c8e154356c1be97782e"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "b91e04ebf3afe025c0ab93369a580985c4e216b24cda65d79ba6f47165716404"
+      },
+      "inspection": {
+        "bytes": 7988,
+        "sha256": "a2ddef1fc769b603a19114580f0128a25ccd8c5082f947dc8466e19a11a07a5e"
+      },
+      "name": "gperf",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "341229be23b0755074e27538ab939092041fdbcb39f2b710ad61e4be62f0bf11"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 42112,
+        "sha256": "2d755ce2e580326dd5fce35855af076875490f2c21eb3f6de0c73bb2f538c973"
+      },
+      "gpg_status": {
+        "bytes": 404,
+        "sha256": "cbcd653aade468c74444b19e12095d4eb2164bd77d09462bb5711c4f8a4d0396"
+      },
+      "inspection": {
+        "bytes": 7846,
+        "sha256": "b269834aedf9f6e25d7058db319ecd3af45eec149a1f5e815397739cb37c7029"
+      },
+      "name": "intltool",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "84018438990a41e1c4c718da1337d393091b03d90b80d042d823171c6a9f5fdd"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 74344,
+        "sha256": "3ad703c3bd9e689e80401bee9f8a2ae13e5fc140285d79c2df463f50e03577c8"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "16b9e59a8b55d736b855e424c951b2c5752edf8a9927f7de14d5658678149193"
+      },
+      "inspection": {
+        "bytes": 8365,
+        "sha256": "738e1755f00a492b84a7fb0606322935b4038988869e2963c2fc2900c21ebfa6"
+      },
+      "name": "kexec-tools",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "c3d7f745fdaadaa07bd840928857876e71a21b42d189b0cc87a6d61a0121c45c"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 46960,
+        "sha256": "6e6d2ddc7c902b4841cfd40dd030326e2895c364a6151df60c864867582b4b02"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "d3187b0b2dfe8b5d036367258682928335b72cb06cca908509e151a6a8a60db6"
+      },
+      "inspection": {
+        "bytes": 10124,
+        "sha256": "34dc6948f88afdb056f1af8cf3f1dc04f8e02ffb4247bcec7a8a1e7be92fd291"
+      },
+      "name": "libcbor",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "9deeefe93ec9127c4e08290bc7ebf23b18a798b41b35ba3679f2288ac3d36312"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 190508,
+        "sha256": "dc0cc62611c94e9b659071d5b60d29ffccdc06f41bc5badd741c59bb2bbd92cb"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "e0ec08b0685355c43f6f81de77a54311e4760eda6ba8e1cf13f05b7a8f4eb7c4"
+      },
+      "inspection": {
+        "bytes": 64932,
+        "sha256": "f138a6684a73d7141bc17de48a63bd06d5e885630926f83492c7d3e192fa3925"
+      },
+      "name": "libfido2",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "dbb1bddb93d4b4677dd6f5899bf143dc715c98d451e046c28df6b96ed540ea6d"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 283032,
+        "sha256": "9b829a70b65b2457bd04ed9fd79795f71d9336a02991640de3e9e5728a2a13ce"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "e36521745224201b18d4e8000e38f577eec0e7d177e80dbc5d16776bf1437542"
+      },
+      "inspection": {
+        "bytes": 9015,
+        "sha256": "245a8e397182bfff2d025e58f3a0f42f4a08053d1e099ca6ce33d0b3fd70164b"
+      },
+      "name": "libmicrohttpd",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "d21664df13808d302c8ecd7547c9fae3637d5c907af0ba5aae8ef8c26d1bef3d"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 89888,
+        "sha256": "2b0da2e50f2ac88af4e3e11468f13c4873f0757a6891815ef93658aef0260ee2"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "a9c683c965f31d48b86e6adbea2fba0a3cce97976b58299a474f7c4f96b0c13b"
+      },
+      "inspection": {
+        "bytes": 17236,
+        "sha256": "e3add7b5fbd0a0b629d47e8468c9effa5683da5147dff6cd0c91b6b80b5e3e33"
+      },
+      "name": "libpwquality",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "10bf928809a8c6b99eda25db95af472ea056c7418d1f51f825d0b1b4a4ed169e"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 189964,
+        "sha256": "dd508d0060063ed5d833001a125d6b427c8a623d669758c44ac10cc84a92392f"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "0e5f20096206d446faba4093806da8dfa25165536acc1ed7c4924ae7f111bfae"
+      },
+      "inspection": {
+        "bytes": 11246,
+        "sha256": "713c6fcff8a94f884c57bad01cc8134f121b42683f7231d0d716bfbcb87b0b49"
+      },
+      "name": "libxslt",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "5068bb5aa19b0b7da70cdd26619c8ee52b4ec706c059149b3a2c96b68cce9b9e"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 15814896,
+        "sha256": "0109a45698ae731790760c4acd624047f511604d2cee3060cb9bc8fcf64a9068"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "adf6b5fd0115b5ec1b512de68a58a2851bd0452fae9b78353402438b2c776991"
+      },
+      "inspection": {
+        "bytes": 167583,
+        "sha256": "b679517a481e85dfc14bb2ba3f9b1f902696a9d13b1a47183c122d8904a86afb"
+      },
+      "name": "llvm",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "6a04912fd2f9bf33d2f549802fc0b7ab010ccf7f0e43c5199a8b675218dc9da1"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 226580,
+        "sha256": "d7b7803704c306a2c2227e11787fc564714e687b7a7dfb959e15214260ffe949"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "00d9f990d9e64fbd38ecd667c5ba2eaa86304382dd8415bc3683d68efe0ffbfa"
+      },
+      "inspection": {
+        "bytes": 19552,
+        "sha256": "3ec9a394c57d6e6670452d655a8aee09f2628e3295e6fd273e5342a18770f0b0"
+      },
+      "name": "llvm-lit",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "8decb3c649efe6baeb4da2c6fe01e7b914ee235a8934b8f0427890838a6fd953"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 14352,
+        "sha256": "7330c23fe3a84a3478524c540b614f49d1fac9214a4f9e9c2254503c0e0df0c6"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "81e220a3de727ff415d5ae7a0156be56fc3a303ac71cd1b7681dc0bfc547fd3c"
+      },
+      "inspection": {
+        "bytes": 7387,
+        "sha256": "268fec0ff219b85467039cfd7e2d71baffe1e1fc9a966afc41a3365a34788731"
+      },
+      "name": "perl-class-inspector",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "c6675b95cb0cfd1415c90d3b4b8d094655f52e853108c5280d5c6036b9b61529"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 17640,
+        "sha256": "093b3cec58cdb0e1c7c4c865eda64d4d010bad1e309bfa62d931d19613f15ef9"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "d902006959972fe7fae7da4340aa08b20327c81fb61646d2ef779d0bc8526cb7"
+      },
+      "inspection": {
+        "bytes": 8528,
+        "sha256": "0bcf9faa0c2e4b146e138aa81e8ad729381cdd469d3d790236cb941da76d08f6"
+      },
+      "name": "perl-clone",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "c2a9052980f8dcee42491f5025dc8d7e3d0e7db46a33d1feb0ecf7c7f44db3db"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 10684,
+        "sha256": "f5a5d588b5e0310330c955543874ef68b23501828eccf8db33c4c8ae882ececd"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "0a610a9abe5422f6b85237c03a47ea1f3aeae330b571c06675a0b3565028d053"
+      },
+      "inspection": {
+        "bytes": 7189,
+        "sha256": "6c22bb3e057e0489f108efe47fb036058722ee03a24514b4c4b0316336fed7c8"
+      },
+      "name": "perl-encode-locale",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "6ee89b843d815cfce231ed0d5c6139fe06a29aaba39108a3a76e8cd70cea6110"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 10220,
+        "sha256": "69df868d2ad0d68e09c04c07b0232971f4c8a5c004263c43a9d38561c3c2b9d4"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "f16c9564c4695098c25a5341fa20aa639e9a61db19c0b1b59320a546d3683a6f"
+      },
+      "inspection": {
+        "bytes": 7259,
+        "sha256": "e8fe0a4203e836626749ed04fbb08a32a6a42eb22b6257a48d9815a4cdfb75c0"
+      },
+      "name": "perl-file-listing",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "d5dd4661ca1988a1f3a73b139c4f143e62d8020a119bf0d2cae80125e38d479c"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 13424,
+        "sha256": "bdd9ba0b5ef96e0d1e0a80b7bf12dd23c7ededc16e13fe72d989bb3366268858"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "2c3cfea865dbb91537669a8f4593583f7837255075c862ef7bc93c78221ea287"
+      },
+      "inspection": {
+        "bytes": 7933,
+        "sha256": "ba8ba83ba445b23c20c6872cf2422398029b967d5bf9fd00e99555d237eeba2f"
+      },
+      "name": "perl-file-sharedir",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "f27757fae7d8cc63d9508459e1a5f50363da47605a4c4f67d78db538836a489c"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 78988,
+        "sha256": "d155948c0f4e28df76c870844344f15077164b99de7bd399a2741e834d0a1c5c"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "09dc63012b8d5cf4c7444978bc112997d25087f55b72d8480a089f48e95224b1"
+      },
+      "inspection": {
+        "bytes": 9713,
+        "sha256": "3d7a645ce7ebbfdd23cda0fb4262710c0405a46be039cda9cf03aa73d80993fe"
+      },
+      "name": "perl-html-parser",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "dcf4390d835b9820bba0469442401703498b01e0ca6575ac1102fbae7b5db7a6"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 10756,
+        "sha256": "45cb27e120a077bfb7726a705a7de2232613de99b20819134e53ff80cb6fb0aa"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "1c25da02bd164518285acff338b3475eddc396a5ecac203cb272e7e7d79f30ba"
+      },
+      "inspection": {
+        "bytes": 7153,
+        "sha256": "5c9dc051e80fdda50c12b0649786f382208635e9500844242ff100145333e21a"
+      },
+      "name": "perl-html-tagset",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "ced0322813f0cc0d1c719e0a0b895ede1cf6bed39ba71b31e7b8b972527ec446"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 13732,
+        "sha256": "8765b5130e22b2548b87456d38aaa368a6c5948f68e03a90146ac9d085fda5fa"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "288d1a4e44a75c0277dde207d08cda8173afda7ada490d49ede2408e6449c395"
+      },
+      "inspection": {
+        "bytes": 7508,
+        "sha256": "cebf1f7139d9786cffe76f5eb6d608285ecf8bbbc244133fa0077ae1115ae22c"
+      },
+      "name": "perl-http-cookiejar",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "f6ce23a2a7f6ef252199d5d68e13fe4f768a26a6ffbb45c0f34a0f4a2018404b"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 22260,
+        "sha256": "dd4c72b6c579940891c9ebe46e6cf50b4ca0d343021f5565828ef21118c59a0d"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "ec9b708de4e66f33ae909d3e0e476943f7b326b4d0a0573bcc1760ae037e7451"
+      },
+      "inspection": {
+        "bytes": 8830,
+        "sha256": "6e49b5014daaf4dce154618c193f45bdf5020bd9196e4105345b5beb230268a1"
+      },
+      "name": "perl-http-cookies",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "40e2f8c75e6f4d7fec6d32ed6a665212928cff5bd423be4e00b5e90e7b9e9821"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 20208,
+        "sha256": "fb8fff944a7ef6b15f2d6c595840cb6fe78cebad862ced1b9e41d7823524957c"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "3a8555bb482d4e267898a012394ca6e31da3b6cbb32c272f7bc38d4f3f6713e3"
+      },
+      "inspection": {
+        "bytes": 8817,
+        "sha256": "c0813785e198798fa7369850a4caadcdbc028aa865d4a8ed6574265fea16634e"
+      },
+      "name": "perl-http-daemon",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "69f7d1674bda591dbb0bd5bbe55cde8ae43c806658c5a12fb5988c7570ec8058"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 10440,
+        "sha256": "03d30ab07305ea088db895067d805d0c37e512a6d37d95b30a2b8c356fd9a3e2"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "0b3b226b2ae4741c750f1e76648875375779de1638bd8fa6c20fe88c67a6b977"
+      },
+      "inspection": {
+        "bytes": 8162,
+        "sha256": "9fb0cc26e73e1212629479fecac787cde599808699d7ff77c8a028245f4d704e"
+      },
+      "name": "perl-http-date",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "1c5f78eaf03d69076382c5427f60a1effa12b9669082bd5bb88dbcc13f2d85ff"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 71704,
+        "sha256": "db2506deeeba8474fbd16a9cbf44be64c6f5ea3fefb7791df13dcaace4e99f65"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "c4270d39803db7f62d30e2c2387cbdc7ffc1c7166ea0dace2083f59974a90c0c"
+      },
+      "inspection": {
+        "bytes": 9667,
+        "sha256": "5cf2b5a0d5e40ee9a8a73ee84ab97038c4f1a296082720f3ae079bb176be6ab9"
+      },
+      "name": "perl-http-message",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "80038bbd09780fb8ea88330ddef327edae845a8939fd22d1178e5def7a8db95d"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 12120,
+        "sha256": "809bf107ac02b31fa091c31639c25e5dc960f7f39f66cec75eb7066c20f42cf6"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "a94f7af99a8e4a69dc8ef3941f31c96d0c08e0f08668e03aa98cc900eaa08c10"
+      },
+      "inspection": {
+        "bytes": 7508,
+        "sha256": "d0ffa907b309e458a69477182dec0e2a406906678e8c4e6897b882de418ec0f6"
+      },
+      "name": "perl-http-negotiate",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "b42038783c57380c2c9bdebf46bc3dcb69dc4c0c9cfc53c5f2111205018acefe"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 14320,
+        "sha256": "3caa68638561be6fd99e16bb3464c4effb1528e2bf9bcf361efd7c5e40e9deb4"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "3c23267ccf1e74ed4599856c956f9e11308a49c3c92fd89f63e5118e5dd2aef2"
+      },
+      "inspection": {
+        "bytes": 7154,
+        "sha256": "e242de69b028769dfcbe9b3965d5015ca2489ead1fcf41cf66be1275146ba13e"
+      },
+      "name": "perl-io-html",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "b29317fdc0a7aa494c6c71640860e9962356fd52ed3892bbe72f24adbe05b259"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 129632,
+        "sha256": "856d3d27a1ce66761304ea70c9da5cddd2753afde9de222f34d80266d13f5d01"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "436611dcb9f6f5f049f087bced818086b401c19e5f58b85b8f6bea20fc08c6d0"
+      },
+      "inspection": {
+        "bytes": 11516,
+        "sha256": "6d613286bd27858b6f731dd4869fcb0a6035a7f20fc29c6e3da53d0eb92be7fa"
+      },
+      "name": "perl-libwww",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "6464950bd9eaa1d41f505c45e0f8ab886aae10554f6e26cccd0550e938abb30d"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 19132,
+        "sha256": "10a5030f3f312bf3332cdcde791518570316eb7a2238e8682ee9d740dbf094e8"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "409f5892c67c652d1f8778aa686024505ab2ec9589d41f9ce060e092ca8c4e87"
+      },
+      "inspection": {
+        "bytes": 8250,
+        "sha256": "108f20cf445cf939785d7c530ed5d07389c5b80648b3ba830c4f194d288b7ca4"
+      },
+      "name": "perl-lwp-mediatypes",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "d7cafd7942a76d8f20e8e1442ab29070b1830e07c098e5e66ba4b09c5ff12bbe"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 6700,
+        "sha256": "0b4f11f3a95ada9c62b3996e36bffcee316f278d1bd6fec2f81792b27c085342"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "395058379203a806da0b42b76c46cf04f575a59e4e41bdf627d93d06737fe6ca"
+      },
+      "inspection": {
+        "bytes": 7159,
+        "sha256": "7138551ad405c7de875b30351bde1d361581b484b694e6a761f79655dd9a1111"
+      },
+      "name": "perl-mime-base32",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "0554c68f29a10c581eb2e4b677554a936373f822bdcd006b607377ad3fa959ce"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 22156,
+        "sha256": "4558c95d82500dcb2da8e591382dc3afb8a76ec4fa30150dfe28eadd5f8e4d28"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "0a097a086a42d07b305ebcd4997c09bcc1fa71630c2ea2cd359672d489638a28"
+      },
+      "inspection": {
+        "bytes": 7587,
+        "sha256": "57a11f0a8c04b1ad7bbdaf5f6b987fbdf590d3353f2b5670f115317bd8dde240"
+      },
+      "name": "perl-net-http",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "a46c28120dcde2c5e9a5560b05fc2b860d58e3e0e467be932b4d7164d306fb96"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 18952,
+        "sha256": "1a3bbc5d695573bc03522105a4676e400fe3573e23d259eb440f6410ee54c4b3"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "2b53a99db6ffc4c5487c04dad9384644253956f239bc0d22ba99df24d4ae735e"
+      },
+      "inspection": {
+        "bytes": 7481,
+        "sha256": "214fb2ce4d0e84118a7e921c1d74181172a4037caac42e71d2dc391a72e931a0"
+      },
+      "name": "perl-try-tiny",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "fa23df63aff055550afc9a8ceb1199282f22112c12f53347aa351f5a12b612a5"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 100248,
+        "sha256": "d1e764c909ed06def94667acb4306990a8e9a003e8d382d50cc184b2dfef1de9"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "b7372118b7648d066caff74b835337241d1ceb75bb8fcb2050658af6d6f4e62e"
+      },
+      "inspection": {
+        "bytes": 12362,
+        "sha256": "ea3fa610a53c6b398136fedc47c057e75dc7b4bd1095cd9152de7ca6ca733f0a"
+      },
+      "name": "perl-uri",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "1d8ab8b8839c6b3580f580a40bc3025255a8b5259c20ab2235031b8ebdcf73a3"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 14700,
+        "sha256": "c3cd34054c3cd36249c419396fd45a6f04b27d76d21637403138c942e5f3d4e9"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "ca3c2d24919318f0de47099c0820c01f24f3b9ee26e2f9856474aceac9697e6d"
+      },
+      "inspection": {
+        "bytes": 8527,
+        "sha256": "6fa8c704064eb3f82fb101d0f45085597994556dec687e477a269860667ab761"
+      },
+      "name": "perl-www-robotrules",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "836e3d13696e05f7f2d6e9e9d1bf092366282e640893ec58cd7289d015773748"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 152188,
+        "sha256": "1f97d335e6c23ade2127dacc525d3c5a6655412945f57ebe2e077c096798724a"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "c9bc5501748c8f737919fc191e0bef1b02f4d1cf9ec74a5da416f7306902934e"
+      },
+      "inspection": {
+        "bytes": 13023,
+        "sha256": "9ea0a86d67973e8d8c3c023068c89f5a92b3fcaa5c1baa3fa90429668ac671c9"
+      },
+      "name": "perl-xml-parser",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "5098bc4689c26556436e44a0abcf6424b1e8ff4a12921f7726e1f25ec4154cbc"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 286416,
+        "sha256": "261dad7b3a50cacd4b86eb3494ccccc5f6a6cf99532ab5b5bbbf9445f5afaa63"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "c53863f9b675ffec6374341a7eeb0b0691027e6c659f10a0d5f77947a13dae44"
+      },
+      "inspection": {
+        "bytes": 15288,
+        "sha256": "abc26f6dd01ae800ce76cf7c8d9554543a17c17e47fceb71c3f55d4e64bef8b1"
+      },
+      "name": "python-cffi",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "3ecccc92088ed34fc09d3905f12d45b71001c894ead70c8b7f668d525f4cefeb"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 47844,
+        "sha256": "c5835d785d93c6551fdcd890bf12bb1ad0cc8fe57e947d0eb79f5a58d650cff8"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "f4b6d8631722d0c23cac2c3b5df6cf2eef8d344abe0d0cd102b1aa22d702c04c"
+      },
+      "inspection": {
+        "bytes": 11896,
+        "sha256": "78fca9504ec8f4dbac8d6cbf086d2a4de60c072fd43afe05b265ecfdddabb4dd"
+      },
+      "name": "python-colorama",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "755c32715c099f2b5a5eb4d25dd82e78b91d6a5eb4b1f4ebabd134df565edc3c"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 1312840,
+        "sha256": "16a92fd803c345f3cc8feb5e18385c13b9b97d1d560334a47828c1c03f2f5f42"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "aef1ea1eea8d621a8fe517b81b77520e3d8bedd596cfe2e1f33e6fc07eb25370"
+      },
+      "inspection": {
+        "bytes": 40713,
+        "sha256": "1a0a368cd742c3896fb5f75649a6a47612000a3079c3f1aae527e62c9515be9e"
+      },
+      "name": "python-cryptography",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "b142c24cb27ecc6d14c80d30e7c44af332abb9f4a41c46aaf2fc54b8a7797aca"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 17504,
+        "sha256": "a5f5a9c92556e087a991a82507b2ce1b7e55f0a5d5909f3439e6bb4feed012d8"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "0eda3db850a37e06cf9862b7d9abeed81f5c01c6a5c5f26ecbca1ff86f75a50d"
+      },
+      "inspection": {
+        "bytes": 10797,
+        "sha256": "7fbe52f124b6ccd68156aed66dde7edb7a60ad61c7afbbd047200097197f73a4"
+      },
+      "name": "python-iniconfig",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "f4031cf3a8842b5c6bed2b66e0a77a734c5cf64f6f86e16471a50f02a35ac879"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 311324,
+        "sha256": "898d1c55083822214eb871c15f06cf27b8048896894f804d0f9149ff7a095d99"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "a279ad357d5f8db098ab5169053c5876548de4a04f80a74d420c3e2e1345c6b9"
+      },
+      "inspection": {
+        "bytes": 14887,
+        "sha256": "8a0b223447220a41679ac9f62d305757802364f4f1810da0233ed00eb67fac78"
+      },
+      "name": "python-jinja",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "e1f5f7708a0f69f6ec0c582a492a9c4d104be1a082068b549e77d82a6621af99"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 39200,
+        "sha256": "ecb4f702b560f8e15e1750c4c8d0d141f3df26721d50cc1470663cf82ca28ceb"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "ad8659ef14faeed10c77e33a7bbf77e8d4bdafd1e790c4092166ec0f0469c37f"
+      },
+      "inspection": {
+        "bytes": 8603,
+        "sha256": "a340b5b69e41f90d819b71684d134d230929f1fc9562466be5415797a7472455"
+      },
+      "name": "python-legacy-cgi",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "20009a354f7600e86878bc997670113dc0387df070c2a460ca9120f531174630"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 1352580,
+        "sha256": "2a0137777140080e9bc3a2f69d1dc050fffe5f373a0eb32dddf7608dfbdbdac2"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "ae3e407d6ad83817fb9f537cb4aeffab6d9beaea438bfd82526d96af5181f2d9"
+      },
+      "inspection": {
+        "bytes": 28269,
+        "sha256": "33bf6f2a9247cbd82ff7264248a35e9dc4abff702eec1659663288ddbe4f97ea"
+      },
+      "name": "python-lxml",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "c9cec1919df31bd446ab900f14ba410b14e099f8041da9a3404d93196443fa88"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 20852,
+        "sha256": "1c786d2eb1d704a523b0cb726aa8c993cb681230db052e93970962b608922d7c"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "687b35c53d4c6e5872c5121b23eaf28eaede8e80d2d77a6273189e443088bfdb"
+      },
+      "inspection": {
+        "bytes": 10968,
+        "sha256": "ec80a7b4ddd3690f10c8b73c9b1a92766ff808142da7a7d042085d5124971b71"
+      },
+      "name": "python-markupsafe",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "cd79b6c1bd82ab194debd293530f983c4269d0fe773d47e2d2c1ba58e5d8e57c"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 247404,
+        "sha256": "2b36fdacebebfb9dfb495c55359a00b62bc0afab09980696821d787d084be34a"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "8a1712265ef89b102e1be49408c338b2eb6f49d4f47e4b238515517a279268f6"
+      },
+      "inspection": {
+        "bytes": 15704,
+        "sha256": "fd4b0a0d67c835f8175fdcfc84381123985af181a7c41ee421ed6a0f7917e392"
+      },
+      "name": "python-packaging",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "e8cd15567a32d579783dba9639bbe38b7695d2bcc5148b7a3903163909be1317"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 160200,
+        "sha256": "363dd1b93cffd414706bb3a000b3930b0a54d207f7f4eeb6e6ef97738ed166a5"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "df785ae5d6a10c6e43a9e45391b4f37e0129952494d64cad3ba57ea0ef54ec55"
+      },
+      "inspection": {
+        "bytes": 10283,
+        "sha256": "6eb7e8206c7a49ea88a1eca73c420d1b2435fd56415416ff672be0758ce3150a"
+      },
+      "name": "python-pefile",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "f9ffd11d08db67fe46038c6771d98ac4d00d4b3f6790cac9800a9674fdf44a2b"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 100640,
+        "sha256": "619a1a21398843aed88500ed30f0742a3656414158e669773f253adc8fc770e3"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "ced005bc200ef8fdf71a3e280cb30567463eb58aedea2a1f128072354677a0c9"
+      },
+      "inspection": {
+        "bytes": 13393,
+        "sha256": "05d6bb96e02bfc5dace4fa7abc88a4f8878ee8e2166d205bd1fa2814041af6e4"
+      },
+      "name": "python-pexpect",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "ee9c826de725f7bd56c470cb6ca81c3a4d061f6a81a0b413bcbc1d8b1cd051a4"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 55588,
+        "sha256": "077290b74dd1b5e8f7b4fd59e5d19c508d472cfd1464916e61f7d2732ca326bc"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "61a0a3b27ee6288e705d4dc84e9cb8584ace711133f83f54d08baae902c9db40"
+      },
+      "inspection": {
+        "bytes": 13009,
+        "sha256": "8fd7ddfbbc96720582d6511881b4de269e0f6383533559aa40413c8063f1e457"
+      },
+      "name": "python-pluggy",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "2649dad8025a8a5a748bc7af48056c0ae604d1ba83aaa2a1b8562b2ed03ea684"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 199252,
+        "sha256": "ae4315b6c0a73fa5f310828858ba9b347b2f04ed64b4cb69f0347ade4fe2e01c"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "394e70eee9e095692721cc80df8b192f6c1f232d36edaf5d0e7070b2e2375de6"
+      },
+      "inspection": {
+        "bytes": 11497,
+        "sha256": "f36f7c0e482a35f68f9e6fb53a9e85d60da3a39844ca75d044de357c7cc558a7"
+      },
+      "name": "python-psutil",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "9e417134a5700f59a259650728ce3792918184c53856f5f196a332764f29c030"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 28188,
+        "sha256": "7138e31477bbe62a9ad2819f78f3054e3e22b0655e9ccf2b752ada03d3cbd26c"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "8e9e4be9e37a9d9e744ccfb7ad8b07b11af73c67c66b6abdff61ef869b8b702a"
+      },
+      "inspection": {
+        "bytes": 9358,
+        "sha256": "c116a526e11dcf8efba75b93b44529e05fe0ea5037e2ff9d98a817ad3ea5eb92"
+      },
+      "name": "python-ptyprocess",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "b2b2c12758a8f0cbdc291828533a9584268b2415ba0e5c907cdb35c4d8c4a1b8"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 109632,
+        "sha256": "ea35c78ad6202608f63446f207e265d70809817253cf46088c9a2e4d88e8d510"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "8f2932708155b4c2aa52931cd925c7eb66321e37b28cf39e501e2dc66611b4a7"
+      },
+      "inspection": {
+        "bytes": 11574,
+        "sha256": "187f5deb037338c4d31205423c0faf45b53f4f30a50deb87d22f97c0768c1d2d"
+      },
+      "name": "python-pycparser",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "de0a9753c36bf83a1b243f8c9a9956fd69b5b81483c89ccea0a9fcdca50204ec"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 389256,
+        "sha256": "f6217743d87dfe2c8bffdd0313c3394057dfac05499c891469faeb5c0c2bed85"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "beb45378d4e278898f765c050b699cf91f9cf3b0bc3eca72f332d834792f6a76"
+      },
+      "inspection": {
+        "bytes": 26552,
+        "sha256": "64f8a9b86def53684e5671c5f1d52b4d5d68ca3ed71c2a13fd0ad553d378d534"
+      },
+      "name": "python-pyelftools",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "b0818bf120d6acb2b18005240a987ae9659b59b2d78fc0871e16bc5e186b8356"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 2439236,
+        "sha256": "599962a7b0f5f3387682977065f045b0f9ab93e6c1f0dd840d06c302a8e4d113"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "8cae8e11403d5cadcf1604faf986ec9a9d74a4035d085cdea96a38da1dd8529e"
+      },
+      "inspection": {
+        "bytes": 105226,
+        "sha256": "56732c0fc7651a631da82e4acc31f57978b955d1f196a1258cd4309ba59320c7"
+      },
+      "name": "python-pygments",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "04d496d269f1cf67273489f496e29e57d69b2cba15788fcfb83a51b2f8e99a76"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 802772,
+        "sha256": "434c448501105c3720c4d6e4a8077a5888cd258da9a4de60555719375181f97c"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "6e6a878a5578054a516a23f57ba2a8e3d9d637b3954c2e9eb8db74ea1b613419"
+      },
+      "inspection": {
+        "bytes": 31412,
+        "sha256": "22ce7299d79d1a0aa5354c757e1a7176483800f23454cbc45d0e2315c38acf69"
+      },
+      "name": "python-pytest",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "c70c80e5a6099a48af4e0ed47a5c19c073d509a078ab102256059e0ed2290412"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 38320,
+        "sha256": "dd4fdce79fc61dd0271714c5e2cac90bc4967121556fa4af132ee835f097713a"
+      },
+      "gpg_status": {
+        "bytes": 404,
+        "sha256": "31331a22ae23e2a4cfa9bf6a9afef843fc7cc93f24672e0683183ca68d13098e"
+      },
+      "inspection": {
+        "bytes": 9303,
+        "sha256": "e2b93a8389916668dfaa34d2bc4d5b306d36a1d0182f043ad99f103a07d80d1a"
+      },
+      "name": "qrencode",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "07d3eb395f76747866b4ceeb6c1ed66736db9de59a46d7cf04ba9135fbff12b3"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 215520,
+        "sha256": "25cb1ddd6dc5f8711955a881c400f07fe0ddb8f100d10e86cf68c1afa6336279"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "790d672130d792cefa5dcfd2c5291757acc06342ef608a0700783d244a8f6718"
+      },
+      "inspection": {
+        "bytes": 12252,
+        "sha256": "b48a32607b39851806c2f6936fafc54e188d84ddc5bf763aeee23bdf445ba1c3"
+      },
+      "name": "quota-tools",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "592af3c843890174d90b2b04d65c5cdc2df96958c8f71c8791f75d5acab38cc6"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    },
+    {
+      "archive": {
+        "bytes": 397300,
+        "sha256": "8be90974a6ea14812340c6ba6457dc326b44d1655cae8e80737899a9f666cb9f"
+      },
+      "gpg_status": {
+        "bytes": 405,
+        "sha256": "ade1b954041eb9d9378791e19663d9d42b49a08fa3ef66798149fd3823272a7f"
+      },
+      "inspection": {
+        "bytes": 10409,
+        "sha256": "813dfd0e754894fd9cd60dd071a8fbf59a1041532793cf132ded8a201090e1c6"
+      },
+      "name": "rsync",
+      "package_execution": "NOT_RUN",
+      "signature": {
+        "bytes": 566,
+        "sha256": "1c542414fdb35e4f20c84ef3e3438a2a765ce6e200c73d2fddc60350db0ac493"
+      },
+      "signature_status": "CURRENT_PINNED_OFFICIAL_SIGNER_VALID"
+    }
+  ],
+  "public_only_gpg_home_retired": true,
+  "signer": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+  "source_license_closure": "DECLARED_METADATA_AND_RETAINED_NOTICES_ONLY_NOT_ALL_CORRESPONDING_SOURCE",
+  "status": "SIGNED_ARCHIVE_DATA_AUTHENTICATION_PASS",
+  "total_bytes": 92525508
+}
