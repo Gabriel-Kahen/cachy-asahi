@@ -1,0 +1,53 @@
+{
+  "basis": "Exact ordinary source-static helper bytes, not ambient Git revision; Root must join this finite helper role before actual integration",
+  "files": {
+    "scripts/apps/file_capabilities.py": {
+      "bytes": 13562,
+      "sha256": "498a3beec0327b9335dcd6d80ed5919fa2edebebd3284e9ee8b97770328e26a2"
+    },
+    "scripts/ci/full-root-upgrade-caller/persistent_scope.py": {
+      "bytes": 17405,
+      "sha256": "cd1f23bd252b77e9b3a9e907e1c0defd5141025408e92ae5c2500152076b6f3a"
+    },
+    "scripts/ci/full-root-upgrade/root_upgrade.py": {
+      "bytes": 23555,
+      "sha256": "fe1232ae6b510021910b4fb80016ac3b4668c6e4386cdae45e7b95196e400756"
+    },
+    "scripts/install/local_transaction.py": {
+      "bytes": 93752,
+      "sha256": "14381d049506b52770059bf7af415f7a079f69872543e74417aca11ce24ac3c5"
+    },
+    "scripts/update/aux_checkpoint.py": {
+      "bytes": 18456,
+      "sha256": "d51179ca24c981bafd817d7db082c0ceb3b2f5deb922004bfe97d1e2007edda7"
+    },
+    "scripts/update/capacity.py": {
+      "bytes": 1449,
+      "sha256": "dcb9899cd24daa21f75e6da6b0214393f093d140a70769092da091e0cfdf7c87"
+    },
+    "scripts/update/disposable_copy.py": {
+      "bytes": 6098,
+      "sha256": "fb05d12a0d67a598cc940e0bc7edb5aa9ffc8cf87ce7b9f695ba5fbd26747667"
+    },
+    "scripts/update/full_root.py": {
+      "bytes": 35970,
+      "sha256": "cece1c597b2e2eb98b0e3087cc7e7c148b54332f8a1c4f18e04e4552a71fb51d"
+    },
+    "scripts/update/measure_copy.py": {
+      "bytes": 25734,
+      "sha256": "e582245bd114b0b9d83f2de4fdc81a35d2f48493ba6147879871af794476813b"
+    },
+    "scripts/update/root_link_selection.py": {
+      "bytes": 25684,
+      "sha256": "4b47223e9c66874193c2b38a620aa892871e93e556178c478dac1929d2540db9"
+    },
+    "scripts/update/root_path.py": {
+      "bytes": 3435,
+      "sha256": "2efcbc1057e117a406488f05a3e0213751b00ab09f845a7830a71a4cf60fd2b4"
+    },
+    "scripts/update/supervision.py": {
+      "bytes": 3293,
+      "sha256": "f18bcbd2a6279cff8fe6c7e9c9f80fc01c9818844b01df8c4e97b83d61704b10"
+    }
+  }
+}
