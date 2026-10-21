@@ -37,6 +37,13 @@ jobs:
           ref: 9c49f8d12e5aea864bcf6bca6ed836874c1f06e5
           path: fixtures/source563
           persist-credentials: false
+      - name: Check out the exact optional566 fixture
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: ${{ github.repository }}
+          ref: 1c5d0fa3ffd55f323225782958f8199eccb80ebc
+          path: fixtures/source566
+          persist-credentials: false
       - name: Run five real descriptor controls
         shell: bash
         run: |
@@ -54,3 +61,15 @@ jobs:
         run: |
           set -euo pipefail
           python3 -W error -B scripts/ci/current607-native-graph-profile/test_retention.py
+      - name: Run six real optional ancestry controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -W error -B scripts/ci/current607-native-graph-profile/test_ancestry.py
+      - name: Run three optional factory controls against exact555 and566
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -W error -B scripts/ci/current607-native-graph-profile/test_ancestry_profile.py \
+            --source "$GITHUB_WORKSPACE/fixtures/source555" \
+            --expected "$GITHUB_WORKSPACE/fixtures/source566"

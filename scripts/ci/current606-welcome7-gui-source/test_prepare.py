@@ -6,6 +6,7 @@ from pathlib import Path
 HERE=Path(__file__).resolve().parent
 s=importlib.util.spec_from_file_location('_current606_GUI_source_factory',HERE/'prepare.py');P=importlib.util.module_from_spec(s);s.loader.exec_module(P)
 PREDECESSOR=None
+WELCOME8=None
 class Factory(unittest.TestCase):
  def setUp(self):self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup);self.home=Path(self.temp.name);self.out=self.home/'out'
  def test_exact_repeat_emission_and_original_identities(self):
@@ -59,5 +60,31 @@ class Factory(unittest.TestCase):
   with self.assertRaisesRegex(ValueError,'fresh disjoint'):P.prepare(PREDECESSOR,PREDECESSOR/'forbidden-generated-child')
  def test_exact_isolated_CLI_and_independent_runtime_axes(self):
   done=subprocess.run([sys.executable,'-I','-B',HERE/'prepare.py','--predecessor-root',PREDECESSOR,'--output',self.out],capture_output=True,text=True,timeout=30);self.assertEqual(done.returncode,0,done.stderr);fact=json.loads(done.stdout);self.assertEqual(fact['profiles'],['minimal','overlay']);self.assertEqual(fact['page_modes'],['generic4k','generic16k']);self.assertEqual(fact['acceptance'],'NOT_GRANTED');self.assertEqual((self.out/'.github/workflows/native-arm-build.yml').read_bytes(),(self.out/'.github/workflows/native-arm-current606-welcome7-gui.yml').read_bytes());routes=json.loads((self.out/'extension-input-profile.json').read_bytes());self.assertEqual(len(routes['files']),26);self.assertEqual(set(routes['carriers']),{'retained574','compiler6','official3','legacy2'})
+class Welcome8Factory(unittest.TestCase):
+ def setUp(self):
+  if WELCOME8 is None:self.skipTest('--welcome8-predecessor-root required')
+  self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup);self.home=Path(self.temp.name);self.out=self.home/'out'
+ def test_exact544_repeat_and_complete_original_admission(self):
+  fact=P.prepare_welcome8(WELCOME8,self.out);other=self.home/'repeat';P.prepare_welcome8(WELCOME8,other);self.assertEqual(P.files(self.out),P.files(other));self.assertEqual({n:P.pin(b)for n,b in P.files(self.out).items()},P.profile()['welcome8']['output']['files']);self.assertEqual(fact['files'],544);self.assertIsNone(fact['actual_run']);self.assertEqual(fact['acceptance'],'NOT_GRANTED')
+  s=importlib.util.spec_from_file_location('_portable_welcome8_full_admission',self.out/'admission.py');m=importlib.util.module_from_spec(s);s.loader.exec_module(m);proof=m.prove(self.out);self.assertEqual((proof['files'],proof['original348'],proof['published_factory53']),(544,348,53))
+  old=dict(l.split()for l in(WELCOME8/'factory/expected606.lock').read_text().splitlines());new=dict(l.split()for l in(self.out/'factory/expected606.lock').read_text().splitlines());self.assertEqual({n for n in old if old[n]!=new[n]},{'cachy-asahi-welcome'});self.assertEqual(new['cachy-asahi-welcome'],'0.1.0-8')
+ def test_changed_missing_extra_predecessor_refused_before_output(self):
+  for kind in('changed','missing','extra'):
+   copied=self.home/kind;shutil.copytree(WELCOME8,copied);name=next(iter(P.profile()['welcome8']['predecessor']['files']))
+   if kind=='changed':(copied/name).write_bytes(b'drift')
+   elif kind=='missing':(copied/name).unlink()
+   else:(copied/'extra').write_bytes(b'extra')
+   with self.subTest(kind=kind),self.assertRaisesRegex(ValueError,'complete genuine corrective540'):P.prepare_welcome8(copied,self.out)
+   self.assertFalse(self.out.exists())
+ def test_role_specific_real_sized_metadata_and_original_cleanup_body(self):
+  P.prepare_welcome8(WELCOME8,self.out);s=(self.out/'factory/context606.py').read_text();node=next(n for n in ast.walk(ast.parse(s))if isinstance(n,ast.IfExp)and ast.unparse(n.test)=="name == 'original-latest-input-plan.json'");cap=lambda name:eval(compile(ast.Expression(node),'<exact named metadata cap>','eval'),{'name':name,'M':1024**2});spec=importlib.util.spec_from_file_location('_portable_welcome8_metadata',self.out/'factory/context606.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);leaf=self.home/'metadata';leaf.write_bytes(b'0'*3285022);self.assertEqual(len(m.read(leaf,cap('original-latest-input-plan.json'))),3285022)
+  with self.assertRaises(ValueError):m.read(leaf,cap('original604-manifest.json'))
+  alias=self.home/'hardlink';os.link(leaf,alias)
+  with self.assertRaises(ValueError):m.read(leaf,cap('original-latest-input-plan.json'))
+  def cleanup(root):
+   s=(root/'factory/run.py').read_text();return ast.get_source_segment(s,next(n for n in ast.parse(s).body if isinstance(n,ast.FunctionDef)and n.name=='cleanup'))
+  self.assertEqual(cleanup(self.out),cleanup(WELCOME8));self.assertIn("factory();out=state/'ordered-cleanup.json'",(self.out/'native.py').read_text())
+ def test_explicit_isolated_Welcome8_CLI_no_actual_authority(self):
+  done=subprocess.run([sys.executable,'-I','-B',HERE/'prepare.py','--welcome8','--predecessor-root',WELCOME8,'--output',self.out],capture_output=True,text=True,timeout=30);self.assertEqual(done.returncode,0,done.stderr);v=json.loads(done.stdout);self.assertEqual(v['files'],544);self.assertEqual(v['acceptance'],'NOT_GRANTED');self.assertIsNone(v['actual_source']);self.assertIn('welcome8_stop.exercise',(self.out/'factory/extend_welcome8.py').read_text());self.assertEqual((self.out/'.github/workflows/native-arm-build.yml').read_bytes(),(self.out/'.github/workflows/native-arm-current606-welcome8-gui.yml').read_bytes())
 if __name__=='__main__':
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('--predecessor-root',type=Path,required=True);a,rest=p.parse_known_args();PREDECESSOR=a.predecessor_root.absolute();unittest.main(argv=[__file__,*rest])
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--predecessor-root',type=Path,required=True);p.add_argument('--welcome8-predecessor-root',type=Path);a,rest=p.parse_known_args();WELCOME8=a.welcome8_predecessor_root.absolute()if a.welcome8_predecessor_root else None;PREDECESSOR=a.predecessor_root.absolute();unittest.main(argv=[__file__,*rest])
