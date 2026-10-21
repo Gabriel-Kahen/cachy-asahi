@@ -2,8 +2,8 @@
   "actual": null,
   "cleanup_acceptance": false,
   "effective_profile": {
-    "bytes": 8615,
-    "sha256": "3964a74c105e29010eb3c7277289890c7d621edcb04a461c2125a67a07d77e51"
+    "bytes": 9227,
+    "sha256": "2c4ca550699576cb71fa5d0733b94e0a1d8d3e352150903b6d19261d6b0ed043"
   },
   "effective_profile_files": {
     "pacman/.SRCINFO": {
@@ -71,12 +71,12 @@
       "sha256": "3d7579f4fa52ef512dc82187c010f273aa45e6e8349f8fda9839f808c7dae042"
     },
     "profile.json": {
-      "bytes": 8615,
-      "sha256": "3964a74c105e29010eb3c7277289890c7d621edcb04a461c2125a67a07d77e51"
+      "bytes": 9227,
+      "sha256": "2c4ca550699576cb71fa5d0733b94e0a1d8d3e352150903b6d19261d6b0ed043"
     },
     "systemd/.SRCINFO": {
-      "bytes": 8993,
-      "sha256": "67d071a1526bcc48501c0b3d8210d2628e720f112bb15fb253b708f65e92cda0"
+      "bytes": 9667,
+      "sha256": "4fffb659a30ea694fa146708e42f3a42f60170aee6bbee5350471cbf7c4b8494"
     },
     "systemd/0001-Use-Arch-Linux-device-access-groups.patch": {
       "bytes": 6920,
@@ -130,6 +130,10 @@
       "bytes": 321,
       "sha256": "53e1ac2a7ddcd696f7c8c930bd36c8764b9d46502cf56340c67a579b128dae4c"
     },
+    "systemd/BTF-COPYING": {
+      "bytes": 21767,
+      "sha256": "8c2e788450b96fff746385c42d3985bf33aef09f10c94c5c66505165cdd0103a"
+    },
     "systemd/PACKAGING-LICENSE": {
       "bytes": 646,
       "sha256": "7056c04df17a4e0f0bac9f787f347c9cd892cee6323d1c89528090afd0b934a3"
@@ -139,8 +143,8 @@
       "sha256": "720d9d7e602fa68c2b0adb890af4e227cd7f75a2872c6886e459e5c454088c9f"
     },
     "systemd/PKGBUILD": {
-      "bytes": 16104,
-      "sha256": "65170140c979b9496e36f5039301474c5177eea29a7c6bd952a83c0c612a8198"
+      "bytes": 16919,
+      "sha256": "b9cebe3d9ba506784f8f6f6a0fb83ca3be51c52570801d9d91cecd92e41a55ab"
     },
     "systemd/arch.conf": {
       "bytes": 243,
@@ -149,6 +153,10 @@
     "systemd/caa-owned-userns.h": {
       "bytes": 4600,
       "sha256": "a5b8cf1847e9d7f0d06228b251a40a55827681a6994baa1c95b1b8cbc03c0402"
+    },
+    "systemd/cachy-asahi-btf.py": {
+      "bytes": 12106,
+      "sha256": "4662b67524db7a25e9194588cb477d81d84e854f49e90f7ac8f71a07b5a1e046"
     },
     "systemd/cachy-asahi-owned-userns.patch": {
       "bytes": 1959,
@@ -181,11 +189,19 @@
     "systemd/systemd.install": {
       "bytes": 2247,
       "sha256": "a726c5ae26164ccbbc7036daa7b00f3b0cc06f4d1bfa18aabc771c51b7c2081a"
+    },
+    "systemd/vmlinux-input.json": {
+      "bytes": 65768,
+      "sha256": "d28d901747a09b3473220a4c1fbe0ccf7dd2f9d777524bba41b08b66bf3ec973"
+    },
+    "systemd/vmlinux.btf": {
+      "bytes": 8430525,
+      "sha256": "bb0d29de550d1cf6f63cbc8792f4ad75e1b1f9b4df2d480a1015749949e4d5a2"
     }
   },
   "effective_profile_proof": {
-    "bytes": 162867,
-    "sha256": "439806f298bb02067c3e060d54e94da85e0566306fc394e05cb205a61a2e92ac"
+    "bytes": 166831,
+    "sha256": "508857b443593238a89d1c0c3420bb958442ebb72118e0d0316db7021932eea9"
   },
   "namespace_header": {
     "bytes": 4600,
