@@ -113,3 +113,39 @@ this source-only factory result.
 ## Explicit Apps10/current606
 
 `--apps10 --apps10-carrier /ordinary/qualified94` emits exact389 source `eeb7fc5c3bcaa5b152ca6eb97983f6c31f8d0cdb`. Supply the same original348 parent and Apps8 carrier93 as the existing routes. The new candidate carrier must be complete source `a2bbf5edd57a7a31951a1e9060c83698f29302c4`. All eleven previous non-CLI function bodies, source authorities and default outputs remain unchanged. Selection is explicit and mutually exclusive. This source factory grants no execution or release acceptance.
+
+
+## Explicit Apps11/current606 source389
+
+`--apps11 --apps11-carrier /ordinary/qualified94` emits exact published389
+`7abbc5ca0c3a0cb132732b6d8e78fbbae48ab242` using full Apps11 carrier
+`333e3e8680bcfb6cad6afb5c5dc6070e39e62a6e`. Keep the same complete348
+parent and original Apps8 carrier93. This route composes both whole380
+prerequisites in memory, then applies16 replacements and9 additions while
+holding364 corrected380 leaves. All thirteen earlier non-CLI function bodies
+and default/corrected/Apps9/Apps10 outputs remain byte-identical. Candidate
+options are mutually exclusive; unselected/missing/foreign carrier inputs
+refuse before output. There is no fallback to an earlier Apps candidate.
+
+```sh
+python3 -I -B -Werror scripts/ci/apps8-current606-source/prepare.py --apps11 \
+  --parent /ordinary/accepted348 --carrier /ordinary/Apps8-input93 \
+  --apps11-carrier /ordinary/Apps11-input94 --output /fresh/source389
+```
+
+The complete94 map includes the qualified26716-byte Apps11 native pair
+SHA80fe5fd4117c5b994e724ba29bb60473da86d829af757c8c62bea1164758901a,
+recipe42 and original Root native/installed574 decision. The new current606
+lifecycle remains separate:6→7→11/same11/remove11/reinstall11→7→original6,
+seven transactions, six signed installs and150 installed checks across both
+ordinary homes. Full605/Runtime1/config/trust/rawDB/payload/identity/hardlink/
+caps/security/retirement and owner6600/worker1800/copy600/tx90/fixture70/cleanup60
+remain mandatory. Fresh TEST signing uses the unchanged original body. This
+factory runs no signer, Git, transaction, native actor or passive reader.
+
+Scoped read-only both-Python CI verifies exact389 isolated emission and all
+seven emitted source controls, whole old function/output parity and complete
+profile/map/legal/payload/directory/alias/selection drift refusals. All actual
+profiles remain NULL; source emission grants no current606,GUI,16K,M2,
+performance or release acceptance and does not require an Apps10 current606
+actual.
