@@ -103,3 +103,17 @@ python3 -I -B -Werror scripts/ci/current606-welcome7-gui-source/prepare.py --app
 ```
 
 The input remains the existing correction option’s original public parent. Each historical intermediate is assembled and checked in memory; the new complete map is verified before creating the sole fresh output. Scoped read-only CI checks both exact public trees independently on Python3.12 and3.14, executes the actual emitted new source controls and preserves the older factory controls. No heavy passive acceptance chain is rerun by these tests.
+
+## Explicit Apps9 GUI source option
+
+`--apps9` emits exact557 source `5c22c8dbac8b6a79ebbbd19141ace4840d41e43e` from whole556 predecessor `51e7797ef639de8fbed96e51b5b12bf5a92c7cb7`. It selects only the qualified Apps9 input carrier `128b9806c8e972a729d5c1ef4f2dc9e39e48fc42` (93 files), recipe `9f9eae97843531a41b201655100f13984d9ac01e` and native pair source `4ebe9f9afb153b34e8fe200594eaee189626413f`/run39748090833. The Apps9 archive is24128B, SHA256 `718121ffe0590f3ab0bb5e2a87957d8c9187d0d8d481304c999caa7ea351e6c1`. The profile retains whole historical Root publication/Git maps; source fixtures must match every byte. These are input credentials, not new GUI acceptance.
+
+```sh
+python3 -I -B scripts/ci/current606-welcome7-gui-source/prepare.py \
+  --apps9 --predecessor-root /ABS/PUBLISHED_51E_SOURCE --output /ABS/NEW_SOURCE
+python3 -I -B /ABS/NEW_SOURCE/native.py preflight
+```
+
+`--apps9-unbound` emits the exact NULL557 template instead. Its native proof/run entry refuses before owner creation or actors. All previous options and the default540 output remain unchanged. The whole556 inverse holds538 leaves; only selected Apps9 roles, source context, lock/profile and workflow seals change. All32 other incoming products, exact Welcome8 variant, original606/controller/GBM/bus/frame/signature/private exclusions/cleanup and35s/30s/two-fresh-scan limits remain held. The prior Apps8 completed-command failure and later outer35s timeout remain separate failures; no new deadline or GUI performance claim follows.
+
+The readable `apps9.py` assembler uses all six payload files under `apps9-payload/`, reconstructs original before bytes and manifest, validates the entire result before output, and refuses parent/profile/payload drift or aliased/existing output. Scoped `current606-welcome8-apps9-source.yml` runs Python3.12/3.14, five factory controls and all eleven actual emitted-source controls against pinned parent556/result557/carrier93/recipe41/native114 fixtures. Tests are portable and execute no native actors, API, GPG, or retained Python. Root owns actual GUI execution, once collection, passive verification and acceptance.
