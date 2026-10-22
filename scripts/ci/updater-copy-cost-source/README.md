@@ -76,3 +76,37 @@ native39726250527 is pending and no deadline cure or speedup is claimed.
 The optional source CI independently checks both immutable489 source checkouts,
 exact output, drift/alias refusal and the actual private helper behavior with
 missing I/O. It runs no updater, GPG, VM or package transaction.
+
+## Inner copywalk text validation
+
+`copywalk_text.py --parent /absolute/optional-io489 --output /absolute/fresh489`
+emits exact489 source `b21a5864d5a4610b9181a1c270ac8821d8448a17` from
+`2ef64d460aedeed8f40909d32f4a074e8c3c546b`. Six replacement leaves preserve483
+others. Both existing entry points and outputs remain unchanged.
+
+The private descriptor route now uses the source-verified canonical POSIX text
+validator with the entire original fallback for uncertain values. Original code
+objects perform every fresh filesystem, hash, graph, link, mount, capability and
+lifetime check. No filesystem or successful validation result is cached. Native
+1200/1860/3900 clocks remain held. Local owned-fixture equivalence/refusal checks
+passed; the ARM trial remains pending, with no M2 performance claim.
+
+The separate read-only CI reproduces both complete489 maps, checks drift/alias
+refusals and runs all106 emitted source controls through unittest discovery.
+No native reader, API, GPG, package installation or VM actor runs in this CI.
+
+Run the portable maintained controls against the two complete immutable checkouts:
+
+```sh
+UPDATER_TEXT_PARENT=/absolute/optional-io489 \
+UPDATER_TEXT_EXPECTED=/absolute/copywalk-text489 \
+  python3 -I -B -Werror scripts/ci/updater-copy-cost-source/test_copywalk_text.py
+```
+
+The seven tests cover exact isolated CLI/full489 emission, the6/483 inverse,
+checkout metadata exclusion, parent/profile/payload drift before output, source
+and file aliases, and unchanged historical profile/optional-output composition.
+They then discover and run all106 original controls from the verified emitted
+source in a temporary directory, with no development-artifact paths. The original
+owned ext4 image controls require `mkfs.ext4` and `debugfs` (e2fsprogs); missing
+tools fail explicitly. No original test or assertion is patched or skipped.
