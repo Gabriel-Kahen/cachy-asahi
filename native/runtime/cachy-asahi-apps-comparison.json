@@ -1,0 +1,14 @@
+{
+  "errors": [],
+  "hardware_status": "NOT RUN",
+  "independence_limit": "Distinct recorded container runs; independent machine execution is not attested.",
+  "packages": {
+    "cachy-asahi-apps-0.1.0-9-any.pkg.tar.xz": {
+      "buildinfo_equal": true,
+      "bytes_equal": true,
+      "installed_contents_equal": true,
+      "pkginfo_equal": true
+    }
+  },
+  "status": "contents-reproduced"
+}
