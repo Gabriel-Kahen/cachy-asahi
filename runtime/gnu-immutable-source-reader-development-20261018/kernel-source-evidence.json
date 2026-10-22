@@ -1,0 +1,34 @@
+{
+  "archive": {
+    "bytes": 262965559,
+    "sha256": "874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad"
+  },
+  "files": {
+    "drivers/md/Kconfig": {
+      "bytes": 22482,
+      "sha256": "8d9d21408e1c3be83c1954bf6264440eb97be9f61914952e80f37a9220265562"
+    },
+    "drivers/md/dm-ioctl.c": {
+      "bytes": 54337,
+      "sha256": "5fb46d4dde1d45eee8b00b35d86e6bbb2a29ef4f3c30abf4f9206f5a805607d2"
+    },
+    "drivers/md/dm-verity-target.c": {
+      "bytes": 46381,
+      "sha256": "1cb6d270db26de9443d53342a61d5c0d114d5083511799326abf3c36acd1db87"
+    },
+    "include/uapi/linux/dm-ioctl.h": {
+      "bytes": 11749,
+      "sha256": "31b03523fec094e3980c52c7a09b0bb4e5cd18019aeea3ab5207b7162d98d7c1"
+    },
+    "include/uapi/linux/fcntl.h": {
+      "bytes": 7297,
+      "sha256": "530fa75ae9611598705eefb5ed6068f800fc26d97a2997fae4a3f7c2dadbaddf"
+    },
+    "include/uapi/linux/openat2.h": {
+      "bytes": 1465,
+      "sha256": "1c694c33d2d60cb8767c34bf52e536dc9e30dc78b90cbeaf73ac9c6b2271a23c"
+    }
+  },
+  "source_revision": "94fb23346d522edf53722357c426a3e58030beea",
+  "status": "ARCHIVE_BYTES_AND_SELECTED_SOURCE_JOINED_NOT_CONFIGURED_OR_BUILT"
+}
