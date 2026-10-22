@@ -125,3 +125,19 @@ routing, implicit-profile refusal, physical early/late drift, aliases and
 helper/template/profile drift. The isolated CLI works outside the repository.
 No development artifact path is a runtime/default-test dependency; no actors,
 API/network, keys, install/build or native reader replay runs during emission.
+
+
+## Explicit Apps13 repair235 source
+
+The separate `apps13.py --profile apps13-repair235` route consumes exact complete Apps12 parent235 `76259e4e5b4b7e16a46241e7d01e05b662a1c100`. With `--carrier /exact/d96/source94` it reproduces exact Apps13 source235 `1ed3510ac2f4ae653c471fc1ea4ba710a0b198d6`. Without a carrier it emits the exact frozen NULL source and refuses selection before external queries or actors. All old entry points, defaults, payloads and outputs remain unchanged.
+
+```sh
+python3 -I -B -Werror scripts/ci/repair16k-inner-diagnostics-source/apps13.py \
+  --profile apps13-repair235 --base-root /absolute/exact76259-source235 \
+  --carrier /absolute/exactd96-source94 --output /fresh/disjoint235 \
+  --authorization /fresh/disjoint-authorization.json
+```
+
+The whole235 before/selected/NULL maps authenticate38 used readable payloads,197 held paths and25 finite replaced names. NULL selection deterministically regenerates only its seven source-owned profile/seal operands. Both original235 and210 source gates remain intact through the complete emitted inverse; all original Runtime1/cache/orphans authority, selected payloads, signed transactions, preservation, observations, cleanup and9000/9010/45/30/native2400/2410/shared reservations remain mandatory. Whole94 Root-accepted Apps13 input custody qualifies inputs only, with no repair/M2/performance/release claim. Every current actual ID remainsNULL.
+
+Scoped read-only dual-Python CI checks exact bound and NULL emission, whole source inverses, before-output drift/alias/profile/carrier refusals, isolated source/selection CLIs and both complete10-control emitted source suites. Local factory controls reuse the separately frozen prior40 source-control receipts after full512-file custody verification; no old reader/actual/native proof is rerun. Test inputs are explicit published source roots; no artifacts path, actor, key, Git/API or private vendor input is required by the factory. Source/license bodies retain their original attribution.
