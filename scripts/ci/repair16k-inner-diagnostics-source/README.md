@@ -46,3 +46,40 @@ All factory support is source-owned within this directory; no development
 artifact directory is a runtime or default test dependency. Local fixture
 checkout paths are explicit test inputs. Native execution and acceptance stay
 separate from factory tests.
+
+
+The separate `correctness9000.py` entry point is an explicit correctness resource
+profile, with no default change to either existing emitter. It requires exact
+published210 source62c7a42c5288d83d23291a7f042ad8fa97a98bce and emits exactly
+published210 source6402dd1cfbcc2eebb17ff511d0c1c4694bb53dda:
+
+```sh
+python3 -B scripts/ci/repair16k-inner-diagnostics-source/correctness9000.py \
+  --profile correctness9000 --base-root /absolute/exact62c7-checkout \
+  --output /absolute/fresh-correctness-source --authorization /absolute/fresh-authorization.json
+```
+
+Guest prepare-copy receives9000 seconds and its backend9010. The shared owner
+remains bounded18000 within job21000; remaining-capacity admission, native
+2400/2410, read-only2400, product600/610 and all security/observation/lifetime
+methods remain held. Both historical4800 and6000 fits FAILED in genuine native
+runs; this source profile does not turn either into a pass. Correctness9000 is
+native-pending, with no performance or hardware claim. Every emitted actual
+source/ref/run remainsNULL. The exact full210 input is physically rehashed before
+output and after emission; no source results or observations are cached.
+
+Portable source controls use exact public fixture checkouts:
+
+```sh
+REPAIR_CORRECTNESS_BASE_SOURCE=/absolute/exact62c7-checkout \
+REPAIR_CORRECTNESS_EXPECTED_SOURCE=/absolute/exact6402-checkout \
+  python3 -B -W error scripts/ci/repair16k-inner-diagnostics-source/test_correctness9000.py
+```
+
+The path-scoped `repair16k-correctness9000-source.yml` runs these six controls and
+CLI help on Python3.12/3.14, using pinned checkouts and read-only permissions.
+Controls include whole210 function/CLI emission, complete finite inverses,
+original guest/backend routing and host reservations, explicit profile refusal,
+real early/late source drift and aliases, and pinned helper/profile drift.
+No development-artifact directory is a runtime/default-test dependency. The old
+203 modes and cost210 profile/support/helpers/workflow remain byte-identical.

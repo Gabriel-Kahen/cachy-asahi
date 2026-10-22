@@ -62,3 +62,17 @@ tests complete correctness with a bounded larger integration budget and makes no
 performance, native success, hardware or release claim. Run
 `test_correctness2400.py --source ABS555 --expected ABS568` for actual isolated CLI,
 exact three-profile emission and support-drift-before-output controls.
+
+
+Explicit `--profile layered4200` emits exact568 public12d7e769 from the same
+whole555 input, after reproducing exact563 and566. It uses the genuine separate
+566→568 proof and preserves all old563/566/correctness2400 outputs byte-for-byte.
+The outer consumer allowance is4200 (original1800 plus component2400), while the
+component stays2400 and owner6600/transaction90/fixture100/cleanup60 remain held.
+All51 full graphs and25 transactions remain mandatory. The original1800 and2400
+native fits stay FAILED_NOT_RECLASSIFIED; this is a separate correctness profile,
+not a performance claim, accepted installation, hardware result or clock waiver.
+`test_layered4200.py --source ABS555 --expected ABS_LAYERED568` reproduces all
+four exact profiles, the actual emitted owner/timer inverse, fresh real timing
+file labels, full original source guard and before-output drift refusals.
+The scoped read-only CI runs all original and new controls on Python3.12/3.14.

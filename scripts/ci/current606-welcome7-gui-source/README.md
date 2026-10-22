@@ -56,3 +56,17 @@ GPG authentication, ALPM, GUI or native actor runs. Path-scoped read-only CI pin
 the new548 fixture and runs all original15 plus new10 controls on Python3.12/3.14.
 Native BuildKit/GUI success, same-source pairs,16K,M2 and acceptance remain separate
 Root decisions; previous failed runs provide no positive authority.
+
+
+Explicit `--loader` emits exact549 public4e63aa1c from whole public548865cc33c.
+Default540 and explicit544/546/548 routes remain byte-identical. Two readable
+successor templates define importlib loading in the actual emitted user namespace;
+whole original548 admission/inverses and all source/transport/security/BuildKit
+budgets remain mandatory. The old missing `load` NameError is preserved by a
+portable regression that executes the actual source edit in whole original
+user(), then uses the real Python import loader against an inert private plugin.
+Native identity/device/bus/GBM/session boundaries are mocked only in that control.
+It grants no GUI, package, native or hardware acceptance; all four independent
+minimal/overlay4K/16K cases remain separately required. Run `test_loader.py`
+--predecessor-root ABS548 --expected-root ABS549. The existing scoped both-Python
+CI reproduces the old routes and the new loader route without actors or GPG.
