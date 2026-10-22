@@ -69,3 +69,23 @@ factory. The previously captured panic line remains unknown.
 python3 -I -B scripts/ci/core7-systemd-vm-source/prepare.py --virtio20 --source-only
 python3 -I -B scripts/ci/core7-systemd-vm-source/prepare.py --virtio20 --output /fresh/source
 ```
+
+
+An independent `--automatic-rollback` source-only option composes the exact36-file
+four-boot case from the whole virtio20 source34. Default and `--virtio20` outputs
+are unchanged. Boots1/2 retain install/reboot589, boot3 downgrades exactlyfive
+originals then removes15 additions (capturing the intermediate589), and boot4
+verifies original574 persistence. All signatures, actual PID1, graph/account/cache/
+config/capability and natural retirement checks remain mandatory. This explicit
+new case uses owner21600/shared14400; boot3600/stage3300/transaction90/cleanup60 and
+all stream/graph caps remain held. Its exact public source is48dcc65b10641a7b92eb5577f9f7d328cd26ed61; actual binding
+stays NULL. Whole output bytes are hard-pinned. No native acceptance is granted.
+The active two-boot bootstrap must be diagnosed before another native build.
+
+```sh
+python3 -I -B scripts/ci/core7-systemd-vm-source/prepare.py --automatic-rollback --source-only
+python3 -I -B scripts/ci/core7-systemd-vm-source/prepare.py --automatic-rollback --output /fresh/source
+```
+
+Scoped CI also runs the emitted40 source controls on each Python version; these
+use inert actor boundaries, never native Docker/QEMU/GPG/package/systemctl work.
