@@ -1,0 +1,78 @@
+{
+  "GUI": "NOT_RUN",
+  "created_utc": "2026-10-22T05:49:57.790819+00:00",
+  "hardware_both_M2_sizes": "NOT_RUN",
+  "historical_fits": {
+    "consumer1800": "FAILED_NOT_RECLASSIFIED",
+    "consumer2400": "FAILED_NOT_RECLASSIFIED",
+    "passive_host300": "FAILED_TIMEOUT_NOT_RECLASSIFIED"
+  },
+  "limitations": [
+    "Proper native offline container software composition only; no ordinary copied607 or physical Asahi/M2 qualification.",
+    "Original604 minus four selected packages leaves600 including Runtime1; original DNS2/Sysctl2 additions yield602 physically protected payload/rawDB packages, with source-proven selected-parent transitions.",
+    "Four selected tools restore exact original versions, payload/ownership/files/mtree and all desc bytes except numeric INSTALLDATE joined to actual bounded restoring transactions; selected inode restoration is NOT_CLAIMED.",
+    "Every action protects all nonacted tools, including Boot while installed. Historical native pair/component inputs are reused; no new tool builds or combined prior credit.",
+    "Private full observations, cryptographic verification and per-phase fresh auxiliary reads are source-enforced receipts/hash joins; passive replay does not perform fresh host filesystem or GPG observations.",
+    "Twenty-six fresh complete auxiliary observations retain one full exactly equal blob pair plus explicit nonce/phase/hash/length references; original fourteen raw checkpoints remain held.",
+    "Doctor27 and Apps15 original private controls, KSM44 private regular-file controls, WelcomeCLI5 and Boot15 synthetic journal/pstore controls are finite installed-software scope only; no live audio/KSM/NetworkManager/GUI, real boot/crash history, hardware, performance or release claim."
+  ],
+  "live_audio_KSM_journal_pstore": "NOT_QUALIFIED",
+  "native_clocks_seconds": {
+    "component": 2400,
+    "consumer": 4200,
+    "owner": 6600
+  },
+  "original_collection": "ACQUIRED_ONCE_NOT_REPEATED",
+  "original_roles": {
+    "artifact.zip": {
+      "bytes": 12964432,
+      "sha256": "0a5f7f1686a6c0a4fce60f71f4df35d9df906fdc5fa8b872d1c4283020ffdd74"
+    },
+    "artifacts.json": {
+      "bytes": 782,
+      "sha256": "99ff46593a198973b60a057b47bdcb83c1f4a830a4501409b8e388f50790949c"
+    },
+    "collection.json": {
+      "bytes": 723,
+      "sha256": "f12181c2a2f148ec9be0736b5ab8d1075822756da06903f2778577f1a9dbe993"
+    },
+    "jobs.json": {
+      "bytes": 16180,
+      "sha256": "bdc10136f5d4521aaa694fe9828645f14a12a8c0b81729ff93c017405e54915b"
+    },
+    "run.json": {
+      "bytes": 12978,
+      "sha256": "56f4fc3abe0fdfed0603567d11083c19ee45354bc2f8dd6800203d347f83fd82"
+    }
+  },
+  "passive_replay": {
+    "exit": 0,
+    "host_cap": 900,
+    "original_collection_repeated": false,
+    "wall_seconds": 310.0564846629859
+  },
+  "performance": "NOT_CLAIMED",
+  "post_replay_all_source_and_reader_pins": "PASS_ORDINARY_SINGLE_LINK_FULL_BYTES",
+  "reader_files": 1313,
+  "reader_result": {
+    "bytes": 460555,
+    "sha256": "a8c88ba4b2887276064366ac723a40cfd1e487eebba71cc34aaadea829601ee0"
+  },
+  "ref": "codex/current607-layered4200-v1",
+  "release": "NOT_ADMITTED",
+  "run_id": 39723442009,
+  "software_scope": {
+    "baseline": 606,
+    "fresh_auxiliary_observations": 26,
+    "fresh_graphs": 51,
+    "peak": 607,
+    "restored": 606,
+    "selected_four_logical_restoration": "ORIGINAL_VERSIONS_PAYLOAD_OWNERSHIP_FILES_MTREE_DESC_EXCEPT_BOUNDED_INSTALLDATE",
+    "selected_inode_restoration": "NOT_CLAIMED",
+    "transactions": 25,
+    "unselected_packages_physically_preserved": 602
+  },
+  "source": "12d7e769a8fe32a2714c10a9096f9805f8bb7920",
+  "source_files": 568,
+  "status": "ROOT_ACCEPTED_FINITE_NATIVE_LATEST_FIVE_TOOL_SOFTWARE_COMPOSITION"
+}
