@@ -1,0 +1,71 @@
+{
+  "Root_decision": "qualification/Root-component-acceptance.json",
+  "files": {
+    "LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "README.md": {
+      "bytes": 1401,
+      "sha256": "1f3a11485dd754109713ebebf2068456408545167a936ef768a1bd9923b18f33"
+    },
+    "native-source/Root-committed-publication.json": {
+      "bytes": 273,
+      "sha256": "c2b097b34591955b49294ec4cfcef9f9492fa2a1d952d6a0e9c26e8b00a41a42"
+    },
+    "native-source/Root-git-source-authorization.json": {
+      "bytes": 110569,
+      "sha256": "ed224282600786fc55b4b963d742905aadf6bf9dbf8a8c9142c1a98a4cff0280"
+    },
+    "native-source/publication.json": {
+      "bytes": 273,
+      "sha256": "6966081307e68ed1d36c4585dd72fc40111ef9aba0cb1d0c457bac5aec4143cc"
+    },
+    "native-source/source-authorization.json": {
+      "bytes": 105747,
+      "sha256": "0c8d359981abdf579479e0e695e60f0f9b13ad32ea03ae8d48fc6b4311066722"
+    },
+    "originals/artifact.zip": {
+      "bytes": 12976033,
+      "sha256": "ff0f20106277c9b47f60e9e00c1e467a6dd0acf4a29e107a5e05b9d803d572df"
+    },
+    "originals/artifacts.json": {
+      "bytes": 788,
+      "sha256": "a1dd3a64234c74a655b3aeaba17fec659a5afdd6c311905143dec6bd45493d11"
+    },
+    "originals/collection.json": {
+      "bytes": 723,
+      "sha256": "3c337c5becb6340da6e979f75d4eb4ec1a1ca248e6e697318c433bc23c57698c"
+    },
+    "originals/jobs.json": {
+      "bytes": 16583,
+      "sha256": "0611a7066485b96098f43ee93c3ec1970f1fc3e1a68df31452684584ac6f2235"
+    },
+    "originals/run.json": {
+      "bytes": 12970,
+      "sha256": "54780983fd4252e6938128c9fb28b0dd1fae66155af0578a81a05e1ad7e5e3f5"
+    },
+    "qualification/Root-component-acceptance.json": {
+      "bytes": 3751,
+      "sha256": "65be2ac7438ecfb7ca5292eede14b68e2c18ec0482249ddc17a3dd5b5f153fa5"
+    },
+    "qualification/Root-post-replay-pins.json": {
+      "bytes": 396749,
+      "sha256": "a0b89c9dc30fbdbe6410e873bbabe4041d4cd0fd58e55614aae874d58d94a29b"
+    },
+    "qualification/Root-strict-result.json": {
+      "bytes": 462947,
+      "sha256": "1adc75149019f8813184f96b383f2a25ef1ede7149250c86768176ca47b22cb6"
+    }
+  },
+  "hardware": "NOT_RUN",
+  "native_ref": "codex/current607-apps8-composition-v1",
+  "native_run": 39747308645,
+  "native_source": "f48ea6b72a640e64815430eb2b1967bcf3bfb43a",
+  "new_native_acceptance": false,
+  "publication_ref": null,
+  "publication_source": null,
+  "release": "NOT_ADMITTED",
+  "schema_version": 1,
+  "status": "RETAINED_ROOT_FINITE_APPS8_COMBINED_SOFTWARE_AND_ONCE_ORIGINALS_DATA_ONLY"
+}
