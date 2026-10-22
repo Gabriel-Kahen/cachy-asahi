@@ -73,3 +73,39 @@ The original modes retain their recorded source and failures for reproducibility
 Root accepted source `5c3c2d0ce5b4f6c2672c9367b722170687c7de69`, run39735431322, for the explicit `--carrier-env-correction` route. The [validation record](../../../docs/validation/apps8-current606-native-20261022.md) records eight Apps6→7→8/removal/restoration phases, seven transactions, six signed installs and150 installed controls across both ordinary homes, with protected605/Runtime1 preservation. The complete1,590-file positive reader and post-replay source/reader/original pin checks passed. Private full maps remain source-enforced; cleanup is original-recorded, not freshly reobserved.
 
 Factory emission still supplies SOURCE_ONLY evidence, and all existing default/explicit output bytes remain unchanged. Native acceptance applies only to that exact source/run; GUI,16K,Asahi/M2,performance and release admission remain unqualified. See the linked record for the retained decision/result/pin references and selected logical-restoration limits.
+
+
+## Explicit Apps9/current606 source389
+
+`--apps9 --apps9-carrier /ordinary/Apps9-input93` emits exact public
+`51399738e2cb98551fbb84c930156022fd734029` while retaining both earlier380
+outputs and all original function/support/payload bodies. Keep `--parent` at
+complete accepted348 and `--carrier` at the original Apps8 input93. The new
+Apps9 argument must be the complete immutable93 source
+`128b9806c8e972a729d5c1ef4f2dc9e39e48fc42`. The route composes the original
+c2/default380 and explicit5c3/env380 entirely in memory, then applies exactly
+16 replacements and9 additions, keeping364 corrected380 leaves unchanged.
+The complete389 map, both93 input maps, ordinary directory/identity guards,
+readable25 payloads and original legal/source maps are checked before output.
+
+```sh
+python3 -I -B -Werror scripts/ci/apps8-current606-source/prepare.py --apps9 \
+  --parent /ordinary/accepted348 --carrier /ordinary/Apps8-input93 \
+  --apps9-carrier /ordinary/Apps9-input93 --output /fresh/source389
+```
+
+The selected8→9 operand is the accepted24128-byte Apps9 pair
+SHA718121ffe0590f3ab0bb5e2a87957d8c9187d0d8d481304c999caa7ea351e6c1;
+source emission transfers no Apps8/current606 acceptance to Apps9/current606.
+Phases are6→7→9/same9/remove9/reinstall9→7→original6, with the same protected605,
+Runtime1, two ordinary homes, complete graphs/signatures/security/cleanup and
+all owner/consumer/worker/copy/transaction/fixture/native clocks. The new source
+still requires its genuine external carrier/source/Git proofs and original
+crypto gates; this factory never signs or executes native actors.
+
+The original suites stay unchanged. New scoped both-Python controls execute the
+isolated actual factory CLI, exact389 comparison, complete emitted source guard
+and all seven Apps9 source controls (inert actor boundaries), old function
+inverse and drift/alias/NULL-selection refusals. No historical positive reader
+replay is repeated. Actual native/GUI/16K/M2/performance/release remain outside
+this source-only factory result.
