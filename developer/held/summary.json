@@ -1,0 +1,43 @@
+{
+  "base_image": "sha256:1d6dc2390e8f567c0004506f7428f858449b8bba16a5ac5e349b5d75ee2a5dd5",
+  "cancelled": false,
+  "development_only": true,
+  "hardware_validation": "NOT RUN",
+  "owned_image_cleanup": {
+    "absence_verified": true,
+    "cleanup_uncertain": false,
+    "owned_image_id": "sha256:f05ac02f5f3bc4bb372673b9be452ddf8d321ecf358da1d31704a894999e7db0",
+    "status": "PASS"
+  },
+  "production_trust": "NOT RUN",
+  "purpose": "frozen-development-only-native-integration",
+  "schema_version": 1,
+  "selected_for_release": false,
+  "source_commit": "ce3dd476cb5cbbfd8f2ec6efdfb16caced9d98c8",
+  "stages": {
+    "desktop": {
+      "status": "PASS"
+    },
+    "fixtures": {
+      "status": "PASS"
+    },
+    "lifecycle": {
+      "status": "PASS"
+    },
+    "onboarding": {
+      "status": "PASS"
+    },
+    "repository": {
+      "status": "PASS"
+    },
+    "signer": {
+      "status": "PASS"
+    },
+    "source-suites": {
+      "error": "component command or verification failed; review sanitized check records",
+      "error_type": "ValueError",
+      "status": "FAIL"
+    }
+  },
+  "status": "FAIL"
+}
