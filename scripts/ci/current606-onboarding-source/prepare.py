@@ -79,6 +79,22 @@ def emit_export_closure(parent,output):
   with path.open('xb')as stream:stream.write(raw)
  source(output,after);return dict(status='SOURCE_ONLY_EXACT698_EXPORT_CLOSURE_NOT_NATIVE',files=698,source=variant['after_source'],previous_source=variant['before_source'],held=variant['held'],changed=len(replacements),actual=None,native='NOT_RUN',hardware='NOT_RUN')
 
+
+RAWDB_PROFILE={'bytes': 3303, 'sha256': '21af93e8890be6375a5897676dbfb8b0a203a32d930b14422f8df3d8dba156e0'}
+def rawdb_inputs():
+ raw=read(HERE/'rawdb-key-profile.json');need(pin(raw)==RAWDB_PROFILE,'whole pinned rawdb-key profile');p=json.loads(raw);need(p['kind']=='SOURCE_ONLY_EXACT_RAWDB_KEY'and p['actual']is None and p['before_source']=='3b90012ed1e248f803d15f5f765667b6a249fb8c'and p['after_source']=='ed4fb355ff939bf269905592ba5d71517ffab373','exact published followup source case')
+ raw=read(HERE/'rawdb-key-maps.json');need(pin(raw)==p['maps'],'whole followup before/after map pins');m=json.loads(raw);before,after=m['before'],m['after'];need(before.keys()==after.keys()and len(after)==p['files']==698 and {n for n in before if before[n]!=after[n]}==set(p['changed'])and len(p['changed'])==6 and p['held']==692,'finite exact followup operands')
+ for n,row in p['changed'].items():need(row==dict(before=before[n],proposed=after[n]),'complete followup source operands')
+ need(p['payload']=={n:after[n]for n in p['changed']},'exact readable followup payload set');payload=source(HERE/'rawdb-key-payload',p['payload']);return p,before,after,payload
+
+def emit_rawdb_key_correction(parent,output):
+ initial,before,original,payload=inputs();loader,loaded,loader_payload=loader_inputs(original);export,previous,exported,export_payload=correction_inputs();p,expected_exported,after,replacements=rawdb_inputs();need(loaded==previous and exported==expected_exported,'whole loader/export predecessor chain');parent=ordinary(parent);output=ordinary(output);need(not os.path.lexists(output)and output.parent.is_dir()and not output.is_relative_to(parent)and not parent.is_relative_to(output),'fresh disjoint source-only rawDB correction output');bodies=source(parent,before)
+ bodies.update(payload);need({n:pin(raw)for n,raw in bodies.items()}==original,'whole original698 in memory');bodies.update(loader_payload);need({n:pin(raw)for n,raw in bodies.items()}==loaded,'whole loader698 in memory');bodies.update(export_payload);need({n:pin(raw)for n,raw in bodies.items()}==exported,'whole3b900 export closure in memory');bodies.update(replacements);need({n:pin(raw)for n,raw in bodies.items()}==after,'whole corrected698 before any output');output.mkdir(mode=0o700)
+ for n,raw in sorted(bodies.items()):
+  path=output/n;path.parent.mkdir(parents=True,exist_ok=True)
+  with path.open('xb')as stream:stream.write(raw)
+ source(output,after);return dict(status='SOURCE_ONLY_EXACT698_RAWDB_KEY_CORRECTION_NOT_NATIVE',files=698,source=p['after_source'],previous_source=p['before_source'],held=p['held'],changed=len(replacements),actual=None,native='NOT_RUN',hardware='NOT_RUN')
+
 def main():
- parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--parent',type=Path,required=True);parser.add_argument('--output',type=Path,required=True);group=parser.add_mutually_exclusive_group();group.add_argument('--loader-correction',action='store_true',help='emit exact d0ed loader-corrected698; default3b60 unchanged');group.add_argument('--export-closure',action='store_true',help='exact3b900 export closure after d0ed; all prior outputs held');a=parser.parse_args();print(json.dumps((emit_export_closure if a.export_closure else emit_loader if a.loader_correction else emit)(a.parent,a.output),sort_keys=True))
+ parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--parent',type=Path,required=True);parser.add_argument('--output',type=Path,required=True);group=parser.add_mutually_exclusive_group();group.add_argument('--loader-correction',action='store_true',help='emit exact d0ed loader-corrected698; default3b60 unchanged');group.add_argument('--export-closure',action='store_true',help='exact3b900 export closure after d0ed; all prior outputs held');group.add_argument('--rawdb-key-correction',action='store_true',help='exacted4fb rawDB package binding after complete export closure; all old outputs held');a=parser.parse_args();print(json.dumps((emit_rawdb_key_correction if a.rawdb_key_correction else emit_export_closure if a.export_closure else emit_loader if a.loader_correction else emit)(a.parent,a.output),sort_keys=True))
 if __name__=='__main__':main()

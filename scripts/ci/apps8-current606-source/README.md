@@ -67,3 +67,9 @@ python3 -I -B -Werror scripts/ci/apps8-current606-source/prepare.py --carrier-en
 ```
 
 The original modes retain their recorded source and failures for reproducibility. No native result, hardware result or release selection changes through factory emission. The scoped CI runs the old controls plus the correction controls on Python 3.12 and 3.14.
+
+## Finite native lifecycle result
+
+Root accepted source `5c3c2d0ce5b4f6c2672c9367b722170687c7de69`, run39735431322, for the explicit `--carrier-env-correction` route. The [validation record](../../../docs/validation/apps8-current606-native-20261022.md) records eight Apps6→7→8/removal/restoration phases, seven transactions, six signed installs and150 installed controls across both ordinary homes, with protected605/Runtime1 preservation. The complete1,590-file positive reader and post-replay source/reader/original pin checks passed. Private full maps remain source-enforced; cleanup is original-recorded, not freshly reobserved.
+
+Factory emission still supplies SOURCE_ONLY evidence, and all existing default/explicit output bytes remain unchanged. Native acceptance applies only to that exact source/run; GUI,16K,Asahi/M2,performance and release admission remain unqualified. See the linked record for the retained decision/result/pin references and selected logical-restoration limits.

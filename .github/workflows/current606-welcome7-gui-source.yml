@@ -90,6 +90,13 @@ jobs:
           ref: 09f7758b20c638f302086374931e7e5ceb3ca6fd
           path: .ci-fixtures/current606-welcome7-gui-source-correction
           persist-credentials: false
+      - name: Checkout exact followup 556 source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 51e7797ef639de8fbed96e51b5b12bf5a92c7cb7
+          path: .ci-fixtures/current606-welcome7-gui-source-followup
+          persist-credentials: false
       - name: Select the explicit Python version
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
@@ -162,3 +169,4 @@ jobs:
           mkdir -m700 "$stage/installer-correction"
           git -C "$GITHUB_WORKSPACE/.ci-fixtures/current606-welcome7-gui-source-correction" archive --format=tar 09f7758b20c638f302086374931e7e5ceb3ca6fd | tar -x -C "$stage/installer-correction"
           python3 -I -B -Werror scripts/ci/current606-welcome7-gui-source/test_correction.py --parent "$stage/apps8-expected" --expected "$stage/installer-correction"
+          python3 -I -B -Werror scripts/ci/current606-welcome7-gui-source/test_followup.py --parent "$GITHUB_WORKSPACE/.ci-fixtures/gui-apps8-556" --expected "$GITHUB_WORKSPACE/.ci-fixtures/current606-welcome7-gui-source-followup"
