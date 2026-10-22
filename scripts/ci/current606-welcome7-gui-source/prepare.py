@@ -102,5 +102,25 @@ def prepare_buildkit(predecessor,output):
  for name,raw in result.items():target=output/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(raw)
  need({n:pin(raw)for n,raw in files(output).items()}==wanted,'whole548 emitted equality');return dict(status='SOURCE_ONLY_GUI_BUILDKIT548_NOT_NATIVE',files=548,source_authority=p['output']['source'],actual_source=None,actual_ref=None,actual_run=None,acceptance='NOT_GRANTED',native_GUI='NOT_RUN',default='UNCHANGED540')
 
+
+LOADER_PROFILE={'bytes': 204239, 'sha256': '51b52f24201b48bd9d9123ea66b41bfd3a42e3cf49406c91aed6146078fbe7fd'}
+def loader_profile():
+ raw=ordinary(HERE/'loader.json');need(pin(raw)==LOADER_PROFILE,'whole finite GUI549 loader profile');return json.loads(raw)
+
+def prepare_loader(predecessor,output):
+ p=loader_profile();before=files(predecessor);prior=p['predecessor'];wanted=p['output']['files']
+ need(p['status']=='FINITE_GUI549_DEFINED_GUEST_LOADER_SOURCE_ONLY'and p['actual']is None and prior['source']=='865cc33c8f114c15cef75b3472fbb8d1f4e8da06'and len(before)==548 and {n:pin(b)for n,b in before.items()}==prior['files'],'whole genuine548 before loader output')
+ changed={'factory/factory.py','admission.py','source-manifest.json'};need(p['output']['source']=='4e63aa1c67898417d3a47335c0af1cc8e0b7fa3f'and len(wanted)==549 and set(wanted)-set(before)=={'loader-parent.json'}and not(set(before)-set(wanted))and {n for n in before if pin(before[n])!=wanted[n]}==set(p['changed'])==changed and set(p['templates'])==changed-{'source-manifest.json'},'one exact finite loader successor')
+ result=dict(before)
+ for n,row in p['templates'].items():
+  relative(n);relative(row['path']);raw=ordinary(HERE/row['path']);need(pin(raw)=={k:row[k]for k in('bytes','sha256')}==wanted[n],'whole readable loader template');result[n]=raw
+ result['loader-parent.json']=encoded(dict(source=prior['source'],files=prior['files'],before_bodies={n:base64.b64encode(before[n]).decode()for n in changed},actual=None))
+ manifest=json.loads(before['source-manifest.json']);manifest.update(status='SOURCE_ONLY_CURRENT606_WELCOME8_GUEST_LOADER_NOT_ACCEPTED',files={n:pin(b)for n,b in result.items()if n!='source-manifest.json'});result['source-manifest.json']=encoded(manifest)
+ need({n:pin(b)for n,b in result.items()}==wanted,'whole549 equality before output')
+ output=Path(output).absolute();need(not output.exists()and output.parent.is_dir()and not any(q.is_symlink()for q in(output,*output.parents))and not output.is_relative_to(predecessor)and not predecessor.is_relative_to(output),'fresh disjoint source-only loader output');output.mkdir(mode=0o700)
+ for n,raw in result.items():target=output/n;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(raw)
+ need({n:pin(b)for n,b in files(output).items()}==wanted,'whole549 emitted equality')
+ return dict(status='SOURCE_ONLY_GUI549_DEFINED_GUEST_LOADER_NOT_NATIVE',files=549,source_authority=p['output']['source'],actual_source=None,actual_ref=None,actual_run=None,acceptance='NOT_GRANTED',native_GUI='NOT_RUN',default='UNCHANGED540')
+
 if __name__=='__main__':
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('--predecessor-root',type=Path,required=True);p.add_argument('--output',type=Path,required=True);group=p.add_mutually_exclusive_group();group.add_argument('--welcome8',action='store_true',help='exact544 from corrective540');group.add_argument('--transport',action='store_true',help='explicit exact546 diagnostic transport from whole544; default540 andWelcome8 outputs held');group.add_argument('--buildkit',action='store_true',help='explicit exact548 BuildKit scope from whole546; old540/544/546 outputs held');a=p.parse_args();emit=prepare_buildkit if a.buildkit else prepare_transport if a.transport else prepare_welcome8 if a.welcome8 else prepare;print(encoded(emit(a.predecessor_root.absolute(),a.output.absolute())).decode(),end='')
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--predecessor-root',type=Path,required=True);p.add_argument('--output',type=Path,required=True);group=p.add_mutually_exclusive_group();group.add_argument('--welcome8',action='store_true',help='exact544 from corrective540');group.add_argument('--transport',action='store_true',help='explicit exact546 diagnostic transport from whole544; default540 andWelcome8 outputs held');group.add_argument('--buildkit',action='store_true',help='explicit exact548 BuildKit scope from whole546; old540/544/546 outputs held');group.add_argument('--loader',action='store_true',help='explicit exact549 defined guest loader from whole548; old outputs held');a=p.parse_args();emit=prepare_loader if a.loader else prepare_buildkit if a.buildkit else prepare_transport if a.transport else prepare_welcome8 if a.welcome8 else prepare;print(encoded(emit(a.predecessor_root.absolute(),a.output.absolute())).decode(),end='')
