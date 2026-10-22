@@ -17,10 +17,15 @@ def cost(source):
 
 class Controls(unittest.TestCase):
  def test_whole_emission_and_real_isolated_cli(self):
-  self.assertEqual(F.pins(F.tree(EXPECTED)),O.profile()['after'])
+  self.assertEqual(F.pins(F.tree(EXPECTED,checkout=True)),O.profile()['after'])
   with tempfile.TemporaryDirectory()as td:
    out=Path(td)/'source';p=subprocess.run([sys.executable,'-I','-B','-Werror',str(HERE/'optional_io.py'),'--parent',str(PARENT),'--output',str(out)],capture_output=True,timeout=30,check=True)
-   self.assertEqual(p.stderr,b'');self.assertFalse(json.loads(p.stdout)['acceptance']);self.assertEqual(F.tree(out),F.tree(EXPECTED))
+   self.assertEqual(p.stderr,b'');self.assertFalse(json.loads(p.stdout)['acceptance']);self.assertEqual(F.tree(out),F.tree(EXPECTED,checkout=True))
+ def test_checkout_metadata_does_not_enter_complete_source_comparison(self):
+  with tempfile.TemporaryDirectory()as td:
+   checkout=Path(td)/'checkout';shutil.copytree(EXPECTED,checkout,ignore=shutil.ignore_patterns('.git'))
+   (checkout/'.git').mkdir();(checkout/'.git/config').write_text('[core]\nrepositoryformatversion = 0\n')
+   with patch.dict(globals(),{'EXPECTED':checkout}):self.test_whole_emission_and_real_isolated_cli()
  def test_parent_payload_profile_drift_and_alias_refuse_before_output(self):
   with tempfile.TemporaryDirectory()as td:
    root=Path(td);parent=root/'parent';shutil.copytree(PARENT,parent);out=root/'out'
