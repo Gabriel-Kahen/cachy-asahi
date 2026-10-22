@@ -1,0 +1,7 @@
+[Unit]
+Description=Owned Core7 two-boot generic16K case
+DefaultDependencies=no
+Wants=caa-core-observer.service
+Requires=caa-core-probe.service
+After=caa-core-probe.service
+AllowIsolate=yes
