@@ -121,3 +121,6 @@ new published outputs, isolated source/entry paths, profile/payload drift and
 alias refusals. It runs all40 source35 and all50 source37 source-only controls
 with explicit inert actor boundaries. No historical heavy positive/native replay
 or Docker/QEMU/GPG/transaction/clock-setting actor runs in this factory CI.
+
+
+Use `--module-indexes` alone to reconstruct genuine37 `0e5da6aab98018d00875548813c77a4f87eedcdf` from the whole35 host-clock route. Eight readable payloads initialize exactly eleven genuine installed-kernel dependency indexes in the owned media and preserve every original module, preset and automatic hook. A third generated-cache proof requires the actual initramfs; worker failure powers off after the original receipt writer exits. The direct diagnostic kernel remains separate from the installed packaged kernel/initramfs. Whole37 output and26 held leaves are pinned before output. All old default/virtio20/rollback/host-clock functions remain held. Source reconstruction gives no native hook, boot, recovery, Asahi, M2 or release acceptance; current run39776641988 remains pending.
