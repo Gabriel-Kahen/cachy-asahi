@@ -109,23 +109,44 @@ def emit_apps10(parent,carrier,apps10_carrier,output):
   with path.open('xb')as stream:stream.write(raw)
  source(output,after);return dict(status='SOURCE_ONLY_EXACT_APPS10_CURRENT606_389_NOT_NATIVE_ACCEPTANCE',files=389,source=variant['after_source'],previous_source=variant['before_source'],carrier=variant['carrier_source'],held=364,changed=16,added=9,actual=None,native='NOT_RUN',GUI='NOT_RUN',hardware='NOT_RUN',release='NOT_ADMITTED')
 
+APPS11_PROFILE={'bytes': 11670, 'sha256': '3db33260a945cc0756e39b1c800aac145a2395c761a9ab464847ac89a26a23fa'}
+def apps11_inputs():
+ raw=read(HERE/'apps11-profile.json');need(pin(raw)==APPS11_PROFILE,'whole hardpinned Apps11 source profile');p=json.loads(raw);need(p['kind']=='SOURCE_ONLY_EXACT_APPS11_CURRENT606_389'and p['actual']is None and(p['before_source'],p['after_source'],p['carrier_source'],p['carrier_ref'])==('5c3c2d0ce5b4f6c2672c9367b722170687c7de69','7abbc5ca0c3a0cb132732b6d8e78fbbae48ab242','333e3e8680bcfb6cad6afb5c5dc6070e39e62a6e','codex/apps11-accepted-inputs-v1'),'exact published Apps11 source and accepted pair input')
+ raw=read(HERE/'apps11-maps.json');need(pin(raw)==p['maps'],'whole Apps11 parent/carrier/result maps');maps=json.loads(raw);before,after,carrier=maps['before'],maps['after'],maps['carrier'];need((len(before),len(after),len(carrier))==(380,389,94)and set(before)<=set(after)and{n for n in before if before[n]!=after[n]}==set(p['changed'])and set(after)-set(before)==set(p['added'])and(len(p['changed']),len(p['added']),p['held'])==(16,9,364),'exact finite Apps11 delta')
+ for n,row in p['changed'].items():need(row==dict(before=before[n],proposed=after[n]),'whole before/proposed Apps11 operand')
+ need(p['payload']=={n:after[n]for n in set(p['changed'])|set(p['added'])},'exact25 readable Apps11 source payloads')
+ need(set(p['legal'])=={'apps11-NOTICE.md','LICENSE'},'complete Apps11 legal closure')
+ for n,w in p['legal'].items():need(pin(read(HERE/n))==w,'whole Apps11 source legal leaf')
+ return p,before,carrier,after,source(HERE/'apps11-payload',p['payload'])
+
+def emit_apps11(parent,carrier,apps11_carrier,output):
+ p,before,input_map,old,payload=inputs();correction,previous,corrected,replacements=correction_inputs();variant,current,input11,after,selected=apps11_inputs();need(old==previous and corrected==current,'whole default and carrier-env corrected380 prerequisites');parent,carrier,apps11_carrier,output=map(ordinary,(parent,carrier,apps11_carrier,output));need(not os.path.lexists(output)and output.parent.is_dir()and all(not output.is_relative_to(root)and not root.is_relative_to(output)for root in(parent,carrier,apps11_carrier)),'fresh disjoint Apps11 source-only output');bodies=source(parent,before);source(carrier,input_map);source(apps11_carrier,input11)
+ bodies.update(payload);need({n:pin(raw)for n,raw in bodies.items()}==old,'entire original c2 source380 in memory');bodies.update(replacements);need({n:pin(raw)for n,raw in bodies.items()}==current,'entire corrected5c3 source380 in memory');bodies.update(selected);need({n:pin(raw)for n,raw in bodies.items()}==after,'whole exact389 before first output write');output.mkdir(mode=0o700)
+ for n,raw in sorted(bodies.items()):
+  path=output/n;path.parent.mkdir(parents=True,exist_ok=True)
+  with path.open('xb')as stream:stream.write(raw)
+ source(output,after);return dict(status='SOURCE_ONLY_EXACT_APPS11_CURRENT606_389_NOT_NATIVE_ACCEPTANCE',files=389,source=variant['after_source'],previous_source=variant['before_source'],carrier=variant['carrier_source'],held=364,changed=16,added=9,actual=None,native='NOT_RUN',GUI='NOT_RUN',hardware='NOT_RUN',release='NOT_ADMITTED')
+
 def main():
  parser=argparse.ArgumentParser(description=__doc__)
  for name in ('parent','carrier','output'):parser.add_argument('--'+name,type=Path,required=True)
  parser.add_argument('--carrier-env-correction',action='store_true')
- for version in ('9','10'):
+ for version in ('9','10','11'):
   parser.add_argument('--apps'+version,action='store_true')
   parser.add_argument('--apps'+version+'-carrier',type=Path)
  a=parser.parse_args()
- if sum((a.carrier_env_correction,a.apps9,a.apps10))>1:parser.error('select exactly one explicit variant')
- if a.apps10:
-  if a.apps10_carrier is None or a.apps9_carrier is not None:parser.error('--apps10 requires only --apps10-carrier')
+ if sum((a.carrier_env_correction,a.apps9,a.apps10,a.apps11))>1:parser.error('select exactly one explicit variant')
+ if a.apps11:
+  if a.apps11_carrier is None or a.apps9_carrier is not None or a.apps10_carrier is not None:parser.error('--apps11 requires only --apps11-carrier')
+  result=emit_apps11(a.parent,a.carrier,a.apps11_carrier,a.output)
+ elif a.apps10:
+  if a.apps10_carrier is None or a.apps9_carrier is not None or a.apps11_carrier is not None:parser.error('--apps10 requires only --apps10-carrier')
   result=emit_apps10(a.parent,a.carrier,a.apps10_carrier,a.output)
  elif a.apps9:
-  if a.apps9_carrier is None or a.apps10_carrier is not None:parser.error('--apps9 requires only --apps9-carrier')
+  if a.apps9_carrier is None or a.apps10_carrier is not None or a.apps11_carrier is not None:parser.error('--apps9 requires only --apps9-carrier')
   result=emit_apps9(a.parent,a.carrier,a.apps9_carrier,a.output)
  else:
-  if a.apps9_carrier is not None or a.apps10_carrier is not None:parser.error('candidate carrier requires its explicit variant')
+  if a.apps9_carrier is not None or a.apps10_carrier is not None or a.apps11_carrier is not None:parser.error('candidate carrier requires its explicit variant')
   result=(emit_carrier_env if a.carrier_env_correction else emit)(a.parent,a.carrier,a.output)
  print(json.dumps(result,sort_keys=True))
 if __name__=='__main__':main()

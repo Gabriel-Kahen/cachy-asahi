@@ -83,6 +83,20 @@ jobs:
           ref: eeb7fc5c3bcaa5b152ca6eb97983f6c31f8d0cdb
           path: .ci-fixtures/apps10-expected389
           persist-credentials: false
+      - name: Check out exact Apps11 accepted input94
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 333e3e8680bcfb6cad6afb5c5dc6070e39e62a6e
+          path: .ci-fixtures/apps11-input94
+          persist-credentials: false
+      - name: Check out exact Apps11 current606 source389
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 7abbc5ca0c3a0cb132732b6d8e78fbbae48ab242
+          path: .ci-fixtures/apps11-expected389
+          persist-credentials: false
       - name: Select the explicit Python version
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
@@ -106,3 +120,10 @@ jobs:
             --carrier "$GITHUB_WORKSPACE/.ci-fixtures/apps8-input93" \
             --apps10-carrier "$GITHUB_WORKSPACE/.ci-fixtures/apps10-input94" \
             --expected "$GITHUB_WORKSPACE/.ci-fixtures/apps10-expected389"
+          python3 -I -B -Werror scripts/ci/apps8-current606-source/test_apps11.py \
+            --parent "$GITHUB_WORKSPACE/.ci-fixtures/apps-parent348" \
+            --carrier "$GITHUB_WORKSPACE/.ci-fixtures/apps8-input93" \
+            --apps11-carrier "$GITHUB_WORKSPACE/.ci-fixtures/apps11-input94" \
+            --apps9-carrier "$GITHUB_WORKSPACE/.ci-fixtures/apps9-input93" \
+            --apps10-carrier "$GITHUB_WORKSPACE/.ci-fixtures/apps10-input94" \
+            --expected "$GITHUB_WORKSPACE/.ci-fixtures/apps11-expected389"
