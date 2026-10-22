@@ -70,6 +70,28 @@ def emit_virtio20(output):
   with path.open('xb')as stream:stream.write(raw)
  need({n:pin(raw)for n,raw in source(output,p['result']['files']).items()}==p['result']['files'],'all34 emitted virtio20 bytes after writing');return result(p)
 
+ROLLBACK_PROFILE = {'bytes': 22916, 'sha256': 'f7eaf9bba8f0abfeda42b78eba784db88aaa0686e35e9c948be0409d79f99673'}
+
+def rollback_inputs():
+ parent,bodies=virtio20_inputs();raw=read(HERE/'automatic-rollback-profile.json');need(pin(raw)==ROLLBACK_PROFILE,'whole pinned rollback factory profile');p=json.loads(raw)
+ need(p['kind']=='SOURCE_ONLY_EXACT_CORE7_FOUR_BOOT_AUTOMATIC_ROLLBACK'and p['actual']is None and p['parent']==dict(source=parent['result']['source'],ref=parent['result']['ref'],files=parent['result']['files'])and p['result']['source']=='48dcc65b10641a7b92eb5577f9f7d328cd26ed61'and p['result']['ref']=='codex/core7-automatic-rollback-v1','exact public source-only rollback profile from whole virtio20 parent')
+ need(len(p['payload'])==15 and len(p['held'])==18 and len(p['result']['files'])==36 and p['derived']==dict(manifest='source-manifest.json',workflows=['.github/workflows/native-arm-build.yml','.github/workflows/native-arm-core7-real-systemd.yml']),'finite15-readable/18-held rollback closure')
+ bodies.update(source(HERE/'automatic-rollback',p['payload']))
+ manifest=encoded(dict(schema=1,purpose='CORE7_REAL_HOOKS_AND_ACTUAL_PID1_SOURCE_ONLY',actual=None,files={n:pin(v)for n,v in bodies.items()if n!='source-manifest.json'and not n.startswith('.github/')}));bodies['source-manifest.json']=manifest
+ workflow=bodies['workflow.yml.in'].replace(b'@ENTRY_SHA@',pin(bodies['entry.py'])['sha256'].encode()).replace(b'@MANIFEST_SHA@',pin(manifest)['sha256'].encode())
+ for name in p['derived']['workflows']:bodies[name]=workflow
+ need({n:pin(v)for n,v in bodies.items()}==p['result']['files']and all(parent['result']['files'][n]==p['result']['files'][n]==row for n,row in p['held'].items()),'whole exact36 rollback bytes before any output')
+ return p,bodies
+
+def rollback_result(p):return dict(status='SOURCE_ONLY_EXACT36_AUTOMATIC_ROLLBACK_NOT_NATIVE_ACCEPTANCE',files=36,source=p['result']['source'],actual=None,native='NOT_RUN',Asahi='NOT_RUN',hardware='NOT_RUN',release='NOT_ADMITTED')
+
+def emit_rollback(output):
+ p,bodies=rollback_inputs();output=ordinary(output);need(not os.path.lexists(output)and output.parent.is_dir()and not output.is_relative_to(HERE)and not HERE.is_relative_to(output),'fresh ordinary disjoint rollback source output');output.mkdir(mode=0o700)
+ for name,raw in sorted(bodies.items()):
+  path=output/name;path.parent.mkdir(parents=True,exist_ok=True)
+  with path.open('xb')as stream:stream.write(raw)
+ need({n:pin(v)for n,v in source(output,p['result']['files']).items()}==p['result']['files'],'whole exact36 rollback output after write');return rollback_result(p)
+
 def main():
- parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--output',type=Path);parser.add_argument('--source-only',action='store_true',help='check all34 composed bytes without writing or actors');parser.add_argument('--virtio20',action='store_true',help='opt in to exact published20-byte serial/bootstrap correction');a=parser.parse_args();need(a.output is not None or a.source_only,'explicit fresh output or source-only required');selected_emit=emit_virtio20 if a.virtio20 else emit;selected_inputs=virtio20_inputs if a.virtio20 else inputs;print(json.dumps(selected_emit(a.output)if a.output is not None else result(selected_inputs()[0]),sort_keys=True))
+ parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--output',type=Path);parser.add_argument('--source-only',action='store_true',help='check all34 composed bytes without writing or actors');parser.add_argument('--virtio20',action='store_true',help='opt in to exact published20-byte serial/bootstrap correction');parser.add_argument('--automatic-rollback',action='store_true',help='explicit source-only four-boot rollback, no native acceptance');a=parser.parse_args();need(a.output is not None or a.source_only,'explicit fresh output or source-only required');need(not(a.virtio20 and a.automatic_rollback),'one explicit source profile');selected_emit=emit_rollback if a.automatic_rollback else emit_virtio20 if a.virtio20 else emit;selected_inputs=rollback_inputs if a.automatic_rollback else virtio20_inputs if a.virtio20 else inputs;selected_result=rollback_result if a.automatic_rollback else result;print(json.dumps(selected_emit(a.output)if a.output is not None else selected_result(selected_inputs()[0]),sort_keys=True))
 if __name__=='__main__':main()
