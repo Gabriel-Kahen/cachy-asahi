@@ -92,6 +92,31 @@ def emit_rollback(output):
   with path.open('xb')as stream:stream.write(raw)
  need({n:pin(v)for n,v in source(output,p['result']['files']).items()}==p['result']['files'],'whole exact36 rollback output after write');return rollback_result(p)
 
+HOST_CLOCK_PROFILE = {'bytes': 46974, 'sha256': '4659619a4d8938742504326ec2fa91ddacd09da3229b71f30b98bdf210292579'}
+
+def host_clock_inputs(automatic_rollback=False):
+ need(type(automatic_rollback)is bool,'explicit finite clock profile');parent,bodies=rollback_inputs()if automatic_rollback else virtio20_inputs();raw=read(HERE/'host-clock-profile.json');need(pin(raw)==HOST_CLOCK_PROFILE,'whole pinned host-clock factory profile');profile=json.loads(raw);mode='four-boot'if automatic_rollback else'two-boot';p=profile['profiles'][mode]
+ need(profile['kind']=='SOURCE_ONLY_EXACT_CORE7_HOST_CLOCK_PROFILES'and profile['actual']is None and set(profile['profiles'])=={'two-boot','four-boot'}and p['parent']==dict(source=parent['result']['source'],ref=parent['result']['ref'],files=parent['result']['files']),'whole explicit original profile and source-only clock branch')
+ wanted=('two-boot',35,'92ba829ca86c27b472a715c66e7d7ca5a17206e2','codex/core7-host-clock-v1',8)if not automatic_rollback else('four-boot',37,'4e961335b2336e978532e83f4d6a99a43cc38cc8','codex/core7-clock-rollback-v1',10)
+ need((mode,len(p['result']['files']),p['result']['source'],p['result']['ref'],len(p['payload']))==wanted and len(p['held'])==24,'fixed genuine whole35/two-boot or37/four-boot clock source')
+ payload=source(HERE/'host-clock',profile['payload']);prefix=mode+'/';selected={n[len(prefix):]:v for n,v in payload.items()if n.startswith(prefix)};need({n:pin(v)for n,v in selected.items()}==p['payload'],'whole exact readable selected clock payload');bodies.update(selected)
+ manifest=encoded(dict(schema=1,purpose='CORE7_REAL_HOOKS_AND_ACTUAL_PID1_SOURCE_ONLY',actual=None,files={n:pin(v)for n,v in bodies.items()if n!='source-manifest.json'and not n.startswith('.github/')}));bodies['source-manifest.json']=manifest
+ workflow=bodies['workflow.yml.in'].replace(b'@ENTRY_SHA@',pin(bodies['entry.py'])['sha256'].encode()).replace(b'@MANIFEST_SHA@',pin(manifest)['sha256'].encode())
+ for n in('.github/workflows/native-arm-build.yml','.github/workflows/native-arm-core7-real-systemd.yml'):bodies[n]=workflow
+ need({n:pin(v)for n,v in bodies.items()}==p['result']['files']and all(p['parent']['files'][n]==p['result']['files'][n]==row for n,row in p['held'].items()),'whole exact clock source before any output')
+ return p,bodies
+
+def host_clock_result(p):return dict(status='SOURCE_ONLY_EXACT_HOST_CLOCK_NOT_NATIVE_ACCEPTANCE',files=len(p['result']['files']),source=p['result']['source'],actual=None,native='NOT_RUN',Asahi='NOT_RUN',hardware='NOT_RUN',release='NOT_ADMITTED')
+
+def emit_host_clock(output,automatic_rollback=False):
+ p,bodies=host_clock_inputs(automatic_rollback);output=ordinary(output);need(not os.path.lexists(output)and output.parent.is_dir()and not output.is_relative_to(HERE)and not HERE.is_relative_to(output),'fresh ordinary disjoint clock source output');output.mkdir(mode=0o700)
+ for name,raw in sorted(bodies.items()):
+  path=output/name;path.parent.mkdir(parents=True,exist_ok=True)
+  with path.open('xb')as stream:stream.write(raw)
+ need({n:pin(v)for n,v in source(output,p['result']['files']).items()}==p['result']['files'],'whole exact clock source after writing');return host_clock_result(p)
+
 def main():
- parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--output',type=Path);parser.add_argument('--source-only',action='store_true',help='check all34 composed bytes without writing or actors');parser.add_argument('--virtio20',action='store_true',help='opt in to exact published20-byte serial/bootstrap correction');parser.add_argument('--automatic-rollback',action='store_true',help='explicit source-only four-boot rollback, no native acceptance');a=parser.parse_args();need(a.output is not None or a.source_only,'explicit fresh output or source-only required');need(not(a.virtio20 and a.automatic_rollback),'one explicit source profile');selected_emit=emit_rollback if a.automatic_rollback else emit_virtio20 if a.virtio20 else emit;selected_inputs=rollback_inputs if a.automatic_rollback else virtio20_inputs if a.virtio20 else inputs;selected_result=rollback_result if a.automatic_rollback else result;print(json.dumps(selected_emit(a.output)if a.output is not None else selected_result(selected_inputs()[0]),sort_keys=True))
+ parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--output',type=Path);parser.add_argument('--source-only',action='store_true',help='check all34 composed bytes without writing or actors');parser.add_argument('--virtio20',action='store_true',help='opt in to exact published20-byte serial/bootstrap correction');parser.add_argument('--automatic-rollback',action='store_true',help='explicit source-only four-boot rollback, no native acceptance');parser.add_argument('--host-clock',action='store_true',help='exact current-host UTC initialization; composes with automatic rollback, no native acceptance');a=parser.parse_args();need(a.output is not None or a.source_only,'explicit fresh output or source-only required');need(not(a.virtio20 and a.automatic_rollback),'one explicit source profile');need(not(a.host_clock and a.virtio20),'host-clock already selects the exact virtio20 ancestor');
+ if a.host_clock:print(json.dumps(emit_host_clock(a.output,a.automatic_rollback)if a.output is not None else host_clock_result(host_clock_inputs(a.automatic_rollback)[0]),sort_keys=True));return
+ selected_emit=emit_rollback if a.automatic_rollback else emit_virtio20 if a.virtio20 else emit;selected_inputs=rollback_inputs if a.automatic_rollback else virtio20_inputs if a.virtio20 else inputs;selected_result=rollback_result if a.automatic_rollback else result;print(json.dumps(selected_emit(a.output)if a.output is not None else selected_result(selected_inputs()[0]),sort_keys=True))
 if __name__=='__main__':main()

@@ -109,3 +109,7 @@ and all seven Apps9 source controls (inert actor boundaries), old function
 inverse and drift/alias/NULL-selection refusals. No historical positive reader
 replay is repeated. Actual native/GUI/16K/M2/performance/release remain outside
 this source-only factory result.
+
+## Explicit Apps10/current606
+
+`--apps10 --apps10-carrier /ordinary/qualified94` emits exact389 source `eeb7fc5c3bcaa5b152ca6eb97983f6c31f8d0cdb`. Supply the same original348 parent and Apps8 carrier93 as the existing routes. The new candidate carrier must be complete source `a2bbf5edd57a7a31951a1e9060c83698f29302c4`. All eleven previous non-CLI function bodies, source authorities and default outputs remain unchanged. Selection is explicit and mutually exclusive. This source factory grants no execution or release acceptance.
