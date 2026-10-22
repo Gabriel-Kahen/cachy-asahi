@@ -1,0 +1,39 @@
+{
+  "originals": {
+    "artifact.zip": {
+      "bytes": 13257200,
+      "sha256": "c574ac1ec0e9147f9bfad7f2e0eee5aeb53292a882a1da95b8d5bbfc2e68395e"
+    },
+    "artifacts.json": {
+      "bytes": 783,
+      "sha256": "35e5785c698996ccf76b544658316022fd21c835b46b9503bca1caaa2ba9f852"
+    },
+    "collection.json": {
+      "bytes": 723,
+      "sha256": "26956eb08ec052bbd7f23e15cd2da8cddecc9bf9f8badb42348eb4ff43f47922"
+    },
+    "jobs.json": {
+      "bytes": 15123,
+      "sha256": "f2792f36ec81427c4750e7c9db859bb2acf9ac3edbf37c932772daa56a5c8ed9"
+    },
+    "run.json": {
+      "bytes": 13007,
+      "sha256": "8540f0637a4ef16232d663052a7642582add60d1d384ed744f8fd951344ca4c2"
+    }
+  },
+  "reader_files": 2609,
+  "reader_map": {
+    "bytes": 485491,
+    "sha256": "b924afc521949aa98716d8ccd7db371924a94ea1c3ba0e85d5b8306f1afe2615"
+  },
+  "result": {
+    "bytes": 62949,
+    "sha256": "cc4e1bdf7a79e6d318b8ebc2298ec1b01da641c3f51533f43475d8eafec010f5"
+  },
+  "source_files": 698,
+  "source_map": {
+    "bytes": 118190,
+    "sha256": "093da5c766f6456ffb626b2cec488d8eeee838f610061ba4f3279fb95cdac675"
+  },
+  "status": "PASS_ALL698_SOURCE2609_READER_AND_FIVE_ORIGINALS_AFTER_FULL_POSITIVE"
+}

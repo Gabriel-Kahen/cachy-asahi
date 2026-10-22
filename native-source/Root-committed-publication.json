@@ -1,0 +1,10 @@
+{
+  "actual": "NOT_RUN",
+  "files": 698,
+  "git_joins": 698,
+  "hardware": "NOT_RUN",
+  "ref": "codex/onboarding698-rawdb-key-v1",
+  "release": "NOT_ADMITTED",
+  "source": "ed4fb355ff939bf269905592ba5d71517ffab373",
+  "status": "COMMITTED_EXACT_CLOSED_TRIAL_SOURCE"
+}
