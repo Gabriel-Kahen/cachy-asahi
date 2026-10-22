@@ -509,6 +509,15 @@ jobs:
           python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-debian-maintained-system16k/test_protocol.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-debian-maintained-staged-packet/test_prepare.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-gnu-failure-log/test_summary.py
+      - name: Stage explicit immutable historical inventory source view
+        run: >-
+          python3 -I -B scripts/ci/historical-inventory-source/prepare.py
+          --source "$GITHUB_WORKSPACE" --factory all
+          --baseline inventory-19a8bdb45916e5dffef7a4c1496ebbc489792795ea2906a3d705a67e3906b880
+          --output "$RUNNER_TEMP/historical-inventory-source"
+      - name: Check historical maintained Debian source factories with their original inventory
+        working-directory: ${{ runner.temp }}/historical-inventory-source
+        run: |
           python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-debian-maintained-installed16k/test_generator.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-debian-maintained-native-lifecycle-next/test_prepare.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-debian-maintained-installed16k-ci/test_wiring.py
@@ -521,7 +530,8 @@ jobs:
           path: .ci-inputs/maintained-caa3-public
           persist-credentials: false
       - name: Check maintained glibc public compile-input route without actors
-        run: CAA3_PUBLIC_ROUTE_SOURCE="$PWD" CAA3_PUBLIC_ROUTE_PACKET="$PWD/.ci-inputs/maintained-caa3-public/payload" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/glibc-debian-maintained-public-lifecycle -p test_route.py -v
+        working-directory: ${{ runner.temp }}/historical-inventory-source
+        run: CAA3_PUBLIC_ROUTE_SOURCE="$PWD" CAA3_PUBLIC_ROUTE_PACKET="$GITHUB_WORKSPACE/.ci-inputs/maintained-caa3-public/payload" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/glibc-debian-maintained-public-lifecycle -p test_route.py -v
       - name: Checkout exact public maintained glibc native component
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -529,7 +539,8 @@ jobs:
           path: .ci-inputs/maintained-caa3-public-native
           persist-credentials: false
       - name: Check maintained glibc public native-to16K source route without actors
-        run: CAA3_PUBLIC_NATIVE_SOURCE="$PWD/.ci-inputs/maintained-caa3-public-native" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/glibc-debian-maintained-public-installed16k -p test_route.py -v
+        working-directory: ${{ runner.temp }}/historical-inventory-source
+        run: CAA3_PUBLIC_NATIVE_SOURCE="$GITHUB_WORKSPACE/.ci-inputs/maintained-caa3-public-native" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/glibc-debian-maintained-public-installed16k -p test_route.py -v
       - name: Check maintained Debian native pair source and ownership
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/glibc-debian-maintained-native-provider -p 'test_*.py'
       - name: Check owned GNU trial AppArmor policy and retirement without actors
@@ -540,6 +551,7 @@ jobs:
           python3 -I -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/glibc-gnu-provider-interruption -p 'test_*.py'
           python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-gnu-provider-lifecycle/test_proc_mount.py
       - name: Check installed GNU provider16K source and disk serialization without actors
+        working-directory: ${{ runner.temp }}/historical-inventory-source
         run: |
           python3 -B -Werror::ResourceWarning scripts/ci/glibc-gnu-provider-installed16k/test_lane.py
           python3 -I -B scripts/ci/glibc-gnu-provider-installed16k/test_child_failure.py
@@ -547,8 +559,10 @@ jobs:
           python3 -B -Werror::ResourceWarning scripts/ci/glibc-gnu-provider-installed16k/test_snapshot_progress.py
           python3 -B -Werror::ResourceWarning scripts/ci/glibc-gnu-provider-installed16k/test_first_observer_progress.py
       - name: Check separate interrupted provider16K source and recovery gates without actors
+        working-directory: ${{ runner.temp }}/historical-inventory-source
         run: python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-gnu-provider-installed16k-interruption/test_generator.py
       - name: Check interrupted provider16K workflow assembly and prerequisite bindings without actors
+        working-directory: ${{ runner.temp }}/historical-inventory-source
         run: python3 -I -B -Werror::ResourceWarning scripts/ci/glibc-gnu-provider-installed16k-interruption/ci/test_wiring.py
       - name: Check full-composition installer VM contracts without actors
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/full-composition-installer-vm -p 'test_*.py'
@@ -611,16 +625,19 @@ jobs:
         run: |
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/apps -p 'test_*.py'
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/orphans -p 'test_*.py'
-          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/apps-full574-native -p 'test_*.py'
-          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/apps-full574-repair-native -p 'test_*.py'
-          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/orphans-full574-native -p 'test*.py'
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/job-retirement-diagnostics -p test_retirement.py
-          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/orphans-native-cancellation -p 'test_*.py'
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/expanded600-root-upgrade -p 'test_*.py'
           EXPANDED604_SOURCE="$PWD" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/expanded604-root-upgrade -p 'test_*.py'
           EXPANDED604_MANAGED_SOURCE="$PWD" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/expanded604-managed16k -p 'test_*.py'
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/management-tools-generic16k -p 'test_*.py'
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-management-native -p 'test_*.py'
+      - name: Check historical Apps and Orphans source contracts with their original inventory
+        working-directory: ${{ runner.temp }}/historical-inventory-source
+        run: |
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/apps-full574-native -p 'test_*.py'
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/apps-full574-repair-native -p 'test_*.py'
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/orphans-full574-native -p 'test*.py'
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/orphans-native-cancellation -p 'test_*.py'
       - name: Check Apps6 current604 composition, fresh install and upgrade source
         run: |
           python3 -I -B -Werror::ResourceWarning scripts/ci/expanded604-apps6/test_lane.py

@@ -587,6 +587,65 @@ development_variant_native_build = "PASS native39095436036/source1dc9ecfee51145b
 development_variant_installation = "PASS isolated signed577/574 five-transition ALPM lifecycle, both ordinary users; private574 preservation maps remain source-enforced receipts; no604/16K/M2/release credit"
 
 
+# Explicit opt-in variants; candidate6 and historical variant7 above remain unchanged.
+[[packages.development_variants]]
+version = "0.1.0-8"
+recipe = "packages/tools/cachy-asahi-apps8/PKGBUILD"
+recipe_source = "98a0a6ab18355604683bee42c84c393940a690a1"
+native_source = "f1984a2481c541add7eb99b311a3ae3228307aa6"
+native_run = 39727987029
+selected_for_development = false
+selected_for_release = false
+native_build = "PASS_FINITE_NATIVE_PAIR_AND_INSTALLED574_LIFECYCLE"
+archive_bytes = 23528
+archive_sha256 = "d4d83458765d732ae78664143c9042dcc1159b7d3e19f4b7976f8499c2619f4a"
+hardware_validation = "NOT RUN"
+GUI = "NOT QUALIFIED"
+performance = "NOT MEASURED"
+release = "NOT ADMITTED"
+validation_record = "docs/validation/apps8-current606-native-20261022.md"
+installed_current606 = "PASS_FINITE_EIGHT_PHASE_LIFECYCLE"
+
+[[packages.development_variants]]
+version = "0.1.0-9"
+recipe = "packages/tools/cachy-asahi-apps9/PKGBUILD"
+recipe_source = "9f9eae97843531a41b201655100f13984d9ac01e"
+native_source = "4ebe9f9afb153b34e8fe200594eaee189626413f"
+native_run = 39748090833
+selected_for_development = false
+selected_for_release = false
+native_build = "PASS_FINITE_NATIVE_PAIR_AND_INSTALLED574_LIFECYCLE"
+archive_bytes = 24128
+archive_sha256 = "718121ffe0590f3ab0bb5e2a87957d8c9187d0d8d481304c999caa7ea351e6c1"
+hardware_validation = "NOT RUN"
+GUI = "NOT QUALIFIED"
+performance = "NOT MEASURED"
+release = "NOT ADMITTED"
+validation_record = "docs/validation/apps9-native-lifecycle-20261022.md"
+installed_current606 = "PASS_FINITE_EIGHT_PHASE_LIFECYCLE"
+current606_source = "51399738e2cb98551fbb84c930156022fd734029"
+current606_run = 39751577678
+current606_validation_record = "docs/validation/apps9-current606-native-20261022.md"
+
+[[packages.development_variants]]
+version = "0.1.0-10"
+recipe = "packages/tools/cachy-asahi-apps10/PKGBUILD"
+recipe_source = "0c7fa965b38939df65034b4003260fff99097999"
+native_source = "9d1b97e0adf704fa19b534a7db610350e36a42a5"
+native_run = 39758362995
+selected_for_development = false
+selected_for_release = false
+native_build = "PASS_FINITE_NATIVE_PAIR_AND_INSTALLED574_LIFECYCLE"
+archive_bytes = 26184
+archive_sha256 = "28142e17a53d5a4d93503a16e768017745d19a0c310469d1f42e7d506013115c"
+hardware_validation = "NOT RUN"
+GUI = "NOT QUALIFIED"
+performance = "NOT MEASURED"
+release = "NOT ADMITTED"
+validation_record = "docs/validation/apps10-native-20261022.md"
+installed_current606 = "NOT ACCEPTED BY THIS PAIR RESULT"
+
+
 [[packages]]
 name = "cachy-asahi-repository-runtime"
 phase = "tools-experience"
