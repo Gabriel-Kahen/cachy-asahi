@@ -1,0 +1,58 @@
+{
+  "scripts/ci/apps-cache-native/README.md": {
+    "bytes": 8590,
+    "sha256": "7f1bb7042b057b25c2ce2a2408f36df92736a7be4c7f1bad07a7ac92eadfa508"
+  },
+  "scripts/ci/apps-cache-native/catalog_fixture.py": {
+    "bytes": 3333,
+    "sha256": "0314733b88cc73f9813e488eff55bea8833e6b196d876d5a40fa7507e3ddc071"
+  },
+  "scripts/ci/apps-cache-native/contract.py": {
+    "bytes": 11912,
+    "sha256": "16c68aa997dc018c568178f7a270938b164bec6721729be1231432ef96b280c4"
+  },
+  "scripts/ci/apps-cache-native/freeze.py": {
+    "bytes": 1846,
+    "sha256": "0e2d9d882e605d5305158a868b80542822a7e66cee01ba585620ad86d1beb9f8"
+  },
+  "scripts/ci/apps-cache-native/infrastructure-pins.json": {
+    "bytes": 2934,
+    "sha256": "5f5718d243cf21de5b0a6ecff086c411bc9cc1350dcb28baa07e64dbf3d96bbd"
+  },
+  "scripts/ci/apps-cache-native/input-policy.json": {
+    "bytes": 9126,
+    "sha256": "aabd371598bc186ead840841b5ce002365986dc3c10fa10d2e09fa4aa47b5fdc"
+  },
+  "scripts/ci/apps-cache-native/installed.py": {
+    "bytes": 4441,
+    "sha256": "10d210905f770854ddf9ebb72b46002d414787aa0a878a498ba4b21b663d9d8e"
+  },
+  "scripts/ci/apps-cache-native/job.py": {
+    "bytes": 13236,
+    "sha256": "9a88aa45a16a5a6056d719828a1bae8b04a3cb3b32a2768b5aecb8167ef2adda"
+  },
+  "scripts/ci/apps-cache-native/lifecycle.py": {
+    "bytes": 16624,
+    "sha256": "971cd386da65cbe247e93f4fbbc6ce6a6c6f9e77aadbc6f6b1df6d39c049e45c"
+  },
+  "scripts/ci/apps-cache-native/run.py": {
+    "bytes": 15349,
+    "sha256": "d3cdf95b0757e1f2ebd04cb8bc56f90888ff8c17f615e9ca6e65357c4462b56e"
+  },
+  "scripts/ci/apps-cache-native/runtime_image.py": {
+    "bytes": 2057,
+    "sha256": "a682b64a5326fc7edf0d2347c37ae50805f9b7773c2683f1fbae1769c18fa023"
+  },
+  "scripts/ci/apps-cache-native/source-manifest.json": {
+    "bytes": 20060,
+    "sha256": "70856125e4e282c3b27bc5d1efeac5df00ccdfa09147d6bbcfb75634437281c5"
+  },
+  "scripts/ci/apps-cache-native/test_lane.py": {
+    "bytes": 19853,
+    "sha256": "3f03a6f2624386ac18eba42493783c475c6616559522ba3cbda225827c5a732b"
+  },
+  "scripts/ci/welcome-native/run.py": {
+    "bytes": 12766,
+    "sha256": "52112b49ea98b5aef131b8bcbcc188bcc59cc3a4827161091d4e86af14d2757c"
+  }
+}
