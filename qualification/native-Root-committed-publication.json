@@ -1,0 +1,10 @@
+{
+  "actual": "NOT_RUN",
+  "files": 114,
+  "git_joins": 114,
+  "hardware": "NOT_RUN",
+  "ref": "codex/apps8-native-v1",
+  "release": "NOT_ADMITTED",
+  "source": "f1984a2481c541add7eb99b311a3ae3228307aa6",
+  "status": "COMMITTED_EXACT_CLOSED_TRIAL_SOURCE"
+}

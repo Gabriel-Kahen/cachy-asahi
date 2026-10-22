@@ -1,0 +1,1315 @@
+{
+  "base_count": 574,
+  "base_image": "sha256:c716bc9dafc6d01183641e64fbf29558bf5a1cddde3c533f5296971b8dfdc5a7",
+  "cache_cleanup": "NOT_RUN",
+  "commands": [
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--name",
+        "cachy-asahi-product-probe-0750742516a6796c59dfe8bd6ac84dae",
+        "--pull=never",
+        "--platform=linux/arm64",
+        "--network=none",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges",
+        "--pids-limit=256",
+        "--memory=3g",
+        "--cpus=4",
+        "--user",
+        "1001:1001",
+        "--tmpfs",
+        "/tmp:rw,nosuid,nodev,exec,size=2g",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/apps8-client-native-runtime/probe-output,dst=/out",
+        "--read-only",
+        "--label=org.cachy-asahi.apps8-client-native.job=e2420347bf1ea60881a9d7ce4b71ebd0",
+        "--entrypoint=/bin/bash",
+        "sha256:c716bc9dafc6d01183641e64fbf29558bf5a1cddde3c533f5296971b8dfdc5a7",
+        "-c",
+        "/usr/bin/pacman -T \"$@\" >/dev/null && /usr/bin/pacman -Q",
+        "runtime-dependencies",
+        "gnupg",
+        "libarchive",
+        "pacman",
+        "python>=3.11"
+      ],
+      "log": "base-inventory.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--name",
+        "cachy-asahi-product-4168ebf99308498d3daf3f005d05c2e3",
+        "--pull=never",
+        "--platform=linux/arm64",
+        "--network=none",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges",
+        "--pids-limit=256",
+        "--memory=3g",
+        "--cpus=4",
+        "--user",
+        "1001:1001",
+        "--tmpfs",
+        "/tmp:rw,nosuid,nodev,exec,size=2g",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/apps8-client-native-runtime/cachy-asahi-repository-runtime-a/artifacts,dst=/out",
+        "--read-only",
+        "--label=org.cachy-asahi.apps8-client-native.job=e2420347bf1ea60881a9d7ce4b71ebd0",
+        "--env=CACHY_ASAHI_CONTAINER=1",
+        "--env=SOURCE_DATE_EPOCH=1791748800",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/apps8-client-native-runtime/cachy-asahi-repository-runtime-a/inputs,dst=/inputs,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/apps8-client-native-runtime/cachy-asahi-repository-runtime-a/expected-packages.lock,dst=/expected-packages.lock,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/cachy-asahi/cachy-asahi/scripts/build/container-entry.sh,dst=/builder-entry.sh,readonly",
+        "--entrypoint=/bin/bash",
+        "sha256:c716bc9dafc6d01183641e64fbf29558bf5a1cddde3c533f5296971b8dfdc5a7",
+        "/builder-entry.sh"
+      ],
+      "log": "cachy-asahi-repository-runtime-a/build.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--name",
+        "cachy-asahi-product-ffcddda6fa4affc594c91786f8d33fa8",
+        "--pull=never",
+        "--platform=linux/arm64",
+        "--network=none",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges",
+        "--pids-limit=256",
+        "--memory=3g",
+        "--cpus=4",
+        "--user",
+        "1001:1001",
+        "--tmpfs",
+        "/tmp:rw,nosuid,nodev,exec,size=2g",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/apps8-client-native-runtime/cachy-asahi-repository-runtime-b/artifacts,dst=/out",
+        "--read-only",
+        "--label=org.cachy-asahi.apps8-client-native.job=e2420347bf1ea60881a9d7ce4b71ebd0",
+        "--env=CACHY_ASAHI_CONTAINER=1",
+        "--env=SOURCE_DATE_EPOCH=1791748800",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/apps8-client-native-runtime/cachy-asahi-repository-runtime-b/inputs,dst=/inputs,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/apps8-client-native-runtime/cachy-asahi-repository-runtime-b/expected-packages.lock,dst=/expected-packages.lock,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/cachy-asahi/cachy-asahi/scripts/build/container-entry.sh,dst=/builder-entry.sh,readonly",
+        "--entrypoint=/bin/bash",
+        "sha256:c716bc9dafc6d01183641e64fbf29558bf5a1cddde3c533f5296971b8dfdc5a7",
+        "/builder-entry.sh"
+      ],
+      "log": "cachy-asahi-repository-runtime-b/build.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--name",
+        "cachy-asahi-product-c2662856d7cf8dc6349b1e5ef8575a29",
+        "--pull=never",
+        "--platform=linux/arm64",
+        "--network=none",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges",
+        "--pids-limit=256",
+        "--memory=3g",
+        "--cpus=4",
+        "--user",
+        "0:0",
+        "--tmpfs",
+        "/tmp:rw,nosuid,nodev,exec,size=2g",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/apps8-client-native-runtime/runtime-dependency-image-output,dst=/out",
+        "--cap-add=CHOWN",
+        "--cap-add=DAC_OVERRIDE",
+        "--cap-add=FOWNER",
+        "--cap-add=FSETID",
+        "--cap-add=SETUID",
+        "--cap-add=SETGID",
+        "--label=org.cachy-asahi.apps8-client-native.job=e2420347bf1ea60881a9d7ce4b71ebd0",
+        "--env=CACHY_ASAHI_APPS_CACHE_OPERATION=runtime-dependency-image",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/apps8-client-native-runtime/runtime-context,dst=/inputs,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/apps8-client-native-runtime/runtime-context/runner,dst=/runner,readonly",
+        "--entrypoint=/usr/bin/python3",
+        "sha256:c716bc9dafc6d01183641e64fbf29558bf5a1cddde3c533f5296971b8dfdc5a7",
+        "-I",
+        "-B",
+        "/runner/runtime_image.py"
+      ],
+      "log": "runtime-dependency-image-install.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "commit",
+        "--change",
+        "LABEL org.cachy-asahi.bootstrap574.job=32d52fff4167c8d4",
+        "cachy-asahi-product-c2662856d7cf8dc6349b1e5ef8575a29",
+        "cachy-asahi-574-owned:32d52fff4167c8d4"
+      ],
+      "log": "runtime-dependency-image-commit.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--name",
+        "cachy-asahi-product-dc8dffe6a772669da8a33e7a2333d56c",
+        "--pull=never",
+        "--platform=linux/arm64",
+        "--network=none",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges",
+        "--pids-limit=256",
+        "--memory=3g",
+        "--cpus=4",
+        "--user",
+        "1001:1001",
+        "--tmpfs",
+        "/tmp:rw,nosuid,nodev,exec,size=2g",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/apps8-client-native-runtime/cachy-asahi-apps-a/artifacts,dst=/out",
+        "--read-only",
+        "--label=org.cachy-asahi.apps8-client-native.job=e2420347bf1ea60881a9d7ce4b71ebd0",
+        "--env=CACHY_ASAHI_CONTAINER=1",
+        "--env=SOURCE_DATE_EPOCH=1791748800",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/apps8-client-native-runtime/cachy-asahi-apps-a/inputs,dst=/inputs,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/apps8-client-native-runtime/cachy-asahi-apps-a/expected-packages.lock,dst=/expected-packages.lock,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/cachy-asahi/cachy-asahi/scripts/build/container-entry.sh,dst=/builder-entry.sh,readonly",
+        "--entrypoint=/bin/bash",
+        "sha256:189e43caf1b09d32f442d27d99c7ae715d85b303d891fac9b0b81589b05bb050",
+        "/builder-entry.sh"
+      ],
+      "log": "cachy-asahi-apps-a/build.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--name",
+        "cachy-asahi-product-47b777b71fc4484b73a942b2f2d2eda7",
+        "--pull=never",
+        "--platform=linux/arm64",
+        "--network=none",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges",
+        "--pids-limit=256",
+        "--memory=3g",
+        "--cpus=4",
+        "--user",
+        "1001:1001",
+        "--tmpfs",
+        "/tmp:rw,nosuid,nodev,exec,size=2g",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/apps8-client-native-runtime/cachy-asahi-apps-b/artifacts,dst=/out",
+        "--read-only",
+        "--label=org.cachy-asahi.apps8-client-native.job=e2420347bf1ea60881a9d7ce4b71ebd0",
+        "--env=CACHY_ASAHI_CONTAINER=1",
+        "--env=SOURCE_DATE_EPOCH=1791748800",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/apps8-client-native-runtime/cachy-asahi-apps-b/inputs,dst=/inputs,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/apps8-client-native-runtime/cachy-asahi-apps-b/expected-packages.lock,dst=/expected-packages.lock,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/cachy-asahi/cachy-asahi/scripts/build/container-entry.sh,dst=/builder-entry.sh,readonly",
+        "--entrypoint=/bin/bash",
+        "sha256:189e43caf1b09d32f442d27d99c7ae715d85b303d891fac9b0b81589b05bb050",
+        "/builder-entry.sh"
+      ],
+      "log": "cachy-asahi-apps-b/build.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--name",
+        "cachy-asahi-product-9fbe35db553cd4a4da4e96592ede7451",
+        "--pull=never",
+        "--platform=linux/arm64",
+        "--network=none",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges",
+        "--pids-limit=256",
+        "--memory=3g",
+        "--cpus=4",
+        "--user",
+        "1001:1001",
+        "--tmpfs",
+        "/tmp:rw,nosuid,nodev,exec,size=2g",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/apps8-client-native-runtime/cachy-asahi-repository-client-v2-a/artifacts,dst=/out",
+        "--read-only",
+        "--label=org.cachy-asahi.apps8-client-native.job=e2420347bf1ea60881a9d7ce4b71ebd0",
+        "--env=CACHY_ASAHI_CONTAINER=1",
+        "--env=SOURCE_DATE_EPOCH=1791748800",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/apps8-client-native-runtime/cachy-asahi-repository-client-v2-a/inputs,dst=/inputs,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/apps8-client-native-runtime/cachy-asahi-repository-client-v2-a/expected-packages.lock,dst=/expected-packages.lock,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/cachy-asahi/cachy-asahi/scripts/build/container-entry.sh,dst=/builder-entry.sh,readonly",
+        "--entrypoint=/bin/bash",
+        "sha256:189e43caf1b09d32f442d27d99c7ae715d85b303d891fac9b0b81589b05bb050",
+        "/builder-entry.sh"
+      ],
+      "log": "cachy-asahi-repository-client-v2-a/build.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--name",
+        "cachy-asahi-product-09d931195cb67bc5ef1e41fdb2ef91f1",
+        "--pull=never",
+        "--platform=linux/arm64",
+        "--network=none",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges",
+        "--pids-limit=256",
+        "--memory=3g",
+        "--cpus=4",
+        "--user",
+        "1001:1001",
+        "--tmpfs",
+        "/tmp:rw,nosuid,nodev,exec,size=2g",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/apps8-client-native-runtime/cachy-asahi-repository-client-v2-b/artifacts,dst=/out",
+        "--read-only",
+        "--label=org.cachy-asahi.apps8-client-native.job=e2420347bf1ea60881a9d7ce4b71ebd0",
+        "--env=CACHY_ASAHI_CONTAINER=1",
+        "--env=SOURCE_DATE_EPOCH=1791748800",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/apps8-client-native-runtime/cachy-asahi-repository-client-v2-b/inputs,dst=/inputs,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/apps8-client-native-runtime/cachy-asahi-repository-client-v2-b/expected-packages.lock,dst=/expected-packages.lock,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/cachy-asahi/cachy-asahi/scripts/build/container-entry.sh,dst=/builder-entry.sh,readonly",
+        "--entrypoint=/bin/bash",
+        "sha256:189e43caf1b09d32f442d27d99c7ae715d85b303d891fac9b0b81589b05bb050",
+        "/builder-entry.sh"
+      ],
+      "log": "cachy-asahi-repository-client-v2-b/build.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--name",
+        "cachy-asahi-product-f7c6421948eda9d6ac40790d090182f2",
+        "--pull=never",
+        "--platform=linux/arm64",
+        "--network=none",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges",
+        "--pids-limit=256",
+        "--memory=3g",
+        "--cpus=4",
+        "--user",
+        "1001:1001",
+        "--tmpfs",
+        "/tmp:rw,nosuid,nodev,exec,size=2g",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/apps8-client-native-runtime/synthetic-output,dst=/out",
+        "--read-only",
+        "--label=org.cachy-asahi.apps8-client-native.job=e2420347bf1ea60881a9d7ce4b71ebd0",
+        "--env=CACHY_ASAHI_CATALOG_FIXTURE=1",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/apps8-client-native-runtime/fixture-source,dst=/fixture-source,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/apps8-client-native-runtime/fixture-control.json,dst=/fixture-control.json,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/apps8-client-native-runtime/test-signing,dst=/authority",
+        "--mount",
+        "type=bind,src=/home/runner/work/cachy-asahi/cachy-asahi/scripts/ci/apps-cache-native/catalog_fixture.py,dst=/catalog_fixture.py,readonly",
+        "--entrypoint=/usr/bin/python3",
+        "sha256:c716bc9dafc6d01183641e64fbf29558bf5a1cddde3c533f5296971b8dfdc5a7",
+        "-I",
+        "-B",
+        "/catalog_fixture.py"
+      ],
+      "log": "catalog-fixture.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--name",
+        "cachy-asahi-product-lifecycle-a46d90053a801e5250104fcbd39969d4",
+        "--pull=never",
+        "--platform=linux/arm64",
+        "--network=none",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges",
+        "--pids-limit=256",
+        "--memory=3g",
+        "--cpus=4",
+        "--user",
+        "0:0",
+        "--tmpfs",
+        "/tmp:rw,nosuid,nodev,exec,size=2g",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/apps8-client-native-runtime/lifecycle-output,dst=/out",
+        "--cap-add=CHOWN",
+        "--cap-add=DAC_OVERRIDE",
+        "--cap-add=FOWNER",
+        "--cap-add=FSETID",
+        "--cap-add=SETUID",
+        "--cap-add=SETGID",
+        "--label=org.cachy-asahi.apps8-client-native.job=e2420347bf1ea60881a9d7ce4b71ebd0",
+        "--env=CACHY_ASAHI_APPS_CACHE_OPERATION=lifecycle",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/apps8-client-native-runtime/lifecycle-inputs,dst=/inputs,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/apps8-client-native-runtime/lifecycle-inputs/runner,dst=/runner,readonly",
+        "--entrypoint=/usr/bin/python3",
+        "sha256:c716bc9dafc6d01183641e64fbf29558bf5a1cddde3c533f5296971b8dfdc5a7",
+        "-I",
+        "-B",
+        "/runner/lifecycle.py"
+      ],
+      "log": "lifecycle.log"
+    }
+  ],
+  "declared_dependency": null,
+  "hardware": "NOT_RUN",
+  "installed_count": 577,
+  "lifecycle": {
+    "apps8_inventory": "PASS_INSTALLED_15_CONTROLS",
+    "architecture": "aarch64",
+    "base574_preserved": true,
+    "base_count": 574,
+    "base_manifest_sha256": "bda5697996675f9127b6fcb8e9625a7dbfbcb4ba0aca3a70bdfad44207033c8a",
+    "cache_cleanup": "NOT_RUN",
+    "client_v2": "PASS_INSTALLED_SIGNED_TILDE_READONLY",
+    "events": [
+      {
+        "base574_preserved": true,
+        "count": 577,
+        "installed_default_helpers": "PASS",
+        "inventory_collector": "PASS_READONLY_OBSERVED_ALPM9",
+        "observations": [
+          {
+            "apps8_installed_controls": {
+              "errors": 0,
+              "failures": 0,
+              "installed_source": true,
+              "mode": "apps",
+              "report_bytes": 2732,
+              "report_sha256": "7873c83c78ff9c2fdcb1a0a634bd513c7db50cf4f238310944dc97b144111632",
+              "skipped": 0,
+              "status": "PASS_INSTALLED_CONTROLS",
+              "tests": 15
+            },
+            "apps_commands": [
+              "list",
+              "search",
+              "show",
+              "plan-install",
+              "plan-remove"
+            ],
+            "client_v2_installed_controls": {
+              "errors": 0,
+              "failures": 0,
+              "installed_source": true,
+              "mode": "client",
+              "report_bytes": 502,
+              "report_sha256": "1a0aee370bb1ddaf2b7fefc226450f6a0606766f981529df4933d3bed9b93b7c",
+              "skipped": 0,
+              "status": "PASS_INSTALLED_CONTROLS",
+              "tests": 2
+            },
+            "default_helpers": "PASS_INSTALLED_EXACT_THREE",
+            "home": "apps-cache-home-fresh",
+            "inventory_collector": "PASS_READONLY_OBSERVED_ALPM9",
+            "inventory_observation": {
+              "applied": "NOT_APPLIED",
+              "bytes": 7154417,
+              "database_sha256": "15309e25024dc4d54b092a25f2d77ebd42e3813494a0522b7b736473c2662997",
+              "output": "/tmp/apps-cache-output-fresh/install/observed-inventory.json",
+              "package_count": 577,
+              "qualification": "OBSERVED_LOCAL_DB_METADATA_NOT_PAYLOAD_OR_HARDWARE_ATTESTATION",
+              "sha256": "1991af16a538afca4047e689ef88ac1e0a870e4f3feaf35c6593c241174204bc",
+              "status": "OBSERVED_LOCAL_DB_METADATA"
+            },
+            "plan_inventory_source": "OBSERVED_SYNTHETIC_ALPM9_FIXTURE",
+            "real_database_inventory": "PASS_EXACT577_OBSERVED_METADATA_RAW_HASHES_PRESERVED",
+            "signed_catalog": "PASS_NOT_APPLIED"
+          },
+          {
+            "apps8_installed_controls": {
+              "errors": 0,
+              "failures": 0,
+              "installed_source": true,
+              "mode": "apps",
+              "report_bytes": 2732,
+              "report_sha256": "91bc7c7a7759a0023c790dac6f8c3d5b919a3dc4e0a32c24709769af1e94f916",
+              "skipped": 0,
+              "status": "PASS_INSTALLED_CONTROLS",
+              "tests": 15
+            },
+            "apps_commands": [
+              "list",
+              "search",
+              "show",
+              "plan-install",
+              "plan-remove"
+            ],
+            "client_v2_installed_controls": {
+              "errors": 0,
+              "failures": 0,
+              "installed_source": true,
+              "mode": "client",
+              "report_bytes": 502,
+              "report_sha256": "8cb2581e626c4c93242f8fa8de5b821b8cf25e16e8d5ddbad91670ace063c165",
+              "skipped": 0,
+              "status": "PASS_INSTALLED_CONTROLS",
+              "tests": 2
+            },
+            "default_helpers": "PASS_INSTALLED_EXACT_THREE",
+            "home": "apps-cache-home-existing",
+            "inventory_collector": "PASS_READONLY_OBSERVED_ALPM9",
+            "inventory_observation": {
+              "applied": "NOT_APPLIED",
+              "bytes": 7154417,
+              "database_sha256": "15309e25024dc4d54b092a25f2d77ebd42e3813494a0522b7b736473c2662997",
+              "output": "/tmp/apps-cache-output-existing/install/observed-inventory.json",
+              "package_count": 577,
+              "qualification": "OBSERVED_LOCAL_DB_METADATA_NOT_PAYLOAD_OR_HARDWARE_ATTESTATION",
+              "sha256": "1991af16a538afca4047e689ef88ac1e0a870e4f3feaf35c6593c241174204bc",
+              "status": "OBSERVED_LOCAL_DB_METADATA"
+            },
+            "plan_inventory_source": "OBSERVED_SYNTHETIC_ALPM9_FIXTURE",
+            "real_database_inventory": "PASS_EXACT577_OBSERVED_METADATA_RAW_HASHES_PRESERVED",
+            "signed_catalog": "PASS_NOT_APPLIED"
+          }
+        ],
+        "phase": "install",
+        "signed_catalog": "PASS_NOT_APPLIED",
+        "user_preserved": true
+      },
+      {
+        "base574_preserved": true,
+        "count": 577,
+        "installed_default_helpers": "PASS",
+        "inventory_collector": "PASS_READONLY_OBSERVED_ALPM9",
+        "observations": [
+          {
+            "apps8_installed_controls": {
+              "errors": 0,
+              "failures": 0,
+              "installed_source": true,
+              "mode": "apps",
+              "report_bytes": 2732,
+              "report_sha256": "7700d0b92b37bbb0e3f2f9725f125a3cc135a337f94c47625e1a925dbc7aa079",
+              "skipped": 0,
+              "status": "PASS_INSTALLED_CONTROLS",
+              "tests": 15
+            },
+            "apps_commands": [
+              "list",
+              "search",
+              "show",
+              "plan-install",
+              "plan-remove"
+            ],
+            "client_v2_installed_controls": {
+              "errors": 0,
+              "failures": 0,
+              "installed_source": true,
+              "mode": "client",
+              "report_bytes": 502,
+              "report_sha256": "ec9a0f9e819cba85d88c868c69a80634419f91f0f5f83f109c6f1155f569a0e8",
+              "skipped": 0,
+              "status": "PASS_INSTALLED_CONTROLS",
+              "tests": 2
+            },
+            "default_helpers": "PASS_INSTALLED_EXACT_THREE",
+            "home": "apps-cache-home-fresh",
+            "inventory_collector": "PASS_READONLY_OBSERVED_ALPM9",
+            "inventory_observation": {
+              "applied": "NOT_APPLIED",
+              "bytes": 7154417,
+              "database_sha256": "00710eba45a2f2b03fccc0a013d9077d547215c888b1bdc83d1fee1645443d3e",
+              "output": "/tmp/apps-cache-output-fresh/same-version-reinstall/observed-inventory.json",
+              "package_count": 577,
+              "qualification": "OBSERVED_LOCAL_DB_METADATA_NOT_PAYLOAD_OR_HARDWARE_ATTESTATION",
+              "sha256": "03829b13e0d955b0168154a4b0a49702a99b7862c335616e50761846e53bf92a",
+              "status": "OBSERVED_LOCAL_DB_METADATA"
+            },
+            "plan_inventory_source": "OBSERVED_SYNTHETIC_ALPM9_FIXTURE",
+            "real_database_inventory": "PASS_EXACT577_OBSERVED_METADATA_RAW_HASHES_PRESERVED",
+            "signed_catalog": "PASS_NOT_APPLIED"
+          },
+          {
+            "apps8_installed_controls": {
+              "errors": 0,
+              "failures": 0,
+              "installed_source": true,
+              "mode": "apps",
+              "report_bytes": 2732,
+              "report_sha256": "374e6a806f79f501d33d7ed06e5de49be353cd93dd0d7205759f0f687ce7c25d",
+              "skipped": 0,
+              "status": "PASS_INSTALLED_CONTROLS",
+              "tests": 15
+            },
+            "apps_commands": [
+              "list",
+              "search",
+              "show",
+              "plan-install",
+              "plan-remove"
+            ],
+            "client_v2_installed_controls": {
+              "errors": 0,
+              "failures": 0,
+              "installed_source": true,
+              "mode": "client",
+              "report_bytes": 502,
+              "report_sha256": "f33d6de904c3121862c58432bc075a81ca13880d879651710f33e28334792caa",
+              "skipped": 0,
+              "status": "PASS_INSTALLED_CONTROLS",
+              "tests": 2
+            },
+            "default_helpers": "PASS_INSTALLED_EXACT_THREE",
+            "home": "apps-cache-home-existing",
+            "inventory_collector": "PASS_READONLY_OBSERVED_ALPM9",
+            "inventory_observation": {
+              "applied": "NOT_APPLIED",
+              "bytes": 7154417,
+              "database_sha256": "00710eba45a2f2b03fccc0a013d9077d547215c888b1bdc83d1fee1645443d3e",
+              "output": "/tmp/apps-cache-output-existing/same-version-reinstall/observed-inventory.json",
+              "package_count": 577,
+              "qualification": "OBSERVED_LOCAL_DB_METADATA_NOT_PAYLOAD_OR_HARDWARE_ATTESTATION",
+              "sha256": "03829b13e0d955b0168154a4b0a49702a99b7862c335616e50761846e53bf92a",
+              "status": "OBSERVED_LOCAL_DB_METADATA"
+            },
+            "plan_inventory_source": "OBSERVED_SYNTHETIC_ALPM9_FIXTURE",
+            "real_database_inventory": "PASS_EXACT577_OBSERVED_METADATA_RAW_HASHES_PRESERVED",
+            "signed_catalog": "PASS_NOT_APPLIED"
+          }
+        ],
+        "phase": "same-version-reinstall",
+        "signed_catalog": "PASS_NOT_APPLIED",
+        "user_preserved": true
+      },
+      {
+        "base574_preserved": true,
+        "count": 574,
+        "payloads_absent": true,
+        "phase": "remove",
+        "user_preserved": true
+      },
+      {
+        "base574_preserved": true,
+        "count": 577,
+        "installed_default_helpers": "PASS",
+        "inventory_collector": "PASS_READONLY_OBSERVED_ALPM9",
+        "observations": [
+          {
+            "apps8_installed_controls": {
+              "errors": 0,
+              "failures": 0,
+              "installed_source": true,
+              "mode": "apps",
+              "report_bytes": 2732,
+              "report_sha256": "374e6a806f79f501d33d7ed06e5de49be353cd93dd0d7205759f0f687ce7c25d",
+              "skipped": 0,
+              "status": "PASS_INSTALLED_CONTROLS",
+              "tests": 15
+            },
+            "apps_commands": [
+              "list",
+              "search",
+              "show",
+              "plan-install",
+              "plan-remove"
+            ],
+            "client_v2_installed_controls": {
+              "errors": 0,
+              "failures": 0,
+              "installed_source": true,
+              "mode": "client",
+              "report_bytes": 502,
+              "report_sha256": "da4feaaea76cb468c0e87ba705dbc754ae0a5170b9465938ed52b16b40665cd5",
+              "skipped": 0,
+              "status": "PASS_INSTALLED_CONTROLS",
+              "tests": 2
+            },
+            "default_helpers": "PASS_INSTALLED_EXACT_THREE",
+            "home": "apps-cache-home-fresh",
+            "inventory_collector": "PASS_READONLY_OBSERVED_ALPM9",
+            "inventory_observation": {
+              "applied": "NOT_APPLIED",
+              "bytes": 7154417,
+              "database_sha256": "57de1cff61face5f18c92d61488db8ba2e0dc81247f75faddfbd0408defbce38",
+              "output": "/tmp/apps-cache-output-fresh/reinstall-after-removal/observed-inventory.json",
+              "package_count": 577,
+              "qualification": "OBSERVED_LOCAL_DB_METADATA_NOT_PAYLOAD_OR_HARDWARE_ATTESTATION",
+              "sha256": "e0564dcec57ff0f2fc13079f1cdb0282b98b26debb8e76648bfe780b3149a345",
+              "status": "OBSERVED_LOCAL_DB_METADATA"
+            },
+            "plan_inventory_source": "OBSERVED_SYNTHETIC_ALPM9_FIXTURE",
+            "real_database_inventory": "PASS_EXACT577_OBSERVED_METADATA_RAW_HASHES_PRESERVED",
+            "signed_catalog": "PASS_NOT_APPLIED"
+          },
+          {
+            "apps8_installed_controls": {
+              "errors": 0,
+              "failures": 0,
+              "installed_source": true,
+              "mode": "apps",
+              "report_bytes": 2732,
+              "report_sha256": "7700d0b92b37bbb0e3f2f9725f125a3cc135a337f94c47625e1a925dbc7aa079",
+              "skipped": 0,
+              "status": "PASS_INSTALLED_CONTROLS",
+              "tests": 15
+            },
+            "apps_commands": [
+              "list",
+              "search",
+              "show",
+              "plan-install",
+              "plan-remove"
+            ],
+            "client_v2_installed_controls": {
+              "errors": 0,
+              "failures": 0,
+              "installed_source": true,
+              "mode": "client",
+              "report_bytes": 502,
+              "report_sha256": "18af757f0e9eb63e71399c4e3c505cf56f870ce31d2c4facf4852ae4673f6c56",
+              "skipped": 0,
+              "status": "PASS_INSTALLED_CONTROLS",
+              "tests": 2
+            },
+            "default_helpers": "PASS_INSTALLED_EXACT_THREE",
+            "home": "apps-cache-home-existing",
+            "inventory_collector": "PASS_READONLY_OBSERVED_ALPM9",
+            "inventory_observation": {
+              "applied": "NOT_APPLIED",
+              "bytes": 7154417,
+              "database_sha256": "57de1cff61face5f18c92d61488db8ba2e0dc81247f75faddfbd0408defbce38",
+              "output": "/tmp/apps-cache-output-existing/reinstall-after-removal/observed-inventory.json",
+              "package_count": 577,
+              "qualification": "OBSERVED_LOCAL_DB_METADATA_NOT_PAYLOAD_OR_HARDWARE_ATTESTATION",
+              "sha256": "e0564dcec57ff0f2fc13079f1cdb0282b98b26debb8e76648bfe780b3149a345",
+              "status": "OBSERVED_LOCAL_DB_METADATA"
+            },
+            "plan_inventory_source": "OBSERVED_SYNTHETIC_ALPM9_FIXTURE",
+            "real_database_inventory": "PASS_EXACT577_OBSERVED_METADATA_RAW_HASHES_PRESERVED",
+            "signed_catalog": "PASS_NOT_APPLIED"
+          }
+        ],
+        "phase": "reinstall-after-removal",
+        "signed_catalog": "PASS_NOT_APPLIED",
+        "user_preserved": true
+      },
+      {
+        "base574_preserved": true,
+        "count": 574,
+        "payloads_absent": true,
+        "phase": "final-remove",
+        "user_preserved": true
+      }
+    ],
+    "hardware": "NOT_RUN",
+    "installed_count": 577,
+    "page_size": 4096,
+    "plans_applied": "NOT_APPLIED",
+    "release": "NOT_ADMITTED",
+    "removal_order": [
+      "cachy-asahi-repository-client-v2",
+      "cachy-asahi-apps",
+      "cachy-asahi-repository-runtime"
+    ],
+    "status": "PASS_APPS8_CLIENT_V2_INSTALLED_LIFECYCLE",
+    "user_preserved": true
+  },
+  "ownership_token": "e2420347bf1ea60881a9d7ce4b71ebd0",
+  "plans_applied": "NOT_APPLIED",
+  "products": {
+    "cachy-asahi-apps": {
+      "build_image": "sha256:189e43caf1b09d32f442d27d99c7ae715d85b303d891fac9b0b81589b05bb050",
+      "build_inventory_sha256": "66c46d4645fa443d23df0e97765905555fe5bc2607787dca3f30ee2084cf597f",
+      "builds": [
+        {
+          "archive": "cachy-asahi-apps-0.1.0-8-any.pkg.tar.xz",
+          "payload": {
+            "usr/bin/cachy-asahi-apps": {
+              "gid": 0,
+              "link": "",
+              "mode": 493,
+              "mtime": 1791748800,
+              "sha256": "4e9c078c2e05cc00cb6479d5fff23b92cbcabd8d6b3ff970f6181e6467921630",
+              "size": 310,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/lib/cachy-asahi-apps/apps.py": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "8b575e25226463834a45b3f679ee4ddf5ef124976b008494a4944c0252cdf1f5",
+              "size": 22543,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/lib/cachy-asahi-apps/helper-pins.json": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a",
+              "size": 493,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/lib/cachy-asahi-apps/inventory.py": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "bf0068a57240094dba2eb860c48a0f7f547a9b8e7c675ef847834423de2dda9f",
+              "size": 13293,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-apps/README.md": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "53228a0a8eb792f176d3aaac13e99260809287830f7c81ecda131053985d9172",
+              "size": 13280,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-apps/source-provenance.json": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "6c273cfee123a70dc073538bbe4fab06d3ed1bae8e4e170d3a408066b869d57a",
+              "size": 4136,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-apps/LICENSE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+              "size": 1081,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-apps/NOTICE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "425c36c2e9ad688b398d8fbcb2fd8f972420a1db5e0d4b19e9d24021346d4239",
+              "size": 1079,
+              "type": "0",
+              "uid": 0
+            }
+          },
+          "sha256": "d4d83458765d732ae78664143c9042dcc1159b7d3e19f4b7976f8499c2619f4a",
+          "tests": {
+            "method": "makepkg check() exit0 plus bound markers; installed checks separate",
+            "status": "PASS_CHECK_EXIT_NO_SKIPS"
+          }
+        },
+        {
+          "archive": "cachy-asahi-apps-0.1.0-8-any.pkg.tar.xz",
+          "payload": {
+            "usr/bin/cachy-asahi-apps": {
+              "gid": 0,
+              "link": "",
+              "mode": 493,
+              "mtime": 1791748800,
+              "sha256": "4e9c078c2e05cc00cb6479d5fff23b92cbcabd8d6b3ff970f6181e6467921630",
+              "size": 310,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/lib/cachy-asahi-apps/apps.py": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "8b575e25226463834a45b3f679ee4ddf5ef124976b008494a4944c0252cdf1f5",
+              "size": 22543,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/lib/cachy-asahi-apps/helper-pins.json": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a",
+              "size": 493,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/lib/cachy-asahi-apps/inventory.py": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "bf0068a57240094dba2eb860c48a0f7f547a9b8e7c675ef847834423de2dda9f",
+              "size": 13293,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-apps/README.md": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "53228a0a8eb792f176d3aaac13e99260809287830f7c81ecda131053985d9172",
+              "size": 13280,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-apps/source-provenance.json": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "6c273cfee123a70dc073538bbe4fab06d3ed1bae8e4e170d3a408066b869d57a",
+              "size": 4136,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-apps/LICENSE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+              "size": 1081,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-apps/NOTICE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "425c36c2e9ad688b398d8fbcb2fd8f972420a1db5e0d4b19e9d24021346d4239",
+              "size": 1079,
+              "type": "0",
+              "uid": 0
+            }
+          },
+          "sha256": "d4d83458765d732ae78664143c9042dcc1159b7d3e19f4b7976f8499c2619f4a",
+          "tests": {
+            "method": "makepkg check() exit0 plus bound markers; installed checks separate",
+            "status": "PASS_CHECK_EXIT_NO_SKIPS"
+          }
+        }
+      ],
+      "comparison": {
+        "errors": [],
+        "hardware_status": "NOT RUN",
+        "independence_limit": "Distinct recorded container runs; independent machine execution is not attested.",
+        "packages": {
+          "cachy-asahi-apps-0.1.0-8-any.pkg.tar.xz": {
+            "buildinfo_equal": true,
+            "bytes_equal": true,
+            "installed_contents_equal": true,
+            "pkginfo_equal": true
+          }
+        },
+        "status": "contents-reproduced"
+      },
+      "version": "0.1.0-8"
+    },
+    "cachy-asahi-repository-client-v2": {
+      "build_image": "sha256:189e43caf1b09d32f442d27d99c7ae715d85b303d891fac9b0b81589b05bb050",
+      "build_inventory_sha256": "66c46d4645fa443d23df0e97765905555fe5bc2607787dca3f30ee2084cf597f",
+      "builds": [
+        {
+          "archive": "cachy-asahi-repository-client-v2-0.1.0-1-any.pkg.tar.xz",
+          "payload": {
+            "usr/share/cachy-asahi/repository-runtime/scripts/client/client_v2.py": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "915c2336a6515dcbde9801d7778c0aeae3a0251cf6463c4704d47590d94d1409",
+              "size": 28763,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-repository-client-v2/README.md": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "922ad69c94a2ef12d55f895a35e7a71737083db6a0ec1841c8d504c9993a6123",
+              "size": 2310,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-repository-client-v2/helper-pins.json": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "86478bf7125aa21aefbb20a37eb2c5fae32b6a2cac3cb572733cda42f74216c8",
+              "size": 790,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-repository-client-v2/source-provenance.json": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "9a62f3674324b48cfaffeb132549414827b61204acc1757dea703963298b7ac1",
+              "size": 1308,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-repository-client-v2/LICENSE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+              "size": 1081,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-repository-client-v2/NOTICE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "138f32d5f31eefce9581b054f7b066d59209766cf5122521b8f1bf1063fec0fa",
+              "size": 630,
+              "type": "0",
+              "uid": 0
+            }
+          },
+          "sha256": "e94e6d9a6e9db017a01a166059387e61a9bfd427f7acb8a07201f2fb79ef53a2",
+          "tests": {
+            "method": "makepkg check() exit0 plus bound markers; installed checks separate",
+            "status": "PASS_CHECK_EXIT_NO_SKIPS"
+          }
+        },
+        {
+          "archive": "cachy-asahi-repository-client-v2-0.1.0-1-any.pkg.tar.xz",
+          "payload": {
+            "usr/share/cachy-asahi/repository-runtime/scripts/client/client_v2.py": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "915c2336a6515dcbde9801d7778c0aeae3a0251cf6463c4704d47590d94d1409",
+              "size": 28763,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-repository-client-v2/README.md": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "922ad69c94a2ef12d55f895a35e7a71737083db6a0ec1841c8d504c9993a6123",
+              "size": 2310,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-repository-client-v2/helper-pins.json": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "86478bf7125aa21aefbb20a37eb2c5fae32b6a2cac3cb572733cda42f74216c8",
+              "size": 790,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-repository-client-v2/source-provenance.json": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "9a62f3674324b48cfaffeb132549414827b61204acc1757dea703963298b7ac1",
+              "size": 1308,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-repository-client-v2/LICENSE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+              "size": 1081,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-repository-client-v2/NOTICE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "138f32d5f31eefce9581b054f7b066d59209766cf5122521b8f1bf1063fec0fa",
+              "size": 630,
+              "type": "0",
+              "uid": 0
+            }
+          },
+          "sha256": "e94e6d9a6e9db017a01a166059387e61a9bfd427f7acb8a07201f2fb79ef53a2",
+          "tests": {
+            "method": "makepkg check() exit0 plus bound markers; installed checks separate",
+            "status": "PASS_CHECK_EXIT_NO_SKIPS"
+          }
+        }
+      ],
+      "comparison": {
+        "errors": [],
+        "hardware_status": "NOT RUN",
+        "independence_limit": "Distinct recorded container runs; independent machine execution is not attested.",
+        "packages": {
+          "cachy-asahi-repository-client-v2-0.1.0-1-any.pkg.tar.xz": {
+            "buildinfo_equal": true,
+            "bytes_equal": true,
+            "installed_contents_equal": true,
+            "pkginfo_equal": true
+          }
+        },
+        "status": "contents-reproduced"
+      },
+      "version": "0.1.0-1"
+    },
+    "cachy-asahi-repository-runtime": {
+      "build_image": "sha256:c716bc9dafc6d01183641e64fbf29558bf5a1cddde3c533f5296971b8dfdc5a7",
+      "build_inventory_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+      "builds": [
+        {
+          "archive": "cachy-asahi-repository-runtime-0.1.0-1-any.pkg.tar.xz",
+          "payload": {
+            "usr/share/cachy-asahi/repository-runtime/scripts/client/client.py": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7",
+              "size": 28669,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/cachy-asahi/repository-runtime/scripts/release/release.py": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435",
+              "size": 41320,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/cachy-asahi/repository-runtime/scripts/release/source_delivery.py": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e",
+              "size": 16456,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-repository-runtime/README.md": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "faf56df41bb5783d566d5e186141b47688ef770f3b7e2baef6c62302b599d316",
+              "size": 1748,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-repository-runtime/helper-pins.json": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a",
+              "size": 493,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-repository-runtime/source-provenance.json": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "09cf1f6f0a7490e5c99bd8bc5caa67ba7c3ecf7cdb55e382dbe502d7e1042972",
+              "size": 1195,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-repository-runtime/LICENSE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+              "size": 1081,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-repository-runtime/NOTICE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "5c4ed38dd7675728134d292afb2e61f2a09342c0eefa0becf89b9bda011166df",
+              "size": 624,
+              "type": "0",
+              "uid": 0
+            }
+          },
+          "sha256": "1c8a9149da02e60a4c14598cdf7007d6dbffcd6150757fcf6711977aa00cf8aa",
+          "tests": {
+            "method": "makepkg check() exit0 plus bound markers; installed checks separate",
+            "status": "PASS_CHECK_EXIT_NO_SKIPS"
+          }
+        },
+        {
+          "archive": "cachy-asahi-repository-runtime-0.1.0-1-any.pkg.tar.xz",
+          "payload": {
+            "usr/share/cachy-asahi/repository-runtime/scripts/client/client.py": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7",
+              "size": 28669,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/cachy-asahi/repository-runtime/scripts/release/release.py": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435",
+              "size": 41320,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/cachy-asahi/repository-runtime/scripts/release/source_delivery.py": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e",
+              "size": 16456,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-repository-runtime/README.md": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "faf56df41bb5783d566d5e186141b47688ef770f3b7e2baef6c62302b599d316",
+              "size": 1748,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-repository-runtime/helper-pins.json": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a",
+              "size": 493,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-repository-runtime/source-provenance.json": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "09cf1f6f0a7490e5c99bd8bc5caa67ba7c3ecf7cdb55e382dbe502d7e1042972",
+              "size": 1195,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-repository-runtime/LICENSE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+              "size": 1081,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-repository-runtime/NOTICE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "5c4ed38dd7675728134d292afb2e61f2a09342c0eefa0becf89b9bda011166df",
+              "size": 624,
+              "type": "0",
+              "uid": 0
+            }
+          },
+          "sha256": "1c8a9149da02e60a4c14598cdf7007d6dbffcd6150757fcf6711977aa00cf8aa",
+          "tests": {
+            "method": "makepkg check() exit0 plus bound markers; installed checks separate",
+            "status": "PASS_CHECK_EXIT_NO_SKIPS"
+          }
+        }
+      ],
+      "comparison": {
+        "errors": [],
+        "hardware_status": "NOT RUN",
+        "independence_limit": "Distinct recorded container runs; independent machine execution is not attested.",
+        "packages": {
+          "cachy-asahi-repository-runtime-0.1.0-1-any.pkg.tar.xz": {
+            "buildinfo_equal": true,
+            "bytes_equal": true,
+            "installed_contents_equal": true,
+            "pkginfo_equal": true
+          }
+        },
+        "status": "contents-reproduced"
+      },
+      "version": "0.1.0-1"
+    }
+  },
+  "scope": "APPS8_CLIENT_V2_AND_REBUILT_RUNTIME1_NATIVE_ONLY",
+  "signer": {
+    "authority": "EPHEMERAL_TEST_ONLY",
+    "fingerprint": "B4BC6DE68302BA7DC236CED108001078E6D37AFD"
+  },
+  "status": "PASS_NATIVE_APPS8_CLIENT_V2_PAIRS_AND_INSTALLED_LIFECYCLE"
+}
