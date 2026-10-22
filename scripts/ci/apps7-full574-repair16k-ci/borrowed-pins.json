@@ -1,0 +1,46 @@
+{
+  "description": "Exact original kernel tooling/native workflow skeleton, all in verified172 source role",
+  "files": {
+    ".github/workflows/native-arm-apps-full574-repair.yml": {
+      "bytes": 8513,
+      "sha256": "89669e1c7ce76c3a1e89bba5850fd7efbfeedc55325a27ec2e5c8962107c10f0"
+    },
+    ".github/workflows/native-arm-current604-apps6-updater16k.yml": {
+      "bytes": 37945,
+      "sha256": "b074b83202e1f29f09af28e954053175cf59271b5192897676de6e14ba5d8e56"
+    },
+    "scripts/ci/current604-apps6-updater16k/vm.py": {
+      "bytes": 13338,
+      "sha256": "3793ff1ddf37d911c5fb3aa8729a1612cb73231da9c2a6a183e14c42e1d24db2"
+    },
+    "scripts/ci/managed-gui-generic16k/build_kernel.py": {
+      "bytes": 12900,
+      "sha256": "ccbead2912144c5aa4fcb3ce7af76b3c11f28fcde7987e5f32edb060ff7b0ee9"
+    },
+    "scripts/ci/managed-gui-generic16k/kernel.fragment": {
+      "bytes": 1808,
+      "sha256": "88819f00ebef80e385ebdfae6cc101ef21145e0bbd6bb12532b0d41a85c16d28"
+    },
+    "scripts/ci/managed-gui-generic16k/kernel_contract.py": {
+      "bytes": 4659,
+      "sha256": "30a4544e5407dbf932d9ec26bbd6bf21eab53347544afa134cd3a5870752cbff"
+    },
+    "scripts/ci/tools-generic16k/acquire_kernel.py": {
+      "bytes": 8844,
+      "sha256": "4a372e1f4bfbd1f8604579873fc6fbdec91ac2555bb36f028646017b44b8c23f"
+    },
+    "scripts/ci/tools-generic16k/retained_kernel.py": {
+      "bytes": 5444,
+      "sha256": "bddb14537790a484d770215e55cc2c59de50c764d15e4d677f6fbcaab84cd735"
+    },
+    "scripts/virtual/generic16k/fetch_inputs.py": {
+      "bytes": 7768,
+      "sha256": "212a0a9efc7c386158526ce40683a3646a899a9c7fd2c3140d6e24a02d778043"
+    },
+    "scripts/virtual/generic16k/inputs.json": {
+      "bytes": 1057,
+      "sha256": "bdfa44ed1d017c0d0e15c1f3af87bdf4a91923c20e812c861ca522d2cf428492"
+    }
+  },
+  "schema_version": 1
+}
