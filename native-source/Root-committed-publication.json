@@ -1,0 +1,10 @@
+{
+  "actual": "NOT_RUN",
+  "files": 10,
+  "git_joins": 10,
+  "hardware": "NOT_RUN",
+  "ref": "codex/updater604-native4k-recovery-transport-v1",
+  "release": "NOT_ADMITTED",
+  "source": "c75911fe09fb5ceba1e54a6456d5b9c4721960b6",
+  "status": "COMMITTED_EXACT_CLOSED_TRIAL_SOURCE"
+}

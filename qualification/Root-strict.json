@@ -1,0 +1,114 @@
+{
+  "attempt": 1,
+  "held_owner_semantics": {
+    "after_sha256": "7bc6caa51301bf076aeda4d137277a128c53a16e5bfd25f02e7309c4b3a408c3",
+    "before_sha256": "3f64a13c4af7ab8b1598583f534af3347c8df2397a0afa33fb8b0f5f06b19cf5",
+    "case": "precommit-exit86",
+    "checkpoint_changed": false,
+    "closed_public_bytes": 212067,
+    "closed_public_files": 11,
+    "collection": {
+      "artifact.zip": {
+        "bytes": 213465,
+        "sha256": "8da498ba05a3a4c7d5ac32fcd5bbd728b454e553451aa6151644e6c7321c8ab8"
+      },
+      "artifacts.json": {
+        "bytes": 805,
+        "sha256": "0c96a4cfbe281b3b519f0dbbc99646eda22189b6fe7ef816af969689073fdcf0"
+      },
+      "jobs.json": {
+        "bytes": 17534,
+        "sha256": "b8b1b0804834cf183a41141b0cacbe488c7e7a77c638df86b1eddbffbf9238b1"
+      },
+      "logs.zip": {
+        "bytes": 3608572,
+        "sha256": "5b729caacaed5f38342b1b42ce85efe5a56b796899a661afbdad98a0dc72f872"
+      },
+      "run.json": {
+        "bytes": 12991,
+        "sha256": "c594327f54c2540009c6be80c9855685ac7fec92426fc266dbc352e700ba353c"
+      }
+    },
+    "commit_started": false,
+    "committed_transactions": 0,
+    "copy_disposal": "PASS-owned-workspace-removed",
+    "copy_nodes": 125358,
+    "decision_source": "c38375818f116bfc129a8db853d0c9cd2d360eb9",
+    "evidence_limits": "Private raw node/hash/ownership maps and86/87 fault witnesses remain unexported. Protected/user/no-change/independent-after claims are original frozen-source-enforced retained receipts, not a new raw-map readback. Retired resources are not live-reobserved; auxiliary process exit status remains NOT_OBSERVED.",
+    "hardware": "NOT_RUN",
+    "held_source": "001f0484ab8b599ddc03a84e62fd81af315a2a03",
+    "normal_checkpoint_directory_synced": false,
+    "outer_cleanup": "PASS_RETAINED_SOURCE_BOUND_RECEIPTS",
+    "package_count": 604,
+    "packages_committed": false,
+    "postcommit_libalpm_returncode_evidence": "NOT_APPLICABLE",
+    "protected_packages": 603,
+    "public_pair_evidence": {
+      "BUILDINFO_entries": [
+        575,
+        575
+      ],
+      "BUILDINFO_list_sha256": [
+        "080fac02800b8324e868ca07789e51275e7149e8acdcfe991a59338a90edac28",
+        "080fac02800b8324e868ca07789e51275e7149e8acdcfe991a59338a90edac28"
+      ],
+      "byte_case": {
+        "bytes": 1481,
+        "path": "payload/repair-bytes-root-decision.json",
+        "sha256": "f8e106a882b7fc9b553c8a399f6d9296d17d77f9aadbdcf46135b090f88b4157"
+      },
+      "expected_pacman_Q_sha256": "66c46d4645fa443d23df0e97765905555fe5bc2607787dca3f30ee2084cf597f",
+      "native_run": 39027622244,
+      "native_source": "c5481ad6bfd1539ab9a289bc9541133b979858f7",
+      "package_sha256": "1ce4a540a5ec2fa26353847b93fed953e084cf65e872836f670ac721446cd3d7",
+      "pair_decision": {
+        "bytes": 2017,
+        "path": "origins/39027622244/root-decision.json",
+        "sha256": "f904a28e6e02ce2685eaa438c4c3d6d43a119b0d5d85a6706db5864c2bbd1676"
+      },
+      "payload_leaves": 8,
+      "qualification": "NATIVE_PAIR_ONLY",
+      "raw_pacman_Q_lock": "NOT_PRESENT_NOT_FABRICATED",
+      "runtime_evidence": "PRIVATE_CONSTRUCTOR_FILE_NOT_EXPORTED_SOURCE_ENFORCED_HASH_SELECTED",
+      "scope": "PUBLIC_ROOT_PAIR_AUTHORITY_PROVENANCE_AND_COMPLETE_BUILDINFO_NOT_RAW_Q_LOCK_REPLAY"
+    },
+    "recovery": "OWNED_COPY_DISPOSAL_ONLY_NO_ROLLBACK_OR_BOOT_CLAIM",
+    "release": "NOT_ADMITTED",
+    "run_id": 39776814384,
+    "selected_package": "cachy-asahi-apps",
+    "selected_package_sha256": "1ce4a540a5ec2fa26353847b93fed953e084cf65e872836f670ac721446cd3d7",
+    "source_manifest_sha256": "c941c8469e8dcb6a84f7722f746f22ceea2c9c5f5fcf10340aaf30c3b4ff0282",
+    "source_preserved": true,
+    "source_sha": "b21a5864d5a4610b9181a1c270ac8821d8448a17",
+    "status": "VERIFIED_PUBLIC_PAIRS_APPS5_TO6_CURRENT604_UPDATER_CASE_NOT_ROOT_ACCEPTANCE"
+  },
+  "raw_private_maps": "UNEXPORTED_ORIGINAL_SOURCE_ENFORCED",
+  "ref": "codex/updater604-native4k-recovery-transport-v1",
+  "root_acceptance": "NOT_ISSUED",
+  "run": 39776814384,
+  "scope": "NATIVE_ARM4K_DISPOSABLE_CONTAINER_NOT16K_NOT_M2",
+  "source": "c75911fe09fb5ceba1e54a6456d5b9c4721960b6",
+  "status": "VERIFIED_CURRENT_NATIVE_ARM4K_UPDATER604_RECOVERY_NOT_ROOT_ACCEPTANCE",
+  "wrapper": {
+    "architecture": "aarch64",
+    "attempt": 1,
+    "case": "precommit-exit86",
+    "hardware": "NOT_RUN",
+    "held_files": 489,
+    "held_source": "b21a5864d5a4610b9181a1c270ac8821d8448a17",
+    "native_readback": {
+      "architecture": "aarch64",
+      "euid": 1001,
+      "kernel_release": "7.0.0-1017-azure",
+      "page_size": 4096,
+      "sysname": "Linux",
+      "uid": 1001
+    },
+    "page_size": 4096,
+    "ref": "refs/heads/codex/updater604-native4k-recovery-transport-v1",
+    "run": 39776814384,
+    "source": "c75911fe09fb5ceba1e54a6456d5b9c4721960b6",
+    "source_files": 10,
+    "status": "CURRENT_NATIVE_ARM4K_UPDATER604_SOURCE_CUSTODY_NOT_ACCEPTANCE"
+  }
+}

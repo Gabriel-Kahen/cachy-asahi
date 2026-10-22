@@ -1,0 +1,75 @@
+{
+  "Root_decision": "qualification/Root-component-acceptance.json",
+  "files": {
+    "LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "README.md": {
+      "bytes": 1288,
+      "sha256": "39c7c3bce73becd9907d63d11f253af024783225ce33b0f67a32c8f1dd0c4e98"
+    },
+    "native-source/Root-committed-publication.json": {
+      "bytes": 281,
+      "sha256": "99a9eb6636721884b6e2c95caf71aa0ab3f2a38ee1065f50ca63f43ef6a8c3c2"
+    },
+    "native-source/Root-git-source-authorization.json": {
+      "bytes": 1584,
+      "sha256": "a647509518993c341c6ff31a0a826a5d3814a65255e8981f7244fbd16ad686ab"
+    },
+    "native-source/publication.json": {
+      "bytes": 281,
+      "sha256": "344be16ec2414a1a30803172a419c85ad816c6a6b9d9338d09de353154e856e1"
+    },
+    "native-source/source-authorization.json": {
+      "bytes": 1320,
+      "sha256": "3c0ee893199f9351e1d3a0ec8462aade40c1dfbf578bcae6c593ce4bf34e256f"
+    },
+    "originals/artifact.zip": {
+      "bytes": 213465,
+      "sha256": "8da498ba05a3a4c7d5ac32fcd5bbd728b454e553451aa6151644e6c7321c8ab8"
+    },
+    "originals/artifacts.json": {
+      "bytes": 805,
+      "sha256": "0c96a4cfbe281b3b519f0dbbc99646eda22189b6fe7ef816af969689073fdcf0"
+    },
+    "originals/collection.json": {
+      "bytes": 857,
+      "sha256": "ddaa30fae0ae9b1b2db61f0b556903a4d803eddd0ef917d2db9c03e58e7694d3"
+    },
+    "originals/jobs.json": {
+      "bytes": 17534,
+      "sha256": "b8b1b0804834cf183a41141b0cacbe488c7e7a77c638df86b1eddbffbf9238b1"
+    },
+    "originals/logs.zip": {
+      "bytes": 3608572,
+      "sha256": "5b729caacaed5f38342b1b42ce85efe5a56b796899a661afbdad98a0dc72f872"
+    },
+    "originals/run.json": {
+      "bytes": 12991,
+      "sha256": "c594327f54c2540009c6be80c9855685ac7fec92426fc266dbc352e700ba353c"
+    },
+    "qualification/Root-component-acceptance.json": {
+      "bytes": 1490,
+      "sha256": "98878bf7ff568203882282674f0f7c8158b71f85a6d8e779442e052d9dd5f936"
+    },
+    "qualification/Root-post-replay-pins.json": {
+      "bytes": 275003,
+      "sha256": "88131af5688586a5820e4c917ebd9361ecc18514c5a17fcc1b8962fd4a87a034"
+    },
+    "qualification/Root-strict.json": {
+      "bytes": 4918,
+      "sha256": "ff195691eba2ca501d8def196c67faf8a3090b8262bab09819dc8ebd0780edbf"
+    }
+  },
+  "hardware": "NOT_RUN",
+  "native_ref": "codex/updater604-native4k-recovery-transport-v1",
+  "native_run": 39776814384,
+  "native_source": "c75911fe09fb5ceba1e54a6456d5b9c4721960b6",
+  "new_native_acceptance": false,
+  "publication_ref": null,
+  "publication_source": null,
+  "release": "NOT_ADMITTED",
+  "schema_version": 1,
+  "status": "RETAINED_ROOT_NATIVE_ARM4K_UPDATER604_PRECOMMIT86_AND_ONCE_ORIGINALS_DATA_ONLY"
+}
