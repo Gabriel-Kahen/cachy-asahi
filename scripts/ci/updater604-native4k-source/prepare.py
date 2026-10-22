@@ -10,7 +10,7 @@ from pathlib import Path
 import stat
 
 HERE = Path(__file__).resolve().parent
-PROFILE_SHA = '46787d6f3ed60c3d82cba3b67c32de7f9fd9fb839295ad163aedca25a4e58972'
+PROFILE_SHA = '6807bec067011855e31fda63f565189a1d72fdfd79c145d5c316234016541dee'
 HELD = 'b21a5864d5a4610b9181a1c270ac8821d8448a17'
 CASES = ('precommit-exit86', 'postcommit-exit87')
 WF = '.github/workflows/native-arm-build.yml'

@@ -4,12 +4,12 @@
   "actual_source": null,
   "files": {
     ".github/workflows/native-arm-build.yml": {
-      "bytes": 82742,
-      "sha256": "44d1bed6b58fa5b1962d5a5ef2b2fb96d34a32a1464ccc8117887385dafdf52f"
+      "bytes": 82746,
+      "sha256": "c6f2e4924d6154553b0adb2e05e81af038737161ba96525d0d7f8f8d5862ac91"
     },
     ".github/workflows/native-arm-updater604-recovery4k.yml": {
-      "bytes": 82742,
-      "sha256": "44d1bed6b58fa5b1962d5a5ef2b2fb96d34a32a1464ccc8117887385dafdf52f"
+      "bytes": 82746,
+      "sha256": "c6f2e4924d6154553b0adb2e05e81af038737161ba96525d0d7f8f8d5862ac91"
     },
     "case.py": {
       "bytes": 5274,
@@ -40,5 +40,6 @@
       "sha256": "6786a325ca3b48e46f5b4071e093e94e780e3b488bd0fb28446201f80eee81c5"
     }
   },
+  "proposed_ref": "codex/updater604-native4k-recovery-transport-v1",
   "status": "CLOSED_NATIVE_ARM4K_RECOVERY_SOURCE_ONLY_NO_CURRENT_ACCEPTANCE"
 }
