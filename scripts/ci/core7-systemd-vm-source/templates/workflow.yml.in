@@ -31,25 +31,29 @@ jobs:
       CASE: ${{ github.workspace }}/case-source
       VMCASE: ${{ github.workspace }}/vm-source
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Checkout exact original Core800 source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         timeout-minutes: 3
         with:
           ref: 1a76a09d9cb8210cc2b76eda0c63a08bcd89d4ec
           path: core-source
           persist-credentials: false
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Checkout exact closed two-boot case source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         timeout-minutes: 3
         with:
           ref: ${{ inputs.source_sha }}
           path: case-source
           persist-credentials: false
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Checkout exact original KSM637 VM source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         timeout-minutes: 3
         with:
           ref: de21d6c25e0fbf5ac83c71965bae3ffa23390461
           path: vm-source
           persist-credentials: false
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Checkout exact accepted generic16K kernel inputs
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         timeout-minutes: 3
         with:
           ref: 247123187cb1aceae5e61bc89f3c01dbf2986311
@@ -83,10 +87,19 @@ jobs:
           python3 -I -B "$CASE/test_case.py"
           python3 -I -B "$CASE/test_protocol.py"
           python3 -I -B "$CASE/test_emission.py"
+          python3 -I -B "$CASE/test_host.py"
           python3 -I -B "$CASE/test_route.py" --vm-source "$VMCASE"
           python3 -I -B "$CASE/test_sources.py" --core-source "$GITHUB_WORKSPACE/core-source" --vm-source "$VMCASE" --kernel-carrier "$GITHUB_WORKSPACE/kernel-inputs"
           mkdir -m 0700 "$PARENT"
           python3 -I -B "$CASE/entry.py" proof --source "$CASE" --core-source "$GITHUB_WORKSPACE/core-source" --vm-source "$VMCASE" --core7 "$GITHUB_WORKSPACE/core7-inputs" --core64 "$GITHUB_WORKSPACE/core64-inputs" --kernel-carrier "$GITHUB_WORKSPACE/kernel-inputs" --proof "$PARENT/source-proof.json"
+      - name: Bounded disposable host QEMU prerequisite before native producer
+        timeout-minutes: 5
+        run: |
+          set -euo pipefail
+          sudo timeout --signal=TERM --kill-after=10s 120s apt-get -o Acquire::Retries=0 update
+          sudo timeout --signal=TERM --kill-after=10s 120s apt-get -o Acquire::Retries=0 install --no-install-recommends -y qemu-system-arm
+          /usr/bin/qemu-system-aarch64 --version
+          /usr/bin/dpkg-query -W qemu-system-arm
       - name: Checkout complete exact original574 retained inputs
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         timeout-minutes: 3
