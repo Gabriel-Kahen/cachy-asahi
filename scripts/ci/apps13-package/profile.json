@@ -1,0 +1,366 @@
+{
+  "hardware": "NOT_RUN",
+  "held": {
+    "LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-repository-client-v2/.SRCINFO": {
+      "bytes": 1265,
+      "sha256": "de7d096c9c9a0ac9b4be2f1d7f3cc9eb0b4e89bf5c466d03ee62c5f57797e829"
+    },
+    "packages/tools/cachy-asahi-repository-client-v2/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-repository-client-v2/NOTICE": {
+      "bytes": 630,
+      "sha256": "138f32d5f31eefce9581b054f7b066d59209766cf5122521b8f1bf1063fec0fa"
+    },
+    "packages/tools/cachy-asahi-repository-client-v2/PKGBUILD": {
+      "bytes": 1781,
+      "sha256": "1273f684486e8a83755f73b7dc1292407a926d2357b7d6d61c59aa5275af8962"
+    },
+    "packages/tools/cachy-asahi-repository-client-v2/README.md": {
+      "bytes": 2310,
+      "sha256": "922ad69c94a2ef12d55f895a35e7a71737083db6a0ec1841c8d504c9993a6123"
+    },
+    "packages/tools/cachy-asahi-repository-client-v2/check_source.py": {
+      "bytes": 3114,
+      "sha256": "ec2458c2623969776d05c52030df774ce8e6c35721640035bfe2159de2b2e32b"
+    },
+    "packages/tools/cachy-asahi-repository-client-v2/client_v2.py": {
+      "bytes": 28763,
+      "sha256": "915c2336a6515dcbde9801d7778c0aeae3a0251cf6463c4704d47590d94d1409"
+    },
+    "packages/tools/cachy-asahi-repository-client-v2/helper-pins.json": {
+      "bytes": 790,
+      "sha256": "86478bf7125aa21aefbb20a37eb2c5fae32b6a2cac3cb572733cda42f74216c8"
+    },
+    "packages/tools/cachy-asahi-repository-client-v2/source-provenance.json": {
+      "bytes": 1308,
+      "sha256": "9a62f3674324b48cfaffeb132549414827b61204acc1757dea703963298b7ac1"
+    },
+    "packages/tools/cachy-asahi-repository-client-v2/test_client_v2.py": {
+      "bytes": 56931,
+      "sha256": "74f079c3e95fd88d50b6857b1dbfe13b97030fdacb31051564445c6d1770f410"
+    },
+    "packages/tools/cachy-asahi-repository-client-v2/test_runtime.py": {
+      "bytes": 7999,
+      "sha256": "f49083f2dc580baa4dca2a6971499a02a345c0cd0fb83174fea6813a51ad1468"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/.SRCINFO": {
+      "bytes": 1269,
+      "sha256": "4677c10dcc40686877f9d2bc5b9cac88763fdb4cc395a9a7fd530b6b79db2502"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/NOTICE": {
+      "bytes": 624,
+      "sha256": "5c4ed38dd7675728134d292afb2e61f2a09342c0eefa0becf89b9bda011166df"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/PKGBUILD": {
+      "bytes": 1973,
+      "sha256": "e1f9071387ebd679e09fbbdecb31aadf2f89a59235c8ca03ac42eb2599f16f0b"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/README.md": {
+      "bytes": 1748,
+      "sha256": "faf56df41bb5783d566d5e186141b47688ef770f3b7e2baef6c62302b599d316"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/check_source.py": {
+      "bytes": 3328,
+      "sha256": "4d002bc596e29cb83426fd5b7d185b2aa30e9211c0da79fcb616cf003c11f4a7"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/client.py": {
+      "bytes": 28669,
+      "sha256": "48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/helper-pins.json": {
+      "bytes": 493,
+      "sha256": "33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/release.py": {
+      "bytes": 41320,
+      "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/source-provenance.json": {
+      "bytes": 1195,
+      "sha256": "09cf1f6f0a7490e5c99bd8bc5caa67ba7c3ecf7cdb55e382dbe502d7e1042972"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/source_delivery.py": {
+      "bytes": 16456,
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+    },
+    "scripts/checks/package_checks.py": {
+      "bytes": 17706,
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+    },
+    "scripts/client/client.py": {
+      "bytes": 28669,
+      "sha256": "48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7"
+    },
+    "scripts/release/release.py": {
+      "bytes": 41320,
+      "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435"
+    },
+    "scripts/release/source_delivery.py": {
+      "bytes": 16456,
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+    },
+    "scripts/release/test_release.py": {
+      "bytes": 43541,
+      "sha256": "7ee9e693d4574c6bb11dcc927937475742b9fa7a6f8e988608532c1e1bab5f2e"
+    }
+  },
+  "native": "NOT_RUN",
+  "recipe": {
+    "packages/tools/cachy-asahi-apps13/.SRCINFO": {
+      "bytes": 2003,
+      "sha256": "9b6bc34111b162164e4574ab1e4a95feaa1600637d932b1c6c7b453f986ea5af"
+    },
+    "packages/tools/cachy-asahi-apps13/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-apps13/NOTICE": {
+      "bytes": 1806,
+      "sha256": "b8e2660460b7f20cfbe3e4ffc768f3f4ace024a827979be8e2c2dd69fb89871f"
+    },
+    "packages/tools/cachy-asahi-apps13/PKGBUILD": {
+      "bytes": 4079,
+      "sha256": "6a735031d7a8fee47cde770d47ebe8329b79718136214a5dc20b56744c9e5822"
+    },
+    "packages/tools/cachy-asahi-apps13/README.md": {
+      "bytes": 17995,
+      "sha256": "828caeca5afe96e6632d65c2eedf2caf39fbba56a4b737151a1449f02349dd7f"
+    },
+    "packages/tools/cachy-asahi-apps13/apps.py": {
+      "bytes": 23473,
+      "sha256": "912d87a9871f20545fb8470f84a799918168830b320afe3648c8781de29abcaa"
+    },
+    "packages/tools/cachy-asahi-apps13/cachy-asahi-apps": {
+      "bytes": 310,
+      "sha256": "4e9c078c2e05cc00cb6479d5fff23b92cbcabd8d6b3ff970f6181e6467921630"
+    },
+    "packages/tools/cachy-asahi-apps13/check-inputs.json": {
+      "bytes": 4127,
+      "sha256": "5cd338eb2ab9f4579825f3dd30de0f25d54a73ee1090737b0a21a506d12caad8"
+    },
+    "packages/tools/cachy-asahi-apps13/check-inputs.tar.gz": {
+      "bytes": 61046,
+      "sha256": "6d38353fe33e0ce595df507ad9b928d80d3e1d6fe5d45d5418f927e9f50fe6d2"
+    },
+    "packages/tools/cachy-asahi-apps13/check_source.py": {
+      "bytes": 4191,
+      "sha256": "4ab0a475b3c63c7f0787f1cda0126a932691e64f79eb987ce9d50281d7cd24d0"
+    },
+    "packages/tools/cachy-asahi-apps13/helper-pins.json": {
+      "bytes": 493,
+      "sha256": "33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a"
+    },
+    "packages/tools/cachy-asahi-apps13/inventory.py": {
+      "bytes": 21784,
+      "sha256": "9b3069ce885453d2a94c61fa1c6a5f4d0353f3cdc3375e88e9ae1ba162a46a02"
+    },
+    "packages/tools/cachy-asahi-apps13/prepare-check-inputs.py": {
+      "bytes": 3321,
+      "sha256": "76bc1977cf402872816a430156541c0ccd41273e9080730d2ace7838ffa74214"
+    },
+    "packages/tools/cachy-asahi-apps13/source-provenance.json": {
+      "bytes": 8445,
+      "sha256": "4c64017c048c63acd5bec729e788f4ceae244ccf94980598966ff8225a2e5857"
+    },
+    "packages/tools/cachy-asahi-apps13/test_apps.py": {
+      "bytes": 40942,
+      "sha256": "6d55ca76da60b7f1121d04cb3e16435f6db477b39e7ae8985bec01e7227d4987"
+    },
+    "packages/tools/cachy-asahi-apps13/test_diagnostic_stage.py": {
+      "bytes": 19072,
+      "sha256": "f9679a024ed21d5641d47cd81d042d19bd074ba5b96a8c8842147428b14eeb06"
+    },
+    "packages/tools/cachy-asahi-apps13/test_inventory_paths.py": {
+      "bytes": 32377,
+      "sha256": "79112e51b9f5c595c7365541b5e40055784305e8ae1254096d5ccfc0e2edaf0d"
+    }
+  },
+  "recipe_ref": "codex/apps13-recipe-v1",
+  "recipe_source": "fa27f3294385884e8cb0d33720dc5e1e074178d4",
+  "source_files": {
+    "packages/tools/cachy-asahi-apps13/.SRCINFO": {
+      "bytes": 2003,
+      "sha256": "9b6bc34111b162164e4574ab1e4a95feaa1600637d932b1c6c7b453f986ea5af"
+    },
+    "packages/tools/cachy-asahi-apps13/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-apps13/NOTICE": {
+      "bytes": 1806,
+      "sha256": "b8e2660460b7f20cfbe3e4ffc768f3f4ace024a827979be8e2c2dd69fb89871f"
+    },
+    "packages/tools/cachy-asahi-apps13/PKGBUILD": {
+      "bytes": 4079,
+      "sha256": "6a735031d7a8fee47cde770d47ebe8329b79718136214a5dc20b56744c9e5822"
+    },
+    "packages/tools/cachy-asahi-apps13/README.md": {
+      "bytes": 17995,
+      "sha256": "828caeca5afe96e6632d65c2eedf2caf39fbba56a4b737151a1449f02349dd7f"
+    },
+    "packages/tools/cachy-asahi-apps13/apps.py": {
+      "bytes": 23473,
+      "sha256": "912d87a9871f20545fb8470f84a799918168830b320afe3648c8781de29abcaa"
+    },
+    "packages/tools/cachy-asahi-apps13/cachy-asahi-apps": {
+      "bytes": 310,
+      "sha256": "4e9c078c2e05cc00cb6479d5fff23b92cbcabd8d6b3ff970f6181e6467921630"
+    },
+    "packages/tools/cachy-asahi-apps13/check-inputs.json": {
+      "bytes": 4127,
+      "sha256": "5cd338eb2ab9f4579825f3dd30de0f25d54a73ee1090737b0a21a506d12caad8"
+    },
+    "packages/tools/cachy-asahi-apps13/check-inputs.tar.gz": {
+      "bytes": 61046,
+      "sha256": "6d38353fe33e0ce595df507ad9b928d80d3e1d6fe5d45d5418f927e9f50fe6d2"
+    },
+    "packages/tools/cachy-asahi-apps13/check_source.py": {
+      "bytes": 4191,
+      "sha256": "4ab0a475b3c63c7f0787f1cda0126a932691e64f79eb987ce9d50281d7cd24d0"
+    },
+    "packages/tools/cachy-asahi-apps13/helper-pins.json": {
+      "bytes": 493,
+      "sha256": "33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a"
+    },
+    "packages/tools/cachy-asahi-apps13/inventory.py": {
+      "bytes": 21784,
+      "sha256": "9b3069ce885453d2a94c61fa1c6a5f4d0353f3cdc3375e88e9ae1ba162a46a02"
+    },
+    "packages/tools/cachy-asahi-apps13/prepare-check-inputs.py": {
+      "bytes": 3321,
+      "sha256": "76bc1977cf402872816a430156541c0ccd41273e9080730d2ace7838ffa74214"
+    },
+    "packages/tools/cachy-asahi-apps13/source-provenance.json": {
+      "bytes": 8445,
+      "sha256": "4c64017c048c63acd5bec729e788f4ceae244ccf94980598966ff8225a2e5857"
+    },
+    "packages/tools/cachy-asahi-apps13/test_apps.py": {
+      "bytes": 40942,
+      "sha256": "6d55ca76da60b7f1121d04cb3e16435f6db477b39e7ae8985bec01e7227d4987"
+    },
+    "packages/tools/cachy-asahi-apps13/test_diagnostic_stage.py": {
+      "bytes": 19072,
+      "sha256": "f9679a024ed21d5641d47cd81d042d19bd074ba5b96a8c8842147428b14eeb06"
+    },
+    "packages/tools/cachy-asahi-apps13/test_inventory_paths.py": {
+      "bytes": 32377,
+      "sha256": "79112e51b9f5c595c7365541b5e40055784305e8ae1254096d5ccfc0e2edaf0d"
+    },
+    "packages/tools/cachy-asahi-repository-client-v2/.SRCINFO": {
+      "bytes": 1265,
+      "sha256": "de7d096c9c9a0ac9b4be2f1d7f3cc9eb0b4e89bf5c466d03ee62c5f57797e829"
+    },
+    "packages/tools/cachy-asahi-repository-client-v2/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-repository-client-v2/NOTICE": {
+      "bytes": 630,
+      "sha256": "138f32d5f31eefce9581b054f7b066d59209766cf5122521b8f1bf1063fec0fa"
+    },
+    "packages/tools/cachy-asahi-repository-client-v2/PKGBUILD": {
+      "bytes": 1781,
+      "sha256": "1273f684486e8a83755f73b7dc1292407a926d2357b7d6d61c59aa5275af8962"
+    },
+    "packages/tools/cachy-asahi-repository-client-v2/README.md": {
+      "bytes": 2310,
+      "sha256": "922ad69c94a2ef12d55f895a35e7a71737083db6a0ec1841c8d504c9993a6123"
+    },
+    "packages/tools/cachy-asahi-repository-client-v2/check_source.py": {
+      "bytes": 3114,
+      "sha256": "ec2458c2623969776d05c52030df774ce8e6c35721640035bfe2159de2b2e32b"
+    },
+    "packages/tools/cachy-asahi-repository-client-v2/client_v2.py": {
+      "bytes": 28763,
+      "sha256": "915c2336a6515dcbde9801d7778c0aeae3a0251cf6463c4704d47590d94d1409"
+    },
+    "packages/tools/cachy-asahi-repository-client-v2/helper-pins.json": {
+      "bytes": 790,
+      "sha256": "86478bf7125aa21aefbb20a37eb2c5fae32b6a2cac3cb572733cda42f74216c8"
+    },
+    "packages/tools/cachy-asahi-repository-client-v2/source-provenance.json": {
+      "bytes": 1308,
+      "sha256": "9a62f3674324b48cfaffeb132549414827b61204acc1757dea703963298b7ac1"
+    },
+    "packages/tools/cachy-asahi-repository-client-v2/test_client_v2.py": {
+      "bytes": 56931,
+      "sha256": "74f079c3e95fd88d50b6857b1dbfe13b97030fdacb31051564445c6d1770f410"
+    },
+    "packages/tools/cachy-asahi-repository-client-v2/test_runtime.py": {
+      "bytes": 7999,
+      "sha256": "f49083f2dc580baa4dca2a6971499a02a345c0cd0fb83174fea6813a51ad1468"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/.SRCINFO": {
+      "bytes": 1269,
+      "sha256": "4677c10dcc40686877f9d2bc5b9cac88763fdb4cc395a9a7fd530b6b79db2502"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/NOTICE": {
+      "bytes": 624,
+      "sha256": "5c4ed38dd7675728134d292afb2e61f2a09342c0eefa0becf89b9bda011166df"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/PKGBUILD": {
+      "bytes": 1973,
+      "sha256": "e1f9071387ebd679e09fbbdecb31aadf2f89a59235c8ca03ac42eb2599f16f0b"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/README.md": {
+      "bytes": 1748,
+      "sha256": "faf56df41bb5783d566d5e186141b47688ef770f3b7e2baef6c62302b599d316"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/check_source.py": {
+      "bytes": 3328,
+      "sha256": "4d002bc596e29cb83426fd5b7d185b2aa30e9211c0da79fcb616cf003c11f4a7"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/client.py": {
+      "bytes": 28669,
+      "sha256": "48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/helper-pins.json": {
+      "bytes": 493,
+      "sha256": "33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/release.py": {
+      "bytes": 41320,
+      "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/source-provenance.json": {
+      "bytes": 1195,
+      "sha256": "09cf1f6f0a7490e5c99bd8bc5caa67ba7c3ecf7cdb55e382dbe502d7e1042972"
+    },
+    "packages/tools/cachy-asahi-repository-runtime/source_delivery.py": {
+      "bytes": 16456,
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+    },
+    "scripts/client/client.py": {
+      "bytes": 28669,
+      "sha256": "48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7"
+    },
+    "scripts/release/release.py": {
+      "bytes": 41320,
+      "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435"
+    },
+    "scripts/release/source_delivery.py": {
+      "bytes": 16456,
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+    }
+  },
+  "status": "EXACT_PUBLIC_APPS13_RECIPE_SOURCE_ONLY_NOT_NATIVE_ACCEPTANCE",
+  "tests": [
+    45,
+    18,
+    8
+  ]
+}
