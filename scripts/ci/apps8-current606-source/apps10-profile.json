@@ -1,0 +1,327 @@
+{
+  "actual": null,
+  "added": {
+    "apps10/carrier-profile.json": {
+      "bytes": 54535,
+      "sha256": "ed4d4b5a5d6f237b623b88434533bec58305d3b7da52d45baada9f44bdbcc9e9"
+    },
+    "apps10/contract_common.py": {
+      "bytes": 4407,
+      "sha256": "ad848a402f42e2a913a473b1983d66d6a7f61e5bdf11fd588c57379924d75449"
+    },
+    "apps10/entry.py": {
+      "bytes": 806,
+      "sha256": "982d751eb6daf504e6aaf779c30308a9f5e773c7c19a1174864509b210a19ef0"
+    },
+    "apps10/packet.py": {
+      "bytes": 8023,
+      "sha256": "701b715f1dafa283d83df0e0c7c37fcac7c2feae9291c20a2ee43cbcc7367edb"
+    },
+    "apps10/parent-qualification.json": {
+      "bytes": 2602,
+      "sha256": "1c5606eba4d1c3fafbb959a8ef3ba6dac0132c2ef9780256f74a6622d3ceafe0"
+    },
+    "apps10/source.py": {
+      "bytes": 3764,
+      "sha256": "ea98e2891fde43dd7cdf971edd3bdddf1560b5537cad044eabd9f6ca5fcdcb7f"
+    },
+    "apps10/successor.json": {
+      "bytes": 727169,
+      "sha256": "9d7674f97293f67fdc1586b08f66042b5b0adb0631e481e8c81bf2dc827fe97c"
+    },
+    "apps10/test_signer.py": {
+      "bytes": 1342,
+      "sha256": "67f3ea8e1415d5662ef9307772dbd452f778862905d48c6d5b51a69ec89c2f04"
+    },
+    "apps10/test_source.py": {
+      "bytes": 8935,
+      "sha256": "b4f54181db24d22db3b8ce979f6f1d10ddadc62bf1b27b0aa04a9636b963f844"
+    }
+  },
+  "after_source": "eeb7fc5c3bcaa5b152ca6eb97983f6c31f8d0cdb",
+  "before_source": "5c3c2d0ce5b4f6c2672c9367b722170687c7de69",
+  "carrier_ref": "codex/apps10-accepted-inputs-v1",
+  "carrier_source": "a2bbf5edd57a7a31951a1e9060c83698f29302c4",
+  "changed": {
+    ".github/workflows/native-arm-build.yml": {
+      "before": {
+        "bytes": 52575,
+        "sha256": "3b6de6a6694253522ce9096e4d504d9bca5d26629650c74e84ea1714fa7086b9"
+      },
+      "proposed": {
+        "bytes": 52596,
+        "sha256": "9bf6034b856c76d18035900d7d1603f714fac1e9489ad975426791e74d343d3e"
+      }
+    },
+    ".github/workflows/native-arm-current606-apps7-owned-copy.yml": {
+      "before": {
+        "bytes": 52575,
+        "sha256": "3b6de6a6694253522ce9096e4d504d9bca5d26629650c74e84ea1714fa7086b9"
+      },
+      "proposed": {
+        "bytes": 52596,
+        "sha256": "9bf6034b856c76d18035900d7d1603f714fac1e9489ad975426791e74d343d3e"
+      }
+    },
+    "copyworker/scripts/ci/current606-apps7-copy/alpm_step.py": {
+      "before": {
+        "bytes": 6125,
+        "sha256": "a95b12f42dfce0358573fa99df6b8d76624d945452390e671d22805ba3cde9cb"
+      },
+      "proposed": {
+        "bytes": 6127,
+        "sha256": "0b1e93a47463d53eba53b65236264fa8890cb535d87d2830329f723fa4af8cd5"
+      }
+    },
+    "copyworker/scripts/ci/current606-apps7-copy/contract.py": {
+      "before": {
+        "bytes": 6312,
+        "sha256": "5f72a00e45feee86967e6a8b90431c312f346dad66fbdc4e4f97ad780d680339"
+      },
+      "proposed": {
+        "bytes": 6495,
+        "sha256": "96d237765bae3d7f8813fda8b16e678272f75026c4e6bfc1e852d0cf4dd90e48"
+      }
+    },
+    "copyworker/scripts/ci/current606-apps7-copy/driver.py": {
+      "before": {
+        "bytes": 14031,
+        "sha256": "93a300b73140c341acd6acb8b4557112a8857451fbcd79523db19f6397adb1d0"
+      },
+      "proposed": {
+        "bytes": 14039,
+        "sha256": "b8ca0ad22f3eda1c9dc0442b1c38f2c8551252730e5da7e2c7ad63355610964e"
+      }
+    },
+    "copyworker/scripts/ci/current606-apps7-copy/fixture_entry.py": {
+      "before": {
+        "bytes": 2890,
+        "sha256": "b3129bf48b5ead0a8fdd1b263ab3e999c6f9b8c711e9e44ec5f110ace0bc8f4a"
+      },
+      "proposed": {
+        "bytes": 2894,
+        "sha256": "3e522d5c9f8bf414625ec00a6395e58037ecb5f4e408eedd7f4aad4db5bbb5b8"
+      }
+    },
+    "copyworker/scripts/ci/current606-apps7-copy/guard.py": {
+      "before": {
+        "bytes": 8821,
+        "sha256": "416695749aa648a860a09de595c09e28e6eeccc07c9a3939aa4617bf40e49725"
+      },
+      "proposed": {
+        "bytes": 8827,
+        "sha256": "1ccc06f86590ce4b88dbe0610aaf6b32972abf66aee2cd71626fda92b86d8f38"
+      }
+    },
+    "copyworker/scripts/ci/current606-apps7-copy/lifecycle.py": {
+      "before": {
+        "bytes": 6750,
+        "sha256": "7243e1bafa9513f6790eec8db77768056c194dd6ebb9b53485a719793a09032f"
+      },
+      "proposed": {
+        "bytes": 6824,
+        "sha256": "14c71bc041865175b8ffde3fc7bff884800296566958bc0f7df0134818e91ae8"
+      }
+    },
+    "copyworker/scripts/ci/current606-apps7-copy/plan.py": {
+      "before": {
+        "bytes": 5147,
+        "sha256": "9f4c6eae62f9dd4d4c3d6cc4ddf686f68e7c88b78b0b18bdfa0f5417b1e4e572"
+      },
+      "proposed": {
+        "bytes": 5150,
+        "sha256": "821f0f07eade8034b96f2cb6776be1cb84e01ec8166700daf468ad1da9ec9b26"
+      }
+    },
+    "copyworker/scripts/ci/current606-apps7-copy/rooted_fixture.py": {
+      "before": {
+        "bytes": 8338,
+        "sha256": "8804b98907133f29c437e3ce5da955783226ef6d19923502fe4008cb6d23cbd8"
+      },
+      "proposed": {
+        "bytes": 8339,
+        "sha256": "3aee4f779b0f5ba40d9462eb0be405feee45626b172438646bb20c642e504ab3"
+      }
+    },
+    "copyworker/scripts/ci/current606-apps7-copy/source-manifest.json": {
+      "before": {
+        "bytes": 7012,
+        "sha256": "ac4509f7c1dc8d776a2dc3d08f294e62a645dc1a8c9b30ad65ec177c7eb81594"
+      },
+      "proposed": {
+        "bytes": 7012,
+        "sha256": "63bdbd7bd9c4f5e3e0c251f7714bc4de5df345454c797f346877b65d020eb8aa"
+      }
+    },
+    "scripts/ci/current606-apps7-closed-owner/contract.py": {
+      "before": {
+        "bytes": 6228,
+        "sha256": "a380ab088b2cef22c4f443e75148922594e571a8201911d2892c4e310982dc37"
+      },
+      "proposed": {
+        "bytes": 6540,
+        "sha256": "bc7e24873e0b75dcd9833cc14d80bffc27b944b7dab0619063c397502eaae4be"
+      }
+    },
+    "scripts/ci/current606-apps7-closed-owner/owner.py": {
+      "before": {
+        "bytes": 14534,
+        "sha256": "a367928b507d59ae6763480579f871dc08ded773696a16216ef41dc59e9b6f8b"
+      },
+      "proposed": {
+        "bytes": 14553,
+        "sha256": "8484d795b3146da60b43b69de4f560e6ac1775b6603800f23cb62d1e65429d23"
+      }
+    },
+    "scripts/ci/current606-apps7-closed-owner/source-manifest.json": {
+      "before": {
+        "bytes": 68205,
+        "sha256": "e1825674dfff6650a3698a007385590f4cbf40912e37b1b8053bea929b021fca"
+      },
+      "proposed": {
+        "bytes": 69490,
+        "sha256": "8fbd67c19fc123266933b46cea1d0839ec1fe0b9fb7876026a3f1004c33abe99"
+      }
+    },
+    "scripts/ci/current606-apps7-closed-owner/source-pins.json": {
+      "before": {
+        "bytes": 59158,
+        "sha256": "14ce288118f3a969264e03c23180196b68e6c3a73494e4353a5a96575910b6b9"
+      },
+      "proposed": {
+        "bytes": 59158,
+        "sha256": "91b0eb2728320798a965d42bba2c6118efa97a12dab134ce6bf0aa2377947996"
+      }
+    },
+    "scripts/ci/native-evidence-transport/apps-policy.json": {
+      "before": {
+        "bytes": 435,
+        "sha256": "746339a6f73fe1c25c3dc0fe2e47cef74e4de7a184ac870e88c74f4e140a321c"
+      },
+      "proposed": {
+        "bytes": 436,
+        "sha256": "7a649a40d335c3533e451b3d9a23082b6f226a2fe79edcbb4b9ef20696176da9"
+      }
+    }
+  },
+  "files": 389,
+  "held": 364,
+  "kind": "SOURCE_ONLY_EXACT_APPS10_CURRENT606_389",
+  "legal": {
+    "LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "apps10-NOTICE.md": {
+      "bytes": 407,
+      "sha256": "bfaf79e2c76f48e4e8b8fd91eaf7a833a020f4239a7638304a8eedb158f44b3a"
+    }
+  },
+  "maps": {
+    "bytes": 154889,
+    "sha256": "2322e94a350eadaf2f3464bf86873914112ae8baeaabfb59b54586ae3e7ff6d9"
+  },
+  "native": "NOT_RUN",
+  "payload": {
+    ".github/workflows/native-arm-build.yml": {
+      "bytes": 52596,
+      "sha256": "9bf6034b856c76d18035900d7d1603f714fac1e9489ad975426791e74d343d3e"
+    },
+    ".github/workflows/native-arm-current606-apps7-owned-copy.yml": {
+      "bytes": 52596,
+      "sha256": "9bf6034b856c76d18035900d7d1603f714fac1e9489ad975426791e74d343d3e"
+    },
+    "apps10/carrier-profile.json": {
+      "bytes": 54535,
+      "sha256": "ed4d4b5a5d6f237b623b88434533bec58305d3b7da52d45baada9f44bdbcc9e9"
+    },
+    "apps10/contract_common.py": {
+      "bytes": 4407,
+      "sha256": "ad848a402f42e2a913a473b1983d66d6a7f61e5bdf11fd588c57379924d75449"
+    },
+    "apps10/entry.py": {
+      "bytes": 806,
+      "sha256": "982d751eb6daf504e6aaf779c30308a9f5e773c7c19a1174864509b210a19ef0"
+    },
+    "apps10/packet.py": {
+      "bytes": 8023,
+      "sha256": "701b715f1dafa283d83df0e0c7c37fcac7c2feae9291c20a2ee43cbcc7367edb"
+    },
+    "apps10/parent-qualification.json": {
+      "bytes": 2602,
+      "sha256": "1c5606eba4d1c3fafbb959a8ef3ba6dac0132c2ef9780256f74a6622d3ceafe0"
+    },
+    "apps10/source.py": {
+      "bytes": 3764,
+      "sha256": "ea98e2891fde43dd7cdf971edd3bdddf1560b5537cad044eabd9f6ca5fcdcb7f"
+    },
+    "apps10/successor.json": {
+      "bytes": 727169,
+      "sha256": "9d7674f97293f67fdc1586b08f66042b5b0adb0631e481e8c81bf2dc827fe97c"
+    },
+    "apps10/test_signer.py": {
+      "bytes": 1342,
+      "sha256": "67f3ea8e1415d5662ef9307772dbd452f778862905d48c6d5b51a69ec89c2f04"
+    },
+    "apps10/test_source.py": {
+      "bytes": 8935,
+      "sha256": "b4f54181db24d22db3b8ce979f6f1d10ddadc62bf1b27b0aa04a9636b963f844"
+    },
+    "copyworker/scripts/ci/current606-apps7-copy/alpm_step.py": {
+      "bytes": 6127,
+      "sha256": "0b1e93a47463d53eba53b65236264fa8890cb535d87d2830329f723fa4af8cd5"
+    },
+    "copyworker/scripts/ci/current606-apps7-copy/contract.py": {
+      "bytes": 6495,
+      "sha256": "96d237765bae3d7f8813fda8b16e678272f75026c4e6bfc1e852d0cf4dd90e48"
+    },
+    "copyworker/scripts/ci/current606-apps7-copy/driver.py": {
+      "bytes": 14039,
+      "sha256": "b8ca0ad22f3eda1c9dc0442b1c38f2c8551252730e5da7e2c7ad63355610964e"
+    },
+    "copyworker/scripts/ci/current606-apps7-copy/fixture_entry.py": {
+      "bytes": 2894,
+      "sha256": "3e522d5c9f8bf414625ec00a6395e58037ecb5f4e408eedd7f4aad4db5bbb5b8"
+    },
+    "copyworker/scripts/ci/current606-apps7-copy/guard.py": {
+      "bytes": 8827,
+      "sha256": "1ccc06f86590ce4b88dbe0610aaf6b32972abf66aee2cd71626fda92b86d8f38"
+    },
+    "copyworker/scripts/ci/current606-apps7-copy/lifecycle.py": {
+      "bytes": 6824,
+      "sha256": "14c71bc041865175b8ffde3fc7bff884800296566958bc0f7df0134818e91ae8"
+    },
+    "copyworker/scripts/ci/current606-apps7-copy/plan.py": {
+      "bytes": 5150,
+      "sha256": "821f0f07eade8034b96f2cb6776be1cb84e01ec8166700daf468ad1da9ec9b26"
+    },
+    "copyworker/scripts/ci/current606-apps7-copy/rooted_fixture.py": {
+      "bytes": 8339,
+      "sha256": "3aee4f779b0f5ba40d9462eb0be405feee45626b172438646bb20c642e504ab3"
+    },
+    "copyworker/scripts/ci/current606-apps7-copy/source-manifest.json": {
+      "bytes": 7012,
+      "sha256": "63bdbd7bd9c4f5e3e0c251f7714bc4de5df345454c797f346877b65d020eb8aa"
+    },
+    "scripts/ci/current606-apps7-closed-owner/contract.py": {
+      "bytes": 6540,
+      "sha256": "bc7e24873e0b75dcd9833cc14d80bffc27b944b7dab0619063c397502eaae4be"
+    },
+    "scripts/ci/current606-apps7-closed-owner/owner.py": {
+      "bytes": 14553,
+      "sha256": "8484d795b3146da60b43b69de4f560e6ac1775b6603800f23cb62d1e65429d23"
+    },
+    "scripts/ci/current606-apps7-closed-owner/source-manifest.json": {
+      "bytes": 69490,
+      "sha256": "8fbd67c19fc123266933b46cea1d0839ec1fe0b9fb7876026a3f1004c33abe99"
+    },
+    "scripts/ci/current606-apps7-closed-owner/source-pins.json": {
+      "bytes": 59158,
+      "sha256": "91b0eb2728320798a965d42bba2c6118efa97a12dab134ce6bf0aa2377947996"
+    },
+    "scripts/ci/native-evidence-transport/apps-policy.json": {
+      "bytes": 436,
+      "sha256": "7a649a40d335c3533e451b3d9a23082b6f226a2fe79edcbb4b9ef20696176da9"
+    }
+  }
+}

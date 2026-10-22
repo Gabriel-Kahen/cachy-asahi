@@ -43,6 +43,20 @@ jobs:
           ref: 48dcc65b10641a7b92eb5577f9f7d328cd26ed61
           path: .ci-fixtures/core7-systemd-rollback-expected
           persist-credentials: false
+      - name: Checkout exact optional two-boot host-clock source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 92ba829ca86c27b472a715c66e7d7ca5a17206e2
+          path: .ci-fixtures/core7-systemd-clock-two-boot-expected
+          persist-credentials: false
+      - name: Checkout exact optional four-boot host-clock source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 4e961335b2336e978532e83f4d6a99a43cc38cc8
+          path: .ci-fixtures/core7-systemd-clock-four-boot-expected
+          persist-credentials: false
       - name: Checkout whole Core800
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
@@ -99,6 +113,12 @@ jobs:
             --kernel-carrier "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-kernel"
           python3 -I -B scripts/ci/core7-systemd-vm-source/test_rollback_factory.py \
             --expected "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-rollback-expected" \
+            --core-source "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-core800" \
+            --vm-source "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-media637" \
+            --kernel-carrier "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-kernel"
+          python3 -I -B scripts/ci/core7-systemd-vm-source/test_host_clock.py \
+            --expected-two "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-clock-two-boot-expected" \
+            --expected-four "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-clock-four-boot-expected" \
             --core-source "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-core800" \
             --vm-source "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-media637" \
             --kernel-carrier "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-kernel"
