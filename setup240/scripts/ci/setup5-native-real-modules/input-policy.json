@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "status": "ROOT_FINAL_INPUTS_BOUND",
+  "module_source_ref": "de35c384a2e5b14b664d4156897f271b81e467ba",
+  "module_index": {
+    "path": "index.json",
+    "bytes": 78603,
+    "sha256": "f73f84b9be6317aa6a95eafae6801cab435220c98ad5b416b5280729bfbac704"
+  },
+  "setup5_source_ref": "79d8d2f53510e4f3a04f39c1b1e24c999aa32e44",
+  "setup5_index_sha256": "b1e4208d2f32935f2e5cb1c1e3535cc49f44c7bfe08e7d64692b8ac3781d5a5d"
+}

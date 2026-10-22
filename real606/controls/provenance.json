@@ -1,0 +1,34 @@
+{
+  "original581-real-modules.json": {
+    "file": {
+      "bytes": 11156,
+      "sha256": "744f122653417b9f8bcfa00beedde2030b684371b7a76156128efc2d73119612"
+    },
+    "member": "runtime/real-modules.json",
+    "original_archive": {
+      "bytes": 683651,
+      "sha256": "36ca83c85567cd75b33e5f29bdaa85d42a7481be4268e5de197e357580028548"
+    },
+    "original_run": {
+      "bytes": 13001,
+      "sha256": "0bcb6fab91c18f929b2329398d06bfd3eb4295096040839a5d50bea8971d724b"
+    },
+    "run": 39599122890,
+    "scope": "ORIGINAL_ACCEPTED_DATA_TEST_FIXTURE_ONLY_NO_NEW606_CREDIT",
+    "source": "d41d28d870227b0256a8980d3c305287fbfb6ffb"
+  },
+  "original606-tools.json": {
+    "file": {
+      "bytes": 14793,
+      "sha256": "0fe2ea7b221fefd239b21c8bc6cfd69495663ac3e78ddd1c6783c37ebbdc9717"
+    },
+    "member": null,
+    "original_run": {
+      "bytes": 13022,
+      "sha256": "2357b1d8d6fb0756671a130a841d7d716634e36f294f6ba70e7aa603efcff53d"
+    },
+    "run": 39335483055,
+    "scope": "ORIGINAL_ACCEPTED_DATA_TEST_FIXTURE_ONLY_NO_NEW606_CREDIT",
+    "source": "6f824cac64cd44f765e54fd3b5a853689ea0ce7b"
+  }
+}
