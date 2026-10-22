@@ -1,0 +1,80 @@
+name: core7-systemd-vm-source
+on:
+  push:
+    paths:
+      - scripts/ci/core7-systemd-vm-source/**
+      - .github/workflows/core7-systemd-vm-source.yml
+  pull_request:
+    paths:
+      - scripts/ci/core7-systemd-vm-source/**
+      - .github/workflows/core7-systemd-vm-source.yml
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Checkout exact source33
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: d0a63680da2bc5e94c32aec27a40dcadf8b024f9
+          path: .ci-fixtures/core7-systemd-expected
+          persist-credentials: false
+      - name: Checkout whole Core800
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 1a76a09d9cb8210cc2b76eda0c63a08bcd89d4ec
+          path: .ci-fixtures/core7-systemd-core800
+          persist-credentials: false
+      - name: Checkout whole media/runtime637
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: de21d6c25e0fbf5ac83c71965bae3ffa23390461
+          path: .ci-fixtures/core7-systemd-media637
+          persist-credentials: false
+      - name: Checkout exact accepted Core7 input carrier
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: e410bd5d6b4318f114d7311a99a60f20bc8d2f4a
+          path: .ci-fixtures/core7-systemd-core7
+          persist-credentials: false
+      - name: Checkout exact kernel input carrier
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 247123187cb1aceae5e61bc89f3c01dbf2986311
+          path: .ci-fixtures/core7-systemd-kernel
+          persist-credentials: false
+      - name: Checkout exact current64 input carrier
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 7dfce898755583bbf8081aae04d8b8579f66be58
+          path: .ci-fixtures/core7-systemd-core64
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Reproduce exact source and execute original source-only controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -I -B scripts/ci/core7-systemd-vm-source/test_prepare.py \
+            --expected "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-expected" \
+            --core-source "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-core800" \
+            --vm-source "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-media637" \
+            --core7 "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-core7" \
+            --core64 "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-core64" \
+            --kernel-carrier "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-kernel"
