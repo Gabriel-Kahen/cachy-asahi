@@ -1,0 +1,148 @@
+{
+  "artifacts": {
+    "cachy-asahi-apps-0.1.0-12-any.pkg.tar.xz": "cee2fdb6ce0ee9a3b051641f705c2d0fc6176f3cfa57951abc87760ef3e4a4d1"
+  },
+  "clean_environment_id": "cachy-asahi-product-277237fb92c2e0eb146e9804126c02c6",
+  "command": [
+    "docker",
+    "run",
+    "--name",
+    "cachy-asahi-product-277237fb92c2e0eb146e9804126c02c6",
+    "--pull=never",
+    "--platform=linux/arm64",
+    "--network=none",
+    "--cap-drop=ALL",
+    "--security-opt=no-new-privileges",
+    "--pids-limit=256",
+    "--memory=3g",
+    "--cpus=4",
+    "--user",
+    "1001:1001",
+    "--tmpfs",
+    "/tmp:rw,nosuid,nodev,exec,size=2g",
+    "--mount",
+    "type=bind,src=/home/runner/work/_temp/apps12-client-native-runtime/cachy-asahi-apps-b/artifacts,dst=/out",
+    "--read-only",
+    "--label=org.cachy-asahi.apps12-client-native.job=0e7afec8dfae1ee5e86bd81e6dcec7e9",
+    "--env=CACHY_ASAHI_CONTAINER=1",
+    "--env=SOURCE_DATE_EPOCH=1791748800",
+    "--mount",
+    "type=bind,src=/home/runner/work/_temp/apps12-client-native-runtime/cachy-asahi-apps-b/inputs,dst=/inputs,readonly",
+    "--mount",
+    "type=bind,src=/home/runner/work/_temp/apps12-client-native-runtime/cachy-asahi-apps-b/expected-packages.lock,dst=/expected-packages.lock,readonly",
+    "--mount",
+    "type=bind,src=/home/runner/work/cachy-asahi/cachy-asahi/scripts/build/container-entry.sh,dst=/builder-entry.sh,readonly",
+    "--entrypoint=/bin/bash",
+    "sha256:c882f8c5f9741730bd9553e0d6d030b81aa817c897c024d479e9ce2bef6b649d",
+    "/builder-entry.sh"
+  ],
+  "entry_script_sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24",
+  "expected_packages_sha256": "66c46d4645fa443d23df0e97765905555fe5bc2607787dca3f30ee2084cf597f",
+  "files": {
+    "artifacts/cachy-asahi-apps-0.1.0-12-any.pkg.tar.xz": "cee2fdb6ce0ee9a3b051641f705c2d0fc6176f3cfa57951abc87760ef3e4a4d1",
+    "artifacts/config.sha256": "8309cb4c0409ccdc1ca922475dde9377aec434911efc453299f41e8fadb234ec",
+    "artifacts/environment.txt": "aab58e67ecd1b015ef18a62cd1fb10edd35730ac43fc36f004890543a388e9ae",
+    "artifacts/generated.SRCINFO": "c2c6a58322c6994431616c6148665ba0e3bab1f74612099960a315d5d250e85b",
+    "artifacts/makepkg.conf": "cfcf0bd2601d887724c5ca7d9a48ac5dd347abad9e8ac5efa436080e45822a60",
+    "artifacts/packages.lock": "66c46d4645fa443d23df0e97765905555fe5bc2607787dca3f30ee2084cf597f",
+    "artifacts/pacman.conf": "14d304eeb83baf1379279356c232580fd095c2d508b41c74677347801a0bafe7",
+    "build.log": "264afbfce1bb0516a3b112d691c925a362b55f0dfb9545c3fb57664000b2a996",
+    "expected-packages.lock": "66c46d4645fa443d23df0e97765905555fe5bc2607787dca3f30ee2084cf597f",
+    "validation.json": "8d59cecdefac0efcf2c652d3e5a54552b3e0fa7d7ee1d0155100eb5ec473ccb5"
+  },
+  "hardware_status": "NOT RUN",
+  "image": "sha256:c882f8c5f9741730bd9553e0d6d030b81aa817c897c024d479e9ce2bef6b649d",
+  "image_id": "sha256:c882f8c5f9741730bd9553e0d6d030b81aa817c897c024d479e9ce2bef6b649d",
+  "mode": "native",
+  "recipe_inputs": {
+    ".SRCINFO": "c2c6a58322c6994431616c6148665ba0e3bab1f74612099960a315d5d250e85b",
+    "LICENSE": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+    "NOTICE": "c7e089e8a1798d668b380c1bd6c2027a4997cc35176ff6c7941af9e93e78724e",
+    "PKGBUILD": "bb36434e086e31f8326493a97862dd60949768e1ab293b42bae5a569ba837e8c",
+    "README.md": "56116af50a3283459250a36ea4f83fb84ecc075cd5f7c49902d8bc6fbc0982c5",
+    "apps.py": "7d671c4c354b985756b0d074504d4ebe3047c50dd7478ae20057153d0d0d154a",
+    "cachy-asahi-apps": "4e9c078c2e05cc00cb6479d5fff23b92cbcabd8d6b3ff970f6181e6467921630",
+    "check-inputs.json": "5cd338eb2ab9f4579825f3dd30de0f25d54a73ee1090737b0a21a506d12caad8",
+    "check-inputs.tar.gz": "6d38353fe33e0ce595df507ad9b928d80d3e1d6fe5d45d5418f927e9f50fe6d2",
+    "check_source.py": "a1e04f17c3d3d1b45fa129849a7dd3ffb1fc9c2851454069dc5ae7c27252b300",
+    "helper-pins.json": "33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a",
+    "inventory.py": "a6c98f987bf8fce66f961056320f80d17a51548391f2a4ca338f42f9fd51a893",
+    "prepare-check-inputs.py": "76bc1977cf402872816a430156541c0ccd41273e9080730d2ace7838ffa74214",
+    "source-provenance.json": "8f10e65392747ffd173e1119e9ecd467bc146fe447952cd998b391e97c7921ea",
+    "test_apps.py": "6d55ca76da60b7f1121d04cb3e16435f6db477b39e7ae8985bec01e7227d4987",
+    "test_diagnostic_stage.py": "db3642e6e2b0e9fbcdf599a00feb723a679cd1c9399481c3b1a32c36c6e08b94",
+    "test_inventory_paths.py": "049a28a3f85572d487b355b3b9b9ad06252b0cdd42f5f213aab968e1e8ac1135"
+  },
+  "recipe_metadata": {
+    "arch": [
+      "any"
+    ],
+    "depends": [
+      "python>=3.11",
+      "gnupg",
+      "libarchive",
+      "pacman",
+      "cachy-asahi-repository-runtime=0.1.0-1"
+    ],
+    "license": [
+      "MIT"
+    ],
+    "noextract": [
+      "check-inputs.tar.gz"
+    ],
+    "pkgbase": [
+      "cachy-asahi-apps"
+    ],
+    "pkgdesc": [
+      "Offline signed ARM development application catalog and explicit readonly package plans"
+    ],
+    "pkgname": [
+      "cachy-asahi-apps"
+    ],
+    "pkgrel": [
+      "12"
+    ],
+    "pkgver": [
+      "0.1.0"
+    ],
+    "sha256sums": [
+      "7d671c4c354b985756b0d074504d4ebe3047c50dd7478ae20057153d0d0d154a",
+      "4e9c078c2e05cc00cb6479d5fff23b92cbcabd8d6b3ff970f6181e6467921630",
+      "33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a",
+      "6d55ca76da60b7f1121d04cb3e16435f6db477b39e7ae8985bec01e7227d4987",
+      "a1e04f17c3d3d1b45fa129849a7dd3ffb1fc9c2851454069dc5ae7c27252b300",
+      "56116af50a3283459250a36ea4f83fb84ecc075cd5f7c49902d8bc6fbc0982c5",
+      "8f10e65392747ffd173e1119e9ecd467bc146fe447952cd998b391e97c7921ea",
+      "c7e089e8a1798d668b380c1bd6c2027a4997cc35176ff6c7941af9e93e78724e",
+      "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+      "76bc1977cf402872816a430156541c0ccd41273e9080730d2ace7838ffa74214",
+      "5cd338eb2ab9f4579825f3dd30de0f25d54a73ee1090737b0a21a506d12caad8",
+      "6d38353fe33e0ce595df507ad9b928d80d3e1d6fe5d45d5418f927e9f50fe6d2",
+      "a6c98f987bf8fce66f961056320f80d17a51548391f2a4ca338f42f9fd51a893",
+      "049a28a3f85572d487b355b3b9b9ad06252b0cdd42f5f213aab968e1e8ac1135",
+      "db3642e6e2b0e9fbcdf599a00feb723a679cd1c9399481c3b1a32c36c6e08b94"
+    ],
+    "source": [
+      "apps.py",
+      "cachy-asahi-apps",
+      "helper-pins.json",
+      "test_apps.py",
+      "check_source.py",
+      "README.md",
+      "source-provenance.json",
+      "NOTICE",
+      "LICENSE",
+      "prepare-check-inputs.py",
+      "check-inputs.json",
+      "check-inputs.tar.gz",
+      "inventory.py",
+      "test_inventory_paths.py",
+      "test_diagnostic_stage.py"
+    ],
+    "url": [
+      "https://github.com/Gabriel-Kahen/cachy-asahi"
+    ]
+  },
+  "source_date_epoch": 1791748800,
+  "status": "built-package-static-pass"
+}
