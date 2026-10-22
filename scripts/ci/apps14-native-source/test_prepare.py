@@ -30,6 +30,13 @@ class Controls(unittest.TestCase):
  def test_parent_overlap_refuses_without_mutation(self):
   with self.assertRaises(ValueError):F.emit(P,Q,P/'nested-output')
   self.assertFalse((P/'nested-output').exists())
+ def test_noncanonical_source_and_output_refuse_before_input_writes(self):
+  with tempfile.TemporaryDirectory()as td:
+   root=Path(td);source=root/'parent';shutil.copytree(P,source,ignore=shutil.ignore_patterns('.git'));(root/'q').mkdir();before=F.pins(F.tree(source));out=root/'q'/'..'/'parent'/'generated'
+   with self.assertRaisesRegex(ValueError,'normalized'):F.emit(source,Q,out)
+   self.assertFalse((source/'generated').exists());self.assertEqual(F.pins(F.tree(source)),before)
+   with self.assertRaisesRegex(ValueError,'normalized'):F.emit(root/'q'/'..'/'parent',Q,root/'outside')
+   self.assertFalse((root/'outside').exists());self.assertEqual(F.pins(F.tree(source)),before)
  def test_emitted_preflight_and_all18_native_source_controls(self):
   with tempfile.TemporaryDirectory()as td:
    root=Path(td)/'source';F.emit(P,Q,root);lane=root/'scripts/ci/apps14-client-native'
