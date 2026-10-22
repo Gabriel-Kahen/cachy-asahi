@@ -55,6 +55,20 @@ jobs:
           ref: 5c3c2d0ce5b4f6c2672c9367b722170687c7de69
           path: .ci-fixtures/apps8-current606-source-correction
           persist-credentials: false
+      - name: Check out exact Apps9 accepted input93
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 128b9806c8e972a729d5c1ef4f2dc9e39e48fc42
+          path: .ci-fixtures/apps9-input93
+          persist-credentials: false
+      - name: Check out exact Apps9 current606 source389
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 51399738e2cb98551fbb84c930156022fd734029
+          path: .ci-fixtures/apps9-expected389
+          persist-credentials: false
       - name: Select the explicit Python version
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
@@ -68,3 +82,8 @@ jobs:
             --carrier "$GITHUB_WORKSPACE/.ci-fixtures/apps8-input93" \
             --expected "$GITHUB_WORKSPACE/.ci-fixtures/apps8-expected380"
           python3 -I -B -Werror scripts/ci/apps8-current606-source/test_correction.py --parent "$GITHUB_WORKSPACE/.ci-fixtures/apps-parent348" --expected "$GITHUB_WORKSPACE/.ci-fixtures/apps8-current606-source-correction" --carrier "$GITHUB_WORKSPACE/.ci-fixtures/apps8-input93"
+          python3 -I -B -Werror scripts/ci/apps8-current606-source/test_apps9.py \
+            --parent "$GITHUB_WORKSPACE/.ci-fixtures/apps-parent348" \
+            --carrier "$GITHUB_WORKSPACE/.ci-fixtures/apps8-input93" \
+            --apps9-carrier "$GITHUB_WORKSPACE/.ci-fixtures/apps9-input93" \
+            --expected "$GITHUB_WORKSPACE/.ci-fixtures/apps9-expected389"
