@@ -1,0 +1,10 @@
+{
+  "consumer_token": "615623d53b9ba64756235f2390122f0c",
+  "job_token": "bbfad7654af219c7",
+  "run_attempt": "1",
+  "run_id": "39769794548",
+  "source_files": 112,
+  "source_sha": "d4e86c4e7799b4138fc1a1a8720b223e78b99fe6",
+  "status": "SOURCE_PROOF_PASS",
+  "workflow_sha": "d4e86c4e7799b4138fc1a1a8720b223e78b99fe6"
+}

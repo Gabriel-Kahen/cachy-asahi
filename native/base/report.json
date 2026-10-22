@@ -1,0 +1,44 @@
+{
+  "acquired": 1153,
+  "build_returncode": 0,
+  "daemon_arch": "aarch64",
+  "failures": [],
+  "hardware": "NOT_RUN",
+  "host_arch": "aarch64",
+  "image": "sha256:057f5b03be022e3ecd89e03cd2753c2c046c68a570b4b2b4b14f05829dde77d5",
+  "native_build": "PASS",
+  "owned_cleanup": {
+    "build": "COMPLETED",
+    "image": {
+      "absence_verified": true,
+      "id": "sha256:057f5b03be022e3ecd89e03cd2753c2c046c68a570b4b2b4b14f05829dde77d5"
+    },
+    "probe": {
+      "absence_verified": true,
+      "cid": "620860c4b1a782138be784eb5a36440c9fe37bbef72de4eba3e98dc16683af7f",
+      "name": "cachy-asahi-574-probe-bbfad7654af219c7"
+    },
+    "status": "PASS"
+  },
+  "ownership": {
+    "before_images": [
+      "sha256:22ceabcd3d225f66030be192e0a69c8d96823fe95096fba47fb646fa89ae7161",
+      "sha256:65ab352c879f02bd464d27e108b1e80a34c57e3e6f46a747ec1510747605b730",
+      "sha256:759e96ae5997ebc7d6d903ed56ba9dc0f3f2b1bb2c6a2ced5c0501f5cbf12529",
+      "sha256:9e02afa8de1a3da954fff7dc8eaf41c6bd5309ff7082795cdafa3a3f7c8e0cd8",
+      "sha256:b3690c237a201bf69e6dce522cb95c977439f80106864d2f267d5c439d0287a2",
+      "sha256:f799c09fc354239308bbda102d8b2449d778b968d7bf90819c75e0c49f7dccb9"
+    ],
+    "build_complete": true,
+    "build_started": true,
+    "image": "sha256:057f5b03be022e3ecd89e03cd2753c2c046c68a570b4b2b4b14f05829dde77d5",
+    "image_tag": "cachy-asahi-574-owned:bbfad7654af219c7",
+    "probe_cidfile": "probe-cid",
+    "probe_complete": true,
+    "probe_name": "cachy-asahi-574-probe-bbfad7654af219c7",
+    "probe_started": true,
+    "token": "bbfad7654af219c7"
+  },
+  "packages": 574,
+  "status": "PASS_NATIVE_OFFLINE_574_TRANSACTION"
+}
