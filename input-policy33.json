@@ -1,0 +1,356 @@
+{
+  "native": "NOT_RUN",
+  "packages": {
+    "alsa-ucm-conf-asahi": {
+      "archive": "packages/alsa-ucm-conf-asahi-10-2-any.pkg.tar.xz",
+      "name": "alsa-ucm-conf-asahi",
+      "sha256": "b4eeab98e530489a9e4b5f0d46cf6946f556efedb76d4489be936bbbb8216ee4",
+      "signature": "packages/alsa-ucm-conf-asahi-10-2-any.pkg.tar.xz.sig",
+      "signature_sha256": "0228fa15976587bace7ca3b8526ae9bbf8ce9907c0fa43486fc58ecbf39af831",
+      "signature_size": 119,
+      "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+      "size": 9836,
+      "version": "10-2"
+    },
+    "archlinux-contrib": {
+      "archive": "packages/archlinux-contrib-20261009-1-any.pkg.tar.xz",
+      "name": "archlinux-contrib",
+      "sha256": "0cda9e6618956615a9065265300af78d1c4b5693bbfe3f6aab7f58b8aa0eeca3",
+      "signature": "packages/archlinux-contrib-20261009-1-any.pkg.tar.xz.sig",
+      "signature_sha256": "747683dd22f7264d672919be36e1fa3bc433d8e980d2202927c8b1ec5ad51ff8",
+      "signature_size": 566,
+      "signer": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+      "size": 24792,
+      "version": "20261009-1"
+    },
+    "asahi-audio": {
+      "archive": "packages/asahi-audio-4.1-2-aarch64.pkg.tar.xz",
+      "name": "asahi-audio",
+      "sha256": "9adbdd1862d975bbbbb10e62f6c68ffad08bed8e32575f1681cbd40bbf533cfa",
+      "signature": "packages/asahi-audio-4.1-2-aarch64.pkg.tar.xz.sig",
+      "signature_sha256": "8277ad04ce2581acd46915bb1900ef29e17e8340b9192f7d6fe3cb4a9583a779",
+      "signature_size": 119,
+      "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+      "size": 1395012,
+      "version": "4.1-2"
+    },
+    "bankstown": {
+      "archive": "packages/bankstown-1.1.0-4-aarch64.pkg.tar.xz",
+      "name": "bankstown",
+      "sha256": "5ce529103e77d6cc509e270d925f9ecaa126d6a9b14302cdb41c14b72ed0d3af",
+      "signature": "packages/bankstown-1.1.0-4-aarch64.pkg.tar.xz.sig",
+      "signature_sha256": "9be0bf18ec1578e3dc90de2dd64c3b83bd1753f13dd94cd36b4dc5fb0af68ce7",
+      "signature_size": 119,
+      "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+      "size": 144404,
+      "version": "1.1.0-4"
+    },
+    "cachy-asahi-apps": {
+      "archive": "cachy-asahi-apps-0.1.0-8-any.pkg.tar.xz",
+      "name": "cachy-asahi-apps",
+      "sha256": "d4d83458765d732ae78664143c9042dcc1159b7d3e19f4b7976f8499c2619f4a",
+      "size": 23528,
+      "version": "0.1.0-8"
+    },
+    "cachy-asahi-cache": {
+      "archive": "packages/cachy-asahi-cache-0.2.0-1-any.pkg.tar.xz",
+      "name": "cachy-asahi-cache",
+      "sha256": "450706e2899f57b44ca2f446560c8aeab710a4726a13561d09a2cb4a8bf1da40",
+      "signature": "packages/cachy-asahi-cache-0.2.0-1-any.pkg.tar.xz.sig",
+      "signature_sha256": "8dea121e18f2e2ccf7674ac41ff4d78000ea15a703728ca99c370d434c9add02",
+      "signature_size": 119,
+      "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+      "size": 18304,
+      "version": "0.2.0-1"
+    },
+    "cachy-asahi-dns": {
+      "archive": "cachy-asahi-dns-0.1.0-2-any.pkg.tar.xz",
+      "name": "cachy-asahi-dns",
+      "sha256": "588301342503ab23869d78e212f50a7b363fe45dcaf7c2ad4c411a33bab22d1d",
+      "signature": "cachy-asahi-dns-0.1.0-2-any.pkg.tar.xz.sig",
+      "signature_sha256": "713791b1014bb4f0a652923dac6496dd5c38f38a89122046c37b49d66637c357",
+      "signature_size": 119,
+      "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+      "size": 15632,
+      "version": "0.1.0-2"
+    },
+    "cachy-asahi-doctor": {
+      "archive": "cachy-asahi-doctor-0.2.0-1-any.pkg.tar.xz",
+      "name": "cachy-asahi-doctor",
+      "sha256": "5d27ef618bfc571c0238cfbbbcf382d0e4c689df509d1f62123ad5fe53245ee7",
+      "signature": "cachy-asahi-doctor-0.2.0-1-any.pkg.tar.xz.sig",
+      "size": 16000,
+      "version": "0.2.0-1"
+    },
+    "cachy-asahi-fdk-aac": {
+      "archive": "packages/cachy-asahi-fdk-aac-3.0.0-1-aarch64.pkg.tar.xz",
+      "name": "cachy-asahi-fdk-aac",
+      "sha256": "237b7812435bd78456d72c157f5703f258f5b6b7455cb99e5b075f642071c247",
+      "signature": "packages/cachy-asahi-fdk-aac-3.0.0-1-aarch64.pkg.tar.xz.sig",
+      "signature_sha256": "1746a61558a13a9f1317f79a6e98a8252b14b632b3b8d2bf1fa9165c9ee1f71e",
+      "signature_size": 119,
+      "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+      "size": 1209964,
+      "version": "3.0.0-1"
+    },
+    "cachy-asahi-fish-autopair": {
+      "archive": "packages/cachy-asahi-fish-autopair-0.1.0-1-any.pkg.tar.xz",
+      "name": "cachy-asahi-fish-autopair",
+      "sha256": "ea5dbb98856e8226b133b08ab2332b170244edb743248a5a98d8c2c3930f9f78",
+      "signature": "packages/cachy-asahi-fish-autopair-0.1.0-1-any.pkg.tar.xz.sig",
+      "signature_sha256": "c677a06b6b0be3fbd4d568eca6f2dbe86ee44635e622d4e1523b241821df7d71",
+      "signature_size": 119,
+      "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+      "size": 11024,
+      "version": "0.1.0-1"
+    },
+    "cachy-asahi-fish-bang-bang": {
+      "archive": "packages/cachy-asahi-fish-bang-bang-0.1.0-2-any.pkg.tar.xz",
+      "name": "cachy-asahi-fish-bang-bang",
+      "sha256": "542585b5c6d50f379deca86cc394afbb0eca51174ee9e11d7ec895181ef73f8e",
+      "signature": "packages/cachy-asahi-fish-bang-bang-0.1.0-2-any.pkg.tar.xz.sig",
+      "signature_sha256": "8de0589c332adf37bd205ac05d1fd927ff0209fff98a2b455fac2c570624fb75",
+      "signature_size": 119,
+      "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+      "size": 9652,
+      "version": "0.1.0-2"
+    },
+    "cachy-asahi-fish-config": {
+      "archive": "packages/cachy-asahi-fish-config-0.1.0-1-any.pkg.tar.xz",
+      "name": "cachy-asahi-fish-config",
+      "sha256": "38e766158d13a0e13b8f811766119d10c018ccc256f5d99c3561b74c99d12705",
+      "signature": "packages/cachy-asahi-fish-config-0.1.0-1-any.pkg.tar.xz.sig",
+      "signature_sha256": "3caf2518e5b73c14a4e59a9c2aa5e0ab6ec7c3c95e2e817009ce1868fe9088d7",
+      "signature_size": 119,
+      "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+      "size": 5396,
+      "version": "0.1.0-1"
+    },
+    "cachy-asahi-fish-done": {
+      "archive": "packages/cachy-asahi-fish-done-0.1.0-2-any.pkg.tar.xz",
+      "name": "cachy-asahi-fish-done",
+      "sha256": "9ce3c7ba89467f04660014c1b12056dce28bd0c4e69b4cab8a9c2c98e1cce54f",
+      "signature": "packages/cachy-asahi-fish-done-0.1.0-2-any.pkg.tar.xz.sig",
+      "signature_sha256": "da7f56776e4b4ab088ffd19cf4dd19fa20bc789686ee283f837ebeceaed1b049",
+      "signature_size": 119,
+      "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+      "size": 15380,
+      "version": "0.1.0-2"
+    },
+    "cachy-asahi-hyprland-settings": {
+      "archive": "packages/cachy-asahi-hyprland-settings-0.1.0-2-any.pkg.tar.xz",
+      "name": "cachy-asahi-hyprland-settings",
+      "sha256": "0b22b778ec83d8b98d98d06fa4f016bd4e3f581b69efa83d6526c5265c2adf5e",
+      "signature": "packages/cachy-asahi-hyprland-settings-0.1.0-2-any.pkg.tar.xz.sig",
+      "signature_sha256": "69e9e548af6dc2fa45047136e5cc82f686946bb87331b3080ec94e1a6d4120c1",
+      "signature_size": 119,
+      "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+      "size": 12740,
+      "version": "0.1.0-2"
+    },
+    "cachy-asahi-ksmctl": {
+      "archive": "cachy-asahi-ksmctl-0.1.0-2-any.pkg.tar.xz",
+      "name": "cachy-asahi-ksmctl",
+      "sha256": "bac3d222b6490412c1c9c7bafd72d8169e8679a1e7b411b5794246aed0b57b5f",
+      "signature": "cachy-asahi-ksmctl-0.1.0-2-any.pkg.tar.xz.sig",
+      "size": 24128,
+      "version": "0.1.0-2"
+    },
+    "cachy-asahi-mirrors": {
+      "archive": "packages/cachy-asahi-mirrors-0.2.0-1-any.pkg.tar.xz",
+      "name": "cachy-asahi-mirrors",
+      "sha256": "003ed932012ecc4ebb2f5a43c911db8eece30d532dc8e6d3f54c4bf249668c3c",
+      "signature": "packages/cachy-asahi-mirrors-0.2.0-1-any.pkg.tar.xz.sig",
+      "signature_sha256": "ac4f7f4cb18dcfd9da379c2ebcdeb2cf91bad7abd9b722b201a45c8d8d14ff9b",
+      "signature_size": 119,
+      "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+      "size": 15616,
+      "version": "0.2.0-1"
+    },
+    "cachy-asahi-orphans": {
+      "archive": "packages/cachy-asahi-orphans-0.1.0-2-any.pkg.tar.xz",
+      "name": "cachy-asahi-orphans",
+      "sha256": "2543a13b584bf974efc4ce79f4da585d9e4513c2bc3907750fe5c962d20c8c02",
+      "signature": "packages/cachy-asahi-orphans-0.1.0-2-any.pkg.tar.xz.sig",
+      "signature_sha256": "6bfff2b56372279f4a98baaea35d9ac1febd353a541f3d9e518bd01406a5f96d",
+      "signature_size": 119,
+      "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+      "size": 18900,
+      "version": "0.1.0-2"
+    },
+    "cachy-asahi-repository-runtime": {
+      "archive": "packages/cachy-asahi-repository-runtime-0.1.0-1-any.pkg.tar.xz",
+      "name": "cachy-asahi-repository-runtime",
+      "sha256": "1c8a9149da02e60a4c14598cdf7007d6dbffcd6150757fcf6711977aa00cf8aa",
+      "signature": "packages/cachy-asahi-repository-runtime-0.1.0-1-any.pkg.tar.xz.sig",
+      "signature_sha256": "dee577e65e99f2f55710b0883b4bfc9feb55bc397cb114c6bb924e52d4ebe2e2",
+      "signature_size": 119,
+      "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+      "size": 28888,
+      "version": "0.1.0-1"
+    },
+    "cachy-asahi-setup": {
+      "archive": "packages/cachy-asahi-setup-0.1.0-5-any.pkg.tar.xz",
+      "name": "cachy-asahi-setup",
+      "sha256": "1aafee365e3bcb04e1fce694c110a997914a07f4359697df5e017375897385fc",
+      "signature": "packages/cachy-asahi-setup-0.1.0-5-any.pkg.tar.xz.sig",
+      "signature_sha256": "995e268370171abba356da873a8de460e3602497d274edb0109edf6033814468",
+      "signature_size": 119,
+      "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+      "size": 26872,
+      "version": "0.1.0-5"
+    },
+    "cachy-asahi-sysctl": {
+      "archive": "cachy-asahi-sysctl-0.1.0-2-any.pkg.tar.xz",
+      "name": "cachy-asahi-sysctl",
+      "sha256": "f569ddfb8b1a5347f26db05b9f702706bebc9d8b88369f1a5861544a285659c3",
+      "signature": "cachy-asahi-sysctl-0.1.0-2-any.pkg.tar.xz.sig",
+      "signature_sha256": "cf3bdd3ee5e4d1e7b8fdf5b04f7d3832b220100d13d35bcb6cc3282fe520d754",
+      "signature_size": 119,
+      "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+      "size": 14840,
+      "version": "0.1.0-2"
+    },
+    "cachy-asahi-topmem": {
+      "archive": "packages/cachy-asahi-topmem-0.1.0-1-any.pkg.tar.xz",
+      "name": "cachy-asahi-topmem",
+      "sha256": "583ffacd614bd741722486d5fbc64b79bb283d62c87974063fc1484dfcbe199b",
+      "signature": "packages/cachy-asahi-topmem-0.1.0-1-any.pkg.tar.xz.sig",
+      "signature_sha256": "22436a628a79bbf7728ad078fbf6e723100406b9c12cd6856f753d3824938eb9",
+      "signature_size": 119,
+      "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+      "size": 8092,
+      "version": "0.1.0-1"
+    },
+    "cachy-asahi-update": {
+      "archive": "packages/cachy-asahi-update-4.4.2-2-aarch64.pkg.tar.xz",
+      "name": "cachy-asahi-update",
+      "sha256": "88e6ebad51700499bc2f0c608409e06983b0146ebf555101b526c7a32d5ba4f6",
+      "signature": "packages/cachy-asahi-update-4.4.2-2-aarch64.pkg.tar.xz.sig",
+      "signature_sha256": "15ae01f1273778c418747917a358c7e4e926a85f3969095c96b184c7a680fa7d",
+      "signature_size": 119,
+      "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+      "size": 3083884,
+      "version": "4.4.2-2"
+    },
+    "cachy-asahi-welcome": {
+      "archive": "cachy-asahi-welcome-0.1.0-8-aarch64.pkg.tar.xz",
+      "name": "cachy-asahi-welcome",
+      "sha256": "1cbb8f5f9fd5f072ba2974837cf10dc7e90edbd236cbf3a34916cd0af3d4b240",
+      "size": 40400,
+      "version": "0.1.0-8"
+    },
+    "cachy-asahi-zsh-autosuggestions": {
+      "archive": "packages/cachy-asahi-zsh-autosuggestions-0.7.1-1-any.pkg.tar.xz",
+      "name": "cachy-asahi-zsh-autosuggestions",
+      "sha256": "ff59a185f52e80dc4fd08c666d093cccefa3e57f2513085c900602da597f29b9",
+      "signature": "packages/cachy-asahi-zsh-autosuggestions-0.7.1-1-any.pkg.tar.xz.sig",
+      "signature_sha256": "0fb2eec2566d6d862aa9dd68dbcc4bb667b91eba937d72074a3333776b46fe16",
+      "signature_size": 119,
+      "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+      "size": 13652,
+      "version": "0.7.1-1"
+    },
+    "cachy-asahi-zsh-config": {
+      "archive": "packages/cachy-asahi-zsh-config-0.1.0-1-any.pkg.tar.xz",
+      "name": "cachy-asahi-zsh-config",
+      "sha256": "be2ef8ed4f0263720ed6290bff9992d5df53c7bf689a40478f2be329ba2d50e7",
+      "signature": "packages/cachy-asahi-zsh-config-0.1.0-1-any.pkg.tar.xz.sig",
+      "signature_sha256": "114da94955a65892b3da49afb5a073a665ec44fdcfb44cc14f9693fb563c43d0",
+      "signature_size": 119,
+      "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+      "size": 6244,
+      "version": "0.1.0-1"
+    },
+    "cachy-asahi-zsh-history-substring-search": {
+      "archive": "packages/cachy-asahi-zsh-history-substring-search-0.1.0-1-any.pkg.tar.xz",
+      "name": "cachy-asahi-zsh-history-substring-search",
+      "sha256": "dc5cdffcc7d59bd93986bfbb5279aaff3760f469dc3ce4a2eb5244e1e80ceb15",
+      "signature": "packages/cachy-asahi-zsh-history-substring-search-0.1.0-1-any.pkg.tar.xz.sig",
+      "signature_sha256": "bc9d7defc06ddf7f3e7a445e99c761a058fb9ba15c77fc848a9d7a4682c7d567",
+      "signature_size": 119,
+      "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+      "size": 15728,
+      "version": "0.1.0-1"
+    },
+    "cachy-asahi-zsh-syntax-highlighting": {
+      "archive": "packages/cachy-asahi-zsh-syntax-highlighting-0.8.1.dev.e6683f2-1-any.pkg.tar.xz",
+      "name": "cachy-asahi-zsh-syntax-highlighting",
+      "sha256": "1b253d7676a4ab48f1c423d163f5a4614a01fac9d884d3c253db84c6a72b84a6",
+      "signature": "packages/cachy-asahi-zsh-syntax-highlighting-0.8.1.dev.e6683f2-1-any.pkg.tar.xz.sig",
+      "signature_sha256": "a845707235ab0b39e84ec86a8bf778dc123d37bc2ade3391c3e78ee4106a15e9",
+      "signature_size": 119,
+      "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+      "size": 35720,
+      "version": "0.8.1.dev.e6683f2-1"
+    },
+    "htmlq": {
+      "archive": "packages/htmlq-0.4.0-3-aarch64.pkg.tar.xz",
+      "name": "htmlq",
+      "sha256": "325ab19a2414dc47d118a48dfce4dee082c65f058afb994ffac2cbc1498055f8",
+      "signature": "packages/htmlq-0.4.0-3-aarch64.pkg.tar.xz.sig",
+      "signature_sha256": "0d0832b6f1b97de38aa5ae79b15bcffd0d7ece81fb4dd11d245965a4408a1c19",
+      "signature_size": 566,
+      "signer": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+      "size": 609268,
+      "version": "0.4.0-3"
+    },
+    "lsp-plugins-lv2": {
+      "archive": "packages/lsp-plugins-lv2-1.2.35-1-aarch64.pkg.tar.xz",
+      "name": "lsp-plugins-lv2",
+      "sha256": "dd6295c2735fd69c258cb21c219138fe444eb131998cd4fa442e9026805bb31b",
+      "signature": "packages/lsp-plugins-lv2-1.2.35-1-aarch64.pkg.tar.xz.sig",
+      "signature_sha256": "5c190f59648a2fe99611665f7fff887a00a2a6ff3eeffc9131f8ea64771c3b79",
+      "signature_size": 566,
+      "signer": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+      "size": 5587560,
+      "version": "1.2.35-1"
+    },
+    "pacman-contrib": {
+      "archive": "packages/pacman-contrib-1.13.1-1-aarch64.pkg.tar.xz",
+      "name": "pacman-contrib",
+      "sha256": "7f89d02bae727950f543ec969145212b93abea947675de27280c6978cfe9b946",
+      "signature": "packages/pacman-contrib-1.13.1-1-aarch64.pkg.tar.xz.sig",
+      "signature_sha256": "7437894b8dedcd8b3bc1fdeee787cf6b49273292c4dbd2fd17f8f51cc1444789",
+      "signature_size": 566,
+      "signer": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+      "size": 49604,
+      "version": "1.13.1-1"
+    },
+    "pyalpm": {
+      "archive": "packages/pyalpm-0.12.0-1-aarch64.pkg.tar.xz",
+      "name": "pyalpm",
+      "sha256": "1fba3d5b99aba62d4e7b85481e19a993863995f44b20a6a5bf2e30b37be845f5",
+      "signature": "packages/pyalpm-0.12.0-1-aarch64.pkg.tar.xz.sig",
+      "signature_sha256": "c7ca01f7524cbc4e08d81d0f69bcb523379bd367c4548486b62a0a65cf53aa6e",
+      "signature_size": 566,
+      "signer": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+      "size": 53640,
+      "version": "0.12.0-1"
+    },
+    "speakersafetyd": {
+      "archive": "packages/speakersafetyd-2.0.1-3-aarch64.pkg.tar.xz",
+      "name": "speakersafetyd",
+      "sha256": "259c27439420d6b18b04caf5ced5d0db5f27fb6a040a437e8fad48d8569c1232",
+      "signature": "packages/speakersafetyd-2.0.1-3-aarch64.pkg.tar.xz.sig",
+      "signature_sha256": "7592279e02cee5513faaa2719eb1ef5bb6b0b01b54d82243515b8ea74e078b24",
+      "signature_size": 119,
+      "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+      "size": 371904,
+      "version": "2.0.1-3"
+    },
+    "triforce-lv2": {
+      "archive": "packages/triforce-lv2-0.3.2-3-aarch64.pkg.tar.xz",
+      "name": "triforce-lv2",
+      "sha256": "d123dca2cd67099dfe3e45af9edc7f61ba11bf650a482695350184badd7dfa3c",
+      "signature": "packages/triforce-lv2-0.3.2-3-aarch64.pkg.tar.xz.sig",
+      "signature_sha256": "6d5983d979485bfdd080dd05513e8516acb6c04fdcb4b7d3ce495eb3fc73d625",
+      "signature_size": 119,
+      "signer": "5C4CD1FB3DC621CB3C208F9441C168FCF62F4092",
+      "size": 334900,
+      "version": "0.3.2-3"
+    }
+  },
+  "sole_base_removal": "libfdk-aac",
+  "status": "EXACT_CURRENT606_ADDITIONS_RAW_BODY_RECOVERY_NOT_AUTHENTICATED"
+}
