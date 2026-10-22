@@ -1,0 +1,60 @@
+name: repair16k-postcopy-cli-source
+on:
+  push:
+    paths:
+      - scripts/ci/repair16k-inner-diagnostics-source/**
+      - .github/workflows/repair16k-postcopy-cli-source.yml
+  pull_request:
+    paths:
+      - scripts/ci/repair16k-inner-diagnostics-source/**
+      - .github/workflows/repair16k-postcopy-cli-source.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONWARNINGS: error
+    steps:
+      - name: Check out the maintained explicit factory
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Check out exact correctness9000 source210
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 6402dd1cfbcc2eebb17ff511d0c1c4694bb53dda
+          path: .ci-fixtures/repair-correctness9000
+          persist-credentials: false
+      - name: Check out exact postcopy CLI source210
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: c44b4ae622e77e4a5a8ba27fa5966619b96e8beb
+          path: .ci-fixtures/repair-postcopy-cli
+          persist-credentials: false
+      - name: Select the explicit Python version
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Check exact source emission, failure routing and unchanged guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          stage=$(mktemp -d "$RUNNER_TEMP/repair-postcopy-cli.XXXXXXXX")
+          trap 'rm -rf -- "$stage"' EXIT
+          mkdir -m700 "$stage/base" "$stage/expected"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/repair-correctness9000" archive --format=tar 6402dd1cfbcc2eebb17ff511d0c1c4694bb53dda | tar -x -C "$stage/base"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/repair-postcopy-cli" archive --format=tar c44b4ae622e77e4a5a8ba27fa5966619b96e8beb | tar -x -C "$stage/expected"
+          export REPAIR_POSTCOPY_BASE_SOURCE="$stage/base"
+          export REPAIR_POSTCOPY_EXPECTED_SOURCE="$stage/expected"
+          python3 -B -W error scripts/ci/repair16k-inner-diagnostics-source/test_postcopy_cli.py
+          python3 -B -W error scripts/ci/repair16k-inner-diagnostics-source/postcopy_cli.py --help
