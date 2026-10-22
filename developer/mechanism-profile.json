@@ -1,0 +1,56 @@
+{
+  "Commands_adaptation": "ONLY_CLOSE_PTY_SLAVE_INSIDE_DEFERRED_SPAWN_SIGNAL_REGION",
+  "engine_context": "CURRENT_CANONICAL_ENGINE_b693fa64f6a23149df348469587193a2f1eb425b1eb9d68c58fcd2995ad13c76_WITH_BYTE_IDENTICAL_ORIGINAL_JOURNEY",
+  "hardware": "NOT_RUN",
+  "held": {
+    "held/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "held/component-status.json": {
+      "bytes": 23,
+      "sha256": "041dff8cee4c14767a03435eb9f84a05152b2dc00e322d74a702b6f6944a4bdf"
+    },
+    "held/hello.c": {
+      "bytes": 118,
+      "sha256": "fc4d365017395544876cf526639d8dfa1b4f6784d7f92887ee35c40146f749b5"
+    },
+    "held/onboarding-export.json": {
+      "bytes": 2255,
+      "sha256": "21a96aedfa0f1fe4304a601822e62380a4c5f44558ba300b6b3b08e30417e807"
+    },
+    "held/onboarding-original.py": {
+      "bytes": 38975,
+      "sha256": "2aeb0bfdad5aec6bbc969b3c008a10fa9cfb3a91775d9969a48e78e284c0e560"
+    },
+    "held/onboarding-provenance.json": {
+      "bytes": 7367,
+      "sha256": "74c64b66781fa80cbe74d4aeaf495df237a9260b386ff874857705919cf44475"
+    },
+    "held/onboarding.py": {
+      "bytes": 39036,
+      "sha256": "b693fa64f6a23149df348469587193a2f1eb425b1eb9d68c58fcd2995ad13c76"
+    },
+    "held/original-journey-commands.json": {
+      "bytes": 13996,
+      "sha256": "8e4b41018c4f6e59adcca27acff9d67b2066a0a2cea984852589960d3ed4bbaf"
+    },
+    "held/original-result.json": {
+      "bytes": 18560,
+      "sha256": "a1b5f8159b18d9ba1e6f654948b9511973ddd9b7fbd808922b251d2938ff9892"
+    },
+    "held/summary.json": {
+      "bytes": 1109,
+      "sha256": "90da9233dba650451541841a09ceac56fc5d0a8b0527e966d8c6ed380a699929"
+    }
+  },
+  "kind": "SOURCE_ONLY_REUSE_OF_SOFTWARE_JOURNEY_NOT_ACCEPTANCE_TRANSFER",
+  "new_actual": null,
+  "new_native": "NOT_RUN",
+  "old_installed_count": 345,
+  "original_aggregate": "FAIL",
+  "original_component": "PASS",
+  "original_run": 38237127237,
+  "original_source": "ce3dd476cb5cbbfd8f2ec6efdfb16caced9d98c8",
+  "release": "NOT_ADMITTED"
+}
