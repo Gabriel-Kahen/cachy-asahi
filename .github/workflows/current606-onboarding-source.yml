@@ -43,6 +43,13 @@ jobs:
           ref: d0ed51fa626b9343321952277607718b900e90bc
           path: .ci-fixtures/onboarding-loader698
           persist-credentials: false
+      - name: Check out exact published runtime correction
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 3b90012ed1e248f803d15f5f765667b6a249fb8c
+          path: .ci-fixtures/current606-onboarding-source-correction
+          persist-credentials: false
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
           python-version: ${{ matrix.python }}
@@ -56,3 +63,4 @@ jobs:
           python3 -I -B -Werror scripts/ci/current606-onboarding-source/test_loader.py \
             --parent "$GITHUB_WORKSPACE/.ci-fixtures/onboarding-parent676" \
             --expected "$GITHUB_WORKSPACE/.ci-fixtures/onboarding-loader698"
+          python3 -I -B -Werror scripts/ci/current606-onboarding-source/test_correction.py --parent "$GITHUB_WORKSPACE/.ci-fixtures/onboarding-parent676" --expected "$GITHUB_WORKSPACE/.ci-fixtures/current606-onboarding-source-correction"

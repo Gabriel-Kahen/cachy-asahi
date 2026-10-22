@@ -48,6 +48,13 @@ jobs:
           ref: c2b61b7089e41baed6b284bf0f3a55819f661c05
           path: .ci-fixtures/apps8-expected380
           persist-credentials: false
+      - name: Check out exact published runtime correction
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 5c3c2d0ce5b4f6c2672c9367b722170687c7de69
+          path: .ci-fixtures/apps8-current606-source-correction
+          persist-credentials: false
       - name: Select the explicit Python version
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
@@ -60,3 +67,4 @@ jobs:
             --parent "$GITHUB_WORKSPACE/.ci-fixtures/apps-parent348" \
             --carrier "$GITHUB_WORKSPACE/.ci-fixtures/apps8-input93" \
             --expected "$GITHUB_WORKSPACE/.ci-fixtures/apps8-expected380"
+          python3 -I -B -Werror scripts/ci/apps8-current606-source/test_correction.py --parent "$GITHUB_WORKSPACE/.ci-fixtures/apps-parent348" --expected "$GITHUB_WORKSPACE/.ci-fixtures/apps8-current606-source-correction" --carrier "$GITHUB_WORKSPACE/.ci-fixtures/apps8-input93"
