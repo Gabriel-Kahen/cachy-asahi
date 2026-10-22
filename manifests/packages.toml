@@ -708,6 +708,27 @@ release = "NOT ADMITTED"
 validation_record = "docs/validation/apps13-native-20261022.md"
 
 
+[[packages.development_variants]]
+version = "0.1.0-14"
+recipe = "packages/tools/cachy-asahi-apps14/PKGBUILD"
+recipe_source = "2e58341f6fa25de5167fd8a59566b3dd7f066fe3"
+selected_for_development = false
+selected_for_release = false
+source_validation = "PASS full77 package checks on Python3.12/3.14; one complete encoding per call; two fresh scans and30s held"
+native_build = "PASS finite native ARM pair and installed574 lifecycle"
+native_source = "5bbf9b2078d67d5543d01a849144fbd5696fa677"
+native_run = 39788418793
+archive_bytes = 28636
+archive_sha256 = "afd8b4c8f948aa4041383eaaf1b88f90934c7a5262e645e67f306b5d43d33b65"
+validation_record = "docs/validation/apps14-native-20261022.md"
+installed_current606 = "NOT QUALIFIED"
+hardware_validation = "NOT RUN"
+GUI = "NOT QUALIFIED"
+performance = "HOST public574 fixture only; no native ARM/M2 or deadline-fit claim"
+release = "NOT ADMITTED"
+
+
+
 [[packages]]
 name = "cachy-asahi-repository-runtime"
 phase = "tools-experience"
