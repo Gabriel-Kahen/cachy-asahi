@@ -14,6 +14,7 @@
         "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
       }
     },
+    "dispatch": "HISTORICAL_SCRIPTLET_ACCOUNT_CACHE_REFUSAL_DO_NOT_DISPATCH",
     "files": {
       ".github/workflows/native-arm-build.yml": {
         "bytes": 10332,
@@ -3246,6 +3247,11 @@
     },
     "source": "0701138ae19e8eccda988fdc5e05f0423c5d0c91"
   },
+  "baseline_scriptlet": {
+    "bytes": 181885,
+    "path": "baseline-profile.json",
+    "sha256": "b5195e4f96bebfe4e4bd6f5e5ea14d70c3965b9df6fda1b291bf3be9a2f3b58d"
+  },
   "bounds": {
     "acquire64": 890,
     "cleanup": 240,
@@ -3256,7 +3262,7 @@
     "producer": 2300,
     "transaction": 120
   },
-  "default_mode": "auth-import",
+  "default_mode": "baseline-scriptlet",
   "evidence_transport": {
     "actual": null,
     "files": {
@@ -12867,7 +12873,7 @@
       "sha256": "6d27a14e9e4ced41223b996e4f9c349b06e5805ce463abdad502d76d8c9a4b2f"
     }
   },
-  "purpose": "MAINTAINED_FINITE_CORE797_AND_HISTORICAL796_SOURCE_ONLY",
+  "purpose": "MAINTAINED_FINITE_CORE800_AND_HISTORICAL_FAILED_SOURCES_ONLY",
   "release": "NOT_ADMITTED",
   "schema": 1,
   "workflow_launch": {

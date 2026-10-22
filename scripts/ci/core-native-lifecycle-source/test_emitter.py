@@ -17,9 +17,10 @@ import prepare as F
 RUNTIME = os.environ.get('CORE_LIFECYCLE_RUNTIME')
 EXPECTED = os.environ.get('CORE_LIFECYCLE_EXPECTED')
 AUTH_EXPECTED = os.environ.get('CORE_LIFECYCLE_AUTH_EXPECTED')
+BASELINE_EXPECTED = os.environ.get('CORE_LIFECYCLE_BASELINE_EXPECTED')
 TRANSPORT_EXPECTED = os.environ.get('CORE_LIFECYCLE_TRANSPORT_EXPECTED')
 LAUNCH_EXPECTED = os.environ.get('CORE_LIFECYCLE_LAUNCH_EXPECTED')
-if not RUNTIME or not EXPECTED or not LAUNCH_EXPECTED or not TRANSPORT_EXPECTED or not AUTH_EXPECTED:
+if not RUNTIME or not EXPECTED or not LAUNCH_EXPECTED or not TRANSPORT_EXPECTED or not AUTH_EXPECTED or not BASELINE_EXPECTED:
     raise SystemExit('Set CORE_LIFECYCLE_RUNTIME to complete public d268745, '
                      'CORE_LIFECYCLE_EXPECTED to complete public 7be796 and '
                      'CORE_LIFECYCLE_LAUNCH_EXPECTED to public4ae796 and '
@@ -32,7 +33,7 @@ class Controls(unittest.TestCase):
         runtime, expected = Path(RUNTIME).absolute(), Path(expected_path).absolute()
         profile = F.profile()
         target = {'original796': profile['expected'], 'workflow-launch': profile['workflow_launch'],
-                  'evidence-transport': profile['evidence_transport'], 'auth-import': profile['auth_import']}[mode]
+                  'evidence-transport': profile['evidence_transport'], 'auth-import': profile['auth_import'], 'baseline-scriptlet': profile['baseline_scriptlet']}[mode]
         self.assertEqual(F.files(expected, checkout=True), target['files'])
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -46,7 +47,7 @@ class Controls(unittest.TestCase):
             self.assertEqual(receipt['files'], len(target['files']))
             self.assertEqual(receipt['source_mode'], mode)
             self.assertEqual(receipt['native_lifecycle'], 'NOT_RUN_BY_FACTORY')
-            if mode == 'auth-import':
+            if mode == 'baseline-scriptlet':
                 self.assertEqual(receipt['dispatch'], 'SEPARATE_ROOT_NATIVE_DISPATCH_AND_ACCEPTANCE_REQUIRED')
             else:
                 self.assertTrue(receipt['dispatch'].endswith('DO_NOT_DISPATCH'))
@@ -77,10 +78,12 @@ class Controls(unittest.TestCase):
             self.assertEqual(source['status'], 'PASS_CLOSED_CORE7_SOURCE_ONLY')
             imported = json.loads(python([str(lane / 'assemble.py'), '--source-only']))
             self.assertEqual(imported['signing'], 'NOT_RUN')
+            if mode == 'baseline-scriptlet':
+                python([str(lane / 'test_fixture.py')])
             python([str(lane / 'test_contract.py')])  # All six existing meaningful controls.
             arguments = [str(HERE / 'prepare.py'), '--runtime', str(runtime),
                          '--output', str(root / 'cli-emitted')]
-            if mode != 'auth-import':
+            if mode != 'baseline-scriptlet':
                 arguments += ['--mode', mode]  # Auth-import mode also verifies the exact default CLI.
             emitted = json.loads(python(arguments))
             self.assertEqual(emitted['files'], len(target['files']))
@@ -98,6 +101,9 @@ class Controls(unittest.TestCase):
 
     def test_whole_auth_import797_default_and_self_reproduction(self):
         self.check_mode('auth-import', AUTH_EXPECTED)
+
+    def test_whole_baseline800_default_and_self_reproduction(self):
+        self.check_mode('baseline-scriptlet', BASELINE_EXPECTED)
 
     def test_real_parent_drift_refuses_before_output(self):
         runtime = Path(RUNTIME).absolute()

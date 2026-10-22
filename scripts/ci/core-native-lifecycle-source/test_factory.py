@@ -25,7 +25,7 @@ class Controls(unittest.TestCase):
                          'lifecycle': 3600, 'observation': 600, 'owner': 4800,
                          'producer': 2300, 'transaction': 120})
         self.assertIsNone(value['actual'])
-        self.assertEqual(value['default_mode'], 'auth-import')
+        self.assertEqual(value['default_mode'], 'baseline-scriptlet')
 
     def test_parent_payload_and_output_refuse_before_emitter(self):
         value = F.profile()

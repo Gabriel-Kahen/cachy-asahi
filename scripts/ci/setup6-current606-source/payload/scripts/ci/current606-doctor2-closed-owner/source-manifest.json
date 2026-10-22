@@ -1456,8 +1456,8 @@
       "sha256": "7e4b5ad00e5a41c33860f6f62b43e1cf0135012b3a2dacf7c652804868a193e3"
     },
     "scripts/ci/native-evidence-transport/doctor-policy.json": {
-      "bytes": 437,
-      "sha256": "ccb339916bfcec3db7980f101dcfaf1aa9c5dcf178645bc40b0b90d5e7ddbd8b"
+      "bytes": 436,
+      "sha256": "3b1b07a7f514313f5b51afa8b68cb369b517be749d6c338417274f3bb7550688"
     },
     "scripts/ci/native-evidence-transport/transport.py": {
       "bytes": 17577,
