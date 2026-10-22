@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""Portable exact emission/refusal and original24 source controls; no actors."""
+"""Portable exact emission/refusal and original27 source controls; no actors."""
 import argparse,importlib.util,json,os,shutil,subprocess,sys,tempfile,unittest
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
@@ -8,7 +8,7 @@ p=argparse.ArgumentParser();p.add_argument('--expected',type=Path,required=True)
 for n in('core-source','vm-source','core7','core64','kernel-carrier'):p.add_argument('--'+n,type=Path,required=True)
 args,rest=p.parse_known_args();spec=importlib.util.spec_from_file_location('core7_two_boot_factory',HERE/'prepare.py');P=importlib.util.module_from_spec(spec);spec.loader.exec_module(P)
 class Controls(unittest.TestCase):
- def test_exact_emission_all_external_inputs_and_original24_source_controls(self):
+ def test_exact_emission_all_external_inputs_and_original27_source_controls(self):
   profile,bodies=P.inputs();self.assertEqual({n:P.pin(raw)for n,raw in P.source(args.expected,profile['result']['files']).items()},profile['result']['files']);runtime=json.loads(bodies['profile.json'])
   for role,path in(('core800',args.core_source),('ksm637',args.vm_source),('core7_carrier',args.core7),('kernel_carrier',args.kernel_carrier)):
    expected=runtime['source_profiles'][role];self.assertEqual({n:P.pin(raw)for n,raw in P.source(path,expected['files'],128*1024**2).items()},expected['files'])
@@ -19,7 +19,7 @@ class Controls(unittest.TestCase):
     r=subprocess.run(argv,cwd='/',capture_output=True,timeout=20);self.assertEqual(r.returncode,0,r.stderr)
    self.assertEqual({n:P.pin(raw)for n,raw in P.source(out,profile['result']['files']).items()},profile['result']['files'])
    extra={'test_route.py':['--vm-source',str(args.vm_source)],'test_sources.py':['--core-source',str(args.core_source),'--vm-source',str(args.vm_source),'--kernel-carrier',str(args.kernel_carrier)]}
-   for name,count in(('test_case.py',8),('test_protocol.py',3),('test_route.py',3),('test_sources.py',6),('test_emission.py',4)):
+   for name,count in(('test_case.py',8),('test_protocol.py',3),('test_route.py',3),('test_sources.py',6),('test_emission.py',4),('test_host.py',3)):
     r=subprocess.run([sys.executable,'-I','-B',str(out/name),*extra.get(name,[])],cwd='/',capture_output=True,timeout=60);self.assertEqual(r.returncode,0,(name,r.stderr));self.assertIn(('Ran %d tests'%count).encode(),r.stderr)
  def test_factory_profile_template_and_membership_drift_before_output(self):
   for name,action in(('profile.json','drift'),('templates/guest.py','drift'),('templates/hook.py','missing'),('templates/foreign','extra'),('templates/empty','directory'),('templates/effects.py','symlink'),('templates/boot.py','hardlink')):
