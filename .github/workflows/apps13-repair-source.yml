@@ -1,0 +1,47 @@
+name: Apps13 repair source factory
+on:
+  pull_request:
+    paths:
+      - 'scripts/ci/repair16k-inner-diagnostics-source/**'
+      - '.github/workflows/apps13-repair-source.yml'
+  push:
+    paths:
+      - 'scripts/ci/repair16k-inner-diagnostics-source/**'
+      - '.github/workflows/apps13-repair-source.yml'
+permissions:
+  contents: read
+jobs:
+  source-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 76259e4e5b4b7e16a46241e7d01e05b662a1c100
+          path: .ci-apps13-repair-parent
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 1ed3510ac2f4ae653c471fc1ea4ba710a0b198d6
+          path: .ci-apps13-repair-expected
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: d96be268f3b24af6e94cfbf662c131303d22931c
+          path: .ci-apps13-repair-carrier
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Exact bound and NULL235 sources, drift refusals and complete emitted controls
+        env:
+          APPS13_REPAIR_BASE_SOURCE: ${{ github.workspace }}/.ci-apps13-repair-parent
+          APPS13_REPAIR_EXPECTED_SOURCE: ${{ github.workspace }}/.ci-apps13-repair-expected
+          APPS13_REPAIR_CARRIER: ${{ github.workspace }}/.ci-apps13-repair-carrier
+        run: python -I -B -Werror scripts/ci/repair16k-inner-diagnostics-source/test_apps13.py --full-emitted-tests

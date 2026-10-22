@@ -128,3 +128,30 @@ Use `--module-indexes` alone to reconstruct genuine37 `0e5da6aab98018d0087554881
 ## Optional VM-only gzip1 profile
 
 `python3 -I -B scripts/ci/core7-systemd-vm-source/prepare.py --gzip1 --output /fresh/source` reproduces exact38/source4bfd24f3dcf4a3e633e2b3679c75a73a792fcebe from the complete37 module-index branch and five readable payloads. Default, virtio20, automatic rollback, both host-clock and module-index outputs remain byte-identical. Select gzip1 alone; conflicting profiles refuse before output. The original mkinitcpio mainconfig/modules/preset/automatic hooks/full image/hash/idempotence/graph/security and every deadline remain mandatory. A strict fresh VM-only drop-in selects gzip1/-n, with exact original codec/config/preset pins and closed overlay. It does not alter canonical Asahi defaults. Real host-codec parity/reproducibility on a33.7MB archive-derived CPIO measured gzip6/1 about0.89/0.29s, with larger gzip1 output; no native90s fit, final-system/M2 or release qualification follows. Native39784257862 remains a separate Root-owned trial.
+
+
+## Optional fresh descriptor graph profile
+
+`python3 -I -B scripts/ci/core7-systemd-vm-source/prepare.py --fresh-graph --output /fresh/source`
+reproduces exact39/source700fc849924866bfc2845ccd49e294fb914a9671 from the
+whole gzip1 source38 and four readable payloads. All seven prior routes and22
+factory function bodies remain byte-identical. The complete39 map is checked
+before the first write and afterward; conflicting flags, drift, aliases,
+traversal and noncanonical output paths refuse before output creation.
+
+Every graph uses a new private namespace with the original full root/capability
+functions and fresh descriptor statx mount queries. The lexical POSIX path fast
+path falls back to the full original validator for uncertain inputs. No observed
+result, graph or positive path is cached. All hash/mount/identity/hardlink/xattr/
+mutation/security predicates, signatures, actual PID1, hooks, clocks and natural
+retirement remain mandatory. Source38's initial graph stopped at its original
+600-second deadline; its gzip1 transaction fit was not exercised. CPU-only owned
+6000-file fixtures measured lower host time with byte-identical complete graphs;
+they do not establish native fit, M2 gains or release qualification.
+
+The scoped read-only Python3.12/3.14 CI retains every old test command and runs
+four new factory controls, all51 emitted source controls and real isolated CLI
+entrypoints against the exact immutable public39 fixture. These controls use
+inert actor boundaries. They run no native Docker/QEMU/GPG/package transactions,
+historical heavy native positives or physical hardware tests. Actual selectors
+remain NULL in emitted source; native39791459045 is a separate Root-owned trial.
