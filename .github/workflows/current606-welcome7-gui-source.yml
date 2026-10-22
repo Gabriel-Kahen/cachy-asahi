@@ -83,6 +83,13 @@ jobs:
           ref: 979b2d6ec7417e607a911d8c25bef2f1f7f72dcb
           path: .ci-fixtures/apps8-input93
           persist-credentials: false
+      - name: Check out exact published runtime correction
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 09f7758b20c638f302086374931e7e5ceb3ca6fd
+          path: .ci-fixtures/current606-welcome7-gui-source-correction
+          persist-credentials: false
       - name: Select the explicit Python version
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
@@ -152,3 +159,6 @@ jobs:
           git -C "$GITHUB_WORKSPACE/.ci-fixtures/gui-apps8-556" archive --format=tar a8304cecaee54141b42edd48f9482b9f4ab0700f | tar -x -C "$stage/apps8-expected"
           git -C "$GITHUB_WORKSPACE/.ci-fixtures/apps8-input93" archive --format=tar 979b2d6ec7417e607a911d8c25bef2f1f7f72dcb | tar -x -C "$stage/apps8-inputs"
           python3 -I -B -Werror scripts/ci/current606-welcome7-gui-source/test_apps8.py --predecessor-root "$stage/loader-expected" --expected-root "$stage/apps8-expected" --apps8-input-root "$stage/apps8-inputs"
+          mkdir -m700 "$stage/installer-correction"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/current606-welcome7-gui-source-correction" archive --format=tar 09f7758b20c638f302086374931e7e5ceb3ca6fd | tar -x -C "$stage/installer-correction"
+          python3 -I -B -Werror scripts/ci/current606-welcome7-gui-source/test_correction.py --parent "$stage/apps8-expected" --expected "$stage/installer-correction"

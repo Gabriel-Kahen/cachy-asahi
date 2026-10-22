@@ -83,3 +83,11 @@ python3 -I -B -Werror scripts/ci/current606-welcome7-gui-source/test_apps8.py --
 The public Apps8 input is exact93 source `979b2d6ec7417e607a911d8c25bef2f1f7f72dcb`, containing the finitely accepted f198/run39727987029 native pair (23528B/d4d83458...). The emitted source still requires its full native source/Git/input/signature/metadata/readback chain. Original Apps7 incoming custody remains held, and only the selected Apps row changes to0.1.0-8. Installed helper8payload plus Runtime1 three-helper byte readbacks, two fresh inventory scans/30s and35s GUI command clocks remain mandatory. Both independent profile/page axes, controller590/guest606, managed media/runtime HWCAP predicates,13views plus Stop/retry, GBM, security and retirement remain unchanged.
 
 The earlier published3fb556 only changed the named workflow; its registered PRIMARY omitted --apps8. That alias defect is explicitly corrected here, and the original run was cancelled before any collection. These controls and native pair inputs establish source reproduction only. GUI/visual/current-system/hardware acceptance requires new original native results and Root review; no acceptance transfers from the old Apps7 or Apps8 package pair.
+
+The explicit `--installer-lock-correction` option emits exact published `09f7758b20c638f302086374931e7e5ceb3ca6fd` from the preceding `a8304cecaee54141b42edd48f9482b9f4ab0700f` source contract. The full before/after maps and 4 readable replacements are hard pinned; all earlier flags/default outputs remain byte-identical. This is source-only emission, not native or GUI acceptance.
+
+```sh
+python3 -I -B -Werror scripts/ci/current606-welcome7-gui-source/prepare.py --installer-lock-correction --predecessor-root /ordinary/alias-corrected-a830-source556 --output /fresh/source556
+```
+
+The original modes retain their recorded source and failures for reproducibility. No native result, hardware result or release selection changes through factory emission. The scoped CI runs the old controls plus the correction controls on Python 3.12 and 3.14.

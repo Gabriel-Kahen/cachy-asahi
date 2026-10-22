@@ -95,3 +95,5 @@ are separate sources. No native acceptance transfers from these factory checks.
 
 
 The separate copied608 native39723504586 is now Root accepted for eight-phase Setup5/6 preservation on the Apps6/Runtime1 baseline606 and six pure recovery controls, with606 restored. See [the finite copied606 record](../../../docs/validation/setup6-copied606-native-20261022.md). New606 real shell modules, Apps7 coexistence, GUI and M2 remain separate; this record changes no factory default, source or native clock.
+
+The separate normal native606 real-module result39727154979 is now finitely Root accepted: seven signed transactions,15 fresh graphs and four full real240 suites, with Apps6 retained. See [the scoped native record](../../../docs/validation/setup6-normal606-real-modules-native-20261022.md). This does not transfer Apps7, GUI,16K or M2 acceptance.

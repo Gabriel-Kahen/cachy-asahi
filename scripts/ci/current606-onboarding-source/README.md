@@ -75,3 +75,11 @@ python3 -I -B -Werror scripts/ci/current606-onboarding-source/test_loader.py --p
 The original bug sent developer/HERE to inherited asset preparation, which expects the held coexist/HERE namespace. The published correction uses a proxy that changes only that inherited asset root, while executing the original complete developer source guard and all676/636/608 guards. Portable tests execute the actual emitted developer/test_source.py eight controls, including the old missing-HERE import failure/new real-held-plan routing control. Only actor boundaries in those source-owned controls are inert; no native transaction or user journey is claimed.
 
 The new hardpinned sideprofile and full corrected map bind five readable replacement payloads. Existing nofollow/singlelink/full-directory/source stability and fresh disjoint output checks apply unchanged; profile/map/payload/parent/alias drift refuses before output. All clocks, source/payload/security/retirement and14transaction/29capture/four-real240/journey predicates remain mandatory. This source factory supplies no actual run binding or native acceptance, and the old3b result is not retroactively repaired or accepted.
+
+The explicit `--export-closure` option emits exact published `3b90012ed1e248f803d15f5f765667b6a249fb8c` from the preceding `d0ed51fa626b9343321952277607718b900e90bc` source contract. The full before/after maps and 5 readable replacements are hard pinned; all earlier flags/default outputs remain byte-identical. This is source-only emission, not native or GUI acceptance.
+
+```sh
+python3 -I -B -Werror scripts/ci/current606-onboarding-source/prepare.py --export-closure --parent /ordinary/corrected-f947-source676 --output /fresh/source698
+```
+
+The original modes retain their recorded source and failures for reproducibility. No native result, hardware result or release selection changes through factory emission. The scoped CI runs the old controls plus the correction controls on Python 3.12 and 3.14.
