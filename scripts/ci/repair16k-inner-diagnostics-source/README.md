@@ -83,3 +83,45 @@ original guest/backend routing and host reservations, explicit profile refusal,
 real early/late source drift and aliases, and pinned helper/profile drift.
 No development-artifact directory is a runtime/default-test dependency. The old
 203 modes and cost210 profile/support/helpers/workflow remain byte-identical.
+
+
+The separate `postcopy_cli.py` entry point is an explicit failure-diagnostic
+profile; existing203/default, cost210 and correctness9000 outputs stay unchanged.
+It requires the exact published210 source6402dd1cfbcc2eebb17ff511d0c1c4694bb53dda
+and emits exactly c44b4ae622e77e4a5a8ba27fa5966619b96e8beb:
+
+```sh
+python3 -I -B scripts/ci/repair16k-inner-diagnostics-source/postcopy_cli.py \
+  --profile postcopy-cli210 --base-root /absolute/exact6402-checkout \
+  --output /absolute/fresh-postcopy-source --authorization /absolute/fresh-authorization.json
+```
+
+The genuine9000 attempt completed copied-root preparation and then failed at its
+first planned Apps7 inventory CLI. Its actual CLI return code/error were not
+exported; no9000 deadline failure was established. This profile captures only
+fixed planned inventory45s/plan120s failures, appending a compact original
+supervisor summary and, when it fits, complete bounded stream bytes. The
+1900B summary,10240B complete-note and12288B inner-frame bounds are explicit.
+Overflow leaves bytes UNKNOWN. Existing prepare-copy notes, all fresh
+observations, complete guards, product/host/native/security/retirement methods
+and every clock remain held. Nothing here establishes a deadline cure, native
+case success, cleanup, performance or hardware acceptance. Actual source/ref/run
+fields remainNULL in emitted source and authorization. Root owns genuine
+binding, one collection, strict replay and acceptance.
+
+The two readable templates are used by the real source emitter and pinned by
+the complete210 profile. Source-only tests require exact public fixture roots:
+
+```sh
+REPAIR_POSTCOPY_BASE_SOURCE=/absolute/exact6402-checkout \
+REPAIR_POSTCOPY_EXPECTED_SOURCE=/absolute/exactc44-checkout \
+  python3 -B -W error scripts/ci/repair16k-inner-diagnostics-source/test_postcopy_cli.py
+```
+
+The path-scoped `repair16k-postcopy-cli-source.yml` runs seven factory controls,
+all57 emitted lane and6 emitted CI controls, plus CLI help on Python3.12/3.14.
+It checks whole210 emission/inverses, NULL authority, actual source-note/guest
+routing, implicit-profile refusal, physical early/late drift, aliases and
+helper/template/profile drift. The isolated CLI works outside the repository.
+No development artifact path is a runtime/default-test dependency; no actors,
+API/network, keys, install/build or native reader replay runs during emission.
