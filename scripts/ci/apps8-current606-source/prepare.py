@@ -90,13 +90,42 @@ def emit_apps9(parent,carrier,apps9_carrier,output):
   with path.open('xb')as stream:stream.write(raw)
  source(output,after);return dict(status='SOURCE_ONLY_EXACT_APPS9_CURRENT606_389_NOT_NATIVE_ACCEPTANCE',files=389,source=variant['after_source'],previous_source=variant['before_source'],carrier=variant['carrier_source'],held=364,changed=16,added=9,actual=None,native='NOT_RUN',GUI='NOT_RUN',hardware='NOT_RUN',release='NOT_ADMITTED')
 
+
+APPS10_PROFILE={'bytes': 11709, 'sha256': '306732e2d3b14e931c5baffd6b973e0d62a2537f8b07aae83b7ce8059032797d'}
+def apps10_inputs():
+ raw=read(HERE/'apps10-profile.json');need(pin(raw)==APPS10_PROFILE,'whole hardpinned Apps10 source profile');p=json.loads(raw);need(p['kind']=='SOURCE_ONLY_EXACT_APPS10_CURRENT606_389'and p['actual']is None and(p['before_source'],p['after_source'],p['carrier_source'],p['carrier_ref'])==('5c3c2d0ce5b4f6c2672c9367b722170687c7de69','eeb7fc5c3bcaa5b152ca6eb97983f6c31f8d0cdb','a2bbf5edd57a7a31951a1e9060c83698f29302c4','codex/apps10-accepted-inputs-v1'),'exact published Apps10 source and accepted pair input')
+ raw=read(HERE/'apps10-maps.json');need(pin(raw)==p['maps'],'whole Apps10 parent/carrier/result maps');maps=json.loads(raw);before,after,carrier=maps['before'],maps['after'],maps['carrier'];need((len(before),len(after),len(carrier))==(380,389,94)and set(before)<=set(after)and{n for n in before if before[n]!=after[n]}==set(p['changed'])and set(after)-set(before)==set(p['added'])and(len(p['changed']),len(p['added']),p['held'])==(16,9,364),'exact finite Apps10 delta')
+ for n,row in p['changed'].items():need(row==dict(before=before[n],proposed=after[n]),'whole before/proposed Apps10 operand')
+ need(p['payload']=={n:after[n]for n in set(p['changed'])|set(p['added'])},'exact25 readable Apps10 source payloads')
+ need(set(p['legal'])=={'apps10-NOTICE.md','LICENSE'},'complete Apps10 legal closure')
+ for n,w in p['legal'].items():need(pin(read(HERE/n))==w,'whole Apps10 source legal leaf')
+ return p,before,carrier,after,source(HERE/'apps10-payload',p['payload'])
+
+def emit_apps10(parent,carrier,apps10_carrier,output):
+ p,before,input_map,old,payload=inputs();correction,previous,corrected,replacements=correction_inputs();variant,current,input10,after,selected=apps10_inputs();need(old==previous and corrected==current,'whole default and carrier-env corrected380 prerequisites');parent,carrier,apps10_carrier,output=map(ordinary,(parent,carrier,apps10_carrier,output));need(not os.path.lexists(output)and output.parent.is_dir()and all(not output.is_relative_to(root)and not root.is_relative_to(output)for root in(parent,carrier,apps10_carrier)),'fresh disjoint Apps10 source-only output');bodies=source(parent,before);source(carrier,input_map);source(apps10_carrier,input10)
+ bodies.update(payload);need({n:pin(raw)for n,raw in bodies.items()}==old,'entire original c2 source380 in memory');bodies.update(replacements);need({n:pin(raw)for n,raw in bodies.items()}==current,'entire corrected5c3 source380 in memory');bodies.update(selected);need({n:pin(raw)for n,raw in bodies.items()}==after,'whole exact389 before first output write');output.mkdir(mode=0o700)
+ for n,raw in sorted(bodies.items()):
+  path=output/n;path.parent.mkdir(parents=True,exist_ok=True)
+  with path.open('xb')as stream:stream.write(raw)
+ source(output,after);return dict(status='SOURCE_ONLY_EXACT_APPS10_CURRENT606_389_NOT_NATIVE_ACCEPTANCE',files=389,source=variant['after_source'],previous_source=variant['before_source'],carrier=variant['carrier_source'],held=364,changed=16,added=9,actual=None,native='NOT_RUN',GUI='NOT_RUN',hardware='NOT_RUN',release='NOT_ADMITTED')
+
 def main():
- parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--parent',type=Path,required=True);parser.add_argument('--carrier',type=Path,required=True);parser.add_argument('--output',type=Path,required=True);parser.add_argument('--carrier-env-correction',action='store_true',help='explicit corrected5c3c carrier environment; defaultc2 unchanged');parser.add_argument('--apps9',action='store_true',help='explicit exact513997 Apps9/current606 source389; old routes unchanged');parser.add_argument('--apps9-carrier',type=Path);a=parser.parse_args()
- if a.apps9:
-  if a.carrier_env_correction or a.apps9_carrier is None:parser.error('--apps9 requires --apps9-carrier and excludes --carrier-env-correction')
+ parser=argparse.ArgumentParser(description=__doc__)
+ for name in ('parent','carrier','output'):parser.add_argument('--'+name,type=Path,required=True)
+ parser.add_argument('--carrier-env-correction',action='store_true')
+ for version in ('9','10'):
+  parser.add_argument('--apps'+version,action='store_true')
+  parser.add_argument('--apps'+version+'-carrier',type=Path)
+ a=parser.parse_args()
+ if sum((a.carrier_env_correction,a.apps9,a.apps10))>1:parser.error('select exactly one explicit variant')
+ if a.apps10:
+  if a.apps10_carrier is None or a.apps9_carrier is not None:parser.error('--apps10 requires only --apps10-carrier')
+  result=emit_apps10(a.parent,a.carrier,a.apps10_carrier,a.output)
+ elif a.apps9:
+  if a.apps9_carrier is None or a.apps10_carrier is not None:parser.error('--apps9 requires only --apps9-carrier')
   result=emit_apps9(a.parent,a.carrier,a.apps9_carrier,a.output)
  else:
-  if a.apps9_carrier is not None:parser.error('--apps9-carrier requires --apps9')
+  if a.apps9_carrier is not None or a.apps10_carrier is not None:parser.error('candidate carrier requires its explicit variant')
   result=(emit_carrier_env if a.carrier_env_correction else emit)(a.parent,a.carrier,a.output)
  print(json.dumps(result,sort_keys=True))
 if __name__=='__main__':main()

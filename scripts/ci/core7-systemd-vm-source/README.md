@@ -89,3 +89,35 @@ python3 -I -B scripts/ci/core7-systemd-vm-source/prepare.py --automatic-rollback
 
 Scoped CI also runs the emitted40 source controls on each Python version; these
 use inert actor boundaries, never native Docker/QEMU/GPG/package/systemctl work.
+
+
+`--host-clock` emits the exact35-file current-host UTC successor92ba829ca86c27b472a715c66e7d7ca5a17206e2.
+Combining `--automatic-rollback --host-clock` emits the separate37-file clock-aware
+four-boot source4e961335b2336e978532e83f4d6a99a43cc38cc8. All previous flags/defaults
+and their output bytes remain unchanged. The old factory functions and complete
+old payloads/tests are held. Each new option checks the whole original parent,
+closed readable clock payload and complete expected output map before writing.
+The manifest/two registered workflows are derived as before. No development
+artifact paths or package/kernel/rootfs payloads are imported or vendored.
+
+The host samples current realtime before each launch; an exact nonce/phase-bound
+kernel operand initializes the guarded guest before systemd, and complete guest
+readbacks join the retained host sample/UART custody. Monotonic budgets and all
+signature/GPG/expiry/revocation, full graph, PID1, hooks, restoration and retirement
+checks remain mandatory. Four-boot source37 additionally joins all eight clock
+roles before both full original install/rollback validators. Two-boot owner14400/
+shared7200 and four-boot owner21600/shared14400 remain exact; individual old limits
+are unchanged. Every actual/run field stays NULL in source-only output. The
+four-boot native dispatch remains gated on the separate two-boot result. This is
+not native/installation/PID1/hooks, M2/Asahi, performance or release acceptance.
+
+```sh
+python3 -I -B scripts/ci/core7-systemd-vm-source/prepare.py --host-clock --source-only
+python3 -I -B scripts/ci/core7-systemd-vm-source/prepare.py --automatic-rollback --host-clock --output /fresh/source
+```
+
+Scoped read-only Python3.12/3.14 CI retains all old routes and checks both whole
+new published outputs, isolated source/entry paths, profile/payload drift and
+alias refusals. It runs all40 source35 and all50 source37 source-only controls
+with explicit inert actor boundaries. No historical heavy positive/native replay
+or Docker/QEMU/GPG/transaction/clock-setting actor runs in this factory CI.

@@ -117,3 +117,24 @@ python3 -I -B /ABS/NEW_SOURCE/native.py preflight
 `--apps9-unbound` emits the exact NULL557 template instead. Its native proof/run entry refuses before owner creation or actors. All previous options and the default540 output remain unchanged. The whole556 inverse holds538 leaves; only selected Apps9 roles, source context, lock/profile and workflow seals change. All32 other incoming products, exact Welcome8 variant, original606/controller/GBM/bus/frame/signature/private exclusions/cleanup and35s/30s/two-fresh-scan limits remain held. The prior Apps8 completed-command failure and later outer35s timeout remain separate failures; no new deadline or GUI performance claim follows.
 
 The readable `apps9.py` assembler uses all six payload files under `apps9-payload/`, reconstructs original before bytes and manifest, validates the entire result before output, and refuses parent/profile/payload drift or aliased/existing output. Scoped `current606-welcome8-apps9-source.yml` runs Python3.12/3.14, five factory controls and all eleven actual emitted-source controls against pinned parent556/result557/carrier93/recipe41/native114 fixtures. Tests are portable and execute no native actors, API, GPG, or retained Python. Root owns actual GUI execution, once collection, passive verification and acceptance.
+
+### Apps10 stage diagnostics (explicit opt-in)
+
+`--apps10-stage` requires the complete public557 predecessor
+`5c22c8dbac8b6a79ebbbd19141ace4840d41e43e` and emits exactly public559
+`9d674476c227b2b4a40ab515e9b6a453071f1c3f`. It selects only the qualified
+Apps10 carrier94 `a2bbf5edd57a7a31951a1e9060c83698f29302c4` and preserves all
+other32 incoming products, Welcome8,606/590 separation, profile/page axes,
+35s command/30s inventory/two fresh scans and original cleanup. The stage file is
+optional product metadata only: the native GUI caller explicitly requests it,
+validates and retires its owned0600 sibling, and requires DONE for success.
+Bounded failed-command phase/partial-stream DATA never grants GUI acceptance.
+`--apps10-stage-unbound` emits the strict NULL template and refuses before actors.
+Every existing option/default and function body remains unchanged.
+
+```sh
+python3 -I -B scripts/ci/current606-welcome7-gui-source/prepare.py --apps10-stage --predecessor-root /ordinary/source557 --output /fresh/source559
+```
+
+This factory emits source only. Native GUI/visual/16K/M2/performance/release
+acceptance requires separate actual qualification.
