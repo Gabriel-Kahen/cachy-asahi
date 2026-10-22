@@ -158,8 +158,36 @@ def emit_gzip1(output):
   with target.open('xb')as stream:stream.write(raw)
  need({n:pin(v)for n,v in source(output,p['result']['files']).items()}==p['result']['files'],'all38 bytes after emission');return gzip1_result(p)
 
+
+FRESH_GRAPH_PROFILE={'bytes': 19328, 'sha256': '6567ce38bbbb5134bda041e5727a73d607a4c24999ec36d436fbd582eb76102d'}
+
+def fresh_graph_inputs():
+ parent,bodies=gzip1_inputs();raw=read(HERE/'fresh-graph-profile.json');need(pin(raw)==FRESH_GRAPH_PROFILE,'whole pinned fresh descriptor graph profile');p=json.loads(raw)
+ need(p['kind']=='SOURCE_ONLY_EXACT_CORE7_FRESH_DESCRIPTOR_GRAPHS'and p['actual']is None and p['parent']==parent['result']and p['result']['source']=='700fc849924866bfc2845ccd49e294fb914a9671'and p['result']['ref']=='codex/core7-fresh-graph-v1','whole genuine38 and explicit source-only39 branch')
+ import ast
+ text=read(HERE/'prepare.py').decode();tree=ast.parse(text);held={n.name:pin(ast.get_source_segment(text,n).encode())for n in tree.body if isinstance(n,ast.FunctionDef)and n.name in p['held_function_bodies']};need(held==p['held_function_bodies'],'all22 prior factory function bodies held')
+ need(set(p['payload'])=={'README.md','graph_api.py','guest.py','test_sources.py'}and len(p['held'])==32 and len(p['result']['files'])==39,'four readable correction leaves and32 held source leaves')
+ bodies.update(source(HERE/'fresh-graph',p['payload']))
+ manifest=encoded(dict(schema=1,purpose='CORE7_REAL_HOOKS_AND_ACTUAL_PID1_SOURCE_ONLY',actual=None,files={n:pin(v)for n,v in bodies.items()if n!='source-manifest.json'and not n.startswith('.github/')}));bodies['source-manifest.json']=manifest
+ workflow=bodies['workflow.yml.in'].replace(b'@ENTRY_SHA@',pin(bodies['entry.py'])['sha256'].encode()).replace(b'@MANIFEST_SHA@',pin(manifest)['sha256'].encode())
+ for n in('.github/workflows/native-arm-build.yml','.github/workflows/native-arm-core7-real-systemd.yml'):bodies[n]=workflow
+ need({n:pin(v)for n,v in bodies.items()}==p['result']['files']and all(p['parent']['files'][n]==p['result']['files'][n]==w for n,w in p['held'].items()),'all39 exact bytes before writing')
+ return p,bodies
+
+def fresh_graph_result(p):return dict(status='SOURCE_ONLY_EXACT39_FRESH_DESCRIPTOR_GRAPHS_NOT_NATIVE_ACCEPTANCE',files=39,source=p['result']['source'],actual=None,native='NOT_RUN',Asahi='NOT_RUN',hardware='NOT_RUN',release='NOT_ADMITTED')
+
+def emit_fresh_graph(output):
+ p,bodies=fresh_graph_inputs();output=Path(output).absolute();need(output==output.resolve(),'canonical normalized fresh graph output path');output=ordinary(output)
+ need(not os.path.lexists(output)and output.parent.is_dir()and not output.is_relative_to(HERE)and not HERE.is_relative_to(output),'fresh ordinary disjoint graph source output');output.mkdir(mode=0o700)
+ for n,raw in sorted(bodies.items()):
+  target=output/n;target.parent.mkdir(parents=True,exist_ok=True)
+  with target.open('xb')as stream:stream.write(raw)
+ need({n:pin(v)for n,v in source(output,p['result']['files']).items()}==p['result']['files'],'all39 bytes after emission');return fresh_graph_result(p)
+
 def main():
- parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--output',type=Path);parser.add_argument('--source-only',action='store_true',help='check all34 composed bytes without writing or actors');parser.add_argument('--virtio20',action='store_true',help='opt in to exact published20-byte serial/bootstrap correction');parser.add_argument('--automatic-rollback',action='store_true',help='explicit source-only four-boot rollback, no native acceptance');parser.add_argument('--host-clock',action='store_true',help='exact current-host UTC initialization; composes with automatic rollback, no native acceptance');parser.add_argument('--module-indexes',action='store_true',help='exact two-boot genuine kernel dependency-index initialization');parser.add_argument('--gzip1',action='store_true',help='exact VM-only gzip level1 profile over genuine module-index source; no clock changes');a=parser.parse_args();need(a.output is not None or a.source_only,'explicit fresh output or source-only required');need(not(a.virtio20 and a.automatic_rollback),'one explicit source profile');need(not(a.host_clock and a.virtio20),'host-clock already selects the exact virtio20 ancestor');
+ parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--output',type=Path);parser.add_argument('--source-only',action='store_true',help='check all34 composed bytes without writing or actors');parser.add_argument('--virtio20',action='store_true',help='opt in to exact published20-byte serial/bootstrap correction');parser.add_argument('--automatic-rollback',action='store_true',help='explicit source-only four-boot rollback, no native acceptance');parser.add_argument('--host-clock',action='store_true',help='exact current-host UTC initialization; composes with automatic rollback, no native acceptance');parser.add_argument('--module-indexes',action='store_true',help='exact two-boot genuine kernel dependency-index initialization');parser.add_argument('--gzip1',action='store_true',help='exact VM-only gzip level1 profile over genuine module-index source; no clock changes');parser.add_argument('--fresh-graph',action='store_true',help='exact source39 with fresh descriptor graph queries; no clock changes');a=parser.parse_args();need(a.output is not None or a.source_only,'explicit fresh output or source-only required');need(not(a.virtio20 and a.automatic_rollback),'one explicit source profile');need(not(a.host_clock and a.virtio20),'host-clock already selects the exact virtio20 ancestor');
+ if a.fresh_graph:
+  need(not(a.gzip1 or a.module_indexes or a.host_clock or a.virtio20 or a.automatic_rollback),'one explicit fresh graph profile');print(json.dumps(emit_fresh_graph(a.output)if a.output is not None else fresh_graph_result(fresh_graph_inputs()[0]),sort_keys=True));return
  if a.gzip1:
   need(not(a.module_indexes or a.host_clock or a.virtio20 or a.automatic_rollback),'one explicit VM-only gzip1 profile');print(json.dumps(emit_gzip1(a.output)if a.output is not None else gzip1_result(gzip1_inputs()[0]),sort_keys=True));return
  if a.module_indexes:
