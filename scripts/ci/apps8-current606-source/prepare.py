@@ -71,6 +71,32 @@ def emit_carrier_env(parent,carrier,output):
   with path.open('xb')as stream:stream.write(raw)
  source(output,after);return dict(status='SOURCE_ONLY_EXACT380_CARRIER_ENV_CORRECTION_NOT_NATIVE',files=380,source=variant['after_source'],previous_source=variant['before_source'],held=variant['held'],changed=len(replacements),actual=None,native='NOT_RUN',hardware='NOT_RUN')
 
+
+APPS9_PROFILE={'bytes': 11688, 'sha256': 'b6ba7a62a0f4c88cf3a925f066fbc8673c01dbb99e621a5603fcb8a5472b917d'}
+def apps9_inputs():
+ raw=read(HERE/'apps9-profile.json');need(pin(raw)==APPS9_PROFILE,'whole hardpinned Apps9 source profile');p=json.loads(raw);need(p['kind']=='SOURCE_ONLY_EXACT_APPS9_CURRENT606_389'and p['actual']is None and(p['before_source'],p['after_source'],p['carrier_source'],p['carrier_ref'])==('5c3c2d0ce5b4f6c2672c9367b722170687c7de69','51399738e2cb98551fbb84c930156022fd734029','128b9806c8e972a729d5c1ef4f2dc9e39e48fc42','codex/apps9-accepted-inputs-v1'),'exact published Apps9 source and accepted pair input')
+ raw=read(HERE/'apps9-maps.json');need(pin(raw)==p['maps'],'whole Apps9 parent/carrier/result maps');maps=json.loads(raw);before,after,carrier=maps['before'],maps['after'],maps['carrier'];need((len(before),len(after),len(carrier))==(380,389,93)and set(before)<=set(after)and{n for n in before if before[n]!=after[n]}==set(p['changed'])and set(after)-set(before)==set(p['added'])and(len(p['changed']),len(p['added']),p['held'])==(16,9,364),'exact finite Apps9 delta')
+ for n,row in p['changed'].items():need(row==dict(before=before[n],proposed=after[n]),'whole before/proposed Apps9 operand')
+ need(p['payload']=={n:after[n]for n in set(p['changed'])|set(p['added'])},'exact25 readable Apps9 source payloads')
+ need(set(p['legal'])=={'apps9-NOTICE.md','LICENSE'},'complete Apps9 legal closure')
+ for n,w in p['legal'].items():need(pin(read(HERE/n))==w,'whole Apps9 source legal leaf')
+ return p,before,carrier,after,source(HERE/'apps9-payload',p['payload'])
+
+def emit_apps9(parent,carrier,apps9_carrier,output):
+ p,before,input_map,old,payload=inputs();correction,previous,corrected,replacements=correction_inputs();variant,current,input9,after,selected=apps9_inputs();need(old==previous and corrected==current,'whole default and carrier-env corrected380 prerequisites');parent,carrier,apps9_carrier,output=map(ordinary,(parent,carrier,apps9_carrier,output));need(not os.path.lexists(output)and output.parent.is_dir()and all(not output.is_relative_to(root)and not root.is_relative_to(output)for root in(parent,carrier,apps9_carrier)),'fresh disjoint Apps9 source-only output');bodies=source(parent,before);source(carrier,input_map);source(apps9_carrier,input9)
+ bodies.update(payload);need({n:pin(raw)for n,raw in bodies.items()}==old,'entire original c2 source380 in memory');bodies.update(replacements);need({n:pin(raw)for n,raw in bodies.items()}==current,'entire corrected5c3 source380 in memory');bodies.update(selected);need({n:pin(raw)for n,raw in bodies.items()}==after,'whole exact389 before first output write');output.mkdir(mode=0o700)
+ for n,raw in sorted(bodies.items()):
+  path=output/n;path.parent.mkdir(parents=True,exist_ok=True)
+  with path.open('xb')as stream:stream.write(raw)
+ source(output,after);return dict(status='SOURCE_ONLY_EXACT_APPS9_CURRENT606_389_NOT_NATIVE_ACCEPTANCE',files=389,source=variant['after_source'],previous_source=variant['before_source'],carrier=variant['carrier_source'],held=364,changed=16,added=9,actual=None,native='NOT_RUN',GUI='NOT_RUN',hardware='NOT_RUN',release='NOT_ADMITTED')
+
 def main():
- parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--parent',type=Path,required=True);parser.add_argument('--carrier',type=Path,required=True);parser.add_argument('--output',type=Path,required=True);parser.add_argument('--carrier-env-correction',action='store_true',help='explicit corrected5c3c carrier environment; defaultc2 unchanged');a=parser.parse_args();print(json.dumps((emit_carrier_env if a.carrier_env_correction else emit)(a.parent,a.carrier,a.output),sort_keys=True))
+ parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--parent',type=Path,required=True);parser.add_argument('--carrier',type=Path,required=True);parser.add_argument('--output',type=Path,required=True);parser.add_argument('--carrier-env-correction',action='store_true',help='explicit corrected5c3c carrier environment; defaultc2 unchanged');parser.add_argument('--apps9',action='store_true',help='explicit exact513997 Apps9/current606 source389; old routes unchanged');parser.add_argument('--apps9-carrier',type=Path);a=parser.parse_args()
+ if a.apps9:
+  if a.carrier_env_correction or a.apps9_carrier is None:parser.error('--apps9 requires --apps9-carrier and excludes --carrier-env-correction')
+  result=emit_apps9(a.parent,a.carrier,a.apps9_carrier,a.output)
+ else:
+  if a.apps9_carrier is not None:parser.error('--apps9-carrier requires --apps9')
+  result=(emit_carrier_env if a.carrier_env_correction else emit)(a.parent,a.carrier,a.output)
+ print(json.dumps(result,sort_keys=True))
 if __name__=='__main__':main()
