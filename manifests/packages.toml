@@ -688,6 +688,26 @@ GUI = "NOT QUALIFIED"
 release = "NOT ADMITTED"
 
 
+[[packages.development_variants]]
+version = "0.1.0-13"
+recipe = "packages/tools/cachy-asahi-apps13/PKGBUILD"
+recipe_source = "fa27f3294385884e8cb0d33720dc5e1e074178d4"
+native_source = "6ff102c0883b5088ed93297eb47d14f99049ab68"
+native_run = 39779011878
+selected_for_development = false
+selected_for_release = false
+source_validation = "PASS equivalent bulk validation with complete ordered fallback; all71 checks on Python3.12/3.14; two fresh scans and30s held"
+native_build = "PASS finite native ARM pair and installed574 lifecycle"
+archive_bytes = 28168
+archive_sha256 = "c49a320eaeb91ff7deac607c61a7162599ef759e507fd58b71f13d5c2bffddfa"
+installed_current606 = "NOT ACCEPTED"
+hardware_validation = "NOT RUN"
+GUI = "NOT QUALIFIED"
+performance = "NOT MEASURED native ARM/M2; host fixture comparison recorded separately"
+release = "NOT ADMITTED"
+validation_record = "docs/validation/apps13-native-20261022.md"
+
+
 [[packages]]
 name = "cachy-asahi-repository-runtime"
 phase = "tools-experience"
