@@ -1,0 +1,10 @@
+{
+  "actual": "NOT_RUN",
+  "files": 380,
+  "git_joins": 380,
+  "hardware": "NOT_RUN",
+  "ref": "codex/apps8-current606-carrier-env-v1",
+  "release": "NOT_ADMITTED",
+  "source": "5c3c2d0ce5b4f6c2672c9367b722170687c7de69",
+  "status": "COMMITTED_EXACT_CLOSED_TRIAL_SOURCE"
+}

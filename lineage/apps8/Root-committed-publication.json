@@ -1,0 +1,10 @@
+{
+  "actual": "NOT_RUN",
+  "files": 93,
+  "git_joins": 93,
+  "hardware": "NOT_RUN",
+  "ref": "codex/apps8-accepted-inputs-v1",
+  "release": "NOT_ADMITTED",
+  "source": "979b2d6ec7417e607a911d8c25bef2f1f7f72dcb",
+  "status": "COMMITTED_EXACT_CLOSED_TRIAL_SOURCE"
+}
