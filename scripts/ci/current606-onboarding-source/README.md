@@ -62,3 +62,16 @@ output, and stable reads with stale atime. They run no native actors and do not
 repeat the2607-reader qualification or accepted positive prerequisites. The
 original developer controls use explicitly inert child boundaries/synthetic
 format fixtures; they are not new native observations.
+
+## Opt-in correction of the inherited asset-loader root
+
+`--loader-correction` emits exact published `d0ed51fa626b9343321952277607718b900e90bc` from the same whole f947676 parent. Default emission remains exact3b60698, and its original26 payloads, full map and helper function bodies remain unchanged. The variant first constructs the complete old698 **in memory**, proves that old map, replaces exactly five source bodies and checks the complete new698 map before creating output. Both workflow aliases, developer integration/manifest and the source regression tests change;693 other leaves stay byte-identical.
+
+```sh
+python3 -I -B -Werror scripts/ci/current606-onboarding-source/prepare.py --loader-correction --parent /ordinary/f947-source --output /fresh/loader-corrected698
+python3 -I -B -Werror scripts/ci/current606-onboarding-source/test_loader.py --parent /ordinary/f947-source --expected /ordinary/d0ed-source
+```
+
+The original bug sent developer/HERE to inherited asset preparation, which expects the held coexist/HERE namespace. The published correction uses a proxy that changes only that inherited asset root, while executing the original complete developer source guard and all676/636/608 guards. Portable tests execute the actual emitted developer/test_source.py eight controls, including the old missing-HERE import failure/new real-held-plan routing control. Only actor boundaries in those source-owned controls are inert; no native transaction or user journey is claimed.
+
+The new hardpinned sideprofile and full corrected map bind five readable replacement payloads. Existing nofollow/singlelink/full-directory/source stability and fresh disjoint output checks apply unchanged; profile/map/payload/parent/alias drift refuses before output. All clocks, source/payload/security/retirement and14transaction/29capture/four-real240/journey predicates remain mandatory. This source factory supplies no actual run binding or native acceptance, and the old3b result is not retroactively repaired or accepted.

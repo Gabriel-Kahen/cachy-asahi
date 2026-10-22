@@ -70,3 +70,16 @@ It grants no GUI, package, native or hardware acceptance; all four independent
 minimal/overlay4K/16K cases remain separately required. Run `test_loader.py`
 --predecessor-root ABS548 --expected-root ABS549. The existing scoped both-Python
 CI reproduces the old routes and the new loader route without actors or GPG.
+
+## Explicit alias-corrected Apps8 GUI input adoption
+
+`--apps8` emits exact556 source `a8304cecaee54141b42edd48f9482b9f4ab0700f` from whole549 `4e63aa1c67898417d3a47335c0af1cc8e0b7fa3f`. Default540 and all previous explicit outputs stay byte-identical. This option uses a separate hardpinned229540-byte profile and11 readable templates. It validates both complete maps, every template and the exact11changed/538held/7added relation before creating output. Registered PRIMARY and named workflow are assigned the same actual bytes; both emitted controller argument lists are executed in the portable tests through actual native.main/native.run with inert actor boundaries.
+
+```sh
+python3 -I -B -Werror scripts/ci/current606-welcome7-gui-source/prepare.py --apps8 --predecessor-root /absolute/ordinary-loader549 --output /absolute/fresh-gui556
+python3 -I -B -Werror scripts/ci/current606-welcome7-gui-source/test_apps8.py --predecessor-root /absolute/ordinary-loader549 --expected-root /absolute/ordinary-alias556 --apps8-input-root /absolute/ordinary-accepted-input93
+```
+
+The public Apps8 input is exact93 source `979b2d6ec7417e607a911d8c25bef2f1f7f72dcb`, containing the finitely accepted f198/run39727987029 native pair (23528B/d4d83458...). The emitted source still requires its full native source/Git/input/signature/metadata/readback chain. Original Apps7 incoming custody remains held, and only the selected Apps row changes to0.1.0-8. Installed helper8payload plus Runtime1 three-helper byte readbacks, two fresh inventory scans/30s and35s GUI command clocks remain mandatory. Both independent profile/page axes, controller590/guest606, managed media/runtime HWCAP predicates,13views plus Stop/retry, GBM, security and retirement remain unchanged.
+
+The earlier published3fb556 only changed the named workflow; its registered PRIMARY omitted --apps8. That alias defect is explicitly corrected here, and the original run was cancelled before any collection. These controls and native pair inputs establish source reproduction only. GUI/visual/current-system/hardware acceptance requires new original native results and Root review; no acceptance transfers from the old Apps7 or Apps8 package pair.

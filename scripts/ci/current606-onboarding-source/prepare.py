@@ -46,6 +46,22 @@ def emit(parent,output):
   with path.open('xb')as stream:stream.write(raw)
  need({n:pin(raw)for n,raw in source(output,after).items()}==after,'complete final698 output');return dict(status='SOURCE_ONLY_EXACT698_ONBOARDING_NOT_NATIVE_ACCEPTANCE',files=698,source=p['result']['source'],parent=p['parent']['source'],held=672,changed=4,added=22,actual=None,native='NOT_RUN',hardware='NOT_RUN',independent_new_user_install='NOT_RUN',release='NOT_ADMITTED')
 
+
+LOADER_PROFILE={'bytes': 2990, 'sha256': 'b667421f6729a092cc4f5585936945f1206ef32d47d3a927a6f068fba53a0a94'}
+def loader_inputs(old):
+ raw=read(HERE/'loader-profile.json');need(pin(raw)==LOADER_PROFILE,'whole pinned loader-correction profile');p=json.loads(raw);need(p['kind']=='SOURCE_ONLY_EXACT_ONBOARDING698_LOADER_CORRECTION'and p['actual']is None and p['parent_source']=='f9471acd0414c2f6abc53ee81111011df735430c'and p['before_source']=='3b60dfffcc3ceb8cddce86b29d245cab01c2a772'and p['after_source']=='d0ed51fa626b9343321952277607718b900e90bc','exact published onboarding loader variant')
+ need(pin(read(HERE/'expected698.json'))==p['before_map'],'whole original698 map held');raw=read(HERE/'loader-expected698.json');need(pin(raw)==p['after_map'],'whole corrected698 map pin');after=json.loads(raw);need(len(old)==len(after)==698 and set(old)==set(after)and {n for n in old if old[n]!=after[n]}==set(p['changed'])and len(p['changed'])==5 and p['held']==693,'finite loader-only five-replacement693-held delta')
+ for n,row in p['changed'].items():need(row==dict(before=old[n],proposed=after[n]),'exact full changed source operands')
+ need(p['payload']=={n:after[n]for n in p['changed']},'exact five readable loader-correction payloads');return p,after,source(HERE/'loader-payload',p['payload'])
+
+def emit_loader(parent,output):
+ p,before,old,payload=inputs();variant,after,replacements=loader_inputs(old);parent=ordinary(parent);output=ordinary(output);need(not os.path.lexists(output)and output.parent.is_dir()and not output.is_relative_to(parent)and not parent.is_relative_to(output),'fresh disjoint source-only output');bodies=source(parent,before)
+ bodies.update(payload);need({n:pin(raw)for n,raw in bodies.items()}==old,'whole original698 emission in memory before loader correction');bodies.update(replacements);need({n:pin(raw)for n,raw in bodies.items()}==after,'whole corrected698 before any output');output.mkdir(mode=0o700)
+ for n,raw in sorted(bodies.items()):
+  path=output/n;path.parent.mkdir(parents=True,exist_ok=True)
+  with path.open('xb')as stream:stream.write(raw)
+ need({n:pin(raw)for n,raw in source(output,after).items()}==after,'complete corrected698 output');return dict(status='SOURCE_ONLY_EXACT698_LOADER_CORRECTION_NOT_NATIVE_ACCEPTANCE',files=698,source=variant['after_source'],parent=variant['parent_source'],previous_source=variant['before_source'],held=693,changed=5,added=0,actual=None,native='NOT_RUN',hardware='NOT_RUN',independent_new_user_install='NOT_RUN',release='NOT_ADMITTED')
+
 def main():
- parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--parent',type=Path,required=True);parser.add_argument('--output',type=Path,required=True);a=parser.parse_args();print(json.dumps(emit(a.parent,a.output),sort_keys=True))
+ parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--parent',type=Path,required=True);parser.add_argument('--output',type=Path,required=True);parser.add_argument('--loader-correction',action='store_true',help='emit exact d0ed loader-corrected698; default3b60 unchanged');a=parser.parse_args();print(json.dumps((emit_loader if a.loader_correction else emit)(a.parent,a.output),sort_keys=True))
 if __name__=='__main__':main()
