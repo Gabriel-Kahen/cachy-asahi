@@ -79,3 +79,21 @@ The scoped read-only CI runs all original and new controls on Python3.12/3.14.
 
 
 The separate layered4200 native trial39723442009 is now Root accepted for its finite disposable five-tool composition:25 transactions,51 fresh full graphs and606→607 peak→606 restoration. See [the scoped native record](../../../docs/validation/current607-five-tool-native-20261022.md). Earlier native1800/2400 and passive-host300 failures remain failed. This does not grant copied607, GUI, M2, performance or release acceptance.
+
+The explicit `--profile sixcap840` route consumes the complete immutable838
+source `1e80073ffa9d50a8ac19fb67a8e9e58221a3985f`, rather than the555
+input used by the four existing profiles. It emits exact public840 source
+`16ae35b7959ecf74b5e85cbe9243e8456ef2be6f`:833 original leaves held,
+five changed, two added. The only runtime correction binds the existing
+0xdb API into the private supervisor namespace. All clocks, full graphs,
+security and cleanup bodies remain held. This is source-only reproduction;
+six-tool native qualification remains pending and prior five-tool acceptance
+does not transfer. No package inventory change is proposed.
+
+```sh
+python3 -I -B scripts/ci/current607-native-graph-profile/prepare.py \
+  --source /absolute/source838 --output /fresh/source840 \
+  --authorization /fresh/authorization.json --profile sixcap840
+python3 -I -B scripts/ci/current607-native-graph-profile/test_sixcap_source.py \
+  --parent /absolute/source838 --source /absolute/source840
+```

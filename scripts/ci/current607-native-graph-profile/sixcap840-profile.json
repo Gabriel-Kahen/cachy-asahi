@@ -1,0 +1,29 @@
+{
+  "actual": null,
+  "default": false,
+  "hardware": "NOT_RUN",
+  "native": "NOT_RUN",
+  "profile": "sixcap840",
+  "ref_after": "codex/current607-sixcap-v1",
+  "release": "NOT_ADMITTED",
+  "source_after": "16ae35b7959ecf74b5e85cbe9243e8456ef2be6f",
+  "source_before": "1e80073ffa9d50a8ac19fb67a8e9e58221a3985f",
+  "support": {
+    "sixcap840/parent-failure-facts.json": {
+      "bytes": 197788,
+      "sha256": "7dd6ea9b42334e71125d4d89fa3378aa9f912cfd32348ee35122e1970c23c208"
+    },
+    "sixcap840/sixcap-successor.json": {
+      "bytes": 914727,
+      "sha256": "5678fb1761e85cfc47ebc3ecc17a965795f8bcf6d49cd8da91d6f5c73b3e4398"
+    },
+    "sixcap840/sixcap_successor.py": {
+      "bytes": 4031,
+      "sha256": "11d0c091c558977e9117862f626e270fe5a35c2d9f27fad4448a57f59577b9c6"
+    },
+    "sixcap840/source840.json": {
+      "bytes": 151725,
+      "sha256": "b6358c5fe5746534c2a9245718a4ad69ca35ac204ea06ef13711b94bc2575f47"
+    }
+  }
+}
