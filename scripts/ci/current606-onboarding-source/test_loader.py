@@ -18,6 +18,7 @@ class Controls(unittest.TestCase):
   text=(HERE/'prepare.py').read_text();functions={n.name:ast.get_source_segment(text,n)for n in ast.parse(text).body if isinstance(n,ast.FunctionDef)}
   for name,w in HELD.items():
    body=functions[name]
+   if name=='main':body=body.replace("group.add_argument('--rawdb-key-correction',action='store_true',help='exacted4fb rawDB package binding after complete export closure; all old outputs held');",'').replace('(emit_rawdb_key_correction if a.rawdb_key_correction else emit_export_closure','(emit_export_closure')
    if name=='main':body=body.replace("group=parser.add_mutually_exclusive_group();group.add_argument('--loader-correction',action='store_true',help='emit exact d0ed loader-corrected698; default3b60 unchanged');group.add_argument('--export-closure',action='store_true',help='exact3b900 export closure after d0ed; all prior outputs held');","parser.add_argument('--loader-correction',action='store_true',help='emit exact d0ed loader-corrected698; default3b60 unchanged');").replace('(emit_export_closure if a.export_closure else emit_loader if a.loader_correction else emit)(a.parent,a.output)','(emit_loader if a.loader_correction else emit)(a.parent,a.output)').replace("parser.add_argument('--loader-correction',action='store_true',help='emit exact d0ed loader-corrected698; default3b60 unchanged');",'').replace('(emit_loader if a.loader_correction else emit)(a.parent,a.output)','emit(a.parent,a.output)')
    self.assertEqual(hashlib.sha256(body.encode()).hexdigest(),w,name)
   with tempfile.TemporaryDirectory()as t:
