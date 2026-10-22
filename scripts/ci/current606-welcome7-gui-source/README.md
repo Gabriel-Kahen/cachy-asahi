@@ -91,3 +91,15 @@ python3 -I -B -Werror scripts/ci/current606-welcome7-gui-source/prepare.py --ins
 ```
 
 The original modes retain their recorded source and failures for reproducibility. No native result, hardware result or release selection changes through factory emission. The scoped CI runs the old controls plus the correction controls on Python 3.12 and 3.14.
+
+## Explicit `apps-cli-failure-data` followup
+
+`--apps-cli-failure-data` composes the existing latest correction in memory and emits exact public `51e7797ef639de8fbed96e51b5b12bf5a92c7cb7`. All earlier options and default outputs stay byte-identical. The complete input/output maps and 5 readable replacement bodies are hard pinned and verified before output creation. No development artifact imports, actor, API, signer or package transaction is used by the factory. All original guards, graphs, signature rules and clocks remain mandatory; emission grants no native, GUI, hardware or release acceptance.
+
+The completed Apps8 CLI failure was a ValueError at its rc0/empty-stderr/stdout≤65536 guard; the captured inner reason remains unknown until new native originals. This source adds bounded failure-only rc/stdout/stderr/argv/environment-key DATA to the already mandatory guest.log before that unchanged guard. It preserves35s outer and30s two-scan inventory clocks. It is a diagnostic, not a claimed runtime cure. The emitted apps8_common.py isolated main executes four meaningful source/transport controls; ordinary imports keep the original helper behavior.
+
+```sh
+python3 -I -B -Werror scripts/ci/current606-welcome7-gui-source/prepare.py --apps-cli-failure-data --predecessor-root /ordinary/a830-source556 --output /fresh/diagnostic556
+```
+
+The input remains the existing correction option’s original public parent. Each historical intermediate is assembled and checked in memory; the new complete map is verified before creating the sole fresh output. Scoped read-only CI checks both exact public trees independently on Python3.12 and3.14, executes the actual emitted new source controls and preserves the older factory controls. No heavy passive acceptance chain is rerun by these tests.

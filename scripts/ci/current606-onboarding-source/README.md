@@ -83,3 +83,15 @@ python3 -I -B -Werror scripts/ci/current606-onboarding-source/prepare.py --expor
 ```
 
 The original modes retain their recorded source and failures for reproducibility. No native result, hardware result or release selection changes through factory emission. The scoped CI runs the old controls plus the correction controls on Python 3.12 and 3.14.
+
+## Explicit `rawdb-key-correction` followup
+
+`--rawdb-key-correction` composes the existing latest correction in memory and emits exact public `ed4fb355ff939bf269905592ba5d71517ffab373`. All earlier options and default outputs stay byte-identical. The complete input/output maps and 6 readable replacement bodies are hard pinned and verified before output creation. No development artifact imports, actor, API, signer or package transaction is used by the factory. All original guards, graphs, signature rules and clocks remain mandatory; emission grants no native, GUI, hardware or release acceptance.
+
+The actual package-name binding was overwritten by its payload loop, producing the NOTICE path as an ALPM DB key. The source correction changes only the two payload-loop lexical operands. The complete installed_one validator, raw DB/mtree/date/payload/security checks and29fresh graphs remain mandatory. Its four new tests execute the whole old/new function on explicit synthetic full606 graph fixtures, preserving the exact observed old KeyError and security refusals; they grant no native credit.
+
+```sh
+python3 -I -B -Werror scripts/ci/current606-onboarding-source/prepare.py --rawdb-key-correction --parent /ordinary/f947-source676 --output /fresh/rawdb-corrected698
+```
+
+The input remains the existing correction option’s original public parent. Each historical intermediate is assembled and checked in memory; the new complete map is verified before creating the sole fresh output. Scoped read-only CI checks both exact public trees independently on Python3.12 and3.14, executes the actual emitted new source controls and preserves the older factory controls. No heavy passive acceptance chain is rerun by these tests.
