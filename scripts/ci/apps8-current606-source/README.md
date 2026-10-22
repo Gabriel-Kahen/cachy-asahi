@@ -59,3 +59,11 @@ Python3.12/3.14 with immutable parent/result/carrier checkouts. No1589-reader or
 accepted-positive replay is repeated. Existing accepted Apps7 and Apps8 package
 results are prerequisites, not current606 lifecycle acceptance. No new native,
 GUI,16K,M2,performance or release result is claimed.
+
+The explicit `--carrier-env-correction` option emits exact published `5c3c2d0ce5b4f6c2672c9367b722170687c7de69` from the preceding `c2b61b7089e41baed6b284bf0f3a55819f661c05` source contract. The full before/after maps and 5 readable replacements are hard pinned; all earlier flags/default outputs remain byte-identical. This is source-only emission, not native or GUI acceptance.
+
+```sh
+python3 -I -B -Werror scripts/ci/apps8-current606-source/prepare.py --carrier-env-correction --parent /ordinary/source348 --carrier /ordinary/accepted-input93 --output /fresh/source380
+```
+
+The original modes retain their recorded source and failures for reproducibility. No native result, hardware result or release selection changes through factory emission. The scoped CI runs the old controls plus the correction controls on Python 3.12 and 3.14.

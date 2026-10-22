@@ -54,6 +54,23 @@ def emit(parent,carrier,output):
   with path.open('xb')as stream:stream.write(raw)
  need({n:pin(raw)for n,raw in source(output,after).items()}==after,'complete final380 output');return dict(status='SOURCE_ONLY_EXACT_APPS8_CURRENT606_380_NOT_NATIVE_ACCEPTANCE',files=380,source=p['result']['source'],parent=p['parent']['source'],carrier=p['carrier']['source'],held=332,changed=16,added=32,actual=None,native='NOT_RUN',GUI='NOT_RUN',hardware='NOT_RUN',release='NOT_ADMITTED')
 
+CORRECTION_PROFILE={'bytes': 2854, 'sha256': '271e9c170590dd46247099f0cf4b4395ecd1ae20ed57697b2a1ce265560c3efb'}
+def correction_inputs():
+ raw=read(HERE/'correction-profile.json');need(pin(raw)==CORRECTION_PROFILE,'whole pinned carrier-env-correction profile');p=json.loads(raw);need(p['kind']=='SOURCE_ONLY_EXACT_CARRIER_ENV_CORRECTION'and p['actual']is None and p['before_source']=='c2b61b7089e41baed6b284bf0f3a55819f661c05'and p['after_source']=='5c3c2d0ce5b4f6c2672c9367b722170687c7de69','exact published correction source case')
+ raw=read(HERE/'correction-maps.json');need(pin(raw)==p['maps'],'whole correction before/after map pins');maps=json.loads(raw);before,after=maps['before'],maps['after'];need(set(before)==set(after)and len(after)==p['files']==380 and {n for n in before if before[n]!=after[n]}==set(p['changed'])and len(p['changed'])==5 and p['held']==375,'finite exact correction operands')
+ for n,row in p['changed'].items():need(row==dict(before=before[n],proposed=after[n]),'complete correction before/proposed operands')
+ need(p['payload']=={n:after[n]for n in p['changed']},'exact readable correction payload set')
+ payload=source(HERE/'correction-payload',p['payload'])
+ return p,before,after,payload
+
+def emit_carrier_env(parent,carrier,output):
+ p,before,input_map,old,payload=inputs();variant,previous,after,replacements=correction_inputs();need(old==previous,'whole original380 correction input');parent,carrier,output=map(ordinary,(parent,carrier,output));need(not os.path.lexists(output)and output.parent.is_dir()and all(not output.is_relative_to(root)and not root.is_relative_to(output)for root in(parent,carrier)),'fresh disjoint source-only correction output');bodies=source(parent,before);source(carrier,input_map)
+ bodies.update(payload);need({n:pin(raw)for n,raw in bodies.items()}==old,'whole original380 emission in memory');bodies.update(replacements);need({n:pin(raw)for n,raw in bodies.items()}==after,'whole corrected380 before any output');output.mkdir(mode=0o700)
+ for n,raw in sorted(bodies.items()):
+  path=output/n;path.parent.mkdir(parents=True,exist_ok=True)
+  with path.open('xb')as stream:stream.write(raw)
+ source(output,after);return dict(status='SOURCE_ONLY_EXACT380_CARRIER_ENV_CORRECTION_NOT_NATIVE',files=380,source=variant['after_source'],previous_source=variant['before_source'],held=variant['held'],changed=len(replacements),actual=None,native='NOT_RUN',hardware='NOT_RUN')
+
 def main():
- parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--parent',type=Path,required=True);parser.add_argument('--carrier',type=Path,required=True);parser.add_argument('--output',type=Path,required=True);a=parser.parse_args();print(json.dumps(emit(a.parent,a.carrier,a.output),sort_keys=True))
+ parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--parent',type=Path,required=True);parser.add_argument('--carrier',type=Path,required=True);parser.add_argument('--output',type=Path,required=True);parser.add_argument('--carrier-env-correction',action='store_true',help='explicit corrected5c3c carrier environment; defaultc2 unchanged');a=parser.parse_args();print(json.dumps((emit_carrier_env if a.carrier_env_correction else emit)(a.parent,a.carrier,a.output),sort_keys=True))
 if __name__=='__main__':main()
