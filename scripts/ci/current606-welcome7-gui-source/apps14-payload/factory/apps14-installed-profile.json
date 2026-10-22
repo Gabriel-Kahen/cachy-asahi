@@ -1,0 +1,92 @@
+{
+  "GUI_command_limit_seconds": 35,
+  "inventory_limit_seconds": 30,
+  "metadata": {
+    "arch": [
+      "any"
+    ],
+    "conflict": [],
+    "depend": [
+      "python>=3.11",
+      "gnupg",
+      "libarchive",
+      "pacman",
+      "cachy-asahi-repository-runtime=0.1.0-1"
+    ],
+    "license": [
+      "MIT"
+    ],
+    "pkgname": [
+      "cachy-asahi-apps"
+    ],
+    "pkgver": [
+      "0.1.0-14"
+    ],
+    "provides": [],
+    "replaces": []
+  },
+  "modes": {
+    "usr/bin/cachy-asahi-apps": 493,
+    "usr/lib/cachy-asahi-apps/apps.py": 420,
+    "usr/lib/cachy-asahi-apps/helper-pins.json": 420,
+    "usr/lib/cachy-asahi-apps/inventory.py": 420,
+    "usr/share/doc/cachy-asahi-apps/README.md": 420,
+    "usr/share/doc/cachy-asahi-apps/source-provenance.json": 420,
+    "usr/share/licenses/cachy-asahi-apps/LICENSE": 420,
+    "usr/share/licenses/cachy-asahi-apps/NOTICE": 420
+  },
+  "package": "cachy-asahi-apps",
+  "payload": {
+    "usr/bin/cachy-asahi-apps": {
+      "bytes": 310,
+      "sha256": "4e9c078c2e05cc00cb6479d5fff23b92cbcabd8d6b3ff970f6181e6467921630"
+    },
+    "usr/lib/cachy-asahi-apps/apps.py": {
+      "bytes": 23473,
+      "sha256": "912d87a9871f20545fb8470f84a799918168830b320afe3648c8781de29abcaa"
+    },
+    "usr/lib/cachy-asahi-apps/helper-pins.json": {
+      "bytes": 493,
+      "sha256": "33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a"
+    },
+    "usr/lib/cachy-asahi-apps/inventory.py": {
+      "bytes": 22032,
+      "sha256": "f5de0fc3d5067cb97986152385c37c2ec9c51237c5b37bc566b766d906405080"
+    },
+    "usr/share/doc/cachy-asahi-apps/README.md": {
+      "bytes": 18704,
+      "sha256": "2fb8081c9dac656a2ddb646e7fe47203e8d9d9850ae2db47e6a9e28ffe5af997"
+    },
+    "usr/share/doc/cachy-asahi-apps/source-provenance.json": {
+      "bytes": 9599,
+      "sha256": "6f083425029f7d2560a441aaf88cbddbf4c108ed5c0f9bad21f011cec9c12590"
+    },
+    "usr/share/licenses/cachy-asahi-apps/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "usr/share/licenses/cachy-asahi-apps/NOTICE": {
+      "bytes": 2003,
+      "sha256": "e98c3b7203c4202a9d16b0a61822e0d3fdb77d776881f1ca8fb7faa2b3ed3089"
+    }
+  },
+  "recipe_source": "2e58341f6fa25de5167fd8a59566b3dd7f066fe3",
+  "required_fresh_scans": 2,
+  "runtime": {
+    "usr/share/cachy-asahi/repository-runtime/scripts/client/client.py": {
+      "bytes": 28669,
+      "sha256": "48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7"
+    },
+    "usr/share/cachy-asahi/repository-runtime/scripts/release/release.py": {
+      "bytes": 41320,
+      "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435"
+    },
+    "usr/share/cachy-asahi/repository-runtime/scripts/release/source_delivery.py": {
+      "bytes": 16456,
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+    }
+  },
+  "schema_version": 1,
+  "scope": "INSTALLED_READONLY_METADATA_NOT_APPLY_GUI_OR_PERFORMANCE_ACCEPTANCE",
+  "version": "0.1.0-14"
+}

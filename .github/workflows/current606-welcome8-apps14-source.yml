@@ -1,0 +1,131 @@
+{
+  "name": "current606-welcome8-apps14-source",
+  "on": {
+    "push": {
+      "paths": [
+        "scripts/ci/current606-welcome7-gui-source/**",
+        ".github/workflows/current606-welcome8-apps14-source.yml"
+      ]
+    },
+    "pull_request": {
+      "paths": [
+        "scripts/ci/current606-welcome7-gui-source/**",
+        ".github/workflows/current606-welcome8-apps14-source.yml"
+      ]
+    },
+    "workflow_dispatch": {}
+  },
+  "permissions": {
+    "contents": "read"
+  },
+  "jobs": {
+    "source-controls": {
+      "runs-on": "ubuntu-24.04",
+      "timeout-minutes": 10,
+      "strategy": {
+        "fail-fast": false,
+        "matrix": {
+          "python": [
+            "3.12",
+            "3.14"
+          ]
+        }
+      },
+      "env": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONWARNINGS": "error"
+      },
+      "steps": [
+        {
+          "name": "Check out maintained factory",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out immutable apps13-gui",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "repository": "Gabriel-Kahen/cachy-asahi",
+            "ref": "a0c8eb9ccb2994cf2f7156a6e66bfc9715b9e464",
+            "path": ".ci-fixtures/apps13-gui",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out immutable apps14-gui",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "repository": "Gabriel-Kahen/cachy-asahi",
+            "ref": "803ed9c5c0357162ef9868bf6f82d37936ba7842",
+            "path": ".ci-fixtures/apps14-gui",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out immutable apps14-carrier",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "repository": "Gabriel-Kahen/cachy-asahi",
+            "ref": "9fc95ae7694bfb67d8d1e8065303a5b1770b4b55",
+            "path": ".ci-fixtures/apps14-carrier",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out immutable apps14-recipe",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "repository": "Gabriel-Kahen/cachy-asahi",
+            "ref": "2e58341f6fa25de5167fd8a59566b3dd7f066fe3",
+            "path": ".ci-fixtures/apps14-recipe",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out immutable apps14-native",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "repository": "Gabriel-Kahen/cachy-asahi",
+            "ref": "5bbf9b2078d67d5543d01a849144fbd5696fa677",
+            "path": ".ci-fixtures/apps14-native",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out immutable apps9-gui",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "repository": "Gabriel-Kahen/cachy-asahi",
+            "ref": "5c22c8dbac8b6a79ebbbd19141ace4840d41e43e",
+            "path": ".ci-fixtures/apps9-gui",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out immutable apps10-gui",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "repository": "Gabriel-Kahen/cachy-asahi",
+            "ref": "9d674476c227b2b4a40ab515e9b6a453071f1c3f",
+            "path": ".ci-fixtures/apps10-gui",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Select Python",
+          "uses": "actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+          "with": {
+            "python-version": "${{ matrix.python }}"
+          }
+        },
+        {
+          "name": "Exact source emission, old route, NULL, canonical paths and product DATA controls",
+          "shell": "bash",
+          "run": "set -euo pipefail\nstage=$(mktemp -d \"$RUNNER_TEMP/gui-apps14-source.XXXXXXXX\")\ntrap 'rm -rf -- \"$stage\"' EXIT\nexport TMPDIR=\"$stage\"\npython3 -I -B -Werror \"$GITHUB_WORKSPACE/scripts/ci/current606-welcome7-gui-source/test_apps14.py\" \\\n --parent \"$GITHUB_WORKSPACE/.ci-fixtures/apps13-gui\" \\\n --expected \"$GITHUB_WORKSPACE/.ci-fixtures/apps14-gui\" \\\n --carrier \"$GITHUB_WORKSPACE/.ci-fixtures/apps14-carrier\" \\\n --recipe \"$GITHUB_WORKSPACE/.ci-fixtures/apps14-recipe\" \\\n --native \"$GITHUB_WORKSPACE/.ci-fixtures/apps14-native\" \\\n --old-parent \"$GITHUB_WORKSPACE/.ci-fixtures/apps9-gui\" \\\n --old-expected \"$GITHUB_WORKSPACE/.ci-fixtures/apps10-gui\"\n"
+        }
+      ]
+    }
+  }
+}
