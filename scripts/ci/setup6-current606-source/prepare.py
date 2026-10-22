@@ -3,7 +3,7 @@ import argparse, hashlib, json, shutil, stat
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-PROFILE = {'bytes': 229139, 'sha256': '6142a4f48c3d23eb700ef0d39b9e8aea8b656d9103038553ae0864e518f08bdb'}  # Filled by the reviewed profile builder.
+PROFILE = {'bytes': 354144, 'sha256': '6455817a90e9046e0d6ebd2d416b8b3a8e385e9d2625e72c53b39a9ed88f6f92'}  # Filled by the reviewed profile builder.
 pin = lambda b: dict(bytes=len(b), sha256=hashlib.sha256(b).hexdigest())
 encoded = lambda v: (json.dumps(v, sort_keys=True, indent=2) + '\n').encode()
 
@@ -41,14 +41,18 @@ def files(root):
             result[rel.as_posix()] = pin(read(p))
     return result
 
-def emit(original, setup, output):
+def emit(original, setup, output, mode='copied-root'):
     raw = read(HERE / 'profile.json')
     need(pin(raw) == PROFILE, 'whole fixed Setup606 source profile')
     p = json.loads(raw)
     original, setup, output = map(ordinary, (original, setup, output))
     need(files(original) == p['original']['files'] and files(setup) == p['setup']['files'],
          'whole immutable353 and240 inputs before output')
+    need(mode in ('copied-root', 'real-modules'), 'explicit finite Setup source profile')
+    expected = p['output'] if mode == 'copied-root' else p['real_modules']['files']
     payload = {n: read(HERE / 'payload' / n) for n in p['payload']}
+    overlay = {} if mode == 'copied-root' else {n: read(HERE / 'real-modules' / n) for n in p['real_modules']['payload']}
+    need(mode == 'copied-root' or all(pin(overlay[n]) == row for n, row in p['real_modules']['payload'].items()), 'whole real-module payload before output')
     need(all(pin(payload[n]) == row for n, row in p['payload'].items()), 'whole readable payload before output')
     need(not output.exists() and output.parent.is_dir() and not output.is_relative_to(original)
          and not original.is_relative_to(output) and not output.is_relative_to(setup)
@@ -62,24 +66,25 @@ def emit(original, setup, output):
         dest = output / n
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_bytes(body)
-    for n, body in payload.items():
+    for n, body in dict(payload, **overlay).items():
         dest = output / n
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_bytes(body)
-    need(files(output) == p['output'], 'whole exact608 source output')
-    return dict(status='SOURCE_ONLY_EXACT608_SETUP6_CURRENT606_NATIVE_UNQUALIFIED',
-                files=p['output'], actual=None, hardware='NOT_RUN', release='NOT_ADMITTED',
-                full606_real_shell='NOT_RUN_DEVICE_FREE_COPY', Apps7='NOT_RUN_BASELINE_APPS6')
+    need(files(output) == expected, 'whole exact608 source output')
+    return dict(status='SOURCE_ONLY_EXACT608_SETUP6_CURRENT606_NATIVE_UNQUALIFIED' if mode == 'copied-root' else 'SOURCE_ONLY_EXACT636_SETUP6_REAL_MODULES_NATIVE_UNQUALIFIED',
+                files=expected, source_mode=mode, expected_source=p['expected_source'] if mode == 'copied-root' else p['real_modules']['source'], actual=None, hardware='NOT_RUN', release='NOT_ADMITTED',
+                full606_real_shell='NOT_RUN_DEVICE_FREE_COPY' if mode == 'copied-root' else 'NOT_RUN_BY_FACTORY_REAL_DOCKER_PROFILE', Apps7='NOT_RUN_BASELINE_APPS6')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--original-source', type=Path, required=True)
     parser.add_argument('--setup-source', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--mode', choices=('copied-root', 'real-modules'), default='copied-root')
     parser.add_argument('--authorization', type=Path, required=True)
     args = parser.parse_args()
     auth = ordinary(args.authorization)
     need(not auth.exists() and auth.parent.is_dir(), 'fresh authorization output')
-    value = emit(args.original_source, args.setup_source, args.output)
+    value = emit(args.original_source, args.setup_source, args.output, args.mode)
     with auth.open('xb') as stream:
         stream.write(encoded(value))

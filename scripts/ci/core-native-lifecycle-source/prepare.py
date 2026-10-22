@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""Reproduce exact public Core797 or historical796 lifecycle source; no actors or acceptance."""
+"""Reproduce exact public Core800 or explicit historical failed lifecycle source; no actors or acceptance."""
 import argparse
 from contextlib import contextmanager
 import hashlib
@@ -15,7 +15,7 @@ import sys
 
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
-PROFILE_SHA256 = 'ef7af3430f95dc6f851ccb3e472f81670a17df85d6523b75a9a9fd9138b4fa78'
+PROFILE_SHA256 = 'ca147eb320a88d6e848b8acef0f64ee37b4e190573de626a0b1384a3174c3aee'
 
 
 def need(ok, message):
@@ -70,8 +70,12 @@ def profile():
     raw = read(HERE / 'profile.json', 1024**2)
     need(pin(raw)['sha256'] == PROFILE_SHA256, 'whole fixed Core796 factory profile')
     value = json.loads(raw)
+    fixed = value['baseline_scriptlet']
+    baseline = read(HERE / fixed['path'], 1024**2)
+    need(pin(baseline) == {k: fixed[k] for k in ('bytes', 'sha256')}, 'whole fixed baseline800 profile')
+    value['baseline_scriptlet'] = json.loads(baseline)
     need(value['schema'] == 1
-         and value['purpose'] == 'MAINTAINED_FINITE_CORE797_AND_HISTORICAL796_SOURCE_ONLY'
+         and value['purpose'] == 'MAINTAINED_FINITE_CORE800_AND_HISTORICAL_FAILED_SOURCES_ONLY'
          and len(value['parent']['files']) == 745 and len(value['payload']) == 49
          and len(value['expected']['files']) == len(value['workflow_launch']['files']) == 796
          and value['actual'] is value['workflow_launch']['actual'] is None
@@ -80,7 +84,9 @@ def profile():
          and value['evidence_transport']['actual'] is None
          and len(value['auth_import']['files']) == 797
          and value['auth_import']['actual'] is None
-         and value['default_mode'] == 'auth-import', 'fixed source-only scope')
+         and len(value['baseline_scriptlet']['files']) == 800
+         and value['baseline_scriptlet']['actual'] is None
+         and value['default_mode'] == 'baseline-scriptlet', 'fixed source-only scope')
     return value
 
 
@@ -108,12 +114,12 @@ def load(path, name):
     return module
 
 
-def assemble(runtime, output, mode='auth-import'):
+def assemble(runtime, output, mode='baseline-scriptlet'):
     runtime, output = Path(runtime).absolute(), Path(output).absolute()
     value = profile()
-    need(mode in ('original796', 'workflow-launch', 'evidence-transport', 'auth-import'), 'explicit fixed source mode')
+    need(mode in ('original796', 'workflow-launch', 'evidence-transport', 'auth-import', 'baseline-scriptlet'), 'explicit fixed source mode')
     expected = {'original796': value['expected'], 'workflow-launch': value['workflow_launch'],
-                'evidence-transport': value['evidence_transport'], 'auth-import': value['auth_import']}[mode]
+                'evidence-transport': value['evidence_transport'], 'auth-import': value['auth_import'], 'baseline-scriptlet': value['baseline_scriptlet']}[mode]
     payload = HERE / 'payload'
     need(files(payload) == value['payload'], 'whole exact49 maintained payload')
     need(files(runtime, checkout=True) == value['parent']['files'], 'whole exact public745 predecessor')
@@ -127,10 +133,11 @@ def assemble(runtime, output, mode='auth-import'):
             return factory.emit(runtime, output)  # The frozen source-contained emitter.
     if mode == 'original796':
         receipt = emit(payload)
-    elif mode in ('evidence-transport', 'auth-import'):
+    elif mode in ('evidence-transport', 'auth-import', 'baseline-scriptlet'):
         replacements = expected['replacements']
         need(set(replacements) == ({'owner.py', 'entry.py', 'workflow.yml.in', 'assemble.py'}
-                                   if mode == 'auth-import' else {'owner.py', 'entry.py', 'workflow.yml.in'}),
+                                   if mode == 'auth-import' else {'owner.py', 'entry.py', 'workflow.yml.in', 'assemble.py', 'contract.py', 'container.py'}
+                                   if mode == 'baseline-scriptlet' else {'owner.py', 'entry.py', 'workflow.yml.in'}),
              'exact three source-owned evidence transport bodies')
         bodies = {}
         for name, row in replacements.items():
@@ -140,7 +147,8 @@ def assemble(runtime, output, mode='auth-import'):
                  'whole fixed transport replacement and original body')
             bodies[name] = raw
         additions = expected.get('additions', {})
-        need(set(additions) == ({'core-tools/package_checks.py'} if mode == 'auth-import' else set()),
+        need(set(additions) == ({'core-tools/package_checks.py'} if mode == 'auth-import' else {'core-tools/package_checks.py', 'fixture.py', 'audio_aux.py', 'test_fixture.py'}
+                                    if mode == 'baseline-scriptlet' else set()),
              'exact original package_checks dependency only')
         for name, row in additions.items():
             raw = read(HERE / row['path'])
@@ -172,7 +180,8 @@ def assemble(runtime, output, mode='auth-import'):
         entry = load(output / 'scripts/ci/core-native-lifecycle/entry.py',
                      '_fixed_core796_emitted_entry')
         entry.source(output)
-    return {'status': ('EMITTED_EXACT_PUBLIC_CORE797_SOURCE_ONLY' if mode == 'auth-import'
+    return {'status': ('EMITTED_EXACT_PUBLIC_CORE800_SOURCE_ONLY' if mode == 'baseline-scriptlet'
+                       else 'EMITTED_EXACT_PUBLIC_CORE797_SOURCE_ONLY' if mode == 'auth-import'
                        else 'EMITTED_EXACT_PUBLIC_CORE796_SOURCE_ONLY'), 'files': len(expected['files']),
             'parent_source': value['parent']['source'], 'expected_source': expected['source'], 'source_mode': mode,
             'payload_files': 49, 'held_parent_files': 744, 'bounds': value['bounds'],
@@ -182,6 +191,8 @@ def assemble(runtime, output, mode='auth-import'):
                          if mode == 'workflow-launch'
                          else 'HISTORICAL_NATIVE_AUTH_IMPORT_FAILURE_DO_NOT_DISPATCH'
                          if mode == 'evidence-transport'
+                         else 'HISTORICAL_SCRIPTLET_ACCOUNT_CACHE_REFUSAL_DO_NOT_DISPATCH'
+                         if mode == 'auth-import'
                          else 'SEPARATE_ROOT_NATIVE_DISPATCH_AND_ACCEPTANCE_REQUIRED'),
             'M2': 'NOT_RUN', 'old_target261': 'UNCHANGED_UNACCEPTED', 'release': 'NOT_ADMITTED'}
 
@@ -191,7 +202,7 @@ if __name__ == '__main__':
     parser.add_argument('--runtime', type=Path, required=True,
                         help='Complete exact public d268745 source checkout; never fetched here')
     parser.add_argument('--output', type=Path, required=True, help='Fresh disjoint source directory')
-    parser.add_argument('--mode', choices=('original796', 'workflow-launch', 'evidence-transport', 'auth-import'), default='auth-import',
-                        help='Auth-import797 by default; all historical796 modes are byte reproduction only')
+    parser.add_argument('--mode', choices=('original796', 'workflow-launch', 'evidence-transport', 'auth-import', 'baseline-scriptlet'), default='baseline-scriptlet',
+                        help='Core800 by default; all previous modes reproduce failed or undispatched source only')
     args = parser.parse_args()
     print(json.dumps(assemble(args.runtime, args.output, args.mode), sort_keys=True, indent=2))
