@@ -1,0 +1,42 @@
+{
+  "M2_13": "NOT_RUN",
+  "M2_15": "NOT_RUN",
+  "artifact_acquisition": "ONCE_ORIGINAL_COLLECTION",
+  "attempt": 1,
+  "case": "precommit-exit86",
+  "checkpoint_changed": false,
+  "cleanup": "ORIGINAL_SOURCE_RECORDED_NO_FRESH_ACTOR_QUERIES",
+  "commit_started": false,
+  "committed_transactions": 0,
+  "copy_disposal": "PASS-owned-workspace-removed",
+  "copy_nodes": 125358,
+  "hardware": "NOT_RUN",
+  "normal_checkpoint_directory_synced": false,
+  "original_directory": "originals",
+  "package_count": 604,
+  "packages_committed": false,
+  "page16k": "NOT_QUALIFIED",
+  "performance": "NOT_MEASURED",
+  "post_replay": {
+    "bytes": 275003,
+    "sha256": "88131af5688586a5820e4c917ebd9361ecc18514c5a17fcc1b8962fd4a87a034"
+  },
+  "postcommit87": "QUALIFIED_BY_SEPARATE_ROOT_DECISION",
+  "private_maps_and_exit86_witness": "UNEXPORTED_ORIGINAL_SOURCE_ENFORCED",
+  "protected_packages": 603,
+  "reader_files": 1442,
+  "recovery": "OWNED_COPY_DISPOSAL_ONLY_NO_ROLLBACK_OR_BOOT_CLAIM",
+  "ref": "codex/updater604-native4k-recovery-transport-v1",
+  "release": "NOT_ADMITTED",
+  "result": {
+    "bytes": 4918,
+    "sha256": "ff195691eba2ca501d8def196c67faf8a3090b8262bab09819dc8ebd0780edbf"
+  },
+  "run": 39776814384,
+  "scope": "NATIVE_ARM4K_DISPOSABLE_CONTAINER_NOT16K_NOT_M2",
+  "selected_transition": "APPS5_TO6",
+  "source": "c75911fe09fb5ceba1e54a6456d5b9c4721960b6",
+  "source_files": 10,
+  "source_preserved": true,
+  "status": "ROOT_ACCEPTED_FINITE_NATIVE_ARM4K_UPDATER604_PRECOMMIT86"
+}
