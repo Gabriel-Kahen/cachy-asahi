@@ -69,6 +69,20 @@ jobs:
           ref: 4e63aa1c67898417d3a47335c0af1cc8e0b7fa3f
           path: .ci-fixtures/gui-loader549
           persist-credentials: false
+      - name: Check out exact alias-corrected Apps8 GUI556 source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: a8304cecaee54141b42edd48f9482b9f4ab0700f
+          path: .ci-fixtures/gui-apps8-556
+          persist-credentials: false
+      - name: Check out exact accepted Apps8 public input93 source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 979b2d6ec7417e607a911d8c25bef2f1f7f72dcb
+          path: .ci-fixtures/apps8-input93
+          persist-credentials: false
       - name: Select the explicit Python version
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
@@ -134,3 +148,7 @@ jobs:
           PYT
           python3 -I -B -W error scripts/ci/current606-welcome7-gui-source/test_buildkit.py --predecessor-root "$stage/transport-expected" --expected-root "$stage/buildkit-expected"
           python3 -I -B -Werror scripts/ci/current606-welcome7-gui-source/test_loader.py --predecessor-root "$stage/buildkit-expected" --expected-root "$stage/loader-expected"
+          mkdir -m700 "$stage/apps8-expected" "$stage/apps8-inputs"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/gui-apps8-556" archive --format=tar a8304cecaee54141b42edd48f9482b9f4ab0700f | tar -x -C "$stage/apps8-expected"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/apps8-input93" archive --format=tar 979b2d6ec7417e607a911d8c25bef2f1f7f72dcb | tar -x -C "$stage/apps8-inputs"
+          python3 -I -B -Werror scripts/ci/current606-welcome7-gui-source/test_apps8.py --predecessor-root "$stage/loader-expected" --expected-root "$stage/apps8-expected" --apps8-input-root "$stage/apps8-inputs"

@@ -92,3 +92,6 @@ actual checksum stanzas and whole retention/capture/ZIP failure-nonce flow.
 The latter is synthetic DATA with NOT_GRANTED. All original14 tests still run.
 Corrected676 is published but not separately dispatched; onboarding supersets
 are separate sources. No native acceptance transfers from these factory checks.
+
+
+The separate copied608 native39723504586 is now Root accepted for eight-phase Setup5/6 preservation on the Apps6/Runtime1 baseline606 and six pure recovery controls, with606 restored. See [the finite copied606 record](../../../docs/validation/setup6-copied606-native-20261022.md). New606 real shell modules, Apps7 coexistence, GUI and M2 remain separate; this record changes no factory default, source or native clock.

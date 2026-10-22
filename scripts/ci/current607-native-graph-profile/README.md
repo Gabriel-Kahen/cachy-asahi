@@ -76,3 +76,6 @@ not a performance claim, accepted installation, hardware result or clock waiver.
 four exact profiles, the actual emitted owner/timer inverse, fresh real timing
 file labels, full original source guard and before-output drift refusals.
 The scoped read-only CI runs all original and new controls on Python3.12/3.14.
+
+
+The separate layered4200 native trial39723442009 is now Root accepted for its finite disposable five-tool composition:25 transactions,51 fresh full graphs and606→607 peak→606 restoration. See [the scoped native record](../../../docs/validation/current607-five-tool-native-20261022.md). Earlier native1800/2400 and passive-host300 failures remain failed. This does not grant copied607, GUI, M2, performance or release acceptance.

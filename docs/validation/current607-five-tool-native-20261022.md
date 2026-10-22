@@ -1,0 +1,13 @@
+# Five-tool native software composition
+
+Root accepted native run [39723442009](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/39723442009), source `12d7e769a8fe32a2714c10a9096f9805f8bb7920`, ref `codex/current607-layered4200-v1`, for a finite disposable offline ARM container trial. The five tools are Apps7, Doctor2, KSM2, Welcome7 and Boot-report1; their previously accepted archives are reused, with no new build credit.
+
+The trial executes 25 signed transactions, 51 fresh complete package-graph observations and 26 fresh complete auxiliary observations. It begins with 606 packages, reaches 607 while Boot-report is installed, and restores 606. All 602 nonselected packages remain physically protected, including Runtime1. Four selected tools restore their original versions, payload, ownership, files/mtree and desc bytes, allowing only numeric INSTALLDATE values tied to the bounded restoring transactions. Selected inode restoration is not claimed. User configuration remains preserved.
+
+The installed controls cover Apps15, Doctor27, KSM44, WelcomeCLI5 and Boot15. KSM uses private regular files; Boot uses synthetic journal/pstore records; Doctor includes private IPC fixtures. These checks establish no live KSM/audio/NetworkManager operation, GUI behavior, real journal/pstore history, boot recovery or speaker safety. Full private per-phase observations and cryptographic verification are source-enforced receipts and hash joins, not fresh host re-observations.
+
+The original run/jobs/artifact metadata and artifact ZIP were collected once. The unchanged full 1,313-file passive verifier passed in 310.056 seconds under a separate finite 900-second host budget. Its earlier 300-second host timeout remains a failed fit. Root then verified every 568 source and 1,313 reader file against ordinary single-link full-byte pins before issuing `Root-component-acceptance.json`. Original acquisition was not repeated. Native component2400/consumer4200/owner6600 and all transaction, fixture, source, signature, graph and cleanup predicates remained held. Historical native1800/2400 fits remain failed; no performance improvement is claimed.
+
+Local evidence: `artifacts/development/current607-layered4200-native-actual-20261022/Root-component-acceptance.json`, `Root-resume2-replay.json`, `Root-resume2-strict-status.json` and `originals/`. The frozen host-cost diagnosis identifies repeated static ancestor preflight work; it is not a new native measurement or a relaxed graph predicate.
+
+This acceptance covers the source-defined offline container composition. Ordinary copied607, full GUI, physical Asahi installation, both M2 Air sizes and final-system performance remain NOT RUN. The supported release is NOT ADMITTED.
