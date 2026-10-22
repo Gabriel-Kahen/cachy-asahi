@@ -52,4 +52,9 @@ def emit(parent,output):
  need(pins(tree(output))==value['after'],'whole emitted745')
  return dict(status='SOURCE_ONLY',files=745,changed=8,held=737,parent_source=value['parent_source'],expected_source=value['expected_source'],native_fit='UNKNOWN',acceptance=False)
 if __name__=='__main__':
- parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--parent',type=Path,required=True,help='complete immutable4a9b3833 source checkout');parser.add_argument('--output',type=Path,required=True,help='fresh disjoint ordinary output');args=parser.parse_args();print(json.dumps(emit(args.parent,args.output),sort_keys=True))
+ parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--parent',type=Path,required=True,help='complete immutable4a9b3833 source checkout');parser.add_argument('--output',type=Path,required=True,help='fresh disjoint ordinary output');parser.add_argument('--immutable-map',action='store_true',help='explicit406d parent to46db private immutable-map745 profile');args=parser.parse_args()
+ if args.immutable_map:
+  import importlib.util
+  spec=importlib.util.spec_from_file_location('_gnu_immutable_map_factory',HERE/'immutable_map.py');module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);result=module.emit(args.parent,args.output)
+ else:result=emit(args.parent,args.output)
+ print(json.dumps(result,sort_keys=True))

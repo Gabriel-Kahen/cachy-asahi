@@ -66,6 +66,27 @@ jobs:
           ref: 12d7e769a8fe32a2714c10a9096f9805f8bb7920
           path: fixtures/layered568
           persist-credentials: false
+      - name: Check out exact sixcap input838
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: ${{ github.repository }}
+          ref: 1e80073ffa9d50a8ac19fb67a8e9e58221a3985f
+          path: fixtures/source838
+          persist-credentials: false
+      - name: Check out exact sixcap expected840
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: ${{ github.repository }}
+          ref: 16ae35b7959ecf74b5e85cbe9243e8456ef2be6f
+          path: fixtures/source840
+          persist-credentials: false
+      - name: Check out exact sixcap qualified Apps8 source-only DATA
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: ${{ github.repository }}
+          ref: 6dbfdbad6d9ec75a230ce366096206de933b1c28
+          path: fixtures/apps8-qualified
+          persist-credentials: false
       - name: Run five real descriptor controls
         shell: bash
         run: |
@@ -109,3 +130,19 @@ jobs:
           python3 -I -B -Werror scripts/ci/current607-native-graph-profile/test_layered4200.py \
             --source "$GITHUB_WORKSPACE/fixtures/source555" \
             --expected "$GITHUB_WORKSPACE/fixtures/layered568"
+      - name: Reproduce explicit840 and run all original40 plus8 and focused7 controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          FACTORY="$GITHUB_WORKSPACE/scripts/ci/current607-native-graph-profile"
+          python3 -I -B -Werror "$FACTORY/test_sixcap_profile.py" \
+            --source "$GITHUB_WORKSPACE/fixtures/source838" \
+            --expected "$GITHUB_WORKSPACE/fixtures/source840"
+          python3 -I -B "$FACTORY/prepare.py" \
+            --source "$GITHUB_WORKSPACE/fixtures/source838" \
+            --output "$RUNNER_TEMP/sixcap840" --authorization "$RUNNER_TEMP/sixcap840.json" \
+            --profile sixcap840
+          LATEST607_APPS8_TEST_PACKET="$GITHUB_WORKSPACE/fixtures/apps8-qualified" \
+            python3 -I -B -Werror "$RUNNER_TEMP/sixcap840/next/test_source.py"
+          python3 -I -B -Werror "$FACTORY/test_sixcap_source.py" \
+            --source "$RUNNER_TEMP/sixcap840" --parent "$GITHUB_WORKSPACE/fixtures/source838"
