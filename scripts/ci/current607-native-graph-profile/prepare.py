@@ -147,6 +147,35 @@ def layered(output,before):
  need(files(output)==expected,'whole exact public568 layered4200 output')
  return dict(status='SOURCE_ONLY_EXACT568_LAYERED4200_UNQUALIFIED',files=expected,consumer_seconds=4200,component_seconds=2400,owner_seconds=6600,original1800_fit='FAILED_NOT_RECLASSIFIED',original2400_fit='FAILED_NOT_RECLASSIFIED',performance='NOT_CLAIMED',actual=None,native='NOT_RUN',hardware='NOT_RUN',release='NOT_ADMITTED')
 
+SIXCAP_PROFILE={'bytes': 942, 'sha256': '07e025a98cd46fb6f31a334c1aee62f4ca2f382cd46ea807381d4c574c3e79db'}
+
+def sixcap_inputs():
+ raw=read(HERE/'sixcap840-profile.json');need(pin(raw)==SIXCAP_PROFILE,'whole explicit sixcap840 profile');v=json.loads(raw)
+ need(v['profile']=='sixcap840' and v['default']is False and v['actual']is None,'source-only opt-in sixcap profile')
+ bodies={n:read(HERE/n)for n in v['support']};need(all(pin(bodies[n])==w for n,w in v['support'].items()),'whole sixcap support before output')
+ p=json.loads(bodies['sixcap840/sixcap-successor.json']);expected=json.loads(bodies['sixcap840/source840.json'])
+ need(len(p['before'])==838 and len(expected)==840 and p['publication']['source']==v['source_before'] and len(p['before_bodies'])==5 and len(p['added'])==2,'exact genuine838 to840 inverse')
+ return v,p,expected,bodies
+
+def emit_sixcap(source,output):
+ v,p,expected,support=sixcap_inputs();source=ordinary(source);output=ordinary(output)
+ need(files(source)==p['before'],'entire genuine838 before any output');need(not output.exists()and output.parent.is_dir()and not output.is_relative_to(source)and not source.is_relative_to(output),'fresh separate source-only output')
+ bodies={n:read(source/n)for n in p['before']}
+ for n,b64 in p['before_bodies'].items():need(base64.b64decode(b64,validate=True)==bodies[n],'whole exact original body')
+ # Exact source-owned constants, parsed as literals without executing carrier code.
+ tree=__import__('ast').parse(support['sixcap840/sixcap_successor.py']);constants={n.targets[0].id:__import__('ast').literal_eval(n.value)for n in tree.body if isinstance(n,__import__('ast').Assign)and len(n.targets)==1 and isinstance(n.targets[0],__import__('ast').Name)and n.targets[0].id in('MARKER','COMPONENT','OLD','NEW')}
+ name=constants['COMPONENT'];raw=bodies[name];need(raw.count(constants['OLD'].encode())==1,'one exact existing native API binding');bodies[name]=raw.replace(constants['OLD'].encode(),constants['NEW'].encode(),1)
+ for n in p['added']:bodies[n]=support['sixcap840/'+Path(n).name]
+ proof=I+'sixcap-successor.json';footer='def verify():\n import sixcap_successor\n return sixcap_successor.verify(ROOT, '+repr(proof)+', '+repr(pin(bodies[proof]))+')\n';bodies[GUARD]+=constants['MARKER'].encode()+footer.encode()
+ mf=json.loads(bodies[MANIFEST]);mf['files']={n:pin(b)for n,b in bodies.items()if n not in{MANIFEST,*p['workflows']}};bodies[MANIFEST]=encoded(mf)
+ for n in p['workflows']:
+  old=p['before'][MANIFEST]['sha256'].encode();need(bodies[n].count(old)==1,'one source stamp; all clocks held');bodies[n]=bodies[n].replace(old,pin(bodies[MANIFEST])['sha256'].encode(),1)
+ need({n:pin(b)for n,b in bodies.items()}==expected and files(source)==p['before'],'entire exact840 validated before first write')
+ output.mkdir()
+ for n,b in bodies.items():q=output/n;q.parent.mkdir(parents=True,exist_ok=True);q.write_bytes(b)
+ need(files(output)==expected,'whole published840 output')
+ return dict(status='SOURCE_ONLY_EXACT840_EXISTING_SIXCAP_API_UNQUALIFIED',files=expected,source=v['source_after'],ref=v['ref_after'],actual=None,native='NOT_RUN',hardware='NOT_RUN',release='NOT_ADMITTED')
+
 if __name__=='__main__':
- parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--source',type=Path,required=True);parser.add_argument('--output',type=Path,required=True);parser.add_argument('--profile',choices=('fresh_descriptor563','fresh_ancestry566','correctness2400','layered4200'),default='fresh_descriptor563');parser.add_argument('--authorization',type=Path,required=True);a=parser.parse_args();authorization=ordinary(a.authorization);need(not authorization.exists()and authorization.parent.is_dir(),'fresh output authorization');result=emit(a.source,a.output,a.profile)
+ parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--source',type=Path,required=True);parser.add_argument('--output',type=Path,required=True);parser.add_argument('--profile',choices=('fresh_descriptor563','fresh_ancestry566','correctness2400','layered4200','sixcap840'),default='fresh_descriptor563');parser.add_argument('--authorization',type=Path,required=True);a=parser.parse_args();authorization=ordinary(a.authorization);need(not authorization.exists()and authorization.parent.is_dir(),'fresh output authorization');result=emit_sixcap(a.source,a.output)if a.profile=='sixcap840'else emit(a.source,a.output,a.profile)
  with authorization.open('xb')as stream:stream.write(encoded(result))
