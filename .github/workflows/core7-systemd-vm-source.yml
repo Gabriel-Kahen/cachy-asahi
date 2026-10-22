@@ -29,6 +29,13 @@ jobs:
           ref: a74c54093bf8d09883e32b0d64b77f46223920e1
           path: .ci-fixtures/core7-systemd-expected
           persist-credentials: false
+      - name: Checkout exact optional virtio20 source34
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: bc9c55f9c245df31061aed7e49e636eeae0a018c
+          path: .ci-fixtures/core7-systemd-virtio20-expected
+          persist-credentials: false
       - name: Checkout whole Core800
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
@@ -77,4 +84,9 @@ jobs:
             --vm-source "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-media637" \
             --core7 "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-core7" \
             --core64 "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-core64" \
+            --kernel-carrier "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-kernel"
+          python3 -I -B scripts/ci/core7-systemd-vm-source/test_virtio20.py \
+            --expected "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-virtio20-expected" \
+            --core-source "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-core800" \
+            --vm-source "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-media637" \
             --kernel-carrier "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-kernel"
