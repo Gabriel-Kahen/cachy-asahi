@@ -1,0 +1,70 @@
+{
+  "files": {
+    "LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "README.md": {
+      "bytes": 1311,
+      "sha256": "c866f7352ef16c70d526e8195e892247648735e00e08c0eac58bee5952e96d47"
+    },
+    "native-source/Root-committed-publication.json": {
+      "bytes": 261,
+      "sha256": "a59f6f428bdbeb8ef1a81a13342d14d1bc4ef828bad7eac26a21b58b29ab436a"
+    },
+    "native-source/Root-git-source-authorization.json": {
+      "bytes": 69997,
+      "sha256": "06862acbf6c52c570ecd5ae2406dca7785d4b97209a927b364660ddb2e98fbbd"
+    },
+    "native-source/publication.json": {
+      "bytes": 261,
+      "sha256": "39b382167f93ed253497e3a95921dfff3e2d263bace270d5ada1d91dd2c3a24e"
+    },
+    "native-source/source-authorization.json": {
+      "bytes": 66723,
+      "sha256": "e22c585e2b7bc64054ef69b5bcb361d6b49699b43e944c624c2a22753b17c7e6"
+    },
+    "originals/artifact.zip": {
+      "bytes": 12727782,
+      "sha256": "50787fc9d25ebfbd452aa01c3126a9031fd7505434f5d94383d55d40b9bf437f"
+    },
+    "originals/artifacts.json": {
+      "bytes": 776,
+      "sha256": "f2b30ce12b07578ccc632bbabbb80150664c7dbcfef16aa49387a6851e0745cb"
+    },
+    "originals/collection.json": {
+      "bytes": 723,
+      "sha256": "a9e6657a31fc0fd37bc8620e73bf0bc6a5eec6c8210abcbe4da290c6370c4de5"
+    },
+    "originals/jobs.json": {
+      "bytes": 15293,
+      "sha256": "224d9ff61d8a9944c075df70197cf6b29748698200b3b94599e16cb2ae445983"
+    },
+    "originals/run.json": {
+      "bytes": 12971,
+      "sha256": "e9c4a96d6175a0803e6c096c6f9356068b43f8fb0f16f42b226e6ef2eb238da8"
+    },
+    "qualification/Root-component-acceptance.json": {
+      "bytes": 2590,
+      "sha256": "799442e6045a29bd4b780a782768df37fc72a9db776063aa3e3c1197ce1213fe"
+    },
+    "qualification/Root-passive-result-v2.json": {
+      "bytes": 110315,
+      "sha256": "1dda7b9b6b255eebce298597a04a246bf0d952c2e3e5be9ee46977fb3462e3f7"
+    },
+    "qualification/Root-post-replay-pins.json": {
+      "bytes": 404067,
+      "sha256": "01ed4df20906e2d94bd2d7a41f951c0f9f7a62fd37c9debb9e716a5896d57e8f"
+    }
+  },
+  "hardware": "NOT_RUN",
+  "native_ref": "codex/apps9-current606-v1",
+  "native_run": 39751577678,
+  "native_source": "51399738e2cb98551fbb84c930156022fd734029",
+  "new_native_acceptance": false,
+  "publication_ref": null,
+  "publication_source": null,
+  "release": "NOT_ADMITTED",
+  "schema_version": 1,
+  "status": "RETAINED_ROOT_FINITE_APPS9_CURRENT606_AND_ONCE_ORIGINALS_DATA_ONLY"
+}

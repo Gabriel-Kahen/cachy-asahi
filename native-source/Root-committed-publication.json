@@ -1,0 +1,10 @@
+{
+  "actual": "NOT_RUN",
+  "files": 389,
+  "git_joins": 389,
+  "hardware": "NOT_RUN",
+  "ref": "codex/apps9-current606-v1",
+  "release": "NOT_ADMITTED",
+  "source": "51399738e2cb98551fbb84c930156022fd734029",
+  "status": "COMMITTED_EXACT_CLOSED_TRIAL_SOURCE"
+}
