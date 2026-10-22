@@ -8,7 +8,7 @@ python3 -I -B scripts/ci/apps14-native-source/prepare.py --parent /exact/apps13-
 
 Both complete input maps, all75 held infrastructure leaves,21 readable source payloads and complete115 output are checked before writing. Output must be fresh, ordinary and disjoint. All existing factories remain unchanged. Emission receipts keep actual source/ref/run NULL and grant no acceptance.
 
-Scoped dual-Python CI runs five factory groups: exact isolated CLI/full115/workflow alias identity, whole-input drift/extra/symlink/hardlink refusal, profile/payload/output refusal, overlap refusal, and emitted preflight/all18 native lane controls/actual ordered45+24+8=77 build-log gate with partial/duplicate/swapped/failed/skipped negatives. It does not rebuild the77 package tests or replay native evidence.
+Scoped dual-Python CI runs six factory groups: exact isolated CLI/full115/workflow alias identity, whole-input drift/extra/symlink/hardlink refusal, profile/payload/output refusal, overlap and noncanonical-path refusals, and emitted preflight/all18 native lane controls/actual ordered45+24+8=77 build-log gate with partial/duplicate/swapped/failed/skipped negatives. It does not rebuild the77 package tests or replay native evidence.
 
 Apps14 reuses the bytes encoded within the same collection/publication call. Complete output, schemas/hashes, two fresh scans, security/descriptor/mutation/lock checks and30-second product deadline remain. Runtime1/client-v2, signed574/575/577 lifecycle, two ordinary homes,15 Apps/2 client/4 stage checks at each installed boundary and cleanup remain required.
 

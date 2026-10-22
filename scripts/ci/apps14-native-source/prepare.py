@@ -54,7 +54,7 @@ def render(parent,recipe):
   if n.endswith('.py'):compile(b,n,'exec')
  return out
 def emit(parent,recipe,output):
- parent,recipe,output=map(lambda p:Path(p).absolute(),(parent,recipe,output));ordinary(output);need(not output.exists()and output.parent.is_dir(),'fresh ordinary destination')
+ parent,recipe,output=map(lambda p:Path(p).absolute(),(parent,recipe,output));need(all(p==p.resolve()for p in(parent,recipe,output)),'normalized source and output paths');ordinary(output);need(not output.exists()and output.parent.is_dir(),'fresh ordinary destination')
  for source in(parent,recipe,HERE):need(not output.is_relative_to(source)and not source.is_relative_to(output),'disjoint source/output')
  bodies=render(parent,recipe);output.mkdir(mode=0o700)
  for n,b in sorted(bodies.items()):
