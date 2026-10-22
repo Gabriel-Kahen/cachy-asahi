@@ -1,0 +1,35 @@
+pkgbase = cachy-asahi-fish-autopair
+	pkgdesc = Explicitly enabled pinned Fish pair editing for cachy-asahi
+	pkgver = 0.1.0
+	pkgrel = 1
+	url = https://github.com/jorgebucaran/autopair.fish
+	arch = any
+	license = MIT
+	makedepends = python
+	depends = fish>=4.9.3
+	source = _autopair_backspace.fish
+	source = _autopair_insert_left.fish
+	source = _autopair_insert_right.fish
+	source = _autopair_insert_same.fish
+	source = _autopair_tab.fish
+	source = opt-in.fish
+	source = check-module.py
+	source = usage.md
+	source = source-provenance.json
+	source = NOTICE
+	source = LICENSE.upstream
+	source = LICENSE.project
+	sha256sums = eb5f42b837a98e721ec5f60f6c05df5fc709c9b8852317823b576d053ea9e0d8
+	sha256sums = 15739503faea70699ce121742bbfd59cf0ba64fb4ac044119aaeb644ec7019f1
+	sha256sums = eaadbfd4cf10a40dfbe5eaf522f0d7d01a1e4538a6e9fbd591c35cc7a517744d
+	sha256sums = ac34fd6de9b0c79e4499ace389d3bd61e2984087126a040bccd68d336050c23f
+	sha256sums = dd298673353cc7d48b9fd988932594685888aaa8406b2ca0e64946fce261b068
+	sha256sums = 77d5122d6fc5a9e933f15425946b806a9273b3ead3bb52a1ac1d81a698ee4a21
+	sha256sums = cbcb974c8cb0c2b1bf262a8c0f9166ed11f37f06666efd003a204c0859c76294
+	sha256sums = 5672092ff0515fcab67ebd3b83a0e71333908c2dc4732324f9c1d74e0894630f
+	sha256sums = 850512269f1b560b47d7e34145af65d6b05b360a86d0295e8c6d957678e35d6b
+	sha256sums = 6c73e4ccb627a7d8d1541dfeb99821105b3f22276c304972c81c0eafc6c019ba
+	sha256sums = f101c761d255d0dddc77dd8a9327733b03d381798ec54a1bb718367207b48a8e
+	sha256sums = 51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7
+
+pkgname = cachy-asahi-fish-autopair
