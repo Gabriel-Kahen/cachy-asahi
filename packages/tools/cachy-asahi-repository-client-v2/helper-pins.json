@@ -1,0 +1,27 @@
+{
+  "files": {
+    "scripts/client/client_v2.py": {
+      "bytes": 28763,
+      "sha256": "915c2336a6515dcbde9801d7778c0aeae3a0251cf6463c4704d47590d94d1409"
+    }
+  },
+  "required_runtime": {
+    "files": {
+      "scripts/client/client.py": {
+        "bytes": 28669,
+        "sha256": "48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7"
+      },
+      "scripts/release/release.py": {
+        "bytes": 41320,
+        "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435"
+      },
+      "scripts/release/source_delivery.py": {
+        "bytes": 16456,
+        "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+      }
+    },
+    "package": "cachy-asahi-repository-runtime",
+    "version": "0.1.0-1"
+  },
+  "schema_version": 1
+}
