@@ -1,0 +1,264 @@
+{
+  "actual": null,
+  "added": {
+    "developer/fixture.py": {
+      "bytes": 4798,
+      "sha256": "293885bf535a6f03fb4086b5ad5f822c3067d6b114905ea65bb391674fbec34c"
+    },
+    "developer/guard.py": {
+      "bytes": 6510,
+      "sha256": "831c804047d934f93acf72d18d3d578f22b5ea1d6c1abc513b20b1dfba816991"
+    },
+    "developer/held/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "developer/held/component-status.json": {
+      "bytes": 23,
+      "sha256": "041dff8cee4c14767a03435eb9f84a05152b2dc00e322d74a702b6f6944a4bdf"
+    },
+    "developer/held/hello.c": {
+      "bytes": 118,
+      "sha256": "fc4d365017395544876cf526639d8dfa1b4f6784d7f92887ee35c40146f749b5"
+    },
+    "developer/held/onboarding-export.json": {
+      "bytes": 2255,
+      "sha256": "21a96aedfa0f1fe4304a601822e62380a4c5f44558ba300b6b3b08e30417e807"
+    },
+    "developer/held/onboarding-original.py": {
+      "bytes": 38975,
+      "sha256": "2aeb0bfdad5aec6bbc969b3c008a10fa9cfb3a91775d9969a48e78e284c0e560"
+    },
+    "developer/held/onboarding-provenance.json": {
+      "bytes": 7367,
+      "sha256": "74c64b66781fa80cbe74d4aeaf495df237a9260b386ff874857705919cf44475"
+    },
+    "developer/held/onboarding.py": {
+      "bytes": 39036,
+      "sha256": "b693fa64f6a23149df348469587193a2f1eb425b1eb9d68c58fcd2995ad13c76"
+    },
+    "developer/held/original-journey-commands.json": {
+      "bytes": 13996,
+      "sha256": "8e4b41018c4f6e59adcca27acff9d67b2066a0a2cea984852589960d3ed4bbaf"
+    },
+    "developer/held/original-result.json": {
+      "bytes": 18560,
+      "sha256": "a1b5f8159b18d9ba1e6f654948b9511973ddd9b7fbd808922b251d2938ff9892"
+    },
+    "developer/held/summary.json": {
+      "bytes": 1109,
+      "sha256": "90da9233dba650451541841a09ceac56fc5d0a8b0527e966d8c6ed380a699929"
+    },
+    "developer/integration.py": {
+      "bytes": 3816,
+      "sha256": "9eb5fa15fb25c5d18b586283f5af521801becdcec9b0e086be40e3ca55964897"
+    },
+    "developer/mechanism-profile.json": {
+      "bytes": 2063,
+      "sha256": "2857e5aa1486387599cbf9e396919993b6a82b654d9825845c21e691b89971c8"
+    },
+    "developer/ordinary_entry.py": {
+      "bytes": 5474,
+      "sha256": "a82ac71d1353661c2dcfd2ed5a42ad327c35ea941111eb53fe954022cc0267e7"
+    },
+    "developer/parent676.json": {
+      "bytes": 415406,
+      "sha256": "465764dc91b97ec079d351109d3fbdce86ab4d1015874cf2f59f9ad472f4374c"
+    },
+    "developer/prepare.py": {
+      "bytes": 783,
+      "sha256": "33a4b38136816ea9b9957601ac089cc06e8516593b7b0b5c833ef0fd1b121374"
+    },
+    "developer/receipt.py": {
+      "bytes": 8550,
+      "sha256": "5600024c604653ce5f33ab2023ccdd18cf51db4a192e8345dd470ac5e86a95a2"
+    },
+    "developer/run.py": {
+      "bytes": 2155,
+      "sha256": "b69f0c33bf50305e25ca729a9b74707340e5beb2c368e0d2dba3c5e15765f1ab"
+    },
+    "developer/source-manifest.json": {
+      "bytes": 123826,
+      "sha256": "84b95b567f37b83a79e783dd68964663393665408a90c95b29503953bf3d7eb3"
+    },
+    "developer/test_source.py": {
+      "bytes": 11392,
+      "sha256": "72175fdf9af9c2025b92128a47d8862697e4f32ce6094b9abd82ff6df5b85916"
+    },
+    "developer/transport-policy.json": {
+      "bytes": 440,
+      "sha256": "fb7c258cccdc5949f8d6702c287b1e9e3f74b067eef03403c2d8aa8361a04a41"
+    }
+  },
+  "changed": {
+    ".github/workflows/native-arm-build.yml": {
+      "before": {
+        "bytes": 55955,
+        "sha256": "68bcb701d5e0347d0609179f9ac37f833a7fbd036986219a9b2048d640023f2b"
+      },
+      "proposed": {
+        "bytes": 55965,
+        "sha256": "691ea87c93693443d81dd18503438e8e8757be5828a7c2713d635d435dbe1c80"
+      }
+    },
+    ".github/workflows/native-arm-current606-doctor2-owned-copy.yml": {
+      "before": {
+        "bytes": 55955,
+        "sha256": "68bcb701d5e0347d0609179f9ac37f833a7fbd036986219a9b2048d640023f2b"
+      },
+      "proposed": {
+        "bytes": 55965,
+        "sha256": "691ea87c93693443d81dd18503438e8e8757be5828a7c2713d635d435dbe1c80"
+      }
+    },
+    "coexist/source-manifest.json": {
+      "before": {
+        "bytes": 120444,
+        "sha256": "407fa258a7758e06e0fce17f9e1f65849ab83ef6f202aa464cd1c60e81c916c1"
+      },
+      "proposed": {
+        "bytes": 120443,
+        "sha256": "59e153dd976bc08725834f490ff38b7c8aecf1745b28b8cd2b6cd5d445bbcb7a"
+      }
+    },
+    "coexist/test_source.py": {
+      "before": {
+        "bytes": 12112,
+        "sha256": "83d2ff6e943783444eff135330ea61c72817434feb7bb2a12fc914c776334ab4"
+      },
+      "proposed": {
+        "bytes": 11415,
+        "sha256": "1dcc2adda3df7962d60630a81c6bdf3637f1383a2558137aba89380567d82c69"
+      }
+    }
+  },
+  "hardware": "NOT_RUN",
+  "held": 672,
+  "kind": "SOURCE_ONLY_EXACT_FULL606_ONBOARDING698_FACTORY",
+  "native": "NOT_RUN",
+  "parent": {
+    "files": 676,
+    "map": {
+      "bytes": 115084,
+      "sha256": "ee7d936e5f94599b15fe65384518ca9ec0453380283ba210e601b79157d39e56"
+    },
+    "ref": "codex/setup6-apps7-ordered-nonce-v1",
+    "source": "f9471acd0414c2f6abc53ee81111011df735430c"
+  },
+  "payload": {
+    ".github/workflows/native-arm-build.yml": {
+      "bytes": 55965,
+      "sha256": "691ea87c93693443d81dd18503438e8e8757be5828a7c2713d635d435dbe1c80"
+    },
+    ".github/workflows/native-arm-current606-doctor2-owned-copy.yml": {
+      "bytes": 55965,
+      "sha256": "691ea87c93693443d81dd18503438e8e8757be5828a7c2713d635d435dbe1c80"
+    },
+    "coexist/source-manifest.json": {
+      "bytes": 120443,
+      "sha256": "59e153dd976bc08725834f490ff38b7c8aecf1745b28b8cd2b6cd5d445bbcb7a"
+    },
+    "coexist/test_source.py": {
+      "bytes": 11415,
+      "sha256": "1dcc2adda3df7962d60630a81c6bdf3637f1383a2558137aba89380567d82c69"
+    },
+    "developer/fixture.py": {
+      "bytes": 4798,
+      "sha256": "293885bf535a6f03fb4086b5ad5f822c3067d6b114905ea65bb391674fbec34c"
+    },
+    "developer/guard.py": {
+      "bytes": 6510,
+      "sha256": "831c804047d934f93acf72d18d3d578f22b5ea1d6c1abc513b20b1dfba816991"
+    },
+    "developer/held/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "developer/held/component-status.json": {
+      "bytes": 23,
+      "sha256": "041dff8cee4c14767a03435eb9f84a05152b2dc00e322d74a702b6f6944a4bdf"
+    },
+    "developer/held/hello.c": {
+      "bytes": 118,
+      "sha256": "fc4d365017395544876cf526639d8dfa1b4f6784d7f92887ee35c40146f749b5"
+    },
+    "developer/held/onboarding-export.json": {
+      "bytes": 2255,
+      "sha256": "21a96aedfa0f1fe4304a601822e62380a4c5f44558ba300b6b3b08e30417e807"
+    },
+    "developer/held/onboarding-original.py": {
+      "bytes": 38975,
+      "sha256": "2aeb0bfdad5aec6bbc969b3c008a10fa9cfb3a91775d9969a48e78e284c0e560"
+    },
+    "developer/held/onboarding-provenance.json": {
+      "bytes": 7367,
+      "sha256": "74c64b66781fa80cbe74d4aeaf495df237a9260b386ff874857705919cf44475"
+    },
+    "developer/held/onboarding.py": {
+      "bytes": 39036,
+      "sha256": "b693fa64f6a23149df348469587193a2f1eb425b1eb9d68c58fcd2995ad13c76"
+    },
+    "developer/held/original-journey-commands.json": {
+      "bytes": 13996,
+      "sha256": "8e4b41018c4f6e59adcca27acff9d67b2066a0a2cea984852589960d3ed4bbaf"
+    },
+    "developer/held/original-result.json": {
+      "bytes": 18560,
+      "sha256": "a1b5f8159b18d9ba1e6f654948b9511973ddd9b7fbd808922b251d2938ff9892"
+    },
+    "developer/held/summary.json": {
+      "bytes": 1109,
+      "sha256": "90da9233dba650451541841a09ceac56fc5d0a8b0527e966d8c6ed380a699929"
+    },
+    "developer/integration.py": {
+      "bytes": 3816,
+      "sha256": "9eb5fa15fb25c5d18b586283f5af521801becdcec9b0e086be40e3ca55964897"
+    },
+    "developer/mechanism-profile.json": {
+      "bytes": 2063,
+      "sha256": "2857e5aa1486387599cbf9e396919993b6a82b654d9825845c21e691b89971c8"
+    },
+    "developer/ordinary_entry.py": {
+      "bytes": 5474,
+      "sha256": "a82ac71d1353661c2dcfd2ed5a42ad327c35ea941111eb53fe954022cc0267e7"
+    },
+    "developer/parent676.json": {
+      "bytes": 415406,
+      "sha256": "465764dc91b97ec079d351109d3fbdce86ab4d1015874cf2f59f9ad472f4374c"
+    },
+    "developer/prepare.py": {
+      "bytes": 783,
+      "sha256": "33a4b38136816ea9b9957601ac089cc06e8516593b7b0b5c833ef0fd1b121374"
+    },
+    "developer/receipt.py": {
+      "bytes": 8550,
+      "sha256": "5600024c604653ce5f33ab2023ccdd18cf51db4a192e8345dd470ac5e86a95a2"
+    },
+    "developer/run.py": {
+      "bytes": 2155,
+      "sha256": "b69f0c33bf50305e25ca729a9b74707340e5beb2c368e0d2dba3c5e15765f1ab"
+    },
+    "developer/source-manifest.json": {
+      "bytes": 123826,
+      "sha256": "84b95b567f37b83a79e783dd68964663393665408a90c95b29503953bf3d7eb3"
+    },
+    "developer/test_source.py": {
+      "bytes": 11392,
+      "sha256": "72175fdf9af9c2025b92128a47d8862697e4f32ce6094b9abd82ff6df5b85916"
+    },
+    "developer/transport-policy.json": {
+      "bytes": 440,
+      "sha256": "fb7c258cccdc5949f8d6702c287b1e9e3f74b067eef03403c2d8aa8361a04a41"
+    }
+  },
+  "release": "NOT_ADMITTED",
+  "result": {
+    "files": 698,
+    "map": {
+      "bytes": 118190,
+      "sha256": "9df94bae20667cb52783844434d7c85a1e9f814c07232b9bb1ca796cac997334"
+    },
+    "ref": "codex/current606-onboarding-ordered-nonce-v1",
+    "source": "3b60dfffcc3ceb8cddce86b29d245cab01c2a772"
+  }
+}

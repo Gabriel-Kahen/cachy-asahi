@@ -52,3 +52,27 @@ retained development evidence at
 `source-controls.stderr`, `source-finite.stderr`, `source-freeze.json`). They are
 not shipped tests and are not claimed to run in this scoped CI. Original source,
 receipts, native artifacts and reader4235 remain separate and immutable.
+
+## Mandatory clocks with optional I/O accounting
+
+The separate `optional_io.py` entry emits exact489 source
+`2ef64d460aedeed8f40909d32f4a074e8c3c546b` from complete
+`108eea03755d605e2fec0e5226f8ed38aa56c5bb`. Five replacements preserve484
+leaves. The default `prepare.py` output remains byte-exact. Run:
+
+```sh
+python3 -I -B scripts/ci/updater-copy-cost-source/optional_io.py \
+  --parent /absolute/original-diagnostic489 --output /absolute/fresh-source
+```
+
+The actual failed run39605033498 retained no copy-cost records. The old helper
+incorrectly made mandatory wall/CPU/rusage output conditional on optional proc
+I/O accounting. Schema2 preserves the scalar clocks and uses explicit unknown
+I/O values when accounting is unavailable; unknown is distinct from observed
+zero. All12-record/3072-byte caps, full observations, original exceptions and
+1200/1860/3900 native clocks remain unchanged. This is a diagnostic fix;
+native39726250527 is pending and no deadline cure or speedup is claimed.
+
+The optional source CI independently checks both immutable489 source checkouts,
+exact output, drift/alias refusal and the actual private helper behavior with
+missing I/O. It runs no updater, GPG, VM or package transaction.
