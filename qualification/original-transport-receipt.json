@@ -1,0 +1,36 @@
+{
+  "acceptance_authority": false,
+  "cleanup_authority": false,
+  "files": {
+    "artifact.zip": {
+      "bytes": 609792,
+      "sha256": "ac8c134f41edc2e9ca413fc40159f62303aaeba64de1cecdbe8faa34c72a45d8"
+    },
+    "artifacts.json": {
+      "bytes": 778,
+      "sha256": "6bed0b2e73a3b76dc2d84c7aabe5764f0e26b74b8dbc49b4a03a23486ee9d808"
+    },
+    "bound-original.json": {
+      "bytes": 241,
+      "sha256": "b7ac87151b0043e25fed37cf6945c5dddafdaf0f24beb44d20b79d326f3c92c5"
+    },
+    "collection-outcome.json": {
+      "bytes": 775,
+      "sha256": "4caaeb8cef135f3c0a7d438693c54b0672f27c777f021b00a65092172e1cf104"
+    },
+    "jobs.json": {
+      "bytes": 3533,
+      "sha256": "bd2e58aaacbd41676d664001484fc4cd60188aa3bf7cd4d068526696c77d6ae3"
+    },
+    "logs.zip": {
+      "bytes": 89881,
+      "sha256": "4a6929d8e724813542e24d73a2c99fa3f5c6dbe7e636577fff308e7a86846d65"
+    },
+    "run.json": {
+      "bytes": 12968,
+      "sha256": "bd427fa817fa83bef234b890fa25478f14fb2509eb9677f953c44fb2493679e7"
+    }
+  },
+  "retry": false,
+  "status": "ORIGINAL_APPS10_TRANSPORT_COMPLETE_ONCE"
+}

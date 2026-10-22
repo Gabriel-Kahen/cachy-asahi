@@ -1,0 +1,347 @@
+{
+  "M2": "NOT_RUN",
+  "Root_acceptance": "NOT_ISSUED_BY_READER",
+  "attempt": "1",
+  "current_apps10": {
+    "cache": "NOT_RUN",
+    "full604": "NOT_RUN",
+    "generic16k": "NOT_RUN",
+    "hardware": "NOT_RUN",
+    "limits": [
+      "PRIVATE574_PRESERVATION_MAPS_UNEXPORTED",
+      "SUCCESSFUL_UNITTEST_TEXT_UNEXPORTED",
+      "NO_INDEPENDENT_MACHINE_ATTESTATION",
+      "TEST_SIGNATURES_SOURCE_ENFORCED_NOT_RELEASE_TRUST"
+    ],
+    "release": "NOT_ADMITTED",
+    "run": "39758362995",
+    "scope": "SIX_SAME_JOB_NATIVE_BUILDS_THREE_PAIRS_AND_SOURCE_ENFORCED_INSTALLED_RECEIPTS",
+    "source": "9d1b97e0adf704fa19b534a7db610350e36a42a5",
+    "status": "PASS_ORIGINAL_APPS10_CLIENT_NATIVE_REPLAY"
+  },
+  "hardware": "NOT_RUN",
+  "original_apps9_prerequisite": {
+    "M2": "NOT_RUN",
+    "Root_acceptance": "NOT_ISSUED_BY_READER",
+    "attempt": "1",
+    "current_apps9": {
+      "cache": "NOT_RUN",
+      "full604": "NOT_RUN",
+      "generic16k": "NOT_RUN",
+      "hardware": "NOT_RUN",
+      "limits": [
+        "PRIVATE574_PRESERVATION_MAPS_UNEXPORTED",
+        "SUCCESSFUL_UNITTEST_TEXT_UNEXPORTED",
+        "NO_INDEPENDENT_MACHINE_ATTESTATION",
+        "TEST_SIGNATURES_SOURCE_ENFORCED_NOT_RELEASE_TRUST"
+      ],
+      "release": "NOT_ADMITTED",
+      "run": "39748090833",
+      "scope": "SIX_SAME_JOB_NATIVE_BUILDS_THREE_PAIRS_AND_SOURCE_ENFORCED_INSTALLED_RECEIPTS",
+      "source": "4ebe9f9afb153b34e8fe200594eaee189626413f",
+      "status": "PASS_ORIGINAL_APPS9_CLIENT_NATIVE_REPLAY"
+    },
+    "hardware": "NOT_RUN",
+    "original_apps8_prerequisite": {
+      "M2": "NOT_RUN",
+      "Root_acceptance": "NOT_ISSUED_BY_READER",
+      "attempt": "1",
+      "current_apps8": {
+        "cache": "NOT_RUN",
+        "full604": "NOT_RUN",
+        "generic16k": "NOT_RUN",
+        "hardware": "NOT_RUN",
+        "limits": [
+          "PRIVATE574_PRESERVATION_MAPS_UNEXPORTED",
+          "SUCCESSFUL_UNITTEST_TEXT_UNEXPORTED",
+          "NO_INDEPENDENT_MACHINE_ATTESTATION",
+          "TEST_SIGNATURES_SOURCE_ENFORCED_NOT_RELEASE_TRUST"
+        ],
+        "release": "NOT_ADMITTED",
+        "run": "39727987029",
+        "scope": "SIX_SAME_JOB_NATIVE_BUILDS_THREE_PAIRS_AND_SOURCE_ENFORCED_INSTALLED_RECEIPTS",
+        "source": "f1984a2481c541add7eb99b311a3ae3228307aa6",
+        "status": "PASS_ORIGINAL_APPS8_CLIENT_NATIVE_REPLAY"
+      },
+      "hardware": "NOT_RUN",
+      "original_apps7_prerequisite": {
+        "cache": "NOT_RUN",
+        "full604": "NOT_RUN",
+        "generic16k": "NOT_RUN",
+        "hardware": "NOT_RUN",
+        "limits": [
+          "PRIVATE574_PRESERVATION_MAPS_UNEXPORTED",
+          "SUCCESSFUL_UNITTEST_TEXT_UNEXPORTED",
+          "NO_INDEPENDENT_MACHINE_ATTESTATION",
+          "TEST_SIGNATURES_SOURCE_ENFORCED_NOT_RELEASE_TRUST"
+        ],
+        "release": "NOT_ADMITTED",
+        "run": "39095436036",
+        "scope": "SIX_SAME_JOB_NATIVE_BUILDS_THREE_PAIRS_AND_SOURCE_ENFORCED_INSTALLED_RECEIPTS",
+        "source": "1dc9ecfee51145ba9cc43a95cc45bee97faed8b9",
+        "status": "PASS_ORIGINAL_APPS7_CLIENT_NATIVE_REPLAY"
+      },
+      "release": "NOT_ADMITTED",
+      "run": "39727987029",
+      "source": "f1984a2481c541add7eb99b311a3ae3228307aa6",
+      "status": "PASS_CURRENT_APPS8_NATIVE_PAIRS_AND_LIFECYCLE_PASSIVE_REPLAY",
+      "transport": {
+        "actual_acceptance": false,
+        "artifact_id": 12404192610,
+        "job_id": 119656244448,
+        "logs": {
+          "0_native.txt": {
+            "bytes": 169727,
+            "crc32": 1505994800,
+            "sha256": "1dd1cddb1cce490441557647e060418743f3b7c804c0a55adbaad734bd051530"
+          },
+          "native/10_Upload only the bounded public evidence directory.txt": {
+            "bytes": 2057,
+            "crc32": 517963131,
+            "sha256": "76b33019cf8ffbd069398e352f2eb2d033e6508bf5a1be6ac9a70a461e76cdef"
+          },
+          "native/19_Post Checkout the whole exact public574 retained input source.txt": {
+            "bytes": 1761,
+            "crc32": 1908527487,
+            "sha256": "dc75754b3ca50da016193a12e95c28c8db102b008805baa1f0ebee103d5646e6"
+          },
+          "native/1_Set up job.txt": {
+            "bytes": 2130,
+            "crc32": 3691506768,
+            "sha256": "9aca166a17b9c4181808777b404567699d614d6fef4855810d9a0e55a7af3dcd"
+          },
+          "native/20_Post Run actions_checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0.txt": {
+            "bytes": 1749,
+            "crc32": 552857725,
+            "sha256": "6f8406f4e96cf952c7bb513269766d3d50648c35d81fa51c4b39adf148fb7d14"
+          },
+          "native/21_Complete job.txt": {
+            "bytes": 61,
+            "crc32": 2148101903,
+            "sha256": "bc52dd948bd84babc3db49dd7c2a2d44aaadfafc30a3226d1f6745fa0d81d63c"
+          },
+          "native/2_Run actions_checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0.txt": {
+            "bytes": 12342,
+            "crc32": 1636192672,
+            "sha256": "0509d15a1bbf9e9b196009652f5a42818e1b8690b307360f0ecda9fb705f7daa"
+          },
+          "native/3_Prove the explicit source and workflow revision before actors.txt": {
+            "bytes": 1408,
+            "crc32": 1749819300,
+            "sha256": "0b4bd8a5bd441f5311f92ed90041d427cb69b740586f75fbb6d4667024298ef6"
+          },
+          "native/4_Focused source and hosted entry controls.txt": {
+            "bytes": 4961,
+            "crc32": 3251182717,
+            "sha256": "45737d39517dab3226446661e207958f6976397404f2cad72cc9a348cc322c2b"
+          },
+          "native/5_Checkout the whole exact public574 retained input source.txt": {
+            "bytes": 12519,
+            "crc32": 4167575448,
+            "sha256": "d7f7d104851cfda9cac01a1ceab934ccc7c1f0c421d294ec3d6988d745589cdf"
+          },
+          "native/6_Reconstruct pinned inputs and run offline owned native574 transaction.txt": {
+            "bytes": 98759,
+            "crc32": 3014035448,
+            "sha256": "b5fd731fc47425a6afa5d6af8ee09b5b94a0e5d4b9c3b2c9746a9791ba844cbc"
+          },
+          "native/7_Rebuilt Runtime1 pair, owned dependency image, explicit Apps8 and client-v2 pairs.txt": {
+            "bytes": 1295,
+            "crc32": 322771232,
+            "sha256": "b4f2eefc98aeddab817849074d569d5085682a805d5ad42a85a558f28897956c"
+          },
+          "native/8_Retire all owned consumers, dependency images and original producer before TEST authority.txt": {
+            "bytes": 4119,
+            "crc32": 2025123975,
+            "sha256": "573fc6391b19c0a274efd449ab734ab194901af00c2fdec2decdda73319937bc"
+          },
+          "native/9_Retain the closed Apps8 client-v2 and rebuilt Runtime1 evidence set.txt": {
+            "bytes": 26602,
+            "crc32": 2414936260,
+            "sha256": "5e2667eca482cf9c5db88fe8900a59c2aacfa2fe97ec32b3e941f7f70f1c9bae"
+          },
+          "native/system.txt": {
+            "bytes": 777,
+            "crc32": 4088142668,
+            "sha256": "c33c1e76cbfd9882938c046c66d8d88fa4106dece329169c3c1f74ef3c4a3412"
+          }
+        },
+        "status": "PASS_CURRENT_ORIGINAL_API_ARCHIVE_LOG_CRC_AND_ARM_JOB_JOINS"
+      }
+    },
+    "release": "NOT_ADMITTED",
+    "run": "39748090833",
+    "source": "4ebe9f9afb153b34e8fe200594eaee189626413f",
+    "status": "PASS_CURRENT_APPS9_NATIVE_PAIRS_AND_LIFECYCLE_PASSIVE_REPLAY",
+    "transport": {
+      "actual_acceptance": false,
+      "artifact_id": 12412487370,
+      "job_id": 119721506057,
+      "logs": {
+        "0_native.txt": {
+          "bytes": 169784,
+          "crc32": 4135860583,
+          "sha256": "cca908c18e876979249a8c0e75d41e5dc67f3308b16e9f44153c2465a73968fc"
+        },
+        "native/10_Upload only the bounded public evidence directory.txt": {
+          "bytes": 2057,
+          "crc32": 2012709505,
+          "sha256": "05d5779c4a06c8081ec6637ff4b624841da0417b77ce745acbfb156da05cd5e2"
+        },
+        "native/19_Post Checkout the whole exact public574 retained input source.txt": {
+          "bytes": 1761,
+          "crc32": 555064244,
+          "sha256": "18859ed027738d2245ea9754bcf11f42ae5690763302cfc215bcc0730a29f188"
+        },
+        "native/1_Set up job.txt": {
+          "bytes": 2130,
+          "crc32": 2721609022,
+          "sha256": "946f75b32c3d939e7345d6f55c6a172dca9bd34eb0685a058c859038fe759f44"
+        },
+        "native/20_Post Run actions_checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0.txt": {
+          "bytes": 1749,
+          "crc32": 4024345013,
+          "sha256": "0ccd6b155ef31e44106f1bb9f3d8bb44dc4c367f7daa29ed15645fcb4dc7097a"
+        },
+        "native/21_Complete job.txt": {
+          "bytes": 61,
+          "crc32": 2592856420,
+          "sha256": "27994ff825670f6c18245a5d2c3733c293c0c58b385f7963a553815c27104974"
+        },
+        "native/2_Run actions_checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0.txt": {
+          "bytes": 12337,
+          "crc32": 4159366620,
+          "sha256": "b840caea8f05da08de479096ac85449a1afa5221844b6cc717a60fda8e3c6b12"
+        },
+        "native/3_Prove the explicit source and workflow revision before actors.txt": {
+          "bytes": 1408,
+          "crc32": 7384525,
+          "sha256": "bd9bd801b1bb166ea01a4bdd22fb8916fff698d71248dbd0d17aeecd5bf8ca6b"
+        },
+        "native/4_Focused source and hosted entry controls.txt": {
+          "bytes": 4961,
+          "crc32": 2626569610,
+          "sha256": "0d30aaff6b1aa30109cf846db101ad4189a5f2cdb2f197552bc68435c065af4c"
+        },
+        "native/5_Checkout the whole exact public574 retained input source.txt": {
+          "bytes": 12519,
+          "crc32": 3891387342,
+          "sha256": "249dcaf540c540bda35f0405a4ab687911c6052bbf9080317265dc2c6c94c223"
+        },
+        "native/6_Reconstruct pinned inputs and run offline owned native574 transaction.txt": {
+          "bytes": 98820,
+          "crc32": 2655241071,
+          "sha256": "a961516695d3a7ace415f42abd9a40523ed70e17eb9e88e995645fb4876f1561"
+        },
+        "native/7_Rebuilt Runtime1 pair, owned dependency image, explicit Apps9 and client-v2 pairs.txt": {
+          "bytes": 1295,
+          "crc32": 238853156,
+          "sha256": "cb87b0e279ddd145ee1b67ab7a09073b52db50241b5d99aea561af76a5e035fd"
+        },
+        "native/8_Retire all owned consumers, dependency images and original producer before TEST authority.txt": {
+          "bytes": 4119,
+          "crc32": 2895085734,
+          "sha256": "5a852fa51ac4a4e2d8df7965e1862e6e5928fd60b8fde0e0aae8ea1f88f76505"
+        },
+        "native/9_Retain the closed Apps9 client-v2 and rebuilt Runtime1 evidence set.txt": {
+          "bytes": 26603,
+          "crc32": 2971040436,
+          "sha256": "7b8aab3e87a3224b3b1158f268eee4fffbce50d88a7120e6f9baf82c53865232"
+        },
+        "native/system.txt": {
+          "bytes": 782,
+          "crc32": 812151803,
+          "sha256": "3f5a9e4c930aa7317c69a87e9ac9642b0b8acd76c726daf5aa763e55ca3283db"
+        }
+      },
+      "status": "PASS_CURRENT_ORIGINAL_API_ARCHIVE_LOG_CRC_AND_ARM_JOB_JOINS"
+    }
+  },
+  "release": "NOT_ADMITTED",
+  "run": "39758362995",
+  "source": "9d1b97e0adf704fa19b534a7db610350e36a42a5",
+  "status": "PASS_CURRENT_APPS10_NATIVE_PAIRS_AND_LIFECYCLE_PASSIVE_REPLAY",
+  "transport": {
+    "actual_acceptance": false,
+    "artifact_id": 12417591030,
+    "job_id": 119756033446,
+    "logs": {
+      "0_native.txt": {
+        "bytes": 170834,
+        "crc32": 681354294,
+        "sha256": "658c65f9b11d0f55e7d50c3c82c5185c8da3ff7a2971e1eb82da062088cc89ef"
+      },
+      "native/10_Upload only the bounded public evidence directory.txt": {
+        "bytes": 2063,
+        "crc32": 1597057750,
+        "sha256": "f127e9ab8f76fc386c7baa7aa79cbd9dc026f721c8b760710ad8b031f9a1115d"
+      },
+      "native/19_Post Checkout the whole exact public574 retained input source.txt": {
+        "bytes": 1761,
+        "crc32": 2134142868,
+        "sha256": "61601856b013165201352d3e643ab1bfa61797726c589fbca94a022f8851b33b"
+      },
+      "native/1_Set up job.txt": {
+        "bytes": 2130,
+        "crc32": 3713171933,
+        "sha256": "6fa0d8b7ff57e1aaa8091501f1f78b07326515964297a5372feee5080027283b"
+      },
+      "native/20_Post Run actions_checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0.txt": {
+        "bytes": 1749,
+        "crc32": 528706689,
+        "sha256": "923c7233165fe65cd96e73c6793c2c6446c63e354a04440fca1751195ab7a54c"
+      },
+      "native/21_Complete job.txt": {
+        "bytes": 61,
+        "crc32": 1421462699,
+        "sha256": "b4c4ed56bfe55f60b8ab35d4b2f4b6ec46579508dea6c0eea29a961ad0a001f8"
+      },
+      "native/2_Run actions_checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0.txt": {
+        "bytes": 12333,
+        "crc32": 604875775,
+        "sha256": "a2c59d48d6425f59f63bf988c24811968b99c01cbf62e763d6657acdaed3a21f"
+      },
+      "native/3_Prove the explicit source and workflow revision before actors.txt": {
+        "bytes": 1412,
+        "crc32": 3829670873,
+        "sha256": "1fe6853ec559277f26450f68cb6640c77b9c6ca1a31883784a6ba94b48a7a71b"
+      },
+      "native/4_Focused source and hosted entry controls.txt": {
+        "bytes": 4962,
+        "crc32": 2603364464,
+        "sha256": "4af1a6f8da90bce0b9bcdf14eb953b21be68127a88a74339ea28f7d19628ab64"
+      },
+      "native/5_Checkout the whole exact public574 retained input source.txt": {
+        "bytes": 13457,
+        "crc32": 2920294647,
+        "sha256": "20ef28c508a8ae8191100f2bce744c83b150f5226f5be42ac7953410ec58de7b"
+      },
+      "native/6_Reconstruct pinned inputs and run offline owned native574 transaction.txt": {
+        "bytes": 98755,
+        "crc32": 2627008726,
+        "sha256": "977c462fe31bc4ef4ecfa06897044011bab07d2063ca7d0f7c821956444e5a84"
+      },
+      "native/7_Rebuilt Runtime1 pair, owned dependency image, explicit Apps10 and client-v2 pairs.txt": {
+        "bytes": 1297,
+        "crc32": 1241426208,
+        "sha256": "279d34d6e02f725126aa722bbeaeba285fd77a924e8c8bcc22d0a53f3f859cbb"
+      },
+      "native/8_Retire all owned consumers, dependency images and original producer before TEST authority.txt": {
+        "bytes": 4126,
+        "crc32": 2239853885,
+        "sha256": "55d39160eb842c34c0e0d3a4e7d9671649dfb7dbf6f4407259594e54e782b843"
+      },
+      "native/9_Retain the closed Apps10 client-v2 and rebuilt Runtime1 evidence set.txt": {
+        "bytes": 26764,
+        "crc32": 3725168049,
+        "sha256": "3971fd4e7e26a8fed6124d5c2b9ef3acddf492f0d39320fa4a432d10387df6f9"
+      },
+      "native/system.txt": {
+        "bytes": 783,
+        "crc32": 4132572462,
+        "sha256": "b34aadb850b105ea2f760c95bce7f331aa926d92f4333e2530db1bc7ed40d60d"
+      }
+    },
+    "status": "PASS_CURRENT_ORIGINAL_API_ARCHIVE_LOG_CRC_AND_ARM_JOB_JOINS"
+  }
+}
