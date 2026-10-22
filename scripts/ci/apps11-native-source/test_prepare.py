@@ -29,6 +29,19 @@ class Controls(unittest.TestCase):
  def test_parent_overlap_refuses_without_mutation(self):
   with self.assertRaises(ValueError):F.emit(P,Q,P/'nested-output')
   self.assertFalse((P/'nested-output').exists())
+ def test_dotdot_paths_refuse_before_writes_and_preserve_all_inputs(self):
+  # Run the actual previous emitter against an owned clone to reproduce the
+  # nested-parent mutation. No original fixture or maintained source is written.
+  import ast
+  with tempfile.TemporaryDirectory()as td:
+   root=Path(td);(root/'hop').mkdir();baseline=root/'baseline';shutil.copytree(P,baseline,ignore=shutil.ignore_patterns('.git'))
+   old=ast.get_source_segment((HERE/'prepare.py').read_text(),next(n for n in ast.parse((HERE/'prepare.py').read_text()).body if isinstance(n,ast.FunctionDef)and n.name=='emit'));guard="need(all(p==p.resolve()for p in(parent,recipe,output)),'canonical normalized input/output paths required');";self.assertEqual(old.count(guard),1);old=old.replace(guard,'',1);space=dict(vars(F));exec(compile(old,'original_emit_before_normalization','exec'),space)
+   prior=F.pins(F.tree(baseline));bad=root/'hop'/'..'/'baseline'/'nested-output';value=space['emit'](baseline,Q,bad);self.assertEqual(value['files'],115);self.assertEqual(F.pins(F.tree(bad)),F.profile()['after']);self.assertEqual(len(prior),115);self.assertEqual(len(F.tree(baseline)),230)
+   parent=root/'parent';recipe=root/'recipe';factory=root/'factory';shutil.copytree(P,parent,ignore=shutil.ignore_patterns('.git'));shutil.copytree(Q,recipe,ignore=shutil.ignore_patterns('.git'));shutil.copytree(HERE,factory);before=[F.pins(F.tree(x))for x in(parent,recipe,factory)]
+   cases=[(parent,recipe,root/'hop'/'..'/'parent'/'never-written'),(parent,recipe,root/'hop'/'..'/'recipe'/'never-written'),(parent,recipe,root/'hop'/'..'/'factory'/'never-written'),(root/'hop'/'..'/'parent',recipe,root/'parent-input-out'),(parent,root/'hop'/'..'/'recipe',root/'recipe-input-out')]
+   for a,b,out in cases:
+    with self.subTest(parent=a,recipe=b,output=out),self.assertRaisesRegex(ValueError,'canonical normalized'):F.emit(a,b,out)
+    self.assertFalse(out.exists());self.assertEqual([F.pins(F.tree(x))for x in(parent,recipe,factory)],before)
  def test_emitted_preflight_and_all18_native_source_controls(self):
   with tempfile.TemporaryDirectory()as td:
    root=Path(td)/'source';F.emit(P,Q,root);lane=root/'scripts/ci/apps11-client-native'
