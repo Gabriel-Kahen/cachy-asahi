@@ -1,0 +1,45 @@
+pkgbase = cachy-asahi-apps
+	pkgdesc = Offline signed ARM development application catalog and explicit readonly package plans
+	pkgver = 0.1.0
+	pkgrel = 14
+	url = https://github.com/Gabriel-Kahen/cachy-asahi
+	arch = any
+	license = MIT
+	depends = python>=3.11
+	depends = gnupg
+	depends = libarchive
+	depends = pacman
+	depends = cachy-asahi-repository-runtime=0.1.0-1
+	noextract = check-inputs.tar.gz
+	source = apps.py
+	source = cachy-asahi-apps
+	source = helper-pins.json
+	source = test_apps.py
+	source = check_source.py
+	source = README.md
+	source = source-provenance.json
+	source = NOTICE
+	source = LICENSE
+	source = prepare-check-inputs.py
+	source = check-inputs.json
+	source = check-inputs.tar.gz
+	source = inventory.py
+	source = test_inventory_paths.py
+	source = test_diagnostic_stage.py
+	sha256sums = 912d87a9871f20545fb8470f84a799918168830b320afe3648c8781de29abcaa
+	sha256sums = 4e9c078c2e05cc00cb6479d5fff23b92cbcabd8d6b3ff970f6181e6467921630
+	sha256sums = 33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a
+	sha256sums = 6d55ca76da60b7f1121d04cb3e16435f6db477b39e7ae8985bec01e7227d4987
+	sha256sums = f02aec7f9ebd2ed93ed54f420d94ee7c1342f6a0c5ee57839ffbee3d41b126c4
+	sha256sums = 2fb8081c9dac656a2ddb646e7fe47203e8d9d9850ae2db47e6a9e28ffe5af997
+	sha256sums = 6f083425029f7d2560a441aaf88cbddbf4c108ed5c0f9bad21f011cec9c12590
+	sha256sums = e98c3b7203c4202a9d16b0a61822e0d3fdb77d776881f1ca8fb7faa2b3ed3089
+	sha256sums = 51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7
+	sha256sums = 76bc1977cf402872816a430156541c0ccd41273e9080730d2ace7838ffa74214
+	sha256sums = 5cd338eb2ab9f4579825f3dd30de0f25d54a73ee1090737b0a21a506d12caad8
+	sha256sums = 6d38353fe33e0ce595df507ad9b928d80d3e1d6fe5d45d5418f927e9f50fe6d2
+	sha256sums = f5de0fc3d5067cb97986152385c37c2ec9c51237c5b37bc566b766d906405080
+	sha256sums = 53b3c0a032444363ca56894e2fa666a93693b4d22a2ff4d2096a894bbf33e51d
+	sha256sums = 1cf099223054c1559e18f3903ffc3ed6fd90c1bbd3bf4c7a64251b3e3be38b32
+
+pkgname = cachy-asahi-apps
