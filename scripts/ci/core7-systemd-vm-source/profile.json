@@ -14,12 +14,12 @@
   "result": {
     "files": {
       ".github/workflows/native-arm-build.yml": {
-        "bytes": 12456,
-        "sha256": "43a0e551538e4c41cabfdfffba96639bb3c283d7bcebdea0d1302ef89767f222"
+        "bytes": 13212,
+        "sha256": "55be7f2013144dc8b7591613df1269bf5a0e82986c83f41789c8e859d07d8bc5"
       },
       ".github/workflows/native-arm-core7-real-systemd.yml": {
-        "bytes": 12456,
-        "sha256": "43a0e551538e4c41cabfdfffba96639bb3c283d7bcebdea0d1302ef89767f222"
+        "bytes": 13212,
+        "sha256": "55be7f2013144dc8b7591613df1269bf5a0e82986c83f41789c8e859d07d8bc5"
       },
       "Core800-acceptance.json": {
         "bytes": 2043,
@@ -98,8 +98,8 @@
         "sha256": "e248308cc7a04607f18f21a5e06a21165fb985bb43130e7db94966cb4eaa879c"
       },
       "source-manifest.json": {
-        "bytes": 4156,
-        "sha256": "4f78e8bd755967376dc8e503837bfca89a8644488453cb4099d6f422f7270a7a"
+        "bytes": 4289,
+        "sha256": "ca9a1e2e1f9605b5add2067c3c74a63d3f44537ae25a281e4ae13488e52cf7d9"
       },
       "test_case.py": {
         "bytes": 4485,
@@ -108,6 +108,10 @@
       "test_emission.py": {
         "bytes": 2521,
         "sha256": "57a4a755385a5e380e303f3e3da33bafcfc71063ffce2041f22b22b5a5ffdf8f"
+      },
+      "test_host.py": {
+        "bytes": 3090,
+        "sha256": "b01d3159bd0b0c688434bac69976dd16cf173358a598957f3be58f49c1642460"
       },
       "test_protocol.py": {
         "bytes": 3990,
@@ -142,12 +146,12 @@
         "sha256": "179e2990778d66f434241888355df018e265ad85bea6e86ef0ab5e86c79668b5"
       },
       "workflow.yml.in": {
-        "bytes": 12353,
-        "sha256": "cda65e1b14268e11ba26da9b268f7b0a4c670ea32e4698eed9fcae2a6ab8207a"
+        "bytes": 13109,
+        "sha256": "923ae66040ac4cfcd7644d7a677db3ba45f902f787daf9546e698f5c8e0471d4"
       }
     },
-    "ref": "codex/core7-systemd-two-boot-v1",
-    "source": "d0a63680da2bc5e94c32aec27a40dcadf8b024f9"
+    "ref": "codex/core7-host-qemu-v1",
+    "source": "a74c54093bf8d09883e32b0d64b77f46223920e1"
   },
   "schema": 1,
   "templates": {
@@ -235,6 +239,10 @@
       "bytes": 2521,
       "sha256": "57a4a755385a5e380e303f3e3da33bafcfc71063ffce2041f22b22b5a5ffdf8f"
     },
+    "test_host.py": {
+      "bytes": 3090,
+      "sha256": "b01d3159bd0b0c688434bac69976dd16cf173358a598957f3be58f49c1642460"
+    },
     "test_protocol.py": {
       "bytes": 3990,
       "sha256": "aaa7038b767fe86faa7fa3c92f7ea74fc7b5a8b727dd66c46f3321783b4419cd"
@@ -268,8 +276,8 @@
       "sha256": "179e2990778d66f434241888355df018e265ad85bea6e86ef0ab5e86c79668b5"
     },
     "workflow.yml.in": {
-      "bytes": 12353,
-      "sha256": "cda65e1b14268e11ba26da9b268f7b0a4c670ea32e4698eed9fcae2a6ab8207a"
+      "bytes": 13109,
+      "sha256": "923ae66040ac4cfcd7644d7a677db3ba45f902f787daf9546e698f5c8e0471d4"
     }
   }
 }
