@@ -1,0 +1,53 @@
+name: Historical inventory source views
+on:
+  pull_request:
+    paths:
+      - 'manifests/packages.toml'
+      - 'scripts/ci/historical-inventory-source/**'
+      - 'scripts/ci/apps-full574-*/**'
+      - 'scripts/ci/apps6-native-reinstall/**'
+      - 'scripts/ci/orphans-*/**'
+      - 'scripts/ci/glibc-debian-maintained-*/**'
+      - 'scripts/ci/glibc-gnu-provider-installed16k*/**'
+      - '.github/workflows/static.yml'
+      - '.github/workflows/historical-inventory-source.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'manifests/packages.toml'
+      - 'scripts/ci/historical-inventory-source/**'
+      - 'scripts/ci/apps-full574-*/**'
+      - 'scripts/ci/apps6-native-reinstall/**'
+      - 'scripts/ci/orphans-*/**'
+      - 'scripts/ci/glibc-debian-maintained-*/**'
+      - 'scripts/ci/glibc-gnu-provider-installed16k*/**'
+      - '.github/workflows/static.yml'
+      - '.github/workflows/historical-inventory-source.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - name: Checkout current source and current inventory
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Select Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Check explicit historical inventory views and unchanged real emitters
+        run: python3 -I -B -Werror::ResourceWarning scripts/ci/historical-inventory-source/test_prepare.py
+      - name: Smoke actual isolated source CLI
+        run: |
+          python3 -I -B scripts/ci/historical-inventory-source/prepare.py --help
+          python3 -I -B scripts/ci/historical-inventory-source/prepare.py \
+            --source "$GITHUB_WORKSPACE" --factory all \
+            --baseline inventory-19a8bdb45916e5dffef7a4c1496ebbc489792795ea2906a3d705a67e3906b880 \
+            --output "$RUNNER_TEMP/historical-source"
