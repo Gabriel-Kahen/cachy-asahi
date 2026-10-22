@@ -527,7 +527,7 @@
             "include-hidden-files": false,
             "name": "updater604-recovery4k-${{ inputs.case }}-${{ github.run_id }}-${{ github.run_attempt }}",
             "overwrite": false,
-            "path": "${{ runner.temp }}/updater604-copy4k-evidence/evidence.zip",
+            "path": "${{ runner.temp }}/updater604-recovery4k-evidence/evidence.zip",
             "retention-days": 3
           }
         }

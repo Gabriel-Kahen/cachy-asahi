@@ -5,7 +5,7 @@ This source-only factory reproduces two separately published ten-file wrappers o
 | Explicit profile | Exact source | Scope |
 | --- | --- | --- |
 | `normal` | `94297073ac36f257edd118aceba3e375a7148550` | Full copied-root native ARM4K normal update |
-| `recovery` | `05d63059b782f9a47e3ffe1f958463ddbf7fc7dc` | Separate precommit-exit86 and postcommit-exit87 cases |
+| `recovery` | `c75911fe09fb5ceba1e54a6456d5b9c4721960b6` | Separate precommit-exit86 and postcommit-exit87 cases |
 
 Pass an ordinary complete b21 checkout and a fresh disjoint output directory:
 
@@ -20,4 +20,6 @@ The original full owner, fresh observation/copy/hash/capability/link/security ch
 
 Hosted read-only CI checks exact output against both pinned public sources on Python 3.12 and 3.14, with drift, missing, extra, alias and refusal controls. It runs all 11 normal and 10 recovery controls from the actual emitted sources, including the original three prerequisite decision parser. Those accepted decisions authorize inputs only. Source generation performs no actual qualification or acquisition. Existing source factories and defaults are unchanged.
 
-Root separately accepted the finite normal4K case in run `39759891349` on exact source `94297073ac36f257edd118aceba3e375a7148550`: 125,358 copied nodes, 604 packages, 603 protected packages, one committed transaction and complete owned-copy disposal. This is disposable native ARM4K container evidence. Recovery results remain pending. The factory grants no acceptance, and this result establishes no 16K fit, boot recovery, Apple/M2 support or release admission.
+Root separately accepted the finite normal4K case in run `39759891349` on exact source `94297073ac36f257edd118aceba3e375a7148550`: 125,358 copied nodes, 604 packages, 603 protected packages, one committed transaction and complete owned-copy disposal. This is disposable native ARM4K container evidence. The original recovery runs39768760117 and39768777427 failed artifact upload because the workflow selected the normal output path. The corrected recovery source changes only both upload operands and its manifest; all runtime bodies and clocks are held. New recovery results remain pending. The factory grants no acceptance, and this result establishes no 16K fit, boot recovery, Apple/M2 support or release admission.
+
+The portable retention-path regression executes each emitted normal/recovery alias’s actual retention shell and whole fixed-role retainer with explicitly inert authentication DATA. It checks the real eleven-member ZIP, CRCs, missing-role list and exact upload path; restoring the old wrong operand must refuse. This source-only control grants no recovery acceptance.
