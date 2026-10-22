@@ -1,0 +1,72 @@
+{
+  "files": {
+    "HANDOFF.md": {
+      "bytes": 6523,
+      "sha256": "1e2e9ad866a829a968e67129cb67b9f6678113501dcda7e8cdd13db5be25945a"
+    },
+    "benchmark.py": {
+      "bytes": 3463,
+      "sha256": "d3a799aa4b88448cf07e2fbc0d522bf001f1eb18cbe2569a427c9b50b6583ce4"
+    },
+    "check_handoff.py": {
+      "bytes": 518,
+      "sha256": "229fe4e3ec272bf098ec03b84ac232c0b13f263bc26d12494fd098a259baf052"
+    },
+    "controls312.stderr": {
+      "bytes": 1583,
+      "sha256": "97596f0dec0d572fe6f1ba7b41a048d4953b320d1177e10d743106a9b5bc5158"
+    },
+    "controls312.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "controls314.stderr": {
+      "bytes": 1583,
+      "sha256": "d73dd00d71e6b2063f8787ed68ecd9c3f94dd8a93e773fad420d7fff4fd10161"
+    },
+    "controls314.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "kernel-source-evidence.json": {
+      "bytes": 1171,
+      "sha256": "5bd99e0b169254034c4b141804d7b18adb4dbd3a17bdeb7612d9ae72214fa251"
+    },
+    "kernel.fragment.proposed": {
+      "bytes": 968,
+      "sha256": "36ba6f5d5f157c0525c1a938a7ba8817c6b274cb69321e5ef391b039554892c1"
+    },
+    "offline-verity12.json": {
+      "bytes": 923,
+      "sha256": "d800c5b1573d57a3b59cde0aa1701ccb14e077fbf8a5cb0d33cb9eca7349dd90"
+    },
+    "offline-verity14.json": {
+      "bytes": 923,
+      "sha256": "d800c5b1573d57a3b59cde0aa1701ccb14e077fbf8a5cb0d33cb9eca7349dd90"
+    },
+    "profile-proposal.json": {
+      "bytes": 488,
+      "sha256": "0fd538a2cfb9b746e3cca8a4edcea6c654e5257ce80a20d5a37aa0916100f570"
+    },
+    "reader.py": {
+      "bytes": 8537,
+      "sha256": "9ffb404f64e0dcfb1fbd564131b7d8be9e564fdee7937cf7e312cf04ee58ddaa"
+    },
+    "test_prototype.py": {
+      "bytes": 7884,
+      "sha256": "03ea591872a35dcdcf9e06bc26f6f099c6552b3b788e031b849318e3fec355a7"
+    },
+    "timing14.json": {
+      "bytes": 2078,
+      "sha256": "551e07f09425368acab4f5e9c37cddd371f28aab3f3f1765918f50d4edc7c3e2"
+    },
+    "verity_image.py": {
+      "bytes": 3454,
+      "sha256": "252acc8782b313fd28a170f0ea4688030e379670dc3ab91f985357cbbe5d8b24"
+    }
+  },
+  "ref": null,
+  "run": null,
+  "source": null,
+  "status": "FROZEN_MECHANISM_ONLY_NOT_DEPLOYABLE_OR_ACCEPTANCE"
+}

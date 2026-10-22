@@ -1,0 +1,52 @@
+{
+  "archive_date": "2026/10/13",
+  "archive_host": "pkgmirror.sametimetomorrow.net",
+  "files": {
+    "libx11-1.8.13-2-aarch64.pkg.tar.xz": {
+      "bytes": 2009768,
+      "sha256": "b391fdf1927ec6f8de2f3e5998c927df5fe1b13d9338e56ade48154af460a234",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/libx11-1.8.13-2-aarch64.pkg.tar.xz"
+    },
+    "libx11-1.8.13-2-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "7ac4bf3d7fcac7160797bdcf23a2cd7904c96ee938089dd40164aecb7fb5936f",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/libx11-1.8.13-2-aarch64.pkg.tar.xz.sig"
+    },
+    "libxi-1.8.3-1-aarch64.pkg.tar.xz": {
+      "bytes": 151764,
+      "sha256": "379cea947498145d31decca7a1beacec268cb24fb622a59f6dc49c23be793a22",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/libxi-1.8.3-1-aarch64.pkg.tar.xz"
+    },
+    "libxi-1.8.3-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "a9222bebc44be41ba8f0504459d4a009f353b2254db897e8962eb753c5cefd79",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/libxi-1.8.3-1-aarch64.pkg.tar.xz.sig"
+    },
+    "libxrender-0.9.12-1-aarch64.pkg.tar.xz": {
+      "bytes": 27784,
+      "sha256": "f5f344d116ff42b379c50ef595e7e9a3a6f7ed09357f8cd3acab90a3d11c9960",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/libxrender-0.9.12-1-aarch64.pkg.tar.xz"
+    },
+    "libxrender-0.9.12-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 565,
+      "sha256": "5964f40f20cc60188d1e14e89363d68c57500b03cb0d08c991aa6feb68dd321d",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/libxrender-0.9.12-1-aarch64.pkg.tar.xz.sig"
+    },
+    "libxtst-1.2.5-1-aarch64.pkg.tar.xz": {
+      "bytes": 28736,
+      "sha256": "3ca6270ff04330650205339e2726c23616b31468a493642ba3df74af050ae888",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/libxtst-1.2.5-1-aarch64.pkg.tar.xz"
+    },
+    "libxtst-1.2.5-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "2f26dbe9d2a4aa42639e97e4f11b0270c2ba2247c6513890a2d517bd6d0465c2",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/repos/2026/10/13/extra/libxtst-1.2.5-1-aarch64.pkg.tar.xz.sig"
+    }
+  },
+  "original_inputs": {
+    "bytes": 623664,
+    "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+  },
+  "purpose": "EXACT_FROZEN574_8_ROTATED_INPUT_BYTES_NO_VERSION_OR_TRUST_CHANGE",
+  "schema_version": 1
+}
