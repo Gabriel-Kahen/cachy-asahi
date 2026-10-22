@@ -1,0 +1,51 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
+"""Emit exact published698 from whole corrected676; no actors or acceptance."""
+import argparse,hashlib,json,os,stat,sys
+from pathlib import Path
+HERE=Path(__file__).resolve().parent
+PROFILE={'bytes': 9293, 'sha256': '35b93473c7415d42fa405d224578eb4d3ae7d77c503cf08bd78b148922310daa'}
+
+def need(ok,why):
+ if not ok:raise ValueError(why)
+def pin(raw):return dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())
+def ordinary(path):
+ path=Path(path).absolute();need('..'not in path.parts and not any(p.is_symlink()for p in(path,*path.parents)),'no source/output aliases or traversal');return path
+def read(path):
+ path=ordinary(path);fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK|os.O_CLOEXEC)
+ try:
+  a=os.fstat(fd);need(stat.S_ISREG(a.st_mode)and a.st_nlink==1 and 0<=a.st_size<=16*1024**2,'bounded singlelink source/support input');raw=bytearray()
+  while block:=os.read(fd,1024**2):raw.extend(block);need(len(raw)<=a.st_size,'source grew during read')
+  identity=lambda s:(s.st_dev,s.st_ino,s.st_mode,s.st_uid,s.st_gid,s.st_nlink,s.st_size,s.st_mtime_ns,s.st_ctime_ns);need(len(raw)==a.st_size and identity(a)==identity(os.fstat(fd))==identity(path.lstat()),'whole stable atime-independent source identity');return bytes(raw)
+ finally:os.close(fd)
+def source(root,wanted):
+ root=ordinary(root);need(root.is_dir(),'whole source/support directory required');expected_dirs={''}
+ for n in wanted:
+  p=Path(n);need(n and not p.is_absolute()and p.as_posix()==n and not set(p.parts)&{'.','..'}and'\\'not in n,'fixed canonical relative source path');expected_dirs.update(q.as_posix()if str(q)!='.'else''for q in p.parents)
+ bodies={};directories={''}
+ for p in sorted(root.rglob('*')):
+  name=p.relative_to(root).as_posix()
+  if p.relative_to(root).parts[0]=='.git':continue
+  need(not p.is_symlink(),'source/support symlink refused')
+  if p.is_dir():directories.add(name)
+  else:need(name in wanted,'extra source/support file');bodies[name]=read(p)
+ need(directories==expected_dirs and{n:pin(v)for n,v in bodies.items()}==wanted,'complete exact source/support closure including directories');return bodies
+
+def inputs():
+ need(not sys.flags.optimize,'optimized source checks refused');raw=read(HERE/'profile.json');need(pin(raw)==PROFILE,'whole pinned698 factory profile');p=json.loads(raw);need(p['kind']=='SOURCE_ONLY_EXACT_FULL606_ONBOARDING698_FACTORY'and p['actual']is None and p['parent']['source']=='f9471acd0414c2f6abc53ee81111011df735430c'and p['result']['source']=='3b60dfffcc3ceb8cddce86b29d245cab01c2a772','only exact corrected676-to698 profile')
+ before=read(HERE/'parent676.json');after=read(HERE/'expected698.json');need(pin(before)==p['parent']['map']and pin(after)==p['result']['map'],'whole before/after map pins');before,after=json.loads(before),json.loads(after);need(len(before)==676 and len(after)==698 and len(p['changed'])==4 and len(p['added'])==22 and set(after)==set(before)|set(p['added']),'finite four-replacement22-addition source closure')
+ need({n for n in before if before[n]!=after[n]}==set(p['changed'])and{n for n in after if n not in before}==set(p['added'])and p['held']==672,'actual complete source delta')
+ for n,row in p['changed'].items():need(row==dict(before=before[n],proposed=after[n]),'exact changed source operand')
+ need(p['payload']=={n:after[n]for n in set(p['changed'])|set(p['added'])},'exact replacement/addition payload table');return p,before,after,source(HERE/'payload',p['payload'])
+
+def emit(parent,output):
+ p,before,after,payload=inputs();parent=ordinary(parent);output=ordinary(output);need(not os.path.lexists(output)and output.parent.is_dir()and not output.is_relative_to(parent)and not parent.is_relative_to(output),'fresh disjoint source-only output');bodies=source(parent,before)  # Every676 byte is checked before any output.
+ bodies.update(payload);need({n:pin(raw)for n,raw in bodies.items()}==after,'whole exact698 source before writing');output.mkdir(mode=0o700)
+ for n,raw in sorted(bodies.items()):
+  path=output/n;path.parent.mkdir(parents=True,exist_ok=True)
+  with path.open('xb')as stream:stream.write(raw)
+ need({n:pin(raw)for n,raw in source(output,after).items()}==after,'complete final698 output');return dict(status='SOURCE_ONLY_EXACT698_ONBOARDING_NOT_NATIVE_ACCEPTANCE',files=698,source=p['result']['source'],parent=p['parent']['source'],held=672,changed=4,added=22,actual=None,native='NOT_RUN',hardware='NOT_RUN',independent_new_user_install='NOT_RUN',release='NOT_ADMITTED')
+
+def main():
+ parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--parent',type=Path,required=True);parser.add_argument('--output',type=Path,required=True);a=parser.parse_args();print(json.dumps(emit(a.parent,a.output),sort_keys=True))
+if __name__=='__main__':main()
