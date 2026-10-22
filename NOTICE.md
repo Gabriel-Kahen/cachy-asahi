@@ -1,0 +1,5 @@
+# Qualified Apps8 development inputs
+
+This source-only packet preserves the complete93-file accepted Apps8 carrier under apps8/, including its original licenses, recipe/source provenance and historical public TEST signature custody. It adds only the already-public finite current606 Root decision/result/post-replay maps and five once-collected original roles. The original artifact is the previously authenticated closed950-member public export; no rootfs, private cache, private key or private full user/config graph is added.
+
+Outer source helper/metadata are MIT under LICENSE. Nested original archives, source and evidence retain their original license/provenance; the outer notice does not relicense them. Root acceptance is finite to source5c3c2d0ce5b4f6c2672c9367b722170687c7de69/run39735431322. It supplies retrievable accepted input DATA, never a new composition/native/GUI/hardware/performance/release decision. Whole new carrier source/Git proof remains mandatory at the consuming source before reading this packet.

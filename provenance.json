@@ -1,0 +1,25 @@
+{
+  "API": "NOT_RUN",
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "apps8": {
+    "files": 93,
+    "ref": "codex/apps8-accepted-inputs-v1",
+    "root_tree": "58e4aea8af2b8af57b67ec34a19b41baed60b253",
+    "source": "979b2d6ec7417e607a911d8c25bef2f1f7f72dcb"
+  },
+  "current_composition": "NOT_QUALIFIED",
+  "hardware": "NOT_RUN",
+  "qualification": {
+    "public_bytes": 43567308,
+    "public_files": 950,
+    "reader_files": 1590,
+    "ref": "codex/apps8-current606-carrier-env-v1",
+    "run": 39735431322,
+    "source": "5c3c2d0ce5b4f6c2672c9367b722170687c7de69",
+    "source_files": 380
+  },
+  "release": "NOT_ADMITTED",
+  "status": "COPIED_EXACT_PRIOR_PUBLIC_INPUTS_NO_NEW_ACQUISITION_OR_AUTHENTICATION"
+}
