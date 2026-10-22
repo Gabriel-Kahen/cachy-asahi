@@ -54,3 +54,18 @@ the producer. Update and install each have a 120-second cap with retries disable
 Four initial checkouts have unique names. This corrects the authenticated prior
 run39736610069 failure: QEMU was absent before either VM boot. The original
 33-file trial remains recorded in Git; its failed run is not VM acceptance.
+
+
+An explicit `--virtio20` correction emits exact34 source
+`bc9c55f9c245df31061aed7e49e636eeae0a018c` from the unchanged34 default.
+It uses all128 nonce bits to derive two distinct20-byte virtio block IDs, adds
+bounded bootstrap line/return-code DATA and panic failure exit, and retains all
+original positive/retirement/crypto/full-graph/budget predicates. The old default
+remains byte-exact. All31 emitted source controls run in scoped CI; no native
+boot, automatic-hook/PID1, Asahi/M2 or performance acceptance follows from this
+factory. The previously captured panic line remains unknown.
+
+```sh
+python3 -I -B scripts/ci/core7-systemd-vm-source/prepare.py --virtio20 --source-only
+python3 -I -B scripts/ci/core7-systemd-vm-source/prepare.py --virtio20 --output /fresh/source
+```
