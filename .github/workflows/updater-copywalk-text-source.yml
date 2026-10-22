@@ -1,0 +1,41 @@
+name: Updater inner copywalk text source factory
+on:
+  pull_request:
+    paths:
+      - 'scripts/ci/updater-copy-cost-source/**'
+      - '.github/workflows/updater-copywalk-text-source.yml'
+  push:
+    paths:
+      - 'scripts/ci/updater-copy-cost-source/**'
+      - '.github/workflows/updater-copywalk-text-source.yml'
+permissions:
+  contents: read
+jobs:
+  source-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    strategy:
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 2ef64d460aedeed8f40909d32f4a074e8c3c546b
+          path: .ci-updater-copy-parent
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: b21a5864d5a4610b9181a1c270ac8821d8448a17
+          path: .ci-updater-copy-expected
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Reproduce fixed489 source and run bounded source-only controls
+        env:
+          UPDATER_TEXT_PARENT: ${{ github.workspace }}/.ci-updater-copy-parent
+          UPDATER_TEXT_EXPECTED: ${{ github.workspace }}/.ci-updater-copy-expected
+        run: python -I -B -Werror scripts/ci/updater-copy-cost-source/test_copywalk_text.py
