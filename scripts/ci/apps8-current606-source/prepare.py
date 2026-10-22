@@ -129,13 +129,20 @@ def emit_apps11(parent,carrier,apps11_carrier,output):
 
 def main():
  parser=argparse.ArgumentParser(description=__doc__)
- for name in ('parent','carrier','output'):parser.add_argument('--'+name,type=Path,required=True)
+ for name in ('parent','output'):parser.add_argument('--'+name,type=Path,required=True)
+ parser.add_argument('--carrier',type=Path)
  parser.add_argument('--carrier-env-correction',action='store_true')
- for version in ('9','10','11'):
+ for version in ('9','10','11','14'):
   parser.add_argument('--apps'+version,action='store_true')
   parser.add_argument('--apps'+version+'-carrier',type=Path)
  a=parser.parse_args()
- if sum((a.carrier_env_correction,a.apps9,a.apps10,a.apps11))>1:parser.error('select exactly one explicit variant')
+ if sum((a.carrier_env_correction,a.apps9,a.apps10,a.apps11,a.apps14))>1:parser.error('select exactly one explicit variant')
+ if a.apps14:
+  if a.carrier is not None or any(v is not None for v in(a.apps9_carrier,a.apps10_carrier,a.apps11_carrier)):parser.error('--apps14 takes only --apps14-carrier; no original carrier or other candidate')
+  import importlib.util
+  spec=importlib.util.spec_from_file_location('_apps14_explicit_factory',HERE/'apps14.py');module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);result=module.emit(a.parent,a.apps14_carrier,a.output);print(json.dumps(result,sort_keys=True));return
+ if a.carrier is None:parser.error('--carrier is required for every original route')
+ if a.apps14_carrier is not None:parser.error('--apps14-carrier requires --apps14')
  if a.apps11:
   if a.apps11_carrier is None or a.apps9_carrier is not None or a.apps10_carrier is not None:parser.error('--apps11 requires only --apps11-carrier')
   result=emit_apps11(a.parent,a.carrier,a.apps11_carrier,a.output)

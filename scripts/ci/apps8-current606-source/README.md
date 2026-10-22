@@ -149,3 +149,20 @@ profile/map/legal/payload/directory/alias/selection drift refusals. All actual
 profiles remain NULL; source emission grants no current606,GUI,16K,M2,
 performance or release acceptance and does not require an Apps10 current606
 actual.
+
+
+## Explicit Apps14 current606 source389
+
+`--apps14` changes the explicit parent contract to whole Apps13 source389 `97368c093b3cc42ea25d29ff5d2bfdd353d9c02d`. Add `--apps14-carrier /ordinary/9fc-source94` to reproduce exact published Apps14 source389 `97666b742d1b29e469e6de171da6e7a0d15c18c7`; omit that operand for the exact authority-NULL sibling, which refuses selection before external queries or actors. Do not supply the old `--carrier` argument to this route. Every original mode/default still uses the unchanged348/Apps8carrier93 contract and identical helper/payload/output bytes. Candidate options are mutually exclusive, with no fallback.
+
+```sh
+python3 -I -B -Werror scripts/ci/apps8-current606-source/prepare.py --apps14 \
+  --parent /exact97368c-source389 --apps14-carrier /exact9fc-source94 \
+  --output /fresh/disjoint389
+```
+
+The new route validates normalized ordinary inputs/output before disjointness, authenticates full389/94 maps and25 used readable replacements, and preserves364 paths with16 changed/9 removed/9 added. Nine small NULL replacements plus three explicit successor JSON operands avoid duplicating its4.61MB whole-parent inverse. Both original source guards reconstruct the complete Apps13/380/348/263 ancestry. No Apps13 current606 result or acceptance is required or transferred.
+
+Apps14 pair input qualification is genuine9fc94 with native5bbf/run39788418793/recipe2e583/archive28636B/afd8b4c8f948aa4041383eaaf1b88f90934c7a5262e645e67f306b5d43d33b65. All original Runtime1/protected605, eight phases/seven transactions/six signed installs/150 installed checks, fresh graphs/hash/capabilities/crypto/trust/config/rawDB/user/retirement predicates and600/1800/90/70/6600/60/120 clocks remain mandatory. Current actual IDs stayNULL; GUI/16K/M2/native performance/release acceptance is not supplied by emission.
+
+Scoped read-only dual-Python CI uses exact parent389/expected389/carrier94 checkouts and executes full source emission/NULL/drift/alias/old-dispatch controls plus both complete nine-test emitted-source suites. Local factory qualification uses focused actual source controls and joins all1598 frozen author files plus the prior36 source executions rather than repeating old positive readers. The factory/test default has no artifacts path, signer, actor, Git/API, private vendor, rootfs or signing-secret dependency. All source/license bodies retain their original attribution.

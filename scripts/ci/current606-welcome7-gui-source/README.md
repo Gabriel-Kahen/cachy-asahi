@@ -138,3 +138,23 @@ python3 -I -B scripts/ci/current606-welcome7-gui-source/prepare.py --apps10-stag
 
 This factory emits source only. Native GUI/visual/16K/M2/performance/release
 acceptance requires separate actual qualification.
+
+### Apps14 input source (explicit opt-in)
+
+`--apps14-stage` takes the complete Apps13 GUI559 source
+`a0c8eb9ccb2994cf2f7156a6e66bfc9715b9e464` and emits exactly Apps14 GUI559
+`803ed9c5c0357162ef9868bf6f82d37936ba7842`. It binds only the accepted carrier94
+`9fc95ae7694bfb67d8d1e8065303a5b1770b4b55`, recipe42 `2e58341f6fa25de5167fd8a59566b3dd7f066fe3`
+and pair115 `5bbf9b2078d67d5543d01a849144fbd5696fa677`/39788418793.
+The archive is28636B/SHA256 afd8b4c8f948aa4041383eaaf1b88f90934c7a5262e645e67f306b5d43d33b65.
+Full before/after maps and readable payloads are checked before output; the entire
+old13/11 and older source context remains mandatory. `--apps14-stage-unbound`
+emits the strict NULL template, which refuses actors. Input/output paths must be
+canonical, ordinary and disjoint before any output. All previous functions,
+options and outputs remain unchanged. No current GUI/native/16K/M2/performance
+acceptance follows from accepted input or source emission.
+
+```sh
+python3 -I -B scripts/ci/current606-welcome7-gui-source/prepare.py --apps14-stage --predecessor-root /ordinary/Apps13-source559 --output /fresh/Apps14-source559
+python3 -I -B /fresh/Apps14-source559/native.py preflight
+```
