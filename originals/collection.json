@@ -1,0 +1,29 @@
+{
+  "artifact": 12427574412,
+  "attempt": 1,
+  "files": {
+    "artifact.zip": {
+      "bytes": 225409,
+      "sha256": "a604dd69378979a010430f3d9369601648ab2f29e5f19be969195ff954b08a1a"
+    },
+    "artifacts.json": {
+      "bytes": 806,
+      "sha256": "a5618cb964074fabbd6ebeec01bc4d1a228723bf3a22bd47ed0cbccb8fb033ce"
+    },
+    "jobs.json": {
+      "bytes": 17534,
+      "sha256": "4c173b6caa1487136584ac34731804080637b9ecb5332fecd7f22e50d7987bec"
+    },
+    "logs.zip": {
+      "bytes": 3608380,
+      "sha256": "f9fe8df85afc2882fa215362a7b36d75829ce6dfae999500e7b0ad864c336cbb"
+    },
+    "run.json": {
+      "bytes": 12991,
+      "sha256": "0393c90c8c2540524c86ee1c2d6cd7219369ab812486948b0cc155378123fdb3"
+    }
+  },
+  "run": 39776876821,
+  "source": "c75911fe09fb5ceba1e54a6456d5b9c4721960b6",
+  "status": "ONCE_NATIVE4K_ORIGINALS_NOT_ACCEPTANCE"
+}

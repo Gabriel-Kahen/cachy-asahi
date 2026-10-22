@@ -1,0 +1,24 @@
+{
+  "status": "GENUINE_METADATA_STATE_CHANGE_BEFORE_FIRST_ARTIFACT_RETRIEVAL",
+  "partial_metadata_retained": {
+    "intent.json": {
+      "bytes": 131,
+      "sha256": "88996fe8b3f375f90ff9d6570ec94a64682138ef2f82acb754b18aaaa5294fca"
+    },
+    "run.json": {
+      "bytes": 12991,
+      "sha256": "0393c90c8c2540524c86ee1c2d6cd7219369ab812486948b0cc155378123fdb3"
+    },
+    "jobs.json": {
+      "bytes": 17513,
+      "sha256": "ce366a188e150dede8c1697fc7e9259e9e4140e5a3b36b43fa54964cd247411a"
+    }
+  },
+  "first_artifact_retrieval": "NOT_PREVIOUSLY_ATTEMPTED",
+  "settled_job": {
+    "bytes": 17507,
+    "sha256": "569a36c8821c1c3b75680adbd9b271aeee9579bc1c858f6f62d2cc3b56a5e691"
+  },
+  "continuation_output": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/updater604-recovery4k-transport-post87-native-actual-20261022/originals-terminal-continuation",
+  "acceptance": false
+}

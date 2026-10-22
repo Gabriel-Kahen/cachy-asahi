@@ -1,0 +1,43 @@
+{
+  "M2_13": "NOT_RUN",
+  "M2_15": "NOT_RUN",
+  "artifact_acquisition": "FIRST_RETRIEVAL_AFTER_GENUINE_TERMINAL_JOB_STATE_CHANGE",
+  "attempt": 1,
+  "case": "postcommit-exit87",
+  "checkpoint_changed": false,
+  "cleanup": "ORIGINAL_SOURCE_RECORDED_NO_FRESH_ACTOR_QUERIES",
+  "commit_started": true,
+  "committed_transactions": 1,
+  "copy_disposal": "PASS-owned-workspace-removed",
+  "copy_nodes": 125358,
+  "first_metadata_selection": "RETAINED_UNMODIFIED_RUN_TERMINAL_JOB_IN_PROGRESS",
+  "hardware": "NOT_RUN",
+  "normal_checkpoint_directory_synced": false,
+  "original_directory": "originals-terminal-continuation",
+  "package_count": 604,
+  "packages_committed": true,
+  "page16k": "NOT_QUALIFIED",
+  "performance": "NOT_MEASURED",
+  "post_replay": {
+    "bytes": 275571,
+    "sha256": "39c7f5ff30b02f2dfe1e3e5ed44dce33f2902e93f45bcd9bd3d3b54ac489bf9f"
+  },
+  "precommit86": "NOT_QUALIFIED",
+  "private_maps_and_exit87_witness": "UNEXPORTED_ORIGINAL_SOURCE_ENFORCED",
+  "protected_packages": 603,
+  "reader_files": 1442,
+  "recovery": "OWNED_COPY_DISPOSAL_ONLY_NO_ROLLBACK_OR_BOOT_CLAIM",
+  "ref": "codex/updater604-native4k-recovery-transport-v1",
+  "release": "NOT_ADMITTED",
+  "result": {
+    "bytes": 4957,
+    "sha256": "28a82fa4337e18f3e0fd9cb1e8466eba6d05e2fa4fd156c0327029dac2ef4c54"
+  },
+  "run": 39776876821,
+  "scope": "NATIVE_ARM4K_DISPOSABLE_CONTAINER_NOT16K_NOT_M2",
+  "selected_transition": "APPS5_TO6",
+  "source": "c75911fe09fb5ceba1e54a6456d5b9c4721960b6",
+  "source_files": 10,
+  "source_preserved": true,
+  "status": "ROOT_ACCEPTED_FINITE_NATIVE_ARM4K_UPDATER604_POSTCOMMIT87"
+}

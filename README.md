@@ -1,0 +1,7 @@
+# Retained native ARM4K post-commit87 recovery record
+
+Root accepted the finite postcommit-exit87 case39776876821/sourcec75911fe09fb5ceba1e54a6456d5b9c4721960b6 after the complete1442 reader and all10/1442/once-original postpins. The owned native ARM4K container copied125358 nodes, kept604 packages/603 protected, committed one Apps5→6 transaction, did not change or sync a normal checkpoint, preserved its source and disposed the owned copy. Private maps and the fault87 witness remain unexported frozen-source-enforced assertions. No package rollback, boot recovery,16K,M2, performance or release acceptance is claimed.
+
+The first metadata selection is retained unchanged: run.json was terminal success while jobs.json still reported in_progress. Collection refused before requesting any artifact or logs. Root separately retained the genuine completed job response, then invoked the unchanged collector into a fresh continuation directory for the first artifact retrieval and full strict replay. This packet contains that complete successful collection plus all three partial metadata files, settled job metadata and explicit continuation intent. There was no artifact redownload. No previous failed native actor was rerun.
+
+Full original source, signed input, transport, semantic and preservation inspectors remain necessary. This record preserves the decision and original public evidence; it does not create new runtime acceptance. Logs contain temporary public CI paths and identifiers. No private rootfs, raw private graph or key secret is included.
