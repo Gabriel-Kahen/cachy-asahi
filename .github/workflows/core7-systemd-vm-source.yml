@@ -22,11 +22,11 @@ jobs:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           persist-credentials: false
-      - name: Checkout exact source33
+      - name: Checkout exact source34
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           repository: Gabriel-Kahen/cachy-asahi
-          ref: d0a63680da2bc5e94c32aec27a40dcadf8b024f9
+          ref: a74c54093bf8d09883e32b0d64b77f46223920e1
           path: .ci-fixtures/core7-systemd-expected
           persist-credentials: false
       - name: Checkout whole Core800
