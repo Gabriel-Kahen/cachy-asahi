@@ -1,0 +1,95 @@
+{
+  "Root_decision": "qualification/Root-component-acceptance.json",
+  "files": {
+    "LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "README.md": {
+      "bytes": 1561,
+      "sha256": "897156e8a49b8ebc2fdbbdff5387dc73fb6f58065a8eb18df32011b5253a7abe"
+    },
+    "first-metadata-selection/intent.json": {
+      "bytes": 131,
+      "sha256": "88996fe8b3f375f90ff9d6570ec94a64682138ef2f82acb754b18aaaa5294fca"
+    },
+    "first-metadata-selection/jobs.json": {
+      "bytes": 17513,
+      "sha256": "ce366a188e150dede8c1697fc7e9259e9e4140e5a3b36b43fa54964cd247411a"
+    },
+    "first-metadata-selection/run.json": {
+      "bytes": 12991,
+      "sha256": "0393c90c8c2540524c86ee1c2d6cd7219369ab812486948b0cc155378123fdb3"
+    },
+    "metadata-continuation/intent.json": {
+      "bytes": 900,
+      "sha256": "7ed280c6bea970ad7e53638bd9a5f0a59220e1cde0b6054ba6d96055924d2c0e"
+    },
+    "metadata-continuation/terminal-job.json": {
+      "bytes": 17507,
+      "sha256": "569a36c8821c1c3b75680adbd9b271aeee9579bc1c858f6f62d2cc3b56a5e691"
+    },
+    "native-source/Root-committed-publication.json": {
+      "bytes": 281,
+      "sha256": "99a9eb6636721884b6e2c95caf71aa0ab3f2a38ee1065f50ca63f43ef6a8c3c2"
+    },
+    "native-source/Root-git-source-authorization.json": {
+      "bytes": 1584,
+      "sha256": "a647509518993c341c6ff31a0a826a5d3814a65255e8981f7244fbd16ad686ab"
+    },
+    "native-source/publication.json": {
+      "bytes": 281,
+      "sha256": "344be16ec2414a1a30803172a419c85ad816c6a6b9d9338d09de353154e856e1"
+    },
+    "native-source/source-authorization.json": {
+      "bytes": 1320,
+      "sha256": "3c0ee893199f9351e1d3a0ec8462aade40c1dfbf578bcae6c593ce4bf34e256f"
+    },
+    "originals/artifact.zip": {
+      "bytes": 225409,
+      "sha256": "a604dd69378979a010430f3d9369601648ab2f29e5f19be969195ff954b08a1a"
+    },
+    "originals/artifacts.json": {
+      "bytes": 806,
+      "sha256": "a5618cb964074fabbd6ebeec01bc4d1a228723bf3a22bd47ed0cbccb8fb033ce"
+    },
+    "originals/collection.json": {
+      "bytes": 857,
+      "sha256": "5c16645c6c96a46259d6fc1405406edbcf3509a2458f17adaeb602592855514c"
+    },
+    "originals/jobs.json": {
+      "bytes": 17534,
+      "sha256": "4c173b6caa1487136584ac34731804080637b9ecb5332fecd7f22e50d7987bec"
+    },
+    "originals/logs.zip": {
+      "bytes": 3608380,
+      "sha256": "f9fe8df85afc2882fa215362a7b36d75829ce6dfae999500e7b0ad864c336cbb"
+    },
+    "originals/run.json": {
+      "bytes": 12991,
+      "sha256": "0393c90c8c2540524c86ee1c2d6cd7219369ab812486948b0cc155378123fdb3"
+    },
+    "qualification/Root-component-acceptance.json": {
+      "bytes": 1602,
+      "sha256": "69888dcd7460604fe876a110d81b83e798d7940ed26a7650ac7ee96e29eb330c"
+    },
+    "qualification/Root-post-replay-pins.json": {
+      "bytes": 275571,
+      "sha256": "39c7f5ff30b02f2dfe1e3e5ed44dce33f2902e93f45bcd9bd3d3b54ac489bf9f"
+    },
+    "qualification/Root-strict.json": {
+      "bytes": 4957,
+      "sha256": "28a82fa4337e18f3e0fd9cb1e8466eba6d05e2fa4fd156c0327029dac2ef4c54"
+    }
+  },
+  "hardware": "NOT_RUN",
+  "native_ref": "codex/updater604-native4k-recovery-transport-v1",
+  "native_run": 39776876821,
+  "native_source": "c75911fe09fb5ceba1e54a6456d5b9c4721960b6",
+  "new_native_acceptance": false,
+  "publication_ref": null,
+  "publication_source": null,
+  "release": "NOT_ADMITTED",
+  "schema_version": 1,
+  "status": "RETAINED_ROOT_NATIVE_ARM4K_UPDATER604_POSTCOMMIT87_AND_ONCE_ARTIFACT_DATA_ONLY"
+}
