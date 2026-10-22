@@ -25,6 +25,7 @@ jobs:
       CORE_LIFECYCLE_EXPECTED: ${{ github.workspace }}/.ci-core7-expected
       CORE_LIFECYCLE_LAUNCH_EXPECTED: ${{ github.workspace }}/.ci-core7-launch-expected
       CORE_LIFECYCLE_TRANSPORT_EXPECTED: ${{ github.workspace }}/.ci-core7-transport-expected
+      CORE_LIFECYCLE_BASELINE_EXPECTED: ${{ github.workspace }}/.ci-core7-baseline-expected
       CORE_LIFECYCLE_AUTH_EXPECTED: ${{ github.workspace }}/.ci-core7-auth-expected
     steps:
       - name: Checkout maintained source factory
@@ -64,11 +65,17 @@ jobs:
           ref: 0701138ae19e8eccda988fdc5e05f0423c5d0c91
           path: .ci-core7-auth-expected
           persist-credentials: false
+      - name: Checkout exact public800 original-baseline and typed-cache source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 1a76a09d9cb8210cc2b76eda0c63a08bcd89d4ec
+          path: .ci-core7-baseline-expected
+          persist-credentials: false
       - name: Select explicit Python version
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
           python-version: ${{ matrix.python }}
       - name: Check finite profile refusal and complete inert TEST signer body
         run: python3 -I -B -Werror scripts/ci/core-native-lifecycle-source/test_factory.py
-      - name: Reproduce exact797 default and all three historical796 modes and smoke real isolated source entries
+      - name: Reproduce exact800 default and all four historical failed modes and smoke real isolated source entries
         run: python3 -I -B -Werror scripts/ci/core-native-lifecycle-source/test_emitter.py

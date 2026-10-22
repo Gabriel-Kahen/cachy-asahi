@@ -39,8 +39,14 @@ jobs:
       - name: Checkout exact Setup606 source608
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
-          ref: 55e37c5fb0c01899cd474028c266a0208006db99
+          ref: 0e4eac72e1edef34ecdc417d4c1e50ee2f196c80
           path: fixtures/expected
+          persist-credentials: false
+      - name: Checkout exact normal-Docker real-module source636
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: a8eb556eed8813762b2ad50598741a2e3d51a022
+          path: fixtures/real-expected
           persist-credentials: false
       - name: Verify exact608 emission and isolated source CLI with refusal controls
         shell: bash
@@ -49,4 +55,5 @@ jobs:
           python3 -B -W error scripts/ci/setup6-current606-source/test_factory.py \
             --original-source "$GITHUB_WORKSPACE/fixtures/original" \
             --setup-source "$GITHUB_WORKSPACE/fixtures/setup6" \
-            --expected "$GITHUB_WORKSPACE/fixtures/expected"
+            --expected "$GITHUB_WORKSPACE/fixtures/expected" \
+            --real-expected "$GITHUB_WORKSPACE/fixtures/real-expected"
