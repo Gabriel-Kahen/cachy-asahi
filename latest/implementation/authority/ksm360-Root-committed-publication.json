@@ -1,0 +1,10 @@
+{
+  "actual": "NOT_RUN",
+  "files": 360,
+  "git_joins": 360,
+  "hardware": "NOT_RUN",
+  "ref": "codex/current606-ksm-durable-evidence-v1",
+  "release": "NOT_ADMITTED",
+  "source": "a7e9d67805899ac6eb4da923b423b651d7442baa",
+  "status": "COMMITTED_EXACT_CLOSED_TRIAL_SOURCE"
+}

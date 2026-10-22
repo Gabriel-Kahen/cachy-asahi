@@ -1,0 +1,58 @@
+[
+  {
+    "MESSAGE": "SYNTHETIC TEST ONLY 11111111111111111111111111111111 kernel",
+    "PRIORITY": "3",
+    "_BOOT_ID": "11111111111111111111111111111111",
+    "_HOSTNAME": "synthetic-boot-fixture",
+    "_MACHINE_ID": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "_TRANSPORT": "kernel",
+    "_UID": "65534",
+    "__CURSOR": "s=7af4dfa3b67648f69ed2399b3f01a07e;i=1;b=11111111111111111111111111111111;m=1;t=60a24181e4000;x=87378640ffe93f74",
+    "__MONOTONIC_TIMESTAMP": "1",
+    "__REALTIME_TIMESTAMP": "1700000000000000",
+    "__SEQNUM": "1",
+    "__SEQNUM_ID": "7af4dfa3b67648f69ed2399b3f01a07e"
+  },
+  {
+    "MESSAGE": "SYNTHETIC TEST ONLY 11111111111111111111111111111111 stdout",
+    "PRIORITY": "3",
+    "_BOOT_ID": "11111111111111111111111111111111",
+    "_HOSTNAME": "synthetic-boot-fixture",
+    "_MACHINE_ID": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "_TRANSPORT": "stdout",
+    "_UID": "65534",
+    "__CURSOR": "s=7af4dfa3b67648f69ed2399b3f01a07e;i=2;b=11111111111111111111111111111111;m=1;t=60a24181e4000;x=3cd1818b0c510ffb",
+    "__MONOTONIC_TIMESTAMP": "1",
+    "__REALTIME_TIMESTAMP": "1700000000000000",
+    "__SEQNUM": "2",
+    "__SEQNUM_ID": "7af4dfa3b67648f69ed2399b3f01a07e"
+  },
+  {
+    "MESSAGE": "SYNTHETIC TEST ONLY 22222222222222222222222222222222 kernel",
+    "PRIORITY": "3",
+    "_BOOT_ID": "22222222222222222222222222222222",
+    "_HOSTNAME": "synthetic-boot-fixture",
+    "_MACHINE_ID": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "_TRANSPORT": "kernel",
+    "_UID": "65534",
+    "__CURSOR": "s=7af4dfa3b67648f69ed2399b3f01a07e;i=3;b=22222222222222222222222222222222;m=2;t=60a24181e4001;x=f0ddd7e5314756d6",
+    "__MONOTONIC_TIMESTAMP": "2",
+    "__REALTIME_TIMESTAMP": "1700000000000001",
+    "__SEQNUM": "3",
+    "__SEQNUM_ID": "7af4dfa3b67648f69ed2399b3f01a07e"
+  },
+  {
+    "MESSAGE": "SYNTHETIC TEST ONLY 22222222222222222222222222222222 stdout",
+    "PRIORITY": "3",
+    "_BOOT_ID": "22222222222222222222222222222222",
+    "_HOSTNAME": "synthetic-boot-fixture",
+    "_MACHINE_ID": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "_TRANSPORT": "stdout",
+    "_UID": "65534",
+    "__CURSOR": "s=7af4dfa3b67648f69ed2399b3f01a07e;i=4;b=22222222222222222222222222222222;m=2;t=60a24181e4001;x=7dd9933060ef85d3",
+    "__MONOTONIC_TIMESTAMP": "2",
+    "__REALTIME_TIMESTAMP": "1700000000000001",
+    "__SEQNUM": "4",
+    "__SEQNUM_ID": "7af4dfa3b67648f69ed2399b3f01a07e"
+  }
+]
