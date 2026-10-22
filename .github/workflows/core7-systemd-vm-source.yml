@@ -92,6 +92,13 @@ jobs:
           ref: 7dfce898755583bbf8081aae04d8b8579f66be58
           path: .ci-fixtures/core7-systemd-core64
           persist-credentials: false
+      - name: Checkout exact optional module-index source37
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 0e5da6aab98018d00875548813c77a4f87eedcdf
+          path: .ci-fixtures/core7-module-index-expected
+          persist-credentials: false
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
           python-version: ${{ matrix.python }}
@@ -119,6 +126,11 @@ jobs:
           python3 -I -B scripts/ci/core7-systemd-vm-source/test_host_clock.py \
             --expected-two "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-clock-two-boot-expected" \
             --expected-four "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-clock-four-boot-expected" \
+            --core-source "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-core800" \
+            --vm-source "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-media637" \
+            --kernel-carrier "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-kernel"
+          python3 -I -B scripts/ci/core7-systemd-vm-source/test_module_indexes.py \
+            --expected "$GITHUB_WORKSPACE/.ci-fixtures/core7-module-index-expected" \
             --core-source "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-core800" \
             --vm-source "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-media637" \
             --kernel-carrier "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-kernel"

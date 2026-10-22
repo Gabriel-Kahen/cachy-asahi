@@ -163,16 +163,16 @@
       "sha256": "fa9d0f74fa14ba9125cf4181f960131e1d8198786d96b98f3f33f28805e22a0c"
     },
     "recovery/source-manifest.json": {
-      "bytes": 1423,
-      "sha256": "2a03ae31a858a7d95b3774fbc1c52126fa1277198b95cea39b8af9b6f7d786aa"
+      "bytes": 1492,
+      "sha256": "d7b8549dd6ef28b39c006a2495c5cf3cf8e6c756304ee5c1a04fd373f8466b03"
     },
     "recovery/test_source.py": {
       "bytes": 15299,
       "sha256": "6786a325ca3b48e46f5b4071e093e94e780e3b488bd0fb28446201f80eee81c5"
     },
     "recovery/workflow.json": {
-      "bytes": 82742,
-      "sha256": "44d1bed6b58fa5b1962d5a5ef2b2fb96d34a32a1464ccc8117887385dafdf52f"
+      "bytes": 82746,
+      "sha256": "c6f2e4924d6154553b0adb2e05e81af038737161ba96525d0d7f8f8d5862ac91"
     }
   },
   "status": "EXACT_SOURCE_ONLY_NATIVE_ARM4K_WRAPPERS",
@@ -226,12 +226,12 @@
     "recovery": {
       "files": {
         ".github/workflows/native-arm-build.yml": {
-          "bytes": 82742,
-          "sha256": "44d1bed6b58fa5b1962d5a5ef2b2fb96d34a32a1464ccc8117887385dafdf52f"
+          "bytes": 82746,
+          "sha256": "c6f2e4924d6154553b0adb2e05e81af038737161ba96525d0d7f8f8d5862ac91"
         },
         ".github/workflows/native-arm-updater604-recovery4k.yml": {
-          "bytes": 82742,
-          "sha256": "44d1bed6b58fa5b1962d5a5ef2b2fb96d34a32a1464ccc8117887385dafdf52f"
+          "bytes": 82746,
+          "sha256": "c6f2e4924d6154553b0adb2e05e81af038737161ba96525d0d7f8f8d5862ac91"
         },
         "case.py": {
           "bytes": 5274,
@@ -258,16 +258,16 @@
           "sha256": "fa9d0f74fa14ba9125cf4181f960131e1d8198786d96b98f3f33f28805e22a0c"
         },
         "source-manifest.json": {
-          "bytes": 1423,
-          "sha256": "2a03ae31a858a7d95b3774fbc1c52126fa1277198b95cea39b8af9b6f7d786aa"
+          "bytes": 1492,
+          "sha256": "d7b8549dd6ef28b39c006a2495c5cf3cf8e6c756304ee5c1a04fd373f8466b03"
         },
         "test_source.py": {
           "bytes": 15299,
           "sha256": "6786a325ca3b48e46f5b4071e093e94e780e3b488bd0fb28446201f80eee81c5"
         }
       },
-      "ref": "codex/updater604-native4k-recovery-v1",
-      "source": "05d63059b782f9a47e3ffe1f958463ddbf7fc7dc"
+      "ref": "codex/updater604-native4k-recovery-transport-v1",
+      "source": "c75911fe09fb5ceba1e54a6456d5b9c4721960b6"
     }
   }
 }

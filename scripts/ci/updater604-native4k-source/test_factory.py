@@ -150,5 +150,27 @@ class Controls(unittest.TestCase):
                 self.assertEqual(F.pins(F.tree(output)), F.profile()['variants'][selected]['files'])
 
 
+    def test_06_actual_retainer_shell_output_matches_every_upload_alias(self):
+        checker = load(HERE / 'retention_path_test.py')
+        with tempfile.TemporaryDirectory() as td:
+            for selected in ('normal', 'recovery'):
+                source = Path(td) / selected
+                F.emit(ARGS.held, source, selected)
+                named = '.github/workflows/native-arm-updater604-' + (
+                    'copy4k' if selected == 'normal' else 'recovery4k') + '.yml'
+                for name, case in ((F.WF, 'normal' if selected == 'normal' else 'precommit-exit86'),
+                                   (named, 'normal' if selected == 'normal' else 'postcommit-exit87')):
+                    result = checker.check(source, name, case)
+                    self.assertEqual(result['files'], 11)
+                    self.assertFalse(result['actual_acceptance'])
+                if selected == 'recovery':
+                    workflow = source / F.WF
+                    workflow.write_bytes(F.read(workflow).replace(
+                        b'${{ runner.temp }}/updater604-recovery4k-evidence/evidence.zip',
+                        b'${{ runner.temp }}/updater604-copy4k-evidence/evidence.zip'))
+                    with self.assertRaisesRegex(ValueError, 'output and upload path differ'):
+                        checker.check(source, F.WF, 'precommit-exit86')
+
+
 if __name__ == '__main__':
     unittest.main(argv=[sys.argv[0], *rest], verbosity=2)
