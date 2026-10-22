@@ -1,0 +1,25 @@
+{
+  "artifact": {
+    "bytes": 12976033,
+    "sha256": "ff0f20106277c9b47f60e9e00c1e467a6dd0acf4a29e107a5e05b9d803d572df"
+  },
+  "artifact_id": 12415812154,
+  "attempt": 1,
+  "metadata": {
+    "artifacts.json": {
+      "bytes": 788,
+      "sha256": "a1dd3a64234c74a655b3aeaba17fec659a5afdd6c311905143dec6bd45493d11"
+    },
+    "jobs.json": {
+      "bytes": 16583,
+      "sha256": "0611a7066485b96098f43ee93c3ec1970f1fc3e1a68df31452684584ac6f2235"
+    },
+    "run.json": {
+      "bytes": 12970,
+      "sha256": "54780983fd4252e6938128c9fb28b0dd1fae66155af0578a81a05e1ad7e5e3f5"
+    }
+  },
+  "role": "SOURCE_OWNED_NATIVE_FRAMED_TRANSPORT_V1",
+  "run_id": 39747308645,
+  "source": "f48ea6b72a640e64815430eb2b1967bcf3bfb43a"
+}

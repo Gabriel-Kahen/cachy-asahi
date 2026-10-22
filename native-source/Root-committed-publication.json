@@ -1,0 +1,10 @@
+{
+  "actual": "NOT_RUN",
+  "files": 581,
+  "git_joins": 581,
+  "hardware": "NOT_RUN",
+  "ref": "codex/current607-apps8-composition-v1",
+  "release": "NOT_ADMITTED",
+  "source": "f48ea6b72a640e64815430eb2b1967bcf3bfb43a",
+  "status": "COMMITTED_EXACT_CLOSED_TRIAL_SOURCE"
+}

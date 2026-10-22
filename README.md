@@ -1,0 +1,7 @@
+# Retained Apps8 combined software lifecycle record
+
+This immutable data packet retains Root's accepted finite native ARM five-tool composition from run39747308645/sourcef48ea6b72a640e64815430eb2b1967bcf3bfb43a. It contains the original decision, complete342.907s passive result, post581-source/1442-reader pins, five once-acquired original artifact roles and four source-publication custody roles. No new actor, API request, package operation or GPG query was used to create this record.
+
+The software scope is Apps8/Doctor2/KSM2/Welcome7/Boot1:25 transactions,51 fresh package graphs,26 fresh auxiliary observations,606 to607 peak and606 restored, protecting602 nonselected packages. Four selected tools restore original versions and logical payload/ownership/files/mtree/desc with bounded INSTALLDATE; inode restoration is not claimed. Private complete payload/rawDB/auxiliary preservation is source-enforced, rather than exported as private root files.
+
+Original public logs include temporary CI identifiers and exact source-owned nonce data. This packet includes no private rootfs, raw private graph, signer secret or cache. Prior source inputs and full inspectors remain required for replay; this data is not executable authority. Generic ARM container software success grants no current607 copied-root, GUI, live audio/KSM/boot history,16K,Asahi/M2,performance or supported-release acceptance.
