@@ -643,7 +643,46 @@ GUI = "NOT QUALIFIED"
 performance = "NOT MEASURED"
 release = "NOT ADMITTED"
 validation_record = "docs/validation/apps10-native-20261022.md"
+installed_current606 = "PASS_FINITE_EIGHT_PHASE_LIFECYCLE"
+current606_source = "eeb7fc5c3bcaa5b152ca6eb97983f6c31f8d0cdb"
+current606_run = 39763705456
+current606_validation_record = "docs/validation/apps10-current606-native-20261022.md"
+
+
+[[packages.development_variants]]
+version = "0.1.0-11"
+recipe = "packages/tools/cachy-asahi-apps11/PKGBUILD"
+recipe_source = "31bc46cdd58840e5c4337d2270a307d23a171373"
+native_source = "d4e86c4e7799b4138fc1a1a8720b223e78b99fe6"
+native_run = 39769794548
+selected_for_development = false
+selected_for_release = false
+native_build = "PASS_FINITE_NATIVE_PAIR_AND_INSTALLED574_LIFECYCLE"
+archive_bytes = 26716
+archive_sha256 = "80fe5fd4117c5b994e724ba29bb60473da86d829af757c8c62bea1164758901a"
+hardware_validation = "NOT RUN"
+GUI = "NOT QUALIFIED"
+performance = "NOT MEASURED native ARM/M2; host fixture comparison recorded separately"
+release = "NOT ADMITTED"
+validation_record = "docs/validation/apps11-native-20261022.md"
+packaged_provenance = "KNOWN DEFECT: runtime_sources apps.py/inventory.py stale Apps10 hashes; corrected Apps12 successor"
 installed_current606 = "NOT ACCEPTED BY THIS PAIR RESULT"
+
+
+[[packages.development_variants]]
+version = "0.1.0-12"
+recipe = "packages/tools/cachy-asahi-apps12/PKGBUILD"
+recipe_source = "c368b555aa3e28026e3252693da33dae0b9e80e2"
+native_source = "b49ef3fae2b241ab381ab19703faf12adce44fec"
+native_run = 39775342106
+selected_for_development = false
+selected_for_release = false
+source_validation = "PASS corrected runtime provenance; full68 checks on Python3.12/3.14; runtime4 byte-held from Apps11"
+native_build = "PENDING actual native ARM build pair and finite installed lifecycle"
+installed_current606 = "NOT ACCEPTED"
+hardware_validation = "NOT RUN"
+GUI = "NOT QUALIFIED"
+release = "NOT ADMITTED"
 
 
 [[packages]]
