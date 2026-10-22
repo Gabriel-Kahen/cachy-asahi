@@ -1,0 +1,29 @@
+pkgbase = cachy-asahi-repository-client-v2
+	pkgdesc = Explicit opt-in MIT offline development source client v2
+	pkgver = 0.1.0
+	pkgrel = 1
+	url = https://github.com/Gabriel-Kahen/cachy-asahi
+	arch = any
+	license = MIT
+	depends = python>=3.11
+	depends = cachy-asahi-repository-runtime=0.1.0-1
+	source = client_v2.py
+	source = helper-pins.json
+	source = source-provenance.json
+	source = check_source.py
+	source = test_runtime.py
+	source = test_client_v2.py
+	source = README.md
+	source = NOTICE
+	source = LICENSE
+	sha256sums = 915c2336a6515dcbde9801d7778c0aeae3a0251cf6463c4704d47590d94d1409
+	sha256sums = 86478bf7125aa21aefbb20a37eb2c5fae32b6a2cac3cb572733cda42f74216c8
+	sha256sums = 9a62f3674324b48cfaffeb132549414827b61204acc1757dea703963298b7ac1
+	sha256sums = ec2458c2623969776d05c52030df774ce8e6c35721640035bfe2159de2b2e32b
+	sha256sums = f49083f2dc580baa4dca2a6971499a02a345c0cd0fb83174fea6813a51ad1468
+	sha256sums = 74f079c3e95fd88d50b6857b1dbfe13b97030fdacb31051564445c6d1770f410
+	sha256sums = 922ad69c94a2ef12d55f895a35e7a71737083db6a0ec1841c8d504c9993a6123
+	sha256sums = 138f32d5f31eefce9581b054f7b066d59209766cf5122521b8f1bf1063fec0fa
+	sha256sums = 51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7
+
+pkgname = cachy-asahi-repository-client-v2
