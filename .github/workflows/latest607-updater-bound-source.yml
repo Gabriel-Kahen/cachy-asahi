@@ -1,0 +1,111 @@
+{
+  "jobs": {
+    "source-controls": {
+      "env": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONWARNINGS": "error"
+      },
+      "runs-on": "ubuntu-24.04",
+      "steps": [
+        {
+          "name": "Check out maintained portable factory",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out exact public parent",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "path": ".ci-fixtures/parent",
+            "persist-credentials": false,
+            "ref": "3b8ca255d90f0b4b0be18639a4b754da8c7aa969",
+            "repository": "Gabriel-Kahen/cachy-asahi"
+          }
+        },
+        {
+          "name": "Check out exact public fresh",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "path": ".ci-fixtures/fresh",
+            "persist-credentials": false,
+            "ref": "5a0789405ded23f759f4a3aa545cf737c4ec3bde",
+            "repository": "Gabriel-Kahen/cachy-asahi"
+          }
+        },
+        {
+          "name": "Check out exact public baseline",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "path": ".ci-fixtures/baseline",
+            "persist-credentials": false,
+            "ref": "95d86b53df796b1b309fa5f37d04587adac5cbf8",
+            "repository": "Gabriel-Kahen/cachy-asahi"
+          }
+        },
+        {
+          "name": "Check out exact public carrier",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "path": ".ci-fixtures/carrier",
+            "persist-credentials": false,
+            "ref": "bbfb088d5707c986617989fa572a751bae6c25ae",
+            "repository": "Gabriel-Kahen/cachy-asahi"
+          }
+        },
+        {
+          "name": "Check out exact public expected",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "path": ".ci-fixtures/expected",
+            "persist-credentials": false,
+            "ref": "01afa13fc81831099dab2bacdcbb59a9b030b5b6",
+            "repository": "Gabriel-Kahen/cachy-asahi"
+          }
+        },
+        {
+          "name": "Select explicit Python",
+          "uses": "actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+          "with": {
+            "python-version": "${{ matrix.python }}"
+          }
+        },
+        {
+          "name": "Exact bound357 constructor, complete inverse and both receipt modes; no source actors",
+          "run": "set -euo pipefail\nstage=$(mktemp -d \"$RUNNER_TEMP/updater-bound357.XXXXXXXX\")\ntrap 'rm -rf -- \"$stage\"' EXIT\nexport TMPDIR=\"$stage\"\nmkdir \"$stage/parent\"\ngit -C \"$GITHUB_WORKSPACE/.ci-fixtures/parent\" archive --format=tar 3b8ca255d90f0b4b0be18639a4b754da8c7aa969 | tar -xf - -C \"$stage/parent\"\nexport UPDATER_BOUND_PARENT=\"$stage/parent\"\nmkdir \"$stage/fresh\"\ngit -C \"$GITHUB_WORKSPACE/.ci-fixtures/fresh\" archive --format=tar 5a0789405ded23f759f4a3aa545cf737c4ec3bde | tar -xf - -C \"$stage/fresh\"\nexport UPDATER_BOUND_FRESH=\"$stage/fresh\"\nmkdir \"$stage/baseline\"\ngit -C \"$GITHUB_WORKSPACE/.ci-fixtures/baseline\" archive --format=tar 95d86b53df796b1b309fa5f37d04587adac5cbf8 | tar -xf - -C \"$stage/baseline\"\nexport UPDATER_BOUND_BASELINE=\"$stage/baseline\"\nmkdir \"$stage/carrier\"\ngit -C \"$GITHUB_WORKSPACE/.ci-fixtures/carrier\" archive --format=tar bbfb088d5707c986617989fa572a751bae6c25ae | tar -xf - -C \"$stage/carrier\"\nexport UPDATER_BOUND_CARRIER=\"$stage/carrier\"\nmkdir \"$stage/expected\"\ngit -C \"$GITHUB_WORKSPACE/.ci-fixtures/expected\" archive --format=tar 01afa13fc81831099dab2bacdcbb59a9b030b5b6 | tar -xf - -C \"$stage/expected\"\nexport UPDATER_BOUND_EXPECTED=\"$stage/expected\"\ntimeout 180s python3 -I -B -Werror scripts/ci/latest607-updater-bound-source/test_source.py\n",
+          "shell": "bash"
+        }
+      ],
+      "strategy": {
+        "fail-fast": false,
+        "matrix": {
+          "python": [
+            "3.12",
+            "3.14"
+          ]
+        }
+      },
+      "timeout-minutes": 10
+    }
+  },
+  "name": "latest607-updater-bound-source",
+  "on": {
+    "pull_request": {
+      "paths": [
+        "scripts/ci/latest607-updater-bound-source/**",
+        ".github/workflows/latest607-updater-bound-source.yml"
+      ]
+    },
+    "push": {
+      "paths": [
+        "scripts/ci/latest607-updater-bound-source/**",
+        ".github/workflows/latest607-updater-bound-source.yml"
+      ]
+    },
+    "workflow_dispatch": {}
+  },
+  "permissions": {
+    "contents": "read"
+  }
+}
