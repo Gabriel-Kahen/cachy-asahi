@@ -63,6 +63,26 @@ class Controls(unittest.TestCase):
   raw=self.expected['.github/workflows/native-arm-build.yml'].decode();line=next(x for x in raw.splitlines()if '\"run\":'in x and 'preflight\\n'in x);commands=json.loads(line.strip().split(': ',1)[1]).splitlines()
   self.assertEqual(len(commands),5);self.assertEqual(len(set(commands)),5)
   words=[shlex.split(x)for x in commands];self.assertEqual(words[1],['python3','-I','-B','gui607-source/implementation/presecret_control.py','--control','apps16-common','--apps16-inputs','$GITHUB_WORKSPACE/apps16-inputs']);self.assertEqual(words[2][-1],'gui607-source/parent574/service_controls.py')
+ def test_first_read_can_update_access_time(self):
+  p=ARGS.workdir/'first-read';p.write_bytes(b'first source read')
+  os.utime(p,ns=(0,p.stat().st_mtime_ns));before=p.stat()
+  self.assertEqual(F.read(p),b'first source read')
+  self.assertEqual(F.identity(before),F.identity(p.stat()))
+ def test_descriptor_rejects_real_during_read_mutation(self):
+  p=ARGS.workdir/'during-read';p.write_bytes(b'original source')
+  original=F.os.fdopen
+  class MutatingRead:
+   def __init__(self,stream):self.stream=stream
+   def __enter__(self):return self
+   def __exit__(self,*args):self.stream.close()
+   def fileno(self):return self.stream.fileno()
+   def read(self,size):
+    value=self.stream.read(size);p.write_bytes(b'changed content');return value
+  def opened(*args,**kwargs):return MutatingRead(original(*args,**kwargs))
+  before=len(list(Path('/proc/self/fd').iterdir()))
+  with patch.object(F.os,'fdopen',side_effect=opened):
+   with self.assertRaisesRegex(ValueError,'stable source input'):F.read(p)
+  self.assertEqual(len(list(Path('/proc/self/fd').iterdir())),before)
  def test_real_isolated_cli_help(self):
   r=subprocess.run([sys.executable,'-I','-B',str(D/'prepare.py'),'--help'],capture_output=True,timeout=10)
   self.assertEqual(r.returncode,0);self.assertIn(b'--context {known,null}',r.stdout)
