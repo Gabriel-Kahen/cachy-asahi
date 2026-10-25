@@ -1,0 +1,279 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
+"""Read-only installed-metadata orphan assessment; no removal authorization."""
+import argparse,contextlib,ctypes,hashlib,json,os,re,stat,time
+from pathlib import Path
+
+VERSION='0.1.0'
+NAME=re.compile(r'[a-z0-9][a-z0-9+_.-]{0,127}\Z')
+FLOOR_SHA='0d6dfbf3cd550fe72ddad30058693007f8bb86214de1e83442580677db5005f2'
+MAX_NODES=20000;MAX_PACKAGES=2048;MAX_RELATIONS=32768;MAX_JSON=32*1024**2
+MAX_SATISFIERS=MAX_RELATIONS
+SCOPE='LOCAL_INSTALLED_METADATA_ONLY_NOT_PAYLOAD_RELEASE_REMOVAL_OR_HARDWARE_PROOF'
+
+
+class Refused(ValueError):pass
+
+
+def need(ok,reason):
+    if not ok:raise Refused(reason)
+
+
+def encoded(value):return (json.dumps(value,sort_keys=True,indent=2)+'\n').encode()
+
+def digest(raw):return hashlib.sha256(raw).hexdigest()
+
+
+def pairs(items):
+    result={}
+    for name,value in items:need(name not in result,'duplicate JSON field');result[name]=value
+    return result
+
+
+def absolute(value):
+    path=Path(value);need(path.is_absolute() and '..' not in path.parts and len(str(path))<=4096,'explicit absolute ordinary path required');return path
+
+
+@contextlib.contextmanager
+def directory(path):
+    path=absolute(path);fd=os.open('/',os.O_RDONLY|os.O_DIRECTORY|os.O_CLOEXEC);ancestors=set()
+    try:
+        for name in path.parts[1:]:
+            child=os.open(name,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=fd);os.close(fd);fd=child
+            info=os.fstat(fd);ancestors.add((info.st_dev,info.st_ino))
+        yield fd,ancestors
+    finally:os.close(fd)
+
+
+def identity(info):
+    return dict(dev=info.st_dev,ino=info.st_ino,mode=stat.S_IMODE(info.st_mode),uid=info.st_uid,gid=info.st_gid,links=info.st_nlink,bytes=info.st_size,mtime_ns=info.st_mtime_ns,ctime_ns=info.st_ctime_ns)
+
+
+def read(fd,name,limits,cap,keep=False):
+    handle=os.open(name,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK|os.O_CLOEXEC,dir_fd=fd)
+    try:
+        before=os.fstat(handle);need(stat.S_ISREG(before.st_mode) and before.st_nlink==1 and before.st_uid in (0,os.geteuid()) and before.st_size<=cap,'ordinary bounded single-link DB/input file required')
+        hashed=hashlib.sha256();parts=[];size=0
+        while True:
+            need(time.monotonic()<limits['until'],'read deadline exceeded');raw=os.read(handle,1024**2)
+            if not raw:break
+            size+=len(raw);limits['bytes']+=len(raw);need(size<=cap and limits['bytes']<=512*1024**2,'read byte limit')
+            hashed.update(raw)
+            if keep:parts.append(raw)
+        need(size==before.st_size and identity(before)==identity(os.fstat(handle))==identity(os.stat(name,dir_fd=fd,follow_symlinks=False)),'file drift while reading')
+        return dict(**identity(before),sha256=hashed.hexdigest()),b''.join(parts)
+    finally:os.close(handle)
+
+
+def limits():return dict(until=time.monotonic()+30,bytes=0)
+
+
+def json_file(path,private=True):
+    path=absolute(path)
+    with directory(path.parent) as (fd,_):record,raw=read(fd,path.name,limits(),MAX_JSON,True)
+    need(not private or record['uid']==os.geteuid() and record['mode']==0o600,'caller-owned mode0600 input required')
+    value=json.loads(raw,object_pairs_hook=pairs,parse_constant=lambda _:need(False,'finite JSON required'));need(type(value) is dict,'JSON object required');return value,record
+
+
+def unlocked(db):
+    with directory(db) as (fd,_):
+        try:os.stat('db.lck',dir_fd=fd,follow_symlinks=False)
+        except FileNotFoundError:return
+    raise Refused('existing ALPM lock: active or uncertain; readonly assessment refused')
+
+
+def database_snapshot(db):
+    result={};descriptions={};bounds=limits()
+    with directory(db) as (rootfd,_):
+        def walk(fd,prefix):
+            need(time.monotonic()<bounds['until'],'snapshot deadline exceeded')
+            result[prefix or '.']=dict(kind='directory',**identity(os.fstat(fd)))
+            scan=os.open('.',os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=fd)
+            try:
+                with os.scandir(scan) as entries:
+                    names=[]
+                    for entry in entries:names.append(entry.name);need(len(names)+len(result)<=MAX_NODES,'DB node limit')
+            finally:os.close(scan)
+            for name in sorted(names):
+                relative=prefix+'/'+name if prefix else name;need(len(relative)<=512,'DB relative path limit')
+                info=os.stat(name,dir_fd=fd,follow_symlinks=False)
+                if stat.S_ISDIR(info.st_mode):
+                    child=os.open(name,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=fd)
+                    try:walk(child,relative)
+                    finally:os.close(child)
+                else:
+                    isdesc=relative.startswith('local/') and relative.count('/')==2 and name=='desc'
+                    record,raw=read(fd,name,bounds,65536 if isdesc else 128*1024**2,isdesc or relative=='local/ALPM_DB_VERSION')
+                    result[relative]=dict(kind='file',**record)
+                    if isdesc:descriptions[relative]=raw
+                    if relative=='local/ALPM_DB_VERSION':need(raw==b'9\n','existing ALPM local version9 required')
+                need(len(result)<=MAX_NODES,'DB node limit')
+        walk(rootfd,'')
+    need('local/ALPM_DB_VERSION' in result,'existing initialized local DB required')
+    expected={};relation_count=0
+    for path,raw in descriptions.items():
+        fields={};key=None
+        for line in raw.decode('utf8').splitlines():
+            if line.startswith('%') and line.endswith('%'):need(line not in fields,'duplicate desc field');key=line;fields[key]=[]
+            elif line:need(key is not None and len(line)<=4096,'bounded desc field required');fields[key].append(line)
+        relation_count+=sum(len(fields.get(k,[])) for k in ('%DEPENDS%','%OPTDEPENDS%','%PROVIDES%'));need(relation_count<=MAX_RELATIONS,'raw dependency count limit')
+        name=fields.get('%NAME%',[]);version=fields.get('%VERSION%',[]);reason=fields.get('%REASON%',['0'])
+        need(len(name)==len(version)==len(reason)==1 and NAME.fullmatch(name[0]) and 0<len(version[0])<=256 and reason[0] in ('0','1'),'exact desc name/version/reason required')
+        need(name[0] not in expected and path=='local/'+name[0]+'-'+version[0]+'/desc' and path[:-4]+'files' in result,'complete unique package record required')
+        expected[name[0]]=dict(version=version[0],reason=int(reason[0]))
+    need({n for n,r in result.items() if n.startswith('local/') and n.count('/')==1 and r['kind']=='file'}=={'local/ALPM_DB_VERSION'},'unknown local metadata entry')
+    dirs={n for n,r in result.items() if n.startswith('local/') and n.count('/')==1 and r['kind']=='directory'}
+    need(len(expected)<=MAX_PACKAGES and dirs=={p.rsplit('/',1)[0] for p in descriptions},'unrecognized or incomplete local package directory')
+    return dict(nodes=result,sha256=digest(encoded(result))),expected
+
+
+class Node(ctypes.Structure):pass
+Node._fields_=[('data',ctypes.c_void_p),('prev',ctypes.POINTER(Node)),('next',ctypes.POINTER(Node))]
+
+
+def nodes(head,cap=MAX_RELATIONS):
+    result=[];seen=set()
+    while head:
+        address=ctypes.cast(head,ctypes.c_void_p).value;need(address not in seen and len(result)<cap,'bounded ALPM list required');seen.add(address)
+        node=ctypes.cast(head,ctypes.POINTER(Node)).contents;need(bool(node.data),'nonnull ALPM list item required');result.append(node.data);head=node.next
+    return result
+
+
+class Installed:
+    """Narrow public read-only ABI. No transaction API is exposed."""
+    def __init__(self,root,db):
+        target=Path('/usr/lib/libalpm.so.16').resolve(strict=True);info=target.stat()
+        need(target.parent==Path('/usr/lib') and stat.S_ISREG(info.st_mode) and info.st_uid==0 and not info.st_mode&0o022,'trusted root-owned system libalpm16 required')
+        self.lib=ctypes.CDLL(str(target));self.c=ctypes.CDLL(None);self.c.free.argtypes=[ctypes.c_void_p];self.c.free.restype=None
+        declarations={'alpm_initialize':([ctypes.c_char_p,ctypes.c_char_p,ctypes.POINTER(ctypes.c_int)],ctypes.c_void_p),'alpm_release':([ctypes.c_void_p],ctypes.c_int),
+          'alpm_get_localdb':([ctypes.c_void_p],ctypes.c_void_p),'alpm_db_get_valid':([ctypes.c_void_p],ctypes.c_int),'alpm_db_get_pkgcache':([ctypes.c_void_p],ctypes.c_void_p),
+          'alpm_pkg_get_name':([ctypes.c_void_p],ctypes.c_char_p),'alpm_pkg_get_version':([ctypes.c_void_p],ctypes.c_char_p),'alpm_pkg_get_reason':([ctypes.c_void_p],ctypes.c_int),
+          'alpm_dep_compute_string':([ctypes.c_void_p],ctypes.c_void_p),'alpm_find_satisfier':([ctypes.c_void_p,ctypes.c_char_p],ctypes.c_void_p),
+          'alpm_list_add':([ctypes.c_void_p,ctypes.c_void_p],ctypes.c_void_p),'alpm_list_free':([ctypes.c_void_p],None),
+          'alpm_list_free_inner':([ctypes.c_void_p,ctypes.c_void_p],None),'alpm_version':([],ctypes.c_char_p)}
+        for name in ('depends','optdepends','provides'):declarations['alpm_pkg_get_'+name]=([ctypes.c_void_p],ctypes.c_void_p)
+        for name in ('requiredby','optionalfor'):declarations['alpm_pkg_compute_'+name]=([ctypes.c_void_p],ctypes.c_void_p)
+        for name,(args,result) in declarations.items():getattr(self.lib,name).argtypes=args;getattr(self.lib,name).restype=result
+        self.version=self.lib.alpm_version().decode();need(self.version.startswith('16.'),'libalpm ABI16 required')
+        error=ctypes.c_int();self.handle=self.lib.alpm_initialize(os.fsencode(root),os.fsencode(db),ctypes.byref(error));need(self.handle,'readonly ALPM initialization refused')
+    def close(self):need(self.lib.alpm_release(self.handle)==0,'readonly ALPM handle release failed')
+    def name(self,pointer):
+        value=self.lib.alpm_pkg_get_name(pointer);need(value is not None,'ALPM package name absent');name=value.decode('utf8');need(NAME.fullmatch(name),'ALPM package name invalid');return name
+    def reverse(self,package,kind):
+        head=getattr(self.lib,'alpm_pkg_compute_'+kind)(package)
+        try:return sorted(ctypes.string_at(p).decode('utf8') for p in nodes(head,MAX_PACKAGES))
+        finally:self.lib.alpm_list_free_inner(head,ctypes.cast(self.c.free,ctypes.c_void_p));self.lib.alpm_list_free(head)
+    def relations(self,package,kind):
+        result=[]
+        for dependency in nodes(getattr(self.lib,'alpm_pkg_get_'+kind)(package)):
+            value=self.lib.alpm_dep_compute_string(dependency);need(value,'dependency text allocation failed')
+            try:text=ctypes.string_at(value).decode('utf8');need(len(text)<=4096,'dependency text limit');result.append(text)
+            finally:self.c.free(value)
+        return sorted(result)
+    def satisfier(self,head,text):
+        pointer=self.lib.alpm_find_satisfier(head,text.split(': ',1)[0].encode());return self.name(pointer) if pointer else None
+
+
+def floor():
+    path=Path(__file__).with_name('protection-floor.json')
+    if not path.exists():path=Path(__file__).resolve().parents[1]/'share/cachy-asahi-orphans/protection-floor.json'
+    value,record=json_file(path,False);need(record['sha256']==FLOOR_SHA,'pinned protection floor differs')
+    return set(value['base_packages'])|set(value['platform_packages'])
+
+
+def inspect(root,db,extra,selected=(),checkpoint=None):
+    root,db=map(absolute,(root,db));need(db==root/'var/lib/pacman','explicit conventional target DB required')
+    need(len(extra)==len(set(extra)) and all(NAME.fullmatch(n) for n in extra),'unique protected package names required')
+    unlocked(db);before,expected=database_snapshot(db);api=None;remaining=None
+    try:
+        api=Installed(root,db);local=api.lib.alpm_get_localdb(api.handle);need(local and api.lib.alpm_db_get_valid(local)==0,'valid local metadata DB required')
+        full=api.lib.alpm_db_get_pkgcache(local);packages=nodes(full,MAX_PACKAGES);pointers={api.name(p):p for p in packages};need(len(pointers)==len(packages) and set(pointers)==set(expected),'ALPM cache incomplete or duplicate')
+        need(set(extra)<=set(pointers),'unknown explicit protected name');protected=floor()|set(extra);rows={};relations=0;broken=[];lost=[];until=time.monotonic()+30
+        for name,pointer in sorted(pointers.items()):
+            need(time.monotonic()<until,'metadata query deadline exceeded')
+            if name not in selected:remaining=api.lib.alpm_list_add(remaining,pointer);need(remaining,'remaining-list allocation failed')
+            rawversion=api.lib.alpm_pkg_get_version(pointer);need(rawversion is not None,'ALPM package version absent');version=rawversion.decode('utf8');reason=api.lib.alpm_pkg_get_reason(pointer)
+            need(dict(version=version,reason=reason)==expected[name],'actual ALPM identity/reason differs from complete desc snapshot')
+            required=api.reverse(pointer,'requiredby');optional=api.reverse(pointer,'optionalfor')
+            depends=api.relations(pointer,'depends');optdepends=api.relations(pointer,'optdepends');provides=api.relations(pointer,'provides')
+            relations+=len(required)+len(optional)+len(depends)+len(optdepends)+len(provides);need(relations<=MAX_RELATIONS,'relation count limit')
+            candidate=reason==1 and not required and not optional and name not in protected
+            rows[name]=dict(version=version,reason='explicit' if reason==0 else 'dependency' if reason==1 else 'unknown',required_by=required,optional_required_by=optional,depends=depends,optdepends=optdepends,provides=provides,protected=name in protected,candidate=candidate)
+        need(len(nodes(remaining,MAX_PACKAGES))==len(pointers)-len(set(selected)&set(pointers)),'remaining-list allocation incomplete')
+        # Both ALPM lists are immutable until release. Cache names/None only for
+        # this assessment; distinct lists may choose different providers.
+        full_cache={};remaining_cache={}
+        def satisfier(head,cache,text):
+            # Match the exact optional-description normalization in Installed.satisfier.
+            text=text.split(': ',1)[0]
+            if text in cache:return cache[text]
+            result=api.satisfier(head,text)
+            if len(cache)<MAX_SATISFIERS:cache[text]=result
+            return result
+        for name,row in rows.items():
+            need(time.monotonic()<until,'dependency query deadline exceeded')
+            row['satisfiers']={kind:{dep:satisfier(full,full_cache,dep) for dep in row[kind]} for kind in ('depends','optdepends')}
+            for kind in ('depends','optdepends'):
+                for dep,provider in row['satisfiers'][kind].items():
+                    if kind=='depends' and provider is None:broken.append(dict(package=name,dependency=dep))
+                    if name not in selected and (kind=='depends' or provider is not None) and satisfier(remaining,remaining_cache,dep) is None:lost.append(dict(package=name,dependency=dep,kind=kind))
+        if checkpoint:checkpoint()
+        version=api.version
+    finally:
+        if api:
+            if remaining:api.lib.alpm_list_free(remaining)
+            api.close()
+    unlocked(db);after,again=database_snapshot(db);unlocked(db);need(before==after and expected==again,'full database drift during assessment')
+    report=dict(schema_version=1,scope=SCOPE,root=str(root),dbpath=str(db),database=before,libalpm=version,protection_floor_sha256=FLOOR_SHA,extra_protected=sorted(extra),packages=rows,candidates=sorted(n for n,r in rows.items() if r['candidate']),broken_dependencies=broken,apply_supported=False)
+    return report,lost
+
+
+def publish(path,value,db):
+    path=absolute(path);need(path.name and len(path.name)<=180,'ordinary output basename required');need(not path.is_relative_to(db),'output must be outside DB');raw=encoded(value);need(len(raw)<=MAX_JSON,'output JSON limit')
+    with directory(db) as (fd,_):forbidden=(os.fstat(fd).st_dev,os.fstat(fd).st_ino)
+    with directory(path.parent) as (fd,ancestors):
+        info=os.fstat(fd);need(info.st_uid==os.geteuid() and not info.st_mode&0o022 and forbidden not in ancestors,'safe caller-owned output parent outside DB required')
+        name='.caa-orphans-'+os.urandom(16).hex()+'.tmp';handle=os.open(name,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,0o600,dir_fd=fd)
+        try:
+            with os.fdopen(handle,'wb',closefd=False) as stream:stream.write(raw);stream.flush()
+            os.fsync(handle);os.link(name,path.name,src_dir_fd=fd,dst_dir_fd=fd,follow_symlinks=False);os.fsync(fd)
+        finally:
+            try:
+                same=os.stat(name,dir_fd=fd,follow_symlinks=False);need((same.st_dev,same.st_ino)==(os.fstat(handle).st_dev,os.fstat(handle).st_ino),'own output temporary changed');os.unlink(name,dir_fd=fd);os.fsync(fd)
+            finally:os.close(handle)
+    return dict(status='NOT_APPLIED',output=str(path),sha256=digest(raw),apply_supported=False)
+
+
+def plan(assessment,selected,output=None):
+    saved,record=json_file(assessment);need(saved.get('scope')==SCOPE and saved.get('apply_supported') is False,'metadata assessment required')
+    need(type(selected) is list and len(selected)==len(set(selected)) and len(selected)<=MAX_PACKAGES and all(type(n) is str and NAME.fullmatch(n) for n in selected),'unique explicit package selections required')
+    current,lost=inspect(saved['root'],saved['dbpath'],saved['extra_protected'],selected)
+    need(current==saved,'assessment/database/dependency/protection facts changed')
+    need(not current['broken_dependencies'],'baseline has unsatisfied dependencies; no removal plan')
+    need(all(n in current['packages'] and current['packages'][n]['candidate'] for n in selected),'selected package is unknown, explicit, protected or needed')
+    need(not lost,'simultaneous selection would lose hard or currently satisfied optional dependencies')
+    value=dict(schema_version=1,status='NOT_APPLIED',operation='EXPLICIT_ORPHAN_REMOVAL_PLAN',scope=SCOPE,assessment=str(absolute(assessment)),assessment_identity=record,database_sha256=current['database']['sha256'],dependency_facts_sha256=digest(encoded(current['packages'])),selected={n:current['packages'][n] for n in sorted(selected)},simultaneous_remaining_dependencies='PASS_METADATA_ONLY',apply_supported=False)
+    if output:return publish(output,value,Path(current['dbpath']))
+    return value
+
+
+def main(argv=None):
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--version',action='version',version='cachy-asahi-orphans '+VERSION);sub=parser.add_subparsers(dest='command',required=True)
+    assess=sub.add_parser('assess');assess.add_argument('--root',type=Path,default=Path('/'));assess.add_argument('--dbpath',type=Path,default=Path('/var/lib/pacman'));assess.add_argument('--protect',action='append',default=[]);assess.add_argument('--output',type=Path)
+    create=sub.add_parser('plan');create.add_argument('assessment',type=Path);create.add_argument('--select',action='append',default=[]);create.add_argument('--output',type=Path,required=True)
+    verify=sub.add_parser('verify');verify.add_argument('plan',type=Path)
+    args=parser.parse_args(argv)
+    try:
+        if args.command=='assess':
+            report,_=inspect(args.root,args.dbpath,args.protect);result=publish(args.output,report,args.dbpath) if args.output else report
+        elif args.command=='plan':result=plan(args.assessment,args.select,args.output)
+        else:
+            saved,_=json_file(args.plan);need(saved.get('operation')=='EXPLICIT_ORPHAN_REMOVAL_PLAN' and type(saved.get('selected')) is dict,'removal plan required')
+            need(plan(Path(saved['assessment']),list(saved['selected']))==saved,'removal plan changed')
+            result=dict(status='NOT_APPLIED',verification='PASS_CURRENT_METADATA_ONLY',apply_supported=False)
+        print(json.dumps(result,sort_keys=True));return 0
+    except (Refused,OSError,ValueError,TypeError,KeyError,RecursionError) as error:
+        print(json.dumps(dict(status='NOT_APPLIED',verification='REFUSED',reason=str(error)[:300],apply_supported=False),sort_keys=True));return 1
+
+
+if __name__=='__main__':raise SystemExit(main())
