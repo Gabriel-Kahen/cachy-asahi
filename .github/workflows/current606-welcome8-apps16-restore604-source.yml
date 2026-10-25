@@ -1,0 +1,101 @@
+{
+  "name": "current606-welcome8-apps16-restore604-source",
+  "on": {
+    "push": {
+      "paths": [
+        "scripts/ci/current606-welcome7-gui-source/**",
+        ".github/workflows/current606-welcome8-apps16-restore604-source.yml"
+      ]
+    },
+    "pull_request": {
+      "paths": [
+        "scripts/ci/current606-welcome7-gui-source/**",
+        ".github/workflows/current606-welcome8-apps16-restore604-source.yml"
+      ]
+    },
+    "workflow_dispatch": {}
+  },
+  "permissions": {
+    "contents": "read"
+  },
+  "jobs": {
+    "source-controls": {
+      "runs-on": "ubuntu-24.04",
+      "timeout-minutes": 10,
+      "strategy": {
+        "fail-fast": false,
+        "matrix": {
+          "python": [
+            "3.12",
+            "3.14"
+          ]
+        }
+      },
+      "env": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONWARNINGS": "error"
+      },
+      "steps": [
+        {
+          "name": "Check out maintained factory",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out immutable apps16-gui",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "repository": "Gabriel-Kahen/cachy-asahi",
+            "ref": "d34854151f578547c2f64f46d14f5d9129bf2d66",
+            "path": ".ci-fixtures/apps16-gui",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out immutable restore604-gui",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "repository": "Gabriel-Kahen/cachy-asahi",
+            "ref": "37bee5c50f8808b618b90ab0a559d7fa88a8a4ab",
+            "path": ".ci-fixtures/restore604-gui",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out immutable cleanup-gui",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "repository": "Gabriel-Kahen/cachy-asahi",
+            "ref": "601195b401668f92cec35772f1ad4c3eb00e6d21",
+            "path": ".ci-fixtures/cleanup-gui",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out immutable apps16-carrier",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "repository": "Gabriel-Kahen/cachy-asahi",
+            "ref": "950b0699a6e3f7a56758d4d17a5d30dabc7b6e11",
+            "path": ".ci-fixtures/apps16-carrier",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Select Python",
+          "uses": "actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+          "with": {
+            "python-version": "${{ matrix.python }}"
+          }
+        },
+        {
+          "name": "Exact selected/NULL562 and unchanged Apps16 routes with hostile filesystem controls",
+          "shell": "bash",
+          "run": "set -euo pipefail\nstage=$(mktemp -d \"$RUNNER_TEMP/gui-restore604-source.XXXXXXXX\")\ntrap 'rm -rf -- \"$stage\"' EXIT\nexport TMPDIR=\"$stage\"\npython3 -I -B -Werror \"$GITHUB_WORKSPACE/scripts/ci/current606-welcome7-gui-source/test_apps16_restore604.py\" \\\n --parent \"$GITHUB_WORKSPACE/.ci-fixtures/apps16-gui\" \\\n --expected \"$GITHUB_WORKSPACE/.ci-fixtures/restore604-gui\" \\\n --cleanup \"$GITHUB_WORKSPACE/.ci-fixtures/cleanup-gui\" \\\n --carrier \"$GITHUB_WORKSPACE/.ci-fixtures/apps16-carrier\"\n"
+        }
+      ]
+    }
+  }
+}
