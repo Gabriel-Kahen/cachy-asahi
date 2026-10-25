@@ -1,0 +1,9 @@
+
+# Explicit VM-test capacity only; all default35 functions above remain whole.
+def _install_inventory_vm_capacity():
+    import importlib.util
+    path=Path(__file__).resolve().parent/'inventory_capacity.py'
+    spec=importlib.util.spec_from_file_location('_owned_tcg_inventory_capacity',path)
+    module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+    module.install(globals())
+_install_inventory_vm_capacity()
