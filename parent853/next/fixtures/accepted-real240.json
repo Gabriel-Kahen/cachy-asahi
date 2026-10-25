@@ -1,0 +1,569 @@
+{
+  "cases": {
+    "fish-noninteractive": {
+      "caller_continued": true,
+      "config_history_preserved": true,
+      "issues": [],
+      "notifications": 0,
+      "shell_exit": 0,
+      "status": "PASS"
+    },
+    "fish-request-forward": {
+      "issues": [],
+      "observations": {
+        "bindings_preserved": true,
+        "caller_continued": true,
+        "functions_preserved": true,
+        "hooks_preserved": true,
+        "notification": {
+          "argv": [
+            "--hint=int:transient:1",
+            "--urgency=normal",
+            "--icon=utilities-terminal",
+            "--app-name=fish",
+            "--expire-time=3000",
+            "--",
+            "Done in 122 ms",
+            "Foreground command completed."
+          ]
+        },
+        "shell_exit": 0,
+        "shell_pid": 1786,
+        "snapshots": [
+          {
+            "buffer": "!!",
+            "cursor": 2,
+            "input_hex": "2121"
+          },
+          {
+            "buffer": "([{}])",
+            "cursor": 3,
+            "input_hex": "285b7b"
+          },
+          {
+            "buffer": "\"\"",
+            "cursor": 1,
+            "input_hex": "22617f"
+          },
+          {
+            "buffer": "printf '%s\\n' 'coex-literal [a]*? $HOME $(touch PWNED)'",
+            "cursor": 55,
+            "input_hex": "2121"
+          }
+        ]
+      },
+      "order": [
+        "bang",
+        "autopair",
+        "done"
+      ],
+      "status": "PASS"
+    },
+    "fish-request-reverse": {
+      "issues": [],
+      "observations": {
+        "bindings_preserved": true,
+        "caller_continued": true,
+        "functions_preserved": true,
+        "hooks_preserved": true,
+        "notification": {
+          "argv": [
+            "--hint=int:transient:1",
+            "--urgency=normal",
+            "--icon=utilities-terminal",
+            "--app-name=fish",
+            "--expire-time=3000",
+            "--",
+            "Done in 122 ms",
+            "Foreground command completed."
+          ]
+        },
+        "shell_exit": 0,
+        "shell_pid": 2017,
+        "snapshots": [
+          {
+            "buffer": "!!",
+            "cursor": 2,
+            "input_hex": "2121"
+          },
+          {
+            "buffer": "([{}])",
+            "cursor": 3,
+            "input_hex": "285b7b"
+          },
+          {
+            "buffer": "\"\"",
+            "cursor": 1,
+            "input_hex": "22617f"
+          },
+          {
+            "buffer": "printf '%s\\n' 'coex-literal [a]*? $HOME $(touch PWNED)'",
+            "cursor": 55,
+            "input_hex": "2121"
+          }
+        ]
+      },
+      "order": [
+        "done",
+        "autopair",
+        "bang"
+      ],
+      "status": "PASS"
+    },
+    "zsh-noninteractive": {
+      "caller_continued": true,
+      "config_history_preserved": true,
+      "issues": [],
+      "notifications": 0,
+      "shell_exit": 0,
+      "status": "PASS"
+    },
+    "zsh-request-forward": {
+      "bindings_preserved": true,
+      "caller_continued": true,
+      "namespaces_widgets_preserved": true,
+      "order": [
+        "autosuggest",
+        "highlight",
+        "substring"
+      ],
+      "shell_exit": 0,
+      "shell_pid": 2225,
+      "snapshots": [
+        {
+          "buffer": "echo co",
+          "cursor": 7,
+          "highlight": "0 4 fg=green memo=zsh-syntax-highlighting,5 7 underline memo=zsh-syntax-highlighting,7 16 none",
+          "input_hex": "",
+          "suggestion": "existence"
+        },
+        {
+          "buffer": "echo coexistence",
+          "cursor": 16,
+          "highlight": "7 16 none",
+          "input_hex": "06",
+          "suggestion": ""
+        },
+        {
+          "buffer": "",
+          "cursor": 0,
+          "highlight": "",
+          "input_hex": "",
+          "suggestion": ""
+        },
+        {
+          "buffer": "no-match-coex",
+          "cursor": 13,
+          "highlight": "",
+          "input_hex": "6e6f2d6d617463682d636f6578",
+          "suggestion": ""
+        },
+        {
+          "buffer": "printf substring-newer",
+          "cursor": 22,
+          "highlight": "",
+          "input_hex": "737562737472696e671815",
+          "suggestion": ""
+        },
+        {
+          "buffer": "printf substring-older",
+          "cursor": 22,
+          "highlight": "",
+          "input_hex": "1815",
+          "suggestion": ""
+        },
+        {
+          "buffer": "echo 'literal [a]*? $HOME $(touch PWNED)'",
+          "cursor": 41,
+          "highlight": "",
+          "input_hex": "276c69746572616c205b615d2a3f2024484f4d45202428746f7563682050574e454429271815",
+          "suggestion": ""
+        },
+        {
+          "buffer": "custom-key",
+          "cursor": 10,
+          "highlight": "",
+          "input_hex": "07",
+          "suggestion": ""
+        }
+      ],
+      "status": "PASS"
+    },
+    "zsh-request-reordered": {
+      "bindings_preserved": true,
+      "caller_continued": true,
+      "namespaces_widgets_preserved": true,
+      "order": [
+        "highlight",
+        "substring",
+        "autosuggest"
+      ],
+      "shell_exit": 0,
+      "shell_pid": 2247,
+      "snapshots": [
+        {
+          "buffer": "echo co",
+          "cursor": 7,
+          "highlight": "0 4 fg=green memo=zsh-syntax-highlighting,5 7 underline memo=zsh-syntax-highlighting,7 16 none",
+          "input_hex": "",
+          "suggestion": "existence"
+        },
+        {
+          "buffer": "echo coexistence",
+          "cursor": 16,
+          "highlight": "7 16 none",
+          "input_hex": "06",
+          "suggestion": ""
+        },
+        {
+          "buffer": "",
+          "cursor": 0,
+          "highlight": "",
+          "input_hex": "",
+          "suggestion": ""
+        },
+        {
+          "buffer": "no-match-coex",
+          "cursor": 13,
+          "highlight": "",
+          "input_hex": "6e6f2d6d617463682d636f6578",
+          "suggestion": ""
+        },
+        {
+          "buffer": "printf substring-newer",
+          "cursor": 22,
+          "highlight": "",
+          "input_hex": "737562737472696e671815",
+          "suggestion": ""
+        },
+        {
+          "buffer": "printf substring-older",
+          "cursor": 22,
+          "highlight": "",
+          "input_hex": "1815",
+          "suggestion": ""
+        },
+        {
+          "buffer": "echo 'literal [a]*? $HOME $(touch PWNED)'",
+          "cursor": 41,
+          "highlight": "",
+          "input_hex": "276c69746572616c205b615d2a3f2024484f4d45202428746f7563682050574e454429271815",
+          "suggestion": ""
+        },
+        {
+          "buffer": "custom-key",
+          "cursor": 10,
+          "highlight": "",
+          "input_hex": "07",
+          "suggestion": ""
+        }
+      ],
+      "status": "PASS"
+    }
+  },
+  "conflicts": {
+    "activate_remove_exit": 2,
+    "no_reset": true,
+    "other_components_removed": 4,
+    "retained_edited_components": [
+      "fish-done",
+      "zsh-history-substring-search"
+    ],
+    "status": "PASS"
+  },
+  "defaults_enabled": false,
+  "extension": {
+    "cases": {
+      "fresh-fish": {
+        "preserved": true,
+        "preview_readonly": true,
+        "status": "PASS"
+      },
+      "fresh-zsh": {
+        "preserved": true,
+        "preview_readonly": true,
+        "status": "PASS"
+      },
+      "recover-activate": {
+        "preserved": true,
+        "preview_readonly": true,
+        "status": "PASS"
+      },
+      "recover-edited": {
+        "preserved": true,
+        "preview_readonly": true,
+        "status": "PASS"
+      },
+      "recover-recheck": {
+        "preserved": true,
+        "preview_readonly": true,
+        "status": "PASS"
+      },
+      "recover-remove": {
+        "preserved": true,
+        "preview_readonly": true,
+        "status": "PASS"
+      },
+      "recover-state": {
+        "preserved": true,
+        "preview_readonly": true,
+        "status": "PASS"
+      },
+      "recover-template": {
+        "preserved": true,
+        "preview_readonly": true,
+        "status": "PASS"
+      }
+    },
+    "homes": {
+      "fresh-fish": true,
+      "fresh-zsh": true,
+      "recover-activate": true,
+      "recover-edited": true,
+      "recover-recheck": true,
+      "recover-remove": true,
+      "recover-state": true,
+      "recover-template": true
+    },
+    "scope": "ACTUAL_CLI_SIX_INSTALLED_MODULES_PRIVATE_HOMES_TEMPLATE_DRIFT_USES_OWNED_EXACT_COPY",
+    "status": "PASS"
+  },
+  "hardware": "NOT_RUN",
+  "installed_helper_sha256": "29d68d371071487ffd9b5453c2c056105e73f6b2971c98873731193eab6534b0",
+  "installed_runtime_join": {
+    "modules": [
+      "fish-bang-bang",
+      "fish-autopair",
+      "fish-done",
+      "zsh-autosuggestions",
+      "zsh-syntax-highlighting",
+      "zsh-history-substring-search"
+    ],
+    "status": "PASS_SOURCE_IDENTICAL_RUNTIME"
+  },
+  "interpreter_sha256": {
+    "fish": "676028c5be037d08361e1c95affc92f3c7548293d809cb6d19c3a4a2bb9b2583",
+    "zsh": "353042495fa063f13499b4449d4126b7423d3f5b5ab829bf329b2b6a66bc979f"
+  },
+  "lifecycle": {
+    "fish-bang-autopair-done": {
+      "activation": {
+        "effective_order": [
+          "fish-bang-bang",
+          "fish-autopair",
+          "fish-done",
+          "zsh-autosuggestions",
+          "zsh-syntax-highlighting",
+          "zsh-history-substring-search"
+        ],
+        "generated": {
+          "fish": "aaae30f8dfed109ac975f5b2efdbd39cda94e10243b981c776ff4cbda6594c6b",
+          "zsh": "f48d025cc1b448e4c6a5069dcb3ce911a774bb4971e9b3f8fd7df10dc5993b85"
+        },
+        "preview_readonly": true,
+        "repeat_unchanged": true,
+        "selected": [
+          "fish-bang-bang",
+          "fish-autopair",
+          "fish-done",
+          "zsh-autosuggestions",
+          "zsh-syntax-highlighting",
+          "zsh-history-substring-search"
+        ]
+      },
+      "removal": {
+        "state_components": 0,
+        "status": "PASS",
+        "unrelated_user_files_preserved": true,
+        "user_bytes_modes_preserved": true
+      }
+    },
+    "fish-done-autopair-bang": {
+      "activation": {
+        "effective_order": [
+          "fish-bang-bang",
+          "fish-autopair",
+          "fish-done",
+          "zsh-autosuggestions",
+          "zsh-syntax-highlighting",
+          "zsh-history-substring-search"
+        ],
+        "generated": {
+          "fish": "aaae30f8dfed109ac975f5b2efdbd39cda94e10243b981c776ff4cbda6594c6b",
+          "zsh": "f48d025cc1b448e4c6a5069dcb3ce911a774bb4971e9b3f8fd7df10dc5993b85"
+        },
+        "preview_readonly": true,
+        "repeat_unchanged": true,
+        "selected": [
+          "fish-done",
+          "fish-autopair",
+          "fish-bang-bang",
+          "zsh-autosuggestions",
+          "zsh-syntax-highlighting",
+          "zsh-history-substring-search"
+        ]
+      },
+      "removal": {
+        "state_components": 0,
+        "status": "PASS",
+        "unrelated_user_files_preserved": true,
+        "user_bytes_modes_preserved": true
+      }
+    },
+    "fish-noninteractive": {
+      "activation": {
+        "effective_order": [
+          "fish-bang-bang",
+          "fish-autopair",
+          "fish-done",
+          "zsh-autosuggestions",
+          "zsh-syntax-highlighting",
+          "zsh-history-substring-search"
+        ],
+        "generated": {
+          "fish": "aaae30f8dfed109ac975f5b2efdbd39cda94e10243b981c776ff4cbda6594c6b",
+          "zsh": "f48d025cc1b448e4c6a5069dcb3ce911a774bb4971e9b3f8fd7df10dc5993b85"
+        },
+        "preview_readonly": true,
+        "repeat_unchanged": true,
+        "selected": [
+          "fish-bang-bang",
+          "fish-autopair",
+          "fish-done",
+          "zsh-autosuggestions",
+          "zsh-syntax-highlighting",
+          "zsh-history-substring-search"
+        ]
+      },
+      "removal": {
+        "state_components": 0,
+        "status": "PASS",
+        "unrelated_user_files_preserved": true,
+        "user_bytes_modes_preserved": true
+      }
+    },
+    "zsh-autosuggest-highlight-substring": {
+      "activation": {
+        "effective_order": [
+          "fish-bang-bang",
+          "fish-autopair",
+          "fish-done",
+          "zsh-autosuggestions",
+          "zsh-syntax-highlighting",
+          "zsh-history-substring-search"
+        ],
+        "generated": {
+          "fish": "aaae30f8dfed109ac975f5b2efdbd39cda94e10243b981c776ff4cbda6594c6b",
+          "zsh": "f48d025cc1b448e4c6a5069dcb3ce911a774bb4971e9b3f8fd7df10dc5993b85"
+        },
+        "preview_readonly": true,
+        "repeat_unchanged": true,
+        "selected": [
+          "zsh-autosuggestions",
+          "zsh-syntax-highlighting",
+          "zsh-history-substring-search",
+          "fish-bang-bang",
+          "fish-autopair",
+          "fish-done"
+        ]
+      },
+      "removal": {
+        "state_components": 0,
+        "status": "PASS",
+        "unrelated_user_files_preserved": true,
+        "user_bytes_modes_preserved": true
+      }
+    },
+    "zsh-highlight-substring-autosuggest": {
+      "activation": {
+        "effective_order": [
+          "fish-bang-bang",
+          "fish-autopair",
+          "fish-done",
+          "zsh-autosuggestions",
+          "zsh-syntax-highlighting",
+          "zsh-history-substring-search"
+        ],
+        "generated": {
+          "fish": "aaae30f8dfed109ac975f5b2efdbd39cda94e10243b981c776ff4cbda6594c6b",
+          "zsh": "f48d025cc1b448e4c6a5069dcb3ce911a774bb4971e9b3f8fd7df10dc5993b85"
+        },
+        "preview_readonly": true,
+        "repeat_unchanged": true,
+        "selected": [
+          "zsh-syntax-highlighting",
+          "zsh-history-substring-search",
+          "zsh-autosuggestions",
+          "fish-bang-bang",
+          "fish-autopair",
+          "fish-done"
+        ]
+      },
+      "removal": {
+        "state_components": 0,
+        "status": "PASS",
+        "unrelated_user_files_preserved": true,
+        "user_bytes_modes_preserved": true
+      }
+    },
+    "zsh-noninteractive": {
+      "activation": {
+        "effective_order": [
+          "fish-bang-bang",
+          "fish-autopair",
+          "fish-done",
+          "zsh-autosuggestions",
+          "zsh-syntax-highlighting",
+          "zsh-history-substring-search"
+        ],
+        "generated": {
+          "fish": "aaae30f8dfed109ac975f5b2efdbd39cda94e10243b981c776ff4cbda6594c6b",
+          "zsh": "f48d025cc1b448e4c6a5069dcb3ce911a774bb4971e9b3f8fd7df10dc5993b85"
+        },
+        "preview_readonly": true,
+        "repeat_unchanged": true,
+        "selected": [
+          "zsh-autosuggestions",
+          "zsh-syntax-highlighting",
+          "zsh-history-substring-search",
+          "fish-bang-bang",
+          "fish-autopair",
+          "fish-done"
+        ]
+      },
+      "removal": {
+        "state_components": 0,
+        "status": "PASS",
+        "unrelated_user_files_preserved": true,
+        "user_bytes_modes_preserved": true
+      }
+    }
+  },
+  "machine": "aarch64",
+  "notification_delivery": "NOT_RUN",
+  "notification_scope": "PRIVATE_NOTIFY_SEND_RECORDER_ONLY",
+  "page_size": 4096,
+  "release": "NOT_ADMITTED",
+  "scope": "ACTUAL_INSTALLED_SETUP6_AND_SIX_MODULE_GENERATED_RCS",
+  "security": {
+    "CapAmb": "0000000000000000",
+    "CapBnd": "00000000000000db",
+    "CapEff": "0000000000000000",
+    "CapInh": "0000000000000000",
+    "CapPrm": "0000000000000000",
+    "NoNewPrivs": "1"
+  },
+  "status": "PASS_NATIVE_INSTALLED_SETUP6_REAL_MODULE_GENERATED_RCS",
+  "uid": 1000,
+  "versions": {
+    "fish": "fish, version 4.9.3",
+    "zsh": "zsh 5.9.2 (aarch64-unknown-linux-gnu)"
+  },
+  "zsh_fixture_adapter": {
+    "adapted_sha256": "03ef526800d0644dfadb71b1f04ab573ae7c60578ae6efdf7c8aaeb41dfa6bd4",
+    "after": "(( ${+ZSH_AUTOSUGGEST_USE_ASYNC} )) || exit 25",
+    "before": "unset ZSH_AUTOSUGGEST_USE_ASYNC",
+    "original_sha256": "1f87315b04aefdbb6ed7e4af87ade4384c822a61fc25dc2cc77cd6dcd0973fc4"
+  },
+  "zsh_mode": "DEFAULT_ASYNC_PRESENCE_ASSERTED"
+}
