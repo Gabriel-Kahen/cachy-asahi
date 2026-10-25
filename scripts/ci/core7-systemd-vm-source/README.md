@@ -203,3 +203,5 @@ Original graph600/owner14400/shared7200/boot3600/stage3300/producer2300/
 assembly1070/media1900/transaction90/cleanup60 and all graph/stream bounds remain.
 Native deadline fit, hooks/two-boot success, Asahi/M2, performance and release
 acceptance are not inferred from this source-only factory.
+
+Explicit --observer-efficient emits exact published lexical observer41 from the held typed-ACL41 factory. --unbound keeps receipt source/ref NULL with identical emitted bytes. All28 pre-main functions/defaults/old routes, typed ACL schema/AND, live FD observations and call order, fallback rules and root600 remain held. Seven frozen focused groups and host x86_64 synthetic measurements are source evidence only; native hotspot/fit remain UNKNOWN. No native gain or acceptance is inferred. Fresh canonical output and optional authorization must be mutually disjoint and outside the maintained factory.
