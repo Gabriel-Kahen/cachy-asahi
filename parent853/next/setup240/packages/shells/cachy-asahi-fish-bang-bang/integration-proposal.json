@@ -1,0 +1,24 @@
+{
+  "depends": [
+    "fish>=4.0"
+  ],
+  "hardware_validation": "NOT RUN",
+  "installation": "NOT RUN",
+  "license": "MIT",
+  "name": "cachy-asahi-fish-bang-bang",
+  "native_build": "NOT RUN",
+  "native_registration": "Root reviews exact package and tests; add addon through existing development recipe/build compare consumer, bind relevant maps/locks/source packets; no new workflow family",
+  "optdepends": [
+    "cachy-asahi-fish-config: separately enabled original shell helpers"
+  ],
+  "original_Fish_config": "unchanged; separate user-owned opt-in block after existing bindings",
+  "phase": "complete-port-tools",
+  "primary_shared_changes": false,
+  "proposed_destination": "packages/shells/cachy-asahi-fish-bang-bang",
+  "schema_version": 1,
+  "selected_for_development": "PROPOSED",
+  "selected_for_release": false,
+  "source": "pinned-upstream-functions-and-original-opt-in-wrapper",
+  "status": "candidate",
+  "upstream_commit": "ec991b80ba7d4dda7a962167b036efc5c2d79419"
+}

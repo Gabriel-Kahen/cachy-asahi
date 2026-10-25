@@ -1,0 +1,12 @@
+cachy-asahi-zsh-autosuggestions
+
+The unchanged zsh-autosuggestions.zsh is from zsh-users/zsh-autosuggestions,
+revision 85919cd1ffa7d2d5412f6d3fe437ebdbeeec4fc5, upstream VERSION v0.7.1.
+Copyright (c) 2013 Thiago de Arruda
+Copyright (c) 2016-2021 Eric Freese
+Its full MIT grant is retained in the module header and LICENSE.upstream.
+
+The opt-in wrapper, recipe, usage and validation material are original
+cachy-asahi contributor work under the MIT grant in LICENSE.project.
+This package does not include the ungranted CachyOS Zsh configuration.
+See repository source-provenance.json for exact source archive and selected-file hashes.
