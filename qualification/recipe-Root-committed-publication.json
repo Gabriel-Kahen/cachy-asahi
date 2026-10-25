@@ -1,0 +1,10 @@
+{
+  "actual": "NOT_RUN",
+  "files": 42,
+  "git_joins": 42,
+  "hardware": "NOT_RUN",
+  "ref": "codex/apps16-recipe-v1",
+  "release": "NOT_ADMITTED",
+  "source": "a32501a76b79b65d175c8eefc2b4f741ec0388e5",
+  "status": "COMMITTED_EXACT_CLOSED_TRIAL_SOURCE"
+}

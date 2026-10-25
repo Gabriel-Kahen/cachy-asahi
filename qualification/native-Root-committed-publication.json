@@ -1,0 +1,10 @@
+{
+  "actual": "NOT_RUN",
+  "files": 115,
+  "git_joins": 115,
+  "hardware": "NOT_RUN",
+  "ref": "codex/apps16-pair-native-v1",
+  "release": "NOT_ADMITTED",
+  "source": "135b8fb21941d0ea27da7d34b1fc7b9eb0939ee8",
+  "status": "COMMITTED_EXACT_CLOSED_TRIAL_SOURCE"
+}
