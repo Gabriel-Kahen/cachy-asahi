@@ -132,11 +132,16 @@ def main():
  for name in ('parent','output'):parser.add_argument('--'+name,type=Path,required=True)
  parser.add_argument('--carrier',type=Path)
  parser.add_argument('--carrier-env-correction',action='store_true')
- for version in ('9','10','11','14'):
+ for version in ('9','10','11','14','16'):
   parser.add_argument('--apps'+version,action='store_true')
   parser.add_argument('--apps'+version+'-carrier',type=Path)
  a=parser.parse_args()
- if sum((a.carrier_env_correction,a.apps9,a.apps10,a.apps11,a.apps14))>1:parser.error('select exactly one explicit variant')
+ if sum((a.carrier_env_correction,a.apps9,a.apps10,a.apps11,a.apps14,a.apps16))>1:parser.error('select exactly one explicit variant')
+ if a.apps16:
+  if a.carrier is not None or any(v is not None for v in(a.apps9_carrier,a.apps10_carrier,a.apps11_carrier,a.apps14_carrier)):parser.error('--apps16 takes only --apps16-carrier; no original carrier or other candidate')
+  import importlib.util
+  spec=importlib.util.spec_from_file_location('_apps16_explicit_factory',HERE/'apps16.py');module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);result=module.emit(a.parent,a.apps16_carrier,a.output);print(json.dumps(result,sort_keys=True));return
+ if a.apps16_carrier is not None:parser.error('--apps16-carrier requires --apps16')
  if a.apps14:
   if a.carrier is not None or any(v is not None for v in(a.apps9_carrier,a.apps10_carrier,a.apps11_carrier)):parser.error('--apps14 takes only --apps14-carrier; no original carrier or other candidate')
   import importlib.util
