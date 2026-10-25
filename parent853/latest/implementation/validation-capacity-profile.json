@@ -1,0 +1,23 @@
+{
+  "M2_performance": "NOT_RUN",
+  "bounds": {
+    "cleanup": 60,
+    "component": 3600,
+    "consumer": 4200,
+    "fixture": 100,
+    "owner": 6600,
+    "real_module_suite": 240,
+    "transaction": 90
+  },
+  "consumer_difference_is_guaranteed_margin": false,
+  "kind": "VM_VALIDATION_TEST_CAPACITY_ONLY",
+  "name": "NATIVE607_APPS16_VM_TEST_COMPONENT3600_V1",
+  "native": "NOT_RUN",
+  "numeric_outer_consumer_difference": 600,
+  "old2400_fit": "NOT_ESTABLISHED",
+  "outer4200_fit": "NOT_ESTABLISHED",
+  "owner6600_fit": "NOT_ESTABLISHED",
+  "performance": "NOT_CLAIMED",
+  "release": "NOT_ADMITTED",
+  "shared_component_deadline": "ONE_MONOTONIC_START_PLUS3600_SAME_VALUE_FOR_ALL65_FULL_GRAPHS_AND_ACTIONS_NO_RESET"
+}
