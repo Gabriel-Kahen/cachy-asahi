@@ -158,3 +158,5 @@ acceptance follows from accepted input or source emission.
 python3 -I -B scripts/ci/current606-welcome7-gui-source/prepare.py --apps14-stage --predecessor-root /ordinary/Apps13-source559 --output /fresh/Apps14-source559
 python3 -I -B /fresh/Apps14-source559/native.py preflight
 ```
+
+Explicit --failure-cleanup emits exact601195561 from whole803ed559. The original positive15 cleanup and all GUI acceptance predicates remain unchanged; failed-runtime resource retirement is separately typed and requires complete acquisition/absence/borrowed-base checks. All actual fields stay NULL. No old-route/default output changes or native/M2 acceptance are implied.
