@@ -1,0 +1,90 @@
+{
+  "name": "current606 GUI failure cleanup source",
+  "on": {
+    "pull_request": {
+      "paths": [
+        "scripts/ci/current606-welcome7-gui-source/**",
+        ".github/workflows/current606-gui-failure-cleanup-source.yml"
+      ]
+    },
+    "push": {
+      "paths": [
+        "scripts/ci/current606-welcome7-gui-source/**",
+        ".github/workflows/current606-gui-failure-cleanup-source.yml"
+      ]
+    }
+  },
+  "permissions": {
+    "contents": "read"
+  },
+  "jobs": {
+    "source": {
+      "runs-on": "ubuntu-24.04",
+      "timeout-minutes": 10,
+      "strategy": {
+        "matrix": {
+          "python": [
+            "3.12",
+            "3.14"
+          ]
+        }
+      },
+      "env": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "GUI_CLEANUP_PARENT": "${{ github.workspace }}/.ci-cleanup/parent559",
+        "GUI_CLEANUP_EXPECTED": "${{ github.workspace }}/.ci-cleanup/expected561",
+        "GUI_CLEANUP_APPS13": "${{ github.workspace }}/.ci-cleanup/apps13"
+      },
+      "steps": [
+        {
+          "name": "Checkout implementation",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Checkout exact parent559",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "repository": "Gabriel-Kahen/cachy-asahi",
+            "ref": "803ed9c5c0357162ef9868bf6f82d37936ba7842",
+            "path": ".ci-cleanup/parent559",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Checkout exact expected561",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "repository": "Gabriel-Kahen/cachy-asahi",
+            "ref": "601195b401668f92cec35772f1ad4c3eb00e6d21",
+            "path": ".ci-cleanup/expected561",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Checkout exact apps13",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "repository": "Gabriel-Kahen/cachy-asahi",
+            "ref": "a0c8eb9ccb2994cf2f7156a6e66bfc9715b9e464",
+            "path": ".ci-cleanup/apps13",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Select Python",
+          "uses": "actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+          "with": {
+            "python-version": "${{ matrix.python }}"
+          }
+        },
+        {
+          "name": "Exact source, prior route, eight cleanup bodies and path refusals",
+          "run": "python3 -I -B -Werror scripts/ci/current606-welcome7-gui-source/test_failure_cleanup.py"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "base_image": "sha256:47609f0035b714730db75f230b6882117f8cef2c7db9e595444c99fc973c5e19",
+  "base_reference": "cachy-asahi-desktop574-base:80bbcb2d47c66a66b2d2401fce0549da",
+  "cleanup": [
+    {
+      "action": "remove-container:desktop574-vm-d232293cf21dfd1d",
+      "exit": 0
+    },
+    {
+      "action": "check-container:desktop574-vm-d232293cf21dfd1d",
+      "exit": 0
+    },
+    {
+      "action": "remove-container:desktop574-fixture-03fc5e962cde5a79",
+      "exit": 0
+    },
+    {
+      "action": "check-container:desktop574-fixture-03fc5e962cde5a79",
+      "exit": 0
+    },
+    {
+      "action": "remove-container:desktop574-config-c714f8a1f8c2389f81a90eabe22ca0f5",
+      "exit": 0
+    },
+    {
+      "action": "check-container:desktop574-config-c714f8a1f8c2389f81a90eabe22ca0f5",
+      "exit": 0
+    },
+    {
+      "action": "remove-image:sha256:74d92f9cb811fe625f375f857d9c1621442e09e3d80f700805ee81acaef6c080",
+      "exit": 0
+    },
+    {
+      "action": "remove-image:sha256:41be6cce99a5454834dbb6efa11f27c130f29998ec1d4eabdcc79260a29c0072",
+      "exit": 0
+    },
+    {
+      "action": "remove-fixture",
+      "exit": 0
+    },
+    {
+      "action": "remove-cleaner",
+      "exit": 0
+    },
+    {
+      "guest_disk_removed": true
+    }
+  ],
+  "controller_image": "sha256:41be6cce99a5454834dbb6efa11f27c130f29998ec1d4eabdcc79260a29c0072",
+  "error": "guest failed; inspect events.log and guest.log",
+  "runtime_image": "sha256:74d92f9cb811fe625f375f857d9c1621442e09e3d80f700805ee81acaef6c080",
+  "status": "FAIL"
+}
