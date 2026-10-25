@@ -1,0 +1,136 @@
+{
+  "Asahi_boot": "NOT_RUN",
+  "GUI": "NOT_RUN",
+  "M2": "NOT_RUN",
+  "boot_history": "UNKNOWN",
+  "cleanup": "FOUR_ORIGINAL_CONSUMER_ABSENCE_AND_PRODUCER_RETIREMENT_REPLAY_NOT_FRESH_LIVE_INSPECTION",
+  "crash_diagnosis": "NOT_ESTABLISHED",
+  "independent_git_blob_joins": 79,
+  "lifecycle": {
+    "bytes": 48699,
+    "sha256": "41c2d05ec8e47ac3e3c4747797f37de1a83983a2bcb0f9bef5f9e848d144d179"
+  },
+  "limitations": [
+    "Input snapshots regenerated only from independently authorized exact source; collected code never imported or executed.",
+    "Fresh/existing user/private payload properties remain original source-enforced, with exported report/hash joins.",
+    "Recorded native containers are one-host independence, not two independent machines.",
+    "No real boot/crash history, recovery, live pstore, Asahi, GUI,16K,M2 or release-trust acceptance."
+  ],
+  "masked_hooks": 41,
+  "observations": [
+    {
+      "checks": 15,
+      "home": "product-home-fresh",
+      "journal_sha256": "77c326d908442852de51e66c660153d4c6051390b14466e48fa9c037cc1c573e",
+      "phase": "install",
+      "report_sha256": "28933b59ea38791256905fcb1cd7c24a7d17b0119fee3a079e674af2c775883e"
+    },
+    {
+      "checks": 15,
+      "home": "product-home-existing",
+      "journal_sha256": "77c326d908442852de51e66c660153d4c6051390b14466e48fa9c037cc1c573e",
+      "phase": "install",
+      "report_sha256": "77020878f0e305dff290cbe8e016f22c99f1477c9aadba1d773f573ffbb8c1c0"
+    },
+    {
+      "checks": 15,
+      "home": "product-home-fresh",
+      "journal_sha256": "77c326d908442852de51e66c660153d4c6051390b14466e48fa9c037cc1c573e",
+      "phase": "same-version-reinstall",
+      "report_sha256": "1c6ef8b0f12337cb2e0a8a85867bc24eaba437c41c28d970900ba8bd5a967a4c"
+    },
+    {
+      "checks": 15,
+      "home": "product-home-existing",
+      "journal_sha256": "77c326d908442852de51e66c660153d4c6051390b14466e48fa9c037cc1c573e",
+      "phase": "same-version-reinstall",
+      "report_sha256": "befdfb845714a8f6d3410cb316980a578f4a276e9f5195441bef3a287dda8874"
+    },
+    {
+      "checks": 15,
+      "home": "product-home-fresh",
+      "journal_sha256": "77c326d908442852de51e66c660153d4c6051390b14466e48fa9c037cc1c573e",
+      "phase": "reinstall-after-removal",
+      "report_sha256": "01d1849df03e541a2cd21127d522e9d05eaefd4865294d180bfffffe44ed8d46"
+    },
+    {
+      "checks": 15,
+      "home": "product-home-existing",
+      "journal_sha256": "77c326d908442852de51e66c660153d4c6051390b14466e48fa9c037cc1c573e",
+      "phase": "reinstall-after-removal",
+      "report_sha256": "26134b446baff598619377a646d243875472f4c5f9c376748d1564bb77e96c30"
+    }
+  ],
+  "original_job": {
+    "job_id": 118304828639,
+    "native_label": "ubuntu-24.04-arm",
+    "steps": [
+      3,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ]
+  },
+  "page_size": 4096,
+  "pairs": {
+    "cachy-asahi-boot-report": {
+      "errors": [],
+      "hardware_status": "NOT RUN",
+      "independence_limit": "Distinct recorded container runs; independent machine execution is not attested.",
+      "packages": {
+        "cachy-asahi-boot-report-0.1.0-1-any.pkg.tar.xz": {
+          "buildinfo_equal": true,
+          "bytes_equal": true,
+          "installed_contents_equal": true,
+          "pkginfo_equal": true
+        }
+      },
+      "status": "contents-reproduced"
+    }
+  },
+  "phases": [
+    {
+      "inventory_count": 575,
+      "phase": "install"
+    },
+    {
+      "inventory_count": 575,
+      "phase": "same-version-reinstall"
+    },
+    {
+      "inventory_count": 574,
+      "phase": "remove"
+    },
+    {
+      "inventory_count": 575,
+      "phase": "reinstall-after-removal"
+    },
+    {
+      "inventory_count": 574,
+      "phase": "final-remove"
+    }
+  ],
+  "physical16K": "NOT_RUN",
+  "pstore": "SYNTHETIC_FIXTURE_ONLY_NO_LIVE_ACCESS",
+  "ref": "codex/boot-report-native-products-v1",
+  "release": "NOT_ADMITTED",
+  "report": {
+    "bytes": 62122,
+    "sha256": "d5cecbffaa626cde5555f5658489c97c1f3a10b47d49b50239a6078e48da8e1d"
+  },
+  "reviewed_at": "2026-10-19T21:08:23.925642+00:00",
+  "run": 39323942218,
+  "source": "2c524830adb007e3b49392ceb54dd4cc5236c77d",
+  "source_files": 79,
+  "status": "ROOT_ACCEPTED_FINITE_NATIVE_BOOT_REPORT_PAIR_AND_SYNTHETIC_INSTALLED_CLI_LIFECYCLE",
+  "strict_result": {
+    "bytes": 1671,
+    "sha256": "96aae590ddec88d031f1d94442bda180d383896594df55d0d00e288be97414a7"
+  },
+  "user_preservation": "SOURCE_ENFORCED_WITH_EXPORTED_REPORT_HASH_JOINS"
+}
