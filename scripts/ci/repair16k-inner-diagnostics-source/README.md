@@ -165,3 +165,36 @@ predicates remain mandatory. This source-only factory grants no current repair,
 GUI,16K hardware,M2,performance or release acceptance. The new scoped pinned
 Python3.12/3.14 CI runs exact bound/NULL emission, old Apps13 emission and allten
 emitted-source/observer controls in both views. Native actors are never executed.
+
+## Explicit Apps16 repair235 source
+
+`apps16.py --profile apps16-repair235` requires the exact complete Apps14
+source235 `42e2b6aa3aea02b6e19fec038ddf6deff091e980`. With the accepted94
+carrier `950b0699a6e3f7a56758d4d17a5d30dabc7b6e11`, it reproduces published
+Apps16 source235 `ac1df3c2b1859f97534d1db5064d51472b18567c`; without a carrier,
+it emits the exact frozen NULL235 source and selection refuses before actors.
+This explicit route has21 readable used payloads and joins the17 hard-pinned
+existing canonical `packages/tools/cachy-asahi-apps16/` recipe files. Keep the
+canonical repository layout when copying the factory. No development artifact
+path is a runtime dependency. All older routes/defaults/outputs remain held.
+
+```sh
+python3 -I -B -Werror scripts/ci/repair16k-inner-diagnostics-source/apps16.py --profile apps16-repair235 --base-root /ordinary/Apps14-source235 --carrier /ordinary/acceptedApps16-carrier94 --output /fresh/Apps16-source235 --authorization /separate/fresh-authorization.json
+```
+
+Complete before/after/NULL235, genuine Root publication/Git maps and prior44
+Apps16 source controls are fixed custody, without transferring native or repair
+acceptance. All paths normalize before disjointness and mutation. Full14→13→12→210
+source inverses, original192 inputs, eight Apps/17 held Runtime1/cache/orphan
+payloads, crypto/signatures/recovery/cleanup and574→578→575→574 remain mandatory.
+Unrelated base574/cache metadata retain hyprland-qt-support0.1.0-14 exactly. All
+original clocks remain, including inventory30/CLI45, planned CLI120,
+prepare9000/9010 and validation2400/2410. Native16K fit is UNKNOWN.
+
+The new read-only pinned Python3.12/3.14 workflow exercises whole bound/NULL
+function and isolated CLI emission, held14 bound/NULL function/CLI parity,
+canonical17 recipe join, parent/carrier/payload/profile/late drift and path
+refusals, plus five focused source/observer controls in each emitted view.
+The prior44 source controls are retained as explicit frozen custody, with their
+inherited record status literal documented. No old actual/failure replay, API,
+native actor, package install, Git query or hardware test runs here.
