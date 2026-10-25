@@ -1,0 +1,35 @@
+# SPDX-License-Identifier: MIT
+"""Selected verify-only1200/caller1210 AND entire original692 source predicates."""
+import base64,hashlib,importlib.util,json,sys,tempfile
+from pathlib import Path
+import source_guard as G
+HERE=Path(__file__).resolve().parent;ROOT=HERE.parent
+PARENT_PINS=None
+PRODUCTS=None
+SELF_SHA='@SELF@'
+def verify(require_known=False):
+ raw=G.read(HERE/'build_inventory_guard.py');needle=('SELF_SHA='+repr(SELF_SHA)).encode();G.need(raw.count(needle)==1 and hashlib.sha256(raw.replace(needle,b"SELF_SHA='@SELF@'",1)).hexdigest()==SELF_SHA,'whole readback guard/selfseal')
+ p=G.obj(HERE/'build-inventory-parent.json')['selected_readback'];before=p['files'];variant='known'if p['source']is not None else'null';G.need(p['schema']==1 and G.pin(G.enc(before))==PARENT_PINS[variant]and len(before)==692 and p['actual']is None,'whole published692/NULL source profile')
+ G.need((p['source'],p['ref'])==(('0e7211b326679319b4454bfe2a1c1e8e9b0aac29','codex/latest607-gui-build-inventory-v1')if variant=='known'else(None,None)),'exact old692 publication context')
+ if require_known:G.need(variant=='known','NULL readback parent refused before actors')
+ wanted=dict(PRODUCTS,**{'implementation/build_inventory_guard.py':G.pin(raw)});manifest=G.obj(ROOT/'source-manifest.json');G.need(manifest['files']==wanted and manifest['actual_source']is manifest['actual_ref']is manifest['actual_run']is None and G.table(ROOT)==dict(wanted,**{'source-manifest.json':G.pin(G.read(ROOT/'source-manifest.json'))}),'complete closed692 child and NULL authority')
+ bodies={n:G.read(ROOT/n)for n in before if n not in p['before']}
+ for n,v in p['before'].items():
+  G.need(n in before,'only named changed before bodies');b=base64.b64decode(v,validate=True);G.need(len(b)<=8*1024**2 and G.pin(b)==before[n],'bounded whole692 before body');bodies[n]=b
+ G.need({n:G.pin(b)for n,b in bodies.items()}==before,'entire692 predecessor map')
+ for n,rows in p['seams'].items():G.need(G.inverse(G.read(ROOT/n),rows)==bodies[n],'counted complete source body inverse '+n)
+ paths=sys.path[:];saved=dict(sys.modules)
+ try:
+  with tempfile.TemporaryDirectory(prefix='whole692-readback-profile-')as td:
+   oldroot=Path(td)/'source';oldroot.mkdir(mode=0o700)
+   for n,b in bodies.items():q=oldroot/n;q.parent.mkdir(parents=True,exist_ok=True);q.write_bytes(b)
+   sys.path.insert(0,str(oldroot/'implementation'))
+   for name in('source_guard','runner_context','runner_context_guard','observer_guard','observer_apply','build_inventory_guard'):sys.modules.pop(name,None)
+   s=importlib.util.spec_from_file_location('source_guard',oldroot/'implementation/source_guard.py');old=importlib.util.module_from_spec(s);sys.modules['source_guard']=old;s.loader.exec_module(old);fact=old.verify(require_known);G.need(fact['files']==692 and fact['packages']==607 and fact['optional_absent']==605 and fact['service_seconds']==1800,'entire original692→687→682→676→574 guard chain');G.need(G.table(oldroot)==before,'oldsource unchanged after full proof')
+ finally:
+  sys.path[:]=paths
+  for n in set(sys.modules)-set(saved):sys.modules.pop(n,None)
+  sys.modules.update(saved)
+ import observer_apply as O
+ profile=p['profile'];G.need(profile==O.ANNOTATION['validation_profile']and profile['kind']=='GUI_TCG_INSTALLED607_READBACK1200_V1'and(profile['observer_seconds'],profile['caller_seconds'],profile['default_observer_seconds'],profile['capture_seconds'])==(1200,1210,600,600)and all(profile[k]is None for k in('actual_source','actual_ref','actual_run')),'exact typed selected role/default600/NULL authority')
+ return dict(fact,status='PASS_WHOLE692_AND_SELECTED607_VERIFY1200_SOURCE_ONLY',files=692,parent692_files=692,readback_profile=profile,actual=None)

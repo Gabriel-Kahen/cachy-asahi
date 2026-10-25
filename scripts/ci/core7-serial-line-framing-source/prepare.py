@@ -31,6 +31,7 @@ def ordinary(value):
     need(type(raw) is str and os.path.isabs(raw) and raw == os.path.normpath(raw),
          'absolute normalized path required')
     path = Path(raw)
+    need(path == path.resolve(), 'canonical resolved path required')
     need(not any(p.is_symlink() for p in (path, *path.parents)), 'ordinary nonalias ancestry')
     return path
 

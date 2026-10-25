@@ -126,6 +126,16 @@ class SourceControls(unittest.TestCase):
             for supplied, output in cases:
                 with self.assertRaises(ValueError):
                     factory.emit(supplied, output, 'null')
+            for supplied, output in ((source, '//' + str(source).lstrip('/') + '/double-slash-output'),
+                                     ('//' + str(source).lstrip('/'), root / 'alias-output')):
+                command = [sys.executable, '-I', '-B', '-Werror', str(HERE / 'prepare.py'),
+                           '--source', str(supplied), '--output', str(output), '--context', 'null']
+                before = factory.scan(source)
+                result = subprocess.run(command, capture_output=True, timeout=10)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn(b'canonical resolved path required', result.stderr)
+                self.assertFalse(Path(output).exists())
+                self.assertEqual(factory.scan(source), before)
             with self.assertRaises(ValueError):
                 factory.emit(source, root / 'invalid', 'native')
             self.assertFalse((root / 'invalid').exists())
