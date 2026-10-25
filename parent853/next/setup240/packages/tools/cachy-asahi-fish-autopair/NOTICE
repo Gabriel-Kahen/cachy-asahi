@@ -1,0 +1,13 @@
+cachy-asahi Fish autopair integration
+
+Five unchanged editing helpers from jorgebucaran/autopair.fish at
+4d1752ff5b39819ab58d7337c69220342e9de0e2.
+Copyright © Jorge Bucaran <<https://jorgebucaran.com>>
+MIT license: see LICENSE.upstream, preserved verbatim.
+Complete pinned source archive and file hashes are recorded in source-provenance.json.
+The upstream automatic startup/rebinding/uninstall hooks are not installed.
+
+Independent wrapper, recipe, fixture and integration documentation:
+Copyright (c) 2026 cachy-asahi contributors
+MIT license: see LICENSE.project.
+No whole CachyOS Fish configuration is reused or relicensed.
