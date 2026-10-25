@@ -155,3 +155,51 @@ entrypoints against the exact immutable public39 fixture. These controls use
 inert actor boundaries. They run no native Docker/QEMU/GPG/package transactions,
 historical heavy native positives or physical hardware tests. Actual selectors
 remain NULL in emitted source; native39791459045 is a separate Root-owned trial.
+
+## Explicit typed TPM default ACL41 source
+
+`--tpm-default-acl` alone composes whole39→40→41 and reproduces exactly published
+source41 `29a60eeaf45fad954ffa0932c8559192a911c298`. Source40 is the metadata
+failure diagnostic `536f96af5451697da2467e2e45e3129f32eed6d8`; its failure DATA
+was not native success. All eight old routes, their outputs,25 factory function
+bodies and defaults remain held. The new main branch is additive and invertible.
+
+```sh
+python3 -I -B scripts/ci/core7-systemd-vm-source/prepare.py --tpm-default-acl --source-only
+python3 -I -B scripts/ci/core7-systemd-vm-source/prepare.py --tpm-default-acl --output /fresh/source41 --authorization /separate/fresh-receipt.json
+python3 -I -B scripts/ci/core7-systemd-vm-source/prepare.py --tpm-default-acl --unbound --output /fresh/unbound41 --authorization /separate/fresh-unbound-receipt.json
+```
+
+Known and unbound modes emit identical41 bytes: all source actual IDs remain
+NULL. Known receipt identity labels published-byte reproduction only; --unbound
+also sets factory receipt source/ref NULL. Neither grants native acceptance.
+Canonical output/authorization paths normalize before disjointness and writes.
+No development artifact path is a runtime/default-test dependency.
+
+This is a NEW REQUIRED POSITIVE GRAPH SCHEMA. `posix_acl_defaults` is mandatory:
+phase1-before requires an empty map; baseline-automatic, phase1-installed and
+phase2-before require exactly the typed44B TPM default ACL at the single declared
+keystore directory. Both live graph and passive graph validation require it AND
+the original security/graph predicates. The old five-key closed positive schema
+is changed, not claimed held. No hash-only waiver, default/access/user ACL
+normalization, new boundary, ACL write or older success is substituted.
+
+Ten used readable payloads compose the diagnostic40 and typed41 layers, with
+complete counted source/namespace before inverses. Thirteen pinned research
+files retain the primary TPM/Linux/systemd sources, notices and exact Linux ACL
+wire-layout derivation. TPM declarations carry BSD-2-Clause notices; original
+Python code carries MIT. GPL/LGPL research copies remain unmodified reference
+DATA and are never loaded as guest/runtime code. Local sysusers u! versus tagged
+upstream u is disclosed. See tpm-acl-research/RESEARCH.md and primary-pins.json.
+
+Frozen64 unique source controls and the genuine whole-source qualification
+70.309971s/300 are reused only after complete source/control/publication joins.
+The new pinned read-only Python3.12/3.14 workflow runs portable factory tests,
+all old route output parity, exact known/unbound receipt/source emission,
+source entry/whole41→40→39 proof, path/support drift refusals, and five focused
+emitted typed-ACL/genuine private-kernel graph controls. No heavy reader, old
+actual replay, native Docker/QEMU/GPG/package actor or acquisition runs.
+Original graph600/owner14400/shared7200/boot3600/stage3300/producer2300/
+assembly1070/media1900/transaction90/cleanup60 and all graph/stream bounds remain.
+Native deadline fit, hooks/two-boot success, Asahi/M2, performance and release
+acceptance are not inferred from this source-only factory.

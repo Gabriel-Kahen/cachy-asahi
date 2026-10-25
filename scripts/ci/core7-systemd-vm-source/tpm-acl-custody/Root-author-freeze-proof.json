@@ -1,0 +1,11 @@
+{
+  "actual": "NOT_RUN",
+  "author": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/core41-posix-acl-development-20261025",
+  "freeze": {
+    "bytes": 221276,
+    "sha256": "c7ebffe7eb730a1b90650d861f6661709eaae7fe760aa3a64c0802779d2b67c7"
+  },
+  "frozen_files": 156,
+  "source_files": 41,
+  "status": "PASS_WHOLE_AUTHOR_FREEZE_AND_CLOSED_SOURCE"
+}
