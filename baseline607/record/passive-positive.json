@@ -1,0 +1,431 @@
+{
+  "actual_mount_api": "NOT_EXPORTED_STATX_OR_FDINFO_FALLBACK_NOT_DISTINGUISHED",
+  "adapter_files": 6,
+  "archive_identity_scope": "Full current source/input closure holds exact Apps6 plus600 original604 archives and seven incoming rows; no extra installed-byte maps are exported.",
+  "cleanup": "PASS_SOURCE_BOUND_RETAINED_RECEIPTS",
+  "closed_public_bytes": 140719,
+  "closed_public_files": 10,
+  "collection": {
+    "artifacts.json": {
+      "bytes": 32,
+      "sha256": "244563f989470892c537c9a4622920af0d228ee4528f7d00c64a06d6cd95856c"
+    },
+    "collection.json": {
+      "bytes": 103,
+      "sha256": "820c3bd4617be1f26784ae8b59308ecf947b13ec80d408506649773e31cad7c7"
+    },
+    "logs.zip": {
+      "bytes": 1848512,
+      "sha256": "b1cd5ae507a3dfb6cf57e29139ec0a3887c3fc4bdfe0b180cdcc11f2aaab641d"
+    },
+    "public-frame.tar.gz": {
+      "bytes": 37926,
+      "sha256": "b1cd0e6944f5dff9568ea2f114f94a0d16be25188eb2b4e280e79c9c33588d71"
+    },
+    "run.json": {
+      "bytes": 13000,
+      "sha256": "5d0899dae7c33bd9d5c5c768e6ad8283f9b5e76e5c0b5bbb512a84b1f69c78c0"
+    }
+  },
+  "expected607_sha256": "72818a8a2ae488281b08486b92c435ec244ef3b5313f23b97473d1684ecb68b4",
+  "hardware": "NOT_RUN",
+  "legacy_files": 83,
+  "limits": [
+    "Private raw node/hash/ownership maps and installed target/profile/lock bytes were checked by the frozen guest code and are not exported; this replay checks complete summaries and exact retained protocol/source joins, not a new full-byte readback.",
+    "Retired container/image/VM absence is retained source-bound cleanup evidence, not live reobservation.",
+    "No physical installation, target boot, hooks/scriptlets, native-container P0, M2 or performance acceptance.",
+    "Statx source selection and unchanged full hashing/deadlines are checked; runtime choice of statx versus original fdinfo fallback is not reported."
+  ],
+  "native_container_P0": "UNCHANGED_FAILED",
+  "nonce": "7331c80ea616447eaf5768658d659f58",
+  "ordinary_and_root_flags": {
+    "committed": true,
+    "database_verified": true,
+    "namespace_barrier": true,
+    "numeric_namespace_verified": true,
+    "numeric_ownership_verified": true,
+    "ordinary_parent_nnp_cap0": true,
+    "ownership_verified": true,
+    "parent_inventory_preserved": true,
+    "parent_payload_verified": true,
+    "payload_verified": true,
+    "preservation_verified": true,
+    "private_trust_verified": true,
+    "process_retirement": true,
+    "root_guest_payload_verified": true,
+    "source_cache_preserved": true
+  },
+  "original274_composition_files": 148,
+  "original274_manifest_files": 271,
+  "package_count": 607,
+  "prerequisites": {
+    "fresh600": {
+      "actual_mount_api": "NOT_EXPORTED_STATX_OR_FDINFO_FALLBACK_NOT_DISTINGUISHED",
+      "cleanup": "PASS",
+      "closed_public_bytes": 132075,
+      "closed_public_files": 10,
+      "evidence": {
+        "bytes": 4327,
+        "path": "artifacts/development/signed600-statx-root-verifier-20261016/handoff/passive-verification.json",
+        "sha256": "22b0e5d43356e8eb8af934be75453841a83550ad2c2cc631899934c36842d088"
+      },
+      "expected600_sha256": "d263a3ca9089c204603f2e12b80dc4f209ee6e636f10da940a514040b636db79",
+      "hardware": "NOT_RUN",
+      "independent_root_readback": "PASS",
+      "limits": [
+        "Private raw node/hash/ownership maps and installed target/profile/lock bytes were checked by the frozen guest code and are not exported; this replay checks complete summaries and exact retained protocol/source joins, not a new full-byte readback.",
+        "Retired container/image/VM absence is retained source-bound cleanup evidence, not live reobservation.",
+        "No physical installation, target boot, hooks/scriptlets, native-container P0, M2 or performance acceptance.",
+        "Statx source selection and unchanged full hashing/deadlines are checked; runtime choice of statx versus original fdinfo fallback is not reported."
+      ],
+      "log_archive": {
+        "bytes": 3115442,
+        "sha256": "83bd87ad75113d6f958f389fbc91373318d2dac2b8cb856bb7e812de930f6c30"
+      },
+      "native_container_P0": "UNCHANGED_FAILED",
+      "ordinary_and_root_flags": {
+        "committed": true,
+        "database_verified": true,
+        "namespace_barrier": true,
+        "numeric_namespace_verified": true,
+        "numeric_ownership_verified": true,
+        "ordinary_parent_nnp_cap0": true,
+        "ownership_verified": true,
+        "parent_inventory_preserved": true,
+        "parent_payload_verified": true,
+        "payload_verified": true,
+        "preservation_verified": true,
+        "private_trust_verified": true,
+        "process_retirement": true,
+        "root_guest_payload_verified": true,
+        "source_cache_preserved": true
+      },
+      "ordinary_parent_retired": "PASS",
+      "package_count": 600,
+      "public_frame": {
+        "bytes": 35158,
+        "sha256": "41535f83e77251a2cf7951d16eda9f2e0d561d2879eaf089f03632cf160e7e65"
+      },
+      "qemu_natural_exit": true,
+      "qemu_seconds": 3852.414,
+      "release": "NOT_ADMITTED",
+      "root_observation": {
+        "complete": true,
+        "deadline_seconds": 600,
+        "elapsed_ms": 507978,
+        "footprint": {
+          "bytes": 4929806831,
+          "database_bytes": 11789351,
+          "database_files": 1829,
+          "hardlink_inodes": 1048,
+          "nodes": 124422
+        },
+        "missing_database_nodes": 0,
+        "missing_database_samples": [],
+        "observed_nodes": 124422,
+        "required_database_nodes": 1201,
+        "unsupported_counts": {
+          "absolute-symlink": 24,
+          "auxiliary-present": 3
+        },
+        "unsupported_reasons_omitted": 0
+      },
+      "run_id": "38965999704",
+      "scope": "Signed TEST600 fresh install in separately owned generic ARM4K VM with complete independent post-parent root readback",
+      "source_joins": 101,
+      "source_sha": "3cbd856315adb30ba7a1b9246739a520c19c9728",
+      "status": "ROOT_ACCEPTED_SIGNED_EXPANDED600_FRESH_INSTALLER",
+      "statx_backend": {
+        "bytes": 2784,
+        "deadline_seconds": 600,
+        "fallback": "ORIGINAL_FDINFO_NO_BUDGET_OR_CHECK_WAIVER",
+        "scope": "INDEPENDENT600_ROOT_READBACK_MOUNT_QUERY_ONLY",
+        "sha256": "c3d804e7f2927c7889835ad187a39a3d7c618a4651700f57b0c5413c46612607"
+      }
+    },
+    "latest_six": {
+      "Asahi": "NOT_RUN",
+      "GUI": "NOT_RUN",
+      "M2": "NOT_RUN",
+      "auxiliaries": 33,
+      "fresh_graphs": 65,
+      "generic16K": "NOT_RUN",
+      "hardware": "NOT_RUN",
+      "packages": {
+        "base": 606,
+        "peak": 607,
+        "protected": 601,
+        "restored": 606
+      },
+      "performance": "NOT_CLAIMED",
+      "positive": {
+        "bytes": 864836,
+        "sha256": "ee27fb1b599832daec1a4e0cb530fdaa8806db8883e5bae7c93a6d7f5769180a"
+      },
+      "postjoins": {
+        "bytes": 402136,
+        "sha256": "b1867ce588964800d791d5bafa7997bd68770fcc1eae0e6035bddbbfbe0c6c68"
+      },
+      "reader_files": 2445,
+      "ref": "codex/apps16-six-vmtest3600-v1",
+      "release": "NOT_ADMITTED",
+      "run_id": 40186382605,
+      "selected_restoration": "LOGICAL_WITH_BOUNDED_INSTALLDATE_NOT_INODES",
+      "source": "67e8155840f9851bff3b8acb2cd6de6a622515c4",
+      "source_files": 853,
+      "status": "ROOT_ACCEPTED_FINITE_NATIVE_APPS16_SIX_TOOL_SOFTWARE_COMPOSITION",
+      "transactions": 32,
+      "validation_profile": {
+        "M2_performance": "NOT_RUN",
+        "component_seconds": 3600,
+        "consumer_seconds": 4200,
+        "old2400_fit": "NOT_ESTABLISHED",
+        "outer4200_fit": "NOT_ESTABLISHED",
+        "owner6600_fit": "NOT_ESTABLISHED",
+        "owner_seconds": 6600,
+        "performance": "NOT_CLAIMED",
+        "profile": "NATIVE607_APPS16_VM_TEST_COMPONENT3600_V1",
+        "scope": "VM_VALIDATION_TEST_CAPACITY_ONLY"
+      },
+      "whole240_suites": 4
+    },
+    "native604": {
+      "GUI": "NOT_RUN",
+      "cleanup": "PASS",
+      "expected604_sha256": "7bc6caa51301bf076aeda4d137277a128c53a16e5bfd25f02e7309c4b3a408c3",
+      "fresh_installer": "NOT_RUN",
+      "hardware": "NOT_RUN",
+      "hash_bound_nongit_records": 2,
+      "input_policy_sha256": "a97b82d79e5aa967cde1b65c2f0a8b47cfd24d8cd3854b070dc919753a479e30",
+      "installed16k": "NOT_RUN",
+      "installed_lifecycle": "PASS",
+      "installed_six_module_cases": [
+        "fish-bang-auto-done",
+        "fish-done-auto-bang",
+        "fish-noninteractive",
+        "zsh-auto-highlight-substring",
+        "zsh-highlight-substring-auto",
+        "zsh-noninteractive"
+      ],
+      "installed_six_modules": "PASS",
+      "lifecycle_phases": [
+        "baseline587",
+        "install604",
+        "same-version604",
+        "remove-to587",
+        "restore604",
+        "final587"
+      ],
+      "limitations": [
+        "Public659 original package pair decisions are joined separately from the sanitized native574 repair-bytes authority. That authority establishes no missing-repair/aggregate/604/VM/GUI credit. No raw223 evidence is consumed.",
+        "Complete BUILDINFO lists and expected pacman-Q lock hashes are provenance/original-pair-authority joins; the corresponding raw Q-lock bytes are not exported or reconstructed.",
+        "Root must independently join every actual source record to the supplied frozen Git commit. This tool performs no Git or collected code execution and cannot establish remote publication.",
+        "All fresh target-cache signatures, public keyrings and585 original system archive pairs are not exported. Signature-role/hash/unchanged-row declarations and source-enforced verification are joined; no fresh cryptographic verification is performed.",
+        "The six audio archive payloads and private full installed node/database/ownership/user maps are not exported. Incoming audio identity is joined to frozen policy; actual installed comparisons remain original source-enforced receipts.",
+        "Raw eight auxiliary-cache blobs and ldconfig state JSON are independently replayed using the exact frozen comparator. Helper exit remains NOT_OBSERVED; no helper execution, regeneration or source/binary correspondence claim.",
+        "Normal lifecycle exit0 and preservation/absence observations are original source-enforced records, not fresh process/root/container probes. Owned cleanup is disposal, not rollback or boot recovery.",
+        "Public-pair Apps6 native ARM604 metadata lifecycle and installed shell coexistence only; notification delivery, GUI,16K/Apple/M2,services/audio execution,installer,performance and release acceptance are not established."
+      ],
+      "package_count": 604,
+      "performance": "NOT_MEASURED",
+      "release": "NOT_ADMITTED",
+      "root_decision_utc": "2026-10-17T16:09:39.027065+00:00",
+      "root_independent_replay": {
+        "bytes": 22118,
+        "sha256": "daa61a6e6c6e4714eece89b61016369b81e0cdbfc7c45960b5b2fbc5c5a6bedc"
+      },
+      "run_id": "39044616267",
+      "schema_version": 1,
+      "scope": "NATIVE_GENERIC4096_PUBLIC_PAIR_APPS6_604_METADATA_LIFECYCLE_AND_INSTALLED_SHELL_COEXISTENCE_ONLY",
+      "source_actual_git_joins": 151,
+      "source_authorization": {
+        "bytes": 97874,
+        "sha256": "f3244430e87ba94b65b7258759b802ab48a1868bd5a359ee493c74f3d63cf99e"
+      },
+      "source_git_joins": 288,
+      "source_manifest_sha256": "e2b1f8ac11fa119493e22f44722d265293887de7edda80f4b61c00f8a80bf51c",
+      "source_sha": "b0154bd3b60434e45d4411b558f3ffda9e415640",
+      "status": "ROOT_ACCEPTED_NATIVE_PUBLIC_PAIRS_APPS6_CURRENT604_COMPOSITION"
+    }
+  },
+  "qemu_natural_exit": true,
+  "qemu_seconds": 3774.612,
+  "release": "NOT_ADMITTED",
+  "root_acceptance": "NOT_ISSUED",
+  "root_observation": {
+    "complete": true,
+    "deadline_seconds": 600,
+    "elapsed_ms": 496731,
+    "footprint": {
+      "bytes": 4930254071,
+      "database_bytes": 11800940,
+      "database_files": 1850,
+      "hardlink_inodes": 1048,
+      "nodes": 124513
+    },
+    "missing_database_nodes": 0,
+    "missing_database_samples": [],
+    "observed_nodes": 124513,
+    "required_database_nodes": 1215,
+    "unsupported_counts": {
+      "absolute-symlink": 24,
+      "auxiliary-present": 3
+    },
+    "unsupported_reasons_omitted": 0
+  },
+  "run_id": 40224231855,
+  "serial": {
+    "bytes": 56904,
+    "sha256": "f2aafdae23c55eec3156e01caf574187ae601bf404a848580a2235ec59051860"
+  },
+  "source_files": 1197,
+  "source_profile": {
+    "Apps_version": "0.1.0-6",
+    "current_actual": "NULL",
+    "current_guard": {
+      "Apps_version": "0.1.0-6",
+      "Root_acceptance": null,
+      "actual_ref": null,
+      "actual_run": null,
+      "actual_source": null,
+      "added": 5,
+      "baseline_installation": "NOT_RUN",
+      "changed": 7,
+      "compiler6": "UNAUTHENTICATED_DATA_ORIGINAL_GPG_METADATA_BUILD_MANDATORY",
+      "current_controls": "ALL10_REQUIRED_SEPARATE_RECEIPTS",
+      "files": 1197,
+      "hardware": "NOT_RUN",
+      "held": 1185,
+      "native": "NOT_RUN",
+      "other606": "HELD",
+      "packages": 607,
+      "parent_files": 1192,
+      "parent_proof": {
+        "Apps_version": "0.1.0-6",
+        "Root_acceptance": "NOT_ISSUED",
+        "actual_ref": null,
+        "actual_run": null,
+        "actual_source": null,
+        "added": 3,
+        "baseline_installation": "NOT_RUN",
+        "changed": 6,
+        "compiler6": "UNAUTHENTICATED_DATA_ORIGINAL_GPG_METADATA_BUILD_MANDATORY",
+        "current_controls": "ALL10_REQUIRED_SEPARATE_RECEIPTS",
+        "files": 1192,
+        "hardware": "NOT_RUN",
+        "held": 1183,
+        "native": "NOT_RUN",
+        "other606": "HELD",
+        "packages": 607,
+        "parent_files": 1189,
+        "parent_proof": {
+          "Apps_version": "0.1.0-6",
+          "Root_acceptance": "NOT_ISSUED",
+          "actual_ref": null,
+          "actual_run": null,
+          "actual_source": null,
+          "added": 4,
+          "baseline_installation": "NOT_RUN",
+          "changed": 6,
+          "compiler6": "UNAUTHENTICATED_DATA_ORIGINAL_GPG_METADATA_BUILD_MANDATORY",
+          "current_controls": "ALL10_REQUIRED_SEPARATE_RECEIPTS",
+          "files": 1189,
+          "hardware": "NOT_RUN",
+          "held": 1179,
+          "native": "NOT_RUN",
+          "other606": "HELD",
+          "packages": 607,
+          "parent_files": 1185,
+          "parent_proof": {
+            "Apps_version": "0.1.0-6",
+            "Root_acceptance": "NOT_ISSUED",
+            "actual_ref": null,
+            "actual_run": null,
+            "actual_source": null,
+            "added": 2,
+            "baseline_installation": "NOT_RUN",
+            "changed": 6,
+            "current_controls": "ALL10_REQUIRED_SEPARATE_RECEIPTS",
+            "files": 1185,
+            "hardware": "NOT_RUN",
+            "held": 1177,
+            "native": "NOT_RUN",
+            "other606": "HELD",
+            "packages": 607,
+            "parent_files": 1183,
+            "parent_status": "PASS_SOURCE_ONLY_APPS6_BEFORE607_AND_COMPLETE_PARENT",
+            "status": "PASS_SOURCE_ONLY_APPS6_BASELINE_COMPLETE574_CACHE_CHILD"
+          },
+          "parent_status": "PASS_SOURCE_ONLY_APPS6_BASELINE_COMPLETE574_CACHE_CHILD",
+          "root_acceptance": "NOT_ISSUED",
+          "status": "PASS_SOURCE_ONLY_APPS6_BASELINE_COMPILER6_CACHE_CHILD"
+        },
+        "parent_status": "PASS_SOURCE_ONLY_APPS6_BASELINE_COMPILER6_CACHE_CHILD",
+        "root_acceptance": "NOT_ISSUED",
+        "status": "PASS_SOURCE_ONLY_APPS6_BASELINE_SCOPED_LEGACY_TOOLING_OWNED_CACHE_RETIREMENT"
+      },
+      "parent_status": "PASS_SOURCE_ONLY_APPS6_BASELINE_SCOPED_LEGACY_TOOLING_OWNED_CACHE_RETIREMENT",
+      "root_acceptance": "NOT_ISSUED",
+      "status": "PASS_SOURCE_ONLY_APPS6_BASELINE_EXACT_ORIGINAL35_TOOLING_INPUT_PREPARATION",
+      "tooling": "EXACT_PUBLIC35_DATA_ORIGINAL_FETCH_AND_GPG_VM_REQUIRED"
+    },
+    "hardware": "NOT_RUN",
+    "other606": "HELD",
+    "package_count": 607,
+    "parent1178_guard": {
+      "files": 1178,
+      "fresh607": "NOT_RUN",
+      "hardware": "NOT_RUN",
+      "parents": {
+        "installer604": 274,
+        "parent853": 853
+      },
+      "performance": "NOT_CLAIMED",
+      "status": "PASS_SOURCE_ONLY_FRESH607_WHOLE853_AND604_BYTES_INVERSES"
+    },
+    "parent_reader_files": 370,
+    "parent_source_files": 359,
+    "ref": "codex/latest607-apps6-baseline-tooling-inputs-v1",
+    "root_acceptance": "NOT_ISSUED",
+    "source": "04f4ae2f164fe6c58a4b3b31ea8ab544880d9892",
+    "source_files": 1197,
+    "status": "PASS_COMPLETE4969_4965_4960_274_1178_1183_1185_1189_1192_AND_CURRENT1197_BASELINE_SOURCE_ONLY",
+    "target": {
+      "bytes": 12075,
+      "sha256": "72818a8a2ae488281b08486b92c435ec244ef3b5313f23b97473d1684ecb68b4"
+    }
+  },
+  "source_sha": "04f4ae2f164fe6c58a4b3b31ea8ab544880d9892",
+  "source_snapshot": {
+    "bytes": 221255,
+    "sha256": "a6135194ac838c1a43623345ce8535eee533f80fa6f07773bd5cab17e22312a6"
+  },
+  "status": "VERIFIED_LATEST607_FRESH_INSTALLER_EVIDENCE_NOT_ROOT_ACCEPTANCE",
+  "statx_backend": {
+    "bytes": 2784,
+    "deadline_seconds": 600,
+    "fallback": "ORIGINAL_FDINFO_NO_BUDGET_OR_CHECK_WAIVER",
+    "scope": "INDEPENDENT600_ROOT_READBACK_MOUNT_QUERY_ONLY",
+    "sha256": "c3d804e7f2927c7889835ad187a39a3d7c618a4651700f57b0c5413c46612607"
+  },
+  "target_footprint": {
+    "allocated_bytes": 5136969728,
+    "allocated_bytes_by_entry": 5189771264,
+    "bytes": 4930254071,
+    "complete": true,
+    "database_bytes": 11800940,
+    "database_files": 1850,
+    "filesystem_free_bytes": 9740468224,
+    "filesystem_free_bytes_source": "statvfs-f_bavail",
+    "filesystem_free_inodes": 1064122,
+    "filesystem_inode_counts_known": true,
+    "filesystem_inode_source": "statvfs",
+    "hardlink_declared_links": 2896,
+    "hardlink_entries": 2896,
+    "hardlink_inodes": 1048,
+    "hardlinks": 2896,
+    "largest_file_bytes": 173387392,
+    "nodes": 124513,
+    "symlinks": 13337
+  }
+}

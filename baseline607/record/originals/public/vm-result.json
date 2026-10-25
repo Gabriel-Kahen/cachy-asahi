@@ -1,0 +1,116 @@
+{
+  "container_cleanup": "PASS",
+  "guest": {
+    "elapsed_seconds": 3774.612,
+    "guest": {
+      "auxiliary_execution": "ALPM may invoke pinned target ldconfig; exit NOT OBSERVED",
+      "capacity": {
+        "free_bytes": 14914838528,
+        "free_inodes": 1186782,
+        "required_bytes": 5455154004
+      },
+      "commit_started": true,
+      "committed": true,
+      "database_verified": true,
+      "derived_output_observation": {
+        "usr/lib/libvsscript.so": {
+          "gid": 0,
+          "mode": 511,
+          "target": "libvapoursynth-script.so.0",
+          "type": "symlink",
+          "uid": 0
+        }
+      },
+      "derived_outputs_verified": true,
+      "event": "result",
+      "expected_lock_sha256": "72818a8a2ae488281b08486b92c435ec244ef3b5313f23b97473d1684ecb68b4",
+      "hardware": "NOT RUN",
+      "hooks": "DISABLED",
+      "live_cache_keys": {
+        "live_library_keys": 1291,
+        "records": 995
+      },
+      "namespace_barrier": true,
+      "native_container_P0": "UNCHANGED-FAILED",
+      "nonce": "7331c80ea616447eaf5768658d659f58",
+      "numeric_namespace_verified": true,
+      "numeric_ownership_verified": true,
+      "ordinary_parent_nnp_cap0": true,
+      "ownership_verified": true,
+      "package_count": 607,
+      "parent_inventory_preserved": true,
+      "parent_payload_verified": true,
+      "payload_verified": true,
+      "phase": "complete",
+      "preservation_verified": true,
+      "private_trust_verified": true,
+      "process_retirement": true,
+      "production_installation": "NOT RUN",
+      "profile_sha256": "17f6f6084a1f09ca29319682aa5769e99ed2c37abceb9ee5cc91ff1b6a24584a",
+      "root_guest_observation": {
+        "complete": true,
+        "deadline_seconds": 600,
+        "elapsed_ms": 496731,
+        "footprint": {
+          "bytes": 4930254071,
+          "database_bytes": 11800940,
+          "database_files": 1850,
+          "hardlink_inodes": 1048,
+          "nodes": 124513
+        },
+        "missing_database_nodes": 0,
+        "missing_database_samples": [],
+        "observed_nodes": 124513,
+        "required_database_nodes": 1215,
+        "unsupported_counts": {
+          "absolute-symlink": 24,
+          "auxiliary-present": 3
+        },
+        "unsupported_reasons_omitted": 0
+      },
+      "root_guest_payload_verified": true,
+      "scriptlets": "DISABLED",
+      "source_cache_preserved": true,
+      "status": "PASS_PUBLIC_PAIRS_APPS6_CURRENT607_INSTALLER",
+      "target_footprint": {
+        "allocated_bytes": 5136969728,
+        "allocated_bytes_by_entry": 5189771264,
+        "bytes": 4930254071,
+        "complete": true,
+        "database_bytes": 11800940,
+        "database_files": 1850,
+        "filesystem_free_bytes": 9740468224,
+        "filesystem_free_bytes_source": "statvfs-f_bavail",
+        "filesystem_free_inodes": 1064122,
+        "filesystem_inode_counts_known": true,
+        "filesystem_inode_source": "statvfs",
+        "hardlink_declared_links": 2896,
+        "hardlink_entries": 2896,
+        "hardlink_inodes": 1048,
+        "hardlinks": 2896,
+        "largest_file_bytes": 173387392,
+        "nodes": 124513,
+        "symlinks": 13337
+      },
+      "target_identity": [
+        64768,
+        393245
+      ]
+    },
+    "hardware_validation": "NOT RUN",
+    "natural_exit": true,
+    "nonce": "7331c80ea616447eaf5768658d659f58",
+    "qemu_cleanup": "PASS",
+    "scope": "generic4K-current607-installer-software-only",
+    "status": "PASS"
+  },
+  "hardware_validation": "NOT RUN",
+  "image_cleanup": "PASS",
+  "owned_image_tag": "cachy-asahi-current607-installer:7331c80ea616447eaf5768658d659f58",
+  "phase": "vm",
+  "private_cleanup": "PASS",
+  "producer_cleanup": "NOT OWNED BY VM CONTROLLER",
+  "producer_image_preservation": "PASS-immutable-image-identity",
+  "source_cache_preservation": "PASS",
+  "status": "PASS"
+}
