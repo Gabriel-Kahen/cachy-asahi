@@ -97,3 +97,18 @@ python3 -I -B scripts/ci/current607-native-graph-profile/prepare.py \
 python3 -I -B scripts/ci/current607-native-graph-profile/test_sixcap_source.py \
   --parent /absolute/source838 --source /absolute/source840
 ```
+
+
+## Explicit installed Setup240 stdout codec source842
+
+`--profile installed_codec842` consumes exact whole840 source `16ae35b7959ecf74b5e85cbe9243e8456ef2be6f` and emits exact842 `8b22845252d01e1a813ed078be60315a39a27a5f` (`codex/current607-installed-codec-v1`). All old default/explicit emitter functions, support and output bytes stay unchanged. New source/output/authorization paths must be canonical ordinary and disjoint before first write.
+
+```sh
+python3 -I -B -Werror scripts/ci/current607-native-graph-profile/prepare.py \
+  --source /exact/source840 --output /fresh/source842 \
+  --authorization /fresh/authorization.json --profile installed_codec842
+```
+
+Eight used readable payloads preserve834 original files and apply six finite replacements/two additions, with a complete840 inverse and mandatory old source guard. The only runtime change preserves bounded exact raw installed.py stdout, joins its original unsorted JSON printer bytes/typed receipt/hash and refuses duplicate/nonfinite/corrupt/missing data. Full Setup240 validators, process retirement, source/nonce/security, all32 transactions/65 graphs/33 auxiliary observations/four real240 suites/601 protected packages and every native clock/cap remain mandatory. Current source/ref/run/acceptance staysNULL; prior840 stays failed and missing historical raw stdout is not reconstructed or admitted.
+
+The scoped read-only pinned dual-Python source CI reproduces842 byte-for-byte, runs whole emitted40 inherited+12 six-tool source controls, and checks normalized/alias/drift/authorization/unknown-profile refusals. It invokes no native actor, signer, Git/API, package transaction, original reader or historical actual replay. Input fixtures are complete published840/842 and public Apps8qualified113; no artifacts path, private root/source/vendor data or key is a runtime/default test dependency. Source/license attribution is unchanged; source emission grants no native, GUI, M2, performance or release acceptance.

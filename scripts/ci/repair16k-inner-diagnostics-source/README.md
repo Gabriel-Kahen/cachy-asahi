@@ -141,3 +141,27 @@ python3 -I -B -Werror scripts/ci/repair16k-inner-diagnostics-source/apps13.py \
 The whole235 before/selected/NULL maps authenticate38 used readable payloads,197 held paths and25 finite replaced names. NULL selection deterministically regenerates only its seven source-owned profile/seal operands. Both original235 and210 source gates remain intact through the complete emitted inverse; all original Runtime1/cache/orphans authority, selected payloads, signed transactions, preservation, observations, cleanup and9000/9010/45/30/native2400/2410/shared reservations remain mandatory. Whole94 Root-accepted Apps13 input custody qualifies inputs only, with no repair/M2/performance/release claim. Every current actual ID remainsNULL.
 
 Scoped read-only dual-Python CI checks exact bound and NULL emission, whole source inverses, before-output drift/alias/profile/carrier refusals, isolated source/selection CLIs and both complete10-control emitted source suites. Local factory controls reuse the separately frozen prior40 source-control receipts after full512-file custody verification; no old reader/actual/native proof is rerun. Test inputs are explicit published source roots; no artifacts path, actor, key, Git/API or private vendor input is required by the factory. Source/license bodies retain their original attribution.
+
+## Explicit Apps14 repair235 source
+
+`apps14.py --profile apps14-repair235` requires complete published Apps13
+source235 `1ed3510ac2f4ae653c471fc1ea4ba710a0b198d6`. Supplying the exact
+accepted94 carrier `9fc95ae7694bfb67d8d1e8065303a5b1770b4b55` emits exact
+Apps14 source235 `42e2b6aa3aea02b6e19fec038ddf6deff091e980`. Omitting
+--carrier emits the strict NULL source; selection refuses before external proof
+or actors. Existing Apps13 and every older route/default/function/output remain
+unchanged. Canonical ordinary base/carrier/output/authorization paths are
+validated before any disjointness comparison. All38 readable used payloads and
+whole before/after/NULL235 maps are fixed before output.
+
+```sh
+python3 -I -B scripts/ci/repair16k-inner-diagnostics-source/apps14.py --profile apps14-repair235 --base-root /ordinary/Apps13-source235 --carrier /ordinary/acceptedApps14-carrier94 --output /fresh/Apps14-source235 --authorization /separate/fresh-authorization.json
+```
+
+The whole13/12/210 source inverses, original192 packet plus independent94 input
+roles, eight selected/17 held Runtime1/cache/orphan payloads, four signed commits,
+574→578→575→574 graphs,45/30 and9000/9010 clocks, source/copy/security/cleanup
+predicates remain mandatory. This source-only factory grants no current repair,
+GUI,16K hardware,M2,performance or release acceptance. The new scoped pinned
+Python3.12/3.14 CI runs exact bound/NULL emission, old Apps13 emission and allten
+emitted-source/observer controls in both views. Native actors are never executed.
