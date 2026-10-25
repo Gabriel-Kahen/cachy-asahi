@@ -1,0 +1,99 @@
+{
+  "Asahi": "NOT_RUN",
+  "GUI": "NOT_QUALIFIED",
+  "M2_13": "NOT_RUN",
+  "M2_15": "NOT_RUN",
+  "Runtime1": "EXACT_NATIVE_PAIR_PROTECTED_NO_TRANSACTION",
+  "attempt": 1,
+  "cleanup": "ORIGINAL_SOURCE_RECORDED_ORDERED_CONSUMER_CACHE_PRODUCER_RETIREMENT_PASS_NO_FRESH_ACTOR_QUERIES",
+  "counts": [
+    606,
+    606,
+    606,
+    606,
+    605,
+    606,
+    606,
+    606
+  ],
+  "hardware": "NOT_RUN",
+  "hooks": "DISABLED_IN_THIS_CONTAINER_TEST",
+  "installed_controls": 150,
+  "nonce": "6dcb0d1cdf09e7c10f59aed5944ab35c",
+  "ordinary_homes": [
+    "fresh",
+    "existing"
+  ],
+  "originals": {
+    "artifact.zip": {
+      "bytes": 12734979,
+      "sha256": "d9e2dba51685fc5163e1c6dcc789a374ca2e8725045a2b340149efde9caa4d39"
+    },
+    "artifacts.json": {
+      "bytes": 777,
+      "sha256": "c8375dcb2175402613eedd64eb33f89380c35e4e7b3ac15e0ef5dbeaecfda8fd"
+    },
+    "collection-intent.json": {
+      "bytes": 187,
+      "sha256": "b11cd0ad3d16bbd406c6e0b486a1628a27fa3f26244d5dd8054c598c33aac548"
+    },
+    "collection.json": {
+      "bytes": 723,
+      "sha256": "31b76b54c4d629bb24684d5237abfc21b4818d66e1b9f96a94ea6de775b1ed3d"
+    },
+    "jobs.json": {
+      "bytes": 15298,
+      "sha256": "da43b8452a37cf6edd30d48e8db11ff7cbb4ab5a4e76ab66de5c16f30282c57f"
+    },
+    "run.json": {
+      "bytes": 12978,
+      "sha256": "2a281f06dcc9125c3378f98f9b9e84ad040fad83f460785a135806c4abbada40"
+    }
+  },
+  "other605": "SOURCE_ENFORCED_FULL_PRIVATE_PAYLOAD_RAW_DB_INODE_HARDLINK_CAPABILITY_PRESERVATION",
+  "page16k": "NOT_QUALIFIED_BY_THIS_DOCKER_RESULT",
+  "performance": "NOT_MEASURED",
+  "phases": [
+    "baseline6",
+    "upgrade7",
+    "upgrade16",
+    "same-version16",
+    "remove16",
+    "reinstall16",
+    "restore7",
+    "restore-original6"
+  ],
+  "post_replay": {
+    "bytes": 588383,
+    "sha256": "6a20f9a95ddd4bbbc0640e6df14ccf2d0e1ac621697d4f2b093e259ba6dbb1a2"
+  },
+  "private_full_maps": "NOT_EXPORTED_SOURCE_ENFORCED",
+  "public_bytes": 43573492,
+  "public_files": 950,
+  "reader_files": 1695,
+  "ref": "codex/apps16-current606-v1",
+  "release": "NOT_ADMITTED",
+  "result": {
+    "bytes": 110348,
+    "sha256": "316b9add1e26b1c19f3169afca7400592bf9e9781b0d66c17da36299c3c2c277"
+  },
+  "run": 40171836477,
+  "selected_inode_restoration": "NOT_CLAIMED",
+  "selected_restoration": "APPS6_ORIGINAL_ARCHIVE_SIGNATURE_LOGICAL_VERSION_PAYLOAD_WITH_SOURCE_BOUNDED_INSTALLDATE",
+  "selected_versions": [
+    "0.1.0-6",
+    "0.1.0-7",
+    "0.1.0-16",
+    "0.1.0-16",
+    null,
+    "0.1.0-16",
+    "0.1.0-7",
+    "0.1.0-6"
+  ],
+  "signed_installs": 6,
+  "source": "fdf045f0d9c0d5c7646b160b3b9890969d7f9fcb",
+  "source606": "SOURCE_ENFORCED_PRIVATE_FULL_REREADS",
+  "source_files": 389,
+  "status": "ROOT_ACCEPTED_FINITE_APPS16_CURRENT606_NATIVE_LIFECYCLE",
+  "transactions": 7
+}
