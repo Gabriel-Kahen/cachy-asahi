@@ -1,5 +1,7 @@
 # Native ARM execution record
 
+October25: [Apps14 full606 native lifecycle](apps14-current606-native-20261025.md), [Apps15 native pairs/finite577 lifecycle](apps15-native-20261025.md), [Apps16 native pairs/finite577 lifecycle](apps16-native-20261025.md) and the [Apps10/Boot1/Doctor2/KSM2/Setup6/Welcome8 finite installed composition](current607-six-tool-native-20261025.md) are Root accepted. The composition passes32 transactions,65 fresh graphs,33 auxiliary observations and four whole240-source suites; it does not qualify Apps15/16 in606 or in that composition. Generic16K, GUI, Asahi/both M2 sizes, performance and supported release remain separate. Existing Apps14/15 selection flags remain false; no Apps16 manifest row is added here.
+
 Coordinator execution, October 12, 2026 UTC (October 11 local). Source snapshot
 `f4fc643192468526367f1ca34b96f78176cc5c8b`, published to the project repository.
 This record concerns a hosted Linux ARM builder, not a Mac installation.
