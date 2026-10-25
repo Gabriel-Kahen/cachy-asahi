@@ -1,0 +1,41 @@
+{
+  "files": {
+    "base_lifecycle": {
+      "bytes": 14676,
+      "path": "scripts/ci/apps-full574-native/lifecycle.py",
+      "sha256": "6456e2f3641ce357e5d46a4111a35b19b3d1d77863e58c54642fec3e42fe63b6"
+    },
+    "checks": {
+      "bytes": 6519,
+      "path": "scripts/ci/apps-full574-repair-native/checks.py",
+      "sha256": "16532ca856eadd0ab8e4a1b24ca1768ac9e664e211fba0d7c46e8e8955e71e84"
+    },
+    "closure": {
+      "bytes": 22621,
+      "path": "scripts/apps/full574_closure.py",
+      "sha256": "f43304982dee768adf48f1c2ae5ecf6afa32e2cc405846046f6ac29604022b55"
+    },
+    "contract": {
+      "bytes": 5046,
+      "path": "scripts/ci/apps-full574-repair-native/contract.py",
+      "sha256": "3b375c215933e7d8dea4502e379090ec1767ffd6a145276d7d8651957a68e733"
+    },
+    "inspection": {
+      "bytes": 9442,
+      "path": "scripts/apps/repair_inspection.py",
+      "sha256": "1f49f75e565a60c7e159f28d005851c4ef38e0c3e11cff322a66093107e48538"
+    },
+    "lifecycle": {
+      "bytes": 12339,
+      "path": "scripts/ci/apps-full574-repair-native/lifecycle.py",
+      "sha256": "7d22efc56ccf0ce3af73b7e872c8139037e03afc5ff5120354a5d712331b49df"
+    },
+    "transaction": {
+      "bytes": 27125,
+      "path": "scripts/apps/transaction.py",
+      "sha256": "aedc814f9455f898e78e4944ce3a2b2483faddec11022fc73d9d24deb2a43b43"
+    }
+  },
+  "schema_version": 1,
+  "source": "5051663cf191e40bdbb3b03e2d62748f69b6afb1"
+}
