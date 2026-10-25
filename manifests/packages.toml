@@ -732,6 +732,23 @@ release = "NOT ADMITTED"
 
 
 
+[[packages.development_variants]]
+version = "0.1.0-15"
+recipe = "packages/tools/cachy-asahi-apps15/PKGBUILD"
+recipe_source = "308c63abacc2435aeebb74f988f7a1f362b5b942"
+selected_for_development = false
+selected_for_release = false
+source_validation = "PASS full85 ordered45+32+8 package checks on Python3.12/3.14; record-local path batching with complete ordered fallback; two fresh scans and30s held"
+native_build = "NOT ACCEPTED; fresh native pair/lifecycle trial dispatched"
+native_source = "598fabeafbd8d77c30dca18ca67b5a6c775d9a46"
+native_run = 39800508206
+installed_current606 = "NOT QUALIFIED"
+hardware_validation = "NOT RUN"
+GUI = "NOT QUALIFIED"
+performance = "HOST full574 serial CPU reductions only; Python3.12 CLI wall time regressed; native ARM/M2 and deadline fit UNKNOWN"
+release = "NOT ADMITTED"
+
+
 [[packages]]
 name = "cachy-asahi-repository-runtime"
 phase = "tools-experience"

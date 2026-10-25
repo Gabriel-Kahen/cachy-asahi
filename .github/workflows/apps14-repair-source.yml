@@ -1,0 +1,105 @@
+{
+  "name": "Apps14 repair source factory",
+  "on": {
+    "push": {
+      "paths": [
+        "scripts/ci/repair16k-inner-diagnostics-source/**",
+        ".github/workflows/apps14-repair-source.yml"
+      ]
+    },
+    "pull_request": {
+      "paths": [
+        "scripts/ci/repair16k-inner-diagnostics-source/**",
+        ".github/workflows/apps14-repair-source.yml"
+      ]
+    }
+  },
+  "permissions": {
+    "contents": "read"
+  },
+  "jobs": {
+    "source-only": {
+      "runs-on": "ubuntu-24.04",
+      "timeout-minutes": 10,
+      "strategy": {
+        "fail-fast": false,
+        "matrix": {
+          "python": [
+            "3.12",
+            "3.14"
+          ]
+        }
+      },
+      "env": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONWARNINGS": "error"
+      },
+      "steps": [
+        {
+          "name": "Check out maintained factory",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Immutable parent",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "ref": "1ed3510ac2f4ae653c471fc1ea4ba710a0b198d6",
+            "path": ".ci-apps14-repair-parent",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Immutable expected",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "ref": "42e2b6aa3aea02b6e19fec038ddf6deff091e980",
+            "path": ".ci-apps14-repair-expected",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Immutable carrier",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "ref": "9fc95ae7694bfb67d8d1e8065303a5b1770b4b55",
+            "path": ".ci-apps14-repair-carrier",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Immutable old-parent",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "ref": "76259e4e5b4b7e16a46241e7d01e05b662a1c100",
+            "path": ".ci-apps14-repair-old-parent",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Immutable old-carrier",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "ref": "d96be268f3b24af6e94cfbf662c131303d22931c",
+            "path": ".ci-apps14-repair-old-carrier",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Select Python",
+          "uses": "actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+          "with": {
+            "python-version": "${{ matrix.python }}"
+          }
+        },
+        {
+          "name": "Exact bound and NULL235, old13 emission, paths and complete emitted controls",
+          "shell": "bash",
+          "run": "set -euo pipefail\nstage=$(mktemp -d \"$RUNNER_TEMP/apps14-repair-source.XXXXXXXX\")\ntrap 'rm -rf -- \"$stage\"' EXIT\nexport TMPDIR=\"$stage\"\nexport APPS14_REPAIR_BASE_SOURCE=\"$GITHUB_WORKSPACE/.ci-apps14-repair-parent\"\nexport APPS14_REPAIR_EXPECTED_SOURCE=\"$GITHUB_WORKSPACE/.ci-apps14-repair-expected\"\nexport APPS14_REPAIR_CARRIER=\"$GITHUB_WORKSPACE/.ci-apps14-repair-carrier\"\nexport APPS13_REPAIR_BASE_SOURCE=\"$GITHUB_WORKSPACE/.ci-apps14-repair-old-parent\"\nexport APPS13_REPAIR_CARRIER=\"$GITHUB_WORKSPACE/.ci-apps14-repair-old-carrier\"\npython3 -I -B -Werror \"$GITHUB_WORKSPACE/scripts/ci/repair16k-inner-diagnostics-source/test_apps14.py\" --full-emitted-tests\n"
+        }
+      ]
+    }
+  }
+}
