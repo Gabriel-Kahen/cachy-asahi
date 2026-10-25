@@ -1,0 +1,353 @@
+{
+  "caller_private_cleanup": "PASS",
+  "expanded604": "READY_SIGNED_EXPANDED604",
+  "expanded_cache_cleanup": "PASS",
+  "expected607_sha256": "be35402204ba5c03d78279722afa83047c9575d2da70fb5c4064f46ed15954c5",
+  "hardware": "NOT_RUN",
+  "implementation_source": "b9976eea34eaed4b6e56af3be21d4d652fa971d6",
+  "input_summary": {
+    "audio_inputs": 6,
+    "builds": "NOT_RUN_REUSED_ACCEPTED_PAIRS",
+    "combined_declared_source": "22c095c85cb6fd79d5de0f0ee43ca012c32c2aeb",
+    "combined_materialized_from": "b6b17e5f6b322f160f7eeb22c8a01380a3c854cd",
+    "combined_source_files": 86,
+    "declared_driver_source": "22c095c85cb6fd79d5de0f0ee43ca012c32c2aeb",
+    "hardware": "NOT_RUN",
+    "management_index": {
+      "bytes": 104659,
+      "path": "index.json",
+      "sha256": "b60048aa1312d22b1012a5d2d2e4c5185c8087b3a8f2b6c410ff9ec6a1dddfcf"
+    },
+    "materialized_from_legacy": "b6b17e5f6b322f160f7eeb22c8a01380a3c854cd",
+    "setup_index": {
+      "bytes": 25005,
+      "path": "index.json",
+      "sha256": "b1e4208d2f32935f2e5cb1c1e3535cc49f44c7bfe08e7d64692b8ac3781d5a5d"
+    },
+    "status": "PASS_ALL_RETAINED_NATIVE_INPUTS",
+    "welcome_index": {
+      "bytes": 34490,
+      "path": "index.json",
+      "sha256": "4e6a8fb3285a53dacd2ce06348b40238b32256df40ecc8b5e07a93fb5b0310b6"
+    }
+  },
+  "installer_library_source": "bd0cf1891083d011b70edab10501c317d3720b78",
+  "legacy_source": "b6b17e5f6b322f160f7eeb22c8a01380a3c854cd",
+  "native_container_P0": "UNCHANGED-FAILED",
+  "owned_paths": [
+    "/tmp/cachy-asahi-expanded604-installer-40223603945-1-producer",
+    "/tmp/cachy-asahi-expanded604-installer-40223603945-1-vm"
+  ],
+  "prerequisites": {
+    "fresh600": {
+      "actual_mount_api": "NOT_EXPORTED_STATX_OR_FDINFO_FALLBACK_NOT_DISTINGUISHED",
+      "cleanup": "PASS",
+      "closed_public_bytes": 132075,
+      "closed_public_files": 10,
+      "evidence": {
+        "bytes": 4327,
+        "path": "artifacts/development/signed600-statx-root-verifier-20261016/handoff/passive-verification.json",
+        "sha256": "22b0e5d43356e8eb8af934be75453841a83550ad2c2cc631899934c36842d088"
+      },
+      "expected600_sha256": "d263a3ca9089c204603f2e12b80dc4f209ee6e636f10da940a514040b636db79",
+      "hardware": "NOT_RUN",
+      "independent_root_readback": "PASS",
+      "limits": [
+        "Private raw node/hash/ownership maps and installed target/profile/lock bytes were checked by the frozen guest code and are not exported; this replay checks complete summaries and exact retained protocol/source joins, not a new full-byte readback.",
+        "Retired container/image/VM absence is retained source-bound cleanup evidence, not live reobservation.",
+        "No physical installation, target boot, hooks/scriptlets, native-container P0, M2 or performance acceptance.",
+        "Statx source selection and unchanged full hashing/deadlines are checked; runtime choice of statx versus original fdinfo fallback is not reported."
+      ],
+      "log_archive": {
+        "bytes": 3115442,
+        "sha256": "83bd87ad75113d6f958f389fbc91373318d2dac2b8cb856bb7e812de930f6c30"
+      },
+      "native_container_P0": "UNCHANGED_FAILED",
+      "ordinary_and_root_flags": {
+        "committed": true,
+        "database_verified": true,
+        "namespace_barrier": true,
+        "numeric_namespace_verified": true,
+        "numeric_ownership_verified": true,
+        "ordinary_parent_nnp_cap0": true,
+        "ownership_verified": true,
+        "parent_inventory_preserved": true,
+        "parent_payload_verified": true,
+        "payload_verified": true,
+        "preservation_verified": true,
+        "private_trust_verified": true,
+        "process_retirement": true,
+        "root_guest_payload_verified": true,
+        "source_cache_preserved": true
+      },
+      "ordinary_parent_retired": "PASS",
+      "package_count": 600,
+      "public_frame": {
+        "bytes": 35158,
+        "sha256": "41535f83e77251a2cf7951d16eda9f2e0d561d2879eaf089f03632cf160e7e65"
+      },
+      "qemu_natural_exit": true,
+      "qemu_seconds": 3852.414,
+      "release": "NOT_ADMITTED",
+      "root_observation": {
+        "complete": true,
+        "deadline_seconds": 600,
+        "elapsed_ms": 507978,
+        "footprint": {
+          "bytes": 4929806831,
+          "database_bytes": 11789351,
+          "database_files": 1829,
+          "hardlink_inodes": 1048,
+          "nodes": 124422
+        },
+        "missing_database_nodes": 0,
+        "missing_database_samples": [],
+        "observed_nodes": 124422,
+        "required_database_nodes": 1201,
+        "unsupported_counts": {
+          "absolute-symlink": 24,
+          "auxiliary-present": 3
+        },
+        "unsupported_reasons_omitted": 0
+      },
+      "run_id": "38965999704",
+      "scope": "Signed TEST600 fresh install in separately owned generic ARM4K VM with complete independent post-parent root readback",
+      "source_joins": 101,
+      "source_sha": "3cbd856315adb30ba7a1b9246739a520c19c9728",
+      "status": "ROOT_ACCEPTED_SIGNED_EXPANDED600_FRESH_INSTALLER",
+      "statx_backend": {
+        "bytes": 2784,
+        "deadline_seconds": 600,
+        "fallback": "ORIGINAL_FDINFO_NO_BUDGET_OR_CHECK_WAIVER",
+        "scope": "INDEPENDENT600_ROOT_READBACK_MOUNT_QUERY_ONLY",
+        "sha256": "c3d804e7f2927c7889835ad187a39a3d7c618a4651700f57b0c5413c46612607"
+      }
+    },
+    "latest_six": {
+      "Asahi": "NOT_RUN",
+      "GUI": "NOT_RUN",
+      "M2": "NOT_RUN",
+      "auxiliaries": 33,
+      "fresh_graphs": 65,
+      "generic16K": "NOT_RUN",
+      "hardware": "NOT_RUN",
+      "packages": {
+        "base": 606,
+        "peak": 607,
+        "protected": 601,
+        "restored": 606
+      },
+      "performance": "NOT_CLAIMED",
+      "positive": {
+        "bytes": 864836,
+        "sha256": "ee27fb1b599832daec1a4e0cb530fdaa8806db8883e5bae7c93a6d7f5769180a"
+      },
+      "postjoins": {
+        "bytes": 402136,
+        "sha256": "b1867ce588964800d791d5bafa7997bd68770fcc1eae0e6035bddbbfbe0c6c68"
+      },
+      "reader_files": 2445,
+      "ref": "codex/apps16-six-vmtest3600-v1",
+      "release": "NOT_ADMITTED",
+      "run_id": 40186382605,
+      "selected_restoration": "LOGICAL_WITH_BOUNDED_INSTALLDATE_NOT_INODES",
+      "source": "67e8155840f9851bff3b8acb2cd6de6a622515c4",
+      "source_files": 853,
+      "status": "ROOT_ACCEPTED_FINITE_NATIVE_APPS16_SIX_TOOL_SOFTWARE_COMPOSITION",
+      "transactions": 32,
+      "validation_profile": {
+        "M2_performance": "NOT_RUN",
+        "component_seconds": 3600,
+        "consumer_seconds": 4200,
+        "old2400_fit": "NOT_ESTABLISHED",
+        "outer4200_fit": "NOT_ESTABLISHED",
+        "owner6600_fit": "NOT_ESTABLISHED",
+        "owner_seconds": 6600,
+        "performance": "NOT_CLAIMED",
+        "profile": "NATIVE607_APPS16_VM_TEST_COMPONENT3600_V1",
+        "scope": "VM_VALIDATION_TEST_CAPACITY_ONLY"
+      },
+      "whole240_suites": 4
+    },
+    "native604": {
+      "GUI": "NOT_RUN",
+      "cleanup": "PASS",
+      "expected604_sha256": "7bc6caa51301bf076aeda4d137277a128c53a16e5bfd25f02e7309c4b3a408c3",
+      "fresh_installer": "NOT_RUN",
+      "hardware": "NOT_RUN",
+      "hash_bound_nongit_records": 2,
+      "input_policy_sha256": "a97b82d79e5aa967cde1b65c2f0a8b47cfd24d8cd3854b070dc919753a479e30",
+      "installed16k": "NOT_RUN",
+      "installed_lifecycle": "PASS",
+      "installed_six_module_cases": [
+        "fish-bang-auto-done",
+        "fish-done-auto-bang",
+        "fish-noninteractive",
+        "zsh-auto-highlight-substring",
+        "zsh-highlight-substring-auto",
+        "zsh-noninteractive"
+      ],
+      "installed_six_modules": "PASS",
+      "lifecycle_phases": [
+        "baseline587",
+        "install604",
+        "same-version604",
+        "remove-to587",
+        "restore604",
+        "final587"
+      ],
+      "limitations": [
+        "Public659 original package pair decisions are joined separately from the sanitized native574 repair-bytes authority. That authority establishes no missing-repair/aggregate/604/VM/GUI credit. No raw223 evidence is consumed.",
+        "Complete BUILDINFO lists and expected pacman-Q lock hashes are provenance/original-pair-authority joins; the corresponding raw Q-lock bytes are not exported or reconstructed.",
+        "Root must independently join every actual source record to the supplied frozen Git commit. This tool performs no Git or collected code execution and cannot establish remote publication.",
+        "All fresh target-cache signatures, public keyrings and585 original system archive pairs are not exported. Signature-role/hash/unchanged-row declarations and source-enforced verification are joined; no fresh cryptographic verification is performed.",
+        "The six audio archive payloads and private full installed node/database/ownership/user maps are not exported. Incoming audio identity is joined to frozen policy; actual installed comparisons remain original source-enforced receipts.",
+        "Raw eight auxiliary-cache blobs and ldconfig state JSON are independently replayed using the exact frozen comparator. Helper exit remains NOT_OBSERVED; no helper execution, regeneration or source/binary correspondence claim.",
+        "Normal lifecycle exit0 and preservation/absence observations are original source-enforced records, not fresh process/root/container probes. Owned cleanup is disposal, not rollback or boot recovery.",
+        "Public-pair Apps6 native ARM604 metadata lifecycle and installed shell coexistence only; notification delivery, GUI,16K/Apple/M2,services/audio execution,installer,performance and release acceptance are not established."
+      ],
+      "package_count": 604,
+      "performance": "NOT_MEASURED",
+      "release": "NOT_ADMITTED",
+      "root_decision_utc": "2026-10-17T16:09:39.027065+00:00",
+      "root_independent_replay": {
+        "bytes": 22118,
+        "sha256": "daa61a6e6c6e4714eece89b61016369b81e0cdbfc7c45960b5b2fbc5c5a6bedc"
+      },
+      "run_id": "39044616267",
+      "schema_version": 1,
+      "scope": "NATIVE_GENERIC4096_PUBLIC_PAIR_APPS6_604_METADATA_LIFECYCLE_AND_INSTALLED_SHELL_COEXISTENCE_ONLY",
+      "source_actual_git_joins": 151,
+      "source_authorization": {
+        "bytes": 97874,
+        "sha256": "f3244430e87ba94b65b7258759b802ab48a1868bd5a359ee493c74f3d63cf99e"
+      },
+      "source_git_joins": 288,
+      "source_manifest_sha256": "e2b1f8ac11fa119493e22f44722d265293887de7edda80f4b61c00f8a80bf51c",
+      "source_sha": "b0154bd3b60434e45d4411b558f3ffda9e415640",
+      "status": "ROOT_ACCEPTED_NATIVE_PUBLIC_PAIRS_APPS6_CURRENT604_COMPOSITION"
+    }
+  },
+  "producer": "READY_SIGNED_INITIAL587",
+  "producer_cleanup": "PASS",
+  "release": "NOT_ADMITTED",
+  "scope": "GENERIC4K_LATEST607_FRESH_INSTALLER_SOFTWARE_ONLY",
+  "status": "PASS",
+  "vm": "PASS",
+  "vm_owner": {
+    "container_cleanup": "PASS",
+    "guest": {
+      "elapsed_seconds": 3847.197,
+      "guest": {
+        "auxiliary_execution": "ALPM may invoke pinned target ldconfig; exit NOT OBSERVED",
+        "capacity": {
+          "free_bytes": 14914830336,
+          "free_inodes": 1186782,
+          "required_bytes": 5455183194
+        },
+        "commit_started": true,
+        "committed": true,
+        "database_verified": true,
+        "derived_output_observation": {
+          "usr/lib/libvsscript.so": {
+            "gid": 0,
+            "mode": 511,
+            "target": "libvapoursynth-script.so.0",
+            "type": "symlink",
+            "uid": 0
+          }
+        },
+        "derived_outputs_verified": true,
+        "event": "result",
+        "expected_lock_sha256": "be35402204ba5c03d78279722afa83047c9575d2da70fb5c4064f46ed15954c5",
+        "hardware": "NOT RUN",
+        "hooks": "DISABLED",
+        "live_cache_keys": {
+          "live_library_keys": 1291,
+          "records": 995
+        },
+        "namespace_barrier": true,
+        "native_container_P0": "UNCHANGED-FAILED",
+        "nonce": "c521d96c95984b07b3a50cfdabf3c91f",
+        "numeric_namespace_verified": true,
+        "numeric_ownership_verified": true,
+        "ordinary_parent_nnp_cap0": true,
+        "ownership_verified": true,
+        "package_count": 607,
+        "parent_inventory_preserved": true,
+        "parent_payload_verified": true,
+        "payload_verified": true,
+        "phase": "complete",
+        "preservation_verified": true,
+        "private_trust_verified": true,
+        "process_retirement": true,
+        "production_installation": "NOT RUN",
+        "profile_sha256": "42391e04c4e188a1d3ca7bbfbb20016d6be44b4462ecf774568a1929ee5c41e6",
+        "root_guest_observation": {
+          "complete": true,
+          "deadline_seconds": 600,
+          "elapsed_ms": 487820,
+          "footprint": {
+            "bytes": 4930283262,
+            "database_bytes": 11800941,
+            "database_files": 1850,
+            "hardlink_inodes": 1048,
+            "nodes": 124513
+          },
+          "missing_database_nodes": 0,
+          "missing_database_samples": [],
+          "observed_nodes": 124513,
+          "required_database_nodes": 1215,
+          "unsupported_counts": {
+            "absolute-symlink": 24,
+            "auxiliary-present": 3
+          },
+          "unsupported_reasons_omitted": 0
+        },
+        "root_guest_payload_verified": true,
+        "scriptlets": "DISABLED",
+        "source_cache_preserved": true,
+        "status": "PASS_PUBLIC_PAIRS_APPS6_CURRENT607_INSTALLER",
+        "target_footprint": {
+          "allocated_bytes": 5136994304,
+          "allocated_bytes_by_entry": 5189795840,
+          "bytes": 4930283262,
+          "complete": true,
+          "database_bytes": 11800941,
+          "database_files": 1850,
+          "filesystem_free_bytes": 9740435456,
+          "filesystem_free_bytes_source": "statvfs-f_bavail",
+          "filesystem_free_inodes": 1064122,
+          "filesystem_inode_counts_known": true,
+          "filesystem_inode_source": "statvfs",
+          "hardlink_declared_links": 2896,
+          "hardlink_entries": 2896,
+          "hardlink_inodes": 1048,
+          "hardlinks": 2896,
+          "largest_file_bytes": 173387392,
+          "nodes": 124513,
+          "symlinks": 13337
+        },
+        "target_identity": [
+          64768,
+          393245
+        ]
+      },
+      "hardware_validation": "NOT RUN",
+      "natural_exit": true,
+      "nonce": "c521d96c95984b07b3a50cfdabf3c91f",
+      "qemu_cleanup": "PASS",
+      "scope": "generic4K-current607-installer-software-only",
+      "status": "PASS"
+    },
+    "hardware_validation": "NOT RUN",
+    "image_cleanup": "PASS",
+    "owned_image_tag": "cachy-asahi-current607-installer:c521d96c95984b07b3a50cfdabf3c91f",
+    "phase": "vm",
+    "private_cleanup": "PASS",
+    "producer_cleanup": "NOT OWNED BY VM CONTROLLER",
+    "producer_image_preservation": "PASS-immutable-image-identity",
+    "source_cache_preservation": "PASS",
+    "status": "PASS"
+  }
+}
