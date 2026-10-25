@@ -1,0 +1,15 @@
+def descriptor_path(root, root_text, live):
+ """Fast canonical POSIX names; all uncertain names retain the published path rule."""
+ if (type(live) is str and live.startswith('/') and '//' not in live
+     and '/./' not in live and '/../' not in live
+     and not live.endswith(('/', '/.', '/..', ' (deleted)'))):
+  if live == root_text:
+   return live, '.'
+  prefix = root_text if root_text == '/' else root_text + '/'
+  if live.startswith(prefix):
+   return live, live[len(prefix):]
+ path = Path(live)
+ need(path.is_absolute() and not live.endswith(' (deleted)') and path.is_relative_to(root),
+      'contained live ACL descriptor path')
+ return path, path.relative_to(root).as_posix()
+
