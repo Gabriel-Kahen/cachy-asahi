@@ -1,0 +1,12 @@
+{
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "boot_carrier": null,
+  "current606": null,
+  "expected606_sha256": "3a586c1e3400391f56bd281ac9c16aba85d94d0fca002770e77ee1802c5d9fd1",
+  "purpose": "CURRENT606_NATIVE_ACCEPTED_BOOT_SYNTHETIC_COMPONENT",
+  "schema_version": 1,
+  "source_manifest606": null,
+  "status": "UNBOUND_SOURCE_TEMPLATE"
+}
