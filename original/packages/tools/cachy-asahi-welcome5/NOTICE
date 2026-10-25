@@ -1,0 +1,16 @@
+cachy-asahi Welcome
+Copyright (c) 2026 cachy-asahi contributors
+
+Original C application, status reader, documentation, tests and geometric SVG.
+Licensed under MIT; the complete grant is in LICENSE.
+
+This is an independent project. No CachyOS Welcome/Hello source, embedded chwd,
+upstream artwork, Apple logo or third-party branding asset is included.
+GTK3, GLib and their runtime dependencies retain their own licenses; they are
+dynamically linked system libraries, not vendored or relicensed by this package.
+
+Alacritty and Thunar are optional installed applications launched by fixed argv
+only after a user click. Their software and assets are not included here.
+
+Welcome5 adds original MIT-licensed read-only DNS2 result parsing and UI routing.
+NetworkManager and cachy-asahi-dns are optional external programs, not bundled.
