@@ -1,0 +1,20 @@
+cachy-asahi Fish Done integration
+
+Pinned source: https://github.com/franciscolourenco/done
+Revision: b86292a52a2b8f646ef8d25daa3cc01ccab60b62
+Upstream declares version 1.21.1.
+Copyright (c) 2016 Francisco Lourenço & Daniel Wehner
+MIT: LICENSE.upstream. The entire original runtime, including its full MIT
+header, is preserved unchanged as done.upstream.fish, an inert source record.
+The adapted done.fish retains that full notice and unchanged duration helper.
+Its threshold, foreground completion and Linux notify-send path derive from the
+pinned source. It omits upstream cross-platform focus probing, eval overrides,
+terminal escape notifications, bells, auto-startup and uninstall event.
+All other primary files and hashes are retained in the complete source archive.
+No remote README/logo image, whole CachyOS configuration or asset is installed.
+
+Independent wrapper, single-process job watcher/disable behavior, bounded
+transport, private-message default, recipe, tests and integration documentation:
+Copyright (c) 2026 cachy-asahi contributors
+MIT: LICENSE.project. This grant covers only the independent project work and
+does not replace the upstream MIT grant. See source-provenance.json for changes.
