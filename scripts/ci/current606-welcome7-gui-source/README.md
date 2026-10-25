@@ -164,3 +164,32 @@ Explicit --failure-cleanup emits exact601195561 from whole803ed559. The original
 Explicit --apps16 requires the whole cleanup561 predecessor and --apps16-carrier-root accepted94, then emits exact published Apps16 GUI561. --apps16-unbound emits the frozen NULL template without a carrier. All old functions/routes/defaults, positive15 and failure-only cleanup, two scans35/30 and nonApps605 versions are held. Whole maps/readable templates are checked before output. Input acceptance and source emission grant no GUI,16K,M2,performance or release credit.
 
 Explicit --apps16-restore604 requires the exact selected Apps16 GUI561 predecessor and emits published562. --apps16-restore604-unbound requires the exact NULL561 predecessor (obtain with existing --apps16-unbound) and emits frozen NULL562. Existing --apps16/--apps16-unbound remain exact561 routes. The sole generated restore precondition changes593 to604 with baseline606 held. Complete561 inverse, source admission, positive15 and failure-only cleanup, frames, two scans35/30, all clocks and nonApps versions remain mandatory. No GUI/native/hardware acceptance is issued. Outputs must be fresh, canonical and disjoint from source and maintained factory.
+
+
+Explicit `--apps16-isolated-import` composes exact published562 restore604
+through the fixed564 post-session DATA stage to exact565
+`b9a1195e5f5c5e439db791383e18e56511de2f5a`. The full intermediate map and
+565→564→562 byte inverses remain mandatory; five readable operands contain only
+marker/helper/loader/admission source. `--apps16-isolated-import-unbound` requires
+the original NULL562 and emits exact frozen NULL565, refusing actors. Existing
+default and every prior route/function/output remain unchanged.
+
+The explicit sibling loader registers post_session before management_root and
+base_guest under isolated Python in guest, Doctor and service-outcome processes.
+No sys.path broadening, marker/parser/acceptance or runtime clock change occurs.
+All seven markers,15 frames, service1200/full scan600 and security/cleanup remain
+held. Source reproduction and private inert startup controls grant no native GUI
+or deadline-fit credit. Native fit remains UNKNOWN; M2/hardware remains NOT_RUN.
+
+```sh
+python3 -I -B -Werror scripts/ci/current606-welcome7-gui-source/prepare.py \
+ --apps16-isolated-import --predecessor-root /ordinary/restore562 --output /fresh/gui565
+```
+
+The path-scoped read-only Python3.12/3.14 workflow uses pinned public source
+checkouts. Its finite startup fixture contains only trusted generated Python
+source, shared across four profiles with exact overrides; it includes no package
+archives, actual receipts, images, host artifact paths or native authority. Tests
+execute only the actual new loader transform and generated isolated startup
+through a test-only boundary before guards/actors. Runtime acceptance still
+requires new genuine native results and separate Root review.
