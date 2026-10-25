@@ -1,0 +1,92 @@
+{
+  "GUI": "NOT_RUN",
+  "created_utc": "2026-10-25T06:41:10.947649+00:00",
+  "hardware_both_M2_sizes": "NOT_RUN",
+  "limitations": [
+    "Proper native offline container software composition only; no ordinary copied607 or physical Asahi/M2 qualification.",
+    "Original604 minus five selected packages leaves599 including Runtime1; original DNS2/Sysctl2 additions yield601 physically protected payload/rawDB packages, with source-proven selected-parent transitions.",
+    "Five selected tools restore exact original versions, payload/ownership/files/mtree and all desc bytes except numeric INSTALLDATE joined to actual bounded restoring transactions; selected inode restoration is NOT_CLAIMED.",
+    "Every action protects all nonacted tools, including Boot while installed. Historical native pair/component inputs are reused; no new tool builds or combined prior credit.",
+    "Private full observations, cryptographic verification and per-phase fresh auxiliary reads are source-enforced receipts/hash joins; passive replay does not perform fresh host filesystem or GPG observations.",
+    "Thirty-three fresh complete auxiliary observations retain one full exactly equal blob pair plus explicit nonce/phase/hash/length references; original fourteen raw checkpoints remain held.",
+    "Doctor27 and Apps15 original private controls, KSM44 private regular-file controls, WelcomeCLI5, Boot15 synthetic journal/pstore controls and four whole Setup240 real-module suites are finite installed-software scope only; no live audio/KSM/NetworkManager/GUI, real boot/crash history, hardware, performance or release claim."
+  ],
+  "native_clocks_seconds": {
+    "component": 2400,
+    "consumer": 4200,
+    "owner": 6600
+  },
+  "original_collection": "ACQUIRED_ONCE_NOT_REPEATED",
+  "original_roles": {
+    "artifact.zip": {
+      "bytes": 13398389,
+      "sha256": "53f4b65c6bc3491047b25715115686370d46bf76d2a2abbb3e43672983ed9503"
+    },
+    "artifacts.json": {
+      "bytes": 786,
+      "sha256": "24b4f506b3e3fb119efbcb1dd1b21c897129ed8d4a80fa435b678db7ccdb81f3"
+    },
+    "collection-intent.json": {
+      "bytes": 187,
+      "sha256": "1d31724e2181b90c48f4edd6bc976ec2fc0c7c6787537b289bd0bf62b916181b"
+    },
+    "collection.json": {
+      "bytes": 723,
+      "sha256": "a35ba02bf26ee694752ed47428b689c5fe1992b4d5d690fabc951e19e7f05801"
+    },
+    "jobs.json": {
+      "bytes": 18514,
+      "sha256": "45993c7c9f496b45ef0a8871f2bb37e181f760ccdbe8684e75624c81fdc930e8"
+    },
+    "run.json": {
+      "bytes": 12978,
+      "sha256": "8defdbaa8f0962713596f0792f56acde1b603f178177fa3335d3471a97420eaf"
+    }
+  },
+  "page16k": "NOT_QUALIFIED_BY_THIS_CONTAINER_CASE",
+  "passive_replay": {
+    "acceptance": "NOT_ISSUED",
+    "cap": 900,
+    "exit": 0,
+    "originals_reacquired": false,
+    "reader_unchanged": true,
+    "seconds": 475.6698175349957
+  },
+  "performance": "NOT_CLAIMED",
+  "post_replay": {
+    "bytes": 607843,
+    "sha256": "167dd76ba09bd37b5d11b7b564963ca5054a0a68b481b01028d733c3192e55fb"
+  },
+  "reader_files": 2287,
+  "reader_result": {
+    "bytes": 855740,
+    "sha256": "2e500c7b1af0df8def78df66bca5791ff63978bffbbd010cb47fa65f139d7471"
+  },
+  "ref": "codex/current607-installed-codec-v1",
+  "release": "NOT_ADMITTED",
+  "run_id": 39797561367,
+  "scratch_correction": "OWNED_EMPTY0700_DIRECTORY_CREATED_AS_REQUIRED_BY_UNCHANGED_READER_FIRST_REFUSAL_RETAINED",
+  "software_scope": {
+    "baseline": 606,
+    "fresh_auxiliary_observations": 33,
+    "fresh_graphs": 65,
+    "peak": 607,
+    "restored": 606,
+    "selected_five_logical_restoration": "ORIGINAL_VERSIONS_PAYLOAD_OWNERSHIP_FILES_MTREE_DESC_EXCEPT_BOUNDED_INSTALLDATE",
+    "selected_inode_restoration": "NOT_CLAIMED",
+    "transactions": 32,
+    "unselected_packages_physically_preserved": 601,
+    "whole_real240_suites": 4
+  },
+  "source": "8b22845252d01e1a813ed078be60315a39a27a5f",
+  "source_files": 842,
+  "status": "ROOT_ACCEPTED_FINITE_NATIVE_SIX_TOOL_SOFTWARE_COMPOSITION",
+  "tool_versions": {
+    "apps": "0.1.0-10",
+    "boot": "0.1.0-1",
+    "doctor": "0.2.0-1",
+    "ksm": "0.1.0-2",
+    "setup": "0.1.0-6",
+    "welcome": "0.1.0-8"
+  }
+}
