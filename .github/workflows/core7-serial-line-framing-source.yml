@@ -1,0 +1,69 @@
+name: core7-serial-line-framing-source
+on:
+  push:
+    paths:
+      - scripts/ci/core7-serial-line-framing-source/**
+      - .github/workflows/core7-serial-line-framing-source.yml
+  pull_request:
+    paths:
+      - scripts/ci/core7-serial-line-framing-source/**
+      - .github/workflows/core7-serial-line-framing-source.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONWARNINGS: error
+    steps:
+      - name: Check out maintained source-only factory
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Check out exact public51 input
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: ee01d0239adca45c200b78eac939f7cc82df23b8
+          path: .ci-fixtures/core-lf-before51
+          persist-credentials: false
+      - name: Check out exact public LF51 expected source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 11b3cfb59663e42b34247facb9f30f042e891444
+          path: .ci-fixtures/core-lf-after51
+          persist-credentials: false
+      - name: Check out exact KSM637 route-control source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: de21d6c25e0fbf5ac83c71965bae3ffa23390461
+          path: .ci-fixtures/core-lf-vm637
+          persist-credentials: false
+      - name: Select explicit Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Reproduce all51 source bytes and run source/serial controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          stage=$(mktemp -d "$RUNNER_TEMP/core-lf-source.XXXXXXXX")
+          trap 'rm -rf -- "$stage"' EXIT
+          mkdir -m700 "$stage/input" "$stage/expected" "$stage/vm"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/core-lf-before51" archive --format=tar ee01d0239adca45c200b78eac939f7cc82df23b8 | tar -x -C "$stage/input"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/core-lf-after51" archive --format=tar 11b3cfb59663e42b34247facb9f30f042e891444 | tar -x -C "$stage/expected"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/core-lf-vm637" archive --format=tar de21d6c25e0fbf5ac83c71965bae3ffa23390461 | tar -x -C "$stage/vm"
+          export CORE_LF_INPUT="$stage/input"
+          export CORE_LF_EXPECTED="$stage/expected"
+          export CORE_LF_VM="$stage/vm"
+          python3 -I -B -Werror scripts/ci/core7-serial-line-framing-source/test_source.py
+          python3 -I -B -Werror scripts/ci/core7-serial-line-framing-source/prepare.py --help
