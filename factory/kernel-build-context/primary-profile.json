@@ -1,0 +1,41 @@
+{
+  "files": {
+    "COPYING": {
+      "bytes": 496,
+      "sha256": "fb5a425bd3b3cd6071a3a9aff9909a859e7c1158d54d32e07658398cd67eb6a0"
+    },
+    "LICENSES/exceptions/Linux-syscall-note": {
+      "bytes": 1258,
+      "sha256": "8e378ab93586eb55135d3bc119cce787f7324f48394777d00c34fa3d0be3303f"
+    },
+    "LICENSES/preferred/GPL-2.0": {
+      "bytes": 18600,
+      "sha256": "8780e78a1a737e127f25a65f6d95269bffd36158dc261114de7859b490bfc5aa"
+    },
+    "arch/arm64/Kconfig": {
+      "bytes": 88260,
+      "sha256": "eb68af2f4d189ff950a5b9ce392afef8dc8e068636c19a851798fac09fd63124"
+    },
+    "arch/arm64/include/uapi/asm/hwcap.h": {
+      "bytes": 4859,
+      "sha256": "f1f7d0d218620306b4a6be91153623b7b9460e132f754d378030a621b0cd7569"
+    },
+    "arch/arm64/kernel/cpufeature.c": {
+      "bytes": 145646,
+      "sha256": "900435e3356a95bf4d7c3286c97a7b19d53192941898cb4e6ed9ad1fe6b8bb15"
+    },
+    "arch/arm64/kernel/pi/idreg-override.c": {
+      "bytes": 10715,
+      "sha256": "749bb2b397543cae21fd1f4446e92b92c5a17f8dabc354618a0154cccc3cd108"
+    },
+    "arch/arm64/lib/memset.S": {
+      "bytes": 4929,
+      "sha256": "3f13114283d30974642c88413ee02a2911761528ea634f1fa0cdaac385d937af"
+    },
+    "arch/arm64/tools/cpucaps": {
+      "bytes": 2239,
+      "sha256": "29ae4b1f7f30bac65fc64fa050259fda7b0f5d8ee175a2bd97153bb71c0eca6b"
+    }
+  },
+  "source_revision": "94fb23346d522edf53722357c426a3e58030beea"
+}
