@@ -1,0 +1,10 @@
+{
+  "actual": "NOT_RUN",
+  "files": 842,
+  "git_joins": 842,
+  "hardware": "NOT_RUN",
+  "ref": "codex/current607-installed-codec-v1",
+  "release": "NOT_ADMITTED",
+  "source": "8b22845252d01e1a813ed078be60315a39a27a5f",
+  "status": "COMMITTED_EXACT_CLOSED_TRIAL_SOURCE"
+}

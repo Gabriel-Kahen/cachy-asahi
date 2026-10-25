@@ -1,0 +1,7 @@
+# Retained accepted six-tool-codec
+
+Root accepted source `8b22845252d01e1a813ed078be60315a39a27a5f`, run39797561367, after complete current-source/transport/protocol validation and post-replay source, reader and original byte joins. This immutable DATA packet preserves that decision and the exact once-acquired originals. It creates no new native execution or acceptance.
+
+Apps10/Doctor2/KSM2/Welcome8/Boot1/Setup6 composition:32 transactions,65 source-enforced fresh graphs,33 auxiliary observations and four whole240-source real-module suites;606→607→606,601 nonselected packages physically protected and selected logical restoration with bounded INSTALLDATE. Selected inode restoration is not claimed. The first local replay refused a missing scratch directory; its result is retained. Creating an empty owned0700 scratch allowed the unchanged complete reader to pass in475.670s/900 using the same once originals.
+
+Original source-enforced cleanup/retirement receipts passed; no retired actor was queried again. Original public CI evidence contains temporary identifiers and package inventories. No private rootfs, private signer key or raw private preservation maps are added. Complete trusted source/crypto/transport inspectors remain required for replay. This record grants no new GUI, generic16K, Apple/M2, performance, boot recovery or supported-release acceptance. Both M2 Air sizes remain NOT RUN.

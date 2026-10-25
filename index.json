@@ -1,0 +1,87 @@
+{
+  "Root_decision": "qualification/Root-component-acceptance.json",
+  "files": {
+    "LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "README.md": {
+      "bytes": 1413,
+      "sha256": "0b9fad23c4f0cd5262040b96cf416cdbd8297d7428fd0f5dcddaa14958522ed4"
+    },
+    "originals/artifact.zip": {
+      "bytes": 13398389,
+      "sha256": "53f4b65c6bc3491047b25715115686370d46bf76d2a2abbb3e43672983ed9503"
+    },
+    "originals/artifacts.json": {
+      "bytes": 786,
+      "sha256": "24b4f506b3e3fb119efbcb1dd1b21c897129ed8d4a80fa435b678db7ccdb81f3"
+    },
+    "originals/collection-intent.json": {
+      "bytes": 187,
+      "sha256": "1d31724e2181b90c48f4edd6bc976ec2fc0c7c6787537b289bd0bf62b916181b"
+    },
+    "originals/collection.json": {
+      "bytes": 723,
+      "sha256": "a35ba02bf26ee694752ed47428b689c5fe1992b4d5d690fabc951e19e7f05801"
+    },
+    "originals/jobs.json": {
+      "bytes": 18514,
+      "sha256": "45993c7c9f496b45ef0a8871f2bb37e181f760ccdbe8684e75624c81fdc930e8"
+    },
+    "originals/run.json": {
+      "bytes": 12978,
+      "sha256": "8defdbaa8f0962713596f0792f56acde1b603f178177fa3335d3471a97420eaf"
+    },
+    "qualification/Root-component-acceptance.json": {
+      "bytes": 4128,
+      "sha256": "1e7d13a6b3f0ab65133512c728d22ec749bdf6ce200408001d32fd8a64def452"
+    },
+    "qualification/Root-correct-scratch-replay-status.json": {
+      "bytes": 153,
+      "sha256": "e3ca5f0c16ea6685f41bd42bae79c253a74d104720129dc7fc908ba7cb1822d1"
+    },
+    "qualification/Root-post-replay-pins.json": {
+      "bytes": 607843,
+      "sha256": "167dd76ba09bd37b5d11b7b564963ca5054a0a68b481b01028d733c3192e55fb"
+    },
+    "qualification/Root-result.json": {
+      "bytes": 855740,
+      "sha256": "2e500c7b1af0df8def78df66bca5791ff63978bffbbd010cb47fa65f139d7471"
+    },
+    "qualification/Root-scratch-operand-correction-intent.json": {
+      "bytes": 313,
+      "sha256": "557eed68e0922cfdaa23a57568f1818b4139132bd54e892e86952aa4cbc81d9c"
+    },
+    "qualification/Root-strict-result.json": {
+      "bytes": 1701,
+      "sha256": "177c3383e2fa57adb64c4c16dc783f92bea55f065589c0e41636a2fe33ed20a5"
+    },
+    "source-publication/Root-committed-publication.json": {
+      "bytes": 271,
+      "sha256": "b829eef714d85d6ce1c817e32d18787c0091d64d7e61810e82715826eae32928"
+    },
+    "source-publication/Root-git-source-authorization.json": {
+      "bytes": 158964,
+      "sha256": "896256e5a5df596e4ef3367c3a6726888602d7357f73c19af083c09f41aa9a04"
+    },
+    "source-publication/publication.json": {
+      "bytes": 271,
+      "sha256": "5ebc643f7f8893df0c385b77b9560ab9c408b8d2af0f31f7def31116ff0db767"
+    },
+    "source-publication/source-authorization.json": {
+      "bytes": 152056,
+      "sha256": "5ddf39e7a2f18aeac896fa2143d750609b02ff99631158cd41938dc50dfdd742"
+    }
+  },
+  "hardware": "NOT_RUN",
+  "native_ref": "codex/current607-installed-codec-v1",
+  "native_run": 39797561367,
+  "native_source": "8b22845252d01e1a813ed078be60315a39a27a5f",
+  "new_native_acceptance": false,
+  "publication_ref": null,
+  "publication_source": null,
+  "release": "NOT_ADMITTED",
+  "schema_version": 1,
+  "status": "RETAINED_ROOT_FINITE_ACCEPTANCE_AND_ONCE_ORIGINALS_DATA_ONLY"
+}
