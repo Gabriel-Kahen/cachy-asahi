@@ -1,0 +1,8 @@
+{
+  "failures": [],
+  "preexisting_images": "BORROWED-NOT-REMOVED",
+  "scope": "producer-owned new builder images, key agents and private preparation/export files",
+  "source_cache": "BORROWED-NOT-REMOVED",
+  "status": "PASS",
+  "vm_cleanup": "NOT OWNED"
+}
