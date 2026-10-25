@@ -1,0 +1,17 @@
+
+# Explicit607 facade: original606/controller590 functions and defaults stay whole.
+def selected607():
+    import types
+    space=dict(globals());original_read=read
+    def typed_read(path,cap):
+        raw=original_read(path,cap)
+        if path.name=='expected-installed.lock'and path.parent.name=='bundle':
+            need(pin(raw)==dict(bytes=12076,sha256='be35402204ba5c03d78279722afa83047c9575d2da70fb5c4064f46ed15954c5'),'whole fixed607 name/version inventory')
+            rows=raw.decode('ascii').splitlines();pairs=[r.split(' ')for r in rows]
+            need(raw.endswith(b'\n')and len(rows)==607 and all(len(r)==2 and re.fullmatch('[a-z0-9@+_.-]+',r[0])and r[1]and not any(c.isspace()for c in r[1])for r in pairs)and len({r[0]for r in pairs})==607,'canonical complete607 inventory')
+        return raw
+    space.update(ROLES={'runtime607':('/tmp/managed604','install606.py','bundle/expected-installed.lock',607),'controller590':ROLES['controller590']},read=typed_read)
+    for name in('dockerfile','prepare','check'):
+        fn=globals()[name];space[name]=types.FunctionType(fn.__code__,space,fn.__name__,fn.__defaults__,fn.__closure__)
+    need(space['prepare'].__globals__['read']is typed_read and space['check'].__globals__['read']is typed_read,'actual executing607 prepare/check globals')
+    return types.SimpleNamespace(**space)
