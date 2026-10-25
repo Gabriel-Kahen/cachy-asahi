@@ -160,3 +160,5 @@ python3 -I -B /fresh/Apps14-source559/native.py preflight
 ```
 
 Explicit --failure-cleanup emits exact601195561 from whole803ed559. The original positive15 cleanup and all GUI acceptance predicates remain unchanged; failed-runtime resource retirement is separately typed and requires complete acquisition/absence/borrowed-base checks. All actual fields stay NULL. No old-route/default output changes or native/M2 acceptance are implied.
+
+Explicit --apps16 requires the whole cleanup561 predecessor and --apps16-carrier-root accepted94, then emits exact published Apps16 GUI561. --apps16-unbound emits the frozen NULL template without a carrier. All old functions/routes/defaults, positive15 and failure-only cleanup, two scans35/30 and nonApps605 versions are held. Whole maps/readable templates are checked before output. Input acceptance and source emission grant no GUI,16K,M2,performance or release credit.

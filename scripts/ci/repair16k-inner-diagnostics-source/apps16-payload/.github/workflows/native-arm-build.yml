@@ -1,0 +1,384 @@
+name: native-arm-apps16-full574-repair16k
+on:
+  workflow_dispatch:
+    inputs:
+      repair_case:
+        description: One independent full574 signed repair case
+        type: choice
+        required: true
+        options:
+          - repair-bytes
+          - repair-missing
+      source_sha:
+        description: Exact 40-character source SHA, equal to this workflow revision
+        type: string
+        required: true
+      manifest_sha256:
+        description: Exact source-manifest SHA256 after Root source and adapter freeze
+        type: string
+        required: true
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: native-arm-apps16-full574-repair16k-${{ inputs.repair_case }}
+  queue: max
+  cancel-in-progress: false
+jobs:
+  native:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi'
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 350
+    defaults:
+      run:
+        shell: bash
+        working-directory: repair-source
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      REPAIR_CASE: ${{ inputs.repair_case }}
+      MANIFEST_SHA256: ${{ inputs.manifest_sha256 }}
+      SLICE: scripts/ci/apps7-full574-repair16k-ci
+    steps:
+      - name: Start source-owned reserved capacity clock before checkout
+        working-directory: ${{ github.workspace }}
+        timeout-minutes: 1
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -I -B - <<'PYCLOCK'
+          import json,os,re,stat,time
+          from pathlib import Path
+          p=Path(os.environ['RUNNER_TEMP'])/'apps574-repair16k-capacity-clock.json'
+          assert p.is_absolute() and not any(q.is_symlink() for q in(p,*p.parents))
+          run=os.environ['GITHUB_RUN_ID'];attempt=os.environ['GITHUB_RUN_ATTEMPT'];source=os.environ['SOURCE_SHA']
+          assert re.fullmatch('[1-9][0-9]{0,19}',run) and re.fullmatch('[1-9][0-9]{0,19}',attempt) and re.fullmatch('[a-f0-9]{40}',source)
+          value=dict(schema_version=1,purpose='SOURCE_OWNED_FIRST_WORKFLOW_STEP_NOT_API_TIME',profile='REPAIR_GENERIC16K_COLD_VALIDATION_2400_V1',identity=dict(run=int(run),attempt=int(attempt),source=source),start_monotonic_ns=time.monotonic_ns(),job_seconds=21000,post_seconds=1260,admission_seconds=120)
+          raw=(json.dumps(value,sort_keys=True,indent=2)+'\n').encode()
+          fd=os.open(p,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
+          with os.fdopen(fd,'wb') as f:f.write(raw)
+          a=p.stat();assert stat.S_ISREG(a.st_mode) and a.st_uid==os.getuid() and a.st_nlink==1 and stat.S_IMODE(a.st_mode)==0o600 and p.read_bytes()==raw
+          PYCLOCK
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: ${{ inputs.source_sha }}
+          path: repair-source
+          persist-credentials: false
+      - name: Verify Apps16 source and refuse NULL selection before actors
+        working-directory: ${{ github.workspace }}
+        timeout-minutes: 2
+        run: |
+          python3 -I -B repair-source/apps16-repair/test_source.py
+          python3 -I -B repair-source/apps16-repair/entry.py --require-selection
+      - name: Checkout the independently accepted Apps16 pair only
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: 950b0699a6e3f7a56758d4d17a5d30dabc7b6e11
+          path: apps16-native-pair
+          persist-credentials: false
+      - name: Prove whole94 Apps16 input source before old producer
+        working-directory: ${{ github.workspace }}
+        timeout-minutes: 2
+        run: python3 -I -B repair-source/apps16-repair/entry.py --carrier "$GITHUB_WORKSPACE/apps16-native-pair"
+      - name: Prove the explicit source and workflow revision before secrets
+        id: proof
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test "$GITHUB_WORKFLOW_SHA" = "$SOURCE_SHA"
+          [[ $MANIFEST_SHA256 =~ ^[0-9a-f]{64}$ ]]
+          printf '%s  %s\n' "$MANIFEST_SHA256" "$SLICE/source-manifest.json" | sha256sum --check
+          test "$(sha256sum "$SLICE/owner.py" | cut -d ' ' -f 1)" = 6ec3723e5d8322ef5730eeb0222bfcaa5b0073d55c8353dc66afa5b29d8070de
+          test "$(sha256sum "$SLICE/source-manifest.json" | cut -d ' ' -f 1)" = bc8504658e1f885089a06de50b606e7683dcb154ef4bce35ade4865a539b7116
+          python3 -I -B "$SLICE/owner.py" proof --case "$REPAIR_CASE" --source "$GITHUB_WORKSPACE/repair-source" --proof "$RUNNER_TEMP/apps574-source-proof.json"
+      - name: Focused source and actual backend guards only
+        timeout-minutes: 3
+        run: |
+          set -euo pipefail
+          python3 -I -B "$GITHUB_WORKSPACE/repair-source/apps16-repair/test_source.py"
+      - name: Checkout exact Root accepted four native pairs
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: ${{ steps.proof.outputs.packet_source }}
+          path: repair-source/retained-apps574-inputs
+          persist-credentials: false
+      - name: Verify closed native packet before secrets
+        timeout-minutes: 2
+        run: >-
+          python3 -I -B "$SLICE/owner.py" check --case "$REPAIR_CASE" --source "$GITHUB_WORKSPACE/repair-source"
+          --packet "$GITHUB_WORKSPACE/repair-source/retained-apps574-inputs/payload"
+      - name: Checkout both accepted native-case decisions
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: ${{ steps.proof.outputs.native_decision_source }}
+          path: repair-source/repair-native-decisions
+          persist-credentials: false
+      - name: Checkout immutable prior accepted kernel authority
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: ${{ steps.proof.outputs.kernel_authority_source }}
+          path: repair-source/repair-kernel-authority
+          persist-credentials: false
+      - name: Verify actual native-case and prior kernel authorities before secrets
+        timeout-minutes: 2
+        run: >-
+          python3 -I -B "$SLICE/owner.py" decisions --case "$REPAIR_CASE" --source "$GITHUB_WORKSPACE/repair-source"
+          --native-decisions "$GITHUB_WORKSPACE/repair-source/repair-native-decisions"
+          --kernel-authority-root "$GITHUB_WORKSPACE/repair-source/repair-kernel-authority"
+          --kernel-authority "$GITHUB_WORKSPACE/repair-source/repair-kernel-authority/${{ steps.proof.outputs.kernel_authority_path }}"
+      - name: Seed the six exact retained inputs using existing secrets only
+        timeout-minutes: 2
+        env:
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01 }}
+          CACHY_OLD_FOUR_SCHEMA: '1'
+          CACHY_OLD_FOUR_SOURCE_EPOCH: '1791748800'
+          CACHY_OLD_FOUR_JBIGKIT_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_01 }}
+          CACHY_OLD_FOUR_JBIGKIT_02: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_02 }}
+          CACHY_OLD_FOUR_JBIGKIT_SIG_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_SIG_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_02: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_02 }}
+          CACHY_OLD_FOUR_LIBTIFF_03: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_03 }}
+          CACHY_OLD_FOUR_LIBTIFF_04: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_04 }}
+          CACHY_OLD_FOUR_LIBTIFF_05: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_05 }}
+          CACHY_OLD_FOUR_LIBTIFF_06: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_06 }}
+          CACHY_OLD_FOUR_LIBTIFF_07: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_07 }}
+          CACHY_OLD_FOUR_LIBTIFF_08: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_08 }}
+          CACHY_OLD_FOUR_LIBTIFF_09: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_09 }}
+          CACHY_OLD_FOUR_LIBTIFF_10: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_10 }}
+          CACHY_OLD_FOUR_LIBTIFF_11: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_11 }}
+          CACHY_OLD_FOUR_LIBTIFF_12: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_12 }}
+          CACHY_OLD_FOUR_LIBTIFF_13: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_13 }}
+          CACHY_OLD_FOUR_LIBTIFF_14: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_14 }}
+          CACHY_OLD_FOUR_LIBTIFF_15: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_15 }}
+          CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}
+        run: >-
+          python3 -I -B scripts/ci/maintained_desktop574.py seed
+          --inputs scripts/ci/maintained-desktop574-inputs.json
+          --output "$RUNNER_TEMP/desktop574"
+      - name: Checkout exact retained public input source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: 04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd
+          path: repair-source/retained-public-inputs
+          persist-credentials: false
+      - name: Seed fourteen exact public ARM input files
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' 'a7857658af224984065e575f6ffed8308ea85027d46eace8bda146d9033e93b3' 'retained-public-inputs/seed.py' 'a388c8c8ba8e06cb92fd2be598b86e433c4e403b6e71a0f15b1eaec381bb7300' 'retained-public-inputs/index.json' | sha256sum --check
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC TMPDIR="$RUNNER_TEMP" python3 -I -B "$GITHUB_WORKSPACE/repair-source/retained-public-inputs/seed.py" --cache "$RUNNER_TEMP/desktop574/context/deps"
+      - name: Checkout whole immutable public574 carrier outside closed source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 4
+        with:
+          ref: ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad
+          path: native574-recovered-inputs
+          persist-credentials: false
+      - name: Prefetch and seed exact32 frozen574 bytes before unchanged producer
+        id: frozen574_archive32
+        if: ${{ success() }}
+        timeout-minutes: 4
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive32_helper="$GITHUB_WORKSPACE/repair-source/scripts/ci/apps7-full574-repair16k-ci/archive32.py"
+          archive32_policy="$GITHUB_WORKSPACE/repair-source/scripts/ci/apps7-full574-repair16k-ci/archive32-policy.json"
+          archive32_inputs="$GITHUB_WORKSPACE/repair-source/scripts/ci/maintained-desktop574-inputs.json"
+          printf '%s  %s\n' 'b1e2fc13644510a613ce09e53b39d4f4471cf47fc03fa62f312258379666c418' "$archive32_helper" '4f6ce49214422579f1cc448ff95d9f311cbfaf47a0d0c4f32d828c9edf843585' "$archive32_policy" | sha256sum --check
+          timeout --signal=TERM --kill-after=5s 180s python3 -I -B "$GITHUB_WORKSPACE/repair-source/scripts/ci/apps7-full574-repair16k-ci/prefill_legacy.py" 32
+          python3 -I -B "$archive32_helper" --policy "$archive32_policy" --inputs "$archive32_inputs" --cache "$RUNNER_TEMP/frozen574-archive32"
+          python3 -I -B - "$archive32_helper" "$archive32_policy" "$archive32_inputs" "$RUNNER_TEMP/frozen574-archive32" "$RUNNER_TEMP/desktop574/context/deps" <<'PYARCHIVE32'
+          import importlib.util,sys
+          from pathlib import Path
+          helper,policy,inputs,cache,destination=map(Path,sys.argv[1:])
+          spec=importlib.util.spec_from_file_location('held_archive32_cache_seed',helper)
+          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+          selected=module.policy(policy,inputs)
+          result=module.seed_exact(cache,destination,selected)
+          result.update(helper=module.pin(helper.read_bytes()),policy=module.pin(policy.read_bytes()),destination='EXISTING_OWNED_DESKTOP574_DEPS',original_versions='UNCHANGED',original_signature_and_trust_checks='UNCHANGED')
+          print(module.encoded(result).decode(),end='')
+          PYARCHIVE32
+      - name: Recover and seed exact20 additional frozen574 files
+        id: frozen574_archive20
+        if: ${{ success() }}
+        timeout-minutes: 4
+        shell: bash
+        run: |
+          set -euo pipefail
+          helper="$GITHUB_WORKSPACE/repair-source/scripts/ci/apps7-full574-repair16k-ci/archive20.py"
+          policy="$GITHUB_WORKSPACE/repair-source/scripts/ci/apps7-full574-repair16k-ci/archive20-policy.json"
+          inputs="$GITHUB_WORKSPACE/repair-source/scripts/ci/maintained-desktop574-inputs.json"
+          printf '%s  %s\n' 'e8ef66fc0431a04deb331f75258457bf4bdeb13a18bcd863fd5bece3b9a54968' "$helper" '1f966afe0c24bb9a928154cb0638a8bb78292c799ffd544132633caddf6217ae' "$policy" | sha256sum --check
+          timeout --signal=TERM --kill-after=5s 180s python3 -I -B "$GITHUB_WORKSPACE/repair-source/scripts/ci/apps7-full574-repair16k-ci/prefill_legacy.py" 20
+          python3 -I -B "$helper" --policy "$policy" --inputs "$inputs" --cache "$RUNNER_TEMP/frozen574-archive20"
+          python3 -I -B - "$helper" "$policy" "$inputs" "$RUNNER_TEMP/frozen574-archive20" "$RUNNER_TEMP/desktop574/context/deps" <<'PYARCHIVE20'
+          import importlib.util,sys
+          from pathlib import Path
+          helper,policy,inputs,cache,destination=map(Path,sys.argv[1:])
+          spec=importlib.util.spec_from_file_location('held_archive20_cache_seed',helper)
+          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+          selected=module.policy(policy,inputs)
+          result=module.seed_exact(cache,destination,selected)
+          assert result['files']==20 and result['bytes']==2793312
+          result.update(destination='EXISTING_OWNED_DESKTOP574_DEPS',original_versions='UNCHANGED',original_signature_and_trust_checks='UNCHANGED')
+          print(module.encoded(result).decode(),end='')
+          PYARCHIVE20
+      - name: Recover and seed exact8 additional frozen574 files
+        id: frozen574_archive8
+        if: ${{ success() }}
+        timeout-minutes: 4
+        shell: bash
+        run: |
+          set -euo pipefail
+          helper="$GITHUB_WORKSPACE/repair-source/scripts/ci/apps7-full574-repair16k-ci/archive8.py"
+          policy="$GITHUB_WORKSPACE/repair-source/scripts/ci/apps7-full574-repair16k-ci/archive8-policy.json"
+          inputs="$GITHUB_WORKSPACE/repair-source/scripts/ci/maintained-desktop574-inputs.json"
+          printf '%s  %s\n' '5e24808152c727f5dcd19252c66e1ab121bdb9dbd6b90becb943820634898565' "$helper" '2b21c05d30a9c5efd2f717cfa8475c9de3150d7729f710b348b70a84f5b16e20' "$policy" | sha256sum --check
+          timeout --signal=TERM --kill-after=5s 180s python3 -I -B "$GITHUB_WORKSPACE/repair-source/scripts/ci/apps7-full574-repair16k-ci/prefill_legacy.py" 8
+          python3 -I -B "$helper" --policy "$policy" --inputs "$inputs" --cache "$RUNNER_TEMP/frozen574-archive8"
+          python3 -I -B - "$helper" "$policy" "$inputs" "$RUNNER_TEMP/frozen574-archive8" "$RUNNER_TEMP/desktop574/context/deps" <<'PYARCHIVE8'
+          import importlib.util,sys
+          from pathlib import Path
+          helper,policy,inputs,cache,destination=map(Path,sys.argv[1:])
+          spec=importlib.util.spec_from_file_location('held_archive8_cache_seed',helper)
+          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+          selected=module.policy(policy,inputs)
+          result=module.seed_exact(cache,destination,selected)
+          assert result['files']==8 and result['bytes']==2220315
+          result.update(destination='EXISTING_OWNED_DESKTOP574_DEPS',original_versions='UNCHANGED',original_signature_and_trust_checks='UNCHANGED')
+          print(module.encoded(result).decode(),end='')
+          PYARCHIVE8
+      - name: Reconstruct pinned inputs and run offline owned native574 transaction
+        timeout-minutes: 40
+        env:
+          JOB_TOKEN: ${{ steps.proof.outputs.job_token }}
+        run: >-
+          timeout --signal=TERM --kill-after=10s 2300s
+          python3 -I -B scripts/ci/apps7-full574-repair16k-ci/retained_cache.py build
+          --inputs scripts/ci/maintained-desktop574-inputs.json
+          --output "$RUNNER_TEMP/desktop574" --job-token "$JOB_TOKEN"
+      - name: Provision existing accepted kernel tools on the disposable runner
+        timeout-minutes: 9
+        run: |
+          set -euo pipefail
+          timeout --kill-after=10s 180s sudo apt-get -o Acquire::Retries=0 -o Acquire::http::Timeout=30 update -qq
+          timeout --kill-after=10s 240s sudo env DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=0 -o Acquire::http::Timeout=30 install -y --no-install-recommends build-essential bc clang lld llvm flex bison libssl-dev libelf-dev python3 qemu-system-arm zstd ca-certificates
+      - name: Prepare dedicated archive-only kernel cache directory
+        timeout-minutes: 1
+        run: install -d -m 700 "$RUNNER_TEMP/kernel-source-cache/874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad"
+      - name: Restore only the exact content-addressed kernel archive
+        id: kernel_cache_restore
+        timeout-minutes: 2
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: ${{ runner.temp }}/kernel-source-cache/874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad/kernel.tar.gz
+          key: asahi-kernel-source-v1-874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad-262965559
+          enableCrossOsArchive: false
+          fail-on-cache-miss: false
+          lookup-only: false
+      - name: Seed a true miss from the exact retained public source asset
+        id: kernel_seed
+        if: steps.kernel_cache_restore.outputs.cache-hit != 'true'
+        timeout-minutes: 6
+        env:
+          GH_TOKEN: ${{ github.token }}
+          KERNEL_CACHE_HIT: ${{ steps.kernel_cache_restore.outputs.cache-hit }}
+          KERNEL_CACHE_MATCHED_KEY: ${{ steps.kernel_cache_restore.outputs.cache-matched-key }}
+        run: |
+          set -euo pipefail
+          python3 -I -B "$GITHUB_WORKSPACE/repair-source/scripts/ci/apps7-full574-repair16k-ci/kernel.py" seed --source "$GITHUB_WORKSPACE/repair-source" --case "$REPAIR_CASE" --work "$RUNNER_TEMP/managed-gui16k-kernel" --cache "$RUNNER_TEMP/kernel-source-cache/874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad/kernel.tar.gz" --output "$RUNNER_TEMP/apps574-runtime" --receipt "$RUNNER_TEMP/repair16k-kernel-seed.json"
+      - name: Acquire exact Asahi archive and stage the separate GUI helper
+        id: kernel_acquire
+        timeout-minutes: 6
+        env:
+          KERNEL_CACHE_HIT: ${{ steps.kernel_cache_restore.outputs.cache-hit }}
+          KERNEL_CACHE_MATCHED_KEY: ${{ steps.kernel_cache_restore.outputs.cache-matched-key }}
+          KERNEL_RETAINED_ARCHIVE: ${{ steps.kernel_seed.outputs.retained_archive }}
+        run: |
+          set -euo pipefail
+          python3 -I -B "$GITHUB_WORKSPACE/repair-source/scripts/ci/apps7-full574-repair16k-ci/kernel.py" acquire --source "$GITHUB_WORKSPACE/repair-source" --case "$REPAIR_CASE" --work "$RUNNER_TEMP/managed-gui16k-kernel" --cache "$RUNNER_TEMP/kernel-source-cache/874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad/kernel.tar.gz" --output "$RUNNER_TEMP/apps574-runtime" --receipt "$RUNNER_TEMP/repair16k-kernel-acquisition.json"
+      - name: Save verified archive immediately before kernel build or cleanup
+        if: steps.kernel_acquire.outcome == 'success' && steps.kernel_cache_restore.outputs.cache-hit != 'true'
+        timeout-minutes: 2
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: ${{ runner.temp }}/kernel-source-cache/874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad/kernel.tar.gz
+          key: asahi-kernel-source-v1-874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad-262965559
+          enableCrossOsArchive: false
+      - name: Build only the separately derived managed GUI diagnostic16K kernel
+        id: kernel_build
+        timeout-minutes: 63
+        run: |
+          set -euo pipefail
+          timeout --signal=TERM --kill-after=30s 3700s python3 -I -B "$RUNNER_TEMP/managed-gui16k-kernel/helper/build_kernel.py" --archive "$RUNNER_TEMP/managed-gui16k-kernel/inputs/kernel.tar.gz" --output "$RUNNER_TEMP/managed-gui16k-kernel/helper/built" --build --boot-diagnostics > "$RUNNER_TEMP/managed-gui16k-kernel/controller.log" 2>&1
+      - name: Actual generic16K Apps full574 selected repair case
+        id: repair_trial
+        timeout-minutes: 310
+        run: >-
+          timeout --signal=TERM --kill-after=30s
+          "$(python3 -I -B "$GITHUB_WORKSPACE/repair-source/scripts/ci/apps7-full574-repair16k/job_clock.py" remaining)s"
+          python3 -I -B "$SLICE/owner.py" run --handoff "$RUNNER_TEMP/apps574-repair-job.json" --case "$REPAIR_CASE" --source "$GITHUB_WORKSPACE/repair-source"
+          --packet "$GITHUB_WORKSPACE/repair-source/retained-apps574-inputs/payload"
+          --proof "$RUNNER_TEMP/apps574-source-proof.json" --base "$RUNNER_TEMP/desktop574"
+          --output "$RUNNER_TEMP/apps574-runtime"
+          --native-decisions "$GITHUB_WORKSPACE/repair-source/repair-native-decisions"
+          --kernel-authority "$GITHUB_WORKSPACE/repair-source/repair-kernel-authority/${{ steps.proof.outputs.kernel_authority_path }}"
+          --kernel-work "$RUNNER_TEMP/managed-gui16k-kernel"
+          --kernel-receipt "$RUNNER_TEMP/managed-gui16k-kernel/helper/built/build-receipt.json"
+      - name: Retire all actors copies TEST keys and snapshot before producer
+        if: always() && steps.proof.outcome == 'success'
+        timeout-minutes: 11
+        run: >-
+          timeout --signal=TERM --kill-after=10s 650s
+          python3 -I -B "$SLICE/owner.py" cleanup --handoff "$RUNNER_TEMP/apps574-repair-job.json" --job-outcome '${{ steps.repair_trial.outcome }}' --case "$REPAIR_CASE" --source "$GITHUB_WORKSPACE/repair-source"
+          --proof "$RUNNER_TEMP/apps574-source-proof.json" --base "$RUNNER_TEMP/desktop574"
+          --output "$RUNNER_TEMP/apps574-runtime" --receipt "$RUNNER_TEMP/apps574-cleanup.json"
+      - name: Retire completed kernel only after original consumer and producer absence
+        if: always() && steps.proof.outcome == 'success'
+        timeout-minutes: 2
+        run: >-
+          python3 -I -B "$SLICE/kernel.py" cleanup --source "$GITHUB_WORKSPACE/repair-source" --case "$REPAIR_CASE"
+          --work "$RUNNER_TEMP/managed-gui16k-kernel" --cache "$RUNNER_TEMP/kernel-source-cache/874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad/kernel.tar.gz"
+          --output "$RUNNER_TEMP/apps574-runtime" --receipt "$RUNNER_TEMP/repair16k-kernel-cleanup.json"
+          --proof "$RUNNER_TEMP/apps574-source-proof.json" --handoff "$RUNNER_TEMP/apps574-repair-job.json"
+          --ordered "$RUNNER_TEMP/apps574-cleanup.json" --job-outcome '${{ steps.repair_trial.outcome }}'
+      - name: Retain bounded closed actual and failure evidence
+        if: always() && steps.proof.outcome == 'success'
+        timeout-minutes: 3
+        run: >-
+          python3 -I -B "$SLICE/owner.py" retain --case "$REPAIR_CASE" --source "$GITHUB_WORKSPACE/repair-source"
+          --packet "$GITHUB_WORKSPACE/repair-source/retained-apps574-inputs/payload"
+          --proof "$RUNNER_TEMP/apps574-source-proof.json" --base "$RUNNER_TEMP/desktop574"
+          --output "$RUNNER_TEMP/apps574-runtime" --receipt "$RUNNER_TEMP/apps574-cleanup.json"
+          --public "$RUNNER_TEMP/apps574-public"
+      - name: Preserve complete CI kernel and partial failure proof without rewriting originals
+        if: always() && steps.proof.outcome == 'success'
+        timeout-minutes: 2
+        run: >-
+          python3 -I -B "$SLICE/retain.py" --source "$GITHUB_WORKSPACE/repair-source" --source-sha "$SOURCE_SHA" --case "$REPAIR_CASE"
+          --public "$RUNNER_TEMP/apps574-public" --proof "$RUNNER_TEMP/apps574-source-proof.json"
+          --host-receipt "$RUNNER_TEMP/apps574-runtime/repair16k-host-nonce.json"
+          --retained-cache "$RUNNER_TEMP/repair16k-retained-cache.json"
+          --handoff "$RUNNER_TEMP/apps574-repair-job.json" --ordered "$RUNNER_TEMP/apps574-cleanup.json"
+          --metadata "$RUNNER_TEMP/repair16k-kernel-metadata.json" --kernel-cleanup "$RUNNER_TEMP/repair16k-kernel-cleanup.json"
+          --acquire "$RUNNER_TEMP/repair16k-kernel-acquisition.json" --seed "$RUNNER_TEMP/repair16k-kernel-seed.json"
+          --native-decisions "$GITHUB_WORKSPACE/repair-source/repair-native-decisions" --kernel-authority-root "$GITHUB_WORKSPACE/repair-source/repair-kernel-authority"
+      - name: Upload only the bounded public evidence directory
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        timeout-minutes: 2
+        with:
+          name: apps-full574-repair16k-${{ github.run_id }}-${{ github.run_attempt }}-${{ inputs.repair_case }}
+          retention-days: 3
+          if-no-files-found: ignore
+          path: ${{ runner.temp }}/apps574-public/
+          include-hidden-files: true
