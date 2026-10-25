@@ -1,0 +1,24 @@
+{
+  "added274": 56,
+  "changed": [
+    ".github/workflows/native-arm-build.yml",
+    ".github/workflows/native-arm-latest607-fresh-installer.yml",
+    "README.md",
+    "implementation/run.py",
+    "implementation/source_guard.py",
+    "implementation/workflow-template.yml",
+    "implementation/workflow.py",
+    "installer604/.github/workflows/native-arm-build.yml",
+    "installer604/.github/workflows/native-arm-expanded604-apps6-public-pair-installer.yml",
+    "installer604/scripts/ci/expanded604-apps6-public-pair-installer/prepare.py",
+    "installer604/scripts/ci/expanded604-apps6-public-pair-installer/source-manifest.json",
+    "installer604/scripts/ci/expanded604-apps6-public-pair-installer/source-pins.json",
+    "installer604/scripts/ci/expanded604-apps6-public-pair-installer/test_lane.py",
+    "source-manifest.json"
+  ],
+  "changed218": 6,
+  "current274": 274,
+  "held218": 212,
+  "old218": 218,
+  "scope": "WHOLE1098_SOURCE_ONLY_INVERSE; oldfailed218 and unfrozen1098 are not native acceptance"
+}
