@@ -1,0 +1,71 @@
+{
+  "Root_decision": "qualification/Root-component-acceptance.json",
+  "files": {
+    "LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "README.md": {
+      "bytes": 1203,
+      "sha256": "ffef99c16d478831a3244e8e5f23c491dc5de930e7058ac25052ce3be943ef00"
+    },
+    "originals/artifact.zip": {
+      "bytes": 12736782,
+      "sha256": "44f0b7592235ed0588c041dded826b1a2b91a51681bd835d72c2be62f773c1d0"
+    },
+    "originals/artifacts.json": {
+      "bytes": 777,
+      "sha256": "f34b7d463654591063e12639a121eabd24cc806231c8b13f50ef52ad95a1813d"
+    },
+    "originals/collection.json": {
+      "bytes": 723,
+      "sha256": "0a035051c335d1e98f28be1ccd48cdc967e8e4b16b6901b9d9597be4d40a184d"
+    },
+    "originals/jobs.json": {
+      "bytes": 15298,
+      "sha256": "010751ccd939b4ed57deb7c450c331162e2c87f5353aec6b27354de3919b1f8a"
+    },
+    "originals/run.json": {
+      "bytes": 12983,
+      "sha256": "75245a5fcfa4baae0f792a5f81636b1c060f65ad4b3618b17451ba56d3ef40ad"
+    },
+    "qualification/Root-component-acceptance.json": {
+      "bytes": 2599,
+      "sha256": "72fd0aab73bdc82141aa38974e03c027f2fd51aafd6be56d303538997f825892"
+    },
+    "qualification/Root-post-replay-pins.json": {
+      "bytes": 404034,
+      "sha256": "5a0d02a77bd41112a7a273686634cc343888f32cce0ee0edb8b6b7fe988f1e4d"
+    },
+    "qualification/Root-result.json": {
+      "bytes": 110348,
+      "sha256": "e4f5901070f0e583190e10d1c00033cd88c53ce32b0cb90643117741a7fb8fb8"
+    },
+    "source-publication/Root-committed-publication.json": {
+      "bytes": 262,
+      "sha256": "d0095141bc9f1cf2508a6e3ac7b4f443d5de4417ce28bca566131f29671b0594"
+    },
+    "source-publication/Root-git-source-authorization.json": {
+      "bytes": 70009,
+      "sha256": "13904064a409143e8dcbacdcafbc49456b732d83860e614fd0978599987455ba"
+    },
+    "source-publication/publication.json": {
+      "bytes": 262,
+      "sha256": "d4d15259b454e1d0e4513c555df2d00b3e00f775708affce02739b955d6564cd"
+    },
+    "source-publication/source-authorization.json": {
+      "bytes": 66734,
+      "sha256": "15ab9c3983b4e1c60df99ecc47bcddf322585018b2e4e5b7852e0abe57896eb7"
+    }
+  },
+  "hardware": "NOT_RUN",
+  "native_ref": "codex/apps14-current606-v1",
+  "native_run": 39793793898,
+  "native_source": "97666b742d1b29e469e6de171da6e7a0d15c18c7",
+  "new_native_acceptance": false,
+  "publication_ref": null,
+  "publication_source": null,
+  "release": "NOT_ADMITTED",
+  "schema_version": 1,
+  "status": "RETAINED_ROOT_FINITE_ACCEPTANCE_AND_ONCE_ORIGINALS_DATA_ONLY"
+}
