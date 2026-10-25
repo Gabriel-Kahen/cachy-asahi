@@ -1,0 +1,124 @@
+{
+  "M2_performance": "NOT_RUN",
+  "Root_decision": "qualification/Root-acceptance.json",
+  "decoded_once_leaves": 1009,
+  "decoded_publication": "NOT_DUPLICATED_COMPLETE_ORIGINAL_ARCHIVE_AND_FULL_POSTMAP_RETAINED",
+  "files": {
+    "LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "README.md": {
+      "bytes": 3899,
+      "sha256": "c96dd0d1b776fa0fc609aad4189b9e6778ac30d73b9c73a8c98ff129b7e26b89"
+    },
+    "originals/artifact.zip": {
+      "bytes": 13420615,
+      "sha256": "84c58ddd054d79e400b785a6039c6173baf5526f566614362b0317ebb60a2d9f"
+    },
+    "originals/artifacts.json": {
+      "bytes": 781,
+      "sha256": "5d64476c4b8b28c1a10456fdd459ac595fddb974009ce351b52ff95579c61ad3"
+    },
+    "originals/collection-intent.json": {
+      "bytes": 187,
+      "sha256": "f85915d390c1d865cb8cfd131428fcd91efb6f3d05becb5fe297381ef94fcf09"
+    },
+    "originals/collection.json": {
+      "bytes": 723,
+      "sha256": "4f009de3e5ca27d364a8cc2c80050e67a6e05b352ff3c97294d4ff9ed5e58577"
+    },
+    "originals/jobs.json": {
+      "bytes": 19730,
+      "sha256": "bec94a7a1d1ab8d99ed20707e198ee5c3d383e00ae0c7d6a6b22c9def7b15bba"
+    },
+    "originals/run.json": {
+      "bytes": 12979,
+      "sha256": "74a92364e7572da8c1c3de52d61728d3a976aecdc81b1ae24cf3e2cb59c8e6c8"
+    },
+    "qualification/Root-acceptance.json": {
+      "bytes": 1346,
+      "sha256": "493b5294553a6ac95e76b60b65e6ac1aec2273c093cdeeaea406653296df8260"
+    },
+    "qualification/Root-post-positive-pins-20261025.json": {
+      "bytes": 402136,
+      "sha256": "b1867ce588964800d791d5bafa7997bd68770fcc1eae0e6035bddbbfbe0c6c68"
+    },
+    "qualification/Root-vmtest3600-binding.json": {
+      "bytes": 470,
+      "sha256": "019b611aae82b468a17c727dfa210829262727b0ce47087feeb9b565454fa856"
+    },
+    "qualification/Root-vmtest3600-positive.json": {
+      "bytes": 864836,
+      "sha256": "ee27fb1b599832daec1a4e0cb530fdaa8806db8883e5bae7c93a6d7f5769180a"
+    },
+    "qualification/Root2445-source-proof-reuse.json": {
+      "bytes": 498,
+      "sha256": "a5136b6b0fd21a28f5220d40b88d64e2c2a8acc41b72f3feb691659af4dfe0e0"
+    },
+    "qualification/collector-status.json": {
+      "bytes": 115,
+      "sha256": "0072d76098d6ff7d6240c221dbced278807ed9f8e9c37fd771f635e18bfc85b6"
+    },
+    "qualification/reader-files.json": {
+      "bytes": 458355,
+      "sha256": "bc464f1487f9069a1320f9e6ac682637cc589dae536cad1ba87bf90e86631487"
+    },
+    "qualification/strict-status.json": {
+      "bytes": 115,
+      "sha256": "73da586bb2cb81563dab98375b46b7665095705d0372ecf3d9a1e6b450b56d28"
+    },
+    "qualification/validation-capacity-profile.json": {
+      "bytes": 719,
+      "sha256": "e6c741d4cf49a7f23c5ccb108a3b2278fdd31892b1e287191ab77876dcab92b1"
+    },
+    "source-publication/Root-committed-publication.json": {
+      "bytes": 266,
+      "sha256": "0f95ab75bbe28d9902378bf41d90e92c565cc704af2c1359d0a0d7a6332a4be7"
+    },
+    "source-publication/Root-git-source-authorization.json": {
+      "bytes": 160767,
+      "sha256": "3fd394166d2a97e2bd696ed166b0a1d0baf3985e7ae62e3e6133e8a87ba87175"
+    },
+    "source-publication/publication.json": {
+      "bytes": 266,
+      "sha256": "8b191ca5525381c241447dbd736db9b3192084fd69e0ac7e00a46f886b56bf6e"
+    },
+    "source-publication/source-authorization.json": {
+      "bytes": 153776,
+      "sha256": "2ec3da28db2b712ba7e7573637a1b41f97b0aef38275270fe1334ab72b3c01cd"
+    }
+  },
+  "hardware": "NOT_RUN",
+  "native_ref": "codex/apps16-six-vmtest3600-v1",
+  "native_run": 40186382605,
+  "native_source": "67e8155840f9851bff3b8acb2cd6de6a622515c4",
+  "new_native_acceptance": false,
+  "old2400_fit": "NOT_ESTABLISHED",
+  "once_namespace_files": 1015,
+  "outer4200_fit": "NOT_ESTABLISHED",
+  "owner6600_fit": "NOT_ESTABLISHED",
+  "performance": "NOT_CLAIMED",
+  "public_bytes": 48072892,
+  "public_files": 991,
+  "publication_ref": null,
+  "publication_source": null,
+  "reader_files": 2445,
+  "reader_map": "qualification/reader-files.json",
+  "release": "NOT_ADMITTED",
+  "retained_acquisition_roles": 6,
+  "schema_version": 1,
+  "status": "RETAINED_ROOT_FINITE_ACCEPTANCE_AND_ONCE_ORIGINALS_DATA_ONLY",
+  "validation_profile": {
+    "M2_performance": "NOT_RUN",
+    "component_seconds": 3600,
+    "consumer_seconds": 4200,
+    "old2400_fit": "NOT_ESTABLISHED",
+    "outer4200_fit": "NOT_ESTABLISHED",
+    "owner6600_fit": "NOT_ESTABLISHED",
+    "owner_seconds": 6600,
+    "performance": "NOT_CLAIMED",
+    "profile": "NATIVE607_APPS16_VM_TEST_COMPONENT3600_V1",
+    "scope": "VM_VALIDATION_TEST_CAPACITY_ONLY"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "status": "PASS_ALL4917_AUTHOR_EXACT2445_AND_FULL_SOURCE70S_REUSE",
+  "qualification": {
+    "actual": null,
+    "before_after_reader_equal": true,
+    "cap": 300,
+    "cpu_seconds": 65.69952500000001,
+    "exit": 0,
+    "lock": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/orchestrator-resume-20261025/shared-GUI-ancestor-collection.lock",
+    "retry": false,
+    "seconds": 70.93365813000128,
+    "timeout": false
+  },
+  "actual": null,
+  "Root_acceptance": "NOT_ISSUED"
+}

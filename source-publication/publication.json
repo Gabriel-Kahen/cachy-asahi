@@ -1,0 +1,10 @@
+{
+  "actual": "NOT_RUN",
+  "files": 853,
+  "git_joins": 853,
+  "hardware": "NOT_RUN",
+  "ref": "codex/apps16-six-vmtest3600-v1",
+  "release": "NOT_ADMITTED",
+  "source": "67e8155840f9851bff3b8acb2cd6de6a622515c4",
+  "status": "PUBLISHED_EXACT_CLOSED_TRIAL_SOURCE"
+}
