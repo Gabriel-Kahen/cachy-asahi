@@ -177,8 +177,11 @@ def emit_sixcap(source,output):
  return dict(status='SOURCE_ONLY_EXACT840_EXISTING_SIXCAP_API_UNQUALIFIED',files=expected,source=v['source_after'],ref=v['ref_after'],actual=None,native='NOT_RUN',hardware='NOT_RUN',release='NOT_ADMITTED')
 
 if __name__=='__main__':
- parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--source',type=Path,required=True);parser.add_argument('--output',type=Path,required=True);parser.add_argument('--profile',choices=('fresh_descriptor563','fresh_ancestry566','correctness2400','layered4200','sixcap840','installed_codec842'),default='fresh_descriptor563');parser.add_argument('--authorization',type=Path,required=True);a=parser.parse_args();authorization=ordinary(a.authorization);need(not authorization.exists()and authorization.parent.is_dir(),'fresh output authorization');
- if a.profile=='installed_codec842':
+ parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--source',type=Path,required=True);parser.add_argument('--output',type=Path,required=True);parser.add_argument('--profile',choices=('fresh_descriptor563','fresh_ancestry566','correctness2400','layered4200','sixcap840','installed_codec842','apps16_849','apps16_849_unbound'),default='fresh_descriptor563');parser.add_argument('--authorization',type=Path,required=True);parser.add_argument('--apps16-carrier',type=Path);parser.add_argument('--apps16-record',type=Path);parser.add_argument('--apps16-current606-record',type=Path);a=parser.parse_args();authorization=ordinary(a.authorization);need(not authorization.exists()and authorization.parent.is_dir(),'fresh output authorization');
+ if a.profile in('apps16_849','apps16_849_unbound'):
+  import importlib.util
+  spec=importlib.util.spec_from_file_location('_maintained_apps16_849',HERE/'apps16_849.py');module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);result=module.emit(a.source,a.output,authorization,a.apps16_carrier,a.apps16_record,a.apps16_current606_record,a.profile.endswith('_unbound'))
+ elif a.profile=='installed_codec842':
   import importlib.util
   spec=importlib.util.spec_from_file_location('_maintained_installed_codec842',HERE/'installed_codec842.py');module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);result=module.emit(a.source,a.output,authorization=authorization)
  else:result=emit_sixcap(a.source,a.output)if a.profile=='sixcap840'else emit(a.source,a.output,a.profile)
