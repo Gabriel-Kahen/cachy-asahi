@@ -1,0 +1,35 @@
+{
+  "authority_files": {
+    "Root-committed-publication.json": {
+      "bytes": 267,
+      "sha256": "4b9cb107821606fb867f59e705643d5a180cf40d3db848c433b28bedb1283f30"
+    },
+    "Root-git-source-authorization.json": {
+      "bytes": 14184,
+      "sha256": "42b0b851928f15afd5b7db1f32cf641ee0bc3c01a18ee95a733506013aa26f90"
+    },
+    "Root-remote-proof.txt": {
+      "bytes": 86,
+      "sha256": "4e8bae7f3ff7a1169b32ece267df234e46e3998ba2b16e6511e3b70dd8de4355"
+    },
+    "source-authorization.json": {
+      "bytes": 13302,
+      "sha256": "573c31ef29cd9932849bd104c2569fed9ff18355ce359c95e1d9c86372c71357"
+    }
+  },
+  "profile": {
+    "bytes": 14151,
+    "sha256": "81b199d4f29f6bd3252b38c6ce25e7786fab98a593c1582403cb7f0a3ea6c1c4"
+  },
+  "publication": {
+    "actual": "NOT_RUN",
+    "files": 89,
+    "git_joins": 89,
+    "hardware": "NOT_RUN",
+    "ref": "codex/gui16-controller-tooling-v1",
+    "release": "NOT_ADMITTED",
+    "source": "fb515d735a81194f06ea117539dee60438bb8d87",
+    "status": "COMMITTED_EXACT_CLOSED_TRIAL_SOURCE"
+  },
+  "status": "GENUINE_ROOT_PUBLIC_TOOLING89_PROFILE_BOUND_NO_NATIVE_CREDIT"
+}
