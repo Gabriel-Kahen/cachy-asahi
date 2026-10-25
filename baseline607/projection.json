@@ -1,0 +1,228 @@
+{
+  "Apps_version": "0.1.0-6",
+  "original": {
+    "M2": "NOT_RUN",
+    "cleanup": "PASS_SOURCE_BOUND_RETAINED_RECEIPTS",
+    "closed_public_bytes": 140719,
+    "closed_public_files": 10,
+    "expected607_sha256": "72818a8a2ae488281b08486b92c435ec244ef3b5313f23b97473d1684ecb68b4",
+    "hardware": "NOT_RUN",
+    "hooks_scriptlets": "NOT_ACCEPTED",
+    "limits": [
+      "Private raw node/hash/ownership maps and installed target/profile/lock bytes were checked by the frozen guest code and are not exported; this replay checks complete summaries and exact retained protocol/source joins, not a new full-byte readback.",
+      "Retired container/image/VM absence is retained source-bound cleanup evidence, not live reobservation.",
+      "No physical installation, target boot, hooks/scriptlets, native-container P0, M2 or performance acceptance.",
+      "Statx source selection and unchanged full hashing/deadlines are checked; runtime choice of statx versus original fdinfo fallback is not reported."
+    ],
+    "log_archive": {
+      "bytes": 1848512,
+      "sha256": "b1cd5ae507a3dfb6cf57e29139ec0a3887c3fc4bdfe0b180cdcc11f2aaab641d"
+    },
+    "native_container_P0": "UNCHANGED_FAILED",
+    "ordinary_and_root_flags": {
+      "committed": true,
+      "database_verified": true,
+      "namespace_barrier": true,
+      "numeric_namespace_verified": true,
+      "numeric_ownership_verified": true,
+      "ordinary_parent_nnp_cap0": true,
+      "ownership_verified": true,
+      "parent_inventory_preserved": true,
+      "parent_payload_verified": true,
+      "payload_verified": true,
+      "preservation_verified": true,
+      "private_trust_verified": true,
+      "process_retirement": true,
+      "root_guest_payload_verified": true,
+      "source_cache_preserved": true
+    },
+    "package_count": 607,
+    "performance": "NOT_MEASURED",
+    "positive": {
+      "bytes": 17884,
+      "sha256": "f8e46a9fd4450bd1fb8f539e9a9a113e2733a069dba4b53114df030ec6a20bb4"
+    },
+    "postjoins": {
+      "bytes": 1273829,
+      "sha256": "6ed16401edfadeaf5d42331e900114d92128cd011a3b25f27feec7191083c926"
+    },
+    "public_frame": {
+      "bytes": 37926,
+      "sha256": "b1cd0e6944f5dff9568ea2f114f94a0d16be25188eb2b4e280e79c9c33588d71"
+    },
+    "qemu_natural_exit": true,
+    "qemu_seconds": 3774.612,
+    "reader_files": 4975,
+    "ref": "codex/latest607-apps6-baseline-tooling-inputs-v1",
+    "release": "NOT_ADMITTED",
+    "root_decision_utc": "2026-10-25T23:07:40.541185+00:00",
+    "root_observation": {
+      "complete": true,
+      "deadline_seconds": 600,
+      "elapsed_ms": 496731,
+      "footprint": {
+        "bytes": 4930254071,
+        "database_bytes": 11800940,
+        "database_files": 1850,
+        "hardlink_inodes": 1048,
+        "nodes": 124513
+      },
+      "missing_database_nodes": 0,
+      "missing_database_samples": [],
+      "observed_nodes": 124513,
+      "required_database_nodes": 1215,
+      "unsupported_counts": {
+        "absolute-symlink": 24,
+        "auxiliary-present": 3
+      },
+      "unsupported_reasons_omitted": 0
+    },
+    "run_id": 40224231855,
+    "schema_version": 1,
+    "scope": "SIGNED_TEST_APPS6_BASELINE607_FRESH_INSTALL_IN_OWNED_GENERIC_ARM4K_VM_WITH_POST_PARENT_ROOT_READBACK",
+    "serial": {
+      "bytes": 56904,
+      "sha256": "f2aafdae23c55eec3156e01caf574187ae601bf404a848580a2235ec59051860"
+    },
+    "source_actual_git_joins": 1197,
+    "source_files": 1197,
+    "source_sha": "04f4ae2f164fe6c58a4b3b31ea8ab544880d9892",
+    "source_snapshot": {
+      "bytes": 221255,
+      "sha256": "a6135194ac838c1a43623345ce8535eee533f80fa6f07773bd5cab17e22312a6"
+    },
+    "status": "ROOT_ACCEPTED_SIGNED_LATEST607_APPS6_BASELINE",
+    "target_boot": "NOT_RUN",
+    "target_footprint": {
+      "allocated_bytes": 5136969728,
+      "allocated_bytes_by_entry": 5189771264,
+      "bytes": 4930254071,
+      "complete": true,
+      "database_bytes": 11800940,
+      "database_files": 1850,
+      "filesystem_free_bytes": 9740468224,
+      "filesystem_free_bytes_source": "statvfs-f_bavail",
+      "filesystem_free_inodes": 1064122,
+      "filesystem_inode_counts_known": true,
+      "filesystem_inode_source": "statvfs",
+      "hardlink_declared_links": 2896,
+      "hardlink_entries": 2896,
+      "hardlink_inodes": 1048,
+      "hardlinks": 2896,
+      "largest_file_bytes": 173387392,
+      "nodes": 124513,
+      "symlinks": 13337
+    }
+  },
+  "original_pin": {
+    "bytes": 4128,
+    "sha256": "7382005a4dbbec701425f40a42c1caacfc43bce3601c55b95a07860e733aeb14"
+  },
+  "other606_lock_sha256": "c587afe1bedf7d1d64dc15483400714ea725fc52ed3c7e64c69ecf86e7b40589",
+  "projection_kind": "ROOT_SOURCE_BOUND_INSTALLED_PREREQUISITE_PROJECTION_V1",
+  "readback": "RETAINED_SOURCE_BOUND_ROOT_REPORT_NOT_FRESH_FD_OBSERVATION",
+  "record_files": {
+    "README.md": {
+      "bytes": 1634,
+      "sha256": "ff6001a282ad1b336c3c4144b830d73f5661505596afea3854e766f97fb77045"
+    },
+    "decision.json": {
+      "bytes": 4128,
+      "sha256": "7382005a4dbbec701425f40a42c1caacfc43bce3601c55b95a07860e733aeb14"
+    },
+    "originals/artifacts.json": {
+      "bytes": 32,
+      "sha256": "244563f989470892c537c9a4622920af0d228ee4528f7d00c64a06d6cd95856c"
+    },
+    "originals/collection.json": {
+      "bytes": 103,
+      "sha256": "820c3bd4617be1f26784ae8b59308ecf947b13ec80d408506649773e31cad7c7"
+    },
+    "originals/frame-retention.json": {
+      "bytes": 190,
+      "sha256": "de9596ba58d7ca349b041856d7900515f36dbd172ff610575891b5ff3024e447"
+    },
+    "originals/intent.json": {
+      "bytes": 162,
+      "sha256": "3681c98830b03cc76a3300e110b13e4f4b1c1c4b15f2bbead90758eeb45d01dd"
+    },
+    "originals/logs.zip": {
+      "bytes": 1848512,
+      "sha256": "b1cd5ae507a3dfb6cf57e29139ec0a3887c3fc4bdfe0b180cdcc11f2aaab641d"
+    },
+    "originals/original-retention.json": {
+      "bytes": 96,
+      "sha256": "78fd495d986eff135379c71193a5a60d3b77aa32df65a6e30980a9b124db44c3"
+    },
+    "originals/public-frame.tar.gz": {
+      "bytes": 37926,
+      "sha256": "b1cd0e6944f5dff9568ea2f114f94a0d16be25188eb2b4e280e79c9c33588d71"
+    },
+    "originals/public/adapter.json": {
+      "bytes": 9682,
+      "sha256": "ff9635b06abc99cc5c3d98fe819e9d0564d12903bde5398480210a86f183b7d4"
+    },
+    "originals/public/producer-producer-cleanup.json": {
+      "bytes": 257,
+      "sha256": "a67be9d400972a9b1ac2417594e9c0f1b0123454cb0338cb500e7c99af605bfd"
+    },
+    "originals/public/producer-producer.json": {
+      "bytes": 353,
+      "sha256": "6d4ceec64d3affd6e883e9e7cef76df3812908fee35cc5497c6d6e9f6daa8ddb"
+    },
+    "originals/public/result.json": {
+      "bytes": 14879,
+      "sha256": "e6b25b0dbcd8d7c3258043ef64b3bad9de1ce6c5f9550a8dacc092565f48f1d0"
+    },
+    "originals/public/retention.json": {
+      "bytes": 1191,
+      "sha256": "1655b27cf65181fc00e0043c220d0de249b40a40ca039a250f22046524e2a6d7"
+    },
+    "originals/public/vm-disk-disk.json": {
+      "bytes": 23628,
+      "sha256": "19ed2fc3031f0136c7430bd9c7076a9802b236745786f090dd100777380d340f"
+    },
+    "originals/public/vm-result.json": {
+      "bytes": 3858,
+      "sha256": "c4fabcad369951f2708e384068a5cfbeee96d0352ec397263abefe7d8cddd79d"
+    },
+    "originals/public/vm-serial-tail.log": {
+      "bytes": 56904,
+      "sha256": "f2aafdae23c55eec3156e01caf574187ae601bf404a848580a2235ec59051860"
+    },
+    "originals/public/vm-tooling-tooling.json": {
+      "bytes": 26737,
+      "sha256": "d3ca4a20161ad429ea9fd01a5bea24964759c2d86f8d39ae18ec651337d79112"
+    },
+    "originals/public/vm-vm-vm.json": {
+      "bytes": 3230,
+      "sha256": "db4f298add3a54b7f0ed1117c88dacfe561b5cb2d50abe5f6eedce83bd80ea80"
+    },
+    "originals/run.json": {
+      "bytes": 13000,
+      "sha256": "5d0899dae7c33bd9d5c5c768e6ad8283f9b5e76e5c0b5bbb512a84b1f69c78c0"
+    },
+    "passive-positive.json": {
+      "bytes": 17884,
+      "sha256": "f8e46a9fd4450bd1fb8f539e9a9a113e2733a069dba4b53114df030ec6a20bb4"
+    },
+    "postjoins.json": {
+      "bytes": 1273829,
+      "sha256": "6ed16401edfadeaf5d42331e900114d92128cd011a3b25f27feec7191083c926"
+    },
+    "reader-authorization.json": {
+      "bytes": 997713,
+      "sha256": "d1a3ffea299faf2284d5dde196f35f7c96e61ba9aafc2e48555af00c9f0a92c5"
+    },
+    "source-authorization.json": {
+      "bytes": 221255,
+      "sha256": "a6135194ac838c1a43623345ce8535eee533f80fa6f07773bd5cab17e22312a6"
+    }
+  },
+  "record_ref": "codex/latest607-apps6-baseline-accepted-v1",
+  "record_source": "95d86b53df796b1b309fa5f37d04587adac5cbf8",
+  "retirement": "SOURCE_BOUND_RETAINED_RECEIPTS_NOT_LIVE_REOBSERVATION",
+  "schema_version": 1,
+  "scope": "ONE_INSTALLED_PREREQUISITE_NOT_UPDATER_ACCEPTANCE",
+  "target_kind": "baseline607"
+}

@@ -1,0 +1,228 @@
+{
+  "Apps_version": "0.1.0-16",
+  "original": {
+    "M2": "NOT_RUN",
+    "cleanup": "PASS_SOURCE_BOUND_RETAINED_RECEIPTS",
+    "closed_public_bytes": 140719,
+    "closed_public_files": 10,
+    "expected607_sha256": "be35402204ba5c03d78279722afa83047c9575d2da70fb5c4064f46ed15954c5",
+    "hardware": "NOT_RUN",
+    "hooks_scriptlets": "NOT_ACCEPTED",
+    "limits": [
+      "Private raw node/hash/ownership maps and installed target/profile/lock bytes were checked by the frozen guest code and are not exported; this replay checks complete summaries and exact retained protocol/source joins, not a new full-byte readback.",
+      "Retired container/image/VM absence is retained source-bound cleanup evidence, not live reobservation.",
+      "No physical installation, target boot, hooks/scriptlets, native-container P0, M2 or performance acceptance.",
+      "Statx source selection and unchanged full hashing/deadlines are checked; runtime choice of statx versus original fdinfo fallback is not reported."
+    ],
+    "log_archive": {
+      "bytes": 3755975,
+      "sha256": "bf33ce0658e84adb42605e418ad4719bbe99c7e6d0a0d0ecee42187457df7d0c"
+    },
+    "native_container_P0": "UNCHANGED_FAILED",
+    "ordinary_and_root_flags": {
+      "committed": true,
+      "database_verified": true,
+      "namespace_barrier": true,
+      "numeric_namespace_verified": true,
+      "numeric_ownership_verified": true,
+      "ordinary_parent_nnp_cap0": true,
+      "ownership_verified": true,
+      "parent_inventory_preserved": true,
+      "parent_payload_verified": true,
+      "payload_verified": true,
+      "preservation_verified": true,
+      "private_trust_verified": true,
+      "process_retirement": true,
+      "root_guest_payload_verified": true,
+      "source_cache_preserved": true
+    },
+    "package_count": 607,
+    "performance": "NOT_MEASURED",
+    "positive": {
+      "bytes": 18775,
+      "sha256": "fee99b4b49a4438027e10c9f69aa266efa97086aaf2cf9a37574546b4fb09d19"
+    },
+    "postjoins": {
+      "bytes": 773302,
+      "sha256": "b21bc0747d4714d46f8957923d804c685af0de462f5f60ccd0d5f00b01a73ff3"
+    },
+    "public_frame": {
+      "bytes": 37882,
+      "sha256": "e3aaadf6e3131422010f1dd68159bb20d9ea35b7b0df6c12b33de2e79e66616e"
+    },
+    "qemu_natural_exit": true,
+    "qemu_seconds": 3847.197,
+    "reader_files": 2606,
+    "ref": "codex/latest607-fresh-tooling-inputs-v1",
+    "release": "NOT_ADMITTED",
+    "root_decision_utc": "2026-10-25T20:40:05.702982+00:00",
+    "root_observation": {
+      "complete": true,
+      "deadline_seconds": 600,
+      "elapsed_ms": 487820,
+      "footprint": {
+        "bytes": 4930283262,
+        "database_bytes": 11800941,
+        "database_files": 1850,
+        "hardlink_inodes": 1048,
+        "nodes": 124513
+      },
+      "missing_database_nodes": 0,
+      "missing_database_samples": [],
+      "observed_nodes": 124513,
+      "required_database_nodes": 1215,
+      "unsupported_counts": {
+        "absolute-symlink": 24,
+        "auxiliary-present": 3
+      },
+      "unsupported_reasons_omitted": 0
+    },
+    "run_id": 40223603945,
+    "schema_version": 1,
+    "scope": "SIGNED_TEST607_FRESH_INSTALL_IN_OWNED_GENERIC_ARM4K_VM_WITH_POST_PARENT_ROOT_READBACK",
+    "serial": {
+      "bytes": 56905,
+      "sha256": "586a6675ecb68ce1660ab740ba7b973dac60d873469d8c9bc1bb0c64c3673b76"
+    },
+    "source_actual_git_joins": 1197,
+    "source_files": 1197,
+    "source_sha": "b9976eea34eaed4b6e56af3be21d4d652fa971d6",
+    "source_snapshot": {
+      "bytes": 221235,
+      "sha256": "26902de45f63d4873a3be035adad610f9b2ad76cd2c798676424a2e3edf39a85"
+    },
+    "status": "ROOT_ACCEPTED_SIGNED_LATEST607_FRESH_INSTALLER",
+    "target_boot": "NOT_RUN",
+    "target_footprint": {
+      "allocated_bytes": 5136994304,
+      "allocated_bytes_by_entry": 5189795840,
+      "bytes": 4930283262,
+      "complete": true,
+      "database_bytes": 11800941,
+      "database_files": 1850,
+      "filesystem_free_bytes": 9740435456,
+      "filesystem_free_bytes_source": "statvfs-f_bavail",
+      "filesystem_free_inodes": 1064122,
+      "filesystem_inode_counts_known": true,
+      "filesystem_inode_source": "statvfs",
+      "hardlink_declared_links": 2896,
+      "hardlink_entries": 2896,
+      "hardlink_inodes": 1048,
+      "hardlinks": 2896,
+      "largest_file_bytes": 173387392,
+      "nodes": 124513,
+      "symlinks": 13337
+    }
+  },
+  "original_pin": {
+    "bytes": 4104,
+    "sha256": "069b211075e40455b2ba7e65eb870acc73e0645b10d92079ea13f380e3bd1734"
+  },
+  "other606_lock_sha256": "c587afe1bedf7d1d64dc15483400714ea725fc52ed3c7e64c69ecf86e7b40589",
+  "projection_kind": "ROOT_SOURCE_BOUND_INSTALLED_PREREQUISITE_PROJECTION_V1",
+  "readback": "RETAINED_SOURCE_BOUND_ROOT_REPORT_NOT_FRESH_FD_OBSERVATION",
+  "record_files": {
+    "README.md": {
+      "bytes": 1397,
+      "sha256": "2e3294f87cc29513d37ba09708c36ee0ca268ab6f0faab27713cd1aca7eeadb1"
+    },
+    "decision.json": {
+      "bytes": 4104,
+      "sha256": "069b211075e40455b2ba7e65eb870acc73e0645b10d92079ea13f380e3bd1734"
+    },
+    "originals/artifacts.json": {
+      "bytes": 32,
+      "sha256": "244563f989470892c537c9a4622920af0d228ee4528f7d00c64a06d6cd95856c"
+    },
+    "originals/collection.json": {
+      "bytes": 103,
+      "sha256": "8d562b3e0c3caaeb05e80321184ae8378c9fcc4aec3aca0b7211dc96ed55f24e"
+    },
+    "originals/frame-retention.json": {
+      "bytes": 190,
+      "sha256": "e8ac38d5b17af5899ac0c20da33c5cca2c578c80ca86f1547311555a5cc2e1f1"
+    },
+    "originals/intent.json": {
+      "bytes": 162,
+      "sha256": "443271eafc0bc0435a9440e99d7b23cc724529f71a7e611d1cb2dd25df39f239"
+    },
+    "originals/logs.zip": {
+      "bytes": 3755975,
+      "sha256": "bf33ce0658e84adb42605e418ad4719bbe99c7e6d0a0d0ecee42187457df7d0c"
+    },
+    "originals/original-retention.json": {
+      "bytes": 96,
+      "sha256": "67684554a021bbf0f046650ce5066be86a9c5a9d5971e469117f27364528c4b9"
+    },
+    "originals/public-frame.tar.gz": {
+      "bytes": 37882,
+      "sha256": "e3aaadf6e3131422010f1dd68159bb20d9ea35b7b0df6c12b33de2e79e66616e"
+    },
+    "originals/public/adapter.json": {
+      "bytes": 9682,
+      "sha256": "0a74b77ecf35e6843a5751b3d8cfe3b525dc8c82814f096e7123729cef7afdb1"
+    },
+    "originals/public/producer-producer-cleanup.json": {
+      "bytes": 257,
+      "sha256": "a67be9d400972a9b1ac2417594e9c0f1b0123454cb0338cb500e7c99af605bfd"
+    },
+    "originals/public/producer-producer.json": {
+      "bytes": 353,
+      "sha256": "cdfca1d44a9b870576c1fe43cd2903f0f3477a81aa017a982d648c8916948708"
+    },
+    "originals/public/result.json": {
+      "bytes": 14879,
+      "sha256": "4931cb6b85a24800eee7d38b977e6c3529b44a77d9f31969021e52f769691f79"
+    },
+    "originals/public/retention.json": {
+      "bytes": 1191,
+      "sha256": "799192d7b50ffce5c3682d388842f335e0db303f216366f41ee2a41afb3aa533"
+    },
+    "originals/public/vm-disk-disk.json": {
+      "bytes": 23627,
+      "sha256": "6867b411dee7dd6a2f9094e4dc92feba7d105275c8f508b375c76ea0a003d9af"
+    },
+    "originals/public/vm-result.json": {
+      "bytes": 3858,
+      "sha256": "a2c0f2cff36186a3ca9ade808865e2944dfb34bb28ebd9e929050f313533f874"
+    },
+    "originals/public/vm-serial-tail.log": {
+      "bytes": 56905,
+      "sha256": "586a6675ecb68ce1660ab740ba7b973dac60d873469d8c9bc1bb0c64c3673b76"
+    },
+    "originals/public/vm-tooling-tooling.json": {
+      "bytes": 26737,
+      "sha256": "c7a68503474a59aaa5ce8920de8fb47dc9f511925c6f65869b672b89842f4a93"
+    },
+    "originals/public/vm-vm-vm.json": {
+      "bytes": 3230,
+      "sha256": "9716ec43aafa536eda752f16e9cfb1d3c35b5c3bd36ee495d53f482ac0de8394"
+    },
+    "originals/run.json": {
+      "bytes": 12991,
+      "sha256": "5d5ee6e8ae71f85c2c1f19385f2d795393d1c1d4ffb85caf0570630b1cd6fd23"
+    },
+    "passive-positive.json": {
+      "bytes": 18775,
+      "sha256": "fee99b4b49a4438027e10c9f69aa266efa97086aaf2cf9a37574546b4fb09d19"
+    },
+    "postjoins.json": {
+      "bytes": 773302,
+      "sha256": "b21bc0747d4714d46f8957923d804c685af0de462f5f60ccd0d5f00b01a73ff3"
+    },
+    "reader-authorization.json": {
+      "bytes": 516157,
+      "sha256": "c9489fc818df8e6d372b1b93c54501e678823a8ca2bbbf597215059fe52696bd"
+    },
+    "source-authorization.json": {
+      "bytes": 221235,
+      "sha256": "26902de45f63d4873a3be035adad610f9b2ad76cd2c798676424a2e3edf39a85"
+    }
+  },
+  "record_ref": "codex/latest607-fresh-accepted-v1",
+  "record_source": "5a0789405ded23f759f4a3aa545cf737c4ec3bde",
+  "retirement": "SOURCE_BOUND_RETAINED_RECEIPTS_NOT_LIVE_REOBSERVATION",
+  "schema_version": 1,
+  "scope": "ONE_INSTALLED_PREREQUISITE_NOT_UPDATER_ACCEPTANCE",
+  "target_kind": "fresh607"
+}

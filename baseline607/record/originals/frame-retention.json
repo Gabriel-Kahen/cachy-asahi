@@ -1,0 +1,8 @@
+{
+  "files": 10,
+  "frame": {
+    "bytes": 37926,
+    "sha256": "b1cd0e6944f5dff9568ea2f114f94a0d16be25188eb2b4e280e79c9c33588d71"
+  },
+  "status": "BOUNDED_FRAME_RETAINED_NOT_ACCEPTANCE"
+}
