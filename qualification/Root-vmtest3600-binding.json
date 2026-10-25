@@ -1,0 +1,13 @@
+{
+  "attempt": 1,
+  "branch": "codex/apps16-six-vmtest3600-v1",
+  "manifest_sha256": "e07bd642a7ff4be7d9a3354dff7df5176450b71e09be8d136751ff48e8415409",
+  "run_id": 40186382605,
+  "schema_version": 1,
+  "snapshot": {
+    "bytes": 153776,
+    "sha256": "2ec3da28db2b712ba7e7573637a1b41f97b0aef38275270fe1334ab72b3c01cd"
+  },
+  "source": "67e8155840f9851bff3b8acb2cd6de6a622515c4",
+  "workflow_sha256": "7ab6b7a9206a3642218e97a85940ffbe03e59b8f58745516dc08608b3178b286"
+}
