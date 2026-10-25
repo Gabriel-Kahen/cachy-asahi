@@ -1,0 +1,99 @@
+{
+  "Root_decision": "qualification/Root-component-acceptance.json",
+  "files": {
+    "LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "README.md": {
+      "bytes": 1274,
+      "sha256": "7b582e4f29efe8405d4de9219615d44e791afed21c93919c1387de31564589f0"
+    },
+    "accepted-pair/cachy-asahi-apps-a/cachy-asahi-apps-0.1.0-15-any.pkg.tar.xz": {
+      "bytes": 29192,
+      "sha256": "5f62e61b8144270ee2c2031b2af187ce951dd0457ab40cd3869381b6e35f1a2b"
+    },
+    "accepted-pair/cachy-asahi-apps-b/cachy-asahi-apps-0.1.0-15-any.pkg.tar.xz": {
+      "bytes": 29192,
+      "sha256": "5f62e61b8144270ee2c2031b2af187ce951dd0457ab40cd3869381b6e35f1a2b"
+    },
+    "originals/artifact.zip": {
+      "bytes": 633023,
+      "sha256": "57517dea3dd4f27bb74fa45c05f8fcfd40c8203c7ec22806ad441e2337576ce8"
+    },
+    "originals/artifacts.json": {
+      "bytes": 778,
+      "sha256": "e70f9240eb3f8841926d6a26ef467173f1277f2549f92727c13f673a49f520d1"
+    },
+    "originals/bound-original.json": {
+      "bytes": 241,
+      "sha256": "e563d345b9a42b8dc66b7fc270dca6daeb785970114b270dae69805b1c8917cd"
+    },
+    "originals/collection-outcome.json": {
+      "bytes": 775,
+      "sha256": "368467b03f9f69430a98d6227425cd69eb9655b010f0a92ba4177936f450efa9"
+    },
+    "originals/jobs.json": {
+      "bytes": 3533,
+      "sha256": "1268c670d06be5485cf71a64cdf1137c400e602250edee43a0469a5663cd0016"
+    },
+    "originals/logs.zip": {
+      "bytes": 41940,
+      "sha256": "3b6e2ef6141a8b8a68178c70f35f4c6fa4af3ee1bd799439dc1deba0a42770ff"
+    },
+    "originals/run.json": {
+      "bytes": 12975,
+      "sha256": "c384995170f9c8b6532595db80878915e6f457012a7a60d54ce2ef4f6c8b0124"
+    },
+    "originals/transport-receipt.json": {
+      "bytes": 1097,
+      "sha256": "d05d884631b35efe6a8ce911aff0f96464331c5851c85986d0477ffb28b6833d"
+    },
+    "qualification/Root-archived-runtime-provenance.json": {
+      "bytes": 829,
+      "sha256": "7bfd0ea5ab9fc02035b21a1bb5f0cd1a128b14886541cd961a0d237d3b50550d"
+    },
+    "qualification/Root-component-acceptance.json": {
+      "bytes": 3691,
+      "sha256": "9a87fe3058151d2edaba671d39e22360806b6b891624acf2012fb97443d79f10"
+    },
+    "qualification/Root-post-replay-pins.json": {
+      "bytes": 343416,
+      "sha256": "64bd41cf5dfb030fbde601d002d9bd736295c45e63e61264c762609abdcccd67"
+    },
+    "qualification/Root-result.json": {
+      "bytes": 16870,
+      "sha256": "4bcb781d7f5a9fa1b9e748ef512832235b36be4c423e3b1da7ea4e98ab04ae32"
+    },
+    "qualification/Root-source-qualification-status.json": {
+      "bytes": 428,
+      "sha256": "551b57b011c89c08959cf7b67d55212edfb49082486f5f3697a0d8ed624c826a"
+    },
+    "source-publication/Root-committed-publication.json": {
+      "bytes": 263,
+      "sha256": "f648ac1faaa937f85800d6026255c43f609f7ec5937520e62b6f08f7b6b96197"
+    },
+    "source-publication/Root-git-source-authorization.json": {
+      "bytes": 19525,
+      "sha256": "f73caa1c024774e01e3a34c8a815f9a8d0788513aeff3e5d5794d753bbf9da1b"
+    },
+    "source-publication/publication.json": {
+      "bytes": 263,
+      "sha256": "9853577464fa1206fd9ef88a0fac005f9010d39785a10edc82aec7ed432b5970"
+    },
+    "source-publication/source-authorization.json": {
+      "bytes": 18441,
+      "sha256": "ff46db6ada081ea30ed4424ac4d4e6f2e5b25dd83529b30e07d5f256f5be9afd"
+    }
+  },
+  "hardware": "NOT_RUN",
+  "native_ref": "codex/apps15-pair-native-v1",
+  "native_run": 39800508206,
+  "native_source": "598fabeafbd8d77c30dca18ca67b5a6c775d9a46",
+  "new_native_acceptance": false,
+  "publication_ref": null,
+  "publication_source": null,
+  "release": "NOT_ADMITTED",
+  "schema_version": 1,
+  "status": "RETAINED_ROOT_FINITE_ACCEPTANCE_AND_ONCE_ORIGINALS_DATA_ONLY"
+}
