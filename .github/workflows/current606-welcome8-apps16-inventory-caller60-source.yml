@@ -1,0 +1,81 @@
+{
+  "name": "current606-welcome8-apps16-inventory-caller60-source",
+  "on": {
+    "push": {
+      "paths": [
+        "scripts/ci/current606-welcome7-gui-source/**",
+        ".github/workflows/current606-welcome8-apps16-inventory-caller60-source.yml"
+      ]
+    },
+    "pull_request": {
+      "paths": [
+        "scripts/ci/current606-welcome7-gui-source/**",
+        ".github/workflows/current606-welcome8-apps16-inventory-caller60-source.yml"
+      ]
+    },
+    "workflow_dispatch": {}
+  },
+  "permissions": {
+    "contents": "read"
+  },
+  "jobs": {
+    "source-controls": {
+      "runs-on": "ubuntu-24.04",
+      "timeout-minutes": 10,
+      "strategy": {
+        "fail-fast": false,
+        "matrix": {
+          "python": [
+            "3.12",
+            "3.14"
+          ]
+        }
+      },
+      "env": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONWARNINGS": "error"
+      },
+      "steps": [
+        {
+          "name": "Check out maintained factory",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out immutable restore562",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "repository": "Gabriel-Kahen/cachy-asahi",
+            "ref": "37bee5c50f8808b618b90ab0a559d7fa88a8a4ab",
+            "path": ".ci-fixtures/restore562",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out immutable caller60 source570",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "repository": "Gabriel-Kahen/cachy-asahi",
+            "ref": "04db51b4932bb3af6fb6dc36ea2f533996de814c",
+            "path": ".ci-fixtures/caller60-570",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Select Python",
+          "uses": "actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+          "with": {
+            "python-version": "${{ matrix.python }}"
+          }
+        },
+        {
+          "name": "Exact570 and NULL from public562 plus held defaults and genuine stage FD controls",
+          "shell": "bash",
+          "run": "set -euo pipefail\nstage=$(mktemp -d \"$RUNNER_TEMP/gui-inventory60-source.XXXXXXXX\")\ntrap 'rm -rf -- \"$stage\"' EXIT\nexport TMPDIR=\"$stage\"\ntimeout 180s python3 -I -B -Werror \"$GITHUB_WORKSPACE/scripts/ci/current606-welcome7-gui-source/test_apps16_inventory_caller60.py\" \\\n --parent \"$GITHUB_WORKSPACE/.ci-fixtures/restore562\" \\\n --expected \"$GITHUB_WORKSPACE/.ci-fixtures/caller60-570\"\n"
+        }
+      ]
+    }
+  }
+}

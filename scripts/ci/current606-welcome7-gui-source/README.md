@@ -193,3 +193,19 @@ archives, actual receipts, images, host artifact paths or native authority. Test
 execute only the actual new loader transform and generated isolated startup
 through a test-only boundary before guards/actors. Runtime acceptance still
 requires new genuine native results and separate Root review.
+
+
+Explicit TCG inventory caller60 source570
+--------------------------------------
+Use --apps16-inventory-caller60 or --apps16-inventory-caller60-unbound with
+--predecessor-root pointing to exact public restore562 (37bee5c50f8808b618b90ab0a559d7fa88a8a4ab).
+Both routes derive565 through the existing maintained isolated-import route, then
+exact source570 04db51b4932bb3af6fb6dc36ea2f533996de814c or its NULL counterpart.
+The NULL route reconstructs whole561/cleanup source before bodies from public562
+and reuses existing Apps16 NULL rendering; it needs no private NULL snapshot.
+All old routes/default35 helpers and installed Apps16 product30 bytes remain held.
+Caller60 is an explicit VM functional validation profile only, not performance,
+old35-fit, native GUI, M2, hardware or16K acceptance. Actual selectors remainNULL.
+The new portable test uses only pinned public562 and570 sources.
+
+The source570 extension preserves the full568 guard and all runtime bytes while adding the original default35 and explicitly selected60 presecret suites. Both routes derive this host-only correction from readable source-relative operands and retain strict NULL actual selectors.
