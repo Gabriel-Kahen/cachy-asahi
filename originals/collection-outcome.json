@@ -1,0 +1,26 @@
+{
+  "acceptance_authority": false,
+  "artifact": {
+    "bytes": 633023,
+    "sha256": "57517dea3dd4f27bb74fa45c05f8fcfd40c8203c7ec22806ad441e2337576ce8"
+  },
+  "artifact_id": 12434639245,
+  "artifact_metadata": {
+    "bytes": 778,
+    "sha256": "e70f9240eb3f8841926d6a26ef467173f1277f2549f92727c13f673a49f520d1"
+  },
+  "cleanup_authority": false,
+  "logs": {
+    "bytes": 41940,
+    "sha256": "3b6e2ef6141a8b8a68178c70f35f4c6fa4af3ee1bd799439dc1deba0a42770ff"
+  },
+  "metadata": {
+    "bytes": 12975,
+    "sha256": "c384995170f9c8b6532595db80878915e6f457012a7a60d54ce2ef4f6c8b0124"
+  },
+  "retry": false,
+  "run": "39800508206",
+  "source": "598fabeafbd8d77c30dca18ca67b5a6c775d9a46",
+  "status": "ORIGINALS_COLLECTED_ONCE_NOT_ACCEPTED",
+  "workflow_conclusion": "success"
+}

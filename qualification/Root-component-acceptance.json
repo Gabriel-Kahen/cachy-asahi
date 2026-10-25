@@ -1,0 +1,100 @@
+{
+  "Apps_build_controls": "45_ORIGINAL_PLUS32_INVENTORY_PLUS8_STAGE_SOURCE_BUILD_GATE_THREE_OK_NO_FAILURE_SKIP",
+  "GUI": "NOT_RUN",
+  "M2": "NOT_RUN",
+  "accepted_pair": {
+    "archive": {
+      "bytes": 29192,
+      "sha256": "5f62e61b8144270ee2c2031b2af187ce951dd0457ab40cd3869381b6e35f1a2b"
+    },
+    "archives": [
+      {
+        "bytes": 29192,
+        "path": "Root-strict/current-apps15/original-public/packages/cachy-asahi-apps-a/cachy-asahi-apps-0.1.0-15-any.pkg.tar.xz",
+        "sha256": "5f62e61b8144270ee2c2031b2af187ce951dd0457ab40cd3869381b6e35f1a2b"
+      },
+      {
+        "bytes": 29192,
+        "path": "Root-strict/current-apps15/original-public/packages/cachy-asahi-apps-b/cachy-asahi-apps-0.1.0-15-any.pkg.tar.xz",
+        "sha256": "5f62e61b8144270ee2c2031b2af187ce951dd0457ab40cd3869381b6e35f1a2b"
+      }
+    ],
+    "byte_identical": true,
+    "package": "cachy-asahi-apps",
+    "version": "0.1.0-15"
+  },
+  "attempt": 1,
+  "cache": "NOT_RUN",
+  "full604": "NOT_RUN",
+  "generic16k": "NOT_RUN",
+  "hardware": "NOT_RUN",
+  "installed_control_totals": {
+    "apps": 90,
+    "client": 12,
+    "stage": 24
+  },
+  "installed_current606": "NOT_RUN",
+  "originals": {
+    "artifact.zip": {
+      "bytes": 633023,
+      "sha256": "57517dea3dd4f27bb74fa45c05f8fcfd40c8203c7ec22806ad441e2337576ce8"
+    },
+    "artifacts.json": {
+      "bytes": 778,
+      "sha256": "e70f9240eb3f8841926d6a26ef467173f1277f2549f92727c13f673a49f520d1"
+    },
+    "bound-original.json": {
+      "bytes": 241,
+      "sha256": "e563d345b9a42b8dc66b7fc270dca6daeb785970114b270dae69805b1c8917cd"
+    },
+    "collection-outcome.json": {
+      "bytes": 775,
+      "sha256": "368467b03f9f69430a98d6227425cd69eb9655b010f0a92ba4177936f450efa9"
+    },
+    "jobs.json": {
+      "bytes": 3533,
+      "sha256": "1268c670d06be5485cf71a64cdf1137c400e602250edee43a0469a5663cd0016"
+    },
+    "logs.zip": {
+      "bytes": 41940,
+      "sha256": "3b6e2ef6141a8b8a68178c70f35f4c6fa4af3ee1bd799439dc1deba0a42770ff"
+    },
+    "run.json": {
+      "bytes": 12975,
+      "sha256": "c384995170f9c8b6532595db80878915e6f457012a7a60d54ce2ef4f6c8b0124"
+    },
+    "transport-receipt.json": {
+      "bytes": 1097,
+      "sha256": "d05d884631b35efe6a8ce911aff0f96464331c5851c85986d0477ffb28b6833d"
+    }
+  },
+  "performance": "NOT_MEASURED",
+  "post_replay": {
+    "bytes": 343416,
+    "sha256": "64bd41cf5dfb030fbde601d002d9bd736295c45e63e61264c762609abdcccd67"
+  },
+  "private574_maps": "UNEXPORTED_SOURCE_ENFORCED",
+  "reader": {
+    "corrected_binding": "GENUINE_RETAINED_ANCESTOR_BOUND_ORIGINAL_NO_FABRICATION",
+    "files": 1687,
+    "post_replay_namespace": "PASS_ORDINARY_EXACT",
+    "proof": {
+      "bytes": 15750,
+      "sha256": "da4cf8808cb526249174aec00ae35a5556c366bdf3542346af66cb8464238247"
+    }
+  },
+  "recipe_source": "308c63abacc2435aeebb74f988f7a1f362b5b942",
+  "recorded": "2026-10-25T06:39:07.718986+00:00",
+  "ref": "codex/apps15-pair-native-v1",
+  "release": "NOT_ADMITTED",
+  "result": {
+    "bytes": 16870,
+    "sha256": "4bcb781d7f5a9fa1b9e748ef512832235b36be4c423e3b1da7ea4e98ab04ae32"
+  },
+  "retirement": "SOURCE_RECORDED_NOT_LIVE_REOBSERVED",
+  "run": 39800508206,
+  "scope": "Six distinct same-job native builders; Runtime1/Apps15/client-v2 pairs; signed Runtime575 dependency image;577/577/574/577/574 lifecycle; two ordinary homes at all three installed boundaries with original15 Apps+2 client AND separate4 stage controls; protected574 and ordered original retirement",
+  "source": "598fabeafbd8d77c30dca18ca67b5a6c775d9a46",
+  "status": "ROOT_ACCEPTED_APPS15_NATIVE_BUILD_PAIRS_AND_FINITE_INSTALLED_LIFECYCLE",
+  "successful_unittest_text": "UNEXPORTED_SOURCE_ENFORCED_BUILD_GATE"
+}
