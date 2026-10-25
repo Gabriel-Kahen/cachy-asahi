@@ -1,0 +1,32 @@
+{
+  "name": "cachy-asahi-zsh-autosuggestions",
+  "phase": "shell-modules",
+  "status": "host-packaged-validation-pending",
+  "source": "pinned-upstream-module-and-original-opt-in-wrapper",
+  "recipe": "packages/shells/cachy-asahi-zsh-autosuggestions/PKGBUILD",
+  "upstream_commit": "85919cd1ffa7d2d5412f6d3fe437ebdbeeec4fc5",
+  "license": "MIT",
+  "architecture_declaration": "any (metadata; native ARM not built)",
+  "runtime_dependencies": [
+    "zsh>=4.3.11"
+  ],
+  "optional_dependencies": [
+    "coreutils: stty for upstream optional completion strategy"
+  ],
+  "selected_for_development": "PROPOSED to root",
+  "selected_for_release": false,
+  "native_build": "NOT RUN",
+  "installation": "NOT RUN",
+  "hardware_validation": "NOT RUN",
+  "shared_edits": "NONE",
+  "root_registration": "Use existing native clean build/compare path; no new workflow family",
+  "local_recipe_sources": [
+    "zsh-autosuggestions.zsh",
+    "opt-in.zsh",
+    "usage.md",
+    "NOTICE",
+    "LICENSE.upstream",
+    "LICENSE.project"
+  ],
+  "source_map": "Root must capture exact recipe/SRCINFO/local source/test/provenance pins before dispatch"
+}

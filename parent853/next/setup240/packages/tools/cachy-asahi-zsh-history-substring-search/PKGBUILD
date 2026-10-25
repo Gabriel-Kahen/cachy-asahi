@@ -1,0 +1,58 @@
+# SPDX-License-Identifier: MIT
+# Exact upstream revision: a0bdb0d47dbaba31dba2db7af8c48a5d9c74049a.
+pkgname=cachy-asahi-zsh-history-substring-search
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Explicit opt-in pinned Zsh history substring search for cachy-asahi'
+arch=('any')
+url='https://github.com/zsh-users/zsh-history-substring-search'
+license=('BSD-3-Clause' 'MIT')
+depends=('zsh>=5.9')
+makedepends=('python')
+source=(
+  'zsh-history-substring-search.zsh'
+  'opt-in.zsh'
+  'usage.md'
+  'NOTICE'
+  'LICENSE.upstream'
+  'LICENSE.project'
+  'check-module.py'
+  'source-provenance.json'
+)
+sha256sums=(
+  '0b864862a3b48992d7316cc7e585a1315fa389d730c17bf16e2f2bd5918089f3'
+  '2eedaa32f3504b5301afc7e8c302ef91d3c60fa1c1a532ab59c4d11915fedea5'
+  '5ff7ca69e03cd53ddb51dc53a21e1737f9aae96ea12fa7e2a5a509fc9c19b7e3'
+  '36bc69d4b18cbef88cf8770cb01a8a91db018fef85170a458a9a5315511d9c08'
+  '95f239dd39d079d2546aaefee371d09f3f423d6902e85e64787ae0bc5f441a33'
+  '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
+  'f79eb322f34617d43ae13deaaac057f431e8e81f11a23e8a79876158c37dff00'
+  '298036481160566fa28bb2a728285b95307c0b11b77cc3e4a5f22656e105c3f7'
+ )
+
+check() {
+  zsh -n "$srcdir/zsh-history-substring-search.zsh" || return
+  zsh -n "$srcdir/opt-in.zsh" || return
+  local work code
+  work=$(mktemp -d "$srcdir/.substring-check.XXXXXX") || return
+  if python3 -B "$srcdir/check-module.py" --module-dir "$srcdir" --work "$work"; then
+    code=0
+  else
+    code=$?
+  fi
+  rm -rf -- "$work"
+  return "$code"
+}
+
+package() {
+  local file
+  for file in zsh-history-substring-search.zsh opt-in.zsh; do
+    install -Dm644 "$srcdir/$file" "$pkgdir/usr/share/cachy-asahi/zsh-history-substring-search/$file"
+  done
+  for file in usage.md source-provenance.json; do
+    install -Dm644 "$srcdir/$file" "$pkgdir/usr/share/doc/$pkgname/$file"
+  done
+  for file in LICENSE.upstream LICENSE.project NOTICE; do
+    install -Dm644 "$srcdir/$file" "$pkgdir/usr/share/licenses/$pkgname/$file"
+  done
+}
