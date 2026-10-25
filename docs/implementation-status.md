@@ -1,5 +1,7 @@
 # Implementation and acceptance status
 
+October25: [Apps14 full606 native lifecycle](validation/apps14-current606-native-20261025.md), [Apps15 native pairs/finite577 lifecycle](validation/apps15-native-20261025.md), [Apps16 native pairs/finite577 lifecycle](validation/apps16-native-20261025.md) and the [Apps10/Boot1/Doctor2/KSM2/Setup6/Welcome8 finite installed composition](validation/current607-six-tool-native-20261025.md) are Root accepted. The composition passes32 transactions,65 fresh graphs,33 auxiliary observations and four whole240-source suites; it does not qualify Apps15/16 in606 or in that composition. Generic16K, GUI, Asahi/both M2 sizes, performance and supported release remain separate. Existing Apps14/15 selection flags remain false; no Apps16 manifest row is added here.
+
 October 19: [Doctor2 native builds and offline installed CLI pass](validation/doctor2-native-20261019.md), including byte-identical pairs and honest unavailable-output observations. [Boot-report native builds and installed synthetic-journal lifecycle also pass](validation/boot-report-native-products-20261019.md). Live audio, real boot/crash history, target recovery,16K/M2 and release remain separate.
 
 October 19: [native Welcome5 preservation on current606, including the complete440-source durable artifact continuation, passes](validation/welcome5-current606-native-20261019.md), including signed upgrade/removal/reinstall/original restoration with the other605 protected and all raw auxiliary checks. GUI,16K and M2 remain separate.
