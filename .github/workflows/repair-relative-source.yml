@@ -1,0 +1,62 @@
+name: repair-relative-source
+on:
+  push:
+    paths:
+      - scripts/ci/repair-relative-source/**
+      - .github/workflows/repair-relative-source.yml
+  pull_request:
+    paths:
+      - scripts/ci/repair-relative-source/**
+      - .github/workflows/repair-relative-source.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONWARNINGS: error
+    steps:
+      - name: Check out the dedicated maintained factory
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Check out exact public242 input
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: a9b8df2297e8aa7db96c48e27002f4a37fbde123
+          path: .ci-fixtures/relative242
+          persist-credentials: false
+      - name: Check out exact public245 expected source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 9aacd99b10d2e52a49d5ef34b89d9ea8254af6b0
+          path: .ci-fixtures/relative245
+          persist-credentials: false
+      - name: Select the explicit Python version
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Export ordinary fixtures and run source-only controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          stage=$(mktemp -d "$RUNNER_TEMP/repair-relative.XXXXXXXX")
+          trap 'rm -rf -- "$stage"' EXIT
+          mkdir -m700 "$stage/input" "$stage/expected"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/relative242" archive --format=tar a9b8df2297e8aa7db96c48e27002f4a37fbde123 | tar -x -C "$stage/input"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/relative245" archive --format=tar 9aacd99b10d2e52a49d5ef34b89d9ea8254af6b0 | tar -x -C "$stage/expected"
+          export REPAIR_RELATIVE_INPUT="$stage/input"
+          export REPAIR_RELATIVE_EXPECTED="$stage/expected"
+          export REPAIR_RELATIVE_WORK="$stage"
+          python3 -I -B -Werror scripts/ci/repair-relative-source/test_source.py
+          python3 -I -B -Werror scripts/ci/repair-relative-source/test_relative.py
+          python3 -I -B -Werror scripts/ci/repair-relative-source/prepare.py --help
