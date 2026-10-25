@@ -1,0 +1,435 @@
+[
+  {
+    "after_path": "implementation/native.py",
+    "before_path": "parent574/native.py",
+    "seams": [
+      {
+        "after": "HERE=Path(__file__).resolve().parent\nROOT=HERE.parent/'parent574'",
+        "before": "ROOT=Path(__file__).resolve().parent",
+        "count": 1
+      },
+      {
+        "after": "import admission as _original_admission\nsys.path.insert(0,str(HERE))\nimport source_guard\nA=types.SimpleNamespace(**vars(_original_admission));A.prove=lambda root:source_guard.old_prove(root,_original_admission.prove)",
+        "before": "import admission as A",
+        "count": 1
+      },
+      {
+        "after": "HERE/'factory/factory.py'",
+        "before": "ROOT/'factory/factory.py'",
+        "count": 1
+      },
+      {
+        "after": "apps16,six_record,six_public,actual_argv):",
+        "before": "apps16,actual_argv):",
+        "count": 1
+      },
+      {
+        "after": "'--apps16',str(apps16),'--six-record',str(six_record),'--six-public',str(six_public)]",
+        "before": "'--apps16',str(apps16)]",
+        "count": 1
+      },
+      {
+        "after": "import latest_input607 as input606",
+        "before": "import input606",
+        "count": 1
+      },
+      {
+        "after": "deadline,welcome8,apps16,six_record,six_public);save",
+        "before": "deadline,welcome8,apps16);save",
+        "count": 1
+      },
+      {
+        "after": "HERE/'factory/run.py'",
+        "before": "ROOT/'factory/run.py'",
+        "count": 3
+      },
+      {
+        "after": "HERE/'factory/context606.py'",
+        "before": "ROOT/'factory/context606.py'",
+        "count": 1
+      },
+      {
+        "after": "HERE/'transport.py'",
+        "before": "ROOT/'transport.py'",
+        "count": 1
+      },
+      {
+        "after": "==g['guest_packages']==607",
+        "before": "==g['guest_packages']==606",
+        "count": 1
+      },
+      {
+        "after": "'kernel-carrier','welcome8','apps16','six-record','six-public'",
+        "before": "'kernel-carrier','welcome8','apps16'",
+        "count": 1
+      },
+      {
+        "after": "a.apps16.absolute(),a.six_record.absolute(),a.six_public.absolute(),list(sys.argv[1:])",
+        "before": "a.apps16.absolute(),list(sys.argv[1:])",
+        "count": 1
+      },
+      {
+        "after": "PASS_ONE_LATEST607_WELCOME8_GUI_METADATA_PIXELS_PENDING_ROOT",
+        "before": "PASS_ONE_CURRENT606_WELCOME8_GUI_METADATA_PIXELS_PENDING_ROOT",
+        "count": 1
+      },
+      {
+        "after": "PASS_ONE_LATEST607_WELCOME8_GUI_PROFILE_PENDING_ROOT",
+        "before": "PASS_ONE_CURRENT606_WELCOME8_GUI_PROFILE_PENDING_ROOT",
+        "count": 1
+      },
+      {
+        "after": "SOURCE_BOUND_LATEST607_GUI_NATIVE_CASE",
+        "before": "SOURCE_BOUND_CURRENT606_GUI_NATIVE_CASE",
+        "count": 2
+      },
+      {
+        "after": "g['status']=='PASS_LATEST607_WELCOME8_'",
+        "before": "g['status']=='PASS_CURRENT606_WELCOME8_'",
+        "count": 1
+      },
+      {
+        "after": "return load('_installed607_observer_facade',HERE/'observer_apply.py').factory(load('_current606_source_bound_factory',HERE/'factory/factory.py').service1800())",
+        "before": "return load('_current606_source_bound_factory',HERE/'factory/factory.py').service1800()",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "after_path": "implementation/latest_input607.py",
+    "before_path": "parent574/input606.py",
+    "seams": [
+      {
+        "after": "deadline,welcome8,apps16,six_record,six_public):",
+        "before": "deadline,welcome8,apps16):",
+        "count": 1
+      },
+      {
+        "after": "import source_guard;source_guard.verify(require_known=True);A.prove(root);tick(deadline)",
+        "before": "A.prove(root);tick(deadline)",
+        "count": 1
+      },
+      {
+        "after": "Path(__file__).resolve().parent/'factory/expected606.lock'",
+        "before": "root/'factory/expected606.lock'",
+        "count": 3
+      },
+      {
+        "after": ";import latest_inputs\n checks=load('_latest607_accepted_archive_inspector',root/'original/scripts/checks/package_checks.py');accepted=latest_inputs.verify(six_record,six_public,checks);req=latest_inputs.apply(req,accepted)\n old=A.obj(carrier/'provenance/target604-manifest.json')",
+        "before": ";old=A.obj(carrier/'provenance/target604-manifest.json')",
+        "count": 1
+      },
+      {
+        "after": "len(req)==34",
+        "before": "len(req)==33",
+        "count": 1
+      },
+      {
+        "after": "p=(six_public/latest_inputs.C.profile()['incoming'][n]['path'])if n in accepted['rows']else apps16_input['archive']if n=='cachy-asahi-apps'else",
+        "before": "p=apps16_input['archive']if n=='cachy-asahi-apps'else",
+        "count": 1
+      },
+      {
+        "after": "len(rows)==607 and len(to_sign)==29",
+        "before": "len(rows)==606 and len(to_sign)==28",
+        "count": 1
+      },
+      {
+        "after": "SOURCE_OWNED_EXACT607_GUI_INPUT_PLAN_NO_NATIVE_GUI_AUTHORITY",
+        "before": "SOURCE_OWNED_EXACT606_GUI_INPUT_PLAN_NO_NATIVE_GUI_AUTHORITY",
+        "count": 1
+      },
+      {
+        "after": "required=req,accepted_six_inputs=accepted,bootstrap=build",
+        "before": "required=req,bootstrap=build",
+        "count": 1
+      },
+      {
+        "after": "READY_SIGNED_LATEST607_WELCOME8",
+        "before": "READY_SIGNED_CURRENT606_WELCOME8",
+        "count": 1
+      },
+      {
+        "after": "archive_count=607",
+        "before": "archive_count=606",
+        "count": 1
+      },
+      {
+        "after": "READY_EXACT_SIGNED607_INPUTS_NO_GUI_AUTHORITY",
+        "before": "READY_EXACT_SIGNED606_INPUTS_NO_GUI_AUTHORITY",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "after_path": "implementation/transport.py",
+    "before_path": "parent574/transport.py",
+    "seams": [
+      {
+        "after": "PASS_ONE_LATEST607_WELCOME8_GUI_METADATA_PIXELS_PENDING_ROOT",
+        "before": "PASS_ONE_CURRENT606_WELCOME8_GUI_METADATA_PIXELS_PENDING_ROOT",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "after_path": "implementation/factory/context606.py",
+    "before_path": "parent574/factory/context606.py",
+    "seams": [
+      {
+        "after": "len(expected)==607",
+        "before": "len(expected)==606",
+        "count": 2
+      },
+      {
+        "after": "READY_SIGNED_LATEST607_WELCOME8",
+        "before": "READY_SIGNED_CURRENT606_WELCOME8",
+        "count": 1
+      },
+      {
+        "after": "})==607",
+        "before": "})==606",
+        "count": 1
+      },
+      {
+        "after": "incoming)==34",
+        "before": "incoming)==33",
+        "count": 1
+      },
+      {
+        "after": "==607 and proof['optional_absent']==605",
+        "before": "==606 and proof['optional_absent']==604",
+        "count": 1
+      },
+      {
+        "after": "EMITTED_LATEST607_WELCOME8_GUI_SOURCE_ONLY",
+        "before": "EMITTED_CURRENT606_WELCOME8_GUI_SOURCE_ONLY",
+        "count": 1
+      },
+      {
+        "after": "runtime_package_count=607",
+        "before": "runtime_package_count=606",
+        "count": 1
+      },
+      {
+        "after": "guest_packages=607",
+        "before": "guest_packages=606",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "after_path": "implementation/factory/install606.py",
+    "before_path": "parent574/factory/install606.py",
+    "seams": [
+      {
+        "after": "read_bytes(),607)",
+        "before": "read_bytes(),606)",
+        "count": 1
+      },
+      {
+        "after": "be35402204ba5c03d78279722afa83047c9575d2da70fb5c4064f46ed15954c5",
+        "before": "9674da5a122395df4c496e7af4ed68dfb091d0793e184eff7d317bbb4df1dcf9",
+        "count": 1
+      },
+      {
+        "after": "len(incoming)==34 and len(rows)==607",
+        "before": "len(incoming)==33 and len(rows)==606",
+        "count": 1
+      },
+      {
+        "after": "for r in incoming})==34",
+        "before": "for r in incoming})==33",
+        "count": 1
+      },
+      {
+        "after": "max_packages=607",
+        "before": "max_packages=606",
+        "count": 1
+      },
+      {
+        "after": "PASS_ACTUAL_SIGNED574_TO607",
+        "before": "PASS_ACTUAL_SIGNED574_TO606",
+        "count": 1
+      },
+      {
+        "after": ",packages=607,original573_database",
+        "before": ",packages=606,original573_database",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "after_path": "implementation/factory/run.py",
+    "before_path": "parent574/factory/run.py",
+    "seams": [
+      {
+        "after": "value['status']=='PASS_LATEST607_WELCOME8_'",
+        "before": "value['status']=='PASS_CURRENT606_WELCOME8_'",
+        "count": 1
+      },
+      {
+        "after": "value['runtime_package_count']==607",
+        "before": "value['runtime_package_count']==606",
+        "count": 1
+      },
+      {
+        "after": "value['guest_packages']==607",
+        "before": "value['guest_packages']==606",
+        "count": 1
+      },
+      {
+        "after": "PASS_ONE_LATEST607_WELCOME8_GUI_PROFILE_PENDING_ROOT",
+        "before": "PASS_ONE_CURRENT606_WELCOME8_GUI_PROFILE_PENDING_ROOT",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "after_path": "implementation/factory/current_products.py",
+    "before_path": "parent574/factory/current_products.py",
+    "seams": [
+      {
+        "after": "apps['package_count']==607",
+        "before": "apps['package_count']==606",
+        "count": 1
+      },
+      {
+        "after": "len(inventory['packages'])==607",
+        "before": "len(inventory['packages'])==606",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "after_path": "implementation/factory/installed607.py",
+    "before_path": "parent574/factory/support/installed604.py",
+    "seams": [
+      {
+        "after": "607",
+        "before": "604",
+        "count": 8
+      }
+    ]
+  },
+  {
+    "after_path": "implementation/factory/factory.py",
+    "before_path": "parent574/factory/factory.py",
+    "seams": [
+      {
+        "after": "'len(baseline)==607'",
+        "before": "'len(baseline)==606'",
+        "count": 1
+      },
+      {
+        "after": "'len(inventory())==605'",
+        "before": "'len(inventory())==604'",
+        "count": 1
+      },
+      {
+        "after": "\"len(missing['inventory'])==605\"",
+        "before": "\"len(missing['inventory'])==604\"",
+        "count": 1
+      },
+      {
+        "after": "'len(inventory)==607'",
+        "before": "'len(inventory)==606'",
+        "count": 1
+      },
+      {
+        "after": "'present_count=607,absent_count=605'",
+        "before": "'present_count=606,absent_count=604'",
+        "count": 1
+      },
+      {
+        "after": "\"result.get('present_count')==607 and result.get('absent_count')==605 and len(result.get('inventory',{}))==607\"",
+        "before": "\"result.get('present_count')==606 and result.get('absent_count')==604 and len(result.get('inventory',{}))==606\"",
+        "count": 1
+      },
+      {
+        "after": "shutil.copyfile(HERE/'installed607.py',out/'installed606.py')",
+        "before": "(out/'installed606.py').write_text(installed.replace('604','606'))",
+        "count": 1
+      },
+      {
+        "after": "rows[0]['receipt']['packages']==607",
+        "before": "rows[0]['receipt']['packages']==606",
+        "count": 1
+      },
+      {
+        "after": "PASS_LATEST607_WELCOME8_",
+        "before": "PASS_CURRENT606_WELCOME8_",
+        "count": 1
+      },
+      {
+        "after": "EMITTED_LATEST607_WELCOME8_GUI_SOURCE_ONLY",
+        "before": "EMITTED_CURRENT606_WELCOME8_GUI_SOURCE_ONLY",
+        "count": 1
+      },
+      {
+        "after": "UNBOUND_LATEST607_GUI_CODE_ONLY_RUNTIME_REFUSES",
+        "before": "UNBOUND_CURRENT606_GUI_CODE_ONLY_RUNTIME_REFUSES",
+        "count": 1
+      },
+      {
+        "after": "packages=607,optional_absent=605",
+        "before": "packages=606,optional_absent=604",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "after_path": "implementation/factory/inventory_capacity.py",
+    "before_path": "parent574/factory/inventory_capacity.py",
+    "seams": [
+      {
+        "after": "SPEC={'M2_performance': 'NOT_RUN', 'acceptance': False, 'actual': None, 'caller_seconds': 60, 'default_caller_seconds': 35, 'native_hotspot': 'UNKNOWN', 'old35_fit': 'NOT_ESTABLISHED', 'original_helpers': {'apps16_diagnostic.py': {'bytes': 6163, 'sha256': '9a39513103a495329eeb3eded4564570ae02f3e41fe7d1f149de921eecf4c1b4'}, 'apps16_runtime.py': {'bytes': 1948, 'sha256': 'df9d658794732b4a54c5eaf83037f54e64e87dde9c6d26b28672181893c77750'}, 'current_products.py': {'bytes': 7085, 'sha256': 'bee451f3818f2bded58f35c513d170d17993c87dbb52ba0d5ffe9a96c94df5b2'}}, 'product_scan_seconds': 30, 'profile': 'GUI_TCG_INVENTORY_CALLER_60_V1', 'ref': None, 'run': None, 'schema_version': 1, 'scope': 'OPT_IN_VM_FUNCTIONAL_VALIDATION_ONLY_NOT_PERFORMANCE', 'source': None, 'stage_elapsed_data_limit_seconds': 65}",
+        "before": "SPEC={'schema_version': 1, 'profile': 'GUI_TCG_INVENTORY_CALLER_60_V1', 'scope': 'OPT_IN_VM_FUNCTIONAL_VALIDATION_ONLY_NOT_PERFORMANCE', 'caller_seconds': 60, 'product_scan_seconds': 30, 'default_caller_seconds': 35, 'stage_elapsed_data_limit_seconds': 65, 'old35_fit': 'NOT_ESTABLISHED', 'M2_performance': 'NOT_RUN', 'native_hotspot': 'UNKNOWN', 'acceptance': False, 'source': None, 'ref': None, 'run': None, 'actual': None, 'original_helpers': {'apps16_diagnostic.py': {'bytes': 6163, 'sha256': '9a39513103a495329eeb3eded4564570ae02f3e41fe7d1f149de921eecf4c1b4'}, 'apps16_runtime.py': {'bytes': 1948, 'sha256': 'df9d658794732b4a54c5eaf83037f54e64e87dde9c6d26b28672181893c77750'}, 'current_products.py': {'bytes': 7085, 'sha256': '5c0955b254813537f6b87cfad718afb05768ae12e3a5d7765b101c3c124a005e'}}}",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "after_path": "implementation/latest_common.py",
+    "before_path": "implementation/input-helpers/common.py",
+    "seams": [
+      {
+        "after": "HERE/'input-profile.json'",
+        "before": "HERE/'profile.json'",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "after_path": "implementation/accepted_inputs.py",
+    "before_path": "implementation/input-helpers/accepted.py",
+    "seams": [
+      {
+        "after": "import latest_common as C\nfrom closed_data import names",
+        "before": "import common as C",
+        "count": 1
+      },
+      {
+        "after": "names(root,admin=True)",
+        "before": "{q.relative_to(root).as_posix()for q in root.rglob('*')if q.is_file()and'.git'not in q.parts}",
+        "count": 1
+      },
+      {
+        "after": "names(root)",
+        "before": "{p.relative_to(root).as_posix()for p in root.rglob('*')if p.is_file()}",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "after_path": "implementation/factory/service_capacity.py",
+    "before_path": "parent574/factory/service_capacity.py",
+    "seams": [
+      {
+        "after": "SPEC={'M2_performance': 'NOT_RUN', 'acceptance': False, 'actual': None, 'cleanup_seconds': 450, 'current1800_fit': 'NOT_ESTABLISHED', 'default_loop_seconds': 1300, 'default_owner_wait_seconds': 2200, 'default_runtime_seconds': 1750, 'default_service_seconds': 1200, 'doctor_profile_seconds': 1080, 'inventory_caller_seconds': 60, 'loop_seconds': 1900, 'native_hotspot': 'UNKNOWN', 'native_owner_seconds': 6600, 'observation_seconds': 600, 'old1200_fit': 'NOT_ESTABLISHED', 'original_helpers': {'doctor_lifetime.py': {'bytes': 14227, 'sha256': '317f020b3b9e2a1bf15156d29399162915c8b3bd23531181921d7169ca4a21be'}, 'factory.py': {'bytes': 20766, 'sha256': 'b68cb2a5116cd3e67823ef08fcd567a05941adbd5bdbad372e45cbaeb6e655a3'}, 'run.py': {'bytes': 6065, 'sha256': 'ea3cc4132ddac813d78daac6219062556afd99b25012969f7fe12c74b606b4ca'}}, 'owner_wait_seconds': 2800, 'product_scan_seconds': 30, 'profile': 'GUI_TCG_SERVICE_1800_V1', 'ref': None, 'run': None, 'runtime_seconds': 2350, 'schema_version': 1, 'scope': 'OPT_IN_VM_FUNCTIONAL_VALIDATION_ONLY_NOT_PERFORMANCE', 'service_purpose': 'TCG_VALIDATION_FIXTURE_SERVICE_1800S', 'service_seconds': 1800, 'source': None}",
+        "before": "SPEC={'schema_version': 1, 'profile': 'GUI_TCG_SERVICE_1800_V1', 'scope': 'OPT_IN_VM_FUNCTIONAL_VALIDATION_ONLY_NOT_PERFORMANCE', 'service_seconds': 1800, 'service_purpose': 'TCG_VALIDATION_FIXTURE_SERVICE_1800S', 'loop_seconds': 1900, 'runtime_seconds': 2350, 'owner_wait_seconds': 2800, 'default_service_seconds': 1200, 'default_loop_seconds': 1300, 'default_runtime_seconds': 1750, 'default_owner_wait_seconds': 2200, 'doctor_profile_seconds': 1080, 'observation_seconds': 600, 'cleanup_seconds': 450, 'native_owner_seconds': 6600, 'product_scan_seconds': 30, 'inventory_caller_seconds': 60, 'old1200_fit': 'NOT_ESTABLISHED', 'current1800_fit': 'NOT_ESTABLISHED', 'M2_performance': 'NOT_RUN', 'native_hotspot': 'UNKNOWN', 'acceptance': False, 'source': None, 'ref': None, 'run': None, 'actual': None, 'original_helpers': {'doctor_lifetime.py': {'bytes': 14227, 'sha256': '317f020b3b9e2a1bf15156d29399162915c8b3bd23531181921d7169ca4a21be'}, 'factory.py': {'bytes': 20774, 'sha256': 'f027487f5be2585263ff2f1797da88c875399f5e1d5a3e2af262a0697c6c0640'}, 'run.py': {'bytes': 6067, 'sha256': 'e1da28d9625ed98eca05ef5f78a35bd5af70d4c2f83079c02efba886fe562be0'}}}",
+        "count": 1
+      }
+    ]
+  }
+]
