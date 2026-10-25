@@ -1,0 +1,10 @@
+{
+  "actual": "NOT_RUN",
+  "files": 353,
+  "git_joins": 353,
+  "hardware": "NOT_RUN",
+  "ref": "codex/current606-doctor2-native-preservation-v1",
+  "release": "NOT_ADMITTED",
+  "source": "6f824cac64cd44f765e54fd3b5a853689ea0ce7b",
+  "status": "COMMITTED_EXACT_CLOSED_TRIAL_SOURCE"
+}
