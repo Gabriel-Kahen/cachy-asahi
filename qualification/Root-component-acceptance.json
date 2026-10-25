@@ -1,0 +1,94 @@
+{
+  "Asahi": "NOT_RUN",
+  "GUI": "NOT_QUALIFIED",
+  "M2_13": "NOT_RUN",
+  "M2_15": "NOT_RUN",
+  "Runtime1": "PROTECTED_EXACT_NATIVE_PAIR_NO_TRANSACTION",
+  "attempt": 1,
+  "cleanup": "ORIGINAL_SOURCE_RECORDED_ORDERED_CONSUMER_CACHE_PRODUCER_RETIREMENT_PASS_NO_FRESH_ACTOR_QUERIES",
+  "counts": [
+    606,
+    606,
+    606,
+    606,
+    605,
+    606,
+    606,
+    606
+  ],
+  "hardware": "NOT_RUN",
+  "installed_controls": 150,
+  "nonce": "3f219f61f01ee3cd215c7cba4105ac64",
+  "ordinary_homes": [
+    "fresh",
+    "existing"
+  ],
+  "originals": {
+    "artifact.zip": {
+      "bytes": 12736782,
+      "sha256": "44f0b7592235ed0588c041dded826b1a2b91a51681bd835d72c2be62f773c1d0"
+    },
+    "artifacts.json": {
+      "bytes": 777,
+      "sha256": "f34b7d463654591063e12639a121eabd24cc806231c8b13f50ef52ad95a1813d"
+    },
+    "collection.json": {
+      "bytes": 723,
+      "sha256": "0a035051c335d1e98f28be1ccd48cdc967e8e4b16b6901b9d9597be4d40a184d"
+    },
+    "jobs.json": {
+      "bytes": 15298,
+      "sha256": "010751ccd939b4ed57deb7c450c331162e2c87f5353aec6b27354de3919b1f8a"
+    },
+    "run.json": {
+      "bytes": 12983,
+      "sha256": "75245a5fcfa4baae0f792a5f81636b1c060f65ad4b3618b17451ba56d3ef40ad"
+    }
+  },
+  "other605": "SOURCE_ENFORCED_FULL_PRIVATE_PAYLOAD_RAW_DB_INODE_HARDLINK_CAPABILITY_PRESERVATION",
+  "page16k": "NOT_QUALIFIED_BY_THIS_DOCKER_RESULT",
+  "performance": "NOT_MEASURED",
+  "phases": [
+    "baseline6",
+    "upgrade7",
+    "upgrade14",
+    "same-version14",
+    "remove14",
+    "reinstall14",
+    "restore7",
+    "restore-original6"
+  ],
+  "post_replay": {
+    "bytes": 404034,
+    "sha256": "5a0d02a77bd41112a7a273686634cc343888f32cce0ee0edb8b6b7fe988f1e4d"
+  },
+  "private_full_maps": "NOT_EXPORTED_SOURCE_ENFORCED",
+  "public_bytes": 43572463,
+  "public_files": 950,
+  "reader_files": 1695,
+  "ref": "codex/apps14-current606-v1",
+  "release": "NOT_ADMITTED",
+  "result": {
+    "bytes": 110348,
+    "sha256": "e4f5901070f0e583190e10d1c00033cd88c53ce32b0cb90643117741a7fb8fb8"
+  },
+  "run": 39793793898,
+  "selected_inode_restoration": "NOT_CLAIMED",
+  "selected_restoration": "APPS6_ORIGINAL_ARCHIVE_SIGNATURE_LOGICAL_VERSION_PAYLOAD_WITH_SOURCE_BOUNDED_INSTALLDATE",
+  "selected_versions": [
+    "0.1.0-6",
+    "0.1.0-7",
+    "0.1.0-14",
+    "0.1.0-14",
+    null,
+    "0.1.0-14",
+    "0.1.0-7",
+    "0.1.0-6"
+  ],
+  "signed_installs": 6,
+  "source": "97666b742d1b29e469e6de171da6e7a0d15c18c7",
+  "source606": "UNCHANGED_SOURCE_ENFORCED_FULL_REREADS",
+  "source_files": 389,
+  "status": "ROOT_ACCEPTED_FINITE_APPS14_CURRENT606_NATIVE_LIFECYCLE",
+  "transactions": 7
+}
