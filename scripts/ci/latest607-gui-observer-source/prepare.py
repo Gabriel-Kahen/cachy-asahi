@@ -10,8 +10,15 @@ def pin(b):return dict(bytes=len(b),sha256=hashlib.sha256(b).hexdigest())
 def enc(v):return(json.dumps(v,sort_keys=True,indent=2,allow_nan=False)+'\n').encode()
 def canonical(p):
  p=Path(p);need(p.is_absolute()and p==p.resolve()and not any(q.is_symlink()for q in(p,*p.parents)),'canonical absolute ordinary path');return p
+def identity(s):
+ return(s.st_dev,s.st_ino,s.st_mode,s.st_nlink,s.st_uid,s.st_gid,s.st_size,s.st_mtime_ns,s.st_ctime_ns)
 def read(p):
- p=canonical(p);a=p.lstat();need(stat.S_ISREG(a.st_mode)and a.st_nlink==1 and a.st_size<=256*1024**2,'bounded singlelink source input');b=p.read_bytes();need(len(b)==a.st_size and a==p.lstat(),'stable source input');return b
+ p=canonical(p);a=p.lstat();need(stat.S_ISREG(a.st_mode)and a.st_nlink==1 and a.st_size<=256*1024**2,'bounded singlelink source input')
+ with os.fdopen(os.open(p,os.O_RDONLY|os.O_NOFOLLOW|os.O_CLOEXEC),'rb')as stream:
+  need(identity(os.fstat(stream.fileno()))==identity(a),'opened source identity')
+  b=stream.read(a.st_size+1)
+  need(len(b)==a.st_size and identity(a)==identity(os.fstat(stream.fileno()))==identity(p.lstat()),'stable source input')
+ return b
 def files(root,admin=False):
  root=canonical(root);need(root.is_dir(),'source directory');out={}
  def walk(p):
