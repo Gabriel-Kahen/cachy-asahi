@@ -205,3 +205,51 @@ Native deadline fit, hooks/two-boot success, Asahi/M2, performance and release
 acceptance are not inferred from this source-only factory.
 
 Explicit --observer-efficient emits exact published lexical observer41 from the held typed-ACL41 factory. --unbound keeps receipt source/ref NULL with identical emitted bytes. All28 pre-main functions/defaults/old routes, typed ACL schema/AND, live FD observations and call order, fallback rules and root600 remain held. Seven frozen focused groups and host x86_64 synthetic measurements are source evidence only; native hotspot/fit remain UNKNOWN. No native gain or acceptance is inferred. Fresh canonical output and optional authorization must be mutually disjoint and outside the maintained factory.
+
+
+## Explicit journal ACL44 under VM validation1200
+
+`--journal-acl1200` and `--journal-acl1200-unbound` are additive routes from an
+explicit exact public43 checkout only. They reproduce all44 bytes of published
+`15a41fda11ac9ffa0ae4a7a53697d5f63a913a57`, including its complete43→42→efficient41
+→typed41→40→39 source guards. The parent is
+`386454785b19612f4aa1889f81878feb8ee5c0f6`. No private author, original artifact,
+archive, account database or development path is a factory dependency.
+
+```sh
+python3 -I -B scripts/ci/core7-systemd-vm-source/prepare.py --journal-acl1200 --predecessor-root /checkout/public43 --source-only
+python3 -I -B scripts/ci/core7-systemd-vm-source/prepare.py --journal-acl1200 --predecessor-root /checkout/public43 --output /fresh/journal44 --authorization /separate/fresh-receipt.json
+python3 -I -B scripts/ci/core7-systemd-vm-source/prepare.py --journal-acl1200-unbound --predecessor-root /checkout/public43 --output /fresh/null44 --authorization /separate/fresh-null-receipt.json
+```
+
+Known/NULL outputs have identical44-file namespaces. Known receipt source/ref
+labels published-byte reproduction; unbound receipt source/ref/context_source
+are NULL. Every emitted current actual/run selector remains NULL. No native
+acceptance is granted. The original ten routes,34 default,31 preexisting factory
+functions and complete old main body remain held by finite inverse checks.
+Seven readable source operands compose all exact bytes; manifests, workflow
+aliases and whole source guard seals are derived. Complete parent/support bytes
+are freshly checked again before output/receipt creation. Canonical paths must
+be fresh and mutually disjoint, outside the factory and public43 substrate.
+
+The positive graph schema explicitly requires `posix_acl_access`. Firstgraph
+requires empty default/access maps. Each of the threepostgraphs requires exact
+52B journal access/default ACLs at `/var/log/journal`, plus the original44B TPM
+default ACL. The full source guard retains each live observation and prior
+predicate; no ACL wildcard, descendant extrapolation or metadata waiver exists.
+Complete source-pinned systemd declaration notices and LGPL2.1 license accompany
+the unchanged MIT adapter code. See the emitted LICENSE and readable payloads.
+
+The explicit VM TCG functional graph budget is1200; old600fit remains
+NOT_ESTABLISHED and M2performance NOT_RUN. All other product, root/FD/mount,
+security, signature, transaction90/cleanup60/stage3300/boot3600/sharedVM7200/
+owner14400 predicates and clocks exactly match public44. Source43's stable
+journal ACL refusal is not acceptance. A fresh native trial and Root decision
+are separate from factory reproduction and hosted source tests.
+
+The scoped read-only Python3.12/3.14 workflow uses only the immutable public43
+and44 checkouts. Six groups cover whole known/NULL emission and receipts,
+isolated source entries/inverses, all ten old route outputs/defaults, prewrite
+path/substrate/payload/late drift refusals, and emitted typed ACL runtime guards
+with fresh private Linux ACL descriptors. They invoke no native actor, API,
+old actual replay, heavy reader, performance benchmark or physical hardware.
