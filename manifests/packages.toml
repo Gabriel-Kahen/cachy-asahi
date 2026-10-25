@@ -724,13 +724,14 @@ native_run = 39788418793
 archive_bytes = 28636
 archive_sha256 = "afd8b4c8f948aa4041383eaaf1b88f90934c7a5262e645e67f306b5d43d33b65"
 validation_record = "docs/validation/apps14-native-20261022.md"
-installed_current606 = "NOT QUALIFIED"
+installed_current606 = "PASS_FINITE_EIGHT_PHASE_LIFECYCLE"
 hardware_validation = "NOT RUN"
 GUI = "NOT QUALIFIED"
 performance = "HOST public574 fixture only; no native ARM/M2 or deadline-fit claim"
 release = "NOT ADMITTED"
-
-
+current606_source = "97666b742d1b29e469e6de171da6e7a0d15c18c7"
+current606_run = 39793793898
+current606_validation_record = "docs/validation/apps14-current606-native-20261025.md"
 
 [[packages.development_variants]]
 version = "0.1.0-15"
@@ -739,15 +740,37 @@ recipe_source = "308c63abacc2435aeebb74f988f7a1f362b5b942"
 selected_for_development = false
 selected_for_release = false
 source_validation = "PASS full85 ordered45+32+8 package checks on Python3.12/3.14; record-local path batching with complete ordered fallback; two fresh scans and30s held"
-native_build = "NOT ACCEPTED; fresh native pair/lifecycle trial dispatched"
+native_build = "PASS finite native ARM pairs and signed577/574 installed lifecycle; Root accepted39800508206"
 native_source = "598fabeafbd8d77c30dca18ca67b5a6c775d9a46"
 native_run = 39800508206
-installed_current606 = "NOT QUALIFIED"
+installed_current606 = "NOT_RUN; finite577 lifecycle only"
 hardware_validation = "NOT RUN"
 GUI = "NOT QUALIFIED"
 performance = "HOST full574 serial CPU reductions only; Python3.12 CLI wall time regressed; native ARM/M2 and deadline fit UNKNOWN"
 release = "NOT ADMITTED"
+archive_bytes = 29192
+archive_sha256 = "5f62e61b8144270ee2c2031b2af187ce951dd0457ab40cd3869381b6e35f1a2b"
+validation_record = "docs/validation/apps15-native-20261025.md"
 
+
+[[packages.development_variants]]
+version = "0.1.0-16"
+recipe = "packages/tools/cachy-asahi-apps16/PKGBUILD"
+recipe_source = "a32501a76b79b65d175c8eefc2b4f741ec0388e5"
+selected_for_development = false
+selected_for_release = false
+source_validation = "PASS full94 ordered45+9planner+32inventory+8stage package checks on Python3.12/3.14; exact ordered ancestor fallback and two fresh scans held"
+native_build = "PASS finite native ARM pairs and signed577/574 installed lifecycle; Root accepted40170377974"
+native_source = "135b8fb21941d0ea27da7d34b1fc7b9eb0939ee8"
+native_run = 40170377974
+installed_current606 = "NOT_RUN; fresh source trial prepared"
+hardware_validation = "NOT RUN"
+GUI = "NOT QUALIFIED"
+performance = "HOST synthetic134024-path planning CPU reduction with identical output; native deadline fit and M2 performance UNKNOWN"
+release = "NOT ADMITTED"
+archive_bytes = 29664
+archive_sha256 = "319cc1db4738945ad3b146490ea0fabd80f8c8d89d8c41a11750dd0ba5d5b8af"
+validation_record = "docs/validation/apps16-native-20261025.md"
 
 [[packages]]
 name = "cachy-asahi-repository-runtime"
