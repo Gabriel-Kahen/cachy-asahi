@@ -1,0 +1,31 @@
+{
+  "M2_performance": "NOT_RUN",
+  "acceptance": false,
+  "actual": null,
+  "caller_seconds": 60,
+  "default_caller_seconds": 35,
+  "native_hotspot": "UNKNOWN",
+  "old35_fit": "NOT_ESTABLISHED",
+  "original_helpers": {
+    "apps16_diagnostic.py": {
+      "bytes": 6163,
+      "sha256": "9a39513103a495329eeb3eded4564570ae02f3e41fe7d1f149de921eecf4c1b4"
+    },
+    "apps16_runtime.py": {
+      "bytes": 1948,
+      "sha256": "df9d658794732b4a54c5eaf83037f54e64e87dde9c6d26b28672181893c77750"
+    },
+    "current_products.py": {
+      "bytes": 7085,
+      "sha256": "5c0955b254813537f6b87cfad718afb05768ae12e3a5d7765b101c3c124a005e"
+    }
+  },
+  "product_scan_seconds": 30,
+  "profile": "GUI_TCG_INVENTORY_CALLER_60_V1",
+  "ref": null,
+  "run": null,
+  "schema_version": 1,
+  "scope": "OPT_IN_VM_FUNCTIONAL_VALIDATION_ONLY_NOT_PERFORMANCE",
+  "source": null,
+  "stage_elapsed_data_limit_seconds": 65
+}
