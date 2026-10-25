@@ -1,0 +1,28 @@
+{
+  "M2performance": "NOT_RUN",
+  "acceptance": false,
+  "actual": null,
+  "clocks": {
+    "assembly": 1070,
+    "boot": 3600,
+    "cleanup": 60,
+    "media": 1900,
+    "owner": 14400,
+    "producer": 2300,
+    "transaction": 90,
+    "vm_shared": 7200
+  },
+  "frame_cap": 16384,
+  "full_objects": "ORIGINAL_CANONICAL_OBSERVER_AND_CUSTODY_BYTES_UNCHANGED_ON_MEDIA",
+  "full_receipt_cap": 16777216,
+  "guest_stage": 3300,
+  "name": "SOURCE_ONLY_BOUNDED_UART_FULL_MEDIA_RECEIPTS",
+  "native": "NOT_RUN",
+  "observer": 175,
+  "ref": null,
+  "resolution": "EXACT_BYTE_REFERENCES_AND_OBJECT_EQUALITY_BEFORE_COMPLETE_ORIGINAL_VALIDATOR",
+  "run": null,
+  "source": null,
+  "stream_cap": 1048576,
+  "underlying_old_guest_result": "UNKNOWN"
+}
