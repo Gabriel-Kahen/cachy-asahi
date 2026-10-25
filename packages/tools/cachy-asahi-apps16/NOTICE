@@ -1,0 +1,23 @@
+Original cachy-asahi application planning CLI, Copyright (c) 2026 cachy-asahi contributors, MIT.
+No CachyOS packageinstaller/Shelly implementation, artwork or catalogs are included.
+The exact cachy-asahi-repository-runtime0.1.0-1 dependency installs the three helper sources identified by helper-pins.json.
+An explicit --repository-source override remains available for development.
+It executes the project's existing MIT client signature and release dependency/semantic helpers at those exact hashes.
+No upstream application binaries, release keys, supported production catalog or hardware validation are included.
+The checksum-pinned check-only archive retains the existing MIT release test fixture and the exact helper/companion recipe closure.
+It contains data only, no keys or generated acceptance. It is never installed in either runtime package.
+The installed inventory observer is original MIT code adapted from the project's bounded ALPM metadata-reader patterns; it never invokes a package manager or treats database metadata as installed payload/hardware attestation.
+
+Revision9: original project control-character predicate optimization only; MIT. Apps8 acceptance does not transfer to this candidate. Runtime1 helper source/license pins remain unchanged.
+
+Revision11 adds finite CPU-only ALPM metadata processing changes, independently reversible to the complete revision10 source. Existing source attribution and MIT license remain.
+
+Revision12 corrects provenance metadata and adds its package consistency regression. Runtime implementations remain byte-identical to revision11; existing MIT attribution remains.
+
+Revision13 adds finite equivalent bulk metadata processing with exact Apps12 inverses and correct runtime provenance. Existing original source, licenses and attribution remain.
+
+Revision14 adds original MIT per-call encoded-byte reuse only. The complete Apps13 implementation remains the exact source predecessor; runtime/helper attribution and license scope are unchanged.
+
+Revision15 adds original MIT record-local canonical ownership batching with complete ordered fallback. The exact Apps14 predecessor, project helper attribution and license scope remain unchanged.
+
+Revision16 adds original MIT lexical planner ancestor traversal with exact ordered uncertain-path fallback, preserving the Apps15 inventory and complete predecessor attribution.
