@@ -1,0 +1,35 @@
+# SPDX-License-Identifier: MIT
+# Selected upstream revision: 85919cd1ffa7d2d5412f6d3fe437ebdbeeec4fc5.
+# Exact unchanged aggregate module; archive/file grants and pins in source-provenance.json.
+pkgname=cachy-asahi-zsh-autosuggestions
+pkgver=0.7.1
+pkgrel=1
+pkgdesc='Opt-in pinned Zsh history autosuggestions for cachy-asahi'
+arch=('any')
+url='https://github.com/zsh-users/zsh-autosuggestions'
+license=('MIT')
+depends=('zsh>=4.3.11')
+optdepends=('coreutils: stty for upstream optional completion suggestions')
+source=('zsh-autosuggestions.zsh' 'opt-in.zsh' 'usage.md' 'NOTICE' 'LICENSE.upstream' 'LICENSE.project')
+sha256sums=(
+  'eec7ba8f7a71414ace0ea0fab0908d005b24cf65d83b169c0ff97815d3cfc51a'
+  '692bca1e9ba1a2e9bd32de08cb6ffa5d15b19f85b48e1c08d85a48e41fe6f768'
+  '3b43dee6a8f3c20796bb6e0965fd60b3b2e7b7e8c2d508efc011ba36aada6760'
+  '9171e9a773c8b7c60ae8e489608f7ef4a4dba3a762156aa57e4673960ab2c921'
+  '4598a6be0b8d7f2b708da5259d2a30d4e15e59b3c66781bab9e27744a9f859d8'
+  '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
+)
+
+check() {
+  zsh -n "$srcdir/zsh-autosuggestions.zsh"
+  zsh -n "$srcdir/opt-in.zsh"
+}
+
+package() {
+  install -Dm644 "$srcdir/zsh-autosuggestions.zsh" "$pkgdir/usr/share/cachy-asahi/zsh-autosuggestions/zsh-autosuggestions.zsh"
+  install -Dm644 "$srcdir/opt-in.zsh" "$pkgdir/usr/share/cachy-asahi/zsh-autosuggestions/opt-in.zsh"
+  install -Dm644 "$srcdir/usage.md" "$pkgdir/usr/share/cachy-asahi/zsh-autosuggestions/README.md"
+  install -Dm644 "$srcdir/LICENSE.upstream" "$pkgdir/usr/share/licenses/$pkgname/LICENSE.upstream"
+  install -Dm644 "$srcdir/LICENSE.project" "$pkgdir/usr/share/licenses/$pkgname/LICENSE.project"
+  install -Dm644 "$srcdir/NOTICE" "$pkgdir/usr/share/licenses/$pkgname/NOTICE"
+}
