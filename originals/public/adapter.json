@@ -1,0 +1,340 @@
+{
+  "clocks": {
+    "engine": 4500,
+    "outer": 15600,
+    "owner_workflow_minutes": 350,
+    "qemu": 5400,
+    "readback": 600,
+    "vm_owner": 9600,
+    "workflow_minutes": 270
+  },
+  "files": {
+    "guest.py": {
+      "after": {
+        "bytes": 6414,
+        "sha256": "f9d9394a0e7862011ebcff1e575ced06af7f3e9e6581e959837ad92b590cb447"
+      },
+      "before": {
+        "bytes": 6414,
+        "sha256": "ddb5efbdd51325b60abd00a2105e6b694597fb8e78eb043ff35862362ec69182"
+      },
+      "edits": [
+        {
+          "after": "'PASS_PUBLIC_PAIRS_APPS6_CURRENT607_INSTALLER'",
+          "before": "\"PASS_PUBLIC_PAIRS_APPS6_CURRENT604_INSTALLER\"",
+          "end": 354,
+          "start": 308
+        }
+      ],
+      "whole_inverse": true
+    },
+    "installer.py": {
+      "after": {
+        "bytes": 27596,
+        "sha256": "c1e7adb771e2f4f8e791a4a5cb4e94252290d6dc498928692d2f3e689b27e422"
+      },
+      "before": {
+        "bytes": 27597,
+        "sha256": "c049956e1f470b755903e8ae0a300cc8c9332b5513d8b83441d4714196931f0f"
+      },
+      "edits": [
+        {
+          "after": "'Generic-VM-only fresh expanded607 transaction through the held installer barrier.'",
+          "before": "\"Generic-VM-only fresh expanded604 transaction through the held installer barrier.\"",
+          "end": 137,
+          "start": 54
+        },
+        {
+          "after": "'PASS_PUBLIC_PAIRS_APPS6_CURRENT607_INSTALLER'",
+          "before": "\"PASS_PUBLIC_PAIRS_APPS6_CURRENT604_INSTALLER\"",
+          "end": 700,
+          "start": 654
+        },
+        {
+          "after": "607",
+          "before": "604",
+          "end": 15263,
+          "start": 15260
+        },
+        {
+          "after": "'expanded607-apps6-latest-six-installer'",
+          "before": "\"expanded604-apps6-public-pair-installer\"",
+          "end": 1466,
+          "start": 1425
+        },
+        {
+          "after": "607",
+          "before": "604",
+          "end": 17997,
+          "start": 17994
+        },
+        {
+          "after": "607",
+          "before": "604",
+          "end": 20102,
+          "start": 20099
+        },
+        {
+          "after": "607",
+          "before": "604",
+          "end": 24832,
+          "start": 24829
+        },
+        {
+          "after": "607",
+          "before": "604",
+          "end": 25139,
+          "start": 25136
+        },
+        {
+          "after": "607",
+          "before": "604",
+          "end": 2099,
+          "start": 2096
+        }
+      ],
+      "whole_inverse": true
+    },
+    "numeric_vm.py": {
+      "after": {
+        "bytes": 17378,
+        "sha256": "b9420259ab14a2d317e803790c71b24751ca0a7f1ebef6a28f7c9c0aa955a1ae"
+      },
+      "before": {
+        "bytes": 17378,
+        "sha256": "792c1681fb2df9487cc2f7641f5979dde315aa0aaa2a78dcdfef8ac824a468d8"
+      },
+      "edits": [
+        {
+          "after": "607",
+          "before": "604",
+          "end": 12510,
+          "start": 12507
+        },
+        {
+          "after": "607",
+          "before": "604",
+          "end": 13211,
+          "start": 13208
+        }
+      ],
+      "whole_inverse": true
+    },
+    "prepare.py": {
+      "after": {
+        "bytes": 15931,
+        "sha256": "846587b6a2494acbf5d01cf99bd7be1ffeb4dbf113be31ee19868679ca21cb77"
+      },
+      "before": {
+        "bytes": 15932,
+        "sha256": "bbd978269e1c64c367174a6962dc311f56694d9c520aad06c8e783837880fcfe"
+      },
+      "edits": [
+        {
+          "after": "'expanded607-apps6-latest-six-installer'",
+          "before": "\"expanded604-apps6-public-pair-installer\"",
+          "end": 3120,
+          "start": 3079
+        }
+      ],
+      "whole_inverse": true
+    },
+    "profile.py": {
+      "after": {
+        "bytes": 36332,
+        "sha256": "f616855716da5f6c61055b14bef0eb43983fd14934cafd72231d20322eb8b74f"
+      },
+      "before": {
+        "bytes": 36333,
+        "sha256": "853d59b9a3979899a9aae06ed4ac527fe4b28da0b4d77326f89972ae1f239b09"
+      },
+      "edits": [
+        {
+          "after": "'Source-only signed expanded607 profile; never install, extract, mount or fetch.'",
+          "before": "\"Source-only signed expanded604 profile; never install, extract, mount or fetch.\"",
+          "end": 135,
+          "start": 54
+        },
+        {
+          "after": "'72818a8a2ae488281b08486b92c435ec244ef3b5313f23b97473d1684ecb68b4'",
+          "before": "\"7bc6caa51301bf076aeda4d137277a128c53a16e5bfd25f02e7309c4b3a408c3\"",
+          "end": 446,
+          "start": 380
+        },
+        {
+          "after": "'full-installer-expanded607-ldconfig-sonames-v1'",
+          "before": "\"full-installer-expanded604-ldconfig-sonames-v1\"",
+          "end": 23432,
+          "start": 23384
+        },
+        {
+          "after": "'held expanded607 lock differs'",
+          "before": "\"held expanded604 lock differs\"",
+          "end": 6463,
+          "start": 6432
+        },
+        {
+          "after": "607",
+          "before": "604",
+          "end": 6635,
+          "start": 6632
+        },
+        {
+          "after": "'expanded607-apps6-latest-six-installer'",
+          "before": "\"expanded604-apps6-public-pair-installer\"",
+          "end": 35214,
+          "start": 35173
+        },
+        {
+          "after": "'fresh signed expanded607 transaction plus declared user fixtures in generic4K VM'",
+          "before": "\"fresh signed expanded604 transaction plus declared user fixtures in generic4K VM\"",
+          "end": 35812,
+          "start": 35730
+        },
+        {
+          "after": "'READY_SIGNED_EXPANDED607'",
+          "before": "\"READY_SIGNED_EXPANDED604\"",
+          "end": 6287,
+          "start": 6261
+        },
+        {
+          "after": "607",
+          "before": "604",
+          "end": 6711,
+          "start": 6708
+        },
+        {
+          "after": "607",
+          "before": "604",
+          "end": 6816,
+          "start": 6813
+        },
+        {
+          "after": "'0.1.0-6'",
+          "before": "\"0.1.0-5\"",
+          "end": 6957,
+          "start": 6948
+        },
+        {
+          "after": "607",
+          "before": "604",
+          "end": 35660,
+          "start": 35657
+        }
+      ],
+      "whole_inverse": true
+    },
+    "run.py": {
+      "after": {
+        "bytes": 23742,
+        "sha256": "1d607c4baa80f96c405f6a3e1334b66dfe1719a01596bcc0ab2e567567cbe071"
+      },
+      "before": {
+        "bytes": 23745,
+        "sha256": "27995924f216b7befe1cef2cb5f587e7b0bb34ba61dbf5ae009f9492444c4771"
+      },
+      "edits": [
+        {
+          "after": "'Owned, offline generic ARM VM route for the declared expanded607 installer.'",
+          "before": "\"Owned, offline generic ARM VM route for the declared expanded604 installer.\"",
+          "end": 131,
+          "start": 54
+        },
+        {
+          "after": "'72818a8a2ae488281b08486b92c435ec244ef3b5313f23b97473d1684ecb68b4'",
+          "before": "\"7bc6caa51301bf076aeda4d137277a128c53a16e5bfd25f02e7309c4b3a408c3\"",
+          "end": 487,
+          "start": 421
+        },
+        {
+          "after": "'PASS_PUBLIC_PAIRS_APPS6_CURRENT607_INSTALLER'",
+          "before": "\"PASS_PUBLIC_PAIRS_APPS6_CURRENT604_INSTALLER\"",
+          "end": 5802,
+          "start": 5756
+        },
+        {
+          "after": "'actual signed full607 export required'",
+          "before": "\"actual signed full604 export required\"",
+          "end": 2818,
+          "start": 2779
+        },
+        {
+          "after": "'cachy-asahi-current607-installer:'",
+          "before": "\"cachy-asahi-current604-installer:\"",
+          "end": 16948,
+          "start": 16913
+        },
+        {
+          "after": "'generic4K-current607-installer-software-only'",
+          "before": "\"generic4K-current604-installer-software-only\"",
+          "end": 9010,
+          "start": 8964
+        },
+        {
+          "after": "'cachy-asahi.current607-installer='",
+          "before": "\"cachy-asahi.current604-installer=\"",
+          "end": 12181,
+          "start": 12146
+        },
+        {
+          "after": "'expanded607-apps6-latest-six-installer'",
+          "before": "\"expanded604-apps6-public-pair-installer\"",
+          "end": 15916,
+          "start": 15875
+        },
+        {
+          "after": "'READY_SIGNED_EXPANDED607'",
+          "before": "\"READY_SIGNED_EXPANDED604\"",
+          "end": 2668,
+          "start": 2642
+        },
+        {
+          "after": "607",
+          "before": "604",
+          "end": 2712,
+          "start": 2709
+        },
+        {
+          "after": "607",
+          "before": "604",
+          "end": 2768,
+          "start": 2765
+        },
+        {
+          "after": "607",
+          "before": "604",
+          "end": 6134,
+          "start": 6131
+        },
+        {
+          "after": "'expanded607-apps6-latest-six-installer'",
+          "before": "\"expanded604-apps6-public-pair-installer\"",
+          "end": 14484,
+          "start": 14443
+        },
+        {
+          "after": "'expanded607-apps6-latest-six-installer'",
+          "before": "\"expanded604-apps6-public-pair-installer\"",
+          "end": 17633,
+          "start": 17592
+        },
+        {
+          "after": "'cachy-current607-installer-'",
+          "before": "\"cachy-current604-installer-\"",
+          "end": 18488,
+          "start": 18459
+        },
+        {
+          "after": "'cachy-asahi.current607-installer'",
+          "before": "\"cachy-asahi.current604-installer\"",
+          "end": 20571,
+          "start": 20537
+        }
+      ],
+      "whole_inverse": true
+    }
+  },
+  "hardware": "NOT_RUN",
+  "native": "NOT_RUN",
+  "status": "SOURCE_ONLY_FINITE607_INSTALLER_WHOLE604_INVERSE"
+}
