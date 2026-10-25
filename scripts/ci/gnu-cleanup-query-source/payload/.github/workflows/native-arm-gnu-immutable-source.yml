@@ -1,0 +1,317 @@
+name: native-arm-gnu-immutable-source
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact source/workflow; genuine independent boot qualification required
+        type: string
+        required: true
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: native-arm-gnu-immutable-source
+  cancel-in-progress: false
+jobs:
+  native:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 360
+    defaults:
+      run:
+        shell: bash
+        working-directory: immutable-source/runtime/runtime-vm
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      WORKFLOW_SHA: ${{ github.workflow_sha }}
+      SLICE: ${{ github.workspace }}/immutable-source/runtime/runtime-vm/scripts/ci/glibc-debian-maintained-public-provider-lifecycle-owner
+      BUNDLE: ${{ github.workspace }}/immutable-source/runtime/runtime-vm
+      DEPLOY: ${{ github.workspace }}/immutable-source/scripts/ci/gnu-immutable-source-native
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 3
+        with:
+          ref: ${{ inputs.source_sha }}
+          path: immutable-source
+          persist-credentials: false
+      - name: Whole source and maintained phase gates before credentials or actors
+        timeout-minutes: 4
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' '39db4d52643aae6bd58cc03022048cca810da9af21c838a71ff04ebcbd06876c' "$DEPLOY/entry.py" 'b73e26fc5aca1b4f5a5d2f6d31aaf8ccefe7e0b87501c69d035aa98e30be81c8' "$DEPLOY/source-manifest.json" | sha256sum --check
+          python3 -I -B "$DEPLOY/entry.py" source --source "$GITHUB_WORKSPACE/immutable-source"
+          python3 -I -B "$DEPLOY/test_deployment.py" --source "$GITHUB_WORKSPACE/immutable-source"
+          python3 -I -B "$GITHUB_WORKSPACE/immutable-source/runtime/immutable/test_controls.py"
+      - name: Genuine independent boot availability and private input selection
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          mkdir -m 0700 "$RUNNER_TEMP/gnu-immutable-parent"
+          python3 -I -B "$DEPLOY/entry.py" bind --source "$GITHUB_WORKSPACE/immutable-source" --output "$RUNNER_TEMP/gnu-immutable-parent/selection"
+      - name: Acquire exact existing kernel20 artifact with prior original transport replay
+        timeout-minutes: 6
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          python3 -I -B "$DEPLOY/entry.py" kernel --source "$GITHUB_WORKSPACE/immutable-source" --output "$RUNNER_TEMP/gnu-immutable-parent/selection/kernel"
+      - name: Require Root-bound source and immutable packet policy before secrets or native actors
+        id: proof
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' 'f2d024c1209d8e467c9d7a86c342ea636dc22725c7e7de69c9bd36a6f8db91dc' "$SLICE/job.py" | sha256sum --check
+          python3 -I -B "$SLICE/job.py" proof --workspace "$BUNDLE" --proof "$RUNNER_TEMP/provider-lifecycle-proof.json"
+      - name: Checkout only the exact Root-bound actual input packet
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 3
+        with:
+          ref: ${{ steps.proof.outputs.packet_ref }}
+          path: lifecycle-packet
+          persist-credentials: false
+      - name: Verify exact public compilepair normal clients held rollback and source authority before secrets
+        id: packet
+        timeout-minutes: 4
+        run: |
+          set -euo pipefail
+          test "$(git -C "$GITHUB_WORKSPACE/lifecycle-packet" rev-parse HEAD)" = '${{ steps.proof.outputs.packet_ref }}'
+          python3 -I -B "$SLICE/job.py" packet --workspace "$BUNDLE" --packet-root "$GITHUB_WORKSPACE/lifecycle-packet"
+      - name: Checkout exact complete574 original public package bytes
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad
+          path: native574-complete-public-inputs
+          persist-credentials: false
+      - name: Prefill exact held32_20_8 caches before unchanged archive transports
+        timeout-minutes: 4
+        run: |
+          set -euo pipefail
+          test "$(git -C "$GITHUB_WORKSPACE/native574-complete-public-inputs" rev-parse HEAD)" = ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad
+          python3 -I -B - "$GITHUB_WORKSPACE/native574-complete-public-inputs" "$DEPLOY" "$BUNDLE/scripts/ci/maintained-desktop574-inputs.json" "$RUNNER_TEMP" <<'PYEXACTLEGACYPREFILL'
+          # SPDX-License-Identifier: MIT
+          """Exact DATA preparation before unchanged frozen574 archive32/20/8 transports."""
+          import hashlib,json,math,os,stat,time
+          from pathlib import Path
+          ROOT_PINS={'LICENSE':(1081,'51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'),'NOTICE.md':(1018,'6a3649fc4e0d0ee18a7399ada57d9fa8c1b8c97232ba46efd5da511c72a74141'),'native-inputs.lock.json':(328101,'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'),'desktop574-inputs.lock.json':(623664,'b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9'),'seed.py':(6658,'76b787fa71b121ec1bf83b86e4d5db849913614bc90e03239b869d7061af1db4'),'index.json':(184344,'51a53c9e0d9eab1728f350f9ab8d3d7b8932891ab0ed68c7876a1440166ff486')}
+          POLICIES={32:'4f6ce49214422579f1cc448ff95d9f311cbfaf47a0d0c4f32d828c9edf843585',20:'1f966afe0c24bb9a928154cb0638a8bb78292c799ffd544132633caddf6217ae',8:'2b21c05d30a9c5efd2f717cfa8475c9de3150d7729f710b348b70a84f5b16e20'}
+          FIELDS=('st_dev','st_ino','st_mode','st_uid','st_gid','st_nlink','st_size','st_mtime_ns','st_ctime_ns')
+          def need(ok,why):
+           if not ok:raise ValueError(why)
+          def identity(s):return tuple(getattr(s,k)for k in FIELDS)
+          def tick(deadline):need(type(deadline)in(int,float)and math.isfinite(deadline)and time.monotonic()<deadline,'original caller deadline exhausted')
+          def ordinary(path,directory=False):
+           p=Path(path);need(p.is_absolute()and not any(q.is_symlink()for q in(p,*p.parents)),'ordinary explicit prefill ancestry');s=p.lstat();need(stat.S_ISDIR(s.st_mode)if directory else stat.S_ISREG(s.st_mode)and s.st_nlink==1,'ordinary singlelink prefill object');return identity(s)
+          def exact(path,row,deadline,copy_to=None):
+           tick(deadline);before=ordinary(path);need(before[6]==row['bytes'],'exact prefill size');fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_CLOEXEC|os.O_NONBLOCK);h=hashlib.sha256();count=0
+           try:
+            need(identity(os.fstat(fd))==before,'opened exact input identity')
+            while True:
+             tick(deadline);b=os.read(fd,1024**2)
+             if not b:break
+             count+=len(b);need(count<=row['bytes'],'bounded prefill input');h.update(b)
+             if copy_to is not None:
+              view=memoryview(b)
+              while view:view=view[os.write(copy_to,view):]
+            need(count==row['bytes']and h.hexdigest()==row['sha256']and identity(os.fstat(fd))==ordinary(path)==before,'full stable input bytes and identity');return before
+           finally:os.close(fd)
+          def verify(carrier,deadline):
+           carrier=Path(carrier);ordinary(carrier,True);need({p.name for p in carrier.iterdir()}- {'.git'}==set(ROOT_PINS)|{'packages'},'closed complete1154 carrier')
+           for n,(size,sha)in ROOT_PINS.items():exact(carrier/n,dict(bytes=size,sha256=sha),deadline)
+           before=ordinary(carrier/'index.json');raw=(carrier/'index.json').read_bytes();need(before==ordinary(carrier/'index.json')and(len(raw),hashlib.sha256(raw).hexdigest())==ROOT_PINS['index.json'],'stable hard-pinned whole index');index=json.loads(raw);rows=index['files'];need(len(rows)==1148 and {p.name for p in(carrier/'packages').iterdir()}==set(rows),'closed1148 exact original payload');ordinary(carrier/'packages',True)
+           for n,row in rows.items():need(Path(n).name==n and n not in('.','..'),'simple exact input name');exact(carrier/'packages'/n,row,deadline)
+           return rows
+          
+          def prefill(carrier,cache,v,deadline):
+           tick(deadline);n=len(v['files']);raw=(json.dumps(v,sort_keys=True,indent=2)+'\n').encode();need(n in POLICIES and hashlib.sha256(raw).hexdigest()==POLICIES[n],'exact whole held32/20/8 policy returned by original validator');rows=verify(carrier,deadline);selected={name:{k:r[k]for k in('bytes','sha256')}for name,r in v['files'].items()};need(all(rows.get(name)==row for name,row in selected.items()),'whole policy joins immutable original574 payload')
+           cache=Path(cache);need(cache.is_absolute()and not os.path.lexists(cache),'fresh original legacy-cache namespace required');parent=ordinary(cache.parent,True);need(parent[3]==os.getuid(),'caller-owned cache parent');cache.mkdir(mode=0o700);directory=ordinary(cache,True);need(directory[3]==os.getuid()and stat.S_IMODE(directory[2])==0o700,'private0700 caller cache')
+           for name,row in selected.items():
+            tick(deadline);fd=os.open(cache/name,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,0o600)
+            try:exact(Path(carrier)/'packages'/name,row,deadline,fd);os.fsync(fd)
+            finally:os.close(fd)
+            exact(cache/name,row,deadline)
+           need({p.name for p in cache.iterdir()}==set(selected)and ordinary(cache,True)[:6]==directory[:6],'exact subset only; same owned cache directory');tick(deadline)
+           return dict(status='EXACT_POLICY_CACHE_PREFILLED_NOT_AUTHENTICATED',files=selected,requests=0,index='NOT_CREATED_ORIGINAL_CLI_REQUIRED',original_inputs=v['original_inputs'],actual_authority=False)
+          import importlib.util,sys
+          carrier,lane,lock,temp=map(Path,sys.argv[1:]);deadline=time.monotonic()+230
+          for n in(32,20,8):
+              helper=lane/('archive'+str(n)+'.py');spec=importlib.util.spec_from_file_location('unchanged_legacy_archive'+str(n),helper)
+              module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+              v=module.policy(lane/('archive'+str(n)+'-policy.json'),lock)
+              print(json.dumps(prefill(carrier,temp/('immutable-archive'+str(n)),v,deadline),sort_keys=True))
+          PYEXACTLEGACYPREFILL
+      - name: Prefetch exact32 original frozen574 archive files
+        timeout-minutes: 4
+        run: >-
+          python3 -I -B "$DEPLOY/archive32.py" --policy "$DEPLOY/archive32-policy.json"
+          --inputs "$BUNDLE/scripts/ci/maintained-desktop574-inputs.json" --cache "$RUNNER_TEMP/immutable-archive32"
+      - name: Prefetch exact20 additional original frozen574 archive files
+        timeout-minutes: 4
+        run: >-
+          python3 -I -B "$DEPLOY/archive20.py" --policy "$DEPLOY/archive20-policy.json"
+          --inputs "$BUNDLE/scripts/ci/maintained-desktop574-inputs.json" --cache "$RUNNER_TEMP/immutable-archive20"
+      - name: Prefetch exact8 additional original frozen574 archive files
+        timeout-minutes: 4
+        run: >-
+          python3 -I -B "$DEPLOY/archive8.py" --policy "$DEPLOY/archive8-policy.json"
+          --inputs "$BUNDLE/scripts/ci/maintained-desktop574-inputs.json" --cache "$RUNNER_TEMP/immutable-archive8"
+      - name: Seed the six existing private input files using unchanged secrets
+        timeout-minutes: 2
+        env:
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01 }}
+          CACHY_OLD_FOUR_SCHEMA: '1'
+          CACHY_OLD_FOUR_SOURCE_EPOCH: '1791748800'
+          CACHY_OLD_FOUR_JBIGKIT_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_01 }}
+          CACHY_OLD_FOUR_JBIGKIT_02: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_02 }}
+          CACHY_OLD_FOUR_JBIGKIT_SIG_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_SIG_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_02: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_02 }}
+          CACHY_OLD_FOUR_LIBTIFF_03: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_03 }}
+          CACHY_OLD_FOUR_LIBTIFF_04: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_04 }}
+          CACHY_OLD_FOUR_LIBTIFF_05: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_05 }}
+          CACHY_OLD_FOUR_LIBTIFF_06: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_06 }}
+          CACHY_OLD_FOUR_LIBTIFF_07: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_07 }}
+          CACHY_OLD_FOUR_LIBTIFF_08: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_08 }}
+          CACHY_OLD_FOUR_LIBTIFF_09: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_09 }}
+          CACHY_OLD_FOUR_LIBTIFF_10: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_10 }}
+          CACHY_OLD_FOUR_LIBTIFF_11: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_11 }}
+          CACHY_OLD_FOUR_LIBTIFF_12: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_12 }}
+          CACHY_OLD_FOUR_LIBTIFF_13: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_13 }}
+          CACHY_OLD_FOUR_LIBTIFF_14: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_14 }}
+          CACHY_OLD_FOUR_LIBTIFF_15: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_15 }}
+          CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}
+        run: >-
+          python3 -I -B scripts/ci/maintained_desktop574.py seed
+          --inputs scripts/ci/maintained-desktop574-inputs.json
+          --output "$RUNNER_TEMP/desktop574"
+      - name: Checkout exact fourteen public input files
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 3
+        with:
+          ref: 04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd
+          path: retained-public-inputs
+          persist-credentials: false
+      - name: Seed the exact public inputs without secrets
+        timeout-minutes: 3
+        run: |
+          set -euo pipefail
+          test "$(git -C "$GITHUB_WORKSPACE/retained-public-inputs" rev-parse HEAD)" = 04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd
+          printf '%s  %s\n' 'a7857658af224984065e575f6ffed8308ea85027d46eace8bda146d9033e93b3' "$GITHUB_WORKSPACE/retained-public-inputs/seed.py" 'a388c8c8ba8e06cb92fd2be598b86e433c4e403b6e71a0f15b1eaec381bb7300' "$GITHUB_WORKSPACE/retained-public-inputs/index.json" | sha256sum --check
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP" LANG=C.UTF-8 TZ=UTC TMPDIR="$RUNNER_TEMP" python3 -I -B "$GITHUB_WORKSPACE/retained-public-inputs/seed.py" --cache "$RUNNER_TEMP/desktop574/context/deps"
+      - name: Seed exact32 verified original bytes before unchanged build
+        timeout-minutes: 2
+        run: >-
+          python3 -I -B "$DEPLOY/pipeline.py" seed-archive --source "$GITHUB_WORKSPACE/immutable-source"
+          --cache "$RUNNER_TEMP/immutable-archive32" --base "$RUNNER_TEMP/desktop574"
+      - name: Seed exact20 verified original bytes before unchanged build
+        timeout-minutes: 2
+        run: >-
+          python3 -I -B "$DEPLOY/pipeline.py" seed-archive20 --source "$GITHUB_WORKSPACE/immutable-source"
+          --cache "$RUNNER_TEMP/immutable-archive20" --base "$RUNNER_TEMP/desktop574"
+      - name: Seed exact8 verified original bytes before unchanged build
+        timeout-minutes: 2
+        run: >-
+          python3 -I -B "$DEPLOY/pipeline.py" seed-archive8 --source "$GITHUB_WORKSPACE/immutable-source"
+          --cache "$RUNNER_TEMP/immutable-archive8" --base "$RUNNER_TEMP/desktop574"
+      - name: Seed complete1148 exact public inputs in the original owned574 cache
+        timeout-minutes: 4
+        run: |
+          set -euo pipefail
+          test "$(git -C "$GITHUB_WORKSPACE/native574-complete-public-inputs" rev-parse HEAD)" = ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad
+          printf '%s  %s\n' '76b787fa71b121ec1bf83b86e4d5db849913614bc90e03239b869d7061af1db4' "$GITHUB_WORKSPACE/native574-complete-public-inputs/seed.py" '51a53c9e0d9eab1728f350f9ab8d3d7b8932891ab0ed68c7876a1440166ff486' "$GITHUB_WORKSPACE/native574-complete-public-inputs/index.json" | sha256sum --check
+          python3 -I -B - "$GITHUB_WORKSPACE/native574-complete-public-inputs/seed.py" "$BUNDLE/scripts/ci/maintained-desktop574-inputs.json" "$RUNNER_TEMP/desktop574/context/deps" <<'PYEXACTCOMPLETE574'
+          import importlib.util,json,sys,time
+          from pathlib import Path
+          helper,lock,cache=map(Path,sys.argv[1:])
+          spec=importlib.util.spec_from_file_location('source_bound_complete574_public_cache',helper)
+          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+          print(json.dumps(module.seed(lock,cache,'desktop574',time.monotonic()+230),sort_keys=True))
+          PYEXACTCOMPLETE574
+      - name: Reuse unchanged owned574 native producer
+        timeout-minutes: 40
+        env:
+          JOB_TOKEN: ${{ steps.proof.outputs.job_token }}
+        run: >-
+          timeout --signal=TERM --kill-after=10s 2300s
+          python3 -I -B scripts/ci/maintained_desktop574.py build
+          --inputs scripts/ci/maintained-desktop574-inputs.json
+          --output "$RUNNER_TEMP/desktop574" --job-token "$JOB_TOKEN"
+      - name: Snapshot original574 and establish NEW maintained native installation from public compile inputs
+        timeout-minutes: 80
+        run: |
+          set -euo pipefail
+          python3 -I -B "$SLICE/job.py" execute --workspace "$BUNDLE" \
+            --packet-root "$GITHUB_WORKSPACE/lifecycle-packet" --proof "$RUNNER_TEMP/provider-lifecycle-proof.json" \
+            --base "$RUNNER_TEMP/desktop574" --output "$RUNNER_TEMP/provider-lifecycle-owner"
+      - name: Provision original finite QEMU tools on disposable runner
+        timeout-minutes: 8
+        run: |
+          set -euo pipefail
+          docker version >/dev/null
+          timeout --kill-after=10s 180s sudo apt-get -o Acquire::Retries=0 -o Acquire::http::Timeout=30 update -qq
+          timeout --kill-after=10s 240s sudo env DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=0 -o Acquire::http::Timeout=30 install -y --no-install-recommends qemu-system-arm zstd ca-certificates
+      - name: Actual new-purpose immutable source current574 lifecycle
+        id: immutable
+        timeout-minutes: 220
+        run: >-
+          python3 -I -B "$DEPLOY/pipeline.py" consume --source "$GITHUB_WORKSPACE/immutable-source"
+          --owner "$RUNNER_TEMP/provider-lifecycle-owner" --base "$RUNNER_TEMP/desktop574"
+          --binding "$RUNNER_TEMP/gnu-immutable-parent/selection" --kernel "$RUNNER_TEMP/gnu-immutable-parent/selection/kernel"
+          --output /tmp/caa-gnu-immutable-runtime
+      - name: Retire all new and native consumers before original producer
+        if: always() && steps.proof.outcome == 'success'
+        timeout-minutes: 15
+        run: >-
+          python3 -I -B "$DEPLOY/pipeline.py" cleanup --source "$GITHUB_WORKSPACE/immutable-source"
+          --output /tmp/caa-gnu-immutable-runtime --owner "$RUNNER_TEMP/provider-lifecycle-owner"
+          --base "$RUNNER_TEMP/desktop574" --proof "$RUNNER_TEMP/provider-lifecycle-proof.json"
+          --receipt "$RUNNER_TEMP/provider-lifecycle-cleanup.json"
+      - name: Retain only closed bounded actual lifecycle receipts inputs and source snapshot metadata
+        if: always() && steps.proof.outcome == 'success'
+        timeout-minutes: 5
+        run: |
+          set -euo pipefail
+          retain_status=0
+          python3 -I -B "$SLICE/job.py" retain --workspace "$BUNDLE" \
+            --proof "$RUNNER_TEMP/provider-lifecycle-proof.json" --base "$RUNNER_TEMP/desktop574" \
+            --output "$RUNNER_TEMP/provider-lifecycle-owner" --receipt "$RUNNER_TEMP/provider-lifecycle-cleanup.json" \
+            --packet-root "$GITHUB_WORKSPACE/lifecycle-packet" --public "$RUNNER_TEMP/provider-lifecycle-public" || retain_status=$?
+          summary_status=0
+          printf '%s  %s\n' '9bd52ce4453a3a03d8dc8b5edb6b6a4b8ec421e0c3037dfb64dc31da45687555' 'scripts/ci/glibc-gnu-failure-log/summary.py' | sha256sum --check || summary_status=$?
+          if [ "$summary_status" -eq 0 ]; then
+            python3 -I -B scripts/ci/glibc-gnu-failure-log/summary.py emit --lane lifecycle \
+              --proof "$RUNNER_TEMP/provider-lifecycle-proof.json" --owner "$RUNNER_TEMP/provider-lifecycle-owner" \
+              --cleanup "$RUNNER_TEMP/provider-lifecycle-cleanup.json" --public "$RUNNER_TEMP/provider-lifecycle-public" \
+              --retain-exit "$retain_status" || summary_status=$?
+          fi
+          if [ "$retain_status" -ne 0 ]; then exit "$retain_status"; fi
+          exit "$summary_status"
+      - name: Upload only the closed provider lifecycle public packet
+        if: always() && steps.proof.outcome == 'success'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        timeout-minutes: 5
+        with:
+          name: glibc-debian-maintained-public-provider-lifecycle-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/provider-lifecycle-public/
+          retention-days: 3
+          compression-level: 0
+          include-hidden-files: true
+          if-no-files-found: error
+      - name: Complete bounded VM export gate before upload
+        id: immutable_export
+        if: always() && steps.immutable.outcome != 'skipped'
+        timeout-minutes: 3
+        run: python3 -I -B "$DEPLOY/retention.py" --public /tmp/caa-gnu-immutable-runtime/public
+      - name: Retain complete bounded new-purpose evidence
+        if: always() && steps.immutable_export.outcome == 'success'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        timeout-minutes: 5
+        with:
+          name: gnu-immutable-runtime-${{ github.run_id }}-${{ github.run_attempt }}
+          path: /tmp/caa-gnu-immutable-runtime/public/
+          retention-days: 3
+          compression-level: 0
+          include-hidden-files: true
+          if-no-files-found: error
