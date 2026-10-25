@@ -1,0 +1,2858 @@
+{
+  "Apps16_current606": "EIGHT_PHASES_CURRENT_DATA_REQUIRES_ROOT_REVIEW",
+  "Root_acceptance": "NOT_ISSUED",
+  "accepted348_prerequisite": {
+    "current380_acceptance": "NOT_GRANTED",
+    "result": {
+      "bytes": 90286,
+      "sha256": "c90a63ac021f71eec77e374d2593fd6b019456320bf394a6454cd0bd308dced6"
+    },
+    "run": 39320580643,
+    "source": "3660e6cb87b4cb5591b1d295c62c8b02cca4b7e6",
+    "status": "PASS_ENTIRE_ACCEPTED348_POSITIVE_SEPARATE_PREREQUISITE"
+  },
+  "apps606": {
+    "accepted_source606": "f3a30f2049f57d9f3cb2433fbd59af51d4cc5720",
+    "accepted_source_run": 39106953257,
+    "actors": "FOUR_BUILDERS_THEN_ORIGINAL6CAP_THEN_FINALIZER5_WORKER8_DISPOSER5_ALL_RETIRED",
+    "capture": {
+      "bytes": 911,
+      "sha256": "f927eeea4fa187effc994aafd33f1aa50b8a70607d38f7ef52f9067c19014786"
+    },
+    "capture_output": {
+      "gid": 1001,
+      "identity": [
+        2049,
+        7107108
+      ],
+      "mode": 448,
+      "uid": 1001
+    },
+    "crypto": "SIGNED_OPERANDS_AND_TYPED_SIGNATURE_STREAM_RECEIPTS_NO_FRESH_GPG",
+    "disposal": {
+      "events": [
+        {
+          "phase": "retire-original",
+          "retirement": {
+            "containers": [
+              {
+                "id": "3fcac163b9c898d2cf7ef7ced3ef6e4848cc3634bd63b870117b11195cfe24ad",
+                "name": "cachy-asahi-product-146092955ebceb81bcb0b9e0d464495c",
+                "status": "PASS_ABSENCE_VERIFIED"
+              },
+              {
+                "id": "1a356371ee21ead099edc6f50eb79222bca1ce82428c1b63e8b09aa95de32029",
+                "name": "cachy-asahi-product-d54cb1611db78ba1899b5aa4168f76a2",
+                "status": "PASS_ABSENCE_VERIFIED"
+              },
+              {
+                "id": "47545e0ce9125dd9b258ac8622c2ce443aadf9b1058ddf2282c6dfa4cd3c3934",
+                "name": "cachy-asahi-product-4715e796d20af9489ec9ea6ec70fe469",
+                "status": "PASS_ABSENCE_VERIFIED"
+              },
+              {
+                "id": "f1e3d39c3a32dcfb8c100aadb14f07c9647511515d0cd16267260c150f2f32e3",
+                "name": "cachy-asahi-product-c8fb4e46d969527d7e5e4b6a1f3cfbbf",
+                "status": "PASS_ABSENCE_VERIFIED"
+              },
+              {
+                "id": "44df5574b1f321fd9c1364a44370ab3607227910ad73c5b65044b2109cc58631",
+                "name": "cachy-asahi-expanded604-e6700d983b8e23fef7ba2bcd7d902565",
+                "status": "PASS_ABSENCE_VERIFIED"
+              }
+            ],
+            "nonce": "6dcb0d1cdf09e7c10f59aed5944ab35c",
+            "prior_consumers_absent": true,
+            "process": {
+              "direct_child_reaped": true,
+              "group_absent": true,
+              "pid": 155039,
+              "returncode": 0
+            }
+          }
+        },
+        {
+          "argv": [
+            "docker",
+            "run",
+            "--label",
+            "org.cachy-asahi.expanded604.apps6-public-pairs.job=c2ae24d85fea9f28cf56062d138bb74c",
+            "--name",
+            "cachy-asahi-apps606-finalize-6dcb0d1cdf09e7c10f59aed5944ab35c",
+            "--pull=never",
+            "--platform=linux/arm64",
+            "--network=none",
+            "--cap-drop=ALL",
+            "--security-opt=no-new-privileges",
+            "--pids-limit=512",
+            "--memory=8g",
+            "--cpus=4",
+            "--user=0:0",
+            "--tmpfs=/tmp:rw,nosuid,nodev,exec,size=2g",
+            "--env=CAA_CURRENT606_BRIDGE=6dcb0d1cdf09e7c10f59aed5944ab35c",
+            "--cap-add=CHOWN",
+            "--cap-add=DAC_OVERRIDE",
+            "--cap-add=FOWNER",
+            "--cap-add=FSETID",
+            "--cap-add=SETFCAP",
+            "--mount",
+            "type=bind,src=/tmp/cachy-asahi-expanded604-40171836477-1/copy-runner,dst=/runner,readonly",
+            "--mount",
+            "type=bind,src=/tmp/cachy-asahi-expanded604-40171836477-1/measurement,dst=/measurement",
+            "--mount",
+            "type=bind,src=/tmp/cachy-asahi-expanded604-40171836477-1/bridge-input,dst=/bridge-input,readonly",
+            "--mount",
+            "type=bind,src=/tmp/cachy-asahi-expanded604-40171836477-1/bridge-output,dst=/out",
+            "--entrypoint=/usr/bin/python3",
+            "sha256:0f9001c3b3db80bbe16be5c1b5ca1226eec870d9d397d984bb6177d6dc876f71",
+            "-B",
+            "/runner/bridge/scripts/ci/current606-welcome5-source-bridge/bridge.py",
+            "finalize",
+            "--selection",
+            "/bridge-input/selection.json",
+            "--code",
+            "/runner/bridge-code",
+            "--nonce",
+            "6dcb0d1cdf09e7c10f59aed5944ab35c"
+          ],
+          "containers_absent": true,
+          "direct_child_reaped": true,
+          "exit": 0,
+          "group_absent": true,
+          "phase": "finalize",
+          "pid": 158027
+        },
+        {
+          "argv": [
+            "docker",
+            "run",
+            "--label",
+            "org.cachy-asahi.expanded604.apps6-public-pairs.job=c2ae24d85fea9f28cf56062d138bb74c",
+            "--name",
+            "cachy-asahi-apps606-worker-6dcb0d1cdf09e7c10f59aed5944ab35c",
+            "--pull=never",
+            "--platform=linux/arm64",
+            "--network=none",
+            "--cap-drop=ALL",
+            "--security-opt=no-new-privileges",
+            "--pids-limit=512",
+            "--memory=8g",
+            "--cpus=4",
+            "--user=0:0",
+            "--tmpfs=/tmp:rw,nosuid,nodev,exec,size=2g",
+            "--env=CAA_CURRENT606_APPS7_COPY=6dcb0d1cdf09e7c10f59aed5944ab35c",
+            "--cap-add=CHOWN",
+            "--cap-add=DAC_OVERRIDE",
+            "--cap-add=FOWNER",
+            "--cap-add=FSETID",
+            "--cap-add=SETUID",
+            "--cap-add=SETGID",
+            "--cap-add=SYS_CHROOT",
+            "--cap-add=SETFCAP",
+            "--mount",
+            "type=bind,src=/tmp/cachy-asahi-expanded604-40171836477-1/copy-runner,dst=/runner,readonly",
+            "--mount",
+            "type=bind,src=/tmp/cachy-asahi-expanded604-40171836477-1/measurement/source606,dst=/seed,readonly",
+            "--mount",
+            "type=bind,src=/tmp/cachy-asahi-expanded604-40171836477-1/measurement/private/final,dst=/bridge-proof,readonly",
+            "--mount",
+            "type=bind,src=/tmp/cachy-asahi-expanded604-40171836477-1/measurement/work,dst=/work",
+            "--mount",
+            "type=bind,src=/tmp/cachy-asahi-expanded604-40171836477-1/bridge-output,dst=/out",
+            "--entrypoint=/usr/bin/python3",
+            "sha256:0f9001c3b3db80bbe16be5c1b5ca1226eec870d9d397d984bb6177d6dc876f71",
+            "-B",
+            "/runner/scripts/ci/current606-apps7-copy/worker.py",
+            "--selection",
+            "/runner/selection.json",
+            "--handoff",
+            "/runner/handoff.json",
+            "--nonce",
+            "6dcb0d1cdf09e7c10f59aed5944ab35c",
+            "--output",
+            "/out/result.json"
+          ],
+          "containers_absent": true,
+          "direct_child_reaped": true,
+          "exit": 0,
+          "group_absent": true,
+          "phase": "worker",
+          "pid": 158181
+        },
+        {
+          "argv": [
+            "docker",
+            "run",
+            "--label",
+            "org.cachy-asahi.expanded604.apps6-public-pairs.job=c2ae24d85fea9f28cf56062d138bb74c",
+            "--name",
+            "cachy-asahi-apps606-dispose-6dcb0d1cdf09e7c10f59aed5944ab35c",
+            "--pull=never",
+            "--platform=linux/arm64",
+            "--network=none",
+            "--cap-drop=ALL",
+            "--security-opt=no-new-privileges",
+            "--pids-limit=512",
+            "--memory=8g",
+            "--cpus=4",
+            "--user=0:0",
+            "--tmpfs=/tmp:rw,nosuid,nodev,exec,size=2g",
+            "--env=CAA_CURRENT606_BRIDGE=6dcb0d1cdf09e7c10f59aed5944ab35c",
+            "--cap-add=CHOWN",
+            "--cap-add=DAC_OVERRIDE",
+            "--cap-add=FOWNER",
+            "--cap-add=FSETID",
+            "--cap-add=SETFCAP",
+            "--mount",
+            "type=bind,src=/tmp/cachy-asahi-expanded604-40171836477-1/copy-runner,dst=/runner,readonly",
+            "--mount",
+            "type=bind,src=/tmp/cachy-asahi-expanded604-40171836477-1/measurement,dst=/measurement",
+            "--mount",
+            "type=bind,src=/tmp/cachy-asahi-expanded604-40171836477-1/bridge-input,dst=/bridge-input,readonly",
+            "--mount",
+            "type=bind,src=/tmp/cachy-asahi-expanded604-40171836477-1/bridge-output,dst=/out",
+            "--entrypoint=/usr/bin/python3",
+            "sha256:0f9001c3b3db80bbe16be5c1b5ca1226eec870d9d397d984bb6177d6dc876f71",
+            "-B",
+            "/runner/bridge/scripts/ci/current606-welcome5-source-bridge/bridge.py",
+            "dispose",
+            "--selection",
+            "/bridge-input/selection.json",
+            "--code",
+            "/runner/bridge-code",
+            "--nonce",
+            "6dcb0d1cdf09e7c10f59aed5944ab35c"
+          ],
+          "containers_absent": true,
+          "direct_child_reaped": true,
+          "exit": 0,
+          "group_absent": true,
+          "phase": "dispose",
+          "pid": 158671
+        }
+      ],
+      "native_acceptance": "NOT_GRANTED",
+      "status": "POST_CAPTURE_ACTORS_RETIRED_AND_MEASUREMENT_RESTORED"
+    },
+    "handoff": {
+      "expected606_sha256": "3a586c1e3400391f56bd281ac9c16aba85d94d0fca002770e77ee1802c5d9fd1",
+      "maps": {
+        "bridge_proof": {
+          "bytes": 26020963,
+          "path": "/bridge-proof/bridge-proof.json",
+          "sha256": "b6a022372482200f6b0d8a010b91c8b5da15a759831fd96ce37e80aa149365fc"
+        },
+        "capabilities": {
+          "bytes": 223,
+          "path": "/bridge-proof/capabilities.json",
+          "sha256": "f51c5419ecea4e63a809c41e45dd04b57befac56d294e06ed555f1656d29c194"
+        },
+        "ordinary_observation": {
+          "bytes": 29131435,
+          "path": "/bridge-proof/ordinary-observation.json",
+          "sha256": "49210e551a1da9c10e1d6b07acbed8c09637fe32c24098e3f1af40bb15a04621"
+        },
+        "packages": {
+          "bytes": 6758077,
+          "path": "/bridge-proof/packages.json",
+          "sha256": "64b1fcc5a913cecb3db287e262090ec4877818630510260443c247e057c3145a"
+        }
+      },
+      "nonce": "6dcb0d1cdf09e7c10f59aed5944ab35c",
+      "purpose": "CURRENT606_APPS7_OWNED_ORDINARY_SOURCE",
+      "schema_version": 1,
+      "source_native": "f3a30f2049f57d9f3cb2433fbd59af51d4cc5720",
+      "source_root": "/seed",
+      "source_run": 39106953257,
+      "work_root": "/work"
+    },
+    "measurement": {
+      "gid": 1001,
+      "identity": [
+        2049,
+        7106914
+      ],
+      "mode": 448,
+      "uid": 1001
+    },
+    "nonce": "6dcb0d1cdf09e7c10f59aed5944ab35c",
+    "purpose": "CURRENT606_APPS7_CLOSED_NATIVE",
+    "raw_private_maps": "NOT_EXPORTED_SOURCE_ENFORCED",
+    "root_acceptance": "NOT_ISSUED",
+    "selection": {
+      "bytes": 2284,
+      "sha256": "ef465cbb63852143e7bc5576f3f946249a827e666a6fdf643f3a05ac24f4dd26"
+    },
+    "worker": {
+      "Runtime1": "EXACT_NATIVE_PAIR_PROTECTED_NO_TRANSACTION",
+      "events": [
+        {
+          "count": 606,
+          "fixtures": {
+            "NNP": 1,
+            "homes": {
+              "existing": {
+                "CLI": 2,
+                "installed_controls": 0,
+                "inventory_count": 606
+              },
+              "fresh": {
+                "CLI": 2,
+                "installed_controls": 0,
+                "inventory_count": 606
+              }
+            },
+            "receipts": [
+              {
+                "receipt": {
+                  "CLI": 2,
+                  "applied": "NOT_APPLIED",
+                  "controls": null,
+                  "installed_controls": 0,
+                  "inventory_count": 606,
+                  "inventory_sha256": "7dc6e00602d696e78a873506aee7d8fe0303d02089b5f5afb4c5467e12288e63",
+                  "inventory_versions_sha256": "3a586c1e3400391f56bd281ac9c16aba85d94d0fca002770e77ee1802c5d9fd1",
+                  "raw_inventory": "OWN_TEMP_REMOVED_BOUNDED_HASH_ONLY_NOT_PAYLOAD_PROOF",
+                  "recipe_role": "apps6",
+                  "status": "PASS_ACTUAL_INSTALLED_APPS_READONLY"
+                },
+                "retirement": {
+                  "descendants_reaped": 0,
+                  "direct_child_reaped": true,
+                  "group_kill_sent": true,
+                  "group_retired": true,
+                  "returncode": 0,
+                  "termination": null
+                },
+                "stderr": {
+                  "bytes": 0,
+                  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                },
+                "stdout": {
+                  "bytes": 435,
+                  "sha256": "2badd245d624218a752f9c3948f9588e189e5f5d78704e83b34e3f449107c1a9"
+                }
+              },
+              {
+                "receipt": {
+                  "CLI": 2,
+                  "applied": "NOT_APPLIED",
+                  "controls": null,
+                  "installed_controls": 0,
+                  "inventory_count": 606,
+                  "inventory_sha256": "7dc6e00602d696e78a873506aee7d8fe0303d02089b5f5afb4c5467e12288e63",
+                  "inventory_versions_sha256": "3a586c1e3400391f56bd281ac9c16aba85d94d0fca002770e77ee1802c5d9fd1",
+                  "raw_inventory": "OWN_TEMP_REMOVED_BOUNDED_HASH_ONLY_NOT_PAYLOAD_PROOF",
+                  "recipe_role": "apps6",
+                  "status": "PASS_ACTUAL_INSTALLED_APPS_READONLY"
+                },
+                "retirement": {
+                  "descendants_reaped": 0,
+                  "direct_child_reaped": true,
+                  "group_kill_sent": true,
+                  "group_retired": true,
+                  "returncode": 0,
+                  "termination": null
+                },
+                "stderr": {
+                  "bytes": 0,
+                  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                },
+                "stdout": {
+                  "bytes": 435,
+                  "sha256": "2badd245d624218a752f9c3948f9588e189e5f5d78704e83b34e3f449107c1a9"
+                }
+              }
+            ],
+            "zero_capabilities": true
+          },
+          "other605": "FULL_PAYLOAD_RAW_DB_INODE_HARDLINK_CAPS_PROTECTED",
+          "phase": "baseline6",
+          "selected_db": "CURRENT_NORMAL_ALPM_NOT_HISTORICAL_INODE",
+          "selected_version": "0.1.0-6",
+          "source606": "UNCHANGED_SEPARATE_READBACK_REQUIRED",
+          "transaction": "NOT_RUN_BASELINE"
+        },
+        {
+          "count": 606,
+          "fixtures": {
+            "NNP": 1,
+            "homes": {
+              "existing": {
+                "CLI": 2,
+                "installed_controls": 15,
+                "inventory_count": 606
+              },
+              "fresh": {
+                "CLI": 2,
+                "installed_controls": 15,
+                "inventory_count": 606
+              }
+            },
+            "receipts": [
+              {
+                "receipt": {
+                  "CLI": 2,
+                  "applied": "NOT_APPLIED",
+                  "controls": {
+                    "errors": 0,
+                    "failures": 0,
+                    "installed_source": true,
+                    "mode": "apps",
+                    "report_bytes": 2732,
+                    "report_sha256": "52ad1cdc4469531b7a86b8a4669ded2468226554909e51e6a41a414e758f1d95",
+                    "skipped": 0,
+                    "status": "PASS_INSTALLED_CONTROLS",
+                    "tests": 15
+                  },
+                  "installed_controls": 15,
+                  "inventory_count": 606,
+                  "inventory_sha256": "7ff58d84b8574ce4cf60396e98cb4bdfa129364818da6b6e5909f9ba0a2eab7e",
+                  "inventory_versions_sha256": "710b1e8147d578eb1d63f356d26259977544d6549b21232bd76f9296fe9adb83",
+                  "raw_inventory": "OWN_TEMP_REMOVED_BOUNDED_HASH_ONLY_NOT_PAYLOAD_PROOF",
+                  "recipe_role": "apps7",
+                  "status": "PASS_ACTUAL_INSTALLED_APPS_READONLY"
+                },
+                "retirement": {
+                  "descendants_reaped": 0,
+                  "direct_child_reaped": true,
+                  "group_kill_sent": true,
+                  "group_retired": true,
+                  "returncode": 0,
+                  "termination": null
+                },
+                "stderr": {
+                  "bytes": 0,
+                  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                },
+                "stdout": {
+                  "bytes": 673,
+                  "sha256": "bcc080fb0b1863479ea4991d8fa63bfa018eb4ba4022b6a1a705f1af2f75169f"
+                }
+              },
+              {
+                "receipt": {
+                  "CLI": 2,
+                  "applied": "NOT_APPLIED",
+                  "controls": {
+                    "errors": 0,
+                    "failures": 0,
+                    "installed_source": true,
+                    "mode": "apps",
+                    "report_bytes": 2732,
+                    "report_sha256": "ba887ac6337851d657a665a79fb9c5ead04f0564881b08eaa60f9484502d9cbd",
+                    "skipped": 0,
+                    "status": "PASS_INSTALLED_CONTROLS",
+                    "tests": 15
+                  },
+                  "installed_controls": 15,
+                  "inventory_count": 606,
+                  "inventory_sha256": "7ff58d84b8574ce4cf60396e98cb4bdfa129364818da6b6e5909f9ba0a2eab7e",
+                  "inventory_versions_sha256": "710b1e8147d578eb1d63f356d26259977544d6549b21232bd76f9296fe9adb83",
+                  "raw_inventory": "OWN_TEMP_REMOVED_BOUNDED_HASH_ONLY_NOT_PAYLOAD_PROOF",
+                  "recipe_role": "apps7",
+                  "status": "PASS_ACTUAL_INSTALLED_APPS_READONLY"
+                },
+                "retirement": {
+                  "descendants_reaped": 0,
+                  "direct_child_reaped": true,
+                  "group_kill_sent": true,
+                  "group_retired": true,
+                  "returncode": 0,
+                  "termination": null
+                },
+                "stderr": {
+                  "bytes": 0,
+                  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                },
+                "stdout": {
+                  "bytes": 673,
+                  "sha256": "8c4cbe5a8b607bcb93293609fe6e4d93cf27a75058270c1dcdecc1628b8ff698"
+                }
+              }
+            ],
+            "zero_capabilities": true
+          },
+          "other605": "FULL_PAYLOAD_RAW_DB_INODE_HARDLINK_CAPS_PROTECTED",
+          "phase": "upgrade7",
+          "selected_db": "CURRENT_NORMAL_ALPM_NOT_HISTORICAL_INODE",
+          "selected_version": "0.1.0-7",
+          "source606": "UNCHANGED_SEPARATE_READBACK_REQUIRED",
+          "transaction": {
+            "descendants_reaped": 8,
+            "direct_child_reaped": true,
+            "group_retired": true,
+            "receipt": {
+              "after_count": 606,
+              "before_count": 606,
+              "hooks": "DISABLED",
+              "lock_parent": {
+                "after": [
+                  2049,
+                  11010901,
+                  16877,
+                  0,
+                  0,
+                  4,
+                  4096,
+                  1792915037272577216,
+                  1792915037272577216
+                ],
+                "before": [
+                  2049,
+                  11010901,
+                  16877,
+                  0,
+                  0,
+                  4,
+                  4096,
+                  1792914620859651315,
+                  1792914769641924050
+                ],
+                "lock_created": true,
+                "lock_removed": true,
+                "names": [
+                  "local",
+                  "sync"
+                ],
+                "path": "var/lib/pacman"
+              },
+              "preservation": "NOT_YET_CHECKED",
+              "scriptlets": "DISABLED",
+              "signature": "REQUIRED_TEST_ONLY",
+              "signature_receipt": {
+                "group_retired": true,
+                "returncode": 0,
+                "signer": "DA8AD638E79414E661656E4C23132CAA1000DA38",
+                "status_stderr": {
+                  "bytes": 227,
+                  "sha256": "2fbed944366bb5173bbce781465ad938ed64fee3371a80af40eba5a0502110d1"
+                },
+                "status_stdout": {
+                  "bytes": 413,
+                  "sha256": "26f09e42d7b534d1f056e83dfdb281fa438bf02a3ec011960079d2226050e9d7"
+                }
+              },
+              "status": "COMMITTED_SELECTED_APPS_REQUIRES_FULL_READBACK"
+            },
+            "returncode": 0,
+            "stderr": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stdout": {
+              "bytes": 856,
+              "sha256": "f16873b656419fe92747b36733ff45969390943cebd1447cdd5f6ff4f41a6f1b"
+            },
+            "termination": null
+          }
+        },
+        {
+          "count": 606,
+          "fixtures": {
+            "NNP": 1,
+            "homes": {
+              "existing": {
+                "CLI": 2,
+                "installed_controls": 15,
+                "inventory_count": 606
+              },
+              "fresh": {
+                "CLI": 2,
+                "installed_controls": 15,
+                "inventory_count": 606
+              }
+            },
+            "receipts": [
+              {
+                "receipt": {
+                  "CLI": 2,
+                  "applied": "NOT_APPLIED",
+                  "controls": {
+                    "errors": 0,
+                    "failures": 0,
+                    "installed_source": true,
+                    "mode": "apps",
+                    "report_bytes": 2732,
+                    "report_sha256": "89c8752b7bebef97f3c0659a3204e071d6bcfb5ff4040eef25588214cf36dd95",
+                    "skipped": 0,
+                    "status": "PASS_INSTALLED_CONTROLS",
+                    "tests": 15
+                  },
+                  "installed_controls": 15,
+                  "inventory_count": 606,
+                  "inventory_sha256": "3c713cd5713eb921f7baf2c2aaf315982da6dcd10868818e54dae4402ba3933e",
+                  "inventory_versions_sha256": "12ddbee7146b91e9097dade94a638e4b91e9e994d8624b55df3b8f45878983b7",
+                  "raw_inventory": "OWN_TEMP_REMOVED_BOUNDED_HASH_ONLY_NOT_PAYLOAD_PROOF",
+                  "recipe_role": "apps16",
+                  "status": "PASS_ACTUAL_INSTALLED_APPS_READONLY"
+                },
+                "retirement": {
+                  "descendants_reaped": 0,
+                  "direct_child_reaped": true,
+                  "group_kill_sent": true,
+                  "group_retired": true,
+                  "returncode": 0,
+                  "termination": null
+                },
+                "stderr": {
+                  "bytes": 0,
+                  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                },
+                "stdout": {
+                  "bytes": 674,
+                  "sha256": "73b4ba97bff4f03a5d03e417b43261895558ad96ab0fe11f1089bf6f9403497d"
+                }
+              },
+              {
+                "receipt": {
+                  "CLI": 2,
+                  "applied": "NOT_APPLIED",
+                  "controls": {
+                    "errors": 0,
+                    "failures": 0,
+                    "installed_source": true,
+                    "mode": "apps",
+                    "report_bytes": 2732,
+                    "report_sha256": "1631717fc4c271af0020be80eb50422ae1e62708864626fba629c93d43593d62",
+                    "skipped": 0,
+                    "status": "PASS_INSTALLED_CONTROLS",
+                    "tests": 15
+                  },
+                  "installed_controls": 15,
+                  "inventory_count": 606,
+                  "inventory_sha256": "3c713cd5713eb921f7baf2c2aaf315982da6dcd10868818e54dae4402ba3933e",
+                  "inventory_versions_sha256": "12ddbee7146b91e9097dade94a638e4b91e9e994d8624b55df3b8f45878983b7",
+                  "raw_inventory": "OWN_TEMP_REMOVED_BOUNDED_HASH_ONLY_NOT_PAYLOAD_PROOF",
+                  "recipe_role": "apps16",
+                  "status": "PASS_ACTUAL_INSTALLED_APPS_READONLY"
+                },
+                "retirement": {
+                  "descendants_reaped": 0,
+                  "direct_child_reaped": true,
+                  "group_kill_sent": true,
+                  "group_retired": true,
+                  "returncode": 0,
+                  "termination": null
+                },
+                "stderr": {
+                  "bytes": 0,
+                  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                },
+                "stdout": {
+                  "bytes": 674,
+                  "sha256": "3b03c88581afeaa5cffde96d45fedb86b424d2b87351f4caed1b0e1d4d02dfb5"
+                }
+              }
+            ],
+            "zero_capabilities": true
+          },
+          "other605": "FULL_PAYLOAD_RAW_DB_INODE_HARDLINK_CAPS_PROTECTED",
+          "phase": "upgrade16",
+          "selected_db": "CURRENT_NORMAL_ALPM_NOT_HISTORICAL_INODE",
+          "selected_version": "0.1.0-16",
+          "source606": "UNCHANGED_SEPARATE_READBACK_REQUIRED",
+          "transaction": {
+            "descendants_reaped": 8,
+            "direct_child_reaped": true,
+            "group_retired": true,
+            "receipt": {
+              "after_count": 606,
+              "before_count": 606,
+              "hooks": "DISABLED",
+              "lock_parent": {
+                "after": [
+                  2049,
+                  11010901,
+                  16877,
+                  0,
+                  0,
+                  4,
+                  4096,
+                  1792915156795627206,
+                  1792915156795627206
+                ],
+                "before": [
+                  2049,
+                  11010901,
+                  16877,
+                  0,
+                  0,
+                  4,
+                  4096,
+                  1792915037272577216,
+                  1792915037272577216
+                ],
+                "lock_created": true,
+                "lock_removed": true,
+                "names": [
+                  "local",
+                  "sync"
+                ],
+                "path": "var/lib/pacman"
+              },
+              "preservation": "NOT_YET_CHECKED",
+              "scriptlets": "DISABLED",
+              "signature": "REQUIRED_TEST_ONLY",
+              "signature_receipt": {
+                "group_retired": true,
+                "returncode": 0,
+                "signer": "2F52E4E38028FA00A6B00C48C70BD3EB8C2B8228",
+                "status_stderr": {
+                  "bytes": 213,
+                  "sha256": "eb8f53b6b79da191043fd69bd60ef8c0c81c8fcf78efafa08499d3792c502043"
+                },
+                "status_stdout": {
+                  "bytes": 399,
+                  "sha256": "9b06d4b16a69c0e06e784f8330125faff403ae6d55bee27fbe3cc0b53523e42e"
+                }
+              },
+              "status": "COMMITTED_SELECTED_APPS_REQUIRES_FULL_READBACK"
+            },
+            "returncode": 0,
+            "stderr": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stdout": {
+              "bytes": 856,
+              "sha256": "611b2ccad5ce5acee0464b68405946f270e8de0ddf4f5bf2c47eab7099a2828b"
+            },
+            "termination": null
+          }
+        },
+        {
+          "count": 606,
+          "fixtures": {
+            "NNP": 1,
+            "homes": {
+              "existing": {
+                "CLI": 2,
+                "installed_controls": 15,
+                "inventory_count": 606
+              },
+              "fresh": {
+                "CLI": 2,
+                "installed_controls": 15,
+                "inventory_count": 606
+              }
+            },
+            "receipts": [
+              {
+                "receipt": {
+                  "CLI": 2,
+                  "applied": "NOT_APPLIED",
+                  "controls": {
+                    "errors": 0,
+                    "failures": 0,
+                    "installed_source": true,
+                    "mode": "apps",
+                    "report_bytes": 2732,
+                    "report_sha256": "e477016aff741a506b43dddb5e3ac7fdc56ddef50e5b363b3f7bddd16c0c6e8d",
+                    "skipped": 0,
+                    "status": "PASS_INSTALLED_CONTROLS",
+                    "tests": 15
+                  },
+                  "installed_controls": 15,
+                  "inventory_count": 606,
+                  "inventory_sha256": "7b207294efeed32c33d23d47b7bf015a4cdae0c299b845cf41f4e65bf42adca5",
+                  "inventory_versions_sha256": "12ddbee7146b91e9097dade94a638e4b91e9e994d8624b55df3b8f45878983b7",
+                  "raw_inventory": "OWN_TEMP_REMOVED_BOUNDED_HASH_ONLY_NOT_PAYLOAD_PROOF",
+                  "recipe_role": "apps16",
+                  "status": "PASS_ACTUAL_INSTALLED_APPS_READONLY"
+                },
+                "retirement": {
+                  "descendants_reaped": 0,
+                  "direct_child_reaped": true,
+                  "group_kill_sent": true,
+                  "group_retired": true,
+                  "returncode": 0,
+                  "termination": null
+                },
+                "stderr": {
+                  "bytes": 0,
+                  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                },
+                "stdout": {
+                  "bytes": 674,
+                  "sha256": "30fe93bae4c810bc57051ad5e61c4ca87f1b850d1a6a87a8fe41148c4773bee0"
+                }
+              },
+              {
+                "receipt": {
+                  "CLI": 2,
+                  "applied": "NOT_APPLIED",
+                  "controls": {
+                    "errors": 0,
+                    "failures": 0,
+                    "installed_source": true,
+                    "mode": "apps",
+                    "report_bytes": 2732,
+                    "report_sha256": "eb77797cc9f62d6d6ffd7f6868b623b401d3aca93cbfba302e4a55082b62287e",
+                    "skipped": 0,
+                    "status": "PASS_INSTALLED_CONTROLS",
+                    "tests": 15
+                  },
+                  "installed_controls": 15,
+                  "inventory_count": 606,
+                  "inventory_sha256": "7b207294efeed32c33d23d47b7bf015a4cdae0c299b845cf41f4e65bf42adca5",
+                  "inventory_versions_sha256": "12ddbee7146b91e9097dade94a638e4b91e9e994d8624b55df3b8f45878983b7",
+                  "raw_inventory": "OWN_TEMP_REMOVED_BOUNDED_HASH_ONLY_NOT_PAYLOAD_PROOF",
+                  "recipe_role": "apps16",
+                  "status": "PASS_ACTUAL_INSTALLED_APPS_READONLY"
+                },
+                "retirement": {
+                  "descendants_reaped": 0,
+                  "direct_child_reaped": true,
+                  "group_kill_sent": true,
+                  "group_retired": true,
+                  "returncode": 0,
+                  "termination": null
+                },
+                "stderr": {
+                  "bytes": 0,
+                  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                },
+                "stdout": {
+                  "bytes": 674,
+                  "sha256": "ab55439f5fab79a44cc5b08badd6c78e8c8ed678d28b054bcd98b6d552033cad"
+                }
+              }
+            ],
+            "zero_capabilities": true
+          },
+          "other605": "FULL_PAYLOAD_RAW_DB_INODE_HARDLINK_CAPS_PROTECTED",
+          "phase": "same-version16",
+          "selected_db": "CURRENT_NORMAL_ALPM_NOT_HISTORICAL_INODE",
+          "selected_version": "0.1.0-16",
+          "source606": "UNCHANGED_SEPARATE_READBACK_REQUIRED",
+          "transaction": {
+            "descendants_reaped": 8,
+            "direct_child_reaped": true,
+            "group_retired": true,
+            "receipt": {
+              "after_count": 606,
+              "before_count": 606,
+              "hooks": "DISABLED",
+              "lock_parent": {
+                "after": [
+                  2049,
+                  11010901,
+                  16877,
+                  0,
+                  0,
+                  4,
+                  4096,
+                  1792915261350154940,
+                  1792915261350154940
+                ],
+                "before": [
+                  2049,
+                  11010901,
+                  16877,
+                  0,
+                  0,
+                  4,
+                  4096,
+                  1792915156795627206,
+                  1792915156795627206
+                ],
+                "lock_created": true,
+                "lock_removed": true,
+                "names": [
+                  "local",
+                  "sync"
+                ],
+                "path": "var/lib/pacman"
+              },
+              "preservation": "NOT_YET_CHECKED",
+              "scriptlets": "DISABLED",
+              "signature": "REQUIRED_TEST_ONLY",
+              "signature_receipt": {
+                "group_retired": true,
+                "returncode": 0,
+                "signer": "2F52E4E38028FA00A6B00C48C70BD3EB8C2B8228",
+                "status_stderr": {
+                  "bytes": 213,
+                  "sha256": "eb8f53b6b79da191043fd69bd60ef8c0c81c8fcf78efafa08499d3792c502043"
+                },
+                "status_stdout": {
+                  "bytes": 399,
+                  "sha256": "9b06d4b16a69c0e06e784f8330125faff403ae6d55bee27fbe3cc0b53523e42e"
+                }
+              },
+              "status": "COMMITTED_SELECTED_APPS_REQUIRES_FULL_READBACK"
+            },
+            "returncode": 0,
+            "stderr": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stdout": {
+              "bytes": 856,
+              "sha256": "1dc750b581a1818511a5b56466ad5c3d5fb20b46ec02cd6ed347615a54d82998"
+            },
+            "termination": null
+          }
+        },
+        {
+          "count": 605,
+          "other605": "FULL_PAYLOAD_RAW_DB_INODE_HARDLINK_CAPS_PROTECTED",
+          "phase": "remove16",
+          "selected_db": "ABSENT",
+          "selected_version": null,
+          "source606": "UNCHANGED_SEPARATE_READBACK_REQUIRED",
+          "transaction": {
+            "descendants_reaped": 0,
+            "direct_child_reaped": true,
+            "group_retired": true,
+            "receipt": {
+              "after_count": 605,
+              "before_count": 606,
+              "hooks": "DISABLED",
+              "lock_parent": {
+                "after": [
+                  2049,
+                  11010901,
+                  16877,
+                  0,
+                  0,
+                  4,
+                  4096,
+                  1792915366463767785,
+                  1792915366463767785
+                ],
+                "before": [
+                  2049,
+                  11010901,
+                  16877,
+                  0,
+                  0,
+                  4,
+                  4096,
+                  1792915261350154940,
+                  1792915261350154940
+                ],
+                "lock_created": true,
+                "lock_removed": true,
+                "names": [
+                  "local",
+                  "sync"
+                ],
+                "path": "var/lib/pacman"
+              },
+              "preservation": "NOT_YET_CHECKED",
+              "scriptlets": "DISABLED",
+              "signature": "REQUIRED_TEST_ONLY",
+              "signature_receipt": null,
+              "status": "COMMITTED_SELECTED_APPS_REQUIRES_FULL_READBACK"
+            },
+            "returncode": 0,
+            "stderr": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stdout": {
+              "bytes": 544,
+              "sha256": "18889370fc9e1a8d8cdc5616ef1a4c30676c64138818b6337bea8041e3e9b754"
+            },
+            "termination": null
+          }
+        },
+        {
+          "count": 606,
+          "fixtures": {
+            "NNP": 1,
+            "homes": {
+              "existing": {
+                "CLI": 2,
+                "installed_controls": 15,
+                "inventory_count": 606
+              },
+              "fresh": {
+                "CLI": 2,
+                "installed_controls": 15,
+                "inventory_count": 606
+              }
+            },
+            "receipts": [
+              {
+                "receipt": {
+                  "CLI": 2,
+                  "applied": "NOT_APPLIED",
+                  "controls": {
+                    "errors": 0,
+                    "failures": 0,
+                    "installed_source": true,
+                    "mode": "apps",
+                    "report_bytes": 2732,
+                    "report_sha256": "537689442944f3d7364515cf0a77083545d803b6654fe62ed092db881cda7c8c",
+                    "skipped": 0,
+                    "status": "PASS_INSTALLED_CONTROLS",
+                    "tests": 15
+                  },
+                  "installed_controls": 15,
+                  "inventory_count": 606,
+                  "inventory_sha256": "ba42b4925560686af5ee5fed84233edec1bb8c89ec7c97a53a1b30596f1d1330",
+                  "inventory_versions_sha256": "12ddbee7146b91e9097dade94a638e4b91e9e994d8624b55df3b8f45878983b7",
+                  "raw_inventory": "OWN_TEMP_REMOVED_BOUNDED_HASH_ONLY_NOT_PAYLOAD_PROOF",
+                  "recipe_role": "apps16",
+                  "status": "PASS_ACTUAL_INSTALLED_APPS_READONLY"
+                },
+                "retirement": {
+                  "descendants_reaped": 0,
+                  "direct_child_reaped": true,
+                  "group_kill_sent": true,
+                  "group_retired": true,
+                  "returncode": 0,
+                  "termination": null
+                },
+                "stderr": {
+                  "bytes": 0,
+                  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                },
+                "stdout": {
+                  "bytes": 674,
+                  "sha256": "f0299cde0cdf3e300e060b26febb86c6b6da8805268bbfc810d79ce5da285c3f"
+                }
+              },
+              {
+                "receipt": {
+                  "CLI": 2,
+                  "applied": "NOT_APPLIED",
+                  "controls": {
+                    "errors": 0,
+                    "failures": 0,
+                    "installed_source": true,
+                    "mode": "apps",
+                    "report_bytes": 2732,
+                    "report_sha256": "c349adfbeda650a5c9cd9396b900c560fe03e94f3e1061d5a509b444db02047a",
+                    "skipped": 0,
+                    "status": "PASS_INSTALLED_CONTROLS",
+                    "tests": 15
+                  },
+                  "installed_controls": 15,
+                  "inventory_count": 606,
+                  "inventory_sha256": "ba42b4925560686af5ee5fed84233edec1bb8c89ec7c97a53a1b30596f1d1330",
+                  "inventory_versions_sha256": "12ddbee7146b91e9097dade94a638e4b91e9e994d8624b55df3b8f45878983b7",
+                  "raw_inventory": "OWN_TEMP_REMOVED_BOUNDED_HASH_ONLY_NOT_PAYLOAD_PROOF",
+                  "recipe_role": "apps16",
+                  "status": "PASS_ACTUAL_INSTALLED_APPS_READONLY"
+                },
+                "retirement": {
+                  "descendants_reaped": 0,
+                  "direct_child_reaped": true,
+                  "group_kill_sent": true,
+                  "group_retired": true,
+                  "returncode": 0,
+                  "termination": null
+                },
+                "stderr": {
+                  "bytes": 0,
+                  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                },
+                "stdout": {
+                  "bytes": 674,
+                  "sha256": "acd9499223da06adf83be18a4d65d478cbc29625390e757f6323f68394d3b1bd"
+                }
+              }
+            ],
+            "zero_capabilities": true
+          },
+          "other605": "FULL_PAYLOAD_RAW_DB_INODE_HARDLINK_CAPS_PROTECTED",
+          "phase": "reinstall16",
+          "selected_db": "CURRENT_NORMAL_ALPM_NOT_HISTORICAL_INODE",
+          "selected_version": "0.1.0-16",
+          "source606": "UNCHANGED_SEPARATE_READBACK_REQUIRED",
+          "transaction": {
+            "descendants_reaped": 8,
+            "direct_child_reaped": true,
+            "group_retired": true,
+            "receipt": {
+              "after_count": 606,
+              "before_count": 605,
+              "hooks": "DISABLED",
+              "lock_parent": {
+                "after": [
+                  2049,
+                  11010901,
+                  16877,
+                  0,
+                  0,
+                  4,
+                  4096,
+                  1792915440900678190,
+                  1792915440900678190
+                ],
+                "before": [
+                  2049,
+                  11010901,
+                  16877,
+                  0,
+                  0,
+                  4,
+                  4096,
+                  1792915366463767785,
+                  1792915366463767785
+                ],
+                "lock_created": true,
+                "lock_removed": true,
+                "names": [
+                  "local",
+                  "sync"
+                ],
+                "path": "var/lib/pacman"
+              },
+              "preservation": "NOT_YET_CHECKED",
+              "scriptlets": "DISABLED",
+              "signature": "REQUIRED_TEST_ONLY",
+              "signature_receipt": {
+                "group_retired": true,
+                "returncode": 0,
+                "signer": "2F52E4E38028FA00A6B00C48C70BD3EB8C2B8228",
+                "status_stderr": {
+                  "bytes": 213,
+                  "sha256": "eb8f53b6b79da191043fd69bd60ef8c0c81c8fcf78efafa08499d3792c502043"
+                },
+                "status_stdout": {
+                  "bytes": 399,
+                  "sha256": "9b06d4b16a69c0e06e784f8330125faff403ae6d55bee27fbe3cc0b53523e42e"
+                }
+              },
+              "status": "COMMITTED_SELECTED_APPS_REQUIRES_FULL_READBACK"
+            },
+            "returncode": 0,
+            "stderr": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stdout": {
+              "bytes": 856,
+              "sha256": "f5afaf2030e059cd0f6ae39e79a94d0be6ede4494085026561a99e5951712614"
+            },
+            "termination": null
+          }
+        },
+        {
+          "count": 606,
+          "fixtures": {
+            "NNP": 1,
+            "homes": {
+              "existing": {
+                "CLI": 2,
+                "installed_controls": 15,
+                "inventory_count": 606
+              },
+              "fresh": {
+                "CLI": 2,
+                "installed_controls": 15,
+                "inventory_count": 606
+              }
+            },
+            "receipts": [
+              {
+                "receipt": {
+                  "CLI": 2,
+                  "applied": "NOT_APPLIED",
+                  "controls": {
+                    "errors": 0,
+                    "failures": 0,
+                    "installed_source": true,
+                    "mode": "apps",
+                    "report_bytes": 2732,
+                    "report_sha256": "ba887ac6337851d657a665a79fb9c5ead04f0564881b08eaa60f9484502d9cbd",
+                    "skipped": 0,
+                    "status": "PASS_INSTALLED_CONTROLS",
+                    "tests": 15
+                  },
+                  "installed_controls": 15,
+                  "inventory_count": 606,
+                  "inventory_sha256": "175a28b16e4e3dc7761a4b4a62b454d20ef9593398f26ff28ad40cf0c5d9b82c",
+                  "inventory_versions_sha256": "710b1e8147d578eb1d63f356d26259977544d6549b21232bd76f9296fe9adb83",
+                  "raw_inventory": "OWN_TEMP_REMOVED_BOUNDED_HASH_ONLY_NOT_PAYLOAD_PROOF",
+                  "recipe_role": "apps7",
+                  "status": "PASS_ACTUAL_INSTALLED_APPS_READONLY"
+                },
+                "retirement": {
+                  "descendants_reaped": 0,
+                  "direct_child_reaped": true,
+                  "group_kill_sent": true,
+                  "group_retired": true,
+                  "returncode": 0,
+                  "termination": null
+                },
+                "stderr": {
+                  "bytes": 0,
+                  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                },
+                "stdout": {
+                  "bytes": 673,
+                  "sha256": "cc414e7f0582353c756e083522f8f01e4c898101616bd05db76d36b909bd0477"
+                }
+              },
+              {
+                "receipt": {
+                  "CLI": 2,
+                  "applied": "NOT_APPLIED",
+                  "controls": {
+                    "errors": 0,
+                    "failures": 0,
+                    "installed_source": true,
+                    "mode": "apps",
+                    "report_bytes": 2732,
+                    "report_sha256": "89a33b608aab00b665fb3a8c7add7b9f74d6b5b1a9e3a5643833bfe5eefdba7d",
+                    "skipped": 0,
+                    "status": "PASS_INSTALLED_CONTROLS",
+                    "tests": 15
+                  },
+                  "installed_controls": 15,
+                  "inventory_count": 606,
+                  "inventory_sha256": "175a28b16e4e3dc7761a4b4a62b454d20ef9593398f26ff28ad40cf0c5d9b82c",
+                  "inventory_versions_sha256": "710b1e8147d578eb1d63f356d26259977544d6549b21232bd76f9296fe9adb83",
+                  "raw_inventory": "OWN_TEMP_REMOVED_BOUNDED_HASH_ONLY_NOT_PAYLOAD_PROOF",
+                  "recipe_role": "apps7",
+                  "status": "PASS_ACTUAL_INSTALLED_APPS_READONLY"
+                },
+                "retirement": {
+                  "descendants_reaped": 0,
+                  "direct_child_reaped": true,
+                  "group_kill_sent": true,
+                  "group_retired": true,
+                  "returncode": 0,
+                  "termination": null
+                },
+                "stderr": {
+                  "bytes": 0,
+                  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                },
+                "stdout": {
+                  "bytes": 673,
+                  "sha256": "b4c2e26f24b8273a292928542c6aa88751f755e2f9ef1ae84de06cd54a1d9e5b"
+                }
+              }
+            ],
+            "zero_capabilities": true
+          },
+          "other605": "FULL_PAYLOAD_RAW_DB_INODE_HARDLINK_CAPS_PROTECTED",
+          "phase": "restore7",
+          "selected_db": "CURRENT_NORMAL_ALPM_NOT_HISTORICAL_INODE",
+          "selected_version": "0.1.0-7",
+          "source606": "UNCHANGED_SEPARATE_READBACK_REQUIRED",
+          "transaction": {
+            "descendants_reaped": 8,
+            "direct_child_reaped": true,
+            "group_retired": true,
+            "receipt": {
+              "after_count": 606,
+              "before_count": 606,
+              "hooks": "DISABLED",
+              "lock_parent": {
+                "after": [
+                  2049,
+                  11010901,
+                  16877,
+                  0,
+                  0,
+                  4,
+                  4096,
+                  1792915545040240818,
+                  1792915545040240818
+                ],
+                "before": [
+                  2049,
+                  11010901,
+                  16877,
+                  0,
+                  0,
+                  4,
+                  4096,
+                  1792915440900678190,
+                  1792915440900678190
+                ],
+                "lock_created": true,
+                "lock_removed": true,
+                "names": [
+                  "local",
+                  "sync"
+                ],
+                "path": "var/lib/pacman"
+              },
+              "preservation": "NOT_YET_CHECKED",
+              "scriptlets": "DISABLED",
+              "signature": "REQUIRED_TEST_ONLY",
+              "signature_receipt": {
+                "group_retired": true,
+                "returncode": 0,
+                "signer": "DA8AD638E79414E661656E4C23132CAA1000DA38",
+                "status_stderr": {
+                  "bytes": 227,
+                  "sha256": "2fbed944366bb5173bbce781465ad938ed64fee3371a80af40eba5a0502110d1"
+                },
+                "status_stdout": {
+                  "bytes": 413,
+                  "sha256": "26f09e42d7b534d1f056e83dfdb281fa438bf02a3ec011960079d2226050e9d7"
+                }
+              },
+              "status": "COMMITTED_SELECTED_APPS_REQUIRES_FULL_READBACK"
+            },
+            "returncode": 0,
+            "stderr": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stdout": {
+              "bytes": 856,
+              "sha256": "c1d11ac83a43d2dd29d2cf72636ed47654764f8e735d40ab4488073add0bb84d"
+            },
+            "termination": null
+          }
+        },
+        {
+          "count": 606,
+          "fixtures": {
+            "NNP": 1,
+            "homes": {
+              "existing": {
+                "CLI": 2,
+                "installed_controls": 0,
+                "inventory_count": 606
+              },
+              "fresh": {
+                "CLI": 2,
+                "installed_controls": 0,
+                "inventory_count": 606
+              }
+            },
+            "receipts": [
+              {
+                "receipt": {
+                  "CLI": 2,
+                  "applied": "NOT_APPLIED",
+                  "controls": null,
+                  "installed_controls": 0,
+                  "inventory_count": 606,
+                  "inventory_sha256": "72a0e8834771f7c9f04c512a4f6bdb1db894859d6859bf6067e3ff5c8fa316cb",
+                  "inventory_versions_sha256": "3a586c1e3400391f56bd281ac9c16aba85d94d0fca002770e77ee1802c5d9fd1",
+                  "raw_inventory": "OWN_TEMP_REMOVED_BOUNDED_HASH_ONLY_NOT_PAYLOAD_PROOF",
+                  "recipe_role": "apps6",
+                  "status": "PASS_ACTUAL_INSTALLED_APPS_READONLY"
+                },
+                "retirement": {
+                  "descendants_reaped": 0,
+                  "direct_child_reaped": true,
+                  "group_kill_sent": true,
+                  "group_retired": true,
+                  "returncode": 0,
+                  "termination": null
+                },
+                "stderr": {
+                  "bytes": 0,
+                  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                },
+                "stdout": {
+                  "bytes": 435,
+                  "sha256": "95b7e886acd14aba43af88ed670841451f212da1d8e7bc0848a5db9f615a1ef6"
+                }
+              },
+              {
+                "receipt": {
+                  "CLI": 2,
+                  "applied": "NOT_APPLIED",
+                  "controls": null,
+                  "installed_controls": 0,
+                  "inventory_count": 606,
+                  "inventory_sha256": "72a0e8834771f7c9f04c512a4f6bdb1db894859d6859bf6067e3ff5c8fa316cb",
+                  "inventory_versions_sha256": "3a586c1e3400391f56bd281ac9c16aba85d94d0fca002770e77ee1802c5d9fd1",
+                  "raw_inventory": "OWN_TEMP_REMOVED_BOUNDED_HASH_ONLY_NOT_PAYLOAD_PROOF",
+                  "recipe_role": "apps6",
+                  "status": "PASS_ACTUAL_INSTALLED_APPS_READONLY"
+                },
+                "retirement": {
+                  "descendants_reaped": 0,
+                  "direct_child_reaped": true,
+                  "group_kill_sent": true,
+                  "group_retired": true,
+                  "returncode": 0,
+                  "termination": null
+                },
+                "stderr": {
+                  "bytes": 0,
+                  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                },
+                "stdout": {
+                  "bytes": 435,
+                  "sha256": "95b7e886acd14aba43af88ed670841451f212da1d8e7bc0848a5db9f615a1ef6"
+                }
+              }
+            ],
+            "zero_capabilities": true
+          },
+          "other605": "FULL_PAYLOAD_RAW_DB_INODE_HARDLINK_CAPS_PROTECTED",
+          "phase": "restore-original6",
+          "selected_db": "CURRENT_NORMAL_ALPM_NOT_HISTORICAL_INODE",
+          "selected_version": "0.1.0-6",
+          "source606": "UNCHANGED_SEPARATE_READBACK_REQUIRED",
+          "transaction": {
+            "descendants_reaped": 8,
+            "direct_child_reaped": true,
+            "group_retired": true,
+            "receipt": {
+              "after_count": 606,
+              "before_count": 606,
+              "hooks": "DISABLED",
+              "lock_parent": {
+                "after": [
+                  2049,
+                  11010901,
+                  16877,
+                  0,
+                  0,
+                  4,
+                  4096,
+                  1792915664313800803,
+                  1792915664313800803
+                ],
+                "before": [
+                  2049,
+                  11010901,
+                  16877,
+                  0,
+                  0,
+                  4,
+                  4096,
+                  1792915545040240818,
+                  1792915545040240818
+                ],
+                "lock_created": true,
+                "lock_removed": true,
+                "names": [
+                  "local",
+                  "sync"
+                ],
+                "path": "var/lib/pacman"
+              },
+              "preservation": "NOT_YET_CHECKED",
+              "scriptlets": "DISABLED",
+              "signature": "REQUIRED_TEST_ONLY",
+              "signature_receipt": {
+                "group_retired": true,
+                "returncode": 0,
+                "signer": "DE216E01F75BBA4DEFCAD5F98383AAD040EDE92B",
+                "status_stderr": {
+                  "bytes": 213,
+                  "sha256": "ee22b54da9a59df5aacec862da87d1d3ad909306b74782c4d535ce4b2c0bc54f"
+                },
+                "status_stdout": {
+                  "bytes": 399,
+                  "sha256": "6fc5133a0e0668a9b007e9536576e895598b305d02b2e33953fcc42d9dd45026"
+                }
+              },
+              "status": "COMMITTED_SELECTED_APPS_REQUIRES_FULL_READBACK"
+            },
+            "returncode": 0,
+            "stderr": {
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stdout": {
+              "bytes": 856,
+              "sha256": "078f98ea2f0e4f4e8af585968ca0c298b49f6c99f7846da5ff5bb4c1676b645e"
+            },
+            "termination": null
+          }
+        }
+      ],
+      "other605": "SOURCE_ENFORCED_PRIVATE_COMPLETE_MAPS",
+      "restoration": "EXACT_ORIGINAL6_ARCHIVE_AND_SIGNATURE",
+      "source606": "SOURCE_ENFORCED_PRIVATE_FULL_REREADS"
+    }
+  },
+  "base604_auxiliary": [
+    {
+      "auxiliary": {
+        "bytes": 68552,
+        "sha256": "791cb2b950416d0375b4cc2eee06cfeb514ef99c91921ed823959af23085e320"
+      },
+      "helper_exit": "NOT_OBSERVED",
+      "phase": "baseline587",
+      "state": {
+        "bytes": 1054909,
+        "sha256": "33c8ac728c034c8d7b31f83d312076c971d9e5c86591024aede4fbb91a487821"
+      },
+      "transition": {
+        "kind": "BASELINE"
+      }
+    },
+    {
+      "auxiliary": {
+        "bytes": 68552,
+        "sha256": "4ae8308c35cdc2ce42c1f8ef5d1016139ceebd12d5d644c3d4ceed3d697d4ccc"
+      },
+      "helper_exit": "NOT_OBSERVED",
+      "phase": "install604",
+      "state": {
+        "bytes": 1054909,
+        "sha256": "027e65e19be8396744622c75926d4887aeae9427fb492bfbc04db8538ec7b36f"
+      },
+      "transition": {
+        "entries": 995,
+        "hash_buckets": 1021,
+        "kind": "EXACT_LOAD_SAVE_ORDER",
+        "padding": {
+          "after_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+          "before_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+          "bytes_changed": 0,
+          "bytes_per_record": 4,
+          "classification": "PINNED_SOURCE_AARCH64_TAIL_PADDING",
+          "slots_changed": 0,
+          "slots_compared": 995
+        },
+        "source_sha256": "4d8950977fbba59b0ccd479027811c6b82a31c3700d4478d04e8a4147c87bca8"
+      }
+    },
+    {
+      "auxiliary": {
+        "bytes": 68552,
+        "sha256": "4ae8308c35cdc2ce42c1f8ef5d1016139ceebd12d5d644c3d4ceed3d697d4ccc"
+      },
+      "helper_exit": "NOT_OBSERVED",
+      "phase": "same-version604",
+      "state": {
+        "bytes": 1054909,
+        "sha256": "027e65e19be8396744622c75926d4887aeae9427fb492bfbc04db8538ec7b36f"
+      },
+      "transition": {
+        "entries": 995,
+        "hash_buckets": 1021,
+        "kind": "EXACT_LOAD_SAVE_ORDER",
+        "padding": {
+          "after_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+          "before_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+          "bytes_changed": 0,
+          "bytes_per_record": 4,
+          "classification": "PINNED_SOURCE_AARCH64_TAIL_PADDING",
+          "slots_changed": 0,
+          "slots_compared": 995
+        },
+        "source_sha256": "4d8950977fbba59b0ccd479027811c6b82a31c3700d4478d04e8a4147c87bca8"
+      }
+    },
+    {
+      "auxiliary": {
+        "bytes": 68552,
+        "sha256": "791cb2b950416d0375b4cc2eee06cfeb514ef99c91921ed823959af23085e320"
+      },
+      "helper_exit": "NOT_OBSERVED",
+      "phase": "remove-to587-upgraded",
+      "state": {
+        "bytes": 1054909,
+        "sha256": "33c8ac728c034c8d7b31f83d312076c971d9e5c86591024aede4fbb91a487821"
+      },
+      "transition": {
+        "entries": 995,
+        "hash_buckets": 1021,
+        "kind": "EXACT_LOAD_SAVE_ORDER",
+        "padding": {
+          "after_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+          "before_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+          "bytes_changed": 0,
+          "bytes_per_record": 4,
+          "classification": "PINNED_SOURCE_AARCH64_TAIL_PADDING",
+          "slots_changed": 0,
+          "slots_compared": 995
+        },
+        "source_sha256": "4d8950977fbba59b0ccd479027811c6b82a31c3700d4478d04e8a4147c87bca8"
+      }
+    },
+    {
+      "auxiliary": {
+        "bytes": 68552,
+        "sha256": "4ae8308c35cdc2ce42c1f8ef5d1016139ceebd12d5d644c3d4ceed3d697d4ccc"
+      },
+      "helper_exit": "NOT_OBSERVED",
+      "phase": "remove-to587",
+      "state": {
+        "bytes": 1054909,
+        "sha256": "027e65e19be8396744622c75926d4887aeae9427fb492bfbc04db8538ec7b36f"
+      },
+      "transition": {
+        "entries": 995,
+        "hash_buckets": 1021,
+        "kind": "EXACT_LOAD_SAVE_ORDER",
+        "padding": {
+          "after_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+          "before_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+          "bytes_changed": 0,
+          "bytes_per_record": 4,
+          "classification": "PINNED_SOURCE_AARCH64_TAIL_PADDING",
+          "slots_changed": 0,
+          "slots_compared": 995
+        },
+        "source_sha256": "4d8950977fbba59b0ccd479027811c6b82a31c3700d4478d04e8a4147c87bca8"
+      }
+    },
+    {
+      "auxiliary": {
+        "bytes": 68552,
+        "sha256": "791cb2b950416d0375b4cc2eee06cfeb514ef99c91921ed823959af23085e320"
+      },
+      "helper_exit": "NOT_OBSERVED",
+      "phase": "restore604",
+      "state": {
+        "bytes": 1054909,
+        "sha256": "33c8ac728c034c8d7b31f83d312076c971d9e5c86591024aede4fbb91a487821"
+      },
+      "transition": {
+        "entries": 995,
+        "hash_buckets": 1021,
+        "kind": "EXACT_LOAD_SAVE_ORDER",
+        "padding": {
+          "after_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+          "before_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+          "bytes_changed": 0,
+          "bytes_per_record": 4,
+          "classification": "PINNED_SOURCE_AARCH64_TAIL_PADDING",
+          "slots_changed": 0,
+          "slots_compared": 995
+        },
+        "source_sha256": "4d8950977fbba59b0ccd479027811c6b82a31c3700d4478d04e8a4147c87bca8"
+      }
+    },
+    {
+      "auxiliary": {
+        "bytes": 68552,
+        "sha256": "4ae8308c35cdc2ce42c1f8ef5d1016139ceebd12d5d644c3d4ceed3d697d4ccc"
+      },
+      "helper_exit": "NOT_OBSERVED",
+      "phase": "final587-upgraded",
+      "state": {
+        "bytes": 1054909,
+        "sha256": "027e65e19be8396744622c75926d4887aeae9427fb492bfbc04db8538ec7b36f"
+      },
+      "transition": {
+        "entries": 995,
+        "hash_buckets": 1021,
+        "kind": "EXACT_LOAD_SAVE_ORDER",
+        "padding": {
+          "after_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+          "before_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+          "bytes_changed": 0,
+          "bytes_per_record": 4,
+          "classification": "PINNED_SOURCE_AARCH64_TAIL_PADDING",
+          "slots_changed": 0,
+          "slots_compared": 995
+        },
+        "source_sha256": "4d8950977fbba59b0ccd479027811c6b82a31c3700d4478d04e8a4147c87bca8"
+      }
+    },
+    {
+      "auxiliary": {
+        "bytes": 68552,
+        "sha256": "791cb2b950416d0375b4cc2eee06cfeb514ef99c91921ed823959af23085e320"
+      },
+      "helper_exit": "NOT_OBSERVED",
+      "phase": "final587",
+      "state": {
+        "bytes": 1054909,
+        "sha256": "33c8ac728c034c8d7b31f83d312076c971d9e5c86591024aede4fbb91a487821"
+      },
+      "transition": {
+        "entries": 995,
+        "hash_buckets": 1021,
+        "kind": "EXACT_LOAD_SAVE_ORDER",
+        "padding": {
+          "after_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+          "before_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+          "bytes_changed": 0,
+          "bytes_per_record": 4,
+          "classification": "PINNED_SOURCE_AARCH64_TAIL_PADDING",
+          "slots_changed": 0,
+          "slots_compared": 995
+        },
+        "source_sha256": "4d8950977fbba59b0ccd479027811c6b82a31c3700d4478d04e8a4147c87bca8"
+      }
+    }
+  ],
+  "base604_lifecycle": [
+    "baseline587",
+    "install604",
+    "same-version604",
+    "remove-to587",
+    "restore604",
+    "final587"
+  ],
+  "base_signature_payload_scope": {
+    "audio_inputs": 6,
+    "fresh_TEST_signatures": "18_SOURCE_ENFORCED_BYTES_NOT_EXPORTED",
+    "incoming": 19,
+    "native_pairs": 13,
+    "official_LSP_signature": "ORIGINAL_POLICY_HASH_DECLARATION_JOINED",
+    "signer_roles": {
+      "ephemeral_TEST": "DE216E01F75BBA4DEFCAD5F98383AAD040EDE92B",
+      "upstream_ALARM": "68B3537F39A313B3E574D06777193F152BDBE6A6"
+    },
+    "target_manifest": {
+      "bytes": 654400,
+      "sha256": "68b481459cfac44046a2c3f334dce6c01a596070a6cc1c3bb5d6af7cd6a55fca"
+    },
+    "unchanged_original_rows": 585
+  },
+  "cleanup": [
+    {
+      "resource": "owned-consumer",
+      "status": "PASS"
+    },
+    {
+      "resource": "owned604-public-cache",
+      "status": "PASS"
+    },
+    {
+      "resource": "original-producer",
+      "status": "PASS"
+    }
+  ],
+  "hardware": "NOT_RUN",
+  "installed_six_module_cases": [
+    "fish-bang-auto-done",
+    "fish-done-auto-bang",
+    "fish-noninteractive",
+    "zsh-auto-highlight-substring",
+    "zsh-highlight-substring-auto",
+    "zsh-noninteractive"
+  ],
+  "limitations": [
+    "Public659 original package pair decisions are joined separately from the sanitized native574 repair-bytes authority. That authority establishes no missing-repair/aggregate/604/VM/GUI credit. No raw223 evidence is consumed.",
+    "Complete BUILDINFO lists and expected pacman-Q lock hashes are provenance/original-pair-authority joins; the corresponding raw Q-lock bytes are not exported or reconstructed.",
+    "Root must independently join every actual source record to the supplied frozen Git commit. This tool performs no Git or collected code execution and cannot establish remote publication.",
+    "All fresh target-cache signatures, public keyrings and585 original system archive pairs are not exported. Signature-role/hash/unchanged-row declarations and source-enforced verification are joined; no fresh cryptographic verification is performed.",
+    "The six audio archive payloads and private full installed node/database/ownership/user maps are not exported. Incoming audio identity is joined to frozen policy; actual installed comparisons remain original source-enforced receipts.",
+    "Raw eight auxiliary-cache blobs and ldconfig state JSON are independently replayed using the exact frozen comparator. Helper exit remains NOT_OBSERVED; no helper execution, regeneration or source/binary correspondence claim.",
+    "Normal lifecycle exit0 and preservation/absence observations are original source-enforced records, not fresh process/root/container probes. Owned cleanup is disposal, not rollback or boot recovery.",
+    "Public-pair Apps6 native ARM604 metadata lifecycle and installed shell coexistence only; notification delivery, GUI,16K/Apple/M2,services/audio execution,installer,performance and release acceptance are not established.",
+    "Four new clean native containers on the same574 image, not independent machines. Two new script-only complete archive/PKGINFO/BUILDINFO pairs and source payloads are replayed; no hardware/performance credit.",
+    "New two detached signatures are retained and source-enforced by the same producer TEST signer. No fresh GPG execution or independent replay of the private signature trust path is performed.",
+    "Full private604 payload/inode/rawDB/user/trust/ownership maps and successful installed27/28 suite text are not exported. Source-enforced typed receipts/hashes are joined, never a fresh host observation.",
+    "Six new raw auxiliary states are compared with the unchanged complete historical comparator starting from original install604. Helper exit stays NOT_OBSERVED. No live NetworkManager or kernel sysctl mutation was requested.",
+    "Original151/MF148 and supplementary47 b015 metadata are source-bound; Root independently joins the closed263 Git source. Failed workflow/log-only evidence never passes positive verification.",
+    "Complete606 source/copy node/rawDB/inode/hardlink/capability/user/trust maps remain private. Their equality is source-enforced, not independent exported-map replay.",
+    "Five selected Apps transactions, protected Runtime1 signature and both ordinary users CLI/Apps15 observations are typed receipts with stream hashes. No fresh GPG/ALPM/fixture or collected code is executed.",
+    "Native Apps7/Runtime pairs are reused accepted inputs, not new independent builds. Four DNS/Sysctl builders and original fourteen raw auxiliary states remain independently joined.",
+    "Successful Apps15 unittest text and complete readonly inventory snapshots are unexported. No GUI,16K/M2, hardware, performance or release credit. Root alone issues actual acceptance.",
+    "Apps16/current606 eight phases are current DATA only; entire old Apps348 positive and independent Apps16 pair acceptance remain separate prerequisites. Raw private605/DB/inode/cap/user/trust maps and successful installed unittest text remain unexported source-enforced. No GUI/M2/performance/release credit."
+  ],
+  "metadata_files": 47,
+  "new606_auxiliary": [
+    {
+      "auxiliary": {
+        "bytes": 68552,
+        "sha256": "4ae8308c35cdc2ce42c1f8ef5d1016139ceebd12d5d644c3d4ceed3d697d4ccc"
+      },
+      "helper_exit": "NOT_OBSERVED",
+      "phase": "baseline604",
+      "state": {
+        "bytes": 1054909,
+        "sha256": "027e65e19be8396744622c75926d4887aeae9427fb492bfbc04db8538ec7b36f"
+      },
+      "transition": {
+        "kind": "RAW_EQUAL"
+      }
+    },
+    {
+      "auxiliary": {
+        "bytes": 68552,
+        "sha256": "791cb2b950416d0375b4cc2eee06cfeb514ef99c91921ed823959af23085e320"
+      },
+      "helper_exit": "NOT_OBSERVED",
+      "phase": "install606",
+      "state": {
+        "bytes": 1054909,
+        "sha256": "33c8ac728c034c8d7b31f83d312076c971d9e5c86591024aede4fbb91a487821"
+      },
+      "transition": {
+        "entries": 995,
+        "hash_buckets": 1021,
+        "kind": "EXACT_LOAD_SAVE_ORDER",
+        "padding": {
+          "after_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+          "before_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+          "bytes_changed": 0,
+          "bytes_per_record": 4,
+          "classification": "PINNED_SOURCE_AARCH64_TAIL_PADDING",
+          "slots_changed": 0,
+          "slots_compared": 995
+        },
+        "source_sha256": "4d8950977fbba59b0ccd479027811c6b82a31c3700d4478d04e8a4147c87bca8"
+      }
+    },
+    {
+      "auxiliary": {
+        "bytes": 68552,
+        "sha256": "4ae8308c35cdc2ce42c1f8ef5d1016139ceebd12d5d644c3d4ceed3d697d4ccc"
+      },
+      "helper_exit": "NOT_OBSERVED",
+      "phase": "same-version606",
+      "state": {
+        "bytes": 1054909,
+        "sha256": "027e65e19be8396744622c75926d4887aeae9427fb492bfbc04db8538ec7b36f"
+      },
+      "transition": {
+        "entries": 995,
+        "hash_buckets": 1021,
+        "kind": "EXACT_LOAD_SAVE_ORDER",
+        "padding": {
+          "after_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+          "before_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+          "bytes_changed": 0,
+          "bytes_per_record": 4,
+          "classification": "PINNED_SOURCE_AARCH64_TAIL_PADDING",
+          "slots_changed": 0,
+          "slots_compared": 995
+        },
+        "source_sha256": "4d8950977fbba59b0ccd479027811c6b82a31c3700d4478d04e8a4147c87bca8"
+      }
+    },
+    {
+      "auxiliary": {
+        "bytes": 68552,
+        "sha256": "791cb2b950416d0375b4cc2eee06cfeb514ef99c91921ed823959af23085e320"
+      },
+      "helper_exit": "NOT_OBSERVED",
+      "phase": "remove604",
+      "state": {
+        "bytes": 1054909,
+        "sha256": "33c8ac728c034c8d7b31f83d312076c971d9e5c86591024aede4fbb91a487821"
+      },
+      "transition": {
+        "entries": 995,
+        "hash_buckets": 1021,
+        "kind": "EXACT_LOAD_SAVE_ORDER",
+        "padding": {
+          "after_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+          "before_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+          "bytes_changed": 0,
+          "bytes_per_record": 4,
+          "classification": "PINNED_SOURCE_AARCH64_TAIL_PADDING",
+          "slots_changed": 0,
+          "slots_compared": 995
+        },
+        "source_sha256": "4d8950977fbba59b0ccd479027811c6b82a31c3700d4478d04e8a4147c87bca8"
+      }
+    },
+    {
+      "auxiliary": {
+        "bytes": 68552,
+        "sha256": "4ae8308c35cdc2ce42c1f8ef5d1016139ceebd12d5d644c3d4ceed3d697d4ccc"
+      },
+      "helper_exit": "NOT_OBSERVED",
+      "phase": "reinstall606",
+      "state": {
+        "bytes": 1054909,
+        "sha256": "027e65e19be8396744622c75926d4887aeae9427fb492bfbc04db8538ec7b36f"
+      },
+      "transition": {
+        "entries": 995,
+        "hash_buckets": 1021,
+        "kind": "EXACT_LOAD_SAVE_ORDER",
+        "padding": {
+          "after_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+          "before_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+          "bytes_changed": 0,
+          "bytes_per_record": 4,
+          "classification": "PINNED_SOURCE_AARCH64_TAIL_PADDING",
+          "slots_changed": 0,
+          "slots_compared": 995
+        },
+        "source_sha256": "4d8950977fbba59b0ccd479027811c6b82a31c3700d4478d04e8a4147c87bca8"
+      }
+    },
+    {
+      "auxiliary": {
+        "bytes": 68552,
+        "sha256": "791cb2b950416d0375b4cc2eee06cfeb514ef99c91921ed823959af23085e320"
+      },
+      "helper_exit": "NOT_OBSERVED",
+      "phase": "final604",
+      "state": {
+        "bytes": 1054909,
+        "sha256": "33c8ac728c034c8d7b31f83d312076c971d9e5c86591024aede4fbb91a487821"
+      },
+      "transition": {
+        "entries": 995,
+        "hash_buckets": 1021,
+        "kind": "EXACT_LOAD_SAVE_ORDER",
+        "padding": {
+          "after_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+          "before_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+          "bytes_changed": 0,
+          "bytes_per_record": 4,
+          "classification": "PINNED_SOURCE_AARCH64_TAIL_PADDING",
+          "slots_changed": 0,
+          "slots_compared": 995
+        },
+        "source_sha256": "4d8950977fbba59b0ccd479027811c6b82a31c3700d4478d04e8a4147c87bca8"
+      }
+    }
+  ],
+  "new606_receipt": {
+    "base604_state_sha256": "9d4bad4e76ae784128b47d588ac7a8efe67fe17553d6b234a19c1588dd2335ab",
+    "base_count": 604,
+    "events": [
+      {
+        "all604_preserved": true,
+        "count": 606,
+        "dependencies": true,
+        "observations": [
+          {
+            "hardware": "NOT_RUN",
+            "home": "606-home-fresh",
+            "kernel_mutation": "NOT_RUN",
+            "live_NM": "NOT_RUN",
+            "phase": "install606",
+            "products": {
+              "cachy-asahi-dns2": {
+                "controls": 27,
+                "program_sha256": "d708cbe54a8e96a62ff7d85e4eadfb7a980401adb3a9fe8465052f754b4c8c88",
+                "suite": {
+                  "exit": 0,
+                  "stderr_bytes": 3765,
+                  "stderr_sha256": "6eeb02c5172aa03ccbcc716aeb9a0d3a7243d18f772dca40a214cf1466acdad5",
+                  "stdout_bytes": 0,
+                  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                },
+                "version": "0.1.0-2"
+              },
+              "cachy-asahi-sysctl2": {
+                "controls": 28,
+                "program_sha256": "70e3e35d1bf517b21c84f5ecbe608da551e6f8577c68bbfbbd2412b8dd3ed4f0",
+                "suite": {
+                  "exit": 0,
+                  "stderr_bytes": 4398,
+                  "stderr_sha256": "9dfb6bc620e02124cd3cec71c50345109ae40a21a5bf46adf56bcb199b0cebe1",
+                  "stdout_bytes": 0,
+                  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                },
+                "version": "0.1.0-2"
+              }
+            },
+            "status": "PASS_BOTH606_INSTALLED_PRIVATE_FIXTURES"
+          },
+          {
+            "hardware": "NOT_RUN",
+            "home": "606-home-existing",
+            "kernel_mutation": "NOT_RUN",
+            "live_NM": "NOT_RUN",
+            "phase": "install606",
+            "products": {
+              "cachy-asahi-dns2": {
+                "controls": 27,
+                "program_sha256": "d708cbe54a8e96a62ff7d85e4eadfb7a980401adb3a9fe8465052f754b4c8c88",
+                "suite": {
+                  "exit": 0,
+                  "stderr_bytes": 3765,
+                  "stderr_sha256": "334f5c90faa9a31cfa93ebad9939420235798bd7c3ff005565ebeb0262113c73",
+                  "stdout_bytes": 0,
+                  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                },
+                "version": "0.1.0-2"
+              },
+              "cachy-asahi-sysctl2": {
+                "controls": 28,
+                "program_sha256": "70e3e35d1bf517b21c84f5ecbe608da551e6f8577c68bbfbbd2412b8dd3ed4f0",
+                "suite": {
+                  "exit": 0,
+                  "stderr_bytes": 4398,
+                  "stderr_sha256": "45cc3b319e5dbf0c38da0d2efd9bb326b39584b7139e0c17189f61e5a57c6ba7",
+                  "stdout_bytes": 0,
+                  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                },
+                "version": "0.1.0-2"
+              }
+            },
+            "status": "PASS_BOTH606_INSTALLED_PRIVATE_FIXTURES"
+          }
+        ],
+        "ownership": true,
+        "phase": "install606",
+        "signatures": true,
+        "trust_preserved": true,
+        "user_preserved": true
+      },
+      {
+        "all604_preserved": true,
+        "count": 606,
+        "dependencies": true,
+        "observations": [
+          {
+            "hardware": "NOT_RUN",
+            "home": "606-home-fresh",
+            "kernel_mutation": "NOT_RUN",
+            "live_NM": "NOT_RUN",
+            "phase": "same-version606",
+            "products": {
+              "cachy-asahi-dns2": {
+                "controls": 27,
+                "program_sha256": "d708cbe54a8e96a62ff7d85e4eadfb7a980401adb3a9fe8465052f754b4c8c88",
+                "suite": {
+                  "exit": 0,
+                  "stderr_bytes": 3765,
+                  "stderr_sha256": "baee4f3c89525e7932fd4a521a5dd58e34b952cd53d2d6ca39a389d7080815e9",
+                  "stdout_bytes": 0,
+                  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                },
+                "version": "0.1.0-2"
+              },
+              "cachy-asahi-sysctl2": {
+                "controls": 28,
+                "program_sha256": "70e3e35d1bf517b21c84f5ecbe608da551e6f8577c68bbfbbd2412b8dd3ed4f0",
+                "suite": {
+                  "exit": 0,
+                  "stderr_bytes": 4398,
+                  "stderr_sha256": "4ed9a24be001146894b9e7b4406f96bcd60f9b96e0c0546f9d166667fdafd0fc",
+                  "stdout_bytes": 0,
+                  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                },
+                "version": "0.1.0-2"
+              }
+            },
+            "status": "PASS_BOTH606_INSTALLED_PRIVATE_FIXTURES"
+          },
+          {
+            "hardware": "NOT_RUN",
+            "home": "606-home-existing",
+            "kernel_mutation": "NOT_RUN",
+            "live_NM": "NOT_RUN",
+            "phase": "same-version606",
+            "products": {
+              "cachy-asahi-dns2": {
+                "controls": 27,
+                "program_sha256": "d708cbe54a8e96a62ff7d85e4eadfb7a980401adb3a9fe8465052f754b4c8c88",
+                "suite": {
+                  "exit": 0,
+                  "stderr_bytes": 3765,
+                  "stderr_sha256": "3334b0650a1cb8f6d01d21564c79eeaa233b6cdd0063657af9cc819cf56bf4d1",
+                  "stdout_bytes": 0,
+                  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                },
+                "version": "0.1.0-2"
+              },
+              "cachy-asahi-sysctl2": {
+                "controls": 28,
+                "program_sha256": "70e3e35d1bf517b21c84f5ecbe608da551e6f8577c68bbfbbd2412b8dd3ed4f0",
+                "suite": {
+                  "exit": 0,
+                  "stderr_bytes": 4398,
+                  "stderr_sha256": "45cc3b319e5dbf0c38da0d2efd9bb326b39584b7139e0c17189f61e5a57c6ba7",
+                  "stdout_bytes": 0,
+                  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                },
+                "version": "0.1.0-2"
+              }
+            },
+            "status": "PASS_BOTH606_INSTALLED_PRIVATE_FIXTURES"
+          }
+        ],
+        "ownership": true,
+        "phase": "same-version606",
+        "signatures": true,
+        "trust_preserved": true,
+        "user_preserved": true
+      },
+      {
+        "all604_preserved": true,
+        "count": 604,
+        "payloads_absent": true,
+        "phase": "remove604",
+        "trust_preserved": true,
+        "user_preserved": true
+      },
+      {
+        "all604_preserved": true,
+        "count": 606,
+        "dependencies": true,
+        "observations": [
+          {
+            "hardware": "NOT_RUN",
+            "home": "606-home-fresh",
+            "kernel_mutation": "NOT_RUN",
+            "live_NM": "NOT_RUN",
+            "phase": "reinstall606",
+            "products": {
+              "cachy-asahi-dns2": {
+                "controls": 27,
+                "program_sha256": "d708cbe54a8e96a62ff7d85e4eadfb7a980401adb3a9fe8465052f754b4c8c88",
+                "suite": {
+                  "exit": 0,
+                  "stderr_bytes": 3765,
+                  "stderr_sha256": "fb19bd1f7605415140046f639285b8f36140c6329b1252936f0359d5a6819b9b",
+                  "stdout_bytes": 0,
+                  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                },
+                "version": "0.1.0-2"
+              },
+              "cachy-asahi-sysctl2": {
+                "controls": 28,
+                "program_sha256": "70e3e35d1bf517b21c84f5ecbe608da551e6f8577c68bbfbbd2412b8dd3ed4f0",
+                "suite": {
+                  "exit": 0,
+                  "stderr_bytes": 4398,
+                  "stderr_sha256": "329cf4ef491312d8461363c9412efdfa433761b3ec87a1d22ec97c5fd0a88fed",
+                  "stdout_bytes": 0,
+                  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                },
+                "version": "0.1.0-2"
+              }
+            },
+            "status": "PASS_BOTH606_INSTALLED_PRIVATE_FIXTURES"
+          },
+          {
+            "hardware": "NOT_RUN",
+            "home": "606-home-existing",
+            "kernel_mutation": "NOT_RUN",
+            "live_NM": "NOT_RUN",
+            "phase": "reinstall606",
+            "products": {
+              "cachy-asahi-dns2": {
+                "controls": 27,
+                "program_sha256": "d708cbe54a8e96a62ff7d85e4eadfb7a980401adb3a9fe8465052f754b4c8c88",
+                "suite": {
+                  "exit": 0,
+                  "stderr_bytes": 3765,
+                  "stderr_sha256": "6eeb02c5172aa03ccbcc716aeb9a0d3a7243d18f772dca40a214cf1466acdad5",
+                  "stdout_bytes": 0,
+                  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                },
+                "version": "0.1.0-2"
+              },
+              "cachy-asahi-sysctl2": {
+                "controls": 28,
+                "program_sha256": "70e3e35d1bf517b21c84f5ecbe608da551e6f8577c68bbfbbd2412b8dd3ed4f0",
+                "suite": {
+                  "exit": 0,
+                  "stderr_bytes": 4398,
+                  "stderr_sha256": "329cf4ef491312d8461363c9412efdfa433761b3ec87a1d22ec97c5fd0a88fed",
+                  "stdout_bytes": 0,
+                  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                },
+                "version": "0.1.0-2"
+              }
+            },
+            "status": "PASS_BOTH606_INSTALLED_PRIVATE_FIXTURES"
+          }
+        ],
+        "ownership": true,
+        "phase": "reinstall606",
+        "signatures": true,
+        "trust_preserved": true,
+        "user_preserved": true
+      },
+      {
+        "all604_preserved": true,
+        "count": 604,
+        "payloads_absent": true,
+        "phase": "final604",
+        "trust_preserved": true,
+        "user_preserved": true
+      }
+    ],
+    "hardware": "NOT_RUN",
+    "installed_count": 606,
+    "kernel_mutation": "NOT_RUN",
+    "ldconfig": [
+      {
+        "aux_sha256": "4ae8308c35cdc2ce42c1f8ef5d1016139ceebd12d5d644c3d4ceed3d697d4ccc",
+        "helper_exit": "NOT_OBSERVED",
+        "phase": "baseline604",
+        "state_sha256": "027e65e19be8396744622c75926d4887aeae9427fb492bfbc04db8538ec7b36f",
+        "transition": {
+          "kind": "RAW_EQUAL"
+        }
+      },
+      {
+        "aux_sha256": "791cb2b950416d0375b4cc2eee06cfeb514ef99c91921ed823959af23085e320",
+        "helper_exit": "NOT_OBSERVED",
+        "phase": "install606",
+        "state_sha256": "33c8ac728c034c8d7b31f83d312076c971d9e5c86591024aede4fbb91a487821",
+        "transition": {
+          "entries": 995,
+          "hash_buckets": 1021,
+          "kind": "EXACT_LOAD_SAVE_ORDER",
+          "padding": {
+            "after_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+            "before_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+            "bytes_changed": 0,
+            "bytes_per_record": 4,
+            "classification": "PINNED_SOURCE_AARCH64_TAIL_PADDING",
+            "slots_changed": 0,
+            "slots_compared": 995
+          },
+          "source_sha256": "4d8950977fbba59b0ccd479027811c6b82a31c3700d4478d04e8a4147c87bca8"
+        }
+      },
+      {
+        "aux_sha256": "4ae8308c35cdc2ce42c1f8ef5d1016139ceebd12d5d644c3d4ceed3d697d4ccc",
+        "helper_exit": "NOT_OBSERVED",
+        "phase": "same-version606",
+        "state_sha256": "027e65e19be8396744622c75926d4887aeae9427fb492bfbc04db8538ec7b36f",
+        "transition": {
+          "entries": 995,
+          "hash_buckets": 1021,
+          "kind": "EXACT_LOAD_SAVE_ORDER",
+          "padding": {
+            "after_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+            "before_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+            "bytes_changed": 0,
+            "bytes_per_record": 4,
+            "classification": "PINNED_SOURCE_AARCH64_TAIL_PADDING",
+            "slots_changed": 0,
+            "slots_compared": 995
+          },
+          "source_sha256": "4d8950977fbba59b0ccd479027811c6b82a31c3700d4478d04e8a4147c87bca8"
+        }
+      },
+      {
+        "aux_sha256": "791cb2b950416d0375b4cc2eee06cfeb514ef99c91921ed823959af23085e320",
+        "helper_exit": "NOT_OBSERVED",
+        "phase": "remove604",
+        "state_sha256": "33c8ac728c034c8d7b31f83d312076c971d9e5c86591024aede4fbb91a487821",
+        "transition": {
+          "entries": 995,
+          "hash_buckets": 1021,
+          "kind": "EXACT_LOAD_SAVE_ORDER",
+          "padding": {
+            "after_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+            "before_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+            "bytes_changed": 0,
+            "bytes_per_record": 4,
+            "classification": "PINNED_SOURCE_AARCH64_TAIL_PADDING",
+            "slots_changed": 0,
+            "slots_compared": 995
+          },
+          "source_sha256": "4d8950977fbba59b0ccd479027811c6b82a31c3700d4478d04e8a4147c87bca8"
+        }
+      },
+      {
+        "aux_sha256": "4ae8308c35cdc2ce42c1f8ef5d1016139ceebd12d5d644c3d4ceed3d697d4ccc",
+        "helper_exit": "NOT_OBSERVED",
+        "phase": "reinstall606",
+        "state_sha256": "027e65e19be8396744622c75926d4887aeae9427fb492bfbc04db8538ec7b36f",
+        "transition": {
+          "entries": 995,
+          "hash_buckets": 1021,
+          "kind": "EXACT_LOAD_SAVE_ORDER",
+          "padding": {
+            "after_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+            "before_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+            "bytes_changed": 0,
+            "bytes_per_record": 4,
+            "classification": "PINNED_SOURCE_AARCH64_TAIL_PADDING",
+            "slots_changed": 0,
+            "slots_compared": 995
+          },
+          "source_sha256": "4d8950977fbba59b0ccd479027811c6b82a31c3700d4478d04e8a4147c87bca8"
+        }
+      },
+      {
+        "aux_sha256": "791cb2b950416d0375b4cc2eee06cfeb514ef99c91921ed823959af23085e320",
+        "helper_exit": "NOT_OBSERVED",
+        "phase": "final604",
+        "state_sha256": "33c8ac728c034c8d7b31f83d312076c971d9e5c86591024aede4fbb91a487821",
+        "transition": {
+          "entries": 995,
+          "hash_buckets": 1021,
+          "kind": "EXACT_LOAD_SAVE_ORDER",
+          "padding": {
+            "after_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+            "before_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+            "bytes_changed": 0,
+            "bytes_per_record": 4,
+            "classification": "PINNED_SOURCE_AARCH64_TAIL_PADDING",
+            "slots_changed": 0,
+            "slots_compared": 995
+          },
+          "source_sha256": "4d8950977fbba59b0ccd479027811c6b82a31c3700d4478d04e8a4147c87bca8"
+        }
+      }
+    ],
+    "live_NM": "NOT_RUN",
+    "release": "NOT_ADMITTED",
+    "restored_count": 604,
+    "status": "PASS_SIGNED604_TO606_PRIVATE_LIFECYCLE"
+  },
+  "new_pairs": {
+    "cachy-asahi-dns2": {
+      "actual_package": "cachy-asahi-dns",
+      "archives": [
+        {
+          "bytes": 15632,
+          "path": "cachy-asahi-dns2-a/artifacts/cachy-asahi-dns-0.1.0-2-any.pkg.tar.xz",
+          "sha256": "588301342503ab23869d78e212f50a7b363fe45dcaf7c2ad4c411a33bab22d1d"
+        },
+        {
+          "bytes": 15632,
+          "path": "cachy-asahi-dns2-b/artifacts/cachy-asahi-dns-0.1.0-2-any.pkg.tar.xz",
+          "sha256": "588301342503ab23869d78e212f50a7b363fe45dcaf7c2ad4c411a33bab22d1d"
+        }
+      ],
+      "pair": "COMPLETE_BYTES_AND_BUILDINFO_EQUAL",
+      "signature": {
+        "bytes": 119,
+        "sha256": "51e298157ee70cc65b462fc8f27f64a60a2c226b67692c29d6b44fa70c719104"
+      },
+      "version": "0.1.0-2"
+    },
+    "cachy-asahi-sysctl2": {
+      "actual_package": "cachy-asahi-sysctl",
+      "archives": [
+        {
+          "bytes": 14840,
+          "path": "cachy-asahi-sysctl2-a/artifacts/cachy-asahi-sysctl-0.1.0-2-any.pkg.tar.xz",
+          "sha256": "f569ddfb8b1a5347f26db05b9f702706bebc9d8b88369f1a5861544a285659c3"
+        },
+        {
+          "bytes": 14840,
+          "path": "cachy-asahi-sysctl2-b/artifacts/cachy-asahi-sysctl-0.1.0-2-any.pkg.tar.xz",
+          "sha256": "f569ddfb8b1a5347f26db05b9f702706bebc9d8b88369f1a5861544a285659c3"
+        }
+      ],
+      "pair": "COMPLETE_BYTES_AND_BUILDINFO_EQUAL",
+      "signature": {
+        "bytes": 119,
+        "sha256": "2f0f39f533a8f701732009a3528e9459cf6f7a2afff2c664a1e972b10e8dc279"
+      },
+      "version": "0.1.0-2"
+    }
+  },
+  "nonce_authority": "ORIGINAL_INDEXED_SOURCE_OWNED_CANDIDATE_FULL_PROTOCOL_JOIN_REQUIRED",
+  "origin": {
+    "artifact_role": "SOURCE_OWNED_NATIVE_FRAMED_TRANSPORT_V1",
+    "frames": {
+      "part-0000": {
+        "bytes": 45190,
+        "sha256": "67a1338ad033a794bd8cf44f80975bdda3804eb04aa67f3d237e94b740ed4831"
+      },
+      "part-0001": {
+        "bytes": 771888,
+        "sha256": "bb262b65ece98c1c3c30fabe7a927bf13df66fff527834d2e735ed2ea2d62bd7"
+      },
+      "part-0002": {
+        "bytes": 398449,
+        "sha256": "a00462b355a1f1d5701ff7e7bc4af184f10002778f27105afc5118610fded738"
+      },
+      "part-0003": {
+        "bytes": 513905,
+        "sha256": "df0bff46e06361f5c6823a9ecd4f05b69830715b4a91514b7671edac169236a3"
+      },
+      "part-0004": {
+        "bytes": 398452,
+        "sha256": "2891f6e0b38b023c4891ab904f58942b8b638cfc020384e307d38f93dcb9495e"
+      },
+      "part-0005": {
+        "bytes": 720623,
+        "sha256": "6262c3abde010bd6695c5cbfcda585113f8ba13369c4935393880c92b744dbd6"
+      },
+      "part-0006": {
+        "bytes": 697489,
+        "sha256": "20e19c6974affbac3d1ef1e37d7a0be013ebe2464c93200f1ffd31cb4c4a68a6"
+      },
+      "part-0007": {
+        "bytes": 660418,
+        "sha256": "1967bf969a1bf5dd79954abb1cf94e3d81811e34bdbc656b6a3b89147708a157"
+      },
+      "part-0008": {
+        "bytes": 2014118,
+        "sha256": "ba47545443f972296e8cf1eecd8b23e39a8af84b11971f1fa91d99674d053fb1"
+      },
+      "part-0009": {
+        "bytes": 1334652,
+        "sha256": "4c49cc456e223e7f5f2b371359bc6cb3448e83b30a790120e28bc2beac2cda19"
+      },
+      "part-0010": {
+        "bytes": 561374,
+        "sha256": "c8b9057d3a38d5b14e844d7c6588d2ab4d687a7fa943f6af5d57dbcaaadc618f"
+      },
+      "part-0011": {
+        "bytes": 596968,
+        "sha256": "d6a298c2db936ece371f444afba8fe9329c5da83ee33e2e748efb331309c57d3"
+      },
+      "part-0012": {
+        "bytes": 709484,
+        "sha256": "d23fcfde09e020730178bcb8641f279059e9ada81189a160fb6269b762b648de"
+      }
+    },
+    "original_artifact": {
+      "acceptance": "NOT_GRANTED",
+      "artifact": {
+        "bytes": 12734979,
+        "sha256": "d9e2dba51685fc5163e1c6dcc789a374ca2e8725045a2b340149efde9caa4d39"
+      },
+      "bytes": 43573492,
+      "context": {
+        "attempt": 1,
+        "head_sha": "fdf045f0d9c0d5c7646b160b3b9890969d7f9fcb",
+        "job": "native",
+        "nonce": "6dcb0d1cdf09e7c10f59aed5944ab35c",
+        "repository": "Gabriel-Kahen/cachy-asahi",
+        "run_id": 40171836477,
+        "step_id": "native_public_retention",
+        "step_name": "Retain the separate bounded604 public closure and lifecycle",
+        "workflow_name": "native-arm-current606-apps16-owned-copy",
+        "workflow_path": ".github/workflows/native-arm-build.yml"
+      },
+      "files": 950,
+      "job_id": 121104111988,
+      "metadata": {
+        "artifacts.json": {
+          "bytes": 777,
+          "sha256": "c8375dcb2175402613eedd64eb33f89380c35e4e7b3ac15e0ef5dbeaecfda8fd"
+        },
+        "jobs.json": {
+          "bytes": 15298,
+          "sha256": "da43b8452a37cf6edd30d48e8db11ff7cbb4ab5a4e76ab66de5c16f30282c57f"
+        },
+        "run.json": {
+          "bytes": 12978,
+          "sha256": "2a281f06dcc9125c3378f98f9b9e84ad040fad83f460785a135806c4abbada40"
+        }
+      },
+      "nonce_authority": "ORIGINAL_INDEXED_SOURCE_OWNED_CANDIDATE_FULL_PROTOCOL_JOIN_REQUIRED",
+      "original_conclusion": "success",
+      "role": "SOURCE_OWNED_NATIVE_FRAMED_TRANSPORT_V1",
+      "status": "VERIFIED_ORIGINAL_FRAMED_TRANSPORT_ONLY",
+      "step_number": 49,
+      "upload_step_number": 50
+    },
+    "transport": {
+      "advertised_public_closure": "PASS",
+      "bytes": 43573492,
+      "chunks": 948,
+      "files": 950,
+      "hardware": "NOT_RUN",
+      "native_acceptance": "NOT_PERFORMED",
+      "packet_count": 12,
+      "public_report_status": "PASS_CURRENT606_APPS16_COPY_PROTOCOL_REQUIRES_RETAINED_REPLAY"
+    }
+  },
+  "original587_interim": [
+    "remove-to587-upgraded",
+    "final587-upgraded"
+  ],
+  "original_base_files": 151,
+  "prerequisites": {
+    "native600": {
+      "bang_pair_bytes_buildinfo": "PASS",
+      "bang_version": "0.1.0-2",
+      "cleanup": "PASS",
+      "evidence": {
+        "bytes": 2016,
+        "path": "artifacts/development/expanded600-run38948569244/passive-verification.json",
+        "sha256": "e502c1dfb03a768232e749d83cc28d5dd6c29cdf9a85b7b5b4fb20955c5e2f40"
+      },
+      "expected600_sha256": "d263a3ca9089c204603f2e12b80dc4f209ee6e636f10da940a514040b636db79",
+      "hardware": "NOT_RUN",
+      "installed_lifecycle": "PASS",
+      "installed_six_modules": "PASS",
+      "installer": "NOT_RUN",
+      "ldconfig_helper_exit": "NOT_OBSERVED",
+      "ldconfig_qualification": "Source-defined AArch64 tail padding; helper source/binary correspondence not independently established",
+      "limits": {
+        "hardware": "NOT_RUN",
+        "installer": "NOT_RUN",
+        "native_work": "NOT_EXECUTED_BY_VERIFIER",
+        "original587_and_audio_archives": "POLICY_AND_REPORTED_RUNTIME_JOINS_ONLY_NOT_REINSPECTED",
+        "release": "NOT_ADMITTED",
+        "signature_reverification": "NOT_RUN_PUBLIC_KEYS_SIGNATURE_BYTES_NOT_EXPORTED"
+      },
+      "package_count": 600,
+      "release": "NOT_ADMITTED",
+      "run_id": "38948569244",
+      "scope": "Native ARM generic4096 offline600 composition; baseline587 preserved/restored,6 main and2 Bang subtransactions,6 installed module cases,8 raw ld/aux checkpoints. Source-bound recorded cleanup; no live recheck.",
+      "source_sha": "8cc0a67295dc68772fc86ad81148eac3bec9eb56",
+      "status": "ROOT_ACCEPTED_NATIVE_EXPANDED600_COMPOSITION"
+    },
+    "observer587": {
+      "cleanup": "PASS",
+      "closed_bytes": 120435,
+      "closed_files": 9,
+      "expected_lock_sha256": "2198942a546f4714587c810fe174d4457121960f3a7b1dbaa276e9f970f322c7",
+      "hardware": "NOT_RUN",
+      "independent_root_readback": "PASS",
+      "log_archive": {
+        "bytes": 3116119,
+        "sha256": "85042d1545c9468c0c8137a051bc3fdd09f613d77f37ca65fd3f4606f0c4865d"
+      },
+      "nonce": "093f9a548d044cfaaa2e86ddff330bc2",
+      "ordinary_and_root_flags": {
+        "committed": true,
+        "database_verified": true,
+        "namespace_barrier": true,
+        "numeric_namespace_verified": true,
+        "numeric_ownership_verified": true,
+        "ordinary_parent_nnp_cap0": true,
+        "ownership_verified": true,
+        "parent_inventory_preserved": true,
+        "parent_payload_verified": true,
+        "payload_verified": true,
+        "preservation_verified": true,
+        "private_trust_verified": true,
+        "process_retirement": true,
+        "root_guest_payload_verified": true,
+        "source_cache_preserved": true
+      },
+      "ordinary_parent_retired": "PASS",
+      "package_count": 587,
+      "public_frame": {
+        "bytes": 32280,
+        "sha256": "8927a7eb466448ddc26d95fee5bafba4e5f3bb7e030be1bc6beb305a295814fb"
+      },
+      "qemu_natural_exit": true,
+      "qemu_seconds": 3721.634,
+      "root_observation": {
+        "complete": true,
+        "deadline_seconds": 600,
+        "elapsed_ms": 593819,
+        "footprint": {
+          "bytes": 4882156918,
+          "database_bytes": 11732088,
+          "database_files": 1790,
+          "hardlink_inodes": 1048,
+          "nodes": 123866
+        },
+        "missing_database_nodes": 0,
+        "missing_database_samples": [],
+        "observed_nodes": 123866,
+        "required_database_nodes": 1175,
+        "unsupported_counts": {
+          "absolute-symlink": 24,
+          "auxiliary-present": 3
+        },
+        "unsupported_reasons_omitted": 0
+      },
+      "run_id": "38921039131",
+      "scope": "Full signed587 generic4K fresh software installation. Exact raw protocol and nested receipts checked; no physical install, target boot, hooks/scriptlets, native-container P0 or performance acceptance. Full private disk/package tree was checked by the guest and is not exported.",
+      "source_sha": "52bc53f05b9eb4cbb125f76fd53b9ba5aae6d72c",
+      "status": "ROOT_ACCEPTED_FULL587_INSTALLER_SOFTWARE"
+    }
+  },
+  "producer_diagnostic": "FAILURE_DATA_ONLY_NO_POSITIVE_CREDIT",
+  "protocol_derivation": {
+    "apps_plan": {
+      "before": {
+        "bytes": 3784,
+        "sha256": "72a44482fc97f67ddbf2c7018b31e1ef3f43ddaff703310b3a7fdcb3c734cb61"
+      },
+      "edits": [
+        [
+          " B.need(plan==expected,'whole actual plan equals source constructor from independently joined archives')",
+          " expected=pair_check(public,plan,expected,checks)\n B.need(plan==expected,'whole actual plan equals source constructor from independently joined archives')",
+          1
+        ]
+      ],
+      "proposed": {
+        "bytes": 3834,
+        "sha256": "e033a9de11390f64cd09f96d0f4c901593cee5a6ecb7e23601f39b35a48de7cb"
+      }
+    },
+    "artifact_positive": {
+      "before": {
+        "bytes": 777,
+        "sha256": "6d79ae8ebdf8c32f4c2c1caa7ff3fb2a0fb55b3bb5306ac9b907fc48a1fd1b84"
+      },
+      "edits": [
+        [
+          "source_files=348",
+          "source_files=389",
+          1
+        ]
+      ],
+      "proposed": {
+        "bytes": 777,
+        "sha256": "e23318f41c57b7fa0b9aa11dab01e0b88f096a9fdd582e721bff08a142ce998d"
+      }
+    },
+    "fixture": {
+      "before": {
+        "bytes": 1905,
+        "sha256": "cf3360d6568f0078e22fa5b3c1943542b3a282d2a4288aa1af34aff970130c51"
+      },
+      "edits": [
+        [
+          "else:\n  c=r['controls']",
+          "else:\n  B.need(version in('0.1.0-7','0.1.0-16'),'exact installed Apps7 or16 controls version')\n  c=r['controls']",
+          1
+        ]
+      ],
+      "proposed": {
+        "bytes": 1994,
+        "sha256": "8a856b3bc43964fd9103d4bf2a50981ef48ddaa5dc75a2d5e9008534888ca8fb"
+      }
+    },
+    "pipeline": {
+      "added": [
+        [
+          " P,A,X,_=source606()",
+          " P,A,_,X=source606()",
+          1
+        ]
+      ],
+      "original": [
+        [
+          "O.authorize(policy)",
+          "authorize_policy(O,S,policy)",
+          1
+        ],
+        [
+          "current606-welcome5-copy",
+          "current606-apps7-copy",
+          1
+        ],
+        [
+          "CURRENT606_WELCOME5",
+          "CURRENT606_APPS7",
+          1
+        ],
+        [
+          "welcome606_disposal",
+          "apps606_disposal",
+          1
+        ],
+        [
+          "rows[:9]",
+          "rows[:5]",
+          1
+        ],
+        [
+          "enumerate(events[1:],9)",
+          "enumerate(events[1:],5)",
+          1
+        ],
+        [
+          "signer=V.obj(V.read(public/'plan/original587-manifest.json'))['preparation']['signer_roles']['ephemeral_TEST'];products=welcome_pairs(public,owned,C,signer);plan=welcome_plan(public,products,signer)",
+          "signer=V.obj(V.read(public/'plan/original587-manifest.json'))['preparation']['signer_roles']['ephemeral_TEST'];plan=apps_plan(public,signer)",
+          1
+        ],
+        [
+          "report['welcome606_copy']",
+          "report['apps606_copy']",
+          1
+        ],
+        [
+          "EIGHT_BUILDERS_THEN",
+          "FOUR_BUILDERS_THEN",
+          1
+        ]
+      ]
+    },
+    "transport_positive": {
+      "before": {
+        "bytes": 1208,
+        "sha256": "37fbf701bfa3bc7e3cae37ab5af7abca12c883f435f969478a6306332a9f86dc"
+      },
+      "edits": [
+        [
+          "PASS_CURRENT606_APPS7_COPY_PROTOCOL_REQUIRES_RETAINED_REPLAY",
+          "PASS_CURRENT606_APPS16_COPY_PROTOCOL_REQUIRES_RETAINED_REPLAY",
+          1
+        ]
+      ],
+      "proposed": {
+        "bytes": 1209,
+        "sha256": "a0835239d8b0ae4249445058c9e369d86c0764f8faa21e23d25ba6a000e85702"
+      }
+    },
+    "verify": {
+      "before": {
+        "bytes": 1353,
+        "sha256": "5a5ca7c444c163af4969711fe62ff874b500232de848396c40b72d47319bee8b"
+      },
+      "edits": [
+        [
+          "CURRENT606_APPS7_CLOSED_OWNED_SOURCE_AND_COPY_ONLY",
+          "CURRENT606_APPS16_CLOSED_OWNED_SOURCE_AND_COPY_ONLY",
+          1
+        ],
+        [
+          "source_files=336",
+          "source_files=389",
+          1
+        ]
+      ],
+      "proposed": {
+        "bytes": 1354,
+        "sha256": "8098aa9f065ea129c44ed8f093bd5722053f1c66432bd94fc5aacac4268bab3d"
+      }
+    },
+    "worker_receipt": {
+      "before": {
+        "bytes": 4992,
+        "sha256": "95972327ed8e2eb97e52a91437cd09b4701f8681bbbbfedd7e49f792e3dbe472"
+      },
+      "edits": [
+        [
+          "counts=[606,606,606,605,606,606];phases=['baseline6','upgrade7','same-version7','remove7','reinstall7','restore-original6'];versions=['0.1.0-6','0.1.0-7','0.1.0-7',None,'0.1.0-7','0.1.0-6']",
+          "counts=[606,606,606,606,605,606,606,606];phases=['baseline6','upgrade7','upgrade16','same-version16','remove16','reinstall16','restore7','restore-original6'];versions=['0.1.0-6','0.1.0-7','0.1.0-16','0.1.0-16',None,'0.1.0-16','0.1.0-7','0.1.0-6']",
+          1
+        ],
+        [
+          "plan['original6'if version=='0.1.0-6'else'new7']['signer']",
+          "plan['original6'if version=='0.1.0-6'else'new7'if version=='0.1.0-7'else'new16']['signer']",
+          1
+        ],
+        [
+          "15 if version=='0.1.0-7'else 0",
+          "15 if version in('0.1.0-7','0.1.0-16')else 0",
+          1
+        ],
+        [
+          "'apps6'if version=='0.1.0-6'else'apps7'",
+          "'apps6'if version=='0.1.0-6'else'apps7'if version=='0.1.0-7'else'apps16'",
+          1
+        ],
+        [
+          "(plan['original6'],plan['new7'])",
+          "(plan['original6'],plan['new7'],plan['new16'])",
+          1
+        ],
+        [
+          "len(key['signers'])==2",
+          "len(key['signers'])==3",
+          1
+        ],
+        [
+          "len(key['operations'])==5",
+          "len(key['operations'])==7",
+          1
+        ]
+      ],
+      "proposed": {
+        "bytes": 5142,
+        "sha256": "2f38af7c93bd345ed4c8487ee760afdf91d93199fe61d58fadff928341bf96db"
+      }
+    }
+  },
+  "public_byte_case_authority": {
+    "decision": {
+      "bytes": 1481,
+      "path": "payload/repair-bytes-root-decision.json",
+      "sha256": "f8e106a882b7fc9b553c8a399f6d9296d17d77f9aadbdcf46135b090f88b4157"
+    },
+    "source": "1b04c762fdbf8a2e623b939b2e832bc0c084abf1"
+  },
+  "public_bytes": 43573492,
+  "public_files": 950,
+  "public_pair_inputs": {
+    "cachy-asahi-apps": {
+      "archive": {
+        "bytes": 22876,
+        "sha256": "1ce4a540a5ec2fa26353847b93fed953e084cf65e872836f670ac721446cd3d7"
+      },
+      "builds": [
+        {
+          "BUILDINFO_installed_entries": 575,
+          "BUILDINFO_installed_list_sha256": "080fac02800b8324e868ca07789e51275e7149e8acdcfe991a59338a90edac28",
+          "expected_pacman_Q_lock_sha256": "66c46d4645fa443d23df0e97765905555fe5bc2607787dca3f30ee2084cf597f",
+          "native_environment": "cachy-asahi-product-b128684b9c66a99e852b46bee166ab2b"
+        },
+        {
+          "BUILDINFO_installed_entries": 575,
+          "BUILDINFO_installed_list_sha256": "080fac02800b8324e868ca07789e51275e7149e8acdcfe991a59338a90edac28",
+          "expected_pacman_Q_lock_sha256": "66c46d4645fa443d23df0e97765905555fe5bc2607787dca3f30ee2084cf597f",
+          "native_environment": "cachy-asahi-product-6b3f5ec49f6eee38afff102ec84c4f96"
+        }
+      ],
+      "native_run": "39027622244",
+      "native_source": "c5481ad6bfd1539ab9a289bc9541133b979858f7",
+      "pair_qualification": "NATIVE_PAIR_ONLY",
+      "version": "0.1.0-6"
+    },
+    "cachy-asahi-cache": {
+      "archive": {
+        "bytes": 18304,
+        "sha256": "450706e2899f57b44ca2f446560c8aeab710a4726a13561d09a2cb4a8bf1da40"
+      },
+      "builds": [
+        {
+          "BUILDINFO_installed_entries": 574,
+          "BUILDINFO_installed_list_sha256": "032d830f507af88def0dd707ef2758216d3f1adfe194adda91642a9255dc2d1f",
+          "expected_pacman_Q_lock_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+          "native_environment": "cachy-asahi-product-3e31b274768f30885b1d9f83a980a596"
+        },
+        {
+          "BUILDINFO_installed_entries": 574,
+          "BUILDINFO_installed_list_sha256": "032d830f507af88def0dd707ef2758216d3f1adfe194adda91642a9255dc2d1f",
+          "expected_pacman_Q_lock_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+          "native_environment": "cachy-asahi-product-f38bf62fa14e0883a831cd83b0b87ea1"
+        }
+      ],
+      "native_run": "39027622244",
+      "native_source": "c5481ad6bfd1539ab9a289bc9541133b979858f7",
+      "pair_qualification": "NATIVE_PAIR_ONLY",
+      "version": "0.2.0-1"
+    },
+    "cachy-asahi-orphans": {
+      "archive": {
+        "bytes": 18900,
+        "sha256": "2543a13b584bf974efc4ce79f4da585d9e4513c2bc3907750fe5c962d20c8c02"
+      },
+      "builds": [
+        {
+          "BUILDINFO_installed_entries": 574,
+          "BUILDINFO_installed_list_sha256": "032d830f507af88def0dd707ef2758216d3f1adfe194adda91642a9255dc2d1f",
+          "expected_pacman_Q_lock_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+          "native_environment": "cachy-asahi-product-837f0acd7bc4d055b267511084d28209"
+        },
+        {
+          "BUILDINFO_installed_entries": 574,
+          "BUILDINFO_installed_list_sha256": "032d830f507af88def0dd707ef2758216d3f1adfe194adda91642a9255dc2d1f",
+          "expected_pacman_Q_lock_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+          "native_environment": "cachy-asahi-product-7993914c19fd9175425055f7896690fd"
+        }
+      ],
+      "native_run": "38993858003",
+      "native_source": "28e2a6b348751db98951ceb4d56fef48fa586dbe",
+      "pair_qualification": "NATIVE_PAIR_AND_DISPOSABLE_LIFECYCLE",
+      "version": "0.1.0-2"
+    },
+    "cachy-asahi-repository-runtime": {
+      "archive": {
+        "bytes": 28888,
+        "sha256": "1c8a9149da02e60a4c14598cdf7007d6dbffcd6150757fcf6711977aa00cf8aa"
+      },
+      "builds": [
+        {
+          "BUILDINFO_installed_entries": 574,
+          "BUILDINFO_installed_list_sha256": "032d830f507af88def0dd707ef2758216d3f1adfe194adda91642a9255dc2d1f",
+          "expected_pacman_Q_lock_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+          "native_environment": "cachy-asahi-product-79fcfdb48b2c21393bebea3f346e8109"
+        },
+        {
+          "BUILDINFO_installed_entries": 574,
+          "BUILDINFO_installed_list_sha256": "032d830f507af88def0dd707ef2758216d3f1adfe194adda91642a9255dc2d1f",
+          "expected_pacman_Q_lock_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+          "native_environment": "cachy-asahi-product-249b55364ed74e98660e634d0e4dafbe"
+        }
+      ],
+      "native_run": "39027622244",
+      "native_source": "c5481ad6bfd1539ab9a289bc9541133b979858f7",
+      "pair_qualification": "NATIVE_PAIR_ONLY",
+      "version": "0.1.0-1"
+    }
+  },
+  "release": "NOT_ADMITTED",
+  "retained_input_DATA": {
+    "actual_authority": false,
+    "authentication": "MANDATORY_ORIGINAL_GPG_NOT_REEXECUTED",
+    "desktop_inputs": 1148,
+    "native_inputs": 496,
+    "status": "PASS_ORIGINAL_WHOLE_CACHE_CUSTODY_DATA_ONLY"
+  },
+  "root_acceptance": "NOT_ISSUED",
+  "run_id": 40171836477,
+  "source": "fdf045f0d9c0d5c7646b160b3b9890969d7f9fcb",
+  "source_files": 389,
+  "source_manifest_sha256": "05137b683037ee59aa80503ddca90dc6a9242564fc56c8b8078f77fd52b0ef00",
+  "source_snapshot": {
+    "bytes": 66734,
+    "sha256": "ed874f722878c2dc06e4d00aeec814e551b1b2d7f536328cf749a9938d89047a"
+  },
+  "status": "VERIFIED_APPS606_PROTOCOL_NOT_ROOT_ACCEPTANCE"
+}
