@@ -1,0 +1,17 @@
+{
+  "append": "\n# This branch is failure-only and uses the exact original180-second dependency command.\nDEPENDENCY_LOGS={'dependency.log':65536,'dependency-audit/acquisition.json':16384}\nDEPENDENCY_PURPOSE='SOURCE_OWNED_FIVE_DEPENDENCY_FAILURE_DATA_ONLY'\ndef dependency_role(args,argv,log,timeout):\n values=list(map(str,argv));raw=Path(args.output)/'private'\n return(type(timeout)is int and timeout==180 and Path(log)==raw/'dependency.log'and\n  values==[str(__import__('sys').executable),'-B',str(Path(args.preparation_source)/'scripts/ci/full-development-composition/dependencies/acquire.py'),\n   '--source-root',str(args.updater),'--cache',str(args.cache),'--keydir',str(args.cache),'--output',str(raw/'dependency-audit')])\n\ndef dependency_record(args,argv,log,timeout,returncode,wait_error):\n need(dependency_role(args,argv,log,timeout),'NOT_FIXED_DEPENDENCY_ROLE')\n need(returncode is None or type(returncode)is int,'COMMAND_EXIT_TYPE')\n need(wait_error is None or isinstance(wait_error,BaseException),'WAIT_ERROR_TYPE')\n output=Path(args.output);owner=json.loads(read(output/'producer-owner.json',65536))\n need(owner['schema_version']==1 and re.fullmatch('[0-9a-f]{32}',owner['token'])and owner['preparation_source']==str(args.preparation_source),'ORIGINAL_PRODUCER_OWNER')\n logs={}\n for name,cap in DEPENDENCY_LOGS.items():\n  try:\n   logs[name]=tail(output/'private',name,cap)\n   if logs[name]['status']=='NOT_PRESENT':logs[name]=dict(status='ABSENT_DATA')\n  except(OSError,ValueError):logs[name]=dict(status='REFUSED_UNSAFE_OR_CHANGED')\n values=list(map(str,argv));value=dict(schema_version=1,purpose=DEPENDENCY_PURPOSE,\n  status='CAPTURED_FIXED_LOG_SET'if logs['dependency.log']['status']=='CAPTURED'else'PRIMARY_LOG_UNAVAILABLE',\n  command=dict(role='AUTHENTICATE_FIVE_DEDUPLICATE_FOUR',argv_sha256=hashlib.sha256(json.dumps(values,separators=(',',':'),ensure_ascii=True).encode()).hexdigest(),timeout_seconds=timeout,returncode=returncode,wait_error_type=None if wait_error is None else type(wait_error).__name__,retirement='ORIGINAL_COMMAND_FLOW_NOT_INDEPENDENTLY_REOBSERVED'),\n  logs=logs,acceptance_authority=False,cleanup_authority=False)\n need(len(encoded(value))<=MAX_DATA,'BOUNDED_DIAGNOSTIC_JSON');return value\n",
+  "edits": [
+    [
+      "need(name in LOGS and LOGS[name]==cap,'UNDECLARED_LOG')",
+      "need((name in LOGS and LOGS[name]==cap)or(name in DEPENDENCY_LOGS and DEPENDENCY_LOGS[name]==cap),'UNDECLARED_LOG')"
+    ],
+    [
+      "value['phase']=='updater-exact354-pair'",
+      "value['phase']==('authenticate-five-deduplicate-four'if data.get('purpose')==DEPENDENCY_PURPOSE else'updater-exact354-pair')"
+    ],
+    [
+      " def callback(argv,log,timeout,code,error):\n",
+      " def callback(argv,log,timeout,code,error):\n  if dependency_role(args,argv,log,timeout):\n   try:value=dependency_record(args,argv,log,timeout,code,error)\n   except BaseException:value=dict(schema_version=1,purpose=DEPENDENCY_PURPOSE,status='UNAVAILABLE_UNSAFE_OR_CHANGED_SOURCE',acceptance_authority=False,cleanup_authority=False)\n   if not captured:captured.append(value)\n   return\n"
+    ]
+  ]
+}
