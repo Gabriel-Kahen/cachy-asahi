@@ -1,0 +1,345 @@
+{
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "authorities": {
+    "base604": {
+      "GUI": "NOT_RUN",
+      "cleanup": "PASS",
+      "expected604_sha256": "7bc6caa51301bf076aeda4d137277a128c53a16e5bfd25f02e7309c4b3a408c3",
+      "fresh_installer": "NOT_RUN",
+      "hardware": "NOT_RUN",
+      "hash_bound_nongit_records": 2,
+      "input_policy_sha256": "a97b82d79e5aa967cde1b65c2f0a8b47cfd24d8cd3854b070dc919753a479e30",
+      "installed16k": "NOT_RUN",
+      "installed_lifecycle": "PASS",
+      "installed_six_module_cases": [
+        "fish-bang-auto-done",
+        "fish-done-auto-bang",
+        "fish-noninteractive",
+        "zsh-auto-highlight-substring",
+        "zsh-highlight-substring-auto",
+        "zsh-noninteractive"
+      ],
+      "installed_six_modules": "PASS",
+      "lifecycle_phases": [
+        "baseline587",
+        "install604",
+        "same-version604",
+        "remove-to587",
+        "restore604",
+        "final587"
+      ],
+      "limitations": [
+        "Public659 original package pair decisions are joined separately from the sanitized native574 repair-bytes authority. That authority establishes no missing-repair/aggregate/604/VM/GUI credit. No raw223 evidence is consumed.",
+        "Complete BUILDINFO lists and expected pacman-Q lock hashes are provenance/original-pair-authority joins; the corresponding raw Q-lock bytes are not exported or reconstructed.",
+        "Root must independently join every actual source record to the supplied frozen Git commit. This tool performs no Git or collected code execution and cannot establish remote publication.",
+        "All fresh target-cache signatures, public keyrings and585 original system archive pairs are not exported. Signature-role/hash/unchanged-row declarations and source-enforced verification are joined; no fresh cryptographic verification is performed.",
+        "The six audio archive payloads and private full installed node/database/ownership/user maps are not exported. Incoming audio identity is joined to frozen policy; actual installed comparisons remain original source-enforced receipts.",
+        "Raw eight auxiliary-cache blobs and ldconfig state JSON are independently replayed using the exact frozen comparator. Helper exit remains NOT_OBSERVED; no helper execution, regeneration or source/binary correspondence claim.",
+        "Normal lifecycle exit0 and preservation/absence observations are original source-enforced records, not fresh process/root/container probes. Owned cleanup is disposal, not rollback or boot recovery.",
+        "Public-pair Apps6 native ARM604 metadata lifecycle and installed shell coexistence only; notification delivery, GUI,16K/Apple/M2,services/audio execution,installer,performance and release acceptance are not established."
+      ],
+      "package_count": 604,
+      "performance": "NOT_MEASURED",
+      "release": "NOT_ADMITTED",
+      "root_decision_utc": "2026-10-17T16:09:39.027065+00:00",
+      "root_independent_replay": {
+        "bytes": 22118,
+        "sha256": "daa61a6e6c6e4714eece89b61016369b81e0cdbfc7c45960b5b2fbc5c5a6bedc"
+      },
+      "run_id": "39044616267",
+      "schema_version": 1,
+      "scope": "NATIVE_GENERIC4096_PUBLIC_PAIR_APPS6_604_METADATA_LIFECYCLE_AND_INSTALLED_SHELL_COEXISTENCE_ONLY",
+      "source_actual_git_joins": 151,
+      "source_authorization": {
+        "bytes": 97874,
+        "sha256": "f3244430e87ba94b65b7258759b802ab48a1868bd5a359ee493c74f3d63cf99e"
+      },
+      "source_git_joins": 288,
+      "source_manifest_sha256": "e2b1f8ac11fa119493e22f44722d265293887de7edda80f4b61c00f8a80bf51c",
+      "source_sha": "b0154bd3b60434e45d4411b558f3ffda9e415640",
+      "status": "ROOT_ACCEPTED_NATIVE_PUBLIC_PAIRS_APPS6_CURRENT604_COMPOSITION"
+    },
+    "dns2": {
+      "actual_architecture": "aarch64",
+      "actual_page_size": 4096,
+      "builds": "FOUR_DISTINCT_SAME_JOB_NATIVE_BUILDERS_TWO_COMPLETE_BYTE_PAIRS",
+      "candidate_program_sha256": "d708cbe54a8e96a62ff7d85e4eadfb7a980401adb3a9fe8465052f754b4c8c88",
+      "full604": "NOT_RUN",
+      "generic16k": "NOT_RUN",
+      "hardware": "NOT_RUN",
+      "installed_controls": {
+        "ordinary_homes": 2,
+        "v1": 21,
+        "v2": 27
+      },
+      "lifecycle": {
+        "bytes": 5125,
+        "sha256": "1666701f556bda40f92e18fdc567dbf12dd7f4cd3e5e6b75e7df45078705672a"
+      },
+      "limits": [
+        "PRIVATE574_PRESERVATION_MAPS_UNEXPORTED",
+        "INSTALLED_SUITE_TEXT_UNEXPORTED_STREAM_IDENTITIES_RETAINED",
+        "TEST_SIGNATURES_SOURCE_ENFORCED_NOT_INDEPENDENT_CRYPTO_OR_RELEASE_TRUST",
+        "NO_INDEPENDENT_MACHINE_ATTESTATION"
+      ],
+      "live_DNS": "NOT_RUN",
+      "original_transport": {
+        "artifact.zip": {
+          "bytes": 294326,
+          "sha256": "4967bb8d83b4fff2ba94e775d462f058be473762fd3477a25e13e76c0c2abf01"
+        },
+        "artifacts.json": {
+          "bytes": 778,
+          "sha256": "bbedb2c01cc77a858942c913dbf20cf4bfd45ffa2835e4d0a70c535e10a2fcbe"
+        },
+        "logs.zip": {
+          "bytes": 91244,
+          "sha256": "9b87aad6b67506d6b621ab626e5c5f80a5fb38207c72eb5f3afe38593d39c3f4"
+        },
+        "run.json": {
+          "bytes": 12975,
+          "sha256": "6570bcae8c63e1e3f35ef927f11b68c6fd837cf75195659f42f7e1c8c1d28ae6"
+        }
+      },
+      "performance": "NOT_MEASURED",
+      "private_NetworkManager": "1.58.1-2",
+      "private_discovery_cases": 7,
+      "private_network_and_base574": "SOURCE_ENFORCED_PRESERVED_RAW_MAPS_UNEXPORTED",
+      "private_profile": {
+        "bytes": 12413,
+        "sha256": "a5b3bdb10d6ba8db3c52e749336e16e3acc826111cb7cd102a8a25871fffee89"
+      },
+      "production_PolicyKit": "NOT_RUN",
+      "program_delivery": "SOURCE_BYTES_EQUAL_VERIFIED_NATIVE_BUILD_A_PAYLOAD_READONLY_MOUNT",
+      "recipe_source": "351cf8c52edc82ca7a776e782df82d731a72e54b",
+      "release": "NOT_ADMITTED",
+      "retirement": "DIRECT_WAIT0_WORKER_DAEMON_GROUP_ABSENCE_THEN_SEVEN_CONSUMERS_BEFORE_PRODUCER",
+      "run": 39101228683,
+      "source": "59a9aee351226e93e22574fd14bd3e0b45c8368d",
+      "status": "ROOT_ACCEPTED_NATIVE_DNS1_TO2_UPGRADE_AND_REAL_PRIVATE_DISCOVERY_RETAINED_SCOPE",
+      "strict_replay": {
+        "bytes": 633,
+        "sha256": "782352c6a2bb3c3bdc4f1402d17a1bbae76a067df41164359bf1cdded0cc616e"
+      },
+      "supervision": "ORIGINAL_SIX_CAP_SUPERVISOR_ZERO_EPIA_NNP1_NM_WORKER_AND_DAEMONS",
+      "transitions": [
+        575,
+        575,
+        574,
+        575,
+        574
+      ]
+    },
+    "sysctl2": {
+      "actual_architecture": "aarch64",
+      "actual_page_size": 4096,
+      "builds": "FOUR_DISTINCT_SAME_JOB_NATIVE_BUILDERS_TWO_COMPLETE_BYTE_PAIRS",
+      "cleanup": "RETAINED_ORDERED_SIX_CONSUMERS_THEN_PRODUCER",
+      "full604": "NOT_RUN",
+      "generic16k": "NOT_RUN",
+      "hardware": "NOT_RUN",
+      "host_sysctl_mutation": "NOT_RUN",
+      "installed_controls": {
+        "ordinary_homes": 2,
+        "v1": 19,
+        "v2": 28
+      },
+      "lifecycle": {
+        "bytes": 6288,
+        "sha256": "bdbfacf43ed5c74f05245bee49c4f1f32c0f6a8aabd40ef2ed05fda8733d4a49"
+      },
+      "limits": [
+        "PRIVATE574_PAYLOAD_DATABASE_USER_AND_SYSTEM_TRUST_MAPS_SOURCE_ENFORCED_UNEXPORTED",
+        "INSTALLED_SUITE_TEXT_UNEXPORTED_STREAM_IDENTITIES_RETAINED",
+        "TEST_SIGNATURES_SOURCE_ENFORCED_NOT_INDEPENDENT_CRYPTO_OR_RELEASE_TRUST",
+        "NO_INDEPENDENT_MACHINE_ATTESTATION"
+      ],
+      "original_transport": {
+        "artifact": {
+          "bytes": 264042,
+          "sha256": "0426b2e01449a7f0076f2f26f37af98e7f1cd40d94dd573de2b6d711229cad18"
+        },
+        "artifact_metadata": {
+          "bytes": 784,
+          "sha256": "b1bd97660f27fd4c0989e39ffabd6ad79c969cce49af5a0160e01b1dfd8d41ca"
+        },
+        "logs": {
+          "bytes": 90151,
+          "sha256": "3ad20beba17e19fa3ef9fabb952ead005c53d039dd57f5b04866a476546c9b15"
+        },
+        "metadata": {
+          "bytes": 12994,
+          "sha256": "24492c39bb9088ce79d5050af4b3577d3f409a7b10380f86018738f4f5be49b8"
+        }
+      },
+      "performance": "NOT_MEASURED",
+      "recipe_sources": {
+        "baseline": "8daeb115740ffb494e8fa91f0749c2edd6dd4284",
+        "candidate": "eac600bd4f256068a78eb793dd464277eed6ce23"
+      },
+      "release": "NOT_ADMITTED",
+      "run": 39100389988,
+      "source": "e2b0f5d6cde885936369949c6b0fcab2e4f66d12",
+      "source_enforced_preservation": "ORIGINAL574_PAYLOAD_RAWDB_USER_SYSTEM_TRUST_PRIVATE_MAPS_UNEXPORTED",
+      "status": "ROOT_ACCEPTED_NATIVE_SYSCTL1_TO2_UPGRADE_RETAINED_SCOPE",
+      "strict_replay": {
+        "bytes": 1179,
+        "sha256": "805c2f3a79445bc12bcd321eba1782f2818bd61036ea31fdd746f9aa43144e28"
+      },
+      "transitions": [
+        575,
+        575,
+        574,
+        575,
+        574
+      ],
+      "v1_records": "PRIVATE_PLANNED_AND_APPLIED_MODELS_PRESERVED_AND_DISCOVERED_AFTER_UPGRADE_AND_REINSTALL"
+    }
+  },
+  "base604_sha256": "7bc6caa51301bf076aeda4d137277a128c53a16e5bfd25f02e7309c4b3a408c3",
+  "base_source": "b0154bd3b60434e45d4411b558f3ffda9e415640",
+  "products": {
+    "cachy-asahi-dns2": {
+      "check_markers": [
+        "Ran 27 tests",
+        "\nOK"
+      ],
+      "controls": 27,
+      "package_name": "cachy-asahi-dns",
+      "payload": {
+        "usr/bin/cachy-asahi-dns": [
+          "cachy-asahi-dns",
+          493
+        ],
+        "usr/share/doc/cachy-asahi-dns/README.md": [
+          "README.md",
+          420
+        ],
+        "usr/share/doc/cachy-asahi-dns/source-provenance.json": [
+          "source-provenance.json",
+          420
+        ],
+        "usr/share/licenses/cachy-asahi-dns/LICENSE": [
+          "LICENSE",
+          420
+        ],
+        "usr/share/licenses/cachy-asahi-dns/NOTICE": [
+          "NOTICE",
+          420
+        ]
+      },
+      "recipe": "packages/tools/cachy-asahi-dns2",
+      "source_files": {
+        ".SRCINFO": {
+          "bytes": 1027,
+          "sha256": "9a71d77853351e76649415f1851ecf23844c580fd6845d60cd36ace6a40c82af"
+        },
+        "LICENSE": {
+          "bytes": 1081,
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "NOTICE": {
+          "bytes": 362,
+          "sha256": "1ff77dc69e120adfacea23ac77a756ff5931b888c7535f0e2f2b928114a5873e"
+        },
+        "PKGBUILD": {
+          "bytes": 1538,
+          "sha256": "f59423ab444744edce3df774687e1be226662fadaa73243d9bb7269c81c94543"
+        },
+        "README.md": {
+          "bytes": 7235,
+          "sha256": "a8192e1e96fe1bc5a8cfe0269dcef7961b79e590a50a9c93ddb9921e8c349582"
+        },
+        "cachy-asahi-dns": {
+          "bytes": 14882,
+          "sha256": "d708cbe54a8e96a62ff7d85e4eadfb7a980401adb3a9fe8465052f754b4c8c88"
+        },
+        "check_source.py": {
+          "bytes": 2430,
+          "sha256": "78b3080f5ee9c3a003de0719eff08ad85f6f862db608d9a3465ddcb40028b265"
+        },
+        "source-provenance.json": {
+          "bytes": 1704,
+          "sha256": "9f5af4c43a17754de5f9e2e77b0f271c74993a5f519b0c73094b103b744b2470"
+        },
+        "test_dns.py": {
+          "bytes": 14684,
+          "sha256": "c9f93d49bcf6d9c15cd6b2b098972c4494dee5774b1ed1a707c981bfbb8c6cc2"
+        }
+      },
+      "version": "0.1.0-2"
+    },
+    "cachy-asahi-sysctl2": {
+      "check_markers": [
+        "Ran 28 tests",
+        "\nOK"
+      ],
+      "controls": 28,
+      "package_name": "cachy-asahi-sysctl",
+      "payload": {
+        "usr/bin/cachy-asahi-sysctl": [
+          "cachy-asahi-sysctl",
+          493
+        ],
+        "usr/share/doc/cachy-asahi-sysctl/README.md": [
+          "README.md",
+          420
+        ],
+        "usr/share/doc/cachy-asahi-sysctl/source-provenance.json": [
+          "source-provenance.json",
+          420
+        ],
+        "usr/share/licenses/cachy-asahi-sysctl/LICENSE": [
+          "LICENSE",
+          420
+        ],
+        "usr/share/licenses/cachy-asahi-sysctl/NOTICE": [
+          "NOTICE",
+          420
+        ]
+      },
+      "recipe": "packages/tools/cachy-asahi-sysctl2",
+      "source_files": {
+        ".SRCINFO": {
+          "bytes": 882,
+          "sha256": "27ce439e50e40568f4d241589d4086e9918bd132ed55a5286e73a4767a66afcc"
+        },
+        "LICENSE": {
+          "bytes": 1081,
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "NOTICE": {
+          "bytes": 470,
+          "sha256": "5f75cdf074f7df1736f78f3e8e654196dedabff686ea32bbe92bf95c8863c50e"
+        },
+        "PKGBUILD": {
+          "bytes": 1400,
+          "sha256": "783b984ad07a31d0d862a8c18ae2bd97fc9492ee61e70dc481a69686b3eefe02"
+        },
+        "README.md": {
+          "bytes": 7860,
+          "sha256": "c9d25d4b56788c81118802080fc3b91b83f5d79087202c58d2a5cfeaa2002f4c"
+        },
+        "cachy-asahi-sysctl": {
+          "bytes": 16250,
+          "sha256": "70e3e35d1bf517b21c84f5ecbe608da551e6f8577c68bbfbbd2412b8dd3ed4f0"
+        },
+        "source-provenance.json": {
+          "bytes": 482,
+          "sha256": "75e01b5ce01a6f7bdef0bd3913456e8d135704886eed7ca85dea156901887f67"
+        },
+        "test_sysctl.py": {
+          "bytes": 19452,
+          "sha256": "e6e24ab48751ef0ec6747eb09c3a0fb3d0110732936d6da21824ba63d6e943f4"
+        }
+      },
+      "version": "0.1.0-2"
+    }
+  },
+  "recipe_source": "709e7a917cd67aaf6b1bceb314f7713dc4daec85",
+  "schema_version": 1,
+  "status": "ROOT_BOUND_ACCEPTED604_DNS2_SYSCTL2",
+  "target606_sha256": "3a586c1e3400391f56bd281ac9c16aba85d94d0fca002770e77ee1802c5d9fd1"
+}

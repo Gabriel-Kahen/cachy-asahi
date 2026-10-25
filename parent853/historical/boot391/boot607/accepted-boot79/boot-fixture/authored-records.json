@@ -1,0 +1,46 @@
+[
+  {
+    "MESSAGE": "SYNTHETIC TEST ONLY 11111111111111111111111111111111 kernel",
+    "PRIORITY": "3",
+    "_BOOT_ID": "11111111111111111111111111111111",
+    "_HOSTNAME": "synthetic-boot-fixture",
+    "_MACHINE_ID": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "_TRANSPORT": "kernel",
+    "_UID": "65534",
+    "__MONOTONIC_TIMESTAMP": "1",
+    "__REALTIME_TIMESTAMP": "1700000000000000"
+  },
+  {
+    "MESSAGE": "SYNTHETIC TEST ONLY 11111111111111111111111111111111 stdout",
+    "PRIORITY": "3",
+    "_BOOT_ID": "11111111111111111111111111111111",
+    "_HOSTNAME": "synthetic-boot-fixture",
+    "_MACHINE_ID": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "_TRANSPORT": "stdout",
+    "_UID": "65534",
+    "__MONOTONIC_TIMESTAMP": "1",
+    "__REALTIME_TIMESTAMP": "1700000000000000"
+  },
+  {
+    "MESSAGE": "SYNTHETIC TEST ONLY 22222222222222222222222222222222 kernel",
+    "PRIORITY": "3",
+    "_BOOT_ID": "22222222222222222222222222222222",
+    "_HOSTNAME": "synthetic-boot-fixture",
+    "_MACHINE_ID": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "_TRANSPORT": "kernel",
+    "_UID": "65534",
+    "__MONOTONIC_TIMESTAMP": "2",
+    "__REALTIME_TIMESTAMP": "1700000000000001"
+  },
+  {
+    "MESSAGE": "SYNTHETIC TEST ONLY 22222222222222222222222222222222 stdout",
+    "PRIORITY": "3",
+    "_BOOT_ID": "22222222222222222222222222222222",
+    "_HOSTNAME": "synthetic-boot-fixture",
+    "_MACHINE_ID": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "_TRANSPORT": "stdout",
+    "_UID": "65534",
+    "__MONOTONIC_TIMESTAMP": "2",
+    "__REALTIME_TIMESTAMP": "1700000000000001"
+  }
+]
