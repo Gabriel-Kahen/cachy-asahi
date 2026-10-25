@@ -1,0 +1,17 @@
+# Exact optional generic16K fresh607 source factory
+
+This source-only constructor consumes an ordinary exported public1197 tree (`b9976eea34eaed4b6e56af3be21d4d652fa971d6`, `codex/latest607-fresh-tooling-inputs-v1`) and reproduces corrected public1203 (`3160eaa23a25275a9a341874b528b60b69e4f8cb`, `codex/latest607-fresh-generic16k-scope-v1`). It does not execute the supplied parent, fetch inputs, install packages or launch a container/kernel/VM. Existing maintained factories and default4K routes are unchanged.
+
+Use fresh absolute canonical disjoint paths:
+
+    python3 -I -B -Werror prepare.py --parent /ABS/EXPORTED1197 --output /ABS/FRESH1203 --context known
+
+`--context null` emits the same exact1203 bytes and withholds the child's publication assertion in its receipt. It is not recursively unbound source or an admission-disabled runtime variant. All current actual_source/ref/run/Root fields remain NULL in every receipt. Emitted source retains its genuine parent/kernel input context; it contains both the original defaultgeneric4k route and explicitgeneric16k route.
+
+The factory pins complete input/output maps and nine readable operands through its entry-point-pinned profile. A small AST selection executes only four sealed pure DATA transform functions, with need/pin/encoding capabilities, never supplied-parent code or guard/actor functions. Original1203 intermediate bytes and both full inverse contexts are deterministically reconstructed from the public1197 input; no whole historical tree, compressed executable data, development author paths or actual collection is shipped. Stable descriptor/namespace checks exclude read atime, reject aliases/hardlinks/special files/foreign empty directories, and recheck all source/operand content and identities before writes.
+
+The output has1189 held, eight changed and six added paths. Its whole1197 and original1203 inverses and original8.768s SOURCE-only qualification remain in the existing guard/parent mechanism. The exact corrected9.270s source qualification can be joined as a SOURCE fact; no earlier4K/GNU result becomes current16K evidence. The source's existing full guard is retained and the hosted source-only job runs its actual entry under300s. No old native actual is replayed.
+
+The only new runtime mode uses exact BUILD_ONLY kernel20 source4056e2505ed7081674e949e0460258672cce14ff, run39156901928/artifact12147995917. It authenticates Image/config/header/configuration and independently requires actual16384 page size and release7.1.13-generic16k-managed-gui through the guest/ordinary/root/host protocol. Its inline retention exporter requires a closed mode and exact4K/16K semantic scope. Stock rootfs Image/modules/ALPM, Runtime1, other606 packages, signatures, ownership/namespaces, full root readback and retirement remain held. All original runtime/input/output limits remain;16K whole fit and userspace ABI remain unestablished. See the emitted page-mode-profile for sources, licenses, dependencies and exact build/configuration facts.
+
+Portable controls exercise real known/NULL CLI outputs, complete maps/inverses, byte/identity/path/profile/late-drift refusal, actual emitted six page controls, and the actual retention exporter with exact default4K byte preservation. Tests use inert private DATA and synthetic OS observations explicitly as source controls. They establish no current16K VM, M2/Asahi/platform, performance, installation/recovery or release acceptance.

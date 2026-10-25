@@ -1,0 +1,81 @@
+{
+  "name": "fresh607-generic16k-source",
+  "on": {
+    "push": {
+      "paths": [
+        "scripts/ci/fresh607-generic16k-source/**",
+        ".github/workflows/fresh607-generic16k-source.yml"
+      ]
+    },
+    "pull_request": {
+      "paths": [
+        "scripts/ci/fresh607-generic16k-source/**",
+        ".github/workflows/fresh607-generic16k-source.yml"
+      ]
+    },
+    "workflow_dispatch": {}
+  },
+  "permissions": {
+    "contents": "read"
+  },
+  "jobs": {
+    "source-controls": {
+      "runs-on": "ubuntu-24.04",
+      "timeout-minutes": 10,
+      "strategy": {
+        "fail-fast": false,
+        "matrix": {
+          "python": [
+            "3.12",
+            "3.14"
+          ]
+        }
+      },
+      "env": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONWARNINGS": "error"
+      },
+      "steps": [
+        {
+          "name": "Check out maintained source factory",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out exact parent1197",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "repository": "Gabriel-Kahen/cachy-asahi",
+            "ref": "b9976eea34eaed4b6e56af3be21d4d652fa971d6",
+            "path": ".ci-fixtures/parent1197",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out corrected expected1203",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "repository": "Gabriel-Kahen/cachy-asahi",
+            "ref": "3160eaa23a25275a9a341874b528b60b69e4f8cb",
+            "path": ".ci-fixtures/expected1203",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Select explicit Python",
+          "uses": "actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+          "with": {
+            "python-version": "${{ matrix.python }}"
+          }
+        },
+        {
+          "name": "Exact source factory, modes, retention and current guarded source entry",
+          "shell": "bash",
+          "run": "set -euo pipefail\nstage=$(mktemp -d \"$RUNNER_TEMP/freshpage1203.XXXXXXXX\")\ntrap 'rm -rf -- \"$stage\"' EXIT\nexport TMPDIR=\"$stage\"\nmkdir \"$stage/parent1197\" \"$stage/expected1203\"\ngit -C \"$GITHUB_WORKSPACE/.ci-fixtures/parent1197\" archive --format=tar b9976eea34eaed4b6e56af3be21d4d652fa971d6 | tar -xf - -C \"$stage/parent1197\"\ngit -C \"$GITHUB_WORKSPACE/.ci-fixtures/expected1203\" archive --format=tar 3160eaa23a25275a9a341874b528b60b69e4f8cb | tar -xf - -C \"$stage/expected1203\"\nexport FRESH_PAGE_PARENT=\"$stage/parent1197\"\nexport FRESH_PAGE_EXPECTED=\"$stage/expected1203\"\nexport FRESH_PAGE_SOURCE=\"$stage/source\"\npython3 -I -B -Werror scripts/ci/fresh607-generic16k-source/prepare.py --parent \"$FRESH_PAGE_PARENT\" --output \"$FRESH_PAGE_SOURCE\" > \"$stage/authorization.json\"\npython3 -I -B -Werror scripts/ci/fresh607-generic16k-source/test_source.py\npython3 -I -B -Werror scripts/ci/fresh607-generic16k-source/test_mode.py\ntimeout --signal=TERM --kill-after=10s 300s python3 -I -B -Werror \"$FRESH_PAGE_SOURCE/implementation/run.py\" --source-preflight\n"
+        }
+      ]
+    }
+  }
+}
