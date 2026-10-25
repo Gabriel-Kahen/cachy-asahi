@@ -1,0 +1,60 @@
+name: core7-ordinary-output-source
+on:
+  push:
+    paths:
+      - scripts/ci/core7-ordinary-output-source/**
+      - .github/workflows/core7-ordinary-output-source.yml
+  pull_request:
+    paths:
+      - scripts/ci/core7-ordinary-output-source/**
+      - .github/workflows/core7-ordinary-output-source.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONWARNINGS: error
+    steps:
+      - name: Check out the maintained dedicated factory
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Check out exact public44 source input
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 15a41fda11ac9ffa0ae4a7a53697d5f63a913a57
+          path: .ci-fixtures/core-ordinary44
+          persist-credentials: false
+      - name: Check out exact public45 expected source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 8592e58faaea5a9ab59db625952286b79d96f0f1
+          path: .ci-fixtures/core-ordinary45
+          persist-credentials: false
+      - name: Select the explicit Python version
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Reproduce whole45 source and refuse altered inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          stage=$(mktemp -d "$RUNNER_TEMP/core-ordinary-output.XXXXXXXX")
+          trap 'rm -rf -- "$stage"' EXIT
+          mkdir -m700 "$stage/input" "$stage/expected"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/core-ordinary44" archive --format=tar 15a41fda11ac9ffa0ae4a7a53697d5f63a913a57 | tar -x -C "$stage/input"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/core-ordinary45" archive --format=tar 8592e58faaea5a9ab59db625952286b79d96f0f1 | tar -x -C "$stage/expected"
+          export CORE_ORDINARY_INPUT="$stage/input"
+          export CORE_ORDINARY_EXPECTED="$stage/expected"
+          python3 -I -B -Werror scripts/ci/core7-ordinary-output-source/test_source.py
+          python3 -I -B -Werror scripts/ci/core7-ordinary-output-source/prepare.py --help
