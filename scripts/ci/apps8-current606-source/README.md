@@ -166,3 +166,18 @@ The new route validates normalized ordinary inputs/output before disjointness, a
 Apps14 pair input qualification is genuine9fc94 with native5bbf/run39788418793/recipe2e583/archive28636B/afd8b4c8f948aa4041383eaaf1b88f90934c7a5262e645e67f306b5d43d33b65. All original Runtime1/protected605, eight phases/seven transactions/six signed installs/150 installed checks, fresh graphs/hash/capabilities/crypto/trust/config/rawDB/user/retirement predicates and600/1800/90/70/6600/60/120 clocks remain mandatory. Current actual IDs stayNULL; GUI/16K/M2/native performance/release acceptance is not supplied by emission.
 
 Scoped read-only dual-Python CI uses exact parent389/expected389/carrier94 checkouts and executes full source emission/NULL/drift/alias/old-dispatch controls plus both complete nine-test emitted-source suites. Local factory qualification uses focused actual source controls and joins all1598 frozen author files plus the prior36 source executions rather than repeating old positive readers. The factory/test default has no artifacts path, signer, actor, Git/API, private vendor, rootfs or signing-secret dependency. All source/license bodies retain their original attribution.
+
+
+## Explicit Apps16 current606 source389
+
+Use `--apps16` with whole Apps14 source389 `97666b742d1b29e469e6de171da6e7a0d15c18c7`. Supply `--apps16-carrier` with exact94-file carrier `950b0699a6e3f7a56758d4d17a5d30dabc7b6e11` to reproduce published Apps16 source389 `fdf045f0d9c0d5c7646b160b3b9890969d7f9fcb`; omit that operand for the exact authority-NULL389 sibling. Current actual source/ref/run/acceptance remain NULL.
+
+```sh
+python3 -I -B -Werror scripts/ci/apps8-current606-source/prepare.py --apps16 \
+  --parent /exact-apps14-source389 --apps16-carrier /exact-apps16-carrier94 \
+  --output /fresh/apps16-source389
+```
+
+The route validates normalized ordinary/disjoint paths, complete389/94 input maps,25 readable replacements and9 NULL overlays before writing. It preserves364 source leaves, with16 changed/9 removed/9 added. Three explicit successor operands select the NULL form without duplicating its7.57MB full-parent inverse. Every emitted source retains whole14/389 and380/348/263 source guards. Original factory functions/defaults/Apps14 routes and runtime/crypto/security/clocks remain held. Emission grants no native/current606/GUI/16K/M2/performance or release acceptance.
+
+Scoped read-only dual-Python CI pins every action/fixture. Controls cover exact bound/NULL emission, source entry, four focused emitted-source controls, refusal boundaries and real unchanged Apps14 output parity. The prior44 source/constructor controls are retained frozen source evidence; this factory does not repeat full old nine-test suites or actual native replays.
