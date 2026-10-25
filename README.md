@@ -1,0 +1,17 @@
+# Independent Apps6-before607 baseline candidate
+
+This source selects Apps6 with the other606 versions exactly equal to the latest607
+Apps16 target. It holds600 original604 archive bodies and selects seven incoming
+archives. Native installation, readback, cleanup and Root acceptance are NOT_RUN.
+The original parent documentation below describes the Apps16-after607 ancestor;
+its complete source proof remains mandatory through a byte-exact reconstruction.
+
+# Fresh latest607 software installer: complete original274 closure
+
+Source-only child of the exact accepted Six853 source and the complete qualified274 installer library, not an installed607 acceptance record. The fixed607 package/archive target, eight incoming source payloads, protected601 including Runtime1, six derived604 runtime bodies, signatures/trust gates, original owner, full root observation, cleanup and clocks are held from frozen1098. Boot1 starts absent. Asahi platform packages stay unchanged; no macOS partitioner, hardware, M2, performance, release, or native-container P0 credit.
+
+The original218 publication lacked recipe/control leaves and failed its deep input gate; it is retained through a whole byte inverse, not used as an incomplete274 library. Complete274 bd0cf1891083d011b70edab10501c317d3720b78 contains all271 manifest rows plus two workflow aliases and the manifest itself. The issued historical604 Root decision and independent records are retained DATA with exact source/policy binding; their scope does not authorize a fresh607 result.
+
+The workflow retains the original274 body through a counted inverse. It separately authenticates the current child using the required `fresh_source_revision == github.sha` input before actors. `source` selects the fixed274 library. The unchanged255-byte control shell must execute exactly39+11 tests under a presecret root-authority controller in a child mount/network namespace backed by a private128MiB/16384-inode tmpfs. Only finite byte-pinned source fixtures are copied. Source controls retire their child process group on timeout/signals and verify the host namespace/mount and empty owned directory after retirement. Product runtime and all original clocks are unchanged: engine4500, independent readback600, QEMU5400, VM owner9600, outer15600, workflow270/350 minutes. Source-control owner120 seconds is the retained local qualification cap, not a product clock.
+
+Run `python3 -I -B implementation/run.py --source-preflight` for the closed namespace, whole1098/218/274/853 byte joins, runtime/workflow inverses and historical qualification binding. Native selectors remain NULL; fresh607, hardware, M2 and performance are NOT_RUN. The future workflow does not infer fresh installation from Six coexistence acceptance. No native run, signing, package installation, or acceptance parser was executed during this source preparation.
