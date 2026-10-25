@@ -1,0 +1,50 @@
+{
+  "ALPM_installation": "NOT_RUN",
+  "attempt": 1,
+  "candidate": {
+    "authority_sha256": "88643eabd61a39df63ecaeb50bb20041d17cf4fd3adee55d82d43d3c1ca08707",
+    "package": "cachy-asahi-glibc-gnu-provider",
+    "pkgbuild_sha256": "9d6d5e688c95febe85321abc69fbfe1b7781a02e318771ae43851d8c29f68bb8",
+    "prepared_tree": "08ea2aef96bd3144cf02cbc68cbbb003dc25ed9f",
+    "source_packet_ref": "60e174c5db7f770c94064198516dd3ee07b51b7b",
+    "version": "2.43.caa3-1"
+  },
+  "cleanup": "PASS",
+  "cleanup_evidence": "SOURCE_BOUND_RETAINED_ORDERED_RECEIPTS",
+  "current_guest_commands": 3,
+  "hardware": "NOT_RUN",
+  "independent_replay_sha256": "4e0a99e8a5dd5d0c820b20065b8ab20084db9d76466d524ce3334caae0fb5280",
+  "independent_source_Git_joins": 93,
+  "native_pair": {
+    "archive_sha256": "a8e9f3e1d8ffe049fdc834f62e74c14ff622b98898c2f849e1580ab8aa0fdbd9",
+    "payload": {
+      "node_count": 1592,
+      "node_manifest_sha256": "db12785a1e49a16cefe82bcad2aee0a776c3d5b78b1f767f54c4ebb28700c574"
+    },
+    "run_id": 38994309021,
+    "source_sha": "78dfd3bbd85a61a84dda2dfc601796ee89edfd5f"
+  },
+  "natural_VM_exit": 0,
+  "original_artifact_sha256": "a35e3567ba37f55da29eabc5a3896f0c1bd0e7670d094dc9d4ed926133c108a1",
+  "page_size": 16384,
+  "parent_cases": 8,
+  "performance": "NOT_MEASURED",
+  "provider_archive_bytes": 18598440,
+  "provider_archive_sha256": "a8e9f3e1d8ffe049fdc834f62e74c14ff622b98898c2f849e1580ab8aa0fdbd9",
+  "qualifications": [
+    "Independent reconstruction from original raw collection, exact Git source and existing public inputs.",
+    "Full captured tar/initramfs, kernel Image/config and UART were not exported; complete alignment/content/preservation predicates remain frozen-source-enforced.",
+    "Compiler receipts and probe bytes are reused; no new compiler or native commands ran during passive replay.",
+    "Ordered cleanup passed original retained receipts and source assertions; no fresh live absence probe.",
+    "Staged private-chroot runtime only; no ALPM installation, M2 hardware, performance, security or release acceptance."
+  ],
+  "release": "NOT_ADMITTED",
+  "run_id": 39001194484,
+  "runtime_file_joins": 19,
+  "runtime_records": 12,
+  "schema_version": 1,
+  "scope": "DATA_STAGED_PRIVATE_ROOT_NOT_ALPM_INSTALLATION",
+  "source_authority_sha256": "88643eabd61a39df63ecaeb50bb20041d17cf4fd3adee55d82d43d3c1ca08707",
+  "source_sha": "15d1d93da72cb0fa95b64cae90307e0c30903ed7",
+  "status": "ROOT_ACCEPTED_DEBIAN_MAINTAINED_SYSTEM_PATHS_GENERIC16K"
+}

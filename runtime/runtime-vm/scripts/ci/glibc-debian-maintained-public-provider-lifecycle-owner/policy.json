@@ -1,0 +1,18 @@
+{
+  "candidate": {
+    "authority_sha256": "88643eabd61a39df63ecaeb50bb20041d17cf4fd3adee55d82d43d3c1ca08707",
+    "package": "cachy-asahi-glibc-gnu-provider",
+    "pkgbuild_sha256": "9d6d5e688c95febe85321abc69fbfe1b7781a02e318771ae43851d8c29f68bb8",
+    "prepared_tree": "08ea2aef96bd3144cf02cbc68cbbb003dc25ed9f",
+    "source_packet_ref": "60e174c5db7f770c94064198516dd3ee07b51b7b",
+    "version": "2.43.caa3-1"
+  },
+  "needed": "UNBOUND: explicit Root source authorization for public compile inputs; no native ALPM acceptance yet",
+  "packet": {
+    "directory": "payload",
+    "index_sha256": "a8e3317cabb3fe914a6b3898b2bfbc900905c3823495f15166c419564f7e4956",
+    "ref": "132aec86c0946f6c7b7a79c46e1a9ccaf91021e3"
+  },
+  "schema_version": 1,
+  "status": "ROOT_BOUND_IMMUTABLE_PROVIDER_PACKET"
+}
