@@ -1,0 +1,252 @@
+{
+  "actual": null,
+  "carriers": {
+    "compiler6": {
+      "blob_joins": 11,
+      "files": 11,
+      "ref": "codex/updater-compiler6-retained-inputs-v1",
+      "source": "8ee14069b7a74455a7bea1171ba319932c9df304",
+      "status": "WHOLE_IMMUTABLE_SOURCE_GIT_JOIN_NO_NATIVE_AUTHORITY",
+      "tree": "9cd42056d72d1875903ca50eddaa604fd822e427"
+    },
+    "legacy2": {
+      "blob_joins": 11,
+      "files": 11,
+      "ref": "codex/current606-bootstrap-legacy2-v1",
+      "source": "21fc63c33a27c70426230e915bedd229318a4411",
+      "status": "WHOLE_IMMUTABLE_SOURCE_GIT_JOIN_NO_NATIVE_AUTHORITY",
+      "tree": "4fcbeff3ed2ad70814fd3f5a50c6b317ea2f1ee5"
+    },
+    "official3": {
+      "blob_joins": 8,
+      "files": 8,
+      "ref": "codex/current606-bootstrap2-inputs-v1",
+      "source": "1992fd62df6f5a200ce071e111dd12ef13db7012",
+      "status": "WHOLE_IMMUTABLE_SOURCE_GIT_JOIN_NO_NATIVE_AUTHORITY",
+      "tree": "4645225da6c0662e07b2ff0f1ef71cb89f7155f6"
+    },
+    "retained574": {
+      "blob_joins": 1154,
+      "files": 1154,
+      "ref": "codex/native574-complete-retained-inputs-v1",
+      "source": "ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad",
+      "status": "WHOLE_IMMUTABLE_SOURCE_GIT_JOIN_NO_NATIVE_AUTHORITY",
+      "tree": "e21f947bac3afdfbd67e4e65c8234b35ae42b00f"
+    }
+  },
+  "files": {
+    "bats-1.14.0-1-any.pkg.tar.xz": {
+      "namespace": "official3",
+      "pin": {
+        "bytes": 49984,
+        "sha256": "7bc31235cfe496b982698980b14c9c14b3e17f2b71ee13f72a58271ed199710a"
+      },
+      "source": "1992fd62df6f5a200ce071e111dd12ef13db7012"
+    },
+    "bats-1.14.0-1-any.pkg.tar.xz.sig": {
+      "namespace": "official3",
+      "pin": {
+        "bytes": 566,
+        "sha256": "726bca1178bdda048b61b3c84df28e075b49a9ee6034a26c22f3aab9be2fb092"
+      },
+      "source": "1992fd62df6f5a200ce071e111dd12ef13db7012"
+    },
+    "compiler-rt-23.1.1-1-aarch64.pkg.tar.xz": {
+      "namespace": "compiler6",
+      "pin": {
+        "bytes": 2906236,
+        "sha256": "7bb647047b1c7cc3e6f7f15626b03e748b177b8ea5fcab117e6641b5b6ea4093"
+      },
+      "source": "8ee14069b7a74455a7bea1171ba319932c9df304"
+    },
+    "compiler-rt-23.1.1-1-aarch64.pkg.tar.xz.sig": {
+      "namespace": "compiler6",
+      "pin": {
+        "bytes": 566,
+        "sha256": "1a92715f8a987c82c90949be0bcf60ca7a29b37d1d5b02439ae167883fc2775a"
+      },
+      "source": "8ee14069b7a74455a7bea1171ba319932c9df304"
+    },
+    "git-2.56.0-1-aarch64.pkg.tar.xz": {
+      "namespace": "retained574",
+      "pin": {
+        "bytes": 8650624,
+        "sha256": "b152a20edb215e98cada4b2dfbd02a9e925bda0b2de6ac1441e9e60b6698d3b5"
+      },
+      "source": "ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad"
+    },
+    "git-2.56.0-1-aarch64.pkg.tar.xz.sig": {
+      "namespace": "retained574",
+      "pin": {
+        "bytes": 566,
+        "sha256": "a94f8074a7c20a8ad8327a8dfaac724069989f9aabf62c4ec0322533642c59ca"
+      },
+      "source": "ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad"
+    },
+    "libgit2-1:1.9.7-1-aarch64.pkg.tar.xz": {
+      "namespace": "legacy2",
+      "pin": {
+        "bytes": 768812,
+        "sha256": "cacbf38f50e09c1fa4a8a94bb5dae5d7719dc4b7a4262a8a8e94f9d001bc0842"
+      },
+      "source": "21fc63c33a27c70426230e915bedd229318a4411"
+    },
+    "libgit2-1:1.9.7-1-aarch64.pkg.tar.xz.sig": {
+      "namespace": "legacy2",
+      "pin": {
+        "bytes": 566,
+        "sha256": "2d4e15982858794428446596475c285c54aa1d3fc7cccb27b57d5e310153729b"
+      },
+      "source": "21fc63c33a27c70426230e915bedd229318a4411"
+    },
+    "lld-23.1.1-1-aarch64.pkg.tar.xz": {
+      "namespace": "compiler6",
+      "pin": {
+        "bytes": 1923368,
+        "sha256": "8caa2b84af777a4e719b59696d181dd63e7d953b8bd17b7b2b6b56d93ea4f8bf"
+      },
+      "source": "8ee14069b7a74455a7bea1171ba319932c9df304"
+    },
+    "lld-23.1.1-1-aarch64.pkg.tar.xz.sig": {
+      "namespace": "compiler6",
+      "pin": {
+        "bytes": 566,
+        "sha256": "e92fc9f8173beef5666385d40ed15cf37345fb0147bfd92c8f6c87f31551e302"
+      },
+      "source": "8ee14069b7a74455a7bea1171ba319932c9df304"
+    },
+    "llhttp-9.3.1-1-aarch64.pkg.tar.xz": {
+      "namespace": "legacy2",
+      "pin": {
+        "bytes": 28604,
+        "sha256": "ffcd28cd2f93b1c5e6676ff9e842d6f6e3d54e6290a57cab0f8447f77459026a"
+      },
+      "source": "21fc63c33a27c70426230e915bedd229318a4411"
+    },
+    "llhttp-9.3.1-1-aarch64.pkg.tar.xz.sig": {
+      "namespace": "legacy2",
+      "pin": {
+        "bytes": 566,
+        "sha256": "b721df9fe91b661aad949ba19925968aa3265639399d65d766cbaf27ee87eb65"
+      },
+      "source": "21fc63c33a27c70426230e915bedd229318a4411"
+    },
+    "parallel-20260922-1-any.pkg.tar.xz": {
+      "namespace": "official3",
+      "pin": {
+        "bytes": 369204,
+        "sha256": "abd4a16e9348cc1bb0f39b7affb92a18c81efae1e791dee30c548b170a7ba4ec"
+      },
+      "source": "1992fd62df6f5a200ce071e111dd12ef13db7012"
+    },
+    "parallel-20260922-1-any.pkg.tar.xz.sig": {
+      "namespace": "official3",
+      "pin": {
+        "bytes": 566,
+        "sha256": "9f6f122076bee134ca13bf08dfe5a66a76f88a63e5bc1f636e4ab948db9e9f60"
+      },
+      "source": "1992fd62df6f5a200ce071e111dd12ef13db7012"
+    },
+    "perl-error-0.17030-3-any.pkg.tar.xz": {
+      "namespace": "retained574",
+      "pin": {
+        "bytes": 21280,
+        "sha256": "45e48cf1eac8c7ee4f78656e3eec0df2aae9fa75aa924367abc20c2270ec54db"
+      },
+      "source": "ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad"
+    },
+    "perl-error-0.17030-3-any.pkg.tar.xz.sig": {
+      "namespace": "retained574",
+      "pin": {
+        "bytes": 566,
+        "sha256": "b6e561ae65c2e858cb05b20007b8996595eb3c2dec15a4436d4fb7d8d8bbf16c"
+      },
+      "source": "ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad"
+    },
+    "perl-mailtools-2.22-3-any.pkg.tar.xz": {
+      "namespace": "retained574",
+      "pin": {
+        "bytes": 59796,
+        "sha256": "71b6383a6dab51efe4be74d14a8ea7bcdb07a34a20da7c2c6f708c4a01257018"
+      },
+      "source": "ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad"
+    },
+    "perl-mailtools-2.22-3-any.pkg.tar.xz.sig": {
+      "namespace": "retained574",
+      "pin": {
+        "bytes": 566,
+        "sha256": "b769d12bd9f6ee215f8d1d4a06168d06f9ce0b6e3604cfd323f753c1f4d5f2ab"
+      },
+      "source": "ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad"
+    },
+    "perl-timedate-2.35-1-any.pkg.tar.xz": {
+      "namespace": "retained574",
+      "pin": {
+        "bytes": 61796,
+        "sha256": "d97a4a2b169a88fbb2db3dc5425eba2b31b58ab4123a1a998c2fcc718cd8251b"
+      },
+      "source": "ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad"
+    },
+    "perl-timedate-2.35-1-any.pkg.tar.xz.sig": {
+      "namespace": "retained574",
+      "pin": {
+        "bytes": 566,
+        "sha256": "cf152bbe2914ca09964e68cc636328a4a9cdb99cecc7fe4779d327b7b64e6fb4"
+      },
+      "source": "ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad"
+    },
+    "rust-1:1.99.0-1-aarch64.pkg.tar.xz": {
+      "namespace": "compiler6",
+      "pin": {
+        "bytes": 59807260,
+        "sha256": "337e715182a8f81bfd6df844793c5d1cb2697ff9e94ddb496dd850ba901c31d4"
+      },
+      "source": "8ee14069b7a74455a7bea1171ba319932c9df304"
+    },
+    "rust-1:1.99.0-1-aarch64.pkg.tar.xz.sig": {
+      "namespace": "compiler6",
+      "pin": {
+        "bytes": 566,
+        "sha256": "d7dcf2f24bca366570446a6c7228048524e1632122fa36200685a0fbe638735e"
+      },
+      "source": "8ee14069b7a74455a7bea1171ba319932c9df304"
+    },
+    "scdoc-1.11.5-1-aarch64.pkg.tar.xz": {
+      "namespace": "official3",
+      "pin": {
+        "bytes": 14820,
+        "sha256": "d8afceb6ff7714f0b0086062a26c0296661f7532e69ec2143155fdbbd466175b"
+      },
+      "source": "1992fd62df6f5a200ce071e111dd12ef13db7012"
+    },
+    "scdoc-1.11.5-1-aarch64.pkg.tar.xz.sig": {
+      "namespace": "official3",
+      "pin": {
+        "bytes": 566,
+        "sha256": "aea9be05cabe35a6ad52323f33794a7d9ff4655317c51cf6851883d0250bca03"
+      },
+      "source": "1992fd62df6f5a200ce071e111dd12ef13db7012"
+    },
+    "zlib-ng-2.3.3-1-aarch64.pkg.tar.xz": {
+      "namespace": "retained574",
+      "pin": {
+        "bytes": 90636,
+        "sha256": "1ee3a19d58b27a1f63d455177be5301ca474ed20d3699ffc7f0a4f987852e930"
+      },
+      "source": "ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad"
+    },
+    "zlib-ng-2.3.3-1-aarch64.pkg.tar.xz.sig": {
+      "namespace": "retained574",
+      "pin": {
+        "bytes": 566,
+        "sha256": "e3d9ee5945cf6b560097a05c6cac3fbb19be26ca52b1a595930b5257802d2920"
+      },
+      "source": "ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad"
+    }
+  },
+  "original_inputs": {
+    "bytes": 14048,
+    "sha256": "287b627528f3fd9cf4a63ef3a3bbf269e83f83d35c87dd3b3efd69e91a92a56f"
+  },
+  "status": "ORIGINAL13_26_FOUR_FIXED_INPUT_NAMESPACES_ONLY"
+}
