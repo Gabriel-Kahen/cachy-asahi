@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=cachy-asahi Welcome
+GenericName=Desktop welcome and local help
+Comment=Open desktop tools, read local guidance and inspect system status
+Exec=cachy-asahi-welcome
+TryExec=cachy-asahi-welcome
+Icon=cachy-asahi-welcome
+Terminal=false
+StartupNotify=true
+Categories=System;Utility;
+Keywords=Welcome;Help;Asahi;Terminal;Files;
