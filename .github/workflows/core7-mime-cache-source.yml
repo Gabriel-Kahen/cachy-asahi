@@ -1,0 +1,60 @@
+name: core7-mime-cache-source
+on:
+  push:
+    paths:
+      - scripts/ci/core7-mime-cache-source/**
+      - .github/workflows/core7-mime-cache-source.yml
+  pull_request:
+    paths:
+      - scripts/ci/core7-mime-cache-source/**
+      - .github/workflows/core7-mime-cache-source.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONWARNINGS: error
+    steps:
+      - name: Check out maintained source-only factory
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Check out exact public47 input
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 3a5b0a33f469e4de4f3f85a87bc53815556e1430
+          path: .ci-fixtures/core-mime47
+          persist-credentials: false
+      - name: Check out exact public49 expected source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: fce485162569f090fbedd5fc2e3faaf78d05d7d8
+          path: .ci-fixtures/core-mime49
+          persist-credentials: false
+      - name: Select explicit Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Reproduce all49 source bytes and run source/policy controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          stage=$(mktemp -d "$RUNNER_TEMP/core-mime-source.XXXXXXXX")
+          trap 'rm -rf -- "$stage"' EXIT
+          mkdir -m700 "$stage/input" "$stage/expected"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/core-mime47" archive --format=tar 3a5b0a33f469e4de4f3f85a87bc53815556e1430 | tar -x -C "$stage/input"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/core-mime49" archive --format=tar fce485162569f090fbedd5fc2e3faaf78d05d7d8 | tar -x -C "$stage/expected"
+          export CORE_MIME_INPUT="$stage/input"
+          export CORE_MIME_EXPECTED="$stage/expected"
+          python3 -I -B -Werror scripts/ci/core7-mime-cache-source/test_source.py
+          python3 -I -B -Werror scripts/ci/core7-mime-cache-source/prepare.py --help
