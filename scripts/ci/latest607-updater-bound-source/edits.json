@@ -1,0 +1,34 @@
+{
+  "implementation/authority.py": [
+    [
+      "def decision(root,kind,ref,policy):\n",
+      "def decision(root,kind,ref,policy):\n if policy.get('authority_projection')==PROJECTION_KIND:return projected_decision(root,kind,ref,policy)\n"
+    ]
+  ],
+  "implementation/namespace_context.py": [
+    [
+      "def verify():\n verify357()\n p=data();before=p['files'];C.need(C.pin(C.enc(before))==dict(bytes=61181,sha256='ff5d820dd825079b0f81c5a61c71ac93ebedb29b5003b0b0579d2b7b97b236f9'),'exact frozen355 before authorization');C.need(len(before)==355 and set(C.rows(C.ROOT))==set(before)|ADDED,'complete355 ancestor plus only two fixed source-context operands');restored={}\n for n,w in before.items():\n  if n=='source-manifest.json':continue\n  raw=C.read(C.ROOT/n);old=old_body(n,raw,p);C.need(C.pin(old)==w,'whole355 original body '+n);restored[n]=old\n m=json.loads(C.read(C.ROOT/'source-manifest.json'));m['files']={n:w for n,w in before.items()if n!='source-manifest.json'};C.need(C.pin(C.enc(m))==before['source-manifest.json'],'entire original355 manifest inverse');C.need({n for n in before if C.pin(C.read(C.ROOT/n))!=before[n]}==CHANGED,'only finite source-context changes; all208 runtime bodies held');q=C.profile();C.need(q['authorities']=={'fresh607':None,'baseline607':None}and q['authority_files']is None and q['actual_source']is q['actual_ref']is q['actual_run']is None,'all current installed/actual authority remains NULL');return dict(status='PASS_WHOLE355_SOURCE_CONTEXT_INVERSE',held=350,changed=5,added=2,actual=None)",
+      "def verify():\n return __import__('authority').source_preflight()"
+    ]
+  ],
+  "implementation/source_guard.py": [
+    [
+      " __import__('namespace_context').verify()\n",
+      " binding=__import__('namespace_context').verify()\n"
+    ],
+    [
+      "return dict(status='SOURCE_ONLY_LATEST607_UPDATER',cases=3,",
+      "return dict(binding=binding,status='SOURCE_ONLY_LATEST607_UPDATER',cases=3,"
+    ]
+  ],
+  "test_source.py": [
+    [
+      " def test_no_authority_transfer(self):\n",
+      " def test_no_authority_transfer(self):\n  if any(v is not None for v in C.profile()['authorities'].values()):\n   p=copy.deepcopy(C.profile());self.assertEqual(authority.require_bound(),p);self.assertFalse(authority.source_context()['actor_authority']);p['authorities']['baseline607']=None\n   with self.assertRaisesRegex(ValueError,'UNBOUND'):authority.require_bound(p)\n   return\n"
+    ],
+    [
+      "suite.countTestCases()==7,'nonzero exact7 source groups'",
+      "suite.countTestCases()==11,'nonzero exact11 source groups'"
+    ]
+  ]
+}
