@@ -1,0 +1,27 @@
+{
+  "archive": {
+    "bytes": 29664,
+    "sha256": "319cc1db4738945ad3b146490ea0fabd80f8c8d89d8c41a11750dd0ba5d5b8af"
+  },
+  "hardware": "NOT_RUN",
+  "release": "NOT_ADMITTED",
+  "runtime_sources": {
+    "apps.py": {
+      "bytes": 24248,
+      "sha256": "edf265625bba07f5b7d65c0e0db9787d1e7de3b0649816995560cbaa53967b2f"
+    },
+    "cachy-asahi-apps": {
+      "bytes": 310,
+      "sha256": "4e9c078c2e05cc00cb6479d5fff23b92cbcabd8d6b3ff970f6181e6467921630"
+    },
+    "helper-pins.json": {
+      "bytes": 493,
+      "sha256": "33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a"
+    },
+    "inventory.py": {
+      "bytes": 22839,
+      "sha256": "033bbdb368d6bf7fcbd0d469274247f15d577a3f18b86f6baced69c07d5938da"
+    }
+  },
+  "status": "PASS_ACTUAL_NATIVE_APPS16_ARCHIVE_ALL4_RUNTIME_DECLARATIONS_MATCH_PAYLOAD"
+}

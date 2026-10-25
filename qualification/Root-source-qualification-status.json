@@ -1,0 +1,15 @@
+{
+  "status": "PASS_WHOLE1687_REPRODUCTION_AND_GENUINE_COMPLETE_SOURCE_PREREQUISITE_REUSE",
+  "exit": 0,
+  "host_timeout": 300,
+  "seconds": 10.818525326998497,
+  "freeze": {
+    "bytes": 1151471,
+    "sha256": "76c5596aede33a5688ed373a12c15969c0490545c0ad0a57e7d9d8d0fde3ed58"
+  },
+  "proof": {
+    "bytes": 15758,
+    "sha256": "aac7a361074483711f42fed2e2c6b21e1eb61fe91143dbbe8b7f5b59c7435510"
+  },
+  "current_actual": null
+}
