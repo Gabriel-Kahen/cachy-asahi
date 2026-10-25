@@ -1,0 +1,47 @@
+name: GNU fixed-case cleanup source factory
+on:
+  pull_request:
+    paths:
+      - 'scripts/ci/gnu-fixed-case-cleanup-source/**'
+      - '.github/workflows/gnu-fixed-case-cleanup-source.yml'
+  push:
+    paths:
+      - 'scripts/ci/gnu-fixed-case-cleanup-source/**'
+      - '.github/workflows/gnu-fixed-case-cleanup-source.yml'
+permissions:
+  contents: read
+jobs:
+  source-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - name: Check out maintained factory
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Check out immutable747 input
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 3d6f8f994c89d1ba55f31aed947ded987837d8cd
+          path: .ci-fixtures/gnu747
+          persist-credentials: false
+      - name: Check out immutable749 expected source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: de1aab259df6bda8ad36f959392e3fc4eb35b622
+          path: .ci-fixtures/gnu749
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Export ordinary fixtures, reproduce749 and run source-only controls
+        env:
+          GNU_FIXED_PARENT: ${{ github.workspace }}/.ci-fixtures/gnu747
+          GNU_FIXED_EXPECTED: ${{ github.workspace }}/.ci-fixtures/gnu749
+        run: python -I -B -Werror scripts/ci/gnu-fixed-case-cleanup-source/test_prepare.py
