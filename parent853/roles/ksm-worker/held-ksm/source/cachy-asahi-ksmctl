@@ -1,0 +1,162 @@
+#!/usr/bin/python3
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (C) 2024-2025 Vasiliy Stelmachenok for CachyOS
+# Copyright (C) 2026 cachy-asahi contributors
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+"""Read-only KSM status and counter reporting; never change kernel policy."""
+import argparse
+from decimal import Decimal, localcontext
+import errno
+import json
+import os
+from pathlib import Path
+import re
+import stat
+import sys
+
+VERSION = '0.1.0'
+DEFAULT_ROOT = Path('/sys/kernel/mm/ksm')
+STATES = {0: 'scanning stopped; merged pages may remain',
+          1: 'scanning enabled; activity and savings not verified',
+          2: 'unmerge requested; completion not verified'}
+UNITS = {name: 'pages' for name in ('pages_shared', 'pages_sharing', 'pages_unshared',
+         'pages_volatile', 'pages_scanned', 'pages_skipped', 'ksm_zero_pages')}
+UNITS.update(full_scans='scans', general_profit='bytes')
+FLAGS = os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK
+
+
+class Error(Exception):
+    def __init__(self, message, code=1):
+        super().__init__(message)
+        self.code = code
+
+
+def directory(root):
+    try:
+        return os.open(root, FLAGS | os.O_DIRECTORY)
+    except OSError as error:
+        if error.errno == errno.ENOENT:
+            raise Error('KSM interface unavailable', 3) from None
+        raise Error('cannot open a real KSM directory') from None
+
+
+def number(root_fd, name, required=False):
+    try:
+        fd = os.open(name, FLAGS, dir_fd=root_fd)
+    except OSError as error:
+        if error.errno == errno.ENOENT:
+            if required:
+                raise Error('KSM run interface unavailable', 3) from None
+            return None
+        raise Error(f'cannot read KSM {name}') from None
+    try:
+        if not stat.S_ISREG(os.fstat(fd).st_mode):
+            raise Error(f'KSM {name} is not a regular interface')
+        data = os.read(fd, 65)
+    except OSError:
+        raise Error(f'cannot read KSM {name}') from None
+    finally:
+        os.close(fd)
+    signed = name == 'general_profit'
+    if len(data) > 64 or not re.fullmatch(rb'-?[0-9]+\n' if signed else rb'[0-9]+\n', data):
+        raise Error(f'malformed or truncated KSM {name}')
+    value = int(data)
+    if not (-(1 << 63) <= value < (1 << 63) if signed else 0 <= value < (1 << 64)):
+        raise Error(f'KSM {name} exceeds integer bounds')
+    return value
+
+
+def run_state(root_fd):
+    value = number(root_fd, 'run', required=True)
+    if value not in STATES:
+        raise Error('unknown KSM run state')
+    return value
+
+
+def status(root):
+    fd = directory(root)
+    try:
+        return run_state(fd)
+    finally:
+        os.close(fd)
+
+
+def mib(value, scale):
+    with localcontext() as context:
+        context.prec = 80
+        text = format(Decimal(value) * scale / 1048576, 'f')
+    return text.rstrip('0').rstrip('.') if '.' in text else text
+
+
+def report(root, page_size=None):
+    if page_size is None:
+        try:
+            page_size = os.sysconf('SC_PAGE_SIZE')
+        except (OSError, ValueError):
+            raise Error('runtime page size unavailable') from None
+    if type(page_size) is not int or not 0 < page_size <= 1048576:
+        raise Error('invalid runtime page size')
+    fd = directory(root)
+    try:
+        state = run_state(fd)
+        counters = {}
+        for name, unit in UNITS.items():
+            value = number(fd, name)
+            counters[name] = {'value': value, 'unit': unit,
+                'mib': mib(value, page_size if unit == 'pages' else 1)
+                if value is not None and unit != 'scans' else None}
+    finally:
+        os.close(fd)
+    return {'tool': 'cachy-asahi-ksmctl', 'version': VERSION, 'mode': 'read-only',
+            'page_size_bytes': page_size, 'state': {'run': state, 'description': STATES[state]},
+            'counters': counters, 'management_available': False,
+            'sample_note': 'Counters are sampled independently, not an atomic kernel snapshot.'}
+
+
+def main(argv=None, root=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    action = parser.add_mutually_exclusive_group()
+    action.add_argument('--status', '-s', action='store_true', help='show the observed run state (default)')
+    action.add_argument('--report', '-r', action='store_true', help='show counters and runtime page-size conversions')
+    parser.add_argument('--json', action='store_true', help='print a machine-readable result')
+    parser.add_argument('--version', action='version', version=f'cachy-asahi-ksmctl {VERSION}')
+    args = parser.parse_args(argv)
+    try:
+        if args.report:
+            data = report(DEFAULT_ROOT if root is None else root)
+        else:
+            value = status(DEFAULT_ROOT if root is None else root)
+            data = {'tool': 'cachy-asahi-ksmctl', 'version': VERSION, 'mode': 'read-only',
+                    'state': {'run': value, 'description': STATES[value]}, 'management_available': False}
+        if args.json:
+            print(json.dumps(data, sort_keys=True, allow_nan=False))
+        else:
+            print(f"KSM run={data['state']['run']}: {data['state']['description']}")
+            if args.report:
+                print(f"Runtime page size: {data['page_size_bytes']} bytes")
+                for name, counter in data['counters'].items():
+                    value = 'unavailable' if counter['value'] is None else f"{counter['value']} {counter['unit']}"
+                    converted = '' if counter['mib'] is None else f" ({counter['mib']} MiB)"
+                    print(f'{name}: {value}{converted}')
+                print(data['sample_note'])
+        return 0
+    except Error as error:
+        print(f'cachy-asahi-ksmctl: {error}', file=sys.stderr)
+        return error.code
+
+
+if __name__ == '__main__':
+    sys.exit(main())
