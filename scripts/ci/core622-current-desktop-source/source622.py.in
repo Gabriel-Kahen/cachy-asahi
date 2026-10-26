@@ -1,0 +1,41 @@
+# SPDX-License-Identifier: MIT
+"""Closed622 lane AND exact original51/800 source mechanisms; no actors."""
+import ast,hashlib,json,os,subprocess,sys,tempfile,time
+from pathlib import Path
+sys.path.insert(0,str(Path(__file__).resolve().parent))
+import case as C,desktop622 as X
+PRODUCTS=None
+SELF='@SELF@'
+ALIASES=('.github/workflows/native-arm-build.yml','.github/workflows/native-arm-core7-real-systemd.yml')
+
+def files(root):
+ result={}
+ for p in Path(root).rglob('*'):
+  name=p.relative_to(root).as_posix()
+  if name.split('/')[0]=='.git':continue
+  C.need(not p.is_symlink()and(p.is_dir()or p.is_file()),'ordinary full closed source')
+  if p.is_file():result[name]=C.pin(C.read(p,32*1024**2))
+ return result
+
+def inverse(root):
+ record=C.decode(C.read(root/'composition-parent.json',4*1024**2));rows=files(root);before=record['before'];C.need(record['source']=='11b3cfb59663e42b34247facb9f30f042e891444'and len(before)==51 and set(record['changed'])<=set(before),'whole published51 predecessor')
+ out={}
+ for n,pin in before.items():
+  raw=record['changed'][n].encode()if n in record['changed']else C.read(root/n,32*1024**2);C.need(C.pin(raw)==pin,'complete exact51 inverse: '+n);out[n]=raw
+ C.need({n:C.pin(raw)for n,raw in out.items()}==before,'whole before-source51 map');return out
+
+def verify(root):
+ root=Path(root).absolute();start=time.monotonic();rows=files(root);manifest=C.decode(C.read(root/'source-manifest.json',4*1024**2));C.need(manifest['purpose']==X.SCOPE and manifest['actual']is None,'distinct unbound current622 source lane');C.need(rows==dict(manifest['files'],**{'source-manifest.json':C.pin(C.read(root/'source-manifest.json',4*1024**2)),**{n:rows[n]for n in ALIASES}}),'closed current source namespace')
+ C.need(PRODUCTS is not None and all(rows[n]==pin for n,pin in PRODUCTS.items()),'every fixed current product/data operand');raw=C.read(root/'source622.py');C.need(SELF!='@SELF@'and raw.count(SELF.encode())==1 and hashlib.sha256(raw.replace(SELF.encode(),b'@SELF@')).hexdigest()==SELF,'whole current sourceguard selfseal');C.need(all(C.read(root/n)==C.read(root/'workflow.yml.in')for n in ALIASES),'exact decoded workflow aliases')
+ value=C.decode(C.read(root/'composition.json',4*1024**2));X.plan(value);before=inverse(root)
+ # Original51 source executes only its unchanged source-only route in an exact
+ # private reconstruction. No current/native/result or actor authority follows.
+ with tempfile.TemporaryDirectory(prefix='core622-exact-source51-')as td:
+  target=Path(td)
+  for n,raw in before.items():p=target/n;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(raw)
+  C.need(files(target)==C.decode(C.read(root/'composition-parent.json',4*1024**2))['before'],'entire private51 inverse before source gate')
+  result=subprocess.run([sys.executable,'-I','-B',str(target/'entry.py'),'source','--source',str(target)],stdin=subprocess.DEVNULL,capture_output=True,timeout=max(.001,300-(time.monotonic()-start)),env=dict(PATH='/usr/bin:/bin',LANG='C',LC_ALL='C',PYTHONDONTWRITEBYTECODE='1'))
+  C.need(result.returncode==0 and not result.stderr and len(result.stdout)<=1024**2,'whole original51 and older source predicate');fact=C.decode(result.stdout);C.need(fact['status']=='PASS_CLOSED_SOURCE_ONLY_NOT_EXECUTED'and fact['files']==51,'genuine original51 source-only fact')
+ # All selected facades/actors are syntax checked; this source phase starts none.
+ for n in ('desktop622.py','formation622.py','provision622.py','lane622.py','assembly622.py','run622.py','ownership622.py'):ast.parse(C.read(root/n),filename=n)
+ C.need(time.monotonic()-start<300,'original fixed source300');return dict(status='PASS_SOURCE_ONLY_CURRENT607_COPIED_PROVISIONING_NORMAL_CORE622_TWO_BOOT_NOT_RUN',files=len(rows),parent51=fact,base=607,supported=620,installed=622,held=602,provisioning=X.PROVISIONING,normal_fresh607_installation='NOT_RUN',new_actual=None,fit='NOT_ESTABLISHED',M2='NOT_RUN')
