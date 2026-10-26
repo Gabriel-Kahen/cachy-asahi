@@ -1,0 +1,53 @@
+{
+  "boot391": {
+    "authorization": "boot391-source-authorization.json",
+    "authorization_pin": {
+      "bytes": 70601,
+      "sha256": "222a22bfc0ce1c33513748f30dbbf5cf1e17e2a61439735748f79570060d9767"
+    },
+    "files": 391,
+    "original_prefix": "",
+    "publication": "boot391-Root-committed-publication.json",
+    "publication_pin": {
+      "bytes": 279,
+      "sha256": "74f089987d41846ae6e700a350d297598f283192c9f4a778237d1a7922609d6e"
+    },
+    "source": "203202ec05b428f9a5e9979e6ac30abedda08d3b",
+    "staged_files": 391,
+    "staged_prefix": "historical/boot391"
+  },
+  "doctor353": {
+    "authorization": "doctor353-source-authorization.json",
+    "authorization_pin": {
+      "bytes": 61261,
+      "sha256": "83478b6f796a5b390755e3fa5cbc5faf730c217522834d2a7d0d69121527dbe5"
+    },
+    "files": 353,
+    "original_prefix": "copyworker/",
+    "publication": "doctor353-Root-committed-publication.json",
+    "publication_pin": {
+      "bytes": 283,
+      "sha256": "a33baf406723f6880b2bf4dc8249625c7319071cd29f79fbddfa4272e277f20f"
+    },
+    "source": "6f824cac64cd44f765e54fd3b5a853689ea0ce7b",
+    "staged_files": 48,
+    "staged_prefix": "roles/doctor-worker"
+  },
+  "ksm360": {
+    "authorization": "ksm360-source-authorization.json",
+    "authorization_pin": {
+      "bytes": 62169,
+      "sha256": "9e5a8c6746862386dbbb358187ae39b666618d8222a4b4e12616909326ff1dfc"
+    },
+    "files": 360,
+    "original_prefix": "copyworker/",
+    "publication": "ksm360-Root-committed-publication.json",
+    "publication_pin": {
+      "bytes": 276,
+      "sha256": "5d2f48ccd6c436994eef590dc5e5cfd8ff32a542cd7d1b1858812caf547c4fbc"
+    },
+    "source": "a7e9d67805899ac6eb4da923b423b651d7442baa",
+    "staged_files": 53,
+    "staged_prefix": "roles/ksm-worker"
+  }
+}
