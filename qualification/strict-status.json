@@ -1,0 +1,9 @@
+{
+  "Root_acceptance": "NOT_ISSUED",
+  "cap": 300,
+  "clock": "AFTER_BLOCKING_GUI_LOCK_ACQUIRE",
+  "exit": 0,
+  "retry": false,
+  "seconds": 34.61835216998588,
+  "timeout": false
+}

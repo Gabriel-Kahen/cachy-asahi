@@ -1,0 +1,112 @@
+{
+  "elapsed_seconds": 2234.392,
+  "guest": {
+    "auxiliary_execution": "ALPM may invoke pinned target ldconfig; exit NOT OBSERVED",
+    "capacity": {
+      "allocation_unit_bytes": 4096,
+      "capacity_reserved": false,
+      "directory_estimate_bytes": 531841024,
+      "free_bytes": 14905962496,
+      "free_inodes": 1186592,
+      "payload_bytes": 4918312282,
+      "required_bytes": 6295699456,
+      "required_inodes": 132047,
+      "reserve_bytes": 536870912,
+      "rounded_file_bytes": 5172363264,
+      "symlink_estimate_bytes": 54624256
+    },
+    "commit_started": true,
+    "committed": true,
+    "database_verified": true,
+    "derived_output_observation": {
+      "usr/lib/libvsscript.so": {
+        "gid": 0,
+        "mode": 511,
+        "target": "libvapoursynth-script.so.0",
+        "type": "symlink",
+        "uid": 0
+      }
+    },
+    "derived_outputs_verified": true,
+    "event": "result",
+    "expected_lock_sha256": "be35402204ba5c03d78279722afa83047c9575d2da70fb5c4064f46ed15954c5",
+    "hardware": "NOT RUN",
+    "hooks": "DISABLED",
+    "live_cache_keys": {
+      "live_library_keys": 1291,
+      "records": 995
+    },
+    "namespace_barrier": true,
+    "native_container_P0": "UNCHANGED-FAILED",
+    "nonce": "4f141ef01179462b8ad040452e446ea0",
+    "numeric_namespace_verified": true,
+    "numeric_ownership_verified": true,
+    "ordinary_parent_nnp_cap0": true,
+    "ownership_verified": true,
+    "package_count": 607,
+    "parent_inventory_preserved": true,
+    "parent_payload_verified": true,
+    "payload_verified": true,
+    "phase": "complete",
+    "preservation_verified": true,
+    "private_trust_verified": true,
+    "process_retirement": true,
+    "production_installation": "NOT RUN",
+    "profile_sha256": "fb12c865e56c9bca8362e45048c9743487ce45d458b447bc3bef2904e7e73311",
+    "root_guest_observation": {
+      "complete": true,
+      "deadline_seconds": 600,
+      "elapsed_ms": 262108,
+      "footprint": {
+        "bytes": 4930283262,
+        "database_bytes": 11800941,
+        "database_files": 1850,
+        "hardlink_inodes": 1048,
+        "nodes": 124513
+      },
+      "missing_database_nodes": 0,
+      "missing_database_samples": [],
+      "observed_nodes": 124513,
+      "required_database_nodes": 1215,
+      "unsupported_counts": {
+        "absolute-symlink": 24,
+        "auxiliary-present": 3
+      },
+      "unsupported_reasons_omitted": 0
+    },
+    "root_guest_payload_verified": true,
+    "scriptlets": "DISABLED",
+    "source_cache_preserved": true,
+    "status": "PASS_PUBLIC_PAIRS_APPS6_CURRENT607_INSTALLER",
+    "target_footprint": {
+      "allocated_bytes": 5136998400,
+      "allocated_bytes_by_entry": 5189799936,
+      "bytes": 4930283262,
+      "complete": true,
+      "database_bytes": 11800941,
+      "database_files": 1850,
+      "filesystem_free_bytes": 9731551232,
+      "filesystem_free_bytes_source": "statvfs-f_bavail",
+      "filesystem_free_inodes": 1063932,
+      "filesystem_inode_counts_known": true,
+      "filesystem_inode_source": "statvfs",
+      "hardlink_declared_links": 2896,
+      "hardlink_entries": 2896,
+      "hardlink_inodes": 1048,
+      "hardlinks": 2896,
+      "largest_file_bytes": 173387392,
+      "nodes": 124513,
+      "symlinks": 13337
+    },
+    "target_identity": [
+      65024,
+      393231
+    ]
+  },
+  "hardware_validation": "NOT RUN",
+  "natural_exit": true,
+  "nonce": "4f141ef01179462b8ad040452e446ea0",
+  "qemu_cleanup": "PASS",
+  "scope": "generic16K-current607-installer-software-only",
+  "status": "PASS"
+}

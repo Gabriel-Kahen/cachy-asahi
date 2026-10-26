@@ -1,0 +1,13 @@
+{
+  "attempt": 1,
+  "metadata": {
+    "bytes": 12991,
+    "sha256": "7e49f87375758cfaac7f1f4b98570c9ab976c88b6e2a39c86a6db721f60b63b6"
+  },
+  "ref": "codex/fresh607-storage-admission-v1",
+  "root_acceptance": "NOT_ISSUED",
+  "run_id": 40390192017,
+  "source": "1e777ec5a0612af37305f93f87f2c7b2f7a36de8",
+  "status": "PASSIVE_RUN_SELECTORS_NOT_ACCEPTANCE",
+  "workflow": "native-arm-latest607-fresh-installer"
+}

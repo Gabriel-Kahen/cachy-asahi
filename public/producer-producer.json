@@ -1,0 +1,9 @@
+{
+  "installer": "NOT RUN",
+  "manifest_sha256": "8d3945ef6eb1862925775a085f381abbe9a5e5a9c1abb42c541bab6daced8684",
+  "owned_resources": "RETAINED-UNTIL-VM-FINISHES",
+  "phase": "export-completed",
+  "ready": "/tmp/cachy-asahi-expanded604-installer-40390192017-1-producer/private/ready",
+  "status": "READY_SIGNED_INITIAL587",
+  "upgrade": "NOT RUN"
+}
