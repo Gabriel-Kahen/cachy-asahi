@@ -1,0 +1,27 @@
+{
+  "binding": {
+    "kernel_authority": {
+      "bytes": 2090,
+      "path": "payload/kernel-authority.json",
+      "sha256": "c234cfd6069f0ca0483b299324978ee09073d8487155fa2c66d0dbfbce92157e"
+    },
+    "kernel_authority_source": "44f9482576d75ad136a558eadf15fca404bf5ccb",
+    "native_decision_source": "d442bd0380226a4d9afa6055d9264ce18eb3bc15",
+    "native_decisions": {
+      "repair-bytes": {
+        "bytes": 1256,
+        "path": "payload/decisions/repair-bytes.json",
+        "sha256": "c5300f02b3ff2d23235ef5f9753c281accb5f1eab18c3d3a12092689d077fb66"
+      },
+      "repair-missing": {
+        "bytes": 1258,
+        "path": "payload/decisions/repair-missing.json",
+        "sha256": "7daceefecbd549149869ca8a589632ef9a842ac920a2170c1eae48a2c49d131c"
+      }
+    },
+    "native_manifest_sha256": "c37c946199b43052594ece0ac24ae89a5cc77aa615ccf0b0abda9f28e3950a65",
+    "native_source": "c89868439988f99d4179d208d1198f6f9c94d5d5"
+  },
+  "schema_version": 1,
+  "status": "ROOT_BOUND_FULL574_REPAIR16K_NATIVE_CASES_AND_KERNEL"
+}
