@@ -1,0 +1,13 @@
+{
+  "attempt": 1,
+  "metadata": {
+    "bytes": 13000,
+    "sha256": "c83f3e47da227d7bee43c21674a21359fdd585194bc53e3a64dd65f5afa9bf38"
+  },
+  "ref": "codex/latest607-alpm-list-abi-v1",
+  "root_acceptance": "NOT_ISSUED",
+  "run_id": 40371617653,
+  "source": "0db9341521b5cb5d9022715b5ba638b3e4018462",
+  "status": "PASSIVE_RUN_SELECTORS_NOT_ACCEPTANCE",
+  "workflow": "native-arm-latest607-fresh-installer"
+}
