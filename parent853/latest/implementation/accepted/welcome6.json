@@ -1,0 +1,179 @@
+{
+  "GUI": "NOT_RUN",
+  "M2": "NOT_RUN",
+  "actual16K": "NOT_RUN",
+  "boot_history": "UNKNOWN",
+  "builds": [
+    {
+      "archive": {
+        "bytes": 37800,
+        "sha256": "96b1a743f66de959e2fea6125cc3400ae54dbb0cd7d5e1b1b88e683935c8d512"
+      },
+      "elf": {
+        "actual_16k_execution": "NOT_RUN",
+        "errors": [],
+        "hardware_status": "NOT RUN",
+        "interpreter": "/lib/ld-linux-aarch64.so.1",
+        "load_segments": 2,
+        "loads": [
+          {
+            "alignment": 16384,
+            "filesz": 64736,
+            "memsz": 64736,
+            "offset": 0,
+            "vaddr": 0
+          },
+          {
+            "alignment": 16384,
+            "filesz": 3480,
+            "memsz": 3488,
+            "offset": 79024,
+            "vaddr": 79024
+          }
+        ],
+        "machine": 183,
+        "needed": [
+          "libgtk-3.so.0",
+          "libpango-1.0.so.0",
+          "libgio-2.0.so.0",
+          "libgobject-2.0.so.0",
+          "libglib-2.0.so.0",
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ]
+      },
+      "side": "a",
+      "tests": {
+        "CLI_cases": 5,
+        "C_cases": 41,
+        "C_pass": 40,
+        "GUI": "NOT_RUN",
+        "check_enabled": true,
+        "installed_lifecycle": "NOT_RUN",
+        "pinned_sources": 25,
+        "root_guard": "NOT_EXERCISED_ORDINARY_UID_REQUIRES_UID0",
+        "source_payload": "PASS",
+        "status": "PASS_REQUIRED_WELCOME6_BUILD_CHECKS"
+      },
+      "validation": {
+        "bytes": 35729,
+        "sha256": "f699487d5a7a2e1de23c6a9b2c95b4d178fffef7aafce507b170a9f460850f2e"
+      }
+    },
+    {
+      "archive": {
+        "bytes": 37800,
+        "sha256": "96b1a743f66de959e2fea6125cc3400ae54dbb0cd7d5e1b1b88e683935c8d512"
+      },
+      "elf": {
+        "actual_16k_execution": "NOT_RUN",
+        "errors": [],
+        "hardware_status": "NOT RUN",
+        "interpreter": "/lib/ld-linux-aarch64.so.1",
+        "load_segments": 2,
+        "loads": [
+          {
+            "alignment": 16384,
+            "filesz": 64736,
+            "memsz": 64736,
+            "offset": 0,
+            "vaddr": 0
+          },
+          {
+            "alignment": 16384,
+            "filesz": 3480,
+            "memsz": 3488,
+            "offset": 79024,
+            "vaddr": 79024
+          }
+        ],
+        "machine": 183,
+        "needed": [
+          "libgtk-3.so.0",
+          "libpango-1.0.so.0",
+          "libgio-2.0.so.0",
+          "libgobject-2.0.so.0",
+          "libglib-2.0.so.0",
+          "libc.so.6",
+          "ld-linux-aarch64.so.1"
+        ]
+      },
+      "side": "b",
+      "tests": {
+        "CLI_cases": 5,
+        "C_cases": 41,
+        "C_pass": 40,
+        "GUI": "NOT_RUN",
+        "check_enabled": true,
+        "installed_lifecycle": "NOT_RUN",
+        "pinned_sources": 25,
+        "root_guard": "NOT_EXERCISED_ORDINARY_UID_REQUIRES_UID0",
+        "source_payload": "PASS",
+        "status": "PASS_REQUIRED_WELCOME6_BUILD_CHECKS"
+      },
+      "validation": {
+        "bytes": 35729,
+        "sha256": "f699487d5a7a2e1de23c6a9b2c95b4d178fffef7aafce507b170a9f460850f2e"
+      }
+    }
+  ],
+  "cleanup": "ORIGINAL_SOURCE_THREE_CONTAINERS_AND_BUILDER_RETIREMENT_NOT_LIVE_REOBSERVATION",
+  "crash_diagnosis": "NOT_ESTABLISHED",
+  "hardware": "NOT_RUN",
+  "independent_Git_blob_joins": 107,
+  "installed_lifecycle": "NOT_RUN",
+  "limitations": [
+    "Input snapshots regenerated only from independently authorized exact source; collected code never imported or executed.",
+    "No installed lifecycle, user/configuration preservation or real boot history is established by build-pair evidence.",
+    "Recorded native containers are one-host independence, not two independent machines.",
+    "No real boot/crash history, recovery, live pstore, Asahi, GUI,16K,M2 or release-trust acceptance."
+  ],
+  "original_artifact": {
+    "bytes": 160577,
+    "sha256": "d9cdf789ba06f7a18ed7d125229d7acfe9632b79f2e650a33641e4bc8a07431a"
+  },
+  "original_job": {
+    "job_id": 118372957220,
+    "native_label": "ubuntu-24.04-arm",
+    "steps": [
+      3,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ]
+  },
+  "pairs": {
+    "cachy-asahi-welcome": {
+      "errors": [],
+      "hardware_status": "NOT RUN",
+      "independence_limit": "Distinct recorded container runs; independent machine execution is not attested.",
+      "packages": {
+        "cachy-asahi-welcome-0.1.0-6-aarch64.pkg.tar.xz": {
+          "buildinfo_equal": true,
+          "bytes_equal": true,
+          "installed_contents_equal": true,
+          "pkginfo_equal": true
+        }
+      },
+      "status": "contents-reproduced"
+    }
+  },
+  "ref": "codex/welcome6-native-build-pair-v1",
+  "release": "NOT_ADMITTED",
+  "retained_bytes": 319294,
+  "retained_files": 31,
+  "reviewed_at": "2026-10-20T00:02:11.111852+00:00",
+  "run": 39344263189,
+  "source": "f14cfdf82280c22ba644b971d6bb26b75bad4bb2",
+  "source_files": 107,
+  "status": "ROOT_ACCEPTED_FINITE_NATIVE_WELCOME6_BUILD_PAIR_ONLY",
+  "strict_result": {
+    "bytes": 1637,
+    "sha256": "cae3348a5cbf8ab7dcbe9a77efc5faf5f6617681ad868c184ff4e3cf42438193"
+  }
+}

@@ -1,0 +1,380 @@
+{
+  "base_inventory_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+  "candidate_source": "0b74d8ecea4f152bda4adfbd9bee488890db4363",
+  "products": {
+    "cachy-asahi-doctor": {
+      "accepted_archive": {
+        "bytes": 13708,
+        "name": "cachy-asahi-doctor-0.1.0-1-any.pkg.tar.xz",
+        "producer_run": "38886781500",
+        "sha256": "06898669fdd6c9e5bdcc9909e6b0e75e958bdbd57520a7082c0e9f5f7fac7482",
+        "source_commit": "09717a45388e5b90ca80fd3fef327444101c108f"
+      },
+      "arch": "any",
+      "check_markers": [
+        "^Ran 16 tests in [0-9.]+s$",
+        "^OK$"
+      ],
+      "dependencies": {
+        "checkdepends": [],
+        "depends": [
+          "python>=3.11",
+          "pacman",
+          "systemd"
+        ],
+        "makedepends": [],
+        "optdepends": []
+      },
+      "payload": {
+        "usr/bin/cachy-asahi-doctor": [
+          "cachy-asahi-doctor",
+          493
+        ],
+        "usr/share/doc/cachy-asahi-doctor/README.md": [
+          "README.md",
+          420
+        ],
+        "usr/share/licenses/cachy-asahi-doctor/LICENSE": [
+          "LICENSE",
+          420
+        ],
+        "usr/share/licenses/cachy-asahi-doctor/NOTICE": [
+          "NOTICE",
+          420
+        ]
+      },
+      "recipe_sha256": "119e2b839195e0c18b885b0208928e234af63e2a5f958dbf4fc9edad5a2c04b1",
+      "source_files": {
+        ".SRCINFO": {
+          "bytes": 808,
+          "sha256": "6eb3a106a899d701489d5a8903c15e57516544e164c40adebef2748de978284d"
+        },
+        "LICENSE": {
+          "bytes": 1081,
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "NOTICE": {
+          "bytes": 563,
+          "sha256": "96aa4022dcf6b97ea2b55ef63d78d5c261bfcd39c303822bad184a33d09e5804"
+        },
+        "PKGBUILD": {
+          "bytes": 1195,
+          "sha256": "119e2b839195e0c18b885b0208928e234af63e2a5f958dbf4fc9edad5a2c04b1"
+        },
+        "README.md": {
+          "bytes": 3995,
+          "sha256": "8d1260424db6e54c8a68b008ab1d317d54a2a58d34655f34ae5059603cf19e4e"
+        },
+        "cachy-asahi-doctor": {
+          "bytes": 14695,
+          "sha256": "d8eb487bc81b5880aceb412360ef674cc214150d61733dfdc8d8654e0f54cf38"
+        },
+        "test_doctor.py": {
+          "bytes": 10694,
+          "sha256": "7d555c98f79204d91c759171273c1ef24564a51d3384d6e8eb10751ab1cc4281"
+        }
+      },
+      "version": "0.1.0-1"
+    },
+    "cachy-asahi-orphans": {
+      "arch": "any",
+      "check_markers": [
+        "^Ran 20 tests in [0-9.]+s$",
+        "^OK$"
+      ],
+      "dependencies": {
+        "checkdepends": [],
+        "depends": [
+          "python>=3.11",
+          "pacman"
+        ],
+        "makedepends": [],
+        "optdepends": []
+      },
+      "payload": {
+        "usr/bin/cachy-asahi-orphans": [
+          "cachy-asahi-orphans",
+          493
+        ],
+        "usr/share/cachy-asahi-orphans/protection-floor.json": [
+          "protection-floor.json",
+          420
+        ],
+        "usr/share/doc/cachy-asahi-orphans/README.md": [
+          "README.md",
+          420
+        ],
+        "usr/share/licenses/cachy-asahi-orphans/LICENSE": [
+          "LICENSE",
+          420
+        ],
+        "usr/share/licenses/cachy-asahi-orphans/NOTICE": [
+          "NOTICE",
+          420
+        ]
+      },
+      "recipe_sha256": "b59a1b67a8fd6290549e861bd40f5e94447d5376c86eca6baa94d2cdddb6b91a",
+      "source_files": {
+        ".SRCINFO": {
+          "bytes": 914,
+          "sha256": "a324b86100e9a14aa431021f2ed3454920e764708faea4bc0775239dd9765223"
+        },
+        "LICENSE": {
+          "bytes": 1081,
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "NOTICE": {
+          "bytes": 759,
+          "sha256": "326f699857d31b8cd4462081aea074d4349721fb9c48965db6208c793a086720"
+        },
+        "PKGBUILD": {
+          "bytes": 1379,
+          "sha256": "b59a1b67a8fd6290549e861bd40f5e94447d5376c86eca6baa94d2cdddb6b91a"
+        },
+        "README.md": {
+          "bytes": 8810,
+          "sha256": "ef96e2cf1e0809a065edd36545c861e4064f3bae2cc4665401455a89dd144529"
+        },
+        "cachy-asahi-orphans": {
+          "bytes": 20007,
+          "sha256": "559ff8554b9c93f237ddebec8f6c8ac09749ed93b6a179c06fcf513dfffe3292"
+        },
+        "protection-floor.json": {
+          "bytes": 10489,
+          "sha256": "0d6dfbf3cd550fe72ddad30058693007f8bb86214de1e83442580677db5005f2"
+        },
+        "test_orphans.py": {
+          "bytes": 14653,
+          "sha256": "8f4080979ad3de2b1c27419f27cd6e3f61b122544164f1e16158cc4f8d73bb82"
+        }
+      },
+      "version": "0.1.0-2"
+    },
+    "cachy-asahi-welcome": {
+      "arch": "aarch64",
+      "check_markers": [
+        "^1\\.\\.7$",
+        "^ok [0-9]+ /status/installed$",
+        "^ok [0-9]+ /status/unavailable$",
+        "^ok [0-9]+ /status/duplicate$",
+        "^ok [0-9]+ /status/lookalike$",
+        "^ok [0-9]+ /status/malformed$",
+        "^ok [0-9]+ /status/oversized$",
+        "^ok [0-9]+ /status/json\\-controls$",
+        "^1\\.\\.13$",
+        "^ok [0-9]+ /management/api$",
+        "^ok [0-9]+ /management/success$",
+        "^ok [0-9]+ /management/nonzero$",
+        "^ok [0-9]+ /management/missing$",
+        "^ok [0-9]+ /management/output\\-limit$",
+        "^ok [0-9]+ /management/timeout$",
+        "^ok [0-9]+ /management/cancel\\-detached$",
+        "^ok [0-9]+ /management/complete\\-detached$",
+        "^ok [0-9]+ /management/unrelated\\-child\\-isolation$",
+        "^ok [0-9]+ /management/environment$",
+        "^ok [0-9]+ /management/binary\\-output$",
+        "^ok [0-9]+ /management/invalid\\-utf8$",
+        "^ok 13 /management/root\\-guard # SKIP Root guard requires an actual root test process$",
+        "^1\\.\\.8$",
+        "^ok [0-9]+ /report/doctor/valid$",
+        "^ok [0-9]+ /report/doctor/schema$",
+        "^ok [0-9]+ /report/orphans/valid$",
+        "^ok [0-9]+ /report/orphans/schema$",
+        "^ok [0-9]+ /report/json$",
+        "^ok [0-9]+ /report/unicode$",
+        "^ok [0-9]+ /report/refusal$",
+        "^ok [0-9]+ /report/bounds$",
+        "^Ran 5 tests in [0-9.]+s$",
+        "^OK$",
+        "PASS_SOURCE_PAYLOAD_CONTRACT",
+        "^1\\.\\.3$",
+        "^ok [0-9]+ /report\\-work/copied\\-buffer\\-and\\-display$",
+        "^ok [0-9]+ /report\\-work/close\\-pending\\-lifetime$",
+        "^ok [0-9]+ /report\\-work/no\\-second\\-start$"
+      ],
+      "dependencies": {
+        "checkdepends": [
+          "python"
+        ],
+        "depends": [
+          "gtk3>=3.24",
+          "glib2>=2.74"
+        ],
+        "makedepends": [
+          "gcc",
+          "make",
+          "pkgconf"
+        ],
+        "optdepends": [
+          "alacritty: Terminal launch action",
+          "thunar: Files launch action",
+          "cachy-asahi-setup: optional configuration preview and recovery guidance",
+          "cachy-asahi-update: optional separately configured updater guidance",
+          "cachy-asahi-doctor: optional local observation report",
+          "cachy-asahi-orphans: optional installed metadata assessment"
+        ]
+      },
+      "payload": {
+        "usr/bin/cachy-asahi-welcome": [
+          "cachy-asahi-welcome",
+          493
+        ],
+        "usr/share/applications/io.github.GabrielKahen.CachyAsahiWelcome.desktop": [
+          "io.github.GabrielKahen.CachyAsahiWelcome.desktop",
+          420
+        ],
+        "usr/share/doc/cachy-asahi-welcome/README.md": [
+          "README.md",
+          420
+        ],
+        "usr/share/doc/cachy-asahi-welcome/first-run.txt": [
+          "first-run.txt",
+          420
+        ],
+        "usr/share/doc/cachy-asahi-welcome/recovery.txt": [
+          "recovery.txt",
+          420
+        ],
+        "usr/share/doc/cachy-asahi-welcome/updates.txt": [
+          "updates.txt",
+          420
+        ],
+        "usr/share/icons/hicolor/scalable/apps/cachy-asahi-welcome.svg": [
+          "cachy-asahi-welcome.svg",
+          420
+        ],
+        "usr/share/licenses/cachy-asahi-welcome/LICENSE": [
+          "LICENSE",
+          420
+        ],
+        "usr/share/licenses/cachy-asahi-welcome/NOTICE": [
+          "NOTICE",
+          420
+        ]
+      },
+      "recipe_sha256": "06f3d380b27cdc0e4299d098d32706fbb89afcd2f9296bb7bdace2474e10e48e",
+      "source_files": {
+        ".SRCINFO": {
+          "bytes": 3200,
+          "sha256": "64599d58f989a198dccaf85c5bb8f5f8fcc2c607d1e7dc8f054f36da52e5d10a"
+        },
+        "LICENSE": {
+          "bytes": 1081,
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "Makefile": {
+          "bytes": 3364,
+          "sha256": "6cf2898bc0ea6f20acd09cc78b6873b7e7483e3da97cd5af809e431d8f5a54b7"
+        },
+        "NOTICE": {
+          "bytes": 665,
+          "sha256": "71e80969d77f4079bff80b62c53c84866489d91206a420384fc1622319d8021a"
+        },
+        "PKGBUILD": {
+          "bytes": 3075,
+          "sha256": "06f3d380b27cdc0e4299d098d32706fbb89afcd2f9296bb7bdace2474e10e48e"
+        },
+        "README.md": {
+          "bytes": 5517,
+          "sha256": "b2ecbb4a13549c069d9f7216fbbff47e282be1806dcacc8730788e0cc47a9c00"
+        },
+        "cachy-asahi-welcome.svg": {
+          "bytes": 531,
+          "sha256": "0db6f69c16766172942551b512e89842d086f4a04320a20bfd9a4473b17a1b73"
+        },
+        "check_source.py": {
+          "bytes": 3837,
+          "sha256": "cb66f2bc2651003d89e0c6054013dc1ebb57aaf518e64266be8705ac9b024c8b"
+        },
+        "first-run.txt": {
+          "bytes": 1484,
+          "sha256": "2c123deef2cf02b586250c1128907ba294ced83a3671607dd2aef2f3cfa094eb"
+        },
+        "io.github.GabrielKahen.CachyAsahiWelcome.desktop": {
+          "bytes": 358,
+          "sha256": "2c2159a75c7b0303eebf47e77e89d6d1f6241372f7ecb006c6b11002135cb441"
+        },
+        "management-report.c": {
+          "bytes": 11343,
+          "sha256": "21bb131d48a34f86f5a7035b6b9032980bb9330afbc409dca69639a5f0ec9e86"
+        },
+        "management-report.h": {
+          "bytes": 647,
+          "sha256": "2caed0cedfc375577d05b8468ec1c54b98e2c23daa247f217671d033b68b739d"
+        },
+        "management.c": {
+          "bytes": 19484,
+          "sha256": "1703fe13c3055a3f35ec12b85c2ffcb3814a0c364fc9537caf4adf32d24d20b4"
+        },
+        "management.h": {
+          "bytes": 1564,
+          "sha256": "5e5e8f196321eb6da75224cbb9f48e9dab7ed20909af4569a9a910ac29f8c212"
+        },
+        "recovery.txt": {
+          "bytes": 1555,
+          "sha256": "09e5160543b0739b10f327972e338b01c16269d8bcfc6620325eceed0c6a26a2"
+        },
+        "status.c": {
+          "bytes": 6735,
+          "sha256": "2bfd5f64c724670546057d01312fc6b9591416f6113c65eae8cbb9a53f3909cf"
+        },
+        "status.h": {
+          "bytes": 833,
+          "sha256": "da0c71ef784debe9ea8ec0be34d8326afe5520ad463efc4a2d432805324b8b78"
+        },
+        "test_cli.py": {
+          "bytes": 3170,
+          "sha256": "722182698ca07b14b03787a52f5b3976f2f039ae048f142f2dee72e6176fa972"
+        },
+        "test_management.c": {
+          "bytes": 11388,
+          "sha256": "17a23fa7fce5562c3ddeab9a2dda2aa2853c4c2b40dc532bcd3e21fe9a67f18c"
+        },
+        "test_management_report.c": {
+          "bytes": 8746,
+          "sha256": "a75cf2d71536412cf315d9ab6b0d7337a1ee044847023058c6e40a53102971ed"
+        },
+        "test_management_ui.c": {
+          "bytes": 9411,
+          "sha256": "7a33f4d44d3739acb53f15b5b91d394ee0ba186482a12999e3bca6970d9fa230"
+        },
+        "test_report_work.c": {
+          "bytes": 4943,
+          "sha256": "0cb5df7b5e3c302c1732a5f85f684421a58c34404582300fb47f24d580e48ea2"
+        },
+        "test_status.c": {
+          "bytes": 5152,
+          "sha256": "710eba6eafd4389bf2bf73bc39c7e727d4d60097cb783c035da60bc4ba8d740e"
+        },
+        "updates.txt": {
+          "bytes": 1445,
+          "sha256": "fcde7d9aa0c6f1a0fc8090c5dc26f405708f18ea760d74b664732e2824d403b8"
+        },
+        "welcome.c": {
+          "bytes": 23991,
+          "sha256": "0a3e7e34bf9ebf66e9932cfeb116ce5a202754956a41f9f5481d70784d3c0f66"
+        }
+      },
+      "version": "0.1.0-4"
+    }
+  },
+  "schema_version": 1,
+  "status": "ROOT_BOUND_FINAL_PRODUCT_SOURCE",
+  "ui": {
+    "labels": {
+      "doctor": "Run Doctor",
+      "management": "Management",
+      "orphans": "Assess orphan packages"
+    },
+    "max_output_bytes": 1048576,
+    "orphan_preview_bytes": 8192,
+    "orphan_preview_suffix": "\n[Raw preview truncated at 8 KiB.]",
+    "raw_preview_suffix": "\n[Raw preview truncated at 64 KiB.]",
+    "strings": {
+      "complete": "Elapsed:",
+      "failure": "Check failed.",
+      "running": "Running check\u2026",
+      "unavailable": "The optional tool is not installed or executable. This check is unavailable."
+    }
+  }
+}

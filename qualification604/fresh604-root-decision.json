@@ -1,0 +1,82 @@
+{
+  "actual_mount_api": "NOT_EXPORTED_STATX_OR_FDINFO_FALLBACK_NOT_DISTINGUISHED",
+  "cleanup": "PASS",
+  "cleanup_evidence": "SOURCE_BOUND_RETAINED_RECEIPTS_NOT_LIVE_REOBSERVATION",
+  "expected604_sha256": "7bc6caa51301bf076aeda4d137277a128c53a16e5bfd25f02e7309c4b3a408c3",
+  "hardware": "NOT_RUN",
+  "independent_root_readback": "PASS",
+  "input_policy_sha256": "e2ee7a424604793bf4ab7a6077d76de4ec5a297640169ad57dc94a8876c1ff4c",
+  "limitations": [
+    "Private raw node/hash/ownership maps and installed target/profile/lock bytes were checked by the frozen guest code and are not exported; this replay checks complete summaries and exact retained protocol/source joins, not a new full-byte readback.",
+    "Retired container/image/VM absence is retained source-bound cleanup evidence, not live reobservation.",
+    "No physical installation, target boot, hooks/scriptlets, native-container P0, M2 or performance acceptance.",
+    "Statx source selection and unchanged full hashing/deadlines are checked; runtime choice of statx versus original fdinfo fallback is not reported.",
+    "The original collector and reader refused the aggregate ZIP filename. Root replay changes only the selector to the exact once-retained aggregate member and preserves the original refusal; frame hashes and every semantic check remain unchanged."
+  ],
+  "log_archive": {
+    "bytes": 1558076,
+    "sha256": "9f0051eb09889c78004fe5ab9c7fe5e0ec4c85ab505f8525c2cb0da9739ee0f2"
+  },
+  "native604_decision_sha256": "874eccfc7ca34008b07f912d1e6ca2e1f7e5f3f8febd336782522e517d2e4eb8",
+  "native_container_P0": "UNCHANGED_FAILED",
+  "ordinary_and_root_flags": {
+    "committed": true,
+    "database_verified": true,
+    "namespace_barrier": true,
+    "numeric_namespace_verified": true,
+    "numeric_ownership_verified": true,
+    "ordinary_parent_nnp_cap0": true,
+    "ownership_verified": true,
+    "parent_inventory_preserved": true,
+    "parent_payload_verified": true,
+    "payload_verified": true,
+    "preservation_verified": true,
+    "private_trust_verified": true,
+    "process_retirement": true,
+    "root_guest_payload_verified": true,
+    "source_cache_preserved": true
+  },
+  "ordinary_parent_retired": "PASS",
+  "package_count": 604,
+  "performance": "NOT_MEASURED",
+  "public_frame": {
+    "bytes": 37721,
+    "sha256": "20dbe8833753275856c7b4c7a0fd0b778fa1cc12bf64f60dd752e077925695b1"
+  },
+  "qemu_natural_exit": true,
+  "qemu_seconds": 3888.951,
+  "release": "NOT_ADMITTED",
+  "root_decision_utc": "2026-10-17T20:12:16.107595+00:00",
+  "root_independent_replay": {
+    "bytes": 11998,
+    "sha256": "4dd37ec08828c600aa5b6b752c05a80017a6a1f8322a9448995e6815a5290873"
+  },
+  "root_observation": {
+    "complete": true,
+    "deadline_seconds": 600,
+    "elapsed_ms": 506197,
+    "footprint": {
+      "bytes": 4930116522,
+      "database_bytes": 11796557,
+      "database_files": 1841,
+      "hardlink_inodes": 1048,
+      "nodes": 124479
+    },
+    "missing_database_nodes": 0,
+    "missing_database_samples": [],
+    "observed_nodes": 124479,
+    "required_database_nodes": 1209,
+    "unsupported_counts": {
+      "absolute-symlink": 24,
+      "auxiliary-present": 3
+    },
+    "unsupported_reasons_omitted": 0
+  },
+  "run_id": "39050697739",
+  "schema_version": 1,
+  "scope": "GENERIC_ARM4K_SIGNED_PUBLIC_PAIRS_APPS6_CURRENT604_FRESH_INSTALLER_SOFTWARE_ONLY",
+  "source_git_joins": 359,
+  "source_manifest_sha256": "5f4dbc150a5f8ca6a85843b783e7b5472251a4b0761e75e65f7d82b165a7b629",
+  "source_sha": "bd0cf1891083d011b70edab10501c317d3720b78",
+  "status": "ROOT_ACCEPTED_SIGNED_PUBLIC_PAIRS_APPS6_CURRENT604_FRESH_INSTALLER"
+}
