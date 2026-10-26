@@ -5235,6 +5235,10 @@
   },
   "native_acceptance": false,
   "operands": {
+    "actual-maintained_desktop574.py.txt": {
+      "bytes": 13634,
+      "sha256": "80fde943f82def61f2f1734388a8e27b8e0a6c8d83b758eb91bd6ccc0bfeae7d"
+    },
     "assembly622.py.in": {
       "bytes": 466,
       "sha256": "610836ad8beeed379079b711c37d20867b28218d9422631ff7857d8a4872be55"
@@ -5242,6 +5246,14 @@
     "composition.json": {
       "bytes": 444951,
       "sha256": "154aab2490617a23d3fb745cc8c03d3bc4abb35d3c836f4a43394b1758158d6c"
+    },
+    "dependency-cache-context.json": {
+      "bytes": 25836,
+      "sha256": "7e5e1bf47f029bef1cbbcd6c799b9528d1cc760af82967fa95bf2cf6aa94eeed"
+    },
+    "dependency-source-data.json": {
+      "bytes": 10160,
+      "sha256": "d833028033555c3436febb04cf94d739cccccc2c7265f137df210b686de451a7"
     },
     "desktop622.py.in": {
       "bytes": 9856,
@@ -5264,28 +5276,28 @@
       "sha256": "d95aacedb66559354abe92c45801acb59000fafdbb25ea6cf715821bb808d114"
     },
     "lane622.py.in": {
-      "bytes": 7612,
-      "sha256": "c0efef5a625cae10d2cc5ef6de9adbc8b181e18013c7587aa8dcb90928d55e07"
+      "bytes": 7639,
+      "sha256": "f88bf091745e7785fd901432f025f8538b531e88f892718650e8b9e855c677eb"
     },
     "ownership622.py.in": {
-      "bytes": 6328,
-      "sha256": "7114c1e83c8e9cec1d8d1726f81a7f86c28f419d3baf80a8081838dae625f9fa"
+      "bytes": 32967,
+      "sha256": "3e2d2a78cb13284d2fe87f69e8f5e857b9712bf0aa3dfcd68736725afcba7c53"
     },
     "provision622.py.in": {
       "bytes": 12682,
       "sha256": "16a185e7d9fe7d2a7f6717aff09187b64b2564ac16626c9bf5e1ea5ca51abe99"
     },
     "run622.py.in": {
-      "bytes": 15510,
-      "sha256": "d45fdc57e0f6897493f2789a99cf6eeb6000792503d319dcb566448f65539abd"
+      "bytes": 17037,
+      "sha256": "41d4d209bbcb79a035b65b72e95799956ad48709ebb07eb8c21b63d7e39d8919"
     },
     "source622.py.in": {
       "bytes": 3915,
       "sha256": "bfde62f53b5304888ec53ab55bb1dad810ca7b7b22ce3a617a1c4f0963055348"
     },
     "test_bridge622.py.in": {
-      "bytes": 14502,
-      "sha256": "d499ff79f3029becc28c19783ec3adc48cd895c8e77a5a61da3f97ddd825890d"
+      "bytes": 38200,
+      "sha256": "fc3600d437cd0db1d924b29ac633725650375f964b51d9e22e2ce2170ca952c0"
     },
     "test_desktop622.py.in": {
       "bytes": 5072,
@@ -5295,12 +5307,12 @@
   "result": {
     "files": {
       ".github/workflows/native-arm-build.yml": {
-        "bytes": 41718,
-        "sha256": "9044b093bcc418083cd2ac0577aad3564236e673a49e8947b781bea41cb712d0"
+        "bytes": 42654,
+        "sha256": "6be634e09f49217c03e6269ae1604b7916d8a8f899243087600b86b7821323a1"
       },
       ".github/workflows/native-arm-core7-real-systemd.yml": {
-        "bytes": 41718,
-        "sha256": "9044b093bcc418083cd2ac0577aad3564236e673a49e8947b781bea41cb712d0"
+        "bytes": 42654,
+        "sha256": "6be634e09f49217c03e6269ae1604b7916d8a8f899243087600b86b7821323a1"
       },
       "Core800-acceptance.json": {
         "bytes": 2043,
@@ -5343,8 +5355,8 @@
         "sha256": "cf43f16973294a8e687c65341cb63329a71d9a2a2ea488f0f6f2e20b97087c3c"
       },
       "composition-parent.json": {
-        "bytes": 450519,
-        "sha256": "b59c78cabca65411b6eab70f0c7b139e727aa22f84f84aa153e81ee52a7d967a"
+        "bytes": 501966,
+        "sha256": "ec7e479890872dd0697d7d09857b218073b921d88d6719df4781fefec3bfebe0"
       },
       "composition.json": {
         "bytes": 444951,
@@ -5423,8 +5435,8 @@
         "sha256": "e3849c1604b6520c4fb813692290a0989d08542cf3ada1fbf412948a83a26c9c"
       },
       "lane622.py": {
-        "bytes": 7612,
-        "sha256": "c0efef5a625cae10d2cc5ef6de9adbc8b181e18013c7587aa8dcb90928d55e07"
+        "bytes": 7639,
+        "sha256": "f88bf091745e7785fd901432f025f8538b531e88f892718650e8b9e855c677eb"
       },
       "media.py": {
         "bytes": 7894,
@@ -5439,8 +5451,8 @@
         "sha256": "1e04c1a6d7918c6499a3a356397749a60083000bb493e9fb3df1f277ea635922"
       },
       "ownership622.py": {
-        "bytes": 6328,
-        "sha256": "7114c1e83c8e9cec1d8d1726f81a7f86c28f419d3baf80a8081838dae625f9fa"
+        "bytes": 32967,
+        "sha256": "3e2d2a78cb13284d2fe87f69e8f5e857b9712bf0aa3dfcd68736725afcba7c53"
       },
       "pid1-baseline.json": {
         "bytes": 528,
@@ -5463,8 +5475,8 @@
         "sha256": "16a185e7d9fe7d2a7f6717aff09187b64b2564ac16626c9bf5e1ea5ca51abe99"
       },
       "run622.py": {
-        "bytes": 15510,
-        "sha256": "d45fdc57e0f6897493f2789a99cf6eeb6000792503d319dcb566448f65539abd"
+        "bytes": 17037,
+        "sha256": "41d4d209bbcb79a035b65b72e95799956ad48709ebb07eb8c21b63d7e39d8919"
       },
       "serial-profile.json": {
         "bytes": 734,
@@ -5475,16 +5487,16 @@
         "sha256": "d708f9de5f31a15882596ed95fb9514958ce8df4a85ce2152dcb265f878b3991"
       },
       "source-manifest.json": {
-        "bytes": 8710,
-        "sha256": "f52ad6282b28c469b8a770c74129d8d39ce6503d4e919b211bd19a6edc4750ed"
+        "bytes": 8711,
+        "sha256": "5cc486fbd17617c3913c104da26485f5d4b8b5cd7dc6f64e40156390e043e00c"
       },
       "source622.py": {
-        "bytes": 11041,
-        "sha256": "945bf18b57cb97cd988316c31e01598e47ff087d96a4eda60dd31b5c85259697"
+        "bytes": 11042,
+        "sha256": "17774b420092ac21c957065c5c08aef159a6c3481c125387a7a1e8ab53b957d0"
       },
       "test_bridge622.py": {
-        "bytes": 14502,
-        "sha256": "d499ff79f3029becc28c19783ec3adc48cd895c8e77a5a61da3f97ddd825890d"
+        "bytes": 38200,
+        "sha256": "fc3600d437cd0db1d924b29ac633725650375f964b51d9e22e2ce2170ca952c0"
       },
       "test_case.py": {
         "bytes": 19195,
@@ -5551,16 +5563,16 @@
         "sha256": "a69264ea55374b2058048ca2441c89942e65f43d06125b0d1ad71d3e021202e1"
       },
       "workflow.yml.in": {
-        "bytes": 41718,
-        "sha256": "9044b093bcc418083cd2ac0577aad3564236e673a49e8947b781bea41cb712d0"
+        "bytes": 42654,
+        "sha256": "6be634e09f49217c03e6269ae1604b7916d8a8f899243087600b86b7821323a1"
       },
       "xattr_diagnostic.py": {
         "bytes": 17502,
         "sha256": "ad88aee4e41afa9f78d45785a45f274abeac1aaf335225ec0c4cc61240cbba47"
       }
     },
-    "ref": "codex/core622-current-desktop-v1",
-    "source": "47d9f0497b9c01af637aa2929a0d1155c896adbc"
+    "ref": "codex/core622-retained-dependency-cache-v1",
+    "source": "ae39c1ba4c613d6a86e5582c2ab4c2d5495b2bd7"
   },
   "schema": 1,
   "status": "SOURCE_ONLY_CORE622_PORTABLE_FACTORY"
