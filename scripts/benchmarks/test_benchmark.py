@@ -245,9 +245,29 @@ class BenchmarkTests(unittest.TestCase):
         with self.assertRaisesRegex(b.Invalid, "raw output"):
             b.compare(self.plan, directories, self.root / "compare.json")
 
+    def synthetic_sensor_cli(self):
+        # Test-only entry; production telemetry and comparison stay unchanged.
+        # Empty sensor identity matches the production no-snapshot fallback too.
+        entry = self.root / "synthetic_sensor_cli.py"
+        entry.write_text("""import importlib.util,sys,time
+spec=importlib.util.spec_from_file_location('synthetic_sensor_benchmark',sys.argv[1])
+b=importlib.util.module_from_spec(spec);spec.loader.exec_module(b)
+def synthetic_telemetry(pid):
+    return dict(monotonic_ns=time.monotonic_ns(),thermal=[],power=[],battery=[],
+                memory=dict(root_rss_kib=None,lifecycle='unknown'),
+                missing=['thermal','power','battery','memory'],
+                reason='EXPLICIT_SYNTHETIC_UNAVAILABLE_SENSORS_NOT_HARDWARE')
+b.telemetry=synthetic_telemetry
+sys.argv=[sys.argv[0],*sys.argv[2:]]
+raise SystemExit(b.main())
+""")
+        self.config["inputs"].append(str(entry))
+        return [sys.executable, "-B", str(entry), str(Path(b.__file__))]
+
     @unittest.skipIf(os.geteuid() == 0, "root workload execution intentionally refused")
     def test_actual_cli_roundtrip_is_nonacceptance_smoke(self):
-        # Real Linux/x86-or-other-host execution; no synthetic timing or M2 claim.
+        # Real workload/CLI/timing; explicitly synthetic unavailable sensors.
+        # This portable protocol test establishes no physical sensor/M2 result.
         self.driver.write_text("import os,time\ntime.sleep(.05)\nprint('nonacceptance smoke',os.environ['SMOKE_VARIANT'])\n")
         self.config["change"]["environment_key"] = "SMOKE_VARIANT"
         self.config["variant_env"] = {"baseline": {"SMOKE_VARIANT": "A"}, "candidate": {"SMOKE_VARIANT": "B"}}
@@ -256,8 +276,8 @@ class BenchmarkTests(unittest.TestCase):
         record["packages"] = {"returncode": 0 if live["packages"] is not None else 1, "stdout": live["packages"]}
         record["repositories"] = {"sync_databases": live["repositories"]}
         self.state.write_text(json.dumps(record))
+        cli = self.synthetic_sensor_cli()
         self.config_path.write_text(json.dumps(self.config))
-        cli = [sys.executable, str(Path(b.__file__))]
         prepared = subprocess.run(cli + ["prepare-plan", "--config", str(self.config_path), "--baseline", str(self.state),
                                         "--candidate-state", str(self.state), "--output", str(self.plan)], capture_output=True, text=True)
         self.assertEqual(prepared.returncode, 0, prepared.stderr)
@@ -271,6 +291,11 @@ class BenchmarkTests(unittest.TestCase):
             self.assertIn("nonacceptance smoke", b.read_json(directory / "trial.json")["execution_label"])
             tag = self.config["change"][self.config["order"][slot]]
             self.assertIn(f"nonacceptance smoke {tag}", (directory / "stdout.txt").read_text())
+            for sample in (directory / "telemetry.jsonl").read_text().splitlines():
+                view = json.loads(sample)
+                self.assertEqual(b.sensor_identity(view), {"thermal": [], "power": []})
+                self.assertIsNone(view["memory"]["root_rss_kib"])
+                self.assertIn("memory", view["missing"])
             directories.append(str(directory))
         output = self.root / "comparison.json"
         result = subprocess.run(cli + ["compare", "--plan", str(self.plan), "--runs", *directories, "--output", str(output)],
@@ -464,6 +489,30 @@ Path(sys.argv[2],'result.json').write_text(json.dumps(result))
             self.replace_samples(directory, [sample])
         with self.assertRaisesRegex(b.Invalid, "sensor source/chip/channel"):
             b.compare(self.plan, directories, self.root / "identity.json")
+
+    def test_missing_to_identified_sensor_is_refused_within_and_between_trials(self):
+        # Actual strict comparator, valid raw hashes/metrics, no sensor values invented.
+        directories = self.synthetic_trials()
+        for location in ("within", "between"):
+            with self.subTest(location=location):
+                for directory in directories:
+                    trial = b.read_json(directory / "trial.json")
+                    sample = {"monotonic_ns": trial["monotonic_start_ns"] + 1,
+                              "memory": {"root_rss_kib": None, "lifecycle": "unknown"},
+                              "thermal": [], "power": [], "missing": ["memory", "thermal", "power"]}
+                    self.replace_samples(directory, [sample])
+                changed = directories[0 if location == "within" else 1]
+                sample = json.loads((changed / "telemetry.jsonl").read_text())
+                identified = copy.deepcopy(sample)
+                identified["monotonic_ns"] += 1
+                identified["power"] = [{"path": "/synthetic/identity-only", "unit": "uW", "value": None,
+                                        "status": "unavailable", "chip_name": "SYNTHETIC_ONLY",
+                                        "channel_label": "NO_MEASUREMENT", "device": None}]
+                self.replace_samples(changed, [sample, identified] if location == "within" else [identified])
+                output = self.root / ("refused-" + location + ".json")
+                with self.assertRaisesRegex(b.Invalid, "sensor source/chip/channel/device/unit"):
+                    b.compare(self.plan, directories, output)
+                self.assertFalse(output.exists())
 
     def test_unreviewed_power_domain_is_incomplete(self):
         self.config["thresholds"]["maximum_regression"] = {"power_raw_uW_pct": 0}

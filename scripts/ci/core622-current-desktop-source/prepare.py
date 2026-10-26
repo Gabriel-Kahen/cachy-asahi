@@ -3,7 +3,7 @@
 import argparse,ast,hashlib,json,os,stat
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
-PROFILE={'bytes': 288247, 'sha256': '150bf3d6f15fdabf56c3e0dbfbffd766cbca70648daa9cdf27cbf04a040d3bb4'}
+PROFILE={'bytes': 318358, 'sha256': 'c2e88f74a38a6aefb32c2e36f813e12f141461a1b5bda127f8fa34e3f766a397'}
 SCOPE='CORE622_CURRENT607_COPIED_PROVISIONING_NORMAL_CORE_TWO_BOOT_GENERIC16K'
 PROVISIONING='COPIED_ROOT_PROVISIONING_NOT_NORMAL_HOOK_INSTALLATION'
 enc=lambda x:(json.dumps(x,sort_keys=True,indent=2,allow_nan=False)+'\n').encode()
@@ -151,8 +151,39 @@ def workflow(old,core_profile,value):
  text=edits(text,[('GITHUB_REF_NAME="${{ github.ref_name }}" RUNNER_ARCH=ARM64 GITHUB_WORKSPACE="$GITHUB_WORKSPACE"','GITHUB_REF_NAME="${{ github.ref_name }}" GITHUB_ACTIONS=true RUNNER_ARCH=ARM64 GITHUB_WORKSPACE="$GITHUB_WORKSPACE"')])
  return text
 
+LAYER_PARENTS={'live_auxiliary':'333f9b0a3f11bc2180557f7e9feedfa2f2359b98','owned_auxiliary_initialization':'b7b1a04c1bc0172f2af271546641aa374569c898','owned_proof_output':'358afcba2c1364b8954d753a631d001328367ee7'}
+LAYER_FILES=('source-manifest.json','.github/workflows/native-arm-build.yml','.github/workflows/native-arm-core7-real-systemd.yml')
+def before_layer(values,key):
+ """Pure full66 inverse, including products/selfseal; no source execution."""
+ prior=dict(values);parent=json.loads(prior['composition-parent.json']);record=parent.pop(key);need(record['schema']==1 and record['parent_source']==LAYER_PARENTS[key]and record['actual']is None and len(record['before'])==66,'exact immediate source layer')
+ for name,rules in record['edits'].items():
+  text=prior[name].decode()
+  for old,new in reversed(rules):need(text.count(new)==1,'one complete source layer seam inverse');text=text.replace(new,old,1)
+  prior[name]=text.encode()
+ prior['composition-parent.json']=enc(parent);manifest=json.loads(prior['source-manifest.json']);manifest['files']={n:w for n,w in record['before'].items()if n not in LAYER_FILES};prior['source-manifest.json']=enc(manifest);text=prior['source622.py'].decode()
+ for name,old in(('PRODUCTS',record['guard_products_before']),('SELF',record['guard_self_before'])):
+  node=next(n for n in ast.parse(text).body if isinstance(n,ast.Assign)and isinstance(n.targets[0],ast.Name)and n.targets[0].id==name);new=ast.get_source_segment(text,node);need(text.count(new)==1,'one source layer products/self inverse');text=text.replace(new,old,1)
+ need(text.count(record['guard_prefix'])==1,'one source layer whole prefix inverse');text=text.replace(record['guard_prefix'],record['guard_anchor'],1);prior['source622.py']=text.encode();need({n:pin(b)for n,b in prior.items()}==record['before'],'complete immediate66 source layer before map')
+ sealed={n.targets[0].id:ast.literal_eval(n.value)for n in ast.parse(text).body if isinstance(n,ast.Assign)and isinstance(n.targets[0],ast.Name)and n.targets[0].id in('PRODUCTS','SELF')};need(all(pin(prior[n])==w for n,w in sealed['PRODUCTS'].items()),'all original source layer products');seal=sealed['SELF'];need(text.count(seal)==1 and hashlib.sha256(text.replace(seal,'@SELF@').encode()).hexdigest()==seal,'whole original source layer selfseal');return prior
+def before_proof_output(values):return before_layer(values,'owned_proof_output')
+def before_owned_initialization(values):return before_layer(values,'owned_auxiliary_initialization')
+def before_live_auxiliary(values):return before_layer(values,'live_auxiliary')
+def before_later(values):
+ if 'owned_proof_output'in json.loads(values['composition-parent.json']):values=before_proof_output(values)
+ if 'owned_auxiliary_initialization'in json.loads(values['composition-parent.json']):values=before_owned_initialization(values)
+ if 'live_auxiliary'in json.loads(values['composition-parent.json']):values=before_live_auxiliary(values)
+ return values
+def source_layer(values,p,operands,key,stem,parent_role):
+ """Add one exact readable DATA layer while retaining every predecessor byte."""
+ before={n:values[n]for n in sorted(values)};record=json.loads(operands[stem+'-context.json']);record['guard_prefix']=operands[stem+'-inverse.py.txt'].decode();need(record['schema']==1 and record['parent_source']==LAYER_PARENTS[key]==p[parent_role]['source']and record['actual']is None and record['before']==p[parent_role]['files']=={n:pin(b)for n,b in before.items()},'whole exact source layer parent')
+ out=dict(before)
+ for name,rules in record['edits'].items():out[name]=edits(out[name].decode(),rules).encode()
+ guard=before['source622.py'].decode();assign={n.targets[0].id:ast.get_source_segment(guard,n)for n in ast.parse(guard).body if isinstance(n,ast.Assign)and isinstance(n.targets[0],ast.Name)and n.targets[0].id in('PRODUCTS','SELF')};need(assign==dict(PRODUCTS=record['guard_products_before'],SELF=record['guard_self_before']),'exact predecessor products/self operands');need(guard.count(record['guard_anchor'])==1,'one source-owned DATA namespace before layer');guard=guard.replace(record['guard_anchor'],record['guard_prefix'],1).replace(assign['PRODUCTS'],'PRODUCTS=None',1).replace(assign['SELF'],"SELF='@SELF@'",1)
+ parent=json.loads(before['composition-parent.json']);need(key not in parent,'fresh finite source layer');parent[key]=record;out['composition-parent.json']=enc(parent);products={n:pin(out[n])for n in sorted(out)if n not in('source622.py',*LAYER_FILES)};guard=guard.replace('PRODUCTS=None','PRODUCTS='+repr(products),1);guard=guard.replace("SELF='@SELF@'","SELF="+repr(hashlib.sha256(guard.encode()).hexdigest()),1);out['source622.py']=guard.encode();manifest=json.loads(before['source-manifest.json']);manifest['files']={n:pin(b)for n,b in out.items()if n not in LAYER_FILES};out['source-manifest.json']=enc(manifest);need(before_layer(out,key)==before,'entire source layer byte inverse');return out
+
 def before_capability(values):
  """Pure DATA inverse of every immediate097757 source byte."""
+ values=before_later(values)
  prior=dict(values);parent=json.loads(prior['composition-parent.json']);r=parent.pop('capability_boundary');need(r['schema']==1 and r['parent_source']=='09775710e2ad55d647993eab81890f1696572c86'and r['actual']is None,'fixed capability-boundary parent context')
  for name,rules in r['edits'].items():
   text=prior[name].decode()
@@ -224,6 +255,11 @@ def compose(roots):
   if n.endswith('.py'):ast.parse(b,filename=n)
 
  need({n:pin(b)for n,b in out.items()}==p['capability_parent']['files'],'all66 exact097757 intermediate bytes');out=capability_stage(out,p,operands)
+ need({n:pin(b)for n,b in out.items()}==p['diagnostic_parent']['files'],'all66 exact333f maintained intermediate')
+ out=source_layer(out,p,operands,'live_auxiliary','live-auxiliary','diagnostic_parent');need({n:pin(b)for n,b in out.items()}==p['initialization_parent']['files'],'all66 exact b7 diagnostic intermediate')
+ out=source_layer(out,p,operands,'owned_auxiliary_initialization','owned-initialization','initialization_parent')
+ need({n:pin(b)for n,b in out.items()}==p['proof_output_parent']['files'],'all66 exact358 initializer intermediate')
+ out=source_layer(out,p,operands,'owned_proof_output','proof-output','proof_output_parent')
  need({n:pin(b)for n,b in out.items()}==p['result']['files'],'all66 exact public result bytes')
  before_environment(out)  # All immediate66 predicates remain mandatory before original51 inverse.
  restored=dict(out)
