@@ -1,5 +1,7 @@
 # Implementation and acceptance status
 
+October26: [Core7 automatic hooks and candidate PID1 pass two boots on generic ARM16K](validation/core7-two-boot-generic16k-20261026.md): seven candidate packages in a589-package persistent test root, four complete graphs, distinct boot IDs and natural observer retirement. This finite result leaves the combined current desktop/Core composition, Asahi/both M2 sizes, measurements and release separate.
+
 October25: [Both pristine and modified GNU provider normal lifecycles pass on generic ARM16K](validation/gnu-provider-paired-generic16k-20261025.md), with16 complete logical maps/eight runtime observations. Modified configuration uses three explicit clone handoffs; automatic active configuration preservation is not claimed. Interrupted transactions and both M2 sizes remain untested.
 
 October25: [Signed latest607 fresh installation now passes in an owned generic ARM4K VM](validation/latest607-fresh-installer-20261025.md). Exact Apps16/other606/Runtime1, ordinary-parent and root-guest payload/database/ownership/preservation checks pass, with complete post-parent root readback. This accepts the finite VM installation scope. The separate [Apps6-before607 baseline also passes](validation/latest607-apps6-baseline-20261025.md). Current updater/GUI, target boot/hooks, both M2 sizes, measurements and release remain open.
