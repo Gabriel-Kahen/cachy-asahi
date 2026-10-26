@@ -1,0 +1,12 @@
+cachy-asahi-zsh-syntax-highlighting
+
+The unchanged upstream runtime, version/revision files and upstream documentation
+are from zsh-users/zsh-syntax-highlighting revision
+e6683f20e5c38d3e5447f45845d04ddda75d0f23 (0.8.1-dev).
+Copyright (c) 2010-2020 zsh-syntax-highlighting contributors.
+BSD-3-Clause terms are retained in LICENSE.upstream and source file headers,
+including individual contributors' notices. No endorsement is implied.
+
+The opt-in wrapper, recipe, usage and fixture driver are original cachy-asahi
+contributor work under the MIT grant in LICENSE.project.
+No ungranted CachyOS Zsh configuration is included.
