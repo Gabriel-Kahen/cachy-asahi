@@ -1,0 +1,21 @@
+pkgbase = cachy-asahi-cache
+	pkgdesc = Protected selected package cache cleanup with real ALPM exclusion and quarantine
+	pkgver = 0.2.0
+	pkgrel = 1
+	url = https://github.com/Gabriel-Kahen/cachy-asahi
+	arch = any
+	license = MIT
+	depends = python>=3.11
+	depends = pacman
+	source = cachy-asahi-cache
+	source = test_cache.py
+	source = README.md
+	source = NOTICE
+	source = LICENSE
+	sha256sums = 841e126d68656639175b07ccb39b8061e9eebd72862a2b8dd62301dda2ec6013
+	sha256sums = 6cf944285848c0d1fcb52aff8ef92d5d31ef3aa4fedbbace94daaccf1eb92033
+	sha256sums = e9bcd08a9478d28eecb24a19dd6296c719ab10130570f017c8c291f7dfe911af
+	sha256sums = 202fdd819c9e47bac1cbf804c98709b81c790ef4771af5c45018f8f944209485
+	sha256sums = 51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7
+
+pkgname = cachy-asahi-cache
