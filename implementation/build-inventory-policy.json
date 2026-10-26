@@ -1,0 +1,22 @@
+{
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "held_clocks": {
+    "cleanup": 450,
+    "inventory_caller": 60,
+    "loop": 1900,
+    "native": 6600,
+    "observer": 600,
+    "owner_wait": 2800,
+    "product_scan": 30,
+    "runtime": 2350,
+    "service": 1800
+  },
+  "role": "runtime607",
+  "status": "SOURCE_ONLY_FIXED607_BUILD_BOUNDARY_NO_GUI_AUTHORITY",
+  "target": {
+    "bytes": 12076,
+    "sha256": "be35402204ba5c03d78279722afa83047c9575d2da70fb5c4064f46ed15954c5"
+  }
+}
