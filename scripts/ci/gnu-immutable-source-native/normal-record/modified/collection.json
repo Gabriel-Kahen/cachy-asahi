@@ -1,0 +1,31 @@
+{
+  "attempt": 1,
+  "files": {
+    "immutable.zip": {
+      "bytes": 41406307,
+      "sha256": "8a6a99d410517e53fbf0ba9a84a59c9fb04cd4c8fbcc62bcde3d88c42e10f987"
+    },
+    "logs.zip": {
+      "bytes": 377625,
+      "sha256": "1882984432af2f203ba3ef8668aca828c582b3dea16aba86cc06373dc1e4428b"
+    },
+    "native.zip": {
+      "bytes": 137480784,
+      "sha256": "2f5dd5c051daaaa744a52995552878328cdc0ccfb08893db5a2da347f288a23e"
+    }
+  },
+  "roles": {
+    "immutable": {
+      "id": 12618817436,
+      "name": "gnu-immutable-runtime-40234034646-1"
+    },
+    "native": {
+      "id": 12618443317,
+      "name": "glibc-debian-maintained-public-provider-lifecycle-40234034646-1"
+    }
+  },
+  "run": 40234034646,
+  "schema_version": 1,
+  "source": "de1aab259df6bda8ad36f959392e3fc4eb35b622",
+  "status": "COMPLETE_ORIGINALS_NOT_ACCEPTANCE"
+}

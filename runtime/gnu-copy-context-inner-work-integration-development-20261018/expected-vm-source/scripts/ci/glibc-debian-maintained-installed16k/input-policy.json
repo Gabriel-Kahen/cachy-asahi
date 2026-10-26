@@ -1,0 +1,35 @@
+{
+  "authority": "PRIVATE_TEST_ONLY_NO_RELEASE_ADMISSION",
+  "binding": {
+    "native_lifecycle": {
+      "bytes": 3270,
+      "path": "native_lifecycle.json",
+      "sha256": "f2e83638dba69df86159694319a9498c4f93c1846328cbd4c28d0928e73437b1"
+    },
+    "system16k": {
+      "bytes": 2497,
+      "path": "system16k.json",
+      "sha256": "0b5c33a21302dcb9d883a9d0f6e30326f129e467fe0586f6bbcbf76f2cd3567f"
+    }
+  },
+  "candidate": {
+    "authority_sha256": "88643eabd61a39df63ecaeb50bb20041d17cf4fd3adee55d82d43d3c1ca08707",
+    "package": "cachy-asahi-glibc-gnu-provider",
+    "pkgbuild_sha256": "9d6d5e688c95febe85321abc69fbfe1b7781a02e318771ae43851d8c29f68bb8",
+    "prepared_tree": "08ea2aef96bd3144cf02cbc68cbbb003dc25ed9f",
+    "source_packet_ref": "60e174c5db7f770c94064198516dd3ee07b51b7b",
+    "version": "2.43.caa3-1"
+  },
+  "interruption": "SEPARATE_NOT_A_PREREQUISITE",
+  "native_pair": {
+    "archive_sha256": "a8e9f3e1d8ffe049fdc834f62e74c14ff622b98898c2f849e1580ab8aa0fdbd9",
+    "payload": {
+      "node_count": 1592,
+      "node_manifest_sha256": "db12785a1e49a16cefe82bcad2aee0a776c3d5b78b1f767f54c4ebb28700c574"
+    },
+    "run_id": 38994309021,
+    "source_sha": "78dfd3bbd85a61a84dda2dfc601796ee89edfd5f"
+  },
+  "schema_version": 1,
+  "status": "BOUND_BY_ROOT"
+}
