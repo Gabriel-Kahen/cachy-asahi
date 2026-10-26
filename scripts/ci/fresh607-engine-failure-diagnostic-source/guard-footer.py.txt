@@ -1,0 +1,20 @@
+
+
+def engine_before_parent(p):
+ prior=json.loads(C.enc(p));e=prior.pop('engine_failure_parent');prior['guard_template']=e['guard_template']
+ for name,row in e['products_before'].items():prior['products'][name]=row
+ return prior
+
+def engine_before_body(name,p):
+ e=p['engine_failure_parent']
+ if name=='implementation/page-parent.json':return C.enc(engine_before_parent(p))
+ if name in e['before_bodies']:return e['before_bodies'][name].encode()
+ raw=C.read(C.ROOT/name)
+ if name=='implementation/page_source.py':
+  raw=one(raw,PARENT_SHA,e['files']['implementation/page-parent.json']['sha256'])
+  C.need(raw.endswith(e['guard_append'].encode()),'exact finite guard footer inverse');raw=raw[:-len(e['guard_append'].encode())]
+  for a,b in reversed(e['guard_edits']):raw=one(raw,b,a)
+ elif name=='source-manifest.json':
+  m=json.loads(raw);m['files']={n:e['files'][n]for n in m['files']};raw=C.enc(m)
+ elif name in ALIASES:raw=one(raw,C.pin(C.read(C.ROOT/'source-manifest.json'))['sha256'],e['files']['source-manifest.json']['sha256'])
+ return raw
