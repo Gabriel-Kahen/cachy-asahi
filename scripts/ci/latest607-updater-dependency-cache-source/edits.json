@@ -1,0 +1,40 @@
+{
+  "implementation/authority.py": [
+    [
+      " values={n:C.checked(C.ROOT/n,w)for n,w in current.items()}\n profile=",
+      " values={n:C.checked(C.ROOT/n,w)for n,w in current.items()}\n p,values=__import__('namespace_context').cache_before(p,values)\n profile="
+    ]
+  ],
+  "implementation/runtime.py": [
+    [
+      "(\"('expanded604-verifier','expanded604-before-verifier')\",\"('expanded604-verifier','expanded604-before-verifier','latest607-verifier')\")]",
+      "(\"('expanded604-verifier','expanded604-before-verifier')\",\"('expanded604-verifier','expanded604-before-verifier','latest607-verifier')\"),(\"return C.old600()[1].prepare_with_plan(producer,args)\",\"return Y.prepare_with_plan(C.old600()[1],producer,args)\")]"
+    ],
+    [
+      "def __init__(self,held,fresh,public,record,packets,current_source):",
+      "def __init__(self,held,fresh,public,record,packets,current_source,dependency_incoming=None):"
+    ],
+    [
+      "self.current_source=current_source;self.args=None",
+      "self.current_source=current_source;self.args=None;self.dependency_incoming=None if dependency_incoming is None else C.safe(dependency_incoming)"
+    ],
+    [
+      " def source_modules(self):",
+      " def prepare_with_plan(self,original,producer,args):return cache.prepare_with_plan(self,original,producer,args)\n def source_modules(self):"
+    ],
+    [
+      "'apps16current606qualification','latest-decisions')",
+      "'apps16current606qualification','latest-decisions','dependency-incoming')"
+    ],
+    [
+      "},os.environ['GITHUB_SHA']);return api.owner().main(rest)",
+      "},os.environ['GITHUB_SHA'],a.dependency_incoming);return api.owner().main(rest)"
+    ]
+  ],
+  "implementation/source_guard.py": [
+    [
+      "return dict(binding=binding,status='SOURCE_ONLY_LATEST607_UPDATER',cases=3",
+      "return dict(new_dependency_cache_phase_seconds=240,dependency_cache='EXACT_TEN_DATA_ORIGINAL180_AUTH_MANDATORY',binding=binding,status='SOURCE_ONLY_LATEST607_UPDATER',cases=3"
+    ]
+  ]
+}

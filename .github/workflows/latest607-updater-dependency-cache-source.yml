@@ -1,0 +1,72 @@
+name: latest607-updater-dependency-cache-source
+on:
+  push:
+    paths:
+      - scripts/ci/latest607-updater-dependency-cache-source/**
+      - .github/workflows/latest607-updater-dependency-cache-source.yml
+  pull_request:
+    paths:
+      - scripts/ci/latest607-updater-dependency-cache-source/**
+      - .github/workflows/latest607-updater-dependency-cache-source.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONWARNINGS: error
+    steps:
+      - name: Check out maintained source-only factory
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Check out exact public bound357 parent
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 01afa13fc81831099dab2bacdcbb59a9b030b5b6
+          path: .ci-fixtures/updater-bound357
+          persist-credentials: false
+      - name: Check out exact public helper1203 SOURCE DATA
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: ddfc78e30552356baa94fa123f17fd33efc2aedc
+          path: .ci-fixtures/updater-helper1203
+          persist-credentials: false
+      - name: Check out exact public cache360 expected source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 764da54af95f91ad7e72059b3c0eea0af0631774
+          path: .ci-fixtures/updater-cache360
+          persist-credentials: false
+      - name: Select explicit Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Reproduce exact cache layer and run portable source controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          stage=$(mktemp -d "$RUNNER_TEMP/updater-cache-source.XXXXXXXX")
+          trap 'rm -rf -- "$stage"' EXIT
+          mkdir -m700 "$stage/parent" "$stage/helper" "$stage/expected"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/updater-bound357" archive --format=tar 01afa13fc81831099dab2bacdcbb59a9b030b5b6 | tar -x -C "$stage/parent"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/updater-helper1203" archive --format=tar ddfc78e30552356baa94fa123f17fd33efc2aedc | tar -x -C "$stage/helper"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/updater-cache360" archive --format=tar 764da54af95f91ad7e72059b3c0eea0af0631774 | tar -x -C "$stage/expected"
+          export UPDATER_CACHE_PARENT="$stage/parent"
+          export UPDATER_CACHE_HELPER="$stage/helper"
+          export UPDATER_CACHE_EXPECTED="$stage/expected"
+          umask 077
+          python3 -I -B -Werror scripts/ci/latest607-updater-dependency-cache-source/prepare.py --source "$stage/parent" --helper-source "$stage/helper" --output "$stage/known" --context known
+          python3 -I -B -Werror scripts/ci/latest607-updater-dependency-cache-source/prepare.py --source "$stage/parent" --helper-source "$stage/helper" --output "$stage/null" --context null
+          python3 -I -B -Werror scripts/ci/latest607-updater-dependency-cache-source/test_factory.py
+          timeout 300 python3 -I -B -Werror "$stage/known/entry.py" --source-preflight
