@@ -1,5 +1,7 @@
 # Implementation and acceptance status
 
+October26: [Signed latest607 fresh installation passes on generic ARM16K](validation/latest607-fresh-installer-generic16k-20261026.md). Exact607 signed TEST packages, ordinary-parent/root-guest payload and database checks, and complete post-parent root readback pass after the selected16K ALPM pointer-origin correction. Physical installation, Apple boot/hooks, both M2 sizes, GUI, performance and release remain separate.
+
 October26: [Core7 automatic hooks and candidate PID1 pass two boots on generic ARM16K](validation/core7-two-boot-generic16k-20261026.md): seven candidate packages in a589-package persistent test root, four complete graphs, distinct boot IDs and natural observer retirement. This finite result leaves the combined current desktop/Core composition, Asahi/both M2 sizes, measurements and release separate.
 
 October25: [Both pristine and modified GNU provider normal lifecycles pass on generic ARM16K](validation/gnu-provider-paired-generic16k-20261025.md), with16 complete logical maps/eight runtime observations. Modified configuration uses three explicit clone handoffs; automatic active configuration preservation is not claimed. Interrupted transactions and both M2 sizes remain untested.
