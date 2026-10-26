@@ -13,7 +13,7 @@ class Controls(unittest.TestCase):
    for context in('known','null'):
     output=Path(td)/context;argv=[sys.executable,'-I','-B','-Werror',str(HERE/'prepare.py'),'--source',str(SOURCE),'--output',str(output),'--context',context]
     done=subprocess.run(argv,capture_output=True,timeout=30,umask=0o077);self.assertEqual(done.returncode,0,done.stderr.decode());row=json.loads(done.stdout)
-    self.assertEqual(F.tree(output),expected);self.assertEqual(len(row['files']),360);self.assertEqual(row['source'],'4ddc6297db8d72a571f7759c947fd63a094b9ebd'if context=='known'else None)
+    self.assertEqual(F.tree(output),expected);self.assertEqual(len(row['files']),360);self.assertEqual(row['source'],'027a21e487cd5eca1c32b3025b624266781be306'if context=='known'else None)
     self.assertTrue(all(row[k]is None for k in('actual_source','actual_ref','actual_run','Root_acceptance')));self.assertTrue(all(stat.S_IMODE((output/n).stat().st_mode)==0o644 for n in expected))
  def test_constructor_never_executes_supplied_source_or_actors(self):
   sentinel=object();saved=sys.modules.get('common',sentinel)
@@ -25,20 +25,18 @@ class Controls(unittest.TestCase):
   finally:
    if saved is sentinel:sys.modules.pop('common',None)
    else:sys.modules['common']=saved
- def test_complete_parent_body_inverses_and_all355_held(self):
-  values,p,*_=F.compose(SOURCE);before=F.tree(SOURCE)
-  parent=json.loads(values['implementation/parent355.json']);c=parent.pop('materializer_policy_binding')
-  self.assertEqual(F.encoded(parent),before['implementation/parent355.json'])
-  edits=json.loads(F.read(HERE/'edits.json'))
-  for n,rows in edits.items():
-   self.assertEqual(F.apply(values[n],rows,reverse=True),before[n])
-   self.assertEqual(c['before_bodies'][n].encode(),before[n])
-  self.assertEqual(c['files'],p['parent']['files']);self.assertFalse(c['acceptance'])
-  self.assertEqual(len(p['held']),355);self.assertEqual(len(p['changed']),5)
-  self.assertEqual({n for n in before if before[n]!=values[n]},set(p['changed']))
+ def test_complete_parent_and_frozen_intermediate_inverses_all347_held(self):
+  values,p,*_=F.compose(SOURCE);before=F.tree(SOURCE);contexts=json.loads(F.read(HERE/'binding-context.json'));edits=json.loads(F.read(HERE/'edits.json'))
+  api=__import__('types').SimpleNamespace(need=F.need,pin=F.pin,encoded=F.encoded,apply=F.apply)
+  intermediate=F._TRANSFORM.descriptor(before,p,contexts['descriptor'],edits,api)
+  self.assertEqual(F._TRANSFORM.inverse(values,before,intermediate,p,contexts,edits,api),before)
+  self.assertEqual(len(p['held']),347);self.assertEqual(len(p['changed']),13);self.assertEqual({n for n in before if before[n]!=values[n]},set(p['changed']))
+  parent=json.loads(values['implementation/parent355.json']);self.assertIsNone(parent['producer_cleanup_binding']['source']);self.assertIsNone(parent['producer_cleanup_binding']['ref']);self.assertEqual(p['intermediate']['kind'],'FROZEN_AUTHOR_SOURCE_DATA_NOT_PUBLISHED_AUTHORITY')
   for n in p['held']:self.assertEqual(values[n],before[n],n)
-  for n in ('.github/workflows/native-arm-build.yml','.github/workflows/native-arm-latest607-updater4k.yml','implementation/compiler6.py','implementation/cache.py','implementation/entry.py'):
+  for n in ('.github/workflows/native-arm-build.yml','.github/workflows/native-arm-latest607-updater4k.yml','implementation/compiler6.py','implementation/cache.py','implementation/entry.py','cases/normal/scripts/update/full_root.py'):
    self.assertEqual(values[n],before[n],n)
+  wrong=dict(values);wrong['implementation/runtime.py']+=b'\n'
+  with self.assertRaises(ValueError):F._TRANSFORM.inverse(wrong,before,intermediate,p,contexts,edits,api)
  def test_paths_double_slash_literal_cli_and_no_writes(self):
   with tempfile.TemporaryDirectory()as td:
    root=Path(td);source=root/'source';shutil.copytree(SOURCE,source);alias=root/'alias';alias.symlink_to(source,target_is_directory=True);actual=root/'native-actual-fixture';actual.mkdir()
@@ -67,7 +65,7 @@ class Controls(unittest.TestCase):
  def test_profile_and_each_readable_operand_drift_refuse_prewrite(self):
   with tempfile.TemporaryDirectory()as td:
    root=Path(td)
-   for name in('profile.json','edits.json','binding-context.json'):
+   for name in('profile.json','edits.json','binding-context.json','transformed.py'):
     local=root/name;shutil.copytree(HERE,local);leaf=local/name;leaf.write_bytes(leaf.read_bytes()+b' ');previous=F.HERE
     try:
      F.HERE=local;out=root/(name+'-output')

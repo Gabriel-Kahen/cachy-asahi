@@ -1,9 +1,12 @@
 # SPDX-License-Identifier: MIT
-"""Bind the original materializer composition policy from exact published360."""
-import argparse,hashlib,json,os,stat
+"""Reproduce exact public360 descriptor and owned-private cleanup correction."""
+import argparse,hashlib,importlib.util,json,os,stat,types
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
-PROFILE={'bytes': 200471, 'sha256': '70a781b924ab172b08777fa6c25c0b4253d23840c7d054dbe437d50006a78b92'}
+PROFILE={'bytes': 228276, 'sha256': '49967e94c7e617e47195490353e96e1531f899798dae6aede3e79d366efad616'}
+
+_spec=importlib.util.spec_from_file_location('_trusted_updater_source_transform',HERE/'transformed.py')
+_TRANSFORM=importlib.util.module_from_spec(_spec);_spec.loader.exec_module(_TRANSFORM)
 
 def need(ok, message):
     if not ok:
@@ -101,7 +104,7 @@ def compose(source):
     raw, state = read_state(HERE / 'profile.json')
     need(pin(raw) == PROFILE, 'entry-pinned profile')
     p = json.loads(raw)
-    need(p['counts'] == dict(before=360,after=360,held=355,changed=5,added=0)
+    need(p['counts'] == dict(before=360,after=360,held=347,changed=13,added=0)
          and all(p[k] is None for k in ('actual_source','actual_ref','actual_run','Root_acceptance'))
          and p['acceptance_authority'] is False, 'fixed source-only scope')
     before, bstate = scan(source)
@@ -112,30 +115,20 @@ def compose(source):
         need(pin(body) == wanted, 'fixed readable operand '+name)
         operands[name] = body
         states[name] = body,identity
-    c = json.loads(operands['binding-context.json'])
-    need(c['source'] == p['parent']['source'] and c['ref'] == p['parent']['ref']
-         and c['acceptance'] is False and all(c[k] is None for k in
-         ('actual_source','actual_ref','actual_run')), 'exact source-only parent context')
-    c['files'] = p['parent']['files']
-    edits = json.loads(operands['edits.json'])
-    need(set(edits) == {'implementation/runtime.py','implementation/namespace_context.py','test_source.py'},
-         'only declared runtime/guard/control text operands')
-    c['before_bodies'] = {n:before[n].decode() for n in edits}
-    values = dict(before)
-    for name,rows in edits.items():
-        values[name] = apply(before[name],rows)
-        need(apply(values[name],rows,reverse=True) == before[name], 'whole counted body inverse '+name)
-    parentname = 'implementation/parent355.json'
-    parent = json.loads(before[parentname])
-    need('materializer_policy_binding' not in parent, 'fresh finite binding context')
-    parent['materializer_policy_binding'] = c
-    values[parentname] = encoded(parent)
-    manifest = json.loads(before['source-manifest.json'])
-    manifest['files'] = {n:pin(b) for n,b in values.items() if n != 'source-manifest.json'}
-    values['source-manifest.json'] = encoded(manifest)
+    contexts=json.loads(operands['binding-context.json']);edits=json.loads(operands['edits.json'])
+    need(set(contexts)==set(edits)=={'descriptor','cleanup'} and p['intermediate']['kind']=='FROZEN_AUTHOR_SOURCE_DATA_NOT_PUBLISHED_AUTHORITY','closed finite source family')
+    descriptor=contexts['descriptor'];cleanup=contexts['cleanup']
+    need((descriptor['source'],descriptor['ref'])==(p['parent']['source'],p['parent']['ref']) and cleanup['source'] is cleanup['ref'] is None and cleanup['source_author_freeze']==p['intermediate']['author_freeze'] and cleanup['source_files_pin']==pin(encoded(p['intermediate']['files'])),'public parent versus frozen descriptor SOURCE_DATA identities')
+    for role in contexts:
+        c=contexts[role];need(c['acceptance'] is False and all(c[k] is None for k in('actual_source','actual_ref','actual_run')),'source-only context, never actual authority')
+    need(set(edits['descriptor'])=={'implementation/adapter.py','implementation/namespace_context.py','test_source.py'} and set(edits['cleanup'])=={'implementation/runtime.py','implementation/namespace_context.py','test_source.py'},'only named readable source operands')
+    api=types.SimpleNamespace(need=need,pin=pin,encoded=encoded,apply=apply)
+    intermediate=_TRANSFORM.descriptor(before,p,descriptor,edits,api)
+    values=_TRANSFORM.cleanup(intermediate,p,cleanup,edits,api)
+    need(_TRANSFORM.inverse(values,before,intermediate,p,contexts,edits,api)==before,'complete360 parent inverse')
     need({n:pin(b) for n,b in values.items()} == p['result']['files'], 'all exact published360 bytes')
     need({n for n in before if values[n] != before[n]} == set(p['changed'])
-         and all(values[n] == before[n] for n in p['held']), 'only five changed/355 held')
+         and all(values[n] == before[n] for n in p['held']), 'only thirteen changed/347 held')
     need(scan(source) == (before,bstate) and all(read_state(HERE/n) == v for n,v in states.items()),
          'late whole source and operand identities')
     return values,p,(before,bstate),states
@@ -147,7 +140,7 @@ def emit(source,output,context):
   q=output/n;q.parent.mkdir(parents=True,exist_ok=True);fd=os.open(q,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
   with os.fdopen(fd,'wb')as f:f.write(b);os.fchmod(f.fileno(),0o644)
  need(tree(output)==values and all(stat.S_IMODE((output/n).stat().st_mode)==0o644 for n in values),'exact production360 bytes/modes')
- return dict(status='SOURCE_ONLY_MATERIALIZER_POLICY_BINDING_NOT_ACCEPTANCE',context=context,files=p['result']['files'],source=p['result']['source']if context=='known'else None,ref=p['result']['ref']if context=='known'else None,actual_source=None,actual_ref=None,actual_run=None,Root_acceptance=None,hardware='NOT_RUN',performance='NOT_MEASURED')
+ return dict(status='SOURCE_ONLY_DESCRIPTOR_AND_PRIVATE_INTERMEDIATE_CLEANUP_NOT_ACCEPTANCE',context=context,files=p['result']['files'],source=p['result']['source']if context=='known'else None,ref=p['result']['ref']if context=='known'else None,actual_source=None,actual_ref=None,actual_run=None,Root_acceptance=None,hardware='NOT_RUN',performance='NOT_MEASURED')
 
 if __name__ == '__main__':
     parser=argparse.ArgumentParser(description=__doc__)
