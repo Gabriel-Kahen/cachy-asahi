@@ -1,6 +1,6 @@
 # Exact current607 → Core622 source factory
 
-Source-only, stdlib-only reproduction of public66 `bbdf05888b8bacb8a7ee8dfde4def4d508cc812b`. Supply four separate ordinary exports: original Core51 `11b3cfb59663e42b34247facb9f30f042e891444`, fresh1197 `b9976eea34eaed4b6e56af3be21d4d652fa971d6`, Core decision10 `6e29f427fe273042ebaeca24d00326173888e95d`, fresh decision24 `5a0789405ded23f759f4a3aa545cf737c4ec3bde`. Complete maps are pinned; no runtime code executes during construction.
+Source-only, stdlib-only reproduction of public66 `09775710e2ad55d647993eab81890f1696572c86`. Supply four separate ordinary exports: original Core51 `11b3cfb59663e42b34247facb9f30f042e891444`, fresh1197 `b9976eea34eaed4b6e56af3be21d4d652fa971d6`, Core decision10 `6e29f427fe273042ebaeca24d00326173888e95d`, fresh decision24 `5a0789405ded23f759f4a3aa545cf737c4ec3bde`. Complete maps are pinned; no runtime code executes during construction.
 
 ```sh
 python3 -I -B prepare.py --parent /exports/core51 --fresh607 /exports/fresh1197 --core-record /exports/core10 --fresh-record /exports/fresh24 --output /new/core66 --context known
@@ -13,3 +13,5 @@ Initial607 formation remains copied-root NOHOOKS|NOSCRIPTLET with full signed pa
 The selected Core preparation uses the exact pinned owned builder, joins ten retained dependency inputs matching the unchanged acquisition lock, and retains bounded first-build/dependency failure DATA before cleanup. The original compiler phase/shared240 deadline, dependency180 allowance and source/security guards remain held. Supplying retained inputs improves reproducibility; it does not establish the cause of a previous dependency failure. Core622 native acceptance remains open.
 
 The cache CLI bootstrap loads the exact local desktop622 bytes into a private module, including under real isolated Python execution. The same66 ae39 before-map/products/selfseal inverse and original51 guard remain mandatory. Factory tests exercise the actual emitted -I CLI through the real facade to an original compiler pre-mutation input refusal; no facade mock or native actor is involved.
+
+The selected final `env -i` caller explicitly supplies `GITHUB_ACTIONS=true`; no ambient CI environment is inherited. Original Linux/aarch64/ordinary-UID/no-DOCKER/no-LD confinement checks remain byte-held. The whole bbdf66→ae39→51 inverse and all prior source predicates remain mandatory. Exact known/NULL output and a real sanitized shell recorder are tested; this is source-only, with no native admission.

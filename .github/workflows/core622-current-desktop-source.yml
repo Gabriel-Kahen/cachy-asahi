@@ -55,7 +55,7 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           repository: Gabriel-Kahen/cachy-asahi
-          ref: bbdf05888b8bacb8a7ee8dfde4def4d508cc812b
+          ref: 09775710e2ad55d647993eab81890f1696572c86
           path: .ci-fixtures/core622-expected
           persist-credentials: false
       - name: Select Python
@@ -81,7 +81,7 @@ jobs:
           git -C "$GITHUB_WORKSPACE/.ci-fixtures/core622-fresh_record" archive --format=tar 5a0789405ded23f759f4a3aa545cf737c4ec3bde | tar -x -C "$stage/fresh_record"
           export CORE622_FRESH_RECORD="$stage/fresh_record"
           mkdir -m700 "$stage/expected"
-          git -C "$GITHUB_WORKSPACE/.ci-fixtures/core622-expected" archive --format=tar bbdf05888b8bacb8a7ee8dfde4def4d508cc812b | tar -x -C "$stage/expected"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/core622-expected" archive --format=tar 09775710e2ad55d647993eab81890f1696572c86 | tar -x -C "$stage/expected"
           export CORE622_EXPECTED="$stage/expected"
           python3 -I -B -Werror scripts/ci/core622-current-desktop-source/test_source.py
           python3 -I -B -Werror scripts/ci/core622-current-desktop-source/prepare.py --help

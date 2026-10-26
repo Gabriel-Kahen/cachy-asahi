@@ -43,6 +43,28 @@ def verify(root):
 # Finite whole immediate66 inverse; the existing verify body and original51
 # execution remain mandatory. No historical actor/result is executed here.
 def same66_before(root):
+ C=globals()['C'];root=Path(root)
+ current=C.decode(C.read(root/'composition-parent.json',4*1024**2))['apparmor_environment']
+ C.need(current['schema']==1 and current['parent_source']=='bbdf05888b8bacb8a7ee8dfde4def4d508cc812b'and current['actual']is None and len(current['before'])==66,'whole exact public66 before CI environment correction')
+ prior={n:C.read(root/n,4*1024**2)for n in current['before']}
+ for name,rules in current['edits'].items():
+  text=prior[name].decode()
+  for before,after in reversed(rules):C.need(text.count(after)==1,'one exact selected sanitized CI caller flag');text=text.replace(after,before,1)
+  prior[name]=text.encode()
+ parent=C.decode(prior['composition-parent.json']);C.need(parent.pop('apparmor_environment')==current,'complete finite CI environment operand');prior['composition-parent.json']=C.encoded(parent)
+ manifest=C.decode(prior['source-manifest.json']);manifest['files']={n:w for n,w in current['before'].items()if n not in('source-manifest.json',*ALIASES)};prior['source-manifest.json']=C.encoded(manifest)
+ text=prior['source622.py'].decode();tree=ast.parse(text)
+ for name,before in(('PRODUCTS',current['guard_products_before']),('SELF',current['guard_self_before'])):
+  node=next(n for n in tree.body if isinstance(n,ast.Assign)and n.targets[0].id==name);after=ast.get_source_segment(text,node);C.need(text.count(after)==1,'one current product/seal DATA inverse');text=text.replace(after,before,1);tree=ast.parse(text)
+ C.need(text.count(current['guard_prefix'])==1,'one existing source guard prefix inverse');text=text.replace(current['guard_prefix'],'',1);prior['source622.py']=text.encode()
+ C.need({n:C.pin(b)for n,b in prior.items()}==current['before'],'entire source66 bbdf inverse, no historical result authority')
+ tree=ast.parse(text);sealed={n.targets[0].id:ast.literal_eval(n.value)for n in tree.body if isinstance(n,ast.Assign)and n.targets[0].id in('PRODUCTS','SELF')}
+ C.need(all(C.pin(prior[n])==w for n,w in sealed['PRODUCTS'].items()),'all old bbdf fixed source products');seal=sealed['SELF'];C.need(text.count(seal)==1 and hashlib.sha256(text.replace(seal,'@SELF@').encode()).hexdigest()==seal,'whole old bbdf selfseal')
+ # The unchanged existing66→ae39 inverse below consumes this EXACT bbdf DATA
+ # namespace. Current verify and original51 guard still use original global C.
+ def prior_read(path,maximum=1024**2):
+  name=Path(path).relative_to(root).as_posix();C.need(name in prior and len(prior[name])<=maximum,'exact bounded immediate source DATA projection only');return prior[name]
+ C=__import__('types').SimpleNamespace(**dict(vars(C),read=prior_read))
  record=C.decode(C.read(root/'composition-parent.json',4*1024**2))['isolated_cache_import'];C.need(record['schema']==1 and record['parent_source']=='ae39c1ba4c613d6a86e5582c2ab4c2d5495b2bd7'and record['actual']is None and len(record['before'])==66,'exact isolated-cache source predecessor')
  out={n:C.read(root/n,4*1024**2)for n in record['before']}
  for name,rules in record['edits'].items():
