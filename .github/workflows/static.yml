@@ -2,21 +2,59 @@ name: static-validation
 on:
   push:
   pull_request:
+  workflow_dispatch:
+    inputs:
+      measure-cache:
+        description: Run one cold setup followed by the full static suite on a fresh warm runner
+        type: boolean
+        required: false
+        default: false
+  workflow_call:
+    inputs:
+      setup-phase:
+        description: Explicit normal or warm setup; warm requires a cold predecessor
+        type: string
+        default: normal
+      cold-receipt:
+        description: Completed same-run cold predecessor; empty preserves normal validation
+        type: string
+        default: ''
 permissions:
   contents: read
 jobs:
+  cache-seed:
+    if: ${{ !cancelled() && github.event_name == 'workflow_dispatch' && inputs.measure-cache }}
+    runs-on: ubuntu-24.04
+    outputs:
+      receipt: ${{ steps.setup.outputs.receipt }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+      - name: Establish cold setup and seed this run's exact cache
+        id: setup
+        uses: ./.github/actions/static-prerequisites
+        with:
+          phase: cold
   checks:
+    needs: cache-seed
+    if: ${{ !cancelled() && ((github.event_name == 'workflow_dispatch' && inputs.measure-cache && needs.cache-seed.result == 'success') || (!(github.event_name == 'workflow_dispatch' && inputs.measure-cache) && needs.cache-seed.result == 'skipped')) }}
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
-      - name: Install test prerequisites on disposable runner
-        run: |
-          sudo apt-get update
-          sudo apt-get install --no-install-recommends -y bash fish zsh vim build-essential clang lld gnupg libarchive-tools pacman-package-manager makepkg e2fsprogs network-manager pkg-config libgtk-3-dev
-          for tool in bash fish zsh vim cc clang ld.lld gpg gpgconf pacman-key pacman-conf unshare repo-add bsdtar vercmp pacman mkfs.ext4 debugfs nmcli; do command -v "$tool"; done
-          dpkg-query -W bash fish zsh vim build-essential clang lld gnupg libarchive-tools pacman-package-manager makepkg e2fsprogs network-manager pkg-config libgtk-3-dev
+      - name: Install verified test prerequisites on disposable runner
+        uses: ./.github/actions/static-prerequisites
+        with:
+          phase: ${{ github.event_name == 'workflow_dispatch' && inputs.measure-cache && 'warm' || inputs.setup-phase || 'normal' }}
+          cold-receipt: ${{ github.event_name == 'workflow_dispatch' && inputs.measure-cache && needs.cache-seed.outputs.receipt || inputs.cold-receipt }}
+      - name: Static prerequisite receipt controls without APT or cache service
+        run: python3 -I -B -Werror scripts/ci/test_static_apt_trial.py -v
+      - name: Copy preparation interruption and owned disposal controls
+        env:
+          APPS_COPY_RECOVERY_WORK: /tmp
+        run: python3 -I -B -Werror scripts/apps/test_prepare_copy_recovery.py
       - name: Verify packaged setup source and sync boundaries
         env:
           PYTHONDONTWRITEBYTECODE: '1'
@@ -885,3 +923,6 @@ jobs:
         run: python3 -I -B -Werror::ResourceWarning scripts/diagnostics/fish-done-native-graphics/test_run.py
       - name: ARM experiment generic16K owner controls without execution
         run: python3 -B -Werror::ResourceWarning scripts/ci/arm-experiments-generic16k-ci/test_owner.py
+      - name: Report one matched hosted setup pair after the full static suite
+        if: ${{ (github.event_name == 'workflow_dispatch' && inputs.measure-cache) || inputs.setup-phase == 'warm' }}
+        run: python3 -I -B scripts/ci/static_apt_trial.py report
