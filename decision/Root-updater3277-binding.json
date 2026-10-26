@@ -1,0 +1,12 @@
+{
+  "attempt": 1,
+  "case": "precommit-exit86",
+  "initial_run": {
+    "bytes": 14327,
+    "sha256": "b07f129399f7c0b9c9b99c9c5ac0b10b0f663479dba010a9e9acb2674153b4c0"
+  },
+  "ref": "codex/latest607-updater-descriptor-cleanup-v1",
+  "run": 40270932670,
+  "source": "027a21e487cd5eca1c32b3025b624266781be306",
+  "status": "ROOT_BOUND_LATEST607_UPDATER_NATIVE4K"
+}

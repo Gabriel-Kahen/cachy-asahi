@@ -1,0 +1,401 @@
+{
+  "attempt": 1,
+  "current607_semantics": {
+    "after_sha256": "be35402204ba5c03d78279722afa83047c9575d2da70fb5c4064f46ed15954c5",
+    "before_sha256": "72818a8a2ae488281b08486b92c435ec244ef3b5313f23b97473d1684ecb68b4",
+    "case": "precommit-exit86",
+    "checkpoint_changed": false,
+    "closed_public_bytes": 214185,
+    "closed_public_files": 11,
+    "collection": {
+      "artifact.zip": {
+        "bytes": 215583,
+        "sha256": "1683de19f501ef9974a228d86d4779b38b6d0861efd9e087d71ff219f501623e"
+      },
+      "artifacts.json": {
+        "bytes": 801,
+        "sha256": "5f2735fe31add50f761f29112cc430fa0fca40bdb93ae40b0fdadd4491fc1e58"
+      },
+      "jobs.json": {
+        "bytes": 20421,
+        "sha256": "236bf1c6d64a9463befdc3aed320559e65ecee35b049276be035327c51817fad"
+      },
+      "logs.zip": {
+        "bytes": 3655119,
+        "sha256": "a1c456dcc1351e427a88e76a567af2324598f00a8e0f994f27cb7d51f68f734a"
+      },
+      "run.json": {
+        "bytes": 13001,
+        "sha256": "5d00bea42f84ae22e895e78f81f2f5246c29b6eba2e78754f7a56a44e92b426c"
+      }
+    },
+    "commit_started": false,
+    "committed_transactions": 0,
+    "copy_disposal": "PASS-owned-workspace-removed",
+    "copy_nodes": 125392,
+    "decision_source": "c38375818f116bfc129a8db853d0c9cd2d360eb9",
+    "evidence_limits": "Private raw node/hash/ownership maps and86/87 fault witnesses remain unexported. Protected/user/no-change/independent-after claims are original frozen-source-enforced retained receipts, not a new raw-map readback. Retired resources are not live-reobserved; auxiliary process exit status remains NOT_OBSERVED.",
+    "hardware": "NOT_RUN",
+    "held_source": "001f0484ab8b599ddc03a84e62fd81af315a2a03",
+    "normal_checkpoint_directory_synced": false,
+    "outer_cleanup": "PASS_RETAINED_SOURCE_BOUND_RECEIPTS",
+    "package_count": 607,
+    "packages_committed": false,
+    "postcommit_libalpm_returncode_evidence": "NOT_APPLICABLE",
+    "protected_packages": 606,
+    "public_pair_evidence": {
+      "Runtime1": "0.1.0-1",
+      "archive": {
+        "bytes": 29664,
+        "sha256": "319cc1db4738945ad3b146490ea0fabd80f8c8d89d8c41a11750dd0ba5d5b8af"
+      },
+      "historical_six_input_source": "67e8155840f9851bff3b8acb2cd6de6a622515c4",
+      "input_git": "SOURCE_ENFORCED_NOT_FRESH_PASSIVE_GIT_OBSERVATION",
+      "installed_prerequisites": {
+        "baseline607": {
+          "M2": "NOT_RUN",
+          "cleanup": "PASS_SOURCE_BOUND_RETAINED_RECEIPTS",
+          "closed_public_bytes": 140719,
+          "closed_public_files": 10,
+          "expected607_sha256": "72818a8a2ae488281b08486b92c435ec244ef3b5313f23b97473d1684ecb68b4",
+          "hardware": "NOT_RUN",
+          "hooks_scriptlets": "NOT_ACCEPTED",
+          "limits": [
+            "Private raw node/hash/ownership maps and installed target/profile/lock bytes were checked by the frozen guest code and are not exported; this replay checks complete summaries and exact retained protocol/source joins, not a new full-byte readback.",
+            "Retired container/image/VM absence is retained source-bound cleanup evidence, not live reobservation.",
+            "No physical installation, target boot, hooks/scriptlets, native-container P0, M2 or performance acceptance.",
+            "Statx source selection and unchanged full hashing/deadlines are checked; runtime choice of statx versus original fdinfo fallback is not reported."
+          ],
+          "log_archive": {
+            "bytes": 1848512,
+            "sha256": "b1cd5ae507a3dfb6cf57e29139ec0a3887c3fc4bdfe0b180cdcc11f2aaab641d"
+          },
+          "native_container_P0": "UNCHANGED_FAILED",
+          "ordinary_and_root_flags": {
+            "committed": true,
+            "database_verified": true,
+            "namespace_barrier": true,
+            "numeric_namespace_verified": true,
+            "numeric_ownership_verified": true,
+            "ordinary_parent_nnp_cap0": true,
+            "ownership_verified": true,
+            "parent_inventory_preserved": true,
+            "parent_payload_verified": true,
+            "payload_verified": true,
+            "preservation_verified": true,
+            "private_trust_verified": true,
+            "process_retirement": true,
+            "root_guest_payload_verified": true,
+            "source_cache_preserved": true
+          },
+          "package_count": 607,
+          "performance": "NOT_MEASURED",
+          "positive": {
+            "bytes": 17884,
+            "sha256": "f8e46a9fd4450bd1fb8f539e9a9a113e2733a069dba4b53114df030ec6a20bb4"
+          },
+          "postjoins": {
+            "bytes": 1273829,
+            "sha256": "6ed16401edfadeaf5d42331e900114d92128cd011a3b25f27feec7191083c926"
+          },
+          "public_frame": {
+            "bytes": 37926,
+            "sha256": "b1cd0e6944f5dff9568ea2f114f94a0d16be25188eb2b4e280e79c9c33588d71"
+          },
+          "qemu_natural_exit": true,
+          "qemu_seconds": 3774.612,
+          "reader_files": 4975,
+          "ref": "codex/latest607-apps6-baseline-tooling-inputs-v1",
+          "release": "NOT_ADMITTED",
+          "root_decision_utc": "2026-10-25T23:07:40.541185+00:00",
+          "root_observation": {
+            "complete": true,
+            "deadline_seconds": 600,
+            "elapsed_ms": 496731,
+            "footprint": {
+              "bytes": 4930254071,
+              "database_bytes": 11800940,
+              "database_files": 1850,
+              "hardlink_inodes": 1048,
+              "nodes": 124513
+            },
+            "missing_database_nodes": 0,
+            "missing_database_samples": [],
+            "observed_nodes": 124513,
+            "required_database_nodes": 1215,
+            "unsupported_counts": {
+              "absolute-symlink": 24,
+              "auxiliary-present": 3
+            },
+            "unsupported_reasons_omitted": 0
+          },
+          "run_id": 40224231855,
+          "schema_version": 1,
+          "scope": "SIGNED_TEST_APPS6_BASELINE607_FRESH_INSTALL_IN_OWNED_GENERIC_ARM4K_VM_WITH_POST_PARENT_ROOT_READBACK",
+          "serial": {
+            "bytes": 56904,
+            "sha256": "f2aafdae23c55eec3156e01caf574187ae601bf404a848580a2235ec59051860"
+          },
+          "source_actual_git_joins": 1197,
+          "source_files": 1197,
+          "source_sha": "04f4ae2f164fe6c58a4b3b31ea8ab544880d9892",
+          "source_snapshot": {
+            "bytes": 221255,
+            "sha256": "a6135194ac838c1a43623345ce8535eee533f80fa6f07773bd5cab17e22312a6"
+          },
+          "status": "ROOT_ACCEPTED_SIGNED_LATEST607_APPS6_BASELINE",
+          "target_boot": "NOT_RUN",
+          "target_footprint": {
+            "allocated_bytes": 5136969728,
+            "allocated_bytes_by_entry": 5189771264,
+            "bytes": 4930254071,
+            "complete": true,
+            "database_bytes": 11800940,
+            "database_files": 1850,
+            "filesystem_free_bytes": 9740468224,
+            "filesystem_free_bytes_source": "statvfs-f_bavail",
+            "filesystem_free_inodes": 1064122,
+            "filesystem_inode_counts_known": true,
+            "filesystem_inode_source": "statvfs",
+            "hardlink_declared_links": 2896,
+            "hardlink_entries": 2896,
+            "hardlink_inodes": 1048,
+            "hardlinks": 2896,
+            "largest_file_bytes": 173387392,
+            "nodes": 124513,
+            "symlinks": 13337
+          }
+        },
+        "fresh607": {
+          "M2": "NOT_RUN",
+          "cleanup": "PASS_SOURCE_BOUND_RETAINED_RECEIPTS",
+          "closed_public_bytes": 140719,
+          "closed_public_files": 10,
+          "expected607_sha256": "be35402204ba5c03d78279722afa83047c9575d2da70fb5c4064f46ed15954c5",
+          "hardware": "NOT_RUN",
+          "hooks_scriptlets": "NOT_ACCEPTED",
+          "limits": [
+            "Private raw node/hash/ownership maps and installed target/profile/lock bytes were checked by the frozen guest code and are not exported; this replay checks complete summaries and exact retained protocol/source joins, not a new full-byte readback.",
+            "Retired container/image/VM absence is retained source-bound cleanup evidence, not live reobservation.",
+            "No physical installation, target boot, hooks/scriptlets, native-container P0, M2 or performance acceptance.",
+            "Statx source selection and unchanged full hashing/deadlines are checked; runtime choice of statx versus original fdinfo fallback is not reported."
+          ],
+          "log_archive": {
+            "bytes": 3755975,
+            "sha256": "bf33ce0658e84adb42605e418ad4719bbe99c7e6d0a0d0ecee42187457df7d0c"
+          },
+          "native_container_P0": "UNCHANGED_FAILED",
+          "ordinary_and_root_flags": {
+            "committed": true,
+            "database_verified": true,
+            "namespace_barrier": true,
+            "numeric_namespace_verified": true,
+            "numeric_ownership_verified": true,
+            "ordinary_parent_nnp_cap0": true,
+            "ownership_verified": true,
+            "parent_inventory_preserved": true,
+            "parent_payload_verified": true,
+            "payload_verified": true,
+            "preservation_verified": true,
+            "private_trust_verified": true,
+            "process_retirement": true,
+            "root_guest_payload_verified": true,
+            "source_cache_preserved": true
+          },
+          "package_count": 607,
+          "performance": "NOT_MEASURED",
+          "positive": {
+            "bytes": 18775,
+            "sha256": "fee99b4b49a4438027e10c9f69aa266efa97086aaf2cf9a37574546b4fb09d19"
+          },
+          "postjoins": {
+            "bytes": 773302,
+            "sha256": "b21bc0747d4714d46f8957923d804c685af0de462f5f60ccd0d5f00b01a73ff3"
+          },
+          "public_frame": {
+            "bytes": 37882,
+            "sha256": "e3aaadf6e3131422010f1dd68159bb20d9ea35b7b0df6c12b33de2e79e66616e"
+          },
+          "qemu_natural_exit": true,
+          "qemu_seconds": 3847.197,
+          "reader_files": 2606,
+          "ref": "codex/latest607-fresh-tooling-inputs-v1",
+          "release": "NOT_ADMITTED",
+          "root_decision_utc": "2026-10-25T20:40:05.702982+00:00",
+          "root_observation": {
+            "complete": true,
+            "deadline_seconds": 600,
+            "elapsed_ms": 487820,
+            "footprint": {
+              "bytes": 4930283262,
+              "database_bytes": 11800941,
+              "database_files": 1850,
+              "hardlink_inodes": 1048,
+              "nodes": 124513
+            },
+            "missing_database_nodes": 0,
+            "missing_database_samples": [],
+            "observed_nodes": 124513,
+            "required_database_nodes": 1215,
+            "unsupported_counts": {
+              "absolute-symlink": 24,
+              "auxiliary-present": 3
+            },
+            "unsupported_reasons_omitted": 0
+          },
+          "run_id": 40223603945,
+          "schema_version": 1,
+          "scope": "SIGNED_TEST607_FRESH_INSTALL_IN_OWNED_GENERIC_ARM4K_VM_WITH_POST_PARENT_ROOT_READBACK",
+          "serial": {
+            "bytes": 56905,
+            "sha256": "586a6675ecb68ce1660ab740ba7b973dac60d873469d8c9bc1bb0c64c3673b76"
+          },
+          "source_actual_git_joins": 1197,
+          "source_files": 1197,
+          "source_sha": "b9976eea34eaed4b6e56af3be21d4d652fa971d6",
+          "source_snapshot": {
+            "bytes": 221235,
+            "sha256": "26902de45f63d4873a3be035adad610f9b2ad76cd2c798676424a2e3edf39a85"
+          },
+          "status": "ROOT_ACCEPTED_SIGNED_LATEST607_FRESH_INSTALLER",
+          "target_boot": "NOT_RUN",
+          "target_footprint": {
+            "allocated_bytes": 5136994304,
+            "allocated_bytes_by_entry": 5189795840,
+            "bytes": 4930283262,
+            "complete": true,
+            "database_bytes": 11800941,
+            "database_files": 1850,
+            "filesystem_free_bytes": 9740435456,
+            "filesystem_free_bytes_source": "statvfs-f_bavail",
+            "filesystem_free_inodes": 1064122,
+            "filesystem_inode_counts_known": true,
+            "filesystem_inode_source": "statvfs",
+            "hardlink_declared_links": 2896,
+            "hardlink_entries": 2896,
+            "hardlink_inodes": 1048,
+            "hardlinks": 2896,
+            "largest_file_bytes": 173387392,
+            "nodes": 124513,
+            "symlinks": 13337
+          }
+        }
+      },
+      "other606": "HELD",
+      "payload_leaves": 8,
+      "scope": "EXACT_ACCEPTED_APPS16_SOURCE_INPUT_NOT_CURRENT_UPDATER_ACCEPTANCE",
+      "seven_signed_incoming": 7
+    },
+    "recovery": "OWNED_COPY_DISPOSAL_ONLY_NO_ROLLBACK_OR_BOOT_CLAIM",
+    "release": "NOT_ADMITTED",
+    "run_id": 40270932670,
+    "selected_package": "cachy-asahi-apps",
+    "selected_package_sha256": "319cc1db4738945ad3b146490ea0fabd80f8c8d89d8c41a11750dd0ba5d5b8af",
+    "source_manifest_sha256": "164105ce4e2104dc9b04c20bccba3181b7727f712e77bb9f74cb25f772e79fb4",
+    "source_preserved": true,
+    "source_sha": "027a21e487cd5eca1c32b3025b624266781be306",
+    "status": "VERIFIED_EXACT_APPS6_TO16_CURRENT607_UPDATER_CASE_NOT_ROOT_ACCEPTANCE"
+  },
+  "input_git": "SOURCE_ENFORCED_NOT_FRESH_PASSIVE_GIT_OBSERVATION",
+  "raw_private_maps": "UNEXPORTED_ORIGINAL_SOURCE_ENFORCED",
+  "ref": "codex/latest607-updater-descriptor-cleanup-v1",
+  "root_acceptance": "NOT_ISSUED",
+  "run": 40270932670,
+  "scope": "NATIVE_ARM4K_DISPOSABLE_CONTAINER_NOT16K_NOT_M2",
+  "source": "027a21e487cd5eca1c32b3025b624266781be306",
+  "source_fact": {
+    "actual": null,
+    "installed_prerequisite_gate": "SOURCE_ENFORCED_NOT_FRESH_PASSIVE_GIT_OBSERVATION",
+    "legacy": {
+      "actual": null,
+      "status": "WHOLE1442_SOURCE_BYTE_GUARDS_AND_FROZEN_16S_SOURCE_FACT"
+    },
+    "root_acceptance": "NOT_ISSUED",
+    "source": "027a21e487cd5eca1c32b3025b624266781be306",
+    "source_fact": {
+      "Core7": "SEPARATE_UNQUALIFIED_TRACK",
+      "actors": "NOT_RUN",
+      "after": {
+        "bytes": 12076,
+        "sha256": "be35402204ba5c03d78279722afa83047c9575d2da70fb5c4064f46ed15954c5"
+      },
+      "baseline607": "UNBOUND",
+      "before": {
+        "bytes": 12075,
+        "sha256": "72818a8a2ae488281b08486b92c435ec244ef3b5313f23b97473d1684ecb68b4"
+      },
+      "binding": {
+        "actors": "NOT_RUN",
+        "actual": null,
+        "current": {
+          "actor_authority": false,
+          "baseline607": "RUNTIME_GATE_REQUIRED",
+          "fresh607": "RUNTIME_GATE_REQUIRED",
+          "status": "BOUND_SOURCE_REQUIRES_RUNTIME_FULL_CARRIER_GATES",
+          "updater_actual": null
+        },
+        "original": {
+          "Core7": "SEPARATE_UNQUALIFIED_TRACK",
+          "actors": "NOT_RUN",
+          "after": {
+            "bytes": 12076,
+            "sha256": "be35402204ba5c03d78279722afa83047c9575d2da70fb5c4064f46ed15954c5"
+          },
+          "baseline607": "UNBOUND",
+          "before": {
+            "bytes": 12075,
+            "sha256": "72818a8a2ae488281b08486b92c435ec244ef3b5313f23b97473d1684ecb68b4"
+          },
+          "cases": 3,
+          "fresh607": "UNBOUND",
+          "hardware": "NOT_RUN",
+          "python_bodies": 208,
+          "release": "NOT_ADMITTED",
+          "status": "SOURCE_ONLY_LATEST607_UPDATER"
+        },
+        "status": "PASS_EXACT_PRIVATE_UNBOUND357_BEFORE_AND_CURRENT_BINDING_SOURCE"
+      },
+      "cases": 3,
+      "dependency_cache": "EXACT_TEN_DATA_ORIGINAL180_AUTH_MANDATORY",
+      "fresh607": "UNBOUND",
+      "hardware": "NOT_RUN",
+      "installed_state": "NOT_RUN",
+      "new_dependency_cache_phase_seconds": 240,
+      "python_bodies": 208,
+      "release": "NOT_ADMITTED",
+      "source_gate_only": true,
+      "source_inputs": {
+        "corrected_fresh_files": 1197,
+        "held_original_archives": 600,
+        "held_source_files": 489,
+        "incoming_archive_guards": 7,
+        "whole_materializer_inverse": 7
+      },
+      "status": "SOURCE_ONLY_LATEST607_UPDATER"
+    },
+    "status": "PASS_WHOLE_CURRENT360_357_355_208_SOURCE_AND_CURRENT607_INPUTS"
+  },
+  "status": "VERIFIED_CURRENT_NATIVE_ARM4K_APPS6_TO16_UPDATER607_NOT_ROOT_ACCEPTANCE",
+  "wrapper": {
+    "architecture": "aarch64",
+    "attempt": 1,
+    "case": "precommit-exit86",
+    "hardware": "NOT_RUN",
+    "held_files": 489,
+    "held_source": "b21a5864d5a4610b9181a1c270ac8821d8448a17",
+    "native_readback": {
+      "architecture": "aarch64",
+      "euid": 1001,
+      "kernel_release": "6.17.0-1022-azure",
+      "page_size": 4096,
+      "sysname": "Linux",
+      "uid": 1001
+    },
+    "page_size": 4096,
+    "ref": "refs/heads/codex/latest607-updater-descriptor-cleanup-v1",
+    "run": 40270932670,
+    "source": "027a21e487cd5eca1c32b3025b624266781be306",
+    "source_files": 360,
+    "status": "CURRENT_NATIVE_ARM4K_UPDATER604_SOURCE_CUSTODY_NOT_ACCEPTANCE"
+  }
+}

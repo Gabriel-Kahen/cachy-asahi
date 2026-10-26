@@ -1,0 +1,32 @@
+{
+  "actual_final_inventory": "72818a8a2ae488281b08486b92c435ec244ef3b5313f23b97473d1684ecb68b4",
+  "case": "precommit-exit86",
+  "checkpoint_changed": false,
+  "commit_started": false,
+  "committed_transactions": 0,
+  "copy_disposal": "PASS-owned-workspace-removed",
+  "copy_nodes": 125392,
+  "declared_target_inventory": "be35402204ba5c03d78279722afa83047c9575d2da70fb5c4064f46ed15954c5",
+  "evidence_limits": "Private raw node/hash/ownership maps and86/87 fault witnesses remain unexported. Protected/user/no-change/independent-after claims are original frozen-source-enforced retained receipts, not a new raw-map readback. Retired resources are not live-reobserved; auxiliary process exit status remains NOT_OBSERVED.",
+  "hardware": "NOT_RUN",
+  "normal607": "NOT_ACCEPTED",
+  "package_count": 607,
+  "packages_committed": false,
+  "performance": "NOT_MEASURED",
+  "positive": {
+    "bytes": 16847,
+    "sha256": "d5b6d35f97dd3b40e08346c787a85527dc997157124aece1159f5afd86d744a7"
+  },
+  "post": {
+    "bytes": 706630,
+    "sha256": "ee245e203ac3b8d30980b9ef354d29b9afc0a5f18e677ffa8e543314f24605b0"
+  },
+  "postcommit607": "NOT_ACCEPTED",
+  "protected_packages": 606,
+  "release": "NOT_ADMITTED",
+  "run": 40270932670,
+  "scope": "FINITE_ARM4K_DISPOSABLE_ROOT607_APPS6_TO16_PRECOMMIT_INTERRUPTION_ZERO_COMMITS_SOURCE_CHECKPOINT_UNCHANGED_OWNED_COPY_DISPOSAL",
+  "source": "027a21e487cd5eca1c32b3025b624266781be306",
+  "status": "ROOT_ACCEPTED_FINITE_NATIVE_ARM4K_CURRENT607_PRECOMMIT86_RECOVERY",
+  "target_inventory_is_actual_after": false
+}
