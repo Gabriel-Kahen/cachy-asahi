@@ -3,7 +3,7 @@
 import argparse,ast,hashlib,json,os,stat
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
-PROFILE={'bytes': 311970, 'sha256': '6b56901b23a4bf344da6bfcbb5a5f56cc7e2ba485281a96aaec4d25b2c056d29'}
+PROFILE={'bytes': 312261, 'sha256': 'd96d9e8f25ebb9969dd6acc1fc8eab6a6e25382ee727b1df418acf43953b9ff5'}
 
 def need(ok, message):
     if not ok:
@@ -100,6 +100,7 @@ def transform(before,mode,policy,*,draft=False):
  out=dict(before);seams={}
  def change(name,a,b):out[name]=edit(out[name],a,b);seams.setdefault(name,[]).append(dict(before=a,after=b,count=1))
  n='implementation/observer_apply.py'
+ change(n,read(D/'root-directory-before.py.txt').decode(),read(D/'root-directory-after.py.txt').decode())
  change(n,'def apply(out):',read(D/'forward-renderer.py.txt').decode()+'def apply(out):')
  a="guest.write_bytes(edited(guest.read_bytes(),[(\"logs,'installed606-preserved',timeout=600)\",\"logs,'installed606-preserved',timeout=1210)\")]))"
  b="guest.write_bytes(edited(edited(guest.read_bytes(),[(\"logs,'installed606-preserved',timeout=600)\",\"logs,'installed606-preserved',timeout=1210)\")]),forwarding_rows()))"
