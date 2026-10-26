@@ -38,7 +38,7 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           repository: Gabriel-Kahen/cachy-asahi
-          ref: 95a75cd9798b8b827f80233f3ea402ff7fc9b224
+          ref: 0db9341521b5cb5d9022715b5ba638b3e4018462
           path: .ci-fixtures/cache-after1203
           persist-credentials: false
       - name: Select explicit Python
@@ -53,7 +53,7 @@ jobs:
           trap 'rm -rf -- "$stage"' EXIT
           mkdir -m700 "$stage/input" "$stage/expected"
           git -C "$GITHUB_WORKSPACE/.ci-fixtures/cache-before1203" archive --format=tar 7bbdfc679712301f19da3f175ebc0275b2922138 | tar -x -C "$stage/input"
-          git -C "$GITHUB_WORKSPACE/.ci-fixtures/cache-after1203" archive --format=tar 95a75cd9798b8b827f80233f3ea402ff7fc9b224 | tar -x -C "$stage/expected"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/cache-after1203" archive --format=tar 0db9341521b5cb5d9022715b5ba638b3e4018462 | tar -x -C "$stage/expected"
           export FRESH_CACHE_INPUT="$stage/input"
           export FRESH_CACHE_EXPECTED="$stage/expected"
           umask 077

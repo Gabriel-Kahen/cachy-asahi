@@ -3,7 +3,7 @@
 import argparse,ast,hashlib,json,os,stat
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
-PROFILE={'bytes': 278224, 'sha256': 'f4b49e5228e9502ff52bb3b9a64b450f622410b397a81f10b21dd9cd38f8a6bb'}
+PROFILE={'bytes': 288247, 'sha256': '150bf3d6f15fdabf56c3e0dbfbffd766cbca70648daa9cdf27cbf04a040d3bb4'}
 SCOPE='CORE622_CURRENT607_COPIED_PROVISIONING_NORMAL_CORE_TWO_BOOT_GENERIC16K'
 PROVISIONING='COPIED_ROOT_PROVISIONING_NOT_NORMAL_HOOK_INSTALLATION'
 enc=lambda x:(json.dumps(x,sort_keys=True,indent=2,allow_nan=False)+'\n').encode()
@@ -151,8 +151,29 @@ def workflow(old,core_profile,value):
  text=edits(text,[('GITHUB_REF_NAME="${{ github.ref_name }}" RUNNER_ARCH=ARM64 GITHUB_WORKSPACE="$GITHUB_WORKSPACE"','GITHUB_REF_NAME="${{ github.ref_name }}" GITHUB_ACTIONS=true RUNNER_ARCH=ARM64 GITHUB_WORKSPACE="$GITHUB_WORKSPACE"')])
  return text
 
+def before_capability(values):
+ """Pure DATA inverse of every immediate097757 source byte."""
+ prior=dict(values);parent=json.loads(prior['composition-parent.json']);r=parent.pop('capability_boundary');need(r['schema']==1 and r['parent_source']=='09775710e2ad55d647993eab81890f1696572c86'and r['actual']is None,'fixed capability-boundary parent context')
+ for name,rules in r['edits'].items():
+  text=prior[name].decode()
+  for a,b in reversed(rules):need(text.count(b)==1,'one exact capability helper inverse');text=text.replace(b,a,1)
+  prior[name]=text.encode()
+ prior['composition-parent.json']=enc(parent);m=json.loads(prior['source-manifest.json']);m['files']={n:w for n,w in r['before'].items()if n not in('source-manifest.json','.github/workflows/native-arm-build.yml','.github/workflows/native-arm-core7-real-systemd.yml')};prior['source-manifest.json']=enc(m);text=prior['source622.py'].decode()
+ for name,before in(('PRODUCTS',r['guard_products_before']),('SELF',r['guard_self_before'])):
+  node=next(n for n in ast.parse(text).body if isinstance(n,ast.Assign)and isinstance(n.targets[0],ast.Name)and n.targets[0].id==name);after=ast.get_source_segment(text,node);need(text.count(after)==1,'one capability guard seal inverse');text=text.replace(after,before,1)
+ need(text.count(r['guard_prefix'])==1,'one finite capability source prefix');text=text.replace(r['guard_prefix'],r['guard_anchor'],1);prior['source622.py']=text.encode();need(len(prior)==66 and {n:pin(b)for n,b in prior.items()}==r['before'],'ENTIRE immediate09775766 before inverse');return prior
+
+def capability_stage(values,p,operands):
+ """Extend only the exact source-owned capability guard anchor, defaults held."""
+ before={n:values[n]for n in sorted(values)};r=json.loads(operands['capability-context.json']);r['guard_prefix']=operands['capability-inverse.py.txt'].decode();need({n:pin(b)for n,b in before.items()}==p['capability_parent']['files']==r['before']and r['parent_source']==p['capability_parent']['source']and r['actual']is None,'whole exact097757 capability parent')
+ out=dict(before)
+ for name,rules in r['edits'].items():out[name]=edits(out[name].decode(),rules).encode()
+ guard=before['source622.py'].decode();assign={n.targets[0].id:ast.get_source_segment(guard,n)for n in ast.parse(guard).body if isinstance(n,ast.Assign)and isinstance(n.targets[0],ast.Name)and n.targets[0].id in('PRODUCTS','SELF')};need(assign==dict(PRODUCTS=r['guard_products_before'],SELF=r['guard_self_before']),'whole original097757 source seals');need(guard.count(r['guard_anchor'])==1,'one original local source DATA namespace');guard=guard.replace(r['guard_anchor'],r['guard_prefix'],1).replace(assign['PRODUCTS'],'PRODUCTS=None',1).replace(assign['SELF'],"SELF='@SELF@'",1)
+ parent=json.loads(before['composition-parent.json']);need('capability_boundary'not in parent,'fresh exact capability DATA layer');parent['capability_boundary']=r;out['composition-parent.json']=enc(parent);aliases=('.github/workflows/native-arm-build.yml','.github/workflows/native-arm-core7-real-systemd.yml');products={n:pin(b)for n,b in out.items()if n not in('source622.py','source-manifest.json',*aliases)};guard=guard.replace('PRODUCTS=None','PRODUCTS='+repr(products),1);guard=guard.replace("SELF='@SELF@'","SELF="+repr(hashlib.sha256(guard.encode()).hexdigest()),1);out['source622.py']=guard.encode();m=json.loads(before['source-manifest.json']);m['files']={n:pin(b)for n,b in out.items()if n not in('source-manifest.json',*aliases)};out['source-manifest.json']=enc(m);need(before_capability(out)==before,'complete capability stage byte inverse');return out
+
 def before_environment(values):
  """Reconstruct all66 immediate bbdf DATA bytes without loading source code."""
+ if 'capability_boundary'in json.loads(values['composition-parent.json']):values=before_capability(values)
  prior=dict(values);parent=json.loads(prior['composition-parent.json']);record=parent.pop('apparmor_environment')
  need(record['schema']==1 and record['parent_source']=='bbdf05888b8bacb8a7ee8dfde4def4d508cc812b'and record['actual']is None,'fixed CI environment before context')
  for name,rules in record['edits'].items():
@@ -202,6 +223,7 @@ def compose(roots):
  for n,b in out.items():
   if n.endswith('.py'):ast.parse(b,filename=n)
 
+ need({n:pin(b)for n,b in out.items()}==p['capability_parent']['files'],'all66 exact097757 intermediate bytes');out=capability_stage(out,p,operands)
  need({n:pin(b)for n,b in out.items()}==p['result']['files'],'all66 exact public result bytes')
  before_environment(out)  # All immediate66 predicates remain mandatory before original51 inverse.
  restored=dict(out)
