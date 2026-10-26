@@ -1,0 +1,14 @@
+{
+  "actual_ref": null,
+  "actual_source": null,
+  "carrier_ref": "refs/heads/codex/welcome7-dns2-gui-payload-signatures-v1",
+  "carrier_source": "7cf7fb81d0b70b1b7421dc85788fabd45ec5adfc",
+  "index_pin": {
+    "bytes": 69418,
+    "sha256": "e705cc670d11cd188c971a36953dd76941a6f4c706eb9b64ddd131dd55a4898e"
+  },
+  "minimal_run": null,
+  "overlay_run": null,
+  "schema_version": 1,
+  "status": "ROOT_SELECTED_CURRENT_TEST_SIGNATURES"
+}
