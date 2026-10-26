@@ -13,7 +13,7 @@ class Controls(unittest.TestCase):
    for context in('known','null'):
     output=Path(td)/context;argv=[sys.executable,'-I','-B','-Werror',str(HERE/'prepare.py'),'--source',str(SOURCE),'--output',str(output),'--context',context]
     done=subprocess.run(argv,capture_output=True,timeout=30,umask=0o077);self.assertEqual(done.returncode,0,done.stderr.decode());row=json.loads(done.stdout)
-    self.assertEqual(F.tree(output),expected);self.assertEqual(len(row['files']),1203);self.assertEqual(row['source'],'ad31d0c6010d03c8114888ef4cf39075f912ada1'if context=='known'else None)
+    self.assertEqual(F.tree(output),expected);self.assertEqual(len(row['files']),1203);self.assertEqual(row['source'],'087c70e68251ada1454ea5a8b9d7b52332dbdffa'if context=='known'else None)
     self.assertTrue(all(row[k]is None for k in('actual_source','actual_ref','actual_run','Root_acceptance')));self.assertTrue(all(stat.S_IMODE((output/n).stat().st_mode)==0o644 for n in expected))
  def test_constructor_never_executes_supplied_source_or_actors(self):
   sentinel=object();saved=sys.modules.get('common',sentinel)
@@ -33,6 +33,7 @@ class Controls(unittest.TestCase):
   test=values['implementation/test_page_mode.py'];entry=b"if __name__=='__main__':\n";test=test.replace(c['test_append'].encode()+b'\n'+entry,entry,1);self.assertEqual(F.apply(test,c['test_edits'],reverse=True),before['implementation/test_page_mode.py'])
   oldsha=F.pin(before['implementation/page-parent.json'])['sha256'];newsha=F.pin(values['implementation/page-parent.json'])['sha256'];guard=values['implementation/page_source.py'].replace(newsha.encode(),b'@PARENT_SHA@',1);self.assertTrue(guard.endswith(c['guard_append'].encode()));guard=guard[:-len(c['guard_append'].encode())];self.assertEqual(F.apply(guard,c['guard_edits'],reverse=True).replace(b'@PARENT_SHA@',oldsha.encode(),1),before['implementation/page_source.py'])
   self.assertEqual(len(p['held']),1196);self.assertEqual(len(p['changed']),7)
+  self.assertEqual({n:F.pin(b)for n,b in F.numeric_before(values,p).items()},p['numeric_parent']['files'])
   for n in p['held']:self.assertEqual(values[n],before[n],n)
   for n in before:
    if n.startswith('parent604/')or n in('implementation/run.py','implementation/producer_diagnostic.py','implementation/workflow-template.yml','implementation/page-mode-profile.json'):self.assertEqual(values[n],before[n],n)
@@ -95,5 +96,5 @@ class Controls(unittest.TestCase):
    # Only the factory's fully pinned exact public result is executed as trusted
    # source controls; compose itself never imports or executes caller source.
    run=subprocess.run([sys.executable,'-I','-B','-Werror',str(out/'implementation/test_page_mode.py')],capture_output=True,timeout=30)
-   self.assertEqual(run.returncode,0,run.stderr.decode());self.assertIn(b'Ran 10 tests',run.stderr);self.assertTrue(run.stderr.rstrip().endswith(b'OK'));self.assertEqual(F.tree(out),F.tree(EXPECTED))
+   self.assertEqual(run.returncode,0,run.stderr.decode());self.assertIn(b'Ran 18 tests',run.stderr);self.assertTrue(run.stderr.rstrip().endswith(b'OK'));self.assertEqual(F.tree(out),F.tree(EXPECTED))
 if __name__=='__main__':unittest.main(verbosity=2)
