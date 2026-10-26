@@ -1,0 +1,9 @@
+{
+  "installer": "NOT RUN",
+  "manifest_sha256": "2eff7721796df7e7076b3e9dda6482449b3e063aecbf246192342b955a9da78d",
+  "owned_resources": "RETAINED-UNTIL-VM-FINISHES",
+  "phase": "export-completed",
+  "ready": "/tmp/cachy-asahi-updater604-recovery4k-40277764911-1-postcommit-exit87-producer/private/ready",
+  "status": "READY_SIGNED_INITIAL587",
+  "upgrade": "NOT RUN"
+}

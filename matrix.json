@@ -1,0 +1,75 @@
+{
+  "M2": "NOT_RUN",
+  "boot_recovery": "NOT_RUN",
+  "cases": {
+    "normal": {
+      "case": "normal",
+      "checkpoint_changed": true,
+      "committed_transactions": 1,
+      "decision": {
+        "bytes": 1599,
+        "sha256": "b8e28151b04328d3e0847983de5ded8c6877863357e342f7cca65954197dda17"
+      },
+      "evidence_limits": "Private raw node/hash/ownership maps and86/87 fault witnesses remain unexported. Protected/user/no-change/independent-after claims are original frozen-source-enforced retained receipts, not a new raw-map readback. Retired resources are not live-reobserved; auxiliary process exit status remains NOT_OBSERVED.",
+      "native_repeated": false,
+      "originals_reacquired": false,
+      "positive": {
+        "bytes": 16821,
+        "sha256": "da088aa2c0c101efa38e4a8783504ae063da850514292829623b43b5e28cca56"
+      },
+      "run": 40274366566,
+      "selector_repeated": false
+    },
+    "postcommit87": {
+      "case": "postcommit-exit87",
+      "checkpoint_changed": false,
+      "committed_transactions": 1,
+      "decision": {
+        "bytes": 1205,
+        "sha256": "c0e479f3abc0877d57a14d5389389d23561498fa1cb43f1865f265da7215fff4"
+      },
+      "evidence_limits": "Private raw node/hash/ownership maps and86/87 fault witnesses remain unexported. Protected/user/no-change/independent-after claims are original frozen-source-enforced retained receipts, not a new raw-map readback. Retired resources are not live-reobserved; auxiliary process exit status remains NOT_OBSERVED.",
+      "native_repeated": false,
+      "originals_reacquired": false,
+      "positive": {
+        "bytes": 16883,
+        "sha256": "42e804373858e518a15ef6acd2e1191daa771ad55c94c76abeab9f0f35bdadb1"
+      },
+      "run": 40277764911,
+      "selector_repeated": true
+    },
+    "precommit86": {
+      "case": "precommit-exit86",
+      "checkpoint_changed": false,
+      "committed_transactions": 0,
+      "decision": {
+        "bytes": 1598,
+        "sha256": "29433f1bb462fd377f5fe8d108eec728069c5438b49ac873951fe44ec1935168"
+      },
+      "evidence_limits": "Private raw node/hash/ownership maps and86/87 fault witnesses remain unexported. Protected/user/no-change/independent-after claims are original frozen-source-enforced retained receipts, not a new raw-map readback. Retired resources are not live-reobserved; auxiliary process exit status remains NOT_OBSERVED.",
+      "native_repeated": false,
+      "originals_reacquired": false,
+      "positive": {
+        "bytes": 16845,
+        "sha256": "aa44ec118abb83075ee881ae9fbb84bdd8ffbb290a244eba0d7eea5f7671dd28"
+      },
+      "run": 40377167974,
+      "selector_repeated": false
+    }
+  },
+  "generic16k": "NOT_RUN_FOR_THIS_MATRIX",
+  "hooks": "MASKED",
+  "package_count": 607,
+  "performance": "NOT_MEASURED",
+  "physical_installation": "NOT_RUN",
+  "protected_packages": 606,
+  "raw_private_maps": "SOURCE_ENFORCED_UNEXPORTED",
+  "reader_files": 3277,
+  "release": "NOT_ADMITTED",
+  "rollback": "NOT_CLAIMED",
+  "scope": "FINITE_OWNED_COPY_UPDATE_INTERRUPTION_AND_DISPOSAL",
+  "scriptlets": "DISABLED",
+  "source": "c6a5de859c3f190d47a5aef30962d2c3b50eaf8d",
+  "source_files": 360,
+  "status": "ROOT_ACCEPTED_SAME_SOURCE_NATIVE_ARM4K_CURRENT607_NORMAL_PRE86_POST87_MATRIX"
+}

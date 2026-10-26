@@ -1,0 +1,12 @@
+{
+  "attempt": 1,
+  "case": "precommit-exit86",
+  "initial_run": {
+    "bytes": 14334,
+    "sha256": "dcd8cd88e8eb515594f19ba55d453588f7eae234b343b5d3273b81fab78f2679"
+  },
+  "ref": "codex/latest607-updater-selected-database-v1",
+  "run": 40377167974,
+  "source": "c6a5de859c3f190d47a5aef30962d2c3b50eaf8d",
+  "status": "ROOT_BOUND_LATEST607_UPDATER_NATIVE4K"
+}

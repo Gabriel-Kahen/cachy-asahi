@@ -1,0 +1,12 @@
+{
+  "attempt": 1,
+  "case": "postcommit-exit87",
+  "initial_run": {
+    "bytes": 14334,
+    "sha256": "df2db9cb0c52670d1b789a7357ec8807a9b8a9e1ff2c11f50c2fc534636bc11e"
+  },
+  "ref": "codex/latest607-updater-selected-database-v1",
+  "run": 40277764911,
+  "source": "c6a5de859c3f190d47a5aef30962d2c3b50eaf8d",
+  "status": "ROOT_BOUND_LATEST607_UPDATER_NATIVE4K"
+}

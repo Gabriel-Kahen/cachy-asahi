@@ -1,0 +1,12 @@
+{
+  "attempt": 1,
+  "case": "normal",
+  "initial_run": {
+    "bytes": 14334,
+    "sha256": "de830e077fe169fc08865c26d6ecf40d9581008f4b7904936b5b00aece8f7f41"
+  },
+  "ref": "codex/latest607-updater-selected-database-v1",
+  "run": 40274366566,
+  "source": "c6a5de859c3f190d47a5aef30962d2c3b50eaf8d",
+  "status": "ROOT_BOUND_LATEST607_UPDATER_NATIVE4K"
+}

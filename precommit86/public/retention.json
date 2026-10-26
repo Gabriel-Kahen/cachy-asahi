@@ -1,0 +1,73 @@
+{
+  "files": {
+    "job-cleanup.json": {
+      "bytes": 907,
+      "sha256": "176aeac245c3ab1bcb10cb27208e691a93de46de631adbbb4fd3dc3d9f828979"
+    },
+    "native4k-wrapper.json": {
+      "bytes": 1071,
+      "sha256": "11425769aa648bf141448c60c5dbadef295ea389b519bdec0de63ef16915ba7a"
+    },
+    "owner.json": {
+      "bytes": 338,
+      "sha256": "9c8891601a6f2e6c8d9567b221da86b736d4fcbbcf7d4f8cb61feabbf7284fab"
+    },
+    "public/adapter.json": {
+      "bytes": 28058,
+      "sha256": "abeeae02c51e2e8861eeb74da27312e4e7e28037b602b139b8810c35bcffac31"
+    },
+    "public/producer-cleanup.json": {
+      "bytes": 257,
+      "sha256": "a67be9d400972a9b1ac2417594e9c0f1b0123454cb0338cb500e7c99af605bfd"
+    },
+    "public/producer.json": {
+      "bytes": 370,
+      "sha256": "8491bb242b28c3859629dc40584f707576885146d93c6280ec1b8b5eab5204cd"
+    },
+    "public/result.json": {
+      "bytes": 44843,
+      "sha256": "a1c04f175473abadda7d79de6d00b7f1001eb916855a2f69aaf1f63d1c774af5"
+    },
+    "public/transaction-tail.log": {
+      "bytes": 65536,
+      "sha256": "eab8609435c93ecee4fabb6177b26ea6f18728a2d178c3d2514cfbb26188db38"
+    },
+    "result.json": {
+      "bytes": 65332,
+      "sha256": "a82aa9b6b7b1b3f15adaafbda1c9fda5aaa10a2a4605341392d79e9b07d9be10"
+    },
+    "wiring-owner.json": {
+      "bytes": 4981,
+      "sha256": "1a582585c42469c874420f56c198cd6e0b4a05d87e3837852512e697564579a1"
+    }
+  },
+  "held_owner_source": "b21a5864d5a4610b9181a1c270ac8821d8448a17",
+  "missing": [],
+  "private_roots_source_cache": "NOT_EXPORTED",
+  "root_acceptance": "NOT_ISSUED",
+  "scope": "ORIGINAL_NATIVE_DOCKER_COPY_CRYPTO_TRANSACTION_PRESERVATION_AND_CLEANUP_NO16K_OR_HARDWARE_CREDIT",
+  "status": "SOURCE_BOUND_NATIVE_ARM4K_UPDATER604_PUBLIC_DATA_NOT_ACCEPTANCE",
+  "total_bytes": 211693,
+  "wrapper": {
+    "architecture": "aarch64",
+    "attempt": 1,
+    "case": "precommit-exit86",
+    "hardware": "NOT_RUN",
+    "held_files": 489,
+    "held_source": "b21a5864d5a4610b9181a1c270ac8821d8448a17",
+    "native_readback": {
+      "architecture": "aarch64",
+      "euid": 1001,
+      "kernel_release": "6.17.0-1022-azure",
+      "page_size": 4096,
+      "sysname": "Linux",
+      "uid": 1001
+    },
+    "page_size": 4096,
+    "ref": "refs/heads/codex/latest607-updater-selected-database-v1",
+    "run": 40377167974,
+    "source": "c6a5de859c3f190d47a5aef30962d2c3b50eaf8d",
+    "source_files": 360,
+    "status": "CURRENT_NATIVE_ARM4K_UPDATER604_SOURCE_CUSTODY_NOT_ACCEPTANCE"
+  }
+}
