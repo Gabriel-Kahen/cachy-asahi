@@ -225,7 +225,9 @@ def prepare_with_dependencies(carrier,updater,desktop_lock,cache,deadline,incomi
 def cache_facade(fresh):
  import importlib.util,sys,types
  from contextlib import contextmanager
- import desktop622 as X
+ path=Path(__file__).resolve().with_name('desktop622.py');raw=read(path,4*1024**2)[0]
+ need(dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())=={'bytes': 9856, 'sha256': 'eace06a0842aa08b803de34522178a086943c3e05086b1ed07f7fb986fd07400'},'exact held local desktop622 cache bootstrap')
+ spec=importlib.util.spec_from_file_location('_core622_cache_local_desktop',path);X=importlib.util.module_from_spec(spec);exec(compile(raw,str(path),'exec'),vars(X))
  value=json.loads(read(Path(__file__).with_name('composition-parent.json'),4*1024**2)[0]);profile=value['dependency_cache_context'];source=json.loads(read(Path(__file__).with_name('composition.json'),4*1024**2)[0])['public']['latest607-fresh-tooling-inputs-trial-root-20261025'];root=Path(fresh)
  need(root.is_absolute()and root==root.resolve()and not any(p.is_symlink()for p in(root,*root.parents)),'exact ordinary original1197 source operand')
  for name in('implementation/compiler6.py','implementation/compiler6-profile.json','implementation/common.py'):

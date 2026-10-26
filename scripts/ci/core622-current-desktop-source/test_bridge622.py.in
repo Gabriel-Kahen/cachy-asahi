@@ -273,4 +273,27 @@ class Controls(unittest.TestCase):
    bad=copy.deepcopy(note);bad['command']['timeout_seconds']=2400
    with self.assertRaises(ValueError):O.validate_dependency_note(bad)
 
+
+class IsolatedCacheCLI(unittest.TestCase):
+ """Fresh production -I subprocesses; actual facade, no mutation sentinel."""
+ def argv(self,root,script=None):
+  import time
+  source=Path(__file__).resolve().parent;fresh=Path(A.fresh607_source)
+  return [sys.executable,'-I','-B',str(source/'ownership622.py'if script is None else script),'--prepare-dependency-cache','--compiler6-source',str(fresh),'--carrier',str(root/'carrier'),'--updater',str(root/'updater'),'--desktop-lock',str(root/'desktop.lock'),'--cache',str(root/'cache'),'--incoming31',str(root/'incoming'),'--preparation',str(root/'preparation'),'--deadline',str(time.monotonic()+240)]
+ def test_fresh_actual_isolated_cli_reaches_real_facade_original_prepare_before_mutation(self):
+  import subprocess
+  with tempfile.TemporaryDirectory(prefix='core622-isolated-cache-')as td:
+   root=Path(td);source=Path(__file__).resolve().parent
+   for n in('carrier','updater','cache','incoming','preparation'):(root/n).mkdir(mode=0o700)
+   before={n:(p.lstat().st_ino,p.lstat().st_mode,p.lstat().st_mtime_ns,p.lstat().st_ctime_ns)for n,p in((x.name,x)for x in root.iterdir())};foreign=root/'desktop622.py';foreign.write_text("raise AssertionError('FOREIGN_CWD_MODULE_MUST_NOT_EXECUTE')\n")
+   p=subprocess.run(self.argv(root),cwd=root,stdin=subprocess.DEVNULL,capture_output=True,timeout=20,env=dict(PATH='/usr/bin:/bin',LANG='C',PYTHONDONTWRITEBYTECODE='1',PYTHONPATH=str(root)))
+   self.assertEqual(p.returncode,1);text=p.stderr.decode();self.assertNotIn('ModuleNotFoundError',text);self.assertNotIn('FOREIGN_CWD_MODULE',text);self.assertIn('FileNotFoundError',text);self.assertIn(str(root/'updater'/next(iter(json.loads((source/'composition-parent.json').read_bytes())['dependency_cache_context']['updater_files']))),text);self.assertIn('selected.prepare_with_dependencies',text);self.assertIn('compiler6.py',text)
+   self.assertEqual(list((root/'cache').iterdir()),[])
+   for n,w in before.items():q=root/n;self.assertEqual((q.lstat().st_ino,q.lstat().st_mode,q.lstat().st_mtime_ns,q.lstat().st_ctime_ns),w)
+ def test_fresh_actual_cli_refuses_modified_local_helper_before_original_inputs(self):
+  import subprocess,shutil
+  with tempfile.TemporaryDirectory(prefix='core622-isolated-cache-refuse-')as td:
+   root=Path(td);script=root/'ownership622.py';source=Path(__file__).resolve().parent;shutil.copyfile(source/'ownership622.py',script);(root/'desktop622.py').write_bytes((source/'desktop622.py').read_bytes()+b'\n# private wrong helper\n');(root/'cache').mkdir(mode=0o700)
+   p=subprocess.run(self.argv(root,script),cwd=root,stdin=subprocess.DEVNULL,capture_output=True,timeout=20,env=dict(PATH='/usr/bin:/bin',LANG='C',PYTHONDONTWRITEBYTECODE='1'));self.assertEqual(p.returncode,1);self.assertIn(b'exact held local desktop622 cache bootstrap',p.stderr);self.assertNotIn(b'FileNotFoundError',p.stderr);self.assertEqual(list((root/'cache').iterdir()),[])
+
 if __name__=='__main__':unittest.main(verbosity=2)
