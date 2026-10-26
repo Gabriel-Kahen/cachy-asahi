@@ -1,0 +1,77 @@
+{
+  "boot607/accepted-boot79/boot-fixture/authored-records.json": {
+    "bytes": 1555,
+    "original": "scripts/ci/welcome-native/boot-fixture/authored-records.json",
+    "sha256": "cff33cac332a200aeccd983d883b912e875e733b4d13f6f0fb8407367afad7a4"
+  },
+  "boot607/accepted-boot79/boot-fixture/decoded-records.json": {
+    "bytes": 2387,
+    "original": "scripts/ci/welcome-native/boot-fixture/decoded-records.json",
+    "sha256": "748f2ea147625682f9acdf3375e02c5e6e5d96fa8d6992cfb328524880a5b15a"
+  },
+  "boot607/accepted-boot79/boot-fixture/generation.json": {
+    "bytes": 2904,
+    "original": "scripts/ci/welcome-native/boot-fixture/generation.json",
+    "sha256": "d525387c14fb928809394951b68dc443546380af9da483f7e641a36165843e4d"
+  },
+  "boot607/accepted-boot79/boot-fixture/journal.export": {
+    "bytes": 1164,
+    "original": "scripts/ci/welcome-native/boot-fixture/journal.export",
+    "sha256": "4f67b2043c9d9aa48d087a09b0a24aa2b3f2591b4486447989249153e9c48074"
+  },
+  "boot607/accepted-boot79/boot-fixture/make_fixture.py": {
+    "bytes": 3123,
+    "original": "scripts/ci/welcome-native/boot-fixture/make_fixture.py",
+    "sha256": "e6d0370267b1bae8343a9f16ec4a79da2b74d6bc09dcd8958bb3e57d84b2c60e"
+  },
+  "boot607/accepted-boot79/boot-fixture/system.journal": {
+    "bytes": 8388608,
+    "original": "scripts/ci/welcome-native/boot-fixture/system.journal",
+    "sha256": "77c326d908442852de51e66c660153d4c6051390b14466e48fa9c037cc1c573e"
+  },
+  "boot607/accepted-boot79/boot_fixture.py": {
+    "bytes": 6844,
+    "original": "scripts/ci/welcome-native/boot_fixture.py",
+    "sha256": "b20a1e43c9f7290b563414c03e16a32a3ddf809c240c061dc8bf8fdd045ed571"
+  },
+  "boot607/accepted-boot79/installed_fixture.py": {
+    "bytes": 1477,
+    "original": "scripts/ci/welcome-native/installed_fixture.py",
+    "sha256": "d881a463e9e7be0b1661905dff6d34d423501ce639b37e862242c1ac3d62bb8a"
+  },
+  "boot607/accepted-boot79/lifecycle.py": {
+    "bytes": 5812,
+    "original": "scripts/ci/welcome-native/lifecycle.py",
+    "sha256": "74474f1de64a4b423bcd84cdf60312bb36ab7d62cd12b48932428a432a6cd02b"
+  },
+  "boot607/accepted-boot79/packages/tools/cachy-asahi-boot-report/LICENSE": {
+    "bytes": 1081,
+    "original": "packages/tools/cachy-asahi-boot-report/LICENSE",
+    "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+  },
+  "boot607/accepted-boot79/packages/tools/cachy-asahi-boot-report/NOTICE": {
+    "bytes": 274,
+    "original": "packages/tools/cachy-asahi-boot-report/NOTICE",
+    "sha256": "6e20e714d7d5afcc327260ef23f53cfcba2aa4c2de7e427725c45deed1bb4e65"
+  },
+  "boot607/accepted-boot79/packages/tools/cachy-asahi-boot-report/PKGBUILD": {
+    "bytes": 1234,
+    "original": "packages/tools/cachy-asahi-boot-report/PKGBUILD",
+    "sha256": "07031123e32fb142d64bc0cdc5385f1794746965b4c7cb21195047429dc840a1"
+  },
+  "boot607/accepted-boot79/packages/tools/cachy-asahi-boot-report/README.md": {
+    "bytes": 5454,
+    "original": "packages/tools/cachy-asahi-boot-report/README.md",
+    "sha256": "6fca46e91f295568944249db1eda2b7d2719e5f16e940ce0e7f87190f7967a5d"
+  },
+  "boot607/accepted-boot79/packages/tools/cachy-asahi-boot-report/cachy-asahi-boot-report": {
+    "bytes": 17370,
+    "original": "packages/tools/cachy-asahi-boot-report/cachy-asahi-boot-report",
+    "sha256": "d88fa9523b33900b06b8fbfbdb167ecdff98d3787fc620494d738ecf11646cb7"
+  },
+  "boot607/accepted-boot79/packages/tools/cachy-asahi-boot-report/test_boot_report.py": {
+    "bytes": 14940,
+    "original": "packages/tools/cachy-asahi-boot-report/test_boot_report.py",
+    "sha256": "35170f432adafd37b719e1033f29fa0b97a78c61a2dade25e99dc0e095efc4a4"
+  }
+}
