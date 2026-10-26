@@ -5259,6 +5259,10 @@
       "bytes": 9856,
       "sha256": "eace06a0842aa08b803de34522178a086943c3e05086b1ed07f7fb986fd07400"
     },
+    "environment-parent.json": {
+      "bytes": 19993,
+      "sha256": "089fa53f495704de842f11270afe933b48373ed762c08bcf72ce21d7d9976514"
+    },
     "expected607.lock": {
       "bytes": 12076,
       "sha256": "be35402204ba5c03d78279722afa83047c9575d2da70fb5c4064f46ed15954c5"
@@ -5296,8 +5300,8 @@
       "sha256": "41d4d209bbcb79a035b65b72e95799956ad48709ebb07eb8c21b63d7e39d8919"
     },
     "source622.py.in": {
-      "bytes": 6253,
-      "sha256": "4f98669e44c6ef949b0e87f81c214775ee04c2350521b6df1c19f71763559bbc"
+      "bytes": 8883,
+      "sha256": "b83f231f624af681c9d290398be9a18f929e54a11e8e35964bbf7f53ef194908"
     },
     "test_bridge622.py.in": {
       "bytes": 41111,
@@ -5311,12 +5315,12 @@
   "result": {
     "files": {
       ".github/workflows/native-arm-build.yml": {
-        "bytes": 42654,
-        "sha256": "6be634e09f49217c03e6269ae1604b7916d8a8f899243087600b86b7821323a1"
+        "bytes": 42674,
+        "sha256": "2ab5a2e4cb14c62e8385993ea7cec69a4f268be35b84f11903970e964a4bf4d9"
       },
       ".github/workflows/native-arm-core7-real-systemd.yml": {
-        "bytes": 42654,
-        "sha256": "6be634e09f49217c03e6269ae1604b7916d8a8f899243087600b86b7821323a1"
+        "bytes": 42674,
+        "sha256": "2ab5a2e4cb14c62e8385993ea7cec69a4f268be35b84f11903970e964a4bf4d9"
       },
       "Core800-acceptance.json": {
         "bytes": 2043,
@@ -5359,8 +5363,8 @@
         "sha256": "cf43f16973294a8e687c65341cb63329a71d9a2a2ea488f0f6f2e20b97087c3c"
       },
       "composition-parent.json": {
-        "bytes": 525228,
-        "sha256": "2408848af5faf4fa172d06343d570e5819cffbac7a078abc31117bffe73ecb28"
+        "bytes": 545834,
+        "sha256": "676bfedb89e60f8a5b662a80c88c35422ce8ca76890b1a315460f793c491dc2c"
       },
       "composition.json": {
         "bytes": 444951,
@@ -5492,11 +5496,11 @@
       },
       "source-manifest.json": {
         "bytes": 8711,
-        "sha256": "5f15e72df9276188d8f2e7dcf64f5aa09e4ceb1fe5fc9824d7bfd729878779b5"
+        "sha256": "3770bd228c51d92daf55e4ec54193fd815a0dfb357f683ebf57f5a3f71807a5d"
       },
       "source622.py": {
-        "bytes": 13380,
-        "sha256": "b786b2aa3a56dd66f6479852a2826a9836b54a28800a4ff819538cde2c728a7c"
+        "bytes": 16010,
+        "sha256": "a357bb5bac3b80a6700c9462e9ef3205150406ca8b235a720a2b65fb67448053"
       },
       "test_bridge622.py": {
         "bytes": 41111,
@@ -5567,16 +5571,16 @@
         "sha256": "a69264ea55374b2058048ca2441c89942e65f43d06125b0d1ad71d3e021202e1"
       },
       "workflow.yml.in": {
-        "bytes": 42654,
-        "sha256": "6be634e09f49217c03e6269ae1604b7916d8a8f899243087600b86b7821323a1"
+        "bytes": 42674,
+        "sha256": "2ab5a2e4cb14c62e8385993ea7cec69a4f268be35b84f11903970e964a4bf4d9"
       },
       "xattr_diagnostic.py": {
         "bytes": 17502,
         "sha256": "ad88aee4e41afa9f78d45785a45f274abeac1aaf335225ec0c4cc61240cbba47"
       }
     },
-    "ref": "codex/core622-isolated-cache-import-v1",
-    "source": "bbdf05888b8bacb8a7ee8dfde4def4d508cc812b"
+    "ref": "codex/core622-apparmor-environment-v1",
+    "source": "09775710e2ad55d647993eab81890f1696572c86"
   },
   "schema": 1,
   "status": "SOURCE_ONLY_CORE622_PORTABLE_FACTORY"

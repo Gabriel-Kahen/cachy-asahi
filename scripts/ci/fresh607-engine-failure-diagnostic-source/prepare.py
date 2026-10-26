@@ -3,7 +3,7 @@
 import argparse,hashlib,json,os,stat
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
-PROFILE={'bytes': 956718, 'sha256': '1c84b993ea16018c724f2a037256a678a4e38690c900b3afded988332621a4c1'}
+PROFILE={'bytes': 1198957, 'sha256': '7abe73453e8be474d902c49a57f755739043357e6340114504c4ef0bd1667963'}
 
 def need(ok, message):
     if not ok:
@@ -96,6 +96,7 @@ def apply(raw,rows,reverse=False):
 
 def numeric_before(values,p):
  """Finite whole417c before inverse, using only closed scalar source DATA."""
+ if 'realtime_initialization'in json.loads(values['implementation/page-parent.json'])['engine_failure_parent']:values=clock_before(values,p)
  parentname='implementation/page-parent.json';guard='implementation/page_source.py';mode='implementation/page_mode.py';test='implementation/test_page_mode.py'
  parent=json.loads(values[parentname]);e=parent['engine_failure_parent'];a=e.pop('authentication_diagnostic')
  for k,v in a['engine_fields_before'].items():e[k]=v
@@ -111,9 +112,45 @@ def numeric_before(values,p):
  return before
 
 
+
+def clock_stage(values,p,operands):
+ """Finite selected clock stage after complete engine/numeric/authentication."""
+ mode,test,guard,pn='implementation/page_mode.py','implementation/test_page_mode.py','implementation/page_source.py','implementation/page-parent.json'
+ r=json.loads(operands['clock-context.json']);need(r['source']==p['authentication_parent']['source']and r['scope']=='SOURCE_OWNED_SELECTED16K_REALTIME_CURRENT_HOST_LAUNCH_NONCE_SOURCE_RUN_WORKSPACE_NO_GPG_WAIVER'and all(r[k]is None for k in('actual_source','actual_ref','actual_run','Root_acceptance')),'closed selected clock source-only scope')
+ need({n:pin(b)for n,b in values.items()}==p['authentication_parent']['files'],'complete exact PUBLIC087c before clock stage')
+ r['files']=p['authentication_parent']['files'];r['git']['files']=r['files'];r['mode_append']=operands['clock-mode.py.txt'].decode()+"\nCLOCK_HOST="+repr(operands['clock-host.py.txt'].decode())+"\nCLOCK_GUEST="+repr(operands['clock-guest.py.txt'].decode())+'\n';r['guard_append']=operands['clock-guard.py.txt'].decode();r['test_append']=operands['clock-tests.py.txt'].decode()
+ parent=json.loads(values[pn]);need(r['guard_template']==parent['guard_template']and r['products_before']=={n:parent['products'][n]for n in(mode,test)},'exact087c products/selfseal before clock stage')
+ newmode=apply(values[mode],r['mode_edits'])+r['mode_append'].encode();newtest=apply(values[test],r['test_edits']);entry=b"if __name__=='__main__':\n";need(newtest.count(entry)==1,'one clock CI entry');newtest=newtest.replace(entry,r['test_append'].encode()+b'\n'+entry,1)
+ oldsha=pin(values[pn])['sha256'];need(values[guard].count(oldsha.encode())==1,'one087c guard seal');template=apply(values[guard].replace(oldsha.encode(),b'@PARENT_SHA@',1),r['guard_edits'])+r['guard_append'].encode()
+ parent['engine_failure_parent']['realtime_initialization']=r;parent['products'][mode]=pin(newmode);parent['products'][test]=pin(newtest);parent['guard_template']=pin(template);raw=encoded(parent);need(len(raw)<16*1024**2 and template.count(b'@PARENT_SHA@')==1,'held parent cap and exact current seal')
+ result=dict(values);result.update({mode:newmode,test:newtest,pn:raw,guard:template.replace(b'@PARENT_SHA@',pin(raw)['sha256'].encode(),1)})
+ workflow=apply(values['implementation/workflow-template.yml'],r['workflow_edits']);result['implementation/workflow-template.yml']=workflow
+ aliases=('.github/workflows/native-arm-build.yml','.github/workflows/native-arm-latest607-fresh-installer.yml');manifest=json.loads(values['source-manifest.json']);manifest['files']={n:pin(b)for n,b in result.items()if n not in('source-manifest.json',*aliases)};result['source-manifest.json']=encoded(manifest)
+ for n in aliases:result[n]=workflow.replace(b'@FRESH607_MANIFEST@',pin(result['source-manifest.json'])['sha256'].encode(),1)
+ need(clock_before(result,p)==values,'whole087c stage inverse');return result
+
+def clock_before(values,p):
+ """Complete087c source reconstruction, no historical tree or code execution."""
+ before=dict(values);pn='implementation/page-parent.json';guard='implementation/page_source.py';parent=json.loads(values[pn]);r=parent['engine_failure_parent'].pop('realtime_initialization');need(r['files']==p['authentication_parent']['files'],'closed087c before map')
+ parent['guard_template']=r['guard_template']
+ for n,w in r['products_before'].items():parent['products'][n]=w
+ before[pn]=encoded(parent)
+ for role,n in(('mode','implementation/page_mode.py'),('test','implementation/test_page_mode.py')):
+  raw=values[n];tail=r[role+'_append'].encode();need(tail,'nonempty clock helper/control append')
+  if role=='mode':need(raw.endswith(tail),'whole clock footer inverse');raw=raw[:-len(tail)]
+  else:
+   entry=b"if __name__=='__main__':\n";added=tail+b'\n'+entry;need(raw.count(added)==1,'one clock CI insertion inverse');raw=raw.replace(added,entry,1)
+  before[n]=apply(raw,r[role+'_edits'],reverse=True)
+ raw=values[guard];newsha=pin(values[pn])['sha256'];need(raw.count(newsha.encode())==1 and raw.endswith(r['guard_append'].encode()),'complete clock guard/footer inverse');raw=raw.replace(newsha.encode(),pin(before[pn])['sha256'].encode(),1);before[guard]=apply(raw[:-len(r['guard_append'].encode())],r['guard_edits'],reverse=True)
+ workflow=apply(values['implementation/workflow-template.yml'],r['workflow_edits'],reverse=True);before['implementation/workflow-template.yml']=workflow
+ aliases=('.github/workflows/native-arm-build.yml','.github/workflows/native-arm-latest607-fresh-installer.yml');manifest=json.loads(values['source-manifest.json']);manifest['files']={n:pin(b)for n,b in before.items()if n not in('source-manifest.json',*aliases)};before['source-manifest.json']=encoded(manifest)
+ for n in aliases:before[n]=workflow.replace(b'@FRESH607_MANIFEST@',pin(before['source-manifest.json'])['sha256'].encode(),1)
+ need(len(before)==1203 and {n:pin(b)for n,b in before.items()}==r['files'],'whole exact PUBLIC087c before clock source');return before
+
+
 def compose(source):
  source=ordinary(source);own=read_state(HERE/'prepare.py');raw,state=read_state(HERE/'profile.json');need(pin(raw)==PROFILE,'entry-pinned closed profile');p=json.loads(raw)
- need(p['counts']==dict(before=1203,after=1203,held=1196,changed=7,added=0)and all(p[k]is None for k in('actual_source','actual_ref','actual_run','Root_acceptance'))and p['acceptance_authority']is False,'closed source-only scope')
+ need(p['counts']==dict(before=1203,after=1203,held=1195,changed=8,added=0)and all(p[k]is None for k in('actual_source','actual_ref','actual_run','Root_acceptance'))and p['acceptance_authority']is False,'closed source-only scope')
  before,bstate=scan(source);need({n:pin(b)for n,b in before.items()}==p['parent']['files'],'exact whole PUBLIC7bbdf1203 source required')
  operands={};states={'prepare.py':own,'profile.json':(raw,state)}
  for name,w in p['operands'].items():
@@ -146,11 +183,13 @@ def compose(source):
  values=dict(before);values.update({mode:newmode,test:newtest,parentname:praw,guardname:template.replace(b'@PARENT_SHA@',pin(praw)['sha256'].encode(),1)})
  aliases=('.github/workflows/native-arm-build.yml','.github/workflows/native-arm-latest607-fresh-installer.yml');manifest=json.loads(before['source-manifest.json']);manifest['files']={n:pin(b)for n,b in values.items()if n not in('source-manifest.json',*aliases)};values['source-manifest.json']=encoded(manifest);workflow=before['implementation/workflow-template.yml'];need(workflow.count(b'@FRESH607_MANIFEST@')==1,'one unchanged workflow seal')
  for name in aliases:values[name]=workflow.replace(b'@FRESH607_MANIFEST@',pin(values['source-manifest.json'])['sha256'].encode(),1)
- need({n:pin(b)for n,b in values.items()}==p['result']['files'],'every exact PUBLIC087c1203 byte')
- need({n for n in before if before[n]!=values[n]}==set(p['changed'])and all(values[n]==before[n]for n in p['held']),'seven changes/all1196 held')
+ need({n:pin(b)for n,b in values.items()}==p['authentication_parent']['files'],'every exact PUBLIC087c1203 byte')
+
  need(apply(newmode[:-len(c['mode_append'].encode())],c['mode_edits'],reverse=True)==before[mode]and apply(template[:-len(c['guard_append'].encode())],c['guard_edits'],reverse=True).replace(b'@PARENT_SHA@',oldsha.encode(),1)==before[guardname],'whole helper/guard byte inverses')
  restored_test=newtest.replace(c['test_append'].encode()+b'\n'+entry,entry,1);need(apply(restored_test,c['test_edits'],reverse=True)==before[test],'whole original page CI control inverse')
  numeric_before(values,p)
+ values=clock_stage(values,p,operands)
+ need({n:pin(b)for n,b in values.items()}==p['result']['files']and{n for n in before if before[n]!=values[n]}==set(p['changed'])and all(values[n]==before[n]for n in p['held']),'entire PUBLIC95a75 current1203 and all1195 held')
  need(scan(source)==(before,bstate)and all(read_state(HERE/n)==v for n,v in states.items()),'late whole source/operand FD identity/namespace drift')
  return values,p,(before,bstate),states
 
@@ -161,7 +200,7 @@ def emit(source,output,context):
   q=output/n;q.parent.mkdir(parents=True,exist_ok=True);fd=os.open(q,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
   with os.fdopen(fd,'wb')as f:f.write(b);os.fchmod(f.fileno(),0o644)
  need(tree(output)==values and all(stat.S_IMODE((output/n).stat().st_mode)==0o644 for n in values),'exact PUBLIC1203 bytes/modes')
- return dict(status='SOURCE_ONLY_NUMERIC_AND_AUTHENTICATION_FAILURE_DATA_NO_ACCEPTANCE',context=context,files=p['result']['files'],source=p['result']['source']if context=='known'else None,ref=p['result']['ref']if context=='known'else None,actual_source=None,actual_ref=None,actual_run=None,Root_acceptance=None,hardware='NOT_RUN',performance='NOT_MEASURED')
+ return dict(status='SOURCE_ONLY_SELECTED16K_GUEST_REALTIME_AND_AUTHENTICATION_NO_ACCEPTANCE',context=context,files=p['result']['files'],source=p['result']['source']if context=='known'else None,ref=p['result']['ref']if context=='known'else None,actual_source=None,actual_ref=None,actual_run=None,Root_acceptance=None,hardware='NOT_RUN',performance='NOT_MEASURED')
 
 if __name__=='__main__':
  parser=argparse.ArgumentParser(description=__doc__)
