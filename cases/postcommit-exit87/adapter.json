@@ -1,0 +1,894 @@
+{
+  "GUI": "FAIL_NOT_ACCEPTED",
+  "accepted600": {
+    "actors": "NOT_RUN",
+    "after_sha256": "04fabc5702c8389b7b2a53f6ed6168cc45931f6628c158e7e74b073349327c35",
+    "before_sha256": "d263a3ca9089c204603f2e12b80dc4f209ee6e636f10da940a514040b636db79",
+    "case": "postcommit-exit87",
+    "changes": {
+      "scripts/ci/full-development-composition/expected-setup4-v2.lock": {
+        "after_sha256": "04fabc5702c8389b7b2a53f6ed6168cc45931f6628c158e7e74b073349327c35",
+        "before_sha256": "dbfe042f77bf61ce8e15a63c53391bcc4f04b94f18e99eeffdfdf85e68aa26ac",
+        "kind": "declared-private-selection"
+      },
+      "scripts/ci/full-development-composition/expected-updater-v2.lock": {
+        "after_sha256": "d263a3ca9089c204603f2e12b80dc4f209ee6e636f10da940a514040b636db79",
+        "before_sha256": "2198942a546f4714587c810fe174d4457121960f3a7b1dbaa276e9f970f322c7",
+        "kind": "declared-private-selection"
+      },
+      "scripts/ci/full-development-composition/setup4_inputs.py": {
+        "after_sha256": "b41e4bc9cb9b4b91d843a948f984c41d48ce49d52e27b54d5d98ddd32cc94ffb",
+        "before_sha256": "320aee2bd98f841a3ef36490bec38da9eebcd6e78838c1e6b351ba29583a7ccc",
+        "kind": "declared-private-selection"
+      },
+      "scripts/ci/full-root-postcommit-failure/caller.py": {
+        "after_sha256": "a16a832ba7cd0ab3bc11f8ed9fbafdcc077c3c7c93c1e861f40fd0fd5acc7bdf",
+        "before_sha256": "1678d05217fb1e2c123226be9e037aa0719dd23880834f3cedf8ed7ffbb4d7c2",
+        "kind": "declared-private-selection"
+      },
+      "scripts/ci/full-root-postcommit-failure/run.py": {
+        "after_sha256": "7048937bba9e9faeff4e1264d611bb19bcda6598d57a7c3da99996da11cc71b3",
+        "before_sha256": "a8eaeaf982c7ad0ba28542f9a9cf6813e6bde08c962cbfd05ad4ac6ce31b687f",
+        "kind": "declared-private-selection"
+      },
+      "scripts/ci/full-root-upgrade-caller/container.py": {
+        "after_sha256": "85e5134f05588c7a78988d31ce057702d118c77149aa943bf0f8f129dcbd5699",
+        "before_sha256": "08b40971313fa13b253c7e3143bd78f4bd0f527a9e19167a8883a2779e9d2025",
+        "kind": "declared-private-selection"
+      },
+      "scripts/ci/full-root-upgrade-caller/upgrade_hook.py": {
+        "after_sha256": "a16a832ba7cd0ab3bc11f8ed9fbafdcc077c3c7c93c1e861f40fd0fd5acc7bdf",
+        "before_sha256": "76015c4c05e2b32857a90b30c75c8df632c6e771fccdaaa505c5f3f6b2503ba0",
+        "kind": "declared-fault-hook-mount-alias",
+        "source": "scripts/ci/full-root-postcommit-failure/caller.py"
+      },
+      "scripts/ci/full-root-upgrade/construct_repository.py": {
+        "after_sha256": "0d845835d10eb1b94898c066e687ccff26ae76767706e3d7a982fb562e0d83ff",
+        "before_sha256": "9f01f7d0b3af067e1d3775e66138ebabbd73a00963568f692cc606ac2d27ee1c",
+        "kind": "declared-private-selection"
+      },
+      "scripts/ci/full-root-upgrade/root_upgrade.py": {
+        "after_sha256": "b59c255662bce7212114a5ed57f40ad44603ad7c5509e13b1530ab98ecbadd25",
+        "before_sha256": "fe1232ae6b510021910b4fb80016ac3b4668c6e4386cdae45e7b95196e400756",
+        "kind": "declared-private-selection"
+      },
+      "scripts/update/aux_runtime.py": {
+        "after_sha256": "91d34f6decab6262f36dfe71cc27714139bc906d7b89fb8b89d7c143eca4ca5f",
+        "before_sha256": "4d0ee6d0040686cf4b4e2f7aca28f255f1d67c272f9d4e846b9c125dc78961b1",
+        "kind": "declared-private-selection"
+      },
+      "scripts/update/full_root.py": {
+        "after_sha256": "463fd9f4a7369ff9cdc9e2672d8656ccaf7e9dc74a3bd8a769f4c9ee19c5a5e6",
+        "before_sha256": "cece1c597b2e2eb98b0e3087cc7e7c148b54332f8a1c4f18e04e4552a71fb51d",
+        "kind": "declared-private-selection"
+      },
+      "scripts/update/generic_policy.py": {
+        "after_sha256": "7adfab13b62723d1afc5d1450df6d729de77938181c8ccf63ad84e7f17031ee6",
+        "before_sha256": "94f4ca4c1d232750f3675d3a684119fa293559f91949f90bdfd4406be013c298",
+        "kind": "declared-private-selection"
+      },
+      "scripts/update/scale_update.py": {
+        "after_sha256": "d25a35d195d61335d45b4a217696e5d01511ea229613817e28a343d8d666df30",
+        "before_sha256": "d0d6b118a2eecf413a5cf2a0037182ab93de9e1aafe9a9dd123b2cc5786e8ce3",
+        "kind": "declared-private-selection"
+      }
+    },
+    "config_sha256": "243eedf4d14fb9f1adc31cf0ceafdf4900c7871c8012842e99e457f4185d50af",
+    "derived_pin_count": 56,
+    "hardware": "NOT_RUN",
+    "original_pin_count": 55,
+    "package_sha256": "1aafee365e3bcb04e1fce694c110a997914a07f4359697df5e017375897385fc",
+    "schema_version": 1,
+    "source": "4b803ba7daa0eacd978a5bf86d62346363c3b6dc",
+    "status": "PRIVATE_SOURCE_SELECTION_ONLY",
+    "unchanged_policy": "original release/client/transaction/aux/ownership/checkpoint/reaping/disposal methods and budgets"
+  },
+  "actors": "NOT_RUN",
+  "after_sha256": "7bc6caa51301bf076aeda4d137277a128c53a16e5bfd25f02e7309c4b3a408c3",
+  "auxiliary_selection": {
+    "after": {
+      "bytes": 10030,
+      "sha256": "ef3dcf8db995d112b4267df07b103125da351f4911e2d6d8a804e48d20452419"
+    },
+    "after604_sha256": "7bc6caa51301bf076aeda4d137277a128c53a16e5bfd25f02e7309c4b3a408c3",
+    "auxiliary_cache_capability_comparisons": "UNCHANGED_EXCEPT_EXACT_SELECTED_APPS_PARENT_DIRECTORY_TIMES",
+    "before": {
+      "bytes": 6925,
+      "sha256": "91d34f6decab6262f36dfe71cc27714139bc906d7b89fb8b89d7c143eca4ca5f"
+    },
+    "before604_sha256": "3f64a13c4af7ab8b1598583f534af3347c8df2397a0afa33fb8b0f5f06b19cf5",
+    "other_packages": 603,
+    "package_sha256": "1ce4a540a5ec2fa26353847b93fed953e084cf65e872836f670ac721446cd3d7",
+    "payload_files": [
+      "usr/bin/cachy-asahi-apps",
+      "usr/lib/cachy-asahi-apps/apps.py",
+      "usr/lib/cachy-asahi-apps/helper-pins.json",
+      "usr/lib/cachy-asahi-apps/inventory.py",
+      "usr/share/doc/cachy-asahi-apps/README.md",
+      "usr/share/doc/cachy-asahi-apps/source-provenance.json",
+      "usr/share/licenses/cachy-asahi-apps/LICENSE",
+      "usr/share/licenses/cachy-asahi-apps/NOTICE"
+    ],
+    "scope": "SOURCE_ONLY_NO_TRANSACTION_OR_CACHE_ACCEPTANCE",
+    "setup": "UNCHANGED0.1.0-5",
+    "status": "EXACT_APPS5_TO6_AUXILIARY_SELECTION_ONLY"
+  },
+  "before_sha256": "3f64a13c4af7ab8b1598583f534af3347c8df2397a0afa33fb8b0f5f06b19cf5",
+  "bootstrap_additions": 31,
+  "case": "postcommit-exit87",
+  "changes": {
+    "scripts/ci/full-development-composition/setup4_inputs.py": {
+      "after_sha256": "48165b82bd26268d157096a7fb565c3eefd4171f044fe0c3c021fa7c3269b38e",
+      "before_sha256": "b41e4bc9cb9b4b91d843a948f984c41d48ce49d52e27b54d5d98ddd32cc94ffb",
+      "edits": 3,
+      "semantic_rules": [
+        [
+          "<module>",
+          "04fabc5702c8389b7b2a53f6ed6168cc45931f6628c158e7e74b073349327c35",
+          "3f64a13c4af7ab8b1598583f534af3347c8df2397a0afa33fb8b0f5f06b19cf5",
+          1,
+          null
+        ],
+        [
+          "expected_lock",
+          600,
+          604,
+          2,
+          "compare"
+        ]
+      ]
+    },
+    "scripts/ci/full-root-postcommit-failure/caller.py": {
+      "after_sha256": "a9f1e414e3c6e845258bb9d6e927d6d5199d3afded5887679daaebbb04854c39",
+      "before_sha256": "a16a832ba7cd0ab3bc11f8ed9fbafdcc077c3c7c93c1e861f40fd0fd5acc7bdf",
+      "edits": 14,
+      "semantic_rules": [
+        [
+          "<module>",
+          "d263a3ca9089c204603f2e12b80dc4f209ee6e636f10da940a514040b636db79",
+          "5553e3c67423dffa54e521a211ff471faf6b384f61ff5bb56495b05b39600566",
+          1,
+          null
+        ],
+        [
+          "<module>",
+          "04fabc5702c8389b7b2a53f6ed6168cc45931f6628c158e7e74b073349327c35",
+          "3f64a13c4af7ab8b1598583f534af3347c8df2397a0afa33fb8b0f5f06b19cf5",
+          1,
+          null
+        ],
+        [
+          "quiesce",
+          600,
+          604,
+          1,
+          "compare"
+        ],
+        [
+          "run",
+          600,
+          604,
+          1,
+          "compare"
+        ],
+        [
+          "configuration",
+          "explicit initial600 upgrade selection required",
+          "explicit initial604 upgrade selection required",
+          1,
+          null
+        ],
+        [
+          "quiesce",
+          "Retain the existing keyring guards, with initial600 selection kept explicit.",
+          "Retain the existing keyring guards, with initial604 selection kept explicit.",
+          1,
+          null
+        ],
+        [
+          "quiesce",
+          "initial600 keyring checkpoint required",
+          "initial604 keyring checkpoint required",
+          1,
+          null
+        ],
+        [
+          "quiesce",
+          "initial600_keyring_helper",
+          "initial604_keyring_helper",
+          1,
+          null
+        ],
+        [
+          "quiesce",
+          "initial600_keyring_reads",
+          "initial604_keyring_reads",
+          1,
+          null
+        ],
+        [
+          "run",
+          "exclusive initial600 full-root route required",
+          "exclusive initial604 full-root route required",
+          1,
+          null
+        ],
+        [
+          "run",
+          "exact initial signed600/updater-v2 inventory required",
+          "exact initial signed604/updater-v2 inventory required",
+          1,
+          null
+        ],
+        [
+          "configuration",
+          "actual600-postcommit-failure-disposal-test",
+          "actual-current604-postcommit-failure-disposal-test",
+          1,
+          null
+        ],
+        [
+          "run",
+          "controlled-full600-postcommit-failure-disposal",
+          "controlled-full-current604-postcommit-failure-disposal",
+          1,
+          null
+        ],
+        [
+          "run",
+          "after600_database_verified",
+          "after604_database_verified",
+          1,
+          null
+        ]
+      ]
+    },
+    "scripts/ci/full-root-postcommit-failure/run.py": {
+      "after_sha256": "e92c25d4d6fd4801794f174bc0d43be5381bd9b62002da59deca8892aa3a58c0",
+      "before_sha256": "7048937bba9e9faeff4e1264d611bb19bcda6598d57a7c3da99996da11cc71b3",
+      "edits": 16,
+      "semantic_rules": [
+        [
+          "<module>",
+          "d263a3ca9089c204603f2e12b80dc4f209ee6e636f10da940a514040b636db79",
+          "5553e3c67423dffa54e521a211ff471faf6b384f61ff5bb56495b05b39600566",
+          1,
+          null
+        ],
+        [
+          "<module>",
+          "04fabc5702c8389b7b2a53f6ed6168cc45931f6628c158e7e74b073349327c35",
+          "3f64a13c4af7ab8b1598583f534af3347c8df2397a0afa33fb8b0f5f06b19cf5",
+          1,
+          null
+        ],
+        [
+          "<module>",
+          "actual600-postcommit-failure-disposal-test",
+          "actual-current604-postcommit-failure-disposal-test",
+          1,
+          null
+        ],
+        [
+          "precommit",
+          "initial600 differs",
+          "initial604 differs",
+          1,
+          null
+        ],
+        [
+          "arm",
+          600,
+          604,
+          1,
+          "compare"
+        ],
+        [
+          "arm",
+          "live after600 inventory differs",
+          "live after604 inventory differs",
+          1,
+          null
+        ],
+        [
+          "database_after",
+          601,
+          605,
+          1,
+          "compare"
+        ],
+        [
+          "database_after",
+          600,
+          604,
+          1,
+          "compare"
+        ],
+        [
+          "database_after",
+          "exact600 database shape required",
+          "exact604 database shape required",
+          1,
+          null
+        ],
+        [
+          "prepare_verifier",
+          600,
+          604,
+          1,
+          "compare"
+        ],
+        [
+          "verify_after",
+          600,
+          604,
+          1,
+          "compare"
+        ],
+        [
+          "verify_after",
+          "after600 database differs",
+          "after604 database differs",
+          1,
+          null
+        ],
+        [
+          "execute_case",
+          "controlled-full600-postcommit-failure-disposal",
+          "controlled-full-current604-postcommit-failure-disposal",
+          1,
+          null
+        ],
+        [
+          "execute_case",
+          "after600_database_verified",
+          "after604_database_verified",
+          1,
+          null
+        ]
+      ]
+    },
+    "scripts/ci/full-root-upgrade-caller/container.py": {
+      "after_sha256": "7dde550c0443bfe2e282e90559085baec52214161b7779005bfeb6877f426e23",
+      "before_sha256": "85e5134f05588c7a78988d31ce057702d118c77149aa943bf0f8f129dcbd5699",
+      "edits": 7,
+      "semantic_rules": [
+        [
+          "inputs",
+          27,
+          31,
+          1,
+          "compare"
+        ],
+        [
+          "inputs",
+          17,
+          21,
+          1,
+          "compare"
+        ],
+        [
+          "inputs",
+          600,
+          604,
+          1,
+          "compare"
+        ],
+        [
+          "inputs",
+          "exact ten projects and four additions required",
+          "exact21 projects and10 auxiliary additions required",
+          1,
+          null
+        ],
+        [
+          "install",
+          "installed inventory differs from exact 600-package composition",
+          "installed inventory differs from exact 604-package composition",
+          1,
+          null
+        ],
+        [
+          "main",
+          "outer root differs from initial signed600 checkpoint",
+          "outer root differs from initial signed604 checkpoint",
+          1,
+          null
+        ]
+      ]
+    },
+    "scripts/ci/full-root-upgrade-caller/upgrade_hook.py": {
+      "after_sha256": "a9f1e414e3c6e845258bb9d6e927d6d5199d3afded5887679daaebbb04854c39",
+      "before_sha256": "a16a832ba7cd0ab3bc11f8ed9fbafdcc077c3c7c93c1e861f40fd0fd5acc7bdf",
+      "edits": 14,
+      "semantic_rules": [
+        [
+          "<module>",
+          "d263a3ca9089c204603f2e12b80dc4f209ee6e636f10da940a514040b636db79",
+          "5553e3c67423dffa54e521a211ff471faf6b384f61ff5bb56495b05b39600566",
+          1,
+          null
+        ],
+        [
+          "<module>",
+          "04fabc5702c8389b7b2a53f6ed6168cc45931f6628c158e7e74b073349327c35",
+          "3f64a13c4af7ab8b1598583f534af3347c8df2397a0afa33fb8b0f5f06b19cf5",
+          1,
+          null
+        ],
+        [
+          "quiesce",
+          600,
+          604,
+          1,
+          "compare"
+        ],
+        [
+          "run",
+          600,
+          604,
+          1,
+          "compare"
+        ],
+        [
+          "configuration",
+          "explicit initial600 upgrade selection required",
+          "explicit initial604 upgrade selection required",
+          1,
+          null
+        ],
+        [
+          "quiesce",
+          "Retain the existing keyring guards, with initial600 selection kept explicit.",
+          "Retain the existing keyring guards, with initial604 selection kept explicit.",
+          1,
+          null
+        ],
+        [
+          "quiesce",
+          "initial600 keyring checkpoint required",
+          "initial604 keyring checkpoint required",
+          1,
+          null
+        ],
+        [
+          "quiesce",
+          "initial600_keyring_helper",
+          "initial604_keyring_helper",
+          1,
+          null
+        ],
+        [
+          "quiesce",
+          "initial600_keyring_reads",
+          "initial604_keyring_reads",
+          1,
+          null
+        ],
+        [
+          "run",
+          "exclusive initial600 full-root route required",
+          "exclusive initial604 full-root route required",
+          1,
+          null
+        ],
+        [
+          "run",
+          "exact initial signed600/updater-v2 inventory required",
+          "exact initial signed604/updater-v2 inventory required",
+          1,
+          null
+        ],
+        [
+          "configuration",
+          "actual600-postcommit-failure-disposal-test",
+          "actual-current604-postcommit-failure-disposal-test",
+          1,
+          null
+        ],
+        [
+          "run",
+          "controlled-full600-postcommit-failure-disposal",
+          "controlled-full-current604-postcommit-failure-disposal",
+          1,
+          null
+        ],
+        [
+          "run",
+          "after600_database_verified",
+          "after604_database_verified",
+          1,
+          null
+        ]
+      ]
+    },
+    "scripts/ci/full-root-upgrade/construct_repository.py": {
+      "after_sha256": "3093cb37a35519650d2b16e342e4a7fa41c574729678dfcb8db64cefb4f038cb",
+      "before_sha256": "0d845835d10eb1b94898c066e687ccff26ae76767706e3d7a982fb562e0d83ff",
+      "edits": 7,
+      "semantic_rules": [
+        [
+          "<module>",
+          "d263a3ca9089c204603f2e12b80dc4f209ee6e636f10da940a514040b636db79",
+          "5553e3c67423dffa54e521a211ff471faf6b384f61ff5bb56495b05b39600566",
+          1,
+          null
+        ],
+        [
+          "<module>",
+          "04fabc5702c8389b7b2a53f6ed6168cc45931f6628c158e7e74b073349327c35",
+          "3f64a13c4af7ab8b1598583f534af3347c8df2397a0afa33fb8b0f5f06b19cf5",
+          1,
+          null
+        ],
+        [
+          "validate_base",
+          600,
+          604,
+          2,
+          "compare"
+        ],
+        [
+          "locks",
+          "exact600 lock pins differ",
+          "exact604 lock pins differ",
+          1,
+          null
+        ],
+        [
+          "validate_base",
+          "actual root-derived600 package records required",
+          "actual root-derived604 package records required",
+          1,
+          null
+        ],
+        [
+          "prepare",
+          "exact-desired600",
+          "exact-desired604",
+          1,
+          null
+        ]
+      ]
+    },
+    "scripts/ci/full-root-upgrade/root_upgrade.py": {
+      "after_sha256": "75dfb7086cb544ee0b50e9dff04bbe6a90e162d99b9b1efb30a660490335e3b9",
+      "before_sha256": "b59c255662bce7212114a5ed57f40ad44603ad7c5509e13b1530ab98ecbadd25",
+      "edits": 7,
+      "semantic_rules": [
+        [
+          "<module>",
+          "d263a3ca9089c204603f2e12b80dc4f209ee6e636f10da940a514040b636db79",
+          "5553e3c67423dffa54e521a211ff471faf6b384f61ff5bb56495b05b39600566",
+          1,
+          null
+        ],
+        [
+          "<module>",
+          "04fabc5702c8389b7b2a53f6ed6168cc45931f6628c158e7e74b073349327c35",
+          "3f64a13c4af7ab8b1598583f534af3347c8df2397a0afa33fb8b0f5f06b19cf5",
+          1,
+          null
+        ],
+        [
+          "selection",
+          600,
+          604,
+          2,
+          "compare"
+        ],
+        [
+          "database",
+          600,
+          604,
+          1,
+          "default:max_packages"
+        ],
+        [
+          "selection",
+          "complete600 lock required",
+          "complete604 lock required",
+          1,
+          null
+        ],
+        [
+          "run",
+          "actual root is not initial signed600/updater-v2 checkpoint",
+          "actual root is not initial signed604/updater-v2 checkpoint",
+          1,
+          null
+        ]
+      ]
+    },
+    "scripts/update/full_root.py": {
+      "after_sha256": "798ad04989de026ce13c3b02d41649b5b4dd37f20cadd63c279326b9770ec38c",
+      "before_sha256": "463fd9f4a7369ff9cdc9e2672d8656ccaf7e9dc74a3bd8a769f4c9ee19c5a5e6",
+      "edits": 1,
+      "semantic_rules": [
+        [
+          "Limits",
+          600,
+          604,
+          1,
+          "annotated:max_packages"
+        ]
+      ]
+    },
+    "scripts/update/generic_policy.py": {
+      "after_sha256": "3669deef839d12032307c79898ccfd4630bebbf4f97d20c079cc60ba2e331c36",
+      "before_sha256": "7adfab13b62723d1afc5d1450df6d729de77938181c8ccf63ad84e7f17031ee6",
+      "edits": 3,
+      "semantic_rules": [
+        [
+          "protected_names",
+          600,
+          604,
+          1,
+          "keyword:limit"
+        ],
+        [
+          "protected_names",
+          600,
+          604,
+          1,
+          "compare"
+        ],
+        [
+          "authorize",
+          600,
+          604,
+          1,
+          "compare"
+        ]
+      ]
+    },
+    "scripts/update/scale_update.py": {
+      "after_sha256": "45b45f6c9103dfae8885d1296c83e2cb5fa87d951ba304ad9d9920e99caf2e22",
+      "before_sha256": "d25a35d195d61335d45b4a217696e5d01511ea229613817e28a343d8d666df30",
+      "edits": 5,
+      "semantic_rules": [
+        [
+          "<module>",
+          "Opt-in bounded observations/decoder for one update in a copied 600-package root.",
+          "Opt-in bounded observations/decoder for one update in a copied 604-package root.",
+          1,
+          null
+        ],
+        [
+          "__init__",
+          600,
+          604,
+          1,
+          "keyword:max_packages"
+        ],
+        [
+          "selection",
+          600,
+          604,
+          1,
+          "compare"
+        ],
+        [
+          "observed_after",
+          600,
+          604,
+          1,
+          "compare"
+        ],
+        [
+          "selection",
+          "actual baseline differs from exact 600-package lock",
+          "actual baseline differs from exact 604-package lock",
+          1,
+          null
+        ]
+      ]
+    }
+  },
+  "config_sha256": "4f5f233b7a3f18e727ec4d7090692bf70c1fdf34e66439e8ccd4c21250bb0125",
+  "current_native_and_installer": "UNBOUND_NO_TRANSFERRED_ACCEPTANCE",
+  "derived_pin_count": 56,
+  "hardware": "NOT_RUN",
+  "input_authority": "PUBLIC659_PAIR_AND_INDEPENDENT_BYTECASE_NO_RAW223",
+  "linked_runtime_selection": {
+    "after": {
+      "bytes": 8059,
+      "sha256": "18fc4ecabf3bd2eec70ca8a49c7753e114a611392ab88c42a00b89f37e815564"
+    },
+    "before": {
+      "bytes": 3539,
+      "sha256": "aabc95cee161d705dbb8fda79a4f0d937afc10ab2bd8a4714deff35470e92ad5"
+    },
+    "diagnostic_bytes": 8192,
+    "failure_status": "UNCHANGED",
+    "new_allowances": "NONE",
+    "original_compare": "UNCHANGED",
+    "scope": "SOURCE_ONLY_NOT_ACTUAL_ACCEPTANCE",
+    "status": "EXACT_LINKED_OVERRIDE_ROUTES_EXISTING_APPS_PARENT_TIMES_PLUS_FAILURE_DIAGNOSTIC"
+  },
+  "native": "NOT_RUN",
+  "new604_and_fresh": "UNBOUND",
+  "original_pin_count": 55,
+  "other603": "UNCHANGED",
+  "package_count": 604,
+  "package_sha256": "1ce4a540a5ec2fa26353847b93fed953e084cf65e872836f670ac721446cd3d7",
+  "postcommit_selection": {
+    "after": {
+      "bytes": 28870,
+      "sha256": "f8e093eea5362940bf6dacb2748a8ca5eb5bc0aaa72f8d3ed8e1020ba754af36"
+    },
+    "before": {
+      "bytes": 26466,
+      "sha256": "c8e876dd407cdd2b8882a34b20f64ec93db98fb9ffa9a6b28dd067a82ec97178"
+    },
+    "budgets": "UNCHANGED",
+    "changed_functions": [
+      "prepare_verifier",
+      "arm",
+      "boundary",
+      "execute_case"
+    ],
+    "parent_database_selection": "EXACT_APPS5_AND_APPS6_PREFIXES_MATCH_AUTHENTICATED_CHILD",
+    "scope": "POSTCOMMIT_EXIT87_ONLY_NO_ACCEPTANCE",
+    "selected_guard": "REQUIRES_TRUE_AFTER_EXACT_NONCE_SPEC_WORKER_ROOT_ARCHIVE_LOCK_WITNESS",
+    "status": "SOURCE_BOUND_AUTHENTICATED_CHILD_TO_DISTINCT_PARENT_SELECTION",
+    "unchanged_readbacks": [
+      "verify_after",
+      "database_after",
+      "assess"
+    ]
+  },
+  "project_count": 21,
+  "protected_package_count": 603,
+  "public_input_seams": [
+    "typed_public_build_evidence_not_raw_Q",
+    "complete_public_current4_validation"
+  ],
+  "raw_Q_lock": "NOT_PRESENT_NOT_FABRICATED",
+  "schema_version": 1,
+  "selected": "cachy-asahi-apps",
+  "selection": {
+    "scripts/ci/full-root-postcommit-failure/caller.py": {
+      "after": "b64fbdcad25d9f62d268809067d46ac2e9da4394da1a864eb8ad8851067e1fdb",
+      "before": "a9f1e414e3c6e845258bb9d6e927d6d5199d3afded5887679daaebbb04854c39",
+      "constant_edits": 7
+    },
+    "scripts/ci/full-root-postcommit-failure/run.py": {
+      "after": "c8e876dd407cdd2b8882a34b20f64ec93db98fb9ffa9a6b28dd067a82ec97178",
+      "before": "e92c25d4d6fd4801794f174bc0d43be5381bd9b62002da59deca8892aa3a58c0",
+      "constant_edits": 14
+    },
+    "scripts/ci/full-root-upgrade-caller/upgrade_hook.py": {
+      "after": "b64fbdcad25d9f62d268809067d46ac2e9da4394da1a864eb8ad8851067e1fdb",
+      "before": "a9f1e414e3c6e845258bb9d6e927d6d5199d3afded5887679daaebbb04854c39",
+      "constant_edits": 7
+    },
+    "scripts/ci/full-root-upgrade/construct_repository.py": {
+      "after": "c7cb22849f0eab009bfe7f1d5dfeec36c3730df4d33356c219c20bc63d9cd799",
+      "before": "3093cb37a35519650d2b16e342e4a7fa41c574729678dfcb8db64cefb4f038cb",
+      "constant_edits": 13
+    },
+    "scripts/ci/full-root-upgrade/root_upgrade.py": {
+      "after": "9744403d8890a5a24319e33a9daa13fe7f3f06d98cd6abb5196f84dd49e9b62c",
+      "before": "75dfb7086cb544ee0b50e9dff04bbe6a90e162d99b9b1efb30a660490335e3b9",
+      "constant_edits": 9
+    },
+    "scripts/update/scale_update.py": {
+      "after": "45b45f6c9103dfae8885d1296c83e2cb5fa87d951ba304ad9d9920e99caf2e22",
+      "before": "45b45f6c9103dfae8885d1296c83e2cb5fa87d951ba304ad9d9920e99caf2e22",
+      "constant_edits": 0
+    }
+  },
+  "setup5_inspectors": "UNCHANGED_PRIVATE600_API_PATH",
+  "source": "4b803ba7daa0eacd978a5bf86d62346363c3b6dc",
+  "status": "PRIVATE_PUBLIC_PAIRS_APPS5_TO6_CURRENT604_SELECTION_ONLY",
+  "updater16k_dispatch": {
+    "after": "41c0278c40512311cc940198347db362e0da1a14673f70516bf2a67ed9d6a513",
+    "before": "7dde550c0443bfe2e282e90559085baec52214161b7779005bfeb6877f426e23",
+    "config_sha256": "4f5f233b7a3f18e727ec4d7090692bf70c1fdf34e66439e8ccd4c21250bb0125",
+    "copy_cost_profile": {
+      "after": {
+        "bytes": 16261,
+        "sha256": "b2dd6938d2a1923968b36684583710f3e386ebeb9fab62d684f6dbbc2d93a3d5"
+      },
+      "before": {
+        "bytes": 15125,
+        "sha256": "f3930a3becb292c850e85d351211edf2f1b92be8d85837dc13d1ed2c749a69cc"
+      },
+      "clocks": "UNCHANGED",
+      "copy_substage_acceptance": false,
+      "native_fit": "UNKNOWN_NOT_RUN",
+      "original_caller_stderr_cap": 8192,
+      "profile": "UPDATER_PRIVATE_COPY_COST_DATA_V1",
+      "scalar_bytes": 3072,
+      "scalar_records": 12
+    },
+    "counted_edits": 5,
+    "diagnostic": "FAILURE_ONLY_ORIGINAL_LIBALPM_DEBUG_AND_BOUNDED_METADATA",
+    "driver_copy_validation_profile": {
+      "additive_composition_fit": "NOT_ESTABLISHED",
+      "caller_seconds": 3900,
+      "case": "postcommit-exit87",
+      "copy_before_seconds": 600,
+      "copy_is_nested_within_driver": true,
+      "copy_seconds": 1200,
+      "driver_seconds": 2400,
+      "future_case_runtime_fit": "REQUIRES_ORIGINAL_ACTUAL_EACH_CASE",
+      "hook_after": {
+        "bytes": 15125,
+        "sha256": "f3930a3becb292c850e85d351211edf2f1b92be8d85837dc13d1ed2c749a69cc"
+      },
+      "hook_before": {
+        "bytes": 15124,
+        "sha256": "2322852090e24b97037acce9960ade809ee97b1713968a17a9554ee11df565b8"
+      },
+      "independent_materialization_profile": "MATERIALIZE1200_NONRESERVED_CALLER3900_V1",
+      "nested_stage_driver_verify_sum": 4200,
+      "old600_copy_fit": "NOT_ESTABLISHED",
+      "original_driver_aux_runtime_and_product_defaults": "BYTE_HELD",
+      "profile": "DRIVER_COLD_COPY1200_NONRESERVED_CALLER3900_V1",
+      "reserved_setup_or_cleanup_seconds": 0,
+      "semantics": "NONRESERVED_COPY_ALLOWANCE_WITHIN_UNCHANGED_DRIVER_AND_HARD3900",
+      "stage_seconds": 1200,
+      "verify_seconds": 600,
+      "worker_seconds": 3900
+    },
+    "driver_descriptor_profile": {
+      "after": {
+        "bytes": 42782,
+        "sha256": "c953046e2174adbb4ac3f5bf5e959931c5c760f253cc90788d0e1429b3285dcd"
+      },
+      "before": {
+        "bytes": 3736,
+        "sha256": "bff93c029e21f9fce0868c80566396984443c8d3438264fac8a91c985175f05b"
+      },
+      "budgets": "UNCHANGED",
+      "helper": {
+        "bytes": 39044,
+        "sha256": "f289185c85726277552db7303a58460328f08672d55413ce0adb98dc4997f3f3"
+      },
+      "mount_identity_cache": false,
+      "native_timeout_fit": "NOT_ESTABLISHED",
+      "observation": "FULL_FRESH_ORIGINAL_SOURCE_DEST_SOURCE_AFTER_AND_AUXILIARY",
+      "profile": "UPDATER_PRIVATE_FRESH_DESCRIPTOR_V1",
+      "query": "EXACT_OBSERVER600_STATX_MNT_ID_FIRST_RESULT_CROSSCHECK_ORIGINAL_FDINFO_FALLBACK",
+      "transaction_runtime": "BYTE_HELD"
+    },
+    "persistent_stage_diagnostic": {
+      "acceptance_authority": false,
+      "after": "bf6f0c31a08cc2a3ceca0dfd6f697f454957ca5e299a99ec2c9d1499ed7d8c5b",
+      "before": "cd1f23bd252b77e9b3a9e907e1c0defd5141025408e92ae5c2500152076b6f3a",
+      "new_walks": 0,
+      "original_guard": "UNCHANGED_RERAISED"
+    },
+    "status": "SOURCE_DERIVED_NOT_EXECUTED",
+    "unchanged": "ALL_TRANSACTION_DECISIONS_GUARDS_AND_REQUIRED_SIGNATURE_POLICY",
+    "validation_capacity_profile": {
+      "additive_composition_fit": "NOT_ESTABLISHED",
+      "caller_seconds": 3900,
+      "case": "postcommit-exit87",
+      "copy_seconds": 600,
+      "driver_seconds": 2400,
+      "future_case_runtime_fit": "REQUIRES_ORIGINAL_ACTUAL_EACH_CASE",
+      "hook_after": {
+        "bytes": 15124,
+        "sha256": "2322852090e24b97037acce9960ade809ee97b1713968a17a9554ee11df565b8"
+      },
+      "hook_before": {
+        "bytes": 15123,
+        "sha256": "b64fbdcad25d9f62d268809067d46ac2e9da4394da1a864eb8ad8851067e1fdb"
+      },
+      "nested_stage_driver_verify_sum": 4200,
+      "old900_fit": "NOT_ESTABLISHED",
+      "original_rereads_security_and_product_limits": "HELD",
+      "prior_nested_stage_driver_verify_sum": 3900,
+      "profile": "MATERIALIZE1200_NONRESERVED_CALLER3900_V1",
+      "reserved_setup_or_cleanup_seconds": 0,
+      "semantics": "NONRESERVED_NESTED_STAGE_ALLOWANCE_HARD3900_ENCLOSING_CEILINGS",
+      "stage_before_seconds": 900,
+      "stage_seconds": 1200,
+      "verify_seconds": 600,
+      "worker_seconds": 3900
+    }
+  }
+}
