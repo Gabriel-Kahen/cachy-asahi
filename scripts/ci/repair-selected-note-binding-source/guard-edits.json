@@ -1,0 +1,18 @@
+[
+  [
+    " out['apps16-repair/inspect_validation.py']=raw+note['edits']['append'].encode()\n",
+    " out['apps16-repair/inspect_validation.py']=raw+note['edits']['append'].encode()\n binding=json.loads(profile)['operative_binding'];out[A]=one(out[A],binding['literal_before'].encode(),repr(out['apps16-repair/inspect_validation.py'].decode()).encode())\n"
+  ],
+  [
+    " return p\n\ndef bodies(",
+    " binding=p['operative_binding'];need(binding['source']=='1bc1b2bce249cca55beabbd6ee74208c1e1cb4ef'and binding['before']==binding['git']['files']==binding['authorization']and binding['publication']['source']==binding['source']and len(binding['before'])==245,'whole genuine selected-note245 parent')\n need(binding['scope']=='EXACT_OPERATIVE_INLINE_HELPER_EQUALS_EXTERNAL_NO_ALGORITHM_OR_CLOCK_CHANGE'and all(binding[k]is None for k in('current_source','current_ref','current_run','actual')),'operative binding remains source-only')\n return p\n\ndef bodies("
+  ],
+  [
+    " note=p['selected_failure_note'];parent245={}\n",
+    " binding=p['operative_binding'];immediate={};literal=repr(actual['apps16-repair/inspect_validation.py'].decode()).encode()\n for n,w in binding['before'].items():\n  if n==A:b=one(actual[n],literal,binding['literal_before'].encode())\n  elif n==PROFILE:\n   before_profile=dict(p);before_profile.pop('operative_binding');before_profile['guard_template']=binding['before_guard_template'];b=enc(before_profile)\n  elif n==GUARD:\n   text=actual[n].decode();current_sha=pin(actual[PROFILE])['sha256'];need(text.count(current_sha)==1,'one current guard seal');text=text.replace(current_sha,binding['before'][PROFILE]['sha256'],1)\n   for before,after in reversed(binding['guard_edits']):need(text.count(after)==1,'one immediate guard before inverse');text=text.replace(after,before,1)\n   b=text.encode()\n  elif n==SUCCESSOR:\n   v=json.loads(actual[n]);v['after']={k:binding['before'][k]for k in v['after']};b=enc(v)\n  elif n in MANIFESTS:\n   v=json.loads(actual[n]);v['files']={k:binding['before'][k]for k in v['files']};b=enc(v)\n  elif n in WORKFLOWS:b=one(actual[n],pin(actual[MANIFESTS[-1]])['sha256'].encode(),binding['before'][MANIFESTS[-1]]['sha256'].encode())\n  else:b=actual[n]\n  need(pin(b)==w,'entire immediate selected-note245 before body '+n);immediate[n]=b\n need(immediate['apps16-repair/inspect_validation.py']==actual['apps16-repair/inspect_validation.py'],'external note algorithm byte-held')\n note=p['selected_failure_note'];parent245={}\n"
+  ],
+  [
+    "  elif n in note['before_bodies_zlib']:\n",
+    "  elif n==A:b=immediate[n]\n  elif n in note['before_bodies_zlib']:\n"
+  ]
+]
