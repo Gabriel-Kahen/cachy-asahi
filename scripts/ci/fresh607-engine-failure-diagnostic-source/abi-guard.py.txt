@@ -1,0 +1,23 @@
+
+def abi_before_parent(p):
+ prior=json.loads(C.enc(p));a=prior['engine_failure_parent'].pop('alpm_type_origin');prior['guard_template']=a['guard_template']
+ for n,w in a['products_before'].items():prior['products'][n]=w
+ return prior
+
+def abi_before_body(name,p):
+ a=p['engine_failure_parent']['alpm_type_origin']
+ if name=='implementation/page-parent.json':return C.enc(abi_before_parent(p))
+ raw=C.read(C.ROOT/name)
+ if name in('implementation/page_mode.py','implementation/test_page_mode.py','implementation/page_source.py'):
+  role={'implementation/page_mode.py':'mode','implementation/test_page_mode.py':'test','implementation/page_source.py':'guard'}[name]
+  if role=='guard':raw=one(raw,PARENT_SHA,a['files']['implementation/page-parent.json']['sha256'])
+  append=a.get(role+'_append','').encode()
+  if append:
+   if role=='test':raw=one(raw,append.decode()+"\nif __name__=='__main__':\n","if __name__=='__main__':\n")
+   else:C.need(raw.endswith(append),'whole ABI guard append');raw=raw[:-len(append)]
+  for old,new in reversed(a[role+'_edits']):raw=one(raw,new,old)
+ elif name=='source-manifest.json':
+  m=json.loads(raw);m['files']={n:a['files'][n]for n in m['files']};raw=C.enc(m)
+ elif name in ALIASES:raw=one(raw,C.pin(C.read(C.ROOT/'source-manifest.json'))['sha256'],a['files']['source-manifest.json']['sha256'])
+ C.need(C.pin(raw)==a['files'][name],'whole95a75 member before ABI correction '+name)
+ return raw
