@@ -1,0 +1,114 @@
+{
+  "M2": "NOT_RUN",
+  "cleanup": "PASS_SOURCE_BOUND_RETAINED_RECEIPTS",
+  "closed_public_bytes": 140719,
+  "closed_public_files": 10,
+  "expected607_sha256": "72818a8a2ae488281b08486b92c435ec244ef3b5313f23b97473d1684ecb68b4",
+  "hardware": "NOT_RUN",
+  "hooks_scriptlets": "NOT_ACCEPTED",
+  "limits": [
+    "Private raw node/hash/ownership maps and installed target/profile/lock bytes were checked by the frozen guest code and are not exported; this replay checks complete summaries and exact retained protocol/source joins, not a new full-byte readback.",
+    "Retired container/image/VM absence is retained source-bound cleanup evidence, not live reobservation.",
+    "No physical installation, target boot, hooks/scriptlets, native-container P0, M2 or performance acceptance.",
+    "Statx source selection and unchanged full hashing/deadlines are checked; runtime choice of statx versus original fdinfo fallback is not reported."
+  ],
+  "log_archive": {
+    "bytes": 1848512,
+    "sha256": "b1cd5ae507a3dfb6cf57e29139ec0a3887c3fc4bdfe0b180cdcc11f2aaab641d"
+  },
+  "native_container_P0": "UNCHANGED_FAILED",
+  "ordinary_and_root_flags": {
+    "committed": true,
+    "database_verified": true,
+    "namespace_barrier": true,
+    "numeric_namespace_verified": true,
+    "numeric_ownership_verified": true,
+    "ordinary_parent_nnp_cap0": true,
+    "ownership_verified": true,
+    "parent_inventory_preserved": true,
+    "parent_payload_verified": true,
+    "payload_verified": true,
+    "preservation_verified": true,
+    "private_trust_verified": true,
+    "process_retirement": true,
+    "root_guest_payload_verified": true,
+    "source_cache_preserved": true
+  },
+  "package_count": 607,
+  "performance": "NOT_MEASURED",
+  "positive": {
+    "bytes": 17884,
+    "sha256": "f8e46a9fd4450bd1fb8f539e9a9a113e2733a069dba4b53114df030ec6a20bb4"
+  },
+  "postjoins": {
+    "bytes": 1273829,
+    "sha256": "6ed16401edfadeaf5d42331e900114d92128cd011a3b25f27feec7191083c926"
+  },
+  "public_frame": {
+    "bytes": 37926,
+    "sha256": "b1cd0e6944f5dff9568ea2f114f94a0d16be25188eb2b4e280e79c9c33588d71"
+  },
+  "qemu_natural_exit": true,
+  "qemu_seconds": 3774.612,
+  "reader_files": 4975,
+  "ref": "codex/latest607-apps6-baseline-tooling-inputs-v1",
+  "release": "NOT_ADMITTED",
+  "root_decision_utc": "2026-10-25T23:07:40.541185+00:00",
+  "root_observation": {
+    "complete": true,
+    "deadline_seconds": 600,
+    "elapsed_ms": 496731,
+    "footprint": {
+      "bytes": 4930254071,
+      "database_bytes": 11800940,
+      "database_files": 1850,
+      "hardlink_inodes": 1048,
+      "nodes": 124513
+    },
+    "missing_database_nodes": 0,
+    "missing_database_samples": [],
+    "observed_nodes": 124513,
+    "required_database_nodes": 1215,
+    "unsupported_counts": {
+      "absolute-symlink": 24,
+      "auxiliary-present": 3
+    },
+    "unsupported_reasons_omitted": 0
+  },
+  "run_id": 40224231855,
+  "schema_version": 1,
+  "scope": "SIGNED_TEST_APPS6_BASELINE607_FRESH_INSTALL_IN_OWNED_GENERIC_ARM4K_VM_WITH_POST_PARENT_ROOT_READBACK",
+  "serial": {
+    "bytes": 56904,
+    "sha256": "f2aafdae23c55eec3156e01caf574187ae601bf404a848580a2235ec59051860"
+  },
+  "source_actual_git_joins": 1197,
+  "source_files": 1197,
+  "source_sha": "04f4ae2f164fe6c58a4b3b31ea8ab544880d9892",
+  "source_snapshot": {
+    "bytes": 221255,
+    "sha256": "a6135194ac838c1a43623345ce8535eee533f80fa6f07773bd5cab17e22312a6"
+  },
+  "status": "ROOT_ACCEPTED_SIGNED_LATEST607_APPS6_BASELINE",
+  "target_boot": "NOT_RUN",
+  "target_footprint": {
+    "allocated_bytes": 5136969728,
+    "allocated_bytes_by_entry": 5189771264,
+    "bytes": 4930254071,
+    "complete": true,
+    "database_bytes": 11800940,
+    "database_files": 1850,
+    "filesystem_free_bytes": 9740468224,
+    "filesystem_free_bytes_source": "statvfs-f_bavail",
+    "filesystem_free_inodes": 1064122,
+    "filesystem_inode_counts_known": true,
+    "filesystem_inode_source": "statvfs",
+    "hardlink_declared_links": 2896,
+    "hardlink_entries": 2896,
+    "hardlink_inodes": 1048,
+    "hardlinks": 2896,
+    "largest_file_bytes": 173387392,
+    "nodes": 124513,
+    "symlinks": 13337
+  }
+}
