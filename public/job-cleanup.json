@@ -1,0 +1,29 @@
+{
+  "group_absence": true,
+  "kernel": "NOT_CREATED_NOT_PROJECTED",
+  "original_native_cleanup": "REQUIRED_PASS",
+  "private_contents": "NOT_EXPORTED",
+  "status": "PASS_ORIGINAL_OWNED_JOB_HOME_AND_CONFIG_REMOVED",
+  "wrapper": {
+    "architecture": "aarch64",
+    "attempt": 1,
+    "case": "normal",
+    "hardware": "NOT_RUN",
+    "held_files": 489,
+    "held_source": "b21a5864d5a4610b9181a1c270ac8821d8448a17",
+    "native_readback": {
+      "architecture": "aarch64",
+      "euid": 1001,
+      "kernel_release": "6.17.0-1022-azure",
+      "page_size": 4096,
+      "sysname": "Linux",
+      "uid": 1001
+    },
+    "page_size": 4096,
+    "ref": "refs/heads/codex/latest607-updater-selected-database-v1",
+    "run": 40274366566,
+    "source": "c6a5de859c3f190d47a5aef30962d2c3b50eaf8d",
+    "source_files": 360,
+    "status": "CURRENT_NATIVE_ARM4K_UPDATER604_SOURCE_CUSTODY_NOT_ACCEPTANCE"
+  }
+}
