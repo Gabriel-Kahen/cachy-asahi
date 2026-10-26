@@ -24,8 +24,8 @@
         "sha256": "df9d658794732b4a54c5eaf83037f54e64e87dde9c6d26b28672181893c77750"
       },
       "base_guest.py": {
-        "bytes": 42855,
-        "sha256": "dfbb72bcd5a071c5645b7a05dcfee4956abca9589ce450ef27512f691313c67d"
+        "bytes": 42891,
+        "sha256": "6dee94b4ae810d693f8c0d6b535b53183e03f1d261d36a4130b85cf53f3aab80"
       },
       "build_scope.py": {
         "bytes": 7160,
@@ -262,8 +262,8 @@
         "sha256": "df9d658794732b4a54c5eaf83037f54e64e87dde9c6d26b28672181893c77750"
       },
       "base_guest.py": {
-        "bytes": 42043,
-        "sha256": "51f8b63559eeead728624ea2cf5fb8c31bcf47b0c4f7dc3f6b9cae73c7b9c588"
+        "bytes": 42079,
+        "sha256": "03cf636cb2f0deb56bfd913ab59d5513b92a706bde75440c3ea79eb5f29b7e22"
       },
       "build_scope.py": {
         "bytes": 7160,
@@ -476,8 +476,8 @@
         "sha256": "df9d658794732b4a54c5eaf83037f54e64e87dde9c6d26b28672181893c77750"
       },
       "base_guest.py": {
-        "bytes": 42886,
-        "sha256": "bdf46b7517c743fa18219524b9394b9be48593aa232e4b8f06d335ecd0e4ebb4"
+        "bytes": 42922,
+        "sha256": "4746dd3576a29692c54648a2b3156ae44f95a299d46c5bfa456db7342050efd5"
       },
       "build_scope.py": {
         "bytes": 7160,
@@ -714,8 +714,8 @@
         "sha256": "df9d658794732b4a54c5eaf83037f54e64e87dde9c6d26b28672181893c77750"
       },
       "base_guest.py": {
-        "bytes": 42074,
-        "sha256": "39a39a8358246a6b24c92be19b628f2422633c4ed2ba7d159d08ddeafa0767e7"
+        "bytes": 42110,
+        "sha256": "f70f65f512b71274da47cad450d60ea592613d8b72da1f00d70f45bdc2cd36cb"
       },
       "build_scope.py": {
         "bytes": 7160,
