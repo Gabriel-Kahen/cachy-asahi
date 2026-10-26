@@ -1,0 +1,150 @@
+# SPDX-License-Identifier: MIT
+"""Reproduce the bounded GUI observer progress forwarding source."""
+import argparse,ast,hashlib,json,os,stat
+from pathlib import Path
+HERE=Path(__file__).resolve().parent
+PROFILE={'bytes': 311966, 'sha256': '3b987fec60eb694ea1338b6f6d200a964c70e6504043aea370c49aee8f5687c2'}
+
+def need(ok, message):
+    if not ok:
+        raise ValueError(message)
+
+def encoded(value):
+    return (json.dumps(value, sort_keys=True, indent=2, allow_nan=False) + '\n').encode()
+
+def pin(raw):
+    return dict(bytes=len(raw), sha256=hashlib.sha256(raw).hexdigest())
+
+def ordinary(value):
+    raw = os.fspath(value)
+    need(type(raw) is str and os.path.isabs(raw) and raw == os.path.normpath(raw),
+         'absolute normalized path required')
+    path = Path(raw)
+    need(path == path.resolve(), 'canonical resolved path required')
+    need(not any(p.is_symlink() for p in (path, *path.parents)), 'ordinary nonalias ancestry')
+    return path
+
+def identity(info):
+    # Reading a file/directory may update atime; it is never identity evidence.
+    return tuple(getattr(info, key) for key in (
+        'st_dev', 'st_ino', 'st_mode', 'st_uid', 'st_gid', 'st_nlink',
+        'st_size', 'st_mtime_ns', 'st_ctime_ns'))
+
+def read_state(value):
+    path = ordinary(value)
+    fd = os.open(path, os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW | os.O_NONBLOCK)
+    try:
+        before = os.fstat(fd)
+        need(stat.S_ISREG(before.st_mode) and before.st_nlink == 1 and
+             0 <= before.st_size <= 8 * 1024**2, 'bounded ordinary single-link source file')
+        parts, size = [], 0
+        while part := os.read(fd, 1024**2):
+            parts.append(part)
+            size += len(part)
+            need(size <= before.st_size, 'source file grew during read')
+        need(size == before.st_size and identity(before) == identity(os.fstat(fd)) ==
+             identity(path.lstat()), 'whole stable descriptor and path identity')
+        return b''.join(parts), identity(before)
+    finally:
+        os.close(fd)
+
+def read(path):
+    return read_state(path)[0]
+
+def scan(value):
+    root = ordinary(value)
+    need(root.is_dir(), 'ordinary source root required')
+    files, state, directories = {}, {}, {}
+    for path in (root, *sorted(root.rglob('*'))):
+        info = path.lstat()
+        need(not path.is_symlink(), 'source alias refused')
+        name = path.relative_to(root).as_posix() if path != root else ''
+        if stat.S_ISDIR(info.st_mode):
+            directories[name] = (identity(info), tuple(sorted(p.name for p in path.iterdir())))
+        else:
+            raw, record = read_state(path)
+            files[name], state[name] = raw, record
+    required = {''}
+    for name in files:
+        required.update('' if str(p) == '.' else p.as_posix() for p in Path(name).parents)
+    need(set(directories) == required, 'closed source directory membership, no foreign empty dirs')
+    for name, (record, names) in directories.items():
+        path = root / name
+        need(identity(path.lstat()) == record and
+             tuple(sorted(p.name for p in path.iterdir())) == names, 'stable whole source namespace')
+    return files, dict(files=state, directories=directories)
+
+def tree(root):
+    return scan(root)[0]
+
+def paths(source, output):
+    source, output = ordinary(source), ordinary(output)
+    need(output.parent.is_dir() and not os.path.lexists(output), 'fresh output required')
+    need(not any('native-actual' in p.name for p in (output, *output.parents)),
+         'native actual roots are not source-factory destinations')
+    for protected in (source, HERE):
+        need(not output.is_relative_to(protected) and not protected.is_relative_to(output),
+             'disjoint supplied source/factory/output paths')
+    return source, output
+
+
+D=HERE
+enc=encoded
+def edit(raw,a,b,count=1):
+ a=a.encode();b=b.encode();need(raw.count(a)==count,'exact source seam '+a.decode()[:70]);v=raw.replace(a,b);need(v.count(b)==count and v.replace(b,a)==raw,'whole source seam inverse');return v
+
+def assignment(raw,name,value):
+ text=raw.decode();nodes=[n for n in ast.parse(raw).body if isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id==name for t in n.targets)];need(len(nodes)==1,'one fixed top-level assignment');n=nodes[0];lines=text.splitlines(keepends=True);start=sum(len(x.encode())for x in lines[:n.lineno-1])+n.col_offset;end=sum(len(x.encode())for x in lines[:n.end_lineno-1])+n.end_col_offset;need(raw[start:end].decode()==ast.get_source_segment(text,n),'exact AST source extent');return raw[:start]+value.encode()+raw[end:]
+
+def transform(before,mode,policy,*,draft=False):
+ out=dict(before);seams={}
+ def change(name,a,b):out[name]=edit(out[name],a,b);seams.setdefault(name,[]).append(dict(before=a,after=b,count=1))
+ n='implementation/observer_apply.py'
+ change(n,'def apply(out):',read(D/'forward-renderer.py.txt').decode()+'def apply(out):')
+ a="guest.write_bytes(edited(guest.read_bytes(),[(\"logs,'installed606-preserved',timeout=600)\",\"logs,'installed606-preserved',timeout=1210)\")]))"
+ b="guest.write_bytes(edited(edited(guest.read_bytes(),[(\"logs,'installed606-preserved',timeout=600)\",\"logs,'installed606-preserved',timeout=1210)\")]),forwarding_rows()))"
+ change(n,a,b)
+ change('implementation/test_observer.py',"if __name__=='__main__':",read(D/'test-progress-methods.py.txt').decode()+"\nif __name__=='__main__':")
+ raw=enc(policy);out['implementation/runner-context-policy.json']=raw
+ old=next(ast.get_source_segment(before['implementation/runner_context.py'].decode(),x)for x in ast.parse(before['implementation/runner_context.py']).body if isinstance(x,ast.Assign)and any(isinstance(t,ast.Name)and t.id=='POLICY_SHA'for t in x.targets))
+ change('implementation/runner_context.py',old,'POLICY_SHA='+repr(pin(raw)['sha256']))
+ root=json.loads(before['implementation/build-inventory-parent.json']);guard=before['implementation/build_inventory_guard.py'];guard_seams=[]
+ def guard_change(a,b):
+  nonlocal guard
+  guard=edit(guard,a,b);guard_seams.append(dict(before=a,after=b,count=1))
+ guard_change('def verify(require_known=False):','PROGRESS_PINS='+repr(json.loads(read(D/'parent-pins.json')))+'\n'+read(D/'progress-guard.py.txt').decode()+'def verify(require_known=False):')
+ guard_change(" raw=G.read(HERE/'build_inventory_guard.py');needle=", " raw=G.read(HERE/'build_inventory_guard.py')\n if 'observer_progress'in G.obj(HERE/'build-inventory-parent.json'):return progress_verify(raw,require_known)\n needle=")
+ # The two original inverse chains remain unchanged inside the before source.
+ root['observer_progress']=dict(schema=1,variant=mode,source='0bb0c9c3ff62b85227127ea82dbf05f5f56ebee1'if mode=='known'else None,ref='codex/latest607-gui-descriptor-query-v1'if mode=='known'else None,actual=None,files={n:pin(b)for n,b in before.items()},seams=seams,guard_seams=guard_seams,policy_before=json.loads(before['implementation/runner-context-policy.json']),annotation_before=ast.literal_eval(next(x.value for x in ast.parse(before['implementation/observer_apply.py']).body if isinstance(x,ast.Assign)and any(isinstance(t,ast.Name)and t.id=='ANNOTATION'for t in x.targets))))
+ out['implementation/build-inventory-parent.json']=enc(root)
+ guard=assignment(guard,'PRODUCTS','PRODUCTS='+repr({n:pin(b)for n,b in out.items()if n not in('implementation/build_inventory_guard.py','source-manifest.json')}));guard=assignment(guard,'SELF_SHA',"SELF_SHA='@SELF@'");guard=assignment(guard,'SELF_SHA','SELF_SHA='+repr(pin(guard)['sha256']));out['implementation/build_inventory_guard.py']=guard
+ manifest=json.loads(before['source-manifest.json']);manifest['files']={n:pin(b)for n,b in out.items()if n!='source-manifest.json'};out['source-manifest.json']=enc(manifest)
+ changed={n for n in before if before[n]!=out[n]};need(set(out)==set(before)and len(out)==692 and len(changed)<=7,'same692 bounded progress child')
+ return out,root['observer_progress']
+
+def compose(source):
+    own=read_state(HERE/'prepare.py');raw,state=read_state(HERE/'profile.json');need(pin(raw)==PROFILE,'entry-pinned profile');p=json.loads(raw)
+    need(all(p[k]is None for k in('actual_source','actual_ref','actual_run','Root_acceptance')) and p['acceptance_authority']is False,'source-only factory')
+    source=ordinary(source);before,bstate=scan(source);need({n:pin(b)for n,b in before.items()}==p['parent']['files']and len(before)==692,'whole exact692 parent')
+    operands={};states={'prepare.py':own,'profile.json':(raw,state)}
+    for name,w in p['operands'].items():
+        body,identity=read_state(HERE/name);need(pin(body)==w,'fixed readable operand '+name);operands[name]=body;states[name]=(body,identity)
+    values,desc=transform({n:before[n]for n in sorted(before)},'known',json.loads(operands['generated-policy.json']))
+    need({n:pin(b)for n,b in values.items()}==p['result']['files'],'all exact published692 bytes')
+    need(set(values)==set(before)and {n for n in before if values[n]!=before[n]}==set(p['changed']) and all(values[n]==before[n]for n in p['held']),'seven changed/685 held')
+    need(scan(source)==(before,bstate)and all(read_state(HERE/n)==v for n,v in states.items()),'late whole source and operand identities')
+    return values,p,(before,bstate),states
+
+def emit(source,output,context):
+    need(context in('known','null'),'known/NULL receipt only');source,output=paths(source,output);values,p,before,states=compose(source);paths(source,output)
+    need(scan(source)==before and all(read_state(HERE/n)==v for n,v in states.items()),'late inputs before writes');output.mkdir(mode=0o700)
+    for n,b in sorted(values.items()):
+        q=output/n;q.parent.mkdir(parents=True,exist_ok=True);fd=os.open(q,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
+        with os.fdopen(fd,'wb')as f:f.write(b);os.fchmod(f.fileno(),0o644)
+    need(tree(output)==values and all(stat.S_IMODE((output/n).stat().st_mode)==0o644 for n in values),'exact production692 bytes/modes')
+    return dict(status='SOURCE_ONLY_GUI_PROGRESS_NOT_ACCEPTANCE',context=context,files=p['result']['files'],source=p['result']['source']if context=='known'else None,ref=p['result']['ref']if context=='known'else None,actual_source=None,actual_ref=None,actual_run=None,Root_acceptance=None)
+
+if __name__=='__main__':
+    parser=argparse.ArgumentParser(description=__doc__)
+    for name in('source','output','context'):parser.add_argument('--'+name,required=True)
+    args=parser.parse_args();print(json.dumps(emit(args.source,args.output,args.context),sort_keys=True,indent=2))
