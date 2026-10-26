@@ -13,7 +13,7 @@ class Controls(unittest.TestCase):
    for context in('known','null'):
     output=Path(td)/context;argv=[sys.executable,'-I','-B','-Werror',str(HERE/'prepare.py'),'--source',str(SOURCE),'--output',str(output),'--context',context]
     done=subprocess.run(argv,capture_output=True,timeout=30,umask=0o077);self.assertEqual(done.returncode,0,done.stderr.decode());row=json.loads(done.stdout)
-    self.assertEqual(F.tree(output),expected);self.assertEqual(len(row['files']),1203);self.assertEqual(row['source'],'95a75cd9798b8b827f80233f3ea402ff7fc9b224'if context=='known'else None)
+    self.assertEqual(F.tree(output),expected);self.assertEqual(len(row['files']),1203);self.assertEqual(row['source'],'0db9341521b5cb5d9022715b5ba638b3e4018462'if context=='known'else None)
     self.assertTrue(all(row[k]is None for k in('actual_source','actual_ref','actual_run','Root_acceptance')));self.assertTrue(all(stat.S_IMODE((output/n).stat().st_mode)==0o644 for n in expected))
  def test_constructor_never_executes_supplied_source_or_actors(self):
   sentinel=object();saved=sys.modules.get('common',sentinel)
@@ -26,7 +26,7 @@ class Controls(unittest.TestCase):
    if saved is sentinel:sys.modules.pop('common',None)
    else:sys.modules['common']=saved
  def test_full_before_inverse_all1196_held_and_only_failure_DATA_operands(self):
-  current,p,*_=F.compose(SOURCE);values=F.clock_before(current,p);self.assertEqual({n:F.pin(b)for n,b in values.items()},p['authentication_parent']['files']);before=F.tree(SOURCE);parent=json.loads(values['implementation/page-parent.json']);c=parent.pop('engine_failure_parent');parent['guard_template']=c['guard_template']
+  current,p,*_=F.compose(SOURCE);abi_before=F.abi_before(current,p);self.assertEqual({n:F.pin(b)for n,b in abi_before.items()},p['abi_parent']['files']);values=F.clock_before(current,p);self.assertEqual({n:F.pin(b)for n,b in values.items()},p['authentication_parent']['files']);before=F.tree(SOURCE);parent=json.loads(values['implementation/page-parent.json']);c=parent.pop('engine_failure_parent');parent['guard_template']=c['guard_template']
   for name,row in c['products_before'].items():parent['products'][name]=row
   self.assertEqual(F.encoded(parent),before['implementation/page-parent.json'])
   mode=values['implementation/page_mode.py'];self.assertTrue(mode.endswith(c['mode_append'].encode()));self.assertEqual(F.apply(mode[:-len(c['mode_append'].encode())],c['mode_edits'],reverse=True),before['implementation/page_mode.py'])
@@ -96,7 +96,7 @@ class Controls(unittest.TestCase):
    # Only the factory's fully pinned exact public result is executed as trusted
    # source controls; compose itself never imports or executes caller source.
    run=subprocess.run([sys.executable,'-I','-B','-Werror',str(out/'implementation/test_page_mode.py')],capture_output=True,timeout=30)
-   self.assertEqual(run.returncode,0,run.stderr.decode());self.assertIn(b'Ran 22 tests',run.stderr);self.assertTrue(run.stderr.rstrip().endswith(b'OK'));self.assertEqual(F.tree(out),F.tree(EXPECTED))
+   self.assertEqual(run.returncode,0,run.stderr.decode());self.assertIn(b'Ran 23 tests',run.stderr);self.assertTrue(run.stderr.rstrip().endswith(b'OK'));self.assertEqual(F.tree(out),F.tree(EXPECTED))
 
  def test_actual_sanitized_selected_caller_clock_context_and_default_environment(self):
   import textwrap,shlex
@@ -108,5 +108,14 @@ class Controls(unittest.TestCase):
     row=subprocess.run(['/bin/bash','-c',shell],env=dict(os.environ,**context,PAGE_MODE=mode,RUNNER_TEMP=td),capture_output=True,timeout=15);self.assertEqual((row.returncode,row.stderr),(0,b''));self.assertEqual(json.loads(row.stdout),dict.fromkeys(context)if mode=='generic4k'else dict(schema_version=1,purpose='SOURCE_OWNED_GENERIC16K_REALTIME_INIT_V1',source='1'*40,run_id='17',run_attempt='1'))
    for key,bad in(('FRESH_SOURCE','wrong'),('GITHUB_RUN_ID','0'),('GITHUB_RUN_ATTEMPT','01')):
     row=subprocess.run(['/bin/bash','-c',shell],env=dict(os.environ,**dict(context,**{key:bad}),PAGE_MODE='generic16k',RUNNER_TEMP=td),capture_output=True,timeout=15);self.assertNotEqual(row.returncode,0);self.assertEqual(row.stdout,b'')
+class ABIStageControls(unittest.TestCase):
+ def test_whole95a75_source_inverse_and_raw_default_bytes_held(self):
+  values,p,*_=F.compose(SOURCE);before=F.abi_before(values,p);self.assertEqual(sum(values[n]==before[n]for n in before),1196);self.assertEqual(len(before),1203)
+  for n in before:
+   if n.startswith('parent604/')or n in('implementation/workflow-template.yml','implementation/run.py'):self.assertEqual(values[n],before[n],n)
+  for field,value in(('actual_source','0'*40),('source','0'*40)):
+   bad=dict(values);parent=json.loads(bad['implementation/page-parent.json']);parent['engine_failure_parent']['alpm_type_origin'][field]=value;bad['implementation/page-parent.json']=F.encoded(parent)
+   with self.assertRaises(ValueError):F.abi_before(bad,p)
+
 
 if __name__=='__main__':unittest.main(verbosity=2)

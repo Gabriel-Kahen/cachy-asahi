@@ -3,7 +3,7 @@
 import argparse,ast,hashlib,json,os,stat
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
-PROFILE={'bytes': 312261, 'sha256': 'd96d9e8f25ebb9969dd6acc1fc8eab6a6e25382ee727b1df418acf43953b9ff5'}
+PROFILE={'bytes': 444898, 'sha256': '9ece1b7ffcb74b37e056e23788662a5e9e937a10ce8a3fe0072aa1636411e736'}
 
 def need(ok, message):
     if not ok:
@@ -121,7 +121,41 @@ def transform(before,mode,policy,*,draft=False):
  guard=assignment(guard,'PRODUCTS','PRODUCTS='+repr({n:pin(b)for n,b in out.items()if n not in('implementation/build_inventory_guard.py','source-manifest.json')}));guard=assignment(guard,'SELF_SHA',"SELF_SHA='@SELF@'");guard=assignment(guard,'SELF_SHA','SELF_SHA='+repr(pin(guard)['sha256']));out['implementation/build_inventory_guard.py']=guard
  manifest=json.loads(before['source-manifest.json']);manifest['files']={n:pin(b)for n,b in out.items()if n!='source-manifest.json'};out['source-manifest.json']=enc(manifest)
  changed={n for n in before if before[n]!=out[n]};need(set(out)==set(before)and len(out)==692 and len(changed)<=7,'same692 bounded progress child')
- return out,root['observer_progress']
+ return payload_transform(out,mode,json.loads(read(D/'payload-generated-policy.json'))),root['observer_progress']
+
+def payload_inverse(values):
+ """Pure DATA reconstruction of every immediate6e86 source byte."""
+ out=dict(values);root=json.loads(out['implementation/build-inventory-parent.json']);p=root.pop('payload_progress');before=p['files']
+ need(p['schema']==1 and p['actual']is None and p['variant']in('known','null') and len(before)==len(out)==692 and set(before)==set(out),'whole692 immediate package-progress context')
+ need((p['source'],p['ref'])==(('6e86e6e14f29bbeff2f4e8733915dd43a244a588','codex/latest607-gui-root-traversal-v1')if p['variant']=='known'else(None,None)),'exact genuine6e86 predecessor or disabled variant')
+ def inverse(raw,rows):
+  for row in reversed(rows):
+   a=row['before'].encode();b=row['after'].encode();need(raw.count(b)==row['count'],'exact counted package-progress source inverse');raw=raw.replace(b,a)
+  return raw
+ for name,rows in p['seams'].items():out[name]=inverse(out[name],rows)
+ out['implementation/build-inventory-parent.json']=enc(root);out['implementation/runner-context-policy.json']=enc(p['policy_before']);guard=out['implementation/build_inventory_guard.py']
+ guard=assignment(guard,'PRODUCTS','PRODUCTS='+repr({n:w for n,w in before.items()if n not in('implementation/build_inventory_guard.py','source-manifest.json')}));guard=assignment(guard,'SELF_SHA',"SELF_SHA='@SELF@'");guard=inverse(guard,p['guard_seams']);guard=assignment(guard,'SELF_SHA','SELF_SHA='+repr(pin(guard)['sha256']));out['implementation/build_inventory_guard.py']=guard
+ manifest=json.loads(out['source-manifest.json']);manifest['files']={n:w for n,w in before.items()if n!='source-manifest.json'};out['source-manifest.json']=enc(manifest);need({n:pin(b)for n,b in out.items()}==before,'ENTIRE immediate6e86 source before inverse');return out
+
+def payload_transform(before,mode,policy):
+ pins=json.loads(read(D/'payload-parent-pins.json'));need(mode in('known','null')and len(before)==692 and pin(enc({n:pin(b)for n,b in before.items()}))==pins[mode],'entire genuine6e86/NULL before692');out=dict(before);seams={}
+ def change(name,a,b):out[name]=edit(out[name],a,b);seams.setdefault(name,[]).append(dict(before=a,after=b,count=1))
+ raw=before['implementation/observer_apply.py'];node=next(n for n in ast.parse(raw).body if isinstance(n,ast.FunctionDef)and n.name=='observer_rows');original=ast.get_source_segment(raw.decode(),node);need(original.count(' return [')==1,'one original observer row factory')
+ current=original.replace(' return [',' rows=[',1)+'\n'+read(D/'payload-observer-rows-footer.py.txt').decode().rstrip()
+ change('implementation/observer_apply.py',original,"PAYLOAD_BODY607=r'''"+read(D/'payload-body.py.txt').decode()+"'''\n"+current)
+ change('implementation/observer_apply.py','types.FunctionType(observe.__code__,namespace,observe.__name__,observe.__defaults__,observe.__closure__)','types.FunctionType((_payload_observe607.__code__ if observe is _payload_original607 else observe.__code__),namespace,observe.__name__,observe.__defaults__,observe.__closure__)')
+ change('implementation/test_observer.py',"if __name__=='__main__':",read(D/'payload-source-tests.py.txt').decode()+"if __name__=='__main__':")
+ out['implementation/runner-context-policy.json']=enc(policy);raw=before['implementation/runner_context.py'];node=next(n for n in ast.parse(raw).body if isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id=='POLICY_SHA'for t in n.targets));change('implementation/runner_context.py',ast.get_source_segment(raw.decode(),node),'POLICY_SHA='+repr(pin(enc(policy))['sha256']))
+ guard=before['implementation/build_inventory_guard.py'];guard_seams=[]
+ def guard_change(a,b):
+  nonlocal guard
+  guard=edit(guard,a,b);guard_seams.append(dict(before=a,after=b,count=1))
+ guard_change('def verify(require_known=False):','PROGRESS607_PINS='+repr(pins)+'\n'+read(D/'payload-progress-guard.py.txt').decode()+'def verify(require_known=False):')
+ a=" raw=G.read(HERE/'build_inventory_guard.py')";guard_change(a,a+"\n if 'payload_progress'in G.obj(HERE/'build-inventory-parent.json'):return payload_progress_verify(raw,require_known)")
+ root=json.loads(before['implementation/build-inventory-parent.json']);annotation=ast.literal_eval(next(n.value for n in ast.parse(before['implementation/observer_apply.py']).body if isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id=='ANNOTATION'for t in n.targets)))
+ root['payload_progress']=dict(schema=1,variant=mode,source='6e86e6e14f29bbeff2f4e8733915dd43a244a588'if mode=='known'else None,ref='codex/latest607-gui-root-traversal-v1'if mode=='known'else None,actual=None,files={n:pin(b)for n,b in before.items()},seams=seams,guard_seams=guard_seams,policy_before=json.loads(before['implementation/runner-context-policy.json']),annotation_before=annotation);out['implementation/build-inventory-parent.json']=enc(root)
+ guard=assignment(guard,'PRODUCTS','PRODUCTS='+repr({n:pin(b)for n,b in out.items()if n not in('implementation/build_inventory_guard.py','source-manifest.json')}));guard=assignment(guard,'SELF_SHA',"SELF_SHA='@SELF@'");guard=assignment(guard,'SELF_SHA','SELF_SHA='+repr(pin(guard)['sha256']));out['implementation/build_inventory_guard.py']=guard
+ manifest=json.loads(before['source-manifest.json']);manifest['files']={n:pin(b)for n,b in out.items()if n!='source-manifest.json'};out['source-manifest.json']=enc(manifest);need(set(out)==set(before)and len(out)==692 and sum(out[n]!=before[n]for n in before)==7,'same692 only seven changed members');need(payload_inverse(out)==before,'complete immediate6e86 source byte inverse');return out
 
 def compose(source):
     own=read_state(HERE/'prepare.py');raw,state=read_state(HERE/'profile.json');need(pin(raw)==PROFILE,'entry-pinned profile');p=json.loads(raw)
