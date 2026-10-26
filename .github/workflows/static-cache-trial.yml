@@ -1,0 +1,25 @@
+name: static-cache-one-pair
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  cold:
+    runs-on: ubuntu-24.04
+    outputs:
+      receipt: ${{ steps.setup.outputs.receipt }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+      - name: Establish cold setup and seed this run's exact cache
+        id: setup
+        uses: ./.github/actions/static-prerequisites
+        with:
+          phase: cold
+  warm:
+    needs: cold # Starts after cold completes, including cache post-job save.
+    uses: ./.github/workflows/static.yml
+    with:
+      setup-phase: warm
+      cold-receipt: ${{ needs.cold.outputs.receipt }}
