@@ -1,0 +1,1406 @@
+{
+  "app_sessions": "NOT RUN",
+  "bluetooth_transport": "NOT RUN",
+  "dependency_checks": "PASS-no-waivers",
+  "fdk": "PASS-installed-provider-load",
+  "final_inventory_sha256": "72818a8a2ae488281b08486b92c435ec244ef3b5313f23b97473d1684ecb68b4",
+  "final_package_count": 607,
+  "full_root_upgrade": {
+    "apple_acceptance": "NOT ESTABLISHED",
+    "case": "postcommit-exit87",
+    "checkpoint_changed": false,
+    "commit_started": true,
+    "committed_transactions": 1,
+    "driver": {
+      "after604_database_verified": true,
+      "apple_acceptance": "NOT ESTABLISHED",
+      "case": "postcommit-exit87",
+      "checkpoint_changed": false,
+      "commit_started": true,
+      "committed_transactions": 1,
+      "controlled_failure": {
+        "after604_database_verified": true,
+        "after_lock_sha256": "be35402204ba5c03d78279722afa83047c9575d2da70fb5c4064f46ed15954c5",
+        "auxiliary_checks": [
+          {
+            "checkpoint": "observe-before",
+            "live_cache_keys": {
+              "live_library_keys": 1291,
+              "records": 995
+            }
+          },
+          {
+            "auxiliary_exit_status": "NOT OBSERVED",
+            "auxiliary_transition": {
+              "entries": 995,
+              "hash_buckets": 1021,
+              "kind": "EXACT_LOAD_SAVE_ORDER",
+              "padding": {
+                "after_sha256": "e67bcd066fe984b5d6e25c881de9da7780dbc5da89b447cfafaca7cb656121e2",
+                "before_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+                "bytes_changed": 3916,
+                "bytes_per_record": 4,
+                "classification": "PINNED_SOURCE_AARCH64_TAIL_PADDING",
+                "slots_changed": 995,
+                "slots_compared": 995
+              },
+              "source_sha256": "4d8950977fbba59b0ccd479027811c6b82a31c3700d4478d04e8a4147c87bca8"
+            },
+            "checkpoint": "observe-after",
+            "explicit_targets": 3,
+            "live_cache_keys": {
+              "live_library_keys": 1291,
+              "records": 995
+            },
+            "main_cache": "RAW_EQUAL",
+            "scan_entries": 3131,
+            "selected_scan_directory": {
+              "after_times": [
+                1792998145871232949,
+                1792998145871232949
+              ],
+              "before_times": [
+                1792996842391455424,
+                1792996932575413625
+              ],
+              "inode_links_size_metadata": "UNCHANGED",
+              "path": "usr/lib/cachy-asahi-apps",
+              "projection": "DIRECTORY_MTIME_CTIME_ONLY"
+            },
+            "status": "PASS-recorded-state-preserved"
+          }
+        ],
+        "boundary": "postcommit-exit87",
+        "checkpoint_changed": false,
+        "checkpoint_preserved": true,
+        "commit_started": true,
+        "controlled_failure_verified": true,
+        "packages_committed": true,
+        "phase": "controlled-postcommit-child-exit",
+        "postcommit_payload_verified": true,
+        "postcommit_preservation_verified": true,
+        "prepared_add": {
+          "cachy-asahi-apps": "0.1.0-16"
+        },
+        "prepared_remove": {},
+        "recovery": "DISPOSE-OWNED-COPY; committed copy is never reopened, retried or resumed",
+        "selected_archive_sha256": "319cc1db4738945ad3b146490ea0fabd80f8c8d89d8c41a11750dd0ba5d5b8af",
+        "stale_lock_retained": true,
+        "status": "FAIL",
+        "worker": {
+          "direct_child_reaped": true,
+          "group_retired": true,
+          "returncode": 87,
+          "termination": null
+        }
+      },
+      "copy_cleanup": "PASS-owned-workspace-removed",
+      "driver": {
+        "apple_acceptance": "NOT ESTABLISHED",
+        "checkpoint_changed": false,
+        "commit_started": true,
+        "copy": {
+          "copied_nodes": 125392,
+          "copy_byte_identical_before_initialization": true,
+          "copy_complete": true,
+          "eligible": false,
+          "excluded": [],
+          "footprint": {
+            "allocated_bytes": 5182459904,
+            "allocated_bytes_by_entry": 5235261440,
+            "bytes": 4975316193,
+            "complete": true,
+            "database_bytes": 21618037,
+            "database_files": 1854,
+            "filesystem_free_bytes": 63777071104,
+            "filesystem_free_bytes_source": "statvfs-f_bavail",
+            "filesystem_free_inodes": 18210115,
+            "filesystem_inode_counts_known": true,
+            "filesystem_inode_source": "statvfs",
+            "hardlink_declared_links": 2896,
+            "hardlink_entries": 2896,
+            "hardlink_inodes": 1048,
+            "hardlinks": 2896,
+            "largest_file_bytes": 173387392,
+            "nodes": 125392,
+            "symlinks": 14006
+          },
+          "logical_bytes": 4975316193,
+          "observation_complete": true,
+          "scope": "complete-supplied-source-with-selected-links-and-held-auxiliary",
+          "selected_link_variant": {
+            "observed_target": "/proc/mounts",
+            "path": "etc/mtab",
+            "preservation": "raw literal required equal across source/copy and baseline/precommit/postupdate",
+            "prior_actual_literal_exported": false,
+            "source_gap": "absolute conversion producer not attested; proc spelling compatibility only",
+            "supported_targets": [
+              "/proc/mounts",
+              "/proc/self/mounts"
+            ],
+            "target_followed": false
+          },
+          "source_allocated_bytes": 5182464000,
+          "source_hardlink_entries": 2896,
+          "source_nodes": 125392,
+          "transaction_acceptance": "NOT ESTABLISHED",
+          "unsupported_counts": {},
+          "unsupported_examples": [
+            {
+              "path": "usr/share/X11/xkb",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "usr/share/licenses/qt6-declarative",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "usr/share/licenses/vim-runtime/license.txt",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "usr/share/licenses/xz/COPYING.GPLv2",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "usr/share/licenses/xz/COPYING",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "usr/share/licenses/xz/COPYING.0BSD",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "usr/share/licenses/systemd/MIT-0.txt",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "usr/share/licenses/libmpdclient/BSD-2-Clause.txt",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "usr/share/licenses/libmpdclient/BSD-3-Clause.txt",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "usr/share/licenses/qt6-translations",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "usr/lib/libkeyutils.so",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "usr/lib/liblua5.5.so",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "usr/lib/liblua++5.5.so",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "usr/lib/bfd-plugins/liblto_plugin.so",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "usr/bin/aarch64-linux-gnu-c++",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "usr/bin/aarch64-linux-gnu-gcc-ranlib",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "usr/bin/aarch64-linux-gnu-gcc",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "usr/bin/hyprland",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "usr/bin/aarch64-linux-gnu-gcc-nm",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "usr/bin/aarch64-linux-gnu-gcc-ar",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "usr/bin/lua5.5",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "usr/bin/luac5.5",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "usr/bin/aarch64-linux-gnu-g++",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/gtk-query-immodules-3.0.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/glib-remove-compiled-schemas.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/70-openssh-restart-sshd.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/36-systemd-modules-load.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/60-mkinitcpio-remove.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/25-systemd-catalog.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/gtk-remove-immodules-cache.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/25-systemd-sysctl.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/gtk4-querymodules.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/texinfo-remove.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/35-systemd-udev-reload.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/detect-old-perl-modules.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/gtk-update-icon-cache.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/35-systemd-enqueue-marked.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/gio-remove-module-cache.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/man-db-remove-cache.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/25-systemd-hwdb.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/gdk-pixbuf-remove-loaders-cache.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/gio-querymodules.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/40-update-ca-trust.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/dbus-reload.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/35-systemd-update.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/fontconfig.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/21-systemd-tmpfiles.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/30-systemd-daemon-reload-user.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/vimdoc.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/glib-compile-schemas.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/60-depmod.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/20-systemd-sysusers.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/gdk-pixbuf-query-loaders.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/30-update-mime-database.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/90-mkinitcpio-install.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/shared-mime-info-remove-cache.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/update-desktop-database.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/dconf-update.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/25-systemd-binfmt.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/gvfsd.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/texinfo-install.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/40-fontconfig-config.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/30-systemd-daemon-reload-system.hook",
+              "reason": "absolute-symlink"
+            },
+            {
+              "path": "builder-disabled-hooks/10-openssh-mark-sshd-for-restart.hook",
+              "reason": "absolute-symlink"
+            }
+          ],
+          "unsupported_observation": {
+            "absolute-symlink": 87,
+            "auxiliary-present": 3
+          }
+        },
+        "copy_cleanup": "PASS-owned-workspace-removed",
+        "error": "existing bound/runtime update did not pass",
+        "error_type": "ValueError",
+        "hardware": "NOT RUN",
+        "initial_copy_byte_identical": true,
+        "initialization": {
+          "cache_hashes": {
+            "etc/ld.so.cache": {
+              "after": "1f2c231a09af4bc32163e682fcfc40d44c44a351598105f42577a4a4b4bf2973",
+              "before": "1f2c231a09af4bc32163e682fcfc40d44c44a351598105f42577a4a4b4bf2973"
+            },
+            "var/cache/ldconfig/aux-cache": {
+              "after": "2989b41f7f7ec0d7e2177c5a218b9af7bae21d7c6351fa7314de93cf501f7ec6",
+              "before": "c6d45c1dd92d61b716dbe27a2b1da66761e5f4cf377edc776bab2299aa28a3f3"
+            }
+          },
+          "copy_byte_identical_after_initialization": false,
+          "hardware": "NOT RUN",
+          "helper_exit_status": 0,
+          "initialization_started": true,
+          "live_cache_keys": {
+            "live_library_keys": 1291,
+            "records": 995
+          },
+          "phase": "completed",
+          "root_initialized": true,
+          "scope": "one-copied-root-cache-initialization-before-update-baseline",
+          "source_preserved": true,
+          "status": "PASS",
+          "transaction_acceptance": "NOT ESTABLISHED",
+          "worker": {
+            "direct_child_reaped": true,
+            "group_kill_sent": true,
+            "returncode": 0,
+            "termination": null
+          }
+        },
+        "packages_committed": true,
+        "phase": "update",
+        "prepared_root_baseline": "ESTABLISHED-after-one-shot-initialization",
+        "prepared_root_preserved_during_repository_construction": true,
+        "recovery": "dispose outer owned container on any cleanup/worker uncertainty",
+        "scope": "actual-copied-root-generic-setup-upgrade",
+        "status": "FAIL",
+        "update": {
+          "after604_database_verified": true,
+          "after_lock_sha256": "be35402204ba5c03d78279722afa83047c9575d2da70fb5c4064f46ed15954c5",
+          "auxiliary_checks": [
+            {
+              "checkpoint": "observe-before",
+              "live_cache_keys": {
+                "live_library_keys": 1291,
+                "records": 995
+              }
+            },
+            {
+              "auxiliary_exit_status": "NOT OBSERVED",
+              "auxiliary_transition": {
+                "entries": 995,
+                "hash_buckets": 1021,
+                "kind": "EXACT_LOAD_SAVE_ORDER",
+                "padding": {
+                  "after_sha256": "e67bcd066fe984b5d6e25c881de9da7780dbc5da89b447cfafaca7cb656121e2",
+                  "before_sha256": "9bf4b7fe29f4810027cc71a949fb24eb15de9a9135c29b338427bae31193d622",
+                  "bytes_changed": 3916,
+                  "bytes_per_record": 4,
+                  "classification": "PINNED_SOURCE_AARCH64_TAIL_PADDING",
+                  "slots_changed": 995,
+                  "slots_compared": 995
+                },
+                "source_sha256": "4d8950977fbba59b0ccd479027811c6b82a31c3700d4478d04e8a4147c87bca8"
+              },
+              "checkpoint": "observe-after",
+              "explicit_targets": 3,
+              "live_cache_keys": {
+                "live_library_keys": 1291,
+                "records": 995
+              },
+              "main_cache": "RAW_EQUAL",
+              "scan_entries": 3131,
+              "selected_scan_directory": {
+                "after_times": [
+                  1792998145871232949,
+                  1792998145871232949
+                ],
+                "before_times": [
+                  1792996842391455424,
+                  1792996932575413625
+                ],
+                "inode_links_size_metadata": "UNCHANGED",
+                "path": "usr/lib/cachy-asahi-apps",
+                "projection": "DIRECTORY_MTIME_CTIME_ONLY"
+              },
+              "status": "PASS-recorded-state-preserved"
+            }
+          ],
+          "boundary": "postcommit-exit87",
+          "checkpoint_changed": false,
+          "checkpoint_preserved": true,
+          "commit_started": true,
+          "controlled_failure_verified": true,
+          "packages_committed": true,
+          "phase": "controlled-postcommit-child-exit",
+          "postcommit_payload_verified": true,
+          "postcommit_preservation_verified": true,
+          "prepared_add": {
+            "cachy-asahi-apps": "0.1.0-16"
+          },
+          "prepared_remove": {},
+          "recovery": "DISPOSE-OWNED-COPY; committed copy is never reopened, retried or resumed",
+          "selected_archive_sha256": "319cc1db4738945ad3b146490ea0fabd80f8c8d89d8c41a11750dd0ba5d5b8af",
+          "stale_lock_retained": true,
+          "status": "FAIL",
+          "worker": {
+            "direct_child_reaped": true,
+            "group_retired": true,
+            "returncode": 87,
+            "termination": null
+          }
+        }
+      },
+      "failure_cases": 1,
+      "hardware": "NOT RUN",
+      "normal_upgrade_acceptance": "NOT ESTABLISHED",
+      "original_source_preserved": true,
+      "packages_committed": true,
+      "postcommit_payload_verified": true,
+      "postcommit_preservation_verified": true,
+      "recovery": "DISPOSED-OWNED-COPY; outer container/volume retirement remains required",
+      "scope": "controlled-full-current604-postcommit-failure-disposal",
+      "status": "PASS"
+    },
+    "failure_cases": 1,
+    "hardware": "NOT RUN",
+    "keyring_quiescence": {
+      "initial_endpoints": 0,
+      "package_database_inventory_preserved": true,
+      "persistent_keyring_config_preserved": true,
+      "status": "PASS-absence-verified"
+    },
+    "normal_upgrade_acceptance": "NOT ESTABLISHED",
+    "outer_cleanup": "OWNER REQUIRED",
+    "outer_source_inventory_preserved": true,
+    "packages_committed": true,
+    "persistent_source": {
+      "consistency": "bounded per-file identity and before/after node equality; not an atomic snapshot",
+      "copied_metadata": "contents, modes, UID/GID, literal symlinks, closed internal hardlinks; xattrs/timestamps omitted",
+      "copy": {
+        "absolute_chain_paths": {
+          "complete": true,
+          "entries": [
+            {
+              "path": "builder-disabled-hooks/10-openssh-mark-sshd-for-restart.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/20-systemd-sysusers.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/21-systemd-tmpfiles.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/25-systemd-binfmt.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/25-systemd-catalog.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/25-systemd-hwdb.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/25-systemd-sysctl.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/30-systemd-daemon-reload-system.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/30-systemd-daemon-reload-user.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/30-update-mime-database.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/35-systemd-enqueue-marked.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/35-systemd-udev-reload.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/35-systemd-update.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/36-systemd-modules-load.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/40-fontconfig-config.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/40-update-ca-trust.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/60-depmod.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/60-mkinitcpio-remove.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/70-openssh-restart-sshd.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/90-mkinitcpio-install.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/dbus-reload.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/dconf-update.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/detect-old-perl-modules.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/fontconfig.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/gdk-pixbuf-query-loaders.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/gdk-pixbuf-remove-loaders-cache.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/gio-querymodules.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/gio-remove-module-cache.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/glib-compile-schemas.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/glib-remove-compiled-schemas.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/gtk-query-immodules-3.0.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/gtk-remove-immodules-cache.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/gtk-update-icon-cache.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/gtk4-querymodules.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/gvfsd.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/man-db-remove-cache.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/shared-mime-info-remove-cache.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/texinfo-install.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/texinfo-remove.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/update-desktop-database.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "builder-disabled-hooks/vimdoc.hook",
+              "target_class": "runtime-dev"
+            },
+            {
+              "path": "etc/alsa/conf.d/50-pipewire.conf",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "etc/mtab",
+              "target_class": "runtime-proc"
+            },
+            {
+              "path": "etc/systemd/system/autovt@.service",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "etc/systemd/system/dbus-org.freedesktop.network1.service",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "etc/systemd/system/dbus-org.freedesktop.resolve1.service",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "etc/systemd/system/dbus-org.freedesktop.timesync1.service",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "etc/systemd/system/getty.target.wants/getty@tty1.service",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "etc/systemd/system/multi-user.target.wants/remote-fs.target",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "etc/systemd/system/multi-user.target.wants/sshd.service",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "etc/systemd/system/multi-user.target.wants/systemd-networkd.service",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "etc/systemd/system/network-online.target.wants/systemd-networkd-wait-online.service",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "etc/systemd/system/sockets.target.wants/systemd-networkd-resolve-hook.socket",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "etc/systemd/system/sockets.target.wants/systemd-networkd-varlink-metrics.socket",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "etc/systemd/system/sockets.target.wants/systemd-networkd-varlink.socket",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "etc/systemd/system/sockets.target.wants/systemd-networkd.socket",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "etc/systemd/system/sockets.target.wants/systemd-resolved-monitor.socket",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "etc/systemd/system/sockets.target.wants/systemd-resolved-varlink.socket",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "etc/systemd/system/sockets.target.wants/systemd-userdbd.socket",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "etc/systemd/system/sysinit.target.wants/systemd-network-generator.service",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "etc/systemd/system/sysinit.target.wants/systemd-resolved.service",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "etc/systemd/system/sysinit.target.wants/systemd-timesyncd.service",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "etc/systemd/user/sockets.target.wants/p11-kit-server.socket",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "usr/bin/aarch64-linux-gnu-c++",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "usr/bin/aarch64-linux-gnu-g++",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "usr/bin/aarch64-linux-gnu-gcc",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "usr/bin/aarch64-linux-gnu-gcc-ar",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "usr/bin/aarch64-linux-gnu-gcc-nm",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "usr/bin/aarch64-linux-gnu-gcc-ranlib",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "usr/bin/hyprland",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "usr/bin/lua5.5",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "usr/bin/luac5.5",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "usr/lib/bfd-plugins/liblto_plugin.so",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "usr/lib/libkeyutils.so",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "usr/lib/liblua++5.5.so",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "usr/lib/liblua5.5.so",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "usr/share/X11/xkb",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "usr/share/licenses/libmpdclient/BSD-2-Clause.txt",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "usr/share/licenses/libmpdclient/BSD-3-Clause.txt",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "usr/share/licenses/qt6-declarative",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "usr/share/licenses/qt6-translations",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "usr/share/licenses/systemd/MIT-0.txt",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "usr/share/licenses/vim-runtime/license.txt",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "usr/share/licenses/xz/COPYING",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "usr/share/licenses/xz/COPYING.0BSD",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "usr/share/licenses/xz/COPYING.GPLv2",
+              "target_class": "usr-path"
+            },
+            {
+              "path": "var/lib/dbus/machine-id",
+              "target_class": "etc-path"
+            }
+          ],
+          "entry_json_byte_limit": 262144,
+          "entry_json_bytes": 7426,
+          "entry_limit": 4096,
+          "observation_complete": true,
+          "observed_count": 87,
+          "scope": "observed node-map diagnostics only; no policy permission",
+          "target_values": "OMITTED",
+          "truncated": false
+        },
+        "copied_nodes": 125384,
+        "copy_complete": false,
+        "eligible": false,
+        "excluded": [
+          "dev",
+          "etc/hostname",
+          "etc/hosts",
+          "etc/resolv.conf",
+          "footprint.py",
+          "inputs",
+          "measurement",
+          "measurement-source",
+          "out",
+          "persistent_scope.py",
+          "proc",
+          "run",
+          "runner.py",
+          "setup4.py",
+          "sys",
+          "tmp",
+          "upgrade-code",
+          "upgrade-config.json",
+          "upgrade-hook.py",
+          "upgrade-pair",
+          "upgrade-signing"
+        ],
+        "footprint": {
+          "allocated_bytes": 5182451712,
+          "allocated_bytes_by_entry": 5235253248,
+          "bytes": 4975315734,
+          "complete": true,
+          "database_bytes": 21618037,
+          "database_files": 1854,
+          "filesystem_free_bytes": 68998369280,
+          "filesystem_free_bytes_source": "statvfs-f_bavail",
+          "filesystem_free_inodes": 18333664,
+          "filesystem_inode_counts_known": true,
+          "filesystem_inode_source": "statvfs",
+          "hardlink_declared_links": 2896,
+          "hardlink_entries": 2896,
+          "hardlink_inodes": 1048,
+          "hardlinks": 2896,
+          "largest_file_bytes": 173387392,
+          "nodes": 125384,
+          "symlinks": 14006
+        },
+        "logical_bytes": 4975315734,
+        "observation_complete": true,
+        "source_allocated_bytes": 5182443520,
+        "source_hardlink_entries": 2896,
+        "source_nodes": 125384,
+        "unsupported_counts": {},
+        "unsupported_examples": [
+          {
+            "path": "usr/include/et/com_err.h",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/include/com_err.h",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/l/la120",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/l/luna68k",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/l/lft",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/l/lft-pc850",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/l/luna",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/l/lpr",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/l/layer",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/newscbm33",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/nsterm-acs-s",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/nd9500",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/nsterm-acs-m",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/nwp517-w",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/nsterm-7-m-s",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/nwp518-a",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/nec",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/ntconsole-w-vt",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/news29",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/ncr7900",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/ntconsole",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/ntconsole-25-w",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/nwp518-o",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/ntconsole-w",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/nec5520",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/ntconsole-60-nti",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/ntconsole-25-nti",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/ntconsole-50",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/ntconsole-100-nti",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/nwp512-o",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/news31-o",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/nsterm-m-s-acs",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/ntconsole-60-w",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/nwp251-o",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/news40",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/news31-a",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/nsterm-c-acs",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/ntconsole-25-w-vt",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/nwp251-a",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/ntconsole-50-nti",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/nwp513-o",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/nxterm",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/nsterm-s-acs",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/news33",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/news40-a",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/ntconsole-35",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/nsterm-c-s-7",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/nsterm-256color",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/nsterm-m-acs",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/nwp517",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/nsterm-acs-c-s",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/nsterm-7-s",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/nansisys",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/nsterm-c-s-acs",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/nwp512-a",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/news28-a",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/nsterm-acs-m-s",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/newscbm",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/nwe501-o",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/news40-o",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/nsterm",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/ntconsole-50-w",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/ncsa-m",
+            "reason": "hardlink"
+          },
+          {
+            "path": "usr/share/terminfo/n/news",
+            "reason": "hardlink"
+          }
+        ],
+        "unsupported_observation": {
+          "absolute-symlink": 87,
+          "auxiliary-present": 3,
+          "hardlink": 2896
+        }
+      },
+      "excluded": [
+        "dev/*",
+        "footprint.py",
+        "inputs",
+        "measurement",
+        "measurement-source",
+        "out",
+        "persistent_scope.py",
+        "proc/*",
+        "run/*",
+        "runner.py",
+        "setup4.py",
+        "sys/*",
+        "tmp/*",
+        "upgrade-code",
+        "upgrade-config.json",
+        "upgrade-hook.py",
+        "upgrade-pair",
+        "upgrade-signing"
+      ],
+      "hardware": "NOT RUN",
+      "mount_scope": {
+        "observed_mounts": [
+          "dev",
+          "dev/mqueue",
+          "dev/pts",
+          "dev/shm",
+          "etc/hostname",
+          "etc/hosts",
+          "etc/resolv.conf",
+          "footprint.py",
+          "inputs",
+          "measurement",
+          "measurement-source",
+          "out",
+          "persistent_scope.py",
+          "proc",
+          "proc/acpi",
+          "proc/bus",
+          "proc/fs",
+          "proc/interrupts",
+          "proc/irq",
+          "proc/kcore",
+          "proc/keys",
+          "proc/latency_stats",
+          "proc/scsi",
+          "proc/sys",
+          "proc/sysrq-trigger",
+          "proc/timer_list",
+          "runner.py",
+          "setup4.py",
+          "sys",
+          "sys/firmware",
+          "sys/fs/cgroup",
+          "tmp",
+          "upgrade-code",
+          "upgrade-config.json",
+          "upgrade-hook.py",
+          "upgrade-pair",
+          "upgrade-signing"
+        ],
+        "source_mount": 417,
+        "target_mount": 435
+      },
+      "ordinary_mount_files": [
+        "etc/hostname",
+        "etc/hosts",
+        "etc/resolv.conf"
+      ],
+      "package_owned_nondirectory_paths": 114251,
+      "persistent_nodes_identical": true,
+      "runtime_directories": "PRESERVED_EMPTY",
+      "scope": "complete-persistent-data-materialization",
+      "source_inventory_count": 607,
+      "source_manifest_sha256": "1f3ce2e08dac8157889edb18c40a78e633631da9a8675428811966eb9b84fe72",
+      "source_nodes": 125392,
+      "source_preserved": true,
+      "stage_ready_for_selected_copy": true,
+      "staged_single_mount": true,
+      "status": "PASS",
+      "transaction_acceptance": "NOT ESTABLISHED",
+      "update_eligibility": "NOT ESTABLISHED",
+      "whole_container_root": false,
+      "whole_root_copy": false
+    },
+    "persistent_source_after": {
+      "excluded": [
+        "dev/*",
+        "footprint.py",
+        "inputs",
+        "measurement",
+        "measurement-source",
+        "out",
+        "persistent_scope.py",
+        "proc/*",
+        "run/*",
+        "runner.py",
+        "setup4.py",
+        "sys/*",
+        "tmp/*",
+        "upgrade-code",
+        "upgrade-config.json",
+        "upgrade-hook.py",
+        "upgrade-pair",
+        "upgrade-signing"
+      ],
+      "hardware": "NOT RUN",
+      "initial_digest_match": "CALLER MUST CHECK",
+      "package_owned_nondirectory_paths": 114251,
+      "persistent_nodes_identical": true,
+      "source_inventory_count": 607,
+      "source_manifest_sha256": "1f3ce2e08dac8157889edb18c40a78e633631da9a8675428811966eb9b84fe72",
+      "source_nodes": 125392,
+      "source_preserved": true,
+      "status": "PASS",
+      "transaction_acceptance": "NOT ESTABLISHED",
+      "whole_container_root": false
+    },
+    "persistent_source_preserved": true,
+    "phase": "completed",
+    "recovery": "OWNED-COPY-DISPOSAL-VERIFIED",
+    "scope": "controlled-full-current604-postcommit-failure-disposal",
+    "status": "PASS",
+    "transaction_acceptance": "NOT ESTABLISHED",
+    "whole_container_root": false,
+    "worker": {
+      "direct_child_reaped": true,
+      "group_kill_sent": true,
+      "returncode": 0,
+      "termination": null
+    }
+  },
+  "hardware": "NOT RUN",
+  "hooks": "MASKED",
+  "installed_inventory_sha256": "72818a8a2ae488281b08486b92c435ec244ef3b5313f23b97473d1684ecb68b4",
+  "package_count": 607,
+  "payload_ownership": "PASS",
+  "phase": "completed",
+  "project_sha256": {
+    "cachy-asahi-apps": "1ce4a540a5ec2fa26353847b93fed953e084cf65e872836f670ac721446cd3d7",
+    "cachy-asahi-boot-report": "4400e766391b27021c6f40d29c35eb215d9fad12e4555f0d8b6637967baa6472",
+    "cachy-asahi-cache": "450706e2899f57b44ca2f446560c8aeab710a4726a13561d09a2cb4a8bf1da40",
+    "cachy-asahi-dns": "588301342503ab23869d78e212f50a7b363fe45dcaf7c2ad4c411a33bab22d1d",
+    "cachy-asahi-doctor": "5d27ef618bfc571c0238cfbbbcf382d0e4c689df509d1f62123ad5fe53245ee7",
+    "cachy-asahi-fdk-aac": "237b7812435bd78456d72c157f5703f258f5b6b7455cb99e5b075f642071c247",
+    "cachy-asahi-fish-autopair": "ea5dbb98856e8226b133b08ab2332b170244edb743248a5a98d8c2c3930f9f78",
+    "cachy-asahi-fish-bang-bang": "542585b5c6d50f379deca86cc394afbb0eca51174ee9e11d7ec895181ef73f8e",
+    "cachy-asahi-fish-config": "38e766158d13a0e13b8f811766119d10c018ccc256f5d99c3561b74c99d12705",
+    "cachy-asahi-fish-done": "9ce3c7ba89467f04660014c1b12056dce28bd0c4e69b4cab8a9c2c98e1cce54f",
+    "cachy-asahi-hyprland-settings": "0b22b778ec83d8b98d98d06fa4f016bd4e3f581b69efa83d6526c5265c2adf5e",
+    "cachy-asahi-ksmctl": "bac3d222b6490412c1c9c7bafd72d8169e8679a1e7b411b5794246aed0b57b5f",
+    "cachy-asahi-mirrors": "003ed932012ecc4ebb2f5a43c911db8eece30d532dc8e6d3f54c4bf249668c3c",
+    "cachy-asahi-orphans": "2543a13b584bf974efc4ce79f4da585d9e4513c2bc3907750fe5c962d20c8c02",
+    "cachy-asahi-repository-runtime": "1c8a9149da02e60a4c14598cdf7007d6dbffcd6150757fcf6711977aa00cf8aa",
+    "cachy-asahi-setup": "a4fc772da0fd460f07380c4bc6bc1396688745907a993fe2591778082dae05c8",
+    "cachy-asahi-sysctl": "f569ddfb8b1a5347f26db05b9f702706bebc9d8b88369f1a5861544a285659c3",
+    "cachy-asahi-topmem": "583ffacd614bd741722486d5fbc64b79bb283d62c87974063fc1484dfcbe199b",
+    "cachy-asahi-update": "88e6ebad51700499bc2f0c608409e06983b0146ebf555101b526c7a32d5ba4f6",
+    "cachy-asahi-welcome": "1cbb8f5f9fd5f072ba2974837cf10dc7e90edbd236cbf3a34916cd0af3d4b240",
+    "cachy-asahi-zsh-autosuggestions": "ff59a185f52e80dc4fd08c666d093cccefa3e57f2513085c900602da597f29b9",
+    "cachy-asahi-zsh-config": "be2ef8ed4f0263720ed6290bff9992d5df53c7bf689a40478f2be329ba2d50e7",
+    "cachy-asahi-zsh-history-substring-search": "dc5cdffcc7d59bd93986bfbb5279aaff3760f469dc3ce4a2eb5244e1e80ceb15",
+    "cachy-asahi-zsh-syntax-highlighting": "1b253d7676a4ab48f1c423d163f5a4614a01fac9d884d3c253db84c6a72b84a6"
+  },
+  "publication": "NOT ACCEPTED",
+  "pyalpm": "PASS-native-import",
+  "scope": "generic-offline-composition",
+  "scriptlets": "DISABLED",
+  "status": "PASS",
+  "target_lifecycle": "NOT RUN"
+}
