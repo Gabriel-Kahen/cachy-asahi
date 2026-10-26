@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-"""Closed two-stage source DATA edits; never import or execute supplied code."""
+"""Closed three-stage source DATA edits; never import or execute supplied code."""
 import copy,json
 CASES=('normal','precommit-exit86','postcommit-exit87')
 PARENT='implementation/parent355.json'
@@ -56,4 +56,38 @@ def inverse(values,before,intermediate,profile,contexts,edits,api):
     restored['implementation/profile.json']=api.encoded(package);parent=json.loads(restored[PARENT]);binding=parent.pop('descriptor_source_binding')
     api.need(binding['files']==profile['parent']['files']and all(binding['before_bodies'][n].encode()==before[n]for n in binding['before_bodies']),'whole descriptor before bodies')
     restored[PARENT]=api.encoded(parent);seal(restored,api);api.need(restored==before,'ENTIRE public360 before inverse; every held body/clock/security operand')
+    return restored
+
+def database(before,profile,context,edits,api):
+    """Only selected607 exact Apps6/16 DB prefixes; original604 is DATA held."""
+    values=dict(before);text_edits(values,edits['database'],api)
+    package=json.loads(before['implementation/profile.json'])
+    for case in CASES:
+        name='scripts/ci/full-root-upgrade/root_upgrade.py';path='cases/'+case+'/'+name
+        values[path]=api.apply(before[path],[[context['line_before'],context['line_after']]])
+        cfgname='cases/'+case+'/upgrade-config.json';cfg=json.loads(before[cfgname]);api.need(cfg['code_pins'][name]==api.pin(before[path])['sha256'],'original exact capsule helper seal')
+        cfg['code_pins'][name]=api.pin(values[path])['sha256'];values[cfgname]=api.encoded(cfg)
+        api.need(package['old_source_lineage'][case][name]==context['lineage_before'][case],'entire prior typed helper lineage')
+        package['old_source_lineage'][case][name]=copy.deepcopy(profile['database_lineage_after'][case])
+        package['cases'][case][name]=api.pin(values[path]);package['cases'][case]['upgrade-config.json']=api.pin(values[cfgname])
+    values['implementation/profile.json']=api.encoded(package)
+    binding=copy.deepcopy(context);binding['files']=profile['database_parent']['files'];binding['before_bodies']={n:before[n].decode()for n in edits['database']}
+    parent=json.loads(before[PARENT]);api.need('database_preservation_binding'not in parent,'fresh selected database context');parent['database_preservation_binding']=binding;values[PARENT]=api.encoded(parent);seal(values,api)
+    return values
+
+def database_inverse(values,before,profile,context,edits,api):
+    """Restore ALL public027a bytes before the held descriptor/cleanup inverse."""
+    restored=dict(values);text_edits(restored,edits['database'],api,reverse=True)
+    package=json.loads(restored['implementation/profile.json']);original=json.loads(before['implementation/profile.json'])
+    for case in CASES:
+        name='scripts/ci/full-root-upgrade/root_upgrade.py';path='cases/'+case+'/'+name
+        restored[path]=api.apply(restored[path],[[context['line_before'],context['line_after']]],reverse=True)
+        cfgname='cases/'+case+'/upgrade-config.json';cfg=json.loads(restored[cfgname]);api.need(cfg['code_pins'][name]==api.pin(values[path])['sha256'],'current actual helper seal before inverse');cfg['code_pins'][name]=api.pin(before[path])['sha256'];restored[cfgname]=api.encoded(cfg)
+        api.need(package['old_source_lineage'][case][name]==profile['database_lineage_after'][case],'exact complete current typed lineage')
+        package['old_source_lineage'][case][name]=copy.deepcopy(context['lineage_before'][case])
+        for n in(name,'upgrade-config.json'):package['cases'][case][n]=original['cases'][case][n]
+    restored['implementation/profile.json']=api.encoded(package);parent=json.loads(restored[PARENT]);binding=parent.pop('database_preservation_binding')
+    expected=copy.deepcopy(context);expected['files']=profile['database_parent']['files'];expected['before_bodies']={n:before[n].decode()for n in edits['database']}
+    api.need(binding==expected,'whole source-owned database context and before bodies')
+    restored[PARENT]=api.encoded(parent);seal(restored,api);api.need(restored==before and {n:api.pin(b)for n,b in restored.items()}==profile['database_parent']['files'],'ENTIRE public027a360 inverse; no other field/runtime/clock change')
     return restored
