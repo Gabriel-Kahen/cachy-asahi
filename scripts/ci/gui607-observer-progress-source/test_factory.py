@@ -13,7 +13,7 @@ class Controls(unittest.TestCase):
    for context in('known','null'):
     output=Path(td)/context;argv=[sys.executable,'-I','-B','-Werror',str(HERE/'prepare.py'),'--source',str(SOURCE),'--output',str(output),'--context',context]
     done=subprocess.run(argv,capture_output=True,timeout=30,umask=0o077);self.assertEqual(done.returncode,0,done.stderr.decode());row=json.loads(done.stdout)
-    self.assertEqual(F.tree(output),expected);self.assertEqual(len(row['files']),692);self.assertEqual(row['source'],'6e86e6e14f29bbeff2f4e8733915dd43a244a588'if context=='known'else None)
+    self.assertEqual(F.tree(output),expected);self.assertEqual(len(row['files']),692);self.assertEqual(row['source'],'3f8594cbbed6e8f9c774c00d540427a8f914c4c3'if context=='known'else None)
     self.assertTrue(all(row[k]is None for k in('actual_source','actual_ref','actual_run','Root_acceptance')));self.assertTrue(all(stat.S_IMODE((output/n).stat().st_mode)==0o644 for n in expected))
  def test_constructor_never_executes_supplied_source_or_actors(self):
   sentinel=object();saved=sys.modules.get('common',sentinel)
@@ -26,11 +26,16 @@ class Controls(unittest.TestCase):
    if saved is sentinel:sys.modules.pop('common',None)
    else:sys.modules['common']=saved
  def test_complete_parent_body_inverses_and_all685_held(self):
-  values,p,*_=F.compose(SOURCE);before=F.tree(SOURCE);parent=json.loads(values['implementation/build-inventory-parent.json']);context=parent.pop('observer_progress')
+  values,p,*_=F.compose(SOURCE);before=F.tree(SOURCE);mid=F.payload_inverse(values);self.assertEqual({n:F.pin(b)for n,b in mid.items()},p['intermediate']['files']);parent=json.loads(mid['implementation/build-inventory-parent.json']);context=parent.pop('observer_progress')
   self.assertEqual(F.encoded(parent),before['implementation/build-inventory-parent.json']);self.assertEqual(context['files'],p['parent']['files']);self.assertEqual(context['source'],p['parent']['source']);self.assertIsNone(context['actual'])
   self.assertEqual(len(p['held']),685);self.assertEqual(len(p['changed']),7)
   for n in p['held']:self.assertEqual(values[n],before[n],n)
   self.assertEqual(values,F.tree(EXPECTED))
+  for field,value in(('actual',1),('source','0'*40),('variant','foreign')):
+   hostile=dict(values);parent=json.loads(hostile['implementation/build-inventory-parent.json']);parent['payload_progress'][field]=value;hostile['implementation/build-inventory-parent.json']=F.encoded(parent)
+   with self.assertRaises(ValueError):F.payload_inverse(hostile)
+  hostile=dict(values);hostile['implementation/expected607.lock']+=b'\n'
+  with self.assertRaises(ValueError):F.payload_inverse(hostile)
  def test_paths_double_slash_literal_cli_and_no_writes(self):
   with tempfile.TemporaryDirectory()as td:
    root=Path(td);source=root/'source';shutil.copytree(SOURCE,source);alias=root/'alias';alias.symlink_to(source,target_is_directory=True);actual=root/'native-actual-fixture';actual.mkdir()

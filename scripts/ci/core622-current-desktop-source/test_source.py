@@ -15,7 +15,7 @@ class Controls(unittest.TestCase):
     output=Path(t)/context;argv=[sys.executable,'-I','-B','-Werror',str(HERE/'prepare.py'),'--output',str(output),'--context',context]
     for k,p in ROOTS.items():argv+=['--'+k.replace('_','-'),str(p)]
     run=subprocess.run(argv,capture_output=True,text=True,timeout=60);self.assertEqual(run.returncode,0,run.stderr);receipt=json.loads(run.stdout);self.assertIsNone(receipt['actual']);self.assertFalse(receipt['native_acceptance']);self.assertEqual(receipt['files'],66);self.assertEqual(F.tree(output),F.tree(EXPECTED));self.assertTrue(all((output/n).stat().st_mode&0o777==0o644 for n in F.tree(output)))
-    self.assertEqual(receipt['source'],None if context=='null'else'09775710e2ad55d647993eab81890f1696572c86')
+    self.assertEqual(receipt['source'],None if context=='null'else'333f9b0a3f11bc2180557f7e9feedfa2f2359b98')
  def test_full_before_inverse_held_bodies_and_current_closed_profile(self):
   values,p,_,_=F.compose(ROOTS);before=F.tree(ROOTS['parent']);self.assertEqual({n:F.pin(b)for n,b in values.items()},p['result']['files']);self.assertEqual(values,F.tree(EXPECTED));parent=json.loads(values['composition-parent.json']);restored=dict(values)
   for n in p['added']:restored.pop(n)
@@ -85,7 +85,7 @@ class CurrentImportControls(unittest.TestCase):
 
 class EnvironmentControls(unittest.TestCase):
  def test_current_full66_before_inverse_and_only_final_caller_flag(self):
-  values,p,_,_=F.compose(ROOTS);old=F.before_environment(values);record=json.loads(values['composition-parent.json'])['apparmor_environment'];self.assertEqual({n:F.pin(b)for n,b in old.items()},record['before']);self.assertEqual(sum(values[n]==old[n]for n in values),60)
+  values,p,_,_=F.compose(ROOTS);values=F.before_capability(values);old=F.before_environment(values);record=json.loads(values['composition-parent.json'])['apparmor_environment'];self.assertEqual({n:F.pin(b)for n,b in old.items()},record['before']);self.assertEqual(sum(values[n]==old[n]for n in values),60)
   for n in('workflow.yml.in','.github/workflows/native-arm-build.yml','.github/workflows/native-arm-core7-real-systemd.yml'):
    self.assertEqual(values[n].replace(b'GITHUB_ACTIONS=true ',b'',1),old[n]);self.assertEqual(values[n].count(b'GITHUB_ACTIONS=true'),1)
   for n in('desktop622.py','ownership622.py','run622.py','controller.py','profile.json'):self.assertEqual(values[n],old[n])
@@ -101,5 +101,13 @@ class EnvironmentControls(unittest.TestCase):
    env=dict(PATH='/usr/bin:/bin',HOME=td,RUNNER_TEMP=td,GITHUB_WORKSPACE=td,GITHUB_RUN_ID='123456789',GITHUB_RUN_ATTEMPT='1',FDK_PAIR_OUTCOME='success',AUDIO_INPUTS_OUTCOME='success',FRESH_SOURCE='b9976eea34eaed4b6e56af3be21d4d652fa971d6',IMPLEMENTATION_SOURCE='f'*40,GITHUB_ACTIONS='false',DOCKER_CORE_FIXTURE='forbidden',LD_CORE_FIXTURE='forbidden',PYTHONPATH='/forbidden',CORE_FOREIGN='forbidden')
    run=subprocess.run(['/bin/bash','-euo','pipefail','-c',script],capture_output=True,timeout=10,env=env);self.assertEqual(run.returncode,0,run.stderr);self.assertEqual(run.stderr,b'');record=json.loads(run.stdout);actual=record['environment'];self.assertEqual(actual['GITHUB_ACTIONS'],'true');self.assertEqual(actual['RUNNER_ARCH'],'ARM64');self.assertIn('--fresh607-source',record['argv'])
    for key in('DOCKER_CORE_FIXTURE','LD_CORE_FIXTURE','PYTHONPATH','CORE_FOREIGN'):self.assertNotIn(key,actual)
+
+class CapabilityBoundaryControls(unittest.TestCase):
+ def test_complete097757_before_inverse_and_exact_four_changed_leaves(self):
+  values,p,_,_=F.compose(ROOTS);before=F.before_capability(values);self.assertEqual({n:F.pin(b)for n,b in before.items()},p['capability_parent']['files']);self.assertEqual({n for n in before if before[n]!=values[n]},{'provision622.py','composition-parent.json','source622.py','source-manifest.json'});self.assertEqual(sum(before[n]==values[n]for n in before),62)
+  for n in('workflow.yml.in','.github/workflows/native-arm-build.yml','.github/workflows/native-arm-core7-real-systemd.yml','ownership622.py','desktop622.py'):self.assertEqual(values[n],before[n])
+  for field,value in(('actual',1),('parent_source','0'*40)):
+   bad=dict(values);p=json.loads(bad['composition-parent.json']);p['capability_boundary'][field]=value;bad['composition-parent.json']=F.enc(p)
+   with self.assertRaises(ValueError):F.before_capability(bad)
 
 if __name__=='__main__':unittest.main(verbosity=2)

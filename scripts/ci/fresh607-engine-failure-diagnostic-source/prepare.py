@@ -3,7 +3,7 @@
 import argparse,hashlib,json,os,stat
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
-PROFILE={'bytes': 1198957, 'sha256': '7abe73453e8be474d902c49a57f755739043357e6340114504c4ef0bd1667963'}
+PROFILE={'bytes': 1440874, 'sha256': '23b7bec8fdae7d5473241b2f634cf9a068100dcc07e638e0f21a05be961ffade'}
 
 def need(ok, message):
     if not ok:
@@ -113,6 +113,33 @@ def numeric_before(values,p):
 
 
 
+def abi_before(values,p):
+ """Pure DATA reconstruction of all exact public95a75 before bytes."""
+ out=dict(values);pn='implementation/page-parent.json';gn='implementation/page_source.py';parent=json.loads(values[pn]);r=parent['engine_failure_parent'].pop('alpm_type_origin');need(r['source']=='95a75cd9798b8b827f80233f3ea402ff7fc9b224'and r['files']==p['abi_parent']['files']and all(r[k]is None for k in('actual_source','actual_ref','actual_run','Root_acceptance')),'closed whole95a75 ABI parent')
+ parent['guard_template']=r['guard_template']
+ for n,w in r['products_before'].items():parent['products'][n]=w
+ out[pn]=encoded(parent)
+ for role,name in(('mode','implementation/page_mode.py'),('test','implementation/test_page_mode.py')):
+  raw=values[name];tail=r[role+'_append'].encode()
+  if role=='mode':
+   if tail:need(raw.endswith(tail),'whole ABI mode append inverse');raw=raw[:-len(tail)]
+  else:
+   entry=b"if __name__=='__main__':\n";insert=tail+b'\n'+entry;need(tail and raw.count(insert)==1,'one exact ABI test insertion');raw=raw.replace(insert,entry,1)
+  out[name]=apply(raw,r[role+'_edits'],reverse=True)
+ raw=values[gn];newsha=pin(values[pn])['sha256'];tail=r['guard_append'].encode();need(raw.count(newsha.encode())==1 and raw.endswith(tail),'whole ABI guard/seal inverse');raw=raw.replace(newsha.encode(),pin(out[pn])['sha256'].encode(),1);out[gn]=apply(raw[:-len(tail)],r['guard_edits'],reverse=True)
+ aliases=('.github/workflows/native-arm-build.yml','.github/workflows/native-arm-latest607-fresh-installer.yml');manifest=json.loads(values['source-manifest.json']);manifest['files']={n:pin(b)for n,b in out.items()if n not in('source-manifest.json',*aliases)};out['source-manifest.json']=encoded(manifest)
+ for n in aliases:out[n]=values['implementation/workflow-template.yml'].replace(b'@FRESH607_MANIFEST@',pin(out['source-manifest.json'])['sha256'].encode(),1)
+ need(len(out)==1203 and {n:pin(b)for n,b in out.items()}==r['files'],'ENTIRE exact95a75 source before inverse');return out
+
+def abi_stage(values,p,operands):
+ """Exactly two selected16K Ptr origin operands; raw/default4K bodies held."""
+ mode,test,gn,pn='implementation/page_mode.py','implementation/test_page_mode.py','implementation/page_source.py','implementation/page-parent.json';r=json.loads(operands['abi-context.json']);need(r['source']==p['abi_parent']['source']and {n:pin(b)for n,b in values.items()}==p['abi_parent']['files']and r['scope']=='SELECTED16K_TWO_ALPM_ORIGIN_PTR_ALLOCATIONS_RAW_4K_HELD'and all(r[k]is None for k in('actual_source','actual_ref','actual_run','Root_acceptance')),'whole exact95a75 source-only ABI stage')
+ r['files']=p['abi_parent']['files'];r['git']['files']=r['files'];r['test_append']=operands['abi-tests.py.txt'].decode();r['guard_append']=operands['abi-guard.py.txt'].decode();parent=json.loads(values[pn]);need(parent['guard_template']==r['guard_template']and {n:parent['products'][n]for n in(mode,test)}==r['products_before'],'exact old95a75 products/guard')
+ newmode=apply(values[mode],r['mode_edits']);need(not r['mode_append'],'no ABI runtime helper append');newtest=apply(values[test],r['test_edits']);entry=b"if __name__=='__main__':\n";need(newtest.count(entry)==1,'one actual ABI CI entry');newtest=newtest.replace(entry,r['test_append'].encode()+b'\n'+entry,1);oldsha=pin(values[pn])['sha256'];need(values[gn].count(oldsha.encode())==1,'one old95a75 seal');template=apply(values[gn].replace(oldsha.encode(),b'@PARENT_SHA@',1),r['guard_edits'])+r['guard_append'].encode();parent['engine_failure_parent']['alpm_type_origin']=r;parent['products'][mode]=pin(newmode);parent['products'][test]=pin(newtest);parent['guard_template']=pin(template);raw=encoded(parent);need(len(raw)<16*1024**2 and template.count(b'@PARENT_SHA@')==1,'held16MiB parent bound and exact ABI seal')
+ out=dict(values);out.update({mode:newmode,test:newtest,pn:raw,gn:template.replace(b'@PARENT_SHA@',pin(raw)['sha256'].encode(),1)});aliases=('.github/workflows/native-arm-build.yml','.github/workflows/native-arm-latest607-fresh-installer.yml');manifest=json.loads(values['source-manifest.json']);manifest['files']={n:pin(b)for n,b in out.items()if n not in('source-manifest.json',*aliases)};out['source-manifest.json']=encoded(manifest)
+ for n in aliases:out[n]=values['implementation/workflow-template.yml'].replace(b'@FRESH607_MANIFEST@',pin(out['source-manifest.json'])['sha256'].encode(),1)
+ need(abi_before(out,p)==values,'complete immediate95a75 ABI stage inverse');return out
+
 def clock_stage(values,p,operands):
  """Finite selected clock stage after complete engine/numeric/authentication."""
  mode,test,guard,pn='implementation/page_mode.py','implementation/test_page_mode.py','implementation/page_source.py','implementation/page-parent.json'
@@ -131,6 +158,7 @@ def clock_stage(values,p,operands):
 
 def clock_before(values,p):
  """Complete087c source reconstruction, no historical tree or code execution."""
+ if 'alpm_type_origin'in json.loads(values['implementation/page-parent.json'])['engine_failure_parent']:values=abi_before(values,p)
  before=dict(values);pn='implementation/page-parent.json';guard='implementation/page_source.py';parent=json.loads(values[pn]);r=parent['engine_failure_parent'].pop('realtime_initialization');need(r['files']==p['authentication_parent']['files'],'closed087c before map')
  parent['guard_template']=r['guard_template']
  for n,w in r['products_before'].items():parent['products'][n]=w
@@ -189,6 +217,7 @@ def compose(source):
  restored_test=newtest.replace(c['test_append'].encode()+b'\n'+entry,entry,1);need(apply(restored_test,c['test_edits'],reverse=True)==before[test],'whole original page CI control inverse')
  numeric_before(values,p)
  values=clock_stage(values,p,operands)
+ need({n:pin(b)for n,b in values.items()}==p['abi_parent']['files'],'entire exact95a75 clock intermediate');values=abi_stage(values,p,operands)
  need({n:pin(b)for n,b in values.items()}==p['result']['files']and{n for n in before if before[n]!=values[n]}==set(p['changed'])and all(values[n]==before[n]for n in p['held']),'entire PUBLIC95a75 current1203 and all1195 held')
  need(scan(source)==(before,bstate)and all(read_state(HERE/n)==v for n,v in states.items()),'late whole source/operand FD identity/namespace drift')
  return values,p,(before,bstate),states

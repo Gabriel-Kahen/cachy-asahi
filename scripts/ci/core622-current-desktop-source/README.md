@@ -1,6 +1,6 @@
 # Exact current607 → Core622 source factory
 
-Source-only, stdlib-only reproduction of public66 `09775710e2ad55d647993eab81890f1696572c86`. Supply four separate ordinary exports: original Core51 `11b3cfb59663e42b34247facb9f30f042e891444`, fresh1197 `b9976eea34eaed4b6e56af3be21d4d652fa971d6`, Core decision10 `6e29f427fe273042ebaeca24d00326173888e95d`, fresh decision24 `5a0789405ded23f759f4a3aa545cf737c4ec3bde`. Complete maps are pinned; no runtime code executes during construction.
+Source-only, stdlib-only reproduction of public66 `333f9b0a3f11bc2180557f7e9feedfa2f2359b98`. Supply four separate ordinary exports: original Core51 `11b3cfb59663e42b34247facb9f30f042e891444`, fresh1197 `b9976eea34eaed4b6e56af3be21d4d652fa971d6`, Core decision10 `6e29f427fe273042ebaeca24d00326173888e95d`, fresh decision24 `5a0789405ded23f759f4a3aa545cf737c4ec3bde`. Complete maps are pinned; no runtime code executes during construction.
 
 ```sh
 python3 -I -B prepare.py --parent /exports/core51 --fresh607 /exports/fresh1197 --core-record /exports/core10 --fresh-record /exports/fresh24 --output /new/core66 --context known
@@ -15,3 +15,5 @@ The selected Core preparation uses the exact pinned owned builder, joins ten ret
 The cache CLI bootstrap loads the exact local desktop622 bytes into a private module, including under real isolated Python execution. The same66 ae39 before-map/products/selfseal inverse and original51 guard remain mandatory. Factory tests exercise the actual emitted -I CLI through the real facade to an original compiler pre-mutation input refusal; no facade mock or native actor is involved.
 
 The selected final `env -i` caller explicitly supplies `GITHUB_ACTIONS=true`; no ambient CI environment is inherited. Original Linux/aarch64/ordinary-UID/no-DOCKER/no-LD confinement checks remain byte-held. The whole bbdf66→ae39→51 inverse and all prior source predicates remain mandatory. Exact known/NULL output and a real sanitized shell recorder are tested; this is source-only, with no native admission.
+
+The same existing CLI now emits exact public333f9b0a3f11bc2180557f7e9feedfa2f2359b98 after the finite capability guard-anchor correction and whole097757 inverse. Every older stage/default/security/clock remains mandatory; no normal-hook/native/M2 acceptance follows.
