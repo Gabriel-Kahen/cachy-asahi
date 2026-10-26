@@ -1,0 +1,14 @@
+[
+  [
+    " s=json.loads(old[SUCCESSOR]);s['after']=",
+    " out=capacity_apply(out,json.loads(profile))\n s=json.loads(old[SUCCESSOR]);s['after']="
+  ],
+  [
+    " return p\n\ndef bodies(",
+    " c=p['inspect_capacity'];need(c['source']=='652b93b58185864104d182776cf889cdd491fb20'and c['source']==c['git']['source']==c['publication']['source']and c['before']==c['git']['files']and len(c['before'])==245,'whole genuine652 before inspect1800')\n need(c['scope']=='EXPLICIT_OWNED_VM_INSPECT_THREE_FULL_OBSERVATIONS_1800_1810_NO_ALGORITHM_CHANGE'and all(c[k]is None for k in('current_source','current_ref','current_run','actual')),'source-only exact inspect capacity scope')\n need(c['budget']==dict(profile='REPAIR_GENERIC16K_OWNED_INSPECT_THREE_OBSERVATIONS_1800_V1',backend=1800,caller=1810,observation_units=3,observation_unit_seconds=600,default_backend=600,default_caller=610,legacy_backend=1200,legacy_caller=1210,output_limit=1048576,outer_owner_max=18000,outer='HELD_SAME_REMAINING_DEADLINE_NO_ADDITIVE_EXTENSION',old600_fit='NOT_ESTABLISHED',old1200_fit='NOT_ESTABLISHED',new1800_fit='NOT_ESTABLISHED',M2_performance='NOT_RUN'),'closed source-bound capacity and all default/legacy/outer limits')\n return p\n\ndef bodies("
+  ],
+  [
+    " actual,p=stderr_before(actual,p)\n",
+    " actual,p=capacity_before(actual,p)\n actual,p=stderr_before(actual,p)\n"
+  ]
+]

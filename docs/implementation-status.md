@@ -1,5 +1,7 @@
 # Implementation and acceptance status
 
+October26: [Current607 updater normal and both interruption cases pass on one source](validation/updater607-same-source-native4k-20261026.md). The normal, precommit86 and postcommit87 runs independently preserve606 protected packages and the Apps6 source, then dispose their owned copies. Normal commits once and syncs its copied checkpoint; interrupted cases retain zero/one commits with unchanged checkpoints. This is finite native ARM4K copy/disposal validation; rollback, boot recovery, updater16K, M2 and release remain separate.
+
 October26: [Signed latest607 fresh installation passes on generic ARM16K](validation/latest607-fresh-installer-generic16k-20261026.md). Exact607 signed TEST packages, ordinary-parent/root-guest payload and database checks, and complete post-parent root readback pass after the selected16K ALPM pointer-origin correction. Physical installation, Apple boot/hooks, both M2 sizes, GUI, performance and release remain separate.
 
 October26: [Core7 automatic hooks and candidate PID1 pass two boots on generic ARM16K](validation/core7-two-boot-generic16k-20261026.md): seven candidate packages in a589-package persistent test root, four complete graphs, distinct boot IDs and natural observer retirement. This finite result leaves the combined current desktop/Core composition, Asahi/both M2 sizes, measurements and release separate.

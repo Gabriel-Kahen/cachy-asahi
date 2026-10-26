@@ -1,0 +1,38 @@
+
+# Explicit source-owned VM option; False and True retain exact default/legacy bytes.
+INSPECT_CAPACITY_PROFILE='REPAIR_GENERIC16K_OWNED_INSPECT_THREE_OBSERVATIONS_1800_V1'
+INSPECT_CAPACITY_EDITS=(
+ ("PROFILE='REPAIR_GENERIC16K_OWNED_INSPECT_VALIDATION_1200_V1'",'PROFILE='+repr(INSPECT_CAPACITY_PROFILE)),
+ ('or seconds!=1210:return False','or seconds!=1810:return False'),
+ ('  return 1200\n','  return 1800\n'),
+ ('selected,seconds=1210,expected=expected','selected,seconds=1810,expected=expected'),
+ ('argv,1210,selected=True','argv,1810,selected=True'),
+ ("row['time_limit']==1210","row['time_limit']==1810"),
+)
+def _inspect_capacity_source():
+ raw=_INSPECT_VALIDATION_SOURCE;out=raw
+ for before,after in INSPECT_CAPACITY_EDITS:
+  need(out.count(before)==1,'one exact source-bound inspect1800 operand');out=out.replace(before,after,1)
+ restored=out
+ for before,after in reversed(INSPECT_CAPACITY_EDITS):
+  need(restored.count(after)==1,'one inspect1800 inverse');restored=restored.replace(after,before,1)
+ need(restored==raw,'whole original652 inspect1200 helper held');compile(out,'<source-owned-inspect1800>','exec');return out
+
+def _inspect_capacity_helper():
+ import types
+ raw=_inspect_capacity_source();m=types.ModuleType('_source_owned_inspect1800');exec(compile(raw,'<source-owned-inspect1800>','exec'),vars(m));return m,raw
+
+def _inspect_capacity_selection(value):
+ need(type(value)is bool or type(value)is str and value==INSPECT_CAPACITY_PROFILE,'closed default/legacy or exact owned-VM inspect1800 selector');return value
+
+def rendered_backend(source,*,inspect_profile=False):
+ _inspect_capacity_selection(inspect_profile)
+ if inspect_profile!=INSPECT_CAPACITY_PROFILE:return _legacy_inspect_rendered_backend(source,inspect_profile=inspect_profile)
+ raw,ledger=_rendered_backend_original(source);m,helper=_inspect_capacity_helper();out=m.backend(raw,helper)
+ ledger=dict(ledger,owned_inspect_validation=dict(profile=INSPECT_CAPACITY_PROFILE,backend_seconds=1800,caller_seconds=1810,observation_units=3,observation_unit_seconds=600,parent_backend=pin(raw),derived_backend=pin(out),helper=pin(helper.encode()),default_backend_seconds=600,default_caller_seconds=610,legacy_backend_seconds=1200,legacy_caller_seconds=1210,scope='EXACT_OWNED_COPY_INSPECT_THREE_FULL_OBSERVATION_UNITS_ONLY',old600_fit='NOT_ESTABLISHED',old1200_fit='NOT_ESTABLISHED',new1800_fit='NOT_ESTABLISHED',outer_capacity='UNCHANGED_SOURCE_OWNED_REMAINING_DEADLINE',M2_performance='NOT_RUN'))
+ return out,ledger
+
+def lifecycle(raw,*,inspect_profile=False):
+ _inspect_capacity_selection(inspect_profile)
+ if inspect_profile!=INSPECT_CAPACITY_PROFILE:return _legacy_inspect_lifecycle(raw,inspect_profile=inspect_profile)
+ m,helper=_inspect_capacity_helper();return m.lifecycle(_lifecycle_original(raw),helper)
