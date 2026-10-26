@@ -1,0 +1,141 @@
+{
+  "Root_acceptance": null,
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "cause": {
+    "Root_post": {
+      "bytes": 780712,
+      "sha256": "8f96d5fe1c1664eb753c4709be15b259a8f9607745bdbbae24d2693f675f7302"
+    },
+    "actual_import_output": "NOT_EXPORTED",
+    "actual_keyring": "NOT_EXPORTED",
+    "authentication_output": {
+      "bytes": 351,
+      "sha256": "5527bfe3a39b8425bc3b9794e05669a79d30c19f00efcefa130b46b82ec58290"
+    },
+    "failure_run": 40270486703,
+    "guest_builtin_epoch": "2026-09-24T23:46:04Z",
+    "kernel_RTC_CLASS": false,
+    "private_public_only_probe": {
+      "bytes": 6365,
+      "sha256": "8c6bddbc7b55d8b52607ab7932500136ee08b21dac6d955f32ace7d11abd9014"
+    }
+  },
+  "git": {
+    "ref": "codex/latest607-fresh-authentication-diagnostic-v1",
+    "source": "087c70e68251ada1454ea5a8b9d7b52332dbdffa",
+    "status": "PASS_INDEPENDENT_FULL_GIT_BLOB_JOIN"
+  },
+  "guard_edits": [
+    [
+      " e=p['engine_failure_parent'];C.need(",
+      " r=p['engine_failure_parent']['realtime_initialization'];C.need(r['source']=='087c70e68251ada1454ea5a8b9d7b52332dbdffa'and r['files']==r['git']['files']and r['source']==r['git']['source']==r['publication']['source'],'whole genuine087c source before realtime correction')\n C.need(r['scope']=='SOURCE_OWNED_SELECTED16K_REALTIME_CURRENT_HOST_LAUNCH_NONCE_SOURCE_RUN_WORKSPACE_NO_GPG_WAIVER'and all(r[k]is None for k in('actual_source','actual_ref','actual_run','Root_acceptance')),'closed owned guest clock scope and NULL actuals')\n restored_realtime={n:realtime_before_body(n,p)for n in r['files']};prior_realtime=realtime_before_parent(p);C.need(len(restored_realtime)==1203 and{n:C.pin(b)for n,b in restored_realtime.items()}==r['files'],'whole087c realtime-before source inverse')\n C.need(C.pin(restored_realtime['implementation/page_source.py'].replace(r['files']['implementation/page-parent.json']['sha256'].encode(),b'@PARENT_'+b'SHA@'))==prior_realtime['guard_template'],'whole original087c guard template')\n e=p['engine_failure_parent'];C.need("
+    ],
+    [
+      " prior=json.loads(C.enc(p));prior['engine_failure_parent'].pop('authentication_diagnostic');",
+      " prior=realtime_before_parent(p);prior['engine_failure_parent'].pop('authentication_diagnostic');"
+    ],
+    [
+      "one(one(C.read(C.ROOT/n),PARENT_SHA,a['files']['implementation/page-parent.json']['sha256'])",
+      "one(one(realtime_before_body(n,p),r['files']['implementation/page-parent.json']['sha256'],a['files']['implementation/page-parent.json']['sha256'])"
+    ],
+    [
+      "  else:body=C.read(C.ROOT/n)\n  restored_auth[n]=body",
+      "  else:body=realtime_before_body(n,p)\n  restored_auth[n]=body"
+    ],
+    [
+      " raw=C.read(C.ROOT/name)\n if name=='implementation/page_source.py':\n  raw=one(raw,PARENT_SHA,e['files']['implementation/page-parent.json']['sha256'])",
+      " raw=realtime_before_body(name,p)\n if name=='implementation/page_source.py':\n  raw=one(raw,p['engine_failure_parent']['realtime_initialization']['files']['implementation/page-parent.json']['sha256'],e['files']['implementation/page-parent.json']['sha256'])"
+    ],
+    [
+      "return with_dependency_cache_workflow(out)",
+      "out=with_dependency_cache_workflow(out)\n out=one(out,'          page_args=(--page-mode \"$PAGE_MODE\")\\n','          clock_env=()\\n          page_args=(--page-mode \"$PAGE_MODE\")\\n')\n out=one(out,'generic16k) page_args+=(--kernel-input \"$RUNNER_TEMP/fresh607-kernel20-data\");;','generic16k) page_args+=(--kernel-input \"$RUNNER_TEMP/fresh607-kernel20-data\"); clock_env=(FRESH_SOURCE=\"$FRESH_SOURCE\" GITHUB_RUN_ID=\"$GITHUB_RUN_ID\" GITHUB_RUN_ATTEMPT=\"$GITHUB_RUN_ATTEMPT\");;')\n out=one(out,'            PYTHONDONTWRITEBYTECODE=1 \\\\\\n','            PYTHONDONTWRITEBYTECODE=1 \"${clock_env[@]}\" \\\\\\n')\n return out"
+    ],
+    [
+      "elif n in ALIASES:body=one(C.read(C.ROOT/n),C.pin(C.read(C.ROOT/'source-manifest.json'))['sha256'],a['files']['source-manifest.json']['sha256'])",
+      "elif n in ALIASES:body=one(realtime_before_body(n,p),r['files']['source-manifest.json']['sha256'],a['files']['source-manifest.json']['sha256'])"
+    ],
+    [
+      "elif name in ALIASES:raw=one(raw,C.pin(C.read(C.ROOT/'source-manifest.json'))['sha256'],e['files']['source-manifest.json']['sha256'])",
+      "elif name in ALIASES:raw=one(raw,p['engine_failure_parent']['realtime_initialization']['files']['source-manifest.json']['sha256'],e['files']['source-manifest.json']['sha256'])"
+    ],
+    [
+      "elif n in ALIASES:body=one(C.read(C.ROOT/n),C.pin(C.read(C.ROOT/'source-manifest.json'))['sha256'],binding['files']['source-manifest.json']['sha256'])",
+      "elif n in ALIASES:body=one(engine_before_body(n,p),p['engine_failure_parent']['files']['source-manifest.json']['sha256'],binding['files']['source-manifest.json']['sha256'])"
+    ]
+  ],
+  "guard_template": {
+    "bytes": 22406,
+    "sha256": "0a66a5809fc9f25353b3218f0650f838bf1a57736401e9a62a4a1e2de2af5cfe"
+  },
+  "mode_edits": [
+    [
+      " if name=='installer.py':out=engine_failure_transform(out)\n",
+      " if name in('run.py','guest.py'):out=clock_transform(out,name)\n if name=='installer.py':out=engine_failure_transform(out)\n"
+    ],
+    [
+      " restored=engine_failure_inverse(out)if name=='installer.py'else out\n",
+      " restored=engine_failure_inverse(out)if name=='installer.py'else out\n if name in('run.py','guest.py'):restored=clock_inverse(restored,name)\n"
+    ],
+    [
+      " values=inputs(kernel);rows=adapter.emit(output);",
+      " context=clock_context();values=inputs(kernel);rows=adapter.emit(output);"
+    ],
+    [
+      "  raw=C.read(output/name);out[name]=transform(raw,name);(output/name).write_bytes(out[name])",
+      "  raw=C.read(output/name);out[name]=transform(raw,name)\n  if name in('run.py','guest.py'):out[name]=clock_bind(out[name],name,context)\n  (output/name).write_bytes(out[name])"
+    ],
+    [
+      "report['default4k_adapter']=parent_report;report['page_edits']=edits();",
+      "report['default4k_adapter']=parent_report;report['page_edits']=edits();report['realtime_context']=context;"
+    ]
+  ],
+  "products_before": {
+    "implementation/page_mode.py": {
+      "bytes": 15949,
+      "sha256": "6200b95a5c1bf38836785e5b823e3555a029f44ca63a16763ed2c29b518007ea"
+    },
+    "implementation/test_page_mode.py": {
+      "bytes": 28719,
+      "sha256": "d29aa2d6764360fe33d4719fd522db75dfc4a5887a64d7ab3cfdc2570c3e9918"
+    }
+  },
+  "publication": {
+    "actual": "NOT_RUN",
+    "files": 1203,
+    "git_joins": 1203,
+    "hardware": "NOT_RUN",
+    "ref": "codex/latest607-fresh-authentication-diagnostic-v1",
+    "release": "NOT_ADMITTED",
+    "source": "087c70e68251ada1454ea5a8b9d7b52332dbdffa",
+    "status": "PUBLISHED_EXACT_CLOSED_TRIAL_SOURCE"
+  },
+  "ref": "codex/latest607-fresh-authentication-diagnostic-v1",
+  "scope": "SOURCE_OWNED_SELECTED16K_REALTIME_CURRENT_HOST_LAUNCH_NONCE_SOURCE_RUN_WORKSPACE_NO_GPG_WAIVER",
+  "source": "087c70e68251ada1454ea5a8b9d7b52332dbdffa",
+  "test_edits": [
+    [
+      "raw=current(n);new=P.transform(raw,n);restored=P.engine_failure_inverse(new)if n=='installer.py'else new",
+      "raw=current(n);new=P.transform(raw,n);restored=P.engine_failure_inverse(new)if n=='installer.py'else new\n   if n in('run.py','guest.py'):restored=P.clock_inverse(restored,n)"
+    ],
+    [
+      "suite.countTestCases()==18",
+      "suite.countTestCases()==22"
+    ]
+  ],
+  "workflow_edits": [
+    [
+      "          page_args=(--page-mode \"$PAGE_MODE\")\n",
+      "          clock_env=()\n          page_args=(--page-mode \"$PAGE_MODE\")\n"
+    ],
+    [
+      "generic16k) page_args+=(--kernel-input \"$RUNNER_TEMP/fresh607-kernel20-data\");;",
+      "generic16k) page_args+=(--kernel-input \"$RUNNER_TEMP/fresh607-kernel20-data\"); clock_env=(FRESH_SOURCE=\"$FRESH_SOURCE\" GITHUB_RUN_ID=\"$GITHUB_RUN_ID\" GITHUB_RUN_ATTEMPT=\"$GITHUB_RUN_ATTEMPT\");;"
+    ],
+    [
+      "            PYTHONDONTWRITEBYTECODE=1 \\\n",
+      "            PYTHONDONTWRITEBYTECODE=1 \"${clock_env[@]}\" \\\n"
+    ]
+  ]
+}

@@ -1,0 +1,63 @@
+
+class ClockControls(unittest.TestCase):
+ def clock_fixture(self):
+  import os,stat
+  from unittest.mock import patch
+  context=dict(schema_version=1,purpose='SOURCE_OWNED_GENERIC16K_REALTIME_INIT_V1',source='1'*40,run_id='17',run_attempt='1')
+  vm=code('source_clock_host',P.transform(current('run.py'),'run.py'));vm.FRESH607_CLOCK_CONTEXT=context
+  fake=types.SimpleNamespace(time_ns=lambda:1_792_991_315_000_000_000);vm.time=fake
+  c=dict(nonce='2'*32)
+  with tempfile.TemporaryDirectory()as td:vm.fresh607_clock_contract(c,Path(td))
+  fake.time_ns=lambda:c['fresh607_realtime']['created_realtime_ns']+5_000_000_000
+  argv=vm.qemu_argv(Path('/kernel'),Path('/image'),c);return context,c,argv,vm
+ def guest_call(self,context,c,commandline,bad_readback=False):
+  import hashlib,time
+  from unittest.mock import patch
+  tree=ast.parse(P.transform(current('guest.py'),'guest.py'));node=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='fresh607_initialize_realtime');calls=[];elapsed=2_000_000_000;state={}
+  def setter(clock,value):self.assertEqual(clock,0);calls.append(value);state['realtime']=value
+  fake=types.SimpleNamespace(CLOCK_REALTIME=0,monotonic_ns=lambda:elapsed,clock_settime_ns=setter,clock_gettime_ns=lambda _:(state['realtime']+(2_000_000_000 if bad_readback else 0)))
+  def path(value):return types.SimpleNamespace(read_text=lambda:commandline)if str(value)=='/proc/cmdline'else Path(value)
+  space=dict(FRESH607_CLOCK_CONTEXT=context,need=C.need,Path=path,hashlib=hashlib,json=json)
+  exec(compile(ast.Module(body=[node],type_ignores=[]),'<EXACT_SELECTED_GUEST_INERT_CLOCK_SETTER>','exec'),space)
+  with patch.dict(sys.modules,{'time':fake}):space['fresh607_initialize_realtime'](c)
+  return calls
+ def test_actual_launch_host_time_and_guest_clock_readback_inert_setter(self):
+  context,c,argv,vm=self.clock_fixture();cmdline=argv[argv.index('-append')+1];calls=self.guest_call(context,c,cmdline);self.assertEqual(calls,[c['fresh607_realtime']['created_realtime_ns']+7_000_000_000])
+  old=code('source_clock_before',P.clock_inverse(P.transform(current('run.py'),'run.py'),'run.py'));prior=old.qemu_argv(Path('/kernel'),Path('/image'));expected=list(prior);expected[expected.index('-append')+1]+=vm.fresh607_clock_argument(c);self.assertEqual(argv,expected)
+ def test_clock_foreign_replay_type_namespace_timestamp_and_readback_refuse(self):
+  context,c,argv,_=self.clock_fixture();cmdline=argv[argv.index('-append')+1];variants=[]
+  for field,value in(('nonce','3'*32),('source','4'*40),('run_id','18'),('run_attempt','2'),('workspace','/foreign'),('created_realtime_ns',True),('extra',None)):
+   bad=copy.deepcopy(c);bad['fresh607_realtime'][field]=value;variants.append((bad,cmdline))
+  stamp=str(c['fresh607_realtime']['created_realtime_ns']+5_000_000_000)
+  for badline in(cmdline.replace(stamp,str(c['fresh607_realtime']['created_realtime_ns']-1)),cmdline.replace(stamp,str(c['fresh607_realtime']['created_realtime_ns']+9_600_000_000_001)),cmdline+' caa_fresh607_realtime_ns='+stamp,cmdline+' caa_fresh607_unknown=1',cmdline.replace('caa_fresh607_clock_sha256=','foreign_clock_sha256=')):
+   variants.append((c,badline))
+  for bad,badline in variants:
+   with self.subTest(fields=bad['fresh607_realtime']),self.assertRaises(ValueError):self.guest_call(context,bad,badline)
+  with self.assertRaisesRegex(ValueError,'readback'):self.guest_call(context,c,cmdline,bad_readback=True)
+ def test_clock_actual_workflow_context_bound_literals_and_default4k_held(self):
+  import os
+  from unittest.mock import patch
+  with patch.dict(os.environ,dict(FRESH_SOURCE='1'*40,GITHUB_RUN_ID='17',GITHUB_RUN_ATTEMPT='1'),clear=True):context=P.clock_context()
+  for key,value in(('FRESH_SOURCE','foreign'),('GITHUB_RUN_ID','0'),('GITHUB_RUN_ATTEMPT','0')):
+   env=dict(FRESH_SOURCE='1'*40,GITHUB_RUN_ID='17',GITHUB_RUN_ATTEMPT='1');env[key]=value
+   with patch.dict(os.environ,env,clear=True),self.assertRaises(ValueError):P.clock_context()
+  with patch.dict(os.environ,{},clear=True),self.assertRaises(ValueError):P.clock_context()
+  for name in('run.py','guest.py'):
+   raw=P.transform(current(name),name);bound=P.clock_bind(raw,name,context);self.assertEqual(P.clock_inverse(bound,name,context),P.clock_inverse(raw,name));self.assertEqual(code('bound_'+name.replace('.','_'),bound).FRESH607_CLOCK_CONTEXT,context)
+  workflow=C.read(C.HERE/'workflow-template.yml');self.assertIn(b'FRESH_SOURCE: ${{ inputs.fresh_source_revision }}',workflow);self.assertIn(b'--fresh-source-revision "$FRESH_SOURCE"',workflow);self.assertIn(b'test "$CURRENT_CHILD_SOURCE" = "$CURRENT_WORKFLOW_SHA"',workflow);self.assertIn(b'CURRENT_CHILD_SOURCE: ${{ inputs.fresh_source_revision }}',workflow);self.assertIn(b'CURRENT_WORKFLOW_SHA: ${{ github.sha }}',workflow);self.assertIn(b'PYTHONDONTWRITEBYTECODE=1 "${clock_env[@]}"',workflow);self.assertIn(b'clock_env=(FRESH_SOURCE="$FRESH_SOURCE" GITHUB_RUN_ID="$GITHUB_RUN_ID" GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT")',workflow)
+  from run import Integration
+  with tempfile.TemporaryDirectory()as td,patch.dict(os.environ,{},clear=True):
+   output=Path(td)/'default4k';Integration(None,None,None,None).candidate(output)
+   for n in adapter.NAMES:self.assertEqual(C.read(output/n),current(n))
+ def test_clock_pinned_source_before_setter_original_auth_and_monotonic_caps_held(self):
+  guest=P.transform(current('guest.py'),'guest.py').decode();self.assertLess(guest.index('    pinned_sources(c)\n'),guest.index('    fresh607_initialize_realtime(c)\n'));self.assertLess(guest.index('    fresh607_initialize_realtime(c)\n'),guest.index('        namespace_fd,lease_sha=numeric.bootstrap'))
+  installer=P.transform(current('installer.py'),'installer.py');self.assertEqual(P.engine_failure_inverse(installer),current('installer.py').replace(b"os.uname().release=='7.2.10-1-aarch64-ARCH'",b"os.uname().release=='7.1.13-generic16k-managed-gui'").replace(b"os.sysconf('SC_PAGE_SIZE')==4096",b"os.sysconf('SC_PAGE_SIZE')==16384").replace(b'ordinary generic4K guest required',b'ordinary generic16K guest required'))
+  self.assertIn(b"gpg=['/usr/bin/gpg','--batch','--no-options','--no-autostart','--homedir',str(keys),'--no-auto-key-retrieve']",installer)
+  for n in adapter.NAMES:
+   raw=P.transform(current(n),n);self.assertNotIn(b'--faked-system-time',raw);self.assertNotIn(b'--ignore-time-conflict',raw)
+   if n in('run.py','guest.py'):raw=P.clock_inverse(raw,n)
+   old=__import__('page_mode').engine_failure_inverse(raw)if n=='installer.py'else raw
+   for a,b in reversed(P.edits()[n]):old=old.replace(b.encode(),a.encode(),1)
+   self.assertEqual(old,current(n))
+for _name,_method in vars(ClockControls).items():
+ if _name.startswith('test_')or _name in('clock_fixture','guest_call'):setattr(Controls,_name,_method)

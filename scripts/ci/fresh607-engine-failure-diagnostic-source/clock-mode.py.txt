@@ -1,0 +1,28 @@
+
+def clock_context():
+ import os,re
+ context=dict(schema_version=1,purpose='SOURCE_OWNED_GENERIC16K_REALTIME_INIT_V1',source=os.environ.get('FRESH_SOURCE'),run_id=os.environ.get('GITHUB_RUN_ID'),run_attempt=os.environ.get('GITHUB_RUN_ATTEMPT'))
+ C.need(type(context['source'])is str and re.fullmatch('[0-9a-f]{40}',context['source'])and type(context['run_id'])is str and re.fullmatch('[1-9][0-9]{0,19}',context['run_id'])and type(context['run_attempt'])is str and re.fullmatch('[1-9][0-9]{0,5}',context['run_attempt']),'same source-gated workflow fresh source/run/attempt required for16K clock')
+ return context
+
+def clock_edits(name):
+ if name=='guest.py':return [('    pinned_sources(c)\n','    pinned_sources(c)\n    fresh607_initialize_realtime(c)\n')]
+ C.need(name=='run.py','only selected guest/controller realtime binding')
+ return [('def qemu_argv(kernel,image):','def qemu_argv(kernel,image,c):'),("systemd.unit=full-installer.target cachy_asahi_virtual_proof=1',","systemd.unit=full-installer.target cachy_asahi_virtual_proof=1'+fresh607_clock_argument(c),"),('owner=common.LoggedProcess(qemu_argv(kernel,image),','owner=common.LoggedProcess(qemu_argv(kernel,image,c),'),('           runner_files=runner_files,input_files=inputs)\n','           runner_files=runner_files,input_files=inputs)\n    fresh607_clock_contract(c,args.output)\n')]
+
+def clock_transform(raw,name):
+ for a,b in clock_edits(name):raw=edit(raw,a,b)
+ helper=CLOCK_GUEST if name=='guest.py'else CLOCK_HOST
+ return edit(raw,"if __name__=='__main__':",helper+"\nif __name__=='__main__':")
+
+def clock_inverse(raw,name,context=None):
+ if context is not None:raw=edit(raw,'FRESH607_CLOCK_CONTEXT = '+repr(context),'FRESH607_CLOCK_CONTEXT = None')
+ helper=CLOCK_GUEST if name=='guest.py'else CLOCK_HOST
+ raw=edit(raw,helper+"\nif __name__=='__main__':","if __name__=='__main__':")
+ for a,b in reversed(clock_edits(name)):raw=edit(raw,b,a)
+ return raw
+
+def clock_bind(raw,name,context):
+ out=edit(raw,'FRESH607_CLOCK_CONTEXT = None','FRESH607_CLOCK_CONTEXT = '+repr(context))
+ C.need(clock_inverse(out,name,context)==clock_inverse(raw,name),'only closed current workflow clock context differs')
+ return out
