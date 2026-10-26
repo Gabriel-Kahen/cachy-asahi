@@ -1,0 +1,10 @@
+{
+  "collector_repeated": false,
+  "native_repeated": false,
+  "previous_exit": "NOT_RETAINED",
+  "previous_result": {
+    "bytes": 16883,
+    "sha256": "42e804373858e518a15ef6acd2e1191daa771ad55c94c76abeab9f0f35bdadb1"
+  },
+  "reason": "EXPLICIT_TURN_ABORT"
+}

@@ -1,0 +1,10 @@
+{
+  "cap": 300,
+  "clock": "AFTER_BLOCKING_GUI_LOCK",
+  "collector_repeated": false,
+  "exit": 0,
+  "native_repeated": false,
+  "reason": "LOST_PRIOR_SUPERVISOR_STATUS",
+  "seconds": 108.45293033699272,
+  "selected_replayed": true
+}
