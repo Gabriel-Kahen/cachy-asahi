@@ -1,0 +1,27 @@
+{
+  "boot_recovery": "NOT_CLAIMED",
+  "case": "postcommit-exit87",
+  "checkpoint_changed": false,
+  "commit_started": true,
+  "committed_transactions": 1,
+  "copy_disposal": "PASS-owned-workspace-removed",
+  "evidence_limits": "Private raw node/hash/ownership maps and86/87 fault witnesses remain unexported. Protected/user/no-change/independent-after claims are original frozen-source-enforced retained receipts, not a new raw-map readback. Retired resources are not live-reobserved; auxiliary process exit status remains NOT_OBSERVED.",
+  "hardware": "NOT_RUN",
+  "packages_committed": true,
+  "performance": "NOT_MEASURED",
+  "positive": {
+    "bytes": 16883,
+    "sha256": "42e804373858e518a15ef6acd2e1191daa771ad55c94c76abeab9f0f35bdadb1"
+  },
+  "post": {
+    "bytes": 706565,
+    "sha256": "fe218dd5ca824fc9d61fb5d86900e72a5988b432547b5b4247b62b35b76a7e56"
+  },
+  "release": "NOT_ADMITTED",
+  "rollback": "NOT_CLAIMED",
+  "run": 40277764911,
+  "scope": "FINITE_ARM4K_DISPOSABLE607_ONE_COMMIT_POSTCOMMIT_INTERRUPTION_COPY_DISPOSAL",
+  "source": "c6a5de859c3f190d47a5aef30962d2c3b50eaf8d",
+  "source_preserved": true,
+  "status": "ROOT_ACCEPTED_FINITE_NATIVE_ARM4K_CURRENT607_POSTCOMMIT87_DISPOSAL"
+}
