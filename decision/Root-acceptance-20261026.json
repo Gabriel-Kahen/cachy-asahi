@@ -1,0 +1,112 @@
+{
+  "M2": "NOT_RUN",
+  "capacity": {
+    "allocation_unit_bytes": 4096,
+    "capacity_reserved": false,
+    "directory_estimate_bytes": 531841024,
+    "free_bytes": 14905962496,
+    "free_inodes": 1186592,
+    "payload_bytes": 4918312282,
+    "required_bytes": 6295699456,
+    "required_inodes": 132047,
+    "reserve_bytes": 536870912,
+    "rounded_file_bytes": 5172363264,
+    "symlink_estimate_bytes": 54624256
+  },
+  "capacity_reserved": false,
+  "cleanup": "PASS_SOURCE_BOUND_RETAINED_RECEIPTS",
+  "hardware": "NOT_RUN",
+  "hooks_scriptlets": "DISABLED",
+  "limits": [
+    "Private raw node/hash/ownership maps and installed target/profile/lock bytes were checked by the frozen guest code and are not exported; this replay checks complete summaries and exact retained protocol/source joins, not a new full-byte readback.",
+    "Retired container/image/VM absence is retained source-bound cleanup evidence, not live reobservation.",
+    "No physical installation, target boot, hooks/scriptlets, native-container P0, M2 or performance acceptance.",
+    "Statx source selection and unchanged full hashing/deadlines are checked; runtime choice of statx versus original fdinfo fallback is not reported.",
+    "The exact11-field capacity schema/arithmetic and source-enforced target statvfs path are verified. Private raw sizing inputs are unexported. Capacity is not reserved; concurrent writes, quotas and copy-on-write pressure remain outside this finite admission."
+  ],
+  "native_container_P0": "UNCHANGED_FAILED",
+  "ordinary_and_root_flags": {
+    "committed": true,
+    "database_verified": true,
+    "namespace_barrier": true,
+    "numeric_namespace_verified": true,
+    "numeric_ownership_verified": true,
+    "ordinary_parent_nnp_cap0": true,
+    "ownership_verified": true,
+    "parent_inventory_preserved": true,
+    "parent_payload_verified": true,
+    "payload_verified": true,
+    "preservation_verified": true,
+    "private_trust_verified": true,
+    "process_retirement": true,
+    "root_guest_payload_verified": true,
+    "source_cache_preserved": true
+  },
+  "package_count": 607,
+  "page_mode": "generic16k",
+  "page_size": 16384,
+  "performance": "NOT_MEASURED",
+  "physical_installation": "NOT_RUN",
+  "positive": {
+    "bytes": 20709,
+    "sha256": "0b3b12a765bd021a6ddf127ecb1a5c4e4b961d43053fee5f8e520f3b724369d5"
+  },
+  "postjoins": {
+    "bytes": 777375,
+    "sha256": "5a39d9f2534d8dfe6893a84ac62ffcadd592992cd47982d8bf1057666abc3f7a"
+  },
+  "qemu_natural_exit": true,
+  "qemu_seconds": 2234.392,
+  "reader_files": 2619,
+  "ref": "codex/fresh607-storage-admission-v1",
+  "release": "NOT_ADMITTED",
+  "root_decision_utc": "2026-10-26T21:07:20.924115+00:00",
+  "root_observation": {
+    "complete": true,
+    "deadline_seconds": 600,
+    "elapsed_ms": 262108,
+    "footprint": {
+      "bytes": 4930283262,
+      "database_bytes": 11800941,
+      "database_files": 1850,
+      "hardlink_inodes": 1048,
+      "nodes": 124513
+    },
+    "missing_database_nodes": 0,
+    "missing_database_samples": [],
+    "observed_nodes": 124513,
+    "required_database_nodes": 1215,
+    "unsupported_counts": {
+      "absolute-symlink": 24,
+      "auxiliary-present": 3
+    },
+    "unsupported_reasons_omitted": 0
+  },
+  "run_id": 40390192017,
+  "schema_version": 1,
+  "scope": "SIGNED_TEST607_FRESH_INSTALL_IN_OWNED_GENERIC_ARM16K_VM_WITH_POST_PARENT_ROOT_READBACK",
+  "source_files": 1206,
+  "source_sha": "1e777ec5a0612af37305f93f87f2c7b2f7a36de8",
+  "status": "ROOT_ACCEPTED_SIGNED_LATEST607_STORAGE_ADMISSION_GENERIC16K",
+  "target_boot": "NOT_RUN",
+  "target_footprint": {
+    "allocated_bytes": 5136998400,
+    "allocated_bytes_by_entry": 5189799936,
+    "bytes": 4930283262,
+    "complete": true,
+    "database_bytes": 11800941,
+    "database_files": 1850,
+    "filesystem_free_bytes": 9731551232,
+    "filesystem_free_bytes_source": "statvfs-f_bavail",
+    "filesystem_free_inodes": 1063932,
+    "filesystem_inode_counts_known": true,
+    "filesystem_inode_source": "statvfs",
+    "hardlink_declared_links": 2896,
+    "hardlink_entries": 2896,
+    "hardlink_inodes": 1048,
+    "hardlinks": 2896,
+    "largest_file_bytes": 173387392,
+    "nodes": 124513,
+    "symlinks": 13337
+  }
+}
