@@ -15,6 +15,7 @@ def provision(args,report,command,deadline):
  import controller
  work=args.output/'vm-work';work.mkdir(mode=0o700);controller.prepare_work(args,work);public=args.output/'current607-public';public.mkdir(mode=0o700);args.provision_public=public
  end=min(deadline,time.monotonic()+C.BUDGET['media']);args.provision_deadline=end
+ args._owner_report=report
  report['current607_actor']=controller.actor(args,command,work,args.output/'data','provision607');record=C.decode(C.read(public/'current607-formation.json',4*1024**2));C.need(record['status']=='PASS_COMPLETE607_SIGNED_PROVISIONING_GRAPH_DB_CAPS_AND_PRESERVATION'and record['nonce']==args.selected['nonce']and record['packages']==607,'actual complete607 formation, not a count/path projection')
  caps=C.decode(C.read(public/'current607-capabilities.json',4*1024**2));graph=C.decode(C.inflate(C.read(public/'current607-root.json.gz',64*1024**2)));db=C.decode(C.read(public/'current607-database.json',16*1024**2));plan=C.decode(C.read(args.case_source/'composition.json',4*1024**2));C.need({r['name']:r['version']for r in db}==plan['before607']and X.plan(plan)[0]==plan['before607'],'actual complete607 database and fixed current scope')
  import hashlib

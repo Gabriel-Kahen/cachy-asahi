@@ -15,7 +15,7 @@ class Controls(unittest.TestCase):
     output=Path(t)/context;argv=[sys.executable,'-I','-B','-Werror',str(HERE/'prepare.py'),'--output',str(output),'--context',context]
     for k,p in ROOTS.items():argv+=['--'+k.replace('_','-'),str(p)]
     run=subprocess.run(argv,capture_output=True,text=True,timeout=60);self.assertEqual(run.returncode,0,run.stderr);receipt=json.loads(run.stdout);self.assertIsNone(receipt['actual']);self.assertFalse(receipt['native_acceptance']);self.assertEqual(receipt['files'],66);self.assertEqual(F.tree(output),F.tree(EXPECTED));self.assertTrue(all((output/n).stat().st_mode&0o777==0o644 for n in F.tree(output)))
-    self.assertEqual(receipt['source'],None if context=='null'else'47d9f0497b9c01af637aa2929a0d1155c896adbc')
+    self.assertEqual(receipt['source'],None if context=='null'else'ae39c1ba4c613d6a86e5582c2ab4c2d5495b2bd7')
  def test_full_before_inverse_held_bodies_and_current_closed_profile(self):
   values,p,_,_=F.compose(ROOTS);before=F.tree(ROOTS['parent']);self.assertEqual({n:F.pin(b)for n,b in values.items()},p['result']['files']);self.assertEqual(values,F.tree(EXPECTED));parent=json.loads(values['composition-parent.json']);restored=dict(values)
   for n in p['added']:restored.pop(n)
