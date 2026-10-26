@@ -1,0 +1,10 @@
+{
+  "actual": "NOT_RUN",
+  "files": 51,
+  "git_joins": 51,
+  "hardware": "NOT_RUN",
+  "ref": "codex/core7-serial-line-framing-v1",
+  "release": "NOT_ADMITTED",
+  "source": "11b3cfb59663e42b34247facb9f30f042e891444",
+  "status": "COMMITTED_EXACT_CLOSED_TRIAL_SOURCE"
+}

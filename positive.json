@@ -1,0 +1,175 @@
+{
+  "Asahi": "NOT_RUN",
+  "CI": "SUCCESS",
+  "M2": "NOT_RUN",
+  "Root_acceptance": "REQUIRED",
+  "attempt": 1,
+  "candidate_validation_profile": {
+    "M2performance": "NOT_RUN",
+    "actual": null,
+    "baseline_seconds": 90,
+    "boot_seconds": 3600,
+    "candidate_seconds": 180,
+    "cleanup_seconds": 60,
+    "current180fit": "NOT_ESTABLISHED",
+    "functional_acceptance": "NOT_ISSUED",
+    "graph_seconds": 1200,
+    "guest_stage_seconds": 3300,
+    "name": "SOURCE_ONLY_CORE7_TCG_CANDIDATE_TRANSACTION_180",
+    "old90fit": "NOT_ESTABLISHED",
+    "other_command_seconds": 90,
+    "output_bytes": 1048576,
+    "owner_seconds": 14400,
+    "ref": null,
+    "run": null,
+    "scope": "VM_TCG_FUNCTIONAL_VALIDATION_ONLY",
+    "source": null,
+    "vm_shared_seconds": 7200
+  },
+  "component": {
+    "Asahi": "NOT_RUN",
+    "M2": "NOT_RUN",
+    "PID1": "EXACT_ACCEPTED_CANDIDATE_BOTH_BOOTS",
+    "automatic_hooks": "SOURCE_BOUND_ORDINARY_SIGNED_DISPATCHER_WITH_FULL_TYPED_EFFECTS",
+    "boots": 2,
+    "complete_graphs": 4,
+    "different_boot_ids": true,
+    "hardware": "NOT_RUN",
+    "installed": 589,
+    "observer_retirement": "NATURAL_EXECSTOPPOST_BEFORE_MANAGER_POWEROFF",
+    "original_predicates": {
+      "original": {
+        "bytes": 11174,
+        "sha256": "face53902bf6614c8ac8a2f30949fbb995acb4480928f8f0f4ec7579e608d260"
+      },
+      "segments": [
+        {
+          "bytes": 808,
+          "sha256": "a3922e92915542737052e6420c91e73eda9479ce186f301c00b6ab55457b300c"
+        },
+        {
+          "bytes": 516,
+          "sha256": "c6e84aaa4406ee3ce90f4fea80c02717dcbc3acf679a8b0c1aa576384c140f82"
+        },
+        {
+          "bytes": 438,
+          "sha256": "9cc29c807435f19924b4d2399260e81d2dc72d92085cde2e97d67d53a91257d7"
+        },
+        {
+          "bytes": 231,
+          "sha256": "c8aadd445b9df785b248f1e924ef557f4532a6c6459b50ebf0f43c7e05a8f11e"
+        },
+        {
+          "bytes": 281,
+          "sha256": "bec2ad3078848d7a6804ffa26c7fbf58bd441f27e94e100a00c4f7ad1c9ea373"
+        },
+        {
+          "bytes": 715,
+          "sha256": "2781c350016908b15389aa7e988a5c05d88494aa00c12126366c44ced7f4e5f6"
+        },
+        {
+          "bytes": 191,
+          "sha256": "a3a4517e61c1b72f2617b3a7060dd3c8343d012606d85cd510dd387d224abe37"
+        },
+        {
+          "bytes": 78,
+          "sha256": "16f4830360442ba252cd6433e093d5649d20cbd3399960c08b31c84ecd6cfa1a"
+        },
+        {
+          "bytes": 472,
+          "sha256": "d910d723381176b700aa587bc4a008ae62aa739c3437b386c57e0433f9f66701"
+        },
+        {
+          "bytes": 339,
+          "sha256": "9323bb37f26c6249dd3dceaf14c50dafb22a5eed8413630dbf1972d97a517703"
+        },
+        {
+          "bytes": 441,
+          "sha256": "2e401a928f9d5d1046e738aed32ea4e95e38a35103da50248afd0d3971727e99"
+        },
+        {
+          "bytes": 314,
+          "sha256": "b65315e13d440c2ae9b88f790ed7bfbfd6411d17bea58f46d9243eeb547e48c4"
+        },
+        {
+          "bytes": 25,
+          "sha256": "392c8e85431a0a16f3b0f04e63a771b853ff99a6748969e5943a7be7f1d7a8e0"
+        }
+      ]
+    },
+    "packages": 7,
+    "release": "NOT_ADMITTED",
+    "retirement": "SOURCE_DATA_JOINED_NOT_LIVE_REOBSERVED",
+    "root_persistent": true,
+    "wallclock": {
+      "boots": 2,
+      "files": 4,
+      "status": "PASS_WHOLE_FOUR_CLOCK_ROLES_DATA_ONLY"
+    }
+  },
+  "hardware": "NOT_RUN",
+  "immutable_source_proof_DATA": {
+    "actual_or_transport_substitution": false,
+    "executed": [
+      "CURRENT_CLOSED_READER_AND_SOURCE_AND_PUBLICATION",
+      "WHOLE68_BEFORE_INVERSE",
+      "ALL174_AUTHOR_AND23061_INPUTS_BEFORE_AFTER",
+      "TRUSTED_RUNTIME_MODULE_IMPORTS"
+    ],
+    "reused": {
+      "cap": 300,
+      "historical_interpreter_path": "NOT_INFERRED",
+      "qualification": {
+        "qualification-prepost.json": {
+          "bytes": 19596,
+          "sha256": "0bb88d4020273f1715af48e784cf02f7fed92863a4d314f9536e12c3edf539a5"
+        },
+        "qualification-status.json": {
+          "bytes": 1931,
+          "sha256": "c01e6c9cee720f49860239f778371c2a0373c31999710183675c5386d337e1db"
+        },
+        "qualification.stderr": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "qualification.stdout": {
+          "bytes": 1062,
+          "sha256": "98ee41ee99299f74e509383d4df50fd9226ae4036602a11694fceb5f7a3fc9b6"
+        }
+      },
+      "seconds": 229.6665219070128
+    },
+    "scope": "EXPLICIT_FROZEN_PURE_SOURCE_FACT_REUSE_ONLY"
+  },
+  "prerequisite": {
+    "run": 39723885884,
+    "scope": "ORIGINAL_NOHOOKS_FIXTURE_ONLY_NOT_CURRENT_PID1_CREDIT",
+    "source": "1a76a09d9cb8210cc2b76eda0c63a08bcd89d4ec"
+  },
+  "ref": "codex/core7-serial-line-framing-v1",
+  "release": "NOT_ADMITTED",
+  "run": 40238067402,
+  "source": "11b3cfb59663e42b34247facb9f30f042e891444",
+  "status": "PASS_SOURCE_BOUND_CORE7_REAL_SYSTEMD_TWO_BOOT_DATA_PENDING_ROOT",
+  "vm_validation_profile": {
+    "M2performance": "NOT_RUN",
+    "actual": null,
+    "functional_acceptance": "NOT_ISSUED",
+    "graph_seconds": 1200,
+    "held_seconds": {
+      "boot": 3600,
+      "cleanup": 60,
+      "guest_stage": 3300,
+      "owner": 14400,
+      "transaction": 90,
+      "vm_shared": 7200
+    },
+    "name": "SOURCE_ONLY_CORE7_TCG_GRAPH_VALIDATION_1200",
+    "old600fit": "NOT_ESTABLISHED",
+    "parent_graph_seconds": 600,
+    "ref": null,
+    "run": null,
+    "scope": "VM_TCG_FUNCTIONAL_VALIDATION_ONLY",
+    "source": null
+  }
+}
