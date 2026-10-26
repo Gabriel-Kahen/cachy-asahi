@@ -3,7 +3,7 @@
 import argparse,ast,hashlib,json,os,stat
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
-PROFILE={'bytes': 277935, 'sha256': '4df292b17de4fb86cea51ab821989d1189ca4f00a69294be142038c2e9701ce5'}
+PROFILE={'bytes': 278080, 'sha256': 'a2c2b1f91a13662f3f6e19f6d5bc7b41b27b15fd9f22a1cca82d552b3abe2d90'}
 SCOPE='CORE622_CURRENT607_COPIED_PROVISIONING_NORMAL_CORE_TWO_BOOT_GENERIC16K'
 PROVISIONING='COPIED_ROOT_PROVISIONING_NOT_NORMAL_HOOK_INSTALLATION'
 enc=lambda x:(json.dumps(x,sort_keys=True,indent=2,allow_nan=False)+'\n').encode()
@@ -179,7 +179,7 @@ def compose(roots):
  wf=workflow(inputs['fresh607']['.github/workflows/native-arm-build.yml'].decode(),json.loads(old['profile.json']),v).encode();out['workflow.yml.in']=wf
  for n in ('.github/workflows/native-arm-build.yml','.github/workflows/native-arm-core7-real-systemd.yml'):out[n]=wf
  changed={n:b.decode()for n,b in old.items()if out.get(n)!=b or n=='source-manifest.json'};out['composition-parent.json']=enc(dict(dependency_cache_context=json.loads(operands['dependency-cache-context.json']),dependency_source_data=json.loads(operands['dependency-source-data.json']),schema=1,source=public['core7-serial-line-framing-trial-root-20261025']['source'],before={n:pin(b)for n,b in old.items()},changed=changed,clocks=v['clocks'],actual=None,actual_desktop_helper=dict(source='9a2e520dbdfce7e4af417595ff3de9e6a284ef04',path='scripts/ci/maintained_desktop574.py',body=operands['actual-maintained_desktop574.py.txt'].decode(),pin=pin(operands['actual-maintained_desktop574.py.txt']))))
- guard=operands['source622.py.in'].decode();products={n:pin(b)for n,b in out.items()if n not in('source-manifest.json',*('.github/workflows/native-arm-build.yml','.github/workflows/native-arm-core7-real-systemd.yml'))};guard=guard.replace('PRODUCTS=None','PRODUCTS='+repr(products));seal=hashlib.sha256(guard.encode()).hexdigest();guard=guard.replace("SELF='@SELF@'","SELF="+repr(seal));out['source622.py']=guard.encode()
+ out['composition-parent.json']=enc(dict(json.loads(out['composition-parent.json']),isolated_cache_import=json.loads(operands['isolated-import-parent.json'])));guard=operands['source622.py.in'].decode();products={n:pin(b)for n,b in out.items()if n not in('source-manifest.json',*('.github/workflows/native-arm-build.yml','.github/workflows/native-arm-core7-real-systemd.yml'))};guard=guard.replace('PRODUCTS=None','PRODUCTS='+repr(products));seal=hashlib.sha256(guard.encode()).hexdigest();guard=guard.replace("SELF='@SELF@'","SELF="+repr(seal));out['source622.py']=guard.encode()
  out['source-manifest.json']=enc(dict(schema=1,purpose=SCOPE,actual=None,files={n:pin(b)for n,b in out.items()if n not in('source-manifest.json','.github/workflows/native-arm-build.yml','.github/workflows/native-arm-core7-real-systemd.yml')}))
  for n,b in out.items():
   if n.endswith('.py'):ast.parse(b,filename=n)

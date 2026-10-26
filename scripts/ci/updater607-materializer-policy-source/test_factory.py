@@ -13,7 +13,7 @@ class Controls(unittest.TestCase):
    for context in('known','null'):
     output=Path(td)/context;argv=[sys.executable,'-I','-B','-Werror',str(HERE/'prepare.py'),'--source',str(SOURCE),'--output',str(output),'--context',context]
     done=subprocess.run(argv,capture_output=True,timeout=30,umask=0o077);self.assertEqual(done.returncode,0,done.stderr.decode());row=json.loads(done.stdout)
-    self.assertEqual(F.tree(output),expected);self.assertEqual(len(row['files']),360);self.assertEqual(row['source'],'027a21e487cd5eca1c32b3025b624266781be306'if context=='known'else None)
+    self.assertEqual(F.tree(output),expected);self.assertEqual(len(row['files']),360);self.assertEqual(row['source'],'c6a5de859c3f190d47a5aef30962d2c3b50eaf8d'if context=='known'else None)
     self.assertTrue(all(row[k]is None for k in('actual_source','actual_ref','actual_run','Root_acceptance')));self.assertTrue(all(stat.S_IMODE((output/n).stat().st_mode)==0o644 for n in expected))
  def test_constructor_never_executes_supplied_source_or_actors(self):
   sentinel=object();saved=sys.modules.get('common',sentinel)
@@ -25,18 +25,20 @@ class Controls(unittest.TestCase):
   finally:
    if saved is sentinel:sys.modules.pop('common',None)
    else:sys.modules['common']=saved
- def test_complete_parent_and_frozen_intermediate_inverses_all347_held(self):
+ def test_complete_public_parent_and_all_three_source_inverses_all344_held(self):
   values,p,*_=F.compose(SOURCE);before=F.tree(SOURCE);contexts=json.loads(F.read(HERE/'binding-context.json'));edits=json.loads(F.read(HERE/'edits.json'))
   api=__import__('types').SimpleNamespace(need=F.need,pin=F.pin,encoded=F.encoded,apply=F.apply)
   intermediate=F._TRANSFORM.descriptor(before,p,contexts['descriptor'],edits,api)
-  self.assertEqual(F._TRANSFORM.inverse(values,before,intermediate,p,contexts,edits,api),before)
-  self.assertEqual(len(p['held']),347);self.assertEqual(len(p['changed']),13);self.assertEqual({n for n in before if before[n]!=values[n]},set(p['changed']))
+  database_before=F._TRANSFORM.cleanup(intermediate,p,contexts['cleanup'],edits,api)
+  restored=F._TRANSFORM.database_inverse(values,database_before,p,contexts['database'],edits,api)
+  self.assertEqual(F._TRANSFORM.inverse(restored,before,intermediate,p,contexts,edits,api),before)
+  self.assertEqual(len(p['held']),344);self.assertEqual(len(p['changed']),16);self.assertEqual({n for n in before if before[n]!=values[n]},set(p['changed']))
   parent=json.loads(values['implementation/parent355.json']);self.assertIsNone(parent['producer_cleanup_binding']['source']);self.assertIsNone(parent['producer_cleanup_binding']['ref']);self.assertEqual(p['intermediate']['kind'],'FROZEN_AUTHOR_SOURCE_DATA_NOT_PUBLISHED_AUTHORITY')
   for n in p['held']:self.assertEqual(values[n],before[n],n)
   for n in ('.github/workflows/native-arm-build.yml','.github/workflows/native-arm-latest607-updater4k.yml','implementation/compiler6.py','implementation/cache.py','implementation/entry.py','cases/normal/scripts/update/full_root.py'):
    self.assertEqual(values[n],before[n],n)
   wrong=dict(values);wrong['implementation/runtime.py']+=b'\n'
-  with self.assertRaises(ValueError):F._TRANSFORM.inverse(wrong,before,intermediate,p,contexts,edits,api)
+  with self.assertRaises(ValueError):F._TRANSFORM.database_inverse(wrong,database_before,p,contexts['database'],edits,api)
  def test_paths_double_slash_literal_cli_and_no_writes(self):
   with tempfile.TemporaryDirectory()as td:
    root=Path(td);source=root/'source';shutil.copytree(SOURCE,source);alias=root/'alias';alias.symlink_to(source,target_is_directory=True);actual=root/'native-actual-fixture';actual.mkdir()
@@ -90,4 +92,12 @@ class Controls(unittest.TestCase):
      with patch.object(F,'scan',side_effect=scan),self.assertRaises(ValueError):F.emit(source,out,'known')
      self.assertFalse(out.exists())
     finally:F.HERE=previous
+ def test_actual_emitted_selected37_cli_not_discovery_or_native(self):
+  held=F.ordinary(os.environ['UPDATER_HELD_INPUT']);values,p,*_=F.compose(SOURCE)
+  source_profile=json.loads(values['implementation/profile.json']);self.assertEqual({n:F.pin(b)for n,b in F.tree(held).items()},source_profile['held_files']);self.assertEqual(len(source_profile['held_files']),489)
+  with tempfile.TemporaryDirectory()as td:
+   target=Path(td)/'source';F.emit(SOURCE,target,'known');self.assertEqual(F.tree(target),F.tree(EXPECTED))
+   env={k:v for k,v in os.environ.items()if k not in('GH_TOKEN','GITHUB_TOKEN','PYTHONPATH','PYTHONHOME')};env['LATEST607_HELD_SOURCE']=str(held)
+   done=subprocess.run([sys.executable,'-I','-B','-Werror',str(target/'test_source.py')],env=env,capture_output=True,timeout=90)
+   self.assertEqual(done.returncode,0,done.stderr.decode());self.assertIn(b'Ran 37 tests',done.stderr);self.assertTrue(done.stderr.rstrip().endswith(b'OK'));self.assertEqual(F.tree(target),F.tree(EXPECTED));self.assertEqual({n:F.pin(b)for n,b in F.tree(held).items()},source_profile['held_files'])
 if __name__=='__main__':unittest.main(verbosity=2)

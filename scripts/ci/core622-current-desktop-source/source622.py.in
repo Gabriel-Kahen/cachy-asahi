@@ -25,7 +25,7 @@ def inverse(root):
  C.need({n:C.pin(raw)for n,raw in out.items()}==before,'whole before-source51 map');return out
 
 def verify(root):
- root=Path(root).absolute();start=time.monotonic();rows=files(root);manifest=C.decode(C.read(root/'source-manifest.json',4*1024**2));C.need(manifest['purpose']==X.SCOPE and manifest['actual']is None,'distinct unbound current622 source lane');C.need(rows==dict(manifest['files'],**{'source-manifest.json':C.pin(C.read(root/'source-manifest.json',4*1024**2)),**{n:rows[n]for n in ALIASES}}),'closed current source namespace')
+ root=Path(root).absolute();start=time.monotonic();same66_before(root);rows=files(root);manifest=C.decode(C.read(root/'source-manifest.json',4*1024**2));C.need(manifest['purpose']==X.SCOPE and manifest['actual']is None,'distinct unbound current622 source lane');C.need(rows==dict(manifest['files'],**{'source-manifest.json':C.pin(C.read(root/'source-manifest.json',4*1024**2)),**{n:rows[n]for n in ALIASES}}),'closed current source namespace')
  C.need(PRODUCTS is not None and all(rows[n]==pin for n,pin in PRODUCTS.items()),'every fixed current product/data operand');raw=C.read(root/'source622.py');C.need(SELF!='@SELF@'and raw.count(SELF.encode())==1 and hashlib.sha256(raw.replace(SELF.encode(),b'@SELF@')).hexdigest()==SELF,'whole current sourceguard selfseal');C.need(all(C.read(root/n)==C.read(root/'workflow.yml.in')for n in ALIASES),'exact decoded workflow aliases')
  value=C.decode(C.read(root/'composition.json',4*1024**2));X.plan(value);before=inverse(root)
  # Original51 source executes only its unchanged source-only route in an exact
@@ -39,3 +39,21 @@ def verify(root):
  # All selected facades/actors are syntax checked; this source phase starts none.
  for n in ('desktop622.py','formation622.py','provision622.py','lane622.py','assembly622.py','run622.py','ownership622.py'):ast.parse(C.read(root/n),filename=n)
  C.need(time.monotonic()-start<300,'original fixed source300');return dict(status='PASS_SOURCE_ONLY_CURRENT607_COPIED_PROVISIONING_NORMAL_CORE622_TWO_BOOT_NOT_RUN',files=len(rows),parent51=fact,base=607,supported=620,installed=622,held=602,provisioning=X.PROVISIONING,normal_fresh607_installation='NOT_RUN',new_actual=None,fit='NOT_ESTABLISHED',M2='NOT_RUN')
+
+# Finite whole immediate66 inverse; the existing verify body and original51
+# execution remain mandatory. No historical actor/result is executed here.
+def same66_before(root):
+ record=C.decode(C.read(root/'composition-parent.json',4*1024**2))['isolated_cache_import'];C.need(record['schema']==1 and record['parent_source']=='ae39c1ba4c613d6a86e5582c2ab4c2d5495b2bd7'and record['actual']is None and len(record['before'])==66,'exact isolated-cache source predecessor')
+ out={n:C.read(root/n,4*1024**2)for n in record['before']}
+ for name,rules in record['edits'].items():
+  text=out[name].decode()
+  for before,after in reversed(rules):C.need(text.count(after)==1,'one complete cache-import/CI-control inverse');text=text.replace(after,before,1)
+  out[name]=text.encode()
+ parent=C.decode(out['composition-parent.json']);C.need(parent.pop('isolated_cache_import')==record,'exact immediate source context operand');out['composition-parent.json']=C.encoded(parent)
+ manifest=C.decode(out['source-manifest.json']);manifest['files']={n:w for n,w in record['before'].items()if n not in('source-manifest.json',*ALIASES)};out['source-manifest.json']=C.encoded(manifest)
+ text=out['source622.py'].decode();tree=ast.parse(text)
+ for name,before in(('PRODUCTS',record['guard_products_before']),('SELF',record['guard_self_before'])):
+  node=next(n for n in tree.body if isinstance(n,ast.Assign)and n.targets[0].id==name);after=ast.get_source_segment(text,node);C.need(text.count(after)==1,'one exact current sourceguard DATA/seal');text=text.replace(after,before,1);tree=ast.parse(text)
+ for before,after in reversed(record['guard_edits']):C.need(text.count(after)==1,'one whole immediate sourceguard inverse');text=text.replace(after,before,1)
+ out['source622.py']=text.encode();C.need({n:C.pin(b)for n,b in out.items()}==record['before'],'all66 immediate source bytes reconstructed')
+ tree=ast.parse(text);values={n.targets[0].id:ast.literal_eval(n.value)for n in tree.body if isinstance(n,ast.Assign)and n.targets[0].id in('PRODUCTS','SELF')};C.need(all(C.pin(out[n])==w for n,w in values['PRODUCTS'].items()),'all original66 fixed products held');seal=values['SELF'];C.need(text.count(seal)==1 and hashlib.sha256(text.replace(seal,'@SELF@').encode()).hexdigest()==seal,'whole original66 sourceguard selfseal held');return out

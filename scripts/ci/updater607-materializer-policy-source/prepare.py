@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: MIT
-"""Reproduce exact public360 descriptor and owned-private cleanup correction."""
+"""Reproduce public360 descriptor, private cleanup and selected607 database correction."""
 import argparse,hashlib,importlib.util,json,os,stat,types
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
-PROFILE={'bytes': 228276, 'sha256': '49967e94c7e617e47195490353e96e1531f899798dae6aede3e79d366efad616'}
+PROFILE={'bytes': 302588, 'sha256': '3ba41e1409f9bc9bb554a9f0f5aa2a2e36b21cbe0bb7ce086452fa7a16ddef63'}
 
 _spec=importlib.util.spec_from_file_location('_trusted_updater_source_transform',HERE/'transformed.py')
 _TRANSFORM=importlib.util.module_from_spec(_spec);_spec.loader.exec_module(_TRANSFORM)
@@ -104,7 +104,7 @@ def compose(source):
     raw, state = read_state(HERE / 'profile.json')
     need(pin(raw) == PROFILE, 'entry-pinned profile')
     p = json.loads(raw)
-    need(p['counts'] == dict(before=360,after=360,held=347,changed=13,added=0)
+    need(p['counts'] == dict(before=360,after=360,held=344,changed=16,added=0)
          and all(p[k] is None for k in ('actual_source','actual_ref','actual_run','Root_acceptance'))
          and p['acceptance_authority'] is False, 'fixed source-only scope')
     before, bstate = scan(source)
@@ -116,19 +116,24 @@ def compose(source):
         operands[name] = body
         states[name] = body,identity
     contexts=json.loads(operands['binding-context.json']);edits=json.loads(operands['edits.json'])
-    need(set(contexts)==set(edits)=={'descriptor','cleanup'} and p['intermediate']['kind']=='FROZEN_AUTHOR_SOURCE_DATA_NOT_PUBLISHED_AUTHORITY','closed finite source family')
-    descriptor=contexts['descriptor'];cleanup=contexts['cleanup']
+    need(set(contexts)==set(edits)=={'descriptor','cleanup','database'} and p['intermediate']['kind']=='FROZEN_AUTHOR_SOURCE_DATA_NOT_PUBLISHED_AUTHORITY','closed finite source family')
+    descriptor=contexts['descriptor'];cleanup=contexts['cleanup'];database=contexts['database']
+    need((database['source'],database['ref'])==(p['database_parent']['source'],p['database_parent']['ref']),'exact public027a database parent context')
     need((descriptor['source'],descriptor['ref'])==(p['parent']['source'],p['parent']['ref']) and cleanup['source'] is cleanup['ref'] is None and cleanup['source_author_freeze']==p['intermediate']['author_freeze'] and cleanup['source_files_pin']==pin(encoded(p['intermediate']['files'])),'public parent versus frozen descriptor SOURCE_DATA identities')
     for role in contexts:
         c=contexts[role];need(c['acceptance'] is False and all(c[k] is None for k in('actual_source','actual_ref','actual_run')),'source-only context, never actual authority')
     need(set(edits['descriptor'])=={'implementation/adapter.py','implementation/namespace_context.py','test_source.py'} and set(edits['cleanup'])=={'implementation/runtime.py','implementation/namespace_context.py','test_source.py'},'only named readable source operands')
+    need(set(edits['database'])=={'implementation/adapter.py','implementation/namespace_context.py','test_source.py'},'only three readable database operands')
     api=types.SimpleNamespace(need=need,pin=pin,encoded=encoded,apply=apply)
     intermediate=_TRANSFORM.descriptor(before,p,descriptor,edits,api)
-    values=_TRANSFORM.cleanup(intermediate,p,cleanup,edits,api)
-    need(_TRANSFORM.inverse(values,before,intermediate,p,contexts,edits,api)==before,'complete360 parent inverse')
+    database_before=_TRANSFORM.cleanup(intermediate,p,cleanup,edits,api)
+    need({n:pin(b)for n,b in database_before.items()}==p['database_parent']['files'],'entire exact public027a before database correction')
+    values=_TRANSFORM.database(database_before,p,database,edits,api)
+    restored=_TRANSFORM.database_inverse(values,database_before,p,database,edits,api)
+    need(_TRANSFORM.inverse(restored,before,intermediate,p,contexts,edits,api)==before,'complete360 parent inverse')
     need({n:pin(b) for n,b in values.items()} == p['result']['files'], 'all exact published360 bytes')
     need({n for n in before if values[n] != before[n]} == set(p['changed'])
-         and all(values[n] == before[n] for n in p['held']), 'only thirteen changed/347 held')
+         and all(values[n] == before[n] for n in p['held']), 'only sixteen changed/344 held')
     need(scan(source) == (before,bstate) and all(read_state(HERE/n) == v for n,v in states.items()),
          'late whole source and operand identities')
     return values,p,(before,bstate),states
@@ -140,7 +145,7 @@ def emit(source,output,context):
   q=output/n;q.parent.mkdir(parents=True,exist_ok=True);fd=os.open(q,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
   with os.fdopen(fd,'wb')as f:f.write(b);os.fchmod(f.fileno(),0o644)
  need(tree(output)==values and all(stat.S_IMODE((output/n).stat().st_mode)==0o644 for n in values),'exact production360 bytes/modes')
- return dict(status='SOURCE_ONLY_DESCRIPTOR_AND_PRIVATE_INTERMEDIATE_CLEANUP_NOT_ACCEPTANCE',context=context,files=p['result']['files'],source=p['result']['source']if context=='known'else None,ref=p['result']['ref']if context=='known'else None,actual_source=None,actual_ref=None,actual_run=None,Root_acceptance=None,hardware='NOT_RUN',performance='NOT_MEASURED')
+ return dict(status='SOURCE_ONLY_DESCRIPTOR_CLEANUP_SELECTED_DATABASE_NOT_ACCEPTANCE',context=context,files=p['result']['files'],source=p['result']['source']if context=='known'else None,ref=p['result']['ref']if context=='known'else None,actual_source=None,actual_ref=None,actual_run=None,Root_acceptance=None,hardware='NOT_RUN',performance='NOT_MEASURED')
 
 if __name__ == '__main__':
     parser=argparse.ArgumentParser(description=__doc__)
