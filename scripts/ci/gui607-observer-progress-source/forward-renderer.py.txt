@@ -18,7 +18,7 @@ def forward_body():
             if type(value['elapsed_ns'])is not int or not 0<=value['elapsed_ns']<=1215000000000:return False
             canonical=self.prefix+json.dumps(value,sort_keys=True,separators=(',',':')).encode()+b'\n'
             if raw!=canonical or self.input_bytes+len(raw)>2048:return False
-            fields={k:value[k]for k in ('schema','stage','ordinal','elapsed_ns','status')}
+            fields={('observer_stage'if k=='stage'else k):value[k]for k in ('schema','stage','ordinal','elapsed_ns','status')}
             framed=('DESKTOP574_EVENT '+json.dumps(dict(event='installed607_observer_stage_DATA',**fields),sort_keys=True)+'\n').encode()
             if self.output_bytes+len(framed)>2048:return False
             self.last=ordinal;self.input_bytes+=len(raw);self.output_bytes+=len(framed)
