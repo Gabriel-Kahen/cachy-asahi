@@ -7,13 +7,13 @@ HERE=Path(__file__).resolve().parent
 sp=importlib.util.spec_from_file_location('_page_binding_factory',HERE/'prepare.py');F=importlib.util.module_from_spec(sp);sp.loader.exec_module(F)
 SOURCE=F.ordinary(os.environ['FRESH_CACHE_INPUT']);EXPECTED=F.ordinary(os.environ['FRESH_CACHE_EXPECTED'])
 class Controls(unittest.TestCase):
- def test_literal_cli_both_receipts_all1203_bytes_modes_and_null_actuals(self):
+ def test_literal_cli_both_receipts_all1206_bytes_modes_and_null_actuals(self):
   expected=F.tree(EXPECTED)
   with tempfile.TemporaryDirectory()as td:
    for context in('known','null'):
     output=Path(td)/context;argv=[sys.executable,'-I','-B','-Werror',str(HERE/'prepare.py'),'--source',str(SOURCE),'--output',str(output),'--context',context]
     done=subprocess.run(argv,capture_output=True,timeout=30,umask=0o077);self.assertEqual(done.returncode,0,done.stderr.decode());row=json.loads(done.stdout)
-    self.assertEqual(F.tree(output),expected);self.assertEqual(len(row['files']),1203);self.assertEqual(row['source'],'0db9341521b5cb5d9022715b5ba638b3e4018462'if context=='known'else None)
+    self.assertEqual(F.tree(output),expected);self.assertEqual(len(row['files']),1206);self.assertEqual(row['source'],'1e777ec5a0612af37305f93f87f2c7b2f7a36de8'if context=='known'else None)
     self.assertTrue(all(row[k]is None for k in('actual_source','actual_ref','actual_run','Root_acceptance')));self.assertTrue(all(stat.S_IMODE((output/n).stat().st_mode)==0o644 for n in expected))
  def test_constructor_never_executes_supplied_source_or_actors(self):
   sentinel=object();saved=sys.modules.get('common',sentinel)
@@ -32,11 +32,12 @@ class Controls(unittest.TestCase):
   mode=values['implementation/page_mode.py'];self.assertTrue(mode.endswith(c['mode_append'].encode()));self.assertEqual(F.apply(mode[:-len(c['mode_append'].encode())],c['mode_edits'],reverse=True),before['implementation/page_mode.py'])
   test=values['implementation/test_page_mode.py'];entry=b"if __name__=='__main__':\n";test=test.replace(c['test_append'].encode()+b'\n'+entry,entry,1);self.assertEqual(F.apply(test,c['test_edits'],reverse=True),before['implementation/test_page_mode.py'])
   oldsha=F.pin(before['implementation/page-parent.json'])['sha256'];newsha=F.pin(values['implementation/page-parent.json'])['sha256'];guard=values['implementation/page_source.py'].replace(newsha.encode(),b'@PARENT_SHA@',1);self.assertTrue(guard.endswith(c['guard_append'].encode()));guard=guard[:-len(c['guard_append'].encode())];self.assertEqual(F.apply(guard,c['guard_edits'],reverse=True).replace(b'@PARENT_SHA@',oldsha.encode(),1),before['implementation/page_source.py'])
-  self.assertEqual(len(p['held']),1195);self.assertEqual(len(p['changed']),8)
+  self.assertEqual(len(p['held']),1189);self.assertEqual(len(p['changed']),14)
   self.assertEqual({n:F.pin(b)for n,b in F.numeric_before(values,p).items()},p['numeric_parent']['files'])
   for n in p['held']:self.assertEqual(current[n],before[n],n)
+  abi=F.storage_before(current,p)
   for n in before:
-   if n.startswith('parent604/')or n in('implementation/run.py','implementation/producer_diagnostic.py','implementation/page-mode-profile.json'):self.assertEqual(current[n],before[n],n)
+   if n.startswith('parent604/')or n in('implementation/run.py','implementation/producer_diagnostic.py','implementation/page-mode-profile.json'):self.assertEqual(abi[n],before[n],n)
  def test_paths_double_slash_literal_cli_and_no_writes(self):
   with tempfile.TemporaryDirectory()as td:
    root=Path(td);source=root/'source';shutil.copytree(SOURCE,source);alias=root/'alias';alias.symlink_to(source,target_is_directory=True);actual=root/'native-actual-fixture';actual.mkdir()
@@ -97,6 +98,8 @@ class Controls(unittest.TestCase):
    # source controls; compose itself never imports or executes caller source.
    run=subprocess.run([sys.executable,'-I','-B','-Werror',str(out/'implementation/test_page_mode.py')],capture_output=True,timeout=30)
    self.assertEqual(run.returncode,0,run.stderr.decode());self.assertIn(b'Ran 23 tests',run.stderr);self.assertTrue(run.stderr.rstrip().endswith(b'OK'));self.assertEqual(F.tree(out),F.tree(EXPECTED))
+   storage=subprocess.run([sys.executable,'-I','-B','-Werror',str(out/'implementation/test_storage.py')],capture_output=True,timeout=60)
+   self.assertEqual(storage.returncode,0,storage.stderr.decode());self.assertIn(b'Ran 10 tests',storage.stderr);self.assertTrue(storage.stderr.rstrip().endswith(b'OK'));self.assertEqual(F.tree(out),F.tree(EXPECTED))
 
  def test_actual_sanitized_selected_caller_clock_context_and_default_environment(self):
   import textwrap,shlex
@@ -110,12 +113,66 @@ class Controls(unittest.TestCase):
     row=subprocess.run(['/bin/bash','-c',shell],env=dict(os.environ,**dict(context,**{key:bad}),PAGE_MODE='generic16k',RUNNER_TEMP=td),capture_output=True,timeout=15);self.assertNotEqual(row.returncode,0);self.assertEqual(row.stdout,b'')
 class ABIStageControls(unittest.TestCase):
  def test_whole95a75_source_inverse_and_raw_default_bytes_held(self):
-  values,p,*_=F.compose(SOURCE);before=F.abi_before(values,p);self.assertEqual(sum(values[n]==before[n]for n in before),1196);self.assertEqual(len(before),1203)
+  values,p,*_=F.compose(SOURCE);values=F.storage_before(values,p);before=F.abi_before(values,p);self.assertEqual(sum(values[n]==before[n]for n in before),1196);self.assertEqual(len(before),1203)
   for n in before:
    if n.startswith('parent604/')or n in('implementation/workflow-template.yml','implementation/run.py'):self.assertEqual(values[n],before[n],n)
   for field,value in(('actual_source','0'*40),('source','0'*40)):
    bad=dict(values);parent=json.loads(bad['implementation/page-parent.json']);parent['engine_failure_parent']['alpm_type_origin'][field]=value;bad['implementation/page-parent.json']=F.encoded(parent)
    with self.assertRaises(ValueError):F.abi_before(bad,p)
+
+
+class StorageStageControls(unittest.TestCase):
+ def test_complete0db_inverse_all11_fields_and_original_security_clocks(self):
+  values,p,*_=F.compose(SOURCE);before=F.storage_before(values,p)
+  self.assertEqual({n:F.pin(b)for n,b in before.items()},p['storage_parent']['files'])
+  self.assertEqual((len(before),len(values)),(1203,1206));self.assertEqual(sum(values[n]==before[n]for n in before),1192)
+  profile=json.loads(values['implementation/profile.json']);old=json.loads(before['implementation/profile.json']);storage=profile.pop('storage_admission')
+  self.assertEqual(profile,old);self.assertEqual(len(storage['fields']),11);self.assertEqual(storage['pages'],['generic4k','generic16k']);self.assertFalse(storage['capacity_reserved'])
+  self.assertEqual(F.abi_before(values,p),F.abi_before(before,p));self.assertEqual(F.clock_before(values,p),F.clock_before(before,p))
+  self.assertEqual(values['implementation/page_mode.py'],before['implementation/page_mode.py'])
+
+ def test_actual4k_and16k_emitters_with_inert_kernel_boundary_are_source_controls(self):
+  import types
+  saved,paths=dict(sys.modules),list(sys.path)
+  try:
+   with tempfile.TemporaryDirectory()as td:
+    root=Path(td);out=root/'source';F.emit(SOURCE,out,'null');sys.path.insert(0,str(out/'implementation'))
+    for name in('common','adapter','page_mode','source_guard','run'):sys.modules.pop(name,None)
+    import common as C,adapter,page_mode as P
+    from run import Integration
+    expected={name:adapter.transform(C.read(C.ROOT/'parent604'/name),name)[0]for name in adapter.NAMES}
+    four=root/'four';Integration(None,None,None,None,page='generic4k').candidate(four)
+    self.assertEqual({name:C.read(four/name)for name in adapter.NAMES},expected)
+    context=dict(FRESH_SOURCE='1'*40,GITHUB_RUN_ID='17',GITHUB_RUN_ATTEMPT='1')
+    # This portable control substitutes only the authenticated kernel-input DATA
+    # boundary. It executes the real emitter, grants no Image/hash/boot credit,
+    # and leaves the unchanged real parser/refusal controls mandatory.
+    kernel=(b'SYNTHETIC_SOURCE_CONTROL_NOT_A_KERNEL',b'SYNTHETIC_CONFIG',b'{}\n')
+    with patch.dict(os.environ,context),patch.object(P,'inputs',return_value=kernel):
+     sixteen=root/'sixteen';Integration(None,None,None,None,page='generic16k',kernel_input=root/'inert-kernel-boundary').candidate(sixteen)
+    bound=dict(schema_version=1,purpose='SOURCE_OWNED_GENERIC16K_REALTIME_INIT_V1',source=context['FRESH_SOURCE'],run_id='17',run_attempt='1')
+    for name in adapter.NAMES:
+     raw=P.transform(expected[name],name)
+     if name in('run.py','guest.py'):raw=P.clock_bind(raw,name,bound)
+     self.assertEqual(C.read(sixteen/name),raw,name)
+    self.assertEqual(C.read(sixteen/'kernel16k.Image'),kernel[0]);self.assertEqual(json.loads(C.read(sixteen/'adapter.json'))['realtime_context'],bound)
+    self.assertIn(b'details=roots.installer.Ptr(); alpm.ok(alpm.alpm_trans_prepare',C.read(sixteen/'installer.py'))
+    self.assertIn(b'details=roots.installer.Ptr(); alpm.ok(alpm.alpm_trans_commit',C.read(sixteen/'installer.py'))
+    with self.assertRaises(ValueError):P.kernel_bytes(kernel[0],kernel[1])
+    with self.assertRaises(ValueError):Integration(None,None,None,None,page='foreign')
+    self.assertEqual(F.tree(out),F.tree(EXPECTED))
+  finally:
+   sys.path[:]=paths
+   for name in set(sys.modules)-set(saved):sys.modules.pop(name,None)
+   sys.modules.update(saved)
+
+ def test_storage_context_and_whole0db_before_operands_refuse_drift(self):
+  values,p,*_=F.compose(SOURCE)
+  for name in('implementation/storage-parent.json','implementation/storage_source.py','parent604/installer.py','parent604-map.json','implementation/profile.json','source-manifest.json'):
+   changed=dict(values);changed[name]+=b'\n'
+   with self.subTest(name=name),self.assertRaises(ValueError):F.storage_before(changed,p)
+  changed=dict(values);changed['foreign']=b'foreign'
+  with self.assertRaises(ValueError):F.storage_before(changed,p)
 
 
 if __name__=='__main__':unittest.main(verbosity=2)
