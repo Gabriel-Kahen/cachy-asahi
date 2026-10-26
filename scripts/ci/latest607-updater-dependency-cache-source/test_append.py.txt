@@ -1,0 +1,55 @@
+
+ def _held(self):
+  import os
+  path=C.safe(os.environ['LATEST607_HELD_SOURCE']);self.assertEqual(C.rows(path),C.profile()['held_files']);return path
+ def _plan(self):
+  import ast,types
+  raw=C.read(self._held()/'scripts/ci/expanded600-root-upgrade/run.py');fn=next(n for n in ast.parse(raw).body if isinstance(n,ast.FunctionDef)and n.name=='prepare_with_plan');scope=dict(C=types.SimpleNamespace(need=C.need,encoded=C.enc),json=json);exec(compile(ast.Module(body=[fn],type_ignores=[]),'<whole-original-plan-source-control>','exec'),scope);return scope['prepare_with_plan']
+ def _facade(self,failure):
+  import os,tempfile,types,base64
+  import cache
+  held=self._held();producer=C.load('_fixture_real_producer_'+str(failure),held/'scripts/ci/full-composition-installer-vm/producer.py');diagnostic=C.load('_fixture_source_diagnostic_'+str(failure),C.HERE/'producer_diagnostic.py');oldprepare,oldexport,oldload=producer.prepare,producer.export_ready,producer.load
+  with tempfile.TemporaryDirectory(prefix='updater-source-flow-')as td:
+   root=Path(td);output=root/'producer';output.mkdir(mode=0o700);(output/'private').mkdir();(output/'public').mkdir();prep=root/'preparation';script=prep/'scripts/ci/full-development-composition/dependencies/acquire.py';script.parent.mkdir(parents=True);script.write_text("print('SOURCE_FIXTURE_NOT_AUTHENTICATION')\nraise SystemExit(9)\n");args=types.SimpleNamespace(output=output,preparation_source=prep,code=held,updater=root/'updater',cache=root/'cache');(output/'producer-owner.json').write_bytes(C.enc(dict(schema_version=1,token='b'*32,preparation_source=str(prep))))
+   # Control fixture drives the REAL producer module globals, real original plan
+   # function, exact diagnostic callback, original command and real Python child.
+   # It never calls or claims the native preparation/Git/ALPM/package gates.
+   source="""def fixture_prepare(args):
+ raw=args.output/'private';(raw/'inputs').mkdir();ready=raw/'ready'
+ if _fixture_failure:
+  try:
+   api=load(args.code/_fixture_diagnostic.CALLER)
+   argv=[_fixture_executable,'-B',str(args.preparation_source/'scripts/ci/full-development-composition/dependencies/acquire.py'),'--source-root',str(args.updater),'--cache',str(args.cache),'--keydir',str(args.cache),'--output',str(raw/'dependency-audit')]
+   api.command(argv,raw/'dependency.log',180)
+  except BaseException as e:
+   (args.output/'public/producer.json').write_bytes(_fixture_encode(dict(status='FAIL',phase='authenticate-five-deduplicate-four',installer='NOT RUN',upgrade='NOT RUN',error_type=type(e).__name__,error=str(e))))
+   raise
+ return export_ready(raw,ready,dict(inputs=raw/'inputs',plan=dict(source_fixture=True)))
+"""
+   producer.__dict__.update(_fixture_failure=failure,_fixture_diagnostic=diagnostic,_fixture_executable=sys.executable,_fixture_encode=C.enc);exec(compile(source,'<explicit-source-flow-fixture-not-native>','exec'),producer.__dict__);producer.prepare=producer.fixture_prepare
+   def exporting(raw,ready,held,*a,**kw):ready.mkdir();return ready
+   producer.export_ready=exporting;facade=cache.ProducerFacade(producer,diagnostic);plan=self._plan()
+   try:
+    if failure:
+     from unittest.mock import patch
+     with patch.dict(os.environ,dict(PATH=os.defpath,HOME=str(root),LANG='C.UTF-8'),clear=True),self.assertRaisesRegex(AssertionError,'command failed: dependency.log'):plan(facade,args)
+     report=json.loads((output/'public/producer.json').read_bytes());data=report['failure_data'];self.assertEqual(data['purpose'],diagnostic.DEPENDENCY_PURPOSE);self.assertFalse(data['acceptance_authority']);self.assertFalse(data['cleanup_authority']);self.assertEqual(data['command']['timeout_seconds'],180);self.assertEqual(data['command']['returncode'],9);self.assertEqual(data['command']['role'],'AUTHENTICATE_FIVE_DEDUPLICATE_FOUR');self.assertEqual(base64.b64decode(data['logs']['dependency.log']['base64']),b'SOURCE_FIXTURE_NOT_AUTHENTICATION\n');self.assertTrue(data['logs']['dependency.log']['complete']);self.assertLess(len(C.enc(report)),448*1024)
+    else:
+     ready,value=plan(facade,args);self.assertEqual(ready,output/'private/ready');self.assertEqual(value,dict(source_fixture=True));self.assertFalse((output/'public/producer.json').exists())
+    self.assertIs(producer.export_ready,exporting);self.assertIs(producer.load,oldload)
+   finally:producer.prepare=oldprepare;producer.export_ready=oldexport;producer.load=oldload
+ def test_retained_dependency_policy_and_exact_source_helpers(self):
+  import cache
+  p=cache.dependency_policy();helper=C.load('_source_dependency_static_controls',C.HERE/'compiler6.py');profile,dependency=helper.dependency_configuration();self.assertEqual(len(dependency['selected']),8);self.assertEqual(dependency['source'],p['incoming_source']);self.assertEqual(p['prior_files'],1159);self.assertEqual(p['total_dependency_files'],10);self.assertEqual(p['new_phase_seconds'],240);self.assertEqual(p['original_acquisition_seconds'],180);self.assertEqual(p['outer_fit'],'NOT_ESTABLISHED')
+ def test_new_owner_forward_whole_inverse_and_shared_arguments(self):
+  import runtime
+  raw=C.read(self._held()/runtime.OLD/'run.py');derived=runtime.derive_owner(raw);self.assertIn('return Y.prepare_with_plan(C.old600()[1],producer,args)',derived);self.assertEqual(len(runtime.OWNER_EDITS),6)
+ def test_facade_real_globals_original_plan_capture_positive(self):self._facade(False)
+ def test_facade_real_command_failure_capture_before_cleanup(self):self._facade(True)
+ def test_cache_policy_foreign_and_missing_runtime_input_refuse(self):
+  import cache,types
+  from unittest.mock import patch
+  for key,value in(('new_phase_seconds',241),('incoming_source','f'*40),('prior_files',1158),('total_dependency_files',8),('authority',True)):
+   p=copy.deepcopy(C.profile());p['dependency_cache'][key]=value
+   with self.subTest(key=key),patch.object(C,'profile',return_value=p),self.assertRaises(ValueError):cache.dependency_policy()
+  with self.assertRaisesRegex(ValueError,'explicit immutable'):cache.prepare_with_plan(types.SimpleNamespace(dependency_incoming=None),None,None,None)
