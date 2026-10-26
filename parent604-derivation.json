@@ -1,0 +1,474 @@
+{
+  "guest.py": {
+    "accepted600": {
+      "edits": 1,
+      "file": "guest.py",
+      "inventory_calls": {},
+      "mount_query_backend": null,
+      "rules": [
+        {
+          "after": "PASS_EXPANDED600_INSTALLER",
+          "before": "PASS_FULL_COMPOSITION_INSTALLER",
+          "count": 1
+        }
+      ]
+    },
+    "accepted600_sha256": "ca5e01c42170311150de169454aa109d9a743c5b538ea3a94545edf8b5ba8b4c",
+    "after_sha256": "ddb5efbdd51325b60abd00a2105e6b694597fb8e78eb043ff35862362ec69182",
+    "file": "guest.py",
+    "rules": [
+      [
+        "<module>",
+        "PASS_EXPANDED600_INSTALLER",
+        "PASS_PUBLIC_PAIRS_APPS6_CURRENT604_INSTALLER",
+        1,
+        null
+      ]
+    ],
+    "semantic_edits": 1
+  },
+  "installer.py": {
+    "accepted600": {
+      "edits": 9,
+      "file": "installer.py",
+      "inventory_calls": {
+        "roots.Limits": 2
+      },
+      "mount_query_backend": null,
+      "rules": [
+        {
+          "after": "Generic-VM-only fresh expanded600 transaction through the held installer barrier.",
+          "before": "Generic-VM-only fresh initial587 transaction through the held installer barrier.",
+          "count": 1
+        },
+        {
+          "after": "PASS_EXPANDED600_INSTALLER",
+          "before": "PASS_FULL_COMPOSITION_INSTALLER",
+          "count": 1
+        },
+        {
+          "after": 600,
+          "before": 587,
+          "count": 4
+        },
+        {
+          "after": "expanded600-installer-vm",
+          "before": "full-composition-installer-vm",
+          "count": 1
+        }
+      ]
+    },
+    "accepted600_sha256": "ec8635512d099ea2d7faa49b62bd82ad8405d090675758807e86852d104c2a7b",
+    "after_sha256": "c049956e1f470b755903e8ae0a300cc8c9332b5513d8b83441d4714196931f0f",
+    "file": "installer.py",
+    "rules": [
+      [
+        "<module>",
+        "Generic-VM-only fresh expanded600 transaction through the held installer barrier.",
+        "Generic-VM-only fresh expanded604 transaction through the held installer barrier.",
+        1,
+        null
+      ],
+      [
+        "<module>",
+        "PASS_EXPANDED600_INSTALLER",
+        "PASS_PUBLIC_PAIRS_APPS6_CURRENT604_INSTALLER",
+        1,
+        null
+      ],
+      [
+        "checked_inputs",
+        "expanded600-installer-vm",
+        "expanded604-apps6-public-pair-installer",
+        1,
+        null
+      ],
+      [
+        "checked_inputs",
+        600,
+        604,
+        1,
+        "packages"
+      ],
+      [
+        "engine",
+        600,
+        604,
+        1,
+        "package_count"
+      ],
+      [
+        "engine",
+        600,
+        604,
+        2,
+        "max_packages"
+      ],
+      [
+        "execute",
+        600,
+        604,
+        2,
+        "max_packages"
+      ]
+    ],
+    "semantic_edits": 9
+  },
+  "numeric_vm.py": {
+    "accepted600": {
+      "edits": 2,
+      "file": "numeric_vm.py",
+      "inventory_calls": {
+        "roots.Limits": 1
+      },
+      "mount_query_backend": {
+        "bytes": 2784,
+        "deadline_seconds": 600,
+        "fallback": "ORIGINAL_FDINFO_NO_BUDGET_OR_CHECK_WAIVER",
+        "scope": "INDEPENDENT600_ROOT_READBACK_MOUNT_QUERY_ONLY",
+        "sha256": "c3d804e7f2927c7889835ad187a39a3d7c618a4651700f57b0c5413c46612607"
+      },
+      "rules": [
+        {
+          "after": 600,
+          "before": 587,
+          "count": 1
+        }
+      ]
+    },
+    "accepted600_sha256": "a51fce9dbdbb5c56224d4113e7c662d40b2c49e7e645ba554d81dc076b2c9b7f",
+    "after_sha256": "792c1681fb2df9487cc2f7641f5979dde315aa0aaa2a78dcdfef8ac824a468d8",
+    "file": "numeric_vm.py",
+    "rules": [
+      [
+        "verify_export",
+        600,
+        604,
+        2,
+        "max_packages"
+      ]
+    ],
+    "semantic_edits": 2
+  },
+  "prepare.py": {
+    "accepted600": {
+      "edits": 1,
+      "file": "prepare.py",
+      "inventory_calls": {},
+      "mount_query_backend": null,
+      "rules": [
+        {
+          "after": "expanded600-installer-vm",
+          "before": "full-composition-installer-vm",
+          "count": 1
+        }
+      ]
+    },
+    "accepted600_sha256": "c103b88537b05d9a901331b5def29286fe1d1b24534355307eb6b8ac11b62344",
+    "after_sha256": "bbd978269e1c64c367174a6962dc311f56694d9c520aad06c8e783837880fcfe",
+    "file": "prepare.py",
+    "rules": [
+      [
+        "verify_contract",
+        "expanded600-installer-vm",
+        "expanded604-apps6-public-pair-installer",
+        1,
+        null
+      ]
+    ],
+    "semantic_edits": 1
+  },
+  "profile.py": {
+    "accepted600": {
+      "edits": 11,
+      "file": "profile.py",
+      "inventory_calls": {},
+      "mount_query_backend": null,
+      "rules": [
+        {
+          "after": "Source-only signed expanded600 profile; never install, extract, mount or fetch.",
+          "before": "Source-only signed initial587 profile; never install, extract, mount or fetch.",
+          "count": 1
+        },
+        {
+          "after": "d263a3ca9089c204603f2e12b80dc4f209ee6e636f10da940a514040b636db79",
+          "before": "2198942a546f4714587c810fe174d4457121960f3a7b1dbaa276e9f970f322c7",
+          "count": 1
+        },
+        {
+          "after": "full-installer-expanded600-ldconfig-sonames-v1",
+          "before": "full-installer-held587-ldconfig-sonames-v1",
+          "count": 1
+        },
+        {
+          "after": "held expanded600 lock differs",
+          "before": "held initial587 lock differs",
+          "count": 1
+        },
+        {
+          "after": 600,
+          "before": 587,
+          "count": 4
+        },
+        {
+          "after": "expanded600-installer-vm",
+          "before": "full-composition-installer-vm",
+          "count": 1
+        },
+        {
+          "after": "fresh signed expanded600 transaction plus declared user fixtures in generic4K VM",
+          "before": "fresh signed initial587 transaction plus declared user fixtures in generic4K VM",
+          "count": 1
+        },
+        {
+          "after": "READY_SIGNED_EXPANDED600",
+          "before": "READY_SIGNED_INITIAL587",
+          "count": 1
+        }
+      ]
+    },
+    "accepted600_sha256": "6a999a442d1cce7db8bd375d84ee885b94be3951575ad5bed578e5fefc410f3f",
+    "after_sha256": "853d59b9a3979899a9aae06ed4ac527fe4b28da0b4d77326f89972ae1f239b09",
+    "file": "profile.py",
+    "rules": [
+      [
+        "<module>",
+        "Source-only signed expanded600 profile; never install, extract, mount or fetch.",
+        "Source-only signed expanded604 profile; never install, extract, mount or fetch.",
+        1,
+        null
+      ],
+      [
+        "<module>",
+        "d263a3ca9089c204603f2e12b80dc4f209ee6e636f10da940a514040b636db79",
+        "7bc6caa51301bf076aeda4d137277a128c53a16e5bfd25f02e7309c4b3a408c3",
+        1,
+        null
+      ],
+      [
+        "manifest",
+        "READY_SIGNED_EXPANDED600",
+        "READY_SIGNED_EXPANDED604",
+        1,
+        null
+      ],
+      [
+        "manifest",
+        "held expanded600 lock differs",
+        "held expanded604 lock differs",
+        1,
+        null
+      ],
+      [
+        "manifest",
+        600,
+        604,
+        3,
+        null
+      ],
+      [
+        "manifest",
+        "0.1.0-3",
+        "0.1.0-5",
+        1,
+        null
+      ],
+      [
+        "<module>",
+        "full-installer-expanded600-ldconfig-sonames-v1",
+        "full-installer-expanded604-ldconfig-sonames-v1",
+        1,
+        null
+      ],
+      [
+        "build",
+        "expanded600-installer-vm",
+        "expanded604-apps6-public-pair-installer",
+        1,
+        null
+      ],
+      [
+        "build",
+        600,
+        604,
+        1,
+        "packages"
+      ],
+      [
+        "build",
+        "fresh signed expanded600 transaction plus declared user fixtures in generic4K VM",
+        "fresh signed expanded604 transaction plus declared user fixtures in generic4K VM",
+        1,
+        null
+      ]
+    ],
+    "semantic_edits": 12
+  },
+  "run.py": {
+    "accepted600": {
+      "edits": 16,
+      "file": "run.py",
+      "inventory_calls": {},
+      "mount_query_backend": null,
+      "rules": [
+        {
+          "after": "Owned, offline generic ARM VM route for the declared expanded600 installer.",
+          "before": "Owned, offline generic ARM VM route for the declared initial587 installer.",
+          "count": 1
+        },
+        {
+          "after": "d263a3ca9089c204603f2e12b80dc4f209ee6e636f10da940a514040b636db79",
+          "before": "2198942a546f4714587c810fe174d4457121960f3a7b1dbaa276e9f970f322c7",
+          "count": 1
+        },
+        {
+          "after": "PASS_EXPANDED600_INSTALLER",
+          "before": "PASS_FULL_COMPOSITION_INSTALLER",
+          "count": 1
+        },
+        {
+          "after": "actual signed full600 export required",
+          "before": "actual signed full587 export required",
+          "count": 1
+        },
+        {
+          "after": "cachy-asahi-expanded600-installer:",
+          "before": "cachy-asahi-full-installer:",
+          "count": 1
+        },
+        {
+          "after": "generic4K-full600-installer-software-only",
+          "before": "generic4K-full587-installer-software-only",
+          "count": 1
+        },
+        {
+          "after": "expanded600-installer-vm",
+          "before": "full-composition-installer-vm",
+          "count": 3
+        },
+        {
+          "after": "READY_SIGNED_EXPANDED600",
+          "before": "READY_SIGNED_INITIAL587",
+          "count": 1
+        },
+        {
+          "after": 600,
+          "before": 587,
+          "count": 3
+        },
+        {
+          "after": "cachy-expanded600-installer-",
+          "before": "cachy-full-installer-",
+          "count": 1
+        },
+        {
+          "after": "cachy-asahi.expanded600-installer",
+          "before": "cachy-asahi.full-installer",
+          "count": 1
+        },
+        {
+          "after": "cachy-asahi.expanded600-installer=",
+          "before": "cachy-asahi.full-installer=",
+          "count": 1
+        }
+      ]
+    },
+    "accepted600_sha256": "578fe003117344ef57bf0a8f644212c42d871a74999e07f16a9c7e4bb3de74a1",
+    "after_sha256": "27995924f216b7befe1cef2cb5f587e7b0bb34ba61dbf5ae009f9492444c4771",
+    "file": "run.py",
+    "rules": [
+      [
+        "<module>",
+        "Owned, offline generic ARM VM route for the declared expanded600 installer.",
+        "Owned, offline generic ARM VM route for the declared expanded604 installer.",
+        1,
+        null
+      ],
+      [
+        "<module>",
+        "d263a3ca9089c204603f2e12b80dc4f209ee6e636f10da940a514040b636db79",
+        "7bc6caa51301bf076aeda4d137277a128c53a16e5bfd25f02e7309c4b3a408c3",
+        1,
+        null
+      ],
+      [
+        "input_files",
+        "READY_SIGNED_EXPANDED600",
+        "READY_SIGNED_EXPANDED604",
+        1,
+        null
+      ],
+      [
+        "input_files",
+        600,
+        604,
+        2,
+        null
+      ],
+      [
+        "input_files",
+        "actual signed full600 export required",
+        "actual signed full604 export required",
+        1,
+        null
+      ],
+      [
+        "validate_completion",
+        "PASS_EXPANDED600_INSTALLER",
+        "PASS_PUBLIC_PAIRS_APPS6_CURRENT604_INSTALLER",
+        1,
+        null
+      ],
+      [
+        "validate_completion",
+        600,
+        604,
+        1,
+        null
+      ],
+      [
+        "vm",
+        "generic4K-full600-installer-software-only",
+        "generic4K-current604-installer-software-only",
+        1,
+        null
+      ],
+      [
+        "container_args",
+        "cachy-asahi.expanded600-installer=",
+        "cachy-asahi.current604-installer=",
+        1,
+        null
+      ],
+      [
+        "host",
+        "expanded600-installer-vm",
+        "expanded604-apps6-public-pair-installer",
+        3,
+        null
+      ],
+      [
+        "host",
+        "cachy-asahi-expanded600-installer:",
+        "cachy-asahi-current604-installer:",
+        1,
+        null
+      ],
+      [
+        "host",
+        "cachy-expanded600-installer-",
+        "cachy-current604-installer-",
+        1,
+        null
+      ],
+      [
+        "host",
+        "cachy-asahi.expanded600-installer",
+        "cachy-asahi.current604-installer",
+        1,
+        null
+      ]
+    ],
+    "semantic_edits": 16
+  }
+}
