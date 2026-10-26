@@ -1,0 +1,26 @@
+{
+  "artifact": {
+    "bytes": 83218281,
+    "sha256": "83a94cf88501964c47df01fd19b15bcb79998e77dc4d8cf8ee32f9b45ed60984"
+  },
+  "artifact_id": 12617443815,
+  "attempt": 1,
+  "metadata": {
+    "artifacts.json": {
+      "bytes": 774,
+      "sha256": "3e182260b4541cc2023b87dab18c4f5c42ebe97f03a732ba2be513a6c30df9ab"
+    },
+    "jobs.json": {
+      "bytes": 7152,
+      "sha256": "ea8c17f54dd1788c58327bfd9fbc69d1df969c8b058a31c7cf7c4a55dc0d79e9"
+    },
+    "run.json": {
+      "bytes": 12988,
+      "sha256": "cd1441e2751f1958f85a09899ae19be17b881623d123cfe361c1d652cd4e312a"
+    }
+  },
+  "ref": "codex/core7-serial-line-framing-v1",
+  "role": "core7-real-systemd",
+  "run": 40238067402,
+  "source": "11b3cfb59663e42b34247facb9f30f042e891444"
+}
