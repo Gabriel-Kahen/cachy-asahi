@@ -13,7 +13,7 @@ class Controls(unittest.TestCase):
    for context in('known','null'):
     output=Path(td)/context;argv=[sys.executable,'-I','-B','-Werror',str(HERE/'prepare.py'),'--source',str(SOURCE),'--output',str(output),'--context',context]
     done=subprocess.run(argv,capture_output=True,timeout=30,umask=0o077);self.assertEqual(done.returncode,0,done.stderr.decode());row=json.loads(done.stdout)
-    self.assertEqual(F.tree(output),expected);self.assertEqual(len(row['files']),692);self.assertEqual(row['source'],'7bce753f368b30ed9698722c1ae9ade9c2a1f533'if context=='known'else None)
+    self.assertEqual(F.tree(output),expected);self.assertEqual(len(row['files']),692);self.assertEqual(row['source'],'cc759a68ad92afecf3e2d7381bb91dad6ef0752c'if context=='known'else None)
     self.assertTrue(all(row[k]is None for k in('actual_source','actual_ref','actual_run','Root_acceptance')));self.assertTrue(all(stat.S_IMODE((output/n).stat().st_mode)==0o644 for n in expected))
  def test_constructor_never_executes_supplied_source_or_actors(self):
   sentinel=object();saved=sys.modules.get('common',sentinel)

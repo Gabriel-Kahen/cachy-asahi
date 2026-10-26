@@ -3,7 +3,7 @@
 import argparse,ast,hashlib,json,os,stat
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
-PROFILE={'bytes': 311966, 'sha256': '3b987fec60eb694ea1338b6f6d200a964c70e6504043aea370c49aee8f5687c2'}
+PROFILE={'bytes': 311970, 'sha256': '6b56901b23a4bf344da6bfcbb5a5f56cc7e2ba485281a96aaec4d25b2c056d29'}
 
 def need(ok, message):
     if not ok:

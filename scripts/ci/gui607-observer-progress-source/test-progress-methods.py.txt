@@ -22,7 +22,7 @@
     while current and not events and time.monotonic()<until:time.sleep(.01)
     if not current:time.sleep(.2)
     self.assertIsNone(actor.process.poll())
-    self.assertEqual([e['stage']for e in events]if current else events,['inventory_begin','inventory_end']if current else [])
+    self.assertEqual([e['observer_stage']for e in events]if current else events,['inventory_begin','inventory_end']if current else [])
     actor.process.wait(timeout=3);space['terminate'](actor.process);actor.finish()
     final=events[-1];self.assertEqual(final['event'],'process_exit');self.assertEqual(final['returncode'],0)
     self.assertEqual((logs/'installed606-preserved.stdout').read_bytes(),b'unchanged stdout')
@@ -43,8 +43,8 @@
    raw=record(stage)
    for index in range(0,len(raw),7):self.assertTrue(f.feed(raw[index:index+7]))
    f.feed(raw)
-  self.assertEqual([e['stage']for e in events],list(klass.stages));self.assertLessEqual(f.input_bytes,2048);self.assertLessEqual(f.output_bytes,2048);self.assertLessEqual(len(f.pending),512)
-  for row in events:self.assertEqual(set(row),{'event','schema','stage','ordinal','elapsed_ns','status'});self.assertEqual(row['status'],'BOUNDARY_DATA_ONLY_NOT_ACCEPTANCE')
+  self.assertEqual([e['observer_stage']for e in events],list(klass.stages));self.assertLessEqual(f.input_bytes,2048);self.assertLessEqual(f.output_bytes,2048);self.assertLessEqual(len(f.pending),512)
+  for row in events:self.assertEqual(set(row),{'event','schema','observer_stage','ordinal','elapsed_ns','status'});self.assertEqual(row['status'],'BOUNDARY_DATA_ONLY_NOT_ACCEPTANCE')
   def lost(*a,**k):raise OSError('private diagnostic capture loss')
   loss=klass(lost);self.assertTrue(loss.feed(record('inventory_begin')));self.assertEqual(loss.last,1)
 
@@ -66,7 +66,7 @@
  def test_selected_timeout_and_diagnostic_loss_keep_original_result_and_logs(self):
   events=[];space,argv=self.forwarding_space(True,events);logs=self.work/'timeout-logs';logs.mkdir();child=Path(argv[3]);child.write_text(child.read_text().replace('time.sleep(1)','time.sleep(5)'))
   with self.assertRaises(subprocess.TimeoutExpired):space['command'](argv,dict(PATH='/usr/bin:/bin'),logs,'installed606-preserved',timeout=.3)
-  self.assertEqual([e['stage']for e in events if e['event']=='installed607_observer_stage_DATA'],['inventory_begin','inventory_end'])
+  self.assertEqual([e['observer_stage']for e in events if e['event']=='installed607_observer_stage_DATA'],['inventory_begin','inventory_end'])
   self.assertEqual(events[-1]['event'],'process_exit');self.assertNotEqual(events[-1]['returncode'],0)
   self.assertEqual(len((logs/'installed606-preserved.stderr').read_bytes().splitlines()),2)
   # Event capture loss remains diagnostic only: original stderr and exit0 survive.
@@ -78,3 +78,22 @@
   self.assertEqual(space['command'](argv,dict(PATH='/usr/bin:/bin'),logs,'installed606-preserved',timeout=3),'unchanged stdout')
   self.assertEqual(events[-1]['returncode'],0);self.assertEqual(len((logs/'installed606-preserved.stderr').read_bytes().splitlines()),2)
 
+
+ def test_forwarded_stage_DATA_preserves_exact_profile_guard(self):
+  import types
+  raw=(ROOT/'parent574/original/scripts/ci/welcome-independent-profile-native/profile_adapter.py').read_bytes();tree=ast.parse(raw);runner=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='runner');contract=next(n for n in runner.body if isinstance(n,ast.FunctionDef)and n.name=='contract');call=contract.body[0].value
+  self.assertIsInstance(call,ast.Call);self.assertEqual(ast.literal_eval(call.args[1]),'def verify_result(events,lock):')
+  header=eval(compile(ast.Expression(call.args[2]),'<exact-source-generated-profile-guard>','eval'),dict(selected='minimal'))
+  def need(ok,why):
+   if not ok:raise ValueError(why)
+  guarded=dict(C=types.SimpleNamespace(need=need));exec(compile(header+"\n    return 'PROFILE_GUARD_ONLY_NOT_GUI_ACCEPTANCE'\n",'<trusted-original-first-profile-predicate>','exec'),guarded)
+  events=[];space,_=self.forwarding_space(True,events);klass=space['_ObserverStageForward'];forward=klass(lambda event,**row:events.append(dict(event=event,**row)))
+  for ordinal,stage in enumerate(klass.stages,1):
+   value=dict(schema=1,role='EXACT_INSTALLED607_VERIFY',stage=stage,ordinal=ordinal,elapsed_ns=1215000000000,status='BOUNDARY_DATA_ONLY_NOT_ACCEPTANCE');raw=klass.prefix+json.dumps(value,sort_keys=True,separators=(',',':')).encode()+b'\n';self.assertTrue(forward.record(raw))
+  self.assertEqual(len(events),8);self.assertTrue(all('stage'not in row and row['observer_stage']in klass.stages for row in events));self.assertLessEqual(forward.output_bytes,2048)
+  baseline=[dict(event='phase_pass',stage='minimal')];self.assertEqual(guarded['verify_result'](baseline+events,{}),'PROFILE_GUARD_ONLY_NOT_GUI_ACCEPTANCE')
+  old=[{('stage'if k=='observer_stage'else k):v for k,v in row.items()}for row in events]
+  with self.assertRaisesRegex(ValueError,'foreign or missing profile event'):guarded['verify_result'](baseline+old,{})
+  # Original decoder, no event filtering or parser edits: all8 DATA rows survive.
+  raw=(ROOT/'parent574/original/scripts/ci/desktop574_runtime.py').read_bytes();tree=ast.parse(raw);decoder=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='read_events');assign=[n for n in tree.body if isinstance(n,ast.Assign)and any(isinstance(x,ast.Name)and x.id in('PREFIX','MAX_EVENTS')for x in n.targets)];scope=dict(json=json,require=need);exec(compile(ast.Module(body=assign+[decoder],type_ignores=[]),'<exact-source-event-decoder>','exec'),scope)
+  path=self.work/'fixed-stage-events.log';path.write_bytes(b''.join((scope['PREFIX']+json.dumps(row,sort_keys=True)+'\n').encode()for row in baseline+events));_,pending,decoded=scope['read_events'](path,0,b'');self.assertFalse(pending);self.assertEqual(decoded,baseline+events)
