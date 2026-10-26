@@ -1,0 +1,8 @@
+{
+  "cap": 300,
+  "clock": "AFTER_BLOCKING_SHARED_GUI_LOCK",
+  "exit": 0,
+  "retry": false,
+  "seconds": 106.84914896600822,
+  "timeout": false
+}
