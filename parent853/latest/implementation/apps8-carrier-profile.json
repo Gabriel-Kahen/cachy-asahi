@@ -1,0 +1,493 @@
+{
+  "acceptance": {
+    "Apps_build_controls": "45_ORIGINAL_PLUS4_NEW_REQUIRED_BY_SOURCE_BUILD_GATE_NO_FAILURES_OR_SKIPS",
+    "GUI": "NOT_RUN",
+    "M2": "NOT_RUN",
+    "accepted_pair": {
+      "archive": {
+        "bytes": 23528,
+        "sha256": "d4d83458765d732ae78664143c9042dcc1159b7d3e19f4b7976f8499c2619f4a"
+      },
+      "archives": [
+        {
+          "bytes": 23528,
+          "path": "strict-replay/current-apps8/original-public/packages/cachy-asahi-apps-a/cachy-asahi-apps-0.1.0-8-any.pkg.tar.xz",
+          "sha256": "d4d83458765d732ae78664143c9042dcc1159b7d3e19f4b7976f8499c2619f4a"
+        },
+        {
+          "bytes": 23528,
+          "path": "strict-replay/current-apps8/original-public/packages/cachy-asahi-apps-b/cachy-asahi-apps-0.1.0-8-any.pkg.tar.xz",
+          "sha256": "d4d83458765d732ae78664143c9042dcc1159b7d3e19f4b7976f8499c2619f4a"
+        }
+      ],
+      "byte_identical": true,
+      "package": "cachy-asahi-apps",
+      "version": "0.1.0-8"
+    },
+    "attempt": 1,
+    "full604": "NOT_RUN",
+    "generic16k": "NOT_RUN",
+    "hardware": "NOT_RUN",
+    "installed_current606": "NOT_RUN",
+    "originals": {
+      "artifact.zip": {
+        "bytes": 591679,
+        "sha256": "8ce3422045d8583c0fcf51c9106e767afa405ef2071e05a46524742ce7fa33f8"
+      },
+      "artifacts.json": {
+        "bytes": 771,
+        "sha256": "6b5c5cb1c06afb3ca356f1090367d72e171281f164e9dd9feffa39c204b53f68"
+      },
+      "bound-original.json": {
+        "bytes": 235,
+        "sha256": "8295751b4d852363535240406a3fc2e3dbd6442ed07443c3736525acdd2f32fb"
+      },
+      "collection-outcome.json": {
+        "bytes": 775,
+        "sha256": "2820a94047d27217349606c231f8c83d23ecc8774e73188de69cacd8ed360fbd"
+      },
+      "jobs.json": {
+        "bytes": 3524,
+        "sha256": "cbd3d640c2d3326f09880df51e7c44fbfbe583b9bf2a112503ca869877ef4779"
+      },
+      "logs.zip": {
+        "bytes": 89177,
+        "sha256": "55752f077b58dfae3696002a34732ebae73fcb9a16391ba8499343cb5a46836a"
+      },
+      "run.json": {
+        "bytes": 12971,
+        "sha256": "e12685210d84838bc745e6eb85e3ae7e5d4f9a793c92799ae34d8068bb62c65e"
+      },
+      "transport-receipt.json": {
+        "bytes": 1096,
+        "sha256": "4f3f2a27124e7f379ab2d11ac36bfc9d6560fc7023d1666d0e7cb2fc30128fd9"
+      }
+    },
+    "performance": "LOCAL_FIXTURE_ONLY_NOT_NATIVE_FINAL_SYSTEM_GAIN",
+    "private574_maps": "UNEXPORTED_SOURCE_ENFORCED",
+    "reader": {
+      "files": 269,
+      "post_replay_namespace": "PASS_ORDINARY_EXACT",
+      "proof": {
+        "bytes": 459,
+        "sha256": "8b6d6aa975ef0397e130515ad729e4b9ea4615f0137918179b75c47e93eb4034"
+      }
+    },
+    "recipe_source": "98a0a6ab18355604683bee42c84c393940a690a1",
+    "recorded": "2026-10-22T05:42:55.630846+00:00",
+    "ref": "codex/apps8-native-v1",
+    "release": "NOT_ADMITTED",
+    "result": {
+      "bytes": 5047,
+      "sha256": "674b026b6336bd7d4f22112ab01897d74857c65a43a86592615bf98acdc2808b"
+    },
+    "retirement": "SOURCE_RECORDED_NOT_LIVE_REOBSERVED",
+    "run": 39727987029,
+    "scope": "Six distinct same-job native builders; Runtime1/Apps8/client-v2 three pairs; signed Runtime575 dependency image;577,577,574,577,574 installed lifecycle; two ordinary homes with15 Apps and2 client controls per installed phase; preserved574 and ordered source-recorded retirement",
+    "source": "f1984a2481c541add7eb99b311a3ae3228307aa6",
+    "status": "ROOT_ACCEPTED_APPS8_NATIVE_BUILD_PAIRS_AND_FINITE_INSTALLED_LIFECYCLE",
+    "successful_unittest_text": "UNEXPORTED_SOURCE_ENFORCED"
+  },
+  "actual": null,
+  "archives": [
+    {
+      "bytes": 23528,
+      "path": "native/packages/cachy-asahi-apps-a/cachy-asahi-apps-0.1.0-8-any.pkg.tar.xz",
+      "sha256": "d4d83458765d732ae78664143c9042dcc1159b7d3e19f4b7976f8499c2619f4a"
+    },
+    {
+      "bytes": 23528,
+      "path": "native/packages/cachy-asahi-apps-b/cachy-asahi-apps-0.1.0-8-any.pkg.tar.xz",
+      "sha256": "d4d83458765d732ae78664143c9042dcc1159b7d3e19f4b7976f8499c2619f4a"
+    }
+  ],
+  "files": {
+    "LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "NOTICE.md": {
+      "bytes": 325,
+      "sha256": "9aa92eb64a5df9fdbcc474eae345d4a31a9894e6cd87a3a875b336db0ba370b8"
+    },
+    "custody.json": {
+      "bytes": 9266,
+      "sha256": "6829a14cd9527af22621ac50d0fe0a9a455b88a277141ac94c8e5f5a378c2318"
+    },
+    "index.json": {
+      "bytes": 17052,
+      "sha256": "72126e61934fb8bf7e6175b84ee5849549d42039289a101c9dc0ba4a264e65a6"
+    },
+    "native/base/installed-packages.lock": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "native/base/report.json": {
+      "bytes": 1650,
+      "sha256": "1edb529a8ca99d5d558a6805ba83322b6b5aef2cbe3bd6ec199999701e9d854a"
+    },
+    "native/ordered-cleanup.json": {
+      "bytes": 4052,
+      "sha256": "85a5f3a36a2a3068f5a8f359762eaa1dd2a203f241a1051ef0f79ec39b11294f"
+    },
+    "native/packages/cachy-asahi-apps-a/cachy-asahi-apps-0.1.0-8-any.pkg.tar.xz": {
+      "bytes": 23528,
+      "sha256": "d4d83458765d732ae78664143c9042dcc1159b7d3e19f4b7976f8499c2619f4a"
+    },
+    "native/packages/cachy-asahi-apps-b/cachy-asahi-apps-0.1.0-8-any.pkg.tar.xz": {
+      "bytes": 23528,
+      "sha256": "d4d83458765d732ae78664143c9042dcc1159b7d3e19f4b7976f8499c2619f4a"
+    },
+    "native/retention.json": {
+      "bytes": 29303,
+      "sha256": "d18f2f580f71eac7a2e995e850a65c45c5482affb4d65f7ae0cb863b6f5d39be"
+    },
+    "native/runtime/base-inventory.log": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "native/runtime/cachy-asahi-apps-a/artifacts/config.sha256": {
+      "bytes": 167,
+      "sha256": "8309cb4c0409ccdc1ca922475dde9377aec434911efc453299f41e8fadb234ec"
+    },
+    "native/runtime/cachy-asahi-apps-a/artifacts/environment.txt": {
+      "bytes": 11540,
+      "sha256": "5d6ddae6df098a9643d633c844106a341d8b9676d864fe6910f1f04b226da565"
+    },
+    "native/runtime/cachy-asahi-apps-a/artifacts/generated.SRCINFO": {
+      "bytes": 1888,
+      "sha256": "f9ef72d7a495be0f81ca39085438bb737fd2ff45401d38b0e7136cda6bb0dabe"
+    },
+    "native/runtime/cachy-asahi-apps-a/artifacts/makepkg.conf": {
+      "bytes": 6651,
+      "sha256": "cfcf0bd2601d887724c5ca7d9a48ac5dd347abad9e8ac5efa436080e45822a60"
+    },
+    "native/runtime/cachy-asahi-apps-a/artifacts/packages.lock": {
+      "bytes": 11156,
+      "sha256": "66c46d4645fa443d23df0e97765905555fe5bc2607787dca3f30ee2084cf597f"
+    },
+    "native/runtime/cachy-asahi-apps-a/artifacts/pacman.conf": {
+      "bytes": 116,
+      "sha256": "14d304eeb83baf1379279356c232580fd095c2d508b41c74677347801a0bafe7"
+    },
+    "native/runtime/cachy-asahi-apps-a/build.log": {
+      "bytes": 11861,
+      "sha256": "28dc1f7c8df888cde2e661a8bb098d727e757f310bf42aae627c3db9c304c577"
+    },
+    "native/runtime/cachy-asahi-apps-a/expected-packages.lock": {
+      "bytes": 11156,
+      "sha256": "66c46d4645fa443d23df0e97765905555fe5bc2607787dca3f30ee2084cf597f"
+    },
+    "native/runtime/cachy-asahi-apps-a/provenance.json": {
+      "bytes": 6559,
+      "sha256": "19a09971d9d02329bf8e3c541350f0d4cb75c741f6cfd2c6ecbe86f4c151e763"
+    },
+    "native/runtime/cachy-asahi-apps-a/validation.json": {
+      "bytes": 32688,
+      "sha256": "6b9680d660684deef6439044409fdf3dd7d09079578c62a79fd445196671a34b"
+    },
+    "native/runtime/cachy-asahi-apps-b/artifacts/config.sha256": {
+      "bytes": 167,
+      "sha256": "8309cb4c0409ccdc1ca922475dde9377aec434911efc453299f41e8fadb234ec"
+    },
+    "native/runtime/cachy-asahi-apps-b/artifacts/environment.txt": {
+      "bytes": 11540,
+      "sha256": "53feef66591960cc25d4c1a3b583f35fc3ecaa7598df9962fa55500ec34e688e"
+    },
+    "native/runtime/cachy-asahi-apps-b/artifacts/generated.SRCINFO": {
+      "bytes": 1888,
+      "sha256": "f9ef72d7a495be0f81ca39085438bb737fd2ff45401d38b0e7136cda6bb0dabe"
+    },
+    "native/runtime/cachy-asahi-apps-b/artifacts/makepkg.conf": {
+      "bytes": 6651,
+      "sha256": "cfcf0bd2601d887724c5ca7d9a48ac5dd347abad9e8ac5efa436080e45822a60"
+    },
+    "native/runtime/cachy-asahi-apps-b/artifacts/packages.lock": {
+      "bytes": 11156,
+      "sha256": "66c46d4645fa443d23df0e97765905555fe5bc2607787dca3f30ee2084cf597f"
+    },
+    "native/runtime/cachy-asahi-apps-b/artifacts/pacman.conf": {
+      "bytes": 116,
+      "sha256": "14d304eeb83baf1379279356c232580fd095c2d508b41c74677347801a0bafe7"
+    },
+    "native/runtime/cachy-asahi-apps-b/build.log": {
+      "bytes": 11861,
+      "sha256": "ead3f310f416bc5dbcdc302da90cfff594bc26ef10cba6259fddfdfa2009e2e7"
+    },
+    "native/runtime/cachy-asahi-apps-b/expected-packages.lock": {
+      "bytes": 11156,
+      "sha256": "66c46d4645fa443d23df0e97765905555fe5bc2607787dca3f30ee2084cf597f"
+    },
+    "native/runtime/cachy-asahi-apps-b/provenance.json": {
+      "bytes": 6559,
+      "sha256": "3f6233a9bac1989544032409065af6134b9ed15172ebb4638aad1b04d126cd50"
+    },
+    "native/runtime/cachy-asahi-apps-b/validation.json": {
+      "bytes": 32688,
+      "sha256": "6b9680d660684deef6439044409fdf3dd7d09079578c62a79fd445196671a34b"
+    },
+    "native/runtime/cachy-asahi-apps-comparison.json": {
+      "bytes": 396,
+      "sha256": "6c9f2de3711b5145687cc905313e432ca11951c46e59d1f651f6d2c83583827a"
+    },
+    "native/runtime/lifecycle.json": {
+      "bytes": 10052,
+      "sha256": "6844a103be09c219797503228f6239afbf2d9521b64d4bb22b66c3a9500bf1f8"
+    },
+    "native/runtime/report.json": {
+      "bytes": 50854,
+      "sha256": "daed8e47c28df013df2c1fbb5bf41e3561e27a5f1fd9809960411ab8daf889b8"
+    },
+    "native/runtime/runtime575.lock": {
+      "bytes": 11156,
+      "sha256": "66c46d4645fa443d23df0e97765905555fe5bc2607787dca3f30ee2084cf597f"
+    },
+    "native/source-proof.json": {
+      "bytes": 321,
+      "sha256": "26be2330dcaa4c9015c1c5eb7f15e37d5ed7da321e33458e2cfbfab4e97bcb38"
+    },
+    "native/trust/TEST-public.asc": {
+      "bytes": 429,
+      "sha256": "5f32034880f241c97195cefe2803f6719e088e5981f924b1a0223ace3ef7201a"
+    },
+    "native/trust/cachy-asahi-apps-0.1.0-8-any.pkg.tar.xz.sig": {
+      "bytes": 119,
+      "sha256": "76958de784a23a7018f36e0666ee760965fe519622ddb4dc2e845d86c13e1c95"
+    },
+    "package-inspection.json": {
+      "bytes": 23806,
+      "sha256": "e738af2103fc44d13dc5e49afda81373f328233bf1337713f1bddbba97e51d9d"
+    },
+    "qualification/Root-component-acceptance.json": {
+      "bytes": 3355,
+      "sha256": "0fec892c13f130fef9f2c24fb637610a1a1c7b487e2cc5b30fddbbb70a1ba2c9"
+    },
+    "qualification/native-Root-committed-publication.json": {
+      "bytes": 257,
+      "sha256": "871cba4081d352c572779185394da844818bd8eb5b854c3d61af19d225b6b9d2"
+    },
+    "qualification/native-Root-git-source-authorization.json": {
+      "bytes": 19299,
+      "sha256": "be744a02af724b1138c2ca2d67e7b50eb442787864b43f4b8f8d7212b049da1c"
+    },
+    "qualification/native-publication.json": {
+      "bytes": 257,
+      "sha256": "766551694da73288527e2484789d4fd886fda10aa1bc5fc1fb318d66e3cc386e"
+    },
+    "qualification/native-source-authorization.json": {
+      "bytes": 19415,
+      "sha256": "e70528f6e054f246d38fd4c339fd263c100ce8497570ca4ac9ed610e673ca224"
+    },
+    "qualification/original-bound-original.json": {
+      "bytes": 235,
+      "sha256": "8295751b4d852363535240406a3fc2e3dbd6442ed07443c3736525acdd2f32fb"
+    },
+    "qualification/original-run.json": {
+      "bytes": 12971,
+      "sha256": "e12685210d84838bc745e6eb85e3ae7e5d4f9a793c92799ae34d8068bb62c65e"
+    },
+    "qualification/original-transport-receipt.json": {
+      "bytes": 1096,
+      "sha256": "4f3f2a27124e7f379ab2d11ac36bfc9d6560fc7023d1666d0e7cb2fc30128fd9"
+    },
+    "qualification/recipe-Root-committed-publication.json": {
+      "bytes": 265,
+      "sha256": "2505ee21cbfe5b294bbba0743ee1b05aa3d673bc0c795a5718c77bce584d3691"
+    },
+    "qualification/recipe-Root-git-source-authorization.json": {
+      "bytes": 7268,
+      "sha256": "7ce1e7fed1362e47ddecc9981e9c39b8e466d20864e2408afe73ef70a9623b25"
+    },
+    "qualification/recipe-publication.json": {
+      "bytes": 265,
+      "sha256": "aa9053191c2a3c490b48db2a91f7341463ed875f8b2b7904ecae6236748f332a"
+    },
+    "qualification/recipe-source-authorization.json": {
+      "bytes": 7221,
+      "sha256": "180652135daced07709eaf2343dd322cb5b51f1366f1aee281958d42641c4444"
+    },
+    "qualification/strict-result.json": {
+      "bytes": 5047,
+      "sha256": "674b026b6336bd7d4f22112ab01897d74857c65a43a86592615bf98acdc2808b"
+    },
+    "recipe-source/packages/tools/cachy-asahi-apps8/.SRCINFO": {
+      "bytes": 1888,
+      "sha256": "f9ef72d7a495be0f81ca39085438bb737fd2ff45401d38b0e7136cda6bb0dabe"
+    },
+    "recipe-source/packages/tools/cachy-asahi-apps8/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "recipe-source/packages/tools/cachy-asahi-apps8/NOTICE": {
+      "bytes": 1079,
+      "sha256": "425c36c2e9ad688b398d8fbcb2fd8f972420a1db5e0d4b19e9d24021346d4239"
+    },
+    "recipe-source/packages/tools/cachy-asahi-apps8/PKGBUILD": {
+      "bytes": 3888,
+      "sha256": "54e542cc6f34e921504390b1ac4ff22689c7cb11474006ebc9046ae09fc98e6c"
+    },
+    "recipe-source/packages/tools/cachy-asahi-apps8/README.md": {
+      "bytes": 13280,
+      "sha256": "53228a0a8eb792f176d3aaac13e99260809287830f7c81ecda131053985d9172"
+    },
+    "recipe-source/packages/tools/cachy-asahi-apps8/apps.py": {
+      "bytes": 22543,
+      "sha256": "8b575e25226463834a45b3f679ee4ddf5ef124976b008494a4944c0252cdf1f5"
+    },
+    "recipe-source/packages/tools/cachy-asahi-apps8/cachy-asahi-apps": {
+      "bytes": 310,
+      "sha256": "4e9c078c2e05cc00cb6479d5fff23b92cbcabd8d6b3ff970f6181e6467921630"
+    },
+    "recipe-source/packages/tools/cachy-asahi-apps8/check-inputs.json": {
+      "bytes": 4127,
+      "sha256": "5cd338eb2ab9f4579825f3dd30de0f25d54a73ee1090737b0a21a506d12caad8"
+    },
+    "recipe-source/packages/tools/cachy-asahi-apps8/check-inputs.tar.gz": {
+      "bytes": 61046,
+      "sha256": "6d38353fe33e0ce595df507ad9b928d80d3e1d6fe5d45d5418f927e9f50fe6d2"
+    },
+    "recipe-source/packages/tools/cachy-asahi-apps8/check_source.py": {
+      "bytes": 3393,
+      "sha256": "2fa08b37406e4dc0e19c00a5109594574770c69a88fd3f311c2758f4e738069a"
+    },
+    "recipe-source/packages/tools/cachy-asahi-apps8/helper-pins.json": {
+      "bytes": 493,
+      "sha256": "33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a"
+    },
+    "recipe-source/packages/tools/cachy-asahi-apps8/inventory.py": {
+      "bytes": 13293,
+      "sha256": "bf0068a57240094dba2eb860c48a0f7f547a9b8e7c675ef847834423de2dda9f"
+    },
+    "recipe-source/packages/tools/cachy-asahi-apps8/prepare-check-inputs.py": {
+      "bytes": 3321,
+      "sha256": "76bc1977cf402872816a430156541c0ccd41273e9080730d2ace7838ffa74214"
+    },
+    "recipe-source/packages/tools/cachy-asahi-apps8/source-provenance.json": {
+      "bytes": 4136,
+      "sha256": "6c273cfee123a70dc073538bbe4fab06d3ed1bae8e4e170d3a408066b869d57a"
+    },
+    "recipe-source/packages/tools/cachy-asahi-apps8/test_apps.py": {
+      "bytes": 40942,
+      "sha256": "6d55ca76da60b7f1121d04cb3e16435f6db477b39e7ae8985bec01e7227d4987"
+    },
+    "recipe-source/packages/tools/cachy-asahi-apps8/test_inventory_paths.py": {
+      "bytes": 7205,
+      "sha256": "e0173a4a45b0609aef1fca7d37aa105e35fa7ae8feb457243f8bf62ee4ed778a"
+    },
+    "recipe-source/packages/tools/cachy-asahi-repository-client-v2/.SRCINFO": {
+      "bytes": 1265,
+      "sha256": "de7d096c9c9a0ac9b4be2f1d7f3cc9eb0b4e89bf5c466d03ee62c5f57797e829"
+    },
+    "recipe-source/packages/tools/cachy-asahi-repository-client-v2/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "recipe-source/packages/tools/cachy-asahi-repository-client-v2/NOTICE": {
+      "bytes": 630,
+      "sha256": "138f32d5f31eefce9581b054f7b066d59209766cf5122521b8f1bf1063fec0fa"
+    },
+    "recipe-source/packages/tools/cachy-asahi-repository-client-v2/PKGBUILD": {
+      "bytes": 1781,
+      "sha256": "1273f684486e8a83755f73b7dc1292407a926d2357b7d6d61c59aa5275af8962"
+    },
+    "recipe-source/packages/tools/cachy-asahi-repository-client-v2/README.md": {
+      "bytes": 2310,
+      "sha256": "922ad69c94a2ef12d55f895a35e7a71737083db6a0ec1841c8d504c9993a6123"
+    },
+    "recipe-source/packages/tools/cachy-asahi-repository-client-v2/check_source.py": {
+      "bytes": 3114,
+      "sha256": "ec2458c2623969776d05c52030df774ce8e6c35721640035bfe2159de2b2e32b"
+    },
+    "recipe-source/packages/tools/cachy-asahi-repository-client-v2/client_v2.py": {
+      "bytes": 28763,
+      "sha256": "915c2336a6515dcbde9801d7778c0aeae3a0251cf6463c4704d47590d94d1409"
+    },
+    "recipe-source/packages/tools/cachy-asahi-repository-client-v2/helper-pins.json": {
+      "bytes": 790,
+      "sha256": "86478bf7125aa21aefbb20a37eb2c5fae32b6a2cac3cb572733cda42f74216c8"
+    },
+    "recipe-source/packages/tools/cachy-asahi-repository-client-v2/source-provenance.json": {
+      "bytes": 1308,
+      "sha256": "9a62f3674324b48cfaffeb132549414827b61204acc1757dea703963298b7ac1"
+    },
+    "recipe-source/packages/tools/cachy-asahi-repository-client-v2/test_client_v2.py": {
+      "bytes": 56931,
+      "sha256": "74f079c3e95fd88d50b6857b1dbfe13b97030fdacb31051564445c6d1770f410"
+    },
+    "recipe-source/packages/tools/cachy-asahi-repository-client-v2/test_runtime.py": {
+      "bytes": 7999,
+      "sha256": "f49083f2dc580baa4dca2a6971499a02a345c0cd0fb83174fea6813a51ad1468"
+    },
+    "recipe-source/packages/tools/cachy-asahi-repository-runtime/.SRCINFO": {
+      "bytes": 1269,
+      "sha256": "4677c10dcc40686877f9d2bc5b9cac88763fdb4cc395a9a7fd530b6b79db2502"
+    },
+    "recipe-source/packages/tools/cachy-asahi-repository-runtime/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "recipe-source/packages/tools/cachy-asahi-repository-runtime/NOTICE": {
+      "bytes": 624,
+      "sha256": "5c4ed38dd7675728134d292afb2e61f2a09342c0eefa0becf89b9bda011166df"
+    },
+    "recipe-source/packages/tools/cachy-asahi-repository-runtime/PKGBUILD": {
+      "bytes": 1973,
+      "sha256": "e1f9071387ebd679e09fbbdecb31aadf2f89a59235c8ca03ac42eb2599f16f0b"
+    },
+    "recipe-source/packages/tools/cachy-asahi-repository-runtime/README.md": {
+      "bytes": 1748,
+      "sha256": "faf56df41bb5783d566d5e186141b47688ef770f3b7e2baef6c62302b599d316"
+    },
+    "recipe-source/packages/tools/cachy-asahi-repository-runtime/check_source.py": {
+      "bytes": 3328,
+      "sha256": "4d002bc596e29cb83426fd5b7d185b2aa30e9211c0da79fcb616cf003c11f4a7"
+    },
+    "recipe-source/packages/tools/cachy-asahi-repository-runtime/client.py": {
+      "bytes": 28669,
+      "sha256": "48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7"
+    },
+    "recipe-source/packages/tools/cachy-asahi-repository-runtime/helper-pins.json": {
+      "bytes": 493,
+      "sha256": "33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a"
+    },
+    "recipe-source/packages/tools/cachy-asahi-repository-runtime/release.py": {
+      "bytes": 41320,
+      "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435"
+    },
+    "recipe-source/packages/tools/cachy-asahi-repository-runtime/source-provenance.json": {
+      "bytes": 1195,
+      "sha256": "09cf1f6f0a7490e5c99bd8bc5caa67ba7c3ecf7cdb55e382dbe502d7e1042972"
+    },
+    "recipe-source/packages/tools/cachy-asahi-repository-runtime/source_delivery.py": {
+      "bytes": 16456,
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+    },
+    "recipe-source/scripts/client/client.py": {
+      "bytes": 28669,
+      "sha256": "48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7"
+    },
+    "recipe-source/scripts/release/release.py": {
+      "bytes": 41320,
+      "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435"
+    },
+    "recipe-source/scripts/release/source_delivery.py": {
+      "bytes": 16456,
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+    }
+  },
+  "native_run": 39727987029,
+  "native_source": "f1984a2481c541add7eb99b311a3ae3228307aa6",
+  "publication": {
+    "actual": "NOT_RUN",
+    "files": 93,
+    "git_joins": 93,
+    "hardware": "NOT_RUN",
+    "ref": "codex/apps8-accepted-inputs-v1",
+    "release": "NOT_ADMITTED",
+    "source": "979b2d6ec7417e607a911d8c25bef2f1f7f72dcb",
+    "status": "COMMITTED_EXACT_CLOSED_TRIAL_SOURCE"
+  },
+  "recipe_source": "98a0a6ab18355604683bee42c84c393940a690a1",
+  "ref": "codex/apps8-accepted-inputs-v1",
+  "source": "979b2d6ec7417e607a911d8c25bef2f1f7f72dcb"
+}
