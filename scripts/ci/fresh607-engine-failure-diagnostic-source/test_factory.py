@@ -13,7 +13,7 @@ class Controls(unittest.TestCase):
    for context in('known','null'):
     output=Path(td)/context;argv=[sys.executable,'-I','-B','-Werror',str(HERE/'prepare.py'),'--source',str(SOURCE),'--output',str(output),'--context',context]
     done=subprocess.run(argv,capture_output=True,timeout=30,umask=0o077);self.assertEqual(done.returncode,0,done.stderr.decode());row=json.loads(done.stdout)
-    self.assertEqual(F.tree(output),expected);self.assertEqual(len(row['files']),1203);self.assertEqual(row['source'],'087c70e68251ada1454ea5a8b9d7b52332dbdffa'if context=='known'else None)
+    self.assertEqual(F.tree(output),expected);self.assertEqual(len(row['files']),1203);self.assertEqual(row['source'],'95a75cd9798b8b827f80233f3ea402ff7fc9b224'if context=='known'else None)
     self.assertTrue(all(row[k]is None for k in('actual_source','actual_ref','actual_run','Root_acceptance')));self.assertTrue(all(stat.S_IMODE((output/n).stat().st_mode)==0o644 for n in expected))
  def test_constructor_never_executes_supplied_source_or_actors(self):
   sentinel=object();saved=sys.modules.get('common',sentinel)
@@ -26,17 +26,17 @@ class Controls(unittest.TestCase):
    if saved is sentinel:sys.modules.pop('common',None)
    else:sys.modules['common']=saved
  def test_full_before_inverse_all1196_held_and_only_failure_DATA_operands(self):
-  values,p,*_=F.compose(SOURCE);before=F.tree(SOURCE);parent=json.loads(values['implementation/page-parent.json']);c=parent.pop('engine_failure_parent');parent['guard_template']=c['guard_template']
+  current,p,*_=F.compose(SOURCE);values=F.clock_before(current,p);self.assertEqual({n:F.pin(b)for n,b in values.items()},p['authentication_parent']['files']);before=F.tree(SOURCE);parent=json.loads(values['implementation/page-parent.json']);c=parent.pop('engine_failure_parent');parent['guard_template']=c['guard_template']
   for name,row in c['products_before'].items():parent['products'][name]=row
   self.assertEqual(F.encoded(parent),before['implementation/page-parent.json'])
   mode=values['implementation/page_mode.py'];self.assertTrue(mode.endswith(c['mode_append'].encode()));self.assertEqual(F.apply(mode[:-len(c['mode_append'].encode())],c['mode_edits'],reverse=True),before['implementation/page_mode.py'])
   test=values['implementation/test_page_mode.py'];entry=b"if __name__=='__main__':\n";test=test.replace(c['test_append'].encode()+b'\n'+entry,entry,1);self.assertEqual(F.apply(test,c['test_edits'],reverse=True),before['implementation/test_page_mode.py'])
   oldsha=F.pin(before['implementation/page-parent.json'])['sha256'];newsha=F.pin(values['implementation/page-parent.json'])['sha256'];guard=values['implementation/page_source.py'].replace(newsha.encode(),b'@PARENT_SHA@',1);self.assertTrue(guard.endswith(c['guard_append'].encode()));guard=guard[:-len(c['guard_append'].encode())];self.assertEqual(F.apply(guard,c['guard_edits'],reverse=True).replace(b'@PARENT_SHA@',oldsha.encode(),1),before['implementation/page_source.py'])
-  self.assertEqual(len(p['held']),1196);self.assertEqual(len(p['changed']),7)
+  self.assertEqual(len(p['held']),1195);self.assertEqual(len(p['changed']),8)
   self.assertEqual({n:F.pin(b)for n,b in F.numeric_before(values,p).items()},p['numeric_parent']['files'])
-  for n in p['held']:self.assertEqual(values[n],before[n],n)
+  for n in p['held']:self.assertEqual(current[n],before[n],n)
   for n in before:
-   if n.startswith('parent604/')or n in('implementation/run.py','implementation/producer_diagnostic.py','implementation/workflow-template.yml','implementation/page-mode-profile.json'):self.assertEqual(values[n],before[n],n)
+   if n.startswith('parent604/')or n in('implementation/run.py','implementation/producer_diagnostic.py','implementation/page-mode-profile.json'):self.assertEqual(current[n],before[n],n)
  def test_paths_double_slash_literal_cli_and_no_writes(self):
   with tempfile.TemporaryDirectory()as td:
    root=Path(td);source=root/'source';shutil.copytree(SOURCE,source);alias=root/'alias';alias.symlink_to(source,target_is_directory=True);actual=root/'native-actual-fixture';actual.mkdir()
@@ -96,5 +96,17 @@ class Controls(unittest.TestCase):
    # Only the factory's fully pinned exact public result is executed as trusted
    # source controls; compose itself never imports or executes caller source.
    run=subprocess.run([sys.executable,'-I','-B','-Werror',str(out/'implementation/test_page_mode.py')],capture_output=True,timeout=30)
-   self.assertEqual(run.returncode,0,run.stderr.decode());self.assertIn(b'Ran 18 tests',run.stderr);self.assertTrue(run.stderr.rstrip().endswith(b'OK'));self.assertEqual(F.tree(out),F.tree(EXPECTED))
+   self.assertEqual(run.returncode,0,run.stderr.decode());self.assertIn(b'Ran 22 tests',run.stderr);self.assertTrue(run.stderr.rstrip().endswith(b'OK'));self.assertEqual(F.tree(out),F.tree(EXPECTED))
+
+ def test_actual_sanitized_selected_caller_clock_context_and_default_environment(self):
+  import textwrap,shlex
+  with tempfile.TemporaryDirectory()as td:
+   output=Path(td)/'emitted';F.emit(SOURCE,output,'null');raw=F.read(output/'implementation/workflow-template.yml').decode();a=raw.index('          clock_env=()');b=raw.index('          install -d',a);setup=textwrap.dedent(raw[a:b]);a=raw.index('            env -i ',b);b=raw.index('            python3 -I -B ',a);prefix=textwrap.dedent(raw[a:b])
+   snippet="import sys,json,os;sys.path.insert(0,"+repr(str(output/'implementation'))+");import page_mode as P;print(json.dumps(P.clock_context() if os.environ.get('FRESH_SOURCE') else {k:os.environ.get(k) for k in ('FRESH_SOURCE','GITHUB_RUN_ID','GITHUB_RUN_ATTEMPT')},sort_keys=True))"
+   shell='set -euo pipefail\n'+setup+prefix+shlex.quote(sys.executable)+' -I -B -c '+shlex.quote(snippet)+'\n';context=dict(FRESH_SOURCE='1'*40,GITHUB_RUN_ID='17',GITHUB_RUN_ATTEMPT='1')
+   for mode in('generic4k','generic16k'):
+    row=subprocess.run(['/bin/bash','-c',shell],env=dict(os.environ,**context,PAGE_MODE=mode,RUNNER_TEMP=td),capture_output=True,timeout=15);self.assertEqual((row.returncode,row.stderr),(0,b''));self.assertEqual(json.loads(row.stdout),dict.fromkeys(context)if mode=='generic4k'else dict(schema_version=1,purpose='SOURCE_OWNED_GENERIC16K_REALTIME_INIT_V1',source='1'*40,run_id='17',run_attempt='1'))
+   for key,bad in(('FRESH_SOURCE','wrong'),('GITHUB_RUN_ID','0'),('GITHUB_RUN_ATTEMPT','01')):
+    row=subprocess.run(['/bin/bash','-c',shell],env=dict(os.environ,**dict(context,**{key:bad}),PAGE_MODE='generic16k',RUNNER_TEMP=td),capture_output=True,timeout=15);self.assertNotEqual(row.returncode,0);self.assertEqual(row.stdout,b'')
+
 if __name__=='__main__':unittest.main(verbosity=2)

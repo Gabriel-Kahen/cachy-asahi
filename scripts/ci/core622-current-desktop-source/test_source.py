@@ -15,7 +15,7 @@ class Controls(unittest.TestCase):
     output=Path(t)/context;argv=[sys.executable,'-I','-B','-Werror',str(HERE/'prepare.py'),'--output',str(output),'--context',context]
     for k,p in ROOTS.items():argv+=['--'+k.replace('_','-'),str(p)]
     run=subprocess.run(argv,capture_output=True,text=True,timeout=60);self.assertEqual(run.returncode,0,run.stderr);receipt=json.loads(run.stdout);self.assertIsNone(receipt['actual']);self.assertFalse(receipt['native_acceptance']);self.assertEqual(receipt['files'],66);self.assertEqual(F.tree(output),F.tree(EXPECTED));self.assertTrue(all((output/n).stat().st_mode&0o777==0o644 for n in F.tree(output)))
-    self.assertEqual(receipt['source'],None if context=='null'else'bbdf05888b8bacb8a7ee8dfde4def4d508cc812b')
+    self.assertEqual(receipt['source'],None if context=='null'else'09775710e2ad55d647993eab81890f1696572c86')
  def test_full_before_inverse_held_bodies_and_current_closed_profile(self):
   values,p,_,_=F.compose(ROOTS);before=F.tree(ROOTS['parent']);self.assertEqual({n:F.pin(b)for n,b in values.items()},p['result']['files']);self.assertEqual(values,F.tree(EXPECTED));parent=json.loads(values['composition-parent.json']);restored=dict(values)
   for n in p['added']:restored.pop(n)
@@ -62,7 +62,7 @@ class Controls(unittest.TestCase):
 
 class CurrentImportControls(unittest.TestCase):
  def test_whole_immediate_ae39_inverse_and_selfseal(self):
-  values,p,_,_=F.compose(ROOTS);parent=json.loads(values['composition-parent.json']);record=parent['isolated_cache_import'];self.assertEqual(record['parent_source'],'ae39c1ba4c613d6a86e5582c2ab4c2d5495b2bd7');self.assertEqual(len(record['before']),66);restored=dict(values)
+  values,p,_,_=F.compose(ROOTS);values=F.before_environment(values);parent=json.loads(values['composition-parent.json']);record=parent['isolated_cache_import'];self.assertEqual(record['parent_source'],'ae39c1ba4c613d6a86e5582c2ab4c2d5495b2bd7');self.assertEqual(len(record['before']),66);restored=dict(values)
   for name,rules in record['edits'].items():
    text=restored[name].decode()
    for before,after in reversed(rules):self.assertEqual(text.count(after),1);text=text.replace(after,before,1)
@@ -82,5 +82,24 @@ class CurrentImportControls(unittest.TestCase):
    cache=root/'cache';before=F.identity(cache.lstat());(root/'desktop622.py').write_text("raise AssertionError('FOREIGN_CWD_MUST_NOT_EXECUTE')\n");argv=[sys.executable,'-I','-B',str(source/'ownership622.py'),'--prepare-dependency-cache','--compiler6-source',str(ROOTS['fresh607']),'--carrier',str(root/'carrier'),'--updater',str(root/'updater'),'--desktop-lock',str(root/'desktop.lock'),'--cache',str(cache),'--incoming31',str(root/'incoming'),'--preparation',str(root/'preparation'),'--deadline',str(time.monotonic()+240)]
    run=subprocess.run(argv,cwd=root,stdin=subprocess.DEVNULL,capture_output=True,timeout=20,env=dict(PATH='/usr/bin:/bin',LANG='C',PYTHONDONTWRITEBYTECODE='1',PYTHONPATH=str(root)));text=run.stderr.decode();self.assertEqual(run.returncode,1);self.assertNotIn('ModuleNotFoundError',text);self.assertNotIn('FOREIGN_CWD_MUST_NOT_EXECUTE',text);self.assertIn('FileNotFoundError',text);self.assertIn('compiler6.py',text);self.assertIn('selected.prepare_with_dependencies',text);self.assertEqual(F.identity(cache.lstat()),before);self.assertEqual(list(cache.iterdir()),[])
    helper=source/'desktop622.py';helper.write_bytes(helper.read_bytes()+b'\n# private drift\n');run=subprocess.run(argv,cwd=root,stdin=subprocess.DEVNULL,capture_output=True,timeout=20,env=dict(PATH='/usr/bin:/bin',LANG='C',PYTHONDONTWRITEBYTECODE='1'));self.assertEqual(run.returncode,1);self.assertIn(b'exact held local desktop622 cache bootstrap',run.stderr);self.assertNotIn(b'FileNotFoundError',run.stderr);self.assertEqual(F.identity(cache.lstat()),before)
+
+class EnvironmentControls(unittest.TestCase):
+ def test_current_full66_before_inverse_and_only_final_caller_flag(self):
+  values,p,_,_=F.compose(ROOTS);old=F.before_environment(values);record=json.loads(values['composition-parent.json'])['apparmor_environment'];self.assertEqual({n:F.pin(b)for n,b in old.items()},record['before']);self.assertEqual(sum(values[n]==old[n]for n in values),60)
+  for n in('workflow.yml.in','.github/workflows/native-arm-build.yml','.github/workflows/native-arm-core7-real-systemd.yml'):
+   self.assertEqual(values[n].replace(b'GITHUB_ACTIONS=true ',b'',1),old[n]);self.assertEqual(values[n].count(b'GITHUB_ACTIONS=true'),1)
+  for n in('desktop622.py','ownership622.py','run622.py','controller.py','profile.json'):self.assertEqual(values[n],old[n])
+  bad=dict(values);bad['workflow.yml.in']=bad['workflow.yml.in'].replace(b'GITHUB_ACTIONS=true ',b'',1)
+  with self.assertRaises(ValueError):F.before_environment(bad)
+ def test_real_sanitized_shell_caller_explicit_flag_no_inheritance(self):
+  import shlex
+  values,_,_,_=F.compose(ROOTS);text=values['workflow.yml.in'].decode();start=text.index('      - name:',text.index('        id: composition')-150);block=text[start:];block=block[:block.index('\n      - name:',1)];script=block.split('        run: |\n',1)[1];script='\n'.join(line[10:]for line in script.splitlines())
+  for a,b in{'${{ github.sha }}':'a'*40,'${{ github.repository }}':'SYNTHETIC/fixture','${{ github.event_name }}':'workflow_dispatch','${{ github.ref_name }}':'codex/SYNTHETIC'}.items():script=script.replace(a,b)
+  self.assertNotIn('${{',script)
+  with tempfile.TemporaryDirectory(prefix='core622-selected-env-')as td:
+   root=Path(td);recorder=root/'record.py';recorder.write_text('import json,os,sys\nprint(json.dumps(dict(environment=dict(os.environ),argv=sys.argv[1:]),sort_keys=True))\n');old='python3 -I -B "$GITHUB_WORKSPACE/core622-code/run622.py"';self.assertEqual(script.count(old),1);script=script.replace(old,shlex.quote(sys.executable)+' -I -B '+shlex.quote(str(recorder)),1)
+   env=dict(PATH='/usr/bin:/bin',HOME=td,RUNNER_TEMP=td,GITHUB_WORKSPACE=td,GITHUB_RUN_ID='123456789',GITHUB_RUN_ATTEMPT='1',FDK_PAIR_OUTCOME='success',AUDIO_INPUTS_OUTCOME='success',FRESH_SOURCE='b9976eea34eaed4b6e56af3be21d4d652fa971d6',IMPLEMENTATION_SOURCE='f'*40,GITHUB_ACTIONS='false',DOCKER_CORE_FIXTURE='forbidden',LD_CORE_FIXTURE='forbidden',PYTHONPATH='/forbidden',CORE_FOREIGN='forbidden')
+   run=subprocess.run(['/bin/bash','-euo','pipefail','-c',script],capture_output=True,timeout=10,env=env);self.assertEqual(run.returncode,0,run.stderr);self.assertEqual(run.stderr,b'');record=json.loads(run.stdout);actual=record['environment'];self.assertEqual(actual['GITHUB_ACTIONS'],'true');self.assertEqual(actual['RUNNER_ARCH'],'ARM64');self.assertIn('--fresh607-source',record['argv'])
+   for key in('DOCKER_CORE_FIXTURE','LD_CORE_FIXTURE','PYTHONPATH','CORE_FOREIGN'):self.assertNotIn(key,actual)
 
 if __name__=='__main__':unittest.main(verbosity=2)
