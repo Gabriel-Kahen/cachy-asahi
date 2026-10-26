@@ -90,7 +90,12 @@ class Retention(unittest.TestCase):
     self.assertTrue((work/'ready').exists());child_pid=int((work/'ready').read_text());start=time.monotonic()
     if whole_tree:os.killpg(child_pid,number)
     os.kill(p.pid,number);out,err=p.communicate(timeout=7);self.assertFalse(err,err.decode());self.assertEqual(p.returncode,128+number)
-    self.assertLess(time.monotonic()-start,6);receipt=work/'handoff.json';S.check(receipt,IDENTITY);v=D.diagnostic(receipt,IDENTITY,PINS);self.assertEqual(v['handoff_state'],'COMPLETE_TYPED');self.assertFalse(v['cleanup_authority']);self.assertTrue(v['public']['direct_reaped']);self.assertTrue(v['public']['group_absent']);D.save_diagnostic(work/'diagnostic.json',v)
+    elapsed=time.monotonic()-start;receipt=work/'handoff.json'
+    # Preserve the real receipt before the timing assertion can discard the
+    # temporary fixture. This is DATA even when a later assertion fails.
+    observed=D.diagnostic(receipt,IDENTITY,PINS)
+    print('OWNED_PROCESS_OBSERVATION '+json.dumps(dict(mode=mode,signal=int(number),whole_tree=whole_tree,communicate_seconds=round(elapsed,6),actual_wait_returncode=p.returncode,diagnostic=observed,assertions_pending=True,host_only=True),sort_keys=True),flush=True)
+    self.assertLess(elapsed,6);S.check(receipt,IDENTITY);v=D.diagnostic(receipt,IDENTITY,PINS);self.assertEqual(v['handoff_state'],'COMPLETE_TYPED');self.assertFalse(v['cleanup_authority']);self.assertTrue(v['public']['direct_reaped']);self.assertTrue(v['public']['group_absent']);D.save_diagnostic(work/'diagnostic.json',v)
     if mode=='tree':self.assertEqual((work/'grand-signal').read_text(),str(number))
     else:self.assertEqual(v['public']['exit_code'],-signal.SIGKILL)
     summary=dict(mode=mode,signal=int(number),whole_tree=whole_tree,seconds=round(time.monotonic()-start,6),actual_wait_returncode=p.returncode,original=v['public'],host_only=True)
