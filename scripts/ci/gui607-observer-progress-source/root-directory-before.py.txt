@@ -1,0 +1,20 @@
+def selected_verify_body():
+ return '''def _selected_verify_observe(root,helper,expected,*,deadline):
+    import types
+    need(type(deadline)is int and deadline==1200,'exact selected verify1200 query role')
+    original_capabilities=capabilities
+    def selected_capabilities():
+        caps=original_capabilities()
+        original_mount=caps._mount
+        caps._mount=_mount600(original_mount)
+        need(caps._mount is not original_mount and caps._attrs.__globals__ is vars(caps),
+             'fresh private selected capability module binding')
+        return caps
+    namespace=dict(observe.__globals__,capabilities=selected_capabilities)
+    selected=types.FunctionType(observe.__code__,namespace,observe.__name__,observe.__defaults__,observe.__closure__)
+    selected.__kwdefaults__=observe.__kwdefaults__
+    need(selected.__globals__['capabilities']is selected_capabilities and
+         observe.__globals__['capabilities']is original_capabilities,
+         'actual selected observe globals and original capture binding')
+    return selected(root,helper,expected,deadline=deadline)
+'''
