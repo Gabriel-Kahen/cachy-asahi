@@ -1,0 +1,50 @@
+{
+  "files": {
+    "alpm-semantics.json": {
+      "bytes": 2966,
+      "sha256": "8d8ed810403c62a9de6b336e7e953cd85504bdd5033a6370a1e66b8f625e2a2e"
+    },
+    "candidate_gate.py": {
+      "bytes": 4355,
+      "sha256": "92f390037767a9d1fdfaf9c9837fac75726c16178adc573b416b0ad7f540e5a4"
+    },
+    "common.py": {
+      "bytes": 13521,
+      "sha256": "12bbe70d7f60224a27ef89828a594f9267de261e8e324fb2d4a8fe396c886895"
+    },
+    "container.py": {
+      "bytes": 36759,
+      "sha256": "22ce53335b8ec9a8d3200679855c7922c62cd3da4cefab15556660b1ab39192e"
+    },
+    "dependencies.json": {
+      "bytes": 5083,
+      "sha256": "f1f22819a95a677a3e1520a6826acfffa70f2612488b6d0b88fe4e299b6987b4"
+    },
+    "input-policy.json": {
+      "bytes": 436,
+      "sha256": "d777931e61834ab8accd6a80a2b00368080703fa050e8e20a206e959514ebd6b"
+    },
+    "interruption.py": {
+      "bytes": 14293,
+      "sha256": "daf605b234ece080706a29f597f006da95b80113baeeb57c3e7f46c102c6d8bf"
+    },
+    "normal-exec-change.json": {
+      "bytes": 839,
+      "sha256": "9d3769704396a33acc0c144cc1519d10230a5fb07d2f7b135dcfd0ba1ab6a68b"
+    },
+    "run.py": {
+      "bytes": 9173,
+      "sha256": "319d775dd30cd5c6d0343b88170260d4668cbe152d04a920dc237830264f56e2"
+    },
+    "scrub.py": {
+      "bytes": 849,
+      "sha256": "b3ab918d62c45428163975968c9a49cf0f4363029e1b46f19cdf03fc52fcb70b"
+    },
+    "smoke-normal.c": {
+      "bytes": 12437,
+      "sha256": "a766bc7cd31cce18fe7e564432de4e4b63db49763608ae70ef8fab61cd29116c"
+    }
+  },
+  "schema_version": 1,
+  "status": "SOURCE_ONLY_CAA3_NATIVE_INPUTS_UNBOUND"
+}
