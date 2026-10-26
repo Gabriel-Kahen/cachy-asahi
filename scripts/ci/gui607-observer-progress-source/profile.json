@@ -702,12 +702,12 @@
   ],
   "operands": {
     "forward-renderer.py.txt": {
-      "bytes": 4033,
-      "sha256": "33de6c3e7ba0dba4ff47bf825ca11c7e217b74aaa0e7ace25ba7f0f986bafa54"
+      "bytes": 4069,
+      "sha256": "90d49e4549edb63fa886fe4523c06b513630bd4836505b800efbdbcb0d34bb65"
     },
     "generated-policy.json": {
       "bytes": 33928,
-      "sha256": "125cb60c881db5601efe871661b26c541e7df37ec1b0d04fc2db570385b8bdde"
+      "sha256": "48744de3fbae41a010c3fe37733f01fbf548a33500e757343fc893eb85dae455"
     },
     "parent-pins.json": {
       "bytes": 242,
@@ -718,8 +718,8 @@
       "sha256": "eb8996f44338ab0f4013b0e26fe5da83be4d2b5187159facbf726da9d6cb8bd5"
     },
     "test-progress-methods.py.txt": {
-      "bytes": 7235,
-      "sha256": "305dfc4b6f3cbe8f8e105c339dece9144123175d39701908963c435171ca2aca"
+      "bytes": 10064,
+      "sha256": "a48bffe0b9c0da6e32b453114e4fecb30454ccfbda96a850bf9fbd51bb6f9847"
     }
   },
   "parent": {
@@ -3519,8 +3519,8 @@
         "sha256": "4056586075036c6ad13c6e98ccace0582f46ac41b31b242cbc5dd546f1315653"
       },
       "implementation/build-inventory-parent.json": {
-        "bytes": 2301324,
-        "sha256": "38014891e39cd1d705893cd711ed3c1378fdf8b44587532d2c25918caf96a82f"
+        "bytes": 2304214,
+        "sha256": "055b7d448c2677c8bb6f7b9e3efda177e4d0ed1cfe6a71b5271333c70067365b"
       },
       "implementation/build-inventory-policy.json": {
         "bytes": 504,
@@ -3532,7 +3532,7 @@
       },
       "implementation/build_inventory_guard.py": {
         "bytes": 122141,
-        "sha256": "022b449e46b9017bb186ad38708de59bc7c67e314a57f2886e3b47741d31d733"
+        "sha256": "f266cc4a95be125ab660b7f9a91d007bb02bde5df190bc65cf45f9ff3f60222e"
       },
       "implementation/closed_data.py": {
         "bytes": 669,
@@ -3895,8 +3895,8 @@
         "sha256": "f340909397ce11c3abd28758a7bf7726c964561d20d70c64b4aa6fd907053034"
       },
       "implementation/observer_apply.py": {
-        "bytes": 12577,
-        "sha256": "e776d8ff43facc5dcb19db0705ba23c03d4a46b4fcd732d0bd9b61751cf56f75"
+        "bytes": 12613,
+        "sha256": "5897f026e0f4263f99784802befbfcadcbeb470a6ceb860da8b47415917aba79"
       },
       "implementation/observer_guard.py": {
         "bytes": 114877,
@@ -3916,11 +3916,11 @@
       },
       "implementation/runner-context-policy.json": {
         "bytes": 33928,
-        "sha256": "125cb60c881db5601efe871661b26c541e7df37ec1b0d04fc2db570385b8bdde"
+        "sha256": "48744de3fbae41a010c3fe37733f01fbf548a33500e757343fc893eb85dae455"
       },
       "implementation/runner_context.py": {
         "bytes": 4631,
-        "sha256": "0bdc86c5ef7dc44518f234d457f9826f771a0b0631085d24f452d27f0e5be497"
+        "sha256": "9ea187fd587ec91a6c8f299d6bdf5f1fcb040df4e39fc545a2ccf9262cb3607b"
       },
       "implementation/runner_context_guard.py": {
         "bytes": 114563,
@@ -3943,8 +3943,8 @@
         "sha256": "55458402522251e1408bcc96deb582b5e4a7b04fc5227244eb794dda2abbed5e"
       },
       "implementation/test_observer.py": {
-        "bytes": 19285,
-        "sha256": "a48fc0ed0f5f6c17b75f7ba12047e257a84dea96b90b8d692fc09b44b07cb719"
+        "bytes": 22114,
+        "sha256": "9639fae2417fbe731803933e16109e63934c564463a7e3a4e49795e8362803bb"
       },
       "implementation/test_runner_context.py": {
         "bytes": 5583,
@@ -6264,10 +6264,10 @@
       },
       "source-manifest.json": {
         "bytes": 126079,
-        "sha256": "a706bcfa1dfe5f5a73242321063be34bf78dc05b3afff80566a1f7a899293815"
+        "sha256": "d7ee51f5ac626fda4edeb661a01a25cb2f9bc542becebf87848b1ac575bb360a"
       }
     },
-    "ref": "codex/latest607-gui-observer-progress-v1",
-    "source": "7bce753f368b30ed9698722c1ae9ade9c2a1f533"
+    "ref": "codex/latest607-gui-observer-stage-field-v1",
+    "source": "cc759a68ad92afecf3e2d7381bb91dad6ef0752c"
   }
 }
