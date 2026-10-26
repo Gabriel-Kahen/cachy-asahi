@@ -3,7 +3,7 @@
 import argparse,hashlib,json,os,stat
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
-PROFILE={'bytes': 1440874, 'sha256': '23b7bec8fdae7d5473241b2f634cf9a068100dcc07e638e0f21a05be961ffade'}
+PROFILE={'bytes': 1682757, 'sha256': '4af896dc044a15aefdb400be81202f81852b7a38d546a438587b36674ea8a23f'}
 
 def need(ok, message):
     if not ok:
@@ -114,6 +114,7 @@ def numeric_before(values,p):
 
 
 def abi_before(values,p):
+ if 'implementation/storage-parent.json'in values:values=storage_before(values,p)
  """Pure DATA reconstruction of all exact public95a75 before bytes."""
  out=dict(values);pn='implementation/page-parent.json';gn='implementation/page_source.py';parent=json.loads(values[pn]);r=parent['engine_failure_parent'].pop('alpm_type_origin');need(r['source']=='95a75cd9798b8b827f80233f3ea402ff7fc9b224'and r['files']==p['abi_parent']['files']and all(r[k]is None for k in('actual_source','actual_ref','actual_run','Root_acceptance')),'closed whole95a75 ABI parent')
  parent['guard_template']=r['guard_template']
@@ -176,9 +177,53 @@ def clock_before(values,p):
  need(len(before)==1203 and {n:pin(b)for n,b in before.items()}==r['files'],'whole exact PUBLIC087c before clock source');return before
 
 
+def storage_before(values,p):
+ """Reconstruct all exact public0db934 bytes from the sealed1206 successor."""
+ need(set(values)==set(p['storage_parent']['files'])|{'implementation/storage_source.py','implementation/storage-parent.json','implementation/test_storage.py'},'closed storage1206 namespace')
+ need({n:pin(b)for n,b in values.items()}==p['result']['files'],'every exact current1206 byte before inversion')
+ raw=values['implementation/storage-parent.json'];need(pin(raw)==p['operands']['storage-context.json'],'exact source-owned storage context')
+ c=json.loads(raw)
+ need(c['source']==p['storage_parent']['source']=='0db9341521b5cb5d9022715b5ba638b3e4018462'and c['files']==p['storage_parent']['files']and
+      all(c[k]is None for k in('actual_source','actual_ref','actual_run','Root_acceptance'))and c['scope']=='FRESH607_TARGET_ALLOCATION_ADMISSION_ORIGINAL512M_AND10000_MARGINS','whole exact0db source-only storage parent')
+ seal=pin(raw)['sha256'];guard=values['implementation/storage_source.py'];need(guard.count(seal.encode())==1 and pin(guard.replace(seal.encode(),b'@STORAGE_CONTEXT_SHA@',1))==c['guard_template'],'entire storage guard selfseal')
+ out={n:values[n]for n in c['files']}
+ helper=c['helper'].encode();after=c['capacity_after'].encode();before=c['capacity_before'].encode();body=out['parent604/installer.py']
+ need(body.count(helper)==body.count(after)==1,'one exact storage helper and capacity call site');out['parent604/installer.py']=body.replace(helper,b'',1).replace(after,before,1)
+ mapping=json.loads(out['parent604-map.json']);mapping['installer.py']=c['files']['parent604/installer.py'];out['parent604-map.json']=encoded(mapping)
+ for n,edits in c['edits'].items():out[n]=apply(out[n],edits,reverse=True)
+ profile=json.loads(out['implementation/profile.json']);need(profile.pop('storage_admission')==c['profile'],'entire original profile inverse and11 storage fields');out['implementation/profile.json']=encoded(profile)
+ aliases=('.github/workflows/native-arm-build.yml','.github/workflows/native-arm-latest607-fresh-installer.yml')
+ manifest=json.loads(out['source-manifest.json']);manifest['files']={n:w for n,w in c['files'].items()if n not in('source-manifest.json',*aliases)};out['source-manifest.json']=encoded(manifest)
+ for n in aliases:out[n]=out['implementation/workflow-template.yml'].replace(b'@FRESH607_MANIFEST@',pin(out['source-manifest.json'])['sha256'].encode(),1)
+ need(len(out)==1203 and {n:pin(b)for n,b in out.items()}==c['files'],'ENTIRE public0db9341203 before inverse')
+ return out
+
+def storage_stage(values,p,operands):
+ """Pure DATA extension of the unchanged maintained ABI factory result."""
+ need({n:pin(b)for n,b in values.items()}==p['storage_parent']['files'],'entire exact ABI934 intermediate')
+ raw=operands['storage-context.json'];c=json.loads(raw)
+ need(c['files']==p['storage_parent']['files']and c['source']==p['storage_parent']['source']=='0db9341521b5cb5d9022715b5ba638b3e4018462'and
+      c['scope']=='FRESH607_TARGET_ALLOCATION_ADMISSION_ORIGINAL512M_AND10000_MARGINS'and all(c[k]is None for k in('actual_source','actual_ref','actual_run','Root_acceptance')),'closed exact storage parent and NULL actual scope')
+ fields=['allocation_unit_bytes','capacity_reserved','directory_estimate_bytes','free_bytes','free_inodes','payload_bytes','required_bytes','required_inodes','reserve_bytes','rounded_file_bytes','symlink_estimate_bytes']
+ need(c['profile']==dict(schema_version=1,purpose='fresh607-target-allocation-admission',fields=fields,reserve_bytes=512*1024**2,inode_margin=10000,allocation='max-filesystem-block-fragment',capacity_reserved=False,pages=['generic4k','generic16k'],native='NOT_RUN',hardware='NOT_RUN'),'exact11-field storage profile and held margins')
+ body=values['parent604/installer.py'];a=c['capacity_before'].encode();b=c['capacity_after'].encode();entry=b'def engine(spec_fd,spec_pin,evidence_fd):'
+ need(body.count(a)==body.count(entry)==1,'one exact original capacity and engine seam')
+ out=dict(values);out['parent604/installer.py']=body.replace(a,b,1).replace(entry,c['helper'].encode()+entry,1)
+ mapping=json.loads(values['parent604-map.json']);mapping['installer.py']=pin(out['parent604/installer.py']);out['parent604-map.json']=encoded(mapping)
+ profile=json.loads(values['implementation/profile.json']);need('storage_admission'not in profile and profile['clocks']==c['clocks'],'unchanged original profile/clocks before storage');profile['storage_admission']=c['profile'];out['implementation/profile.json']=encoded(profile)
+ for n,edits in c['edits'].items():out[n]=apply(out[n],edits)
+ guard=operands['storage-guard.py.txt'];need(pin(guard)==c['guard_template']and guard.count(b'@STORAGE_CONTEXT_SHA@')==1,'entry-pinned readable storage guard template')
+ out.update({'implementation/storage_source.py':guard.replace(b'@STORAGE_CONTEXT_SHA@',pin(raw)['sha256'].encode(),1),'implementation/storage-parent.json':raw,'implementation/test_storage.py':operands['storage-tests.py.txt']})
+ need({n:pin(out[n])for n in c['products']}==c['products'],'all exact finite storage products and emitted controls')
+ aliases=('.github/workflows/native-arm-build.yml','.github/workflows/native-arm-latest607-fresh-installer.yml');manifest=json.loads(values['source-manifest.json']);manifest['files']={n:pin(b)for n,b in out.items()if n not in('source-manifest.json',*aliases)};out['source-manifest.json']=encoded(manifest)
+ for n in aliases:out[n]=out['implementation/workflow-template.yml'].replace(b'@FRESH607_MANIFEST@',pin(out['source-manifest.json'])['sha256'].encode(),1)
+ need(storage_before(out,p)==values,'whole immediate0db934 storage stage inverse')
+ return out
+
+
 def compose(source):
  source=ordinary(source);own=read_state(HERE/'prepare.py');raw,state=read_state(HERE/'profile.json');need(pin(raw)==PROFILE,'entry-pinned closed profile');p=json.loads(raw)
- need(p['counts']==dict(before=1203,after=1203,held=1195,changed=8,added=0)and all(p[k]is None for k in('actual_source','actual_ref','actual_run','Root_acceptance'))and p['acceptance_authority']is False,'closed source-only scope')
+ need(p['counts']==dict(before=1203,after=1206,held=1189,changed=14,added=3)and all(p[k]is None for k in('actual_source','actual_ref','actual_run','Root_acceptance'))and p['acceptance_authority']is False,'closed source-only scope')
  before,bstate=scan(source);need({n:pin(b)for n,b in before.items()}==p['parent']['files'],'exact whole PUBLIC7bbdf1203 source required')
  operands={};states={'prepare.py':own,'profile.json':(raw,state)}
  for name,w in p['operands'].items():
@@ -218,7 +263,9 @@ def compose(source):
  numeric_before(values,p)
  values=clock_stage(values,p,operands)
  need({n:pin(b)for n,b in values.items()}==p['abi_parent']['files'],'entire exact95a75 clock intermediate');values=abi_stage(values,p,operands)
- need({n:pin(b)for n,b in values.items()}==p['result']['files']and{n for n in before if before[n]!=values[n]}==set(p['changed'])and all(values[n]==before[n]for n in p['held']),'entire PUBLIC95a75 current1203 and all1195 held')
+ need({n:pin(b)for n,b in values.items()}==p['storage_parent']['files'],'entire public0db934 ABI intermediate')
+ values=storage_stage(values,p,operands)
+ need({n:pin(b)for n,b in values.items()}==p['result']['files']and{n for n in before if before[n]!=values[n]}==set(p['changed'])and set(values)-set(before)==set(p['added'])and all(values[n]==before[n]for n in p['held']),'entire public1e7771206 and all1189 held')
  need(scan(source)==(before,bstate)and all(read_state(HERE/n)==v for n,v in states.items()),'late whole source/operand FD identity/namespace drift')
  return values,p,(before,bstate),states
 
@@ -228,8 +275,8 @@ def emit(source,output,context):
  for n,b in sorted(values.items()):
   q=output/n;q.parent.mkdir(parents=True,exist_ok=True);fd=os.open(q,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
   with os.fdopen(fd,'wb')as f:f.write(b);os.fchmod(f.fileno(),0o644)
- need(tree(output)==values and all(stat.S_IMODE((output/n).stat().st_mode)==0o644 for n in values),'exact PUBLIC1203 bytes/modes')
- return dict(status='SOURCE_ONLY_SELECTED16K_GUEST_REALTIME_AND_AUTHENTICATION_NO_ACCEPTANCE',context=context,files=p['result']['files'],source=p['result']['source']if context=='known'else None,ref=p['result']['ref']if context=='known'else None,actual_source=None,actual_ref=None,actual_run=None,Root_acceptance=None,hardware='NOT_RUN',performance='NOT_MEASURED')
+ need(tree(output)==values and all(stat.S_IMODE((output/n).stat().st_mode)==0o644 for n in values),'exact PUBLIC1206 bytes/modes')
+ return dict(status='SOURCE_ONLY_FRESH607_STORAGE_ALLOCATION_FACTORY_NO_ACCEPTANCE',context=context,files=p['result']['files'],source=p['result']['source']if context=='known'else None,ref=p['result']['ref']if context=='known'else None,actual_source=None,actual_ref=None,actual_run=None,Root_acceptance=None,hardware='NOT_RUN',native='NOT_RUN',performance='NOT_MEASURED')
 
 if __name__=='__main__':
  parser=argparse.ArgumentParser(description=__doc__)
