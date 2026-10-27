@@ -12,9 +12,9 @@
       "sha256": "38f7f3cbf48e6d6168721985ee78a97b1607643ba901eae788befad0809b95b3"
     },
     "docs/port/zlib-pgo-native-hosted.md": {
-      "bytes": 4006,
+      "bytes": 5188,
       "mode": 420,
-      "sha256": "dd7e7c79124fa354da509ea82816db09242b1fd89b2d97a797e377fe99d5bc0e"
+      "sha256": "ad0368fc25d47463c60b1f49a5a064db0d9bdd16862c452a136bd3f99012e9c8"
     },
     "packages/experiments/cachy-asahi-zlib-baseline/LICENSE.project": {
       "bytes": 1081,
@@ -397,9 +397,9 @@
       "sha256": "eaf9a46630e4fe4ca0a8f94a6dc2de4a881a6ad7e8b4dd0810b3347c0d7038d5"
     },
     "scripts/ci/zlib-pgo-native-hosted/owner.py": {
-      "bytes": 31684,
+      "bytes": 39836,
       "mode": 420,
-      "sha256": "4268efa17c9be5e16b88cb719c4789fff71ecf7ef87205e4864a0cceb01aae5b"
+      "sha256": "6e939f09a5351d02ee4ee8c74e4e0fc943fd48912faa3b5adfa10b122346c46d"
     },
     "scripts/ci/zlib-pgo-native-hosted/pgo-source-pins.json": {
       "bytes": 7249,
@@ -407,9 +407,9 @@
       "sha256": "554b7401e32c4baa8396686576ca2745dd2e98502b4ced7e58646b3ef8ed3615"
     },
     "scripts/ci/zlib-pgo-native-hosted/retention.py": {
-      "bytes": 27301,
+      "bytes": 33624,
       "mode": 420,
-      "sha256": "7ad3bfdcb4b16975f771c969924ca77e686859769a356f301250e5b2ea35233c"
+      "sha256": "83b619130fa9a2d158b1e6e7919f564b4b00a76689fb64ea8a9f72cdd8a1d535"
     },
     "scripts/ci/zlib-pgo-native-hosted/reviewed11.json": {
       "bytes": 2983,
@@ -427,9 +427,9 @@
       "sha256": "cfb388ca0ffb449f52294c4ff6d79c6fff9f1df09b49ca5a61aefef05d02b6a7"
     },
     "scripts/ci/zlib-pgo-native-hosted/test_owned_commands.py": {
-      "bytes": 7612,
+      "bytes": 9341,
       "mode": 420,
-      "sha256": "755af3041d4f2f97636ff52ec1ae86528578820d5fbe490a8b2a8ed0d7ba9463"
+      "sha256": "bbadc7ee396fa4a67310cd18b0fd7ce368baa94108464e6a6b0bae9ab2752607"
     },
     "scripts/ci/zlib-pgo-native-hosted/test_owned_host.py": {
       "bytes": 12749,
@@ -440,6 +440,21 @@
       "bytes": 2710,
       "mode": 420,
       "sha256": "a07afc2d963f336ecbcfc48d2a511027790697c0cee68197981cf384a15e5f58"
+    },
+    "scripts/ci/zlib-pgo-native-hosted/test_owned_transport.py": {
+      "bytes": 14005,
+      "mode": 420,
+      "sha256": "38e0580068a9a6ad1bdc75cb42bead8328d3698fd5b7b11ecae1c6e78dd24445"
+    },
+    "scripts/ci/zlib-pgo-native-hosted/test_owned_transport_retention.py": {
+      "bytes": 10239,
+      "mode": 420,
+      "sha256": "5dc48690dd76768063dd9f1ec95b37ec71e325e292b67a9844a98040e13b1ecc"
+    },
+    "scripts/ci/zlib-pgo-native-hosted/test_owned_workflow_transport.py": {
+      "bytes": 3284,
+      "mode": 420,
+      "sha256": "447b74b2df6e294857948487c94910d536864a4d92f0a26c3e3f0e4b0bdd1fee"
     },
     "scripts/ci/zlib-pgo-native-hosted/test_retention.py": {
       "bytes": 15836,
@@ -452,14 +467,14 @@
       "sha256": "6bcf404a3d7d70c8c0c96dd489c57552de8b6c7a2e11c1bf72a256b7cef5a68a"
     },
     "scripts/ci/zlib-pgo-native-hosted/workflow.yml.in": {
-      "bytes": 14733,
+      "bytes": 15781,
       "mode": 420,
-      "sha256": "70acd846b002c541f328274a2635d8940bd3ff6de00f97eed9a67a06de1fe4d0"
+      "sha256": "78cb07e6a9d05f248249b4dc64de5fe247f655a0570d576f342f8f6d71c6028c"
     },
     "scripts/ci/zlib-pgo-native-hosted/workflow_contract.py": {
-      "bytes": 9126,
+      "bytes": 12375,
       "mode": 420,
-      "sha256": "70690414d420b82d16c977be358d0d1a80afc7fc8c9291fa1c641bf6b75bdfe8"
+      "sha256": "c1376c3ce8b701af5d87cacc1cb8be319088fdf3b401ff2376ae747b4ff4f390"
     },
     "scripts/experiments/package_variants.py": {
       "bytes": 32520,

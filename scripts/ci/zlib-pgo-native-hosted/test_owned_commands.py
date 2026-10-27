@@ -7,7 +7,29 @@ HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[2];PACKET=ROOT.parent
 SOURCE=ROOT/'pgo-source/packages/experiments/cachy-asahi-zlib-pgo-v1/supervisor.py'
 spec=importlib.util.spec_from_file_location('_pgo_owned_commands',SOURCE);S=importlib.util.module_from_spec(spec);spec.loader.exec_module(S)
 BEGIN='# BEGIN EXACT OWNED_CHILD MODULE\n';END='# END EXACT OWNED_CHILD MODULE\n'
-HOLD='a869fd555d8b0566f0a2942a90eb49974ccfa23bad74f3d63c7f6dcb4dbc073d'
+# raw-source-segment-v1: derived from byte-pinned original supervisor, not CI AST output.
+HOLD={
+  "Commands.__init__": "be239d10d1c8aacf462ea27df4eb3f26a39730667a8b80990985c5ac9a86afd1",
+  "Commands.cancel": "fb062f326fe3bd3bda6129c550b0b64b2bfa2658f8b308fbe8fc92ba420a210e",
+  "audit": "d70e8e22db154c648e8c661abe216c2688e5c3ea97cc699cfadb61b2150bd38c",
+  "configured_flags": "5521f1036289e6e8cba48e048e23fce39d91b438409c1972cce41f3659ab4bd1",
+  "flags": "ae6fedfee006836508884082a428c2bb503cf55cf1eff0e5a43e43ae0aceedd3",
+  "inventory": "948f44f13c03960d84a29c9a266d0624d51bec896bba7fd84423db9989b5f46f",
+  "live_group": "e0dd7dd329fd6c5f2d2f08676bf9a88bcb82e5ed51267c034c2082a5bd77d494",
+  "main": "02aff18281a662f7108190fb8536c8132e6247b988a5df0223a27e867b12e266",
+  "name": "917fe53e1a8f24ead34f26224bb93944f87fb71548b6f4fb7f300ed84fa740dc",
+  "native_job": "6af36123258ef42e0a71fa9f883610379233fdfd9c62230a72693a191d81d84e",
+  "need": "098b7ab9ef05c6267cec7bb1127e289155ed079b6b4e97dcc21dae0b9f8d9fb3",
+  "package_members": "c0e56cdb2b696980940e151bbc040f86f8cd5eceb9d7d47ab7848f69bc6151e2",
+  "prefix": "c392f96375565fe2691a81a4be304abf7b570fed45efc633d53066d9609109a6",
+  "prepare": "64eec0d7002353217a8615d9e296cc9ee95c76af5b157f416374417ee84327c4",
+  "read": "02705d2633fc7a4bebb176c07aced7c978638b1b100e7dc9fdbd70807dfca73d",
+  "save": "3cbef960b16f8d7e498d29ce8c413e4925dced0bba63feea775820966d6b7548",
+  "sha": "fc33541dab55897936faef1ad2869e455cbd6942f02508b99b41efdccc29be21",
+  "source_material": "086d401280c9e1e04aea145f59c2c42a4839a44546e0fc0fb9d0870becb74f18",
+  "verify_context": "116ed1fae539350edecff6a33e92319ba8753e798dd7e98f1f71d248adbafeab",
+  "workload": "604f84d1746bfe56e0c079057c9f80fa2911e24d6a6d737c1f1ed039c60614ca"
+}
 
 
 def completed(row,code=0):row.update(exit=code,natural_exit=True,group_absent=True,leader_held_until_group_inspection=True,exit_observed_via_waitpid=True,ownership_lost=False,retirement='REAPED',forced_cleanup=False,cleanup_member_uids=[])
@@ -30,11 +52,11 @@ class OwnedCommandsControls(unittest.TestCase):
 
     def test_exact_body_and_twenty_unreplaced_legacy_nodes(self):
         prefix,rest=SOURCE.read_text().split(BEGIN);body,suffix=rest.split(END)
-        self.assertEqual(body,(HERE/'owned_child.py').read_text());tree=ast.parse(prefix+suffix)
-        values={n.name:ast.dump(n,include_attributes=False)for n in tree.body if isinstance(n,(ast.FunctionDef,ast.ClassDef))and n.name!='Commands'}
+        self.assertEqual(body,(HERE/'owned_child.py').read_text());held_source=prefix+suffix;tree=ast.parse(held_source)
+        values={n.name:hashlib.sha256(ast.get_source_segment(held_source,n).encode()).hexdigest()for n in tree.body if isinstance(n,(ast.FunctionDef,ast.ClassDef))and n.name!='Commands'}
         node=next(n for n in tree.body if isinstance(n,ast.ClassDef)and n.name=='Commands')
-        values.update({'Commands.'+n.name:ast.dump(n,include_attributes=False)for n in node.body if isinstance(n,ast.FunctionDef)and n.name in('__init__','cancel')})
-        self.assertEqual(hashlib.sha256(json.dumps(values,sort_keys=True,separators=(',',':')).encode()).hexdigest(),HOLD)
+        values.update({'Commands.'+n.name:hashlib.sha256(ast.get_source_segment(held_source,n).encode()).hexdigest()for n in node.body if isinstance(n,ast.FunctionDef)and n.name in('__init__','cancel')})
+        self.assertEqual(len(values),20);self.assertEqual(values,HOLD)
         for method in(n for n in node.body if isinstance(n,ast.FunctionDef)and n.name in('run','stop')):
             self.assertFalse({n.attr for n in ast.walk(method)if isinstance(n,ast.Attribute)}&{'wait','poll','communicate','pid','returncode','killpg','waitid','waitpid'})
 

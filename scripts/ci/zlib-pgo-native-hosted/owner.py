@@ -147,6 +147,27 @@ def owned_child():
         _OWNED=importlib.util.module_from_spec(spec);sys.modules[name]=_OWNED;spec.loader.exec_module(_OWNED)
     return _OWNED
 
+def owned_subprocess_run(argv,**kwargs):
+    """Only the pinned full-carrier blob proof may exceed ordinary stdout caps."""
+    need('stdout_limit'not in kwargs,'global subprocess callers cannot select an owned stdout cap')
+    if type(argv)in(list,tuple)and len(argv)==7 and list(argv[:1])==['/usr/bin/git'] and list(argv[2:6])==['-c','protocol.allow=never','cat-file','blob'] and type(os.environ.get('RUNNER_TEMP'))is str and os.environ['RUNNER_TEMP']:
+        source='ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad'
+        carrier=safe_path(os.environ['RUNNER_TEMP'])/'pgo-hosted-retained'
+        if argv[1]=='--git-dir='+str(carrier/'.git') and type(argv[6])is str and argv[6].startswith(source+':'):
+            profile_raw=read(ROOT/'scripts/ci/setup6-retained-helpers/carrier-profile.json')
+            need(sha(profile_raw)=='4089fd798849cafda23d03c0dd95ac896a83fd63ad21e331ae420c147535586c','whole full-carrier proof profile')
+            profile=json.loads(profile_raw);name=argv[6][len(source)+1:]
+            need(profile['source']==source and len(profile['files'])==1154,'fixed whole-carrier blob proof source')
+            if name in profile['files']:
+                environment={'PATH':os.defpath,'LANG':'C','LC_ALL':'C','GIT_CONFIG_NOSYSTEM':'1','GIT_CONFIG_GLOBAL':'/dev/null','GIT_NO_REPLACE_OBJECTS':'1','GIT_OPTIONAL_LOCKS':'0','GIT_NO_LAZY_FETCH':'1','GIT_TERMINAL_PROMPT':'0'}
+                need(set(kwargs)=={'capture_output','timeout','env','check'} and kwargs['capture_output']is True
+                     and kwargs['check']is False and type(kwargs['env'])is dict and kwargs['env']==environment,
+                     'exact binary read-only captured Git proof contract required')
+                size=profile['files'][name]['bytes']
+                need(type(size)is int and 0<size<=128*1024**2,'original per-blob proof byte bound required')
+                kwargs['stdout_limit']=size
+    return owned_child().run(argv,**kwargs)
+
 class Actors:
     """Owned-child utility retains direct wait status through retirement."""
     def __init__(self,directory,seconds):
@@ -202,6 +223,50 @@ def require_image(row, own):
     need(own['tag'] in row.get('RepoTags', []), 'fresh image tag binding')
     return row['Id']
 
+def transport(args):
+    """One complete retained-source transfer outside ROOT; original audit is mandatory."""
+    _,own=admitted(args)
+    work=Path(args.work);carrier=safe_path(args.carrier)
+    expected=safe_path(os.environ['RUNNER_TEMP'])/'pgo-hosted-retained'
+    need(carrier==expected and not os.path.lexists(carrier),'fresh fixed external retained DATA path required')
+    need(not carrier.is_relative_to(ROOT) and not ROOT.is_relative_to(carrier),'retained DATA must be disjoint from closed source')
+    need(carrier.parent.stat().st_uid==os.getuid() and not carrier.parent.stat().st_mode&0o022,
+         'owned external retained DATA parent required')
+    need(not(work/'input-transport-owner.json').exists(),'fresh one-shot input transport receipt required')
+    profile_path=ROOT/'scripts/ci/setup6-retained-helpers/carrier-profile.json'
+    profile_raw=read(profile_path);profile=json.loads(profile_raw)
+    need(sha(profile_raw)=='4089fd798849cafda23d03c0dd95ac896a83fd63ad21e331ae420c147535586c'
+         and profile['source']=='ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad' and len(profile['files'])==1154
+         and sum(row['bytes']for row in profile['files'].values())==1046432165,
+         'unchanged full retained carrier profile required')
+    actor=Actors(work/'input-transport-actors',480)
+    report=dict(status='FAIL_RETAINED_INPUT_TRANSPORT_DATA',identity=own,manifest_sha256=args.manifest_sha256,
+        role='RETAINED_INPUT_TRANSPORT_DATA',runtime_temp=str(expected.parent),source_root=str(ROOT),carrier_path=str(carrier),
+        carrier_source=profile['source'],profile_sha256=sha(profile_raw),expected_carrier_files=1154,
+        expected_carrier_bytes=sum(row['bytes']for row in profile['files'].values()),
+        budget_seconds=480,retry=False,partial_data_retained=True,native='NOT_RUN',acceptance=False,
+        authentication='ORIGINAL_COMPLETE_PREPARE_AND_NATIVE_SIGNATURE_AUDIT_STILL_REQUIRED')
+    try:
+        fresh(carrier).chmod(0o700)
+        git=['git','-c','credential.helper=','-c','http.extraHeader=','-c','http.sslVerify=true',
+             '-c','core.hooksPath=/dev/null','-c','protocol.allow=never','-c','protocol.https.allow=always']
+        actor.run([*git,'init','--template=',str(carrier)],timeout=10)
+        actor.run([*git,'-C',str(carrier),'-c','http.lowSpeedLimit=65536','-c','http.lowSpeedTime=60',
+            'fetch','--depth=1','--no-tags','--no-recurse-submodules',
+            'https://github.com/Gabriel-Kahen/cachy-asahi.git',profile['source']],timeout=400)
+        fetched=actor.run([*git,'-C',str(carrier),'rev-parse','--verify','FETCH_HEAD'],timeout=10)
+        need(fetched==profile['source'],'exact fetched retained commit required')
+        actor.run([*git,'-C',str(carrier),'checkout','--detach',profile['source']],timeout=45)
+        head=actor.run([*git,'-C',str(carrier),'rev-parse','--verify','HEAD'],timeout=10)
+        need(head==profile['source'],'exact retained DATA checkout HEAD required')
+        report.update(status='PASS_EXACT_RETAINED_INPUT_TRANSPORT_DATA_ONLY',carrier_head=head)
+    except(Exception,KeyboardInterrupt)as error:
+        report['error']=type(error).__name__+': '+str(error)[:2048]
+        raise
+    finally:
+        # Preserve even incomplete DATA outside the sealed source; no retry or deletion.
+        save(work/'input-transport-owner.json',report)
+
 def bootstrap(args):
     _, own = admitted(args)
     work = Path(args.work)
@@ -254,6 +319,38 @@ def bootstrap(args):
         save(work / 'bootstrap-owner.json', report)
 
 def cleanup(args):
+    work=Path(args.work)
+    transport_receipt=work/'input-transport-owner.json'
+    transport_files={'input-transport-owner.json','input-transport-actors',
+        'input-transport.stdout','input-transport.stderr','input-transport.exit-code'}
+    if transport_receipt.exists() and load(transport_receipt).get('status')=='FAIL_RETAINED_INPUT_TRANSPORT_DATA' and {p.name for p in work.iterdir()}<=transport_files:
+        # This is DATA-only diagnosis, never a native process/image absence proof.
+        need(args.execute,'explicit transport diagnostic request required')
+        temp=safe_path(os.environ['RUNNER_TEMP'])
+        need(safe_path(args.work)==temp/'pgo-hosted-work' and safe_path(args.cache)==temp/'alarm-cache'
+             and safe_path(args.public)==temp/'pgo-hosted-public' and safe_path(args.proof)==temp/'pgo-hosted-proof.json'
+             and not temp.is_relative_to(ROOT) and not ROOT.is_relative_to(temp),
+             'fixed disjoint transport diagnostic paths required')
+        _,own=binding(args)
+        transferred=load(transport_receipt);carrier=temp/'pgo-hosted-retained'
+        profile_raw=read(ROOT/'scripts/ci/setup6-retained-helpers/carrier-profile.json')
+        need(transferred['identity']==own and transferred['manifest_sha256']==args.manifest_sha256
+             and transferred['role']=='RETAINED_INPUT_TRANSPORT_DATA'
+             and transferred['runtime_temp']==str(temp) and transferred['source_root']==str(ROOT)
+             and transferred['carrier_path']==str(carrier) and not carrier.is_relative_to(ROOT)
+             and transferred['carrier_source']=='ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad'
+             and transferred['profile_sha256']==sha(profile_raw)=='4089fd798849cafda23d03c0dd95ac896a83fd63ad21e331ae420c147535586c'
+             and transferred['expected_carrier_files']==1154 and transferred['expected_carrier_bytes']==1046432165
+             and transferred['budget_seconds']==480 and transferred['retry']is False
+             and transferred['partial_data_retained']is True and transferred['native']=='NOT_RUN'
+             and transferred['acceptance']is False,'same-owner external failed transport DATA required')
+        need(not(work/'cleanup-owner.json').exists(),'fresh transport-only diagnostic receipt required')
+        save(work/'cleanup-owner.json',dict(status='INPUT_TRANSPORT_FAILED_BEFORE_NATIVE_ACTORS_DIAGNOSTIC_ONLY',
+            identity=own,transport_receipt_sha256=sha(read(transport_receipt)),partial_carrier_path=str(carrier),
+            role='RETAINED_INPUT_TRANSPORT_FAILURE_DIAGNOSTIC_DATA',partial_data_preserved=True,
+            native='NOT_RUN',native_cleanup='NOT_ESTABLISHED',acceptance=False,
+            transport_process_scope='CONSULT_RETAINED_ACTOR_RECEIPTS_NO_LIVE_RECHECK_OR_NATIVE_ABSENCE_CREDIT'))
+        return
     _, own = admitted(args)
     pair_cleanup(args, own)
     work = Path(args.work)
@@ -440,7 +537,7 @@ def retain(args):
     return module(HERE/'retention.py','_pgo_host_retention').retain(args,sys.modules[__name__])
 
 def main():
-    parser=argparse.ArgumentParser(description='Fresh owned original341 plus offline native PGO');parser.add_argument('mode',choices=('proof','bootstrap','pairs','cleanup','retain'))
+    parser=argparse.ArgumentParser(description='Fresh owned original341 plus offline native PGO');parser.add_argument('mode',choices=('proof','transport','bootstrap','pairs','cleanup','retain'))
     for name in('source-root','proof','work','cache','public'):parser.add_argument('--'+name,type=Path,required=True)
     for name in('source-sha','manifest-sha256'):parser.add_argument('--'+name,required=True)
     parser.add_argument('--carrier',type=Path);parser.add_argument('--execute',action='store_true');args=parser.parse_args()
@@ -452,7 +549,7 @@ def main():
         source(args.source_root,args.manifest_sha256,allow_carriers=args.mode!='proof')
         # check_output delegates to subprocess.run, so Git/helper captures use the
         # same owned-child waitpid path. Pure source imports do not patch globals.
-        subprocess.run=owned_child().run
+        subprocess.run=owned_subprocess_run
         return globals()[args.mode](args)or 0
     except(Exception,KeyboardInterrupt)as error:
         print(type(error).__name__+': '+str(error)[:2048],file=sys.stderr);return 1

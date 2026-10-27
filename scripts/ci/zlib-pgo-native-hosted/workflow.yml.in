@@ -27,13 +27,13 @@ jobs:
     steps:
       - name: Checkout the exact closed native trial source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        timeout-minutes: 2
+        timeout-minutes: 1
         with:
           ref: ${{ inputs.source_sha }}
           persist-credentials: false
       - name: Prove complete hosted PGO source Git blobs and workflow aliases before secrets
         id: proof
-        timeout-minutes: 2
+        timeout-minutes: 1
         run: |
           set -euo pipefail
           printf '%s  %s\n' '@OWNER_SHA@' "$SLICE/owner.py" '@MAP_SHA@' "$SLICE/source-map.json" | sha256sum --check
@@ -58,7 +58,7 @@ jobs:
             --work "$RUNNER_TEMP/pgo-hosted-work" --cache "$RUNNER_TEMP/alarm-cache" \
             --public "$RUNNER_TEMP/pgo-hosted-public"
       - name: Run new hosted PGO source owner and retention controls before secrets
-        timeout-minutes: 3
+        timeout-minutes: 2
         run: |
           set -euo pipefail
           python3 -B -m unittest discover -s "$SLICE" -p 'test_owned*.py'
@@ -122,33 +122,45 @@ jobs:
           PYSEED
       - name: Checkout the exact fourteen public input source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        timeout-minutes: 2
+        timeout-minutes: 1
         with:
           ref: 04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd
           path: source-public14
           persist-credentials: false
       - name: Seed all fourteen exact public input files into the existing cache
-        timeout-minutes: 2
+        timeout-minutes: 1
         run: |
           set -euo pipefail
           printf '%s  %s\n' 'a7857658af224984065e575f6ffed8308ea85027d46eace8bda146d9033e93b3' source-public14/seed.py 'a388c8c8ba8e06cb92fd2be598b86e433c4e403b6e71a0f15b1eaec381bb7300' source-public14/index.json | sha256sum --check
           env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/pgo-hosted-home" LANG=C.UTF-8 TZ=UTC TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 \
             python3 -I -B "$GITHUB_WORKSPACE/source-public14/seed.py" --cache "$RUNNER_TEMP/alarm-cache"
-      - name: Checkout complete original retained package inputs
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        timeout-minutes: 2
-        with:
-          ref: ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad
-          path: source-retained
-          persist-credentials: false
-      - name: Move the exact retained checkout to its separate runtime input path
-        timeout-minutes: 1
+      - name: Transport complete retained DATA directly outside the closed source
+        id: transport
+        timeout-minutes: 9
         run: |
           set -euo pipefail
-          test -d "$GITHUB_WORKSPACE/source-retained/.git"
-          test ! -e "$RUNNER_TEMP/pgo-hosted-retained"
-          test ! -L "$RUNNER_TEMP/pgo-hosted-retained"
-          mv -- "$GITHUB_WORKSPACE/source-retained" "$RUNNER_TEMP/pgo-hosted-retained"
+          set -o noclobber
+          transport_stream="$RUNNER_TEMP/pgo-hosted-work/input-transport"
+          set +e
+          timeout --signal=TERM --kill-after=30s 500s \
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/pgo-hosted-home" LANG=C.UTF-8 TZ=UTC \
+            RUNNER_TEMP="$RUNNER_TEMP" TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 \
+            SOURCE_SHA="$SOURCE_SHA" GITHUB_WORKSPACE="$GITHUB_WORKSPACE" \
+            GITHUB_SHA="$GITHUB_SHA" GITHUB_WORKFLOW_SHA="$GITHUB_WORKFLOW_SHA" \
+            GITHUB_REPOSITORY="$GITHUB_REPOSITORY" GITHUB_RUN_ID="$GITHUB_RUN_ID" \
+            GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
+            GITHUB_REF="$GITHUB_REF" GITHUB_EVENT_NAME="$GITHUB_EVENT_NAME" GITHUB_ACTIONS="$GITHUB_ACTIONS" RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" \
+            ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
+            python3 -I -B "$SLICE/owner.py" transport \
+            --source-root "$GITHUB_WORKSPACE" --source-sha "$SOURCE_SHA" \
+            --manifest-sha256 @MAP_SHA@ --proof "$RUNNER_TEMP/pgo-hosted-proof.json" \
+            --work "$RUNNER_TEMP/pgo-hosted-work" --cache "$RUNNER_TEMP/alarm-cache" \
+            --public "$RUNNER_TEMP/pgo-hosted-public" \
+            --carrier "$RUNNER_TEMP/pgo-hosted-retained" --execute >"${transport_stream}.stdout" 2>"${transport_stream}.stderr"
+          transport_exit=$?
+          set -e
+          printf '%s\n' "$transport_exit" >"${transport_stream}.exit-code"
+          exit "$transport_exit"
       - name: Build fresh signed original341 producer with genuine image and package lock
         timeout-minutes: 40
         run: |
