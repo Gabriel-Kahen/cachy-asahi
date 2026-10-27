@@ -1,4 +1,4 @@
-# cachy-asahi-maintenance 0.1.0-1
+# cachy-asahi-maintenance 0.1.0-2
 
 An offline, read-only health and rebuild-planning review for an explicitly
 selected signed ARM release. This is an original MIT project package candidate.
@@ -106,3 +106,7 @@ Host assembly/staging and native ARM build/ALPM lifecycle evidence are different
 See the handoff/native plan accompanying this proposal for actual results and
 required next gates. Native ARM, real ALPM lifecycle, 16K runtime, physical M2,
 performance, production release and maintenance acceptance remain NOT RUN.
+
+The package checks copy only the declared20-file recipe. Live makepkg logs, FIFOs,
+source extraction and package outputs are outside that fixture. Declared inputs
+remain checksum-checked ordinary files; symlinks and special files are refused.

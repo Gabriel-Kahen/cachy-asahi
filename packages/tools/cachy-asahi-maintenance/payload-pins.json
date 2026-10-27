@@ -3,7 +3,7 @@
     "usr/bin/cachy-asahi-maintenance": {
       "bytes": 525,
       "mode": "0755",
-      "sha256": "6d493f9e025d677ab8e1bee6aed717e3e46b3e2cbb7dce89ec5102655d4ee5a9",
+      "sha256": "4c0fe954900fb4bbda0b816d59a831a563f9497aa057e4e4f6a5d8c7d30c83be",
       "source": "cachy-asahi-maintenance"
     },
     "usr/lib/cachy-asahi/maintenance/scripts/maintenance/health.py": {

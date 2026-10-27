@@ -898,3 +898,46 @@ native_evidence = "docs/validation/dns-sysctl-native-20261018.md"
 installation = "PASS signed576/574 five-transition native ALPM lifecycle, both ordinary users, original574 preserved by source-enforced receipts; no live DNS/kernel changes/M2/release credit"
 hardware_validation = "NOT RUN"
 next_step = "Independently scoped live integration and hardware checks; retain explicit opt-in and existing baseline."
+
+
+[[packages]]
+name = "cachy-asahi-maintenance"
+phase = "complete-port-tools"
+status = "candidate"
+source = "local-original"
+recipe = "packages/tools/cachy-asahi-maintenance/PKGBUILD"
+license = "MIT"
+audit = "packages/tools/cachy-asahi-maintenance/README.md"
+selected_for_development = true
+selected_for_release = false
+candidate_version = "0.1.0-2"
+native_build = "NOT RUN"
+installation = "NOT RUN"
+hardware_validation = "NOT RUN"
+host_evidence = "docs/validation/native-tool-package-fixture-fixes-host-20261027.md"
+prior_failed_native_source = "3d68ac1f5f29ebbe17fad6e9d20d6c39706cf22d"
+prior_failed_native_run = "40499578636"
+prior_failed_native_evidence = "https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/40499578636"
+prior_failed_native_result = "Release1 first check() failed before tests: recursive fixture copy encountered makepkg logpipe FIFO; build2 and installed lifecycle not reached."
+next_step = "Bind the complete59-file successor to the exact published0.1.0-2 package commit, then run native pairs, all18 controls and signed disposable lifecycle with owned cleanup; source/host fixture checks pass, corrected native execution remains NOT RUN."
+
+[[packages]]
+name = "cachy-asahi-session-diagnostics"
+phase = "complete-port-tools"
+status = "candidate"
+source = "local-original"
+recipe = "packages/tools/cachy-asahi-session-diagnostics/PKGBUILD"
+license = "MIT"
+audit = "packages/tools/cachy-asahi-session-diagnostics/README.md"
+selected_for_development = true
+selected_for_release = false
+candidate_version = "0.1.0-3"
+native_build = "NOT RUN"
+installation = "NOT RUN"
+hardware_validation = "NOT RUN"
+host_evidence = "docs/validation/native-tool-package-fixture-fixes-host-20261027.md"
+prior_failed_native_source = "44c025a31c640fd96dda2b1efa2aa06c27c15d41"
+prior_failed_native_run = "40499774542"
+prior_failed_native_evidence = "https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/40499774542"
+prior_failed_native_result = "Release2 first check() passed34/35 probe controls then failed the socket fixture positive assertion under checkout ancestry; build2 and lifecycle not reached."
+next_step = "Bind the complete54-file successor to the exact published0.1.0-3 package commit, then run native pairs,35+7 controls and signed disposable lifecycle with owned cleanup; production probe/launcher stay held and corrected native execution remains NOT RUN."

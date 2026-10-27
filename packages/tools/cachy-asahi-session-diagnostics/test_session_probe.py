@@ -282,34 +282,69 @@ class SocketAndCLI(unittest.TestCase):
         with tempfile.TemporaryDirectory(dir=HERE) as directory:
             root = Path(directory)
             root.chmod(0o700)
-            path = root / 'socket'
-            def bind(server):
+            uid = os.getuid()
+            run = root / 'run'; run.mkdir(); run.chmod(0o755)
+            users = run / 'user'; users.mkdir(); users.chmod(0o755)
+            runtime = users / str(uid); runtime.mkdir(); runtime.chmod(0o700)
+            path = runtime / 'socket'
+            virtual = Path('/run/user') / str(uid) / 'socket'
+            real_open = os.open
+
+            def snapshot(target=virtual, owner=uid):
+                # A test-only root FD makes checkout ancestry irrelevant. Every
+                # descendant open/stat remains real and retains O_NOFOLLOW.
+                def fixture_open(name, flags, *args, **kwargs):
+                    if name == '/' and 'dir_fd' not in kwargs:
+                        return real_open(root, flags, *args, **kwargs)
+                    return real_open(name, flags, *args, **kwargs)
+                with patch.object(P.os, 'open', side_effect=fixture_open):
+                    return P.socket_snapshot(target, owner)
+
+            def bind(server, parent=runtime):
                 # Linux limits bind path bytes; the full packet path is much longer.
-                old = os.open('.', os.O_RDONLY | os.O_DIRECTORY)
+                old = real_open('.', os.O_RDONLY | os.O_DIRECTORY)
                 try:
-                    os.chdir(root)
+                    os.chdir(parent)
                     server.bind('socket')
                 finally:
                     os.fchdir(old)
                     os.close(old)
             with socket.socket(socket.AF_UNIX) as server:
                 bind(server)
-                first = P.socket_snapshot(path, os.getuid())
+                first = snapshot()
                 self.assertIsNotNone(first)
-                self.assertIsNone(P.socket_snapshot(path, os.getuid() + 1))
-                alias = root / 'alias'
-                alias.symlink_to(root, target_is_directory=True)
-                self.assertIsNone(P.socket_snapshot(alias / 'socket', os.getuid()))
+                self.assertIsNone(snapshot(owner=uid + 1))
+                for ancestor in (run, users):
+                    ancestor.chmod(0o777)
+                    self.assertIsNone(snapshot())
+                    ancestor.chmod(0o755)
+                runtime.chmod(0o755)
+                self.assertIsNone(snapshot())  # /run/user/<uid> must be 0700.
+                runtime.chmod(0o700)
+                alias = runtime / 'alias'
+                alias.symlink_to('.', target_is_directory=True)
+                self.assertIsNone(snapshot(virtual.parent / 'alias/socket'))
+                link = runtime / 'socket-link'
+                os.link(path, link)
+                self.assertIsNone(snapshot())  # Socket must have exactly one link.
+                link.unlink()
                 path.unlink()
                 with socket.socket(socket.AF_UNIX) as other:
                     bind(other)
-                    self.assertNotEqual(first, P.socket_snapshot(path, os.getuid()))
+                    second = snapshot()
+                    self.assertIsNotNone(second)
+                    self.assertNotEqual(first, second)
                 path.unlink()
                 path.write_text('PRIVATE')
-                self.assertIsNone(P.socket_snapshot(path, os.getuid()))
+                self.assertIsNone(snapshot())
                 path.unlink()
                 path.symlink_to(root / 'nonexistent')
-                self.assertIsNone(P.socket_snapshot(path, os.getuid()))
+                self.assertIsNone(snapshot())
+            untrusted = root / 'untrusted'; untrusted.mkdir(); untrusted.chmod(0o1777)
+            with socket.socket(socket.AF_UNIX) as server:
+                bind(server, untrusted)
+                # No root mapping here: the production walk rejects real unsafe ancestry.
+                self.assertIsNone(P.socket_snapshot(untrusted / 'socket', uid))
         self.assertIsNone(P.socket_snapshot(Path('relative/socket'), os.getuid()))
 
     def test_cli_help_and_invalid_identity_never_collect(self):
