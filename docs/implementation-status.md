@@ -1,6 +1,6 @@
 # Implementation and acceptance status
 
-October27: [Doctor2 comparison package passes native builds and finite installed CLI](validation/doctor2-comparison-native-20261027.md). Corrected source88997143 passes both package pairs, all47 Doctor build-test cases, complete retained1148 input-cache checks, and the original five-phase installed CLI with ordered retirement. This is generic ARM component evidence; installed --compare, live audio,16K/M2, performance, production trust and release remain separate.
+October27: [Doctor2 installed comparison passes on native ARM](validation/doctor2-installed-comparison-native-20261027.md). Sourcec83dda6b passes both package pairs, all47 native build-test cases, retained1148 input-cache checks and the five-phase CLI lifecycle. Six installed observations add54 direct executable and18 guarded installed-code loader comparison cases over synthetic supplied reports. Exact retirement passes; live audio, GUI,16K/M2, performance, production trust and release remain separate.
 
 October27: [Setup7 status and recovery pass the native component lifecycle](validation/setup7-status-native-20261027.md). Two identical0.1.0-7 packages, 8+6 transitions,24 observations and6 recovery+19 status tests pass in disposable generic ARM4096 containers. Hosted source suites retain two explicit skips. Preservation and cleanup rely on source-enforced joined receipts; full raw snapshots and live retirement were not rechecked. Signed integrated lifecycle, real shell modules,16K, both M2 sizes, performance and release remain separate.
 
