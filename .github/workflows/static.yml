@@ -296,6 +296,7 @@ jobs:
           python3 -B -Werror::ResourceWarning scripts/maintenance/test_build_batch_e2e.py
           python3 -B -Werror::ResourceWarning scripts/maintenance/test_build_outputs.py
           python3 -B -Werror::ResourceWarning scripts/maintenance/test_health.py
+          python3 -B -Werror::ResourceWarning scripts/maintenance/test_source_cache.py
           python3 -B -Werror::ResourceWarning scripts/setup/test_config_migrate.py
       - name: Check isolated ARM experiment packages with pinned source on host ISA
         run: |
