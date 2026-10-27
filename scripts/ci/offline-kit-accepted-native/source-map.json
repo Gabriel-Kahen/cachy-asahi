@@ -236,15 +236,25 @@
       "mode": 420,
       "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
     },
+    "scripts/ci/offline-kit-accepted-native/fixtures/cleanup-current-inspection.json": {
+      "bytes": 10951,
+      "mode": 420,
+      "sha256": "b66e80d02ed953d9933ba2fd18144f07b0167aab44bc9627eb1549b5d03bd92c"
+    },
+    "scripts/ci/offline-kit-accepted-native/fixtures/receive-created-inspection.json": {
+      "bytes": 7908,
+      "mode": 420,
+      "sha256": "6e199ce206038571a32bc480b11a39a62f1d7adbe85cae3730912360561c3aa1"
+    },
     "scripts/ci/offline-kit-accepted-native/original-fixture-worker.py": {
       "bytes": 93752,
       "mode": 420,
       "sha256": "14381d049506b52770059bf7af415f7a079f69872543e74417aca11ce24ac3c5"
     },
     "scripts/ci/offline-kit-accepted-native/owner.py": {
-      "bytes": 15991,
+      "bytes": 26124,
       "mode": 420,
-      "sha256": "8b480b600035da47c59176a567d8d4a20b3fe023e61626260e7f1ed588c01bd9"
+      "sha256": "48a8cc23f2b0fbc888d79215039ca5e864760dd83e780d84c99cea6376c72a57"
     },
     "scripts/ci/offline-kit-accepted-native/owner_common.py": {
       "bytes": 15682,
@@ -261,6 +271,11 @@
       "mode": 420,
       "sha256": "d800d85c6b85b52bf90e37829b74e26628fc5525ae9a5804e3ee4edfa910821f"
     },
+    "scripts/ci/offline-kit-accepted-native/test_cleanup_receipt.py": {
+      "bytes": 6340,
+      "mode": 420,
+      "sha256": "e1256975d1b7a331692aa6f63eb4001329b8175beb27ce019fa3419656f3ae82"
+    },
     "scripts/ci/offline-kit-accepted-native/test_context.py": {
       "bytes": 5833,
       "mode": 420,
@@ -271,10 +286,15 @@
       "mode": 420,
       "sha256": "f48c59ab4a78c643ae47877ea1a24bfd4d9274a5b95bc5772897aadbaac88592"
     },
-    "scripts/ci/offline-kit-accepted-native/trial-code/plan_bridge.py": {
-      "bytes": 7848,
+    "scripts/ci/offline-kit-accepted-native/test_relocated_bridge.py": {
+      "bytes": 6657,
       "mode": 420,
-      "sha256": "17f25fe87729b2c4019befe17e4a7f000310c9061b9ed8523bbfbcd1e7a3aa75"
+      "sha256": "5599d1289cf29cf33a499ac3bc785c3c8fb8514a6e32e151d03363e0955218ea"
+    },
+    "scripts/ci/offline-kit-accepted-native/trial-code/plan_bridge.py": {
+      "bytes": 8031,
+      "mode": 420,
+      "sha256": "9ce7a390ed31c60865756e1a900c3e7d30fc4b88a002abf398366d44569050f5"
     },
     "scripts/ci/offline-kit-accepted-native/trial-code/trial.py": {
       "bytes": 23293,
@@ -282,9 +302,9 @@
       "sha256": "eb3882c0ff60c9c33439fa7588700c05b16e6f116bde51079642722e956f4c31"
     },
     "scripts/ci/offline-kit-accepted-native/workflow.yml.in": {
-      "bytes": 11598,
+      "bytes": 13270,
       "mode": 420,
-      "sha256": "8f056834a9142a9b80041f3909038e538023d87b88ae539b4f30c32ca390a07f"
+      "sha256": "0d591cd73b60a4aa411640056772c2bce202e7bd0562238fab79ba3c9bd2a1e6"
     },
     "scripts/ci/old_four_seed.py": {
       "bytes": 29048,
@@ -327,6 +347,6 @@
       "sha256": "e5d7dc11d1a59cf37a273e9a7103c7e55b169335b17c599990946f4e677ca974"
     }
   },
-  "purpose": "TWO_ACCEPTED_NATIVE_TOOLS_OFFLINE_KIT_OWNED_RETIREMENT_SUCCESSOR",
+  "purpose": "TWO_ACCEPTED_NATIVE_TOOLS_OFFLINE_KIT_FULL_RETAINED_TRANSPORT",
   "schema": 1
 }

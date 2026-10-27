@@ -15,7 +15,7 @@ jobs:
   native:
     if: github.repository == 'Gabriel-Kahen/cachy-asahi'
     runs-on: ubuntu-24.04-arm
-    timeout-minutes: 150
+    timeout-minutes: 160
     defaults:
       run:
         shell: bash
@@ -39,7 +39,7 @@ jobs:
           test "$GITHUB_SHA" = "$SOURCE_SHA"
           test "$GITHUB_WORKFLOW_SHA" = "$SOURCE_SHA"
           cmp .github/workflows/native-arm-build.yml .github/workflows/native-arm-offline-kit-accepted.yml
-          printf '%s  %s\n' '8b480b600035da47c59176a567d8d4a20b3fe023e61626260e7f1ed588c01bd9' "$SLICE/owner.py" '7b01114eb218149ac69bc626e754cf840f5061fc6a172e3b5e73bb1e10e78cba' "$SLICE/source-map.json" | sha256sum --check
+          printf '%s  %s\n' '48a8cc23f2b0fbc888d79215039ca5e864760dd83e780d84c99cea6376c72a57' "$SLICE/owner.py" '450c75a26f460aae78c8c915d001417de3794b2ce82548bf2720f0ecc52376ef' "$SLICE/source-map.json" | sha256sum --check
           timeout --signal=TERM --kill-after=10s 100s \
           env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC \
             TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 SOURCE_SHA="$SOURCE_SHA" \
@@ -50,13 +50,19 @@ jobs:
             GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
             GITHUB_OUTPUT="$GITHUB_OUTPUT" \
             python3 -I -B "$SLICE/owner.py" proof \
-            --manifest-sha256 '7b01114eb218149ac69bc626e754cf840f5061fc6a172e3b5e73bb1e10e78cba' --work "$RUNNER_TEMP/offline-kit-accepted-work"
+            --manifest-sha256 '450c75a26f460aae78c8c915d001417de3794b2ce82548bf2720f0ecc52376ef' --work "$RUNNER_TEMP/offline-kit-accepted-work"
       - name: Verify owned process retirement before secrets or native package work
         timeout-minutes: 3
         run: |
           set -euo pipefail
           timeout --signal=TERM --kill-after=5s 75s python3 -I -B "$SLICE/test_owner_retirement.py"
           timeout --signal=TERM --kill-after=5s 75s python3 -I -B "$SLICE/candidate-source/test_runtime_retirement.py"
+      - name: Verify actual receive relocation and cleanup receipt causal fixtures
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          timeout --signal=TERM --kill-after=5s 45s python3 -I -B "$SLICE/test_relocated_bridge.py"
+          timeout --signal=TERM --kill-after=5s 45s python3 -I -B "$SLICE/test_cleanup_receipt.py"
       - name: Checkout immutable accepted native tools source and archive DATA
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         timeout-minutes: 2
@@ -115,13 +121,36 @@ jobs:
           set -euo pipefail
           printf '%s  %s\n' 'a7857658af224984065e575f6ffed8308ea85027d46eace8bda146d9033e93b3' 'retained-public-inputs/seed.py' 'a388c8c8ba8e06cb92fd2be598b86e433c4e403b6e71a0f15b1eaec381bb7300' 'retained-public-inputs/index.json' | sha256sum --check
           env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC TMPDIR="$RUNNER_TEMP" python3 -I -B "$GITHUB_WORKSPACE/retained-public-inputs/seed.py" --cache "$RUNNER_TEMP/desktop574/context/deps"
-      - name: Checkout exact complete original574 retained inputs
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        timeout-minutes: 2
-        with:
-          ref: ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad
-          path: retained574
-          persist-credentials: false
+      - name: Transport full retained574 DATA directly outside closed source
+        timeout-minutes: 9
+        run: |
+          set -euo pipefail
+          PHASE="$RUNNER_TEMP/offline-kit-accepted-work/phase-logs"
+          test ! -L "$PHASE"
+          install -d -m 700 "$PHASE"
+          for suffix in stdout stderr exit-code; do
+            test ! -e "$PHASE/transport.$suffix"
+            test ! -L "$PHASE/transport.$suffix"
+          done
+          set -o noclobber
+          set +e
+          timeout --signal=TERM --kill-after=30s 500s \
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC \
+            TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 SOURCE_SHA="$SOURCE_SHA" \
+            RUNNER_TEMP="$RUNNER_TEMP" RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" \
+            GITHUB_ACTIONS="$GITHUB_ACTIONS" GITHUB_SHA="$GITHUB_SHA" \
+            GITHUB_WORKFLOW_SHA="$GITHUB_WORKFLOW_SHA" GITHUB_REPOSITORY="$GITHUB_REPOSITORY" \
+            GITHUB_EVENT_NAME="$GITHUB_EVENT_NAME" GITHUB_RUN_ID="$GITHUB_RUN_ID" \
+            GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
+            GITHUB_OUTPUT="$GITHUB_OUTPUT" \
+            python3 -I -B "$SLICE/owner.py" transport \
+            --manifest-sha256 '450c75a26f460aae78c8c915d001417de3794b2ce82548bf2720f0ecc52376ef' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute >"$PHASE/transport.stdout" 2>"$PHASE/transport.stderr"
+          code=$?
+          set -e
+          printf '%s\n' "$code" >"$PHASE/transport.exit-code"
+          cat "$PHASE/transport.stdout"
+          cat "$PHASE/transport.stderr" >&2
+          exit "$code"
       - name: Prepare complete retained574 DATA and execute original owned producer
         timeout-minutes: 40
         run: |
@@ -136,7 +165,7 @@ jobs:
             GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
             GITHUB_OUTPUT="$GITHUB_OUTPUT" \
             python3 -I -B "$SLICE/owner.py" bootstrap \
-            --manifest-sha256 '7b01114eb218149ac69bc626e754cf840f5061fc6a172e3b5e73bb1e10e78cba' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute
+            --manifest-sha256 '450c75a26f460aae78c8c915d001417de3794b2ce82548bf2720f0ecc52376ef' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute
       - name: Verify original accepted signatures and run both offline kit lifecycles
         timeout-minutes: 78
         run: |
@@ -151,7 +180,7 @@ jobs:
             GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
             GITHUB_OUTPUT="$GITHUB_OUTPUT" \
             python3 -I -B "$SLICE/owner.py" run \
-            --manifest-sha256 '7b01114eb218149ac69bc626e754cf840f5061fc6a172e3b5e73bb1e10e78cba' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute
+            --manifest-sha256 '450c75a26f460aae78c8c915d001417de3794b2ce82548bf2720f0ecc52376ef' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute
       - name: Retire all owned kit consumers before the original574 producer
         if: always() && steps.proof.outcome == 'success'
         timeout-minutes: 6
@@ -167,7 +196,7 @@ jobs:
             GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
             GITHUB_OUTPUT="$GITHUB_OUTPUT" \
             python3 -I -B "$SLICE/owner.py" cleanup \
-            --manifest-sha256 '7b01114eb218149ac69bc626e754cf840f5061fc6a172e3b5e73bb1e10e78cba' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute
+            --manifest-sha256 '450c75a26f460aae78c8c915d001417de3794b2ce82548bf2720f0ecc52376ef' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute
       - name: Retain bounded closed source and concrete native execution evidence
         if: always() && steps.proof.outcome == 'success'
         timeout-minutes: 3
@@ -183,7 +212,7 @@ jobs:
             GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
             GITHUB_OUTPUT="$GITHUB_OUTPUT" \
             python3 -I -B "$SLICE/owner.py" retain \
-            --manifest-sha256 '7b01114eb218149ac69bc626e754cf840f5061fc6a172e3b5e73bb1e10e78cba' --work "$RUNNER_TEMP/offline-kit-accepted-work"
+            --manifest-sha256 '450c75a26f460aae78c8c915d001417de3794b2ce82548bf2720f0ecc52376ef' --work "$RUNNER_TEMP/offline-kit-accepted-work"
       - name: Upload only bounded public evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
