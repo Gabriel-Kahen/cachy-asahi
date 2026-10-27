@@ -1,0 +1,35 @@
+{
+  "Root_acceptance": null,
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "binding": {
+    "attempt": 1,
+    "carrier_ref": "codex/gui-fresh-test-public-packet-20261027-v1",
+    "carrier_source": "f53b5ec8bc4df40f4cad145fb8fe1dc206a4d115",
+    "context_path": "@source/Root-qualification.json",
+    "context_pin": {
+      "bytes": 971,
+      "sha256": "3c606bca2ec615c90b6a4ea4619ceac8727eb30944f466733936bfd6ca9c63a5"
+    },
+    "created": 1793066963,
+    "expires": 1793153363,
+    "fingerprint": "EC1DA61C5D9C91638CC42A598EDB36DD1EC0BDB1",
+    "index_pin": {
+      "bytes": 1952,
+      "sha256": "ffbbc96263346bd5f9dffb1130ba4c1a5be5b1179fad88fb22f83cef3781e958"
+    },
+    "job": "121966791022",
+    "packet_path": ".",
+    "production_index_pin": {
+      "bytes": 1869,
+      "sha256": "ac2180b01ac949d8755725285d0ba84077a02ad274e676502e8fd783acd0c84d"
+    },
+    "production_path": "@source/production",
+    "run": 40436647219,
+    "signing_ref": "refs/heads/codex/gui-fresh-test-signer-qualify-v1",
+    "signing_source": "b6733acad27d20a7fc8945716a5cd6db4a642325"
+  },
+  "purpose": "GUI607_FRESH_TEST_SIGNER_CONSUMER_V1",
+  "schema_version": 1
+}

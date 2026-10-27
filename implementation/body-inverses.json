@@ -1,0 +1,537 @@
+[
+  {
+    "after_path": "implementation/native.py",
+    "before_path": "parent574/native.py",
+    "seams": [
+      {
+        "after": "HERE=Path(__file__).resolve().parent\nROOT=HERE.parent/'parent574'",
+        "before": "ROOT=Path(__file__).resolve().parent",
+        "count": 1
+      },
+      {
+        "after": "import admission as _original_admission\nsys.path.insert(0,str(HERE))\nimport source_guard\nA=types.SimpleNamespace(**vars(_original_admission));A.prove=lambda root:source_guard.old_prove(root,_original_admission.prove)",
+        "before": "import admission as A",
+        "count": 1
+      },
+      {
+        "after": "HERE/'factory/factory.py'",
+        "before": "ROOT/'factory/factory.py'",
+        "count": 1
+      },
+      {
+        "after": "apps16,six_record,six_public,actual_argv):",
+        "before": "apps16,actual_argv):",
+        "count": 1
+      },
+      {
+        "after": "'--apps16',str(apps16),'--six-record',str(six_record),'--six-public',str(six_public)]",
+        "before": "'--apps16',str(apps16)]",
+        "count": 1
+      },
+      {
+        "after": "import latest_input607 as input606",
+        "before": "import input606",
+        "count": 1
+      },
+      {
+        "after": "deadline,welcome8,apps16,six_record,six_public);save",
+        "before": "deadline,welcome8,apps16);save",
+        "count": 1
+      },
+      {
+        "after": "HERE/'factory/run.py'",
+        "before": "ROOT/'factory/run.py'",
+        "count": 3
+      },
+      {
+        "after": "HERE/'factory/context606.py'",
+        "before": "ROOT/'factory/context606.py'",
+        "count": 1
+      },
+      {
+        "after": "HERE/'transport.py'",
+        "before": "ROOT/'transport.py'",
+        "count": 1
+      },
+      {
+        "after": "==g['guest_packages']==607",
+        "before": "==g['guest_packages']==606",
+        "count": 1
+      },
+      {
+        "after": "'kernel-carrier','welcome8','apps16','six-record','six-public'",
+        "before": "'kernel-carrier','welcome8','apps16'",
+        "count": 1
+      },
+      {
+        "after": "a.apps16.absolute(),a.six_record.absolute(),a.six_public.absolute(),list(sys.argv[1:])",
+        "before": "a.apps16.absolute(),list(sys.argv[1:])",
+        "count": 1
+      },
+      {
+        "after": "PASS_ONE_LATEST607_WELCOME8_GUI_METADATA_PIXELS_PENDING_ROOT",
+        "before": "PASS_ONE_CURRENT606_WELCOME8_GUI_METADATA_PIXELS_PENDING_ROOT",
+        "count": 1
+      },
+      {
+        "after": "PASS_ONE_LATEST607_WELCOME8_GUI_PROFILE_PENDING_ROOT",
+        "before": "PASS_ONE_CURRENT606_WELCOME8_GUI_PROFILE_PENDING_ROOT",
+        "count": 1
+      },
+      {
+        "after": "SOURCE_BOUND_LATEST607_GUI_NATIVE_CASE",
+        "before": "SOURCE_BOUND_CURRENT606_GUI_NATIVE_CASE",
+        "count": 2
+      },
+      {
+        "after": "g['status']=='PASS_LATEST607_WELCOME8_'",
+        "before": "g['status']=='PASS_CURRENT606_WELCOME8_'",
+        "count": 1
+      },
+      {
+        "after": "return load('_installed607_observer_facade',HERE/'observer_apply.py').factory(load('_current606_source_bound_factory',HERE/'factory/factory.py').service1800())",
+        "before": "return load('_current606_source_bound_factory',HERE/'factory/factory.py').service1800()",
+        "count": 1
+      },
+      {
+        "after": "owner=load('_selected607_owner_context',HERE/'runner_context.py').owner(load('_current606_full_original_runtime_owner',HERE/'factory/run.py'));result=owner.run_service1800",
+        "before": "owner=load('_current606_full_original_runtime_owner',HERE/'factory/run.py');result=owner.run_service1800",
+        "count": 1
+      },
+      {
+        "after": "load('_selected607_export_context',HERE/'runner_context.py').authorize_runner(runner)",
+        "before": "load('_current606_fresh_whole_runner_export',HERE/'factory/context606.py').authorize_runner(runner)",
+        "count": 1
+      },
+      {
+        "after": "value['runtime_retirement']=validate_cleanup(gui,terminal,lease,proof,runtime,base);value['runtime']=gui['cleanup']",
+        "before": "value['runtime_retirement']=validate_cleanup(gui);value['runtime']=gui['cleanup']",
+        "count": 1
+      },
+      {
+        "after": "env['validate_cleanup']=lambda gui,terminal,lease,proof,runtime,base:load('_fixed607_build_retirement',HERE/'build_inventory.py').lease_retirement(owner.retirement,gui,terminal,lease,proof,runtime,base,p)",
+        "before": "env['validate_cleanup']=owner.retirement",
+        "count": 1
+      },
+      {
+        "after": "return load('_fresh607_live_ingress',HERE/'fresh_adaptation.py').job(load('_current606_complete_original_job',home/'job.py'),ROOT/'original')",
+        "before": "return load('_current606_complete_original_job',home/'job.py')",
+        "count": 1
+      },
+      {
+        "after": "load('_fresh607_live_ingress',HERE/'fresh_adaptation.py').factory(load('_current606_source_bound_factory',HERE/'factory/factory.py'),ROOT/'original').service1800()",
+        "before": "load('_current606_source_bound_factory',HERE/'factory/factory.py').service1800()",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "after_path": "implementation/latest_input607.py",
+    "before_path": "parent574/input606.py",
+    "seams": [
+      {
+        "after": "deadline,welcome8,apps16,six_record,six_public):",
+        "before": "deadline,welcome8,apps16):",
+        "count": 1
+      },
+      {
+        "after": "import source_guard;source_guard.verify(require_known=True);A.prove(root);tick(deadline)",
+        "before": "A.prove(root);tick(deadline)",
+        "count": 1
+      },
+      {
+        "after": "Path(__file__).resolve().parent/'factory/expected606.lock'",
+        "before": "root/'factory/expected606.lock'",
+        "count": 3
+      },
+      {
+        "after": ";import latest_inputs\n checks=load('_latest607_accepted_archive_inspector',root/'original/scripts/checks/package_checks.py');accepted=latest_inputs.verify(six_record,six_public,checks);req=latest_inputs.apply(req,accepted)\n old=A.obj(carrier/'provenance/target604-manifest.json')",
+        "before": ";old=A.obj(carrier/'provenance/target604-manifest.json')",
+        "count": 1
+      },
+      {
+        "after": "len(req)==34",
+        "before": "len(req)==33",
+        "count": 1
+      },
+      {
+        "after": "p=(six_public/latest_inputs.C.profile()['incoming'][n]['path'])if n in accepted['rows']else apps16_input['archive']if n=='cachy-asahi-apps'else",
+        "before": "p=apps16_input['archive']if n=='cachy-asahi-apps'else",
+        "count": 1
+      },
+      {
+        "after": "len(rows)==607 and len(to_sign)==29",
+        "before": "len(rows)==606 and len(to_sign)==28",
+        "count": 1
+      },
+      {
+        "after": "SOURCE_OWNED_EXACT607_GUI_INPUT_PLAN_NO_NATIVE_GUI_AUTHORITY",
+        "before": "SOURCE_OWNED_EXACT606_GUI_INPUT_PLAN_NO_NATIVE_GUI_AUTHORITY",
+        "count": 1
+      },
+      {
+        "after": "required=req,accepted_six_inputs=accepted,bootstrap=build",
+        "before": "required=req,bootstrap=build",
+        "count": 1
+      },
+      {
+        "after": "READY_SIGNED_LATEST607_WELCOME8",
+        "before": "READY_SIGNED_CURRENT606_WELCOME8",
+        "count": 1
+      },
+      {
+        "after": "archive_count=607",
+        "before": "archive_count=606",
+        "count": 1
+      },
+      {
+        "after": "READY_EXACT_SIGNED607_INPUTS_NO_GUI_AUTHORITY",
+        "before": "READY_EXACT_SIGNED606_INPUTS_NO_GUI_AUTHORITY",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "after_path": "implementation/transport.py",
+    "before_path": "parent574/transport.py",
+    "seams": [
+      {
+        "after": "PASS_ONE_LATEST607_WELCOME8_GUI_METADATA_PIXELS_PENDING_ROOT",
+        "before": "PASS_ONE_CURRENT606_WELCOME8_GUI_METADATA_PIXELS_PENDING_ROOT",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "after_path": "implementation/factory/context606.py",
+    "before_path": "parent574/factory/context606.py",
+    "seams": [
+      {
+        "after": "len(expected)==607",
+        "before": "len(expected)==606",
+        "count": 2
+      },
+      {
+        "after": "READY_SIGNED_LATEST607_WELCOME8",
+        "before": "READY_SIGNED_CURRENT606_WELCOME8",
+        "count": 1
+      },
+      {
+        "after": "})==607",
+        "before": "})==606",
+        "count": 1
+      },
+      {
+        "after": "incoming)==34",
+        "before": "incoming)==33",
+        "count": 1
+      },
+      {
+        "after": "==607 and proof['optional_absent']==605",
+        "before": "==606 and proof['optional_absent']==604",
+        "count": 1
+      },
+      {
+        "after": "EMITTED_LATEST607_WELCOME8_GUI_SOURCE_ONLY",
+        "before": "EMITTED_CURRENT606_WELCOME8_GUI_SOURCE_ONLY",
+        "count": 1
+      },
+      {
+        "after": "runtime_package_count=607",
+        "before": "runtime_package_count=606",
+        "count": 1
+      },
+      {
+        "after": "guest_packages=607",
+        "before": "guest_packages=606",
+        "count": 1
+      },
+      {
+        "after": "bind(image,base_reference,execute,text_command);report['build_acquisition']=dict(schema_version=1,role='runtime607',phase='ALIAS_BOUND_PRE_BUILD',build_requested=False)",
+        "before": "bind(image,base_reference,execute,text_command)",
+        "count": 1
+      },
+      {
+        "after": "spec.loader.exec_module(scope);scope=scope.selected607()",
+        "before": "spec.loader.exec_module(scope)",
+        "count": 1
+      },
+      {
+        "after": "scope.prepare(build_context,'runtime607'",
+        "before": "scope.prepare(build_context,'runtime606'",
+        "count": 1
+      },
+      {
+        "after": "{'runtime607':build_proof}",
+        "before": "{'runtime606':build_proof}",
+        "count": 1
+      },
+      {
+        "after": "iid=out/'runtime-image-id';report['build_acquisition']['build_requested']=True;execute(",
+        "before": "iid=out/'runtime-image-id';execute(",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "after_path": "implementation/factory/install606.py",
+    "before_path": "parent574/factory/install606.py",
+    "seams": [
+      {
+        "after": "read_bytes(),607)",
+        "before": "read_bytes(),606)",
+        "count": 1
+      },
+      {
+        "after": "be35402204ba5c03d78279722afa83047c9575d2da70fb5c4064f46ed15954c5",
+        "before": "9674da5a122395df4c496e7af4ed68dfb091d0793e184eff7d317bbb4df1dcf9",
+        "count": 1
+      },
+      {
+        "after": "len(incoming)==34 and len(rows)==607",
+        "before": "len(incoming)==33 and len(rows)==606",
+        "count": 1
+      },
+      {
+        "after": "for r in incoming})==34",
+        "before": "for r in incoming})==33",
+        "count": 1
+      },
+      {
+        "after": "max_packages=607",
+        "before": "max_packages=606",
+        "count": 1
+      },
+      {
+        "after": "PASS_ACTUAL_SIGNED574_TO607",
+        "before": "PASS_ACTUAL_SIGNED574_TO606",
+        "count": 1
+      },
+      {
+        "after": ",packages=607,original573_database",
+        "before": ",packages=606,original573_database",
+        "count": 1
+      },
+      {
+        "after": ".selected607().check(proof_sha256,'runtime607')",
+        "before": ".check(proof_sha256,'runtime606')",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "after_path": "implementation/factory/run.py",
+    "before_path": "parent574/factory/run.py",
+    "seams": [
+      {
+        "after": "value['status']=='PASS_LATEST607_WELCOME8_'",
+        "before": "value['status']=='PASS_CURRENT606_WELCOME8_'",
+        "count": 1
+      },
+      {
+        "after": "value['runtime_package_count']==607",
+        "before": "value['runtime_package_count']==606",
+        "count": 1
+      },
+      {
+        "after": "value['guest_packages']==607",
+        "before": "value['guest_packages']==606",
+        "count": 1
+      },
+      {
+        "after": "PASS_ONE_LATEST607_WELCOME8_GUI_PROFILE_PENDING_ROOT",
+        "before": "PASS_ONE_CURRENT606_WELCOME8_GUI_PROFILE_PENDING_ROOT",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "after_path": "implementation/factory/current_products.py",
+    "before_path": "parent574/factory/current_products.py",
+    "seams": [
+      {
+        "after": "apps['package_count']==607",
+        "before": "apps['package_count']==606",
+        "count": 1
+      },
+      {
+        "after": "len(inventory['packages'])==607",
+        "before": "len(inventory['packages'])==606",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "after_path": "implementation/factory/installed607.py",
+    "before_path": "parent574/factory/support/installed604.py",
+    "seams": [
+      {
+        "after": "607",
+        "before": "604",
+        "count": 8
+      },
+      {
+        "after": "# SPDX-License-Identifier: MIT\ndef preservation_failure_DATA(actual, baseline, writer=None):\n    \"\"\"Best-effort bounded DATA only; caller must re-raise its original failure.\n\n    Inline this function verbatim. A supplied writer accepts bytes and returns\n    their written count, like os.write. No values containing file data are\n    printed. Paths are diagnostic map keys, escaped and clipped. The first\n    difference is in map insertion/list order, not a complete sorted diff.\n    \"\"\"\n    try:\n        import hashlib\n        import json\n        import os\n\n        prefix = b'INSTALLED607_PRESERVATION_DIFF_DATA '\n        categories = ('schema_version', 'packages', 'ownership', 'nodes',\n                      'hardlinks', 'nonselected_database', 'capabilities',\n                      'payload_bytes', 'qualification')\n        visited_limit, entry_limit, depth_limit = 4096, 6, 16\n        string_limit, key_limit, path_limit, capsule_limit = 4096, 256, 160, 2048\n        if type(actual) is not dict or type(baseline) is not dict:\n            return False\n        # Only the known observer schema is diagnosed; no arbitrary object hooks.\n        if len(actual) != len(categories) or len(baseline) != len(categories):\n            return False\n        if any(k not in actual or k not in baseline for k in categories):\n            return False\n        entries, states, scans = [], {}, {}\n        omitted = 0\n\n        def path(parent, key):\n            if type(key) is int:\n                part = '[' + str(key) + ']'\n            else:\n                part = ''.join(c if ' ' <= c <= '~' else '?' for c in key[:80])\n                if len(key) > 80:\n                    part += '~length=' + str(len(key))\n            value = parent + '/' + part\n            if len(value) > path_limit:\n                value = value[:60] + '...' + value[-(path_limit - 63):]\n            return value\n\n        def summary(value):\n            kind = type(value)\n            if kind is str:\n                result = {'type': 'str', 'characters': len(value)}\n                if len(value) <= string_limit:\n                    result['sha256'] = hashlib.sha256(value.encode('utf-8', 'surrogatepass')).hexdigest()\n                else:\n                    result['hash'] = 'omitted_oversize'\n                return result\n            if kind in (dict, list):\n                return {'type': 'dict' if kind is dict else 'list', 'length': len(value)}\n            if kind is int:\n                return {'type': 'int', 'value': value} if value.bit_length() <= 64 else {'type': 'int', 'bits': value.bit_length()}\n            if kind is bool:\n                return {'type': 'bool', 'value': value}\n            if value is None:\n                return {'type': 'null'}\n            return {'type': 'unsupported'}\n\n        for category in categories:\n            visited, limited, difference = 0, False, None\n\n            def record(where, left, right, reason='value'):\n                nonlocal difference\n                difference = {'path': where, 'reason': reason,\n                              'actual': summary(left), 'baseline': summary(right)}\n\n            def walk(left, right, where, depth):\n                nonlocal visited, limited\n                if difference is not None:\n                    return\n                if visited >= visited_limit:\n                    limited = True\n                    return\n                visited += 1\n                if depth > depth_limit:\n                    limited = True\n                    return\n                kind = type(left)\n                if kind is not type(right):\n                    record(where, left, right, 'type')\n                elif kind is dict:\n                    # Iterator use and recursion are both bounded. No full key\n                    # union, sorting, serialization, equality, or work queue.\n                    for key in left:\n                        if visited >= visited_limit:\n                            limited = True\n                            break\n                        visited += 1\n                        if type(key) is not str or len(key) > key_limit:\n                            limited = True\n                            continue\n                        location = path(where, key)\n                        if key not in right:\n                            record(location, left[key], None, 'missing_baseline_key')\n                        else:\n                            walk(left[key], right[key], location, depth + 1)\n                        if difference is not None:\n                            return\n                    for key in right:\n                        if visited >= visited_limit:\n                            limited = True\n                            break\n                        visited += 1\n                        if type(key) is not str or len(key) > key_limit:\n                            limited = True\n                            continue\n                        if key not in left:\n                            record(path(where, key), None, right[key], 'missing_actual_key')\n                            return\n                    if len(left) != len(right):\n                        record(where, left, right, 'length')\n                elif kind is list:\n                    if len(left) != len(right):\n                        record(where, left, right, 'length')\n                        return\n                    for index in range(len(left)):\n                        if visited >= visited_limit:\n                            limited = True\n                            break\n                        walk(left[index], right[index], path(where, index), depth + 1)\n                        if difference is not None:\n                            return\n                elif kind is str:\n                    if len(left) != len(right):\n                        record(where, left, right, 'length')\n                    elif len(left) > string_limit:\n                        limited = True\n                    elif left != right:\n                        record(where, left, right)\n                elif kind in (int, bool) or left is None:\n                    if kind is int and (left.bit_length() > 64 or right.bit_length() > 64):\n                        limited = True\n                    elif left != right:\n                        record(where, left, right)\n                else:\n                    limited = True\n\n            walk(actual[category], baseline[category], category, 0)\n            states[category] = 'different' if difference is not None else 'scan_limited' if limited else 'equal'\n            scans[category] = {'visited': visited, 'limited': limited}\n            if difference is not None:\n                if len(entries) < entry_limit:\n                    entries.append(difference)\n                else:\n                    omitted += 1\n\n        result = {'schema': 1, 'status': 'FAILURE_DIAGNOSTIC_DATA_ONLY',\n                  'categories': states, 'differences': entries, 'omitted': omitted,\n                  'scan': scans, 'limits': {'visited_per_category': visited_limit,\n                  'entries': entry_limit, 'depth': depth_limit, 'string': string_limit,\n                  'key': key_limit, 'path': path_limit, 'capsule_bytes': capsule_limit},\n                  'order': 'insertion_then_list_index', 'complete': False}\n        while True:\n            raw = prefix + json.dumps(result, sort_keys=True, separators=(',', ':'), ensure_ascii=True).encode('ascii') + b'\\n'\n            if len(raw) <= capsule_limit:\n                break\n            if not entries:\n                return False\n            entries.pop()\n            result['omitted'] += 1\n        return (os.write(2, raw) if writer is None else writer(raw)) == len(raw)\n    except BaseException:\n        # Diagnostics must never replace the already established preservation\n        # failure, including failures from encoding, malformed objects, or I/O.\n        return False\n\ndef verify(actual,baseline):",
+        "before": "def verify(actual,baseline):",
+        "count": 1
+      },
+      {
+        "after": "def verify(actual,baseline):\n    try:\n        need(actual==baseline,'complete installed inventory/payload/hardlink/nonselected DB preservation differs')\n    except ValueError:\n        try:preservation_failure_DATA(actual,baseline)\n        except Exception:pass\n        raise\n    return True",
+        "before": "def verify(actual,baseline):\n    need(actual==baseline,'complete installed inventory/payload/hardlink/nonselected DB preservation differs');return True",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "after_path": "implementation/factory/factory.py",
+    "before_path": "parent574/factory/factory.py",
+    "seams": [
+      {
+        "after": "'len(baseline)==607'",
+        "before": "'len(baseline)==606'",
+        "count": 1
+      },
+      {
+        "after": "'len(inventory())==605'",
+        "before": "'len(inventory())==604'",
+        "count": 1
+      },
+      {
+        "after": "\"len(missing['inventory'])==605\"",
+        "before": "\"len(missing['inventory'])==604\"",
+        "count": 1
+      },
+      {
+        "after": "'len(inventory)==607'",
+        "before": "'len(inventory)==606'",
+        "count": 1
+      },
+      {
+        "after": "'present_count=607,absent_count=605'",
+        "before": "'present_count=606,absent_count=604'",
+        "count": 1
+      },
+      {
+        "after": "\"result.get('present_count')==607 and result.get('absent_count')==605 and len(result.get('inventory',{}))==607\"",
+        "before": "\"result.get('present_count')==606 and result.get('absent_count')==604 and len(result.get('inventory',{}))==606\"",
+        "count": 1
+      },
+      {
+        "after": "shutil.copyfile(HERE/'installed607.py',out/'installed606.py')",
+        "before": "(out/'installed606.py').write_text(installed.replace('604','606'))",
+        "count": 1
+      },
+      {
+        "after": "rows[0]['receipt']['packages']==607",
+        "before": "rows[0]['receipt']['packages']==606",
+        "count": 1
+      },
+      {
+        "after": "PASS_LATEST607_WELCOME8_",
+        "before": "PASS_CURRENT606_WELCOME8_",
+        "count": 1
+      },
+      {
+        "after": "EMITTED_LATEST607_WELCOME8_GUI_SOURCE_ONLY",
+        "before": "EMITTED_CURRENT606_WELCOME8_GUI_SOURCE_ONLY",
+        "count": 1
+      },
+      {
+        "after": "UNBOUND_LATEST607_GUI_CODE_ONLY_RUNTIME_REFUSES",
+        "before": "UNBOUND_CURRENT606_GUI_CODE_ONLY_RUNTIME_REFUSES",
+        "count": 1
+      },
+      {
+        "after": "packages=607,optional_absent=605",
+        "before": "packages=606,optional_absent=604",
+        "count": 1
+      },
+      {
+        "after": "failure_cleanup.selected_plan(containers,images,image,base_reference,(out/'fixture').is_dir(),report,active,qmp)",
+        "before": "failure_cleanup.plan(containers,images,image,base_reference,(out/'fixture').is_dir())",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "after_path": "implementation/factory/inventory_capacity.py",
+    "before_path": "parent574/factory/inventory_capacity.py",
+    "seams": [
+      {
+        "after": "SPEC={'M2_performance': 'NOT_RUN', 'acceptance': False, 'actual': None, 'caller_seconds': 60, 'default_caller_seconds': 35, 'native_hotspot': 'UNKNOWN', 'old35_fit': 'NOT_ESTABLISHED', 'original_helpers': {'apps16_diagnostic.py': {'bytes': 6163, 'sha256': '9a39513103a495329eeb3eded4564570ae02f3e41fe7d1f149de921eecf4c1b4'}, 'apps16_runtime.py': {'bytes': 1948, 'sha256': 'df9d658794732b4a54c5eaf83037f54e64e87dde9c6d26b28672181893c77750'}, 'current_products.py': {'bytes': 7085, 'sha256': 'bee451f3818f2bded58f35c513d170d17993c87dbb52ba0d5ffe9a96c94df5b2'}}, 'product_scan_seconds': 30, 'profile': 'GUI_TCG_INVENTORY_CALLER_60_V1', 'ref': None, 'run': None, 'schema_version': 1, 'scope': 'OPT_IN_VM_FUNCTIONAL_VALIDATION_ONLY_NOT_PERFORMANCE', 'source': None, 'stage_elapsed_data_limit_seconds': 65}",
+        "before": "SPEC={'schema_version': 1, 'profile': 'GUI_TCG_INVENTORY_CALLER_60_V1', 'scope': 'OPT_IN_VM_FUNCTIONAL_VALIDATION_ONLY_NOT_PERFORMANCE', 'caller_seconds': 60, 'product_scan_seconds': 30, 'default_caller_seconds': 35, 'stage_elapsed_data_limit_seconds': 65, 'old35_fit': 'NOT_ESTABLISHED', 'M2_performance': 'NOT_RUN', 'native_hotspot': 'UNKNOWN', 'acceptance': False, 'source': None, 'ref': None, 'run': None, 'actual': None, 'original_helpers': {'apps16_diagnostic.py': {'bytes': 6163, 'sha256': '9a39513103a495329eeb3eded4564570ae02f3e41fe7d1f149de921eecf4c1b4'}, 'apps16_runtime.py': {'bytes': 1948, 'sha256': 'df9d658794732b4a54c5eaf83037f54e64e87dde9c6d26b28672181893c77750'}, 'current_products.py': {'bytes': 7085, 'sha256': '5c0955b254813537f6b87cfad718afb05768ae12e3a5d7765b101c3c124a005e'}}}",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "after_path": "implementation/latest_common.py",
+    "before_path": "implementation/input-helpers/common.py",
+    "seams": [
+      {
+        "after": "HERE/'input-profile.json'",
+        "before": "HERE/'profile.json'",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "after_path": "implementation/accepted_inputs.py",
+    "before_path": "implementation/input-helpers/accepted.py",
+    "seams": [
+      {
+        "after": "import latest_common as C\nfrom closed_data import names",
+        "before": "import common as C",
+        "count": 1
+      },
+      {
+        "after": "names(root,admin=True)",
+        "before": "{q.relative_to(root).as_posix()for q in root.rglob('*')if q.is_file()and'.git'not in q.parts}",
+        "count": 1
+      },
+      {
+        "after": "names(root)",
+        "before": "{p.relative_to(root).as_posix()for p in root.rglob('*')if p.is_file()}",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "after_path": "implementation/factory/service_capacity.py",
+    "before_path": "parent574/factory/service_capacity.py",
+    "seams": [
+      {
+        "after": "SPEC={'M2_performance': 'NOT_RUN', 'acceptance': False, 'actual': None, 'cleanup_seconds': 450, 'current1800_fit': 'NOT_ESTABLISHED', 'default_loop_seconds': 1300, 'default_owner_wait_seconds': 2200, 'default_runtime_seconds': 1750, 'default_service_seconds': 1200, 'doctor_profile_seconds': 1080, 'inventory_caller_seconds': 60, 'loop_seconds': 1900, 'native_hotspot': 'UNKNOWN', 'native_owner_seconds': 6600, 'observation_seconds': 600, 'old1200_fit': 'NOT_ESTABLISHED', 'original_helpers': {'doctor_lifetime.py': {'bytes': 14227, 'sha256': '317f020b3b9e2a1bf15156d29399162915c8b3bd23531181921d7169ca4a21be'}, 'factory.py': {'bytes': 20766, 'sha256': 'b68cb2a5116cd3e67823ef08fcd567a05941adbd5bdbad372e45cbaeb6e655a3'}, 'run.py': {'bytes': 6065, 'sha256': 'ea3cc4132ddac813d78daac6219062556afd99b25012969f7fe12c74b606b4ca'}}, 'owner_wait_seconds': 2800, 'product_scan_seconds': 30, 'profile': 'GUI_TCG_SERVICE_1800_V1', 'ref': None, 'run': None, 'runtime_seconds': 2350, 'schema_version': 1, 'scope': 'OPT_IN_VM_FUNCTIONAL_VALIDATION_ONLY_NOT_PERFORMANCE', 'service_purpose': 'TCG_VALIDATION_FIXTURE_SERVICE_1800S', 'service_seconds': 1800, 'source': None}",
+        "before": "SPEC={'schema_version': 1, 'profile': 'GUI_TCG_SERVICE_1800_V1', 'scope': 'OPT_IN_VM_FUNCTIONAL_VALIDATION_ONLY_NOT_PERFORMANCE', 'service_seconds': 1800, 'service_purpose': 'TCG_VALIDATION_FIXTURE_SERVICE_1800S', 'loop_seconds': 1900, 'runtime_seconds': 2350, 'owner_wait_seconds': 2800, 'default_service_seconds': 1200, 'default_loop_seconds': 1300, 'default_runtime_seconds': 1750, 'default_owner_wait_seconds': 2200, 'doctor_profile_seconds': 1080, 'observation_seconds': 600, 'cleanup_seconds': 450, 'native_owner_seconds': 6600, 'product_scan_seconds': 30, 'inventory_caller_seconds': 60, 'old1200_fit': 'NOT_ESTABLISHED', 'current1800_fit': 'NOT_ESTABLISHED', 'M2_performance': 'NOT_RUN', 'native_hotspot': 'UNKNOWN', 'acceptance': False, 'source': None, 'ref': None, 'run': None, 'actual': None, 'original_helpers': {'doctor_lifetime.py': {'bytes': 14227, 'sha256': '317f020b3b9e2a1bf15156d29399162915c8b3bd23531181921d7169ca4a21be'}, 'factory.py': {'bytes': 20774, 'sha256': 'f027487f5be2585263ff2f1797da88c875399f5e1d5a3e2af262a0697c6c0640'}, 'run.py': {'bytes': 6067, 'sha256': 'e1da28d9625ed98eca05ef5f78a35bd5af70d4c2f83079c02efba886fe562be0'}}}",
+        "count": 1
+      },
+      {
+        "after": "SPEC={'M2_performance': 'NOT_RUN', 'acceptance': False, 'actual': None, 'cleanup_seconds': 450, 'current1800_fit': 'NOT_ESTABLISHED', 'default_loop_seconds': 1300, 'default_owner_wait_seconds': 2200, 'default_runtime_seconds': 1750, 'default_service_seconds': 1200, 'doctor_profile_seconds': 1080, 'inventory_caller_seconds': 60, 'loop_seconds': 1900, 'native_hotspot': 'UNKNOWN', 'native_owner_seconds': 6600, 'observation_seconds': 600, 'old1200_fit': 'NOT_ESTABLISHED', 'original_helpers': {'doctor_lifetime.py': {'bytes': 14227, 'sha256': '317f020b3b9e2a1bf15156d29399162915c8b3bd23531181921d7169ca4a21be'}, 'factory.py': {'bytes': 20793, 'sha256': 'dd2bebb61a5c5e75f96b2a4fbb2d768e0a89ea8f641fb48d392bcd5d8333647d'}, 'run.py': {'bytes': 6065, 'sha256': 'ea3cc4132ddac813d78daac6219062556afd99b25012969f7fe12c74b606b4ca'}}, 'owner_wait_seconds': 2800, 'product_scan_seconds': 30, 'profile': 'GUI_TCG_SERVICE_1800_V1', 'ref': None, 'run': None, 'runtime_seconds': 2350, 'schema_version': 1, 'scope': 'OPT_IN_VM_FUNCTIONAL_VALIDATION_ONLY_NOT_PERFORMANCE', 'service_purpose': 'TCG_VALIDATION_FIXTURE_SERVICE_1800S', 'service_seconds': 1800, 'source': None}",
+        "before": "SPEC={'M2_performance': 'NOT_RUN', 'acceptance': False, 'actual': None, 'cleanup_seconds': 450, 'current1800_fit': 'NOT_ESTABLISHED', 'default_loop_seconds': 1300, 'default_owner_wait_seconds': 2200, 'default_runtime_seconds': 1750, 'default_service_seconds': 1200, 'doctor_profile_seconds': 1080, 'inventory_caller_seconds': 60, 'loop_seconds': 1900, 'native_hotspot': 'UNKNOWN', 'native_owner_seconds': 6600, 'observation_seconds': 600, 'old1200_fit': 'NOT_ESTABLISHED', 'original_helpers': {'doctor_lifetime.py': {'bytes': 14227, 'sha256': '317f020b3b9e2a1bf15156d29399162915c8b3bd23531181921d7169ca4a21be'}, 'factory.py': {'bytes': 20766, 'sha256': 'b68cb2a5116cd3e67823ef08fcd567a05941adbd5bdbad372e45cbaeb6e655a3'}, 'run.py': {'bytes': 6065, 'sha256': 'ea3cc4132ddac813d78daac6219062556afd99b25012969f7fe12c74b606b4ca'}}, 'owner_wait_seconds': 2800, 'product_scan_seconds': 30, 'profile': 'GUI_TCG_SERVICE_1800_V1', 'ref': None, 'run': None, 'runtime_seconds': 2350, 'schema_version': 1, 'scope': 'OPT_IN_VM_FUNCTIONAL_VALIDATION_ONLY_NOT_PERFORMANCE', 'service_purpose': 'TCG_VALIDATION_FIXTURE_SERVICE_1800S', 'service_seconds': 1800, 'source': None}",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "after_path": "implementation/factory/build_scope.py",
+    "before_path": "parent574/factory/build_scope.py",
+    "seams": [
+      {
+        "after": "\n# Explicit607 facade: original606/controller590 functions and defaults stay whole.\ndef selected607():\n    import types\n    space=dict(globals());original_read=read\n    def typed_read(path,cap):\n        raw=original_read(path,cap)\n        if path.name=='expected-installed.lock'and path.parent.name=='bundle':\n            need(pin(raw)==dict(bytes=12076,sha256='be35402204ba5c03d78279722afa83047c9575d2da70fb5c4064f46ed15954c5'),'whole fixed607 name/version inventory')\n            rows=raw.decode('ascii').splitlines();pairs=[r.split(' ')for r in rows]\n            need(raw.endswith(b'\\n')and len(rows)==607 and all(len(r)==2 and re.fullmatch('[a-z0-9@+_.-]+',r[0])and r[1]and not any(c.isspace()for c in r[1])for r in pairs)and len({r[0]for r in pairs})==607,'canonical complete607 inventory')\n        return raw\n    space.update(ROLES={'runtime607':('/tmp/managed604','install606.py','bundle/expected-installed.lock',607),'controller590':ROLES['controller590']},read=typed_read)\n    for name in('dockerfile','prepare','check'):\n        fn=globals()[name];space[name]=types.FunctionType(fn.__code__,space,fn.__name__,fn.__defaults__,fn.__closure__)\n    need(space['prepare'].__globals__['read']is typed_read and space['check'].__globals__['read']is typed_read,'actual executing607 prepare/check globals')\n    return types.SimpleNamespace(**space)\n",
+        "before": "",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "after_path": "implementation/factory/failure_cleanup.py",
+    "before_path": "parent574/factory/failure_cleanup.py",
+    "seams": [
+      {
+        "after": "\n# Alias-only failures are a separate exact source-owned pre-build state.\n_original_retired=retired\ndef selected_plan(containers,images,base,reference,fixture,report,active,qmp):\n    if containers or images or fixture:return plan(containers,images,base,reference,fixture)\n    need(containers==[]and images==[]and fixture is False and active is qmp is None,'no acquired GUI actors or fixture')\n    need(image(base)and type(reference)is str and re.fullmatch('cachy-asahi-desktop574-base:[a-f0-9]{32}',reference),'exact prebuild alias identity')\n    phase=report.get('build_acquisition',{});need(type(phase)is dict and type(phase.get('schema_version'))is int and phase.get('build_requested')is False,'typed prebuild phase')\n    need(report.get('build_acquisition')==dict(schema_version=1,role='runtime607',phase='ALIAS_BOUND_PRE_BUILD',build_requested=False)and report.get('commands')==[dict(argv=['docker','image','tag',base,reference],log='base-reference.log')]and report.get('frames')=={}and report.get('events')==[]and not any(k in report for k in('runtime_image','controller_image','image_build_proofs')),'only alias bound before first build intent')\n    return dict(schema_version=2,role='runtime607',phase='ALIAS_BOUND_PRE_BUILD',build_requested=False,containers=[],images=[],base_image=base,base_reference=reference,fixture=False)\ndef retired(value):\n    p=value.get('resource_acquisition',{})\n    if p.get('schema_version')!=2:return _original_retired(value)\n    need(value.get('status')=='FAIL'and p==selected_plan([],[],value['base_image'],value['base_reference'],False,value,None,None),'exact alias-only failure acquisition')\n    rows=value['cleanup'];need(type(rows)is list and len(rows)==4 and [r.get('action')for r in rows]==['check-base-alias','remove-base-alias','check-base-alias-absent','check-base-image-after-alias'],'all four ordered alias retirement rows')\n    for row in rows:need(set(row)=={'action','exit','stdout','stdout_base64'},'closed alias command row');raw(row)\n    need(raw(rows[0])==(p['base_image']+'\\n').encode()and raw(rows[1])==('Untagged: '+p['base_reference']+'\\n').encode()and raw(rows[2])==b'','exact selected alias and fresh absence outputs')\n    listed=raw(rows[3]).decode().splitlines();need(len(set(listed))==len(listed)and all(image(v)for v in listed)and p['base_image']in listed,'borrowed base freshly present')\n    need(value['base_reference_cleanup']==dict(ok=True,base_image_present=True),'original borrowed base preservation')\n    return dict(status='PASS_FAILED_PRE_BUILD_ALIAS_RETIREMENT_ONLY',GUI='FAILED_NOT_ACCEPTED',images=[],containers=[],base_image=p['base_image'],base_reference=p['base_reference'],producer='BORROWED_NOT_REMOVED')\n",
+        "before": "",
+        "count": 1
+      }
+    ]
+  }
+]
