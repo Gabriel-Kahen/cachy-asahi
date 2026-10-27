@@ -1,0 +1,557 @@
+{
+  "schema_version": 1,
+  "status": "SOURCE_ONLY_INPUT_HELD_NOT_NATIVE_ADMISSION",
+  "files": {
+    ".github/workflows/native-arm-setup7-candidate.yml": {
+      "bytes": 8694,
+      "sha256": "13e71bb32132af2fe82a1ccced33404e8402ff4b22e713a0b9c630527ef70e51",
+      "mode": 420
+    },
+    "AGENTS.md": {
+      "bytes": 1334,
+      "sha256": "a95eaf775ac935ebdfe6b9c89aad9382639671aecdaab91503e1453d4782a056",
+      "mode": 420
+    },
+    "LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+      "mode": 420
+    },
+    "Root-source-only-decision.json": {
+      "bytes": 427,
+      "sha256": "c1ffa20d0cb83e06866ba02233615df046f1ef3be4194435495a3a97a0ff9ed0",
+      "mode": 420
+    },
+    "docs/port/build-batches.md": {
+      "bytes": 9876,
+      "sha256": "fa929fe7c2206db62385c0def7a0cff5529bcfbf266561eef43e7b636788eb3b",
+      "mode": 420
+    },
+    "docs/port/rebuild-provider-bindings.md": {
+      "bytes": 3428,
+      "sha256": "522c2efbf13541a5aedcf31ae6bdc0982cbe628317eb1d96ce1d3219d22cc3a3",
+      "mode": 420
+    },
+    "docs/repository-enrollment.md": {
+      "bytes": 10984,
+      "sha256": "67963698b98954466c5fe8eb684ce88c25865089c7ffd2035646eaa44b2988b4",
+      "mode": 420
+    },
+    "docs/setup-tooling.md": {
+      "bytes": 12471,
+      "sha256": "4f74cda9d70d1e600dfa0928a2016d23d1349c1e834f3c1b69716439f1f188be",
+      "mode": 420
+    },
+    "historical/setup6-source-only-decision.json": {
+      "bytes": 1172,
+      "sha256": "b3a7146edf62fa1fc0e7c7999c9f6cb016a5385395d1d81c10d54ccbf4e2f071",
+      "mode": 420
+    },
+    "historical/setup7-native-arm-build.yml": {
+      "bytes": 8694,
+      "sha256": "13e71bb32132af2fe82a1ccced33404e8402ff4b22e713a0b9c630527ef70e51",
+      "mode": 420
+    },
+    "packages/settings/cachy-asahi-setup/.SRCINFO": {
+      "bytes": 1937,
+      "sha256": "ea17df86f974ac13bd3a697815d57d6eaba85a77cd1803a6f504afca78d7cbbe",
+      "mode": 420
+    },
+    "packages/settings/cachy-asahi-setup/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+      "mode": 420
+    },
+    "packages/settings/cachy-asahi-setup/NOTICE": {
+      "bytes": 970,
+      "sha256": "a885656c42b81e413549976eb56fa1aad59018af1cad8954f00f45cbd1c2d018",
+      "mode": 420
+    },
+    "packages/settings/cachy-asahi-setup/PKGBUILD": {
+      "bytes": 4432,
+      "sha256": "f8e39e09e5ab8c18949f0290a76fc314f54fc6e4d1ac5564682b082e92dd3c7a",
+      "mode": 420
+    },
+    "packages/settings/cachy-asahi-setup/README.md": {
+      "bytes": 17214,
+      "sha256": "4a595bf8930422c390efe99aa3926210c694257e3bd169daeedb1ed6d9936ddd",
+      "mode": 420
+    },
+    "packages/settings/cachy-asahi-setup/cachy-asahi-repository": {
+      "bytes": 19778,
+      "sha256": "38db2d45955b569a4c74c3f31d6b6c79611126238e1bbe1e5cf819f81d0fb54f",
+      "mode": 420
+    },
+    "packages/settings/cachy-asahi-setup/cachy-asahi-setup": {
+      "bytes": 43967,
+      "sha256": "d33c87447afdc4dfebd55efb4ca9c8882ee1b091f9727390db1fd002c05f7817",
+      "mode": 420
+    },
+    "packages/settings/cachy-asahi-setup/check-packaged.py": {
+      "bytes": 7628,
+      "sha256": "a36c6b0c5e5e51cee5a88b2bc2d21b292de413e3ea5664936f4097ff52e55ca6",
+      "mode": 420
+    },
+    "packages/settings/cachy-asahi-setup/check-sync.py": {
+      "bytes": 4256,
+      "sha256": "9fb6ff8f1a9304f6e55895b5d83845a8776c77669aac0ec55a58c47b25150a1a",
+      "mode": 420
+    },
+    "packages/settings/cachy-asahi-setup/repository-enrollment.md": {
+      "bytes": 10984,
+      "sha256": "67963698b98954466c5fe8eb684ce88c25865089c7ffd2035646eaa44b2988b4",
+      "mode": 420
+    },
+    "packages/settings/cachy-asahi-setup/source-provenance.json": {
+      "bytes": 1925,
+      "sha256": "ad4c1e07e4140eb79ca9dd236dff8a32bcbaa2cffdd65c9e05b5ab6dc73d7e67",
+      "mode": 420
+    },
+    "packages/settings/cachy-asahi-setup/test-sync.py": {
+      "bytes": 8042,
+      "sha256": "9596373cef5469512b6bae3e0bf1dc6a1b093012779f1488765281aef27de9b3",
+      "mode": 420
+    },
+    "packages/shells/cachy-asahi-fish-config/.SRCINFO": {
+      "bytes": 526,
+      "sha256": "7cffffec6d267324bf285edbfd69567aa8b27b617e405091e2a2696ae90c69a4",
+      "mode": 420
+    },
+    "packages/shells/cachy-asahi-fish-config/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+      "mode": 420
+    },
+    "packages/shells/cachy-asahi-fish-config/NOTICE": {
+      "bytes": 557,
+      "sha256": "19eb85ed65396056e59782ddf80fb5285ee26cad5ddf77ccb378936a2d5601c9",
+      "mode": 420
+    },
+    "packages/shells/cachy-asahi-fish-config/PKGBUILD": {
+      "bytes": 899,
+      "sha256": "a3f0e5f693a48126086ff0e8279d8d833efb8e625dfa4644fdfd2c04ff0175fa",
+      "mode": 420
+    },
+    "packages/shells/cachy-asahi-fish-config/config.fish": {
+      "bytes": 663,
+      "sha256": "223df59fe83948e1d83676f4571cd2d4ce186862adf1cc23da6d5bbd28370a1c",
+      "mode": 420
+    },
+    "packages/shells/cachy-asahi-zsh-config/.SRCINFO": {
+      "bytes": 607,
+      "sha256": "efb12bb5e6afbf584f1feb58a3fc057877faa3e9f0a4a452e9554eefd524bfdd",
+      "mode": 420
+    },
+    "packages/shells/cachy-asahi-zsh-config/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+      "mode": 420
+    },
+    "packages/shells/cachy-asahi-zsh-config/NOTICE": {
+      "bytes": 778,
+      "sha256": "20f1a90870566d337745019d5c465db48e14a566df3222c48a3320dc441e4de8",
+      "mode": 420
+    },
+    "packages/shells/cachy-asahi-zsh-config/PKGBUILD": {
+      "bytes": 1012,
+      "sha256": "a0d86c532654f01edac764ad39d1173bb981a13752ad0216ea49907cd49b53e1",
+      "mode": 420
+    },
+    "packages/shells/cachy-asahi-zsh-config/config.zsh": {
+      "bytes": 702,
+      "sha256": "7639b938dca689c445b64cc307148e2d3f85c5399d51c8ce69072dcf835baa6f",
+      "mode": 420
+    },
+    "packages/shells/cachy-asahi-zsh-config/usage.md": {
+      "bytes": 1644,
+      "sha256": "19a9df455ad2c42b01eb184bdfb0b14402fe372e397fa91cc0ee28dd766bb65d",
+      "mode": 420
+    },
+    "predecessor.json": {
+      "bytes": 1575010,
+      "sha256": "98b8e31aae82ba88170cd869a2e6198057b165dd7a6a27303acdf7feeae2b0df",
+      "mode": 420
+    },
+    "scripts/build/build.py": {
+      "bytes": 11299,
+      "sha256": "e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45",
+      "mode": 420
+    },
+    "scripts/build/compare.py": {
+      "bytes": 5820,
+      "sha256": "4198864c264642b196a090a67b36185e5c194e38edc4cb928d08eb65b9f710cd",
+      "mode": 420
+    },
+    "scripts/build/container-entry.sh": {
+      "bytes": 1787,
+      "sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24",
+      "mode": 420
+    },
+    "scripts/checks/package_checks.py": {
+      "bytes": 17706,
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8",
+      "mode": 420
+    },
+    "scripts/ci/build-batch-native/README.md": {
+      "bytes": 5465,
+      "sha256": "686ba3fd94a631bd38e81ff15d5dc7da85b807e5df41be2d5f51a7b9285824c1",
+      "mode": 420
+    },
+    "scripts/ci/build-batch-native/capture_providers.py": {
+      "bytes": 6559,
+      "sha256": "05fa88140f812877094a69ecc479b3e343fcd7f5f091af6f96e2c482f3493392",
+      "mode": 420
+    },
+    "scripts/ci/build-batch-native/contract.py": {
+      "bytes": 7408,
+      "sha256": "5cc3696b529cc742f574a0f79906c5c6df43e42c18fee65b1329ec8575f4b00f",
+      "mode": 420
+    },
+    "scripts/ci/build-batch-native/planner_transport.py": {
+      "bytes": 7274,
+      "sha256": "74ea2c4d04ef0ad863e07b8754c660feac8f5177863016ea9f1cd7d72a06ca49",
+      "mode": 420
+    },
+    "scripts/ci/build-batch-native/provider_bindings.py": {
+      "bytes": 8937,
+      "sha256": "2fe041410ad65090d05636a18b4b63ae185138373a2b338b16c42d4cce87e48c",
+      "mode": 420
+    },
+    "scripts/ci/build-batch-native/retained-orphans-reader": {
+      "bytes": 20007,
+      "sha256": "559ff8554b9c93f237ddebec8f6c8ac09749ed93b6a179c06fcf513dfffe3292",
+      "mode": 420
+    },
+    "scripts/ci/build-batch-native/retained-orphans-reader.NOTICE.md": {
+      "bytes": 394,
+      "sha256": "3c2adb8f3e6ef549dc781b861c0fcf0e308b53f5f316ee891fe3117e0ac45de6",
+      "mode": 420
+    },
+    "scripts/ci/build-batch-native/test_trial.py": {
+      "bytes": 13677,
+      "sha256": "093186fcbfe6027c259713ecbd6c792890d055791dba5b5c8e407ed8360763c6",
+      "mode": 420
+    },
+    "scripts/ci/build-batch-native/trial.py": {
+      "bytes": 18780,
+      "sha256": "0d022e38fd09196c50563194822b20ad40c59199926b20cd4d6c5de5289df30e",
+      "mode": 420
+    },
+    "scripts/ci/maintained-desktop574-inputs.json": {
+      "bytes": 623664,
+      "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9",
+      "mode": 420
+    },
+    "scripts/ci/maintained_desktop574.py": {
+      "bytes": 22367,
+      "sha256": "27ba4be42cf2bd41675073e07cccc917ae033f9d68b07a33cfd7f074ac27b760",
+      "mode": 420
+    },
+    "scripts/ci/old_four_seed.py": {
+      "bytes": 29048,
+      "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7",
+      "mode": 420
+    },
+    "scripts/ci/setup6-retained-helpers/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+      "mode": 420
+    },
+    "scripts/ci/setup6-retained-helpers/NOTICE.md": {
+      "bytes": 1018,
+      "sha256": "6a3649fc4e0d0ee18a7399ada57d9fa8c1b8c97232ba46efd5da511c72a74141",
+      "mode": 420
+    },
+    "scripts/ci/setup6-retained-helpers/README.md": {
+      "bytes": 5928,
+      "sha256": "8adfe6bcbbf4e923e7211ed2d0fec62f999c05d1e2cfc87fa8c30f38397c1f29",
+      "mode": 420
+    },
+    "scripts/ci/setup6-retained-helpers/archive_prefill.py": {
+      "bytes": 4717,
+      "sha256": "2090bd8098783834ac7b11a19eb3d8cd047b7de5b01f77ddc4bb60cd57bea726",
+      "mode": 420
+    },
+    "scripts/ci/setup6-retained-helpers/caller-adoption.json": {
+      "bytes": 1591,
+      "sha256": "af0304c071a79910b0206b347e697190305307b7aec920770db40fd2b40654c3",
+      "mode": 420
+    },
+    "scripts/ci/setup6-retained-helpers/carrier-profile.json": {
+      "bytes": 195440,
+      "sha256": "4089fd798849cafda23d03c0dd95ac896a83fd63ad21e331ae420c147535586c",
+      "mode": 420
+    },
+    "scripts/ci/setup6-retained-helpers/compiler6-profile.json": {
+      "bytes": 1898,
+      "sha256": "74a1ee6d14507f35f52692da7cac580a993c9a2fe2a64cf1d7766f830a3693d1",
+      "mode": 420
+    },
+    "scripts/ci/setup6-retained-helpers/compiler_policy.py": {
+      "bytes": 11090,
+      "sha256": "5e448ef6677fc26485e044b3ac2d35a07105703d4f1a719bb7c030678eff87ae",
+      "mode": 420
+    },
+    "scripts/ci/setup6-retained-helpers/compiler_prefill.py": {
+      "bytes": 4486,
+      "sha256": "a0d9e765deb7d31f6b4e1d608cb0459a0244e19990a1da2b83452d7c53202810",
+      "mode": 420
+    },
+    "scripts/ci/setup6-retained-helpers/control-evidence.json": {
+      "bytes": 4140,
+      "sha256": "ae9aca642ea8d8ad9e69ba1251898e6cfb85db0248c8243202cc29c3651dd5be",
+      "mode": 420
+    },
+    "scripts/ci/setup6-retained-helpers/desktop574-inputs.lock.json": {
+      "bytes": 623664,
+      "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9",
+      "mode": 420
+    },
+    "scripts/ci/setup6-retained-helpers/genuine-publications.json": {
+      "bytes": 219793,
+      "sha256": "64e56c2631b40625a39eeba2306d0e9ee3e48c81f48563eff844a01ac26eb72d",
+      "mode": 420
+    },
+    "scripts/ci/setup6-retained-helpers/index.json": {
+      "bytes": 184344,
+      "sha256": "51a53c9e0d9eab1728f350f9ab8d3d7b8932891ab0ed68c7876a1440166ff486",
+      "mode": 420
+    },
+    "scripts/ci/setup6-retained-helpers/legacy-prefill-profile.json": {
+      "bytes": 1510,
+      "sha256": "9cc82d4e0947415ecad9d40094a4c0a2709d01be54513e78af8c739fd76fb696",
+      "mode": 420
+    },
+    "scripts/ci/setup6-retained-helpers/legacy_prefill.py": {
+      "bytes": 5986,
+      "sha256": "05a91a91efd69b3b2e06561f5bbf08bdbb105998d42dbf133e75fd1fe25945ac",
+      "mode": 420
+    },
+    "scripts/ci/setup6-retained-helpers/native-inputs.lock.json": {
+      "bytes": 328101,
+      "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f",
+      "mode": 420
+    },
+    "scripts/ci/setup6-retained-helpers/prepare.py": {
+      "bytes": 3749,
+      "sha256": "6c688c315cb962c641b8c0b1d9d88f94778d57ae19bcef251e88e49cb4be6316",
+      "mode": 420
+    },
+    "scripts/ci/setup6-retained-helpers/seed.py": {
+      "bytes": 6658,
+      "sha256": "76b787fa71b121ec1bf83b86e4d5db849913614bc90e03239b869d7061af1db4",
+      "mode": 420
+    },
+    "scripts/ci/setup6-retained-helpers/test_cli.py": {
+      "bytes": 5285,
+      "sha256": "3e768a7ed16c5533411207559be747dfae0649b6d7bbdfb47914b447a49ad7dd",
+      "mode": 420
+    },
+    "scripts/ci/setup6-retained-helpers/test_seed.py": {
+      "bytes": 2644,
+      "sha256": "0f4e34d3cb7024b656b3288b22eb0e6303b642153bb7d571841617329ac6cf0c",
+      "mode": 420
+    },
+    "scripts/ci/setup7-native/README.md": {
+      "bytes": 2686,
+      "sha256": "a6b51cef072006ede56fe8573fd788b50c6ee722faee23a1edfd88228e404d18",
+      "mode": 420
+    },
+    "scripts/ci/setup7-native/contract.py": {
+      "bytes": 13014,
+      "sha256": "e5ed303a940bcae70ec426d361d377e808276447c46b05acda918397aaca7b6d",
+      "mode": 420
+    },
+    "scripts/ci/setup7-native/exercise.py": {
+      "bytes": 7751,
+      "sha256": "214343cec53a807953713b778adf56122abcaf8ec731f47abe1e1511572b65f4",
+      "mode": 420
+    },
+    "scripts/ci/setup7-native/freeze.py": {
+      "bytes": 3243,
+      "sha256": "43385d7d66a29649283c2324f6996f8d94a9146e707ecc058e788a2a338e0662",
+      "mode": 420
+    },
+    "scripts/ci/setup7-native/job.py": {
+      "bytes": 492,
+      "sha256": "a8c880fdf56283223b37461af9945e82d475a57aca98c3a46ed017b407c6a4dd",
+      "mode": 420
+    },
+    "scripts/ci/setup7-native/lifecycle.py": {
+      "bytes": 9323,
+      "sha256": "7f3e28aa64150ed656f4eb401fd2c05736fa442aa942841b7dbd68b1a51acc65",
+      "mode": 420
+    },
+    "scripts/ci/setup7-native/prepare.py": {
+      "bytes": 5537,
+      "sha256": "7b734cc24790da01f37da454f59bcefe8fdb2c0a5f9f4dcbafc1e631852a45f4",
+      "mode": 420
+    },
+    "scripts/ci/setup7-native/producer.py": {
+      "bytes": 1424,
+      "sha256": "df94b5a7dc5379c323e046be3f1331dd38727533c4048b0b6ea3ad640fe54839",
+      "mode": 420
+    },
+    "scripts/ci/setup7-native/recovery_preview.py": {
+      "bytes": 5541,
+      "sha256": "22c61a95bd55b44abd7c2cc970ce7e8ed4b3f995a5b3a9b9d7fe47ba00a42955",
+      "mode": 420
+    },
+    "scripts/ci/setup7-native/retained-inputs.json": {
+      "bytes": 9761,
+      "sha256": "3a980f857aa4831a7dedadbddaf60525ff9d4965570963506c6ebae328431c33",
+      "mode": 420
+    },
+    "scripts/ci/setup7-native/retained.py": {
+      "bytes": 4007,
+      "sha256": "445047812eb9d244ffda0aa9c6b3eabe9fae1dd9a06536283284f7c1aac6338a",
+      "mode": 420
+    },
+    "scripts/ci/setup7-native/retained5.py": {
+      "bytes": 2964,
+      "sha256": "5912d292e5f01a4abf4b8ae2db65c015656c77ce7d2366624f9f6ff3a98e76d4",
+      "mode": 420
+    },
+    "scripts/ci/setup7-native/run.py": {
+      "bytes": 1284,
+      "sha256": "bafda8ffc0b0522f50c3dfe4abc03a1ac0326777c6f95d8f2a6f8db4fcf85041",
+      "mode": 420
+    },
+    "scripts/ci/setup7-native/setup5-carrier.json": {
+      "bytes": 24900,
+      "sha256": "2b99611f2b364f81c3ebcc39e776240b4e21d8beb0f35dafb0c5d357d1ad4c0a",
+      "mode": 420
+    },
+    "scripts/ci/setup7-native/source-manifest.json": {
+      "bytes": 21000,
+      "sha256": "84b8c2064736289403f67837a51fa17fc3a45e5b6f74b235a3b7aa19061d95c8",
+      "mode": 420
+    },
+    "scripts/ci/setup7-native/source-pins.json": {
+      "bytes": 8445,
+      "sha256": "5f2f8d57fc7ffc74baedcc4b879bf8082800982c1852e4b5bf46256874bb255f",
+      "mode": 420
+    },
+    "scripts/ci/setup7-native/test_native.py": {
+      "bytes": 27995,
+      "sha256": "f3937b908c288c90743692356129fd31f48fe956542f77d4649b77739ef95685",
+      "mode": 420
+    },
+    "scripts/ci/test_maintained_desktop574.py": {
+      "bytes": 19082,
+      "sha256": "e5d7dc11d1a59cf37a273e9a7103c7e55b169335b17c599990946f4e677ca974",
+      "mode": 420
+    },
+    "scripts/ci/tools-native/job.py": {
+      "bytes": 13110,
+      "sha256": "67dc1b888974303e59aa5d68cc68cfd362c3d0fe730ef93585121d69ac6aab1c",
+      "mode": 420
+    },
+    "scripts/ci/tools-native/run.py": {
+      "bytes": 8992,
+      "sha256": "d13738494fd6cf66cb4f243a53eb2a33b91f74f0c692f42fe5464d48acd69f48",
+      "mode": 420
+    },
+    "scripts/ci/welcome-native/ci/caller.py": {
+      "bytes": 8363,
+      "sha256": "cf80f438eff180b73ae9676e2145b56ba6a358fd9a69bb219e0a7a6f53ff01df",
+      "mode": 420
+    },
+    "scripts/ci/welcome-native/lifecycle.py": {
+      "bytes": 12278,
+      "sha256": "b87831eea710dbf18cb3ab3aa7bf49856d26bebbd3e684861dcab7dc1d337c74",
+      "mode": 420
+    },
+    "scripts/ci/welcome-native/run.py": {
+      "bytes": 12766,
+      "sha256": "52112b49ea98b5aef131b8bcbcc188bcc59cc3a4827161091d4e86af14d2757c",
+      "mode": 420
+    },
+    "scripts/maintenance/build_batch.py": {
+      "bytes": 34362,
+      "sha256": "b2e27ed00ba4c795762e313a15e791b9dc7a9503d5d7078b1603d725d54137d5",
+      "mode": 420
+    },
+    "scripts/maintenance/rebuild_plan.py": {
+      "bytes": 25822,
+      "sha256": "472f9bb621d78f79f5016a662b7f72eb03e995dae787c7846bc1f947ff21313c",
+      "mode": 420
+    },
+    "scripts/maintenance/test_build_batch.py": {
+      "bytes": 27797,
+      "sha256": "1b216fbb86527a236b90751074ed7b9697b5b4192df19bb2a69c8b61ec4ea7bc",
+      "mode": 420
+    },
+    "scripts/maintenance/test_build_batch_e2e.py": {
+      "bytes": 15650,
+      "sha256": "ac8d96e2e20f7b7ae81853b62671a5c8bfa5c855ed537dbfb89e2ca0bd0ce24b",
+      "mode": 420
+    },
+    "scripts/maintenance/test_rebuild_plan.py": {
+      "bytes": 16266,
+      "sha256": "37ae036f8bb239fb3479fd40ef3e32bfddd048667636a658f9fd0b5a94f8b0c8",
+      "mode": 420
+    },
+    "scripts/maintenance/test_rebuild_provider_selections.py": {
+      "bytes": 10491,
+      "sha256": "9f5ba3d01f486ddf47dab365056b18cb928fab56ad6e1c554c0912c508205712",
+      "mode": 420
+    },
+    "scripts/release/check_source_pins.py": {
+      "bytes": 9981,
+      "sha256": "9b78c348e2d567f44f656285f6a562220cadead7025f1e0db2eb9a53d9f09ea3",
+      "mode": 420
+    },
+    "scripts/release/release.py": {
+      "bytes": 41320,
+      "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435",
+      "mode": 420
+    },
+    "scripts/release/source_delivery.py": {
+      "bytes": 16456,
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e",
+      "mode": 420
+    },
+    "scripts/repository/enroll.py": {
+      "bytes": 19778,
+      "sha256": "38db2d45955b569a4c74c3f31d6b6c79611126238e1bbe1e5cf819f81d0fb54f",
+      "mode": 420
+    },
+    "scripts/setup/setup.py": {
+      "bytes": 43967,
+      "sha256": "d33c87447afdc4dfebd55efb4ca9c8882ee1b091f9727390db1fd002c05f7817",
+      "mode": 420
+    },
+    "scripts/setup/test_recovery_preview.py": {
+      "bytes": 4922,
+      "sha256": "275105797d301bc718fd494573a087ed3494c521cf004970570cbef68e3952cb",
+      "mode": 420
+    },
+    "scripts/setup/test_setup.py": {
+      "bytes": 36670,
+      "sha256": "7738057b82125bcdc08086686821fa9ce74a82b4131cdbbcdcb9ebc7d9cefb1b",
+      "mode": 420
+    },
+    "scripts/setup/test_shell_modules.py": {
+      "bytes": 18618,
+      "sha256": "0997d3b20d82b36ef26ff3c8dec0842f42a2fc8b67ae169e6e0aef053af5c831",
+      "mode": 420
+    },
+    "scripts/setup/test_status.py": {
+      "bytes": 14303,
+      "sha256": "d24509edfd063d68597b0cff91a0fe403a4a87ac890b518e443941ae417962e9",
+      "mode": 420
+    },
+    "scripts/virtual/common.py": {
+      "bytes": 84361,
+      "sha256": "aef2b4f09a91c4cfd66dd4504e69ef18396a94214c82ae0ec0a43c2716894a03",
+      "mode": 420
+    }
+  },
+  "exclusions": [
+    "scripts/ci/build-batch-native/source-manifest.json",
+    ".github/workflows/native-arm-build.yml",
+    ".github/workflows/native-arm-build-batch-trial.yml"
+  ],
+  "workflow_binding": "Root closed source-map plus exact new hosted source/workflow revision"
+}
