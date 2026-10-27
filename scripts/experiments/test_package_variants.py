@@ -14,6 +14,9 @@ import shutil
 import subprocess
 import tarfile
 import tempfile
+import signal
+import sys
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
@@ -194,6 +197,67 @@ class Controls(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'cancelled'):
             runner.run('late', ['true'])
         self.assertEqual(len(runner.rows), 1)
+
+    def test_group_reader_excludes_zombies_and_other_sessions(self):
+        proc = self.root / 'proc'; proc.mkdir()
+        for pid, state, group, session in ((1, 'Z', 99, 99), (2, 'S', 99, 99),
+                                            (3, 'S', 99, 44), (4, 'R', 44, 99)):
+            entry = proc / str(pid); entry.mkdir()
+            (entry / 'stat').write_text(f'{pid} (name with ) spaces) {state} 0 {group} {session} 0\n')
+            (entry / 'status').write_text('Uid:\t1001 1001 1001 1001\n')
+        with patch.object(p, 'Path', return_value=proc):
+            self.assertEqual(p.live_group(99), [{'pid': 2, 'uid': 1001}])
+
+    def test_foreign_builder_cleanup_uses_existing_setuid_and_restores_root_before_reap(self):
+        runner = p.Commands(self.root, builder_uid=1001)
+        credential = [0]; members = [{'pid': 123457, 'uid': 1001}]; events = []
+        def switch(uid):
+            credential[0] = uid; events.append(('uid', uid))
+        def kill(group, sig):
+            self.assertEqual((group, sig), (123456, signal.SIGKILL))
+            if credential[0] != 1001:
+                raise PermissionError('CAP_KILL is absent')
+            events.append(('signal-as', credential[0])); members.clear()
+        def reap(**kwargs):
+            self.assertEqual(credential[0], 0); self.assertFalse(members)
+            events.append(('reap', 0)); return 0
+        row = {'status': 'PASS'}
+        with patch.object(p, 'live_group', side_effect=lambda _: list(members)), \
+             patch.object(p.os, 'getuid', return_value=0), \
+             patch.object(p.os, 'geteuid', side_effect=lambda: credential[0]), \
+             patch.object(p.os, 'seteuid', side_effect=switch), patch.object(p.os, 'killpg', side_effect=kill):
+            runner.stop(SimpleNamespace(pid=123456, wait=reap), row)
+        self.assertEqual(events, [('uid', 1001), ('signal-as', 1001), ('uid', 0), ('reap', 0)])
+        self.assertTrue(row['group_absent'] and row['leader_held_until_group_inspection'])
+
+    def test_zombie_only_group_needs_no_signal_or_added_capability(self):
+        runner = p.Commands(self.root)
+        row = {'status': 'PASS'}
+        with patch.object(p, 'live_group', return_value=[]), patch.object(p.os, 'killpg') as kill:
+            runner.stop(SimpleNamespace(pid=123456, wait=lambda **_: 0), row)
+        kill.assert_not_called(); self.assertTrue(row['group_absent'])
+
+    def test_cleanup_permission_failure_keeps_failed_command_receipt(self):
+        runner = p.Commands(self.root)
+        with patch.object(p, 'live_group', return_value=[{'pid': 1, 'uid': os.geteuid()}]), \
+             patch.object(p.os, 'killpg', side_effect=PermissionError('fixture denied')), self.assertRaises(PermissionError):
+            runner.run('build-receipt', [sys.executable, '-B', '-c', 'print("finished fixture")'])
+        row = json.loads((self.root / 'commands.json').read_text())[0]
+        self.assertEqual((row['status'], row['exit']), ('FAIL', 0))
+        self.assertIn('PermissionError', row['cleanup_error'])
+        self.assertIn('finished fixture', (self.root / row['log']).read_text())
+
+    def test_natural_leader_is_held_while_real_live_descendant_is_removed(self):
+        runner = p.Commands(self.root, seconds=5)
+        child = 'import time; time.sleep(30)'
+        script = ('import subprocess,sys,time; subprocess.Popen([sys.executable,"-B","-c",' +
+                  repr(child) + ']); time.sleep(.1); print("leader finished")')
+        output = runner.run('build-descendant', [sys.executable, '-B', '-c', script], timeout=3)
+        self.assertEqual(output, b'leader finished\n')
+        row = json.loads((self.root / 'commands.json').read_text())[0]
+        self.assertEqual(row['status'], 'PASS')
+        self.assertTrue(row['group_absent'] and row['leader_held_until_group_inspection'])
+        self.assertEqual(row['cleanup_member_uids'], [os.getuid()])
 
     @unittest.skipUnless(SOURCE and PACKAGES, 'retained source and 341-package lock are optional external fixtures')
     def test_real_context_and_tamper_refusal(self):

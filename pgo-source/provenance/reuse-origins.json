@@ -1,0 +1,95 @@
+{
+  "files": {
+    "source/LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "origin": "LICENSE",
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "source/packages/experiments/cachy-asahi-zlib-pgo-v1/LICENSE.project": {
+      "bytes": 1081,
+      "mode": 420,
+      "origin": "artifacts/development/c01-installed16k-retention-manifest-trial-root-20261027/source/packages/experiments/cachy-asahi-zlib-baseline/LICENSE.project",
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "source/packages/experiments/cachy-asahi-zlib-pgo-v1/arm_c01.py": {
+      "bytes": 66103,
+      "mode": 420,
+      "origin": "scripts/experiments/arm_c01.py",
+      "sha256": "4034990eac1036cd9fee3f7f4911f181e8b2ce6a2441c25e6e502c09cca1e2a8"
+    },
+    "source/packages/experiments/cachy-asahi-zlib-pgo-v1/corpus.py": {
+      "bytes": 3364,
+      "mode": 420,
+      "origin": "scripts/experiments/corpus.py",
+      "sha256": "dbaf951adbb91d6769f40f8fb18c13044a42a3b5db11b4ad7d1f44afbed9ad8c"
+    },
+    "source/packages/experiments/cachy-asahi-zlib-pgo-v1/pgo.py": {
+      "bytes": 19412,
+      "mode": 420,
+      "origin": "scripts/experiments/pgo.py",
+      "sha256": "71c948e55cdea6e75f91bd46751e7d4d1a5a3a81e700fe8210e2747150df69b3"
+    },
+    "source/packages/experiments/cachy-asahi-zlib-pgo-v1/probe.c": {
+      "bytes": 2822,
+      "mode": 420,
+      "origin": "artifacts/development/c01-installed16k-retention-manifest-trial-root-20261027/source/packages/experiments/cachy-asahi-zlib-baseline/probe.c",
+      "sha256": "b85bab88cdb9048f26d5e812cc1ad2b8c783292882cbe3ab804e54353e4dfee1"
+    },
+    "source/packages/experiments/cachy-asahi-zlib-pgo-v1/strict-gzip.c": {
+      "bytes": 2002,
+      "mode": 420,
+      "origin": "artifacts/development/c01-installed16k-retention-manifest-trial-root-20261027/source/packages/experiments/cachy-asahi-zlib-baseline/strict-gzip.c",
+      "sha256": "369e4e0e3f7c79b5d892edf7476ade41d6647332fb78f95ad7de7d8449bbaca9"
+    },
+    "source/packages/experiments/cachy-asahi-zlib-pgo-v1/supervisor.py": {
+      "bytes": 32520,
+      "mode": 420,
+      "origin": "artifacts/development/c01-installed16k-retention-manifest-trial-root-20261027/source/scripts/experiments/package_variants.py",
+      "sha256": "bb9dee8f7b38fde2ca69b02d625f1117418f5090921f75461ce2a04d8eee0b29"
+    },
+    "source/scripts/build/build_v2.py": {
+      "bytes": 13242,
+      "mode": 420,
+      "origin": "scripts/build/build_v2.py",
+      "sha256": "37242a5680c0cb587087042455782478dac0f574f977a5f696c97d29eac39b43"
+    },
+    "source/scripts/build/compare_v2.py": {
+      "bytes": 5963,
+      "mode": 420,
+      "origin": "scripts/build/compare_v2.py",
+      "sha256": "89c606044b587ea772d5bbab4bad55c09dc23a7080900a9ad51839b2f516215b"
+    },
+    "source/scripts/build/container-entry-v2.sh": {
+      "bytes": 2447,
+      "mode": 420,
+      "origin": "scripts/build/container-entry-v2.sh",
+      "sha256": "9be3db97efde70536a81d1c97f9ac69893a6004ab403566f8453704a2a189d2a"
+    },
+    "source/scripts/build/source_materials.py": {
+      "bytes": 7877,
+      "mode": 420,
+      "origin": "scripts/build/source_materials.py",
+      "sha256": "9b0d95d2604ae4689f081283fc671281ce13879fcb146ddf4188873b05c89e5a"
+    },
+    "source/scripts/checks/package_checks.py": {
+      "bytes": 17706,
+      "mode": 420,
+      "origin": "scripts/checks/package_checks.py",
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+    },
+    "source/scripts/maintenance/source_cache.py": {
+      "bytes": 14253,
+      "mode": 420,
+      "origin": "scripts/maintenance/source_cache.py",
+      "sha256": "3c922b1c5ea737605d7fd39aa986fa281c50bcf6926660390032e677706e28f3"
+    },
+    "source/scripts/release/source_delivery.py": {
+      "bytes": 16456,
+      "mode": 420,
+      "origin": "scripts/release/source_delivery.py",
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+    }
+  },
+  "schema": 1
+}
