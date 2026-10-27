@@ -13,6 +13,8 @@ on:
       - '.github/workflows/apps12-package.yml'
       - 'LICENSE'
   push:
+    branches: [main, codex/virtual-integration]
+    tags: ['**']
     paths:
       - 'packages/tools/cachy-asahi-apps12/**'
       - 'packages/tools/cachy-asahi-apps7/**'

@@ -228,18 +228,173 @@ def human(report):
     return '\n'.join(lines)+'\n'
 
 
+REPORT_BYTES=128*1024
+STATES=('checked','unknown','unavailable')
+
+
+def require(condition):
+    if not condition:raise ValueError('unsupported or malformed doctor report')
+
+
+def fields(value,names):
+    require(type(value) is dict and set(value)==set(names.split()))
+
+
+def token(value,pattern=r'[A-Za-z0-9][A-Za-z0-9._+~:@-]{0,127}'):
+    return type(value) is str and re.fullmatch(pattern,value) is not None
+
+
+def duplicate_free(pairs):
+    result={}
+    for key,value in pairs:
+        require(key not in result);result[key]=value
+    return result
+
+
+def invalid_number(_):raise ValueError('unsupported number')
+
+
+def read_report(path):
+    """Read only bounded ordinary files; never follow symlinks or wait on a FIFO."""
+    path=Path(os.path.abspath(path));fd=os.open('/',os.O_RDONLY|os.O_DIRECTORY)
+    try:
+        for part in path.parts[1:-1]:
+            child=os.open(part,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW,dir_fd=fd)
+            os.close(fd);fd=child
+        source=os.open(path.name,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK,dir_fd=fd)
+        try:
+            info=os.fstat(source)
+            require(stat.S_ISREG(info.st_mode) and 0<info.st_size<=REPORT_BYTES)
+            with os.fdopen(source,'rb',closefd=False) as stream:raw=stream.read(REPORT_BYTES+1)
+            require(0<len(raw)<=REPORT_BYTES)
+        finally:os.close(source)
+    finally:os.close(fd)
+    report=json.loads(raw.decode('utf-8'),object_pairs_hook=duplicate_free,
+                      parse_constant=invalid_number,parse_float=invalid_number)
+    return validate_report(report)
+
+
+def validate_report(report):
+    fields(report,'schema_version tool version collected_utc checks coverage limits scope limitations')
+    require(type(report['schema_version']) is int and report['schema_version']==1)
+    require(report['tool']=='cachy-asahi-doctor' and report['version'] in ('0.1.0','0.2.0'))
+    require(report['scope']=='local observations only')
+    stamp=report['collected_utc']
+    require(type(stamp) is str and len(stamp)<=40)
+    parsed=datetime.fromisoformat(stamp)
+    require(parsed.tzinfo is not None and parsed.utcoffset().total_seconds()==0)
+    fields(report['limits'],'command_seconds total_query_seconds command_output_bytes device_tree_bytes')
+    require(all(type(v) is int and v==LIMITS[k] for k,v in report['limits'].items()))
+    require(type(report['limitations']) is list and 1<=len(report['limitations'])<=8)
+    require(all(type(s) is str and len(s)<=512 for s in report['limitations']))
+    expected=['platform','apple-model','session','tools']
+    groups={'package/'+name:group for group,names in PACKAGES.items() for name in names}
+    expected.extend(groups)
+    expected.extend(scope+'/'+unit for scope,units in UNITS.items() for unit in units)
+    if report['version']=='0.2.0':expected.append('audio/default-output')
+    require(type(report['checks']) is list and len(report['checks'])==len(expected))
+    rows={}
+    for row in report['checks']:
+        fields(row,'check state value note');name=row['check'];state=row['state'];value=row['value']
+        require(type(name) is str and name in expected and name not in rows)
+        require(type(state) is str and state in STATES)
+        require(type(row['note']) is str and len(row['note'])<=512)
+        if name=='platform':
+            fields(value,'architecture kernel page_size_bytes')
+            require(state=='checked' and token(value['architecture']) and token(value['kernel']))
+            size=value['page_size_bytes']
+            require(type(size) is int and 1024<=size<=1048576 and size&(size-1)==0)
+        elif name=='apple-model':
+            fields(value,'identifier observed_board model model_property_available')
+            identifier=value['identifier'];board=value['observed_board']
+            require(type(value['model_property_available']) is bool)
+            require(board is None or token(board,r'apple,j[0-9]{3,4}[a-z]?'))
+            if state=='checked':require(type(identifier) is str and identifier in MODELS and board==identifier and value['model']==MODELS[identifier])
+            else:require(identifier is None and value['model'] is None)
+        elif name=='session':
+            fields(value,'type wayland_environment hyprland_environment')
+            require(value['type'] in ('wayland','x11','tty','unknown'))
+            require(state==('unknown' if value['type']=='unknown' else 'checked'))
+            require(all(type(value[k]) is bool for k in ('wayland_environment','hyprland_environment')))
+        elif name=='tools':
+            require(type(value) is dict and set(value)==set(TOOLS) and state=='checked')
+            require(all(type(v) is bool for v in value.values()))
+        elif name in groups:
+            fields(value,'group presence version');presence=value['presence'];version=value['version']
+            require(value['group']==groups[name])
+            if state=='checked':require(presence=='present' and token(version) or presence=='absent' and version is None)
+            else:require(presence=='unknown' and version is None)
+        elif name=='audio/default-output':
+            if state!='checked':require(value is None)
+            else:
+                fields(value,'displayed_volume muted default_sink_responded')
+                require(token(value['displayed_volume'],r'(0|[1-9][0-9]{0,3})\.[0-9]{2}'))
+                require(type(value['muted']) is bool and value['default_sink_responded'] is True)
+        elif state!='checked':require(value is None)
+        else:
+            fields(value,'LoadState ActiveState SubState')
+            require(all(token(v,r'[a-z-]{1,64}') for v in value.values()))
+            require(value['LoadState'] in ('loaded','not-found','error','masked','bad-setting','merged','stub'))
+            require(value['ActiveState'] in ('active','reloading','inactive','failed','activating','deactivating','maintenance','refreshing'))
+        rows[name]={'state':state,'value':value}
+    require(set(rows)==set(expected))
+    if rows['apple-model']['state']=='checked':require(rows['platform']['value']['architecture']=='aarch64')
+    fields(report['coverage'],'checked unknown unavailable')
+    require(all(type(v) is int and v==sum(r['state']==k for r in rows.values()) for k,v in report['coverage'].items()))
+    return dict(version=report['version'],collected_utc=stamp,rows=rows)
+
+
+def compare_reports(before,after):
+    old=before['rows'];new=after['rows']
+    left=old['apple-model']['value']['identifier'];right=new['apple-model']['value']['identifier']
+    if left is not None and right is not None and left!=right:raise ValueError('different known Apple models')
+    changes=[]
+    for name in sorted(old.keys()|new.keys()):
+        a=old.get(name);b=new.get(name)
+        if a==b:continue
+        kind='check-added' if a is None else 'check-removed' if b is None else 'state-and-value' if a['state']!=b['state'] and a['value']!=b['value'] else 'state' if a['state']!=b['state'] else 'value'
+        changes.append(dict(check=name,kind=kind,before=a,after=b))
+    return dict(schema_version=1,tool='cachy-asahi-doctor-comparison',scope='supplied observations only',
+        before={k:before[k] for k in ('version','collected_utc')},after={k:after[k] for k in ('version','collected_utc')},
+        changed=bool(changes),change_count=len(changes),unchanged_count=sum(old[k]==new[k] for k in old.keys()&new.keys()),
+        coverage={side:{state:sum(r['state']==state for r in report['rows'].values()) for state in STATES}
+                  for side,report in (('before',before),('after',after))},
+        changes=changes,limitations=['User-supplied reports are not authenticated; matching model labels do not identify the same machine.',
+            'Unknown and unavailable describe missing knowledge; neither means absent or healthy.',
+            'Observed changes do not establish update causation, health, regression, hardware behavior or performance.',
+            'Check additions/removals describe report coverage; no new observations were collected.'])
+
+
+def comparison_human(report):
+    lines=['cachy-asahi doctor — offline observation comparison',str(report['change_count'])+' changed checks; '+str(report['unchanged_count'])+' unchanged.']
+    for change in report['changes']:
+        def describe(row):
+            return 'not reported' if row is None else row['state']+' '+json.dumps(row['value'],sort_keys=True,separators=(',',':'))
+        lines.append(change['check']+': '+describe(change['before'])+' -> '+describe(change['after']))
+    if not report['changed']:lines.append('No observation changes.')
+    lines.extend(report['limitations'])
+    return '\n'.join(lines)+'\n'
+
+
 def main(argv=None):
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--json',action='store_true',help='Print the same bounded JSON to stdout')
     parser.add_argument('--output',type=Path,help='Publish private JSON to a new file; parent must exist')
+    parser.add_argument('--compare',nargs=2,type=Path,metavar=('BEFORE','AFTER'),help='Compare two supplied doctor JSON files offline; collect nothing')
     args=parser.parse_args(argv)
-    report=collect();raw=(json.dumps(report,indent=2,sort_keys=True)+'\n').encode()
+    if args.compare:
+        try:report=compare_reports(*(read_report(path) for path in args.compare))
+        except (OSError,ValueError,TypeError,KeyError,RecursionError,OverflowError):
+            print('Comparison refused: use bounded ordinary schema-1 doctor reports from supported versions and matching known models.',file=sys.stderr)
+            return 2
+    else:report=collect()
+    raw=(json.dumps(report,indent=2,sort_keys=True)+'\n').encode()
     if args.output:
         try:publish(args.output,raw)
         except (OSError,ValueError):
             print('Could not publish report. Choose a new file in an existing ordinary directory; no existing file is replaced.',file=sys.stderr)
             return 2
-    sys.stdout.write(raw.decode() if args.json else human(report))
+    sys.stdout.write(raw.decode() if args.json else comparison_human(report) if args.compare else human(report))
     if args.output and not args.json:sys.stdout.write('Private JSON report written to the requested new file.\n')
     return 0
 

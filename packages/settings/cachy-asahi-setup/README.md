@@ -1,6 +1,6 @@
 # Original setup and repository CLIs
 
-Development candidate 0.1.0-6; source/host-fixture validation only. Native package
+Development candidate 0.1.0-7; source/host-fixture validation only. Native package
 build, installation and hardware results for this revision are NOT RUN. This package ships original helpers as
 `/usr/bin/cachy-asahi-setup` and `/usr/bin/cachy-asahi-repository`, plus the repository
 guide under `/usr/share/doc/cachy-asahi-setup/repository-enrollment.md`. Runtime
@@ -9,6 +9,12 @@ uses only Python's standard library; the separate repository helper invokes GPG
 and pacman-key. Hyprland/Fish/Zsh templates and the six shell modules remain optional, separately installed
 and separately owned. No third-party files or compiled payload are bundled.
 Original material is MIT-licensed; the complete project license is installed.
+
+The installed repository guide retains source-checkout command examples, including
+`scripts/repository/rotate.py`. This package installs the enrollment/disable CLI
+as `cachy-asahi-repository`; it does not install a rotation command or a source
+checkout. Rotation examples require a separately obtained, reviewed checkout
+containing both `scripts/repository/rotate.py` and `scripts/repository/enroll.py`.
 
 Installing/upgrading/removing the package owns two CLIs and their documentation and
 notices below `/usr/share`. There are no hooks, `/etc` or default-session changes,
@@ -87,6 +93,64 @@ Existing edits that conflict with replay stop recovery and retain the journal.
 Exit codes distinguish success (0), error/refusal (1) and preserved conflicts or
 pending previewed recovery (2). Inspect all reported actions; a zero exit code is
 not hardware or package lifecycle acceptance.
+
+## Read-only user status (candidate 0.1.0-7)
+
+```sh
+cachy-asahi-setup status
+cachy-asahi-setup status --components fish zsh hyprland
+```
+
+Status inspects all nine known components by default, or the explicitly selected
+subset in deterministic source order. It creates no directories, lock files,
+configuration or state, takes no lock, and never replays, repairs or applies a
+pending transaction. `status --apply` fails before creating storage. It preserves
+user configuration and pending journals. Run with the same home/config/ZDOTDIR/
+state/template-root options used for setup. File reads may update filesystem
+access timestamps; no explicit writes are performed.
+
+The JSON contract has exact integer `schema_version: 1`, `mode: "read-only"`,
+`operation: "status"`, `state`, `pending`, `actions`, `guidance` and `exit_code`.
+`state.status` is `missing`, `valid` or `unknown`. Every selected action reports
+`component`, home-relative `path`, `ownership` (`managed`, `unmanaged`, `unknown`),
+`status`, a fixed reason code and separate `template` availability. Configuration
+contents, blocks, source-root paths, checksums and underlying exception details
+are never printed. Paths are the known configuration targets; action selection
+never hides a blocked pending journal.
+
+| Action status | Meaning |
+| --- | --- |
+| `clean` | Recorded owned file/block matches, including owned shell source order. Unrelated user bytes may differ. |
+| `drifted` | Recorded owned file or marked shell block changed. |
+| `missing` | Recorded target or owned shell block is absent. |
+| `conflicting` | Unrecorded Hyprland file/markers, duplicate owned markers or reordered owned shell sources. No ownership is adopted. |
+| `unmanaged` | No ownership record and no conflicting tool-owned content. Ordinary shell user configuration remains unmanaged. |
+| `unknown` | State/target cannot be safely read or validated. Ownership is never inferred. |
+
+`template` is `available`, `missing`, `changed` (owned Hyprland template differs
+from its recorded copy), or `unknown` (unsafe/unreadable). Shell template checks
+use the root in the validated ownership record, including an older activation
+root; Hyprland checks the selected template root. A clean owned block with a
+missing source remains visibly clean with a separate missing-template result.
+Unmanaged components need no installed optional template to report successfully.
+
+`pending.status` is `none`, `resumable`, `blocked` or `unknown`; `can_resume` is
+respectively false, true, false or null. Only an actually present validated
+journal passing the existing replay preparation is `resumable`. It includes the
+validated transaction ID and the same ordered recovery actions as `recover`.
+Invalid/unreadable journals remain `unknown`; validated journals failing current
+file/template checks remain `blocked`. This is an observation without a lock:
+concurrent writers may change files, so `recover --apply` rechecks before writing.
+
+Exit 0 means the selected observation is complete with no managed drift/conflict,
+missing managed templates, or pending recovery. Exit 2 requests review for those
+conditions or resumable recovery. Exit 1 reports an incomplete/unsafe observation
+or blocked recovery. Inspect JSON even on exit 1 or 2. Existing activate/remove/
+recover invocation and exit behavior is unchanged. Review affected components;
+preserve user edits and the journal, reconcile errors using the original root
+options, and preview explicit activate/remove/recover commands before applying.
+This revision has host temporary-user fixture evidence only. Native ARM builds,
+package installation/lifecycle, real-user profiles, M2 and release are NOT RUN.
 
 ## Explicit optional shell modules (candidate 0.1.0-5)
 

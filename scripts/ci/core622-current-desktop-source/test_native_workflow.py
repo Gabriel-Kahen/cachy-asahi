@@ -136,6 +136,8 @@ def core(workspace,env,logs,receipt,context):
  actual=[shlex.split(line[2:])for line in stderr.decode().splitlines()if line.startswith('+ python3 ')]
  wanted=[['python3','-I','-B',str(workspace/name),*[arg.replace('$GITHUB_WORKSPACE',str(workspace))for arg in arguments]]for name,arguments in EXPECTED]
  need(actual==wanted,'each of all13 literal commands executed exactly once in source order');receipt['executed_argv']=actual
+ lines=stderr.decode().splitlines();last=max(number for number,line in enumerate(lines)if line.startswith('+ python3 '));bridge_output='\n'.join(lines[last+1:]);bridge_counts=[int(n)for n in re.findall(r'^Ran (\d+) tests?\b',bridge_output,re.M)]
+ need(bridge_counts==[43],'exactly one complete Ran 43 tests summary from the final literal bridge command');receipt['bridge_tests']=43
  receipt['completed_native_workflow_commands']=13
  checked_run(receipt,['/bin/bash','--noprofile','--norc','-euo','pipefail','-c',fresh],workspace,env,logs,'fresh607-source-preflight',300)
  receipt['fresh607_source_preflight']='PASS';receipt['privileged_installer_controller']='NOT_RUN_SEPARATE_REQUIRED_SCOPE'

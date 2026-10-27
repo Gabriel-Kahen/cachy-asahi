@@ -12,6 +12,8 @@ on:
       - '.github/workflows/apps16-package.yml'
       - 'LICENSE'
   push:
+    branches: [main, codex/virtual-integration]
+    tags: ['**']
     paths:
       - 'packages/tools/cachy-asahi-apps16/**'
       - 'packages/tools/cachy-asahi-repository-runtime/**'

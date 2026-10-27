@@ -1,6 +1,8 @@
 name: static-validation
 on:
   push:
+    branches: [main, codex/virtual-integration]
+    tags: ['**']
   pull_request:
   workflow_dispatch:
     inputs:
@@ -55,6 +57,12 @@ jobs:
         env:
           APPS_COPY_RECOVERY_WORK: /tmp
         run: python3 -I -B -Werror scripts/apps/test_prepare_copy_recovery.py
+      - name: Checkout pinned historical604 runtime source for derivative controls
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 3e71f2de1810d3eb94ab1621d23a087b27ea2568
+          path: .ci-inputs/historical604-runtime
+          persist-credentials: false
       - name: Verify packaged setup source and sync boundaries
         env:
           PYTHONDONTWRITEBYTECODE: '1'
@@ -328,27 +336,43 @@ jobs:
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/maintained574-active-trial -p 'test_*.py'
           bash -n scripts/ci/maintained574-active-trial/ci_sequence.sh
       - name: Check read-only diagnostic product fixtures
-        run: python3 -B -Werror::ResourceWarning packages/tools/cachy-asahi-doctor/test_doctor.py
-      - name: Check optional Doctor2 default audio diagnostics
+        run: |
+          python3 -B -Werror::ResourceWarning packages/tools/cachy-asahi-doctor/test_doctor.py
+          python3 -B -Werror::ResourceWarning packages/tools/cachy-asahi-doctor/test_comparison.py
+      - name: Check optional Doctor2 default audio and offline comparison diagnostics
         run: |
           python3 -B -Werror::ResourceWarning packages/tools/cachy-asahi-doctor2/test_doctor.py
           python3 -B -Werror::ResourceWarning packages/tools/cachy-asahi-doctor2/test_audio.py
+          python3 -B -Werror::ResourceWarning packages/tools/cachy-asahi-doctor2/test_comparison.py
           bash -n packages/tools/cachy-asahi-doctor2/PKGBUILD
-      - name: Checkout exact Doctor2 native source context
+      - name: Checkout exact historical Doctor2 native source context
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           ref: 705c5a095f9cabbfd2f3cd137127f4bbc7665f52
           path: .ci-inputs/doctor2-native-source
           persist-credentials: false
-      - name: Check and stage separate Doctor2 native default source
+      - name: Check and stage exact historical Doctor2 native default source
         env:
-          DOCTOR2_CURRENT_SOURCE: ${{ github.workspace }}
+          DOCTOR2_CURRENT_SOURCE: ${{ github.workspace }}/.ci-inputs/doctor2-native-source
           DOCTOR2_NATIVE_SOURCE: ${{ github.workspace }}/.ci-inputs/doctor2-native-source
         run: |
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/doctor2-native-source -p test_prepare.py
-          python3 -B scripts/ci/doctor2-native-source/prepare.py --current-root "$GITHUB_WORKSPACE" --native-root "$GITHUB_WORKSPACE/.ci-inputs/doctor2-native-source" --output "$RUNNER_TEMP/doctor2-native-static"
-      - name: Check complete Doctor2 native default context without actors
+          python3 -B scripts/ci/doctor2-native-source/prepare.py --current-root "$DOCTOR2_CURRENT_SOURCE" --native-root "$DOCTOR2_NATIVE_SOURCE" --output "$RUNNER_TEMP/doctor2-native-static"
+      - name: Check complete historical Doctor2 native default context without actors
         working-directory: ${{ runner.temp }}/doctor2-native-static
+        run: |
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-native -p test_native.py
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-native/ci -p test_caller.py
+      - name: Check and stage maintained Doctor2 comparison default source
+        env:
+          DOCTOR2_COMPARISON_CURRENT_SOURCE: ${{ github.workspace }}
+          DOCTOR2_NATIVE_SOURCE: ${{ github.workspace }}/.ci-inputs/doctor2-native-source
+          DOCTOR2_HISTORICAL_FACTORY: ${{ github.workspace }}/scripts/ci/doctor2-native-source
+        run: |
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/doctor2-comparison-native-source -p test_prepare.py
+          python3 -B scripts/ci/doctor2-comparison-native-source/prepare.py --current-root "$DOCTOR2_COMPARISON_CURRENT_SOURCE" --native-root "$DOCTOR2_NATIVE_SOURCE" --historical-factory-root "$DOCTOR2_HISTORICAL_FACTORY" --output "$RUNNER_TEMP/doctor2-comparison-native-static"
+      - name: Check complete maintained Doctor2 comparison default context without actors
+        working-directory: ${{ runner.temp }}/doctor2-comparison-native-static
         run: |
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-native -p test_native.py
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-native/ci -p test_caller.py
@@ -413,7 +437,7 @@ jobs:
       - name: Check default Welcome5 stored-DNS GUI source without actors or public activation
         run: >-
           python3 -I -B scripts/ci/welcome5-native-gui/source_check.py
-          --source "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/welcome5-gui-default-source"
+          --source "$GITHUB_WORKSPACE/.ci-inputs/historical604-runtime" --output "$RUNNER_TEMP/welcome5-gui-default-source"
       - name: Check current TEST certificate projection for the Welcome5 guest fixture
         run: >-
           python3 -I -B -Werror::ResourceWarning scripts/ci/welcome5-native-gui/test_lane.py
@@ -663,12 +687,6 @@ jobs:
             --setup5-carrier "$GITHUB_WORKSPACE/artifacts/development/setup5-accepted-pair-inputs-20261016/payload" \
             --output "$work/source"
           python3 -B -Werror::ResourceWarning -m unittest discover -s "$work/source/scripts/ci/setup5-native" -p 'test_*.py'
-      - name: Checkout pinned historical604 runtime source for derivative controls
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        with:
-          ref: 3e71f2de1810d3eb94ab1621d23a087b27ea2568
-          path: .ci-inputs/historical604-runtime
-          persist-credentials: false
       - name: Fetch three exact passive replay operands into historical604 context
         working-directory: ${{ github.workspace }}/.ci-inputs/historical604-runtime
         run: >-
@@ -693,8 +711,8 @@ jobs:
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/expanded600-root-upgrade -p 'test_*.py'
           EXPANDED604_SOURCE="$GITHUB_WORKSPACE/.ci-inputs/historical604-runtime" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/expanded604-root-upgrade -p 'test_*.py'
           EXPANDED604_MANAGED_SOURCE="$GITHUB_WORKSPACE/.ci-inputs/historical604-runtime" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/expanded604-managed16k -p 'test_*.py'
-          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/management-tools-generic16k -p 'test_*.py'
-          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-management-native -p 'test_*.py'
+          python3 -B -Werror::ResourceWarning -m unittest discover -s "$GITHUB_WORKSPACE/.ci-inputs/historical604-runtime/scripts/ci/management-tools-generic16k" -p 'test_*.py'
+          WELCOME_MANAGEMENT_SOURCE="$GITHUB_WORKSPACE/.ci-inputs/historical604-runtime" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-management-native -p 'test_*.py'
       - name: Check historical Apps and Orphans source contracts with their original inventory
         working-directory: ${{ runner.temp }}/historical-inventory-source
         run: |
@@ -822,9 +840,11 @@ jobs:
         run: python3 -I -B scripts/ci/apps-full574-github-cancel/prepare.py --native-source "$PWD/.ci-inputs/repair-native-baseline" --implementation "$PWD" --output "$RUNNER_TEMP/apps574-github-cancel"
       - name: Check actual GitHub cancellation ownership and source guards
         run: APPS574_GITHUB_CANCEL_SOURCE="$RUNNER_TEMP/apps574-github-cancel" python3 -I -B -Werror::ResourceWarning scripts/ci/apps-full574-github-cancel/test_cancel.py
-      - name: Check generic 16K tools contracts without VM actors
+      - name: Check historical generic 16K tools contracts without VM actors
+        working-directory: ${{ github.workspace }}/.ci-inputs/historical604-runtime
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/tools-generic16k -p 'test_*.py'
-      - name: Check Fish Done generic 16K contracts without VM actors
+      - name: Check historical Fish Done generic 16K contracts without VM actors
+        working-directory: ${{ github.workspace }}/.ci-inputs/historical604-runtime
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/fish-done-generic16k -p 'test_*.py'
       - name: Check combined shell source guards without interactive shell actors
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/shell-modules-coexistence -p test_source.py
@@ -860,10 +880,10 @@ jobs:
           ref: 09717a45388e5b90ca80fd3fef327444101c108f
           path: .ci-inputs/welcome1-source
           persist-credentials: false
-      - name: Stage historical Welcome1 with current helper sources
+      - name: Stage historical Welcome1 with pinned historical Doctor and helper inputs
         run: |
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome1-static-replay -p 'test_*.py'
-          python3 -B scripts/ci/welcome1-static-replay/prepare.py --current-root "$GITHUB_WORKSPACE" --historical-root "$GITHUB_WORKSPACE/.ci-inputs/welcome1-source" --output "$RUNNER_TEMP/welcome1-static"
+          python3 -B scripts/ci/welcome1-static-replay/prepare.py --current-root "$GITHUB_WORKSPACE/.ci-inputs/historical604-runtime" --historical-root "$GITHUB_WORKSPACE/.ci-inputs/welcome1-source" --output "$RUNNER_TEMP/welcome1-static"
       - name: Check historical Welcome1 and Doctor native contracts without actors
         working-directory: ${{ runner.temp }}/welcome1-static
         run: |
@@ -948,7 +968,8 @@ jobs:
           find packages -name PKGBUILD -type f -print0 | xargs -0 -r -n1 bash -n
       - name: Check isolated native notification diagnostic without actors
         run: python3 -I -B -Werror::ResourceWarning scripts/diagnostics/fish-done-native-graphics/test_run.py
-      - name: ARM experiment generic16K owner controls without execution
+      - name: Historical ARM experiment generic16K owner controls without execution
+        working-directory: ${{ github.workspace }}/.ci-inputs/historical604-runtime
         run: python3 -B -Werror::ResourceWarning scripts/ci/arm-experiments-generic16k-ci/test_owner.py
       - name: Report one matched hosted setup pair after the full static suite
         if: ${{ (github.event_name == 'workflow_dispatch' && inputs.measure-cache) || inputs.setup-phase == 'warm' }}
