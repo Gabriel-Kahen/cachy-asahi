@@ -24,7 +24,7 @@ import time
 
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURES = ROOT / 'tests/workflows/fixtures/developer'
-CORE_PIN = '80547f753dc7d13819d727783c669d10a56b7bf832dc05084b5c4b5302cb79d9'
+CORE_PIN = '83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f'
 MAX_SOURCE = 128 * 1024
 FLAGS = ('-Wall', '-Wextra', '-Werror', '-O2')
 ORIGINAL = b'Hello from cachy-asahi\n'

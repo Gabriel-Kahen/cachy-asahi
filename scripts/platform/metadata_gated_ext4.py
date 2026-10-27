@@ -23,9 +23,9 @@ SOURCE_PINS={
  'intake':('archive_intake.py','dfc6e2d429b654359075bd135969c5948b12dd81db67f522ae46e1be61911a67'),
  'verifier':('verify_staging.py','279201558a90ea6e429822fc7d5b63827e6bd47ef022f8aef3126109bdfaa711'),
  'metadata':('archive_inode_metadata.py','8d8255ab64e8eb83148365e11aba391c1104bbabfc9f2da85a0adb21043a7a85'),
- 'encoder':('filesystem_encoder.py','495775df5432aeb295204033d9ab592da1e2f76712994bd75a9d5bb507d819cf'),
+ 'encoder':('filesystem_encoder.py','b23104886d8026798e7fb60c77180bc0a31357d6353495f4d5daa6880cfae97a'),
  'reader':('independent_readback.py','8fb8c2c32dc5a40998bf31cc5727768f88ce51e423b7090cfb702116bdc9b5d3'),
- 'owned_process':('scripts/virtual/owned_process.py','80547f753dc7d13819d727783c669d10a56b7bf832dc05084b5c4b5302cb79d9')}
+ 'owned_process':('scripts/virtual/owned_process.py','83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f')}
 
 
 def need(ok,why):

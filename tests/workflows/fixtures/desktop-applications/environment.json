@@ -1,0 +1,14 @@
+{
+  "HOME": "/home/audit",
+  "XDG_DATA_HOME": "/home/audit/.local/share",
+  "XDG_DATA_DIRS": "/usr/local/share:/usr/share",
+  "XDG_CONFIG_HOME": "/home/audit/.config",
+  "XDG_CONFIG_DIRS": "/etc/xdg",
+  "XDG_CURRENT_DESKTOP": "Hyprland",
+  "PATH": "/usr/local/bin:/usr/bin",
+  "icon_theme": "hicolor",
+  "icon_size": 48,
+  "icon_scale": 1,
+  "terminal_argv": ["alacritty", "-e"],
+  "locale": "C"
+}
