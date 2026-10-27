@@ -14,7 +14,7 @@ REBUILD = ROOT / "scripts/maintenance/rebuild_plan.py"
 if not REBUILD.is_file():
     REBUILD = ROOT / ("artifacts/development/repository-rebuild-planner-20261027/"
                       "proposal/scripts/maintenance/rebuild_plan.py")
-FROZEN_REBUILD_SHA256 = "9898080cb77b908ecc370bd5643fb4ea88e196831b3598e5a58d9031b88c1171"
+FROZEN_REBUILD_SHA256 = "472f9bb621d78f79f5016a662b7f72eb03e995dae787c7846bc1f947ff21313c"
 
 
 def load(name, path):

@@ -165,3 +165,11 @@ an illustrative fake failure/recovery record.
 **NOT RUN by these checks:** OCI builds, native aarch64 builds, measured capacity
 or sustainable staffing, reproducibility pairs, package installation, ARM16K,
 physical M2 behavior/performance, maintained releases or M5 acceptance.
+
+For each task whose dependency closure reaches a bound baseline consumer, batch
+admission requires the exact witnessed image ID and exact captured inventory
+lock digest. Equal package versions in a different image do not qualify. A
+repository/manifest digest is a different namespace: resolve/review its immutable
+image ID outside admission and supply that exact ID, or admission refuses.
+The admission record retains the used provider selections, including capture
+digest, on that task. Unrelated tasks and no-selection behavior stay unchanged.
