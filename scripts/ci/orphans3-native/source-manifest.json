@@ -1,0 +1,223 @@
+{
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "files": {
+    "packages/tools/cachy-asahi-orphans/.SRCINFO": {
+      "bytes": 1635,
+      "sha256": "473c215c5db54c64df0efe99bd108a63d55fb4dff32daa8af2893dab59f6792d"
+    },
+    "packages/tools/cachy-asahi-orphans/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-orphans/NOTICE": {
+      "bytes": 1073,
+      "sha256": "412c34c26e4048669bef6ac39f05b2611b10064b306c3b59b0a7cd36c852cf9b"
+    },
+    "packages/tools/cachy-asahi-orphans/PKGBUILD": {
+      "bytes": 2608,
+      "sha256": "c0dfd619b306d3234f4be5201014e4e3dbdaff589e6a8f52d4df966594864fe2"
+    },
+    "packages/tools/cachy-asahi-orphans/README.md": {
+      "bytes": 8301,
+      "sha256": "e1a085033d7010ecc08db222e5b379bb7e7b803e981ab0042bd6d19f04503092"
+    },
+    "packages/tools/cachy-asahi-orphans/READONLY.md": {
+      "bytes": 8810,
+      "sha256": "ef96e2cf1e0809a065edd36545c861e4064f3bae2cc4665401455a89dd144529"
+    },
+    "packages/tools/cachy-asahi-orphans/cachy-asahi-orphans": {
+      "bytes": 20338,
+      "sha256": "8d5c80e91d807887643b0530b77c982526f7589027aaff9afcdd6289109b6243"
+    },
+    "packages/tools/cachy-asahi-orphans/check_source.py": {
+      "bytes": 3320,
+      "sha256": "5b3011aab26a421e386d4d6cfc1e75575f51e2bcae51341fd2be93fe1fe1b57d"
+    },
+    "packages/tools/cachy-asahi-orphans/orphans3": {
+      "bytes": 933,
+      "sha256": "45a30641f2d82a1fa3cfeccfe8d537ebdaf1f71394ba77926f9a9e7d68e0fec4"
+    },
+    "packages/tools/cachy-asahi-orphans/protection-floor.json": {
+      "bytes": 10489,
+      "sha256": "0d6dfbf3cd550fe72ddad30058693007f8bb86214de1e83442580677db5005f2"
+    },
+    "packages/tools/cachy-asahi-orphans/remove.py": {
+      "bytes": 25288,
+      "sha256": "2eac3c47b664e2ddf12df01a5d38c96db4cc4a6cf1a1f0c165b5f3466552c025"
+    },
+    "packages/tools/cachy-asahi-orphans/source-provenance.json": {
+      "bytes": 2217,
+      "sha256": "60c3bf7d154b23d5abc7188dc20428bf782b68398828e19a92a74b0a953dfbff"
+    },
+    "packages/tools/cachy-asahi-orphans/test_orphans.py": {
+      "bytes": 14653,
+      "sha256": "8f4080979ad3de2b1c27419f27cd6e3f61b122544164f1e16158cc4f8d73bb82"
+    },
+    "packages/tools/cachy-asahi-orphans/test_remove.py": {
+      "bytes": 17885,
+      "sha256": "50722fbc48fb0f50411fba5dacae5e7987fafdc99b603adda1cd5ef4f30da613"
+    },
+    "packages/tools/cachy-asahi-orphans/test_retirement.py": {
+      "bytes": 5617,
+      "sha256": "8c522ee58250af674f6c3ba6f616c8824b0aba76f61114be809b79c3ae4c5554"
+    },
+    "scripts/build/build.py": {
+      "bytes": 11299,
+      "sha256": "e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45"
+    },
+    "scripts/build/compare.py": {
+      "bytes": 5820,
+      "sha256": "4198864c264642b196a090a67b36185e5c194e38edc4cb928d08eb65b9f710cd"
+    },
+    "scripts/build/container-entry.sh": {
+      "bytes": 1787,
+      "sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24"
+    },
+    "scripts/checks/package_checks.py": {
+      "bytes": 17706,
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+    },
+    "scripts/ci/full-development-composition/run.py": {
+      "bytes": 29738,
+      "sha256": "f86af098fdb0fc9a57a8b78b351341395ce13f9977464783f6f8133626e85698"
+    },
+    "scripts/ci/full-root-upgrade/root_upgrade.py": {
+      "bytes": 23555,
+      "sha256": "fe1232ae6b510021910b4fb80016ac3b4668c6e4386cdae45e7b95196e400756"
+    },
+    "scripts/ci/maintained-desktop574-inputs.json": {
+      "bytes": 623664,
+      "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+    },
+    "scripts/ci/maintained_desktop574.py": {
+      "bytes": 22367,
+      "sha256": "27ba4be42cf2bd41675073e07cccc917ae033f9d68b07a33cfd7f074ac27b760"
+    },
+    "scripts/ci/orphans-native/installed.py": {
+      "bytes": 4910,
+      "sha256": "3ff891775ebf9e6dff35c567837b98c064a9172c43daf3733c34e5baab10bddf"
+    },
+    "scripts/ci/orphans-native/job.py": {
+      "bytes": 15616,
+      "sha256": "2c797aa55db02f6733b6f7607dd070b69d8ce04c623171b9ecdfa006a6360c6a"
+    },
+    "scripts/ci/orphans3-native/README.md": {
+      "bytes": 6347,
+      "sha256": "7b32569c587f090396b5a899cd7061e8f88644792378073a256fb52aca186f99"
+    },
+    "scripts/ci/orphans3-native/candidate.SRCINFO": {
+      "bytes": 1635,
+      "sha256": "473c215c5db54c64df0efe99bd108a63d55fb4dff32daa8af2893dab59f6792d"
+    },
+    "scripts/ci/orphans3-native/closed.py": {
+      "bytes": 3664,
+      "sha256": "474de6c8b506b6d6e60613294adfe3e92d0ea2239a3c343522e09eaf962c8fd8"
+    },
+    "scripts/ci/orphans3-native/contract.py": {
+      "bytes": 8127,
+      "sha256": "b639adb93bd644752ed10bb3be2260144ffb4611868ec4f8f0de19bddf92feca"
+    },
+    "scripts/ci/orphans3-native/fixture/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "scripts/ci/orphans3-native/fixture/PKGBUILD": {
+      "bytes": 1297,
+      "sha256": "d3c0a1ce72c4bde149c2381b855dc704444f8855bf5e1f78654749f170e1eabb"
+    },
+    "scripts/ci/orphans3-native/hosted_producer.py": {
+      "bytes": 3073,
+      "sha256": "dcecab1bc4e4c39f47235e2ae2c060d4668e9216fa483001e56fe25420a7ec76"
+    },
+    "scripts/ci/orphans3-native/job.py": {
+      "bytes": 11123,
+      "sha256": "535c94f20eaaaac99031e33e9b76accd4db7ebcd82dc3434d0de394b4e447fb2"
+    },
+    "scripts/ci/orphans3-native/lifecycle.py": {
+      "bytes": 20843,
+      "sha256": "8a43fad0f8bb52aeb8db66e0f2eb395bfaed0863f444c35331d262a0a35dc0fd"
+    },
+    "scripts/ci/orphans3-native/producer.py": {
+      "bytes": 4589,
+      "sha256": "7bdbe71d17c0337e21844d22167caefdbae3628b74d3f08fd5eb4c5ad12ac14e"
+    },
+    "scripts/ci/orphans3-native/retained.py": {
+      "bytes": 3639,
+      "sha256": "60c09537bcaf1b47ee453d027bff8587493f4ddf661ad1194d38bcba647102df"
+    },
+    "scripts/ci/orphans3-native/run.py": {
+      "bytes": 9994,
+      "sha256": "184dec0eeab0c8a0c78236d0d82d05bb196fec66c9900af4a686678e9c564e45"
+    },
+    "scripts/ci/orphans3-native/test_hosted_transport.py": {
+      "bytes": 8883,
+      "sha256": "c50ec84f0cc90cb6e1e994814ed1a2c717d004c3450645532e59ad4cc3152b89"
+    },
+    "scripts/ci/orphans3-native/test_lane.py": {
+      "bytes": 5715,
+      "sha256": "f74b34d63ff91ddde34ad072b80045c232f78037c1924d7d237ac3f2f94ce6d2"
+    },
+    "scripts/ci/orphans3-native/test_lifecycle.py": {
+      "bytes": 4618,
+      "sha256": "6199ff2ff471b99df3fad1951a8eecbbe0e03317fc60aeffc8719c0971371264"
+    },
+    "scripts/ci/orphans3-native/test_owned_logging.py": {
+      "bytes": 15751,
+      "sha256": "aed925f6eac76abc4c4d578fec23bdd66affedc5cc4dfbd238198c0b1af19be9"
+    },
+    "scripts/ci/orphans3-native/workflow.yml": {
+      "bytes": 4054,
+      "sha256": "dbaf378846b069dba0de02fcfa2d1dbaffc08016e9a016d4b5a6ec944415a6cd"
+    },
+    "scripts/ci/setup6-retained-helpers/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "scripts/ci/setup6-retained-helpers/NOTICE.md": {
+      "bytes": 1018,
+      "sha256": "6a3649fc4e0d0ee18a7399ada57d9fa8c1b8c97232ba46efd5da511c72a74141"
+    },
+    "scripts/ci/setup6-retained-helpers/carrier-profile.json": {
+      "bytes": 195440,
+      "sha256": "4089fd798849cafda23d03c0dd95ac896a83fd63ad21e331ae420c147535586c"
+    },
+    "scripts/ci/setup6-retained-helpers/legacy-prefill-profile.json": {
+      "bytes": 1510,
+      "sha256": "9cc82d4e0947415ecad9d40094a4c0a2709d01be54513e78af8c739fd76fb696"
+    },
+    "scripts/ci/setup6-retained-helpers/legacy_prefill.py": {
+      "bytes": 5986,
+      "sha256": "05a91a91efd69b3b2e06561f5bbf08bdbb105998d42dbf133e75fd1fe25945ac"
+    },
+    "scripts/ci/setup6-retained-helpers/prepare.py": {
+      "bytes": 3749,
+      "sha256": "6c688c315cb962c641b8c0b1d9d88f94778d57ae19bcef251e88e49cb4be6316"
+    },
+    "scripts/ci/welcome-native/ci/caller.py": {
+      "bytes": 8363,
+      "sha256": "cf80f438eff180b73ae9676e2145b56ba6a358fd9a69bb219e0a7a6f53ff01df"
+    },
+    "scripts/ci/welcome-native/lifecycle.py": {
+      "bytes": 12278,
+      "sha256": "b87831eea710dbf18cb3ab3aa7bf49856d26bebbd3e684861dcab7dc1d337c74"
+    },
+    "scripts/ci/welcome-native/run.py": {
+      "bytes": 12766,
+      "sha256": "52112b49ea98b5aef131b8bcbcc188bcc59cc3a4827161091d4e86af14d2757c"
+    },
+    "scripts/virtual/common.py": {
+      "bytes": 90704,
+      "sha256": "6fefc502e23958b9da44c9e2860b1841711254be64a0bbb1c8cdff59548d5c54"
+    }
+  },
+  "hardware": "NOT_RUN",
+  "native": "NOT_RUN",
+  "original_source_files": 44,
+  "parent_source_files": 53,
+  "retained_carrier": "ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad",
+  "reused_setup8_transport_files": 7,
+  "schema_version": 1,
+  "status": "CLOSED_SOURCE_ONLY_OWNED_PROCESS_RETIREMENT_SUCCESSOR"
+}

@@ -1,148 +1,133 @@
-# cachy-asahi-orphans 0.1.0
+# cachy-asahi-orphans 0.2.0-1 successor proposal
 
-Read installed package metadata through the existing trusted libalpm16 public
-API. Report install reason, real required-by and optional-required-by lists,
-dependencies, optional dependencies, provisions and current satisfiers. Prepare
-an explicitly selected **read-only removal plan**; never remove packages or
-change installation reasons, databases, locks, cache or configuration.
+This opt-in successor retains `assess`, `plan` and `verify` with their original
+read-only meanings and adds explicit finite `remove` for private offline roots.
+Root `/` is refused. It is not a selected release or general live-system cleaner.
+The inherited contract is in READONLY.md; its historical no-removal statements
+apply to the separate read-only component. Native removal remains NOT RUN.
 
-No transaction, prepare, commit, package-add/remove, repository-update or
-package-manager subprocess API is exposed. No network is used. Existing `db.lck`
-means active **or uncertain**: refuse, never clear it. The tool neither acquires
-a lock nor claims transaction exclusion. Later authenticated updater integration
-must acquire the correct exclusion and revalidate/re-authorize any real operation.
+## Invocation and identity
 
-## Assess a conventional target
+Assess an explicit conventional offline target, create a plan with exact repeated
+`--select NAME`, and review its complete dependency/protection facts. Then invoke:
 
 ```sh
-cachy-asahi-orphans assess --root / --dbpath /var/lib/pacman \
-  --protect my-important-dependency \
-  --output /home/operator/private/orphan-assessment.json
+cachy-asahi-orphans remove /absolute/private/plan.json \
+  --plan-sha256 REVIEWED_SHA256 --select exact-leaf-name \
+  --result /absolute/private/new-result.json --timeout-seconds 60
 ```
 
-Root/database paths must be explicit ordinary absolute paths and the database
-must be `ROOT/var/lib/pacman`, with an existing local ALPM version9. The CLI does
-not elevate privileges. Read permission suffices. A true host view of a trusted
-root-owned, non-group/world-writable `/usr/lib/libalpm.so.16` is required; a
-UID-remapping sandbox can correctly refuse it. Do not weaken that check.
+The named command, reviewed hash and repeated exact selection are the invocation.
+No extra confirmation flag is needed. There is no default selection, wildcard,
+recursive removal, dependency expansion, force, arbitrary command or pacman-argument
+forwarding. Empty plans stay valid read-only plans but cannot invoke removal.
+Old assessment/plan JSON still reports `NOT_APPLIED`, `apply_supported:false`.
 
-Output is optional for inspection; without it the full JSON report goes to
-stdout. An output parent must already exist, belong to the caller and not be
-group/world writable. Files are newly published mode0600 outside the database,
-with fsync and atomic no-replace linking. Existing outputs are never overwritten.
-Relevant symlinks/hardlinks/special nodes and symlink path components are refused.
-No archive or installed executable is loaded or run.
+The SHA256, exact names/versions and original assessment inode/hash are checked
+before opening a transaction and again before commit. The adapter acquires ALPM's
+ordinary lock with exactly `NOHOOKS|NOSCRIPTLET`, retaining dependency, conflict
+and version checks. Under that lock it recomputes the full installed snapshot,
+reasons, reverse dependencies, hard/optional satisfiers, pinned floor and caller
+protection. Its transaction cache must agree. ALPM prepare must return no additions
+and exactly the reviewed removals. No cascade/recurse/nodeps/nolock flags exist.
 
-The full database tree, including opaque sync files, is snapshotted by relative
-path, type, bytes/SHA256, mode/uid/gid, device/inode, link count and mtime/ctime.
-Desc records are checked for unique complete identities/reasons and compared with
-libalpm's actual loaded local cache. Database snapshots before/after queries and
-lock checks must agree. Ordinary read atime follows filesystem policy and is not
-a preservation claim. No package payload/hash/native/architecture/hardware proof
-is inferred from these records; temporary metadata fixtures are not installations.
+The inherited component adds only an internal optional owned-lock checker and
+snapshot entry for that checked lock. All public read-only defaults still refuse
+every lock. ALPM creates mode000 locks: removal binds the regular single-link inode,
+owner, mode, size and timestamps immediately after successful initialization; it
+never reads/chmods the lock. Every later check and release requires that identity.
+Only lock-induced DB-root size/times may differ before commit. After commit, only
+selected local records and corresponding parent-directory size/times/link-count
+changes may differ. Other records and opaque sync data must be identical.
 
-## Conservative finite candidate semantics
+## Supported subset
 
-A candidate must meet **all** conditions:
+The existing offline root must be caller-owned and not group/world writable;
+its DB must be ROOT/var/lib/pacman. Selected packages must be dependency-installed
+leaves, with no install scriptlet or backup metadata. Selected files must be
+regular, single-link, non-setid, exclusively owned by the selection, and have no
+symlink ancestors. Only ordinary usr/bin and usr/share payloads and their parent
+directories are supported. ALPM hooks, systemd, D-Bus, polkit, ALSA, PipeWire,
+WirePlumber and existing Asahi audio/speaker-protection paths are refused.
+The complete original base/platform floor and caller protection cannot be weakened.
+No boot/kernel/firmware/graphics/audio/platform operation is added.
 
-- Its actual ALPM install reason is dependency, rather than explicit/unknown.
-- Its actual required-by list is empty.
-- Its actual optional-required-by list is empty.
-- Its name is outside the protected floor and caller additions.
+Target ldconfig executables or aliases at usr/bin/ldconfig, usr/sbin/ldconfig or
+sbin/ldconfig refuse: ALPM flags alone do not suppress that helper. A full copied
+base can correctly refuse. Do not remove platform files to bypass refusal.
+General installed-system cleaning remains separate unfinished work. Root has a
+minimal disposable native trial recipe, outside this package proposal.
 
-This is a dependency-installed **leaf** assessment, not recursive garbage
-collection. Cycles remain needed and are never implicitly collected. Explicit
-packages are never candidates even when no other package needs them. A package
-satisfying a versioned virtual provision is needed when libalpm says so. Redundant
-providers are treated conservatively when required-by names a consumer. No age,
-package-size or filename heuristic chooses removals. Listing candidates performs
-no selection and makes no recommendation that they are safe or useful to remove.
+All unselected ownership is checked against selected files. Selected identities
+are rechecked after prepare; after commit the selected files must be absent and
+the remaining installed map must match exactly. No backup/pacsave, script migration,
+network, hook or scriptlet execution is supported. ALPM locking excludes cooperating
+package-manager transactions, not hostile same-UID/privileged payload writers.
 
-`protection-floor.json` carries names from the existing exact574 development base
-plus the existing protected Asahi/platform set. Those names cannot be weakened
-through CLI input. `--protect NAME` adds installed names; duplicates/unknown names
-refuse to avoid silent typos. All protection is included in the assessment binding.
-The floor is deliberately conservative: packages in that base stay protected even
-if they could otherwise be a metadata leaf. Missing floor names are not fabricated
-as installed packages.
+## Results and interruption
 
-This floor is a source-pinned reference, **not an accepted target/release/platform
-policy**. No accepted target Apple update policy is shipped by this tool. Supply
-any additional target-specific names explicitly and have the authenticated updater
-validate its real base/platform policy before later mutation. Local names and raw
-metadata never establish supported-system, known-good rollback, signed-release
-or boot-recovery authority.
+The result must name a NEW mode0600 file in an existing private caller-owned parent
+outside the target. Existing files, unsafe parents, symlinks and replacements
+refuse. The parent holds the descriptor and checks file/parent inode identities.
+Phases are fsynced before entering commit and after its return. The final JSON also
+goes to stdout. Precommit output failure prevents commit; postcommit output failure
+reports failed/unknown or observed committed state, never false non-commit.
 
-## Explicit selected removal plan
+Results contain selected/prepared identities, before/after inventory SHA256/count,
+plan/assessment identities, phase, commit-started/committed state, transaction/handle
+release, lock state, errors and worker exit/reaping. The full before inventory
+remains in the assessment. `APPLIED`/exit0 requires exact postchecks and cleanup.
+Refusal/failure exits1; syntax exits2. An interrupted/failed commit keeps
+`packages_committed:"UNKNOWN"`; a returned commit can instead be True with failed
+postchecks or cleanup. There is no automatic retry, unlock or rollback.
 
-```sh
-cachy-asahi-orphans plan /home/operator/private/orphan-assessment.json \
-  --select example-unused-dependency \
-  --output /home/operator/private/orphan-plan.json
-cachy-asahi-orphans verify /home/operator/private/orphan-plan.json
-```
+The fixed fork worker has Linux parent-death SIGKILL protection. Work is bounded
+at 1–120 seconds, followed by TERM, two seconds' grace and KILL/reap. Parent-side
+errors also attempt bounded kill/reap. Signals are blocked during transaction
+initialization until lock identity is captured. Uninterruptible kernel/filesystem
+operations can exceed user-space bounds; unestablished reaping is reported.
+A killed worker's remaining lock stays uncertain and is never removed. Replaced
+locks prevent both transaction release and alpm_release, since either could unlink
+a foreign lock. The process abandons the handle; exit reclaims its memory.
+Parent SIGKILL can leave only the last durable phase. Inspect that receipt and the
+target/lock before any further operation. No power-loss or boot-recovery claim follows.
 
-Repeat `--select` for exact package names. No default/all selection, glob, path,
-recursive removal or dependency installation is performed. Omit all selections
-for a no-op plan. Assessment/plan inputs must be caller-owned ordinary single-link
-mode0600 JSON. Changed package/version/reason/dependency/protection facts or any
-full database-snapshot change make the assessment stale. Editing a report to
-remove required-by/protection facts cannot authorize a plan: actual libalpm facts
-are recomputed before planning and again during verification.
+Original limits remain:2048 packages,32MiB input,30s checked snapshot/query budgets.
+Removal adds32768 ownership entries,4096 selected entries and64KiB result. Oversize
+exact selections refuse before acquiring a transaction. ALPM error-detail memory
+is reclaimed at finite worker exit, without unsafe errno-dependent union decoding.
 
-Plans refuse explicit, protected, needed, optional-needed, unknown or duplicate
-selections and inconsistent installed metadata with unsatisfied hard dependencies.
-Libalpm also evaluates the **whole remaining package set** after simultaneous
-selection. Every remaining hard dependency must have a satisfier; every previously
-satisfied optional dependency must retain one. Version constraints and versioned
-provisions are handled by `alpm_find_satisfier`, never a handwritten version
-comparison. Optional descriptions are retained in reports; the relation without
-its `: description` is passed for resolution. A report's satisfier is one match
-chosen by libalpm, not a claim that there is exactly one provider.
+## Provenance and checks
 
-Plans bind the original assessment inode/hash, full DB snapshot hash and actual
-complete dependency/protection facts. Successful planning and verification exit0
-and still say `NOT_APPLIED`, `apply_supported:false`. Refusal exits1; syntax errors
-exit2. There is **no apply/removal command**. No selected plan is removal authority.
+MIT source; all local recipe inputs are SHA256 pinned. Dependencies are Python3.11+
+and pacman's trusted root-owned libalpm16 on Linux. No service, polkit permission,
+automatic hook, Git checkout or repository-runtime dependency is introduced.
+Repository-runtime supplies authentication helpers, not a transaction engine.
+The adapter follows local_transaction/Apps fixed flags, exact prepare-set checks
+and checked release patterns, without importing their fixture namespace machinery
+or bypassing independent signed-release gates.
 
-Readonly snapshots cannot prevent a transaction beginning after the final check;
-a saved plan can become stale immediately. Existing/concurrent observed locks,
-changed directory/file identities, malformed/incomplete local records and unsafe
-outputs refuse. No automatic stale-lock recovery, restore or sweep is provided.
-Interrupted publication can leave a private temporary or a two-link output;
-verification refuses unsafe inputs, and operator review/fresh output is required.
+Run `python3 -B test_orphans.py`, `python3 -B test_remove.py` and
+`python3 -I -B check_source.py`. The removal suite uses real read-only metadata and
+empty lock holders, plus model fixture edits and recording ABI doubles. It NEVER
+calls real ALPM remove/commit on this host. Host controls, native ARM packaging,
+real disposable removal and physical M2 are separate evidence; the latter remain
+NOT RUN until Root executes and retains the actual trial.
 
-## Bounds, source and validation
+Shared selected/unselected directories require an existing unselected child outside
+the selection, and their inode/owner/mode must survive. Potential removal of an
+unselected-owned empty directory refuses before commit.
 
-Bounds:2048 packages,20000 DB nodes,32768 relation items,64KiB per desc,128MiB per
-other DB file,512MiB read total per snapshot and32MiB JSON. Snapshot/read and
-metadata-query budgets are30s checked between operations; an individual blocking
-filesystem/native-library call can outlast a checked budget. No physical-storage
-power-loss or hostile privileged/same-UID writer defense is claimed.
 
-Project source is MIT, with local no-follow snapshot/publication patterns from
-the existing MIT cache/mirror tools. `protection-floor.json` records exact source
-hashes for its existing base inventory/platform-name provenance. Existing system
-libalpm is a separate dependency and is not bundled. The recipe pins every local
-input and checks this test suite; it installs CLI, README, floor, NOTICE, LICENSE.
+## Owned-child retirement correction
 
-`python -B test_orphans.py` exercises real libalpm on temporary hand-authored ALPM
-metadata, plus real temporary CLI commands and a genuine counterpart transaction
-holder. The product never exposes transaction APIs; test-only holders establish
-concurrent refusal and prove readonly handle release does not clear another
-handle's lock. Tests cover reasons, versioned/provided/optional dependencies,
-cycles, simultaneous losses, protection, stale/tampered facts, malformed/unsafe
-metadata, limits and exact non-lock DB preservation.
-
-Host source/tempfile/staging results are separate from native ARM package builds,
-installed lifecycle, authenticated updater integration, actual orphan removal,
-M2 hardware and maintained release acceptance. `arch=any` is a text-package
-statement. This candidate is never selected for development or release itself.
-
-Dependency satisfier results are memoized only within a single read-only
-assessment, separately for its immutable full and remaining ALPM lists. The
-cache holds package names or absence, never handles or cross-assessment facts.
-Cache saturation falls back to the original ALPM query without dropping facts.
-Optional descriptions share only the identical normalized ALPM query.
-Every assessment still checks the complete before/after DB snapshot, locks,
-protection floor, reverse dependencies, relations and original deadlines.
+The supervisor now requires one main-thread owner, default SIGCHLD and a successful
+default reset before fork. It observes with WNOWAIT without reaping until the last
+possible signal, then uses direct waitpid. ECHILD or a failed ownership observation
+permanently disables numeric signaling and reports unknown commit/exit/retirement,
+with the last durable commit facts retained separately. No Popen status fallback
+is involved. Independent/native reapers and hostile privileged interference are
+outside this single-owner CLI contract. Eight real inert-child controls exercise
+this boundary without ALPM operations; source/native/hardware evidence remain distinct.
+The candidate version remains0.2.0-1 because the blocked source-only predecessor
+was never dispatched or admitted as an archive; all new source identities are pinned.
