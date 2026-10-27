@@ -1,5 +1,7 @@
 # Implementation and acceptance status
 
+October27: [Installable C01 baseline/LTO passes its finite native ARM4K component](validation/arm-c01-installable-native-20261027.md). Six builds, two within-variant byte pairs,682 commands and eight ALPM phases validate on original341. One consumer/host and source-bound receipt/cleanup limits apply;16K, M2, performance and release remain unaccepted.
+
 October 27: [Provider-bound native build batch passes its finite failure/resume trial](validation/provider-bound-build-batch-native-20261027.md). Root accepts source `29c3980a`, run `40459874118`: a real owned Fish kill and failure, independent Zsh success, then same-admission Fish-only retry; three attempts total. All 574 `.BUILDINFO` identities, source payloads and ordered cleanup receipt joins pass. Independent pairs, installation, capacity, 16K/M2, performance and release remain separate; no roadmap milestone is completed.
 
 October27: [Doctor2 installed comparison passes on native ARM](validation/doctor2-installed-comparison-native-20261027.md). Sourcec83dda6b passes both package pairs, all47 native build-test cases, retained1148 input-cache checks and the five-phase CLI lifecycle. Six installed observations add54 direct executable and18 guarded installed-code loader comparison cases over synthetic supplied reports. Exact retirement passes; live audio, GUI,16K/M2, performance, production trust and release remain separate.

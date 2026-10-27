@@ -300,6 +300,10 @@ jobs:
           python3 -B -Werror::ResourceWarning scripts/setup/test_config_migrate.py
       - name: Check packaged offline maintenance health
         run: python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-maintenance/test_package.py --recipe-root packages/tools/cachy-asahi-maintenance
+      - name: Check bounded session diagnostics and installed package
+        run: |
+          python3 -B -Werror::ResourceWarning scripts/hardware/test_session_probe.py
+          python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-session-diagnostics/test_package.py
       - name: Check isolated ARM experiment packages with pinned source on host ISA
         run: |
           c01_source_dir="$(mktemp -d "$RUNNER_TEMP/c01-package-source.XXXXXX")"
