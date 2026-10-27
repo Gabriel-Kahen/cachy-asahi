@@ -1,0 +1,43 @@
+{
+  "M2_performance": "NOT_RUN",
+  "acceptance": false,
+  "actual": null,
+  "cleanup_seconds": 450,
+  "current1800_fit": "NOT_ESTABLISHED",
+  "default_loop_seconds": 1300,
+  "default_owner_wait_seconds": 2200,
+  "default_runtime_seconds": 1750,
+  "default_service_seconds": 1200,
+  "doctor_profile_seconds": 1080,
+  "inventory_caller_seconds": 60,
+  "loop_seconds": 1900,
+  "native_hotspot": "UNKNOWN",
+  "native_owner_seconds": 6600,
+  "observation_seconds": 600,
+  "old1200_fit": "NOT_ESTABLISHED",
+  "original_helpers": {
+    "doctor_lifetime.py": {
+      "bytes": 14227,
+      "sha256": "317f020b3b9e2a1bf15156d29399162915c8b3bd23531181921d7169ca4a21be"
+    },
+    "factory.py": {
+      "bytes": 20793,
+      "sha256": "dd2bebb61a5c5e75f96b2a4fbb2d768e0a89ea8f641fb48d392bcd5d8333647d"
+    },
+    "run.py": {
+      "bytes": 6065,
+      "sha256": "ea3cc4132ddac813d78daac6219062556afd99b25012969f7fe12c74b606b4ca"
+    }
+  },
+  "owner_wait_seconds": 2800,
+  "product_scan_seconds": 30,
+  "profile": "GUI_TCG_SERVICE_1800_V1",
+  "ref": null,
+  "run": null,
+  "runtime_seconds": 2350,
+  "schema_version": 1,
+  "scope": "OPT_IN_VM_FUNCTIONAL_VALIDATION_ONLY_NOT_PERFORMANCE",
+  "service_purpose": "TCG_VALIDATION_FIXTURE_SERVICE_1800S",
+  "service_seconds": 1800,
+  "source": null
+}

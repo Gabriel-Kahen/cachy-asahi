@@ -1,0 +1,62 @@
+{
+  "callers": [
+    {
+      "modes": [
+        "native248"
+      ],
+      "name": "native_arm.py audit/build",
+      "order": "SAME_OWNED_ALARM_CACHE_BEFORE_UNCHANGED_AUDIT_OR_BUILD"
+    },
+    {
+      "legacy": [
+        32,
+        20,
+        8
+      ],
+      "modes": [
+        "desktop574"
+      ],
+      "name": "Core",
+      "order": "PREFILL_POLICY_CACHES_BEFORE_ORIGINAL_CLI_THEN_PUBLIC14_ROOTFS_THEN_FULL574_JOIN_FROM_VALIDATED_SOURCE_ROOT"
+    },
+    {
+      "legacy": [
+        32,
+        20,
+        8,
+        6
+      ],
+      "modes": [
+        "native248",
+        "desktop574",
+        "compiler6"
+      ],
+      "name": "Boot/current607/Updater",
+      "order": "PREFILL_ORIGINAL_POLICY_CACHES_FIRST_NATIVE_JOIN_BEFORE_BASE_DESKTOP_JOIN_BEFORE_LATE_COMPILER6_INSERTION_SAME_ALARM_CACHE"
+    },
+    {
+      "legacy": [
+        32,
+        20,
+        8
+      ],
+      "modes": [
+        "desktop574"
+      ],
+      "name": "GNU/repair",
+      "order": "FRESH_POLICY_CACHE_PREFILLS_BEFORE_ORIGINAL_CLIS_EXISTING574_DEPS_JOIN_BEFORE_UNCHANGED_ACQUIRE"
+    }
+  ],
+  "hardware": "NOT_RUN",
+  "native": "NOT_RUN",
+  "owners": {
+    "canonical_integration": "Root",
+    "consolidated_profiles_cli_seed": "gui_pair_record",
+    "released_legacy_source_proof_and_prefill": "core373_finalize"
+  },
+  "release": "NOT_ADMITTED",
+  "remaining": "NEW_SOURCE_MANIFEST_WORKFLOW_AND_FINITE_READER_BINDINGS_REQUIRED_PER_CALLER",
+  "shared_proposal": "scripts/ci/retained-build-inputs",
+  "source_mutation": false,
+  "status": "SOURCE_CONTRACTS_READY_FOR_NEW_CONTROLLED_CALLER_REVISIONS"
+}
