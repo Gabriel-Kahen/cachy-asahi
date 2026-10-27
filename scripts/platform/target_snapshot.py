@@ -78,8 +78,11 @@ def reference(path, data):
 
 
 class Reader:
-    def __init__(self):
+    def __init__(self, *, retain=False, maximum=None):
+        need(maximum is None or type(maximum) is int and 0 < maximum <= 512 * MIB, "reader aggregate bound refused")
         self.started, self.total, self.files = time.monotonic(), 0, {}
+        self.retained = {} if retain else None
+        self.maximum = maximum
 
     def deadline(self):
         need(time.monotonic() - self.started <= SECONDS, "collection deadline exceeded")
@@ -114,10 +117,12 @@ class Reader:
         if remember:
             if str(path) not in self.files:
                 self.total += len(data)
-                need(self.total <= LIMIT, "aggregate source byte bound exceeded")
+                need(self.total <= (LIMIT if self.maximum is None else self.maximum), "aggregate source byte bound exceeded")
             else:
                 need(self.files[str(path)] == observation, "source changed between reads")
             self.files[str(path)] = observation
+            if self.retained is not None:
+                self.retained[str(path)] = data
         return data, observation
 
     def bound(self, ref, maximum):
@@ -233,8 +238,9 @@ def output_identity(output, parent_fd, output_fd):
             os.close(fresh)
 
 
-def run(contract_ref, output):
-    reader = Reader()
+def run(contract_ref, output, *, retain_inputs=False):
+    need(type(retain_inputs) is bool, "retained input mode must be boolean")
+    reader = Reader(retain=retain_inputs)
     contract = audit.load_json(reader.bound(contract_ref, MIB))
     fields = {"schema_version", "mode", "selected_files"}
     need(type(contract.get("schema_version")) is int and contract["schema_version"] == 1
@@ -322,7 +328,8 @@ def run(contract_ref, output):
                    "scope": "SYNTHETIC_FIXTURE" if fixture else "OBSERVED_LIVE_METADATA", "contract_reference": contract_ref,
                    "snapshot": reference(output / "snapshot.json", snapshot_bytes), "sources": list(reader.files.values()),
                    "source_code_sha256": {str(Path(path).relative_to(HERE.parents[1])): hashlib.sha256(Path(path).read_bytes()).hexdigest()
-                                          for path in (__file__, capture.__file__, audit.__file__, baseline.__file__)},
+                                          for path in ((__file__, capture.__file__, audit.__file__, baseline.__file__)
+                                                       + ((str(HERE / "retained_bundle.py"),) if retain_inputs else ()))},
                    "selected_files": selections, "source_bytes": reader.total, "sources_rechecked": True,
                    "hardware_accepted": False, "boot_accepted": False, "recovery_accepted": False,
                    "backup_completeness_accepted": False, "installed_payload_authenticated": False,
@@ -332,7 +339,29 @@ def run(contract_ref, output):
                                    "Stable observations do not freeze future machine state."]}
         if preflight is not None:
             save_at(output_fd, "preflight-contract.json", encoded({"schema_version": 1, "target_snapshot": receipt["snapshot"], **preflight}))
-        save_at(output_fd, "collection.json", encoded(receipt))
+        receipt_bytes = encoded(receipt)
+        if retain_inputs:
+            os.mkdir("inputs", mode=0o700, dir_fd=output_fd)
+            input_fd = os.open("inputs", os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=output_fd)
+            retained = []
+            try:
+                for index, (path, data) in enumerate(reader.retained.items()):
+                    filename = str(index) + ".bin"
+                    save_at(input_fd, filename, data)
+                    retained.append({"source_path": path, "retained": reference(output / "inputs" / filename, data)})
+                os.fsync(input_fd)
+            finally:
+                os.close(input_fd)
+            save_at(output_fd, "retained-inputs.json", encoded({"schema_version": 1,
+                    "kind": "collector-retained-input-map", "collection": reference(output / "collection.json", receipt_bytes),
+                    "files": retained}))
+            reader.recheck()
+            need(listing(db_guard[0]) == (db_guard[1], db_guard[2]), "installed inventory drift after retention")
+            lock_absent(root)
+            if not fixture:
+                need(live_runtime() == {key: runtime[key] for key in ("architecture", "kernel_release", "page_size")},
+                     "running kernel/runtime changed during retention")
+        save_at(output_fd, "collection.json", receipt_bytes)
         output_identity(output, parent_fd, output_fd)
         save_at(output_fd, "snapshot.json", snapshot_bytes)
         output_identity(output, parent_fd, output_fd)

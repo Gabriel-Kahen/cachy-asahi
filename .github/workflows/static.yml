@@ -289,6 +289,8 @@ jobs:
           python3 -B -Werror::ResourceWarning scripts/platform/test_snapshot_compare.py
           python3 -B -Werror::ResourceWarning scripts/maintenance/test_rebuild_plan.py
           python3 -B -Werror::ResourceWarning scripts/maintenance/test_update_plan.py
+          python3 -B -Werror::ResourceWarning scripts/maintenance/test_import_release_graph.py
+          python3 -B -Werror::ResourceWarning scripts/platform/test_retained_bundle.py
           python3 -B -Werror::ResourceWarning scripts/maintenance/test_build_batch.py
           python3 -B -Werror::ResourceWarning scripts/maintenance/test_build_batch_e2e.py
       - name: Check fixed build-only Asahi data candidate boundaries
