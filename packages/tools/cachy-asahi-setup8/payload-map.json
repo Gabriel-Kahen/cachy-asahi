@@ -1,0 +1,42 @@
+{
+  "usr/bin/cachy-asahi-setup": {
+    "source": "cachy-asahi-setup",
+    "mode": 493
+  },
+  "usr/bin/cachy-asahi-repository": {
+    "source": "cachy-asahi-repository",
+    "mode": 493
+  },
+  "usr/bin/cachy-asahi-config-migrate": {
+    "source": "cachy-asahi-config-migrate",
+    "mode": 493
+  },
+  "usr/lib/cachy-asahi/setup8/setup.py": {
+    "source": "setup.py",
+    "mode": 420
+  },
+  "usr/lib/cachy-asahi/setup8/config_migrate.py": {
+    "source": "config_migrate.py",
+    "mode": 420
+  },
+  "usr/share/doc/cachy-asahi-setup/README.md": {
+    "source": "README.md",
+    "mode": 420
+  },
+  "usr/share/doc/cachy-asahi-setup/repository-enrollment.md": {
+    "source": "repository-enrollment.md",
+    "mode": 420
+  },
+  "usr/share/doc/cachy-asahi-setup/configuration-migrations.md": {
+    "source": "configuration-migrations.md",
+    "mode": 420
+  },
+  "usr/share/licenses/cachy-asahi-setup/NOTICE": {
+    "source": "NOTICE",
+    "mode": 420
+  },
+  "usr/share/licenses/cachy-asahi-setup/LICENSE": {
+    "source": "LICENSE",
+    "mode": 420
+  }
+}

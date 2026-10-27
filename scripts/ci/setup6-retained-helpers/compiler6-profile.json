@@ -1,0 +1,52 @@
+{
+  "actual": null,
+  "files": {
+    "LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "NOTICE.md": {
+      "bytes": 689,
+      "sha256": "6d93925f21faf6b1bab202e85d6d1455e8be7d7769ccbbaad2d7900dbbf84cc7"
+    },
+    "archive6-policy.json": {
+      "bytes": 2036,
+      "sha256": "4d83dbda592b8b6575d02df65de829226cae3ddffc7268e3d47873ac83f3b322"
+    },
+    "index.json": {
+      "bytes": 1102,
+      "sha256": "cdc98720842d5c09bab34f19d0ca053f12767ddb83b85310ada2a10a4771df74"
+    },
+    "original-extension.lock.json": {
+      "bytes": 14048,
+      "sha256": "287b627528f3fd9cf4a63ef3a3bbf269e83f83d35c87dd3b3efd69e91a92a56f"
+    },
+    "packages/compiler-rt-23.1.1-1-aarch64.pkg.tar.xz": {
+      "bytes": 2906236,
+      "sha256": "7bb647047b1c7cc3e6f7f15626b03e748b177b8ea5fcab117e6641b5b6ea4093"
+    },
+    "packages/compiler-rt-23.1.1-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "1a92715f8a987c82c90949be0bcf60ca7a29b37d1d5b02439ae167883fc2775a"
+    },
+    "packages/lld-23.1.1-1-aarch64.pkg.tar.xz": {
+      "bytes": 1923368,
+      "sha256": "8caa2b84af777a4e719b59696d181dd63e7d953b8bd17b7b2b6b56d93ea4f8bf"
+    },
+    "packages/lld-23.1.1-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "e92fc9f8173beef5666385d40ed15cf37345fb0147bfd92c8f6c87f31551e302"
+    },
+    "packages/rust-1:1.99.0-1-aarch64.pkg.tar.xz": {
+      "bytes": 59807260,
+      "sha256": "337e715182a8f81bfd6df844793c5d1cb2697ff9e94ddb496dd850ba901c31d4"
+    },
+    "packages/rust-1:1.99.0-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "d7dcf2f24bca366570446a6c7228048524e1632122fa36200685a0fbe638735e"
+    }
+  },
+  "mode": "EXACT_ORIGINAL_UPDATER_COMPILER6_POLICY_DATA_ONLY",
+  "ref": "codex/updater-compiler6-retained-inputs-v1",
+  "source": "8ee14069b7a74455a7bea1171ba319932c9df304"
+}
