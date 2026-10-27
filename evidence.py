@@ -51,6 +51,8 @@ def retain(a):
   except BaseException as error:result['errors'].append(dict(file=name,error=str(error)[:256]))
  copy(a.proof,'source-proof.json',4*1024**2);copy(a.receipt,'ordered-cleanup.json');copy(a.receipt.with_name('original800-'+a.receipt.name),'original800-ordered-cleanup.json');copy(a.output/'owner.json','owner.json',16*1024**2)
  for n in('fresh607-manifest.json','fresh607-producer.json','fresh607-base-build.json','fresh607-owner.json','fresh607-tooling-seed.json'):copy(a.proof.parent/n,'retained/'+n,4*1024**2)
+ for p in sorted((a.proof.parent/'current607-inputs').rglob('*')):
+  if p.is_file():copy(p,'current607-inputs/'+p.relative_to(a.proof.parent/'current607-inputs').as_posix(),128*1024**2 if p.parent.name=='packages'else 4*1024**2)
  for p in sorted((a.output/'apparmor').glob('*')):
   if p.name in('state.json','trial.profile'):copy(p,'apparmor/'+p.name,128*1024)
  for source,prefix in((a.output/'media-metadata','media-metadata'),(a.kernel_inputs/'kernel','kernel'),(a.output/'inputs','inputs'),(a.output/'snapshot-public','snapshot'),(a.output/'boots','boots'),(a.output/'guest','guest')):

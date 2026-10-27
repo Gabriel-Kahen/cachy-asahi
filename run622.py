@@ -58,7 +58,7 @@ def inputs(root,fresh):
  actual=dict(source=s,ref=ref,run=int(run),attempt=1);nonce=hashlib.sha256(('current607-core622:'+s+':'+run).encode()).hexdigest()[:32];selected=dict(schema=1,scope=X.SCOPE,actual=actual,nonce=nonce,kernel=p['kernel'],source_profiles={n:p['source_profiles'][n]for n in('core800','ksm637','core7_carrier')},budgets=C.BUDGET);C.selection(selected);return dict(status='PASS_GENUINE_CORE622_SOURCE_INPUTS_BEFORE_ACTORS',source_sha=s,run_id=run,attempt=1,selection=selected,consumer_token=nonce,git=git,source_preflight=fact)
 
 class Context:
- def __init__(self,workspace,fresh,proof,end):self.workspace,self.fresh,self.proof,self.end=workspace,fresh,proof,end;self.producer=None;self.current=None;self.cleanup_end=None;self.tooling_seed=None;self.desktop_build_failure=None;self.dependency_failure=None
+ def __init__(self,workspace,fresh,proof,end,*,job_clock=None,native_phase=None):self.workspace,self.fresh,self.proof,self.end=workspace,fresh,proof,end;self.producer=None;self.current=None;self.cleanup_end=None;self.tooling_seed=None;self.desktop_build_failure=None;self.dependency_failure=None;self.verification=[];self.verification_error=None;self.context_lease=None;self.context_failure=None;self.job_clock=job_clock;self.native_phase=native_phase
  def capture_desktop_build(self,value):
   ownership622.validate_desktop_note(value)
   if self.desktop_build_failure is None:self.desktop_build_failure=value
@@ -67,6 +67,10 @@ class Context:
   if self.dependency_failure is None:self.dependency_failure=value
 
  def desktop_failure(self,result):
+  if result.get('status')=='FAIL'and self.context_lease is not None and self.current is None:
+   if self.context_failure is None:self.context_failure=__import__('provision622').context_failure(self.context_lease,result.get('error_type','UNKNOWN_PRIMARY_ERROR'))
+   result['current607_input_context_failure_data']=self.context_failure
+  if result.get('status')=='FAIL'and self.verification_error is not None:result['current607_verification_failure_data']=dict(status='INCOMPLETE_ORIGINAL607_VERIFICATION_DATA_ONLY',selection=self.proof['selection'],completed=self.verification,error=self.verification_error,acceptance=False)
   if result.get('status')=='FAIL'and self.desktop_build_failure is not None:
    value=ownership622.validate_desktop_note(self.desktop_build_failure);result['desktop574_first_build_failure_data']=json.loads(json.dumps(value,sort_keys=True,allow_nan=False))
   if result.get('status')=='FAIL'and self.dependency_failure is not None:
@@ -77,9 +81,16 @@ class Context:
   import controller,evidence,entry
   w=self.workspace;producer=self.producer;C.need(producer is not None and a.output.parent==Path('/tmp')and not a.output.exists(),'same original fresh607 producer and fresh sibling Core owner');base=producer/'private/desktop574';base_report=C.decode(C.read(base/'report.json'));marker=C.read(base/'image-id',128).decode().strip();C.need(base_report['image']==marker and base_report['ownership']['token']and marker not in base_report['ownership']['before_images'],'actual base token/image-id equality before Core actor')
   record=C.decode(C.read(a.ready/'manifest.json',4*1024**2));X.manifest(C.decode(C.read(ROOT/'composition.json',4*1024**2)),record);C.need(record['status']=='READY_SIGNED_EXPANDED607'and record['preparation']['base_receipt']['image']==marker and record['preparation']['base_receipt']['ownership']['token']==base_report['ownership']['token']and record['preparation']['package_signatures']=='verified-each-exact-signer','actual full fresh607 preparation/base/signer binding');C.need(self.tooling_seed is not None and self.tooling_seed['status']=='EXACT35_TOOLING_INPUT_CACHE_PREPARED_NOT_AUTHENTICATION','actual unchanged retained35 seed result')
-  parent=a.output.with_name(a.output.name+'-context');C.need(not parent.exists(),'fresh independent Core context');parent.mkdir(mode=0o700)
+  parent=a.output.with_name(a.output.name+'-context');C.need(not parent.exists(),'fresh independent Core context');parent.mkdir(mode=0o700);self.context_lease=__import__('provision622').claim_input_context(parent,self.proof['selection']);__import__('provision622').record_input_context(self.context_lease)
   for name,raw in(('fresh607-manifest.json',C.read(a.ready/'manifest.json',4*1024**2)),('fresh607-producer.json',C.read(producer/'public/producer.json',4*1024**2)),('fresh607-base-build.json',C.read(base/'report.json',4*1024**2)),('fresh607-owner.json',C.read(producer/'producer-owner.json',4*1024**2)),('fresh607-tooling-seed.json',C.encoded(self.tooling_seed))):(parent/name).write_bytes(raw)
-  proof=dict(self.proof,producer_token=base_report['ownership']['token']);(parent/'source-proof.json').write_bytes(C.encoded(proof));kernel=entry.kernel_inputs(types.SimpleNamespace(proof=parent/'source-proof.json',kernel_carrier=w/'kernel-inputs'),C.decode(C.read(ROOT/'profile.json',4*1024**2)))
+  proof=dict(self.proof,producer_token=base_report['ownership']['token']);(parent/'source-proof.json').write_bytes(C.encoded(proof))
+  try:__import__('provision622').retain_input_evidence(parent,a.ready,record,dict(proof,export_phase_end=self.end),self.verification)
+  except BaseException as primary:
+   self.context_failure=__import__('provision622').context_failure(self.context_lease,type(primary).__name__)
+   try:__import__('provision622').retain_input_failure(parent,producer.with_name(producer.name.removesuffix('-producer'))/'core622-public',self.context_failure)
+   except BaseException as retention:self.context_failure['retention_error_type']=type(retention).__name__;primary.add_note('pre-Core input retention failed: '+type(retention).__name__)
+   raise
+  kernel=entry.kernel_inputs(types.SimpleNamespace(proof=parent/'source-proof.json',kernel_carrier=w/'kernel-inputs'),C.decode(C.read(ROOT/'profile.json',4*1024**2)))
   args=types.SimpleNamespace(core_source=w/'core-source',vm_source=w/'vm-source',core7=w/'core7-inputs',core64=w/'core64-inputs',kernel_inputs=kernel,base=base,proof=parent/'source-proof.json',output=a.output,receipt=parent/'ordered-cleanup.json',public=parent/'public',source=w/'core-source',case_source=ROOT,workspace=w/'core-source/runtime/runtime-vm',selected=proof['selection'],current607_inputs=a.ready,fresh607_source=self.fresh,current607_code=a.code,outer_deadline=self.end);self.current=args
   code=1
   try:code=controller.execute(args)
@@ -99,7 +110,10 @@ class Context:
   except (OSError,KeyError,ValueError):return False
  def handoff(self,producer,path):
   C.need(self.current is not None and producer==self.producer and path==self.current.output and self.retired(path),'same current complete Core retirement before fresh original cleanup');a=self.current;report=C.decode(C.read(a.output/'owner.json',16*1024**2));adapter.core(a.core_source);old=C.load('_core622_original_cleanup_command',a.core_source/'scripts/ci/core-native-lifecycle/owner.py');command=old.command_api(a.workspace,a.output,report);C.need(self.cleanup_end is not None,'shared cleanup clock begins before handoff')
-  fact=ownership622.handoff(producer,path,self.proof_with_producer(),C.decode(C.read(a.receipt)),command,self.cleanup_end);target=producer.with_name(producer.name.removesuffix('-producer'))/'core622-public/image-retirement';shutil.copytree(path/'image-retirement',target);public=target.parent;export=C.decode(C.read(public/'export.json',4*1024**2));newrows=public_rows(target);C.need(set(newrows)=={'original-desktop574-image-id','retirement.json'},'exact two declared current retirement DATA roles')
+  proof=dict(self.proof_with_producer(),producer_path=str(producer));captured=ownership622.handoff_capture(command,report,path,proof,self.cleanup_end);fact=None
+  try:fact=ownership622.handoff(producer,path,proof,C.decode(C.read(a.receipt)),captured,self.cleanup_end)
+  finally:ownership622.retain_handoff_query(path,producer.with_name(producer.name.removesuffix('-producer'))/'core622-public',fact is not None)
+  target=producer.with_name(producer.name.removesuffix('-producer'))/'core622-public/image-retirement';shutil.copytree(path/'image-retirement',target);public=target.parent;export=C.decode(C.read(public/'export.json',4*1024**2));newrows=public_rows(target);C.need(set(newrows)=={'original-desktop574-image-id','retirement.json'},'exact two declared current retirement DATA roles')
   for n,row in newrows.items():export['files']['image-retirement/'+n]=row;export['bytes']+=row['bytes']
   C.need(export['bytes']<=768*1024**2,'original complete transport cap after exact retirement DATA');(public/'export.json').write_bytes(C.encoded(export));result=C.decode(C.read(path/'result.json',4*1024**2));result['core_public']=public_rows(public);(path/'result.json').write_bytes(C.encoded(result));return fact
  def cleanup(self,original,producer,path):
@@ -107,7 +121,7 @@ class Context:
  def _cleanup(self,original,producer,path):
   # The original cleanup body remains exact. Only its real subprocess timeout
   # arguments are clamped to the remaining same240s handoff/retirement clock.
-  self.cleanup_end=time.monotonic()+240
+  self.cleanup_end=min(time.monotonic()+240,self.native_phase['phase_end'])if self.native_phase is not None else ownership622.remaining_deadline(240,'cleanup',clock=self.job_clock)if self.job_clock is not None else time.monotonic()+240
   if self.current is not None:self.handoff(producer,path)
   import subprocess
   def run(*args,**kw):
@@ -115,6 +129,15 @@ class Context:
   shim=types.SimpleNamespace(**{n:getattr(subprocess,n)for n in dir(subprocess)if not n.startswith('__')});shim.run=run;scoped=X.clone(original,subprocess=shim);C.need(scoped.cleanup.__code__ is original.cleanup.__code__ and scoped.cleanup.__globals__['subprocess'].run is run,'actual whole original cleanup executing shared remaining clock');result=scoped.cleanup(producer)
   if self.current is not None:
    parent=self.current.proof.parent;entries=list(parent.rglob('*'));C.need(len(entries)<=2048 and sum(p.stat().st_size for p in entries if p.is_file())<=768*1024**2 and all(not p.is_symlink()and p.stat().st_uid==os.getuid()and(p.is_file()or p.is_dir())for p in entries)and time.monotonic()<self.cleanup_end,'bounded exact owned current context retirement');C.need(shutil.rmtree.avoids_symlink_attacks,'descriptor-safe private context retirement');shutil.rmtree(parent);C.need(not parent.exists(),'current context retired')
+  if self.current is None and self.context_lease is not None:
+   if self.context_failure is None:self.context_failure=__import__('provision622').context_failure(self.context_lease,'UNKNOWN_PRE_CORE_PRIMARY')
+   public=producer.with_name(producer.name.removesuffix('-producer'))/'core622-public'
+   try:__import__('provision622').retire_input_context(self.context_lease,self.proof['selection'],self.workspace/'core-source',public,(self.cleanup_end if self.job_clock is not None else min(self.end,self.cleanup_end)),self.context_failure);self.context_lease=None
+   except BaseException as error:
+    self.context_failure.update(retirement='FAIL_PRESERVED_IDENTIFIED_PRE_CORE_CONTEXT',retirement_error_type=type(error).__name__)
+    result=dict(result,status='FAIL_PRE_CORE_CONTEXT_PRESERVED_IDENTIFIED',current607_input_context_failure_data=self.context_failure)
+    try:__import__('provision622').publish_context_failure(public,self.context_failure)
+    except BaseException as retention:self.context_failure['failure_transport_error_type']=type(retention).__name__
   return result
  def proof_with_producer(self):return C.decode(C.read(self.current.proof,4*1024**2))
 
@@ -122,10 +145,11 @@ def main(argv=None):
  import source622
  argv=list(sys.argv[1:]if argv is None else argv)
  if argv==['--source-preflight']:print(C.encoded(source622.verify(ROOT)).decode(),end='');return 0
- p=argparse.ArgumentParser(add_help=False);p.add_argument('--fresh607-source',type=Path,required=True);n,rest=p.parse_known_args(argv);fresh=n.fresh607_source.absolute();workspace=Path(os.environ.get('GITHUB_WORKSPACE','')).absolute();C.need(ROOT==workspace/'core622-code'and fresh==workspace/'fresh607-code','literal current622 and pinned607 checkout roles');proof=inputs(workspace,fresh);end=time.monotonic()+15600;context=Context(workspace,fresh,proof,end)
+ p=argparse.ArgumentParser(add_help=False);p.add_argument('--fresh607-source',type=Path,required=True);n,rest=p.parse_known_args(argv);fresh=n.fresh607_source.absolute();workspace=Path(os.environ.get('GITHUB_WORKSPACE','')).absolute();C.need(ROOT==workspace/'core622-code'and fresh==workspace/'fresh607-code','literal current622 and pinned607 checkout roles');phase=ownership622.native_phase();proof=inputs(workspace,fresh);clock=ownership622.job_clock();C.need(ownership622.native_phase()==phase,'one immutable native phase through original proof');end=phase['work_end'];context=Context(workspace,fresh,proof,end,job_clock=clock,native_phase=phase)
  with namespace(fresh/'implementation'):
   F=C.load('_core622_exact_fresh1197_run',fresh/'implementation/run.py');old_integration=F.Integration
   class Integration(old_integration):
+   def bind(self,original,producer):return ownership622.verifier_capture(old_integration.bind,F,context,self,original,producer)
    def producer(self,original,args):
     context.producer=args.output;return ownership622.prepare_owned(original,args,super().producer,F.producer_diagnostic.CALLER_PIN,context.workspace/'core-source',context.proof['git']['core800'],F.producer_diagnostic.command,context.capture_desktop_build,context.end,context.capture_dependency)
    def seed_tooling(self,*a):

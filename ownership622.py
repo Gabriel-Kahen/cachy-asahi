@@ -254,4 +254,180 @@ def cache_main():
  for name in('compiler6-source','carrier','updater','desktop-lock','cache','incoming31','preparation'):p.add_argument('--'+name,type=Path,required=True)
  p.add_argument('--deadline',type=float,required=True);a=p.parse_args();need(not a.cache.resolve().is_relative_to(a.compiler6_source.resolve())and not a.compiler6_source.resolve().is_relative_to(a.cache.resolve()),'owned cache disjoint original source');selected=cache_facade(a.compiler6_source);value=selected.prepare_with_dependencies(a.carrier,a.updater,a.desktop_lock,a.cache,a.deadline,a.incoming31,a.preparation);print(json.dumps(value,sort_keys=True));return 0
 
-if __name__=='__main__':raise SystemExit(cache_main())
+
+# Passive original verifier/query retention; all actual commands stay original.
+def verifier_capture(binding,module,context,integration,original,producer):
+ import base64,subprocess,types
+ import desktop622 as X
+ original_prepare=module.materialize.prepare
+ def prepare(*args,**kw):
+  api=kw['verifier_api'];real=api.subprocess.run
+  def run(argv,**options):
+   if '--verify'not in argv:return real(argv,**options)
+   need(options==dict(check=True,capture_output=True,text=True,timeout=30),'entire original607 PublicVerifier invocation');need(len(context.verification)<607,'finite607 original verifier capture');row=None;primary=None
+   try:
+    result=real(argv,check=False,capture_output=True,text=False,timeout=30);need(type(result.stdout)is type(result.stderr)is bytes,'exact original raw verifier streams');need(len(result.stdout)<=16384 and len(result.stderr)<=16384,'bounded original verifier output');row=dict(argv=list(map(str,argv)),returncode=result.returncode,stdout_base64=base64.b64encode(result.stdout).decode('ascii'),stderr_base64=base64.b64encode(result.stderr).decode('ascii'),time_limit=30);context.verification.append(row);need(sum(len(base64.b64decode(v[k],validate=True))for v in context.verification for k in('stdout_base64','stderr_base64'))<=2*1024**2,'bounded whole607 verifier aggregate');result.check_returncode();return subprocess.CompletedProcess(result.args,result.returncode,result.stdout.decode('utf-8'),result.stderr.decode('utf-8'))
+   except BaseException as error:
+    primary=error;context.verification_error=dict(error_type=type(error).__name__,completed=len(context.verification),acceptance=False);raise
+  scoped=X.clone(api,subprocess=types.SimpleNamespace(run=run));return original_prepare(*args,**dict(kw,verifier_api=scoped))
+ materialize=X.clone(module.materialize,prepare=prepare);namespace=dict(binding.__globals__,materialize=materialize);bound=types.FunctionType(binding.__code__,namespace,binding.__name__,binding.__defaults__,binding.__closure__);need(bound.__globals__['materialize']is materialize,'exact finite private materializer global binding');return bound(integration,original,producer)
+
+def handoff_capture(command,report,core_output,proof,deadline):
+ """Write attempted raw query DATA before the original absence predicate."""
+ import case as C
+ selected=__import__('provision622').export_selection(proof);root=Path(core_output)/'handoff-query';need(not os.path.lexists(root),'fresh literal handoff query evidence');root.mkdir(mode=0o700);marker=read(Path(proof['producer_path'])/'private/desktop574/image-id',128)[0];image=marker.decode().strip();owner=json.loads(read(Path(proof['producer_path'])/'producer-owner.json',2*1024**2)[0]);used=False
+ def captured(argv,required=True,seconds=30):
+  nonlocal used
+  need(not used and argv==['/usr/bin/docker','image','inspect',image]and required is False and type(seconds)in(int,float)and 0<seconds<=20 and seconds<=deadline-time.monotonic()+.05,'one exact independently observed handoff query');used=True;position=len(report['commands']);primary=None;result=None
+  try:result=command(argv,required,seconds);return result
+  except BaseException as error:primary=error;raise
+  finally:
+   try:
+    need(len(report['commands'])==position+1,'query original command row retained');row=report['commands'][position];need(row['argv']==argv and row['time_limit']==seconds and type(row['exit_code'])is int and row['output_limit']==1024**2,'exact original handoff command row');artifacts={}
+    for suffix in('stdout','stderr'):
+     raw=C.read(Path(core_output)/('command-%03d.%s'%(position,suffix)),1024**2);need(C.pin(raw)==dict(bytes=row[suffix+'_bytes'],sha256=row[suffix+'_sha256']),'original handoff stream/pin identity');(root/suffix).write_bytes(raw);artifacts[suffix]=C.pin(raw)
+    need(sum(v['bytes']for v in artifacts.values())<=1024**2,'original combined query output cap');value=dict(schema=1,status='ORIGINAL_EXTRA_HANDOFF_QUERY_DATA_ONLY',selection=selected,producer_token=proof['producer_token'],parent_producer_token=owner['token'],image=image,command_index=position,command=row,requested_seconds=seconds,artifacts=artifacts);raw=C.encoded(value);need(len(raw)<=512*1024,'bounded complete handoff query index');(root/'command.json').write_bytes(raw)
+   except BaseException as error:
+    try:(root/'capture-error.json').write_bytes(C.encoded(dict(schema=1,status='INCOMPLETE_ORIGINAL_EXTRA_HANDOFF_QUERY_DATA_ONLY',selection=selected,error_type=type(error).__name__,acceptance=False)))
+    except BaseException:pass
+    if primary is None:raise
+    primary.add_note('handoff raw query retention failed: '+type(error).__name__)
+ return captured
+
+def retain_handoff_query(core_output,public,complete):
+ import case as C,shutil
+ core_output,public=Path(core_output),Path(public);source=core_output/'handoff-query';need(source.is_dir()and not(public/'handoff-query').exists(),'fresh owned handoff query public retention');shutil.copytree(source,public/'handoff-query');export=C.decode(C.read(public/'export.json',4*1024**2));rows={};total=0
+ for path in sorted((public/'handoff-query').iterdir()):
+  need(path.name in('command.json','stdout','stderr','capture-error.json')and not path.is_symlink()and path.is_file(),'finite actual extra handoff query roles');raw=C.read(path,1024**2 if path.name in('stdout','stderr')else 512*1024);rows['handoff-query/'+path.name]=C.pin(raw);total+=len(raw)
+ need(total<=2*1024**2 and export['bytes']+total<=768*1024**2,'unchanged whole public cap plus bounded query index');export['files'].update(rows);export['bytes']+=total
+ if complete is not True or 'handoff-query/capture-error.json'in rows:export['errors'].append(dict(file='handoff-query',error='INCOMPLETE_ORIGINAL_EXTRA_HANDOFF_QUERY_DATA_ONLY'));export['status']='FAIL_OR_INCOMPLETE'
+ (public/'export.json').write_bytes(C.encoded(export));return rows
+
+
+# Reviewed complete574 DATA transport; no native/cleanup acceptance authority.
+import subprocess,sys,types
+RETAINED_SOURCE='ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad'
+RETAINED_PROFILE={'bytes':195440,'sha256':'4089fd798849cafda23d03c0dd95ac896a83fd63ad21e331ae420c147535586c'}
+JOB_SECONDS=350*60
+JOB_RESERVE=dict(cleanup=240,retention=360,upload=300,grace=120)
+
+def retained_save(path,value):
+ raw=(json.dumps(value,sort_keys=True,indent=2,allow_nan=False)+'\n').encode();need(len(raw)<=4*1024**2,'bounded complete retained DATA receipt');Path(path).write_bytes(raw)
+
+def retained_binding():
+ source=os.environ.get('GITHUB_SHA');run=os.environ.get('GITHUB_RUN_ID');ref=os.environ.get('GITHUB_REF_NAME');need(re.fullmatch('[0-9a-f]{40}',source or'')and source==os.environ.get('SOURCE_SHA')==os.environ.get('WORKFLOW_SHA')and re.fullmatch('[1-9][0-9]{0,19}',run or'')and re.fullmatch('codex/[a-z0-9-]+',ref or'')and os.environ.get('GITHUB_RUN_ATTEMPT')=='1'and os.environ.get('GITHUB_REPOSITORY')=='Gabriel-Kahen/cachy-asahi'and os.environ.get('GITHUB_EVENT_NAME')=='workflow_dispatch'and os.environ.get('RUNNER_ARCH')=='ARM64','genuine first current Core622 workflow identity for transport');actual=dict(source=source,ref=ref,run=int(run),attempt=1);nonce=hashlib.sha256(('current607-core622:'+source+':'+run).encode()).hexdigest()[:32];return actual,nonce
+
+def retained_paths():
+ root=Path(__file__).resolve().parent;workspace=Path(os.environ['GITHUB_WORKSPACE']);temporary=Path(os.environ['RUNNER_TEMP']);need(root==workspace/'core622-code'and root==root.resolve()and temporary==temporary.resolve()and all(p.is_absolute()and not any(q.is_symlink()for q in(p,*p.parents))for p in(root,temporary))and temporary.is_dir()and temporary.stat().st_uid==os.getuid()and not temporary.stat().st_mode&0o022,'literal owned source/temp roles');carrier=temporary/'core622-retained-complete574';work=temporary/'core622-retained-transport';need(not any(a.is_relative_to(b)or b.is_relative_to(a)for a,b in((root,carrier),(root,work),(carrier,work))),'retained DATA/work/source are disjoint');return root,temporary,carrier,work
+
+def job_clock():
+ actual,nonce=retained_binding();root,temporary,_,_=retained_paths();path=temporary/'core622-job-clock.json';raw,info=read(path,16384);clock=__import__('case').decode(raw);need(set(clock)=={'schema','status','identity','nonce','runtime_temp','started','deadline','global_seconds','reserved_seconds'}and type(clock['schema'])is int and clock['schema']==1 and clock['status']=='SOURCE_OWNED_CORE622_JOB_CLOCK_DATA_ONLY'and clock['identity']==actual and clock['nonce']==nonce and clock['runtime_temp']==str(temporary)and clock['global_seconds']==JOB_SECONDS and clock['reserved_seconds']==JOB_RESERVE,'whole source/run/nonce job clock');need(all(type(clock[k])in(int,float)and math.isfinite(clock[k])for k in('started','deadline'))and clock['deadline']==clock['started']+JOB_SECONDS and 0<=time.monotonic()-clock['started']<=JOB_SECONDS+30 and stat.S_IMODE(path.stat().st_mode)==0o600,'same finite source-owned monotonic job clock');return clock
+
+def remaining_deadline(maximum,role='work',clock=None):
+ clock=job_clock()if clock is None else clock;need(type(maximum)in(int,float)and math.isfinite(maximum)and 0<maximum<=15600 and role in('work','cleanup','retention','upload'),'finite original phase cap and explicit role');reserve=sum(JOB_RESERVE.values())if role=='work'else sum(JOB_RESERVE[k]for k in({'cleanup':('retention','upload','grace'),'retention':('upload','grace'),'upload':('grace',)}[role]));end=min(time.monotonic()+maximum,clock['deadline']-reserve);need(end>time.monotonic(),'reserved cleanup/retention/upload allowance unavailable before phase');return end
+
+_RETAINED_CONFIG=None
+
+def begin_native_phase():
+ import case as C
+ clock=job_clock();_,temporary,_,_=retained_paths();started=time.monotonic();total=min(started+15600,clock['deadline']-sum(JOB_RESERVE[k]for k in('retention','upload','grace')));work=total-JOB_RESERVE['cleanup'];need(work>started,'native phase has no reserved work/cleanup allowance before actors');path=temporary/'core622-native-phase.json';value=dict(schema=1,status='SOURCE_OWNED_CORE622_NATIVE_PHASE_DATA_ONLY',identity=clock['identity'],nonce=clock['nonce'],runtime_temp=str(temporary),job_clock=C.pin(read(temporary/'core622-job-clock.json',16384)[0]),started=started,phase_end=total,work_end=work,outer_seconds=15600,cleanup_seconds=240,proof_clock='BEFORE_ORIGINAL_INPUT_SOURCE_PROOF',acceptance=False);raw=C.encoded(value);need(len(raw)<=16384,'bounded source-owned native phase');fd=os.open(path,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,0o600)
+ try:need(os.write(fd,raw)==len(raw),'whole original native phase write')
+ finally:os.close(fd)
+ return value
+
+def native_phase(*,require_work=True):
+ import case as C
+ clock=job_clock();_,temporary,_,_=retained_paths();path=temporary/'core622-native-phase.json';value=C.decode(read(path,16384)[0]);need(set(value)=={'schema','status','identity','nonce','runtime_temp','job_clock','started','phase_end','work_end','outer_seconds','cleanup_seconds','proof_clock','acceptance'}and type(value['schema'])is int and value['schema']==1 and value['status']=='SOURCE_OWNED_CORE622_NATIVE_PHASE_DATA_ONLY'and value['identity']==clock['identity']and value['nonce']==clock['nonce']and value['runtime_temp']==str(temporary)and value['job_clock']==C.pin(read(temporary/'core622-job-clock.json',16384)[0])and value['outer_seconds']==15600 and value['cleanup_seconds']==240 and value['proof_clock']=='BEFORE_ORIGINAL_INPUT_SOURCE_PROOF'and value['acceptance']is False,'whole typed same-owner original native phase DATA');need(all(type(value[k])in(int,float)and math.isfinite(value[k])for k in('started','phase_end','work_end'))and clock['started']<=value['started']<=time.monotonic()and value['phase_end']==min(value['started']+15600,clock['deadline']-780)and value['work_end']==value['phase_end']-240 and stat.S_IMODE(path.stat().st_mode)==0o600,'single absolute native outer/work/cleanup endpoints')
+ if require_work:need(time.monotonic()<value['work_end'],'original native work allowance exhausted before actors')
+ return value
+
+def retained_configuration():
+ global _RETAINED_CONFIG
+ if _RETAINED_CONFIG is not None:return _RETAINED_CONFIG
+ import case as C
+ record=json.loads(read(Path(__file__).with_name('composition-parent.json'),4*1024**2)[0])['retained_complete574_transport'];profile=record['carrier_profile'];need(C.pin(C.encoded(profile))==RETAINED_PROFILE and profile['source']==RETAINED_SOURCE and len(profile['files'])==1154 and sum(v['bytes']for v in profile['files'].values())==1046432165,'whole original1154 carrier profile/count/bytes');_RETAINED_CONFIG=(record,profile);return _RETAINED_CONFIG
+
+_RETAINED_OWNED=None
+
+def retained_owned_child():
+ global _RETAINED_OWNED
+ if _RETAINED_OWNED is None:
+  record,_=retained_configuration();raw=record['owned_child_body'].encode();need(dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())==record['owned_child_pin'],'whole reviewed owned-child body');module=types.ModuleType('_core622_embedded_reviewed_owned_child');module.__file__=str(Path(__file__).with_name('@retained-owned-child.py'));exec(compile(raw,module.__file__,'exec'),vars(module));_RETAINED_OWNED=module
+ return _RETAINED_OWNED
+
+def retained_fresh(path):
+ path=Path(path);need(not os.path.lexists(path)and not any(q.is_symlink()for q in(path,*path.parents)),'fresh literal retained DATA directory');path.mkdir(mode=0o700);return path
+
+class RetainedActors:
+ """PGO owned-child contract, restricted environment and one shared phase end."""
+ def __init__(self,directory,deadline):self.directory=retained_fresh(directory);self.deadline=deadline;self.rows=[]
+ def run(self,argv,timeout):
+  need(time.monotonic()<self.deadline,'retained transport shared deadline reached');argv=list(map(str,argv));log=self.directory/('%04d.log'%len(self.rows));need(not os.path.lexists(log),'fresh retained actor log');started=time.monotonic();budget=min(timeout,self.deadline-started);need(budget>0,'positive remaining owned transport budget');row=dict(argv=argv,log=str(log),requested_seconds=timeout,time_limit=budget,status='FAIL',exit=None,natural_exit=False,group_absent=False);lifecycle={};self.rows.append(row)
+  env=dict(PATH='/usr/bin:/bin',LANG='C',LC_ALL='C',HOME=str(self.directory.parent),TMPDIR=str(self.directory.parent),GIT_CONFIG_NOSYSTEM='1',GIT_CONFIG_GLOBAL='/dev/null',GIT_NO_REPLACE_OBJECTS='1',GIT_OPTIONAL_LOCKS='0',GIT_NO_LAZY_FETCH='1',GIT_TERMINAL_PROMPT='0')
+  try:
+   with log.open('xb')as stream:completed=retained_owned_child().run(argv,stdin=subprocess.DEVNULL,stdout=stream,stderr=subprocess.STDOUT,timeout=budget,lifecycle=lifecycle,allowed_uids={os.geteuid()},cwd=str(self.directory.parent),env=env)
+   need(log.stat().st_size<=16*1024**2,'reviewed bounded retained actor log');need(completed.returncode==lifecycle.get('exit')==0 and lifecycle.get('natural_exit')is True and lifecycle.get('group_absent')is True and lifecycle.get('leader_held_until_group_inspection')is True and lifecycle.get('exit_observed_via_waitpid')is True and lifecycle.get('ownership_lost')is False and lifecycle.get('forced_cleanup')is False and lifecycle.get('retirement')=='REAPED','whole owned natural retained actor retirement');row['status']='PASS'
+  finally:
+   row.update({k:v for k,v in lifecycle.items()if k!='status'});row['owned_child']=lifecycle;row['seconds']=time.monotonic()-started;retained_save(self.directory/'actors.json',self.rows)
+  return read(log,16*1024**2)[0].decode().strip()
+
+def transport_complete574():
+ actual,nonce=retained_binding();root,temporary,carrier,work=retained_paths();clock=job_clock();record,profile=retained_configuration();need(not os.path.lexists(carrier)and work.is_dir()and work.stat().st_uid==os.getuid()and stat.S_IMODE(work.stat().st_mode)==0o700 and set(p.name for p in work.iterdir())<= {'phase.stdout','phase.stderr'},'fresh fixed carrier/transport work, no retry');end=remaining_deadline(480,clock=clock);actor=RetainedActors(work/'input-transport-actors',end);started=time.monotonic();report=dict(schema=1,status='FAIL_RETAINED_INPUT_TRANSPORT_DATA',identity=actual,nonce=nonce,role='RETAINED_INPUT_TRANSPORT_DATA',source_root=str(root),runtime_temp=str(temporary),carrier_path=str(carrier),work_path=str(work),carrier_source=RETAINED_SOURCE,profile=RETAINED_PROFILE,expected_carrier_files=1154,expected_carrier_bytes=1046432165,budget_seconds=480,retirement_seconds=2,outer_seconds=500,kill_grace_seconds=30,step_minutes=9,effective_deadline=end,job_clock=clock,retry=False,partial_data_retained=True,native='NOT_RUN',native_cleanup='NOT_ESTABLISHED',acceptance=False,authentication='ORIGINAL_COMPLETE1154_GIT_BLOB_MODE_AND_NATIVE_SIGNATURE_GATES_REQUIRED')
+ try:
+  retained_fresh(carrier);git=['/usr/bin/git','-c','credential.helper=','-c','http.extraHeader=','-c','http.sslVerify=true','-c','core.hooksPath=/dev/null','-c','protocol.allow=never','-c','protocol.https.allow=always'];actor.run([*git,'init','--template=',str(carrier)],10);actor.run([*git,'-C',str(carrier),'-c','http.lowSpeedLimit=65536','-c','http.lowSpeedTime=60','fetch','--depth=1','--no-tags','--no-recurse-submodules','https://github.com/Gabriel-Kahen/cachy-asahi.git',RETAINED_SOURCE],400);fetched=actor.run([*git,'-C',str(carrier),'rev-parse','--verify','FETCH_HEAD'],10);need(fetched==RETAINED_SOURCE,'exact complete574 FETCH_HEAD');actor.run([*git,'-C',str(carrier),'checkout','--detach',RETAINED_SOURCE],45);head=actor.run([*git,'-C',str(carrier),'rev-parse','--verify','HEAD'],10);need(head==RETAINED_SOURCE,'exact complete574 HEAD');report.update(status='PASS_EXACT_RETAINED_INPUT_TRANSPORT_DATA_ONLY',carrier_head=head)
+ except BaseException as error:report['error_type']=type(error).__name__;raise
+ finally:
+  report['seconds']=time.monotonic()-started;report['actor_count']=len(actor.rows);retained_save(work/'owner.json',report)
+ return report
+
+def retained_blob_run(argv,**kwargs):
+ """Exact profile bytes only for the original read-only seven-argument proof."""
+ need('stdout_limit'not in kwargs,'callers cannot select an owned stdout cap');_,_,carrier,_=retained_paths();_,profile=retained_configuration()
+ if type(argv)in(list,tuple)and len(argv)==7 and list(argv[:1])==['/usr/bin/git']and argv[1]=='--git-dir='+str(carrier/'.git')and list(argv[2:6])==['-c','protocol.allow=never','cat-file','blob']and type(argv[6])is str and argv[6].startswith(RETAINED_SOURCE+':'):
+  name=argv[6][len(RETAINED_SOURCE)+1:];environment={'PATH':os.defpath,'LANG':'C','LC_ALL':'C','GIT_CONFIG_NOSYSTEM':'1','GIT_CONFIG_GLOBAL':'/dev/null','GIT_NO_REPLACE_OBJECTS':'1','GIT_OPTIONAL_LOCKS':'0','GIT_NO_LAZY_FETCH':'1','GIT_TERMINAL_PROMPT':'0'};need(name in profile['files']and set(kwargs)=={'capture_output','timeout','env','check'}and kwargs['capture_output']is True and kwargs['check']is False and kwargs['env']==environment,'exact original binary read-only full-carrier Git proof');size=profile['files'][name]['bytes'];need(type(size)is int and 0<=size<=128*1024**2,'held per-blob128MiB cap');kwargs['stdout_limit']=size
+ return retained_owned_child().run(argv,**kwargs)
+
+def prepare_complete574(cache,deadline):
+ import case as C
+ actual,nonce=retained_binding();root,temporary,carrier,work=retained_paths();clock=job_clock();need(type(deadline)in(int,float)and math.isfinite(deadline)and 0<deadline-time.monotonic()<=240 and deadline<=clock['deadline']-sum(JOB_RESERVE.values()),'original join240 inside same job work allowance');owner=json.loads(read(work/'owner.json',4*1024**2)[0]);need(owner['status']=='PASS_EXACT_RETAINED_INPUT_TRANSPORT_DATA_ONLY'and owner['identity']==actual and owner['nonce']==nonce and owner['carrier_source']==owner['carrier_head']==RETAINED_SOURCE and owner['carrier_path']==str(carrier)and owner['job_clock']==clock and owner['actor_count']==5 and read(work/'phase.exit-code',32)[0]==b'0\n','complete same-owner one-shot transport before whole1154 proof');need(not os.path.lexists(work/'preparation.json'),'fresh one-shot complete1154 preparation receipt');record,profile=retained_configuration();raw=record['legacy_proof_body'].encode();need(C.pin(raw)==record['legacy_proof_pin'],'whole reviewed complete-carrier original proof body');legacy=types.ModuleType('_core622_exact_original_carrier_proof');legacy.__file__=str(root/'@retained-carrier-proof.py');exec(compile(raw,legacy.__file__,'exec'),vars(legacy));legacy.subprocess=types.SimpleNamespace(run=retained_blob_run);report=dict(schema=1,status='FAIL_COMPLETE574_PREPARATION_DATA',identity=actual,nonce=nonce,carrier_path=str(carrier),source=RETAINED_SOURCE,deadline=deadline,native='NOT_RUN',acceptance=False)
+ try:
+  proof=legacy.prove(carrier,carrier/'.git',profile,deadline);need(proof['files']==proof['blob_joins']==1154,'whole1154 Git/blob/filesystem proof before cache');seed_raw=legacy.read(carrier/'seed.py',deadline,65536);need(C.pin(seed_raw)==profile['files']['seed.py'],'original complete574 seed helper body');seed=types.ModuleType('_core622_exact_complete574_seed');seed.__file__=str(carrier/'seed.py');exec(compile(seed_raw,seed.__file__,'exec'),vars(seed));receipt=seed.seed(carrier/'desktop574-inputs.lock.json',Path(cache),'desktop574',deadline);need(receipt['actual_authority']is False,'cache DATA never native authority');report.update(status='EXACT_RETAINED_INPUT_PREPARATION_DATA_ONLY',mode='desktop574',carrier=proof,receipt=receipt)
+ except BaseException as error:report['error_type']=type(error).__name__;raise
+ finally:retained_save(work/'preparation.json',report)
+ return report
+
+def retain_complete574_transport(public):
+ import case as C
+ _,temporary,_,work=retained_paths();clock=job_clock();public=Path(public);record=json.loads(read(public/'export.json',4*1024**2)[0]);need(not(public/'retained-input-transport').exists(),'fresh retained transport public prefix');target=public/'retained-input-transport';target.mkdir(mode=0o700);names={'owner.json','preparation.json','phase.stdout','phase.stderr','phase.exit-code','input-transport-actors/actors.json'}|{'input-transport-actors/%04d.log'%n for n in range(5)};seen=set();total=0;errors=[]
+ if work.exists():
+  for p in work.rglob('*'):
+   need(not p.is_symlink()and(p.is_file()or p.is_dir()),'ordinary retained transport DATA')
+   if p.is_file():need(p.relative_to(work).as_posix()in names,'closed retained transport DATA roles')
+ for name in sorted(names):
+  p=work/name
+  if not p.exists():continue
+  try:
+   cap=16*1024**2 if name.endswith('.log')else 4*1024**2 if name.endswith('.json')else 1024**2;raw=read(p,cap)[0];need(total+len(raw)<=16*1024**2 and record['bytes']+len(raw)<=768*1024**2,'bounded transport aggregate inside held public768MiB');q=target/name;q.parent.mkdir(parents=True,exist_ok=True);q.write_bytes(raw);record['files']['retained-input-transport/'+name]=C.pin(raw);record['bytes']+=len(raw);total+=len(raw);seen.add(name)
+  except BaseException as error:errors.append(dict(file='retained-input-transport/'+name,error=type(error).__name__))
+ raw=read(temporary/'core622-job-clock.json',16384)[0];need(record['bytes']+len(raw)<=768*1024**2,'held public cap with exact job clock');(target/'job-clock.json').write_bytes(raw);record['files']['retained-input-transport/job-clock.json']=C.pin(raw);record['bytes']+=len(raw)
+ if(temporary/'core622-native-phase.json').exists():
+  phase=native_phase(require_work=False);phase_raw=read(temporary/'core622-native-phase.json',16384)[0];need(record['bytes']+len(phase_raw)<=768*1024**2,'held public cap with exact native phase');(target/'native-phase.json').write_bytes(phase_raw);record['files']['retained-input-transport/native-phase.json']=C.pin(phase_raw);record['bytes']+=len(phase_raw)
+ elif record['status']!='FAIL_OR_INCOMPLETE':errors.append(dict(file='retained-input-transport/native-phase.json',error='MISSING_ORIGINAL_NATIVE_PHASE'))
+ try:
+  owner=json.loads(read(work/'owner.json',4*1024**2)[0]);prepared=json.loads(read(work/'preparation.json',4*1024**2)[0]);need(owner['status']=='PASS_EXACT_RETAINED_INPUT_TRANSPORT_DATA_ONLY'and prepared['status']=='EXACT_RETAINED_INPUT_PREPARATION_DATA_ONLY'and owner['identity']==prepared['identity']==clock['identity']and owner['nonce']==prepared['nonce']==clock['nonce']and owner['carrier_source']==prepared['source']==RETAINED_SOURCE and prepared['carrier']['files']==prepared['carrier']['blob_joins']==1154 and seen==names and read(work/'phase.exit-code',32)[0]==b'0\n','same-owner complete transport and original full1154 preparation before any positive Core export')
+ except BaseException as error:errors.append(dict(file='retained-input-transport',error='INCOMPLETE_DATA_ONLY_'+type(error).__name__))
+ if errors:record['status']='FAIL_OR_INCOMPLETE';record['errors'].extend(errors)
+ retained_save(public/'export.json',record);return dict(files=len(seen)+1,bytes=total+len(raw),native='NOT_RUN',native_cleanup='NOT_ESTABLISHED',errors=errors)
+
+def retained_main(argv=None):
+ import argparse
+ parser=argparse.ArgumentParser(description='Fixed full1154 transport and hierarchical job DATA clock; no native credit');group=parser.add_mutually_exclusive_group(required=True);group.add_argument('--transport-complete574',action='store_true');group.add_argument('--begin-core-phase',action='store_true');group.add_argument('--prepare-complete574',action='store_true');group.add_argument('--job-timeout',type=float);group.add_argument('--job-deadline',type=float);group.add_argument('--phase-remaining',type=float);parser.add_argument('--role',choices=('work','cleanup','retention','upload'),default='work');parser.add_argument('--cache',type=Path);parser.add_argument('--deadline',type=float);args=parser.parse_args(argv)
+ if args.begin_core_phase:phase=begin_native_phase();print('%.6f'%(phase['phase_end']-time.monotonic()));return 0
+ if args.phase_remaining is not None:
+  now=time.monotonic();need(args.role=='retention'and math.isfinite(args.phase_remaining)and 0<args.phase_remaining-now<=210 and args.phase_remaining<=remaining_deadline(210,'retention')+.05,'same bounded shared retention phase end');print('%.6f'%(args.phase_remaining-time.monotonic()));return 0
+ if args.job_timeout is not None:print('%.6f'%max(.001,remaining_deadline(args.job_timeout,args.role)-time.monotonic()));return 0
+ if args.job_deadline is not None:print('%.6f'%remaining_deadline(args.job_deadline,args.role));return 0
+ if args.transport_complete574:transport_complete574();return 0
+ need(args.cache is not None and args.deadline is not None,'literal complete574 preparation cache/deadline');prepare_complete574(args.cache,args.deadline);return 0
+
+if __name__=='__main__':raise SystemExit(retained_main()if len(sys.argv)>1 and sys.argv[1]in('--transport-complete574','--prepare-complete574','--job-timeout','--job-deadline','--phase-remaining','--begin-core-phase')else cache_main())
