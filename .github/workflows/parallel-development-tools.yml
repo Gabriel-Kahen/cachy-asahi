@@ -1,0 +1,105 @@
+name: Parallel development tools
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/parallel-development-tools.yml'
+      - 'scripts/benchmarks/**'
+      - 'scripts/workflows/**'
+      - 'scripts/virtual/owned_process.py'
+      - 'scripts/build/**'
+      - 'scripts/checks/**'
+      - 'scripts/maintenance/**'
+      - 'scripts/release/**'
+      - 'tests/workflows/**'
+      - 'tests/test_build_outputs_v2.py'
+      - 'tests/test_maintenance_campaign.py'
+      - 'packages/tools/cachy-asahi-orphans/**'
+      - 'packages/tools/cachy-asahi-cache/**'
+      - 'packages/tools/cachy-asahi-repository-runtime/**'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/parallel-development-tools.yml'
+      - 'scripts/benchmarks/**'
+      - 'scripts/workflows/**'
+      - 'scripts/virtual/owned_process.py'
+      - 'scripts/build/**'
+      - 'scripts/checks/**'
+      - 'scripts/maintenance/**'
+      - 'scripts/release/**'
+      - 'tests/workflows/**'
+      - 'tests/test_build_outputs_v2.py'
+      - 'tests/test_maintenance_campaign.py'
+      - 'packages/tools/cachy-asahi-orphans/**'
+      - 'packages/tools/cachy-asahi-cache/**'
+      - 'packages/tools/cachy-asahi-repository-runtime/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  focused:
+    name: ${{ matrix.lane }} / Python ${{ matrix.python }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+        lane: [metrics, developer, campaign, management-source]
+    steps:
+      - name: Checkout local dependency closure
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /LICENSE
+            /docs/port/maintenance-campaign.md
+            /scripts/benchmarks/
+            /scripts/workflows/
+            /scripts/virtual/owned_process.py
+            /scripts/build/
+            /scripts/checks/
+            /scripts/maintenance/
+            /scripts/release/
+            /tests/workflows/
+            /tests/test_build_outputs_v2.py
+            /tests/test_maintenance_campaign.py
+            /packages/tools/cachy-asahi-orphans/
+            /packages/tools/cachy-asahi-cache/
+            /packages/tools/cachy-asahi-repository-runtime/
+      - name: Select Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install developer environment
+        if: matrix.lane == 'developer'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y git vim build-essential python3-venv
+      - name: Install campaign metadata readers
+        if: matrix.lane == 'campaign'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y libarchive-tools pacman-package-manager
+      - name: Run focused controls
+        env:
+          LANE: ${{ matrix.lane }}
+        run: |
+          case "$LANE" in
+            metrics)
+              python -I -B scripts/benchmarks/test_platform_metrics.py -v
+              ;;
+            developer)
+              python -I -B tests/workflows/test_developer_workflow.py -v
+              python -I -B scripts/workflows/developer_workflow.py --output "$RUNNER_TEMP/developer-workflow" --tool-path "$(dirname "$(command -v python)"):/usr/bin:/bin"
+              ;;
+            campaign)
+              python -I -B tests/test_maintenance_campaign.py -v
+              ;;
+            management-source)
+              python -I -B scripts/release/test_management_tools_source_delivery.py -v
+              ;;
+            *) exit 2 ;;
+          esac
