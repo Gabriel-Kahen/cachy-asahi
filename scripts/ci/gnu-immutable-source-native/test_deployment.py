@@ -4,6 +4,13 @@ from pathlib import Path
 from unittest.mock import patch
 sys.path.insert(0,str(Path(__file__).resolve().parent));import deploy as D,binding,kernel_input as K,runtime_adapter,entry
 ROOT=D.ROOT
+
+def original_signature_parent_runtime():
+ import fixed_case as F,original_signature_source as G
+ current=F.snapshot(ROOT/'runtime');parent=G.normalize(current);q=G.profile()
+ D.need(G.apply(parent,q['runtime_edits'])==current,'whole current signed-original runtime reapplication')
+ D.need(F.snapshot(ROOT/'runtime')==current,'whole current raw runtime remains byte-held')
+ return parent
 class Tests(unittest.TestCase):
  def test_actual_current_owner_preparer_and_lifecycle_compose(self):
   v=entry.source(ROOT);self.assertEqual(v['current_provider'],'a8e9_CAA3');self.assertEqual(v['native_owner_seams'],10);self.assertIn('transaction',v['original_lifecycle_bodies_held'])
@@ -75,13 +82,14 @@ class Tests(unittest.TestCase):
     with self.assertRaises(ValueError):R.archive_files(b.getvalue())
  def test_typed_runtime_derivative_inverse_and_full_roles_held(self):
   p=D.obj(D.read(ROOT/D.LANE/'runtime-derivation.json'));basis=D.obj(D.read(ROOT/D.LANE/'runtime-basis.json',2*1024**2));self.assertEqual(p['basis_files'],667)
+  raw_runtime=original_signature_parent_runtime()
   for n,row in p['changed'].items():
-   raw=D.read(ROOT/'runtime'/n,4*1024**2);self.assertEqual(D.pin(raw),row['after'])
+   raw=raw_runtime[n];self.assertEqual(D.pin(raw),row['after'])
    if type(row['inverse'])is list:
     for e in reversed(row['inverse']):self.assertEqual(raw.decode().count(e['new']),e['count']);raw=raw.replace(e['new'].encode(),e['old'].encode())
     self.assertEqual(D.pin(raw),row['before'])
   for n,v in basis.items():
-   if n not in p['changed']:self.assertEqual(D.pin(D.read(ROOT/'runtime'/n,16*1024**2)),v)
+   if n not in p['changed']:self.assertEqual(D.pin(raw_runtime[n]),v)
  def test_closed_source_allows_only_topGit_metadata(self):
   with tempfile.TemporaryDirectory()as td:
    def top_metadata(folder,names):return {'.git'}if Path(folder)==ROOT else set()
@@ -677,8 +685,9 @@ class CopyBoundaryFailureDetailTests(unittest.TestCase):
   with patch.object(os,'write',side_effect=lambda fd,b:writes.append(b)or len(b)):space['relay_worker_failure'](raw+label+private,'0'*32)
   self.assertEqual(writes,[label])
  def test_whole_source_inverse_and_unchanged_old_worker_return_schema(self):
+  raw_runtime=original_signature_parent_runtime()
   for name,edits in runtime_adapter.COPY_DETAIL_EDITS.items():
-   final=(ROOT/'runtime'/name).read_text();final=runtime_adapter.immutable_node_map_inverse(final.encode()).decode()if name=='immutable/worker_api.py'else final;fragment=runtime_adapter.COPY_DETAIL_FRAGMENT if name=='immutable/worker_api.py'else runtime_adapter.COPY_DETAIL_VALIDATOR;before=final.replace('\n'+fragment,'',1)
+   final=raw_runtime[name].decode();final=runtime_adapter.immutable_node_map_inverse(final.encode()).decode()if name=='immutable/worker_api.py'else final;fragment=runtime_adapter.COPY_DETAIL_FRAGMENT if name=='immutable/worker_api.py'else runtime_adapter.COPY_DETAIL_VALIDATOR;before=final.replace('\n'+fragment,'',1)
    for old,new in reversed(edits):self.assertEqual(before.count(new),1);before=before.replace(new,old,1)
    self.assertEqual(runtime_adapter.copy_detail_derivative(before.encode(),name),final.encode())
    with self.assertRaises(ValueError):runtime_adapter.copy_detail_derivative(final.encode(),name)
@@ -745,7 +754,7 @@ class ImmutableNodeMapTests(unittest.TestCase):
    for n in set(sys.modules)-set(saved):sys.modules.pop(n,None)
    sys.modules.update(saved)
  def test_actual_copy_route_two_seams_and_full_previous_worker_inverse(self):
-  raw=(ROOT/'runtime/immutable/worker_api.py').read_bytes();old=runtime_adapter.immutable_node_map_inverse(raw);self.assertEqual(runtime_adapter.immutable_node_map_derivative(old),raw)
+  raw=original_signature_parent_runtime()['immutable/worker_api.py'];old=runtime_adapter.immutable_node_map_inverse(raw);self.assertEqual(runtime_adapter.immutable_node_map_derivative(old),raw)
   with self.assertRaises(ValueError):runtime_adapter.immutable_node_map_inverse(old)
   text=raw.decode();self.assertEqual(text.count('parent_graph=immutable_nodes_bind(module,source_root,initial[\'nodes\'])'),1);self.assertEqual(text.count('parent_graph(expected)is expected'),1);self.assertIn("current['nodes']==initial['nodes']",text)
   for path in('runtime/runtime-vm/scripts/update/full_root.py','runtime/runtime-vm/scripts/update/measure_copy.py','runtime/runtime-vm/scripts/update/disposable_copy.py'):
