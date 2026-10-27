@@ -44,7 +44,7 @@
     "packages/experiments/cachy-asahi-zlib-pgo-v1/PKGBUILD": {
       "bytes": 4109,
       "mode": 420,
-      "sha256": "729104545d846d551a744fd92680ccc3a51a29c35b2dfd1c6d05682bd61cf142"
+      "sha256": "6aaa11e22e2955177b7213874389e1bc80f2687672bc896ea37c7b9187409534"
     },
     "packages/experiments/cachy-asahi-zlib-pgo-v1/arm_c01.py": {
       "bytes": 66103,
@@ -72,9 +72,9 @@
       "sha256": "71c948e55cdea6e75f91bd46751e7d4d1a5a3a81e700fe8210e2747150df69b3"
     },
     "packages/experiments/cachy-asahi-zlib-pgo-v1/pipeline.py": {
-      "bytes": 21188,
+      "bytes": 34671,
       "mode": 420,
-      "sha256": "0f5fb6bbbe23ab0db46a1a16e523bb69229cc33507554ae65f0f4b07f37586c5"
+      "sha256": "907717f2f0ecfd126f43ac55b8805bfa871922a4c8f5ee8a1d38f5412f30d2e4"
     },
     "packages/experiments/cachy-asahi-zlib-pgo-v1/probe.c": {
       "bytes": 2822,
@@ -89,7 +89,7 @@
     "packages/experiments/cachy-asahi-zlib-pgo-v1/recipe-policy.json": {
       "bytes": 2252,
       "mode": 420,
-      "sha256": "88252d6fc086d7a6000562734e7625177495f2b83080a940e710b5d2a02b5d15"
+      "sha256": "c1302c24e9c09665a618f7d035aa336bd03196ea91ba547a04497c656d725886"
     },
     "packages/experiments/cachy-asahi-zlib-pgo-v1/strict-gzip.c": {
       "bytes": 2002,

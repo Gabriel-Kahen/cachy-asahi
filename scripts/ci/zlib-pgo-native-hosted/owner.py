@@ -400,7 +400,7 @@ def pin(raw): return dict(bytes=len(raw), sha256=sha(raw))
 def source(root, checksum, *, allow_carriers=False):
     manifest = base_source(root, checksum, allow_carriers=allow_carriers)
     pgo = Path(root)/'pgo-source'; body = read(pgo/'PGO-SOURCE.json')
-    need(body == read(Path(root)/LANE/'pgo-source-pins.json') and sha(body) == '554b7401e32c4baa8396686576ca2745dd2e98502b4ced7e58646b3ef8ed3615', 'closed corrected whole39 PGO map')
+    need(body == read(Path(root)/LANE/'pgo-source-pins.json') and sha(body) == '4733aecfa53b40ba4ed78eee2408978c3523ff5e45f9c55287d295cddb3dfc84', 'closed corrected whole39 PGO map')
     mapping=json.loads(body);need(mapping['actual'] is None and len(mapping['files'])==38,'PGO39 NULL source')
     need({p.relative_to(pgo).as_posix()for p in pgo.rglob('*')if not p.is_dir()}==set(mapping['files'])|{'PGO-SOURCE.json'},'closed nested PGO39')
     for name,row in mapping['files'].items():need(dict(**pin(read(pgo/name)),mode=stat.S_IMODE((pgo/name).stat().st_mode))==row,'held PGO source: '+name)
@@ -502,21 +502,30 @@ def cache_snapshot(path):
 
 def pairs(args):
     _,own=admitted(args);work=Path(args.work);actor=Actors(work/'pairs-actors',3800)
-    report=dict(status='FAIL',identity=own,manifest_sha256=args.manifest_sha256,hardware='NOT RUN',performance='NOT MEASURED',release='NOT_ADMITTED')
+    report=dict(status='FAIL',identity=own,manifest_sha256=args.manifest_sha256,hardware='NOT RUN',performance='NOT MEASURED',release='NOT_ADMITTED',
+        candidate_states=[dict(attempt=n,state='NOT_REACHED',stage=None)for n in(1,2)])
+    current=None
     try:
         producer=producer_binding(args,actor,own);report['image']=producer['image'];fresh(work/'build-observations');outputs=[]
         for number in(1,2):
+            current=report['candidate_states'][number-1];current.update(state='REACHED',stage='PRODUCER_BINDING')
             producer_binding(args,actor,own,'-'+str(number));prep=work/('attempt-'+str(number));output=prep/'native-build';outputs.append(output)
             save(work/('build-intent-'+str(number)+'.json'),dict(identity=own,image=producer['image'],preparation=str(prep),output=str(output),lock=pin(read(work/'bootstrap/packages.lock'))))
             command=[sys.executable,'-I','-B',str(HERE/'execute_builder.py'),'--execute','--feature-root',str(ROOT/'pgo-source'),'--source-sha',args.source_sha,'--preparation',str(prep),'--lock',str(work/'bootstrap/packages.lock'),'--producer-binding',str(work/('producer-binding-'+str(number)+'.json')),'--image',producer['image'],'--observation',str(work/'build-observations'/(str(number)+'.json'))]
+            current.update(state='INTENT_RECORDED',stage='BUILDER_EXECUTION')
             actor.run(command,timeout=1870)
+            current.update(state='RETURNED_ZERO_NOT_QUALIFIED',stage='POST_BUILD_QUALIFICATION')
+        current=None
         records=validate_pair_records(outputs,producer['image'],own);validate_observations(work,records,own)
         before=[load(work/('attempt-'+str(n))/'source-cache-before.json')for n in(1,2)];after=[load(work/('attempt-'+str(n))/'source-cache-after.json')for n in(1,2)]
         need(all(b==a for b,a in zip(before,after)),'independent offline source caches unchanged');results=[nested_pgo(out)for out in outputs]
         comparison=dict(payloads_equal=results[0]['outputs'][0]==results[1]['outputs'][0],profile_seals_equal=results[0]['profile_seal_sha256']==results[1]['profile_seal_sha256'],archives_equal=records[0]['artifacts']==records[1]['artifacts'],scope='DESCRIPTIVE_OUTER_RETRAINING_OBSERVATION_ONLY_NO_ARCHIVE_OR_PERFORMANCE_ADMISSION')
         save(work/'comparison.json',comparison)
         report.update(status='PASS_TWO_INDEPENDENT_NATIVE_PGO_BUILDS_PENDING_CLEANUP',clean_environment_ids=[r['clean_environment_id']for r in records],source_cache_unchanged=True,independent_payload_comparison=comparison,qualification='GENERIC_HOSTED_NATIVE_PGO_CONSTRUCTION_DATA_ONLY',installed='NOT RUN',generic16k_execution='NOT RUN')
-    except(Exception,KeyboardInterrupt)as error:report.update(error=type(error).__name__+': '+str(error)[:2048]);raise
+        for candidate in report['candidate_states']:candidate.update(state='QUALIFIED_SOURCE_BOUND_BUILD',stage='COMPLETE_PAIR_QUALIFICATION')
+    except(Exception,KeyboardInterrupt)as error:
+        if current is not None:current.update(state='FAILED_OR_INTERRUPTED',error_type=type(error).__name__)
+        report.update(error=type(error).__name__+': '+str(error)[:2048]);raise
     finally:save(work/'pairs-owner.json',report)
 
 def pair_cleanup(args,own):

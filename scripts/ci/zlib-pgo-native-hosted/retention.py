@@ -67,7 +67,7 @@ def tree(directory,allowed=None,limit=8192):
 
 def inner_leaf(name):
     parts=name.split('/')
-    if len(parts)==1:return name in {'train.gz','train.decoded','gun.decoded','example.gz','training-results.json','profile-seal.json','result.json','receipt.json','failed-profile-inventory.json'}
+    if len(parts)==1:return name in {'train.gz','train.decoded','gun.decoded','example.gz','training-results.json','profile-seal.json','result.json','receipt.json','failed-profile-inventory.json','tool-identity-observations.json','tool-identity-error.json'}
     if parts[0]=='commands':return len(parts)==2 and(parts[1]=='commands.json'or re.fullmatch(r'[0-9]{4}-[a-zA-Z0-9.-]+\.log',parts[1])is not None)
     if parts[0]in('profiles','decoded-profiles'):return len(parts)==2 and parts[1]in PROFILE_NAMES
     if parts[0]=='failed-profiles':return len(parts)==2 and re.fullmatch(r'[A-Za-z0-9_.#-]+',parts[1])is not None
@@ -337,40 +337,125 @@ def qualify(work,root,own,owner,*,runtime_temp=None):
         installed='NOT RUN',hardware='NOT RUN',generic16k='NOT RUN',performance='NOT GRANTED',release='NOT_ADMITTED')
 
 
+def candidate_diagnostics(work,own,manifest_sha256):
+    """Derive partial candidate DATA only; absence of binding2 is never sufficient."""
+    work=Path(work);owner_report={};owner_error=None
+    try:
+        if (work/'pairs-owner.json').exists():owner_report=j(work/'pairs-owner.json')
+    except Exception as error:owner_error=type(error).__name__
+    matched_owner=(type(owner_report)is dict and owner_report.get('identity')==own
+        and owner_report.get('manifest_sha256')==manifest_sha256)
+    declared=owner_report.get('candidate_states',[])if matched_owner else []
+    matched_states=(type(declared)is list and len(declared)==2
+        and all(type(row)is dict and type(row.get('attempt'))is int and row.get('attempt')==n for n,row in enumerate(declared,1)))
+    result=[]
+    for number in(1,2):
+        prefix=f'attempt-{number}/native-build'
+        names=[f'build-intent-{number}.json',f'producer-binding-{number}.json',f'build-observations/{number}.json',
+            prefix+'/provenance.json',prefix+'/artifacts/pgo-v1-evidence/result.json',
+            prefix+'/artifacts/pgo-v1-evidence/receipt.json',
+            prefix+'/artifacts/pgo-v1-evidence/tool-identity-observations.json',
+            prefix+'/artifacts/pgo-v1-evidence/tool-identity-error.json']
+        evidence={};records={};errors=[]
+        for name in names:
+            if not os.path.lexists(work/name):continue
+            try:
+                raw=read(work/name);evidence[name]=pin(raw);records[name]=decode(raw)
+            except Exception as error:errors.append(dict(path=name,error_type=type(error).__name__))
+        present=os.path.lexists(work/f'attempt-{number}')
+        owner_state=declared[number-1]if matched_states else None
+        row=dict(attempt=number,state='NO_RETAINED_EVIDENCE',owner_state=owner_state,
+            attempt_directory_present=present,evidence=evidence,errors=errors,acceptance=False)
+        pipeline=records.get(prefix+'/artifacts/pgo-v1-evidence/result.json',{})
+        provenance=records.get(prefix+'/provenance.json',{})
+        observed=records.get(f'build-observations/{number}.json',{})
+        intent=records.get(f'build-intent-{number}.json',{})
+        matched_intent=type(intent)is dict and intent.get('identity')==own
+        pipeline_failed=type(pipeline)is dict and pipeline.get('status')=='FAIL'and pipeline.get('source_sha256')==SOURCE_SHA
+        native_failed=type(provenance)is dict and provenance.get('status')=='failed'and provenance.get('mode')=='native'
+        driver=observed.get('driver_execution',{})if type(observed)is dict else {}
+        driver_failed=(type(driver)is dict and driver.get('status')=='FAILED_OR_INTERRUPTED'
+            and observed.get('source_sha')==own.get('source_sha'))
+        reached=present or any(os.path.lexists(work/name)for name in names)
+        if pipeline_failed:
+            row.update(state='FAILED',failure=dict(basis='INNER_PIPELINE_RESULT',error_type=pipeline.get('error_type'),error=str(pipeline.get('error',''))[:4096]))
+        elif driver_failed or native_failed and(matched_intent or owner_state is not None):
+            row.update(state='FAILED',failure=dict(basis='DRIVER_EXECUTION'if driver_failed else'NATIVE_BUILDER_PROVENANCE',error_type=driver.get('error_type'),error=str(driver.get('error',provenance.get('error','')))[:4096]))
+        elif owner_state is not None and owner_state.get('state')=='FAILED_OR_INTERRUPTED':
+            row.update(state='FAILED_OR_REFUSED',failure=dict(basis='MATCHED_OWNER_CONTROL_FLOW',error_type=owner_state.get('error_type')))
+        elif owner_state is not None and owner_state.get('state')=='NOT_REACHED'and not reached:
+            row['state']='NOT_REACHED'
+        elif reached:
+            row['state']='REACHED_NOT_QUALIFIED'
+        elif owner_state is not None and owner_state.get('state')!='NOT_REACHED':
+            row['state']='DECLARED_REACHED_WITHOUT_RETAINED_ATTEMPT_DATA'
+        if owner_state is not None and owner_state.get('state')=='NOT_REACHED'and reached:
+            row['errors'].append(dict(path='pairs-owner.json',error_type='NOT_REACHED_CONTRADICTS_RETAINED_ATTEMPT_DATA'))
+        result.append(row)
+    return dict(schema=1,role='PARTIAL_CANDIDATE_DIAGNOSTIC_DATA_ONLY',candidates=result,
+        owner_report_matched=matched_owner,owner_report_error=owner_error,acceptance=False,cleanup_credit='NONE',qualification='NOT_ESTABLISHED')
+
+
 def retain(args,owner):
-    """Copy all permitted leaves once; malformed/partial DATA cannot gain credit."""
-    manifest,own=owner.binding(args,feature_required=False);root=Path(owner.ROOT);work=Path(args.work);public=owner.fresh(args.public);copied={};total=0
+    """Export permitted partial DATA before the unchanged mandatory qualifier."""
+    manifest,own=owner.binding(args,feature_required=False);root=Path(owner.ROOT);work=Path(args.work);public=owner.fresh(args.public);copied={};total=0;export_errors=[]
     receipt=dict(schema=1,status='PARTIAL_OR_FAILED_PGO_HOSTED_DATA',identity=own,manifest_sha256=args.manifest_sha256,files=copied,acceptance=False,
         phase_roles=PHASE_ROLES,construction='NOT QUALIFIED',installed='NOT RUN',generic16k='NOT RUN',hardware='NOT RUN',performance='NOT GRANTED',release='NOT_ADMITTED',
         limits=dict(public_bytes=MAX_PUBLIC,total_leaves=MAX_LEAVES,attempt_leaves=8192,ordinary_leaf_bytes=MAX_FILE,libz_or_archive_bytes=MAX_LARGE),
-        limitations=['Public receipts require trusted Root ingress; local JSON is not GitHub attestation.','No native codec/profile/compiler/package or runtime replay is performed by retention.','Profile header/hash and native decoder transcript joins do not create a second independent native decoder execution.','No LIVE original-group members does not establish zombie/global absence; final consumer/producer retirement is separate.','Independent outer archives may differ in training seals/runtime provenance; their byte equality is observational.','External retained-input transport is DATA only; complete zero-exit streams, owned transport actors and the unchanged full1154 Git/blob preparation are mandatory before construction.','No candidate16K, physical Asahi/M2, performance, energy/thermal, final-system or release admission follows.'])
+        limitations=['Public receipts require trusted Root ingress; local JSON is not GitHub attestation.','No native codec/profile/compiler/package or runtime replay is performed by retention.','Profile header/hash and native decoder transcript joins do not create a second independent native decoder execution.','No LIVE original-group members does not establish zombie/global absence; final consumer/producer retirement is separate.','Independent outer archives may differ in training seals/runtime provenance; their byte equality is observational.','External retained-input transport is DATA only; complete zero-exit streams, owned transport actors and the unchanged full1154 Git/blob preparation are mandatory before construction.','No candidate16K, physical Asahi/M2, performance, energy/thermal, final-system or release admission follows.'],
+        export_errors=export_errors)
+    def error(name,error):
+        if len(export_errors)<256:export_errors.append(dict(path=str(name),type=type(error).__name__,message=str(error)[:1024]))
+        else:receipt['export_errors_truncated']=True
     def copy(path,name):
         nonlocal total
-        relative(name);need(name not in copied,'duplicate public retention name');data=read(path,cap(name));total+=len(data)
-        need(total<=MAX_PUBLIC and len(copied)<MAX_LEAVES,'whole public retention bounds')
+        relative(name);need(name not in copied,'duplicate public retention name');data=read(path,cap(name))
+        need(total+len(data)<=MAX_PUBLIC and len(copied)<MAX_LEAVES,'whole public retention bounds')
         target=public/name;target.parent.mkdir(parents=True,exist_ok=True)
         with target.open('xb')as stream:stream.write(data)
-        copied[name]=dict(**pin(data),mode=stat.S_IMODE(Path(path).stat().st_mode))
+        copied[name]=dict(**pin(data),mode=stat.S_IMODE(Path(path).stat().st_mode));total+=len(data)
+    def attempt_copy(path,name):
+        try:copy(path,name)
+        except Exception as failure:error(name,failure)
+    def export_tree(directory,prefix,allowed,limit=8192):
+        directory=Path(directory)
+        try:
+            need(directory.is_dir()and not directory.is_symlink(),'ordinary export directory')
+            leaves=0
+            for index,path in enumerate(directory.rglob('*')):
+                if index>=2*limit:error(prefix,ValueError('bounded export node count'));break
+                try:
+                    need(not path.is_symlink(),'export aliases refused');info=path.stat()
+                    need(stat.S_ISDIR(info.st_mode)or stat.S_ISREG(info.st_mode),'special export node refused')
+                    if path.is_dir():continue
+                    leaves+=1;need(leaves<=limit,'bounded export leaf count')
+                    name=relative(path.relative_to(directory).as_posix());need(allowed(name),'unexpected diagnostic leaf: '+name)
+                    attempt_copy(path,prefix+'/'+name)
+                except Exception as failure:error(prefix+'/'+path.relative_to(directory).as_posix(),failure)
+                if leaves>limit:break
+        except Exception as failure:error(prefix,failure)
     try:
-        copy(args.proof,'presecret-source-proof.json')
-        for name in[*manifest['files'],owner.MAP,*owner.ALIASES]:copy(root/name,'source/'+name)
+        attempt_copy(args.proof,'presecret-source-proof.json')
+        for name in[*manifest['files'],owner.MAP,*owner.ALIASES]:attempt_copy(root/name,'source/'+name)
         for name in sorted(WORK_FILES):
-            if(work/name).exists():copy(work/name,name)
+            if os.path.lexists(work/name):attempt_copy(work/name,name)
         for name in sorted(BOOT):
-            if(work/'bootstrap'/name).exists():copy(work/'bootstrap'/name,'bootstrap/'+name)
+            if os.path.lexists(work/'bootstrap'/name):attempt_copy(work/'bootstrap'/name,'bootstrap/'+name)
         for directory in(*[phase+'-actors'for phase in PHASES],'build-observations'):
-            if not(work/directory).exists():continue
+            if not os.path.lexists(work/directory):continue
             def permitted(name):return '/'not in name and(name=='actors.json'or re.fullmatch(r'[0-9]{4}\.log',name)is not None or directory=='build-observations'and name in('1.json','2.json'))
-            for name in tree(work/directory,permitted):copy(work/directory/name,directory+'/'+name)
+            export_tree(work/directory,directory,permitted)
         source=root/'pgo-source'/RECIPE;source_inputs={p.relative_to(source).as_posix()for p in source.rglob('*')if p.is_file()}
         for number in(1,2):
             path=work/f'attempt-{number}'
-            if path.exists():
-                for name in tree(path,lambda n:attempt_leaf(n,source_inputs)):copy(path/name,f'attempt-{number}/'+name)
+            if os.path.lexists(path):export_tree(path,f'attempt-{number}',lambda n:attempt_leaf(n,source_inputs))
+        receipt['candidate_diagnostics']=candidate_diagnostics(work,own,args.manifest_sha256)
+        need(not export_errors,'bounded diagnostic export errors prevent qualification')
         report=qualify(work,root,own,owner,runtime_temp=os.environ.get('RUNNER_TEMP'));receipt.update(status=report['status'],construction='FINITE_DATA_AWAITING_ROOT_REVIEW',actual=report)
-    except(Exception,KeyboardInterrupt)as error:
-        receipt['error']=dict(type=type(error).__name__,message=str(error)[:4096]);receipt['cleanup_credit']='NONE'
+    except(Exception,KeyboardInterrupt)as failure:
+        receipt['error']=dict(type=type(failure).__name__,message=str(failure)[:4096]);receipt['cleanup_credit']='NONE'
     finally:
+        if 'candidate_diagnostics'not in receipt:receipt['candidate_diagnostics']=candidate_diagnostics(work,own,args.manifest_sha256)
         receipt['retained_bytes']=total;receipt['retained_leaves']=len(copied)
         owner.save(public/'receipt.json',receipt)
     return 0 if receipt['status']=='COMPLETE_TWO_INDEPENDENT_SOURCE_BOUND_PGO_DATA_PENDING_ROOT_REVIEW'else 1
