@@ -27,7 +27,7 @@
       "license": "MIT",
       "pin": {
         "bytes": 135504,
-        "sha256": "2d7a09fb60f6f5c0f43e6ab3ee9bcbcd988514b5b48433ae6ca5ab630788d5f1"
+        "sha256": "2662328ebae3a65323a83b4ba0422c6e87254de914d507fb7210b62250b602d7"
       },
       "source_association": "reserved-process24-file successor constructor"
     },
@@ -206,8 +206,8 @@
       "license": "MIT",
       "package": "fish-done-fixture",
       "pin": {
-        "bytes": 13457,
-        "sha256": "47e7bbd70e21749c503cc4bd28f918512b68d0029edb5f0ff823a141b623542d"
+        "bytes": 15838,
+        "sha256": "1ae7ba2b5b404652fc6507e82160a33adcee500094ac15493ca98dd5839ac531"
       },
       "source_association": "native_build.py"
     },

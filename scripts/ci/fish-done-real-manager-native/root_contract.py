@@ -4,6 +4,7 @@
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path
 import re
 import sys
@@ -23,6 +24,24 @@ def actual_delivery(result, binding, outer):
            outer['exit'] == 0 and outer['process_group_absent'] is True and
            binding['package_context'] == 'alpm-installed' and
            binding['installed']['status'] == 'VERIFIED_ALPM_INSTALLED_PAYLOAD', 'actual native installed delivery required')
+
+
+def child_reaper_proof(build):
+    proof = build['child_reaper']
+    C.need(proof == dict(status='VERIFIED_CHILD_SUBREAPER', pid=proof['pid'], before=0, enabled=1) and
+           type(proof['pid']) is int and proof['pid'] > 0, 'verified ordinary native child subreaper required')
+    for row in build['commands']:
+        adopted = set()
+        drain = row['adopted_drain']
+        C.need(row['child_reaper'] == proof and row['pid'] != proof['pid'] and
+               drain['status'] == 'VERIFIED_NO_CHILDREN' and type(drain['reaped']) is list and
+               len(drain['reaped']) < 1024, 'complete native adopted-child drain required')
+        for child in drain['reaped']:
+            pid, status = child['pid'], child['wait_status']
+            C.need(type(pid) is int and pid > 0 and pid not in adopted and pid not in (row['pid'], proof['pid']) and
+                   type(status) is int and 0 <= status <= 65535 and
+                   (os.WIFEXITED(status) or os.WIFSIGNALED(status)), 'actual distinct adopted-child wait required')
+            adopted.add(pid)
 
 
 def validate(public, source_sha, run_id, attempt, *, require_retained_pass=True):
@@ -50,6 +69,8 @@ def validate(public, source_sha, run_id, attempt, *, require_retained_pass=True)
     token = hashlib.sha256(('fish-done-real-manager:'+run_id+':'+attempt+':'+source_sha).encode()).hexdigest()[:32]
     C.need(proof['consumer_token'] == token, 'exact current consumer token differs')
     base = read(public/'base/report.json')
+    transport = C.load(source/C.SLICE/'transport.py', 'root_exact_retained_DATA_transport')
+    transport.validate(public/'transport', source, proof, read(public/'base/retained-inputs.json'))
     owner = read(public/'runtime/owner.json')
     runtime = read(public/'runtime/report.json')
     ordered = read(public/'ordered-cleanup.json')
@@ -98,6 +119,7 @@ def validate(public, source_sha, run_id, attempt, *, require_retained_pass=True)
                 C.need(C.pin(C.read(path)) == command[suffix], 'original wrapper stream/hash differs')
     built = public/'runtime/build/export'
     build = read(built/'native-build-result.json')
+    child_reaper_proof(build)
     C.need(build['status'] == 'PASS_NATIVE_AARCH64_HEADLESS_DEPENDENCY_BUILD_ONLY' and not build['errors'] and
            build['native_arch'] == 'aarch64' and type(build['page_size']) is int and build['page_size'] > 0 and
            build['installed_delivery'] == 'NOT_RUN' and build['context_sha256'] == manifest['context_sha256'] and

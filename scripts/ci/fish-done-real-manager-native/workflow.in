@@ -15,7 +15,7 @@ jobs:
   native:
     if: github.repository == 'Gabriel-Kahen/cachy-asahi'
     runs-on: ubuntu-24.04-arm
-    timeout-minutes: 95
+    timeout-minutes: 105
     defaults:
       run:
         shell: bash
@@ -36,19 +36,20 @@ jobs:
           set -euo pipefail
           printf '%s  %s\n' '@MANIFEST_SHA256@' "$SLICE/source-manifest.json" '@JOB_SHA256@' "$SLICE/job.py" | sha256sum --check
           python3 -I -B "$SLICE/job.py" proof --source "$GITHUB_WORKSPACE" --proof "$RUNNER_TEMP/done-proof.json"
-      - name: Complete exact1148 retained package inputs
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        timeout-minutes: 2
-        with:
-          ref: ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad
-          path: retained574
-          persist-credentials: false
+      - name: One exact retained DATA fetch directly outside executable source
+        id: transport
+        timeout-minutes: 9
+        run: >-
+          timeout --signal=TERM --kill-after=30s 500s
+          python3 -I -B "$SLICE/transport.py" --source "$GITHUB_WORKSPACE"
+          --carrier "$RUNNER_TEMP/fish-done-retained574"
+          --proof "$RUNNER_TEMP/done-proof.json" --output "$RUNNER_TEMP/done-transport"
       - name: Unchanged original owned574 producer with retained package DATA
         timeout-minutes: 40
         run: >-
           timeout --signal=TERM --kill-after=10s 2300s
           python3 -I -B "$SLICE/producer.py"
-          --source "$GITHUB_WORKSPACE" --carrier "$GITHUB_WORKSPACE/retained574"
+          --source "$GITHUB_WORKSPACE" --carrier "$RUNNER_TEMP/fish-done-retained574"
           --proof "$RUNNER_TEMP/done-proof.json" --output "$RUNNER_TEMP/done-base"
       - name: Offline native dependency build then separate installed real-manager trial
         timeout-minutes: 35
@@ -64,7 +65,8 @@ jobs:
           timeout --signal=TERM --kill-after=10s 330s
           python3 -I -B "$SLICE/job.py" cleanup --source "$GITHUB_WORKSPACE"
           --base "$RUNNER_TEMP/done-base" --runtime "$RUNNER_TEMP/done-runtime"
-          --proof "$RUNNER_TEMP/done-proof.json" --output "$RUNNER_TEMP/done-cleanup.json"
+          --proof "$RUNNER_TEMP/done-proof.json" --transport "$RUNNER_TEMP/done-transport"
+          --output "$RUNNER_TEMP/done-cleanup.json"
       - name: Closed original source and native evidence with Root replay
         if: always() && steps.proof.outcome == 'success'
         timeout-minutes: 3
@@ -72,7 +74,7 @@ jobs:
           python3 -I -B "$SLICE/job.py" retain --source "$GITHUB_WORKSPACE"
           --base "$RUNNER_TEMP/done-base" --runtime "$RUNNER_TEMP/done-runtime"
           --proof "$RUNNER_TEMP/done-proof.json" --cleanup "$RUNNER_TEMP/done-cleanup.json"
-          --output "$RUNNER_TEMP/done-public"
+          --transport "$RUNNER_TEMP/done-transport" --output "$RUNNER_TEMP/done-public"
       - name: Bounded unselected development evidence only
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9

@@ -15,7 +15,7 @@ jobs:
   native:
     if: github.repository == 'Gabriel-Kahen/cachy-asahi'
     runs-on: ubuntu-24.04-arm
-    timeout-minutes: 95
+    timeout-minutes: 105
     defaults:
       run:
         shell: bash
@@ -34,21 +34,22 @@ jobs:
         timeout-minutes: 2
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '4237d80598eccdae2f1b42dabded9785bad1b97a61549724b08016dd043764ae' "$SLICE/source-manifest.json" 'fcbb0ecd76b35602213dc558e91e5def2ab3b6a1c751abd97b09fcfec7aced6b' "$SLICE/job.py" | sha256sum --check
+          printf '%s  %s\n' '207e98877ddcdd414ff614ef5be56c2b875d09c149589e5b1fe5211a13d8e13f' "$SLICE/source-manifest.json" '4d98446aa199d5577e9f89b779068e492866d3ea9b4bac38dce0d29e63d942eb' "$SLICE/job.py" | sha256sum --check
           python3 -I -B "$SLICE/job.py" proof --source "$GITHUB_WORKSPACE" --proof "$RUNNER_TEMP/done-proof.json"
-      - name: Complete exact1148 retained package inputs
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        timeout-minutes: 2
-        with:
-          ref: ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad
-          path: retained574
-          persist-credentials: false
+      - name: One exact retained DATA fetch directly outside executable source
+        id: transport
+        timeout-minutes: 9
+        run: >-
+          timeout --signal=TERM --kill-after=30s 500s
+          python3 -I -B "$SLICE/transport.py" --source "$GITHUB_WORKSPACE"
+          --carrier "$RUNNER_TEMP/fish-done-retained574"
+          --proof "$RUNNER_TEMP/done-proof.json" --output "$RUNNER_TEMP/done-transport"
       - name: Unchanged original owned574 producer with retained package DATA
         timeout-minutes: 40
         run: >-
           timeout --signal=TERM --kill-after=10s 2300s
           python3 -I -B "$SLICE/producer.py"
-          --source "$GITHUB_WORKSPACE" --carrier "$GITHUB_WORKSPACE/retained574"
+          --source "$GITHUB_WORKSPACE" --carrier "$RUNNER_TEMP/fish-done-retained574"
           --proof "$RUNNER_TEMP/done-proof.json" --output "$RUNNER_TEMP/done-base"
       - name: Offline native dependency build then separate installed real-manager trial
         timeout-minutes: 35
@@ -64,7 +65,8 @@ jobs:
           timeout --signal=TERM --kill-after=10s 330s
           python3 -I -B "$SLICE/job.py" cleanup --source "$GITHUB_WORKSPACE"
           --base "$RUNNER_TEMP/done-base" --runtime "$RUNNER_TEMP/done-runtime"
-          --proof "$RUNNER_TEMP/done-proof.json" --output "$RUNNER_TEMP/done-cleanup.json"
+          --proof "$RUNNER_TEMP/done-proof.json" --transport "$RUNNER_TEMP/done-transport"
+          --output "$RUNNER_TEMP/done-cleanup.json"
       - name: Closed original source and native evidence with Root replay
         if: always() && steps.proof.outcome == 'success'
         timeout-minutes: 3
@@ -72,7 +74,7 @@ jobs:
           python3 -I -B "$SLICE/job.py" retain --source "$GITHUB_WORKSPACE"
           --base "$RUNNER_TEMP/done-base" --runtime "$RUNNER_TEMP/done-runtime"
           --proof "$RUNNER_TEMP/done-proof.json" --cleanup "$RUNNER_TEMP/done-cleanup.json"
-          --output "$RUNNER_TEMP/done-public"
+          --transport "$RUNNER_TEMP/done-transport" --output "$RUNNER_TEMP/done-public"
       - name: Bounded unselected development evidence only
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9

@@ -24,9 +24,24 @@ def prove(root, output):
     return result
 
 
-def cleanup(root, base, runtime, proof_path, output):
+def cleanup(root, base, runtime, proof_path, output, transport=None):
     proof = json.loads(C.read(proof_path))
     C.verify(root, proof['manifest_sha256'])
+    if transport is not None and (transport/'report.json').exists():
+        transferred = json.loads(C.read(transport/'report.json'))
+        if transferred['status'] == 'FAIL_RETAINED_INPUT_TRANSPORT_DATA':
+            C.need(transferred['proof'] == proof and not any(os.path.lexists(p) for p in (base, runtime)),
+                   'same-owner failed transport without native evidence required')
+            carrier = C.safe(Path(transferred['carrier_path']))
+            C.need(carrier == C.safe(Path(transferred['runner_temp']))/'fish-done-retained574' and
+                   not carrier.is_relative_to(root) and not root.is_relative_to(carrier),
+                   'failed DATA must remain outside source')
+            result = dict(status='INPUT_TRANSPORT_FAILED_BEFORE_NATIVE_ACTORS_DIAGNOSTIC_ONLY',
+                proof=proof, transport_report_sha256=C.digest(transport/'report.json'),
+                partial_data_path=str(carrier), partial_data_preserved=True,
+                native='NOT_RUN', native_cleanup='NOT_ESTABLISHED', acceptance=False)
+            C.save(output, result)
+            return result
     held = C.held_job(root)
     result = dict(status='FAIL', consumer='NOT_OBSERVED', producer='NOT_RETIRED')
     try:
@@ -47,7 +62,7 @@ def cleanup(root, base, runtime, proof_path, output):
     return result
 
 
-def retain(root, base, runtime, proof_path, cleanup_path, output):
+def retain(root, base, runtime, proof_path, cleanup_path, output, transport=None):
     proof = json.loads(C.read(proof_path))
     C.verify(root, proof['manifest_sha256'])
     C.need(not output.exists(), 'fresh finite public evidence directory required')
@@ -70,6 +85,19 @@ def retain(root, base, runtime, proof_path, cleanup_path, output):
 
     copy(proof_path, 'source-proof.json')
     copy(cleanup_path, 'ordered-cleanup.json')
+    if transport is not None:
+        copy(transport/'report.json', 'transport/report.json')
+        copy(transport/'commands.json', 'transport/commands.json')
+        try:
+            rows = json.loads(C.read(transport/'commands.json'))
+            C.need(type(rows) is list and len(rows) <= 5, 'bounded partial transport commands required')
+            for row in rows:
+                C.need(type(row['index']) is int and 1 <= row['index'] <= 5, 'fixed transport stream index required')
+                for suffix in ('stdout', 'stderr'):
+                    name = 'command-'+str(row['index'])+'.'+suffix
+                    copy(transport/name, 'transport/'+name, 2*1024**2)
+        except Exception as error:
+            report['errors'].append('transport streams: '+str(error)[:512])
     for name in sorted(C.files(root)):
         copy(root/name, 'source/'+name)
     for name in ('report.json', 'installed-packages.lock', 'retained-inputs.json'):
@@ -106,17 +134,18 @@ def retain(root, base, runtime, proof_path, cleanup_path, output):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('phase', choices=('proof', 'cleanup', 'retain'))
-    for name in ('source', 'base', 'runtime', 'proof', 'cleanup', 'output'):
+    for name in ('source', 'base', 'runtime', 'proof', 'cleanup', 'output', 'transport'):
         parser.add_argument('--'+name, type=Path)
     args = parser.parse_args()
     root = C.safe(args.source.absolute())
     if args.phase == 'proof':
         value = prove(root, args.proof.absolute())
     elif args.phase == 'cleanup':
-        value = cleanup(root, args.base.absolute(), args.runtime.absolute(), args.proof.absolute(), args.output.absolute())
+        value = cleanup(root, args.base.absolute(), args.runtime.absolute(), args.proof.absolute(), args.output.absolute(),
+                        args.transport.absolute() if args.transport else None)
     else:
         value = retain(root, args.base.absolute(), args.runtime.absolute(), args.proof.absolute(),
-                       args.cleanup.absolute(), args.output.absolute())
+                       args.cleanup.absolute(), args.output.absolute(), args.transport.absolute() if args.transport else None)
     print(json.dumps(value, indent=2))
     raise SystemExit(value['status'] not in ('SOURCE_PROOF_PASS',
         'PASS_ORDERED_CONSUMER_THEN_PRODUCER_CLEANUP', 'PASS_NATIVE_INSTALLED_REAL_MANAGER_RETIRED'))

@@ -109,3 +109,49 @@ prohibits all further numeric PID/PGID operations. Original commands, argument
 vectors, environments, budgets, caps, dependency/source archives, product guards,
 real12 cases and original18 controls are held. The Root contract now requires
 the serialized reservation/reap proof as well as original byte/retirement joins.
+
+## Native70 adopted-child correction
+
+Retained actual run40558169665 failed after successful Meson setup: a completed
+orphan was a zombie parented to the container PID1. The inner build rejected its
+PRESENT census before the outer wrapper could reap it. This successor enables
+and verifies child-subreaper policy in the guarded ordinary build process before
+its first command. After each actual leader reap it drains only its adopted
+children with bounded `waitpid(-1, WNOHANG)`, requires ECHILD/no children, then
+refreshes the read-only session/group census. Unknown leader ownership skips
+adopted waits and remains failed; incomplete draining fails even if the original
+group is empty. Subreaper setup failure is retained in the native result.
+
+The WNOWAIT supervisor and all namespace/capability/recipe/product policies stay
+byte-identical. The Root contract additionally requires the verified ordinary
+subreaper and complete adopted-drain receipts. Focused inert controls exercise
+the retained actual failure, ordering, policy refusal and incomplete/UNKNOWN
+paths. They do not establish actual native subreaper behavior or installed12/old18
+acceptance; those still require Root's next exact-source native dispatch.
+
+## Outside-source retained DATA transport successor
+
+The inherited two-minute actions/checkout for the complete retained carrier is
+replaced with one exact shallow fetch directly into RUNNER_TEMP/fish-done-retained574.
+The fixed source remains ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad:1154 total files,
+1046432165 bytes, including1148 package/signature bodies. This reuses Batch129's
+reviewed five-command Git policy and budgets with the Fish reservation supervisor.
+No sparse/native248 substitution, transport retry or source namespace exception
+is added. The old retained574 source-directory exception is removed.
+
+The actor budget is480s, one fetch400s, outer wrapper500s plus30s kill grace in a
+nine-minute step. Step caps total99min inside a105min job; global/actions overhead
+still consumes the job clock. Producer/native/cleanup/capability budgets are held.
+Transport environment is cleared; credential helpers/headers, hooks and non-HTTPS
+protocols are disabled. Partial DATA and bounded original reports/command streams
+are preserved outside source on failure. A pre-native failed transport emits only
+an explicit DATA diagnostic when no base/runtime node (including dangling aliases)
+exists. It grants no native absence/cleanup credit; retention remains failed.
+
+Positive Root replay now requires all five command reservation proofs and raw
+transport streams, exact fetched/HEAD commit bytes and the original full1154
+Git/blob/tree/1148 cache preparation. The public artifact retains no1GB carrier
+bodies: those recorded joins do not rehash absent carrier bodies during replay.
+Original native signatures, full574, subreaper/drain, installed old18/realMako12,
+ALPM restoration and owned trial/build/producer retirement remain mandatory.
+Source-only transport controls establish no network or native acceptance.
