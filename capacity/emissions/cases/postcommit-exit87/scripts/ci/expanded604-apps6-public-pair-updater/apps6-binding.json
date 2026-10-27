@@ -1,0 +1,16 @@
+{
+  "authority_kind": "PUBLIC659_PAIRS_PLUS_INDEPENDENT_NATIVE574_REPAIR_BYTES_ONLY",
+  "authority_source": "1b04c762fdbf8a2e623b939b2e832bc0c084abf1",
+  "byte_case_decision": {
+    "bytes": 1481,
+    "path": "payload/repair-bytes-root-decision.json",
+    "sha256": "f8e106a882b7fc9b553c8a399f6d9296d17d77f9aadbdcf46135b090f88b4157"
+  },
+  "carrier_source": "65950a7e3ca82d97e21a65556844dab1cfd1a7f7",
+  "index": {
+    "bytes": 55737,
+    "path": "index.json",
+    "sha256": "782fd76c06831786cb74df396f195e8f5f8832e04b668c44bdadd802d1cb268b"
+  },
+  "status": "ROOT_BOUND_PUBLIC_CURRENT4_PAIRS_AND_NATIVE_BYTECASE"
+}
