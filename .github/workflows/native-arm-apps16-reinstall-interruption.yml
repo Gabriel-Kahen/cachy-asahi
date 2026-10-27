@@ -1,4 +1,4 @@
-name: native-arm-apps607-fresh-provisioned-recovery
+name: native-arm-apps607-diagnostic-transport
 on:
   workflow_dispatch:
     inputs:
@@ -46,7 +46,7 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: native-arm-apps607-fresh-provisioned-recovery
+  group: native-arm-apps607-diagnostic-transport
   cancel-in-progress: false
 jobs:
   native:
@@ -64,16 +64,19 @@ jobs:
       REQUESTED_INTEGRATION_SHA256: ${{ inputs.integration_sha256 }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        timeout-minutes: 2
         with:
           ref: a79c4ca92486854f9edb639cd970d2c90fda4b12
           persist-credentials: false
       - name: Checkout the exact newly published recovery capsule
+        timeout-minutes: 2
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ github.sha }}
           path: apps607-recovery-code
           persist-credentials: false
       - name: Checkout the pinned accepted fresh4K producer source
+        timeout-minutes: 2
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: b9976eea34eaed4b6e56af3be21d4d652fa971d6
@@ -89,7 +92,7 @@ jobs:
           set -euo pipefail
           test "$LIBRARY_SOURCE" = bd0cf1891083d011b70edab10501c317d3720b78
           test "$OPERATION" = recover-apps16-reinstall607
-          test "$OPERATION_PROFILE_SHA256" = 9208ece911ee58cc3c7c5720ba34f9f0de5d41433fb016123d95563865531144
+          test "$OPERATION_PROFILE_SHA256" = 359a8cf7ff531160981fae4a9fce486f0904b4798bbee30311919e500f0395d6
           [[ "$RECOVERY_SOURCE" =~ ^[0-9a-f]{40}$ ]]
           [[ "$CAPSULE_SHA256" =~ ^[0-9a-f]{64}$ ]]
           test "$RECOVERY_SOURCE" = "$GITHUB_SHA"
@@ -99,23 +102,27 @@ jobs:
           printf '%s  %s\n' "$CAPSULE_SHA256" apps607-recovery-code/capsule.json '8bfac0641230cbf52571b8d000bdf79f80adaa33f6d54f649eacba2d6eb54fca' apps607-recovery-code/workflow-support/bootstrap.py | sha256sum --check
           python3 -I -B apps607-recovery-code/workflow-support/bootstrap.py verify --root "$GITHUB_WORKSPACE/apps607-recovery-code" --operation "$OPERATION" --capsule-sha256 "$CAPSULE_SHA256" --operation-profile-sha256 "$OPERATION_PROFILE_SHA256" --provider-source "$GITHUB_WORKSPACE/fresh607-code"
       - name: Checkout issued Root accepted Six853 DATA record
+        timeout-minutes: 2
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: eea3f3022c9214deacc60c92dfca13704420756b
           path: fresh607-record
           persist-credentials: false
       - name: Materialize pinned historical input DATA without acquisition or acceptance replay
+        timeout-minutes: 2
         shell: bash
         run: |
           set -euo pipefail
           python3 -I -B fresh607-code/implementation/stage_inputs.py --record "$GITHUB_WORKSPACE/fresh607-record" --output "$RUNNER_TEMP/fresh607-input-data"
       - name: Checkout the separate expanded604 installer implementation
+        timeout-minutes: 2
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ inputs.source }}
           path: expanded604-installer
           persist-credentials: false
       - name: Require original library source and accepted native604 inputs before native work
+        timeout-minutes: 5
         id: installer_policy
         shell: bash
         env:
@@ -129,66 +136,77 @@ jobs:
             --implementation "$GITHUB_WORKSPACE/expanded604-installer" --source "$IMPLEMENTATION_SOURCE" \
             --workflow-sha "$WORKFLOW_SOURCE" --preflight
       - name: Checkout the fixed old helper and setup3 baseline
+        timeout-minutes: 2
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: b6b17e5f6b322f160f7eeb22c8a01380a3c854cd
           path: expanded604-legacy
           persist-credentials: false
       - name: Checkout unchanged original seven-pair input root
+        timeout-minutes: 2
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: 7fee76d68e5fd75437d8b49aaaced8376d2215cd
           path: expanded604-seven
           persist-credentials: false
       - name: Checkout the Root-bound accepted eight-pair input root
+        timeout-minutes: 2
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ steps.installer_policy.outputs.eight_source }}
           path: expanded604-eight
           persist-credentials: false
       - name: Checkout fixed public management source
+        timeout-minutes: 2
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ steps.installer_policy.outputs.management_source }}
           path: expanded604-management-source
           persist-credentials: false
       - name: Checkout fixed public setup source
+        timeout-minutes: 2
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ steps.installer_policy.outputs.setup_source }}
           path: expanded604-setup-source
           persist-credentials: false
       - name: Checkout fixed public welcome source
+        timeout-minutes: 2
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ steps.installer_policy.outputs.welcome_source }}
           path: expanded604-welcome-source
           persist-credentials: false
       - name: Checkout fixed public fresh600 decisions
+        timeout-minutes: 2
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ steps.installer_policy.outputs.fresh600_decisions }}
           path: expanded604-fresh600-decisions
           persist-credentials: false
       - name: Checkout fixed public native604 decisions
+        timeout-minutes: 2
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ steps.installer_policy.outputs.native604_decisions }}
           path: expanded604-native604-decisions
           persist-credentials: false
       - name: Checkout exact apps6_source
+        timeout-minutes: 2
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ steps.installer_policy.outputs.apps6_source }}
           path: apps6-inputs
           persist-credentials: false
       - name: Checkout exact apps6_authority_source
+        timeout-minutes: 2
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ steps.installer_policy.outputs.apps6_authority_source }}
           path: apps6-authority
           persist-credentials: false
       - name: Retrieve only the six original pinned audio inputs
+        timeout-minutes: 5
         id: audio_inputs
         shell: bash
         env:
@@ -197,6 +215,7 @@ jobs:
           set -euo pipefail
           python3 -B expanded604-legacy/scripts/ci/full-development-composition/retrieve_audio.py --output "$RUNNER_TEMP/audio-archives"
       - name: Verify actual Root decisions and accepted archive bytes before secrets
+        timeout-minutes: 5
         shell: bash
         env:
           IMPLEMENTATION_SOURCE: ${{ inputs.source }}
@@ -215,6 +234,7 @@ jobs:
             --apps6-source "$GITHUB_WORKSPACE/apps6-inputs/payload" --apps6-authority-source "$GITHUB_WORKSPACE/apps6-authority" \
             --audio-inputs "$RUNNER_TEMP/audio-archives"
       - name: Run unchanged installer controls and focused604 controls without actors
+        timeout-minutes: 5
         shell: bash
         env:
           EXPANDED600_LEGACY_ROOT: ${{ github.workspace }}/expanded604-legacy
@@ -229,6 +249,7 @@ jobs:
           set -euo pipefail
           sudo -n -- python3 -I -B "$GITHUB_WORKSPACE/fresh607-code/implementation/source_controls.py" --workspace "$GITHUB_WORKSPACE"
       - name: Seed the six frozen private cache objects before native work
+        timeout-minutes: 5
         if: inputs.mode == 'build'
         shell: bash
         env:
@@ -288,6 +309,7 @@ jobs:
           seed_current_build_cache(cache, pin)
           PYSEED
       - name: Checkout exact retained public input source
+        timeout-minutes: 2
         if: inputs.mode == 'build'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # existing pinned checkout
         with:
@@ -295,6 +317,7 @@ jobs:
           path: retained-public-inputs
           persist-credentials: false
       - name: Seed fourteen exact public ARM input files
+        timeout-minutes: 5
         if: inputs.mode == 'build'
         shell: bash
         run: |
@@ -306,30 +329,81 @@ jobs:
             TMPDIR="$RUNNER_TEMP" \
             python3 -I -B "$GITHUB_WORKSPACE/retained-public-inputs/seed.py" \
               --cache "$RUNNER_TEMP/alarm-cache"
-      - name: Checkout exact complete574 retained package inputs
+      - name: Fetch complete574 retained DATA once outside executable source
+        id: retained_transport
         if: inputs.mode == 'build'
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad
-          path: retained-complete574
-          persist-credentials: false
-      - name: Join all complete574 retained cache inputs before original acquisition
+        timeout-minutes: 9
+        shell: bash
+        env:
+          SOURCE_SHA: ${{ inputs.fresh_source_revision }}
+        run: |
+          set -euo pipefail
+          umask 077
+          set -o noclobber
+          out="$RUNNER_TEMP/apps607-retained-transport.stdout"
+          err="$RUNNER_TEMP/apps607-retained-transport.stderr"
+          rc="$RUNNER_TEMP/apps607-retained-transport.exit"
+          test ! -e "$out" && test ! -L "$out"
+          test ! -e "$err" && test ! -L "$err"
+          test ! -e "$rc" && test ! -L "$rc"
+          set +e
+          timeout --signal=TERM --kill-after=30s 500s python3 -I -B "$GITHUB_WORKSPACE/apps607-recovery-code/workflow-support/retained_transport.py" transport >"$out" 2>"$err"
+          code=$?
+          set -e
+          printf '%s\n' "$code" >"$rc"
+          cat "$out"
+          cat "$err" >&2
+          exit "$code"
+      - name: Prove complete1154 retained Git blob mode and hash closure
+        id: retained_prove
         if: inputs.mode == 'build'
         timeout-minutes: 5
         shell: bash
+        env:
+          SOURCE_SHA: ${{ inputs.fresh_source_revision }}
         run: |
           set -euo pipefail
-          test "$(git -C "$GITHUB_WORKSPACE/retained-complete574" rev-parse HEAD)" = ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad
-          test "$(sha256sum retained-complete574/seed.py | cut -d ' ' -f 1)" = 76b787fa71b121ec1bf83b86e4d5db849913614bc90e03239b869d7061af1db4
-          test "$(sha256sum retained-complete574/index.json | cut -d ' ' -f 1)" = 51a53c9e0d9eab1728f350f9ab8d3d7b8932891ab0ed68c7876a1440166ff486
-          test "$(sha256sum retained-complete574/desktop574-inputs.lock.json | cut -d ' ' -f 1)" = b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9
-          test "$(sha256sum scripts/ci/native_arm.py | cut -d ' ' -f 1)" = a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898
-          test "$(sha256sum scripts/ci/inputs.lock.json | cut -d ' ' -f 1)" = beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
-          deadline=$(env -i PATH=/usr/bin:/bin python3 -I -B -c 'import time; print(time.monotonic()+240)')
-          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC TMPDIR="$RUNNER_TEMP" \
-            python3 -I -B "$GITHUB_WORKSPACE/retained-complete574/seed.py" \
-              --lock "$GITHUB_WORKSPACE/retained-complete574/desktop574-inputs.lock.json" \
-              --cache "$RUNNER_TEMP/alarm-cache" --mode desktop574 --deadline "$deadline"
+          umask 077
+          set -o noclobber
+          out="$RUNNER_TEMP/apps607-retained-prove.stdout"
+          err="$RUNNER_TEMP/apps607-retained-prove.stderr"
+          rc="$RUNNER_TEMP/apps607-retained-prove.exit"
+          test ! -e "$out" && test ! -L "$out"
+          test ! -e "$err" && test ! -L "$err"
+          test ! -e "$rc" && test ! -L "$rc"
+          set +e
+          timeout --signal=TERM --kill-after=20s 260s python3 -I -B "$GITHUB_WORKSPACE/apps607-recovery-code/workflow-support/retained_transport.py" prove >"$out" 2>"$err"
+          code=$?
+          set -e
+          printf '%s\n' "$code" >"$rc"
+          cat "$out"
+          cat "$err" >&2
+          exit "$code"
+      - name: Join all complete574 retained cache inputs before original acquisition
+        id: retained_seed
+        if: inputs.mode == 'build'
+        timeout-minutes: 5
+        shell: bash
+        env:
+          SOURCE_SHA: ${{ inputs.fresh_source_revision }}
+        run: |
+          set -euo pipefail
+          umask 077
+          set -o noclobber
+          out="$RUNNER_TEMP/apps607-retained-seed.stdout"
+          err="$RUNNER_TEMP/apps607-retained-seed.stderr"
+          rc="$RUNNER_TEMP/apps607-retained-seed.exit"
+          test ! -e "$out" && test ! -L "$out"
+          test ! -e "$err" && test ! -L "$err"
+          test ! -e "$rc" && test ! -L "$rc"
+          set +e
+          timeout --signal=TERM --kill-after=20s 260s python3 -I -B "$GITHUB_WORKSPACE/apps607-recovery-code/workflow-support/retained_transport.py" seed >"$out" 2>"$err"
+          code=$?
+          set -e
+          printf '%s\n' "$code" >"$rc"
+          cat "$out"
+          cat "$err" >&2
+          exit "$code"
       - name: Build the fresh native base and original package pairs
         id: original_build
         timeout-minutes: 50
@@ -356,6 +430,7 @@ jobs:
             --cache "$RUNNER_TEMP/alarm-cache" --output "$RUNNER_TEMP/native-evidence"
           RUN_ORIGINAL_BUILDS
       - name: Retain bounded original-four and base evidence
+        timeout-minutes: 2
         if: always()
         shell: bash
         run: |
@@ -364,6 +439,7 @@ jobs:
             python3 -B scripts/ci/log_evidence.py "$RUNNER_TEMP/native-evidence"
           fi
       - name: Checkout the fixed FDK source
+        timeout-minutes: 2
         id: fdk_source
         if: ${{ !cancelled() && steps.original_build.outcome == 'success' }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -456,6 +532,7 @@ jobs:
           RUN_FDK
           grep -qx 'FDK_PAIR=PASS' "$RUNNER_TEMP/fdk-evidence/result.txt"
       - name: Retain bounded FDK metadata and separate outcome
+        timeout-minutes: 2
         if: always()
         shell: bash
         env:
@@ -497,6 +574,7 @@ jobs:
           PYFDKLOG
           python3 -B scripts/ci/log_evidence.py "$RUNNER_TEMP/fdk-metadata"
       - name: Checkout the ten current development recipes
+        timeout-minutes: 2
         if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -504,6 +582,7 @@ jobs:
           path: composition-product
           persist-credentials: false
       - name: Checkout the exact updater compiler implementation
+        timeout-minutes: 2
         if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -511,6 +590,7 @@ jobs:
           path: composition-updater
           persist-credentials: false
       - name: Checkout exact retained compiler6 archive and signature inputs
+        timeout-minutes: 2
         if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -530,9 +610,10 @@ jobs:
             python3 -I -B "$GITHUB_WORKSPACE/fresh607-code/implementation/compiler6.py" \
               --carrier "$GITHUB_WORKSPACE/retained-compiler6" \
               --updater "$GITHUB_WORKSPACE/composition-updater" \
-              --desktop-lock "$GITHUB_WORKSPACE/retained-complete574/desktop574-inputs.lock.json" \
+              --desktop-lock "$RUNNER_TEMP/apps607-retained-complete574/desktop574-inputs.lock.json" \
               --cache "$RUNNER_TEMP/alarm-cache" --deadline "$deadline"
       - name: Checkout the proven 574-package runtime builder
+        timeout-minutes: 2
         if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -540,6 +621,7 @@ jobs:
           path: composition-desktop
           persist-credentials: false
       - name: Checkout the exact v2 updater implementation
+        timeout-minutes: 2
         if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -547,6 +629,7 @@ jobs:
           path: composition-updater-v2
           persist-credentials: false
       - name: Checkout unchanged composition preparation APIs
+        timeout-minutes: 2
         if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -554,6 +637,7 @@ jobs:
           path: composition-preparation
           persist-credentials: false
       - name: Unpack only the exact retained public setup4 pair
+        timeout-minutes: 2
         if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
         shell: bash
         run: |
@@ -599,7 +683,7 @@ jobs:
       - name: Freshly provision signed607 root snapshot lease and guarded recovery
         id: recovery607
         if: ${{ always() && !cancelled() }}
-        timeout-minutes: 270
+        timeout-minutes: 100
         shell: bash
         env:
           FDK_PAIR_OUTCOME: ${{ steps.fdk_pair.outcome }}
@@ -631,3 +715,13 @@ jobs:
           set -euo pipefail
           python3 -I -B "$GITHUB_WORKSPACE/apps607-recovery-code/workflow-support/owner_cli607.py" retain
           python3 -B scripts/ci/log_evidence.py "$RUNNER_TEMP/apps607-fresh-recovery-public"
+      - name: Retain bounded complete574 transport and source DATA
+        if: ${{ always() && steps.retained_transport.outcome != 'skipped' }}
+        timeout-minutes: 3
+        shell: bash
+        env:
+          SOURCE_SHA: ${{ inputs.fresh_source_revision }}
+        run: |
+          set -euo pipefail
+          python3 -I -B "$GITHUB_WORKSPACE/apps607-recovery-code/workflow-support/retained_transport.py" retain
+          python3 -B scripts/ci/log_evidence.py "$RUNNER_TEMP/apps607-retained-transport-public"

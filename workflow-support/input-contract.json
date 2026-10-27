@@ -1,0 +1,355 @@
+{
+  "Root_acceptance": null,
+  "actual": null,
+  "actual_parent": "8d1fff1dac0e4e72cfd8bb94582c35da43e34d3b",
+  "actual_parent_tree": "e29bcb6d69e280e8451fe454f457b690df249dd8",
+  "budgets": {
+    "completion_guarantee": false,
+    "job_minutes": 350,
+    "owner_allocation_reason": "100min exceeds unchanged4870+650+5s finite child/cleanup path; old loose270min step made explicit caps383min exceed global350",
+    "owner_cleanup_seconds": 650,
+    "owner_group_retirement_allowance_seconds": 5,
+    "owner_inner_seconds": 4870,
+    "owner_outer_wrapper_seconds": 15600,
+    "owner_step_minutes": 100,
+    "sequential_minutes": 314,
+    "step_count": 47,
+    "steps": [
+      {
+        "minutes": 2,
+        "name": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1",
+        "number": 1
+      },
+      {
+        "minutes": 2,
+        "name": "Checkout the exact newly published recovery capsule",
+        "number": 2
+      },
+      {
+        "minutes": 2,
+        "name": "Checkout the pinned accepted fresh4K producer source",
+        "number": 3
+      },
+      {
+        "minutes": 2,
+        "name": "Bind whole recovery and provider sources before inputs secrets or actors",
+        "number": 4
+      },
+      {
+        "minutes": 2,
+        "name": "Checkout issued Root accepted Six853 DATA record",
+        "number": 5
+      },
+      {
+        "minutes": 2,
+        "name": "Materialize pinned historical input DATA without acquisition or acceptance replay",
+        "number": 6
+      },
+      {
+        "minutes": 2,
+        "name": "Checkout the separate expanded604 installer implementation",
+        "number": 7
+      },
+      {
+        "minutes": 5,
+        "name": "Require original library source and accepted native604 inputs before native work",
+        "number": 8
+      },
+      {
+        "minutes": 2,
+        "name": "Checkout the fixed old helper and setup3 baseline",
+        "number": 9
+      },
+      {
+        "minutes": 2,
+        "name": "Checkout unchanged original seven-pair input root",
+        "number": 10
+      },
+      {
+        "minutes": 2,
+        "name": "Checkout the Root-bound accepted eight-pair input root",
+        "number": 11
+      },
+      {
+        "minutes": 2,
+        "name": "Checkout fixed public management source",
+        "number": 12
+      },
+      {
+        "minutes": 2,
+        "name": "Checkout fixed public setup source",
+        "number": 13
+      },
+      {
+        "minutes": 2,
+        "name": "Checkout fixed public welcome source",
+        "number": 14
+      },
+      {
+        "minutes": 2,
+        "name": "Checkout fixed public fresh600 decisions",
+        "number": 15
+      },
+      {
+        "minutes": 2,
+        "name": "Checkout fixed public native604 decisions",
+        "number": 16
+      },
+      {
+        "minutes": 2,
+        "name": "Checkout exact apps6_source",
+        "number": 17
+      },
+      {
+        "minutes": 2,
+        "name": "Checkout exact apps6_authority_source",
+        "number": 18
+      },
+      {
+        "minutes": 5,
+        "name": "Retrieve only the six original pinned audio inputs",
+        "number": 19
+      },
+      {
+        "minutes": 5,
+        "name": "Verify actual Root decisions and accepted archive bytes before secrets",
+        "number": 20
+      },
+      {
+        "minutes": 5,
+        "name": "Run unchanged installer controls and focused604 controls without actors",
+        "number": 21
+      },
+      {
+        "minutes": 5,
+        "name": "Seed the six frozen private cache objects before native work",
+        "number": 22
+      },
+      {
+        "minutes": 2,
+        "name": "Checkout exact retained public input source",
+        "number": 23
+      },
+      {
+        "minutes": 5,
+        "name": "Seed fourteen exact public ARM input files",
+        "number": 24
+      },
+      {
+        "minutes": 9,
+        "name": "Fetch complete574 retained DATA once outside executable source",
+        "number": 25
+      },
+      {
+        "minutes": 5,
+        "name": "Prove complete1154 retained Git blob mode and hash closure",
+        "number": 26
+      },
+      {
+        "minutes": 5,
+        "name": "Join all complete574 retained cache inputs before original acquisition",
+        "number": 27
+      },
+      {
+        "minutes": 50,
+        "name": "Build the fresh native base and original package pairs",
+        "number": 28
+      },
+      {
+        "minutes": 2,
+        "name": "Retain bounded original-four and base evidence",
+        "number": 29
+      },
+      {
+        "minutes": 2,
+        "name": "Checkout the fixed FDK source",
+        "number": 30
+      },
+      {
+        "minutes": 25,
+        "name": "Required FDK pair on this job native base",
+        "number": 31
+      },
+      {
+        "minutes": 2,
+        "name": "Retain bounded FDK metadata and separate outcome",
+        "number": 32
+      },
+      {
+        "minutes": 2,
+        "name": "Checkout the ten current development recipes",
+        "number": 33
+      },
+      {
+        "minutes": 2,
+        "name": "Checkout the exact updater compiler implementation",
+        "number": 34
+      },
+      {
+        "minutes": 2,
+        "name": "Checkout exact retained compiler6 archive and signature inputs",
+        "number": 35
+      },
+      {
+        "minutes": 5,
+        "name": "Join six original354 compiler inputs into the same private cache",
+        "number": 36
+      },
+      {
+        "minutes": 2,
+        "name": "Checkout the proven 574-package runtime builder",
+        "number": 37
+      },
+      {
+        "minutes": 2,
+        "name": "Checkout the exact v2 updater implementation",
+        "number": 38
+      },
+      {
+        "minutes": 2,
+        "name": "Checkout unchanged composition preparation APIs",
+        "number": 39
+      },
+      {
+        "minutes": 2,
+        "name": "Unpack only the exact retained public setup4 pair",
+        "number": 40
+      },
+      {
+        "minutes": 5,
+        "name": "Checkout exact retained original35 tooling inputs",
+        "number": 41
+      },
+      {
+        "minutes": 3,
+        "name": "Checkout the pinned complete native repair input packet",
+        "number": 42
+      },
+      {
+        "minutes": 3,
+        "name": "Checkout the exact accepted Apps16 pair outside the closed capsule",
+        "number": 43
+      },
+      {
+        "minutes": 100,
+        "name": "Freshly provision signed607 root snapshot lease and guarded recovery",
+        "number": 44
+      },
+      {
+        "minutes": 12,
+        "name": "Independently verify outer retirement and dispose owned607 resources",
+        "number": 45
+      },
+      {
+        "minutes": 3,
+        "name": "Retain closed raw native607 evidence without acceptance inference",
+        "number": 46
+      },
+      {
+        "minutes": 3,
+        "name": "Retain bounded complete574 transport and source DATA",
+        "number": 47
+      }
+    ],
+    "unallocated_job_minutes": 36
+  },
+  "diagnostic_basis_capsule": {
+    "bytes": 100125,
+    "sha256": "0c570d918cc37478c3f0bae004c94c76b0ab601cc0f5b5f6e3bd1bef8985a644"
+  },
+  "hardware": "NOT_RUN",
+  "inputs": {
+    "capsule_sha256": null,
+    "fresh_source_revision": null,
+    "inputs_sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f",
+    "integration_sha256": "",
+    "mode": "build",
+    "operation": "recover-apps16-reinstall607",
+    "operation_profile_sha256": "359a8cf7ff531160981fae4a9fce486f0904b4798bbee30311919e500f0395d6",
+    "recipes_sha256": "a5fb287b4dda2a90bf61d4fa8cbbc5d666dad8bb450a70544d00545b091f36e3",
+    "source": "bd0cf1891083d011b70edab10501c317d3720b78"
+  },
+  "native": "NOT_RUN",
+  "old607_cause": "UNKNOWN_LOCAL_AUTH_COMPONENT_PASS_IS_NOT_OLD_NATIVE_CACHE_PROOF",
+  "operation_profile": {
+    "bytes": 44437,
+    "sha256": "359a8cf7ff531160981fae4a9fce486f0904b4798bbee30311919e500f0395d6"
+  },
+  "ref": null,
+  "schema_version": 1,
+  "source": null,
+  "source_files": 539,
+  "status": "SOURCE_ONLY_DIAGNOSTIC_TRANSPORT_NATIVE_INPUT_CONTRACT",
+  "transport": {
+    "bytes": 1046432165,
+    "cleanup_authority": false,
+    "data_path": "$RUNNER_TEMP/apps607-retained-complete574",
+    "files": 1154,
+    "helpers": {
+      "workflow-support/carrier-git-map.json": {
+        "bytes": 322185,
+        "sha256": "21b11dcf27c2db02282d9fba1ff97e61c5a1317d4ad0c3f4f0ff2648fc14d050"
+      },
+      "workflow-support/carrier-profile.json": {
+        "bytes": 195440,
+        "sha256": "4089fd798849cafda23d03c0dd95ac896a83fd63ad21e331ae420c147535586c"
+      },
+      "workflow-support/legacy_prefill.py": {
+        "bytes": 5986,
+        "sha256": "05a91a91efd69b3b2e06561f5bbf08bdbb105998d42dbf133e75fd1fe25945ac"
+      },
+      "workflow-support/owned_child.py": {
+        "bytes": 10908,
+        "sha256": "eaf9a46630e4fe4ca0a8f94a6dc2de4a881a6ad7e8b4dd0810b3347c0d7038d5"
+      },
+      "workflow-support/retained_transport.py": {
+        "bytes": 15387,
+        "sha256": "00b3e949b195cc82dfc80a4e1d89b0cb39607e9485312778e254a6aedbf5b248"
+      }
+    },
+    "inner_seconds": {
+      "prove": 240,
+      "seed": 240,
+      "transport": 480
+    },
+    "label": "apps607-retained-transport-public",
+    "one_fetch": true,
+    "partial_data": "RETAINED_NOT_ACCEPTED",
+    "phases": [
+      {
+        "kill_grace_seconds": 30,
+        "mode": "transport",
+        "outer_seconds": 500,
+        "step": "Fetch complete574 retained DATA once outside executable source",
+        "step_minutes": 9
+      },
+      {
+        "kill_grace_seconds": 20,
+        "mode": "prove",
+        "outer_seconds": 260,
+        "step": "Prove complete1154 retained Git blob mode and hash closure",
+        "step_minutes": 5
+      },
+      {
+        "kill_grace_seconds": 20,
+        "mode": "seed",
+        "outer_seconds": 260,
+        "step": "Join all complete574 retained cache inputs before original acquisition",
+        "step_minutes": 5
+      }
+    ],
+    "proof": "COMPLETE1154_PHYSICAL_GIT_BLOB_MODE_HASH_TREE",
+    "public_path": "$RUNNER_TEMP/apps607-retained-transport-public",
+    "retention_step": "Retain bounded complete574 transport and source DATA",
+    "retry": false,
+    "source": "ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad",
+    "tree": "e21f947bac3afdfbd67e4e65c8234b35ae42b00f"
+  },
+  "workflow": {
+    "alias": ".github/workflows/native-arm-apps16-reinstall-interruption.yml",
+    "current_registry": "NOT_QUERIED",
+    "name": "native-arm-apps607-diagnostic-transport",
+    "path": ".github/workflows/native-arm-build.yml",
+    "prior_observed_id": 381664314
+  }
+}
