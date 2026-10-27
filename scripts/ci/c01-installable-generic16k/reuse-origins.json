@@ -1,0 +1,34 @@
+{
+  "files": {
+    "scripts/ci/arm-experiments-generic16k-ci/owner.py": {
+      "bytes": 9176,
+      "sha256": "09d7a762d7efb7ba1dffa0c062470b01a13a315d64bb787925094d174cf32f33"
+    },
+    "scripts/ci/arm-experiments-generic16k/adapter.py": {
+      "bytes": 9367,
+      "sha256": "c6a632a93ae4a60a83ab67c12ff0e82c169e9b0025dc9f8342d0cf5ce79a0013"
+    },
+    "scripts/ci/tools-generic16k/run.py": {
+      "bytes": 45543,
+      "sha256": "3a38f1037817d4087f455e859511246bb4a3fd90efac31d0b5258e3632703052"
+    },
+    "scripts/ci/updater607-generic16k-source/templates/kernel_data.py.in": {
+      "bytes": 7217,
+      "sha256": "8a4960373fd2ef7905077913eb1848b202bfff9aab0b7a315db90435ff805b7f"
+    },
+    "scripts/virtual/generic16k/fixture.py": {
+      "bytes": 15118,
+      "sha256": "47d2c042319246538f8724e294b9530e079ba00de7995ef42f9a1031ca17c4ba"
+    },
+    "scripts/virtual/generic16k/smoke.c": {
+      "bytes": 1720,
+      "sha256": "b71adf10496d563a20eed7cecef8074cb82dd103a63e47f48462a1bd5d18f23d"
+    }
+  },
+  "kernel_data_source": "1c6a2e7a7c6709eb1462cdcb0b449c98fe33d845",
+  "release": "7.1.13-generic16k-managed-gui",
+  "supervise_body": {
+    "bytes": 2020,
+    "sha256": "c039af36f8569c295ca23a8aaeb76cb065bf4c443a8e44ace08f3817c01e6132"
+  }
+}
