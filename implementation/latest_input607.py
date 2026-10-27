@@ -40,13 +40,14 @@ def prepare(root,carrier,bootstrap,base,out,deadline,welcome8,apps16,six_record,
    if r['signer']==ALARM:
     sig=carrier/'upstream-signatures'/(p.name+'.sig');A.need(A.pin(A.read(sig))==dict(bytes=row['signature_size'],sha256=row['signature_sha256']),'exact original official detached signature');shutil.copyfile(sig,target.with_name(target.name+'.sig'))
    else:to_sign.append(target)
-  tick(deadline);A.need(len(rows)==607 and len(to_sign)==29,'exact573 upstream plus original5 upstream/28 TEST incoming');signer=sign.sign(out/'keys',private,to_sign)
+  tick(deadline);A.need(len(rows)==607 and len(to_sign)==29,'exact573 upstream plus original5 upstream/28 TEST incoming');signer=_positive_sign(sign,out/'keys',private,to_sign,deadline)
   for row in rows:
    if row['signer']is None:row['signer']=signer
    sig=out/row['signature'];row.update(signature_size=sig.stat().st_size,signature_sha256=A.pin(A.read(sig))['sha256'])
   verifier=V.PublicVerifier(private/'public-verifier',[out/'keys/archlinuxarm.gpg',out/'keys/TEST-public.asc']);streams={}
-  for row in rows:
-   tick(deadline);result=subprocess.run(verifier.argv+['--status-fd=1','--verify',str(out/row['signature']),str(out/row['archive'])],capture_output=True,text=True,timeout=min(30,max(.01,deadline-time.monotonic())),check=True);V.valid_signer(result.stdout,row['signer']);A.need(len(result.stdout)+len(result.stderr)<=65536 and not re.search(r'\[GNUPG:\] (KEYEXPIRED|SIGEXPIRED|BADSIG|ERRSIG|EXPSIG|EXPKEYSIG|REVKEYSIG|KEYREVOKED|NO_PUBKEY)(?: |\n|$)',result.stdout),'full current original GPG expiry/revocation/status gate');streams[row['name']]=dict(stdout=A.pin(result.stdout.encode()),stderr=A.pin(result.stderr.encode()),returncode=0)
+  def verify_one(row):
+   tick(deadline);result=subprocess.run(verifier.argv+['--status-fd=1','--verify',str(out/row['signature']),str(out/row['archive'])],capture_output=True,text=True,timeout=30,check=True);V.valid_signer(result.stdout,row['signer']);A.need(len(result.stdout)+len(result.stderr)<=65536 and not re.search(r'\[GNUPG:\] (KEYEXPIRED|SIGEXPIRED|BADSIG|ERRSIG|EXPSIG|EXPKEYSIG|REVKEYSIG|KEYREVOKED|NO_PUBKEY)(?: |\n|$)',result.stdout),'full current original GPG expiry/revocation/status gate');return row['name'],dict(stdout=A.pin(result.stdout.encode()),stderr=A.pin(result.stderr.encode()),returncode=0)
+  H=load('_positive607_public_crypto',HERE/'presecret_control.py');A.need(len(rows)==len({r['name']for r in rows})==607,'exact607 distinct signature rows');streams=dict(H.bounded_map(tuple(rows),verify_one,workers=64,phase_deadline=deadline));A.need(set(streams)=={r['name']for r in rows},'every original607 strict signature gate completed')
   verifier.close();verifier=None
   subprocess.run(['gpgconf','--homedir',str(private/'test-signing'),'--kill','all'],check=True,capture_output=True,timeout=15);shutil.rmtree(private);A.need(not private.exists(),'owned private key/agent retirement');retired=True
   origins={}
@@ -59,3 +60,7 @@ def prepare(root,carrier,bootstrap,base,out,deadline,welcome8,apps16,six_record,
   if verifier is not None:verifier.close()
   if not retired and private.exists():
    (out/'private-retirement-refusal.json').write_bytes(A.enc(dict(status='UNCERTAIN_SIGNER_RETIREMENT_PRESERVE_PRODUCER',path=str(private))))
+
+def _positive_sign(sign,inputs,private,packages,deadline):
+ import ast
+ source=(HERE.parent/'parent574/support/native-composition.py').read_text();node=next(n for n in ast.parse(source).body if isinstance(n,ast.FunctionDef)and n.name=='sign');text=ast.get_source_segment(source,node);a="    for path in packages:\n        subprocess.run(gpg + ['--output', str(path) + '.sig', '--detach-sign', str(path)], check=True, capture_output=True, timeout=30)";b="    def one(path):\n        subprocess.run(gpg + ['--output', str(path) + '.sig', '--detach-sign', str(path)], check=True, capture_output=True, timeout=30)\n    _positive_map(tuple(packages),one,workers=8,phase_deadline=_positive_deadline)";A.need(text.count(a)==1 and len(packages)==len(set(map(str,packages)))==29,'whole signing callback and exact29 distinct paths');text=text.replace(a,b,1);H=load('_positive607_crypto_scheduler',HERE/'presecret_control.py');space=dict(vars(sign),_positive_map=H.bounded_map,_positive_deadline=deadline);exec(compile(text,str(HERE/'latest_input607.py')+'::<positive-sign>','exec'),space);return space['sign'](inputs,private,packages)

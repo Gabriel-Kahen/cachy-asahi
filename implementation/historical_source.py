@@ -141,14 +141,14 @@ def historical_selected_factory(base_factory,root,assets):
  root=canonical(root);home=root.parents[1]/'implementation'
  need(canonical(base_factory.__file__)==home/'factory/factory.py','selected3460 SOURCE requires the fixed607 factory')
  path=canonical(home/'observer_apply.py')
- need(hashlib.sha256(path.read_bytes()).hexdigest()=='045717250bae2c94df9485e155f3c1a610d1e71d7244dbe19611903459102aec','exact original selected607 observer SOURCE')
+ need(hashlib.sha256(path.read_bytes()).hexdigest()=='405253ea6776006200f8d8a781fdf32c6d62322b43ad4c60efd82876b8bbe6c0','exact original selected607 observer SOURCE')
  observer=base_factory.load('_historical_selected607_observer',path)
  return observer.factory(historical_factory(base_factory,root,assets))
 
 def source_runner_contract(runner_context,runner):
  """Run exact607 code/policy predicates against explicitly unbound SOURCE data."""
  rpath=canonical(runner_context.__file__);home=rpath.parent;runner=canonical(runner)
- need(rpath.name=='runner_context.py'and home.name=='implementation'and canonical(runner_context.HERE)==home and hashlib.sha256(rpath.read_bytes()).hexdigest()=='9fdf72c0e708e7ab5ca931c9c52ac99ad2380162322881c08908a29cf3370482','exact original selected607 runner-context SOURCE')
+ need(rpath.name=='runner_context.py'and home.name=='implementation'and canonical(runner_context.HERE)==home and hashlib.sha256(rpath.read_bytes()).hexdigest()=='30c492b9d1ab98406b2af1c347cd0266907ef5d720ee9502dfea88488bc9f58c','exact original selected607 runner-context SOURCE')
  context_path=canonical(home/'factory/context606.py')
  need(hashlib.sha256(context_path.read_bytes()).hexdigest()=='94b9265e1680e38fbc93c63b6f83cec1d67bed2759cb791d0b55a254b2d13301','exact original selected607 context SOURCE')
  original_load=runner_context.load;context=original_load('_historical_contract_exact_context',context_path)

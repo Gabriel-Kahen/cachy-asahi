@@ -5,30 +5,30 @@
   "actual_source": null,
   "binding": {
     "attempt": 1,
-    "carrier_ref": "codex/gui-fresh-test-public-packet-20261027-v1",
-    "carrier_source": "f53b5ec8bc4df40f4cad145fb8fe1dc206a4d115",
+    "carrier_ref": "codex/gui607-renewed-test-public-packet-v1",
+    "carrier_source": "abeb95a3890736ec5ac630dbaca8bfc3f92bc344",
     "context_path": "@source/Root-qualification.json",
     "context_pin": {
-      "bytes": 971,
-      "sha256": "3c606bca2ec615c90b6a4ea4619ceac8727eb30944f466733936bfd6ca9c63a5"
+      "bytes": 1423,
+      "sha256": "57fe3cdbbf4a956e5511e064a9c29ca6caa5ba3d724d9369b8d7ff4a5e02d0c8"
     },
-    "created": 1793066963,
-    "expires": 1793153363,
-    "fingerprint": "EC1DA61C5D9C91638CC42A598EDB36DD1EC0BDB1",
+    "created": 1793132014,
+    "expires": 1793218414,
+    "fingerprint": "86E873FCF42D98B2E38CF370329A06AB61D55DF3",
     "index_pin": {
       "bytes": 1952,
-      "sha256": "ffbbc96263346bd5f9dffb1130ba4c1a5be5b1179fad88fb22f83cef3781e958"
+      "sha256": "1517832e775079c9c09e3dd4df2c84fa6eb4e0b8c607e161d5d1bdbac4f235ba"
     },
-    "job": "121966791022",
+    "job": "122442215349",
     "packet_path": ".",
     "production_index_pin": {
-      "bytes": 1869,
-      "sha256": "ac2180b01ac949d8755725285d0ba84077a02ad274e676502e8fd783acd0c84d"
+      "bytes": 1871,
+      "sha256": "44289ad63fb322bd4a60e7c67bc8f986a00f74863c9aa887f1336b1efa01f2ea"
     },
     "production_path": "@source/production",
-    "run": 40436647219,
-    "signing_ref": "refs/heads/codex/gui-fresh-test-signer-qualify-v1",
-    "signing_source": "b6733acad27d20a7fc8945716a5cd6db4a642325"
+    "run": 40575922585,
+    "signing_ref": "refs/heads/codex/gui607-ingress-test-renewal-v1",
+    "signing_source": "b97cee23851088a853b0537641fde1d250ef06c2"
   },
   "purpose": "GUI607_FRESH_TEST_SIGNER_CONSUMER_V1",
   "schema_version": 1
