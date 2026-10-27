@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "status": "SOURCE_ONLY_EXPLICIT_CI_SOURCE_AND_CARRIER_BINDING_REQUIRED",
+  "default_selectors": {"source_sha": null, "package_source": null, "run": null, "attempt": null, "image": null},
+  "accepted_package_origin": {"source": "d33e595a10acf2d148752ea382ae607283fc0b73", "run": 40468241048, "attempt": 1, "artifact": 12717726584},
+  "kernel_DATA_source": "1c6a2e7a7c6709eb1462cdcb0b449c98fe33d845",
+  "kernel_release": "7.1.13-generic16k-managed-gui",
+  "base": "fresh original signed341 bootstrap; complete original ALPM database and base root in ext4",
+  "host_observation": 4096,
+  "guest_required_observation": 16384,
+  "budgets": {"bootstrap_seconds": 2300, "capture_seconds": 1000, "capture_cpus": 2, "capture_memory_bytes": 8589934592, "capture_pids": 256, "capture_tmpfs_bytes": 6442450944, "root_disk_bytes": 8589934592, "VM_seconds": 1800, "VM_cpus": 2, "VM_memory_MiB": 4096, "guest_seconds": 1600, "UART_bytes": 4194304, "guest_report_bytes": 1572864, "guest_log_bytes": 67108864, "public_retention_bytes": 16777216, "public_retention_days": 3, "outer_retirement_seconds": 150},
+  "guest_ALPM_phases": 8,
+  "guest_commands": 645,
+  "guest_encodes": 210,
+  "guest_cross_decodes": 378,
+  "guest_strict_rejections": 30,
+  "runtime": "NOT RUN",
+  "hardware_validation": "NOT RUN",
+  "performance_acceptance": "NOT RUN",
+  "independent_machine_reproduction": "NOT RUN",
+  "release_admission": false
+}
