@@ -1,0 +1,637 @@
+{
+  "actual": null,
+  "files": {
+    "LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "docs/port/installable-arm-experiments.md": {
+      "bytes": 8219,
+      "mode": 420,
+      "sha256": "38f7f3cbf48e6d6168721985ee78a97b1607643ba901eae788befad0809b95b3"
+    },
+    "packages/experiments/cachy-asahi-zlib-baseline/LICENSE.project": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/experiments/cachy-asahi-zlib-baseline/PKGBUILD": {
+      "bytes": 3210,
+      "mode": 420,
+      "sha256": "e512ef4b02cef42fd377b0501d44831ba6fb5174c02220cb3527d6f782b77a7d"
+    },
+    "packages/experiments/cachy-asahi-zlib-baseline/probe.c": {
+      "bytes": 2822,
+      "mode": 420,
+      "sha256": "b85bab88cdb9048f26d5e812cc1ad2b8c783292882cbe3ab804e54353e4dfee1"
+    },
+    "packages/experiments/cachy-asahi-zlib-baseline/strict-gzip.c": {
+      "bytes": 2002,
+      "mode": 420,
+      "sha256": "369e4e0e3f7c79b5d892edf7476ade41d6647332fb78f95ad7de7d8449bbaca9"
+    },
+    "packages/experiments/cachy-asahi-zlib-lto/LICENSE.project": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/experiments/cachy-asahi-zlib-lto/PKGBUILD": {
+      "bytes": 3214,
+      "mode": 420,
+      "sha256": "2c5c53ed0231fd9562c54b48d3773f33b6bdbecb92a8f30daca1fac101cf8786"
+    },
+    "packages/experiments/cachy-asahi-zlib-lto/probe.c": {
+      "bytes": 2822,
+      "mode": 420,
+      "sha256": "b85bab88cdb9048f26d5e812cc1ad2b8c783292882cbe3ab804e54353e4dfee1"
+    },
+    "packages/experiments/cachy-asahi-zlib-lto/strict-gzip.c": {
+      "bytes": 2002,
+      "mode": 420,
+      "sha256": "369e4e0e3f7c79b5d892edf7476ade41d6647332fb78f95ad7de7d8449bbaca9"
+    },
+    "scripts/checks/package_checks.py": {
+      "bytes": 17706,
+      "mode": 420,
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+    },
+    "scripts/ci/inputs.lock.json": {
+      "bytes": 328101,
+      "mode": 420,
+      "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f"
+    },
+    "scripts/ci/native_arm.py": {
+      "bytes": 28318,
+      "mode": 420,
+      "sha256": "a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/acl.BUILDINFO": {
+      "bytes": 6633,
+      "mode": 420,
+      "sha256": "7c9c08ec1a7ce22b3a4cd225e813b4705248efd918bc5f7088160a2b89c50f14"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/attr.BUILDINFO": {
+      "bytes": 6635,
+      "mode": 420,
+      "sha256": "f029ad4f1215e5609c50bb6e4702d997b5d9e11bf8417d8848916666c413ebe5"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/audit.BUILDINFO": {
+      "bytes": 6566,
+      "mode": 420,
+      "sha256": "b191e94b133e3c990a3ebf66dca2d53bc9f330707950cbfdd5bd80a920d321c1"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/binutils.BUILDINFO": {
+      "bytes": 6384,
+      "mode": 420,
+      "sha256": "82dfb724b34034681324adf317e454d60266d628774ef442df49cccfa9b8d211"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/brotli.BUILDINFO": {
+      "bytes": 6593,
+      "mode": 420,
+      "sha256": "e9d091e108ea66df5914374575f9014c2b6147aad0d65344768564b3a74e0baa"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/bzip2.BUILDINFO": {
+      "bytes": 4963,
+      "mode": 420,
+      "sha256": "c0a9d105d4b9cfdf65ba30883e3f3fd4b90f67fbe273c79265d28cb2d3d46522"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/ca-certificates-utils.BUILDINFO": {
+      "bytes": 5319,
+      "mode": 420,
+      "sha256": "e9e1894fc70b4f77ce313121e475c00fffc339ee6b248c75d5efbafcf87fbefd"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/ca-certificates.BUILDINFO": {
+      "bytes": 5313,
+      "mode": 420,
+      "sha256": "d7ed2086acb058aa083d9d8658e2ac6e77a84dd50ad6ac17c482b11ecb72c1d5"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/dbus-broker-units.BUILDINFO": {
+      "bytes": 6368,
+      "mode": 420,
+      "sha256": "3ddf4c06519a1a46584f05e60411ce324ec488e47f70bf19f2395bc0c52acfc3"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/dbus-broker.BUILDINFO": {
+      "bytes": 6362,
+      "mode": 420,
+      "sha256": "d1b7b41d0222dcde3bb2b8cced367cee8db813dbfbe168068c9cb2920f2a8293"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/dbus-units.BUILDINFO": {
+      "bytes": 6361,
+      "mode": 420,
+      "sha256": "4a1c1adf52e40462849f3d75047cd5a7a8941c6f26ace21bf7ed87d4761e2f72"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/dbus.BUILDINFO": {
+      "bytes": 8882,
+      "mode": 420,
+      "sha256": "4b5755f17c47c19cc3bd9de5d04a2a98179cd2d672850529208c0b457629c9ed"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/e2fsprogs.BUILDINFO": {
+      "bytes": 6397,
+      "mode": 420,
+      "sha256": "6344a2e7c95b1ce8b8c3388b676071ef13febf1ae51c4c7a81d9c0658198ff74"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/file.BUILDINFO": {
+      "bytes": 6631,
+      "mode": 420,
+      "sha256": "bc55d5a4e3d2c7ab589d2ba1e7160e73cb403ebd4ec8cd6d116b243019380150"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/filesystem.BUILDINFO": {
+      "bytes": 5777,
+      "mode": 420,
+      "sha256": "695001acff5d2f27f491b86514e6f2b5b0cfdaf320906540527908c80124542d"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/findutils.BUILDINFO": {
+      "bytes": 6714,
+      "mode": 420,
+      "sha256": "a14e1d00312dcdf03a7fee1b1cd14dca7111dfb51beeebd4e2d27100518bfe3b"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/gawk.BUILDINFO": {
+      "bytes": 6456,
+      "mode": 420,
+      "sha256": "24247c8e80845b61a8f72bc0aaf5d5bc1cc848ad16b3c030aa7cd6930199c34e"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/gcc-libs.BUILDINFO": {
+      "bytes": 6976,
+      "mode": 420,
+      "sha256": "0c300979b4451057343d0648efcd886583baf0506cb8131c92e1753b3c530108"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/gdbm.BUILDINFO": {
+      "bytes": 5691,
+      "mode": 420,
+      "sha256": "46f8787915ae60daccf6ab50aba40872ae217a27f02a9fcdca94103ed24e3aa4"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/gettext.BUILDINFO": {
+      "bytes": 10616,
+      "mode": 420,
+      "sha256": "bff82f70e4d22ec08b7eda5d1d36f7dc48a1fc1728ce44ec4ac9c879087514f4"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/glibc.BUILDINFO": {
+      "bytes": 7481,
+      "mode": 420,
+      "sha256": "b8efbbc94a2b5481fd835ef0b2af4bb0caf415d674bf044ecf697b8c61e59c52"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/gmp.BUILDINFO": {
+      "bytes": 6134,
+      "mode": 420,
+      "sha256": "a5e0b468f7803c6388d21adb1630498bbdbed101a3b5f3d8a8c7e173ba5132c1"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/gnulib-l10n.BUILDINFO": {
+      "bytes": 5681,
+      "mode": 420,
+      "sha256": "cffdb641665bf727887a226ac0dce7c509c3c9e4b1bf7dd97c18f7e3be1fb675"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/grep.BUILDINFO": {
+      "bytes": 5941,
+      "mode": 420,
+      "sha256": "d66180363193ec525e6a694ddd9305b57c4bda8c48217e3e9d3c7cb329daccfd"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/icu.BUILDINFO": {
+      "bytes": 6205,
+      "mode": 420,
+      "sha256": "86bfde20bf94e529849a38e1c4263c66b3bd154c363336721d49afeb23731963"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/json-c.BUILDINFO": {
+      "bytes": 6890,
+      "mode": 420,
+      "sha256": "b48034bda682774ba38aa70c99db03cb976ac436aad42becae6be402bc136411"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/kbd.BUILDINFO": {
+      "bytes": 6664,
+      "mode": 420,
+      "sha256": "d0e6a14cebf29ea739f4c0178d47be5afe05aeb2596fcf399bb864a3715b9f00"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/keyutils.BUILDINFO": {
+      "bytes": 6312,
+      "mode": 420,
+      "sha256": "8cfd5f695c2cc713c1604334d1954e53e7520e4c79feb390c72883e0939118f4"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/kmod.BUILDINFO": {
+      "bytes": 6040,
+      "mode": 420,
+      "sha256": "ad02a8110434c015fe0797fc3736fc00fda3d7695b917944b7f90ee75d28b5fa"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/krb5.BUILDINFO": {
+      "bytes": 6451,
+      "mode": 420,
+      "sha256": "151814516b12a9f06ef5c9863a5c9fe9ff354d775c5958887a9314b7025db647"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/libarchive.BUILDINFO": {
+      "bytes": 6645,
+      "mode": 420,
+      "sha256": "2e7dd10568d32238bdc41e857a0ac272059887a0586320abac90ccf245314622"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/libasan.BUILDINFO": {
+      "bytes": 6975,
+      "mode": 420,
+      "sha256": "56201656d1cbc5c7f9d938036051f344d86d4e9a7e95e4f93b96960a0500773c"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/libassuan.BUILDINFO": {
+      "bytes": 4897,
+      "mode": 420,
+      "sha256": "bad56b558df417fcc726e96e4ec4da9e574f225ad185bec3f1fc32e753ead9ff"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/libatomic.BUILDINFO": {
+      "bytes": 6977,
+      "mode": 420,
+      "sha256": "2691ba1b4fae6e49c7eb3fdc5416a98839f20598655d0c9e80423b654eb39e2f"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/libcap.BUILDINFO": {
+      "bytes": 6346,
+      "mode": 420,
+      "sha256": "f50f0075139c4c6a9806fd48c779f8101fd6edb1b94273b9e0010f78a5b17a27"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/libevent.BUILDINFO": {
+      "bytes": 6981,
+      "mode": 420,
+      "sha256": "8b2d832b78cdd43d911a1360c4164ed7143a3dda34b7be26fb9dc3fef1af041a"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/libgcc.BUILDINFO": {
+      "bytes": 6974,
+      "mode": 420,
+      "sha256": "8c797e8bc79302141e5d8add2a79f7fa60bfc6960614f298fff6c3e732a8ec8b"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/libgfortran.BUILDINFO": {
+      "bytes": 6979,
+      "mode": 420,
+      "sha256": "49bda3377425f4d6c9aa9ea13c08f1b191887815f5a8184b1af94e0faddd1d70"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/libgomp.BUILDINFO": {
+      "bytes": 6975,
+      "mode": 420,
+      "sha256": "4e63db8772de226169108e37a33f266fac30e9a640addc56eb8164416ded3914"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/libgpg-error.BUILDINFO": {
+      "bytes": 6146,
+      "mode": 420,
+      "sha256": "1e1d6665c90848181dc0c66b874bc69837ed3fb857123063dff90965f6b61813"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/libidn2.BUILDINFO": {
+      "bytes": 5978,
+      "mode": 420,
+      "sha256": "ea4eccc4cea57b3c661d6a3d3372bcab597400bb06046f4a2d331bd1405c8cde"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/liblsan.BUILDINFO": {
+      "bytes": 6975,
+      "mode": 420,
+      "sha256": "bc144645d86286bc07be0abe3a7de746a106e1bf0044b4b1675f54f9ee4e564c"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/libnghttp2.BUILDINFO": {
+      "bytes": 6651,
+      "mode": 420,
+      "sha256": "0b95ed242bd74e94431ce03ea423bbe9e5393dbbf9330d6bd9bcbdc1399e7e4f"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/libnghttp3.BUILDINFO": {
+      "bytes": 6648,
+      "mode": 420,
+      "sha256": "56532f30901478c240bb10401de41ed74544cd61c203afa7281fa7893eece9fd"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/libngtcp2.BUILDINFO": {
+      "bytes": 6646,
+      "mode": 420,
+      "sha256": "e33139a2f5164fe4dc5812333962ae9f025f43fad7b01d3157d3382f5f316d3d"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/libnsl.BUILDINFO": {
+      "bytes": 6425,
+      "mode": 420,
+      "sha256": "daa92e2036ca4af2f55e4a67fcc6a4df8967f819f38af480705b6a7394d8316d"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/libobjc.BUILDINFO": {
+      "bytes": 6975,
+      "mode": 420,
+      "sha256": "d9a7ccb2201681ae6ba3f1cf6821328fbad7c9368db0273927bdfffc573b953c"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/libpsl.BUILDINFO": {
+      "bytes": 5552,
+      "mode": 420,
+      "sha256": "8571a782bf8c16f20a38e4e8eeda98d1507bc46504fdfad9f954f36e4a57a073"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/libquadmath.BUILDINFO": {
+      "bytes": 6979,
+      "mode": 420,
+      "sha256": "ef44fbfd2e119a286766638e43ed94747d2d36023e5ad7b475cb8f372172c6f7"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/libsasl.BUILDINFO": {
+      "bytes": 5445,
+      "mode": 420,
+      "sha256": "3b1f832f4deb43e43b7a11d5d5759029c01b87ed9d4a5a54117bfd46df7bd0d3"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/libseccomp.BUILDINFO": {
+      "bytes": 6415,
+      "mode": 420,
+      "sha256": "ba6066da2b356ed51271c2de89b5e21958b9fa9bdeae4a513b06105415721b8e"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/libssh2.BUILDINFO": {
+      "bytes": 6645,
+      "mode": 420,
+      "sha256": "0658af7423b39296eb6804ab8a05e733d6f75c2856feab5a99e59f2fc7c4e53c"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/libstdc++.BUILDINFO": {
+      "bytes": 6977,
+      "mode": 420,
+      "sha256": "36d835ee6c909b25eb2fff54a832154c42fd628258161a6bd6515882a991c8ff"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/libtasn1.BUILDINFO": {
+      "bytes": 5515,
+      "mode": 420,
+      "sha256": "725f4376dcc51464d3495bd01e13a5f1d985627808bb71918da4c7e39a7471b9"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/libtsan.BUILDINFO": {
+      "bytes": 6975,
+      "mode": 420,
+      "sha256": "c35b60f3f37f984acff33c5e9f9b7dfadc3cc41360c2a62d7fc5eadd8963b4cc"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/libubsan.BUILDINFO": {
+      "bytes": 6976,
+      "mode": 420,
+      "sha256": "7247be341e926452e66d58ca3a5a724da9bd5132928affa699a22bed84e4dcee"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/libunistring.BUILDINFO": {
+      "bytes": 6437,
+      "mode": 420,
+      "sha256": "57dd6d31b30b76a01d8e135977dcd06db4efaede8ee2bea38343bf5e81ecb65b"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/libusb.BUILDINFO": {
+      "bytes": 6634,
+      "mode": 420,
+      "sha256": "73e7e70a671ddef153bc475fcf184b3037d313fdc018cb82d4b2b78a9d9555fa"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/libverto.BUILDINFO": {
+      "bytes": 6131,
+      "mode": 420,
+      "sha256": "4dc8dfc43191e41dfe3ae0abc415fb61118d0ceabdcaac26783b899dfc800c82"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/libxcrypt.BUILDINFO": {
+      "bytes": 5455,
+      "mode": 420,
+      "sha256": "bae700f511e075f05f634227b8b39ea2eabdf2a476330f857c5aa59afda89e71"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/lmdb.BUILDINFO": {
+      "bytes": 6316,
+      "mode": 420,
+      "sha256": "9bf076290346bcdcaee63109426a76acc53dce42e708ed4f73d7d68ca54fd0a4"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/lz4.BUILDINFO": {
+      "bytes": 5451,
+      "mode": 420,
+      "sha256": "757e4a0daaacab827a0c2a34418e94ded464bb6caf26f92f2fa84bf8cec3ec46"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/mpfr.BUILDINFO": {
+      "bytes": 5757,
+      "mode": 420,
+      "sha256": "2b147ad5c1212d036c2f11ea4df283a7c8db4dcebb2251fecf72f6d6274153cb"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/ncurses.BUILDINFO": {
+      "bytes": 6363,
+      "mode": 420,
+      "sha256": "c8a2915bef1a69567ade27211518183f18a75a4a9350e80ce95adee0d6876fe6"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/nettle.BUILDINFO": {
+      "bytes": 6133,
+      "mode": 420,
+      "sha256": "4560610966b740f909e894a2b29a826401ccf7d065986f0a23f180271740a0b2"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/npth.BUILDINFO": {
+      "bytes": 5661,
+      "mode": 420,
+      "sha256": "3ee9f088d4285e7f867543288c38bea9e26dae389805f459f61f0a124df52a3d"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/pacman-mirrorlist.BUILDINFO": {
+      "bytes": 6148,
+      "mode": 420,
+      "sha256": "b4a0dff640daa0625de12048734acb563fe18f30c059342e9e1729182a66b1c9"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/pacman.BUILDINFO": {
+      "bytes": 6909,
+      "mode": 420,
+      "sha256": "09fb0c1f076f86969614996ce143b5acfa3a7948424baa628c9e484e63ab1f69"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/pambase.BUILDINFO": {
+      "bytes": 6457,
+      "mode": 420,
+      "sha256": "2ab7053c7e9ac61081a214f232e1482323b1b9c1368a4aa62f28114be98d8c81"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/pinentry.BUILDINFO": {
+      "bytes": 10952,
+      "mode": 420,
+      "sha256": "ffa5afc510612438a5f54cb7e84c500e59d81fb7be1a98468f44cf80e0043a5f"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/popt.BUILDINFO": {
+      "bytes": 5174,
+      "mode": 420,
+      "sha256": "c99643d1569fa9d4ec8fefc9f6ede9dfcb51517783c97904d07db427b985243b"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/shadow.BUILDINFO": {
+      "bytes": 6787,
+      "mode": 420,
+      "sha256": "8ef87902c5dd13b8a16c98cd0d6c0c688d849fbeba49fca9acaefbc91fd633cc"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/sqlite.BUILDINFO": {
+      "bytes": 6499,
+      "mode": 420,
+      "sha256": "db21602dece27097db38cb768c48cd46679380d395ad2dff04f0339cd772ed14"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/which.BUILDINFO": {
+      "bytes": 6451,
+      "mode": 420,
+      "sha256": "fd028465a9cbe874a58714376999b107f1734de5e7bc1f86255f95634bc5041e"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/zlib.BUILDINFO": {
+      "bytes": 6131,
+      "mode": 420,
+      "sha256": "d574339abedaa69de0bfc97f35d117743c4f672ac71a8aad4edaef4843a288f8"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-evidence/zstd.BUILDINFO": {
+      "bytes": 6423,
+      "mode": 420,
+      "sha256": "74f1d1e4a3a51e91e68ba281dc10ca5c8bff6b56e1ab73f0469115b94802ecd1"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-reviewed-inputs.json": {
+      "bytes": 342,
+      "mode": 420,
+      "sha256": "84d71597ffb5e07eb38bc78730704557dbf835b5869366509758a7abb3431a8f"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-source-plan.json": {
+      "bytes": 712,
+      "mode": 420,
+      "sha256": "33ced69e523d6c4e0dca51d6806475b2ae647aeeef069525cd4d9514a8ea5c48"
+    },
+    "scripts/ci/offline-source-builder-native/baseline-source-provenance.json": {
+      "bytes": 45906,
+      "mode": 420,
+      "sha256": "65b30705e2fbc7bd44100e6d133dab69dff54b27c8055ec6329f2a92c225ee6c"
+    },
+    "scripts/ci/offline-source-builder-native/batch_consumer.py": {
+      "bytes": 28251,
+      "mode": 420,
+      "sha256": "41f7381196eb9379cf64dccd92ac8967695a161dcf4f379cd4bbe39396ba74ef"
+    },
+    "scripts/ci/offline-source-builder-native/batch_graph.py": {
+      "bytes": 32642,
+      "mode": 420,
+      "sha256": "b71981f988c4f59b8664eabd6bbe28aad0286fa63a9a4d7a1608a57476467f12"
+    },
+    "scripts/ci/offline-source-builder-native/bootstrap-owner-basis.py": {
+      "bytes": 29788,
+      "mode": 420,
+      "sha256": "cb2eccae41a46a580d3e8e13af38f0c2589fc296ddd7233b408237a2ecba558d"
+    },
+    "scripts/ci/offline-source-builder-native/bootstrap-source52-map.json": {
+      "bytes": 9380,
+      "mode": 420,
+      "sha256": "719d3306bbd9a72566f93b517798e2cec2cff2806910dcc164802cdb3fb70555"
+    },
+    "scripts/ci/offline-source-builder-native/capture_command.py": {
+      "bytes": 2297,
+      "mode": 420,
+      "sha256": "7f9e6270fe422f36fa7411716533e0d04a411b011663d83aee7113c721d0424f"
+    },
+    "scripts/ci/offline-source-builder-native/capture_installed.py": {
+      "bytes": 6757,
+      "mode": 420,
+      "sha256": "d6238a3769facb9fc1edf3b49782599d5e0cd88e2d1ea3282b8747cac0bd98ff"
+    },
+    "scripts/ci/offline-source-builder-native/execute_builder.py": {
+      "bytes": 7942,
+      "mode": 420,
+      "sha256": "8e3c82f757c0ea9fb5966a47daf9c8c61da7cfca0823203f0316d2fc64d3b7f8"
+    },
+    "scripts/ci/offline-source-builder-native/expected-packages.lock": {
+      "bytes": 6674,
+      "mode": 420,
+      "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
+    },
+    "scripts/ci/offline-source-builder-native/feature-binding.json": {
+      "bytes": 3143,
+      "mode": 420,
+      "sha256": "79f77895ad4cb401bdda3352b60828fef4e43609dec038bd54766365a68812e9"
+    },
+    "scripts/ci/offline-source-builder-native/feature-git-proof.json": {
+      "bytes": 3056,
+      "mode": 420,
+      "sha256": "6511497d15659e85a00a413796274af225e604b6a65e2ce2589baee03c34814e"
+    },
+    "scripts/ci/offline-source-builder-native/held-original-builder-files.json": {
+      "bytes": 472,
+      "mode": 420,
+      "sha256": "bdf98eac93f7ebb2db801e326f1403b23c5187e984860c77d33ade37918243ee"
+    },
+    "scripts/ci/offline-source-builder-native/lto-reviewed-inputs.json": {
+      "bytes": 342,
+      "mode": 420,
+      "sha256": "3a20ff80dcdf1c597db6922ec615b8a9d0fe3e96b9048ae43bc64d34001d7654"
+    },
+    "scripts/ci/offline-source-builder-native/lto-source-plan.json": {
+      "bytes": 712,
+      "mode": 420,
+      "sha256": "41171cddbb956e8e868f6af28064149a92ee3aa043ba0d49c8670036e504636a"
+    },
+    "scripts/ci/offline-source-builder-native/notices/LICENSE.zlib": {
+      "bytes": 1002,
+      "mode": 420,
+      "sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2"
+    },
+    "scripts/ci/offline-source-builder-native/observe_batch.py": {
+      "bytes": 15971,
+      "mode": 420,
+      "sha256": "03a1d169d8d3ca6bb7a5468665936f0b21ae728e9d48fdb8a3c6e79215c79f06"
+    },
+    "scripts/ci/offline-source-builder-native/owner.py": {
+      "bytes": 32615,
+      "mode": 420,
+      "sha256": "158e7e05a8e35297fde30326f74c4ce31870bb2f413a92d61625f0f6ee740ff4"
+    },
+    "scripts/ci/offline-source-builder-native/planner_transport.py": {
+      "bytes": 6248,
+      "mode": 420,
+      "sha256": "d3f86e9a0ee76a98d74fad2bce08b17b8ad4ecce42258e35711c8a70571685d2"
+    },
+    "scripts/ci/offline-source-builder-native/recipe-inputs.json": {
+      "bytes": 342,
+      "mode": 420,
+      "sha256": "84d71597ffb5e07eb38bc78730704557dbf835b5869366509758a7abb3431a8f"
+    },
+    "scripts/ci/offline-source-builder-native/required-feature-files.json": {
+      "bytes": 2130,
+      "mode": 420,
+      "sha256": "4164e406cf11ad25dc0cbaed93385dbcb9b3ec6f0a18a282ec52077af85bbd63"
+    },
+    "scripts/ci/offline-source-builder-native/retained-orphans-reader": {
+      "bytes": 20007,
+      "mode": 420,
+      "sha256": "559ff8554b9c93f237ddebec8f6c8ac09749ed93b6a179c06fcf513dfffe3292"
+    },
+    "scripts/ci/offline-source-builder-native/reviewed11.json": {
+      "bytes": 2983,
+      "mode": 420,
+      "sha256": "967ed4d69e0e1dc17c8ec9b7843b406afb5c89b17a86ce02b44e5f4967442e09"
+    },
+    "scripts/ci/offline-source-builder-native/runtime_proof.py": {
+      "bytes": 21908,
+      "mode": 420,
+      "sha256": "763f0e7ca9a02d1fa9fb083727c92db5779851248861ce3f42212dc248bb6a8d"
+    },
+    "scripts/ci/offline-source-builder-native/source-inputs.json": {
+      "bytes": 752,
+      "mode": 420,
+      "sha256": "50979bf81eda4d1f5b23fbe05aec5fabd7827b270fe3edda22b7189944004c43"
+    },
+    "scripts/ci/offline-source-builder-native/source-plan.json": {
+      "bytes": 712,
+      "mode": 420,
+      "sha256": "33ced69e523d6c4e0dca51d6806475b2ae647aeeef069525cd4d9514a8ea5c48"
+    },
+    "scripts/ci/offline-source-builder-native/test_context.py": {
+      "bytes": 11300,
+      "mode": 420,
+      "sha256": "68974aa2edb20112d4dc1cc18db960b22b2add62925fc40be05f47e97f083b1e"
+    },
+    "scripts/ci/offline-source-builder-native/workflow.yml.in": {
+      "bytes": 26305,
+      "mode": 420,
+      "sha256": "4168184828677482fe08dd242a5611d7a8bc699cc21dc3e66527d7ab668e26fb"
+    },
+    "scripts/ci/offline-source-builder-native/zlib-1.3.2.tar.gz": {
+      "bytes": 1502830,
+      "mode": 420,
+      "sha256": "bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16"
+    },
+    "scripts/ci/old_four_seed.py": {
+      "bytes": 29048,
+      "mode": 420,
+      "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
+    },
+    "scripts/ci/setup6-retained-helpers/carrier-profile.json": {
+      "bytes": 195440,
+      "mode": 420,
+      "sha256": "4089fd798849cafda23d03c0dd95ac896a83fd63ad21e331ae420c147535586c"
+    },
+    "scripts/ci/setup6-retained-helpers/legacy-prefill-profile.json": {
+      "bytes": 1510,
+      "mode": 420,
+      "sha256": "9cc82d4e0947415ecad9d40094a4c0a2709d01be54513e78af8c739fd76fb696"
+    },
+    "scripts/ci/setup6-retained-helpers/legacy_prefill.py": {
+      "bytes": 5986,
+      "mode": 420,
+      "sha256": "05a91a91efd69b3b2e06561f5bbf08bdbb105998d42dbf133e75fd1fe25945ac"
+    },
+    "scripts/ci/setup6-retained-helpers/prepare.py": {
+      "bytes": 3749,
+      "mode": 420,
+      "sha256": "6c688c315cb962c641b8c0b1d9d88f94778d57ae19bcef251e88e49cb4be6316"
+    },
+    "scripts/experiments/package_variants.py": {
+      "bytes": 32520,
+      "mode": 420,
+      "sha256": "bb9dee8f7b38fde2ca69b02d625f1117418f5090921f75461ce2a04d8eee0b29"
+    },
+    "scripts/experiments/test_package_variants.py": {
+      "bytes": 18909,
+      "mode": 420,
+      "sha256": "d730aca4f3da18138bb2ce8b90bff8751a6fa2d8932bb40dba8bc55841254627"
+    }
+  },
+  "purpose": "FINITE_NATIVE_ARM_OFFLINE_BATCH_V2_COMPONENT_ONLY",
+  "schema": 1
+}

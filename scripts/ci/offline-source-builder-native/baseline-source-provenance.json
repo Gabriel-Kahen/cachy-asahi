@@ -1,0 +1,1225 @@
+{
+  "inputs_sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f",
+  "inventory_sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25",
+  "packages": [
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/acl.BUILDINFO",
+        "sha256": "7c9c08ec1a7ce22b3a4cd225e813b4705248efd918bc5f7088160a2b89c50f14"
+      },
+      "name": "acl",
+      "recipe_sha256": "a4e556c0a43fc27000ef25bdcf7d7bf5c700eb7145e6c9c84f170b3621f67927",
+      "sources": [
+        {
+          "sha256": "8d400d781a3fd765f0f7c98183492850f830da3d3efb05518b5927b446387350",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/acl-2.4.0-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "2.4.0-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/attr.BUILDINFO",
+        "sha256": "f029ad4f1215e5609c50bb6e4702d997b5d9e11bf8417d8848916666c413ebe5"
+      },
+      "name": "attr",
+      "recipe_sha256": "610792f7ea41ac5a6d2ba0e5844d7614061eb9c7bea5e072a41fb2e3c029c7f5",
+      "sources": [
+        {
+          "sha256": "7d0a27bb1761e2b5c329da6fee515af4d174869f303009283fbc6b74497d267c",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/attr-2.6.0-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "2.6.0-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/audit.BUILDINFO",
+        "sha256": "b191e94b133e3c990a3ebf66dca2d53bc9f330707950cbfdd5bd80a920d321c1"
+      },
+      "name": "audit",
+      "recipe_sha256": "6b23c8c3f3ebe6a05413f07e86f15b1c3511ec42db8c9342b28e36899d952081",
+      "sources": [
+        {
+          "sha256": "f2535b990835b668f1c587586617f3663ef33dd495bef14a9be5d680a58bda43",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/audit-4.2.1-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "4.2.1-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/binutils.BUILDINFO",
+        "sha256": "82dfb724b34034681324adf317e454d60266d628774ef442df49cccfa9b8d211"
+      },
+      "name": "binutils",
+      "recipe_sha256": "60081fda03863810a08d8f6fab33c9e885e36933cf75bab4e555e6561212d673",
+      "sources": [
+        {
+          "sha256": "1acb6074f546ee662f29937897ab80bd87b0dcdd66c714381e8488d79cd53fcc",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/binutils-2.46+r70+g155188ea10a7-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "2.46+r70+g155188ea10a7-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/brotli.BUILDINFO",
+        "sha256": "e9d091e108ea66df5914374575f9014c2b6147aad0d65344768564b3a74e0baa"
+      },
+      "name": "brotli",
+      "recipe_sha256": "7e09cbe15c6b8036f85c2faa2ea423f6115e21f84e7c5da10a8492adef816dcb",
+      "sources": [
+        {
+          "sha256": "5bc65da23452fe0408341a1c626c9a322ffb0890bcf83aae9902fd6092213356",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/brotli-1.2.0-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "1.2.0-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/bzip2.BUILDINFO",
+        "sha256": "c0a9d105d4b9cfdf65ba30883e3f3fd4b90f67fbe273c79265d28cb2d3d46522"
+      },
+      "name": "bzip2",
+      "recipe_sha256": "02a7daeb697009006d66eb4dc7d1732c050c6b3636cc275b4786f69c409a03ea",
+      "sources": [
+        {
+          "sha256": "b11f21c0bc3d1193dd02040644cd604d49cc89184db1b7bc76a623532fcb0dcb",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/bzip2-1.0.8-6-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "1.0.8-6"
+    },
+    {
+      "arch": "any",
+      "evidence": {
+        "path": "baseline-evidence/ca-certificates.BUILDINFO",
+        "sha256": "d7ed2086acb058aa083d9d8658e2ac6e77a84dd50ad6ac17c482b11ecb72c1d5"
+      },
+      "name": "ca-certificates",
+      "recipe_sha256": "781ed256a62068ba00325fcf1057cdb3cea1711c85ad753602b368be9c556ac2",
+      "sources": [
+        {
+          "sha256": "09cfa7af79ca8120572e737c34080580ddc50c5e33a03a686c5c55032f02b575",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/ca-certificates-20240618-1-any.pkg.tar.xz"
+        }
+      ],
+      "version": "20240618-1"
+    },
+    {
+      "arch": "any",
+      "evidence": {
+        "path": "baseline-evidence/ca-certificates-utils.BUILDINFO",
+        "sha256": "e9e1894fc70b4f77ce313121e475c00fffc339ee6b248c75d5efbafcf87fbefd"
+      },
+      "name": "ca-certificates-utils",
+      "recipe_sha256": "781ed256a62068ba00325fcf1057cdb3cea1711c85ad753602b368be9c556ac2",
+      "sources": [
+        {
+          "sha256": "c60483cb5fb3002acfe4cbee8966e9c13936ea9bff3db9db360d8d638f013c8b",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/ca-certificates-utils-20240618-1-any.pkg.tar.xz"
+        }
+      ],
+      "version": "20240618-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/dbus.BUILDINFO",
+        "sha256": "4b5755f17c47c19cc3bd9de5d04a2a98179cd2d672850529208c0b457629c9ed"
+      },
+      "name": "dbus",
+      "recipe_sha256": "a1094a76892b1cf631163dc59e035a1993eca1fa0ca5339acc950ff9c0f866ad",
+      "sources": [
+        {
+          "sha256": "1aa0bc2be4fa083ec0cb678f05223f55b0c8e498351ad781dc4b7a0987b62bcc",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/dbus-1.16.2-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "1.16.2-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/dbus-broker.BUILDINFO",
+        "sha256": "d1b7b41d0222dcde3bb2b8cced367cee8db813dbfbe168068c9cb2920f2a8293"
+      },
+      "name": "dbus-broker",
+      "recipe_sha256": "0d59b0122fd6665ea7c807e5b4d9d655c4a84e092d5ee9c5f624e70c9054a016",
+      "sources": [
+        {
+          "sha256": "d6784e1adefd64ef5b5a92bc3a8d34e8df09e9ba80ef81d1238073914b6589d5",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/dbus-broker-37-3-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "37-3"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/dbus-broker-units.BUILDINFO",
+        "sha256": "3ddf4c06519a1a46584f05e60411ce324ec488e47f70bf19f2395bc0c52acfc3"
+      },
+      "name": "dbus-broker-units",
+      "recipe_sha256": "0d59b0122fd6665ea7c807e5b4d9d655c4a84e092d5ee9c5f624e70c9054a016",
+      "sources": [
+        {
+          "sha256": "0d7592d10d84e9fccfa808e9e46de39d8cff2ebfc12b33e4d2c58223d0f0912d",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/dbus-broker-units-37-3-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "37-3"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/dbus-units.BUILDINFO",
+        "sha256": "4a1c1adf52e40462849f3d75047cd5a7a8941c6f26ace21bf7ed87d4761e2f72"
+      },
+      "name": "dbus-units",
+      "recipe_sha256": "0d59b0122fd6665ea7c807e5b4d9d655c4a84e092d5ee9c5f624e70c9054a016",
+      "sources": [
+        {
+          "sha256": "5d7444e570219667a9789589e9ccbf8535d78d1dae954c22e487af226237b125",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/dbus-units-37-3-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "37-3"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/e2fsprogs.BUILDINFO",
+        "sha256": "6344a2e7c95b1ce8b8c3388b676071ef13febf1ae51c4c7a81d9c0658198ff74"
+      },
+      "name": "e2fsprogs",
+      "recipe_sha256": "dce8a187732135a81423ce2beeb8a6c7778588354c30d9fbf7b7e08769bc588b",
+      "sources": [
+        {
+          "sha256": "153046071f8abf1caf546a0352c7d268fb07a5b0ba0abd996de382adc8692842",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/e2fsprogs-1.47.4-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "1.47.4-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/file.BUILDINFO",
+        "sha256": "bc55d5a4e3d2c7ab589d2ba1e7160e73cb403ebd4ec8cd6d116b243019380150"
+      },
+      "name": "file",
+      "recipe_sha256": "f9a23048a6a711f4e7db18c0c5d94af04483fc1abe42218b9b70df4af2b86d35",
+      "sources": [
+        {
+          "sha256": "252f52d77890f17c8321d26f9ddefcbb34aef7f4e8b701c6bfea1e81a5f0bc88",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/file-5.48-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "5.48-1"
+    },
+    {
+      "arch": "any",
+      "evidence": {
+        "path": "baseline-evidence/filesystem.BUILDINFO",
+        "sha256": "695001acff5d2f27f491b86514e6f2b5b0cfdaf320906540527908c80124542d"
+      },
+      "name": "filesystem",
+      "recipe_sha256": "2b06bafd1f0b0b5d7556574602c56c37dc9c7f5c8bc390d2039d2eff4522e870",
+      "sources": [
+        {
+          "sha256": "228b63ef4a88501a68856231a19325a1ad31d92016a692d0a8be181edc70703f",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/filesystem-2025.10.12-1-any.pkg.tar.xz"
+        }
+      ],
+      "version": "2025.10.12-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/findutils.BUILDINFO",
+        "sha256": "a14e1d00312dcdf03a7fee1b1cd14dca7111dfb51beeebd4e2d27100518bfe3b"
+      },
+      "name": "findutils",
+      "recipe_sha256": "60f979b7a4036a8673cecbf8d7cade89b8847dc082b9b4046dc49cf694b69462",
+      "sources": [
+        {
+          "sha256": "83bacaa55d1b28e5d800adf969221458695f0eb5cf7d300e2cb26a7b78f9c321",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/findutils-4.11.0-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "4.11.0-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/gawk.BUILDINFO",
+        "sha256": "24247c8e80845b61a8f72bc0aaf5d5bc1cc848ad16b3c030aa7cd6930199c34e"
+      },
+      "name": "gawk",
+      "recipe_sha256": "68304957cd92ea7c48e985ab7e93fc2b61154ab2a4eb1b51529738e3a7079c20",
+      "sources": [
+        {
+          "sha256": "340dcceea87ca9274cf7e6597b8c87aa495b4cdcb9470dc9ef4428a27612d6ca",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/gawk-5.4.1-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "5.4.1-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/gcc-libs.BUILDINFO",
+        "sha256": "0c300979b4451057343d0648efcd886583baf0506cb8131c92e1753b3c530108"
+      },
+      "name": "gcc-libs",
+      "recipe_sha256": "6ca8777ee59ef941ed59f37bd70263af70babddf4bd05633cb2867b739b90357",
+      "sources": [
+        {
+          "sha256": "28dc936393f6ba45fee433a58fb1c6c0648aa4500131087fded719c22e2fc222",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/gcc-libs-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "16.1.1+r12+g301eb08fa2c5-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/gdbm.BUILDINFO",
+        "sha256": "46f8787915ae60daccf6ab50aba40872ae217a27f02a9fcdca94103ed24e3aa4"
+      },
+      "name": "gdbm",
+      "recipe_sha256": "f57b9571ac40cd06e304eb193843586093084467fa73680de4847a5b3767ed18",
+      "sources": [
+        {
+          "sha256": "123df7945d23eb31262dc108bdf057b74cd93f13e782b99dfe077c51daabd222",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/gdbm-1.26-2-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "1.26-2"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/gettext.BUILDINFO",
+        "sha256": "bff82f70e4d22ec08b7eda5d1d36f7dc48a1fc1728ce44ec4ac9c879087514f4"
+      },
+      "name": "gettext",
+      "recipe_sha256": "b502a4db26a8cc4d24e3762344401432a9fd1739f78928b77ae9fbb070fe1a4b",
+      "sources": [
+        {
+          "sha256": "7669379e3f21f475e1d67122b0b2a401de5fa2c5769b1605df3cf3094e4fd28e",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/gettext-1.0-2-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "1.0-2"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/glibc.BUILDINFO",
+        "sha256": "b8efbbc94a2b5481fd835ef0b2af4bb0caf415d674bf044ecf697b8c61e59c52"
+      },
+      "name": "glibc",
+      "recipe_sha256": "84b79b6befb879c1107b1af33c96faadf918748bb582830671f7fcbc60b31db6",
+      "sources": [
+        {
+          "sha256": "8fac217e98c6e4342326726b2640ac254e8c82032f06f30bfa13ebbcc4fcb25b",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/glibc-2.43+r22+g8362e8ce10b2-2-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "2.43+r22+g8362e8ce10b2-2"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/gmp.BUILDINFO",
+        "sha256": "a5e0b468f7803c6388d21adb1630498bbdbed101a3b5f3d8a8c7e173ba5132c1"
+      },
+      "name": "gmp",
+      "recipe_sha256": "2d1d980123d736a3ca9a3396e7e7ff5e9ae8f2f13068128789ccb752e2cc3cca",
+      "sources": [
+        {
+          "sha256": "720607bed2249dd8cd0304b6cf4102884fa2ca24c21444f007bc12af542ea6c5",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/gmp-6.3.0-3-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "6.3.0-3"
+    },
+    {
+      "arch": "any",
+      "evidence": {
+        "path": "baseline-evidence/gnulib-l10n.BUILDINFO",
+        "sha256": "cffdb641665bf727887a226ac0dce7c509c3c9e4b1bf7dd97c18f7e3be1fb675"
+      },
+      "name": "gnulib-l10n",
+      "recipe_sha256": "928d199f8bb8f61ceaaa1555129e7f917a1d00e9dbb9075f441a6f2eb23b7432",
+      "sources": [
+        {
+          "sha256": "327f76bf5e7c211ee8b16f9ea29458426bfe18fa153d66dcd2557a38f369f608",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/gnulib-l10n-20241231-1-any.pkg.tar.xz"
+        }
+      ],
+      "version": "20241231-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/grep.BUILDINFO",
+        "sha256": "d66180363193ec525e6a694ddd9305b57c4bda8c48217e3e9d3c7cb329daccfd"
+      },
+      "name": "grep",
+      "recipe_sha256": "7fc54b2c7d8d18e74edf731daecfe4a2c0dee840b317953988b67387aa774d3c",
+      "sources": [
+        {
+          "sha256": "7578277966710eeba59f82665ab6f33984ca11d6c2ab74deccc6f681d61c2027",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/grep-3.12-2-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "3.12-2"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/icu.BUILDINFO",
+        "sha256": "86bfde20bf94e529849a38e1c4263c66b3bd154c363336721d49afeb23731963"
+      },
+      "name": "icu",
+      "recipe_sha256": "8c39c59e994612ff76d3580bacf3ca9c8b478d07a620474d28c839fbad3a6b8a",
+      "sources": [
+        {
+          "sha256": "314cb2fecde9fd2a64ca9b6652c4c0e517bec0dceeafaf7e6a0cd578c607357f",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/icu-78.3-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "78.3-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/json-c.BUILDINFO",
+        "sha256": "b48034bda682774ba38aa70c99db03cb976ac436aad42becae6be402bc136411"
+      },
+      "name": "json-c",
+      "recipe_sha256": "13c98b390b5e98479b92813f02f393a51722e6ee80b821c00110c16c8d925e9c",
+      "sources": [
+        {
+          "sha256": "233dd80f44789cd2581ea7879593d230b5a322559cdde43ce73c9719cd7e19c6",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/json-c-0.19-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "0.19-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/kbd.BUILDINFO",
+        "sha256": "d0e6a14cebf29ea739f4c0178d47be5afe05aeb2596fcf399bb864a3715b9f00"
+      },
+      "name": "kbd",
+      "recipe_sha256": "4515a72adc31e06e4394bbc48eb236455d8216b961d6cf20dd0f42591edd1e85",
+      "sources": [
+        {
+          "sha256": "05072eacf9417bc06c1369f91de46561682ccdd895767248ed8147abe679fe87",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/kbd-2.10.0-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "2.10.0-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/keyutils.BUILDINFO",
+        "sha256": "8cfd5f695c2cc713c1604334d1954e53e7520e4c79feb390c72883e0939118f4"
+      },
+      "name": "keyutils",
+      "recipe_sha256": "c2a1de2a309b55664bea10fc9007652287cc27247594b55e95c1d7d2a2fe44a5",
+      "sources": [
+        {
+          "sha256": "7ee05c67895771b838dc035219290095e79866c61ce63bd726b002df7dfbfdd5",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/keyutils-1.6.3-4-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "1.6.3-4"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/kmod.BUILDINFO",
+        "sha256": "ad02a8110434c015fe0797fc3736fc00fda3d7695b917944b7f90ee75d28b5fa"
+      },
+      "name": "kmod",
+      "recipe_sha256": "668d42a523ef0beeaaadf5cca89890ea8d212fce3c195db74ea75b854eb4af1e",
+      "sources": [
+        {
+          "sha256": "ab893e67b19546aed1d3ad537649b3bdbfbd709f9d00e8e61c6f091ac925a9ed",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/kmod-34.2-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "34.2-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/krb5.BUILDINFO",
+        "sha256": "151814516b12a9f06ef5c9863a5c9fe9ff354d775c5958887a9314b7025db647"
+      },
+      "name": "krb5",
+      "recipe_sha256": "61554e0ed211c61c29a21167a06f5000901b7fa41172ae1fb6f7d32b60f8d30c",
+      "sources": [
+        {
+          "sha256": "8b4e743a45590b49ea98a16b3ce339a663908bf67eb3a3965374aabac3c69511",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/krb5-1.22.2-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "1.22.2-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/libarchive.BUILDINFO",
+        "sha256": "2e7dd10568d32238bdc41e857a0ac272059887a0586320abac90ccf245314622"
+      },
+      "name": "libarchive",
+      "recipe_sha256": "34d1f4ed8e9afd73bca1800b3bba55171be233f55afcc2b5f6e04cf019c53cb3",
+      "sources": [
+        {
+          "sha256": "030848f1d81d2558f3efacbf7d435f53f8809266c22d4744354ed90f8f46fe4d",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libarchive-3.8.9-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "3.8.9-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/libasan.BUILDINFO",
+        "sha256": "56201656d1cbc5c7f9d938036051f344d86d4e9a7e95e4f93b96960a0500773c"
+      },
+      "name": "libasan",
+      "recipe_sha256": "6ca8777ee59ef941ed59f37bd70263af70babddf4bd05633cb2867b739b90357",
+      "sources": [
+        {
+          "sha256": "246617f4696ca770e4b36c7ceac2849517a68e19b5d5875a11d6844e212a1b83",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libasan-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "16.1.1+r12+g301eb08fa2c5-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/libassuan.BUILDINFO",
+        "sha256": "bad56b558df417fcc726e96e4ec4da9e574f225ad185bec3f1fc32e753ead9ff"
+      },
+      "name": "libassuan",
+      "recipe_sha256": "15d1af7ceebc87838042f8c7464030728ccd564e9cb410334a6bd2551c29e1ff",
+      "sources": [
+        {
+          "sha256": "122424f6f1c3c53f04b53af87802eec595290545b31c8fbb8ee22877421b5831",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libassuan-3.0.0-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "3.0.0-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/libatomic.BUILDINFO",
+        "sha256": "2691ba1b4fae6e49c7eb3fdc5416a98839f20598655d0c9e80423b654eb39e2f"
+      },
+      "name": "libatomic",
+      "recipe_sha256": "6ca8777ee59ef941ed59f37bd70263af70babddf4bd05633cb2867b739b90357",
+      "sources": [
+        {
+          "sha256": "7eae53e2e1a42ebc21d78eb923f9e249a4008098473c61a3d9db1c7fb5de36d3",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libatomic-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "16.1.1+r12+g301eb08fa2c5-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/libcap.BUILDINFO",
+        "sha256": "f50f0075139c4c6a9806fd48c779f8101fd6edb1b94273b9e0010f78a5b17a27"
+      },
+      "name": "libcap",
+      "recipe_sha256": "550eb413a77e92784c16b802c813d0631a08c13252d79149bd64fa74847e4b51",
+      "sources": [
+        {
+          "sha256": "828383fe196cb3bbd4ea0a7cb4385e8184ea8b281b8833eee613837eda507643",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libcap-2.78-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "2.78-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/libevent.BUILDINFO",
+        "sha256": "8b2d832b78cdd43d911a1360c4164ed7143a3dda34b7be26fb9dc3fef1af041a"
+      },
+      "name": "libevent",
+      "recipe_sha256": "f00893dae6973b9288ffac39899dfa58aa2dddb2d3d692a0780fd848c679bc52",
+      "sources": [
+        {
+          "sha256": "616950e746a507c7371d6643249e7dbb96934612c0cf0df8760acedd94411183",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libevent-2.1.13-2-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "2.1.13-2"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/libgcc.BUILDINFO",
+        "sha256": "8c797e8bc79302141e5d8add2a79f7fa60bfc6960614f298fff6c3e732a8ec8b"
+      },
+      "name": "libgcc",
+      "recipe_sha256": "6ca8777ee59ef941ed59f37bd70263af70babddf4bd05633cb2867b739b90357",
+      "sources": [
+        {
+          "sha256": "0f98bdf94a6e2f6758b9ffe98cbc9391a109326ed23bd264cabe0a81a04d7ae4",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libgcc-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "16.1.1+r12+g301eb08fa2c5-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/libgfortran.BUILDINFO",
+        "sha256": "49bda3377425f4d6c9aa9ea13c08f1b191887815f5a8184b1af94e0faddd1d70"
+      },
+      "name": "libgfortran",
+      "recipe_sha256": "6ca8777ee59ef941ed59f37bd70263af70babddf4bd05633cb2867b739b90357",
+      "sources": [
+        {
+          "sha256": "08b86638b136c637713115b5de78e04fb25310eaf16fe4db21a16510c591cc12",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libgfortran-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "16.1.1+r12+g301eb08fa2c5-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/libgomp.BUILDINFO",
+        "sha256": "4e63db8772de226169108e37a33f266fac30e9a640addc56eb8164416ded3914"
+      },
+      "name": "libgomp",
+      "recipe_sha256": "6ca8777ee59ef941ed59f37bd70263af70babddf4bd05633cb2867b739b90357",
+      "sources": [
+        {
+          "sha256": "117e58e103b45888561d7e39b69b5632ee16ac0b2e6e36c6f91f51f70ff85183",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libgomp-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "16.1.1+r12+g301eb08fa2c5-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/libgpg-error.BUILDINFO",
+        "sha256": "1e1d6665c90848181dc0c66b874bc69837ed3fb857123063dff90965f6b61813"
+      },
+      "name": "libgpg-error",
+      "recipe_sha256": "32083efead26c3753849cf3af34e1f16af82516bddeeabbf16ac920bd58f7025",
+      "sources": [
+        {
+          "sha256": "e6ea4251e2d6919f861a08ac09b2c72a6a687e208a495341893dba5839b00b5d",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libgpg-error-1.61-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "1.61-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/libidn2.BUILDINFO",
+        "sha256": "ea4eccc4cea57b3c661d6a3d3372bcab597400bb06046f4a2d331bd1405c8cde"
+      },
+      "name": "libidn2",
+      "recipe_sha256": "c815f902639a24cad6b83df3746efc7cdea76b780e88bf93f4205c0b071d986c",
+      "sources": [
+        {
+          "sha256": "43224d721d0afb6bc99af5c7a546dd0c7cff44b597224fc5f5f8d6c5a7c14d89",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libidn2-2.3.8-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "2.3.8-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/liblsan.BUILDINFO",
+        "sha256": "bc144645d86286bc07be0abe3a7de746a106e1bf0044b4b1675f54f9ee4e564c"
+      },
+      "name": "liblsan",
+      "recipe_sha256": "6ca8777ee59ef941ed59f37bd70263af70babddf4bd05633cb2867b739b90357",
+      "sources": [
+        {
+          "sha256": "4e109ab2ab62d922bd3453593f5c8824cadbdf445c4a37000c2636f272e05c78",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/liblsan-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "16.1.1+r12+g301eb08fa2c5-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/libnghttp2.BUILDINFO",
+        "sha256": "0b95ed242bd74e94431ce03ea423bbe9e5393dbbf9330d6bd9bcbdc1399e7e4f"
+      },
+      "name": "libnghttp2",
+      "recipe_sha256": "e46136426263afb4906f0a5bedd8be7a44797781fd5e751f20d12bdc028cd838",
+      "sources": [
+        {
+          "sha256": "4d7fdbd963e5ff7a293079e35750cbd535ad846581e1a7926035b34968b40c0e",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libnghttp2-1.70.0-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "1.70.0-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/libnghttp3.BUILDINFO",
+        "sha256": "56532f30901478c240bb10401de41ed74544cd61c203afa7281fa7893eece9fd"
+      },
+      "name": "libnghttp3",
+      "recipe_sha256": "7fe1dc92252bf649ea37c843c195f8c521e93953bd359357a156814d7dafe3cf",
+      "sources": [
+        {
+          "sha256": "b5eb225b96c3c3fcb33c8715b9987b9eaff742214964662befbc88df4d5bea65",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libnghttp3-1.18.0-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "1.18.0-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/libngtcp2.BUILDINFO",
+        "sha256": "e33139a2f5164fe4dc5812333962ae9f025f43fad7b01d3157d3382f5f316d3d"
+      },
+      "name": "libngtcp2",
+      "recipe_sha256": "221dc54a4822a3fca26bfda83c24cb2b442e60dc053bd3dda31b601bb261e632",
+      "sources": [
+        {
+          "sha256": "f69a124bd047616904c7e6bb980b8d3fec0a3550b5e35f1b7097b7645dfc5116",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libngtcp2-1.25.0-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "1.25.0-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/libnsl.BUILDINFO",
+        "sha256": "daa92e2036ca4af2f55e4a67fcc6a4df8967f819f38af480705b6a7394d8316d"
+      },
+      "name": "libnsl",
+      "recipe_sha256": "50b10709e7f21f67b3929c2e9f61654aa4626ad2db506dad9760df9a5f092942",
+      "sources": [
+        {
+          "sha256": "4f37f2ed67a79d76458e3af7b8bcdb0fef0cf35e0ba71569b7fbb0388d592619",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libnsl-2.0.1-2-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "2.0.1-2"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/libobjc.BUILDINFO",
+        "sha256": "d9a7ccb2201681ae6ba3f1cf6821328fbad7c9368db0273927bdfffc573b953c"
+      },
+      "name": "libobjc",
+      "recipe_sha256": "6ca8777ee59ef941ed59f37bd70263af70babddf4bd05633cb2867b739b90357",
+      "sources": [
+        {
+          "sha256": "61742f90c1cc572aed5c1f0068387a4e860e6a779e89e9fd1b1b3a7e61fb1c1c",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libobjc-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "16.1.1+r12+g301eb08fa2c5-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/libpsl.BUILDINFO",
+        "sha256": "8571a782bf8c16f20a38e4e8eeda98d1507bc46504fdfad9f954f36e4a57a073"
+      },
+      "name": "libpsl",
+      "recipe_sha256": "e6cd4581d7014ba69ccc1fb6eb858cc59a01c7c7daeed7620080f7165eabbc72",
+      "sources": [
+        {
+          "sha256": "8b565fcb0128be8c4c16ab82b3f9379348db6aeeffc3c639937eeedbe00fa500",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libpsl-0.21.5-2-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "0.21.5-2"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/libquadmath.BUILDINFO",
+        "sha256": "ef44fbfd2e119a286766638e43ed94747d2d36023e5ad7b475cb8f372172c6f7"
+      },
+      "name": "libquadmath",
+      "recipe_sha256": "6ca8777ee59ef941ed59f37bd70263af70babddf4bd05633cb2867b739b90357",
+      "sources": [
+        {
+          "sha256": "d97f0d43fe0212774d591a6d43b05da78590e4261af71b7a1b26097e63dc57eb",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libquadmath-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "16.1.1+r12+g301eb08fa2c5-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/libsasl.BUILDINFO",
+        "sha256": "3b1f832f4deb43e43b7a11d5d5759029c01b87ed9d4a5a54117bfd46df7bd0d3"
+      },
+      "name": "libsasl",
+      "recipe_sha256": "fd938f804b6492d7503b2bc41c177aed2af4638398c557c1252bc4ff9705a060",
+      "sources": [
+        {
+          "sha256": "5ec2f2ec119161f9e0f93a91f0f7001f9f401d5eb6dd1d7769988ee0308f92b2",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libsasl-2.1.28-5-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "2.1.28-5"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/libseccomp.BUILDINFO",
+        "sha256": "ba6066da2b356ed51271c2de89b5e21958b9fa9bdeae4a513b06105415721b8e"
+      },
+      "name": "libseccomp",
+      "recipe_sha256": "a3d7f2c00f00fedb42e7ca7d2476d89d44ffc68056c22925c65ed8637ce1e633",
+      "sources": [
+        {
+          "sha256": "ebb62cc156a605aa3f024a6d2c9dd99ba66db6f50d9aeb75b8bb336316f0a2f5",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libseccomp-2.6.0-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "2.6.0-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/libssh2.BUILDINFO",
+        "sha256": "0658af7423b39296eb6804ab8a05e733d6f75c2856feab5a99e59f2fc7c4e53c"
+      },
+      "name": "libssh2",
+      "recipe_sha256": "08ccd5d465f358a03dff6157998b0808978f227b1b31867272732b0bc80c7b68",
+      "sources": [
+        {
+          "sha256": "cea0b5138a28b5b4d8eff76e2cc1665f030f109074d88c3962d19aa09921f3b3",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libssh2-1.11.1-7-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "1.11.1-7"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/libstdc++.BUILDINFO",
+        "sha256": "36d835ee6c909b25eb2fff54a832154c42fd628258161a6bd6515882a991c8ff"
+      },
+      "name": "libstdc++",
+      "recipe_sha256": "6ca8777ee59ef941ed59f37bd70263af70babddf4bd05633cb2867b739b90357",
+      "sources": [
+        {
+          "sha256": "19832a38b2c4820695d28289f1c4f371955586d39fb893d8cbc0d8dbb09a4383",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libstdc++-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "16.1.1+r12+g301eb08fa2c5-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/libtasn1.BUILDINFO",
+        "sha256": "725f4376dcc51464d3495bd01e13a5f1d985627808bb71918da4c7e39a7471b9"
+      },
+      "name": "libtasn1",
+      "recipe_sha256": "d08a976d97ddbf40eb74c270c35bbfe3f55181ec25c601ada353473cb579108e",
+      "sources": [
+        {
+          "sha256": "96ef7088790462586eec0b5ba2aacdcbd1fc71bfd2a6dbe8bd7c20b03ed298a8",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libtasn1-4.21.0-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "4.21.0-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/libtsan.BUILDINFO",
+        "sha256": "c35b60f3f37f984acff33c5e9f9b7dfadc3cc41360c2a62d7fc5eadd8963b4cc"
+      },
+      "name": "libtsan",
+      "recipe_sha256": "6ca8777ee59ef941ed59f37bd70263af70babddf4bd05633cb2867b739b90357",
+      "sources": [
+        {
+          "sha256": "8ac217aab99e465455309957031c4b058f37560be337a1fe1f2dac3ab9e0218d",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libtsan-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "16.1.1+r12+g301eb08fa2c5-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/libubsan.BUILDINFO",
+        "sha256": "7247be341e926452e66d58ca3a5a724da9bd5132928affa699a22bed84e4dcee"
+      },
+      "name": "libubsan",
+      "recipe_sha256": "6ca8777ee59ef941ed59f37bd70263af70babddf4bd05633cb2867b739b90357",
+      "sources": [
+        {
+          "sha256": "6b0f5501898077d3f9533edf75aded85072890f85c1713fde79ed99230d8e5bb",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libubsan-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "16.1.1+r12+g301eb08fa2c5-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/libunistring.BUILDINFO",
+        "sha256": "57dd6d31b30b76a01d8e135977dcd06db4efaede8ee2bea38343bf5e81ecb65b"
+      },
+      "name": "libunistring",
+      "recipe_sha256": "914acdb6667c5e08735c15a830601a52433b4fe5717979d6224cbcfd6761e979",
+      "sources": [
+        {
+          "sha256": "106ac7728ff2cc498ffa49d7623e64cf9002eea15c5026ec54fab8cd6a294134",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libunistring-1.4.2-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "1.4.2-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/libusb.BUILDINFO",
+        "sha256": "73e7e70a671ddef153bc475fcf184b3037d313fdc018cb82d4b2b78a9d9555fa"
+      },
+      "name": "libusb",
+      "recipe_sha256": "983467298b4c1c7f48579d3a322bad8e79720afbed495572499e594d7cb19b62",
+      "sources": [
+        {
+          "sha256": "111d33e208469750439bbb7b472554784a39a6ee3948632b719fd715a1c5836d",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libusb-1.0.30-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "1.0.30-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/libverto.BUILDINFO",
+        "sha256": "4dc8dfc43191e41dfe3ae0abc415fb61118d0ceabdcaac26783b899dfc800c82"
+      },
+      "name": "libverto",
+      "recipe_sha256": "10e4ddffe619a7e784ad18c23a5a7a8f51b544b9ec2066f9268c519eb9701e73",
+      "sources": [
+        {
+          "sha256": "6b39f3feb66c1421dd4cfee2bbb339543db112c624a1eb8990ca9c9b36710dbc",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libverto-0.3.2-6-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "0.3.2-6"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/libxcrypt.BUILDINFO",
+        "sha256": "bae700f511e075f05f634227b8b39ea2eabdf2a476330f857c5aa59afda89e71"
+      },
+      "name": "libxcrypt",
+      "recipe_sha256": "c3c1e750db3d6938789052d941a9e2ef62b8222203029636da7c365600588336",
+      "sources": [
+        {
+          "sha256": "e699156589561ac0c6bfc7da42891e3945647ecdd178b907f7742696fb01a0c5",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libxcrypt-4.5.2-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "4.5.2-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/lmdb.BUILDINFO",
+        "sha256": "9bf076290346bcdcaee63109426a76acc53dce42e708ed4f73d7d68ca54fd0a4"
+      },
+      "name": "lmdb",
+      "recipe_sha256": "a2d84ff8ba330c7f2d77987d09f2c26f98593a354fc046755b81c1e12750f120",
+      "sources": [
+        {
+          "sha256": "6aff3bd58fbb98dbca71a83554be4b47d39ff01b3dbe4f724ba140416aa8486e",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/lmdb-0.9.35-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "0.9.35-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/lz4.BUILDINFO",
+        "sha256": "757e4a0daaacab827a0c2a34418e94ded464bb6caf26f92f2fa84bf8cec3ec46"
+      },
+      "name": "lz4",
+      "recipe_sha256": "b749e11ccc4ca7f6facde1d1800bf216114001bf04c4eeddf0706404b00d2426",
+      "sources": [
+        {
+          "sha256": "2734da8aa931852a6d82f5a90edbc5fd4e21cdbefc8752ab49db4228959d45d0",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/lz4-1:1.10.0-2-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "1:1.10.0-2"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/mpfr.BUILDINFO",
+        "sha256": "2b147ad5c1212d036c2f11ea4df283a7c8db4dcebb2251fecf72f6d6274153cb"
+      },
+      "name": "mpfr",
+      "recipe_sha256": "21e4bbd6a4a45dc461a33b1d854afd4f3339d2bd8ff854d3bb4a0f76daa4afd0",
+      "sources": [
+        {
+          "sha256": "6ae04b170fe6aed89519f0b2cba2f60a34e8a8ea74963e8f3619b12ddefc5117",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/mpfr-4.2.2-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "4.2.2-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/ncurses.BUILDINFO",
+        "sha256": "c8a2915bef1a69567ade27211518183f18a75a4a9350e80ce95adee0d6876fe6"
+      },
+      "name": "ncurses",
+      "recipe_sha256": "3743f7460ab1b0ebe37130a09b2cc532ef8acb8d4c162cf2f4d2c80b33b1e32b",
+      "sources": [
+        {
+          "sha256": "e7b4f3c2190e3ebb559d288b05aba70094efae63738343521a5669e64ab4bfa6",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/ncurses-6.6-2-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "6.6-2"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/nettle.BUILDINFO",
+        "sha256": "4560610966b740f909e894a2b29a826401ccf7d065986f0a23f180271740a0b2"
+      },
+      "name": "nettle",
+      "recipe_sha256": "a8f3cb29ddc54f177e4d1c92e9b8f136aefc4d8693d4ee971b930dd7be0c8fb1",
+      "sources": [
+        {
+          "sha256": "0912dee3f6f20361e607e7101f39345af7ca9fe7bc51a4ba34620468f8949300",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/nettle-4.0-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "4.0-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/npth.BUILDINFO",
+        "sha256": "3ee9f088d4285e7f867543288c38bea9e26dae389805f459f61f0a124df52a3d"
+      },
+      "name": "npth",
+      "recipe_sha256": "1eb59f09b3674c9c4b37f5814b4d8a52d458847291284fed1d0ae74a2e58feb6",
+      "sources": [
+        {
+          "sha256": "195fb844c1a24b3f38353b4331ce460ddd3fd57ac053ab4ff2567da175f17a98",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/npth-1.8-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "1.8-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/pacman.BUILDINFO",
+        "sha256": "09fb0c1f076f86969614996ce143b5acfa3a7948424baa628c9e484e63ab1f69"
+      },
+      "name": "pacman",
+      "recipe_sha256": "3064461fa0821e329e5c9fce4962016e358e1b0d5d259c5d18f7a77174c80219",
+      "sources": [
+        {
+          "sha256": "0e7a5a731727b50e5453f9946afed63456ca6d7015ec0044426489dc78134e3d",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/pacman-7.1.0.r9.g54d9411-2-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "7.1.0.r9.g54d9411-2"
+    },
+    {
+      "arch": "any",
+      "evidence": {
+        "path": "baseline-evidence/pacman-mirrorlist.BUILDINFO",
+        "sha256": "b4a0dff640daa0625de12048734acb563fe18f30c059342e9e1729182a66b1c9"
+      },
+      "name": "pacman-mirrorlist",
+      "recipe_sha256": "3c572d5146f4f5e383f24e3470a95612c6b5d0c4ee6d9b01b7bc94eb4e4a0559",
+      "sources": [
+        {
+          "sha256": "b79b0c0117f394085922ec393aa8bc3e264147377ed90448db928d1142e76ad5",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/pacman-mirrorlist-20260411-2-any.pkg.tar.xz"
+        }
+      ],
+      "version": "20260411-2"
+    },
+    {
+      "arch": "any",
+      "evidence": {
+        "path": "baseline-evidence/pambase.BUILDINFO",
+        "sha256": "2ab7053c7e9ac61081a214f232e1482323b1b9c1368a4aa62f28114be98d8c81"
+      },
+      "name": "pambase",
+      "recipe_sha256": "d015a5b8fc465edd09eb8ce42d604043c91cc48be82b3d735a73beb1d7e08336",
+      "sources": [
+        {
+          "sha256": "8824b4ddde15770edd4a760901b4c73add68bb18f639ded8316024bc1ab0210f",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/pambase-20260616-1-any.pkg.tar.xz"
+        }
+      ],
+      "version": "20260616-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/pinentry.BUILDINFO",
+        "sha256": "ffa5afc510612438a5f54cb7e84c500e59d81fb7be1a98468f44cf80e0043a5f"
+      },
+      "name": "pinentry",
+      "recipe_sha256": "cf545f066b2e618f5e18abf62b14a99b7147d2f360a634c036248ba2dac2877e",
+      "sources": [
+        {
+          "sha256": "a4e7aea581effe0bcd2c90ad7062597ac83bab88116cf31cda21940ca626a1c1",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/pinentry-1.3.3-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "1.3.3-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/popt.BUILDINFO",
+        "sha256": "c99643d1569fa9d4ec8fefc9f6ede9dfcb51517783c97904d07db427b985243b"
+      },
+      "name": "popt",
+      "recipe_sha256": "aea07d344a6860a5fc439e424cf07c08a42bafab173a9b23983464636a7ee9d0",
+      "sources": [
+        {
+          "sha256": "92da201e571426ab38ac690107e97e870862c005be9b1ecb3e1ab699ac20a022",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/popt-1.19-2-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "1.19-2"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/shadow.BUILDINFO",
+        "sha256": "8ef87902c5dd13b8a16c98cd0d6c0c688d849fbeba49fca9acaefbc91fd633cc"
+      },
+      "name": "shadow",
+      "recipe_sha256": "ab42fad9c90306ff038bfcdf399a217419d4076b889a6838bf2e157df5d32cf1",
+      "sources": [
+        {
+          "sha256": "66b4175a7dbfcde481a4cbed256f2f36ef18f760f599395efb954fe15564ae19",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/shadow-4.20.0.arch1-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "4.20.0.arch1-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/which.BUILDINFO",
+        "sha256": "fd028465a9cbe874a58714376999b107f1734de5e7bc1f86255f95634bc5041e"
+      },
+      "name": "which",
+      "recipe_sha256": "3b7723e6e8c4b0d46a470eda4dce29a08f4192c04cee4fda650d911bd973411a",
+      "sources": [
+        {
+          "sha256": "f42abbf2990fa1c1dc5bfdf3ea0d14481429e3d913b7fa24a91bad4e0e5da999",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/which-2.25-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "2.25-1"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/zlib.BUILDINFO",
+        "sha256": "d574339abedaa69de0bfc97f35d117743c4f672ac71a8aad4edaef4843a288f8"
+      },
+      "name": "zlib",
+      "recipe_sha256": "f80b98c3bbba2ca8a3042bbb9fbc3b77046d7d4699ff275ede87cbe234fe9707",
+      "sources": [
+        {
+          "sha256": "7e31b465e09e8e61375578b8e26ed883906e126e0c0ef1c75b7ccccfa95a58c4",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/zlib-1:1.3.2-3-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "1:1.3.2-3"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/zstd.BUILDINFO",
+        "sha256": "74f1d1e4a3a51e91e68ba281dc10ca5c8bff6b56e1ab73f0469115b94802ecd1"
+      },
+      "name": "zstd",
+      "recipe_sha256": "924e4284597f6aede736f70c189d7b4a2445e99b88fdf7e6580e434494c6553f",
+      "sources": [
+        {
+          "sha256": "c3b907c36049b338bda0c6d85260251e48d17e2be6c0e11ddc0dfd4cf9d2e89a",
+          "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/zstd-1.5.7-3-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "1.5.7-3"
+    },
+    {
+      "arch": "aarch64",
+      "evidence": {
+        "path": "baseline-evidence/sqlite.BUILDINFO",
+        "sha256": "db21602dece27097db38cb768c48cd46679380d395ad2dff04f0339cd772ed14"
+      },
+      "name": "sqlite",
+      "recipe_sha256": "477eedc9d12a2dabad88ed92fd9e4724bb4ae32b8caa8911dd9d3c61aad3de21",
+      "sources": [
+        {
+          "sha256": "9512d37af4ac6910e10e2a8e6f85078ab72a2ece17a8e6b51755898f50b900ba",
+          "url": "https://mirrors.cstcloud.cn/archlinuxarm/aarch64/core/sqlite-3.53.4-1-aarch64.pkg.tar.xz"
+        }
+      ],
+      "version": "3.53.4-1"
+    }
+  ],
+  "purpose": "original341-rootfs-source-provenance",
+  "rootfs_sha256": "42a4eeaa038994ffd31fa173256ef2f0ef511358eeb41b9ea1f8626391b9b319",
+  "schema_version": 1
+}
