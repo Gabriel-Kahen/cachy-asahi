@@ -112,7 +112,7 @@ class Tests(unittest.TestCase):
  def test_generated_workflow_source_gate_acquisition_and_seed_order(self):
   w=D.read(ROOT/'.github/workflows/native-arm-build.yml').decode();self.assertIn('  actions: read\n',w);self.assertIn('timeout-minutes: 360',w)
   names=('Whole source and maintained phase','Genuine independent boot','Acquire exact existing kernel20','Seed the six existing','Seed exact32 verified','Reuse unchanged owned574','Snapshot original574','Actual new-purpose immutable','Retire all new and native')
-  positions=[w.index(n)for n in names];self.assertEqual(positions,sorted(positions));self.assertNotIn('rust6',w.lower());self.assertIn('2300s',w);self.assertIn('timeout-minutes: 220',w)
+  positions=[w.index(n)for n in names];self.assertEqual(positions,sorted(positions));self.assertNotIn('rust6',w.lower());self.assertIn('2300s',w);self.assertIn('timeout-minutes: 175',w)
  def test_unknown_consumer_state_keeps_original_producer(self):
   import pipeline
   with tempfile.TemporaryDirectory()as td:
