@@ -489,7 +489,7 @@
       ]
     }
   },
-  "config_sha256": "daac7e9009820850f7c5d93f5416c395d21398d1dd71c5383b107067623fb1cc",
+  "config_sha256": "431868c55f27333af1c3573bb1124e572be880681725c51411bd6d4a8fc43e0c",
   "current_native_and_installer": "UNBOUND_NO_TRANSFERRED_ACCEPTANCE",
   "derived_pin_count": 54,
   "explicit_generic16k": {

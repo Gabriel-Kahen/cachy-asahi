@@ -107,11 +107,22 @@ def bind(copy_module, trace, budgets, validate_observation=None):
                    'complete original private copied-root globals required')
     helper = space['_updater_copy_cost']
     telemetry_errors = []
-    def stats():
+    def raw_stats():
         value = helper._stats[:]
         _capacity_need(type(value) is list and len(value) == 7 and
                        all(type(v) is int and 0 <= v < 2**63 for v in value),
                        'fresh bounded original copy counters')
+        return value
+    initial = raw_stats()
+    _capacity_need(initial[:3] == [0] * 3, 'fresh complete-copy work counters required')
+    offset, last = [-v for v in initial], [0] * 7
+    copy_started = False
+    def stats():
+        value = [base + raw for base, raw in zip(offset, raw_stats())]
+        _capacity_need(all(type(v) is int and 0 <= v < 2**63 and v >= previous
+                       for v, previous in zip(value, last)),
+                       'cumulative capacity counters regressed or overflowed')
+        last[:] = value
         return value
     def emit(phase, event, *, stats_value=None, **kwargs):
         # Diagnostic failure invalidates the probe; never masks a primary error.
@@ -145,12 +156,34 @@ def bind(copy_module, trace, budgets, validate_observation=None):
             module._updater_cost = cost_proxy
             original_copy = module._copy_internal
             def copy(*args, **kwargs):
-                emit('COPY', 'BEGIN', stats_value=[0] * 7)
+                nonlocal copy_started
+                _capacity_need(not copy_started and original_copy.__globals__ is vars(helper),
+                               'one source-pinned original copy counter reset required')
+                copy_started = True
+                before_reset = stats()
+                original_helper_cost, reset_seen = helper.cost, False
+                def reset_cost(stage, event):
+                    nonlocal reset_seen
+                    if (stage, event) == ('COPY', 'BEGIN'):
+                        _capacity_need(not reset_seen and raw_stats() == [0] * 7,
+                                       'one exact raw-zero original copy reset witness required')
+                        offset[:] = before_reset
+                        reset_seen = True
+                        emit('COPY', 'BEGIN')
+                    else:
+                        _capacity_need(reset_seen, 'original copy reset witness required before cost')
+                    return original_helper_cost(stage, event)
+                helper.cost = reset_cost
                 try:
                     value = original_copy(*args, **kwargs)
+                    _capacity_need(reset_seen, 'original copy returned without reset witness')
                 except BaseException:
                     emit('COPY', 'FAIL')
                     raise
+                finally:
+                    changed_cost = helper.cost is not reset_cost
+                    helper.cost = original_helper_cost
+                    _capacity_need(not changed_cost, 'private scalar reset witness rebound')
                 emit('COPY', 'END')
                 return value
             copy.__wrapped__ = original_copy

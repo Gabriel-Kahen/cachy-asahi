@@ -18,8 +18,8 @@
       "sha256": "ad42b0a833af063b004aee0be2cdae21e6b4bedb9f07bc82759e7a47f27a0865"
     },
     "capacity_overlay.py": {
-      "bytes": 176210,
-      "sha256": "ede936fcb3c50a60277123f697d23a82b166058fae86666061ffcc48d3214143"
+      "bytes": 178143,
+      "sha256": "e8c48aa390b45f01ae858d3c5776f3f3f79919a2392b5a6790d0180bd18ddb21"
     },
     "cleanup.py": {
       "bytes": 1010,
@@ -31,7 +31,7 @@
     },
     "emissions/cases/normal/adapter.json": {
       "bytes": 59945,
-      "sha256": "af412606af18cf6607f47c1069c04979dffc5a04c6ce3c5518bf403a42624989"
+      "sha256": "b50f4c6d636674dd52dcf2904db0d71f55e227136d9319afa5955f816818d8d3"
     },
     "emissions/cases/normal/packages/tools/cachy-asahi-apps/.SRCINFO": {
       "bytes": 1775,
@@ -298,8 +298,8 @@
       "sha256": "0b99bd3a15fa8c905be653919ec1967ab9c725cc332b053767a57a0702d6a4da"
     },
     "emissions/cases/normal/scripts/ci/full-root-upgrade/capacity_driver.py": {
-      "bytes": 25634,
-      "sha256": "f569245fd4bd3535f8925ee1ddf36b58e0f008792af6cd22d552470908d4a81d"
+      "bytes": 27516,
+      "sha256": "f27c8a68ab0b3af912b407f55711f368b55794e35f9df1c9dff96d78cc838842"
     },
     "emissions/cases/normal/scripts/ci/full-root-upgrade/capacity_profile.json": {
       "bytes": 136410,
@@ -471,7 +471,7 @@
     },
     "emissions/cases/normal/upgrade-config.json": {
       "bytes": 14426,
-      "sha256": "daac7e9009820850f7c5d93f5416c395d21398d1dd71c5383b107067623fb1cc"
+      "sha256": "431868c55f27333af1c3573bb1124e572be880681725c51411bd6d4a8fc43e0c"
     },
     "emissions/cases/postcommit-exit87/adapter.json": {
       "bytes": 64255,
@@ -2811,7 +2811,7 @@
     },
     "profile.json": {
       "bytes": 695113,
-      "sha256": "154e34ab83daf55b771d32019b96ac9d7f2f95b90d599038ea4b16be7dde574a"
+      "sha256": "1c2de6e5669a3058e81031a25f4d76804196b7c6185f9ad9380a8c522accb838"
     },
     "retain.py": {
       "bytes": 1189,
