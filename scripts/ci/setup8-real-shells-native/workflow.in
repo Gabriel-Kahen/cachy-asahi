@@ -1,0 +1,89 @@
+name: native-arm-setup8-real-shells
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact source revision, equal to workflow revision
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: native-arm-setup8-real-shells
+  cancel-in-progress: false
+jobs:
+  native:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi'
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 95
+    defaults:
+      run:
+        shell: bash
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      SLICE: scripts/ci/setup8-real-shells-native
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: ${{ inputs.source_sha }}
+          persist-credentials: false
+      - name: Exact source, held154 DATA and workflow proof
+        id: proof
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' '@MANIFEST_SHA256@' "$SLICE/source-manifest.json" '@JOB_SHA256@' "$SLICE/job.py" | sha256sum --check
+          python3 -I -B "$SLICE/job.py" proof --source "$GITHUB_WORKSPACE" --proof "$RUNNER_TEMP/real-shells-proof.json"
+      - name: Checkout complete exact1148 retained package inputs
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad
+          path: retained574
+          persist-credentials: false
+      - name: Original owned574 producer with retained package DATA
+        timeout-minutes: 40
+        run: >-
+          timeout --signal=TERM --kill-after=10s 2300s
+          python3 -I -B "$SLICE/producer.py"
+          --source "$GITHUB_WORKSPACE" --carrier "$GITHUB_WORKSPACE/retained574"
+          --proof "$RUNNER_TEMP/real-shells-proof.json"
+          --output "$RUNNER_TEMP/real-shells-base"
+      - name: Held Setup8 and actual eight shell packages, five ALPM transitions
+        timeout-minutes: 36
+        run: >-
+          timeout --signal=TERM --kill-after=30s 2100s
+          python3 -I -B "$SLICE/run.py"
+          --source "$GITHUB_WORKSPACE" --base "$RUNNER_TEMP/real-shells-base"
+          --proof "$RUNNER_TEMP/real-shells-proof.json"
+          --output "$RUNNER_TEMP/real-shells-runtime"
+      - name: Retire registered consumer before original574 producer
+        if: always() && steps.proof.outcome == 'success'
+        timeout-minutes: 6
+        run: >-
+          timeout --signal=TERM --kill-after=10s 330s
+          python3 -I -B "$SLICE/job.py" cleanup
+          --source "$GITHUB_WORKSPACE" --base "$RUNNER_TEMP/real-shells-base"
+          --runtime "$RUNNER_TEMP/real-shells-runtime" --proof "$RUNNER_TEMP/real-shells-proof.json"
+          --output "$RUNNER_TEMP/real-shells-cleanup.json"
+      - name: Retain exact source, packages, ordinary observations and ordered cleanup
+        if: always() && steps.proof.outcome == 'success'
+        timeout-minutes: 3
+        run: >-
+          python3 -I -B "$SLICE/job.py" retain
+          --source "$GITHUB_WORKSPACE" --base "$RUNNER_TEMP/real-shells-base"
+          --runtime "$RUNNER_TEMP/real-shells-runtime" --proof "$RUNNER_TEMP/real-shells-proof.json"
+          --cleanup "$RUNNER_TEMP/real-shells-cleanup.json"
+          --output "$RUNNER_TEMP/real-shells-public"
+      - name: Bounded development evidence only
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        timeout-minutes: 2
+        with:
+          name: setup8-real-shells-${{ github.run_id }}-${{ github.run_attempt }}
+          include-hidden-files: true
+          retention-days: 3
+          if-no-files-found: ignore
+          path: ${{ runner.temp }}/real-shells-public/
