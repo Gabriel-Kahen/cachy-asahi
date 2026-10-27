@@ -1,0 +1,139 @@
+name: native-arm-gui-fresh-test-signer
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact Root-reviewed workflow and route source commit
+        type: string
+        required: true
+      input_plan_sha256:
+        description: Reviewed SHA-256 of the public GUI input contract
+        type: string
+        required: true
+      image_contract_sha256:
+        description: Reviewed SHA-256 of the exact public immutable signer image contract JSON
+        type: string
+        required: true
+      image_contract_json:
+        description: Root-reviewed public OCI digest, expected image ID, alarm UID/GID, and complete tool/package pins
+        type: string
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: native-arm-gui-fresh-test-signer
+  cancel-in-progress: false
+jobs:
+  native:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 35
+    defaults:
+      run:
+        shell: bash
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      WORKFLOW_SHA: ${{ github.workflow_sha }}
+      INPUT_PLAN_SHA256: ${{ inputs.input_plan_sha256 }}
+      IMAGE_CONTRACT_SHA256: ${{ inputs.image_contract_sha256 }}
+      SLICE: scripts/ci/gui-fresh-test-signer
+    steps:
+      - name: Checkout the exact reviewed source without persisted credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: ${{ inputs.source_sha }}
+          persist-credentials: false
+      - name: Prove source, public input plan, and bounded exact image contract before actors
+        id: proof
+        timeout-minutes: 3
+        env:
+          IMAGE_CONTRACT_JSON: ${{ inputs.image_contract_json }}
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$INPUT_PLAN_SHA256" =~ ^[0-9a-f]{64}$ ]]
+          [[ "$IMAGE_CONTRACT_SHA256" =~ ^[0-9a-f]{64}$ ]]
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test "$WORKFLOW_SHA" = "$SOURCE_SHA"
+          python3 -I -B "$SLICE/route.py" source-check --source "$GITHUB_WORKSPACE" --plan "$GITHUB_WORKSPACE/$SLICE/input-contract.json" --plan-sha256 "$INPUT_PLAN_SHA256"
+          python3 -I -B - <<'PY'
+          import hashlib,os
+          from pathlib import Path
+          raw=os.environ['IMAGE_CONTRACT_JSON'].encode('utf-8')
+          if not 0<len(raw)<=65536 or hashlib.sha256(raw).hexdigest()!=os.environ['IMAGE_CONTRACT_SHA256']:
+              raise SystemExit('reviewed bounded image contract hash differs')
+          path=Path(os.environ['RUNNER_TEMP'])/'gui-signer-image-contract.json'
+          with path.open('xb')as stream:stream.write(raw)
+          path.chmod(0o600)
+          PY
+      - name: Checkout the exact original native public carrier
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: 1057f6b5494adc71c469e8867d14fb0db01ce02f
+          path: gui-signer-carriers/native73
+          persist-credentials: false
+      - name: Checkout the exact held public carrier
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: 77bd2c6ecf2e5c28a04116c3da85c45f70d1cc90
+          path: gui-signer-carriers/held77
+          persist-credentials: false
+      - name: Checkout the exact historical renewal provenance carrier
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: 7cf7fb81d0b70b1b7421dc85788fabd45ec5adfc
+          path: gui-signer-carriers/renewal7cf7
+          persist-credentials: false
+      - name: Export ordinary exact public carrier bodies without checkout metadata
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          mkdir -m700 "$RUNNER_TEMP/gui-signer-inputs"
+          mkdir -m700 "$RUNNER_TEMP/gui-signer-inputs/native73" "$RUNNER_TEMP/gui-signer-inputs/held77" "$RUNNER_TEMP/gui-signer-inputs/renewal7cf7"
+          git -C "$GITHUB_WORKSPACE/gui-signer-carriers/native73" archive 1057f6b5494adc71c469e8867d14fb0db01ce02f | tar -x -C "$RUNNER_TEMP/gui-signer-inputs/native73"
+          git -C "$GITHUB_WORKSPACE/gui-signer-carriers/held77" archive 77bd2c6ecf2e5c28a04116c3da85c45f70d1cc90 | tar -x -C "$RUNNER_TEMP/gui-signer-inputs/held77"
+          git -C "$GITHUB_WORKSPACE/gui-signer-carriers/renewal7cf7" archive 7cf7fb81d0b70b1b7421dc85788fabd45ec5adfc | tar -x -C "$RUNNER_TEMP/gui-signer-inputs/renewal7cf7"
+          python3 -I -B "$SLICE/route.py" source-check --source "$GITHUB_WORKSPACE" --plan "$GITHUB_WORKSPACE/$SLICE/input-contract.json" --plan-sha256 "$INPUT_PLAN_SHA256" --inputs-root "$RUNNER_TEMP/gui-signer-inputs"
+      - name: Acquire only the reviewed OCI digest and qualify the native immutable image offline
+        id: image
+        timeout-minutes: 10
+        run: |
+          set -euo pipefail
+          timeout --signal=TERM --kill-after=60s 450s python3 -I -B "$SLICE/environment.py" prepare --contract "$RUNNER_TEMP/gui-signer-image-contract.json" --sha256 "$IMAGE_CONTRACT_SHA256" --output "$RUNNER_TEMP/gui-signer-environment"
+      - name: Generate and verify fresh one-day TEST signatures through the guarded offline signer
+        id: sign
+        timeout-minutes: 12
+        run: |
+          set -euo pipefail
+          timeout --signal=TERM --kill-after=90s 600s python3 -I -B "$SLICE/route.py" sign --source "$GITHUB_WORKSPACE" --plan "$GITHUB_WORKSPACE/$SLICE/input-contract.json" --plan-sha256 "$INPUT_PLAN_SHA256" --image-contract "$RUNNER_TEMP/gui-signer-image-contract.json" --image-contract-sha256 "$IMAGE_CONTRACT_SHA256" --environment "$RUNNER_TEMP/gui-signer-environment" --inputs-root "$RUNNER_TEMP/gui-signer-inputs" --output "$RUNNER_TEMP/gui-signer-run"
+      - name: Preserve preexisting images and retire only the exact newly acquired unused image
+        if: always() && steps.proof.outcome == 'success'
+        timeout-minutes: 5
+        run: |
+          set -euo pipefail
+          if [ -f "$RUNNER_TEMP/gui-signer-environment/environment.json" ]; then
+            timeout --signal=TERM --kill-after=60s 180s python3 -I -B "$SLICE/environment.py" cleanup --output "$RUNNER_TEMP/gui-signer-environment"
+          fi
+      - name: Close the bounded public output allowlist
+        if: always() && steps.proof.outcome == 'success'
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          if [ -d "$RUNNER_TEMP/gui-signer-run" ]; then
+            python3 -I -B "$SLICE/route.py" export --run "$RUNNER_TEMP/gui-signer-run" --output "$RUNNER_TEMP/gui-signer-public"
+          fi
+      - name: Upload only verified bounded public signer outputs
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        timeout-minutes: 2
+        with:
+          name: gui-fresh-test-signer-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 3
+          if-no-files-found: ignore
+          path: ${{ runner.temp }}/gui-signer-public/
+          include-hidden-files: false

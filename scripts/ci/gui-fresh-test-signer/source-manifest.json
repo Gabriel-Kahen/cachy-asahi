@@ -1,0 +1,85 @@
+{
+  "Root_acceptance": null,
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "files": {
+    ".github/workflows/native-arm-build.yml": {
+      "bytes": 9500,
+      "sha256": "ebb1e9250e2d97085bd3ec580fa916a3a4e5474c400821adba353db0336238d5"
+    },
+    ".github/workflows/native-arm-gui-fresh-test-signer-source-build.yml": {
+      "bytes": 9500,
+      "sha256": "ebb1e9250e2d97085bd3ec580fa916a3a4e5474c400821adba353db0336238d5"
+    },
+    ".github/workflows/native-arm-gui-fresh-test-signer.yml": {
+      "bytes": 7238,
+      "sha256": "1020baf3e2ae9baaf21b1ba78eac6775e71b14dfab124f00fbf64635e2ede73f"
+    },
+    "scripts/checks/package_checks.py": {
+      "bytes": 17706,
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+    },
+    "scripts/ci/gui-fresh-test-signer/README.md": {
+      "bytes": 6041,
+      "sha256": "82ec9249b746be639a7ca94a813b37edd4f190615dae256ea00b7b48579f1ef8"
+    },
+    "scripts/ci/gui-fresh-test-signer/environment.py": {
+      "bytes": 24087,
+      "sha256": "ea85b04592738012012add9597efd61b432f0a142661329a40b5178b905d1644"
+    },
+    "scripts/ci/gui-fresh-test-signer/input-contract.json": {
+      "bytes": 81278,
+      "sha256": "f0160e53afea8d7116f0b7552514f753f6fd95ae2d58d1b30d4d3fe6d5b5ceda"
+    },
+    "scripts/ci/gui-fresh-test-signer/inside.py": {
+      "bytes": 23068,
+      "sha256": "ec0526bbea04410f8b4a4602bbe6855b16a7b17213a9d5b4adb0bb77235e7849"
+    },
+    "scripts/ci/gui-fresh-test-signer/plan.py": {
+      "bytes": 8248,
+      "sha256": "c08ca66c694bf372c0ed55883554c6b74f2788d3ddf8d27ddd8c795fa896065c"
+    },
+    "scripts/ci/gui-fresh-test-signer/provision-plan.json": {
+      "bytes": 9803,
+      "sha256": "d62f13c376ea304dd550f44483800ee23326c0d92555fb504fbc8c1847a66b59"
+    },
+    "scripts/ci/gui-fresh-test-signer/provision.py": {
+      "bytes": 41605,
+      "sha256": "57d5ab6c84b1122047f8edbdd0c4f5e06993e93d023de0a800fe4f20a3b60dc0"
+    },
+    "scripts/ci/gui-fresh-test-signer/route.py": {
+      "bytes": 17633,
+      "sha256": "799b5f816a899e9f574f209f351221c63932d92c1ccf7cbd390594bf40c80f82"
+    },
+    "scripts/ci/gui-fresh-test-signer/test_environment.py": {
+      "bytes": 26268,
+      "sha256": "80ccbd8335d231e18b2e76735e3d972221ba451e9338c2cc3e47a231af61dd86"
+    },
+    "scripts/ci/gui-fresh-test-signer/test_inside.py": {
+      "bytes": 21660,
+      "sha256": "c5a508c519c2cb231b1867faae9eb4f883ee48fbe07860d78a1416b49fd93487"
+    },
+    "scripts/ci/gui-fresh-test-signer/test_provision.py": {
+      "bytes": 17607,
+      "sha256": "e84314c363b660d1f3f7d42714f69c3b5c073986d3955d029b852dff3286deb1"
+    },
+    "scripts/ci/gui-fresh-test-signer/test_route.py": {
+      "bytes": 23080,
+      "sha256": "cd7aea53556deae3983141600efb57f40fb0fae315fe50be7303cf08b54755f4"
+    },
+    "scripts/ci/inputs.lock.json": {
+      "bytes": 328101,
+      "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f"
+    },
+    "scripts/ci/native_arm.py": {
+      "bytes": 28318,
+      "sha256": "a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898"
+    },
+    "scripts/ci/sign_fixture.py": {
+      "bytes": 35990,
+      "sha256": "430a52245fb2adb6a6c9fb68ee256570ca1c5468863f5e0f3b04145e0d9dcf85"
+    }
+  },
+  "schema_version": 1
+}
