@@ -204,20 +204,25 @@ def run_builder(args):
                 check_inspection(observed[0],observation)
                 observation['status']='PASS_ACTUAL_DAEMON_BUILD_MOUNTS_OBSERVED'if consumer_admitted else'PARTIAL_MOUNTS_OBSERVED_CHILD_NOT_ADMITTED'
             save(args.observation,observation)
+    execution=dict(status='STARTED_NOT_QUALIFIED',builder_returned_exit=None)
     try:
         subprocess.run = observed_run
         builder.package = checked_package
         sys.argv = ['build_v2.py', *prepared['command'][3:]]
-        code = builder.main()
+        code = builder.main();execution['builder_returned_exit']=code
         need(code == 0 and observation is not None and observation['observer_joined'] is True
              and observation['status'] == 'PASS_ACTUAL_DAEMON_BUILD_MOUNTS_OBSERVED',
              'actual build and mount observation must both complete')
+        execution['status']='RETURNED_ZERO_AND_MOUNTS_OBSERVED_NOT_FULLY_QUALIFIED'
         return 0
+    except BaseException as error:
+        execution.update(status='FAILED_OR_INTERRUPTED',error_type=type(error).__name__,error=str(error)[:2048]);raise
     finally:
         subprocess.run = prior_run; sys.argv = original_argv;builder.package=original_package
-        if observation is not None:
-            observation['package_inspections']=package_inspections;save(args.observation,observation)
         after=snapshot();save(args.preparation/'source-cache-after.json',after)
+        execution['source_cache_unchanged']=before==after
+        if observation is not None:
+            observation['package_inspections']=package_inspections;observation['driver_execution']=execution;save(args.observation,observation)
         need(before==after,'offline source cache changed during real native build')
 
 

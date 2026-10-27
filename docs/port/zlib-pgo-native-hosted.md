@@ -75,3 +75,11 @@ construction data pending Root review. Installed lifecycle and generic16K remain
 separate: the preserved guest gate is present but not run by this workflow.
 Physical Asahi/M2, performance, power/thermals and release remain NOT RUN or
 NOT GRANTED.
+
+Installed compiler/tool identity is distinct from ordinary source/profile/output
+DATA. Ten exact package-bound tool roles admit only their reviewed immutable
+installed hardlink/alias groups, root ownership, stable FD/path identity, exact
+payloads and package DB membership. Ordinary DATA keeps noalias/singlelink guards.
+Early specific node observations/errors remain bounded DATA. A failed candidate
+exports its actual diagnostics; an owner-bound second candidate may be NOT_REACHED
+only with no later intent/attempt evidence. Both successes remain mandatory.

@@ -36,7 +36,7 @@ jobs:
         timeout-minutes: 1
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '6e939f09a5351d02ee4ee8c74e4e0fc943fd48912faa3b5adfa10b122346c46d' "$SLICE/owner.py" '86d5ce7a480fe18eed982b57a5e6f3e4ae6fc30b57b9dfc9c07f93729d11ad1d' "$SLICE/source-map.json" | sha256sum --check
+          printf '%s  %s\n' 'cf6e92745cc15d95a0e1494da4150ede42f463ff78c79aac862f76bcd54f8a05' "$SLICE/owner.py" '82d2ff482bdcf4210de88c42189df0c0f0e23c37446916d0e02150102374d253' "$SLICE/source-map.json" | sha256sum --check
           test "$INPUTS_SHA256" = beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
           printf '%s  %s\n' "$INPUTS_SHA256" scripts/ci/inputs.lock.json | sha256sum --check
           [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
@@ -54,7 +54,7 @@ jobs:
             ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
             python3 -I -B "$SLICE/owner.py" proof \
             --source-root "$GITHUB_WORKSPACE" --source-sha "$SOURCE_SHA" \
-            --manifest-sha256 86d5ce7a480fe18eed982b57a5e6f3e4ae6fc30b57b9dfc9c07f93729d11ad1d --proof "$RUNNER_TEMP/pgo-hosted-proof.json" \
+            --manifest-sha256 82d2ff482bdcf4210de88c42189df0c0f0e23c37446916d0e02150102374d253 --proof "$RUNNER_TEMP/pgo-hosted-proof.json" \
             --work "$RUNNER_TEMP/pgo-hosted-work" --cache "$RUNNER_TEMP/alarm-cache" \
             --public "$RUNNER_TEMP/pgo-hosted-public"
       - name: Run new hosted PGO source owner and retention controls before secrets
@@ -153,7 +153,7 @@ jobs:
             ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
             python3 -I -B "$SLICE/owner.py" transport \
             --source-root "$GITHUB_WORKSPACE" --source-sha "$SOURCE_SHA" \
-            --manifest-sha256 86d5ce7a480fe18eed982b57a5e6f3e4ae6fc30b57b9dfc9c07f93729d11ad1d --proof "$RUNNER_TEMP/pgo-hosted-proof.json" \
+            --manifest-sha256 82d2ff482bdcf4210de88c42189df0c0f0e23c37446916d0e02150102374d253 --proof "$RUNNER_TEMP/pgo-hosted-proof.json" \
             --work "$RUNNER_TEMP/pgo-hosted-work" --cache "$RUNNER_TEMP/alarm-cache" \
             --public "$RUNNER_TEMP/pgo-hosted-public" \
             --carrier "$RUNNER_TEMP/pgo-hosted-retained" --execute >"${transport_stream}.stdout" 2>"${transport_stream}.stderr"
@@ -176,7 +176,7 @@ jobs:
             ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
             python3 -I -B "$SLICE/owner.py" bootstrap \
             --source-root "$GITHUB_WORKSPACE" --source-sha "$SOURCE_SHA" \
-            --manifest-sha256 86d5ce7a480fe18eed982b57a5e6f3e4ae6fc30b57b9dfc9c07f93729d11ad1d --proof "$RUNNER_TEMP/pgo-hosted-proof.json" \
+            --manifest-sha256 82d2ff482bdcf4210de88c42189df0c0f0e23c37446916d0e02150102374d253 --proof "$RUNNER_TEMP/pgo-hosted-proof.json" \
             --work "$RUNNER_TEMP/pgo-hosted-work" --cache "$RUNNER_TEMP/alarm-cache" \
             --public "$RUNNER_TEMP/pgo-hosted-public" \
             --carrier "$RUNNER_TEMP/pgo-hosted-retained" --execute
@@ -196,7 +196,7 @@ jobs:
             ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
             python3 -I -B "$SLICE/owner.py" pairs \
             --source-root "$GITHUB_WORKSPACE" --source-sha "$SOURCE_SHA" \
-            --manifest-sha256 86d5ce7a480fe18eed982b57a5e6f3e4ae6fc30b57b9dfc9c07f93729d11ad1d --proof "$RUNNER_TEMP/pgo-hosted-proof.json" \
+            --manifest-sha256 82d2ff482bdcf4210de88c42189df0c0f0e23c37446916d0e02150102374d253 --proof "$RUNNER_TEMP/pgo-hosted-proof.json" \
             --work "$RUNNER_TEMP/pgo-hosted-work" --cache "$RUNNER_TEMP/alarm-cache" \
             --public "$RUNNER_TEMP/pgo-hosted-public" \
             --execute
@@ -216,7 +216,7 @@ jobs:
             ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
             python3 -I -B "$SLICE/owner.py" cleanup \
             --source-root "$GITHUB_WORKSPACE" --source-sha "$SOURCE_SHA" \
-            --manifest-sha256 86d5ce7a480fe18eed982b57a5e6f3e4ae6fc30b57b9dfc9c07f93729d11ad1d --proof "$RUNNER_TEMP/pgo-hosted-proof.json" \
+            --manifest-sha256 82d2ff482bdcf4210de88c42189df0c0f0e23c37446916d0e02150102374d253 --proof "$RUNNER_TEMP/pgo-hosted-proof.json" \
             --work "$RUNNER_TEMP/pgo-hosted-work" --cache "$RUNNER_TEMP/alarm-cache" \
             --public "$RUNNER_TEMP/pgo-hosted-public" \
             --execute
@@ -236,7 +236,7 @@ jobs:
             ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
             python3 -I -B "$SLICE/owner.py" retain \
             --source-root "$GITHUB_WORKSPACE" --source-sha "$SOURCE_SHA" \
-            --manifest-sha256 86d5ce7a480fe18eed982b57a5e6f3e4ae6fc30b57b9dfc9c07f93729d11ad1d --proof "$RUNNER_TEMP/pgo-hosted-proof.json" \
+            --manifest-sha256 82d2ff482bdcf4210de88c42189df0c0f0e23c37446916d0e02150102374d253 --proof "$RUNNER_TEMP/pgo-hosted-proof.json" \
             --work "$RUNNER_TEMP/pgo-hosted-work" --cache "$RUNNER_TEMP/alarm-cache" \
             --public "$RUNNER_TEMP/pgo-hosted-public"
       - name: Upload only the closed public evidence directory
