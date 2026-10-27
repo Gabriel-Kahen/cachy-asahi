@@ -9,8 +9,14 @@ PROFILE_NAMES=tuple('#tmp#build#'+n+'.gcda'for n in sorted('adler32 crc32 deflat
 PAYLOAD=('libz.a','minigzip','example','probe','strict-gzip','zlib.h','zconf.h','LICENSE')
 MAX_FILE=16*1024**2;MAX_LARGE=64*1024**2;MAX_PUBLIC=512*1024**2;MAX_LEAVES=20000
 BOOT={'inputs.lock.json','runner.json','bootstrap.json','bootstrap.log','packages.lock','image-id','image-inspect.json','signatures.json','rootfs-inventory.json','rootfs-hooks.json','package-audit.json','cache-checksums.json','acquisition.json','key-import.log','retained-preparation.json','build-started.json','context/Dockerfile','context/disabled-hooks.txt','context/pacman.conf'}
-WORK_FILES={'bootstrap-owner.json','pairs-owner.json','pair-cleanup-owner.json','cleanup-owner.json','producer-binding.json','producer-binding-1.json','producer-binding-2.json','producer-inspect.json','producer-inspect-1.json','producer-inspect-2.json','comparison.json','build-intent-1.json','build-intent-2.json'}
-PHASES=('bootstrap','pairs','pair-cleanup','cleanup')
+WORK_FILES={'input-transport-owner.json','input-transport.stdout','input-transport.stderr','input-transport.exit-code','bootstrap-owner.json','pairs-owner.json','pair-cleanup-owner.json','cleanup-owner.json','producer-binding.json','producer-binding-1.json','producer-binding-2.json','producer-inspect.json','producer-inspect-1.json','producer-inspect-2.json','comparison.json','build-intent-1.json','build-intent-2.json'}
+PHASES=('input-transport','bootstrap','pairs','pair-cleanup','cleanup')
+PHASE_ROLES={'input-transport':'RETAINED_INPUT_TRANSPORT_DATA','bootstrap':'FRESH_ORIGINAL341_PRODUCER',
+    'pairs':'TWO_INDEPENDENT_PGO_CONSUMERS','pair-cleanup':'CONSUMER_RETIREMENT',
+    'cleanup':'PRODUCER_RETIREMENT_AFTER_CONSUMERS'}
+CARRIER_SOURCE='ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad'
+CARRIER_PROFILE='4089fd798849cafda23d03c0dd95ac896a83fd63ad21e331ae420c147535586c'
+TRANSPORT_STREAMS=('input-transport.stdout','input-transport.stderr','input-transport.exit-code')
 
 
 def need(ok,message):
@@ -216,6 +222,78 @@ def inner(directory,root):
     return dict(status='MATCHED_SOURCE_BOUND_FINITE_PGO_CONSTRUCTION_DATA',files=len(actual),profiles=17,commands=234,inner_clean_builds=2,seal_sha256=report['profile_seal_sha256'],outputs=outputs[0],hardware='NOT RUN',generic16k='NOT RUN',performance='NOT GRANTED')
 
 
+def transport_record(work,root,own,owner,*,runtime_temp=None):
+    """Match transport DATA and full proof; historical paths are DATA, not probes."""
+    work=Path(work);root=Path(root);row=j(work/'input-transport-owner.json')
+    def original_path(value):
+        need(type(value)is str,'recorded original absolute path required')
+        path=PurePosixPath(value)
+        need(path.is_absolute()and str(path)==value and'..'not in path.parts and'\\'not in value,
+             'normalized original POSIX path required')
+        return path
+    temp=original_path(row['runtime_temp']);source=original_path(row['source_root'])
+    carrier=original_path(row['carrier_path'])
+    need(carrier==temp/'pgo-hosted-retained'and not temp.is_relative_to(source)
+         and not source.is_relative_to(temp),'original runtime DATA and source paths must be disjoint')
+    if runtime_temp is not None:
+        need(temp==original_path(str(runtime_temp)),'trusted original runner temp binding differs')
+    need(row['status']=='PASS_EXACT_RETAINED_INPUT_TRANSPORT_DATA_ONLY'and row['identity']==own
+         and row['manifest_sha256']==sha(read(root/owner.MAP))
+         and row['role']==PHASE_ROLES['input-transport']
+         and row['carrier_source']==row['carrier_head']==CARRIER_SOURCE
+         and row['profile_sha256']==CARRIER_PROFILE
+         and type(row['expected_carrier_files'])is int and row['expected_carrier_files']==1154
+         and type(row['expected_carrier_bytes'])is int and row['expected_carrier_bytes']==1046432165
+         and type(row['budget_seconds'])is int and row['budget_seconds']==480
+         and row['retry']is False and row['acceptance']is False and row['native']=='NOT_RUN',
+         'same-owner complete bounded retained input transport DATA required')
+    profile=read(root/'scripts/ci/setup6-retained-helpers/carrier-profile.json')
+    need(sha(profile)==CARRIER_PROFILE,'held whole carrier profile source required')
+    selected=decode(profile)
+    need(selected['source']==CARRIER_SOURCE and len(selected['files'])==1154
+         and sum(v['bytes']for v in selected['files'].values())==1046432165,
+         'complete original retained profile volume required')
+    streams={name:pin(read(work/name))for name in TRANSPORT_STREAMS}
+    need(read(work/'input-transport.exit-code')==b'0\n','complete successful outer transport phase required')
+    rows=j(work/'input-transport-actors/actors.json')
+    need(type(rows)is list and len(rows)==5,'complete five-command one-fetch transport required')
+    git=['git','-c','credential.helper=','-c','http.extraHeader=','-c','http.sslVerify=true',
+         '-c','core.hooksPath=/dev/null','-c','protocol.allow=never','-c','protocol.https.allow=always']
+    expected_argv=[[*git,'init','--template=',str(carrier)],
+        [*git,'-C',str(carrier),'-c','http.lowSpeedLimit=65536','-c','http.lowSpeedTime=60',
+         'fetch','--depth=1','--no-tags','--no-recurse-submodules',
+         'https://github.com/Gabriel-Kahen/cachy-asahi.git',CARRIER_SOURCE],
+        [*git,'-C',str(carrier),'rev-parse','--verify','FETCH_HEAD'],
+        [*git,'-C',str(carrier),'checkout','--detach',CARRIER_SOURCE],
+        [*git,'-C',str(carrier),'rev-parse','--verify','HEAD']]
+    elapsed=0
+    for index,actor in enumerate(rows):
+        need(actor.get('status')=='PASS'and'cleanup_error'not in actor,'complete unforced transport actor')
+        owned_status(actor,0)
+        need(type(actor.get('elapsed_seconds'))in(int,float)and math.isfinite(actor['elapsed_seconds'])
+             and 0<=actor['elapsed_seconds']<=482,'bounded transport actor elapsed')
+        elapsed+=actor['elapsed_seconds']
+        read(work/'input-transport-actors'/f'{index:04d}.log')
+        need(original_path(actor['log'])==temp/'pgo-hosted-work/input-transport-actors'/f'{index:04d}.log',
+             'same original runtime transport actor log path')
+        argv=actor['argv'];need(type(argv)is list and argv and argv[0]=='git'
+            and all(type(value)is str for value in argv),'source-owned transport Git argv')
+        need(argv==expected_argv[index],'exact source-owned transport argv, qualifiers and target required')
+    need(set(tree(work/'input-transport-actors'))=={'actors.json',*(f'{n:04d}.log'for n in range(5))},
+         'complete and only retained transport actor streams')
+    need(elapsed<=482,'shared480-second transport deadline plus final retirement allowance required')
+    prepared=j(work/'bootstrap/retained-preparation.json')
+    need(prepared['status']=='EXACT_RETAINED_INPUT_PREPARATION_DATA_ONLY'
+         and prepared['source']==prepared['carrier']['source']==CARRIER_SOURCE
+         and prepared['carrier']['files']==prepared['carrier']['blob_joins']==1154
+         and prepared['mode']=='native248'and prepared['actual']is None,
+         'unchanged full1154 Git/blob preparation required after transport DATA')
+    return dict(status='MATCHED_RETAINED_INPUT_DATA_AND_COMPLETE1154_PREPARATION',role=PHASE_ROLES['input-transport'],
+        source=CARRIER_SOURCE,profile_sha256=CARRIER_PROFILE,carrier_files=1154,carrier_bytes=1046432165,
+        original_runtime_temp=str(temp),original_source_root=str(source),actors=5,fetches=1,elapsed_seconds=elapsed,streams=streams,
+        native='NOT_RUN',native_cleanup='NOT_ESTABLISHED',acceptance=False)
+
+
 def producer(work,root,own,owner):
     work=Path(work);base=j(work/'bootstrap-owner.json');lock=read(work/'bootstrap/packages.lock');expected=read(Path(root)/owner.LANE/'expected-packages.lock')
     need(lock==expected and len(lock.decode().splitlines())==341,'genuine complete original341 producer inventory')
@@ -229,8 +307,9 @@ def producer(work,root,own,owner):
     return base,lock
 
 
-def qualify(work,root,own,owner):
-    work=Path(work);root=Path(root);base,lock=producer(work,root,own,owner);image=base['image']
+def qualify(work,root,own,owner,*,runtime_temp=None):
+    work=Path(work);root=Path(root);transport=transport_record(work,root,own,owner,runtime_temp=runtime_temp)
+    base,lock=producer(work,root,own,owner);image=base['image']
     pair=j(work/'pairs-owner.json');consumers=j(work/'pair-cleanup-owner.json');cleanup=j(work/'cleanup-owner.json')
     need(all(row['identity']==own for row in(pair,consumers,cleanup)),'same source/run complete phase identities')
     need(pair['status']=='PASS_TWO_INDEPENDENT_NATIVE_PGO_BUILDS_PENDING_CLEANUP'and pair['image']==image and pair['source_cache_unchanged']is True,'complete two independent candidate builds')
@@ -253,6 +332,7 @@ def qualify(work,root,own,owner):
         result.append(inner(output/'artifacts/pgo-v1-evidence',root))
     return dict(status='COMPLETE_TWO_INDEPENDENT_SOURCE_BOUND_PGO_DATA_PENDING_ROOT_REVIEW',image=image,packages=pin(lock),outer_builders=names,
         candidate_attempts=result,independent_payload_equality={name:result[0]['outputs'][name]==result[1]['outputs'][name]for name in PAYLOAD},
+        input_transport=transport,phase_roles=PHASE_ROLES,
         raw_archive_equality='OBSERVATION_ONLY_INDEPENDENT_TRAINING_SEALS_AND_PROVENANCE_CAN_DIFFER',cleanup='MATCHED_CONSUMERS_ABSENT_BEFORE_PRODUCER_IMAGE',acceptance=False,
         installed='NOT RUN',hardware='NOT RUN',generic16k='NOT RUN',performance='NOT GRANTED',release='NOT_ADMITTED')
 
@@ -261,9 +341,9 @@ def retain(args,owner):
     """Copy all permitted leaves once; malformed/partial DATA cannot gain credit."""
     manifest,own=owner.binding(args,feature_required=False);root=Path(owner.ROOT);work=Path(args.work);public=owner.fresh(args.public);copied={};total=0
     receipt=dict(schema=1,status='PARTIAL_OR_FAILED_PGO_HOSTED_DATA',identity=own,manifest_sha256=args.manifest_sha256,files=copied,acceptance=False,
-        construction='NOT QUALIFIED',installed='NOT RUN',generic16k='NOT RUN',hardware='NOT RUN',performance='NOT GRANTED',release='NOT_ADMITTED',
+        phase_roles=PHASE_ROLES,construction='NOT QUALIFIED',installed='NOT RUN',generic16k='NOT RUN',hardware='NOT RUN',performance='NOT GRANTED',release='NOT_ADMITTED',
         limits=dict(public_bytes=MAX_PUBLIC,total_leaves=MAX_LEAVES,attempt_leaves=8192,ordinary_leaf_bytes=MAX_FILE,libz_or_archive_bytes=MAX_LARGE),
-        limitations=['Public receipts require trusted Root ingress; local JSON is not GitHub attestation.','No native codec/profile/compiler/package or runtime replay is performed by retention.','Profile header/hash and native decoder transcript joins do not create a second independent native decoder execution.','No LIVE original-group members does not establish zombie/global absence; final consumer/producer retirement is separate.','Independent outer archives may differ in training seals/runtime provenance; their byte equality is observational.','No candidate16K, physical Asahi/M2, performance, energy/thermal, final-system or release admission follows.'])
+        limitations=['Public receipts require trusted Root ingress; local JSON is not GitHub attestation.','No native codec/profile/compiler/package or runtime replay is performed by retention.','Profile header/hash and native decoder transcript joins do not create a second independent native decoder execution.','No LIVE original-group members does not establish zombie/global absence; final consumer/producer retirement is separate.','Independent outer archives may differ in training seals/runtime provenance; their byte equality is observational.','External retained-input transport is DATA only; complete zero-exit streams, owned transport actors and the unchanged full1154 Git/blob preparation are mandatory before construction.','No candidate16K, physical Asahi/M2, performance, energy/thermal, final-system or release admission follows.'])
     def copy(path,name):
         nonlocal total
         relative(name);need(name not in copied,'duplicate public retention name');data=read(path,cap(name));total+=len(data)
@@ -287,7 +367,7 @@ def retain(args,owner):
             path=work/f'attempt-{number}'
             if path.exists():
                 for name in tree(path,lambda n:attempt_leaf(n,source_inputs)):copy(path/name,f'attempt-{number}/'+name)
-        report=qualify(work,root,own,owner);receipt.update(status=report['status'],construction='FINITE_DATA_AWAITING_ROOT_REVIEW',actual=report)
+        report=qualify(work,root,own,owner,runtime_temp=os.environ.get('RUNNER_TEMP'));receipt.update(status=report['status'],construction='FINITE_DATA_AWAITING_ROOT_REVIEW',actual=report)
     except(Exception,KeyboardInterrupt)as error:
         receipt['error']=dict(type=type(error).__name__,message=str(error)[:4096]);receipt['cleanup_credit']='NONE'
     finally:

@@ -7,6 +7,10 @@ HERE=Path(__file__).resolve().parent
 REFERENCE=HERE.parent/'offline-source-builder-native/workflow.yml.in'
 REFERENCE_SHA='098e54dc3a246065e07dfdcad89635ff03085a1f251d742f66cca60247078669'
 ALIASES=('.github/workflows/native-arm-build.yml','.github/workflows/native-arm-zlib-pgo.yml')
+TRANSPORT_STEP='Transport complete retained DATA directly outside the closed source'
+STEP_MINUTES=(1,1,2,2,1,1,9,40,65,6,4,2)
+PHASE_ROLES={'input-transport':'RETAINED_INPUT_TRANSPORT_DATA','bootstrap':'ORIGINAL341_PRODUCER',
+ 'pairs':'PGO_CANDIDATE_CONSUMERS','cleanup':'OWNED_CONSUMER_THEN_PRODUCER_RETIREMENT','retain':'BOUNDED_DATA_READER'}
 SECRET_NAMES={
  'CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01','CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02','CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01',
  *{'CACHY_OLD_FOUR_JBIGKIT_'+f'{i:02d}'for i in(1,2)},'CACHY_OLD_FOUR_JBIGKIT_SIG_01',
@@ -20,6 +24,29 @@ def need(ok,message):
 def steps(text):
     head,*rows=re.split(r'(?=      - name: )',text)
     return head,[(row.splitlines()[0].split('- name: ',1)[1],row)for row in rows]
+
+
+def transport_layout(text):
+    first=text.index('      - name: Checkout complete original retained package inputs\n')
+    bootstrap=text.index('      - name: Build fresh signed original341 producer with genuine image and package lock\n',first)
+    after=text.index('      - name: Build two independent PGO candidates from fresh producer receipts\n',bootstrap)
+    phase=text[bootstrap:after]
+    phase=phase.replace('      - name: Build fresh signed original341 producer with genuine image and package lock\n',
+        '      - name: '+TRANSPORT_STEP+'\n        id: transport\n',1)
+    phase=phase.replace('timeout-minutes: 40','timeout-minutes: 9',1).replace('2300s','500s',1)
+    phase=phase.replace('"$SLICE/owner.py" bootstrap','"$SLICE/owner.py" transport',1)
+    phase=phase.replace('          set -euo pipefail\n',
+        '          set -euo pipefail\n          set -o noclobber\n          transport_stream="$RUNNER_TEMP/pgo-hosted-work/input-transport"\n          set +e\n',1)
+    phase=phase.replace('            --carrier "$RUNNER_TEMP/pgo-hosted-retained" --execute\n',
+        '            --carrier "$RUNNER_TEMP/pgo-hosted-retained" --execute >"${transport_stream}.stdout" 2>"${transport_stream}.stderr"\n'
+        '          transport_exit=$?\n          set -e\n          printf \'%s\\n\' "$transport_exit" >"${transport_stream}.exit-code"\n          exit "$transport_exit"\n',1)
+    text=text[:first]+phase+text[bootstrap:]
+    head,rows=steps(text);need(len(rows)==len(STEP_MINUTES),'complete transport schedule')
+    result=head
+    for (name,row),minutes in zip(rows,STEP_MINUTES):
+        row,count=re.subn(r'^        timeout-minutes: [0-9]+$',f'        timeout-minutes: {minutes}',row,count=1,flags=re.M)
+        need(count==1,'one outer step budget: '+name);result+=row
+    return result
 
 
 def derive(reference):
@@ -50,7 +77,7 @@ def derive(reference):
     text=text.replace('name: offline-source-builder-native-${{ github.run_id }}-${{ github.run_attempt }}','name: zlib-pgo-native-${{ github.run_id }}-${{ github.run_attempt }}')
     text=text.replace("-p 'test_*.py'","-p 'test_owned*.py'")
     need('FEATURE_CODE'not in text and 'feature_code_sha'not in text,'single exact source checkout')
-    return text
+    return transport_layout(text)
 
 
 def validate(text=None,reference=None):
@@ -58,7 +85,7 @@ def validate(text=None,reference=None):
     reference=REFERENCE.read_text()if reference is None else reference
     need(text==derive(reference),'reviewed complete PGO workflow differs')
     head,rows=steps(text);names=[name for name,_ in rows]
-    need(len(rows)==13 and len(names)==len(set(names)),'thirteen unique fixed steps')
+    need(len(rows)==12 and len(names)==len(set(names)),'twelve unique fixed steps')
     inputs=head.split('    inputs:\n',1)[1].split('permissions:',1)[0]
     need(re.findall(r'^      ([a-z_]+):$',inputs,re.M)==['source_sha']and'default:'not in inputs,'one required source SHA without defaults')
     checkout=rows[0][1];proof=rows[1][1];controls=rows[2][1]
@@ -71,17 +98,23 @@ def validate(text=None,reference=None):
     original_seed=next(row for name,row in steps(reference)[1]if name=='Seed the six exact retained inputs using existing secrets only')
     need(secret_rows[0][1]==original_seed,'accepted retained seed step held byte-for-byte')
     need('discover -s "$SLICE" -p \'test_owned*.py\''in controls and'34'not in controls,'only new hosted controls; no frozen PGO rerun')
-    bootstrap=rows[8][1];pairs=rows[9][1];cleanup=rows[10][1];retain=rows[11][1];upload=rows[12][1]
+    transport=rows[6][1];bootstrap=rows[7][1];pairs=rows[8][1];cleanup=rows[9][1];retain=rows[10][1];upload=rows[11][1]
+    need(names[6]==TRANSPORT_STEP and 'id: transport'in transport and 'owner.py" transport'in transport,'source-owned retained DATA transport before producer')
+    need('500s'in transport and '--kill-after=30s'in transport and 'timeout-minutes: 9'in transport,'finite480/500/530/540 transport hierarchy')
+    need('--carrier "$RUNNER_TEMP/pgo-hosted-retained" --execute'in transport and 'path: source-retained'not in text and '$GITHUB_WORKSPACE/source-retained'not in text,'retained DATA never enters closed source')
+    need(all(token in transport for token in('set -o noclobber','set +e','transport_exit=$?','set -e','exit "$transport_exit"','${transport_stream}.stdout','${transport_stream}.stderr','${transport_stream}.exit-code')),'exclusive raw transport streams and exact wrapper exit preserved')
     need('owner.py" bootstrap'in bootstrap and'--carrier "$RUNNER_TEMP/pgo-hosted-retained" --execute'in bootstrap,'fresh producer entrypoint')
     need('owner.py" pairs'in pairs and'3850s'in pairs and'--image'not in text and'--expected-packages'not in text,'image and full lock come from runtime producer, never workflow inputs')
     need(all("if: always() && steps.proof.outcome == 'success'"in row for row in(cleanup,retain)),'cleanup and retention on any post-proof outcome')
     need('owner.py" cleanup'in cleanup and'owner.py" retain'in retain and'if: always()'in upload,'ordered cleanup then retain then upload')
     need('name: zlib-pgo-native-${{ github.run_id }}-${{ github.run_attempt }}'in upload and'${{ runner.temp }}/pgo-hosted-public/'in upload,'closed public artifact selection')
-    for row in(proof,bootstrap,pairs,cleanup,retain):need('env -i 'in row and'FEATURE_'not in row,'clean owner environment')
+    for row in(proof,transport,bootstrap,pairs,cleanup,retain):need('env -i 'in row and'FEATURE_'not in row,'clean owner environment')
     caps=[int(v)for v in re.findall(r'^        timeout-minutes: ([0-9]+)$',text,re.M)]
-    need(sum(caps)==133 and'    timeout-minutes: 135\n'in head,'whole job has slack beyond all finite step caps')
-    return dict(status='PASS_FIXED_PGO_HOSTED_WORKFLOW_CONTRACT',steps=13,existing_private_secret_references=22,
-        job_minutes=135,sum_step_minutes=133,checkout='EXACT_SINGLE_SOURCE_SHA',actual=None,native_execution='NOT RUN',
+    need(tuple(caps)==STEP_MINUTES and sum(caps)==134 and'    timeout-minutes: 135\n'in head,'finite134-minute declared schedule under unchanged135-minute job')
+    return dict(status='PASS_FIXED_PGO_HOSTED_WORKFLOW_CONTRACT',steps=12,existing_private_secret_references=22,
+        job_minutes=135,sum_step_minutes=134,transport_actor_seconds=480,transport_fetch_seconds=400,
+        transport_wrapper_seconds=500,transport_kill_grace_seconds=30,transport_outer_seconds=540,
+        phase_roles=dict(PHASE_ROLES),checkout='EXACT_SINGLE_SOURCE_SHA',actual=None,native_execution='NOT RUN',
         workflow_name='native-arm-zlib-pgo',artifact_prefix='zlib-pgo-native-',aliases=list(ALIASES))
 
 
