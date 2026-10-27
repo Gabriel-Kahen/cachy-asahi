@@ -1,0 +1,17 @@
+{
+  "scripts/build/build.py": {
+    "bytes": 11299,
+    "mode": 420,
+    "sha256": "e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45"
+  },
+  "scripts/build/compare.py": {
+    "bytes": 5820,
+    "mode": 420,
+    "sha256": "4198864c264642b196a090a67b36185e5c194e38edc4cb928d08eb65b9f710cd"
+  },
+  "scripts/build/container-entry.sh": {
+    "bytes": 1787,
+    "mode": 420,
+    "sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24"
+  }
+}
