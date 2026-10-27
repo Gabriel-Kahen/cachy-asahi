@@ -132,9 +132,9 @@
       "sha256": "bf687e3d29fae3f85d1c79acd508a7cc0571eebacaa6fe663d8a0356cc434d0a"
     },
     "scripts/ci/offline-kit-accepted-native/candidate-source/candidate-worker.py": {
-      "bytes": 114756,
+      "bytes": 115742,
       "mode": 420,
-      "sha256": "0f82a9bc4ac31f37513966b5d46d6e295b4f823c5d0490c86b08ba713bbdaa89"
+      "sha256": "05c217f7cd1a9e2aef4e65d21458ced6e29c0d30791d79150a3c4c01b6c8988a"
     },
     "scripts/ci/offline-kit-accepted-native/candidate-source/candidate_lifecycle.py": {
       "bytes": 21405,

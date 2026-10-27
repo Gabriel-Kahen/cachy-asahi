@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 """Synthetic offline payload commits in a guarded private Linux namespace only."""
 import argparse
+import base64
 import ctypes as C
 from contextlib import contextmanager
 import fcntl
@@ -1240,15 +1241,28 @@ def database_records(root):
     for entry in local.iterdir():
         if entry.name == 'ALPM_DB_VERSION': continue
         need(entry.is_dir() and not entry.is_symlink() and len(packages) < MAX_PACKAGES, 'export database entry refused')
-        sections = {}
+        sections, raw_records = {}, {}
         for filename in ('desc', 'files'):
             current = None
-            for line in bounded_read(entry / filename).decode().splitlines():
+            raw_records[filename] = bounded_read(entry / filename)
+            for line in raw_records[filename].decode().splitlines():
                 if line.startswith('%') and line.endswith('%'):
                     need(line not in sections, 'duplicate database section'); sections[line] = []; current = line
                 elif line:
                     need(current is not None, 'database section absent'); sections[current].append(line)
-        need(len(sections.get('%NAME%', [])) == len(sections.get('%VERSION%', [])) == 1 and '%FILES%' in sections, 'export package metadata incomplete')
+        complete = len(sections.get('%NAME%', [])) == len(sections.get('%VERSION%', [])) == 1 and '%FILES%' in sections
+        if not complete:
+            try:
+                diagnostic = dict(schema_version=1, status='NO_ADMISSION', acceptance=False,
+                    error='export package metadata incomplete', root=str(root), entry=entry.relative_to(root).as_posix(),
+                    clauses=dict(name_count=len(sections.get('%NAME%', [])),
+                                 version_count=len(sections.get('%VERSION%', [])), files_present='%FILES%' in sections),
+                    raw={name: dict(bytes=len(raw), sha256=hashlib.sha256(raw).hexdigest(),
+                                    base64=base64.b64encode(raw).decode('ascii')) for name, raw in raw_records.items()})
+                print('ALPM_DATABASE_METADATA_FAILURE_V1 ' + json.dumps(diagnostic, sort_keys=True, separators=(',', ':')),
+                      file=sys.stderr, flush=True)
+            finally:
+                need(False, 'export package metadata incomplete')
         name, version = sections['%NAME%'][0], sections['%VERSION%'][0]; package_map({name: version})
         need(name not in packages, 'export duplicate package')
         packages[name] = version
