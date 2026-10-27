@@ -298,6 +298,8 @@ jobs:
           python3 -B -Werror::ResourceWarning scripts/maintenance/test_health.py
           python3 -B -Werror::ResourceWarning scripts/maintenance/test_source_cache.py
           python3 -B -Werror::ResourceWarning scripts/setup/test_config_migrate.py
+      - name: Check packaged offline maintenance health
+        run: python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-maintenance/test_package.py --recipe-root packages/tools/cachy-asahi-maintenance
       - name: Check isolated ARM experiment packages with pinned source on host ISA
         run: |
           c01_source_dir="$(mktemp -d "$RUNNER_TEMP/c01-package-source.XXXXXX")"
