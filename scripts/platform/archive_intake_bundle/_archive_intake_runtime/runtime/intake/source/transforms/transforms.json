@@ -1,0 +1,967 @@
+{
+  "application_authorized": false,
+  "captured_image_bytes_or_metadata_used_as_transform_inputs": false,
+  "complete_fresh_staging_or_bootable_image_accepted": false,
+  "global_missing_inputs": [
+    "exact261 archive pins/accepted provenance and all payload node ledger",
+    "NetworkManager and Perl archive availability",
+    "26 unresolved signer trust joins",
+    "external coordinator selects schema/metadata/config/runtime policies and future bounded writer grant"
+  ],
+  "kind": "project-fresh-staging-config-transform-candidates",
+  "known_pristine_fstab_source": {
+    "alarm_PKGBUILD_git_blob_sha1": "867c216e4498eba5e31c21aa91c7ca006ca82dc6",
+    "alarm_SRCINFO_git_blob_sha1": "b087920e39740c92f24767a118b40e0782c4cc6e",
+    "alarm_fstab_git_blob_sha1": "903906d2737182c6b97381c1b0b4647dbc02eb66",
+    "alarm_fstab_sha256_verified_against_pinned_contents": true,
+    "arch_commit": "044995ce4cc6704e315d285dc2828cc0d026789a",
+    "arch_fstab_git_blob_sha1": "903906d2737182c6b97381c1b0b4647dbc02eb66",
+    "arch_fstab_sha256_verified_against_file_api": true,
+    "arch_repo": "archlinux/packaging/packages/filesystem",
+    "arch_tag": "2025.10.12-1",
+    "archive_read_or_source_executed": false,
+    "archlinuxarm_commit": "72a216552ec94f86f19f2760dc206155375c036b",
+    "archlinuxarm_path": "core/filesystem/fstab",
+    "archlinuxarm_repo": "archlinuxarm/PKGBUILDs",
+    "expected_hash_source": "e342 target-inventory archive-derived regular row",
+    "hash_match": true,
+    "pristine_fstab_bytes": 126,
+    "pristine_fstab_sha256": "e54626e74ed8fee4173b62a545ab1c3a3a069e4217a0ee8fc398d9933e9c1696",
+    "tag_signature_crypto_verification": "NOT RUN"
+  },
+  "limits": {
+    "aggregate_content_bytes": 1048576,
+    "content_file_bytes": 1048576,
+    "entries": 32,
+    "outputs_per_entry": 16,
+    "path_bytes": 4096
+  },
+  "preflight_requirements": [
+    "exact clean staging root identity and empty-before-package-extraction receipt",
+    "canonical relative paths; no symlink ancestor/alias/hardlink/special-node destination; FD-bound same owned root; exact directory metadata ledger",
+    "unique closed transform outputs; unknown output paths never applied",
+    "reobserve package preimage type/mode/uid/gid/bytes/hash; declared image FILES/BACKUP metadata is not a preimage",
+    "preserve original package defaults/factory nodes and record logical package owner plus project-config overlay provenance",
+    "new path requires absence proof against complete archive ledger; never overwrite unknown or user-owned config",
+    "write no package binary/script/source execution; no host paths/services/mounts/GPG/network operations",
+    "record exact before/after node ledger and content SHA256; reject any extra diff",
+    "blocked or incomplete required entry refuses whole assembly; no silent skipping"
+  ],
+  "project_metadata_policy": "candidate only; all new final-image files0644/uid0/gid0 require coordinator adoption; existing exact package node metadata preserved",
+  "schema_version": 1,
+  "scope": "empty project-owned staging + exact package payload ledger; no inherited opaque image or user state",
+  "source_role": "UPSTREAM_CONVENTION_REFERENCE_NOT_CAPTURED_IMAGE_AUTHORITY",
+  "transforms": [
+    {
+      "after": {
+        "content": {
+          "bytes": 220,
+          "encoding": "utf-8",
+          "path": "content/fstab.txt",
+          "sha256": "7e64abac2c07f61a3c4f420c381e5b1ed719dd72654dfb98ed5598eaab208675"
+        },
+        "gid": 0,
+        "metadata_origin": "PRESERVE_EXACT_FRESH_PACKAGE_PREIMAGE_0644_UID0_GID0",
+        "mode": 420,
+        "nlink": 1,
+        "type": "file",
+        "uid": 0
+      },
+      "application_authorized": false,
+      "before": {
+        "archive_sha256": "228b63ef4a88501a68856231a19325a1ad31d92016a692d0a8be181edc70703f",
+        "independent_pristine_source": {
+          "alarm_commit": "72a216552ec94f86f19f2760dc206155375c036b",
+          "alarm_git_blob_sha1": "903906d2737182c6b97381c1b0b4647dbc02eb66",
+          "alarm_path": "core/filesystem/fstab",
+          "arch_commit": "044995ce4cc6704e315d285dc2828cc0d026789a",
+          "arch_git_blob_sha1": "903906d2737182c6b97381c1b0b4647dbc02eb66",
+          "arch_path": "fstab",
+          "content": {
+            "bytes": 126,
+            "encoding": "utf-8",
+            "path": "content/fstab-before.txt",
+            "sha256": "e54626e74ed8fee4173b62a545ab1c3a3a069e4217a0ee8fc398d9933e9c1696"
+          },
+          "recipe_metadata_evidence": "pristine-source/alarm-PKGBUILD:181,205,242-248",
+          "tag_crypto_verified": false
+        },
+        "inventory_sha256": "e342245e1962f7c10969e91b40d3e6047cf669cd5686fd3a3fd7e40830cb9145",
+        "must_reobserve_from_fresh_staging": true,
+        "node": {
+          "bytes": 126,
+          "gid": 0,
+          "mode": 420,
+          "sha256": "e54626e74ed8fee4173b62a545ab1c3a3a069e4217a0ee8fc398d9933e9c1696",
+          "type": "file",
+          "uid": 0
+        },
+        "origin": "previously-derived-filesystem-package-payload-inventory",
+        "package": {
+          "arch": "any",
+          "name": "filesystem",
+          "version": "2025.10.12-1"
+        }
+      },
+      "id": "fstab-ext4",
+      "missing_inputs": [],
+      "operation": "replace-file",
+      "outputs": [
+        "etc/fstab"
+      ],
+      "phase": "image-config",
+      "recipe_data": {
+        "EFI_UUID": "2ABF-9F91",
+        "FSTYPE": "ext4",
+        "ROOT_UUID": "725346d2-f127-47bc-b464-9dd46155e8d6",
+        "parent_directories": [
+          {
+            "creation_permitted_as_future_candidate": false,
+            "gid": 0,
+            "metadata_origin": "PROJECT_REVIEWABLE_PRECONDITION_NOT_UPSTREAM_MODE_OBSERVATION",
+            "mode": 493,
+            "path": "etc",
+            "required_before": "EXACT_PACKAGE_DIRECTORY_LEDGER",
+            "type": "directory",
+            "uid": 0
+          }
+        ],
+        "preserve_factory_path": "usr/share/factory/etc/fstab",
+        "preserve_factory_preimage": {
+          "bytes": 126,
+          "gid": 0,
+          "mode": 420,
+          "path": "usr/share/factory/etc/fstab",
+          "sha256": "e54626e74ed8fee4173b62a545ab1c3a3a069e4217a0ee8fc398d9933e9c1696",
+          "type": "file",
+          "uid": 0
+        }
+      },
+      "source_refs": [
+        {
+          "commit": "58cc158c7fda3ef6aeae36606f84a63b4b0867e7",
+          "git_blob_sha1": "e7b326d65f4d6c2a43f89799ce76f4025060ca3d",
+          "lines": [
+            14,
+            17
+          ],
+          "path": "build.sh",
+          "repo": "asahi-alarm/asahi-alarm-builder",
+          "sha256": "a0b1d27b65f97a1c6ec5c638861cca1319109aec564aef774a9e4ecf7255979c",
+          "url": "https://raw.githubusercontent.com/asahi-alarm/asahi-alarm-builder/58cc158c7fda3ef6aeae36606f84a63b4b0867e7/build.sh"
+        },
+        {
+          "commit": "58cc158c7fda3ef6aeae36606f84a63b4b0867e7",
+          "git_blob_sha1": "fc2dc386a226a3590ac5cabc92eea69af5a5b88d",
+          "lines": [
+            9,
+            13
+          ],
+          "path": "scripts/base/20-fstab.sh",
+          "repo": "asahi-alarm/asahi-alarm-builder",
+          "sha256": "3d0f0b6ffaee802b0cf41efe57ca96c9e85387e72773b2566eadc12693a1131f",
+          "url": "https://raw.githubusercontent.com/asahi-alarm/asahi-alarm-builder/58cc158c7fda3ef6aeae36606f84a63b4b0867e7/scripts/base/20-fstab.sh"
+        }
+      ],
+      "status": "CONTENT_EXACT"
+    },
+    {
+      "after": {
+        "content": {
+          "bytes": 116,
+          "encoding": "utf-8",
+          "path": "content/mirrorlist.txt",
+          "sha256": "bf8463a7368742670d036b891ba82ae79cfac761a40398376d05ca75d837466a"
+        },
+        "gid": 0,
+        "metadata_origin": "PROJECT_PROPOSAL_NOT_UPSTREAM_MODE_OBSERVATION",
+        "mode": 420,
+        "nlink": 1,
+        "type": "file",
+        "uid": 0
+      },
+      "application_authorized": false,
+      "before": {
+        "required": "ABSENT_IN_FRESH_ARCHIVE_LEDGER"
+      },
+      "id": "asahi-repository-mirrorlist",
+      "missing_inputs": [
+        "complete exact archive collision/ownership ledger proving destination absent; declared image list absence is insufficient",
+        "coordinator selection of proposed new-file0644/uid0/gid0"
+      ],
+      "operation": "create-file",
+      "outputs": [
+        "etc/pacman.d/mirrorlist.asahi-alarm"
+      ],
+      "phase": "image-config",
+      "recipe_data": {
+        "literal_arch_variable_preserved": true,
+        "parent_directories": [
+          {
+            "creation_permitted_as_future_candidate": false,
+            "gid": 0,
+            "metadata_origin": "PROJECT_REVIEWABLE_PRECONDITION_NOT_UPSTREAM_MODE_OBSERVATION",
+            "mode": 493,
+            "path": "etc",
+            "required_before": "EXACT_PACKAGE_DIRECTORY_LEDGER",
+            "type": "directory",
+            "uid": 0
+          },
+          {
+            "creation_permitted_as_future_candidate": false,
+            "gid": 0,
+            "metadata_origin": "PROJECT_REVIEWABLE_PRECONDITION_NOT_UPSTREAM_MODE_OBSERVATION",
+            "mode": 493,
+            "path": "etc/pacman.d",
+            "required_before": "EXACT_PACKAGE_DIRECTORY_LEDGER",
+            "type": "directory",
+            "uid": 0
+          }
+        ]
+      },
+      "source_refs": [
+        {
+          "commit": "58cc158c7fda3ef6aeae36606f84a63b4b0867e7",
+          "git_blob_sha1": "4e177efd887e1a25136e99b339277affb23f4178",
+          "lines": [
+            7,
+            7
+          ],
+          "path": "scripts/base/00-pacman.sh",
+          "repo": "asahi-alarm/asahi-alarm-builder",
+          "sha256": "89588ce388d03871f04ec7f58a4de4a771b4fa901c7d387dff7a6748cb30a4d9",
+          "url": "https://raw.githubusercontent.com/asahi-alarm/asahi-alarm-builder/58cc158c7fda3ef6aeae36606f84a63b4b0867e7/scripts/base/00-pacman.sh"
+        },
+        {
+          "commit": "58cc158c7fda3ef6aeae36606f84a63b4b0867e7",
+          "git_blob_sha1": "85c3680791e82b1e028e74128bc29370fef33e75",
+          "lines": [
+            1,
+            4
+          ],
+          "path": "files/mirrorlist.asahi-alarm",
+          "repo": "asahi-alarm/asahi-alarm-builder",
+          "sha256": "bf8463a7368742670d036b891ba82ae79cfac761a40398376d05ca75d837466a",
+          "url": "https://raw.githubusercontent.com/asahi-alarm/asahi-alarm-builder/58cc158c7fda3ef6aeae36606f84a63b4b0867e7/files/mirrorlist.asahi-alarm"
+        }
+      ],
+      "status": "CONTENT_EXACT"
+    },
+    {
+      "after": {
+        "content": {
+          "bytes": 49,
+          "encoding": "utf-8",
+          "path": "content/firstboot.txt",
+          "sha256": "523a2ea0261145994fd8b3c27bab4456b1b5a5d590cd13c96534729a982c2c95"
+        },
+        "gid": 0,
+        "metadata_origin": "PROJECT_PROPOSAL_NOT_UPSTREAM_MODE_OBSERVATION",
+        "mode": 420,
+        "nlink": 1,
+        "type": "file",
+        "uid": 0
+      },
+      "application_authorized": false,
+      "before": {
+        "required": "ABSENT_IN_FRESH_ARCHIVE_LEDGER"
+      },
+      "id": "systemd-firstboot-no-prompt",
+      "missing_inputs": [
+        "exact systemd-firstboot.service input/unit semantics and collision/ownership ledger",
+        "coordinator selection of no-prompt policy and proposed new-file0644/uid0/gid0"
+      ],
+      "operation": "create-file",
+      "outputs": [
+        "etc/systemd/system/systemd-firstboot.service.d/no-prompt.conf"
+      ],
+      "phase": "image-config",
+      "recipe_data": {
+        "dropin_text_only": true,
+        "parent_directories": [
+          {
+            "creation_permitted_as_future_candidate": false,
+            "gid": 0,
+            "metadata_origin": "PROJECT_REVIEWABLE_PRECONDITION_NOT_UPSTREAM_MODE_OBSERVATION",
+            "mode": 493,
+            "path": "etc",
+            "required_before": "EXACT_PACKAGE_DIRECTORY_LEDGER",
+            "type": "directory",
+            "uid": 0
+          },
+          {
+            "creation_permitted_as_future_candidate": false,
+            "gid": 0,
+            "metadata_origin": "PROJECT_REVIEWABLE_PRECONDITION_NOT_UPSTREAM_MODE_OBSERVATION",
+            "mode": 493,
+            "path": "etc/systemd",
+            "required_before": "EXACT_PACKAGE_DIRECTORY_LEDGER",
+            "type": "directory",
+            "uid": 0
+          },
+          {
+            "creation_permitted_as_future_candidate": false,
+            "gid": 0,
+            "metadata_origin": "PROJECT_REVIEWABLE_PRECONDITION_NOT_UPSTREAM_MODE_OBSERVATION",
+            "mode": 493,
+            "path": "etc/systemd/system",
+            "required_before": "EXACT_PACKAGE_DIRECTORY_LEDGER",
+            "type": "directory",
+            "uid": 0
+          },
+          {
+            "creation_permitted_as_future_candidate": true,
+            "gid": 0,
+            "metadata_origin": "PROJECT_REVIEWABLE_PRECONDITION_NOT_UPSTREAM_MODE_OBSERVATION",
+            "mode": 493,
+            "path": "etc/systemd/system/systemd-firstboot.service.d",
+            "required_before": "ABSENT_IN_COMPLETE_ARCHIVE_LEDGER",
+            "type": "directory",
+            "uid": 0
+          }
+        ]
+      },
+      "source_refs": [
+        {
+          "commit": "58cc158c7fda3ef6aeae36606f84a63b4b0867e7",
+          "git_blob_sha1": "1b2b2a5bcd2152f3244e6bb1460164059fa29d68",
+          "lines": [
+            4,
+            10
+          ],
+          "path": "scripts/base/50-firstboot.sh",
+          "repo": "asahi-alarm/asahi-alarm-builder",
+          "sha256": "8da8b9a49735ce83ee730fe169666b60018568b1ce25cbd6f2971e5f685aaf55",
+          "url": "https://raw.githubusercontent.com/asahi-alarm/asahi-alarm-builder/58cc158c7fda3ef6aeae36606f84a63b4b0867e7/scripts/base/50-firstboot.sh"
+        }
+      ],
+      "status": "CONTENT_EXACT"
+    },
+    {
+      "after": {
+        "content": {
+          "bytes": 88,
+          "encoding": "utf-8",
+          "path": "content/grub-core-input.txt",
+          "sha256": "40a925e16d8c255d3c15b036ccbdd83a02e3be3b4a7e52b6112bb3da4c4be84b"
+        },
+        "gid": 0,
+        "metadata_origin": "PROJECT_PROPOSAL_NOT_UPSTREAM_MODE_OBSERVATION",
+        "mode": 420,
+        "nlink": 1,
+        "type": "file",
+        "uid": 0
+      },
+      "application_authorized": false,
+      "before": {
+        "required": "ABSENT_PROJECT_HELPER_INPUT"
+      },
+      "id": "grub-core-config-input",
+      "missing_inputs": [
+        "pinned reviewed generator recipe before use; known text does not authorize grub-mkimage"
+      ],
+      "operation": "create-helper-input",
+      "outputs": [
+        "build-inputs/grub-core.cfg"
+      ],
+      "phase": "builder-input",
+      "recipe_data": {
+        "FSTYPE": "ext4",
+        "GRUB_PREFIX": "/boot/grub",
+        "ROOT_UUID": "725346d2-f127-47bc-b464-9dd46155e8d6",
+        "literal_root_variable": "$root",
+        "not_installed_in_image_tmp": true
+      },
+      "source_refs": [
+        {
+          "commit": "58cc158c7fda3ef6aeae36606f84a63b4b0867e7",
+          "git_blob_sha1": "e7b326d65f4d6c2a43f89799ce76f4025060ca3d",
+          "lines": [
+            14,
+            17
+          ],
+          "path": "build.sh",
+          "repo": "asahi-alarm/asahi-alarm-builder",
+          "sha256": "a0b1d27b65f97a1c6ec5c638861cca1319109aec564aef774a9e4ecf7255979c",
+          "url": "https://raw.githubusercontent.com/asahi-alarm/asahi-alarm-builder/58cc158c7fda3ef6aeae36606f84a63b4b0867e7/build.sh"
+        },
+        {
+          "commit": "58cc158c7fda3ef6aeae36606f84a63b4b0867e7",
+          "git_blob_sha1": "a4a1fa9a41eb89e18cabc3e3b3e3ccbc55bd3e49",
+          "lines": [
+            4,
+            17
+          ],
+          "path": "scripts/base/30-grub.sh",
+          "repo": "asahi-alarm/asahi-alarm-builder",
+          "sha256": "3313e293001b688f7fc2d1a9f9ff63c78b5f320cebc0faae4ab356838c91c593",
+          "url": "https://raw.githubusercontent.com/asahi-alarm/asahi-alarm-builder/58cc158c7fda3ef6aeae36606f84a63b4b0867e7/scripts/base/30-grub.sh"
+        }
+      ],
+      "status": "CONTENT_EXACT"
+    },
+    {
+      "after": null,
+      "application_authorized": false,
+      "before": {
+        "declared_package_owners": [
+          {
+            "backup_declaration": [
+              "etc/pacman.conf\t09f73599fd3524c2a5115927a8392369"
+            ],
+            "file_list_descriptor_sha256": "2ec603c8dd965a84bcdb790d73f20e6286e099a8343618d0b19ed5ac4c5dcffd",
+            "package_directory": "pacman-7.1.0.r9.g54d9411-2"
+          }
+        ]
+      },
+      "id": "pacman-repository-policy",
+      "missing_inputs": [
+        "pacman7.1.0.r9.g54d9411-2 exact authenticated config bytes/hash/metadata from package ledger",
+        "closed complete resulting pacman.conf hash after data-only rendering",
+        "selected repository trust/mirror policy"
+      ],
+      "operation": "exact-lines-patch",
+      "outputs": [
+        "etc/pacman.conf"
+      ],
+      "phase": "image-config",
+      "recipe_data": {
+        "insert_before_core": "[asahi-alarm]\nInclude = /etc/pacman.d/mirrorlist.asahi-alarm\n",
+        "project_strictness": "unique exact lines; do not copy unbounded GNU sed matching semantics",
+        "refuse_existing_section": "[asahi-alarm]",
+        "replace_line": {
+          "from": "#ParallelDownloads = 5",
+          "to": "ParallelDownloads = 5"
+        },
+        "required_unique_before_lines": [
+          "#ParallelDownloads = 5",
+          "[core]"
+        ]
+      },
+      "source_refs": [
+        {
+          "commit": "58cc158c7fda3ef6aeae36606f84a63b4b0867e7",
+          "git_blob_sha1": "4e177efd887e1a25136e99b339277affb23f4178",
+          "lines": [
+            4,
+            5
+          ],
+          "path": "scripts/base/00-pacman.sh",
+          "repo": "asahi-alarm/asahi-alarm-builder",
+          "sha256": "89588ce388d03871f04ec7f58a4de4a771b4fa901c7d387dff7a6748cb30a4d9",
+          "url": "https://raw.githubusercontent.com/asahi-alarm/asahi-alarm-builder/58cc158c7fda3ef6aeae36606f84a63b4b0867e7/scripts/base/00-pacman.sh"
+        }
+      ],
+      "status": "NEEDS_PACKAGE_PREIMAGE"
+    },
+    {
+      "after": null,
+      "application_authorized": false,
+      "before": {
+        "declared_package_owners": [
+          {
+            "backup_declaration": [
+              "etc/pacman.d/mirrorlist\t5b5140fcc48b74748235e47901c552bf"
+            ],
+            "file_list_descriptor_sha256": "0587481be671c05b4ec7c9d0d1f05bbc0f77cb92d227e08baa896fe772d53732",
+            "package_directory": "pacman-mirrorlist-20260411-2"
+          }
+        ]
+      },
+      "id": "preserve-generic-mirrorlist",
+      "missing_inputs": [
+        "pacman-mirrorlist20260411-2 exact package node/hash and selected mirror policy"
+      ],
+      "operation": "preserve-package-node",
+      "outputs": [
+        "etc/pacman.d/mirrorlist"
+      ],
+      "phase": "image-config",
+      "recipe_data": {
+        "do_not_create_or_inherit_mirrorlist_orig": true,
+        "preserve_archive_original": true
+      },
+      "source_refs": [
+        {
+          "commit": "58cc158c7fda3ef6aeae36606f84a63b4b0867e7",
+          "git_blob_sha1": "e7b326d65f4d6c2a43f89799ce76f4025060ca3d",
+          "lines": [
+            54,
+            54
+          ],
+          "path": "build.sh",
+          "repo": "asahi-alarm/asahi-alarm-builder",
+          "sha256": "a0b1d27b65f97a1c6ec5c638861cca1319109aec564aef774a9e4ecf7255979c",
+          "url": "https://raw.githubusercontent.com/asahi-alarm/asahi-alarm-builder/58cc158c7fda3ef6aeae36606f84a63b4b0867e7/build.sh"
+        },
+        {
+          "commit": "58cc158c7fda3ef6aeae36606f84a63b4b0867e7",
+          "git_blob_sha1": "e7b326d65f4d6c2a43f89799ce76f4025060ca3d",
+          "lines": [
+            139,
+            139
+          ],
+          "path": "build.sh",
+          "repo": "asahi-alarm/asahi-alarm-builder",
+          "sha256": "a0b1d27b65f97a1c6ec5c638861cca1319109aec564aef774a9e4ecf7255979c",
+          "url": "https://raw.githubusercontent.com/asahi-alarm/asahi-alarm-builder/58cc158c7fda3ef6aeae36606f84a63b4b0867e7/build.sh"
+        }
+      ],
+      "status": "NEEDS_PACKAGE_PREIMAGE"
+    },
+    {
+      "after": null,
+      "application_authorized": false,
+      "before": {
+        "declared_package_owners": [
+          {
+            "backup_declaration": [
+              "etc/mkinitcpio.conf\t1583a8e3be6caee13d4f0193a852531c"
+            ],
+            "file_list_descriptor_sha256": "ba16a2ebaa56ec7742c521e0d284fa839baf4efda44901ee85403b0b6a0e9120",
+            "package_directory": "mkinitcpio-42.1-1"
+          }
+        ]
+      },
+      "id": "mkinitcpio-asahi-hooks",
+      "missing_inputs": [
+        "mkinitcpio42.1-1 exact config bytes/hash/metadata and one qualified HOOKS line",
+        "asahi hook/module inputs and pinned initramfs generation recipe; editing config does not create initramfs",
+        "closed resulting full config hash"
+      ],
+      "operation": "exact-lines-patch",
+      "outputs": [
+        "etc/mkinitcpio.conf"
+      ],
+      "phase": "image-config",
+      "recipe_data": {
+        "FSTYPE": "ext4",
+        "btrfs_modules_patch_selected": false,
+        "replace_whole_line": "HOOKS=(base asahi udev autodetect microcode modconf kms keyboard keymap consolefont block filesystems fsck)",
+        "required_unique_prefix": "HOOKS=(base"
+      },
+      "source_refs": [
+        {
+          "commit": "58cc158c7fda3ef6aeae36606f84a63b4b0867e7",
+          "git_blob_sha1": "de7cae9f8f05efd0707e69f1cf597d00fdc65296",
+          "lines": [
+            3,
+            12
+          ],
+          "path": "scripts/base/15-kernel.sh",
+          "repo": "asahi-alarm/asahi-alarm-builder",
+          "sha256": "ca8247d38ea611c63347d40cbb71bcb68945cca42e9a1794db38c67d6a612e51",
+          "url": "https://raw.githubusercontent.com/asahi-alarm/asahi-alarm-builder/58cc158c7fda3ef6aeae36606f84a63b4b0867e7/scripts/base/15-kernel.sh"
+        }
+      ],
+      "status": "NEEDS_PACKAGE_PREIMAGE"
+    },
+    {
+      "after": null,
+      "application_authorized": false,
+      "before": {
+        "declared_package_owners": [
+          {
+            "backup_declaration": [],
+            "file_list_descriptor_sha256": "0d4b392eab380392dfea2887fddaf1cab940b0774229a06e7ff2304dbf50fdd1",
+            "package_directory": "networkmanager-1.58.1-1"
+          }
+        ]
+      },
+      "id": "networkmanager-service-enable",
+      "missing_inputs": [
+        "missing exact networkmanager1.58.1-1 archive",
+        "unread authenticated unit bytes and any Include/Also/Alias/WantedBy/RequiredBy/drop-in/unit changes",
+        "explicit project service-link path/type/target/mode and parent ownership specification"
+      ],
+      "operation": "derive-service-links",
+      "outputs": [
+        "etc/NetworkManager/conf.d"
+      ],
+      "phase": "image-config",
+      "recipe_data": {
+        "aliases_wants_requires": null,
+        "do_not_invoke_systemctl": true,
+        "service": "NetworkManager.service",
+        "service_link_output_set_complete": false,
+        "symlink_targets": null,
+        "unit_path": "usr/lib/systemd/system/NetworkManager.service"
+      },
+      "source_refs": [
+        {
+          "commit": "58cc158c7fda3ef6aeae36606f84a63b4b0867e7",
+          "git_blob_sha1": "7f541246159d20ce7a4f49510ddca9af47ef03fa",
+          "lines": [
+            4,
+            6
+          ],
+          "path": "scripts/base/30-networkmanager.sh",
+          "repo": "asahi-alarm/asahi-alarm-builder",
+          "sha256": "0ebde4f289aa30fff4a1d0c90dd8dde96e639197928e31b2f4340b6d6169e7b6",
+          "url": "https://raw.githubusercontent.com/asahi-alarm/asahi-alarm-builder/58cc158c7fda3ef6aeae36606f84a63b4b0867e7/scripts/base/30-networkmanager.sh"
+        }
+      ],
+      "status": "BLOCKED_INPUTS"
+    },
+    {
+      "after": null,
+      "application_authorized": false,
+      "before": {
+        "declared_package_owners": {
+          "etc/group": [
+            {
+              "backup_declaration": [
+                "etc/group\t7fed1e1fb855e41a6d64d41f8521d69a"
+              ],
+              "file_list_descriptor_sha256": "795ac4608de3bbb1cb6c612fca437202fb7294bed35aa664bb42d548700f0ff1",
+              "package_directory": "filesystem-2025.10.12-1"
+            }
+          ],
+          "etc/gshadow": [
+            {
+              "backup_declaration": [
+                "etc/gshadow\t1c1e3b08acfa286f4b417c49de3e4366"
+              ],
+              "file_list_descriptor_sha256": "795ac4608de3bbb1cb6c612fca437202fb7294bed35aa664bb42d548700f0ff1",
+              "package_directory": "filesystem-2025.10.12-1"
+            }
+          ],
+          "etc/passwd": [
+            {
+              "backup_declaration": [
+                "etc/passwd\tf7dbbd6e3a0d8a11f0ed733e3123b8de"
+              ],
+              "file_list_descriptor_sha256": "795ac4608de3bbb1cb6c612fca437202fb7294bed35aa664bb42d548700f0ff1",
+              "package_directory": "filesystem-2025.10.12-1"
+            }
+          ],
+          "etc/shadow": [
+            {
+              "backup_declaration": [
+                "etc/shadow\t815652599be54fd3607cf276e89a0a19"
+              ],
+              "file_list_descriptor_sha256": "795ac4608de3bbb1cb6c612fca437202fb7294bed35aa664bb42d548700f0ff1",
+              "package_directory": "filesystem-2025.10.12-1"
+            }
+          ],
+          "etc/subgid": [
+            {
+              "backup_declaration": [
+                "etc/subgid\td41d8cd98f00b204e9800998ecf8427e"
+              ],
+              "file_list_descriptor_sha256": "795ac4608de3bbb1cb6c612fca437202fb7294bed35aa664bb42d548700f0ff1",
+              "package_directory": "filesystem-2025.10.12-1"
+            }
+          ],
+          "etc/subuid": [
+            {
+              "backup_declaration": [
+                "etc/subuid\td41d8cd98f00b204e9800998ecf8427e"
+              ],
+              "file_list_descriptor_sha256": "795ac4608de3bbb1cb6c612fca437202fb7294bed35aa664bb42d548700f0ff1",
+              "package_directory": "filesystem-2025.10.12-1"
+            }
+          ]
+        }
+      },
+      "id": "system-accounts",
+      "missing_inputs": [
+        "exact account preimage bytes including shadow/group permissions from authenticated filesystem archive",
+        "complete ordered sysusers rules from all261exact package inputs and accepted conflict/UIDGID allocation semantics",
+        "explicit root/login/credential/timestamp policy; no copied root/root password or guessed accounts",
+        "finite reviewed data-only account rendering recipe and resulting exact hashes"
+      ],
+      "operation": "derive-account-files",
+      "outputs": [
+        "etc/passwd",
+        "etc/group",
+        "etc/shadow",
+        "etc/gshadow",
+        "etc/subuid",
+        "etc/subgid"
+      ],
+      "phase": "image-config",
+      "recipe_data": {
+        "desktop_userdel_selected": false,
+        "ids_allocation_algorithm": null,
+        "root_login_password": "UNKNOWN_NOT_COPIED_FROM_CAPTURED_IMAGE",
+        "upstream_command_reference_only": "systemd-sysusers"
+      },
+      "source_refs": [
+        {
+          "commit": "58cc158c7fda3ef6aeae36606f84a63b4b0867e7",
+          "git_blob_sha1": "4e177efd887e1a25136e99b339277affb23f4178",
+          "lines": [
+            9,
+            11
+          ],
+          "path": "scripts/base/00-pacman.sh",
+          "repo": "asahi-alarm/asahi-alarm-builder",
+          "sha256": "89588ce388d03871f04ec7f58a4de4a771b4fa901c7d387dff7a6748cb30a4d9",
+          "url": "https://raw.githubusercontent.com/asahi-alarm/asahi-alarm-builder/58cc158c7fda3ef6aeae36606f84a63b4b0867e7/scripts/base/00-pacman.sh"
+        },
+        {
+          "commit": "58cc158c7fda3ef6aeae36606f84a63b4b0867e7",
+          "git_blob_sha1": "feeafe482ae86dcc9c3f083e5c473a332ff0f085",
+          "lines": [
+            4,
+            7
+          ],
+          "path": "scripts/desktop/00-users.sh",
+          "repo": "asahi-alarm/asahi-alarm-builder",
+          "sha256": "7eda290e5f5bbae00e71fcd4b0d9a9df788cfb9fdf759ca1e96f1e9cc84347f4",
+          "url": "https://raw.githubusercontent.com/asahi-alarm/asahi-alarm-builder/58cc158c7fda3ef6aeae36606f84a63b4b0867e7/scripts/desktop/00-users.sh"
+        }
+      ],
+      "status": "BLOCKED_INPUTS"
+    },
+    {
+      "after": null,
+      "application_authorized": false,
+      "before": {
+        "declared_package_owners": [
+          {
+            "backup_declaration": [
+              "etc/resolv.conf\t0ee015fad07732676d9488ae498eed41"
+            ],
+            "file_list_descriptor_sha256": "795ac4608de3bbb1cb6c612fca437202fb7294bed35aa664bb42d548700f0ff1",
+            "package_directory": "filesystem-2025.10.12-1"
+          }
+        ],
+        "prederived_filesystem_default": {
+          "bytes": 65,
+          "gid": 0,
+          "mode": 420,
+          "sha256": "5557d8e601b17a80d1ea7de78a9869be69637cb6a02fbfe334e22fdf64e61d4c",
+          "type": "file",
+          "uid": 0
+        }
+      },
+      "id": "resolver",
+      "missing_inputs": [
+        "resolver source bytes/type/path/service are unread or UNKNOWN",
+        "exact package resolv.conf preimage plus NetworkManager config/unit and resolver package inputs",
+        "coordinator-selected deterministic resolver policy; no guessed symlink/DNS/source file"
+      ],
+      "operation": "unresolved",
+      "outputs": [
+        "etc/resolv.conf"
+      ],
+      "phase": "image-config",
+      "recipe_data": {
+        "destination_type": null,
+        "dns_servers": null,
+        "networkmanager_dns_backend": null,
+        "resolver_service": null,
+        "resolver_source_path": null,
+        "symlink_target": null
+      },
+      "source_refs": [
+        {
+          "commit": "58cc158c7fda3ef6aeae36606f84a63b4b0867e7",
+          "git_blob_sha1": "7f541246159d20ce7a4f49510ddca9af47ef03fa",
+          "lines": [
+            4,
+            6
+          ],
+          "path": "scripts/base/30-networkmanager.sh",
+          "repo": "asahi-alarm/asahi-alarm-builder",
+          "sha256": "0ebde4f289aa30fff4a1d0c90dd8dde96e639197928e31b2f4340b6d6169e7b6",
+          "url": "https://raw.githubusercontent.com/asahi-alarm/asahi-alarm-builder/58cc158c7fda3ef6aeae36606f84a63b4b0867e7/scripts/base/30-networkmanager.sh"
+        }
+      ],
+      "status": "BLOCKED_INPUTS"
+    },
+    {
+      "after": null,
+      "application_authorized": false,
+      "before": "NO_UPSTREAM_BASE_SCRIPT_LITERAL",
+      "id": "hostname-and-locale",
+      "missing_inputs": [
+        "project selected installation-specific hostname/locale policy or explicit decision to keep exact package-defined absent/default nodes",
+        "package locale data/preimages and finite generation recipe if selected"
+      ],
+      "operation": "unresolved",
+      "outputs": [
+        "etc/hostname",
+        "etc/locale.conf"
+      ],
+      "phase": "image-config",
+      "recipe_data": {
+        "hostname": null,
+        "locale": null,
+        "upstream_explicit_values": null
+      },
+      "source_refs": [
+        {
+          "commit": "58cc158c7fda3ef6aeae36606f84a63b4b0867e7",
+          "git_blob_sha1": "1b2b2a5bcd2152f3244e6bb1460164059fa29d68",
+          "lines": [
+            4,
+            10
+          ],
+          "path": "scripts/base/50-firstboot.sh",
+          "repo": "asahi-alarm/asahi-alarm-builder",
+          "sha256": "8da8b9a49735ce83ee730fe169666b60018568b1ce25cbd6f2971e5f685aaf55",
+          "url": "https://raw.githubusercontent.com/asahi-alarm/asahi-alarm-builder/58cc158c7fda3ef6aeae36606f84a63b4b0867e7/scripts/base/50-firstboot.sh"
+        }
+      ],
+      "status": "BLOCKED_INPUTS"
+    },
+    {
+      "after": null,
+      "application_authorized": false,
+      "before": null,
+      "id": "machine-id",
+      "missing_inputs": [
+        "complete fresh package path ledger and firstboot/systemd identity lifecycle policy",
+        "coordinator choice of absent versus explicit empty placeholder (upstream excludes path only)"
+      ],
+      "operation": "omit-image-node",
+      "outputs": [
+        "etc/machine-id"
+      ],
+      "phase": "image-config",
+      "recipe_data": {
+        "copied_capture_machine_id": false,
+        "final_node": "ABSENT_PROPOSAL"
+      },
+      "source_refs": [
+        {
+          "commit": "58cc158c7fda3ef6aeae36606f84a63b4b0867e7",
+          "git_blob_sha1": "e7b326d65f4d6c2a43f89799ce76f4025060ca3d",
+          "lines": [
+            132,
+            138
+          ],
+          "path": "build.sh",
+          "repo": "asahi-alarm/asahi-alarm-builder",
+          "sha256": "a0b1d27b65f97a1c6ec5c638861cca1319109aec564aef774a9e4ecf7255979c",
+          "url": "https://raw.githubusercontent.com/asahi-alarm/asahi-alarm-builder/58cc158c7fda3ef6aeae36606f84a63b4b0867e7/build.sh"
+        }
+      ],
+      "status": "NEEDS_PACKAGE_PREIMAGE"
+    },
+    {
+      "after": null,
+      "application_authorized": false,
+      "before": null,
+      "id": "grub-runtime-and-boot-artifacts",
+      "missing_inputs": [
+        "exact grub package binaries/modules/fonts/locales/scripts and authenticated archive pins",
+        "precise package-preimage hashes for header deletion and firmware-menu omission",
+        "reviewed pinned finite generator/toolchain recipe and exact expected output/metadata; no executable generator selected here",
+        "m1n1/uboot input/output relationship, per-machine firmware/stage1 handoff separate installation contract"
+      ],
+      "operation": "generate-boot-artifacts",
+      "outputs": [
+        "etc/grub.d/00_header",
+        "etc/grub.d/30_uefi-firmware",
+        "boot/grub/grub.cfg",
+        "boot/grub/grubenv",
+        "boot/grub/arm64-efi/core.efi",
+        "esp/EFI/BOOT/BOOTAA64.EFI",
+        "esp/m1n1/boot.bin"
+      ],
+      "phase": "image-config",
+      "recipe_data": {
+        "firmware_stage1_install_authorized": false,
+        "helper_input": "grub-core-config-input",
+        "module_list": [
+          "ext2",
+          "part_gpt",
+          "search"
+        ],
+        "no_PC_detection_or_hostbootloader_action": true,
+        "platform": "Asahi ARM64EFI convention reference",
+        "root_prefix": "/boot/grub"
+      },
+      "source_refs": [
+        {
+          "commit": "58cc158c7fda3ef6aeae36606f84a63b4b0867e7",
+          "git_blob_sha1": "a4a1fa9a41eb89e18cabc3e3b3e3ccbc55bd3e49",
+          "lines": [
+            19,
+            50
+          ],
+          "path": "scripts/base/30-grub.sh",
+          "repo": "asahi-alarm/asahi-alarm-builder",
+          "sha256": "3313e293001b688f7fc2d1a9f9ff63c78b5f320cebc0faae4ab356838c91c593",
+          "url": "https://raw.githubusercontent.com/asahi-alarm/asahi-alarm-builder/58cc158c7fda3ef6aeae36606f84a63b4b0867e7/scripts/base/30-grub.sh"
+        },
+        {
+          "commit": "58cc158c7fda3ef6aeae36606f84a63b4b0867e7",
+          "git_blob_sha1": "e7b326d65f4d6c2a43f89799ce76f4025060ca3d",
+          "lines": [
+            129,
+            147
+          ],
+          "path": "build.sh",
+          "repo": "asahi-alarm/asahi-alarm-builder",
+          "sha256": "a0b1d27b65f97a1c6ec5c638861cca1319109aec564aef774a9e4ecf7255979c",
+          "url": "https://raw.githubusercontent.com/asahi-alarm/asahi-alarm-builder/58cc158c7fda3ef6aeae36606f84a63b4b0867e7/build.sh"
+        }
+      ],
+      "status": "BLOCKED_INPUTS"
+    },
+    {
+      "after": null,
+      "application_authorized": false,
+      "before": null,
+      "id": "keyring-and-package-install-hooks",
+      "missing_inputs": [
+        "explicit source-backed interpretation/omission of each hook/script from exact261archives",
+        "complete trust joins, missing NetworkManager/Perl archives, exact keyring recipe",
+        "closed path/time/randomness ownership ledger; no running package scripts as opaque initialization"
+      ],
+      "operation": "unresolved",
+      "outputs": [],
+      "phase": "image-config",
+      "recipe_data": {
+        "output_path_set_complete": false,
+        "pacman_pacstrap_GPG_package_scripts_selected": false,
+        "upstream_reference_only": true
+      },
+      "source_refs": [
+        {
+          "commit": "58cc158c7fda3ef6aeae36606f84a63b4b0867e7",
+          "git_blob_sha1": "e7b326d65f4d6c2a43f89799ce76f4025060ca3d",
+          "lines": [
+            54,
+            57
+          ],
+          "path": "build.sh",
+          "repo": "asahi-alarm/asahi-alarm-builder",
+          "sha256": "a0b1d27b65f97a1c6ec5c638861cca1319109aec564aef774a9e4ecf7255979c",
+          "url": "https://raw.githubusercontent.com/asahi-alarm/asahi-alarm-builder/58cc158c7fda3ef6aeae36606f84a63b4b0867e7/build.sh"
+        },
+        {
+          "commit": "58cc158c7fda3ef6aeae36606f84a63b4b0867e7",
+          "git_blob_sha1": "4e177efd887e1a25136e99b339277affb23f4178",
+          "lines": [
+            13,
+            14
+          ],
+          "path": "scripts/base/00-pacman.sh",
+          "repo": "asahi-alarm/asahi-alarm-builder",
+          "sha256": "89588ce388d03871f04ec7f58a4de4a771b4fa901c7d387dff7a6748cb30a4d9",
+          "url": "https://raw.githubusercontent.com/asahi-alarm/asahi-alarm-builder/58cc158c7fda3ef6aeae36606f84a63b4b0867e7/scripts/base/00-pacman.sh"
+        },
+        {
+          "commit": "58cc158c7fda3ef6aeae36606f84a63b4b0867e7",
+          "git_blob_sha1": "50afabfaa5883f39412cf1a2cf147ba7e59ec2da",
+          "lines": [
+            8,
+            13
+          ],
+          "path": "scripts/base/10-base-packages.sh",
+          "repo": "asahi-alarm/asahi-alarm-builder",
+          "sha256": "bf71c842c518ddbd21037a88102872d8beae2e023703432da248a32ea5ba59de",
+          "url": "https://raw.githubusercontent.com/asahi-alarm/asahi-alarm-builder/58cc158c7fda3ef6aeae36606f84a63b4b0867e7/scripts/base/10-base-packages.sh"
+        }
+      ],
+      "status": "BLOCKED_INPUTS"
+    }
+  ],
+  "upstream_commit": "58cc158c7fda3ef6aeae36606f84a63b4b0867e7"
+}

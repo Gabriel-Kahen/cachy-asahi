@@ -1,0 +1,564 @@
+{
+  "Root_grant_actual_assembly": "NOTRUN",
+  "all259_or261_cryptographically_accepted": false,
+  "authenticated_references": [
+    {
+      "bytes": 42147,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-image-assembly-contract-proposal-20261013/final-receipt.json",
+      "sha256": "63a4292184dd80c67e2b735d0221f0117fc5d860e59d4ebe043be73cbb862250"
+    },
+    {
+      "bytes": 42474,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-image-assembler-proposal-20261013/final-receipt.json",
+      "sha256": "f9649bbed45f89f5214a318d2214ae70cc5a11d6485354a252cf752168b4465b"
+    },
+    {
+      "bytes": 11274,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/receipt.json",
+      "sha256": "9407330375b60db80180abdbfffdd50bdd811c3269a9e665f8696efb8cbe223e"
+    },
+    {
+      "bytes": 1531,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-missing-two-authenticated-recovery-root-peer-20261013/receipt.json",
+      "sha256": "0c4c8e7755195c6f33f83df9de746c4406520806e0e4856315444d0e23f68205"
+    },
+    {
+      "bytes": 8182,
+      "mode": 384,
+      "path": "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/actual-receipt.json",
+      "sha256": "53747d29b02c11517d3c330530f9a6de57afcd9575e0c75c8f23f2dbd7fb6b3c"
+    },
+    {
+      "bytes": 1758,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/after-checks.json",
+      "sha256": "f738c9badea38cf2d13578313fda857ec1f7bae513875853c73fab2668e11d94"
+    },
+    {
+      "bytes": 5460,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/association-proposal.json",
+      "sha256": "6fcb9c91b9f9ec742cc883f7a37063b604363f6492022587f085217a883ebdc1"
+    },
+    {
+      "bytes": 9409,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/capture-receipt.json",
+      "sha256": "08895fac45c29fb67f37b78687f6bfffd2f61f0e66dbec1cf3cc7634b0a2e156"
+    },
+    {
+      "bytes": 23070,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/capture/authenticate_missing.py",
+      "sha256": "6af079cf10f8ebcc9416bf64bca4336ea03dbbf13f99ebd98a83808365f2fe59"
+    },
+    {
+      "bytes": 3056,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/capture/candidate-urls.json",
+      "sha256": "ee75d860bed4bec5f6709a52624585beb2215a165968c9522d844f64090d0975"
+    },
+    {
+      "bytes": 26406,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/capture/capture.py",
+      "sha256": "ce73314eb5a75b8afb963217fba15065106ae3f6ee081599a1ba7ab620b044c8"
+    },
+    {
+      "bytes": 53288,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/capture/lifecycle.py",
+      "sha256": "e408a540765ede2350a57abd311e8814d516ab379351fe28751a20250a3a8461"
+    },
+    {
+      "bytes": 31474,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/capture/operator-networkmanager.txt",
+      "sha256": "fe90fc61a1cb008f822a67ff141b6ff005deb0d92a63e1dfae6be33fcc3571da"
+    },
+    {
+      "bytes": 29072,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/capture/operator-perl.txt",
+      "sha256": "813812414d26ac3c8890ece66e6f988f486e8a07e5ba9951cbc4dde770f2a964"
+    },
+    {
+      "bytes": 17706,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/capture/package_checks.py",
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+    },
+    {
+      "bytes": 7808,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/execution-plan.json",
+      "sha256": "fb97ce77914c8646770929750f8fc838fdf2353c1fc26f6a965ef22695e20a19"
+    },
+    {
+      "bytes": 3098,
+      "mode": 384,
+      "path": "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/keys/certificate.gpg",
+      "sha256": "6ce771e853f04a38a5b533cb33e61f877b9b06b58b6db051eb8a15d737a2332f"
+    },
+    {
+      "bytes": 2228,
+      "mode": 384,
+      "path": "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/keys/private-home/accepted-public.gpg",
+      "sha256": "9403f923eed777ba0896a0b225e1522d3a7625234694c753ae26b27c29672aae"
+    },
+    {
+      "bytes": 2450,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/keys/private-home/pubring.kbx",
+      "sha256": "1df96cc4bb802210882aa941688f3d03fcfc4eca849dfc7b675f0cb58d495357"
+    },
+    {
+      "bytes": 32,
+      "mode": 384,
+      "path": "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/keys/private-home/pubring.kbx~",
+      "sha256": "b912565453b3db81d1a7d50efacdcfde1e29ed80c6c90ecb2e363ae2d2204778"
+    },
+    {
+      "bytes": 1200,
+      "mode": 384,
+      "path": "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/keys/private-home/trustdb.gpg",
+      "sha256": "9504e2e94bb6f7126b78bd9975089621db6b7ebc0a87eebd3d389f123b263047"
+    },
+    {
+      "bytes": 2476,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/metadata_child.py",
+      "sha256": "29cd63c5b70ba351d6d1d63260e3bbed89bde5b24a34a58c62c4b39e43c8f715"
+    },
+    {
+      "bytes": 16698,
+      "mode": 384,
+      "path": "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/observations/networkmanager.json",
+      "sha256": "b9c1c51c6f264acdafc8589d960443c6644a9c50b705835e177e747f2ef2184c"
+    },
+    {
+      "bytes": 13058,
+      "mode": 384,
+      "path": "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/observations/perl.json",
+      "sha256": "b7ff2f4c6a7e3fda9859603ec4f81e34f358d7c869b7ae56333dfa4cbb751057"
+    },
+    {
+      "bytes": 271,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/preflight-controls.json",
+      "sha256": "7300a2ac10ff30021c698d25a3cd47915d4bd8b6127b30dbbb28cbceeace1972"
+    },
+    {
+      "bytes": 38593,
+      "mode": 384,
+      "path": "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/process-observations.json",
+      "sha256": "8d19c8f6b70218007b1ce06766913c48b4fdeabe5fe6796fb44b6d09f59ef02e"
+    },
+    {
+      "bytes": 9272,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/recover.py",
+      "sha256": "45c99099f4a2c94b7ed0091914539c8c8e113739fece56c9a6a1b291e2561c82"
+    },
+    {
+      "bytes": 4960,
+      "mode": 420,
+      "path": "docs/workstreams/platform-missing-two-authenticated-recovery.md",
+      "sha256": "94898b04623f197c822778046e276296da0293b08fe13bc9fcaa21637281ec0c"
+    },
+    {
+      "bytes": 2218,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-missing-two-authenticated-recovery-root-peer-20261013/checks.json",
+      "sha256": "311ab9290e42888fc319ceb0292160ac5bc659713d2b7e89731ffd98ebb4beba"
+    },
+    {
+      "bytes": 294,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-missing-two-authenticated-recovery-root-peer-20261013/harness-diagnostics.json",
+      "sha256": "fdeabb18e4d1efe124582dcaa2fbaceee3b96a172292e9c3877f9f09190b2285"
+    },
+    {
+      "bytes": 11915,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-missing-two-authenticated-recovery-root-peer-20261013/review.py",
+      "sha256": "31cae21a9bf9e656fe634278b4101369b66230974ecc81bf6882e7b775a782f4"
+    },
+    {
+      "bytes": 6186,
+      "mode": 420,
+      "path": "docs/reviews/platform-missing-two-authenticated-recovery-root-review.md",
+      "sha256": "ede9f3988ac56ad55d7763ac1ac8d905e6d9fa1e61dae962d2293ab3d147b194"
+    },
+    {
+      "bytes": 153364,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-image-assembly-contract-proposal-20261013/assembly-plan.json",
+      "sha256": "9bc1011c9e7c0bd1e54c967e74a04aa7d7e48d2746f59e017e2f2b5f459b0cb6"
+    },
+    {
+      "bytes": 107648,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-image-assembly-contract-proposal-20261013/inputs/package-reference-index.json",
+      "sha256": "874b7406955baf36c455f8b0a9eeaddbfc0636506e757d3e98ff5ca6b97569a2"
+    },
+    {
+      "bytes": 16890,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-image-assembly-contract-proposal-20261013/validate_plan.py",
+      "sha256": "c2ba2c6bd183ce4f300aec16757707017d273a7119b45072b1d2667d07ae0776"
+    },
+    {
+      "bytes": 21554,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-image-assembler-proposal-20261013/assembler.py",
+      "sha256": "170b60eb8b314f99f883dfd155b918131fb23f7d6b6c6b299d19621c5a60f1d4"
+    },
+    {
+      "bytes": 716812,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-image-assembly-contract-proposal-20261013/inputs/baseline-258-proposal.json",
+      "sha256": "daec2d1793053ccb7889523e08d6e0a1f33780038cf43bf7ec47b1e4e3c96884"
+    },
+    {
+      "bytes": 2709,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-image-assembly-contract-proposal-20261013/inputs/baseline-259-proposal.json",
+      "sha256": "7404ce1f6307af31703104dca3ad7169784f6e309dd157445c82b82a6bff68c3"
+    },
+    {
+      "bytes": 6228,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-image-assembly-contract-proposal-20261013/inputs/diagnostic-completion.json",
+      "sha256": "c9898056a7e649c609feee792ce2ccb05ee82557ba8a215a96ea88d8dc700e88"
+    },
+    {
+      "bytes": 20427,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-image-assembly-contract-proposal-20261013/inputs/filesystem-targets.json",
+      "sha256": "e342245e1962f7c10969e91b40d3e6047cf669cd5686fd3a3fd7e40830cb9145"
+    },
+    {
+      "bytes": 17366,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-image-assembly-contract-proposal-20261013/inputs/image-capture.json",
+      "sha256": "9bb0a65b3b818dab1f271c41328b9c6dd1ee7cf636534c8669cfd262be26361b"
+    },
+    {
+      "bytes": 340100,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-image-assembly-contract-proposal-20261013/inputs/image-inventory.json",
+      "sha256": "5c1630b5cdf07898118979895682c3a3b705e416c9840ada4e1a5193dccd6941"
+    },
+    {
+      "bytes": 15741,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-image-assembly-contract-proposal-20261013/inputs/installation-route.md",
+      "sha256": "52c6d7a39cd783fa6089f83663295afea4a2b5b84ce6f0321fa5392713e1a4a0"
+    },
+    {
+      "bytes": 3901,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-image-assembly-contract-proposal-20261013/inputs/installer-data.json",
+      "sha256": "46cfe9ef67271b3437132c9d53bbb5db77bf099552f590c247b94efe26f33d26"
+    },
+    {
+      "bytes": 5885,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-image-assembly-contract-proposal-20261013/inputs/observer-failure.json",
+      "sha256": "2e16a40ef8434e0a5d2f7039e4ab6fde8d872e31ce464bc7668c8b8cba3c7ab8"
+    },
+    {
+      "bytes": 9010,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-image-assembly-contract-proposal-20261013/inputs/packages.toml",
+      "sha256": "4a1be668b1296b598138efca3e4a47892dca47455b2efbd225b0ca2b68108f72"
+    },
+    {
+      "bytes": 9918,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-image-assembly-contract-proposal-20261013/inputs/python-supplement.json",
+      "sha256": "0496aec5aa66d9c38db67071f72abbbd5bb6ed72853d6a846b2087d408ed5634"
+    },
+    {
+      "bytes": 6834,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-image-assembly-contract-proposal-20261013/inputs/resolver-diagnostic.json",
+      "sha256": "a1fbd368449fa117d7721c695a5c476a79a355d80acf53a3b0a3e5fd15983951"
+    },
+    {
+      "bytes": 17385,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-image-assembly-contract-proposal-20261013/inputs/roadmap.md",
+      "sha256": "6e720ad88eea80475217638fb080c8bac2d2a19046b0d3260c7e5ffd371a32ec"
+    },
+    {
+      "bytes": 220,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-image-assembly-contract-proposal-20261013/config/fstab.ext4.txt",
+      "sha256": "7e64abac2c07f61a3c4f420c381e5b1ed719dd72654dfb98ed5598eaab208675"
+    }
+  ],
+  "cache_archive_image_byte_reads": 0,
+  "closed_missing_ids": [
+    "package:networkmanager",
+    "package:perl"
+  ],
+  "files": [
+    {
+      "bytes": 21554,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-recovered-two-reference-selection-proposal-20261013/assembler-selection-v2.py",
+      "sha256": "ae6aa9acbfc2aa84e5bb1095235b2060d8637bafeae57510aab579a5a46f526e"
+    },
+    {
+      "bytes": 12642,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-recovered-two-reference-selection-proposal-20261013/authentication.json",
+      "sha256": "18d148b9e56121a435c8523fb90f19e298372f83f3bb700e8e08aba2870d0d35"
+    },
+    {
+      "bytes": 220,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-recovered-two-reference-selection-proposal-20261013/config/fstab.ext4.txt",
+      "sha256": "7e64abac2c07f61a3c4f420c381e5b1ed719dd72654dfb98ed5598eaab208675"
+    },
+    {
+      "bytes": 283,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-recovered-two-reference-selection-proposal-20261013/initial-control-failure.json",
+      "sha256": "f883b4a35e18c8d62ac01963417e2867e983adc17ffa32ca92fffe5484272d5c"
+    },
+    {
+      "bytes": 137,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-recovered-two-reference-selection-proposal-20261013/initial-control-failure02.json",
+      "sha256": "76a811ddcb6c76940238a132480a0e3f3ffdbf90cedd062bd47aaca5a9104db5"
+    },
+    {
+      "bytes": 289,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-recovered-two-reference-selection-proposal-20261013/initial-control-failure03.json",
+      "sha256": "74661eab581e1342396e931640ec7b9fa11103fd2c33b2605d998bbda6f13134"
+    },
+    {
+      "bytes": 172,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-recovered-two-reference-selection-proposal-20261013/initial-control-failure04.json",
+      "sha256": "8598575afb4cea5a1ce7b145ff6c19881a2e2705fcac31e08731b0c064f83ec1"
+    },
+    {
+      "bytes": 153773,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-recovered-two-reference-selection-proposal-20261013/inputs/assembly-plan.json",
+      "sha256": "c1f3379385d210b8464d28b9e876141bec9dd45768c58ab5157c8580fabf92fe"
+    },
+    {
+      "bytes": 716812,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-recovered-two-reference-selection-proposal-20261013/inputs/baseline-258-proposal.json",
+      "sha256": "daec2d1793053ccb7889523e08d6e0a1f33780038cf43bf7ec47b1e4e3c96884"
+    },
+    {
+      "bytes": 2709,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-recovered-two-reference-selection-proposal-20261013/inputs/baseline-259-proposal.json",
+      "sha256": "7404ce1f6307af31703104dca3ad7169784f6e309dd157445c82b82a6bff68c3"
+    },
+    {
+      "bytes": 6228,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-recovered-two-reference-selection-proposal-20261013/inputs/diagnostic-completion.json",
+      "sha256": "c9898056a7e649c609feee792ce2ccb05ee82557ba8a215a96ea88d8dc700e88"
+    },
+    {
+      "bytes": 20427,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-recovered-two-reference-selection-proposal-20261013/inputs/filesystem-targets.json",
+      "sha256": "e342245e1962f7c10969e91b40d3e6047cf669cd5686fd3a3fd7e40830cb9145"
+    },
+    {
+      "bytes": 17366,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-recovered-two-reference-selection-proposal-20261013/inputs/image-capture.json",
+      "sha256": "9bb0a65b3b818dab1f271c41328b9c6dd1ee7cf636534c8669cfd262be26361b"
+    },
+    {
+      "bytes": 340100,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-recovered-two-reference-selection-proposal-20261013/inputs/image-inventory.json",
+      "sha256": "5c1630b5cdf07898118979895682c3a3b705e416c9840ada4e1a5193dccd6941"
+    },
+    {
+      "bytes": 15741,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-recovered-two-reference-selection-proposal-20261013/inputs/installation-route.md",
+      "sha256": "52c6d7a39cd783fa6089f83663295afea4a2b5b84ce6f0321fa5392713e1a4a0"
+    },
+    {
+      "bytes": 3901,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-recovered-two-reference-selection-proposal-20261013/inputs/installer-data.json",
+      "sha256": "46cfe9ef67271b3437132c9d53bbb5db77bf099552f590c247b94efe26f33d26"
+    },
+    {
+      "bytes": 5885,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-recovered-two-reference-selection-proposal-20261013/inputs/observer-failure.json",
+      "sha256": "2e16a40ef8434e0a5d2f7039e4ab6fde8d872e31ce464bc7668c8b8cba3c7ab8"
+    },
+    {
+      "bytes": 108229,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-recovered-two-reference-selection-proposal-20261013/inputs/package-reference-index.json",
+      "sha256": "498078ecae47dc3cfa53a0c5580b2d4b1d4d4fd4dbaaa88772372f3240b00a68"
+    },
+    {
+      "bytes": 9010,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-recovered-two-reference-selection-proposal-20261013/inputs/packages.toml",
+      "sha256": "4a1be668b1296b598138efca3e4a47892dca47455b2efbd225b0ca2b68108f72"
+    },
+    {
+      "bytes": 9918,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-recovered-two-reference-selection-proposal-20261013/inputs/python-supplement.json",
+      "sha256": "0496aec5aa66d9c38db67071f72abbbd5bb6ed72853d6a846b2087d408ed5634"
+    },
+    {
+      "bytes": 6834,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-recovered-two-reference-selection-proposal-20261013/inputs/resolver-diagnostic.json",
+      "sha256": "a1fbd368449fa117d7721c695a5c476a79a355d80acf53a3b0a3e5fd15983951"
+    },
+    {
+      "bytes": 17385,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-recovered-two-reference-selection-proposal-20261013/inputs/roadmap.md",
+      "sha256": "6e720ad88eea80475217638fb080c8bac2d2a19046b0d3260c7e5ffd371a32ec"
+    },
+    {
+      "bytes": 16890,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-recovered-two-reference-selection-proposal-20261013/inputs/validate_plan.py",
+      "sha256": "c2ba2c6bd183ce4f300aec16757707017d273a7119b45072b1d2667d07ae0776"
+    },
+    {
+      "bytes": 14945,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-recovered-two-reference-selection-proposal-20261013/propose.py",
+      "sha256": "1ac9395695f6c37ef8150c99ea1388304e797a2ff2fd95c498558c76cded2121"
+    },
+    {
+      "bytes": 7739,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-recovered-two-reference-selection-proposal-20261013/results.json",
+      "sha256": "397019197e12fec2dddea03272281edf46b93c4bb049c83b45080e250fd67430"
+    },
+    {
+      "bytes": 2609,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-recovered-two-reference-selection-proposal-20261013/selection-proposal.json",
+      "sha256": "1482b2ccae037c5a6c580235a215267d8e9eb94b070f21506f0753f62a091518"
+    },
+    {
+      "bytes": 9676,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-recovered-two-reference-selection-proposal-20261013/two-associations.json",
+      "sha256": "99178987d84a503c56a30c392812b80b3a8491f800e1f880d6427d9defd57203"
+    },
+    {
+      "bytes": 6336,
+      "mode": 420,
+      "path": "docs/workstreams/platform-recovered-two-reference-selection.md",
+      "sha256": "4394bc78b4bdf801673c1a872ee80254877e65d7d35183b76b43cbf017bdb063"
+    }
+  ],
+  "forbidden_actors": 0,
+  "indexed_count": 28,
+  "negative_controls": 8,
+  "nine_acceptance_flags_false": true,
+  "old259_rows_byte_preserved": true,
+  "old_frozen_Source_sharedmaps_workflow_Git_changed": false,
+  "project_PYC": 0,
+  "remaining_missing_count": 18,
+  "schema_version": 2,
+  "signature_and_metadata_scope": "retained actual two signed data records only; source predicates replayed on data",
+  "signed_database_or_public_key_owner_acceptance": false,
+  "signer_joins26_closed": false,
+  "source_selection": {
+    "Root_external_selection": "NOTRUN_REQUIRED",
+    "acceptance": {
+      "hardware": false,
+      "image_issuer": false,
+      "installation": false,
+      "installed_configuration": false,
+      "key_owner": false,
+      "license_redistribution": false,
+      "package_payload": false,
+      "recovery": false,
+      "reproducible_image": false
+    },
+    "actual_new_grant_or_assembly": "NOTRUN",
+    "old_frozen_selection_preserved": true,
+    "plan": {
+      "bytes": 153773,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-recovered-two-reference-selection-proposal-20261013/inputs/assembly-plan.json",
+      "sha256": "c1f3379385d210b8464d28b9e876141bec9dd45768c58ab5157c8580fabf92fe"
+    },
+    "reference_index": {
+      "bytes": 108229,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-recovered-two-reference-selection-proposal-20261013/inputs/package-reference-index.json",
+      "sha256": "498078ecae47dc3cfa53a0c5580b2d4b1d4d4fd4dbaaa88772372f3240b00a68"
+    },
+    "remaining_missing_inputs": [
+      "build-environment",
+      "dependency-install-order",
+      "esp-platform-artifacts",
+      "filesystem-determinism",
+      "hooks-and-sysusers",
+      "installer-source-closure",
+      "layout:root_image_bytes",
+      "layout:root_partition_bytes",
+      "package-signature-facts",
+      "package-source-license-closure",
+      "release-output-bindings",
+      "remaining-config-transforms",
+      "resolver-link-and-service",
+      "resolver:source-target-service",
+      "target-firmware-and-stage1",
+      "target:firmware_manifest",
+      "target:machine_id",
+      "target:per_install_esp_gpt_uuid"
+    ],
+    "schema_version": 2,
+    "scope": "VERSIONED_TWO_RECOVERED_INPUT_REFERENCE_SELECTION_PROPOSAL",
+    "source_delta": "exact assembler PLAN_SHA and INDEX_SHA literals only; validator byte-identical",
+    "source_variant": {
+      "bytes": 21554,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-recovered-two-reference-selection-proposal-20261013/assembler-selection-v2.py",
+      "sha256": "ae6aa9acbfc2aa84e5bb1095235b2060d8637bafeae57510aab579a5a46f526e"
+    },
+    "status": "PROPOSED_DATA_VALID_ASSEMBLY_BLOCKED",
+    "two_retained_associations": {
+      "bytes": 9676,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-recovered-two-reference-selection-proposal-20261013/two-associations.json",
+      "sha256": "99178987d84a503c56a30c392812b80b3a8491f800e1f880d6427d9defd57203"
+    },
+    "validator": {
+      "bytes": 16890,
+      "mode": 420,
+      "path": "artifacts/reviews/platform-recovered-two-reference-selection-proposal-20261013/inputs/validate_plan.py",
+      "sha256": "c2ba2c6bd183ce4f300aec16757707017d273a7119b45072b1d2667d07ae0776"
+    }
+  },
+  "status": "PROPOSED_TWO_ASSOCIATIONS_DATA_VALID_ASSEMBLY_BLOCKED"
+}
