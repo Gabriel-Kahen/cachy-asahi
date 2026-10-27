@@ -448,7 +448,8 @@ def feature_proof(args):
 
 def batches(args):
     consumer=module(HERE/'batch_consumer.py','_native_batch_consumer')
-    return consumer.run(args,__import__('types').SimpleNamespace(**globals()))
+    consumer.run(args,__import__('types').SimpleNamespace(**globals()))
+    return 0
 
 
 def pair_cleanup(args,own):

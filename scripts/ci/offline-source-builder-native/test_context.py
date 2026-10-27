@@ -23,10 +23,13 @@ FEATURES={'scripts/build/build_v2.py','scripts/build/compare_v2.py','scripts/bui
     'scripts/release/source_delivery.py','scripts/maintenance/build_batch_v2.py','scripts/maintenance/build_outputs_v2.py',
     'scripts/maintenance/build_batch.py','scripts/maintenance/rebuild_plan.py','scripts/release/check_source_pins.py','scripts/release/release.py'}
 HELD={'scripts/build/build.py','scripts/build/compare.py','scripts/build/container-entry.sh'}
+AST_SCHEMA='ast-structural-v1'
+# Derived from byte-pinned source38 owner, not an observed CI output.
 ORIGINAL_AST={
-    'bootstrap':'323668855e1cf034c3a81f56ef7e97aa7683aebe2a0300d1190341a68649ea15',
-    'Actors':'a89194ffb93ec908da3ad4e925cc7921f2143ab1f98b7a85bad2d6c8d36cba10',
-    'admitted':'3d222e8af5ffe60c34f29a5291a5ea5f25feddda8c532278d451f3347cf74139'}
+    'bootstrap':'15bfa6b193f77b956c04306d9c6ae71a9c699538d9d38ce014683e791070733a',
+    'Actors':'f134011093b23a1df7c54364c58111c009ffdae5210ba7851339a47525b26ad1',
+    'admitted':'bbc54b45674acf393cdf387035fb5884a1ae723cb1d558592ef29338d72503d5'
+}
 
 
 def module(name,path):
@@ -39,6 +42,34 @@ G=module('_finite_batch_graph_controls',CONTEXT/'batch_graph.py')
 
 
 def encoded(value):return (json.dumps(value,indent=2,sort_keys=True)+'\n').encode()
+
+
+def portable_ast_value(value):
+    if isinstance(value,ast.AST):
+        fields=[]
+        for name,child in sorted(ast.iter_fields(value)):
+            if type(child)is list and not child:
+                continue
+            if child is None and not(isinstance(value,ast.Constant)and name=='value'):
+                continue
+            fields.append([name,portable_ast_value(child)])
+        return ['ast',type(value).__name__,fields]
+    if type(value)is list:return ['list',[portable_ast_value(child)for child in value]]
+    if value is None:return ['none']
+    if type(value)is bool:return ['bool',value]
+    if type(value)is int:return ['int',str(value)]
+    if type(value)is float:return ['float',value.hex()]
+    if type(value)is complex:return ['complex',value.real.hex(),value.imag.hex()]
+    if type(value)is str:return ['str',value]
+    if type(value)is bytes:return ['bytes',value.hex()]
+    if value is Ellipsis:return ['ellipsis']
+    raise ValueError('unsupported parsed AST value: '+type(value).__name__)
+
+
+def portable_ast_bytes(node):
+    value=['ast-structural-v1',portable_ast_value(node)]
+    return json.dumps(value,ensure_ascii=True,separators=(',',':'),allow_nan=False).encode('ascii')
+
 
 
 class ContextControls(unittest.TestCase):
@@ -108,7 +139,7 @@ class ContextControls(unittest.TestCase):
         tree=ast.parse(O.read(CONTEXT/'owner.py').decode())
         nodes={node.name:node for node in tree.body if isinstance(node,(ast.FunctionDef,ast.ClassDef))}
         for name,pin in ORIGINAL_AST.items():
-            body=ast.dump(nodes[name],include_attributes=False).encode()
+            body=portable_ast_bytes(nodes[name])
             self.assertEqual(hashlib.sha256(body).hexdigest(),pin,name)
         self.assertEqual(O.sha(O.read(ROOT/'scripts/ci/inputs.lock.json')),'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f')
         self.assertEqual(O.sha(O.read(CONTEXT/'expected-packages.lock')),'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25')
