@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "package": "cachy-asahi-session-diagnostics",
-  "version": "0.1.0-2",
-  "source_kind": "original MIT project code; successor child-reservation correction with original controls retained",
+  "version": "0.1.0-3",
+  "source_kind": "original MIT project code; portable socket test fixture with unchanged corrected runtime and ownership controls",
   "source_revision": null,
   "frozen_sources": {
     "session_probe.py": "be8de7b2644585918336b629b2bf436b79c36e55ce160590003d592e62658e49",
@@ -41,5 +41,9 @@
     "session_probe.py": "9c5c41899cd991b0de4bf8d30bad6f5452b4592ea9440df0f0b4a7b54bc66984",
     "test_session_probe.py": "b830ec828dd73e0b40ebc509c079f55a28b045d4a783e0090952ad696320f964",
     "session-probe.md": "2d8125214150de5b6426692758525b0636fcbb53c45539a139d7fc5bf4f804e1"
-  }
+  },
+  "socket_fixture_sources": {
+    "test_session_probe.py": "f598bf4ea38f753c1ffe31fb55e636d64722c32139230bd5485564d7f2332d2f"
+  },
+  "socket_fixture_change": "Test-only initial root descriptor mapping; real descendant ownership/mode/symlink/replacement guards retained. Original runtime and child ownership code byte-held."
 }

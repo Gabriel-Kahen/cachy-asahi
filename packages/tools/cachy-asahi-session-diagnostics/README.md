@@ -1,4 +1,4 @@
-# cachy-asahi session diagnostics 0.1.0-2
+# cachy-asahi session diagnostics 0.1.0-3
 
 Small opt-in MIT package for the corrected read-only session probe. Run as the
 ordinary user inside the affected session:
@@ -28,7 +28,13 @@ Only Python >=3.11 is required. Optional packages provide `hyprctl` (hyprland),
 (systemd). Absent tools/endpoints remain explicit. Optional dependencies are not
 an installation plan or a reason to replace the working Asahi platform stack.
 
-Release 0.1.0-2 corrects child retirement: incompatible SIGCHLD policies skip
+Release 0.1.0-3 fixes the socket test's assumption that checkout ancestors
+are trusted. A test-only root descriptor anchors a real private `/run/user/UID`
+fixture; descendant opens/stats remain real with unchanged ownership, mode,
+symlink, hardlink and replacement checks. Production unsafe-ancestry rejection
+and the runtime/launcher are byte-held. No Docker-specific writable path is required.
+
+Earlier release 0.1.0-2 corrected child retirement: incompatible SIGCHLD policies skip
 launch; default automatic-reaping flags are normalized in this process; group
 signals require a verified unreaped leader; ECHILD/lost ownership stays unknown
 without fabricated exit0 or further group signals. See `session-probe.md` for
@@ -56,8 +62,9 @@ python -B -Werror::ResourceWarning test_package.py
 python -B check_package.py --recipe-root .
 ```
 
-All original 25 test bodies are retained, with ten added ownership regressions.
-The original seven package controls remain byte-identical. Package controls stage only into
+All 35 probe controls remain, including the ten byte-held ownership regressions;
+the socket fixture is the sole revised probe test body. The original seven
+package controls remain byte-identical. Package controls stage only into
 private temporary directories, verify the exact payload/modes, test tamper refusal
 and invoke the staged CLI from an unrelated cwd without collecting diagnostics.
 An archive-derived headless/live invocation is separate host evidence; no target
