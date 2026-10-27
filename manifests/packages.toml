@@ -130,6 +130,7 @@ selected_for_release = false
 native_build = "PASS0.3.0-1 Root-accepted finite native pair40490674681: both33900bytes/SHA2568de3bd0cf2d9333b41925fecdef5cbfe2ec6d40c3424d90746182142e0c7dc47; two containers on one runner"
 native_build_commit = "5d0f5ae6331807704a8ebafc7922972629e0b96f"
 native_evidence = "docs/validation/setup8-migration-native-20261027.md"
+real_shells_native_evidence = "docs/validation/setup8-real-shells-native-20261027.md"
 prior_native_build_commit = "98fecf28a3cde63a9dd7531501c2187825349310"
 prior_native_evidence = "docs/validation/repository-enrollment-native-20261015.md"
 prior_setup5_native_build_commit = "4cf9884dacb2816532b07c8107982d7157656046"

@@ -51,7 +51,7 @@ jobs:
       fail-fast: false
       matrix:
         python: ['3.12', '3.14']
-        lane: [metrics, developer, campaign, management-source]
+        lane: [metrics, developer, campaign, management-source, retained-transport]
     steps:
       - name: Checkout local dependency closure
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -112,6 +112,9 @@ jobs:
               ;;
             campaign)
               python -I -B tests/test_maintenance_campaign.py -v
+              ;;
+            retained-transport)
+              python -I -B -Werror::ResourceWarning scripts/maintenance/test_retained_git_transport.py -v
               ;;
             management-source)
               python -I -B scripts/release/test_management_tools_source_delivery.py -v

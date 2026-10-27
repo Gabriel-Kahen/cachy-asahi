@@ -17,7 +17,7 @@ import threading
 import time
 
 COLLECTOR_SHA256 = 'bf3d80c3e5a7d8e8a67c393e2cabf19c2a45945fd023628bdb5dcb5b03b2b4f2'
-OWNER_SHA256 = '80547f753dc7d13819d727783c669d10a56b7bf832dc05084b5c4b5302cb79d9'
+OWNER_SHA256 = '83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f'
 SCHEMA = 'benchmark-platform-metrics-v1'
 _active = None
 _unresolved = None
