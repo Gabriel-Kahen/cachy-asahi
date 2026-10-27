@@ -38,6 +38,7 @@ Kernel experiments and CPU-specific optimization follow a measured, working base
 - [Hardware validation](docs/hardware-validation.md): evidence required before support claims.
 - [Source notes](docs/sources.md): starting references, checked October 11, 2026.
 - [Package candidates](manifests/packages.toml): a starting inventory, not an install list.
+- [Setup8 development](docs/setup8-development.md): selected 0.3.0-1 recipe, explicit user commands and accepted generic ARM scope.
 - [Contributor instructions](AGENTS.md): evidence and collaboration rules.
 
 ## Development boundaries
