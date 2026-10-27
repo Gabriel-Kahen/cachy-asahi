@@ -1,6 +1,8 @@
 name: core622-current-desktop-source
 on:
   push:
+    branches: [main, codex/virtual-integration]
+    tags: ['**']
     paths: ['scripts/ci/core622-current-desktop-source/**', '.github/workflows/core622-current-desktop-source.yml']
   pull_request:
     paths: ['scripts/ci/core622-current-desktop-source/**', '.github/workflows/core622-current-desktop-source.yml']
@@ -55,7 +57,7 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           repository: Gabriel-Kahen/cachy-asahi
-          ref: f46ac9e7aeec170ba554255e3cda380ea0364e64
+          ref: ad09020a776c93fad3c2625c836a99cbde0c83b9
           path: .ci-fixtures/core622-expected
           persist-credentials: false
       - name: Exact public core622-core800 control DATA
@@ -131,7 +133,7 @@ jobs:
           git -C "$GITHUB_WORKSPACE/.ci-fixtures/core622-fresh_record" archive --format=tar 5a0789405ded23f759f4a3aa545cf737c4ec3bde | tar -x -C "$stage/fresh_record"
           export CORE622_FRESH_RECORD="$stage/fresh_record"
           mkdir -m700 "$stage/expected"
-          git -C "$GITHUB_WORKSPACE/.ci-fixtures/core622-expected" archive --format=tar f46ac9e7aeec170ba554255e3cda380ea0364e64 | tar -x -C "$stage/expected"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/core622-expected" archive --format=tar ad09020a776c93fad3c2625c836a99cbde0c83b9 | tar -x -C "$stage/expected"
           export CORE622_EXPECTED="$stage/expected"
           mkdir -m700 "$stage/installer-fixtures"
           mkdir -m700 "$stage/core800"
@@ -163,7 +165,7 @@ jobs:
           factory=importlib.util.module_from_spec(spec);spec.loader.exec_module(factory)
           roots={name:Path(os.environ['CORE622_'+name.upper()])for name in('parent','fresh607','core_record','fresh_record')}
           for context in('known','null'):factory.emit(roots,stage/context,context)
-          before=factory.before_owned_initialization(factory.before_proof_output(factory.tree(stage/'known')))
+          before=factory.before_owned_initialization(factory.before_proof_output(factory.before_media_contract(factory.tree(stage/'known'))))
           parent=stage/'b7';parent.mkdir(mode=0o700)
           for name,raw in before.items():
            target=parent/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(raw);target.chmod(0o644)

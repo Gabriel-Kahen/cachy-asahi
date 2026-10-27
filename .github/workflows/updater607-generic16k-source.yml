@@ -1,6 +1,8 @@
 name: updater607-generic16k-source
 on:
   push:
+    branches: [main, codex/virtual-integration]
+    tags: ['**']
     paths:
       - scripts/ci/updater607-generic16k-source/**
       - .github/workflows/updater607-generic16k-source.yml
