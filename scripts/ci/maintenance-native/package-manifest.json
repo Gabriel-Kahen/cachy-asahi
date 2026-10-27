@@ -1,0 +1,125 @@
+{
+  "files": [
+    {
+      "bytes": 2225,
+      "destination": "packages/tools/cachy-asahi-maintenance/.SRCINFO",
+      "sha256": "4b162f9f54baf9c804f11a8591bd75a8f4a445f2b557805415e077f39a97d9c4",
+      "source": "proposed/packages/tools/cachy-asahi-maintenance/.SRCINFO"
+    },
+    {
+      "bytes": 1081,
+      "destination": "packages/tools/cachy-asahi-maintenance/LICENSE",
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+      "source": "proposed/packages/tools/cachy-asahi-maintenance/LICENSE"
+    },
+    {
+      "bytes": 598,
+      "destination": "packages/tools/cachy-asahi-maintenance/NOTICE",
+      "sha256": "b6dffb613c2a3b709756cbdce9b0f40c2fe69a4133c1b050f69ccb618f2ee17a",
+      "source": "proposed/packages/tools/cachy-asahi-maintenance/NOTICE"
+    },
+    {
+      "bytes": 3104,
+      "destination": "packages/tools/cachy-asahi-maintenance/PKGBUILD",
+      "sha256": "2d4b50ac1bc3c4c934d9b53ee0a386e4c9553470e4b36b3eb7a11abbd7f48296",
+      "source": "proposed/packages/tools/cachy-asahi-maintenance/PKGBUILD"
+    },
+    {
+      "bytes": 5722,
+      "destination": "packages/tools/cachy-asahi-maintenance/README.md",
+      "sha256": "600bcb8b06c52ba9aa0908c02ccfe88b72b6f2bd0e2f2d74c4ff488070332356",
+      "source": "proposed/packages/tools/cachy-asahi-maintenance/README.md"
+    },
+    {
+      "bytes": 525,
+      "destination": "packages/tools/cachy-asahi-maintenance/cachy-asahi-maintenance",
+      "sha256": "6d493f9e025d677ab8e1bee6aed717e3e46b3e2cbb7dce89ec5102655d4ee5a9",
+      "source": "proposed/packages/tools/cachy-asahi-maintenance/cachy-asahi-maintenance"
+    },
+    {
+      "bytes": 5407,
+      "destination": "packages/tools/cachy-asahi-maintenance/check_source.py",
+      "sha256": "63b7675f3f2931108e9c6ec57b576e34de8fe477e8622f3b298d7e5588fa5b5f",
+      "source": "proposed/packages/tools/cachy-asahi-maintenance/check_source.py"
+    },
+    {
+      "bytes": 9981,
+      "destination": "packages/tools/cachy-asahi-maintenance/check_source_pins.py",
+      "sha256": "9b78c348e2d567f44f656285f6a562220cadead7025f1e0db2eb9a53d9f09ea3",
+      "source": "proposed/packages/tools/cachy-asahi-maintenance/check_source_pins.py"
+    },
+    {
+      "bytes": 11691,
+      "destination": "packages/tools/cachy-asahi-maintenance/compare_releases.py",
+      "sha256": "27086c7b0af74a1226deae7a6a71245882b82608a1fa9d33b68e657979c7d83c",
+      "source": "proposed/packages/tools/cachy-asahi-maintenance/compare_releases.py"
+    },
+    {
+      "bytes": 10691,
+      "destination": "packages/tools/cachy-asahi-maintenance/health-inputs.md",
+      "sha256": "fa9ad03e43b75fc8bdeba2ee06dc09c06973a85bbcca17f708c92d4f78f0557f",
+      "source": "proposed/packages/tools/cachy-asahi-maintenance/health-inputs.md"
+    },
+    {
+      "bytes": 26653,
+      "destination": "packages/tools/cachy-asahi-maintenance/health.py",
+      "sha256": "6809526f7553e76f4a6c8d24cbde2688abe8cfd1139b92b88a51847e7a7acadf",
+      "source": "proposed/packages/tools/cachy-asahi-maintenance/health.py"
+    },
+    {
+      "bytes": 2473,
+      "destination": "packages/tools/cachy-asahi-maintenance/payload-pins.json",
+      "sha256": "e74aea7cb974fd0ac79898ccc403acb4d89835c8d07ca77f120be14128f0317d",
+      "source": "proposed/packages/tools/cachy-asahi-maintenance/payload-pins.json"
+    },
+    {
+      "bytes": 25822,
+      "destination": "packages/tools/cachy-asahi-maintenance/rebuild_plan.py",
+      "sha256": "472f9bb621d78f79f5016a662b7f72eb03e995dae787c7846bc1f947ff21313c",
+      "source": "proposed/packages/tools/cachy-asahi-maintenance/rebuild_plan.py"
+    },
+    {
+      "bytes": 41320,
+      "destination": "packages/tools/cachy-asahi-maintenance/release.py",
+      "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435",
+      "source": "proposed/packages/tools/cachy-asahi-maintenance/release.py"
+    },
+    {
+      "bytes": 12145,
+      "destination": "packages/tools/cachy-asahi-maintenance/security_advisories.py",
+      "sha256": "f018ff4ac0265217213f749bf59afa08b61b24e4054973c0dcde110e57a0a2cb",
+      "source": "proposed/packages/tools/cachy-asahi-maintenance/security_advisories.py"
+    },
+    {
+      "bytes": 9002,
+      "destination": "packages/tools/cachy-asahi-maintenance/signing_expiry.py",
+      "sha256": "dd6ef397ea47cf14bb31f6ae6f7ca388d68bdb15e7fa3d20c36eb01f901b2c98",
+      "source": "proposed/packages/tools/cachy-asahi-maintenance/signing_expiry.py"
+    },
+    {
+      "bytes": 2375,
+      "destination": "packages/tools/cachy-asahi-maintenance/source-provenance.json",
+      "sha256": "2af7b2d57ffd06ce37b75df1c5ef740b12c01bdb3b364a44e08c125486277234",
+      "source": "proposed/packages/tools/cachy-asahi-maintenance/source-provenance.json"
+    },
+    {
+      "bytes": 16456,
+      "destination": "packages/tools/cachy-asahi-maintenance/source_delivery.py",
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e",
+      "source": "proposed/packages/tools/cachy-asahi-maintenance/source_delivery.py"
+    },
+    {
+      "bytes": 7628,
+      "destination": "packages/tools/cachy-asahi-maintenance/test_package.py",
+      "sha256": "f9b76074c7782592a220b63506f12f6985baf517531a791942bd5b90617646ae",
+      "source": "proposed/packages/tools/cachy-asahi-maintenance/test_package.py"
+    },
+    {
+      "bytes": 14881,
+      "destination": "packages/tools/cachy-asahi-maintenance/update_plan.py",
+      "sha256": "21af73923ca4bfff244d653e1f0046015d429a582548b2a60f1e0feb5b2a687e",
+      "source": "proposed/packages/tools/cachy-asahi-maintenance/update_plan.py"
+    }
+  ],
+  "schema_version": 1
+}
