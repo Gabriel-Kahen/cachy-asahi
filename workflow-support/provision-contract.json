@@ -1,0 +1,79 @@
+{
+  "Root_acceptance": null,
+  "actual": null,
+  "actual_run_id": null,
+  "attempt": null,
+  "budgets": {
+    "caller_seconds": 610,
+    "cleanup_seconds": 650,
+    "combined_worker_stream_bytes": 1048576,
+    "composition_seconds": 15600,
+    "consumer_seconds": 4320,
+    "installer_seconds": 4500,
+    "job_minutes": 350,
+    "native_owner_seconds": 4870,
+    "reap_seconds": 5,
+    "snapshot_seconds": 900,
+    "transaction_seconds": 600
+  },
+  "dispatch": null,
+  "disposable_outputs": [
+    "fresh private TEST signing state",
+    "signed intermediate604 and final607 bundle",
+    "installed607 root",
+    "complete physical snapshot and extraction",
+    "current readonly native607 FD admission and capability policy/lease",
+    "normal interruption and repair evidence"
+  ],
+  "entry": "operation/native_owner607.py",
+  "hardware": "NOT_RUN",
+  "inventory": {
+    "expected607_sha256": "be35402204ba5c03d78279722afa83047c9575d2da70fb5c4064f46ed15954c5",
+    "final_signed607": 607,
+    "installed607": 607,
+    "legacy_intermediate604": 604,
+    "protected_other606": 606,
+    "repair_catalog_base_excluding_four_current_candidates": 603
+  },
+  "native": "NOT_RUN",
+  "operation": "recover-apps16-reinstall607",
+  "operation_profile_sha256": "9208ece911ee58cc3c7c5720ba34f9f0de5d41433fb016123d95563865531144",
+  "persistent_inputs": "PINNED_SOURCE_AND_PUBLIC_INPUT_ROUTE_ONLY_NOT_RETIRED_VM_ROOTS",
+  "provider": {
+    "architecture": "aarch64",
+    "files": 1197,
+    "page_size": 4096,
+    "qualified_installer_library": "bd0cf1891083d011b70edab10501c317d3720b78",
+    "source": "b9976eea34eaed4b6e56af3be21d4d652fa971d6"
+  },
+  "publication_source_sha": null,
+  "recovery_parent": {
+    "capsule_sha256": "0acbf48f82736ded95fae19c8ea250eda4d2386093cb26b2f9e0f33ba2b7013c",
+    "files": 259,
+    "operation_profile_sha256": "2adc59b48dc461ea801ad6d163c19811e38ec9d8b7f3da587507d9f28906b13f",
+    "path": "recovery-parent259",
+    "role": "IMMUTABLE_SIGNING_SPEC_SOURCE_NOT_RETIRED_ROOT_OR_LEASE"
+  },
+  "ref": null,
+  "release": "NOT_ADMITTED",
+  "repair": {
+    "apps16_archive": "319cc1db4738945ad3b146490ea0fabd80f8c8d89d8c41a11750dd0ba5d5b8af",
+    "apps16_pair": "950b0699a6e3f7a56758d4d17a5d30dabc7b6e11",
+    "packet_index": {
+      "bytes": 82492,
+      "sha256": "6995af00a982ec4545dff26bcb26f25f1868a8267d46031aa060ed0575443fb5"
+    },
+    "packet_source": "54352850a57a7e34e75c3a021fa20525eee59bf6",
+    "public245": "c14a8362e2cf9cda84c0b5c1a181658a8c9111a6"
+  },
+  "schema_version": 1,
+  "source_sha": null,
+  "status": "SOURCE_ONLY_FRESH607_PROVISIONING_RECOVERY_DISPATCH_CONTRACT",
+  "workflow": {
+    "alias": ".github/workflows/native-arm-apps16-reinstall-interruption.yml",
+    "current_registration": "NOT_REQUERIED_NO_API",
+    "path": ".github/workflows/native-arm-build.yml",
+    "prior_observed_id": 381664314,
+    "runner": "ubuntu-24.04-arm"
+  }
+}
