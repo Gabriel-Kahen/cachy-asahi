@@ -537,9 +537,9 @@
       "sha256": "03a1d169d8d3ca6bb7a5468665936f0b21ae728e9d48fdb8a3c6e79215c79f06"
     },
     "scripts/ci/offline-source-builder-native/owner.py": {
-      "bytes": 32615,
+      "bytes": 32621,
       "mode": 420,
-      "sha256": "158e7e05a8e35297fde30326f74c4ce31870bb2f413a92d61625f0f6ee740ff4"
+      "sha256": "a01261cf46cd4a5b87ad5e6f93210932787a15793b5bbfba43e01d2d4cb8a637"
     },
     "scripts/ci/offline-source-builder-native/planner_transport.py": {
       "bytes": 6248,
@@ -582,9 +582,9 @@
       "sha256": "33ced69e523d6c4e0dca51d6806475b2ae647aeeef069525cd4d9514a8ea5c48"
     },
     "scripts/ci/offline-source-builder-native/test_context.py": {
-      "bytes": 11300,
+      "bytes": 12593,
       "mode": 420,
-      "sha256": "68974aa2edb20112d4dc1cc18db960b22b2add62925fc40be05f47e97f083b1e"
+      "sha256": "33f9cf0f3942fe73a1592acd3277c2316057baa4d3cf10bf5b3e74e3e39f6cc0"
     },
     "scripts/ci/offline-source-builder-native/workflow.yml.in": {
       "bytes": 26305,

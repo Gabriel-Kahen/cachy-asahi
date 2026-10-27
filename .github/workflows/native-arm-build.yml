@@ -47,7 +47,7 @@ jobs:
           set +e
           (
             set -euo pipefail
-            printf '%s  %s\n' '158e7e05a8e35297fde30326f74c4ce31870bb2f413a92d61625f0f6ee740ff4' "$SLICE/owner.py" 'fe06b4d55fe5746bd702866262a674d4c442aec1385687a9db0a58a98437229f' "$SLICE/source-map.json" | sha256sum --check
+            printf '%s  %s\n' 'a01261cf46cd4a5b87ad5e6f93210932787a15793b5bbfba43e01d2d4cb8a637' "$SLICE/owner.py" 'f7dbae991686537ff5caebf10259988a7c2d210c0122ba3c440282a16b5d739e' "$SLICE/source-map.json" | sha256sum --check
             test "$INPUTS_SHA256" = beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
             printf '%s  %s\n' "$INPUTS_SHA256" scripts/ci/inputs.lock.json | sha256sum --check
             [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
@@ -67,7 +67,7 @@ jobs:
               ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
               python3 -I -B "$SLICE/owner.py" proof \
               --source-root "$GITHUB_WORKSPACE" --source-sha "$SOURCE_SHA" --feature-code-sha "$FEATURE_CODE_SHA" \
-              --manifest-sha256 fe06b4d55fe5746bd702866262a674d4c442aec1385687a9db0a58a98437229f --proof "$RUNNER_TEMP/offline-source-proof.json" \
+              --manifest-sha256 f7dbae991686537ff5caebf10259988a7c2d210c0122ba3c440282a16b5d739e --proof "$RUNNER_TEMP/offline-source-proof.json" \
               --work "$RUNNER_TEMP/offline-source-work" --cache "$RUNNER_TEMP/alarm-cache" \
               --public "$RUNNER_TEMP/offline-source-public"
           ) > "$PHASE_LOGS/proof.stdout" 2> "$PHASE_LOGS/proof.stderr"
@@ -112,7 +112,7 @@ jobs:
               ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
               python3 -I -B "$SLICE/owner.py" feature-proof \
               --source-root "$GITHUB_WORKSPACE" --source-sha "$SOURCE_SHA" --feature-code-sha "$FEATURE_CODE_SHA" \
-              --manifest-sha256 fe06b4d55fe5746bd702866262a674d4c442aec1385687a9db0a58a98437229f --proof "$RUNNER_TEMP/offline-source-proof.json" \
+              --manifest-sha256 f7dbae991686537ff5caebf10259988a7c2d210c0122ba3c440282a16b5d739e --proof "$RUNNER_TEMP/offline-source-proof.json" \
               --work "$RUNNER_TEMP/offline-source-work" --cache "$RUNNER_TEMP/alarm-cache" \
               --public "$RUNNER_TEMP/offline-source-public"
           ) > "$PHASE_LOGS/feature-proof.stdout" 2> "$PHASE_LOGS/feature-proof.stderr"
@@ -235,7 +235,7 @@ jobs:
               ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
               python3 -I -B "$SLICE/owner.py" bootstrap \
               --source-root "$GITHUB_WORKSPACE" --source-sha "$SOURCE_SHA" --feature-code-sha "$FEATURE_CODE_SHA" \
-              --manifest-sha256 fe06b4d55fe5746bd702866262a674d4c442aec1385687a9db0a58a98437229f --proof "$RUNNER_TEMP/offline-source-proof.json" \
+              --manifest-sha256 f7dbae991686537ff5caebf10259988a7c2d210c0122ba3c440282a16b5d739e --proof "$RUNNER_TEMP/offline-source-proof.json" \
               --work "$RUNNER_TEMP/offline-source-work" --cache "$RUNNER_TEMP/alarm-cache" \
               --public "$RUNNER_TEMP/offline-source-public" \
               --carrier "$RUNNER_TEMP/offline-source-retained" --execute
@@ -268,7 +268,7 @@ jobs:
               ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
               python3 -I -B "$SLICE/owner.py" batches \
               --source-root "$GITHUB_WORKSPACE" --source-sha "$SOURCE_SHA" --feature-code-sha "$FEATURE_CODE_SHA" \
-              --manifest-sha256 fe06b4d55fe5746bd702866262a674d4c442aec1385687a9db0a58a98437229f --proof "$RUNNER_TEMP/offline-source-proof.json" \
+              --manifest-sha256 f7dbae991686537ff5caebf10259988a7c2d210c0122ba3c440282a16b5d739e --proof "$RUNNER_TEMP/offline-source-proof.json" \
               --work "$RUNNER_TEMP/offline-source-work" --cache "$RUNNER_TEMP/alarm-cache" \
               --public "$RUNNER_TEMP/offline-source-public" \
               --execute
@@ -301,7 +301,7 @@ jobs:
               ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
               python3 -I -B "$SLICE/owner.py" cleanup \
               --source-root "$GITHUB_WORKSPACE" --source-sha "$SOURCE_SHA" --feature-code-sha "$FEATURE_CODE_SHA" \
-              --manifest-sha256 fe06b4d55fe5746bd702866262a674d4c442aec1385687a9db0a58a98437229f --proof "$RUNNER_TEMP/offline-source-proof.json" \
+              --manifest-sha256 f7dbae991686537ff5caebf10259988a7c2d210c0122ba3c440282a16b5d739e --proof "$RUNNER_TEMP/offline-source-proof.json" \
               --work "$RUNNER_TEMP/offline-source-work" --cache "$RUNNER_TEMP/alarm-cache" \
               --public "$RUNNER_TEMP/offline-source-public" \
               --execute
@@ -334,7 +334,7 @@ jobs:
               ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
               python3 -I -B "$SLICE/owner.py" retain \
               --source-root "$GITHUB_WORKSPACE" --source-sha "$SOURCE_SHA" --feature-code-sha "$FEATURE_CODE_SHA" \
-              --manifest-sha256 fe06b4d55fe5746bd702866262a674d4c442aec1385687a9db0a58a98437229f --proof "$RUNNER_TEMP/offline-source-proof.json" \
+              --manifest-sha256 f7dbae991686537ff5caebf10259988a7c2d210c0122ba3c440282a16b5d739e --proof "$RUNNER_TEMP/offline-source-proof.json" \
               --work "$RUNNER_TEMP/offline-source-work" --cache "$RUNNER_TEMP/alarm-cache" \
               --public "$RUNNER_TEMP/offline-source-public"
           ) > "$PHASE_LOGS/retain.stdout" 2> "$PHASE_LOGS/retain.stderr"
