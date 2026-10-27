@@ -94,8 +94,12 @@ class Tests(unittest.TestCase):
   with tempfile.TemporaryDirectory()as td:
    def top_metadata(folder,names):return {'.git'}if Path(folder)==ROOT else set()
    self.assertEqual(top_metadata(ROOT/'runtime',['.git']),set())
-   root=Path(td)/'source';shutil.copytree(ROOT,root,ignore=top_metadata);(root/'.git').mkdir();(root/'.git/config').write_text('INERT_METADATA');D.source(root)
-   (root/'.git/config').unlink();(root/'.git').rmdir();(root/'.git').write_text('gitdir: INERT_NOT_FOLLOWED');D.source(root)
+   root=Path(td)/'source';shutil.copytree(ROOT,root,ignore=top_metadata);git=root/'.git';git.mkdir(mode=0o700);(git/'objects').mkdir(mode=0o700);(git/'refs').mkdir(mode=0o700)
+   (git/'HEAD').write_text('df9b4564367161e93a2caf273d7899e74f1056e4\n');(git/'config').write_text('[core]\n repositoryformatversion = 0\n bare = false\n');D.source(root)
+   external=Path(td)/'private-normal-git';git.rename(external);git.write_text('gitdir: '+str(external)+'\n');D.source(root)
+   git.write_text('gitdir: INERT_NOT_FOLLOWED')
+   with self.assertRaisesRegex(ValueError,'checkout Git'):D.source(root)
+   git.unlink()
    for extra in(root/'.git-shadow',root/'runtime/.git'):
     # A canonical runtime carrier clone already has registered nested Git metadata.
     if extra.is_dir():extra=extra/'INERT_UNEXPECTED'
