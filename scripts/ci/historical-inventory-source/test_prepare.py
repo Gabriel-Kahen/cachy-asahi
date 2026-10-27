@@ -18,7 +18,12 @@ EMITTERS=('scripts/ci/apps-full574-repair-native/prepare.py','scripts/ci/orphans
 class Controls(unittest.TestCase):
  def setUp(self):
   self.t=tempfile.TemporaryDirectory();self.addCleanup(self.t.cleanup);self.work=Path(self.t.name);self.base=self.work/'base';P.prepare(ROOT,self.base,['all']);self.evolved=self.work/'evolved';shutil.copytree(self.base,self.evolved);self.inventory=self.evolved/'manifests/packages.toml';self.inventory.write_bytes(self.inventory.read_bytes()+b'\n# UNIT: current metadata evolves; historical input does not.\n')
+ def evolve_build(self):
+  for name in P.FROZEN_BUILD:
+   path=self.evolved/name;path.write_bytes(b'import source_materials\nraise AssertionError("current helper must never run in a historical view")\n'if path.suffix=='.py'else b'#!/bin/bash\nexit 99\n')
+  self.assertFalse((self.evolved/'scripts/build/source_materials.py').exists())
  def test_all_fourteen_closed_views_and_seventeen_original_manifest_sections(self):
+  self.evolve_build()
   p=P.profile();manifest_count=0
   for n,v in p['factories'].items():
    output=self.work/n;r=P.prepare(self.evolved,output,[n]);self.assertEqual(rows(output),v['files']);self.assertNotEqual(r['current_inventory'],r['historical_inventory']);self.assertFalse(r['current_inventory_used_for_historical_emission']);self.assertEqual(self.inventory.read_bytes().splitlines()[-1],b'# UNIT: current metadata evolves; historical input does not.')
@@ -28,6 +33,7 @@ class Controls(unittest.TestCase):
     self.assertTrue(all(P.pin((output/path).read_bytes())==want for path,want in data.items()));manifest_count+=1
   self.assertEqual(manifest_count,17)
  def test_unchanged_real_family_emitters_have_exact_same_full_output_after_inventory_evolution(self):
+  self.evolve_build()
   after=self.work/'after';P.prepare(self.evolved,after,['all']);counts={}
   for i,entry in enumerate(EMITTERS):
    before_out=self.work/('before-'+str(i));after_out=self.work/('after-'+str(i))
@@ -35,6 +41,27 @@ class Controls(unittest.TestCase):
     r=subprocess.run([sys.executable,'-I','-B','-c',EMIT,str(root),str(out),entry],stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=60);self.assertEqual(r.returncode,0,r.stderr.decode());self.assertEqual(r.stdout,b'')
    self.assertEqual(rows(before_out),rows(after_out),entry);counts[entry]=len(rows(after_out))
   self.assertEqual(len(counts),4)
+ def test_current_build_evolution_uses_only_exact_frozen_helpers_and_unrelated_drift_still_refuses(self):
+  self.evolve_build();before=rows(self.evolved);out=self.work/'frozen-build';r=P.prepare(self.evolved,out,['all']);self.assertEqual(rows(out),rows(self.base));self.assertEqual(rows(self.evolved),before);self.assertFalse((out/'scripts/build/source_materials.py').exists());self.assertFalse(r['current_build_helpers_used_for_historical_emission']);self.assertEqual(set(r['historical_build_helpers']),set(P.FROZEN_BUILD));self.assertTrue(all(r['current_build_helpers'][n]!=r['historical_build_helpers'][n]for n in P.FROZEN_BUILD))
+  unrelated=self.evolved/'scripts/checks/package_checks.py';unrelated.write_bytes(unrelated.read_bytes()+b'\n# UNIT unrelated drift must still refuse\n');refused=self.work/'unrelated-drift'
+  with self.assertRaisesRegex(ValueError,'historical noninventory source drift: scripts/checks/package_checks.py'):P.prepare(self.evolved,refused,['all'])
+  self.assertFalse(refused.exists())
+ def test_each_frozen_build_snapshot_must_match_original_profile_before_output(self):
+  helper=self.work/'frozen-helper';shutil.copytree(HERE,helper)
+  for i,(name,snapshot)in enumerate(P.FROZEN_BUILD.items()):
+   path=helper/snapshot;raw=path.read_bytes();path.write_bytes(raw+b'\n# UNIT damaged snapshot\n');out=self.work/('refused-frozen-'+str(i))
+   with patch.object(P,'HERE',helper),self.assertRaisesRegex(ValueError,'historical noninventory source drift: '+name):P.prepare(self.evolved,out,['all'])
+   self.assertFalse(out.exists());path.write_bytes(raw)
+ def test_current_frozen_role_sources_still_require_ordinary_single_link_inputs(self):
+  name='scripts/build/build.py';path=self.evolved/name;raw=path.read_bytes()
+  for kind in('missing','symlink','hardlink'):
+   if path.exists()or path.is_symlink():path.unlink()
+   if kind=='symlink':path.symlink_to(self.base/name)
+   elif kind=='hardlink':os.link(self.base/name,path)
+   out=self.work/('refused-current-helper-'+kind)
+   with self.assertRaises((ValueError,FileNotFoundError)):P.prepare(self.evolved,out,['all'])
+   self.assertFalse(out.exists())
+  path.unlink();path.write_bytes(raw)
  def test_original_factory_refuses_evolved_inventory_without_explicit_baseline_view(self):
   out=self.work/'old-direct';r=subprocess.run([sys.executable,'-I','-B','-c',EMIT,str(self.evolved),str(out),EMITTERS[0]],stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=30);self.assertNotEqual(r.returncode,0);self.assertIn(b'manifests/packages.toml',r.stderr);self.assertFalse(out.exists())
  def test_noninventory_drift_missing_hardlink_alias_snapshot_and_selector_refuse_before_output(self):
