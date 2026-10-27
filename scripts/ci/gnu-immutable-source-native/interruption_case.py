@@ -192,3 +192,12 @@ def render(before,case,fixed_case,operation='remove-interruption'):
  manifest=json.loads(out['runtime-source.json']);manifest['files']={n:pin(b)for n,b in out.items()if n!='runtime-source.json'};out['runtime-source.json']=enc(manifest)
  restored=inverse(out,ledger);normal,_=_FAILURE_DESC_PARENT_RENDER(before,case,fixed_case,'normal');restored['runtime-source.json']=normal['runtime-source.json'];need(restored==normal,'whole normal runtime inverse with fixed failure DATA only')
  return out,ledger
+
+# ORIGINAL_SIGNATURE_SUBSTRATE_BRIDGE
+_ORIGINAL_SIGNATURE_PARENT_INVERSE=inverse
+def _source():
+ import original_signature_source as T
+ return T.original_source()
+def inverse(after,ledger):
+ import original_signature_source as T
+ return T.inverse(after,ledger,_ORIGINAL_SIGNATURE_PARENT_INVERSE)

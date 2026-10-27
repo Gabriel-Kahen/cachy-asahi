@@ -1660,8 +1660,8 @@
       "sha256": "fd67e50c97c798a2de61d391fe91bbf2a485d454066d5e8340a465c083ebc5b8"
     },
     "immutable/disk_adapter.py": {
-      "bytes": 2288,
-      "sha256": "128839afdd8f49b56e00813414ea4c610a996df970bc6d9ff3431a75fe687b76"
+      "bytes": 9437,
+      "sha256": "d69db3bd82d4ee25652233698eb97178fec479fc51c747757766620427cb5b33"
     },
     "immutable/dispose.py": {
       "bytes": 2648,
@@ -1704,8 +1704,8 @@
       "sha256": "11341bbbdc928d226660d53af8c8e333464c5dc8d59a02a0fa5c5887ea025564"
     },
     "immutable/owner.py": {
-      "bytes": 19253,
-      "sha256": "239f05f7e5181fddfae1261bd19cac1cfb73735030acb448d5592061e0ac5247"
+      "bytes": 26339,
+      "sha256": "9252d6e1f330fa5591443029cd40fcd6711208a0609611c2941cafa40d399f9b"
     },
     "immutable/policy.json": {
       "bytes": 387,
@@ -1740,8 +1740,8 @@
       "sha256": "007a41aefa84df0ee43205512d98e49fbc6bbf680565b838445043a4f298c9fe"
     },
     "immutable/stage.py": {
-      "bytes": 7216,
-      "sha256": "eb270b6f5df37f4962ce26082a805ea39b0ccef85c88906cf0a7bcc097a37c92"
+      "bytes": 38353,
+      "sha256": "eb0dcfff0cebdc9101840654c48cbcdb96af3f641ec9b7530c235ef46064354d"
     },
     "immutable/supervisor.py": {
       "bytes": 1884,
@@ -1752,12 +1752,12 @@
       "sha256": "7e2cda89fd12e03fbb37bffafa4e946b5e2d4689a7bfb6bd185595d83038c3f8"
     },
     "immutable/worker.py": {
-      "bytes": 4628,
-      "sha256": "f58aab507e0255991af73af85129007ccb7e910d4851d87b55b34f11315db162"
+      "bytes": 4890,
+      "sha256": "d7701a67124974c7b7a65dbd479e02a218d9f356892653c2fefec76ad45b8b17"
     },
     "immutable/worker_api.py": {
-      "bytes": 20231,
-      "sha256": "828938d544a8c1178498f0bffae380690a6f8ee241d9cfeea7b4e2890ff7c5dd"
+      "bytes": 56897,
+      "sha256": "fdd4333d65c46d77e2db766d8713722477b61b21ba22dbe9d6c46f7a98c64647"
     },
     "runtime-vm/.github/workflows/native-arm-build.yml": {
       "bytes": 10533,

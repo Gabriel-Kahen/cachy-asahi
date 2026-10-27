@@ -1660,8 +1660,8 @@
       "sha256": "fd67e50c97c798a2de61d391fe91bbf2a485d454066d5e8340a465c083ebc5b8"
     },
     "runtime/immutable/disk_adapter.py": {
-      "bytes": 2288,
-      "sha256": "128839afdd8f49b56e00813414ea4c610a996df970bc6d9ff3431a75fe687b76"
+      "bytes": 9437,
+      "sha256": "d69db3bd82d4ee25652233698eb97178fec479fc51c747757766620427cb5b33"
     },
     "runtime/immutable/dispose.py": {
       "bytes": 2648,
@@ -1704,8 +1704,8 @@
       "sha256": "11341bbbdc928d226660d53af8c8e333464c5dc8d59a02a0fa5c5887ea025564"
     },
     "runtime/immutable/owner.py": {
-      "bytes": 19253,
-      "sha256": "239f05f7e5181fddfae1261bd19cac1cfb73735030acb448d5592061e0ac5247"
+      "bytes": 26339,
+      "sha256": "9252d6e1f330fa5591443029cd40fcd6711208a0609611c2941cafa40d399f9b"
     },
     "runtime/immutable/policy.json": {
       "bytes": 387,
@@ -1740,8 +1740,8 @@
       "sha256": "007a41aefa84df0ee43205512d98e49fbc6bbf680565b838445043a4f298c9fe"
     },
     "runtime/immutable/stage.py": {
-      "bytes": 7216,
-      "sha256": "eb270b6f5df37f4962ce26082a805ea39b0ccef85c88906cf0a7bcc097a37c92"
+      "bytes": 38353,
+      "sha256": "eb0dcfff0cebdc9101840654c48cbcdb96af3f641ec9b7530c235ef46064354d"
     },
     "runtime/immutable/supervisor.py": {
       "bytes": 1884,
@@ -1752,16 +1752,16 @@
       "sha256": "7e2cda89fd12e03fbb37bffafa4e946b5e2d4689a7bfb6bd185595d83038c3f8"
     },
     "runtime/immutable/worker.py": {
-      "bytes": 4628,
-      "sha256": "f58aab507e0255991af73af85129007ccb7e910d4851d87b55b34f11315db162"
+      "bytes": 4890,
+      "sha256": "d7701a67124974c7b7a65dbd479e02a218d9f356892653c2fefec76ad45b8b17"
     },
     "runtime/immutable/worker_api.py": {
-      "bytes": 20231,
-      "sha256": "828938d544a8c1178498f0bffae380690a6f8ee241d9cfeea7b4e2890ff7c5dd"
+      "bytes": 56897,
+      "sha256": "fdd4333d65c46d77e2db766d8713722477b61b21ba22dbe9d6c46f7a98c64647"
     },
     "runtime/runtime-source.json": {
-      "bytes": 147892,
-      "sha256": "d9a2eecd478b96a821e61fbc9f18737b1cc051dee7c3930e86ebc5a9681df742"
+      "bytes": 147893,
+      "sha256": "93a8e6c43c51630ec7fda6377bd3158cb9788bfd0fcc81df353603573440595d"
     },
     "runtime/runtime-vm/.github/workflows/native-arm-build.yml": {
       "bytes": 10533,
@@ -2732,8 +2732,8 @@
       "sha256": "575064669a7fd6d4fca29a86cd9cf3956d7bcaa54fae3dd29255469aae2e6b95"
     },
     "scripts/ci/gnu-immutable-source-native/deploy.py": {
-      "bytes": 29299,
-      "sha256": "914d0db76cda3b3dd87269baca9cdf36c617ca2618cc33e226938e6e82687c20"
+      "bytes": 29588,
+      "sha256": "abd4c76551d632ebbd04517157d75c0d862ef28180489e56a0f46b1a89bd8211"
     },
     "scripts/ci/gnu-immutable-source-native/descriptor_failure_export.py": {
       "bytes": 8358,
@@ -2744,8 +2744,8 @@
       "sha256": "0480a2855beec1bd6ea37aff281b7b34e20b6367190fd488a1338b8a18a846f1"
     },
     "scripts/ci/gnu-immutable-source-native/extraction_case.py": {
-      "bytes": 6984,
-      "sha256": "702ff688f0552a80745c1d302a55ec69c29345c72e34de88026f31728c8f1636"
+      "bytes": 7669,
+      "sha256": "e407d1d766f3ab354ccd5d7b669bec6a539c72b4875887af70c4d456dc5202c1"
     },
     "scripts/ci/gnu-immutable-source-native/extraction_source.py": {
       "bytes": 4342,
@@ -2772,8 +2772,8 @@
       "sha256": "f62600d5c11696768fa43d9288873e2d0eaee889e823730a53743d56eee005a7"
     },
     "scripts/ci/gnu-immutable-source-native/interruption_case.py": {
-      "bytes": 17032,
-      "sha256": "fb67e18e776b94cb28c0b8f8fd673db85eb1f05b6900f2de36e23cc0506160e4"
+      "bytes": 17329,
+      "sha256": "02d9ec60d3bb90e61fd35f7ddd194dcde04b54acf4404907c22f108b700b5f01"
     },
     "scripts/ci/gnu-immutable-source-native/interruption_source.py": {
       "bytes": 7516,
@@ -3046,6 +3046,22 @@
     "scripts/ci/gnu-immutable-source-native/normal-record/source/source-authorization.json": {
       "bytes": 163566,
       "sha256": "8b9d58f4baab4d3ab9a26f0cdcac64bddcc97e090547bdaafac9ec3e870e9af5"
+    },
+    "scripts/ci/gnu-immutable-source-native/original-signature-profile.json": {
+      "bytes": 1758322,
+      "sha256": "4802e407b2701fe4a6aa4059d4f2da864cb1dcb0f65fe271f66bcf347fa62d02"
+    },
+    "scripts/ci/gnu-immutable-source-native/original_signature_clock.py": {
+      "bytes": 6095,
+      "sha256": "83ca8d7d132ea7e84fc9dd427628cefa74ddde51727f7564a1923cc6380bc75a"
+    },
+    "scripts/ci/gnu-immutable-source-native/original_signature_restore.py": {
+      "bytes": 26986,
+      "sha256": "afd21a0e89d73df5efc0a2218991097351d9f6e195653b09f96de9ea3bca03f3"
+    },
+    "scripts/ci/gnu-immutable-source-native/original_signature_source.py": {
+      "bytes": 17219,
+      "sha256": "acc17c206c4df5bfc6cff4e2e14bdbef6c5603cac8c4b567c27cdb83ab970ec7"
     },
     "scripts/ci/gnu-immutable-source-native/pipeline.py": {
       "bytes": 4855,

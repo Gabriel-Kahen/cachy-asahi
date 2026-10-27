@@ -309,3 +309,8 @@ def source(root=ROOT):
 _FAILURE_DESC_EXPORT_PROFILE_PIN={'bytes': 810517, 'sha256': '8371f6b77cbf76d0ebbe9d32d2b36d16fd99a88ac14e10ff0f24c3a4a63aa427'}
 def source(root=ROOT):
  return load('_failure_desc_source',Path(root)/LANE/'failure_desc_source.py').check(root)
+
+# ORIGINAL_SIGNATURE_SOURCE_GUARD
+_ORIGINAL_SIGNATURE_PROFILE_PIN={'bytes': 1758322, 'sha256': '4802e407b2701fe4a6aa4059d4f2da864cb1dcb0f65fe271f66bcf347fa62d02'}
+def source(root=ROOT):
+ return load('_original_signature_source',Path(root)/LANE/'original_signature_source.py').check(root)

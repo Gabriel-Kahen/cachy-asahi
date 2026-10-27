@@ -34,3 +34,9 @@ def run(fd,nonce,bootstrap):
   P.need(re.fullmatch(r'(result\.json|isolation\.json|command-[0-9]{3}\.(stdout|stderr)|(pristine|modified)-[a-z0-9-]+(-root\.json\.gz|\.log))',path.name),'whole original closed evidence filename');raw=G.read(path,64*1024**2);files[path.name]=P.pin(raw);total+=len(raw)
  P.need(len(files)<=256 and total<=512*1024**2 and sum(n.endswith('-root.json.gz')for n in files)==16,'all16 fullmaps and original export limits')
  print(P.encode(dict(descriptor_query=dict(worker_api.DESCRIPTOR_QUERY_PROFILE),validation_profile=dict(worker_api.WORKER_VALIDATION_PROFILE),files=files,bytes=total,purpose='GNU_IMMUTABLE_RUNTIME_V1',status='SOURCE_ENFORCED_FULL_LIFECYCLE_AWAITING_PID1_RETIREMENT',nonce=nonce,source_nodes_sha256=index['source_nodes_sha256'],capabilities=caps,worker_mask=P.WORKER_MASK,boot='ACTUAL16K_OBSERVED_NOT_ROOT_ACCEPTED',hardware='NOT_RUN',release='NOT_ADMITTED')).decode(),end='',flush=True)
+
+# ORIGINAL_SIGNATURE_WORKER_CONTEXT
+_ORIGINAL_SIGNATURE_PARENT_RUN=run
+def run(fd,nonce,bootstrap):
+ worker_api.install_original_signature_context(os.environ.pop('CAA_ORIGINAL_TRUST_CLOCK',None),nonce)
+ return _ORIGINAL_SIGNATURE_PARENT_RUN(fd,nonce,bootstrap)
