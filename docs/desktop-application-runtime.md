@@ -6,16 +6,23 @@ file SHA256, staged environment JSON, and runtime context JSON. The staged tree
 and actual execution tree must be trusted and quiescent throughout the call.
 This workflow is for reviewed applications; it does not sandbox arbitrary code.
 
-The command uses the existing desktop parser's no-file-input behavior: `%f`, `%F`,
-`%u`, `%U` disappear, `%c` expands the localized name, `%k` is the actual selected
-desktop pathname, `%i` emits two arguments when an icon exists, and `%%` is a
-literal percent. Unknown fields, undefined quoted fields and unsafe Exec syntax
-are refused by the existing parser. No file/URL input API is supplied yet. Arguments
-are passed directly to Popen, with no shell expansion. Direct `env` and shell
-launchers are unsupported; audited application scripts with bound absolute
-interpreters are supported. DBusActivatable entries require `--exec-fallback`;
-this chooses Exec rather than activating D-Bus. TryExec must resolve and match
-actual executable bytes. Hidden and desktop-excluded entries cannot launch.
+The original desktop parser validates Exec syntax before runtime input expansion.
+`%f`/`%u` accept zero or one input in one invocation; `%F`/`%U` expand an ordered
+list into separate arguments. An empty selection removes these fields.
+`%c`, `%k`, `%i` and `%%` retain their existing behavior. Repeated/mixed input
+fields, unknown fields, undefined quoted fields and embedded list fields are
+refused. Input text is inserted only after command parsing and is never parsed
+again as quoting, fields or shell code. These rules follow the
+[freedesktop Exec specification](https://specifications.freedesktop.org/desktop-entry/latest/exec-variables.html).
+This CLI deliberately refuses multi-item selections for scalar fields instead
+of launching multiple instances. It does not download remote inputs for file
+fields; use local files with `%f`/`%F` and URI-capable applications for remote URIs.
+
+Direct `env` and shell launchers are unsupported; audited application scripts
+with bound absolute interpreters are supported. DBusActivatable entries require
+`--exec-fallback`; this chooses Exec rather than activating D-Bus. TryExec must
+resolve and match actual executable bytes. Hidden and desktop-excluded entries
+cannot launch.
 
 Runtime executable, interpreter, TryExec and desktop bytes must match the staged
 pins. Symlinked executable invocation names are preserved. In fixture mode the
@@ -51,6 +58,58 @@ paths must not exist. Child environment variables come from a closed list; live
 user display, bus, audio, preload, credential and shell variables are not inherited.
 Session/system D-Bus and audio addresses point to absent private endpoints. No
 connection to the user's desktop or bus is made by the workflow.
+
+Explicit file/URI selections are optional. Repeat `--file /absolute/path` and
+`--uri URI` in the desired argument order; they can be interleaved for `%U`.
+Selections without a matching field are refused, preventing silent input loss.
+A maximum of 64 inputs is accepted. `%f`/`%F` accept local files and approved local
+file URIs. `%u`/`%U` convert `--file` inputs to canonical file URIs and pass accepted
+`--uri` values exactly. A literal percent, whitespace, Unicode or shell punctuation
+inside an input remains data in one argv element.
+
+```sh
+# The selected entry contains Exec=example %F
+python3 -B scripts/workflows/desktop_application_runtime.py \
+  --root /private/application-snapshot --environment /private/audit-environment.json \
+  --context /private/runtime-context.json --select example.desktop \
+  --entry-sha256 HASH_FROM_SELECTED_DESKTOP_FILE --ready-marker READY \
+  --file '/private/input one.txt' --file '/private/second "quoted" file.txt'
+
+# The selected entry contains Exec=example %U; the application may access its URI.
+# Tests use harmless argv-only fixture programs and example.invalid addresses.
+python3 -B scripts/workflows/desktop_application_runtime.py \
+  --root /private/application-snapshot --environment /private/audit-environment.json \
+  --context /private/runtime-context.json --select example.desktop \
+  --entry-sha256 HASH_FROM_SELECTED_DESKTOP_FILE --ready-marker READY \
+  --file '/private/input one.txt' --allow-uri-scheme https \
+  --uri 'https://example.invalid/document?q=one%20two&literal=%25f'
+```
+
+Every `--uri` scheme requires explicit `--allow-uri-scheme file`, `http` or `https`.
+No other schemes are supported. `--file` itself grants local-file selection,
+including conversion for URI fields, without requiring the URI flag. URI policy
+rejects raw controls/spaces/backslashes, malformed percent escapes, credentials,
+invalid ports, malformed authorities and encoded authorities. HTTP(S) scheme
+matching is case-insensitive while the supplied URI spelling is preserved. HTTP(S) must have a hostname. File URIs
+must be canonical local `file:///...` values without authority, query or fragment;
+`localhost`, network shares and ambiguous spellings are refused. The launcher
+never fetches URIs, resolves DNS or opens a browser; an actual selected application
+may act on an explicitly supplied remote URI. HTTP(S) input receipts say
+`URI_PASSED_WITHOUT_FETCH` and carry no invented remote content hash.
+
+Local files must have normalized absolute UTF-8 paths with no symlink component.
+Only regular files are read. Each is capped at 16 MiB and each verification pass reads at most 64 MiB.
+A successful selection must leave one byte of budget for an EOF check, so its
+combined file size must be below 64 MiB; zero-length pseudo-files with hidden
+content are refused. Reads that later fail identity checks still consume budget.
+Descriptor and pathname identity are checked during hashing; byte hashes and
+metadata are checked again immediately before launch and recorded after it.
+These checks assume trusted quiescent paths and do not prove which bytes an
+arbitrary application consumed. File contents are never copied into reports.
+Local identity/byte changes or disappearance retain the process result and input
+receipts; an otherwise successful workflow becomes `INPUT_CHANGED`, with its
+original result in `application_status`. An editor's intentional save therefore
+needs separate acceptance rather than becoming an unchanged-input PASS.
 
 `Terminal=true` requires explicit `terminal_argv` in the audit environment, ending
 in a reviewed `--` or `-e` separator. It is a launcher-specific contract; choose
@@ -98,7 +157,7 @@ outside this workflow's supported lifecycle.
 Reports preserve underlying exit, signals, output completeness, ownership,
 group census, diagnostics, audit pins and retirement status. Failure states
 include `START_FAILED`, `READINESS_NOT_OBSERVED`, `RUN_TIMEOUT`, `OUTPUT_LIMIT`,
-`CANCELLED`, `RETIREMENT_UNKNOWN`, `SUPERVISOR_FAILED`, `REFUSED`, and `NOT_RUN`.
+`CANCELLED`, `RETIREMENT_UNKNOWN`, `SUPERVISOR_FAILED`, `INPUT_CHANGED`, `REFUSED`, and `NOT_RUN`.
 An output-overflow cause can coexist with unknown retirement; consult both
 fields. CLI exit codes are 0 for workflow success, 1 for executed failure and 2
 for refusal/unrun. Output is application diagnostics and can contain sensitive

@@ -1,0 +1,104 @@
+{
+  "jobs": {
+    "host-metadata": {
+      "env": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "runs-on": "ubuntu-24.04",
+      "steps": [
+        {
+          "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "with": {
+            "persist-credentials": false,
+            "sparse-checkout": ".github/workflows/platform-transition.yml\ndocs/port/platform-transition.md\nscripts/checks/package_checks.py\nscripts/ci/native_arm.py\nscripts/ci/platform_transition_prerequisites.py\nscripts/ci/test_platform_transition_prerequisites.py\nscripts/integration/lifecycle.py\nscripts/platform/archive_coverage.py\nscripts/platform/authenticate_missing.py\nscripts/platform/capture.py\nscripts/platform/platform_transition.py\nscripts/platform/recovery_inputs.py\nscripts/platform/recovery_preflight.py\nscripts/platform/test_platform_transition.py\nscripts/platform/transaction.py\nscripts/platform/tuple_audit.py\nscripts/port/authenticate.py\nscripts/port/preview.py\nscripts/release/compare_releases.py\nscripts/release/release.py",
+            "sparse-checkout-cone-mode": false
+          }
+        },
+        {
+          "uses": "actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+          "with": {
+            "python-version": "${{ matrix.python }}"
+          }
+        },
+        {
+          "name": "Provision exact official Noble version tools on disposable runner",
+          "run": "set -euo pipefail\n. /etc/os-release\ntest \"$ID:$VERSION_ID:$(dpkg --print-architecture)\" = ubuntu:24.04:amd64\nsudo apt-get update\napt-cache policy libalpm13t64 makepkg\nsudo apt-get install --yes --no-install-recommends libalpm13t64=13.0.2-6ubuntu2 makepkg=6.0.2-6ubuntu2\ndpkg-query -W -f='${binary:Package}\t${Version}\t${Status}\n' libalpm13t64 makepkg\ndpkg-query -S \"$(command -v vercmp)\"\n",
+          "shell": "bash"
+        },
+        {
+          "name": "Require real version semantics and run all host fixture controls",
+          "run": "set -euo pipefail\ntest \"$(id -u)\" -ne 0\nstage=$(mktemp -d \"$RUNNER_TEMP/platform-transition.XXXXXXXX\")\ntrap 'rm -rf -- \"$stage\"' EXIT\nchmod 700 \"$stage\"\nexport TMPDIR=\"$stage\"\npython3 -I -B -Werror::ResourceWarning scripts/ci/platform_transition_prerequisites.py --expected-alpm-version 13.0.2\npython3 -I -B -Werror::ResourceWarning scripts/ci/test_platform_transition_prerequisites.py -v\npython3 -I -B -Werror::ResourceWarning scripts/platform/test_platform_transition.py -v\n",
+          "shell": "bash"
+        }
+      ],
+      "strategy": {
+        "fail-fast": false,
+        "matrix": {
+          "python": [
+            "3.12",
+            "3.14"
+          ]
+        }
+      },
+      "timeout-minutes": 10
+    }
+  },
+  "name": "Offline platform transition host controls",
+  "on": {
+    "pull_request": {
+      "paths": [
+        ".github/workflows/platform-transition.yml",
+        "docs/port/platform-transition.md",
+        "scripts/checks/package_checks.py",
+        "scripts/ci/native_arm.py",
+        "scripts/ci/platform_transition_prerequisites.py",
+        "scripts/ci/test_platform_transition_prerequisites.py",
+        "scripts/integration/lifecycle.py",
+        "scripts/platform/archive_coverage.py",
+        "scripts/platform/authenticate_missing.py",
+        "scripts/platform/capture.py",
+        "scripts/platform/platform_transition.py",
+        "scripts/platform/recovery_inputs.py",
+        "scripts/platform/recovery_preflight.py",
+        "scripts/platform/test_platform_transition.py",
+        "scripts/platform/transaction.py",
+        "scripts/platform/tuple_audit.py",
+        "scripts/port/authenticate.py",
+        "scripts/port/preview.py",
+        "scripts/release/compare_releases.py",
+        "scripts/release/release.py"
+      ]
+    },
+    "push": {
+      "branches": [
+        "main"
+      ],
+      "paths": [
+        ".github/workflows/platform-transition.yml",
+        "docs/port/platform-transition.md",
+        "scripts/checks/package_checks.py",
+        "scripts/ci/native_arm.py",
+        "scripts/ci/platform_transition_prerequisites.py",
+        "scripts/ci/test_platform_transition_prerequisites.py",
+        "scripts/integration/lifecycle.py",
+        "scripts/platform/archive_coverage.py",
+        "scripts/platform/authenticate_missing.py",
+        "scripts/platform/capture.py",
+        "scripts/platform/platform_transition.py",
+        "scripts/platform/recovery_inputs.py",
+        "scripts/platform/recovery_preflight.py",
+        "scripts/platform/test_platform_transition.py",
+        "scripts/platform/transaction.py",
+        "scripts/platform/tuple_audit.py",
+        "scripts/port/authenticate.py",
+        "scripts/port/preview.py",
+        "scripts/release/compare_releases.py",
+        "scripts/release/release.py"
+      ]
+    },
+    "workflow_dispatch": {}
+  },
+  "permissions": {
+    "contents": "read"
+  }
+}

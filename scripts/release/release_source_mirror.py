@@ -328,11 +328,9 @@ def build(root, release_sha256, deps, inputs=None, inputs_sha256=None, retained_
     return bundle, result, verifier
 
 
-def verify(raw, checksum, release_sha256):
-    """Authenticate the entire tar before reading its inert object graph."""
+def canonical_files(raw, checksum):
+    """Authenticate canonical portable TAR bytes without executing its files."""
     need(0 < len(raw) <= MAX_MIRROR and digest(raw) == sha(checksum), 'mirror checksum/bound mismatch')
-    bundle_raw = raw
-    sha(release_sha256)
     need(len(raw) % 512 == 0, 'mirror tar alignment')
     files = {}; offset = 0
     while offset + 512 <= len(raw) and any(raw[offset:offset + 512]):
@@ -348,6 +346,15 @@ def verify(raw, checksum, release_sha256):
         offset = start + ((node.size + 511) // 512) * 512
         need(not any(raw[end:offset]), 'nonzero tar padding')
     need(offset + 1024 <= len(raw) and not any(raw[offset:]), 'mirror tar end/trailing bytes')
+    need(tar_bytes(files) == raw, 'noncanonical mirror tar')
+    return files
+
+
+def verify(raw, checksum, release_sha256):
+    """Authenticate the entire tar before reading its inert object graph."""
+    mirror_checksum = checksum
+    sha(release_sha256)
+    files = canonical_files(raw, checksum)
     need('mirror.json' in files and 'verify.py' in files, 'mirror metadata/verifier missing')
     mirror = decode(files['mirror.json'])
     need(mirror.get('schema_version') == 1 and type(mirror['schema_version']) is int and
@@ -468,10 +475,144 @@ def verify(raw, checksum, release_sha256):
         for checksum, ref in row['remote_notices'].items():
             need(digest(get(ref)) == checksum, 'remote notice checksum mismatch')
     need(used == set(objects), 'unreferenced mirror objects')
-    need(tar_bytes(files) == bundle_raw, 'noncanonical mirror tar')
     return dict(status='VERIFIED_OFFLINE_SOURCE_MIRROR', release_sha256=release_sha256,
-        mirror_sha256=checksum, packages=len(expected), unique_objects=len(objects),
+        mirror_sha256=mirror_checksum, packages=len(expected), unique_objects=len(objects),
         legal_acceptance=False, native_build_validation='NOT_PERFORMED', hardware_validation='NOT_RUN', release_acceptance='NOT_ADMITTED')
+
+
+def history_stats(manifests):
+    prior = set().union(*(set(row['objects']) for row in manifests[:-1]))
+    old_head, head = set(manifests[-2]['objects']), set(manifests[-1]['objects'])
+    return dict(new_objects=len(head - prior), reused_objects=len(head & prior),
+        retired_objects=len(old_head - head), retained_recovery_objects=len(prior - head), pruned_objects=0)
+
+
+def history_parts(files, history):
+    """Validate the union and reconstruct bounded, complete per-release mirrors."""
+    need(set(history) == {'schema_version', 'purpose', 'head_release_sha256', 'previous_mirror_sha256',
+         'releases', 'objects', 'stats', 'verifier_sha256', 'legal_acceptance',
+         'corresponding_source_completeness', 'native_build_validation', 'hardware_validation', 'release_acceptance'},
+         'history fields mismatch')
+    need(type(history['schema_version']) is int and history['schema_version'] == 1 and
+         history['purpose'] == 'release-source-mirror-history', 'history schema mismatch')
+    need(history['legal_acceptance'] is False and history['corresponding_source_completeness'] == 'NOT_ASSERTED' and
+         history['native_build_validation'] == 'NOT_PERFORMED' and history['hardware_validation'] == 'NOT_RUN' and
+         history['release_acceptance'] == 'NOT_ADMITTED', 'history evidence boundary changed')
+    sha(history['previous_mirror_sha256']); sha(history['head_release_sha256'])
+    need(digest(files['verify.py']) == history['verifier_sha256'], 'history verifier checksum mismatch')
+    objects = history['objects']
+    need(type(objects) is dict and 0 < len(objects) <= MAX_FILES and
+         set(files) == {'history.json', 'verify.py'} | {'objects/' + sha(key) for key in objects}, 'history object set mismatch')
+    need(all(type(size) is int and 0 <= size <= MAX_OBJECT and len(files['objects/' + key]) == size and
+         digest(files['objects/' + key]) == key for key, size in objects.items()) and
+         sum(objects.values()) <= MAX_TOTAL, 'history object size/checksum/total mismatch')
+    used = set()
+    def get(ref):
+        need(type(ref) is dict and set(ref) == {'sha256', 'bytes'}, 'history descriptor fields')
+        key = sha(ref['sha256'])
+        need(type(ref['bytes']) is int and objects.get(key) == ref['bytes'], 'history descriptor mismatch')
+        used.add(key)
+        return files['objects/' + key]
+    rows = history['releases']
+    need(type(rows) is list and 2 <= len(rows) <= 256 and all(type(row) is dict for row in rows) and
+         len({row['release_sha256'] for row in rows}) == len(rows) == len({row['release_id'] for row in rows}) and
+         history['head_release_sha256'] == rows[-1]['release_sha256'], 'retained release set mismatch')
+    manifests, bundles = [], []
+    references = expanded = 0
+    for row in rows:
+        need(type(row) is dict and set(row) == {'release_sha256', 'release_id', 'mirror_sha256', 'manifest', 'verifier'},
+             'retained release fields mismatch')
+        sha(row['release_sha256']); sha(row['mirror_sha256'])
+        manifest_raw, verifier = get(row['manifest']), get(row['verifier'])
+        manifest = decode(manifest_raw)
+        need(type(manifest.get('objects')) is dict, 'retained release objects required')
+        need(manifest['release_sha256'] == row['release_sha256'] and manifest['release_id'] == row['release_id'] and
+             manifest['verifier_sha256'] == digest(verifier), 'retained release descriptor mismatch')
+        references += len(manifest['objects']); expanded += sum(manifest['objects'].values())
+        need(references <= MAX_FILES and expanded <= MAX_TOTAL, 'retained release aggregate reference/byte bound')
+        payload = {'mirror.json': manifest_raw, 'verify.py': verifier}
+        for key, size in manifest['objects'].items():
+            payload['objects/' + sha(key)] = get(dict(sha256=key, bytes=size))
+        bundle = tar_bytes(payload)
+        need(len(bundle) <= MAX_MIRROR, 'retained mirror tar byte bound')
+        bundles.append(bundle); manifests.append(manifest)
+    need(used == set(objects), 'unreferenced history objects')
+    need(type(history['stats']) is dict and all(type(value) is int for value in history['stats'].values()) and
+         history['stats'] == history_stats(manifests), 'history object counts mismatch')
+    return manifests, bundles
+
+
+def verify_any(raw, checksum, release_sha256):
+    """Verify every recovery release; the requested pin must be retained."""
+    files = canonical_files(raw, checksum)
+    if 'mirror.json' in files:
+        return verify(raw, checksum, release_sha256)
+    need('history.json' in files and 'verify.py' in files, 'history metadata/verifier missing')
+    history = decode(files['history.json'])
+    manifests, bundles = history_parts(files, history)
+    for row, bundle in zip(history['releases'], bundles):
+        verify(bundle, row['mirror_sha256'], row['release_sha256'])
+    releases = [row['release_sha256'] for row in history['releases']]
+    need(sha(release_sha256) in releases, 'requested release is not retained')
+    return dict(status='VERIFIED_OFFLINE_SOURCE_MIRROR_HISTORY', mirror_sha256=checksum,
+        release_sha256=release_sha256, head_release_sha256=history['head_release_sha256'],
+        retained_releases=releases, unique_objects=len(history['objects']), stats=history['stats'],
+        legal_acceptance=False, native_build_validation='NOT_PERFORMED', hardware_validation='NOT_RUN', release_acceptance='NOT_ADMITTED')
+
+
+def update(previous_raw, previous_sha256, previous_head_release_sha256, root, release_sha256, deps,
+           inputs=None, inputs_sha256=None, retained_root=None, directory=HERE):
+    """Reuse only verified predecessor objects; append without pruning recovery."""
+    proof = verify_any(previous_raw, previous_sha256, previous_head_release_sha256)
+    files = canonical_files(previous_raw, previous_sha256)
+    if 'mirror.json' in files:
+        previous = decode(files['mirror.json'])
+        rows = [dict(release_sha256=previous['release_sha256'], release_id=previous['release_id'],
+            mirror_sha256=previous_sha256, manifest=None, verifier=None)]
+        retained = [(files['mirror.json'], files['verify.py'])]
+        manifests = [previous]
+    else:
+        need(proof['head_release_sha256'] == previous_head_release_sha256, 'previous head release pin mismatch')
+        previous = decode(files['history.json']); rows = list(previous['releases'])
+        manifests, _ = history_parts(files, previous)
+        retained = [(files['objects/' + row['manifest']['sha256']], files['objects/' + row['verifier']['sha256']]) for row in rows]
+    need(release_sha256 not in {row['release_sha256'] for row in rows}, 'next release is already retained')
+    # Validate complete pinned next inputs independently; predecessor data is
+    # reused for portable object storage, never to excuse a missing next input.
+    next_raw, next_manifest, verifier = build(root, release_sha256, deps, inputs, inputs_sha256, retained_root, directory)
+    need(next_manifest['release_id'] not in {row['release_id'] for row in rows}, 'conflicting retained release ID')
+    need(len(rows) < 256, 'retained release count bound')
+    next_files = canonical_files(next_raw, digest(next_raw))
+    objects = {key[8:]: value for key, value in files.items() if key.startswith('objects/')}
+    def add(raw):
+        key = digest(raw)
+        need(len(raw) <= MAX_OBJECT, 'history object byte bound')
+        if key in objects:
+            need(objects[key] == raw, 'reused object bytes differ')
+        else:
+            objects[key] = raw
+        need(len(objects) <= MAX_FILES and sum(map(len, objects.values())) <= MAX_TOTAL, 'history aggregate object bound')
+        return dict(sha256=key, bytes=len(raw))
+    # Old rows are rebuilt from their verified raw metadata. Their original
+    # individual mirror digests remain replayable without executing verifiers.
+    rows = [dict(row, manifest=add(manifest), verifier=add(tool))
+            for row, (manifest, tool) in zip(rows, retained)]
+    for key, body in next_files.items():
+        if key.startswith('objects/'):
+            add(body)
+    rows.append(dict(release_sha256=release_sha256, release_id=next_manifest['release_id'],
+        mirror_sha256=digest(next_raw), manifest=add(next_files['mirror.json']), verifier=add(verifier)))
+    manifests.append(next_manifest)
+    history = dict(schema_version=1, purpose='release-source-mirror-history',
+        head_release_sha256=release_sha256, previous_mirror_sha256=previous_sha256,
+        releases=rows, objects={key: len(body) for key, body in sorted(objects.items())},
+        stats=history_stats(manifests), verifier_sha256=digest(verifier), legal_acceptance=False,
+        corresponding_source_completeness='NOT_ASSERTED', native_build_validation='NOT_PERFORMED',
+        hardware_validation='NOT_RUN', release_acceptance='NOT_ADMITTED')
+    raw = tar_bytes({'history.json': encoded(history), 'verify.py': verifier,
+                     **{'objects/' + key: body for key, body in objects.items()}})
+    verify_any(raw, digest(raw), release_sha256)
+    return raw, history, verifier
 
 
 def main(argv=None):
@@ -484,6 +625,16 @@ def main(argv=None):
     export.add_argument('--retained-inputs', type=Path)
     export.add_argument('--inputs-sha256')
     export.add_argument('--retained-root', type=Path)
+    successor = commands.add_parser('update')
+    successor.add_argument('--previous-bundle', type=Path, required=True)
+    successor.add_argument('--previous-sha256', required=True)
+    successor.add_argument('--previous-release-sha256', required=True, help='Authenticated previous head release digest')
+    successor.add_argument('--release-dir', type=Path, required=True)
+    successor.add_argument('--release-sha256', required=True)
+    successor.add_argument('--output', type=Path, required=True, help='Fresh directory')
+    successor.add_argument('--retained-inputs', type=Path)
+    successor.add_argument('--inputs-sha256')
+    successor.add_argument('--retained-root', type=Path)
     check = commands.add_parser('verify')
     check.add_argument('--bundle', type=Path, required=True)
     check.add_argument('--sha256', required=True)
@@ -491,16 +642,25 @@ def main(argv=None):
     args = parser.parse_args(argv)
     try:
         if args.command == 'verify':
-            result = verify(read_file(args.bundle), args.sha256, args.release_sha256)
+            result = verify_any(read_file(args.bundle), args.sha256, args.release_sha256)
         else:
             deps = dependencies()
             need(args.output.absolute().anchor == '/' and '..' not in args.output.parts, 'output path alias refused')
-            bundle, manifest, verifier = build(args.release_dir, args.release_sha256, deps,
-                args.retained_inputs, args.inputs_sha256, args.retained_root)
-            result = dict(status='EXPORTED_SOURCE_MIRROR', release_sha256=args.release_sha256,
-                mirror_sha256=digest(bundle), packages=len(manifest['packages']), unique_objects=len(manifest['objects']),
+            if args.command == 'update':
+                bundle, manifest, verifier = update(read_file(args.previous_bundle), args.previous_sha256,
+                    args.previous_release_sha256, args.release_dir, args.release_sha256, deps,
+                    args.retained_inputs, args.inputs_sha256, args.retained_root)
+            else:
+                bundle, manifest, verifier = build(args.release_dir, args.release_sha256, deps,
+                    args.retained_inputs, args.inputs_sha256, args.retained_root)
+            head = manifest if args.command == 'export' else decode(canonical_files(bundle, digest(bundle))[
+                'objects/' + manifest['releases'][-1]['manifest']['sha256']])
+            result = dict(status='UPDATED_SOURCE_MIRROR' if args.command == 'update' else 'EXPORTED_SOURCE_MIRROR', release_sha256=args.release_sha256,
+                mirror_sha256=digest(bundle), packages=len(head['packages']), unique_objects=len(manifest['objects']),
                 verifier_sha256=digest(verifier),
                 bytes=len(bundle), legal_acceptance=False, hardware_validation='NOT_RUN', release_acceptance='NOT_ADMITTED')
+            if args.command == 'update':
+                result.update(retained_releases=[row['release_sha256'] for row in manifest['releases']], stats=manifest['stats'])
             deps[1][1].write_fresh(args.output, {'mirror.tar': bundle, 'verify.py': verifier,
                                                'mirror-receipt.json': encoded(result)})
         print(json.dumps(result, sort_keys=True))
