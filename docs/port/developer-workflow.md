@@ -114,8 +114,8 @@ only on the proposed checkout paths, with no artifact-directory lookup.
 ## Process custody and retained evidence
 
 The runner ships with the reviewed candidate `scripts/virtual/owned_process.py`
-(SHA256 `80547f753dc7d13819d727783c669d10a56b7bf832dc05084b5c4b5302cb79d9`).
-Its exact bytes are verified before execution. It uses main-thread, exclusive
+(SHA256 `83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f`).
+Its exact bytes are verified before execution. This caller uses the held default API; RSS remains opt-in. Earlier execution records retain their recorded supervisor source and were not rerun for this pin adoption. It uses main-thread, exclusive
 wait ownership with default SIGCHLD; callers must not concurrently reap these
 children or change that disposition. The runner launches each tool using an argv
 list, closed stdin, a fresh session and one capped combined stdout/stderr pipe.

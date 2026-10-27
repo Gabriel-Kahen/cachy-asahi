@@ -19,6 +19,12 @@ import time
 
 TICK = 0.01
 PROC_LIMIT = 131072
+RSS_MAX_TASKS = 4096
+RSS_MAX_MEMBERS = 512
+RSS_MAX_SAMPLES = 4096
+RSS_MAX_ROWS = 8192
+RSS_SAMPLE_SECONDS = 0.1
+RSS_SCOPE = 'original process group only; per-process RSS sum double-counts shared pages; sampled, not true peak'
 
 
 def prepare():
@@ -68,8 +74,138 @@ def _members(pid, deadline, *, live=False):
     return found
 
 
+def _rss_members(pid, deadline, owned):
+    """Private built-in scan; owned is the supervisor's WNOWAIT check only."""
+    found = {}
+    owned()
+    with os.scandir('/proc') as entries:
+        tasks = 0
+        for count, entry in enumerate(entries, 1):
+            if count > PROC_LIMIT or time.monotonic() >= deadline:
+                raise TimeoutError('RSS scan deadline/entry bound')
+            if not entry.name.isascii() or not entry.name.isdecimal():
+                continue
+            tasks += 1
+            if tasks > RSS_MAX_TASKS:
+                raise ValueError('RSS task bound')
+            owned()
+            if time.monotonic() >= deadline:
+                raise TimeoutError('RSS scan deadline')
+            try:
+                row = _stat(int(entry.name))
+            except (FileNotFoundError, ProcessLookupError):
+                continue
+            if row[0] != int(entry.name):
+                raise ValueError('RSS proc identity/path mismatch')
+            if row[2] == pid:
+                if row[3] != pid:
+                    raise ValueError('RSS original session differs')
+                found[row[0]] = dict(pid=row[0], state=row[1].decode('ascii'),
+                                     group=row[2], session=row[3], start_ticks=row[4])
+                if len(found) > RSS_MAX_MEMBERS:
+                    raise ValueError('RSS group member bound')
+    return found
+
+
+def _rss_identity(row):
+    return {key: value for key, value in row.items() if key not in ('state', 'rss_kib')}
+
+
+def _rss_sample(pid, start_ticks, deadline, owned, remaining):
+    """Bounded original-group RSS DATA; no public callback or signaling path."""
+    report = dict(status='incomplete', group_id=pid, rss_sum_kib=None, members=[],
+                  scope=RSS_SCOPE, monotonic_start_ns=time.monotonic_ns())
+    try:
+        before = _rss_members(pid, deadline, owned)
+        if pid not in before or before[pid]['start_ticks'] != start_ticks:
+            raise ValueError('RSS reserved leader identity unavailable')
+        if len(before) > remaining:
+            raise ValueError('RSS retained member-row bound')
+        live = 0
+        for member, identity in sorted(before.items()):
+            owned()
+            if time.monotonic() >= deadline:
+                raise TimeoutError('RSS status deadline')
+            fd = os.open('/proc/' + str(member) + '/status',
+                         os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW)
+            try:
+                raw = os.read(fd, 16385)
+            finally:
+                os.close(fd)
+            if len(raw) > 16384:
+                raise ValueError('RSS proc input byte bound')
+            fields = [line.split() for line in raw.splitlines()]
+            tgid = [row for row in fields if row and row[0] == b'Tgid:']
+            if len(tgid) != 1 or len(tgid[0]) != 2 or int(tgid[0][1]) != member:
+                raise ValueError('RSS requires thread-group leader')
+            zombie = identity['state'] in ('Z', 'X')
+            rss = [row for row in fields if row and row[0] == b'VmRSS:']
+            if zombie:
+                value = 0
+            elif len(rss) == 1 and len(rss[0]) == 3 and rss[0][2] == b'kB' and rss[0][1].isdigit():
+                value = int(rss[0][1])
+                live += 1
+            else:
+                raise ValueError('live workload RSS missing/unreadable')
+            owned()
+            if time.monotonic() >= deadline:
+                raise TimeoutError('RSS identity deadline')
+            current = _stat(member)
+            if ((current[0], current[2], current[3], current[4]) !=
+                    (member, identity['group'], identity['session'], identity['start_ticks'])
+                    or (current[1] in (b'Z', b'X')) != zombie):
+                raise ValueError('RSS process exited/reused/changed group')
+            report['members'].append(dict(identity, rss_kib=value))
+        after = _rss_members(pid, deadline, owned)
+        if {p: _rss_identity(r) for p, r in before.items()} != {p: _rss_identity(r) for p, r in after.items()}:
+            raise ValueError('RSS group membership changed during sample')
+        if any((before[p]['state'] in ('Z', 'X')) != (after[p]['state'] in ('Z', 'X')) for p in before):
+            raise ValueError('RSS process exited during membership recheck')
+        owned()
+        if time.monotonic() >= deadline:
+            raise TimeoutError('RSS sample deadline')
+        report.update(status='complete' if live else 'exited',
+                      rss_sum_kib=sum(row['rss_kib'] for row in report['members']) if live else None)
+    except (OSError, ValueError, TimeoutError, UnicodeError) as exc:
+        report.update(status='incomplete', reason=type(exc).__name__ + ': ' + str(exc)[:200])
+    finally:
+        report['monotonic_end_ns'] = time.monotonic_ns()
+    return report
+
+
+def _rss_summary(samples, interval, problem):
+    complete = [row for row in samples if row['status'] == 'complete']
+    exited = sum(row['status'] == 'exited' for row in samples)
+    missing = len(samples) - len(complete) - exited
+    identities = {(row['group_id'], next((m['start_ticks'] for m in row['members']
+                   if m['pid'] == row['group_id']), None)) for row in complete}
+    stable = len(identities) == 1 and all(start is not None for _, start in identities)
+    usable = bool(complete) and not missing and stable and problem is None
+    observed = max((row['rss_sum_kib'] for row in complete), default=None)
+    leader = [m['rss_kib'] for row in complete for m in row['members']
+              if m['pid'] == row['group_id'] and m['state'] not in ('Z', 'X')]
+    return dict(status='complete' if usable else 'partial' if complete else 'error' if problem else 'unavailable',
+                error=problem, interval_seconds=interval, sample_budget_seconds=RSS_SAMPLE_SECONDS,
+                scope=RSS_SCOPE, samples=samples,
+                process_group_sampled_rss_kib=observed if usable else None,
+                process_group_observed_rss_kib=observed,
+                process_group_leader_identity_stable=stable if complete else None,
+                process_group_rss_coverage=dict(complete_samples=len(complete), exited_samples=exited,
+                                                missing_or_incomplete_samples=missing),
+                process_group_rss_scope=RSS_SCOPE,
+                leader_sampled_rss_kib=max(leader) if usable and leader else None,
+                leader_observed_rss_kib=max(leader) if leader else None)
+
+
+def _rss_failure(pid, reason):
+    stamp = time.monotonic_ns()
+    return dict(status='incomplete', kind='observation_error', group_id=pid,
+                rss_sum_kib=None, members=[], scope=RSS_SCOPE, reason=reason,
+                monotonic_start_ns=stamp, monotonic_end_ns=stamp)
+
+
 def supervise(child, *, cap, retirement=1.0, grace=0.2, group=True,
-              streams=None, max_output=512 * 1024, log_fd=None):
+              streams=None, max_output=512 * 1024, log_fd=None, rss_interval=None):
     """Own one Popen or direct-fork PID through the LAST signal, then raw reap.
 
     cap includes retirement; retirement starts at natural exit, failure or the
@@ -82,6 +218,12 @@ def supervise(child, *, cap, retirement=1.0, grace=0.2, group=True,
     Returncode is valid ONLY if reaped=True. UNKNOWN ownership forbids further
     numeric signals/probes. A Popen is unusable for further wait/poll operations
     after transfer, including when its raw exit status remains unknown.
+
+    rss_interval optionally enables bounded built-in original-group RSS samples
+    while WNOWAIT-owned. There is no arbitrary observation callback. This mode
+    replaces post-reap census with a reserved-terminal-leader-only proof before
+    reap; no numeric child/proc access follows reap in this mode. Incomplete RSS
+    fails the optional run; diagnostic observed peaks never substitute for data.
     """
     started = time.monotonic()
     for value in (cap, retirement, grace):
@@ -91,6 +233,9 @@ def supervise(child, *, cap, retirement=1.0, grace=0.2, group=True,
         raise ValueError('require 0 <= grace < retirement < cap')
     if type(group) is not bool or type(max_output) is not int or max_output < 0:
         raise ValueError('boolean group and nonnegative output cap required')
+    if rss_interval is not None and (not group or type(rss_interval) not in (int, float)
+                                    or not math.isfinite(rss_interval) or not .01 <= rss_interval <= 60):
+        raise ValueError('RSS requires group mode and finite interval in [0.01, 60]')
     if signal.getsignal(signal.SIGCHLD) != signal.SIG_DFL:
         raise ValueError('exclusive SIG_DFL child ownership required')
     popen = child if isinstance(child, subprocess.Popen) else None
@@ -124,6 +269,10 @@ def supervise(child, *, cap, retirement=1.0, grace=0.2, group=True,
     error = None
     census = 'NOT_OBSERVED'
     pipes_ready = False
+    rss_samples = []
+    rss_rows = 0
+    rss_due = started
+    rss_problem = None
 
     def fail(exc):
         nonlocal error
@@ -176,6 +325,8 @@ def supervise(child, *, cap, retirement=1.0, grace=0.2, group=True,
         # if a census exhausts its own bounded scan. Never renew that budget.
         until = min(deadline, retire_end - min(.05, retirement / 4)
                     if retire_end is not None else deadline)
+        if group and rss_interval is not None:
+            return any(row['state'] not in ('Z', 'X') for row in _rss_members(pid, until, peek).values())
         return bool(_members(pid, until, live=True)) if group else terminal is None
 
     def drain():
@@ -211,6 +362,23 @@ def supervise(child, *, cap, retirement=1.0, grace=0.2, group=True,
         pipes_ready = True
         while time.monotonic() < deadline:
             peek()
+            if rss_interval is not None and retire_end is None and error is None and time.monotonic() >= rss_due:
+                verify()
+                if len(rss_samples) >= RSS_MAX_SAMPLES - 1:
+                    rss_problem = 'RSS retained sample bound'
+                    rss_samples.append(_rss_failure(pid, rss_problem))
+                    fail(ValueError(rss_problem))
+                else:
+                    sample = _rss_sample(pid, identity[3], min(run_end, time.monotonic() + RSS_SAMPLE_SECONDS),
+                                         peek, RSS_MAX_ROWS - rss_rows)
+                    rss_samples.append(sample)
+                    rss_rows += len(sample['members'])
+                    rss_due = sample['monotonic_start_ns'] / 1e9 + rss_interval
+                    if sample['status'] == 'incomplete':
+                        rss_problem = sample['reason']
+                        fail(ValueError(rss_problem))
+                    if ownership != 'OWNED':
+                        raise ValueError('RSS observation lost child wait ownership')
             try:
                 drain()
             except (OSError, ValueError) as exc:
@@ -256,6 +424,23 @@ def supervise(child, *, cap, retirement=1.0, grace=0.2, group=True,
             except BaseException as cleanup:
                 fail(cleanup)
     finally:
+        if rss_interval is not None and ownership == 'OWNED' and terminal is not None:
+            # The opt-in route never probes numeric identities after raw reap.
+            # A complete census must contain only this exact reserved zombie.
+            try:
+                verify()
+                until = min(deadline, retire_end if retire_end is not None else deadline)
+                members = _rss_members(pid, until, peek)
+                verify()
+                only = members.get(pid)
+                if (len(members) == 1 and only is not None and only['start_ticks'] == identity[3]
+                        and only['state'] in ('Z', 'X')):
+                    census = 'RESERVED_LEADER_ONLY'
+                else:
+                    census = 'RESERVED_MEMBERS_REMAIN'
+            except (OSError, ValueError, TimeoutError) as exc:
+                census = 'UNKNOWN'
+                fail(exc)
         # No path, including a raw-wait exception, can signal after this point.
         signaling_over = True
         if ownership == 'OWNED':
@@ -287,7 +472,7 @@ def supervise(child, *, cap, retirement=1.0, grace=0.2, group=True,
                 pipe.close()
             except OSError as exc:
                 fail(exc)
-        if reaped and group:
+        if reaped and group and rss_interval is None:
             # Read-only only. A match may be an old member OR a reused identity.
             # Two empty scans describe this numeric group/session observation,
             # never global zombie/daemon absence or absence of escaped children.
@@ -310,13 +495,24 @@ def supervise(child, *, cap, retirement=1.0, grace=0.2, group=True,
                 census = 'UNKNOWN'
                 fail(exc)
     elapsed = time.monotonic() - started
-    return dict(exit=exitcode, reaped=reaped, ownership=ownership, timeout=timed_out,
+    result = dict(exit=exitcode, reaped=reaped, ownership=ownership, timeout=timed_out,
                 signals=[signal.Signals(sig).name for sig in sent], output=bytes(output),
                 output_complete=pipes_ready and not pipes, group_census=census,
                 error=error, seconds=elapsed,
                 passed=reaped and exitcode == 0 and not timed_out and not sent
                 and error is None and elapsed < cap and not pipes
-                and (not group or census == 'EMPTY_TWICE'))
+                and (not group or census == 'EMPTY_TWICE'
+                     or (rss_interval is not None and census == 'RESERVED_LEADER_ONLY')))
+    if rss_interval is not None:
+        if ownership != 'REAPED':
+            rss_problem = rss_problem or 'RSS wait ownership/reap unconfirmed'
+            if not any(row['status'] == 'incomplete' for row in rss_samples):
+                rss_samples.append(_rss_failure(pid, rss_problem))
+        result['rss'] = _rss_summary(rss_samples, rss_interval, rss_problem)
+        if result['rss']['status'] != 'complete' or result['rss']['leader_sampled_rss_kib'] is None:
+            result['passed'] = False
+            result['error'] = result['error'] or 'RSS unavailable/incomplete; no usable live-leader/group observations'
+    return result
 
 
 if __name__ == '__main__':
