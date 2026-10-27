@@ -11,7 +11,7 @@ def inherited(source):
 
 def prove(source,environment):
  C.verify_source(source);m=C.load('orphans3_existing_proof',source/'scripts/ci/welcome-native/ci/caller.py');v=m.prove(source,C.read(source/C.LANE/'source-manifest.json'),environment)
- v['consumer_token']=hashlib.sha256(('orphans3-consumer:'+v['run_id']+':'+v['run_attempt']+':'+v['source_sha']).encode()).hexdigest()[:32];v['manifest_sha256']=C.digest(source/C.LANE/'source-manifest.json');return v
+ v['consumer_token']=hashlib.sha256((C.CONSUMER_TOKEN_PREFIX+v['run_id']+':'+v['run_attempt']+':'+v['source_sha']).encode()).hexdigest()[:32];v['manifest_sha256']=C.digest(source/C.LANE/'source-manifest.json');manifest=C.read(source/C.LANE/'source-manifest.json');custody=C.load('orphans03_source_custody',source/C.LANE/'custody.py');files,modes,tree=custody.state(source,[*manifest['files'],C.LANE+'/source-manifest.json',*C.WORKFLOWS]);v.update(source_total_files=len(files),source_tree=tree['tree'],source_map_sha256=tree['source_map_sha256'],job_name=environment.get('GITHUB_JOB'),artifact_name='orphans03-explicit-target-'+v['run_id']+'-'+v['run_attempt']);return v
 
 def cleanup(source,base,runtime,proof,output):
  C.verify_source(source);M=inherited(source);v=M.cleanup(source,C.read(source/C.LANE/'source-manifest.json'),proof,base,runtime,output)
@@ -28,7 +28,7 @@ def cleanup(source,base,runtime,proof,output):
 
 def retain(source,base,runtime,proof,ordered,output):
  C.safe(output);C.need(not output.exists(),'fresh public evidence output required');output.mkdir(mode=0o700)
- v=dict(status='FAIL_OR_INCOMPLETE',scope='PRIVATE_OFFLINE_ROOT_ONLY',files={},errors=[],total_bytes=0,hardware='NOT_RUN',release='NOT_ADMITTED',broad_live_removal='NOT_IMPLEMENTED',actual_source=None,actual_ref=None,actual_run=None)
+ v=dict(status='FAIL_OR_INCOMPLETE',scope='PRIVATE_EXPLICIT_LIVE_CLI_FIXTURE_ONLY',files={},errors=[],total_bytes=0,hardware='NOT_RUN',release='NOT_ADMITTED',broad_live_removal='DECLARATIVE_SUBSET_IMPLEMENTED_LIVE_TARGET_NOT_RUN',actual_source=None,actual_ref=None,actual_run=None)
  def copy(p,n,cap=128*1024**2,required=True):
   if not required and not os.path.lexists(p):return
   try:
@@ -49,24 +49,30 @@ def retain(source,base,runtime,proof,ordered,output):
  manifest=C.read(source/C.LANE/'source-manifest.json');copy(source/C.LANE/'source-manifest.json','source/source-manifest.json')
  for name in manifest['files']:copy(source/name,'source/'+name,16*1024**2)
  for name in C.WORKFLOWS:copy(source/name,'source/'+name)
+ source_files={};source_tree={}
+ try:
+  custody=C.load('orphans03_export_custody',source/C.LANE/'custody.py');source_files,source_modes,source_tree=custody.state(source,[*manifest['files'],C.LANE+'/source-manifest.json',*C.WORKFLOWS])
+  for name,value in (('source-mode-map.json',source_modes),('source-tree.json',source_tree)):
+   target=output/name;save(target,value);size=target.stat().st_size;v['files'][name]=dict(bytes=size,sha256=C.digest(target));v['total_bytes']+=size
+ except BaseException as error:v['errors'].append('SOURCE_CUSTODY: '+type(error).__name__+': '+str(error)[:500])
+
  try:
   C.verify_source(source);p=C.read(proof);b=C.read(base/'report.json');r=C.read(runtime/'report.json');o=C.read(ordered);owner=C.read(runtime/'owner.json');life=C.read(runtime/'lifecycle-output/lifecycle.json');C.validate_lifecycle(life)
-  C.need(p['status']=='SOURCE_PROOF_PASS' and p['manifest_sha256']==C.digest(source/C.LANE/'source-manifest.json') and b['status']=='PASS_NATIVE_OFFLINE_574_TRANSACTION' and b['ownership']['token']==p['job_token'],'source/original producer proof differs')
+  C.need(p['status']=='SOURCE_PROOF_PASS' and p['source_files']==len(manifest['files']) and p['source_total_files']==len(source_files) and p['source_tree']==source_tree['tree'] and p['source_map_sha256']==source_tree['source_map_sha256'] and p['manifest_sha256']==C.digest(source/C.LANE/'source-manifest.json') and b['status']=='PASS_NATIVE_OFFLINE_574_TRANSACTION' and b['ownership']['token']==p['job_token'],'source/original producer proof differs')
   transport=C.load('orphans3_hosted_input_replay',source/C.LANE/'closed.py');v['hosted_input_transport']=transport.validate_transport(source,C.read(base/'retained-inputs.json'))
   C.need(b.get('acquired')==1153 and b.get('failures')==[],'all original1153 acquisition/verification inputs required')
-  C.need(r['status']=='PASS_NATIVE_ORPHANS3_PAIR_AND_REAL_PRIVATE_REMOVAL' and r['lifecycle']==life and r['base_image']==b['image']==owner['image'] and r['base_lock_sha256']==C.digest(base/'installed-packages.lock')==C.BASE and r['ownership_token']==owner['token']==p['consumer_token'] and owner['label']==C.LABEL,'runtime/source/base/ownership mismatch')
+  C.need(r['status']=='PASS_NATIVE_ORPHANS03_PAIR_AND_REAL_PRIVATE_REMOVAL' and r['lifecycle']==life and r['base_image']==b['image']==owner['image'] and r['base_lock_sha256']==C.digest(base/'installed-packages.lock')==C.BASE and r['ownership_token']==owner['token']==p['consumer_token'] and owner['label']==C.LABEL,'runtime/source/base/ownership mismatch')
   C.need(len(r.get('commands',[]))==4 and all(row.get('exitcode')==0 and row.get('retirement',{}).get('ownership')=='RETIRED' and row['retirement'].get('leader_reaped') is True and row['retirement'].get('observed_returncode')==0 and row['retirement'].get('log_drained') is True and row['retirement'].get('log_error') is None and row['retirement'].get('error') is None for row in r['commands']),'all four command leaders/logs require observed owned retirement')
   actor=C.load('orphans3_retained_map_replay',source/C.LANE/'lifecycle.py');maps={}
   for name,row in life['maps'].items():
    relative=Path(row['path']);C.need(not relative.is_absolute() and '..' not in relative.parts and relative.parts[0]=='maps','fixed target map path')
    path=runtime/'lifecycle-output'/relative;C.need(C.digest(path)==row['sha256'],'actual target map hash differs');maps[name]=C.read(path,128*1024**2);C.need(len(maps[name])==row['nodes'],'actual map node count differs')
-  for name in ('different-selection','duplicate-selection','protected-needed-protected','protected-needed-explicit','protected-needed-required','protected-needed-optional','same-bytes-assessment','foreign-lock','stale-after-removal','helper-alias','unsafe-payload'):
+  for name in actor.UNCHANGED_CASES:
    actor.preservation(maps[name+'-before'],maps[name+'-after'])
-  before_map=maps['positive-before'];leaf='caa-orphans3-leaf-a';prefixes=('var/lib/pacman/local/'+leaf+'-1-1','usr/share/licenses/'+leaf)
-  removed={n for n in before_map if n=='usr/share/orphans3-fixture/'+leaf+'.txt' or any(n==x or n.startswith(x+'/') for x in prefixes)};actor.preservation(before_map,maps['positive-after'],removed)
+  before_map=maps['positive-before'];actor.preservation(before_map,maps['positive-after'],actor.positive_removed(before_map))
   C.need('var/lib/pacman/db.lck' not in maps['final-target'],'final ALPM lock remains')
   for event in life['events']:
-   if event['durable_result'] is not None:
+   if event.get('durable_result') is not None:
     relative=Path(event['durable_result']);C.need(not relative.is_absolute() and '..' not in relative.parts and relative.parts[0]=='reports','fixed removal result path');C.need(C.read(runtime/'lifecycle-output'/relative)==event['result'],'durable actual removal result differs')
   held=life['base_before'];held_path=runtime/'lifecycle-output'/held['path'];C.need(held['path']=='base-before.json' and C.digest(held_path)==held['sha256'] and len(C.read(held_path,128*1024**2)['packages'])==574,'complete original574 before map missing')
   after=life['base_after'];after_path=runtime/'lifecycle-output'/after['path'];C.need(after['path']=='base-after.json' and C.digest(after_path)==after['sha256'],'complete original574 after map missing')
@@ -79,7 +85,7 @@ def retain(source,base,runtime,proof,ordered,output):
   expected=[control['candidate'],*control['fixtures'].values()]
   for row in expected:
    name=row['archive'];C.need(Path(name).name==name and C.digest(runtime/'lifecycle-inputs'/name)==row['sha256'] and 'runtime/lifecycle-inputs/'+name in v['files'],'retained archive identity missing')
-  C.need(not v['errors'],'complete retained raw evidence required');v['status']='PASS_NATIVE_ORPHANS3_PRIVATE_REMOVAL_AND_ORDERED_CLEANUP'
+  C.need(not v['errors'],'complete retained raw evidence required');v['status']='PASS_NATIVE_ORPHANS03_PRIVATE_REMOVAL_AND_ORDERED_CLEANUP'
  except BaseException as error:v['errors'].append(type(error).__name__+': '+str(error)[:800])
  save(output/'retention.json',v);return v
 
@@ -92,4 +98,4 @@ if __name__=='__main__':
   with open(os.environ['GITHUB_OUTPUT'],'a') as f:f.write('job_token='+v['job_token']+'\nconsumer_token='+v['consumer_token']+'\n')
  elif a.phase=='cleanup':v=cleanup(source,a.base,a.runtime,C.read(a.proof),a.output)
  else:v=retain(source,a.base,a.runtime,a.proof,a.cleanup,a.output)
- print(json.dumps(v,sort_keys=True));raise SystemExit(v['status'] not in ('SOURCE_PROOF_PASS','PASS_ORDERED_CONSUMER_THEN_PRODUCER_CLEANUP','PASS_NATIVE_ORPHANS3_PRIVATE_REMOVAL_AND_ORDERED_CLEANUP'))
+ print(json.dumps(v,sort_keys=True));raise SystemExit(v['status'] not in ('SOURCE_PROOF_PASS','PASS_ORDERED_CONSUMER_THEN_PRODUCER_CLEANUP','PASS_NATIVE_ORPHANS03_PRIVATE_REMOVAL_AND_ORDERED_CLEANUP'))

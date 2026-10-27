@@ -1,3 +1,116 @@
+# Explicit live backend development candidate 0.3.0
+
+The new `live` subcommand implements explicit-target orphan preview, exact reviewed
+planning, and a real ALPM removal backend. Every operation requires
+`--target-root`, `--target-dbpath`, `--policy`, and `--policy-sha256`. No mutation
+target is discovered or defaulted to `/`. Existing read-only and finite offline
+commands retain their separate contracts, documented below.
+
+Actual ALPM16 reason, dependency, optional dependency and versioned-provider state
+is inspected. Protection includes the pinned base/platform floor, the exact
+operator-declared supported base/platform versions, Asahi/kernel/firmware/graphics
+namespaces, and their actual installed provider closure. Preview eligibility also
+checks payload ownership, selected scriptlets/backups/configuration, matching
+removal hooks, frontend package-preservation policy, and helper effects. Plans
+bind these facts and selected payload bytes/inodes. Simultaneous selection must
+preserve hard and currently satisfied optional relationships.
+
+## Explicit policy and CLI
+
+The operator supplies a new mode0600 JSON policy with these exact fields:
+
+```json
+{"schema_version":1,"profile":"private-fixture","root":"/absolute/private/root","dbpath":"/absolute/private/root/var/lib/pacman","supported_base":{"test-base":"1-1"},"platform":{},"transaction_flags":1152,"hooks":"refuse-matching","scriptlets":"refuse","configuration":"refuse-selected","ldconfig":{"mode":"forbid"}}
+```
+
+That example is for an existing private fixture only. The `private-fixture` profile
+requires a caller-owned0700 root and cannot authorize `/`. Production profile
+`asahi-alarm-m2` requires the seven core and eight platform names in live_policy.py
+with their exact installed versions, plus the explicitly supported base map. This
+profile names an intended contract; it is not physical-M2 acceptance. No installed
+inventory is automatically promoted into a policy or accepted supported base.
+
+In an already authorized operator context, substitute explicit absolute paths:
+
+```sh
+cachy-asahi-orphans live assess --target-root ROOT --target-dbpath DB --policy POLICY --policy-sha256 POLICY_SHA --output NEW_ASSESSMENT
+cachy-asahi-orphans live plan ASSESSMENT --target-root ROOT --target-dbpath DB --policy POLICY --policy-sha256 POLICY_SHA --select EXACT_NAME --output NEW_PLAN
+cachy-asahi-orphans live remove PLAN --target-root ROOT --target-dbpath DB --policy POLICY --policy-sha256 POLICY_SHA --plan-sha256 REVIEWED_PLAN_SHA --select EXACT_NAME --authorize-live-removal --result NEW_PRIVATE_RECEIPT
+```
+
+Repeat `--select` for the exact reviewed set. Review target identities, versions,
+protected/provider state, payload hashes, policy and effects before supplying the
+plan SHA. All artifacts must remain private and owned by the same operator context.
+Actual `/` apply additionally requires effective UID0. The CLI never invokes sudo
+or acquires privileges. There is no cascade, recursion, force, nodeps, auto-retry
+or auto-unlock mode. Source preparation does not authorize a host removal.
+
+The worker locks ALPM, revalidates the complete installed/protected/selected state,
+prepares the real transaction, requires no additions and exactly the reviewed
+removals, then reopens all input, policy, DB, payload, hook/helper/configuration
+facts immediately before commit. Postcommit checks require the exact remaining
+inventory, unchanged unselected metadata and preserved shared owned directories.
+Selected `/etc`, home, library/platform integration, backups, scriptlets, aliases
+and unowned/shared file overlaps refuse. No user configuration is adopted or
+migrated. Direct ALPM does not parse pacman.conf; the backend independently
+preserves HoldPkg/IgnorePkg and refuses unsupported group/custom/indirect policy.
+The fresh handle must have no configured logfile/syslog; durable private receipts
+record this workflow without silently selecting a system log.
+
+## Hooks, helper effects and interruption
+
+NOHOOKS|NOSCRIPTLET (1152) remain mandatory. Matching removal hooks and unsupported
+hook semantics refuse eligibility. There is no hook-enabled policy or apply mode.
+No repository is registered or fetched; supported mirror includes are inert,
+bounded configuration inputs. Unknown indirect frontend options refuse.
+
+ALPM can invoke ldconfig despite NOHOOKS. The default policy refuses its presence.
+A separately reviewed `ldconfig` policy may use exactly `mode: reviewed`,
+`executable_sha256`, `config_sha256`, and `libalpm_sha256`. It binds the reviewed
+runtime's fixed `/usr/bin/ldconfig`, main and included configuration. Its declared
+effects include cache regeneration and possible SONAME symlink changes. The exact
+libalpm build semantics must be reviewed; arbitrary ABI16 builds are not asserted
+equivalent merely because hashes can be supplied. Helpers were not executed in
+these controls. A target requiring unimplemented hook/helper/configuration
+semantics remains refused.
+
+The live supervisor creates a new worker session using a two-way ready/grant
+barrier: no work starts until its parent verifies and registers that session while
+retaining WNOWAIT ownership. Timeout/cancellation and the final group SIGKILL occur
+before direct leader waitpid, including after natural worker exit. This covers
+reviewed helpers that remain in the worker session. It does not prove descendant
+exit, contain detaching helpers, or guarantee cleanup after abrupt parent SIGKILL.
+Receipt fields distinguish leader reaping and session registration accordingly.
+The original helper-free supervisor stays unchanged.
+
+Ownership/status loss records UNKNOWN/null exit evidence and preserves last
+durable commit facts. Interrupted/failed commit does not imply rollback and never
+retries or clears uncertain locks. Resolve the outcome from the receipt, target
+inventory and actual lock owner before generating a new plan. The ALPM lock
+serializes cooperating package managers, not all payload/configuration writers;
+stop external writers during apply. Boundary rechecks are not atomic against
+hostile concurrent filesystem changes.
+
+## Evidence and packaging
+
+The25 integration controls use real ALPM queries, remove registration, prepare and
+release, with commit simulated by temporary fixture-file edits. A separate bounded
+component also passed a real ALPM commit removing exactly one inert leaf from a
+script-created two-package private root, through the live session supervisor;
+unselected configuration and the protected base remained unchanged, and the owned
+lock/handle/leader were released/reaped. That is x86 private-fixture evidence,
+not a host/live-target removal. No helper ran. Separate inert session controls
+cover worker/descendant signaling. Native55 evidence stays separate. No ARM, M2,
+release, performance or maintained-live acceptance follows.
+
+The proposed package owns only its executable/private runtime, documentation and
+license files; it adds no hook, service or automatic activation/configuration.
+Original package lifecycle and native checks remain required before integration.
+
+---
+
+The retained documentation below describes the original finite offline backend.
+
 # cachy-asahi-orphans 0.2.0-1 successor proposal
 
 This opt-in successor retains `assess`, `plan` and `verify` with their original

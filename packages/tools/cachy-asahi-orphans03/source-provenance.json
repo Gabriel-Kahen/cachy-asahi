@@ -5,11 +5,23 @@
     "repo_path": "packages/tools/cachy-asahi-orphans/cachy-asahi-orphans"
   },
   "evidence": {
-    "host": "READONLY_METADATA_AND_MODEL_ADAPTER_ONLY",
+    "host": "PRIVATE_ALPM_COMPONENTS_INCLUDING_SEPARATE_REAL_INERT_2_TO_1_COMMIT",
     "native": "NOT_RUN",
     "physical_M2": "NOT_RUN",
-    "real_removal": "NOT_RUN",
+    "real_removal": "PRIVATE_INERT_2_TO_1_ONLY_NOT_LIVE_TARGET",
     "release": "NOT_ADMITTED"
+  },
+  "live_backend": {
+    "actual_live_removal": "NOT_RUN",
+    "fixture_commit": "25_CONTROL_SUITE_USES_FILE_SIMULATION",
+    "flags": 1152,
+    "native": "NOT_RUN",
+    "parent_product_pins": "parent-product-pins.json in development packet",
+    "physical_M2": "NOT_RUN",
+    "private_real_commit": "PASS_EXACT_2_TO_1_INERT_PRIVATE_ROOT_ONLY",
+    "publication": "NOT_RUN",
+    "real_private_component": "INSTALLED_REASON_PROVIDER_QUERIES_PREPARE_RELEASE_AND_SEPARATE_REAL_INERT_2_TO_1_COMMIT",
+    "source_scope": "EXPLICIT_OPERATOR_TARGET_POLICY_AND_REVIEWED_PLAN_NO_DEFAULT_ROOT"
   },
   "owned_process_retirement": {
     "actual_ref": null,
@@ -40,7 +52,7 @@
   },
   "schema_version": 1,
   "source_scope": "LOCAL_MIT_DEVELOPMENT_PROPOSAL_NOT_RELEASE_AUTHORITY",
-  "successor": "0.2.0-1",
+  "successor": "0.3.0-1",
   "transaction_patterns": [
     "scripts/install/local_transaction.py: fixed NOHOOKS|NOSCRIPTLET flags, exact prepared maps",
     "scripts/apps/transaction.py: exact removal identities and no expansion",

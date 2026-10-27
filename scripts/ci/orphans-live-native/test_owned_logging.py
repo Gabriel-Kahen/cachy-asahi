@@ -5,7 +5,7 @@ import ast,copy,errno,importlib.util,io,json,os,signal,subprocess,sys,tempfile,t
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
-HERE=Path(__file__).resolve();SOURCE=HERE.parents[3] if HERE.parent.name=='orphans3-native' else HERE.parents[1]/'proposed'
+HERE=Path(__file__).resolve();SOURCE=HERE.parents[3] if HERE.parent.name=='orphans-live-native' else HERE.parents[1]/'proposed'
 spec=importlib.util.spec_from_file_location('owned_common',SOURCE/'scripts/virtual/common.py');M=importlib.util.module_from_spec(spec);spec.loader.exec_module(M)
 REAL_WAITID=os.waitid;REAL_WAITPID=os.waitpid;REAL_KILLPG=os.killpg;REAL_POPEN=subprocess.Popen;REAL_OPEN=Path.open
 
@@ -128,20 +128,20 @@ class Logging(unittest.TestCase):
             with self.assertRaisesRegex(M.Refused,'one main thread'):M.LoggedProcess(argv('pass'),self.root/'log')
         finally:release.set();t.join()
     def test_used_run_command_records_retirement_without_popen_wait(self):
-        path=SOURCE/'scripts/ci/orphans3-native/run.py';tree=ast.parse(path.read_bytes());node=next(n for n in ast.walk(tree) if isinstance(n,ast.FunctionDef) and n.name=='command');text=textwrap.dedent(ast.get_source_segment(path.read_text(),node)).replace('nonlocal active','global active')
+        path=SOURCE/'scripts/ci/orphans-live-native/run.py';tree=ast.parse(path.read_bytes());node=next(n for n in ast.walk(tree) if isinstance(n,ast.FunctionDef) and n.name=='command');text=textwrap.dedent(ast.get_source_segment(path.read_text(),node)).replace('nonlocal active','global active')
         self.assertNotIn('.process.wait(',text);self.assertNotIn('.process.poll(',text);self.assertNotIn('killpg(',text)
         receipts=[];report={'commands':[]};space=dict(active=None,report=report,save=lambda p,v:receipts.append(copy.deepcopy(v)),out=self.root,common=M,C=SimpleNamespace(need=M.require),env=dict(os.environ))
         exec(compile(text,str(path),'exec'),space);space['command'](argv('print("owned")'),self.root/'command.log',2)
         row=receipts[-1]['commands'][0];self.assertEqual(row['exitcode'],0);self.assertTrue(row['retirement']['leader_reaped']);self.assertEqual(row['retirement']['observed_returncode'],0);self.assertIsNone(space['active'])
     def test_used_run_command_echild_keeps_exit_null_and_never_signals(self):
-        path=SOURCE/'scripts/ci/orphans3-native/run.py';node=next(n for n in ast.walk(ast.parse(path.read_bytes())) if isinstance(n,ast.FunctionDef) and n.name=='command');text=textwrap.dedent(ast.get_source_segment(path.read_text(),node)).replace('nonlocal active','global active');receipts=[];events=[]
+        path=SOURCE/'scripts/ci/orphans-live-native/run.py';node=next(n for n in ast.walk(ast.parse(path.read_bytes())) if isinstance(n,ast.FunctionDef) and n.name=='command');text=textwrap.dedent(ast.get_source_segment(path.read_text(),node)).replace('nonlocal active','global active');receipts=[];events=[]
         def externally_reaped(*a,**kw):
             item=M.LoggedProcess(*a,**kw);self.addCleanup(dispose,item.process);pid,status=REAL_WAITPID(item.process.pid,0);self.assertEqual(pid,item.process.pid);return item
         space=dict(active=None,report={'commands':[]},save=lambda p,v:receipts.append(copy.deepcopy(v)),out=self.root,common=SimpleNamespace(LoggedProcess=externally_reaped,registered_spawn=M.registered_spawn),C=SimpleNamespace(need=M.require),env=dict(os.environ));exec(compile(text,str(path),'exec'),space)
         with patch.object(os,'killpg',side_effect=lambda *a:events.append(a)),self.assertRaises(M.Refused):space['command'](argv('pass'),self.root/'used-echild.log',2)
         row=receipts[-1]['commands'][0];self.assertEqual(events,[]);self.assertIsNone(row['exitcode']);self.assertEqual(row['retirement']['ownership'],'UNKNOWN');self.assertFalse(row['retirement']['leader_reaped']);self.assertIsNone(space['active'])
     def command_fixture(self,common):
-        path=SOURCE/'scripts/ci/orphans3-native/run.py';node=next(n for n in ast.walk(ast.parse(path.read_bytes())) if isinstance(n,ast.FunctionDef) and n.name=='command');text=textwrap.dedent(ast.get_source_segment(path.read_text(),node)).replace('nonlocal active','global active');receipts=[]
+        path=SOURCE/'scripts/ci/orphans-live-native/run.py';node=next(n for n in ast.walk(ast.parse(path.read_bytes())) if isinstance(n,ast.FunctionDef) and n.name=='command');text=textwrap.dedent(ast.get_source_segment(path.read_text(),node)).replace('nonlocal active','global active');receipts=[]
         space=dict(active=None,report={'commands':[]},save=lambda p,v:receipts.append(copy.deepcopy(v)),out=self.root,common=common,C=SimpleNamespace(need=M.require),env=dict(os.environ));exec(compile(text,str(path),'exec'),space);return space,receipts
     def test_cancel_after_constructor_return_is_deferred_until_owner_assignment(self):
         items=[]

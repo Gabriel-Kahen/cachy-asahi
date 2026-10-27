@@ -1,4 +1,4 @@
-name: native-arm-orphans3-offline-removal
+name: native-arm-orphans-live
 on:
   workflow_dispatch:
     inputs:
@@ -9,7 +9,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: native-arm-orphans3-offline-removal
+  group: native-arm-orphans-live
   cancel-in-progress: false
 jobs:
   native:
@@ -22,7 +22,7 @@ jobs:
     env:
       PYTHONDONTWRITEBYTECODE: '1'
       SOURCE_SHA: ${{ inputs.source_sha }}
-      SLICE: scripts/ci/orphans3-native
+      SLICE: scripts/ci/orphans-live-native
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
@@ -35,34 +35,27 @@ jobs:
         run: |
           set -euo pipefail
           printf '%s  %s\n' '@JOB_SHA256@' "$SLICE/job.py" '@MANIFEST_SHA256@' "$SLICE/source-manifest.json" | sha256sum --check
-          python3 -I -B "$SLICE/job.py" proof --source "$GITHUB_WORKSPACE" --proof "$RUNNER_TEMP/orphans3-proof.json"
-      - name: Checkout complete exact1148 retained package inputs
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        timeout-minutes: 2
-        with:
-          ref: ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad
-          path: retained574
-          persist-credentials: false
+          python3 -I -B "$SLICE/job.py" proof --source "$GITHUB_WORKSPACE" --proof "$RUNNER_TEMP/orphans03-proof.json"
       - name: Focused source and hosted input transport controls
         timeout-minutes: 3
         run: |
           set -euo pipefail
           python3 -B -m unittest discover -s "$SLICE" -p 'test_*.py'
-      - name: Original owned574 producer with proven retained1148 and original five inputs
+      - name: Original owned574 producer with one-fetch DATA retained1148 and original five inputs
         timeout-minutes: 40
         run: >-
           timeout --signal=TERM --kill-after=10s 2300s
           python3 -I -B "$SLICE/hosted_producer.py"
-          --source "$GITHUB_WORKSPACE" --carrier "$GITHUB_WORKSPACE/retained574"
-          --proof "$RUNNER_TEMP/orphans3-proof.json" --output "$RUNNER_TEMP/desktop574"
-      - name: Two clean candidate builds and real installed inert selected removal
+          --source "$GITHUB_WORKSPACE" --carrier "$RUNNER_TEMP/retained574-data"
+          --proof "$RUNNER_TEMP/orphans03-proof.json" --output "$RUNNER_TEMP/desktop574"
+      - name: Two clean candidate builds and installed0.3 explicit-target removal
         timeout-minutes: 31
         env:
           CONSUMER_TOKEN: ${{ steps.proof.outputs.consumer_token }}
         run: >-
           timeout --signal=TERM --kill-after=10s 1800s
           python3 -I -B "$SLICE/run.py" --source "$GITHUB_WORKSPACE"
-          --base-dir "$RUNNER_TEMP/desktop574" --output "$RUNNER_TEMP/orphans3-runtime"
+          --base-dir "$RUNNER_TEMP/desktop574" --output "$RUNNER_TEMP/orphans03-runtime"
           --consumer-token "$CONSUMER_TOKEN"
       - name: Retire exact consumers then producer then TEST authority
         if: always() && steps.proof.outcome == 'success'
@@ -70,22 +63,22 @@ jobs:
         run: >-
           timeout --signal=TERM --kill-after=10s 330s
           python3 -I -B "$SLICE/job.py" cleanup --source "$GITHUB_WORKSPACE"
-          --proof "$RUNNER_TEMP/orphans3-proof.json" --base "$RUNNER_TEMP/desktop574"
-          --runtime "$RUNNER_TEMP/orphans3-runtime" --output "$RUNNER_TEMP/orphans3-cleanup.json"
+          --proof "$RUNNER_TEMP/orphans03-proof.json" --base "$RUNNER_TEMP/desktop574"
+          --runtime "$RUNNER_TEMP/orphans03-runtime" --output "$RUNNER_TEMP/orphans03-cleanup.json"
       - name: Retain complete bounded success or failure evidence
         if: always() && steps.proof.outcome == 'success'
         timeout-minutes: 3
         run: >-
           python3 -I -B "$SLICE/job.py" retain --source "$GITHUB_WORKSPACE"
-          --proof "$RUNNER_TEMP/orphans3-proof.json" --base "$RUNNER_TEMP/desktop574"
-          --runtime "$RUNNER_TEMP/orphans3-runtime" --cleanup "$RUNNER_TEMP/orphans3-cleanup.json"
-          --output "$RUNNER_TEMP/orphans3-public"
+          --proof "$RUNNER_TEMP/orphans03-proof.json" --base "$RUNNER_TEMP/desktop574"
+          --runtime "$RUNNER_TEMP/orphans03-runtime" --cleanup "$RUNNER_TEMP/orphans03-cleanup.json"
+          --output "$RUNNER_TEMP/orphans03-public"
       - name: Upload only bounded public evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
-          name: orphans3-private-removal-${{ github.run_id }}-${{ github.run_attempt }}
-          path: ${{ runner.temp }}/orphans3-public/
+          name: orphans03-explicit-target-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/orphans03-public/
           retention-days: 3
           if-no-files-found: ignore
           include-hidden-files: true

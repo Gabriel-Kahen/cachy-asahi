@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""Check local source pins and optionally stage exactly the recipe's ten files."""
+"""Check local source pins and optionally stage exactly the recipe's twelve files."""
 import argparse,hashlib,json,os,re,shlex,shutil,subprocess,sys
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
-FILES=('orphans3','remove.py','cachy-asahi-orphans','test_orphans.py','test_remove.py','test_retirement.py','protection-floor.json','README.md','READONLY.md','source-provenance.json','check_source.py','NOTICE','LICENSE')
+FILES=('orphans3','remove.py','cachy-asahi-orphans','test_orphans.py','test_remove.py','test_retirement.py','live.py','live_policy.py','test_live.py','test_live_policy.py','test_live_supervision.py','protection-floor.json','README.md','READONLY.md','source-provenance.json','check_source.py','NOTICE','LICENSE')
 PAYLOAD={
  'usr/bin/cachy-asahi-orphans':('orphans3',0o755),
  'usr/lib/cachy-asahi-orphans3/remove.py':('remove.py',0o644),
+ 'usr/lib/cachy-asahi-orphans3/live.py':('live.py',0o644),
+ 'usr/lib/cachy-asahi-orphans3/live_policy.py':('live_policy.py',0o644),
  'usr/lib/cachy-asahi-orphans3/readonly.py':('cachy-asahi-orphans',0o644),
  'usr/lib/cachy-asahi-orphans3/protection-floor.json':('protection-floor.json',0o644),
  'usr/share/cachy-asahi-orphans/protection-floor.json':('protection-floor.json',0o644),
@@ -33,7 +35,7 @@ def main():
         for relative,(source,mode) in PAYLOAD.items():
             path=a.stage/relative;assert path.read_bytes()==(HERE/source).read_bytes() and path.stat().st_mode&0o777==mode
         cli=a.stage/'usr/bin/cachy-asahi-orphans'
-        for args in (['--version'],['--help'],['remove','--help']):
+        for args in (['--version'],['--help'],['remove','--help'],['live','--help'],['live','assess','--help']):
             result=subprocess.run([sys.executable,'-I','-B',str(cli),*args],text=True,capture_output=True,timeout=10);assert result.returncode==0,result.stderr
-        print(json.dumps(dict(status='PASS_TEN_FILE_STAGING_AND_INSTALLED_HELP',stage=str(a.stage)),sort_keys=True))
+        print(json.dumps(dict(status='PASS_TWELVE_FILE_STAGING_AND_INSTALLED_HELP',stage=str(a.stage)),sort_keys=True))
 if __name__=='__main__':main()

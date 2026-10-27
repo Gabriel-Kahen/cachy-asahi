@@ -15,8 +15,8 @@ class Gates(unittest.TestCase):
    with self.subTest(key=key),self.assertRaises(ValueError):C.pair_gate(bad)
   bad=copy.deepcopy(good);bad['errors']=['not independent']
   with self.assertRaises(ValueError):C.pair_gate(bad)
- def test_log_requires_exact53_without_skips(self):
-  p=self.root/'log';good='==> Starting check()\nRan 20 tests in 0.2s\nOK\nRan 25 tests in 2.1s\nOK\nRan 8 tests in 2.0s\nOK\n';p.write_text(good);self.assertEqual(C.check_log(p,C.PRODUCT)['count'],53)
+ def test_log_requires_exact109_without_skips(self):
+  p=self.root/'log';good='==> Starting check()\nRan 20 tests in 0.2s\nOK\nRan 25 tests in 2.1s\nOK\nRan 8 tests in 2.0s\nOK\nRan 24 tests in 0.1s\nOK\nRan 25 tests in 1.0s\nOK\nRan 7 tests in 2.0s\nOK\n';p.write_text(good);self.assertEqual(C.check_log(p,C.PRODUCT)['count'],109)
   for text in (good.replace('25','24'),good.replace('Ran 8 tests in 2.0s\nOK\n',''),good.replace('20','18'),good+'OK (skipped=1)\n',good+'FAILED\n',good.replace('OK\n','',1),good.replace('Starting check()','old')):
    p.write_text(text)
    with self.assertRaises(ValueError):C.check_log(p,C.PRODUCT)
@@ -47,18 +47,8 @@ class Gates(unittest.TestCase):
   for text in ('{"x":1,"x":2}','{"x":NaN}'):
    p.write_text(text)
    with self.assertRaises(ValueError):C.read(p)
- def test_complete_result_gate_rejects_unknown_commit_or_cleanup(self):
-  before={n:'1-1' for n in C.FIXTURES};after={n:v for n,v in before.items() if n!='caa-orphans3-leaf-a'}
-  cases=('different-selection','duplicate-selection','same-bytes-assessment','foreign-lock','positive','stale-after-removal','helper-alias','unsafe-payload')
-  positive=dict(status='APPLIED',commit_started=True,packages_committed=True,prepared_add={},prepared_remove={'caa-orphans3-leaf-a':'1-1'},transaction_released=True,handle_released=True,lock_state='ABSENT',cleanup_errors=[],worker=dict(reaped=True,exitcode=0))
-  events=[dict(case=n,result=positive if n=='positive' else dict(status='REFUSED',commit_started=False,packages_committed=False),durable_result='reports/positive/result.json' if n=='positive' else None) for n in cases]
-  good=dict(status='PASS_ORPHANS3_REAL_NATIVE_OFFLINE_REMOVAL',real_backend=True,version='0.2.0-1',architecture='aarch64',page_size=4096,hardware='NOT_RUN',before_count=8,after_count=7,before=before,after=after,base574_preserved=True,final_lock='ABSENT',events=events,commands=[dict(exitcode=0,expected_exit=0,stdout='',stderr='')],cleanup=dict(outer_candidate='REMOVED',foreign_lock='RELEASED_BY_OWN_HANDLE',TEST_agents='STOPPED',outer_container='PARENT_MUST_VERIFY_ABSENCE_AFTER_ACTOR_EXIT'))
-  C.validate_lifecycle(good)
-  for field,value in (('packages_committed','UNKNOWN'),('handle_released',False),('prepared_remove',{})):
-   bad=copy.deepcopy(good);bad['events'][4]['result'][field]=value
-   with self.subTest(field=field),self.assertRaises(ValueError):C.validate_lifecycle(bad)
-  bad=copy.deepcopy(good);bad['events'].pop()
-  with self.assertRaises(ValueError):C.validate_lifecycle(bad)
-  bad=copy.deepcopy(good);bad['cleanup']['outer_candidate']='INSTALLED'
-  with self.assertRaises(ValueError):C.validate_lifecycle(bad)
+ def test_old_offline_lifecycle_never_proves_live03(self):
+  for v in ({},dict(status='PASS_ORPHANS3_REAL_NATIVE_OFFLINE_REMOVAL',version='0.2.0-1',real_backend=True,hardware='NOT_RUN'),dict(status='PASS_ORPHANS03_REAL_NATIVE_EXPLICIT_TARGET_REMOVAL',version='0.1.0-2',real_backend=True,hardware='NOT_RUN')):
+   with self.assertRaises((ValueError,KeyError)):C.validate_lifecycle(v)
+
 if __name__=='__main__':unittest.main()
