@@ -1,0 +1,26 @@
+#!/usr/bin/python -I
+# SPDX-License-Identifier: MIT
+"""Run the pinned private module from this installed prefix, never the checkout."""
+import hashlib
+import os
+from pathlib import Path
+import sys
+
+RUNTIME_SHA256 = '9c5c41899cd991b0de4bf8d30bad6f5452b4592ea9440df0f0b4a7b54bc66984'
+
+
+def main():
+    runtime = Path(__file__).resolve().parents[1] / 'lib/cachy-asahi-session-diagnostics/session_probe.py'
+    try:
+        if runtime.is_symlink() or not runtime.is_file() or runtime.stat().st_size > 65536:
+            raise ValueError()
+        if hashlib.sha256(runtime.read_bytes()).hexdigest() != RUNTIME_SHA256:
+            raise ValueError()
+    except (OSError, ValueError):
+        print('Session diagnostics runtime missing or changed; restore the reviewed package.', file=sys.stderr)
+        return 2
+    os.execv('/usr/bin/python', ['/usr/bin/python', '-I', '-B', str(runtime), *sys.argv[1:]])
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())
