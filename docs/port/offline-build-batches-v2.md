@@ -1,6 +1,6 @@
 # Finite offline-source build batches, interface v2
 
-`build_batch_v2.py` explicitly selects `build_v2.py` and reuses the existing rebuild planner, provider witnesses, image dependency checks and finite scheduler. Legacy builder, batch and output entrypoints are unchanged. This is implementation with host controls; new native batch/output qualification remains NOT RUN.
+`build_batch_v2.py` explicitly selects `build_v2.py` and reuses the existing rebuild planner, provider witnesses, image dependency checks and finite scheduler. Legacy builder, batch and output entrypoints are unchanged. The initial delivery had host/source controls only. The later [Source129 native batch component](../validation/offline-source-batch129-native-component-20261027.md) qualifies the recorded offline build/retry workflow; installed Asahi, native16K, M2, performance and release acceptance remain separate.
 
 Use `--builder-interface offline-build-v2`. Supply the existing reviewed batch input/config/planner and their SHA256 values. Dependencies must already be at reviewed versions in each immutable image lock; completed prerequisite artifact hashes must match the reviewed pins before a dependent task starts. The adapter installs nothing and creates no dependency image.
 

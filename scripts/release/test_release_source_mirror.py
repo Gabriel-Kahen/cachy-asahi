@@ -336,7 +336,9 @@ class HTTPSMirrorTests(unittest.TestCase):
              patch.object(socket,'getaddrinfo',side_effect=AssertionError('DNS forbidden')), \
              patch.object(subprocess,'Popen',side_effect=AssertionError('subprocess forbidden')):
             raw,manifest,_=self.fixture.build()
-            self.assertEqual(m.verify(raw,s.digest(raw),self.fixture.pin)['packages'],1)
+            outcome=m.verify(raw,s.digest(raw),self.fixture.pin)
+            self.assertEqual(outcome['packages'],1)
+            self.assertEqual(outcome['mirror_sha256'],s.digest(raw))
         row=manifest['packages'][0]
         self.assertEqual(row['remote_sources'][0]['object']['sha256'],s.digest(self.fixture.source))
         self.assertEqual(row['remote_notices'][s.digest(self.fixture.license)]['sha256'],s.digest(self.fixture.license))
