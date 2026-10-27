@@ -1,0 +1,10 @@
+{
+  "mako-LICENSE": {
+    "archive_sha256": "18967af3d203e80c247dddb46fded4c25537d641ccea23c9d7c443b52b96cb35",
+    "archive_member": "usr/share/licenses/mako/LICENSE",
+    "bytes": 1065,
+    "sha256": "3ac22677b8ed454296793da5eabf995925e1e018f2b7ab8342d9ef0c8d4201f0",
+    "license": "MIT",
+    "scope": "existing supported daemon; no new dependency"
+  }
+}

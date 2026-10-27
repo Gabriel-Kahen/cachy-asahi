@@ -1,0 +1,255 @@
+{
+  "actual": null,
+  "authority": "RETAINED_SOURCE_AND_ARCHIVE_DATA_ONLY",
+  "files": {
+    "build.lock.json": {
+      "actual_authority": false,
+      "license": "MIT",
+      "package": "fish-done-fixture",
+      "pin": {
+        "bytes": 27851,
+        "sha256": "ff63ce79c896eb064546c4fd977abdb09da76abeecf04895990e1a3d7f3c6f4e"
+      },
+      "source_association": "build.lock.json"
+    },
+    "construct.py": {
+      "actual_authority": false,
+      "license": "MIT",
+      "package": "fish-done-fixture",
+      "pin": {
+        "bytes": 7172,
+        "sha256": "f484a3ae1674108eaa1a30c54efd362bf9b667a2673243ac3ea5f9a7d433d99c"
+      },
+      "source_association": "construct.py"
+    },
+    "context.json": {
+      "actual_authority": false,
+      "license": "MIT",
+      "pin": {
+        "bytes": 135504,
+        "sha256": "2d7a09fb60f6f5c0f43e6ab3ee9bcbcd988514b5b48433ae6ca5ab630788d5f1"
+      },
+      "source_association": "reserved-process24-file successor constructor"
+    },
+    "delivery/LICENSE": {
+      "actual_authority": false,
+      "license": "MIT",
+      "package": "fish-done-fixture",
+      "pin": {
+        "bytes": 1081,
+        "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+      },
+      "source_association": "delivery/LICENSE"
+    },
+    "delivery/NOTICE": {
+      "actual_authority": false,
+      "license": "MIT",
+      "package": "fish-done-fixture",
+      "pin": {
+        "bytes": 757,
+        "sha256": "6d4d498e405d3f06ab902c90e8c4b715d982279fcfa07be33f64b7797cce0c49"
+      },
+      "source_association": "delivery/NOTICE"
+    },
+    "delivery/README.md": {
+      "actual_authority": false,
+      "license": "MIT",
+      "package": "fish-done-fixture",
+      "pin": {
+        "bytes": 7827,
+        "sha256": "cb474e2551002f1189070212247ff07a0428dc70bc5426f406344ceeb88c1422"
+      },
+      "source_association": "delivery/README.md"
+    },
+    "delivery/controller.py": {
+      "actual_authority": false,
+      "license": "MIT",
+      "package": "fish-done-fixture",
+      "pin": {
+        "bytes": 19122,
+        "sha256": "335baba1d1af052c79858846103698dba54fad56de4ef52827ac883da8ba7979"
+      },
+      "source_association": "delivery/controller.py"
+    },
+    "delivery/done-lock.json": {
+      "actual_authority": false,
+      "license": "MIT",
+      "package": "fish-done-fixture",
+      "pin": {
+        "bytes": 2717,
+        "sha256": "e7de2d6d72e4f6f3882c5b5c5c0c65c71a89146e629ceb17004a45013f607026"
+      },
+      "source_association": "delivery/done-lock.json"
+    },
+    "delivery/fish_terminal.py": {
+      "actual_authority": false,
+      "license": "MIT",
+      "package": "fish-done-fixture",
+      "pin": {
+        "bytes": 10967,
+        "sha256": "b257a943ac31268f44b78498487d83bcd4f16b2b59f70500acc492bb94ffc0bc"
+      },
+      "source_association": "delivery/fish_terminal.py"
+    },
+    "delivery/fixtures/real-foreground-success.json": {
+      "actual_authority": false,
+      "license": "MIT",
+      "package": "fish-done-fixture",
+      "pin": {
+        "bytes": 17370,
+        "sha256": "8ffa8ed9a7be4555a11fc9314459c55f934c2c903ec454217c74ba048cc3c7e7"
+      },
+      "source_association": "delivery/fixtures/real-foreground-success.json"
+    },
+    "delivery/monitor.py": {
+      "actual_authority": false,
+      "license": "MIT",
+      "package": "fish-done-fixture",
+      "pin": {
+        "bytes": 2722,
+        "sha256": "7704da1b060e739f63e4d7062a02938e64bcfbe1c10b4d6581532ded2f194de0"
+      },
+      "source_association": "delivery/monitor.py"
+    },
+    "delivery/native_inputs.py": {
+      "actual_authority": false,
+      "license": "MIT",
+      "package": "fish-done-fixture",
+      "pin": {
+        "bytes": 13043,
+        "sha256": "9254d986922719ab694eb077428f9247f5caf23f4e419bcafc6be1e9aad4c1dc"
+      },
+      "source_association": "delivery/native_inputs.py"
+    },
+    "delivery/observation.py": {
+      "actual_authority": false,
+      "license": "MIT",
+      "package": "fish-done-fixture",
+      "pin": {
+        "bytes": 6810,
+        "sha256": "153fad25f0b5f58730cd077bdf414ed2b30ae6d7c780aa4f8f99484b7348d057"
+      },
+      "source_association": "delivery/observation.py"
+    },
+    "delivery/replay.py": {
+      "actual_authority": false,
+      "license": "MIT",
+      "package": "fish-done-fixture",
+      "pin": {
+        "bytes": 4963,
+        "sha256": "2daece7ba028a825906e26862505134879502f29d62e537d31bbadb047360840"
+      },
+      "source_association": "delivery/replay.py"
+    },
+    "delivery/run.py": {
+      "actual_authority": false,
+      "license": "MIT",
+      "package": "fish-done-fixture",
+      "pin": {
+        "bytes": 13544,
+        "sha256": "f2e9ceeb16c78914dbe672db5d6b679dd71d73548eea98ce41c33fde57ef870b"
+      },
+      "source_association": "delivery/run.py"
+    },
+    "delivery/source-pins.json": {
+      "actual_authority": false,
+      "license": "MIT",
+      "package": "fish-done-fixture",
+      "pin": {
+        "bytes": 610,
+        "sha256": "9554206502801c77984fd8047a0b775b21e908fddd5dcadea16d31195084217e"
+      },
+      "source_association": "delivery/source-pins.json"
+    },
+    "delivery/test_run.py": {
+      "actual_authority": false,
+      "license": "MIT",
+      "package": "fish-done-fixture",
+      "pin": {
+        "bytes": 8017,
+        "sha256": "ebecc860eb2ebad95d99d8165bc5145f260ddba201f68f70a5ecd4c527a31dbf"
+      },
+      "source_association": "delivery/test_run.py"
+    },
+    "done.pkg.tar.xz": {
+      "actual_authority": false,
+      "license": "MIT",
+      "package": "cachy-asahi-fish-done0.1.0-2; retained native pair38921031485",
+      "pin": {
+        "bytes": 15380,
+        "sha256": "9ce3c7ba89467f04660014c1b12056dce28bd0c4e69b4cab8a9c2c98e1cce54f"
+      },
+      "source_association": "done.pkg.tar.xz"
+    },
+    "inventory574.lock": {
+      "actual_authority": false,
+      "license": "MIT",
+      "package": "fish-done-fixture",
+      "pin": {
+        "bytes": 11117,
+        "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+      },
+      "source_association": "inventory574.lock"
+    },
+    "mako.conf": {
+      "actual_authority": false,
+      "license": "MIT",
+      "package": "fish-done-fixture",
+      "pin": {
+        "bytes": 100,
+        "sha256": "c6ab55ae475611bf2df2b7120b97a924eed5d65c149561d4da4f12b5b8c25504"
+      },
+      "source_association": "mako.conf"
+    },
+    "native_build.py": {
+      "actual_authority": false,
+      "license": "MIT",
+      "package": "fish-done-fixture",
+      "pin": {
+        "bytes": 13457,
+        "sha256": "47e7bbd70e21749c503cc4bd28f918512b68d0029edb5f0ff823a141b623542d"
+      },
+      "source_association": "native_build.py"
+    },
+    "no-git.native": {
+      "actual_authority": false,
+      "license": "MIT",
+      "package": "fish-done-fixture",
+      "pin": {
+        "bytes": 85,
+        "sha256": "3fe4fd6e93e08e9c0755d2a362131a9609ce94c2f15d097cbb114af406ba9518"
+      },
+      "source_association": "no-git.native"
+    },
+    "reserved_process.py": {
+      "actual_authority": false,
+      "license": "MIT",
+      "package": "fish-done-fixture",
+      "pin": {
+        "bytes": 12592,
+        "sha256": "82704950756dcda7654109de1f1173c16058112f7c64f7a615ea4d5a65f34860"
+      },
+      "source_association": "reserved_process.py"
+    },
+    "sway-1.11.tar.gz": {
+      "actual_authority": false,
+      "license": "MIT",
+      "package": "sway-1.11",
+      "pin": {
+        "bytes": 5583731,
+        "sha256": "034ec4519326d6af5275814700dde46e852c5174614109affe4c86b2fbee062a"
+      },
+      "source_association": "sway-1.11.tar.gz"
+    },
+    "wlroots-0.19.0.tar.gz": {
+      "actual_authority": false,
+      "license": "MIT",
+      "package": "wlroots-0.19.0",
+      "pin": {
+        "bytes": 669929,
+        "sha256": "967f3112c82e8ea18cbdc513e22196b30ccc9fad3fb836f1cff80312c66fab96"
+      },
+      "source_association": "wlroots-0.19.0.tar.gz"
+    }
+  }
+}
