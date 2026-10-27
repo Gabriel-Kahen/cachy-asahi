@@ -78,6 +78,18 @@ class Comparison:
     def __init__(self):
         self.reader = Reader()
         self.findings = []
+        self.producer_roots = set()
+
+    def producer_complete(self, root):
+        fd = snapshot.opened(root, directory=True)
+        try:
+            try:
+                snapshot.os.stat("INCOMPLETE", dir_fd=fd, follow_symlinks=False)
+            except FileNotFoundError:
+                return
+            raise ValueError("retained bundle publication is incomplete")
+        finally:
+            snapshot.os.close(fd)
 
     def document(self, ref):
         value = audit.load_json(self.reader.bound(ref, 8 * MIB))
@@ -212,10 +224,21 @@ class Comparison:
              and receipt["sources_rechecked"] is True and all(receipt.get(key) is False for key in FALSE_CLAIMS),
              "collector receipt/snapshot/scope pairing refused")
         code = receipt["source_code_sha256"]
-        need(isinstance(code, dict) and set(code) == {"scripts/platform/target_snapshot.py", "scripts/platform/capture.py",
-                                                   "scripts/platform/tuple_audit.py", "scripts/hardware/capture-baseline.py"}
+        core = {"scripts/platform/target_snapshot.py", "scripts/platform/capture.py",
+                "scripts/platform/tuple_audit.py", "scripts/hardware/capture-baseline.py"}
+        producer = "scripts/platform/retained_bundle.py"
+        need(isinstance(code, dict) and set(code) in (core, core | {producer})
              and all(isinstance(key, str) and isinstance(value, str) and re.fullmatch(r"[a-f0-9]{64}", value)
                      for key, value in code.items()), "collector code map refused")
+        if producer in code:
+            root = Path(bundle["context"]["path"]).parent
+            self.producer_complete(root)
+            manifest = audit.load_json(self.reader.read(root / "bundle.json", 8 * MIB)[0])
+            provenance = audit.load_json(self.reader.read(root / "producer-receipt.json", 8 * MIB)[0])
+            need(manifest == bundle and provenance.get("bundle") == bundle
+                 and provenance.get("source_code_sha256") == code
+                 and provenance.get("status") == "RETAINED_METADATA_ONLY", "retained bundle producer binding refused")
+            self.producer_roots.add(root)
         retained, original, root, fixture_runtime = self.retained_inputs(bundle, receipt)
         fields(target, {"schema_version", "kind", "model", "device_tree_compatible", "packages", "captured_at",
                         "runtime", "boot_assets", "configuration_backups"}, "snapshot fields refused")
@@ -349,6 +372,8 @@ class Comparison:
             self.compare(loaded["before"], loaded["after"], proposal)
         try:
             self.reader.recheck()
+            for root in self.producer_roots:
+                self.producer_complete(root)
         except (ValueError, OSError) as error:
             self.finding("MISSING_EVIDENCE", "input-drift-before-report", reason=str(error))
         statuses = {row["status"] for row in self.findings}
