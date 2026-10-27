@@ -1,10 +1,12 @@
 {
   "Root_acceptance": null,
   "actual": null,
-  "actual_parent": "8d1fff1dac0e4e72cfd8bb94582c35da43e34d3b",
-  "actual_parent_tree": "e29bcb6d69e280e8451fe454f457b690df249dd8",
+  "actual_parent": "c5924f1431ec1077019911c4f4e1f7c2f6e88d68",
+  "actual_parent_tree": "4bfa1456d555359cca5394a20d9cfc8323bf688a",
   "budgets": {
     "completion_guarantee": false,
+    "dependency_input_join_seconds": 60,
+    "dependency_input_step_minutes": 2,
     "job_minutes": 350,
     "owner_allocation_reason": "100min exceeds unchanged4870+650+5s finite child/cleanup path; old loose270min step made explicit caps383min exceed global350",
     "owner_cleanup_seconds": 650,
@@ -12,8 +14,9 @@
     "owner_inner_seconds": 4870,
     "owner_outer_wrapper_seconds": 15600,
     "owner_step_minutes": 100,
-    "sequential_minutes": 314,
-    "step_count": 47,
+    "sequential_minutes": 316,
+    "source_input_check_seconds": 30,
+    "step_count": 48,
     "steps": [
       {
         "minutes": 2,
@@ -231,31 +234,78 @@
         "number": 43
       },
       {
+        "minutes": 2,
+        "name": "Join exact retained dependency archive and signature before native owner",
+        "number": 44
+      },
+      {
         "minutes": 100,
         "name": "Freshly provision signed607 root snapshot lease and guarded recovery",
-        "number": 44
+        "number": 45
       },
       {
         "minutes": 12,
         "name": "Independently verify outer retirement and dispose owned607 resources",
-        "number": 45
-      },
-      {
-        "minutes": 3,
-        "name": "Retain closed raw native607 evidence without acceptance inference",
         "number": 46
       },
       {
         "minutes": 3,
-        "name": "Retain bounded complete574 transport and source DATA",
+        "name": "Retain closed raw native607 evidence without acceptance inference",
         "number": 47
+      },
+      {
+        "minutes": 3,
+        "name": "Retain bounded complete574 transport and source DATA",
+        "number": 48
       }
     ],
-    "unallocated_job_minutes": 36
+    "unallocated_job_minutes": 34
+  },
+  "causal_actual": {
+    "archive_URL_in_trace": "UNKNOWN",
+    "archive_attribution": "SOURCE_ORDER_AND_CACHE_INFERENCE",
+    "attempt": 1,
+    "job": 122478315351,
+    "raw_error": "HTTP404_AT_ARCHIVE_FETCH",
+    "run": 40586254399,
+    "source": "c5924f1431ec1077019911c4f4e1f7c2f6e88d68",
+    "status": "FAILURE_DATA_ONLY"
+  },
+  "dependency_inputs": {
+    "GPG": "UNCHANGED_ORIGINAL_ACQUIRE_REQUIRED",
+    "acceptance": false,
+    "acquire_sha256": "d87249d22f1184ee46d7d98db981ae394ae8e72847057b53bfecd778ab970d77",
+    "all_prior_cache_bytes_inodes_metadata": "MUST_REMAIN_UNCHANGED",
+    "cache": "$RUNNER_TEMP/alarm-cache",
+    "changed_package_pins": false,
+    "cleanup_authority": false,
+    "files": {
+      "archlinux-contrib-20261009-1-any.pkg.tar.xz": {
+        "bytes": 24792,
+        "sha256": "0cda9e6618956615a9065265300af78d1c4b5693bbfe3f6aab7f58b8aa0eeca3"
+      },
+      "archlinux-contrib-20261009-1-any.pkg.tar.xz.sig": {
+        "bytes": 566,
+        "sha256": "747683dd22f7264d672919be36e1fa3bc433d8e980d2202927c8b1ec5ad51ff8"
+      },
+      "inputs.lock.json": {
+        "bytes": 5654,
+        "sha256": "9a8064cde23ad90c2352395bdd1f6f5a8e843b3db3468cd2cc5a90829dc32704"
+      }
+    },
+    "helper": {
+      "bytes": 8819,
+      "sha256": "08008144be7a1947a8b72a9cb0939a510196828996c1ebcdc1cf4a7c6a9d8612"
+    },
+    "network": "NONE",
+    "public_provenance_source": "405761af52cdfa92b97bbf5b0519f32230d9a254",
+    "public_provenance_tree": "3ed40f295ad50cfc1ae5a20e1c7da2d33f878d11",
+    "receipt": "$RUNNER_TEMP/apps607-retained-dependency-inputs.json",
+    "status": "EXACT_RETAINED_ARCHIVE_AND_SIGNATURE_NOT_AUTHENTICATION"
   },
   "diagnostic_basis_capsule": {
-    "bytes": 100125,
-    "sha256": "0c570d918cc37478c3f0bae004c94c76b0ab601cc0f5b5f6e3bd1bef8985a644"
+    "bytes": 101072,
+    "sha256": "f9899ac254c004eaea35ed51d386f8ff0277f9ac0e70bd56c4073228ac1a9357"
   },
   "hardware": "NOT_RUN",
   "inputs": {
@@ -278,8 +328,8 @@
   "ref": null,
   "schema_version": 1,
   "source": null,
-  "source_files": 539,
-  "status": "SOURCE_ONLY_DIAGNOSTIC_TRANSPORT_NATIVE_INPUT_CONTRACT",
+  "source_files": 543,
+  "status": "SOURCE_ONLY_EXACT_RETAINED_DEPENDENCY_INPUT_CONTRACT",
   "transport": {
     "bytes": 1046432165,
     "cleanup_authority": false,
@@ -347,8 +397,8 @@
   },
   "workflow": {
     "alias": ".github/workflows/native-arm-apps16-reinstall-interruption.yml",
-    "current_registry": "NOT_QUERIED",
-    "name": "native-arm-apps607-diagnostic-transport",
+    "current_registry": "NOT_QUERIED_NO_API",
+    "name": "native-arm-apps607-retained-dependency-input",
     "path": ".github/workflows/native-arm-build.yml",
     "prior_observed_id": 381664314
   }
