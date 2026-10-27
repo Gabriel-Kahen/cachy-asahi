@@ -23,7 +23,7 @@ def source(root,pin):
         folder=Path(folder)
         for n in tuple(children):
             p=folder/n;need(not p.is_symlink(),'source directory symlink')
-            if folder==root and n in ('.git','retained-public-inputs','retained574','retained-native-tools'):children.remove(n)
+            if folder==root and n in ('.git','retained-public-inputs','retained-native-tools'):children.remove(n)
             else:dirs.add(p.relative_to(root).as_posix())
         for n in files:seen.add((folder/n).relative_to(root).as_posix())
     need(seen==expected and dirs=={p.as_posix() for n in expected for p in Path(n).parents if p!=Path('.')},'closed source namespace')
@@ -71,11 +71,133 @@ def admitted(args):
     need(held['identity']==own and held['map_sha256']==args.manifest_sha256,'same presecret proof')
     return manifest,own,tmp
 
+CARRIER_SOURCE='ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad'
+CARRIER_TREE='e21f947bac3afdfbd67e4e65c8234b35ae42b00f'
+CARRIER_PROFILE='4089fd798849cafda23d03c0dd95ac896a83fd63ad21e331ae420c147535586c'
+NATIVE_WORK_PATHS=('bootstrap-actors','bootstrap.json','kit-actors','maintenance','diagnostics',
+    'kit-results.json','accepted-carrier','accepted-carrier.json','cleanup-actors')
+NATIVE_BASE_PATHS=('report.json','image-id','probe-cid')
+
+
+def transport(args):
+    """One complete exact fetch directly outside the executable source; DATA only."""
+    _,own,tmp=admitted(args);work=Path(args.work);carrier=C.safe_path(tmp/'offline-kit-retained574')
+    need(not os.path.lexists(carrier) and not carrier.is_relative_to(ROOT) and not ROOT.is_relative_to(carrier),
+         'fresh outside-source retained DATA path required')
+    need(carrier.parent.stat().st_uid==os.getuid() and not carrier.parent.stat().st_mode&0o022,
+         'owned external retained DATA parent required')
+    receipt=work/'input-transport-owner.json';need(not os.path.lexists(receipt),'one-shot transport receipt required')
+    raw=read(ROOT/'scripts/ci/retained-build-inputs/carrier-profile.json');profile=json.loads(raw)
+    need(sha(raw)==CARRIER_PROFILE and profile['source']==CARRIER_SOURCE and len(profile['files'])==1154
+         and sum(row['bytes'] for row in profile['files'].values())==1046432165,'full original retained profile required')
+    report=dict(status='STARTED_RETAINED_INPUT_TRANSPORT_DATA',identity=own,carrier_path=str(carrier),
+        carrier_source=CARRIER_SOURCE,profile_sha256=CARRIER_PROFILE,expected_carrier_files=1154,
+        expected_carrier_bytes=1046432165,budget_seconds=480,retry=False,partial_data_retained=True,
+        native='NOT_RUN',acceptance=False,authentication='ORIGINAL_COMPLETE_PREPARE_AND_NATIVE_SIGNATURE_AUDIT_STILL_REQUIRED')
+    save(receipt,report)
+    try:
+        actor=C.Actors(work/'input-transport-actors',480);fresh(carrier).chmod(0o700)
+        git=['git','-c','credential.helper=','-c','http.extraHeader=','-c','http.sslVerify=true',
+             '-c','core.hooksPath=/dev/null','-c','protocol.allow=never','-c','protocol.https.allow=always']
+        actor.run([*git,'init','--template=',str(carrier)],timeout=10)
+        actor.run([*git,'-C',str(carrier),'-c','http.lowSpeedLimit=65536','-c','http.lowSpeedTime=60',
+            'fetch','--depth=1','--no-tags','--no-recurse-submodules',
+            'https://github.com/Gabriel-Kahen/cachy-asahi.git',CARRIER_SOURCE],timeout=400)
+        fetched=actor.run([*git,'-C',str(carrier),'rev-parse','--verify','FETCH_HEAD'],timeout=10)
+        need(fetched==CARRIER_SOURCE,'exact fetched retained commit required')
+        actor.run([*git,'-C',str(carrier),'checkout','--detach',CARRIER_SOURCE],timeout=45)
+        head=actor.run([*git,'-C',str(carrier),'rev-parse','--verify','HEAD'],timeout=10)
+        need(head==CARRIER_SOURCE,'exact retained DATA HEAD required')
+        report.update(status='PASS_EXACT_RETAINED_INPUT_TRANSPORT_DATA_ONLY',carrier_head=head)
+    except(Exception,KeyboardInterrupt)as error:
+        report.update(status='FAIL_RETAINED_INPUT_TRANSPORT_DATA',error=type(error).__name__+': '+str(error)[:2048]);raise
+    finally:save(receipt,report)
+
+
+def transport_receipt(work,own,tmp):
+    transferred=load(work/'input-transport-owner.json')
+    need(transferred['status']=='PASS_EXACT_RETAINED_INPUT_TRANSPORT_DATA_ONLY' and transferred['identity']==own
+         and transferred['carrier_path']==str(tmp/'offline-kit-retained574')
+         and transferred['carrier_source']==transferred['carrier_head']==CARRIER_SOURCE
+         and transferred['profile_sha256']==CARRIER_PROFILE and transferred['expected_carrier_files']==1154
+         and transferred['expected_carrier_bytes']==1046432165 and transferred['budget_seconds']==480
+         and transferred['retry']is False and transferred['partial_data_retained']is True
+         and transferred['native']=='NOT_RUN' and transferred['acceptance']is False
+         and transferred['authentication']=='ORIGINAL_COMPLETE_PREPARE_AND_NATIVE_SIGNATURE_AUDIT_STILL_REQUIRED',
+         'same-owner full exact retained transport DATA required')
+    need(read(work/'phase-logs/transport.exit-code')==b'0\n','successful raw transport phase required')
+    read(work/'phase-logs/transport.stdout');read(work/'phase-logs/transport.stderr')
+    return transferred
+
+
+def prepared_receipt(base,transferred):
+    prepared=load(base/'offline-kit-retained574-inputs.json');joined=prepared['carrier']
+    need(prepared['status']=='EXACT_RETAINED_INPUT_PREPARATION_DATA_ONLY'
+         and joined['status']=='WHOLE_IMMUTABLE_SOURCE_GIT_JOIN_NO_NATIVE_AUTHORITY'
+         and prepared['source']==joined['source']==transferred['carrier_source']==CARRIER_SOURCE
+         and joined['ref']=='codex/native574-complete-retained-inputs-v1' and joined['tree']==CARRIER_TREE
+         and type(joined['files'])is type(joined['blob_joins'])is int and joined['files']==joined['blob_joins']==1154
+         and prepared['mode']=='desktop574' and prepared['actual']is None
+         and prepared['receipt']['actual_authority']is False
+         and prepared['receipt']['cache']['all_previous_inode_metadata_bytes_unchanged']is True,
+         'unchanged full1154 Git/blob preparation and cache preservation required')
+    return prepared
+
+
+def transport_failed_cleanup(work,own,tmp):
+    receipt=work/'input-transport-owner.json'
+    native=any(os.path.lexists(work/n)for n in NATIVE_WORK_PATHS) or any(
+        os.path.lexists(tmp/'desktop574'/n)for n in NATIVE_BASE_PATHS)
+    target=work/'ordered-cleanup.json'
+    if not os.path.lexists(receipt):
+        if native:return False
+        code_path=work/'phase-logs/transport.exit-code';code=None
+        if os.path.lexists(code_path):
+            raw=read(code_path);need(re.fullmatch(rb'[1-9][0-9]*\n',raw) and int(raw)<=255,
+                 'missing transport receipt cannot accompany a successful raw phase')
+            code=int(raw)
+        need(not os.path.lexists(target),'fresh pre-native diagnostic required')
+        save(target,dict(status='INPUT_TRANSPORT_NOT_ESTABLISHED_BEFORE_NATIVE_ACTORS_DIAGNOSTIC_ONLY',identity=own,
+            transport_receipt_sha256=None,transport_phase_exit=code,partial_carrier_path=str(tmp/'offline-kit-retained574'),
+            carrier_ownership='UNKNOWN_OR_NOT_ESTABLISHED',partial_data_preserved=True,native='NOT_RUN',
+            native_cleanup='NOT_ESTABLISHED',acceptance=False,
+            transport_process_scope='NO_LIVE_RECHECK_OR_NATIVE_ABSENCE_CREDIT'))
+        return True
+    transferred=load(receipt)
+    if transferred.get('status')=='PASS_EXACT_RETAINED_INPUT_TRANSPORT_DATA_ONLY':
+        if native:return False
+        transport_receipt(work,own,tmp)
+        need(not os.path.lexists(target),'fresh pre-native DATA diagnostic required')
+        save(target,dict(status='INPUT_TRANSPORT_COMPLETED_BEFORE_NATIVE_ACTORS_DIAGNOSTIC_ONLY',identity=own,
+            transport_receipt_sha256=sha(read(receipt)),transport_phase_exit=0,
+            partial_carrier_path=str(tmp/'offline-kit-retained574'),partial_data_preserved=True,
+            native='NOT_RUN',native_cleanup='NOT_ESTABLISHED',acceptance=False,
+            transport_process_scope='NO_LIVE_RECHECK_OR_NATIVE_ABSENCE_CREDIT'))
+        return True
+    need(transferred.get('status')in('STARTED_RETAINED_INPUT_TRANSPORT_DATA','FAIL_RETAINED_INPUT_TRANSPORT_DATA'),
+         'known input transport status required before cleanup')
+    need(not native,'native evidence prohibits passive failed-transport diagnostic')
+    need(transferred['identity']==own and transferred['carrier_path']==str(tmp/'offline-kit-retained574')
+         and transferred['carrier_source']==CARRIER_SOURCE and transferred['acceptance']is False,
+         'same-owner external failed transport required')
+    code=read(work/'phase-logs/transport.exit-code');need(re.fullmatch(rb'[1-9][0-9]*\n',code) and int(code)<=255,
+         'failed raw transport status required for diagnostic')
+    read(work/'phase-logs/transport.stdout');read(work/'phase-logs/transport.stderr')
+    need(not os.path.lexists(target),'fresh transport diagnostic required')
+    save(target,dict(status='INPUT_TRANSPORT_FAILED_BEFORE_NATIVE_ACTORS_DIAGNOSTIC_ONLY',identity=own,
+        transport_receipt_sha256=sha(read(receipt)),partial_carrier_path=str(tmp/'offline-kit-retained574'),
+        partial_data_preserved=True,native='NOT_RUN',native_cleanup='NOT_ESTABLISHED',acceptance=False,
+        transport_process_scope='CONSULT_RETAINED_ACTOR_RECEIPTS_NO_LIVE_RECHECK_OR_NATIVE_ABSENCE_CREDIT'))
+    return True
+
+
 def bootstrap(args):
     _,own,tmp=admitted(args);work=Path(args.work);base=tmp/'desktop574'
+    transferred=transport_receipt(work,own,tmp)
     p=C.module(HERE/'prefill574.py','exact574_data_prefill')
     deadline=time.monotonic()+2290
-    p.prefill(ROOT,ROOT/'retained574',base,deadline)
+    p.prefill(ROOT,tmp/'offline-kit-retained574',base,deadline)
+    prepared_receipt(base,transferred)
     producer=C.module(ROOT/'scripts/ci/maintained_desktop574.py','exact574_core')
     inputs=load(ROOT/'scripts/ci/maintained-desktop574-inputs.json')
     package_names={row['filename'] for row in inputs['packages']}
@@ -144,8 +266,32 @@ def run(args):
         save(work/'kit-results.json',dict(status='PARTIAL',identity=own,packages=results))
     save(work/'kit-results.json',dict(status='PASS_TWO_ACTUAL_ACCEPTED_TOOLS_KITS_PENDING_CLEANUP',identity=own,packages=results,full_base_payload_installed=False,hardware='NOT_RUN',release='NOT_ADMITTED'))
 
+def same_consumer_inspection(saved,current):
+    """Only Docker's observed false/null OOM default may change across stop."""
+    if type(saved) is not dict or type(current) is not dict:
+        return False
+    for name in ('Id','Name','Image'):
+        if type(saved.get(name)) is not str or saved[name]!=current.get(name):
+            return False
+    if any(type(row.get(name)) is not dict for row in (saved,current) for name in ('Config','HostConfig')):
+        return False
+    hosts=[]
+    for row in (saved,current):
+        host=dict(row['HostConfig'])
+        if 'OomKillDisable' not in host or not (host['OomKillDisable'] is False or host['OomKillDisable'] is None):
+            return False
+        host['OomKillDisable']=False
+        hosts.append(host)
+    before,after=(saved['Config'],hosts[0]),(current['Config'],hosts[1])
+    try:
+        return before==after and json.dumps(before,sort_keys=True,allow_nan=False)==json.dumps(after,sort_keys=True,allow_nan=False)
+    except (TypeError,ValueError):
+        return False
+
 def cleanup(args):
-    _,own,tmp=admitted(args);work=Path(args.work);actor=C.Actors(work/'cleanup-actors',300);removed=[]
+    _,own,tmp=admitted(args);work=Path(args.work)
+    if transport_failed_cleanup(work,own,tmp):return
+    actor=C.Actors(work/'cleanup-actors',300);removed=[]
     ids=actor.docker('ps','-aq','--no-trunc','--filter','label='+C.LABEL+'='+own['token']).split()
     base=load(work/'bootstrap.json') if (work/'bootstrap.json').exists() else None
     for cid in ids:
@@ -153,15 +299,16 @@ def cleanup(args):
         need(base is not None and row['Name']=='/'+own['consumer'] and row['Image']==base['image'] and
              row['Config']['Labels'].get(C.LABEL)==own['token'],'same owned consumer only')
         matches=[load(p) for p in work.glob('*/trial-*-inspection.json') if load(p)['Id']==cid]
-        need(len(matches)==1 and matches[0]['Config']==row['Config'] and matches[0]['HostConfig']==row['HostConfig'],'owned finite consumer inspection receipt')
+        need(len(matches)==1 and same_consumer_inspection(matches[0],row),'owned finite consumer inspection receipt')
         actor.docker('rm','-f',cid);removed.append(cid)
     need(not actor.docker('ps','-aq','--no-trunc','--filter','label='+C.LABEL+'='+own['token']) and
          not actor.docker('ps','-aq','--no-trunc','--filter','name=^/'+own['consumer']+'$'),'all kit consumers absent before574 image retirement')
     core_report=tmp/'desktop574/report.json'
-    if core_report.exists():
+    if os.path.lexists(core_report):
+        load(core_report)  # Ordinary original ownership DATA is required before its cleanup actor.
         actor.run([sys.executable,'-I','-B',ROOT/'scripts/ci/maintained_desktop574.py','cleanup','--inputs',ROOT/'scripts/ci/maintained-desktop574-inputs.json','--output',tmp/'desktop574','--job-token',own['token']],timeout=180)
         result=load(core_report);need(result['owned_cleanup']['status']=='PASS','original574 strict ownership cleanup')
-    else:need(base is None,'missing original producer receipt')
+    else:raise ValueError('missing original producer ownership report cannot establish native cleanup')
     save(work/'ordered-cleanup.json',dict(status='PASS_CONSUMERS_ABSENT_THEN_ORIGINAL574_RETIRED',identity=own,removed=removed))
 
 def retain(args):
@@ -185,11 +332,13 @@ def retain(args):
         dst=out/'source'/name;dst.parent.mkdir(parents=True,exist_ok=True);dst.write_bytes(raw);files['source/'+name]=dict(bytes=len(raw),sha256=sha(raw))
     complete=(work/'kit-results.json').exists() and (work/'ordered-cleanup.json').exists()
     result=load(work/'kit-results.json') if complete else {}
+    if complete and result.get('status')=='PASS_TWO_ACTUAL_ACCEPTED_TOOLS_KITS_PENDING_CLEANUP':
+        transferred=transport_receipt(work,own,tmp);prepared_receipt(tmp/'desktop574',transferred)
     status='PASS_NATIVE_TWO_ACCEPTED_TOOLS_OFFLINE_KIT_FINITE_ALPM_ONLY' if complete and load(work/'ordered-cleanup.json')['status']=='PASS_CONSUMERS_ABSENT_THEN_ORIGINAL574_RETIRED' and result.get('status')=='PASS_TWO_ACTUAL_ACCEPTED_TOOLS_KITS_PENDING_CLEANUP' else 'INCOMPLETE_OR_FAILED'
     save(out/'result.json',dict(status=status,identity=own,files=files,bytes=total,export_trees='candidate-exports.tar.gz preserves all five post-commit snapshots and aliases per package; repeated working seeds omitted when capsule exists',private_paths='producer/signing/original-trust never exported',full_base_payload_installed=False,hardware='NOT_RUN',release='NOT_ADMITTED'))
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('command',choices=('proof','bootstrap','run','cleanup','retain'))
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('command',choices=('proof','transport','bootstrap','run','cleanup','retain'))
     p.add_argument('--manifest-sha256',required=True);p.add_argument('--work',required=True);p.add_argument('--execute',action='store_true');a=p.parse_args()
     globals()[a.command](a)
 if __name__=='__main__':main()

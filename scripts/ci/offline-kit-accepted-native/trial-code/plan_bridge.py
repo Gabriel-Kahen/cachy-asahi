@@ -14,7 +14,6 @@ from pathlib import Path
 import sys
 
 sys.dont_write_bytecode = True
-ROOT = Path(__file__).absolute().parents[2]
 
 
 def need(ok, message):
@@ -23,7 +22,10 @@ def need(ok, message):
 
 
 def kit_api():
-    path = ROOT / 'scripts/release/offline_kit.py'
+    # Relocated receivers supply their already authenticated API to plan().
+    source = Path(__file__).absolute()
+    need(len(source.parents) > 2, 'relocated proposal requires an explicit authenticated kit API')
+    path = source.parents[2] / 'scripts/release/offline_kit.py'
     spec = importlib.util.spec_from_file_location('trusted_offline_kit_plan_runtime', path)
     value = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(value)
