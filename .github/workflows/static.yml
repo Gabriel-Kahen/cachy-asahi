@@ -100,6 +100,10 @@ jobs:
                   subprocess.run([sys.executable, '-B', '-c', runner, directory], env=env, check=True)
           PY
           bash -n scripts/build/container-entry.sh
+      - name: Check portable offline kit and original recipe source delivery
+        run: |
+          python3 -B -Werror::ResourceWarning scripts/release/test_offline_kit.py
+          python3 -I -B -Werror::ResourceWarning scripts/release/test_recipe_source_delivery.py
       - name: Check explicit Apps7 inventory parser candidate
         run: |
           python3 -I -B packages/tools/cachy-asahi-apps7/check_source.py --repository-source "$PWD" --recipe-root packages/tools/cachy-asahi-apps7
