@@ -1,52 +1,52 @@
 {
   "Root_acceptance": null,
   "actual_GUI": "NOT_RUN",
-  "created": 1793066963,
-  "expires": 1793153363,
+  "created": 1793132014,
+  "expires": 1793218414,
   "files": {
     "catalog.json": {
       "bytes": 2852,
-      "sha256": "033091fba4a36ba80bba26e22f0dd25104a7b587ebc4a1e84a63928365511d42"
+      "sha256": "90dcae8b8b73d87c10b72a5f8196e386ee9b38b6b08b79b5d3e211a3753e575f"
     },
     "catalog.json.sig": {
       "bytes": 310,
-      "sha256": "5d75faae24f8a8f9263cc40ba78c209f01bf1486633ea2e012db41ec7c0a320d"
+      "sha256": "ee582f21961dbc848e1d29d248468bc45f4510bc6f57f15eab830fb3c55db28c"
     },
     "provenance.json": {
-      "bytes": 108971,
-      "sha256": "01f1c008141a203eb0b1c12854da237e538ccceb1a6648782a7dd34a4eabafa6"
+      "bytes": 184326,
+      "sha256": "6f241d82a6eb9f457b194f3d4035f280da53eb1d8e94ffa37ca0d18c41794d76"
     },
     "public-key.asc": {
       "bytes": 1026,
-      "sha256": "cfa734b0b2d4452a2de7f1f0b3e00e62f820219e44cf6c774c3853adb5077f59"
+      "sha256": "9659d485e339a51f891deae0c35342fa6ca8946c53d5dd3c3ca124746b9a6046"
     },
     "result.json": {
       "bytes": 14391,
-      "sha256": "4c14071bcc6040d32068a773138ffbf6e0d7c0f93d805b689a3dc1d29b604710"
+      "sha256": "aa188900e308ecd054db6fa3c38e58db4826b4b2177fe817b87d371132f13e72"
     },
     "signatures/dns2.sig": {
       "bytes": 310,
-      "sha256": "f68057199865f948ae23dc3dbbeaab9a5d15afacd03f7582451a1fa8a34508fa"
+      "sha256": "6a7156567874fa9124cac970c09fc6c9193634ee987548cca6dcad54b3920f0f"
     },
     "signatures/doctor.sig": {
       "bytes": 310,
-      "sha256": "c3e67a497425af226fc87661171a8f00278b04d598462b4921f35b4da90405c4"
+      "sha256": "1059861c2334591ea010507f4d04c510ffed7f541cbd8b60b0bb3cbe771f3371"
     },
     "signatures/held77-index.sig": {
       "bytes": 310,
-      "sha256": "5e3598b1a2b27b6d279e59c0c0a4f6da3ea1250a732a40e8cb768040a5a5a43b"
+      "sha256": "f4f54529d9c0a4d295185c8ee53fc215fad85cfeacd53d847a90b5c60480f00c"
     },
     "signatures/native73-index.sig": {
       "bytes": 310,
-      "sha256": "e09eb395f9fef37ea627b4cbd1b353ab9c47bd7cfb1f60bea141f9d0788b0a7e"
+      "sha256": "39c7655f758b9981449297488679d156d73d8f5915c6b6d881b38e65f6ae1bc3"
     },
     "signatures/orphans.sig": {
       "bytes": 310,
-      "sha256": "d0680585b117d17e60b34725845f6ee0769be13bfa015a4d93d64bc1289c548a"
+      "sha256": "c9e8b39d14fd50bcde78fe4e6b3b46230a396d507132aae8478dbf0ab53bdc2d"
     },
     "signatures/welcome5.sig": {
       "bytes": 310,
-      "sha256": "807962a94dc9ed6352bcd9ea55da3eb7865ed1b18d7c4cd611ad011c705b35fd"
+      "sha256": "a90294a23575d4af09837f8d3408ad34a7223ffde8c8992a07e78f8343cd2651"
     }
   },
   "input_plan": {
@@ -55,5 +55,5 @@
   },
   "kind": "NEW_GUI_FRESH_TEST_SIGNING_OUTPUTS_REQUIRES_NEW_VERSIONED_SOURCE_REFERENCES",
   "schema_version": 1,
-  "signer": "EC1DA61C5D9C91638CC42A598EDB36DD1EC0BDB1"
+  "signer": "86E873FCF42D98B2E38CF370329A06AB61D55DF3"
 }
