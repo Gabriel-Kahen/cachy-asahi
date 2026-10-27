@@ -1,0 +1,109 @@
+{
+  "after": "41c0278c40512311cc940198347db362e0da1a14673f70516bf2a67ed9d6a513",
+  "before": "7dde550c0443bfe2e282e90559085baec52214161b7779005bfeb6877f426e23",
+  "config_sha256": "1d7408d0878a0a18c04c7b60a5241ba62e3437c843380edbe8762c660d713f17",
+  "copy_cost_profile": {
+    "after": {
+      "bytes": 15259,
+      "sha256": "566f2ee45e1acde40897c398722b446611bde6c5c8c629ff1addb92750b87e11"
+    },
+    "before": {
+      "bytes": 14123,
+      "sha256": "1eac88fb8ad630b3426b56edbc3c72e5715c4e0ae8f56ca2218ea8b0ad5d1024"
+    },
+    "clocks": "UNCHANGED",
+    "copy_substage_acceptance": false,
+    "native_fit": "UNKNOWN_NOT_RUN",
+    "original_caller_stderr_cap": 8192,
+    "profile": "UPDATER_PRIVATE_COPY_COST_DATA_V1",
+    "scalar_bytes": 3072,
+    "scalar_records": 12
+  },
+  "counted_edits": 5,
+  "diagnostic": "FAILURE_ONLY_ORIGINAL_LIBALPM_DEBUG_AND_BOUNDED_METADATA",
+  "driver_copy_validation_profile": {
+    "additive_composition_fit": "NOT_ESTABLISHED",
+    "caller_seconds": 3900,
+    "case": "normal",
+    "copy_before_seconds": 600,
+    "copy_is_nested_within_driver": true,
+    "copy_seconds": 1200,
+    "driver_seconds": 1860,
+    "future_case_runtime_fit": "REQUIRES_ORIGINAL_ACTUAL_EACH_CASE",
+    "hook_after": {
+      "bytes": 14123,
+      "sha256": "1eac88fb8ad630b3426b56edbc3c72e5715c4e0ae8f56ca2218ea8b0ad5d1024"
+    },
+    "hook_before": {
+      "bytes": 14122,
+      "sha256": "554f1b434925796de48149b498a2ff26f04ef173bab5d7afc8469bb96f7a0a3a"
+    },
+    "independent_materialization_profile": "MATERIALIZE1200_NONRESERVED_CALLER3900_V1",
+    "nested_stage_driver_verify_sum": 3660,
+    "old600_copy_fit": "NOT_ESTABLISHED",
+    "original_driver_aux_runtime_and_product_defaults": "BYTE_HELD",
+    "profile": "DRIVER_COLD_COPY1200_NONRESERVED_CALLER3900_V1",
+    "reserved_setup_or_cleanup_seconds": 0,
+    "semantics": "NONRESERVED_COPY_ALLOWANCE_WITHIN_UNCHANGED_DRIVER_AND_HARD3900",
+    "stage_seconds": 1200,
+    "verify_seconds": 600,
+    "worker_seconds": 3900
+  },
+  "driver_descriptor_profile": {
+    "after": {
+      "bytes": 42782,
+      "sha256": "c953046e2174adbb4ac3f5bf5e959931c5c760f253cc90788d0e1429b3285dcd"
+    },
+    "before": {
+      "bytes": 3736,
+      "sha256": "bff93c029e21f9fce0868c80566396984443c8d3438264fac8a91c985175f05b"
+    },
+    "budgets": "UNCHANGED",
+    "helper": {
+      "bytes": 39044,
+      "sha256": "f289185c85726277552db7303a58460328f08672d55413ce0adb98dc4997f3f3"
+    },
+    "mount_identity_cache": false,
+    "native_timeout_fit": "NOT_ESTABLISHED",
+    "observation": "FULL_FRESH_ORIGINAL_SOURCE_DEST_SOURCE_AFTER_AND_AUXILIARY",
+    "profile": "UPDATER_PRIVATE_FRESH_DESCRIPTOR_V1",
+    "query": "EXACT_OBSERVER600_STATX_MNT_ID_FIRST_RESULT_CROSSCHECK_ORIGINAL_FDINFO_FALLBACK",
+    "transaction_runtime": "BYTE_HELD"
+  },
+  "persistent_stage_diagnostic": {
+    "acceptance_authority": false,
+    "after": "bf6f0c31a08cc2a3ceca0dfd6f697f454957ca5e299a99ec2c9d1499ed7d8c5b",
+    "before": "cd1f23bd252b77e9b3a9e907e1c0defd5141025408e92ae5c2500152076b6f3a",
+    "new_walks": 0,
+    "original_guard": "UNCHANGED_RERAISED"
+  },
+  "status": "SOURCE_DERIVED_NOT_EXECUTED",
+  "unchanged": "ALL_TRANSACTION_DECISIONS_GUARDS_AND_REQUIRED_SIGNATURE_POLICY",
+  "validation_capacity_profile": {
+    "additive_composition_fit": "NOT_ESTABLISHED",
+    "caller_seconds": 3900,
+    "case": "normal",
+    "copy_seconds": 600,
+    "driver_seconds": 1860,
+    "future_case_runtime_fit": "REQUIRES_ORIGINAL_ACTUAL_EACH_CASE",
+    "hook_after": {
+      "bytes": 14122,
+      "sha256": "554f1b434925796de48149b498a2ff26f04ef173bab5d7afc8469bb96f7a0a3a"
+    },
+    "hook_before": {
+      "bytes": 14121,
+      "sha256": "43d51c985c3164e6e8d8fb7b62b764580a4a096fbf1b3a02de471cbcefcac2a3"
+    },
+    "nested_stage_driver_verify_sum": 3660,
+    "old900_fit": "NOT_ESTABLISHED",
+    "original_rereads_security_and_product_limits": "HELD",
+    "prior_nested_stage_driver_verify_sum": 3360,
+    "profile": "MATERIALIZE1200_NONRESERVED_CALLER3900_V1",
+    "reserved_setup_or_cleanup_seconds": 0,
+    "semantics": "NONRESERVED_NESTED_STAGE_ALLOWANCE_HARD3900_ENCLOSING_CEILINGS",
+    "stage_before_seconds": 900,
+    "stage_seconds": 1200,
+    "verify_seconds": 600,
+    "worker_seconds": 3900
+  }
+}
