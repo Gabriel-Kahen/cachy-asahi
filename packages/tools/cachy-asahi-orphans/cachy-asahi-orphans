@@ -82,7 +82,7 @@ def unlocked(db):
     raise Refused('existing ALPM lock: active or uncertain; readonly assessment refused')
 
 
-def database_snapshot(db):
+def database_snapshot(db,*,owned_lock=None):
     result={};descriptions={};bounds=limits()
     with directory(db) as (rootfd,_):
         def walk(fd,prefix):
@@ -97,6 +97,8 @@ def database_snapshot(db):
             for name in sorted(names):
                 relative=prefix+'/'+name if prefix else name;need(len(relative)<=512,'DB relative path limit')
                 info=os.stat(name,dir_fd=fd,follow_symlinks=False)
+                if relative=='db.lck' and owned_lock is not None:
+                    owned_lock.check();result[relative]=dict(kind='owned-lock',**owned_lock.record);continue
                 if stat.S_ISDIR(info.st_mode):
                     child=os.open(name,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=fd)
                     try:walk(child,relative)
@@ -181,10 +183,11 @@ def floor():
     return set(value['base_packages'])|set(value['platform_packages'])
 
 
-def inspect(root,db,extra,selected=(),checkpoint=None):
+def inspect(root,db,extra,selected=(),checkpoint=None,*,owned_lock=None):
     root,db=map(absolute,(root,db));need(db==root/'var/lib/pacman','explicit conventional target DB required')
     need(len(extra)==len(set(extra)) and all(NAME.fullmatch(n) for n in extra),'unique protected package names required')
-    unlocked(db);before,expected=database_snapshot(db);api=None;remaining=None
+    check=(lambda:owned_lock.check()) if owned_lock is not None else (lambda:unlocked(db))
+    check();before,expected=database_snapshot(db,owned_lock=owned_lock);api=None;remaining=None
     try:
         api=Installed(root,db);local=api.lib.alpm_get_localdb(api.handle);need(local and api.lib.alpm_db_get_valid(local)==0,'valid local metadata DB required')
         full=api.lib.alpm_db_get_pkgcache(local);packages=nodes(full,MAX_PACKAGES);pointers={api.name(p):p for p in packages};need(len(pointers)==len(packages) and set(pointers)==set(expected),'ALPM cache incomplete or duplicate')
@@ -223,7 +226,7 @@ def inspect(root,db,extra,selected=(),checkpoint=None):
         if api:
             if remaining:api.lib.alpm_list_free(remaining)
             api.close()
-    unlocked(db);after,again=database_snapshot(db);unlocked(db);need(before==after and expected==again,'full database drift during assessment')
+    check();after,again=database_snapshot(db,owned_lock=owned_lock);check();need(before==after and expected==again,'full database drift during assessment')
     report=dict(schema_version=1,scope=SCOPE,root=str(root),dbpath=str(db),database=before,libalpm=version,protection_floor_sha256=FLOOR_SHA,extra_protected=sorted(extra),packages=rows,candidates=sorted(n for n,r in rows.items() if r['candidate']),broken_dependencies=broken,apply_supported=False)
     return report,lost
 

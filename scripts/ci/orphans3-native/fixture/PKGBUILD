@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: MIT
+# Native disposable trial fixture only; no remote sources, hooks or scriptlets.
+pkgname=(caa-orphans3-leaf-a caa-orphans3-leaf-b caa-orphans3-explicit
+         caa-orphans3-required caa-orphans3-hard-user
+         caa-orphans3-optional caa-orphans3-optional-user caa-orphans3-protected)
+pkgver=1
+pkgrel=1
+pkgdesc='Synthetic ordinary payload for an offline Orphans3 removal trial'
+arch=('any')
+license=('MIT')
+source=('LICENSE')
+sha256sums=('51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7')
+
+_payload() {
+    install -dm755 "$pkgdir/usr/share/orphans3-fixture" || return
+    printf '%s\n' "$pkgname 1-1 ordinary synthetic payload" >"$pkgdir/usr/share/orphans3-fixture/$pkgname.txt" || return
+    install -Dm644 "$srcdir/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}
+package_caa-orphans3-leaf-a() { _payload; }
+package_caa-orphans3-leaf-b() { _payload; }
+package_caa-orphans3-explicit() { _payload; }
+package_caa-orphans3-required() { _payload; }
+package_caa-orphans3-hard-user() { depends=('caa-orphans3-required=1-1'); _payload; }
+package_caa-orphans3-optional() { _payload; }
+package_caa-orphans3-optional-user() { optdepends=('caa-orphans3-optional: retained trial feature'); _payload; }
+package_caa-orphans3-protected() { _payload; }

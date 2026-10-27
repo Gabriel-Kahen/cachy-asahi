@@ -468,26 +468,109 @@ def await_terminal(process, deadline):
     return row
 
 
+def owned_child_policy():
+    """One main-thread reaper; normalize apparent default SA_NOCLDWAIT."""
+    import signal
+    import threading
+    require(threading.current_thread() is threading.main_thread() and threading.active_count() == 1,
+            'owned process spawning requires one main thread')
+    require(signal.getsignal(signal.SIGCHLD) == signal.SIG_DFL, 'default SIGCHLD required')
+    require(hasattr(os, 'waitid') and hasattr(os, 'WNOWAIT'), 'WNOWAIT required before spawn')
+    signal.signal(signal.SIGCHLD, signal.SIG_DFL)
+
+
+class OwnedChild:
+    """Hold an unreaped session leader through the final group signal.
+
+    Independent Python/native reapers are incompatible with this single owner.
+    Only direct waitpid can produce an observed status; never Popen wait/poll.
+    """
+    def __init__(self, process):
+        import threading
+        self.process, self.thread = process, threading.get_ident()
+        self.reserved, self.final_signal, self.observed_returncode = True, False, None
+        self.state = dict(ownership='RESERVED', leader_reaped=False, observed_returncode=None,
+                          final_group_signal=False, error=None)
+
+    def lose(self, reason):
+        self.reserved = False
+        self.state.update(ownership='UNKNOWN', error=reason)
+        # Disarm Popen's finalizer without guessing a zero or reaping a later
+        # reused child. Report evidence remains None until our direct waitpid.
+        self.process._child_created = False
+
+    def observe(self):
+        import signal
+        import threading
+        if not self.reserved:
+            raise Refused('owned child reservation unavailable')
+        if threading.get_ident() != self.thread or signal.getsignal(signal.SIGCHLD) != signal.SIG_DFL:
+            self.lose('reaping policy changed')
+            raise Refused(self.state['error'])
+        if self.process.returncode is not None:
+            self.lose('Popen status changed outside owned wait')
+            raise Refused(self.state['error'])
+        try:
+            row = os.waitid(os.P_PID, self.process.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT)
+            if row is not None and (row.si_pid != self.process.pid or
+                    row.si_code not in (os.CLD_EXITED, os.CLD_KILLED, os.CLD_DUMPED)):
+                raise ValueError('unexpected owned waitid observation')
+            return row
+        except BaseException as error:
+            self.lose(type(error).__name__ + ': ' + str(error))
+            raise Refused('owned child reservation lost or unverified') from error
+
+    def retire(self, timeout=5):
+        import signal
+        import time
+        deadline = time.monotonic() + timeout
+        try:
+            self.observe()
+            if not self.final_signal:
+                self.final_signal = True
+                self.state['final_group_signal'] = True
+                try:
+                    os.killpg(self.process.pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+            while self.observe() is None:
+                require(time.monotonic() < deadline, 'owned child retirement deadline')
+                time.sleep(.01)
+            # No numeric group signals beyond this point, even on wait failure.
+            try:
+                pid, status = os.waitpid(self.process.pid, os.WNOHANG)
+                require(pid == self.process.pid, 'terminal owned child was not reaped')
+                code = os.waitstatus_to_exitcode(status)
+            except (OSError, ValueError) as error:
+                self.lose(type(error).__name__ + ': ' + str(error))
+                raise Refused('final owned wait status unknown') from error
+            self.reserved = False
+            self.observed_returncode = self.process.returncode = code
+            self.state.update(ownership='RETIRED', leader_reaped=True, observed_returncode=code)
+            return code
+        except BaseException as error:
+            if self.state['error'] is None:
+                self.state['error'] = type(error).__name__ + ': ' + str(error)
+            if self.observed_returncode is None:
+                self.lose(self.state['error'])
+            raise
+
+
 def reap(process, timeout=5, verify_absence=False):
-    """Reserve through the LAST group signal, then reap; never signal after wait."""
+    """Owned retirement without Popen wait/poll or ECHILD status inference."""
     import signal
     import time
     deadline = time.monotonic() + timeout
-    terminal(process)  # ECHILD/another waiter => no numeric mutating signal.
-    try:
-        os.killpg(process.pid, signal.SIGKILL)
-    except ProcessLookupError:
-        pass
-    process.wait(timeout=max(.001, deadline - time.monotonic()))
+    code = OwnedChild(process).retire(timeout)
     if verify_absence:
         while True:
             try:
-                os.killpg(process.pid, 0)  # Nonmutating; reuse can only cause refusal.
+                os.killpg(process.pid, 0)  # Nonmutating; reuse only causes refusal.
             except ProcessLookupError:
                 break
             require(time.monotonic() < deadline, 'owned group absence unverified')
-            time.sleep(min(.01, max(0, deadline - time.monotonic())))
-    return process.returncode
+            time.sleep(.01)
+    return code
 
 
 def bounded(argv, *, env=None, timeout=30, limit=1024 ** 2, log=None):
@@ -564,14 +647,13 @@ def bounded(argv, *, env=None, timeout=30, limit=1024 ** 2, log=None):
 
 
 class LoggedProcess:
-    """Immediately drain/cap a long-lived session's merged output to one log."""
+    """Drain only in the helper thread; the owner signals and directly reaps."""
     def __init__(self, argv, path, *, env=None, limit=1024 ** 2, stdin=None, owner_signals_only=False):
-        import signal
         import threading
-        require(not owner_signals_only or hasattr(os, 'WNOWAIT'), 'WNOWAIT required before spawn')
-        self.error = None
-        self.limit = limit
-        self.process = self.thread = None
+        owned_child_policy()
+        self.error, self.limit = None, limit
+        self.process = self.thread = self.owner = None
+        self._settled = False
         output = Path(path).open('xb')
         def drain():
             written = 0
@@ -588,38 +670,98 @@ class LoggedProcess:
             except Exception as exc:
                 self.error = str(exc)
             finally:
-                if self.error and not owner_signals_only:
-                    try:
-                        os.killpg(self.process.pid, signal.SIGKILL)
-                    except ProcessLookupError:
-                        pass
-                self.process.stdout.close()
+                # Never signal here: buffered logging can fail after natural exit.
+                try:
+                    self.process.stdout.close()
+                except Exception as exc:
+                    if self.error is None:
+                        self.error = str(exc)
         try:
             with registered_spawn():
                 self.process = subprocess.Popen(argv, env=env, stdin=stdin, stdout=subprocess.PIPE,
                                                 stderr=subprocess.STDOUT, start_new_session=True)
+                self.owner = OwnedChild(self.process)
                 self.thread = threading.Thread(target=drain, daemon=True)
                 self.thread.start()
         except BaseException as primary:
             faults = []
             try:
                 with registered_spawn():
-                    duties = []
-                    if self.process is not None:
-                        duties.extend((lambda: reap(self.process), self.process.stdout.close))
-                    if self.thread is not None and self.thread.ident is not None:
-                        duties.append(lambda: self.thread.join(timeout=5))
-                    duties.append(output.close)
-                    for duty in duties:
+                    if self.owner is not None:
                         try:
-                            duty()
+                            self.owner.retire(5)
                         except BaseException as exc:
                             faults.append(exc)
+                    if self.thread is not None and self.thread.ident is not None:
+                        self.thread.join(timeout=5)
+                        if self.thread.is_alive():
+                            faults.append(Refused('log drain cleanup incomplete'))
+                    if self.thread is None or not self.thread.is_alive():
+                        if self.process is not None:
+                            self.process.stdout.close()
+                        output.close()
             except BaseException as exc:
                 faults.append(exc)
+            primary.owned_retirement = self.retirement
             if faults:
                 primary.add_note('logged process cleanup uncertain: ' + type(faults[0]).__name__)
             raise
+
+    @property
+    def observed_returncode(self):
+        return self.owner.observed_returncode if self.owner is not None else None
+
+    @property
+    def settled(self):
+        return self._settled
+
+    @property
+    def retirement(self):
+        result = dict(self.owner.state) if self.owner is not None else dict(
+            ownership='NO_CHILD_HANDLE', leader_reaped=False, observed_returncode=None,
+            final_group_signal=False, error=None)
+        result['log_drained'] = self.thread is not None and self.thread.ident is not None and not self.thread.is_alive()
+        result['log_error'] = self.error
+        return result
+
+    def wait_owned(self, timeout, cleanup_timeout=5):
+        import time
+        require(not self._settled, 'owned wait already completed')
+        deadline = time.monotonic() + timeout
+        primary = None
+        try:
+            while True:
+                row = self.owner.observe()
+                require(self.error is None, 'session logging failed: ' + str(self.error))
+                if row is not None and not self.thread.is_alive():
+                    break
+                require(time.monotonic() < deadline, 'command timeout')
+                time.sleep(.01)
+        except BaseException as error:
+            primary = error
+        faults = []
+        try:
+            with registered_spawn():
+                try:
+                    self.owner.retire(cleanup_timeout)
+                except BaseException as error:
+                    faults.append(error)
+                self.thread.join(timeout=cleanup_timeout)
+                if self.thread.is_alive():
+                    faults.append(Refused('log drain cleanup incomplete'))
+                elif self.error is not None:
+                    faults.append(Refused('session logging failed: ' + str(self.error)))
+                self._settled = True
+        except BaseException as error:
+            faults.append(error)
+            self._settled = True
+        if primary is not None:
+            if faults:
+                primary.add_note('owned process retirement: ' + type(faults[0]).__name__)
+            raise primary
+        if faults:
+            raise faults[0]
+        return self.observed_returncode
 
     def finish(self):
         self.thread.join(timeout=5)
