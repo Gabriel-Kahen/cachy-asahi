@@ -5,8 +5,10 @@ recipes to the existing `source_delivery.py` transport:
 
 | Recipe | Version | Declared sources | Staged files |
 | --- | --- | ---: | ---: |
-| cachy-asahi-maintenance | 0.1.0-1 | 18 | 16 |
-| cachy-asahi-session-diagnostics | 0.1.0-2 | 10 | 7 |
+| cachy-asahi-maintenance (current) | 0.1.0-2 | 18 | 16 |
+| cachy-asahi-maintenance (retained) | 0.1.0-1 | 18 | 16 |
+| cachy-asahi-session-diagnostics (current) | 0.1.0-3 | 10 | 7 |
+| cachy-asahi-session-diagnostics (retained) | 0.1.0-2 | 10 | 7 |
 
 No package, source-cache interface, release schema or default selection changes.
 The adapter reads source data; it never executes recipes, fetches sources,
@@ -20,7 +22,7 @@ From the repository root, with a fresh output directory:
 python -I -B scripts/release/recipe_source_delivery.py pack \
   --recipe packages/tools/cachy-asahi-maintenance \
   --package cachy-asahi-maintenance \
-  --source-revision dc01063ab4fd2d8c36a1e4c453811ffa8c27bb06 \
+  --source-revision ab57e41b60d08e564bc0fe7e9a0c9a9c0706c283 \
   --output /absolute/private/fresh-maintenance-source
 ```
 
@@ -30,6 +32,14 @@ hashes. It then reads their complete literal local source list and validates
 every source checksum. Recipe changes require explicit review and a new adapter
 profile. Files outside that source list are excluded; original `LICENSE`,
 `NOTICE` and `source-provenance.json` remain byte-exact.
+
+The finite registry selects each version by its exact PKGBUILD/SRCINFO hash pair.
+The current reviewed pairs are from `ab57e41b60d08e564bc0fe7e9a0c9a9c0706c283`;
+the two historical pairs remain admitted for their existing source bundles.
+Packing and unpacking derive the version and archive-binding recipe from those
+source bytes. A version label, a mixed old/new pair or an unreviewed revision of
+either file cannot select a profile. The observed Git revision remains a label,
+as before. No bundle schema or retained bundle bytes change.
 
 The output contains `source.tar`, `source-map.json`, `bundle.json`, `PKGBUILD`,
 `LICENSE` and `NOTICE`. `source.tar` contains every declared source, PKGBUILD,
@@ -44,7 +54,7 @@ does not embed the builder's dependencies or promise binary reproducibility.
 Actual rebuilding requires a separately provisioned native aarch64 environment
 with the declared dependencies and retained toolchain/environment evidence.
 
-Concrete bundles are retained under
+The previously produced historical bundles are retained unchanged under
 `artifacts/source-delivery/original-recipes-20261027/`:
 
 | Bundle | SHA-256 |
@@ -137,3 +147,7 @@ relocation, stages their actual package functions, verifies source transport
 assembly/export/reconstruction using explicitly synthetic package fixtures, and
 tests checksum, source-list, recipe, archive identity/payload and path refusals.
 It performs no network access, host installation or hardware test.
+The historical compatibility controls use the original two bundle bytes retained
+as gzip fixtures under `scripts/release/fixtures/recipe-source-legacy/`, checked
+against their original TAR hashes above. They do not depend on untracked local
+artifacts or Git history in a CI checkout.
