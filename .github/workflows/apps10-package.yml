@@ -13,6 +13,8 @@ on:
       - '.github/workflows/apps10-package.yml'
       - 'LICENSE'
   push:
+    branches: [main, codex/virtual-integration]
+    tags: ['**']
     paths:
       - 'packages/tools/cachy-asahi-apps10/**'
       - 'packages/tools/cachy-asahi-apps7/**'
