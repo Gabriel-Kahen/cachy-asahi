@@ -1,0 +1,106 @@
+# Explicit generic VM reservation; original default modules stay byte-held.
+RESERVATION607={'M2_performance': 'NOT_RUN', 'acceptance': False, 'actual': None, 'cleanup_seconds': 450, 'current1800_fit': 'NOT_ESTABLISHED', 'current3460_fit': 'NOT_ESTABLISHED', 'default_loop_seconds': 1300, 'default_owner_wait_seconds': 2200, 'default_runtime_seconds': 1750, 'default_service_seconds': 1200, 'doctor_profile_seconds': 1080, 'inventory_caller_seconds': 60, 'loop_seconds': 3560, 'native_hotspot': 'UNKNOWN', 'native_owner_seconds': 6600, 'observation_seconds': 600, 'old1200_fit': 'NOT_ESTABLISHED', 'old1800_fit': 'NOT_ESTABLISHED', 'original_helpers': {'doctor_lifetime.py': {'bytes': 14227, 'sha256': '317f020b3b9e2a1bf15156d29399162915c8b3bd23531181921d7169ca4a21be'}, 'factory.py': {'bytes': 20793, 'sha256': 'dd2bebb61a5c5e75f96b2a4fbb2d768e0a89ea8f641fb48d392bcd5d8333647d'}, 'run.py': {'bytes': 6065, 'sha256': 'ea3cc4132ddac813d78daac6219062556afd99b25012969f7fe12c74b606b4ca'}}, 'owner_wait_seconds': 4460, 'product_scan_seconds': 30, 'profile': 'GUI_TCG_RESERVED_READBACK_3460_V1', 'ref': None, 'reservation': {'admission': 'REFUSE_BEFORE_VERIFY_IF_SHARED_REMAINING_BELOW1660', 'caller_seconds': 1210, 'cleanup_seconds': 450, 'loop_slack_seconds': 100, 'observer_seconds': 1200, 'one_shared_deadline': True, 'owner_cleanup_seconds': 450, 'pre_observer_seconds': 1800, 'readback_tail_seconds': 1660, 'restoration': 'MUST_COMPLETE_WITHIN_PRE_OBSERVER_PARTITION_FOR_READBACK_ADMISSION', 'runtime_cleanup_seconds': 450}, 'run': None, 'runtime_seconds': 4010, 'schema_version': 1, 'scope': 'OPT_IN_VM_FUNCTIONAL_VALIDATION_ONLY_NOT_PERFORMANCE', 'service_purpose': 'TCG_VALIDATION_FIXTURE_RESERVED_SERVICE_3460S', 'service_seconds': 3460, 'source': None}
+
+# Only this explicit selected VM annotation changes; original/default facts remain.
+ANNOTATION=dict(ANNOTATION,service_seconds=3460,loop_seconds=3560,runtime_seconds=4010,
+    owner_wait_seconds=4460,old1800_fit='NOT_ESTABLISHED',reserved3460_fit='NOT_ESTABLISHED',
+    validation_profile=dict(ANNOTATION['validation_profile'],kind='GUI_TCG_RESERVED_READBACK_3460_V1',
+        service_seconds=3460,loop_seconds=3560,runtime_seconds=4010,owner_wait_seconds=4460,
+        service_reservation='SHARED_DEADLINE_CALLER1210_CLEANUP450_REQUIRED',
+        old1800_fit='NOT_ESTABLISHED',reserved3460_fit='NOT_ESTABLISHED',
+        reservation=dict(RESERVATION607['reservation'])))
+
+def _reservation_capacity607():
+    import importlib.util
+    spec=importlib.util.spec_from_file_location('_held_service1800_reservation_basis',HERE/'factory/service_capacity.py')
+    module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);return module
+
+def reservation_spec():
+    return json.loads(enc(RESERVATION607))
+
+def reservation_annotation():
+    return{k:v for k,v in reservation_spec().items()if k!='original_helpers'}
+
+def _reservation_lifetime_body607():
+    return '''
+
+def reserve_readback607():
+    """Admit only with full1210 caller and450 cleanup on the same lease."""
+    owner=service_lease();now=time.monotonic_ns()
+    need(owner['started_ns']<=now and now+(1210+450)*10**9<=owner['deadline_ns'],
+         'selected VM readback requires full1210 caller and450 cleanup reservation')
+    return owner
+'''
+
+def reserved_apply607(out):
+    out=Path(out);changes={}
+    def replace_file(name,rows):
+        path=out/name;before=path.read_bytes();after=edited(before,rows)
+        ast.parse(after)if name.endswith('.py')else None
+        path.write_bytes(after);changes[name]=dict(before=pin(before),after=pin(after))
+    purpose='TCG_VALIDATION_FIXTURE_SERVICE_1800S';newpurpose=RESERVATION607['service_purpose']
+    lifetime=(out/'doctor_lifetime.py').read_bytes()
+    need(lifetime.count(purpose.encode())==3,'three existing selected service purpose operands')
+    text=lifetime.decode().replace(purpose,newpurpose)
+    need(text.replace(newpurpose,purpose).encode()==lifetime,'whole service purpose inverse')
+    text=edited(text.encode(),[('SERVICE_SECONDS=1800','SERVICE_SECONDS=3460')])+_reservation_lifetime_body607().encode()
+    ast.parse(text);(out/'doctor_lifetime.py').write_bytes(text)
+    changes['doctor_lifetime.py']=dict(before=pin(lifetime),after=pin(text))
+    management=(out/'management_root.py').read_bytes()
+    functions=[n for n in ast.parse(management).body if isinstance(n,ast.FunctionDef)and n.name=='serve']
+    need(len(functions)==1,'one original management serve source')
+    body=ast.get_source_segment(management.decode(),functions[0])
+    selected=edited(body.encode(),[
+        ('def serve(base,session,env,logs,deadline_ns):','def _reserved_serve607(base,session,env,logs,deadline_ns):'),
+        ("C.need(time.monotonic_ns()<deadline_ns,'managed session deadline')",
+         "C.need(time.monotonic_ns()<deadline_ns-(1210+450)*10**9,'managed session readback reservation deadline')")])
+    combined=management+b'\n\n'+selected+b'\n'
+    need(combined[:len(management)]==management,'original management root stays byte-held')
+    ast.parse(combined);(out/'management_root.py').write_bytes(combined)
+    changes['management_root.py']=dict(before=pin(management),after=pin(combined))
+    replace_file('base_guest.py',[
+        ("code = management_root.serve(managed_base, session, env, logs, DL.service_lease()['deadline_ns'])",
+         "code = management_root._reserved_serve607(managed_base, session, env, logs, DL.service_lease()['deadline_ns'])"),
+        ("        proof=command(['/usr/bin/python3','-I','-B',str(SHARE/'installed606.py')",
+         "        DL.reserve_readback607()\n        proof=command(['/usr/bin/python3','-I','-B',str(SHARE/'installed606.py')")])
+    replace_file('desktop574_fixture.sh',[('TimeoutStartSec=1800','TimeoutStartSec=3460')])
+    replace_file('desktop574_runtime.py',[
+        ('deadline = time.monotonic() + 1900','deadline = time.monotonic() + 3560'),
+        ('signal.setitimer(signal.ITIMER_REAL, 2350)','signal.setitimer(signal.ITIMER_REAL, 4010)')])
+    (out/'service-vm-profile.json').write_bytes(enc(reservation_spec()))
+    (out/'service-capacity-proof.json').write_bytes(enc(dict(status='SOURCE_ONLY_EXPLICIT_RESERVED_TCG_SERVICE3460',
+        profile=reservation_annotation(),derivatives=changes,actual=None)))
+    return changes
+
+def reserved_owner(namespace,*args,**kwargs):
+    held=_reservation_capacity607();basis=held.profile();path=Path(namespace['__file__'])
+    raw=held.read(path);footer=held.RUN_FOOTER.encode()
+    need(raw.endswith(footer)and pin(raw[:-len(footer)])==basis['original_helpers']['run.py'],
+         'whole original2200 owner before selected reservation facade')
+    original=raw[:-len(footer)]
+    body=next(ast.get_source_segment(original.decode(),n)for n in ast.parse(original).body if isinstance(n,ast.FunctionDef)and n.name=='run')
+    text=edited(body.encode(),[('child.process.wait(timeout=2200)','child.process.wait(timeout=4460)')])
+    runner=Path(args[1]if len(args)>1 else kwargs['runner'])
+    proof=json.loads(held.read(runner/'current606-proof.json'))
+    need(proof.get('service_validation_profile')==reservation_annotation()and
+         held.read(runner/'service-vm-profile.json')==enc(reservation_spec()),'complete selected reservation profile required')
+    space=dict(namespace);exec(compile(text,str(path),'exec'),space)
+    return space['run'](*args,**kwargs)
+
+_reservation_original_apply607=apply
+def apply(out):
+    result=_reservation_original_apply607(out)
+    return dict(result,reserved_vm=reserved_apply607(out))
+
+_reservation_original_factory607=factory
+def factory(original):
+    selected=_reservation_original_factory607(original);space=dict(vars(selected));seal=selected.seal
+    def reserved_seal(out,*args,**kwargs):
+        result=seal(out,*args,**kwargs);result['service_validation_profile']=reservation_annotation()
+        (Path(out)/'current606-proof.json').write_bytes(enc(result));return result
+    space['seal']=reserved_seal;fn=selected.emit
+    space['emit']=types.FunctionType(fn.__code__,space,fn.__name__,fn.__defaults__,fn.__closure__)
+    space['emit'].__kwdefaults__=fn.__kwdefaults__
+    need(space['emit'].__globals__['prepare_code']is selected.prepare_code and
+         space['emit'].__globals__['seal']is reserved_seal,'executing reserved emitter bindings')
+    module=types.ModuleType('_selected607_reserved_vm_factory');vars(module).update(space);return module
