@@ -274,6 +274,8 @@ jobs:
           PY
       - name: Check offline exact platform and recovery preflight
         run: python3 -B -Werror::ResourceWarning scripts/platform/test_recovery_preflight.py
+      - name: Check read-only exact-target snapshot collection
+        run: python3 -B -Werror::ResourceWarning scripts/platform/test_target_snapshot.py
       - name: Check fixed build-only Asahi data candidate boundaries
         run: python3 -B scripts/ci/asahi-audio-data/test_run.py
       - name: Check fixed build-only audio Rust candidate boundaries

@@ -115,7 +115,7 @@ def stable(directory, promotion, key, env, expected_release):
     return manifest
 
 
-def describe(root, key, env):
+def describe(root, key, env, *, release_id=None):
     managed_directory(root)
     for name in ("stable", "promotions", "withdrawals"):
         directory = root / name
@@ -125,8 +125,13 @@ def describe(root, key, env):
     sources, files, links = {}, {}, {}
     selected = root / "stable/current"
     rid = None
-    if selected.is_symlink():
+    if release_id is not None:
+        rid = r.valid_name(release_id)
+    elif selected.is_symlink():
         rid = r.valid_name(os.readlink(selected))
+    else:
+        r.require(not selected.exists(), "stable/current must be a managed symlink")
+    if rid is not None:
         r.require(not (root / "withdrawals" / f"{rid}.json").exists(), "selected release is withdrawn")
         directory, promotion = root / "stable" / rid, root / "promotions" / f"{rid}.json"
         observed, aliases = tree(directory)
@@ -139,8 +144,6 @@ def describe(root, key, env):
             regular(path)
             name = "promotion.json" + suffix
             sources[name], files[name] = path, r.sha(path)
-    else:
-        r.require(not selected.exists(), "stable/current must be a managed symlink")
     withdrawals = root / "withdrawals"
     if withdrawals.exists():
         entries = sorted(withdrawals.iterdir())
@@ -196,13 +199,19 @@ def endpoint_state(endpoint):
     target = os.readlink(current)
     r.require(GENERATION.fullmatch(target), "unmanaged endpoint selection refused")
     directory = endpoint / target
+    generation_plan(directory)
+    return target
+
+
+def generation_plan(directory):
+    """Authenticate a retained generation's complete canonical file/link map."""
     regular(directory / "export.json")
     raw = (directory / "export.json").read_bytes()
     r.require(digest(raw) == directory.name, "generation identity mismatch")
     plan = json.loads(raw)
     r.require(encoded(plan) == raw, "noncanonical generation plan")
     generation_check(directory, plan)
-    return target
+    return plan
 
 
 def sync_directory(path):
@@ -262,52 +271,63 @@ def export(root, endpoint, home, key, apply=False):
     with locks(root, endpoint):
         previous = endpoint_state(endpoint)
         plan, sources = describe(root, key, env)
-        ident = digest(encoded(plan))
-        result = {"status": "planned-local-endpoint", "generation": ident, "selected_release": plan["selected_release"],
-                  "previous_selection": previous, "plan": plan,
-                  "network_published": False, "trust_changed": False}
-        if not apply:
-            return result
-        generations = endpoint / "generations"
-        generations.mkdir(exist_ok=True, mode=0o755)
-        destination = generations / ident
-        if destination.exists():
-            generation_check(destination, plan)
-        else:
-            with tempfile.TemporaryDirectory(prefix=".export-", dir=endpoint) as temporary:
-                staging = Path(temporary) / "generation"
-                staging.mkdir(mode=0o755)
-                for name, source in sorted(sources.items()):
-                    path = staging / name
-                    path.parent.mkdir(parents=True, exist_ok=True, mode=0o755)
-                    copy_file(source, path, plan["files"][name])
-                for name, target in sorted(plan["symlinks"].items()):
-                    path = staging / name
-                    path.parent.mkdir(parents=True, exist_ok=True, mode=0o755)
-                    path.symlink_to(target)
-                record = staging / "export.json"
-                record.write_bytes(encoded(plan))
-                record.chmod(0o444)
-                with record.open("rb") as stream:
-                    os.fsync(stream.fileno())
-                generation_check(staging, plan)
-                if plan["selected_release"] is not None:
-                    stable(staging / "release", staging / "promotion.json", key, env, plan["selected_release"])
-                r.require(describe(root, key, env)[0] == plan, "source selection changed during export")
-                for parent, directories, names in os.walk(staging, topdown=False):
-                    sync_directory(Path(parent))
-                os.rename(staging, destination)
-                sync_directory(generations)
-        r.require(endpoint_state(endpoint) == previous, "endpoint selection changed during export")
-        r.require(describe(root, key, env)[0] == plan, "source selection changed during export")
-        target = "generations/" + ident
-        uncertain = select(endpoint, target) if previous != target else False
-        result.update(status="materialized-local-endpoint", selection=target, durability_uncertain=uncertain)
-        try:
-            sync_directory(endpoint)
-        except OSError:
-            result["durability_uncertain"] = True
+        def recheck():
+            r.require(describe(root, key, env)[0] == plan, "source selection changed during export")
+        return materialize(root, endpoint, key, env, previous, plan, sources, recheck, apply)
+
+
+def materialize(root, endpoint, key, env, previous, plan, sources, recheck, apply=False):
+    """Shared copy/selection engine; caller must hold locks and authenticate inputs.
+
+    recheck reauthenticates the complete source view immediately before retention
+    and selection. It must reject any state drift; it never changes selection.
+    """
+    ident = digest(encoded(plan))
+    result = {"status": "planned-local-endpoint", "generation": ident, "selected_release": plan["selected_release"],
+              "previous_selection": previous, "plan": plan,
+              "network_published": False, "trust_changed": False}
+    if not apply:
         return result
+    generations = endpoint / "generations"
+    generations.mkdir(exist_ok=True, mode=0o755)
+    destination = generations / ident
+    if destination.exists():
+        generation_check(destination, plan)
+    else:
+        with tempfile.TemporaryDirectory(prefix=".export-", dir=endpoint) as temporary:
+            staging = Path(temporary) / "generation"
+            staging.mkdir(mode=0o755)
+            for name, source in sorted(sources.items()):
+                path = staging / name
+                path.parent.mkdir(parents=True, exist_ok=True, mode=0o755)
+                copy_file(source, path, plan["files"][name])
+            for name, target in sorted(plan["symlinks"].items()):
+                path = staging / name
+                path.parent.mkdir(parents=True, exist_ok=True, mode=0o755)
+                path.symlink_to(target)
+            record = staging / "export.json"
+            record.write_bytes(encoded(plan))
+            record.chmod(0o444)
+            with record.open("rb") as stream:
+                os.fsync(stream.fileno())
+            generation_check(staging, plan)
+            if plan["selected_release"] is not None:
+                stable(staging / "release", staging / "promotion.json", key, env, plan["selected_release"])
+            recheck()
+            for parent, directories, names in os.walk(staging, topdown=False):
+                sync_directory(Path(parent))
+            os.rename(staging, destination)
+            sync_directory(generations)
+    r.require(endpoint_state(endpoint) == previous, "endpoint selection changed during export")
+    recheck()
+    target = "generations/" + ident
+    uncertain = select(endpoint, target) if previous != target else False
+    result.update(status="materialized-local-endpoint", selection=target, durability_uncertain=uncertain)
+    try:
+        sync_directory(endpoint)
+    except OSError:
+        result["durability_uncertain"] = True
+    return result
 
 
 def main():
