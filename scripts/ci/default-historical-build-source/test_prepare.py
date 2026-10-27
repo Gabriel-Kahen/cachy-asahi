@@ -27,9 +27,9 @@ class Controls(unittest.TestCase):
         cls.original = Path(cls.seed.name)/'source'; cls.original.mkdir()
         names = set(p.BUILD)
         for profile in p.PROFILES:
-            name = 'scripts/ci/'+profile+('/source-pins.json' if profile in p.DESKTOP else '/source-manifest.json'); raw = (SOURCE/name).read_bytes()
+            name = p.profile_path(profile); raw = (SOURCE/name).read_bytes()
             if p.pin(raw) != p.row(p.PROFILES[profile]):raise ValueError('independently pinned manifest required: '+profile)
-            names.add(name); names.update(json.loads(raw) if profile in p.DESKTOP else json.loads(raw)['files']); names.update(p.EXTRA.get(profile, {}))
+            names.add(name); names.update(p.source_map(profile,json.loads(raw))); names.update(p.EXTRA.get(profile, {}))
         names.update(p.SHARED+'/'+Path(name).name for name in p.BUILD)
         for name in names:
             target = cls.original/name; target.parent.mkdir(parents=True, exist_ok=True); shutil.copy2(SOURCE/name, target)
@@ -62,9 +62,9 @@ class Controls(unittest.TestCase):
                 output = self.base/profile
                 with patch.object(subprocess, 'Popen', side_effect=AssertionError('emitter cannot start actors')):
                     receipt = p.prepare(self.source, output, profile)
-                name = 'scripts/ci/'+profile+('/source-pins.json' if profile in p.DESKTOP else '/source-manifest.json')
+                name = p.profile_path(profile)
                 original=json.loads((self.source/name).read_bytes())
-                expected = {**(original if profile in p.DESKTOP else original['files']), name:p.row(expected_manifest),
+                expected = {**p.source_map(profile,original), name:p.row(expected_manifest),
                             **{key:p.row(want)for key,want in p.EXTRA.get(profile, {}).items()}}
                 actual={f.relative_to(output).as_posix():p.pin(f.read_bytes())for f in output.rglob('*')if f.is_file()}
                 self.assertEqual(actual.keys(),expected.keys())
@@ -86,7 +86,7 @@ class Controls(unittest.TestCase):
 
     def test_unchanged_preflights_and_lane_suites_use_each_fixed_view(self):
         self.evolve()
-        for profile in p.PROFILES.keys()-p.DESKTOP:
+        for profile in p.PROFILES.keys()-p.DESKTOP-p.CONFIGS.keys():
             with self.subTest(profile=profile):
                 view = self.base/profile; p.prepare(self.source, view, profile)
                 if profile == 'ksm2-upgrade-native':

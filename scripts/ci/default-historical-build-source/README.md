@@ -1,6 +1,6 @@
 # Fixed default native and desktop build source contexts
 
-`prepare.py` emits one of eight fixed historical source views for the default
+`prepare.py` emits one of eleven fixed historical source views for the default
 static checks. It never builds, installs, invokes a native/GUI/VM actor, creates
 an actual-run binding or grants acceptance. Current builder checks elsewhere
 keep using the evolving builder.
@@ -59,9 +59,26 @@ python3 -I -B -Werror::ResourceWarning \
   scripts/ci/default-historical-build-source/test_prepare.py
 ```
 
-Controls cover exact eight-view closure, direct evolving-helper refusal versus
+Controls cover exact eleven-view closure, direct evolving-helper refusal versus
 success through a view, original native/desktop suites, original KSM NULL
 preparation, map/snapshot/supplemental/unrelated-source drift, missing inputs,
 aliases, hardlinks and overlapping paths. Desktop tests additionally prove that
 undeclared `compare.py` and its snapshot are unnecessary. All runtime/GUI/native,
 installation, VM, hardware and release acceptance remains `NOT_RUN`.
+
+Three further fixed selectors cover the retained export consumers:
+`full-root-upgrade-caller`, `full-root-failed-update`, and
+`full-root-postcommit-failure`. Their exact original configuration files and
+`code_pins` maps are independently pinned in full. Only their declared `build.py`
+and `compare.py` roles are substituted; `provision.py` remains an ordinary exact
+input and `container-entry.sh` is not consumed. The upgrade caller's original
+`run.py`, omitted from its config map, has one fixed supplemental pin. Original
+configurations, run modules, runtime validators, expiry and failure policies stay
+byte-exact. These views add no authority to run expired historical transactions.
+
+The release consumer harness verifies all frozen code pins in these views and
+calls the original pre/postcommit `selected_api` implementations from the views.
+Canonical exporter/endpoint API checks still read the current canonical source.
+Causal controls verify direct enhanced-source refusal, frozen-view acceptance,
+and snapshot/exporter drift refusal; exporter drift, configuration-byte seals,
+failure-policy limits and exact original expiry assertions remain enforced.
