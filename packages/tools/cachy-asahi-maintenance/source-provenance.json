@@ -1,0 +1,70 @@
+{
+  "copyright": "2026 cachy-asahi contributors",
+  "files": {
+    "scripts/maintenance/health.py": {
+      "bytes": 26653,
+      "sha256": "6809526f7553e76f4a6c8d24cbde2688abe8cfd1139b92b88a51847e7a7acadf",
+      "source": "health.py"
+    },
+    "scripts/maintenance/rebuild_plan.py": {
+      "bytes": 25822,
+      "sha256": "472f9bb621d78f79f5016a662b7f72eb03e995dae787c7846bc1f947ff21313c",
+      "source": "rebuild_plan.py"
+    },
+    "scripts/maintenance/security_advisories.py": {
+      "bytes": 12145,
+      "sha256": "f018ff4ac0265217213f749bf59afa08b61b24e4054973c0dcde110e57a0a2cb",
+      "source": "security_advisories.py"
+    },
+    "scripts/maintenance/signing_expiry.py": {
+      "bytes": 9002,
+      "sha256": "dd6ef397ea47cf14bb31f6ae6f7ca388d68bdb15e7fa3d20c36eb01f901b2c98",
+      "source": "signing_expiry.py"
+    },
+    "scripts/maintenance/update_plan.py": {
+      "bytes": 14881,
+      "sha256": "21af73923ca4bfff244d653e1f0046015d429a582548b2a60f1e0feb5b2a687e",
+      "source": "update_plan.py"
+    },
+    "scripts/release/check_source_pins.py": {
+      "bytes": 9981,
+      "sha256": "9b78c348e2d567f44f656285f6a562220cadead7025f1e0db2eb9a53d9f09ea3",
+      "source": "check_source_pins.py"
+    },
+    "scripts/release/compare_releases.py": {
+      "bytes": 11691,
+      "sha256": "27086c7b0af74a1226deae7a6a71245882b82608a1fa9d33b68e657979c7d83c",
+      "source": "compare_releases.py"
+    },
+    "scripts/release/release.py": {
+      "bytes": 41320,
+      "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435",
+      "source": "release.py"
+    },
+    "scripts/release/source_delivery.py": {
+      "bytes": 16456,
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e",
+      "source": "source_delivery.py"
+    }
+  },
+  "head_is_not_a_substitute_for_source_hashes": true,
+  "installed_root": "/usr/lib/cachy-asahi/maintenance",
+  "license": "MIT",
+  "observed_checkout_head": "92f2e64b5103092f25d95b11f1a719ea8363b10c",
+  "package": "cachy-asahi-maintenance",
+  "packaging_revision": {
+    "previous_version": "0.1.0-1",
+    "private_modules": "UNCHANGED_BYTE_EXACT",
+    "reason": "Copy the exact declared recipe during makepkg check; exclude live build outputs by membership"
+  },
+  "qualification": {
+    "alpm_installed_lifecycle": "NOT_RUN",
+    "native_build": "NOT_RUN",
+    "performance": "NOT_MEASURED",
+    "physical_m2": "NOT_RUN",
+    "release": "NOT_ADMITTED"
+  },
+  "schema_version": 1,
+  "source_kind": "byte-exact project modules, selected by SHA-256; new private-tree launcher",
+  "version": "0.1.0-2"
+}

@@ -1,0 +1,65 @@
+{
+  "files": {
+    "usr/bin/cachy-asahi-maintenance": {
+      "bytes": 525,
+      "mode": "0755",
+      "sha256": "4c0fe954900fb4bbda0b816d59a831a563f9497aa057e4e4f6a5d8c7d30c83be",
+      "source": "cachy-asahi-maintenance"
+    },
+    "usr/lib/cachy-asahi/maintenance/scripts/maintenance/health.py": {
+      "bytes": 26653,
+      "mode": "0644",
+      "sha256": "6809526f7553e76f4a6c8d24cbde2688abe8cfd1139b92b88a51847e7a7acadf",
+      "source": "health.py"
+    },
+    "usr/lib/cachy-asahi/maintenance/scripts/maintenance/rebuild_plan.py": {
+      "bytes": 25822,
+      "mode": "0644",
+      "sha256": "472f9bb621d78f79f5016a662b7f72eb03e995dae787c7846bc1f947ff21313c",
+      "source": "rebuild_plan.py"
+    },
+    "usr/lib/cachy-asahi/maintenance/scripts/maintenance/security_advisories.py": {
+      "bytes": 12145,
+      "mode": "0644",
+      "sha256": "f018ff4ac0265217213f749bf59afa08b61b24e4054973c0dcde110e57a0a2cb",
+      "source": "security_advisories.py"
+    },
+    "usr/lib/cachy-asahi/maintenance/scripts/maintenance/signing_expiry.py": {
+      "bytes": 9002,
+      "mode": "0644",
+      "sha256": "dd6ef397ea47cf14bb31f6ae6f7ca388d68bdb15e7fa3d20c36eb01f901b2c98",
+      "source": "signing_expiry.py"
+    },
+    "usr/lib/cachy-asahi/maintenance/scripts/maintenance/update_plan.py": {
+      "bytes": 14881,
+      "mode": "0644",
+      "sha256": "21af73923ca4bfff244d653e1f0046015d429a582548b2a60f1e0feb5b2a687e",
+      "source": "update_plan.py"
+    },
+    "usr/lib/cachy-asahi/maintenance/scripts/release/check_source_pins.py": {
+      "bytes": 9981,
+      "mode": "0644",
+      "sha256": "9b78c348e2d567f44f656285f6a562220cadead7025f1e0db2eb9a53d9f09ea3",
+      "source": "check_source_pins.py"
+    },
+    "usr/lib/cachy-asahi/maintenance/scripts/release/compare_releases.py": {
+      "bytes": 11691,
+      "mode": "0644",
+      "sha256": "27086c7b0af74a1226deae7a6a71245882b82608a1fa9d33b68e657979c7d83c",
+      "source": "compare_releases.py"
+    },
+    "usr/lib/cachy-asahi/maintenance/scripts/release/release.py": {
+      "bytes": 41320,
+      "mode": "0644",
+      "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435",
+      "source": "release.py"
+    },
+    "usr/lib/cachy-asahi/maintenance/scripts/release/source_delivery.py": {
+      "bytes": 16456,
+      "mode": "0644",
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e",
+      "source": "source_delivery.py"
+    }
+  },
+  "schema_version": 1
+}
