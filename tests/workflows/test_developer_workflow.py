@@ -183,5 +183,139 @@ class WorkflowTest(unittest.TestCase):
         self.assertEqual(builder.records[-1]['outcome'], 'EXPECTED_COMPILE_FAILURE')
 
 
+class ProjectWorkflowTest(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix='developer-project-test-')
+        self.addCleanup(self.temp.cleanup)
+        self.base = Path(self.temp.name)
+        self.logs = self.base / 'logs'; self.logs.mkdir()
+        self.home = self.base / 'home'; self.home.mkdir()
+        self.commands = W.Commands(self.logs, self.home, os.defpath, timeout=5, total=60)
+        self.tools = {n: str(Path(p).resolve()) for n in ('cc', 'python3', 'vim', 'make', 'ninja')
+                      if (p := shutil.which(n, path=os.defpath)) is not None}
+
+    def project(self, backend):
+        if any(n not in self.tools for n in ('cc', 'python3', 'vim', backend)):
+            self.skipTest(backend + ' project prerequisites unavailable; workflow NOT RUN')
+        return W.BuildProject(backend, self.commands, self.tools, self.base)
+
+    def check_full(self, backend):
+        project = self.project(backend)
+        result = project.journey()
+        self.assertEqual(result['status'], 'PASS_REAL_PROJECT_WORKFLOW')
+        self.assertEqual(len(self.commands.records), 15)
+        self.assertTrue(all(r['success'] for r in self.commands.records))
+        self.assertTrue(all(r['supervision']['group_census'] == 'EMPTY_TWICE' for r in self.commands.records))
+        unchanged = next(r for r in result['records'] if r['step'] == 'unchanged-build')
+        self.assertEqual(unchanged['before'], unchanged['after'])
+        rejected = next(r for r in result['records'] if r['step'] == 'broken-test')
+        self.assertEqual(rejected['stale_run_attempts'], 0)
+        self.assertEqual(rejected['outcome'], 'GRAPH_AND_GATE_REJECT_STALE_EXECUTABLE')
+        self.assertEqual(rejected['stale_binary'], rejected['before']['hello']['file'])
+        for row in result['records']:
+            for path, wanted in row['source_snapshots'].items():
+                self.assertEqual(W.file_pin(self.logs / path), wanted)
+        broken = next(r for r in result['records'] if r['step'] == 'broken-build')
+        source = next(p for p in broken['source_snapshots'] if p.endswith('/hello.c'))
+        self.assertIn(b'#error INTENTIONAL_PROJECT_COMPILE_FAILURE', (self.logs / source).read_bytes())
+
+    def test_real_make_configure_build_test_edit_failure_recovery(self):
+        self.check_full('make')
+
+    def test_real_ninja_configure_build_test_edit_failure_recovery(self):
+        self.check_full('ninja')
+
+    def test_gate_rejects_source_and_binary_tamper_before_launch(self):
+        for backend in ('make', 'ninja'):
+            with self.subTest(backend=backend):
+                project = self.project(backend)
+                project.configure(); project.build('initial')
+                raw = project.source.read_bytes()
+                count = len(self.commands.records)
+                project.source.write_bytes(raw + b'// unbuilt source change\n')
+                with self.assertRaises(W.Failure):
+                    project.run('forbidden', b'Project version one\n')
+                with self.assertRaises(W.Failure):
+                    project.test('forbidden-test', b'Project version one\n')
+                self.assertEqual(len(self.commands.records), count)
+                project.source.write_bytes(raw)
+                project.binary.write_bytes(b'wrong executable')
+                with self.assertRaises(W.Failure):
+                    project.run('forbidden-tampered', b'Project version one\n')
+                self.assertEqual(len(self.commands.records), count)
+
+    def test_fixed_graphs_quote_compiler_alias_with_shell_metacharacters(self):
+        if 'cc' not in self.tools:
+            self.skipTest('compiler unavailable; escaping control NOT RUN')
+        alias = self.base / "compiler space $value ' quote; $(not-a-command)"
+        alias.symlink_to(self.tools['cc'])
+        self.tools['cc'] = str(alias)
+        for backend in ('make', 'ninja'):
+            with self.subTest(backend=backend):
+                project = self.project(backend)
+                project.configure(); project.build('quoted-build')
+                project.run('quoted-run', b'Project version one\n')
+                project.test('quoted-test', b'Project version one\n')
+        self.assertFalse((self.base / 'not-a-command').exists())
+
+    def test_missing_backends_are_explicit_and_launch_nothing(self):
+        results = {}
+        W.project_workflows(self.commands, {}, self.base, results)
+        self.assertEqual(results, {n: dict(status='MISSING_OPTIONAL', workflow='NOT_RUN')
+                                  for n in ('make', 'ninja')})
+        self.assertEqual(self.commands.records, [])
+
+    def test_failed_graph_test_revokes_execution_until_successful_build(self):
+        false = shutil.which('false', path=os.defpath)
+        if false is None:
+            self.skipTest('false unavailable; failed-test control NOT RUN')
+        for backend in ('make', 'ninja'):
+            with self.subTest(backend=backend):
+                project = self.project(backend)
+                project.configure(); project.build('initial')
+                with self.assertRaises(W.Failure):
+                    project.test('wrong-output', b'not the expected message\n')
+                self.assertFalse(project.usable)
+                count = len(self.commands.records)
+                with self.assertRaises(W.Failure):
+                    project.run('forbidden-after-mismatch', b'Project version one\n')
+                self.assertEqual(len(self.commands.records), count)
+                project.build('after-output-failure')
+                with mock.patch.object(project, 'argv', return_value=[false]):
+                    with self.assertRaises(W.Failure):
+                        project.test('nonzero-test', b'Project version one\n')
+                self.assertFalse(project.usable)
+                count = len(self.commands.records)
+                with self.assertRaises(W.Failure):
+                    project.run('forbidden-after-test-failure', b'Project version one\n')
+                self.assertEqual(len(self.commands.records), count)
+                project.build('after-command-failure')
+                project.test('recovered-test', b'Project version one\n')
+
+    def test_unexpected_build_failure_does_not_become_project_pass(self):
+        tools = dict(self.tools)
+        false = shutil.which('false', path=os.defpath)
+        if false is None or any(n not in tools for n in ('cc', 'python3')):
+            self.skipTest('failure prerequisites unavailable; control NOT RUN')
+        tools['make'] = false
+        results = {}
+        with self.assertRaises(W.Failure):
+            W.project_workflows(self.commands, tools, self.base, results)
+        self.assertEqual(results['make']['status'], 'FAIL')
+        self.assertEqual(results['make']['records'][-1]['outcome'], 'UNEXPECTED_FAILURE')
+        self.assertFalse(self.commands.records[-1]['success'])
+        self.assertNotIn('ninja', results)
+
+    def test_original_v1_workflow_bodies_held(self):
+        import ast
+        import hashlib
+        source = (ROOT / 'scripts/workflows/developer_workflow.py').read_text()
+        nodes = {n.name: ast.get_source_segment(source, n) for n in ast.parse(source).body
+                 if isinstance(n, (ast.FunctionDef, ast.ClassDef))}
+        wanted = {'load_core': 'd757ca96b9dd992e81d9151c87a1751314fac00b8eef80a146a773d9a8fe4391', 'Commands': '7d2d520e99efe072791deddccddbf68c6dc8d66e3eabc3376425a2b40e9eb24b', 'OnboardingAdapter': '5042050c3bff0c383e501a5a48bd7cce8fbe7e6e875a457db9c0949e0fcaba6f', 'IncrementalBuild': '3392355967138126c9c0104e60e858f8089ac00be9561ea68a8206cdc09be3fe', 'fixture_files': '0c787a8e74ead8232794af2482dc3d09991c5a36f47fa680b0d6552ee6dcd93d', 'journey': '1587efa37e4c6327adc8de6249709618978cb6555a806b92a75c95c87dfd5321'}
+        for name, digest in wanted.items():
+            self.assertEqual(hashlib.sha256(nodes[name].encode()).hexdigest(), digest, name)
+
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)

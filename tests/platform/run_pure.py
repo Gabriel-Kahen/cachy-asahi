@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
 """Default no-actor suite; forbid reads from ignored evidence outside checkout."""
-import ast, copy, hashlib, io, json, lzma, math, os, signal, stat, sys, tarfile
+import ast, copy, ctypes, hashlib, io, json, lzma, math, os, signal, stat, sys, tarfile
 import time, types, unittest, zlib
 from contextlib import contextmanager
 from pathlib import Path
@@ -11,6 +11,8 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 def audit(event, args):
+    if event=='ctypes.dlopen' and args[0] is not None:
+        raise AssertionError('pure-suite-native-library-forbidden')
     if event.startswith('socket.') or event in {'subprocess.Popen', 'os.system', 'os.exec', 'os.fork', 'os.posix_spawn'}:
         raise AssertionError('pure-suite-actor-forbidden')
     if event == 'open' and type(args[0]) in (str, bytes):
