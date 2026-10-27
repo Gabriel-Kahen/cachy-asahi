@@ -1,4 +1,4 @@
-name: native-arm-apps607-diagnostic-transport
+name: native-arm-apps607-retained-dependency-input
 on:
   workflow_dispatch:
     inputs:
@@ -101,6 +101,7 @@ jobs:
           test "$(git -C fresh607-code rev-parse HEAD)" = b9976eea34eaed4b6e56af3be21d4d652fa971d6
           printf '%s  %s\n' "$CAPSULE_SHA256" apps607-recovery-code/capsule.json '8bfac0641230cbf52571b8d000bdf79f80adaa33f6d54f649eacba2d6eb54fca' apps607-recovery-code/workflow-support/bootstrap.py | sha256sum --check
           python3 -I -B apps607-recovery-code/workflow-support/bootstrap.py verify --root "$GITHUB_WORKSPACE/apps607-recovery-code" --operation "$OPERATION" --capsule-sha256 "$CAPSULE_SHA256" --operation-profile-sha256 "$OPERATION_PROFILE_SHA256" --provider-source "$GITHUB_WORKSPACE/fresh607-code"
+          python3 -I -B apps607-recovery-code/workflow-support/retained_dependency.py --check-source --seconds 30
       - name: Checkout issued Root accepted Six853 DATA record
         timeout-minutes: 2
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -680,6 +681,15 @@ jobs:
           ref: 950b0699a6e3f7a56758d4d17a5d30dabc7b6e11
           path: apps16-native-pair
           persist-credentials: false
+      - name: Join exact retained dependency archive and signature before native owner
+        id: dependency_inputs
+        if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
+        timeout-minutes: 2
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          timeout --signal=TERM --kill-after=5s 65s python3 -I -B "$GITHUB_WORKSPACE/apps607-recovery-code/workflow-support/retained_dependency.py" --preparation "$GITHUB_WORKSPACE/composition-preparation" --cache "$RUNNER_TEMP/alarm-cache" --receipt "$RUNNER_TEMP/apps607-retained-dependency-inputs.json" --seconds 60
       - name: Freshly provision signed607 root snapshot lease and guarded recovery
         id: recovery607
         if: ${{ always() && !cancelled() }}
@@ -689,10 +699,12 @@ jobs:
           FDK_PAIR_OUTCOME: ${{ steps.fdk_pair.outcome }}
           AUDIO_INPUTS_OUTCOME: ${{ steps.audio_inputs.outcome }}
           SOURCE_SHA: ${{ inputs.fresh_source_revision }}
+          DEPENDENCY_INPUTS_OUTCOME: ${{ steps.dependency_inputs.outcome }}
         run: |
           set -euo pipefail
           test "$FDK_PAIR_OUTCOME" = success
           test "$AUDIO_INPUTS_OUTCOME" = success
+          test "$DEPENDENCY_INPUTS_OUTCOME" = success
           install -d -m 700 "$RUNNER_TEMP/apps607-coordinator-home"
           timeout --signal=TERM --kill-after=60s 15600s python3 -I -B "$GITHUB_WORKSPACE/apps607-recovery-code/workflow-support/owner_cli607.py" supervised-run
       - name: Independently verify outer retirement and dispose owned607 resources

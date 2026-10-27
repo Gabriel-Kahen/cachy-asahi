@@ -1,7 +1,7 @@
 {
   "Root_acceptance": null,
   "actual": null,
-  "actual_parent": "8d1fff1dac0e4e72cfd8bb94582c35da43e34d3b",
+  "actual_parent": "c5924f1431ec1077019911c4f4e1f7c2f6e88d68",
   "actual_run_id": null,
   "attempt": null,
   "budgets": {
@@ -16,6 +16,38 @@
     "reap_seconds": 5,
     "snapshot_seconds": 900,
     "transaction_seconds": 600
+  },
+  "dependency_inputs": {
+    "GPG": "UNCHANGED_ORIGINAL_ACQUIRE_REQUIRED",
+    "acceptance": false,
+    "acquire_sha256": "d87249d22f1184ee46d7d98db981ae394ae8e72847057b53bfecd778ab970d77",
+    "all_prior_cache_bytes_inodes_metadata": "MUST_REMAIN_UNCHANGED",
+    "cache": "$RUNNER_TEMP/alarm-cache",
+    "changed_package_pins": false,
+    "cleanup_authority": false,
+    "files": {
+      "archlinux-contrib-20261009-1-any.pkg.tar.xz": {
+        "bytes": 24792,
+        "sha256": "0cda9e6618956615a9065265300af78d1c4b5693bbfe3f6aab7f58b8aa0eeca3"
+      },
+      "archlinux-contrib-20261009-1-any.pkg.tar.xz.sig": {
+        "bytes": 566,
+        "sha256": "747683dd22f7264d672919be36e1fa3bc433d8e980d2202927c8b1ec5ad51ff8"
+      },
+      "inputs.lock.json": {
+        "bytes": 5654,
+        "sha256": "9a8064cde23ad90c2352395bdd1f6f5a8e843b3db3468cd2cc5a90829dc32704"
+      }
+    },
+    "helper": {
+      "bytes": 8819,
+      "sha256": "08008144be7a1947a8b72a9cb0939a510196828996c1ebcdc1cf4a7c6a9d8612"
+    },
+    "network": "NONE",
+    "public_provenance_source": "405761af52cdfa92b97bbf5b0519f32230d9a254",
+    "public_provenance_tree": "3ed40f295ad50cfc1ae5a20e1c7da2d33f878d11",
+    "receipt": "$RUNNER_TEMP/apps607-retained-dependency-inputs.json",
+    "status": "EXACT_RETAINED_ARCHIVE_AND_SIGNATURE_NOT_AUTHENTICATION"
   },
   "dispatch": null,
   "disposable_outputs": [
@@ -144,6 +176,8 @@
   },
   "workflow_allocations": {
     "completion_guarantee": false,
+    "dependency_input_join_seconds": 60,
+    "dependency_input_step_minutes": 2,
     "job_minutes": 350,
     "owner_allocation_reason": "100min exceeds unchanged4870+650+5s finite child/cleanup path; old loose270min step made explicit caps383min exceed global350",
     "owner_cleanup_seconds": 650,
@@ -151,8 +185,9 @@
     "owner_inner_seconds": 4870,
     "owner_outer_wrapper_seconds": 15600,
     "owner_step_minutes": 100,
-    "sequential_minutes": 314,
-    "step_count": 47,
+    "sequential_minutes": 316,
+    "source_input_check_seconds": 30,
+    "step_count": 48,
     "steps": [
       {
         "minutes": 2,
@@ -370,30 +405,35 @@
         "number": 43
       },
       {
+        "minutes": 2,
+        "name": "Join exact retained dependency archive and signature before native owner",
+        "number": 44
+      },
+      {
         "minutes": 100,
         "name": "Freshly provision signed607 root snapshot lease and guarded recovery",
-        "number": 44
+        "number": 45
       },
       {
         "minutes": 12,
         "name": "Independently verify outer retirement and dispose owned607 resources",
-        "number": 45
-      },
-      {
-        "minutes": 3,
-        "name": "Retain closed raw native607 evidence without acceptance inference",
         "number": 46
       },
       {
         "minutes": 3,
-        "name": "Retain bounded complete574 transport and source DATA",
+        "name": "Retain closed raw native607 evidence without acceptance inference",
         "number": 47
+      },
+      {
+        "minutes": 3,
+        "name": "Retain bounded complete574 transport and source DATA",
+        "number": 48
       }
     ],
-    "unallocated_job_minutes": 36
+    "unallocated_job_minutes": 34
   },
   "workflow_input_contract": {
-    "bytes": 10547,
-    "sha256": "e2eb15ade41f89057338c1e98cf7e6015938b0440d996d49eecc2262fc7189d3"
+    "bytes": 12490,
+    "sha256": "4326f576bae7a7122c31abae97f5feaed32e1d8ecfa3e7e5f2765c1b752f78c5"
   }
 }
