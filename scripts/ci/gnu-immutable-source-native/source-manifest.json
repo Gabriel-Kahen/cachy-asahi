@@ -2703,6 +2703,10 @@
       "bytes": 11040,
       "sha256": "5e24808152c727f5dcd19252c66e1ab121bdb9dbd6b90becb943820634898565"
     },
+    "scripts/ci/gnu-immutable-source-native/archive_prefill.py": {
+      "bytes": 4717,
+      "sha256": "2090bd8098783834ac7b11a19eb3d8cd047b7de5b01f77ddc4bb60cd57bea726"
+    },
     "scripts/ci/gnu-immutable-source-native/binding.py": {
       "bytes": 6011,
       "sha256": "ea3867352b607b4760bba39ffbe532b14cf7415184df098f51a87d88a8703841"
@@ -2727,13 +2731,21 @@
       "bytes": 2475834,
       "sha256": "b6496c77bbfd0ab97f9b75319a13a4bb3999015c30ab0978bfa1d020cf301469"
     },
+    "scripts/ci/gnu-immutable-source-native/carrier_prepare.py": {
+      "bytes": 4044,
+      "sha256": "67256ab253a4fe4e20f4f155fc8ddb568cc76712502f42afbcfafd80efdc00c5"
+    },
     "scripts/ci/gnu-immutable-source-native/cleanup-query-profile.json": {
       "bytes": 2440573,
       "sha256": "575064669a7fd6d4fca29a86cd9cf3956d7bcaa54fae3dd29255469aae2e6b95"
     },
+    "scripts/ci/gnu-immutable-source-native/complete574_seed.py": {
+      "bytes": 6658,
+      "sha256": "76b787fa71b121ec1bf83b86e4d5db849913614bc90e03239b869d7061af1db4"
+    },
     "scripts/ci/gnu-immutable-source-native/deploy.py": {
-      "bytes": 203503,
-      "sha256": "5dd90de7f93235a4f3764daa2fa23a0f2a4499e0acb95a353136c805d28ab685"
+      "bytes": 606405,
+      "sha256": "0a5f5f7637adda8f1cc56759068b355d99d9221f3063ba0b2cf71a135e46c92c"
     },
     "scripts/ci/gnu-immutable-source-native/descriptor_failure_export.py": {
       "bytes": 8358,
@@ -3067,6 +3079,10 @@
       "bytes": 4855,
       "sha256": "381a51202136e8c7dd44e2520273d7bb8a15341454184c920b364588b7091178"
     },
+    "scripts/ci/gnu-immutable-source-native/precredential_controls.py": {
+      "bytes": 12414,
+      "sha256": "0037d344bd38204716ea0200ee9b42bae981922ac10ad7fb7c971f3b4c14d422"
+    },
     "scripts/ci/gnu-immutable-source-native/prepare.py": {
       "bytes": 2916,
       "sha256": "400d676a6617c3cb2ada96c7d9fe793b2c8c875cdf2d0aab0194a98be472a0b0"
@@ -3082,6 +3098,18 @@
     "scripts/ci/gnu-immutable-source-native/recovery_database_source.py": {
       "bytes": 4725,
       "sha256": "106bc99772463e4c39e29ab3b2ae47baacba9b6103b48e704a60ed428e1bcb62"
+    },
+    "scripts/ci/gnu-immutable-source-native/retained-carrier-profile.json": {
+      "bytes": 195440,
+      "sha256": "4089fd798849cafda23d03c0dd95ac896a83fd63ad21e331ae420c147535586c"
+    },
+    "scripts/ci/gnu-immutable-source-native/retained_transport.py": {
+      "bytes": 10148,
+      "sha256": "76c01263cce815f5302ffaf975cbedca89eab8cc7b9b93d3bfd27bb3cfef7d4b"
+    },
+    "scripts/ci/gnu-immutable-source-native/retained_transport_evidence.py": {
+      "bytes": 12567,
+      "sha256": "dc415a8e01e086c805b98b43c880c0aaad2d8afb35bc9a8be068d5a90d78f355"
     },
     "scripts/ci/gnu-immutable-source-native/retention.py": {
       "bytes": 1286,
@@ -3105,7 +3133,7 @@
     },
     "scripts/ci/gnu-immutable-source-native/test_deployment.py": {
       "bytes": 70530,
-      "sha256": "b24a95dcad6435086458112e1b237ff2a35830dfb197ebe3c3fc9cb1d2ffe2ed"
+      "sha256": "2e89edbd1ab5f75790a4c2530ad3b3e3e9ea2a278a2aa8c8d557953cb6218310"
     },
     "scripts/ci/gnu-immutable-source-native/test_interruption.py": {
       "bytes": 9210,
@@ -3115,9 +3143,21 @@
       "bytes": 3625,
       "sha256": "ff8e224fc008971c4266331ef936ae666d6d8b035efd3488ec72529ef091e726"
     },
+    "scripts/ci/gnu-immutable-source-native/test_retained_transport.py": {
+      "bytes": 16706,
+      "sha256": "9b014f53d6a8737f215db447ea8b6e6cf9847c49919c8241807c88a9e85f4d48"
+    },
     "scripts/ci/gnu-immutable-source-native/workflow.yml.in": {
-      "bytes": 23081,
-      "sha256": "ea2340e0e91737e28647eee80c3c605211ebde0a9fa58e9e800faf8fb09364f6"
+      "bytes": 16121,
+      "sha256": "82083eb581c42d3061ce3eb150348bf766f91eebef3e52991a4674966454d522"
+    },
+    "scripts/maintenance/retained_git_transport.py": {
+      "bytes": 27229,
+      "sha256": "ae044c80a3c40ee6bd0cb49cf7c5c78040a7703e7b09a35d1485f7d0828a67bf"
+    },
+    "scripts/virtual/owned_process.py": {
+      "bytes": 14435,
+      "sha256": "80547f753dc7d13819d727783c669d10a56b7bf832dc05084b5c4b5302cb79d9"
     }
   },
   "purpose": "GNU_IMMUTABLE_RUNTIME_NATIVE_V1",
