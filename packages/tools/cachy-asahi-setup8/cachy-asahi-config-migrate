@@ -1,0 +1,12 @@
+#!/usr/bin/python3 -I
+# SPDX-License-Identifier: MIT
+"""Explicit per-user configuration migration; use only the installed private modules."""
+from pathlib import Path
+import sys
+
+sys.dont_write_bytecode = True
+# Fixed sibling installation layout also permits isolated package staging checks.
+private = Path(__file__).resolve().parents[1] / 'lib/cachy-asahi/setup8'
+sys.path.insert(0, str(private))
+from config_migrate import main
+raise SystemExit(main())
