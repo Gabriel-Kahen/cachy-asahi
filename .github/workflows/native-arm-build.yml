@@ -34,7 +34,7 @@ jobs:
         timeout-minutes: 2
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '535c94f20eaaaac99031e33e9b76accd4db7ebcd82dc3434d0de394b4e447fb2' "$SLICE/job.py" 'a4fec1b9a6be731489a19c4776e580299380840a482af7dec2a27ec5cb7235e9' "$SLICE/source-manifest.json" | sha256sum --check
+          printf '%s  %s\n' '535c94f20eaaaac99031e33e9b76accd4db7ebcd82dc3434d0de394b4e447fb2' "$SLICE/job.py" 'c5ac09731766892c2ccc5dbca76f5a23aabbdc52ba1970da614a1812069d1bfc' "$SLICE/source-manifest.json" | sha256sum --check
           python3 -I -B "$SLICE/job.py" proof --source "$GITHUB_WORKSPACE" --proof "$RUNNER_TEMP/orphans3-proof.json"
       - name: Checkout complete exact1148 retained package inputs
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1

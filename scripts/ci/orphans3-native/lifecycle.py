@@ -145,8 +145,8 @@ class Trial:
         need(module.Transaction.__module__=='orphans3_installed_actual_backend','real packaged ctypes backend required')
         self.root=WORK/'root';self.root.mkdir(mode=0o700);self.db=self.root/'var/lib/pacman';(self.db/'local').mkdir(parents=True);(self.db/'local/ALPM_DB_VERSION').write_text('9\n')
         config=WORK/'fixture-pacman.conf';config.write_text('[options]\nArchitecture = aarch64\nSigLevel = Required\nLocalFileSigLevel = Required\nGPGDir = '+self.trust+'\nHookDir = /tmp/orphans-hooks\n')
-        cache=WORK/'cache';cache.mkdir();pm=['/usr/bin/pacman','--config',str(config),'--root',str(self.root),'--dbpath',str(self.db),'--gpgdir',self.trust,'--cachedir',str(cache),'--logfile',str(OUT/'fixture-pacman.log'),'--noconfirm','--noscriptlet']
-        self.command(pm+['-U','--asdeps',*(paths[n] for n in sorted(FIXTURES))]);self.command(pm+['-D','--asexplicit',*(PREFIX+n for n in ('explicit','hard-user','optional-user'))])
+        cache=WORK/'cache';cache.mkdir();pm=['/usr/bin/pacman','--config',str(config),'--root',str(self.root),'--dbpath',str(self.db),'--gpgdir',self.trust,'--cachedir',str(cache),'--logfile',str(OUT/'fixture-pacman.log'),'--noconfirm']
+        self.command(pm+['--noscriptlet','-U','--asdeps',*(paths[n] for n in sorted(FIXTURES))]);self.command(pm+['-D','--asexplicit',*(PREFIX+n for n in ('explicit','hard-user','optional-user'))])
         before=self.inventory(pm);need(before=={n:'1-1' for n in FIXTURES},'real eight-package initial inventory');self.report['before_count']=8;self.report['before']=before;self.report['cleanup']['target']='PRESERVED_OWNED_UNTIL_OUTER_DISPOSAL';self.save()
         assessment,plan=self.prepare('initial');facts=json.loads(assessment.read_bytes())
         for n in ('leaf-a','leaf-b','required','optional','protected'):need(facts['packages'][PREFIX+n]['reason']=='dependency','real dependency reason required')
