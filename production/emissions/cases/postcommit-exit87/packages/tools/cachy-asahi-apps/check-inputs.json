@@ -1,0 +1,123 @@
+{
+  "archive": {
+    "bytes": 61046,
+    "sha256": "6d38353fe33e0ce595df507ad9b928d80d3e1d6fe5d45d5418f927e9f50fe6d2"
+  },
+  "files": {
+    "repository/LICENSE": {
+      "content": {
+        "bytes": 1081,
+        "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+      },
+      "origin": "existing MIT project source:LICENSE"
+    },
+    "repository/scripts/client/client.py": {
+      "content": {
+        "bytes": 28669,
+        "sha256": "48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7"
+      },
+      "origin": "existing MIT project source:scripts/client/client.py"
+    },
+    "repository/scripts/release/release.py": {
+      "content": {
+        "bytes": 41320,
+        "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435"
+      },
+      "origin": "existing MIT project source:scripts/release/release.py"
+    },
+    "repository/scripts/release/source_delivery.py": {
+      "content": {
+        "bytes": 16456,
+        "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+      },
+      "origin": "existing MIT project source:scripts/release/source_delivery.py"
+    },
+    "repository/scripts/release/test_release.py": {
+      "content": {
+        "bytes": 43541,
+        "sha256": "7ee9e693d4574c6bb11dcc927937475742b9fa7a6f8e988608532c1e1bab5f2e"
+      },
+      "origin": "existing MIT project source:scripts/release/test_release.py"
+    },
+    "runtime-recipe/.SRCINFO": {
+      "content": {
+        "bytes": 1269,
+        "sha256": "4677c10dcc40686877f9d2bc5b9cac88763fdb4cc395a9a7fd530b6b79db2502"
+      },
+      "origin": "proposed companion recipe:.SRCINFO"
+    },
+    "runtime-recipe/LICENSE": {
+      "content": {
+        "bytes": 1081,
+        "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+      },
+      "origin": "proposed companion recipe:LICENSE"
+    },
+    "runtime-recipe/NOTICE": {
+      "content": {
+        "bytes": 624,
+        "sha256": "5c4ed38dd7675728134d292afb2e61f2a09342c0eefa0becf89b9bda011166df"
+      },
+      "origin": "proposed companion recipe:NOTICE"
+    },
+    "runtime-recipe/PKGBUILD": {
+      "content": {
+        "bytes": 1973,
+        "sha256": "e1f9071387ebd679e09fbbdecb31aadf2f89a59235c8ca03ac42eb2599f16f0b"
+      },
+      "origin": "proposed companion recipe:PKGBUILD"
+    },
+    "runtime-recipe/README.md": {
+      "content": {
+        "bytes": 1748,
+        "sha256": "faf56df41bb5783d566d5e186141b47688ef770f3b7e2baef6c62302b599d316"
+      },
+      "origin": "proposed companion recipe:README.md"
+    },
+    "runtime-recipe/check_source.py": {
+      "content": {
+        "bytes": 3328,
+        "sha256": "4d002bc596e29cb83426fd5b7d185b2aa30e9211c0da79fcb616cf003c11f4a7"
+      },
+      "origin": "proposed companion recipe:check_source.py"
+    },
+    "runtime-recipe/client.py": {
+      "content": {
+        "bytes": 28669,
+        "sha256": "48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7"
+      },
+      "origin": "proposed companion recipe:client.py"
+    },
+    "runtime-recipe/helper-pins.json": {
+      "content": {
+        "bytes": 493,
+        "sha256": "33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a"
+      },
+      "origin": "proposed companion recipe:helper-pins.json"
+    },
+    "runtime-recipe/release.py": {
+      "content": {
+        "bytes": 41320,
+        "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435"
+      },
+      "origin": "proposed companion recipe:release.py"
+    },
+    "runtime-recipe/source-provenance.json": {
+      "content": {
+        "bytes": 1195,
+        "sha256": "09cf1f6f0a7490e5c99bd8bc5caa67ba7c3ecf7cdb55e382dbe502d7e1042972"
+      },
+      "origin": "proposed companion recipe:source-provenance.json"
+    },
+    "runtime-recipe/source_delivery.py": {
+      "content": {
+        "bytes": 16456,
+        "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+      },
+      "origin": "proposed companion recipe:source_delivery.py"
+    }
+  },
+  "license": "MIT",
+  "purpose": "apps-local-check-inputs",
+  "schema_version": 1
+}
