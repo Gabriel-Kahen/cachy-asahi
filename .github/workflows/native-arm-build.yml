@@ -1,0 +1,288 @@
+name: native-arm-c01-installable-generic16k
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact source SHA equal to both registered workflow aliases
+        type: string
+        required: true
+      package_source:
+        description: Exact Root-published accepted-six-archive DATA commit
+        type: string
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: native-arm-c01-installable-generic16k
+  cancel-in-progress: false
+jobs:
+  native:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 95
+    defaults:
+      run:
+        shell: bash
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      SLICE: scripts/ci/arm-c01-installable-native
+      GUEST: scripts/ci/c01-installable-generic16k
+      PACKAGE_SOURCE: ${{ inputs.package_source }}
+      INPUTS_SHA256: beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
+    steps:
+      - name: Checkout the exact closed native trial source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: ${{ inputs.source_sha }}
+          persist-credentials: false
+      - name: Prove source and both workflow aliases before secrets
+        id: proof
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' '576bdc9750ebee1611c165eb5c888b520bf99e4f442796b0bf4faa22ce29d5e7' "$SLICE/owner.py" 'ddafd88f7823f89362f26f08077480b922a6b551d070bdb9ba3d1a619f341be7' "$SLICE/source-map.json" | sha256sum --check
+          test "$INPUTS_SHA256" = beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
+          printf '%s  %s\n' "$INPUTS_SHA256" scripts/ci/inputs.lock.json | sha256sum --check
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/c01-home" LANG=C.UTF-8 TZ=UTC \
+            RUNNER_TEMP="$RUNNER_TEMP" TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 \
+            SOURCE_SHA="$SOURCE_SHA" GITHUB_WORKSPACE="$GITHUB_WORKSPACE" \
+            GITHUB_SHA="$GITHUB_SHA" GITHUB_WORKFLOW_SHA="$GITHUB_WORKFLOW_SHA" \
+            GITHUB_REPOSITORY="$GITHUB_REPOSITORY" GITHUB_RUN_ID="$GITHUB_RUN_ID" \
+            GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
+            GITHUB_REF="$GITHUB_REF" GITHUB_EVENT_NAME="$GITHUB_EVENT_NAME" GITHUB_ACTIONS="$GITHUB_ACTIONS" RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" \
+            ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
+            python3 -I -B "$SLICE/owner.py" proof \
+            --source-root "$GITHUB_WORKSPACE" --source-sha "$SOURCE_SHA" \
+            --manifest-sha256 ddafd88f7823f89362f26f08077480b922a6b551d070bdb9ba3d1a619f341be7 --proof "$RUNNER_TEMP/c01-proof.json" \
+            --work "$RUNNER_TEMP/c01-installable" --cache "$RUNNER_TEMP/alarm-cache" \
+            --public "$RUNNER_TEMP/c01-public"
+      - name: Run inert source and owner controls before secrets
+        timeout-minutes: 3
+        run: |
+          set -euo pipefail
+          python3 -B -m unittest discover -s "$SLICE" -p 'test_*.py'
+          python3 -B -m unittest discover -s "$GUEST" -p 'test_*.py'
+      - name: Seed the six exact retained inputs using existing secrets only
+        timeout-minutes: 2
+        env:
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01 }}
+          CACHY_OLD_FOUR_SCHEMA: '1'
+          CACHY_OLD_FOUR_SOURCE_EPOCH: '1791748800'
+          CACHY_OLD_FOUR_JBIGKIT_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_01 }}
+          CACHY_OLD_FOUR_JBIGKIT_02: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_02 }}
+          CACHY_OLD_FOUR_JBIGKIT_SIG_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_SIG_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_02: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_02 }}
+          CACHY_OLD_FOUR_LIBTIFF_03: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_03 }}
+          CACHY_OLD_FOUR_LIBTIFF_04: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_04 }}
+          CACHY_OLD_FOUR_LIBTIFF_05: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_05 }}
+          CACHY_OLD_FOUR_LIBTIFF_06: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_06 }}
+          CACHY_OLD_FOUR_LIBTIFF_07: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_07 }}
+          CACHY_OLD_FOUR_LIBTIFF_08: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_08 }}
+          CACHY_OLD_FOUR_LIBTIFF_09: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_09 }}
+          CACHY_OLD_FOUR_LIBTIFF_10: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_10 }}
+          CACHY_OLD_FOUR_LIBTIFF_11: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_11 }}
+          CACHY_OLD_FOUR_LIBTIFF_12: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_12 }}
+          CACHY_OLD_FOUR_LIBTIFF_13: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_13 }}
+          CACHY_OLD_FOUR_LIBTIFF_14: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_14 }}
+          CACHY_OLD_FOUR_LIBTIFF_15: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_15 }}
+          CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}
+        run: |
+          set -euo pipefail
+          test "$INPUTS_SHA256" = beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
+          printf '%s  %s\n' "$INPUTS_SHA256" scripts/ci/inputs.lock.json | sha256sum --check
+          timeout --signal=TERM --kill-after=5s 75s python3 -B - <<'PYSEED'
+          import hashlib
+          import os
+          from pathlib import Path
+          import sys
+          sys.path.insert(0, 'scripts/ci')
+          from old_four_seed import (OLD_FOUR_PRIVATE_ROWS, RETAINED_BUBBLEWRAP_PRIVATE_ROWS,
+                                     seed_current_build_cache)
+          pin = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
+          if hashlib.sha256(Path('scripts/ci/inputs.lock.json').read_bytes()).hexdigest() != pin:
+              raise SystemExit('private-cache-input-binding-refused')
+          names = {'CACHY_OLD_FOUR_' + f'{tag}_{i:02d}'
+                   for _, _, _, tag, count in OLD_FOUR_PRIVATE_ROWS for i in range(1, count + 1)}
+          retained = {'CACHY_RETAINED_BUBBLEWRAP_V1_' + f'{tag}_{i:02d}'
+                      for _, _, _, tag, sizes in RETAINED_BUBBLEWRAP_PRIVATE_ROWS
+                      for i in range(1, len(sizes) + 1)}
+          names |= retained
+          if len(names) != 22 or len(retained) != 3 or not all(os.environ.get(name) for name in names):
+              raise SystemExit('private-cache-required-secrets-missing')
+          cache = Path(os.environ['RUNNER_TEMP']) / 'alarm-cache'
+          cache.mkdir(mode=0o700)
+          keep = names | {'CACHY_OLD_FOUR_SCHEMA', 'CACHY_OLD_FOUR_SOURCE_EPOCH'}
+          for name in tuple(os.environ):
+              if name not in keep:
+                  os.environ.pop(name)
+          seed_current_build_cache(cache, pin)
+          PYSEED
+      - name: Checkout the exact fourteen public input source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: 04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd
+          path: source-public14
+          persist-credentials: false
+      - name: Seed all fourteen exact public input files into the existing cache
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' 'a7857658af224984065e575f6ffed8308ea85027d46eace8bda146d9033e93b3' source-public14/seed.py 'a388c8c8ba8e06cb92fd2be598b86e433c4e403b6e71a0f15b1eaec381bb7300' source-public14/index.json | sha256sum --check
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/c01-home" LANG=C.UTF-8 TZ=UTC TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 \
+            python3 -I -B "$GITHUB_WORKSPACE/source-public14/seed.py" --cache "$RUNNER_TEMP/alarm-cache"
+      - name: Checkout complete original retained package inputs
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad
+          path: source-retained
+          persist-credentials: false
+      - name: Move the exact retained checkout to its separate runtime input path
+        timeout-minutes: 1
+        run: |
+          set -euo pipefail
+          test -d "$GITHUB_WORKSPACE/source-retained/.git"
+          test ! -e "$RUNNER_TEMP/c01-retained"
+          test ! -L "$RUNNER_TEMP/c01-retained"
+          mv -- "$GITHUB_WORKSPACE/source-retained" "$RUNNER_TEMP/c01-retained"
+      - name: Provision disposable runner QEMU
+        timeout-minutes: 3
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install --no-install-recommends -y qemu-system-arm
+          qemu-system-aarch64 --version
+      - name: Checkout exact kernel DATA without credentials persistence
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: 1c6a2e7a7c6709eb1462cdcb0b449c98fe33d845
+          path: source-kernel-data
+          persist-credentials: false
+      - name: Checkout selected accepted package DATA
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: ${{ inputs.package_source }}
+          path: source-package-data
+          persist-credentials: false
+      - name: Move both DATA checkouts outside exact executable source
+        timeout-minutes: 1
+        run: |
+          set -euo pipefail
+          [[ "$PACKAGE_SOURCE" =~ ^[0-9a-f]{40}$ ]]
+          test ! -e "$RUNNER_TEMP/c01-kernel-data"
+          test ! -e "$RUNNER_TEMP/c01-package-data"
+          mv "$GITHUB_WORKSPACE/source-kernel-data" "$RUNNER_TEMP/c01-kernel-data"
+          mv "$GITHUB_WORKSPACE/source-package-data" "$RUNNER_TEMP/c01-package-data"
+      - name: Reconstruct exact native248 inputs and build a fresh original341 image
+        timeout-minutes: 40
+        run: |
+          set -euo pipefail
+          timeout --signal=TERM --kill-after=30s 2300s \
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/c01-home" LANG=C.UTF-8 TZ=UTC \
+            RUNNER_TEMP="$RUNNER_TEMP" TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 \
+            SOURCE_SHA="$SOURCE_SHA" GITHUB_WORKSPACE="$GITHUB_WORKSPACE" \
+            GITHUB_SHA="$GITHUB_SHA" GITHUB_WORKFLOW_SHA="$GITHUB_WORKFLOW_SHA" \
+            GITHUB_REPOSITORY="$GITHUB_REPOSITORY" GITHUB_RUN_ID="$GITHUB_RUN_ID" \
+            GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
+            GITHUB_REF="$GITHUB_REF" GITHUB_EVENT_NAME="$GITHUB_EVENT_NAME" GITHUB_ACTIONS="$GITHUB_ACTIONS" RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" \
+            ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
+            python3 -I -B "$SLICE/owner.py" bootstrap \
+            --source-root "$GITHUB_WORKSPACE" --source-sha "$SOURCE_SHA" \
+            --manifest-sha256 ddafd88f7823f89362f26f08077480b922a6b551d070bdb9ba3d1a619f341be7 --proof "$RUNNER_TEMP/c01-proof.json" \
+            --work "$RUNNER_TEMP/c01-installable" --cache "$RUNNER_TEMP/alarm-cache" \
+            --public "$RUNNER_TEMP/c01-public" \
+            --carrier "$RUNNER_TEMP/c01-retained" --execute
+      - name: Boot exact generic16K original341 and run installed lifecycle
+        timeout-minutes: 50
+        run: |
+          set -euo pipefail
+          timeout --signal=TERM --kill-after=30s 2900s \
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/c01-home" LANG=C.UTF-8 TZ=UTC \
+            RUNNER_TEMP="$RUNNER_TEMP" TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 \
+            SOURCE_SHA="$SOURCE_SHA" GITHUB_WORKSPACE="$GITHUB_WORKSPACE" \
+            GITHUB_SHA="$GITHUB_SHA" GITHUB_WORKFLOW_SHA="$GITHUB_WORKFLOW_SHA" \
+            GITHUB_REPOSITORY="$GITHUB_REPOSITORY" GITHUB_RUN_ID="$GITHUB_RUN_ID" \
+            GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
+            GITHUB_REF="$GITHUB_REF" GITHUB_EVENT_NAME="$GITHUB_EVENT_NAME" GITHUB_ACTIONS="$GITHUB_ACTIONS" RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" \
+            ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
+            python3 -I -B "$GUEST/owner.py" trial \
+            --source-root "$GITHUB_WORKSPACE" --source-sha "$SOURCE_SHA" \
+            --manifest-sha256 ddafd88f7823f89362f26f08077480b922a6b551d070bdb9ba3d1a619f341be7 --proof "$RUNNER_TEMP/c01-proof.json" \
+            --work "$RUNNER_TEMP/c01-installable" --cache "$RUNNER_TEMP/alarm-cache" \
+            --public "$RUNNER_TEMP/c01-public" \
+            --kernel-data "$RUNNER_TEMP/c01-kernel-data" --package-data "$RUNNER_TEMP/c01-package-data" \
+            --package-source "$PACKAGE_SOURCE" --execute
+      - name: Retire only owned package consumers and the original341 producer
+        if: always() && steps.proof.outcome == 'success'
+        timeout-minutes: 3
+        run: |
+          set -euo pipefail
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/c01-home" LANG=C.UTF-8 TZ=UTC \
+            RUNNER_TEMP="$RUNNER_TEMP" TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 \
+            SOURCE_SHA="$SOURCE_SHA" GITHUB_WORKSPACE="$GITHUB_WORKSPACE" \
+            GITHUB_SHA="$GITHUB_SHA" GITHUB_WORKFLOW_SHA="$GITHUB_WORKFLOW_SHA" \
+            GITHUB_REPOSITORY="$GITHUB_REPOSITORY" GITHUB_RUN_ID="$GITHUB_RUN_ID" \
+            GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
+            GITHUB_REF="$GITHUB_REF" GITHUB_EVENT_NAME="$GITHUB_EVENT_NAME" GITHUB_ACTIONS="$GITHUB_ACTIONS" RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" \
+            ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
+            python3 -I -B "$GUEST/owner.py" cleanup-safe \
+            --source-root "$GITHUB_WORKSPACE" --source-sha "$SOURCE_SHA" \
+            --manifest-sha256 ddafd88f7823f89362f26f08077480b922a6b551d070bdb9ba3d1a619f341be7 --proof "$RUNNER_TEMP/c01-proof.json" \
+            --work "$RUNNER_TEMP/c01-installable" --cache "$RUNNER_TEMP/alarm-cache" \
+            --public "$RUNNER_TEMP/c01-public" \
+            --kernel-data "$RUNNER_TEMP/c01-kernel-data" --package-data "$RUNNER_TEMP/c01-package-data" \
+            --package-source "$PACKAGE_SOURCE"
+          timeout --signal=TERM --kill-after=30s 150s \
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/c01-home" LANG=C.UTF-8 TZ=UTC \
+            RUNNER_TEMP="$RUNNER_TEMP" TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 \
+            SOURCE_SHA="$SOURCE_SHA" GITHUB_WORKSPACE="$GITHUB_WORKSPACE" \
+            GITHUB_SHA="$GITHUB_SHA" GITHUB_WORKFLOW_SHA="$GITHUB_WORKFLOW_SHA" \
+            GITHUB_REPOSITORY="$GITHUB_REPOSITORY" GITHUB_RUN_ID="$GITHUB_RUN_ID" \
+            GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
+            GITHUB_REF="$GITHUB_REF" GITHUB_EVENT_NAME="$GITHUB_EVENT_NAME" GITHUB_ACTIONS="$GITHUB_ACTIONS" RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" \
+            ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
+            python3 -I -B "$SLICE/owner.py" cleanup \
+            --source-root "$GITHUB_WORKSPACE" --source-sha "$SOURCE_SHA" \
+            --manifest-sha256 ddafd88f7823f89362f26f08077480b922a6b551d070bdb9ba3d1a619f341be7 --proof "$RUNNER_TEMP/c01-proof.json" \
+            --work "$RUNNER_TEMP/c01-installable" --cache "$RUNNER_TEMP/alarm-cache" \
+            --public "$RUNNER_TEMP/c01-public" \
+            --execute
+      - name: Retain bounded public metadata and package evidence
+        if: always() && steps.proof.outcome == 'success'
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          timeout --signal=TERM --kill-after=30s 90s \
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/c01-home" LANG=C.UTF-8 TZ=UTC \
+            RUNNER_TEMP="$RUNNER_TEMP" TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 \
+            SOURCE_SHA="$SOURCE_SHA" GITHUB_WORKSPACE="$GITHUB_WORKSPACE" \
+            GITHUB_SHA="$GITHUB_SHA" GITHUB_WORKFLOW_SHA="$GITHUB_WORKFLOW_SHA" \
+            GITHUB_REPOSITORY="$GITHUB_REPOSITORY" GITHUB_RUN_ID="$GITHUB_RUN_ID" \
+            GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
+            GITHUB_REF="$GITHUB_REF" GITHUB_EVENT_NAME="$GITHUB_EVENT_NAME" GITHUB_ACTIONS="$GITHUB_ACTIONS" RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" \
+            ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
+            python3 -I -B "$GUEST/owner.py" retain \
+            --source-root "$GITHUB_WORKSPACE" --source-sha "$SOURCE_SHA" \
+            --manifest-sha256 ddafd88f7823f89362f26f08077480b922a6b551d070bdb9ba3d1a619f341be7 --proof "$RUNNER_TEMP/c01-proof.json" \
+            --work "$RUNNER_TEMP/c01-installable" --cache "$RUNNER_TEMP/alarm-cache" \
+            --public "$RUNNER_TEMP/c01-public" \
+            --kernel-data "$RUNNER_TEMP/c01-kernel-data" --package-data "$RUNNER_TEMP/c01-package-data" \
+            --package-source "$PACKAGE_SOURCE"
+      - name: Upload only the closed public evidence directory
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        timeout-minutes: 2
+        with:
+          name: arm-c01-installable-generic16k-${{ github.run_id }}-${{ github.run_attempt }}
+          include-hidden-files: true
+          retention-days: 3
+          if-no-files-found: ignore
+          path: ${{ runner.temp }}/c01-public/
