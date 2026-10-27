@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 cachy-asahi contributors
-"""Offline source bundles for two reviewed original recipes; never execute/install.
+"""Offline source bundles for five original package names and eight reviewed recipe versions; never execute/install.
 
 The existing source_delivery transport remains authoritative for release joins.
 An observed revision labels a checkout, while reviewed file hashes bind inputs.
@@ -47,9 +47,43 @@ PROFILES = {
         'tests': ['test_session_probe.py', 'test_package.py'],
         'docs': ['README.md', 'session-probe.md', 'source-provenance.json'],
     },
+    'cachy-asahi-setup': {
+        'version': '0.3.0-1',
+        'recipe': 'a1774e231cce2d23f02ec03b089e032b52ec18573d191cb4a30153d804245a8a',
+        'srcinfo': 'd65fe637aeb05ea6b9113d392b596507fe2b92f500707500311195c665c988ae',
+        'docs': ['README.md', 'repository-enrollment.md', 'configuration-migrations.md'],
+        'required_sources': ['NOTICE', 'LICENSE', 'source-provenance.json', 'payload-map.json'],
+        'checks': [
+            ['python', '-I', '-B', 'check-sync.py', '--snapshot'],
+            ['python', '-I', '-B', '-Werror::ResourceWarning', 'test_config_migrate.py', '-v'],
+            ['python', '-I', '-B', '-Werror::ResourceWarning', 'test_package.py', '-v'],
+        ],
+    },
+    'cachy-asahi-mirrors': {
+        'version': '0.2.0-2',
+        'recipe': '5c7662982ab46bdedf77c093e6247a1c2282489e327c3e657cc3c6cd2605035f',
+        'srcinfo': '327993e1934c84c35e23a803079da136e852c86147eaa40d14cd7ef22e962b72',
+        'docs': ['README.md'],
+        'required_sources': ['NOTICE', 'LICENSE'],
+        'checks': [
+            ['python', '-B', '-Werror::ResourceWarning', 'test_mirrors.py'],
+        ],
+    },
+    'cachy-asahi-doctor': {
+        'version': '0.1.0-2',
+        'recipe': '4cc74cb6b1fd2685c0537116586e432c3391cfc44710bf752ecceb8bc8526d94',
+        'srcinfo': '5640649663854ded82a392911852b946ae106cc468ab0be180699c0fc64bf9bd',
+        'docs': ['README.md'],
+        'required_sources': ['NOTICE', 'LICENSE'],
+        'checks': [
+            ['python', '-B', '-Werror::ResourceWarning', 'test_doctor.py'],
+            ['python', '-B', '-Werror::ResourceWarning', 'test_comparison.py'],
+        ],
+    },
 }
 # Exact historical inputs remain readable; version labels alone never admit a
-# recipe. These versions have the same checker names, payload layout and docs.
+# recipe. Retained maintenance/diagnostics share their current payload layouts;
+# Setup7 has its own explicit checks, docs and six-file payload.
 LEGACY_PROFILES = {
     ('cachy-asahi-maintenance', '0.1.0-1'): {
         'version': '0.1.0-1',
@@ -66,6 +100,22 @@ LEGACY_PROFILES = {
         'checker': 'check_package.py',
         'tests': ['test_session_probe.py', 'test_package.py'],
         'docs': ['README.md', 'session-probe.md', 'source-provenance.json'],
+    },
+    ('cachy-asahi-setup', '0.1.0-7'): {
+        'version': '0.1.0-7',
+        'recipe': 'f8e39e09e5ab8c18949f0290a76fc314f54fc6e4d1ac5564682b082e92dd3c7a',
+        'srcinfo': 'ea17df86f974ac13bd3a697815d57d6eaba85a77cd1803a6f504afca78d7cbbe',
+        'docs': ['README.md', 'repository-enrollment.md'],
+        'required_sources': ['NOTICE', 'LICENSE', 'source-provenance.json'],
+        'checks': [
+            ['python', '-I', '-B', 'check-sync.py', '--source', 'setup',
+             '--copy', 'cachy-asahi-setup', '--canonical', 'cachy-asahi-setup', '--license', 'LICENSE'],
+            ['python', '-I', '-B', 'check-sync.py', '--source', 'repository',
+             '--copy', 'cachy-asahi-repository', '--canonical', 'cachy-asahi-repository', '--license', 'LICENSE'],
+            ['python', '-I', '-B', 'check-sync.py', '--source', 'repository-doc',
+             '--copy', 'repository-enrollment.md', '--canonical', 'repository-enrollment.md', '--license', 'LICENSE'],
+            ['python', '-B', '-Werror::ResourceWarning', 'test-sync.py'],
+        ],
     },
 }
 
@@ -104,7 +154,7 @@ def metadata(raw):
 def source_set(name, read):
     profile(name)
     bodies = {key: read(key) for key in ('PKGBUILD', '.SRCINFO')}
-    source_profile(name, bodies)
+    p = source_profile(name, bodies)
     info = metadata(bodies['.SRCINFO'])
     sources, pins = info['source'], info['sha256sums']
     s.need(len(sources) == len(pins) == len(set(sources)) <= MAX_FILES - 2, 'source count/duplicates')
@@ -116,11 +166,13 @@ def source_set(name, read):
         s.need(0 < len(raw) <= MAX_FILE and s.digest(raw) == pin, 'recipe source checksum mismatch: ' + name)
         bodies[name] = raw
     s.need(sum(map(len, bodies.values())) <= MAX_TOTAL, 'source total bound')
-    s.need({'NOTICE', 'LICENSE', 'source-provenance.json'} <= bodies.keys(), 'original notices/provenance required')
+    s.need(set(p.get('required_sources', ('NOTICE', 'LICENSE', 'source-provenance.json'))) <= bodies.keys(),
+           'original notices/provenance required')
     return bodies, info
 
 
 def payload(name, version=None):
+    p = profile(name, version)
     result = {'usr/bin/' + name: (name, 0o755)}
     if name == 'cachy-asahi-maintenance':
         for folder, names in {
@@ -129,9 +181,15 @@ def payload(name, version=None):
         }.items():
             for leaf in names:
                 result[f'usr/lib/cachy-asahi/maintenance/scripts/{folder}/{leaf}.py'] = (leaf + '.py', 0o644)
-    else:
+    elif name == 'cachy-asahi-session-diagnostics':
         result['usr/lib/' + name + '/session_probe.py'] = ('session_probe.py', 0o644)
-    result.update({'usr/share/doc/' + name + '/' + leaf: (leaf, 0o644) for leaf in profile(name, version)['docs']})
+    elif name == 'cachy-asahi-setup':
+        result['usr/bin/cachy-asahi-repository'] = ('cachy-asahi-repository', 0o755)
+        if p['version'] == '0.3.0-1':
+            result['usr/bin/cachy-asahi-config-migrate'] = ('cachy-asahi-config-migrate', 0o755)
+            for leaf in ('setup.py', 'config_migrate.py'):
+                result['usr/lib/cachy-asahi/setup8/' + leaf] = (leaf, 0o644)
+    result.update({'usr/share/doc/' + name + '/' + leaf: (leaf, 0o644) for leaf in p['docs']})
     result.update({'usr/share/licenses/' + name + '/' + leaf: (leaf, 0o644) for leaf in ('NOTICE', 'LICENSE')})
     return result
 
@@ -201,7 +259,8 @@ def manifest(name, bodies, info, revision, binding):
                 archive_binding=binding, archive_status='BOUND' if binding else 'UNBOUND_NO_ARCHIVE_SUPPLIED',
                 rebuild_commands=['makepkg --verifysource', 'makepkg --cleanbuild --force'],
                 rebuild_environment='Separately provisioned native aarch64 build environment with declared dependencies; no automatic dependency installation.',
-                host_check_commands=[['python', '-I', '-B', p['checker'], '--recipe-root', '.']] +
+                host_check_commands=p['checks'] if 'checks' in p else
+                                    [['python', '-I', '-B', p['checker'], '--recipe-root', '.']] +
                                     [['python', '-I', '-B', '-Werror::ResourceWarning', test] for test in p['tests']],
                 stage_command='umask 022; source "$1/PKGBUILD"; srcdir=$1; pkgdir=$2; package',
                 stage_is_not_installation=True, native_build='NOT_RUN', alpm_installation='NOT_RUN',
