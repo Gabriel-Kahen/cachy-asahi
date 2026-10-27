@@ -1,0 +1,222 @@
+{
+  "files": {
+    "packages/tools/cachy-asahi-mirrors/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-mirrors/NOTICE": {
+      "bytes": 283,
+      "sha256": "adb0cb8dcd123c5fb6cd905abd3245a6decf34cda55fd901a633b772987a747a"
+    },
+    "packages/tools/cachy-asahi-mirrors/PKGBUILD": {
+      "bytes": 1131,
+      "sha256": "5c7662982ab46bdedf77c093e6247a1c2282489e327c3e657cc3c6cd2605035f"
+    },
+    "packages/tools/cachy-asahi-mirrors/README.md": {
+      "bytes": 6479,
+      "sha256": "1c084b18b0c49dffbf32f7c4c3eaef1a417a0c1cddf048b0808991f6b4deddd8"
+    },
+    "packages/tools/cachy-asahi-mirrors/cachy-asahi-mirrors": {
+      "bytes": 24195,
+      "sha256": "b31c0021ab00ad6bca01a139f5887a467f587c9205ce79c9451312d150eb7dcd"
+    },
+    "packages/tools/cachy-asahi-mirrors/test_mirrors.py": {
+      "bytes": 21971,
+      "sha256": "5a3e8bb1bc47efb8621557f0c33edbc687487bd59d5f70d6621431fd67477f0f"
+    },
+    "scripts/build/build.py": {
+      "bytes": 11299,
+      "sha256": "e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45"
+    },
+    "scripts/build/compare.py": {
+      "bytes": 5820,
+      "sha256": "4198864c264642b196a090a67b36185e5c194e38edc4cb928d08eb65b9f710cd"
+    },
+    "scripts/build/container-entry.sh": {
+      "bytes": 1787,
+      "sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24"
+    },
+    "scripts/checks/package_checks.py": {
+      "bytes": 17706,
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+    },
+    "scripts/ci/maintained-desktop574-inputs.json": {
+      "bytes": 623664,
+      "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+    },
+    "scripts/ci/maintained_desktop574.py": {
+      "bytes": 22367,
+      "sha256": "27ba4be42cf2bd41675073e07cccc917ae033f9d68b07a33cfd7f074ac27b760"
+    },
+    "scripts/ci/mirrors-native/README.md": {
+      "bytes": 4638,
+      "sha256": "efc7adbbc87b75e76dfe131cd2470dee26c47454362ceb477518d7fae89da6c5"
+    },
+    "scripts/ci/mirrors-native/SIGNATURES.md": {
+      "bytes": 2052,
+      "sha256": "5e0ff1186676d3e3c8c7e5c2a96791d700d725ba3f501f170ef2001dc669d657"
+    },
+    "scripts/ci/mirrors-native/contract.py": {
+      "bytes": 11457,
+      "sha256": "69920107fb4a71a8009cae3a21b6b07b45cf4326421c27e5ae31427bba9a71f6"
+    },
+    "scripts/ci/mirrors-native/held_test_signer.py": {
+      "bytes": 1342,
+      "sha256": "67f3ea8e1415d5662ef9307772dbd452f778862905d48c6d5b51a69ec89c2f04"
+    },
+    "scripts/ci/mirrors-native/host_stage.py": {
+      "bytes": 3040,
+      "sha256": "9276ab663a162d265ae6ea9cf31c4bc1c7bf9183be513eac17a3935a18da4313"
+    },
+    "scripts/ci/mirrors-native/infrastructure-pins.json": {
+      "bytes": 2738,
+      "sha256": "4b1e56b39fa7622172aa954d5ffe55aa73a3794254735844ecc34d28a11e4a77"
+    },
+    "scripts/ci/mirrors-native/input-policy.json": {
+      "bytes": 1047,
+      "sha256": "dda88c68fe4be7d96097961b39a2389c6ef7255b86ebb7a58de4108952d2c7b6"
+    },
+    "scripts/ci/mirrors-native/installed.py": {
+      "bytes": 7262,
+      "sha256": "34128073b54fa99206b84bd0ac9275be46dd5933357ea149594694acc933dfe5"
+    },
+    "scripts/ci/mirrors-native/job.py": {
+      "bytes": 17275,
+      "sha256": "00e77113e9b1833e378d465df9a7ac8b9cb2a128da5fe3fd91561a86bfce444d"
+    },
+    "scripts/ci/mirrors-native/lifecycle.py": {
+      "bytes": 18239,
+      "sha256": "533e0c93292c03fa6d5c6c013b61809cdb95d81ec6a05d7365cc61495d133d56"
+    },
+    "scripts/ci/mirrors-native/prepare.py": {
+      "bytes": 5188,
+      "sha256": "7a918ee48061a6578f278371d7c74ba827f71aaba9b1f18949023fb6fe51e9f4"
+    },
+    "scripts/ci/mirrors-native/producer.py": {
+      "bytes": 1867,
+      "sha256": "b8df1bfe74c836514095e7b3d3c67ea5946c569b2a7e15747edd824e7f71c392"
+    },
+    "scripts/ci/mirrors-native/product-spec.json": {
+      "bytes": 1113,
+      "sha256": "7bc787de7b9402451279fbb6ea174626b880c28d11c3cc17025fad85301bf5d7"
+    },
+    "scripts/ci/mirrors-native/retained_inputs.py": {
+      "bytes": 4107,
+      "sha256": "3b1f8e832558797a0755f89d626836c75995de2476c09057cb572ba57002ef66"
+    },
+    "scripts/ci/mirrors-native/run.py": {
+      "bytes": 12461,
+      "sha256": "7e6225aa82b03d5771cd26720543ff9acb9a4ce1d32b12f0b243e0b62a3543c4"
+    },
+    "scripts/ci/mirrors-native/signed_lifecycle.py": {
+      "bytes": 15067,
+      "sha256": "47a166da2a774d4dfa4bd15b489ea8979b3f9d3ba82f453fbb9563f33814436b"
+    },
+    "scripts/ci/mirrors-native/signer_actor.py": {
+      "bytes": 10463,
+      "sha256": "f533712443e630f3de9a9ad61e7af627bdbfedefe77d4690cf9b627f3be072f1"
+    },
+    "scripts/ci/mirrors-native/source-pins.json": {
+      "bytes": 5850,
+      "sha256": "c9649f44232fb7e993ef63d06a05de0dc6d5cc73b124389c32a79da4fb92445d"
+    },
+    "scripts/ci/mirrors-native/test_auth.py": {
+      "bytes": 8632,
+      "sha256": "9c5b6ceb53c02a97b4f40fab30a9f0ab0480747a88544343599dc70771b4329d"
+    },
+    "scripts/ci/mirrors-native/test_lifecycle.py": {
+      "bytes": 4097,
+      "sha256": "4cdc3ab6d11cda10854e6c082c44a7531da24c08340d05da335bac181f877c29"
+    },
+    "scripts/ci/mirrors-native/test_native.py": {
+      "bytes": 15532,
+      "sha256": "24687a8dfcef3e2bbb82d8840bd6ddea5b9ebcf75813b98298d2cb901cae4049"
+    },
+    "scripts/ci/mirrors-native/test_prepare.py": {
+      "bytes": 3251,
+      "sha256": "645a59b3c0d866a7a1d97948273acdb84996a6b7d41921fc864d07bbdaceddb0"
+    },
+    "scripts/ci/mirrors-native/test_registered.py": {
+      "bytes": 4376,
+      "sha256": "3e8b05ae1fa816bb419d4ae6e64b5c0080f5928ab6b43944637afdd14c2bb39d"
+    },
+    "scripts/ci/mirrors-native/test_retained_correction.py": {
+      "bytes": 6466,
+      "sha256": "3128d827c21f1e9a40c6993e0c673bde0e3d6f9a2f0674bee281ba30284a209f"
+    },
+    "scripts/ci/mirrors-native/test_signed_lane.py": {
+      "bytes": 2855,
+      "sha256": "647b84eaa5362fca87c2e297613b30adfada5fc67414df8a63f3809c10a247fd"
+    },
+    "scripts/ci/mirrors-native/test_signed_lifecycle.py": {
+      "bytes": 7914,
+      "sha256": "3fe4deeffc79b54b8474fc19e8cc28fb110b230bda09dfcef3048132ac7e185d"
+    },
+    "scripts/ci/mirrors-native/test_signing.py": {
+      "bytes": 8744,
+      "sha256": "e64aa34190a64933d4f6e18442989eb281d435c2761accbf5720bbb3942a5d4c"
+    },
+    "scripts/ci/mirrors-native/workflow.yml.in": {
+      "bytes": 7457,
+      "sha256": "265cbf4edaddbfed5ec6306f0f220f09704a425b17ec0d32e1144310d849ecbf"
+    },
+    "scripts/ci/old_four_seed.py": {
+      "bytes": 29048,
+      "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
+    },
+    "scripts/ci/setup6-retained-helpers/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "scripts/ci/setup6-retained-helpers/NOTICE.md": {
+      "bytes": 1018,
+      "sha256": "6a3649fc4e0d0ee18a7399ada57d9fa8c1b8c97232ba46efd5da511c72a74141"
+    },
+    "scripts/ci/setup6-retained-helpers/carrier-profile.json": {
+      "bytes": 195440,
+      "sha256": "4089fd798849cafda23d03c0dd95ac896a83fd63ad21e331ae420c147535586c"
+    },
+    "scripts/ci/setup6-retained-helpers/legacy-prefill-profile.json": {
+      "bytes": 1510,
+      "sha256": "9cc82d4e0947415ecad9d40094a4c0a2709d01be54513e78af8c739fd76fb696"
+    },
+    "scripts/ci/setup6-retained-helpers/legacy_prefill.py": {
+      "bytes": 5986,
+      "sha256": "05a91a91efd69b3b2e06561f5bbf08bdbb105998d42dbf133e75fd1fe25945ac"
+    },
+    "scripts/ci/setup6-retained-helpers/prepare.py": {
+      "bytes": 3749,
+      "sha256": "6c688c315cb962c641b8c0b1d9d88f94778d57ae19bcef251e88e49cb4be6316"
+    },
+    "scripts/ci/test_maintained_desktop574.py": {
+      "bytes": 19082,
+      "sha256": "e5d7dc11d1a59cf37a273e9a7103c7e55b169335b17c599990946f4e677ca974"
+    },
+    "scripts/ci/welcome-native/ci/caller.py": {
+      "bytes": 8363,
+      "sha256": "cf80f438eff180b73ae9676e2145b56ba6a358fd9a69bb219e0a7a6f53ff01df"
+    },
+    "scripts/ci/welcome-native/lifecycle.py": {
+      "bytes": 12278,
+      "sha256": "b87831eea710dbf18cb3ab3aa7bf49856d26bebbd3e684861dcab7dc1d337c74"
+    },
+    "scripts/ci/welcome-native/run.py": {
+      "bytes": 12766,
+      "sha256": "52112b49ea98b5aef131b8bcbcc188bcc59cc3a4827161091d4e86af14d2757c"
+    },
+    "scripts/virtual/common.py": {
+      "bytes": 84361,
+      "sha256": "aef2b4f09a91c4cfd66dd4504e69ef18396a94214c82ae0ec0a43c2716894a03"
+    }
+  },
+  "native_runtime": "NOT_RUN",
+  "schema_version": 1,
+  "scope": "ONE_UNSELECTED_MIRROR_CANDIDATE",
+  "workflow_binding": {
+    "method": "EXACT_RENDERED_PINNED_TEMPLATE_EQUALITY_BEFORE_SECRETS",
+    "paths": [
+      ".github/workflows/native-arm-mirrors-candidate.yml",
+      ".github/workflows/native-arm-build.yml"
+    ]
+  }
+}
