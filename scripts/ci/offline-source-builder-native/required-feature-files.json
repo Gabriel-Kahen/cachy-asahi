@@ -1,0 +1,37 @@
+{
+  "scripts/build/build_v2.py": {
+    "bytes": 13242,
+    "mode": 420,
+    "sha256": "37242a5680c0cb587087042455782478dac0f574f977a5f696c97d29eac39b43"
+  },
+  "scripts/build/compare_v2.py": {
+    "bytes": 5963,
+    "mode": 420,
+    "sha256": "89c606044b587ea772d5bbab4bad55c09dc23a7080900a9ad51839b2f516215b"
+  },
+  "scripts/build/container-entry-v2.sh": {
+    "bytes": 2447,
+    "mode": 420,
+    "sha256": "9be3db97efde70536a81d1c97f9ac69893a6004ab403566f8453704a2a189d2a"
+  },
+  "scripts/build/source_materials.py": {
+    "bytes": 7877,
+    "mode": 420,
+    "sha256": "9b0d95d2604ae4689f081283fc671281ce13879fcb146ddf4188873b05c89e5a"
+  },
+  "scripts/checks/package_checks.py": {
+    "bytes": 17706,
+    "mode": 420,
+    "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+  },
+  "scripts/maintenance/source_cache.py": {
+    "bytes": 14253,
+    "mode": 420,
+    "sha256": "3c922b1c5ea737605d7fd39aa986fa281c50bcf6926660390032e677706e28f3"
+  },
+  "scripts/release/source_delivery.py": {
+    "bytes": 16456,
+    "mode": 420,
+    "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+  }
+}
