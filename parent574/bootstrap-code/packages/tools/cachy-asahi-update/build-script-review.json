@@ -1,0 +1,2167 @@
+{
+  "approval": "NOT GRANTED BY THIS REPORT; coordinator gate must verify actual worker inputs and constraints",
+  "audit_input_sha256": "01d8fdc321d58f0153019b576db5abfd3e4a66320d5c26507cb40df7e9ff7ff8",
+  "build_script_execution": "NOT RUN",
+  "cargo_execution": "NOT RUN",
+  "cargo_lock_sha256": "0f12cdc2bd6e3838d67b08f0566f75f477bc83121196cf14d0ea5ce07faa3753",
+  "hardware_validation": "NOT RUN",
+  "helper_paths": [
+    {
+      "files": [
+        {
+          "bytes": 22431,
+          "path": "src/lib.rs",
+          "sha256": "772630d0e09d06f343fd72284c8330eacde87d2a4ee22f70af62a0e2119fbf05"
+        },
+        {
+          "bytes": 2732,
+          "path": "src/rustc.rs",
+          "sha256": "a8a213ddb64a05c1a1af933bcb331a98879e942b167c33d8f94f9f60ebb14e29"
+        },
+        {
+          "bytes": 2172,
+          "path": "src/version.rs",
+          "sha256": "4f7d23b36f01c7be1871be86c038d6cb4689e145d67c82d3793690e9aa05b133"
+        }
+      ],
+      "package": "autocfg-1.5.1",
+      "scope": "memoffset initialization: Rustc::new/version wrapper selection, verbose-version parse, empty std/no_std compiler probes produce LLVM IR in OUT_DIR then remove. Compiler version thresholds pure comparison. No network."
+    },
+    {
+      "files": [
+        {
+          "bytes": 45904,
+          "path": "src/lib.rs",
+          "sha256": "30aa8db7d5e696f19306731710161afa595bc6b22f76a014e40fbf1dac715b81"
+        }
+      ],
+      "package": "pkg-config-0.3.34",
+      "scope": "probe invokes PKG_CONFIG/prefix variants or pkg-config; fallback pkgconf only on spawn failure, not exit failure. --libs --cflags, --modversion; parse link/include flags, check metadata. No download. Targeted env values can import arbitrary libraries/tools; clear overrides and pin native pc/tool inputs."
+    },
+    {
+      "files": [
+        {
+          "bytes": 2014,
+          "path": "build.rs",
+          "sha256": "9dfb922d1cc32726decedbbb5abcc463c1ce978e751a45fb9199a178ebef6c7d"
+        },
+        {
+          "bytes": 57758,
+          "path": "src/lib.rs",
+          "sha256": "bf944c07d60422d314c26a3258e3c69b1946c5ff86f2e653c3b43db5502898a7"
+        },
+        {
+          "bytes": 23382,
+          "path": "src/metadata.rs",
+          "sha256": "bdb5edcd5aa9dbac663ebd516086ff3384f506dbadbb27208662014545576b7a"
+        },
+        {
+          "bytes": 2181,
+          "path": "Cargo.toml",
+          "sha256": "130a7c555c6bd98a60ccbaa00840fd79ed47f66ded14d716ffb3a46fe49942ce"
+        }
+      ],
+      "package": "system-deps-9.0.0",
+      "scope": "Config::new empty internal-closure map -> probe manifest/cfg/version -> pkg-config. Failed required library errors, not download, with binary feature absent. binary branch calls unavailable system-deps-meta; explicitly blocked, not fully reviewed. GTK callers register no fallback closure."
+    },
+    {
+      "files": [
+        {
+          "bytes": 199161,
+          "path": "src/lib.rs",
+          "sha256": "c9ea78f993d939bd8be61f63060ce3b76c8f8c8a8def94448a968936b1038381"
+        },
+        {
+          "bytes": 22986,
+          "path": "src/tool.rs",
+          "sha256": "434e52ad0a5f9ab4fbfce1575209f7b4328c3864f48caf3e4ea8d9b53e600638"
+        },
+        {
+          "bytes": 2363,
+          "path": "src/tempfile.rs",
+          "sha256": "77963fe55b63d3a30cccae46f763b8d61ed722247fe208e8485858770f6a67f7"
+        },
+        {
+          "bytes": 20388,
+          "path": "src/command_helpers.rs",
+          "sha256": "592f63aab5f1af16900345fd1903499d38e5117548f63ed120f664c9a4aca4b0"
+        },
+        {
+          "bytes": 206,
+          "path": "src/detect_compiler_family.c",
+          "sha256": "97ca4b021495611e828becea6187add37414186a16dfedd26c2947cbce6e8b2f"
+        },
+        {
+          "bytes": 1954,
+          "path": "Cargo.toml",
+          "sha256": "d3dbfd91a0cd0395550bf8651ebd311c60a175dc7606c0f960092ee16837bab7"
+        }
+      ],
+      "package": "cc-1.4.6",
+      "scope": "Reviewed relevant get_compiler/get_base_compiler and Tool family detection in blocked gettext path: CC/CXX/env target variants choose compiler; O_EXCL0600 C probe in OUT_DIR/private temp invokes compiler -E/-?, possibly --version. get_compiler itself detects and returns flags; configure/make later compiles. Generic full cc compilation/parallel/MSVC paths NOT authorized by this path review."
+    },
+    {
+      "files": [
+        {
+          "bytes": 10461,
+          "path": "src/lib.rs",
+          "sha256": "6c9f187290046e10e7de615db831e1e019eda5313a89ed0b809b5c412668bdc8"
+        }
+      ],
+      "package": "temp-dir-0.1.16",
+      "scope": "Only blocked gettext fallback: PID/counter create_dir/retry under env::temp_dir; recursive remove on Drop. No subprocess/network. Predictable naming needs isolated private TMPDIR."
+    },
+    {
+      "files": [
+        {
+          "bytes": 329,
+          "path": "src/lib.rs",
+          "sha256": "402bafa0ad10fb53869dfbe7e5dab9fc9e4883587ccb3d37f7682301958df89c"
+        },
+        {
+          "bytes": 13288,
+          "path": "src/targets.rs",
+          "sha256": "2118f166f08b6789031f503a3430e7f31eed6c1105ac3188751eae214c85fe86"
+        },
+        {
+          "bytes": 1600,
+          "path": "Cargo.toml",
+          "sha256": "e84397dc0141a1d00fb4d736012daf8e3ea83b5641b0cc9b021542606c6cdf8e"
+        }
+      ],
+      "package": "cfg-expr-0.20.9",
+      "scope": "Source operation scan/target API read only; cfg predicate and builtin target lookup used by system-deps. Not independent whole-library correctness audit. Target-lexicon fallback reviewed separately."
+    }
+  ],
+  "kind": "Locked Cargo build-script read-only source review",
+  "limitations": [
+    "Actual native Cargo feature/target graph NOT RUN; optional/Windows/wasm exclusions need that evidence",
+    "Proc macros and toolchain are executable inputs beyond38 entry scripts; independent provenance review still needed",
+    "License/distribution full all-target closure NOT accepted; report gives no grant/compatibility ruling",
+    "This review concerns bounded script behavior; it is not proof every runtime dependency or compiler is safe/correct",
+    "Nested gettext fallback and system-deps-meta paths remain unreviewed execution blockers IF features/target allow them"
+  ],
+  "method": [
+    "Read all38 retained build-script entrypoints; no code execution",
+    "Read included probe/version/generated modules and follow relevant autocfg/pkg-config/system-deps helper call paths",
+    "Inspect cc/temp-dir/gettext fallback conditions; bundled configure/make and binary-download helpers not reviewed/allowed",
+    "Rehash scripts against original full-lock audit; keep full audit/source intact"
+  ],
+  "native_build": "NOT RUN",
+  "packages": [
+    {
+      "architecture": "Cargo TARGET passed to probe; architecture neutral",
+      "archive_sha256": "330a5ed07fa54e4702c9d6c4174f74427fc0ef6e214bbd677ae50a5099946470",
+      "behavior": "Rust minor query and std Error generic-member-access capability probe; failed compile selects stable fallback cfg. Deletes OUT_DIR/probe.",
+      "build_dependencies": {},
+      "commands": [
+        "RUSTC --version",
+        "RUSTC with optional RUSTC_WRAPPER/RUSTC_WORKSPACE_WRAPPER: --cfg=anyhow_build_probe --edition=2018 --crate-type=lib --emit=dep-info,metadata --out-dir OUT_DIR/probe [--target TARGET] src/nightly.rs"
+      ],
+      "conditions": [
+        "std feature gates probe; RUSTC_STAGE skips it; RUSTC_BOOTSTRAP may enable second attempt"
+      ],
+      "environment_literals": [
+        "CARGO_ENCODED_RUSTFLAGS",
+        "OUT_DIR",
+        "RUSTC",
+        "RUSTC_BOOTSTRAP",
+        "RUSTC_STAGE",
+        "RUSTC_WORKSPACE_WRAPPER",
+        "RUSTC_WRAPPER",
+        "TARGET"
+      ],
+      "execution_suitability": "CONDITIONAL isolated-worker proposal; not approval or build acceptance",
+      "helper_dependencies": [],
+      "input_files": [
+        {
+          "bytes": 1563,
+          "path": "src/nightly.rs",
+          "review": "INSPECTED SOURCE INPUT",
+          "sha256": "1c0aeadfcdbe22f8f807b185dec1a7448c378bddb37689714944b60473b58049"
+        }
+      ],
+      "manifest_sha256": "249789761ff37004dda628765f0c9e60a61fa43cbbd2d364789dca0c789eeb59",
+      "name": "anyhow",
+      "native_code": "No script runs compiled target probes. Runtime crate code/ELF validation separate; gettext fallback can configure/compile native C, blocked here.",
+      "network": "No direct selected-path network call found; enforce network isolation independently. system-deps binary and gettext bundled fallback are explicitly blocked.",
+      "restrictions": [],
+      "review": "SOURCE INSPECTED; NOT EXECUTED",
+      "scripts": [
+        {
+          "bytes": 6936,
+          "matches_original_audit": true,
+          "path": "build.rs",
+          "sha256": "89d1baedcff59822ed692d3a33f131c211a213bdec33c83f68b54110d9c64223"
+        }
+      ],
+      "source_files_sha256": "67acb8cd8cdfea35354aaef2f03935882b23e6eb89d3b783e0b4a19f805fd8fa",
+      "target_build_dependencies": {},
+      "version": "1.0.104",
+      "writes": [
+        "OUT_DIR/probe metadata/dep-info; recursive remove"
+      ]
+    },
+    {
+      "architecture": "No-CAS embedded architecture list excludes aarch64 Linux",
+      "archive_sha256": "e2953bfe4f93bbd20cc71198842756f77d161884c99ebbabc41d80231ded88d1",
+      "behavior": "Reads linker template, removes default panic PROVIDE if requested; emits link-search.",
+      "build_dependencies": {},
+      "commands": [],
+      "conditions": [
+        "avoid-default-panic feature"
+      ],
+      "environment_literals": [
+        "OUT_DIR",
+        "TARGET"
+      ],
+      "execution_suitability": "CONDITIONAL isolated-worker proposal; not approval or build acceptance",
+      "helper_dependencies": [],
+      "input_files": [
+        {
+          "bytes": 1574,
+          "path": "defmt.x.in",
+          "review": "INSPECTED SOURCE INPUT",
+          "sha256": "59268a679b5d7c530b2583ebe11c6bf2503447c3b3d80acc02bff2aa4f0a94b7"
+        }
+      ],
+      "manifest_sha256": "2b10d838d0501a2a2b6fe2cf4f92331db14a884fbaa508df17ab5c35ac767307",
+      "name": "defmt",
+      "native_code": "No script runs compiled target probes. Runtime crate code/ELF validation separate; gettext fallback can configure/compile native C, blocked here.",
+      "network": "No direct selected-path network call found; enforce network isolation independently. system-deps binary and gettext bundled fallback are explicitly blocked.",
+      "restrictions": [
+        "Optional embedded logging crate; actual graph must determine inclusion, not assumed excluded"
+      ],
+      "review": "SOURCE INSPECTED; NOT EXECUTED",
+      "scripts": [
+        {
+          "bytes": 1342,
+          "matches_original_audit": true,
+          "path": "build.rs",
+          "sha256": "9477326f9231bbbbb894499e9c3b28f70f06bc37ce08527def13d7fc634db1c7"
+        }
+      ],
+      "source_files_sha256": "8da8a25ba6674da09f9ddf2ec83c920de5d25c24564d46d7b825b76ce6e5bf44",
+      "target_build_dependencies": {},
+      "version": "1.1.1",
+      "writes": [
+        "OUT_DIR/defmt.x"
+      ]
+    },
+    {
+      "architecture": "Architecture neutral",
+      "archive_sha256": "bad9c72e7ca2137e0dc3813245a0d282fd6daad32fd800af018306a9169b5fe8",
+      "behavior": "Only prints rerun-if-env-changed=DEFMT_LOG.",
+      "build_dependencies": {},
+      "commands": [],
+      "conditions": [
+        "DEFMT_LOG rerun directive only"
+      ],
+      "environment_literals": [],
+      "execution_suitability": "CONDITIONAL isolated-worker proposal; not approval or build acceptance",
+      "helper_dependencies": [],
+      "input_files": [],
+      "manifest_sha256": "76cfa8794026d9f8a67563de3ba71a13de1be77209b168f800c1afe899b6de08",
+      "name": "defmt-macros",
+      "native_code": "No script runs compiled target probes. Runtime crate code/ELF validation separate; gettext fallback can configure/compile native C, blocked here.",
+      "network": "No direct selected-path network call found; enforce network isolation independently. system-deps binary and gettext bundled fallback are explicitly blocked.",
+      "restrictions": [
+        "Optional embedded logging crate; exact graph pending"
+      ],
+      "review": "SOURCE INSPECTED; NOT EXECUTED",
+      "scripts": [
+        {
+          "bytes": 68,
+          "matches_original_audit": true,
+          "path": "build.rs",
+          "sha256": "e95adebcba8785d938de75f1555c0baf2ab7a7bf527c01fb9a5f36380fc4a2aa"
+        }
+      ],
+      "source_files_sha256": "0f6b90b394144d102ae505703e6d931f36d0fb0a3cdd3f152d1ffe322be7aea7",
+      "target_build_dependencies": {},
+      "version": "1.1.1",
+      "writes": []
+    },
+    {
+      "architecture": "Architecture neutral",
+      "archive_sha256": "300e883d756b2e4ec94e02791f39b04b522276138852cfc41d9fb7e904106099",
+      "behavior": "Memory sanitizer detection from Cargo env; emits getrandom_msan cfg; no randomness/network action.",
+      "build_dependencies": {},
+      "commands": [],
+      "conditions": [
+        "CARGO_CFG_SANITIZE contains memory"
+      ],
+      "environment_literals": [
+        "CARGO_CFG_SANITIZE"
+      ],
+      "execution_suitability": "CONDITIONAL isolated-worker proposal; not approval or build acceptance",
+      "helper_dependencies": [],
+      "input_files": [],
+      "manifest_sha256": "4f107fe4ceacee71d0068cfbbc69554b3d8523a1fcbb99b17e9fa0d008961ff9",
+      "name": "getrandom",
+      "native_code": "No script runs compiled target probes. Runtime crate code/ELF validation separate; gettext fallback can configure/compile native C, blocked here.",
+      "network": "No direct selected-path network call found; enforce network isolation independently. system-deps binary and gettext bundled fallback are explicitly blocked.",
+      "restrictions": [],
+      "review": "SOURCE INSPECTED; NOT EXECUTED",
+      "scripts": [
+        {
+          "bytes": 446,
+          "matches_original_audit": true,
+          "path": "build.rs",
+          "sha256": "662faa06d7b2a9c5bea2c17a127a90e00b9f9b31105b0360da516e47cf816e95"
+        }
+      ],
+      "source_files_sha256": "5b0a990a1038b0f671d9785541ea930fb9a85a7b100287a5eeeb269b4682140a",
+      "target_build_dependencies": {},
+      "version": "0.4.3",
+      "writes": []
+    },
+    {
+      "architecture": "aarch64-unknown-linux-gnu with system feature returns immediately; Darwin/Windows/BSD alternatives are not Asahi Linux",
+      "archive_sha256": "4caa7e4460b196107cc1bb2629488e8b6dbb7f34f6683ea6753c4ac22f590785",
+      "behavior": "main calls try_gettext_system FIRST. Enabled gettext-system feature OR existence of GETTEXT_SYSTEM (target-prefixed takes precedence) on Linux GNU/musl returns immediately. Otherwise supplied directory(s) tried then bundled gettext fallback.",
+      "build_dependencies": {
+        "cc": {
+          "version": "1.0"
+        },
+        "temp-dir": {
+          "version": "0.1.11"
+        }
+      },
+      "commands": [
+        "Selected Linux GNU system branch: NONE",
+        "BLOCKED FALLBACK: sh -c command -v cmp/diff/find/xz/xzcat",
+        "BLOCKED FALLBACK: cc::Build::get_compiler detection",
+        "BLOCKED FALLBACK: xzcat gettext-1.0.tar.xz | tar xf - in private tempdir/gettext",
+        "BLOCKED FALLBACK: sh private gettext-1.0/gettext-runtime/configure --disable-shared --enable-static --with-included-* --prefix=<private> --libdir=<private>/lib",
+        "BLOCKED FALLBACK: make -jNUM_JOBS; make install using configured private prefix",
+        "BLOCKED FALLBACK: cp -r private bin/include/lib to OUT_DIR"
+      ],
+      "conditions": [
+        "CARGO_FEATURE_GETTEXT_SYSTEM must be active in actual native graph",
+        "GETTEXT_DIR and GETTEXT_{BIN,LIB,INCLUDE}_DIR/GETTEXT_STATIC can select external locations only when system branch false"
+      ],
+      "environment_literals": [
+        "CC",
+        "CFLAGS",
+        "GETTEXT_BIN_DIR",
+        "GETTEXT_DIR",
+        "GETTEXT_INCLUDE_DIR",
+        "GETTEXT_LIB_DIR",
+        "GETTEXT_STATIC",
+        "GETTEXT_SYSTEM",
+        "HOST",
+        "LD",
+        "MINGW_PREFIX",
+        "MSYSTEM_PREFIX",
+        "NUM_JOBS",
+        "OUT_DIR",
+        "PATH",
+        "TARGET",
+        "VERBOSE"
+      ],
+      "execution_suitability": "CONDITIONAL isolated-worker proposal; not approval or build acceptance",
+      "helper_dependencies": [
+        "cc-1.4.6",
+        "temp-dir-0.1.16"
+      ],
+      "input_files": [
+        {
+          "bytes": 1253,
+          "path": "Cargo.toml",
+          "review": "INSPECTED SOURCE INPUT",
+          "sha256": "e4775f5b10a35f913565d727e083c4b584d3529b7d87d555597e5d007a78f00f"
+        },
+        {
+          "bytes": 10405692,
+          "path": "gettext-1.0.tar.xz",
+          "review": "EMBEDDED FALLBACK ARCHIVE NOT EXECUTION REVIEWED",
+          "sha256": "20e3d2d679e74d64248b49b6ac00eeb516844413c75f69d3a4fb1a4790981670"
+        }
+      ],
+      "manifest_sha256": "e4775f5b10a35f913565d727e083c4b584d3529b7d87d555597e5d007a78f00f",
+      "name": "gettext-sys",
+      "native_code": "No script runs compiled target probes. Runtime crate code/ELF validation separate; gettext fallback can configure/compile native C, blocked here.",
+      "network": "No direct selected-path network call found; enforce network isolation independently. system-deps binary and gettext bundled fallback are explicitly blocked.",
+      "restrictions": [
+        "Reject wrong target/missing feature BEFORE build; do not authorize bundled fallback",
+        "Embedded gettext nested configure/make/subprojects NOT reviewed for execution here; retained archive hash only",
+        "Unset inherited GETTEXT_* overrides; exact feature proof required"
+      ],
+      "review": "SOURCE INSPECTED; NOT EXECUTED",
+      "scripts": [
+        {
+          "bytes": 12744,
+          "matches_original_audit": true,
+          "path": "build.rs",
+          "sha256": "8b7e5d9a63db1508d86e10bb9f3af7db1114dc4ca7eee1f1f7b3749d0f7fb7b0"
+        }
+      ],
+      "source_files_sha256": "79e2c27997e129752a04036e095687e98767d5672db4f8b111bf684ef30f6ed1",
+      "target_build_dependencies": {},
+      "version": "0.27.0",
+      "writes": [
+        "System branch NONE",
+        "Fallback tempdir/build,gettext and private prefix; copy to OUT_DIR; tempdir recursive cleanup"
+      ]
+    },
+    {
+      "architecture": "Native aarch64 glib/gio C ABI metadata required",
+      "archive_sha256": "6c28739f914c15b87a9856000bed9cbd5b3a8afbca5e982d9a299e1601422cb5",
+      "behavior": "Unless DOCS_RS exists, calls system_deps::Config::new().probe(); failure warns/exits1. Registers no internal-build closure or binary feature.",
+      "build_dependencies": {
+        "system-deps": {
+          "version": "9"
+        }
+      },
+      "commands": [
+        "Via system-deps/pkg-config: --libs --cflags library/version-range; --modversion"
+      ],
+      "conditions": [
+        "DOCS_RS must be UNSET, not bypass probe",
+        "v2_* features select highest requested minimum; Cargo manifest requires rustc>=1.92"
+      ],
+      "environment_literals": [
+        "DOCS_RS"
+      ],
+      "execution_suitability": "CONDITIONAL isolated-worker proposal; not approval or build acceptance",
+      "helper_dependencies": [
+        "system-deps-9.0.0",
+        "pkg-config-0.3.34"
+      ],
+      "input_files": [
+        {
+          "bytes": 2985,
+          "path": "Cargo.toml",
+          "review": "INSPECTED SOURCE INPUT",
+          "sha256": "578c9b87a6c34b50d326c18057b176bf991bb485b70abe30338618f7e243d330"
+        }
+      ],
+      "manifest_sha256": "578c9b87a6c34b50d326c18057b176bf991bb485b70abe30338618f7e243d330",
+      "name": "gio-sys",
+      "native_code": "No script runs compiled target probes. Runtime crate code/ELF validation separate; gettext fallback can configure/compile native C, blocked here.",
+      "network": "No direct selected-path network call found; enforce network isolation independently. system-deps binary and gettext bundled fallback are explicitly blocked.",
+      "restrictions": [
+        "Pin glib2/pkgconf and native .pc files; no host/pkg-config path overrides",
+        "No SYSTEM_DEPS_* bypass or cross sysroot imports"
+      ],
+      "review": "SOURCE INSPECTED; NOT EXECUTED",
+      "scripts": [
+        {
+          "bytes": 418,
+          "matches_original_audit": true,
+          "path": "build.rs",
+          "sha256": "23d6cc74e67684f75fd152ed1c5885c2eda1d80a4061b82c04f34130b140eede"
+        }
+      ],
+      "source_files_sha256": "a4d19847ba81ff24ca1994726d4a275066ee5c1e054b27c55babd8f04de91d4f",
+      "system_library_metadata": {
+        "gio_2_0": {
+          "name": "gio-2.0",
+          "v2_58": {
+            "version": "2.58"
+          },
+          "v2_60": {
+            "version": "2.60"
+          },
+          "v2_62": {
+            "version": "2.62"
+          },
+          "v2_64": {
+            "version": "2.64"
+          },
+          "v2_66": {
+            "version": "2.66"
+          },
+          "v2_68": {
+            "version": "2.68"
+          },
+          "v2_70": {
+            "version": "2.70"
+          },
+          "v2_72": {
+            "version": "2.72"
+          },
+          "v2_74": {
+            "version": "2.74"
+          },
+          "v2_76": {
+            "version": "2.76"
+          },
+          "v2_78": {
+            "version": "2.78"
+          },
+          "v2_80": {
+            "version": "2.80"
+          },
+          "v2_82": {
+            "version": "2.82"
+          },
+          "v2_84": {
+            "version": "2.84"
+          },
+          "v2_86": {
+            "version": "2.86"
+          },
+          "v2_88": {
+            "version": "2.88"
+          },
+          "v2_90": {
+            "version": "2.89"
+          },
+          "version": "2.56"
+        }
+      },
+      "target_build_dependencies": {},
+      "version": "0.22.9",
+      "writes": []
+    },
+    {
+      "architecture": "Native aarch64 glib/gio C ABI metadata required",
+      "archive_sha256": "7c01dbb58f92f67548d85e2209e073acc7ee04e107c7e04ee69b49e38b4933b4",
+      "behavior": "Unless DOCS_RS exists, calls system_deps::Config::new().probe(); failure warns/exits1. Registers no internal-build closure or binary feature.",
+      "build_dependencies": {
+        "system-deps": {
+          "version": "9"
+        }
+      },
+      "commands": [
+        "Via system-deps/pkg-config: --libs --cflags library/version-range; --modversion"
+      ],
+      "conditions": [
+        "DOCS_RS must be UNSET, not bypass probe",
+        "v2_* features select highest requested minimum; Cargo manifest requires rustc>=1.92"
+      ],
+      "environment_literals": [
+        "DOCS_RS"
+      ],
+      "execution_suitability": "CONDITIONAL isolated-worker proposal; not approval or build acceptance",
+      "helper_dependencies": [
+        "system-deps-9.0.0",
+        "pkg-config-0.3.34"
+      ],
+      "input_files": [
+        {
+          "bytes": 2070,
+          "path": "Cargo.toml",
+          "review": "INSPECTED SOURCE INPUT",
+          "sha256": "f00ebbdac5864596151e3181cf8a79e6a7f8cc4f30bef1c0f3a446140fbd6801"
+        }
+      ],
+      "manifest_sha256": "f00ebbdac5864596151e3181cf8a79e6a7f8cc4f30bef1c0f3a446140fbd6801",
+      "name": "gio-unix-sys",
+      "native_code": "No script runs compiled target probes. Runtime crate code/ELF validation separate; gettext fallback can configure/compile native C, blocked here.",
+      "network": "No direct selected-path network call found; enforce network isolation independently. system-deps binary and gettext bundled fallback are explicitly blocked.",
+      "restrictions": [
+        "Pin glib2/pkgconf and native .pc files; no host/pkg-config path overrides",
+        "No SYSTEM_DEPS_* bypass or cross sysroot imports"
+      ],
+      "review": "SOURCE INSPECTED; NOT EXECUTED",
+      "scripts": [
+        {
+          "bytes": 418,
+          "matches_original_audit": true,
+          "path": "build.rs",
+          "sha256": "23d6cc74e67684f75fd152ed1c5885c2eda1d80a4061b82c04f34130b140eede"
+        }
+      ],
+      "source_files_sha256": "6c4a74c81303adb66eff3178afa9489f6503fe286e4ce499109310c6b81489e4",
+      "system_library_metadata": {
+        "gio_unix_2_0": {
+          "name": "gio-unix-2.0",
+          "v2_58": {
+            "version": "2.58"
+          },
+          "v2_60": {
+            "version": "2.60"
+          },
+          "v2_66": {
+            "version": "2.66"
+          },
+          "v2_82": {
+            "version": "2.82"
+          },
+          "v2_84": {
+            "version": "2.84"
+          },
+          "version": "2.56"
+        },
+        "glib_2_0": {
+          "name": "glib-2.0",
+          "version": "2.56"
+        }
+      },
+      "target_build_dependencies": {},
+      "version": "0.22.9",
+      "writes": []
+    },
+    {
+      "architecture": "Native aarch64 glib/gio C ABI metadata required",
+      "archive_sha256": "99b38907e67e40dec9b60f858bcada952598719cb512a13eb13d6cdcd16f8295",
+      "behavior": "Unless DOCS_RS exists, calls system_deps::Config::new().probe(); failure warns/exits1. Registers no internal-build closure or binary feature.",
+      "build_dependencies": {
+        "system-deps": {
+          "version": "9"
+        }
+      },
+      "commands": [
+        "Via system-deps/pkg-config: --libs --cflags library/version-range; --modversion"
+      ],
+      "conditions": [
+        "DOCS_RS must be UNSET, not bypass probe",
+        "v2_* features select highest requested minimum; Cargo manifest requires rustc>=1.92"
+      ],
+      "environment_literals": [
+        "DOCS_RS"
+      ],
+      "execution_suitability": "CONDITIONAL isolated-worker proposal; not approval or build acceptance",
+      "helper_dependencies": [
+        "system-deps-9.0.0",
+        "pkg-config-0.3.34"
+      ],
+      "input_files": [
+        {
+          "bytes": 3016,
+          "path": "Cargo.toml",
+          "review": "INSPECTED SOURCE INPUT",
+          "sha256": "bef0d2f7360a2c0910585533e5a056d49f37748af4ae569c4ce5be1e988fd43e"
+        }
+      ],
+      "manifest_sha256": "bef0d2f7360a2c0910585533e5a056d49f37748af4ae569c4ce5be1e988fd43e",
+      "name": "glib-sys",
+      "native_code": "No script runs compiled target probes. Runtime crate code/ELF validation separate; gettext fallback can configure/compile native C, blocked here.",
+      "network": "No direct selected-path network call found; enforce network isolation independently. system-deps binary and gettext bundled fallback are explicitly blocked.",
+      "restrictions": [
+        "Pin glib2/pkgconf and native .pc files; no host/pkg-config path overrides",
+        "No SYSTEM_DEPS_* bypass or cross sysroot imports"
+      ],
+      "review": "SOURCE INSPECTED; NOT EXECUTED",
+      "scripts": [
+        {
+          "bytes": 418,
+          "matches_original_audit": true,
+          "path": "build.rs",
+          "sha256": "23d6cc74e67684f75fd152ed1c5885c2eda1d80a4061b82c04f34130b140eede"
+        }
+      ],
+      "source_files_sha256": "190b14ef7cce670daa6a27c004902429786547c199bfd4c91b3c9f6909f1921e",
+      "system_library_metadata": {
+        "glib_2_0": {
+          "name": "glib-2.0",
+          "v2_58": {
+            "version": "2.58"
+          },
+          "v2_60": {
+            "version": "2.60"
+          },
+          "v2_62": {
+            "version": "2.62"
+          },
+          "v2_64": {
+            "version": "2.64"
+          },
+          "v2_66": {
+            "version": "2.66"
+          },
+          "v2_68": {
+            "version": "2.68"
+          },
+          "v2_70": {
+            "version": "2.70"
+          },
+          "v2_72": {
+            "version": "2.72"
+          },
+          "v2_74": {
+            "version": "2.74"
+          },
+          "v2_76": {
+            "version": "2.76"
+          },
+          "v2_78": {
+            "version": "2.78"
+          },
+          "v2_80": {
+            "version": "2.80"
+          },
+          "v2_82": {
+            "version": "2.82"
+          },
+          "v2_84": {
+            "version": "2.84"
+          },
+          "v2_86": {
+            "version": "2.86"
+          },
+          "v2_88": {
+            "version": "2.88"
+          },
+          "v2_90": {
+            "version": "2.89"
+          },
+          "version": "2.56"
+        },
+        "gobject_2_0": {
+          "name": "gobject-2.0",
+          "v2_58": {
+            "version": "2.58"
+          },
+          "v2_62": {
+            "version": "2.62"
+          },
+          "version": "2.56"
+        }
+      },
+      "target_build_dependencies": {},
+      "version": "0.22.9",
+      "writes": []
+    },
+    {
+      "architecture": "Native aarch64 glib/gio C ABI metadata required",
+      "archive_sha256": "07595c9ba696bd9819cb6a8df39f08078f3dd679508fe052dd558492c2053834",
+      "behavior": "Unless DOCS_RS exists, calls system_deps::Config::new().probe(); failure warns/exits1. Registers no internal-build closure or binary feature.",
+      "build_dependencies": {
+        "system-deps": {
+          "version": "9"
+        }
+      },
+      "commands": [
+        "Via system-deps/pkg-config: --libs --cflags library/version-range; --modversion"
+      ],
+      "conditions": [
+        "DOCS_RS must be UNSET, not bypass probe",
+        "v2_* features select highest requested minimum; Cargo manifest requires rustc>=1.92"
+      ],
+      "environment_literals": [
+        "DOCS_RS"
+      ],
+      "execution_suitability": "CONDITIONAL isolated-worker proposal; not approval or build acceptance",
+      "helper_dependencies": [
+        "system-deps-9.0.0",
+        "pkg-config-0.3.34"
+      ],
+      "input_files": [
+        {
+          "bytes": 2573,
+          "path": "Cargo.toml",
+          "review": "INSPECTED SOURCE INPUT",
+          "sha256": "592abeff5453f63e4813ff5963cff82a2ca006a357254f63144d8677ad6e60a1"
+        }
+      ],
+      "manifest_sha256": "592abeff5453f63e4813ff5963cff82a2ca006a357254f63144d8677ad6e60a1",
+      "name": "gobject-sys",
+      "native_code": "No script runs compiled target probes. Runtime crate code/ELF validation separate; gettext fallback can configure/compile native C, blocked here.",
+      "network": "No direct selected-path network call found; enforce network isolation independently. system-deps binary and gettext bundled fallback are explicitly blocked.",
+      "restrictions": [
+        "Pin glib2/pkgconf and native .pc files; no host/pkg-config path overrides",
+        "No SYSTEM_DEPS_* bypass or cross sysroot imports"
+      ],
+      "review": "SOURCE INSPECTED; NOT EXECUTED",
+      "scripts": [
+        {
+          "bytes": 418,
+          "matches_original_audit": true,
+          "path": "build.rs",
+          "sha256": "23d6cc74e67684f75fd152ed1c5885c2eda1d80a4061b82c04f34130b140eede"
+        }
+      ],
+      "source_files_sha256": "b4dae4657ac42860363c1ebbe0c1f2cb98b8d64f5ad8614729e8d8c3d6958e9b",
+      "system_library_metadata": {
+        "gobject_2_0": {
+          "name": "gobject-2.0",
+          "v2_58": {
+            "version": "2.58"
+          },
+          "v2_62": {
+            "version": "2.62"
+          },
+          "v2_66": {
+            "version": "2.66"
+          },
+          "v2_68": {
+            "version": "2.68"
+          },
+          "v2_70": {
+            "version": "2.70"
+          },
+          "v2_72": {
+            "version": "2.72"
+          },
+          "v2_74": {
+            "version": "2.74"
+          },
+          "v2_76": {
+            "version": "2.76"
+          },
+          "v2_78": {
+            "version": "2.78"
+          },
+          "v2_80": {
+            "version": "2.80"
+          },
+          "v2_82": {
+            "version": "2.82"
+          },
+          "v2_84": {
+            "version": "2.84"
+          },
+          "v2_86": {
+            "version": "2.86"
+          },
+          "version": "2.56"
+        }
+      },
+      "target_build_dependencies": {},
+      "version": "0.22.9",
+      "writes": []
+    },
+    {
+      "architecture": "Linux excluded from userspace libinotify branch",
+      "archive_sha256": "c033f80b2c113cdf91ab7a33faa9cbc014726dcad99880c8609af2a370edf37d",
+      "behavior": "NetBSD/OpenBSD use pkg-config libdir then link inotify; failed lookup falls back /usr/local/lib. Linux executes nothing.",
+      "build_dependencies": {},
+      "commands": [
+        "BSD ONLY: pkg-config --variable=libdir libinotify"
+      ],
+      "conditions": [
+        "CARGO_CFG_TARGET_OS netbsd/openbsd"
+      ],
+      "environment_literals": [
+        "CARGO_CFG_TARGET_OS"
+      ],
+      "execution_suitability": "CONDITIONAL isolated-worker proposal; not approval or build acceptance",
+      "helper_dependencies": [],
+      "input_files": [],
+      "manifest_sha256": "f35964fa0cfbd705b4499831ebb51cb428a10eb7beea710c66b32692b98c8166",
+      "name": "inotify-sys",
+      "native_code": "No script runs compiled target probes. Runtime crate code/ELF validation separate; gettext fallback can configure/compile native C, blocked here.",
+      "network": "No direct selected-path network call found; enforce network isolation independently. system-deps binary and gettext bundled fallback are explicitly blocked.",
+      "restrictions": [],
+      "review": "SOURCE INSPECTED; NOT EXECUTED",
+      "scripts": [
+        {
+          "bytes": 1192,
+          "matches_original_audit": true,
+          "path": "build.rs",
+          "sha256": "8070368f4661803c760dc05c9946f654af5ca54a0b224abc3c10f01e5e295a3a"
+        }
+      ],
+      "source_files_sha256": "adb8598a3d6f2b2e4883075012702858e7a3451ebb4b69a41ce108bcc55301fc",
+      "target_build_dependencies": {},
+      "version": "0.1.8",
+      "writes": []
+    },
+    {
+      "architecture": "Linux aarch64 LP64 skips32bit GNU time/file-offset path; musl/ohos/pauthtest separate. Emits default freebsd12 cfg even on Linux, used in gated modules.",
+      "archive_sha256": "3eaf3ede3fee6db1a4c2ee091bf8a8b4dccdc6d17f656fb07896ee72867612f2",
+      "behavior": "Queries Rust compiler; emits ABI/version cfgs. emcc_version_code is called UNCONDITIONALLY, also on Linux. Missing emcc returns None. LIBC_CI enables freebsd-version attempt. WIND_RELEASE_ID read for VxWorks.",
+      "build_dependencies": {},
+      "commands": [
+        "RUSTC [optional RUSTC_WRAPPER] --version; --rustc only when clippy detected",
+        "emcc -dumpversion (emcc.bat on Windows build host)",
+        "LIBC_CI ONLY: freebsd-version"
+      ],
+      "conditions": [
+        "LIBC_CI unset",
+        "ABI/unsteady CARGO_CFG_LIBC_UNSTABLE_* variables alter cfg"
+      ],
+      "environment_literals": [
+        "CARGO_CFG_LIBC_UNSTABLE_FREEBSD_VERSION",
+        "CARGO_CFG_LIBC_UNSTABLE_GNU_FILE_OFFSET_BITS",
+        "CARGO_CFG_LIBC_UNSTABLE_GNU_TIME_BITS",
+        "CARGO_CFG_TARGET_ABI",
+        "CARGO_CFG_TARGET_ARCH",
+        "CARGO_CFG_TARGET_ENV",
+        "CARGO_CFG_TARGET_OS",
+        "CARGO_CFG_TARGET_POINTER_WIDTH",
+        "RUSTC",
+        "RUSTC_WRAPPER",
+        "RUST_LIBC_UNSTABLE_FREEBSD_VERSION",
+        "RUST_LIBC_UNSTABLE_GNU_FILE_OFFSET_BITS",
+        "RUST_LIBC_UNSTABLE_GNU_TIME_BITS",
+        "WIND_RELEASE_ID"
+      ],
+      "execution_suitability": "CONDITIONAL isolated-worker proposal; not approval or build acceptance",
+      "helper_dependencies": [],
+      "input_files": [],
+      "manifest_sha256": "95159789ef9c9aaee8230b13be5c89594833a7bf2db299e61eb23b512cb67144",
+      "name": "libc",
+      "native_code": "No script runs compiled target probes. Runtime crate code/ELF validation separate; gettext fallback can configure/compile native C, blocked here.",
+      "network": "No direct selected-path network call found; enforce network isolation independently. system-deps binary and gettext bundled fallback are explicitly blocked.",
+      "restrictions": [
+        "Sanitize PATH; ensure no emcc/freebsd-version or unknown wrappers; missing emcc benign",
+        "Pin compiler and record exact version; inherited WIND_RELEASE_ID unset"
+      ],
+      "review": "SOURCE INSPECTED; NOT EXECUTED",
+      "scripts": [
+        {
+          "bytes": 12792,
+          "matches_original_audit": true,
+          "path": "build.rs",
+          "sha256": "e47f4a6762799b6e69cefc7acdb3291df828010e4de20609f7378f9c94ea29e6"
+        }
+      ],
+      "source_files_sha256": "fbc59b0a697eb20769a23c54fec4b3795ec25c5d25f1b5d6185fef157fe9cd6f",
+      "target_build_dependencies": {},
+      "version": "0.2.189",
+      "writes": []
+    },
+    {
+      "architecture": "Architecture-neutral version thresholds; initialization probe uses actual TARGET",
+      "archive_sha256": "488016bfae457b036d996092f6cb448677611ce4449e970ceaf42695203f218a",
+      "behavior": "autocfg::new queries compiler and attempts empty std/no_std compilation sanity probes; version thresholds emit tuple/MaybeUninit/raw_ref/offset_of cfg.",
+      "build_dependencies": {
+        "autocfg": {
+          "version": "1"
+        }
+      },
+      "commands": [
+        "autocfg: RUSTC --version --verbose with wrapper fallback",
+        "autocfg: rustc --crate-type=lib --emit=llvm-ir --out-dir OUT_DIR [--target TARGET] - (empty source; no_std if failed)"
+      ],
+      "conditions": [
+        "Compiler>=1.77 emits stable_offset_of"
+      ],
+      "environment_literals": [],
+      "execution_suitability": "CONDITIONAL isolated-worker proposal; not approval or build acceptance",
+      "helper_dependencies": [
+        "autocfg-1.5.1"
+      ],
+      "input_files": [],
+      "manifest_sha256": "772e523da630871e710cc229f36282205713bba853d4d3f78e5a5d099bb3a814",
+      "name": "memoffset",
+      "native_code": "No script runs compiled target probes. Runtime crate code/ELF validation separate; gettext fallback can configure/compile native C, blocked here.",
+      "network": "No direct selected-path network call found; enforce network isolation independently. system-deps binary and gettext bundled fallback are explicitly blocked.",
+      "restrictions": [],
+      "review": "SOURCE INSPECTED; NOT EXECUTED",
+      "scripts": [
+        {
+          "bytes": 784,
+          "matches_original_audit": true,
+          "path": "build.rs",
+          "sha256": "0ddaae191a4091fe1318177d12244ff0dbabc17a18f25a54059f4badc9a20876"
+        }
+      ],
+      "source_files_sha256": "35a72dbd2321f2abda73acf3ec5f7bf77045090cee72794eb177eeb81e7d2a30",
+      "target_build_dependencies": {},
+      "version": "0.9.1",
+      "writes": [
+        "OUT_DIR autocfg_<uuid>_<id>.ll; best-effort removal"
+      ]
+    },
+    {
+      "architecture": "aarch64 Linux DOES NOT inherit macOS LSE/LSE2 assumption. Apple vendor or target-cpu apple-* emits LL/SC RMW cfg; not runtime/M2 proof.",
+      "archive_sha256": "05c8b63e8d9609db387f0324918f81d68fe27748f084ef092fb35954d0539a85",
+      "behavior": "Includes generated target lists/version parser; rustc -vV determines compiler/LLVM; emits atomics/API/sanitizer/ISA cfgs from target and flags. No compile probe or target-code execution.",
+      "build_dependencies": {},
+      "commands": [
+        "RUSTC [optional RUSTC_WRAPPER] -vV"
+      ],
+      "conditions": [
+        "unsafe-assume-single-core/unsafe-assume-privileged/s-mode/force-amo/disable-fiq features",
+        "CARGO_ENCODED_RUSTFLAGS target-cpu/target-feature affect cfg",
+        "Version parse failure assumes stable1.97 LLVM21 with warning"
+      ],
+      "environment_literals": [
+        "CARGO_CFG_SANITIZE",
+        "CARGO_CFG_TARGET_ABI",
+        "CARGO_CFG_TARGET_ARCH",
+        "CARGO_CFG_TARGET_ENDIAN",
+        "CARGO_CFG_TARGET_OS",
+        "CARGO_CFG_TARGET_VENDOR",
+        "CARGO_ENCODED_RUSTFLAGS",
+        "PORTABLE_ATOMIC_DENY_WARNINGS",
+        "RUSTC_STAGE",
+        "TARGET"
+      ],
+      "execution_suitability": "CONDITIONAL isolated-worker proposal; not approval or build acceptance",
+      "helper_dependencies": [],
+      "input_files": [
+        {
+          "bytes": 2476,
+          "path": "src/gen/build.rs",
+          "review": "INSPECTED SOURCE INPUT",
+          "sha256": "4ad2fa43f8f725631e9754338f39b80f64a2e61facdb3bd735efc215b95a6597"
+        },
+        {
+          "bytes": 5494,
+          "path": "version.rs",
+          "review": "INSPECTED SOURCE INPUT",
+          "sha256": "25c4e742d5a9e49ee16793b607157e181fd79eeafcbcbf0aa389f31b8d5514d1"
+        }
+      ],
+      "manifest_sha256": "30e602bcf54f19dbdcf52315a262c88e8efbd12455ee4d4fe63f2880e4ac10e1",
+      "name": "portable-atomic",
+      "native_code": "No script runs compiled target probes. Runtime crate code/ELF validation separate; gettext fallback can configure/compile native C, blocked here.",
+      "network": "No direct selected-path network call found; enforce network isolation independently. system-deps binary and gettext bundled fallback are explicitly blocked.",
+      "restrictions": [
+        "Require real parsed pinned compiler/LLVM; version fallback invalidates worker evidence",
+        "Generic ARM baseline; reject unsafe privileged/singlecore features and unreviewed ISA flags"
+      ],
+      "review": "SOURCE INSPECTED; NOT EXECUTED",
+      "scripts": [
+        {
+          "bytes": 37487,
+          "matches_original_audit": true,
+          "path": "build.rs",
+          "sha256": "9d0b1e071715580497aadb918d4b3b124ee366ba66f15ac05a3d8045f0bc2cf0"
+        }
+      ],
+      "source_files_sha256": "60e82c1bc73df41fbd176a1b3b958ce248d14f2ad18f4a144f621aebf047054e",
+      "target_build_dependencies": {},
+      "version": "1.15.0",
+      "writes": []
+    },
+    {
+      "architecture": "Architecture neutral; x86_64 gnutsan special case not Linux ARM",
+      "archive_sha256": "10ab3eb7f3becc3a1cbc4f2c6f20267996cfc1a6467a873763411b136a122715",
+      "behavior": "Embedded rustc-version parser queries -vV; emits API availability/sanitizer cfgs.",
+      "build_dependencies": {},
+      "commands": [
+        "RUSTC [optional RUSTC_WRAPPER] -vV"
+      ],
+      "conditions": [
+        "Version failure assumes stable1.98 and warns",
+        "Sanitize/BOOTSTRAP affects detection"
+      ],
+      "environment_literals": [
+        "CARGO_CFG_SANITIZE",
+        "CARGO_CFG_TARGET_OS",
+        "CARGO_ENCODED_RUSTFLAGS",
+        "PORTABLE_ATOMIC_DENY_WARNINGS",
+        "RUSTC",
+        "RUSTC_BOOTSTRAP",
+        "RUSTC_WRAPPER",
+        "TARGET"
+      ],
+      "execution_suitability": "CONDITIONAL isolated-worker proposal; not approval or build acceptance",
+      "helper_dependencies": [],
+      "input_files": [],
+      "manifest_sha256": "27d857892513acbb2bf4b615991822388d3b30c568a677d50ad031735517517c",
+      "name": "portable-atomic-util",
+      "native_code": "No script runs compiled target probes. Runtime crate code/ELF validation separate; gettext fallback can configure/compile native C, blocked here.",
+      "network": "No direct selected-path network call found; enforce network isolation independently. system-deps binary and gettext bundled fallback are explicitly blocked.",
+      "restrictions": [
+        "Require exact version parse, no silent latest fallback"
+      ],
+      "review": "SOURCE INSPECTED; NOT EXECUTED",
+      "scripts": [
+        {
+          "bytes": 8690,
+          "matches_original_audit": true,
+          "path": "build.rs",
+          "sha256": "f17a8f6b7c93fa6bcefc325a7b75e9e03fc9c97f23ded051f31d6dc8b8e0d478"
+        }
+      ],
+      "source_files_sha256": "b67272aead292e41aedd5944ce66160c043814e8d6cd29d359e92757275cc476",
+      "target_build_dependencies": {},
+      "version": "0.2.8",
+      "writes": []
+    },
+    {
+      "architecture": "Cargo TARGET passed; native proc-macro HOST must be same Linux ARM",
+      "archive_sha256": "985e7ec9bb745e6ce6535b544d84d6cd6f7ad8bd711c398938ae983b91a766d9",
+      "behavior": "Compiler query; proc-macro feature compiles unstable Span and1.88+ stable Span location/file probes; removes output subdirectory. Failed probes are expected capability detection.",
+      "build_dependencies": {},
+      "commands": [
+        "RUSTC --version",
+        "RUSTC [optional wrappers] --cfg=procmacro2_build_probe --edition=2021 --crate-type=lib --emit=dep-info,metadata --out-dir OUT_DIR/probe [--target TARGET] src/probe/<feature>.rs"
+      ],
+      "conditions": [
+        "proc-macro feature gates probes; span-locations/semver_exempt change cfg",
+        "RUSTC_STAGE and BOOTSTRAP change attempts"
+      ],
+      "environment_literals": [
+        "CARGO_ENCODED_RUSTFLAGS",
+        "OUT_DIR",
+        "RUSTC",
+        "RUSTC_BOOTSTRAP",
+        "RUSTC_STAGE",
+        "RUSTC_WORKSPACE_WRAPPER",
+        "RUSTC_WRAPPER",
+        "TARGET"
+      ],
+      "execution_suitability": "CONDITIONAL isolated-worker proposal; not approval or build acceptance",
+      "helper_dependencies": [],
+      "input_files": [
+        {
+          "bytes": 1217,
+          "path": "src/probe/proc_macro_span.rs",
+          "review": "INSPECTED SOURCE INPUT",
+          "sha256": "53853f0c70170c9695294b8867821664d9b8f1c901957b003003a3c26987abbe"
+        },
+        {
+          "bytes": 370,
+          "path": "src/probe/proc_macro_span_file.rs",
+          "review": "INSPECTED SOURCE INPUT",
+          "sha256": "e7fb4cf8852d9d589bfa3321d8d5cdc8cccb45606ec816a6b8a08f73e416b9ce"
+        },
+        {
+          "bytes": 408,
+          "path": "src/probe/proc_macro_span_location.rs",
+          "review": "INSPECTED SOURCE INPUT",
+          "sha256": "e022386204b6e042b3c55a6c809923849a2f915199bcbf3be72d0b7c8ffa7f83"
+        }
+      ],
+      "manifest_sha256": "6bdbe54a7f052e552dcfca90351764476e2767237ec3f954df8bd9f602861056",
+      "name": "proc-macro2",
+      "native_code": "No script runs compiled target probes. Runtime crate code/ELF validation separate; gettext fallback can configure/compile native C, blocked here.",
+      "network": "No direct selected-path network call found; enforce network isolation independently. system-deps binary and gettext bundled fallback are explicitly blocked.",
+      "restrictions": [],
+      "review": "SOURCE INSPECTED; NOT EXECUTED",
+      "scripts": [
+        {
+          "bytes": 10277,
+          "matches_original_audit": true,
+          "path": "build.rs",
+          "sha256": "baeb20b52f6b536be8657a566591a507bb2e34a45cf8baa42b135510a0c3c729"
+        }
+      ],
+      "source_files_sha256": "ee793c83b55353af8accd7e6c65fbbc686eee2aefcb4717852e4223d31247c45",
+      "target_build_dependencies": {},
+      "version": "1.0.107",
+      "writes": [
+        "OUT_DIR/probe metadata/dep-info; recursive removal"
+      ]
+    },
+    {
+      "architecture": "Architecture neutral",
+      "archive_sha256": "1fbf4db142a473a8d80c26bbf18454ed458bf8d26c8219c331daecfdbd079001",
+      "behavior": "Compiler minor query; diagnostics namespace fallback for old Rust.",
+      "build_dependencies": {},
+      "commands": [
+        "RUSTC --version"
+      ],
+      "conditions": [
+        "Below1.78 no diagnostics; parse failure returns without cfg"
+      ],
+      "environment_literals": [
+        "RUSTC"
+      ],
+      "execution_suitability": "CONDITIONAL isolated-worker proposal; not approval or build acceptance",
+      "helper_dependencies": [],
+      "input_files": [],
+      "manifest_sha256": "13d8c50837f14aff48cd622349f98fb2c46350b7a0c08fd574cf7de4def27d06",
+      "name": "quote",
+      "native_code": "No script runs compiled target probes. Runtime crate code/ELF validation separate; gettext fallback can configure/compile native C, blocked here.",
+      "network": "No direct selected-path network call found; enforce network isolation independently. system-deps binary and gettext bundled fallback are explicitly blocked.",
+      "restrictions": [],
+      "review": "SOURCE INSPECTED; NOT EXECUTED",
+      "scripts": [
+        {
+          "bytes": 882,
+          "matches_original_audit": true,
+          "path": "build.rs",
+          "sha256": "cd6808c02e476b09a520105e2c6f6d325cccb1ecd542cbbcc836a0ae6f6fb0f1"
+        }
+      ],
+      "source_files_sha256": "608bf46e13612b2721911c92a9fe9b1b9234e436d498826e351a65e20d12f2d0",
+      "target_build_dependencies": {},
+      "version": "1.0.47",
+      "writes": []
+    },
+    {
+      "architecture": "Linux aarch64 LP64 little-endian raw backend unless explicit libc/Miri overrides; aarch64 ILP32 excluded from raw",
+      "archive_sha256": "b6fe4565b9518b83ef4f91bb47ce29620ca828bd32cb7e408f0062e9930ba190",
+      "behavior": "Checks existence of inline asm source; metadata-only stdin Rust API probes; emits raw Linux/libc backend and OS/ABI cfgs. Compiled probe never executed.",
+      "build_dependencies": {},
+      "commands": [
+        "RUSTC [optional RUSTC_WRAPPER] --crate-type=rlib --emit=metadata --target TARGET -o OUT_DIR/rustix_test_can_compile -"
+      ],
+      "conditions": [
+        "std affects probes; use-libc/rustix_use_libc/no_linux_raw/MIRI change backend",
+        "Experimental and rustc-dep-of-std cfgs alter feature probes"
+      ],
+      "environment_literals": [
+        "CARGO_CFG_MIRI",
+        "CARGO_CFG_RUSTIX_NO_LINUX_RAW",
+        "CARGO_CFG_RUSTIX_USE_EXPERIMENTAL_ASM",
+        "CARGO_CFG_RUSTIX_USE_EXPERIMENTAL_FEATURES",
+        "CARGO_CFG_RUSTIX_USE_LIBC",
+        "CARGO_CFG_TARGET_ABI",
+        "CARGO_CFG_TARGET_ARCH",
+        "CARGO_CFG_TARGET_ENDIAN",
+        "CARGO_CFG_TARGET_ENV",
+        "CARGO_CFG_TARGET_OS",
+        "CARGO_CFG_TARGET_POINTER_WIDTH",
+        "CARGO_ENCODED_RUSTFLAGS",
+        "CARGO_FEATURE_RUSTC_DEP_OF_STD",
+        "CARGO_FEATURE_USE_LIBC",
+        "OUT_DIR",
+        "RUSTC",
+        "RUSTC_WRAPPER",
+        "TARGET"
+      ],
+      "execution_suitability": "CONDITIONAL isolated-worker proposal; not approval or build acceptance",
+      "helper_dependencies": [],
+      "input_files": [
+        {
+          "bytes": 6269,
+          "path": "src/backend/linux_raw/arch/aarch64.rs",
+          "review": "INSPECTED SOURCE INPUT",
+          "sha256": "12bb15064d25f0ed08e9eb8842c7dd570393222365b5a33206adc97406d2c061"
+        }
+      ],
+      "manifest_sha256": "13302af30f997a373ad50b7aa668d9612483e85be6b455e09d95bbd59fb5296f",
+      "name": "rustix",
+      "native_code": "No script runs compiled target probes. Runtime crate code/ELF validation separate; gettext fallback can configure/compile native C, blocked here.",
+      "network": "No direct selected-path network call found; enforce network isolation independently. system-deps binary and gettext bundled fallback are explicitly blocked.",
+      "restrictions": [
+        "No experimental cfgs/wrappers; fixed LP64 target",
+        "Runtime inline assembly input hash is not syscall/hardware execution evidence"
+      ],
+      "review": "SOURCE INSPECTED; NOT EXECUTED",
+      "scripts": [
+        {
+          "bytes": 10612,
+          "matches_original_audit": true,
+          "path": "build.rs",
+          "sha256": "74cb32e64aa6fe99c2496a425b016e22f4e43c438a8237966b8acae04a98eaf9"
+        }
+      ],
+      "source_files_sha256": "a0dfa912bcf6444439c8935e32f0c443d528912f91b7b315ae405d6acafdef67",
+      "target_build_dependencies": {},
+      "version": "1.1.4",
+      "writes": [
+        "OUT_DIR/rustix_test_can_compile"
+      ]
+    },
+    {
+      "architecture": "HOST Windows cfg omitted on Linux; no architecture code",
+      "archive_sha256": "cf54715a573b99ac80df0bc206da022bcd442c974952c7b9720069370852e21f",
+      "behavior": "Includes pure Rust version parser; compiler query with wrapper/clippy/Mirai fallback; writes expression.",
+      "build_dependencies": {},
+      "commands": [
+        "RUSTC [optional RUSTC_WRAPPER] --version; --rustc on clippy; bare RUSTC fallback for Mirai"
+      ],
+      "conditions": [
+        "Unrecognized compiler output exits failure"
+      ],
+      "environment_literals": [
+        "HOST",
+        "OUT_DIR",
+        "RUSTC",
+        "RUSTC_WRAPPER",
+        "RUSTVERSION"
+      ],
+      "execution_suitability": "CONDITIONAL isolated-worker proposal; not approval or build acceptance",
+      "helper_dependencies": [],
+      "input_files": [
+        {
+          "bytes": 3688,
+          "path": "build/rustc.rs",
+          "review": "INSPECTED SOURCE INPUT",
+          "sha256": "faf67033ec831d968406f5a66c475df337f7221e9d1ab3477fed3a629e1ec5bc"
+        }
+      ],
+      "manifest_sha256": "fc211ccd64d3ad59a0715c1a6f8cbfbbd83045f644194394595d16646eee9947",
+      "name": "rustversion",
+      "native_code": "No script runs compiled target probes. Runtime crate code/ELF validation separate; gettext fallback can configure/compile native C, blocked here.",
+      "network": "No direct selected-path network call found; enforce network isolation independently. system-deps binary and gettext bundled fallback are explicitly blocked.",
+      "restrictions": [],
+      "review": "SOURCE INSPECTED; NOT EXECUTED",
+      "scripts": [
+        {
+          "bytes": 4057,
+          "matches_original_audit": true,
+          "path": "build/build.rs",
+          "sha256": "4438b108d5b198ca43ef0a78509da89861020674abd05166addd1c3058afbfa6"
+        }
+      ],
+      "source_files_sha256": "8406ec8a64c8a8ecadbcca95887ba618f225d35349097ea5b596fa687b646e7d",
+      "target_build_dependencies": {},
+      "version": "1.0.23",
+      "writes": [
+        "OUT_DIR/version.expr"
+      ]
+    },
+    {
+      "architecture": "Architecture neutral",
+      "archive_sha256": "4148590afebada386688f18773da617792bf2ef03ffc1e4cbd2b1d45b023e0ba",
+      "behavior": "Writes private module with Cargo patch version suffix; compiler minor query emits API/derive/diagnostics cfgs.",
+      "build_dependencies": {},
+      "commands": [
+        "RUSTC --version"
+      ],
+      "conditions": [
+        "Compiler version thresholds; version failure returns after module write"
+      ],
+      "environment_literals": [
+        "CARGO_PKG_VERSION_PATCH",
+        "OUT_DIR",
+        "RUSTC"
+      ],
+      "execution_suitability": "CONDITIONAL isolated-worker proposal; not approval or build acceptance",
+      "helper_dependencies": [],
+      "input_files": [],
+      "manifest_sha256": "6883caefd46e86eb15d22d3a6d274ad304c5e7934ab70eb58d81b7c4a29ef9db",
+      "name": "serde",
+      "native_code": "No script runs compiled target probes. Runtime crate code/ELF validation separate; gettext fallback can configure/compile native C, blocked here.",
+      "network": "No direct selected-path network call found; enforce network isolation independently. system-deps binary and gettext bundled fallback are explicitly blocked.",
+      "restrictions": [],
+      "review": "SOURCE INSPECTED; NOT EXECUTED",
+      "scripts": [
+        {
+          "bytes": 2471,
+          "matches_original_audit": true,
+          "path": "build.rs",
+          "sha256": "e2ea6a7a82f5404c3e28cb055883c737ee7903367a10206fbb47b75c009f0eb3"
+        }
+      ],
+      "source_files_sha256": "fe5bc562588100795b4762806a908bb725cb190b99703e61ba6051735aec2777",
+      "target_build_dependencies": {},
+      "version": "1.0.229",
+      "writes": [
+        "OUT_DIR/private.rs"
+      ]
+    },
+    {
+      "architecture": "serde_core pre1.60 atomic64 allowlist includes aarch64; modern target_has_atomic cfg used",
+      "archive_sha256": "67dca2c9c51e58a4791a4b1ed58308b39c64224d349a935ab5039aa360942a48",
+      "behavior": "Writes private module with Cargo patch version suffix; compiler minor query emits API/derive/diagnostics cfgs.",
+      "build_dependencies": {},
+      "commands": [
+        "RUSTC --version"
+      ],
+      "conditions": [
+        "Compiler version thresholds; version failure returns after module write"
+      ],
+      "environment_literals": [
+        "CARGO_PKG_VERSION_PATCH",
+        "OUT_DIR",
+        "RUSTC",
+        "TARGET"
+      ],
+      "execution_suitability": "CONDITIONAL isolated-worker proposal; not approval or build acceptance",
+      "helper_dependencies": [],
+      "input_files": [],
+      "manifest_sha256": "c6049e170e4f7c2b48749fefab59db583bfac4e466cde6d0c53e4f49bc5044f7",
+      "name": "serde_core",
+      "native_code": "No script runs compiled target probes. Runtime crate code/ELF validation separate; gettext fallback can configure/compile native C, blocked here.",
+      "network": "No direct selected-path network call found; enforce network isolation independently. system-deps binary and gettext bundled fallback are explicitly blocked.",
+      "restrictions": [],
+      "review": "SOURCE INSPECTED; NOT EXECUTED",
+      "scripts": [
+        {
+          "bytes": 4252,
+          "matches_original_audit": true,
+          "path": "build.rs",
+          "sha256": "7bc6b1eec8913ff4cd8e4b9b92cd04a82a4f38beb30a0b73a64c1e6e49f07b5f"
+        }
+      ],
+      "source_files_sha256": "d85b951b88b709d6d938b9e06f7d020e29ea9df01636147157b7384a222a0e4f",
+      "target_build_dependencies": {},
+      "version": "1.0.229",
+      "writes": [
+        "OUT_DIR/private.rs"
+      ]
+    },
+    {
+      "architecture": "Explicit aarch64 arithmetic support; does not infer support from pointer width alone",
+      "archive_sha256": "c841b55ecdae098c80dcae9cf767f6f8a0c2cdb3416bbef72181df4d0fe73f14",
+      "behavior": "Emits fast_arithmetic=64 for aarch64 or64bit pointers, otherwise32.",
+      "build_dependencies": {},
+      "commands": [],
+      "conditions": [
+        "CARGO_CFG_TARGET_ARCH and POINTER_WIDTH"
+      ],
+      "environment_literals": [
+        "CARGO_CFG_TARGET_ARCH",
+        "CARGO_CFG_TARGET_POINTER_WIDTH"
+      ],
+      "execution_suitability": "CONDITIONAL isolated-worker proposal; not approval or build acceptance",
+      "helper_dependencies": [],
+      "input_files": [],
+      "manifest_sha256": "00b920255c320a278bf25b962b491263a19d8c90e12e4a91c1d823db71eabb2f",
+      "name": "serde_json",
+      "native_code": "No script runs compiled target probes. Runtime crate code/ELF validation separate; gettext fallback can configure/compile native C, blocked here.",
+      "network": "No direct selected-path network call found; enforce network isolation independently. system-deps binary and gettext bundled fallback are explicitly blocked.",
+      "restrictions": [],
+      "review": "SOURCE INSPECTED; NOT EXECUTED",
+      "scripts": [
+        {
+          "bytes": 1206,
+          "matches_original_audit": true,
+          "path": "build.rs",
+          "sha256": "a681e754be844c7dbef957f5d2d00b01f37c5dca160ef1055a8d8f975697a881"
+        }
+      ],
+      "source_files_sha256": "174ecc9fb2604026ba7f1145076e0d76bd59e38b235e5aa25a5513c9236167d2",
+      "target_build_dependencies": {},
+      "version": "1.0.151",
+      "writes": []
+    },
+    {
+      "architecture": "Metadata cfg evaluated against builtin target facts/target-lexicon. No native library download suitable by default.",
+      "archive_sha256": "8a0dae2cbca1f0ff93795713cfe0a4c02f760e3c0b8ae2ab4ec4045808ff429f",
+      "behavior": "Default empty features build.rs returns without work. binary calls system_deps_meta::binary::Paths::from_binaries (download branch) and writes paths.toml. Library path called by four sys crates: Config::probe->probe_full->probe_pkg_config reads manifest/cfg/feature metadata then pkg-config; no registered internal build closures.",
+      "build_dependencies": {
+        "system-deps-meta": {
+          "optional": true,
+          "version": "9.0.0"
+        }
+      },
+      "commands": [
+        "Default build.rs NONE",
+        "Library calls pinned pkg-config --libs --cflags/version-range then --modversion",
+        "BLOCKED binary feature: unreviewed downloads/extraction via system-deps-meta"
+      ],
+      "conditions": [
+        "binary must be absent; default=[]; system-deps-meta absent retained locked tree",
+        "SYSTEM_DEPS_* can bypass pkg-config/import library paths",
+        "auto/always internal build fails without registered closure"
+      ],
+      "environment_literals": [],
+      "execution_suitability": "CONDITIONAL isolated-worker proposal; not approval or build acceptance",
+      "helper_dependencies": [
+        "pkg-config-0.3.34",
+        "cfg-expr-0.20.9",
+        "target-lexicon-0.13.5"
+      ],
+      "input_files": [
+        {
+          "bytes": 2181,
+          "path": "Cargo.toml",
+          "review": "INSPECTED SOURCE INPUT",
+          "sha256": "130a7c555c6bd98a60ccbaa00840fd79ed47f66ded14d716ffb3a46fe49942ce"
+        },
+        {
+          "bytes": 57758,
+          "path": "src/lib.rs",
+          "review": "INSPECTED SOURCE INPUT",
+          "sha256": "bf944c07d60422d314c26a3258e3c69b1946c5ff86f2e653c3b43db5502898a7"
+        },
+        {
+          "bytes": 23382,
+          "path": "src/metadata.rs",
+          "review": "INSPECTED SOURCE INPUT",
+          "sha256": "bdb5edcd5aa9dbac663ebd516086ff3384f506dbadbb27208662014545576b7a"
+        }
+      ],
+      "manifest_sha256": "130a7c555c6bd98a60ccbaa00840fd79ed47f66ded14d716ffb3a46fe49942ce",
+      "name": "system-deps",
+      "native_code": "No script runs compiled target probes. Runtime crate code/ELF validation separate; gettext fallback can configure/compile native C, blocked here.",
+      "network": "No direct selected-path network call found; enforce network isolation independently. system-deps binary and gettext bundled fallback are explicitly blocked.",
+      "restrictions": [
+        "Reject binary/archive features actual graph; no --all-features",
+        "Unreviewed system-deps-meta branch blocked and outside review",
+        "Clear SYSTEM_DEPS_*; optionally fix BUILD_INTERNAL=never; actual .pc/tool versions pinned"
+      ],
+      "review": "SOURCE INSPECTED; NOT EXECUTED",
+      "scripts": [
+        {
+          "bytes": 2014,
+          "matches_original_audit": true,
+          "path": "build.rs",
+          "sha256": "9dfb922d1cc32726decedbbb5abcc463c1ce978e751a45fb9199a178ebef6c7d"
+        }
+      ],
+      "source_files_sha256": "da022e93ca5f8b03ffc7342b07549a1071277fc3f0bc2a00411f7a8bb0c07ef2",
+      "target_build_dependencies": {},
+      "version": "9.0.0",
+      "writes": [
+        "Default build.rs NONE",
+        "Binary branch TARGET_DIR/paths.toml and downloaded/extracted artifacts"
+      ]
+    },
+    {
+      "architecture": "aarch64/Linux/gnu/ELF/LP64 mappings exist. Generated HOST constant uses Cargo TARGET; not runtime CPU detection.",
+      "archive_sha256": "adb6935a6f5c20170eeceb1a3835a49e12e19d792f6dd344ccc76a985ca5a6ca",
+      "behavior": "Includes data_model/triple/targets parsers; parses TARGET and writes host.rs constants. Queries compiler minor for rust_1_40.",
+      "build_dependencies": {},
+      "commands": [
+        "RUSTC --version"
+      ],
+      "conditions": [
+        "std changes alloc alias; invalid TARGET panics; version failure assumes recent"
+      ],
+      "environment_literals": [
+        "OUT_DIR",
+        "RUSTC",
+        "TARGET"
+      ],
+      "execution_suitability": "CONDITIONAL isolated-worker proposal; not approval or build acceptance",
+      "helper_dependencies": [],
+      "input_files": [
+        {
+          "bytes": 3184,
+          "path": "src/data_model.rs",
+          "review": "INSPECTED SOURCE INPUT",
+          "sha256": "17d2a169891723972f726c95d03a20c4a1482464c685028685f48ca976482a1c"
+        },
+        {
+          "bytes": 21093,
+          "path": "src/triple.rs",
+          "review": "INSPECTED SOURCE INPUT",
+          "sha256": "76ca408aeb22b5ac334483dba9024975a65c7d470ae71c9bfd0cf7b8bfa1b5ec"
+        },
+        {
+          "bytes": 68461,
+          "path": "src/targets.rs",
+          "review": "INSPECTED SOURCE INPUT",
+          "sha256": "e51c256e555be425b8a912460e7c68c42b2788d3ea611908bc6727f7bb4f678a"
+        }
+      ],
+      "manifest_sha256": "68c92fd64e0ba0311fffd938aa03a2c58a13341c37523da1dd465c7eea9269ea",
+      "name": "target-lexicon",
+      "native_code": "No script runs compiled target probes. Runtime crate code/ELF validation separate; gettext fallback can configure/compile native C, blocked here.",
+      "network": "No direct selected-path network call found; enforce network isolation independently. system-deps binary and gettext bundled fallback are explicitly blocked.",
+      "restrictions": [],
+      "review": "SOURCE INSPECTED; NOT EXECUTED",
+      "scripts": [
+        {
+          "bytes": 5117,
+          "matches_original_audit": true,
+          "path": "build.rs",
+          "sha256": "678ba872ef2254e8901d6a00536f64d74d375d919f845113bd3ded709b6edb4a"
+        }
+      ],
+      "source_files_sha256": "693d5de091dcf78395afeb85246a8d1af58a2ac8ca80fd93b1226209af7b3757",
+      "target_build_dependencies": {},
+      "version": "0.13.5",
+      "writes": [
+        "OUT_DIR/host.rs"
+      ]
+    },
+    {
+      "architecture": "Cargo TARGET passed; architecture neutral",
+      "archive_sha256": "ec86235f5fcc2a73650310756d2ac5b138a5780bbbdfae3eeccec992c435ba4f",
+      "behavior": "Writes private module; unstable Error generic-member-access metadata probe and cleanup; compiler minor controls std/backtrace fallback.",
+      "build_dependencies": {},
+      "commands": [
+        "RUSTC --version",
+        "RUSTC [optional wrappers] --edition=2018 --crate-type=lib --emit=dep-info,metadata --out-dir OUT_DIR/probe [--target TARGET] build/probe.rs"
+      ],
+      "conditions": [
+        "RUSTC_STAGE skips probe; BOOTSTRAP second attempt; std/version thresholds"
+      ],
+      "environment_literals": [
+        "CARGO_ENCODED_RUSTFLAGS",
+        "CARGO_PKG_VERSION_PATCH",
+        "OUT_DIR",
+        "RUSTC",
+        "RUSTC_BOOTSTRAP",
+        "RUSTC_STAGE",
+        "RUSTC_WORKSPACE_WRAPPER",
+        "RUSTC_WRAPPER",
+        "TARGET"
+      ],
+      "execution_suitability": "CONDITIONAL isolated-worker proposal; not approval or build acceptance",
+      "helper_dependencies": [],
+      "input_files": [
+        {
+          "bytes": 844,
+          "path": "build/probe.rs",
+          "review": "INSPECTED SOURCE INPUT",
+          "sha256": "8df55471d6b75623d423b17ebbf493335ee66140d1ddd232c88db3e59f61298c"
+        }
+      ],
+      "manifest_sha256": "217e9b07de46308c0ca5a41f0d629675b44ab8b50d7c25d0e2d6e0723f84539b",
+      "name": "thiserror",
+      "native_code": "No script runs compiled target probes. Runtime crate code/ELF validation separate; gettext fallback can configure/compile native C, blocked here.",
+      "network": "No direct selected-path network call found; enforce network isolation independently. system-deps binary and gettext bundled fallback are explicitly blocked.",
+      "restrictions": [],
+      "review": "SOURCE INSPECTED; NOT EXECUTED",
+      "scripts": [
+        {
+          "bytes": 6923,
+          "matches_original_audit": true,
+          "path": "build.rs",
+          "sha256": "ccc38283604f99237ad2333bbe395259e29fdf2ff4e04a60a95de9e4499c09a3"
+        }
+      ],
+      "source_files_sha256": "5501b8820eb09a4ee7935e162bab929d48c0df350f93e69296b24a541440e993",
+      "target_build_dependencies": {},
+      "version": "2.0.20",
+      "writes": [
+        "OUT_DIR/private.rs",
+        "OUT_DIR/probe metadata/dep-info; recursive remove"
+      ]
+    },
+    {
+      "architecture": "wasm32/64-specific cfg/linkarg not Linux ARM",
+      "archive_sha256": "aecb87a33d3b0c5e3b7aa46336eaf486cffafbd281b195e4c8b80d50df2351bf",
+      "behavior": "Uses rustversion build dependency macro for diagnostics cfg and target flags for wasm reference-types/Emscripten linkarg. No direct file or command.",
+      "build_dependencies": {
+        "rustversion-compat": {
+          "package": "rustversion",
+          "version": "1.0.6"
+        }
+      },
+      "commands": [],
+      "conditions": [
+        "Rust1.78 diagnostics;1.82-1.84 wasm reference-types; deprecatedfeatures warnings"
+      ],
+      "environment_literals": [
+        "CARGO_CFG_TARGET_ARCH",
+        "CARGO_CFG_TARGET_FEATURE",
+        "CARGO_CFG_TARGET_OS"
+      ],
+      "execution_suitability": "CONDITIONAL isolated-worker proposal; not approval or build acceptance",
+      "helper_dependencies": [
+        "rustversion-1.0.23"
+      ],
+      "input_files": [],
+      "manifest_sha256": "85ad9af879473cc05ebba118a178c45a075e7c1003dd2d0e3f3f13c4d0122c5c",
+      "name": "wasm-bindgen",
+      "native_code": "No script runs compiled target probes. Runtime crate code/ELF validation separate; gettext fallback can configure/compile native C, blocked here.",
+      "network": "No direct selected-path network call found; enforce network isolation independently. system-deps binary and gettext bundled fallback are explicitly blocked.",
+      "restrictions": [
+        "Expected wasm/optional exclusion; actual graph needed"
+      ],
+      "review": "SOURCE INSPECTED; NOT EXECUTED",
+      "scripts": [
+        {
+          "bytes": 1732,
+          "matches_original_audit": true,
+          "path": "build.rs",
+          "sha256": "33c90a6eb1745c53f9047e0ecde135b249b0ea3d9e1a2a40c9610a33f225e6c9"
+        }
+      ],
+      "source_files_sha256": "f0a2be4be6e4657679d8703f407d944d4fcc756933773e03854a0fba829dabbc",
+      "target_build_dependencies": {},
+      "version": "0.2.128",
+      "writes": []
+    },
+    {
+      "architecture": "Only Windows newline normalization; no Linux-specific exclusion internal",
+      "archive_sha256": "81941cd78d0c92026c33e5e01312845a4cb1e9af3407f9134b100dd03144103e",
+      "behavior": "Reads/hash schema files and prints env hash; git rev-parse HEAD first9bytes becomes WBG_VERSION if successful. Failure tolerated.",
+      "build_dependencies": {},
+      "commands": [
+        "git rev-parse HEAD"
+      ],
+      "conditions": [
+        "Git makes version checkout-dependent"
+      ],
+      "environment_literals": [
+        "CARGO_MANIFEST_DIR"
+      ],
+      "execution_suitability": "CONDITIONAL isolated-worker proposal; not approval or build acceptance",
+      "helper_dependencies": [],
+      "input_files": [
+        {
+          "bytes": 12326,
+          "path": "src/lib.rs",
+          "review": "INSPECTED SOURCE INPUT",
+          "sha256": "5ea245685a134fe36e788dc26436cf7bbc52a6cef167ff38109b92b056fcdefa"
+        },
+        {
+          "bytes": 637,
+          "path": "src/tys.rs",
+          "review": "INSPECTED SOURCE INPUT",
+          "sha256": "35d93e50402556c531a6c205618f78da2eb15c4b7877a39f636de667c1fb58ea"
+        }
+      ],
+      "manifest_sha256": "318f4a825170630e74a456d42ca1e8a7689c4b80d2d75104bd07a70cb290f833",
+      "name": "wasm-bindgen-shared",
+      "native_code": "No script runs compiled target probes. Runtime crate code/ELF validation separate; gettext fallback can configure/compile native C, blocked here.",
+      "network": "No direct selected-path network call found; enforce network isolation independently. system-deps binary and gettext bundled fallback are explicitly blocked.",
+      "restrictions": [
+        "Expected excluded target dependency; verify actual graph",
+        "If selected, registry source outside Git worktree and pinned Git path; deterministic absence of VCS metadata"
+      ],
+      "review": "SOURCE INSPECTED; NOT EXECUTED",
+      "scripts": [
+        {
+          "bytes": 2625,
+          "matches_original_audit": true,
+          "path": "build.rs",
+          "sha256": "2ad2b0d08ef35c6a9013b5488bdf568630f0fc517d10b47f3851ad5c6ef10da4"
+        }
+      ],
+      "source_files_sha256": "971bd6f7e9011913ea644888b95e3b29fa5b5285eb988f96db876baed82ad900",
+      "target_build_dependencies": {},
+      "version": "0.2.128",
+      "writes": []
+    },
+    {
+      "architecture": "Linux only rerun directives; no graph/linklibs. aarch64 Windows opengl32 special case irrelevant.",
+      "archive_sha256": "5c839a674fcd7a98952e593242ea400abe93992746761e38641405d28b00f419",
+      "behavior": "Static Windows header dependency graph resolves feature transitive closure and sorted deduplicated import libraries only TARGET third field=windows.",
+      "build_dependencies": {},
+      "commands": [],
+      "conditions": [
+        "WINAPI_NO_BUNDLED_LIBRARIES changes prefix; STATIC_NOBUNDLE changes linkkind"
+      ],
+      "environment_literals": [
+        "CARGO_FEATURE_EVERYTHING",
+        "TARGET",
+        "WINAPI_NO_BUNDLED_LIBRARIES",
+        "WINAPI_STATIC_NOBUNDLE"
+      ],
+      "execution_suitability": "CONDITIONAL isolated-worker proposal; not approval or build acceptance",
+      "helper_dependencies": [],
+      "input_files": [],
+      "manifest_sha256": "d25b7c71c515a1869c75b3ff957bf845386bec03bcb407532e3726919f0b36c7",
+      "name": "winapi",
+      "native_code": "No script runs compiled target probes. Runtime crate code/ELF validation separate; gettext fallback can configure/compile native C, blocked here.",
+      "network": "No direct selected-path network call found; enforce network isolation independently. system-deps binary and gettext bundled fallback are explicitly blocked.",
+      "restrictions": [
+        "Expected Windows-only exclusion; actual graph proof required"
+      ],
+      "review": "SOURCE INSPECTED; NOT EXECUTED",
+      "scripts": [
+        {
+          "bytes": 34992,
+          "matches_original_audit": true,
+          "path": "build.rs",
+          "sha256": "fa1782968d33345772093666220c7841c2fb4f6dd32fa47951c68a3a400a1a98"
+        }
+      ],
+      "source_files_sha256": "dbe9b1425ae933dbd97b45307d9a12a66079b3fe233d3204ad38861ab5d5f5f2",
+      "target_build_dependencies": {},
+      "version": "0.3.9",
+      "writes": []
+    },
+    {
+      "architecture": "x86 Windows prebuilt imports; exact target guard excludes Linux",
+      "archive_sha256": "ac3b87c63620426dd9b991e5ce0329eff545bccbbb34f3be09ff6fb6ab51b7b6",
+      "behavior": "If WINAPI_NO_BUNDLED_LIBRARIES absent emits CARGO_MANIFEST_DIR/lib search only exact corresponding Windows GNU target.",
+      "build_dependencies": {},
+      "commands": [],
+      "conditions": [
+        "WINAPI_NO_BUNDLED_LIBRARIES"
+      ],
+      "environment_literals": [
+        "CARGO_MANIFEST_DIR",
+        "TARGET",
+        "WINAPI_NO_BUNDLED_LIBRARIES"
+      ],
+      "execution_suitability": "CONDITIONAL isolated-worker proposal; not approval or build acceptance",
+      "helper_dependencies": [],
+      "input_files": [],
+      "manifest_sha256": "9652222664ffc7e2a26fdcdebdce0917a455b39d8fbcbf451bf0b011a3067bf7",
+      "name": "winapi-i686-pc-windows-gnu",
+      "native_code": "No script runs compiled target probes. Runtime crate code/ELF validation separate; gettext fallback can configure/compile native C, blocked here.",
+      "network": "No direct selected-path network call found; enforce network isolation independently. system-deps binary and gettext bundled fallback are explicitly blocked.",
+      "restrictions": [
+        "Expected Windows-only dependency exclusion; actual graph required"
+      ],
+      "review": "SOURCE INSPECTED; NOT EXECUTED",
+      "scripts": [
+        {
+          "bytes": 831,
+          "matches_original_audit": true,
+          "path": "build.rs",
+          "sha256": "4344ce95f51197e1377429cd9ef7a8e3f97d39546776705857991f2f9416f545"
+        }
+      ],
+      "source_files_sha256": "a4d14905c830f47d74940bf9dacb4476a71a0dc3fdc092c65a09d3ac978fa2c9",
+      "target_build_dependencies": {},
+      "version": "0.4.0",
+      "writes": []
+    },
+    {
+      "architecture": "x86 Windows prebuilt imports; exact target guard excludes Linux",
+      "archive_sha256": "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f",
+      "behavior": "If WINAPI_NO_BUNDLED_LIBRARIES absent emits CARGO_MANIFEST_DIR/lib search only exact corresponding Windows GNU target.",
+      "build_dependencies": {},
+      "commands": [],
+      "conditions": [
+        "WINAPI_NO_BUNDLED_LIBRARIES"
+      ],
+      "environment_literals": [
+        "CARGO_MANIFEST_DIR",
+        "TARGET",
+        "WINAPI_NO_BUNDLED_LIBRARIES"
+      ],
+      "execution_suitability": "CONDITIONAL isolated-worker proposal; not approval or build acceptance",
+      "helper_dependencies": [],
+      "input_files": [],
+      "manifest_sha256": "a88605a11db5def9b6cf73398e83b3edb72228cb43ea935729fac5cd33cec22c",
+      "name": "winapi-x86_64-pc-windows-gnu",
+      "native_code": "No script runs compiled target probes. Runtime crate code/ELF validation separate; gettext fallback can configure/compile native C, blocked here.",
+      "network": "No direct selected-path network call found; enforce network isolation independently. system-deps binary and gettext bundled fallback are explicitly blocked.",
+      "restrictions": [
+        "Expected Windows-only dependency exclusion; actual graph required"
+      ],
+      "review": "SOURCE INSPECTED; NOT EXECUTED",
+      "scripts": [
+        {
+          "bytes": 833,
+          "matches_original_audit": true,
+          "path": "build.rs",
+          "sha256": "b4ab421e1dc98159dd4440813cdaf7d9ea98278324bc6118d0f7cf378933f371"
+        }
+      ],
+      "source_files_sha256": "a9b1ec6301ccb008ce2826fcbed670ba07b7d6b0f99c2a59946547e264b43a06",
+      "target_build_dependencies": {},
+      "version": "0.4.0",
+      "writes": []
+    },
+    {
+      "architecture": "Windows-only prebuilt imports; aarch64 name does not support ARM Linux",
+      "archive_sha256": "a9d8416fa8b42f5c947f8482c43e7d89e73a173cead56d044f6a56104a6d1b53",
+      "behavior": "Unconditionally emits link-search CARGO_MANIFEST_DIR/lib. No TARGET guard; ships prebuilt Windows import libs.",
+      "build_dependencies": {},
+      "commands": [],
+      "conditions": [
+        "No internal target guard"
+      ],
+      "environment_literals": [
+        "CARGO_MANIFEST_DIR"
+      ],
+      "execution_suitability": "CONDITIONAL isolated-worker proposal; not approval or build acceptance",
+      "helper_dependencies": [],
+      "input_files": [],
+      "manifest_sha256": "9ce883210156a0365aba70b2e002e2603580233e8f989433cb7dd16ea2a52cc2",
+      "name": "windows_aarch64_gnullvm",
+      "native_code": "No script runs compiled target probes. Runtime crate code/ELF validation separate; gettext fallback can configure/compile native C, blocked here.",
+      "network": "No direct selected-path network call found; enforce network isolation independently. system-deps binary and gettext bundled fallback are explicitly blocked.",
+      "restrictions": [
+        "MUST be absent actual native Linux graph",
+        "Distribution of full-vendor Windows binaries/provenance is a separate unresolved review"
+      ],
+      "review": "SOURCE INSPECTED; NOT EXECUTED",
+      "scripts": [
+        {
+          "bytes": 198,
+          "matches_original_audit": true,
+          "path": "build.rs",
+          "sha256": "6d40bd2c0ed4cbea5126dfcd89d72f229c7d986540cbf0dc34acc1017f1de20f"
+        }
+      ],
+      "source_files_sha256": "83264024d9ba055a7183e914901e12c14c800d27ac51bc0e75555934d6734040",
+      "target_build_dependencies": {},
+      "version": "0.53.1",
+      "writes": []
+    },
+    {
+      "architecture": "Windows-only prebuilt imports; aarch64 name does not support ARM Linux",
+      "archive_sha256": "b9d782e804c2f632e395708e99a94275910eb9100b2114651e04744e9b125006",
+      "behavior": "Unconditionally emits link-search CARGO_MANIFEST_DIR/lib. No TARGET guard; ships prebuilt Windows import libs.",
+      "build_dependencies": {},
+      "commands": [],
+      "conditions": [
+        "No internal target guard"
+      ],
+      "environment_literals": [
+        "CARGO_MANIFEST_DIR"
+      ],
+      "execution_suitability": "CONDITIONAL isolated-worker proposal; not approval or build acceptance",
+      "helper_dependencies": [],
+      "input_files": [],
+      "manifest_sha256": "84fa9808eff6f9a8211909bf63957cba796277f63f16bc0a595461595f3fa775",
+      "name": "windows_aarch64_msvc",
+      "native_code": "No script runs compiled target probes. Runtime crate code/ELF validation separate; gettext fallback can configure/compile native C, blocked here.",
+      "network": "No direct selected-path network call found; enforce network isolation independently. system-deps binary and gettext bundled fallback are explicitly blocked.",
+      "restrictions": [
+        "MUST be absent actual native Linux graph",
+        "Distribution of full-vendor Windows binaries/provenance is a separate unresolved review"
+      ],
+      "review": "SOURCE INSPECTED; NOT EXECUTED",
+      "scripts": [
+        {
+          "bytes": 198,
+          "matches_original_audit": true,
+          "path": "build.rs",
+          "sha256": "6d40bd2c0ed4cbea5126dfcd89d72f229c7d986540cbf0dc34acc1017f1de20f"
+        }
+      ],
+      "source_files_sha256": "2c41f65305a0b5664bb6a9acda046a1e74e93c8422fa4c0a867bbf8a2e06fe2c",
+      "target_build_dependencies": {},
+      "version": "0.53.1",
+      "writes": []
+    },
+    {
+      "architecture": "Windows-only prebuilt imports; aarch64 name does not support ARM Linux",
+      "archive_sha256": "960e6da069d81e09becb0ca57a65220ddff016ff2d6af6a223cf372a506593a3",
+      "behavior": "Unconditionally emits link-search CARGO_MANIFEST_DIR/lib. No TARGET guard; ships prebuilt Windows import libs.",
+      "build_dependencies": {},
+      "commands": [],
+      "conditions": [
+        "No internal target guard"
+      ],
+      "environment_literals": [
+        "CARGO_MANIFEST_DIR"
+      ],
+      "execution_suitability": "CONDITIONAL isolated-worker proposal; not approval or build acceptance",
+      "helper_dependencies": [],
+      "input_files": [],
+      "manifest_sha256": "de0db004807245aef1740277392774678ae24baa63057d3c6fffd133dbe63b68",
+      "name": "windows_i686_gnu",
+      "native_code": "No script runs compiled target probes. Runtime crate code/ELF validation separate; gettext fallback can configure/compile native C, blocked here.",
+      "network": "No direct selected-path network call found; enforce network isolation independently. system-deps binary and gettext bundled fallback are explicitly blocked.",
+      "restrictions": [
+        "MUST be absent actual native Linux graph",
+        "Distribution of full-vendor Windows binaries/provenance is a separate unresolved review"
+      ],
+      "review": "SOURCE INSPECTED; NOT EXECUTED",
+      "scripts": [
+        {
+          "bytes": 198,
+          "matches_original_audit": true,
+          "path": "build.rs",
+          "sha256": "6d40bd2c0ed4cbea5126dfcd89d72f229c7d986540cbf0dc34acc1017f1de20f"
+        }
+      ],
+      "source_files_sha256": "a234049149a1eb65459e2a25e1250c9109c3d679d70a6c3ff32180d69d78cbad",
+      "target_build_dependencies": {},
+      "version": "0.53.1",
+      "writes": []
+    },
+    {
+      "architecture": "Windows-only prebuilt imports; aarch64 name does not support ARM Linux",
+      "archive_sha256": "fa7359d10048f68ab8b09fa71c3daccfb0e9b559aed648a8f95469c27057180c",
+      "behavior": "Unconditionally emits link-search CARGO_MANIFEST_DIR/lib. No TARGET guard; ships prebuilt Windows import libs.",
+      "build_dependencies": {},
+      "commands": [],
+      "conditions": [
+        "No internal target guard"
+      ],
+      "environment_literals": [
+        "CARGO_MANIFEST_DIR"
+      ],
+      "execution_suitability": "CONDITIONAL isolated-worker proposal; not approval or build acceptance",
+      "helper_dependencies": [],
+      "input_files": [],
+      "manifest_sha256": "b603cfa602c233e75859322f81651ea1181e7b5f412e4cfd69e3faf0d2b5b715",
+      "name": "windows_i686_gnullvm",
+      "native_code": "No script runs compiled target probes. Runtime crate code/ELF validation separate; gettext fallback can configure/compile native C, blocked here.",
+      "network": "No direct selected-path network call found; enforce network isolation independently. system-deps binary and gettext bundled fallback are explicitly blocked.",
+      "restrictions": [
+        "MUST be absent actual native Linux graph",
+        "Distribution of full-vendor Windows binaries/provenance is a separate unresolved review"
+      ],
+      "review": "SOURCE INSPECTED; NOT EXECUTED",
+      "scripts": [
+        {
+          "bytes": 198,
+          "matches_original_audit": true,
+          "path": "build.rs",
+          "sha256": "6d40bd2c0ed4cbea5126dfcd89d72f229c7d986540cbf0dc34acc1017f1de20f"
+        }
+      ],
+      "source_files_sha256": "cdcb702ae9963ae01177d2c3af78ac60cabffc89aad48416d0972c63a0cf35c3",
+      "target_build_dependencies": {},
+      "version": "0.53.1",
+      "writes": []
+    },
+    {
+      "architecture": "Windows-only prebuilt imports; aarch64 name does not support ARM Linux",
+      "archive_sha256": "1e7ac75179f18232fe9c285163565a57ef8d3c89254a30685b57d83a38d326c2",
+      "behavior": "Unconditionally emits link-search CARGO_MANIFEST_DIR/lib. No TARGET guard; ships prebuilt Windows import libs.",
+      "build_dependencies": {},
+      "commands": [],
+      "conditions": [
+        "No internal target guard"
+      ],
+      "environment_literals": [
+        "CARGO_MANIFEST_DIR"
+      ],
+      "execution_suitability": "CONDITIONAL isolated-worker proposal; not approval or build acceptance",
+      "helper_dependencies": [],
+      "input_files": [],
+      "manifest_sha256": "8fd07f7e0d0794cd149b8e41c2f279ebc5517621a3d30082b03faaac87150cac",
+      "name": "windows_i686_msvc",
+      "native_code": "No script runs compiled target probes. Runtime crate code/ELF validation separate; gettext fallback can configure/compile native C, blocked here.",
+      "network": "No direct selected-path network call found; enforce network isolation independently. system-deps binary and gettext bundled fallback are explicitly blocked.",
+      "restrictions": [
+        "MUST be absent actual native Linux graph",
+        "Distribution of full-vendor Windows binaries/provenance is a separate unresolved review"
+      ],
+      "review": "SOURCE INSPECTED; NOT EXECUTED",
+      "scripts": [
+        {
+          "bytes": 198,
+          "matches_original_audit": true,
+          "path": "build.rs",
+          "sha256": "6d40bd2c0ed4cbea5126dfcd89d72f229c7d986540cbf0dc34acc1017f1de20f"
+        }
+      ],
+      "source_files_sha256": "53ed590cf14d87d7c1bb84ebdf08b5b6334541ce0b89e8f457e4482d0a4eefa4",
+      "target_build_dependencies": {},
+      "version": "0.53.1",
+      "writes": []
+    },
+    {
+      "architecture": "Windows-only prebuilt imports; aarch64 name does not support ARM Linux",
+      "archive_sha256": "9c3842cdd74a865a8066ab39c8a7a473c0778a3f29370b5fd6b4b9aa7df4a499",
+      "behavior": "Unconditionally emits link-search CARGO_MANIFEST_DIR/lib. No TARGET guard; ships prebuilt Windows import libs.",
+      "build_dependencies": {},
+      "commands": [],
+      "conditions": [
+        "No internal target guard"
+      ],
+      "environment_literals": [
+        "CARGO_MANIFEST_DIR"
+      ],
+      "execution_suitability": "CONDITIONAL isolated-worker proposal; not approval or build acceptance",
+      "helper_dependencies": [],
+      "input_files": [],
+      "manifest_sha256": "f0e5d86c89067eccfc351f81bfdab94fbe2a3172f527741379a8a0a6b0e1b9b7",
+      "name": "windows_x86_64_gnu",
+      "native_code": "No script runs compiled target probes. Runtime crate code/ELF validation separate; gettext fallback can configure/compile native C, blocked here.",
+      "network": "No direct selected-path network call found; enforce network isolation independently. system-deps binary and gettext bundled fallback are explicitly blocked.",
+      "restrictions": [
+        "MUST be absent actual native Linux graph",
+        "Distribution of full-vendor Windows binaries/provenance is a separate unresolved review"
+      ],
+      "review": "SOURCE INSPECTED; NOT EXECUTED",
+      "scripts": [
+        {
+          "bytes": 198,
+          "matches_original_audit": true,
+          "path": "build.rs",
+          "sha256": "6d40bd2c0ed4cbea5126dfcd89d72f229c7d986540cbf0dc34acc1017f1de20f"
+        }
+      ],
+      "source_files_sha256": "c0c8faa22abc446b909bec13ab4185e66f668bc1ddf841d84bee75a497a42dd0",
+      "target_build_dependencies": {},
+      "version": "0.53.1",
+      "writes": []
+    },
+    {
+      "architecture": "Windows-only prebuilt imports; aarch64 name does not support ARM Linux",
+      "archive_sha256": "0ffa179e2d07eee8ad8f57493436566c7cc30ac536a3379fdf008f47f6bb7ae1",
+      "behavior": "Unconditionally emits link-search CARGO_MANIFEST_DIR/lib. No TARGET guard; ships prebuilt Windows import libs.",
+      "build_dependencies": {},
+      "commands": [],
+      "conditions": [
+        "No internal target guard"
+      ],
+      "environment_literals": [
+        "CARGO_MANIFEST_DIR"
+      ],
+      "execution_suitability": "CONDITIONAL isolated-worker proposal; not approval or build acceptance",
+      "helper_dependencies": [],
+      "input_files": [],
+      "manifest_sha256": "361cb8bf811d54b8387cafef5c11c5eb611a8d039c297fb6fe83c5b2d3d34788",
+      "name": "windows_x86_64_gnullvm",
+      "native_code": "No script runs compiled target probes. Runtime crate code/ELF validation separate; gettext fallback can configure/compile native C, blocked here.",
+      "network": "No direct selected-path network call found; enforce network isolation independently. system-deps binary and gettext bundled fallback are explicitly blocked.",
+      "restrictions": [
+        "MUST be absent actual native Linux graph",
+        "Distribution of full-vendor Windows binaries/provenance is a separate unresolved review"
+      ],
+      "review": "SOURCE INSPECTED; NOT EXECUTED",
+      "scripts": [
+        {
+          "bytes": 198,
+          "matches_original_audit": true,
+          "path": "build.rs",
+          "sha256": "6d40bd2c0ed4cbea5126dfcd89d72f229c7d986540cbf0dc34acc1017f1de20f"
+        }
+      ],
+      "source_files_sha256": "179a3f2907c424332273135d72735e6a8837a60f41438b64dee87835f9073296",
+      "target_build_dependencies": {},
+      "version": "0.53.1",
+      "writes": []
+    },
+    {
+      "architecture": "Windows-only prebuilt imports; aarch64 name does not support ARM Linux",
+      "archive_sha256": "d6bbff5f0aada427a1e5a6da5f1f98158182f26556f345ac9e04d36d0ebed650",
+      "behavior": "Unconditionally emits link-search CARGO_MANIFEST_DIR/lib. No TARGET guard; ships prebuilt Windows import libs.",
+      "build_dependencies": {},
+      "commands": [],
+      "conditions": [
+        "No internal target guard"
+      ],
+      "environment_literals": [
+        "CARGO_MANIFEST_DIR"
+      ],
+      "execution_suitability": "CONDITIONAL isolated-worker proposal; not approval or build acceptance",
+      "helper_dependencies": [],
+      "input_files": [],
+      "manifest_sha256": "6e60ae5f5d58fc727d409e212a09b7a3bb14b77d48d08171af12d9602658ced7",
+      "name": "windows_x86_64_msvc",
+      "native_code": "No script runs compiled target probes. Runtime crate code/ELF validation separate; gettext fallback can configure/compile native C, blocked here.",
+      "network": "No direct selected-path network call found; enforce network isolation independently. system-deps binary and gettext bundled fallback are explicitly blocked.",
+      "restrictions": [
+        "MUST be absent actual native Linux graph",
+        "Distribution of full-vendor Windows binaries/provenance is a separate unresolved review"
+      ],
+      "review": "SOURCE INSPECTED; NOT EXECUTED",
+      "scripts": [
+        {
+          "bytes": 198,
+          "matches_original_audit": true,
+          "path": "build.rs",
+          "sha256": "6d40bd2c0ed4cbea5126dfcd89d72f229c7d986540cbf0dc34acc1017f1de20f"
+        }
+      ],
+      "source_files_sha256": "83e2593e405cc6ae21765f7c0c6ce13c0fa4acc5728968043ff108fed8c8598a",
+      "target_build_dependencies": {},
+      "version": "0.53.1",
+      "writes": []
+    },
+    {
+      "architecture": "Architecture neutral",
+      "archive_sha256": "29666d0abbfad1e3dc4dcf6144730dd3a3ab225bbbdac83319345b1b44ccfc1b",
+      "behavior": "Compiler minor query; selects no_select_unpredictable on old Rust and compact optimization cfg.",
+      "build_dependencies": {},
+      "commands": [
+        "RUSTC --version"
+      ],
+      "conditions": [
+        "OPT_LEVEL s/z; Rust<1.88; parse failure assumes maximum"
+      ],
+      "environment_literals": [
+        "OPT_LEVEL",
+        "RUSTC"
+      ],
+      "execution_suitability": "CONDITIONAL isolated-worker proposal; not approval or build acceptance",
+      "helper_dependencies": [],
+      "input_files": [],
+      "manifest_sha256": "b31420c7a806fae5b9ea2438dd4cbb99dcb3a22da67697fdf2776cc44a69527e",
+      "name": "zmij",
+      "native_code": "No script runs compiled target probes. Runtime crate code/ELF validation separate; gettext fallback can configure/compile native C, blocked here.",
+      "network": "No direct selected-path network call found; enforce network isolation independently. system-deps binary and gettext bundled fallback are explicitly blocked.",
+      "restrictions": [],
+      "review": "SOURCE INSPECTED; NOT EXECUTED",
+      "scripts": [
+        {
+          "bytes": 1362,
+          "matches_original_audit": true,
+          "path": "build.rs",
+          "sha256": "ad320bc635887879bdbbf1b9322da4a157ec2c5a4243bd7c2cf9b6884a3b2a41"
+        }
+      ],
+      "source_files_sha256": "e0d264523399b1b9f1c8c3a7beaa8ecf326f788e37115dd14a80b44bfd42bd5f",
+      "target_build_dependencies": {},
+      "version": "1.0.23",
+      "writes": []
+    }
+  ],
+  "registry_build_script_packages": 38,
+  "review_date": "2026-10-11",
+  "schema_version": 1,
+  "upstream_commit": "e2b1b7144be71cf392809f48d1440f8da1d9c81a",
+  "vendor_cache": "/tmp/cachy-update-cargo-audit-dij7srer/vendor",
+  "worker_requirements": {
+    "before_execution": [
+      "Verify archive/vendor/Cargo.lock/buildscript/includedfile/patch hashes against actual files",
+      "Cargo --frozen --offline plus pinned source-replacement config and no credential/network fallback",
+      "Collect exact selected native target graph and enabled build features; reject new/unreviewed package/script/features",
+      "Prove gettext-sys/gettext-system and exact LinuxGNU target before compilation; missing proof blocks bundled fallback",
+      "Reject system-deps binary/archive features, ensure system-deps-meta absent; no inference from default declaration alone",
+      "Confirm Windows import libraries/wasm scripts/defmt optional features actual selection or revise scope explicitly",
+      "Pin actual glib/gio .pc versions from features and native builder; record compiler/LLVM parse/cfgs and detect assumed-latest fallbacks"
+    ],
+    "environment": [
+      "Clear inherited RUSTC_WRAPPER/RUSTC_WORKSPACE_WRAPPER/RUSTC_BOOTSTRAP/RUSTC_STAGE/DOCS_RS/LIBC_CI/WIND_RELEASE_ID",
+      "Clear inherited SYSTEM_DEPS_*, PKG_CONFIG_*, GETTEXT_*, compiler/linker/archiver target env variants, LD_PRELOAD/LD_LIBRARY_PATH and Cargo config/target/rustflags overrides; apply explicit worker allowlist afterwards",
+      "Fix/record HOME/TMPDIR/CARGO_HOME/CARGO_TARGET_DIR, locale/time/SOURCE_DATE_EPOCH; Cargo sets OUT_DIR/feature/CARGO_CFG facts",
+      "No target-cpu=native, Apple ISA tuning, unsafe atomic/experimental rustix cfg or --all-features"
+    ],
+    "host": "aarch64-unknown-linux-gnu",
+    "isolation": [
+      "Disposable unprivileged nativeARM worker, no network/caps, no-new-privileges; root/toolchain/vendor source read-only",
+      "Only dedicated no-credential CARGO_HOME, CARGO_TARGET_DIR/OUT_DIR, private TMPDIR and staging DESTDIR writable; packaging may copy app source to disposable build scratch, never mutate pinned originals",
+      "No host writable/device/display/D-Bus/audio/SSH/signing sockets, no nested writable mounts below source/toolchain roots",
+      "CPU/memory/pid/disk budgets, total deadline and whole-container/processgroup cleanup; bounded logs and artifacts"
+    ],
+    "later_evidence": [
+      "Two independent clean native build logs, artifact SHA/bytecomparison and ELF ARM/ABI/pagealignment checks",
+      "Mock D-Bus/update/reboot functionality and actual Apple lifecycle checks remain separate from build approval"
+    ],
+    "target": "aarch64-unknown-linux-gnu",
+    "tools": [
+      "Separately pinned native rustc/Cargo>=1.92 plus linker/compiler, glib2 native .pc inputs, pkgconf and packaging tools",
+      "RUSTC fixed absolute pinned worker binary; controlled PATH, no rustup shims or wrappers",
+      "No emcc/freebsd-version in PATH; expected libc emcc spawn returns absent",
+      "Native PKG_CONFIG/.pc locations pinned; no host sysroot/cross overrides"
+    ]
+  }
+}
