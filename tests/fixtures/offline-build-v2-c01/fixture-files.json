@@ -1,0 +1,46 @@
+{
+  "files": {
+    "accepted-cache/FORMAT": {
+      "bytes": 28,
+      "sha256": "da163b8c4b855c77b0074778ecedf02f021d81e6b5f4140b638bcbef8f6a22d0"
+    },
+    "accepted-cache/objects/bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16": {
+      "bytes": 1502830,
+      "sha256": "bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16"
+    },
+    "accepted-cache/receipts/50979bf81eda4d1f5b23fbe05aec5fabd7827b270fe3edda22b7189944004c43-zlib-1.3.2.json": {
+      "bytes": 956,
+      "sha256": "7a8ad2a3803f8117f6a2d45629b6b500d2263433856279a6a737a98a2a640676"
+    },
+    "baseline-reviewed-inputs.json": {
+      "bytes": 342,
+      "sha256": "84d71597ffb5e07eb38bc78730704557dbf835b5869366509758a7abb3431a8f"
+    },
+    "baseline-source-plan.json": {
+      "bytes": 712,
+      "sha256": "33ced69e523d6c4e0dca51d6806475b2ae647aeeef069525cd4d9514a8ea5c48"
+    },
+    "inputs/notices/LICENSE.zlib": {
+      "bytes": 1002,
+      "sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2"
+    },
+    "inputs/source-inputs.json": {
+      "bytes": 752,
+      "sha256": "50979bf81eda4d1f5b23fbe05aec5fabd7827b270fe3edda22b7189944004c43"
+    },
+    "lto-reviewed-inputs.json": {
+      "bytes": 342,
+      "sha256": "3a20ff80dcdf1c597db6922ec615b8a9d0fe3e96b9048ae43bc64d34001d7654"
+    },
+    "lto-source-plan.json": {
+      "bytes": 712,
+      "sha256": "41171cddbb956e8e868f6af28064149a92ee3aa043ba0d49c8670036e504636a"
+    }
+  },
+  "image_inventory": "SYNTHETIC",
+  "legal_acceptance": false,
+  "native_build": "NOT_RUN",
+  "purpose": "HOST_C01_REAL_SOURCE_FIXTURE_ONLY",
+  "schema_version": 1,
+  "source_completeness_accepted": false
+}
