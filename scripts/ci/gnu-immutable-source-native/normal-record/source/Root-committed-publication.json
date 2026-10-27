@@ -1,0 +1,10 @@
+{
+  "actual": "NOT_RUN",
+  "files": 749,
+  "git_joins": 749,
+  "hardware": "NOT_RUN",
+  "ref": "codex/gnu-fixed-case-cleanup600-v1",
+  "release": "NOT_ADMITTED",
+  "source": "de1aab259df6bda8ad36f959392e3fc4eb35b622",
+  "status": "COMMITTED_EXACT_CLOSED_TRIAL_SOURCE"
+}
