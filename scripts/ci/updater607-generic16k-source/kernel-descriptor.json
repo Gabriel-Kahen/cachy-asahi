@@ -1,0 +1,35 @@
+{
+  "Image": {
+    "bytes": 9019400,
+    "sha256": "cd8053ebdb83302015efbad97ab1cc53fcd5a2353bf3f37ba208f4e6360946ec"
+  },
+  "artifact": {
+    "bytes": 9348486,
+    "digest": "sha256:b07124fb219e4af315094f97f201490433fc120a45cd3b55f39f9588e65d3057",
+    "id": 12147995917,
+    "name": "gnu-verity-kernel-build-only-39156901928-1",
+    "sha256": "b07124fb219e4af315094f97f201490433fc120a45cd3b55f39f9588e65d3057"
+  },
+  "boot": "NOT_RUN",
+  "build_decision": {
+    "bytes": 6667,
+    "sha256": "f615551a21aa60195ca62884bc0359f4630da9cb12f8e10ad949b41798a4764a"
+  },
+  "config": {
+    "bytes": 68789,
+    "sha256": "e97d54d4852eceb6cba28c38f78d4a00aacbfdb0c1523cb96366590f7eaa915b"
+  },
+  "fresh607": "NOT_RUN",
+  "hardware": "NOT_RUN",
+  "header": {
+    "bytes": 64,
+    "sha256": "621f2a525f58d3eeca54a8cd049939a0382e8bad48b07b7533850ff310162fcc"
+  },
+  "kernel": "7.1.13-generic16k-managed-gui",
+  "modules": "DISABLED",
+  "page_size": 16384,
+  "purpose": "FRESH607_GENERIC16K_BUILD_ONLY_KERNEL_INPUT",
+  "ref": "codex/gnu-verity-kernel-config-domain-v1",
+  "run": "39156901928",
+  "source": "4056e2505ed7081674e949e0460258672cce14ff"
+}
