@@ -68,7 +68,7 @@ def files(root):
     for directory, dirs, names in os.walk(root):
         parent = Path(directory)
         if parent == root:
-            for external in ('.git', 'retained574'):
+            for external in ('.git',):
                 if external in dirs:
                     need(not (root/external).is_symlink(), 'external source ancestry differs')
                     dirs.remove(external)

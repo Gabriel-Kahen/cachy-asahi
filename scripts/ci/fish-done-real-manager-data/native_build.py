@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 """Run only inside Root's offline ordinary-user immutable native574 consumer."""
 import argparse
+import ctypes
 import hashlib
 import json
 import os
@@ -16,6 +17,7 @@ import struct
 import subprocess
 import sys
 import time
+import threading
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from construct import archive, encoded, need, read, sha
@@ -89,12 +91,50 @@ def environment(output, epoch):
         MESON_FORCE_BACKTRACE='1')
 
 
+def configure_child_reaper():
+    # Only the guarded ordinary build process adopts its own command descendants.
+    need(threading.current_thread() is threading.main_thread() and threading.active_count() == 1 and
+         signal.getsignal(signal.SIGCHLD) == signal.SIG_DFL, 'exclusive default-SIGCHLD build reaper required')
+    libc = ctypes.CDLL(None, use_errno=True)
+    libc.prctl.argtypes = [ctypes.c_int, ctypes.c_ulong, ctypes.c_ulong, ctypes.c_ulong, ctypes.c_ulong]
+    libc.prctl.restype = ctypes.c_int
+    value = ctypes.c_int()
+    need(libc.prctl(37, ctypes.addressof(value), 0, 0, 0) == 0 and value.value == 0,
+         'fresh ordinary child-reaper policy required')
+    need(libc.prctl(36, 1, 0, 0, 0) == 0, 'ordinary child subreaper setup failed')
+    need(libc.prctl(37, ctypes.addressof(value), 0, 0, 0) == 0 and value.value == 1,
+         'ordinary child subreaper verification failed')
+    return dict(status='VERIFIED_CHILD_SUBREAPER', pid=os.getpid(), before=0, enabled=1)
+
+
+def drain_adopted():
+    # The reserved supervisor must already have reaped the synchronous leader.
+    deadline, rows = time.monotonic()+2, []
+    while len(rows) < 1024:
+        try:
+            pid, status = os.waitpid(-1, os.WNOHANG)
+        except ChildProcessError:
+            return dict(status='VERIFIED_NO_CHILDREN', reaped=rows)
+        if pid:
+            rows.append(dict(pid=pid, wait_status=status))
+        elif time.monotonic() >= deadline:
+            break
+        else:
+            time.sleep(.02)
+        if time.monotonic() >= deadline:
+            break
+    return dict(status='INCOMPLETE', reaped=rows)
+
+
 class Commands:
     def __init__(self, output, env):
         self.output, self.env, self.rows = output, env, []
+        self.child_reaper = None
         self.deadline = time.monotonic()+1200
 
     def __call__(self, argv, seconds=300):
+        need(self.child_reaper and self.child_reaper['status'] == 'VERIFIED_CHILD_SUBREAPER' and
+             self.child_reaper['pid'] == os.getpid(), 'verified ordinary child subreaper required')
         seconds = min(seconds, self.deadline-time.monotonic())
         need(seconds > 0, 'overall native build command budget expired')
         number = len(self.rows)+1
@@ -106,6 +146,10 @@ class Commands:
             receipt = R.run(argv, seconds, cwd=self.output, env=self.env,
                             stdout=stream, stderr=subprocess.STDOUT,
                             term_seconds=3, kill_seconds=2)
+        row['child_reaper'] = self.child_reaper
+        row['adopted_drain'] = (drain_adopted() if receipt['ownership'] == 'REAPED' and receipt['reap_count'] == 1
+                                else dict(status='SKIPPED_UNKNOWN_OWNERSHIP', reaped=[]))
+        R.refresh(receipt)  # Read-only census after observed leader/adopted reaping.
         row.update(pid=receipt['pid'], exit=receipt['exit'],
                    group_absent=receipt['group_absent'], supervision=receipt,
                    seconds=time.monotonic()-started)
@@ -114,7 +158,8 @@ class Commands:
         raw = log.read_bytes()
         row.update(bytes=len(raw), sha256=sha(raw))
         (self.output/'commands.json').write_bytes(encoded(self.rows))
-        need(receipt['completed'] is True and not receipt['timed_out'] and
+        need(row['adopted_drain']['status'] == 'VERIFIED_NO_CHILDREN' and
+             receipt['completed'] is True and not receipt['timed_out'] and
              receipt['retirement'] == 'VERIFIED_ABSENT' and
              row['exit'] == 0 and row['group_absent'] is True,
              'native command failed or retirement unknown: '+receipt['retirement'])
@@ -197,6 +242,7 @@ def main():
         installed_delivery='NOT_RUN', page_size=os.sysconf('SC_PAGE_SIZE'), native_arch=platform.machine(), errors=[],
         context_sha256=sha((HERE/'context.json').read_bytes()), sources=lock['sources'], base=lock['base'])
     try:
+        command.child_reaper = report['child_reaper'] = configure_child_reaper()
         inventory = command(['/usr/bin/pacman', '-Q'], 10)
         need(inventory == (HERE/'inventory574.lock').read_text(), 'exact installed574 inventory required')
         report['build_tools'] = {}

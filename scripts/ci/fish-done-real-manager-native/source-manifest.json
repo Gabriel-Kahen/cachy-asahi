@@ -2,7 +2,7 @@
   "actual_ref": null,
   "actual_run": null,
   "actual_source": null,
-  "context_sha256": "2d7a09fb60f6f5c0f43e6ab3ee9bcbcd988514b5b48433ae6ca5ab630788d5f1",
+  "context_sha256": "2662328ebae3a65323a83b4ba0422c6e87254de914d507fb7210b62250b602d7",
   "files": {
     "LICENSE": {
       "bytes": 1081,
@@ -74,7 +74,7 @@
     },
     "scripts/ci/fish-done-real-manager-data/context.json": {
       "bytes": 135504,
-      "sha256": "2d7a09fb60f6f5c0f43e6ab3ee9bcbcd988514b5b48433ae6ca5ab630788d5f1"
+      "sha256": "2662328ebae3a65323a83b4ba0422c6e87254de914d507fb7210b62250b602d7"
     },
     "scripts/ci/fish-done-real-manager-data/delivery/LICENSE": {
       "bytes": 1081,
@@ -145,8 +145,8 @@
       "sha256": "c6ab55ae475611bf2df2b7120b97a924eed5d65c149561d4da4f12b5b8c25504"
     },
     "scripts/ci/fish-done-real-manager-data/native_build.py": {
-      "bytes": 13457,
-      "sha256": "47e7bbd70e21749c503cc4bd28f918512b68d0029edb5f0ff823a141b623542d"
+      "bytes": 15838,
+      "sha256": "1ae7ba2b5b404652fc6507e82160a33adcee500094ac15493ca98dd5839ac531"
     },
     "scripts/ci/fish-done-real-manager-data/no-git.native": {
       "bytes": 85,
@@ -165,12 +165,12 @@
       "sha256": "967f3112c82e8ea18cbdc513e22196b30ccc9fad3fb836f1cff80312c66fab96"
     },
     "scripts/ci/fish-done-real-manager-native/README.md": {
-      "bytes": 6876,
-      "sha256": "b280476d45e6f9501580f0d6225811024dc2449f529103dbbd0380a2b4ee0e83"
+      "bytes": 9918,
+      "sha256": "7640f289355d86a7930bdadc4bb1faaa7da7620df05f759d7051146e0b7d1366"
     },
     "scripts/ci/fish-done-real-manager-native/closed.py": {
-      "bytes": 7380,
-      "sha256": "bf63edfe7e26bf510c709679a943a61b3d3d5ad4369157eb635479088b90a800"
+      "bytes": 7366,
+      "sha256": "cd85a8ad5ca5b623f7dc6badca0e521d7c8a463466a4046b9efb7b26529e3e0f"
     },
     "scripts/ci/fish-done-real-manager-native/construct.py": {
       "bytes": 3436,
@@ -182,23 +182,23 @@
     },
     "scripts/ci/fish-done-real-manager-native/data-association.json": {
       "bytes": 7957,
-      "sha256": "983effc14baf961d6cce12745090dcc40694aebda5f25188d268160c21cc80cc"
+      "sha256": "fe09a66d402eeda49b2b490ff90c1ca64812f3eb43ba9aed3757a9b1e781b2c1"
     },
     "scripts/ci/fish-done-real-manager-native/held-infrastructure.json": {
       "bytes": 1882,
       "sha256": "79577f03b9b36361255a46ef803f3a738699a5401e916ae1be92a4dec3892429"
     },
     "scripts/ci/fish-done-real-manager-native/job.py": {
-      "bytes": 5872,
-      "sha256": "fcbb0ecd76b35602213dc558e91e5def2ab3b6a1c751abd97b09fcfec7aced6b"
+      "bytes": 7963,
+      "sha256": "4d98446aa199d5577e9f89b779068e492866d3ea9b4bac38dce0d29e63d942eb"
     },
     "scripts/ci/fish-done-real-manager-native/producer.py": {
       "bytes": 3073,
       "sha256": "dcecab1bc4e4c39f47235e2ae2c060d4668e9216fa483001e56fe25420a7ec76"
     },
     "scripts/ci/fish-done-real-manager-native/root_contract.py": {
-      "bytes": 13432,
-      "sha256": "7275f70bb76c3a687f82840513a60ec2bec99aa6cd288b6bf83583251987bccc"
+      "bytes": 14736,
+      "sha256": "ce5d08264e4c7260817e7c5cdea0fc362648f7d22410f6ec01d01f62acc7e57a"
     },
     "scripts/ci/fish-done-real-manager-native/run.py": {
       "bytes": 7448,
@@ -208,6 +208,10 @@
       "bytes": 9783,
       "sha256": "d1123f664c570d7b9375ab8112b0207452503fc0df562802a1120cd980ad51b0"
     },
+    "scripts/ci/fish-done-real-manager-native/test_native_reaper.py": {
+      "bytes": 7957,
+      "sha256": "39fcff6f454d9f98239a53a0cf91eaccdb5edfc17ccd3fad3c0ce30c8298d3df"
+    },
     "scripts/ci/fish-done-real-manager-native/test_reserved_process.py": {
       "bytes": 10567,
       "sha256": "09956dd5d7e093f549ce8d043a3dcf2638783e9d4612026355558c628bc91cd0"
@@ -216,9 +220,13 @@
       "bytes": 7803,
       "sha256": "862c075b168a068a4e3d74d8813ee7f9a1d80e2800f65d5192fe876ee6937b10"
     },
+    "scripts/ci/fish-done-real-manager-native/transport.py": {
+      "bytes": 9336,
+      "sha256": "49f244a849d7291e2762cb0fded7005e051644ca68cb64a5e803d1592bb73bbb"
+    },
     "scripts/ci/fish-done-real-manager-native/workflow.in": {
-      "bytes": 3666,
-      "sha256": "689911f816bbd3ebc84e7929fc3474b893aa7446120f29c6455f1fccc20a3f14"
+      "bytes": 3893,
+      "sha256": "103228ce6dbc3810d1d631b1130bd3179a8ae2a182d9689698062a6fc17321e8"
     },
     "scripts/ci/maintained-desktop574-inputs.json": {
       "bytes": 623664,
