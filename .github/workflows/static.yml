@@ -297,6 +297,17 @@ jobs:
           python3 -B -Werror::ResourceWarning scripts/maintenance/test_build_outputs.py
           python3 -B -Werror::ResourceWarning scripts/maintenance/test_health.py
           python3 -B -Werror::ResourceWarning scripts/setup/test_config_migrate.py
+      - name: Check isolated ARM experiment packages with pinned source on host ISA
+        run: |
+          c01_source_dir="$(mktemp -d "$RUNNER_TEMP/c01-package-source.XXXXXX")"
+          trap 'rm -rf -- "$c01_source_dir"' EXIT
+          curl --fail --location --proto '=https' --proto-redir '=https' --connect-timeout 10 --max-time 60 --max-filesize 2000000 --retry 2 \
+            --output "$c01_source_dir/zlib-1.3.2.tar.gz" 'https://zlib.net/zlib-1.3.2.tar.gz'
+          printf '%s  %s\n' 'bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16' "$c01_source_dir/zlib-1.3.2.tar.gz" | sha256sum --check
+          printf '%s  %s\n' 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25' 'scripts/experiments/fixtures/c01-packages.lock' | sha256sum --check
+          CACHY_ASAHI_ZLIB_SOURCE="$c01_source_dir/zlib-1.3.2.tar.gz" \
+            CACHY_ASAHI_ZLIB_PACKAGES="$GITHUB_WORKSPACE/scripts/experiments/fixtures/c01-packages.lock" \
+            python3 -B -Werror::ResourceWarning scripts/experiments/test_package_variants.py
       - name: Check fixed build-only Asahi data candidate boundaries
         run: python3 -B scripts/ci/asahi-audio-data/test_run.py
       - name: Check fixed build-only audio Rust candidate boundaries
