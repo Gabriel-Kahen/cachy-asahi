@@ -36,6 +36,10 @@
       "bytes": 11137,
       "sha256": "2ce0825357ac474f8fa244c6915c3d75a796de408e2eb11162be28581b3861db"
     },
+    "dependency_capture.py": {
+      "bytes": 8440,
+      "sha256": "ad520971edf929ce062f6590a2d36ad0cee70d6f4cbbb80dff71ac63904f46da"
+    },
     "entry607.py": {
       "bytes": 3449,
       "sha256": "4efc6d1a2531100b2f168b2f9b4a4f52fb54e21eaf4cef9da837faa0ed16b4e2"
@@ -69,8 +73,8 @@
       "sha256": "6c369da63551a106b295829c2adc1b09e0aa6f359749d62b059cfdadbaf620de"
     },
     "producer607.py": {
-      "bytes": 28193,
-      "sha256": "f9a3cef133248c01e7b6882ea9bb3a14b9be6b9dabb562b010b5c658fe15a33e"
+      "bytes": 28461,
+      "sha256": "c3ee1d3d1349439f8369b12fe8768d3f40e93c08bdf9a143b261477ad43fcd2a"
     },
     "provider607.py": {
       "bytes": 33239,
