@@ -46,7 +46,9 @@ if [[ -f .SRCINFO ]]; then
 fi
 # No -s, -i, sudo or host mounts: the pinned image must already contain dependencies.
 makepkg --verifysource --noconfirm
-makepkg --cleanbuild --clean --force --log --noconfirm
+# makepkg --clean removes phase logs from its working directory on success.
+# Write them directly to the retained output, including partial logs on failure.
+LOGDEST=/out makepkg --cleanbuild --clean --force --log --noconfirm
 shopt -s nullglob
 artifacts=(*.pkg.tar.*)
 [[ ${#artifacts[@]} -gt 0 ]] || { echo 'No package artifacts' >&2; exit 2; }
