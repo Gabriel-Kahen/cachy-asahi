@@ -968,7 +968,8 @@ jobs:
           find packages -name PKGBUILD -type f -print0 | xargs -0 -r -n1 bash -n
       - name: Check isolated native notification diagnostic without actors
         run: python3 -I -B -Werror::ResourceWarning scripts/diagnostics/fish-done-native-graphics/test_run.py
-      - name: ARM experiment generic16K owner controls without execution
+      - name: Historical ARM experiment generic16K owner controls without execution
+        working-directory: ${{ github.workspace }}/.ci-inputs/historical604-runtime
         run: python3 -B -Werror::ResourceWarning scripts/ci/arm-experiments-generic16k-ci/test_owner.py
       - name: Report one matched hosted setup pair after the full static suite
         if: ${{ (github.event_name == 'workflow_dispatch' && inputs.measure-cache) || inputs.setup-phase == 'warm' }}
