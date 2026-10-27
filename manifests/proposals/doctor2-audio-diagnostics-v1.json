@@ -1,9 +1,9 @@
 {
   "add_only": {
-    "development_alternative_native_evidence": "docs/validation/doctor2-native-20261019.md",
+    "development_alternative_native_evidence": "docs/validation/doctor2-comparison-native-20261027.md",
     "development_alternative_recipe": "packages/tools/cachy-asahi-doctor2/PKGBUILD",
-    "development_alternative_state": "ROOT_ACCEPTED_FINITE_NATIVE_PAIR_AND_OFFLINE_CLI_LIFECYCLE",
-    "development_alternative_version": "0.2.0-1"
+    "development_alternative_state": "ROOT_ACCEPTED_EXACT_DOCTOR2_0_2_0_2_NATIVE_PAIR_AND_FINITE_INSTALLED_CLI_ONLY",
+    "development_alternative_version": "0.2.0-2"
   },
   "default_composition_unchanged": true,
   "entry": "cachy-asahi-doctor",
@@ -37,6 +37,6 @@
   "schema_version": 1,
   "source": "local-original",
   "status": "UNSELECTED_DEVELOPMENT_UPGRADE_PROPOSAL",
-  "validation": "Native ARM run39321557701: byte-identical Doctor2 pairs, all27 tests each build, installed offline CLI five-phase lifecycle; live audio/GUI/16K/M2/trust and release remain open",
-  "version": "0.2.0-1"
+  "validation": "Native ARM run40447616068, source88997143a593f2de82fb41ae0224a943a1f99930: exact Doctor2 0.2.0-2 byte-identical pairs, all47 makepkg tests each build, full retained1148 cache on base574 and finite five-phase installed CLI lifecycle; installed --compare, live audio/GUI/16K/M2/trust and release remain open",
+  "version": "0.2.0-2"
 }
