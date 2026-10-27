@@ -2,24 +2,25 @@
 # Original read-only diagnostic; development candidate, not release-selected.
 pkgname=cachy-asahi-doctor
 pkgver=0.1.0
-pkgrel=1
+pkgrel=2
 pkgdesc='Read-only local platform and session observations for cachy-asahi'
 arch=('any')
 url='https://github.com/Gabriel-Kahen/cachy-asahi'
 license=('MIT')
 depends=('python>=3.11' 'pacman' 'systemd')
-source=('cachy-asahi-doctor' 'test_doctor.py' 'README.md' 'NOTICE' 'LICENSE')
+source=('cachy-asahi-doctor' 'test_doctor.py' 'test_comparison.py' 'README.md' 'NOTICE' 'LICENSE')
 sha256sums=(
-  'd8eb487bc81b5880aceb412360ef674cc214150d61733dfdc8d8654e0f54cf38'
+  'a98a1b15927d95760ef81962639e4602119bf41cf0779c72fbd27ebe15955fbe'
   '7d555c98f79204d91c759171273c1ef24564a51d3384d6e8eb10751ab1cc4281'
-  '8d1260424db6e54c8a68b008ab1d317d54a2a58d34655f34ae5059603cf19e4e'
+  'b4c8ffac4f21c42f2def9cf6287cc68cfea2dc9a0eabe672f6ccfae0f9ef5171'
+  'd1d781301a407b6367e15583a21db3ebe1e7864a71d62fce7226d7c8b53c4487'
   '96aa4022dcf6b97ea2b55ef63d78d5c261bfcd39c303822bad184a33d09e5804'
   '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
-
 )
 
 check() {
     python -B "$srcdir/test_doctor.py"
+    python -B "$srcdir/test_comparison.py"
 }
 
 package() {
