@@ -1,0 +1,14 @@
+{
+  ".SRCINFO": "c4dc2ceebed4250bceebd00204c29c2c9ddfd67f4b25cfde78bd2001349b44fd",
+  "LICENSE": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+  "NOTICE": "dad09067890027d4674c6f5861462966f190e527e7d4524360fbc175c68e0511",
+  "PKGBUILD": "ef55f7a91dab46dbf5355a5d02c0ccd4113bf45db2578cf59412662dca734662",
+  "README.md": "4a88ceecb9b844c7b1fbc261dd6e0788640b6c4320eb62db4f394d566dc71dd4",
+  "cachy-asahi-session-diagnostics": "2b6700180210cc686f3e19f3c294f58ce5182dee2ae01e5406039bb1a0d3af7a",
+  "check_package.py": "ddf4119a1ecad917af69f3e670e469281e48662b08e20d2abdf17efc807df86d",
+  "session-probe.md": "2d8125214150de5b6426692758525b0636fcbb53c45539a139d7fc5bf4f804e1",
+  "session_probe.py": "9c5c41899cd991b0de4bf8d30bad6f5452b4592ea9440df0f0b4a7b54bc66984",
+  "source-provenance.json": "51cc74ecc32e47e740f39dcf86b30e0819ed6be4707ea40c398976dc2b637a76",
+  "test_package.py": "7134c5da0d1c96b2bb02fcdf7dc161821b31badf533a26b192e3b0e1f5b98879",
+  "test_session_probe.py": "f598bf4ea38f753c1ffe31fb55e636d64722c32139230bd5485564d7f2332d2f"
+}

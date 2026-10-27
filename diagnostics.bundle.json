@@ -1,0 +1,146 @@
+{
+  "alpm_installation": "NOT_RUN",
+  "archive_binding": {
+    "archive_bytes": 20924,
+    "archive_sha256": "8e69184b33395d80ba921385d0ed071cc35178ae64f18549a9bf34e5c185c70d",
+    "metadata_sha256": "30cbf87629b28be019283d06900e8a9661723fb0968215797c5659644e062685",
+    "native_execution": "NOT_ESTABLISHED",
+    "pkgbuild_sha256": "ef55f7a91dab46dbf5355a5d02c0ccd4113bf45db2578cf59412662dca734662",
+    "status": "ARCHIVE_METADATA_AND_PAYLOAD_BOUND"
+  },
+  "archive_status": "BOUND",
+  "dependencies": {
+    "checkdepends": [],
+    "depends": [
+      "python>=3.11"
+    ],
+    "makedepends": [],
+    "optdepends": [
+      "hyprland: current compositor version and display observations",
+      "mesa-utils: current Wayland GLES client renderer observation",
+      "pipewire: current sanitized audio graph observation",
+      "systemd: current session, unit states and suspend capability queries"
+    ]
+  },
+  "files": {
+    ".SRCINFO": {
+      "bytes": 1677,
+      "mode": "0644",
+      "sha256": "c4dc2ceebed4250bceebd00204c29c2c9ddfd67f4b25cfde78bd2001349b44fd"
+    },
+    "LICENSE": {
+      "bytes": 1081,
+      "mode": "0644",
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "NOTICE": {
+      "bytes": 1093,
+      "mode": "0644",
+      "sha256": "dad09067890027d4674c6f5861462966f190e527e7d4524360fbc175c68e0511"
+    },
+    "PKGBUILD": {
+      "bytes": 2443,
+      "mode": "0644",
+      "sha256": "ef55f7a91dab46dbf5355a5d02c0ccd4113bf45db2578cf59412662dca734662"
+    },
+    "README.md": {
+      "bytes": 3998,
+      "mode": "0644",
+      "sha256": "4a88ceecb9b844c7b1fbc261dd6e0788640b6c4320eb62db4f394d566dc71dd4"
+    },
+    "cachy-asahi-session-diagnostics": {
+      "bytes": 960,
+      "mode": "0644",
+      "sha256": "2b6700180210cc686f3e19f3c294f58ce5182dee2ae01e5406039bb1a0d3af7a"
+    },
+    "check_package.py": {
+      "bytes": 5942,
+      "mode": "0644",
+      "sha256": "ddf4119a1ecad917af69f3e670e469281e48662b08e20d2abdf17efc807df86d"
+    },
+    "session-probe.md": {
+      "bytes": 9788,
+      "mode": "0644",
+      "sha256": "2d8125214150de5b6426692758525b0636fcbb53c45539a139d7fc5bf4f804e1"
+    },
+    "session_probe.py": {
+      "bytes": 25128,
+      "mode": "0644",
+      "sha256": "9c5c41899cd991b0de4bf8d30bad6f5452b4592ea9440df0f0b4a7b54bc66984"
+    },
+    "source-provenance.json": {
+      "bytes": 1868,
+      "mode": "0644",
+      "sha256": "51cc74ecc32e47e740f39dcf86b30e0819ed6be4707ea40c398976dc2b637a76"
+    },
+    "test_package.py": {
+      "bytes": 4893,
+      "mode": "0644",
+      "sha256": "7134c5da0d1c96b2bb02fcdf7dc161821b31badf533a26b192e3b0e1f5b98879"
+    },
+    "test_session_probe.py": {
+      "bytes": 26699,
+      "mode": "0644",
+      "sha256": "f598bf4ea38f753c1ffe31fb55e636d64722c32139230bd5485564d7f2332d2f"
+    }
+  },
+  "host_check_commands": [
+    [
+      "python",
+      "-I",
+      "-B",
+      "check_package.py",
+      "--recipe-root",
+      "."
+    ],
+    [
+      "python",
+      "-I",
+      "-B",
+      "-Werror::ResourceWarning",
+      "test_session_probe.py"
+    ],
+    [
+      "python",
+      "-I",
+      "-B",
+      "-Werror::ResourceWarning",
+      "test_package.py"
+    ]
+  ],
+  "legal_acceptance": false,
+  "license": "MIT",
+  "native_build": "NOT_RUN",
+  "observed_source_revision": "e20eb9a2095f3e9a2dd0073ce68f9208bec0d87d",
+  "package": {
+    "arch": "any",
+    "name": "cachy-asahi-session-diagnostics",
+    "version": "0.1.0-3"
+  },
+  "physical_m2": "NOT_RUN",
+  "purpose": "reviewed-original-recipe-source",
+  "rebuild_commands": [
+    "makepkg --verifysource",
+    "makepkg --cleanbuild --force"
+  ],
+  "rebuild_environment": "Separately provisioned native aarch64 build environment with declared dependencies; no automatic dependency installation.",
+  "recipe_key": "PKGBUILD",
+  "recipe_sha256": "ef55f7a91dab46dbf5355a5d02c0ccd4113bf45db2578cf59412662dca734662",
+  "release": "NOT_ADMITTED",
+  "revision_is_not_source_authority": true,
+  "schema_version": 1,
+  "source_order": [
+    "cachy-asahi-session-diagnostics",
+    "session_probe.py",
+    "test_session_probe.py",
+    "check_package.py",
+    "test_package.py",
+    "README.md",
+    "session-probe.md",
+    "source-provenance.json",
+    "NOTICE",
+    "LICENSE"
+  ],
+  "stage_command": "umask 022; source \"$1/PKGBUILD\"; srcdir=$1; pkgdir=$2; package",
+  "stage_is_not_installation": true
+}
