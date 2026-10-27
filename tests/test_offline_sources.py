@@ -13,9 +13,32 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'scripts/build'))
-import build
-import compare
+import build_v2 as build
+import compare_v2 as compare
 import source_materials as m
+
+
+class VersionedInterfaceTests(unittest.TestCase):
+    def test_compare_uses_versioned_artifact_binding(self):
+        self.assertIs(compare.bind_artifact, build.bind_artifact)
+        self.assertEqual(Path(build.__file__), ROOT / 'scripts/build/build_v2.py')
+        self.assertEqual(Path(compare.__file__), ROOT / 'scripts/build/compare_v2.py')
+
+    def test_versioned_cli_imports_ignore_ambient_helpers_under_isolation(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            ambient = Path(temporary)
+            marker = ambient / 'ambient-imported'
+            for name in ('build', 'build_v2', 'source_materials', 'source_cache', 'package_checks'):
+                (ambient / (name + '.py')).write_text(
+                    'from pathlib import Path\nPath(' + repr(str(marker)) + ').touch()\n'
+                    'raise RuntimeError("ambient helper")\n')
+            for name in ('build_v2.py', 'compare_v2.py'):
+                result = subprocess.run([sys.executable, '-I', '-S', '-B',
+                    str(ROOT / 'scripts/build' / name), '--help'], cwd=ambient,
+                    env=dict(os.environ, PYTHONPATH=str(ambient)), capture_output=True, timeout=10)
+                self.assertEqual(result.returncode, 0, result.stderr.decode())
+                self.assertIn(b'--source-plan' if name == 'build_v2.py' else b'--require-bytes', result.stdout)
+            self.assertFalse(marker.exists())
 
 
 class OfflineSourcesTests(unittest.TestCase):
@@ -67,7 +90,7 @@ class OfflineSourcesTests(unittest.TestCase):
             return m.prepare(self.report, self.plan_path, self.save_plan(), self.catalog, self.cache)
 
     def argv(self):
-        return ['build.py', str(self.recipe), '--image', 'sha256:' + 'a' * 64,
+        return ['build_v2.py', str(self.recipe), '--image', 'sha256:' + 'a' * 64,
                 '--output', str(self.output), '--mode', 'emulated', '--source-date-epoch', '1',
                 '--expected-packages', str(self.lock), '--reviewed-inputs', str(self.reviewed),
                 '--source-plan', str(self.plan_path), '--source-plan-sha256', self.save_plan(),
@@ -191,6 +214,8 @@ class OfflineSourcesTests(unittest.TestCase):
         command = run.call_args.args[0]
         self.assertEqual(command[command.index('--network') + 1], 'none')
         self.assertIn('CACHY_ASAHI_OFFLINE_SOURCES=1', command)
+        entry = ROOT / 'scripts/build/container-entry-v2.sh'
+        self.assertIn(f'type=bind,src={entry},dst=/builder-entry.sh,readonly', command)
         self.assertIn(f'type=bind,src={self.output}/source-material/srcdest,dst=/offline-sources,readonly', command)
         self.assertNotIn(str(self.cache), ' '.join(command))
         evidence = json.loads((self.output / 'provenance.json').read_text())
@@ -200,7 +225,7 @@ class OfflineSourcesTests(unittest.TestCase):
             self.assertEqual(build.digest(self.output / name), checksum)
 
     def test_container_seeds_writable_private_srcdest_from_readonly_files(self):
-        source = (ROOT / 'scripts/build/container-entry.sh').read_text()
+        source = (ROOT / 'scripts/build/container-entry-v2.sh').read_text()
         start = source.index('seed_offline_sources() {'); end = source.index('\n}', start) + 2
         directory = self.root / 'mounted'; directory.mkdir()
         (directory / 'archive.tar.gz').write_bytes(self.raw); (directory / 'archive.tar.gz').chmod(0o400)
