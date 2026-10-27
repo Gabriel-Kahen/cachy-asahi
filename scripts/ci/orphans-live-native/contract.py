@@ -44,15 +44,15 @@ def verify_source(root):
  need(manifest.get('actual_source') is None and manifest.get('actual_ref') is None and manifest.get('actual_run') is None,'source construction grants no actual authority')
 def recipe(source,name):
  need(name==PRODUCT,'one successor only');checks=load('orphans3_recipe_checks',source/'scripts/checks/package_checks.py');row=checks.recipe(source/RECIPE/'PKGBUILD');m=row['metadata']
- need(not row['errors'] and m.get('pkgname')==[PRODUCT] and m.get('pkgver')==['0.3.0'] and m.get('pkgrel')==['1'] and m.get('arch')==['any'] and m.get('depends')==['python>=3.11','pacman'] and m.get('license')==['MIT'],'exact successor recipe required')
+ need(not row['errors'] and m.get('pkgname')==[PRODUCT] and m.get('pkgver')==['0.3.0'] and m.get('pkgrel')==['2'] and m.get('arch')==['any'] and m.get('depends')==['python>=3.11','pacman'] and m.get('license')==['MIT'],'exact successor recipe required')
  need(not any(m.get(k) for k in ('install','backup','provides','conflicts','replaces','makedepends','checkdepends')) and len(m['source'])==18,'no extra recipe behavior')
- profile=read(source/LANE/'product-profile.json');need(profile['recipe_path']==RECIPE and profile['package_name']==PRODUCT and profile['version']=='0.3.0-1' and profile['test_counts']==[20,25,8,24,25,7] and profile['tests']==109 and profile['payload_files']==12 and set(profile['files'])==set(row['input_sha256']) and len(profile['files'])==20,'exact isolated20-file0.3 recipe selection required')
+ profile=read(source/LANE/'product-profile.json');need(profile['recipe_path']==RECIPE and profile['package_name']==PRODUCT and profile['version']=='0.3.0-2' and profile['test_counts']==[20,25,8,24,25,7] and profile['tests']==109 and profile['payload_files']==12 and set(profile['files'])==set(row['input_sha256']) and len(profile['files'])==20,'exact isolated20-file0.3 recipe selection required')
  for n,r in profile['files'].items():checked(source,RECIPE+'/'+n,r);need(row['input_sha256'][n]==r['sha256'],'recipe source-delivery pin differs')
- delivery=load('orphans03_delivery_profile',source/'scripts/release/recipe_source_delivery.py');bodies,info=delivery.source_set(PRODUCT,lambda n:(source/RECIPE/n).read_bytes());need(len(bodies)==20 and info['pkgver']==['0.3.0'] and delivery.source_profile(PRODUCT,bodies)['version']=='0.3.0-1' and len(delivery.payload(PRODUCT,'0.3.0-1'))==12 and delivery.profile(PRODUCT)['version']=='0.1.0-2','additive0.3 delivery profile must preserve default0.1')
- checker=load('orphans03_profile_payload',source/RECIPE/'check_source.py');need(delivery.payload(PRODUCT,'0.3.0-1')==checker.PAYLOAD,'0.3 source-delivery payload must match all12 actual runtime mappings')
+ delivery=load('orphans03_delivery_profile',source/'scripts/release/recipe_source_delivery.py');bodies,info=delivery.source_set(PRODUCT,lambda n:(source/RECIPE/n).read_bytes());need(len(bodies)==20 and info['pkgver']==['0.3.0'] and delivery.source_profile(PRODUCT,bodies)['version']=='0.3.0-2' and len(delivery.payload(PRODUCT,'0.3.0-2'))==12 and delivery.profile(PRODUCT)['version']=='0.1.0-2','additive0.3 delivery profile must preserve default0.1')
+ checker=load('orphans03_profile_payload',source/RECIPE/'check_source.py');need(delivery.payload(PRODUCT,'0.3.0-2')==checker.PAYLOAD,'0.3 source-delivery payload must match all12 actual runtime mappings')
  need((source/LANE/'candidate.SRCINFO').read_bytes()==(source/RECIPE/'.SRCINFO').read_bytes(),'selected0.3 native metadata differs')
  return row
-def version(source,name):need(name==PRODUCT,'one successor only');return '0.3.0-1'
+def version(source,name):need(name==PRODUCT,'one successor only');return '0.3.0-2'
 def payload(report,source,name):
  need(name==PRODUCT and not report['errors'] and not report['elf'],'ordinary script-only package required');check=load('orphans3_payload',source/RECIPE/'check_source.py');expected=check.PAYLOAD
  actual={p:r for p,r in report['members'].items() if r['type']!='5' and p not in ('.PKGINFO','.BUILDINFO','.MTREE')};need(set(actual)==set(expected),'exact twelve-file successor payload')

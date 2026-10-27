@@ -92,10 +92,12 @@ class Live(unittest.TestCase):
         for root,db in ((Path('/'),Path('/var/lib/pacman')),(self.root,self.base/'foreign-db')):
             args.target_root=root;args.target_dbpath=db;self.assert_no_commit(self.execute(args));self.assertEqual(FixtureTransaction.instances,[])
     def test_root_target_requires_already_privileged_operator_without_auto_sudo(self):
-        self.package('test-leaf');args=self.planned();saved,_=O.json_file(args.plan);args.target_root=Path('/');args.target_dbpath=Path('/var/lib/pacman')
-        # Isolate the privilege gate after an already reviewed plan; no '/' query or transaction occurs.
-        with patch.object(L,'plan',return_value=saved),patch.object(L.os,'geteuid',return_value=1000):result=self.execute(args)
-        self.assert_no_commit(result);self.assertIn('no auto-sudo',result['reason']);self.assertEqual(FixtureTransaction.instances,[])
+        args=SimpleNamespace(target_root=Path('/'),target_dbpath=Path('/var/lib/pacman'),policy=self.policy,policy_sha256=self.policy_pin,plan=self.out/'must-not-read',plan_sha256='a'*64,select=['test-leaf'],authorize_live_removal=True)
+        # Isolate pre-input refusal without spoofing ownership of a real plan.
+        for uid in (1000,1001,65534):
+            with self.subTest(uid=uid),patch.object(L.os,'geteuid',return_value=uid),patch.object(O,'json_file',side_effect=AssertionError('no input read before privilege refusal')) as inputs,patch.object(L,'plan',side_effect=AssertionError('no plan/ALPM query')) as reviewed:
+                result=self.execute(args)
+            self.assert_no_commit(result);self.assertIn('no auto-sudo',result['reason']);self.assertEqual(FixtureTransaction.instances,[]);inputs.assert_not_called();reviewed.assert_not_called()
     def test_authorization_flag_is_required_even_for_exact_reviewed_plan(self):
         self.package('test-leaf');args=self.planned();args.authorize_live_removal=False;self.assert_no_commit(self.execute(args));self.assertEqual(FixtureTransaction.instances,[])
     def test_policy_and_plan_hash_mismatch_refuse_before_transaction(self):

@@ -13,7 +13,7 @@ class Binding(unittest.TestCase):
   release=self.root/'scripts/release';release.mkdir(parents=True);shutil.copyfile(ROOT/'scripts/release/source_delivery.py',release/'source_delivery.py');shutil.copyfile(ROOT/'scripts/release/recipe_source_delivery.py',release/'recipe_source_delivery.py')
   profile=self.root/C.LANE;profile.mkdir(parents=True);shutil.copyfile(HERE/'product-profile.json',profile/'product-profile.json');shutil.copyfile(HERE/'candidate.SRCINFO',profile/'candidate.SRCINFO');return product
  def test_real_isolated20_file_recipe03_and_no_old_directory(self):
-  self.assertEqual(C.version(ROOT,C.PRODUCT),'0.3.0-1');row=C.recipe(ROOT,C.PRODUCT);self.assertEqual(len(row['input_sha256']),20);self.assertEqual(len(row['metadata']['source']),18);self.assertFalse((ROOT/'packages/tools/cachy-asahi-orphans').exists())
+  self.assertEqual(C.version(ROOT,C.PRODUCT),'0.3.0-2');row=C.recipe(ROOT,C.PRODUCT);self.assertEqual(len(row['input_sha256']),20);self.assertEqual(len(row['metadata']['source']),18);self.assertFalse((ROOT/'packages/tools/cachy-asahi-orphans').exists())
  def test_legacy_recipe_or_replaced_source_never_admitted(self):
   product=self.recipe_copy();(product/'.SRCINFO').write_text((product/'.SRCINFO').read_text().replace('0.3.0','0.1.0'))
   with self.assertRaises(ValueError):C.recipe(self.root,C.PRODUCT)
@@ -31,7 +31,7 @@ class Binding(unittest.TestCase):
   tree=ast.parse((HERE/'build_candidate.py').read_text());copy=next(n for n in ast.walk(tree) if isinstance(n,ast.Call) and isinstance(n.func,ast.Attribute) and n.func.attr=='copytree')
   self.assertEqual(ast.dump(copy.args[0]),ast.dump(ast.parse('source/C.RECIPE',mode='eval').body));self.assertNotIn("source/'packages/tools'/name",(HERE/'build_candidate.py').read_text())
  def test_additive03_source_delivery_preserves01_default(self):
-  delivery=C.load('test03_delivery',ROOT/'scripts/release/recipe_source_delivery.py');bodies,info=delivery.source_set(C.PRODUCT,lambda n:(ROOT/C.RECIPE/n).read_bytes());self.assertEqual(len(bodies),20);self.assertEqual(delivery.profile(C.PRODUCT)['version'],'0.1.0-2');self.assertEqual(delivery.source_profile(C.PRODUCT,bodies)['version'],'0.3.0-1');checker=C.load('test03_payload',ROOT/C.RECIPE/'check_source.py');self.assertEqual(delivery.payload(C.PRODUCT,'0.3.0-1'),checker.PAYLOAD)
+  delivery=C.load('test03_delivery',ROOT/'scripts/release/recipe_source_delivery.py');bodies,info=delivery.source_set(C.PRODUCT,lambda n:(ROOT/C.RECIPE/n).read_bytes());self.assertEqual(len(bodies),20);self.assertEqual(delivery.profile(C.PRODUCT)['version'],'0.1.0-2');self.assertEqual(delivery.source_profile(C.PRODUCT,bodies)['version'],'0.3.0-2');checker=C.load('test03_payload',ROOT/C.RECIPE/'check_source.py');self.assertEqual(delivery.payload(C.PRODUCT,'0.3.0-2'),checker.PAYLOAD)
  def test_tree_hash_known_empty_and_blob_mode_changes(self):
   files,modes,tree=custody.state(self.root,[]);self.assertEqual(tree['tree'],'4b825dc642cb6eb9a060e54bf8d69288fbee4904');p=self.root/'one';p.write_text('inert');before=custody.state(self.root,['one']);p.chmod(0o755);after=custody.state(self.root,['one']);self.assertNotEqual(before[2]['tree'],after[2]['tree']);self.assertEqual(after[1],{'one':'100755'})
  def test_custody_rejects_alias_unexpected_mode_and_escape(self):

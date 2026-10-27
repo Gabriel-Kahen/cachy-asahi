@@ -114,7 +114,8 @@ def check_log(path):
 def verify_builds(directory,source,files,base,runtime,life,helpers):
  C,checks,bind,comparison,_,_=helpers;recipe=C.recipe(source,PRODUCT);inputs={n.removeprefix(RECIPE+'/'):r['sha256'] for n,r in files.items() if n.startswith(RECIPE+'/')}
  need(set(inputs)==PRODUCT_FILES and recipe['input_sha256']==inputs,'exact20 selected0.3 inputs required');metadata=recipe['metadata']
- need(metadata.get('pkgname')==[PRODUCT] and metadata.get('pkgver')==['0.3.0'] and metadata.get('pkgrel')==['1'] and metadata.get('arch')==['any'] and len(metadata.get('source',[]))==18,'selected recipe is not0.3/18 sources')
+ need(metadata.get('pkgname')==[PRODUCT] and metadata.get('pkgver')==['0.3.0'] and metadata.get('pkgrel')==['2'] and metadata.get('arch')==['any'] and len(metadata.get('source',[]))==18,'selected recipe is not0.3/18 sources')
+ B=load('orphans03_reader_full574',source/LANE/'buildinfo_supplement.py');lock=read(source/B.LOCK);full_inputs=dict(body={B.LOCK:raw(source/B.LOCK)},base={r['name']:r['version'] for r in lock['packages']});buildinfo=[]
  archives=[];containers=[]
  for side in ('a','b'):
   root=directory/'runtime'/(PRODUCT+'-'+side);record=read(root/'provenance.json')
@@ -129,9 +130,9 @@ def verify_builds(directory,source,files,base,runtime,life,helpers):
   need(record.get('entry_script_sha256')==files['scripts/build/container-entry.sh']['sha256'],'build entry source differs')
   env=raw(root/'artifacts/environment.txt').decode().splitlines();need(len(env)>=3 and 'aarch64' in env[0].split() and env[1]==str(life['page_size']),'actual build uname/page size absent')
   check_log(root/'build.log');need(C.check_log(root/'build.log',PRODUCT)['count']==109,'contract test gate differs')
-  items=record.get('artifacts',{});need(type(items) is dict and len(items)==1,'one0.3 archive required');name=next(iter(items));need(name in {PRODUCT+'-0.3.0-1-any.pkg.tar.'+s for s in ('xz','zst')},'old or wrong archive basename')
+  items=record.get('artifacts',{});need(type(items) is dict and len(items)==1,'one0.3 archive required');name=next(iter(items));need(name in {PRODUCT+'-0.3.0-2-any.pkg.tar.'+s for s in ('xz','zst')},'old or wrong archive basename')
   package=checks.package(root/'artifacts'/name);need(package['sha256']==items[name] and not package['errors'] and not package['elf'],'actual script archive differs')
-  need(not bind.bind_artifact(metadata,package,inputs['PKGBUILD']),'actual archive metadata/source differs');payload=C.payload(package,source,PRODUCT);need(len(payload)==12,'all12 version0.3 payload files required')
+  need(not bind.bind_artifact(metadata,package,inputs['PKGBUILD']),'actual archive metadata/source differs');buildinfo.append(B.verify(package['metadata']['.BUILDINFO'],raw(source/RECIPE/'PKGBUILD'),full_inputs));payload=C.payload(package,source,PRODUCT);need(len(payload)==12,'all12 version0.3 payload files required')
   validation=read(root/'validation.json');need(validation.get('package')==package and validation.get('payload')==payload and validation.get('tests',{}).get('count')==109 and validation.get('errors')==[],'retained validation differs from archive')
   for name_in,pin in inputs.items():need(digest(root/'inputs'/name_in)==pin,'retained recipe snapshot differs')
   archives.append((name,package['sha256']))
@@ -139,7 +140,7 @@ def verify_builds(directory,source,files,base,runtime,life,helpers):
  actual=comparison.compare(directory/'runtime'/(PRODUCT+'-a'),directory/'runtime'/(PRODUCT+'-b'));C.pair_gate(actual)
  need(actual==read(directory/'runtime/comparison.json')==runtime['pair']['comparison'],'independent archive pair replay differs')
  need(len(runtime['pair']['builds'])==2 and [(r['archive'],r['sha256']) for r in runtime['pair']['builds']]==archives and all(r['tests']['count']==109 for r in runtime['pair']['builds']),'pair archive/test identities differ')
- return dict(containers=containers,archives=archives,comparison=actual)
+ return dict(containers=containers,archives=archives,comparison=actual,full574_buildinfo=buildinfo)
 
 def verify_fixtures(directory,source,files,runtime,control,helpers):
  C,checks,_,_,_,_=helpers;root=directory/'runtime/fixtures';fixtures=control['fixtures']
@@ -169,7 +170,7 @@ def verify_target_map(rows):
  return rows
 
 def verify_lifecycle(directory,life,actor):
- actor.validate_lifecycle(life);need(life.get('architecture')=='aarch64' and type(life.get('page_size')) is int and life['page_size']>0 and life.get('version')=='0.3.0-1','native0.3 lifecycle identity required')
+ actor.validate_lifecycle(life);need(life.get('architecture')=='aarch64' and type(life.get('page_size')) is int and life['page_size']>0 and life.get('version')=='0.3.0-2','native0.3 lifecycle identity required')
  root=directory/'runtime/lifecycle-output';maps={}
  for name,row in life['maps'].items():
   path=ordinary(row['path']);need(path.parts[0]=='maps','fixed lifecycle map path required');p=root/str(path);need(digest(p)==row['sha256'],'target map hash differs');maps[name]=verify_target_map(read(p,MAX_FILE));need(len(maps[name])==row['nodes'],'target map count differs')
@@ -219,7 +220,7 @@ def validate(directory,*,authorization,identity,source_sha,run_id,job_id,run_att
   signature=raw(directory/'runtime/lifecycle-inputs'/(name+'.sig'),16384);need(0<len(signature)<=16384,'retained detached TEST signature absent')
  verify_fixtures(directory,reviewed_source,files,runtime,control,helpers)
  authority=read(directory/'runtime/authority.json');need(authority.get('directory')=='test-signing' and authority.get('mode')==0o700 and authority.get('signer')==control['signer'],'recorded TEST authority custody differs')
- return dict(status='PASS_OFFLINE_ORPHANS03_NATIVE_COMPONENT_REPLAY',scope=SCOPE,identities=expected,source_files=len(files),product_files=20,package_version='0.3.0-1',package_checks_per_build=109,payload_files=12,architecture='aarch64',page_size=life['page_size'],maps=len(maps),retained_files=len(index['files']),transport=transport_result,hardware='NOT_RUN',release='NOT_ADMITTED',host_live_target_removal='NOT_PROVEN',identity_authority='ROOT_SUPPLIED_PUBLICATION_AND_ONCE_COLLECTED_ORIGINAL_METADATA')
+ return dict(status='PASS_OFFLINE_ORPHANS03_NATIVE_COMPONENT_REPLAY',scope=SCOPE,identities=expected,source_files=len(files),product_files=20,package_version='0.3.0-2',package_checks_per_build=109,payload_files=12,architecture='aarch64',page_size=life['page_size'],maps=len(maps),full574_buildinfo=builds['full574_buildinfo'],retained_files=len(index['files']),transport=transport_result,hardware='NOT_RUN',release='NOT_ADMITTED',host_live_target_removal='NOT_PROVEN',identity_authority='ROOT_SUPPLIED_PUBLICATION_AND_ONCE_COLLECTED_ORIGINAL_METADATA')
 
 def main(argv=None):
  parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--originals',type=Path,required=True);parser.add_argument('--source-authorization',type=Path,required=True);parser.add_argument('--original-identity',type=Path,required=True);parser.add_argument('--reviewed-source',type=Path)

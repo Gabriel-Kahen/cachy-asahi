@@ -1,3 +1,11 @@
+# 0.3.0-2 causal successor
+
+The explicit-root operator guard now runs before private-input or DB reads. The
+UID-dependent privilege fixture uses sentinels and a UID matrix, with strict file
+owner/mode/single-link guards unchanged. Only focused pure controls run here;
+Root owns the full109 recipe and new native trial. The reader carries the mandatory
+full574 BUILDINFO name-version-architecture guard on the same parsed archives.
+
 # Native Orphans0.3 isolated development lane
 
 Source-only preparation. Native0.3 build/lifecycle/transport/reader-on-originals are
@@ -6,7 +14,7 @@ reported terminal CI success7eb86a3855c1ca1d8411ad28c700558ebb16e608/run40573715
 is not semantic acceptance here; Root owns its single original collection.
 
 This lane exclusively selects `packages/tools/cachy-asahi-orphans03`, all20 files
-of candidate0.3.0-1. The actual package remains named cachy-asahi-orphans. The
+of candidate0.3.0-2. The actual package remains named cachy-asahi-orphans. The
 original canonical0.1 path and frozen0.3 development packet are unchanged. A
 separate source-delivery profile proposal accompanies the packet; it must not
 replace the old profile or silently select an old archive.
