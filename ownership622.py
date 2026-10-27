@@ -3,6 +3,47 @@
 import hashlib,json,math,os,re,stat,time
 from pathlib import Path
 
+# Admit only this canonical closed Source directory before sibling imports.
+import sys
+
+def _admit_closed_sibling_source():
+ root=Path(__file__).absolute().parent
+ def require(value):
+  if not value:raise ValueError('closed current Source sibling admission refused')
+ def identity(s):return(s.st_dev,s.st_ino,s.st_mode,s.st_uid,s.st_gid,s.st_nlink,s.st_size,s.st_mtime_ns,s.st_ctime_ns)
+ require(root==root.resolve()and not any(p.is_symlink()for p in(root,*root.parents)));before=root.stat();require(stat.S_ISDIR(before.st_mode)and before.st_uid==os.getuid()and not before.st_mode&0o022)
+ def raw(name):
+  path=root/name;require(path.is_relative_to(root)and not any(p.is_symlink()for p in(path,*path.parents)));fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK|os.O_CLOEXEC)
+  try:
+   first=os.fstat(fd);require(stat.S_ISREG(first.st_mode)and first.st_nlink==1 and first.st_uid==os.getuid()and stat.S_IMODE(first.st_mode)==0o644 and 0<=first.st_size<=4*1024**2);data=bytearray()
+   while len(data)<=first.st_size:
+    part=os.read(fd,min(1024**2,first.st_size+1-len(data)))
+    if not part:break
+    data.extend(part)
+   require(len(data)==first.st_size and identity(first)==identity(os.fstat(fd))==identity(path.lstat()));return bytes(data)
+  finally:os.close(fd)
+ manifest=json.loads(raw('source-manifest.json'));files=manifest['files'];aliases=('.github/workflows/native-arm-build.yml','.github/workflows/native-arm-core7-real-systemd.yml');expected=set(files)|{'source-manifest.json',*aliases};require(type(files)is dict and len(files)==63 and len(expected)==66 and manifest['actual']is None);found=set();directories={''}
+ for path in root.rglob('*'):
+  name=path.relative_to(root).as_posix()
+  if name.split('/')[0]=='.git':continue
+  require(not path.is_symlink()and(path.is_dir()or path.is_file()))
+  if path.is_dir():directories.add(name)
+  else:found.add(name)
+ require(found==expected);wanted={''}
+ for name in expected:
+  require(type(name)is str and name==Path(name).as_posix()and not Path(name).is_absolute()and all(p not in('', '.', '..')for p in name.split('/')))
+  wanted.update(''if str(p)=='.'else p.as_posix()for p in Path(name).parents)
+ require(directories==wanted)
+ for name,want in files.items():
+  data=raw(name);require(want==dict(bytes=len(data),sha256=hashlib.sha256(data).hexdigest()))
+ require(all(raw(name)==raw('workflow.yml.in')for name in aliases));require(identity(before)==identity(root.stat()))
+ for name in('case','ownership622'):
+  module=sys.modules.get(name)
+  if module is not None:require(Path(getattr(module,'__file__','/invalid')).absolute()==root/(name+'.py'))
+ sys.path.insert(0,str(root));return root
+
+_ADMITTED_SOURCE=_admit_closed_sibling_source()
+
 def need(v,s):
  if not v:raise ValueError(s)
 def identity(s):return tuple(getattr(s,k)for k in('st_dev','st_ino','st_mode','st_nlink','st_uid','st_gid','st_size','st_mtime_ns','st_ctime_ns'))
@@ -371,8 +412,12 @@ class RetainedActors:
    row.update({k:v for k,v in lifecycle.items()if k!='status'});row['owned_child']=lifecycle;row['seconds']=time.monotonic()-started;retained_save(self.directory/'actors.json',self.rows)
   return read(log,16*1024**2)[0].decode().strip()
 
+def retained_entry_intent(actual,nonce,root,temporary,carrier,work):
+ import case as C
+ path=work/'owner.json';value=C.decode(read(path,16384)[0]);expected=dict(schema=1,status='SOURCE_OWNED_COMPLETE574_TRANSPORT_ENTRY_INTENT_DATA_ONLY',identity=actual,nonce=nonce,source_root=str(root),runtime_temp=str(temporary),carrier_path=str(carrier),work_path=str(work),argv=['python3','-I','-B',str(root/'ownership622.py'),'--transport-complete574'],outer_seconds=500,kill_grace_seconds=30,step_minutes=9,native='NOT_RUN',native_cleanup='NOT_ESTABLISHED',acceptance=False);need(value==expected and stat.S_IMODE(path.stat().st_mode)==0o600,'one exact source-owned pre-CLI transport entry intent');return value
+
 def transport_complete574():
- actual,nonce=retained_binding();root,temporary,carrier,work=retained_paths();clock=job_clock();record,profile=retained_configuration();need(not os.path.lexists(carrier)and work.is_dir()and work.stat().st_uid==os.getuid()and stat.S_IMODE(work.stat().st_mode)==0o700 and set(p.name for p in work.iterdir())<= {'phase.stdout','phase.stderr'},'fresh fixed carrier/transport work, no retry');end=remaining_deadline(480,clock=clock);actor=RetainedActors(work/'input-transport-actors',end);started=time.monotonic();report=dict(schema=1,status='FAIL_RETAINED_INPUT_TRANSPORT_DATA',identity=actual,nonce=nonce,role='RETAINED_INPUT_TRANSPORT_DATA',source_root=str(root),runtime_temp=str(temporary),carrier_path=str(carrier),work_path=str(work),carrier_source=RETAINED_SOURCE,profile=RETAINED_PROFILE,expected_carrier_files=1154,expected_carrier_bytes=1046432165,budget_seconds=480,retirement_seconds=2,outer_seconds=500,kill_grace_seconds=30,step_minutes=9,effective_deadline=end,job_clock=clock,retry=False,partial_data_retained=True,native='NOT_RUN',native_cleanup='NOT_ESTABLISHED',acceptance=False,authentication='ORIGINAL_COMPLETE1154_GIT_BLOB_MODE_AND_NATIVE_SIGNATURE_GATES_REQUIRED')
+ actual,nonce=retained_binding();root,temporary,carrier,work=retained_paths();clock=job_clock();record,profile=retained_configuration();entry_intent=retained_entry_intent(actual,nonce,root,temporary,carrier,work);need(not os.path.lexists(carrier)and work.is_dir()and work.stat().st_uid==os.getuid()and stat.S_IMODE(work.stat().st_mode)==0o700 and set(p.name for p in work.iterdir())<= {'phase.stdout','phase.stderr','owner.json'},'fresh fixed carrier/transport work, no retry');end=remaining_deadline(480,clock=clock);actor=RetainedActors(work/'input-transport-actors',end);started=time.monotonic();report=dict(entry_intent=entry_intent,schema=1,status='FAIL_RETAINED_INPUT_TRANSPORT_DATA',identity=actual,nonce=nonce,role='RETAINED_INPUT_TRANSPORT_DATA',source_root=str(root),runtime_temp=str(temporary),carrier_path=str(carrier),work_path=str(work),carrier_source=RETAINED_SOURCE,profile=RETAINED_PROFILE,expected_carrier_files=1154,expected_carrier_bytes=1046432165,budget_seconds=480,retirement_seconds=2,outer_seconds=500,kill_grace_seconds=30,step_minutes=9,effective_deadline=end,job_clock=clock,retry=False,partial_data_retained=True,native='NOT_RUN',native_cleanup='NOT_ESTABLISHED',acceptance=False,authentication='ORIGINAL_COMPLETE1154_GIT_BLOB_MODE_AND_NATIVE_SIGNATURE_GATES_REQUIRED')
  try:
   retained_fresh(carrier);git=['/usr/bin/git','-c','credential.helper=','-c','http.extraHeader=','-c','http.sslVerify=true','-c','core.hooksPath=/dev/null','-c','protocol.allow=never','-c','protocol.https.allow=always'];actor.run([*git,'init','--template=',str(carrier)],10);actor.run([*git,'-C',str(carrier),'-c','http.lowSpeedLimit=65536','-c','http.lowSpeedTime=60','fetch','--depth=1','--no-tags','--no-recurse-submodules','https://github.com/Gabriel-Kahen/cachy-asahi.git',RETAINED_SOURCE],400);fetched=actor.run([*git,'-C',str(carrier),'rev-parse','--verify','FETCH_HEAD'],10);need(fetched==RETAINED_SOURCE,'exact complete574 FETCH_HEAD');actor.run([*git,'-C',str(carrier),'checkout','--detach',RETAINED_SOURCE],45);head=actor.run([*git,'-C',str(carrier),'rev-parse','--verify','HEAD'],10);need(head==RETAINED_SOURCE,'exact complete574 HEAD');report.update(status='PASS_EXACT_RETAINED_INPUT_TRANSPORT_DATA_ONLY',carrier_head=head)
  except BaseException as error:report['error_type']=type(error).__name__;raise

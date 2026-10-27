@@ -414,6 +414,15 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -m 700 "$RUNNER_TEMP/core622-retained-transport"
+          python3 -I -B - <<'PYINTENT'
+          import hashlib,json,os,re
+          from pathlib import Path
+          root=Path(os.environ['GITHUB_WORKSPACE'])/'core622-code';temporary=Path(os.environ['RUNNER_TEMP']);work=temporary/'core622-retained-transport';source=os.environ['GITHUB_SHA'];run=os.environ['GITHUB_RUN_ID'];ref=os.environ['GITHUB_REF_NAME']
+          assert re.fullmatch('[0-9a-f]{40}',source) and source==os.environ['SOURCE_SHA']==os.environ['WORKFLOW_SHA'] and re.fullmatch('[1-9][0-9]{0,19}',run) and re.fullmatch('codex/[a-z0-9-]+',ref) and os.environ['GITHUB_RUN_ATTEMPT']=='1'
+          value=dict(schema=1,status='SOURCE_OWNED_COMPLETE574_TRANSPORT_ENTRY_INTENT_DATA_ONLY',identity=dict(source=source,ref=ref,run=int(run),attempt=1),nonce=hashlib.sha256(('current607-core622:'+source+':'+run).encode()).hexdigest()[:32],source_root=str(root),runtime_temp=str(temporary),carrier_path=str(temporary/'core622-retained-complete574'),work_path=str(work),argv=['python3','-I','-B',str(root/'ownership622.py'),'--transport-complete574'],outer_seconds=500,kill_grace_seconds=30,step_minutes=9,native='NOT_RUN',native_cleanup='NOT_ESTABLISHED',acceptance=False)
+          fd=os.open(work/'owner.json',os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,0o600)
+          with os.fdopen(fd,'wb')as stream:stream.write((json.dumps(value,sort_keys=True,indent=2)+'\n').encode())
+          PYINTENT
           set -o noclobber
           set +e
           timeout --signal=TERM --kill-after=30s 500s \
@@ -422,6 +431,24 @@ jobs:
           phase_exit=$?
           set -e
           printf '%s\n' "$phase_exit" >"$RUNNER_TEMP/core622-retained-transport/phase.exit-code"
+          if [ "$phase_exit" -ne 0 ]; then
+            python3 -I -B - <<'PYPHASEFAIL'
+          import base64,hashlib,json,os,stat
+          from pathlib import Path
+          work=Path(os.environ['RUNNER_TEMP'])/'core622-retained-transport';rows={}
+          for name,cap in(('owner.json',4*1024**2),('phase.stdout',1024**2),('phase.stderr',1024**2),('phase.exit-code',32)):
+              path=work/name
+              if not path.exists():rows[name]=dict(status='ABSENT');continue
+              assert not any(p.is_symlink()for p in(path,*path.parents))
+              with path.open('rb')as stream:
+                  a=os.fstat(stream.fileno());assert stat.S_ISREG(a.st_mode)and a.st_nlink==1 and a.st_uid==os.getuid()and 0<=a.st_size<=cap
+                  raw=stream.read(cap+1);b=os.fstat(stream.fileno());assert len(raw)==a.st_size and(a.st_dev,a.st_ino,a.st_size,a.st_mtime_ns,a.st_ctime_ns)==(b.st_dev,b.st_ino,b.st_size,b.st_mtime_ns,b.st_ctime_ns)
+              row=dict(status='RETAINED_RAW_DATA_ONLY',bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())
+              if name in('owner.json','phase.stderr','phase.exit-code'):row.update(tail_base64=base64.b64encode(raw[-16384:]).decode(),tail_only=len(raw)>16384)
+              rows[name]=row
+          print(json.dumps(dict(schema=1,status='EARLY_TRANSPORT_FAILURE_DIAGNOSTIC_DATA_ONLY',files=rows,retention='ORIGINAL_PHASE_FILES_PRESERVED',native='NOT_RUN',native_cleanup='NOT_ESTABLISHED',acceptance=False),sort_keys=True))
+          PYPHASEFAIL
+          fi
           exit "$phase_exit"
       - name: Join all complete574 retained cache inputs before original acquisition
         if: inputs.mode == 'build'
