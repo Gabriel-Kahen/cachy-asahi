@@ -22,6 +22,7 @@ import stat
 import subprocess
 import sys
 import tarfile
+import tempfile
 import time
 import zlib
 
@@ -233,15 +234,66 @@ def package_members(data, variant):
     return rows
 
 
+
+def live_group(pgid):
+    """Read only this still-held leader's session/group; zombies need no signal."""
+    members = []
+    for entry in Path('/proc').iterdir():
+        if not entry.name.isdecimal():
+            continue
+        try:
+            fields = (entry / 'stat').read_text().rpartition(') ')[2].split()
+            if len(fields) < 4 or int(fields[2]) != pgid or int(fields[3]) != pgid or fields[0] in ('Z', 'X'):
+                continue
+            uid = next(line.split()[1] for line in (entry / 'status').read_text().splitlines() if line.startswith('Uid:'))
+            members.append({'pid': int(entry.name), 'uid': int(uid)})
+        except (FileNotFoundError, ProcessLookupError):
+            continue
+    return members
+
+
 class Commands:
-    """Finite synchronous process groups with retained diagnostics, no shell."""
-    def __init__(self, output, seconds=1200):
+    """Finite groups; hold the leader until same-credential descendant cleanup."""
+    def __init__(self, output, seconds=1200, builder_uid=None):
         self.output = Path(output); self.deadline = time.monotonic() + seconds
         self.rows = []; self.active = None; self.cancelled = False
+        self.builder_uid = builder_uid
 
     def cancel(self, *_):
         self.cancelled = True
         raise KeyboardInterrupt()
+
+    def stop(self, process, row):
+        # WNOWAIT holds the PGID against reuse until inspection/signalling finishes.
+        members = live_group(process.pid)
+        row['cleanup_member_uids'] = sorted({m['uid'] for m in members})
+        original = os.geteuid()
+        try:
+            for uid in row['cleanup_member_uids']:
+                need(uid == original or (os.getuid() == 0 and uid == self.builder_uid),
+                     'unexpected process-group credential')
+                try:
+                    # CAP_SETUID is already in the exact five-capability container.
+                    # Signal alarm's children as alarm; do not require CAP_KILL.
+                    if uid != original:
+                        os.seteuid(uid)
+                    try:
+                        os.killpg(process.pid, signal.SIGKILL)
+                    except ProcessLookupError:
+                        pass
+                finally:
+                    if os.geteuid() != original:
+                        os.seteuid(original)
+            end = time.monotonic() + 2
+            while live_group(process.pid) and time.monotonic() < end:
+                time.sleep(.02)
+            row['group_absent'] = not live_group(process.pid)
+            row['leader_held_until_group_inspection'] = True
+            need(row['group_absent'], 'owned live process group remains')
+        finally:
+            # Reaping/diagnostic errors must not discard the command record.
+            row['exit'] = process.wait(timeout=10)
+            self.active = None
 
     def run(self, label, argv, *, cwd=None, env=None, data=None, expected=0, timeout=180):
         need(not self.cancelled and time.monotonic() < self.deadline, 'job cancelled/deadline reached')
@@ -251,32 +303,42 @@ class Commands:
         row['log'] = log.name; self.rows.append(row)
         started = time.monotonic()
         try:
-            with log.open('wb') as diagnostic:
-                process = subprocess.Popen(argv, cwd=cwd, env=env, stdin=subprocess.PIPE if data is not None else subprocess.DEVNULL,
-                                           stdout=subprocess.PIPE, stderr=diagnostic, start_new_session=True)
+            # File-backed streams allow WNOWAIT observation without communicate()
+            # reaping a runuser leader before its different-UID descendants exit.
+            with log.open('wb') as diagnostic, tempfile.TemporaryFile() as input_stream, tempfile.TemporaryFile() as output_stream:
+                if data is not None:
+                    input_stream.write(data); input_stream.seek(0)
+                process = subprocess.Popen(argv, cwd=cwd, env=env, stdin=input_stream if data is not None else subprocess.DEVNULL,
+                                           stdout=output_stream, stderr=diagnostic, start_new_session=True)
                 self.active = process
-                stdout, _ = process.communicate(data, timeout=budget)
-                row['exit'] = process.returncode
-                need(len(stdout) <= 8 * 1024**2 and log.stat().st_size <= 16 * 1024**2, 'command output bound')
+                end = started + budget
+                while True:
+                    state = os.waitid(os.P_PID, process.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT)
+                    need(os.fstat(output_stream.fileno()).st_size <= 8 * 1024**2
+                         and log.stat().st_size <= 16 * 1024**2, 'command output bound')
+                    if state is not None:
+                        row['exit'] = state.si_status if state.si_code == os.CLD_EXITED else -state.si_status
+                        break
+                    if time.monotonic() >= end:
+                        raise subprocess.TimeoutExpired(argv, budget)
+                    time.sleep(.02)
+                output_stream.seek(0); stdout = output_stream.read(8 * 1024**2 + 1)
+                need(len(stdout) <= 8 * 1024**2, 'command output bound')
                 diagnostic.write(stdout if label.startswith(('build-', 'pacman-', 'tool-', 'elf-', 'sections-')) else b'')
                 row.update(stdout_sha256=sha(stdout), stdout_bytes=len(stdout))
-                need(process.returncode == expected, 'command failed: ' + label)
+                need(row['exit'] == expected, 'command failed: ' + label)
                 row['status'] = 'PASS'
-                return stdout
         finally:
-            process = self.active
-            if process is not None:
-                try:
-                    os.killpg(process.pid, signal.SIGKILL)
-                except ProcessLookupError:
-                    pass
-                process.wait(timeout=10)
-                for stream in (process.stdin, process.stdout):
-                    if stream is not None:
-                        stream.close()
-                self.active = None
-            row['elapsed_seconds'] = time.monotonic() - started
-            save(self.output / 'commands.json', self.rows)
+            try:
+                if self.active is not None:
+                    self.stop(self.active, row)
+            except BaseException as error:
+                row.update(status='FAIL', cleanup_error=type(error).__name__ + ': ' + str(error))
+                raise
+            finally:
+                row['elapsed_seconds'] = time.monotonic() - started
+                save(self.output / 'commands.json', self.rows)
+        return stdout
 
 
 def workload(runner, variants, phase, *, roots=None, installed=True):
@@ -334,7 +396,7 @@ def native_job(context, pin, output):
     contract = verify_context(context, pin)
     user = pwd.getpwnam('alarm')
     need(user.pw_uid > 0 and user.pw_gid > 0, 'ordinary alarm builder required')
-    runner = Commands(output)
+    runner = Commands(output, builder_uid=user.pw_uid)
     report = {'status': 'FAIL', 'base_commit': contract['base_commit'], 'context_sha256': pin,
               'source_sha256': SOURCE_SHA, 'native_build': 'NOT RUN', 'installed_behavior': 'NOT RUN',
               'generic16k_execution': 'NOT RUN', 'hardware_validation': 'NOT RUN',
