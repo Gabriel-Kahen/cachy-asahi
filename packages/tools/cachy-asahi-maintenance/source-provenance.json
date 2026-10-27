@@ -52,6 +52,11 @@
   "license": "MIT",
   "observed_checkout_head": "92f2e64b5103092f25d95b11f1a719ea8363b10c",
   "package": "cachy-asahi-maintenance",
+  "packaging_revision": {
+    "previous_version": "0.1.0-1",
+    "private_modules": "UNCHANGED_BYTE_EXACT",
+    "reason": "Copy the exact declared recipe during makepkg check; exclude live build outputs by membership"
+  },
   "qualification": {
     "alpm_installed_lifecycle": "NOT_RUN",
     "native_build": "NOT_RUN",
@@ -61,5 +66,5 @@
   },
   "schema_version": 1,
   "source_kind": "byte-exact project modules, selected by SHA-256; new private-tree launcher",
-  "version": "0.1.0-1"
+  "version": "0.1.0-2"
 }

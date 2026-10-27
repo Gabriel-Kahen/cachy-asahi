@@ -4,6 +4,7 @@
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path
 import re
 import shlex
@@ -36,30 +37,56 @@ def installed_map():
     return files
 
 
+def recipe_files():
+    return set(MODULES) | set(DOCS) | {NAME, 'test_package.py', 'check_source.py',
+                                      'NOTICE', 'LICENSE', 'PKGBUILD', '.SRCINFO'}
+
+
+def recipe_bytes(path):
+    """Read an ordinary declared input without following links or blocking on a FIFO."""
+    try:
+        fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    except OSError as error:
+        raise ValueError('ordinary source required: ' + path.name) from error
+    try:
+        before = os.fstat(fd)
+        need(stat.S_ISREG(before.st_mode) and before.st_nlink == 1 and before.st_size <= 16 * 1024**2,
+             'ordinary single-link bounded source required: ' + path.name)
+        with os.fdopen(fd, 'rb', closefd=False) as stream:
+            raw = stream.read(16 * 1024**2 + 1)
+        after = os.fstat(fd)
+        identity = lambda row: tuple(getattr(row, key) for key in
+            ('st_dev', 'st_ino', 'st_mode', 'st_uid', 'st_gid', 'st_nlink', 'st_size', 'st_mtime_ns', 'st_ctime_ns'))
+        need(identity(before) == identity(after) and len(raw) == before.st_size,
+             'source changed while reading: ' + path.name)
+    finally:
+        os.close(fd)
+    return raw
+
+
 def check(root, stage=None):
     root = Path(root).absolute()
-    recipe = (root / 'PKGBUILD').read_text()
+    recipe = recipe_bytes(root / 'PKGBUILD').decode()
     def array(key):
         return shlex.split(re.search(r'^' + key + r'=\((.*?)\)', recipe, re.M | re.S)[1])
     sources, sums = array('source'), array('sha256sums')
-    expected = set(MODULES) | set(DOCS) | {NAME, 'test_package.py', 'check_source.py', 'NOTICE', 'LICENSE'}
+    expected = recipe_files() - {'PKGBUILD', '.SRCINFO'}
     need(len(sources) == len(sums) == len(set(sources)) and set(sources) == expected,
          'closed recipe source set required')
     for name, digest in zip(sources, sums):
         path = root / name
         need(Path(name).name == name and re.fullmatch('[0-9a-f]{64}', digest), 'literal source pin required')
-        need(path.is_file() and not path.is_symlink(), 'ordinary source required: ' + name)
-        raw = path.read_bytes()
+        raw = recipe_bytes(path)
         need(pin(raw)['sha256'] == digest, 'recipe checksum mismatch: ' + name)
         if name.endswith('.py') or name == NAME:
             compile(raw, name, 'exec')
     info = {}
-    for line in (root / '.SRCINFO').read_text().splitlines():
+    for line in recipe_bytes(root / '.SRCINFO').decode().splitlines():
         if line.strip() and not line.lstrip().startswith('#'):
             key, value = line.strip().split(' = ', 1)
             info.setdefault(key, []).append(value)
     for key, values in dict(source=sources, sha256sums=sums, pkgname=[NAME], pkgver=['0.1.0'],
-                            pkgrel=['1'], arch=['any'], license=['MIT'],
+                            pkgrel=['2'], arch=['any'], license=['MIT'],
                             depends=['python>=3.11', 'gnupg', 'libarchive', 'pacman']).items():
         need(info.get(key) == values, '.SRCINFO mismatch: ' + key)
     need(not any(info.get(n) for n in ('install', 'backup', 'replaces', 'conflicts', 'provides'))
