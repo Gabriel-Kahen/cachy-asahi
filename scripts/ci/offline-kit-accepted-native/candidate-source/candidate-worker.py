@@ -1241,22 +1241,30 @@ def database_records(root):
     for entry in local.iterdir():
         if entry.name == 'ALPM_DB_VERSION': continue
         need(entry.is_dir() and not entry.is_symlink() and len(packages) < MAX_PACKAGES, 'export database entry refused')
-        sections, raw_records = {}, {}
+        sections, raw_records, files_present = {}, {}, False
         for filename in ('desc', 'files'):
             current = None
-            raw_records[filename] = bounded_read(entry / filename)
+            path = entry / filename; before = path.lstat()
+            need(stat.S_ISREG(before.st_mode) and before.st_nlink == 1 and not before.st_mode & 0o7022,
+                 'database record type/mode refused')
+            raw_records[filename] = bounded_read(path); after = path.lstat()
+            identity = lambda row: (row.st_dev, row.st_ino, row.st_mode, row.st_uid, row.st_gid, row.st_nlink,
+                                    row.st_size, row.st_mtime_ns, row.st_ctime_ns)
+            need(identity(before) == identity(after) and len(raw_records[filename]) == before.st_size,
+                 'database record changed while reading')
             for line in raw_records[filename].decode().splitlines():
                 if line.startswith('%') and line.endswith('%'):
                     need(line not in sections, 'duplicate database section'); sections[line] = []; current = line
+                    if filename == 'files' and line == '%FILES%': files_present = True
                 elif line:
                     need(current is not None, 'database section absent'); sections[current].append(line)
-        complete = len(sections.get('%NAME%', [])) == len(sections.get('%VERSION%', [])) == 1 and '%FILES%' in sections
+        complete = len(sections.get('%NAME%', [])) == len(sections.get('%VERSION%', [])) == 1 and (files_present or (raw_records['files'] == b'' and '%FILES%' not in sections))
         if not complete:
             try:
                 diagnostic = dict(schema_version=1, status='NO_ADMISSION', acceptance=False,
                     error='export package metadata incomplete', root=str(root), entry=entry.relative_to(root).as_posix(),
                     clauses=dict(name_count=len(sections.get('%NAME%', [])),
-                                 version_count=len(sections.get('%VERSION%', [])), files_present='%FILES%' in sections),
+                                 version_count=len(sections.get('%VERSION%', [])), files_present=files_present),
                     raw={name: dict(bytes=len(raw), sha256=hashlib.sha256(raw).hexdigest(),
                                     base64=base64.b64encode(raw).decode('ascii')) for name, raw in raw_records.items()})
                 print('ALPM_DATABASE_METADATA_FAILURE_V1 ' + json.dumps(diagnostic, sort_keys=True, separators=(',', ':')),
@@ -1266,7 +1274,7 @@ def database_records(root):
         name, version = sections['%NAME%'][0], sections['%VERSION%'][0]; package_map({name: version})
         need(name not in packages, 'export duplicate package')
         packages[name] = version
-        ownership[name] = {relative(n.rstrip('/')) for n in sections['%FILES%']}
+        ownership[name] = set() if raw_records['files'] == b'' else {relative(n.rstrip('/')) for n in sections['%FILES%']}
     return packages, ownership
 
 
