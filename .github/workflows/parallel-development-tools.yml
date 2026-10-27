@@ -82,7 +82,8 @@ jobs:
         if: matrix.lane == 'campaign'
         run: |
           sudo apt-get update
-          sudo apt-get install --no-install-recommends -y libarchive-tools pacman-package-manager
+          sudo apt-get install --no-install-recommends -y libarchive-tools pacman-package-manager makepkg
+          test -x /usr/bin/vercmp
       - name: Run focused controls
         env:
           LANE: ${{ matrix.lane }}
