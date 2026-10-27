@@ -6,6 +6,11 @@ from pathlib import Path,PurePosixPath
 HERE=Path(__file__).resolve().parent
 PROFILE_SHA='edbf28ee65bdc68c903255be16bac7147c6d08e2c1856ad6b282c81df297179e'
 BASELINE='inventory-19a8bdb45916e5dffef7a4c1496ebbc489792795ea2906a3d705a67e3906b880'
+FROZEN_BUILD={
+ 'scripts/build/build.py':'shared-build-v1/build.py',
+ 'scripts/build/compare.py':'shared-build-v1/compare.py',
+ 'scripts/build/container-entry.sh':'shared-build-v1/container-entry.sh',
+}
 def need(ok,why):
  if not ok:raise ValueError(why)
 def pin(raw):return dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())
@@ -36,18 +41,21 @@ def selected(p,factories):
 
 def prepare(source,output,factories,baseline=BASELINE):
  p=profile();need(baseline==p['baseline'],'explicit immutable historical baseline required');source,_=ordinary(source,True);output=Path(output).absolute();need('..'not in output.parts and not os.path.lexists(output)and output.parent.is_dir()and not any(q.is_symlink()for q in(output,*output.parents)),'fresh owned ordinary source view');need(output.parent.stat().st_uid==os.getuid()and not(output.parent.stat().st_mode&0o022),'private caller-owned output parent')
- factories,files=selected(p,factories);need(not source.is_relative_to(output)and not output.is_relative_to(HERE)and all(not(source/n).is_relative_to(output)and not output.is_relative_to(source/n)for n in files),'view must be disjoint from every immutable input leaf');snapshot=read(HERE/relative(p['snapshot']['path']));need(pin(snapshot)=={k:p['snapshot'][k]for k in('bytes','sha256')},'exact immutable inventory snapshot');current=read(source/p['inventory_path']);contents={};modes={}
+ factories,files=selected(p,factories);need(not source.is_relative_to(output)and not output.is_relative_to(HERE)and all(not(source/n).is_relative_to(output)and not output.is_relative_to(source/n)for n in files),'view must be disjoint from every immutable input leaf');snapshot=read(HERE/relative(p['snapshot']['path']));need(pin(snapshot)=={k:p['snapshot'][k]for k in('bytes','sha256')},'exact immutable inventory snapshot');current=read(source/p['inventory_path']);contents={};modes={};current_build={};historical_build={}
  for name,want in files.items():
   path=source/relative(name)
   if name==p['inventory_path']:raw=snapshot;mode=0o644
-  else:raw=read(path);mode=path.stat().st_mode&0o777;need(not mode&0o022,'noninventory source is not group/world writable')
+  else:
+   raw=read(path);mode=path.stat().st_mode&0o777;need(not mode&0o022,'noninventory source is not group/world writable')
+   if name in FROZEN_BUILD:
+    current_build[name]=pin(raw);raw=read(HERE/relative(FROZEN_BUILD[name]));mode=0o644;historical_build[name]=pin(raw)
   need(pin(raw)==want,'historical noninventory source drift: '+name);contents[name]=raw;modes[name]=mode
  # Every byte is verified before the first output node. No code/actors/Git/network run.
  output.mkdir(mode=0o700)
  for name,raw in contents.items():
   path=output/name;path.parent.mkdir(mode=0o700,parents=True,exist_ok=True);fd=os.open(path,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,modes[name])
   with os.fdopen(fd,'wb')as stream:stream.write(raw)
- actual={q.relative_to(output).as_posix():pin(read(q))for q in output.rglob('*')if q.is_file()};need(actual==files,'whole closed emitted historical source view');return dict(status='SOURCE_ONLY_EXPLICIT_HISTORICAL_INVENTORY_VIEW',baseline=baseline,factories=factories,files=len(files),historical_inventory=pin(snapshot),current_inventory=pin(current),current_inventory_used_for_historical_emission=False,native='NOT_RUN',acceptance=False)
+ actual={q.relative_to(output).as_posix():pin(read(q))for q in output.rglob('*')if q.is_file()};need(actual==files,'whole closed emitted historical source view');return dict(status='SOURCE_ONLY_EXPLICIT_HISTORICAL_INVENTORY_VIEW',baseline=baseline,factories=factories,files=len(files),historical_inventory=pin(snapshot),current_inventory=pin(current),current_inventory_used_for_historical_emission=False,historical_build_helpers=historical_build,current_build_helpers=current_build,current_build_helpers_used_for_historical_emission=False,native='NOT_RUN',acceptance=False)
 
 def main():
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source',required=True,type=Path);p.add_argument('--output',required=True,type=Path);p.add_argument('--factory',required=True,action='append',help='fixed factory name; all selects the exact union of fourteen views');p.add_argument('--baseline',default=BASELINE);a=p.parse_args();print(json.dumps(prepare(a.source,a.output,a.factory,a.baseline),sort_keys=True))
