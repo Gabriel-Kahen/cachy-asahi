@@ -1,0 +1,169 @@
+name: native-arm-gui-fresh-test-signer-source-build
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact Root-reviewed workflow and producer source commit
+        type: string
+        required: true
+      provision_plan_sha256:
+        description: Reviewed SHA-256 of the exact rootfs and minimal tool-overlay plan
+        type: string
+        required: true
+      mode:
+        description: Default no-key image production and qualification; sign explicitly enables fresh TEST signing afterwards
+        type: choice
+        options: [qualify, sign]
+        default: qualify
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: native-arm-gui-fresh-test-signer-source-build
+  cancel-in-progress: false
+jobs:
+  native:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 50
+    defaults:
+      run:
+        shell: bash
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      WORKFLOW_SHA: ${{ github.workflow_sha }}
+      PROVISION_PLAN_SHA256: ${{ inputs.provision_plan_sha256 }}
+      PROVISION_MODE: ${{ inputs.mode }}
+      INPUT_PLAN_SHA256: f0160e53afea8d7116f0b7552514f753f6fd95ae2d58d1b30d4d3fe6d5b5ceda
+      SLICE: scripts/ci/gui-fresh-test-signer
+    steps:
+      - name: Checkout the exact reviewed source without persisted credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: ${{ inputs.source_sha }}
+          persist-credentials: false
+      - name: Prove exact source and public plans before acquisition or image actors
+        id: proof
+        timeout-minutes: 3
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$PROVISION_PLAN_SHA256" =~ ^[0-9a-f]{64}$ ]]
+          [[ "$PROVISION_MODE" == qualify || "$PROVISION_MODE" == sign ]]
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test "$WORKFLOW_SHA" = "$SOURCE_SHA"
+          python3 -I -B "$SLICE/route.py" source-check --source "$GITHUB_WORKSPACE" --plan "$GITHUB_WORKSPACE/$SLICE/input-contract.json" --plan-sha256 "$INPUT_PLAN_SHA256"
+          python3 -I -B - "$GITHUB_WORKSPACE/$SLICE/provision-plan.json" <<'PY'
+          import hashlib,json,os,sys
+          from pathlib import Path
+          path=Path(sys.argv[1])
+          with path.open('rb')as stream:raw=stream.read(65537)
+          if not 0<len(raw)<=65536 or hashlib.sha256(raw).hexdigest()!=os.environ['PROVISION_PLAN_SHA256']:
+              raise SystemExit('reviewed concrete source-built provision plan differs')
+          plan=json.loads(raw)
+          if plan['purpose']!='GUI_FRESH_TEST_SIGNER_PROVISION_V1' or plan['input_mode']!='SOURCE_BUILT_SAME_JOB_NO_KEY' or plan['overlay']['TEST_key_generation']is not False:
+              raise SystemExit('explicit no-key source-built plan required')
+          PY
+      - name: Checkout the exact original native public carrier for explicit sign mode
+        if: inputs.mode == 'sign'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: 1057f6b5494adc71c469e8867d14fb0db01ce02f
+          path: gui-signer-carriers/native73
+          persist-credentials: false
+      - name: Checkout the exact held public carrier for explicit sign mode
+        if: inputs.mode == 'sign'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: 77bd2c6ecf2e5c28a04116c3da85c45f70d1cc90
+          path: gui-signer-carriers/held77
+          persist-credentials: false
+      - name: Checkout the historical renewal provenance only for explicit sign mode
+        if: inputs.mode == 'sign'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: 7cf7fb81d0b70b1b7421dc85788fabd45ec5adfc
+          path: gui-signer-carriers/renewal7cf7
+          persist-credentials: false
+      - name: Close all public carrier maps and body metadata before explicit sign-mode image actors
+        if: inputs.mode == 'sign'
+        timeout-minutes: 3
+        run: |
+          set -euo pipefail
+          mkdir -m700 "$RUNNER_TEMP/gui-signer-inputs"
+          mkdir -m700 "$RUNNER_TEMP/gui-signer-inputs/native73" "$RUNNER_TEMP/gui-signer-inputs/held77" "$RUNNER_TEMP/gui-signer-inputs/renewal7cf7"
+          git -C "$GITHUB_WORKSPACE/gui-signer-carriers/native73" archive 1057f6b5494adc71c469e8867d14fb0db01ce02f | tar -x -C "$RUNNER_TEMP/gui-signer-inputs/native73"
+          git -C "$GITHUB_WORKSPACE/gui-signer-carriers/held77" archive 77bd2c6ecf2e5c28a04116c3da85c45f70d1cc90 | tar -x -C "$RUNNER_TEMP/gui-signer-inputs/held77"
+          git -C "$GITHUB_WORKSPACE/gui-signer-carriers/renewal7cf7" archive 7cf7fb81d0b70b1b7421dc85788fabd45ec5adfc | tar -x -C "$RUNNER_TEMP/gui-signer-inputs/renewal7cf7"
+          python3 -I -B "$SLICE/route.py" source-check --source "$GITHUB_WORKSPACE" --plan "$GITHUB_WORKSPACE/$SLICE/input-contract.json" --plan-sha256 "$INPUT_PLAN_SHA256" --inputs-root "$RUNNER_TEMP/gui-signer-inputs"
+      - name: Acquire exact public inputs and build authenticate and qualify the minimal source image without a TEST key
+        id: produce
+        timeout-minutes: 25
+        run: |
+          set -euo pipefail
+          timeout --signal=TERM --kill-after=90s 1320s python3 -I -B "$SLICE/provision.py" produce --source "$GITHUB_WORKSPACE" --plan "$GITHUB_WORKSPACE/$SLICE/provision-plan.json" --plan-sha256 "$PROVISION_PLAN_SHA256" --output "$RUNNER_TEMP/gui-signer-produced-environment"
+          python3 -I -B - "$RUNNER_TEMP/gui-signer-produced-environment/contract.json" <<'PY'
+          import hashlib,os,sys
+          from pathlib import Path
+          with Path(sys.argv[1]).open('rb')as stream:raw=stream.read(65537)
+          if not 0<len(raw)<=65536:raise SystemExit('bounded genuinely produced image contract required')
+          with Path(os.environ['GITHUB_OUTPUT']).open('a')as stream:
+              stream.write('contract_sha256='+hashlib.sha256(raw).hexdigest()+'\n')
+          PY
+      - name: Explicit sign mode only after same-job genuine image production and qualification
+        if: inputs.mode == 'sign' && steps.produce.outcome == 'success'
+        id: sign
+        timeout-minutes: 12
+        env:
+          PRODUCED_CONTRACT_SHA256: ${{ steps.produce.outputs.contract_sha256 }}
+        run: |
+          set -euo pipefail
+          [[ "$PRODUCED_CONTRACT_SHA256" =~ ^[0-9a-f]{64}$ ]]
+          timeout --signal=TERM --kill-after=90s 600s python3 -I -B "$SLICE/route.py" sign --source "$GITHUB_WORKSPACE" --plan "$GITHUB_WORKSPACE/$SLICE/input-contract.json" --plan-sha256 "$INPUT_PLAN_SHA256" --image-contract "$RUNNER_TEMP/gui-signer-produced-environment/contract.json" --image-contract-sha256 "$PRODUCED_CONTRACT_SHA256" --environment "$RUNNER_TEMP/gui-signer-produced-environment" --inputs-root "$RUNNER_TEMP/gui-signer-inputs" --output "$RUNNER_TEMP/gui-signer-source-built-run"
+      - name: Retire only the genuinely produced owned image and actors
+        if: always() && steps.proof.outcome == 'success'
+        timeout-minutes: 5
+        run: |
+          set -euo pipefail
+          if [ -f "$RUNNER_TEMP/gui-signer-produced-environment/production.json" ]; then
+            timeout --signal=TERM --kill-after=60s 180s python3 -I -B "$SLICE/provision.py" cleanup --output "$RUNNER_TEMP/gui-signer-produced-environment"
+          fi
+      - name: Close the no-key source-production public receipt allowlist
+        if: always() && steps.proof.outcome == 'success'
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          if [ -f "$RUNNER_TEMP/gui-signer-produced-environment/production.json" ]; then
+            python3 -I -B "$SLICE/provision.py" export --environment "$RUNNER_TEMP/gui-signer-produced-environment" --output "$RUNNER_TEMP/gui-signer-source-built-public"
+          fi
+      - name: Close fresh crypto outputs only in successful explicit sign mode
+        if: always() && inputs.mode == 'sign' && steps.sign.outcome == 'success'
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          python3 -I -B "$SLICE/route.py" export --run "$RUNNER_TEMP/gui-signer-source-built-run" --output "$RUNNER_TEMP/gui-signer-source-built-signatures"
+      - name: Upload only the bounded no-key production receipt bundle
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        timeout-minutes: 2
+        with:
+          name: gui-signer-source-built-production-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 3
+          if-no-files-found: ignore
+          path: ${{ runner.temp }}/gui-signer-source-built-public/
+          include-hidden-files: false
+      - name: Upload closed crypto outputs only from successful explicit sign mode
+        if: always() && inputs.mode == 'sign' && steps.sign.outcome == 'success'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        timeout-minutes: 2
+        with:
+          name: gui-signer-source-built-signatures-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 3
+          if-no-files-found: ignore
+          path: ${{ runner.temp }}/gui-signer-source-built-signatures/
+          include-hidden-files: false
