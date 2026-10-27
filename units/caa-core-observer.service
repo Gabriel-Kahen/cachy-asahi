@@ -1,0 +1,17 @@
+[Unit]
+Description=Independent retired-unit observer and owned poweroff
+DefaultDependencies=no
+SuccessAction=poweroff
+Requires=caa-core-probe.service
+After=caa-core-probe.service caa-core.target
+[Service]
+Slice=system.slice
+Type=exec
+ExecStart=/usr/bin/python3 -I -B /workspace/guest.py observer
+ExecStopPost=/usr/bin/python3 -I -B /workspace/guest.py finish
+TimeoutStartSec=180
+TimeoutStopSec=60
+StandardInput=null
+StandardOutput=tty
+StandardError=tty
+TTYPath=/dev/ttyAMA0
