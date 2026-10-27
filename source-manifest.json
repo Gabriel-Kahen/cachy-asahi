@@ -2,12 +2,12 @@
   "actual": null,
   "files": {
     ".github/workflows/native-arm-build.yml": {
-      "bytes": 91152,
-      "sha256": "d55239abff16b077c93f77a12c2e3ba9d438d9f59d97592c468cdc8274c12151"
+      "bytes": 113232,
+      "sha256": "201e8956e936a7fa0955cbdf72a00521e664effbf7d1b11b63ee5f990591b2e6"
     },
     ".github/workflows/native-arm-updater607-copy-capacity.yml": {
-      "bytes": 91152,
-      "sha256": "d55239abff16b077c93f77a12c2e3ba9d438d9f59d97592c468cdc8274c12151"
+      "bytes": 113232,
+      "sha256": "201e8956e936a7fa0955cbdf72a00521e664effbf7d1b11b63ee5f990591b2e6"
     },
     "binding.json": {
       "bytes": 168,
