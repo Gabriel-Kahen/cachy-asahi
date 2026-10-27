@@ -1,0 +1,66 @@
+{
+  "bytes": 4194304,
+  "file": "mixed.bin",
+  "hardware": "NOT RUN",
+  "license": "Zlib source sections retain upstream notices in the pinned source archive; synthetic sections MIT project",
+  "measurement_scope": "GENERIC_HOSTED_ARM_C01_INSTALLABLE",
+  "optimization_acceptance": "NOT RUN",
+  "payload_definition": "Repeat whole4MiB corpus4times to16MiB; identical bytes all slots/variants",
+  "purpose": "C01_FIXED_PUBLIC_MIXED_RUNTIME_CORPUS",
+  "schema": 1,
+  "sections": [
+    {
+      "bytes": 1048576,
+      "description": "Public zlib source/doc text; fixed compression input, no PGO/training",
+      "name": "public-zlib-source",
+      "offset": 0,
+      "sha256": "7ec5549498d34ca0a27b05a5045e474c561d09942b5af1f665ca60eb527f5dca"
+    },
+    {
+      "bytes": 1048576,
+      "description": "Fixed synthetic JSON/log records",
+      "name": "structured-records",
+      "offset": 1048576,
+      "sha256": "48dc12d1dfcc06a6a1535b25eddedf7cdd61cec010d253e4be388fef75567ae7"
+    },
+    {
+      "bytes": 1048576,
+      "description": "Fixed structured binary/ramp",
+      "name": "binary-ramp",
+      "offset": 2097152,
+      "sha256": "d0d5ce74c58ce0e93a8ea778171f293bed4c1b7b47701afd6bd8263fab1df3cf"
+    },
+    {
+      "bytes": 1048576,
+      "description": "Deterministic SHAKE256 bytes; not a cryptographic benchmark",
+      "name": "seeded-high-entropy",
+      "offset": 3145728,
+      "sha256": "88aac3cba4d1c80deb950a516cb697e730df9a80fffaf187350142b700e4816c"
+    }
+  ],
+  "sha256": "e178d56b3a6d0af1900f8e3a1b668549793b48d0ae35c24e730b9a39992604bf",
+  "training": "NONE; no PGO or adaptive selection",
+  "upstream_members": {
+    "ChangeLog": {
+      "bytes": 86330,
+      "sha256": "c6f42df0f27486db922d633e7a70757b56c6cd9f742f21af419d232649efbede"
+    },
+    "README": {
+      "bytes": 5291,
+      "sha256": "4026d921213bb2e311d8d42b44ef53361c102d5d45ae32f93f8e52eaee8d068f"
+    },
+    "deflate.c": {
+      "bytes": 83286,
+      "sha256": "ea9ca4eb51b1a71aaf214b99f4a9fab177253d6268cae8e4c26d44d1812e52c2"
+    },
+    "inflate.c": {
+      "bytes": 52247,
+      "sha256": "90221ea7d762e7044057f6ad5013e969086c6ba3d3051716b7aa786d7a6362ec"
+    },
+    "trees.c": {
+      "bytes": 41030,
+      "sha256": "a16217d5ea6d8342ff08afe5207b1dab620f05610e121dda55b4f9aae9de4f68"
+    }
+  },
+  "upstream_source_sha256": "bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16"
+}

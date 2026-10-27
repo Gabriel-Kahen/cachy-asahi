@@ -1,0 +1,23 @@
+{
+  "ALPM_phases": 8,
+  "artifact": 12717726584,
+  "attempt": 1,
+  "clean_builds": 6,
+  "commands": 682,
+  "job": 122068774084,
+  "limits": [
+    "All six builds share one consumer and host; no independent container or machine pair",
+    "Raw codec stdout is retained by exact count/hash, not independent stream replay",
+    "Signatures, installed state and live daemon absence are source-bound receipts, not independently re-executed",
+    "Guest helper group absence means no live group members; zombie absence not established",
+    "Generic16K, M2, performance gains, production trust, legal/source approval and supported release remain NOT RUN or NOT_ADMITTED"
+  ],
+  "reader_status": "MATCHED_SINGLE_CONSUMER_NATIVE_C01_INSTALLABLE_COMPONENT_ONLY",
+  "ref": "codex/arm-c01-command-cleanup-fix-v2",
+  "run": 40468241048,
+  "scope": "Finite original341 generic ARM4K baseline/LTO package build, install, upgrade, removal and source-bound codec tests; separate final consumer/image retirement receipts",
+  "source": "d33e595a10acf2d148752ea382ae607283fc0b73",
+  "source_files": 31,
+  "status": "ROOT_ACCEPTED_FINITE_SINGLE_CONSUMER_NATIVE_C01_INSTALLABLE_COMPONENT_ONLY",
+  "within_variant_byte_pairs": 2
+}
