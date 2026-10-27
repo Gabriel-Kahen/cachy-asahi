@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 cachy-asahi contributors
-"""Offline source bundles for five original package names and eight reviewed recipe versions; never execute/install.
+"""Offline source bundles for eight original package names and eleven reviewed recipe versions; never execute/install.
 
 The existing source_delivery transport remains authoritative for release joins.
 An observed revision labels a checkout, while reviewed file hashes bind inputs.
@@ -79,6 +79,31 @@ PROFILES = {
             ['python', '-B', '-Werror::ResourceWarning', 'test_doctor.py'],
             ['python', '-B', '-Werror::ResourceWarning', 'test_comparison.py'],
         ],
+    },
+    'cachy-asahi-orphans': {
+        'version': '0.1.0-2',
+        'recipe': 'b59a1b67a8fd6290549e861bd40f5e94447d5376c86eca6baa94d2cdddb6b91a',
+        'srcinfo': 'a324b86100e9a14aa431021f2ed3454920e764708faea4bc0775239dd9765223',
+        'docs': ['README.md'],
+        'required_sources': ['NOTICE', 'LICENSE', 'protection-floor.json'],
+        # Full original tests require real libalpm, separately provisioned.
+        'checks': [['python', '-I', '-B', 'cachy-asahi-orphans', '--help']],
+    },
+    'cachy-asahi-cache': {
+        'version': '0.2.0-1',
+        'recipe': '6bcd048d4b715d27e6fcfca82fda2fc67a54358721ecb4c12d863970d8a6e8e7',
+        'srcinfo': '522849a5b59476dbafb3b3f74674a0ec03959452e9b0044ad46535dcc14fff74',
+        'docs': ['README.md'],
+        'required_sources': ['NOTICE', 'LICENSE'],
+        'checks': [['python', '-I', '-B', 'cachy-asahi-cache', '--help']],
+    },
+    'cachy-asahi-repository-runtime': {
+        'version': '0.1.0-1',
+        'recipe': 'e1f9071387ebd679e09fbbdecb31aadf2f89a59235c8ca03ac42eb2599f16f0b',
+        'srcinfo': '4677c10dcc40686877f9d2bc5b9cac88763fdb4cc395a9a7fd530b6b79db2502',
+        'docs': ['README.md', 'source-provenance.json', 'helper-pins.json'],
+        'required_sources': ['NOTICE', 'LICENSE', 'source-provenance.json', 'helper-pins.json'],
+        'checks': [['python', '-I', '-B', 'check_source.py', '--recipe-root', '.']],
     },
 }
 # Exact historical inputs remain readable; version labels alone never admit a
@@ -173,7 +198,7 @@ def source_set(name, read):
 
 def payload(name, version=None):
     p = profile(name, version)
-    result = {'usr/bin/' + name: (name, 0o755)}
+    result = {} if name == 'cachy-asahi-repository-runtime' else {'usr/bin/' + name: (name, 0o755)}
     if name == 'cachy-asahi-maintenance':
         for folder, names in {
             'maintenance': ('health', 'update_plan', 'rebuild_plan', 'signing_expiry', 'security_advisories'),
@@ -189,6 +214,11 @@ def payload(name, version=None):
             result['usr/bin/cachy-asahi-config-migrate'] = ('cachy-asahi-config-migrate', 0o755)
             for leaf in ('setup.py', 'config_migrate.py'):
                 result['usr/lib/cachy-asahi/setup8/' + leaf] = (leaf, 0o644)
+    elif name == 'cachy-asahi-orphans':
+        result['usr/share/' + name + '/protection-floor.json'] = ('protection-floor.json', 0o644)
+    elif name == 'cachy-asahi-repository-runtime':
+        for folder, leaf in (('client', 'client.py'), ('release', 'release.py'), ('release', 'source_delivery.py')):
+            result[f'usr/share/cachy-asahi/repository-runtime/scripts/{folder}/{leaf}'] = (leaf, 0o644)
     result.update({'usr/share/doc/' + name + '/' + leaf: (leaf, 0o644) for leaf in p['docs']})
     result.update({'usr/share/licenses/' + name + '/' + leaf: (leaf, 0o644) for leaf in ('NOTICE', 'LICENSE')})
     return result
