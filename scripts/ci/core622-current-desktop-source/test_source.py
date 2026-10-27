@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Public-source factory controls; no actors or parent programs are executed."""
-import ast,importlib.util,json,os,shutil,subprocess,sys,tempfile,unittest
+import ast,importlib.util,json,os,shutil,stat,subprocess,sys,tempfile,unittest
 from pathlib import Path
 from unittest.mock import patch
 HERE=Path(__file__).resolve().parent
@@ -15,7 +15,13 @@ class Controls(unittest.TestCase):
     output=Path(t)/context;argv=[sys.executable,'-I','-B','-Werror',str(HERE/'prepare.py'),'--output',str(output),'--context',context]
     for k,p in ROOTS.items():argv+=['--'+k.replace('_','-'),str(p)]
     run=subprocess.run(argv,capture_output=True,text=True,timeout=60);self.assertEqual(run.returncode,0,run.stderr);receipt=json.loads(run.stdout);self.assertIsNone(receipt['actual']);self.assertFalse(receipt['native_acceptance']);self.assertEqual(receipt['files'],66);self.assertEqual(F.tree(output),F.tree(EXPECTED));self.assertTrue(all((output/n).stat().st_mode&0o777==0o644 for n in F.tree(output)))
-    self.assertEqual(receipt['source'],None if context=='null'else'333f9b0a3f11bc2180557f7e9feedfa2f2359b98')
+    self.assertEqual(receipt['source'],None if context=='null'else'f46ac9e7aeec170ba554255e3cda380ea0364e64')
+    info=output.lstat();self.assertEqual(stat.S_IMODE(info.st_mode),0o700);self.assertEqual((info.st_uid,info.st_gid),(os.getuid(),os.getgid()))
+    descriptor=os.open(output,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC)
+    try:self.assertEqual(F.identity(os.fstat(descriptor)),F.identity(output.lstat()))
+    finally:os.close(descriptor)
+    self.assertTrue(all((item.lstat().st_uid,item.lstat().st_gid)==(os.getuid(),os.getgid())for item in output.rglob('*')))
+   self.assertEqual(sorted(item.name for item in Path(t).iterdir()),['known','null'])
  def test_full_before_inverse_held_bodies_and_current_closed_profile(self):
   values,p,_,_=F.compose(ROOTS);before=F.tree(ROOTS['parent']);self.assertEqual({n:F.pin(b)for n,b in values.items()},p['result']['files']);self.assertEqual(values,F.tree(EXPECTED));parent=json.loads(values['composition-parent.json']);restored=dict(values)
   for n in p['added']:restored.pop(n)
@@ -104,10 +110,56 @@ class EnvironmentControls(unittest.TestCase):
 
 class CapabilityBoundaryControls(unittest.TestCase):
  def test_complete097757_before_inverse_and_exact_four_changed_leaves(self):
-  values,p,_,_=F.compose(ROOTS);before=F.before_capability(values);self.assertEqual({n:F.pin(b)for n,b in before.items()},p['capability_parent']['files']);self.assertEqual({n for n in before if before[n]!=values[n]},{'provision622.py','composition-parent.json','source622.py','source-manifest.json'});self.assertEqual(sum(before[n]==values[n]for n in before),62)
+  values,p,_,_=F.compose(ROOTS);values=F.before_later(values);before=F.before_capability(values);self.assertEqual({n:F.pin(b)for n,b in before.items()},p['capability_parent']['files']);self.assertEqual({n for n in before if before[n]!=values[n]},{'provision622.py','composition-parent.json','source622.py','source-manifest.json'});self.assertEqual(sum(before[n]==values[n]for n in before),62)
   for n in('workflow.yml.in','.github/workflows/native-arm-build.yml','.github/workflows/native-arm-core7-real-systemd.yml','ownership622.py','desktop622.py'):self.assertEqual(values[n],before[n])
   for field,value in(('actual',1),('parent_source','0'*40)):
    bad=dict(values);p=json.loads(bad['composition-parent.json']);p['capability_boundary'][field]=value;bad['composition-parent.json']=F.enc(p)
    with self.assertRaises(ValueError):F.before_capability(bad)
+
+class OwnedInitializationControls(unittest.TestCase):
+ def test_complete_b7_inverse_exact_seven_changes_and_diagnostic_inverse(self):
+  values,p,_,_=F.compose(ROOTS);values=F.before_proof_output(values);b7=F.before_owned_initialization(values);diagnostic=F.before_live_auxiliary(b7)
+  self.assertEqual({n:F.pin(b)for n,b in b7.items()},p['initialization_parent']['files']);self.assertEqual({n:F.pin(b)for n,b in diagnostic.items()},p['diagnostic_parent']['files'])
+  self.assertEqual({n for n in values if values[n]!=b7[n]},{'provision622.py','lane622.py','formation622.py','test_bridge622.py','composition-parent.json','source622.py','source-manifest.json'});self.assertEqual(sum(values[n]==b7[n]for n in values),59)
+  self.assertEqual({n for n in b7 if b7[n]!=diagnostic[n]},{'provision622.py','composition-parent.json','source622.py','source-manifest.json'})
+  for n in ('workflow.yml.in','.github/workflows/native-arm-build.yml','.github/workflows/native-arm-core7-real-systemd.yml','ownership622.py','desktop622.py','run622.py','controller.py','profile.json','composition.json','expected607.lock','expected622.lock'):
+   self.assertEqual(values[n],diagnostic[n])
+ def test_layer_context_seams_and_before_maps_refuse_drift(self):
+  values,_,_,_=F.compose(ROOTS);values=F.before_proof_output(values)
+  for field,value in (('actual',1),('parent_source','0'*40),('guard_prefix','foreign')):
+   bad=dict(values);parent=json.loads(bad['composition-parent.json']);parent['owned_auxiliary_initialization'][field]=value;bad['composition-parent.json']=F.enc(parent)
+   with self.assertRaises(ValueError):F.before_owned_initialization(bad)
+  bad=dict(values);bad['lane622.py']+=b'\n'
+  with self.assertRaises(ValueError):F.before_owned_initialization(bad)
+ def test_each_readable_layer_operand_is_pinned_before_emission(self):
+  with tempfile.TemporaryDirectory(prefix='core622-layer-operands-')as td:
+   root=Path(td);factory=root/'factory';shutil.copytree(HERE,factory)
+   with patch.object(F,'HERE',factory):
+    for name in ('live-auxiliary-context.json','live-auxiliary-inverse.py.txt','owned-initialization-context.json','owned-initialization-inverse.py.txt'):
+     target=factory/name;raw=target.read_bytes();target.write_bytes(raw+b'\n')
+     with self.assertRaisesRegex(ValueError,'fixed readable source operand'):F.emit(ROOTS,root/'out','known')
+     self.assertFalse((root/'out').exists());target.write_bytes(raw)
+
+class ProofOutputControls(unittest.TestCase):
+ def test_full358_inverse_exact_six_changes_and_all_prior_layers(self):
+  values,p,_,_=F.compose(ROOTS);before=F.before_proof_output(values);self.assertEqual({n:F.pin(b)for n,b in before.items()},p['proof_output_parent']['files']);self.assertEqual(sum(values[n]==before[n]for n in values),60)
+  self.assertEqual({n for n in values if values[n]!=before[n]},{'provision622.py','lane622.py','test_bridge622.py','composition-parent.json','source622.py','source-manifest.json'})
+  b7=F.before_owned_initialization(before);self.assertEqual({n:F.pin(b)for n,b in b7.items()},p['initialization_parent']['files']);diagnostic=F.before_live_auxiliary(b7);self.assertEqual({n:F.pin(b)for n,b in diagnostic.items()},p['diagnostic_parent']['files'])
+  for name in('workflow.yml.in','.github/workflows/native-arm-build.yml','.github/workflows/native-arm-core7-real-systemd.yml','controller.py','formation622.py','profile.json','composition.json','expected607.lock','expected622.lock','clock.py','desktop622.py','ownership622.py'):self.assertEqual(values[name],before[name])
+ def test_current_proof_inverse_refuses_context_and_product_drift(self):
+  values,_,_,_=F.compose(ROOTS)
+  for field,value in(('actual',1),('parent_source','0'*40),('guard_prefix','foreign')):
+   bad=dict(values);parent=json.loads(bad['composition-parent.json']);parent['owned_proof_output'][field]=value;bad['composition-parent.json']=F.enc(parent)
+   with self.assertRaises(ValueError):F.before_proof_output(bad)
+  bad=dict(values);bad['provision622.py']+=b'\n'
+  with self.assertRaises(ValueError):F.before_proof_output(bad)
+ def test_new_readable_operands_refuse_before_any_output(self):
+  with tempfile.TemporaryDirectory(prefix='proof-output-factory-drift-')as td:
+   root=Path(td);factory=root/'factory';shutil.copytree(HERE,factory)
+   with patch.object(F,'HERE',factory):
+    for name in('proof-output-context.json','proof-output-inverse.py.txt'):
+     leaf=factory/name;before=leaf.read_bytes();leaf.write_bytes(before+b'\n')
+     with self.assertRaisesRegex(ValueError,'fixed readable source operand'):F.emit(ROOTS,root/'no-output','known')
+     self.assertFalse((root/'no-output').exists());leaf.write_bytes(before)
 
 if __name__=='__main__':unittest.main(verbosity=2)
