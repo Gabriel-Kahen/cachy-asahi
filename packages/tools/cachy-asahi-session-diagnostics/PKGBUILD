@@ -1,0 +1,47 @@
+# SPDX-License-Identifier: MIT
+# Original opt-in diagnostic; development candidate, not release-selected.
+pkgname=cachy-asahi-session-diagnostics
+pkgver=0.1.0
+pkgrel=2
+pkgdesc='Read-only current-session observations for cachy-asahi'
+arch=('any')
+url='https://github.com/Gabriel-Kahen/cachy-asahi'
+license=('MIT')
+depends=('python>=3.11')
+optdepends=('hyprland: current compositor version and display observations'
+            'mesa-utils: current Wayland GLES client renderer observation'
+            'pipewire: current sanitized audio graph observation'
+            'systemd: current session, unit states and suspend capability queries')
+options=('!strip' '!debug')
+source=('cachy-asahi-session-diagnostics' 'session_probe.py' 'test_session_probe.py' 'check_package.py' 'test_package.py' 'README.md' 'session-probe.md' 'source-provenance.json' 'NOTICE' 'LICENSE')
+sha256sums=(
+    '2b6700180210cc686f3e19f3c294f58ce5182dee2ae01e5406039bb1a0d3af7a'
+    '9c5c41899cd991b0de4bf8d30bad6f5452b4592ea9440df0f0b4a7b54bc66984'
+    'b830ec828dd73e0b40ebc509c079f55a28b045d4a783e0090952ad696320f964'
+    '98ee341cbd8afe47985a72b966b3c3adf55edb1b0c44df2d253d3d4dd2c53907'
+    '7134c5da0d1c96b2bb02fcdf7dc161821b31badf533a26b192e3b0e1f5b98879'
+    '922b5340f4b851d7a0ef734b3482c6561eccae73a95fcfd1146d7db1ef9b1937'
+    '2d8125214150de5b6426692758525b0636fcbb53c45539a139d7fc5bf4f804e1'
+    'edbe7974dbda19aa7982059a68229f0251affe4e991d48bdd4c5df8064bd20e5'
+    '427370557bf22819897bb8872d79befdd983391c761d9533074e3af85472a990'
+    '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
+)
+
+check() {
+    python -I -B "$srcdir/check_package.py" --recipe-root "$startdir" || return
+    python -I -B -Werror::ResourceWarning "$srcdir/test_session_probe.py" || return
+    python -I -B -Werror::ResourceWarning "$srcdir/test_package.py"
+}
+
+package() {
+    [[ -n ${pkgdir:-} && $pkgdir != / ]] || return 1
+    install -Dm755 "$srcdir/cachy-asahi-session-diagnostics" "$pkgdir/usr/bin/cachy-asahi-session-diagnostics" || return
+    install -Dm644 "$srcdir/session_probe.py" "$pkgdir/usr/lib/$pkgname/session_probe.py" || return
+    local file
+    for file in README.md session-probe.md source-provenance.json; do
+        install -Dm644 "$srcdir/$file" "$pkgdir/usr/share/doc/$pkgname/$file" || return
+    done
+    for file in NOTICE LICENSE; do
+        install -Dm644 "$srcdir/$file" "$pkgdir/usr/share/licenses/$pkgname/$file" || return
+    done
+}
