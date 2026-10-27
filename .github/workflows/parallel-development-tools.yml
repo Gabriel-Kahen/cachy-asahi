@@ -104,6 +104,7 @@ jobs:
             metrics)
               python -I -B scripts/benchmarks/test_platform_metrics.py -v
               python -I -B scripts/benchmarks/test_benchmark_platform_metrics.py -v
+              python -I -B scripts/benchmarks/test_benchmark_owned_rss.py -v
               ;;
             developer)
               python -I -B tests/workflows/test_developer_workflow.py -v
