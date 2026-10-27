@@ -20,6 +20,8 @@ import types
 BASE = Path(__file__).resolve().parent
 BRIDGE_SHA = '467cbb9562189b79926deb9d15d9b027d7c73d2a27ba07bc01d6740941567227'
 KIND = 'cachy-asahi-pristine-payload-ext4-v1'
+SIGNED_KIND = 'cachy-asahi-policy-signed-payload-ext4-v1'
+SIGNED_SHA = 'fb06597a7ee68e9b3c66209e43a8b058d9d7a472a83434504936c99df2eed0f0'
 INPUTS = ('selection', 'authentication', 'tool_pins', 'metadata_pins', 'root_policy')
 HEX = re.compile(r'[0-9a-f]{64}\Z')
 LIMIT = 8 * 1024**3
@@ -102,12 +104,32 @@ def load_services():
     return bridge, bridge.sources()
 
 
+def load_signed_services(selection, policy):
+    path = BASE / 'signed_archive_intake.py'
+    signed = types.ModuleType('_recipe_signed_archive_intake')
+    signed.__file__ = str(path)
+    exec(compile(pinned(path, SIGNED_SHA), str(path), 'exec'), signed.__dict__)
+    services = signed.sources()
+    with signed.tempfile.TemporaryDirectory(prefix='signed-recipe-plan-') as temporary:
+        with services['intake'].runtime(temporary) as engine:
+            source_policy = engine.load(engine.RUNTIME / 'policy.py', engine.POLICY_SHA)
+            with source_policy.snapshot() as (raws, check):
+                validators = source_policy.sources(raws)
+                signed.policy_check(policy, signed.encoded(selection), selection,
+                    validators['core'], validators['intake'], int(signed.time.time()))
+                check()
+    _, modules = signed.image_services()
+    pins = dict(signed.PINS, signed_archive_intake=('scripts/platform/signed_archive_intake.py', SIGNED_SHA))
+    return types.SimpleNamespace(run=signed.compose_image, check_sources=signed.check_sources,
+                                 SOURCE_PINS=pins), modules
+
+
 def prepare(recipe_path, recipe_sha256):
     raw = pinned(recipe_path, recipe_sha256)
     recipe = decode(raw)
     need(type(recipe) is dict and set(recipe) == {'schema_version', 'kind', 'epoch', 'inputs'}
          and type(recipe['schema_version']) is int and recipe['schema_version'] == 1
-         and recipe['kind'] == KIND, 'pristine-payload-recipe-required')
+         and recipe['kind'] in (KIND, SIGNED_KIND), 'pristine-payload-recipe-required')
     need(type(recipe['epoch']) is int and 0 <= recipe['epoch'] <= 2147483647, 'epoch-bound')
     need(type(recipe['inputs']) is dict and set(recipe['inputs']) == set(INPUTS), 'recipe-input-closure')
     values, input_raws = {}, {}
@@ -115,10 +137,15 @@ def prepare(recipe_path, recipe_sha256):
         ref = recipe['inputs'][name]
         need(type(ref) is dict and set(ref) == {'path', 'sha256'} and
              type(ref['path']) is str and Path(ref['path']).is_absolute(), 'explicit-pinned-input-required')
-        input_raws[name] = pinned(ref['path'], ref['sha256'])
+        input_raws[name] = pinned(ref['path'], ref['sha256'], 16*1024**2 if recipe['kind'] == SIGNED_KIND else 1024**2)
         values[name] = decode(input_raws[name])
-    bridge, modules = load_services()
-    bridge.exact_selection(values['selection'])
+    if recipe['kind'] == SIGNED_KIND:
+        need(all(input_raws[name] == encoded(values[name]) for name in ('selection', 'authentication')),
+             'canonical-signed-selection-policy-required')
+        bridge, modules = load_signed_services(values['selection'], values['authentication'])
+    else:
+        bridge, modules = load_services()
+        bridge.exact_selection(values['selection'])
     for name in ('tool_pins', 'metadata_pins'):
         need(type(values[name]) is dict and type(values[name].get('schema_version')) is int
              and values[name]['schema_version'] == 2, 'dependency-profiles-v2-required')
@@ -264,7 +291,9 @@ def run(recipe_path, recipe_sha256, output, resume_receipt_sha256=None):
         result = prepared['bridge'].run(values['selection'], values['authentication'],
             values['tool_pins'], values['metadata_pins'], values['root_policy'],
             output / 'pipeline', prepared['recipe']['epoch'])
-        need(result['status'] == 'PASS_EXACT_TWO_DIRECT_METADATA_GATED_EXT4'
+        expected_status = ('PASS_POLICY_SIGNED_DIRECT_METADATA_GATED_EXT4'
+            if prepared['recipe']['kind'] == SIGNED_KIND else 'PASS_EXACT_TWO_DIRECT_METADATA_GATED_EXT4')
+        need(result['status'] == expected_status
              and all(value is False for value in result['acceptance'].values()), 'pipeline-result-boundary')
         image = readback(prepared, output / 'pipeline')
         need(image == result['filesystem']['image'], 'pipeline-image-binding')
