@@ -1,0 +1,55 @@
+# SPDX-License-Identifier: MIT
+# Byte-exact project helpers, a private import tree, and an isolated CLI.
+pkgname=cachy-asahi-maintenance
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Offline signed-release health and held rebuild-planning review'
+arch=('any')
+url='https://github.com/Gabriel-Kahen/cachy-asahi'
+license=('MIT')
+depends=('python>=3.11' 'gnupg' 'libarchive' 'pacman')
+source=('cachy-asahi-maintenance' 'check_source_pins.py' 'compare_releases.py' 'health.py' 'rebuild_plan.py' 'release.py' 'security_advisories.py' 'signing_expiry.py' 'source_delivery.py' 'update_plan.py' 'payload-pins.json' 'test_package.py' 'check_source.py' 'README.md' 'health-inputs.md' 'source-provenance.json' 'NOTICE' 'LICENSE')
+sha256sums=(
+    '6d493f9e025d677ab8e1bee6aed717e3e46b3e2cbb7dce89ec5102655d4ee5a9'
+    '9b78c348e2d567f44f656285f6a562220cadead7025f1e0db2eb9a53d9f09ea3'
+    '27086c7b0af74a1226deae7a6a71245882b82608a1fa9d33b68e657979c7d83c'
+    '6809526f7553e76f4a6c8d24cbde2688abe8cfd1139b92b88a51847e7a7acadf'
+    '472f9bb621d78f79f5016a662b7f72eb03e995dae787c7846bc1f947ff21313c'
+    'e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435'
+    'f018ff4ac0265217213f749bf59afa08b61b24e4054973c0dcde110e57a0a2cb'
+    'dd6ef397ea47cf14bb31f6ae6f7ca388d68bdb15e7fa3d20c36eb01f901b2c98'
+    '8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e'
+    '21af73923ca4bfff244d653e1f0046015d429a582548b2a60f1e0feb5b2a687e'
+    'e74aea7cb974fd0ac79898ccc403acb4d89835c8d07ca77f120be14128f0317d'
+    'f9b76074c7782592a220b63506f12f6985baf517531a791942bd5b90617646ae'
+    '63b7675f3f2931108e9c6ec57b576e34de8fe477e8622f3b298d7e5588fa5b5f'
+    '600bcb8b06c52ba9aa0908c02ccfe88b72b6f2bd0e2f2d74c4ff488070332356'
+    'fa9ad03e43b75fc8bdeba2ee06dc09c06973a85bbcca17f708c92d4f78f0557f'
+    '2af7b2d57ffd06ce37b75df1c5ef740b12c01bdb3b364a44e08c125486277234'
+    'b6dffb613c2a3b709756cbdce9b0f40c2fe69a4133c1b050f69ccb618f2ee17a'
+    '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
+)
+
+check() {
+    python -I -B "$srcdir/check_source.py" --recipe-root "$startdir" || return
+    python -I -B -Werror::ResourceWarning "$srcdir/test_package.py" --recipe-root "$startdir"
+}
+
+package() {
+    [[ -n $pkgdir && $pkgdir != / ]] || return 1
+    local base="$pkgdir/usr/lib/cachy-asahi/maintenance"
+    local file
+    install -Dm755 "$srcdir/cachy-asahi-maintenance" "$pkgdir/usr/bin/cachy-asahi-maintenance" || return
+    for file in health update_plan rebuild_plan signing_expiry security_advisories; do
+        install -Dm644 "$srcdir/$file.py" "$base/scripts/maintenance/$file.py" || return
+    done
+    for file in check_source_pins compare_releases release source_delivery; do
+        install -Dm644 "$srcdir/$file.py" "$base/scripts/release/$file.py" || return
+    done
+    for file in README.md health-inputs.md source-provenance.json payload-pins.json; do
+        install -Dm644 "$srcdir/$file" "$pkgdir/usr/share/doc/$pkgname/$file" || return
+    done
+    for file in NOTICE LICENSE; do
+        install -Dm644 "$srcdir/$file" "$pkgdir/usr/share/licenses/$pkgname/$file" || return
+    done
+}

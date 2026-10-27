@@ -1,0 +1,11 @@
+cachy-asahi-maintenance
+Copyright (c) 2026 cachy-asahi contributors
+MIT licensed; see LICENSE.
+
+Nine original project maintenance/release modules are copied byte-for-byte.
+source-provenance.json records each original path, size and SHA-256.
+payload-pins.json records private installed paths and the new launcher.
+No third-party Python module or entire repository snapshot is bundled.
+Runtime programs: Python (PSF), GnuPG (GPL), libarchive/bsdtar (BSD),
+and pacman/vercmp (GPL). These are dependencies, not redistributed here.
+No claim of affiliation with or endorsement by CachyOS, Arch or Asahi.
