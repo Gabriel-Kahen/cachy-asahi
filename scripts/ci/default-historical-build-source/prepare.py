@@ -20,7 +20,11 @@ PROFILES = {
     'welcome5-native-upgrade': (16113, '98a311fa4d2c7318619b397e8408cf1ec6993d83c3572af373ed909f3f15355b'),
     'desktop-file-manager-workflow': (3457, '04047b75f5932570ae135a4f1957fd7f98ace463d522959249805ae9520dec26'),
     'desktop-user-session': (3242, 'b5e4df112c8a9ade746b6a60cafa68e5a58226a1f13280d0725b9e5175a7686d'),
+    'full-root-failed-update': (7738, '8f80761c299c1fb81c9ba47e6e30044037365d9119ae651a1cf5f69d2eca1012'),
+    'full-root-postcommit-failure': (7778, 'bb18da3fc23ac82d5a6ab04902e3753491de88c1ed2f686d0ba3454d06617c54'),
+    'full-root-upgrade-caller': (6850, 'b90fc82f0755a408e94d87ed5e1b07a3ede3fe862477cb3ee02495ba3b675ee1'),
 }
+CONFIGS = {'full-root-failed-update': 'lane-config.json', 'full-root-postcommit-failure': 'lane-config.json', 'full-root-upgrade-caller': 'upgrade-config.json'}
 DESKTOP = frozenset(('desktop-user-session', 'desktop-file-manager-workflow'))
 # This unchanged test also reads its registered workflow, excluded from its own manifest.
 EXTRA = {'apps7-client-native': {'.github/workflows/native-arm-apps7-client.yml':
@@ -48,6 +52,7 @@ EXTRA.update({'desktop-file-manager-workflow': {'scripts/ci/desktop-file-manager
                                                                          'a70885622a36fe1ba764ea7d0846933b639ef04dc3c532598fb92ceb73ffe00b'),
                           'scripts/ci/desktop-user-session/test_managed.py': (22349,
                                                                               '92ea44d99ac75588b37a4429cba2583ae28f3dd58b5e155580feb27119788dbd')}})
+EXTRA['full-root-upgrade-caller'] = {'scripts/ci/full-root-upgrade-caller/run.py': (27803, 'b9840c79ffc6c45070ac12b80d469fb46c26059df63e121801d6ab223035e303')}
 SHARED = 'scripts/ci/historical-inventory-source/shared-build-v1'
 BUILD = {
     'scripts/build/build.py': (11299, 'e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45'),
@@ -112,6 +117,15 @@ def relative(name):
     return path
 
 
+def profile_path(profile):
+    leaf = CONFIGS.get(profile, 'source-pins.json' if profile in DESKTOP else 'source-manifest.json')
+    return 'scripts/ci/' + profile + '/' + leaf
+
+
+def source_map(profile, value):
+    return value['code_pins'] if profile in CONFIGS else value if profile in DESKTOP else value['files']
+
+
 def prepare(source, output, profile):
     need(not sys.flags.optimize, 'optimized Python would disable original assertion guards')
     need(type(profile) is str and profile in PROFILES, 'unknown fixed default-native profile')
@@ -121,17 +135,18 @@ def prepare(source, output, profile):
     need('..' not in output.parts and not os.path.lexists(output) and info.st_uid == os.getuid()
          and not info.st_mode & 0o022 and not output.is_relative_to(source) and not source.is_relative_to(output),
          'fresh disjoint source view in caller-owned parent required')
-    manifest_path = 'scripts/ci/' + profile + ('/source-pins.json' if profile in DESKTOP else '/source-manifest.json')
+    manifest_path = profile_path(profile)
     raw_manifest, manifest_mode = read(source / manifest_path)
     need(pin(raw_manifest) == row(PROFILES[profile]), 'fixed original whole manifest differs')
     manifest = json.loads(raw_manifest)
-    files = manifest if profile in DESKTOP else manifest['files']
+    files = source_map(profile, manifest)
     need(type(files) is dict and 0 < len(files) <= 128 and manifest_path not in files,
          'finite original non-self-referential source map required')
     if profile not in DESKTOP:
         need(type(manifest['schema_version']) is int and manifest['schema_version'] == 1,
              'original manifest schema differs')
-    roles = set(BUILD) - {'scripts/build/compare.py'} if profile in DESKTOP else set(BUILD)
+    roles = (set(BUILD) - {'scripts/build/container-entry.sh'} if profile in CONFIGS else
+             set(BUILD) - {'scripts/build/compare.py'} if profile in DESKTOP else set(BUILD))
     need(files.keys() & BUILD.keys() == roles and all(matches(row(BUILD[name]), files[name]) for name in roles),
          'original declared helper roles differ')
     extras = {name: row(want) for name, want in EXTRA.get(profile, {}).items()}
@@ -161,7 +176,8 @@ def prepare(source, output, profile):
     actual = {p.relative_to(output).as_posix(): pin(read(p)[0]) for p in output.rglob('*') if p.is_file()}
     need(actual.keys() == expected.keys() and all(matches(actual[name], expected[name]) for name in expected),
          'emitted fixed source closure differs')
-    return dict(status='SOURCE_ONLY_FIXED_DESKTOP_BUILD_VIEW' if profile in DESKTOP else 'SOURCE_ONLY_FIXED_DEFAULT_NATIVE_BUILD_VIEW', profile=profile, files=len(actual),
+    return dict(status='SOURCE_ONLY_FIXED_EXPORT_CONSUMER_BUILD_VIEW' if profile in CONFIGS else
+                       'SOURCE_ONLY_FIXED_DESKTOP_BUILD_VIEW' if profile in DESKTOP else 'SOURCE_ONLY_FIXED_DEFAULT_NATIVE_BUILD_VIEW', profile=profile, files=len(actual),
                 original_manifest=row(PROFILES[profile]), supplemental_test_inputs=extras, substituted={name: row(BUILD[name]) for name in sorted(roles)},
                 current_build_helpers=current, current_helpers_used=False, run_id=None,
                 native='NOT_RUN', hardware='NOT_RUN', acceptance=False)
