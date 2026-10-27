@@ -1,0 +1,902 @@
+{
+  "base": {
+    "inventory_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+    "ledger": "scripts/ci/maintained-desktop574-inputs.json",
+    "ledger_sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9",
+    "packages": 574,
+    "source_date_epoch": 1791748800
+  },
+  "build_options": {
+    "sway": [
+      "--wrap-mode=nofallback",
+      "--buildtype=release",
+      "-Dc_std=c11",
+      "-Ddefault-wallpaper=false",
+      "-Dman-pages=disabled",
+      "-Dswaybar=false",
+      "-Dswaynag=false",
+      "-Dtray=disabled",
+      "-Dgdk-pixbuf=disabled",
+      "-Dzsh-completions=false",
+      "-Dbash-completions=false",
+      "-Dfish-completions=false",
+      "-Dsd-bus-provider=libsystemd"
+    ],
+    "wlroots": [
+      "--wrap-mode=nofallback",
+      "--buildtype=release",
+      "-Dc_std=c11",
+      "-Dbackends=[]",
+      "-Drenderers=[]",
+      "-Dallocators=[]",
+      "-Dsession=disabled",
+      "-Dxwayland=disabled",
+      "-Dexamples=false",
+      "-Dcolor-management=disabled",
+      "-Dlibliftoff=disabled",
+      "-Dxcb-errors=disabled"
+    ]
+  },
+  "delivery_files": {
+    "LICENSE": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+    "NOTICE": "6d4d498e405d3f06ab902c90e8c4b715d982279fcfa07be33f64b7797cce0c49",
+    "README.md": "cb474e2551002f1189070212247ff07a0428dc70bc5426f406344ceeb88c1422",
+    "controller.py": "335baba1d1af052c79858846103698dba54fad56de4ef52827ac883da8ba7979",
+    "done-lock.json": "e7de2d6d72e4f6f3882c5b5c5c0c65c71a89146e629ceb17004a45013f607026",
+    "fish_terminal.py": "b257a943ac31268f44b78498487d83bcd4f16b2b59f70500acc492bb94ffc0bc",
+    "fixtures/real-foreground-success.json": "8ffa8ed9a7be4555a11fc9314459c55f934c2c903ec454217c74ba048cc3c7e7",
+    "monitor.py": "7704da1b060e739f63e4d7062a02938e64bcfbe1c10b4d6581532ded2f194de0",
+    "native_inputs.py": "9254d986922719ab694eb077428f9247f5caf23f4e419bcafc6be1e9aad4c1dc",
+    "observation.py": "153fad25f0b5f58730cd077bdf414ed2b30ae6d7c780aa4f8f99484b7348d057",
+    "replay.py": "2daece7ba028a825906e26862505134879502f29d62e537d31bbadb047360840",
+    "run.py": "f2e9ceeb16c78914dbe672db5d6b679dd71d73548eea98ce41c33fde57ef870b",
+    "source-pins.json": "9554206502801c77984fd8047a0b775b21e908fddd5dcadea16d31195084217e",
+    "test_run.py": "ebecc860eb2ebad95d99d8165bc5145f260ddba201f68f70a5ecd4c527a31dbf"
+  },
+  "native_mako_payload": {
+    "/usr/bin/mako": "d1257c13b856771d56e3834bad7c8f5714752c732fa4ce6eb2847fded4dc508f",
+    "/usr/bin/makoctl": "e8b7f15e0acebb4cf2a1120bbb749158afeb7d1ac03003457fe87c4a955029ea"
+  },
+  "required_packages": {
+    "binutils": {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "jansson",
+        "libelf",
+        "libgcc",
+        "libstdc++",
+        "zlib",
+        "zstd"
+      ],
+      "filename": "binutils-2.46+r70+g155188ea10a7-1-aarch64.pkg.tar.xz",
+      "isize": 53968435,
+      "license": [
+        "GPL-2.0-or-later",
+        "GPL-3.0-or-later",
+        "LGPL-2.0-or-later",
+        "LGPL-3.0-or-later",
+        "GFDL-1.3",
+        "FSFAP"
+      ],
+      "name": "binutils",
+      "provides": [
+        "libctf.so=0-64",
+        "libgprofng.so=0-64",
+        "libsframe.so=3-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "1acb6074f546ee662f29937897ab80bd87b0dcdd66c714381e8488d79cd53fcc",
+      "signature_sha256": "0b9331d39529b34f3b0d15f7ea6f1949fa027b7dba9ea504be1621aa3ba429b9",
+      "signature_size": 566,
+      "size": 7845808,
+      "source_url": [
+        "https://www.gnu.org/software/binutils/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/binutils-2.46+r70+g155188ea10a7-1-aarch64.pkg.tar.xz",
+      "version": "2.46+r70+g155188ea10a7-1"
+    },
+    "bubblewrap": {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "libcap",
+        "libgcc"
+      ],
+      "filename": "bubblewrap-0.13.0-1-aarch64.pkg.tar.xz",
+      "license": [
+        "LGPL-2.1-or-later"
+      ],
+      "name": "bubblewrap",
+      "provides": [],
+      "replaces": [
+        "bubblewrap-suid<=0.11.2-1"
+      ],
+      "sha256": "4866e25c5a7c33c3ded9f221058b5f4136cdbd991f3dc77a2f7a740368c95a61",
+      "signature_sha256": "dc7ad4f478d7b196b5189e670e2d80f3e68ad28aa869b0bee697d2c5309064fa",
+      "signature_size": 566,
+      "size": 40428,
+      "source_url": [
+        "https://github.com/containers/bubblewrap"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/bubblewrap-0.13.0-1-aarch64.pkg.tar.xz",
+      "version": "0.13.0-1"
+    },
+    "cairo": {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "bash",
+        "fontconfig",
+        "freetype2",
+        "glib2",
+        "glibc",
+        "libpng",
+        "libx11",
+        "libxcb",
+        "libxext",
+        "libxrender",
+        "lzo",
+        "pixman",
+        "zlib"
+      ],
+      "filename": "cairo-1.18.6-1-aarch64.pkg.tar.xz",
+      "license": [
+        "LGPL-2.1-only OR MPL-1.1"
+      ],
+      "name": "cairo",
+      "provides": [
+        "libcairo-gobject.so=2-64",
+        "libcairo-script-interpreter.so=2-64",
+        "libcairo.so=2-64"
+      ],
+      "replaces": [],
+      "sha256": "8c5a5c0470ff369386a3597d1e414c79c951a18d03313c162e5fff3d91989773",
+      "signature_sha256": "37a4d936e0cc69ed53a003155bf963494bbe34fd365d69677c4f2bcdf4fc2c8d",
+      "signature_size": 566,
+      "size": 581820,
+      "source_url": [
+        "https://cairographics.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/cairo-1.18.6-1-aarch64.pkg.tar.xz",
+      "version": "1.18.6-1"
+    },
+    "coreutils": {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "acl",
+        "attr",
+        "glibc",
+        "gmp",
+        "libcap",
+        "openssl"
+      ],
+      "filename": "coreutils-9.12-2-aarch64.pkg.tar.xz",
+      "license": [
+        "GPL-3.0-or-later",
+        "GFDL-1.3-or-later"
+      ],
+      "name": "coreutils",
+      "provides": [],
+      "replaces": [],
+      "sha256": "855b6439cc94fe5d0a3b1428e63ca785c0fa83135e0c0d59277d704d8f4dd647",
+      "signature_sha256": "f1e348bfb3c5dfc01681ecfc43df3c2a984bc9cd33cc0ea5d83e4b32ea05ee61",
+      "signature_size": 566,
+      "size": 2854560,
+      "source_url": [
+        "https://www.gnu.org/software/coreutils/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/coreutils-9.12-2-aarch64.pkg.tar.xz",
+      "version": "9.12-2"
+    },
+    "fish": {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "libgcc",
+        "pcre2"
+      ],
+      "filename": "fish-4.9.3-1-aarch64.pkg.tar.xz",
+      "license": [
+        "GPL-2.0-only AND BSD-3-Clause AND ISC AND MIT AND PSF-2.0"
+      ],
+      "name": "fish",
+      "provides": [],
+      "replaces": [],
+      "sha256": "c0fb16a8077312f6541ff1ef7208a3ecf5b9db5763269ceaefe2eeaba6dc3834",
+      "signature_sha256": "a40dd39034b4cdd7f5013ba76b7f04673c790aec8bd602b817cabf0473f6625f",
+      "signature_size": 566,
+      "size": 3410940,
+      "source_url": [
+        "https://fishshell.com/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/fish-4.9.3-1-aarch64.pkg.tar.xz",
+      "version": "4.9.3-1"
+    },
+    "gcc": {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "libasan=16.1.1+r12+g301eb08fa2c5-1",
+        "libgcc=16.1.1+r12+g301eb08fa2c5-1",
+        "liblsan=16.1.1+r12+g301eb08fa2c5-1",
+        "libstdc++=16.1.1+r12+g301eb08fa2c5-1",
+        "libtsan=16.1.1+r12+g301eb08fa2c5-1",
+        "libubsan=16.1.1+r12+g301eb08fa2c5-1",
+        "binutils>=2.28",
+        "glibc>=2.27",
+        "gmp",
+        "libisl.so=23-64",
+        "libmpc",
+        "mpfr",
+        "zlib",
+        "zstd"
+      ],
+      "filename": "gcc-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz",
+      "license": [
+        "GPL-3.0-or-later WITH GCC-exception-3.1",
+        "GFDL-1.3-or-later"
+      ],
+      "name": "gcc",
+      "provides": [],
+      "replaces": [],
+      "sha256": "067a2aa64f5c7e626e3910fed6fd1f173a1fd9eb6bebaebdd7a7f5be58e170c4",
+      "signature_sha256": "9cd5a11f7c87273ada4fd3ceb8e16b83bd04c9af71bee0eb5055c1be207c958b",
+      "signature_size": 566,
+      "size": 46558316,
+      "source_url": [
+        "https://gcc.gnu.org"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/gcc-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz",
+      "version": "16.1.1+r12+g301eb08fa2c5-1"
+    },
+    "glibc": {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "linux-api-headers>=4.10",
+        "tzdata",
+        "filesystem"
+      ],
+      "filename": "glibc-2.43+r22+g8362e8ce10b2-2-aarch64.pkg.tar.xz",
+      "isize": 60014558,
+      "license": [
+        "GPL-2.0-or-later",
+        "LGPL-2.1-or-later"
+      ],
+      "name": "glibc",
+      "provides": [],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "8fac217e98c6e4342326726b2640ac254e8c82032f06f30bfa13ebbcc4fcb25b",
+      "signature_sha256": "82501115482ffeb93cce58cbc36372d917159f9dd60e3b98fd465e94e16c2103",
+      "signature_size": 566,
+      "size": 9676568,
+      "source_url": [
+        "https://www.gnu.org/software/libc"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/glibc-2.43+r22+g8362e8ce10b2-2-aarch64.pkg.tar.xz",
+      "version": "2.43+r22+g8362e8ce10b2-2"
+    },
+    "json-c": {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "json-c-0.19-1-aarch64.pkg.tar.xz",
+      "isize": 252370,
+      "license": [
+        "MIT"
+      ],
+      "name": "json-c",
+      "provides": [
+        "libjson-c.so=5-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "233dd80f44789cd2581ea7879593d230b5a322559cdde43ce73c9719cd7e19c6",
+      "signature_sha256": "b2d91a6a21afb54344972318830d704e3b23813f71ea93b5c65af5179db019ce",
+      "signature_size": 566,
+      "size": 58664,
+      "source_url": [
+        "https://github.com/json-c/json-c/wiki"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/json-c-0.19-1-aarch64.pkg.tar.xz",
+      "version": "0.19-1"
+    },
+    "libdrm": {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "libpciaccess",
+        "glibc"
+      ],
+      "filename": "libdrm-2.4.134-1-aarch64.pkg.tar.xz",
+      "license": [
+        "MIT"
+      ],
+      "name": "libdrm",
+      "provides": [],
+      "replaces": [
+        "libdrm-new",
+        "libdrm-nouveau"
+      ],
+      "sha256": "d4173d7adc60d32d389e44e976447962c31bc23ff9a2153539bd8ad766e307b8",
+      "signature_sha256": "eba5b560895f0d12f8b92cbdaf32ee9425af439c201b733b6893d2b368300176",
+      "signature_size": 566,
+      "size": 400060,
+      "source_url": [
+        "https://dri.freedesktop.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libdrm-2.4.134-1-aarch64.pkg.tar.xz",
+      "version": "2.4.134-1"
+    },
+    "libevdev": {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "libevdev-1.14.0-1-aarch64.pkg.tar.xz",
+      "license": [
+        "MIT"
+      ],
+      "name": "libevdev",
+      "provides": [
+        "libevdev.so=2-64"
+      ],
+      "replaces": [],
+      "sha256": "ae8696d15c24381baf9a98af8f2eaf76383926336c9be59175b16b129effae3c",
+      "signature_sha256": "102da7dcb9e32526f39ffa40594d7ebf03180f33ff3f8883c9331659d8c8baf0",
+      "signature_size": 566,
+      "size": 59536,
+      "source_url": [
+        "https://www.freedesktop.org/wiki/Software/libevdev/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libevdev-1.14.0-1-aarch64.pkg.tar.xz",
+      "version": "1.14.0-1"
+    },
+    "libgcc": {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc>=2.27"
+      ],
+      "filename": "libgcc-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz",
+      "isize": 136916,
+      "license": [
+        "GPL-3.0-or-later WITH GCC-exception-3.1",
+        "GFDL-1.3-or-later"
+      ],
+      "name": "libgcc",
+      "provides": [
+        "libgcc_s.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "0f98bdf94a6e2f6758b9ffe98cbc9391a109326ed23bd264cabe0a81a04d7ae4",
+      "signature_sha256": "2e0a80f6d65b5820520c126aa0508f5c9159e2df8c45c5559745d07019e08f44",
+      "signature_size": 566,
+      "size": 55204,
+      "source_url": [
+        "https://gcc.gnu.org"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libgcc-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz",
+      "version": "16.1.1+r12+g301eb08fa2c5-1"
+    },
+    "libnotify": {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "gcc-libs",
+        "gdk-pixbuf2",
+        "glib2",
+        "glibc"
+      ],
+      "filename": "libnotify-0.8.8-1-aarch64.pkg.tar.xz",
+      "isize": 233782,
+      "license": [
+        "LGPL-2.1-or-later"
+      ],
+      "name": "libnotify",
+      "provides": [
+        "libnotify.so=4-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "4dadb77971d9bdae90afc13582983fafd410f05c14ccf2a6b37f00872adbee66",
+      "signature_sha256": "b9856da23c07eeae5275376824713e11e8ed276ade320e7381114b65404efd64",
+      "signature_size": 566,
+      "size": 38660,
+      "source_url": [
+        "https://gitlab.gnome.org/GNOME/libnotify"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libnotify-0.8.8-1-aarch64.pkg.tar.xz",
+      "version": "0.8.8-1"
+    },
+    "libstdc++": {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc>=2.27",
+        "libgcc"
+      ],
+      "filename": "libstdc++-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz",
+      "isize": 3021979,
+      "license": [
+        "GPL-3.0-or-later WITH GCC-exception-3.1",
+        "GFDL-1.3-or-later"
+      ],
+      "name": "libstdc++",
+      "provides": [
+        "libstdc++.so=6-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "19832a38b2c4820695d28289f1c4f371955586d39fb893d8cbc0d8dbb09a4383",
+      "signature_sha256": "c6b2fff6cfab7404c071f3a2478626ff81d4fb24c55f424d52a978958928747f",
+      "signature_size": 566,
+      "size": 694148,
+      "source_url": [
+        "https://gcc.gnu.org"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libstdc++-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz",
+      "version": "16.1.1+r12+g301eb08fa2c5-1"
+    },
+    "libxkbcommon": {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "libxml2",
+        "xkeyboard-config"
+      ],
+      "filename": "libxkbcommon-1.13.2-1-aarch64.pkg.tar.xz",
+      "license": [
+        "MIT"
+      ],
+      "name": "libxkbcommon",
+      "provides": [
+        "libxkbcommon.so=0-64",
+        "libxkbregistry.so=0-64"
+      ],
+      "replaces": [],
+      "sha256": "76b922d87d0af0011072b156464041ec5674f24ff1c78b7e85132fda72c9a7e7",
+      "signature_sha256": "728747f2821f46fa32a40da8a8a3ee08d5b968adfcbaf44b8dcec9954f60ab65",
+      "signature_size": 566,
+      "size": 263628,
+      "source_url": [
+        "https://xkbcommon.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libxkbcommon-1.13.2-1-aarch64.pkg.tar.xz",
+      "version": "1.13.2-1"
+    },
+    "mako": {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "cairo",
+        "gdk-pixbuf2",
+        "glib2",
+        "glibc",
+        "pango",
+        "systemd-libs",
+        "wayland"
+      ],
+      "filename": "mako-1.11.0-1-aarch64.pkg.tar.xz",
+      "isize": 221953,
+      "license": [
+        "MIT"
+      ],
+      "name": "mako",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "18967af3d203e80c247dddb46fded4c25537d641ccea23c9d7c443b52b96cb35",
+      "signature_sha256": "ee9e3de2b856fb2573ed49ea07a6b941a5701a3659d80b4578bd688fae005778",
+      "signature_size": 566,
+      "size": 56800,
+      "source_url": [
+        "https://mako-project.org"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/mako-1.11.0-1-aarch64.pkg.tar.xz",
+      "version": "1.11.0-1"
+    },
+    "meson": {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "bash",
+        "ninja",
+        "python",
+        "python-tqdm"
+      ],
+      "filename": "meson-1.12.1-2-any.pkg.tar.xz",
+      "isize": 17699599,
+      "license": [
+        "Apache-2.0"
+      ],
+      "name": "meson",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "8b5f5b2168be053485f512debbb935f189c4b19f9a79d0e201fc91ccb5d15492",
+      "signature_sha256": "6baec90eff01db452ce849b11d9322a29c362989f794cbd8ca555b99aa022891",
+      "signature_size": 566,
+      "size": 2529168,
+      "source_url": [
+        "https://mesonbuild.com/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/meson-1.12.1-2-any.pkg.tar.xz",
+      "version": "1.12.1-2"
+    },
+    "ninja": {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "libgcc",
+        "libstdc++"
+      ],
+      "filename": "ninja-1.13.2-3-aarch64.pkg.tar.xz",
+      "isize": 540259,
+      "license": [
+        "Apache-2.0"
+      ],
+      "name": "ninja",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "4455a6c92fb38e8d5d0172176bb19d9ee6e9f2c6acae9aced5d65752fdd47290",
+      "signature_sha256": "dfac59ccb7bec23adedaff055203dd5902fb0b10e456706d4ac2ae63b31ec5e9",
+      "signature_size": 566,
+      "size": 173996,
+      "source_url": [
+        "https://ninja-build.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/ninja-1.13.2-3-aarch64.pkg.tar.xz",
+      "version": "1.13.2-3"
+    },
+    "pacman": {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "bash",
+        "coreutils",
+        "curl",
+        "libcurl.so=4-64",
+        "gawk",
+        "gettext",
+        "glibc",
+        "gnupg",
+        "gpgme",
+        "libgpgme.so=45-64",
+        "grep",
+        "libarchive",
+        "libarchive.so=13-64",
+        "openssl",
+        "libcrypto.so=3-64",
+        "pacman-mirrorlist",
+        "systemd",
+        "libmakepkg-dropins"
+      ],
+      "filename": "pacman-7.1.0.r9.g54d9411-2-aarch64.pkg.tar.xz",
+      "isize": 5569823,
+      "license": [
+        "GPL-2.0-or-later"
+      ],
+      "name": "pacman",
+      "provides": [
+        "libalpm.so=16-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "0e7a5a731727b50e5453f9946afed63456ca6d7015ec0044426489dc78134e3d",
+      "signature_sha256": "86824e704f0f19a7e065b63a8e553c9cadf3b4c49dbeb3f367435d2f557ac26f",
+      "signature_size": 566,
+      "size": 904012,
+      "source_url": [
+        "https://www.archlinux.org/pacman/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/pacman-7.1.0.r9.g54d9411-2-aarch64.pkg.tar.xz",
+      "version": "7.1.0.r9.g54d9411-2"
+    },
+    "pango": {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "cairo",
+        "fontconfig",
+        "freetype2",
+        "fribidi",
+        "glib2",
+        "glibc",
+        "harfbuzz",
+        "libsysprof-capture",
+        "libthai",
+        "libx11",
+        "libxft",
+        "libxrender"
+      ],
+      "filename": "pango-1:1.58.2-1-aarch64.pkg.tar.xz",
+      "license": [
+        "LGPL-2.0-or-later"
+      ],
+      "name": "pango",
+      "provides": [
+        "libpango-1.0.so=0-64",
+        "libpangocairo-1.0.so=0-64",
+        "libpangoft2-1.0.so=0-64",
+        "libpangoxft-1.0.so=0-64"
+      ],
+      "replaces": [],
+      "sha256": "89712127cef41515a3a7b92bc632dcb9c635e9088126ee238d3b63f675d4e7eb",
+      "signature_sha256": "66cd7495ed7ffe2956a195c561459c296c5668e6000d65a7c5f5470cab49673f",
+      "signature_size": 566,
+      "size": 414852,
+      "source_url": [
+        "https://www.pango.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/pango-1:1.58.2-1-aarch64.pkg.tar.xz",
+      "version": "1:1.58.2-1"
+    },
+    "pcre2": {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "bzip2",
+        "glibc",
+        "readline",
+        "zlib"
+      ],
+      "filename": "pcre2-10.49-1-aarch64.pkg.tar.xz",
+      "license": [
+        "BSD-2-Clause",
+        "BSD-3-Clause WITH PCRE2-exception"
+      ],
+      "name": "pcre2",
+      "provides": [
+        "libpcre2-8.so=0-64",
+        "libpcre2-16.so=0-64",
+        "libpcre2-32.so=0-64",
+        "libpcre2-posix.so=3-64"
+      ],
+      "replaces": [],
+      "sha256": "8334385fdb4ed51807d6345cbe23c961ada160b589855d362c28127f5065a5a6",
+      "signature_sha256": "b8b36174408920d182d4e41b609d27f4ec80a3fde8e15aac732f5d0192d228d7",
+      "signature_size": 566,
+      "size": 1260636,
+      "source_url": [
+        "https://github.com/PCRE2Project/pcre2"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/pcre2-10.49-1-aarch64.pkg.tar.xz",
+      "version": "10.49-1"
+    },
+    "pixman": {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "pixman-0.46.4-1.1-aarch64.pkg.tar.xz",
+      "license": [
+        "MIT"
+      ],
+      "name": "pixman",
+      "provides": [
+        "libpixman-1.so=0-64"
+      ],
+      "replaces": [],
+      "sha256": "4d20f22998a75c9fe1d38c86cd6f4324120fc2bb02f4a749e4794daac6b87dd2",
+      "signature_sha256": "7a2580fee13f945802137098e91f7a8c8fd85cdd5eb10f7444f04947edb7c67e",
+      "signature_size": 566,
+      "size": 181292,
+      "source_url": [
+        "https://gitlab.freedesktop.org/pixman/pixman"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/pixman-0.46.4-1.1-aarch64.pkg.tar.xz",
+      "version": "0.46.4-1.1"
+    },
+    "pkgconf": {
+      "arch": "aarch64",
+      "conflicts": [
+        "pkg-config"
+      ],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "pkgconf-3.0.7-1-aarch64.pkg.tar.xz",
+      "license": [
+        "ISC"
+      ],
+      "name": "pkgconf",
+      "provides": [
+        "libpkgconf.so=8-64",
+        "pkg-config",
+        "pkgconfig"
+      ],
+      "replaces": [
+        "pkg-config"
+      ],
+      "sha256": "92275199f2f7b8907032e96a40187fef60a30dc7aaaeba1e4c5a03177365858a",
+      "signature_sha256": "bc72c375df7b8b20f6f43562b447d0dcb0e91343428c3341ac8b59db2a733981",
+      "signature_size": 566,
+      "size": 114348,
+      "source_url": [
+        "https://github.com/pkgconf/pkgconf"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/pkgconf-3.0.7-1-aarch64.pkg.tar.xz",
+      "version": "3.0.7-1"
+    },
+    "python": {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "bzip2",
+        "expat",
+        "gdbm",
+        "libffi",
+        "libnsl",
+        "libxcrypt",
+        "openssl",
+        "zlib",
+        "tzdata",
+        "mpdecimal",
+        "zstd"
+      ],
+      "filename": "python-3.14.8-1-aarch64.pkg.tar.xz",
+      "license": [
+        "PSF-2.0"
+      ],
+      "name": "python",
+      "provides": [
+        "python3",
+        "python-externally-managed"
+      ],
+      "replaces": [
+        "python3",
+        "python-externally-managed"
+      ],
+      "sha256": "5e00dbb30ab55fd160d64205e1f3418c8bcf5b295ff07bf9af7ad4ab85bc6984",
+      "signature_sha256": "ee28ca566685118f6048b859691802ddc6a1c0772581371a7d9cab2d3405c2f0",
+      "signature_size": 566,
+      "size": 13588352,
+      "source_url": [
+        "https://www.python.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/python-3.14.8-1-aarch64.pkg.tar.xz",
+      "version": "3.14.8-1"
+    },
+    "systemd-libs": {
+      "arch": "aarch64",
+      "conflicts": [
+        "libsystemd"
+      ],
+      "depends": [
+        "glibc",
+        "libgcc",
+        "libgcc_s.so=1-64",
+        "libgcrypt",
+        "lz4",
+        "xz",
+        "zstd"
+      ],
+      "filename": "systemd-libs-262-1-aarch64.pkg.tar.xz",
+      "license": [
+        "LGPL-2.1-or-later",
+        "CC0-1.0",
+        "GPL-2.0-or-later WITH Linux-syscall-note"
+      ],
+      "name": "systemd-libs",
+      "provides": [
+        "libsystemd",
+        "libsystemd.so=0-64",
+        "libudev.so=1-64"
+      ],
+      "replaces": [
+        "libsystemd"
+      ],
+      "sha256": "8e697c8f2db7c82dfcdcdc63540f7ad265d8e10fc7aab656c60229d858fca901",
+      "signature_sha256": "1188b1b93ba1f79069a36c8d33555713b41746c981d246f5e3ffc726c4633de7",
+      "signature_size": 566,
+      "size": 1303288,
+      "source_url": [
+        "https://www.github.com/systemd/systemd"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/systemd-libs-262-1-aarch64.pkg.tar.xz",
+      "version": "262-1"
+    },
+    "wayland": {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "libffi",
+        "expat",
+        "libxml2",
+        "default-cursors"
+      ],
+      "filename": "wayland-1.26.0-1-aarch64.pkg.tar.xz",
+      "license": [
+        "MIT"
+      ],
+      "name": "wayland",
+      "provides": [
+        "libwayland-client.so=0-64",
+        "libwayland-cursor.so=0-64",
+        "libwayland-egl.so=1-64",
+        "libwayland-server.so=0-64"
+      ],
+      "replaces": [],
+      "sha256": "9382b38f97ee3841597f89aa6ca1fceea3d968ae759151eaab9c4b5373d1ce72",
+      "signature_sha256": "5ca988b59b191e409eb09d73fb3ea23a1d4a7e893066149e8310bce8f2271109",
+      "signature_size": 566,
+      "size": 143632,
+      "source_url": [
+        "https://wayland.freedesktop.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/wayland-1.26.0-1-aarch64.pkg.tar.xz",
+      "version": "1.26.0-1"
+    },
+    "wayland-protocols": {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [],
+      "filename": "wayland-protocols-1.49-1-any.pkg.tar.xz",
+      "license": [
+        "MIT"
+      ],
+      "name": "wayland-protocols",
+      "provides": [],
+      "replaces": [],
+      "sha256": "9678c0d371ecfb5041b1b1d8a7986977bd82b7233984dbe25b33a54da0dbee27",
+      "signature_sha256": "d731754509b526be5f65900e4d645641bec9ac3b7ad6f7c59d821b8690bb920e",
+      "signature_size": 566,
+      "size": 139436,
+      "source_url": [
+        "https://wayland.freedesktop.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/wayland-protocols-1.49-1-any.pkg.tar.xz",
+      "version": "1.49-1"
+    }
+  },
+  "runtime_scope": "No compositor/bus/notifications/product installation occurs in build. Separate installed delivery trial remains Root-owned.",
+  "schema_version": 1,
+  "scope": "OFFLINE_NATIVE_AARCH64_CPU_HEADLESS_DEPENDENCY_BUILD_ONLY",
+  "sources": {
+    "sway": {
+      "bytes": 5583731,
+      "decoded_bytes": 7118165,
+      "filename": "sway-1.11.tar.gz",
+      "license": "MIT",
+      "members": 429,
+      "pax_headers": {
+        "comment": "990b23c0e584114c3694447344d6bbf44b2d748f"
+      },
+      "retained_path": "artifacts/development/fish-done-native-graphics-20261017/downloads/sway-1.11.tar.gz",
+      "revision": "990b23c0e584114c3694447344d6bbf44b2d748f",
+      "sha256": "034ec4519326d6af5275814700dde46e852c5174614109affe4c86b2fbee062a",
+      "strip_prefix": "sway-1.11"
+    },
+    "wlroots": {
+      "bytes": 669929,
+      "decoded_bytes": 3358426,
+      "filename": "wlroots-0.19.0.tar.gz",
+      "license": "MIT",
+      "members": 508,
+      "pax_headers": {
+        "comment": "13a62a23a258d96f902c740310d5c7c59784a4d1"
+      },
+      "retained_path": "artifacts/development/fish-done-native-graphics-20261017/downloads/wlroots-0.19.0.tar.gz",
+      "revision": "13a62a23a258d96f902c740310d5c7c59784a4d1",
+      "sha256": "967f3112c82e8ea18cbdc513e22196b30ccc9fad3fb836f1cff80312c66fab96",
+      "strip_prefix": "wlroots-0.19.0"
+    }
+  }
+}

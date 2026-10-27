@@ -1,0 +1,11 @@
+This MIT-licensed diagnostic reuses the project's retained Fish Done native
+graphics diagnostic validators and PTY/observation/monitor helpers. The original
+validator is byte-identical as native_inputs.py. The PTY fixture adds a selectable
+initialization string, exact source-prefix selection and duplicate watch call;
+these are test-harness adaptations, not product changes. The installed Done
+payload and all of its upstream/project MIT notices are verified unchanged.
+
+Selected daemon source identity: Mako1.11.0, commit
+91c6b799855762ad1eb8b4498967c270a339be0c (MIT). Sway1.11 and wlroots0.19.0
+are MIT-licensed independent headless fixture dependencies. No native binary is
+distributed by these sources; supply reviewed local inputs with exact hashes.
