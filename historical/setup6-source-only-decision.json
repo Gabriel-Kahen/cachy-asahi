@@ -1,0 +1,41 @@
+{
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "hardware": "NOT_RUN",
+  "host_arch_any_pair": {
+    "M2": "NOT_RUN",
+    "builds": [
+      {
+        "archive": "cachy-asahi-setup-0.1.0-6-any.pkg.tar.zst",
+        "case": "a",
+        "exit": 0,
+        "pin": {
+          "bytes": 35582,
+          "sha256": "51276cbc1d14c1b6760735fb6e826502ffe10bca2fb90a5cef0e4183ec85bc9d"
+        },
+        "seconds": 3.865932974993484
+      },
+      {
+        "archive": "cachy-asahi-setup-0.1.0-6-any.pkg.tar.zst",
+        "case": "b",
+        "exit": 0,
+        "pin": {
+          "bytes": 35582,
+          "sha256": "51276cbc1d14c1b6760735fb6e826502ffe10bca2fb90a5cef0e4183ec85bc9d"
+        },
+        "seconds": 3.7660067730030278
+      }
+    ],
+    "environment": "ONE_X86_64_HOST",
+    "installed": "NOT_RUN",
+    "native_ARM": "NOT_RUN",
+    "status": "PASS_TWO_CLEAN_LOCAL_ARCH_ANY_BUILDS_IDENTICAL"
+  },
+  "native_ARM": "NOT_RUN",
+  "recipe": "packages/settings/cachy-asahi-setup",
+  "release": "NOT_ADMITTED",
+  "source_tests": "PASS74_AND_PACKAGED_BOTH_PYTHON",
+  "status": "ROOT_SELECTED_SETUP6_NATIVE_PAIR_SOURCE_ONLY",
+  "version": "0.1.0-6"
+}
