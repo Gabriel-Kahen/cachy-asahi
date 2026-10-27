@@ -32,6 +32,26 @@ s = module('recipe_source_transport', HERE / 'source_delivery.py')
 MAX_FILE, MAX_TOTAL, MAX_FILES = 1024**2, 8 * 1024**2, 64
 PROFILES = {
     'cachy-asahi-maintenance': {
+        'version': '0.1.0-2',
+        'recipe': '984509e7f468086f02e23704748a58a3fc13b5c2babfbc27a2d27ac7258b3857',
+        'srcinfo': '6614557aa31b48a3b3a82af1d7bd311daedb4f771c0e8737d1f6297716962ac6',
+        'checker': 'check_source.py',
+        'tests': ['test_package.py'],
+        'docs': ['README.md', 'health-inputs.md', 'source-provenance.json', 'payload-pins.json'],
+    },
+    'cachy-asahi-session-diagnostics': {
+        'version': '0.1.0-3',
+        'recipe': 'ef55f7a91dab46dbf5355a5d02c0ccd4113bf45db2578cf59412662dca734662',
+        'srcinfo': 'c4dc2ceebed4250bceebd00204c29c2c9ddfd67f4b25cfde78bd2001349b44fd',
+        'checker': 'check_package.py',
+        'tests': ['test_session_probe.py', 'test_package.py'],
+        'docs': ['README.md', 'session-probe.md', 'source-provenance.json'],
+    },
+}
+# Exact historical inputs remain readable; version labels alone never admit a
+# recipe. These versions have the same checker names, payload layout and docs.
+LEGACY_PROFILES = {
+    ('cachy-asahi-maintenance', '0.1.0-1'): {
         'version': '0.1.0-1',
         'recipe': '2d4b50ac1bc3c4c934d9b53ee0a386e4c9553470e4b36b3eb7a11abbd7f48296',
         'srcinfo': '4b162f9f54baf9c804f11a8591bd75a8f4a445f2b557805415e077f39a97d9c4',
@@ -39,7 +59,7 @@ PROFILES = {
         'tests': ['test_package.py'],
         'docs': ['README.md', 'health-inputs.md', 'source-provenance.json', 'payload-pins.json'],
     },
-    'cachy-asahi-session-diagnostics': {
+    ('cachy-asahi-session-diagnostics', '0.1.0-2'): {
         'version': '0.1.0-2',
         'recipe': '13e4f092bec2ea7ff525319e3462db1e1e0fc42591dae307e900d7c5486f14d5',
         'srcinfo': 'f716264b09b28fef7a7fb3dee3c30aa1f9dc5e425809e8492b8d99796fd6e2ce',
@@ -54,9 +74,20 @@ def encoded(value):
     return (json.dumps(value, sort_keys=True, indent=2, allow_nan=False) + '\n').encode()
 
 
-def profile(name):
+def profile(name, version=None):
     s.need(name in PROFILES, 'recipe is outside the reviewed original-project set')
-    return PROFILES[name]
+    if version is None or version == PROFILES[name]['version']:
+        return PROFILES[name]
+    s.need((name, version) in LEGACY_PROFILES, 'unreviewed recipe version')
+    return LEGACY_PROFILES[name, version]
+
+
+def source_profile(name, bodies):
+    candidates = [profile(name)] + [p for (package, _), p in LEGACY_PROFILES.items() if package == name]
+    pair = s.digest(bodies['PKGBUILD']), s.digest(bodies['.SRCINFO'])
+    matches = [p for p in candidates if pair == (p['recipe'], p['srcinfo'])]
+    s.need(len(matches) == 1, 'reviewed recipe/SRCINFO changed')
+    return matches[0]
 
 
 def metadata(raw):
@@ -71,10 +102,9 @@ def metadata(raw):
 
 
 def source_set(name, read):
-    p = profile(name)
+    profile(name)
     bodies = {key: read(key) for key in ('PKGBUILD', '.SRCINFO')}
-    s.need(s.digest(bodies['PKGBUILD']) == p['recipe'] and
-           s.digest(bodies['.SRCINFO']) == p['srcinfo'], 'reviewed recipe/SRCINFO changed')
+    source_profile(name, bodies)
     info = metadata(bodies['.SRCINFO'])
     sources, pins = info['source'], info['sha256sums']
     s.need(len(sources) == len(pins) == len(set(sources)) <= MAX_FILES - 2, 'source count/duplicates')
@@ -90,7 +120,7 @@ def source_set(name, read):
     return bodies, info
 
 
-def payload(name):
+def payload(name, version=None):
     result = {'usr/bin/' + name: (name, 0o755)}
     if name == 'cachy-asahi-maintenance':
         for folder, names in {
@@ -101,7 +131,7 @@ def payload(name):
                 result[f'usr/lib/cachy-asahi/maintenance/scripts/{folder}/{leaf}.py'] = (leaf + '.py', 0o644)
     else:
         result['usr/lib/' + name + '/session_probe.py'] = ('session_probe.py', 0o644)
-    result.update({'usr/share/doc/' + name + '/' + leaf: (leaf, 0o644) for leaf in profile(name)['docs']})
+    result.update({'usr/share/doc/' + name + '/' + leaf: (leaf, 0o644) for leaf in profile(name, version)['docs']})
     result.update({'usr/share/licenses/' + name + '/' + leaf: (leaf, 0o644) for leaf in ('NOTICE', 'LICENSE')})
     return result
 
@@ -121,6 +151,7 @@ def bind_archive(path, name, bodies, info):
     # Reuse the existing read-only package inspector, operating on a private
     # byte snapshot so metadata and the hash cannot name different archives.
     import tempfile
+    p = source_profile(name, bodies)
     c = module('recipe_source_package_checks', HERE.parent / 'checks/package_checks.py')
     raw = s.read_file(path, MAX_TOTAL)
     with tempfile.TemporaryDirectory(prefix='recipe-source-archive-') as directory:
@@ -129,16 +160,16 @@ def bind_archive(path, name, bodies, info):
         report = c.package(snapshot)
     s.need(not report['errors'] and not report['review'], 'package archive inspection refused')
     pkg, build = report['metadata']['.PKGINFO'], report['metadata']['.BUILDINFO']
-    expected = {'pkgname': [name], 'pkgbase': [name], 'pkgver': [profile(name)['version']],
+    expected = {'pkgname': [name], 'pkgbase': [name], 'pkgver': [p['version']],
                 'arch': ['any'], 'license': ['MIT']}
     for src, dest in (('depends', 'depend'), ('optdepends', 'optdepend'), ('makedepends', 'makedepend'),
                       ('checkdepends', 'checkdepend'), ('provides', 'provides'), ('conflicts', 'conflict'),
                       ('replaces', 'replaces'), ('backup', 'backup')):
         expected[dest] = info.get(src, [])
     s.need(all(sorted(pkg.get(k, [])) == sorted(v) for k, v in expected.items()), 'package archive identity/dependencies mismatch')
-    s.need(build.get('pkgbuild_sha256sum') == [profile(name)['recipe']], 'archive BUILDINFO PKGBUILD mismatch')
+    s.need(build.get('pkgbuild_sha256sum') == [p['recipe']], 'archive BUILDINFO PKGBUILD mismatch')
     members = report['members']
-    wanted = payload(name)
+    wanted = payload(name, p['version'])
     files = {k for k, v in members.items() if v['type'] != '5'}
     s.need(files == set(wanted) | {'.PKGINFO', '.BUILDINFO', '.MTREE'}, 'archive payload set mismatch')
     s.need(all(members[key]['type'] == '0' and members[key]['mode'] == 0o644
@@ -151,16 +182,16 @@ def bind_archive(path, name, bodies, info):
         s.need(row['type'] == '0' and row['mode'] == mode and row['size'] == len(bodies[source]) and
                row['sha256'] == s.digest(bodies[source]), 'archive payload bytes/mode mismatch: ' + key)
     return dict(status='ARCHIVE_METADATA_AND_PAYLOAD_BOUND', archive_sha256=s.digest(raw), archive_bytes=len(raw),
-                pkgbuild_sha256=profile(name)['recipe'], metadata_sha256=s.digest(encoded(report['metadata'])),
+                pkgbuild_sha256=p['recipe'], metadata_sha256=s.digest(encoded(report['metadata'])),
                 native_execution='NOT_ESTABLISHED')
 
 
 def manifest(name, bodies, info, revision, binding):
     s.need(type(revision) is str and re.fullmatch('[0-9a-f]{40}', revision), 'full observed source revision required')
     binding_check(binding)
+    p = source_profile(name, bodies)
     if binding:
-        s.need(binding['pkgbuild_sha256'] == profile(name)['recipe'], 'binding recipe mismatch')
-    p = profile(name)
+        s.need(binding['pkgbuild_sha256'] == p['recipe'], 'binding recipe mismatch')
     return dict(schema_version=1, purpose='reviewed-original-recipe-source',
                 package=dict(name=name, version=p['version'], arch='any'), license='MIT',
                 observed_source_revision=revision, revision_is_not_source_authority=True,
