@@ -1,0 +1,53 @@
+{
+  "actual_attempt": null,
+  "actual_image": null,
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "cleanup": "owned named consumers absent BEFORE deleting owned fresh image/tag; no global prune",
+  "data_carrier_mode": "native248 (496 selected payloads); whole1148 payload carrier proven; never574 environment",
+  "data_carrier_source": "ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad",
+  "environment": "fresh original signed C01/341 bootstrap",
+  "generic16k_execution": "NOT RUN",
+  "hardware_validation": "NOT RUN",
+  "input_lock_sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f",
+  "installed_base_packages": 341,
+  "installed_behavior": "NOT RUN",
+  "native_build": "NOT RUN",
+  "new_controls": "source-only owner guards",
+  "original_controls": 19,
+  "original_packaging_files": 11,
+  "package_inputs": 248,
+  "packages_lock_sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25",
+  "performance_acceptance": "NOT RUN",
+  "performance_claim": null,
+  "public14_source": "04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd",
+  "purpose": "ARM-C01 installable private-prefix experiment",
+  "required_archives": [
+    "baseline-r1-1",
+    "baseline-r1-2",
+    "baseline-r2-1",
+    "lto-r1-1",
+    "lto-r1-2",
+    "lto-r2-1"
+  ],
+  "required_installed_phases": [
+    "install-baseline",
+    "coexist",
+    "upgrade",
+    "repeat",
+    "remove-baseline",
+    "remove-lto",
+    "reinstall",
+    "final-remove"
+  ],
+  "schema": 1,
+  "selected_for_release": false,
+  "source_rules": [
+    "closed source export only",
+    "input source SHA equals HEAD and GitHub product/workflow SHA",
+    "presecret map/owner/alias proof",
+    "same run source image context and cleanup evidence joined",
+    "non-root native ARM GitHub runner and local Docker socket only"
+  ]
+}
