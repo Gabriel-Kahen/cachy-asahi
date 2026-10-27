@@ -1,0 +1,794 @@
+{
+  "actual_candidate_config": null,
+  "actual_run": null,
+  "actual_source": null,
+  "archive": {
+    "bytes": 262965559,
+    "sha256": "874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad",
+    "source_revision": "94fb23346d522edf53722357c426a3e58030beea"
+  },
+  "baseline_config": {
+    "bytes": 64022,
+    "sha256": "9729936f8a2a3ffa3edf1e3f689dbb56426795f733c73d83a9e4ee94ee8d7aa5"
+  },
+  "blocks": {
+    "BLK_DEV_DM": {
+      "path": "drivers/md/Kconfig",
+      "text": "config BLK_DEV_DM\n\ttristate \"Device mapper support\"\n\tselect BLOCK_HOLDER_DEPRECATED if SYSFS\n\tselect BLK_DEV_DM_BUILTIN\n\tselect BLK_MQ_STACKING\n\tselect CRYPTO_LIB_SHA256 if IMA\n\tdepends on DAX || DAX=n\n\thelp\n\t  Device-mapper is a low level volume manager.  It works by allowing\n\t  people to specify mappings for ranges of logical sectors.  Various\n\t  mapping types are available, in addition people may write their own\n\t  modules containing custom mappings if they wish.\n\n\t  Higher level volume managers such as LVM2 use this driver.\n\n\t  To compile this as a module, choose M here: the module will be\n\t  called dm-mod.\n\n\t  If unsure, say N.\n\n"
+    },
+    "BLK_DEV_DM_BUILTIN": {
+      "path": "drivers/md/Kconfig",
+      "text": "config BLK_DEV_DM_BUILTIN\n\tbool\n\n"
+    },
+    "BLK_MQ_STACKING": {
+      "path": "block/Kconfig",
+      "text": "config BLK_MQ_STACKING\n\tbool\n\nsource \"block/Kconfig.iosched\"\n\nendif # BLOCK\n"
+    },
+    "BLOCK": {
+      "path": "block/Kconfig",
+      "text": "menuconfig BLOCK\n       bool \"Enable the block layer\" if EXPERT\n       default y\n       select FS_IOMAP\n       select SBITMAP\n       help\n\t Provide block layer support for the kernel.\n\n\t Disable this option to remove the block layer support from the\n\t kernel. This may be useful for embedded devices.\n\n\t If this option is disabled:\n\n\t   - block device files will become unusable\n\t   - some filesystems (such as ext3) will become unavailable.\n\n\t Also, SCSI character devices and USB storage will be disabled since\n\t they make use of various block layer definitions and facilities.\n\n\t Say Y here unless you know you really don't want to mount disks and\n\t suchlike.\n\nif BLOCK\n\n"
+    },
+    "BLOCK_HOLDER_DEPRECATED": {
+      "path": "block/Kconfig",
+      "text": "config BLOCK_HOLDER_DEPRECATED\n\tbool\n\n"
+    },
+    "CRYPTO": {
+      "path": "crypto/Kconfig",
+      "text": "menuconfig CRYPTO\n\ttristate \"Cryptographic API\"\n\tselect CRYPTO_LIB_UTILS\n\thelp\n\t  This option provides the core Cryptographic API.\n\nif CRYPTO\n\nmenu \"Crypto core or helper\"\n\n"
+    },
+    "CRYPTO_ALGAPI": {
+      "path": "crypto/Kconfig",
+      "text": "config CRYPTO_ALGAPI\n\ttristate\n\tselect CRYPTO_ALGAPI2\n\thelp\n\t  This option provides the API for cryptographic algorithms.\n\n"
+    },
+    "CRYPTO_ALGAPI2": {
+      "path": "crypto/Kconfig",
+      "text": "config CRYPTO_ALGAPI2\n\ttristate\n\n"
+    },
+    "CRYPTO_HASH": {
+      "path": "crypto/Kconfig",
+      "text": "config CRYPTO_HASH\n\ttristate\n\tselect CRYPTO_HASH2\n\tselect CRYPTO_ALGAPI\n\n"
+    },
+    "CRYPTO_HASH2": {
+      "path": "crypto/Kconfig",
+      "text": "config CRYPTO_HASH2\n\ttristate\n\tselect CRYPTO_ALGAPI2\n\n"
+    },
+    "CRYPTO_LIB_SHA256": {
+      "path": "lib/crypto/Kconfig",
+      "text": "config CRYPTO_LIB_SHA256\n\ttristate\n\thelp\n\t  The SHA-224, SHA-256, HMAC-SHA224, and HMAC-SHA256 library functions.\n\t  Select this if your module uses any of these functions from\n\t  <crypto/sha2.h>.\n\n"
+    },
+    "CRYPTO_LIB_SHA256_ARCH": {
+      "path": "lib/crypto/Kconfig",
+      "text": "config CRYPTO_LIB_SHA256_ARCH\n\tbool\n\tdepends on CRYPTO_LIB_SHA256 && !UML\n\tdefault y if ARM && !CPU_V7M\n\tdefault y if ARM64\n\tdefault y if MIPS && CPU_CAVIUM_OCTEON\n\tdefault y if PPC && SPE\n\tdefault y if RISCV && 64BIT && TOOLCHAIN_HAS_VECTOR_CRYPTO && \\\n\t\t     RISCV_EFFICIENT_VECTOR_UNALIGNED_ACCESS\n\tdefault y if S390\n\tdefault y if SPARC64\n\tdefault y if X86_64\n\n"
+    },
+    "CRYPTO_LIB_UTILS": {
+      "path": "lib/crypto/Kconfig",
+      "text": "config CRYPTO_LIB_UTILS\n\ttristate\n\n"
+    },
+    "CRYPTO_SHA256": {
+      "path": "crypto/Kconfig",
+      "text": "config CRYPTO_SHA256\n\ttristate \"SHA-224 and SHA-256\"\n\tselect CRYPTO_HASH\n\tselect CRYPTO_LIB_SHA256\n\thelp\n\t  SHA-224 and SHA-256 secure hash algorithms (FIPS 180, ISO/IEC\n\t  10118-3), including HMAC support.\n\n\t  This is required for IPsec AH (XFRM_AH) and IPsec ESP (XFRM_ESP).\n\n"
+    },
+    "DM_BUFIO": {
+      "path": "drivers/md/Kconfig",
+      "text": "config DM_BUFIO\n       tristate\n       depends on BLK_DEV_DM\n\thelp\n\t This interface allows you to do buffered I/O on a device and acts\n\t as a cache, holding recently-read blocks in memory and performing\n\t delayed writes.\n\n"
+    },
+    "DM_VERITY": {
+      "path": "drivers/md/Kconfig",
+      "text": "config DM_VERITY\n\ttristate \"Verity target support\"\n\tdepends on BLK_DEV_DM\n\tselect CRYPTO\n\tselect CRYPTO_HASH\n\tselect CRYPTO_LIB_SHA256\n\tselect DM_BUFIO\n\tselect REED_SOLOMON if DM_VERITY_FEC\n\tselect REED_SOLOMON_DEC8 if DM_VERITY_FEC\n\thelp\n\t  This device-mapper target creates a read-only device that\n\t  transparently validates the data on one underlying device against\n\t  a pre-generated tree of cryptographic checksums stored on a second\n\t  device.\n\n\t  You'll need to activate the digests you're going to use in the\n\t  cryptoapi configuration.\n\n\t  To compile this code as a module, choose M here: the module will\n\t  be called dm-verity.\n\n\t  If unsure, say N.\n\n"
+    },
+    "MD": {
+      "path": "drivers/md/Kconfig",
+      "text": "menuconfig MD\n\tbool \"Multiple devices driver support (RAID and LVM)\"\n\tdepends on BLOCK\n\thelp\n\t  Support multiple physical spindles through a single logical device.\n\t  Required for RAID and logical volume management.\n\nif MD\n\n"
+    }
+  },
+  "edges": {
+    "BLK_DEV_DM": [
+      "BLOCK_HOLDER_DEPRECATED",
+      "BLK_DEV_DM_BUILTIN",
+      "BLK_MQ_STACKING"
+    ],
+    "CRYPTO": [
+      "CRYPTO_LIB_UTILS"
+    ],
+    "CRYPTO_ALGAPI": [
+      "CRYPTO_ALGAPI2"
+    ],
+    "CRYPTO_HASH": [
+      "CRYPTO_HASH2",
+      "CRYPTO_ALGAPI"
+    ],
+    "CRYPTO_HASH2": [
+      "CRYPTO_ALGAPI2"
+    ],
+    "CRYPTO_SHA256": [
+      "CRYPTO_HASH",
+      "CRYPTO_LIB_SHA256"
+    ],
+    "DM_VERITY": [
+      "CRYPTO",
+      "CRYPTO_HASH",
+      "CRYPTO_LIB_SHA256",
+      "DM_BUFIO"
+    ],
+    "MD": [
+      "BLOCK"
+    ]
+  },
+  "files": {
+    "arch/arm64/crypto/Kconfig": {
+      "bytes": 5251,
+      "sha256": "b3287b14b790711faaf9b30c3a1ebfb4466985c50ac7487683ea2be5027b3be0"
+    },
+    "block/Kconfig": {
+      "bytes": 7510,
+      "sha256": "76434b3a88b7d9aa45c250e4a9722f89a6c64cd5c405802e3a356b1836d19733"
+    },
+    "certs/Kconfig": {
+      "bytes": 7760,
+      "sha256": "6a8f0dfe9e3ac972b088c74ece1d9fb9d8db1af24dde7fc935fadf1568b126e8"
+    },
+    "crypto/Kconfig": {
+      "bytes": 37850,
+      "sha256": "6a4082eaa9b0be37093c6fc9eb2e61b2eeaf3b36509b1ff2dd17e6e3ff7fed18"
+    },
+    "crypto/asymmetric_keys/Kconfig": {
+      "bytes": 3978,
+      "sha256": "20cfe6a65df85e1ca3d7287b8062838914d8770f6271a93cca4b52a47b2fb4b2"
+    },
+    "crypto/krb5/Kconfig": {
+      "bytes": 704,
+      "sha256": "ed44f86e06cc1794a51cad2342aa1fc7370ffe8ce6adf24632a4fa76da4c85d0"
+    },
+    "drivers/crypto/Kconfig": {
+      "bytes": 27203,
+      "sha256": "a4e841c48fd06cb3a7f4c307f2fed17c7b2f988b89d6cdd9d87558d585082443"
+    },
+    "drivers/md/Kconfig": {
+      "bytes": 22482,
+      "sha256": "8d9d21408e1c3be83c1954bf6264440eb97be9f61914952e80f37a9220265562"
+    },
+    "drivers/md/bcache/Kconfig": {
+      "bytes": 864,
+      "sha256": "b5b12aefeda3ab729b8f3d96000606a09dc160a00644acbd43b0c6b564944d6f"
+    },
+    "drivers/md/dm-pcache/Kconfig": {
+      "bytes": 656,
+      "sha256": "afdc6eed40baf72c5b38d60be05f6890fa33afe42f4698cc76816fb38b1706de"
+    },
+    "drivers/md/dm-vdo/Kconfig": {
+      "bytes": 457,
+      "sha256": "f010b726f2c7538fd1d482b63eaf1f19e14ef921d8ff99c6495fe408cd8bfccf"
+    },
+    "drivers/md/persistent-data/Kconfig": {
+      "bytes": 288,
+      "sha256": "5a8429607415e2806530af8fca08f23b363bfacd444f99304bce3518aa3f1ac6"
+    },
+    "lib/crypto/Kconfig": {
+      "bytes": 7190,
+      "sha256": "a50194df53fdef4c623e09a65d7d0b4a419187a391a486200beef0c22274e712"
+    }
+  },
+  "inactive_domain_derivation": "Original173 direct MD/CRYPTO bool/tristates plus16 prompted bool/tristate visibility frontier from all directly newly reachable source statements under the held fourteen enables and unchanged original baseline gates. Only n-valued key appearance/disappearance; exact fourteen active changes separately mandatory. No candidate config is constructed.",
+  "inactive_domain_sources": {
+    "crypto/Kconfig": "# SPDX-License-Identifier: GPL-2.0\n#\n# Generic algorithms support\n#\n\n#\n# async_tx api: hardware offloaded memory transfer/transform support\n#\nsource \"crypto/async_tx/Kconfig\"\n\n#\n# Cryptographic API Configuration\n#\nmenuconfig CRYPTO\n\ttristate \"Cryptographic API\"\n\tselect CRYPTO_LIB_UTILS\n\thelp\n\t  This option provides the core Cryptographic API.\n\nif CRYPTO\n\nmenu \"Crypto core or helper\"\n\nconfig CRYPTO_FIPS\n\tbool \"FIPS 200 compliance\"\n\tdepends on CRYPTO_DRBG=y && CRYPTO_SELFTESTS\n\tdepends on (MODULE_SIG || !MODULES)\n\thelp\n\t  This option enables the fips boot option which is\n\t  required if you want the system to operate in a FIPS 200\n\t  certification.  You should say no unless you know what\n\t  this is.\n\nconfig CRYPTO_FIPS_NAME\n\tstring \"FIPS Module Name\"\n\tdefault \"Linux Kernel Cryptographic API\"\n\tdepends on CRYPTO_FIPS\n\thelp\n\t  This option sets the FIPS Module name reported by the Crypto API via\n\t  the /proc/sys/crypto/fips_name file.\n\nconfig CRYPTO_FIPS_CUSTOM_VERSION\n\tbool \"Use Custom FIPS Module Version\"\n\tdepends on CRYPTO_FIPS\n\tdefault n\n\nconfig CRYPTO_FIPS_VERSION\n\tstring \"FIPS Module Version\"\n\tdefault \"(none)\"\n\tdepends on CRYPTO_FIPS_CUSTOM_VERSION\n\thelp\n\t  This option provides the ability to override the FIPS Module Version.\n\t  By default the KERNELRELEASE value is used.\n\nconfig CRYPTO_ALGAPI\n\ttristate\n\tselect CRYPTO_ALGAPI2\n\thelp\n\t  This option provides the API for cryptographic algorithms.\n\nconfig CRYPTO_ALGAPI2\n\ttristate\n\nconfig CRYPTO_AEAD\n\ttristate\n\tselect CRYPTO_AEAD2\n\tselect CRYPTO_ALGAPI\n\nconfig CRYPTO_AEAD2\n\ttristate\n\tselect CRYPTO_ALGAPI2\n\nconfig CRYPTO_SIG\n\ttristate\n\tselect CRYPTO_SIG2\n\tselect CRYPTO_ALGAPI\n\nconfig CRYPTO_SIG2\n\ttristate\n\tselect CRYPTO_ALGAPI2\n\nconfig CRYPTO_SKCIPHER\n\ttristate\n\tselect CRYPTO_SKCIPHER2\n\tselect CRYPTO_ALGAPI\n\tselect CRYPTO_ECB\n\nconfig CRYPTO_SKCIPHER2\n\ttristate\n\tselect CRYPTO_ALGAPI2\n\nconfig CRYPTO_HASH\n\ttristate\n\tselect CRYPTO_HASH2\n\tselect CRYPTO_ALGAPI\n\nconfig CRYPTO_HASH2\n\ttristate\n\tselect CRYPTO_ALGAPI2\n\nconfig CRYPTO_RNG\n\ttristate\n\tselect CRYPTO_RNG2\n\tselect CRYPTO_ALGAPI\n\nconfig CRYPTO_RNG2\n\ttristate\n\tselect CRYPTO_ALGAPI2\n\nconfig CRYPTO_AKCIPHER2\n\ttristate\n\tselect CRYPTO_ALGAPI2\n\nconfig CRYPTO_AKCIPHER\n\ttristate\n\tselect CRYPTO_AKCIPHER2\n\tselect CRYPTO_ALGAPI\n\nconfig CRYPTO_KPP2\n\ttristate\n\tselect CRYPTO_ALGAPI2\n\nconfig CRYPTO_KPP\n\ttristate\n\tselect CRYPTO_ALGAPI\n\tselect CRYPTO_KPP2\n\nconfig CRYPTO_ACOMP2\n\ttristate\n\tselect CRYPTO_ALGAPI2\n\tselect SGL_ALLOC\n\nconfig CRYPTO_ACOMP\n\ttristate\n\tselect CRYPTO_ALGAPI\n\tselect CRYPTO_ACOMP2\n\nconfig CRYPTO_MANAGER\n\ttristate\n\tdefault CRYPTO_ALGAPI if CRYPTO_SELFTESTS\n\tselect CRYPTO_MANAGER2\n\thelp\n\t  This provides the support for instantiating templates such as\n\t  cbc(aes), and the support for the crypto self-tests.\n\nconfig CRYPTO_MANAGER2\n\tdef_tristate CRYPTO_MANAGER || (CRYPTO_MANAGER!=n && CRYPTO_ALGAPI=y)\n\tselect CRYPTO_ACOMP2 if CRYPTO_SELFTESTS\n\tselect CRYPTO_AEAD2 if CRYPTO_SELFTESTS\n\tselect CRYPTO_AKCIPHER2 if CRYPTO_SELFTESTS\n\tselect CRYPTO_SIG2 if CRYPTO_SELFTESTS\n\tselect CRYPTO_HASH2 if CRYPTO_SELFTESTS\n\tselect CRYPTO_KPP2 if CRYPTO_SELFTESTS\n\tselect CRYPTO_RNG2 if CRYPTO_SELFTESTS\n\tselect CRYPTO_SKCIPHER2 if CRYPTO_SELFTESTS\n\nconfig CRYPTO_USER\n\ttristate \"Userspace cryptographic algorithm configuration\"\n\tdepends on NET\n\tselect CRYPTO_MANAGER\n\tselect CRYPTO_RNG\n\thelp\n\t  Userspace configuration for cryptographic instantiations such as\n\t  cbc(aes).\n\nconfig CRYPTO_SELFTESTS\n\tbool \"Enable cryptographic self-tests\"\n\tdepends on EXPERT\n\thelp\n\t  Enable the cryptographic self-tests.\n\n\t  The cryptographic self-tests run at boot time, or at algorithm\n\t  registration time if algorithms are dynamically loaded later.\n\n\t  There are two main use cases for these tests:\n\n\t  - Development and pre-release testing.  In this case, also enable\n\t    CRYPTO_SELFTESTS_FULL to get the full set of tests.  All crypto code\n\t    in the kernel is expected to pass the full set of tests.\n\n\t  - Production kernels, to help prevent buggy drivers from being used\n\t    and/or meet FIPS 140-3 pre-operational testing requirements.  In\n\t    this case, enable CRYPTO_SELFTESTS but not CRYPTO_SELFTESTS_FULL.\n\nconfig CRYPTO_SELFTESTS_FULL\n\tbool \"Enable the full set of cryptographic self-tests\"\n\tdepends on CRYPTO_SELFTESTS\n\thelp\n\t  Enable the full set of cryptographic self-tests for each algorithm.\n\n\t  The full set of tests should be enabled for development and\n\t  pre-release testing, but not in production kernels.\n\n\t  All crypto code in the kernel is expected to pass the full tests.\n\nconfig CRYPTO_NULL\n\ttristate \"Null algorithms\"\n\tselect CRYPTO_ALGAPI\n\tselect CRYPTO_SKCIPHER\n\tselect CRYPTO_HASH\n\thelp\n\t  These are 'Null' algorithms, used by IPsec, which do nothing.\n\nconfig CRYPTO_PCRYPT\n\ttristate \"Parallel crypto engine\"\n\tdepends on SMP\n\tselect PADATA\n\tselect CRYPTO_MANAGER\n\tselect CRYPTO_AEAD\n\thelp\n\t  This converts an arbitrary crypto algorithm into a parallel\n\t  algorithm that executes in kernel threads.\n\nconfig CRYPTO_CRYPTD\n\ttristate \"Software async crypto daemon\"\n\tselect CRYPTO_AEAD\n\tselect CRYPTO_SKCIPHER\n\tselect CRYPTO_HASH\n\tselect CRYPTO_MANAGER\n\thelp\n\t  This is a generic software asynchronous crypto daemon that\n\t  converts an arbitrary synchronous software crypto algorithm\n\t  into an asynchronous algorithm that executes in a kernel thread.\n\nconfig CRYPTO_AUTHENC\n\ttristate \"Authenc support\"\n\tselect CRYPTO_AEAD\n\tselect CRYPTO_SKCIPHER\n\tselect CRYPTO_MANAGER\n\tselect CRYPTO_HASH\n\thelp\n\t  Authenc: Combined mode wrapper for IPsec.\n\n\t  This is required for IPSec ESP (XFRM_ESP).\n\nconfig CRYPTO_KRB5ENC\n\ttristate \"Kerberos 5 combined hash+cipher support\"\n\tselect CRYPTO_AEAD\n\tselect CRYPTO_SKCIPHER\n\tselect CRYPTO_MANAGER\n\tselect CRYPTO_HASH\n\thelp\n\t  Combined hash and cipher support for Kerberos 5 RFC3961 simplified\n\t  profile.  This is required for Kerberos 5-style encryption, used by\n\t  sunrpc/NFS and rxrpc/AFS.\n\nconfig CRYPTO_BENCHMARK\n\ttristate \"Crypto benchmarking module\"\n\tdepends on m || EXPERT\n\tselect CRYPTO_AEAD\n\tselect CRYPTO_HASH\n\tselect CRYPTO_MANAGER\n\tselect CRYPTO_SKCIPHER\n\thelp\n\t  Quick & dirty crypto benchmarking module.\n\n\t  This is mainly intended for use by people developing cryptographic\n\t  algorithms in the kernel.  It should not be enabled in production\n\t  kernels.\n\nconfig CRYPTO_SIMD\n\ttristate\n\tselect CRYPTO_AEAD\n\tselect CRYPTO_CRYPTD\n\nconfig CRYPTO_ENGINE\n\ttristate\n\tselect CRYPTO_AEAD\n\tselect CRYPTO_AKCIPHER\n\tselect CRYPTO_HASH\n\tselect CRYPTO_KPP\n\tselect CRYPTO_SKCIPHER\n\nendmenu\n\nmenu \"Public-key cryptography\"\n\nconfig CRYPTO_RSA\n\ttristate \"RSA (Rivest-Shamir-Adleman)\"\n\tselect CRYPTO_AKCIPHER\n\tselect CRYPTO_MANAGER\n\tselect CRYPTO_SIG\n\tselect MPILIB\n\tselect ASN1\n\thelp\n\t  RSA (Rivest-Shamir-Adleman) public key algorithm (RFC8017)\n\nconfig CRYPTO_DH\n\ttristate \"DH (Diffie-Hellman)\"\n\tselect CRYPTO_KPP\n\tselect MPILIB\n\thelp\n\t  DH (Diffie-Hellman) key exchange algorithm\n\nconfig CRYPTO_DH_RFC7919_GROUPS\n\tbool \"RFC 7919 FFDHE groups\"\n\tdepends on CRYPTO_DH\n\thelp\n\t  FFDHE (Finite-Field-based Diffie-Hellman Ephemeral) groups\n\t  defined in RFC7919.\n\n\t  Support these finite-field groups in DH key exchanges:\n\t  - ffdhe2048, ffdhe3072, ffdhe4096, ffdhe6144, ffdhe8192\n\n\t  If unsure, say N.\n\nconfig CRYPTO_ECC\n\ttristate\n\nconfig CRYPTO_ECDH\n\ttristate \"ECDH (Elliptic Curve Diffie-Hellman)\"\n\tselect CRYPTO_ECC\n\tselect CRYPTO_KPP\n\thelp\n\t  ECDH (Elliptic Curve Diffie-Hellman) key exchange algorithm\n\t  using curves P-192, P-256, and P-384 (FIPS 186)\n\nconfig CRYPTO_ECDSA\n\ttristate \"ECDSA (Elliptic Curve Digital Signature Algorithm)\"\n\tselect CRYPTO_ECC\n\tselect CRYPTO_SIG\n\tselect ASN1\n\thelp\n\t  ECDSA (Elliptic Curve Digital Signature Algorithm) (FIPS 186,\n\t  ISO/IEC 14888-3)\n\t  using curves P-192, P-256, P-384 and P-521\n\n\t  Only signature verification is implemented.\n\nconfig CRYPTO_ECRDSA\n\ttristate \"EC-RDSA (Elliptic Curve Russian Digital Signature Algorithm)\"\n\tselect CRYPTO_ECC\n\tselect CRYPTO_SIG\n\tselect CRYPTO_STREEBOG\n\tselect OID_REGISTRY\n\tselect ASN1\n\thelp\n\t  Elliptic Curve Russian Digital Signature Algorithm (GOST R 34.10-2012,\n\t  RFC 7091, ISO/IEC 14888-3)\n\n\t  One of the Russian cryptographic standard algorithms (called GOST\n\t  algorithms). Only signature verification is implemented.\n\nconfig CRYPTO_MLDSA\n\ttristate \"ML-DSA (Module-Lattice-Based Digital Signature Algorithm)\"\n\tselect CRYPTO_SIG\n\tselect CRYPTO_LIB_MLDSA\n\thelp\n\t  ML-DSA (Module-Lattice-Based Digital Signature Algorithm) (FIPS-204).\n\n\t  Only signature verification is implemented.\n\nendmenu\n\nmenu \"Block ciphers\"\n\nconfig CRYPTO_AES\n\ttristate \"AES (Advanced Encryption Standard)\"\n\tselect CRYPTO_ALGAPI\n\tselect CRYPTO_LIB_AES\n\tselect CRYPTO_LIB_AES_CBC_MACS if CRYPTO_CMAC != n || CRYPTO_XCBC != n || CRYPTO_CCM != n\n\tselect CRYPTO_HASH if CRYPTO_CMAC != n || CRYPTO_XCBC != n || CRYPTO_CCM != n\n\thelp\n\t  AES cipher algorithms (Rijndael)(FIPS-197, ISO/IEC 18033-3)\n\n\t  Rijndael appears to be consistently a very good performer in\n\t  both hardware and software across a wide range of computing\n\t  environments regardless of its use in feedback or non-feedback\n\t  modes. Its key setup time is excellent, and its key agility is\n\t  good. Rijndael's very low memory requirements make it very well\n\t  suited for restricted-space environments, in which it also\n\t  demonstrates excellent performance. Rijndael's operations are\n\t  among the easiest to defend against power and timing attacks.\n\n\t  The AES specifies three key sizes: 128, 192 and 256 bits\n\nconfig CRYPTO_ANUBIS\n\ttristate \"Anubis\"\n\tdepends on CRYPTO_USER_API_ENABLE_OBSOLETE\n\tselect CRYPTO_ALGAPI\n\thelp\n\t  Anubis cipher algorithm\n\n\t  Anubis is a variable key length cipher which can use keys from\n\t  128 bits to 320 bits in length.  It was evaluated as a entrant\n\t  in the NESSIE competition.\n\n\t  See https://web.archive.org/web/20160606112246/http://www.larc.usp.br/~pbarreto/AnubisPage.html\n\t  for further information.\n\nconfig CRYPTO_ARIA\n\ttristate \"ARIA\"\n\tselect CRYPTO_ALGAPI\n\thelp\n\t  ARIA cipher algorithm (RFC5794)\n\n\t  ARIA is a standard encryption algorithm of the Republic of Korea.\n\t  The ARIA specifies three key sizes and rounds.\n\t  128-bit: 12 rounds.\n\t  192-bit: 14 rounds.\n\t  256-bit: 16 rounds.\n\n\t  See:\n\t  https://seed.kisa.or.kr/kisa/algorithm/EgovAriaInfo.do\n\nconfig CRYPTO_BLOWFISH\n\ttristate \"Blowfish\"\n\tselect CRYPTO_ALGAPI\n\tselect CRYPTO_BLOWFISH_COMMON\n\thelp\n\t  Blowfish cipher algorithm, by Bruce Schneier\n\n\t  This is a variable key length cipher which can use keys from 32\n\t  bits to 448 bits in length.  It's fast, simple and specifically\n\t  designed for use on \"large microprocessors\".\n\n\t  See https://www.schneier.com/blowfish.html for further information.\n\nconfig CRYPTO_BLOWFISH_COMMON\n\ttristate\n\thelp\n\t  Common parts of the Blowfish cipher algorithm shared by the\n\t  generic c and the assembler implementations.\n\nconfig CRYPTO_CAMELLIA\n\ttristate \"Camellia\"\n\tselect CRYPTO_ALGAPI\n\thelp\n\t  Camellia cipher algorithms (ISO/IEC 18033-3)\n\n\t  Camellia is a symmetric key block cipher developed jointly\n\t  at NTT and Mitsubishi Electric Corporation.\n\n\t  The Camellia specifies three key sizes: 128, 192 and 256 bits.\n\n\t  See https://info.isl.ntt.co.jp/crypt/eng/camellia/ for further information.\n\nconfig CRYPTO_CAST_COMMON\n\ttristate\n\thelp\n\t  Common parts of the CAST cipher algorithms shared by the\n\t  generic c and the assembler implementations.\n\nconfig CRYPTO_CAST5\n\ttristate \"CAST5 (CAST-128)\"\n\tselect CRYPTO_ALGAPI\n\tselect CRYPTO_CAST_COMMON\n\thelp\n\t  CAST5 (CAST-128) cipher algorithm (RFC2144, ISO/IEC 18033-3)\n\nconfig CRYPTO_CAST6\n\ttristate \"CAST6 (CAST-256)\"\n\tselect CRYPTO_ALGAPI\n\tselect CRYPTO_CAST_COMMON\n\thelp\n\t  CAST6 (CAST-256) encryption algorithm (RFC2612)\n\nconfig CRYPTO_DES\n\ttristate \"DES and Triple DES EDE\"\n\tselect CRYPTO_ALGAPI\n\tselect CRYPTO_LIB_DES\n\thelp\n\t  DES (Data Encryption Standard)(FIPS 46-2, ISO/IEC 18033-3) and\n\t  Triple DES EDE (Encrypt/Decrypt/Encrypt) (FIPS 46-3, ISO/IEC 18033-3)\n\t  cipher algorithms\n\nconfig CRYPTO_FCRYPT\n\ttristate \"FCrypt\"\n\tselect CRYPTO_ALGAPI\n\tselect CRYPTO_SKCIPHER\n\thelp\n\t  FCrypt algorithm used by RxRPC\n\n\t  See https://ota.polyonymo.us/fcrypt-paper.txt\n\nconfig CRYPTO_KHAZAD\n\ttristate \"Khazad\"\n\tdepends on CRYPTO_USER_API_ENABLE_OBSOLETE\n\tselect CRYPTO_ALGAPI\n\thelp\n\t  Khazad cipher algorithm\n\n\t  Khazad was a finalist in the initial NESSIE competition.  It is\n\t  an algorithm optimized for 64-bit processors with good performance\n\t  on 32-bit processors.  Khazad uses an 128 bit key size.\n\n\t  See https://web.archive.org/web/20171011071731/http://www.larc.usp.br/~pbarreto/KhazadPage.html\n\t  for further information.\n\nconfig CRYPTO_SEED\n\ttristate \"SEED\"\n\tdepends on CRYPTO_USER_API_ENABLE_OBSOLETE\n\tselect CRYPTO_ALGAPI\n\thelp\n\t  SEED cipher algorithm (RFC4269, ISO/IEC 18033-3)\n\n\t  SEED is a 128-bit symmetric key block cipher that has been\n\t  developed by KISA (Korea Information Security Agency) as a\n\t  national standard encryption algorithm of the Republic of Korea.\n\t  It is a 16 round block cipher with the key size of 128 bit.\n\n\t  See https://seed.kisa.or.kr/kisa/algorithm/EgovSeedInfo.do\n\t  for further information.\n\nconfig CRYPTO_SERPENT\n\ttristate \"Serpent\"\n\tselect CRYPTO_ALGAPI\n\thelp\n\t  Serpent cipher algorithm, by Anderson, Biham & Knudsen\n\n\t  Keys are allowed to be from 0 to 256 bits in length, in steps\n\t  of 8 bits.\n\n\t  See https://www.cl.cam.ac.uk/~rja14/serpent.html for further information.\n\nconfig CRYPTO_SM4\n\ttristate\n\nconfig CRYPTO_SM4_GENERIC\n\ttristate \"SM4 (ShangMi 4)\"\n\tselect CRYPTO_ALGAPI\n\tselect CRYPTO_SM4\n\thelp\n\t  SM4 cipher algorithms (OSCCA GB/T 32907-2016,\n\t  ISO/IEC 18033-3:2010/Amd 1:2021)\n\n\t  SM4 (GBT.32907-2016) is a cryptographic standard issued by the\n\t  Organization of State Commercial Administration of China (OSCCA)\n\t  as an authorized cryptographic algorithms for the use within China.\n\n\t  SMS4 was originally created for use in protecting wireless\n\t  networks, and is mandated in the Chinese National Standard for\n\t  Wireless LAN WAPI (Wired Authentication and Privacy Infrastructure)\n\t  (GB.15629.11-2003).\n\n\t  The latest SM4 standard (GBT.32907-2016) was proposed by OSCCA and\n\t  standardized through TC 260 of the Standardization Administration\n\t  of the People's Republic of China (SAC).\n\n\t  The input, output, and key of SMS4 are each 128 bits.\n\n\t  See https://eprint.iacr.org/2008/329.pdf for further information.\n\n\t  If unsure, say N.\n\nconfig CRYPTO_TEA\n\ttristate \"TEA, XTEA and XETA\"\n\tdepends on CRYPTO_USER_API_ENABLE_OBSOLETE\n\tselect CRYPTO_ALGAPI\n\thelp\n\t  TEA (Tiny Encryption Algorithm) cipher algorithms\n\n\t  Tiny Encryption Algorithm is a simple cipher that uses\n\t  many rounds for security.  It is very fast and uses\n\t  little memory.\n\n\t  Xtendend Tiny Encryption Algorithm is a modification to\n\t  the TEA algorithm to address a potential key weakness\n\t  in the TEA algorithm.\n\n\t  Xtendend Encryption Tiny Algorithm is a mis-implementation\n\t  of the XTEA algorithm for compatibility purposes.\n\nconfig CRYPTO_TWOFISH\n\ttristate \"Twofish\"\n\tselect CRYPTO_ALGAPI\n\tselect CRYPTO_TWOFISH_COMMON\n\thelp\n\t  Twofish cipher algorithm\n\n\t  Twofish was submitted as an AES (Advanced Encryption Standard)\n\t  candidate cipher by researchers at CounterPane Systems.  It is a\n\t  16 round block cipher supporting key sizes of 128, 192, and 256\n\t  bits.\n\n\t  See https://www.schneier.com/twofish.html for further information.\n\nconfig CRYPTO_TWOFISH_COMMON\n\ttristate\n\thelp\n\t  Common parts of the Twofish cipher algorithm shared by the\n\t  generic c and the assembler implementations.\n\nendmenu\n\nmenu \"Length-preserving ciphers and modes\"\n\nconfig CRYPTO_ADIANTUM\n\ttristate \"Adiantum\"\n\tselect CRYPTO_CHACHA20\n\tselect CRYPTO_LIB_NH\n\tselect CRYPTO_LIB_POLY1305\n\tselect CRYPTO_LIB_POLY1305_GENERIC\n\tselect CRYPTO_MANAGER\n\thelp\n\t  Adiantum tweakable, length-preserving encryption mode\n\n\t  Designed for fast and secure disk encryption, especially on\n\t  CPUs without dedicated crypto instructions.  It encrypts\n\t  each sector using the XChaCha12 stream cipher, two passes of\n\t  an \u03b5-almost-\u2206-universal hash function, and an invocation of\n\t  the AES-256 block cipher on a single 16-byte block.  On CPUs\n\t  without AES instructions, Adiantum is much faster than\n\t  AES-XTS.\n\n\t  Adiantum's security is provably reducible to that of its\n\t  underlying stream and block ciphers, subject to a security\n\t  bound.  Unlike XTS, Adiantum is a true wide-block encryption\n\t  mode, so it actually provides an even stronger notion of\n\t  security than XTS, subject to the security bound.\n\n\t  If unsure, say N.\n\nconfig CRYPTO_ARC4\n\ttristate \"ARC4 (Alleged Rivest Cipher 4)\"\n\tdepends on CRYPTO_USER_API_ENABLE_OBSOLETE\n\tselect CRYPTO_SKCIPHER\n\tselect CRYPTO_LIB_ARC4\n\thelp\n\t  ARC4 cipher algorithm\n\n\t  ARC4 is a stream cipher using keys ranging from 8 bits to 2048\n\t  bits in length.  This algorithm is required for driver-based\n\t  WEP, but it should not be for other purposes because of the\n\t  weakness of the algorithm.\n\nconfig CRYPTO_CHACHA20\n\ttristate \"ChaCha\"\n\tselect CRYPTO_LIB_CHACHA\n\tselect CRYPTO_SKCIPHER\n\thelp\n\t  The ChaCha20, XChaCha20, and XChaCha12 stream cipher algorithms\n\n\t  ChaCha20 is a 256-bit high-speed stream cipher designed by Daniel J.\n\t  Bernstein and further specified in RFC7539 for use in IETF protocols.\n\t  This is the portable C implementation of ChaCha20.  See\n\t  https://cr.yp.to/chacha/chacha-20080128.pdf for further information.\n\n\t  XChaCha20 is the application of the XSalsa20 construction to ChaCha20\n\t  rather than to Salsa20.  XChaCha20 extends ChaCha20's nonce length\n\t  from 64 bits (or 96 bits using the RFC7539 convention) to 192 bits,\n\t  while provably retaining ChaCha20's security.  See\n\t  https://cr.yp.to/snuffle/xsalsa-20081128.pdf for further information.\n\n\t  XChaCha12 is XChaCha20 reduced to 12 rounds, with correspondingly\n\t  reduced security margin but increased performance.  It can be needed\n\t  in some performance-sensitive scenarios.\n\nconfig CRYPTO_CBC\n\ttristate \"CBC (Cipher Block Chaining)\"\n\tselect CRYPTO_SKCIPHER\n\tselect CRYPTO_MANAGER\n\thelp\n\t  CBC (Cipher Block Chaining) mode (NIST SP800-38A)\n\n\t  This block cipher mode is required for IPSec ESP (XFRM_ESP).\n\nconfig CRYPTO_CTR\n\ttristate \"CTR (Counter)\"\n\tselect CRYPTO_SKCIPHER\n\tselect CRYPTO_MANAGER\n\thelp\n\t  CTR (Counter) mode (NIST SP800-38A)\n\nconfig CRYPTO_CTS\n\ttristate \"CTS (Cipher Text Stealing)\"\n\tselect CRYPTO_SKCIPHER\n\tselect CRYPTO_MANAGER\n\thelp\n\t  CBC-CS3 variant of CTS (Cipher Text Stealing) (NIST\n\t  Addendum to SP800-38A (October 2010))\n\n\t  This mode is required for Kerberos gss mechanism support\n\t  for AES encryption.\n\nconfig CRYPTO_ECB\n\ttristate \"ECB (Electronic Codebook)\"\n\tselect CRYPTO_SKCIPHER2\n\tselect CRYPTO_MANAGER\n\thelp\n\t  ECB (Electronic Codebook) mode (NIST SP800-38A)\n\nconfig CRYPTO_HCTR2\n\ttristate \"HCTR2\"\n\tselect CRYPTO_XCTR\n\tselect CRYPTO_LIB_GF128HASH\n\tselect CRYPTO_MANAGER\n\thelp\n\t  HCTR2 length-preserving encryption mode\n\n\t  A mode for storage encryption that is efficient on processors with\n\t  instructions to accelerate AES and carryless multiplication, e.g.\n\t  x86 processors with AES-NI and CLMUL, and ARM processors with the\n\t  ARMv8 crypto extensions.\n\n\t  See https://eprint.iacr.org/2021/1441\n\nconfig CRYPTO_LRW\n\ttristate \"LRW (Liskov Rivest Wagner)\"\n\tselect CRYPTO_LIB_GF128MUL\n\tselect CRYPTO_SKCIPHER\n\tselect CRYPTO_MANAGER\n\tselect CRYPTO_ECB\n\thelp\n\t  LRW (Liskov Rivest Wagner) mode\n\n\t  A tweakable, non malleable, non movable\n\t  narrow block cipher mode for dm-crypt.  Use it with cipher\n\t  specification string aes-lrw-benbi, the key must be 256, 320 or 384.\n\t  The first 128, 192 or 256 bits in the key are used for AES and the\n\t  rest is used to tie each cipher block to its logical position.\n\n\t  See https://people.csail.mit.edu/rivest/pubs/LRW02.pdf\n\nconfig CRYPTO_PCBC\n\ttristate \"PCBC (Propagating Cipher Block Chaining)\"\n\tselect CRYPTO_SKCIPHER\n\tselect CRYPTO_MANAGER\n\thelp\n\t  PCBC (Propagating Cipher Block Chaining) mode\n\n\t  This block cipher mode is required for RxRPC.\n\nconfig CRYPTO_XCTR\n\ttristate\n\tselect CRYPTO_SKCIPHER\n\tselect CRYPTO_MANAGER\n\thelp\n\t  XCTR (XOR Counter) mode for HCTR2\n\n\t  This blockcipher mode is a variant of CTR mode using XORs and little-endian\n\t  addition rather than big-endian arithmetic.\n\n\t  XCTR mode is used to implement HCTR2.\n\nconfig CRYPTO_XTS\n\ttristate \"XTS (XOR Encrypt XOR with ciphertext stealing)\"\n\tselect CRYPTO_SKCIPHER\n\tselect CRYPTO_MANAGER\n\tselect CRYPTO_ECB\n\thelp\n\t  XTS (XOR Encrypt XOR with ciphertext stealing) mode (NIST SP800-38E\n\t  and IEEE 1619)\n\n\t  Use with aes-xts-plain, key size 256, 384 or 512 bits. This\n\t  implementation currently can't handle a sectorsize which is not a\n\t  multiple of 16 bytes.\n\nendmenu\n\nmenu \"AEAD (authenticated encryption with associated data) ciphers\"\n\nconfig CRYPTO_AEGIS128\n\ttristate \"AEGIS-128\"\n\tselect CRYPTO_AEAD\n\tselect CRYPTO_LIB_AES  # for AES S-box tables\n\thelp\n\t  AEGIS-128 AEAD algorithm\n\nconfig CRYPTO_AEGIS128_SIMD\n\tbool \"AEGIS-128 (arm NEON, arm64 NEON)\"\n\tdepends on CRYPTO_AEGIS128 && ((ARM || ARM64) && KERNEL_MODE_NEON)\n\tdefault y\n\thelp\n\t  AEGIS-128 AEAD algorithm\n\n\t  Architecture: arm or arm64 using:\n\t  - NEON (Advanced SIMD) extension\n\nconfig CRYPTO_CHACHA20POLY1305\n\ttristate \"ChaCha20-Poly1305\"\n\tselect CRYPTO_CHACHA20\n\tselect CRYPTO_AEAD\n\tselect CRYPTO_LIB_POLY1305\n\tselect CRYPTO_MANAGER\n\thelp\n\t  ChaCha20 stream cipher and Poly1305 authenticator combined\n\t  mode (RFC8439)\n\nconfig CRYPTO_CCM\n\ttristate \"CCM (Counter with Cipher Block Chaining-MAC)\"\n\tselect CRYPTO_CTR\n\tselect CRYPTO_HASH\n\tselect CRYPTO_AEAD\n\tselect CRYPTO_MANAGER\n\thelp\n\t  CCM (Counter with Cipher Block Chaining-Message Authentication Code)\n\t  authenticated encryption mode (NIST SP800-38C)\n\nconfig CRYPTO_GCM\n\ttristate \"GCM (Galois/Counter Mode) and GMAC (GCM MAC)\"\n\tselect CRYPTO_CTR\n\tselect CRYPTO_AEAD\n\tselect CRYPTO_LIB_GF128HASH\n\tselect CRYPTO_MANAGER\n\thelp\n\t  GCM (Galois/Counter Mode) authenticated encryption mode and GMAC\n\t  (GCM Message Authentication Code) (NIST SP800-38D)\n\n\t  This is required for IPSec ESP (XFRM_ESP).\n\nconfig CRYPTO_GENIV\n\ttristate\n\tselect CRYPTO_AEAD\n\tselect CRYPTO_MANAGER\n\nconfig CRYPTO_SEQIV\n\ttristate \"Sequence Number IV Generator\"\n\tselect CRYPTO_GENIV\n\thelp\n\t  Sequence Number IV generator\n\n\t  This IV generator generates an IV based on a sequence number by\n\t  xoring it with a salt.  This algorithm is mainly useful for CTR.\n\n\t  This is required for IPsec ESP (XFRM_ESP).\n\nconfig CRYPTO_ECHAINIV\n\ttristate \"Encrypted Chain IV Generator\"\n\tselect CRYPTO_GENIV\n\thelp\n\t  Encrypted Chain IV generator\n\n\t  This IV generator generates an IV based on the encryption of\n\t  a sequence number xored with a salt.  This is the default\n\t  algorithm for CBC.\n\nconfig CRYPTO_ESSIV\n\ttristate \"Encrypted Salt-Sector IV Generator\"\n\tselect CRYPTO_AUTHENC\n\thelp\n\t  Encrypted Salt-Sector IV generator\n\n\t  This IV generator is used in some cases by fscrypt and/or\n\t  dm-crypt. It uses the hash of the block encryption key as the\n\t  symmetric key for a block encryption pass applied to the input\n\t  IV, making low entropy IV sources more suitable for block\n\t  encryption.\n\n\t  This driver implements a crypto API template that can be\n\t  instantiated either as an skcipher or as an AEAD (depending on the\n\t  type of the first template argument), and which defers encryption\n\t  and decryption requests to the encapsulated cipher after applying\n\t  ESSIV to the input IV. Note that in the AEAD case, it is assumed\n\t  that the keys are presented in the same format used by the authenc\n\t  template, and that the IV appears at the end of the authenticated\n\t  associated data (AAD) region (which is how dm-crypt uses it.)\n\n\t  Note that the use of ESSIV is not recommended for new deployments,\n\t  and so this only needs to be enabled when interoperability with\n\t  existing encrypted volumes of filesystems is required, or when\n\t  building for a particular system that requires it (e.g., when\n\t  the SoC in question has accelerated CBC but not XTS, making CBC\n\t  combined with ESSIV the only feasible mode for h/w accelerated\n\t  block encryption)\n\nendmenu\n\nmenu \"Hashes, digests, and MACs\"\n\nconfig CRYPTO_BLAKE2B\n\ttristate \"BLAKE2b\"\n\tselect CRYPTO_HASH\n\tselect CRYPTO_LIB_BLAKE2B\n\thelp\n\t  BLAKE2b cryptographic hash function (RFC 7693)\n\n\t  BLAKE2b is optimized for 64-bit platforms and can produce digests\n\t  of any size between 1 and 64 bytes. The keyed hash is also implemented.\n\n\t  This module provides the following algorithms:\n\t  - blake2b-160\n\t  - blake2b-256\n\t  - blake2b-384\n\t  - blake2b-512\n\n\t  See https://blake2.net for further information.\n\nconfig CRYPTO_CMAC\n\ttristate \"CMAC (Cipher-based MAC)\"\n\tselect CRYPTO_HASH\n\tselect CRYPTO_MANAGER\n\thelp\n\t  CMAC (Cipher-based Message Authentication Code) authentication\n\t  mode (NIST SP800-38B and IETF RFC4493)\n\nconfig CRYPTO_HMAC\n\ttristate \"HMAC (Keyed-Hash MAC)\"\n\tselect CRYPTO_HASH\n\tselect CRYPTO_MANAGER\n\thelp\n\t  HMAC (Keyed-Hash Message Authentication Code) (FIPS 198 and\n\t  RFC2104)\n\n\t  This is required for IPsec AH (XFRM_AH) and IPsec ESP (XFRM_ESP).\n\nconfig CRYPTO_MD4\n\ttristate \"MD4\"\n\tselect CRYPTO_HASH\n\thelp\n\t  MD4 message digest algorithm (RFC1320)\n\nconfig CRYPTO_MD5\n\ttristate \"MD5\"\n\tselect CRYPTO_HASH\n\tselect CRYPTO_LIB_MD5\n\thelp\n\t  MD5 message digest algorithm (RFC1321), including HMAC support.\n\nconfig CRYPTO_RMD160\n\ttristate \"RIPEMD-160\"\n\tselect CRYPTO_HASH\n\thelp\n\t  RIPEMD-160 hash function (ISO/IEC 10118-3)\n\n\t  RIPEMD-160 is a 160-bit cryptographic hash function. It is intended\n\t  to be used as a secure replacement for the 128-bit hash functions\n\t  MD4, MD5 and its predecessor RIPEMD\n\t  (not to be confused with RIPEMD-128).\n\n\t  Its speed is comparable to SHA-1 and there are no known attacks\n\t  against RIPEMD-160.\n\n\t  Developed by Hans Dobbertin, Antoon Bosselaers and Bart Preneel.\n\t  See https://homes.esat.kuleuven.be/~bosselae/ripemd160.html\n\t  for further information.\n\nconfig CRYPTO_SHA1\n\ttristate \"SHA-1\"\n\tselect CRYPTO_HASH\n\tselect CRYPTO_LIB_SHA1\n\thelp\n\t  SHA-1 secure hash algorithm (FIPS 180, ISO/IEC 10118-3), including\n\t  HMAC support.\n\nconfig CRYPTO_SHA256\n\ttristate \"SHA-224 and SHA-256\"\n\tselect CRYPTO_HASH\n\tselect CRYPTO_LIB_SHA256\n\thelp\n\t  SHA-224 and SHA-256 secure hash algorithms (FIPS 180, ISO/IEC\n\t  10118-3), including HMAC support.\n\n\t  This is required for IPsec AH (XFRM_AH) and IPsec ESP (XFRM_ESP).\n\nconfig CRYPTO_SHA512\n\ttristate \"SHA-384 and SHA-512\"\n\tselect CRYPTO_HASH\n\tselect CRYPTO_LIB_SHA512\n\thelp\n\t  SHA-384 and SHA-512 secure hash algorithms (FIPS 180, ISO/IEC\n\t  10118-3), including HMAC support.\n\nconfig CRYPTO_SHA3\n\ttristate \"SHA-3\"\n\tselect CRYPTO_HASH\n\tselect CRYPTO_LIB_SHA3\n\thelp\n\t  SHA-3 secure hash algorithms (FIPS 202, ISO/IEC 10118-3)\n\nconfig CRYPTO_SM3\n\ttristate \"SM3 (ShangMi 3)\"\n\tselect CRYPTO_HASH\n\tselect CRYPTO_LIB_SM3\n\thelp\n\t  SM3 (ShangMi 3) secure hash function (OSCCA GM/T 0004-2012, ISO/IEC 10118-3)\n\n\t  This is part of the Chinese Commercial Cryptography suite.\n\n\t  References:\n\t  http://www.oscca.gov.cn/UpFile/20101222141857786.pdf\n\t  https://datatracker.ietf.org/doc/html/draft-shen-sm3-hash\n\nconfig CRYPTO_STREEBOG\n\ttristate \"Streebog\"\n\tselect CRYPTO_HASH\n\thelp\n\t  Streebog Hash Function (GOST R 34.11-2012, RFC 6986, ISO/IEC 10118-3)\n\n\t  This is one of the Russian cryptographic standard algorithms (called\n\t  GOST algorithms). This setting enables two hash algorithms with\n\t  256 and 512 bits output.\n\n\t  References:\n\t  https://tc26.ru/upload/iblock/fed/feddbb4d26b685903faa2ba11aea43f6.pdf\n\t  https://tools.ietf.org/html/rfc6986\n\nconfig CRYPTO_WP512\n\ttristate \"Whirlpool\"\n\tselect CRYPTO_HASH\n\thelp\n\t  Whirlpool hash function (ISO/IEC 10118-3)\n\n\t  512, 384 and 256-bit hashes.\n\n\t  Whirlpool-512 is part of the NESSIE cryptographic primitives.\n\n\t  See https://web.archive.org/web/20171129084214/http://www.larc.usp.br/~pbarreto/WhirlpoolPage.html\n\t  for further information.\n\nconfig CRYPTO_XCBC\n\ttristate \"XCBC-MAC (Extended Cipher Block Chaining MAC)\"\n\tselect CRYPTO_HASH\n\tselect CRYPTO_MANAGER\n\thelp\n\t  XCBC-MAC (Extended Cipher Block Chaining Message Authentication\n\t  Code) (RFC3566)\n\nconfig CRYPTO_XXHASH\n\ttristate \"xxHash\"\n\tselect CRYPTO_HASH\n\tselect XXHASH\n\thelp\n\t  xxHash non-cryptographic hash algorithm\n\n\t  Extremely fast, working at speeds close to RAM limits.\n\nendmenu\n\nmenu \"CRCs (cyclic redundancy checks)\"\n\nconfig CRYPTO_CRC32C\n\ttristate \"CRC32c\"\n\tselect CRYPTO_HASH\n\tselect CRC32\n\thelp\n\t  CRC32c CRC algorithm with the iSCSI polynomial (RFC 3385 and RFC 3720)\n\n\t  A 32-bit CRC (cyclic redundancy check) with a polynomial defined\n\t  by G. Castagnoli, S. Braeuer and M. Herrman in \"Optimization of Cyclic\n\t  Redundancy-Check Codes with 24 and 32 Parity Bits\", IEEE Transactions\n\t  on Communications, Vol. 41, No. 6, June 1993, selected for use with\n\t  iSCSI.\n\nconfig CRYPTO_CRC32\n\ttristate \"CRC32\"\n\tselect CRYPTO_HASH\n\tselect CRC32\n\thelp\n\t  CRC32 CRC algorithm (IEEE 802.3)\n\nendmenu\n\nmenu \"Compression\"\n\nconfig CRYPTO_DEFLATE\n\ttristate \"Deflate\"\n\tselect CRYPTO_ALGAPI\n\tselect CRYPTO_ACOMP2\n\tselect ZLIB_INFLATE\n\tselect ZLIB_DEFLATE\n\thelp\n\t  Deflate compression algorithm (RFC1951)\n\n\t  Used by IPSec with the IPCOMP protocol (RFC3173, RFC2394)\n\nconfig CRYPTO_LZO\n\ttristate \"LZO\"\n\tselect CRYPTO_ALGAPI\n\tselect CRYPTO_ACOMP2\n\tselect LZO_COMPRESS\n\tselect LZO_DECOMPRESS\n\thelp\n\t  LZO compression algorithm\n\n\t  See https://www.oberhumer.com/opensource/lzo/ for further information.\n\nconfig CRYPTO_842\n\ttristate \"842\"\n\tselect CRYPTO_ALGAPI\n\tselect CRYPTO_ACOMP2\n\tselect 842_COMPRESS\n\tselect 842_DECOMPRESS\n\thelp\n\t  842 compression algorithm by IBM\n\n\t  See https://github.com/plauth/lib842 for further information.\n\nconfig CRYPTO_LZ4\n\ttristate \"LZ4\"\n\tselect CRYPTO_ALGAPI\n\tselect CRYPTO_ACOMP2\n\tselect LZ4_COMPRESS\n\tselect LZ4_DECOMPRESS\n\thelp\n\t  LZ4 compression algorithm\n\n\t  See https://github.com/lz4/lz4 for further information.\n\nconfig CRYPTO_LZ4HC\n\ttristate \"LZ4HC\"\n\tselect CRYPTO_ALGAPI\n\tselect CRYPTO_ACOMP2\n\tselect LZ4HC_COMPRESS\n\tselect LZ4_DECOMPRESS\n\thelp\n\t  LZ4 high compression mode algorithm\n\n\t  See https://github.com/lz4/lz4 for further information.\n\nconfig CRYPTO_ZSTD\n\ttristate \"Zstd\"\n\tselect CRYPTO_ALGAPI\n\tselect CRYPTO_ACOMP2\n\tselect ZSTD_COMPRESS\n\tselect ZSTD_DECOMPRESS\n\thelp\n\t  zstd compression algorithm\n\n\t  See https://github.com/facebook/zstd for further information.\n\nendmenu\n\nmenu \"Random number generation\"\n\nmenuconfig CRYPTO_DRBG_MENU\n\ttristate \"NIST SP800-90A DRBG (Deterministic Random Bit Generator)\"\n\thelp\n\t  DRBG (Deterministic Random Bit Generator) (NIST SP800-90A)\n\n\t  In the following submenu, one or more of the DRBG types must be selected.\n\nif CRYPTO_DRBG_MENU\n\nconfig CRYPTO_DRBG_HMAC\n\tbool\n\tdefault y\n\tselect CRYPTO_HMAC\n\tselect CRYPTO_SHA512\n\nconfig CRYPTO_DRBG_HASH\n\tbool \"Hash_DRBG\"\n\tselect CRYPTO_SHA256\n\thelp\n\t  Hash_DRBG variant as defined in NIST SP800-90A.\n\n\t  This uses the SHA-1, SHA-256, SHA-384, or SHA-512 hash algorithms.\n\nconfig CRYPTO_DRBG_CTR\n\tbool \"CTR_DRBG\"\n\tselect CRYPTO_DF80090A\n\thelp\n\t  CTR_DRBG variant as defined in NIST SP800-90A.\n\n\t  This uses the AES cipher algorithm with the counter block mode.\n\nconfig CRYPTO_DRBG\n\ttristate\n\tdefault CRYPTO_DRBG_MENU\n\tselect CRYPTO_RNG\n\tselect CRYPTO_JITTERENTROPY\n\nendif\t# if CRYPTO_DRBG_MENU\n\nconfig CRYPTO_JITTERENTROPY\n\ttristate \"CPU Jitter Non-Deterministic RNG (Random Number Generator)\"\n\tselect CRYPTO_LIB_SHA3\n\tselect CRYPTO_RNG\n\thelp\n\t  CPU Jitter RNG (Random Number Generator) from the Jitterentropy library\n\n\t  A non-physical non-deterministic (\"true\") RNG (e.g., an entropy source\n\t  compliant with NIST SP800-90B) intended to provide a seed to a\n\t  deterministic RNG (e.g., per NIST SP800-90C).\n\t  This RNG does not perform any cryptographic whitening of the generated\n\t  random numbers.\n\n\t  See https://www.chronox.de/jent/\n\nif CRYPTO_JITTERENTROPY\nif CRYPTO_FIPS && EXPERT\n\nchoice\n\tprompt \"CPU Jitter RNG Memory Size\"\n\tdefault CRYPTO_JITTERENTROPY_MEMSIZE_2\n\thelp\n\t  The Jitter RNG measures the execution time of memory accesses.\n\t  Multiple consecutive memory accesses are performed. If the memory\n\t  size fits into a cache (e.g. L1), only the memory access timing\n\t  to that cache is measured. The closer the cache is to the CPU\n\t  the less variations are measured and thus the less entropy is\n\t  obtained. Thus, if the memory size fits into the L1 cache, the\n\t  obtained entropy is less than if the memory size fits within\n\t  L1 + L2, which in turn is less if the memory fits into\n\t  L1 + L2 + L3. Thus, by selecting a different memory size,\n\t  the entropy rate produced by the Jitter RNG can be modified.\n\n\tconfig CRYPTO_JITTERENTROPY_MEMSIZE_2\n\t\tbool \"2048 Bytes (default)\"\n\n\tconfig CRYPTO_JITTERENTROPY_MEMSIZE_128\n\t\tbool \"128 kBytes\"\n\n\tconfig CRYPTO_JITTERENTROPY_MEMSIZE_1024\n\t\tbool \"1024 kBytes\"\n\n\tconfig CRYPTO_JITTERENTROPY_MEMSIZE_8192\n\t\tbool \"8192 kBytes\"\nendchoice\n\nconfig CRYPTO_JITTERENTROPY_MEMORY_BLOCKS\n\tint\n\tdefault 64 if CRYPTO_JITTERENTROPY_MEMSIZE_2\n\tdefault 512 if CRYPTO_JITTERENTROPY_MEMSIZE_128\n\tdefault 1024 if CRYPTO_JITTERENTROPY_MEMSIZE_1024\n\tdefault 4096 if CRYPTO_JITTERENTROPY_MEMSIZE_8192\n\nconfig CRYPTO_JITTERENTROPY_MEMORY_BLOCKSIZE\n\tint\n\tdefault 32 if CRYPTO_JITTERENTROPY_MEMSIZE_2\n\tdefault 256 if CRYPTO_JITTERENTROPY_MEMSIZE_128\n\tdefault 1024 if CRYPTO_JITTERENTROPY_MEMSIZE_1024\n\tdefault 2048 if CRYPTO_JITTERENTROPY_MEMSIZE_8192\n\nconfig CRYPTO_JITTERENTROPY_OSR\n\tint \"CPU Jitter RNG Oversampling Rate\"\n\trange 1 15\n\tdefault 3\n\thelp\n\t  The Jitter RNG allows the specification of an oversampling rate (OSR).\n\t  The Jitter RNG operation requires a fixed amount of timing\n\t  measurements to produce one output block of random numbers. The\n\t  OSR value is multiplied with the amount of timing measurements to\n\t  generate one output block. Thus, the timing measurement is oversampled\n\t  by the OSR factor. The oversampling allows the Jitter RNG to operate\n\t  on hardware whose timers deliver limited amount of entropy (e.g.\n\t  the timer is coarse) by setting the OSR to a higher value. The\n\t  trade-off, however, is that the Jitter RNG now requires more time\n\t  to generate random numbers.\n\nconfig CRYPTO_JITTERENTROPY_TESTINTERFACE\n\tbool \"CPU Jitter RNG Test Interface\"\n\thelp\n\t  The test interface allows a privileged process to capture\n\t  the raw unconditioned high resolution time stamp noise that\n\t  is collected by the Jitter RNG for statistical analysis. As\n\t  this data is used at the same time to generate random bits,\n\t  the Jitter RNG operates in an insecure mode as long as the\n\t  recording is enabled. This interface therefore is only\n\t  intended for testing purposes and is not suitable for\n\t  production systems.\n\n\t  The raw noise data can be obtained using the jent_raw_hires\n\t  debugfs file. Using the option\n\t  jitterentropy_testing.boot_raw_hires_test=1 the raw noise of\n\t  the first 1000 entropy events since boot can be sampled.\n\n\t  If unsure, select N.\n\nendif\t# if CRYPTO_FIPS && EXPERT\n\nif !(CRYPTO_FIPS && EXPERT)\n\nconfig CRYPTO_JITTERENTROPY_MEMORY_BLOCKS\n\tint\n\tdefault 64\n\nconfig CRYPTO_JITTERENTROPY_MEMORY_BLOCKSIZE\n\tint\n\tdefault 32\n\nconfig CRYPTO_JITTERENTROPY_OSR\n\tint\n\tdefault 1\n\nconfig CRYPTO_JITTERENTROPY_TESTINTERFACE\n\tbool\n\nendif\t# if !(CRYPTO_FIPS && EXPERT)\nendif\t# if CRYPTO_JITTERENTROPY\n\nconfig CRYPTO_KDF800108_CTR\n\ttristate\n\tselect CRYPTO_HMAC\n\tselect CRYPTO_SHA256\n\nconfig CRYPTO_DF80090A\n\ttristate\n\tselect CRYPTO_AES\n\tselect CRYPTO_CTR\n\nendmenu\nmenu \"Userspace interface\"\n\nconfig CRYPTO_USER_API\n\ttristate\n\nconfig CRYPTO_USER_API_HASH\n\ttristate \"Hash algorithms\"\n\tdepends on NET\n\tselect CRYPTO_HASH\n\tselect CRYPTO_USER_API\n\thelp\n\t  Enable the userspace interface for hash algorithms.\n\n\t  See Documentation/crypto/userspace-if.rst and\n\t  https://www.chronox.de/libkcapi/html/index.html\n\nconfig CRYPTO_USER_API_SKCIPHER\n\ttristate \"Symmetric key cipher algorithms\"\n\tdepends on NET\n\tselect CRYPTO_SKCIPHER\n\tselect CRYPTO_USER_API\n\thelp\n\t  Enable the userspace interface for symmetric key cipher algorithms.\n\n\t  See Documentation/crypto/userspace-if.rst and\n\t  https://www.chronox.de/libkcapi/html/index.html\n\nconfig CRYPTO_USER_API_RNG\n\ttristate \"RNG (random number generator) algorithms\"\n\tdepends on NET\n\tselect CRYPTO_RNG\n\tselect CRYPTO_USER_API\n\thelp\n\t  Enable the userspace interface for RNG (random number generator)\n\t  algorithms.\n\n\t  See Documentation/crypto/userspace-if.rst and\n\t  https://www.chronox.de/libkcapi/html/index.html\n\nconfig CRYPTO_USER_API_RNG_CAVP\n\tbool \"Enable CAVP testing of DRBG\"\n\tdepends on CRYPTO_USER_API_RNG && CRYPTO_DRBG\n\thelp\n\t  Enable extra APIs in the userspace interface for NIST CAVP\n\t  (Cryptographic Algorithm Validation Program) testing:\n\t  - resetting DRBG entropy\n\t  - providing Additional Data\n\n\t  This should only be enabled for CAVP testing. You should say\n\t  no unless you know what this is.\n\nconfig CRYPTO_USER_API_AEAD\n\ttristate \"AEAD cipher algorithms\"\n\tdepends on NET\n\tselect CRYPTO_AEAD\n\tselect CRYPTO_SKCIPHER\n\tselect CRYPTO_USER_API\n\thelp\n\t  Enable the userspace interface for AEAD cipher algorithms.\n\n\t  See Documentation/crypto/userspace-if.rst and\n\t  https://www.chronox.de/libkcapi/html/index.html\n\nconfig CRYPTO_USER_API_ENABLE_OBSOLETE\n\tbool \"Obsolete cryptographic algorithms\"\n\tdepends on CRYPTO_USER_API\n\tdefault y\n\thelp\n\t  Allow obsolete cryptographic algorithms to be selected that have\n\t  already been phased out from internal use by the kernel, and are\n\t  only useful for userspace clients that still rely on them.\n\nendmenu\n\nif !KMSAN # avoid false positives from assembly\nif ARM\nsource \"arch/arm/crypto/Kconfig\"\nendif\nif ARM64\nsource \"arch/arm64/crypto/Kconfig\"\nendif\nif LOONGARCH\nsource \"arch/loongarch/crypto/Kconfig\"\nendif\nif MIPS\nsource \"arch/mips/crypto/Kconfig\"\nendif\nif PPC\nsource \"arch/powerpc/crypto/Kconfig\"\nendif\nif RISCV\nsource \"arch/riscv/crypto/Kconfig\"\nendif\nif S390\nsource \"arch/s390/crypto/Kconfig\"\nendif\nif SPARC\nsource \"arch/sparc/crypto/Kconfig\"\nendif\nif X86\nsource \"arch/x86/crypto/Kconfig\"\nendif\nendif\n\nsource \"drivers/crypto/Kconfig\"\nsource \"crypto/asymmetric_keys/Kconfig\"\nsource \"certs/Kconfig\"\nsource \"crypto/krb5/Kconfig\"\n\nendif\t# if CRYPTO\n",
+    "drivers/md/Kconfig": "# SPDX-License-Identifier: GPL-2.0-only\n#\n# Block device driver configuration\n#\n\nmenuconfig MD\n\tbool \"Multiple devices driver support (RAID and LVM)\"\n\tdepends on BLOCK\n\thelp\n\t  Support multiple physical spindles through a single logical device.\n\t  Required for RAID and logical volume management.\n\nif MD\n\nconfig BLK_DEV_MD\n\ttristate \"RAID support\"\n\tselect BLOCK_HOLDER_DEPRECATED if SYSFS\n\tselect BUFFER_HEAD\n\t# BLOCK_LEGACY_AUTOLOAD requirement should be removed\n\t# after relevant mdadm enhancements - to make \"names=yes\"\n\t# the default - are widely available.\n\tselect BLOCK_LEGACY_AUTOLOAD\n\thelp\n\t  This driver lets you combine several hard disk partitions into one\n\t  logical block device. This can be used to simply append one\n\t  partition to another one or to combine several redundant hard disks\n\t  into a RAID1/4/5 device so as to provide protection against hard\n\t  disk failures. This is called \"Software RAID\" since the combining of\n\t  the partitions is done by the kernel. \"Hardware RAID\" means that the\n\t  combining is done by a dedicated controller; if you have such a\n\t  controller, you do not need to say Y here.\n\n\t  More information about Software RAID on Linux is contained in the\n\t  Software RAID mini-HOWTO, available from\n\t  <https://www.tldp.org/docs.html#howto>. There you will also learn\n\t  where to get the supporting user space utilities raidtools.\n\n\t  If unsure, say N.\n\nconfig MD_BITMAP\n\tbool \"MD RAID bitmap support\"\n\tdefault y\n\tdepends on BLK_DEV_MD\n\thelp\n\t  If you say Y here, support for the write intent bitmap will be\n\t  enabled. The bitmap can be used to optimize resync speed after power\n\t  failure or readding a disk, limiting it to recorded dirty sectors in\n\t  bitmap.\n\n\t  This feature can be added to existing MD array or MD array can be\n\t  created with bitmap via mdadm(8).\n\n\t  If unsure, say Y.\n\nconfig MD_LLBITMAP\n\tbool \"MD RAID lockless bitmap support\"\n\tdepends on BLK_DEV_MD\n\thelp\n\t  If you say Y here, support for the lockless write intent bitmap will\n\t  be enabled.\n\n\t  Note, this is an experimental feature.\n\n\t  If unsure, say N.\n\nconfig MD_AUTODETECT\n\tbool \"Autodetect RAID arrays during kernel boot\"\n\tdepends on BLK_DEV_MD=y\n\tdefault y\n\thelp\n\t  If you say Y here, then the kernel will try to autodetect raid\n\t  arrays as part of its boot process.\n\n\t  If you don't use raid and say Y, this autodetection can cause\n\t  a several-second delay in the boot time due to various\n\t  synchronisation steps that are part of this step.\n\n\t  If unsure, say Y.\n\nconfig MD_BITMAP_FILE\n\tbool \"MD bitmap file support (deprecated)\"\n\tdefault y\n\tdepends on MD_BITMAP\n\thelp\n\t  If you say Y here, support for write intent bitmaps in files on an\n\t  external file system is enabled.  This is an alternative to the internal\n\t  bitmaps near the MD superblock, and very problematic code that abuses\n\t  various kernel APIs and can only work with files on a file system not\n\t  actually sitting on the MD device.\n\nconfig MD_LINEAR\n\ttristate \"Linear (append) mode\"\n\tdepends on BLK_DEV_MD\n\thelp\n\t  If you say Y here, then your multiple devices driver will be able to\n\t  use the so-called linear mode, i.e. it will combine the hard disk\n\t  partitions by simply appending one to the other.\n\n\t  To compile this as a module, choose M here: the module\n\t  will be called linear.\n\n\t  If unsure, say Y.\n\nconfig MD_RAID0\n\ttristate \"RAID-0 (striping) mode\"\n\tdepends on BLK_DEV_MD\n\thelp\n\t  If you say Y here, then your multiple devices driver will be able to\n\t  use the so-called raid0 mode, i.e. it will combine the hard disk\n\t  partitions into one logical device in such a fashion as to fill them\n\t  up evenly, one chunk here and one chunk there. This will increase\n\t  the throughput rate if the partitions reside on distinct disks.\n\n\t  Information about Software RAID on Linux is contained in the\n\t  Software-RAID mini-HOWTO, available from\n\t  <https://www.tldp.org/docs.html#howto>. There you will also\n\t  learn where to get the supporting user space utilities raidtools.\n\n\t  To compile this as a module, choose M here: the module\n\t  will be called raid0.\n\n\t  If unsure, say Y.\n\nconfig MD_RAID1\n\ttristate \"RAID-1 (mirroring) mode\"\n\tdepends on BLK_DEV_MD\n\thelp\n\t  A RAID-1 set consists of several disk drives which are exact copies\n\t  of each other.  In the event of a mirror failure, the RAID driver\n\t  will continue to use the operational mirrors in the set, providing\n\t  an error free MD (multiple device) to the higher levels of the\n\t  kernel.  In a set with N drives, the available space is the capacity\n\t  of a single drive, and the set protects against a failure of (N - 1)\n\t  drives.\n\n\t  Information about Software RAID on Linux is contained in the\n\t  Software-RAID mini-HOWTO, available from\n\t  <https://www.tldp.org/docs.html#howto>.  There you will also\n\t  learn where to get the supporting user space utilities raidtools.\n\n\t  If you want to use such a RAID-1 set, say Y.  To compile this code\n\t  as a module, choose M here: the module will be called raid1.\n\n\t  If unsure, say Y.\n\nconfig MD_RAID10\n\ttristate \"RAID-10 (mirrored striping) mode\"\n\tdepends on BLK_DEV_MD\n\thelp\n\t  RAID-10 provides a combination of striping (RAID-0) and\n\t  mirroring (RAID-1) with easier configuration and more flexible\n\t  layout.\n\t  Unlike RAID-0, but like RAID-1, RAID-10 requires all devices to\n\t  be the same size (or at least, only as much as the smallest device\n\t  will be used).\n\t  RAID-10 provides a variety of layouts that provide different levels\n\t  of redundancy and performance.\n\n\t  RAID-10 requires mdadm-1.7.0 or later, available at:\n\n\t  https://www.kernel.org/pub/linux/utils/raid/mdadm/\n\n\t  If unsure, say Y.\n\nconfig MD_RAID456\n\ttristate \"RAID-4/RAID-5/RAID-6 mode\"\n\tdepends on BLK_DEV_MD\n\tselect RAID6_PQ\n\tselect CRC32\n\tselect ASYNC_MEMCPY\n\tselect ASYNC_XOR\n\tselect ASYNC_PQ\n\tselect ASYNC_RAID6_RECOV\n\thelp\n\t  A RAID-5 set of N drives with a capacity of C MB per drive provides\n\t  the capacity of C * (N - 1) MB, and protects against a failure\n\t  of a single drive. For a given sector (row) number, (N - 1) drives\n\t  contain data sectors, and one drive contains the parity protection.\n\t  For a RAID-4 set, the parity blocks are present on a single drive,\n\t  while a RAID-5 set distributes the parity across the drives in one\n\t  of the available parity distribution methods.\n\n\t  A RAID-6 set of N drives with a capacity of C MB per drive\n\t  provides the capacity of C * (N - 2) MB, and protects\n\t  against a failure of any two drives. For a given sector\n\t  (row) number, (N - 2) drives contain data sectors, and two\n\t  drives contains two independent redundancy syndromes.  Like\n\t  RAID-5, RAID-6 distributes the syndromes across the drives\n\t  in one of the available parity distribution methods.\n\n\t  Information about Software RAID on Linux is contained in the\n\t  Software-RAID mini-HOWTO, available from\n\t  <https://www.tldp.org/docs.html#howto>. There you will also\n\t  learn where to get the supporting user space utilities raidtools.\n\n\t  If you want to use such a RAID-4/RAID-5/RAID-6 set, say Y.  To\n\t  compile this code as a module, choose M here: the module\n\t  will be called raid456.\n\n\t  If unsure, say Y.\n\nconfig MD_CLUSTER\n\ttristate \"Cluster Support for MD\"\n\tselect MD_BITMAP\n\tdepends on BLK_DEV_MD\n\tdepends on DLM\n\tdefault n\n\thelp\n\tClustering support for MD devices. This enables locking and\n\tsynchronization across multiple systems on the cluster, so all\n\tnodes in the cluster can access the MD devices simultaneously.\n\n\tThis brings the redundancy (and uptime) of RAID levels across the\n\tnodes of the cluster. Currently, it can work with raid1 and raid10\n\t(limited support).\n\n\tIf unsure, say N.\n\nsource \"drivers/md/bcache/Kconfig\"\n\nconfig BLK_DEV_DM_BUILTIN\n\tbool\n\nconfig BLK_DEV_DM\n\ttristate \"Device mapper support\"\n\tselect BLOCK_HOLDER_DEPRECATED if SYSFS\n\tselect BLK_DEV_DM_BUILTIN\n\tselect BLK_MQ_STACKING\n\tselect CRYPTO_LIB_SHA256 if IMA\n\tdepends on DAX || DAX=n\n\thelp\n\t  Device-mapper is a low level volume manager.  It works by allowing\n\t  people to specify mappings for ranges of logical sectors.  Various\n\t  mapping types are available, in addition people may write their own\n\t  modules containing custom mappings if they wish.\n\n\t  Higher level volume managers such as LVM2 use this driver.\n\n\t  To compile this as a module, choose M here: the module will be\n\t  called dm-mod.\n\n\t  If unsure, say N.\n\nconfig DM_DEBUG\n\tbool \"Device mapper debugging support\"\n\tdepends on BLK_DEV_DM\n\thelp\n\t  Enable this for messages that may help debug device-mapper problems.\n\n\t  If unsure, say N.\n\nconfig DM_BUFIO\n       tristate\n       depends on BLK_DEV_DM\n\thelp\n\t This interface allows you to do buffered I/O on a device and acts\n\t as a cache, holding recently-read blocks in memory and performing\n\t delayed writes.\n\nconfig DM_DEBUG_BLOCK_MANAGER_LOCKING\n       bool \"Block manager locking\"\n       depends on DM_BUFIO\n\thelp\n\t Block manager locking can catch various metadata corruption issues.\n\n\t If unsure, say N.\n\nconfig DM_DEBUG_BLOCK_STACK_TRACING\n       bool \"Keep stack trace of persistent data block lock holders\"\n       depends on STACKTRACE_SUPPORT && DM_DEBUG_BLOCK_MANAGER_LOCKING\n       select STACKTRACE\n\thelp\n\t Enable this for messages that may help debug problems with the\n\t block manager locking used by thin provisioning and caching.\n\n\t If unsure, say N.\n\nconfig DM_BIO_PRISON\n       tristate\n       depends on BLK_DEV_DM\n\thelp\n\t Some bio locking schemes used by other device-mapper targets\n\t including thin provisioning.\n\nsource \"drivers/md/persistent-data/Kconfig\"\n\nconfig DM_UNSTRIPED\n       tristate \"Unstriped target\"\n       depends on BLK_DEV_DM\n\thelp\n\t  Unstripes I/O so it is issued solely on a single drive in a HW\n\t  RAID0 or dm-striped target.\n\nconfig DM_CRYPT\n\ttristate \"Crypt target support\"\n\tdepends on BLK_DEV_DM\n\tdepends on (ENCRYPTED_KEYS || ENCRYPTED_KEYS=n)\n\tdepends on (TRUSTED_KEYS || TRUSTED_KEYS=n)\n\tselect CRC32\n\tselect CRYPTO\n\tselect CRYPTO_CBC\n\tselect CRYPTO_ESSIV\n\tselect CRYPTO_LIB_AES\n\tselect CRYPTO_LIB_MD5 # needed by lmk IV mode\n\thelp\n\t  This device-mapper target allows you to create a device that\n\t  transparently encrypts the data on it. You'll need to activate\n\t  the ciphers you're going to use in the cryptoapi configuration.\n\n\t  For further information on dm-crypt and userspace tools see:\n\t  <https://gitlab.com/cryptsetup/cryptsetup/wikis/DMCrypt>\n\n\t  To compile this code as a module, choose M here: the module will\n\t  be called dm-crypt.\n\n\t  If unsure, say N.\n\nconfig DM_SNAPSHOT\n       tristate \"Snapshot target\"\n       depends on BLK_DEV_DM\n       select DM_BUFIO\n\thelp\n\t Allow volume managers to take writable snapshots of a device.\n\nconfig DM_THIN_PROVISIONING\n       tristate \"Thin provisioning target\"\n       depends on BLK_DEV_DM\n       select DM_PERSISTENT_DATA\n       select DM_BIO_PRISON\n\thelp\n\t Provides thin provisioning and snapshots that share a data store.\n\nconfig DM_CACHE\n       tristate \"Cache target (EXPERIMENTAL)\"\n       depends on BLK_DEV_DM\n       default n\n       select DM_PERSISTENT_DATA\n       select DM_BIO_PRISON\n\thelp\n\t dm-cache attempts to improve performance of a block device by\n\t moving frequently used data to a smaller, higher performance\n\t device.  Different 'policy' plugins can be used to change the\n\t algorithms used to select which blocks are promoted, demoted,\n\t cleaned etc.  It supports writeback and writethrough modes.\n\nconfig DM_CACHE_SMQ\n       tristate \"Stochastic MQ Cache Policy (EXPERIMENTAL)\"\n       depends on DM_CACHE\n       default y\n\thelp\n\t A cache policy that uses a multiqueue ordered by recent hits\n\t to select which blocks should be promoted and demoted.\n\t This is meant to be a general purpose policy.  It prioritises\n\t reads over writes.  This SMQ policy (vs MQ) offers the promise\n\t of less memory utilization, improved performance and increased\n\t adaptability in the face of changing workloads.\n\nconfig DM_WRITECACHE\n\ttristate \"Writecache target\"\n\tdepends on BLK_DEV_DM\n\thelp\n\t   The writecache target caches writes on persistent memory or SSD.\n\t   It is intended for databases or other programs that need extremely\n\t   low commit latency.\n\n\t   The writecache target doesn't cache reads because reads are supposed\n\t   to be cached in standard RAM.\n\nconfig DM_EBS\n\ttristate \"Emulated block size target (EXPERIMENTAL)\"\n\tdepends on BLK_DEV_DM && !HIGHMEM\n\tselect DM_BUFIO\n\thelp\n\t  dm-ebs emulates smaller logical block size on backing devices\n\t  with larger ones (e.g. 512 byte sectors on 4K native disks).\n\nconfig DM_ERA\n       tristate \"Era target (EXPERIMENTAL)\"\n       depends on BLK_DEV_DM\n       default n\n       select DM_PERSISTENT_DATA\n       select DM_BIO_PRISON\n\thelp\n\t dm-era tracks which parts of a block device are written to\n\t over time.  Useful for maintaining cache coherency when using\n\t vendor snapshots.\n\nconfig DM_CLONE\n       tristate \"Clone target (EXPERIMENTAL)\"\n       depends on BLK_DEV_DM\n       default n\n       select DM_PERSISTENT_DATA\n\thelp\n\t dm-clone produces a one-to-one copy of an existing, read-only source\n\t device into a writable destination device. The cloned device is\n\t visible/mountable immediately and the copy of the source device to the\n\t destination device happens in the background, in parallel with user\n\t I/O.\n\n\t If unsure, say N.\n\nconfig DM_MIRROR\n       tristate \"Mirror target\"\n       depends on BLK_DEV_DM\n\thelp\n\t Allow volume managers to mirror logical volumes, also\n\t needed for live data migration tools such as 'pvmove'.\n\nconfig DM_LOG_USERSPACE\n\ttristate \"Mirror userspace logging\"\n\tdepends on DM_MIRROR && NET\n\tselect CONNECTOR\n\thelp\n\t  The userspace logging module provides a mechanism for\n\t  relaying the dm-dirty-log API to userspace.  Log designs\n\t  which are more suited to userspace implementation (e.g.\n\t  shared storage logs) or experimental logs can be implemented\n\t  by leveraging this framework.\n\nconfig DM_RAID\n       tristate \"RAID 1/4/5/6/10 target\"\n       depends on BLK_DEV_DM\n       select MD_RAID0\n       select MD_RAID1\n       select MD_RAID10\n       select MD_RAID456\n       select MD_BITMAP\n       select BLK_DEV_MD\n\thelp\n\t A dm target that supports RAID1, RAID10, RAID4, RAID5 and RAID6 mappings\n\n\t A RAID-5 set of N drives with a capacity of C MB per drive provides\n\t the capacity of C * (N - 1) MB, and protects against a failure\n\t of a single drive. For a given sector (row) number, (N - 1) drives\n\t contain data sectors, and one drive contains the parity protection.\n\t For a RAID-4 set, the parity blocks are present on a single drive,\n\t while a RAID-5 set distributes the parity across the drives in one\n\t of the available parity distribution methods.\n\n\t A RAID-6 set of N drives with a capacity of C MB per drive\n\t provides the capacity of C * (N - 2) MB, and protects\n\t against a failure of any two drives. For a given sector\n\t (row) number, (N - 2) drives contain data sectors, and two\n\t drives contains two independent redundancy syndromes.  Like\n\t RAID-5, RAID-6 distributes the syndromes across the drives\n\t in one of the available parity distribution methods.\n\nconfig DM_ZERO\n\ttristate \"Zero target\"\n\tdepends on BLK_DEV_DM\n\thelp\n\t  A target that discards writes, and returns all zeroes for\n\t  reads.  Useful in some recovery situations.\n\nconfig DM_MULTIPATH\n\ttristate \"Multipath target\"\n\tdepends on BLK_DEV_DM\n\t# nasty syntax but means make DM_MULTIPATH independent\n\t# of SCSI_DH if the latter isn't defined but if\n\t# it is, DM_MULTIPATH must depend on it.  We get a build\n\t# error if SCSI_DH=m and DM_MULTIPATH=y\n\tdepends on !SCSI_DH || SCSI\n\thelp\n\t  Allow volume managers to support multipath hardware.\n\nconfig DM_MULTIPATH_QL\n\ttristate \"I/O Path Selector based on the number of in-flight I/Os\"\n\tdepends on DM_MULTIPATH\n\thelp\n\t  This path selector is a dynamic load balancer which selects\n\t  the path with the least number of in-flight I/Os.\n\n\t  If unsure, say N.\n\nconfig DM_MULTIPATH_ST\n\ttristate \"I/O Path Selector based on the service time\"\n\tdepends on DM_MULTIPATH\n\thelp\n\t  This path selector is a dynamic load balancer which selects\n\t  the path expected to complete the incoming I/O in the shortest\n\t  time.\n\n\t  If unsure, say N.\n\nconfig DM_MULTIPATH_HST\n\ttristate \"I/O Path Selector based on historical service time\"\n\tdepends on DM_MULTIPATH\n\thelp\n\t  This path selector is a dynamic load balancer which selects\n\t  the path expected to complete the incoming I/O in the shortest\n\t  time by comparing estimated service time (based on historical\n\t  service time).\n\n\t  If unsure, say N.\n\nconfig DM_MULTIPATH_IOA\n\ttristate \"I/O Path Selector based on CPU submission\"\n\tdepends on DM_MULTIPATH\n\thelp\n\t  This path selector selects the path based on the CPU the IO is\n\t  executed on and the CPU to path mapping setup at path addition time.\n\n\t  If unsure, say N.\n\nconfig DM_DELAY\n\ttristate \"I/O delaying target\"\n\tdepends on BLK_DEV_DM\n\thelp\n\tA target that delays reads and/or writes and can send\n\tthem to different devices.  Useful for testing.\n\n\tIf unsure, say N.\n\nconfig DM_DUST\n\ttristate \"Bad sector simulation target\"\n\tdepends on BLK_DEV_DM\n\thelp\n\tA target that simulates bad sector behavior.\n\tUseful for testing.\n\n\tIf unsure, say N.\n\nconfig DM_INIT\n\tbool \"DM \\\"dm-mod.create=\\\" parameter support\"\n\tdepends on BLK_DEV_DM=y\n\thelp\n\tEnable \"dm-mod.create=\" parameter to create mapped devices at init time.\n\tThis option is useful to allow mounting rootfs without requiring an\n\tinitramfs.\n\tSee Documentation/admin-guide/device-mapper/dm-init.rst for dm-mod.create=\"...\"\n\tformat.\n\n\tIf unsure, say N.\n\nconfig DM_UEVENT\n\tbool \"DM uevents\"\n\tdepends on BLK_DEV_DM\n\thelp\n\tGenerate udev events for DM events.\n\nconfig DM_FLAKEY\n       tristate \"Flakey target\"\n       depends on BLK_DEV_DM\n\thelp\n\t A target that intermittently fails I/O for debugging purposes.\n\nconfig DM_VERITY\n\ttristate \"Verity target support\"\n\tdepends on BLK_DEV_DM\n\tselect CRYPTO\n\tselect CRYPTO_HASH\n\tselect CRYPTO_LIB_SHA256\n\tselect DM_BUFIO\n\tselect REED_SOLOMON if DM_VERITY_FEC\n\tselect REED_SOLOMON_DEC8 if DM_VERITY_FEC\n\thelp\n\t  This device-mapper target creates a read-only device that\n\t  transparently validates the data on one underlying device against\n\t  a pre-generated tree of cryptographic checksums stored on a second\n\t  device.\n\n\t  You'll need to activate the digests you're going to use in the\n\t  cryptoapi configuration.\n\n\t  To compile this code as a module, choose M here: the module will\n\t  be called dm-verity.\n\n\t  If unsure, say N.\n\nconfig DM_VERITY_VERIFY_ROOTHASH_SIG\n\tbool \"Verity data device root hash signature verification support\"\n\tdepends on DM_VERITY\n\tselect SYSTEM_DATA_VERIFICATION\n\thelp\n\t  Add ability for dm-verity device to be validated if the\n\t  pre-generated tree of cryptographic checksums passed has a pkcs#7\n\t  signature file that can validate the roothash of the tree.\n\n\t  By default, rely on the builtin trusted keyring.\n\n\t  If unsure, say N.\n\nconfig DM_VERITY_VERIFY_ROOTHASH_SIG_SECONDARY_KEYRING\n\tbool \"Verity data device root hash signature verification with secondary keyring\"\n\tdepends on DM_VERITY_VERIFY_ROOTHASH_SIG\n\tdepends on SECONDARY_TRUSTED_KEYRING\n\thelp\n\t  Rely on the secondary trusted keyring to verify dm-verity signatures.\n\n\t  If unsure, say N.\n\nconfig DM_VERITY_VERIFY_ROOTHASH_SIG_PLATFORM_KEYRING\n\tbool \"Verity data device root hash signature verification with platform keyring\"\n\tdefault DM_VERITY_VERIFY_ROOTHASH_SIG_SECONDARY_KEYRING\n\tdepends on DM_VERITY_VERIFY_ROOTHASH_SIG\n\tdepends on INTEGRITY_PLATFORM_KEYRING\n\thelp\n\t  Rely also on the platform keyring to verify dm-verity signatures.\n\n\t  If unsure, say N.\n\nconfig DM_VERITY_FEC\n\tbool \"Verity forward error correction support\"\n\tdepends on DM_VERITY\n\thelp\n\t  Add forward error correction support to dm-verity. This option\n\t  makes it possible to use pre-generated error correction data to\n\t  recover from corrupted blocks.\n\n\t  If unsure, say N.\n\nconfig DM_SWITCH\n\ttristate \"Switch target support (EXPERIMENTAL)\"\n\tdepends on BLK_DEV_DM\n\thelp\n\t  This device-mapper target creates a device that supports an arbitrary\n\t  mapping of fixed-size regions of I/O across a fixed set of paths.\n\t  The path used for any specific region can be switched dynamically\n\t  by sending the target a message.\n\n\t  To compile this code as a module, choose M here: the module will\n\t  be called dm-switch.\n\n\t  If unsure, say N.\n\nconfig DM_LOG_WRITES\n\ttristate \"Log writes target support\"\n\tdepends on BLK_DEV_DM\n\thelp\n\t  This device-mapper target takes two devices, one device to use\n\t  normally, one to log all write operations done to the first device.\n\t  This is for use by file system developers wishing to verify that\n\t  their fs is writing a consistent file system at all times by allowing\n\t  them to replay the log in a variety of ways and to check the\n\t  contents.\n\n\t  To compile this code as a module, choose M here: the module will\n\t  be called dm-log-writes.\n\n\t  If unsure, say N.\n\nconfig DM_INTEGRITY\n\ttristate \"Integrity target support\"\n\tdepends on BLK_DEV_DM\n\tselect BLK_DEV_INTEGRITY\n\tselect DM_BUFIO\n\tselect CRYPTO\n\tselect CRYPTO_SKCIPHER\n\tselect ASYNC_XOR\n\tselect DM_AUDIT if AUDIT\n\thelp\n\t  This device-mapper target emulates a block device that has\n\t  additional per-sector tags that can be used for storing\n\t  integrity information.\n\n\t  This integrity target is used with the dm-crypt target to\n\t  provide authenticated disk encryption or it can be used\n\t  standalone.\n\n\t  To compile this code as a module, choose M here: the module will\n\t  be called dm-integrity.\n\nconfig DM_ZONED\n\ttristate \"Drive-managed zoned block device target support\"\n\tdepends on BLK_DEV_DM\n\tdepends on BLK_DEV_ZONED\n\tselect CRC32\n\thelp\n\t  This device-mapper target takes a host-managed or host-aware zoned\n\t  block device and exposes most of its capacity as a regular block\n\t  device (drive-managed zoned block device) without any write\n\t  constraints. This is mainly intended for use with file systems that\n\t  do not natively support zoned block devices but still want to\n\t  benefit from the increased capacity offered by SMR disks. Other uses\n\t  by applications using raw block devices (for example object stores)\n\t  are also possible.\n\n\t  To compile this code as a module, choose M here: the module will\n\t  be called dm-zoned.\n\n\t  If unsure, say N.\n\nconfig DM_AUDIT\n\tbool \"DM audit events\"\n\tdepends on BLK_DEV_DM\n\tdepends on AUDIT\n\thelp\n\t  Generate audit events for device-mapper.\n\n\t  Enables audit logging of several security relevant events in the\n\t  particular device-mapper targets, especially the integrity target.\n\nsource \"drivers/md/dm-vdo/Kconfig\"\n\nsource \"drivers/md/dm-pcache/Kconfig\"\n\nendif # MD\n"
+  },
+  "inactive_visibility_frontier": {
+    "derivation": {
+      "domain": [
+        "CONFIG_ASYMMETRIC_KEY_TYPE",
+        "CONFIG_BCACHE",
+        "CONFIG_BLK_DEV_DM",
+        "CONFIG_BLK_DEV_DM_BUILTIN",
+        "CONFIG_BLK_DEV_MD",
+        "CONFIG_CRYPTO",
+        "CONFIG_CRYPTO_842",
+        "CONFIG_CRYPTO_ACOMP",
+        "CONFIG_CRYPTO_ACOMP2",
+        "CONFIG_CRYPTO_ADIANTUM",
+        "CONFIG_CRYPTO_AEAD",
+        "CONFIG_CRYPTO_AEAD2",
+        "CONFIG_CRYPTO_AEGIS128",
+        "CONFIG_CRYPTO_AEGIS128_SIMD",
+        "CONFIG_CRYPTO_AES",
+        "CONFIG_CRYPTO_AES_ARM64_BS",
+        "CONFIG_CRYPTO_AES_ARM64_CE_BLK",
+        "CONFIG_CRYPTO_AES_ARM64_CE_CCM",
+        "CONFIG_CRYPTO_AES_ARM64_NEON_BLK",
+        "CONFIG_CRYPTO_AKCIPHER",
+        "CONFIG_CRYPTO_AKCIPHER2",
+        "CONFIG_CRYPTO_ALGAPI",
+        "CONFIG_CRYPTO_ALGAPI2",
+        "CONFIG_CRYPTO_ANUBIS",
+        "CONFIG_CRYPTO_ARC4",
+        "CONFIG_CRYPTO_ARIA",
+        "CONFIG_CRYPTO_AUTHENC",
+        "CONFIG_CRYPTO_BENCHMARK",
+        "CONFIG_CRYPTO_BLAKE2B",
+        "CONFIG_CRYPTO_BLOWFISH",
+        "CONFIG_CRYPTO_BLOWFISH_COMMON",
+        "CONFIG_CRYPTO_CAMELLIA",
+        "CONFIG_CRYPTO_CAST5",
+        "CONFIG_CRYPTO_CAST6",
+        "CONFIG_CRYPTO_CAST_COMMON",
+        "CONFIG_CRYPTO_CBC",
+        "CONFIG_CRYPTO_CCM",
+        "CONFIG_CRYPTO_CHACHA20",
+        "CONFIG_CRYPTO_CHACHA20POLY1305",
+        "CONFIG_CRYPTO_CMAC",
+        "CONFIG_CRYPTO_CRC32",
+        "CONFIG_CRYPTO_CRC32C",
+        "CONFIG_CRYPTO_CRYPTD",
+        "CONFIG_CRYPTO_CTR",
+        "CONFIG_CRYPTO_CTS",
+        "CONFIG_CRYPTO_DEFLATE",
+        "CONFIG_CRYPTO_DES",
+        "CONFIG_CRYPTO_DF80090A",
+        "CONFIG_CRYPTO_DH",
+        "CONFIG_CRYPTO_DH_RFC7919_GROUPS",
+        "CONFIG_CRYPTO_DRBG",
+        "CONFIG_CRYPTO_DRBG_CTR",
+        "CONFIG_CRYPTO_DRBG_HASH",
+        "CONFIG_CRYPTO_DRBG_HMAC",
+        "CONFIG_CRYPTO_DRBG_MENU",
+        "CONFIG_CRYPTO_ECB",
+        "CONFIG_CRYPTO_ECC",
+        "CONFIG_CRYPTO_ECDH",
+        "CONFIG_CRYPTO_ECDSA",
+        "CONFIG_CRYPTO_ECHAINIV",
+        "CONFIG_CRYPTO_ECRDSA",
+        "CONFIG_CRYPTO_ENGINE",
+        "CONFIG_CRYPTO_ESSIV",
+        "CONFIG_CRYPTO_FCRYPT",
+        "CONFIG_CRYPTO_FIPS",
+        "CONFIG_CRYPTO_FIPS_CUSTOM_VERSION",
+        "CONFIG_CRYPTO_GCM",
+        "CONFIG_CRYPTO_GENIV",
+        "CONFIG_CRYPTO_GHASH_ARM64_CE",
+        "CONFIG_CRYPTO_HASH",
+        "CONFIG_CRYPTO_HASH2",
+        "CONFIG_CRYPTO_HCTR2",
+        "CONFIG_CRYPTO_HMAC",
+        "CONFIG_CRYPTO_HW",
+        "CONFIG_CRYPTO_JITTERENTROPY",
+        "CONFIG_CRYPTO_JITTERENTROPY_TESTINTERFACE",
+        "CONFIG_CRYPTO_KDF800108_CTR",
+        "CONFIG_CRYPTO_KHAZAD",
+        "CONFIG_CRYPTO_KPP",
+        "CONFIG_CRYPTO_KPP2",
+        "CONFIG_CRYPTO_KRB5",
+        "CONFIG_CRYPTO_KRB5ENC",
+        "CONFIG_CRYPTO_LRW",
+        "CONFIG_CRYPTO_LZ4",
+        "CONFIG_CRYPTO_LZ4HC",
+        "CONFIG_CRYPTO_LZO",
+        "CONFIG_CRYPTO_MANAGER",
+        "CONFIG_CRYPTO_MD4",
+        "CONFIG_CRYPTO_MD5",
+        "CONFIG_CRYPTO_MLDSA",
+        "CONFIG_CRYPTO_NULL",
+        "CONFIG_CRYPTO_PCBC",
+        "CONFIG_CRYPTO_PCRYPT",
+        "CONFIG_CRYPTO_RMD160",
+        "CONFIG_CRYPTO_RNG",
+        "CONFIG_CRYPTO_RNG2",
+        "CONFIG_CRYPTO_RSA",
+        "CONFIG_CRYPTO_SEED",
+        "CONFIG_CRYPTO_SELFTESTS",
+        "CONFIG_CRYPTO_SELFTESTS_FULL",
+        "CONFIG_CRYPTO_SEQIV",
+        "CONFIG_CRYPTO_SERPENT",
+        "CONFIG_CRYPTO_SHA1",
+        "CONFIG_CRYPTO_SHA256",
+        "CONFIG_CRYPTO_SHA3",
+        "CONFIG_CRYPTO_SHA512",
+        "CONFIG_CRYPTO_SIG",
+        "CONFIG_CRYPTO_SIG2",
+        "CONFIG_CRYPTO_SIMD",
+        "CONFIG_CRYPTO_SKCIPHER",
+        "CONFIG_CRYPTO_SKCIPHER2",
+        "CONFIG_CRYPTO_SM3",
+        "CONFIG_CRYPTO_SM4",
+        "CONFIG_CRYPTO_SM4_ARM64_CE",
+        "CONFIG_CRYPTO_SM4_ARM64_CE_BLK",
+        "CONFIG_CRYPTO_SM4_ARM64_CE_CCM",
+        "CONFIG_CRYPTO_SM4_ARM64_CE_GCM",
+        "CONFIG_CRYPTO_SM4_ARM64_NEON_BLK",
+        "CONFIG_CRYPTO_SM4_GENERIC",
+        "CONFIG_CRYPTO_STREEBOG",
+        "CONFIG_CRYPTO_TEA",
+        "CONFIG_CRYPTO_TWOFISH",
+        "CONFIG_CRYPTO_TWOFISH_COMMON",
+        "CONFIG_CRYPTO_USER",
+        "CONFIG_CRYPTO_USER_API",
+        "CONFIG_CRYPTO_USER_API_AEAD",
+        "CONFIG_CRYPTO_USER_API_ENABLE_OBSOLETE",
+        "CONFIG_CRYPTO_USER_API_HASH",
+        "CONFIG_CRYPTO_USER_API_RNG",
+        "CONFIG_CRYPTO_USER_API_RNG_CAVP",
+        "CONFIG_CRYPTO_USER_API_SKCIPHER",
+        "CONFIG_CRYPTO_WP512",
+        "CONFIG_CRYPTO_XCBC",
+        "CONFIG_CRYPTO_XCTR",
+        "CONFIG_CRYPTO_XTS",
+        "CONFIG_CRYPTO_XXHASH",
+        "CONFIG_CRYPTO_ZSTD",
+        "CONFIG_DM_AUDIT",
+        "CONFIG_DM_BIO_PRISON",
+        "CONFIG_DM_BUFIO",
+        "CONFIG_DM_CACHE",
+        "CONFIG_DM_CACHE_SMQ",
+        "CONFIG_DM_CLONE",
+        "CONFIG_DM_CRYPT",
+        "CONFIG_DM_DEBUG",
+        "CONFIG_DM_DEBUG_BLOCK_MANAGER_LOCKING",
+        "CONFIG_DM_DEBUG_BLOCK_STACK_TRACING",
+        "CONFIG_DM_DELAY",
+        "CONFIG_DM_DUST",
+        "CONFIG_DM_EBS",
+        "CONFIG_DM_ERA",
+        "CONFIG_DM_FLAKEY",
+        "CONFIG_DM_INIT",
+        "CONFIG_DM_INTEGRITY",
+        "CONFIG_DM_LOG_USERSPACE",
+        "CONFIG_DM_LOG_WRITES",
+        "CONFIG_DM_MIRROR",
+        "CONFIG_DM_MULTIPATH",
+        "CONFIG_DM_MULTIPATH_HST",
+        "CONFIG_DM_MULTIPATH_IOA",
+        "CONFIG_DM_MULTIPATH_QL",
+        "CONFIG_DM_MULTIPATH_ST",
+        "CONFIG_DM_RAID",
+        "CONFIG_DM_SNAPSHOT",
+        "CONFIG_DM_SWITCH",
+        "CONFIG_DM_THIN_PROVISIONING",
+        "CONFIG_DM_UEVENT",
+        "CONFIG_DM_UNSTRIPED",
+        "CONFIG_DM_VDO",
+        "CONFIG_DM_VERITY",
+        "CONFIG_DM_VERITY_FEC",
+        "CONFIG_DM_VERITY_VERIFY_ROOTHASH_SIG",
+        "CONFIG_DM_VERITY_VERIFY_ROOTHASH_SIG_PLATFORM_KEYRING",
+        "CONFIG_DM_VERITY_VERIFY_ROOTHASH_SIG_SECONDARY_KEYRING",
+        "CONFIG_DM_WRITECACHE",
+        "CONFIG_DM_ZERO",
+        "CONFIG_DM_ZONED",
+        "CONFIG_MD",
+        "CONFIG_MD_AUTODETECT",
+        "CONFIG_MD_BITMAP",
+        "CONFIG_MD_BITMAP_FILE",
+        "CONFIG_MD_CLUSTER",
+        "CONFIG_MD_LINEAR",
+        "CONFIG_MD_LLBITMAP",
+        "CONFIG_MD_RAID0",
+        "CONFIG_MD_RAID1",
+        "CONFIG_MD_RAID10",
+        "CONFIG_MD_RAID456",
+        "CONFIG_SYSTEM_BLACKLIST_KEYRING"
+      ],
+      "frontier": {
+        "CONFIG_ASYMMETRIC_KEY_TYPE": {
+          "dependencies": [
+            "CRYPTO",
+            "KEYS"
+          ],
+          "path": "crypto/asymmetric_keys/Kconfig",
+          "type": "bool"
+        },
+        "CONFIG_BCACHE": {
+          "dependencies": [
+            "MD"
+          ],
+          "path": "drivers/md/bcache/Kconfig",
+          "type": "tristate"
+        },
+        "CONFIG_CRYPTO_AES_ARM64_BS": {
+          "dependencies": [
+            "CRYPTO",
+            "!KMSAN",
+            "ARM64",
+            "KERNEL_MODE_NEON"
+          ],
+          "path": "arch/arm64/crypto/Kconfig",
+          "type": "tristate"
+        },
+        "CONFIG_CRYPTO_AES_ARM64_CE_BLK": {
+          "dependencies": [
+            "CRYPTO",
+            "!KMSAN",
+            "ARM64",
+            "KERNEL_MODE_NEON"
+          ],
+          "path": "arch/arm64/crypto/Kconfig",
+          "type": "tristate"
+        },
+        "CONFIG_CRYPTO_AES_ARM64_CE_CCM": {
+          "dependencies": [
+            "CRYPTO",
+            "!KMSAN",
+            "ARM64",
+            "KERNEL_MODE_NEON"
+          ],
+          "path": "arch/arm64/crypto/Kconfig",
+          "type": "tristate"
+        },
+        "CONFIG_CRYPTO_AES_ARM64_NEON_BLK": {
+          "dependencies": [
+            "CRYPTO",
+            "!KMSAN",
+            "ARM64",
+            "KERNEL_MODE_NEON"
+          ],
+          "path": "arch/arm64/crypto/Kconfig",
+          "type": "tristate"
+        },
+        "CONFIG_CRYPTO_GHASH_ARM64_CE": {
+          "dependencies": [
+            "CRYPTO",
+            "!KMSAN",
+            "ARM64",
+            "KERNEL_MODE_NEON"
+          ],
+          "path": "arch/arm64/crypto/Kconfig",
+          "type": "tristate"
+        },
+        "CONFIG_CRYPTO_HW": {
+          "dependencies": [
+            "CRYPTO"
+          ],
+          "path": "drivers/crypto/Kconfig",
+          "type": "bool"
+        },
+        "CONFIG_CRYPTO_KRB5": {
+          "dependencies": [
+            "CRYPTO"
+          ],
+          "path": "crypto/krb5/Kconfig",
+          "type": "tristate"
+        },
+        "CONFIG_CRYPTO_SM4_ARM64_CE": {
+          "dependencies": [
+            "CRYPTO",
+            "!KMSAN",
+            "ARM64",
+            "KERNEL_MODE_NEON"
+          ],
+          "path": "arch/arm64/crypto/Kconfig",
+          "type": "tristate"
+        },
+        "CONFIG_CRYPTO_SM4_ARM64_CE_BLK": {
+          "dependencies": [
+            "CRYPTO",
+            "!KMSAN",
+            "ARM64",
+            "KERNEL_MODE_NEON"
+          ],
+          "path": "arch/arm64/crypto/Kconfig",
+          "type": "tristate"
+        },
+        "CONFIG_CRYPTO_SM4_ARM64_CE_CCM": {
+          "dependencies": [
+            "CRYPTO",
+            "!KMSAN",
+            "ARM64",
+            "KERNEL_MODE_NEON"
+          ],
+          "path": "arch/arm64/crypto/Kconfig",
+          "type": "tristate"
+        },
+        "CONFIG_CRYPTO_SM4_ARM64_CE_GCM": {
+          "dependencies": [
+            "CRYPTO",
+            "!KMSAN",
+            "ARM64",
+            "KERNEL_MODE_NEON"
+          ],
+          "path": "arch/arm64/crypto/Kconfig",
+          "type": "tristate"
+        },
+        "CONFIG_CRYPTO_SM4_ARM64_NEON_BLK": {
+          "dependencies": [
+            "CRYPTO",
+            "!KMSAN",
+            "ARM64",
+            "KERNEL_MODE_NEON"
+          ],
+          "path": "arch/arm64/crypto/Kconfig",
+          "type": "tristate"
+        },
+        "CONFIG_DM_VDO": {
+          "dependencies": [
+            "MD",
+            "64BIT",
+            "BLK_DEV_DM"
+          ],
+          "path": "drivers/md/dm-vdo/Kconfig",
+          "type": "tristate"
+        },
+        "CONFIG_SYSTEM_BLACKLIST_KEYRING": {
+          "dependencies": [
+            "CRYPTO",
+            "KEYS"
+          ],
+          "path": "certs/Kconfig",
+          "type": "bool"
+        }
+      },
+      "method": "EXPLICIT_DIRECT_SOURCE_PROMPT_VISIBILITY_FRONTIER_ONLY_NOT_KCONFIG_SOLVER_OR_CANDIDATE_CONFIG",
+      "original_domain": [
+        "CONFIG_BLK_DEV_DM",
+        "CONFIG_BLK_DEV_DM_BUILTIN",
+        "CONFIG_BLK_DEV_MD",
+        "CONFIG_CRYPTO",
+        "CONFIG_CRYPTO_842",
+        "CONFIG_CRYPTO_ACOMP",
+        "CONFIG_CRYPTO_ACOMP2",
+        "CONFIG_CRYPTO_ADIANTUM",
+        "CONFIG_CRYPTO_AEAD",
+        "CONFIG_CRYPTO_AEAD2",
+        "CONFIG_CRYPTO_AEGIS128",
+        "CONFIG_CRYPTO_AEGIS128_SIMD",
+        "CONFIG_CRYPTO_AES",
+        "CONFIG_CRYPTO_AKCIPHER",
+        "CONFIG_CRYPTO_AKCIPHER2",
+        "CONFIG_CRYPTO_ALGAPI",
+        "CONFIG_CRYPTO_ALGAPI2",
+        "CONFIG_CRYPTO_ANUBIS",
+        "CONFIG_CRYPTO_ARC4",
+        "CONFIG_CRYPTO_ARIA",
+        "CONFIG_CRYPTO_AUTHENC",
+        "CONFIG_CRYPTO_BENCHMARK",
+        "CONFIG_CRYPTO_BLAKE2B",
+        "CONFIG_CRYPTO_BLOWFISH",
+        "CONFIG_CRYPTO_BLOWFISH_COMMON",
+        "CONFIG_CRYPTO_CAMELLIA",
+        "CONFIG_CRYPTO_CAST5",
+        "CONFIG_CRYPTO_CAST6",
+        "CONFIG_CRYPTO_CAST_COMMON",
+        "CONFIG_CRYPTO_CBC",
+        "CONFIG_CRYPTO_CCM",
+        "CONFIG_CRYPTO_CHACHA20",
+        "CONFIG_CRYPTO_CHACHA20POLY1305",
+        "CONFIG_CRYPTO_CMAC",
+        "CONFIG_CRYPTO_CRC32",
+        "CONFIG_CRYPTO_CRC32C",
+        "CONFIG_CRYPTO_CRYPTD",
+        "CONFIG_CRYPTO_CTR",
+        "CONFIG_CRYPTO_CTS",
+        "CONFIG_CRYPTO_DEFLATE",
+        "CONFIG_CRYPTO_DES",
+        "CONFIG_CRYPTO_DF80090A",
+        "CONFIG_CRYPTO_DH",
+        "CONFIG_CRYPTO_DH_RFC7919_GROUPS",
+        "CONFIG_CRYPTO_DRBG",
+        "CONFIG_CRYPTO_DRBG_CTR",
+        "CONFIG_CRYPTO_DRBG_HASH",
+        "CONFIG_CRYPTO_DRBG_HMAC",
+        "CONFIG_CRYPTO_DRBG_MENU",
+        "CONFIG_CRYPTO_ECB",
+        "CONFIG_CRYPTO_ECC",
+        "CONFIG_CRYPTO_ECDH",
+        "CONFIG_CRYPTO_ECDSA",
+        "CONFIG_CRYPTO_ECHAINIV",
+        "CONFIG_CRYPTO_ECRDSA",
+        "CONFIG_CRYPTO_ENGINE",
+        "CONFIG_CRYPTO_ESSIV",
+        "CONFIG_CRYPTO_FCRYPT",
+        "CONFIG_CRYPTO_FIPS",
+        "CONFIG_CRYPTO_FIPS_CUSTOM_VERSION",
+        "CONFIG_CRYPTO_GCM",
+        "CONFIG_CRYPTO_GENIV",
+        "CONFIG_CRYPTO_HASH",
+        "CONFIG_CRYPTO_HASH2",
+        "CONFIG_CRYPTO_HCTR2",
+        "CONFIG_CRYPTO_HMAC",
+        "CONFIG_CRYPTO_JITTERENTROPY",
+        "CONFIG_CRYPTO_JITTERENTROPY_TESTINTERFACE",
+        "CONFIG_CRYPTO_KDF800108_CTR",
+        "CONFIG_CRYPTO_KHAZAD",
+        "CONFIG_CRYPTO_KPP",
+        "CONFIG_CRYPTO_KPP2",
+        "CONFIG_CRYPTO_KRB5ENC",
+        "CONFIG_CRYPTO_LRW",
+        "CONFIG_CRYPTO_LZ4",
+        "CONFIG_CRYPTO_LZ4HC",
+        "CONFIG_CRYPTO_LZO",
+        "CONFIG_CRYPTO_MANAGER",
+        "CONFIG_CRYPTO_MD4",
+        "CONFIG_CRYPTO_MD5",
+        "CONFIG_CRYPTO_MLDSA",
+        "CONFIG_CRYPTO_NULL",
+        "CONFIG_CRYPTO_PCBC",
+        "CONFIG_CRYPTO_PCRYPT",
+        "CONFIG_CRYPTO_RMD160",
+        "CONFIG_CRYPTO_RNG",
+        "CONFIG_CRYPTO_RNG2",
+        "CONFIG_CRYPTO_RSA",
+        "CONFIG_CRYPTO_SEED",
+        "CONFIG_CRYPTO_SELFTESTS",
+        "CONFIG_CRYPTO_SELFTESTS_FULL",
+        "CONFIG_CRYPTO_SEQIV",
+        "CONFIG_CRYPTO_SERPENT",
+        "CONFIG_CRYPTO_SHA1",
+        "CONFIG_CRYPTO_SHA256",
+        "CONFIG_CRYPTO_SHA3",
+        "CONFIG_CRYPTO_SHA512",
+        "CONFIG_CRYPTO_SIG",
+        "CONFIG_CRYPTO_SIG2",
+        "CONFIG_CRYPTO_SIMD",
+        "CONFIG_CRYPTO_SKCIPHER",
+        "CONFIG_CRYPTO_SKCIPHER2",
+        "CONFIG_CRYPTO_SM3",
+        "CONFIG_CRYPTO_SM4",
+        "CONFIG_CRYPTO_SM4_GENERIC",
+        "CONFIG_CRYPTO_STREEBOG",
+        "CONFIG_CRYPTO_TEA",
+        "CONFIG_CRYPTO_TWOFISH",
+        "CONFIG_CRYPTO_TWOFISH_COMMON",
+        "CONFIG_CRYPTO_USER",
+        "CONFIG_CRYPTO_USER_API",
+        "CONFIG_CRYPTO_USER_API_AEAD",
+        "CONFIG_CRYPTO_USER_API_ENABLE_OBSOLETE",
+        "CONFIG_CRYPTO_USER_API_HASH",
+        "CONFIG_CRYPTO_USER_API_RNG",
+        "CONFIG_CRYPTO_USER_API_RNG_CAVP",
+        "CONFIG_CRYPTO_USER_API_SKCIPHER",
+        "CONFIG_CRYPTO_WP512",
+        "CONFIG_CRYPTO_XCBC",
+        "CONFIG_CRYPTO_XCTR",
+        "CONFIG_CRYPTO_XTS",
+        "CONFIG_CRYPTO_XXHASH",
+        "CONFIG_CRYPTO_ZSTD",
+        "CONFIG_DM_AUDIT",
+        "CONFIG_DM_BIO_PRISON",
+        "CONFIG_DM_BUFIO",
+        "CONFIG_DM_CACHE",
+        "CONFIG_DM_CACHE_SMQ",
+        "CONFIG_DM_CLONE",
+        "CONFIG_DM_CRYPT",
+        "CONFIG_DM_DEBUG",
+        "CONFIG_DM_DEBUG_BLOCK_MANAGER_LOCKING",
+        "CONFIG_DM_DEBUG_BLOCK_STACK_TRACING",
+        "CONFIG_DM_DELAY",
+        "CONFIG_DM_DUST",
+        "CONFIG_DM_EBS",
+        "CONFIG_DM_ERA",
+        "CONFIG_DM_FLAKEY",
+        "CONFIG_DM_INIT",
+        "CONFIG_DM_INTEGRITY",
+        "CONFIG_DM_LOG_USERSPACE",
+        "CONFIG_DM_LOG_WRITES",
+        "CONFIG_DM_MIRROR",
+        "CONFIG_DM_MULTIPATH",
+        "CONFIG_DM_MULTIPATH_HST",
+        "CONFIG_DM_MULTIPATH_IOA",
+        "CONFIG_DM_MULTIPATH_QL",
+        "CONFIG_DM_MULTIPATH_ST",
+        "CONFIG_DM_RAID",
+        "CONFIG_DM_SNAPSHOT",
+        "CONFIG_DM_SWITCH",
+        "CONFIG_DM_THIN_PROVISIONING",
+        "CONFIG_DM_UEVENT",
+        "CONFIG_DM_UNSTRIPED",
+        "CONFIG_DM_VERITY",
+        "CONFIG_DM_VERITY_FEC",
+        "CONFIG_DM_VERITY_VERIFY_ROOTHASH_SIG",
+        "CONFIG_DM_VERITY_VERIFY_ROOTHASH_SIG_PLATFORM_KEYRING",
+        "CONFIG_DM_VERITY_VERIFY_ROOTHASH_SIG_SECONDARY_KEYRING",
+        "CONFIG_DM_WRITECACHE",
+        "CONFIG_DM_ZERO",
+        "CONFIG_DM_ZONED",
+        "CONFIG_MD",
+        "CONFIG_MD_AUTODETECT",
+        "CONFIG_MD_BITMAP",
+        "CONFIG_MD_BITMAP_FILE",
+        "CONFIG_MD_CLUSTER",
+        "CONFIG_MD_LINEAR",
+        "CONFIG_MD_LLBITMAP",
+        "CONFIG_MD_RAID0",
+        "CONFIG_MD_RAID1",
+        "CONFIG_MD_RAID10",
+        "CONFIG_MD_RAID456"
+      ],
+      "reference_values": {
+        "CONFIG_64BIT": "y",
+        "CONFIG_ARM": "n",
+        "CONFIG_ARM64": "y",
+        "CONFIG_ASYMMETRIC_KEY_TYPE": "n",
+        "CONFIG_BCACHE": "n",
+        "CONFIG_BLK_DEV_DM": "n",
+        "CONFIG_CRYPTO": "n",
+        "CONFIG_CRYPTO_HW": "n",
+        "CONFIG_CRYPTO_KRB5": "n",
+        "CONFIG_DEV_DAX": "n",
+        "CONFIG_IMA_APPRAISE_MODSIG": "n",
+        "CONFIG_KERNEL_MODE_NEON": "y",
+        "CONFIG_KEYS": "y",
+        "CONFIG_KMSAN": "n",
+        "CONFIG_LOONGARCH": "n",
+        "CONFIG_MD": "n",
+        "CONFIG_MIPS": "n",
+        "CONFIG_MODULES": "n",
+        "CONFIG_MODULE_SIG": "n",
+        "CONFIG_PPC": "n",
+        "CONFIG_RISCV": "n",
+        "CONFIG_S390": "n",
+        "CONFIG_SECONDARY_TRUSTED_KEYRING": "n",
+        "CONFIG_SPARC": "n",
+        "CONFIG_SYSTEM_BLACKLIST_KEYRING": "n",
+        "CONFIG_SYSTEM_TRUSTED_KEYRING": "n",
+        "CONFIG_X86": "n"
+      },
+      "routes": {
+        "arch/arm64/crypto/Kconfig": {
+          "dependencies": [
+            "CRYPTO",
+            "!KMSAN",
+            "ARM64"
+          ],
+          "parent": "crypto/Kconfig"
+        },
+        "certs/Kconfig": {
+          "dependencies": [
+            "CRYPTO"
+          ],
+          "parent": "crypto/Kconfig"
+        },
+        "crypto/asymmetric_keys/Kconfig": {
+          "dependencies": [
+            "CRYPTO"
+          ],
+          "parent": "crypto/Kconfig"
+        },
+        "crypto/krb5/Kconfig": {
+          "dependencies": [
+            "CRYPTO"
+          ],
+          "parent": "crypto/Kconfig"
+        },
+        "drivers/crypto/Kconfig": {
+          "dependencies": [
+            "CRYPTO"
+          ],
+          "parent": "crypto/Kconfig"
+        },
+        "drivers/md/bcache/Kconfig": {
+          "dependencies": [
+            "MD"
+          ],
+          "parent": "drivers/md/Kconfig"
+        },
+        "drivers/md/dm-pcache/Kconfig": {
+          "dependencies": [
+            "MD"
+          ],
+          "parent": "drivers/md/Kconfig"
+        },
+        "drivers/md/dm-vdo/Kconfig": {
+          "dependencies": [
+            "MD"
+          ],
+          "parent": "drivers/md/Kconfig"
+        },
+        "drivers/md/persistent-data/Kconfig": {
+          "dependencies": [
+            "MD"
+          ],
+          "parent": "drivers/md/Kconfig"
+        }
+      }
+    },
+    "sources": {
+      "arch/arm64/crypto/Kconfig": "# SPDX-License-Identifier: GPL-2.0\n\nmenu \"Accelerated Cryptographic Algorithms for CPU (arm64)\"\n\nconfig CRYPTO_GHASH_ARM64_CE\n\ttristate \"AEAD cipher: AES in GCM mode (ARMv8 Crypto Extensions)\"\n\tdepends on KERNEL_MODE_NEON\n\tselect CRYPTO_LIB_AES\n\tselect CRYPTO_LIB_GF128MUL\n\tselect CRYPTO_AEAD\n\thelp\n\t  AEAD cipher: AES-GCM\n\n\t  Architecture: arm64 using:\n\t  - ARMv8 Crypto Extensions\n\nconfig CRYPTO_AES_ARM64_CE_BLK\n\ttristate \"Ciphers: AES, modes: ECB/CBC/CTR/XTS (ARMv8 Crypto Extensions)\"\n\tdepends on KERNEL_MODE_NEON\n\tselect CRYPTO_SKCIPHER\n\tselect CRYPTO_LIB_AES\n\tselect CRYPTO_LIB_SHA256\n\thelp\n\t  Length-preserving ciphers: AES cipher algorithms (FIPS-197)\n\t  with block cipher modes:\n\t  - ECB (Electronic Codebook) mode (NIST SP800-38A)\n\t  - CBC (Cipher Block Chaining) mode (NIST SP800-38A)\n\t  - CTR (Counter) mode (NIST SP800-38A)\n\t  - XTS (XOR Encrypt XOR with ciphertext stealing) mode (NIST SP800-38E\n\t    and IEEE 1619)\n\n\t  Architecture: arm64 using:\n\t  - ARMv8 Crypto Extensions\n\nconfig CRYPTO_AES_ARM64_NEON_BLK\n\ttristate \"Ciphers: AES, modes: ECB/CBC/CTR/XTS (NEON)\"\n\tdepends on KERNEL_MODE_NEON\n\tselect CRYPTO_SKCIPHER\n\tselect CRYPTO_LIB_AES\n\tselect CRYPTO_LIB_SHA256\n\thelp\n\t  Length-preserving ciphers: AES cipher algorithms (FIPS-197)\n\t  with block cipher modes:\n\t  - ECB (Electronic Codebook) mode (NIST SP800-38A)\n\t  - CBC (Cipher Block Chaining) mode (NIST SP800-38A)\n\t  - CTR (Counter) mode (NIST SP800-38A)\n\t  - XTS (XOR Encrypt XOR with ciphertext stealing) mode (NIST SP800-38E\n\t    and IEEE 1619)\n\n\t  Architecture: arm64 using:\n\t  - NEON (Advanced SIMD) extensions\n\nconfig CRYPTO_AES_ARM64_BS\n\ttristate \"Ciphers: AES, modes: ECB/CBC/CTR/XCTR/XTS modes (bit-sliced NEON)\"\n\tdepends on KERNEL_MODE_NEON\n\tselect CRYPTO_SKCIPHER\n\tselect CRYPTO_AES_ARM64_NEON_BLK\n\tselect CRYPTO_LIB_AES\n\thelp\n\t  Length-preserving ciphers: AES cipher algorithms (FIPS-197)\n\t  with block cipher modes:\n\t  - ECB (Electronic Codebook) mode (NIST SP800-38A)\n\t  - CBC (Cipher Block Chaining) mode (NIST SP800-38A)\n\t  - CTR (Counter) mode (NIST SP800-38A)\n\t  - XCTR mode for HCTR2\n\t  - XTS (XOR Encrypt XOR with ciphertext stealing) mode (NIST SP800-38E\n\t    and IEEE 1619)\n\n\t  Architecture: arm64 using:\n\t  - bit-sliced algorithm\n\t  - NEON (Advanced SIMD) extensions\n\nconfig CRYPTO_SM4_ARM64_CE\n\ttristate \"Ciphers: SM4 (ARMv8.2 Crypto Extensions)\"\n\tdepends on KERNEL_MODE_NEON\n\tselect CRYPTO_ALGAPI\n\tselect CRYPTO_SM4\n\thelp\n\t  Block ciphers: SM4 cipher algorithms (OSCCA GB/T 32907-2016)\n\n\t  Architecture: arm64 using:\n\t  - ARMv8.2 Crypto Extensions\n\t  - NEON (Advanced SIMD) extensions\n\nconfig CRYPTO_SM4_ARM64_CE_BLK\n\ttristate \"Ciphers: SM4, modes: ECB/CBC/CTR/XTS (ARMv8 Crypto Extensions)\"\n\tdepends on KERNEL_MODE_NEON\n\tselect CRYPTO_SKCIPHER\n\tselect CRYPTO_SM4\n\thelp\n\t  Length-preserving ciphers: SM4 cipher algorithms (OSCCA GB/T 32907-2016)\n\t  with block cipher modes:\n\t  - ECB (Electronic Codebook) mode (NIST SP800-38A)\n\t  - CBC (Cipher Block Chaining) mode (NIST SP800-38A)\n\t  - CTR (Counter) mode (NIST SP800-38A)\n\t  - XTS (XOR Encrypt XOR with ciphertext stealing) mode (NIST SP800-38E\n\t    and IEEE 1619)\n\n\t  Architecture: arm64 using:\n\t  - ARMv8 Crypto Extensions\n\t  - NEON (Advanced SIMD) extensions\n\nconfig CRYPTO_SM4_ARM64_NEON_BLK\n\ttristate \"Ciphers: SM4, modes: ECB/CBC/CTR (NEON)\"\n\tdepends on KERNEL_MODE_NEON\n\tselect CRYPTO_SKCIPHER\n\tselect CRYPTO_SM4\n\thelp\n\t  Length-preserving ciphers: SM4 cipher algorithms (OSCCA GB/T 32907-2016)\n\t  with block cipher modes:\n\t  - ECB (Electronic Codebook) mode (NIST SP800-38A)\n\t  - CBC (Cipher Block Chaining) mode (NIST SP800-38A)\n\t  - CTR (Counter) mode (NIST SP800-38A)\n\n\t  Architecture: arm64 using:\n\t  - NEON (Advanced SIMD) extensions\n\nconfig CRYPTO_AES_ARM64_CE_CCM\n\ttristate \"AEAD cipher: AES in CCM mode (ARMv8 Crypto Extensions)\"\n\tdepends on KERNEL_MODE_NEON\n\tselect CRYPTO_ALGAPI\n\tselect CRYPTO_AES_ARM64_CE_BLK\n\tselect CRYPTO_AEAD\n\tselect CRYPTO_LIB_AES_CBC_MACS\n\thelp\n\t  AEAD cipher: AES cipher algorithms (FIPS-197) with\n\t  CCM (Counter with Cipher Block Chaining-Message Authentication Code)\n\t  authenticated encryption mode (NIST SP800-38C)\n\n\t  Architecture: arm64 using:\n\t  - ARMv8 Crypto Extensions\n\t  - NEON (Advanced SIMD) extensions\n\nconfig CRYPTO_SM4_ARM64_CE_CCM\n\ttristate \"AEAD cipher: SM4 in CCM mode (ARMv8 Crypto Extensions)\"\n\tdepends on KERNEL_MODE_NEON\n\tselect CRYPTO_ALGAPI\n\tselect CRYPTO_AEAD\n\tselect CRYPTO_SM4\n\tselect CRYPTO_SM4_ARM64_CE_BLK\n\thelp\n\t  AEAD cipher: SM4 cipher algorithms (OSCCA GB/T 32907-2016) with\n\t  CCM (Counter with Cipher Block Chaining-Message Authentication Code)\n\t  authenticated encryption mode (NIST SP800-38C)\n\n\t  Architecture: arm64 using:\n\t  - ARMv8 Crypto Extensions\n\t  - NEON (Advanced SIMD) extensions\n\nconfig CRYPTO_SM4_ARM64_CE_GCM\n\ttristate \"AEAD cipher: SM4 in GCM mode (ARMv8 Crypto Extensions)\"\n\tdepends on KERNEL_MODE_NEON\n\tselect CRYPTO_ALGAPI\n\tselect CRYPTO_AEAD\n\tselect CRYPTO_SM4\n\tselect CRYPTO_SM4_ARM64_CE_BLK\n\thelp\n\t  AEAD cipher: SM4 cipher algorithms (OSCCA GB/T 32907-2016) with\n\t  GCM (Galois/Counter Mode) authenticated encryption mode (NIST SP800-38D)\n\n\t  Architecture: arm64 using:\n\t  - ARMv8 Crypto Extensions\n\t  - PMULL (Polynomial Multiply Long) instructions\n\t  - NEON (Advanced SIMD) extensions\n\nendmenu\n\n",
+      "certs/Kconfig": "# SPDX-License-Identifier: GPL-2.0\nmenu \"Certificates for signature checking\"\n\nconfig MODULE_SIG_KEY\n\tstring \"File name or PKCS#11 URI of module signing key\"\n\tdefault \"certs/signing_key.pem\"\n\tdepends on MODULE_SIG || (IMA_APPRAISE_MODSIG && MODULES)\n\thelp\n         Provide the file name of a private key/certificate in PEM format,\n         or a PKCS#11 URI according to RFC7512. The file should contain, or\n         the URI should identify, both the certificate and its corresponding\n         private key.\n\n         If this option is unchanged from its default \"certs/signing_key.pem\",\n         then the kernel will automatically generate the private key and\n         certificate as described in Documentation/admin-guide/module-signing.rst\n\nchoice\n\tprompt \"Type of module signing key to be generated\"\n\tdepends on MODULE_SIG || (IMA_APPRAISE_MODSIG && MODULES)\n\thelp\n\t The type of module signing key type to generate. This option\n\t does not apply if a #PKCS11 URI is used.\n\nconfig MODULE_SIG_KEY_TYPE_RSA\n\tbool \"RSA\"\n\thelp\n\t Use an RSA key for module signing.\n\nconfig MODULE_SIG_KEY_TYPE_ECDSA\n\tbool \"ECDSA\"\n\tselect CRYPTO_ECDSA\n\tdepends on !(MODULE_SIG_SHA256 || MODULE_SIG_SHA3_256)\n\thelp\n\t Use an elliptic curve key (NIST P384) for module signing. Use\n\t a strong hash of same or higher bit length, i.e. sha384 or\n\t sha512 for hashing modules.\n\n\t Note: Remove all ECDSA signing keys, e.g. certs/signing_key.pem,\n\t when falling back to building Linux 5.14 and older kernels.\n\nconfig MODULE_SIG_KEY_TYPE_MLDSA_44\n\tbool \"ML-DSA-44\"\n\tselect CRYPTO_MLDSA\n\tdepends on OPENSSL_SUPPORTS_ML_DSA\n\thelp\n\t  Use an ML-DSA-44 key (NIST FIPS 204) for module signing.  ML-DSA\n\t  support requires OpenSSL-3.5 minimum; preferably OpenSSL-4+.  With\n\t  the latter, the entire module body will be signed; with the former,\n\t  signedAttrs will be used as it lacks support for CMS_NOATTR with\n\t  ML-DSA.\n\nconfig MODULE_SIG_KEY_TYPE_MLDSA_65\n\tbool \"ML-DSA-65\"\n\tselect CRYPTO_MLDSA\n\tdepends on OPENSSL_SUPPORTS_ML_DSA\n\thelp\n\t  Use an ML-DSA-65 key (NIST FIPS 204) for module signing.  ML-DSA\n\t  support requires OpenSSL-3.5 minimum; preferably OpenSSL-4+.  With\n\t  the latter, the entire module body will be signed; with the former,\n\t  signedAttrs will be used as it lacks support for CMS_NOATTR with\n\t  ML-DSA.\n\nconfig MODULE_SIG_KEY_TYPE_MLDSA_87\n\tbool \"ML-DSA-87\"\n\tselect CRYPTO_MLDSA\n\tdepends on OPENSSL_SUPPORTS_ML_DSA\n\thelp\n\t  Use an ML-DSA-87 key (NIST FIPS 204) for module signing.  ML-DSA\n\t  support requires OpenSSL-3.5 minimum; preferably OpenSSL-4+.  With\n\t  the latter, the entire module body will be signed; with the former,\n\t  signedAttrs will be used as it lacks support for CMS_NOATTR with\n\t  ML-DSA.\n\nendchoice\n\nconfig SYSTEM_TRUSTED_KEYRING\n\tbool \"Provide system-wide ring of trusted keys\"\n\tdepends on KEYS\n\tdepends on ASYMMETRIC_KEY_TYPE\n\tdepends on X509_CERTIFICATE_PARSER = y\n\thelp\n\t  Provide a system keyring to which trusted keys can be added.  Keys in\n\t  the keyring are considered to be trusted.  Keys may be added at will\n\t  by the kernel from compiled-in data and from hardware key stores, but\n\t  userspace may only add extra keys if those keys can be verified by\n\t  keys already in the keyring.\n\n\t  Keys in this keyring are used by module signature checking.\n\nconfig SYSTEM_TRUSTED_KEYS\n\tstring \"Additional X.509 keys for default system keyring\"\n\tdepends on SYSTEM_TRUSTED_KEYRING\n\thelp\n\t  If set, this option should be the filename of a PEM-formatted file\n\t  containing trusted X.509 certificates to be included in the default\n\t  system keyring. Any certificate used for module signing is implicitly\n\t  also trusted.\n\n\t  NOTE: If you previously provided keys for the system keyring in the\n\t  form of DER-encoded *.x509 files in the top-level build directory,\n\t  those are no longer used. You will need to set this option instead.\n\nconfig SYSTEM_EXTRA_CERTIFICATE\n\tbool \"Reserve area for inserting a certificate without recompiling\"\n\tdepends on SYSTEM_TRUSTED_KEYRING\n\thelp\n\t  If set, space for an extra certificate will be reserved in the kernel\n\t  image. This allows introducing a trusted certificate to the default\n\t  system keyring without recompiling the kernel.\n\nconfig SYSTEM_EXTRA_CERTIFICATE_SIZE\n\tint \"Number of bytes to reserve for the extra certificate\"\n\tdepends on SYSTEM_EXTRA_CERTIFICATE\n\tdefault 4096\n\thelp\n\t  This is the number of bytes reserved in the kernel image for a\n\t  certificate to be inserted.\n\nconfig SECONDARY_TRUSTED_KEYRING\n\tbool \"Provide a keyring to which extra trustable keys may be added\"\n\tdepends on SYSTEM_TRUSTED_KEYRING\n\thelp\n\t  If set, provide a keyring to which extra keys may be added, provided\n\t  those keys are not blacklisted and are vouched for by a key built\n\t  into the kernel, machine keyring (if configured), or already in the\n\t  secondary trusted keyring.\n\nconfig SECONDARY_TRUSTED_KEYRING_SIGNED_BY_BUILTIN\n\tbool \"Only allow additional certs signed by keys on the builtin trusted keyring\"\n\tdepends on SECONDARY_TRUSTED_KEYRING\n\thelp\n\t  If set, only certificates signed by keys on the builtin trusted\n\t  keyring may be loaded onto the secondary trusted keyring.\n\n\t  Note: The machine keyring, if configured, will be linked to the\n\t  secondary keyring.  When enabling this option, it is recommended\n\t  to also configure INTEGRITY_CA_MACHINE_KEYRING_MAX to prevent\n\t  linking code signing keys with imputed trust to the secondary\n\t  trusted keyring.\n\nconfig SYSTEM_BLACKLIST_KEYRING\n\tbool \"Provide system-wide ring of blacklisted keys\"\n\tdepends on KEYS\n\thelp\n\t  Provide a system keyring to which blacklisted keys can be added.\n\t  Keys in the keyring are considered entirely untrusted.  Keys in this\n\t  keyring are used by the module signature checking to reject loading\n\t  of modules signed with a blacklisted key.\n\nconfig SYSTEM_BLACKLIST_HASH_LIST\n\tstring \"Hashes to be preloaded into the system blacklist keyring\"\n\tdepends on SYSTEM_BLACKLIST_KEYRING\n\thelp\n\t  If set, this option should be the filename of a list of hashes in the\n\t  form \"<hash>\", \"<hash>\", ... .  This will be included into a C\n\t  wrapper to incorporate the list into the kernel.  Each <hash> must be a\n\t  string starting with a prefix (\"tbs\" or \"bin\"), then a colon (\":\"), and\n\t  finally an even number of hexadecimal lowercase characters (up to 128).\n\t  Certificate hashes can be generated with\n\t  tools/certs/print-cert-tbs-hash.sh .\n\nconfig SYSTEM_REVOCATION_LIST\n\tbool \"Provide system-wide ring of revocation certificates\"\n\tdepends on SYSTEM_BLACKLIST_KEYRING\n\tdepends on PKCS7_MESSAGE_PARSER=y\n\thelp\n\t  If set, this allows revocation certificates to be stored in the\n\t  blacklist keyring and implements a hook whereby a PKCS#7 message can\n\t  be checked to see if it matches such a certificate.\n\nconfig SYSTEM_REVOCATION_KEYS\n\tstring \"X.509 certificates to be preloaded into the system blacklist keyring\"\n\tdepends on SYSTEM_REVOCATION_LIST\n\thelp\n\t  If set, this option should be the filename of a PEM-formatted file\n\t  containing X.509 certificates to be included in the default blacklist\n\t  keyring.\n\nconfig SYSTEM_BLACKLIST_AUTH_UPDATE\n\tbool \"Allow root to add signed blacklist keys\"\n\tdepends on SYSTEM_BLACKLIST_KEYRING\n\tdepends on SYSTEM_DATA_VERIFICATION\n\thelp\n\t  If set, provide the ability to load new blacklist keys at run time if\n\t  they are signed and vouched by a certificate from the builtin trusted\n\t  keyring.  The PKCS#7 signature of the description is set in the key\n\t  payload.  Blacklist keys cannot be removed.\n\nconfig OPENSSL_SUPPORTS_ML_DSA\n\tdef_bool $(success, openssl list -key-managers | grep -q ML-DSA-87)\n\thelp\n\t  Support for ML-DSA-44/65/87 was added in openssl-3.5, so as long\n\t  as older versions are supported, the key types may only be\n\t  set after testing the installed binary for support.\n\nendmenu\n",
+      "crypto/asymmetric_keys/Kconfig": "# SPDX-License-Identifier: GPL-2.0\nmenuconfig ASYMMETRIC_KEY_TYPE\n\tbool \"Asymmetric (public-key cryptographic) key type\"\n\tdepends on KEYS\n\thelp\n\t  This option provides support for a key type that holds the data for\n\t  the asymmetric keys used for public key cryptographic operations such\n\t  as encryption, decryption, signature generation and signature\n\t  verification.\n\nif ASYMMETRIC_KEY_TYPE\n\nconfig ASYMMETRIC_PUBLIC_KEY_SUBTYPE\n\ttristate \"Asymmetric public-key crypto algorithm subtype\"\n\tselect MPILIB\n\tselect CRYPTO_HASH_INFO\n\tselect CRYPTO_AKCIPHER\n\tselect CRYPTO_SIG\n\tselect CRYPTO_HASH\n\thelp\n\t  This option provides support for asymmetric public key type handling.\n\t  If signature generation and/or verification are to be used,\n\t  appropriate hash algorithms (such as SHA-1) must be available.\n\t  ENOPKG will be reported if the requisite algorithm is unavailable.\n\nconfig X509_CERTIFICATE_PARSER\n\ttristate \"X.509 certificate parser\"\n\tdepends on ASYMMETRIC_PUBLIC_KEY_SUBTYPE\n\tselect ASN1\n\tselect CRYPTO_LIB_SHA256\n\tselect OID_REGISTRY\n\thelp\n\t  This option provides support for parsing X.509 format blobs for key\n\t  data and provides the ability to instantiate a crypto key from a\n\t  public key packet found inside the certificate.\n\nconfig PKCS8_PRIVATE_KEY_PARSER\n\ttristate \"PKCS#8 private key parser\"\n\tdepends on ASYMMETRIC_PUBLIC_KEY_SUBTYPE\n\tselect ASN1\n\tselect OID_REGISTRY\n\thelp\n\t  This option provides support for parsing PKCS#8 format blobs for\n\t  private key data and provides the ability to instantiate a crypto key\n\t  from that data.\n\nconfig PKCS7_MESSAGE_PARSER\n\ttristate \"PKCS#7 message parser\"\n\tdepends on X509_CERTIFICATE_PARSER\n\tselect CRYPTO_HASH\n\tselect ASN1\n\tselect OID_REGISTRY\n\thelp\n\t  This option provides support for parsing PKCS#7 format messages for\n\t  signature data and provides the ability to verify the signature.\n\nconfig PKCS7_WAIVE_AUTHATTRS_REJECTION_FOR_MLDSA\n\tbool \"Waive rejection of authenticatedAttributes for ML-DSA\"\n\tdepends on PKCS7_MESSAGE_PARSER\n\tdepends on CRYPTO_MLDSA\n\thelp\n\t  Due to use of CMS_NOATTR with ML-DSA not being supported in\n\t  OpenSSL < 4.0 (and thus any released version), enabling this\n\t  allows authenticatedAttributes to be used with ML-DSA for\n\t  module signing.  Use of authenticatedAttributes in this\n\t  context is normally rejected.\n\nconfig PKCS7_TEST_KEY\n\ttristate \"PKCS#7 testing key type\"\n\tdepends on SYSTEM_DATA_VERIFICATION\n\thelp\n\t  This option provides a type of key that can be loaded up from a\n\t  PKCS#7 message - provided the message is signed by a trusted key.  If\n\t  it is, the PKCS#7 wrapper is discarded and reading the key returns\n\t  just the payload.  If it isn't, adding the key will fail with an\n\t  error.\n\n\t  This is intended for testing the PKCS#7 parser.\n\nconfig SIGNED_PE_FILE_VERIFICATION\n\tbool \"Support for PE file signature verification\"\n\tdepends on PKCS7_MESSAGE_PARSER=y\n\tdepends on SYSTEM_DATA_VERIFICATION\n\tselect CRYPTO_HASH\n\tselect ASN1\n\tselect OID_REGISTRY\n\thelp\n\t  This option provides support for verifying the signature(s) on a\n\t  signed PE binary.\n\nconfig FIPS_SIGNATURE_SELFTEST\n\ttristate \"Run FIPS selftests on the X.509+PKCS7 signature verification\"\n\thelp\n\t  This option causes some selftests to be run on the signature\n\t  verification code, using some built in data.  This is required\n\t  for FIPS.\n\tdepends on KEYS\n\tdepends on ASYMMETRIC_KEY_TYPE\n\tdepends on PKCS7_MESSAGE_PARSER=X509_CERTIFICATE_PARSER\n\tdepends on X509_CERTIFICATE_PARSER\n\tdepends on CRYPTO_RSA\n\tdepends on CRYPTO_SHA256\n\nconfig FIPS_SIGNATURE_SELFTEST_RSA\n\tbool\n\tdefault y\n\tdepends on FIPS_SIGNATURE_SELFTEST\n\tdepends on CRYPTO_SHA256=y || CRYPTO_SHA256=FIPS_SIGNATURE_SELFTEST\n\tdepends on CRYPTO_RSA=y || CRYPTO_RSA=FIPS_SIGNATURE_SELFTEST\n\nconfig FIPS_SIGNATURE_SELFTEST_ECDSA\n\tbool\n\tdefault y\n\tdepends on FIPS_SIGNATURE_SELFTEST\n\tdepends on CRYPTO_SHA256=y || CRYPTO_SHA256=FIPS_SIGNATURE_SELFTEST\n\tdepends on CRYPTO_ECDSA=y || CRYPTO_ECDSA=FIPS_SIGNATURE_SELFTEST\n\nendif # ASYMMETRIC_KEY_TYPE\n",
+      "crypto/krb5/Kconfig": "config CRYPTO_KRB5\n\ttristate \"Kerberos 5 crypto\"\n\tselect CRYPTO_MANAGER\n\tselect CRYPTO_KRB5ENC\n\tselect CRYPTO_AUTHENC\n\tselect CRYPTO_SKCIPHER\n\tselect CRYPTO_HASH_INFO\n\tselect CRYPTO_HMAC\n\tselect CRYPTO_CMAC\n\tselect CRYPTO_SHA1\n\tselect CRYPTO_SHA256\n\tselect CRYPTO_SHA512\n\tselect CRYPTO_CBC\n\tselect CRYPTO_CTS\n\tselect CRYPTO_AES\n\tselect CRYPTO_CAMELLIA\n\thelp\n\t  Provide a library for provision of Kerberos-5-based crypto.  This is\n\t  intended for network filesystems to use.\n\nconfig CRYPTO_KRB5_SELFTESTS\n\tbool \"Kerberos 5 crypto selftests\"\n\tdepends on CRYPTO_KRB5\n\thelp\n\t  Turn on some self-testing for the kerberos 5 crypto functions.  These\n\t  will be performed on module load or boot, if compiled in.\n",
+      "drivers/crypto/Kconfig": "# SPDX-License-Identifier: GPL-2.0-only\n\nmenuconfig CRYPTO_HW\n\tbool \"Hardware crypto devices\"\n\tdefault y\n\thelp\n\t  Say Y here to get to see options for hardware crypto devices and\n\t  processors. This option alone does not add any kernel code.\n\n\t  If you say N, all options in this submenu will be skipped and disabled.\n\nif CRYPTO_HW\n\nsource \"drivers/crypto/allwinner/Kconfig\"\n\nconfig CRYPTO_DEV_PADLOCK\n\ttristate \"Support for VIA PadLock ACE\"\n\tdepends on X86 && !UML\n\thelp\n\t  Some VIA processors come with an integrated crypto engine\n\t  (so called VIA PadLock ACE, Advanced Cryptography Engine)\n\t  that provides instructions for very fast cryptographic\n\t  operations with supported algorithms.\n\n\t  The instructions are used only when the CPU supports them.\n\t  Otherwise software encryption is used.\n\nconfig CRYPTO_DEV_PADLOCK_AES\n\ttristate \"PadLock driver for AES algorithm\"\n\tdepends on CRYPTO_DEV_PADLOCK\n\tselect CRYPTO_SKCIPHER\n\tselect CRYPTO_LIB_AES\n\thelp\n\t  Use VIA PadLock for AES algorithm.\n\n\t  Available in VIA C3 and newer CPUs.\n\n\t  If unsure say M. The compiled module will be\n\t  called padlock-aes.\n\nconfig CRYPTO_DEV_PADLOCK_SHA\n\ttristate \"PadLock driver for SHA1 and SHA256 algorithms\"\n\tdepends on CRYPTO_DEV_PADLOCK\n\tselect CRYPTO_HASH\n\tselect CRYPTO_SHA1\n\tselect CRYPTO_SHA256\n\thelp\n\t  Use VIA PadLock for SHA1/SHA256 algorithms.\n\n\t  Available in VIA C7 and newer processors.\n\n\t  If unsure say M. The compiled module will be\n\t  called padlock-sha.\n\nconfig CRYPTO_DEV_GEODE\n\ttristate \"Support for the Geode LX AES engine\"\n\tdepends on X86_32 && PCI\n\tselect CRYPTO_ALGAPI\n\tselect CRYPTO_SKCIPHER\n\thelp\n\t  Say 'Y' here to use the AMD Geode LX processor on-board AES\n\t  engine for the CryptoAPI AES algorithm.\n\n\t  To compile this driver as a module, choose M here: the module\n\t  will be called geode-aes.\n\nconfig ZCRYPT\n\ttristate \"Support for s390 cryptographic adapters\"\n\tdepends on S390\n\tdepends on AP\n\tselect HW_RANDOM\n\thelp\n\t  Select this option if you want to enable support for\n\t  s390 cryptographic adapters like Crypto Express 4 up\n\t  to 8 in Coprocessor (CEXxC), EP11 Coprocessor (CEXxP)\n\t  or Accelerator (CEXxA) mode.\n\nconfig PKEY\n\ttristate \"Kernel API for protected key handling\"\n\tdepends on S390\n\thelp\n\t  With this option enabled the pkey kernel modules provide an API\n\t  for creation and handling of protected keys. Other parts of the\n\t  kernel or userspace applications may use these functions.\n\n\t  The protected key support is distributed into:\n\t  - A pkey base and API kernel module (pkey.ko) which offers the\n\t    infrastructure for the pkey handler kernel modules, the ioctl\n\t    and the sysfs API and the in-kernel API to the crypto cipher\n\t    implementations using protected key.\n\t  - A pkey pckmo kernel module (pkey-pckmo.ko) which is automatically\n\t    loaded when pckmo support (that is generation of protected keys\n\t    from clear key values) is available.\n\t  - A pkey CCA kernel module (pkey-cca.ko) which is automatically\n\t    loaded when a CEX crypto card is available.\n\t  - A pkey EP11 kernel module (pkey-ep11.ko) which is automatically\n\t    loaded when a CEX crypto card is available.\n\t  - A pkey UV kernel module (pkey-uv.ko) which is automatically\n\t    loaded when the Ultravisor feature is available within a\n\t    protected execution environment.\n\n\t  Select this option if you want to enable the kernel and userspace\n\t  API for protected key handling.\n\nconfig PKEY_CCA\n\ttristate \"PKEY CCA support handler\"\n\tdepends on PKEY\n\tdepends on ZCRYPT\n\thelp\n\t  This is the CCA support handler for deriving protected keys\n\t  from CCA (secure) keys. Also this handler provides an alternate\n\t  way to make protected keys from clear key values.\n\n\t  The PKEY CCA support handler needs a Crypto Express card (CEX)\n\t  in CCA mode.\n\n\t  If you have selected the PKEY option then you should also enable\n\t  this option unless you are sure you never need to derive protected\n\t  keys from CCA key material.\n\nconfig PKEY_EP11\n\ttristate \"PKEY EP11 support handler\"\n\tdepends on PKEY\n\tdepends on ZCRYPT\n\thelp\n\t  This is the EP11 support handler for deriving protected keys\n\t  from EP11 (secure) keys. Also this handler provides an alternate\n\t  way to make protected keys from clear key values.\n\n\t  The PKEY EP11 support handler needs a Crypto Express card (CEX)\n\t  in EP11 mode.\n\n\t  If you have selected the PKEY option then you should also enable\n\t  this option unless you are sure you never need to derive protected\n\t  keys from EP11 key material.\n\nconfig PKEY_PCKMO\n\ttristate \"PKEY PCKMO support handler\"\n\tdepends on PKEY\n\thelp\n\t  This is the PCKMO support handler for deriving protected keys\n\t  from clear key values via invoking the PCKMO instruction.\n\n\t  The PCKMO instruction can be enabled and disabled in the crypto\n\t  settings at the LPAR profile. This handler checks for availability\n\t  during initialization and if build as a kernel module unloads\n\t  itself if PCKMO is disabled.\n\n\t  The PCKMO way of deriving protected keys from clear key material\n\t  is especially used during self test of protected key ciphers like\n\t  PAES but the CCA and EP11 handler provide alternate ways to\n\t  generate protected keys from clear key values.\n\n\t  If you have selected the PKEY option then you should also enable\n\t  this option unless you are sure you never need to derive protected\n\t  keys from clear key values directly via PCKMO.\n\nconfig PKEY_UV\n\ttristate \"PKEY UV support handler\"\n\tdepends on PKEY\n\tdepends on S390_UV_UAPI\n\thelp\n\t  This is the PKEY Ultravisor support handler for deriving protected\n\t  keys from secrets stored within the Ultravisor (UV).\n\n\t  This module works together with the UV device and supports the\n\t  retrieval of protected keys from secrets stored within the\n\t  UV firmware layer. This service is only available within\n\t  a protected execution guest and thus this module will fail upon\n\t  modprobe if no protected execution environment is detected.\n\n\t  Enable this option if you intend to run this kernel with an KVM\n\t  guest with protected execution and you want to use UV retrievable\n\t  secrets via PKEY API.\n\nconfig CRYPTO_PAES_S390\n\ttristate \"PAES cipher algorithms\"\n\tdepends on S390\n\tdepends on ZCRYPT\n\tdepends on PKEY\n\tselect CRYPTO_ALGAPI\n\tselect CRYPTO_SKCIPHER\n\tselect CRYPTO_ENGINE\n\thelp\n\t  This is the s390 hardware accelerated implementation of the\n\t  AES cipher algorithms for use with protected key.\n\n\t  Select this option if you want to use the paes cipher\n\t  for example to use protected key encrypted devices.\n\nconfig CRYPTO_PHMAC_S390\n\ttristate \"PHMAC cipher algorithms\"\n\tdepends on S390\n\tdepends on PKEY\n\tselect CRYPTO_HASH\n\tselect CRYPTO_ENGINE\n\thelp\n\t  This is the s390 hardware accelerated implementation of the\n\t  protected key HMAC support for SHA224, SHA256, SHA384 and SHA512.\n\n\t  Select this option if you want to use the phmac digests\n\t  for example to use dm-integrity with secure/protected keys.\n\nconfig S390_PRNG\n\ttristate \"Pseudo random number generator device driver\"\n\tdepends on S390\n\tdefault \"m\"\n\thelp\n\t  Select this option if you want to use the s390 pseudo random number\n\t  generator. The PRNG is part of the cryptographic processor functions\n\t  and uses triple-DES to generate secure random numbers like the\n\t  ANSI X9.17 standard. User-space programs access the\n\t  pseudo-random-number device through the char device /dev/prandom.\n\n\t  It is available as of z9.\n\nconfig CRYPTO_DEV_SL3516\n\ttristate \"Storlink SL3516 crypto offloader\"\n\tdepends on ARCH_GEMINI || COMPILE_TEST\n\tdepends on HAS_IOMEM && PM\n\tselect CRYPTO_SKCIPHER\n\tselect CRYPTO_ENGINE\n\tselect CRYPTO_ECB\n\tselect CRYPTO_AES\n\tselect HW_RANDOM\n\thelp\n\t  This option allows you to have support for SL3516 crypto offloader.\n\nconfig CRYPTO_DEV_SL3516_DEBUG\n\tbool \"Enable SL3516 stats\"\n\tdepends on CRYPTO_DEV_SL3516\n\tdepends on DEBUG_FS\n\thelp\n\t  Say y to enable SL3516 debug stats.\n\t  This will create /sys/kernel/debug/sl3516/stats for displaying\n\t  the number of requests per algorithm and other internal stats.\n\nconfig CRYPTO_DEV_HIFN_795X\n\ttristate \"Driver HIFN 795x crypto accelerator chips\"\n\tselect CRYPTO_LIB_DES\n\tselect CRYPTO_SKCIPHER\n\tselect HW_RANDOM if CRYPTO_DEV_HIFN_795X_RNG\n\tdepends on PCI\n\tdepends on !ARCH_DMA_ADDR_T_64BIT\n\thelp\n\t  This option allows you to have support for HIFN 795x crypto adapters.\n\nconfig CRYPTO_DEV_HIFN_795X_RNG\n\tbool \"HIFN 795x random number generator\"\n\tdepends on CRYPTO_DEV_HIFN_795X\n\thelp\n\t  Select this option if you want to enable the random number generator\n\t  on the HIFN 795x crypto adapters.\n\nsource \"drivers/crypto/caam/Kconfig\"\n\nconfig CRYPTO_DEV_TALITOS\n\ttristate \"Talitos Freescale Security Engine (SEC)\"\n\tselect CRYPTO_AEAD\n\tselect CRYPTO_AUTHENC\n\tselect CRYPTO_SKCIPHER\n\tselect CRYPTO_HASH\n\tselect CRYPTO_LIB_DES\n\tselect HW_RANDOM\n\tdepends on FSL_SOC\n\thelp\n\t  Say 'Y' here to use the Freescale Security Engine (SEC)\n\t  to offload cryptographic algorithm computation.\n\n\t  The Freescale SEC is present on PowerQUICC 'E' processors, such\n\t  as the MPC8349E and MPC8548E.\n\n\t  To compile this driver as a module, choose M here: the module\n\t  will be called talitos.\n\nconfig CRYPTO_DEV_TALITOS1\n\tbool \"SEC1 (SEC 1.0 and SEC Lite 1.2)\"\n\tdepends on CRYPTO_DEV_TALITOS\n\tdepends on PPC_8xx || PPC_82xx\n\tdefault y\n\thelp\n\t  Say 'Y' here to use the Freescale Security Engine (SEC) version 1.0\n\t  found on MPC82xx or the Freescale Security Engine (SEC Lite)\n\t  version 1.2 found on MPC8xx\n\nconfig CRYPTO_DEV_TALITOS2\n\tbool \"SEC2+ (SEC version 2.0 or upper)\"\n\tdepends on CRYPTO_DEV_TALITOS\n\tdefault y if !PPC_8xx\n\thelp\n\t  Say 'Y' here to use the Freescale Security Engine (SEC)\n\t  version 2 and following as found on MPC83xx, MPC85xx, etc ...\n\nconfig CRYPTO_DEV_PPC4XX\n\ttristate \"Driver AMCC PPC4xx crypto accelerator\"\n\tdepends on PPC && 4xx\n\tselect CRYPTO_HASH\n\tselect CRYPTO_AEAD\n\tselect CRYPTO_AES\n\tselect CRYPTO_LIB_AES\n\tselect CRYPTO_CCM\n\tselect CRYPTO_CTR\n\tselect CRYPTO_GCM\n\tselect CRYPTO_SKCIPHER\n\thelp\n\t  This option allows you to have support for AMCC crypto acceleration.\n\nconfig HW_RANDOM_PPC4XX\n\tbool \"PowerPC 4xx generic true random number generator support\"\n\tdepends on CRYPTO_DEV_PPC4XX && HW_RANDOM=y\n\tdefault y\n\thelp\n\t This option provides the kernel-side support for the TRNG hardware\n\t found in the security function of some PowerPC 4xx SoCs.\n\nconfig CRYPTO_DEV_OMAP\n\ttristate \"Support for OMAP crypto HW accelerators\"\n\tdepends on ARCH_OMAP2PLUS\n\thelp\n\t  OMAP processors have various crypto HW accelerators. Select this if\n\t  you want to use the OMAP modules for any of the crypto algorithms.\n\nif CRYPTO_DEV_OMAP\n\nconfig CRYPTO_DEV_OMAP_SHAM\n\ttristate \"Support for OMAP MD5/SHA1/SHA2 hw accelerator\"\n\tdepends on ARCH_OMAP2PLUS\n\tselect CRYPTO_ENGINE\n\tselect CRYPTO_SHA1\n\tselect CRYPTO_MD5\n\tselect CRYPTO_SHA256\n\tselect CRYPTO_SHA512\n\tselect CRYPTO_HMAC\n\thelp\n\t  OMAP processors have MD5/SHA1/SHA2 hw accelerator. Select this if you\n\t  want to use the OMAP module for MD5/SHA1/SHA2 algorithms.\n\nconfig CRYPTO_DEV_OMAP_AES\n\ttristate \"Support for OMAP AES hw engine\"\n\tdepends on ARCH_OMAP2 || ARCH_OMAP3 || ARCH_OMAP2PLUS\n\tselect CRYPTO_AES\n\tselect CRYPTO_SKCIPHER\n\tselect CRYPTO_ENGINE\n\tselect CRYPTO_CBC\n\tselect CRYPTO_ECB\n\tselect CRYPTO_CTR\n\tselect CRYPTO_AEAD\n\thelp\n\t  OMAP processors have AES module accelerator. Select this if you\n\t  want to use the OMAP module for AES algorithms.\n\nconfig CRYPTO_DEV_OMAP_DES\n\ttristate \"Support for OMAP DES/3DES hw engine\"\n\tdepends on ARCH_OMAP2PLUS\n\tselect CRYPTO_LIB_DES\n\tselect CRYPTO_SKCIPHER\n\tselect CRYPTO_ENGINE\n\thelp\n\t  OMAP processors have DES/3DES module accelerator. Select this if you\n\t  want to use the OMAP module for DES and 3DES algorithms. Currently\n\t  the ECB and CBC modes of operation are supported by the driver. Also\n\t  accesses made on unaligned boundaries are supported.\n\nendif # CRYPTO_DEV_OMAP\n\nconfig CRYPTO_DEV_SAHARA\n\ttristate \"Support for SAHARA crypto accelerator\"\n\tdepends on ARCH_MXC && OF\n\tselect CRYPTO_SKCIPHER\n\tselect CRYPTO_AES\n\tselect CRYPTO_ECB\n\tselect CRYPTO_ENGINE\n\thelp\n\t  This option enables support for the SAHARA HW crypto accelerator\n\t  found in some Freescale i.MX chips.\n\nconfig CRYPTO_DEV_EXYNOS_RNG\n\ttristate \"Exynos HW pseudo random number generator support\"\n\tdepends on ARCH_EXYNOS || COMPILE_TEST\n\tdepends on HAS_IOMEM\n\tselect CRYPTO_RNG\n\thelp\n\t  This driver provides kernel-side support through the\n\t  cryptographic API for the pseudo random number generator hardware\n\t  found on Exynos SoCs.\n\n\t  To compile this driver as a module, choose M here: the\n\t  module will be called exynos-rng.\n\n\t  If unsure, say Y.\n\nconfig CRYPTO_DEV_S5P\n\ttristate \"Support for Samsung S5PV210/Exynos crypto accelerator\"\n\tdepends on ARCH_S5PV210 || ARCH_EXYNOS || COMPILE_TEST\n\tdepends on HAS_IOMEM\n\tselect CRYPTO_AES\n\tselect CRYPTO_SKCIPHER\n\thelp\n\t  This option allows you to have support for S5P crypto acceleration.\n\t  Select this to offload Samsung S5PV210 or S5PC110, Exynos from AES\n\t  algorithms execution.\n\nconfig CRYPTO_DEV_EXYNOS_HASH\n\tbool \"Support for Samsung Exynos HASH accelerator\"\n\tdepends on CRYPTO_DEV_S5P\n\tdepends on !CRYPTO_DEV_EXYNOS_RNG && CRYPTO_DEV_EXYNOS_RNG!=m\n\tselect CRYPTO_SHA1\n\tselect CRYPTO_MD5\n\tselect CRYPTO_SHA256\n\thelp\n\t  Select this to offload Exynos from HASH MD5/SHA1/SHA256.\n\t  This will select software SHA1, MD5 and SHA256 as they are\n\t  needed for small and zero-size messages.\n\t  HASH algorithms will be disabled if EXYNOS_RNG\n\t  is enabled due to hw conflict.\n\nconfig CRYPTO_DEV_NX\n\tbool \"Support for IBM PowerPC Nest (NX) cryptographic acceleration\"\n\tdepends on PPC64\n\thelp\n\t  This enables support for the NX hardware cryptographic accelerator\n\t  coprocessor that is in IBM PowerPC P7+ or later processors.  This\n\t  does not actually enable any drivers, it only allows you to select\n\t  which acceleration type (encryption and/or compression) to enable.\n\nif CRYPTO_DEV_NX\n\tsource \"drivers/crypto/nx/Kconfig\"\nendif\n\nconfig CRYPTO_DEV_ATMEL_AUTHENC\n\tbool \"Support for Atmel IPSEC/SSL hw accelerator\"\n\tdepends on ARCH_AT91 || COMPILE_TEST\n\tdepends on CRYPTO_DEV_ATMEL_AES\n\thelp\n\t  Some Atmel processors can combine the AES and SHA hw accelerators\n\t  to enhance support of IPSEC/SSL.\n\t  Select this if you want to use the Atmel modules for\n\t  authenc(hmac(shaX),Y(cbc)) algorithms.\n\nconfig CRYPTO_DEV_ATMEL_AES\n\ttristate \"Support for Atmel AES hw accelerator\"\n\tdepends on ARCH_MICROCHIP || COMPILE_TEST\n\tselect CRYPTO_AES\n\tselect CRYPTO_AEAD\n\tselect CRYPTO_SKCIPHER\n\tselect CRYPTO_AUTHENC if CRYPTO_DEV_ATMEL_AUTHENC\n\tselect CRYPTO_DEV_ATMEL_SHA if CRYPTO_DEV_ATMEL_AUTHENC\n\thelp\n\t  Some Atmel processors have AES hw accelerator.\n\t  Select this if you want to use the Atmel module for\n\t  AES algorithms.\n\n\t  To compile this driver as a module, choose M here: the module\n\t  will be called atmel-aes.\n\nconfig CRYPTO_DEV_ATMEL_TDES\n\ttristate \"Support for Atmel DES/TDES hw accelerator\"\n\tdepends on ARCH_AT91 || COMPILE_TEST\n\tselect CRYPTO_LIB_DES\n\tselect CRYPTO_SKCIPHER\n\thelp\n\t  Some Atmel processors have DES/TDES hw accelerator.\n\t  Select this if you want to use the Atmel module for\n\t  DES/TDES algorithms.\n\n\t  To compile this driver as a module, choose M here: the module\n\t  will be called atmel-tdes.\n\nconfig CRYPTO_DEV_ATMEL_SHA\n\ttristate \"Support for Atmel SHA hw accelerator\"\n\tdepends on ARCH_AT91 || COMPILE_TEST\n\tselect CRYPTO_HASH\n\thelp\n\t  Some Atmel processors have SHA1/SHA224/SHA256/SHA384/SHA512\n\t  hw accelerator.\n\t  Select this if you want to use the Atmel module for\n\t  SHA1/SHA224/SHA256/SHA384/SHA512 algorithms.\n\n\t  To compile this driver as a module, choose M here: the module\n\t  will be called atmel-sha.\n\nconfig CRYPTO_DEV_ATMEL_I2C\n\ttristate\n\tselect BITREVERSE\n\nconfig CRYPTO_DEV_ATMEL_ECC\n\ttristate \"Support for Microchip / Atmel ECC hw accelerator\"\n\tdepends on I2C\n\tselect CRYPTO_DEV_ATMEL_I2C\n\tselect CRYPTO_ECDH\n\tselect CRC16\n\thelp\n\t  Microchip / Atmel ECC hw accelerator.\n\t  Select this if you want to use the Microchip / Atmel module for\n\t  ECDH algorithm.\n\n\t  To compile this driver as a module, choose M here: the module\n\t  will be called atmel-ecc.\n\nconfig CRYPTO_DEV_ATMEL_SHA204A\n\ttristate \"Support for Microchip / Atmel SHA accelerator and RNG\"\n\tdepends on I2C\n\tselect CRYPTO_DEV_ATMEL_I2C\n\tselect HW_RANDOM\n\tselect CRC16\n\thelp\n\t  Microchip / Atmel SHA accelerator and RNG.\n\t  Select this if you want to use the Microchip / Atmel SHA204A\n\t  module as a random number generator. (Other functions of the\n\t  chip are currently not exposed by this driver)\n\n\t  To compile this driver as a module, choose M here: the module\n\t  will be called atmel-sha204a.\n\nconfig CRYPTO_DEV_CCP\n\tbool \"Support for AMD Secure Processor\"\n\tdepends on ((X86 && PCI) || (ARM64 && (OF_ADDRESS || ACPI))) && HAS_IOMEM\n\thelp\n\t  The AMD Secure Processor provides support for the Cryptographic Coprocessor\n\t  (CCP) and the Platform Security Processor (PSP) devices.\n\nif CRYPTO_DEV_CCP\n\tsource \"drivers/crypto/ccp/Kconfig\"\nendif\n\nconfig CRYPTO_DEV_MXS_DCP\n\ttristate \"Support for Freescale MXS DCP\"\n\tdepends on (ARCH_MXS || ARCH_MXC)\n\tselect STMP_DEVICE\n\tselect CRYPTO_CBC\n\tselect CRYPTO_ECB\n\tselect CRYPTO_AES\n\tselect CRYPTO_SKCIPHER\n\tselect CRYPTO_HASH\n\thelp\n\t  The Freescale i.MX23/i.MX28 has SHA1/SHA256 and AES128 CBC/ECB\n\t  co-processor on the die.\n\n\t  To compile this driver as a module, choose M here: the module\n\t  will be called mxs-dcp.\n\nsource \"drivers/crypto/cavium/cpt/Kconfig\"\nsource \"drivers/crypto/cavium/nitrox/Kconfig\"\nsource \"drivers/crypto/marvell/Kconfig\"\nsource \"drivers/crypto/intel/Kconfig\"\n\nconfig CRYPTO_DEV_QCE\n\ttristate \"Qualcomm crypto engine accelerator\"\n\tdepends on ARCH_QCOM || COMPILE_TEST\n\tdepends on HAS_IOMEM\n\thelp\n\t  This driver supports Qualcomm crypto engine accelerator\n\t  hardware. To compile this driver as a module, choose M here. The\n\t  module will be called qcrypto.\n\nconfig CRYPTO_DEV_QCE_SKCIPHER\n\tbool\n\tdepends on CRYPTO_DEV_QCE\n\tselect CRYPTO_AES\n\tselect CRYPTO_LIB_DES\n\tselect CRYPTO_ECB\n\tselect CRYPTO_CBC\n\tselect CRYPTO_XTS\n\tselect CRYPTO_CTR\n\tselect CRYPTO_SKCIPHER\n\nconfig CRYPTO_DEV_QCE_SHA\n\tbool\n\tdepends on CRYPTO_DEV_QCE\n\tselect CRYPTO_SHA1\n\tselect CRYPTO_SHA256\n\nconfig CRYPTO_DEV_QCE_AEAD\n\tbool\n\tdepends on CRYPTO_DEV_QCE\n\tselect CRYPTO_AUTHENC\n\tselect CRYPTO_LIB_DES\n\nchoice\n\tprompt \"Algorithms enabled for QCE acceleration\"\n\tdefault CRYPTO_DEV_QCE_ENABLE_ALL\n\tdepends on CRYPTO_DEV_QCE\n\thelp\n\t  This option allows to choose whether to build support for all algorithms\n\t  (default), hashes-only, or skciphers-only.\n\n\t  The QCE engine does not appear to scale as well as the CPU to handle\n\t  multiple crypto requests.  While the ipq40xx chips have 4-core CPUs, the\n\t  QCE handles only 2 requests in parallel.\n\n\t  Ipsec throughput seems to improve when disabling either family of\n\t  algorithms, sharing the load with the CPU.  Enabling skciphers-only\n\t  appears to work best.\n\n\tconfig CRYPTO_DEV_QCE_ENABLE_ALL\n\t\tbool \"All supported algorithms\"\n\t\tselect CRYPTO_DEV_QCE_SKCIPHER\n\t\tselect CRYPTO_DEV_QCE_SHA\n\t\tselect CRYPTO_DEV_QCE_AEAD\n\t\thelp\n\t\t  Enable all supported algorithms:\n\t\t\t- AES (CBC, CTR, ECB, XTS)\n\t\t\t- 3DES (CBC, ECB)\n\t\t\t- DES (CBC, ECB)\n\t\t\t- SHA1, HMAC-SHA1\n\t\t\t- SHA256, HMAC-SHA256\n\n\tconfig CRYPTO_DEV_QCE_ENABLE_SKCIPHER\n\t\tbool \"Symmetric-key ciphers only\"\n\t\tselect CRYPTO_DEV_QCE_SKCIPHER\n\t\thelp\n\t\t  Enable symmetric-key ciphers only:\n\t\t\t- AES (CBC, CTR, ECB, XTS)\n\t\t\t- 3DES (ECB, CBC)\n\t\t\t- DES (ECB, CBC)\n\n\tconfig CRYPTO_DEV_QCE_ENABLE_SHA\n\t\tbool \"Hash/HMAC only\"\n\t\tselect CRYPTO_DEV_QCE_SHA\n\t\thelp\n\t\t  Enable hashes/HMAC algorithms only:\n\t\t\t- SHA1, HMAC-SHA1\n\t\t\t- SHA256, HMAC-SHA256\n\n\tconfig CRYPTO_DEV_QCE_ENABLE_AEAD\n\t\tbool \"AEAD algorithms only\"\n\t\tselect CRYPTO_DEV_QCE_AEAD\n\t\thelp\n\t\t  Enable AEAD algorithms only:\n\t\t\t- authenc()\n\t\t\t- ccm(aes)\n\t\t\t- rfc4309(ccm(aes))\nendchoice\n\nconfig CRYPTO_DEV_QCE_SW_MAX_LEN\n\tint \"Default maximum request size to use software for AES\"\n\tdepends on CRYPTO_DEV_QCE && CRYPTO_DEV_QCE_SKCIPHER\n\tdefault 512\n\thelp\n\t  This sets the default maximum request size to perform AES requests\n\t  using software instead of the crypto engine.  It can be changed by\n\t  setting the aes_sw_max_len parameter.\n\n\t  Small blocks are processed faster in software than hardware.\n\t  Considering the 256-bit ciphers, software is 2-3 times faster than\n\t  qce at 256-bytes, 30% faster at 512, and about even at 768-bytes.\n\t  With 128-bit keys, the break-even point would be around 1024-bytes.\n\n\t  The default is set a little lower, to 512 bytes, to balance the\n\t  cost in CPU usage.  The minimum recommended setting is 16-bytes\n\t  (1 AES block), since AES-GCM will fail if you set it lower.\n\t  Setting this to zero will send all requests to the hardware.\n\n\t  Note that 192-bit keys are not supported by the hardware and are\n\t  always processed by the software fallback, and all DES requests\n\t  are done by the hardware.\n\nconfig CRYPTO_DEV_QCOM_RNG\n\ttristate \"Qualcomm Random Number Generator Driver\"\n\tdepends on ARCH_QCOM || COMPILE_TEST\n\tdepends on HW_RANDOM\n\thelp\n\t  This driver provides support for the Random Number\n\t  Generator hardware found on Qualcomm SoCs.\n\n\t  To compile this driver as a module, choose M here. The\n\t  module will be called qcom-rng. If unsure, say N.\n\nconfig CRYPTO_DEV_IMGTEC_HASH\n\ttristate \"Imagination Technologies hardware hash accelerator\"\n\tdepends on MIPS || COMPILE_TEST\n\tselect CRYPTO_MD5\n\tselect CRYPTO_SHA1\n\tselect CRYPTO_SHA256\n\tselect CRYPTO_HASH\n\thelp\n\t  This driver interfaces with the Imagination Technologies\n\t  hardware hash accelerator. Supporting MD5/SHA1/SHA224/SHA256\n\t  hashing algorithms.\n\nconfig CRYPTO_DEV_ROCKCHIP\n\ttristate \"Rockchip's Cryptographic Engine driver\"\n\tdepends on OF && ARCH_ROCKCHIP\n\tdepends on PM\n\tselect CRYPTO_ECB\n\tselect CRYPTO_CBC\n\tselect CRYPTO_DES\n\tselect CRYPTO_AES\n\tselect CRYPTO_ENGINE\n\tselect CRYPTO_LIB_DES\n\tselect CRYPTO_MD5\n\tselect CRYPTO_SHA1\n\tselect CRYPTO_SHA256\n\tselect CRYPTO_HASH\n\tselect CRYPTO_SKCIPHER\n\n\thelp\n\t  This driver interfaces with the hardware crypto accelerator.\n\t  Supporting cbc/ecb chainmode, and aes/des/des3_ede cipher mode.\n\nconfig CRYPTO_DEV_ROCKCHIP_DEBUG\n\tbool \"Enable Rockchip crypto stats\"\n\tdepends on CRYPTO_DEV_ROCKCHIP\n\tdepends on DEBUG_FS\n\thelp\n\t  Say y to enable Rockchip crypto debug stats.\n\t  This will create /sys/kernel/debug/rk3288_crypto/stats for displaying\n\t  the number of requests per algorithm and other internal stats.\n\nconfig CRYPTO_DEV_TEGRA\n\ttristate \"Enable Tegra Security Engine\"\n\tdepends on TEGRA_HOST1X\n\tselect CRYPTO_ENGINE\n\n\thelp\n\t  Select this to enable Tegra Security Engine which accelerates various\n\t  AES encryption/decryption and HASH algorithms.\n\nconfig CRYPTO_DEV_XILINX_TRNG\n\ttristate \"Support for Xilinx True Random Generator\"\n\tdepends on ZYNQMP_FIRMWARE || COMPILE_TEST\n\tselect CRYPTO_DF80090A\n\tselect HW_RANDOM\n\thelp\n\t  Xilinx Versal SoC driver provides kernel-side support for True Random Number\n\t  Generator and Pseudo random Number in CTR_DRBG mode as defined in NIST SP800-90A.\n\n\t  To compile this driver as a module, choose M here: the module\n\t  will be called xilinx-trng.\n\nconfig CRYPTO_DEV_ZYNQMP_AES\n\ttristate \"Support for Xilinx ZynqMP AES hw accelerator\"\n\tdepends on ZYNQMP_FIRMWARE || COMPILE_TEST\n\tselect CRYPTO_AES\n\tselect CRYPTO_ENGINE\n\tselect CRYPTO_AEAD\n\thelp\n\t  Xilinx ZynqMP has AES-GCM engine used for symmetric key\n\t  encryption and decryption. This driver interfaces with AES hw\n\t  accelerator. Select this if you want to use the ZynqMP module\n\t  for AES algorithms.\n\nconfig CRYPTO_DEV_ZYNQMP_SHA3\n\ttristate \"Support for Xilinx ZynqMP SHA3 hardware accelerator\"\n\tdepends on ZYNQMP_FIRMWARE || COMPILE_TEST\n\tselect CRYPTO_SHA3\n\thelp\n\t  Xilinx ZynqMP has SHA3 engine used for secure hash calculation.\n\t  This driver interfaces with SHA3 hardware engine.\n\t  Select this if you want to use the ZynqMP module\n\t  for SHA3 hash computation.\n\nsource \"drivers/crypto/chelsio/Kconfig\"\n\nsource \"drivers/crypto/virtio/Kconfig\"\n\nconfig CRYPTO_DEV_BCM_SPU\n\ttristate \"Broadcom symmetric crypto/hash acceleration support\"\n\tdepends on ARCH_BCM_IPROC\n\tdepends on MAILBOX\n\tdefault m\n\tselect CRYPTO_AUTHENC\n\tselect CRYPTO_LIB_DES\n\tselect CRYPTO_MD5\n\tselect CRYPTO_SHA1\n\tselect CRYPTO_SHA256\n\tselect CRYPTO_SHA512\n\thelp\n\t  This driver provides support for Broadcom crypto acceleration using the\n\t  Secure Processing Unit (SPU). The SPU driver registers skcipher,\n\t  ahash, and aead algorithms with the kernel cryptographic API.\n\nsource \"drivers/crypto/stm32/Kconfig\"\n\nconfig CRYPTO_DEV_SAFEXCEL\n\ttristate \"Inside Secure's SafeXcel cryptographic engine driver\"\n\tdepends on (OF || PCI || COMPILE_TEST) && HAS_IOMEM\n\tselect CRYPTO_LIB_AES\n\tselect CRYPTO_AUTHENC\n\tselect CRYPTO_SKCIPHER\n\tselect CRYPTO_LIB_DES\n\tselect CRYPTO_HASH\n\tselect CRYPTO_HMAC\n\tselect CRYPTO_MD5\n\tselect CRYPTO_SHA1\n\tselect CRYPTO_SHA256\n\tselect CRYPTO_SHA512\n\tselect CRYPTO_CHACHA20POLY1305\n\tselect CRYPTO_SHA3\n\thelp\n\t  This driver interfaces with the SafeXcel EIP-97 and EIP-197 cryptographic\n\t  engines designed by Inside Secure. It currently accelerates DES, 3DES and\n\t  AES block ciphers in ECB and CBC mode, as well as SHA1, SHA224, SHA256,\n\t  SHA384 and SHA512 hash algorithms for both basic hash and HMAC.\n\t  Additionally, it accelerates combined AES-CBC/HMAC-SHA AEAD operations.\n\nconfig CRYPTO_DEV_ARTPEC6\n\ttristate \"Support for Axis ARTPEC-6/7 hardware crypto acceleration.\"\n\tdepends on ARM && (ARCH_ARTPEC || COMPILE_TEST)\n\tdepends on OF\n\tselect CRYPTO_AEAD\n\tselect CRYPTO_AES\n\tselect CRYPTO_ALGAPI\n\tselect CRYPTO_SKCIPHER\n\tselect CRYPTO_CTR\n\tselect CRYPTO_HASH\n\tselect CRYPTO_SHA1\n\tselect CRYPTO_SHA256\n\tselect CRYPTO_SHA512\n\thelp\n\t  Enables the driver for the on-chip crypto accelerator\n\t  of Axis ARTPEC SoCs.\n\n\t  To compile this driver as a module, choose M here.\n\nconfig CRYPTO_DEV_CCREE\n\ttristate \"Support for ARM TrustZone CryptoCell family of security processors\"\n\tdepends on CRYPTO && CRYPTO_HW && OF && HAS_DMA\n\tdepends on HAS_IOMEM\n\tselect CRYPTO_HASH\n\tselect CRYPTO_SKCIPHER\n\tselect CRYPTO_LIB_DES\n\tselect CRYPTO_AEAD\n\tselect CRYPTO_AUTHENC\n\tselect CRYPTO_SHA1\n\tselect CRYPTO_MD5\n\tselect CRYPTO_SHA256\n\tselect CRYPTO_SHA512\n\tselect CRYPTO_HMAC\n\tselect CRYPTO_AES\n\tselect CRYPTO_CBC\n\tselect CRYPTO_ECB\n\tselect CRYPTO_CTR\n\tselect CRYPTO_XTS\n\tselect CRYPTO_SM4_GENERIC\n\tselect CRYPTO_SM3\n\thelp\n\t  Say 'Y' to enable a driver for the REE interface of the Arm\n\t  TrustZone CryptoCell family of processors. Currently the\n\t  CryptoCell 713, 703, 712, 710 and 630 are supported.\n\t  Choose this if you wish to use hardware acceleration of\n\t  cryptographic operations on the system REE.\n\t  If unsure say Y.\n\nsource \"drivers/crypto/hisilicon/Kconfig\"\n\nsource \"drivers/crypto/amlogic/Kconfig\"\n\nconfig CRYPTO_DEV_SA2UL\n\ttristate \"Support for TI security accelerator\"\n\tdepends on ARCH_K3 || COMPILE_TEST\n\tselect CRYPTO_AES\n\tselect CRYPTO_ALGAPI\n\tselect CRYPTO_AUTHENC\n\tselect CRYPTO_DES\n\tselect CRYPTO_SHA1\n\tselect CRYPTO_SHA256\n\tselect CRYPTO_SHA512\n\tselect HW_RANDOM\n\tselect SG_SPLIT\n\thelp\n\t  K3 devices include a security accelerator engine that may be\n\t  used for crypto offload.  Select this if you want to use hardware\n\t  acceleration for cryptographic algorithms on these devices.\n\nsource \"drivers/crypto/aspeed/Kconfig\"\nsource \"drivers/crypto/starfive/Kconfig\"\nsource \"drivers/crypto/inside-secure/eip93/Kconfig\"\nsource \"drivers/crypto/ti/Kconfig\"\n\nendif # CRYPTO_HW\n",
+      "drivers/md/bcache/Kconfig": "# SPDX-License-Identifier: GPL-2.0-only\n\nconfig BCACHE\n\ttristate \"Block device as cache\"\n\tselect BLOCK_HOLDER_DEPRECATED if SYSFS\n\tselect CRC64\n\tselect CLOSURES\n\thelp\n\tAllows a block device to be used as cache for other devices; uses\n\ta btree for indexing and the layout is optimized for SSDs.\n\n\tSee Documentation/admin-guide/bcache.rst for details.\n\nconfig BCACHE_DEBUG\n\tbool \"Bcache debugging\"\n\tdepends on BCACHE\n\thelp\n\tDon't select this option unless you're a developer\n\n\tEnables extra debugging tools, allows expensive runtime checks to be\n\tturned on.\n\nconfig BCACHE_ASYNC_REGISTRATION\n\tbool \"Asynchronous device registration\"\n\tdepends on BCACHE\n\thelp\n\tAdd a sysfs file /sys/fs/bcache/register_async. Writing registering\n\tdevice path into this file will returns immediately and the real\n\tregistration work is handled in kernel work queue in asynchronous\n\tway.\n",
+      "drivers/md/dm-pcache/Kconfig": "config DM_PCACHE\n\ttristate \"Persistent cache for Block Device (Experimental)\"\n\tdepends on BLK_DEV_DM\n\tdepends on DEV_DAX\n\thelp\n\t  PCACHE provides a mechanism to use persistent memory (e.g., CXL persistent memory,\n\t  DAX-enabled devices) as a high-performance cache layer in front of\n\t  traditional block devices such as SSDs or HDDs.\n\n\t  PCACHE is implemented as a kernel module that integrates with the block\n\t  layer and supports direct access (DAX) to persistent memory for low-latency,\n\t  byte-addressable caching.\n\n\t  Note: This feature is experimental and should be tested thoroughly\n\t  before use in production environments.\n\n\t  If unsure, say 'N'.\n",
+      "drivers/md/dm-vdo/Kconfig": "# SPDX-License-Identifier: GPL-2.0-only\n\nconfig DM_VDO\n\ttristate \"VDO: deduplication and compression target\"\n\tdepends on 64BIT\n\tdepends on BLK_DEV_DM\n\tselect DM_BUFIO\n\tselect LZ4_COMPRESS\n\tselect LZ4_DECOMPRESS\n\tselect MIN_HEAP\n\thelp\n\t  This device mapper target presents a block device with\n\t  deduplication, compression and thin-provisioning.\n\n\t  To compile this code as a module, choose M here: the module will\n\t  be called dm-vdo.\n\n\t  If unsure, say N.\n",
+      "drivers/md/persistent-data/Kconfig": "# SPDX-License-Identifier: GPL-2.0-only\nconfig DM_PERSISTENT_DATA\n       tristate\n       depends on BLK_DEV_DM\n       select CRC32\n       select DM_BUFIO\n\thelp\n\t Library providing immutable on-disk data structure support for\n\t device-mapper targets such as the thin provisioning target.\n\n"
+    }
+  },
+  "status": "PINNED_ARCHIVE_STATIC_SELECT_DEPENDENCY_AUDIT_ONLY_NOT_CONFIGURED"
+}
