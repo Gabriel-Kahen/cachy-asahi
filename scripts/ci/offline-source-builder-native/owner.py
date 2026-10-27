@@ -233,6 +233,49 @@ def require_image(row, own):
     need(own['tag'] in row.get('RepoTags', []), 'fresh image tag binding')
     return row['Id']
 
+def transport(args):
+    """One complete retained-source transfer outside ROOT; original audit is mandatory."""
+    _,own=admitted(args)
+    work=Path(args.work);carrier=safe_path(args.carrier)
+    expected=safe_path(os.environ['RUNNER_TEMP'])/'offline-source-retained'
+    need(carrier==expected and not os.path.lexists(carrier),'fresh fixed external retained DATA path required')
+    need(not carrier.is_relative_to(ROOT) and not ROOT.is_relative_to(carrier),'retained DATA must be disjoint from closed source')
+    need(carrier.parent.stat().st_uid==os.getuid() and not carrier.parent.stat().st_mode&0o022,
+         'owned external retained DATA parent required')
+    need(not(work/'input-transport-owner.json').exists(),'fresh one-shot input transport receipt required')
+    profile_path=ROOT/'scripts/ci/setup6-retained-helpers/carrier-profile.json'
+    profile_raw=read(profile_path);profile=json.loads(profile_raw)
+    need(sha(profile_raw)=='4089fd798849cafda23d03c0dd95ac896a83fd63ad21e331ae420c147535586c'
+         and profile['source']=='ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad' and len(profile['files'])==1154,
+         'unchanged full retained carrier profile required')
+    actor=Actors(work/'input-transport-actors',480)
+    report=dict(status='FAIL_RETAINED_INPUT_TRANSPORT_DATA',identity=own,carrier_path=str(carrier),
+        carrier_source=profile['source'],profile_sha256=sha(profile_raw),expected_carrier_files=1154,
+        expected_carrier_bytes=sum(row['bytes']for row in profile['files'].values()),
+        budget_seconds=480,retry=False,partial_data_retained=True,native='NOT_RUN',acceptance=False,
+        authentication='ORIGINAL_COMPLETE_PREPARE_AND_NATIVE_SIGNATURE_AUDIT_STILL_REQUIRED')
+    try:
+        fresh(carrier).chmod(0o700)
+        git=['git','-c','credential.helper=','-c','http.extraHeader=','-c','http.sslVerify=true',
+             '-c','core.hooksPath=/dev/null','-c','protocol.allow=never','-c','protocol.https.allow=always']
+        actor.run([*git,'init','--template=',str(carrier)],timeout=10)
+        actor.run([*git,'-C',str(carrier),'-c','http.lowSpeedLimit=65536','-c','http.lowSpeedTime=60',
+            'fetch','--depth=1','--no-tags','--no-recurse-submodules',
+            'https://github.com/Gabriel-Kahen/cachy-asahi.git',profile['source']],timeout=400)
+        fetched=actor.run([*git,'-C',str(carrier),'rev-parse','--verify','FETCH_HEAD'],timeout=10)
+        need(fetched==profile['source'],'exact fetched retained commit required')
+        actor.run([*git,'-C',str(carrier),'checkout','--detach',profile['source']],timeout=45)
+        head=actor.run([*git,'-C',str(carrier),'rev-parse','--verify','HEAD'],timeout=10)
+        need(head==profile['source'],'exact retained DATA checkout HEAD required')
+        report.update(status='PASS_EXACT_RETAINED_INPUT_TRANSPORT_DATA_ONLY',carrier_head=head)
+    except(Exception,KeyboardInterrupt)as error:
+        report['error']=type(error).__name__+': '+str(error)[:2048]
+        raise
+    finally:
+        # Preserve even incomplete DATA outside the sealed source; no retry or deletion.
+        save(work/'input-transport-owner.json',report)
+
+
 def bootstrap(args):
     _, own = admitted(args)
     work = Path(args.work)
@@ -459,9 +502,26 @@ def pair_cleanup(args,own):
 
 def cleanup(args):
     work=Path(args.work)
+    transport_receipt=work/'input-transport-owner.json'
+    native_paths=('bootstrap','bootstrap-actors','bootstrap-owner.json','batch-actors','batch-graph-actors',
+        'batch-observation-actors','batch-cleanup-actors','cleanup-actors','batch-a','batch-b',
+        'batches-owner.json','pair-cleanup-owner.json','batch-observations','batch-graph','batch-capture-commands',
+        'candidate-manifests','installed-provider-runtime-proof.json','source-cache-before.json','source-cache-after.json')
+    if transport_receipt.exists() and load(transport_receipt).get('status')=='FAIL_RETAINED_INPUT_TRANSPORT_DATA' and not any(os.path.lexists(work/name)for name in native_paths):
+        _,own=binding(args,feature_required=False)
+        transferred=load(transport_receipt)
+        carrier=safe_path(os.environ['RUNNER_TEMP'])/'offline-source-retained'
+        need(transferred['identity']==own and transferred['carrier_path']==str(carrier)
+             and not carrier.is_relative_to(ROOT),'same-owner outside-source failed transport DATA required')
+        need(not(work/'cleanup-owner.json').exists(),'fresh transport-only diagnostic receipt required')
+        save(work/'cleanup-owner.json',dict(status='INPUT_TRANSPORT_FAILED_BEFORE_NATIVE_ACTORS_DIAGNOSTIC_ONLY',
+            identity=own,transport_receipt_sha256=sha(read(transport_receipt)),partial_carrier_path=str(carrier),
+            partial_data_preserved=True,native='NOT_RUN',native_cleanup='NOT_ESTABLISHED',acceptance=False,
+            transport_process_scope='CONSULT_RETAINED_ACTOR_RECEIPTS_NO_LIVE_RECHECK_OR_NATIVE_ABSENCE_CREDIT'))
+        return
     if not(work/'feature-proof.json').exists():
         _,own=binding(args,feature_required=False)
-        need(not(work/'bootstrap').exists() and not(work/'batch-a').exists() and not(work/'batch-b').exists(),'missing feature proof cannot hide native actors')
+        need(not any(os.path.lexists(work/name)for name in native_paths),'missing feature proof cannot hide native actors')
         save(work/'cleanup-owner.json',dict(status='NO_NATIVE_ACTORS_ADMITTED',identity=own,native='NOT_RUN'));return
     return producer_cleanup(args)
 
@@ -489,7 +549,7 @@ def retain(args):
         'retained-preparation.json','build-started.json','context/Dockerfile','context/disabled-hooks.txt','context/pacman.conf')
     for name in bootstrap_names:
         if(work/'bootstrap'/name).is_file():copy(work/'bootstrap'/name,'bootstrap/'+name)
-    directories=('bootstrap-actors','batch-actors','batch-graph-actors','batch-observation-actors','batch-cleanup-actors','cleanup-actors',
+    directories=('input-transport-actors','bootstrap-actors','batch-actors','batch-graph-actors','batch-observation-actors','batch-cleanup-actors','cleanup-actors',
         'batch-observations','batch-graph','batch-capture-commands','batch-a','batch-b','candidate-manifests')
     for directory in directories:
         if not(work/directory).exists():continue
@@ -505,6 +565,19 @@ def retain(args):
         base,batch,consumers,clean=(load(work/n)for n in('bootstrap-owner.json','batches-owner.json','pair-cleanup-owner.json','cleanup-owner.json'))
         need(all(r['identity']==own for r in(base,batch,consumers,clean)),'same source/feature/run identity required')
         need(base['status']=='PASS_FRESH_SIGNED_ORIGINAL341_BOOTSTRAP' and batch['status']=='PASS_TWO_NATIVE_V2_BATCHES_REAL_FAILURE_RESUME_AND_OUTPUT_ADMISSION', 'complete finite native batch result required')
+        transferred=load(work/'input-transport-owner.json')
+        need(transferred['status']=='PASS_EXACT_RETAINED_INPUT_TRANSPORT_DATA_ONLY'
+             and transferred['identity']==own and transferred['carrier_source']==transferred['carrier_head']=='ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad'
+             and transferred['carrier_path']==str(safe_path(os.environ['RUNNER_TEMP'])/'offline-source-retained')
+             and transferred['profile_sha256']==sha(read(ROOT/'scripts/ci/setup6-retained-helpers/carrier-profile.json'))
+             and transferred['expected_carrier_files']==1154 and transferred['budget_seconds']==480
+             and transferred['retry']is False and transferred['acceptance']is False,
+             'same-owner complete retained input transport DATA required')
+        prepared=load(work/'bootstrap/retained-preparation.json')
+        need(prepared['source']==prepared['carrier']['source']==transferred['carrier_source']
+             and prepared['carrier']['files']==prepared['carrier']['blob_joins']==1154
+             and prepared['mode']=='native248' and prepared['actual']is None,
+             'unchanged whole retained Git/blob preparation required after DATA transfer')
         runtime=load(work/'installed-provider-runtime-proof.json')
         consumer=module(HERE/'batch_consumer.py','_retained_runtime_replay')
         consumer.verify_retained_runtime(args,__import__('types').SimpleNamespace(**globals()),own,runtime,public)
@@ -516,7 +589,7 @@ def retain(args):
         need(consumers['status']=='PASS_ACTUAL_BUILD_CONSUMERS_ABSENT_BEFORE_IMAGE' and set(consumers['observed_absent'])==set(batch['all_container_names']), 'all five consumer absences before image required')
         need(clean['status']=='PASS_ORDERED_OWNED_CONSUMER_THEN_IMAGE_ABSENCE' and clean['removed_images']==[base['image']] and clean['image_absence_verified'] is True,'exact producer retirement required')
         need(load(work/'source-cache-before.json')==load(work/'source-cache-after.json')==cache_snapshot(work/'source-cache'),'source cache unchanged')
-        for phase in('bootstrap','batch','batch-graph','batch-observation','batch-cleanup','cleanup'):
+        for phase in('input-transport','bootstrap','batch','batch-graph','batch-observation','batch-cleanup','cleanup'):
             rows=load(work/(phase+'-actors/actors.json'))
             need(rows and all(r['status']=='PASS' and r['natural_exit'] and r['group_absent'] and r['leader_held_until_group_inspection'] for r in rows),'all finite actor groups naturally retired')
             for row in rows:
@@ -534,7 +607,7 @@ def retain(args):
 
 def main():
     parser=argparse.ArgumentParser(description='Finite original341 native offline batch consumer')
-    parser.add_argument('mode',choices=('proof','feature-proof','bootstrap','batches','cleanup','retain'))
+    parser.add_argument('mode',choices=('proof','feature-proof','transport','bootstrap','batches','cleanup','retain'))
     for name in('source-root','proof','work','cache','public'):parser.add_argument('--'+name,type=Path,required=True)
     for name in('source-sha','feature-code-sha','manifest-sha256'):parser.add_argument('--'+name,required=True)
     parser.add_argument('--carrier',type=Path);parser.add_argument('--execute',action='store_true');args=parser.parse_args()
