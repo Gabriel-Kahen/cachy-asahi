@@ -304,14 +304,15 @@ class Setup:
         encoded = (json.dumps(data, sort_keys=True, indent=2) + '\n').encode()
         self.fs.atomic(path, encoded, checksum(before), private=True)
 
-    def source(self, component):
-        fs = Files(self.templates, source=True)
+    def source(self, component, root=None):
+        directory = self.templates if root is None else Path(root)
+        fs = Files(directory, source=True)
         try:
             data = fs.read(TEMPLATES[component])['data']
             if data is None:
                 raise Error('Selected installed template is missing: ' + component)
             target = self.home / self.targets[component]
-            if self.templates / TEMPLATES[component] == target:
+            if directory / TEMPLATES[component] == target:
                 raise Error('A shell source template cannot be its own activation target')
             return data
         finally:
@@ -589,9 +590,119 @@ class Setup:
         old = self.fs.read(self.journal_path)['data']
         self.fs.atomic(self.journal_path, None, checksum(old), private=True)
 
+    def status(self, components=()):
+        """Observe ownership/replay readiness without locking, writing or exposing contents."""
+        failures = (Error, OSError, UnicodeError, ValueError, KeyError, TypeError)
+        records = None
+        try:
+            state = self.load(self.state_path)
+            if state is None:
+                records = {}
+                state_status = 'missing'
+            else:
+                if not isinstance(state.get('components'), dict):
+                    raise Error('Invalid component state')
+                for component, record in state['components'].items():
+                    self.validate_record(component, record)
+                records = state['components']
+                state_status = 'valid'
+        except failures:
+            state_status = 'unknown'
+
+        pending = {'status': 'none', 'can_resume': False, 'actions': []}
+        try:
+            journal = self.load(self.journal_path)
+            if journal is not None:
+                if journal.get('operation') not in ('activate', 'remove'):
+                    raise Error('Invalid pending operation')
+                self.validate_journal(journal)
+                pending.update(status='blocked', transaction=journal['id'])
+                try:
+                    _, actions = self.prepare_replay(journal)
+                    # Unknown prior ownership must never be presented as safe recovery.
+                    if records is None:
+                        raise Error('Invalid prior component state')
+                    pending.update(status='resumable', can_resume=True, actions=actions)
+                except failures:
+                    pending['reason'] = 'replay-check-failed'
+        except failures:
+            pending.update(status='unknown', can_resume=None, reason='journal-unreadable-or-invalid')
+
+        actions = []
+        for component in sorted(set(components or ALL_COMPONENTS), key=ORDER.index):
+            record = records.get(component) if records is not None else None
+            item = {'component': component, 'path': self.targets[component],
+                    'ownership': 'unknown' if records is None else 'managed' if record else 'unmanaged',
+                    'status': 'unknown', 'reason': 'state-unreadable-or-invalid'}
+            if records is not None:
+                try:
+                    data = self.fs.read(item['path'])['data']
+                    if record is None:
+                        conflict = data is not None if component == 'hyprland' else has_marker(data, component)
+                        item.update(status='conflicting' if conflict else 'unmanaged',
+                                    reason='unrecorded-content' if conflict else 'no-ownership-record')
+                    elif data is None:
+                        item.update(status='missing', reason='target-missing')
+                    elif component == 'hyprland':
+                        clean = checksum(data) == record['sha256']
+                        item.update(status='clean' if clean else 'drifted',
+                                    reason='owned-file-matches' if clean else 'owned-file-changed')
+                    else:
+                        text = data.decode('utf-8')
+                        counts = [text.count(marker) for marker in markers(component)]
+                        if any(count > 1 for count in counts):
+                            item.update(status='conflicting', reason='duplicate-markers')
+                        elif data.count(record['block'].encode()) != 1:
+                            item.update(status='drifted' if any(counts) else 'missing',
+                                        reason='owned-block-changed' if any(counts) else 'owned-block-missing')
+                        else:
+                            item.update(status='clean', reason='owned-block-matches')
+                            try:
+                                self.check_order(data, records, item['path'])
+                            except Error:
+                                item.update(status='conflicting', reason='owned-block-order-changed')
+                except failures:
+                    item.update(status='unknown', reason='target-unreadable-or-unsafe')
+            # Shells source the recorded root, which may differ from today's CLI option.
+            root = record['source_root'] if record and component != 'hyprland' else self.templates
+            try:
+                source = self.source(component, root)
+                item['template'] = ('changed' if record and component == 'hyprland'
+                                    and checksum(source) != record['sha256'] else 'available')
+            except FileNotFoundError:
+                item['template'] = 'missing'
+            except Error as error:
+                item['template'] = ('missing' if str(error).startswith('Selected installed template is missing:')
+                                    else 'unknown')
+            except failures:
+                item['template'] = 'unknown'
+            actions.append(item)
+
+        incomplete = (state_status == 'unknown' or pending['status'] in ('unknown', 'blocked')
+                      or any(a['status'] == 'unknown' or a['template'] == 'unknown' for a in actions))
+        attention = (pending['status'] == 'resumable' or any(
+            a['status'] in ('drifted', 'missing', 'conflicting')
+            or (a['ownership'] == 'managed' and a['template'] != 'available') for a in actions))
+        guidance = ['Status is a read-only observation; other writers can change files. Apply repeats its checks.']
+        if pending['status'] == 'resumable':
+            guidance.append('Review recover, then run recover --apply with the same home/config/ZDOTDIR/state/template-root options.')
+        elif pending['status'] != 'none':
+            guidance.append('Keep the pending journal. Review recover with the original root options and reconcile errors before applying.')
+        if state_status == 'unknown':
+            guidance.append('Review state ownership, permissions and original root options; no ownership was inferred from unreadable or invalid state.')
+        if attention:
+            guidance.append('Review affected components and template packages. Preserve user edits; preview activate or remove with explicit components after resolving pending recovery.')
+        return {'schema_version': 1, 'mode': 'read-only', 'operation': 'status',
+                'state': {'status': state_status}, 'pending': pending, 'actions': actions,
+                'guidance': guidance, 'exit_code': 1 if incomplete else 2 if attention else 0}
+
     def run(self, operation, components=(), apply=False):
-        if operation not in ('activate', 'remove', 'recover') or not set(components) <= set(ALL_COMPONENTS):
+        if operation not in ('activate', 'remove', 'recover', 'status') or not set(components) <= set(ALL_COMPONENTS):
             raise Error('Unrecognized operation/components')
+        if operation == 'status':
+            if apply:
+                raise Error('Status is read-only; --apply is not supported')
+            return self.status(components)
         if operation == 'activate' and not components:
             raise Error('Select at least one activation component')
         if operation == 'activate':
@@ -654,7 +765,7 @@ def relative_directory(home, value, default):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('operation', choices=('activate', 'remove', 'recover'))
+    parser.add_argument('operation', choices=('activate', 'remove', 'recover', 'status'))
     parser.add_argument('--components', nargs='+', choices=ALL_COMPONENTS)
     parser.add_argument('--apply', action='store_true', help='perform the previewed operation; default is read-only')
     parser.add_argument('--home', type=Path, help='explicit user home; tests use temporary homes')
@@ -680,7 +791,7 @@ def main():
                       relative_directory(home, state, '.local/state/cachy-asahi/setup'))
         result = setup.run(args.operation, args.components or (), args.apply)
         print(json.dumps(result, indent=2, sort_keys=True))
-        return 2 if result.get('preserved_conflicts') or result.get('pending_transaction') else 0
+        return result.get('exit_code', 2 if result.get('preserved_conflicts') or result.get('pending_transaction') else 0)
     except (Error, OSError, UnicodeError, ValueError, KeyError, TypeError) as error:
         message = str(error) if isinstance(error, Error) else 'Unsafe/unavailable path or invalid state; no configuration contents printed'
         print(json.dumps({'status': 'error', 'error': message}), file=sys.stderr)

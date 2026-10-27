@@ -1,7 +1,7 @@
 pkgbase = cachy-asahi-doctor
 	pkgdesc = Read-only local platform and session observations for cachy-asahi
 	pkgver = 0.1.0
-	pkgrel = 1
+	pkgrel = 2
 	url = https://github.com/Gabriel-Kahen/cachy-asahi
 	arch = any
 	license = MIT
@@ -10,12 +10,14 @@ pkgbase = cachy-asahi-doctor
 	depends = systemd
 	source = cachy-asahi-doctor
 	source = test_doctor.py
+	source = test_comparison.py
 	source = README.md
 	source = NOTICE
 	source = LICENSE
-	sha256sums = d8eb487bc81b5880aceb412360ef674cc214150d61733dfdc8d8654e0f54cf38
+	sha256sums = a98a1b15927d95760ef81962639e4602119bf41cf0779c72fbd27ebe15955fbe
 	sha256sums = 7d555c98f79204d91c759171273c1ef24564a51d3384d6e8eb10751ab1cc4281
-	sha256sums = 8d1260424db6e54c8a68b008ab1d317d54a2a58d34655f34ae5059603cf19e4e
+	sha256sums = b4c8ffac4f21c42f2def9cf6287cc68cfea2dc9a0eabe672f6ccfae0f9ef5171
+	sha256sums = d1d781301a407b6367e15583a21db3ebe1e7864a71d62fce7226d7c8b53c4487
 	sha256sums = 96aa4022dcf6b97ea2b55ef63d78d5c261bfcd39c303822bad184a33d09e5804
 	sha256sums = 51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7
 
