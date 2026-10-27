@@ -7,7 +7,8 @@ import subprocess
 import sys
 
 ROOT = next(p for p in Path(__file__).resolve().parents if (p / 'scripts/build/build_v2.py').is_file())
-SAVED = ROOT / 'artifacts/development/source-cache-live-acquisition-20261027'
+SAVED = Path(__file__).resolve().parent / 'fixtures/offline-build-v2-c01'
+FIXTURE_MANIFEST_SHA256 = '912927ea9f0a488588e9bdb640fdcf42be0dc4a64913d4845598d5e10cb226c8'
 NAMES = ('cachy-asahi-zlib-baseline', 'cachy-asahi-zlib-lto')
 INTERFACE = 'offline-build-v2'
 
@@ -15,6 +16,13 @@ INTERFACE = 'offline-build-v2'
 class Fixture:
     def __init__(self, module, path):
         self.m, self.path = module, path
+        manifest_raw = (SAVED / 'fixture-files.json').read_bytes()
+        if self.m.B.sha(manifest_raw) != FIXTURE_MANIFEST_SHA256:
+            raise AssertionError('retained C01 fixture manifest changed')
+        for name, row in json.loads(manifest_raw)['files'].items():
+            body = (SAVED / name).read_bytes()
+            if len(body) != row['bytes'] or self.m.B.sha(body) != row['sha256']:
+                raise AssertionError('retained C01 fixture bytes changed: ' + name)
         self.catalog = path / 'catalog/source-inputs.json'
         self.catalog.parent.mkdir()
         self.catalog.write_bytes((SAVED / 'inputs/source-inputs.json').read_bytes())
@@ -22,6 +30,10 @@ class Fixture:
         self.cache = path / 'private-cache'
         shutil.copytree(SAVED / 'accepted-cache', self.cache)
         self.cache.chmod(0o700)
+        (self.cache / '.partial').mkdir(mode=0o700)
+        # Git stores ordinary fixture files as 0644; the runtime cache is private.
+        for entry in self.cache.rglob('*'):
+            entry.chmod(0o700 if entry.is_dir() else 0o600)
         self.input, self.config, self.sources = (path / p for p in ('input.json', 'config.json', 'sources.json'))
         self.planner = ROOT / 'scripts/maintenance/rebuild_plan.py'
         self.row = json.loads(self.catalog.read_bytes())['sources'][0]
@@ -64,8 +76,14 @@ class Fixture:
                 image='sha256:' + 'a' * 64, mode='emulated', source_date_epoch=1791748800, timeout=3, prerequisite_artifacts={},
                 image_dependency_review='SYNTHETIC image; exact recipe source fixture only'))
             plan = path / (name + '.source-plan.json')
-            plan.write_bytes(self.m.B.encoded(dict(schema_version=1, purpose='offline-build-sources', recipe_inputs=report['input_sha256'],
-                catalog_sha256=self.m.B.digest(self.catalog), sources=[dict(source=self.row['url'], id=self.row['material']['id'], revision=self.row['revision'])])))
+            variant = name.removeprefix('cachy-asahi-zlib-')
+            retained_plan = json.loads((SAVED / (variant + '-source-plan.json')).read_bytes())
+            retained_review = json.loads((SAVED / (variant + '-reviewed-inputs.json')).read_bytes())
+            if retained_plan['recipe_inputs'] != report['input_sha256'] or retained_review != report['input_sha256']:
+                raise AssertionError('real C01 recipe differs from retained source review')
+            if retained_plan['catalog_sha256'] != self.m.B.digest(self.catalog):
+                raise AssertionError('retained C01 source catalog changed')
+            plan.write_bytes(self.m.B.encoded(retained_plan))
             self.sources_value['tasks'][name] = dict(source_plan=str(plan), source_plan_sha256=self.m.B.digest(plan),
                 source_catalog=str(self.catalog), source_cache=str(self.cache))
 
