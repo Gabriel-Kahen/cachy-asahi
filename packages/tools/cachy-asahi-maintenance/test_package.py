@@ -22,6 +22,15 @@ c = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(c)
 
 
+def copy_recipe(source, target):
+    """Copy only the checked recipe; makepkg's live build outputs are not inputs."""
+    c.check(source)
+    target.mkdir()
+    for name in sorted(c.recipe_files()):
+        (target / name).write_bytes(c.recipe_bytes(source / name))
+    c.check(target)
+
+
 def stage(recipe, target):
     subprocess.run(['/bin/bash', '-c',
                     'set -eu; source "$1/PKGBUILD"; srcdir="$1"; pkgdir="$2"; package',
@@ -43,7 +52,7 @@ class PackageControls(unittest.TestCase):
         cls.cwd = cls.root / 'unrelated-working-directory'
         cls.cwd.mkdir()
         cls.recipe = cls.root / 'source'
-        shutil.copytree(HERE, cls.recipe, ignore=shutil.ignore_patterns('src', 'pkg', '*.pkg.tar.*', '__pycache__'))
+        copy_recipe(HERE, cls.recipe)
         stage(cls.recipe, cls.stage)
         cls.cli = cls.stage / 'usr/bin/cachy-asahi-maintenance'
         cls.baseline = snapshot(cls.stage)
@@ -65,6 +74,47 @@ class PackageControls(unittest.TestCase):
     def test_exact_stage_files_modes_and_bytes(self):
         self.assertEqual(c.check(self.recipe, self.stage)['installed_files'], 16)
 
+    def test_fixture_ignores_makepkg_fifo_and_dynamic_outputs(self):
+        work = self.root / 'makepkg-work'
+        copy_recipe(self.recipe, work)
+        fifo = work / 'logpipe.qnO8Pi3J'
+        os.mkfifo(fifo, 0o600)
+        (work / 'src').mkdir()
+        (work / 'src/unreviewed.py').write_text('raise AssertionError("not a recipe input")\n')
+        (work / 'build.log').write_text('live makepkg output\n')
+        (work / 'candidate.pkg.tar.zst').write_bytes(b'not a recipe input')
+        target = self.root / 'copied-makepkg-recipe'
+        copy_recipe(work, target)
+        self.assertEqual({p.name for p in target.iterdir()}, c.recipe_files())
+        self.assertTrue(fifo.exists())
+        staged = self.root / 'fifo-regression-stage'
+        stage(target, staged)
+        self.assertEqual(c.check(target, staged)['installed_files'], 16)
+        self.assertEqual(snapshot(staged), self.baseline)
+
+    def test_fixture_refuses_unsafe_declared_recipe_inputs(self):
+        for name in ('PKGBUILD', '.SRCINFO', 'health.py'):
+            for kind in ('fifo', 'symlink', 'directory', 'hardlink'):
+                with self.subTest(name=name, kind=kind):
+                    work = self.root / ('unsafe-' + name + '-' + kind)
+                    copy_recipe(self.recipe, work)
+                    leaf = work / name
+                    leaf.unlink()
+                    if kind == 'fifo': os.mkfifo(leaf, 0o600)
+                    elif kind == 'symlink': leaf.symlink_to(self.recipe / name)
+                    elif kind == 'directory': leaf.mkdir()
+                    else: os.link(self.recipe / name, leaf)
+                    with self.assertRaisesRegex(ValueError, 'ordinary'):
+                        copy_recipe(work, self.root / ('refused-' + name + '-' + kind))
+                    if kind == 'hardlink': leaf.unlink()
+
+    def test_fixture_revalidates_declared_checksums_before_copy(self):
+        work = self.root / 'bad-fixture-input'
+        copy_recipe(self.recipe, work)
+        (work / 'health.py').write_bytes((work / 'health.py').read_bytes() + b'\n# changed\n')
+        with self.assertRaisesRegex(ValueError, 'checksum mismatch: health.py'):
+            copy_recipe(work, self.root / 'refused-changed-recipe')
+
     def test_help_outside_checkout(self):
         result = self.run_cli('--help')
         self.assertEqual(result.returncode, 0, result.stderr)
@@ -75,7 +125,7 @@ class PackageControls(unittest.TestCase):
     def test_version_outside_checkout(self):
         result = self.run_cli('--version')
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual(result.stdout, b'cachy-asahi-maintenance 0.1.0-1\n')
+        self.assertEqual(result.stdout, b'cachy-asahi-maintenance 0.1.0-2\n')
 
     def test_required_explicit_inputs(self):
         result = self.run_cli()

@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 """Real original recipe round trips; synthetic archive bindings grant no admission."""
 import copy
+import gzip
 import importlib.util
 import io
 import json
@@ -18,7 +19,11 @@ REPO = HERE.parents[1]
 SPEC = importlib.util.spec_from_file_location('recipe_delivery', HERE / 'recipe_source_delivery.py')
 d = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(d)
-REVISION = 'dc01063ab4fd2d8c36a1e4c453811ffa8c27bb06'
+REVISION = 'ab57e41b60d08e564bc0fe7e9a0c9a9c0706c283'
+LEGACY_BUNDLES = {
+    ('cachy-asahi-maintenance', '0.1.0-1'): 'f84ca37ccee0f00f9fd0bbaace405e0fc71be8b8819755c8d498d19ae96dac5a',
+    ('cachy-asahi-session-diagnostics', '0.1.0-2'): '0c504f7c8a479e7d99f7bc4d507adbbe9dc6718dfb7b3377929317a6dac14860',
+}
 
 
 class RecipeDelivery(unittest.TestCase):
@@ -40,17 +45,22 @@ class RecipeDelivery(unittest.TestCase):
     def contents(self, name):
         return d.source_set(name, lambda key: d.s.local_read(self.recipe(name), key, d.MAX_FILE))
 
-    def fixture_archive(self, name, *, recipe_hash=None, version=None, tamper=False, duplicate=False,
+    def fixture_archive(self, name, *, recipe_version=None, recipe_hash=None, version=None, tamper=False, duplicate=False,
                         extra=False, metadata_link=False):
-        bodies, info = self.contents(name)
-        pkg = dict(pkgname=[name], pkgbase=[name], pkgver=[version or d.profile(name)['version']],
+        if recipe_version is None:
+            bodies, info = self.contents(name)
+        else:
+            _, bodies = self.legacy(name, recipe_version)
+            info = d.metadata(bodies['.SRCINFO'])
+        p = d.profile(name, recipe_version)
+        pkg = dict(pkgname=[name], pkgbase=[name], pkgver=[version or p['version']],
                    arch=['any'], license=['MIT'], depend=info.get('depends', []),
                    optdepend=info.get('optdepends', []))
         build = dict(format=['2'], pkgname=[name], pkgver=pkg['pkgver'], pkgarch=['any'],
-                     pkgbuild_sha256sum=[recipe_hash or d.profile(name)['recipe']])
+                     pkgbuild_sha256sum=[recipe_hash or p['recipe']])
         def metadata(row):
             return ''.join(k + ' = ' + value + '\n' for k, values in row.items() for value in values).encode()
-        files = {key: (bodies[source], mode) for key, (source, mode) in d.payload(name).items()}
+        files = {key: (bodies[source], mode) for key, (source, mode) in d.payload(name, recipe_version).items()}
         files.update({'.PKGINFO': (metadata(pkg), 0o644), '.BUILDINFO': (metadata(build), 0o644),
                       '.MTREE': (b'original synthetic fixture; no native builder ran\n', 0o644)})
         if tamper:
@@ -233,7 +243,7 @@ class RecipeDelivery(unittest.TestCase):
 
     def test_actual_supplied_archive_mismatches_refused_before_output(self):
         name = 'cachy-asahi-maintenance'
-        for change in ({'recipe_hash': '0' * 64}, {'version': '0.1.0-2'}, {'tamper': True},
+        for change in ({'recipe_hash': '0' * 64}, {'version': '0.1.0-unreviewed'}, {'tamper': True},
                        {'extra': True}, {'duplicate': True}, {'metadata_link': True}):
             archive = self.fixture_archive(name, **change)
             with self.subTest(change=change), self.assertRaises((d.s.Error, ValueError)):
@@ -292,6 +302,80 @@ class RecipeDelivery(unittest.TestCase):
             raw = d.tar_bytes(files)
             with self.subTest(change=change), self.assertRaises((d.s.Error, KeyError)):
                 d.unpacked(raw, d.s.digest(raw))
+
+    def legacy(self, name, version):
+        path = HERE / 'fixtures/recipe-source-legacy' / (name + '-' + version + '.tar.gz')
+        with gzip.GzipFile(fileobj=io.BytesIO(d.s.read_file(path, d.MAX_FILE))) as stream:
+            raw = stream.read(d.MAX_TOTAL + 1)
+        return d.unpacked(raw, LEGACY_BUNDLES[name, version])
+
+    def test_retained_legacy_bundles_verify_relocate_and_repack_byte_identically(self):
+        for (name, version), checksum in LEGACY_BUNDLES.items():
+            with self.subTest(name=name, version=version):
+                saved, bodies = self.legacy(name, version)
+                self.assertEqual(saved['package']['version'], version)
+                self.assertEqual(d.source_profile(name, bodies), d.profile(name, version))
+                recipe = self.work / name
+                d.write_fresh(recipe, bodies)
+                result = d.pack(recipe, name, saved['observed_source_revision'], self.work / (name + '-repacked'))
+                self.assertEqual(result['bundle_sha256'], checksum)
+                self.assertEqual(result['package']['version'], version)
+                self.assertEqual(d.payload(name, version), d.payload(name))
+
+    def test_current_pack_unpack_selects_exact_new_recipe_and_version_without_hooks(self):
+        for name, p in d.PROFILES.items():
+            with self.subTest(name=name):
+                output, result = self.pack(name, name)
+                saved, bodies = d.unpacked((output / 'source.tar').read_bytes(), result['bundle_sha256'])
+                self.assertEqual(saved['package']['version'], p['version'])
+                self.assertEqual(saved['recipe_sha256'], p['recipe'])
+                self.assertEqual(d.s.digest(bodies['.SRCINFO']), p['srcinfo'])
+                self.assertEqual(d.source_profile(name, bodies), p)
+
+    def test_mixed_old_new_and_unreviewed_recipe_revisions_refused(self):
+        for name, version in LEGACY_BUNDLES:
+            _, old = self.legacy(name, version)
+            current, _ = self.contents(name)
+            for key in ('PKGBUILD', '.SRCINFO'):
+                mixed = dict(current, **{key: old[key]})
+                with self.subTest(name=name, key=key), self.assertRaisesRegex(d.s.Error, 'recipe/SRCINFO changed'):
+                    d.source_set(name, mixed.__getitem__)
+            unreviewed = dict(current, PKGBUILD=current['PKGBUILD'] + b'\n# unreviewed revision\n')
+            with self.assertRaisesRegex(d.s.Error, 'recipe/SRCINFO changed'):
+                d.source_set(name, unreviewed.__getitem__)
+            with self.assertRaisesRegex(d.s.Error, 'unreviewed recipe version'):
+                d.profile(name, '0.1.0-999')
+
+    def test_legacy_manifest_version_or_current_binding_cannot_relabel_old_sources(self):
+        for name, version in LEGACY_BUNDLES:
+            saved, bodies = self.legacy(name, version)
+            wrong = copy.deepcopy(saved)
+            wrong['package']['version'] = d.profile(name)['version']
+            raw = d.tar_bytes(dict(bodies, **{'bundle.json': d.encoded(wrong)}))
+            with self.assertRaisesRegex(d.s.Error, 'manifest mismatch'):
+                d.unpacked(raw, d.s.digest(raw))
+            binding = dict(status='ARCHIVE_METADATA_AND_PAYLOAD_BOUND', archive_sha256='a' * 64,
+                           archive_bytes=1, pkgbuild_sha256=d.profile(name)['recipe'], metadata_sha256='b' * 64,
+                           native_execution='NOT_ESTABLISHED')
+            with self.assertRaisesRegex(d.s.Error, 'binding recipe mismatch'):
+                d.manifest(name, bodies, d.metadata(bodies['.SRCINFO']), saved['observed_source_revision'], binding)
+
+    def test_synthetic_archive_binding_retains_old_new_version_and_recipe_separation(self):
+        for name, version in LEGACY_BUNDLES:
+            _, old = self.legacy(name, version)
+            current, info = self.contents(name)
+            archive = self.fixture_archive(name)
+            historical = self.fixture_archive(name, recipe_version=version)
+            for bodies, metadata, matching, other in (
+                (old, d.metadata(old['.SRCINFO']), historical, archive),
+                (current, info, archive, historical),
+            ):
+                with self.subTest(name=name, recipe=d.source_profile(name, bodies)['version']):
+                    bound = d.bind_archive(matching, name, bodies, metadata)
+                    self.assertEqual(bound['pkgbuild_sha256'], d.s.digest(bodies['PKGBUILD']))
+                    self.assertEqual(bound['native_execution'], 'NOT_ESTABLISHED')
+                    with self.assertRaisesRegex(d.s.Error, 'identity/dependencies mismatch'):
+                        d.bind_archive(other, name, bodies, metadata)
 
 
 if __name__ == '__main__':

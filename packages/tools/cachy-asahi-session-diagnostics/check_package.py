@@ -16,6 +16,7 @@ FROZEN = {'session_probe.py': 'be8de7b2644585918336b629b2bf436b79c36e55ce1605900
           'test_session_probe.py': '4a60a874d0a1f2568ee37707dc6df64a948015c57a81f52eb43dcb4ea882284c',
           'session-probe.md': 'a861b60cd1417604207d8b7d0e8745150e218b5736003068f464b307f0fa6acd'}
 CORRECTED = {'session_probe.py': '9c5c41899cd991b0de4bf8d30bad6f5452b4592ea9440df0f0b4a7b54bc66984', 'test_session_probe.py': 'b830ec828dd73e0b40ebc509c079f55a28b045d4a783e0090952ad696320f964', 'session-probe.md': '2d8125214150de5b6426692758525b0636fcbb53c45539a139d7fc5bf4f804e1'}
+SOCKET_FIXTURE = {'test_session_probe.py': 'f598bf4ea38f753c1ffe31fb55e636d64722c32139230bd5485564d7f2332d2f'}
 OPTIONAL = ['hyprland: current compositor version and display observations',
             'mesa-utils: current Wayland GLES client renderer observation',
             'pipewire: current sanitized audio graph observation',
@@ -51,7 +52,7 @@ def check_source(root):
         if line.strip():
             key, value = line.strip().split(' = ', 1)
             info.setdefault(key, []).append(value)
-    for key, values in {'pkgbase': [NAME], 'pkgname': [NAME], 'pkgver': ['0.1.0'], 'pkgrel': ['2'],
+    for key, values in {'pkgbase': [NAME], 'pkgname': [NAME], 'pkgver': ['0.1.0'], 'pkgrel': ['3'],
                         'arch': ['any'], 'license': ['MIT'], 'depends': ['python>=3.11'],
                         'optdepends': OPTIONAL, 'source': names, 'sha256sums': pins}.items():
         require(info.get(key) == values)
@@ -59,10 +60,11 @@ def check_source(root):
     require(not list(root.glob('*.install')) and not list(root.glob('*.hook')))
     provenance = json.loads((root / 'source-provenance.json').read_bytes())
     require(provenance['frozen_sources'] == FROZEN and provenance['corrected_sources'] == CORRECTED)
-    require(provenance['package'] == NAME and provenance['version'] == '0.1.0-2')
+    require(provenance['socket_fixture_sources'] == SOCKET_FIXTURE)
+    require(provenance['package'] == NAME and provenance['version'] == '0.1.0-3')
     for name in ('session_probe.py', NAME):
         require(provenance['runtime_sources'][name] == {'bytes': (root / name).stat().st_size, 'sha256': sha(root / name)})
-    require(all(sha(root / name) == digest for name, digest in CORRECTED.items()))
+    require(all(sha(root / name) == digest for name, digest in (CORRECTED | SOCKET_FIXTURE).items()))
     require(CORRECTED['session_probe.py'] in (root / NAME).read_text())
 
 
