@@ -203,7 +203,17 @@ def admission(input_path, input_sha, config_path, config_sha, planner_path, plan
         for p in sorted(closure - {name}):
             need(lock_map.get(p) == baseline[p]['version'],
                  'dependency closure input absent/wrong version in image lock: ' + p)
+        used_selections = [selection for selection in plan.get('provider_selections', [])
+                           if selection['package'] in closure]
+        for selection in used_selections:
+            evidence = selection['evidence']
+            need(row['image'] == evidence['image'],
+                 'reachable provider witness image differs from task image: ' + selection['package'])
+            need(row['expected_packages_sha256'] == evidence['inventory_sha256'],
+                 'reachable provider witness inventory differs from task lock: ' + selection['package'])
         task = dict(row)
+        if used_selections:
+            task['provider_selections'] = used_selections
         task.update(recipe=str(recipe), reviewed_inputs=str(regular(row['reviewed_inputs'])),
                     expected_packages=str(regular(row['expected_packages'])), recipe_inputs=reviewed,
                     group=group['id'], prerequisites=required)

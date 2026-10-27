@@ -53,7 +53,7 @@ its corresponding producer report and dependency graph. Inventory and graph must
 describe exactly that selected package set. Batching never proves complete
 system/advisory coverage; missing dependency providers remain held.
 
-The exact reviewed PR270 rebuild implementation is required. Dependency drift
+The exact reviewed provider-aware rebuild implementation is required. Dependency drift
 requires review and repinning; no solver is silently substituted. Digests bind
 bytes rather than authenticate origin. Native ARM, ARM16K, physical M2,
 build/update lifecycle, maintained operations and release acceptance remain

@@ -93,8 +93,46 @@ def components(graph):
     return sorted(groups)
 
 
+def provider_context(package, field, dependency, candidates, packages):
+    """Bind the complete consumer/candidate metadata without deleting offers."""
+    def projection(name):
+        return {key: packages[name].get(key) for key in ("name", "version", "arch", "depend", "provides")}
+    return dict(package=package, field=field, dependency=dependency,
+                consumer=projection(package), candidates=[projection(name) for name in sorted(candidates)])
+
+
+def provider_selections(value, packages, builds):
+    result = {}
+    witnesses = set()
+    inventory = "".join(package + " " + row["version"] + "\n" for package, row in sorted(packages.items())
+                        if builds.get(package, {}).get("disposition") == "external")
+    inventory_sha256 = pins.digest(inventory.encode())
+    for row in rows(value):
+        pins.fields(row, ("package", "field", "dependency", "provider", "evidence"))
+        package, provider = name(row["package"]), name(row["provider"])
+        field, dependency = row["field"], text(row["dependency"])
+        need(field == "depend", "installed provider selections require runtime depend field")
+        evidence = row["evidence"]
+        pins.fields(evidence, ("kind", "image", "inventory_sha256", "capture_sha256", "metadata_sha256"))
+        need(evidence["kind"] == "INSTALLED_ALPM_CACHE_QUERY_V1", "provider selection evidence kind")
+        need(type(evidence["image"]) is str and evidence["image"].startswith("sha256:") and
+             r.HEX.fullmatch(evidence["image"][7:]), "selected installed image ID required")
+        for key in ("inventory_sha256", "capture_sha256", "metadata_sha256"):
+            need(type(evidence[key]) is str and r.HEX.fullmatch(evidence[key]), "provider selection checksum")
+        witnesses.add((evidence["image"], evidence["inventory_sha256"], evidence["capture_sha256"]))
+        need(len(witnesses) == 1, "provider selections must bind one installed-image capture")
+        need(evidence["inventory_sha256"] == inventory_sha256, "provider selection inventory differs")
+        need(package in packages and provider in packages, "provider selection outside finite package set")
+        key = (package, field, dependency)
+        need(key not in result, "duplicate provider selection")
+        result[key] = row
+    return result
+
+
 def plan(value):
-    pins.fields(value, ("schema_version", "metadata_role", "release_id", "snapshot_id", "packages", "sources",
+    need(type(value) is dict, "explicit input object required")
+    selection_rows = value.get("provider_selections", [])
+    pins.fields({key: row for key, row in value.items() if key != "provider_selections"}, ("schema_version", "metadata_role", "release_id", "snapshot_id", "packages", "sources",
                        "build_dependencies", "changed", "capacity"))
     need(type(value["schema_version"]) is int and value["schema_version"] == 1, "unsupported schema")
     need(value["metadata_role"] == "pre-change-release", "pre-change release metadata required to preserve prior provider edges")
@@ -162,6 +200,9 @@ def plan(value):
     if not slots or not capacity["owner"] or not capacity["reference"]:
         global_holds.append("CAPACITY_OR_CAPACITY_OWNER_UNAVAILABLE")
 
+    selections = provider_selections(selection_rows, packages, builds)
+    used_selections = set()
+
     offers = defaultdict(set)
     for package, row in sorted(packages.items()):
         for offer in [package, *[r.relation(item)[0] for item in row.get("provides", [])]]:
@@ -176,11 +217,25 @@ def plan(value):
                 need(checks <= MAX_CHECKS, "provider match count bound")
                 if r.satisfies(dependency, packages[provider]):
                     matches.append(provider)
+            selection_key = (package, field, dependency)
+            selected = selections.get(selection_key)
+            if selected is not None:
+                need(len(matches) > 1 and selected["provider"] in matches, "selection must resolve an actually ambiguous satisfying provider")
+                need(builds.get(package, {}).get("disposition") == "external" and
+                     all(builds.get(provider, {}).get("disposition") == "external" for provider in candidates),
+                     "installed provider selections are unchanged external baseline only")
+                context = provider_context(package, field, dependency, candidates, packages)
+                need(pins.digest(pins.encoded(context)) == selected["evidence"]["metadata_sha256"], "provider selection metadata differs")
+                used_selections.add(selection_key)
             if len(matches) != 1:
                 state = "UNAVAILABLE_DEPENDENCY" if not matches else "AMBIGUOUS_PROVIDER"
-                holds[package].add(state + ":" + field + ":" + dependency)
-                issues.append(dict(package=package, field=field, dependency=dependency, status=state,
-                                   candidates=candidates, matching_providers=matches))
+                if selected is None:
+                    holds[package].add(state + ":" + field + ":" + dependency)
+                issue = dict(package=package, field=field, dependency=dependency, status=state,
+                             candidates=candidates, matching_providers=matches)
+                if selected is not None:
+                    issue.update(status="AMBIGUOUS_PROVIDER_BOUND_TO_INSTALLED_QUERY", selection=selected)
+                issues.append(issue)
             # Rejected named candidates still carry conservative review impact:
             # a changed version/offer may have satisfied a consumer previously.
             for provider in candidates:
@@ -189,6 +244,8 @@ def plan(value):
                 edges.append(edge)
                 reverse[provider].append(edge)
                 need(len(edges) <= MAX_RELATIONS, "edge count bound")
+
+    need(used_selections == set(selections), "unused/stale provider selection")
 
     changed = value["changed"]
     pins.fields(changed, ("sources", "toolchains", "advisories"))
@@ -244,6 +301,12 @@ def plan(value):
                 queue.append(package)
         work += 1 + len(members[units[provider]]) + len(reverse[provider])
         need(work <= MAX_WORK, "impact traversal work bound")
+
+    for key, selection in selections.items():
+        package, field, dependency = key
+        context = next(issue for issue in issues if (issue["package"], issue["field"], issue["dependency"]) == key)
+        need(package not in affected and not (set(context["candidates"]) & affected),
+             "installed provider selection cannot discharge affected-package review")
 
     for edge in edges:
         if edge["package"] in affected and not edge["relation_satisfied"]:
@@ -304,7 +367,7 @@ def plan(value):
             del pending[group_id]
         for deps in pending.values():
             deps.difference_update(ready)
-    return dict(schema_version=1, status="REBUILD_REVIEW_PLAN_NOT_EXECUTION", release_id=release_id,
+    report = dict(schema_version=1, status="REBUILD_REVIEW_PLAN_NOT_EXECUTION", release_id=release_id,
                 snapshot_id=snapshot_id, metadata_role=value["metadata_role"],
                 scope="ONLY_EXPLICIT_PRE_CHANGE_RELEASE_BUILD_INPUTS",
                 provider_policy="ALL_MATCHING_PROVIDERS_PLUS_REJECTED_NAMED_CANDIDATES_FOR_REVIEW",
@@ -334,6 +397,11 @@ def plan(value):
                              "External packages require upstream update/availability review; they are not project build successes.",
                              "Capacity and owners are supplied claims, not measured capacity or ongoing staffing acceptance.",
                              "No conflict solving, ABI analysis, build, installation, hardware test, network or system mutation."])
+
+    if selections:
+        report["provider_selections"] = [selections[key] for key in sorted(selections)]
+        report["limitations"].append("Installed-image provider query bindings discharge only exact unchanged-baseline ambiguity; all candidate edges remain.")
+    return report
 
 
 def text_report(value):
