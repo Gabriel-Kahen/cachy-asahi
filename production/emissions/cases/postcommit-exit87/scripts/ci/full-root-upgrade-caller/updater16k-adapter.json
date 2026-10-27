@@ -1,0 +1,109 @@
+{
+  "after": "41c0278c40512311cc940198347db362e0da1a14673f70516bf2a67ed9d6a513",
+  "before": "7dde550c0443bfe2e282e90559085baec52214161b7779005bfeb6877f426e23",
+  "config_sha256": "4f5f233b7a3f18e727ec4d7090692bf70c1fdf34e66439e8ccd4c21250bb0125",
+  "copy_cost_profile": {
+    "after": {
+      "bytes": 16261,
+      "sha256": "b2dd6938d2a1923968b36684583710f3e386ebeb9fab62d684f6dbbc2d93a3d5"
+    },
+    "before": {
+      "bytes": 15125,
+      "sha256": "f3930a3becb292c850e85d351211edf2f1b92be8d85837dc13d1ed2c749a69cc"
+    },
+    "clocks": "UNCHANGED",
+    "copy_substage_acceptance": false,
+    "native_fit": "UNKNOWN_NOT_RUN",
+    "original_caller_stderr_cap": 8192,
+    "profile": "UPDATER_PRIVATE_COPY_COST_DATA_V1",
+    "scalar_bytes": 3072,
+    "scalar_records": 12
+  },
+  "counted_edits": 5,
+  "diagnostic": "FAILURE_ONLY_ORIGINAL_LIBALPM_DEBUG_AND_BOUNDED_METADATA",
+  "driver_copy_validation_profile": {
+    "additive_composition_fit": "NOT_ESTABLISHED",
+    "caller_seconds": 3900,
+    "case": "postcommit-exit87",
+    "copy_before_seconds": 600,
+    "copy_is_nested_within_driver": true,
+    "copy_seconds": 1200,
+    "driver_seconds": 2400,
+    "future_case_runtime_fit": "REQUIRES_ORIGINAL_ACTUAL_EACH_CASE",
+    "hook_after": {
+      "bytes": 15125,
+      "sha256": "f3930a3becb292c850e85d351211edf2f1b92be8d85837dc13d1ed2c749a69cc"
+    },
+    "hook_before": {
+      "bytes": 15124,
+      "sha256": "2322852090e24b97037acce9960ade809ee97b1713968a17a9554ee11df565b8"
+    },
+    "independent_materialization_profile": "MATERIALIZE1200_NONRESERVED_CALLER3900_V1",
+    "nested_stage_driver_verify_sum": 4200,
+    "old600_copy_fit": "NOT_ESTABLISHED",
+    "original_driver_aux_runtime_and_product_defaults": "BYTE_HELD",
+    "profile": "DRIVER_COLD_COPY1200_NONRESERVED_CALLER3900_V1",
+    "reserved_setup_or_cleanup_seconds": 0,
+    "semantics": "NONRESERVED_COPY_ALLOWANCE_WITHIN_UNCHANGED_DRIVER_AND_HARD3900",
+    "stage_seconds": 1200,
+    "verify_seconds": 600,
+    "worker_seconds": 3900
+  },
+  "driver_descriptor_profile": {
+    "after": {
+      "bytes": 42782,
+      "sha256": "c953046e2174adbb4ac3f5bf5e959931c5c760f253cc90788d0e1429b3285dcd"
+    },
+    "before": {
+      "bytes": 3736,
+      "sha256": "bff93c029e21f9fce0868c80566396984443c8d3438264fac8a91c985175f05b"
+    },
+    "budgets": "UNCHANGED",
+    "helper": {
+      "bytes": 39044,
+      "sha256": "f289185c85726277552db7303a58460328f08672d55413ce0adb98dc4997f3f3"
+    },
+    "mount_identity_cache": false,
+    "native_timeout_fit": "NOT_ESTABLISHED",
+    "observation": "FULL_FRESH_ORIGINAL_SOURCE_DEST_SOURCE_AFTER_AND_AUXILIARY",
+    "profile": "UPDATER_PRIVATE_FRESH_DESCRIPTOR_V1",
+    "query": "EXACT_OBSERVER600_STATX_MNT_ID_FIRST_RESULT_CROSSCHECK_ORIGINAL_FDINFO_FALLBACK",
+    "transaction_runtime": "BYTE_HELD"
+  },
+  "persistent_stage_diagnostic": {
+    "acceptance_authority": false,
+    "after": "bf6f0c31a08cc2a3ceca0dfd6f697f454957ca5e299a99ec2c9d1499ed7d8c5b",
+    "before": "cd1f23bd252b77e9b3a9e907e1c0defd5141025408e92ae5c2500152076b6f3a",
+    "new_walks": 0,
+    "original_guard": "UNCHANGED_RERAISED"
+  },
+  "status": "SOURCE_DERIVED_NOT_EXECUTED",
+  "unchanged": "ALL_TRANSACTION_DECISIONS_GUARDS_AND_REQUIRED_SIGNATURE_POLICY",
+  "validation_capacity_profile": {
+    "additive_composition_fit": "NOT_ESTABLISHED",
+    "caller_seconds": 3900,
+    "case": "postcommit-exit87",
+    "copy_seconds": 600,
+    "driver_seconds": 2400,
+    "future_case_runtime_fit": "REQUIRES_ORIGINAL_ACTUAL_EACH_CASE",
+    "hook_after": {
+      "bytes": 15124,
+      "sha256": "2322852090e24b97037acce9960ade809ee97b1713968a17a9554ee11df565b8"
+    },
+    "hook_before": {
+      "bytes": 15123,
+      "sha256": "b64fbdcad25d9f62d268809067d46ac2e9da4394da1a864eb8ad8851067e1fdb"
+    },
+    "nested_stage_driver_verify_sum": 4200,
+    "old900_fit": "NOT_ESTABLISHED",
+    "original_rereads_security_and_product_limits": "HELD",
+    "prior_nested_stage_driver_verify_sum": 3900,
+    "profile": "MATERIALIZE1200_NONRESERVED_CALLER3900_V1",
+    "reserved_setup_or_cleanup_seconds": 0,
+    "semantics": "NONRESERVED_NESTED_STAGE_ALLOWANCE_HARD3900_ENCLOSING_CEILINGS",
+    "stage_before_seconds": 900,
+    "stage_seconds": 1200,
+    "verify_seconds": 600,
+    "worker_seconds": 3900
+  }
+}
