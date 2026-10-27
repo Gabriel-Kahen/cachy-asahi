@@ -70,6 +70,28 @@ jobs:
           python3 packages/settings/cachy-asahi-setup/check-sync.py
           python3 packages/settings/cachy-asahi-setup/test-sync.py -v
           python3 -B packages/tools/cachy-asahi-topmem/test_topmem.py -v
+      - name: Check accepted Setup8 snapshot, canonical sync and package controls
+        run: |
+          python3 -I -B packages/tools/cachy-asahi-setup8/check-sync.py --snapshot
+          python3 -I -B packages/tools/cachy-asahi-setup8/check-sync.py --root "$PWD"
+          python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-setup8/test_config_migrate.py -v
+          python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-setup8/test_package.py -v
+          python3 -I -B - <<'PY'
+          import importlib.util, json
+          from pathlib import Path
+          path = Path('scripts/checks/package_checks.py').resolve()
+          spec = importlib.util.spec_from_file_location('setup8_checks', path)
+          checks = importlib.util.module_from_spec(spec); spec.loader.exec_module(checks)
+          report = checks.recipe(Path('packages/tools/cachy-asahi-setup8/PKGBUILD'))
+          print(json.dumps(report, sort_keys=True, indent=2))
+          assert not report['errors'], report['errors']
+          metadata = report['metadata']
+          assert metadata['pkgname'] == ['cachy-asahi-setup']
+          assert metadata['pkgver'] == ['0.3.0'] and metadata['pkgrel'] == ['1']
+          assert metadata['arch'] == ['any'] and metadata['license'] == ['MIT']
+          assert set(metadata['depends']) == {'python>=3.11', 'gnupg', 'pacman'}
+          assert len(report['input_sha256']) == 20
+          PY
       - name: Validate tooling and safety boundaries
         env:
           PYTHONDONTWRITEBYTECODE: '1'

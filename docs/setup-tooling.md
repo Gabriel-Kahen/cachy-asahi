@@ -1,5 +1,7 @@
 # Per-user setup and removal tooling
 
+Development selection now uses [Setup8 0.3.0-1](setup8-development.md), with source commands under `scripts/setup8/` and the separate `packages/tools/cachy-asahi-setup8/` recipe. The guide below retains the legacy `scripts/setup/` and Setup6/7 contract for historical fixtures; use the versioned development guide for current source and migration commands. Legacy source and recipes remain unchanged.
+
 The standalone stdlib helper is `scripts/setup/setup.py`, packaged as `/usr/bin/cachy-asahi-setup`. Setup6 passes the finite native ARM build pair, package lifecycle and installed recovery-fixture checks in [the native validation record](validation/setup6-native-recovery-20261021.md). The [installed six-module and interrupted-recovery trial](validation/setup6-real-modules-native-20261021.md) also passes on native ARM4K; actual Asahi installation and exact-M2 onboarding remain **NOT RUN**. The separate package worker owns the setup recipe. This helper does not install/remove packages, select a login shell, register/launch a session, enable services, or change boot, graphics, audio or system policy.
 
 ## Preview, then explicitly apply
