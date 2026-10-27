@@ -284,6 +284,13 @@ jobs:
         run: python3 -B -Werror::ResourceWarning scripts/platform/test_recovery_preflight.py
       - name: Check read-only exact-target snapshot collection
         run: python3 -B -Werror::ResourceWarning scripts/platform/test_target_snapshot.py
+      - name: Check platform comparison and maintained ARM build planning
+        run: |
+          python3 -B -Werror::ResourceWarning scripts/platform/test_snapshot_compare.py
+          python3 -B -Werror::ResourceWarning scripts/maintenance/test_rebuild_plan.py
+          python3 -B -Werror::ResourceWarning scripts/maintenance/test_update_plan.py
+          python3 -B -Werror::ResourceWarning scripts/maintenance/test_build_batch.py
+          python3 -B -Werror::ResourceWarning scripts/maintenance/test_build_batch_e2e.py
       - name: Check fixed build-only Asahi data candidate boundaries
         run: python3 -B scripts/ci/asahi-audio-data/test_run.py
       - name: Check fixed build-only audio Rust candidate boundaries
