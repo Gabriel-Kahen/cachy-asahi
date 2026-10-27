@@ -1,3 +1,13 @@
+# 0.3.0-2 causal guard-order successor
+
+Explicit `/` removal now refuses a nonroot operator before reading any plan,
+policy or target database. Strict owner, mode, single-link, exact-plan, solver and
+protected-state guards are retained. The privilege fixture uses pre-input
+sentinels and UID1000/1001/65534 subtests rather than spoofing a real plan owner.
+This successor has pure causal controls only; full recipe/native/ALPM validation
+is for Root's next trial. Historical0.3.0-1 development evidence below is not
+transferred as a passing build or lifecycle for0.3.0-2.
+
 # Explicit live backend development candidate 0.3.0
 
 The new `live` subcommand implements explicit-target orphan preview, exact reviewed

@@ -34,7 +34,7 @@ jobs:
         timeout-minutes: 2
         run: |
           set -euo pipefail
-          printf '%s  %s\n' 'dbe5d4c4dee1a14c1f0b67948b7e58817ebd24174fda079e80b9bd61415fe302' "$SLICE/job.py" '2e7bc11ac8c23cc897e6288ec81ed0fc12dbbc10e211b9791c6b61bccfa7ea35' "$SLICE/source-manifest.json" | sha256sum --check
+          printf '%s  %s\n' 'dbe5d4c4dee1a14c1f0b67948b7e58817ebd24174fda079e80b9bd61415fe302' "$SLICE/job.py" '7747f5a9917656fb37dff66817da04ce611320a89f677ef5f3868b430a85db01' "$SLICE/source-manifest.json" | sha256sum --check
           python3 -I -B "$SLICE/job.py" proof --source "$GITHUB_WORKSPACE" --proof "$RUNNER_TEMP/orphans03-proof.json"
       - name: Focused source and hosted input transport controls
         timeout-minutes: 3

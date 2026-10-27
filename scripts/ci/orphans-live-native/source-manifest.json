@@ -2,11 +2,12 @@
   "actual_ref": null,
   "actual_run": null,
   "actual_source": null,
+  "causal_scope": "EARLY_EXPLICIT_ROOT_PRIVILEGE_AND_UID_INDEPENDENT_FIXTURE",
   "files": {
     "packages/tools/cachy-asahi-orphans03/.SRCINFO": {
       "bytes": 2149,
       "mode": 33188,
-      "sha256": "a4573a997cdf578c8f5e07bc11f50aff84466d463466cb0701c20ab20a2b30ba"
+      "sha256": "f2af13015b6d3679992ebf819d9039188f4caa366880f0e3c721fce45589fe01"
     },
     "packages/tools/cachy-asahi-orphans03/LICENSE": {
       "bytes": 1081,
@@ -21,12 +22,12 @@
     "packages/tools/cachy-asahi-orphans03/PKGBUILD": {
       "bytes": 3342,
       "mode": 33188,
-      "sha256": "a172286c8bc0fdf503b2effb67685d287a9dcc5731550fb9a94410846a0eb7e2"
+      "sha256": "a023ae04c6ad73ef592df339aebc240860cfdd532a6977be695a05ba6b6f21d2"
     },
     "packages/tools/cachy-asahi-orphans03/README.md": {
-      "bytes": 15462,
+      "bytes": 16034,
       "mode": 33188,
-      "sha256": "784cbae75396d2765816f7e04fe5dfdc9fadd3161923162c11f60a8ec5821238"
+      "sha256": "f55af5f4952692fdcb2164b794c6f13689ff2115d576591e085abb47a10cb42a"
     },
     "packages/tools/cachy-asahi-orphans03/READONLY.md": {
       "bytes": 8810,
@@ -44,9 +45,9 @@
       "sha256": "76bf8212c007e9b200592ecd357387a445c97537c8fe06ee58d58e2bb6d124cb"
     },
     "packages/tools/cachy-asahi-orphans03/live.py": {
-      "bytes": 23257,
+      "bytes": 23347,
       "mode": 33188,
-      "sha256": "bba38c7f4e70df1ef2e3c66273f90824a0cb1618206c1f15e7f4a31473fddd3b"
+      "sha256": "5424e5c3519ede26e471b87bc18c81aae40e373bbc29cdbdc04bbe472b80ba00"
     },
     "packages/tools/cachy-asahi-orphans03/live_policy.py": {
       "bytes": 16098,
@@ -69,14 +70,14 @@
       "sha256": "7de531e2c65e581a70c47f66d21be7b56f5893191e33bb6632d114f4f25d0a2e"
     },
     "packages/tools/cachy-asahi-orphans03/source-provenance.json": {
-      "bytes": 2866,
+      "bytes": 3356,
       "mode": 33188,
-      "sha256": "69ebd78e43b805418dbf58c133b79ad07a4202f282b38ab9c6c25d5d5e22e347"
+      "sha256": "ea4103a2b6ac3f639ead5199411e8671bcfd6a2e1e3e9a42c49c36ccbc36a898"
     },
     "packages/tools/cachy-asahi-orphans03/test_live.py": {
-      "bytes": 17769,
+      "bytes": 18114,
       "mode": 33188,
-      "sha256": "595384890e2aa3ecb1fa152094f9b73e7057c971d23c672a598761cd9fd2df9f"
+      "sha256": "0ba63845751f4d73c0cd4522372235c718fdfd5cca7d84a2a7cde353cfcb34a7"
     },
     "packages/tools/cachy-asahi-orphans03/test_live_policy.py": {
       "bytes": 11713,
@@ -144,19 +145,24 @@
       "sha256": "27ba4be42cf2bd41675073e07cccc917ae033f9d68b07a33cfd7f074ac27b760"
     },
     "scripts/ci/orphans-live-native/README.md": {
-      "bytes": 4599,
+      "bytes": 5031,
       "mode": 33188,
-      "sha256": "3bfa0b24fe87053aad763965decace6c1674c60e81d4a49b35454c547b4632ff"
+      "sha256": "2e71cdd62c983298c6f26ee7513644b57c09fa29f809cf3522ee35b2de297878"
     },
     "scripts/ci/orphans-live-native/build_candidate.py": {
       "bytes": 4894,
       "mode": 33188,
       "sha256": "fa35f5bf4c09ec0733f56c302877471d0496a9aa681cf0fd03b13600ddf467c1"
     },
+    "scripts/ci/orphans-live-native/buildinfo_supplement.py": {
+      "bytes": 4099,
+      "mode": 33188,
+      "sha256": "68772c2befdc2c720fc25fe756b996851462c3e0dd8f038f2c316e8bfa8593f9"
+    },
     "scripts/ci/orphans-live-native/candidate.SRCINFO": {
       "bytes": 2149,
       "mode": 33188,
-      "sha256": "a4573a997cdf578c8f5e07bc11f50aff84466d463466cb0701c20ab20a2b30ba"
+      "sha256": "f2af13015b6d3679992ebf819d9039188f4caa366880f0e3c721fce45589fe01"
     },
     "scripts/ci/orphans-live-native/closed.py": {
       "bytes": 4525,
@@ -166,7 +172,7 @@
     "scripts/ci/orphans-live-native/contract.py": {
       "bytes": 7495,
       "mode": 33188,
-      "sha256": "d49a9006054f71d63b80b43a8683ca71a1ec429eb2dc26a94c8b48aeb9ae55ee"
+      "sha256": "81399a6e2df7007f4237f8694f34ec9a179d4256a9b79eb601fa8088800bf6c4"
     },
     "scripts/ci/orphans-live-native/custody.py": {
       "bytes": 1926,
@@ -201,7 +207,7 @@
     "scripts/ci/orphans-live-native/lifecycle.py": {
       "bytes": 36882,
       "mode": 33188,
-      "sha256": "638fedeb55036d77d71cf30c73e38a4cc113cc2503213421647c93f76a570b2d"
+      "sha256": "ea3498d87590eb6c6d5b07180242c5e98463b317101424bd74b2675f32f7ba8d"
     },
     "scripts/ci/orphans-live-native/producer.py": {
       "bytes": 4589,
@@ -211,12 +217,12 @@
     "scripts/ci/orphans-live-native/product-profile.json": {
       "bytes": 3500,
       "mode": 33188,
-      "sha256": "a8d935c4c39fca4cb50c1987420297dea06bdfa7128fc63374e26f0344640fd1"
+      "sha256": "70567b23102aea623df8d6267d68eafcf1855a895bc25ac07ea92dab8ec3f8da"
     },
     "scripts/ci/orphans-live-native/read_result.py": {
-      "bytes": 28228,
+      "bytes": 28625,
       "mode": 33188,
-      "sha256": "54c12ae67e5af3b16375935b587f5493a9954eb98749276361187adbbdfa770d"
+      "sha256": "27dc4a3ceecc834bb80c916fb3d6d30290322d4221365cbc01e2538edd29d081"
     },
     "scripts/ci/orphans-live-native/retained.py": {
       "bytes": 3639,
@@ -231,12 +237,22 @@
     "scripts/ci/orphans-live-native/test_binding.py": {
       "bytes": 5025,
       "mode": 33188,
-      "sha256": "52b9ef7a4d526152a8595b9ab2abf08a73dbe1d996b4f49e2a1ef89213321651"
+      "sha256": "83594b272298471f966f98fb5ae6d9804ee64e3fba124f51332852e2649af71d"
+    },
+    "scripts/ci/orphans-live-native/test_buildinfo.py": {
+      "bytes": 4495,
+      "mode": 33188,
+      "sha256": "5ceceffc987d4d07ac15c709fea71799bd31366ee66e3f172f0203bce731ebae"
     },
     "scripts/ci/orphans-live-native/test_data_carrier.py": {
       "bytes": 6986,
       "mode": 33188,
       "sha256": "45d92a49597da288e18250e688c4b8f7a9c87d5b0368be3010309ce41099cb2d"
+    },
+    "scripts/ci/orphans-live-native/test_guard_order.py": {
+      "bytes": 5118,
+      "mode": 33188,
+      "sha256": "d4c3ac73a0a394ef7b08efb0681bb9a67a6afc3f442400aae48bd0e49af14679"
     },
     "scripts/ci/orphans-live-native/test_hosted_transport.py": {
       "bytes": 8654,
@@ -259,9 +275,9 @@
       "sha256": "d2938266b284a843038203c96e916766374c05e2ec8e4dadefdb43bdce5a18cb"
     },
     "scripts/ci/orphans-live-native/test_read_result.py": {
-      "bytes": 21721,
+      "bytes": 22956,
       "mode": 33188,
-      "sha256": "d08a8a6868aff6740ac0654ae468ee18f0042553d80cc49fc7d5a2799d1fb71c"
+      "sha256": "b28f5671050b795f4e254f1ca1de23aa5e46859dc0d0cab3d38244ffa2652840"
     },
     "scripts/ci/orphans-live-native/workflow.yml": {
       "bytes": 3753,
@@ -324,9 +340,9 @@
       "sha256": "52112b49ea98b5aef131b8bcbcc188bcc59cc3a4827161091d4e86af14d2757c"
     },
     "scripts/release/recipe_source_delivery.py": {
-      "bytes": 25471,
+      "bytes": 26264,
       "mode": 33188,
-      "sha256": "7307449b238cae7b1b27a57283cc8107d5faa395c11b5b4227f1ade11d77f11d"
+      "sha256": "cbc13a6e2d604dfec9d0090cb22d279952f2c96b3d1196c2e8a18ee83ad922ae"
     },
     "scripts/release/source_delivery.py": {
       "bytes": 16456,
@@ -339,17 +355,19 @@
       "sha256": "6fefc502e23958b9da44c9e2860b1841711254be64a0bbb1c8cdff59548d5c54"
     }
   },
+  "full_recipe_this_successor": "NOT_RUN_ROOT_OWNS_FULL_TEST",
   "hardware": "NOT_RUN",
   "integration_input": "aece971962e9b287dda682266dfe66995b6b58fe",
   "native": "NOT_RUN",
   "package_checks": 109,
-  "parent_source": "7eb86a3855c1ca1d8411ad28c700558ebb16e608",
+  "parent_source": "394ce9cd50eb683e6046205103a400707d7b7900",
+  "parent_tree": "0de4a801813a81cfa88f55d4256eb6e24a220efd",
   "product_files": 20,
   "product_path": "packages/tools/cachy-asahi-orphans03",
   "release": "NOT_ADMITTED",
   "retained_carrier": "ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad",
   "retained_transport": "ONE_FETCH_EXTERNAL_DATA_NOT_GIT",
   "schema_version": 1,
-  "status": "CLOSED_NATIVE_ORPHANS03_SOURCE_ONLY",
-  "version": "0.3.0-1"
+  "status": "CLOSED_ORPHANS03_GUARD_CAUSAL_SUCCESSOR_SOURCE_ONLY",
+  "version": "0.3.0-2"
 }

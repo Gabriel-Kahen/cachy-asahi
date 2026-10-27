@@ -110,6 +110,8 @@ def plan(assessment_path,selected,root,db,policy_path,policy_sha256,output=None)
 def _reviewed(args):
  selections(args.select)
  O.need(args.authorize_live_removal is True,'explicit --authorize-live-removal required')
+ # Refuse an unprivileged explicit '/' before touching private inputs or target DB.
+ if O.absolute(args.target_root)==Path('/'):O.need(os.geteuid()==0,'live root removal requires an already authorized root operator; no auto-sudo')
  O.need(type(args.plan_sha256) is str and O.re.fullmatch('[0-9a-f]{64}',args.plan_sha256),'exact reviewed plan SHA256 required')
  saved,record=O.json_file(args.plan)
  O.need(record['sha256']==args.plan_sha256 and saved.get('operation')=='EXPLICIT_LIVE_ORPHAN_REMOVAL_PLAN' and saved.get('scope')==SCOPE,'exact live plan bytes required')
@@ -117,7 +119,6 @@ def _reviewed(args):
  current=plan(Path(saved['assessment']),args.select,args.target_root,args.target_dbpath,args.policy,args.policy_sha256)
  O.need(current==saved,'live plan is stale or changed')
  assessment,_=O.json_file(Path(saved['assessment']))
- if Path(args.target_root)==Path('/'):O.need(os.geteuid()==0,'live root removal requires an already authorized root operator; no auto-sudo')
  return saved,record,assessment
 
 

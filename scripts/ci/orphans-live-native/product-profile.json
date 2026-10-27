@@ -6,7 +6,7 @@
     ".SRCINFO": {
       "bytes": 2149,
       "mode": 33188,
-      "sha256": "a4573a997cdf578c8f5e07bc11f50aff84466d463466cb0701c20ab20a2b30ba"
+      "sha256": "f2af13015b6d3679992ebf819d9039188f4caa366880f0e3c721fce45589fe01"
     },
     "LICENSE": {
       "bytes": 1081,
@@ -21,12 +21,12 @@
     "PKGBUILD": {
       "bytes": 3342,
       "mode": 33188,
-      "sha256": "a172286c8bc0fdf503b2effb67685d287a9dcc5731550fb9a94410846a0eb7e2"
+      "sha256": "a023ae04c6ad73ef592df339aebc240860cfdd532a6977be695a05ba6b6f21d2"
     },
     "README.md": {
-      "bytes": 15462,
+      "bytes": 16034,
       "mode": 33188,
-      "sha256": "784cbae75396d2765816f7e04fe5dfdc9fadd3161923162c11f60a8ec5821238"
+      "sha256": "f55af5f4952692fdcb2164b794c6f13689ff2115d576591e085abb47a10cb42a"
     },
     "READONLY.md": {
       "bytes": 8810,
@@ -44,9 +44,9 @@
       "sha256": "76bf8212c007e9b200592ecd357387a445c97537c8fe06ee58d58e2bb6d124cb"
     },
     "live.py": {
-      "bytes": 23257,
+      "bytes": 23347,
       "mode": 33188,
-      "sha256": "bba38c7f4e70df1ef2e3c66273f90824a0cb1618206c1f15e7f4a31473fddd3b"
+      "sha256": "5424e5c3519ede26e471b87bc18c81aae40e373bbc29cdbdc04bbe472b80ba00"
     },
     "live_policy.py": {
       "bytes": 16098,
@@ -69,14 +69,14 @@
       "sha256": "7de531e2c65e581a70c47f66d21be7b56f5893191e33bb6632d114f4f25d0a2e"
     },
     "source-provenance.json": {
-      "bytes": 2866,
+      "bytes": 3356,
       "mode": 33188,
-      "sha256": "69ebd78e43b805418dbf58c133b79ad07a4202f282b38ab9c6c25d5d5e22e347"
+      "sha256": "ea4103a2b6ac3f639ead5199411e8671bcfd6a2e1e3e9a42c49c36ccbc36a898"
     },
     "test_live.py": {
-      "bytes": 17769,
+      "bytes": 18114,
       "mode": 33188,
-      "sha256": "595384890e2aa3ecb1fa152094f9b73e7057c971d23c672a598761cd9fd2df9f"
+      "sha256": "0ba63845751f4d73c0cd4522372235c718fdfd5cca7d84a2a7cde353cfcb34a7"
     },
     "test_live_policy.py": {
       "bytes": 11713,
@@ -118,5 +118,5 @@
     7
   ],
   "tests": 109,
-  "version": "0.3.0-1"
+  "version": "0.3.0-2"
 }

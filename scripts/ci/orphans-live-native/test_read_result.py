@@ -17,6 +17,7 @@ class Reader(unittest.TestCase):
  def source(self):
   data={R.RECIPE+'/'+n:('synthetic source-only '+n+'\n').encode() for n in R.PRODUCT_FILES}
   data.update({R.LANE+'/job.py':b'synthetic job\n',R.LANE+'/workflow.yml':b'@JOB_SHA256@ @MANIFEST_SHA256@\n','scripts/build/container-entry.sh':b'synthetic entry\n',R.LANE+'/read_result.py':b'synthetic source-only reader\n',R.LANE+'/fixture/PKGBUILD':b'synthetic inert recipe\n',R.LANE+'/fixture/LICENSE':b'synthetic inert license\n'})
+  data[R.LANE+'/buildinfo_supplement.py']=(HERE/'buildinfo_supplement.py').read_bytes();data['scripts/ci/maintained-desktop574-inputs.json']=(HERE.parents[2]/'scripts/ci/maintained-desktop574-inputs.json').read_bytes()
   leaf={n:dict(bytes=len(v),sha256=hashlib.sha256(v).hexdigest()) for n,v in data.items()}
   manifest=dict(schema_version=1,files=leaf,actual_source=None,actual_ref=None,actual_run=None)
   data[R.LANE+'/source-manifest.json']=R.encoded(manifest);rendered=data[R.LANE+'/workflow.yml'].decode().replace('@JOB_SHA256@',leaf[R.LANE+'/job.py']['sha256']).replace('@MANIFEST_SHA256@',hashlib.sha256(data[R.LANE+'/source-manifest.json']).hexdigest()).encode()
@@ -76,7 +77,7 @@ class Reader(unittest.TestCase):
   before={'.':node('directory',0o700),'etc/operator-owned.conf':configured,'usr/share/orphans3-fixture/caa-orphans3-leaf-a.txt':node(),'usr/share/licenses/caa-orphans3-leaf-a/LICENSE':node(),'var/lib/pacman/local/caa-orphans3-leaf-a-1-1/desc':node()};after={k:v for k,v in before.items() if k not in self.actor.positive_removed(before)}
   for name,row in life['maps'].items():
    rows=after if name in ('positive-after','final-target') else before;p=self.write('runtime/lifecycle-output/'+row['path'],rows);row.update(sha256=R.digest(p),nodes=len(rows))
-  packages=[dict(name='base-'+str(n),version='1-1') for n in range(574)];base_map=dict(packages=packages,nodes={'held':{'sha256':'1'*64}})
+  packages=[dict(name=r['name'],version=r['version']) for r in R.read(self.reviewed/'scripts/ci/maintained-desktop574-inputs.json')['packages']];base_map=dict(packages=packages,nodes={'held':{'sha256':'1'*64}})
   for field in ('base_before','base_after'):
    row=life[field];p=self.write('runtime/lifecycle-output/'+row['path'],base_map);row.update(sha256=R.digest(p),nodes=1)
   life['base_preservation_sha256']=hashlib.sha256(json.dumps(base_map,sort_keys=True,separators=(',',':')).encode()).hexdigest()
@@ -89,22 +90,23 @@ class Reader(unittest.TestCase):
   job=hashlib.sha256(('product-build-pair:123:1:'+'a'*40).encode()).hexdigest()[:16];consumer=hashlib.sha256(('orphans03-consumer:123:1:'+'a'*40).encode()).hexdigest()[:32];image='sha256:'+'b'*64
   proof=dict(status='SOURCE_PROOF_PASS',source_sha='a'*40,workflow_sha='a'*40,run_id='123',run_attempt='1',artifact_name=self.identity['artifact_name'],source_files=len(self.manifest['files']),source_total_files=len(self.files),source_tree=self.auth['tree'],source_map_sha256=hashlib.sha256(R.encoded(self.files)).hexdigest(),manifest_sha256=R.digest(self.root/'source/source-manifest.json'),job_token=job,consumer_token=consumer);self.write('source-proof.json',proof)
   cleanup=dict(status='PASS',build='COMPLETED',probe=dict(name='cachy-asahi-574-probe-'+job,cid='c'*64,absence_verified=True),image=dict(id=image,absence_verified=True));base=dict(status='PASS_NATIVE_OFFLINE_574_TRANSACTION',image=image,acquired=1153,failures=[],ownership=dict(token=job),owned_cleanup=cleanup);self.write('base/report.json',base);self.write('base/retained-inputs.json',dict(status='SYNTHETIC_TRANSPORT_ONLY'))
-  self.comparison=dict(status='contents-reproduced',errors=[],packages={R.PRODUCT+'-0.3.0-1-any.pkg.tar.zst':dict(installed_contents_equal=True,pkginfo_equal=True,bytes_equal=True,buildinfo_equal=True)})
-  self.payload={str(n):dict(mode=0o644) for n in range(12)};self.inputs={n.removeprefix(R.RECIPE+'/'):r['sha256'] for n,r in self.files.items() if n.startswith(R.RECIPE+'/')};self.metadata=dict(pkgname=[R.PRODUCT],pkgver=['0.3.0'],pkgrel=['1'],arch=['any'],source=sorted(set(R.PRODUCT_FILES)-{'PKGBUILD','.SRCINFO'}));self.package_version='0.3.0-1'
+  self.comparison=dict(status='contents-reproduced',errors=[],packages={R.PRODUCT+'-0.3.0-2-any.pkg.tar.zst':dict(installed_contents_equal=True,pkginfo_equal=True,bytes_equal=True,buildinfo_equal=True)})
+  self.payload={str(n):dict(mode=0o644) for n in range(12)};self.inputs={n.removeprefix(R.RECIPE+'/'):r['sha256'] for n,r in self.files.items() if n.startswith(R.RECIPE+'/')};self.metadata=dict(pkgname=[R.PRODUCT],pkgver=['0.3.0'],pkgrel=['2'],arch=['any'],source=sorted(set(R.PRODUCT_FILES)-{'PKGBUILD','.SRCINFO'}));self.package_version='0.3.0-2'
+  selected_lock=R.read(self.reviewed/'scripts/ci/maintained-desktop574-inputs.json');self.buildinfo=dict(pkgbuild_sha256sum=[self.inputs['PKGBUILD']],installed=sorted(r['name']+'-'+r['version']+'-'+r['arch'] for r in selected_lock['packages']))
   def package(path):
    name=Path(path).name.split('-1-1-any.pkg.tar.',1)[0]
    if name in self.actor.FIXTURES:
     member=dict(type='0',mode=0o644,uid=0,gid=0,sha256=self.files[R.LANE+'/fixture/LICENSE']['sha256'])
     return dict(sha256=R.digest(path),errors=[],elf=[],metadata={'.PKGINFO':dict(pkgname=[name],pkgver=['1-1'],arch=['any'])},members={'usr/share/orphans3-fixture/'+name+'.txt':member,'usr/share/licenses/'+name+'/LICENSE':member})
-   return dict(sha256=R.digest(path),errors=[],elf=[],metadata={'.PKGINFO':dict(pkgname=[R.PRODUCT],pkgver=[self.package_version],arch=['any']),'.BUILDINFO':{}},members=copy.deepcopy(self.payload))
+   return dict(sha256=R.digest(path),errors=[],elf=[],metadata={'.PKGINFO':dict(pkgname=[R.PRODUCT],pkgver=[self.package_version],arch=['any']),'.BUILDINFO':copy.deepcopy(self.buildinfo)},members=copy.deepcopy(self.payload))
   self.package=package
   def pair_gate(value):R.need(value.get('status')=='contents-reproduced' and value.get('errors')==[] and all(all(row.get(k) is True for k in ('installed_contents_equal','pkginfo_equal','bytes_equal','buildinfo_equal')) for row in value['packages'].values()),'pair failed')
   C=SimpleNamespace(recipe=lambda *_:dict(metadata=self.metadata,input_sha256=self.inputs),BASE=self.base_pin,LABEL='org.cachy-asahi.orphans03-native.job',CONSUMER_TOKEN_PREFIX='orphans03-consumer:',FIXTURES=self.actor.FIXTURES,check_log=lambda p,_:R.check_log(p),payload=lambda *_:copy.deepcopy(self.payload),pair_gate=pair_gate)
-  self.helpers=(C,SimpleNamespace(package=package),SimpleNamespace(bind_artifact=lambda m,p,_:[] if p['metadata']['.PKGINFO']['pkgver']==['0.3.0-1'] else ['old package']),SimpleNamespace(compare=lambda *_:copy.deepcopy(self.comparison)),self.actor,SimpleNamespace(validate_transport=lambda _,value:dict(status='SYNTHETIC_TRANSPORT_REPLAY') if value.get('status')=='SYNTHETIC_TRANSPORT_ONLY' else R.need(False,'missing transport')))
+  self.helpers=(C,SimpleNamespace(package=package),SimpleNamespace(bind_artifact=lambda m,p,_:[] if p['metadata']['.PKGINFO']['pkgver']==['0.3.0-2'] else ['old package']),SimpleNamespace(compare=lambda *_:copy.deepcopy(self.comparison)),self.actor,SimpleNamespace(validate_transport=lambda _,value:dict(status='SYNTHETIC_TRANSPORT_REPLAY') if value.get('status')=='SYNTHETIC_TRANSPORT_ONLY' else R.need(False,'missing transport')))
   actors=['cachy-asahi-product-'+c*32 for c in ('1','2','3')]+['cachy-asahi-product-lifecycle-'+'4'*32];self.actors=actors
   retired=dict(ownership='RETIRED',leader_reaped=True,observed_returncode=0,log_drained=True,log_error=None,error=None);commands=[];builds=[]
   for side,container in zip(('a','b'),actors):
-   prefix='runtime/'+R.PRODUCT+'-'+side;name=R.PRODUCT+'-0.3.0-1-any.pkg.tar.zst';p=self.write(prefix+'/artifacts/'+name,b'SYNTHETIC_NOT_AN_ARCHIVE');digest=R.digest(p);command=['docker','run','--name',container,'--network=none','--pull=never','--platform=linux/arm64','--read-only','--cap-drop=ALL','--security-opt=no-new-privileges','--user','1001:1001']
+   prefix='runtime/'+R.PRODUCT+'-'+side;name=R.PRODUCT+'-0.3.0-2-any.pkg.tar.zst';p=self.write(prefix+'/artifacts/'+name,b'SYNTHETIC_NOT_AN_ARCHIVE');digest=R.digest(p);command=['docker','run','--name',container,'--network=none','--pull=never','--platform=linux/arm64','--read-only','--cap-drop=ALL','--security-opt=no-new-privileges','--user','1001:1001']
    record=dict(status='built-package-static-pass',mode='native',image=image,image_id=image,recipe_inputs=self.inputs,recipe_metadata=self.metadata,clean_environment_id=container,command=command,expected_packages_sha256=self.base_pin,entry_script_sha256=self.files['scripts/build/container-entry.sh']['sha256'],artifacts={name:digest})
    self.write(prefix+'/provenance.json',record);self.write(prefix+'/expected-packages.lock',lock);self.write(prefix+'/artifacts/packages.lock',lock);self.write(prefix+'/artifacts/environment.txt',b'Linux synthetic aarch64 GNU/Linux\n4096\nsynthetic fixture\n');self.write(prefix+'/build.log',GOOD_LOG.encode())
    for n in self.inputs:self.write(prefix+'/inputs/'+n,(self.reviewed/R.RECIPE/n).read_bytes())
@@ -126,6 +128,16 @@ class Reader(unittest.TestCase):
   value=R.read(self.root/name);change(value);self.write(name,value);self.seal()
  def test_complete_offline_reader_replays_raw_joins_with_real_lifecycle_gate(self):
   self.fixture();result=self.validate();self.assertEqual(result['package_checks_per_build'],109);self.assertEqual(result['product_files'],20);self.assertEqual(result['hardware'],'NOT_RUN');self.assertEqual(result['host_live_target_removal'],'NOT_PROVEN')
+ def test_same_parsed_buildinfo_must_join_all574_architectures(self):
+  self.fixture();original=copy.deepcopy(self.buildinfo)
+  for kind in ('missing','duplicate','extra','wrong-architecture'):
+   self.buildinfo=copy.deepcopy(original)
+   if kind=='missing':self.buildinfo['installed'].pop()
+   elif kind=='duplicate':self.buildinfo['installed'][-1]=self.buildinfo['installed'][0]
+   elif kind=='extra':self.buildinfo['installed'].append('unexpected-1-1-any')
+   else:self.buildinfo['installed'][0]=self.buildinfo['installed'][0].rsplit('-',1)[0]+'-x86_64'
+   with self.subTest(kind=kind),self.assertRaisesRegex(ValueError,'574'):self.validate()
+  self.buildinfo=original
  def test_missing_failed_or_mismatched_original_identity_refuses(self):
   self.fixture()
   for key,value in (('job_conclusion',None),('run_conclusion','failure'),('job_id','999'),('artifact_name','old0.1')):

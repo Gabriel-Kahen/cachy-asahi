@@ -132,6 +132,7 @@ PROFILES = {
 # recipe. Retained maintenance/diagnostics share their current payload layouts;
 # Setup7 has its own explicit checks, docs and six-file payload.
 LEGACY_PROFILES = {
+    ('cachy-asahi-orphans', '0.3.0-2'): {'version': '0.3.0-2', 'recipe': 'a023ae04c6ad73ef592df339aebc240860cfdd532a6977be695a05ba6b6f21d2', 'srcinfo': 'f2af13015b6d3679992ebf819d9039188f4caa366880f0e3c721fce45589fe01', 'docs': ['README.md', 'READONLY.md', 'source-provenance.json'], 'required_sources': ['NOTICE', 'LICENSE', 'protection-floor.json', 'live.py', 'live_policy.py', 'test_retirement.py'], 'checks': [['python', '-I', '-B', 'check_source.py', '--recipe', 'PKGBUILD'], ['python', '-B', 'test_orphans.py'], ['python', '-B', 'test_remove.py'], ['python', '-B', 'test_retirement.py'], ['python', '-B', 'test_live_policy.py'], ['python', '-B', 'test_live.py'], ['python', '-B', 'test_live_supervision.py'], ['python', '-B', 'orphans3', 'remove', '--help']]},
     ('cachy-asahi-orphans', '0.3.0-1'): {'version': '0.3.0-1', 'recipe': 'a172286c8bc0fdf503b2effb67685d287a9dcc5731550fb9a94410846a0eb7e2', 'srcinfo': 'a4573a997cdf578c8f5e07bc11f50aff84466d463466cb0701c20ab20a2b30ba', 'docs': ['README.md', 'READONLY.md', 'source-provenance.json'], 'required_sources': ['NOTICE', 'LICENSE', 'protection-floor.json', 'live.py', 'live_policy.py', 'test_retirement.py', 'test_orphans.py', 'test_remove.py', 'test_retirement.py', 'test_live_policy.py', 'test_live.py', 'test_live_supervision.py'], 'checks': [['python', '-I', '-B', 'check_source.py', '--recipe', 'PKGBUILD'], ['python', '-B', 'test_orphans.py'], ['python', '-B', 'test_remove.py'], ['python', '-B', 'test_retirement.py'], ['python', '-B', 'test_live_policy.py'], ['python', '-B', 'test_live.py'], ['python', '-B', 'test_live_supervision.py'], ['python', '-B', 'orphans3', 'remove', '--help']]},
     ('cachy-asahi-maintenance', '0.1.0-1'): {
         'version': '0.1.0-1',
@@ -233,13 +234,13 @@ def payload(name, version=None):
         result['usr/lib/' + name + '/session_probe.py'] = ('session_probe.py', 0o644)
     elif name == 'cachy-asahi-setup':
         result['usr/bin/cachy-asahi-repository'] = ('cachy-asahi-repository', 0o755)
-        if p['version'] == '0.3.0-1':
+        if p['version'] in ('0.3.0-1', '0.3.0-2'):
             result['usr/bin/cachy-asahi-config-migrate'] = ('cachy-asahi-config-migrate', 0o755)
             for leaf in ('setup.py', 'config_migrate.py'):
                 result['usr/lib/cachy-asahi/setup8/' + leaf] = (leaf, 0o644)
     elif name == 'cachy-asahi-orphans':
         result['usr/share/' + name + '/protection-floor.json'] = ('protection-floor.json', 0o644)
-        if p['version'] == '0.3.0-1':
+        if p['version'] in ('0.3.0-1', '0.3.0-2'):
             result['usr/bin/' + name] = ('orphans3', 0o755)
             for target, source in (('remove.py','remove.py'),('live.py','live.py'),('live_policy.py','live_policy.py'),('readonly.py','cachy-asahi-orphans'),('protection-floor.json','protection-floor.json')):
                 result['usr/lib/cachy-asahi-orphans3/' + target] = (source, 0o644)

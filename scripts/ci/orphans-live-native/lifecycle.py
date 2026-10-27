@@ -7,7 +7,7 @@ from pathlib import Path
 PREFIX='caa-orphans3-'
 ROLES=('leaf-a','leaf-b','explicit','required','hard-user','optional','optional-user','protected')
 FIXTURES={PREFIX+n for n in ROLES}
-PRODUCT='cachy-asahi-orphans';VERSION='0.3.0-1';CLI='/usr/bin/'+PRODUCT
+PRODUCT='cachy-asahi-orphans';VERSION='0.3.0-2';CLI='/usr/bin/'+PRODUCT
 SOURCE=Path('/source');INPUTS=Path('/inputs');OUT=Path('/out');WORK=Path('/work')
 MAX_MAP=128*1024**2
 STATUS='PASS_ORPHANS03_REAL_NATIVE_EXPLICIT_TARGET_REMOVAL'
