@@ -1,62 +1,78 @@
-name: native-arm-build
+name: native-arm-offline-kit-accepted-tools
 on:
   workflow_dispatch:
     inputs:
-      mode:
-        description: Probe, audit, original builds, or frozen development-only integration
+      source_sha:
+        description: Exact source SHA equal to this workflow revision and complete closed source tree
+        type: string
         required: true
-        default: probe
-        type: choice
-        options: [probe, audit, build, integration]
-      inputs_sha256:
-        description: Reviewed SHA-256 of selected input lock (build uses maintained successor)
-        type: string
-        default: ''
-      recipes_sha256:
-        description: Reviewed SHA-256 of selected four-package recipe lock (build)
-        type: string
-        default: ''
-      integration_sha256:
-        description: Reviewed SHA-256 of scripts/ci/integration.lock.json (integration)
-        type: string
-        default: ''
 permissions:
   contents: read
 concurrency:
-  group: native-arm-build
+  group: native-arm-offline-kit-accepted-tools
   cancel-in-progress: false
-  queue: max
 jobs:
   native:
-    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi'
     runs-on: ubuntu-24.04-arm
-    timeout-minutes: 50
+    timeout-minutes: 150
+    defaults:
+      run:
+        shell: bash
     env:
       PYTHONDONTWRITEBYTECODE: '1'
-      BUILD_MODE: ${{ inputs.mode }}
-      INPUTS_SHA256: ${{ inputs.inputs_sha256 }}
-      RECIPES_SHA256: ${{ inputs.recipes_sha256 }}
-      INTEGRATION_SHA256: ${{ inputs.integration_sha256 }}
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      SLICE: scripts/ci/offline-kit-accepted-native
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1, verified upstream ref
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
         with:
+          ref: ${{ inputs.source_sha }}
           persist-credentials: false
-      - name: Record native runner evidence
-        shell: bash
+      - name: Prove complete source and exact workflow identity before secrets
+        id: proof
+        timeout-minutes: 2
         run: |
           set -euo pipefail
-          install -d -m 700 "$RUNNER_TEMP/native-home"
-          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/native-home" LANG=C.UTF-8 TZ=UTC \
-            RUNNER_TEMP="$RUNNER_TEMP" TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 \
-            RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" \
-            ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
-            GITHUB_SHA="$GITHUB_SHA" GITHUB_REPOSITORY="$GITHUB_REPOSITORY" \
-            GITHUB_RUN_ID="$GITHUB_RUN_ID" GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" \
-            python3 -B scripts/ci/native_arm.py probe \
-            --cache "$RUNNER_TEMP/alarm-cache" --output "$RUNNER_TEMP/native-probe"
-      - name: Seed the six frozen private cache objects before native work
-        if: inputs.mode == 'build'
-        shell: bash
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test "$GITHUB_SHA" = "$SOURCE_SHA"
+          test "$GITHUB_WORKFLOW_SHA" = "$SOURCE_SHA"
+          cmp .github/workflows/native-arm-build.yml .github/workflows/native-arm-offline-kit-accepted.yml
+          printf '%s  %s\n' '8b480b600035da47c59176a567d8d4a20b3fe023e61626260e7f1ed588c01bd9' "$SLICE/owner.py" '7b01114eb218149ac69bc626e754cf840f5061fc6a172e3b5e73bb1e10e78cba' "$SLICE/source-map.json" | sha256sum --check
+          timeout --signal=TERM --kill-after=10s 100s \
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC \
+            TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 SOURCE_SHA="$SOURCE_SHA" \
+            RUNNER_TEMP="$RUNNER_TEMP" RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" \
+            GITHUB_ACTIONS="$GITHUB_ACTIONS" GITHUB_SHA="$GITHUB_SHA" \
+            GITHUB_WORKFLOW_SHA="$GITHUB_WORKFLOW_SHA" GITHUB_REPOSITORY="$GITHUB_REPOSITORY" \
+            GITHUB_EVENT_NAME="$GITHUB_EVENT_NAME" GITHUB_RUN_ID="$GITHUB_RUN_ID" \
+            GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
+            GITHUB_OUTPUT="$GITHUB_OUTPUT" \
+            python3 -I -B "$SLICE/owner.py" proof \
+            --manifest-sha256 '7b01114eb218149ac69bc626e754cf840f5061fc6a172e3b5e73bb1e10e78cba' --work "$RUNNER_TEMP/offline-kit-accepted-work"
+      - name: Verify owned process retirement before secrets or native package work
+        timeout-minutes: 3
+        run: |
+          set -euo pipefail
+          timeout --signal=TERM --kill-after=5s 75s python3 -I -B "$SLICE/test_owner_retirement.py"
+          timeout --signal=TERM --kill-after=5s 75s python3 -I -B "$SLICE/candidate-source/test_runtime_retirement.py"
+      - name: Checkout immutable accepted native tools source and archive DATA
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: 08638af367190fb437c04c5f460703388dc19c78
+          path: retained-native-tools
+          persist-credentials: false
+      - name: Prove accepted carrier commit tree and inventory before native actors
+        timeout-minutes: 1
+        run: |
+          set -euo pipefail
+          test "$(git -C retained-native-tools rev-parse HEAD)" = 08638af367190fb437c04c5f460703388dc19c78
+          test "$(git -C retained-native-tools rev-parse 'HEAD^{tree}')" = 88a82a9217c5078d6987e04ccc17a439e8192a9f
+          printf '%s  %s\n' '90debc7e293cfa34cda36f5ea1b8b968c43942134e4d40253963c3568e1c35cb' retained-native-tools/FILES.json | sha256sum --check
+      - name: Seed the six exact retained inputs using existing secrets only
+        timeout-minutes: 2
         env:
           CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01 }}
           CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02 }}
@@ -82,74 +98,99 @@ jobs:
           CACHY_OLD_FOUR_LIBTIFF_14: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_14 }}
           CACHY_OLD_FOUR_LIBTIFF_15: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_15 }}
           CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}
+        run: >-
+          python3 -I -B scripts/ci/maintained_desktop574.py seed
+          --inputs scripts/ci/maintained-desktop574-inputs.json
+          --output "$RUNNER_TEMP/desktop574"
+      - name: Checkout exact retained public input source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: 04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd
+          path: retained-public-inputs
+          persist-credentials: false
+      - name: Seed fourteen exact public ARM input files
+        timeout-minutes: 2
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-          test "$INPUTS_SHA256" = beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
-          test "$(sha256sum scripts/ci/maintained-native/locks/inputs-successor.lock.json | cut -d ' ' -f 1)" = "$INPUTS_SHA256"
-          timeout --signal=TERM --kill-after=5s 75s python3 -B - <<'PYSEED'
-          import hashlib
-          import os
-          from pathlib import Path
-          import sys
-          sys.path.insert(0, 'scripts/ci')
-          from old_four_seed import (OLD_FOUR_PRIVATE_ROWS, RETAINED_BUBBLEWRAP_PRIVATE_ROWS,
-                                     seed_current_build_cache)
-          pin = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
-          if hashlib.sha256(Path('scripts/ci/inputs.lock.json').read_bytes()).hexdigest() != pin:
-              raise SystemExit('private-cache-input-binding-refused')
-          names = {'CACHY_OLD_FOUR_' + f'{tag}_{i:02d}'
-                   for _, _, _, tag, count in OLD_FOUR_PRIVATE_ROWS for i in range(1, count + 1)}
-          retained = {'CACHY_RETAINED_BUBBLEWRAP_V1_' + f'{tag}_{i:02d}'
-                      for _, _, _, tag, sizes in RETAINED_BUBBLEWRAP_PRIVATE_ROWS
-                      for i in range(1, len(sizes) + 1)}
-          names |= retained
-          if len(names) != 22 or len(retained) != 3 or not all(os.environ.get(name) for name in names):
-              raise SystemExit('private-cache-required-secrets-missing')
-          cache = Path(os.environ['RUNNER_TEMP']) / 'alarm-cache'
-          cache.mkdir(mode=0o700)
-          keep = names | {'CACHY_OLD_FOUR_SCHEMA', 'CACHY_OLD_FOUR_SOURCE_EPOCH'}
-          for name in tuple(os.environ):
-              if name not in keep:
-                  os.environ.pop(name)
-          seed_current_build_cache(cache, pin)
-          PYSEED
-      - name: Authenticate inputs or build in isolated native containers
-        if: inputs.mode != 'probe'
-        shell: bash
-        env:
-          NATIVE_RECIPES_PATH: ${{ inputs.mode == 'build' && 'scripts/ci/setup-0.1.0-4-recipes.lock.json' || 'scripts/ci/recipes.lock.json' }}
-          NATIVE_INPUTS_PATH: ${{ inputs.mode == 'build' && 'scripts/ci/maintained-native/locks/inputs-successor.lock.json' || 'scripts/ci/inputs.lock.json' }}
+          printf '%s  %s\n' 'a7857658af224984065e575f6ffed8308ea85027d46eace8bda146d9033e93b3' 'retained-public-inputs/seed.py' 'a388c8c8ba8e06cb92fd2be598b86e433c4e403b6e71a0f15b1eaec381bb7300' 'retained-public-inputs/index.json' | sha256sum --check
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC TMPDIR="$RUNNER_TEMP" python3 -I -B "$GITHUB_WORKSPACE/retained-public-inputs/seed.py" --cache "$RUNNER_TEMP/desktop574/context/deps"
+      - name: Checkout exact complete original574 retained inputs
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad
+          path: retained574
+          persist-credentials: false
+      - name: Prepare complete retained574 DATA and execute original owned producer
+        timeout-minutes: 40
         run: |
           set -euo pipefail
-          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/native-home" LANG=C.UTF-8 TZ=UTC \
-            RUNNER_TEMP="$RUNNER_TEMP" TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 \
-            RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" \
-            ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
-            GITHUB_SHA="$GITHUB_SHA" GITHUB_REPOSITORY="$GITHUB_REPOSITORY" \
-            GITHUB_RUN_ID="$GITHUB_RUN_ID" GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" \
-            python3 -B scripts/ci/native_arm.py "$BUILD_MODE" \
-            --inputs "$NATIVE_INPUTS_PATH" --inputs-sha256 "$INPUTS_SHA256" \
-            --recipes "$NATIVE_RECIPES_PATH" --recipes-sha256 "$RECIPES_SHA256" \
-            --integration-sha256 "$INTEGRATION_SHA256" \
-            --integration-output "$RUNNER_TEMP/integration-evidence" \
-            --cache "$RUNNER_TEMP/alarm-cache" --output "$RUNNER_TEMP/native-evidence"
-      - name: Retain bounded evidence and package artifacts in free workflow logs
+          timeout --signal=TERM --kill-after=10s 2300s \
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC \
+            TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 SOURCE_SHA="$SOURCE_SHA" \
+            RUNNER_TEMP="$RUNNER_TEMP" RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" \
+            GITHUB_ACTIONS="$GITHUB_ACTIONS" GITHUB_SHA="$GITHUB_SHA" \
+            GITHUB_WORKFLOW_SHA="$GITHUB_WORKFLOW_SHA" GITHUB_REPOSITORY="$GITHUB_REPOSITORY" \
+            GITHUB_EVENT_NAME="$GITHUB_EVENT_NAME" GITHUB_RUN_ID="$GITHUB_RUN_ID" \
+            GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
+            GITHUB_OUTPUT="$GITHUB_OUTPUT" \
+            python3 -I -B "$SLICE/owner.py" bootstrap \
+            --manifest-sha256 '7b01114eb218149ac69bc626e754cf840f5061fc6a172e3b5e73bb1e10e78cba' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute
+      - name: Verify original accepted signatures and run both offline kit lifecycles
+        timeout-minutes: 78
+        run: |
+          set -euo pipefail
+          timeout --signal=TERM --kill-after=30s 4560s \
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC \
+            TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 SOURCE_SHA="$SOURCE_SHA" \
+            RUNNER_TEMP="$RUNNER_TEMP" RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" \
+            GITHUB_ACTIONS="$GITHUB_ACTIONS" GITHUB_SHA="$GITHUB_SHA" \
+            GITHUB_WORKFLOW_SHA="$GITHUB_WORKFLOW_SHA" GITHUB_REPOSITORY="$GITHUB_REPOSITORY" \
+            GITHUB_EVENT_NAME="$GITHUB_EVENT_NAME" GITHUB_RUN_ID="$GITHUB_RUN_ID" \
+            GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
+            GITHUB_OUTPUT="$GITHUB_OUTPUT" \
+            python3 -I -B "$SLICE/owner.py" run \
+            --manifest-sha256 '7b01114eb218149ac69bc626e754cf840f5061fc6a172e3b5e73bb1e10e78cba' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute
+      - name: Retire all owned kit consumers before the original574 producer
+        if: always() && steps.proof.outcome == 'success'
+        timeout-minutes: 6
+        run: |
+          set -euo pipefail
+          timeout --signal=TERM --kill-after=10s 330s \
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC \
+            TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 SOURCE_SHA="$SOURCE_SHA" \
+            RUNNER_TEMP="$RUNNER_TEMP" RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" \
+            GITHUB_ACTIONS="$GITHUB_ACTIONS" GITHUB_SHA="$GITHUB_SHA" \
+            GITHUB_WORKFLOW_SHA="$GITHUB_WORKFLOW_SHA" GITHUB_REPOSITORY="$GITHUB_REPOSITORY" \
+            GITHUB_EVENT_NAME="$GITHUB_EVENT_NAME" GITHUB_RUN_ID="$GITHUB_RUN_ID" \
+            GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
+            GITHUB_OUTPUT="$GITHUB_OUTPUT" \
+            python3 -I -B "$SLICE/owner.py" cleanup \
+            --manifest-sha256 '7b01114eb218149ac69bc626e754cf840f5061fc6a172e3b5e73bb1e10e78cba' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute
+      - name: Retain bounded closed source and concrete native execution evidence
+        if: always() && steps.proof.outcome == 'success'
+        timeout-minutes: 3
+        run: |
+          set -euo pipefail
+          timeout --signal=TERM --kill-after=10s 150s \
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC \
+            TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 SOURCE_SHA="$SOURCE_SHA" \
+            RUNNER_TEMP="$RUNNER_TEMP" RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" \
+            GITHUB_ACTIONS="$GITHUB_ACTIONS" GITHUB_SHA="$GITHUB_SHA" \
+            GITHUB_WORKFLOW_SHA="$GITHUB_WORKFLOW_SHA" GITHUB_REPOSITORY="$GITHUB_REPOSITORY" \
+            GITHUB_EVENT_NAME="$GITHUB_EVENT_NAME" GITHUB_RUN_ID="$GITHUB_RUN_ID" \
+            GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
+            GITHUB_OUTPUT="$GITHUB_OUTPUT" \
+            python3 -I -B "$SLICE/owner.py" retain \
+            --manifest-sha256 '7b01114eb218149ac69bc626e754cf840f5061fc6a172e3b5e73bb1e10e78cba' --work "$RUNNER_TEMP/offline-kit-accepted-work"
+      - name: Upload only bounded public evidence
         if: always()
-        run: |
-          evidence_status=0
-          python3 scripts/ci/log_evidence.py "$RUNNER_TEMP/native-probe" || evidence_status=1
-          if [ -d "$RUNNER_TEMP/native-evidence" ]; then
-            python3 scripts/ci/log_evidence.py "$RUNNER_TEMP/native-evidence" || evidence_status=1
-          fi
-          if [ -d "$RUNNER_TEMP/integration-evidence/public" ]; then
-            for stage in "$RUNNER_TEMP/integration-evidence/public"/*; do
-              if [ -d "$stage" ]; then
-                python3 scripts/ci/log_evidence.py "$stage" || evidence_status=1
-              fi
-            done
-            if [ -f "$RUNNER_TEMP/integration-evidence/public/summary/result.json" ]; then
-              cat "$RUNNER_TEMP/integration-evidence/public/summary/result.json"
-            fi
-          fi
-          exit "$evidence_status"
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        timeout-minutes: 2
+        with:
+          name: offline-kit-accepted-tools-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 3
+          if-no-files-found: ignore
+          path: ${{ runner.temp }}/offline-kit-accepted-public/
+          include-hidden-files: true
