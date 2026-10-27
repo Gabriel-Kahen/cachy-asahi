@@ -1,0 +1,16 @@
+[Unit]
+Description=Natural candidate systemd oneshot probe
+DefaultDependencies=no
+Requires=caa-core-worker.service
+After=caa-core-worker.service
+Before=caa-core-observer.service
+[Service]
+Slice=system.slice
+Type=oneshot
+ExecStart=/usr/bin/true
+TimeoutStartSec=90
+TimeoutStopSec=60
+StandardInput=null
+StandardOutput=tty
+StandardError=tty
+TTYPath=/dev/ttyAMA0
