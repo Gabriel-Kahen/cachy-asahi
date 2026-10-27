@@ -1,0 +1,35 @@
+{
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "candidate_files": {
+    "LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "NOTICE": {
+      "bytes": 283,
+      "sha256": "adb0cb8dcd123c5fb6cd905abd3245a6decf34cda55fd901a633b772987a747a"
+    },
+    "PKGBUILD": {
+      "bytes": 1131,
+      "sha256": "5c7662982ab46bdedf77c093e6247a1c2282489e327c3e657cc3c6cd2605035f"
+    },
+    "README.md": {
+      "bytes": 6479,
+      "sha256": "1c084b18b0c49dffbf32f7c4c3eaef1a417a0c1cddf048b0808991f6b4deddd8"
+    },
+    "cachy-asahi-mirrors": {
+      "bytes": 24195,
+      "sha256": "b31c0021ab00ad6bca01a139f5887a467f587c9205ce79c9451312d150eb7dcd"
+    },
+    "test_mirrors.py": {
+      "bytes": 21971,
+      "sha256": "5a3e8bb1bc47efb8621557f0c33edbc687487bd59d5f70d6621431fd67477f0f"
+    }
+  },
+  "candidate_source": "dc01063ab4fd2d8c36a1e4c453811ffa8c27bb06",
+  "native": "NOT_RUN",
+  "schema_version": 1,
+  "scope": "CONTROLLED_LOCAL_SNAPSHOT_ONLY"
+}

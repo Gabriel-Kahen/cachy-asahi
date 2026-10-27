@@ -1,0 +1,463 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
+"""Check ARM snapshot mirrors; explicitly activate and restore a bound candidate."""
+import argparse
+import base64
+import contextlib
+import fcntl
+import hashlib
+import http.client
+import json
+import os
+from pathlib import Path
+import re
+import stat
+import tempfile
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
+
+
+class MirrorError(ValueError):
+    pass
+
+
+def need(ok, reason):
+    if not ok:
+        raise MirrorError(reason)
+
+
+def pairs(rows):
+    result = {}
+    for key, value in rows:
+        need(key not in result, 'duplicate JSON key')
+        result[key] = value
+    return result
+
+
+def catalog(path):
+    with Path(path).open('rb') as stream:
+        raw = stream.read(65537)
+    return catalog_bytes(raw)
+
+
+def catalog_bytes(raw):
+    need(len(raw) <= 65536, 'catalog exceeds 64 KiB')
+    value = json.loads(raw, object_pairs_hook=pairs)
+    need(type(value) is dict and set(value) == {
+        'schema_version', 'architecture', 'base', 'repository', 'database', 'mirrors'},
+        'catalog fields differ')
+    need(value['schema_version'] == 1 and value['architecture'] == 'aarch64' and
+         value['base'] == 'asahi-alarm', 'explicit asahi-alarm/aarch64 catalog required')
+    need(type(value['repository']) is str and
+         re.fullmatch(r'[a-z][a-z0-9_-]{0,63}', value['repository']), 'invalid repository')
+    db = value['database']
+    need(type(db) is dict and set(db) == {'bytes', 'sha256'} and
+         type(db['bytes']) is int and 0 < db['bytes'] <= 32 * 1024**2 and
+         type(db['sha256']) is str and re.fullmatch('[0-9a-f]{64}', db['sha256']),
+         'exact bounded database reference required')
+    mirrors = value['mirrors']
+    need(type(mirrors) is list and 1 <= len(mirrors) <= 16, 'one to sixteen mirrors required')
+    identifiers, servers = set(), set()
+    for row in mirrors:
+        need(type(row) is dict and set(row) == {'id', 'server'}, 'invalid mirror fields')
+        name, server = row['id'], row['server']
+        need(type(name) is str and re.fullmatch('[a-zA-Z0-9_-]{1,48}', name) and
+             name not in identifiers, 'invalid or duplicate mirror id')
+        need(type(server) is str and len(server) <= 2048 and server.isascii() and
+             all(33 <= ord(c) < 127 for c in server) and server not in servers,
+             'invalid or duplicate server')
+        need(server.count('$arch') == server.count('$repo') == 1 and
+             '$' not in server.replace('$arch', '').replace('$repo', ''),
+             'server requires exactly $arch and $repo')
+        url = urllib.parse.urlsplit(server)
+        need(url.scheme == 'https' and url.hostname and url.username is None and
+             url.password is None and not url.query and not url.fragment and
+             not server.endswith('/') and '\\' not in server and '%' not in server and
+             all(part not in ('.', '..') for part in url.path.split('/')),
+             'plain HTTPS server template required')
+        # Also validate malformed ports and host/template placement now.
+        need(url.port is None or 1 <= url.port <= 65535, 'invalid port')
+        need('$' not in url.netloc, 'templates belong in the URL path')
+        need(url.path.split('/').count('$arch') == url.path.split('/').count('$repo') == 1,
+             'templates must be complete path segments')
+        identifiers.add(name)
+        servers.add(server)
+    return value, hashlib.sha256(raw).hexdigest()
+
+
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, request, fp, code, message, headers, newurl):
+        raise MirrorError('redirect refused; catalog must name the final server')
+
+
+def probe(row, config, opener, deadline):
+    started = time.monotonic()
+    result = dict(id=row['id'], server=row['server'], status='FAIL')
+    try:
+        remaining = deadline - started
+        need(remaining > 0, 'total ranking deadline reached')
+        base = row['server'].replace('$arch', 'aarch64').replace('$repo', config['repository'])
+        request = urllib.request.Request(base + '/' + config['repository'] + '.db',
+            headers={'Accept-Encoding': 'identity', 'User-Agent': 'cachy-asahi-mirrors/0.1'})
+        expected = config['database']
+        with opener.open(request, timeout=min(10, remaining)) as response:
+            need(response.status == 200, 'HTTP status differs from 200')
+            need(response.headers.get('Content-Encoding', 'identity') == 'identity',
+                 'encoded response refused')
+            declared = response.headers.get('Content-Length')
+            need(declared is None or declared == str(expected['bytes']), 'database length differs')
+            digest, count = hashlib.sha256(), 0
+            while True:
+                need(time.monotonic() < deadline, 'total ranking deadline reached')
+                data = response.read(min(65536, expected['bytes'] + 1 - count))
+                if not data:
+                    break
+                count += len(data)
+                need(count <= expected['bytes'], 'database exceeds selected snapshot size')
+                digest.update(data)
+            need(count == expected['bytes'] and digest.hexdigest() == expected['sha256'],
+                 'database does not match selected snapshot')
+        result.update(status='PASS_EXACT_SNAPSHOT', bytes=count, sha256=digest.hexdigest())
+    except (MirrorError, OSError, urllib.error.URLError, http.client.HTTPException) as error:
+        result['reason'] = str(error)[:200]
+    result['elapsed_seconds'] = round(time.monotonic() - started, 6)
+    return result
+
+
+def publish(path, raw):
+    """Atomic no-replace publication; never activate a system mirror list."""
+    path = Path(path)
+    temporary = None
+    try:
+        fd, temporary = tempfile.mkstemp(prefix='.cachy-asahi-mirrors-', dir=path.parent)
+        with os.fdopen(fd, 'wb') as stream:
+            stream.write(raw)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.link(temporary, path, follow_symlinks=False)
+    finally:
+        if temporary is not None:
+            os.unlink(temporary)
+
+
+def rank(config, catalog_sha, output):
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect())
+    deadline = time.monotonic() + 120
+    results = [probe(row, config, opener, deadline) for row in config['mirrors']]
+    passing = sorted((r for r in results if r['status'] == 'PASS_EXACT_SNAPSHOT'),
+                     key=lambda r: (r['elapsed_seconds'], r['id']))
+    report = dict(schema_version=1, status='FAIL', catalog_sha256=catalog_sha,
+        base=config['base'], architecture='aarch64', repository=config['repository'],
+        results=results, activation='NOT_PERFORMED', hardware='NOT_TESTED')
+    if passing:
+        raw = ('# Separate candidate; selected repository: ' + config['repository'] + '\n' +
+               '# Exact catalog SHA256: ' + catalog_sha + '\n' +
+               ''.join('Server = ' + row['server'] + '\n' for row in passing)).encode('ascii')
+        publish(output, raw)
+        report.update(status='PASS_CANDIDATE_WRITTEN', candidate=dict(path=str(output),
+            bytes=len(raw), sha256=hashlib.sha256(raw).hexdigest(), mode='0600'))
+    return report
+
+
+
+# All mutable paths below come from explicit CLI arguments; no system defaults.
+MAX_FILE = 65536
+SNAP_FIELDS = {'data', 'sha256', 'bytes', 'mode', 'uid', 'gid', 'dev', 'ino', 'mtime_ns', 'ctime_ns'}
+
+
+def absolute(path):
+    path = Path(path)
+    need(path.is_absolute() and '..' not in path.parts and bool(path.name) and len(path.name) <= 180,
+         'explicit absolute ordinary path required')
+    return path
+
+
+@contextlib.contextmanager
+def parent(path, writable=False):
+    fd = os.open('/', os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC)
+    try:
+        for part in path.parent.parts[1:]:
+            child = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=fd)
+            os.close(fd); fd = child
+        info = os.fstat(fd)
+        need(not writable or (info.st_uid == os.geteuid() and not info.st_mode & 0o022),
+             'mutable parent must be caller-owned and not group/world writable')
+        yield fd
+    finally:
+        os.close(fd)
+
+
+def file_snapshot(fd, name, cap=MAX_FILE):
+    try:
+        handle = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC, dir_fd=fd)
+    except FileNotFoundError:
+        return None
+    try:
+        info = os.fstat(handle)
+        need(stat.S_ISREG(info.st_mode) and info.st_nlink == 1 and info.st_uid == os.geteuid() and info.st_size <= cap,
+             'bounded caller-owned single-link regular file required')
+        with os.fdopen(handle, 'rb', closefd=False) as stream:
+            raw = stream.read(cap + 1)
+        fields = lambda s: (s.st_dev, s.st_ino, s.st_mode, s.st_uid, s.st_gid, s.st_nlink,
+                            s.st_size, s.st_mtime_ns, s.st_ctime_ns)
+        need(len(raw) == info.st_size and fields(info) == fields(os.fstat(handle)) ==
+             fields(os.stat(name, dir_fd=fd, follow_symlinks=False)), 'file changed while reading')
+        return dict(data=base64.b64encode(raw).decode(), sha256=hashlib.sha256(raw).hexdigest(), bytes=len(raw),
+                    mode=stat.S_IMODE(info.st_mode), uid=info.st_uid, gid=info.st_gid,
+                    dev=info.st_dev, ino=info.st_ino, mtime_ns=info.st_mtime_ns, ctime_ns=info.st_ctime_ns)
+    finally:
+        os.close(handle)
+
+
+def validate_snapshot(value):
+    if value is None:
+        return
+    need(type(value) is dict and set(value) == SNAP_FIELDS and
+         all(type(value[k]) is int and value[k] >= 0 for k in SNAP_FIELDS - {'data', 'sha256'}) and
+         value['uid'] == os.geteuid() and value['mode'] <= 0o7777 and value['bytes'] <= MAX_FILE,
+         'journal file metadata differs')
+    raw = base64.b64decode(value['data'], validate=True)
+    need(len(raw) == value['bytes'] and hashlib.sha256(raw).hexdigest() == value['sha256'],
+         'journal file bytes/hash differ')
+
+
+def same(left, right, moved=False):
+    # rename may update ctime. In-flight recovery still requires the exact inode,
+    # bytes and POSIX metadata; committed states also require unchanged timestamps.
+    if left is None or right is None:
+        return left is right
+    keys = SNAP_FIELDS - ({'ctime_ns'} if moved else set())
+    return all(left[k] == right[k] for k in keys)
+
+
+def staged(fd, raw, metadata):
+    name = '.caa-mirrors-' + os.urandom(16).hex() + '.tmp'
+    handle = os.open(name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600, dir_fd=fd)
+    try:
+        with os.fdopen(handle, 'wb', closefd=False) as stream:
+            stream.write(raw); stream.flush()
+        os.fchown(handle, metadata['uid'], metadata['gid'])
+        os.fchmod(handle, metadata['mode']); os.fsync(handle)
+    except BaseException:
+        os.unlink(name, dir_fd=fd)
+        raise
+    finally:
+        os.close(handle)
+    os.fsync(fd)
+    return name, file_snapshot(fd, name, max(MAX_FILE, len(raw)))
+
+
+def discard(fd, name, expected):
+    if name is not None and same(file_snapshot(fd, name), expected, moved=True):
+        os.unlink(name, dir_fd=fd); os.fsync(fd)
+
+
+def candidate_bytes(catalog_path, candidate_path, repository):
+    with parent(catalog_path) as fd:
+        source = file_snapshot(fd, catalog_path.name)
+    need(source is not None, 'catalog absent')
+    config, digest = catalog_bytes(base64.b64decode(source['data']))
+    need(repository == config['repository'], 'explicit repository differs from catalog')
+    with parent(candidate_path) as fd:
+        candidate = file_snapshot(fd, candidate_path.name)
+    need(candidate is not None and candidate['mode'] == 0o600, 'caller-owned 0600 candidate required')
+    raw = base64.b64decode(candidate['data'])
+    lines = raw.decode('ascii').splitlines(keepends=True)
+    header = ['# Separate candidate; selected repository: ' + repository + '\n',
+              '# Exact catalog SHA256: ' + digest + '\n']
+    need(lines[:2] == header and 3 <= len(lines) <= 18 and all(line.endswith('\n') for line in lines),
+         'candidate/catalog header binding differs')
+    allowed = {'Server = ' + row['server'] + '\n' for row in config['mirrors']}
+    need(len(set(lines[2:])) == len(lines[2:]) and set(lines[2:]) <= allowed,
+         'candidate server set differs from catalog')
+    return raw, digest, candidate['sha256']
+
+
+@contextlib.contextmanager
+def transaction(target, state, repository):
+    target, state = absolute(target), absolute(state)
+    need(target != state and re.fullmatch('[a-z][a-z0-9_-]{0,63}', repository), 'distinct target/state and named repository required')
+    paths = (target, state, target.with_name(target.name + '.caa-lock'), state.with_name(state.name + '.caa-lock'))
+    need(len(set(paths)) == 4, 'transaction path alias refused')
+    with parent(target, True) as target_fd, parent(state, True) as state_fd, contextlib.ExitStack() as stack:
+        for path, fd in ((paths[2], target_fd), (paths[3], state_fd)):
+            handle = os.open(path.name, os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600, dir_fd=fd)
+            stack.callback(os.close, handle)
+            info = os.fstat(handle)
+            need(stat.S_ISREG(info.st_mode) and info.st_nlink == 1 and info.st_uid == os.geteuid() and
+                 stat.S_IMODE(info.st_mode) == 0o600 and info.st_size == 0, 'unsafe transaction lock')
+            fcntl.flock(handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        saved = file_snapshot(state_fd, state.name, 256 * 1024)
+        journal = None
+        if saved is not None:
+            need(saved['mode'] == 0o600, 'private 0600 journal required')
+            journal = json.loads(base64.b64decode(saved['data']), object_pairs_hook=pairs)
+            need(type(journal) is dict and set(journal) == {'schema_version', 'phase', 'target', 'repository', 'base',
+                 'architecture', 'catalog_sha256', 'candidate_sha256', 'before', 'active', 'temporary', 'restored', 'restore_temporary'} and
+                 journal['schema_version'] == 1 and journal['target'] == str(target) and journal['repository'] == repository and
+                 journal['base'] == 'asahi-alarm' and journal['architecture'] == 'aarch64' and
+                 journal['phase'] in ('PREPARED', 'ACTIVE', 'RESTORING', 'RESTORED'), 'journal identity/phase differs')
+            for key in ('catalog_sha256', 'candidate_sha256'):
+                need(type(journal[key]) is str and re.fullmatch('[0-9a-f]{64}', journal[key]), 'journal binding differs')
+            for key in ('before', 'active', 'restored'):
+                validate_snapshot(journal[key])
+            need(journal['active'] is not None and journal['active']['sha256'] == journal['candidate_sha256'], 'journal candidate bytes differ')
+            if journal['before'] is not None:
+                need(all(journal['before'][k] == journal['active'][k] for k in ('mode', 'uid', 'gid')), 'journal metadata preservation differs')
+            if journal['phase'] in ('PREPARED', 'ACTIVE'):
+                need(journal['restored'] is None and journal['restore_temporary'] is None, 'unexpected restore state')
+            else:
+                need((journal['before'] is None) == (journal['restored'] is None), 'missing journal restore bytes')
+                if journal['before'] is not None:
+                    need(all(journal['before'][k] == journal['restored'][k] for k in ('data', 'sha256', 'bytes', 'mode', 'uid', 'gid')),
+                         'journal restore bytes/metadata differ')
+            for key in ('temporary', 'restore_temporary'):
+                need(journal[key] is None or (type(journal[key]) is str and re.fullmatch(r'\.caa-mirrors-[0-9a-f]{32}\.tmp', journal[key])),
+                     'journal temporary path differs')
+
+        def save(value):
+            nonlocal saved
+            need(file_snapshot(state_fd, state.name, 256 * 1024) == saved, 'journal changed; refusing replacement')
+            raw = (json.dumps(value, sort_keys=True, indent=2) + '\n').encode()
+            need(len(raw) <= 256 * 1024, 'journal byte limit')
+            name, snapshot = staged(state_fd, raw, dict(mode=0o600, uid=os.geteuid(), gid=os.getegid()))
+            try:
+                os.replace(name, state.name, src_dir_fd=state_fd, dst_dir_fd=state_fd); os.fsync(state_fd)
+            finally:
+                if file_snapshot(state_fd, name, 256 * 1024) is not None:
+                    os.unlink(name, dir_fd=state_fd)
+            saved = file_snapshot(state_fd, state.name, 256 * 1024)
+        yield target, target_fd, journal, save
+
+
+def install_pending(fd, target, journal, save, restoring=False, checkpoint=None):
+    checkpoint = checkpoint or (lambda _: None)
+    expected = journal['active'] if restoring else journal['before']
+    desired = journal['restored'] if restoring else journal['active']
+    key = 'restore_temporary' if restoring else 'temporary'
+    current = file_snapshot(fd, target.name)
+    if not same(current, desired, moved=True):
+        need(same(current, expected), 'target changed; refusing transaction/recovery')
+        if desired is None:
+            os.unlink(target.name, dir_fd=fd)
+        else:
+            name = journal[key]
+            if name is None or file_snapshot(fd, name) is None:
+                name, desired = staged(fd, base64.b64decode(desired['data']), desired)
+                journal[key] = name
+                journal['restored' if restoring else 'active'] = desired
+                save(journal)
+            need(same(file_snapshot(fd, name), desired, moved=True), 'staged transaction file changed')
+            need(same(file_snapshot(fd, target.name), expected), 'target edited before replacement')
+            os.replace(name, target.name, src_dir_fd=fd, dst_dir_fd=fd)
+        os.fsync(fd)
+        checkpoint('restored' if restoring else 'activated')
+    actual = file_snapshot(fd, target.name)
+    need(same(actual, desired, moved=True), 'replacement identity differs')
+    journal['restored' if restoring else 'active'] = actual
+    journal['phase'] = 'RESTORED' if restoring else 'ACTIVE'
+    save(journal)
+
+
+def activate(catalog_path, candidate_path, target, state, repository, checkpoint=None):
+    catalog_path, candidate_path, target, state = map(absolute, (catalog_path, candidate_path, target, state))
+    need(len({catalog_path, candidate_path, target, state}) == 4, 'activation input/output alias refused')
+    raw, catalog_sha, candidate_sha = candidate_bytes(catalog_path, candidate_path, repository)
+    with transaction(target, state, repository) as (target, fd, journal, save):
+        if journal is None:
+            before = file_snapshot(fd, target.name)
+            metadata = before or dict(mode=0o600, uid=os.geteuid(), gid=os.getegid())
+            name, active = staged(fd, raw, metadata)
+            journal = dict(schema_version=1, phase='PREPARED', target=str(target), repository=repository,
+                base='asahi-alarm', architecture='aarch64', catalog_sha256=catalog_sha, candidate_sha256=candidate_sha,
+                before=before, active=active, temporary=name, restored=None, restore_temporary=None)
+            try:
+                save(journal)
+            except BaseException:
+                discard(fd, name, active)
+                raise
+            if checkpoint:
+                checkpoint('prepared')
+        need(journal['catalog_sha256'] == catalog_sha and journal['candidate_sha256'] == candidate_sha,
+             'candidate/catalog changed; use the recorded transaction or restore it')
+        need(journal['phase'] in ('PREPARED', 'ACTIVE'), 'state already restoring/restored; use a fresh state path')
+        if journal['phase'] == 'PREPARED':
+            install_pending(fd, target, journal, save, checkpoint=checkpoint)
+        need(same(file_snapshot(fd, target.name), journal['active']), 'active target edited; refusing retry')
+    return dict(status='PASS_ACTIVATED', target=str(target), state=str(state), repository=repository,
+                catalog_sha256=catalog_sha, candidate_sha256=candidate_sha, journal_phase='ACTIVE', network='NOT_USED', trust='NOT_ESTABLISHED')
+
+
+def restore(target, state, repository, checkpoint=None):
+    with transaction(target, state, repository) as (target, fd, journal, save):
+        need(journal is not None, 'no prior transaction journal')
+        if journal['phase'] == 'PREPARED':
+            current = file_snapshot(fd, target.name)
+            if same(current, journal['before']):
+                discard(fd, journal['temporary'], journal['active'])
+                journal['restored'] = current; journal['phase'] = 'RESTORED'; save(journal)
+            else:
+                install_pending(fd, target, journal, save)
+        if journal['phase'] == 'ACTIVE':
+            need(same(file_snapshot(fd, target.name), journal['active']), 'target edited; refusing restore')
+            previous = journal['before']
+            if previous is not None:
+                name, previous = staged(fd, base64.b64decode(previous['data']), previous)
+                journal['restore_temporary'] = name
+            journal['restored'] = previous; journal['phase'] = 'RESTORING'
+            try:
+                save(journal)
+            except BaseException:
+                discard(fd, journal['restore_temporary'], previous)
+                raise
+            if checkpoint:
+                checkpoint('restoring')
+        if journal['phase'] == 'RESTORING':
+            install_pending(fd, target, journal, save, restoring=True, checkpoint=checkpoint)
+        need(journal['phase'] == 'RESTORED' and same(file_snapshot(fd, target.name), journal['restored']),
+             'restored target edited; refusing retry')
+    return dict(status='PASS_RESTORED', target=str(target), state=str(state), repository=repository,
+                journal_phase='RESTORED', network='NOT_USED')
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--version', action='version', version='cachy-asahi-mirrors 0.2.0')
+    sub = parser.add_subparsers(dest='command', required=True)
+    check = sub.add_parser('check', help='validate a local catalog without network access')
+    check.add_argument('catalog', type=Path)
+    run = sub.add_parser('rank', help='fetch exact snapshot databases and write a new candidate')
+    run.add_argument('catalog', type=Path)
+    run.add_argument('--output', type=Path, required=True)
+    apply = sub.add_parser('activate', help='activate a catalog-bound candidate at explicit owned paths')
+    apply.add_argument('catalog', type=Path)
+    apply.add_argument('--candidate', type=Path, required=True)
+    for command in (apply, sub.add_parser('restore', help='restore only an unchanged recorded target')):
+        command.add_argument('--target', type=Path, required=True)
+        command.add_argument('--state', type=Path, required=True)
+        command.add_argument('--repository', required=True)
+    args = parser.parse_args()
+    try:
+        if args.command == 'activate':
+            result = activate(args.catalog, args.candidate, args.target, args.state, args.repository)
+        elif args.command == 'restore':
+            result = restore(args.target, args.state, args.repository)
+        else:
+            config, digest = catalog(args.catalog)
+            if args.command == 'check':
+                result = dict(status='PASS_CATALOG_SYNTAX', catalog_sha256=digest,
+                              mirrors=len(config['mirrors']), network='NOT_USED', trust='NOT_ESTABLISHED')
+            else:
+                need(not args.output.exists() and not args.output.is_symlink(), 'output already exists')
+                result = rank(config, digest, args.output)
+        print(json.dumps(result, sort_keys=True))
+        return 0 if result['status'].startswith('PASS_') else 1
+    except (MirrorError, OSError, ValueError, TypeError, KeyError) as error:
+        print(json.dumps(dict(status='FAIL', reason=str(error)[:200]), sort_keys=True))
+        return 1
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())
