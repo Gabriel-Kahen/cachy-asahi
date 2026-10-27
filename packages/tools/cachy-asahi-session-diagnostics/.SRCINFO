@@ -1,0 +1,36 @@
+pkgbase = cachy-asahi-session-diagnostics
+	pkgdesc = Read-only current-session observations for cachy-asahi
+	pkgver = 0.1.0
+	pkgrel = 3
+	url = https://github.com/Gabriel-Kahen/cachy-asahi
+	arch = any
+	license = MIT
+	depends = python>=3.11
+	optdepends = hyprland: current compositor version and display observations
+	optdepends = mesa-utils: current Wayland GLES client renderer observation
+	optdepends = pipewire: current sanitized audio graph observation
+	optdepends = systemd: current session, unit states and suspend capability queries
+	options = !strip
+	options = !debug
+	source = cachy-asahi-session-diagnostics
+	source = session_probe.py
+	source = test_session_probe.py
+	source = check_package.py
+	source = test_package.py
+	source = README.md
+	source = session-probe.md
+	source = source-provenance.json
+	source = NOTICE
+	source = LICENSE
+	sha256sums = 2b6700180210cc686f3e19f3c294f58ce5182dee2ae01e5406039bb1a0d3af7a
+	sha256sums = 9c5c41899cd991b0de4bf8d30bad6f5452b4592ea9440df0f0b4a7b54bc66984
+	sha256sums = f598bf4ea38f753c1ffe31fb55e636d64722c32139230bd5485564d7f2332d2f
+	sha256sums = ddf4119a1ecad917af69f3e670e469281e48662b08e20d2abdf17efc807df86d
+	sha256sums = 7134c5da0d1c96b2bb02fcdf7dc161821b31badf533a26b192e3b0e1f5b98879
+	sha256sums = 4a88ceecb9b844c7b1fbc261dd6e0788640b6c4320eb62db4f394d566dc71dd4
+	sha256sums = 2d8125214150de5b6426692758525b0636fcbb53c45539a139d7fc5bf4f804e1
+	sha256sums = 51cc74ecc32e47e740f39dcf86b30e0819ed6be4707ea40c398976dc2b637a76
+	sha256sums = dad09067890027d4674c6f5861462966f190e527e7d4524360fbc175c68e0511
+	sha256sums = 51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7
+
+pkgname = cachy-asahi-session-diagnostics

@@ -1,0 +1,37 @@
+{
+  "products": {
+    "cachy-asahi-session-diagnostics": {
+      "payload": {
+        "usr/bin/cachy-asahi-session-diagnostics": [
+          "cachy-asahi-session-diagnostics",
+          493
+        ],
+        "usr/lib/cachy-asahi-session-diagnostics/session_probe.py": [
+          "session_probe.py",
+          420
+        ],
+        "usr/share/doc/cachy-asahi-session-diagnostics/README.md": [
+          "README.md",
+          420
+        ],
+        "usr/share/doc/cachy-asahi-session-diagnostics/session-probe.md": [
+          "session-probe.md",
+          420
+        ],
+        "usr/share/doc/cachy-asahi-session-diagnostics/source-provenance.json": [
+          "source-provenance.json",
+          420
+        ],
+        "usr/share/licenses/cachy-asahi-session-diagnostics/LICENSE": [
+          "LICENSE",
+          420
+        ],
+        "usr/share/licenses/cachy-asahi-session-diagnostics/NOTICE": [
+          "NOTICE",
+          420
+        ]
+      }
+    }
+  },
+  "status": "FROZEN_PACKAGE_BYTES_REVIEWED"
+}
