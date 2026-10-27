@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'scripts/platform/**'
+      - 'scripts/checks/package_checks.py'
       - 'scripts/release/**'
       - 'scripts/client/client.py'
       - 'scripts/build/source_materials.py'
@@ -18,6 +19,7 @@ on:
     branches: [main]
     paths:
       - 'scripts/platform/**'
+      - 'scripts/checks/package_checks.py'
       - 'scripts/release/**'
       - 'scripts/client/client.py'
       - 'scripts/build/source_materials.py'
@@ -40,7 +42,7 @@ jobs:
       fail-fast: false
       matrix:
         python: ['3.12', '3.14']
-        component: [image, signed-intake, signed-image, sbom, source-mirror, desktop, app-runtime, python, build-systems]
+        component: [image, signed-intake, signed-image, sbom, source-mirror, source-mirror-update, desktop, app-runtime, app-inputs, python, python-extension, build-systems]
     steps:
       - name: Checkout complete canonical component closure
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -50,6 +52,7 @@ jobs:
           sparse-checkout-cone-mode: false
           sparse-checkout: |
             /scripts/platform/
+            /scripts/checks/package_checks.py
             /scripts/release/
             /scripts/client/client.py
             /scripts/build/source_materials.py
@@ -75,6 +78,9 @@ jobs:
             signed-image) suite=scripts/platform/test_release_image_signed.py ;;
             sbom) suite=scripts/release/test_release_sbom.py ;;
             source-mirror) suite=scripts/release/test_release_source_mirror.py ;;
+            source-mirror-update) suite=scripts/release/test_release_source_mirror_incremental.py ;;
+            app-inputs) suite=scripts/workflows/test_desktop_application_inputs.py ;;
+            python-extension) suite=tests/workflows/test_python_extension.py ;;
             app-runtime) suite=scripts/workflows/test_desktop_application_runtime.py ;;
             python) suite=tests/workflows/test_python_development.py ;;
             desktop) suite=scripts/workflows/test_desktop_applications.py ;;
@@ -83,7 +89,7 @@ jobs:
           esac
           python -B -S -Werror::ResourceWarning "$suite"
       - name: Install hosted build-system prerequisites
-        if: matrix.component == 'build-systems'
+        if: matrix.component == 'build-systems' || matrix.component == 'python-extension'
         run: |
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y cmake meson ninja-build build-essential
@@ -125,4 +131,25 @@ jobs:
               assert len(raw) == row['log_pin']['bytes']
               assert hashlib.sha256(raw).hexdigest() == row['log_pin']['sha256']
           print('PASS: both real component journeys and all 48 expected command/retirement/log joins')
+          PY
+      - name: Run real compiled Python project and private installs
+        if: matrix.component == 'python-extension'
+        run: |
+          python -I -B -Werror::ResourceWarning scripts/workflows/python_extension.py \
+            --python "$(command -v python)" --cmake /usr/bin/cmake --ctest /usr/bin/ctest \
+            --ninja /usr/bin/ninja --cc /usr/bin/cc --output "$RUNNER_TEMP/python-extension" \
+            --command-timeout 45 --total-timeout 300
+          python -I -B - "$RUNNER_TEMP/python-extension/result.json" <<'PY'
+          import json, sys
+          from pathlib import Path
+          result = json.loads(Path(sys.argv[1]).read_bytes())
+          assert result['status'] == 'PASS_LOCAL_COMPILED_PYTHON_WORKFLOW'
+          assert len(result['commands']) == 31
+          for command in result['commands']:
+              state = command['supervision']
+              assert command['success'] is True
+              assert state['reaped'] is True and state['ownership'] == 'REAPED'
+              assert state['group_census'] == 'EMPTY_TWICE' and state['output_complete'] is True
+              assert state['timeout'] is False and state['signals'] == [] and state['error'] is None
+          print('PASS real compiled Python journey and all 31 command retirements')
           PY

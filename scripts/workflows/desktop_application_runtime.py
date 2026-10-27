@@ -27,6 +27,7 @@ import time
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import desktop_applications as desktop
+import desktop_application_inputs as inputs
 
 
 def module(name, path):
@@ -272,7 +273,8 @@ def run(args):
         require(hashlib.sha256(read_file(entry_path, desktop.TEXT_CAP)).hexdigest() == args.entry_sha256, 'runtime desktop entry differs')
         raw, _ = audit.stage.read(app['path'])
         entry = desktop.ini(raw)['Desktop Entry']
-        argv = desktop.exec_argv(entry['Exec'], app['name'], desktop.unescape(entry.get('Icon', '')), entry_path)['argv_without_file_inputs']
+        selected_inputs = inputs.prepare(getattr(args, 'inputs', None) or (), getattr(args, 'allow_uri_scheme', ()))
+        argv = inputs.expand(entry['Exec'], app['name'], desktop.unescape(entry.get('Icon', '')), entry_path, selected_inputs)
         check_launcher(app['exec']['resolution'])
         files = command_files(app['exec']['resolution'], prefix, mode == 'fixture')
         argv[0] = files[0]
@@ -297,9 +299,16 @@ def run(args):
         if 'working_directory' in app:
             cwd = Path(prefix) / app['working_directory']['resolved'].lstrip('/')
             require(cwd.is_dir(), 'runtime working directory missing')
+        require(all(row['state'] in ('UNCHANGED', 'URI_PASSED_WITHOUT_FETCH') for row in inputs.verify(selected_inputs)),
+                'local input changed before launch')
         result = launch(argv, cwd, env, args.run_seconds, args.ready_seconds, args.ready_marker)
+        input_receipts = inputs.verify(selected_inputs)
+        if any(row['state'] in ('CHANGED', 'UNVERIFIED') for row in input_receipts):
+            result['application_status'] = result['status']
+            if result['status'] == 'PASS_EXEC_WORKFLOW':
+                result['status'] = 'INPUT_CHANGED'
         result.update(schema=1, context=mode, desktop_id=args.select, desktop_sha256=args.entry_sha256,
-                      argv=argv, cwd=str(cwd), executable_files=sorted(set(files)),
+                      argv=argv, cwd=str(cwd), executable_files=sorted(set(files)), inputs=input_receipts,
                       audit_pins=audit.stage.pins, evidence='HOST_FIXTURE_ONLY' if mode == 'fixture' else 'ISOLATED_APPLICATION_EXEC_ONLY',
                       gui='NOT_RUN (output marker does not prove window mapping)', native_arm='NOT_RUN' if mode == 'fixture' else platform.machine(),
                       m2='NOT_RUN', performance='NOT_MEASURED', release='NOT_ADMITTED')
@@ -315,6 +324,9 @@ def main(argv=None):
     parser.add_argument('--select', required=True)
     parser.add_argument('--entry-sha256', required=True)
     parser.add_argument('--exec-fallback', action='store_true')
+    parser.add_argument('--file', dest='inputs', action=inputs.InputAction, help='local regular file; repeat in input order')
+    parser.add_argument('--uri', dest='inputs', action=inputs.InputAction, help='URI; repeat in input order, explicit scheme policy required')
+    parser.add_argument('--allow-uri-scheme', action='append', choices=sorted(inputs.SCHEMES), default=[])
     parser.add_argument('--ready-marker', required=True)
     parser.add_argument('--ready-seconds', type=float, default=2)
     parser.add_argument('--run-seconds', type=float, default=5)

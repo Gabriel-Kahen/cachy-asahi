@@ -1,0 +1,209 @@
+{
+  "all_eight_payloads_byte_identical": true,
+  "each_attempt": {
+    "correctness": {
+      "cross_decodes": 96,
+      "encodes": 48,
+      "input_boundaries": [
+        16383,
+        16384,
+        16385
+      ],
+      "probes": 2,
+      "strict_rejections": 6
+    },
+    "inner_evidence_files": 305,
+    "native_profiles": 17,
+    "optimized_clean_builds": 2,
+    "owned_commands": 234
+  },
+  "failed_history": [
+    {
+      "cause": "SOURCE_PROJECTION0600_REFUSAL",
+      "path": "artifacts/development/zlib-pgo102-first-originals-root-plan-20261027/HANDOFF.md",
+      "seal": "0495924b04dffe13c8ebc86af4f8278d6663175f55da6a6e96d24c93bc5256be"
+    },
+    {
+      "cause": "PRESEMANTIC_LITERAL_ORIGINAL_PATH_REFUSAL",
+      "path": "artifacts/development/zlib-pgo102-source-mode-corrected-strict-replay-20261027/HANDOFF.md",
+      "seal": "3432f66f7bae9a3967cab1efe3d1a48d76e35dd498a7542dc265ccd18aa25a92"
+    }
+  ],
+  "independent_outer_attempts": 2,
+  "input_transport": {
+    "bytes": 1046432165,
+    "files": 1154,
+    "role": "DATA_ONLY"
+  },
+  "isa": "GENERIC_ARMV8_A_SOURCE_POLICY",
+  "native_page_size": 4096,
+  "native_target": "aarch64-unknown-linux-gnu",
+  "not_granted": {
+    "M2": "NOT_RUN",
+    "full_port_acceptance": false,
+    "generic16k": "NOT_RUN_INPUT_LENGTHS_DO_NOT_PROVE_KERNEL_PAGE_SIZE",
+    "installed": "NOT_RUN",
+    "optimization_selection": "NOT_GRANTED",
+    "performance_gains": "NOT_MEASURED",
+    "production_trust": "NOT_GRANTED",
+    "release": "NOT_ADMITTED"
+  },
+  "original_HTTP_bodies": {
+    "artifact.zip": {
+      "bytes": 29543390,
+      "sha256": "1c083a597ec49e5639a9d4cddac2d08c0bbfd70f9b9dd892f25bb9224eac81d2"
+    },
+    "artifacts.json": {
+      "bytes": 778,
+      "sha256": "4c6f98c44a748bb295841db765cf1ef1f2777d85f85a1b6ed612e9c72b27af03"
+    },
+    "logs.zip": {
+      "bytes": 31805,
+      "sha256": "b49013ac3f67aa6327eacc01db55bcc514f858cf5a434cc93d061c4d2510f695"
+    },
+    "terminal-jobs.json": {
+      "bytes": 4121,
+      "sha256": "2b3913e25b348e71557b5235fbccfb67d3bd3a34a0d7e4ab05e200c8d9d67c42"
+    },
+    "terminal-run.json": {
+      "bytes": 13024,
+      "sha256": "3c5a91b711e353516a1f44a7b10d110638b46ddf90948973c8d2a5614ae85fff"
+    }
+  },
+  "payloads": {
+    "LICENSE": {
+      "bytes": 1002,
+      "sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2"
+    },
+    "example": {
+      "bytes": 399064,
+      "sha256": "98d8d554fd8f77dd10da6cd3bd39bcc6fcfdbfdd019219cc29d17af541a8cf90"
+    },
+    "libz.a": {
+      "bytes": 577542,
+      "sha256": "cc5575c0994af32580a3ecb74d4ab7821af04f802c7a9c313a48e21833710809"
+    },
+    "minigzip": {
+      "bytes": 380232,
+      "sha256": "4458d26336a537d5521a893f2b5db0cfd20511b41ba46a40dbd71552776bf5fb"
+    },
+    "probe": {
+      "bytes": 337624,
+      "sha256": "da7b3ffacc8fb5fdecc9b239bb717f18a7046aa5452ea48eb0df264615ad2197"
+    },
+    "strict-gzip": {
+      "bytes": 186792,
+      "sha256": "6b0ff3b642413a11eb4a4313c86d6c94c623a6e55036c7904c24f3a02129326d"
+    },
+    "zconf.h": {
+      "bytes": 16921,
+      "sha256": "0718a11beb3295b345fb29a63b44b654b282d82c4cd0513f6225587f2b29b8bb"
+    },
+    "zlib.h": {
+      "bytes": 103848,
+      "sha256": "818667d6ab6a37fe7469cb06a7f0cb2c2cb2f2c948a03e5accf1a4a74bf3020a"
+    }
+  },
+  "pins": {
+    "Root_admission": {
+      "bytes": 3688,
+      "path": "artifacts/development/zlib-pgo102-root-component-admission-20261027/Root-component-admission.json",
+      "sha256": "f77a61bc5b9cb9cfbc02173734234dae7e743501263afbfdfbe4b2c4a8e0d101"
+    },
+    "Root_full_Git_join": {
+      "bytes": 18103,
+      "path": "artifacts/development/zlib-pgo102-tool-identity-native-trial-root-20261027/Root-git-source-authorization.json",
+      "sha256": "49c768d8586bc8cbe54cd811860771c1549b1d64548a406e27b3878ba524a26c"
+    },
+    "original_artifact": {
+      "bytes": 29543390,
+      "id": 12775406393,
+      "path": "artifacts/development/zlib-pgo102-tool-identity-native-actual-20261027/Root-first-originals-40592666471-1/raw-originals/artifact.zip",
+      "sha256": "1c083a597ec49e5639a9d4cddac2d08c0bbfd70f9b9dd892f25bb9224eac81d2"
+    },
+    "original_collection": {
+      "bytes": 3558,
+      "path": "artifacts/development/zlib-pgo102-tool-identity-native-actual-20261027/Root-first-originals-40592666471-1/collection.json",
+      "sha256": "92bab11eebd182aeb18e3ddc7fb012d7bce33561e7169eb33b91d6127e79dca4"
+    },
+    "raw_commit": {
+      "bytes": 328,
+      "path": "artifacts/development/zlib-pgo102-first-originals-root-plan-20261027/publication/raw-commit.txt",
+      "sha256": "213772e4d72956339cb95ac5a6e7a2f92ae8a5b410f23f97aa839cf9b9635036"
+    },
+    "receipt_summary": {
+      "bytes": 29923,
+      "path": "artifacts/development/zlib-pgo102-source-mode-corrected-strict-replay-v2-20261027/receipt-summary.json",
+      "sha256": "1a334af8a054958dc94736faaafcc4e43558b7ae7c814aee9a29b8fb6b78a434"
+    },
+    "source_authorization": {
+      "bytes": 17109,
+      "path": "artifacts/development/zlib-pgo102-tool-identity-native-trial-root-20261027/source-authorization.json",
+      "sha256": "57f582698a6a1ed13adb8b7b6d5f3749bf3a40fc2dfe6684fde21b2eee65332a"
+    },
+    "strict_packet_seal": {
+      "bytes": 239719,
+      "path": "artifacts/development/zlib-pgo102-source-mode-corrected-strict-replay-v2-20261027/seal.json",
+      "sha256": "a7291c0015cc6436a69fcb762c977fc00c8a49c22fb6f61c2b61f57161def686"
+    },
+    "strict_result": {
+      "bytes": 7506,
+      "path": "artifacts/development/zlib-pgo102-source-mode-corrected-strict-replay-v2-20261027/output/strict-result.json",
+      "sha256": "d1bb7b1803dfc7d0ce9c9e4a4d97700f58e845b99f3f0c175b8f6d7a30bb2667"
+    }
+  },
+  "producer": {
+    "image": "sha256:38733b636448e3b14bb5a97c84dc0e524e9129cdedbfa2d0204ae0fc66618b19",
+    "independent_outer_builders": [
+      "cachy-asahi-6ee98626a5744f80",
+      "cachy-asahi-c397950f7d7e46af"
+    ],
+    "package_lock": {
+      "bytes": 6674,
+      "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
+    },
+    "packages": 341
+  },
+  "profile_seal_pins": [
+    {
+      "attempt": 1,
+      "bytes": 40972,
+      "path": "artifacts/development/zlib-pgo102-source-mode-corrected-strict-replay-v2-20261027/output/public-projection/attempt-1/native-build/artifacts/pgo-v1-evidence/profile-seal.json",
+      "sha256": "19d5b5ea146888df74c24434bbaf74c9f8e3ab0ddf5dbd3775f2b08bfb12ec2a"
+    },
+    {
+      "attempt": 2,
+      "bytes": 40972,
+      "path": "artifacts/development/zlib-pgo102-source-mode-corrected-strict-replay-v2-20261027/output/public-projection/attempt-2/native-build/artifacts/pgo-v1-evidence/profile-seal.json",
+      "sha256": "ac5546e6b7ea653d63106de4944b1ca0aa1d5baa47a670671274a4f6eb25d39d"
+    }
+  ],
+  "profile_seals": [
+    "19d5b5ea146888df74c24434bbaf74c9f8e3ab0ddf5dbd3775f2b08bfb12ec2a",
+    "ac5546e6b7ea653d63106de4944b1ca0aa1d5baa47a670671274a4f6eb25d39d"
+  ],
+  "projection_correction": "EXACT_SOURCE102_NEW0644_MODES_ONLY_BYTES_AND_NATIVE_READER_GATES_UNCHANGED",
+  "recorded_evidence_limits": {
+    "cleanup": "SOURCE_BOUND_CONSUMERS_BEFORE_PRODUCER_TRANSCRIPTS_NO_NEW_LIVE_DAEMON_PROBE",
+    "native_codec_execution": "SOURCE_BOUND_ORIGINAL_COMMAND_AND_OUTPUT_DATA_NOT_LOCALLY_REENACTED",
+    "native_decoder": "SOURCE_BOUND_ORIGINAL_TRANSCRIPT_NO_SECOND_DECODER_EXECUTION",
+    "tool_FD_proof": "RECORDED_NATIVE_CLAIM_NOT_REEXECUTED"
+  },
+  "run": {
+    "attempt": 1,
+    "conclusion": "success",
+    "id": 40592666471,
+    "job": 122500619368,
+    "terminal_steps": 16,
+    "url": "https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/40592666471"
+  },
+  "schema_version": 1,
+  "scope": "ROOT_QUALIFIED_GENERIC_ARM4K_PGO_CONSTRUCTION_AND_CORRECTNESS_COMPONENT_ONLY",
+  "source": {
+    "commit": "3ee4b0ae221429385e738f4df01eac1b730f36ee",
+    "files": 102,
+    "parent": "e8ff4ee39ac81c8d30ca954cf3c1007ebe716e04",
+    "ref": "codex/zlib-pgo102-tool-identity-native-v1",
+    "tree": "20309eaeb580436c4b49f2bb1b35abc2e1c16d0d"
+  }
+}
