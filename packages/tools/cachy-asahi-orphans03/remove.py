@@ -137,11 +137,11 @@ def payload_node(root,path,bounds):
         record,_=O.read(fd,path.name,bounds,128*1024**2);return dict(kind='file',**record)
 
 
-def payload_guard(api,root,before,selected):
+def payload_guard(api,root,before,selected,*,allow_ldconfig=False):
     for helper in HELPERS:
         # lexists catches broken aliases too. No optional helper execution.
         with O.directory(root) as (fd,_):
-            need(not os.path.lexists(root/helper),'target ldconfig helper/alias unsupported')
+            need(allow_ldconfig or not os.path.lexists(root/helper),'target ldconfig helper/alias unsupported')
     files={};others=set();bounds=O.limits();count=0
     for name,version in before.items():
         paths=api.files(name,version);count+=len(paths);need(count<=MAX_FILES,'installed ownership bound')

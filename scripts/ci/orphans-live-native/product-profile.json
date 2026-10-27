@@ -1,0 +1,122 @@
+{
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "files": {
+    ".SRCINFO": {
+      "bytes": 2149,
+      "mode": 33188,
+      "sha256": "a4573a997cdf578c8f5e07bc11f50aff84466d463466cb0701c20ab20a2b30ba"
+    },
+    "LICENSE": {
+      "bytes": 1081,
+      "mode": 33188,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "NOTICE": {
+      "bytes": 1073,
+      "mode": 33188,
+      "sha256": "412c34c26e4048669bef6ac39f05b2611b10064b306c3b59b0a7cd36c852cf9b"
+    },
+    "PKGBUILD": {
+      "bytes": 3342,
+      "mode": 33188,
+      "sha256": "a172286c8bc0fdf503b2effb67685d287a9dcc5731550fb9a94410846a0eb7e2"
+    },
+    "README.md": {
+      "bytes": 15462,
+      "mode": 33188,
+      "sha256": "784cbae75396d2765816f7e04fe5dfdc9fadd3161923162c11f60a8ec5821238"
+    },
+    "READONLY.md": {
+      "bytes": 8810,
+      "mode": 33188,
+      "sha256": "ef96e2cf1e0809a065edd36545c861e4064f3bae2cc4665401455a89dd144529"
+    },
+    "cachy-asahi-orphans": {
+      "bytes": 20338,
+      "mode": 33188,
+      "sha256": "8d5c80e91d807887643b0530b77c982526f7589027aaff9afcdd6289109b6243"
+    },
+    "check_source.py": {
+      "bytes": 3594,
+      "mode": 33188,
+      "sha256": "76bf8212c007e9b200592ecd357387a445c97537c8fe06ee58d58e2bb6d124cb"
+    },
+    "live.py": {
+      "bytes": 23257,
+      "mode": 33188,
+      "sha256": "bba38c7f4e70df1ef2e3c66273f90824a0cb1618206c1f15e7f4a31473fddd3b"
+    },
+    "live_policy.py": {
+      "bytes": 16098,
+      "mode": 33188,
+      "sha256": "d6b6c35626834668be46ee5dbf79480780c02f4bc51cd7367f8790c06506b04d"
+    },
+    "orphans3": {
+      "bytes": 1293,
+      "mode": 33188,
+      "sha256": "cf89da154a0740859028d6b8557a26daef03a0079f02537beb6c0de4443f6bbf"
+    },
+    "protection-floor.json": {
+      "bytes": 10489,
+      "mode": 33188,
+      "sha256": "0d6dfbf3cd550fe72ddad30058693007f8bb86214de1e83442580677db5005f2"
+    },
+    "remove.py": {
+      "bytes": 25329,
+      "mode": 33188,
+      "sha256": "7de531e2c65e581a70c47f66d21be7b56f5893191e33bb6632d114f4f25d0a2e"
+    },
+    "source-provenance.json": {
+      "bytes": 2866,
+      "mode": 33188,
+      "sha256": "69ebd78e43b805418dbf58c133b79ad07a4202f282b38ab9c6c25d5d5e22e347"
+    },
+    "test_live.py": {
+      "bytes": 17769,
+      "mode": 33188,
+      "sha256": "595384890e2aa3ecb1fa152094f9b73e7057c971d23c672a598761cd9fd2df9f"
+    },
+    "test_live_policy.py": {
+      "bytes": 11713,
+      "mode": 33188,
+      "sha256": "accc1d7e7c095a7d5a6215633086f4c969ecbc2bef41c308f46967c173b5ebd7"
+    },
+    "test_live_supervision.py": {
+      "bytes": 9727,
+      "mode": 33188,
+      "sha256": "986393ab54457346a003ab2b094734cc92e4e6acaedbee3279f9fc434d37d917"
+    },
+    "test_orphans.py": {
+      "bytes": 14653,
+      "mode": 33188,
+      "sha256": "8f4080979ad3de2b1c27419f27cd6e3f61b122544164f1e16158cc4f8d73bb82"
+    },
+    "test_remove.py": {
+      "bytes": 17885,
+      "mode": 33188,
+      "sha256": "50722fbc48fb0f50411fba5dacae5e7987fafdc99b603adda1cd5ef4f30da613"
+    },
+    "test_retirement.py": {
+      "bytes": 5617,
+      "mode": 33188,
+      "sha256": "8c522ee58250af674f6c3ba6f616c8824b0aba76f61114be809b79c3ae4c5554"
+    }
+  },
+  "package_name": "cachy-asahi-orphans",
+  "payload_files": 12,
+  "profile_key": "cachy-asahi-orphans03",
+  "recipe_path": "packages/tools/cachy-asahi-orphans03",
+  "schema_version": 1,
+  "test_counts": [
+    20,
+    25,
+    8,
+    24,
+    25,
+    7
+  ],
+  "tests": 109,
+  "version": "0.3.0-1"
+}

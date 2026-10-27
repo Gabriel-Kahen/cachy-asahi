@@ -1,25 +1,30 @@
 # SPDX-License-Identifier: MIT
 pkgname=cachy-asahi-orphans
-pkgver=0.2.0
+pkgver=0.3.0
 pkgrel=1
-pkgdesc='Read-only orphan plans and explicitly selected finite offline removal'
+pkgdesc='Orphan previews and explicit reviewed-target ALPM removal'
 arch=('any')
 url='https://github.com/Gabriel-Kahen/cachy-asahi'
 license=('MIT')
 depends=('python>=3.11' 'pacman')
-source=('orphans3' 'remove.py' 'cachy-asahi-orphans' 'test_orphans.py' 'test_remove.py' 'test_retirement.py' 'protection-floor.json' 'README.md' 'READONLY.md' 'source-provenance.json' 'check_source.py' 'NOTICE' 'LICENSE')
+source=('orphans3' 'remove.py' 'cachy-asahi-orphans' 'test_orphans.py' 'test_remove.py' 'test_retirement.py' 'live.py' 'live_policy.py' 'test_live.py' 'test_live_policy.py' 'test_live_supervision.py' 'protection-floor.json' 'README.md' 'READONLY.md' 'source-provenance.json' 'check_source.py' 'NOTICE' 'LICENSE')
 sha256sums=(
-    '45a30641f2d82a1fa3cfeccfe8d537ebdaf1f71394ba77926f9a9e7d68e0fec4'
-    '2eac3c47b664e2ddf12df01a5d38c96db4cc4a6cf1a1f0c165b5f3466552c025'
+    'cf89da154a0740859028d6b8557a26daef03a0079f02537beb6c0de4443f6bbf'
+    '7de531e2c65e581a70c47f66d21be7b56f5893191e33bb6632d114f4f25d0a2e'
     '8d5c80e91d807887643b0530b77c982526f7589027aaff9afcdd6289109b6243'
     '8f4080979ad3de2b1c27419f27cd6e3f61b122544164f1e16158cc4f8d73bb82'
     '50722fbc48fb0f50411fba5dacae5e7987fafdc99b603adda1cd5ef4f30da613'
     '8c522ee58250af674f6c3ba6f616c8824b0aba76f61114be809b79c3ae4c5554'
+    'bba38c7f4e70df1ef2e3c66273f90824a0cb1618206c1f15e7f4a31473fddd3b'
+    'd6b6c35626834668be46ee5dbf79480780c02f4bc51cd7367f8790c06506b04d'
+    '595384890e2aa3ecb1fa152094f9b73e7057c971d23c672a598761cd9fd2df9f'
+    'accc1d7e7c095a7d5a6215633086f4c969ecbc2bef41c308f46967c173b5ebd7'
+    '986393ab54457346a003ab2b094734cc92e4e6acaedbee3279f9fc434d37d917'
     '0d6dfbf3cd550fe72ddad30058693007f8bb86214de1e83442580677db5005f2'
-    'e1a085033d7010ecc08db222e5b379bb7e7b803e981ab0042bd6d19f04503092'
+    '784cbae75396d2765816f7e04fe5dfdc9fadd3161923162c11f60a8ec5821238'
     'ef96e2cf1e0809a065edd36545c861e4064f3bae2cc4665401455a89dd144529'
-    '60c3bf7d154b23d5abc7188dc20428bf782b68398828e19a92a74b0a953dfbff'
-    '5b3011aab26a421e386d4d6cfc1e75575f51e2bcae51341fd2be93fe1fe1b57d'
+    '69ebd78e43b805418dbf58c133b79ad07a4202f282b38ab9c6c25d5d5e22e347'
+    '76bf8212c007e9b200592ecd357387a445c97537c8fe06ee58d58e2bb6d124cb'
     '412c34c26e4048669bef6ac39f05b2611b10064b306c3b59b0a7cd36c852cf9b'
     '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
 )
@@ -29,6 +34,9 @@ check() {
     python -B "$srcdir/test_orphans.py" || return
     python -B "$srcdir/test_remove.py" || return
     python -B "$srcdir/test_retirement.py" || return
+    python -B "$srcdir/test_live_policy.py" || return
+    python -B "$srcdir/test_live.py" || return
+    python -B "$srcdir/test_live_supervision.py" || return
     python -B "$srcdir/orphans3" remove --help >/dev/null
 }
 
@@ -37,6 +45,8 @@ package() {
     local base="$pkgdir/usr/lib/cachy-asahi-orphans3"
     install -Dm755 "$srcdir/orphans3" "$pkgdir/usr/bin/cachy-asahi-orphans" || return
     install -Dm644 "$srcdir/remove.py" "$base/remove.py" || return
+    install -Dm644 "$srcdir/live.py" "$base/live.py" || return
+    install -Dm644 "$srcdir/live_policy.py" "$base/live_policy.py" || return
     install -Dm644 "$srcdir/cachy-asahi-orphans" "$base/readonly.py" || return
     install -Dm644 "$srcdir/protection-floor.json" "$base/protection-floor.json" || return
     install -Dm644 "$srcdir/protection-floor.json" "$pkgdir/usr/share/$pkgname/protection-floor.json" || return
