@@ -1,0 +1,55 @@
+{
+  "accepted_origin": {
+    "artifact": 12717726584,
+    "attempt": 1,
+    "run": 40468241048,
+    "source": "d33e595a10acf2d148752ea382ae607283fc0b73"
+  },
+  "helper": {
+    "bytes": 32520,
+    "sha256": "bb9dee8f7b38fde2ca69b02d625f1117418f5090921f75461ce2a04d8eee0b29"
+  },
+  "inventory": {
+    "bytes": 6674,
+    "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
+  },
+  "original_artifact": {
+    "bytes": 17509492,
+    "sha256": "b6e0803e7b7b4e79ce678480ffff506ec221b682473a0137b1c5f3247976292a"
+  },
+  "packages": {
+    "baseline-r1-1.pkg.tar.xz": {
+      "bytes": 1730592,
+      "sha256": "30a5de643b71603d1158982163a0560841fda50c2bd68f7cbbfea81403451924"
+    },
+    "baseline-r1-2.pkg.tar.xz": {
+      "bytes": 1730592,
+      "sha256": "30a5de643b71603d1158982163a0560841fda50c2bd68f7cbbfea81403451924"
+    },
+    "baseline-r2-1.pkg.tar.xz": {
+      "bytes": 1730908,
+      "sha256": "ed6279f5982b0d7e17f2faf6cbb45334daa332e0db83b6b22106c674c860e382"
+    },
+    "lto-r1-1.pkg.tar.xz": {
+      "bytes": 2136328,
+      "sha256": "0bf11d89052f419546ea43d922b1d5eb36ca2f2e6612971750442f77ff57a084"
+    },
+    "lto-r1-2.pkg.tar.xz": {
+      "bytes": 2136328,
+      "sha256": "0bf11d89052f419546ea43d922b1d5eb36ca2f2e6612971750442f77ff57a084"
+    },
+    "lto-r2-1.pkg.tar.xz": {
+      "bytes": 2136452,
+      "sha256": "ac0b922cdd99ab1ee7f17ffee855b2c4aab9b1982aedd38ac284cf9f0db1f5af"
+    }
+  },
+  "receipt": {
+    "bytes": 137107,
+    "sha256": "ca79b7204c81b0f212541d60f245c354ae7d0c489cf8a68a8b0325ff3cb72c40"
+  },
+  "result": {
+    "bytes": 30155,
+    "sha256": "8d03ff196b87553d96bc224b6c5829848a6d8aafbe2c0142835909b4eeeff69b"
+  },
+  "schema": 1
+}

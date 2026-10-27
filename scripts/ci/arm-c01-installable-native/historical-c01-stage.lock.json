@@ -1,0 +1,38 @@
+{
+  "development_only": true,
+  "exporter": {
+    "mode": 420,
+    "path": "scripts/ci/integration_export.py",
+    "sha256": "1ae8aded5ab461b280ca1ff82047f6766d58efacf7a09c83dc84515ac7d2216c"
+  },
+  "purpose": "ARM-C01-same-job-followup",
+  "schema_version": 1,
+  "selected_for_release": false,
+  "source_files": {
+    "arm_c01.py": {
+      "mode": 420,
+      "sha256": "12576d39e30c13b91c003713218615e4b9259776ba86994ebe9730af0050f044"
+    },
+    "corpus.py": {
+      "mode": 420,
+      "sha256": "dbaf951adbb91d6769f40f8fb18c13044a42a3b5db11b4ad7d1f44afbed9ad8c"
+    },
+    "stage.py": {
+      "mode": 420,
+      "sha256": "0ec75669e3bac0b4aab59f67cc56bcf0b2bb1a78c8b8bca2c7485a91d1fd9f91"
+    },
+    "test_arm_c01.py": {
+      "mode": 420,
+      "sha256": "8a4ad0713a3df8e29d1582ef6b353e7eb224c4eeeb57973e31f34bb912bd7b3e"
+    },
+    "test_corpus.py": {
+      "mode": 420,
+      "sha256": "c0d60f1006d158e8162a8fc78871be895e9d46e5098733f4a0321d7eac63f5a8"
+    },
+    "test_stage.py": {
+      "mode": 420,
+      "sha256": "76eb8800948338462876d8bff3868defd241935541e72be22af68a5d4a78bd16"
+    }
+  },
+  "source_sha256": "bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16"
+}
