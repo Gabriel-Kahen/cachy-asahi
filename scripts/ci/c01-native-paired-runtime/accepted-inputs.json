@@ -1,0 +1,133 @@
+{
+  "accepted_component": {
+    "artifact": 12717726584,
+    "artifact_digest": "sha256:b6e0803e7b7b4e79ce678480ffff506ec221b682473a0137b1c5f3247976292a",
+    "attempt": 1,
+    "job": 122068774084,
+    "qualification": {
+      "bytes": 1209,
+      "sha256": "163aa14a511f1d23cec2f06b538c9978570eb600f6036946bc245e7858193031"
+    },
+    "qualification_path": "scripts/ci/c01-native-paired-runtime/accepted-component.json",
+    "ref": "codex/arm-c01-command-cleanup-fix-v2",
+    "run": 40468241048,
+    "source": "d33e595a10acf2d148752ea382ae607283fc0b73"
+  },
+  "base_inventory": {
+    "bytes": 6674,
+    "path": "scripts/ci/c01-native-paired-runtime/expected-packages.lock",
+    "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
+  },
+  "current_image": null,
+  "current_run": null,
+  "current_source": null,
+  "hardware": "NOT RUN",
+  "measurement_scope": "GENERIC_HOSTED_ARM_C01_INSTALLABLE",
+  "optimization_acceptance": "NOT RUN",
+  "packages": {
+    "baseline": {
+      "arch": "aarch64",
+      "archive": "scripts/ci/c01-native-paired-runtime/inputs/baseline-r2-1.pkg.tar.xz",
+      "bytes": 1730908,
+      "configured_flags": {
+        "AR": "gcc-ar",
+        "CC": "gcc",
+        "CFLAGS": "-O2 -g -march=armv8-a -mtune=generic -fstack-protector-strong -D_FORTIFY_SOURCE=2 -fPIE -frandom-seed=$@ -fno-lto -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN",
+        "LDFLAGS": "-pie -Wl,-z,relro,-z,now,-z,max-page-size=65536,-z,common-page-size=16384 -fno-lto",
+        "RANLIB": "gcc-ranlib",
+        "prefix": "/usr/lib/cachy-asahi/experiments/zlib-baseline"
+      },
+      "name": "cachy-asahi-zlib-baseline",
+      "payload": {
+        "usr/lib/cachy-asahi/experiments/zlib-baseline/bin/minigzip": "19fe7206b7b8ef41c1d38aad741f8a568ea4ee6756422cb0a3a6fe74d2a3580f",
+        "usr/lib/cachy-asahi/experiments/zlib-baseline/bin/probe": "5df6eab1121d86232902758817a2ce305057a3e821ceda07e3eb0cb6c30ec70c",
+        "usr/lib/cachy-asahi/experiments/zlib-baseline/bin/strict-gzip": "004bf106a6b1b7b851fa62ed23f738e188467bf6e083083f87b363f4937e4a15",
+        "usr/lib/cachy-asahi/experiments/zlib-baseline/build/Makefile": "2583b5e7326027a355b471d265599189c05ddda44e4c25b3e2306910e41d403b",
+        "usr/lib/cachy-asahi/experiments/zlib-baseline/include/zconf.h": "0718a11beb3295b345fb29a63b44b654b282d82c4cd0513f6225587f2b29b8bb",
+        "usr/lib/cachy-asahi/experiments/zlib-baseline/include/zlib.h": "818667d6ab6a37fe7469cb06a7f0cb2c2cb2f2c948a03e5accf1a4a74bf3020a",
+        "usr/lib/cachy-asahi/experiments/zlib-baseline/lib/libz.a": "3f3e4d5aa57e39089cfb1f016d91b7f53e2b94a200a873e64f67aa80cd4b7686",
+        "usr/lib/cachy-asahi/experiments/zlib-baseline/source/LICENSE.project": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+        "usr/lib/cachy-asahi/experiments/zlib-baseline/source/PKGBUILD": "1ec16239d4cade437ee0b564aa66f0a6e076825e0d1591a78d7e9c6ab74fc802",
+        "usr/lib/cachy-asahi/experiments/zlib-baseline/source/probe.c": "b85bab88cdb9048f26d5e812cc1ad2b8c783292882cbe3ab804e54353e4dfee1",
+        "usr/lib/cachy-asahi/experiments/zlib-baseline/source/strict-gzip.c": "369e4e0e3f7c79b5d892edf7476ade41d6647332fb78f95ad7de7d8449bbaca9",
+        "usr/lib/cachy-asahi/experiments/zlib-baseline/source/zlib-1.3.2.tar.gz": "bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16",
+        "usr/share/licenses/cachy-asahi-zlib-baseline/LICENSE.project": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+        "usr/share/licenses/cachy-asahi-zlib-baseline/LICENSE.zlib": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2"
+      },
+      "programs": {
+        "minigzip": {
+          "bytes": 343608,
+          "path": "/usr/lib/cachy-asahi/experiments/zlib-baseline/bin/minigzip",
+          "sha256": "19fe7206b7b8ef41c1d38aad741f8a568ea4ee6756422cb0a3a6fe74d2a3580f"
+        },
+        "probe": {
+          "bytes": 297728,
+          "path": "/usr/lib/cachy-asahi/experiments/zlib-baseline/bin/probe",
+          "sha256": "5df6eab1121d86232902758817a2ce305057a3e821ceda07e3eb0cb6c30ec70c"
+        },
+        "strict-gzip": {
+          "bytes": 158184,
+          "path": "/usr/lib/cachy-asahi/experiments/zlib-baseline/bin/strict-gzip",
+          "sha256": "004bf106a6b1b7b851fa62ed23f738e188467bf6e083083f87b363f4937e4a15"
+        }
+      },
+      "sha256": "ed6279f5982b0d7e17f2faf6cbb45334daa332e0db83b6b22106c674c860e382",
+      "variant": "baseline",
+      "version": "1.3.2-2"
+    },
+    "candidate": {
+      "arch": "aarch64",
+      "archive": "scripts/ci/c01-native-paired-runtime/inputs/lto-r2-1.pkg.tar.xz",
+      "bytes": 2136452,
+      "configured_flags": {
+        "AR": "gcc-ar",
+        "CC": "gcc",
+        "CFLAGS": "-O2 -g -march=armv8-a -mtune=generic -fstack-protector-strong -D_FORTIFY_SOURCE=2 -fPIE -frandom-seed=$@ -flto=2 -Werror=lto-type-mismatch -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN",
+        "LDFLAGS": "-pie -Wl,-z,relro,-z,now,-z,max-page-size=65536,-z,common-page-size=16384 -flto=2",
+        "RANLIB": "gcc-ranlib",
+        "prefix": "/usr/lib/cachy-asahi/experiments/zlib-lto"
+      },
+      "name": "cachy-asahi-zlib-lto",
+      "payload": {
+        "usr/lib/cachy-asahi/experiments/zlib-lto/bin/minigzip": "19e265ac64a2b4d11339576596cef2cbbbf3564def618c1a90233501ff582f45",
+        "usr/lib/cachy-asahi/experiments/zlib-lto/bin/probe": "8692520a79502f5e6bb9c17cce2bb6976d9f8b89cb3a3e8feac653851b8c4a6c",
+        "usr/lib/cachy-asahi/experiments/zlib-lto/bin/strict-gzip": "169a6a8f9407145b15723bd542a22d564b6052fc27443d2221acdf26806cb271",
+        "usr/lib/cachy-asahi/experiments/zlib-lto/build/Makefile": "68c23b1de03619d44292ee0186ab3890db51fc42e198b3e61448b1c4de20cf46",
+        "usr/lib/cachy-asahi/experiments/zlib-lto/include/zconf.h": "0718a11beb3295b345fb29a63b44b654b282d82c4cd0513f6225587f2b29b8bb",
+        "usr/lib/cachy-asahi/experiments/zlib-lto/include/zlib.h": "818667d6ab6a37fe7469cb06a7f0cb2c2cb2f2c948a03e5accf1a4a74bf3020a",
+        "usr/lib/cachy-asahi/experiments/zlib-lto/lib/libz.a": "8a81c0d599bcedf3bd8c1cd149da1714154cafc8112cf78ce12ecee89e4223c0",
+        "usr/lib/cachy-asahi/experiments/zlib-lto/source/LICENSE.project": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+        "usr/lib/cachy-asahi/experiments/zlib-lto/source/PKGBUILD": "088634ef2d182a524699cd77b9179fdbe27ec085f96dccc9e68cb8238c7580d0",
+        "usr/lib/cachy-asahi/experiments/zlib-lto/source/probe.c": "b85bab88cdb9048f26d5e812cc1ad2b8c783292882cbe3ab804e54353e4dfee1",
+        "usr/lib/cachy-asahi/experiments/zlib-lto/source/strict-gzip.c": "369e4e0e3f7c79b5d892edf7476ade41d6647332fb78f95ad7de7d8449bbaca9",
+        "usr/lib/cachy-asahi/experiments/zlib-lto/source/zlib-1.3.2.tar.gz": "bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16",
+        "usr/share/licenses/cachy-asahi-zlib-lto/LICENSE.project": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+        "usr/share/licenses/cachy-asahi-zlib-lto/LICENSE.zlib": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2"
+      },
+      "programs": {
+        "minigzip": {
+          "bytes": 237496,
+          "path": "/usr/lib/cachy-asahi/experiments/zlib-lto/bin/minigzip",
+          "sha256": "19e265ac64a2b4d11339576596cef2cbbbf3564def618c1a90233501ff582f45"
+        },
+        "probe": {
+          "bytes": 200672,
+          "path": "/usr/lib/cachy-asahi/experiments/zlib-lto/bin/probe",
+          "sha256": "8692520a79502f5e6bb9c17cce2bb6976d9f8b89cb3a3e8feac653851b8c4a6c"
+        },
+        "strict-gzip": {
+          "bytes": 132640,
+          "path": "/usr/lib/cachy-asahi/experiments/zlib-lto/bin/strict-gzip",
+          "sha256": "169a6a8f9407145b15723bd542a22d564b6052fc27443d2221acdf26806cb271"
+        }
+      },
+      "sha256": "ac0b922cdd99ab1ee7f17ffee855b2c4aab9b1982aedd38ac284cf9f0db1f5af",
+      "variant": "lto",
+      "version": "1.3.2-2"
+    }
+  },
+  "purpose": "C01_ACCEPTED_INSTALLABLE_PAIRED_RUNTIME_INPUTS",
+  "release": "NOT_ADMITTED",
+  "schema": 1,
+  "source_sha256": "bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16"
+}
