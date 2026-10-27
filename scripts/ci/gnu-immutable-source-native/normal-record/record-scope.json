@@ -1,0 +1,18 @@
+{
+  "ALPM_automatic_active_configuration_preservation": "NOT_CLAIMED",
+  "actual_replay": false,
+  "cases": {
+    "modified": 40234034646,
+    "pristine": 40219340417
+  },
+  "hardware": "NOT_RUN",
+  "interrupted_transactions": "NOT_RUN",
+  "new_acceptance": false,
+  "original_archive_bytes": "LOCAL_ONCE_ORIGINALS_NOT_COPIED_INTO_THIS_RECORD",
+  "original_archive_fingerprints": "ENTIRE_EXACT_ONCE_NAMESPACE_IN_DECISION_AND_POSTJOIN",
+  "performance": "NOT_MEASURED",
+  "reacquisition": false,
+  "release": "NOT_ADMITTED",
+  "source": "de1aab259df6bda8ad36f959392e3fc4eb35b622",
+  "status": "RETAIN_EXISTING_ROOT_PAIRED_NORMAL16K_DECISION"
+}
