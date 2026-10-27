@@ -160,8 +160,8 @@
       "sha256": "f74b34d63ff91ddde34ad072b80045c232f78037c1924d7d237ac3f2f94ce6d2"
     },
     "scripts/ci/orphans3-native/test_lifecycle.py": {
-      "bytes": 4618,
-      "sha256": "6199ff2ff471b99df3fad1951a8eecbbe0e03317fc60aeffc8719c0971371264"
+      "bytes": 6907,
+      "sha256": "a50388cd9bbe899eefba3866b4726f1711acdc1757f64a484100ed9c88db7432"
     },
     "scripts/ci/orphans3-native/test_owned_logging.py": {
       "bytes": 15751,
