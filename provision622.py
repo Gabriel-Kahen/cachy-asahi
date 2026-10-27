@@ -190,8 +190,9 @@ def prepare():
   graph=roots.observe(ROOT,limits=limits,hardlinks='generic-development-internal',absolute_paths=True);actual_caps=caps.observe(ROOT,D.cap_scope.nodes(graph['nodes']),limits);final=api['db'].database(ROOT,max_packages=622,max_files=100000,max_nodes=500000,observed=graph['nodes'])
   sys.path.insert(0,str(core.root/'runtime/runtime-vm/scripts/update'));import aux_checkpoint,root_link_selection
   root_link_selection.check(graph,limits);graph,checkpoint,initialization=initialize_auxiliary(core,ROOT,graph,limits,selected);aux=capture_auxiliary(core,ROOT,graph,limits,measured);core.F.check_record(aux,graph['nodes']);auxiliary=dict(status='FULL_FD_CHECKPOINT_AND_LIVE_AUXILIARY_LIBRARY_KEYS',checkpoint=api['capabilities'].digest({k:v for k,v in checkpoint.items()if k not in('main_bytes','aux_bytes')}),live_auxiliary=aux,initialization=initialization)
+  raw_database=retain_database_evidence(api,ROOT,graph,final,selected,lease,ms['uid'],ms['gid'])
   validation=F.check(value,measured,graph,mapping,actual_caps,signed,removed,initial,final,auxiliary);source_after,_=scope.source_manifest(Path('/'),limits,roots,policy);C.need(source_after==before and caps.observe(Path('/'),D.cap_scope.nodes(source_after),limits)==mapping,'complete original image source nodes/caps unchanged')
-  files={};files['current607-root.json.gz']=write('current607-root.json.gz',graph,ms['uid'],ms['gid'],True);files['current607-capabilities.json']=write('current607-capabilities.json',actual_caps,ms['uid'],ms['gid']);files['current607-database.json']=write('current607-database.json',final,ms['uid'],ms['gid']);files['current607-auxiliary.json']=write('current607-auxiliary.json',auxiliary,ms['uid'],ms['gid'])
+  files={};files['current607-database-raw.json.gz']=raw_database['compressed'];files['current607-root.json.gz']=write('current607-root.json.gz',graph,ms['uid'],ms['gid'],True);files['current607-capabilities.json']=write('current607-capabilities.json',actual_caps,ms['uid'],ms['gid']);files['current607-database.json']=write('current607-database.json',final,ms['uid'],ms['gid']);files['current607-auxiliary.json']=write('current607-auxiliary.json',auxiliary,ms['uid'],ms['gid'])
   report=dict(schema=1,status=validation['status'],nonce=selected['nonce'],scope=X.PROVISIONING,normal_hook_installation=False,root_identity=lease['root'],parent_identity=lease['parent'],copy=copy,transaction=transaction,validation=validation,files=files,graph_nodes_sha256=hashlib.sha256(json.dumps(graph['nodes'],sort_keys=True).encode()).hexdigest(),capabilities_sha256=api['capabilities'].digest(actual_caps),database_sha256=value['fresh607']['sha256'],packages=607,phase_deadline=end,fit='NOT_ESTABLISHED',hardware='NOT_RUN');write('current607-formation.json',report,ms['uid'],ms['gid']);return report
  finally:cleanup_preserving_primary(command,keyhome)
 
@@ -206,6 +207,161 @@ def retire():
   if fd is not None:os.close(fd)
   os.close(parent)
  return write('current607-retirement.json',dict(status='PASS_EXACT607_ROOT_REMOVED_BEFORE_ORIGINAL_CLEANUP',nonce=selected['nonce'],root=lease['root'],parent=lease['parent']),ms['uid'],ms['gid'])
+
+
+# Original-byte607 input/database evidence; no actor or budget authority.
+CURRENT_EXPORT_CAPS=dict(archive=128*1024**2,export_archives=647070676,signatures=1024**2,signature=1024,keys=8192,key=4096,verification=2*1024**2,verification_stream=16384,input_raw=4*1024**2,input_gzip=2*1024**2,db_files=2048,db_file=512*1024,db_bytes=16*1024**2,db_raw=24*1024**2,db_gzip=8*1024**2)
+CURRENT_DB='var/lib/pacman/local/'
+
+def export_blob(raw,cap):
+ import base64
+ C.need(type(raw)is bytes and len(raw)<=cap,'bounded complete original607 raw evidence');return dict(pin=C.pin(raw),data_base64=base64.b64encode(raw).decode('ascii'))
+
+def export_encoded(value,raw_cap,gzip_cap):
+ raw=C.encoded(value);C.need(len(raw)<=raw_cap,'bounded complete original607 JSON before compression');packed=gzip.compress(raw,mtime=0);C.need(len(packed)<=gzip_cap,'bounded complete original607 gzip');return raw,packed
+
+def export_selection(proof):
+ selected=proof['selection'];C.selection(selected);actual=selected['actual'];C.need(actual['source']==proof['source_sha']and type(proof['run_id'])is str and str(actual['run'])==proof['run_id']and actual['attempt']==proof['attempt']==1 and proof['consumer_token']==selected['nonce']and selected['nonce']==hashlib.sha256(('current607-core622:'+actual['source']+':'+str(actual['run'])).encode()).hexdigest()[:32],'whole current607 source/run/nonce export join');C.need(type(proof['producer_token'])is str and __import__('re').fullmatch('[0-9a-f]{16,32}',proof['producer_token']),'actual original producer token');return selected
+
+def input_evidence(ready,record,proof,verification,references):
+ """All607 signatures/keys plus exact exported/referenced original archives."""
+ ready=Path(ready);selected=export_selection(proof);rows=X.manifest(profile(),record);caps=CURRENT_EXPORT_CAPS;C.need(type(verification)is list and len(verification)==607,'all607 original verifier invocations required');by_archive={};spent=0
+ import base64
+ for item in verification:
+  C.need(type(item)is dict and set(item)=={'argv','returncode','stdout_base64','stderr_base64','time_limit'}and type(item['argv'])is list and all(type(v)is str for v in item['argv'])and item['returncode']==0 and type(item['returncode'])is int and item['time_limit']==30,'original successful bounded verification DATA')
+  argv=item['argv'];C.need(len(argv)==12 and argv[:4]==['gpg','--batch','--no-options','--homedir']and argv[5:10]==['--no-auto-key-retrieve','--auto-key-locate','clear','--status-fd=1','--verify']and Path(argv[4]).name=='latest607-verifier'and Path(argv[4]).parent.name=='private'and Path(argv[4]).parent.parent.parent==Path('/tmp'),'entire original public verifier argv/home');C.need(Path(argv[-1]).parent==ready/'packages'and argv[-2]==argv[-1]+'.sig'and argv[-1]not in by_archive,'unique original archive verification operands');by_archive[argv[-1]]=item
+  for field in('stdout_base64','stderr_base64'):
+   raw=base64.b64decode(item[field],validate=True);C.need(len(raw)<=caps['verification_stream'],'bounded original verification stream');spent+=len(raw)
+ C.need(spent<=caps['verification'],'bounded whole607 verification DATA aggregate');packages={};totals=dict(archives=0,signatures=0,keys=0);test=record['preparation']['signer_roles']['ephemeral_TEST'];upstream=record['preparation']['signer_roles']['upstream_ALARM'];counts=dict(TEST=0,upstream=0,reference=0)
+ C.need(type(references)is dict and len(references)==337,'fixed337 existing archive DATA references')
+ for row in rows:
+  C.need(row['archive']=='packages/'+Path(row['archive']).name and row['signature']==row['archive']+'.sig','flat exact607 raw archive/signature paths');verification_row=by_archive.get(str(ready/row['archive']));C.need(verification_row is not None,'actual607 verification to manifest byte role');status=base64.b64decode(verification_row['stdout_base64'],validate=True).decode('utf-8');valid=[v.split()for v in status.splitlines()if v.startswith('[GNUPG:] VALIDSIG ')];C.need(len(valid)==1 and len(valid[0])>=12 and row['signer']in(valid[0][2],valid[0][-1])and not any('[GNUPG:] '+v+' 'in status for v in('BADSIG','ERRSIG','REVKEYSIG','EXPKEYSIG','EXPSIG','KEYREVOKED','KEYEXPIRED','SIGEXPIRED')),'original complete607 exact signer and no expired/revoked signature status');sig=C.read(ready/row['signature'],caps['signature']);C.need(C.pin(sig)==dict(bytes=row['signature_size'],sha256=row['signature_sha256']),'whole original607 detached signature');totals['signatures']+=len(sig)
+  ref=dict(bytes=row['size'],sha256=row['sha256'])
+  if row['archive']in references:C.need(row['signer']==upstream and ref==references[row['archive']],'only exact fixed upstream archive may reference retained DATA');archive=dict(kind='EXACT_UPSTREAM_REFERENCE',pin=ref);counts['reference']+=1
+  else:
+   C.need(row['signer']in(test,upstream),'only declared607 signer role');kind='EXPORTED_CURRENT_TEST'if row['signer']==test else'EXPORTED_CURRENT_UPSTREAM';archive=dict(kind=kind,pin=ref,file='current607-inputs/'+row['archive']);totals['archives']+=row['size'];C.need(row['size']<=caps['archive'],'held128MiB per-input archive cap');counts['TEST'if row['signer']==test else'upstream']+=1
+  C.need(totals['archives']<=caps['export_archives']and totals['signatures']<=caps['signatures'],'measured exact archive export and smaller signature aggregate');packages[row['name']]=dict(row=row,archive=archive,signature=export_blob(sig,caps['signature']),verification=verification_row)
+ C.need(counts==dict(TEST=29,upstream=241,reference=337)and set(by_archive)=={str(ready/r['archive'])for r in rows},'exact29 run TEST/241 upstream exports/337 existing DATA refs');keys={}
+ for row in record['keyrings']:
+  name=row['path'];C.need(name=='keys/'+Path(name).name and name not in keys,'flat exact607 public key role');raw=C.read(ready/name,caps['key']);C.need(C.pin(raw)==dict(bytes=row['size'],sha256=row['sha256']),'whole actual607 public key');keys[name]=export_blob(raw,caps['key']);totals['keys']+=len(raw)
+ C.need(len(keys)==2 and totals['keys']<=caps['keys'],'two bounded original public keys');return dict(schema=1,status='CURRENT607_ORIGINAL_SIGNED_INPUTS_DATA_ONLY',selection=selected,producer_token=proof['producer_token'],manifest=C.pin(C.read(ready/'manifest.json',4*1024**2)),packages=packages,keyrings=keys)
+
+def retain_input_evidence(parent,ready,record,proof,verification):
+ """Retain partial original bytes before any failure is propagated."""
+ parent,ready=Path(parent),Path(ready);C.need(parent.is_absolute()and not any(p.is_symlink()for p in(parent,*parent.parents))and parent.is_dir(),'ordinary fixed current context evidence parent');target=parent/'current607-inputs';C.need(not os.path.lexists(target),'fresh current607 input evidence directory');target.mkdir(mode=0o700);(target/'packages').mkdir(mode=0o700);progress=dict(schema=1,status='INCOMPLETE_CURRENT607_ORIGINAL_INPUTS_DATA_ONLY',selection=export_selection(proof),producer_token=proof['producer_token'],manifest=C.pin(C.read(ready/'manifest.json',4*1024**2)),files={},error_type=None);primary=None
+ try:
+  references=C.decode(C.read(Path(__file__).with_name('composition-parent.json'),4*1024**2))['current_root_export']['reference_archives'];value=input_evidence(ready,record,proof,verification,references)
+  for package in value['packages'].values():
+   if package['archive']['kind']=='EXACT_UPSTREAM_REFERENCE':continue
+   C.need(time.monotonic()<proof['export_phase_end'],'same current source owner clock during archive retention');relative=package['row']['archive'];raw=C.read(ready/relative,CURRENT_EXPORT_CAPS['archive']);C.need(C.pin(raw)==package['archive']['pin'],'whole stable raw607 archive before retention');destination=target/relative;C.need(not os.path.lexists(destination),'fresh literal raw607 archive output');destination.write_bytes(raw);C.need(C.pin(C.read(destination,CURRENT_EXPORT_CAPS['archive']))==package['archive']['pin'],'whole retained607 raw archive readback');progress['files'][package['archive']['file']]=package['archive']['pin']
+  raw,packed=export_encoded(value,CURRENT_EXPORT_CAPS['input_raw'],CURRENT_EXPORT_CAPS['input_gzip']);(target/'current607-inputs.json.gz').write_bytes(packed);progress['files']['current607-inputs/current607-inputs.json.gz']=C.pin(packed);progress['status']='COMPLETE_CURRENT607_ORIGINAL_INPUTS_DATA_ONLY';return dict(file='current607-inputs/current607-inputs.json.gz',raw=C.pin(raw),compressed=C.pin(packed))
+ except BaseException as error:primary=error;progress['error_type']=type(error).__name__;raise
+ finally:
+  try:
+   raw=C.encoded(progress);C.need(len(raw)<=1024**2,'bounded actual607 capture index');(target/'capture.json').write_bytes(raw)
+  except BaseException as error:
+   if primary is None:raise
+   primary.add_note('current607 input evidence finalization failed: '+type(error).__name__)
+
+def database_evidence(api,root,graph,parsed,selected,lease,progress):
+ """Read every graph-observed local DB original before the Core transaction."""
+ root=Path(root);C.selection(selected);C.need(root==ROOT and [root.stat().st_dev,root.stat().st_ino]==lease['root']and selected['nonce']==lease['nonce'],'exact source-owned pre-Core607 database root');nodes={n:r for n,r in graph['nodes'].items()if n.startswith(CURRENT_DB)};files={n:r for n,r in nodes.items()if r['type']=='file'};progress.update(schema=1,status='INCOMPLETE_CURRENT607_ORIGINAL_ALPM_DATABASE_DATA_ONLY',selection=selected,root_identity=lease['root'],graph_nodes_sha256=hashlib.sha256(json.dumps(graph['nodes'],sort_keys=True).encode()).hexdigest(),parsed_database=C.pin(C.encoded(parsed)),nodes=nodes,records={},error_type=None);C.need(nodes and all(r['type']in('file','directory')for r in nodes.values())and 0<len(files)<=CURRENT_EXPORT_CAPS['db_files'],'complete bounded ordinary607 local DB graph');records=progress['records'];total=0;db=api['db']
+ for name,node in sorted(files.items()):
+  C.need(time.monotonic()<lease['phase_deadline'],'same provisioning phase clock during raw DB capture');relative=name[len(CURRENT_DB):];parts=relative.split('/');C.need(relative=='ALPM_DB_VERSION'or len(parts)==2 and parts[-1]in('desc','files','install','mtree'),'exact original ALPM local DB record role')
+  with db.directory(root,name.rpartition('/')[0])as parent:
+   before=os.stat(parts[-1],dir_fd=parent,follow_symlinks=False);raw=db.read_record(parent,parts[-1],maximum=CURRENT_EXPORT_CAPS['db_file'],expected=node);C.need(db.identity(before)==db.identity(os.stat(parts[-1],dir_fd=parent,follow_symlinks=False)),'original607 DB record stable through evidence capture')
+  C.need(total+len(raw)<=CURRENT_EXPORT_CAPS['db_bytes'],'bounded complete607 raw DB aggregate');total+=len(raw);records[name]=dict(node=node,identity=list(db.identity(before)),**export_blob(raw,CURRENT_EXPORT_CAPS['db_file']))
+ actual=api['db'].database(root,max_packages=622,max_files=100000,max_nodes=500000,observed=graph['nodes']);C.need(actual==parsed and {r['name']:r['version']for r in actual}==profile()['before607'],'whole original raw607 parser replay before evidence write');progress['status']='CURRENT607_ORIGINAL_ALPM_DATABASE_DATA_ONLY';progress.pop('error_type');return progress
+
+def retain_database_evidence(api,root,graph,parsed,selected,lease,uid,gid):
+ progress={};primary=None;result=None
+ try:result=database_evidence(api,root,graph,parsed,selected,lease,progress)
+ except BaseException as error:primary=error;progress['error_type']=type(error).__name__;raise
+ finally:
+  try:
+   raw,packed=export_encoded(progress,CURRENT_EXPORT_CAPS['db_raw'],CURRENT_EXPORT_CAPS['db_gzip']);name='current607-database-raw.json.gz';path=Path('/out')/name;C.need(not os.path.lexists(path)and sum(p.stat().st_size for p in path.parent.iterdir()if p.is_file())+len(packed)<=512*1024**2,'fresh original607 DB evidence within unchanged512MiB aggregate');path.write_bytes(packed);os.chown(path,uid,gid)
+  except BaseException as error:
+   if primary is None:raise
+   primary.add_note('current607 raw database evidence finalization failed: '+type(error).__name__)
+ if result is not None:return dict(file=name,raw=C.pin(raw),compressed=C.pin(packed))
+
+def retain_input_failure(parent,target,failure=None):
+ """Publish actual partial DATA and a typed context state even on copy error."""
+ parent,target=Path(parent),Path(target);C.need(not os.path.lexists(target)and parent.is_dir()and(parent/'current607-inputs').is_dir(),'fresh fixed early input-failure public destination');target.mkdir(mode=0o700);rows={};total=0;primary=None;errors=[dict(file='current607-inputs',error='INCOMPLETE_ORIGINAL607_INPUTS_BEFORE_CORE_ACTOR')]
+ try:
+  for source,name,cap in[(parent/'source-proof.json','source-proof.json',4*1024**2),(parent/'fresh607-manifest.json','retained/fresh607-manifest.json',4*1024**2)]+[(p,'current607-inputs/'+p.relative_to(parent/'current607-inputs').as_posix(),128*1024**2 if p.parent.name=='packages'else 4*1024**2)for p in sorted((parent/'current607-inputs').rglob('*'))if p.is_file()]:
+   raw=C.read(source,cap);C.need(total+len(raw)<=768*1024**2,'unchanged public cap during early607 failure retention');q=target/name;q.parent.mkdir(parents=True,exist_ok=True);q.write_bytes(raw);rows[name]=C.pin(raw);total+=len(raw)
+ except BaseException as error:
+  primary=error;errors.append(dict(file='current607-inputs',error='PARTIAL_CONTEXT_COPY_'+type(error).__name__))
+  if failure is not None:failure['retention_error_type']=type(error).__name__
+  raise
+ finally:
+  try:
+   export=dict(schema=1,status='FAIL_OR_INCOMPLETE',files=rows,bytes=total,errors=errors,hardware='NOT_RUN',Asahi='NOT_RUN',release='NOT_ADMITTED')
+   if failure is not None:export['current607_input_context_failure_data']=failure
+   (target/'export.json').write_bytes(C.encoded(export))
+  except BaseException as error:
+   if primary is None:raise
+   primary.add_note('pre-Core failure export finalization failed: '+type(error).__name__)
+
+def claim_input_context(parent,selected):
+ """Track only the fresh pre-Core context, independently of every Core lease."""
+ parent=Path(parent);C.selection(selected);C.need(parent.parent==Path('/tmp')and parent.name.endswith('-context')and parent==parent.resolve()and not any(p.is_symlink()for p in(parent,*parent.parents)),'fixed literal pre-Core context sibling');s=parent.stat();C.need(stat.S_ISDIR(s.st_mode)and stat.S_IMODE(s.st_mode)==0o700 and s.st_uid==os.getuid()and s.st_gid==os.getgid(),'fresh owned0700 pre-Core context');return dict(schema=1,status='OWNED_PRE_CORE_INPUT_CONTEXT_NO_CORE_ACTOR',path=str(parent),root=[s.st_dev,s.st_ino,stat.S_IMODE(s.st_mode),s.st_uid,s.st_gid],parent=[parent.parent.stat().st_dev,parent.parent.stat().st_ino],nonce=selected['nonce'],actual=selected['actual'],Core_actor='NOT_STARTED')
+
+def record_input_context(claim):
+ path=Path(claim['path'])/'context-owner.json';C.need(not os.path.lexists(path),'fresh pre-Core context identity record');raw=C.encoded(claim);C.need(len(raw)<=16384,'bounded pre-Core context identity');fd=os.open(path,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,0o600)
+ try:C.need(os.write(fd,raw)==len(raw),'whole pre-Core identity write')
+ finally:os.close(fd)
+
+def context_failure(claim,primary,retention=None):return dict(schema=1,status='SOURCE_OWNED_PRE_CORE_CONTEXT_FAILURE_DATA_ONLY',context=claim,primary_error_type=primary,retention_error_type=retention,retirement='PENDING_ORIGINAL_PRODUCER_CLEANUP',Core_actor='NOT_STARTED',acceptance=False)
+
+def current_context_rows(claim,selected,end):
+ parent=Path(claim['path']);C.selection(selected);C.need(type(end)in(int,float)and __import__('math').isfinite(end)and time.monotonic()<end,'unchanged remaining pre-Core context retirement clock');s=parent.stat();C.need(claim['schema']==1 and claim['status']=='OWNED_PRE_CORE_INPUT_CONTEXT_NO_CORE_ACTOR'and claim['Core_actor']=='NOT_STARTED'and claim['nonce']==selected['nonce']and claim['actual']==selected['actual']and claim['root']==[s.st_dev,s.st_ino,stat.S_IMODE(s.st_mode),s.st_uid,s.st_gid]and claim['parent']==[parent.parent.stat().st_dev,parent.parent.stat().st_ino]and parent.parent==Path('/tmp')and parent.name.endswith('-context'),'same tracked pre-Core identity/source/run/nonce, no Core lease');C.need(not any(p.is_symlink()for p in(parent,*parent.parents))and s.st_uid==os.getuid()and stat.S_IMODE(s.st_mode)==0o700,'ordinary caller-owned tracked context')
+ fixed={'context-owner.json','source-proof.json','fresh607-manifest.json','fresh607-producer.json','fresh607-base-build.json','fresh607-owner.json','fresh607-tooling-seed.json'};archives=set()
+ if(parent/'current607-inputs').exists():
+  record=C.decode(C.read(parent/'fresh607-manifest.json',4*1024**2));rows=X.manifest(profile(),record);references=C.decode(C.read(Path(__file__).with_name('composition-parent.json'),4*1024**2))['current_root_export']['reference_archives'];archives={r['archive']for r in rows if r['archive']not in references}
+ allowed=fixed|{'current607-inputs/'+n for n in archives|{'capture.json','current607-inputs.json.gz'}};files={};dirs={''};total=0
+ for p in sorted(parent.rglob('*')):
+  C.need(time.monotonic()<end,'same pre-Core context retirement deadline');n=p.relative_to(parent).as_posix();st=p.lstat();C.need(st.st_dev==s.st_dev and st.st_uid==os.getuid()and not p.is_symlink()and(stat.S_ISDIR(st.st_mode)or stat.S_ISREG(st.st_mode)and st.st_nlink==1),'only same-device owned ordinary pre-Core context nodes')
+  if p.is_dir():C.need(n in('current607-inputs','current607-inputs/packages'),'closed pre-Core directory namespace');dirs.add(n);continue
+  C.need(n in allowed,'closed source-selected pre-Core file namespace');cap=128*1024**2 if n.startswith('current607-inputs/packages/')else 4*1024**2;raw=C.read(p,cap);total+=len(raw);C.need(len(files)<2048 and total<=768*1024**2,'unchanged bounded pre-Core context files/bytes');files[n]=dict(pin=C.pin(raw),identity=list(C.identity(st)))
+ expected={''}
+ for n in files:expected.update(''if str(q)=='.'else q.as_posix()for q in Path(n).parents)
+ C.need(expected<=dirs<=expected|{'current607-inputs','current607-inputs/packages'},'closed complete pre-Core context directories');return parent,files
+
+def retain_context_before_retirement(claim,selected,public,end,failure):
+ """Reuse exact retained bytes; copy any remaining original context DATA."""
+ parent,files=current_context_rows(claim,selected,end);public=Path(public);C.need(public.is_absolute()and not any(p.is_symlink()for p in(public,*public.parents)),'literal actual pre-Core public destination');public.mkdir(mode=0o700,exist_ok=True);export_path=public/'export.json';export=C.decode(C.read(export_path,4*1024**2))if export_path.exists()else dict(schema=1,status='FAIL_OR_INCOMPLETE',files={},bytes=0,errors=[dict(file='current607-inputs',error='PRE_CORE_CONTEXT_FAILURE_DATA_ONLY')],hardware='NOT_RUN',Asahi='NOT_RUN',release='NOT_ADMITTED');mapping={}
+ for name in files:
+  if name.startswith('current607-inputs/'):target=name
+  elif name=='source-proof.json':target=name
+  elif name=='context-owner.json':target='current607-inputs/context-owner.json'
+  else:target='retained/'+name
+  C.need(target not in mapping,'unique closed context public role');mapping[target]=name
+ existing={p.relative_to(public).as_posix()for p in public.rglob('*')if p.is_file()};C.need(existing<=set(mapping)|{'export.json'}and set(export['files'])==existing-{'export.json'},'only actual closed earlier pre-Core public files')
+ total=sum(w['bytes']for w in export['files'].values())
+ for target,name in mapping.items():
+  C.need(time.monotonic()<end,'same remaining pre-Core context retention clock');source=parent/name;row=files[name];cap=128*1024**2 if name.startswith('current607-inputs/packages/')else 4*1024**2;raw=C.read(source,cap);C.need(C.pin(raw)==row['pin']and list(C.identity(source.stat()))==row['identity'],'whole unchanged original context byte/identity before retirement');dest=public/target
+  if dest.exists():C.need(C.pin(C.read(dest,cap))==row['pin']==export['files'][target],'exact earlier public context bytes reused, never replaced')
+  else:C.need(total+len(raw)<=768*1024**2,'unchanged full public cap during context retention');dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(raw);export['files'][target]=row['pin'];total+=len(raw)
+ export['bytes']=total;export['status']='FAIL_OR_INCOMPLETE';export['current607_input_context_failure_data']=failure;(public/'export.json').write_bytes(C.encoded(export));C.need(current_context_rows(claim,selected,end)==(parent,files),'whole tracked context unchanged after exact public retention');return parent,files
+
+def retire_input_context(claim,selected,core_source,public,end,failure):
+ """Original FD cleanup, only after exact original partial DATA retention."""
+ parent,files=retain_context_before_retirement(claim,selected,public,end,failure)
+ import adapter
+ core=adapter.core(core_source);roots=core.api['roots'];limits=roots.Limits(deadline=end,max_nodes=2048,max_bytes=768*1024**2,max_file_bytes=128*1024**2);sys.path.insert(0,str(core.root/'runtime/runtime-vm/scripts/update'));import disposable_copy
+ grand=roots._open_root(parent.parent);fd=None
+ try:
+  C.need([os.fstat(grand).st_dev,os.fstat(grand).st_ino]==claim['parent'],'same original context parent descriptor');fd=os.open(parent.name,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=grand);st=os.fstat(fd);C.need([st.st_dev,st.st_ino,stat.S_IMODE(st.st_mode),st.st_uid,st.st_gid]==claim['root'],'same initial pre-Core context descriptor identity');mount=roots._mount_id(fd,limits);disposable_copy._same(grand,parent.name,fd,tuple(claim['root'][:2]),mount,limits);C.need(current_context_rows(claim,selected,end)==(parent,files),'whole exact context immediately before original FD retirement');disposable_copy._empty(fd,mount,limits,[0]);disposable_copy._same(grand,parent.name,fd,tuple(claim['root'][:2]),mount,limits);os.rmdir(parent.name,dir_fd=grand);C.need(not os.path.lexists(parent),'actual owned pre-Core context removed')
+ finally:
+  if fd is not None:os.close(fd)
+  os.close(grand)
+ failure['retirement']='PASS_OWNED_PRE_CORE_CONTEXT_REMOVED_AFTER_ORIGINAL_PRODUCER_CLEANUP';export_path=Path(public)/'export.json';export=C.decode(C.read(export_path,4*1024**2));export['current607_input_context_failure_data']=failure;export_path.write_bytes(C.encoded(export));return dict(status=failure['retirement'],context=claim,files=len(files),bytes=sum(v['pin']['bytes']for v in files.values()),Core_actor='NOT_STARTED')
+
+def publish_context_failure(public,failure):
+ """Bounded structured failure survives callers that discard exception notes."""
+ public=Path(public);C.need(not any(p.is_symlink()for p in(public,*public.parents)),'ordinary fixed failure public destination');public.mkdir(mode=0o700,exist_ok=True);path=public/'export.json';export=C.decode(C.read(path,4*1024**2))if path.exists()else dict(schema=1,status='FAIL_OR_INCOMPLETE',files={},bytes=0,errors=[dict(file='current607-inputs',error='IDENTIFIED_PRE_CORE_CONTEXT_RETAINED')],hardware='NOT_RUN',Asahi='NOT_RUN',release='NOT_ADMITTED');export['status']='FAIL_OR_INCOMPLETE';export['current607_input_context_failure_data']=failure;path.write_bytes(C.encoded(export))
 
 if __name__=='__main__':
  import argparse

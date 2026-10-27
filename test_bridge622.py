@@ -900,4 +900,158 @@ class TransactionDiagnosticTransportControls(unittest.TestCase):
   refused=self.exported({'phase1-cap.log':b''},metadata={'phase1-cap.log':dict(mode=0o100600,uid=0,gid=0,size=64*1024**2+1)});self.assertIsInstance(refused['caught'],ValueError);self.assertIn('bounded ordinary guest evidence nodes',str(refused['caught']));self.assertEqual(len(refused['calls']),1)
 
 
+
+class CurrentRootExportControls(unittest.TestCase):
+ """Focused original-byte DATA controls. No ALPM/GPG/VM/API process is started."""
+ def setUp(self):
+  import provision622
+  import hashlib
+  self.P=provision622;record=C.decode(C.read(CASE/'composition-parent.json',4*1024**2))['current_root_export'];self.record=copy.deepcopy(record['control_manifest']);self.refs=record['reference_archives'];profile=C.decode(C.read(CASE/'profile.json',4*1024**2));source='f'*40;run=1;nonce=hashlib.sha256(('current607-core622:'+source+':'+str(run)).encode()).hexdigest()[:32];selected=dict(schema=1,scope=X.SCOPE,actual=dict(source=source,ref='codex/current-root-export-data-control',run=run,attempt=1),nonce=nonce,kernel=profile['kernel'],source_profiles={n:profile['source_profiles'][n]for n in('core800','ksm637','core7_carrier')},budgets=C.BUDGET);self.proof=dict(selection=selected,source_sha=source,run_id=str(run),attempt=1,consumer_token=nonce,producer_token='a'*16)
+ def inputs(self,root):
+  import base64
+  ready=root/'ready604';(ready/'packages').mkdir(parents=True);(ready/'keys').mkdir();record=copy.deepcopy(self.record);verification=[]
+  for row in record['packages']:
+   raw=('fixture detached signature '+row['name']).encode();(ready/row['signature']).write_bytes(raw);row.update(signature_size=len(raw),signature_sha256=C.pin(raw)['sha256']);status=('[GNUPG:] VALIDSIG '+row['signer']+' 2026-10-27 1790000000 0 4 0 22 8 00 '+row['signer']+'\n').encode();argv=['gpg','--batch','--no-options','--homedir','/tmp/owned-producer/private/latest607-verifier','--no-auto-key-retrieve','--auto-key-locate','clear','--status-fd=1','--verify',str(ready/row['signature']),str(ready/row['archive'])];verification.append(dict(argv=argv,returncode=0,stdout_base64=base64.b64encode(status).decode(),stderr_base64='',time_limit=30))
+  for row in record['keyrings']:
+   raw=('fixture public key '+row['path']).encode();(ready/row['path']).write_bytes(raw);row.update(size=len(raw),sha256=C.pin(raw)['sha256'])
+  (ready/'manifest.json').write_bytes(C.encoded(record));return ready,record,verification
+ def db(self,root):
+  db=C.load('_current_root_export_original_db_control',A.core_source/'runtime/runtime-vm/scripts/ci/full-root-upgrade/root_upgrade.py');nodes={};folder=root/'var/lib/pacman/local';folder.mkdir(parents=True);(folder/'ALPM_DB_VERSION').write_bytes(b'9\n')
+  for name,version in V['before607'].items():
+   package=folder/(name+'-'+version);package.mkdir();(package/'desc').write_text('%NAME%\n'+name+'\n\n%VERSION%\n'+version+'\n\n%ARCH%\naarch64\n\n');(package/'files').write_bytes(b'')
+  # Observe actual fixture bytes using the held DB parser; never relabel these
+  # generated controls as original run DATA.
+  for p in folder.rglob('*'):
+   st=p.stat();node=dict(type='directory'if p.is_dir()else'file',mode=__import__('stat').S_IMODE(st.st_mode),uid=st.st_uid,gid=st.st_gid)
+   if p.is_file():node.update(C.pin(p.read_bytes()))
+   nodes[p.relative_to(root).as_posix()]=node
+  rows=db.database(root,max_packages=622,max_files=100000,max_nodes=500000,observed=nodes);graph=dict(nodes=nodes);lease=dict(root=[root.stat().st_dev,root.stat().st_ino],nonce=self.proof['selection']['nonce'],phase_deadline=time.monotonic()+30);return db,rows,graph,lease
+ def test_all607_input_roles_and_reference_export_partition(self):
+  with tempfile.TemporaryDirectory(prefix='current607-data-',dir='/tmp')as td:
+   ready,record,verification=self.inputs(Path(td));value=self.P.input_evidence(ready,record,self.proof,verification,self.refs);self.assertEqual(len(value['packages']),607);self.assertEqual(value['manifest'],C.pin((ready/'manifest.json').read_bytes()));kinds=[r['archive']['kind']for r in value['packages'].values()];self.assertEqual(kinds.count('EXACT_UPSTREAM_REFERENCE'),337);self.assertEqual(kinds.count('EXPORTED_CURRENT_UPSTREAM'),241);self.assertEqual(kinds.count('EXPORTED_CURRENT_TEST'),29);self.assertEqual(sum(r['archive']['pin']['bytes']for r in value['packages'].values()if r['archive']['kind']!='EXACT_UPSTREAM_REFERENCE'),647070676)
+ def test_re_pinned_bad_signature_status_or_nonce_or_reference_is_refused(self):
+  import base64
+  with tempfile.TemporaryDirectory(prefix='current607-semantic-',dir='/tmp')as td:
+   ready,record,verification=self.inputs(Path(td))
+   for kind in('signer','expired','returncode','duplicate','argv','nonce','source','reference','signature','missing'):
+    vv,pp,rr=copy.deepcopy(verification),copy.deepcopy(self.proof),copy.deepcopy(self.refs)
+    if kind=='signer':vv[0]['stdout_base64']=base64.b64encode(base64.b64decode(vv[0]['stdout_base64']).replace(record['packages'][0]['signer'].encode(),b'F'*40)).decode()
+    elif kind=='expired':vv[0]['stdout_base64']=base64.b64encode(base64.b64decode(vv[0]['stdout_base64'])+b'[GNUPG:] KEYEXPIRED 1\n').decode()
+    elif kind=='returncode':vv[0]['returncode']=1
+    elif kind=='duplicate':vv[1]=copy.deepcopy(vv[0])
+    elif kind=='argv':vv[0]['argv'][8]='--status-fd=2'
+    elif kind=='nonce':pp['selection']['nonce']='0'*32
+    elif kind=='source':pp['source_sha']='0'*40
+    elif kind=='reference':rr[next(iter(rr))]['sha256']='0'*64
+    elif kind=='signature':vv[0]['argv'][-2]+='.other'
+    else:vv.pop()
+    with self.subTest(kind=kind),self.assertRaises((ValueError,KeyError)):self.P.input_evidence(ready,record,pp,vv,rr)
+ def test_actual_input_copy_failure_keeps_partial_index_and_original_failure_bytes(self):
+  with tempfile.TemporaryDirectory(prefix='current607-copy-failure-',dir='/tmp')as td:
+   root=Path(td);ready,record,verification=self.inputs(root);context=root/'context';context.mkdir();(context/'source-proof.json').write_bytes(C.encoded(self.proof));(context/'fresh607-manifest.json').write_bytes(C.encoded(record))
+   with self.assertRaises(FileNotFoundError):self.P.retain_input_evidence(context,ready,record,dict(self.proof,export_phase_end=time.monotonic()+30),verification)
+   capture=C.decode((context/'current607-inputs/capture.json').read_bytes());self.assertEqual(capture['status'],'INCOMPLETE_CURRENT607_ORIGINAL_INPUTS_DATA_ONLY');self.assertEqual(capture['error_type'],'FileNotFoundError');self.assertEqual(capture['files'],{});target=root/'public';self.P.retain_input_failure(context,target);out=C.decode((target/'export.json').read_bytes());self.assertEqual(out['status'],'FAIL_OR_INCOMPLETE');self.assertEqual((target/'current607-inputs/capture.json').read_bytes(),(context/'current607-inputs/capture.json').read_bytes())
+ def test_full_raw_database_replays_original_parser_and_exact_rows(self):
+  import base64
+  with tempfile.TemporaryDirectory(prefix='current607-rawdb-',dir='/tmp')as td:
+   root=Path(td);db,rows,graph,lease=self.db(root)
+   with patch.object(self.P,'ROOT',root):value=self.P.database_evidence(dict(db=db),root,graph,rows,self.proof['selection'],lease,{})
+   self.assertEqual(value['status'],'CURRENT607_ORIGINAL_ALPM_DATABASE_DATA_ONLY');self.assertEqual(len(value['records']),1215);self.assertEqual(value['parsed_database'],C.pin(C.encoded(rows)))
+   for name,row in value['records'].items():self.assertEqual(base64.b64decode(row['data_base64'],validate=True),(root/name).read_bytes());self.assertEqual(row['node'],graph['nodes'][name]);self.assertEqual(row['pin'],C.pin((root/name).read_bytes()));self.assertEqual(len(row['identity']),9)
+ def test_raw_database_changes_cannot_be_normalized_into_old_rows(self):
+  with tempfile.TemporaryDirectory(prefix='current607-db-refusal-',dir='/tmp')as td:
+   root=Path(td);db,rows,graph,lease=self.db(root);first=next(n for n in graph['nodes']if n.endswith('/desc'));(root/first).write_bytes((root/first).read_bytes()+b'%DEPENDS%\nnew-dependency\n\n');node=graph['nodes'][first];node.update(C.pin((root/first).read_bytes()));progress={}
+   with patch.object(self.P,'ROOT',root),self.assertRaisesRegex(ValueError,'whole original raw607 parser replay'):self.P.database_evidence(dict(db=db),root,graph,rows,self.proof['selection'],lease,progress)
+   self.assertEqual(progress['status'],'INCOMPLETE_CURRENT607_ORIGINAL_ALPM_DATABASE_DATA_ONLY');self.assertEqual(len(progress['records']),1215)
+ def test_raw_database_capture_finally_retains_prefix_on_graph_mismatch(self):
+  realpath=Path
+  with tempfile.TemporaryDirectory(prefix='current607-db-partial-',dir='/tmp')as td:
+   root=Path(td)/'root';root.mkdir();out=Path(td)/'out';out.mkdir();db,rows,graph,lease=self.db(root);name=sorted(n for n,r in graph['nodes'].items()if r['type']=='file')[1];graph['nodes'][name]['sha256']='0'*64
+   with patch.object(self.P,'ROOT',root),patch.object(self.P,'Path',side_effect=lambda v:out if str(v)=='/out'else realpath(v)),self.assertRaisesRegex(ValueError,'database record differs'):self.P.retain_database_evidence(dict(db=db),root,graph,rows,self.proof['selection'],lease,os.getuid(),os.getgid())
+   value=C.decode(C.inflate((out/'current607-database-raw.json.gz').read_bytes()));self.assertEqual(value['status'],'INCOMPLETE_CURRENT607_ORIGINAL_ALPM_DATABASE_DATA_ONLY');self.assertEqual(value['error_type'],'ValueError');self.assertEqual(len(value['records']),1)
+ def query(self,root,absent):
+  import hashlib
+  producer=root/'owned-producer';base=producer/'private/desktop574';base.mkdir(parents=True);consumer=root/'consumer';consumer.mkdir();image='sha256:'+'c'*64;(base/'image-id').write_text(image);owner=dict(token='d'*32,core_image='sha256:'+'e'*64,images_preexisting=[]);(producer/'producer-owner.json').write_bytes(C.encoded(owner));report=dict(image=image,ownership=dict(token=self.proof['producer_token'],before_images=[]),owned_cleanup=dict(status='PASS',image=dict(id=image,absence_verified=True),probe=dict(absence_verified=True)));(base/'report.json').write_bytes(C.encoded(report));state=dict(commands=[]);proof=dict(self.proof,producer_path=str(producer));end=time.monotonic()+20
+  def command(argv,required,seconds):
+   out=b'[]\n';err=('Error: No such image: '+image+'\n').encode()if absent else b'uncertain daemon response\n';row=dict(argv=argv,exit_code=1,group_absence_verified=True,time_limit=seconds,seconds=.01,output_limit=1024**2,stdout_bytes=len(out),stdout_sha256=hashlib.sha256(out).hexdigest(),stderr_bytes=len(err),stderr_sha256=hashlib.sha256(err).hexdigest());state['commands'].append(row)
+   for suffix,raw in(('stdout',out),('stderr',err)):(consumer/('command-000.'+suffix)).write_bytes(raw)
+   return dict(code=1,out=out,err=err)
+  wrapped=O.handoff_capture(command,state,consumer,proof,end);return producer,consumer,proof,wrapped,end
+ def test_handoff_query_raw_success_and_failure_retained_before_predicate(self):
+  for absent in(True,False):
+   with tempfile.TemporaryDirectory(prefix='current607-query-',dir='/tmp')as td:
+    # Original handoff requires immediate /tmp siblings, so the DATA fixture
+    # uses the original capture and literal predicate without moving a marker.
+    root=Path(td);producer,consumer,proof,wrapped,end=self.query(root,absent);image=(producer/'private/desktop574/image-id').read_text();result=wrapped(['/usr/bin/docker','image','inspect',image],False,10);value=C.decode((consumer/'handoff-query/command.json').read_bytes());self.assertEqual(value['selection'],self.proof['selection']);self.assertEqual(value['image'],image);self.assertEqual(value['command']['exit_code'],1);self.assertEqual(value['artifacts']['stderr'],C.pin(result['err']));self.assertEqual((consumer/'handoff-query/stderr').read_bytes(),result['err']);public=root/'public';public.mkdir();(public/'export.json').write_bytes(C.encoded(dict(schema=1,status='PASS_CLOSED_CORE7_AUTOMATIC_HOOKS_AND_ACTUAL_PID1_GENERIC16K',files={},bytes=0,errors=[])));O.retain_handoff_query(consumer,public,absent);export=C.decode((public/'export.json').read_bytes());self.assertEqual(export['status']=='FAIL_OR_INCOMPLETE',not absent);self.assertEqual(set(export['files']),{'handoff-query/command.json','handoff-query/stdout','handoff-query/stderr'})
+ def test_new_source_inverse_restores_all66_and_all_previous_guards(self):
+  import source622
+  before=source622.inverse(CASE);self.assertEqual(len(before),51);self.assertEqual(len(source622.same66_before(CASE)),66);parent=C.decode(C.read(CASE/'composition-parent.json',4*1024**2))['current_root_export'];self.assertEqual(len(parent['before']),66);self.assertEqual(len(parent['reference_archives']),337);self.assertEqual(set(parent['edits']),{'provision622.py','ownership622.py','run622.py','evidence.py','test_bridge622.py'});self.assertEqual(C.BUDGET,dict(owner=14400,producer=2300,assembly=1070,media=1900,vm_shared=7200,boot=3600,transaction=90,cleanup=60));self.assertIsNone(parent['actual']);self.assertFalse(parent['normal90_acceptance']);self.assertFalse(parent['acceptance'])
+ def test_exact_original_verifier_body_captures_raw_bytes_without_extra_calls(self):
+  import subprocess,base64
+  with tempfile.TemporaryDirectory(prefix='current607-verifier-',dir='/tmp')as td:
+   producer=Path(td)/'producer';(producer/'private').mkdir(parents=True);signer=self.record['preparation']['signer_roles']['upstream_ALARM'];status=('[GNUPG:] VALIDSIG '+signer+' 2026-10-27 1790000000 0 4 0 22 8 00 '+signer+'\n').encode();seen=[];original=C.load('_current607_original_verifier_body',A.fresh607_source/'installer604/scripts/ci/full-composition-installer-vm/producer.py')
+   def run(argv,**kw):seen.append((list(map(str,argv)),kw));return subprocess.CompletedProcess(argv,0,status if '--verify'in argv else b'',b'original raw stderr\n')
+   verifier=X.clone(original,subprocess=types.SimpleNamespace(run=run));materialize=types.ModuleType('_current607_fixture_materialize')
+   def prepare(*args,verifier_api):
+    item=verifier_api.PublicVerifier(producer/'private/latest607-verifier',[])
+    try:item(producer/'archive.pkg.tar.xz',producer/'archive.pkg.tar.xz.sig',signer)
+    finally:item.close()
+    return 'ORIGINAL_PREPARE_RETURN'
+   materialize.prepare=prepare;namespace=dict(materialize=materialize,types=types,verifier=verifier);exec("def bind(self,original,producer):\n return types.SimpleNamespace(prepare=lambda:materialize.prepare(verifier_api=verifier))\n",namespace);context=types.SimpleNamespace(verification=[],verification_error=None);bound=O.verifier_capture(namespace['bind'],types.SimpleNamespace(materialize=materialize),context,object(),object(),producer);self.assertEqual(bound.prepare(),'ORIGINAL_PREPARE_RETURN');self.assertEqual(len(seen),3);self.assertEqual(len(context.verification),1);row=context.verification[0];self.assertEqual(base64.b64decode(row['stdout_base64']),status);self.assertEqual(base64.b64decode(row['stderr_base64']),b'original raw stderr\n');self.assertEqual(seen[1][1],dict(check=False,capture_output=True,text=False,timeout=30));self.assertEqual(row['argv'],seen[1][0]);self.assertIsNone(context.verification_error)
+ def test_original_verifier_refusal_keeps_attempted_raw_status(self):
+  import subprocess,base64
+  with tempfile.TemporaryDirectory(prefix='current607-verifier-refusal-',dir='/tmp')as td:
+   producer=Path(td)/'producer';(producer/'private').mkdir(parents=True);original=C.load('_current607_original_failed_verifier_body',A.fresh607_source/'installer604/scripts/ci/full-composition-installer-vm/producer.py');seen=[]
+   def run(argv,**kw):seen.append(argv);return subprocess.CompletedProcess(argv,2 if '--verify'in argv else 0,b'[GNUPG:] BADSIG retained\n',b'actual original failure bytes\n')
+   verifier=X.clone(original,subprocess=types.SimpleNamespace(run=run));materialize=types.ModuleType('_current607_failed_fixture_materialize')
+   def prepare(*args,verifier_api):
+    item=verifier_api.PublicVerifier(producer/'private/latest607-verifier',[])
+    try:item(producer/'archive.pkg.tar.xz',producer/'archive.pkg.tar.xz.sig','A'*40)
+    finally:item.close()
+   materialize.prepare=prepare;namespace=dict(materialize=materialize,types=types,verifier=verifier);exec("def bind(self,original,producer):\n return types.SimpleNamespace(prepare=lambda:materialize.prepare(verifier_api=verifier))\n",namespace);context=types.SimpleNamespace(verification=[],verification_error=None);bound=O.verifier_capture(namespace['bind'],types.SimpleNamespace(materialize=materialize),context,object(),object(),producer)
+   with self.assertRaises(subprocess.CalledProcessError):bound.prepare()
+   self.assertEqual(len(seen),3);self.assertEqual(context.verification[0]['returncode'],2);self.assertEqual(base64.b64decode(context.verification[0]['stderr_base64']),b'actual original failure bytes\n');self.assertEqual(context.verification_error['error_type'],'CalledProcessError');self.assertFalse(context.verification_error['acceptance'])
+ def test_real_context_handoff_failure_exports_attempted_query_before_raising(self):
+  import hashlib
+  with tempfile.TemporaryDirectory(prefix='current607-query-producer-',dir='/tmp')as producer_td,tempfile.TemporaryDirectory(prefix='current607-query-consumer-',dir='/tmp')as consumer_td:
+   producer,consumer=Path(producer_td),Path(consumer_td);base=producer/'private/desktop574';base.mkdir(parents=True);image='sha256:'+'c'*64;(base/'image-id').write_text(image);owner=dict(token='d'*32,core_image='sha256:'+'e'*64,images_preexisting=[]);(producer/'producer-owner.json').write_bytes(C.encoded(owner));base_report=dict(image=image,ownership=dict(token=self.proof['producer_token'],before_images=[]),owned_cleanup=dict(status='PASS',image=dict(id=image,absence_verified=True),probe=dict(absence_verified=True)));(base/'report.json').write_bytes(C.encoded(base_report));(consumer/'owner.json').write_bytes(C.encoded(dict(commands=[])));receipt=consumer/'cleanup.json';receipt.write_bytes(C.encoded(dict(status='PASS_ALL_VM_THEN_ORIGINAL800_CONSUMER_PRODUCER_RETIREMENT',original_cleanup=0)));public=producer/'core622-public';public.mkdir();(public/'export.json').write_bytes(C.encoded(dict(schema=1,status='PASS_CLOSED_CORE7_AUTOMATIC_HOOKS_AND_ACTUAL_PID1_GENERIC16K',files={},bytes=0,errors=[])))
+   def command_api(workspace,output,report):
+    def command(argv,required,seconds):
+     out=b'[]\n';err=b'unknown daemon response\n';row=dict(argv=argv,exit_code=1,group_absence_verified=True,time_limit=seconds,seconds=.01,output_limit=1024**2,stdout_bytes=len(out),stdout_sha256=hashlib.sha256(out).hexdigest(),stderr_bytes=len(err),stderr_sha256=hashlib.sha256(err).hexdigest());number=len(report['commands']);report['commands'].append(row)
+     for suffix,raw in(('stdout',out),('stderr',err)):(output/('command-%03d.%s'%(number,suffix))).write_bytes(raw)
+     return dict(code=1,out=out,err=err)
+    return command
+   context=R.Context(Path('/unexecuted'),A.fresh607_source,self.proof,time.monotonic()+30);context.producer=producer;context.current=types.SimpleNamespace(output=consumer,core_source=A.core_source,workspace=Path('/unexecuted'),receipt=receipt);context.cleanup_end=time.monotonic()+20;context.retired=lambda p:True;context.proof_with_producer=lambda:self.proof
+   with patch.object(R.adapter,'core',return_value=object()),patch.object(C,'load',return_value=types.SimpleNamespace(command_api=command_api)),self.assertRaisesRegex(ValueError,'unambiguous independently observed'):context.handoff(producer,consumer)
+   self.assertTrue((base/'image-id').exists());self.assertFalse((consumer/'image-retirement').exists());self.assertEqual((public/'handoff-query/stderr').read_bytes(),b'unknown daemon response\n');export=C.decode((public/'export.json').read_bytes());self.assertEqual(export['status'],'FAIL_OR_INCOMPLETE');self.assertTrue(export['errors']);self.assertEqual(set(export['files']),{'handoff-query/command.json','handoff-query/stdout','handoff-query/stderr'})
+ def early_host(self,root,producer,output):
+  import hashlib
+  ready,record,verification=self.inputs(root);base=producer/'private/desktop574';base.mkdir(parents=True);image='sha256:'+'c'*64;base_report=dict(image=image,ownership=dict(token=self.proof['producer_token'],before_images=[]));(base/'report.json').write_bytes(C.encoded(base_report));(base/'image-id').write_text(image);(producer/'public').mkdir();(producer/'public/producer.json').write_bytes(C.encoded(dict(fixture='ORIGINAL_PUBLIC_DATA_ONLY')));(producer/'producer-owner.json').write_bytes(C.encoded(dict(token='d'*32,core_image='sha256:'+'e'*64,images_preexisting=[])));record.update(status='READY_SIGNED_EXPANDED607');record['preparation'].update(base_receipt=base_report,package_signatures='verified-each-exact-signer');(ready/'manifest.json').write_bytes(C.encoded(record));context=R.Context(root/'workspace',A.fresh607_source,self.proof,time.monotonic()+30);context.producer=producer;context.tooling_seed=dict(status='EXACT35_TOOLING_INPUT_CACHE_PREPARED_NOT_AUTHENTICATION');context.verification=verification;args=types.SimpleNamespace(output=output,ready=ready);return context,args
+ def cleanup_fixture(self):
+  import subprocess
+  original=types.ModuleType('_current607_exact_cleanup_context_fixture');original.subprocess=subprocess;exec("def cleanup(producer):\n return dict(status='PASS',fixture_original_producer_cleanup=True)\n",vars(original));return original
+ def test_actual_early_host_input_failure_retires_context_without_core_actor(self):
+  with tempfile.TemporaryDirectory(prefix='current607-precore-',dir='/tmp')as td,tempfile.TemporaryDirectory(prefix='current607-precore-producer-',dir='/tmp')as producer_td:
+   root,producer=Path(td),Path(producer_td);output=Path(tempfile.mkdtemp(prefix='current607-never-core-',dir='/tmp'));output.rmdir();context,args=self.early_host(root,producer,output);parent=output.with_name(output.name+'-context');real_core=R.adapter.core
+   try:
+    with self.assertRaises(FileNotFoundError)as first:context._host(args)
+    self.assertIsNone(context.current);self.assertFalse(output.exists());self.assertTrue(parent.is_dir());claim=copy.deepcopy(context.context_lease);self.assertEqual(claim['Core_actor'],'NOT_STARTED');self.assertEqual(C.decode((parent/'context-owner.json').read_bytes()),claim);result=dict(status='FAIL',error_type=type(first.exception).__name__,error=str(first.exception));context.desktop_failure(result)
+    with patch.object(R.adapter,'core',side_effect=lambda _:real_core(A.core_source)):cleanup=context.cleanup(self.cleanup_fixture(),producer,output)
+    self.assertEqual(cleanup['status'],'PASS');self.assertTrue(cleanup['fixture_original_producer_cleanup']);self.assertFalse(parent.exists());self.assertFalse(output.exists());self.assertIsNone(context.current);self.assertIsNone(context.context_lease);serialized=C.decode(C.encoded(result));data=serialized['current607_input_context_failure_data'];self.assertEqual(data['primary_error_type'],'FileNotFoundError');self.assertEqual(data['retirement'],'PASS_OWNED_PRE_CORE_CONTEXT_REMOVED_AFTER_ORIGINAL_PRODUCER_CLEANUP');self.assertEqual(data['context'],claim);self.assertFalse(data['acceptance']);public=producer/'core622-public';export=C.decode((public/'export.json').read_bytes());self.assertEqual(export['status'],'FAIL_OR_INCOMPLETE');self.assertEqual(export['current607_input_context_failure_data'],data);self.assertIn('current607-inputs/context-owner.json',export['files'])
+   finally:
+    if parent.exists():__import__('shutil').rmtree(parent)
+ def test_copy_failure_preserves_primary_and_serializes_identified_context(self):
+  with tempfile.TemporaryDirectory(prefix='current607-copy-secondary-',dir='/tmp')as td,tempfile.TemporaryDirectory(prefix='current607-copy-secondary-producer-',dir='/tmp')as producer_td:
+   root,producer=Path(td),Path(producer_td);output=Path(tempfile.mkdtemp(prefix='current607-never-core-secondary-',dir='/tmp'));output.rmdir();context,args=self.early_host(root,producer,output);parent=output.with_name(output.name+'-context');real_read=C.read
+   def read(path,*a,**kw):
+    if Path(path)==parent/'source-proof.json':raise PermissionError('fixed inert retained-copy refusal')
+    return real_read(path,*a,**kw)
+   try:
+    with patch.object(C,'read',side_effect=read),self.assertRaises(FileNotFoundError)as first:context._host(args)
+    self.assertEqual(context.context_failure['primary_error_type'],'FileNotFoundError');self.assertEqual(context.context_failure['retention_error_type'],'PermissionError');self.assertIsNone(context.current);self.assertTrue(parent.is_dir());self.assertFalse(output.exists());result=dict(status='FAIL',error_type=type(first.exception).__name__,error=str(first.exception));context.desktop_failure(result);plain=C.decode(C.encoded(result));state=plain['current607_input_context_failure_data'];self.assertEqual(state['context']['path'],str(parent));self.assertEqual(state['context']['Core_actor'],'NOT_STARTED');self.assertEqual(state['primary_error_type'],'FileNotFoundError');self.assertEqual(state['retention_error_type'],'PermissionError');self.assertEqual(C.decode((parent/'context-owner.json').read_bytes()),context.context_lease);export=C.decode((producer/'core622-public/export.json').read_bytes());self.assertEqual(export['status'],'FAIL_OR_INCOMPLETE');self.assertEqual(export['current607_input_context_failure_data'],state);self.assertTrue(export['errors'])
+    with patch.object(C,'read',side_effect=read),patch.object(R.adapter,'core',side_effect=AssertionError('must preserve identified context before destruction on copy refusal')):cleanup=context.cleanup(self.cleanup_fixture(),producer,output)
+    self.assertEqual(cleanup['status'],'FAIL_PRE_CORE_CONTEXT_PRESERVED_IDENTIFIED');self.assertTrue(parent.is_dir());self.assertIsNotNone(context.context_lease);after=C.decode(C.encoded(result))['current607_input_context_failure_data'];self.assertEqual(after['primary_error_type'],'FileNotFoundError');self.assertEqual(after['retention_error_type'],'PermissionError');self.assertEqual(after['retirement'],'FAIL_PRESERVED_IDENTIFIED_PRE_CORE_CONTEXT');self.assertEqual(after['retirement_error_type'],'PermissionError');self.assertEqual(C.decode((producer/'core622-public/export.json').read_bytes())['current607_input_context_failure_data'],after);self.assertFalse(after['acceptance'])
+   finally:
+    if parent.exists():__import__('shutil').rmtree(parent)
+
 if __name__=='__main__':unittest.main(verbosity=2)

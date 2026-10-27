@@ -41,77 +41,106 @@ jobs:
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 350
     env:
+      SOURCE_SHA: ${{ github.sha }}
+      WORKFLOW_SHA: ${{ github.workflow_sha }}
       SOURCE_COMMIT: a79c4ca92486854f9edb639cd970d2c90fda4b12
       INPUTS_SHA256: ${{ inputs.inputs_sha256 }}
       RECIPES_SHA256: ${{ inputs.recipes_sha256 }}
       RETRY_MODE: ${{ inputs.mode }}
       REQUESTED_INTEGRATION_SHA256: ${{ inputs.integration_sha256 }}
     steps:
+      - name: Capture the source-owned350 minute job clock before every checkout
+        timeout-minutes: 1
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -I -B - <<'PYJOB'
+          import hashlib,json,os,re,stat,time
+          from pathlib import Path
+          source=os.environ['GITHUB_SHA'];run=os.environ['GITHUB_RUN_ID'];ref=os.environ['GITHUB_REF_NAME'];root=Path(os.environ['RUNNER_TEMP'])
+          assert re.fullmatch('[0-9a-f]{40}',source) and source==os.environ['SOURCE_SHA']==os.environ['WORKFLOW_SHA'] and re.fullmatch('[1-9][0-9]{0,19}',run) and re.fullmatch('codex/[a-z0-9-]+',ref) and os.environ['GITHUB_RUN_ATTEMPT']=='1'
+          assert root.is_absolute() and root==root.resolve() and root.stat().st_uid==os.getuid() and not root.stat().st_mode&0o022
+          started=time.monotonic();value=dict(schema=1,status='SOURCE_OWNED_CORE622_JOB_CLOCK_DATA_ONLY',identity=dict(source=source,ref=ref,run=int(run),attempt=1),nonce=hashlib.sha256(('current607-core622:'+source+':'+run).encode()).hexdigest()[:32],runtime_temp=str(root),started=started,deadline=started+21000,global_seconds=21000,reserved_seconds=dict(cleanup=240,retention=360,upload=300,grace=120))
+          fd=os.open(root/'core622-job-clock.json',os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,0o600)
+          with os.fdopen(fd,'wb')as out:out.write((json.dumps(value,sort_keys=True,indent=2)+'\n').encode())
+          PYJOB
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        timeout-minutes: 1
         with:
           ref: a79c4ca92486854f9edb639cd970d2c90fda4b12
           persist-credentials: false
       - name: Checkout the current fresh607 source child
+        timeout-minutes: 1
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: b9976eea34eaed4b6e56af3be21d4d652fa971d6
           path: fresh607-code
           persist-credentials: false
       - name: Exact separate622 source role core622-code
+        timeout-minutes: 1
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ github.sha }}
           path: core622-code
           persist-credentials: false
       - name: Exact separate622 source role core51-parent
+        timeout-minutes: 1
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: 11b3cfb59663e42b34247facb9f30f042e891444
           path: core51-parent
           persist-credentials: false
       - name: Exact separate622 source role core-source
+        timeout-minutes: 1
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: 1a76a09d9cb8210cc2b76eda0c63a08bcd89d4ec
           path: core-source
           persist-credentials: false
       - name: Exact separate622 source role vm-source
+        timeout-minutes: 1
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: de21d6c25e0fbf5ac83c71965bae3ffa23390461
           path: vm-source
           persist-credentials: false
       - name: Exact separate622 source role kernel-inputs
+        timeout-minutes: 1
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: 247123187cb1aceae5e61bc89f3c01dbf2986311
           path: kernel-inputs
           persist-credentials: false
       - name: Exact separate622 source role core7-inputs
+        timeout-minutes: 1
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: e410bd5d6b4318f114d7311a99a60f20bc8d2f4a
           path: core7-inputs
           persist-credentials: false
       - name: Exact separate622 source role core64-inputs
+        timeout-minutes: 1
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: 7dfce898755583bbf8081aae04d8b8579f66be58
           path: core64-inputs
           persist-credentials: false
       - name: Exact separate622 source role core622-core-record
+        timeout-minutes: 1
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: 6e29f427fe273042ebaeca24d00326173888e95d
           path: core622-core-record
           persist-credentials: false
       - name: Exact separate622 source role core622-fresh-record
+        timeout-minutes: 1
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: 5a0789405ded23f759f4a3aa545cf737c4ec3bde
           path: core622-fresh-record
           persist-credentials: false
       - name: Whole622 and original Core source controls before secrets or actors
+        timeout-minutes: 3
         shell: bash
         run: |
           set -euo pipefail
@@ -136,6 +165,7 @@ jobs:
           sudo timeout --signal=TERM --kill-after=10s 120s apt-get -o Acquire::Retries=0 install --no-install-recommends -y qemu-system-arm
           /usr/bin/qemu-system-aarch64 --version
       - name: Authenticate current child before original library gates or native actors
+        timeout-minutes: 2
         shell: bash
         env:
           LIBRARY_SOURCE: ${{ inputs.source }}
@@ -150,23 +180,27 @@ jobs:
           test "$(sha256sum fresh607-code/source-manifest.json | cut -d ' ' -f 1)" = 89f28bd898d4491abe05f346b91d9567620d747b4a0c22fb64fe8b09878fc3cd
           python3 -I -B fresh607-code/implementation/run.py --source-preflight
       - name: Checkout issued Root accepted Six853 DATA record
+        timeout-minutes: 1
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: eea3f3022c9214deacc60c92dfca13704420756b
           path: fresh607-record
           persist-credentials: false
       - name: Materialize pinned historical input DATA without acquisition or acceptance replay
+        timeout-minutes: 2
         shell: bash
         run: |
           set -euo pipefail
           python3 -I -B fresh607-code/implementation/stage_inputs.py --record "$GITHUB_WORKSPACE/fresh607-record" --output "$RUNNER_TEMP/fresh607-input-data"
       - name: Checkout the separate expanded604 installer implementation
+        timeout-minutes: 1
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ inputs.source }}
           path: expanded604-installer
           persist-credentials: false
       - name: Require original library source and accepted native604 inputs before native work
+        timeout-minutes: 2
         id: installer_policy
         shell: bash
         env:
@@ -180,66 +214,77 @@ jobs:
             --implementation "$GITHUB_WORKSPACE/expanded604-installer" --source "$IMPLEMENTATION_SOURCE" \
             --workflow-sha "$WORKFLOW_SOURCE" --preflight
       - name: Checkout the fixed old helper and setup3 baseline
+        timeout-minutes: 1
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: b6b17e5f6b322f160f7eeb22c8a01380a3c854cd
           path: expanded604-legacy
           persist-credentials: false
       - name: Checkout unchanged original seven-pair input root
+        timeout-minutes: 1
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: 7fee76d68e5fd75437d8b49aaaced8376d2215cd
           path: expanded604-seven
           persist-credentials: false
       - name: Checkout the Root-bound accepted eight-pair input root
+        timeout-minutes: 1
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ steps.installer_policy.outputs.eight_source }}
           path: expanded604-eight
           persist-credentials: false
       - name: Checkout fixed public management source
+        timeout-minutes: 1
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ steps.installer_policy.outputs.management_source }}
           path: expanded604-management-source
           persist-credentials: false
       - name: Checkout fixed public setup source
+        timeout-minutes: 1
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ steps.installer_policy.outputs.setup_source }}
           path: expanded604-setup-source
           persist-credentials: false
       - name: Checkout fixed public welcome source
+        timeout-minutes: 1
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ steps.installer_policy.outputs.welcome_source }}
           path: expanded604-welcome-source
           persist-credentials: false
       - name: Checkout fixed public fresh600 decisions
+        timeout-minutes: 1
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ steps.installer_policy.outputs.fresh600_decisions }}
           path: expanded604-fresh600-decisions
           persist-credentials: false
       - name: Checkout fixed public native604 decisions
+        timeout-minutes: 1
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ steps.installer_policy.outputs.native604_decisions }}
           path: expanded604-native604-decisions
           persist-credentials: false
       - name: Checkout exact apps6_source
+        timeout-minutes: 1
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ steps.installer_policy.outputs.apps6_source }}
           path: apps6-inputs
           persist-credentials: false
       - name: Checkout exact apps6_authority_source
+        timeout-minutes: 1
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ steps.installer_policy.outputs.apps6_authority_source }}
           path: apps6-authority
           persist-credentials: false
       - name: Retrieve only the six original pinned audio inputs
+        timeout-minutes: 2
         id: audio_inputs
         shell: bash
         env:
@@ -248,6 +293,7 @@ jobs:
           set -euo pipefail
           python3 -B expanded604-legacy/scripts/ci/full-development-composition/retrieve_audio.py --output "$RUNNER_TEMP/audio-archives"
       - name: Verify actual Root decisions and accepted archive bytes before secrets
+        timeout-minutes: 2
         shell: bash
         env:
           IMPLEMENTATION_SOURCE: ${{ inputs.source }}
@@ -266,6 +312,7 @@ jobs:
             --apps6-source "$GITHUB_WORKSPACE/apps6-inputs/payload" --apps6-authority-source "$GITHUB_WORKSPACE/apps6-authority" \
             --audio-inputs "$RUNNER_TEMP/audio-archives"
       - name: Run unchanged installer controls and focused604 controls without actors
+        timeout-minutes: 3
         shell: bash
         env:
           EXPANDED600_LEGACY_ROOT: ${{ github.workspace }}/expanded604-legacy
@@ -280,6 +327,7 @@ jobs:
           set -euo pipefail
           sudo -n -- python3 -I -B "$GITHUB_WORKSPACE/fresh607-code/implementation/source_controls.py" --workspace "$GITHUB_WORKSPACE"
       - name: Seed the six frozen private cache objects before native work
+        timeout-minutes: 2
         if: inputs.mode == 'build'
         shell: bash
         env:
@@ -339,6 +387,7 @@ jobs:
           seed_current_build_cache(cache, pin)
           PYSEED
       - name: Checkout exact retained public input source
+        timeout-minutes: 1
         if: inputs.mode == 'build'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # existing pinned checkout
         with:
@@ -346,6 +395,7 @@ jobs:
           path: retained-public-inputs
           persist-credentials: false
       - name: Seed fourteen exact public ARM input files
+        timeout-minutes: 2
         if: inputs.mode == 'build'
         shell: bash
         run: |
@@ -357,30 +407,34 @@ jobs:
             TMPDIR="$RUNNER_TEMP" \
             python3 -I -B "$GITHUB_WORKSPACE/retained-public-inputs/seed.py" \
               --cache "$RUNNER_TEMP/alarm-cache"
-      - name: Checkout exact complete574 retained package inputs
+      - name: Transport exact complete574 retained DATA outside the closed source
         if: inputs.mode == 'build'
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad
-          path: retained-complete574
-          persist-credentials: false
+        timeout-minutes: 9
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -m 700 "$RUNNER_TEMP/core622-retained-transport"
+          set -o noclobber
+          set +e
+          timeout --signal=TERM --kill-after=30s 500s \
+            python3 -I -B "$GITHUB_WORKSPACE/core622-code/ownership622.py" --transport-complete574 \
+            >"$RUNNER_TEMP/core622-retained-transport/phase.stdout" 2>"$RUNNER_TEMP/core622-retained-transport/phase.stderr"
+          phase_exit=$?
+          set -e
+          printf '%s\n' "$phase_exit" >"$RUNNER_TEMP/core622-retained-transport/phase.exit-code"
+          exit "$phase_exit"
       - name: Join all complete574 retained cache inputs before original acquisition
         if: inputs.mode == 'build'
         timeout-minutes: 5
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git -C "$GITHUB_WORKSPACE/retained-complete574" rev-parse HEAD)" = ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad
-          test "$(sha256sum retained-complete574/seed.py | cut -d ' ' -f 1)" = 76b787fa71b121ec1bf83b86e4d5db849913614bc90e03239b869d7061af1db4
-          test "$(sha256sum retained-complete574/index.json | cut -d ' ' -f 1)" = 51a53c9e0d9eab1728f350f9ab8d3d7b8932891ab0ed68c7876a1440166ff486
-          test "$(sha256sum retained-complete574/desktop574-inputs.lock.json | cut -d ' ' -f 1)" = b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9
           test "$(sha256sum scripts/ci/native_arm.py | cut -d ' ' -f 1)" = a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898
           test "$(sha256sum scripts/ci/inputs.lock.json | cut -d ' ' -f 1)" = beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
-          deadline=$(env -i PATH=/usr/bin:/bin python3 -I -B -c 'import time; print(time.monotonic()+240)')
-          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC TMPDIR="$RUNNER_TEMP" \
-            python3 -I -B "$GITHUB_WORKSPACE/retained-complete574/seed.py" \
-              --lock "$GITHUB_WORKSPACE/retained-complete574/desktop574-inputs.lock.json" \
-              --cache "$RUNNER_TEMP/alarm-cache" --mode desktop574 --deadline "$deadline"
+          deadline=$(python3 -I -B "$GITHUB_WORKSPACE/core622-code/ownership622.py" --job-deadline 240)
+          timeout --signal=TERM --kill-after=30s 260s \
+            python3 -I -B "$GITHUB_WORKSPACE/core622-code/ownership622.py" --prepare-complete574 \
+              --cache "$RUNNER_TEMP/alarm-cache" --deadline "$deadline"
       - name: Build the fresh native base and original package pairs
         id: original_build
         timeout-minutes: 50
@@ -395,7 +449,9 @@ jobs:
           install -d -m 700 "$RUNNER_TEMP/desktop-docker-config"
           test "$(sha256sum retained-public-inputs/seed.py | cut -d ' ' -f 1)" = a7857658af224984065e575f6ffed8308ea85027d46eace8bda146d9033e93b3
           test "$(sha256sum retained-public-inputs/index.json | cut -d ' ' -f 1)" = a388c8c8ba8e06cb92fd2be598b86e433c4e403b6e71a0f15b1eaec381bb7300
-          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC \
+          phase_seconds=$(python3 -I -B "$GITHUB_WORKSPACE/core622-code/ownership622.py" --job-timeout 2970)
+          timeout --signal=TERM --kill-after=30s "${phase_seconds}s" \
+            env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC \
             RUNNER_TEMP="$RUNNER_TEMP" DOCKER_CONFIG="$RUNNER_TEMP/desktop-docker-config" \
             GITHUB_SHA="$SOURCE_COMMIT" GITHUB_REPOSITORY="$GITHUB_REPOSITORY" \
             GITHUB_RUN_ID="$GITHUB_RUN_ID" GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" \
@@ -407,6 +463,7 @@ jobs:
             --cache "$RUNNER_TEMP/alarm-cache" --output "$RUNNER_TEMP/native-evidence"
           RUN_ORIGINAL_BUILDS
       - name: Retain bounded original-four and base evidence
+        timeout-minutes: 1
         if: always()
         shell: bash
         run: |
@@ -415,6 +472,7 @@ jobs:
             python3 -B scripts/ci/log_evidence.py "$RUNNER_TEMP/native-evidence"
           fi
       - name: Checkout the fixed FDK source
+        timeout-minutes: 1
         id: fdk_source
         if: ${{ !cancelled() && steps.original_build.outcome == 'success' }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -433,7 +491,9 @@ jobs:
           set -euo pipefail
           test "$FDK_CHECKOUT_OUTCOME" = success
           install -d -m 700 "$RUNNER_TEMP/fdk-home" "$RUNNER_TEMP/fdk-docker-config"
-          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/fdk-home" LANG=C.UTF-8 TZ=UTC \
+          phase_seconds=$(python3 -I -B "$GITHUB_WORKSPACE/core622-code/ownership622.py" --job-timeout 1470)
+          timeout --signal=TERM --kill-after=30s "${phase_seconds}s" \
+            env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/fdk-home" LANG=C.UTF-8 TZ=UTC \
             RUNNER_TEMP="$RUNNER_TEMP" TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 \
             DOCKER_CONFIG="$RUNNER_TEMP/fdk-docker-config" \
             FDK_SOURCE_ROOT="$GITHUB_WORKSPACE/fdk-source" \
@@ -507,6 +567,7 @@ jobs:
           RUN_FDK
           grep -qx 'FDK_PAIR=PASS' "$RUNNER_TEMP/fdk-evidence/result.txt"
       - name: Retain bounded FDK metadata and separate outcome
+        timeout-minutes: 1
         if: always()
         shell: bash
         env:
@@ -548,6 +609,7 @@ jobs:
           PYFDKLOG
           python3 -B scripts/ci/log_evidence.py "$RUNNER_TEMP/fdk-metadata"
       - name: Checkout the ten current development recipes
+        timeout-minutes: 1
         if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -555,6 +617,7 @@ jobs:
           path: composition-product
           persist-credentials: false
       - name: Checkout the exact updater compiler implementation
+        timeout-minutes: 1
         if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -562,6 +625,7 @@ jobs:
           path: composition-updater
           persist-credentials: false
       - name: Checkout exact retained compiler6 archive and signature inputs
+        timeout-minutes: 1
         if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -569,6 +633,7 @@ jobs:
           path: retained-compiler6
           persist-credentials: false
       - name: Checkout unchanged composition preparation APIs
+        timeout-minutes: 1
         if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -576,6 +641,7 @@ jobs:
           path: composition-preparation
           persist-credentials: false
       - name: Checkout exact retained incoming31 dependency DATA
+        timeout-minutes: 1
         if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -598,10 +664,11 @@ jobs:
             python3 -I -B "$GITHUB_WORKSPACE/core622-code/ownership622.py" --prepare-dependency-cache --compiler6-source "$GITHUB_WORKSPACE/fresh607-code" \
               --carrier "$GITHUB_WORKSPACE/retained-compiler6" \
               --updater "$GITHUB_WORKSPACE/composition-updater" \
-              --desktop-lock "$GITHUB_WORKSPACE/retained-complete574/desktop574-inputs.lock.json" \
+              --desktop-lock "$RUNNER_TEMP/core622-retained-complete574/desktop574-inputs.lock.json" \
               --cache "$RUNNER_TEMP/alarm-cache" --deadline "$deadline" \
               --incoming31 "$GITHUB_WORKSPACE/core622-dependency-inputs" --preparation "$GITHUB_WORKSPACE/composition-preparation"
       - name: Checkout the proven 574-package runtime builder
+        timeout-minutes: 1
         if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -609,6 +676,7 @@ jobs:
           path: composition-desktop
           persist-credentials: false
       - name: Checkout the exact v2 updater implementation
+        timeout-minutes: 1
         if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -616,6 +684,7 @@ jobs:
           path: composition-updater-v2
           persist-credentials: false
       - name: Unpack only the exact retained public setup4 pair
+        timeout-minutes: 1
         if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
         shell: bash
         run: |
@@ -659,9 +728,10 @@ jobs:
           test "$FDK_PAIR_OUTCOME" = success
           test "$AUDIO_INPUTS_OUTCOME" = success
           install -d -m 700 "$RUNNER_TEMP/expanded604-installer-home"
-          timeout --signal=TERM --kill-after=60s 15600s \
+          phase_seconds=$(python3 -I -B "$GITHUB_WORKSPACE/core622-code/ownership622.py" --begin-core-phase)
+          timeout --signal=TERM --kill-after=60s "${phase_seconds}s" \
             env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/expanded604-installer-home" LANG=C.UTF-8 TZ=UTC \
-            PYTHONDONTWRITEBYTECODE=1 SOURCE_SHA="${{ github.sha }}" WORKFLOW_SHA="${{ github.sha }}" \
+            PYTHONDONTWRITEBYTECODE=1 RUNNER_TEMP="$RUNNER_TEMP" SOURCE_SHA="${{ github.sha }}" WORKFLOW_SHA="${{ github.sha }}" \
             GITHUB_SHA="${{ github.sha }}" GITHUB_RUN_ID="$GITHUB_RUN_ID" GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" \
             GITHUB_REPOSITORY="${{ github.repository }}" GITHUB_EVENT_NAME="${{ github.event_name }}" \
             GITHUB_REF_NAME="${{ github.ref_name }}" GITHUB_ACTIONS=true RUNNER_ARCH=ARM64 GITHUB_WORKSPACE="$GITHUB_WORKSPACE" \
@@ -712,13 +782,20 @@ jobs:
           PYPUBLIC
           python3 -B scripts/ci/log_evidence.py "$RUNNER_TEMP/expanded604-installer-public"
       - name: Preserve complete current622 public evidence without private roots
+        timeout-minutes: 4
         if: always()
         shell: bash
         run: |
           set -euo pipefail
-          python3 -I -B "$GITHUB_WORKSPACE/core622-code/export622.py" --output "/tmp/cachy-asahi-expanded604-installer-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" --public "$RUNNER_TEMP/core622-public"
-          python3 -I -B "$GITHUB_WORKSPACE/core622-code/export622.py" --transport-only --output "/tmp/cachy-asahi-expanded604-installer-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" --public "$RUNNER_TEMP/core622-public" --core-source "$GITHUB_WORKSPACE/core-source" --transport "$RUNNER_TEMP/core622-transport"
+          phase_end=$(python3 -I -B "$GITHUB_WORKSPACE/core622-code/ownership622.py" --job-deadline 210 --role retention)
+          phase_seconds=$(python3 -I -B "$GITHUB_WORKSPACE/core622-code/ownership622.py" --phase-remaining "$phase_end" --role retention)
+          timeout --signal=TERM --kill-after=30s "${phase_seconds}s" \
+            python3 -I -B "$GITHUB_WORKSPACE/core622-code/export622.py" --output "/tmp/cachy-asahi-expanded604-installer-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" --public "$RUNNER_TEMP/core622-public"
+          phase_seconds=$(python3 -I -B "$GITHUB_WORKSPACE/core622-code/ownership622.py" --phase-remaining "$phase_end" --role retention)
+          timeout --signal=TERM --kill-after=30s "${phase_seconds}s" \
+            python3 -I -B "$GITHUB_WORKSPACE/core622-code/export622.py" --transport-only --output "/tmp/cachy-asahi-expanded604-installer-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" --public "$RUNNER_TEMP/core622-public" --core-source "$GITHUB_WORKSPACE/core-source" --transport "$RUNNER_TEMP/core622-transport"
       - name: Upload only original bounded opaque current Core transport
+        timeout-minutes: 5
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
