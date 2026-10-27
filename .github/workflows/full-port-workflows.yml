@@ -4,6 +4,7 @@ on:
     paths:
       - 'scripts/platform/**'
       - 'scripts/release/**'
+      - 'scripts/client/client.py'
       - 'scripts/build/source_materials.py'
       - 'scripts/maintenance/source_cache.py'
       - 'packages/tools/cachy-asahi-maintenance/**'
@@ -18,6 +19,7 @@ on:
     paths:
       - 'scripts/platform/**'
       - 'scripts/release/**'
+      - 'scripts/client/client.py'
       - 'scripts/build/source_materials.py'
       - 'scripts/maintenance/source_cache.py'
       - 'packages/tools/cachy-asahi-maintenance/**'
@@ -49,6 +51,7 @@ jobs:
           sparse-checkout: |
             /scripts/platform/
             /scripts/release/
+            /scripts/client/client.py
             /scripts/build/source_materials.py
             /scripts/maintenance/source_cache.py
             /packages/tools/cachy-asahi-maintenance/
