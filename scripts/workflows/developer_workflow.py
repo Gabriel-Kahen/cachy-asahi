@@ -3,8 +3,9 @@
 # Copyright (c) 2026 cachy-asahi contributors
 """Finite local developer journey; Linux component evidence, no acceptance grant.
 
-Only original checked-in fixtures are executed. No shell command strings,
-network repositories, package installs, sourced environments or host mutations.
+Only original checked-in fixtures are executed. Make/Ninja interpret fixed
+project-owned recipes; no arbitrary shell input, network repositories, package
+installs, sourced environments or host mutations.
 """
 import argparse
 import hashlib
@@ -283,6 +284,223 @@ def journey(commands, tools, output):
                 python_test_count=1, editor='SCRIPTED_VIM_NO_GUI_USABILITY_CLAIM')
 
 
+
+class BuildProject:
+    """Real Make/Ninja graph plus a source/binary-bound post-build execution gate."""
+    def __init__(self, backend, commands, tools, output):
+        self.backend, self.commands, self.tools = backend, commands, tools
+        self.root = output / (backend + '-project')
+        self.root.mkdir()
+        self.source = self.root / 'hello.c'
+        self.object = self.root / 'build/hello.o'
+        self.binary = self.root / 'build/hello'
+        self.graph = self.root / ('Makefile' if backend == 'make' else 'build.ninja')
+        self.usable = False
+        self.verified = None
+        self.records = []
+        self.value = dict(status='RUNNING', backend=backend, records=self.records,
+                          fixture_files={}, recipe_scope='FIXED_ORIGINAL_BUILD_SYSTEM_RECIPES',
+                          shell='BUILD_SYSTEM_INTRINSIC_SHELL_NO_ARBITRARY_RUNNER_SHELL_INPUT')
+        for name, raw in project_fixture_files().items():
+            (self.root / name).write_bytes(raw)
+            self.value['fixture_files'][name] = pin(raw)
+
+    def inputs(self):
+        return {p.name: file_pin(p) for p in (self.source, self.root / 'configure.py',
+                self.root / 'LICENSE', self.graph, self.root / 'configuration.json') if p.exists()}
+
+    def artifacts(self):
+        rows = {}
+        for path in (self.object, self.binary):
+            if path.exists():
+                metadata = path.lstat()
+                if not stat.S_ISREG(metadata.st_mode) or path.is_symlink():
+                    raise Failure('project artifact must be ordinary: ' + str(path))
+                rows[path.name] = dict(file=file_pin(path), mtime_ns=metadata.st_mtime_ns,
+                                       inode=metadata.st_ino)
+        return rows
+
+    def record(self, step, outcome, before, **extra):
+        directory = self.commands.output / 'project-sources' / self.backend / ('%02d-' % len(self.records) + step)
+        directory.mkdir(parents=True)
+        snapshots = {}
+        for path in (self.source, self.root / 'configure.py', self.root / 'LICENSE',
+                     self.graph, self.root / 'configuration.json'):
+            if path.exists():
+                raw = path.read_bytes()
+                destination = directory / path.name
+                destination.write_bytes(raw)
+                snapshots[str(destination.relative_to(self.commands.output))] = pin(raw)
+        self.records.append(dict(step=step, outcome=outcome, before=before,
+                                 after=self.artifacts(), inputs=self.inputs(),
+                                 source_snapshots=snapshots, **extra))
+        save(self.commands.output / ('project-' + self.backend + '.json'), self.value)
+
+    def configure(self):
+        self.commands.run(self.backend + '-configure', [self.tools['python3'], '-I', '-B',
+                          str(self.root / 'configure.py'), '--backend', self.backend,
+                          '--cc', self.tools['cc']], self.root)
+        reply = json.loads((self.root / 'configuration.json').read_text())
+        if (reply['backend'] != self.backend or reply['compiler'] != self.tools['cc']
+                or reply['graph_pin'] != file_pin(self.graph)
+                or reply['source'] != file_pin(self.source)):
+            raise Failure('configured graph/source/compiler pin mismatch')
+        self.record('configure', 'CONFIGURED', {})
+
+    def argv(self, target):
+        if self.backend == 'make':
+            return [self.tools['make'], '-rR', '-s', '--no-print-directory', '-j1', target]
+        return [self.tools['ninja'], '--quiet', '-j1', target]
+
+    def build(self, step, expected=0):
+        before = self.artifacts()
+        self.usable = False
+        try:
+            raw = self.commands.run(self.backend + '-' + step, self.argv('all'), self.root, expected)
+            if expected == 'nonzero':
+                if b'INTENTIONAL_PROJECT_COMPILE_FAILURE' not in raw:
+                    raise Failure('failed project build did not report intentional compiler error')
+                self.record(step, 'EXPECTED_COMPILE_FAILURE', before)
+                return
+            after = self.artifacts()
+            if set(after) != {'hello', 'hello.o'}:
+                raise Failure('successful project build missing artifacts')
+            self.verified = dict(inputs=self.inputs(), binary=file_pin(self.binary))
+            self.usable = True
+            self.record(step, 'BUILT', before)
+        except BaseException:
+            self.usable = False
+            self.record(step, 'UNEXPECTED_FAILURE', before)
+            raise
+
+    def require_usable(self):
+        if (not self.usable or self.verified is None or self.inputs() != self.verified['inputs']
+                or not self.binary.is_file() or file_pin(self.binary) != self.verified['binary']):
+            self.usable = False
+            raise Failure('project executable has no successful build for these exact inputs')
+
+    def run(self, step, expected):
+        self.require_usable()
+        self.usable = False
+        raw = self.commands.run(self.backend + '-' + step, [str(self.binary)], self.root)
+        if raw != expected:
+            raise Failure('project executable output mismatch')
+        self.record(step, 'EXACT_OUTPUT', self.artifacts(), output=pin(raw))
+        self.usable = True
+
+    def test(self, step, expected):
+        self.require_usable()
+        self.usable = False
+        before = self.artifacts()
+        try:
+            raw = self.commands.run(self.backend + '-' + step, self.argv('test'), self.root)
+            if raw != b'PROJECT_TEST_OK:' + expected:
+                raise Failure('project test target output mismatch')
+            if self.artifacts() != before:
+                raise Failure('unchanged project test rebuilt or changed artifacts')
+            self.record(step, 'GRAPH_TEST_PASS', before, output=pin(raw))
+        except BaseException:
+            self.record(step, 'GRAPH_TEST_FAILURE', before)
+            raise
+        self.usable = True
+
+    def change_source(self, raw):
+        # Both build tools use timestamps. Make the observed source timestamp
+        # newer than both products, then verify the filesystem retained it.
+        stamp = max(time.time_ns(), *(r['mtime_ns'] + 1 for r in self.artifacts().values()),
+                    self.source.stat().st_mtime_ns + 1)
+        self.source.write_bytes(raw)
+        os.utime(self.source, ns=(stamp, stamp))
+        if self.source.stat().st_mtime_ns < stamp:
+            raise Failure('filesystem did not retain required project edit timestamp')
+        self.usable = False
+
+    def journey(self):
+        original = b'Project version one\n'
+        edited = b'Project version two\n'
+        self.configure()
+        self.build('initial-build')
+        first = self.artifacts()
+        self.run('initial-run', original)
+        self.test('initial-test', original)
+        self.build('unchanged-build')
+        if self.artifacts() != first:
+            raise Failure('unchanged graph rebuilt its artifacts')
+        self.records[-1]['outcome'] = 'UNCHANGED_NO_ARTIFACT_WRITES'
+        self.test('repeat-test', original)
+        source = self.source.read_bytes()
+        wanted = source.replace(original[:-1], edited[:-1])
+        self.commands.run(self.backend + '-edit', [self.tools['vim'], '-Nu', 'NONE', '-n', '-i',
+                          'NONE', '-es', str(self.source), '-c',
+                          '%s/Project version one/Project version two/g', '-c', 'wq'], self.root)
+        if wanted == source or self.source.read_bytes() != wanted:
+            raise Failure('project Vim edit differs')
+        self.change_source(wanted)
+        self.build('edited-build')
+        changed = self.artifacts()
+        if any(changed[name]['file'] == first[name]['file'] for name in ('hello.o', 'hello')):
+            raise Failure('project source edit did not change object and binary')
+        self.run('edited-run', edited)
+        self.test('edited-test', edited)
+        self.change_source(wanted + b'\n#error INTENTIONAL_PROJECT_COMPILE_FAILURE\n')
+        self.build('broken-build', expected='nonzero')
+        if not self.binary.is_file() or file_pin(self.binary) != changed['hello']['file']:
+            raise Failure('expected old executable was not retained by failed graph build')
+        # Prove the adapter rejects execution even though old binary bytes exist.
+        count = len(self.commands.records)
+        try:
+            self.run('forbidden-stale-run', edited)
+        except Failure:
+            pass
+        else:
+            raise Failure('stale project executable accepted after compiler failure')
+        if len(self.commands.records) != count:
+            raise Failure('stale rejection attempted to launch an executable')
+        raw = self.commands.run(self.backend + '-broken-test', self.argv('test'), self.root, 'nonzero')
+        if b'INTENTIONAL_PROJECT_COMPILE_FAILURE' not in raw or b'PROJECT_TEST_OK:' in raw:
+            raise Failure('broken graph test failed to reject stale executable')
+        self.record('broken-test', 'GRAPH_AND_GATE_REJECT_STALE_EXECUTABLE', changed,
+                    stale_binary=file_pin(self.binary), stale_run_attempts=0)
+        self.change_source(wanted)
+        self.build('recovery-build')
+        self.run('recovery-run', edited)
+        self.test('recovery-test', edited)
+        self.value.update(status='PASS_REAL_PROJECT_WORKFLOW',
+                          graph=file_pin(self.graph), final_binary=file_pin(self.binary),
+                          unchanged_build='NO_OBJECT_OR_BINARY_WRITES',
+                          edit='CHANGED_SOURCE_OBJECT_BINARY_AND_OUTPUT',
+                          compile_failure='OBSERVED_NONZERO_STALE_BINARY_REJECTED',
+                          recovery='BUILD_RUN_TEST_PASS')
+        save(self.commands.output / ('project-' + self.backend + '.json'), self.value)
+        return self.value
+
+
+def project_fixture_files():
+    files = {}
+    for name in ('configure.py', 'hello.c', 'LICENSE'):
+        path = FIXTURES / 'project' / name
+        metadata = path.lstat()
+        if not stat.S_ISREG(metadata.st_mode) or path.is_symlink() or metadata.st_size > MAX_SOURCE:
+            raise Failure('bounded ordinary project fixture required: ' + name)
+        files[name] = path.read_bytes()
+    return files
+
+
+def project_workflows(commands, tools, output, reports):
+    for backend in ('make', 'ninja'):
+        if backend not in tools:
+            reports[backend] = dict(status='MISSING_OPTIONAL', workflow='NOT_RUN')
+            continue
+        project = BuildProject(backend, commands, tools, output)
+        reports[backend] = project.value
+        try:
+            project.journey()
+        except BaseException:
+            project.value['status'] = 'FAIL'
+            save(commands.output / ('project-' + backend + '.json'), project.value)
+            raise
+
+
 def run(output, tool_path=os.defpath, timeout=15, total=180):
     if (not all(type(x) in (int, float) and math.isfinite(x) for x in (timeout, total))
             or not 2 <= timeout <= 60 or not timeout <= total <= 600):
@@ -304,7 +522,8 @@ def run(output, tool_path=os.defpath, timeout=15, total=180):
                   performance='NOT_MEASURED', release='NOT_ADMITTED', tools={},
                   sources={'runner': file_pin(__file__),
                            'owned_process': file_pin(ROOT / 'scripts/virtual/owned_process.py'),
-                           'fixtures': {n: pin(v) for n, v in fixture_files().items()}})
+                           'fixtures': {n: pin(v) for n, v in fixture_files().items()},
+                           'project_fixtures': {n: pin(v) for n, v in project_fixture_files().items()}})
     save(output / 'result.json', report)
     commands = None
     try:
@@ -326,8 +545,14 @@ def run(output, tool_path=os.defpath, timeout=15, total=180):
             report.update(status='MISSING_TOOLS', missing_required=missing)
         else:
             report['journey'] = journey(commands, tools, output)
+            report['base_command_count'] = len(commands.records)
             for name in REQUIRED:
                 report['tools'][name]['workflow'] = 'EXECUTED'
+            report['project_workflows'] = {}
+            project_workflows(commands, tools, output, report['project_workflows'])
+            for backend, result in report['project_workflows'].items():
+                if result['status'] == 'PASS_REAL_PROJECT_WORKFLOW':
+                    report['tools'][backend]['workflow'] = 'EXECUTED_REAL_PROJECT'
             report['status'] = 'PASS_LOCAL_DEVELOPER_COMPONENT'
     except (OSError, ValueError, KeyboardInterrupt) as error:
         report['error'] = type(error).__name__ + ': ' + str(error)

@@ -16,6 +16,9 @@ on:
       - 'packages/tools/cachy-asahi-orphans/**'
       - 'packages/tools/cachy-asahi-cache/**'
       - 'packages/tools/cachy-asahi-repository-runtime/**'
+      - 'packages/tools/cachy-asahi-dns/**'
+      - 'packages/tools/cachy-asahi-sysctl/**'
+      - 'packages/tools/cachy-asahi-topmem/**'
   push:
     branches: [main]
     paths:
@@ -33,6 +36,9 @@ on:
       - 'packages/tools/cachy-asahi-orphans/**'
       - 'packages/tools/cachy-asahi-cache/**'
       - 'packages/tools/cachy-asahi-repository-runtime/**'
+      - 'packages/tools/cachy-asahi-dns/**'
+      - 'packages/tools/cachy-asahi-sysctl/**'
+      - 'packages/tools/cachy-asahi-topmem/**'
   workflow_dispatch:
 permissions:
   contents: read
@@ -56,6 +62,7 @@ jobs:
           sparse-checkout: |
             /LICENSE
             /docs/port/maintenance-campaign.md
+            /docs/port/developer-workflow.md
             /scripts/benchmarks/
             /scripts/workflows/
             /scripts/virtual/owned_process.py
@@ -69,6 +76,9 @@ jobs:
             /packages/tools/cachy-asahi-orphans/
             /packages/tools/cachy-asahi-cache/
             /packages/tools/cachy-asahi-repository-runtime/
+            /packages/tools/cachy-asahi-dns/
+            /packages/tools/cachy-asahi-sysctl/
+            /packages/tools/cachy-asahi-topmem/
       - name: Select Python
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
@@ -77,7 +87,9 @@ jobs:
         if: matrix.lane == 'developer'
         run: |
           sudo apt-get update
-          sudo apt-get install --no-install-recommends -y git vim build-essential python3-venv
+          sudo apt-get install --no-install-recommends -y git vim build-essential python3-venv ninja-build
+          command -v make
+          command -v ninja
       - name: Install campaign metadata readers
         if: matrix.lane == 'campaign'
         run: |
@@ -91,16 +103,19 @@ jobs:
           case "$LANE" in
             metrics)
               python -I -B scripts/benchmarks/test_platform_metrics.py -v
+              python -I -B scripts/benchmarks/test_benchmark_platform_metrics.py -v
               ;;
             developer)
               python -I -B tests/workflows/test_developer_workflow.py -v
-              python -I -B scripts/workflows/developer_workflow.py --output "$RUNNER_TEMP/developer-workflow" --tool-path "$(dirname "$(command -v python)"):/usr/bin:/bin"
+              python -I -B scripts/workflows/developer_workflow.py --output "$RUNNER_TEMP/developer-workflow" --tool-path "$(dirname "$(command -v python)"):/usr/bin:/bin" --command-timeout 30 --total-timeout 300
+              python -I -B -c 'import json,sys; from pathlib import Path; r=json.loads(Path(sys.argv[1]).read_text()); assert r["status"] == "PASS_LOCAL_DEVELOPER_COMPONENT"; assert all(r["project_workflows"][b]["status"] == "PASS_REAL_PROJECT_WORKFLOW" for b in ("make", "ninja")); assert len(r["commands"]) == 63 + sum(r["tools"][b]["status"] == "PRESENT" for b in ("cmake", "meson")); assert all(c["success"] for c in r["commands"])' "$RUNNER_TEMP/developer-workflow/result.json"
               ;;
             campaign)
               python -I -B tests/test_maintenance_campaign.py -v
               ;;
             management-source)
               python -I -B scripts/release/test_management_tools_source_delivery.py -v
+              python -I -B -Werror::ResourceWarning scripts/release/test_dns_sysctl_topmem_source_delivery.py -v
               ;;
             *) exit 2 ;;
           esac
