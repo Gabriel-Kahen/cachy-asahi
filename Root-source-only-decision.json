@@ -1,0 +1,13 @@
+{
+  "status": "SETUP7_PREPARED_SOURCE_ONLY_ROOT_PUBLICATION_REQUIRED",
+  "version": "0.1.0-7",
+  "feature_source_reported_by_root": "87554bf791db6f5eb0793f0d41386a5084ec1611",
+  "actual_source": null,
+  "actual_ref": null,
+  "actual_run": null,
+  "native_ARM": "NOT_RUN",
+  "installed": "NOT_RUN",
+  "hardware": "NOT_RUN",
+  "release": "NOT_ADMITTED",
+  "historical_result": "Historical Setup6 results retained as data only"
+}
