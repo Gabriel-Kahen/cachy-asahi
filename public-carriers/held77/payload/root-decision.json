@@ -1,0 +1,393 @@
+{
+  "GUI": "FAIL_NOT_ACCEPTED",
+  "GUI_Doctor_lifetime_cause": "UNPROVED_NO_ORIGINAL_CHILD_FINAL_OUTCOME",
+  "GUI_Orphans_report": "RETAINED_ACCESSIBILITY_SNAPSHOT_MATCHES_COMPLETE_EXPECTED_8K_PREVIEW_AND_SUMMARY_NOT_FULL_GUI_ACCEPTANCE",
+  "GUI_actions": {
+    "minimal": 10,
+    "overlay": 0
+  },
+  "GUI_frames": 9,
+  "GUI_primary": "Welcome and Doctor must remain visible",
+  "attempt": 1,
+  "cleanup": {
+    "consumer": {
+      "containers": [
+        {
+          "absence_verified": true,
+          "container": "cachy-asahi-product-lifecycle-d480fdbfa762d6445f870ab6f8161c6d",
+          "status": "PASS"
+        },
+        {
+          "absence_verified": true,
+          "container": "cachy-asahi-product-1399a1af51215fdda125437ab098e291",
+          "status": "PASS"
+        },
+        {
+          "absence_verified": true,
+          "container": "cachy-asahi-product-5fe35c7f3eff48abee91ae17444c1874",
+          "status": "PASS"
+        },
+        {
+          "absence_verified": true,
+          "container": "cachy-asahi-product-1580140c38e0021fe29da884262b4bc3",
+          "status": "PASS"
+        },
+        {
+          "absence_verified": true,
+          "container": "cachy-asahi-product-9e166405bcc1082d6963e67cc02ea29d",
+          "status": "PASS"
+        },
+        {
+          "absence_verified": true,
+          "container": "cachy-asahi-product-e4241fb79163db5d13735434d694efe1",
+          "status": "PASS"
+        },
+        {
+          "absence_verified": true,
+          "container": "cachy-asahi-product-50155018216191b84c60edc307415d9a",
+          "status": "PASS"
+        },
+        {
+          "absence_verified": true,
+          "container": "cachy-asahi-product-probe-6e2ee5a5d39bcb14e885a7072fe159f5",
+          "status": "PASS"
+        }
+      ],
+      "status": "PASS_CONSUMERS_RETIRED"
+    },
+    "producer": {
+      "build": "COMPLETED",
+      "image": {
+        "absence_verified": true,
+        "id": "sha256:3827f35e6b62842a434072bfb1ae8141804aa058ebb4a5a627400dc5fc78e7f2"
+      },
+      "probe": {
+        "absence_verified": true,
+        "cid": "5b14a393573c9a917a81625ea984a501206a43dbb91dea43a3f1af961e06160a",
+        "name": "cachy-asahi-574-probe-c4d409897277d90b"
+      },
+      "status": "PASS"
+    },
+    "status": "PASS_ORDERED_CONSUMER_THEN_PRODUCER_CLEANUP"
+  },
+  "closed_public_members": 265,
+  "crypto": [
+    {
+      "archive": "cachy-asahi-doctor-0.1.0-1-any.pkg.tar.xz",
+      "exit": 0,
+      "status": "[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED D7655FA2718CCD3AFFCAD252D063CB40357DFBB3 0\n[GNUPG:] SIG_ID 5ZQof19Z5oOM62U6USaliyT3XC4 2026-10-17 1792211752\n[GNUPG:] GOODSIG D063CB40357DFBB3 TEST ONLY composition <composition@test.invalid>\n[GNUPG:] VALIDSIG D7655FA2718CCD3AFFCAD252D063CB40357DFBB3 2026-10-17 1792211752 0 4 0 22 10 00 D7655FA2718CCD3AFFCAD252D063CB40357DFBB3\n",
+      "stderr_sha256": "48a6a65a094e1b7720e7cd9a27fea99c21ae13e795acc3ee16fa0d30753e7ecc"
+    },
+    {
+      "archive": "cachy-asahi-orphans-0.1.0-2-any.pkg.tar.xz",
+      "exit": 0,
+      "status": "[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED D7655FA2718CCD3AFFCAD252D063CB40357DFBB3 0\n[GNUPG:] SIG_ID bjxC3PHu+AtHrLpYtM52MSTdbpo 2026-10-17 1792211752\n[GNUPG:] GOODSIG D063CB40357DFBB3 TEST ONLY composition <composition@test.invalid>\n[GNUPG:] VALIDSIG D7655FA2718CCD3AFFCAD252D063CB40357DFBB3 2026-10-17 1792211752 0 4 0 22 10 00 D7655FA2718CCD3AFFCAD252D063CB40357DFBB3\n",
+      "stderr_sha256": "48a6a65a094e1b7720e7cd9a27fea99c21ae13e795acc3ee16fa0d30753e7ecc"
+    },
+    {
+      "archive": "cachy-asahi-welcome-0.1.0-4-aarch64.pkg.tar.xz",
+      "exit": 0,
+      "status": "[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED D7655FA2718CCD3AFFCAD252D063CB40357DFBB3 0\n[GNUPG:] SIG_ID j4CogG3nU1SwVVrz6iBT9MvYpJ0 2026-10-17 1792211752\n[GNUPG:] GOODSIG D063CB40357DFBB3 TEST ONLY composition <composition@test.invalid>\n[GNUPG:] VALIDSIG D7655FA2718CCD3AFFCAD252D063CB40357DFBB3 2026-10-17 1792211752 0 4 0 22 10 00 D7655FA2718CCD3AFFCAD252D063CB40357DFBB3\n",
+      "stderr_sha256": "48a6a65a094e1b7720e7cd9a27fea99c21ae13e795acc3ee16fa0d30753e7ecc"
+    }
+  ],
+  "generic16k": "NO_NEW_CREDIT",
+  "hardware": "NOT_RUN",
+  "lifecycle": {
+    "phases": [
+      {
+        "count": 577,
+        "phase": "install"
+      },
+      {
+        "count": 577,
+        "phase": "same-version-reinstall"
+      },
+      {
+        "count": 574,
+        "phase": "remove"
+      },
+      {
+        "count": 577,
+        "phase": "reinstall-after-removal"
+      },
+      {
+        "count": 574,
+        "phase": "final-remove"
+      }
+    ],
+    "raw_reports": 36,
+    "root_guard": "PASS_NATIVE_REAL_ROOT_GUARD",
+    "status": "PASS_MANAGEMENT_INSTALLED_READONLY_LIFECYCLE"
+  },
+  "native_GUI_performance": "NOT_MEASURED",
+  "native_checks": {
+    "checks": {
+      "cachy-asahi-doctor": {
+        "a": {
+          "check_enabled": true,
+          "markers": [
+            "^Ran 16 tests in [0-9.]+s$",
+            "^OK$"
+          ],
+          "skipped": 0,
+          "status": "PASS_COMPLETE_ROOT_BOUND_CHECKS_NO_SKIPS"
+        },
+        "b": {
+          "check_enabled": true,
+          "markers": [
+            "^Ran 16 tests in [0-9.]+s$",
+            "^OK$"
+          ],
+          "skipped": 0,
+          "status": "PASS_COMPLETE_ROOT_BOUND_CHECKS_NO_SKIPS"
+        }
+      },
+      "cachy-asahi-orphans": {
+        "a": {
+          "check_enabled": true,
+          "markers": [
+            "^Ran 20 tests in [0-9.]+s$",
+            "^OK$"
+          ],
+          "skipped": 0,
+          "status": "PASS_COMPLETE_ROOT_BOUND_CHECKS_NO_SKIPS"
+        },
+        "b": {
+          "check_enabled": true,
+          "markers": [
+            "^Ran 20 tests in [0-9.]+s$",
+            "^OK$"
+          ],
+          "skipped": 0,
+          "status": "PASS_COMPLETE_ROOT_BOUND_CHECKS_NO_SKIPS"
+        }
+      },
+      "cachy-asahi-welcome": {
+        "a": {
+          "check_enabled": true,
+          "expected_skip": "ok 13 /management/root-guard # SKIP Root guard requires an actual root test process",
+          "markers": [
+            "^1\\.\\.7$",
+            "^ok [0-9]+ /status/installed$",
+            "^ok [0-9]+ /status/unavailable$",
+            "^ok [0-9]+ /status/duplicate$",
+            "^ok [0-9]+ /status/lookalike$",
+            "^ok [0-9]+ /status/malformed$",
+            "^ok [0-9]+ /status/oversized$",
+            "^ok [0-9]+ /status/json\\-controls$",
+            "^1\\.\\.13$",
+            "^ok [0-9]+ /management/api$",
+            "^ok [0-9]+ /management/success$",
+            "^ok [0-9]+ /management/nonzero$",
+            "^ok [0-9]+ /management/missing$",
+            "^ok [0-9]+ /management/output\\-limit$",
+            "^ok [0-9]+ /management/timeout$",
+            "^ok [0-9]+ /management/cancel\\-detached$",
+            "^ok [0-9]+ /management/complete\\-detached$",
+            "^ok [0-9]+ /management/unrelated\\-child\\-isolation$",
+            "^ok [0-9]+ /management/environment$",
+            "^ok [0-9]+ /management/binary\\-output$",
+            "^ok [0-9]+ /management/invalid\\-utf8$",
+            "^ok 13 /management/root\\-guard # SKIP Root guard requires an actual root test process$",
+            "^1\\.\\.8$",
+            "^ok [0-9]+ /report/doctor/valid$",
+            "^ok [0-9]+ /report/doctor/schema$",
+            "^ok [0-9]+ /report/orphans/valid$",
+            "^ok [0-9]+ /report/orphans/schema$",
+            "^ok [0-9]+ /report/json$",
+            "^ok [0-9]+ /report/unicode$",
+            "^ok [0-9]+ /report/refusal$",
+            "^ok [0-9]+ /report/bounds$",
+            "^Ran 5 tests in [0-9.]+s$",
+            "^OK$",
+            "PASS_SOURCE_PAYLOAD_CONTRACT",
+            "^1\\.\\.3$",
+            "^ok [0-9]+ /report\\-work/copied\\-buffer\\-and\\-display$",
+            "^ok [0-9]+ /report\\-work/close\\-pending\\-lifetime$",
+            "^ok [0-9]+ /report\\-work/no\\-second\\-start$"
+          ],
+          "passed": 35,
+          "registered": 36,
+          "root_guard": "REQUIRES_SEPARATE_REAL_UID0_CASE",
+          "skipped": 1,
+          "status": "PASS_35_ORDINARY_TESTS_AND_ONE_SCOPED_ROOT_GUARD_SKIP"
+        },
+        "b": {
+          "check_enabled": true,
+          "expected_skip": "ok 13 /management/root-guard # SKIP Root guard requires an actual root test process",
+          "markers": [
+            "^1\\.\\.7$",
+            "^ok [0-9]+ /status/installed$",
+            "^ok [0-9]+ /status/unavailable$",
+            "^ok [0-9]+ /status/duplicate$",
+            "^ok [0-9]+ /status/lookalike$",
+            "^ok [0-9]+ /status/malformed$",
+            "^ok [0-9]+ /status/oversized$",
+            "^ok [0-9]+ /status/json\\-controls$",
+            "^1\\.\\.13$",
+            "^ok [0-9]+ /management/api$",
+            "^ok [0-9]+ /management/success$",
+            "^ok [0-9]+ /management/nonzero$",
+            "^ok [0-9]+ /management/missing$",
+            "^ok [0-9]+ /management/output\\-limit$",
+            "^ok [0-9]+ /management/timeout$",
+            "^ok [0-9]+ /management/cancel\\-detached$",
+            "^ok [0-9]+ /management/complete\\-detached$",
+            "^ok [0-9]+ /management/unrelated\\-child\\-isolation$",
+            "^ok [0-9]+ /management/environment$",
+            "^ok [0-9]+ /management/binary\\-output$",
+            "^ok [0-9]+ /management/invalid\\-utf8$",
+            "^ok 13 /management/root\\-guard # SKIP Root guard requires an actual root test process$",
+            "^1\\.\\.8$",
+            "^ok [0-9]+ /report/doctor/valid$",
+            "^ok [0-9]+ /report/doctor/schema$",
+            "^ok [0-9]+ /report/orphans/valid$",
+            "^ok [0-9]+ /report/orphans/schema$",
+            "^ok [0-9]+ /report/json$",
+            "^ok [0-9]+ /report/unicode$",
+            "^ok [0-9]+ /report/refusal$",
+            "^ok [0-9]+ /report/bounds$",
+            "^Ran 5 tests in [0-9.]+s$",
+            "^OK$",
+            "PASS_SOURCE_PAYLOAD_CONTRACT",
+            "^1\\.\\.3$",
+            "^ok [0-9]+ /report\\-work/copied\\-buffer\\-and\\-display$",
+            "^ok [0-9]+ /report\\-work/close\\-pending\\-lifetime$",
+            "^ok [0-9]+ /report\\-work/no\\-second\\-start$"
+          ],
+          "passed": 35,
+          "registered": 36,
+          "root_guard": "REQUIRES_SEPARATE_REAL_UID0_CASE",
+          "skipped": 1,
+          "status": "PASS_35_ORDINARY_TESTS_AND_ONE_SCOPED_ROOT_GUARD_SKIP"
+        }
+      }
+    },
+    "distinct_recorded_containers": [
+      "cachy-asahi-product-9e166405bcc1082d6963e67cc02ea29d",
+      "cachy-asahi-product-1580140c38e0021fe29da884262b4bc3",
+      "cachy-asahi-product-5fe35c7f3eff48abee91ae17444c1874",
+      "cachy-asahi-product-1399a1af51215fdda125437ab098e291",
+      "cachy-asahi-product-50155018216191b84c60edc307415d9a",
+      "cachy-asahi-product-e4241fb79163db5d13735434d694efe1"
+    ],
+    "qualification": "Distinct recorded same-run containers; independent-machine execution is not attested. Welcome35ordinary passes plus exact scoped skip is completed by separately genuine nativeUID0 rootguard.",
+    "status": "PASS_ORIGINAL_COMPLETE_NATIVE_CHECK_REPLAY"
+  },
+  "originals": {
+    "artifact.zip": {
+      "bytes": 4405666,
+      "sha256": "fee49c61385f262df594ddece0e649e3cad7343dbf06f3a4b822519f0874fb44"
+    },
+    "logs.zip": {
+      "bytes": 113308,
+      "sha256": "09124c3e71076bc645fcb9dfd771091b3e04b2633234af763c39bdcf26d20956"
+    }
+  },
+  "packages": {
+    "cachy-asahi-doctor": {
+      "archives": {
+        "a": {
+          "bytes": 13708,
+          "sha256": "06898669fdd6c9e5bdcc9909e6b0e75e958bdbd57520a7082c0e9f5f7fac7482"
+        },
+        "b": {
+          "bytes": 13708,
+          "sha256": "06898669fdd6c9e5bdcc9909e6b0e75e958bdbd57520a7082c0e9f5f7fac7482"
+        }
+      },
+      "comparison": {
+        "errors": [],
+        "hardware_status": "NOT RUN",
+        "independence_limit": "Distinct recorded container runs; independent machine execution is not attested.",
+        "packages": {
+          "cachy-asahi-doctor-0.1.0-1-any.pkg.tar.xz": {
+            "buildinfo_equal": true,
+            "bytes_equal": true,
+            "installed_contents_equal": true,
+            "pkginfo_equal": true
+          }
+        },
+        "status": "contents-reproduced"
+      },
+      "version": "0.1.0-1"
+    },
+    "cachy-asahi-orphans": {
+      "archives": {
+        "a": {
+          "bytes": 18900,
+          "sha256": "2543a13b584bf974efc4ce79f4da585d9e4513c2bc3907750fe5c962d20c8c02"
+        },
+        "b": {
+          "bytes": 18900,
+          "sha256": "2543a13b584bf974efc4ce79f4da585d9e4513c2bc3907750fe5c962d20c8c02"
+        }
+      },
+      "comparison": {
+        "errors": [],
+        "hardware_status": "NOT RUN",
+        "independence_limit": "Distinct recorded container runs; independent machine execution is not attested.",
+        "packages": {
+          "cachy-asahi-orphans-0.1.0-2-any.pkg.tar.xz": {
+            "buildinfo_equal": true,
+            "bytes_equal": true,
+            "installed_contents_equal": true,
+            "pkginfo_equal": true
+          }
+        },
+        "status": "contents-reproduced"
+      },
+      "version": "0.1.0-2"
+    },
+    "cachy-asahi-welcome": {
+      "archives": {
+        "a": {
+          "bytes": 32268,
+          "sha256": "80cd962d35d8652ab7891d61f856e37502f365adb842329a680b4fa88558503d"
+        },
+        "b": {
+          "bytes": 32268,
+          "sha256": "80cd962d35d8652ab7891d61f856e37502f365adb842329a680b4fa88558503d"
+        }
+      },
+      "comparison": {
+        "errors": [],
+        "hardware_status": "NOT RUN",
+        "independence_limit": "Distinct recorded container runs; independent machine execution is not attested.",
+        "packages": {
+          "cachy-asahi-welcome-0.1.0-4-aarch64.pkg.tar.xz": {
+            "buildinfo_equal": true,
+            "bytes_equal": true,
+            "installed_contents_equal": true,
+            "pkginfo_equal": true
+          }
+        },
+        "status": "contents-reproduced"
+      },
+      "version": "0.1.0-4"
+    }
+  },
+  "preserved_reports": 36,
+  "qualifications": [
+    "Root alone admits any package/CLI component; overall original run remainsFAIL",
+    "Actual retained completed Orphans snapshot passes exact source-bound summary/entire8KiB preview/button guard; full GUI raw984307B is not exported; later capture fails absent Doctor terminal",
+    "Only9minimal frames, no full17operations/24frames/overlay acceptance",
+    "Distinct same-job containers are not independent-machine attestations",
+    "TEST signature/ALPM Required execution are original source-bound receipts; no production trust",
+    "Private raw state/live cleanup are not independently reobserved; hardware/physical-input/graphics/performance claims remain NOT_RUN or NOT_MEASURED",
+    "No collected code executed; all guards loaded from exact frozenGit source",
+    "Root independently reran all113 frozen Git joins, original closed265-file/component/native check replay, and three fresh strict TEST-key signature verifications.",
+    "Root accepts current native byte-identical pairs and signed installed CLI only; the overall run remains FAIL and current24-frame/17-operation GUI, current604/16K/M2 and release gates remain open."
+  ],
+  "release": "NOT_ADMITTED",
+  "run_id": 39002929704,
+  "schema_version": 1,
+  "source_join_count": 113,
+  "source_manifest": {
+    "bytes": 31722,
+    "sha256": "920523df87b526f0c808e95816665f525a59c84c5e5de2dabaf6f36e4b436ce4"
+  },
+  "source_sha": "3c06dad15dec0dbfe47d5f064a9c56ce76f59756",
+  "status": "ROOT_ACCEPTED_WELCOME4_NATIVE_PAIR_AND_SIGNED_INSTALLED_CLI_ONLY"
+}

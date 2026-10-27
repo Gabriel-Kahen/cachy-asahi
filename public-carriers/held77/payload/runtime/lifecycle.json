@@ -1,0 +1,264 @@
+{
+  "architecture": "aarch64",
+  "base574_preserved": true,
+  "base_count": 574,
+  "base_manifest_sha256": "3327b420fa66b640a612776313f73ff8d696e314060bdb1fa435dbe93ef398e9",
+  "events": [
+    {
+      "base574_preserved": true,
+      "count": 577,
+      "observations": [
+        {
+          "actual_default_count": 577,
+          "apply_supported": false,
+          "base_protected": true,
+          "db_preserved": true,
+          "default_dbpath": "/var/lib/pacman",
+          "default_root": "/",
+          "doctor": "PASS_ACTUAL_READONLY_JSON",
+          "fixture": "PASS_VERSIONED_PROVIDED_OPTIONAL_CYCLE_PROTECTED",
+          "foreign_lock": "PASS_REFUSAL_PRESERVED",
+          "home": "management-home-fresh",
+          "plan_verify": "PASS_NOT_APPLIED",
+          "readonly_enforced": "UNPRIVILEGED_NO_DB_WRITE_ACCESS",
+          "reports": {
+            "default-assessment.json": "d22cd30abaebba5b8e952c97aa9c1d46a85b66a378881e7ad825371edc98bed9",
+            "doctor.json": "5fcf4d31239420b752a1870f7201cc75032fd52b98255cfe601a42ba98f94a86",
+            "fixture-assessment.json": "00615efe8fa27b2137baccd2d6a10c87ece9c9591983be2bbe7d3cf6d4d9f4db",
+            "fixture-observation.json": "fa85a3b32911a6a46c21efdf57c40b457560a3bc761d0bf89f24a281379e1d64",
+            "fixture-plan.json": "e21fc1d3e5d6142016c589fab702392eddba417c6cfb49c7ac19197151ec81dd",
+            "welcome-status.json": "fa09a1a271cc3dc60ba00d67f3df7dd7f4f97c5bab9f2d61baf4002741916c54"
+          },
+          "welcome_status": "PASS_ACTUAL_PLATFORM"
+        },
+        {
+          "actual_default_count": 577,
+          "apply_supported": false,
+          "base_protected": true,
+          "db_preserved": true,
+          "default_dbpath": "/var/lib/pacman",
+          "default_root": "/",
+          "doctor": "PASS_ACTUAL_READONLY_JSON",
+          "fixture": "PASS_VERSIONED_PROVIDED_OPTIONAL_CYCLE_PROTECTED",
+          "foreign_lock": "PASS_REFUSAL_PRESERVED",
+          "home": "management-home-existing",
+          "plan_verify": "PASS_NOT_APPLIED",
+          "readonly_enforced": "UNPRIVILEGED_NO_DB_WRITE_ACCESS",
+          "reports": {
+            "default-assessment.json": "d22cd30abaebba5b8e952c97aa9c1d46a85b66a378881e7ad825371edc98bed9",
+            "doctor.json": "e1024ab57170f1ef2d25506274a445da4538ad2997de14b37426970461d26c19",
+            "fixture-assessment.json": "2640d7fa74f18a439ed8dc3434beb1816c606896b30d9e04c01588c986503370",
+            "fixture-observation.json": "ce08a8882d2472ed397882fb122128894cabe9582c7494c7111da339327139a5",
+            "fixture-plan.json": "25aa6ef4a236fc6fc4b4ea124baa98c01a96d6063b5cd5305e49d7b1b56c06ad",
+            "welcome-status.json": "fa09a1a271cc3dc60ba00d67f3df7dd7f4f97c5bab9f2d61baf4002741916c54"
+          },
+          "welcome_status": "PASS_ACTUAL_PLATFORM"
+        }
+      ],
+      "phase": "install",
+      "user_preserved": true
+    },
+    {
+      "base574_preserved": true,
+      "count": 577,
+      "observations": [
+        {
+          "actual_default_count": 577,
+          "apply_supported": false,
+          "base_protected": true,
+          "db_preserved": true,
+          "default_dbpath": "/var/lib/pacman",
+          "default_root": "/",
+          "doctor": "PASS_ACTUAL_READONLY_JSON",
+          "fixture": "PASS_VERSIONED_PROVIDED_OPTIONAL_CYCLE_PROTECTED",
+          "foreign_lock": "PASS_REFUSAL_PRESERVED",
+          "home": "management-home-fresh",
+          "plan_verify": "PASS_NOT_APPLIED",
+          "readonly_enforced": "UNPRIVILEGED_NO_DB_WRITE_ACCESS",
+          "reports": {
+            "default-assessment.json": "84fa10526cf9d9786adb6df49d288fe70d5b5d0c4ce66ad73afe5dfcc77bb125",
+            "doctor.json": "df3e2140e1c235c99c5ae944476da72bd9f7abe3a4ac84bd325a381cc33f6386",
+            "fixture-assessment.json": "94490807e35942ea3cdd83145f45a808b3bb78d3df6bbf3c1dff311b5a34e78b",
+            "fixture-observation.json": "f5fc05175364377868b7bd2c7a3387fe57c7a7a292613d7408da47f53ec0609a",
+            "fixture-plan.json": "ee9bc1a8e23c4ac9c55fe03ae17d4a9b794d7816cf88fe635fb301b04d058ae9",
+            "welcome-status.json": "fa09a1a271cc3dc60ba00d67f3df7dd7f4f97c5bab9f2d61baf4002741916c54"
+          },
+          "welcome_status": "PASS_ACTUAL_PLATFORM"
+        },
+        {
+          "actual_default_count": 577,
+          "apply_supported": false,
+          "base_protected": true,
+          "db_preserved": true,
+          "default_dbpath": "/var/lib/pacman",
+          "default_root": "/",
+          "doctor": "PASS_ACTUAL_READONLY_JSON",
+          "fixture": "PASS_VERSIONED_PROVIDED_OPTIONAL_CYCLE_PROTECTED",
+          "foreign_lock": "PASS_REFUSAL_PRESERVED",
+          "home": "management-home-existing",
+          "plan_verify": "PASS_NOT_APPLIED",
+          "readonly_enforced": "UNPRIVILEGED_NO_DB_WRITE_ACCESS",
+          "reports": {
+            "default-assessment.json": "84fa10526cf9d9786adb6df49d288fe70d5b5d0c4ce66ad73afe5dfcc77bb125",
+            "doctor.json": "5e9bb240281181e4657f78c80e823c0765e9ebbb063bb0982d9a8678a1c4f74c",
+            "fixture-assessment.json": "3856e62b9bf1553ddc0a8fc26e8c30a28fc0968af21f1fa7a2989a89828fc8de",
+            "fixture-observation.json": "e5a245771b45e153b97f80b0db4dad52b8fd814f834e589f3bbc7a25ae16b933",
+            "fixture-plan.json": "37e0aa27f7285db677b3a34355c587f15873a8095383f321a77270e03ae05ba0",
+            "welcome-status.json": "fa09a1a271cc3dc60ba00d67f3df7dd7f4f97c5bab9f2d61baf4002741916c54"
+          },
+          "welcome_status": "PASS_ACTUAL_PLATFORM"
+        }
+      ],
+      "phase": "same-version-reinstall",
+      "user_preserved": true
+    },
+    {
+      "base574_preserved": true,
+      "count": 574,
+      "payloads_absent": true,
+      "phase": "remove",
+      "user_preserved": true
+    },
+    {
+      "base574_preserved": true,
+      "count": 577,
+      "observations": [
+        {
+          "actual_default_count": 577,
+          "apply_supported": false,
+          "base_protected": true,
+          "db_preserved": true,
+          "default_dbpath": "/var/lib/pacman",
+          "default_root": "/",
+          "doctor": "PASS_ACTUAL_READONLY_JSON",
+          "fixture": "PASS_VERSIONED_PROVIDED_OPTIONAL_CYCLE_PROTECTED",
+          "foreign_lock": "PASS_REFUSAL_PRESERVED",
+          "home": "management-home-fresh",
+          "plan_verify": "PASS_NOT_APPLIED",
+          "readonly_enforced": "UNPRIVILEGED_NO_DB_WRITE_ACCESS",
+          "reports": {
+            "default-assessment.json": "87e1aa9f4cce0cf0f340595d7f2b14563ddeda4d2788f032ada0eda464c92b88",
+            "doctor.json": "050c425934bdcf5f190342a6786556a6e2a0187d5da7fe2c73e3a1e95c247ed3",
+            "fixture-assessment.json": "024657c2193a463adc07ce0ef7860f960a668bc9a6c9b352b50ea7ff2a41760c",
+            "fixture-observation.json": "28e15182665947430cebf071a3f761a51e0bcc0cd574d69a2c00929799a3109d",
+            "fixture-plan.json": "51afe427bbf23e8222cf9e49110478473eacb9b46a79f8738043e4d0ac237798",
+            "welcome-status.json": "fa09a1a271cc3dc60ba00d67f3df7dd7f4f97c5bab9f2d61baf4002741916c54"
+          },
+          "welcome_status": "PASS_ACTUAL_PLATFORM"
+        },
+        {
+          "actual_default_count": 577,
+          "apply_supported": false,
+          "base_protected": true,
+          "db_preserved": true,
+          "default_dbpath": "/var/lib/pacman",
+          "default_root": "/",
+          "doctor": "PASS_ACTUAL_READONLY_JSON",
+          "fixture": "PASS_VERSIONED_PROVIDED_OPTIONAL_CYCLE_PROTECTED",
+          "foreign_lock": "PASS_REFUSAL_PRESERVED",
+          "home": "management-home-existing",
+          "plan_verify": "PASS_NOT_APPLIED",
+          "readonly_enforced": "UNPRIVILEGED_NO_DB_WRITE_ACCESS",
+          "reports": {
+            "default-assessment.json": "87e1aa9f4cce0cf0f340595d7f2b14563ddeda4d2788f032ada0eda464c92b88",
+            "doctor.json": "c3ce2d88c0d5c737ccf27e1ca639d9fc910f2edae16ba7761a8c8ef42c894b6c",
+            "fixture-assessment.json": "ed72e46403f550226104140d3306b7a8b69943227ef6ed616e1d197e8b583634",
+            "fixture-observation.json": "5af2c0d37554bff8c6da48e123d45489c1cc0f3e48e604a057dc86f260cb3fd4",
+            "fixture-plan.json": "5f3a8186c1aa062fd6a9cbcc064adf4c1096e4d2d0ca89d54a70c132f24ab3c1",
+            "welcome-status.json": "fa09a1a271cc3dc60ba00d67f3df7dd7f4f97c5bab9f2d61baf4002741916c54"
+          },
+          "welcome_status": "PASS_ACTUAL_PLATFORM"
+        }
+      ],
+      "phase": "reinstall-after-removal",
+      "user_preserved": true
+    },
+    {
+      "base574_preserved": true,
+      "count": 574,
+      "payloads_absent": true,
+      "phase": "final-remove",
+      "user_preserved": true
+    }
+  ],
+  "hardware": "NOT_RUN",
+  "installed_count": 577,
+  "page_size": 4096,
+  "preserved_nodes": 114738,
+  "preserved_reports": 36,
+  "release": "NOT_ADMITTED",
+  "removal": "NOT_IMPLEMENTED",
+  "reports_preserved": true,
+  "root_guard": {
+    "architecture": "aarch64",
+    "binary_sha256": "c45e61445a131f3c5b0a77223350235a59fcf07373675d258e7c063f0b0dcd1c",
+    "compile_command": [
+      "/usr/bin/cc",
+      "-std=c11",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Wformat=2",
+      "-Werror",
+      "-DMANAGEMENT_TEST",
+      "-I/usr/include/glib-2.0",
+      "-I/usr/lib/glib-2.0/include",
+      "-I/usr/include/libmount",
+      "-I/usr/include/blkid",
+      "-I/usr/include/sysprof-6",
+      "-pthread",
+      "/guard-source/test_management.c",
+      "/guard-source/management.c",
+      "-o",
+      "/tmp/management-root-guard",
+      "-Wl,-z,max-page-size=16384",
+      "-lgio-2.0",
+      "-lgobject-2.0",
+      "-lglib-2.0"
+    ],
+    "euid": 0,
+    "hardware": "NOT_RUN",
+    "page_size": 4096,
+    "passed": 1,
+    "pkg_config_cflags": [
+      "-I/usr/include/glib-2.0",
+      "-I/usr/lib/glib-2.0/include",
+      "-I/usr/include/libmount",
+      "-I/usr/include/blkid",
+      "-I/usr/include/sysprof-6",
+      "-pthread"
+    ],
+    "pkg_config_libs": [
+      "-lgio-2.0",
+      "-lgobject-2.0",
+      "-lglib-2.0"
+    ],
+    "scope": "SEPARATE_SOURCE_BOUND_TEST_CONTROL_NOT_INSTALLED_PRODUCT_BEHAVIOR",
+    "skipped": 0,
+    "source_files": {
+      "management.c": {
+        "bytes": 19484,
+        "sha256": "1703fe13c3055a3f35ec12b85c2ffcb3814a0c364fc9537caf4adf32d24d20b4"
+      },
+      "management.h": {
+        "bytes": 1564,
+        "sha256": "5e5e8f196321eb6da75224cbb9f48e9dab7ed20909af4569a9a910ac29f8c212"
+      },
+      "test_management.c": {
+        "bytes": 11388,
+        "sha256": "17a23fa7fce5562c3ddeab9a2dda2aa2853c4c2b40dc532bcd3e21fe9a67f18c"
+      }
+    },
+    "status": "PASS_NATIVE_REAL_ROOT_GUARD",
+    "tap_bytes": 154,
+    "tap_sha256": "27f982b98260f12290cbf7b1b206e7ec929793f4a18ac2efa7522b66fd978a94",
+    "test_command": [
+      "/tmp/management-root-guard",
+      "-p",
+      "/management/root-guard"
+    ],
+    "uid": 0
+  },
+  "status": "PASS_MANAGEMENT_INSTALLED_READONLY_LIFECYCLE",
+  "user_preserved": true
+}
