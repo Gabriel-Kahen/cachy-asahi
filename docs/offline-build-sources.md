@@ -1,8 +1,11 @@
 # Offline source-cache bridge
 
-`scripts/build/build.py` can opt into `scripts/maintenance/source_cache.py` through
-an independently reviewed source plan. Existing callers and package selections
-are unchanged. This interface stages HTTPS archives only; Git/VCS mirrors and
+`scripts/build/build_v2.py` can opt into `scripts/maintenance/source_cache.py` through
+an independently reviewed source plan. Use `scripts/build/compare_v2.py` for its
+paired evidence. The versioned builder selects `container-entry-v2.sh`; the
+original `build.py`, `compare.py` and `container-entry.sh` retain their existing
+bytes for pinned historical consumers. Package selections are unchanged. The
+v2 interface also accepts ordinary builds without the four source options. This interface stages HTTPS archives only; Git/VCS mirrors and
 source snapshots need a separate explicit interface and are refused here.
 
 The catalog retains the existing source-cache schema, material byte/hash pins,
@@ -37,7 +40,7 @@ clearance, sufficient notices, redistribution rights or complete source delivery
 Add all four options to an otherwise normal clean-build invocation:
 
 ```sh
-python -B scripts/build/build.py /absolute/reviewed/recipe \
+python -B scripts/build/build_v2.py /absolute/reviewed/recipe \
   --image 'sha256:ACTUAL_PINNED_ARM64_IMAGE_ID' \
   --mode native --source-date-epoch ACTUAL_SOURCE_EPOCH \
   --expected-packages /absolute/reviewed/packages.lock \
@@ -67,7 +70,7 @@ the host staging helper. The only new container mount is
 `source-material/srcdest/` at `/offline-sources`, read-only. The cache, catalog,
 receipts and host notice paths are not mounted.
 
-Makepkg requires a writable `SRCDEST`, so `container-entry.sh` seeds a private
+Makepkg requires a writable `SRCDEST`, so `container-entry-v2.sh` seeds a private
 mode-0700 `/tmp/offline-sources` in the existing container tmpfs from that mount
 and exports it as `SRCDEST`. It still runs `--verifysource` and the ordinary clean
 build without skipped checksums, dependency installation or host installation.
@@ -83,7 +86,7 @@ selected receipts, notice contents keyed by SHA256, selected archive bytes and
 `selection.json`. Its file hashes remain in `files` alongside existing build
 evidence. Failed container attempts retain this provenance. A staging failure
 retains an explicitly failed attempt and may contain incomplete staging files;
-those are not usable inputs. `compare.py` checks retained file hashes and refuses
+those are not usable inputs. `compare_v2.py` checks retained file hashes and refuses
 different source selections between builds, including a staged/non-staged pair.
 
 This is source/host integration tooling. A mocked container result demonstrates
@@ -92,3 +95,15 @@ behavior, M2/16K compatibility, legal approval or release admission.
 
 References: [makepkg.conf SRCDEST](https://man.archlinux.org/man/makepkg.conf.5.en),
 existing [clean builder](build-system.md) and [source cache](source-cache.md).
+
+Run the versioned controls without Docker or acquisition:
+
+```sh
+python -B -Werror::ResourceWarning tests/test_offline_sources.py
+python -B -Werror::ResourceWarning tests/test_build_v2_validation.py
+bash -n scripts/build/container-entry-v2.sh
+```
+
+The second suite applies the existing clean-builder validation contract and
+synthetic inputs to the v2 imports, comparison CLI and shell helper. The original
+validation suite continues to exercise the original entrypoints.

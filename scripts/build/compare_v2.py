@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify evidence before comparing two independently created build records."""
+"""Version 2: verify evidence before comparing two independently created build records."""
 import argparse
 import json
 import sys
@@ -8,7 +8,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'checks'))
 from package_checks import digest, package, PACKAGE_METADATA
-from build import bind_artifact
+from build_v2 import bind_artifact
 
 
 def verify(path):
@@ -67,6 +67,8 @@ def compare(first, second):
                 'recipe_metadata', 'expected_packages_sha256', 'entry_script_sha256'):
         if key not in left or key not in right or left[key] != right[key]:
             mismatches.append(f'input mismatch: {key}')
+    if left.get('source_material') != right.get('source_material'):
+        mismatches.append('input mismatch: source_material')
     if set(a) != set(b):
         mismatches.append('artifact set mismatch')
     comparisons = {}

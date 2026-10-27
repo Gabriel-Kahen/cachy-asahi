@@ -9,15 +9,6 @@ compare_srcinfo() {
   generated=$(sed '/^[[:space:]]*#/d; /^[[:space:]]*$/d' "$2") || return
   diff -u <(printf '%s\n' "$reviewed") <(printf '%s\n' "$generated")
 }
-seed_offline_sources() {
-  # makepkg requires writable SRCDEST. Seed tmpfs from the immutable host mount.
-  local material_dir=$1 destination=$2
-  [[ -d $material_dir && ! -L $material_dir ]] || return 2
-  mkdir -m 700 -- "$destination" || return
-  cp -- "$material_dir/"* "$destination/" || return
-  chmod u+w -- "$destination/"* || return
-  export SRCDEST=$destination
-}
 [[ ${CACHY_ASAHI_CONTAINER:-} == 1 && -f /inputs/PKGBUILD && -d /out ]] || {
   echo 'Missing isolated-builder contract' >&2; exit 2;
 }
@@ -27,9 +18,6 @@ export HOME=/tmp/build-home LC_ALL=C.UTF-8 TZ=UTC
 mkdir -p "$HOME" /tmp/work
 cp -R /inputs/. /tmp/work/
 cd /tmp/work
-if [[ ${CACHY_ASAHI_OFFLINE_SOURCES:-} == 1 ]]; then
-  seed_offline_sources /offline-sources /tmp/offline-sources
-fi
 {
   uname -a
   getconf PAGESIZE

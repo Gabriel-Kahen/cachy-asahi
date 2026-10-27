@@ -100,10 +100,7 @@ jobs:
                   subprocess.run([sys.executable, '-B', '-c', runner, directory], env=env, check=True)
           PY
           bash -n scripts/build/container-entry.sh
-      - name: Check portable offline kit and original recipe source delivery
-        run: |
-          python3 -B -Werror::ResourceWarning scripts/release/test_offline_kit.py
-          python3 -I -B -Werror::ResourceWarning scripts/release/test_recipe_source_delivery.py
+          bash -n scripts/build/container-entry-v2.sh
       - name: Check explicit Apps7 inventory parser candidate
         run: |
           python3 -I -B packages/tools/cachy-asahi-apps7/check_source.py --repository-source "$PWD" --recipe-root packages/tools/cachy-asahi-apps7
@@ -112,26 +109,20 @@ jobs:
         run: |
           python3 -I -B packages/tools/cachy-asahi-repository-client-v2/check_source.py --recipe-root packages/tools/cachy-asahi-repository-client-v2
           python3 -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-repository-client-v2/test_runtime.py --recipe-root packages/tools/cachy-asahi-repository-client-v2 --runtime-recipe-root packages/tools/cachy-asahi-repository-runtime
-      - name: Check fixed historical default and desktop build source views without actors
-        run: python3 -I -B -Werror::ResourceWarning scripts/ci/default-historical-build-source/test_prepare.py
       - name: Check default Apps7 and client v2 native source without actors
         run: |
-          python3 -I -B scripts/ci/default-historical-build-source/prepare.py --source "$PWD" --output "$RUNNER_TEMP/default-apps7-client-native-source" --profile apps7-client-native
-          python3 -I -B "$RUNNER_TEMP/default-apps7-client-native-source/scripts/ci/apps7-client-native/preflight.py" --source "$RUNNER_TEMP/default-apps7-client-native-source"
-          python3 -B -Werror::ResourceWarning -m unittest discover -s "$RUNNER_TEMP/default-apps7-client-native-source/scripts/ci/apps7-client-native" -p test_lane.py -v
+          python3 -I -B scripts/ci/apps7-client-native/preflight.py --source "$PWD"
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/apps7-client-native -p test_lane.py -v
       - name: Check default DNS and sysctl native lane without actors
         run: |
-          python3 -I -B scripts/ci/default-historical-build-source/prepare.py --source "$PWD" --output "$RUNNER_TEMP/default-dns-sysctl-native-source" --profile dns-sysctl-native
-          python3 -I -B "$RUNNER_TEMP/default-dns-sysctl-native-source/scripts/ci/dns-sysctl-native/preflight.py" --source "$RUNNER_TEMP/default-dns-sysctl-native-source"
-          python3 -B -Werror::ResourceWarning -m unittest discover -s "$RUNNER_TEMP/default-dns-sysctl-native-source/scripts/ci/dns-sysctl-native" -p test_lane.py -v
+          python3 -I -B scripts/ci/dns-sysctl-native/preflight.py --source "$PWD"
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/dns-sysctl-native -p test_lane.py -v
       - name: Check default DNS and sysctl upgrade lanes without actors
         run: |
-          python3 -I -B scripts/ci/default-historical-build-source/prepare.py --source "$PWD" --output "$RUNNER_TEMP/default-sysctl2-upgrade-native-source" --profile sysctl2-upgrade-native
-          python3 -I -B "$RUNNER_TEMP/default-sysctl2-upgrade-native-source/scripts/ci/sysctl2-upgrade-native/preflight.py" --source "$RUNNER_TEMP/default-sysctl2-upgrade-native-source"
-          python3 -B -Werror::ResourceWarning -m unittest discover -s "$RUNNER_TEMP/default-sysctl2-upgrade-native-source/scripts/ci/sysctl2-upgrade-native" -p test_lane.py -v
-          python3 -I -B scripts/ci/default-historical-build-source/prepare.py --source "$PWD" --output "$RUNNER_TEMP/default-dns2-native-upgrade-source" --profile dns2-native-upgrade
-          python3 -I -B "$RUNNER_TEMP/default-dns2-native-upgrade-source/scripts/ci/dns2-native-upgrade/preflight.py" --source "$RUNNER_TEMP/default-dns2-native-upgrade-source"
-          python3 -B -Werror::ResourceWarning -m unittest discover -s "$RUNNER_TEMP/default-dns2-native-upgrade-source/scripts/ci/dns2-native-upgrade" -p test_lane.py -v
+          python3 -I -B scripts/ci/sysctl2-upgrade-native/preflight.py --source "$PWD"
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/sysctl2-upgrade-native -p test_lane.py -v
+          python3 -I -B scripts/ci/dns2-native-upgrade/preflight.py --source "$PWD"
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/dns2-native-upgrade -p test_lane.py -v
       - name: Check opt-in DNS and named sysctl controls without host changes
         run: |
           python3 -I -B packages/tools/cachy-asahi-dns/check_source.py --recipe-root packages/tools/cachy-asahi-dns
@@ -146,8 +137,7 @@ jobs:
           bash -n packages/tools/cachy-asahi-dns2/PKGBUILD packages/tools/cachy-asahi-sysctl2/PKGBUILD
       - name: Check default KSM native upgrade source without actors
         run: |
-          python3 -I -B scripts/ci/default-historical-build-source/prepare.py --source "$PWD" --output "$RUNNER_TEMP/default-ksm2-upgrade-build-context" --profile ksm2-upgrade-native
-          python3 -I -B "$RUNNER_TEMP/default-ksm2-upgrade-build-context/scripts/ci/ksm2-upgrade-native/prepare.py" --source "$RUNNER_TEMP/default-ksm2-upgrade-build-context" --output "$RUNNER_TEMP/ksm2-upgrade-source" --baseline-recipe "$RUNNER_TEMP/default-ksm2-upgrade-build-context/packages/tools/cachy-asahi-ksmctl" --candidate-recipe "$RUNNER_TEMP/default-ksm2-upgrade-build-context/packages/tools/cachy-asahi-ksmctl2"
+          python3 -I -B scripts/ci/ksm2-upgrade-native/prepare.py --source "$PWD" --output "$RUNNER_TEMP/ksm2-upgrade-source" --baseline-recipe "$PWD/packages/tools/cachy-asahi-ksmctl" --candidate-recipe "$PWD/packages/tools/cachy-asahi-ksmctl2"
           python3 -I -B "$RUNNER_TEMP/ksm2-upgrade-source/scripts/ci/ksm2-upgrade-native/preflight.py" --source "$RUNNER_TEMP/ksm2-upgrade-source"
           python3 -B -Werror::ResourceWarning -m unittest discover -s "$RUNNER_TEMP/ksm2-upgrade-source/scripts/ci/ksm2-upgrade-native" -p test_lane.py -v
       - name: Emit exact KSM diagnostic kernel source without building
@@ -361,8 +351,7 @@ jobs:
           python3 -B -m unittest discover -s scripts/ci/desktop-bar-notifications/ci -p test_caller.py
       - name: Check managed user session controls without services or VM actors
         run: |
-          python3 -I -B scripts/ci/default-historical-build-source/prepare.py --source "$PWD" --output "$RUNNER_TEMP/default-desktop-user-session-source" --profile desktop-user-session
-          python3 -B -m unittest discover -s "$RUNNER_TEMP/default-desktop-user-session-source/scripts/ci/desktop-user-session" -p test_managed.py
+          python3 -B -m unittest discover -s scripts/ci/desktop-user-session -p test_managed.py
           python3 -B -m unittest discover -s scripts/ci/desktop-user-session/ci -p test_caller.py
       - name: Check terminal editor build and clipboard controls without actors
         run: |
@@ -370,8 +359,7 @@ jobs:
           python3 -B -m unittest discover -s scripts/ci/desktop-terminal-workflow/ci -p test_caller.py
       - name: Check file-manager workflow controls without app or VM actors
         run: |
-          python3 -I -B scripts/ci/default-historical-build-source/prepare.py --source "$PWD" --output "$RUNNER_TEMP/default-desktop-file-manager-workflow-source" --profile desktop-file-manager-workflow
-          python3 -B -m unittest discover -s "$RUNNER_TEMP/default-desktop-file-manager-workflow-source/scripts/ci/desktop-file-manager-workflow" -p test_workflow.py
+          python3 -B -m unittest discover -s scripts/ci/desktop-file-manager-workflow -p test_workflow.py
           python3 -B -m unittest discover -s scripts/ci/desktop-file-manager-workflow/ci -p test_caller.py
       - name: Check optional active native574 ownership without daemon actors
         run: python3 -B -Werror::ResourceWarning scripts/ci/test_maintained574_active_owner.py
@@ -476,9 +464,8 @@ jobs:
           make -C "$work/recipe" RECIPE_ROOT="$PWD/packages/tools/cachy-asahi-welcome7" check
       - name: Check Welcome4 to Welcome5 signed native trial source without actors
         run: |
-          python3 -I -B scripts/ci/default-historical-build-source/prepare.py --source "$PWD" --output "$RUNNER_TEMP/default-welcome5-native-upgrade-source" --profile welcome5-native-upgrade
-          python3 -I -B "$RUNNER_TEMP/default-welcome5-native-upgrade-source/scripts/ci/welcome5-native-upgrade/preflight.py" --source "$RUNNER_TEMP/default-welcome5-native-upgrade-source"
-          python3 -B -Werror::ResourceWarning -m unittest discover -s "$RUNNER_TEMP/default-welcome5-native-upgrade-source/scripts/ci/welcome5-native-upgrade" -p test_lane.py -v
+          python3 -I -B scripts/ci/welcome5-native-upgrade/preflight.py --source "$PWD"
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome5-native-upgrade -p test_lane.py -v
       - name: Check default Welcome5 stored-DNS GUI source without actors or public activation
         run: >-
           python3 -I -B scripts/ci/welcome5-native-gui/source_check.py

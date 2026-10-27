@@ -11,9 +11,6 @@ import sys
 import tarfile
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-import source_materials
-
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'checks'))
 from package_checks import digest, package, recipe, conflicts, metadata, FIELDS, ARCH_FIELDS
 
@@ -88,10 +85,6 @@ def main():
                         help='reviewed sorted pacman -Q lock from the pinned image')
     parser.add_argument('--reviewed-inputs', type=Path, required=True,
                         help='reviewed input_sha256 object from static recipe report')
-    parser.add_argument('--source-plan', type=Path, help='opt-in reviewed offline source binding plan')
-    parser.add_argument('--source-plan-sha256', help='independently reviewed source plan SHA-256')
-    parser.add_argument('--source-catalog', type=Path, help='source_cache input catalog bound by the plan')
-    parser.add_argument('--source-cache', type=Path, help='existing private source_cache directory; offline verification only')
     args = parser.parse_args()
     evidence = {'schema_version': 1, 'status': 'preflight-failed', 'hardware_status': 'NOT RUN',
                 'mode': args.mode, 'image': args.image, 'source_date_epoch': args.source_date_epoch,
@@ -114,14 +107,6 @@ def main():
         expected = json.loads(args.reviewed_inputs.read_text())
         if expected != report['input_sha256']:
             raise ValueError('recipe inputs differ from independently reviewed digest set')
-        source_options = (args.source_plan, args.source_plan_sha256, args.source_catalog, args.source_cache)
-        if any(value is not None for value in source_options) and not all(value is not None for value in source_options):
-            raise ValueError('offline sources require plan, plan checksum, catalog and cache together')
-        prepared_sources = None
-        if args.source_plan is not None:
-            if args.network != 'none':
-                raise ValueError('offline source staging requires --network none')
-            prepared_sources = source_materials.prepare(report, *source_options)
         lock = args.expected_packages.read_text()
         if not lock.strip() or lock != ''.join(sorted(lock.splitlines(keepends=True))):
             raise ValueError('expected package lock must be nonempty and sorted')
@@ -133,18 +118,13 @@ def main():
         if native != (args.mode == 'native'):
             raise ValueError(f'mode {args.mode} contradicts Docker server architecture {host_arch}')
         # A fresh unique directory prevents stale output from satisfying success gates.
-        out.mkdir(mode=0o700 if prepared_sources else 0o777, parents=True, exist_ok=False)
+        out.mkdir(parents=True, exist_ok=False)
         created = True
         inputs = out / 'inputs'
         shutil.copytree(base, inputs, symlinks=False)
         snapshot = recipe(inputs / 'PKGBUILD')
         if snapshot['input_sha256'] != report['input_sha256']:
             raise ValueError('recipe inputs changed during snapshot')
-        if prepared_sources:
-            material_dir = out / 'source-material'
-            evidence['source_material'] = source_materials.stage(prepared_sources, material_dir)
-            evidence['files'] = {str(p.relative_to(out)): digest(p)
-                                 for p in sorted(material_dir.rglob('*')) if p.is_file()}
         evidence.update({'recipe_inputs': report['input_sha256'], 'recipe_metadata': report['metadata'],
                          'builder_host_arch': host_arch, 'image_id': image['Id'],
                          'expected_packages_sha256': digest(args.expected_packages), 'status': 'building'})
@@ -167,11 +147,6 @@ def main():
                    '--mount', f'type=bind,src={entry},dst=/builder-entry.sh,readonly',
                    '--mount', f'type=bind,src={expected_lock},dst=/expected-packages.lock,readonly',
                    '--entrypoint', '/bin/bash', args.image, '/builder-entry.sh']
-        if prepared_sources:
-            # Insert Docker controls before --entrypoint/image, never as recipe arguments.
-            index = command.index('--entrypoint')
-            command[index:index] = ['--env', 'CACHY_ASAHI_OFFLINE_SOURCES=1', '--mount',
-                f'type=bind,src={material_dir / "srcdest"},dst=/offline-sources,readonly']
         evidence['command'] = command
         evidence['clean_environment_id'] = name
         (out / 'provenance.json').write_text(json.dumps(evidence, indent=2) + '\n')
@@ -208,8 +183,7 @@ def main():
         if errors:
             raise ValueError('; '.join(errors))
         evidence['artifacts'] = {p.name: digest(p) for p in paths}
-        evidence.setdefault('files', {}).update({str(p.relative_to(out)): digest(p)
-                                                for p in sorted(artifacts.iterdir()) if p.is_file()})
+        evidence['files'] = {str(p.relative_to(out)): digest(p) for p in sorted(artifacts.iterdir()) if p.is_file()}
         evidence['files']['expected-packages.lock'] = digest(expected_lock)
         evidence['files']['build.log'] = digest(out / 'build.log')
         evidence['files']['validation.json'] = digest(out / 'validation.json')
