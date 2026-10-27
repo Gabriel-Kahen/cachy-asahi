@@ -1,0 +1,90 @@
+{
+  "GUI": "NOT_RUN",
+  "Root_acceptance": null,
+  "authority_scope": "FRESH_TEST_SIGNATURES_ONLY_HISTORICAL_NATIVE_CREDIT_NEW_SOURCE_SELECTION_REQUIRED",
+  "created": 1793066963,
+  "expires": 1793153363,
+  "hardware": "NOT_RUN",
+  "inputs": {
+    "dns2": {
+      "carrier": "native73",
+      "path": "payload/dns2-original/packages/dns2/a/cachy-asahi-dns-0.1.0-2-any.pkg.tar.xz",
+      "pin": {
+        "bytes": 15632,
+        "sha256": "588301342503ab23869d78e212f50a7b363fe45dcaf7c2ad4c411a33bab22d1d"
+      }
+    },
+    "doctor": {
+      "carrier": "held77",
+      "path": "payload/signed/cachy-asahi-doctor-0.1.0-1-any.pkg.tar.xz",
+      "pin": {
+        "bytes": 13708,
+        "sha256": "06898669fdd6c9e5bdcc9909e6b0e75e958bdbd57520a7082c0e9f5f7fac7482"
+      }
+    },
+    "held77-index": {
+      "carrier": "held77",
+      "path": "payload/index.json",
+      "pin": {
+        "bytes": 34490,
+        "sha256": "4e6a8fb3285a53dacd2ce06348b40238b32256df40ecc8b5e07a93fb5b0310b6"
+      }
+    },
+    "native73-index": {
+      "carrier": "native73",
+      "path": "payload/index.json",
+      "pin": {
+        "bytes": 59625,
+        "sha256": "131ef3552ab652bb30a5d2e60fa201f3715603c9bacad7d39d3d320933e2695f"
+      }
+    },
+    "orphans": {
+      "carrier": "held77",
+      "path": "payload/signed/cachy-asahi-orphans-0.1.0-2-any.pkg.tar.xz",
+      "pin": {
+        "bytes": 18900,
+        "sha256": "2543a13b584bf974efc4ce79f4da585d9e4513c2bc3907750fe5c962d20c8c02"
+      }
+    },
+    "welcome5": {
+      "carrier": "native73",
+      "path": "payload/native7/retained/packages/cachy-asahi-welcome-a/cachy-asahi-welcome-0.1.0-7-aarch64.pkg.tar.xz",
+      "pin": {
+        "bytes": 39904,
+        "sha256": "3dec4a467a712908e5f06a481ca7b3206a232c4cf2fc3cc1d933bf3389e2ee35"
+      }
+    }
+  },
+  "native_build": "NOT_RUN",
+  "nonce": "37142e88f75f462824203875c5b0b220",
+  "purpose": "NEW_GUI_TEST_SIGNATURE_CATALOG",
+  "schema_version": 1,
+  "signatures": {
+    "dns2": {
+      "bytes": 310,
+      "sha256": "f68057199865f948ae23dc3dbbeaab9a5d15afacd03f7582451a1fa8a34508fa"
+    },
+    "doctor": {
+      "bytes": 310,
+      "sha256": "c3e67a497425af226fc87661171a8f00278b04d598462b4921f35b4da90405c4"
+    },
+    "held77-index": {
+      "bytes": 310,
+      "sha256": "5e3598b1a2b27b6d279e59c0c0a4f6da3ea1250a732a40e8cb768040a5a5a43b"
+    },
+    "native73-index": {
+      "bytes": 310,
+      "sha256": "e09eb395f9fef37ea627b4cbd1b353ab9c47bd7cfb1f60bea141f9d0788b0a7e"
+    },
+    "orphans": {
+      "bytes": 310,
+      "sha256": "d0680585b117d17e60b34725845f6ee0769be13bfa015a4d93d64bc1289c548a"
+    },
+    "welcome5": {
+      "bytes": 310,
+      "sha256": "807962a94dc9ed6352bcd9ea55da3eb7865ed1b18d7c4cd611ad011c705b35fd"
+    }
+  },
+  "signer": "EC1DA61C5D9C91638CC42A598EDB36DD1EC0BDB1",
+  "source_sha": "b6733acad27d20a7fc8945716a5cd6db4a642325"
+}
