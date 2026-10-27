@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
 """Pure map/archive/guard controls only; never execute native package actors."""
-import importlib.util,os,stat,tempfile,unittest
+import ast,importlib.util,os,stat,tempfile,unittest
 from pathlib import Path
 from unittest.mock import patch
 HERE=Path(__file__).resolve().parent
@@ -49,6 +49,29 @@ class Lifecycle(unittest.TestCase):
         with patch.object(M.os,'getuid',return_value=1000),patch.object(M.subprocess,'run',side_effect=AssertionError('must not invoke')):
             with self.assertRaisesRegex(ValueError,'dedicated'):M.guard()
     def test_actor_source_uses_installed_actual_backend_and_real_cli(self):
-        source=(HERE/'lifecycle.py').read_text();self.assertIn("Path('/usr/lib/cachy-asahi-orphans3/remove.py')",source);self.assertIn('self.holder.begin()',source);self.assertIn("['-U','--asdeps'",source);self.assertNotIn('ModelTransaction',source);self.assertNotIn('factory=',source)
+        source=(HERE/'lifecycle.py').read_text();self.assertIn("Path('/usr/lib/cachy-asahi-orphans3/remove.py')",source);self.assertIn('self.holder.begin()',source);self.assertNotIn('ModelTransaction',source);self.assertNotIn('factory=',source)
+        trial=next(n for n in ast.parse(source).body if isinstance(n,ast.ClassDef) and n.name=='Trial')
+        methods={n.name:n for n in trial.body if isinstance(n,ast.FunctionDef)};run=methods['run']
+        pm=next(n.value for n in run.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='pm' for t in n.targets))
+        self.assertIsInstance(pm,ast.List);self.assertNotIn('--noscriptlet',[n.value for n in pm.elts if isinstance(n,ast.Constant)])
+        operations={};outer_operations=set()
+        for call in ast.walk(run):
+            if not(isinstance(call,ast.Call) and isinstance(call.func,ast.Attribute) and isinstance(call.func.value,ast.Name) and call.func.value.id=='self' and call.func.attr=='command'):continue
+            if not(call.args and isinstance(call.args[0],ast.BinOp) and isinstance(call.args[0].op,ast.Add) and isinstance(call.args[0].left,ast.Name)):continue
+            base=call.args[0].left.id
+            if base not in ('pm','outer'):continue
+            operands=call.args[0].right;self.assertIsInstance(operands,ast.List)
+            flags=[n.value for n in operands.elts if isinstance(n,ast.Constant)]
+            if base=='pm':
+                operation=flags[1] if flags and flags[0]=='--noscriptlet' else flags[0]
+                self.assertNotIn(operation,operations);operations[operation]=flags
+            else:outer_operations.add(flags[0])
+        self.assertEqual(operations,{'-U':['--noscriptlet','-U','--asdeps'],'-D':['-D','--asexplicit']})
+        query=next(n for n in ast.walk(methods['inventory']) if isinstance(n,ast.Call) and isinstance(n.func,ast.Attribute) and n.func.attr=='command')
+        self.assertEqual(ast.dump(query.args[0]),ast.dump(ast.parse("pacman+['-Q']",mode='eval').body))
+        inventories=[n for n in ast.walk(run) if isinstance(n,ast.Call) and isinstance(n.func,ast.Attribute) and n.func.attr=='inventory' and n.args and isinstance(n.args[0],ast.Name) and n.args[0].id=='pm']
+        self.assertEqual(len(inventories),2);self.assertEqual(outer_operations,{'-U','-R'})
+        outer=next(n.value for n in methods['signed_pacman'].body if isinstance(n,ast.Return));self.assertIsInstance(outer,ast.List)
+        self.assertEqual([n.value for n in outer.elts if isinstance(n,ast.Constant)][-2:],['--noconfirm','--noscriptlet'])
 
 if __name__=='__main__':unittest.main()
