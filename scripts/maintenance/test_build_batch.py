@@ -266,6 +266,101 @@ class AdmissionTests(unittest.TestCase):
         self.assertEqual(popen.call_args.kwargs['pass_fds'], (9,))
 
 
+class ProviderImageTests(unittest.TestCase):
+    """Pure synthetic provider/image admission; never starts Docker or a builder."""
+    def setUp(self):
+        self.temp=tempfile.TemporaryDirectory(prefix='provider-image-',dir=PACKET/'evidence' if PACKET else None)
+        self.addCleanup(self.temp.cleanup)
+        self.path=Path(self.temp.name)
+        self.fixture=Fixture(self.path,dict(base_a=[],base_b=[],base_consumer=['shared>=2'],app=['base_consumer'],independent=[]))
+        self.planner=SCRIPT.with_name('rebuild_plan.py')
+        if not self.planner.exists():
+            packet=next(p for p in SCRIPT.parents if(p/'evidence/input-pins.json').is_file())
+            self.planner=packet/'proposal/scripts/maintenance/rebuild_plan.py'
+        self.core=m.module('provider_image_control_planner',self.planner)
+        self.witness='sha256:'+'c'*64
+        self.fixture.source['changed']['sources']=['app']
+        for row in self.fixture.source['build_dependencies']:
+            if row['package'].startswith('base_'):row['disposition']='external'
+        packages={p['name']:p for p in self.fixture.source['packages']}
+        packages['base_a']['provides']=['shared=2'];packages['base_b']['provides']=['shared=3']
+        self.external=''.join(name+' 1-1\n'for name in ('base_a','base_b','base_consumer'))
+        task=self.fixture.task('app');lock=Path(task['expected_packages']);lock.write_text(self.external)
+        task.update(expected_packages_sha256=m.digest(lock),image=self.witness,prerequisite_artifacts={})
+        self.fixture.config['tasks']=[task]
+        context=self.core.provider_context('base_consumer','depend','shared>=2',['base_a','base_b'],packages)
+        self.selection=dict(package='base_consumer',field='depend',dependency='shared>=2',provider='base_a',evidence=dict(
+            kind='INSTALLED_ALPM_CACHE_QUERY_V1',image=self.witness,inventory_sha256=m.sha(self.external.encode()),
+            capture_sha256='d'*64,metadata_sha256=m.sha(self.core.pins.encoded(context))))
+        self.fixture.source['provider_selections']=[self.selection]
+
+    def admit(self):
+        self.fixture.write()
+        return m.admission(self.fixture.input,m.digest(self.fixture.input),self.fixture.configuration,m.digest(self.fixture.configuration),self.planner,m.digest(self.planner))
+
+    def test_same_lock_different_image_is_refused(self):
+        task=self.fixture.task('app');task['image']='sha256:'+'a'*64
+        self.assertEqual(task['expected_packages_sha256'],self.selection['evidence']['inventory_sha256'])
+        with self.assertRaisesRegex(ValueError,'reachable provider witness image differs from task image: base_consumer'):self.admit()
+
+    def test_binding_reached_through_another_baseline_layer_is_checked(self):
+        # app -> base_middle -> base_consumer -> shared providers.
+        task=self.fixture.task('app');recipe=Path(task['recipe'])/'PKGBUILD'
+        recipe.write_text(recipe.read_text().replace("depends=('base_consumer')","depends=('base_middle')"))
+        reviewed={p.name:m.digest(p)for p in recipe.parent.iterdir()}
+        Path(task['reviewed_inputs']).write_bytes(m.encoded(reviewed));task['reviewed_inputs_sha256']=m.digest(task['reviewed_inputs'])
+        next(p for p in self.fixture.source['sources']if p['id']=='app')['recipe_sha256']=reviewed['PKGBUILD']
+        next(p for p in self.fixture.source['packages']if p['name']=='app')['depend']=['base_middle']
+        self.fixture.source['packages'].append(dict(name='base_middle',version='1-1',arch='any',depend=['base_consumer'],provides=[]))
+        self.fixture.source['sources'].append(dict(id='base_middle',recipe_sha256='a'*64,sources=[dict(url='https://example.invalid/SYNTHETIC/middle',sha256='b'*64)]))
+        self.fixture.source['build_dependencies'].append(dict(package='base_middle',source_id='base_middle',makedepend=[],checkdepend=[],toolchain=[],disposition='external',owner='fixture-owner',hold_reason=None))
+        lock=Path(task['expected_packages']);lock.write_text(self.external+'base_middle 1-1\n')
+        task['expected_packages_sha256']=m.digest(lock);self.selection['evidence']['inventory_sha256']=m.digest(lock)
+        task['image']='sha256:'+'a'*64
+        with self.assertRaisesRegex(ValueError,'reachable provider witness image differs'):self.admit()
+
+    def test_same_image_exact_inventory_capture_are_bound_to_task(self):
+        value=self.admit();task=value['tasks']['app']
+        self.assertEqual(task['image'],self.witness)
+        self.assertEqual(task['expected_packages_sha256'],self.selection['evidence']['inventory_sha256'])
+        self.assertEqual(task['provider_selections'],[self.selection])
+        self.assertEqual(task['provider_selections'][0]['evidence']['capture_sha256'],'d'*64)
+        self.assertFalse(value['groups'][0]['held'])
+
+    def test_same_image_different_complete_lock_is_refused(self):
+        task=self.fixture.task('app');lock=Path(task['expected_packages']);lock.write_text(self.external+'extra 1-1\n')
+        task['expected_packages_sha256']=m.digest(lock)
+        with self.assertRaisesRegex(ValueError,'reachable provider witness inventory differs from task lock: base_consumer'):self.admit()
+
+    def test_repository_digest_cannot_masquerade_as_observed_image_id(self):
+        self.fixture.task('app')['image']='registry.example.invalid/builder@'+self.witness
+        with self.assertRaisesRegex(ValueError,'reachable provider witness image differs'):self.admit()
+
+    def test_unrelated_task_keeps_its_independent_image_and_lock(self):
+        # The binding consumer is transitive from app, but unreachable from independent.
+        recipe=self.path/'recipes/independent';review=self.path/'independent.reviewed.json';lock=self.path/'independent.lock'
+        task=dict(package='independent',owner='fixture-owner',recipe=str(recipe),reviewed_inputs=str(review),reviewed_inputs_sha256=m.digest(review),
+            expected_packages=str(lock),expected_packages_sha256=m.digest(lock),image='sha256:'+'b'*64,mode='native',source_date_epoch=0,timeout=2,
+            prerequisite_artifacts={},image_dependency_review='SYNTHETIC independent image, no provider binding in closure')
+        self.fixture.source['changed']['sources'].append('independent');self.fixture.config['tasks'].append(task)
+        value=self.admit()
+        self.assertEqual(value['tasks']['independent']['image'],task['image'])
+        self.assertNotIn('provider_selections',value['tasks']['independent'])
+        self.assertFalse(any(g['held']for g in value['groups']))
+
+    def test_no_selection_keeps_ordinary_repository_digest_behavior(self):
+        del self.fixture.source['provider_selections']
+        self.fixture.task('app')['image']='registry.example.invalid/builder@sha256:'+'a'*64
+        value=self.admit()
+        self.assertNotIn('provider_selections',value['tasks']['app'])
+        self.assertTrue(value['groups'][0]['held'])  # Original unresolved ambiguity remains held.
+
+    def test_valid_binding_does_not_clear_an_unrelated_owner_hold(self):
+        next(p for p in self.fixture.source['build_dependencies']if p['package']=='base_b')['owner']=None
+        value=self.admit();self.assertTrue(value['groups'][0]['held'])
+        self.assertEqual(value['tasks']['app']['provider_selections'],[self.selection])
+
+
 class BuilderBoundaryTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix='batch-boundary-', dir=PACKET / 'evidence' if PACKET else None)
