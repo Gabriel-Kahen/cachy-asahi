@@ -1,0 +1,6 @@
+TAP version 14
+# random seed: R02S6cdb8b808ea9d0353004273cbfc04cee
+# Start of management tests
+ok 1 /management/root-guard
+# End of management tests
+1..1

@@ -25,7 +25,7 @@ jobs:
   native:
     if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
     runs-on: ubuntu-24.04-arm
-    timeout-minutes: 50
+    timeout-minutes: 60
     defaults:
       run:
         shell: bash
@@ -66,40 +66,12 @@ jobs:
           if plan['purpose']!='GUI_FRESH_TEST_SIGNER_PROVISION_V1' or plan['input_mode']!='SOURCE_BUILT_SAME_JOB_NO_KEY' or plan['overlay']['TEST_key_generation']is not False:
               raise SystemExit('explicit no-key source-built plan required')
           PY
-      - name: Checkout the exact original native public carrier for explicit sign mode
-        if: inputs.mode == 'sign'
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        timeout-minutes: 2
-        with:
-          ref: 1057f6b5494adc71c469e8867d14fb0db01ce02f
-          path: gui-signer-carriers/native73
-          persist-credentials: false
-      - name: Checkout the exact held public carrier for explicit sign mode
-        if: inputs.mode == 'sign'
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        timeout-minutes: 2
-        with:
-          ref: 77bd2c6ecf2e5c28a04116c3da85c45f70d1cc90
-          path: gui-signer-carriers/held77
-          persist-credentials: false
-      - name: Checkout the historical renewal provenance only for explicit sign mode
-        if: inputs.mode == 'sign'
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        timeout-minutes: 2
-        with:
-          ref: 7cf7fb81d0b70b1b7421dc85788fabd45ec5adfc
-          path: gui-signer-carriers/renewal7cf7
-          persist-credentials: false
-      - name: Close all public carrier maps and body metadata before explicit sign-mode image actors
+      - name: Project all original331 public carrier DATA from the closed Source before sign-mode image actors
         if: inputs.mode == 'sign'
         timeout-minutes: 3
         run: |
           set -euo pipefail
-          mkdir -m700 "$RUNNER_TEMP/gui-signer-inputs"
-          mkdir -m700 "$RUNNER_TEMP/gui-signer-inputs/native73" "$RUNNER_TEMP/gui-signer-inputs/held77" "$RUNNER_TEMP/gui-signer-inputs/renewal7cf7"
-          git -C "$GITHUB_WORKSPACE/gui-signer-carriers/native73" archive 1057f6b5494adc71c469e8867d14fb0db01ce02f | tar -x -C "$RUNNER_TEMP/gui-signer-inputs/native73"
-          git -C "$GITHUB_WORKSPACE/gui-signer-carriers/held77" archive 77bd2c6ecf2e5c28a04116c3da85c45f70d1cc90 | tar -x -C "$RUNNER_TEMP/gui-signer-inputs/held77"
-          git -C "$GITHUB_WORKSPACE/gui-signer-carriers/renewal7cf7" archive 7cf7fb81d0b70b1b7421dc85788fabd45ec5adfc | tar -x -C "$RUNNER_TEMP/gui-signer-inputs/renewal7cf7"
+          timeout --signal=TERM --kill-after=15s 120s python3 -I -B "$GITHUB_WORKSPACE/scripts/ci/gui_fresh_signer_public_inputs.py" --source "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/gui-signer-inputs"
           python3 -I -B "$SLICE/route.py" source-check --source "$GITHUB_WORKSPACE" --plan "$GITHUB_WORKSPACE/$SLICE/input-contract.json" --plan-sha256 "$INPUT_PLAN_SHA256" --inputs-root "$RUNNER_TEMP/gui-signer-inputs"
       - name: Acquire exact public inputs and build authenticate and qualify the minimal source image without a TEST key
         id: produce

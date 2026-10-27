@@ -1,0 +1,10 @@
+{
+  "actual": "NOT_RUN",
+  "files": 107,
+  "git_joins": 107,
+  "hardware": "NOT_RUN",
+  "ref": "codex/welcome7-native-build-pair-v1",
+  "release": "NOT_ADMITTED",
+  "source": "4b2074d4376b572c2aaf958dc3dae7b0971a23c4",
+  "status": "COMMITTED_EXACT_CLOSED_TRIAL_SOURCE"
+}

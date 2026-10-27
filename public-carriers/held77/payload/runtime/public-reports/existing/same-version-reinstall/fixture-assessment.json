@@ -1,0 +1,727 @@
+{
+  "apply_supported": false,
+  "broken_dependencies": [],
+  "candidates": [
+    "fixture-leaf",
+    "fixture-oldprovider"
+  ],
+  "database": {
+    "nodes": {
+      ".": {
+        "bytes": 4096,
+        "ctime_ns": 1792211788723214666,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819569,
+        "kind": "directory",
+        "links": 3,
+        "mode": 493,
+        "mtime_ns": 1792211788720678401,
+        "uid": 0
+      },
+      "local": {
+        "bytes": 4096,
+        "ctime_ns": 1792211788723222610,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819570,
+        "kind": "directory",
+        "links": 14,
+        "mode": 493,
+        "mtime_ns": 1792211788722647851,
+        "uid": 0
+      },
+      "local/ALPM_DB_VERSION": {
+        "bytes": 2,
+        "ctime_ns": 1792211788723303409,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819571,
+        "kind": "file",
+        "links": 1,
+        "mode": 420,
+        "mtime_ns": 1792211788721589878,
+        "sha256": "2e6d31a5983a91251bfae5aefa1c0a19d8ba3cf601d0e8a706b4cfa9661a6b8a",
+        "uid": 0
+      },
+      "local/fixture-app-1-1": {
+        "bytes": 4096,
+        "ctime_ns": 1792211788723327161,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819590,
+        "kind": "directory",
+        "links": 2,
+        "mode": 493,
+        "mtime_ns": 1792211788722301780,
+        "uid": 0
+      },
+      "local/fixture-app-1-1/desc": {
+        "bytes": 133,
+        "ctime_ns": 1792211788723522617,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819591,
+        "kind": "file",
+        "links": 1,
+        "mode": 420,
+        "mtime_ns": 1792211788722301780,
+        "sha256": "625d51b6bbac17a0edf70510630ff3106fdd95dcc89effd0a61013c37f7dde1b",
+        "uid": 0
+      },
+      "local/fixture-app-1-1/files": {
+        "bytes": 0,
+        "ctime_ns": 1792211788723530793,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819592,
+        "kind": "file",
+        "links": 1,
+        "mode": 420,
+        "mtime_ns": 1792211788722301780,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "uid": 0
+      },
+      "local/fixture-consumer-1-1": {
+        "bytes": 4096,
+        "ctime_ns": 1792211788723246657,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819584,
+        "kind": "directory",
+        "links": 2,
+        "mode": 493,
+        "mtime_ns": 1792211788722129941,
+        "uid": 0
+      },
+      "local/fixture-consumer-1-1/desc": {
+        "bytes": 82,
+        "ctime_ns": 1792211788723370825,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819585,
+        "kind": "file",
+        "links": 1,
+        "mode": 420,
+        "mtime_ns": 1792211788722129941,
+        "sha256": "8224de2ece43e35ee279c1c86669aff9664b5f24ecfe6d6fd9d6020d1bef3ccc",
+        "uid": 0
+      },
+      "local/fixture-consumer-1-1/files": {
+        "bytes": 0,
+        "ctime_ns": 1792211788723379425,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819586,
+        "kind": "file",
+        "links": 1,
+        "mode": 420,
+        "mtime_ns": 1792211788722129941,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "uid": 0
+      },
+      "local/fixture-cycle-a-1-1": {
+        "bytes": 4096,
+        "ctime_ns": 1792211788723230586,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819593,
+        "kind": "directory",
+        "links": 2,
+        "mode": 493,
+        "mtime_ns": 1792211788722392668,
+        "uid": 0
+      },
+      "local/fixture-cycle-a-1-1/desc": {
+        "bytes": 78,
+        "ctime_ns": 1792211788723335857,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819594,
+        "kind": "file",
+        "links": 1,
+        "mode": 420,
+        "mtime_ns": 1792211788722392668,
+        "sha256": "082f2aa95ee35ab9afdae0086a96fea2fee63a65de2200afbe66324d4c5ad823",
+        "uid": 0
+      },
+      "local/fixture-cycle-a-1-1/files": {
+        "bytes": 0,
+        "ctime_ns": 1792211788723345225,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819595,
+        "kind": "file",
+        "links": 1,
+        "mode": 420,
+        "mtime_ns": 1792211788722392668,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "uid": 0
+      },
+      "local/fixture-cycle-b-1-1": {
+        "bytes": 4096,
+        "ctime_ns": 1792211788723286273,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819596,
+        "kind": "directory",
+        "links": 2,
+        "mode": 493,
+        "mtime_ns": 1792211788722474508,
+        "uid": 0
+      },
+      "local/fixture-cycle-b-1-1/desc": {
+        "bytes": 78,
+        "ctime_ns": 1792211788723455457,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819597,
+        "kind": "file",
+        "links": 1,
+        "mode": 420,
+        "mtime_ns": 1792211788722474508,
+        "sha256": "c36bb636f57e1c56a513f7e5a8eb09862e4dd32a6fa2380c29d767e29424eeb4",
+        "uid": 0
+      },
+      "local/fixture-cycle-b-1-1/files": {
+        "bytes": 0,
+        "ctime_ns": 1792211788723463745,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819598,
+        "kind": "file",
+        "links": 1,
+        "mode": 420,
+        "mtime_ns": 1792211788722474508,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "uid": 0
+      },
+      "local/fixture-leaf-1-1": {
+        "bytes": 4096,
+        "ctime_ns": 1792211788723319249,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819572,
+        "kind": "directory",
+        "links": 2,
+        "mode": 493,
+        "mtime_ns": 1792211788721703038,
+        "uid": 0
+      },
+      "local/fixture-leaf-1-1/desc": {
+        "bytes": 48,
+        "ctime_ns": 1792211788723505993,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819573,
+        "kind": "file",
+        "links": 1,
+        "mode": 420,
+        "mtime_ns": 1792211788721703038,
+        "sha256": "10ecd759662840752cd4b7f2de8056f5d3bc540b9eefb522153cfecef48efc36",
+        "uid": 0
+      },
+      "local/fixture-leaf-1-1/files": {
+        "bytes": 0,
+        "ctime_ns": 1792211788723514089,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819574,
+        "kind": "file",
+        "links": 1,
+        "mode": 420,
+        "mtime_ns": 1792211788721703038,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "uid": 0
+      },
+      "local/fixture-manual-1-1": {
+        "bytes": 4096,
+        "ctime_ns": 1792211788723262497,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819575,
+        "kind": "directory",
+        "links": 2,
+        "mode": 493,
+        "mtime_ns": 1792211788721823877,
+        "uid": 0
+      },
+      "local/fixture-manual-1-1/desc": {
+        "bytes": 50,
+        "ctime_ns": 1792211788723405369,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819576,
+        "kind": "file",
+        "links": 1,
+        "mode": 420,
+        "mtime_ns": 1792211788721823877,
+        "sha256": "c0da606c06efeaa2cb0990781a93169bcda333be2b9c315655c184cb917e0134",
+        "uid": 0
+      },
+      "local/fixture-manual-1-1/files": {
+        "bytes": 0,
+        "ctime_ns": 1792211788723413561,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819577,
+        "kind": "file",
+        "links": 1,
+        "mode": 420,
+        "mtime_ns": 1792211788721823877,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "uid": 0
+      },
+      "local/fixture-oldprovider-1-1": {
+        "bytes": 4096,
+        "ctime_ns": 1792211788723311337,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819581,
+        "kind": "directory",
+        "links": 2,
+        "mode": 493,
+        "mtime_ns": 1792211788722000733,
+        "uid": 0
+      },
+      "local/fixture-oldprovider-1-1/desc": {
+        "bytes": 85,
+        "ctime_ns": 1792211788723488937,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819582,
+        "kind": "file",
+        "links": 1,
+        "mode": 420,
+        "mtime_ns": 1792211788722000733,
+        "sha256": "a7e233d2ecfdae93ea73bb4058b103efbb38bf01887cf14a0d092c1b9d979557",
+        "uid": 0
+      },
+      "local/fixture-oldprovider-1-1/files": {
+        "bytes": 0,
+        "ctime_ns": 1792211788723497369,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819583,
+        "kind": "file",
+        "links": 1,
+        "mode": 420,
+        "mtime_ns": 1792211788722000733,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "uid": 0
+      },
+      "local/fixture-optional-2-1": {
+        "bytes": 4096,
+        "ctime_ns": 1792211788723278481,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819587,
+        "kind": "directory",
+        "links": 2,
+        "mode": 493,
+        "mtime_ns": 1792211788722217628,
+        "uid": 0
+      },
+      "local/fixture-optional-2-1/desc": {
+        "bytes": 52,
+        "ctime_ns": 1792211788723438721,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819588,
+        "kind": "file",
+        "links": 1,
+        "mode": 420,
+        "mtime_ns": 1792211788722217628,
+        "sha256": "d992852bac618b28ba9c7a4c0b510351916fb16d5316efd1a04430500b07ad6e",
+        "uid": 0
+      },
+      "local/fixture-optional-2-1/files": {
+        "bytes": 0,
+        "ctime_ns": 1792211788723447129,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819589,
+        "kind": "file",
+        "links": 1,
+        "mode": 420,
+        "mtime_ns": 1792211788722217628,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "uid": 0
+      },
+      "local/fixture-provider-3-1": {
+        "bytes": 4096,
+        "ctime_ns": 1792211788723293985,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819578,
+        "kind": "directory",
+        "links": 2,
+        "mode": 493,
+        "mtime_ns": 1792211788721916981,
+        "uid": 0
+      },
+      "local/fixture-provider-3-1/desc": {
+        "bytes": 82,
+        "ctime_ns": 1792211788723472137,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819579,
+        "kind": "file",
+        "links": 1,
+        "mode": 420,
+        "mtime_ns": 1792211788721916981,
+        "sha256": "c609dfaabfc94916b3e5abf85fcd1c158c056595aca77d5f40328ee3fd8ec04d",
+        "uid": 0
+      },
+      "local/fixture-provider-3-1/files": {
+        "bytes": 0,
+        "ctime_ns": 1792211788723480401,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819580,
+        "kind": "file",
+        "links": 1,
+        "mode": 420,
+        "mtime_ns": 1792211788721916981,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "uid": 0
+      },
+      "local/fixture-user-protected-1-1": {
+        "bytes": 4096,
+        "ctime_ns": 1792211788723238745,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819605,
+        "kind": "directory",
+        "links": 2,
+        "mode": 493,
+        "mtime_ns": 1792211788722734227,
+        "uid": 0
+      },
+      "local/fixture-user-protected-1-1/desc": {
+        "bytes": 58,
+        "ctime_ns": 1792211788723354073,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819606,
+        "kind": "file",
+        "links": 1,
+        "mode": 420,
+        "mtime_ns": 1792211788722734227,
+        "sha256": "750a0229ae15a934c0aa96ee1a7d6ce86e3bbf1287468d58d776368556c0eb1d",
+        "uid": 0
+      },
+      "local/fixture-user-protected-1-1/files": {
+        "bytes": 0,
+        "ctime_ns": 1792211788723362441,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819607,
+        "kind": "file",
+        "links": 1,
+        "mode": 420,
+        "mtime_ns": 1792211788722734227,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "uid": 0
+      },
+      "local/glibc-1-1": {
+        "bytes": 4096,
+        "ctime_ns": 1792211788723254529,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819599,
+        "kind": "directory",
+        "links": 2,
+        "mode": 493,
+        "mtime_ns": 1792211788722556723,
+        "uid": 0
+      },
+      "local/glibc-1-1/desc": {
+        "bytes": 41,
+        "ctime_ns": 1792211788723388185,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819600,
+        "kind": "file",
+        "links": 1,
+        "mode": 420,
+        "mtime_ns": 1792211788722556723,
+        "sha256": "49aff659b7352a8d0748088e01b264047bba73f2fea57028b35b7f7f0f521ccb",
+        "uid": 0
+      },
+      "local/glibc-1-1/files": {
+        "bytes": 0,
+        "ctime_ns": 1792211788723396617,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819601,
+        "kind": "file",
+        "links": 1,
+        "mode": 420,
+        "mtime_ns": 1792211788722556723,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "uid": 0
+      },
+      "local/linux-asahi-1-1": {
+        "bytes": 4096,
+        "ctime_ns": 1792211788723270433,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819602,
+        "kind": "directory",
+        "links": 2,
+        "mode": 493,
+        "mtime_ns": 1792211788722647851,
+        "uid": 0
+      },
+      "local/linux-asahi-1-1/desc": {
+        "bytes": 47,
+        "ctime_ns": 1792211788723421985,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819603,
+        "kind": "file",
+        "links": 1,
+        "mode": 420,
+        "mtime_ns": 1792211788722647851,
+        "sha256": "87afa607ed15f90a05c7583bbf4535d428543c0833f534308d3cd0428388fe90",
+        "uid": 0
+      },
+      "local/linux-asahi-1-1/files": {
+        "bytes": 0,
+        "ctime_ns": 1792211788723430249,
+        "dev": 2049,
+        "gid": 0,
+        "ino": 6819604,
+        "kind": "file",
+        "links": 1,
+        "mode": 420,
+        "mtime_ns": 1792211788722647851,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "uid": 0
+      }
+    },
+    "sha256": "d8ed9350192cfa28cd6bb578e582a67a10c8ad37507b97ed83975dba94dcfb0d"
+  },
+  "dbpath": "/out/reports/existing/same-version-reinstall/fixture-root/var/lib/pacman",
+  "extra_protected": [
+    "fixture-user-protected"
+  ],
+  "libalpm": "16.0.1",
+  "packages": {
+    "fixture-app": {
+      "candidate": false,
+      "depends": [],
+      "optdepends": [
+        "fixture-absent: absent is allowed",
+        "fixture-optional>=2: retained feature"
+      ],
+      "optional_required_by": [],
+      "protected": false,
+      "provides": [],
+      "reason": "explicit",
+      "required_by": [],
+      "satisfiers": {
+        "depends": {},
+        "optdepends": {
+          "fixture-absent: absent is allowed": null,
+          "fixture-optional>=2: retained feature": "fixture-optional"
+        }
+      },
+      "version": "1-1"
+    },
+    "fixture-consumer": {
+      "candidate": false,
+      "depends": [
+        "fixture-virtual>=2"
+      ],
+      "optdepends": [],
+      "optional_required_by": [],
+      "protected": false,
+      "provides": [],
+      "reason": "explicit",
+      "required_by": [],
+      "satisfiers": {
+        "depends": {
+          "fixture-virtual>=2": "fixture-provider"
+        },
+        "optdepends": {}
+      },
+      "version": "1-1"
+    },
+    "fixture-cycle-a": {
+      "candidate": false,
+      "depends": [
+        "fixture-cycle-b"
+      ],
+      "optdepends": [],
+      "optional_required_by": [],
+      "protected": false,
+      "provides": [],
+      "reason": "dependency",
+      "required_by": [
+        "fixture-cycle-b"
+      ],
+      "satisfiers": {
+        "depends": {
+          "fixture-cycle-b": "fixture-cycle-b"
+        },
+        "optdepends": {}
+      },
+      "version": "1-1"
+    },
+    "fixture-cycle-b": {
+      "candidate": false,
+      "depends": [
+        "fixture-cycle-a"
+      ],
+      "optdepends": [],
+      "optional_required_by": [],
+      "protected": false,
+      "provides": [],
+      "reason": "dependency",
+      "required_by": [
+        "fixture-cycle-a"
+      ],
+      "satisfiers": {
+        "depends": {
+          "fixture-cycle-a": "fixture-cycle-a"
+        },
+        "optdepends": {}
+      },
+      "version": "1-1"
+    },
+    "fixture-leaf": {
+      "candidate": true,
+      "depends": [],
+      "optdepends": [],
+      "optional_required_by": [],
+      "protected": false,
+      "provides": [],
+      "reason": "dependency",
+      "required_by": [],
+      "satisfiers": {
+        "depends": {},
+        "optdepends": {}
+      },
+      "version": "1-1"
+    },
+    "fixture-manual": {
+      "candidate": false,
+      "depends": [],
+      "optdepends": [],
+      "optional_required_by": [],
+      "protected": false,
+      "provides": [],
+      "reason": "explicit",
+      "required_by": [],
+      "satisfiers": {
+        "depends": {},
+        "optdepends": {}
+      },
+      "version": "1-1"
+    },
+    "fixture-oldprovider": {
+      "candidate": true,
+      "depends": [],
+      "optdepends": [],
+      "optional_required_by": [],
+      "protected": false,
+      "provides": [
+        "fixture-virtual=1"
+      ],
+      "reason": "dependency",
+      "required_by": [],
+      "satisfiers": {
+        "depends": {},
+        "optdepends": {}
+      },
+      "version": "1-1"
+    },
+    "fixture-optional": {
+      "candidate": false,
+      "depends": [],
+      "optdepends": [],
+      "optional_required_by": [
+        "fixture-app"
+      ],
+      "protected": false,
+      "provides": [],
+      "reason": "dependency",
+      "required_by": [],
+      "satisfiers": {
+        "depends": {},
+        "optdepends": {}
+      },
+      "version": "2-1"
+    },
+    "fixture-provider": {
+      "candidate": false,
+      "depends": [],
+      "optdepends": [],
+      "optional_required_by": [],
+      "protected": false,
+      "provides": [
+        "fixture-virtual=2"
+      ],
+      "reason": "dependency",
+      "required_by": [
+        "fixture-consumer"
+      ],
+      "satisfiers": {
+        "depends": {},
+        "optdepends": {}
+      },
+      "version": "3-1"
+    },
+    "fixture-user-protected": {
+      "candidate": false,
+      "depends": [],
+      "optdepends": [],
+      "optional_required_by": [],
+      "protected": true,
+      "provides": [],
+      "reason": "dependency",
+      "required_by": [],
+      "satisfiers": {
+        "depends": {},
+        "optdepends": {}
+      },
+      "version": "1-1"
+    },
+    "glibc": {
+      "candidate": false,
+      "depends": [],
+      "optdepends": [],
+      "optional_required_by": [],
+      "protected": true,
+      "provides": [],
+      "reason": "dependency",
+      "required_by": [],
+      "satisfiers": {
+        "depends": {},
+        "optdepends": {}
+      },
+      "version": "1-1"
+    },
+    "linux-asahi": {
+      "candidate": false,
+      "depends": [],
+      "optdepends": [],
+      "optional_required_by": [],
+      "protected": true,
+      "provides": [],
+      "reason": "dependency",
+      "required_by": [],
+      "satisfiers": {
+        "depends": {},
+        "optdepends": {}
+      },
+      "version": "1-1"
+    }
+  },
+  "protection_floor_sha256": "0d6dfbf3cd550fe72ddad30058693007f8bb86214de1e83442580677db5005f2",
+  "root": "/out/reports/existing/same-version-reinstall/fixture-root",
+  "schema_version": 1,
+  "scope": "LOCAL_INSTALLED_METADATA_ONLY_NOT_PAYLOAD_RELEASE_REMOVAL_OR_HARDWARE_PROOF"
+}
