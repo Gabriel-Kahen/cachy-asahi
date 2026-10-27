@@ -1,0 +1,270 @@
+{
+  "files": [
+    {
+      "mode": 420,
+      "path": "consumer-author.json",
+      "sha256": "26ee9f812f6a7e567d826df7b8d1bfc5b4fd5a93a0c38d4df9fd461dbbe3b0f3",
+      "size": 11452
+    },
+    {
+      "mode": 420,
+      "path": "consumer-peer.json",
+      "sha256": "24c0de9328e206936c79fd1d838e4f97ac5157db0ec507a0ec3cce9c6b5724ce",
+      "size": 2486
+    },
+    {
+      "mode": 420,
+      "path": "consumer-runtime.json",
+      "sha256": "93644386ec59434df3ebf2fba483f3aa09f2a5cda37a0c3fdb0a79a3bb43d81a",
+      "size": 8104
+    },
+    {
+      "mode": 420,
+      "path": "consumer/assembler.py",
+      "sha256": "ae6aa9acbfc2aa84e5bb1095235b2060d8637bafeae57510aab579a5a46f526e",
+      "size": 21554
+    },
+    {
+      "mode": 420,
+      "path": "consumer/config/fstab.ext4.txt",
+      "sha256": "7e64abac2c07f61a3c4f420c381e5b1ed719dd72654dfb98ed5598eaab208675",
+      "size": 220
+    },
+    {
+      "mode": 420,
+      "path": "consumer/consumer.py",
+      "sha256": "25385b498845920575a12068f58af05159aed9482119227b43859489a4eb453f",
+      "size": 14186
+    },
+    {
+      "mode": 420,
+      "path": "consumer/inputs/assembly-plan.json",
+      "sha256": "c1f3379385d210b8464d28b9e876141bec9dd45768c58ab5157c8580fabf92fe",
+      "size": 153773
+    },
+    {
+      "mode": 420,
+      "path": "consumer/inputs/image-inventory.json",
+      "sha256": "5c1630b5cdf07898118979895682c3a3b705e416c9840ada4e1a5193dccd6941",
+      "size": 340100
+    },
+    {
+      "mode": 420,
+      "path": "consumer/inputs/package-reference-index.json",
+      "sha256": "498078ecae47dc3cfa53a0c5580b2d4b1d4d4fd4dbaaa88772372f3240b00a68",
+      "size": 108229
+    },
+    {
+      "mode": 420,
+      "path": "consumer/inputs/validate_plan.py",
+      "sha256": "c2ba2c6bd183ce4f300aec16757707017d273a7119b45072b1d2667d07ae0776",
+      "size": 16890
+    },
+    {
+      "mode": 420,
+      "path": "consumer/proof-source/authenticate_missing.py",
+      "sha256": "6af079cf10f8ebcc9416bf64bca4336ea03dbbf13f99ebd98a83808365f2fe59",
+      "size": 23070
+    },
+    {
+      "mode": 420,
+      "path": "consumer/proof-source/candidate-urls.json",
+      "sha256": "ee75d860bed4bec5f6709a52624585beb2215a165968c9522d844f64090d0975",
+      "size": 3056
+    },
+    {
+      "mode": 420,
+      "path": "consumer/proof-source/capture.py",
+      "sha256": "ce73314eb5a75b8afb963217fba15065106ae3f6ee081599a1ba7ab620b044c8",
+      "size": 26406
+    },
+    {
+      "mode": 420,
+      "path": "consumer/proof-source/lifecycle.py",
+      "sha256": "e408a540765ede2350a57abd311e8814d516ab379351fe28751a20250a3a8461",
+      "size": 53288
+    },
+    {
+      "mode": 420,
+      "path": "consumer/proof-source/metadata_child.py",
+      "sha256": "29cd63c5b70ba351d6d1d63260e3bbed89bde5b24a34a58c62c4b39e43c8f715",
+      "size": 2476
+    },
+    {
+      "mode": 420,
+      "path": "consumer/proof-source/operator-networkmanager.txt",
+      "sha256": "fe90fc61a1cb008f822a67ff141b6ff005deb0d92a63e1dfae6be33fcc3571da",
+      "size": 31474
+    },
+    {
+      "mode": 420,
+      "path": "consumer/proof-source/operator-perl.txt",
+      "sha256": "813812414d26ac3c8890ece66e6f988f486e8a07e5ba9951cbc4dde770f2a964",
+      "size": 29072
+    },
+    {
+      "mode": 420,
+      "path": "consumer/proof-source/package_checks.py",
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8",
+      "size": 17706
+    },
+    {
+      "mode": 420,
+      "path": "consumer/proof-source/recover.py",
+      "sha256": "45c99099f4a2c94b7ed0091914539c8c8e113739fece56c9a6a1b291e2561c82",
+      "size": 9272
+    },
+    {
+      "mode": 384,
+      "path": "consumer/proof/actual-receipt.json",
+      "sha256": "53747d29b02c11517d3c330530f9a6de57afcd9575e0c75c8f23f2dbd7fb6b3c",
+      "size": 8182
+    },
+    {
+      "mode": 420,
+      "path": "consumer/proof/capture-receipt.json",
+      "sha256": "08895fac45c29fb67f37b78687f6bfffd2f61f0e66dbec1cf3cc7634b0a2e156",
+      "size": 9409
+    },
+    {
+      "mode": 420,
+      "path": "consumer/proof/execution-plan.json",
+      "sha256": "fb97ce77914c8646770929750f8fc838fdf2353c1fc26f6a965ef22695e20a19",
+      "size": 7808
+    },
+    {
+      "mode": 384,
+      "path": "consumer/proof/metadata-networkmanager.json",
+      "sha256": "b9c1c51c6f264acdafc8589d960443c6644a9c50b705835e177e747f2ef2184c",
+      "size": 16698
+    },
+    {
+      "mode": 384,
+      "path": "consumer/proof/metadata-perl.json",
+      "sha256": "b7ff2f4c6a7e3fda9859603ec4f81e34f358d7c869b7ae56333dfa4cbb751057",
+      "size": 13058
+    },
+    {
+      "mode": 384,
+      "path": "consumer/proof/process-observations.json",
+      "sha256": "8d19c8f6b70218007b1ce06766913c48b4fdeabe5fe6796fb44b6d09f59ef02e",
+      "size": 38593
+    },
+    {
+      "mode": 420,
+      "path": "consumer/proof/proposal-peer-receipt.json",
+      "sha256": "e435889658b54127626b4023f0a149b6c59bee4e803ffabc25af28cd573ebbc2",
+      "size": 12141
+    },
+    {
+      "mode": 420,
+      "path": "consumer/proof/proposal-receipt.json",
+      "sha256": "4b6921dee5fa3d223e7aa3657f257f3d9362c6c270053c8128fe43fa6c8e8925",
+      "size": 23187
+    },
+    {
+      "mode": 420,
+      "path": "consumer/proof/retained-0.json",
+      "sha256": "63a4292184dd80c67e2b735d0221f0117fc5d860e59d4ebe043be73cbb862250",
+      "size": 42147
+    },
+    {
+      "mode": 420,
+      "path": "consumer/proof/retained-1.json",
+      "sha256": "f9649bbed45f89f5214a318d2214ae70cc5a11d6485354a252cf752168b4465b",
+      "size": 42474
+    },
+    {
+      "mode": 420,
+      "path": "consumer/proof/retained-2.json",
+      "sha256": "9407330375b60db80180abdbfffdd50bdd811c3269a9e665f8696efb8cbe223e",
+      "size": 11274
+    },
+    {
+      "mode": 420,
+      "path": "consumer/proof/retained-3.json",
+      "sha256": "0c4c8e7755195c6f33f83df9de746c4406520806e0e4856315444d0e23f68205",
+      "size": 1531
+    },
+    {
+      "mode": 420,
+      "path": "consumer/two-associations.json",
+      "sha256": "99178987d84a503c56a30c392812b80b3a8491f800e1f880d6427d9defd57203",
+      "size": 9676
+    },
+    {
+      "mode": 420,
+      "path": "intake/bridge.py",
+      "sha256": "e89deffb80caf9cc007fd376f89f15806f2045ed5c2296a31036ad0a3ffe5360",
+      "size": 11794
+    },
+    {
+      "mode": 384,
+      "path": "intake/intake.py",
+      "sha256": "345fb5b49bccfc611234196eee65159d7b8372a6de49d05b1572166acd8ad7e2",
+      "size": 21807
+    },
+    {
+      "mode": 420,
+      "path": "intake/source/assembler.py",
+      "sha256": "170b60eb8b314f99f883dfd155b918131fb23f7d6b6c6b299d19621c5a60f1d4",
+      "size": 21554
+    },
+    {
+      "mode": 420,
+      "path": "intake/source/core.py",
+      "sha256": "3a71ba896700f72130e35a56845516bd9c42de0b1b0fd782b79829b37ac262a7",
+      "size": 28493
+    },
+    {
+      "mode": 420,
+      "path": "intake/source/inputs/assembly-plan.json",
+      "sha256": "9bc1011c9e7c0bd1e54c967e74a04aa7d7e48d2746f59e017e2f2b5f459b0cb6",
+      "size": 153364
+    },
+    {
+      "mode": 420,
+      "path": "intake/source/inputs/image-inventory.json",
+      "sha256": "5c1630b5cdf07898118979895682c3a3b705e416c9840ada4e1a5193dccd6941",
+      "size": 340100
+    },
+    {
+      "mode": 420,
+      "path": "intake/source/inputs/package-reference-index.json",
+      "sha256": "874b7406955baf36c455f8b0a9eeaddbfc0636506e757d3e98ff5ca6b97569a2",
+      "size": 107648
+    },
+    {
+      "mode": 420,
+      "path": "intake/source/inputs/validate_plan.py",
+      "sha256": "c2ba2c6bd183ce4f300aec16757707017d273a7119b45072b1d2667d07ae0776",
+      "size": 16890
+    },
+    {
+      "mode": 420,
+      "path": "intake/source/transforms/content/firstboot.txt",
+      "sha256": "523a2ea0261145994fd8b3c27bab4456b1b5a5d590cd13c96534729a982c2c95",
+      "size": 49
+    },
+    {
+      "mode": 420,
+      "path": "intake/source/transforms/content/mirrorlist.txt",
+      "sha256": "bf8463a7368742670d036b891ba82ae79cfac761a40398376d05ca75d837466a",
+      "size": 116
+    },
+    {
+      "mode": 420,
+      "path": "intake/source/transforms/transforms.json",
+      "sha256": "e261df266f2fff41f25a6900e1ab07a4bffbf5fb7399eb1d4f44c6efd1ab10f3",
+      "size": 37776
+    },
+    {
+      "mode": 420,
+      "path": "intake/spool.py",
+      "sha256": "390fc99fc22a3cd1f613889705ce86a03b4c93d0cfae6896ef25c3a9a4a2009b",
+      "size": 10757
+    }
+  ],
+  "schema_version": 1,
+  "scope": "PINNED_PLAINTEXT_SOURCE_ONLY"
+}
