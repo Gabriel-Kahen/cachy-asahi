@@ -1,0 +1,71 @@
+name: Doctor2 current70 maintained source controls
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/doctor2-current70-source.yml'
+      - 'scripts/ci/doctor2-current70-native-source/**'
+      - 'scripts/ci/doctor2-native-source/**'
+      - 'scripts/ci/doctor2-comparison-native-source/**'
+      - 'packages/tools/cachy-asahi-doctor2/**'
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      DOCTOR2_CURRENT70_CURRENT_SOURCE: ${{ github.workspace }}
+      DOCTOR2_NATIVE_SOURCE: ${{ github.workspace }}/.ci-inputs/doctor2-native-source
+      DOCTOR2_HISTORICAL_FACTORY: ${{ github.workspace }}/scripts/ci/doctor2-native-source
+      DOCTOR2_COMPARISON_FACTORY: ${{ github.workspace }}/scripts/ci/doctor2-comparison-native-source
+      DOCTOR2_CURRENT70_PUBLISHED_SOURCE: ${{ github.workspace }}/.ci-inputs/doctor2-current70-source
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Checkout exact historical705 source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 705c5a095f9cabbfd2f3cd137127f4bbc7665f52
+          path: .ci-inputs/doctor2-native-source
+          persist-credentials: false
+      - name: Checkout the separately published70 source for full inverse comparison
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 88997143a593f2de82fb41ae0224a943a1f99930
+          path: .ci-inputs/doctor2-current70-source
+          persist-credentials: false
+      - name: Complete source inverses and refusal controls without native actors
+        run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/doctor2-current70-native-source -p test_prepare.py
+      - name: Default and selected source70 controls and isolated precredential help
+        shell: bash
+        run: |
+          set -euo pipefail
+          for view in default selected; do
+            selection=()
+            if [ "$view" = selected ]; then selection=(--selected); fi
+            output="$RUNNER_TEMP/doctor2-current70-$view"
+            python3 -I -B scripts/ci/doctor2-current70-native-source/prepare.py \
+              --current-root "$DOCTOR2_CURRENT70_CURRENT_SOURCE" --native-root "$DOCTOR2_NATIVE_SOURCE" \
+              --historical-factory-root "$DOCTOR2_HISTORICAL_FACTORY" --comparison-factory-root "$DOCTOR2_COMPARISON_FACTORY" \
+              --output "$output" "${selection[@]}"
+            python3 -I -B "$output/scripts/ci/welcome-native/producer.py" --help >/dev/null
+            python3 -B -Werror::ResourceWarning -m unittest discover -s "$output/scripts/ci/welcome-native" -p test_native.py
+            python3 -B -Werror::ResourceWarning -m unittest discover -s "$output/scripts/ci/welcome-native/ci" -p test_caller.py
+          done
+      - name: Preserve historical default and selected source62 controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          for view in default selected; do
+            selection=()
+            if [ "$view" = selected ]; then selection=(--selected); fi
+            output="$RUNNER_TEMP/doctor2-historical62-$view"
+            python3 -I -B scripts/ci/doctor2-current70-native-source/prepare.py --historical \
+              --native-root "$DOCTOR2_NATIVE_SOURCE" --historical-factory-root "$DOCTOR2_HISTORICAL_FACTORY" \
+              --comparison-factory-root "$DOCTOR2_COMPARISON_FACTORY" --output "$output" "${selection[@]}"
+            python3 -B -Werror::ResourceWarning -m unittest discover -s "$output/scripts/ci/welcome-native" -p test_native.py
+            python3 -B -Werror::ResourceWarning -m unittest discover -s "$output/scripts/ci/welcome-native/ci" -p test_caller.py
+          done
