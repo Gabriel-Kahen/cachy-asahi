@@ -1,0 +1,53 @@
+{
+  "products": {
+    "cachy-asahi-mirrors": {
+      "activation_cli": {
+        "activate": [
+          "activate",
+          "{catalog}",
+          "--candidate",
+          "{candidate}",
+          "--target",
+          "{target}",
+          "--state",
+          "{journal}",
+          "--repository",
+          "core"
+        ],
+        "refusal_exit": 1,
+        "restore": [
+          "restore",
+          "--target",
+          "{target}",
+          "--state",
+          "{journal}",
+          "--repository",
+          "core"
+        ]
+      },
+      "check_markers": [
+        "Ran 31 tests",
+        "\nOK"
+      ],
+      "payload": {
+        "usr/bin/cachy-asahi-mirrors": [
+          "cachy-asahi-mirrors",
+          493
+        ],
+        "usr/share/doc/cachy-asahi-mirrors/README.md": [
+          "README.md",
+          420
+        ],
+        "usr/share/licenses/cachy-asahi-mirrors/LICENSE": [
+          "LICENSE",
+          420
+        ],
+        "usr/share/licenses/cachy-asahi-mirrors/NOTICE": [
+          "NOTICE",
+          420
+        ]
+      }
+    }
+  },
+  "status": "FINAL_SOURCE_REVIEWED"
+}
