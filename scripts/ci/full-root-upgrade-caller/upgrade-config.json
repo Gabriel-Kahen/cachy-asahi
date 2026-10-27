@@ -22,7 +22,7 @@
     "scripts/port/kernel-native-job/runtime.py": "8a7cd5e73cf383b2d81ad577b8513c6fd7d49f9fd2572961c73ae9d289cab821",
     "scripts/release/check_source_pins.py": "9b78c348e2d567f44f656285f6a562220cadead7025f1e0db2eb9a53d9f09ea3",
     "scripts/release/compare_releases.py": "27086c7b0af74a1226deae7a6a71245882b82608a1fa9d33b68e657979c7d83c",
-    "scripts/release/export_repository.py": "03e7f9f39e014ab9c5d41f16ceb64bce2f67e5c928a68ec97384d966bdae8981",
+    "scripts/release/export_repository.py": "9d07089a8855a1b11ad8a8f2ef680b00aa4ea48f7f422e05ce83a279780595ea",
     "scripts/release/release.py": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435",
     "scripts/release/source_delivery.py": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e",
     "scripts/update/archive_stream.py": "10f1a4c0ac5b98852d9ebb150af28f9ce345c800935a64fa463bc90f72fcb838",
