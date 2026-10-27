@@ -7,7 +7,7 @@ activate or publish the outputs. See
 [the actual native result](../../docs/validation/asahi-audio-rust-native-20261015.md).
 
 Selected upstream sources are speakersafetyd2.0.1 at
-`63a92658a4daec170f6472e38162374206e593fb`, bankstown1.1.0 at
+`63a92658a4daec170c6472e38162374206e593fb`, bankstown1.1.0 at
 `e9829c9bccf5ed73768135c0ddd506f5a6690f9e`, and triforce0.3.2 at
 `c5e9cacb88e6d2bae476e5c2394ce022793c6d5c`. Original recipe reference is
 asahi-alarm/PKGBUILDs `9717359f2feac55830f8d57e50e4746e98ba6e99`.
