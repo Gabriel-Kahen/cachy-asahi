@@ -1,4 +1,4 @@
-"name": "native-arm-latest607-welcome8-gui"
+"name": "native-arm-positive607-welcome8-gui"
 "on":
   "workflow_dispatch":
     "inputs":
@@ -6,17 +6,15 @@
         "type": "choice"
         "options":
           - "minimal"
-          - "overlay"
         "required": true
-        "description": "One independent profile; matching pair required within same page mode"
+        "description": "Fixed positive607 minimal/generic4k validation only"
       "mode":
         "type": "choice"
         "options":
           - "generic4k"
-          - "generic16k"
         "default": "generic4k"
         "required": true
-        "description": "Independent page mode;16K requires explicit source-bound media readiness"
+        "description": "Fixed generic4k positive607 validation only"
       "source_sha":
         "type": "string"
         "required": true
@@ -24,13 +22,13 @@
 "permissions":
   "contents": "read"
 "concurrency":
-  "group": "latest607-welcome8-gui-${{ inputs.profile }}-${{ inputs.mode }}"
+  "group": "positive607-welcome8-gui-${{ inputs.profile }}-${{ inputs.mode }}"
   "cancel-in-progress": false
 "jobs":
-  "native":
+  "controls":
     "if": "github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false"
     "runs-on": "ubuntu-24.04-arm"
-    "timeout-minutes": 155
+    "timeout-minutes": 57
     "defaults":
       "run":
         "shell": "bash"
@@ -75,7 +73,7 @@
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         timeout-minutes: 2
         with:
-          ref: f53b5ec8bc4df40f4cad145fb8fe1dc206a4d115
+          ref: abeb95a3890736ec5ac630dbaca8bfc3f92bc344
           path: fresh-test-signatures
           persist-credentials: false
       -
@@ -158,15 +156,6 @@
           "ref": "b48ba616f131ed26520d134064c046ba3d8cfbbe"
           "path": "fdk-selected-source"
           "persist-credentials": false
-      -
-        "name": "Checkout exact managed16K media only after source-bound readiness"
-        "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
-        "timeout-minutes": 2
-        "with":
-          "ref": "${{ steps.proof.outputs.kernel_source }}"
-          "path": "kernel-media"
-          "persist-credentials": false
-        "if": "inputs.mode == 'generic16k'"
       - name: Checkout exact issued Six22 historical input record
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         timeout-minutes: 2
@@ -203,6 +192,152 @@
         "env":
           "WELCOME5_GUI_ASSETS": "${{ runner.temp }}/gui607-historical-source-assets"
           "WELCOME5_GUI_SOURCE": "${{ github.workspace }}/gui607-source/parent574/original"
+  "native":
+    "needs": "controls"
+    "if": "needs.controls.result == 'success' && github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false"
+    "runs-on": "ubuntu-24.04-arm"
+    "timeout-minutes": 360
+    "defaults":
+      "run":
+        "shell": "bash"
+    "env":
+      "PYTHONDONTWRITEBYTECODE": "1"
+      "SOURCE_SHA": "${{ inputs.source_sha }}"
+      "CURRENT": "gui607-source/implementation/native.py"
+      "SLICE": "gui607-source/parent574/original/scripts/ci/welcome5-native-gui"
+      "PROFILE": "${{ inputs.profile }}"
+      "CASE": "${{ inputs.profile }}-${{ inputs.mode }}"
+    "steps":
+      -
+        "name": "Checkout exact current606 native GUI source"
+        "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+        "timeout-minutes": 2
+        "with":
+          "ref": "${{ inputs.source_sha }}"
+          "path": "gui607-source"
+          "persist-credentials": false
+      -
+        "name": "Prove complete original348 and published53 plus exact FDK graph successor"
+        "id": "proof"
+        "timeout-minutes": 2
+        "run": "set -euo pipefail\nSTATE=\"$RUNNER_TEMP/gui606-state\"\nexport STATE\nprintf 'STATE=%s\\n' \"$STATE\" >> \"$GITHUB_ENV\"\npython3 -I -B \"$CURRENT\" proof --case \"$CASE\" --state \"$STATE\"\n"
+      -
+        "name": "Checkout whole immutable original native GUI helper inputs"
+        "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+        "timeout-minutes": 2
+        "with":
+          "ref": "77bd2c6ecf2e5c28a04116c3da85c45f70d1cc90"
+          "path": "held-public"
+          "persist-credentials": false
+      -
+        "name": "Checkout exact Welcome7 DNS2 accepted input pairs"
+        "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+        "timeout-minutes": 2
+        "with":
+          "ref": "1057f6b5494adc71c469e8867d14fb0db01ce02f"
+          "path": "project-public"
+          "persist-credentials": false
+      - name: Checkout Root-selected fresh public TEST signing inputs
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: abeb95a3890736ec5ac630dbaca8bfc3f92bc344
+          path: fresh-test-signatures
+          persist-credentials: false
+      -
+        "name": "Checkout exact original GUI TEST signature overlay"
+        "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+        "timeout-minutes": 2
+        "with":
+          "ref": "7cf7fb81d0b70b1b7421dc85788fabd45ec5adfc"
+          "path": "test-renewal"
+          "persist-credentials": false
+      -
+        "name": "Checkout complete original574 retained input source"
+        "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+        "timeout-minutes": 2
+        "with":
+          "ref": "ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad"
+          "path": "retained574"
+          "persist-credentials": false
+      -
+        "name": "Checkout complete controller tooling89 source"
+        "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+        "timeout-minutes": 2
+        "with":
+          "ref": "fb515d735a81194f06ea117539dee60438bb8d87"
+          "path": "controller-tooling89"
+          "persist-credentials": false
+      -
+        "name": "Checkout exact accepted Welcome8 raw pair and original source custody"
+        "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+        "timeout-minutes": 2
+        "with":
+          "ref": "e7ec3f2e7e78ec15d545fa53ec3d1089fa78129b"
+          "path": "welcome8-inputs"
+          "persist-credentials": false
+      -
+        "name": "Checkout exact accepted Apps16 native pair and full public recipe custody"
+        "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+        "timeout-minutes": 2
+        "with":
+          "ref": "950b0699a6e3f7a56758d4d17a5d30dabc7b6e11"
+          "path": "apps16-inputs"
+          "persist-credentials": false
+      -
+        "name": "Checkout exact31 current606 input archives and original custody"
+        "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+        "timeout-minutes": 2
+        "with":
+          "ref": "405761af52cdfa92b97bbf5b0519f32230d9a254"
+          "path": "incoming606"
+          "persist-credentials": false
+      -
+        "name": "Checkout exact original updater3 official archive pairs"
+        "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+        "timeout-minutes": 2
+        "with":
+          "ref": "1992fd62df6f5a200ce071e111dd12ef13db7012"
+          "path": "bootstrap2-official3"
+          "persist-credentials": false
+      -
+        "name": "Checkout exact compiler6 original updater inputs"
+        "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+        "timeout-minutes": 2
+        "with":
+          "ref": "8ee14069b7a74455a7bea1171ba319932c9df304"
+          "path": "bootstrap2-compiler6"
+          "persist-credentials": false
+      -
+        "name": "Checkout exact legacy2 original updater inputs"
+        "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+        "timeout-minutes": 2
+        "with":
+          "ref": "21fc63c33a27c70426230e915bedd229318a4411"
+          "path": "bootstrap2-legacy2"
+          "persist-credentials": false
+      -
+        "name": "Checkout exact retained licensed selected FDK source"
+        "uses": "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+        "timeout-minutes": 2
+        "with":
+          "ref": "b48ba616f131ed26520d134064c046ba3d8cfbbe"
+          "path": "fdk-selected-source"
+          "persist-credentials": false
+      - name: Checkout exact issued Six22 historical input record
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: eea3f3022c9214deacc60c92dfca13704420756b
+          path: six22-inputs
+          persist-credentials: false
+      - name: Stage exact original991 historical DATA without acquisition
+        timeout-minutes: 2
+        run: python3 -I -B gui607-source/implementation/stage_inputs.py --record "$GITHUB_WORKSPACE/six22-inputs" --output "$RUNNER_TEMP/six991-inputs"
+      -
+        "name": "Prove and assemble original immutable GUI native input roles"
+        "timeout-minutes": 3
+        "run": "python3 -I -B \"$CURRENT\" assets --case \"$CASE\" --state \"$STATE\" --public \"$GITHUB_WORKSPACE/held-public\" --project \"$GITHUB_WORKSPACE/project-public\" --renewal \"$GITHUB_WORKSPACE/fresh-test-signatures\" --output \"$RUNNER_TEMP/welcome5-assets\""
       - name: Seed the six exact retained inputs using existing secrets only
         timeout-minutes: 2
         env:
@@ -298,7 +433,7 @@
         "timeout-minutes": 3
         "run": "python3 -I -B - \"$GITHUB_WORKSPACE/gui607-source/parent574\" \"$GITHUB_WORKSPACE/retained574\" \"$RUNNER_TEMP/desktop574-${PROFILE}/context/deps\" \"$STATE\" <<'PYSEED'\nimport json,sys,time\nfrom pathlib import Path\nroot,carrier,cache,state=map(Path,sys.argv[1:]);sys.path.insert(0,str(root/'factory'));import retained_inputs\nvalue=retained_inputs.prepare('seed574',root/'original',carrier,cache,time.monotonic()+170,carrier/'.git');value['legacy_prefill']=json.loads((state/'early-custody.json').read_bytes());value['legacy_indexes']={str(n):json.loads((state.parent/('welcome5-frozen574-archive'+str(n))/('archive'+str(n)+'-index.json')).read_bytes())for n in(32,20,8)};(state/'retained574-custody.json').write_text(json.dumps(value,sort_keys=True,indent=2)+'\\n')\nPYSEED"
       - name: Reconstruct pinned inputs and run offline owned native574 transaction
-        timeout-minutes: 40
+        timeout-minutes: 39
         env:
           JOB_TOKEN: ${{ steps.proof.outputs.job_token }}
         run: >-
@@ -308,26 +443,26 @@
           --output "$RUNNER_TEMP/desktop574-${PROFILE}" --job-token "$JOB_TOKEN"
       -
         "name": "Build only missing FDK and Updater under original341_354 builders"
-        "timeout-minutes": 110
-        "run": "timeout --signal=TERM --kill-after=15s 6600s python3 -I -B gui607-source/parent574/bootstrap2.py --state \"$STATE\" --base \"$RUNNER_TEMP/desktop574-${PROFILE}\" --retained \"$GITHUB_WORKSPACE/retained574\" --incoming \"$GITHUB_WORKSPACE/incoming606\" --official \"$GITHUB_WORKSPACE/bootstrap2-official3\" --compiler \"$GITHUB_WORKSPACE/bootstrap2-compiler6\" --legacy \"$GITHUB_WORKSPACE/bootstrap2-legacy2\" --selected \"$GITHUB_WORKSPACE/fdk-selected-source\" --output \"$STATE/bootstrap2\""
+        "timeout-minutes": 47
+        "run": "timeout --signal=TERM --kill-after=210s 2550s python3 -I -B \"$CURRENT\" positive-bootstrap --state \"$STATE\" --base \"$RUNNER_TEMP/desktop574-${PROFILE}\" --retained \"$GITHUB_WORKSPACE/retained574\" --incoming \"$GITHUB_WORKSPACE/incoming606\" --official \"$GITHUB_WORKSPACE/bootstrap2-official3\" --compiler \"$GITHUB_WORKSPACE/bootstrap2-compiler6\" --legacy \"$GITHUB_WORKSPACE/bootstrap2-legacy2\" --selected \"$GITHUB_WORKSPACE/fdk-selected-source\" --output \"$STATE/bootstrap2\""
       -
         "name": "One actual current606 Welcome8 GUI case with exact owned retirement"
-        "timeout-minutes": 45
-        "run": "timeout --signal=TERM --kill-after=480s 2200s python3 -I -B \"$CURRENT\" run --case \"$CASE\" --state \"$STATE\" --base \"$RUNNER_TEMP/desktop574-${PROFILE}\" --assets \"$RUNNER_TEMP/welcome5-assets\" --carrier \"$GITHUB_WORKSPACE/incoming606\" --tooling \"$GITHUB_WORKSPACE/controller-tooling89\" --bootstrap \"$STATE/bootstrap2\" --kernel-carrier \"$GITHUB_WORKSPACE/kernel-media\" --welcome8 \"$GITHUB_WORKSPACE/welcome8-inputs\" --apps16 \"$GITHUB_WORKSPACE/apps16-inputs\" --six-record \"$GITHUB_WORKSPACE/six22-inputs\" --six-public \"$RUNNER_TEMP/six991-inputs\""
+        "timeout-minutes": 194
+        "run": "timeout --signal=TERM --kill-after=600s 11000s python3 -I -B \"$CURRENT\" positive-run --case \"$CASE\" --state \"$STATE\" --base \"$RUNNER_TEMP/desktop574-${PROFILE}\" --assets \"$RUNNER_TEMP/welcome5-assets\" --carrier \"$GITHUB_WORKSPACE/incoming606\" --tooling \"$GITHUB_WORKSPACE/controller-tooling89\" --bootstrap \"$STATE/bootstrap2\" --kernel-carrier \"$GITHUB_WORKSPACE/kernel-media\" --welcome8 \"$GITHUB_WORKSPACE/welcome8-inputs\" --apps16 \"$GITHUB_WORKSPACE/apps16-inputs\" --six-record \"$GITHUB_WORKSPACE/six22-inputs\" --six-public \"$RUNNER_TEMP/six991-inputs\""
       -
         "name": "Verify runtime15 retirement before original producer cleanup"
         "if": "always() && steps.proof.outcome == 'success'"
-        "timeout-minutes": 6
-        "run": "timeout --signal=TERM --kill-after=10s 330s python3 -I -B \"$CURRENT\" cleanup --case \"$CASE\" --state \"$STATE\" --base \"$RUNNER_TEMP/desktop574-${PROFILE}\""
+        "timeout-minutes": 8
+        "run": "timeout --signal=TERM --kill-after=10s 450s python3 -I -B \"$CURRENT\" cleanup --case \"$CASE\" --state \"$STATE\" --base \"$RUNNER_TEMP/desktop574-${PROFILE}\""
       -
         "name": "Preserve bounded same-actor originals and thirteen original frames plus two installed Stop/retry frames"
         "if": "always() && steps.proof.outcome == 'success'"
-        "timeout-minutes": 2
+        "timeout-minutes": 4
         "run": "python3 -I -B \"$CURRENT\" retain --case \"$CASE\" --state \"$STATE\" --base \"$RUNNER_TEMP/desktop574-${PROFILE}\" --output \"$RUNNER_TEMP/gui606-public\""
       -
         "name": "Wrap unchanged public member names in bounded source-owned transport"
         "if": "always() && steps.proof.outcome == 'success'"
-        "timeout-minutes": 2
+        "timeout-minutes": 3
         "run": 'python3 -I -B "$CURRENT" transport --case "$CASE" --state "$STATE" --public "$RUNNER_TEMP/gui606-public" --output "$RUNNER_TEMP/gui606-transport"'
       -
         "name": "Upload only closed bounded current606 GUI originals"

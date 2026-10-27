@@ -3,7 +3,7 @@
 import hashlib,importlib.util,json,types
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
-POLICY_SHA='c6eecc0b99495e34c20cd19f70f588aa6f9e443bf68f9fcfdf252ad5be1df4db'
+POLICY_SHA='3f60a87dade70971ba7913ecb4e8356ea59a3c601dfef296aeebd42372d7e712'
 STEP='''      - name: Selected607 actual owner-context controls before secrets
         timeout-minutes: 3
         run: python3 -I -B gui607-source/implementation/test_runner_context.py --assets "$RUNNER_TEMP/welcome5-assets"
@@ -30,7 +30,7 @@ def workflow(raw):
 def policy():
  raw=(HERE/'runner-context-policy.json').read_bytes();need(hashlib.sha256(raw).hexdigest()==POLICY_SHA,'fixed source-generated607 runner policy');return json.loads(raw)
 def authorize_runner(runner):
- F=load('_selected607_fixed_factory',HERE/'factory/factory.py');C=load('_selected607_fixed_context',HERE/'factory/context606.py');V=load('_selected607_service_profile',HERE/'factory/service_capacity.py');O=load('_selected607_observer_profile',HERE/'observer_apply.py');p=policy();proof=C.authorize_runner(Path(runner));need(sorted(proof)==p['proof_keys'],'exact typed607 proof schema');key=proof['profile']+'-'+proof['mode'];need(key in p['code']and proof['page_size']==(4096 if proof['mode']=='generic4k'else 16384),'fixed source-selected profile/page mode');need(proof['service_validation_profile']==O.reservation_annotation()and C.read(Path(runner)/'service-vm-profile.json')==O.enc(O.reservation_spec())and proof['observer_diagnostic']==O.ANNOTATION,'whole selected service/observer typed annotations');need(proof['accepted_input_source']==F.obj(HERE/'factory/profile.json')['source']and proof['GUI']=='NOT_RUN'and proof['hardware']=='NOT_RUN'and proof['release']=='NOT_ADMITTED','source emission never actual acceptance')
+ F=load('_selected607_fixed_factory',HERE/'factory/factory.py');C=load('_selected607_fixed_context',HERE/'factory/context606.py');V=load('_selected607_service_profile',HERE/'factory/service_capacity.py');O=load('_selected607_observer_profile',HERE/'observer_apply.py');p=policy();proof=C.authorize_runner(Path(runner));need(sorted(proof)==p['proof_keys'],'exact typed607 proof schema');need(proof['positive_budget_profile']==O.POSITIVE_PROFILE and C.read(Path(runner)/'positive-budget-profile.json')==O.enc(O.POSITIVE_PROFILE),'whole selected positive clock profile');key=proof['profile']+'-'+proof['mode'];need(key in p['code']and proof['page_size']==(4096 if proof['mode']=='generic4k'else 16384),'fixed source-selected profile/page mode');need(proof['service_validation_profile']==O.reservation_annotation()and C.read(Path(runner)/'service-vm-profile.json')==O.enc(O.reservation_spec())and proof['observer_diagnostic']==O.ANNOTATION,'whole selected service/observer typed annotations');need(proof['accepted_input_source']==F.obj(HERE/'factory/profile.json')['source']and proof['GUI']=='NOT_RUN'and proof['hardware']=='NOT_RUN'and proof['release']=='NOT_ADMITTED','source emission never actual acceptance')
  actual={q.relative_to(runner).as_posix():pin(C.read(q))for q in sorted(Path(runner).rglob('*'))if q.is_file()and q.suffix in('.py','.sh','.c')}
  need(actual==p['code'][key],'entire source-generated executable code closure; no foreign code inputs');need(pin(C.read(Path(runner)/'expected606.lock'))==p['target'],'whole fixed607 target');return proof
 

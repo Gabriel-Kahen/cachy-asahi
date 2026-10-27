@@ -56,16 +56,16 @@
         "sha256": "dcad5ad29b8f50619361fa59ae27db29a831887664ecf4ce8ef9a3f34412d4f0"
       },
       "desktop574_fixture.sh": {
-        "bytes": 7172,
-        "sha256": "4729e39b8331fdf9731a1649a660b8af05f73755cad5ba223e8af1461a500782"
+        "bytes": 7191,
+        "sha256": "9d90f1cc41d5c54fe9428494b544adb8bd699fbc4ba495ed6d0002a06183a5d8"
       },
       "desktop574_guest.py": {
         "bytes": 2431,
         "sha256": "ab7da0e58c66a65394340c94263b577ba85c1563967b30a698692b717ddbc36c"
       },
       "desktop574_runtime.py": {
-        "bytes": 21067,
-        "sha256": "5e666ff31f1c9ccbff826a92ed83118c6d8dcea5247802515ee6450b1a8856ac"
+        "bytes": 35548,
+        "sha256": "955522e2ff484ab0952784bfc0c69b47396e512b5464a6662441ec8d311c10ff"
       },
       "dns_contract.py": {
         "bytes": 8348,
@@ -294,16 +294,16 @@
         "sha256": "dcad5ad29b8f50619361fa59ae27db29a831887664ecf4ce8ef9a3f34412d4f0"
       },
       "desktop574_fixture.sh": {
-        "bytes": 6625,
-        "sha256": "7ee82a83188b06438770c4ffc71eb95eaa06acee38c54478f125b2e8253a333b"
+        "bytes": 6644,
+        "sha256": "0a6e60715e5f223217b237672d220530213aea1eb68eec427d829cff7b4d7cb5"
       },
       "desktop574_guest.py": {
         "bytes": 2431,
         "sha256": "ab7da0e58c66a65394340c94263b577ba85c1563967b30a698692b717ddbc36c"
       },
       "desktop574_runtime.py": {
-        "bytes": 20362,
-        "sha256": "ad5c6532b4fb574e4271c7415ae9dd5b071c328ebc6b33e6c31e1f9a46b50cfb"
+        "bytes": 34807,
+        "sha256": "97bab2e3ef0d9e4a618fccacd4fcf349b78868382fa31d4b71e5f4cfd54ae7dc"
       },
       "dns_contract.py": {
         "bytes": 8348,
@@ -508,16 +508,16 @@
         "sha256": "dcad5ad29b8f50619361fa59ae27db29a831887664ecf4ce8ef9a3f34412d4f0"
       },
       "desktop574_fixture.sh": {
-        "bytes": 7172,
-        "sha256": "4729e39b8331fdf9731a1649a660b8af05f73755cad5ba223e8af1461a500782"
+        "bytes": 7191,
+        "sha256": "9d90f1cc41d5c54fe9428494b544adb8bd699fbc4ba495ed6d0002a06183a5d8"
       },
       "desktop574_guest.py": {
         "bytes": 2431,
         "sha256": "855cecdc2bb8d1fc49db3f322c7e58c7ecb318e8d3ecc66e0954c58973473490"
       },
       "desktop574_runtime.py": {
-        "bytes": 21067,
-        "sha256": "ec1b99c34513672130b42c9c57181d828888004494b3fa3222a60233ef8b8e13"
+        "bytes": 35548,
+        "sha256": "e471cdc19d95dc596db299c628db065f38bb8a4d5f37a225df015745be6a1efd"
       },
       "dns_contract.py": {
         "bytes": 8348,
@@ -746,16 +746,16 @@
         "sha256": "dcad5ad29b8f50619361fa59ae27db29a831887664ecf4ce8ef9a3f34412d4f0"
       },
       "desktop574_fixture.sh": {
-        "bytes": 6625,
-        "sha256": "7ee82a83188b06438770c4ffc71eb95eaa06acee38c54478f125b2e8253a333b"
+        "bytes": 6644,
+        "sha256": "0a6e60715e5f223217b237672d220530213aea1eb68eec427d829cff7b4d7cb5"
       },
       "desktop574_guest.py": {
         "bytes": 2431,
         "sha256": "855cecdc2bb8d1fc49db3f322c7e58c7ecb318e8d3ecc66e0954c58973473490"
       },
       "desktop574_runtime.py": {
-        "bytes": 20362,
-        "sha256": "b4c5670eb02da7436cd6ba63eb6f8192acddc1c0bdd363cd41adfb2eb4acac14"
+        "bytes": 34807,
+        "sha256": "b6e85f91b6ed66f97987c9ae0eeaed5468ad3c27cefe319b8e0440da7618b5aa"
       },
       "dns_contract.py": {
         "bytes": 8348,
@@ -919,6 +919,7 @@
     "optional_absent",
     "packages",
     "page_size",
+    "positive_budget_profile",
     "profile",
     "release",
     "service_validation_profile",

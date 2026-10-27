@@ -4,12 +4,12 @@
   "actual_source": null,
   "files": {
     ".github/workflows/native-arm-build.yml": {
-      "bytes": 21809,
-      "sha256": "0ecb7ad29f88791ab7cb2e8603da71d90bda7f472ae8d21d6617da1bad1c81f7"
+      "bytes": 27959,
+      "sha256": "cf1de7128bc69d4196c59dac86a2cd17d0c94a1329af0cabac851c15766d6836"
     },
     ".github/workflows/native-arm-latest607-welcome8-gui.yml": {
-      "bytes": 21809,
-      "sha256": "0ecb7ad29f88791ab7cb2e8603da71d90bda7f472ae8d21d6617da1bad1c81f7"
+      "bytes": 27959,
+      "sha256": "cf1de7128bc69d4196c59dac86a2cd17d0c94a1329af0cabac851c15766d6836"
     },
     "implementation/accepted_inputs.py": {
       "bytes": 2601,
@@ -20,24 +20,24 @@
       "sha256": "28218db0712bd7dcfb77c1d3d29a2a46c4e47f7b86a16582f28492334a3641b1"
     },
     "implementation/body-inverses.json": {
-      "bytes": 35979,
-      "sha256": "07f6979bd6b10a19e2521ac6e73ff844f6b0813a684a3d60e6e79936ae803b07"
+      "bytes": 70551,
+      "sha256": "a7dd2ea4e7502a3186211d98e72f18c7808c9052028f8661da4a5f2cab6bdca6"
     },
     "implementation/build-inventory-parent.json": {
-      "bytes": 4017507,
-      "sha256": "3e7f121da7fa37f84e69ac051204803dec02e6aae4a39f18c2753e02c5651b92"
+      "bytes": 5333014,
+      "sha256": "203c9c84d9a3aeb642fe4fb7fd98a744501f2c90a07345639c830d2f88a17d42"
     },
     "implementation/build-inventory-policy.json": {
       "bytes": 504,
       "sha256": "6f4de36904fe4fff80c69cc416e32b71ce3eb5fbe8472bb2bdd318ec78f836a6"
     },
     "implementation/build_inventory.py": {
-      "bytes": 4498,
-      "sha256": "f62c21ce879c99f587269a5829fde80af5c654979200a17855ddfd996c3a8af2"
+      "bytes": 15306,
+      "sha256": "29cac0619e4b75dd59f8e6be34851aecde917ffdabe8efef74fafe4ce6d68423"
     },
     "implementation/build_inventory_guard.py": {
-      "bytes": 157463,
-      "sha256": "0f496e0691d8883138c91d3b74f5bcba8660037f9b28fdf7d4f43be0ec922389"
+      "bytes": 167063,
+      "sha256": "6c4dd072adab8c6072803171be8e1bbb05e9478e13826bea4a980dbedeb95b31"
     },
     "implementation/closed_data.py": {
       "bytes": 669,
@@ -368,12 +368,12 @@
       "sha256": "f0160e53afea8d7116f0b7552514f753f6fd95ae2d58d1b30d4d3fe6d5b5ceda"
     },
     "implementation/fresh-signer-policy.json": {
-      "bytes": 1179,
-      "sha256": "4c740284160e971c71d6e3a5aceb8740bc6f324aeb67136a74004530db73190f"
+      "bytes": 1174,
+      "sha256": "819e112f0a1e829156a2a282de6b8f0643592dd76dc1895159520977dba02ba1"
     },
     "implementation/fresh-signer-schema.json": {
-      "bytes": 213088,
-      "sha256": "5ee26663b65f4c2a37bad10bcad19eaa58a987d9af776f8425f6e86e5b260667"
+      "bytes": 743688,
+      "sha256": "16de5e36c03100ec2795ef6a53ce90be6203f24f0e67c2e79f41d3c4cf25f851"
     },
     "implementation/fresh_adaptation.py": {
       "bytes": 14627,
@@ -385,7 +385,7 @@
     },
     "implementation/historical_source.py": {
       "bytes": 19260,
-      "sha256": "4a0687fc258946ba29885ebb4fd1505aaee76e8218e75b1a500406657ce60319"
+      "sha256": "c9305e61464699443b4aa3cf912717daef5c3a244a2041cbec3d3e07270b9a31"
     },
     "implementation/input-helpers/accepted.py": {
       "bytes": 2694,
@@ -404,8 +404,8 @@
       "sha256": "bd6c72404385e84af1349ef6ef7cf5d29ceaae413b518b77db31add15abdfa0f"
     },
     "implementation/latest_input607.py": {
-      "bytes": 10160,
-      "sha256": "baaca7f8506c76ea096b6a4e147b9324e92fe1cdd93e3c8d77f182ca429966cc"
+      "bytes": 11609,
+      "sha256": "c6febd9c09bf252d0755b53af1f9a25d93503728c907b788e07cfdbf9f21a24f"
     },
     "implementation/latest_inputs.py": {
       "bytes": 2566,
@@ -416,16 +416,16 @@
       "sha256": "4586f4ee95fa21a175508ca4eb50b3140967aea2458247836e3093e4b3362750"
     },
     "implementation/native.py": {
-      "bytes": 14806,
-      "sha256": "81acaff388a78f49db88f6aa0400ddc189de94ea7efaf16c767bd4f8be49cf88"
+      "bytes": 25003,
+      "sha256": "d11438208d62ef5816565772cf48acfab5b08b075ce96df362dac63f22df544f"
     },
     "implementation/observer-parent.json": {
       "bytes": 123691,
       "sha256": "f340909397ce11c3abd28758a7bf7726c964561d20d70c64b4aa6fd907053034"
     },
     "implementation/observer_apply.py": {
-      "bytes": 32779,
-      "sha256": "045717250bae2c94df9485e155f3c1a610d1e71d7244dbe19611903459102aec"
+      "bytes": 58178,
+      "sha256": "405253ea6776006200f8d8a781fdf32c6d62322b43ad4c60efd82876b8bbe6c0"
     },
     "implementation/observer_guard.py": {
       "bytes": 114877,
@@ -436,20 +436,20 @@
       "sha256": "3bb1a3be1254614ba451d310a625e92075f3ea97df816f93813b2dd36ec5f20b"
     },
     "implementation/presecret_control.py": {
-      "bytes": 2188,
-      "sha256": "e5a2bb9761cb097d741e1cd291b908820eb896edea07eea3d6b2863d9cb7d8d3"
+      "bytes": 20352,
+      "sha256": "1fd47855a7e468388a8479f39823dd8e383d66ef1a5adb5688501d5be66baa8f"
     },
     "implementation/runner-context-parent.json": {
       "bytes": 124614,
       "sha256": "fccd7c93be2d9621dfedbaedfc9ef2438847bbf19874a133b79ae59081c2bc23"
     },
     "implementation/runner-context-policy.json": {
-      "bytes": 33928,
-      "sha256": "c6eecc0b99495e34c20cd19f70f588aa6f9e443bf68f9fcfdf252ad5be1df4db"
+      "bytes": 33959,
+      "sha256": "3f60a87dade70971ba7913ecb4e8356ea59a3c601dfef296aeebd42372d7e712"
     },
     "implementation/runner_context.py": {
-      "bytes": 4829,
-      "sha256": "9fdf72c0e708e7ab5ca931c9c52ac99ad2380162322881c08908a29cf3370482"
+      "bytes": 5011,
+      "sha256": "30c492b9d1ab98406b2af1c347cd0266907ef5d720ee9502dfea88488bc9f58c"
     },
     "implementation/runner_context_guard.py": {
       "bytes": 114563,
@@ -472,8 +472,8 @@
       "sha256": "55458402522251e1408bcc96deb582b5e4a7b04fc5227244eb794dda2abbed5e"
     },
     "implementation/test_observer.py": {
-      "bytes": 44084,
-      "sha256": "2393401fc2c2248aaa67b3def0fd4c942c99de7991405d5319a10fa69d187883"
+      "bytes": 44248,
+      "sha256": "b3055f6b6661509afa5b35ccf2687b76c324f7f2d2a08ed6b8ce291f9fb337dc"
     },
     "implementation/test_runner_context.py": {
       "bytes": 6057,
