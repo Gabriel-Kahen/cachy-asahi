@@ -100,6 +100,7 @@ jobs:
                   subprocess.run([sys.executable, '-B', '-c', runner, directory], env=env, check=True)
           PY
           bash -n scripts/build/container-entry.sh
+          bash -n scripts/build/container-entry-v2.sh
       - name: Check explicit Apps7 inventory parser candidate
         run: |
           python3 -I -B packages/tools/cachy-asahi-apps7/check_source.py --repository-source "$PWD" --recipe-root packages/tools/cachy-asahi-apps7
