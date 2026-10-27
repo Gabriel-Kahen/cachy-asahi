@@ -9,6 +9,10 @@ recipes to the existing `source_delivery.py` transport:
 | cachy-asahi-maintenance (retained) | 0.1.0-1 | 18 | 16 |
 | cachy-asahi-session-diagnostics (current) | 0.1.0-3 | 10 | 7 |
 | cachy-asahi-session-diagnostics (retained) | 0.1.0-2 | 10 | 7 |
+| cachy-asahi-setup (Setup8/current) | 0.3.0-1 | 18 | 10 |
+| cachy-asahi-setup (Setup7/retained) | 0.1.0-7 | 9 | 6 |
+| cachy-asahi-mirrors | 0.2.0-2 | 5 | 4 |
+| cachy-asahi-doctor | 0.1.0-2 | 6 | 4 |
 
 No package, source-cache interface, release schema or default selection changes.
 The adapter reads source data; it never executes recipes, fetches sources,
@@ -30,8 +34,9 @@ Use `cachy-asahi-session-diagnostics` for both recipe and package to create the
 other bundle. The adapter allowlist pins the reviewed PKGBUILD and `.SRCINFO`
 hashes. It then reads their complete literal local source list and validates
 every source checksum. Recipe changes require explicit review and a new adapter
-profile. Files outside that source list are excluded; original `LICENSE`,
-`NOTICE` and `source-provenance.json` remain byte-exact.
+profile. Files outside that source list are excluded; original `LICENSE` and
+`NOTICE` remain byte-exact, as does `source-provenance.json` wherever declared.
+Mirrors and Doctor declare no provenance JSON; none is fabricated.
 
 The finite registry selects each version by its exact PKGBUILD/SRCINFO hash pair.
 The current reviewed pairs are from `ab57e41b60d08e564bc0fe7e9a0c9a9c0706c283`;
@@ -151,3 +156,86 @@ The historical compatibility controls use the original two bundle bytes retained
 as gzip fixtures under `scripts/release/fixtures/recipe-source-legacy/`, checked
 against their original TAR hashes above. They do not depend on untracked local
 artifacts or Git history in a CI checkout.
+
+
+## Finite management-tool extension rebased on PR282
+
+The extension is based on exact PR282 head
+`49771edfc7a9def473b875c59242abd3a25d4177`, retaining its current maintenance
+0.1.0-2 and session diagnostics 0.1.0-3 profiles plus the historical 0.1.0-1 and
+0.1.0-2 profiles and binary compatibility fixtures. It must not be replaced with
+an earlier two-profile or five-profile adapter proposal. The previous development
+packets remain sealed; their implementation is selectively reconciled here.
+
+The current finite registry has five ALPM names and eight exact recipe versions.
+All selection continues through PR282's exact PKGBUILD/SRCINFO hash-pair registry.
+There is no arbitrary-version fallback, alias ALPM name, new bundle discriminator
+or schema change. The separate Setup8 implementation is the current
+**cachy-asahi-setup 0.3.0-1** profile; retained Setup7 is the explicit
+**cachy-asahi-setup 0.1.0-7** profile. Their ten/six-file payload layouts and
+version-specific host checks remain distinct. Cross-version archive binding and
+mixed recipe/SRCINFO pairs refuse.
+
+After integration, packing the selected Setup8 successor uses its actual package
+name and separate recipe directory:
+
+```bash
+python -I -B scripts/release/recipe_source_delivery.py pack \
+  --recipe packages/tools/cachy-asahi-setup8 --package cachy-asahi-setup \
+  --source-revision 49771edfc7a9def473b875c59242abd3a25d4177 \
+  --output /absolute/private/fresh-setup8-source
+```
+
+Retained Setup7 uses `packages/settings/cachy-asahi-setup` with that same actual
+package name; its exact older hash pair selects version 0.1.0-7. Mirrors and
+Doctor use `packages/tools/cachy-asahi-mirrors` and
+`packages/tools/cachy-asahi-doctor` with their matching package names. All sources
+are already local; the adapter fetches nothing.
+
+The added Setup8 recipe retains exactly 20 inputs: 18 declared sources, PKGBUILD
+and SRCINFO, including the original migration engine/test adapter, CLI/private
+setup mirrors, payload map, frozen provenance, guides, license and notice.
+Its ten expected package payloads match both literal install statements and the
+pinned payload map. Original source/provenance text is retained verbatim; source
+packaging does not rewrite historical evidence statements.
+
+Mirrors lacks a SRCINFO at the exact base. The proposed file is a static literal
+transcription of its unchanged PKGBUILD, with description, URL, package identity,
+dependencies and complete source/checksum arrays. Every field was compared
+against literal recipe metadata without sourcing shell code; every declared
+source hash was verified against the exact Git base. Adopt the SRCINFO alongside
+its profile. The inventory still labels Mirrors 0.2.0-1 while the actual recipe
+is 0.2.0-2. The coordinator must reconcile that version and historical evidence
+separately; an older native claim is not transferred to this recipe.
+
+The additions admit only the explicitly pinned Setup0.3.0-1/0.1.0-7,
+Mirrors0.2.0-2 and Doctor0.1.0-2 recipes. No package/default or
+manifest selection change is included in the source-delivery extension.
+
+The new focused controls are:
+
+```bash
+python -I -B -Werror::ResourceWarning scripts/release/test_expanded_original_source_delivery.py
+```
+
+They cover exact inputs/metadata and deterministic relocation; original Python
+checks after relocation; literal payload/mode correspondence; full literal
+SRCINFO metadata equality; every input's corruption refusal; synthetic exact
+archive association/export; metadata/build/payload mismatches; unbound/native
+claim refusal; exact Setup8/Setup7 separation and retained Setup7 bundle identity;
+and cross-version archive refusal. Setup8 relocation uses
+`check-sync.py --snapshot`, never canonical-root guessing.
+
+The existing PR282 suite retains all its current/legacy assertions and fixtures;
+its generic loops are bounded to its original maintenance/diagnostics ownership.
+Root owns runtime suite execution for this proposal. The author performed source
+and syntax audits only, with **runtime controls NOT RUN**, no historical packet
+builds and no new concrete bundle materialization. The packet includes a root-run
+PR282 preservation differential control and exact before/after hashes.
+
+As before, an omitted archive yields `UNBOUND_NO_ARCHIVE_SUPPLIED`, not a native
+association. Synthetic fixture checks grant no native execution, package
+installation, legal clearance, signing or release acceptance. The previously
+accepted finite native Setup8 component retains its separate source/run/archive
+identity. Signed integrated lifecycle, native16K, both M2 Air sizes, real profiles,
+performance and release remain separate and unaccepted by source delivery.

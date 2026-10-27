@@ -1,0 +1,21 @@
+pkgbase = cachy-asahi-mirrors
+	pkgdesc = ARM snapshot mirror checking with explicit journaled activation and restore
+	pkgver = 0.2.0
+	pkgrel = 2
+	url = https://github.com/Gabriel-Kahen/cachy-asahi
+	arch = any
+	license = MIT
+	depends = python>=3.11
+	depends = ca-certificates
+	source = cachy-asahi-mirrors
+	source = test_mirrors.py
+	source = README.md
+	source = NOTICE
+	source = LICENSE
+	sha256sums = b31c0021ab00ad6bca01a139f5887a467f587c9205ce79c9451312d150eb7dcd
+	sha256sums = 5a3e8bb1bc47efb8621557f0c33edbc687487bd59d5f70d6621431fd67477f0f
+	sha256sums = 1c084b18b0c49dffbf32f7c4c3eaef1a417a0c1cddf048b0808991f6b4deddd8
+	sha256sums = adb0cb8dcd123c5fb6cd905abd3245a6decf34cda55fd901a633b772987a747a
+	sha256sums = 51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7
+
+pkgname = cachy-asahi-mirrors
