@@ -8439,7 +8439,7 @@
     "normal": {
       "adapter.json": {
         "bytes": 59945,
-        "sha256": "af412606af18cf6607f47c1069c04979dffc5a04c6ce3c5518bf403a42624989"
+        "sha256": "b50f4c6d636674dd52dcf2904db0d71f55e227136d9319afa5955f816818d8d3"
       },
       "packages/tools/cachy-asahi-apps/.SRCINFO": {
         "bytes": 1775,
@@ -8706,8 +8706,8 @@
         "sha256": "0b99bd3a15fa8c905be653919ec1967ab9c725cc332b053767a57a0702d6a4da"
       },
       "scripts/ci/full-root-upgrade/capacity_driver.py": {
-        "bytes": 25634,
-        "sha256": "f569245fd4bd3535f8925ee1ddf36b58e0f008792af6cd22d552470908d4a81d"
+        "bytes": 27516,
+        "sha256": "f27c8a68ab0b3af912b407f55711f368b55794e35f9df1c9dff96d78cc838842"
       },
       "scripts/ci/full-root-upgrade/capacity_profile.json": {
         "bytes": 136410,
@@ -8879,7 +8879,7 @@
       },
       "upgrade-config.json": {
         "bytes": 14426,
-        "sha256": "daac7e9009820850f7c5d93f5416c395d21398d1dd71c5383b107067623fb1cc"
+        "sha256": "431868c55f27333af1c3573bb1124e572be880681725c51411bd6d4a8fc43e0c"
       }
     },
     "postcommit-exit87": {

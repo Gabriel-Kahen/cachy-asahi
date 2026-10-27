@@ -64,7 +64,7 @@
     "scripts/ci/full-root-upgrade-caller/persistent_scope.py": "458ec2adbc3e509e89dc78b223b30d1ee2cdc041259f61c9c7578153d36cdeb0",
     "scripts/ci/full-root-upgrade-caller/run.py": "b9840c79ffc6c45070ac12b80d469fb46c26059df63e121801d6ab223035e303",
     "scripts/ci/full-root-upgrade-caller/upgrade_hook.py": "0b99bd3a15fa8c905be653919ec1967ab9c725cc332b053767a57a0702d6a4da",
-    "scripts/ci/full-root-upgrade/capacity_driver.py": "f569245fd4bd3535f8925ee1ddf36b58e0f008792af6cd22d552470908d4a81d",
+    "scripts/ci/full-root-upgrade/capacity_driver.py": "f27c8a68ab0b3af912b407f55711f368b55794e35f9df1c9dff96d78cc838842",
     "scripts/ci/full-root-upgrade/capacity_profile.json": "7f91ec63081af3aee3fe092646ec801816803fd54062c0b14649483a2988b0a9",
     "scripts/ci/full-root-upgrade/capacity_trace.py": "3e8e61bb5b5347abc02b61c0c07115eabcaabc2af06bcc550d934e87ae01b727",
     "scripts/ci/full-root-upgrade/construct_repository.py": "8e6d1e58ae8aa1b7c945eebb5d5d279800c2e26f60a4575c3f94c8f699789fec",
