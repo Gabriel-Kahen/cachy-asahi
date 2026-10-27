@@ -1,0 +1,18 @@
+{
+  "catalog_sha256": "50979bf81eda4d1f5b23fbe05aec5fabd7827b270fe3edda22b7189944004c43",
+  "purpose": "offline-build-sources",
+  "recipe_inputs": {
+    "LICENSE.project": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+    "PKGBUILD": "2c5c53ed0231fd9562c54b48d3773f33b6bdbecb92a8f30daca1fac101cf8786",
+    "probe.c": "b85bab88cdb9048f26d5e812cc1ad2b8c783292882cbe3ab804e54353e4dfee1",
+    "strict-gzip.c": "369e4e0e3f7c79b5d892edf7476ade41d6647332fb78f95ad7de7d8449bbaca9"
+  },
+  "schema_version": 1,
+  "sources": [
+    {
+      "id": "zlib-1.3.2",
+      "revision": "zlib-1.3.2 release archive; exact archive SHA256 pinned",
+      "source": "https://zlib.net/zlib-1.3.2.tar.gz"
+    }
+  ]
+}
