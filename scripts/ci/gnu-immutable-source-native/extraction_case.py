@@ -64,3 +64,16 @@ def verify_selected(source,selected,case,operation='normal'):
  I.need(all(actual[n]==b for n,b in expected.items()if n not in selectors|{'runtime-source.json'}),'every extraction executable is exact source derivative');manifest=json.loads(expected['runtime-source.json'])
  for n in selectors:manifest['files'][n]=I.pin(actual[n])
  I.need(I.enc(manifest)==actual['runtime-source.json'],'only original two private selector rows differ');return dict(case=case,operation=operation,files=len(actual),code='EXACT_SOURCE_OWNED_CANDIDATE_EXTRACTION_DERIVATIVE',acceptance=False)
+
+# ORIGINAL_SIGNATURE_SELECTION_BRIDGE
+_ORIGINAL_SIGNATURE_PARENT_RENDER=render
+_ORIGINAL_SIGNATURE_PARENT_PREPARE=prepare
+def render(before,case,fixed_case,operation='normal'):
+ import original_signature_source as T
+ return T.render(before,case,fixed_case,operation,_ORIGINAL_SIGNATURE_PARENT_RENDER)
+def prepare(root,case,operation='normal'):
+ import original_signature_source as T
+ return T.prepare(root,case,operation,_ORIGINAL_SIGNATURE_PARENT_PREPARE,_ORIGINAL_SIGNATURE_PARENT_RENDER)
+def verify_selected(source,selected,case,operation='normal'):
+ import original_signature_source as T
+ return T.verify_selected(source,selected,case,operation,_ORIGINAL_SIGNATURE_PARENT_RENDER)
