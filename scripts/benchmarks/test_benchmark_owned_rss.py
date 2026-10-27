@@ -8,6 +8,8 @@ from pathlib import Path
 import shutil
 import sys
 import tempfile
+import time
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
@@ -24,7 +26,7 @@ answer=hashlib.sha256(b'fixed representative work').hexdigest()
 time.sleep(.34)
 print(answer,flush=True)
 '''
-DESCENDANT='''import os,signal,time
+DESCENDANT='''import json,os,signal,time
 leader=bytearray(4*1024**2)
 for i in range(0,len(leader),4096): leader[i]=1
 child=os.fork()
@@ -32,6 +34,8 @@ if child==0:
  signal.signal(signal.SIGTERM,signal.SIG_DFL)
  data=bytearray(12*1024**2)
  for i in range(0,len(data),4096): data[i]=1
+ with open(READY_PATH,'x') as ready:
+  json.dump({'leader_pid':os.getppid(),'descendant_pid':os.getpid(),'allocated_bytes':len(data),'monotonic_ns':time.monotonic_ns()},ready)
  time.sleep(.34)
  os._exit(0)
 def retire(signum,frame):
@@ -43,6 +47,37 @@ signal.signal(signal.SIGTERM,retire)
 _,status=os.waitpid(child,0)
 print('descendant reaped',os.waitstatus_to_exitcode(status),flush=True)
 '''
+
+
+
+def descendant_ready_owner(path, boundary):
+ """Test-only launch boundary; core gets the same timeout and real live group."""
+ collector,owner=a.load_dependencies()
+ def supervise(child,**kwargs):
+  deadline=time.monotonic()+.5
+  try:
+   while time.monotonic()<deadline:
+    try:
+     terminal=os.waitid(os.P_PID,child.pid,os.WEXITED|os.WNOWAIT|os.WNOHANG)
+    except ChildProcessError:
+     child._child_created=False  # UNKNOWN: forbid fallback numeric cleanup.
+     raise
+    if terminal is not None: break
+    try:
+     with path.open('rb') as stream: raw=stream.read(4097)
+     if len(raw)>4096: raise AssertionError('fixture readiness byte bound')
+     ready=json.loads(raw)
+     if ready['leader_pid']!=child.pid: raise AssertionError('foreign fixture readiness')
+     boundary.update(ready)
+     break
+    except (FileNotFoundError,json.JSONDecodeError):
+     time.sleep(.002)
+  except BaseException:
+   if child._child_created:
+    owner.supervise(child,**kwargs)  # Retire only this still-owned fresh child.
+   raise
+  return owner.supervise(child,**kwargs)
+ return collector,SimpleNamespace(__file__=owner.__file__,prepare=owner.prepare,supervise=supervise)
 
 
 def prepare(root,owned=True,program=ALLOCATION,paired=False):
@@ -100,8 +135,12 @@ class OwnedRssTests(unittest.TestCase):
   self.assertEqual(self.trial['optimization_acceptance'],'NOT RUN')
 
  def test_actual_descendant_is_measured_or_churn_is_explicitly_invalid(self):
-  root=self.root/'descendant';prepare(root,program=DESCENDANT)
-  code,trial,directory=run(root)
+  root=self.root/'descendant';ready=root/'descendant-ready.json';boundary={}
+  prepare(root,program=DESCENDANT.replace('READY_PATH',repr(str(ready))))
+  dependencies=descendant_ready_owner(ready,boundary)
+  with patch.object(a,'load_dependencies',return_value=dependencies):
+   code,trial,directory=run(root)
+  self.assertTrue(boundary,'allocated descendant did not reach the bounded readiness boundary')
   metrics=trial['metrics']
   if code:
    self.assertFalse(trial['valid'])
@@ -112,7 +151,12 @@ class OwnedRssTests(unittest.TestCase):
    return
   self.assertGreater(metrics['process_group_sampled_rss_kib'],metrics['root_rss_kib'])
   raw=b.read_json(directory/'owned-rss.json')
-  self.assertTrue(any(len(s['members'])>=2 for s in raw['observation']['samples'] if s['status']=='complete'))
+  observed=[s for s in raw['observation']['samples'] if s['status']=='complete'
+    and s['monotonic_start_ns']>=boundary['monotonic_ns']
+    and any(m['pid']==boundary['descendant_pid'] and m['state'] not in ('Z','X')
+            and m['rss_kib']>=12*1024 for m in s['members'])]
+  self.assertTrue(observed,'no complete live allocated-descendant observation')
+  self.assertTrue(any(len(s['members'])>=2 for s in observed))
   self.assertIn('descendant reaped 0',(directory/'stdout.txt').read_text())
 
  def test_disabled_mode_remains_explicitly_unavailable(self):

@@ -14,6 +14,7 @@ import time
 import unittest
 from unittest.mock import patch
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 import retained_git_transport as m
 
 
