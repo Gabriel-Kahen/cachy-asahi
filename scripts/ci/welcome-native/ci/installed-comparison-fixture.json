@@ -1,0 +1,102 @@
+{
+  "GUI": "NOT_RUN",
+  "cases": [
+    {
+      "case": "unchanged-json",
+      "mode": "DIRECT_INSTALLED_EXECUTABLE",
+      "returncode": 0,
+      "stdout_sha256": "caf3a2e23f7ee2d8e40695d3dcd2f0f8c96f00ea18342dfd86014d0fd5458e7f"
+    },
+    {
+      "case": "changed-json",
+      "mode": "DIRECT_INSTALLED_EXECUTABLE",
+      "returncode": 0,
+      "stdout_sha256": "6cfce9b4720e508d3c11875b863069360a9911a28c2e5dd5358a0a1ccbfc8c1a"
+    },
+    {
+      "case": "unchanged-human",
+      "mode": "DIRECT_INSTALLED_EXECUTABLE",
+      "returncode": 0,
+      "stdout_sha256": "44b1b755468696a5a685191ceb534bf9a830c5d75436c195d2c290fadc7bcb89"
+    },
+    {
+      "case": "malformed-refused",
+      "mode": "DIRECT_INSTALLED_EXECUTABLE",
+      "returncode": 2,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case": "unsupported-refused",
+      "mode": "DIRECT_INSTALLED_EXECUTABLE",
+      "returncode": 2,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case": "existing-output-refused",
+      "mode": "DIRECT_INSTALLED_EXECUTABLE",
+      "returncode": 2,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case": "input-output-alias-refused",
+      "mode": "DIRECT_INSTALLED_EXECUTABLE",
+      "returncode": 2,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case": "private-output",
+      "mode": "DIRECT_INSTALLED_EXECUTABLE",
+      "returncode": 0,
+      "stdout_sha256": "6cfce9b4720e508d3c11875b863069360a9911a28c2e5dd5358a0a1ccbfc8c1a"
+    },
+    {
+      "case": "symlink-input-refused",
+      "mode": "DIRECT_INSTALLED_EXECUTABLE",
+      "returncode": 2,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case": "guarded-unchanged",
+      "forbidden_calls": 0,
+      "mode": "INSTALLED_CODE_LOADER_NOT_DIRECT_EXEC",
+      "returncode": 0,
+      "stdout_sha256": "caf3a2e23f7ee2d8e40695d3dcd2f0f8c96f00ea18342dfd86014d0fd5458e7f"
+    },
+    {
+      "case": "guarded-changed",
+      "forbidden_calls": 0,
+      "mode": "INSTALLED_CODE_LOADER_NOT_DIRECT_EXEC",
+      "returncode": 0,
+      "stdout_sha256": "6cfce9b4720e508d3c11875b863069360a9911a28c2e5dd5358a0a1ccbfc8c1a"
+    },
+    {
+      "case": "guarded-malformed",
+      "forbidden_calls": 0,
+      "mode": "INSTALLED_CODE_LOADER_NOT_DIRECT_EXEC",
+      "returncode": 2,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "comparison_oracle": {
+    "change_count": 2,
+    "changed_checks": [
+      "audio/default-output",
+      "package/linux-asahi"
+    ],
+    "unchanged_count": 43
+  },
+  "direct_executable_cases": 9,
+  "fixture_scope": "SYNTHETIC_SUPPLIED_REPORTS_NOT_COLLECTED_OBSERVATIONS",
+  "guarded_installed_code_cases": 3,
+  "hardware": "NOT_RUN",
+  "home": "product-home-fresh",
+  "input_existing_file_preservation": true,
+  "installed_path": "/usr/bin/cachy-asahi-doctor",
+  "installed_sha256": "ddd8c3cedc5ba1291dcdd2d1d7a188e5b4d4a4ac7323ffe6f7ee554f6687d41e",
+  "no_collection_process_network": "PASS_GUARDED_INSTALLED_CODE_CASES",
+  "phase": "install",
+  "private_output_mode": "0600",
+  "private_output_preserved": true,
+  "real_audio": "NOT_RUN",
+  "status": "PASS_INSTALLED_COMPARISON_SYNTHETIC_REPORT_INPUTS"
+}
