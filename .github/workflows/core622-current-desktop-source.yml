@@ -1,6 +1,8 @@
 name: core622-current-desktop-source
 on:
   push:
+    branches: [main, codex/virtual-integration]
+    tags: ['**']
     paths: ['scripts/ci/core622-current-desktop-source/**', '.github/workflows/core622-current-desktop-source.yml']
   pull_request:
     paths: ['scripts/ci/core622-current-desktop-source/**', '.github/workflows/core622-current-desktop-source.yml']
