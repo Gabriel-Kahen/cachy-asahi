@@ -294,6 +294,9 @@ jobs:
           python3 -B -Werror::ResourceWarning scripts/platform/test_retained_bundle.py
           python3 -B -Werror::ResourceWarning scripts/maintenance/test_build_batch.py
           python3 -B -Werror::ResourceWarning scripts/maintenance/test_build_batch_e2e.py
+          python3 -B -Werror::ResourceWarning scripts/maintenance/test_build_outputs.py
+          python3 -B -Werror::ResourceWarning scripts/maintenance/test_health.py
+          python3 -B -Werror::ResourceWarning scripts/setup/test_config_migrate.py
       - name: Check fixed build-only Asahi data candidate boundaries
         run: python3 -B scripts/ci/asahi-audio-data/test_run.py
       - name: Check fixed build-only audio Rust candidate boundaries
