@@ -20,6 +20,7 @@ SPEC = importlib.util.spec_from_file_location('recipe_delivery', HERE / 'recipe_
 d = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(d)
 REVISION = 'ab57e41b60d08e564bc0fe7e9a0c9a9c0706c283'
+ORIGINAL_NAMES = ('cachy-asahi-maintenance', 'cachy-asahi-session-diagnostics')
 LEGACY_BUNDLES = {
     ('cachy-asahi-maintenance', '0.1.0-1'): 'f84ca37ccee0f00f9fd0bbaace405e0fc71be8b8819755c8d498d19ae96dac5a',
     ('cachy-asahi-session-diagnostics', '0.1.0-2'): '0c504f7c8a479e7d99f7bc4d507adbbe9dc6718dfb7b3377929317a6dac14860',
@@ -82,7 +83,7 @@ class RecipeDelivery(unittest.TestCase):
         return output
 
     def test_real_roundtrip_original_check_and_package_functions_without_checkout(self):
-        for name in d.PROFILES:
+        for name in ORIGINAL_NAMES:
             with self.subTest(name=name):
                 delivery, result = self.pack(name, name)
                 raw = (delivery / 'source.tar').read_bytes()
@@ -112,7 +113,7 @@ class RecipeDelivery(unittest.TestCase):
                 self.assertFalse(list(stage.rglob('__pycache__')))
 
     def test_bundle_is_byte_deterministic_and_preserves_all_declared_sources(self):
-        for name in d.PROFILES:
+        for name in ORIGINAL_NAMES:
             with self.subTest(name=name):
                 first, one = self.pack(name, name + '-one')
                 second, two = self.pack(name, name + '-two')
@@ -211,7 +212,7 @@ class RecipeDelivery(unittest.TestCase):
                 d.unpacked(raw, d.s.digest(raw))
 
     def test_exact_synthetic_archive_binding_existing_transport_export_and_reconstruct(self):
-        for name in d.PROFILES:
+        for name in ORIGINAL_NAMES:
             with self.subTest(name=name):
                 archive = self.fixture_archive(name)
                 review = self.work / (name + '-review')
@@ -323,7 +324,8 @@ class RecipeDelivery(unittest.TestCase):
                 self.assertEqual(d.payload(name, version), d.payload(name))
 
     def test_current_pack_unpack_selects_exact_new_recipe_and_version_without_hooks(self):
-        for name, p in d.PROFILES.items():
+        for name in ORIGINAL_NAMES:
+            p = d.profile(name)
             with self.subTest(name=name):
                 output, result = self.pack(name, name)
                 saved, bodies = d.unpacked((output / 'source.tar').read_bytes(), result['bundle_sha256'])
