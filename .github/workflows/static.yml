@@ -274,6 +274,8 @@ jobs:
           PY
       - name: Check offline exact platform and recovery preflight
         run: python3 -B -Werror::ResourceWarning scripts/platform/test_recovery_preflight.py
+      - name: Check read-only exact-target snapshot collection
+        run: python3 -B -Werror::ResourceWarning scripts/platform/test_target_snapshot.py
       - name: Check fixed build-only Asahi data candidate boundaries
         run: python3 -B scripts/ci/asahi-audio-data/test_run.py
       - name: Check fixed build-only audio Rust candidate boundaries
@@ -661,14 +663,36 @@ jobs:
             --setup5-carrier "$GITHUB_WORKSPACE/artifacts/development/setup5-accepted-pair-inputs-20261016/payload" \
             --output "$work/source"
           python3 -B -Werror::ResourceWarning -m unittest discover -s "$work/source/scripts/ci/setup5-native" -p 'test_*.py'
+      - name: Checkout pinned historical604 runtime source for derivative controls
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 3e71f2de1810d3eb94ab1621d23a087b27ea2568
+          path: .ci-inputs/historical604-runtime
+          persist-credentials: false
+      - name: Fetch three exact passive replay operands into historical604 context
+        working-directory: ${{ github.workspace }}/.ci-inputs/historical604-runtime
+        run: >-
+          git -c credential.helper= -c core.hooksPath=/dev/null fetch --no-tags --depth=1 origin
+          de04c6b102890218da4f0b77e938315d601e824f
+          001f0484ab8b599ddc03a84e62fd81af315a2a03
+          4b803ba7daa0eacd978a5bf86d62346363c3b6dc
+      - name: Stage exact accepted Setup5 data into historical604 source context
+        run: |
+          set -euo pipefail
+          parent="$GITHUB_WORKSPACE/.ci-inputs/historical604-runtime/artifacts/development/setup5-accepted-pair-inputs-20261016"
+          target="$parent/payload"
+          test ! -e "$target"
+          install -d -m 700 "$parent"
+          cp -R -- "$GITHUB_WORKSPACE/artifacts/development/setup5-accepted-pair-inputs-20261016/payload" "$target"
+          printf '%s  %s\n' b1e4208d2f32935f2e5cb1c1e3535cc49f44c7bfe08e7d64692b8ac3781d5a5d "$target/index.json" | sha256sum --check
       - name: Check Apps transactions and management source contracts
         run: |
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/apps -p 'test_*.py'
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/orphans -p 'test_*.py'
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/job-retirement-diagnostics -p test_retirement.py
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/expanded600-root-upgrade -p 'test_*.py'
-          EXPANDED604_SOURCE="$PWD" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/expanded604-root-upgrade -p 'test_*.py'
-          EXPANDED604_MANAGED_SOURCE="$PWD" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/expanded604-managed16k -p 'test_*.py'
+          EXPANDED604_SOURCE="$GITHUB_WORKSPACE/.ci-inputs/historical604-runtime" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/expanded604-root-upgrade -p 'test_*.py'
+          EXPANDED604_MANAGED_SOURCE="$GITHUB_WORKSPACE/.ci-inputs/historical604-runtime" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/expanded604-managed16k -p 'test_*.py'
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/management-tools-generic16k -p 'test_*.py'
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-management-native -p 'test_*.py'
       - name: Check historical Apps and Orphans source contracts with their original inventory
@@ -678,7 +702,8 @@ jobs:
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/apps-full574-repair-native -p 'test_*.py'
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/orphans-full574-native -p 'test*.py'
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/orphans-native-cancellation -p 'test_*.py'
-      - name: Check Apps6 current604 composition, fresh install and upgrade source
+      - name: Check historical Apps6 current604 composition, fresh install and upgrade source
+        working-directory: ${{ github.workspace }}/.ci-inputs/historical604-runtime
         run: |
           python3 -I -B -Werror::ResourceWarning scripts/ci/expanded604-apps6/test_lane.py
           python3 -I -B -Werror::ResourceWarning scripts/ci/expanded604-apps6-public-pairs/test_lane.py
@@ -694,26 +719,26 @@ jobs:
           path: .ci-inputs/public-pair-native604
           persist-credentials: false
       - name: Check separate public-pair current604 fresh installer source
-        run: PUBLIC_PAIR_INSTALLER_ROOT="$PWD" PUBLIC_PAIR_COMPOSITION_ROOT="$PWD/.ci-inputs/public-pair-native604" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/expanded604-apps6-public-pair-installer -p test_lane.py -v
+        run: PUBLIC_PAIR_INSTALLER_ROOT="$GITHUB_WORKSPACE/.ci-inputs/historical604-runtime" PUBLIC_PAIR_COMPOSITION_ROOT="$PWD/.ci-inputs/public-pair-native604" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/expanded604-apps6-public-pair-installer -p test_lane.py -v
       - name: Check separate public-pair current604 copied-root upgrade and recovery source
         run: |
           work=$(mktemp -d "$RUNNER_TEMP/public-pair-updater.XXXXXX")
           trap 'rm -rf -- "$work"' EXIT
-          python3 -B scripts/ci/expanded604-apps6-public-pair-installer/prepare.py --source "$PWD" --composition "$PWD/.ci-inputs/public-pair-native604" --output "$work/fresh"
-          PUBLIC_PAIR_UPDATER_SOURCE="$PWD" PUBLIC_PAIR_UPDATER_FRESH="$work/fresh" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/expanded604-apps6-public-pair-updater -p test_lane.py -v
+          python3 -B scripts/ci/expanded604-apps6-public-pair-installer/prepare.py --source "$GITHUB_WORKSPACE/.ci-inputs/historical604-runtime" --composition "$PWD/.ci-inputs/public-pair-native604" --output "$work/fresh"
+          PUBLIC_PAIR_UPDATER_SOURCE="$GITHUB_WORKSPACE/.ci-inputs/historical604-runtime" PUBLIC_PAIR_UPDATER_FRESH="$work/fresh" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/expanded604-apps6-public-pair-updater -p test_lane.py -v
       - name: Assemble separate public-pair current604 generic16K source
         run: |
-          python3 -B scripts/ci/expanded604-apps6-public-pair-installer/prepare.py --source "$PWD" --composition "$PWD/.ci-inputs/public-pair-native604" --output "$RUNNER_TEMP/public-pair-fresh604-source"
-          python3 -B scripts/ci/current604-public-pair-generic16k/prepare.py --source "$PWD" --installer "$RUNNER_TEMP/public-pair-fresh604-source" --assets "$PWD" --output "$RUNNER_TEMP/public-pair-profile16k-source"
+          python3 -B scripts/ci/expanded604-apps6-public-pair-installer/prepare.py --source "$GITHUB_WORKSPACE/.ci-inputs/historical604-runtime" --composition "$PWD/.ci-inputs/public-pair-native604" --output "$RUNNER_TEMP/public-pair-fresh604-source"
+          python3 -B scripts/ci/current604-public-pair-generic16k/prepare.py --source "$GITHUB_WORKSPACE/.ci-inputs/historical604-runtime" --installer "$RUNNER_TEMP/public-pair-fresh604-source" --assets "$GITHUB_WORKSPACE/.ci-inputs/historical604-runtime" --output "$RUNNER_TEMP/public-pair-profile16k-source"
       - name: Check public-pair generic16K profiles and fresh asset source guards
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s "$RUNNER_TEMP/public-pair-profile16k-source/scripts/ci/current604-public-pair-generic16k" -p test_lane.py -v
       - name: Check separate corrected public-pair current604 updater16K source without actors
         run: |
           work=$(mktemp -d "$RUNNER_TEMP/public-pair-updater16k.XXXXXX")
           trap 'rm -rf -- "$work"' EXIT
-          python3 -B scripts/ci/expanded604-apps6-public-pair-installer/prepare.py --source "$PWD" --composition "$PWD/.ci-inputs/public-pair-native604" --output "$work/fresh"
-          python3 -B scripts/ci/expanded604-apps6-public-pair-updater/prepare.py --source "$PWD" --fresh "$work/fresh" --output "$work/updater"
-          python3 -B scripts/ci/current604-public-pair-updater16k/prepare.py --source "$PWD" --updater "$work/updater" --output "$work/16k"
+          python3 -B scripts/ci/expanded604-apps6-public-pair-installer/prepare.py --source "$GITHUB_WORKSPACE/.ci-inputs/historical604-runtime" --composition "$PWD/.ci-inputs/public-pair-native604" --output "$work/fresh"
+          python3 -B scripts/ci/expanded604-apps6-public-pair-updater/prepare.py --source "$GITHUB_WORKSPACE/.ci-inputs/historical604-runtime" --fresh "$work/fresh" --output "$work/updater"
+          python3 -B scripts/ci/current604-public-pair-updater16k/prepare.py --source "$GITHUB_WORKSPACE/.ci-inputs/historical604-runtime" --updater "$work/updater" --output "$work/16k"
           PUBLIC_PAIR_UPDATER16K_SOURCE="$work/16k" PUBLIC_PAIR_UPDATER_SOURCE="$work/16k" python3 -B -Werror::ResourceWarning -m unittest discover -s "$work/16k/scripts/ci/current604-public-pair-updater16k" -p 'test_*.py' -v
       - name: Checkout exact public native Welcome4 archive inputs
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -728,7 +753,7 @@ jobs:
           path: .ci-inputs/welcome4-gui-authority
           persist-credentials: false
       - name: Check distinct public GUI archive and fresh asset source guards
-        run: PUBLIC_GUI_SOURCE="$PWD" PUBLIC_GUI_PACKET="$PWD/.ci-inputs/welcome4-public/payload" PUBLIC_GUI_AUTHORITY="$PWD/.ci-inputs/welcome4-gui-authority/payload/gui-component-authority.json" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/current604-public-gui-assets -p test_assets.py -v
+        run: PUBLIC_GUI_SOURCE="$GITHUB_WORKSPACE/.ci-inputs/historical604-runtime" PUBLIC_GUI_PACKET="$PWD/.ci-inputs/welcome4-public/payload" PUBLIC_GUI_AUTHORITY="$PWD/.ci-inputs/welcome4-gui-authority/payload/gui-component-authority.json" python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/current604-public-gui-assets -p test_assets.py -v
       - name: Checkout exact historical native repair case source operand
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
