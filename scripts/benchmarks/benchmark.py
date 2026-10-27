@@ -28,6 +28,7 @@ _memory_spec.loader.exec_module(process_group_memory)
 
 CLEANUP_SECONDS = 0.25
 _active_sampler = None
+_platform_adapter = None
 
 
 class Invalid(ValueError):
@@ -228,9 +229,21 @@ def validate_config(config):
                 raise Invalid(f"power_domains.{path}.{key} must record identity or explicit null")
 
 
+def platform_adapter():
+    """Load the optional instrumentation only when explicitly declared/selected."""
+    global _platform_adapter
+    if _platform_adapter is None:
+        spec = importlib.util.spec_from_file_location('benchmark_platform_metrics', Path(__file__).with_name('benchmark_platform_metrics.py'))
+        _platform_adapter = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(_platform_adapter)
+    return _platform_adapter
+
+
 def freeze(config_path, baseline_path, candidate_path, output):
     config = read_json(config_path)
     validate_config(config)
+    if "platform_metrics" in config:
+        platform_adapter().validate_config(config["platform_metrics"], config["timeout_seconds"])
     states = {"baseline": read_json(baseline_path), "candidate": read_json(candidate_path)}
     identities = {v: state_identity(s) for v, s in states.items()}
     differences = [key for key in identities["baseline"]
@@ -263,6 +276,8 @@ def freeze(config_path, baseline_path, candidate_path, output):
             paths.append(source)
     for values in config.get("variant_inputs", {}).values():
         paths.extend(values)
+    if "platform_metrics" in config:
+        paths.extend(str(p) for p in platform_adapter().source_paths())
     pins = [pin_file(p) for p in paths]
     for key in ("state_change_evidence", "hardware_gate_evidence"):
         if config.get(key):
@@ -286,6 +301,8 @@ def load_plan(path):
     if plan.get("schema_version") != 1 or plan.get("record_type") != "frozen-experiment-plan":
         raise Invalid("not a supported frozen plan")
     validate_config(plan["config"])
+    if "platform_metrics" in plan["config"]:
+        platform_adapter().validate_config(plan["config"]["platform_metrics"], plan["config"]["timeout_seconds"])
     utc_timestamp(plan["frozen_at"])
     for variant in ("baseline", "candidate"):
         check_pin(plan[f"{variant}_binding"], f"{variant} state file")
@@ -463,11 +480,13 @@ def metrics(samples):
     return result
 
 
-def run(plan_path, slot, state_path, conditions_path, cwd, output):
+def run(plan_path, slot, state_path, conditions_path, cwd, output, *, platform_metrics=False):
     if os.geteuid() == 0:
         raise Invalid("root workload execution is refused")
     plan = load_plan(plan_path)
     config = plan["config"]
+    if type(platform_metrics) is not bool or platform_metrics != ("platform_metrics" in config):
+        raise Invalid("platform metrics flag must match the frozen instrumentation declaration")
     if slot < 0 or slot >= len(config["order"]):
         raise Invalid("slot outside declared order")
     variant = config["order"][slot]
@@ -500,10 +519,18 @@ def run(plan_path, slot, state_path, conditions_path, cwd, output):
               else f"{platform.machine()}/{config['execution_context']} nonacceptance smoke",
               "optimization_acceptance": "NOT RUN"}
     write_json(output / "started.json", record)
-    result = execute(config["argv"], cwd, environment, output, config["timeout_seconds"], config["sample_seconds"])
+    if platform_metrics:
+        result = platform_adapter().execute(config["argv"], cwd, environment, output,
+                                            config["timeout_seconds"], config["sample_seconds"], config["platform_metrics"], metrics)
+    else:
+        result = execute(config["argv"], cwd, environment, output, config["timeout_seconds"], config["sample_seconds"])
     record.update(result)
     record["finished_at"] = now()
-    record["raw_sha256"] = {p.name: digest(p) for p in output.iterdir() if p.name != "started.json"}
+    if platform_metrics:
+        record["raw_sha256"] = {str(p.relative_to(output)): digest(p) for p in output.rglob('*')
+                                if p.is_file() and p != output / 'started.json'}
+    else:
+        record["raw_sha256"] = {p.name: digest(p) for p in output.iterdir() if p.name != "started.json"}
     record["state_after"] = live_identity(config["execution_context"])
     record["valid"] = (result["error"] is None and result["returncode"] == 0
                        and record["state_after"] == record["state"])
@@ -532,6 +559,10 @@ def compare(plan_path, directories, output):
     for directory in directories:
         directory = Path(directory)
         trial = read_json(directory / "trial.json")
+        if ("platform_metrics" in config) != ("platform_metrics" in trial):
+            raise Invalid("trial instrumentation differs from frozen plan")
+        if "platform_metrics" in config:
+            platform_adapter().verify_trial(directory, trial, config["platform_metrics"])
         if trial.get("record_type") != "benchmark-trial" or trial.get("plan_sha256") != digest(plan_path):
             raise Invalid("differing plan/base/machine/workload binding")
         slot = trial.get("slot")
@@ -564,6 +595,9 @@ def compare(plan_path, directories, output):
         if trial.get("declared_environment") != expected_env:
             raise Invalid("differing declared environment")
         expected_raw = {"stdout.txt", "stderr.txt", "telemetry.jsonl"}
+        if "platform_metrics" in config:
+            expected_raw.update('platform-metrics/' + name for name in
+                                ('started.json', 'inventory.json', 'samples.jsonl', 'capture.json', 'summary.json'))
         if set(trial.get("raw_sha256", {})) != expected_raw:
             raise Invalid("missing raw outputs")
         for name, expected in trial["raw_sha256"].items():
@@ -658,6 +692,7 @@ def main():
     runner.add_argument("--conditions", required=True, type=Path)
     runner.add_argument("--cwd", required=True, type=Path)
     runner.add_argument("--output", required=True, type=Path)
+    runner.add_argument("--platform-metrics", action="store_true", help="use the frozen optional platform instrumentation")
     comparator = commands.add_parser("compare")
     comparator.add_argument("--plan", required=True, type=Path)
     comparator.add_argument("--runs", required=True, nargs="+", type=Path)
@@ -668,7 +703,7 @@ def main():
             freeze(args.config, args.baseline, args.candidate_state, args.output)
             return 0
         if args.command == "run":
-            return run(args.plan, args.slot, args.state, args.conditions, args.cwd, args.output)
+            return run(args.plan, args.slot, args.state, args.conditions, args.cwd, args.output, platform_metrics=args.platform_metrics)
         return compare(args.plan, args.runs, args.output)
     except (ValueError, OSError, KeyError, TypeError) as error:
         print(f"benchmark refused: {error}", file=sys.stderr)

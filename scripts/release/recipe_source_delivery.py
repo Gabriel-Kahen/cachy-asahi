@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 cachy-asahi contributors
-"""Offline source bundles for eight original package names and eleven reviewed recipe versions; never execute/install.
+"""Offline source bundles for eleven original package names and fourteen reviewed recipe versions; never execute/install.
 
 The existing source_delivery transport remains authoritative for release joins.
 An observed revision labels a checkout, while reviewed file hashes bind inputs.
@@ -104,6 +104,28 @@ PROFILES = {
         'docs': ['README.md', 'source-provenance.json', 'helper-pins.json'],
         'required_sources': ['NOTICE', 'LICENSE', 'source-provenance.json', 'helper-pins.json'],
         'checks': [['python', '-I', '-B', 'check_source.py', '--recipe-root', '.']],
+    },
+    'cachy-asahi-dns': {
+        'version': '0.1.0-1',
+        'recipe': '9419e496146a8af5379f4bc886645943f703949274d75bcc52035acc996b251b',
+        'srcinfo': '07d5d92c9d92011f7ee9fab670d283e3889b06c248f27a4e77dfdb9f1a810098',
+        'docs': ['README.md', 'source-provenance.json'],
+        'checks': [['python', '-I', '-B', 'check_source.py', '--recipe-root', '.'], ['python', '-I', '-B', 'cachy-asahi-dns', '--help']],
+    },
+    'cachy-asahi-sysctl': {
+        'version': '0.1.0-1',
+        'recipe': 'ca35fc44379d22e3ec6b8b0d88455ab51427c48b11b0be9bb281deeda9c6e9e5',
+        'srcinfo': '107e151422de3607cd3ec71679b84cad79733f626b8b321fedce29426cf32748',
+        'docs': ['README.md', 'source-provenance.json'],
+        'checks': [['python', '-I', '-B', 'cachy-asahi-sysctl', '--help']],
+    },
+    'cachy-asahi-topmem': {
+        'version': '0.1.0-1',
+        'recipe': 'fc17b0af876ae0dfb97b00e2293bb01fb8c054702d19252804e8ab11196315d2',
+        'srcinfo': 'fa8b8e01ce36cfe9c5b3cd0f94ae5303c6d8e6444d91831eacf9a762f7490459',
+        'docs': ['README.md'],
+        'required_sources': ['NOTICE', 'LICENSE'],
+        'checks': [['python', '-I', '-B', '-Werror::ResourceWarning', 'test_topmem.py']],
     },
 }
 # Exact historical inputs remain readable; version labels alone never admit a
