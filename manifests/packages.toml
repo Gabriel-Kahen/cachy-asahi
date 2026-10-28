@@ -1024,3 +1024,26 @@ installation = "NOT RUN; private moved-prefix15-file layout and inverse only; no
 hardware_validation = "NOT RUN"
 performance = "NOT MEASURED"
 next_step = "Qualify v2 package build, native ARM/16K and disposable signed ALPM lifecycle before target selection. Physical M2, performance, signing and release acceptance remain separate."
+
+# Proposal only: coordinator owns manifests/packages.toml and selection.
+[[packages]]
+name = "cachy-asahi-recovery-tools"
+phase = "complete-port-tools"
+status = "candidate"
+source = "local-original-pinned-MIT-private-runtime"
+recipe = "packages/tools/cachy-asahi-recovery-tools/PKGBUILD"
+license = "MIT"
+audit = "packages/tools/cachy-asahi-recovery-tools/README.md"
+candidate_version = "0.1.0-1"
+selected_for_development = false
+selected_for_release = false
+source_commit = "852d1b7324e4ad840fa94ea7c9fc994b1aa07280"
+host_validation = "PASS host makepkg/check(): original23+package8; exporter13/full retrieved check; moved/real TEST-signature materialize+verify16; six refusals and preserved SIGKILL fresh retry. No ALPM/M2/boot result."
+host_package_sha256 = "faba0748b9e58f584b7330a7e97172c7ae4df49c9ac0e037c2821346d589b56e"
+host_package_bytes = 105449
+native_build = "NOT RUN"
+installation = "NOT RUN; ordinary-user private package() staging/relocation is not ALPM installation"
+native_generic16k = "NOT RUN"
+hardware_validation = "NOT RUN"
+performance = "NOT MEASURED"
+next_step = "Coordinator adoption, clean native ARM pairs and disposable signed ALPM lifecycle; selected integrated Asahi/16K/M2/boot recovery and release remain unaccepted."
