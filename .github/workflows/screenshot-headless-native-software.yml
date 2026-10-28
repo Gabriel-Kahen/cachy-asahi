@@ -1,0 +1,52 @@
+name: Screenshot helper native ARM software trial
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: native-arm-build
+  cancel-in-progress: false
+jobs:
+  software:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 25
+    env:
+      ROOT_PLAN: ${{ vars.SCREENSHOT_HEADLESS_NATIVE_SOFTWARE_PLAN }}
+    steps:
+      - name: Require Root registration before checkout or runtime work
+        shell: bash
+        run: |
+          python3 -I -B - <<'PY'
+          import json, os, re
+          p=json.loads(os.environ.get('ROOT_PLAN','null'))
+          keys={'schema','lane','source_commit','ref','source_lock_sha256','runtime_lock_sha256','base_image_digest','peer_receipt_sha256'}
+          def need(ok,message):
+              if not ok:raise ValueError(message)
+          need(isinstance(p,dict) and set(p)==keys,'Root plan exact schema')
+          need(type(p['schema']) is int and p['schema']==1 and p['lane']=='screenshot-headless-native-software-v1','Root plan lane/schema')
+          for key in ('source_lock_sha256','runtime_lock_sha256','peer_receipt_sha256'):
+              need(isinstance(p[key],str) and re.fullmatch('[0-9a-f]{64}',p[key]),'Root digest')
+          need(isinstance(p['source_commit'],str) and re.fullmatch('[0-9a-f]{40}',p['source_commit']),'Source commit')
+          need(isinstance(p['base_image_digest'],str) and re.fullmatch('sha256:[0-9a-f]{64}',p['base_image_digest']),'base digest')
+          need(os.environ.get('GITHUB_ACTIONS')=='true' and os.environ.get('GITHUB_EVENT_NAME')=='workflow_dispatch','manual hosted trial only')
+          need(os.environ.get('GITHUB_SHA')==os.environ.get('GITHUB_WORKFLOW_SHA')==p['source_commit'],'registered Source/workflow SHA')
+          need(isinstance(p['ref'],str) and p['ref'].startswith('refs/heads/codex/') and os.environ.get('GITHUB_REF')==p['ref'],'registered ref')
+          PY
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Build pinned ARM runtime and run one native software trial
+        shell: bash
+        env:
+          NATIVE_INPUT_READ_TOKEN: ${{ github.token }}
+        run: python3 -I -B scripts/ci/screenshot-headless-native/ci.py
+      - name: Preserve bounded trial evidence
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: screenshot-headless-native-software-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/screenshot-native-${{ github.run_id }}-${{ github.run_attempt }}/evidence/
+          if-no-files-found: warn
+          retention-days: 7
