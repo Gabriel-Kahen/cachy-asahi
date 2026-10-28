@@ -30,7 +30,11 @@ def read(path, row):
          before.st_size == row['bytes'] and stat.S_IMODE(before.st_mode) == int(row['mode'], 8),
          'ordinary exact source file/mode required: ' + path.name)
     raw = path.read_bytes()
-    need(path.lstat() == before and sha(raw) == row['sha256'], 'source bytes changed: ' + path.name)
+    identity = lambda info: (info.st_dev, info.st_ino, info.st_mode, info.st_nlink,
+                             info.st_uid, info.st_gid, info.st_size,
+                             info.st_mtime_ns, info.st_ctime_ns)
+    need(identity(path.lstat()) == identity(before) and sha(raw) == row['sha256'],
+         'source bytes changed: ' + path.name)
     return raw
 
 
