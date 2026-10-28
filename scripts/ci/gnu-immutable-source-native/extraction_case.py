@@ -77,3 +77,56 @@ def prepare(root,case,operation='normal'):
 def verify_selected(source,selected,case,operation='normal'):
  import original_signature_source as T
  return T.verify_selected(source,selected,case,operation,_ORIGINAL_SIGNATURE_PARENT_RENDER)
+
+# CURRENT_SELECTION_RUNTIME_VIEW_V1
+_CURRENT_SELECTION_PROFILE='WORKER_GROUP_CURRENT_SELECTION_RUNTIME3_V1'
+_CURRENT_SELECTION_CODES=('immutable/supervisor.py','immutable/test_controls.py')
+def _current_selection_basis():
+ import deploy as D,fixed_case as F,original_signature_source as T
+ source=Path(__file__).resolve().parents[3];I.need(D.ROOT==source,'same current selection Source root');current=F.snapshot(source/'runtime')
+ full={'runtime/'+n:b for n,b in current.items()};I.need(len(full)==667,'entire current raw667 before selection DATA inverse')
+ historical_full=D._RETAINED_TRANSPORT.worker_group_runtime_inverse(full)
+ I.need(D._RETAINED_TRANSPORT.worker_group_runtime_apply(historical_full)==full,'every current raw667 byte forward reapplication')
+ historical={n[8:]:b for n,b in historical_full.items()};q=T.profile();I.need({n:I.pin(b)for n,b in historical.items()}==q['raw_after'],'entire historical raw_after667 after exact runtime3 inverse')
+ normalized=T.normalize(historical);I.need(T.apply(normalized,q['runtime_edits'])==historical,'entire historical signed-original normalization round trip')
+ substrate=json.loads(F.read(Path(__file__).with_name('interruption-profile.json')));I.need({n:I.pin(b)for n,b in normalized.items()}=={n[8:]:w for n,w in substrate['before'].items()if n.startswith('runtime/')},'all original substrate guards preserved by complete selection DATA inverse')
+ I.need({n for n in current if current[n]!=historical[n]}=={*_CURRENT_SELECTION_CODES,'runtime-source.json'},'only approved three raw selection operands')
+ return source,F,T,q,current,historical
+
+def _current_selection_overlay(selected,current,historical,reverse=False):
+ I.need(type(selected)is dict and set(selected)==set(current)==set(historical)and len(selected)==667,'whole selected runtime667 overlay namespace');out=dict(selected);a,b=(current,historical)if reverse else(historical,current)
+ manifest=json.loads(out['runtime-source.json']);I.need(manifest['files']=={n:I.pin(raw)for n,raw in out.items()if n!='runtime-source.json'},'complete selected runtime666 manifest before overlay')
+ for name in _CURRENT_SELECTION_CODES:
+  I.need(out[name]==a[name],'selected renderer must hold exact approved control code operand');out[name]=b[name];manifest['files'][name]=I.pin(b[name])
+ out['runtime-source.json']=I.enc(manifest)
+ I.need({n for n in selected if out[n]!=selected[n]}=={*_CURRENT_SELECTION_CODES,'runtime-source.json'},'only two current code bodies and their manifest rows overlay')
+ return out
+
+def _current_selection_render(case,operation='normal'):
+ selector(case,operation);source,F,T,q,current,historical=_current_selection_basis()
+ # Historical bodies are DATA operands only. The final materialized view always
+ # receives the current safe supervisor and controls before any private write.
+ old_selected,ledger=render(historical,case,F,operation)
+ expected=_current_selection_overlay(old_selected,current,historical)
+ I.need(_current_selection_overlay(expected,current,historical,True)==old_selected,'every selected667 historical byte recovered from current-code overlay')
+ I.need(_current_selection_overlay(_current_selection_overlay(expected,current,historical,True),current,historical)==expected,'every selected667 current byte reapplication')
+ I.need(all(expected[n]==current[n]for n in _CURRENT_SELECTION_CODES),'current safe executable controls held in selected materialization')
+ I.need(F.snapshot(source/'runtime')==current,'whole current raw667 Source remains byte-held during DATA rendering')
+ return source,F,T,q,current,expected
+
+def prepare(root,case,operation='normal'):
+ source,F,T,q,current,expected=_current_selection_render(case,operation);root=Path(root)
+ I.need(F.snapshot(root)==current,'whole current safe raw667 before private selection')
+ T.write_delta(root,current,expected)
+ I.need(F.snapshot(root)==expected and F.snapshot(source/'runtime')==current,'whole current-safe materialized667 and unchanged Source after private write')
+ p=profile(case,F)if operation==OPERATION else I.profile(case,F.profile(case))if operation=='remove-interruption'else F.profile(case)if case!='both'else'HELD_ORIGINAL_TWO_CASE_CLEANUP120'
+ return dict(profile=p,operation=operation,changed={n:dict(before=I.pin(current[n]),after=I.pin(b))for n,b in expected.items()if b!=current[n]},actual_acceptance=False,original_signature='REQUIRED_UPSTREAM_ALPM_NO_VALIDATION_WAIVER',raw_runtime_changed=len(q['runtime_edits']),selection_runtime_view=dict(profile=_CURRENT_SELECTION_PROFILE,raw_data_inverse_files=3,materialized_current_code_files=list(_CURRENT_SELECTION_CODES),files=667,historical_execution=False,acceptance=False),acceptance=False)
+
+def verify_selected(source,selected,case,operation='normal'):
+ actual_source,F,T,q,current,expected=_current_selection_render(case,operation);I.need(Path(source).resolve()==actual_source,'same current selection Source origin');actual=F.snapshot(selected);selectors={'immutable/policy.json','immutable/qualification-pins.json'}
+ I.need(set(actual)==set(expected)and all(actual[n]==b for n,b in expected.items()if n not in selectors|{'runtime-source.json'}),'every current-safe selected executable equals exact Source derivative')
+ manifest=json.loads(expected['runtime-source.json'])
+ for n in selectors:manifest['files'][n]=I.pin(actual[n])
+ I.need(I.enc(manifest)==actual['runtime-source.json'],'only original two private selector manifest rows may differ')
+ I.need(all(actual[n]==current[n]for n in _CURRENT_SELECTION_CODES),'materialized current safe supervisor/control bodies exact')
+ return dict(case=case,operation=operation,files=667,code='EXACT_SOURCE_OWNED_CURRENT_SIGNED_ORIGINAL_DERIVATIVE',selection_runtime_view=_CURRENT_SELECTION_PROFILE,acceptance=False)
