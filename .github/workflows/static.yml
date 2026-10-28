@@ -1043,6 +1043,7 @@ jobs:
           - {component: developer-package, python: '3.12', tests: 13}
           - {component: developer-package, python: '3.14', tests: 13}
           - {component: release-package, python: '3.14', tests: 13}
+          - {component: release-package-v2, python: '3.14', tests: 7}
     steps:
       - name: Checkout exact component source
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
@@ -1072,6 +1073,7 @@ jobs:
             sbom-comparison) suite=scripts/release/test_compare_sboms.py ;;
             developer-package) suite=packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/test_package.py ;;
             release-package) suite=packages/tools/cachy-asahi-release-tools/test_package.py ;;
+            release-package-v2) suite=packages/tools/cachy-asahi-release-tools-v2/test_package.py ;;
             *) exit 2 ;;
           esac
           python -I -B -Werror::ResourceWarning - "$suite" "$EXPECTED_TESTS" <<'PY'
