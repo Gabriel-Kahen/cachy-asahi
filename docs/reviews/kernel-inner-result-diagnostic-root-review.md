@@ -1,0 +1,45 @@
+# Kernel inner-result diagnostic: independent root source review
+
+**BLOCKED for registration and a future ARM8 actor.** All 156 selected held methods pass, and the closed failure-only projection preserves the original nonzero START refusal. Independent controls nevertheless reproduce an unguarded finalization observer acquisition/control-entry gap and a full-report nonfinite-JSON refusal discrepancy. Neither control demonstrates a complete native PASS bypass. No primary source, shared map, workflow, project Git state or native actor was changed by this review.
+
+## Exact scope
+
+The held author receipt is `artifacts/reviews/kernel-inner-result-diagnostic-20261012/final-review.json`, SHA `9b1e1e19f95c1b4da9098fa502a129cd50f31485623e2be8990821e3a0f68b3d`. The author guide SHA is `6876fc285bf552b0daeba8328c35f822c5807526183e9c5a5ee529a79b454b31`. All 559 indexed/source/guide/receipt/protected references matched their held hashes and modes. This includes eleven changed source/test paths and 534 indexed artifacts; overlapping references are counted explicitly, not as unique files.
+
+The peer captures the exact proposed 120-row source closure plus its separate packet-lock dependency. The final receipt and `authentication.json` bind the complete rows. Baseline source captures are retained by the original packet. Tests and independent controls use owned fresh copies rather than executing mutable checkout code. The roadmap, package inventories and pinned Kernel dependency inventory were read; the historical builder remains the declared 341→356 set with fifteen additions, no baseline changes/conflicts/removals. Source review does not repeat native package validation.
+
+## Required corrections
+
+### [P1] Guard acquisition and entry of the finalization observer
+
+At held `scripts/port/kernel-native-stage/worker.py:265`, the new finalization observation evaluates `inner_result.phase` and enters `observe` before the `try` that owns the original log copy, receipt save and finalization error path. The observer's internal callback guard therefore does not cover that acquisition/entry boundary.
+
+With the original mocked kernel command naturally returning 7, both versions execute the same profile, inventory, tools, compile and original Runner call. The baseline then copies the original log, saves its FAIL receipt and propagates the original command ValueError. Four controlled helper-attribute acquisition faults (AttributeError, OSError, KeyboardInterrupt, SystemExit) and two observer call-entry controls (Cancelled, KeyboardInterrupt) in the held version skip both copy and save and replace that earlier ValueError. Thirteen other worker preservation controls pass, including faults inside the guarded callback, natural-return provenance, partial issued invalidation, authority refusals and disposal separation.
+
+These are explicit source-side fault-boundary injections with every OS/process/compiler/tool/input actor mocked. The module-attribute model is not evidence that the authenticated immutable module actually lost an attribute; the independent entry-control cases exercise the requested cancellation boundary without accepting hostile helper data. SystemExit(0)'s effect on the worker CLI is a static consequence of the unchanged wrapper, not an actual CLI run. The stage's private receipt and PASS gates still prevent a complete native admission bypass.
+
+Bring acquisition and invocation of this optional observation under the protected finalization path. Original log copy and report save must still be attempted, ordinary observer failure must invalidate the observation, and deferred observation controls must preserve an earlier business cause while retaining the original finalizer's own error semantics. Recheck the finite old/new acquisition and entry cases before registration. Reproducers and exact traces are in `worker/` under the new peer packet.
+
+### [P2] Reject overflowing JSON numbers throughout the captured report
+
+At held `scripts/port/kernel-native-stage/inner_result.py:138`, `parse_constant` rejects literal NaN/Infinity tokens, but the default float parser accepts `1e999` as positive infinity. A valid, bound FAIL report with the unused sibling field `unused.nested` set to this number is projected as VERIFIED/OBSERVED. The helper validates and encodes only the selected diagnostic, so the unused nonfinite value escapes the advertised full-report refusal.
+
+The source-bound minimal reproducer is 652 bytes, SHA `891cfdf9c3bb25a171a7539c7f1c27c7ddda5b69cfb00f824edf217d2456d293`, retained at `schema/overflow-reproducer.json`. The expected group is REFUSED/INVALID; the observed group is VERIFIED/OBSERVED. Its diagnostic remains bounded, sanitized and failure-only, and no native PASS bypass or raw private-field disclosure is shown. The schema corpus has 136 checks, including 38 malformed field/privacy/return mutations checked across all three validators.
+
+Use a finite float parser or an equivalent bounded full-report finite-value check so exponent overflow refuses just like the literal nonfinite tokens. Preserve the single captured byte sequence and its raw SHA256; do not re-read or widen the public projection.
+
+## Supported behavior and validation
+
+The fresh selected replay passes worker/helper 26, evidence 22, stage 27 and public 81 methods: 156 total, no failures/errors/skips. The two original stage actual-SIGTERM and CLI methods are explicitly excluded rather than counted as skips. CPU bounds remain thirty seconds, memory 512 MiB and wall sixty seconds per group; logs and ordinary group files are capped at 4 MiB. The stage group's file limit is explicitly 5 MiB to permit its existing 4 MiB+1 oversize-refusal fixture, while the actual capture limit remains 4 MiB. Only the public suite uses tiny owned Git/Python-help/cache-sentinel fixtures; no live-project Git mutation or Docker/native/compiler/GPG/mount/service/network actor ran.
+
+Eight independent stage observation/projection fault controls preserve the first nonzero cause, cleanup and appropriate cancellation/SystemExit propagation. Twenty-four stage static checks preserve all original functions except the additive failure-capture block in execute, including the complete schema3 PASS writer. The private capture performs one bounded read with owned private directories, no final symlink, single-link mode-0600 regular-file checks and stable file/ancestry identities; the same bytes supply the raw hash and projection. Faulted attachment is transactional. Source issuance remains distinct from spawn/instruction proof, and natural return remains tied to the original CompletedProcess.
+
+The private 2048-byte diagnostic and corresponding closed public group carry only fixed phases/commands/error kinds and hashes; no raw error/log/path/argv/nonce is published. Child schema4 requires one failure group, a nonzero original command and an earlier failed predicate; it cannot satisfy COMPLETE or modern PASS. Legacy schemas1–3 remain closed. Five CI-outcome controls match the original public projector, and the retained Kernel7 failure result reprojects byte-exactly for its original failure outcome. A first peer fixture incorrectly required those retained bytes for every CI outcome; its exact failed script and corrected criterion are preserved separately. The cancelled outcome legitimately changes its cancellation flag just as the original projector did.
+
+No new daemon query, cleanup inspect, worker-State projection or worker-exit field was introduced. Any future optional worker exit must use the same already decoded cleanup inspect, validate a strict stopped State and remain separate from CLI return. This review cannot infer State.ExitCode from either START CLI exit or the new natural-return field.
+
+## Registration and unchanged evidence
+
+Membership is recomputed from the held proposal and actual old maps: stage 26→29 and packet 117→120, each adding exactly `inner_result.py`, `test_inner_result.py` and `test_stage_inner.py`, with no removed rows. Six existing stage rows and eight existing packet rows change. Both shared maps remain old and unregistered. The proposal's packet stage-lock row deliberately retains the old digest; the coordinator must compute the new stage digest before updating the complete packet and dependent receiver/bootstrap/workflow bindings. These are proposed input rows, not an admitted closure.
+
+Kernel7 run `38308563102` at commit `25b0213e73c67efbed758af7c32f6c1057850052` remains FAIL at baseline START CLI1. Independent worker State.ExitCode, compiler entry, raw inner result and private cause remain UNKNOWN. New source/models do not reconstruct them. Installation, kernel execution, physical M2/16K compatibility, performance, release selection and full R1–R5 completion remain unestablished. The unrelated S01 resource-correction hold is preserved. Correct the two source findings, obtain a new bounded peer hold, and pass the coordinator's registration/producer/admission gates before extending actual execution.

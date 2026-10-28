@@ -1,0 +1,42 @@
+# Maintained composed workflow proposal
+
+The executable private proposal is [`proposed-workflow.yml`](../../artifacts/reviews/maintained-composed-workflow-proposal-20261013/proposed-workflow.yml), with its identical inline body retained separately as [`root-driver.py.template`](../../artifacts/reviews/maintained-composed-workflow-proposal-20261013/root-driver.py.template). Root may adopt it as `.github/workflows/maintained-composed-successor.yml`, outside the selected native source union. No primary workflow, branch, Git ref, repository variable or actor was changed by this lane.
+
+The workflow selects only `installer-preflight-maintained-v1`, packet SHA256 `c98e4b3feb701da2e0478b671f7ce50d8ee36f91aef149d78f0d4f2229ee49e0`, with266 source rows and14 metadata pins. The repository259 mode requires its separately selected packet and reviewed caller change; it is not selectable through dispatch input. Installer native preflight remains a limited composed stage; its success cannot promote unrelated broad stages, installation, hardware checks or full-port acceptance.
+
+## Fixed trusted code and later registration
+
+Root selected and reports published CodeCommit `677d3ba97398ad99c4bd1063f83862eaf8d981d6`. The driver embeds that full identity and verifies the delivered launcher before compilation: SHA256 `dd6a119f596cd2cd56b3d50587be6cb3bf47a24f9e5020c1cee481351bda9c8b`,26653 bytes. The loaded launcher must retain bootstrap `1675fa4834f556f1eec5d10f2f53b20d0475dd1a922b4c80fb0adc38f95e9391` and issuer `9e3271b8cb21e7be1940c2aa9f17f84357d0a438ed45a19ad34ae226ec9d4581`. Exact Source3 author receipt `3a3df94a…`/59 and independent Root peer `124a0f72…`/5 were authenticated from retained bytes, not through Git or network replay.
+
+[`external-root-plan.json.template`](../../artifacts/reviews/maintained-composed-workflow-proposal-20261013/external-root-plan.json.template) uses the existing Source3 six-field plan and five Root pins. Remaining placeholders deliberately fail execution. Root supplies actual SourceCommit, DataCommit, selection/peer/source-row hashes and Git/Docker CLI pins from its retained runner observation, including job38347013591 where selected. This lane guessed none of those values.
+
+Root registers canonical Base64 of the exact UTF-8 JSON bytes as repository variable `MAINTAINED_COMPOSED_ROOT_PLAN_B64`, and the decoded bytes' lowercase SHA256 as `MAINTAINED_COMPOSED_ROOT_PLAN_SHA256`. The workflow injects them solely as environment data. The driver rejects noncanonical/malformed Base64, decoded bytes over8192, nonfinite JSON, duplicate keys, extra/missing fields, incomplete pins, wrong code/mode/packet and stale Source identity. The paired hash checks byte coherence. Root's reviewed workflow and administrative registration establish the selection channel; an arbitrary environment or dispatch object does not authenticate a publisher. No new execution-grant schema is introduced.
+
+SourceCommit comes from actual job metadata: `GITHUB_SHA == GITHUB_WORKFLOW_SHA == plan.root_pins.source_commit`. CodeCommit selects only trusted body delivery. Code, Source and Data identities must all differ. The workflow contains neither its future SourceCommit nor a later peer/selection/plan digest that contains SourceCommit.
+
+## Acyclic launch order and isolated trigger
+
+1. Root freezes the reviewed workflow and unchanged canonical266 source/packet in SourceCommit on its normal maintained branch. That branch has no matching push trigger here.
+2. After SourceCommit exists, Root derives the reviewed source-peer bytes, then the selection that pins them, and commits only `.github/bootstrap/development-selection.json` and `.github/bootstrap/development-source-peer.json` at DataCommit. Source3 checks the exact two-path tree diff. An ancestry claim requires separate Root evidence.
+3. Root registers the complete exact external plan and tool pins after those identities exist, and verifies the adopted workflow bytes, canonical source blob/mode witness, packet, selection and peer registration together.
+4. Root pushes the already registered SourceCommit onto **`codex/maintained-composed-execution-v1`** to launch. The sole push branch is that exact ref. Input-free manual dispatch is also gated to that ref if available; this proposal does not rely on a new workflow being present on the default branch.
+
+The job additionally requires the exact public repository, push or manual event and execution ref. The driver independently checks the repository, event/ref and actual Source/workflow equality before any trusted delivery. No dispatch inputs select commits, mode, tools, packet or plan. Publishing DataCommit to the execution ref would produce a different Source identity and refuse the registered plan. Root owns ref creation, concurrency coordination, variable custody, publication and actual trigger evidence.
+
+## Preparation, execution and retention
+
+The first clock operation is `PREPARATION_ENTRY = time.monotonic()` immediately after importing only `time`. Other imports, plan decoding, trusted fetch and compilation consume the original entry+60 preparation endpoint. Initial delivery uses one fixed public raw URL, no credentials/proxy/redirects, exact size/full SHA and per-read liveness. A narrow preissue alarm bounds transport and import; both its timer and prior handler are retired before Source3 invocation. Cleanup attempts both operations and preserves the first ordinary, interrupt or fatal exception.
+
+The driver passes that same original entry into the actual `launch_composed` API. It creates no workspace or substitute context. Source3 selects and holds its existing fresh sibling and original workspace custody, authenticates the four fixed code/data deliveries, prepares grant17/runtime3 and retained baseline view, verifies actual source and performs the sole original-producer route. Its owned workspace retirement retains data and protects foreign replacements; the driver adds no deletion, checkout, image reuse or global cleanup.
+
+After preparation, the unchanged issuer produces one issued clock with `E = issued +10800`. The earliest post-issuance entry is retained before checkout; all work uses `J = min(E -120, entry +10080)` and the original publication endpoint remains E. The earlier preparation entry and issued-clock phase are distinct. The driver renews neither. Source3 retains its bounded controller streaming, process ownership, cleanup, publication cutoff and first cause. The workflow uses190 job minutes and185 step minutes without extending those internal endpoints.
+
+The final nine-field `MAINTAINED_COMPOSED_LAUNCH_RESULT` marker reports Source3 process outcome and identities and returns the exact controller code. It creates no PASS or admission claim; existing controller publication remains the stage evidence. Root retains actual logs and completion metadata through its existing bounded path. No payload upload or additional retention framework is proposed.
+
+## Finite verification and remaining work
+
+Six fresh controls compile exact held source bytes without project PYC. They cover registration refusal before delivery, fixed pin before module execution, inline driver identity and early timestamp order, original entry into the actual launcher with inert sibling/retirement boundaries, expiry/invalid entries, ordinary/KeyboardInterrupt/SystemExit first-cause preservation through both mocked cleanup failures, actual Source3 checkout acceptance of exactly two paths and refusal of a third, and bounded pinned delivery/redirect refusal. Network, Git, signal, workspace, process and native boundaries are inert models. Prior Source3 or composed suites were not replayed.
+
+The normal sandbox failed before command execution because its synthetic `/tmp/.git` mount could not be created. Subsequent operations used the normal namespace with project-owned TMPDIR and no foreign deletion. A packet authentication setup initially named `metadata_files`; the actual frozen schema uses `metadata_pins`. That diagnostic is retained, the check was corrected, and source bytes were unchanged.
+
+The sealed receipt binds this proposal, held basis, guide and finite results. Independent caller review, Root's actual Source/Data/plan registration and dispatch remain required. Actual composed native frames, timing/disposal evidence, P0/16K, installation/removal, both M2 sizes and R1–R5 acceptance remain unfinished. The separately retained successful native build run remains separate evidence and grants no composed authority.

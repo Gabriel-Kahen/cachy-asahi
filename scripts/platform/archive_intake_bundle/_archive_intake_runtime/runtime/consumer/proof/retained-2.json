@@ -1,0 +1,248 @@
+{
+  "CLI_exit": 0,
+  "PYC": 0,
+  "accepted_public_certificate_sha256": "6ce771e853f04a38a5b533cb33e61f877b9b06b58b6db051eb8a15d737a2332f",
+  "actual_exec_session": 17387,
+  "actual_receipt": {
+    "bytes": 8182,
+    "mode": 384,
+    "path": "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/actual-receipt.json",
+    "sha256": "53747d29b02c11517d3c330530f9a6de57afcd9575e0c75c8f23f2dbd7fb6b3c"
+  },
+  "all261_other20_signer26_acceptance": false,
+  "all_fixed_seven_processes_exit0_direct_reaped": true,
+  "association_proposal": {
+    "bytes": 5460,
+    "mode": 420,
+    "sha256": "6fcb9c91b9f9ec742cc883f7a37063b604363f6492022587f085217a883ebdc1"
+  },
+  "capture_receipt": {
+    "bytes": 9409,
+    "mode": 420,
+    "sha256": "08895fac45c29fb67f37b78687f6bfffd2f61f0e66dbec1cf3cc7634b0a2e156"
+  },
+  "execution_plan": {
+    "bytes": 7808,
+    "mode": 420,
+    "sha256": "fb97ce77914c8646770929750f8fc838fdf2353c1fc26f6a965ef22695e20a19"
+  },
+  "fixed_primary_fingerprint": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+  "global_agent_stop": false,
+  "independent_owner_trust": false,
+  "indexed_artifacts": {
+    "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/actual-receipt.json": {
+      "bytes": 8182,
+      "mode": 384,
+      "sha256": "53747d29b02c11517d3c330530f9a6de57afcd9575e0c75c8f23f2dbd7fb6b3c"
+    },
+    "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/after-checks.json": {
+      "bytes": 1758,
+      "mode": 420,
+      "sha256": "f738c9badea38cf2d13578313fda857ec1f7bae513875853c73fab2668e11d94"
+    },
+    "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/association-proposal.json": {
+      "bytes": 5460,
+      "mode": 420,
+      "sha256": "6fcb9c91b9f9ec742cc883f7a37063b604363f6492022587f085217a883ebdc1"
+    },
+    "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/cache/networkmanager-1.58.1-1-aarch64.pkg.tar.xz": {
+      "bytes": 3634536,
+      "mode": 384,
+      "sha256": "5f88ab112b7e2aa714ed000dd1db0fe4b972b7f91f1450ece1481bc7c3207093"
+    },
+    "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/cache/networkmanager-1.58.1-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "mode": 384,
+      "sha256": "c7eb2548f68ed14f4fe7329aed6059abb8769015f2d3f11c063a7f9853bb2dd8"
+    },
+    "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/cache/perl-5.42.2-2-aarch64.pkg.tar.xz": {
+      "bytes": 16001716,
+      "mode": 384,
+      "sha256": "21c8efe3c10c0c12b8a9b1bb504e71a834f1685916a78da61f71d31e61125161"
+    },
+    "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/cache/perl-5.42.2-2-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "mode": 384,
+      "sha256": "7a42e189d397bcbec6ba6d7686b603feb627d9e8927034ad7e3958d57382be62"
+    },
+    "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/capture-receipt.json": {
+      "bytes": 9409,
+      "mode": 420,
+      "sha256": "08895fac45c29fb67f37b78687f6bfffd2f61f0e66dbec1cf3cc7634b0a2e156"
+    },
+    "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/capture/authenticate_missing.py": {
+      "bytes": 23070,
+      "mode": 420,
+      "sha256": "6af079cf10f8ebcc9416bf64bca4336ea03dbbf13f99ebd98a83808365f2fe59"
+    },
+    "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/capture/candidate-urls.json": {
+      "bytes": 3056,
+      "mode": 420,
+      "sha256": "ee75d860bed4bec5f6709a52624585beb2215a165968c9522d844f64090d0975"
+    },
+    "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/capture/capture.py": {
+      "bytes": 26406,
+      "mode": 420,
+      "sha256": "ce73314eb5a75b8afb963217fba15065106ae3f6ee081599a1ba7ab620b044c8"
+    },
+    "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/capture/lifecycle.py": {
+      "bytes": 53288,
+      "mode": 420,
+      "sha256": "e408a540765ede2350a57abd311e8814d516ab379351fe28751a20250a3a8461"
+    },
+    "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/capture/operator-networkmanager.txt": {
+      "bytes": 31474,
+      "mode": 420,
+      "sha256": "fe90fc61a1cb008f822a67ff141b6ff005deb0d92a63e1dfae6be33fcc3571da"
+    },
+    "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/capture/operator-perl.txt": {
+      "bytes": 29072,
+      "mode": 420,
+      "sha256": "813812414d26ac3c8890ece66e6f988f486e8a07e5ba9951cbc4dde770f2a964"
+    },
+    "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/capture/package_checks.py": {
+      "bytes": 17706,
+      "mode": 420,
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+    },
+    "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/execution-plan.json": {
+      "bytes": 7808,
+      "mode": 420,
+      "sha256": "fb97ce77914c8646770929750f8fc838fdf2353c1fc26f6a965ef22695e20a19"
+    },
+    "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/keys/certificate.gpg": {
+      "bytes": 3098,
+      "mode": 384,
+      "sha256": "6ce771e853f04a38a5b533cb33e61f877b9b06b58b6db051eb8a15d737a2332f"
+    },
+    "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/keys/private-home/accepted-public.gpg": {
+      "bytes": 2228,
+      "mode": 384,
+      "sha256": "9403f923eed777ba0896a0b225e1522d3a7625234694c753ae26b27c29672aae"
+    },
+    "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/keys/private-home/pubring.kbx": {
+      "bytes": 2450,
+      "mode": 420,
+      "sha256": "1df96cc4bb802210882aa941688f3d03fcfc4eca849dfc7b675f0cb58d495357"
+    },
+    "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/keys/private-home/pubring.kbx~": {
+      "bytes": 32,
+      "mode": 384,
+      "sha256": "b912565453b3db81d1a7d50efacdcfde1e29ed80c6c90ecb2e363ae2d2204778"
+    },
+    "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/keys/private-home/trustdb.gpg": {
+      "bytes": 1200,
+      "mode": 384,
+      "sha256": "9504e2e94bb6f7126b78bd9975089621db6b7ebc0a87eebd3d389f123b263047"
+    },
+    "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/metadata_child.py": {
+      "bytes": 2476,
+      "mode": 420,
+      "sha256": "29cd63c5b70ba351d6d1d63260e3bbed89bde5b24a34a58c62c4b39e43c8f715"
+    },
+    "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/observations/networkmanager.json": {
+      "bytes": 16698,
+      "mode": 384,
+      "sha256": "b9c1c51c6f264acdafc8589d960443c6644a9c50b705835e177e747f2ef2184c"
+    },
+    "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/observations/perl.json": {
+      "bytes": 13058,
+      "mode": 384,
+      "sha256": "b7ff2f4c6a7e3fda9859603ec4f81e34f358d7c869b7ae56333dfa4cbb751057"
+    },
+    "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/preflight-controls.json": {
+      "bytes": 271,
+      "mode": 420,
+      "sha256": "7300a2ac10ff30021c698d25a3cd47915d4bd8b6127b30dbbb28cbceeace1972"
+    },
+    "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/process-observations.json": {
+      "bytes": 38593,
+      "mode": 384,
+      "sha256": "8d19c8f6b70218007b1ce06766913c48b4fdeabe5fe6796fb44b6d09f59ef02e"
+    },
+    "artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/recover.py": {
+      "bytes": 9272,
+      "mode": 420,
+      "sha256": "45c99099f4a2c94b7ed0091914539c8c8e113739fece56c9a6a1b291e2561c82"
+    },
+    "docs/workstreams/platform-missing-two-authenticated-recovery.md": {
+      "bytes": 4960,
+      "mode": 420,
+      "sha256": "94898b04623f197c822778046e276296da0293b08fe13bc9fcaa21637281ec0c"
+    }
+  },
+  "indexed_count": 28,
+  "limit_storage_bytes": 134217728,
+  "new_archive_signature_pins": [
+    {
+      "bytes": 3634536,
+      "hash_provenance": "observed post-download",
+      "identity": {
+        "arch": "aarch64",
+        "name": "networkmanager",
+        "version": "1.58.1-1"
+      },
+      "kind": "archive",
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/cache/networkmanager-1.58.1-1-aarch64.pkg.tar.xz",
+      "predeclared_sha256": null,
+      "redirects": false,
+      "sha256": "5f88ab112b7e2aa714ed000dd1db0fe4b972b7f91f1450ece1481bc7c3207093",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/packages/n/networkmanager/networkmanager-1.58.1-1-aarch64.pkg.tar.xz"
+    },
+    {
+      "bytes": 566,
+      "hash_provenance": "observed post-download",
+      "identity": {
+        "arch": "aarch64",
+        "name": "networkmanager",
+        "version": "1.58.1-1"
+      },
+      "kind": "signature",
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/cache/networkmanager-1.58.1-1-aarch64.pkg.tar.xz.sig",
+      "predeclared_sha256": null,
+      "redirects": false,
+      "sha256": "c7eb2548f68ed14f4fe7329aed6059abb8769015f2d3f11c063a7f9853bb2dd8",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/packages/n/networkmanager/networkmanager-1.58.1-1-aarch64.pkg.tar.xz.sig"
+    },
+    {
+      "bytes": 16001716,
+      "hash_provenance": "observed post-download",
+      "identity": {
+        "arch": "aarch64",
+        "name": "perl",
+        "version": "5.42.2-2"
+      },
+      "kind": "archive",
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/cache/perl-5.42.2-2-aarch64.pkg.tar.xz",
+      "predeclared_sha256": null,
+      "redirects": false,
+      "sha256": "21c8efe3c10c0c12b8a9b1bb504e71a834f1685916a78da61f71d31e61125161",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/packages/p/perl/perl-5.42.2-2-aarch64.pkg.tar.xz"
+    },
+    {
+      "bytes": 566,
+      "hash_provenance": "observed post-download",
+      "identity": {
+        "arch": "aarch64",
+        "name": "perl",
+        "version": "5.42.2-2"
+      },
+      "kind": "signature",
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/reviews/platform-missing-two-authenticated-recovery-20261013/cache/perl-5.42.2-2-aarch64.pkg.tar.xz.sig",
+      "predeclared_sha256": null,
+      "redirects": false,
+      "sha256": "7a42e189d397bcbec6ba6d7686b603feb627d9e8927034ad7e3958d57382be62",
+      "url": "https://pkgmirror.sametimetomorrow.net/aarch64/packages/p/perl/perl-5.42.2-2-aarch64.pkg.tar.xz.sig"
+    }
+  ],
+  "old_missing_refs_contract_primary_shared_maps_workflow_Git_changes": false,
+  "owned_GPG_sockets_remaining": [],
+  "package_install_payload_scriptlet_exec_image_mount_Docker_userkeyring_changes_publicpayloadupload": false,
+  "process_tree_absence_beyond_recorded_groups": "NOT ATTESTED",
+  "schema_version": 1,
+  "scope": "actual public HTTPS4/private accepted public GPG certificate operations/offline verification/xz archive metadata asdata only",
+  "signatures_and_metadata": "Both freshgpgv exit0+strictcompleteVALIDSIG, exact signed PKGINFO/BUILDINFO aarch64 tuples",
+  "signed_database_association": false,
+  "status": "PASS_ACTUAL_TWO_EXACT_SIGNED_ARCHIVE_METADATA_DATA",
+  "storage_indexed_bytes": 19948409
+}

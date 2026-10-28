@@ -1,0 +1,59 @@
+{
+  "configuration": [],
+  "exports_package_owned": false,
+  "files": {
+    "usr/bin/cachy-asahi-release-tools": {
+      "mode": 493,
+      "source": "cachy-asahi-release-tools"
+    },
+    "usr/lib/cachy-asahi/release-tools/scripts/checks/package_checks.py": {
+      "mode": 420,
+      "source": "package_checks.py"
+    },
+    "usr/lib/cachy-asahi/release-tools/scripts/release/recipe_source_delivery.py": {
+      "mode": 420,
+      "source": "recipe_source_delivery.py"
+    },
+    "usr/lib/cachy-asahi/release-tools/scripts/release/recipe_source_delivery_v2.py": {
+      "mode": 420,
+      "source": "recipe_source_delivery_v2.py"
+    },
+    "usr/lib/cachy-asahi/release-tools/scripts/release/release_sbom.py": {
+      "mode": 420,
+      "source": "release_sbom.py"
+    },
+    "usr/lib/cachy-asahi/release-tools/scripts/release/source_delivery.py": {
+      "mode": 420,
+      "source": "source_delivery.py"
+    },
+    "usr/lib/cachy-asahi/release-tools/scripts/update/archive_stream.py": {
+      "mode": 420,
+      "source": "archive_stream.py"
+    },
+    "usr/share/doc/cachy-asahi-release-tools/README.md": {
+      "mode": 420,
+      "source": "README.md"
+    },
+    "usr/share/doc/cachy-asahi-release-tools/payload-map.json": {
+      "mode": 420,
+      "source": "payload-map.json"
+    },
+    "usr/share/doc/cachy-asahi-release-tools/source-provenance.json": {
+      "mode": 420,
+      "source": "source-provenance.json"
+    },
+    "usr/share/licenses/cachy-asahi-release-tools/LICENSE": {
+      "mode": 420,
+      "source": "LICENSE"
+    },
+    "usr/share/licenses/cachy-asahi-release-tools/NOTICE": {
+      "mode": 420,
+      "source": "NOTICE"
+    }
+  },
+  "hooks": [],
+  "package": "cachy-asahi-release-tools",
+  "schema_version": 1,
+  "services": [],
+  "version": "0.1.0-1"
+}

@@ -1,0 +1,25 @@
+{
+  "actual_resolution_scope": "x86-host private generic-aarch64 metadata only",
+  "expected_final_count": 574,
+  "files_sha256": {
+    "archives233.json": "96bce50d99ebcc10ac3897f17f05e66ec185aad85e807e5d09928c1cbfa5c9a8",
+    "builder-input.json": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f",
+    "completion.json": "0a8ef5ee39adf37a8e7597a30c0d01a3b66ebfcac0af7790101a417bb6b7f30e",
+    "expected574.lock": "fa6a871a60cd46a491c14554db5630962ea6c310fce0133065c5bdbbdb398922",
+    "outer.json": "14c6f629448f4d2e0a955766de5332f4cb293f5afc2e1734b3cd9078f2237421",
+    "parent.json": "a17ef2e1e2a55c1a7b51444d2880d272c5d5c97b650d1c17350ca8b65fec3511",
+    "proposal.json": "882fcbf46f9e440d6327704ddc8385578b1e5bf6cf9c24e8676b10a976765dd7",
+    "seed341.lock": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25",
+    "worker.json": "de2baf164e46c3e9fa416d5d59b31470f93e729e63915504378b266d21dbbf6e"
+  },
+  "helper_sha256": {
+    "scripts/ci/native_arm.py": "1a5369e007193fafce355ca6d20f4e771a0f342e0176bfd80f95a718328a0d10",
+    "scripts/port/authenticate.py": "241cd67370eb593bdf948a25788f006ecf470c645ba5d198bc9c318119ebfe10",
+    "scripts/port/preview.py": "d737c51474e05cc2c4db2e87fc021f50328eea7744983dd4076d44751fce7383"
+  },
+  "package_count": 233,
+  "schema_version": 1,
+  "scope": "maintained-generic233-archive-authentication-v1",
+  "selected_for_release": false,
+  "trust_scope": "actual archive authentication still required; no whole574/Asahi/M2/source/legal/release admission"
+}

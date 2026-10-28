@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "status": "DESIGN_ONLY_BOTH_ACTUAL_ROOT_PREREQUISITES_UNBOUND",
+  "binding": {"native_interruption": null, "normal_installed16k": null},
+  "decision_reference": {"path": "relative ordinary file", "bytes": "exact Root-issued length", "sha256": "exact Root-issued hash"},
+  "native_interruption_status": "ROOT_ACCEPTED_CONVENTIONAL_PROVIDER_INTERRUPTION_RECOVERY",
+  "normal_installed16k_status": "ROOT_ACCEPTED_GENERIC16K_ALPM_PROVIDER_NORMAL_LIFECYCLE_AND_RECOVERY",
+  "required_common_decision_fields": {
+    "provider_archive_sha256": "b852e3fc647d63699c5f42003a748cbd2268991dc2615a494dc3cdda4d757d12",
+    "source_sha": "actual independently Root-joined40hex source",
+    "run_id": "actual positive original native ID",
+    "ordered_cleanup": "PASS",
+    "hardware": "NOT_RUN"
+  },
+  "normal_installed16k_additional_fields": {"page_size": 16384, "ALPM_installation": "PASS"},
+  "current_actor_inputs": ["live leased original574 producer", "complete readonly source snapshot", "native interruption-runner with exact bound interruption-input.json", "original kernel helper/profile/Image/config receipt"],
+  "execution_scope": "DISPOSABLE_FULL574_ALPM_INTERRUPTED_REMOVE_PHASE_ONLY",
+  "required_actual_counts": {"configuration_cases": 2, "normal_runtime_observations": 10, "root_maps": 20, "capability_observations": 20},
+  "authority": "PRIVATE_TEST_ONLY_ROOT_BINDS_AND_ACCEPTS_NO_RELEASE_ADMISSION",
+  "prior_interrupted16k_required": false,
+  "staged16k_sufficient": false,
+  "source_only_or_old_native_result_transfers": false,
+  "hardware": "NOT_RUN",
+  "release": "NOT_ADMITTED"
+}

@@ -3,7 +3,228 @@
 Coordinator: Codex chat `01a12d58-9194-7643-81eb-fc9d62e4d923`.
 Started October 11, 2026, from `271e7c2` plus the user-provided `outline.md`.
 
+October 14, 02:38 UTC: diagnostic ARM run `38500392517` completes with
+native acquisition/signature/eight-build/four-comparison checkpoint PASS, while
+composed integration remains FAIL. Root completion `4a05d69d` and independent
+peer `acebb2ea` (53 authenticated leaves) retain the thirteen public bundles.
+Repository diagnostics identify `INSPECT_CREATED` / `INSPECT_RESOURCES`, also
+failing resource ownership inspection during cleanup. The precise resource field
+is unknown. The later hook identifies `GRAPH_OBJECT_BINDING`; its exact failed
+term/callsite is unknown. The other six component-stage projections pass, and
+final owned-image absence passes separately from failed repository-container
+ownership/absence. Build investigates bounded resource observations; a separate
+Source owner proves and adapts the required active executor interposition.
+
+All sixteen consumer archives now complete passive inspection. Their 26 direct
+JBIG/TIFF edges include 21 matching declarations and five old SONAME references
+inside the two packages being replaced. The fourteen unchanged consumers have
+no unresolved direct replacement-pair edge. The final inspection/migration
+receipts are being sealed; symbol binding, runtime and M2 ABI remain open.
+No compatibility SONAME aliases are invented.
+
+Compiler-helper discovery Source `2d107f64` is published after 91-file review.
+Run `38501515886` reads the libexec `13/cc1` path and then refuses
+`signer-tool-elf`; Root retains its failure artifact (`2c0ef5ba`). A bounded
+header/predicate diagnostic is assigned. No usable compiler/signing admission
+follows. Private project-library and Topmem/Fish native lanes continue against
+explicitly recorded base revisions. Full scope and the development goal remain ACTIVE.
+
+October 14, 02:20 UTC: the fresh whole maintained354 metadata query actually
+PASSES (`e0ac1f90` / independently authenticated peer `500852dc`, 55 leaves).
+The authoritative parent returns PASS and exits zero; guardian observes natural
+exit, owned reap, group absence and cleanup, with no signals sent. Strict nested
+validation covers 354 rows, 1,642 relations, 458 targets and four natural-zero
+read-only CLI calls. Processing through final acknowledgement takes
+2.339122 seconds in the original 300/304-second frame; final metadata sealing is
+separate. Current25 postflight is recorded PASS. This closes the complete
+whole-query metadata checkpoint, not archive/ABI/install/hardware acceptance.
+Original actual01 remains failed and uncertain.
+
+Root adopts the closed repository/hook diagnostics (`0bc41de7`, 599 leaves) as
+Source `50e81e32`, Data `b8c2fdff`, plan `1490445e`; all271 committed source
+files prove. Exact remote plan and existing19 private input secret names read
+back. Native run `38500392517` is in progress; static `38500392407` PASS.
+The original341/501 selection and private-cache controller are unchanged.
+
+The Source-filtered project recipes (`57891aa0`, 155 authenticated support
+files) exclude nonessential image/reference fixtures and use generated tests.
+They are source-reviewed; native compilation is NOT RUN and public promotion
+remains blocked by recorded licensing/corresponding-source/output joins.
+Tools prepares a concrete private native build lane. The corrected pair runner
+has independent cutoff review (`82282f5f`), and Release/Desktop prepare its
+registered hosted execution path. Ordinary compiler helper observation still
+fails at the selected GCC path in run `38498603144`; current helper-layout
+discovery is assigned. Sixteen-consumer inspection preserves three distinct
+failures (dynamic padding, repeated check dependencies, tar links); reviewed
+padding/metadata corrections have advanced six packages, while a link-header
+batch diagnostic prepares the next actual attempt. Full scope and goal remain ACTIVE.
+
+October 14, 01:49 UTC: the native checkpoint now has independently
+reviewed retained evidence (`1040b56e`, 47 authenticated leaves): 501 acquisitions,
+249 signature observations, eight builds and four equal comparisons. Composed
+integration and repository-container cleanup remain failed/uncertain; Build is
+adding closed diagnostics at the earlier repository and later hook boundaries.
+
+The sixteen current detached-signature checks pass (`c779fd77`, 50 authenticated
+leaves). The first actual passive consumer inspection refuses
+`ELF_DYNAMIC_TRAILING` on gdk-pixbuf2; remaining consumers are NOT RUN. Exact-byte
+and primary-ABI diagnosis identifies a parser padding restriction, and a narrow
+reviewed successor is being prepared. Runtime/symbol/16K/M2 ABI remain open.
+
+The corrected whole-query publisher passes independent Source review
+(`d89156c7` / `15f705a7`). Root's actual dedicated parent returns FAIL/exit1 with
+`PROC_VISIBILITY_INCOMPLETE`, unverified group cleanup and no accepted outer reap
+(completion `09885505`). Later worker/envelope producer receipts report PASS,
+but they do not override the parent's authoritative failure. A later absent
+reported-PID observation is not whole-group absence proof. The first Root index
+reader selected the wrong README for a relative row; the corrected read
+ authenticates all six launcher leaves, and operational hash guards held.
+A narrow proc-visibility diagnostic/correction continues.
+
+ARM observer run `38496509297` now retains its failure artifact: current selected
+GCC `13/cc1` path resolution is missing. Independent peer `5dd2cabc` authenticates
+29 leaves; compiler version and missing final/ancestor component remain unknown.
+Bounded current-driver selection replaces the fixed directory in a successor.
+The previous observation cause is not backfilled. Full scope and goal stay ACTIVE.
+
+October 14, 01:32 UTC: native retry
+[38495479762](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38495479762)
+finishes with a successful build checkpoint and failed composed integration.
+All 501 frozen objects acquire; 249 signature commands return zero. Eight native
+builds pass, and all four package comparisons report byte/content/metadata equality.
+Root retains thirteen hash-framed bundles and 260 native evidence members;
+completion `344c70cb` indexes 26 files. The startup marker identifies a
+`SOURCE_REFUSAL` at `native-hook` / `GRAPH_FUNCTION`; the exact downstream cause
+remains unknown. Callback entry is false, initial exit is null, and phase
+publication fails. Owned-image cleanup reports PASS/absence verified, while the repository
+container cleanup separately records failed ownership/absence checks; complete
+composed acceptance remains FAIL, and hardware remains NOT RUN. Build reviews
+the retained result and prepares a bounded corrective next step.
+
+The read-only observer diagnostic successor `2f58097a` is authenticated across
+73 files, adopted/published as `1def1ef8`, and dispatched in run `38496509297`.
+Its result is pending. Whole-query publisher correction `d89156c7` has fake-only
+controls and awaits independent admission. Fresh sixteen-pair signature
+verification reports all sixteen natural-zero checks; its final receipt precedes
+actual dependency decoding. No full-port acceptance is inferred.
+
+October 14, 01:27 UTC: private frozen-input cache transport is independently
+reviewed (`f6355048` / `b2c139cf`) and adopted as Source
+`0744f413`, Data `ea1db6b5`, exact externally registered plan `bacdcb92`.
+The user explicitly approved CI export; nineteen private repository secrets are
+provisioned and their names plus the exact plan read back. Package bodies remain
+outside public Git. The original 341 packages / 501 descriptors are unchanged.
+Native retry [38495479762](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38495479762)
+is running; its result is pending. Exclusive cache access during seeding and
+rollback is an explicit operating condition. Historical HTTP404 failures remain.
+
+The newer-package Source09 candidate is separately published as `9059b7c4`,
+[PR11](https://github.com/Gabriel-Kahen/cachy-asahi/pull/11); all 271 proposed
+files match committed bytes and modes, and static validation passes. This is
+source publication, with no native upgrade or release admission.
+
+The read-only ARM signer observation is published as `06a4c47b`,
+[PR12](https://github.com/Gabriel-Kahen/cachy-asahi/pull/12). Registered workflow
+run [38495158676](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38495158676)
+FAILS at observation with a retained `Refusal` marker; no artifacts were uploaded.
+The detailed refusal cause is unknown, and a narrow diagnostic successor is
+assigned. No compilation, signing or hardware check is claimed.
+
+Old-pair signatures/current cached-byte custody now have authenticated independent
+peer `6ac2a074`. Source/license correspondence peer `3edb9f5b` confirms partial
+evidence only: both retained ALARM recipe hashes remain unmatched. Tools develops
+explicit project recipes instead of claiming upstream binary correspondence.
+Performance's fixed-sixteen passive ELF checker is sealed and awaits fresh
+sixteen-pair signatures before actual inspection. Release's concrete pair runner
+is sealed for review. Whole-query publication review found falsey-cause and
+clock-error preservation defects; adoption is withheld and a small correction
+is active. Full R1–R5/M5–M9/A01–A15 scope and the goal remain ACTIVE.
+
 The full outline is the project scope. Milestones advance only on their specified evidence. Original project material uses MIT; third-party source licensing must be recorded separately before redistribution.
+
+Execution frontier, October 14, 00:54 UTC: new-pair actual passive intake
+`a3189f4a` / peer `eefdfef6` PASS; no runtime/symbol/16K/M2 acceptance follows.
+All sixteen old frozen pairs are locally retained in `33c43cf2`, and the original
+two package signatures actually verify (`19534961`, per-package digest8/10).
+Build prepares a private exact-four cache route and preserves the separate new-pair
+upgrade track. Root's preadoption check blocked stale Source08 joins before copy;
+Desktop reviews the Source09 correction. Tools and an independent Root reviewer
+own exact recipe/source/license correspondence; Performance prepares the fixed
+sixteen-consumer ELF checker while keeping Release integration review assigned.
+Native CI finishes minimal observer adoption, and Root prepares its isolated
+managed checkout. Query whole-call implementation continues. Goal ACTIVE;
+shared registration/dispatch and all release decisions remain with Root.
+
+Execution frontier, October 14, 00:15 UTC: Root's common02398 host fixture is
+actually built/run and independently reviewed (`4f689c31` / `971bb47b`), eight
+nominal checks PASS. Two replacement package detached signatures are actual
+PASS (`24753627` / independent peer `8d519bd5`); the original armored-keyring
+failure remains visible. Corrected checker/live adapter are authenticated and
+assigned concrete Release integration. Exact two-package input cascade,
+passive intake, final query gate/whole invocation and native signer observation
+adoption proceed under separate ownership. Root keeps all shared Source/Git,
+registration and dispatch authority. Execution899 and historical ARM failures
+remain unchanged. Full R1–R5/M5–M9/A01–A15 and the ACTIVE goal remain required.
+
+October 14, 00:22 UTC: passive pair intake actual `4b9f9153` fails on repeated
+libtiff `makedepend` metadata, diagnosed separately in `45a1499d`. Author and
+reviewer own a new narrow correction; original Source/peer/actual seals are
+immutable. Root reserves the next actual intake after review. The query whole
+invocation now has a separate Source implementation owner; native pair capacity
+correction and signer passive observation adoption continue in parallel.
+
+Roadmap reconciliation, October 13, 23:58 UTC: the coordinator reread the current
+`outline.md`, `goal.md`, `docs/roadmap.md`, `docs/acceptance.md` and
+`manifests/packages.toml` after the user's reminder. Their SHA-256 prefixes are
+`d8f1a628`, `779a2189`, `6e720ad8`, `46314739` and `c2bd07f2`, respectively.
+All six GPT 6.1 Sol/high worker chats received the authoritative-file and scope
+reminder. Continue the complete R1–R5/M5–M9/A01–A15 implementation with bounded
+ownership and small reviewed integration batches. The overlay remains an
+intermediate result. Both Air sizes, complete installation and recovery,
+published final-system performance/power measurements, independent onboarding,
+ongoing maintenance and a subsequent full-port release remain acceptance gates.
+The implementation goal stays ACTIVE while concrete software work remains.
+Use the smallest working build/check/publish path; source review does not replace
+actual native execution or exact-machine evidence.
+
+Current execution frontier, October 13, 23:36 UTC: shared downstream signal
+Source7fde/Dataa822 is published with271 proof; execution899 and trial08FAIL stay
+unchanged. Root metadata-bound gate236cf/peer10525 passes Source review after
+three coherent graph refusals. Exact input metadataf647/peer965c proposes a
+separate two-name successor; payload custody/crypto/ABI/full341 selection remain
+pending. Owned fixture/isolated-startup prep, terminal-mask query correction,
+signer compile prep and independent native pair/checker live integration continue.
+Root retains shared adoption, plan registration and actual dispatch ownership.
+Full R1–R5/M5–M9/A01–A15 remains required and the goal ACTIVE.
+
+Current plan reconciliation, October 13, 22:52 UTC: Root and six worker chats
+are following the current outline/roadmap/goal/acceptance/inventory. The complete
+R1–R5/M5–M9 port remains the destination. Common teardown Source89954b0 and
+Dataa7f5cde are published; trial08 failed on four initial-input HTTP404s.
+Independent retained review and exact-input custody correction are assigned. Desktop's cause-transfer successor
+and Tools' guardian deadline successor have sealed proposals. Independent reviews,
+signer-probe review, native pair/checker implementation and separate downstream
+signal corrections proceed within their private ownership. The common fixture's
+old after-reap cleanup helper is held for a retained-pidfd correction.
+
+Current correction batch, October 13, 22:10 UTC, follows the complete updated
+R1–R5/M5–M9 scope. Root owns all shared-source adoption, manifests, Git, external
+plan registration and actual dispatch. Workers own separate private proposal and
+review namespaces, with immutable receipts and explicit predecessor bindings.
+
+- Desktop chat prepares the maintained354 query's retained-child ownership fix.
+- Tools chat prepares its separate original-deadline outer guardian.
+- Build chat prepares the signer execution-witness adapter/probe and compatibility
+  proof; native actors remain unrun.
+- Release chat prepares independent native Topmem/Fish build-pair source without
+  changing signing, lifecycle or release acceptance requirements.
+- Bounded common/transport/launch correction agents and independent reviewers
+  retain the original failure, cancellation and cleanup-uncertainty contracts.
+
+Current source findings block those specific candidate executions, not the
+development goal. Generic574 metadata evidence and historical native results
+remain unchanged. Both Air sizes, final measurements, recovery, accountable
+maintenance and subsequent full-port release remain required.
 
 ## Ownership and interfaces
 
@@ -123,3 +344,44 @@ The actual Asahi target dependency transaction, both exact M2 machines,
 measurements, real signed release/recovery, independent onboarding and ongoing
 maintenance remain unfinished. Generic native success does not close M0/M1
 target-selection gates or the complete outline.
+
+## Active nonphysical development goal
+
+User requested continued development until actual-machine access is genuinely
+needed, with persistent goal execution and parallel chats. Goal is active. The
+coordinator created `codex/virtual-integration` for the connected software
+integration batch. New exclusive ownership: lifecycle/build chat
+`lifecycle.py/test_lifecycle.py`; tools chat `fixtures.py/test_fixtures.py`; desktop
+chat `desktop.py/test_desktop.py`; release chat `repository.py/test_repository.py`;
+performance/onboarding chat `onboarding.py/test_onboarding.py`, all under
+`scripts/integration/`, with their respective new workstream reports. Native CI
+chat owns CI adapters/workflow/source-freeze/evidence handling; independent
+reviewer owns `docs/reviews/virtual-integration-review.md`. Coordinator alone owns
+shared status/manifests/Git/dispatch. Software gates are `docs/virtual-integration.md`.
+Physical-machine checks remain required for full-goal acceptance.
+
+## Authoritative scope update: 506f259
+
+The user's roadmap, goal, outline, acceptance, backlog and resource records in
+`506f2596d674a26de8c947ef44728118cd9e2455` are integrated into this branch.
+All six workers and the independent reviewers were directed to reread them.
+R1–R5 and M5–M9 are required: the complete port is no longer conditional on a
+feasibility decision. The active nonphysical development goal follows that scope.
+Existing build results retain their original inputs and limited claims.
+
+Finish the connected disposable integration batch while opening these independent
+full-port tracks. Workers finish their current reviews before taking the new
+bounded assignment. Audit proposals do not select packages or pass target gates.
+
+| Track | Owner | Exclusive new path | First result |
+| --- | --- | --- | --- |
+| M5/R1 desktop/application coverage | Desktop chat | `docs/port/desktop-coverage.md` | Functionality/dependency inventory, source ownership and next compiled package proposal |
+| M6/R4 applicable tools/management | Tools chat | `docs/port/tools-functionality.md` | Port/adapt/replace/exclude matrix, licensed candidates and Apple-safe boundaries |
+| M8/R5 installation integration | Build/setup chat | `docs/port/installation-route.md` | Installer/base support audit and concrete complete-install implementation route |
+| M7/R2 native ARM experiments | Performance chat | `docs/port/arm-experiments.md` | Bounded baseline/LTO/PGO correctness/build trial, separating hosted ARM from M2 |
+| R1/R5 release-client freshness | Release chat | `scripts/client/`, `docs/release/client.md`, `docs/workstreams/release-client.md` | Offline pinned-key freshness/antirollback verifier and tests |
+| Generic virtual desktop proof | Virtual desktop agent | `scripts/virtual/`, virtual research/workstream reports | Signed isolated tooling extension and bounded TCG/virtioGPU software trial |
+
+The first integration snapshot excludes the actively changing client and virtual
+tooling. Subsequent reviewed batches must freeze and execute their own sources.
+No complete-port requirement is closed by these assignments.

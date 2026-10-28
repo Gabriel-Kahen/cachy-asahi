@@ -1,0 +1,34 @@
+def _vm_cli_role(argv,seconds,expected):
+ import re
+ args=list(map(str,argv));exe='/inputs/candidate/usr/bin/cachy-asahi-apps'
+ inventories={'/work/'+label+'-inventory.json'for label in('install','repair-bytes','repair-missing','repair-refusals','remove-selected','remove-runtime')}
+ if expected!=0 or not args or args[0]!=exe:return None
+ if seconds==45 and len(args)==6 and args[1:5]==['inventory','--dbpath','/work/main/root/var/lib/pacman','--output'] and args[5]in inventories:return 'PLANNED_INVENTORY'
+ keys=['--release','--release-sha256','--catalog','--catalog-sha256','--catalog-signature','--keyring','--signer','--installed','--installed-sha256']
+ if seconds!=120 or len(args)<22 or args[1:19:2]!=keys or args[19]!='plan':return None
+ values=dict(zip(keys,args[2:19:2]))
+ fixed={'--release':'/inputs/release/bundle','--catalog':'/inputs/release/catalog.json','--catalog-signature':'/inputs/release/catalog.json.sig','--keyring':'/inputs/release/public.gpg'}
+ if any(values[k]!=v for k,v in fixed.items())or values['--installed']not in inventories:return None
+ if not all(re.fullmatch('[a-f0-9]{64}',values[k])for k in('--release-sha256','--catalog-sha256','--installed-sha256'))or not re.fullmatch('[A-Fa-f0-9]{40}',values['--signer']):return None
+ if(args[20],tuple(args[21:]))not in(('install',('apps','cache','orphans')),('reinstall',('apps',)),('remove',('apps','cache','orphans')),('remove',('runtime',))):return None
+ return 'PLANNED_PLAN'
+
+def _vm_cli_note(role,record,out,err,error):
+ import json
+ C.need(role in('PLANNED_INVENTORY','PLANNED_PLAN')and _vm_cli_role(record['argv'],record['time_limit'],0)==role,'fixed original CLI role')
+ for side,data in(('stdout',out),('stderr',err)):C.need(record[side+'_bytes']==len(data)and record[side+'_sha256']==C.sha(data),'original CLI summary stream join')
+ value=dict(schema_version=1,event='planned_cli_failure',role=role,supervisor=record,supervisor_error=None if error is None else type(error).__name__,stream_capture='HASH_AND_LENGTH_ONLY',acceptance_authority=False,cleanup_authority=False)
+ line='APPS574_CLI_FAILURE '+json.dumps(value,sort_keys=True,separators=(',',':'),ensure_ascii=True)
+ C.need(len(line.encode())<=1900,'CLI summary fits original2KiB tail');return line
+
+def _vm_cli_complete(role,record,out,err,error):
+ # Fixed planned CLI failure only: no success payload or private inventory file.
+ import base64,json,zlib
+ if role not in('PLANNED_INVENTORY','PLANNED_PLAN')or type(out)is not bytes or type(err)is not bytes or len(out)>1024 or len(err)>65536:return None
+ keys={'argv','exit_code','seconds','time_limit','output_limit','group_absence_verified','stdout_bytes','stdout_sha256','stderr_bytes','stderr_sha256'}
+ C.need(set(record)==keys and record['output_limit']==1024**2 and _vm_cli_role(record['argv'],record['time_limit'],0)==role,'whole fixed original planned CLI supervisor')
+ for side,data in(('stdout',out),('stderr',err)):C.need(record[side+'_bytes']==len(data)and record[side+'_sha256']==C.sha(data),'whole original planned CLI streams')
+ value=dict(schema_version=1,purpose='ORIGINAL_PLANNED_CLI_COMPLETE_FAILURE_CAPTURE',role=role,supervisor=record,supervisor_sha256=C.sha(C.encoded(record)),supervisor_error=None if error is None else type(error).__name__,streams={side:dict(bytes=len(data),sha256=C.sha(data),encoding='ZLIB_BASE64',base64=base64.b64encode(zlib.compress(data,9)).decode())for side,data in(('stdout',out),('stderr',err))},acceptance_authority=False,cleanup_authority=False)
+ line='APPS574_CLI_COMPLETE '+json.dumps(value,sort_keys=True,separators=(',',':'),ensure_ascii=True)
+ return line if len(line.encode())<=10240 else None
+

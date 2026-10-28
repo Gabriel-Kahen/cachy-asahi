@@ -1,0 +1,66 @@
+{
+  "implementation/test_observer.py": [
+    {
+      "after": "(693,676,607,605)",
+      "before": "(692,676,607,605)",
+      "count": 1
+    },
+    {
+      "after": "f=load('_historical_observer_source',HERE/'historical_source.py').historical_selected_factory(load('_historical_observer_base',HERE/'factory/factory.py'),ROOT/'parent574/original',ARGS.assets);out=self.work/(profile+mode)",
+      "before": "f=n.factory();out=self.work/(profile+mode)",
+      "count": 1
+    },
+    {
+      "after": "  f=load('_historical_reserved_source',HERE/'historical_source.py').historical_selected_factory(load('_historical_reserved_base',HERE/'factory/factory.py'),ROOT/'parent574/original',ARGS.assets);out=self.work/'reserved'\n  with patch.object(subprocess,'run',side_effect=AssertionError('NO_ACTORS')),patch.object(subprocess,'Popen',side_effect=AssertionError('NO_ACTORS')):profile,changes=f.prepare_code(ROOT/'parent574/original',ARGS.assets,out,'minimal','generic4k');proof=f.seal(out,'minimal','generic4k',profile,changes,False)\n  return out,proof",
+      "before": "  n=load('_actual_reserved_native',HERE/'native.py');f=n.factory();out=self.work/'reserved';profile,changes=f.prepare_code(ROOT/'parent574/original',ARGS.assets,out,'minimal','generic4k');proof=f.seal(out,'minimal','generic4k',profile,changes,False);return out,proof",
+      "count": 1
+    }
+  ],
+  "implementation/test_runner_context.py": [
+    {
+      "after": "base=ROOT/'parent574'if legacy else ROOT;home=base/'factory'if legacy else HERE/'factory';F=load('_historical_runner_source',HERE/'historical_source.py').historical_factory(load('_source_generated_selected_factory',home/'factory.py'),ROOT/'parent574/original',ARGS.assets)",
+      "before": "base=ROOT/'parent574'if legacy else ROOT;home=base/'factory'if legacy else HERE/'factory';F=load('_source_generated_selected_factory',home/'factory.py').service1800()",
+      "count": 1
+    },
+    {
+      "after": "F.seal(out,selected,mode,profile,changes,False)",
+      "before": "F.seal(out,selected,mode,profile,changes,True)",
+      "count": 1
+    },
+    {
+      "after": "out=self.work/(selected+'-'+mode);generated(out,selected,mode);p=load('_historical_runner_contract',HERE/'historical_source.py').source_runner_contract(R,out);",
+      "before": "out=self.work/(selected+'-'+mode);generated(out,selected,mode);p=R.authorize_runner(out);",
+      "count": 1
+    },
+    {
+      "after": "with self.assertRaisesRegex(ValueError,'ready source-owned606'):current.run_service1800",
+      "before": "with self.assertRaisesRegex(PreActorSentinel,'ACTOR_REFUSED'):current.run_service1800",
+      "count": 1
+    },
+    {
+      "after": "with patch.object(legacy.platform,'machine',side_effect=PreActorSentinel('ACTOR_REFUSED')),self.assertRaisesRegex(ValueError,'ready source-owned606'):legacy.run_service1800",
+      "before": "with patch.object(legacy.platform,'machine',side_effect=PreActorSentinel('ACTOR_REFUSED')),self.assertRaises(PreActorSentinel):legacy.run_service1800",
+      "count": 1
+    },
+    {
+      "after": "def test_actual_owner_globals_reject_historical_before_actor_sentinel(",
+      "before": "def test_actual_owner_globals_cross_authorization_before_actor_sentinel(",
+      "count": 1
+    },
+    {
+      "after": "def test_legacy606_source_generator_and_actor_refusal(",
+      "before": "def test_legacy606_generator_and_authorizer_same_behavior(",
+      "count": 1
+    },
+    {
+      "after": " def test_wrong_counts_annotations_helper_and_full_code_closure_refuse(self):\n  actual_authorize=R.authorize_runner;source_authorize=lambda out:load('_historical_mutation_contract',HERE/'historical_source.py').source_runner_contract(R,out)\n  out=self.work/'runner';generated(out);\n  with self.assertRaisesRegex(ValueError,'ready source-owned606'):actual_authorize(out)\n  ",
+      "before": " def test_wrong_counts_annotations_helper_and_full_code_closure_refuse(self):\n  out=self.work/'runner';generated(out);",
+      "count": 1
+    },
+    {
+      "after": " def test_wrong_counts_annotations_helper_and_full_code_closure_refuse(self):\n  actual_authorize=R.authorize_runner;source_authorize=lambda out:load('_historical_mutation_contract',HERE/'historical_source.py').source_runner_contract(R,out)\n  out=self.work/'runner';generated(out);\n  with self.assertRaisesRegex(ValueError,'ready source-owned606'):actual_authorize(out)\n  proof=out/'current606-proof.json';original=proof.read_bytes();p=json.loads(original)\n  for key,bad in(('packages',606),('optional_absent',604),('observer_diagnostic',{}),('service_validation_profile',{}),('accepted_input_source','0'*40),('actual_run',1)):\n   q=copy.deepcopy(p);q[key]=bad;proof.write_bytes(R.enc(q))\n   with self.assertRaises((ValueError,KeyError)):source_authorize(out)\n  proof.write_bytes(original);helper=out/'alpm_reader.py';raw=helper.read_bytes();helper.write_bytes(raw+b'\\n');q=copy.deepcopy(p);q['files']['alpm_reader.py']=R.pin(helper.read_bytes());proof.write_bytes(R.enc(q))\n  with self.assertRaises(ValueError):source_authorize(out)\n  helper.write_bytes(raw);proof.write_bytes(original);foreign=out/'foreign.py';foreign.write_text('pass\\n');q=copy.deepcopy(p);q['files']['foreign.py']=R.pin(foreign.read_bytes());proof.write_bytes(R.enc(q))\n  with self.assertRaises(ValueError):source_authorize(out)\n  foreign.unlink();proof.write_bytes(original);(out/'foreign-input.json').write_text('{}')\n  with self.assertRaises(ValueError):source_authorize(out)\n",
+      "before": " def test_wrong_counts_annotations_helper_and_full_code_closure_refuse(self):\n  actual_authorize=R.authorize_runner;source_authorize=lambda out:load('_historical_mutation_contract',HERE/'historical_source.py').source_runner_contract(R,out)\n  out=self.work/'runner';generated(out);\n  with self.assertRaisesRegex(ValueError,'ready source-owned606'):actual_authorize(out)\n  proof=out/'current606-proof.json';original=proof.read_bytes();p=json.loads(original)\n  for key,bad in(('packages',606),('optional_absent',604),('observer_diagnostic',{}),('service_validation_profile',{}),('accepted_input_source','0'*40),('actual_run',1)):\n   q=copy.deepcopy(p);q[key]=bad;proof.write_bytes(R.enc(q))\n   with self.assertRaises((ValueError,KeyError)):R.authorize_runner(out)\n  proof.write_bytes(original);helper=out/'alpm_reader.py';raw=helper.read_bytes();helper.write_bytes(raw+b'\\n');q=copy.deepcopy(p);q['files']['alpm_reader.py']=R.pin(helper.read_bytes());proof.write_bytes(R.enc(q))\n  with self.assertRaises(ValueError):R.authorize_runner(out)\n  helper.write_bytes(raw);proof.write_bytes(original);foreign=out/'foreign.py';foreign.write_text('pass\\n');q=copy.deepcopy(p);q['files']['foreign.py']=R.pin(foreign.read_bytes());proof.write_bytes(R.enc(q))\n  with self.assertRaises(ValueError):R.authorize_runner(out)\n  foreign.unlink();proof.write_bytes(original);(out/'foreign-input.json').write_text('{}')\n  with self.assertRaises(ValueError):R.authorize_runner(out)\n",
+      "count": 1
+    }
+  ]
+}

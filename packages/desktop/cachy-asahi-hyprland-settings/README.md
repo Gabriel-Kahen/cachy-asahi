@@ -56,11 +56,68 @@ and uncomment the startup block only when the base is not already starting
 these apps. Their explicit config paths avoid another user's default configs.
 Review portal and polkit optional dependencies against the base; this package
 does not start or enable them. There is no automatic idle lock, lid action,
-suspend, hibernate, screenshot binding, update button, or network polling script.
+suspend, hibernate, update button, or network polling script. Screenshot bindings
+are optional and commented out until explicitly enabled.
+
+## Explicit screenshots to a file
+
+The optional helper uses the existing Wayland session; it does not start another
+compositor. Install **grim** for full-screen capture and **slurp** for region
+selection on a validated base. Both are absent from the frozen341-package
+baseline, so this Source addition does not establish an installed screenshot
+workflow, clean native build, compositor protocol support or M2 acceptance.
+
+Run a capture yourself:
+
+```sh
+cachy-asahi-screenshot full
+cachy-asahi-screenshot region
+cachy-asahi-screenshot region --directory "$HOME/Pictures/Private-Screenshots"
+```
+
+The default is `~/Pictures/Screenshots`. Missing directories are created0700;
+existing directories and their permissions are preserved. The final directory
+must already be user-owned and private or be newly created by the helper.
+Choose a new `--directory` if an existing shared directory is refused. Symlink
+components and parent traversal are refused. No user config is sourced or edited.
+The helper temporarily sets its own process umask077 and restores it afterward.
+It does not change the shell's umask.
+
+The output is a uniquely reserved0600 PNG. Grim writes to the held private
+partial-file descriptor. Successful output is checked for PNG signature, IHDR
+and terminator, synced, then linked to a fresh filename without replacing any
+existing file; stdout prints its saved path. A private local POSIX filesystem
+supporting hardlinks is required. This lightweight check detects empty/truncated
+outputs; it is not an independent PNG decoder or image transformation.
+
+Region selection uses slurp with closed stdin, accepting negative display
+coordinates and positive dimensions. Esc, empty selection or any slurp failure
+produces no capture and never falls back to the full screen. Nonzero slurp status
+can also mean a Wayland/setup failure. The helper diagnoses missing tools and
+capture errors. It limits selection to120 seconds and capture to30 seconds.
+Normal failure, timeout, Ctrl+C or SIGTERM attempts to remove only the reserved
+partial whose named inode still matches the held file; replacements are
+preserved. An uncatchable termination/power loss can leave a private `.partial`;
+no automatic background cleanup or capture is installed. This assumes a
+quiescent private directory, not hostile concurrent writers sharing your UID.
+
+To use keyboard capture, uncomment the two screenshot lines in **your separate
+opt-in template copy** after installing the tools. Command/SUPER+Ctrl+Shift+S
+captures all outputs; Command/SUPER+Shift+S selects a region. Neither conflicts
+with the current template; review your own custom bindings before enabling.
+Command/SUPER+Shift+3/4 remain workspace moves. No Print/PC-specific key is used.
+There is no background capture, clipboard copy, public upload or image editing.
+
+The helper reports errors on stderr; launch it from a terminal to see diagnostics
+if a compositor binding does not display them. Disable/remove enabled screenshot
+bindings before removing this package's `/usr/bin/cachy-asahi-screenshot` helper.
+User screenshots and user config copies remain on upgrade/removal. Installing
+this package itself still activates no configuration or capture.
 
 Upgrade replaces only package-owned templates; your copy remains unchanged.
 Switch back to your previous session/configuration before removing the package.
-Removal deletes package-owned `/usr/share` files only; a user copy remains.
+Removal deletes package-owned `/usr/share` files and the `/usr/bin` screenshot
+helper; a user copy and saved screenshots remain.
 An enabled optional Waybar/Mako block references package-owned templates, so
 disable or replace that block before removal. Package removal does not stop
 running processes. Inspect dependency removal separately rather than removing

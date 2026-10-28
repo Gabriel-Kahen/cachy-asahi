@@ -1,0 +1,20 @@
+{
+  "packages/platform/alsa-ucm-conf-asahi": {
+    ".SRCINFO": "c65d42a0e3c57f7bd290f78bbdea17c1c08a9c0fe6337a0f5b061f06f24b13a0",
+    "NOTICE": "ea8d4dd8a097645b45a7d45cfe9db156b096ccad34f53095dad82ffe7c1df40a",
+    "PACKAGING.LICENSE": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+    "PKGBUILD": "876569e3f8d2d53fe8da0842e890d738574efdb2902dbf87ce3ab95b779e6335",
+    "README.md": "1d62c3c6df227893b4dde9ec9fc9ff13167eab99339629a652abfbf14162973f",
+    "alsa-ucm-conf-asahi-10.tar.gz": "4cbf77e7113dbe3981c1aa271bc12f30c8af1ac3326db8e261ee8aa25cf37295",
+    "source-provenance.json": "809c68fcf459c27ba8fb617d917a1913e5b1502daed2e106e0ddaf0f7f8442f2"
+  },
+  "packages/platform/asahi-audio": {
+    ".SRCINFO": "63e2eb428992ce2361c7a0e8b93ad18e97a43ce95ef92246d28f125b5dcd136a",
+    "NOTICE": "910a4f8a8426f28922e3cfe0d50f7cdb14d67b01549097ccadae639e59ec1007",
+    "PACKAGING.LICENSE": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+    "PKGBUILD": "f08f31964718544fb5f4954db0e2e380a6bcf43653965728ca925f702dea9e05",
+    "README.md": "d958e9aa11a81b2a7283d98968aa2705a79d1968b77fa1864bc0b4d3347d9df1",
+    "asahi-audio-4.1.tar.gz": "e2c3887fe20481675698ac8174f53b66276f75a2b3c0853daf9b1a70dda690c5",
+    "source-provenance.json": "3da39cbdd69b1367fdb32ff9e4087f20812ea7c2491efbd81eab9642fb487ed1"
+  }
+}

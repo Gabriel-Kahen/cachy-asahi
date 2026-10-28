@@ -1,0 +1,40 @@
+# Updater default mounts and private IPC: combined peer review
+
+**PASS — source/model readiness for coordinator integration of the exact six-file hold.** No actionable finding remains in this bounded correction. Native execution, recipe/map registration, actual-run integration acceptance and hardware acceptance are separate gates. This review does not clear admission.
+
+The 86-file committed baseline `4748a5d5f4d2d649c1b397baaa63b087d3658ed0` was captured into a new peer directory, authenticated against the committed-source proof by SHA-256, Git blob identity and mode, then overlaid with exactly the six held files below. All other captured inputs, including runtime.py `15d8d9433ecad359fe4a5b34b6a9a8d7791abaa00f94e253fc612de65e32debe`, remain unchanged. These are captured baseline registration files, not accepted updated recipes/maps/workflows.
+
+| Held file | SHA-256 |
+| --- | --- |
+| `packages/tools/cachy-asahi-update/test-native.py` | `45bac5849b9f7fa0e1c70267218df8bf0286453633216fed597051f17239dfec` |
+| `packages/tools/cachy-asahi-update/test-worker.py` | `0b8fb8b6300f60f6b7dadc8a4db950cb1d1ce3473d5d3fa1ae47e2226b7ff2cb` |
+| `packages/tools/cachy-asahi-update/updater-native.py` | `99b7e58a325d48119af6987e163ccfd031e14e573bc43261ac04ce64bfdf03d1` |
+| `packages/tools/cachy-asahi-update/worker-metadata.py` | `4acc1fa076884b28973cf13b966030081dc6e5b030072332365b7a4485231f48` |
+| `scripts/port/updater-native-stage/broker.py` | `1d33077c4b29103d2d19aa481987d55b28d422f95f5753a310483290f39ec0c5` |
+| `scripts/port/updater-native-stage/test_broker.py` | `71d626d66b2bd2ee7cd1fe3de5bdcfd69691c651079fc6fe3d17a8421b2349cf` |
+
+## Reviewed behavior
+
+The worker admits `/dev/mqueue` only with mqueue filesystem, all three safety flags, no contradictory unsafe flags, and exactly one readonly/readwrite state. The two new proc file masks require tmpfs and either readonly without readwrite, or an exactly true observed-null check with nosuid/readwrite and no contradictory suid/readonly flag. CPU thermal masks require an exact canonical leaf path, ASCII CPU number `0..8191`, readonly tmpfs and no readwrite flag. The 8191 ceiling is an explicit local observation bound; upstream provides no such numeric ceiling. Unknown/nested/noncanonical paths and stacked mounts still refuse.
+
+Pinned [Moby defaults](https://raw.githubusercontent.com/moby/moby/6430e49a55babd9b8f4d08e70ecb2b68900770fe/oci/defaults.go) declare mqueue, the two optional masks and conditional CPU thermal masks. Pinned [runc maskPath](https://raw.githubusercontent.com/opencontainers/runc/e89a29929c775025419ab0d218a43588b4c12b9a/libcontainer/rootfs_linux.go) distinguishes null-bound files and readonly tmpfs directories. Fourteen retained primary-source files were independently hash/length checked. The captured installer default does not establish the runtime installed on the native runner.
+
+The adapter requests exactly one `--ipc=private`. Broker `plan(c,args,data)` adds only `--ipc: private` to its exact worker option dictionary. Inventory grammar, nonce/resource ownership, cleanup, storage limits and actor grants remain unchanged. Both preexisting inspection captures require a dict HostConfig and string IpcMode exactly equal to `private`, under their existing shared deadline and immutable-ID binding. Existing duplicate JSON-key rejection also applies to these fields. No raw HostConfig, IPC field or private detail is added to the public state projection.
+
+AST comparison confines changed functions to worker observe/guard, adapter parse_worker_inspection/launch and broker plan. Every other function/class is unchanged. Existing root/input/device/capability/network/resource, controller, source, first-failure, package validation and terminal cleanup gates remain intact. Independent mount/resource and broker/IPC reviewers found no actionable issue in the same six hashes.
+
+## Fresh verification
+
+The new copied source passes 56 worker, 75 adapter and 59 broker tests: **190 tests, zero failures/errors/skips** in the successful suite runs. These tests use controlled private Python fixtures and mocked Docker/compiler/package actors.
+
+Independent peer controls pass 42 mount cases (9 accepted, 33 refused), four stacked-path cases, 14 IPC modes/shapes, two duplicate JSON-field cases and ten broker option cases. The actual adapter-generated argv passes the real broker's four mount/controller binding reads in an owned temporary model tree, with every actor mocked. A deliberate pre-execution sentinel remains the first failure, null worker return status is retained, and owned cleanup completes. The two preliminary observed-null fixtures were strengthened with nosuid in this new packet; their earlier rw-only versions now refuse. The sealed preparation packet remains unchanged.
+
+Failed reviewer attempts are retained: the first runner incorrectly placed scratch outside the required `/tmp` tree, causing worker/broker path-guard refusals; the passing rerun detected generated bytecode in the owned source copy; and a model sentinel initially used an OSError-specific expected code for a ValueError. The scratch location and expected finite code were corrected without modifying production guards. The bytecode was recorded and removed only from the peer copy; all 86 captured inputs were verified unchanged. No successful suite was repeated unnecessarily.
+
+## Limits and evidence
+
+Actual updater run `38296615950` failed at entry-guard/unexpected-mount before controller validation or compiler launch. Its private offending path remains **UNKNOWN**; these controls do not attribute that failure to mqueue or any other modeled path. Earlier failing receipts and author artifacts were preserved.
+
+The coordinator still owns corrected recipe/map/workflow registration, real Git operations, native dispatch and closure of the independent actual-run integration review. No production Docker, compiler, package, installation, namespace or signing actor was run here. No ARM package, target transaction, M2 hardware, performance, complete-overlay or roadmap acceptance is claimed.
+
+Peer packet: `artifacts/reviews/updater-default-mount-root-peer-20261012/combined/`. Its sealed `review-receipt.json` records all exact inputs, logs, controls, retained failed attempts and this document's hash.

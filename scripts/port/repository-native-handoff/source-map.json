@@ -1,0 +1,30 @@
+{
+  "broker.py": {
+    "mode": 420,
+    "sha256": "c19056f60caa46a5fe547af98fbc3d2fd4216d3c0b8d66540cec2433aa67b777"
+  },
+  "capture.py": {
+    "mode": 420,
+    "sha256": "60ae2434ecb6e327f2569987be1cec0870f4995497a61f5c6ebd2be520189659"
+  },
+  "entry.py": {
+    "mode": 420,
+    "sha256": "b52b28d8af94f764a7fffbe0e9f0d839ecbb30f7147f13be9640d37a886e8019"
+  },
+  "launch.py": {
+    "mode": 420,
+    "sha256": "0e0b40b748091fdd04c89d22fbc816eb5733aef1e6400d1af0d83f60c664294e"
+  },
+  "producer.py": {
+    "mode": 420,
+    "sha256": "35ac09f5aef9afb855dfb2680c18667f5bcc7ced7311a4d3ffe574cb6691763a"
+  },
+  "supervisor.py": {
+    "mode": 420,
+    "sha256": "06701d2f2e78ee3366e4a4ba23cc7df99cc9d16d3d4e0401f0c0ee52302b5b2c"
+  },
+  "transport.py": {
+    "mode": 420,
+    "sha256": "27772ed057e29f79734723eedbb3eac198e7b472686fb19a66202590ffb0d0fc"
+  }
+}

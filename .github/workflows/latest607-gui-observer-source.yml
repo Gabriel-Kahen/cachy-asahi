@@ -1,0 +1,136 @@
+{
+  "name": "latest607-gui-observer-source",
+  "on": {
+    "push": {
+      "paths": [
+        "scripts/ci/latest607-gui-observer-source/**",
+        ".github/workflows/latest607-gui-observer-source.yml"
+      ]
+    },
+    "pull_request": {
+      "paths": [
+        "scripts/ci/latest607-gui-observer-source/**",
+        ".github/workflows/latest607-gui-observer-source.yml"
+      ]
+    },
+    "workflow_dispatch": {}
+  },
+  "permissions": {
+    "contents": "read"
+  },
+  "jobs": {
+    "source-controls": {
+      "runs-on": "ubuntu-24.04",
+      "timeout-minutes": 10,
+      "strategy": {
+        "fail-fast": false,
+        "matrix": {
+          "python": [
+            "3.12",
+            "3.14"
+          ]
+        }
+      },
+      "env": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONWARNINGS": "error"
+      },
+      "steps": [
+        {
+          "name": "Check out maintained factory",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out exact source676",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "repository": "Gabriel-Kahen/cachy-asahi",
+            "ref": "fbef98eeadf7d9120f0c98832966efcc667028ce",
+            "path": ".ci-fixtures/source676",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out exact source682",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "repository": "Gabriel-Kahen/cachy-asahi",
+            "ref": "53402ddc5e833ec342f0c9c9dc01ab47f7d91c7c",
+            "path": ".ci-fixtures/source682",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out exact apps16-inputs",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "repository": "Gabriel-Kahen/cachy-asahi",
+            "ref": "950b0699a6e3f7a56758d4d17a5d30dabc7b6e11",
+            "path": ".ci-fixtures/apps16-inputs",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out exact six22-inputs",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "repository": "Gabriel-Kahen/cachy-asahi",
+            "ref": "eea3f3022c9214deacc60c92dfca13704420756b",
+            "path": ".ci-fixtures/six22-inputs",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out exact held-public",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "repository": "Gabriel-Kahen/cachy-asahi",
+            "ref": "77bd2c6ecf2e5c28a04116c3da85c45f70d1cc90",
+            "path": ".ci-fixtures/held-public",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out exact project-public",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "repository": "Gabriel-Kahen/cachy-asahi",
+            "ref": "1057f6b5494adc71c469e8867d14fb0db01ce02f",
+            "path": ".ci-fixtures/project-public",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out exact test-renewal",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "repository": "Gabriel-Kahen/cachy-asahi",
+            "ref": "7cf7fb81d0b70b1b7421dc85788fabd45ec5adfc",
+            "path": ".ci-fixtures/test-renewal",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Select Python",
+          "uses": "actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+          "with": {
+            "python-version": "${{ matrix.python }}"
+          }
+        },
+        {
+          "name": "Exact known/NULL factory and constructor refusals",
+          "shell": "bash",
+          "run": "set -euo pipefail\nstage=$(mktemp -d \"$RUNNER_TEMP/gui682-source.XXXXXXXX\")\nprintf 'GUI682_STAGE=%s\\n' \"$stage\" >> \"$GITHUB_ENV\"\nexport TMPDIR=\"$stage\"\npython3 -I -B -Werror \"$GITHUB_WORKSPACE/scripts/ci/latest607-gui-observer-source/test_factory.py\" --parent \"$GITHUB_WORKSPACE/.ci-fixtures/source676\" --expected \"$GITHUB_WORKSPACE/.ci-fixtures/source682\" --workdir \"$stage/factory\"\n"
+        },
+        {
+          "name": "Full source and all five original presecret commands in actual workspace layout",
+          "shell": "bash",
+          "run": "set -euo pipefail\nexport TMPDIR=\"$GUI682_STAGE\"\npython3 -I -B -Werror \"$GITHUB_WORKSPACE/scripts/ci/latest607-gui-observer-source/ci_controls.py\" --source \"$GUI682_STAGE/factory/emit-known\" --workspace \"$GUI682_STAGE/workspace\" --apps16 \"$GITHUB_WORKSPACE/.ci-fixtures/apps16-inputs\" --six-record \"$GITHUB_WORKSPACE/.ci-fixtures/six22-inputs\" --held \"$GITHUB_WORKSPACE/.ci-fixtures/held-public\" --project \"$GITHUB_WORKSPACE/.ci-fixtures/project-public\" --renewal \"$GITHUB_WORKSPACE/.ci-fixtures/test-renewal\"\n"
+        }
+      ]
+    }
+  }
+}

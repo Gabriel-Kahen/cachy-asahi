@@ -1,0 +1,24 @@
+{
+  "default_inventory": "BYTE_HELD",
+  "hardware": "NOT_RUN",
+  "native": "PASS_FINITE_NATIVE_PAIR_AND_SYNTHETIC_INSTALLED_CLI",
+  "package": {
+    "hardware_validation": "NOT RUN",
+    "installation": "PASS_DISPOSABLE_SYNTHETIC_CLI_ONLY_TARGET_NOT_RUN",
+    "license": "MIT",
+    "name": "cachy-asahi-boot-report",
+    "native_build": "PASS_NATIVE_ARM_BYTE_IDENTICAL_PAIR_39323942218",
+    "native_evidence": "docs/validation/boot-report-native-products-20261019.md",
+    "next_step": "Native byte-identical package pair and installed synthetic journal/pstore lifecycle pass. Real target permission/history/pstore behavior, Asahi boot and Apple crash/recovery remain open.",
+    "phase": "complete-port-tools",
+    "recipe": "packages/tools/cachy-asahi-boot-report/PKGBUILD",
+    "selected_for_development": true,
+    "selected_for_release": false,
+    "source": "local-original",
+    "status": "candidate"
+  },
+  "release_selected": false,
+  "schema_version": 1,
+  "source_checks": "Both Python3.12/3.14:18 unit methods and16 real disposable-journal CLI assertions each; four exact staged files",
+  "status": "UNSELECTED_DEVELOPMENT_PACKAGE_PROPOSAL"
+}

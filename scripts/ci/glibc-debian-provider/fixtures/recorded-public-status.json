@@ -1,0 +1,65 @@
+{
+  "authority": "NOT_ESTABLISHED",
+  "chain": {
+    "checked_epoch": 1792197627,
+    "date": "Fri, 16 Oct 2026 20:10:58 UTC",
+    "key_status": "pub:-:4096:1:B7C5D7D6350947F8:1674301461:1926589461::-:::scSC::::::23::0:\nrvk:::1::::::80E976F14A508A48E9CA3FE9BC372252CA1CF964:80:\nrvk:::1::::::FBFABDB541B5DC955BD9BA6EDB16CF5BB12525C4:80:\nrvk:::1::::::8C823DED10AA8041639E12105ACE8D6E0C14A470:80:\nrvk:::1::::::309911BEA966D0613053045711B4E5FF15B0FD82:80:\nrvk:::1::::::C74F6AC9E933B3067F52F33FA459EC6715B0705F:80:\nfpr:::::::::B8B80B5B623EAB6AD8775C45B7C5D7D6350947F8:\nuid:-::::1674301461::100567F0EA7B90BC2ED03949BE60B7A6CFD8619F::Debian Archive Automatic Signing Key (12/bookworm) <ftpmaster@debian.org>::::::::::0:\nsub:-:4096:1:6ED0E7B82643E131:1674301461:1926589461:::::s::::::23:\nfpr:::::::::4CB50190207B4758A3F73A796ED0E7B82643E131:\npub:-:4096:1:225629DF75B188BD:1743339029:2058699029::-:::scSC::::::23::0:\nrvk:::1::::::80E976F14A508A48E9CA3FE9BC372252CA1CF964:80:\nrvk:::1::::::FBFABDB541B5DC955BD9BA6EDB16CF5BB12525C4:80:\nrvk:::1::::::8C823DED10AA8041639E12105ACE8D6E0C14A470:80:\nrvk:::1::::::309911BEA966D0613053045711B4E5FF15B0FD82:80:\nrvk:::1::::::C74F6AC9E933B3067F52F33FA459EC6715B0705F:80:\nfpr:::::::::04B54C3CDCA79751B16BC6B5225629DF75B188BD:\nuid:-::::1743339029::AE4FB0051884EC4CE6223C20A7BE589358875AA4::Debian Archive Automatic Signing Key (13/trixie) <ftpmaster@debian.org>::::::::::0:\nsub:-:4096:1:78DBA3BC47EF2265:1743339029:2058699029:::::s::::::23:\nfpr:::::::::B8E5F13176D2A7A75220028078DBA3BC47EF2265:\n",
+    "signature_status": "[GNUPG:] PLAINTEXT 74 0 \n[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED B8B80B5B623EAB6AD8775C45B7C5D7D6350947F8 0\n[GNUPG:] SIG_ID /SAPfCvT7Vv440SeF0TUW7WDK8w 2026-10-16 1792181545\n[GNUPG:] GOODSIG 6ED0E7B82643E131 Debian Archive Automatic Signing Key (12/bookworm) <ftpmaster@debian.org>\n[GNUPG:] VALIDSIG 4CB50190207B4758A3F73A796ED0E7B82643E131 2026-10-16 1792181545 0 4 0 1 8 01 B8B80B5B623EAB6AD8775C45B7C5D7D6350947F8\n[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED 04B54C3CDCA79751B16BC6B5225629DF75B188BD 0\n[GNUPG:] SIG_ID +9UYrQqKxFGEJg0Fa6Z9sUUMZrc 2026-10-16 1792181547\n[GNUPG:] GOODSIG 78DBA3BC47EF2265 Debian Archive Automatic Signing Key (13/trixie) <ftpmaster@debian.org>\n[GNUPG:] VALIDSIG B8E5F13176D2A7A75220028078DBA3BC47EF2265 2026-10-16 1792181547 0 4 0 1 8 01 04B54C3CDCA79751B16BC6B5225629DF75B188BD\n",
+    "valid_until": "Fri, 23 Oct 2026 20:10:58 UTC"
+  },
+  "native": "NOT_RUN",
+  "preparation": {
+    "after_tree": "51979d25e61ba516e9fa73e147c75d021b4838e1",
+    "before_tree": "1fbcd978e2051d72273231f03b921b1503e0e424",
+    "manual_reinserted": false,
+    "patches": [
+      {
+        "arguments": [
+          "patch",
+          "--batch",
+          "--fuzz=0",
+          "-Np1"
+        ],
+        "exit": 0,
+        "path": "0001-mount-macro-guards.patch",
+        "stdout": "patching file sysdeps/unix/sysv/linux/sys/mount.h\n"
+      },
+      {
+        "arguments": [
+          "patch",
+          "--batch",
+          "--fuzz=0",
+          "-Np1"
+        ],
+        "exit": 0,
+        "path": "0002-held-builder-test-expectations.patch",
+        "stdout": "patching file elf/Makefile\npatching file conform/Makefile\n"
+      },
+      {
+        "arguments": [
+          "patch",
+          "--batch",
+          "--fuzz=0",
+          "-Np1"
+        ],
+        "exit": 0,
+        "path": "0003-debian-manual-omission.patch",
+        "stdout": "patching file Makeconfig\n"
+      }
+    ]
+  },
+  "projection": "Exact public status strings, recorded check epoch/release dates, and bounded source-preparation result fields; absolute command paths and diagnostics omitted. Source receipt hashes identify provenance only.",
+  "provenance": {
+    "current-debian-chain.json": {
+      "bytes": 8652,
+      "sha256": "abac8923f4f03c731e26324ab720cf790571aae32ca60df2c488748338b9f530"
+    },
+    "source-preparation.json": {
+      "bytes": 3111,
+      "sha256": "f4c10e9f73367069f45fd412e9e077b89603c207836a448c1362c01a56adbbee"
+    }
+  },
+  "release": "NOT_ADMITTED",
+  "schema_version": 1,
+  "status": "HISTORICAL_PARSER_TEST_DATA_ONLY"
+}

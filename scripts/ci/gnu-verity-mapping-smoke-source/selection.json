@@ -1,0 +1,19 @@
+{
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "changed_leaves": [
+    ".github/workflows/native-arm-build.yml",
+    ".github/workflows/native-arm-gnu-verity-mapping-smoke.yml",
+    "scripts/ci/gnu-verity-mapping-smoke/Root-build-decision.json",
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-build-result.json",
+    "scripts/ci/gnu-verity-mapping-smoke/kernel-descriptor.json",
+    "scripts/ci/gnu-verity-mapping-smoke/source-manifest.json"
+  ],
+  "published_ref": "codex/gnu-verity-mapping-smoke-v1",
+  "published_source": "5eb899f1d42526820f0f9556439a0fa918e31a14",
+  "purpose": "GNU_VERITY_STANDALONE_MAPPING_INTEGRITY_SMOKE_V1",
+  "schema_version": 1,
+  "scope": "STANDALONE_DM_VERITY_MAPPING_AND_INTEGRITY_SMOKE_ONLY",
+  "source_files": 75
+}

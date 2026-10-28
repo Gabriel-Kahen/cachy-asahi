@@ -1,0 +1,23 @@
+{
+  "gnu_inputs": {
+    "index_bytes": 559,
+    "index_sha256": "fc25f22892fb76b04091e27aff91029f72cebe0174b5fee7d4278ae0b694b467",
+    "ref": "5303b00e8bb66a3e58f2792fa1b60306d464e540"
+  },
+  "note": "Root accepted private16K prerequisite and exact immutable original GNU input packet bound; independent GNU authority/current-expiry limitation preserved. Root owns final source commit and native dispatch.",
+  "private16k": {
+    "attempt": 1,
+    "bytes": 494981,
+    "path": "artifacts/development/glibc16k-run38941180852/runtime.json",
+    "root_verification": {
+      "bytes": 924,
+      "path": "artifacts/development/glibc16k-run38941180852/root-verification.json",
+      "sha256": "3600cee58367ace3291e26d1be39ef5b858c10c9f438c52766ee9a4bc9fe578b"
+    },
+    "run": 38941180852,
+    "sha256": "259d4ff751055f6b45854da6c8de7fcb72a80554d08871ea097392ae53b5e8f2",
+    "source": "308c9b0cba5ad6c90530e4b10f0e3fb3e01dcbfb"
+  },
+  "schema_version": 1,
+  "status": "ROOT_BOUND_ACCEPTED_PRIVATE16K_AND_GNU_INPUT_PACKET"
+}

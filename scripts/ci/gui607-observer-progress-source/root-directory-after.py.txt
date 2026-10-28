@@ -1,0 +1,44 @@
+def selected_verify_body():
+ return '''def _selected_root_helper607(helper):
+    import types
+    original_directory=helper.directory
+    @contextmanager
+    def directory(root,name):
+        if type(root)is not type(Path('/')) or root!=Path('/'):
+            with original_directory(root,name)as fd:yield fd
+            return
+        # The literal process root has no parent or symlink component to resolve.
+        # All live descriptor, component, device and no-follow checks remain.
+        fds=[os.open('/',os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC)]
+        device=os.fstat(fds[0]).st_dev
+        try:
+            for component in helper.relative(name).split('/'):
+                fd=os.open(component,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=fds[-1])
+                fds.append(fd);helper.need(os.fstat(fd).st_dev==device,'database mount crossing refused')
+            yield fds[-1]
+        finally:
+            for fd in reversed(fds):os.close(fd)
+    selected=types.SimpleNamespace(**vars(helper));selected.directory=directory
+    need(helper.directory is original_directory and selected.directory is not original_directory,'private selected directory binding')
+    return selected
+
+def _selected_verify_observe(root,helper,expected,*,deadline):
+    import types
+    need(type(deadline)is int and deadline==1200,'exact selected verify1200 query role')
+    original_capabilities=capabilities
+    def selected_capabilities():
+        caps=original_capabilities()
+        original_mount=caps._mount
+        caps._mount=_mount600(original_mount)
+        need(caps._mount is not original_mount and caps._attrs.__globals__ is vars(caps),
+             'fresh private selected capability module binding')
+        return caps
+    namespace=dict(observe.__globals__,capabilities=selected_capabilities)
+    selected=types.FunctionType(observe.__code__,namespace,observe.__name__,observe.__defaults__,observe.__closure__)
+    selected.__kwdefaults__=observe.__kwdefaults__
+    need(selected.__globals__['capabilities']is selected_capabilities and
+         observe.__globals__['capabilities']is original_capabilities,
+         'actual selected observe globals and original capture binding')
+    selected_helper=(_selected_root_helper607(helper)if type(root)is type(Path('/'))and root==Path('/')else helper)
+    return selected(root,selected_helper,expected,deadline=deadline)
+'''

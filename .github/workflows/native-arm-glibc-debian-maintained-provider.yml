@@ -1,0 +1,160 @@
+# SOURCE PROPOSAL: Root-bound distinct caa3 source authority/carrier only; no native or old acceptance credit.
+name: native-arm-glibc-debian-maintained-provider
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact reviewed source SHA equal to this workflow revision
+        type: string
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: native-arm-glibc-debian-maintained-provider
+  cancel-in-progress: false
+jobs:
+  native:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 360
+    defaults:
+      run:
+        shell: bash
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      WORKFLOW_SHA: ${{ github.workflow_sha }}
+      SLICE: scripts/ci/glibc-debian-maintained-native-provider
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 3
+        with:
+          ref: ${{ inputs.source_sha }}
+          persist-credentials: false
+      - name: Prove source equals workflow before secrets
+        id: proof
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          test "$SOURCE_SHA" = "$WORKFLOW_SHA"
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          printf '%s  %s\n' 'da7f17d0df297038b12a141d0308420a25e7922b84225a1a976ae8daac53cec0' "$SLICE/job.py" '95db605ba6da17d50667b88d1f8aed85f7c4cf9e81aa19324ce759cd4f6fb50e' "$SLICE/integration-manifest.json" | sha256sum --check
+          python3 -I -B "$SLICE/job.py" proof --workspace "$GITHUB_WORKSPACE" --manifest "$SLICE/integration-manifest.json" --proof "$RUNNER_TEMP/glibc-proof.json"
+      - name: Checkout only the Root bound new Debian source packet
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 3
+        with:
+          ref: ${{ steps.proof.outputs.debian_source_sha }}
+          path: provider-maintained-debian-inputs
+          persist-credentials: false
+      - name: Verify eight-file maintained chain and independent Root authority; emit pinned executor
+        id: prepare
+        timeout-minutes: 5
+        env:
+          DEBIAN_SOURCE_SHA: ${{ steps.proof.outputs.debian_source_sha }}
+        run: |
+          set -euo pipefail
+          test "$(git -C provider-maintained-debian-inputs rev-parse HEAD)" = "$DEBIAN_SOURCE_SHA"
+          python3 -I -B "$SLICE/job.py" prepare --workspace "$GITHUB_WORKSPACE" --manifest "$SLICE/integration-manifest.json" --inputs "$GITHUB_WORKSPACE/provider-maintained-debian-inputs/payload" --harness "$RUNNER_TEMP/maintained-debian-harness" --bundle "$RUNNER_TEMP/glibc-source-bundle"
+      - name: Focused inert controls before secrets and native actors
+        timeout-minutes: 3
+        run: |
+          set -euo pipefail
+          python3 -B -m unittest discover -s "$SLICE" -p 'test_*.py' -v
+          python3 -I -B scripts/ci/glibc-debian-maintained-provider/test_materialize.py
+          python3 -I -B scripts/ci/glibc-debian-maintained-provider/test_candidate.py
+          python3 -I -B scripts/ci/test_maintained_desktop574.py
+          bash -n "$RUNNER_TEMP/maintained-debian-harness/build-entry.sh"
+          bash -n "$RUNNER_TEMP/glibc-source-bundle/PKGBUILD"
+      - name: Seed the six existing private input files using unchanged secrets
+        timeout-minutes: 2
+        env:
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01 }}
+          CACHY_OLD_FOUR_SCHEMA: '1'
+          CACHY_OLD_FOUR_SOURCE_EPOCH: '1791748800'
+          CACHY_OLD_FOUR_JBIGKIT_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_01 }}
+          CACHY_OLD_FOUR_JBIGKIT_02: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_02 }}
+          CACHY_OLD_FOUR_JBIGKIT_SIG_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_SIG_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_02: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_02 }}
+          CACHY_OLD_FOUR_LIBTIFF_03: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_03 }}
+          CACHY_OLD_FOUR_LIBTIFF_04: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_04 }}
+          CACHY_OLD_FOUR_LIBTIFF_05: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_05 }}
+          CACHY_OLD_FOUR_LIBTIFF_06: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_06 }}
+          CACHY_OLD_FOUR_LIBTIFF_07: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_07 }}
+          CACHY_OLD_FOUR_LIBTIFF_08: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_08 }}
+          CACHY_OLD_FOUR_LIBTIFF_09: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_09 }}
+          CACHY_OLD_FOUR_LIBTIFF_10: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_10 }}
+          CACHY_OLD_FOUR_LIBTIFF_11: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_11 }}
+          CACHY_OLD_FOUR_LIBTIFF_12: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_12 }}
+          CACHY_OLD_FOUR_LIBTIFF_13: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_13 }}
+          CACHY_OLD_FOUR_LIBTIFF_14: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_14 }}
+          CACHY_OLD_FOUR_LIBTIFF_15: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_15 }}
+          CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}
+        run: >-
+          python3 -I -B scripts/ci/maintained_desktop574.py seed
+          --inputs scripts/ci/maintained-desktop574-inputs.json
+          --output "$RUNNER_TEMP/desktop574"
+      - name: Checkout exact fourteen public input files
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 3
+        with:
+          ref: 04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd
+          path: retained-public-inputs
+          persist-credentials: false
+      - name: Seed the exact public inputs without secrets
+        timeout-minutes: 3
+        run: |
+          set -euo pipefail
+          test "$(git -C retained-public-inputs rev-parse HEAD)" = 04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd
+          printf '%s  %s\n' 'a7857658af224984065e575f6ffed8308ea85027d46eace8bda146d9033e93b3' 'retained-public-inputs/seed.py' 'a388c8c8ba8e06cb92fd2be598b86e433c4e403b6e71a0f15b1eaec381bb7300' 'retained-public-inputs/index.json' | sha256sum --check
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP" LANG=C.UTF-8 TZ=UTC TMPDIR="$RUNNER_TEMP" python3 -I -B "$GITHUB_WORKSPACE/retained-public-inputs/seed.py" --cache "$RUNNER_TEMP/desktop574/context/deps"
+      - name: Reuse unchanged owned574 native producer
+        timeout-minutes: 40
+        env:
+          JOB_TOKEN: ${{ steps.proof.outputs.job_token }}
+        run: >-
+          timeout --signal=TERM --kill-after=10s 2300s
+          python3 -I -B scripts/ci/maintained_desktop574.py build
+          --inputs scripts/ci/maintained-desktop574-inputs.json
+          --output "$RUNNER_TEMP/desktop574" --job-token "$JOB_TOKEN"
+      - name: Native maintained Debian-source pair with full upstream tests ABI headers and normal runtime
+        timeout-minutes: 280
+        env:
+          CONSUMER_TOKEN: ${{ steps.proof.outputs.consumer_token }}
+        run: |
+          set -euo pipefail
+          env -i PATH=/usr/bin:/bin HOME="$RUNNER_TEMP" LC_ALL=C TZ=UTC python3 -B "$RUNNER_TEMP/maintained-debian-harness/run.py" \
+            --bundle "$RUNNER_TEMP/glibc-source-bundle" --bundle-manifest-sha256 "${{ steps.prepare.outputs.bundle_manifest_sha256 }}" \
+            --harness-manifest-sha256 "${{ steps.prepare.outputs.harness_manifest_sha256 }}" --owner-token "$CONSUMER_TOKEN" \
+            --base-dir "$RUNNER_TEMP/desktop574" --source-root "$GITHUB_WORKSPACE" \
+            --smoke-dir "$GITHUB_WORKSPACE/scripts/ci/glibc-owned-runtime" --smoke-manifest "$GITHUB_WORKSPACE/scripts/ci/glibc-owned-runtime/source-manifest.json" \
+            --output "$RUNNER_TEMP/glibc-runtime" --execute
+      - name: Retire consumers before the producer including failure and cancellation
+        if: always() && steps.proof.outcome == 'success'
+        timeout-minutes: 15
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' 'da7f17d0df297038b12a141d0308420a25e7922b84225a1a976ae8daac53cec0' "$SLICE/job.py" | sha256sum --check
+          env -i PATH=/usr/bin:/bin HOME="$RUNNER_TEMP" LC_ALL=C TZ=UTC python3 -I -B "$SLICE/job.py" cleanup --workspace "$GITHUB_WORKSPACE" --manifest "$SLICE/integration-manifest.json" --proof "$RUNNER_TEMP/glibc-proof.json" --base "$RUNNER_TEMP/desktop574" --runtime "$RUNNER_TEMP/glibc-runtime" --output "$RUNNER_TEMP/glibc-cleanup.json"
+      - name: Export closed bounded packages source and native evidence
+        if: always() && steps.proof.outcome == 'success'
+        timeout-minutes: 3
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' 'da7f17d0df297038b12a141d0308420a25e7922b84225a1a976ae8daac53cec0' "$SLICE/job.py" | sha256sum --check
+          env -i PATH=/usr/bin:/bin HOME="$RUNNER_TEMP" LC_ALL=C TZ=UTC python3 -I -B "$SLICE/job.py" retain --harness-manifest-sha256 "${{ steps.prepare.outputs.harness_manifest_sha256 }}" --workspace "$GITHUB_WORKSPACE" --manifest "$SLICE/integration-manifest.json" --harness "$RUNNER_TEMP/maintained-debian-harness" --proof "$RUNNER_TEMP/glibc-proof.json" --base "$RUNNER_TEMP/desktop574" --runtime "$RUNNER_TEMP/glibc-runtime" --bundle "$RUNNER_TEMP/glibc-source-bundle" --cleanup "$RUNNER_TEMP/glibc-cleanup.json" --output "$RUNNER_TEMP/glibc-public"
+      - name: Upload only the closed public evidence
+        if: always() && steps.proof.outcome == 'success'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        timeout-minutes: 5
+        with:
+          name: glibc-debian-maintained-provider-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/glibc-public/
+          retention-days: 3
+          compression-level: 0
+          include-hidden-files: true
+          if-no-files-found: error

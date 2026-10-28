@@ -1,0 +1,30 @@
+{
+  "coordinated_sets": [
+    {
+      "name": "generic-Hyprland-builder",
+      "versions": {
+        "aquamarine": "0.15.1-1",
+        "hyprgraphics": "0.5.1-4",
+        "hyprland": "0.56.2-4",
+        "hyprlang": "0.6.8-5",
+        "hyprutils": "0.14.2-1"
+      }
+    }
+  ],
+  "platform_scope": "generic-builder-only",
+  "protected_packages": [
+    "pacman",
+    "glibc",
+    "bash",
+    "filesystem"
+  ],
+  "purpose": "reviewed-generic-restage-policy",
+  "review_status": "ACCEPTED",
+  "selected_packages": [
+    "cachy-asahi-fish-config",
+    "cachy-asahi-hyprland-settings",
+    "cachy-asahi-setup",
+    "cachy-asahi-zsh-config"
+  ],
+  "supported_models": []
+}

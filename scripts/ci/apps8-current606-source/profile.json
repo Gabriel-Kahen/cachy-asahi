@@ -1,0 +1,523 @@
+{
+  "actual": null,
+  "added": {
+    "apps8/carrier-profile.json": {
+      "bytes": 20798,
+      "sha256": "8158fa4b32e1f0fe1c45eda5c27d30e30012062df7f326ccc51ff564f8787aa9"
+    },
+    "apps8/entry.py": {
+      "bytes": 753,
+      "sha256": "ca7d55b71f979264e979d1b67cc4edcdaf5f75a17885bffa3811efa44294adc2"
+    },
+    "apps8/inverse/.github/workflows/native-arm-build.yml": {
+      "bytes": 47090,
+      "sha256": "3b4bf0a36affe6c4bd5b910e08e4201e5eb596c8895c8f7672899a78d31b49c5"
+    },
+    "apps8/inverse/.github/workflows/native-arm-current606-apps7-owned-copy.yml": {
+      "bytes": 47090,
+      "sha256": "3b4bf0a36affe6c4bd5b910e08e4201e5eb596c8895c8f7672899a78d31b49c5"
+    },
+    "apps8/inverse/copyworker/scripts/ci/current606-apps7-copy/alpm_step.py": {
+      "bytes": 6105,
+      "sha256": "c4efe235fd0a7ebe4ee65da5e139cfe272308b5c6c11ffa7a3bdf48600f1a087"
+    },
+    "apps8/inverse/copyworker/scripts/ci/current606-apps7-copy/driver.py": {
+      "bytes": 13935,
+      "sha256": "8cc76bc59aa1666f66583ff111c40eb8456ed708672195aea7b8b42d9fb52184"
+    },
+    "apps8/inverse/copyworker/scripts/ci/current606-apps7-copy/fixture_entry.py": {
+      "bytes": 2850,
+      "sha256": "8f68309931a2123590296a2cf55809f454f7ab043815da6c4daeb16853ee04d9"
+    },
+    "apps8/inverse/copyworker/scripts/ci/current606-apps7-copy/guard.py": {
+      "bytes": 8810,
+      "sha256": "bc53d82aa9495fc9deae3ce6db6c26fb25881e95af45ad709d6548220c8d4a81"
+    },
+    "apps8/inverse/copyworker/scripts/ci/current606-apps7-copy/lifecycle.py": {
+      "bytes": 6083,
+      "sha256": "bd6564bf351d5a79b40a0bf8d7cf0d5daf22996888342800b9fa144a70198682"
+    },
+    "apps8/inverse/copyworker/scripts/ci/current606-apps7-copy/plan.py": {
+      "bytes": 5123,
+      "sha256": "f8a91840c3140246a3ec1d35f5cb3fdb3cf1e6a354908098acf145229086befe"
+    },
+    "apps8/inverse/copyworker/scripts/ci/current606-apps7-copy/rooted_fixture.py": {
+      "bytes": 8330,
+      "sha256": "af1ad1a0b9c27754a72cd920a4ad6053b865f94e46dc2517ed9a09fc49588211"
+    },
+    "apps8/inverse/copyworker/scripts/ci/current606-apps7-copy/source-manifest.json": {
+      "bytes": 7012,
+      "sha256": "f45e63ab6edfee0ca62f5a5d346bc0f9f16a9d8e206387089382e77f21bf80d0"
+    },
+    "apps8/inverse/copyworker/scripts/ci/current606-apps7-copy/verification.py": {
+      "bytes": 4356,
+      "sha256": "f211e88e0140b0a7669d8c21dfa1c9b4dc38a3848ae2be3e8b89cbaa4a2f6488"
+    },
+    "apps8/inverse/scripts/ci/current606-apps7-closed-owner/contract.py": {
+      "bytes": 6035,
+      "sha256": "d76b9bbbfb61f198a4083033d4ea998a21949a76d471f1df57542ce9e4485a42"
+    },
+    "apps8/inverse/scripts/ci/current606-apps7-closed-owner/owner.py": {
+      "bytes": 13733,
+      "sha256": "73d4d243588ea82c7c4f7398c379121fdb2403c9ed378bb0e63ec2dce11d1875"
+    },
+    "apps8/inverse/scripts/ci/current606-apps7-closed-owner/source-manifest.json": {
+      "bytes": 62782,
+      "sha256": "2981953cbce68ea341d92449b001de1d1885556c79943babc00acc1da7af696b"
+    },
+    "apps8/inverse/scripts/ci/current606-apps7-closed-owner/source-pins.json": {
+      "bytes": 59158,
+      "sha256": "6e3d0ee49a1ac0232ebcf1617749ed6d1454b5f82158f5917bdf3121bda64bc3"
+    },
+    "apps8/inverse/scripts/ci/native-evidence-transport/apps-policy.json": {
+      "bytes": 435,
+      "sha256": "fcee26a99507c33b97fa23605912513d6b7b44d78c7cda924a75437ec55eeedd"
+    },
+    "apps8/packet.py": {
+      "bytes": 6815,
+      "sha256": "9c6c08dc2abc55c110d4192ae95f24316d6c3f46de247e4e762f31edb1926af3"
+    },
+    "apps8/parent348.json": {
+      "bytes": 64260,
+      "sha256": "edc372bed3033abc8ae9de06a8ec92aa852a2e24cc452d1778c833d2a695ab8a"
+    },
+    "apps8/source.py": {
+      "bytes": 3081,
+      "sha256": "97e4578fe5571a3cc5a7f6c4c7bc753f45d37fefd7ed941605c3452eb2cf0a39"
+    },
+    "apps8/test_signer.py": {
+      "bytes": 1342,
+      "sha256": "67f3ea8e1415d5662ef9307772dbd452f778862905d48c6d5b51a69ec89c2f04"
+    },
+    "apps8/test_source.py": {
+      "bytes": 11394,
+      "sha256": "9f61cde8e6392c5d90c54631073aef9b304529c51eb4e0915902ee1169f3df5a"
+    },
+    "apps8/workflow-profile.json": {
+      "bytes": 101,
+      "sha256": "cd64c6be2fa967f36eda414e6eff7c77b2d6d891369dfcefbce223f97d780eb2"
+    },
+    "retained-inputs/archive_prefill.py": {
+      "bytes": 4717,
+      "sha256": "2090bd8098783834ac7b11a19eb3d8cd047b7de5b01f77ddc4bb60cd57bea726"
+    },
+    "retained-inputs/carrier-profile.json": {
+      "bytes": 195440,
+      "sha256": "4089fd798849cafda23d03c0dd95ac896a83fd63ad21e331ae420c147535586c"
+    },
+    "retained-inputs/compiler6-profile.json": {
+      "bytes": 1898,
+      "sha256": "74a1ee6d14507f35f52692da7cac580a993c9a2fe2a64cf1d7766f830a3693d1"
+    },
+    "retained-inputs/compiler_policy.py": {
+      "bytes": 11090,
+      "sha256": "5e448ef6677fc26485e044b3ac2d35a07105703d4f1a719bb7c030678eff87ae"
+    },
+    "retained-inputs/compiler_prefill.py": {
+      "bytes": 4486,
+      "sha256": "a0d9e765deb7d31f6b4e1d608cb0459a0244e19990a1da2b83452d7c53202810"
+    },
+    "retained-inputs/legacy-prefill-profile.json": {
+      "bytes": 1510,
+      "sha256": "9cc82d4e0947415ecad9d40094a4c0a2709d01be54513e78af8c739fd76fb696"
+    },
+    "retained-inputs/legacy_prefill.py": {
+      "bytes": 5986,
+      "sha256": "05a91a91efd69b3b2e06561f5bbf08bdbb105998d42dbf133e75fd1fe25945ac"
+    },
+    "retained-inputs/prepare.py": {
+      "bytes": 3749,
+      "sha256": "6c688c315cb962c641b8c0b1d9d88f94778d57ae19bcef251e88e49cb4be6316"
+    }
+  },
+  "carrier": {
+    "map": {
+      "bytes": 15477,
+      "sha256": "b1151b68a6b15c94bd156a4c503e728f8a245570ce7a2c84bc213883a76477d1"
+    },
+    "ref": "codex/apps8-accepted-inputs-v1",
+    "source": "979b2d6ec7417e607a911d8c25bef2f1f7f72dcb"
+  },
+  "changed": {
+    ".github/workflows/native-arm-build.yml": {
+      "before": {
+        "bytes": 47090,
+        "sha256": "3b4bf0a36affe6c4bd5b910e08e4201e5eb596c8895c8f7672899a78d31b49c5"
+      },
+      "proposed": {
+        "bytes": 52517,
+        "sha256": "2d0a9ac350778a9eaf3c5e57f8304f67e9ba8045765e8e22e83f6a6ece410380"
+      }
+    },
+    ".github/workflows/native-arm-current606-apps7-owned-copy.yml": {
+      "before": {
+        "bytes": 47090,
+        "sha256": "3b4bf0a36affe6c4bd5b910e08e4201e5eb596c8895c8f7672899a78d31b49c5"
+      },
+      "proposed": {
+        "bytes": 52517,
+        "sha256": "2d0a9ac350778a9eaf3c5e57f8304f67e9ba8045765e8e22e83f6a6ece410380"
+      }
+    },
+    "copyworker/scripts/ci/current606-apps7-copy/alpm_step.py": {
+      "before": {
+        "bytes": 6105,
+        "sha256": "c4efe235fd0a7ebe4ee65da5e139cfe272308b5c6c11ffa7a3bdf48600f1a087"
+      },
+      "proposed": {
+        "bytes": 6125,
+        "sha256": "a95b12f42dfce0358573fa99df6b8d76624d945452390e671d22805ba3cde9cb"
+      }
+    },
+    "copyworker/scripts/ci/current606-apps7-copy/driver.py": {
+      "before": {
+        "bytes": 13935,
+        "sha256": "8cc76bc59aa1666f66583ff111c40eb8456ed708672195aea7b8b42d9fb52184"
+      },
+      "proposed": {
+        "bytes": 14031,
+        "sha256": "93a300b73140c341acd6acb8b4557112a8857451fbcd79523db19f6397adb1d0"
+      }
+    },
+    "copyworker/scripts/ci/current606-apps7-copy/fixture_entry.py": {
+      "before": {
+        "bytes": 2850,
+        "sha256": "8f68309931a2123590296a2cf55809f454f7ab043815da6c4daeb16853ee04d9"
+      },
+      "proposed": {
+        "bytes": 2890,
+        "sha256": "b3129bf48b5ead0a8fdd1b263ab3e999c6f9b8c711e9e44ec5f110ace0bc8f4a"
+      }
+    },
+    "copyworker/scripts/ci/current606-apps7-copy/guard.py": {
+      "before": {
+        "bytes": 8810,
+        "sha256": "bc53d82aa9495fc9deae3ce6db6c26fb25881e95af45ad709d6548220c8d4a81"
+      },
+      "proposed": {
+        "bytes": 8821,
+        "sha256": "416695749aa648a860a09de595c09e28e6eeccc07c9a3939aa4617bf40e49725"
+      }
+    },
+    "copyworker/scripts/ci/current606-apps7-copy/lifecycle.py": {
+      "before": {
+        "bytes": 6083,
+        "sha256": "bd6564bf351d5a79b40a0bf8d7cf0d5daf22996888342800b9fa144a70198682"
+      },
+      "proposed": {
+        "bytes": 6750,
+        "sha256": "7243e1bafa9513f6790eec8db77768056c194dd6ebb9b53485a719793a09032f"
+      }
+    },
+    "copyworker/scripts/ci/current606-apps7-copy/plan.py": {
+      "before": {
+        "bytes": 5123,
+        "sha256": "f8a91840c3140246a3ec1d35f5cb3fdb3cf1e6a354908098acf145229086befe"
+      },
+      "proposed": {
+        "bytes": 5147,
+        "sha256": "9f4c6eae62f9dd4d4c3d6cc4ddf686f68e7c88b78b0b18bdfa0f5417b1e4e572"
+      }
+    },
+    "copyworker/scripts/ci/current606-apps7-copy/rooted_fixture.py": {
+      "before": {
+        "bytes": 8330,
+        "sha256": "af1ad1a0b9c27754a72cd920a4ad6053b865f94e46dc2517ed9a09fc49588211"
+      },
+      "proposed": {
+        "bytes": 8338,
+        "sha256": "8804b98907133f29c437e3ce5da955783226ef6d19923502fe4008cb6d23cbd8"
+      }
+    },
+    "copyworker/scripts/ci/current606-apps7-copy/source-manifest.json": {
+      "before": {
+        "bytes": 7012,
+        "sha256": "f45e63ab6edfee0ca62f5a5d346bc0f9f16a9d8e206387089382e77f21bf80d0"
+      },
+      "proposed": {
+        "bytes": 7012,
+        "sha256": "ac4509f7c1dc8d776a2dc3d08f294e62a645dc1a8c9b30ad65ec177c7eb81594"
+      }
+    },
+    "copyworker/scripts/ci/current606-apps7-copy/verification.py": {
+      "before": {
+        "bytes": 4356,
+        "sha256": "f211e88e0140b0a7669d8c21dfa1c9b4dc38a3848ae2be3e8b89cbaa4a2f6488"
+      },
+      "proposed": {
+        "bytes": 4356,
+        "sha256": "1f290f5fa73bd77e08f49e21b282d543211b70e690a46684ed39c886f2a5c042"
+      }
+    },
+    "scripts/ci/current606-apps7-closed-owner/contract.py": {
+      "before": {
+        "bytes": 6035,
+        "sha256": "d76b9bbbfb61f198a4083033d4ea998a21949a76d471f1df57542ce9e4485a42"
+      },
+      "proposed": {
+        "bytes": 6228,
+        "sha256": "a380ab088b2cef22c4f443e75148922594e571a8201911d2892c4e310982dc37"
+      }
+    },
+    "scripts/ci/current606-apps7-closed-owner/owner.py": {
+      "before": {
+        "bytes": 13733,
+        "sha256": "73d4d243588ea82c7c4f7398c379121fdb2403c9ed378bb0e63ec2dce11d1875"
+      },
+      "proposed": {
+        "bytes": 14534,
+        "sha256": "a367928b507d59ae6763480579f871dc08ded773696a16216ef41dc59e9b6f8b"
+      }
+    },
+    "scripts/ci/current606-apps7-closed-owner/source-manifest.json": {
+      "before": {
+        "bytes": 62782,
+        "sha256": "2981953cbce68ea341d92449b001de1d1885556c79943babc00acc1da7af696b"
+      },
+      "proposed": {
+        "bytes": 68205,
+        "sha256": "5f461fd48a255c5863ee6ae02b5d44ed723846e324184d556d57c1c24cd223f0"
+      }
+    },
+    "scripts/ci/current606-apps7-closed-owner/source-pins.json": {
+      "before": {
+        "bytes": 59158,
+        "sha256": "6e3d0ee49a1ac0232ebcf1617749ed6d1454b5f82158f5917bdf3121bda64bc3"
+      },
+      "proposed": {
+        "bytes": 59158,
+        "sha256": "14ce288118f3a969264e03c23180196b68e6c3a73494e4353a5a96575910b6b9"
+      }
+    },
+    "scripts/ci/native-evidence-transport/apps-policy.json": {
+      "before": {
+        "bytes": 435,
+        "sha256": "fcee26a99507c33b97fa23605912513d6b7b44d78c7cda924a75437ec55eeedd"
+      },
+      "proposed": {
+        "bytes": 435,
+        "sha256": "746339a6f73fe1c25c3dc0fe2e47cef74e4de7a184ac870e88c74f4e140a321c"
+      }
+    }
+  },
+  "held": 332,
+  "kind": "SOURCE_ONLY_EXACT_APPS8_CURRENT606_380_FACTORY",
+  "legal": {
+    "LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "NOTICE.md": {
+      "bytes": 693,
+      "sha256": "6f45126d01c70aa2155b8d086068b60185ae119ba108906ffbf92693a0080a96"
+    }
+  },
+  "parent": {
+    "map": {
+      "bytes": 60352,
+      "sha256": "55c36b4acf844f0fc068e153c5e703101d148cabd32640dc5673a9777b7d5000"
+    },
+    "source": "3660e6cb87b4cb5591b1d295c62c8b02cca4b7e6"
+  },
+  "payload": {
+    ".github/workflows/native-arm-build.yml": {
+      "bytes": 52517,
+      "sha256": "2d0a9ac350778a9eaf3c5e57f8304f67e9ba8045765e8e22e83f6a6ece410380"
+    },
+    ".github/workflows/native-arm-current606-apps7-owned-copy.yml": {
+      "bytes": 52517,
+      "sha256": "2d0a9ac350778a9eaf3c5e57f8304f67e9ba8045765e8e22e83f6a6ece410380"
+    },
+    "apps8/carrier-profile.json": {
+      "bytes": 20798,
+      "sha256": "8158fa4b32e1f0fe1c45eda5c27d30e30012062df7f326ccc51ff564f8787aa9"
+    },
+    "apps8/entry.py": {
+      "bytes": 753,
+      "sha256": "ca7d55b71f979264e979d1b67cc4edcdaf5f75a17885bffa3811efa44294adc2"
+    },
+    "apps8/inverse/.github/workflows/native-arm-build.yml": {
+      "bytes": 47090,
+      "sha256": "3b4bf0a36affe6c4bd5b910e08e4201e5eb596c8895c8f7672899a78d31b49c5"
+    },
+    "apps8/inverse/.github/workflows/native-arm-current606-apps7-owned-copy.yml": {
+      "bytes": 47090,
+      "sha256": "3b4bf0a36affe6c4bd5b910e08e4201e5eb596c8895c8f7672899a78d31b49c5"
+    },
+    "apps8/inverse/copyworker/scripts/ci/current606-apps7-copy/alpm_step.py": {
+      "bytes": 6105,
+      "sha256": "c4efe235fd0a7ebe4ee65da5e139cfe272308b5c6c11ffa7a3bdf48600f1a087"
+    },
+    "apps8/inverse/copyworker/scripts/ci/current606-apps7-copy/driver.py": {
+      "bytes": 13935,
+      "sha256": "8cc76bc59aa1666f66583ff111c40eb8456ed708672195aea7b8b42d9fb52184"
+    },
+    "apps8/inverse/copyworker/scripts/ci/current606-apps7-copy/fixture_entry.py": {
+      "bytes": 2850,
+      "sha256": "8f68309931a2123590296a2cf55809f454f7ab043815da6c4daeb16853ee04d9"
+    },
+    "apps8/inverse/copyworker/scripts/ci/current606-apps7-copy/guard.py": {
+      "bytes": 8810,
+      "sha256": "bc53d82aa9495fc9deae3ce6db6c26fb25881e95af45ad709d6548220c8d4a81"
+    },
+    "apps8/inverse/copyworker/scripts/ci/current606-apps7-copy/lifecycle.py": {
+      "bytes": 6083,
+      "sha256": "bd6564bf351d5a79b40a0bf8d7cf0d5daf22996888342800b9fa144a70198682"
+    },
+    "apps8/inverse/copyworker/scripts/ci/current606-apps7-copy/plan.py": {
+      "bytes": 5123,
+      "sha256": "f8a91840c3140246a3ec1d35f5cb3fdb3cf1e6a354908098acf145229086befe"
+    },
+    "apps8/inverse/copyworker/scripts/ci/current606-apps7-copy/rooted_fixture.py": {
+      "bytes": 8330,
+      "sha256": "af1ad1a0b9c27754a72cd920a4ad6053b865f94e46dc2517ed9a09fc49588211"
+    },
+    "apps8/inverse/copyworker/scripts/ci/current606-apps7-copy/source-manifest.json": {
+      "bytes": 7012,
+      "sha256": "f45e63ab6edfee0ca62f5a5d346bc0f9f16a9d8e206387089382e77f21bf80d0"
+    },
+    "apps8/inverse/copyworker/scripts/ci/current606-apps7-copy/verification.py": {
+      "bytes": 4356,
+      "sha256": "f211e88e0140b0a7669d8c21dfa1c9b4dc38a3848ae2be3e8b89cbaa4a2f6488"
+    },
+    "apps8/inverse/scripts/ci/current606-apps7-closed-owner/contract.py": {
+      "bytes": 6035,
+      "sha256": "d76b9bbbfb61f198a4083033d4ea998a21949a76d471f1df57542ce9e4485a42"
+    },
+    "apps8/inverse/scripts/ci/current606-apps7-closed-owner/owner.py": {
+      "bytes": 13733,
+      "sha256": "73d4d243588ea82c7c4f7398c379121fdb2403c9ed378bb0e63ec2dce11d1875"
+    },
+    "apps8/inverse/scripts/ci/current606-apps7-closed-owner/source-manifest.json": {
+      "bytes": 62782,
+      "sha256": "2981953cbce68ea341d92449b001de1d1885556c79943babc00acc1da7af696b"
+    },
+    "apps8/inverse/scripts/ci/current606-apps7-closed-owner/source-pins.json": {
+      "bytes": 59158,
+      "sha256": "6e3d0ee49a1ac0232ebcf1617749ed6d1454b5f82158f5917bdf3121bda64bc3"
+    },
+    "apps8/inverse/scripts/ci/native-evidence-transport/apps-policy.json": {
+      "bytes": 435,
+      "sha256": "fcee26a99507c33b97fa23605912513d6b7b44d78c7cda924a75437ec55eeedd"
+    },
+    "apps8/packet.py": {
+      "bytes": 6815,
+      "sha256": "9c6c08dc2abc55c110d4192ae95f24316d6c3f46de247e4e762f31edb1926af3"
+    },
+    "apps8/parent348.json": {
+      "bytes": 64260,
+      "sha256": "edc372bed3033abc8ae9de06a8ec92aa852a2e24cc452d1778c833d2a695ab8a"
+    },
+    "apps8/source.py": {
+      "bytes": 3081,
+      "sha256": "97e4578fe5571a3cc5a7f6c4c7bc753f45d37fefd7ed941605c3452eb2cf0a39"
+    },
+    "apps8/test_signer.py": {
+      "bytes": 1342,
+      "sha256": "67f3ea8e1415d5662ef9307772dbd452f778862905d48c6d5b51a69ec89c2f04"
+    },
+    "apps8/test_source.py": {
+      "bytes": 11394,
+      "sha256": "9f61cde8e6392c5d90c54631073aef9b304529c51eb4e0915902ee1169f3df5a"
+    },
+    "apps8/workflow-profile.json": {
+      "bytes": 101,
+      "sha256": "cd64c6be2fa967f36eda414e6eff7c77b2d6d891369dfcefbce223f97d780eb2"
+    },
+    "copyworker/scripts/ci/current606-apps7-copy/alpm_step.py": {
+      "bytes": 6125,
+      "sha256": "a95b12f42dfce0358573fa99df6b8d76624d945452390e671d22805ba3cde9cb"
+    },
+    "copyworker/scripts/ci/current606-apps7-copy/driver.py": {
+      "bytes": 14031,
+      "sha256": "93a300b73140c341acd6acb8b4557112a8857451fbcd79523db19f6397adb1d0"
+    },
+    "copyworker/scripts/ci/current606-apps7-copy/fixture_entry.py": {
+      "bytes": 2890,
+      "sha256": "b3129bf48b5ead0a8fdd1b263ab3e999c6f9b8c711e9e44ec5f110ace0bc8f4a"
+    },
+    "copyworker/scripts/ci/current606-apps7-copy/guard.py": {
+      "bytes": 8821,
+      "sha256": "416695749aa648a860a09de595c09e28e6eeccc07c9a3939aa4617bf40e49725"
+    },
+    "copyworker/scripts/ci/current606-apps7-copy/lifecycle.py": {
+      "bytes": 6750,
+      "sha256": "7243e1bafa9513f6790eec8db77768056c194dd6ebb9b53485a719793a09032f"
+    },
+    "copyworker/scripts/ci/current606-apps7-copy/plan.py": {
+      "bytes": 5147,
+      "sha256": "9f4c6eae62f9dd4d4c3d6cc4ddf686f68e7c88b78b0b18bdfa0f5417b1e4e572"
+    },
+    "copyworker/scripts/ci/current606-apps7-copy/rooted_fixture.py": {
+      "bytes": 8338,
+      "sha256": "8804b98907133f29c437e3ce5da955783226ef6d19923502fe4008cb6d23cbd8"
+    },
+    "copyworker/scripts/ci/current606-apps7-copy/source-manifest.json": {
+      "bytes": 7012,
+      "sha256": "ac4509f7c1dc8d776a2dc3d08f294e62a645dc1a8c9b30ad65ec177c7eb81594"
+    },
+    "copyworker/scripts/ci/current606-apps7-copy/verification.py": {
+      "bytes": 4356,
+      "sha256": "1f290f5fa73bd77e08f49e21b282d543211b70e690a46684ed39c886f2a5c042"
+    },
+    "retained-inputs/archive_prefill.py": {
+      "bytes": 4717,
+      "sha256": "2090bd8098783834ac7b11a19eb3d8cd047b7de5b01f77ddc4bb60cd57bea726"
+    },
+    "retained-inputs/carrier-profile.json": {
+      "bytes": 195440,
+      "sha256": "4089fd798849cafda23d03c0dd95ac896a83fd63ad21e331ae420c147535586c"
+    },
+    "retained-inputs/compiler6-profile.json": {
+      "bytes": 1898,
+      "sha256": "74a1ee6d14507f35f52692da7cac580a993c9a2fe2a64cf1d7766f830a3693d1"
+    },
+    "retained-inputs/compiler_policy.py": {
+      "bytes": 11090,
+      "sha256": "5e448ef6677fc26485e044b3ac2d35a07105703d4f1a719bb7c030678eff87ae"
+    },
+    "retained-inputs/compiler_prefill.py": {
+      "bytes": 4486,
+      "sha256": "a0d9e765deb7d31f6b4e1d608cb0459a0244e19990a1da2b83452d7c53202810"
+    },
+    "retained-inputs/legacy-prefill-profile.json": {
+      "bytes": 1510,
+      "sha256": "9cc82d4e0947415ecad9d40094a4c0a2709d01be54513e78af8c739fd76fb696"
+    },
+    "retained-inputs/legacy_prefill.py": {
+      "bytes": 5986,
+      "sha256": "05a91a91efd69b3b2e06561f5bbf08bdbb105998d42dbf133e75fd1fe25945ac"
+    },
+    "retained-inputs/prepare.py": {
+      "bytes": 3749,
+      "sha256": "6c688c315cb962c641b8c0b1d9d88f94778d57ae19bcef251e88e49cb4be6316"
+    },
+    "scripts/ci/current606-apps7-closed-owner/contract.py": {
+      "bytes": 6228,
+      "sha256": "a380ab088b2cef22c4f443e75148922594e571a8201911d2892c4e310982dc37"
+    },
+    "scripts/ci/current606-apps7-closed-owner/owner.py": {
+      "bytes": 14534,
+      "sha256": "a367928b507d59ae6763480579f871dc08ded773696a16216ef41dc59e9b6f8b"
+    },
+    "scripts/ci/current606-apps7-closed-owner/source-manifest.json": {
+      "bytes": 68205,
+      "sha256": "5f461fd48a255c5863ee6ae02b5d44ed723846e324184d556d57c1c24cd223f0"
+    },
+    "scripts/ci/current606-apps7-closed-owner/source-pins.json": {
+      "bytes": 59158,
+      "sha256": "14ce288118f3a969264e03c23180196b68e6c3a73494e4353a5a96575910b6b9"
+    },
+    "scripts/ci/native-evidence-transport/apps-policy.json": {
+      "bytes": 435,
+      "sha256": "746339a6f73fe1c25c3dc0fe2e47cef74e4de7a184ac870e88c74f4e140a321c"
+    }
+  },
+  "result": {
+    "map": {
+      "bytes": 65519,
+      "sha256": "17f9985492cffefed9fbdb377e750aef3648a11c8df1132e40c37afa5ec3051b"
+    },
+    "source": "c2b61b7089e41baed6b284bf0f3a55819f661c05"
+  }
+}

@@ -1,0 +1,115 @@
+{
+  "name": "current607-apps16-source",
+  "on": {
+    "push": {
+      "paths": [
+        "scripts/ci/current607-native-graph-profile/**",
+        ".github/workflows/current607-apps16-source.yml"
+      ]
+    },
+    "pull_request": {
+      "paths": [
+        "scripts/ci/current607-native-graph-profile/**",
+        ".github/workflows/current607-apps16-source.yml"
+      ]
+    },
+    "workflow_dispatch": {}
+  },
+  "permissions": {
+    "contents": "read"
+  },
+  "jobs": {
+    "source-controls": {
+      "runs-on": "ubuntu-24.04",
+      "timeout-minutes": 10,
+      "strategy": {
+        "fail-fast": false,
+        "matrix": {
+          "python": [
+            "3.12",
+            "3.14"
+          ]
+        }
+      },
+      "env": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONWARNINGS": "error"
+      },
+      "steps": [
+        {
+          "name": "Check out maintained factory",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out immutable parent842",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "ref": "8b22845252d01e1a813ed078be60315a39a27a5f",
+            "path": ".ci-fixtures/parent842",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out immutable expected849",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "ref": "c64cee1167d2ff81f1de0128f57c275819e32868",
+            "path": ".ci-fixtures/expected849",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out immutable carrier94",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "ref": "950b0699a6e3f7a56758d4d17a5d30dabc7b6e11",
+            "path": ".ci-fixtures/carrier94",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out immutable record22",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "ref": "b011fb72b8055cd1d3c5c08227839847a83ef6c5",
+            "path": ".ci-fixtures/record22",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out immutable record16",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "ref": "8c3eabd772e2078875e0e3f230b3f236e334b393",
+            "path": ".ci-fixtures/record16",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Check out immutable parent840",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "ref": "16ae35b7959ecf74b5e85cbe9243e8456ef2be6f",
+            "path": ".ci-fixtures/parent840",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Select Python",
+          "uses": "actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+          "with": {
+            "python-version": "${{ matrix.python }}"
+          }
+        },
+        {
+          "name": "Exact849 known/NULL, held842 route, whole source preflight and hostile filesystem controls",
+          "shell": "bash",
+          "run": "set -euo pipefail\nstage=$(mktemp -d \"$RUNNER_TEMP/current607-apps16-source.XXXXXXXX\")\ntrap 'rm -rf -- \"$stage\"' EXIT\nexport TMPDIR=\"$stage\"\npython3 -I -B -Werror \"$GITHUB_WORKSPACE/scripts/ci/current607-native-graph-profile/test_apps16_849.py\" \\\n --parent \"$GITHUB_WORKSPACE/.ci-fixtures/parent842\" \\\n --expected \"$GITHUB_WORKSPACE/.ci-fixtures/expected849\" \\\n --carrier \"$GITHUB_WORKSPACE/.ci-fixtures/carrier94\" \\\n --record \"$GITHUB_WORKSPACE/.ci-fixtures/record22\" \\\n --current606-record \"$GITHUB_WORKSPACE/.ci-fixtures/record16\" \\\n --codec-parent \"$GITHUB_WORKSPACE/.ci-fixtures/parent840\"\n"
+        }
+      ]
+    }
+  }
+}

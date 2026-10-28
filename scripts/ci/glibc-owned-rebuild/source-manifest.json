@@ -1,0 +1,43 @@
+{
+  "files": {
+    "LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "README.md": {
+      "bytes": 8326,
+      "sha256": "9fc072cefbf304ad08f201d7d6841407a6803b8c57b0c0f1517e9efdce7fb174"
+    },
+    "abi.py": {
+      "bytes": 4061,
+      "sha256": "b2ae51e792fc125fa664ba116794827fe5350912861256df8cdad1de479d5ff0"
+    },
+    "build-entry.sh": {
+      "bytes": 1715,
+      "sha256": "8830c09d61a908bf8a441a0fc2e47915f9e734ae762ef270cd64623c8ae8fdf4"
+    },
+    "collect_tests.py": {
+      "bytes": 3093,
+      "sha256": "cdbe9af94b0ca142e802267ce7d9af7ae006bde8ab55d4b81399a065b79f6c79"
+    },
+    "materialize.py": {
+      "bytes": 7697,
+      "sha256": "b79ebe2d3df24b31964b3c6fcaca4581bc5b9ac67b6c47978b1e8bf29cbf4288"
+    },
+    "run.py": {
+      "bytes": 18576,
+      "sha256": "b95767fa866807253fea04259ad4d1f98016cdc357d49ccdffe35b532b0c9422"
+    },
+    "stage.py": {
+      "bytes": 4989,
+      "sha256": "13026c4f75af3674ce6ca39fe4d3e0a5a0a405d9b65d3f1b4a333f1a4a9e3924"
+    },
+    "test_controls.py": {
+      "bytes": 19183,
+      "sha256": "506e9d3f2f00f50f6cc47278101fe8bf58ad7d3ff0deee8c818d93049a8855f0"
+    }
+  },
+  "license": "MIT",
+  "schema_version": 1,
+  "selection": "UNSELECTED_SOURCE_BLOCKED_PROPOSAL"
+}

@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "scope": "individual-LSP-only",
+  "rates_hz": [44100, 48000, 88200, 96000],
+  "unlisted_control_policy": "retain-built-ttl-defaults",
+  "plugins": [
+    {
+      "uri": "http://lsp-plug.in/plugins/lv2/loud_comp_mono",
+      "audio_inputs": ["in"],
+      "audio_outputs": ["out"],
+      "asahi_control_symbols": ["enabled", "input", "fft", "volume"],
+      "profiles": [
+        {
+          "name": "volume-0",
+          "controls": {"enabled": 1, "input": 1.0, "fft": 2, "volume": 0.0}
+        },
+        {
+          "name": "volume-minus47_5",
+          "controls": {"enabled": 1, "input": 1.0, "fft": 2, "volume": -47.5}
+        }
+      ]
+    },
+    {
+      "uri": "http://lsp-plug.in/plugins/lv2/mb_compressor_stereo",
+      "audio_inputs": ["in_l", "in_r"],
+      "audio_outputs": ["out_l", "out_r"],
+      "asahi_control_symbols": [
+        "mode", "ce_0", "sla_0", "cr_0", "al_0", "at_0", "rt_0", "kn_0",
+        "cbe_1", "sf_1", "ce_1", "cbe_2", "ce_2", "cbe_3", "ce_3",
+        "cbe_4", "ce_4", "cbe_5", "ce_5", "cbe_6", "ce_6"
+      ],
+      "profiles": [
+        {
+          "name": "asahi-woofer-band",
+          "controls": {
+            "mode": 0,
+            "ce_0": 1,
+            "sla_0": 5.0,
+            "cr_0": 1.75,
+            "al_0": 0.725,
+            "at_0": 1.0,
+            "rt_0": 100,
+            "kn_0": 0.125,
+            "cbe_1": 1,
+            "sf_1": 200.0,
+            "ce_1": 0,
+            "cbe_2": 0,
+            "ce_2": 0,
+            "cbe_3": 0,
+            "ce_3": 0,
+            "cbe_4": 0,
+            "ce_4": 0,
+            "cbe_5": 0,
+            "ce_5": 0,
+            "cbe_6": 0,
+            "ce_6": 0
+          }
+        }
+      ]
+    },
+    {
+      "uri": "http://lsp-plug.in/plugins/lv2/compressor_stereo",
+      "audio_inputs": ["in_l", "in_r"],
+      "audio_outputs": ["out_l", "out_r"],
+      "asahi_control_symbols": ["sla", "al", "at", "rt", "cr", "kn"],
+      "profiles": [
+        {
+          "name": "asahi-woofer-limiter",
+          "controls": {"sla": 5.0, "al": 1.0, "at": 1.0, "rt": 100.0, "cr": 15.0, "kn": 0.5}
+        }
+      ]
+    }
+  ]
+}

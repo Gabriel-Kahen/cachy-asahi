@@ -1,0 +1,481 @@
+{
+  "ELF": [
+    {
+      "16K_load": "NOT RUN",
+      "class": 64,
+      "endianness": "little",
+      "machine": 183,
+      "path": "usr/lib/libSDL2-2.0.so.0.3200.74",
+      "runtime": "NOT RUN"
+    }
+  ],
+  "buildinfo": {
+    "bytes": 7623,
+    "fields": {
+      "builddate": [
+        "1791043068"
+      ],
+      "builddir": [
+        "/build"
+      ],
+      "buildenv": [
+        "distcc",
+        "color",
+        "!ccache",
+        "check",
+        "!sign"
+      ],
+      "buildtool": [
+        "devtools"
+      ],
+      "buildtoolver": [
+        "1:1.4.0-3-any"
+      ],
+      "format": [
+        "2"
+      ],
+      "installed": [
+        "acl-2.4.0-1-aarch64",
+        "archlinux-keyring-20260909-1-any",
+        "attr-2.6.0-1-aarch64",
+        "audit-4.2.1-1-aarch64",
+        "autoconf-2.73-1-any",
+        "automake-1.19-1-any",
+        "base-devel-1-2-any",
+        "bash-5.3.20-1-aarch64",
+        "binutils-2.46+r70+g155188ea10a7-1-aarch64",
+        "bison-3.8.2-8-aarch64",
+        "boost-libs-1.92.0-1-aarch64",
+        "brotli-1.2.0-1-aarch64",
+        "bzip2-1.0.8-6-aarch64",
+        "ca-certificates-20240618-1-any",
+        "ca-certificates-mozilla-3.130-1-aarch64",
+        "ca-certificates-utils-20240618-1-any",
+        "cmake-4.4.4-1-aarch64",
+        "coreutils-9.12-2-aarch64",
+        "cpio-2.15-3-aarch64",
+        "cppdap-1.58.0-3-aarch64",
+        "cryptsetup-2.8.8-1-aarch64",
+        "curl-8.22.0-1-aarch64",
+        "db5.3-5.3.28-7-aarch64",
+        "dbus-1.16.2-1-aarch64",
+        "dbus-broker-37-3-aarch64",
+        "dbus-broker-units-37-3-aarch64",
+        "dbus-units-37-3-aarch64",
+        "debugedit-5.3-2-aarch64",
+        "default-cursors-3-1-any",
+        "device-mapper-2.03.42-1-aarch64",
+        "diffutils-3.12-2-aarch64",
+        "distcc-3.4-15-aarch64",
+        "e2fsprogs-1.47.4-1-aarch64",
+        "elfutils-0.196-1-aarch64",
+        "expat-2.8.5-1-aarch64",
+        "fakeroot-1:1.37.2-3-aarch64",
+        "file-5.48-1-aarch64",
+        "filesystem-2025.10.12-1-any",
+        "findutils-4.11.0-1-aarch64",
+        "flex-2.6.4-6-aarch64",
+        "gawk-5.4.1-1-aarch64",
+        "gc-8.2.12-1-aarch64",
+        "gcc-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "gcc-libs-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "gdb-18.1-1-aarch64",
+        "gdb-common-18.1-1-aarch64",
+        "gdbm-1.26-2-aarch64",
+        "gettext-1.0-2-aarch64",
+        "glib2-2.88.3-1-aarch64",
+        "glibc-2.43+r22+g8362e8ce10b2-2-aarch64",
+        "gmp-6.3.0-3-aarch64",
+        "gnulib-l10n-20241231-1-any",
+        "gnupg-2.4.9-3-aarch64",
+        "gnutls-3.8.13-3-aarch64",
+        "gpgme-2.2.0-1-aarch64",
+        "grep-3.12-2-aarch64",
+        "groff-1.24.1-1-aarch64",
+        "guile-3.0.11-1-aarch64",
+        "gzip-1.15-1-aarch64",
+        "hicolor-icon-theme-0.18-1-any",
+        "hidapi-0.15.0-1-aarch64",
+        "hwdata-0.411-1-any",
+        "iana-etc-20260617-1-any",
+        "icu-78.3-1-aarch64",
+        "jansson-2.15.1-1-aarch64",
+        "json-c-0.19-1-aarch64",
+        "jsoncpp-1.9.8-1-aarch64",
+        "kbd-2.10.0-1-aarch64",
+        "keyutils-1.6.3-4-aarch64",
+        "kmod-34.2-1-aarch64",
+        "krb5-1.22.2-1-aarch64",
+        "leancrypto-1.9.1-1-aarch64",
+        "libarchive-3.8.9-1-aarch64",
+        "libasan-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libassuan-3.0.0-1-aarch64",
+        "libatomic-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libcap-2.78-1-aarch64",
+        "libcap-ng-0.9.6-1-aarch64",
+        "libdrm-2.4.134-1-aarch64",
+        "libedit-20260512_3.1-1-aarch64",
+        "libelf-0.196-1-aarch64",
+        "libevent-2.1.13-2-aarch64",
+        "libffi-3.8.0-1-aarch64",
+        "libgcc-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libgcrypt-1.12.4-1-aarch64",
+        "libgfortran-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libglvnd-1.7.0-3-aarch64",
+        "libgomp-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libgpg-error-1.61-1-aarch64",
+        "libidn2-2.3.8-1-aarch64",
+        "libisl-0.28-1-aarch64",
+        "libksba-1.8.1-1-aarch64",
+        "libldap-2.7.1-1-aarch64",
+        "liblsan-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libmakepkg-dropins-20-2-any",
+        "libmpc-1.4.1-1-aarch64",
+        "libnghttp2-1.70.0-1-aarch64",
+        "libnghttp3-1.18.0-1-aarch64",
+        "libngtcp2-1.25.0-1-aarch64",
+        "libnsl-2.0.1-2-aarch64",
+        "libobjc-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libp11-kit-0.26.5-1-aarch64",
+        "libpciaccess-0.19-1-aarch64",
+        "libpsl-0.21.5-2-aarch64",
+        "libquadmath-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libsasl-2.1.28-5-aarch64",
+        "libseccomp-2.6.0-1-aarch64",
+        "libsecret-0.21.8.2-1-aarch64",
+        "libssh2-1.11.1-7-aarch64",
+        "libstdc++-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libsysprof-capture-50.0-6-aarch64",
+        "libtasn1-4.21.0-1-aarch64",
+        "libtirpc-1.3.8-1-aarch64",
+        "libtool-2.6.0+r23+gb08cb0a0-1-aarch64",
+        "libtsan-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libubsan-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libunistring-1.4.2-1-aarch64",
+        "libusb-1.0.30-1-aarch64",
+        "libuv-1.52.1-2-aarch64",
+        "libverto-0.3.2-6-aarch64",
+        "libx11-1.8.13-1-aarch64",
+        "libxau-1.0.12-1-aarch64",
+        "libxcb-1.17.0-1-aarch64",
+        "libxcrypt-4.5.2-1-aarch64",
+        "libxcursor-1.2.3-1-aarch64",
+        "libxdmcp-1.1.5-2-aarch64",
+        "libxext-1.3.7-1-aarch64",
+        "libxfixes-6.0.2-1-aarch64",
+        "libxml2-2.15.4-1-aarch64",
+        "libxrender-0.9.12-1-aarch64",
+        "libxshmfence-1.3.3-1-aarch64",
+        "libxxf86vm-1.1.7-1-aarch64",
+        "linux-api-headers-7.2-1-aarch64",
+        "llvm-libs-23.1.1-1-aarch64",
+        "lm_sensors-1:3.6.2-1-aarch64",
+        "lmdb-0.9.35-1-aarch64",
+        "lz4-1:1.10.0-2-aarch64",
+        "m4-1.4.21-2-aarch64",
+        "make-4.4.1-3-aarch64",
+        "mesa-1:26.2.4-1-aarch64",
+        "mpdecimal-4.0.1-3-aarch64",
+        "mpfr-4.2.2-1-aarch64",
+        "ncurses-6.6-2-aarch64",
+        "nettle-4.0-1-aarch64",
+        "ninja-1.13.2-3-aarch64",
+        "npth-1.8-1-aarch64",
+        "openssl-3.6.5-1-aarch64",
+        "p11-kit-0.26.5-1-aarch64",
+        "pacman-7.1.0.r9.g54d9411-2-aarch64",
+        "pacman-mirrorlist-20260411-2-any",
+        "pam-1.7.3-1-aarch64",
+        "pambase-20260616-1-any",
+        "patch-2.8-1-aarch64",
+        "pcre2-10.49-1-aarch64",
+        "perl-5.42.2-2-aarch64",
+        "pinentry-1.3.3-1-aarch64",
+        "pkgconf-3.0.7-1-aarch64",
+        "popt-1.19-2-aarch64",
+        "python-3.14.7-1-aarch64",
+        "readline-8.3.6-1-aarch64",
+        "rhash-1.4.6-1-aarch64",
+        "sdl3-3.4.18-1-aarch64",
+        "sed-4.10-2-aarch64",
+        "shadow-4.20.0.arch1-1-aarch64",
+        "source-highlight-3.1.9-19-aarch64",
+        "spirv-tools-1:1.4.363.0-1-aarch64",
+        "sqlite-3.53.4-1-aarch64",
+        "sudo-1.9.17.p2-6-aarch64",
+        "systemd-262-1-aarch64",
+        "systemd-libs-262-1-aarch64",
+        "tar-1.35-5-aarch64",
+        "texinfo-7.3-1-aarch64",
+        "tpm2-tss-4.2.0-2-aarch64",
+        "tzdata-2026e-1-aarch64",
+        "util-linux-2.42.4-1-aarch64",
+        "util-linux-libs-2.42.4-1-aarch64",
+        "wayland-1.26.0-1-aarch64",
+        "which-2.25-1-aarch64",
+        "xcb-proto-1.17.0-4-any",
+        "xorgproto-2025.1-1-any",
+        "xxhash-0.8.4-1-aarch64",
+        "xz-5.8.4-1-aarch64",
+        "zlib-1:1.3.2-3-aarch64",
+        "zstd-1.5.7-3-aarch64"
+      ],
+      "options": [
+        "strip",
+        "docs",
+        "!libtool",
+        "!staticlibs",
+        "emptydirs",
+        "zipman",
+        "purge",
+        "!debug",
+        "!lto"
+      ],
+      "packager": [
+        "Arch Linux ARM Build System <builder+n0@archlinuxarm.org>"
+      ],
+      "pkgarch": [
+        "aarch64"
+      ],
+      "pkgbase": [
+        "sdl2-compat"
+      ],
+      "pkgbuild_sha256sum": [
+        "d31e883931e0ca21ca98e05ec27bf477414a937b73aa15327d69315351cc1830"
+      ],
+      "pkgname": [
+        "sdl2-compat"
+      ],
+      "pkgver": [
+        "2.32.74-1"
+      ],
+      "startdir": [
+        "/startdir"
+      ]
+    },
+    "sha256": "a9bf83166258f717760f88f87f9436f6fc91ff2171c168beb47039e70575dab9"
+  },
+  "complete_corresponding_source_license_closure": "NOT ESTABLISHED; declared package metadata only",
+  "hooks_and_scriptlets": [],
+  "installed_paths": [
+    "usr",
+    "usr/bin",
+    "usr/bin/sdl2-config",
+    "usr/include",
+    "usr/include/SDL2",
+    "usr/include/SDL2/SDL.h",
+    "usr/include/SDL2/SDL_assert.h",
+    "usr/include/SDL2/SDL_atomic.h",
+    "usr/include/SDL2/SDL_audio.h",
+    "usr/include/SDL2/SDL_bits.h",
+    "usr/include/SDL2/SDL_blendmode.h",
+    "usr/include/SDL2/SDL_clipboard.h",
+    "usr/include/SDL2/SDL_config.h",
+    "usr/include/SDL2/SDL_config_android.h",
+    "usr/include/SDL2/SDL_config_emscripten.h",
+    "usr/include/SDL2/SDL_config_iphoneos.h",
+    "usr/include/SDL2/SDL_config_macosx.h",
+    "usr/include/SDL2/SDL_config_minimal.h",
+    "usr/include/SDL2/SDL_config_ngage.h",
+    "usr/include/SDL2/SDL_config_os2.h",
+    "usr/include/SDL2/SDL_config_pandora.h",
+    "usr/include/SDL2/SDL_config_unix.h",
+    "usr/include/SDL2/SDL_config_windows.h",
+    "usr/include/SDL2/SDL_config_wingdk.h",
+    "usr/include/SDL2/SDL_config_winrt.h",
+    "usr/include/SDL2/SDL_config_xbox.h",
+    "usr/include/SDL2/SDL_copying.h",
+    "usr/include/SDL2/SDL_cpuinfo.h",
+    "usr/include/SDL2/SDL_egl.h",
+    "usr/include/SDL2/SDL_endian.h",
+    "usr/include/SDL2/SDL_error.h",
+    "usr/include/SDL2/SDL_events.h",
+    "usr/include/SDL2/SDL_filesystem.h",
+    "usr/include/SDL2/SDL_gamecontroller.h",
+    "usr/include/SDL2/SDL_gesture.h",
+    "usr/include/SDL2/SDL_guid.h",
+    "usr/include/SDL2/SDL_haptic.h",
+    "usr/include/SDL2/SDL_hidapi.h",
+    "usr/include/SDL2/SDL_hints.h",
+    "usr/include/SDL2/SDL_joystick.h",
+    "usr/include/SDL2/SDL_keyboard.h",
+    "usr/include/SDL2/SDL_keycode.h",
+    "usr/include/SDL2/SDL_loadso.h",
+    "usr/include/SDL2/SDL_locale.h",
+    "usr/include/SDL2/SDL_log.h",
+    "usr/include/SDL2/SDL_main.h",
+    "usr/include/SDL2/SDL_messagebox.h",
+    "usr/include/SDL2/SDL_metal.h",
+    "usr/include/SDL2/SDL_misc.h",
+    "usr/include/SDL2/SDL_mouse.h",
+    "usr/include/SDL2/SDL_mutex.h",
+    "usr/include/SDL2/SDL_name.h",
+    "usr/include/SDL2/SDL_opengl.h",
+    "usr/include/SDL2/SDL_opengl_glext.h",
+    "usr/include/SDL2/SDL_opengles.h",
+    "usr/include/SDL2/SDL_opengles2.h",
+    "usr/include/SDL2/SDL_opengles2_gl2.h",
+    "usr/include/SDL2/SDL_opengles2_gl2ext.h",
+    "usr/include/SDL2/SDL_opengles2_gl2platform.h",
+    "usr/include/SDL2/SDL_opengles2_khrplatform.h",
+    "usr/include/SDL2/SDL_pixels.h",
+    "usr/include/SDL2/SDL_platform.h",
+    "usr/include/SDL2/SDL_power.h",
+    "usr/include/SDL2/SDL_quit.h",
+    "usr/include/SDL2/SDL_rect.h",
+    "usr/include/SDL2/SDL_render.h",
+    "usr/include/SDL2/SDL_revision.h",
+    "usr/include/SDL2/SDL_rwops.h",
+    "usr/include/SDL2/SDL_scancode.h",
+    "usr/include/SDL2/SDL_sensor.h",
+    "usr/include/SDL2/SDL_shape.h",
+    "usr/include/SDL2/SDL_stdinc.h",
+    "usr/include/SDL2/SDL_surface.h",
+    "usr/include/SDL2/SDL_system.h",
+    "usr/include/SDL2/SDL_syswm.h",
+    "usr/include/SDL2/SDL_test.h",
+    "usr/include/SDL2/SDL_test_assert.h",
+    "usr/include/SDL2/SDL_test_common.h",
+    "usr/include/SDL2/SDL_test_compare.h",
+    "usr/include/SDL2/SDL_test_crc32.h",
+    "usr/include/SDL2/SDL_test_font.h",
+    "usr/include/SDL2/SDL_test_fuzzer.h",
+    "usr/include/SDL2/SDL_test_harness.h",
+    "usr/include/SDL2/SDL_test_images.h",
+    "usr/include/SDL2/SDL_test_log.h",
+    "usr/include/SDL2/SDL_test_md5.h",
+    "usr/include/SDL2/SDL_test_memory.h",
+    "usr/include/SDL2/SDL_test_random.h",
+    "usr/include/SDL2/SDL_thread.h",
+    "usr/include/SDL2/SDL_timer.h",
+    "usr/include/SDL2/SDL_touch.h",
+    "usr/include/SDL2/SDL_types.h",
+    "usr/include/SDL2/SDL_version.h",
+    "usr/include/SDL2/SDL_video.h",
+    "usr/include/SDL2/SDL_vulkan.h",
+    "usr/include/SDL2/begin_code.h",
+    "usr/include/SDL2/close_code.h",
+    "usr/lib",
+    "usr/lib/cmake",
+    "usr/lib/cmake/SDL2",
+    "usr/lib/cmake/SDL2/SDL2Config.cmake",
+    "usr/lib/cmake/SDL2/SDL2ConfigVersion.cmake",
+    "usr/lib/cmake/SDL2/SDL2Targets-none.cmake",
+    "usr/lib/cmake/SDL2/SDL2Targets.cmake",
+    "usr/lib/cmake/SDL2/SDL2_testTargets-none.cmake",
+    "usr/lib/cmake/SDL2/SDL2_testTargets.cmake",
+    "usr/lib/cmake/SDL2/SDL2mainTargets-none.cmake",
+    "usr/lib/cmake/SDL2/SDL2mainTargets.cmake",
+    "usr/lib/cmake/SDL2/sdl2-config-version.cmake",
+    "usr/lib/cmake/SDL2/sdl2-config.cmake",
+    "usr/lib/libSDL2-2.0.so",
+    "usr/lib/libSDL2-2.0.so.0",
+    "usr/lib/libSDL2-2.0.so.0.3200.74",
+    "usr/lib/libSDL2.so",
+    "usr/lib/libSDL2_test.a",
+    "usr/lib/libSDL2main.a",
+    "usr/lib/pkgconfig",
+    "usr/lib/pkgconfig/sdl2-compat.pc",
+    "usr/lib/pkgconfig/sdl2.pc",
+    "usr/share",
+    "usr/share/aclocal",
+    "usr/share/aclocal/sdl2.m4",
+    "usr/share/licenses",
+    "usr/share/licenses/sdl2-compat",
+    "usr/share/licenses/sdl2-compat/LICENSE",
+    "usr/share/licenses/sdl2-compat/LICENSE.txt"
+  ],
+  "license_declaration": [
+    "Zlib"
+  ],
+  "license_notice_files": [
+    {
+      "bytes": 875,
+      "legal_clearance": "NOT ESTABLISHED; retained notice observation",
+      "path": "usr/share/licenses/sdl2-compat/LICENSE",
+      "sha256": "0164aec3168ca9606c1f6066e879b4e8c7f2e46a838391f284348ab0aa1eabf2"
+    },
+    {
+      "bytes": 875,
+      "legal_clearance": "NOT ESTABLISHED; retained notice observation",
+      "path": "usr/share/licenses/sdl2-compat/LICENSE.txt",
+      "sha256": "0164aec3168ca9606c1f6066e879b4e8c7f2e46a838391f284348ab0aa1eabf2"
+    }
+  ],
+  "links": [
+    {
+      "path": "usr/lib/libSDL2-2.0.so",
+      "target": "libSDL2-2.0.so.0",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/lib/libSDL2-2.0.so.0",
+      "target": "libSDL2-2.0.so.0.3200.74",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/lib/libSDL2.so",
+      "target": "libSDL2-2.0.so",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/lib/pkgconfig/sdl2.pc",
+      "target": "sdl2-compat.pc",
+      "type": "symlink"
+    }
+  ],
+  "metadata": {
+    "arch": [
+      "aarch64"
+    ],
+    "builddate": [
+      "1791043068"
+    ],
+    "conflict": [
+      "sdl2"
+    ],
+    "depend": [
+      "sdl3",
+      "glibc"
+    ],
+    "license": [
+      "Zlib"
+    ],
+    "makedepend": [
+      "cmake",
+      "ninja"
+    ],
+    "packager": [
+      "Arch Linux ARM Build System <builder+n0@archlinuxarm.org>"
+    ],
+    "pkgbase": [
+      "sdl2-compat"
+    ],
+    "pkgdesc": [
+      "An SDL2 compatibility layer that uses SDL3 behind the scenes"
+    ],
+    "pkgname": [
+      "sdl2-compat"
+    ],
+    "pkgver": [
+      "2.32.74-1"
+    ],
+    "provides": [
+      "sdl2=2.32.74"
+    ],
+    "replaces": [
+      "sdl2"
+    ],
+    "size": [
+      "3307449"
+    ],
+    "url": [
+      "https://github.com/libsdl-org/sdl2-compat"
+    ],
+    "xdata": [
+      "pkgtype=pkg"
+    ]
+  },
+  "package_execution": "NOT RUN",
+  "path_count": 126
+}

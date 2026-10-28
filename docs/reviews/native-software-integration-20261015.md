@@ -1,0 +1,30 @@
+# Native software integration, October 15
+
+At 02:50 UTC, three reviewed Source changes are published and each has one intentionally selected native ARM trial. These are development trials; full installation, recovery, M2 hardware, performance and release acceptance remain open.
+
+| Lane | Published Source | Bound Data / packet | Trial |
+| --- | --- | --- | --- |
+| Installer receiver diagnostic | `53e7cfdb2a686d0ae68a314d6ba5df358b3e08b8` | Data `f13db0eee23997e2582a3041a73baeca3f55c35b`; Code `677d3ba97398ad99c4bd1063f83862eaf8d981d6` held | [38672786958](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38672786958) |
+| Updater worker diagnostic | `781d43c411e87bf39a3f2536f599d7d952cd6387` | Fresh native CI freeze required; previous controllers are not reused | [38672326640](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38672326640) |
+| Kernel retained inputs | `2525f178156c98e5521fca7c6a8e03b752b64622` | Packet `b8af96ff8c14f295c4cc63f18bc2acddf87aa0b779209c238186b3d709786a1c` | [38672997567](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38672997567) |
+
+The installer adds three failure-only Boolean observations for receiver start, preflight outcome and native cleanup, preserving its acceptance conjunction and forced publication refusal. Semantic receipt `9c629f75`, [actual Source review](composed-receiver-diagnostic-actual53-source-peer-20261015.md) `df7f0503` and Source/Data/Code review `7d2657f6` authenticate the six-file Source and exact two-file Data derivation. Root checks all 271 Source roles, 266 selected descriptors and 14 held metadata bodies.
+
+The registration review initially named workflow environment keys as repository variables. A read-only GET failed before any mutation. Correction `3a377032` derives the exact workflow mapping to repository variables `MAINTAINED_COMPOSED_ROOT_PLAN_B64` and `MAINTAINED_COMPOSED_ROOT_PLAN_SHA256`; both then receive the reviewed plan and read back literally. Plan SHA256 is `7b0ba7501575396bff9b20cbb6e392ca6fb1899b81280398b62a6c61cc8fb142`. Source and Data dormant refs and the normal execution-ref fast-forward read back exactly. The Source's skip-CI push has zero runs before the explicit dispatch. Root records requests, responses and the single dispatch under `artifacts/reviews/composed-receiver-diagnostic-root-adoption-20261015/`.
+
+The updater exports already-captured bounded worker diagnostics with their canonical hash and controller/image/entry associations. Actor functions, compilation policy, retained suppliers and cleanup stay held. [Semantic review](updater-worker-diagnostic-performance-peer-20261015.md) `b771fc1d` and [actual Source review](updater-worker-diagnostic-actual781-source-peer-20261015.md) `7fee6d5a` cover the exact three-file delta and all 91 roles. The new run is terminal FAIL; its retained diagnostic reports compiler return 0 and subsequent `compile-elf / elf-read-type-link-size` refusal. Strict actual review is still being sealed. Exact rejected operands and deeper cause remain unknown; no native package acceptance follows.
+
+The kernel adds the retained bubblewrap package/signature to its original producer cache, preserving the distinct 35-object kernel acquisition, 501 original inputs, versions and role policy. [Component review](kernel-retained-bubblewrap-release-peer.md) `b0ed311f` and [actual Source review](kernel-retained-bubblewrap-actual2525-source-peer.md) `d27c6b00` cover seven changed files, 126 roles and the complete 124-row packet. Original nineteen chunks remain held and only the already-provisioned three recovered-input references are added. This Source change does not establish the previous acquisition failure's cause or cleanup success.
+
+Root's corresponding updater and kernel adoption namespaces retain immutable intent, commit, complete Source proof, admission, ref readback and one dispatch. Trial results must be admitted separately from these Source checks. Historical failures and cleanup uncertainty remain recorded.
+
+Subsequent updater actual admission: [strict review](updater-worker-diagnostic-run-38672326640-20261015.md) `af746428` and Root's passive 118/30/19 readback authenticate the failed result. Compiler return 0, wrapper return 1 and failed ELF inspection stay separate; raw deciding filesystem operands remain unknown. Scoped original/recovery cleanup passes, while broader daemon/cache retirement is unverified. Root retains the decision at `artifacts/reviews/updater-run-38672326640-root-admission-20261015/admission.json`. A local minimal Cargo build separately reproduces a normal hardlinked output rejected by the strict reader; this proves a compatibility defect without establishing that run's unknown operand.
+
+Installer actual admission now authenticates the failed run under review
+`ad4dac01`: start_success false, receiver_preflight_only false and
+native_cleanup_pass true. Acquisition, input signatures, the four original
+package pairs and seven initial components pass; the receiver private cause
+remains unexported, handoff/restaging stays NOT RUN and publication fails.
+The current client successor and a closed 13-field receiver public-record
+transport are being composed for the next selection. Neither private Source
+commits nor host fixtures supply native product or hardware acceptance.

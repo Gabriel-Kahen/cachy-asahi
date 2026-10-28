@@ -1,0 +1,44 @@
+{
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "causal_failure": {
+    "Root_failure": {
+      "bytes": 19478,
+      "sha256": "e205aa39240bc193028ddfd6d76eae103b8728396524b087fb12515c69e23116"
+    },
+    "Root_post_failure": {
+      "bytes": 794383,
+      "sha256": "f9d63ab44069d535018332b890561711812d8014e1217f49a1f334639320d76a"
+    },
+    "error": "command failed: dependency.log",
+    "inner_cause": "UNKNOWN",
+    "phase": "authenticate-five-deduplicate-four",
+    "run": 40238381369,
+    "source": "3160eaa23a25275a9a341874b528b60b69e4f8cb"
+  },
+  "git": {
+    "ref": "codex/latest607-fresh-generic16k-scope-v1",
+    "source": "3160eaa23a25275a9a341874b528b60b69e4f8cb",
+    "status": "PASS_INDEPENDENT_FULL_GIT_BLOB_JOIN"
+  },
+  "publication": {
+    "actual": "NOT_RUN",
+    "files": 1203,
+    "git_joins": 1203,
+    "hardware": "NOT_RUN",
+    "ref": "codex/latest607-fresh-generic16k-scope-v1",
+    "release": "NOT_ADMITTED",
+    "source": "3160eaa23a25275a9a341874b528b60b69e4f8cb",
+    "status": "PUBLISHED_EXACT_CLOSED_TRIAL_SOURCE"
+  },
+  "qualification": {
+    "pin": {
+      "bytes": 337,
+      "sha256": "8124762f457d9575a899472cc36859a8dd8e958d64e385def2b034c0c9dbd966"
+    },
+    "text": "{\n  \"API\": false,\n  \"GUI_dependency\": \"INDEPENDENT_OWNED_SOURCE_COPIES_NO_SHARED_GUI_MUTATION\",\n  \"cap\": 300,\n  \"cpu_seconds\": 9.142555,\n  \"current_actual\": null,\n  \"exit\": 0,\n  \"native\": false,\n  \"old_actual_replay\": false,\n  \"retry\": false,\n  \"seconds\": 9.269587158996728,\n  \"status\": \"PASS\",\n  \"stderr_bytes\": 0,\n  \"timeout\": false\n}\n"
+  },
+  "ref": "codex/latest607-fresh-generic16k-scope-v1",
+  "source": "3160eaa23a25275a9a341874b528b60b69e4f8cb"
+}

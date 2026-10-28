@@ -1,0 +1,180 @@
+name: native-arm-core-lifecycle
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact frozen source; disposable Core7 qualification only
+        type: string
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: native-arm-core-lifecycle
+  cancel-in-progress: false
+jobs:
+  native:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 360
+    defaults:
+      run:
+        shell: bash
+        working-directory: core-source/runtime/runtime-vm
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      WORKFLOW_SHA: ${{ github.workflow_sha }}
+      OWN: ${{ github.workspace }}/core-source/scripts/ci/core-native-lifecycle
+      BUNDLE: ${{ github.workspace }}/core-source/runtime/runtime-vm
+      DEPLOY: ${{ github.workspace }}/core-source/scripts/ci/gnu-immutable-source-native
+      PARENT: ${{ github.workspace }}/core-native-lifecycle-parent
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 3
+        with:
+          ref: ${{ inputs.source_sha }}
+          path: core-source
+          persist-credentials: false
+      - name: Whole frozen source and actual first-run native proof before secrets or actors
+        id: proof
+        timeout-minutes: 4
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' '@ENTRY_SHA@' "$OWN/entry.py" '@MANIFEST_SHA@' "$OWN/source-manifest.json" | sha256sum --check
+          python3 -I -B "$OWN/entry.py" source --source "$GITHUB_WORKSPACE/core-source"
+          python3 -I -B "$OWN/test_contract.py"
+          mkdir -m 0700 "$PARENT"
+          python3 -I -B "$OWN/entry.py" proof --source "$GITHUB_WORKSPACE/core-source" --proof "$PARENT/source-proof.json"
+      - name: Checkout complete exact original574 retained inputs
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 3
+        with:
+          ref: ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad
+          path: native574-complete-public-inputs
+          persist-credentials: false
+      - name: Prefill exact original policy caches before unchanged legacy CLIs
+        timeout-minutes: 4
+        run: >-
+          python3 -I -B "$OWN/entry.py" prefill --source "$GITHUB_WORKSPACE/core-source"
+          --carrier "$GITHUB_WORKSPACE/native574-complete-public-inputs" --temp "$RUNNER_TEMP"
+          --receipt "$PARENT/legacy-prefill.json"
+      - name: Prefetch exact32 original frozen574 archive files
+        timeout-minutes: 4
+        run: >-
+          python3 -I -B "$DEPLOY/archive32.py" --policy "$DEPLOY/archive32-policy.json"
+          --inputs "$BUNDLE/scripts/ci/maintained-desktop574-inputs.json" --cache "$RUNNER_TEMP/core-lifecycle-archive32"
+      - name: Prefetch exact20 additional original frozen574 archive files
+        timeout-minutes: 4
+        run: >-
+          python3 -I -B "$DEPLOY/archive20.py" --policy "$DEPLOY/archive20-policy.json"
+          --inputs "$BUNDLE/scripts/ci/maintained-desktop574-inputs.json" --cache "$RUNNER_TEMP/core-lifecycle-archive20"
+      - name: Prefetch exact8 additional original frozen574 archive files
+        timeout-minutes: 4
+        run: >-
+          python3 -I -B "$DEPLOY/archive8.py" --policy "$DEPLOY/archive8-policy.json"
+          --inputs "$BUNDLE/scripts/ci/maintained-desktop574-inputs.json" --cache "$RUNNER_TEMP/core-lifecycle-archive8"
+      - name: Seed the six existing private input files using unchanged secrets
+        timeout-minutes: 2
+        env:
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01 }}
+          CACHY_OLD_FOUR_SCHEMA: '1'
+          CACHY_OLD_FOUR_SOURCE_EPOCH: '1791748800'
+          CACHY_OLD_FOUR_JBIGKIT_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_01 }}
+          CACHY_OLD_FOUR_JBIGKIT_02: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_02 }}
+          CACHY_OLD_FOUR_JBIGKIT_SIG_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_SIG_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_02: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_02 }}
+          CACHY_OLD_FOUR_LIBTIFF_03: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_03 }}
+          CACHY_OLD_FOUR_LIBTIFF_04: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_04 }}
+          CACHY_OLD_FOUR_LIBTIFF_05: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_05 }}
+          CACHY_OLD_FOUR_LIBTIFF_06: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_06 }}
+          CACHY_OLD_FOUR_LIBTIFF_07: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_07 }}
+          CACHY_OLD_FOUR_LIBTIFF_08: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_08 }}
+          CACHY_OLD_FOUR_LIBTIFF_09: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_09 }}
+          CACHY_OLD_FOUR_LIBTIFF_10: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_10 }}
+          CACHY_OLD_FOUR_LIBTIFF_11: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_11 }}
+          CACHY_OLD_FOUR_LIBTIFF_12: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_12 }}
+          CACHY_OLD_FOUR_LIBTIFF_13: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_13 }}
+          CACHY_OLD_FOUR_LIBTIFF_14: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_14 }}
+          CACHY_OLD_FOUR_LIBTIFF_15: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_15 }}
+          CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}
+        run: >-
+          python3 -I -B scripts/ci/maintained_desktop574.py seed
+          --inputs scripts/ci/maintained-desktop574-inputs.json
+          --output "$PARENT/base"
+      - name: Checkout exact fourteen public input files
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 3
+        with:
+          ref: 04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd
+          path: retained-public-inputs
+          persist-credentials: false
+      - name: Seed the exact public inputs without secrets
+        timeout-minutes: 3
+        run: |
+          set -euo pipefail
+          test "$(git -C "$GITHUB_WORKSPACE/retained-public-inputs" rev-parse HEAD)" = 04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd
+          printf '%s  %s\n' 'a7857658af224984065e575f6ffed8308ea85027d46eace8bda146d9033e93b3' "$GITHUB_WORKSPACE/retained-public-inputs/seed.py" 'a388c8c8ba8e06cb92fd2be598b86e433c4e403b6e71a0f15b1eaec381bb7300' "$GITHUB_WORKSPACE/retained-public-inputs/index.json" | sha256sum --check
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP" LANG=C.UTF-8 TZ=UTC TMPDIR="$RUNNER_TEMP" python3 -I -B "$GITHUB_WORKSPACE/retained-public-inputs/seed.py" --cache "$PARENT/base/context/deps"
+      - name: Join original zero-request indexes and seed original80 then complete1148
+        timeout-minutes: 4
+        run: >-
+          python3 -I -B "$OWN/entry.py" seed --source "$GITHUB_WORKSPACE/core-source"
+          --carrier "$GITHUB_WORKSPACE/native574-complete-public-inputs" --temp "$RUNNER_TEMP"
+          --base "$PARENT/base" --receipt "$PARENT/retained-custody.json"
+      - name: Reuse unchanged owned574 native producer
+        timeout-minutes: 40
+        env:
+          JOB_TOKEN: ${{ steps.proof.outputs.job_token }}
+        run: >-
+          timeout --signal=TERM --kill-after=10s 2300s
+          python3 -I -B scripts/ci/maintained_desktop574.py build
+          --inputs scripts/ci/maintained-desktop574-inputs.json
+          --output "$PARENT/base" --job-token "$JOB_TOKEN"
+      - name: Checkout exact seven accepted byte-identical native archives
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 3
+        with:
+          ref: e410bd5d6b4318f114d7311a99a60f20bc8d2f4a
+          path: core7-inputs
+          persist-credentials: false
+      - name: Checkout all original64 retained dependency inputs
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 3
+        with:
+          ref: 7dfce898755583bbf8081aae04d8b8579f66be58
+          path: core64-inputs
+          persist-credentials: false
+      - name: Fresh original574 snapshot current signatures TEST repo and all seven lifecycle
+        timeout-minutes: 80
+        run: >-
+          python3 -I -B "$OWN/entry.py" execute --source "$GITHUB_WORKSPACE/core-source"
+          --proof "$PARENT/source-proof.json" --core7 "$GITHUB_WORKSPACE/core7-inputs"
+          --core64 "$GITHUB_WORKSPACE/core64-inputs" --base "$PARENT/base" --output "$PARENT/owner"
+      - name: Ordered all consumers and owned data then unchanged producer cleanup
+        if: always() && steps.proof.outcome == 'success'
+        timeout-minutes: 20
+        run: >-
+          python3 -I -B "$OWN/entry.py" cleanup --source "$GITHUB_WORKSPACE/core-source"
+          --proof "$PARENT/source-proof.json" --base "$PARENT/base" --output "$PARENT/owner"
+          --receipt "$PARENT/ordered-cleanup.json"
+      - name: Closed complete Core7 evidence gate
+        if: always() && steps.proof.outcome == 'success'
+        timeout-minutes: 4
+        run: >-
+          python3 -I -B "$OWN/entry.py" retain --source "$GITHUB_WORKSPACE/core-source"
+          --proof "$PARENT/source-proof.json" --base "$PARENT/base" --output "$PARENT/owner"
+          --receipt "$PARENT/ordered-cleanup.json" --public "$PARENT/public"
+      - name: Upload only bounded closed Core7 qualification evidence
+        if: always() && steps.proof.outcome == 'success'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        timeout-minutes: 5
+        with:
+          name: core-native-lifecycle-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/core-native-lifecycle-parent/public/
+          retention-days: 3
+          compression-level: 0
+          include-hidden-files: true
+          if-no-files-found: error

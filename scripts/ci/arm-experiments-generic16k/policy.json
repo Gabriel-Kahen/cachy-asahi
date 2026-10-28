@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "status": "UNBOUND_DO_NOT_EXECUTE",
+  "bootstrap_archive": null,
+  "bootstrap_receipt": null,
+  "kernel_receipt": null,
+  "scope": "GENERIC16K_RETAINED_COMPILER_EXPERIMENT_CORRECTNESS_ONLY",
+  "hardware": "NOT_RUN",
+  "performance": "NOT_MEASURED",
+  "installation": "NOT_RUN",
+  "release": "NOT_ADMITTED"
+}

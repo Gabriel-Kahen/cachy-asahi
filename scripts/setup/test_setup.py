@@ -566,5 +566,104 @@ class SetupTests(unittest.TestCase):
         self.assertEqual(self.snapshot(), before)
 
 
+    def strict_metadata_fixture(self, which, raw):
+        """Both previews and applications must leave selected content untouched."""
+        state = self.home / self.engine.state_path
+        journal = self.home / self.engine.journal_path
+        state.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        state.write_text(json.dumps({'schema_version': 1, 'roots': self.engine.roots, 'components': {}}))
+        state.chmod(0o600)
+        if journal.exists():journal.unlink()
+        lock = self.home / self.engine.lock_path
+        lock.write_bytes(b'');lock.chmod(0o600)
+        self.put('fish', b'# PRIVATE_FIXTURE_CANARY existing user bytes\n', 0o640)
+        selected = state if which == 'state' else journal
+        selected.write_bytes(raw);selected.chmod(0o600)
+        before = self.snapshot()
+        for apply in (False, True):
+            with self.subTest(apply=apply), mock.patch.object(self.engine.fs, 'atomic', wraps=self.engine.fs.atomic) as atomic:
+                with self.assertRaises(setup.Error) as caught:self.engine.run('recover', apply=apply)
+                self.assertNotIn('PRIVATE_FIXTURE_CANARY', str(caught.exception))
+                atomic.assert_not_called()
+            self.assertEqual(self.snapshot(), before)
+            self.assertFalse(self.target('zsh').exists())
+            self.assertFalse(self.target('hyprland').exists())
+
+    def canonical_recovery_objects(self):
+        state = {'schema_version': 1, 'roots': self.engine.roots, 'components': {}}
+        journal = {'schema_version': 1, 'roots': self.engine.roots, 'id': 'a' * 32,
+                   'template_root': str(self.templates), 'operation': 'activate',
+                   'entries': [], 'new_state': state}
+        return state, journal
+
+    def test_state_strict_json_refuses_duplicate_nested_and_noninteger_metadata(self):
+        state, _ = self.canonical_recovery_objects()
+        original = json.dumps(state, separators=(',', ':')).encode()
+        cases = [original.replace(b'{', b'{"schema_version":0,', 1),
+                 original.replace(b'"roots":{', b'"roots":{"config":"PRIVATE_FIXTURE_CANARY",', 1),
+                 original[:-1] + b',"extra":[{"k":0,"k":"PRIVATE_FIXTURE_CANARY"}]}']
+        cases += [original[:-1] + b',"extra":' + number + b'}'
+                  for number in (b'1.0', b'1e0', b'-2.5', b'NaN', b'Infinity', b'-Infinity')]
+        for raw in cases:
+            with self.subTest(raw=raw):self.strict_metadata_fixture('state', raw)
+
+    def test_journal_strict_json_refuses_duplicate_nested_and_noninteger_metadata(self):
+        _, journal = self.canonical_recovery_objects()
+        original = json.dumps(journal, separators=(',', ':')).encode()
+        cases = [original.replace(b'{', b'{"entries":["PRIVATE_FIXTURE_CANARY"],', 1),
+                 original.replace(b'"new_state":{', b'"new_state":{"schema_version":0,', 1),
+                 original[:-1] + b',"extra":[{"k":0,"k":"PRIVATE_FIXTURE_CANARY"}]}']
+        cases += [original[:-1] + b',"extra":' + number + b'}'
+                  for number in (b'1.0', b'1e0', b'-2.5', b'NaN', b'Infinity', b'-Infinity')]
+        for raw in cases:
+            with self.subTest(raw=raw):self.strict_metadata_fixture('journal', raw)
+
+    def test_state_journal_and_nested_schema_require_exact_integer_one(self):
+        for which in ('state', 'journal', 'new_state'):
+            for wrong in (True, False, 1.0):
+                state, journal = self.canonical_recovery_objects()
+                selected = state if which == 'state' else journal
+                if which == 'new_state':selected['new_state'] = dict(state, schema_version=wrong)
+                else:selected['schema_version'] = wrong
+                with self.subTest(which=which, wrong=wrong):
+                    self.strict_metadata_fixture('state' if which == 'state' else 'journal', json.dumps(selected).encode())
+                    if which == 'new_state':
+                        with self.assertRaisesRegex(setup.Error, 'Invalid pending state'):
+                            self.engine.validate_journal(selected)
+
+    def test_nested_pending_state_nonobjects_refused_without_attribute_errors(self):
+        for wrong in (None, [], 'PRIVATE_FIXTURE_CANARY', 1, True):
+            _, journal = self.canonical_recovery_objects()
+            journal['new_state'] = wrong
+            with self.subTest(wrong=wrong):
+                self.strict_metadata_fixture('journal', json.dumps(journal).encode())
+                with self.assertRaisesRegex(setup.Error, 'Invalid pending state'):
+                    self.engine.validate_journal(journal)
+
+    def test_strict_json_cli_errors_are_sanitized_and_preserve_selected_bytes(self):
+        state, _ = self.canonical_recovery_objects()
+        raw = json.dumps(state).encode()[:-1] + b',"PRIVATE_FIXTURE_CANARY":0,"PRIVATE_FIXTURE_CANARY":1}'
+        self.strict_metadata_fixture('state', raw)
+        before = self.snapshot();out, err = io.StringIO(), io.StringIO()
+        argv = ['setup.py', 'recover', '--apply', '--home', str(self.home), '--template-root', str(self.templates)]
+        with mock.patch('sys.argv', argv), contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            self.assertEqual(setup.main(), 1)
+        self.assertEqual(out.getvalue(), '')
+        self.assertEqual(json.loads(err.getvalue()), {'status': 'error', 'error': 'Invalid setup state/journal; no contents printed'})
+        self.assertNotIn('PRIVATE_FIXTURE_CANARY', err.getvalue())
+        self.assertEqual(self.snapshot(), before)
+
+    def test_valid_integer_recovery_json_keeps_existing_boolean_record_semantics(self):
+        state, _ = self.canonical_recovery_objects()
+        state['extra'] = {'integer': 7, 'flags': [True, False, None]}
+        path = self.home / self.engine.state_path
+        path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        path.write_text(json.dumps(state));path.chmod(0o600)
+        before = self.snapshot()
+        self.assertEqual(self.engine.load(self.engine.state_path), state)
+        self.assertEqual(self.engine.run('recover')['mode'], 'preview')
+        self.assertEqual(self.snapshot(), before)
+
+
 if __name__ == '__main__':
     unittest.main()

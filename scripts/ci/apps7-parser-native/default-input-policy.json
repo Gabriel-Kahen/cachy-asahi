@@ -1,0 +1,34 @@
+{
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "cpus": 1,
+  "dataset_lock_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+  "memory_bytes": 1073741824,
+  "owner_seconds": 330,
+  "pids": 64,
+  "repeats_per_variant": 6,
+  "report_bytes": 65536,
+  "schema_version": 1,
+  "sources": {
+    "baseline": {
+      "authority_source": null,
+      "bytes": 13160,
+      "expected_public_source": "eac600bd4f256068a78eb793dd464277eed6ce23",
+      "operand": "baseline-inventory.py",
+      "public_path": "packages/tools/cachy-asahi-apps/inventory.py",
+      "sha256": "986c8baea2921cf3f58f98c2e76a1adad9013fbe4b1f47743d12397e9e6c2516"
+    },
+    "candidate": {
+      "authority_source": null,
+      "bytes": 13206,
+      "expected_public_source": "134e02ba0c73dab4eb4a22cbfd562599b9e7a411",
+      "operand": "candidate-inventory.py",
+      "public_path": "packages/tools/cachy-asahi-apps7/inventory.py",
+      "sha256": "68f9b0bc6bd5c494ebfc10bdc1e243c014d7fa8e56b1386491b75cdb9ee2e3df"
+    }
+  },
+  "status": "UNBOUND_SOURCE_TEMPLATE",
+  "warmups_per_variant": 2,
+  "worker_seconds": 300
+}

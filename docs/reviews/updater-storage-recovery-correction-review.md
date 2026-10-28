@@ -1,0 +1,51 @@
+# Updater storage and recovery correction review
+
+2026-10-12. **HELD SOURCE ACCEPTED for coordinator commit, fresh source/controller freeze and workflow adoption. Corrected native execution NOT RUN.** No material blocker was reproduced against the five held inputs below. This review preserves the historical failed trials and the earlier scan/lifecycle reviews; it does not establish successful native compilation, physical storage fit, installation, licensing acceptance or M2 behavior.
+
+Read the current roadmap, development package inventory, updater workstream and preceding correction review. Reviewer ownership was limited to this document and private evidence under `artifacts/updater-native-stage/root-storage-review-20261012/`. No implementation, workflow, shared lock, primary Git, Docker daemon, host trust, installation, service or network change was performed.
+
+| Held input | SHA256 |
+| --- | --- |
+| stage.py | `3b548467b2ff775e1bb5a6422e2ce1678c0a9e7ef9c6283926bb6395f2b7646a` |
+| test_stage.py | `de299dd95ee424f5ed2bb1e1121d454a47b2c6e7ad65144cc2b8c919b3ad9441` |
+| broker.py | `42bfd6ac41039cddc5e6667309ea4e792f6020a01cde1d9f85eba08107a0b794` |
+| test_broker.py | `885bc92b3bb82fec28d2c7cda6b4e44fa5aa17ba1a338aa8185c6f54fd271e04` |
+| docs/workstreams/updater-native-stage.md | `55e10d5f24e709f72d46a2e32c9dfb2f0b4a283db5cdf9b30ac7cca95028779e` |
+
+The author proposal `0d7a44709a86927c615bf397425c1409a5b6e61523c7e5769d0a394dde9d7f36` was independently read and copied as an exact **85-file / 3,978,947-byte** closure. Every original and copied file matched its SHA256, size and mode; final recheck found zero source drift and no copied bytecode/cache. This is a verified private source copy, not an actual committed Git collect/verify or native controller freeze. The unchanged ready map remains `ff879da588419fc0f90ef6a27c8afc528c3f6a557ef2c060544d1b5e99ade4e2`; all **63 package pins and eight root pins** independently match. Source helper `259b13b210123d90f824f21bf7662785d50c7586519a78451ab62e97ec577d5f`, runtime and public worker remain unchanged.
+
+## Actual fixture execution
+
+The fresh copied closure passed **200 tests, zero skips, 7.874 seconds**, using `python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/port/updater-native-stage -p 'test_*.py' -q`. A preliminary sandboxed attempt against identical original bytes refused the directory ancestor observation in fixture setup (`storage-directory`) and then produced cascading setup/mock errors; it is not a passing run. The unchanged copied suite passed with the authorized temporary-directory/socket/process scope. No check was weakened or skipped.
+
+The full suite executes real bounded Python groups, signal delivery, adoption/reaping, private registration/removal, source snapshots and authenticated public-worker projection/export/bundle CLI processes. Its two real runtime SIGTERM cancellation schedules prove owned group absence, preserve ambiguous raw data and an unrelated marker, and retain FAIL rather than native acceptance. Barrier-controlled storage admission tests use real temporary files/flock and threads: spawn and durable generation registration complete under the admission lock; a waiting breach commits after release, later creates refuse, and command waiting occurs outside that lock. Deadline expiry and a genuinely pending SIGTERM after the admission wait prevent spawning and restore the signal mask. Docker calls, native/build trust and storage free-byte/device substitutions remain fixtures. No Docker command, native build, materializer network acquisition or actual GPG operation ran.
+
+The separate independent harness passed **five checks, zero skips, 0.078 seconds**:
+
+- Separate filesystem baselines of exactly 10 GiB admit with two independently bound rows; a one-byte deficit on the daemon baseline durably records `baseline-floor` and refuses initialization.
+- Simultaneous process-scope cancellation, Docker exception and failed GPG receipt still attempt all three scopes. The result remains FAIL/cancelled, all three cleanup statuses fail, raw removal is NOT RUN, and secret-bearing exception strings do not enter the real guarded public terminal.
+- A mocked daemon creates an owned image but omits its iidfile. Both cleanup attempts remain FAIL/`image-id-missing`, leave that image and a foreign image intact, and issue neither `rmi` nor `prune`. This preserves unknown asynchronous mutation rather than manufacturing absence.
+- Every one of the six public numeric fields refuses boolean, negative, greater-than-2^63-1, float, null and secret-bearing string substitutions; an extra raw-path field also refuses: **37 schema refusals**.
+- Thirty repetitions of real Linux descriptor-based `fstatvfs` sampling plus refused symlink sampling leave the descriptor count unchanged. Temporary directories are removed.
+
+These are actual local fixture executions. Free-space magnitudes, separate device IDs, Docker state and cleanup exceptions are simulated; the review did not allocate GiB, mount filesystems, call Docker/GPG or test a native updater.
+
+## Storage and cleanup semantics
+
+The policy change is explicit: **16 GiB aggregate available-space loss on shared storage**, versus **8 GiB independently on each separate filesystem**, with **2 GiB available reserve** per observed filesystem. Initial baselines must cover the whole ceiling plus reserve: 18 GiB shared or 10 GiB each separate. Shared observations use one conservative minimum baseline/current value and one public row, preventing private/daemon double counting. The unchanged private-tree limit remains 8 GiB/200,000 entries. Exact cap and reserve boundaries admit; one-byte breaches latch. This measures filesystem-wide available-byte changes, including unrelated activity, rather than Docker directory size or exact physical ownership. It does not prove the next build fits, establish zero overshoot between ticks, or claim performance improvement.
+
+No-follow O_PATH directory traversal and before/after device/inode/owner/mode checks bind each sample, including unreadable final directories. The scalar bound is an exact nonboolean integer through 2^63-1. Paths cannot alias or be nested; changed roots/devices and failed observations refuse. Storage state has a separate bounded lock and is bound to nonce, controller and policy hashes. Baseline inadequacy and observed breaches are saved before refusal; free-space restoration does not clear the first reason. Missing or malformed established state/lock refuses rather than reinitializing. Every admitted build/run is checked again at its serialized spawn/registration boundary. Authenticated read-only commands and scoped removal remain available after a breach, so the limit does not itself suppress cleanup.
+
+Normal and recovery cleanup independently attempt direct owned groups, scoped broker resources and the canonical owned GPG home. Only verified process, Docker and GPG outcomes permit private removal. A GPG success receipt also requires group absence. Broker cleanup verifies nonce labels and exact identities, then positively checks absence; failed inspect alone is insufficient. Missing iid, unknown launch generations, reused PID/group leaders, foreign resources and uncertain daemon outcomes remain FAIL. No general daemon prune is introduced. The typed public cleanup reasons are sorted, unique and closed; raw errors and paths are omitted. Host/daemon disposal remains **NOT ATTESTED**, including after successful scoped cleanup.
+
+The changed storage and cleanup projections validate complete closed schemas, bounded scalar types and breach witnesses. Invalid established storage observations keep the overall operation FAIL even when other cleanup independently proves private removal. Retention and late cancellation checks remain active: no successful native result or recovery result is inferred from cleanup, and recovery keeps `native_compilation: NOT ATTESTED BY RECOVERY`.
+
+Historical trial `38239531158` remains acquisition PASS / native-pair storage tick FAIL before compilation, with cleanup/recovery FAIL and private removal unattested. The earlier shared private4+daemon5 GiB schedule is now admitted by this explicit policy, but there is no new hosted measurement. Original missing-iid ambiguity is preserved rather than treated as a repaired image disappearance.
+
+## Coordinator consumer handoff
+
+The inspected workflow SHA256 is `78f9d914146fba9a6bc4df4052f352e356abf162dd4bfbb23765a88295034bba`; it still binds historical stage `64ce7f…`. Before retry, change its trusted literal `STAGE_SHA256` to the exact `3b548467…` value above, commit the complete corrected 85-file closure, and perform a new exact committed-source freeze/controller validation. Keep the unchanged source bootstrap `259b13…`, ready map and package/root pins. An old controller cannot accept the new stage/broker bytes or budget.
+
+The current original and recovery terminal consumer already requires authenticated `stage.public_summary(value) == value`; once bound to this held stage, that check validates the new optional `storage` object and all-or-none six-field cleanup projection. Preserve that exact semantic check, source/image/controller bindings, generic exporter/hash checks, finite diagnostics, status gates and process outcome handling. Add workflow fixture replay for valid shared/separate rows, cleanup aggregation and malformed scalar/enum/partial-field poisons; do not replace this with arbitrary field admission. There is no need to weaken the generic exporter or edit the unchanged public worker. Actual consumer adoption and workflow execution remain coordinator-owned and NOT RUN in this review.
+
+Private evidence includes exact source copy and snapshot, full-suite output, the independent harness/receipt and final source/pin recheck. `final-recheck.json` binds the preceding files, including independent receipt SHA256 `14d757921a7475f604a72649dd3d5fd615a4bc0f6b5fd7e8e5f9da68b8a1b689` and suite-log SHA256 `72fa68266e47530d35de3176de1af58ac8026560316cd420c40840d38c306e8e`. Raw fixture data remains private; source adoption is the only disposition here. Publication terms, target dependency transaction, updater installation/removal and exact M2/16K/hardware/performance gates remain open.

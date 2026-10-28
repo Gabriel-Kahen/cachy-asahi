@@ -2,7 +2,7 @@
 
 The destination is a maintained, independent CachyOS-derived ARM port for Apple Silicon covering all five requirements below. The initial overlay is an intermediate release, not full-goal completion. See [goal.md](../goal.md) for the ambition and [implementation sequence](../outline.md) for dependencies and parallel work.
 
-All milestones are currently incomplete. Four original development packages have passed two clean native ARM builds each, inspection, and byte comparison; the selected Asahi target dependency transaction and M2 hardware validation remain open. See [implementation status](implementation-status.md) and [native ARM evidence](validation/native-arm.md). These builds do not establish a complete ARM port, an accepted target transaction, or hardware compatibility.
+All milestones are currently incomplete. All ten selected development recipes have passed native ARM build pairs and byte comparisons; the core disposable package lifecycle and upstream 574-package builder transaction also pass. The complete supported target composition, selected Asahi dependency transaction and M2 hardware validation remain open. See [implementation status](implementation-status.md) and [native ARM evidence](validation/native-arm.md). These builds do not establish a complete ARM port, an accepted target transaction, or hardware compatibility.
 
 ## Five required workstreams
 

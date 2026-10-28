@@ -1,0 +1,79 @@
+{
+  "name": "core41-observer-efficient-source",
+  "on": {
+    "push": {
+      "paths": [
+        "scripts/ci/core7-systemd-vm-source/**",
+        ".github/workflows/core41-observer-efficient-source.yml"
+      ]
+    },
+    "pull_request": {
+      "paths": [
+        "scripts/ci/core7-systemd-vm-source/**",
+        ".github/workflows/core41-observer-efficient-source.yml"
+      ]
+    },
+    "workflow_dispatch": {}
+  },
+  "permissions": {
+    "contents": "read"
+  },
+  "jobs": {
+    "source-controls": {
+      "runs-on": "ubuntu-24.04",
+      "timeout-minutes": 10,
+      "strategy": {
+        "fail-fast": false,
+        "matrix": {
+          "python": [
+            "3.12",
+            "3.14"
+          ]
+        }
+      },
+      "env": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONWARNINGS": "error"
+      },
+      "steps": [
+        {
+          "name": "Maintained portable factory",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Immutable parent",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "ref": "29a60eeaf45fad954ffa0932c8559192a911c298",
+            "path": ".ci-fixtures/parent",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Immutable expected",
+          "uses": "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0",
+          "with": {
+            "ref": "0be46ae9f59561f042b32b1de0b1fd54c7a26999",
+            "path": ".ci-fixtures/expected",
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Select Python",
+          "uses": "actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+          "with": {
+            "python-version": "${{ matrix.python }}"
+          }
+        },
+        {
+          "name": "Exact41 source, old route parity, source entry, receipts and hostile input controls",
+          "shell": "bash",
+          "run": "set -euo pipefail\nstage=$(mktemp -d \"$RUNNER_TEMP/core41-observer-source.XXXXXXXX\")\ntrap 'rm -rf -- \"$stage\"' EXIT\nexport TMPDIR=\"$stage\"\npython3 -I -B -Werror \"$GITHUB_WORKSPACE/scripts/ci/core7-systemd-vm-source/test_observer_factory.py\" \\\n --parent \"$GITHUB_WORKSPACE/.ci-fixtures/parent\" \\\n --expected \"$GITHUB_WORKSPACE/.ci-fixtures/expected\"\n"
+        }
+      ]
+    }
+  }
+}

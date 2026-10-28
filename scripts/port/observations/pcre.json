@@ -1,0 +1,866 @@
+{
+  "ELF": [
+    {
+      "16K_load": "NOT RUN",
+      "class": 64,
+      "endianness": "little",
+      "machine": 183,
+      "path": "usr/bin/pcregrep",
+      "runtime": "NOT RUN"
+    },
+    {
+      "16K_load": "NOT RUN",
+      "class": 64,
+      "endianness": "little",
+      "machine": 183,
+      "path": "usr/bin/pcretest",
+      "runtime": "NOT RUN"
+    },
+    {
+      "16K_load": "NOT RUN",
+      "class": 64,
+      "endianness": "little",
+      "machine": 183,
+      "path": "usr/lib/libpcre.so.1.2.13",
+      "runtime": "NOT RUN"
+    },
+    {
+      "16K_load": "NOT RUN",
+      "class": 64,
+      "endianness": "little",
+      "machine": 183,
+      "path": "usr/lib/libpcre16.so.0.2.13",
+      "runtime": "NOT RUN"
+    },
+    {
+      "16K_load": "NOT RUN",
+      "class": 64,
+      "endianness": "little",
+      "machine": 183,
+      "path": "usr/lib/libpcre32.so.0.0.13",
+      "runtime": "NOT RUN"
+    },
+    {
+      "16K_load": "NOT RUN",
+      "class": 64,
+      "endianness": "little",
+      "machine": 183,
+      "path": "usr/lib/libpcrecpp.so.0.0.2",
+      "runtime": "NOT RUN"
+    },
+    {
+      "16K_load": "NOT RUN",
+      "class": 64,
+      "endianness": "little",
+      "machine": 183,
+      "path": "usr/lib/libpcreposix.so.0.0.7",
+      "runtime": "NOT RUN"
+    }
+  ],
+  "buildinfo": {
+    "bytes": 6456,
+    "fields": {
+      "builddate": [
+        "1786303679"
+      ],
+      "builddir": [
+        "/build"
+      ],
+      "buildenv": [
+        "distcc",
+        "color",
+        "!ccache",
+        "check",
+        "!sign"
+      ],
+      "buildtool": [
+        "devtools"
+      ],
+      "buildtoolver": [
+        "1:1.5.0-1-any"
+      ],
+      "format": [
+        "2"
+      ],
+      "installed": [
+        "acl-2.4.0-1-aarch64",
+        "archlinux-keyring-20260727-1-any",
+        "attr-2.6.0-1-aarch64",
+        "audit-4.2.1-1-aarch64",
+        "autoconf-2.73-1-any",
+        "automake-1.18.1-1-any",
+        "base-devel-1-2-any",
+        "bash-5.3.15-1-aarch64",
+        "binutils-2.46+r70+g155188ea10a7-1-aarch64",
+        "bison-3.8.2-8-aarch64",
+        "boost-libs-1.91.0-2-aarch64",
+        "brotli-1.2.0-1-aarch64",
+        "bzip2-1.0.8-6-aarch64",
+        "ca-certificates-20240618-1-any",
+        "ca-certificates-mozilla-3.126-1-aarch64",
+        "ca-certificates-utils-20240618-1-any",
+        "coreutils-9.11-2-aarch64",
+        "cpio-2.15-3-aarch64",
+        "cryptsetup-2.8.7-1-aarch64",
+        "curl-8.21.0-1-aarch64",
+        "db5.3-5.3.28-7-aarch64",
+        "dbus-1.16.2-1-aarch64",
+        "dbus-broker-37-3-aarch64",
+        "dbus-broker-units-37-3-aarch64",
+        "dbus-units-37-3-aarch64",
+        "debugedit-5.3-1-aarch64",
+        "device-mapper-2.03.42-1-aarch64",
+        "diffutils-3.12-2-aarch64",
+        "distcc-3.4-15-aarch64",
+        "e2fsprogs-1.47.4-1-aarch64",
+        "elfutils-0.195-2-aarch64",
+        "expat-2.8.2-1-aarch64",
+        "fakeroot-1:1.37.2-3-aarch64",
+        "file-5.48-1-aarch64",
+        "filesystem-2025.10.12-1-any",
+        "findutils-4.11.0-1-aarch64",
+        "flex-2.6.4-6-aarch64",
+        "gawk-5.4.1-1-aarch64",
+        "gc-8.2.12-1-aarch64",
+        "gcc-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "gcc-libs-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "gdb-17.2-1-aarch64",
+        "gdb-common-17.2-1-aarch64",
+        "gdbm-1.26-2-aarch64",
+        "gettext-1.0-2-aarch64",
+        "glib2-2.88.3-1-aarch64",
+        "glibc-2.43+r22+g8362e8ce10b2-2-aarch64",
+        "gmp-6.3.0-3-aarch64",
+        "gnulib-l10n-20241231-1-any",
+        "gnupg-2.4.9-2-aarch64",
+        "gnutls-3.8.13-2-aarch64",
+        "gpgme-2.1.2-1-aarch64",
+        "grep-3.12-2-aarch64",
+        "groff-1.24.1-1-aarch64",
+        "guile-3.0.11-1-aarch64",
+        "gzip-1.14-2-aarch64",
+        "hwdata-0.410-1-any",
+        "iana-etc-20260530-1-any",
+        "icu-78.3-1-aarch64",
+        "jansson-2.15.0-1-aarch64",
+        "json-c-0.19-1-aarch64",
+        "kbd-2.10.0-1-aarch64",
+        "keyutils-1.6.3-4-aarch64",
+        "kmod-34.2-1-aarch64",
+        "krb5-1.22.2-1-aarch64",
+        "leancrypto-1.8.0-1-aarch64",
+        "libarchive-3.8.9-1-aarch64",
+        "libasan-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libassuan-3.0.0-1-aarch64",
+        "libatomic-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libcap-2.78-1-aarch64",
+        "libcap-ng-0.9.3-1-aarch64",
+        "libelf-0.195-2-aarch64",
+        "libevent-2.1.13-2-aarch64",
+        "libffi-3.7.1-1-aarch64",
+        "libgcc-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libgcrypt-1.12.2-1-aarch64",
+        "libgfortran-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libgomp-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libgpg-error-1.61-1-aarch64",
+        "libidn2-2.3.8-1-aarch64",
+        "libisl-0.28-1-aarch64",
+        "libksba-1.8.0-1-aarch64",
+        "libldap-2.6.13-1-aarch64",
+        "liblsan-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libmakepkg-dropins-20-1-any",
+        "libmpc-1.4.1-1-aarch64",
+        "libnghttp2-1.70.0-1-aarch64",
+        "libnghttp3-1.18.0-1-aarch64",
+        "libngtcp2-1.25.0-1-aarch64",
+        "libnsl-2.0.1-2-aarch64",
+        "libobjc-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libp11-kit-0.26.4-1-aarch64",
+        "libpsl-0.21.5-2-aarch64",
+        "libquadmath-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libsasl-2.1.28-5-aarch64",
+        "libseccomp-2.6.0-1-aarch64",
+        "libsecret-0.21.7-1-aarch64",
+        "libssh2-1.11.1-7-aarch64",
+        "libstdc++-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libsysprof-capture-50.0-4-aarch64",
+        "libtasn1-4.21.0-1-aarch64",
+        "libtirpc-1.3.7-1-aarch64",
+        "libtool-2.6.0+r23+gb08cb0a0-1-aarch64",
+        "libtsan-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libubsan-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libunistring-1.4.2-1-aarch64",
+        "libusb-1.0.30-1-aarch64",
+        "libverto-0.3.2-6-aarch64",
+        "libxcrypt-4.5.2-1-aarch64",
+        "libxml2-2.15.3-1-aarch64",
+        "linux-api-headers-7.1-1-aarch64",
+        "lmdb-0.9.35-1-aarch64",
+        "lz4-1:1.10.0-2-aarch64",
+        "m4-1.4.21-2-aarch64",
+        "make-4.4.1-3-aarch64",
+        "mpdecimal-4.0.1-3-aarch64",
+        "mpfr-4.2.2-1-aarch64",
+        "ncurses-6.6-2-aarch64",
+        "nettle-4.0-1-aarch64",
+        "npth-1.8-1-aarch64",
+        "openssl-3.6.3-1-aarch64",
+        "p11-kit-0.26.4-1-aarch64",
+        "pacman-7.1.0.r9.g54d9411-2-aarch64",
+        "pacman-mirrorlist-20260411-2-any",
+        "pam-1.7.2-2-aarch64",
+        "pambase-20260616-1-any",
+        "patch-2.8-1-aarch64",
+        "pcre2-10.47-1-aarch64",
+        "perl-5.42.2-1-aarch64",
+        "pinentry-1.3.3-1-aarch64",
+        "pkgconf-3.0.5-1-aarch64",
+        "popt-1.19-2-aarch64",
+        "python-3.14.6-1-aarch64",
+        "readline-8.3.003-1-aarch64",
+        "sed-4.10-1-aarch64",
+        "shadow-4.20.0.arch1-1-aarch64",
+        "source-highlight-3.1.9-18-aarch64",
+        "sqlite-3.53.4-1-aarch64",
+        "sudo-1.9.17.p2-6-aarch64",
+        "systemd-261.2-1-aarch64",
+        "systemd-libs-261.2-1-aarch64",
+        "tar-1.35-2-aarch64",
+        "texinfo-7.3-1-aarch64",
+        "tpm2-tss-4.1.3-1-aarch64",
+        "tzdata-2026c-1-aarch64",
+        "util-linux-2.42.2-1-aarch64",
+        "util-linux-libs-2.42.2-1-aarch64",
+        "which-2.25-1-aarch64",
+        "xxhash-0.8.3-1-aarch64",
+        "xz-5.8.3-1-aarch64",
+        "zlib-1:1.3.2-3-aarch64",
+        "zstd-1.5.7-3-aarch64"
+      ],
+      "options": [
+        "strip",
+        "docs",
+        "!libtool",
+        "!staticlibs",
+        "emptydirs",
+        "zipman",
+        "purge",
+        "!debug",
+        "!lto"
+      ],
+      "packager": [
+        "Arch Linux ARM Build System <builder+seattle@archlinuxarm.org>"
+      ],
+      "pkgarch": [
+        "aarch64"
+      ],
+      "pkgbase": [
+        "pcre"
+      ],
+      "pkgbuild_sha256sum": [
+        "d195af40b9e47c47a0089d793f467621ff14caa24815ca48354fd46e00ddc71c"
+      ],
+      "pkgname": [
+        "pcre"
+      ],
+      "pkgver": [
+        "8.45-5"
+      ],
+      "startdir": [
+        "/startdir"
+      ]
+    },
+    "sha256": "0e083092e2e3fca74bf3032cd80b2e9c70e0b3079292d1dfaac4b106b6cf2574"
+  },
+  "complete_corresponding_source_license_closure": "NOT ESTABLISHED; declared package metadata only",
+  "hooks_and_scriptlets": [],
+  "installed_paths": [
+    "usr",
+    "usr/bin",
+    "usr/bin/pcre-config",
+    "usr/bin/pcregrep",
+    "usr/bin/pcretest",
+    "usr/include",
+    "usr/include/pcre.h",
+    "usr/include/pcre_scanner.h",
+    "usr/include/pcre_stringpiece.h",
+    "usr/include/pcrecpp.h",
+    "usr/include/pcrecpparg.h",
+    "usr/include/pcreposix.h",
+    "usr/lib",
+    "usr/lib/libpcre.so",
+    "usr/lib/libpcre.so.1",
+    "usr/lib/libpcre.so.1.2.13",
+    "usr/lib/libpcre16.so",
+    "usr/lib/libpcre16.so.0",
+    "usr/lib/libpcre16.so.0.2.13",
+    "usr/lib/libpcre32.so",
+    "usr/lib/libpcre32.so.0",
+    "usr/lib/libpcre32.so.0.0.13",
+    "usr/lib/libpcrecpp.so",
+    "usr/lib/libpcrecpp.so.0",
+    "usr/lib/libpcrecpp.so.0.0.2",
+    "usr/lib/libpcreposix.so",
+    "usr/lib/libpcreposix.so.0",
+    "usr/lib/libpcreposix.so.0.0.7",
+    "usr/lib/pkgconfig",
+    "usr/lib/pkgconfig/libpcre.pc",
+    "usr/lib/pkgconfig/libpcre16.pc",
+    "usr/lib/pkgconfig/libpcre32.pc",
+    "usr/lib/pkgconfig/libpcrecpp.pc",
+    "usr/lib/pkgconfig/libpcreposix.pc",
+    "usr/share",
+    "usr/share/doc",
+    "usr/share/doc/pcre",
+    "usr/share/doc/pcre/AUTHORS",
+    "usr/share/doc/pcre/COPYING",
+    "usr/share/doc/pcre/ChangeLog",
+    "usr/share/doc/pcre/LICENCE",
+    "usr/share/doc/pcre/NEWS",
+    "usr/share/doc/pcre/README",
+    "usr/share/doc/pcre/html",
+    "usr/share/doc/pcre/html/NON-AUTOTOOLS-BUILD.txt",
+    "usr/share/doc/pcre/html/README.txt",
+    "usr/share/doc/pcre/html/index.html",
+    "usr/share/doc/pcre/html/pcre-config.html",
+    "usr/share/doc/pcre/html/pcre.html",
+    "usr/share/doc/pcre/html/pcre16.html",
+    "usr/share/doc/pcre/html/pcre32.html",
+    "usr/share/doc/pcre/html/pcre_assign_jit_stack.html",
+    "usr/share/doc/pcre/html/pcre_compile.html",
+    "usr/share/doc/pcre/html/pcre_compile2.html",
+    "usr/share/doc/pcre/html/pcre_config.html",
+    "usr/share/doc/pcre/html/pcre_copy_named_substring.html",
+    "usr/share/doc/pcre/html/pcre_copy_substring.html",
+    "usr/share/doc/pcre/html/pcre_dfa_exec.html",
+    "usr/share/doc/pcre/html/pcre_exec.html",
+    "usr/share/doc/pcre/html/pcre_free_study.html",
+    "usr/share/doc/pcre/html/pcre_free_substring.html",
+    "usr/share/doc/pcre/html/pcre_free_substring_list.html",
+    "usr/share/doc/pcre/html/pcre_fullinfo.html",
+    "usr/share/doc/pcre/html/pcre_get_named_substring.html",
+    "usr/share/doc/pcre/html/pcre_get_stringnumber.html",
+    "usr/share/doc/pcre/html/pcre_get_stringtable_entries.html",
+    "usr/share/doc/pcre/html/pcre_get_substring.html",
+    "usr/share/doc/pcre/html/pcre_get_substring_list.html",
+    "usr/share/doc/pcre/html/pcre_jit_exec.html",
+    "usr/share/doc/pcre/html/pcre_jit_stack_alloc.html",
+    "usr/share/doc/pcre/html/pcre_jit_stack_free.html",
+    "usr/share/doc/pcre/html/pcre_maketables.html",
+    "usr/share/doc/pcre/html/pcre_pattern_to_host_byte_order.html",
+    "usr/share/doc/pcre/html/pcre_refcount.html",
+    "usr/share/doc/pcre/html/pcre_study.html",
+    "usr/share/doc/pcre/html/pcre_utf16_to_host_byte_order.html",
+    "usr/share/doc/pcre/html/pcre_utf32_to_host_byte_order.html",
+    "usr/share/doc/pcre/html/pcre_version.html",
+    "usr/share/doc/pcre/html/pcreapi.html",
+    "usr/share/doc/pcre/html/pcrebuild.html",
+    "usr/share/doc/pcre/html/pcrecallout.html",
+    "usr/share/doc/pcre/html/pcrecompat.html",
+    "usr/share/doc/pcre/html/pcrecpp.html",
+    "usr/share/doc/pcre/html/pcredemo.html",
+    "usr/share/doc/pcre/html/pcregrep.html",
+    "usr/share/doc/pcre/html/pcrejit.html",
+    "usr/share/doc/pcre/html/pcrelimits.html",
+    "usr/share/doc/pcre/html/pcrematching.html",
+    "usr/share/doc/pcre/html/pcrepartial.html",
+    "usr/share/doc/pcre/html/pcrepattern.html",
+    "usr/share/doc/pcre/html/pcreperform.html",
+    "usr/share/doc/pcre/html/pcreposix.html",
+    "usr/share/doc/pcre/html/pcreprecompile.html",
+    "usr/share/doc/pcre/html/pcresample.html",
+    "usr/share/doc/pcre/html/pcrestack.html",
+    "usr/share/doc/pcre/html/pcresyntax.html",
+    "usr/share/doc/pcre/html/pcretest.html",
+    "usr/share/doc/pcre/html/pcreunicode.html",
+    "usr/share/doc/pcre/pcre-config.txt",
+    "usr/share/doc/pcre/pcre.txt",
+    "usr/share/doc/pcre/pcregrep.txt",
+    "usr/share/doc/pcre/pcretest.txt",
+    "usr/share/licenses",
+    "usr/share/licenses/pcre",
+    "usr/share/licenses/pcre/LICENSE",
+    "usr/share/man",
+    "usr/share/man/man1",
+    "usr/share/man/man1/pcre-config.1.gz",
+    "usr/share/man/man1/pcregrep.1.gz",
+    "usr/share/man/man1/pcretest.1.gz",
+    "usr/share/man/man3",
+    "usr/share/man/man3/pcre.3.gz",
+    "usr/share/man/man3/pcre16.3.gz",
+    "usr/share/man/man3/pcre16_assign_jit_stack.3.gz",
+    "usr/share/man/man3/pcre16_compile.3.gz",
+    "usr/share/man/man3/pcre16_compile2.3.gz",
+    "usr/share/man/man3/pcre16_config.3.gz",
+    "usr/share/man/man3/pcre16_copy_named_substring.3.gz",
+    "usr/share/man/man3/pcre16_copy_substring.3.gz",
+    "usr/share/man/man3/pcre16_dfa_exec.3.gz",
+    "usr/share/man/man3/pcre16_exec.3.gz",
+    "usr/share/man/man3/pcre16_free_study.3.gz",
+    "usr/share/man/man3/pcre16_free_substring.3.gz",
+    "usr/share/man/man3/pcre16_free_substring_list.3.gz",
+    "usr/share/man/man3/pcre16_fullinfo.3.gz",
+    "usr/share/man/man3/pcre16_get_named_substring.3.gz",
+    "usr/share/man/man3/pcre16_get_stringnumber.3.gz",
+    "usr/share/man/man3/pcre16_get_stringtable_entries.3.gz",
+    "usr/share/man/man3/pcre16_get_substring.3.gz",
+    "usr/share/man/man3/pcre16_get_substring_list.3.gz",
+    "usr/share/man/man3/pcre16_jit_exec.3.gz",
+    "usr/share/man/man3/pcre16_jit_stack_alloc.3.gz",
+    "usr/share/man/man3/pcre16_jit_stack_free.3.gz",
+    "usr/share/man/man3/pcre16_maketables.3.gz",
+    "usr/share/man/man3/pcre16_pattern_to_host_byte_order.3.gz",
+    "usr/share/man/man3/pcre16_refcount.3.gz",
+    "usr/share/man/man3/pcre16_study.3.gz",
+    "usr/share/man/man3/pcre16_utf16_to_host_byte_order.3.gz",
+    "usr/share/man/man3/pcre16_version.3.gz",
+    "usr/share/man/man3/pcre32.3.gz",
+    "usr/share/man/man3/pcre32_assign_jit_stack.3.gz",
+    "usr/share/man/man3/pcre32_compile.3.gz",
+    "usr/share/man/man3/pcre32_compile2.3.gz",
+    "usr/share/man/man3/pcre32_config.3.gz",
+    "usr/share/man/man3/pcre32_copy_named_substring.3.gz",
+    "usr/share/man/man3/pcre32_copy_substring.3.gz",
+    "usr/share/man/man3/pcre32_dfa_exec.3.gz",
+    "usr/share/man/man3/pcre32_exec.3.gz",
+    "usr/share/man/man3/pcre32_free_study.3.gz",
+    "usr/share/man/man3/pcre32_free_substring.3.gz",
+    "usr/share/man/man3/pcre32_free_substring_list.3.gz",
+    "usr/share/man/man3/pcre32_fullinfo.3.gz",
+    "usr/share/man/man3/pcre32_get_named_substring.3.gz",
+    "usr/share/man/man3/pcre32_get_stringnumber.3.gz",
+    "usr/share/man/man3/pcre32_get_stringtable_entries.3.gz",
+    "usr/share/man/man3/pcre32_get_substring.3.gz",
+    "usr/share/man/man3/pcre32_get_substring_list.3.gz",
+    "usr/share/man/man3/pcre32_jit_exec.3.gz",
+    "usr/share/man/man3/pcre32_jit_stack_alloc.3.gz",
+    "usr/share/man/man3/pcre32_jit_stack_free.3.gz",
+    "usr/share/man/man3/pcre32_maketables.3.gz",
+    "usr/share/man/man3/pcre32_pattern_to_host_byte_order.3.gz",
+    "usr/share/man/man3/pcre32_refcount.3.gz",
+    "usr/share/man/man3/pcre32_study.3.gz",
+    "usr/share/man/man3/pcre32_utf32_to_host_byte_order.3.gz",
+    "usr/share/man/man3/pcre32_version.3.gz",
+    "usr/share/man/man3/pcre_assign_jit_stack.3.gz",
+    "usr/share/man/man3/pcre_compile.3.gz",
+    "usr/share/man/man3/pcre_compile2.3.gz",
+    "usr/share/man/man3/pcre_config.3.gz",
+    "usr/share/man/man3/pcre_copy_named_substring.3.gz",
+    "usr/share/man/man3/pcre_copy_substring.3.gz",
+    "usr/share/man/man3/pcre_dfa_exec.3.gz",
+    "usr/share/man/man3/pcre_exec.3.gz",
+    "usr/share/man/man3/pcre_free_study.3.gz",
+    "usr/share/man/man3/pcre_free_substring.3.gz",
+    "usr/share/man/man3/pcre_free_substring_list.3.gz",
+    "usr/share/man/man3/pcre_fullinfo.3.gz",
+    "usr/share/man/man3/pcre_get_named_substring.3.gz",
+    "usr/share/man/man3/pcre_get_stringnumber.3.gz",
+    "usr/share/man/man3/pcre_get_stringtable_entries.3.gz",
+    "usr/share/man/man3/pcre_get_substring.3.gz",
+    "usr/share/man/man3/pcre_get_substring_list.3.gz",
+    "usr/share/man/man3/pcre_jit_exec.3.gz",
+    "usr/share/man/man3/pcre_jit_stack_alloc.3.gz",
+    "usr/share/man/man3/pcre_jit_stack_free.3.gz",
+    "usr/share/man/man3/pcre_maketables.3.gz",
+    "usr/share/man/man3/pcre_pattern_to_host_byte_order.3.gz",
+    "usr/share/man/man3/pcre_refcount.3.gz",
+    "usr/share/man/man3/pcre_study.3.gz",
+    "usr/share/man/man3/pcre_utf16_to_host_byte_order.3.gz",
+    "usr/share/man/man3/pcre_utf32_to_host_byte_order.3.gz",
+    "usr/share/man/man3/pcre_version.3.gz",
+    "usr/share/man/man3/pcreapi.3.gz",
+    "usr/share/man/man3/pcrebuild.3.gz",
+    "usr/share/man/man3/pcrecallout.3.gz",
+    "usr/share/man/man3/pcrecompat.3.gz",
+    "usr/share/man/man3/pcrecpp.3.gz",
+    "usr/share/man/man3/pcredemo.3.gz",
+    "usr/share/man/man3/pcrejit.3.gz",
+    "usr/share/man/man3/pcrelimits.3.gz",
+    "usr/share/man/man3/pcrematching.3.gz",
+    "usr/share/man/man3/pcrepartial.3.gz",
+    "usr/share/man/man3/pcrepattern.3.gz",
+    "usr/share/man/man3/pcreperform.3.gz",
+    "usr/share/man/man3/pcreposix.3.gz",
+    "usr/share/man/man3/pcreprecompile.3.gz",
+    "usr/share/man/man3/pcresample.3.gz",
+    "usr/share/man/man3/pcrestack.3.gz",
+    "usr/share/man/man3/pcresyntax.3.gz",
+    "usr/share/man/man3/pcreunicode.3.gz"
+  ],
+  "license_declaration": [
+    "BSD"
+  ],
+  "license_notice_files": [
+    {
+      "bytes": 3190,
+      "legal_clearance": "NOT ESTABLISHED; retained notice observation",
+      "path": "usr/share/licenses/pcre/LICENSE",
+      "sha256": "51b3dea44f63338b84b9c97b3d793826a8397309068cf9379a423216ab8ea5b2"
+    }
+  ],
+  "links": [
+    {
+      "path": "usr/lib/libpcre.so",
+      "target": "libpcre.so.1.2.13",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/lib/libpcre.so.1",
+      "target": "libpcre.so.1.2.13",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/lib/libpcre16.so",
+      "target": "libpcre16.so.0.2.13",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/lib/libpcre16.so.0",
+      "target": "libpcre16.so.0.2.13",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/lib/libpcre32.so",
+      "target": "libpcre32.so.0.0.13",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/lib/libpcre32.so.0",
+      "target": "libpcre32.so.0.0.13",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/lib/libpcrecpp.so",
+      "target": "libpcrecpp.so.0.0.2",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/lib/libpcrecpp.so.0",
+      "target": "libpcrecpp.so.0.0.2",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/lib/libpcreposix.so",
+      "target": "libpcreposix.so.0.0.7",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/lib/libpcreposix.so.0",
+      "target": "libpcreposix.so.0.0.7",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre16_assign_jit_stack.3.gz",
+      "target": "pcre_assign_jit_stack.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre16_compile.3.gz",
+      "target": "pcre_compile.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre16_compile2.3.gz",
+      "target": "pcre_compile2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre16_config.3.gz",
+      "target": "pcre_config.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre16_copy_named_substring.3.gz",
+      "target": "pcre_copy_named_substring.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre16_copy_substring.3.gz",
+      "target": "pcre_copy_substring.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre16_dfa_exec.3.gz",
+      "target": "pcre_dfa_exec.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre16_exec.3.gz",
+      "target": "pcre_exec.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre16_free_study.3.gz",
+      "target": "pcre_free_study.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre16_free_substring.3.gz",
+      "target": "pcre_free_substring.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre16_free_substring_list.3.gz",
+      "target": "pcre_free_substring_list.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre16_fullinfo.3.gz",
+      "target": "pcre_fullinfo.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre16_get_named_substring.3.gz",
+      "target": "pcre_get_named_substring.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre16_get_stringnumber.3.gz",
+      "target": "pcre_get_stringnumber.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre16_get_stringtable_entries.3.gz",
+      "target": "pcre_get_stringtable_entries.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre16_get_substring.3.gz",
+      "target": "pcre_get_substring.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre16_get_substring_list.3.gz",
+      "target": "pcre_get_substring_list.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre16_jit_exec.3.gz",
+      "target": "pcre_jit_exec.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre16_jit_stack_alloc.3.gz",
+      "target": "pcre_jit_stack_alloc.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre16_jit_stack_free.3.gz",
+      "target": "pcre_jit_stack_free.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre16_maketables.3.gz",
+      "target": "pcre_maketables.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre16_pattern_to_host_byte_order.3.gz",
+      "target": "pcre_pattern_to_host_byte_order.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre16_refcount.3.gz",
+      "target": "pcre_refcount.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre16_study.3.gz",
+      "target": "pcre_study.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre16_utf16_to_host_byte_order.3.gz",
+      "target": "pcre_utf16_to_host_byte_order.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre16_version.3.gz",
+      "target": "pcre_version.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre32_assign_jit_stack.3.gz",
+      "target": "pcre_assign_jit_stack.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre32_compile.3.gz",
+      "target": "pcre_compile.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre32_compile2.3.gz",
+      "target": "pcre_compile2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre32_config.3.gz",
+      "target": "pcre_config.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre32_copy_named_substring.3.gz",
+      "target": "pcre_copy_named_substring.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre32_copy_substring.3.gz",
+      "target": "pcre_copy_substring.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre32_dfa_exec.3.gz",
+      "target": "pcre_dfa_exec.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre32_exec.3.gz",
+      "target": "pcre_exec.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre32_free_study.3.gz",
+      "target": "pcre_free_study.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre32_free_substring.3.gz",
+      "target": "pcre_free_substring.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre32_free_substring_list.3.gz",
+      "target": "pcre_free_substring_list.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre32_fullinfo.3.gz",
+      "target": "pcre_fullinfo.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre32_get_named_substring.3.gz",
+      "target": "pcre_get_named_substring.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre32_get_stringnumber.3.gz",
+      "target": "pcre_get_stringnumber.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre32_get_stringtable_entries.3.gz",
+      "target": "pcre_get_stringtable_entries.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre32_get_substring.3.gz",
+      "target": "pcre_get_substring.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre32_get_substring_list.3.gz",
+      "target": "pcre_get_substring_list.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre32_jit_exec.3.gz",
+      "target": "pcre_jit_exec.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre32_jit_stack_alloc.3.gz",
+      "target": "pcre_jit_stack_alloc.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre32_jit_stack_free.3.gz",
+      "target": "pcre_jit_stack_free.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre32_maketables.3.gz",
+      "target": "pcre_maketables.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre32_pattern_to_host_byte_order.3.gz",
+      "target": "pcre_pattern_to_host_byte_order.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre32_refcount.3.gz",
+      "target": "pcre_refcount.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre32_study.3.gz",
+      "target": "pcre_study.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre32_utf32_to_host_byte_order.3.gz",
+      "target": "pcre_utf32_to_host_byte_order.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/pcre32_version.3.gz",
+      "target": "pcre_version.3.gz",
+      "type": "symlink"
+    }
+  ],
+  "metadata": {
+    "arch": [
+      "aarch64"
+    ],
+    "builddate": [
+      "1786303679"
+    ],
+    "depend": [
+      "glibc",
+      "libgcc",
+      "libstdc++",
+      "readline",
+      "zlib",
+      "bzip2",
+      "bash"
+    ],
+    "license": [
+      "BSD"
+    ],
+    "packager": [
+      "Arch Linux ARM Build System <builder+seattle@archlinuxarm.org>"
+    ],
+    "pkgbase": [
+      "pcre"
+    ],
+    "pkgdesc": [
+      "A deprecated library that implements Perl 5-style regular expressions"
+    ],
+    "pkgname": [
+      "pcre"
+    ],
+    "pkgver": [
+      "8.45-5"
+    ],
+    "provides": [
+      "libpcre.so=1-64",
+      "libpcre16.so=0-64",
+      "libpcre32.so=0-64",
+      "libpcreposix.so=0-64",
+      "libpcrecpp.so=0-64"
+    ],
+    "size": [
+      "3713021"
+    ],
+    "url": [
+      "https://www.pcre.org/"
+    ],
+    "xdata": [
+      "pkgtype=pkg"
+    ]
+  },
+  "package_execution": "NOT RUN",
+  "path_count": 211
+}

@@ -1,0 +1,254 @@
+name: native-arm-tools-generic16k
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact reviewed source and workflow commit
+        required: true
+        type: string
+      manifest_sha256:
+        description: Exact reviewed source-manifest.json SHA256
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: native-arm-tools-generic16k
+  cancel-in-progress: false
+jobs:
+  tools16k:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 170
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      MANIFEST_SHA256: ${{ inputs.manifest_sha256 }}
+      SLICE: scripts/ci/tools-generic16k
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 3
+        with:
+          ref: ${{ inputs.source_sha }}
+          persist-credentials: false
+      - name: Prove exact reviewed source and workflow before secrets
+        id: proof
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          test "$RUNNER_ARCH" = ARM64
+          test "$RUNNER_OS" = Linux
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test "$GITHUB_WORKFLOW_SHA" = "$SOURCE_SHA"
+          python3 -I -B - <<'PYCODE'
+          import hashlib,json,os,pathlib,re
+          root=pathlib.Path.cwd();raw=(root/os.environ['SLICE']/'source-manifest.json').read_bytes()
+          pin=os.environ['MANIFEST_SHA256'];assert re.fullmatch('[0-9a-f]{64}',pin) and hashlib.sha256(raw).hexdigest()==pin
+          value=json.loads(raw);assert value['schema_version']==1 and 1<=len(value['files'])<=192
+          for name,row in value['files'].items():
+              assert not name.startswith('/') and all(p not in ('','.','..') for p in name.split('/'))
+              path=root/name;assert not any(p.is_symlink() for p in (path,*path.parents))
+              data=path.read_bytes();assert len(data)==row['bytes']<=2*1024**2 and hashlib.sha256(data).hexdigest()==row['sha256']
+          token=hashlib.sha256(('tools16k:'+os.environ['GITHUB_RUN_ID']+':'+os.environ['GITHUB_RUN_ATTEMPT']+':'+os.environ['SOURCE_SHA']).encode()).hexdigest()[:16]
+          with open(os.environ['GITHUB_OUTPUT'],'a') as stream:stream.write('job_token='+token+'\n')
+          PYCODE
+      - name: Verify mapped source payloads and inert controls only
+        timeout-minutes: 3
+        env:
+          TOOLS16K_SOURCE_ROOT: ${{ github.workspace }}
+        run: |
+          set -euo pipefail
+          python3 -B -Werror::ResourceWarning -m unittest discover -s "$SLICE" -p 'test_*.py' -v
+      - name: Provision accepted kernel and QEMU tools on disposable runner
+        timeout-minutes: 8
+        run: |
+          set -euo pipefail
+          docker version >/dev/null
+          timeout --kill-after=10s 180s sudo apt-get -o Acquire::Retries=0 -o Acquire::http::Timeout=30 update -qq
+          timeout --kill-after=10s 240s sudo env DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=0 -o Acquire::http::Timeout=30 install -y --no-install-recommends build-essential bc clang lld llvm flex bison libssl-dev libelf-dev python3 qemu-system-arm zstd ca-certificates
+      - name: Seed the six exact retained inputs using existing secrets only
+        timeout-minutes: 2
+        env:
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01 }}
+          CACHY_OLD_FOUR_SCHEMA: '1'
+          CACHY_OLD_FOUR_SOURCE_EPOCH: '1791748800'
+          CACHY_OLD_FOUR_JBIGKIT_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_01 }}
+          CACHY_OLD_FOUR_JBIGKIT_02: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_02 }}
+          CACHY_OLD_FOUR_JBIGKIT_SIG_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_SIG_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_02: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_02 }}
+          CACHY_OLD_FOUR_LIBTIFF_03: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_03 }}
+          CACHY_OLD_FOUR_LIBTIFF_04: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_04 }}
+          CACHY_OLD_FOUR_LIBTIFF_05: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_05 }}
+          CACHY_OLD_FOUR_LIBTIFF_06: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_06 }}
+          CACHY_OLD_FOUR_LIBTIFF_07: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_07 }}
+          CACHY_OLD_FOUR_LIBTIFF_08: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_08 }}
+          CACHY_OLD_FOUR_LIBTIFF_09: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_09 }}
+          CACHY_OLD_FOUR_LIBTIFF_10: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_10 }}
+          CACHY_OLD_FOUR_LIBTIFF_11: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_11 }}
+          CACHY_OLD_FOUR_LIBTIFF_12: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_12 }}
+          CACHY_OLD_FOUR_LIBTIFF_13: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_13 }}
+          CACHY_OLD_FOUR_LIBTIFF_14: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_14 }}
+          CACHY_OLD_FOUR_LIBTIFF_15: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_15 }}
+          CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}
+        run: >-
+          python3 -I -B scripts/ci/maintained_desktop574.py seed
+          --inputs scripts/ci/maintained-desktop574-inputs.json
+          --output "$RUNNER_TEMP/desktop574"
+      - name: Checkout exact fourteen-file public input seed
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: 04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd
+          path: retained-public-inputs
+          persist-credentials: false
+      - name: Seed fourteen existing public files
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' 'a7857658af224984065e575f6ffed8308ea85027d46eace8bda146d9033e93b3' 'retained-public-inputs/seed.py' 'a388c8c8ba8e06cb92fd2be598b86e433c4e403b6e71a0f15b1eaec381bb7300' 'retained-public-inputs/index.json' | sha256sum --check
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC TMPDIR="$RUNNER_TEMP" python3 -I -B retained-public-inputs/seed.py --cache "$RUNNER_TEMP/desktop574/context/deps"
+      - name: Build the same owned offline574 base
+        timeout-minutes: 40
+        env:
+          JOB_TOKEN: ${{ steps.proof.outputs.job_token }}
+        run: >-
+          timeout --signal=TERM --kill-after=10s 2300s python3 -I -B scripts/ci/maintained_desktop574.py build
+          --inputs scripts/ci/maintained-desktop574-inputs.json --output "$RUNNER_TEMP/desktop574" --job-token "$JOB_TOKEN"
+      - name: Prepare dedicated archive-only kernel cache directory
+        timeout-minutes: 1
+        run: install -d -m 700 "$RUNNER_TEMP/kernel-source-cache/874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad"
+      - name: Restore only the exact content-addressed kernel archive
+        id: kernel_cache_restore
+        timeout-minutes: 2
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: ${{ runner.temp }}/kernel-source-cache/874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad/kernel.tar.gz
+          key: asahi-kernel-source-v1-874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad-262965559
+          enableCrossOsArchive: false
+          fail-on-cache-miss: false
+          lookup-only: false
+      - name: Seed a true miss from the exact retained public source asset
+        id: kernel_seed
+        if: steps.kernel_cache_restore.outputs.cache-hit != 'true'
+        timeout-minutes: 6
+        env:
+          GH_TOKEN: ${{ github.token }}
+          KERNEL_CACHE_HIT: ${{ steps.kernel_cache_restore.outputs.cache-hit }}
+          KERNEL_CACHE_MATCHED_KEY: ${{ steps.kernel_cache_restore.outputs.cache-matched-key }}
+        run: |
+          set -euo pipefail
+          python3 -I -B - "$GITHUB_WORKSPACE" "$SLICE" <<'PYSEED'
+          import os,pathlib,sys
+          root=pathlib.Path(sys.argv[1]);sys.path.insert(0,str(root/sys.argv[2]));import support as s
+          s.check_source(root)
+          acquire=s.load(root,'scripts/ci/tools-generic16k/acquire_kernel.py')
+          seed=s.load(root,'scripts/ci/tools-generic16k/retained_kernel.py')
+          fetch=s.load(root,'scripts/virtual/generic16k/fetch_inputs.py')
+          archive=pathlib.Path(os.environ['RUNNER_TEMP'])/'kernel-source-cache'/'874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad'/'kernel.tar.gz'
+          assert acquire.cache_state(archive,os.environ['KERNEL_CACHE_HIT'],os.environ['KERNEL_CACHE_MATCHED_KEY'])=='MISS'
+          result=seed.download(archive,acquire,fetch.deadline_alarm,pathlib.Path(os.environ['RUNNER_TEMP'])/'tools16k-kernel-source-seed.json')
+          if result['status']=='RETAINED_ASSET_DOWNLOADED_HASH_VERIFIED':
+              with open(os.environ['GITHUB_OUTPUT'],'a') as stream:stream.write('retained_archive='+str(archive)+'\n')
+          else:assert result['status']=='RETAINED_ASSET_UNAVAILABLE'
+          PYSEED
+      - name: Acquire pinned Asahi kernel and copy separate derived PTY helper
+        id: kernel_acquire
+        timeout-minutes: 6
+        env:
+          KERNEL_CACHE_HIT: ${{ steps.kernel_cache_restore.outputs.cache-hit }}
+          KERNEL_CACHE_MATCHED_KEY: ${{ steps.kernel_cache_restore.outputs.cache-matched-key }}
+          KERNEL_RETAINED_ARCHIVE: ${{ steps.kernel_seed.outputs.retained_archive }}
+        run: |
+          set -euo pipefail
+          python3 -I -B - "$GITHUB_WORKSPACE" "$SLICE" "$RUNNER_TEMP/tools16k-kernel" <<'PYCODE'
+          import json,os,pathlib,shutil,sys,time
+          root=pathlib.Path(sys.argv[1]);sys.path.insert(0,str(root/sys.argv[2]));import support as s
+          s.check_source(root);work=pathlib.Path(sys.argv[3]);work.mkdir(mode=0o700);(work/'inputs').mkdir(mode=0o700)
+          fetch=s.load(root,'scripts/virtual/generic16k/fetch_inputs.py')
+          manifest,manifest_sha=fetch.load_manifest(root/'scripts/virtual/generic16k/inputs.json')
+          acquire=s.load(root,'scripts/ci/tools-generic16k/acquire_kernel.py')
+          cache=pathlib.Path(os.environ['RUNNER_TEMP'])/'kernel-source-cache'/'874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad'/'kernel.tar.gz'
+          acquire.acquire(fetch,manifest['inputs'][0],work/'inputs',manifest_sha,work/'kernel-input.json',
+              cache_archive=cache,cache_hit=os.environ['KERNEL_CACHE_HIT'],cache_matched_key=os.environ['KERNEL_CACHE_MATCHED_KEY'],
+              retained_archive=os.environ['KERNEL_RETAINED_ARCHIVE'] or None)
+          helper=work/'helper';helper.mkdir(mode=0o700)
+          for name in ('build_kernel.py','kernel.fragment'):shutil.copyfile(s.HERE/name,helper/name)
+          PYCODE
+      - name: Save verified archive immediately before kernel build or cleanup
+        if: steps.kernel_acquire.outcome == 'success' && steps.kernel_cache_restore.outputs.cache-hit != 'true'
+        timeout-minutes: 2
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: ${{ runner.temp }}/kernel-source-cache/874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad/kernel.tar.gz
+          key: asahi-kernel-source-v1-874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad-262965559
+          enableCrossOsArchive: false
+      - name: Build separate derived diagnostic16K PTY kernel
+        timeout-minutes: 63
+        run: |
+          set -euo pipefail
+          timeout --signal=TERM --kill-after=30s 3700s python3 -I -B "$RUNNER_TEMP/tools16k-kernel/helper/build_kernel.py" --archive "$RUNNER_TEMP/tools16k-kernel/inputs/kernel.tar.gz" --output "$RUNNER_TEMP/tools16k-kernel/helper/build" --build --boot-diagnostics > "$RUNNER_TEMP/tools16k-kernel/controller.log" 2>&1
+      - name: Capture mapped script payloads; run one diskless16K PTY/CLI trial
+        timeout-minutes: 25
+        env:
+          JOB_TOKEN: ${{ steps.proof.outputs.job_token }}
+        run: >-
+          timeout --signal=TERM --kill-after=120s 1400s python3 -B "$SLICE/run.py" trial
+          --source-root "$GITHUB_WORKSPACE" --source-commit "$SOURCE_SHA"
+          --base-dir "$RUNNER_TEMP/desktop574" --kernel-receipt "$RUNNER_TEMP/tools16k-kernel/helper/build/build-receipt.json"
+          --private "$RUNNER_TEMP/tools16k-private" --output "$RUNNER_TEMP/tools16k-public" --job-token "$JOB_TOKEN" --execute
+      - name: Retire original owned574 only after the consumer finishes
+        if: always() && steps.proof.outcome == 'success'
+        timeout-minutes: 3
+        env:
+          JOB_TOKEN: ${{ steps.proof.outputs.job_token }}
+        run: |
+          set -euo pipefail
+          if [ -f "$RUNNER_TEMP/desktop574/report.json" ]; then
+            timeout --signal=TERM --kill-after=10s 120s python3 -I -B scripts/ci/maintained_desktop574.py cleanup --inputs scripts/ci/maintained-desktop574-inputs.json --output "$RUNNER_TEMP/desktop574" --job-token "$JOB_TOKEN"
+          fi
+      - name: Join natural VM and consumer cleanup to producer absence
+        if: always() && steps.proof.outcome == 'success'
+        timeout-minutes: 2
+        env:
+          JOB_TOKEN: ${{ steps.proof.outputs.job_token }}
+        run: |
+          set -euo pipefail
+          if [ -f "$RUNNER_TEMP/tools16k-public/runtime.json" ]; then
+            python3 -B "$SLICE/run.py" finalize --base-dir "$RUNNER_TEMP/desktop574" --output "$RUNNER_TEMP/tools16k-public" --job-token "$JOB_TOKEN" --kernel-work "$RUNNER_TEMP/tools16k-kernel"
+          fi
+      - name: Retain only bounded metadata and failure diagnostics
+        if: always() && steps.proof.outcome == 'success'
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          python3 -I -B - "$RUNNER_TEMP" "$SOURCE_SHA" <<'PYCODE'
+          import base64,hashlib,json,pathlib,sys
+          root=pathlib.Path(sys.argv[1]);out=root/'tools16k-public';out.mkdir(mode=0o700,exist_ok=True)
+          path=out/'runtime.json';value=json.loads(path.read_text()) if path.exists() else dict(status='FAIL',reason='trial not completed',source_commit=sys.argv[2])
+          tails={}
+          for name in ('tools16k-kernel/controller.log','tools16k-kernel/helper/build/build.log'):
+              log=root/name
+              if log.is_file():
+                  with log.open('rb') as stream:stream.seek(max(0,log.stat().st_size-8192));raw=stream.read(8192)
+                  tails[name]=dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest(),base64=base64.b64encode(raw).decode())
+          acquisition=root/'tools16k-kernel/kernel-input.json'
+          if acquisition.is_file():
+              data=acquisition.read_bytes();assert len(data)<=16384;value['kernel_acquisition']=json.loads(data)
+          seed=root/'tools16k-kernel-source-seed.json'
+          if seed.is_file():
+              data=seed.read_bytes();assert len(data)<=16384;value['retained_kernel_seed']=json.loads(data)
+          value['kernel_log_tails']=tails;raw=(json.dumps(value,sort_keys=True,indent=2)+'\n').encode();assert len(raw)<=2*1024**2
+          path.write_bytes(raw);assert set(p.name for p in out.iterdir())=={'runtime.json'}
+          PYCODE
+      - name: Upload one metadata file; no packages, rootfs, initramfs or executable
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        timeout-minutes: 2
+        with:
+          name: tools-generic16k-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/tools16k-public/runtime.json
+          retention-days: 3
+          if-no-files-found: ignore

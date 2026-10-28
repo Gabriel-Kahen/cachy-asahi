@@ -1,0 +1,250 @@
+{
+  "files": {
+    "packages/core/cachy-asahi-glibc-debian-provider/0001-mount-macro-guards.patch": {
+      "bytes": 905,
+      "sha256": "09117692cd3a1d5838ea700df68b512f9f625a6d2af497a1afcf92046deca8f5"
+    },
+    "packages/core/cachy-asahi-glibc-debian-provider/0002-held-builder-test-expectations.patch": {
+      "bytes": 1169,
+      "sha256": "f730c778ba51f9e525c9f6a7949a76af00364d49f41eedb5d73b8e86a3d4c132"
+    },
+    "packages/core/cachy-asahi-glibc-debian-provider/0003-debian-manual-omission.patch": {
+      "bytes": 501,
+      "sha256": "6959527f28b1363548c1e7adc76abc95546f584a4670cfd38016c7c134797d87"
+    },
+    "packages/core/cachy-asahi-glibc-debian-provider/COPYING.LESSERv2": {
+      "bytes": 26419,
+      "sha256": "20e50fe7aae3e56378ebf0417d9de904f55a0e61e4df315333e632a4d3555d95"
+    },
+    "packages/core/cachy-asahi-glibc-debian-provider/COPYINGv2": {
+      "bytes": 17984,
+      "sha256": "edaef632cbb643e4e7a221717a6c441a4c1a7c918e6e4d56debc3d8739b233f6"
+    },
+    "packages/core/cachy-asahi-glibc-debian-provider/LICENSES": {
+      "bytes": 19665,
+      "sha256": "b22a69aa3f80a5201818c66cb0df0f25f9fa13cf5861b0093a058dbd12d50dce"
+    },
+    "packages/core/cachy-asahi-glibc-debian-provider/PKGBUILD": {
+      "bytes": 4062,
+      "sha256": "ae4529fef261dc76c62cd5208a04bc68572bc504f5471c6fb954f052fca96617"
+    },
+    "packages/core/cachy-asahi-glibc-debian-provider/README.md": {
+      "bytes": 2904,
+      "sha256": "b539f1f05be779c2ecf63768058dd8b3cba0880cb0bd6e54bf22d35febbf659d"
+    },
+    "packages/core/cachy-asahi-glibc-debian-provider/manual-omissions.json": {
+      "bytes": 3384,
+      "sha256": "bfb206ce1a3b4bcad52d69b1ca1f935615c5375af34f43930e06733375acbb50"
+    },
+    "packages/core/cachy-asahi-glibc-debian-provider/source-lock.json": {
+      "bytes": 7809,
+      "sha256": "101abe74d2a829a0ab00f6dba66cfb91bf681552b324b3f0af26e0469391255f"
+    },
+    "packages/core/cachy-asahi-glibc-debian-provider/stage.py": {
+      "bytes": 8147,
+      "sha256": "43b1b441dcc384379ab80c4864bbf7ffd898d56e4ba629c0faa966c25a979e6c"
+    },
+    "packages/core/cachy-asahi-glibc-gnu-provider/PKGBUILD": {
+      "bytes": 3733,
+      "sha256": "a2d08f4786879a86af14cccf1cffe21811aa8dfa4428559848fa4cede839ab64"
+    },
+    "scripts/ci/glibc-debian-native-provider/README.md": {
+      "bytes": 4166,
+      "sha256": "af26ab1df6c9ebb29211fc5d0a4cfe5d19ae00eb73fd064e70baf5ad62447db4"
+    },
+    "scripts/ci/glibc-debian-native-provider/input-policy.json": {
+      "bytes": 550,
+      "sha256": "a3ad5a3ec1c4c3746dabe4e29caac54ed16c773c03b2a1cf4984e2c208590a28"
+    },
+    "scripts/ci/glibc-debian-native-provider/job.py": {
+      "bytes": 7448,
+      "sha256": "6b71b0263ab0b9bf5193f96bf2e12b6def9d2280b38c5c7e14e7d9def9f8b6f1"
+    },
+    "scripts/ci/glibc-debian-native-provider/reuse.py": {
+      "bytes": 1558,
+      "sha256": "59d6c97b6550cddbe0987a18119670e754c65ef70c01012b375dda03b674b7be"
+    },
+    "scripts/ci/glibc-debian-native-provider/test_job.py": {
+      "bytes": 9796,
+      "sha256": "560d7274b43d33ed847416654439f1bc4714d73a736ca310578ab7d76de1f56d"
+    },
+    "scripts/ci/glibc-debian-provider/adapter.py": {
+      "bytes": 2859,
+      "sha256": "55c8a13f89bb389d331030632cd6fb723a47f6cc0520122dd273162455266b00"
+    },
+    "scripts/ci/glibc-debian-provider/auth.py": {
+      "bytes": 9381,
+      "sha256": "cff55c85bda9d50fe209e93146d26d331bbe98b6f0a453e3e2ec1029fc57e1d1"
+    },
+    "scripts/ci/glibc-debian-provider/authority.json": {
+      "bytes": 1005,
+      "sha256": "3c00583e6948e9496a4d7e13958484268c31aea881a3682e7b217a1de1100201"
+    },
+    "scripts/ci/glibc-debian-provider/dependency-pins.json": {
+      "bytes": 3082,
+      "sha256": "8fce16ac2cc762021969b9f104e2aab0b329f9185ecdf47c4d53c73b992de1bb"
+    },
+    "scripts/ci/glibc-debian-provider/expected.SRCINFO": {
+      "bytes": 1440,
+      "sha256": "27d6488ae43790ad0c6ea0af84baed0531ea647bdeecf83c58c8beb08bc6bc87"
+    },
+    "scripts/ci/glibc-debian-provider/fixtures/recorded-public-status.json": {
+      "bytes": 4120,
+      "sha256": "340a5941d44cf61dc7c04121e405b7017a6986a624f0e84a647917d7d05d7c31"
+    },
+    "scripts/ci/glibc-debian-provider/materialize.py": {
+      "bytes": 6562,
+      "sha256": "a6850f85f09e7cbe825c5d6e8f1865fed905ed480ff2781baed5db71b28ff085"
+    },
+    "scripts/ci/glibc-debian-provider/root-debian-archive-authority.json": {
+      "bytes": 7450,
+      "sha256": "ed9fadd0783e3fdee0f4ad7b6e9a78ca54e3ff562c6c78f4112f8eec47237132"
+    },
+    "scripts/ci/glibc-debian-provider/run.py": {
+      "bytes": 2552,
+      "sha256": "23bf8b4d2244f53034bdce6a6b12a526b061fc07eb6722aa0ca15c724a825b1b"
+    },
+    "scripts/ci/glibc-debian-provider/test_candidate.py": {
+      "bytes": 8692,
+      "sha256": "3672a1128bc5f493e66109ec6211780a7ff599cd0044acd311feb93bbb260386"
+    },
+    "scripts/ci/glibc-gnu-provider/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "scripts/ci/glibc-gnu-provider/abi.py": {
+      "bytes": 4061,
+      "sha256": "b2ae51e792fc125fa664ba116794827fe5350912861256df8cdad1de479d5ff0"
+    },
+    "scripts/ci/glibc-gnu-provider/base-devel-fileless-evidence.json": {
+      "bytes": 6314,
+      "sha256": "1fb65daa91274c662bbfeb1ed7ee1cc59054d9eb101ea1d4788e0b1b04f8138a"
+    },
+    "scripts/ci/glibc-gnu-provider/build-entry.sh": {
+      "bytes": 1892,
+      "sha256": "f1e0546d945ad0905a25a1d4a8489ec78b35cf8ae9614444d71a8ac9b9b6aa1d"
+    },
+    "scripts/ci/glibc-gnu-provider/collect_tests.py": {
+      "bytes": 3093,
+      "sha256": "cdbe9af94b0ca142e802267ce7d9af7ae006bde8ab55d4b81399a065b79f6c79"
+    },
+    "scripts/ci/glibc-gnu-provider/header_check.py": {
+      "bytes": 4336,
+      "sha256": "29f2c9e2530f6bfcc6542ec5256fb6c0732808e85c999942a01b836144107358"
+    },
+    "scripts/ci/glibc-gnu-provider/header_probe.c": {
+      "bytes": 1383,
+      "sha256": "ccc07c323632f9f916c1bed436d0a97f530fca25d9dd59bb489489c093790e7f"
+    },
+    "scripts/ci/glibc-gnu-provider/job.py": {
+      "bytes": 21542,
+      "sha256": "81fdb4a33e77ba6ad4fdf0358107603dfc9f583b8fa47dfd571ce717665202e3"
+    },
+    "scripts/ci/glibc-gnu-provider/materialize.py": {
+      "bytes": 12553,
+      "sha256": "70bcde37f56b5a4ea3a44993a6add82ef4627635801c0a7909b14aefbca00d92"
+    },
+    "scripts/ci/glibc-gnu-provider/metadata.py": {
+      "bytes": 2712,
+      "sha256": "0c37477acf6b34c65850f01a9770786c38badf157d2914394612d0b35b07c51d"
+    },
+    "scripts/ci/glibc-gnu-provider/normal-child-exec.patch": {
+      "bytes": 773,
+      "sha256": "1a1f3b1898b0542dfb6bf03d7d6bf0acda33ba3f040055cf710027d69415b9ff"
+    },
+    "scripts/ci/glibc-gnu-provider/normal-client-policy.json": {
+      "bytes": 815,
+      "sha256": "92f8b918ade03b6ad71ff00fe38a3f797d416fe6225082c9d4ba23c2cc71dd8d"
+    },
+    "scripts/ci/glibc-gnu-provider/normal-exec-change.json": {
+      "bytes": 839,
+      "sha256": "9d3769704396a33acc0c144cc1519d10230a5fb07d2f7b135dcfd0ba1ab6a68b"
+    },
+    "scripts/ci/glibc-gnu-provider/normal_clients.py": {
+      "bytes": 7824,
+      "sha256": "2382a818358a5e28b81ce789d18cee815a0d0c7d52b96a1cbd1d55d7edf31309"
+    },
+    "scripts/ci/glibc-gnu-provider/ownership.py": {
+      "bytes": 3961,
+      "sha256": "d7e2d46cf28293c6e1e8105adfe4c3a345c6990c62b4605213a3b399f8959219"
+    },
+    "scripts/ci/glibc-gnu-provider/provider_stage.py": {
+      "bytes": 8147,
+      "sha256": "43b1b441dcc384379ab80c4864bbf7ffd898d56e4ba629c0faa966c25a979e6c"
+    },
+    "scripts/ci/glibc-gnu-provider/run.py": {
+      "bytes": 22188,
+      "sha256": "a755cb4e7191da3cdef785bbf77dfcc241dfe9e2b0da13d3e85ae7ccc17102a9"
+    },
+    "scripts/ci/glibc-gnu-provider/stage.py": {
+      "bytes": 5285,
+      "sha256": "31ac772b75e2ed3c1a69a07aec4120af24941481a4db8042e4a816bd5ea9e56c"
+    },
+    "scripts/ci/glibc-owned-runtime/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "scripts/ci/glibc-owned-runtime/README.md": {
+      "bytes": 5874,
+      "sha256": "82b6f3ca302f897edeefeae7aebf8e76e70f5c02f8c1d8ccecddafd4da86e7b4"
+    },
+    "scripts/ci/glibc-owned-runtime/abi_smoke.c": {
+      "bytes": 12469,
+      "sha256": "f131a4f11693b15d7916170a685f9c4f6158596134bf5414f3d8ee472be1a9af"
+    },
+    "scripts/ci/glibc-owned-runtime/exec_child.c": {
+      "bytes": 913,
+      "sha256": "0a2b48762f8f7ec6d942ca9fb4af4f04a50fd93d2d7dff42407adfea13b1e4cc"
+    },
+    "scripts/ci/glibc-owned-runtime/plugin.c": {
+      "bytes": 320,
+      "sha256": "d0ce5506b261b5b4582aa35651b68afbf6257e8f4a990155dcac9d4e4596b654"
+    },
+    "scripts/ci/glibc-owned-runtime/probe.c": {
+      "bytes": 5974,
+      "sha256": "8bc857277840264c29845764b6c4d34e40c3d1dcdb91592acbb31ae5dfeb80b6"
+    },
+    "scripts/ci/glibc-owned-runtime/probe.h": {
+      "bytes": 270,
+      "sha256": "3806c2a05e640b8860a2c81e4eba55ae8bf416fcb84637e93a7b3d9b71476724"
+    },
+    "scripts/ci/glibc-owned-runtime/runner.py": {
+      "bytes": 16274,
+      "sha256": "4d9aa954d95032ab9ea9085ced784efc81a5db42e2f1f3401e679ee861c16090"
+    },
+    "scripts/ci/glibc-owned-runtime/source-manifest.json": {
+      "bytes": 1274,
+      "sha256": "e10336aef200731c7dd4b06546b718e095c1ecf7718e4a25fa57d6bbed6270a6"
+    },
+    "scripts/ci/glibc-owned-runtime/test_runner.py": {
+      "bytes": 11922,
+      "sha256": "239646c25007415cdac6b74df32e190eb848ebb54440d991dffbdc858a6841e5"
+    },
+    "scripts/ci/inputs.lock.json": {
+      "bytes": 328101,
+      "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f"
+    },
+    "scripts/ci/maintained-desktop574-inputs.json": {
+      "bytes": 623664,
+      "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+    },
+    "scripts/ci/maintained_desktop574.py": {
+      "bytes": 22367,
+      "sha256": "27ba4be42cf2bd41675073e07cccc917ae033f9d68b07a33cfd7f074ac27b760"
+    },
+    "scripts/ci/old_four_seed.py": {
+      "bytes": 29048,
+      "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
+    },
+    "scripts/ci/test_maintained_desktop574.py": {
+      "bytes": 19082,
+      "sha256": "e5d7dc11d1a59cf37a273e9a7103c7e55b169335b17c599990946f4e677ca974"
+    },
+    "scripts/port/kernel-native-job/runtime.py": {
+      "bytes": 11345,
+      "sha256": "8a7cd5e73cf383b2d81ad577b8513c6fd7d49f9fd2572961c73ae9d289cab821"
+    }
+  },
+  "schema_version": 1,
+  "scope": "Finite new Debian source/authority/recipe/executor/producer/owner closure; no old acceptance files or secret contents"
+}

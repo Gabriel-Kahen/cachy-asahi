@@ -76,11 +76,73 @@ Per-artifact release provenance is:
   "licenses": ["MIT"],
   "sources": [{"url": "upstream URL", "commit": "40-hex upstream commit"}],
   "build": {"execution": "native", "architecture": "aarch64",
-            "environment": "pinned builder description", "snapshot_id": "BASE_SNAPSHOT"}
+            "environment": "pinned builder description", "snapshot_id": "BUILD_SNAPSHOT"}
 }
 ```
 
 A source uses either an exact Git `commit` or archive `sha256`; all licenses/notices and source verification receipts belong in retained review evidence. Architecture-neutral package metadata (`any`) still requires native aarch64 build execution for stable. Release provenance is an assembly envelope: it supplements, never replaces, the build worker's raw provenance. No adapter guesses a PASS from `.SRCINFO`, README declarations, or successful static checks.
+
+## Optional recipient-source association, version 1
+
+A draft specification may opt in with `source_delivery: {schema_version: 1,
+index: {id: "source-delivery-v1.json", path: "delivery/index.json", sha256:
+"<actual-index-SHA256>"}}`. The index is an already prepared, hash-pinned input.
+Staging calls `scripts/release/source_delivery.py` to assemble its exact finite
+evidence set, merges those references with existing evidence, and copies them
+through the normal evidence transport before signing. A conflicting ID refuses
+staging. The staged specification records the complete assembled evidence set;
+the original draft is unchanged.
+
+The index has exactly `schema_version: 1`, `purpose: "release-source-delivery"`,
+an explicit `synthetic` boolean and `packages`. There must be exactly one row for
+every package in the release's explicit selected set. Each row has:
+
+- `package`: exact `name`, full `version`, `arch` and binary `sha256`;
+- `bundle`, `source_map`, `recipe`, `authorization`: material descriptors;
+- a nonempty `notices` array of material descriptors;
+- `recipe_key`: the recipe's canonical relative key in the flat source map;
+- `review_status`: the supplied existing package-review status, retained as data.
+
+A material descriptor is exactly `{id, path, sha256, bytes}`. IDs are unique
+simple evidence basenames across the index and all materials. `path` is a safe
+input-relative publisher path; recipients read only the corresponding signed
+`evidence/ID`, never that input path. Required materials must be nonempty.
+`source-delivery-receipt.json` is reserved for recipient output. File, aggregate
+and count ceilings remain 512 MiB, 2 GiB and 4,096, with 4 MiB JSON limits.
+
+The source map is the existing producer's flat canonical relative-path to
+SHA-256 map. Its `recipe_key` must equal both the actual retained recipe hash
+and the existing package provenance's `recipe_sha256`. No generic archive
+reconstruction is performed. Consume an existing reviewed package source bundle,
+its source map and notices; FDK already provides its own pack/read/reconstruct
+implementation.
+
+The `authorization` material retains an existing package completeness/review
+artifact as opaque, nonempty, hash-bound data. It need not use a new JSON schema,
+name a new approver or contain an approval boolean. `review_status` is the
+supplier's existing status label; values such as INCOMPLETE or NOT RUN remain
+visible and do not prevent a byte-association check. The helper does not turn
+that label into license permission, source completeness or binary/source
+correspondence. Existing package-specific review records, producer verification
+and stable/license gates retain their own authority. The signed payload binds
+which exact binary and materials were associated; it does not establish that a
+supplied review statement is true.
+
+The index contains no enclosing release digest. Its material hashes are fixed
+first, then the signed release's existing payload map binds the index and all
+material bytes. Release verification repeats the complete association check.
+The existing development client validates it without changing the envelope's
+version or target vocabulary. Its `sources` command first verifies the existing
+signatures/freshness/namespace, rejoins the actual enclosing release SHA and
+payload bytes, and then performs exact-identity lookup or private local export.
+Export copies data only, with no build, fetch, install, upload or source execution.
+
+Without opt-in, staging explicitly reports `source_delivery: "NOT_DECLARED"`.
+A checked association or export always leaves source-completeness acceptance
+false. Legacy development fixtures are not full-port source-delivery evidence.
+Existing stable, licensing, signing, native-build and hardware gates remain in
+force; this optional versioned interface does not promote any release or add an
+admission prerequisite to queued jobs.
 
 ## Stable gate envelope, version 1
 
@@ -101,6 +163,8 @@ Required records:
 `native-build.build_record` is the evidence ID of the build worker's actual `provenance.json` from `scripts/build/build.py`. Release validation requires `schema_version: 1`, `status: "built-package-static-pass"`, `mode: "native"`, `builder_host_arch: "aarch64"`/`"arm64"`, a digest-pinned `image`, matching `image_id`, `clean_environment_id`, `exit_code: 0`, exact `artifacts: {archive_filename: digest}`, and `recipe_inputs.PKGBUILD` matching release provenance.
 
 `file_bindings` maps **every** original raw-provenance `files` path to its staged evidence ID; every file digest is rechecked. The raw files must include `build.log`, `validation.json`, and the actual `artifacts/ARCHIVE_FILENAME`; each attempt's actual build log must appear in its record's `logs` and use a distinct evidence ID. The raw build command is required. `recipe_bindings` maps **every** raw-provenance `recipe_inputs` path to its staged evidence ID, likewise checked. `builder_package_lock` identifies the actual sorted `pacman -Q` lock whose digest equals raw `expected_packages_sha256`. Retain original path-to-ID mappings in release assembly review. This directly consumes raw build output without editing the build worker's files or trusting a PASS flag alone.
+
+Each package’s provenance `build.snapshot_id` identifies its actual build inventory. It may differ from the installation `base.snapshot_id`; native-build records and dependency locks must match the package’s build identity. Target dependency, conflict and compatibility checks still use the complete installation base.
 
 `dependency_lock` is a release-side JSON augmentation: `{schema_version: 1, snapshot_id, packages: [{name, version, sha256}], retrievable_inputs: [{uri, sha256}]}`. Record **all transitive build dependencies**, source/OCI inputs and verified artifact locations; the package-transaction `base.json` serves a different purpose. The augmented package/version set must exactly match the original builder package lock, without duplicates. This CLI checks fields/checksums, not remote retention availability. The custodian verifies availability and security suitability in the release-review evidence.
 

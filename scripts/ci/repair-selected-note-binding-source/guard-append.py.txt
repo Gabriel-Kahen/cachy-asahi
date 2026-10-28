@@ -1,0 +1,22 @@
+
+
+def stderr_before(actual,p):
+ s=p['stderr_capture'];prior=dict(p);prior.pop('stderr_capture');prior['guard_template']=s['before_guard_template'];before={}
+ for n,w in s['before'].items():
+  if n=='apps16-repair/inspect_validation.py':
+   b=actual[n];tail=s['helper_append'].encode();need(b.endswith(tail)and tail,'one complete selected stderr codec footer');b=b[:-len(tail)]
+   for a,new in reversed(s['helper_edits']):b=one(b,new.encode(),a.encode())
+  elif n==A:b=one(actual[n],repr(actual['apps16-repair/inspect_validation.py'].decode()).encode(),s['literal_before'].encode())
+  elif n==PROFILE:b=enc(prior)
+  elif n==GUARD:
+   b=one(actual[n],pin(actual[PROFILE])['sha256'].encode(),s['before'][PROFILE]['sha256'].encode());tail=s['guard_append'].encode();need(b.endswith(tail)and tail,'whole stderr guard footer inverse');b=b[:-len(tail)]
+   for a,new in reversed(s['guard_edits']):b=one(b,new.encode(),a.encode())
+  elif n==SUCCESSOR:
+   v=json.loads(actual[n]);v['after']={k:s['before'][k]for k in v['after']};b=enc(v)
+  elif n in MANIFESTS:
+   v=json.loads(actual[n]);v['files']={k:s['before'][k]for k in v['files']};b=enc(v)
+  elif n in WORKFLOWS:b=one(actual[n],pin(actual[MANIFESTS[-1]])['sha256'].encode(),s['before'][MANIFESTS[-1]]['sha256'].encode())
+  else:b=actual[n]
+  need(pin(b)==w,'whole operative3c19 current245 source inverse '+n);before[n]=b
+ need(len(before)==245 and pin(before[GUARD].replace(s['before'][PROFILE]['sha256'].encode(),b'PROFILE_SHA_PLACEHOLDER'))==prior['guard_template'],'entire prior245 guard/self-template')
+ return before,prior

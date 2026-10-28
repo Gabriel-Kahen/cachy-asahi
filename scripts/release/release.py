@@ -3,9 +3,11 @@
 # Copyright (c) 2026 cachy-asahi contributors
 """Local signed pacman staging. Never installs, uploads, or edits pacman trust."""
 import argparse
+import base64
 import contextlib
 import fcntl
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -199,7 +201,7 @@ def provenance_check(p, record, digest, spec):
     require(build.get("execution") in {"native", "cross", "emulated", "synthetic"}, "build execution not labeled")
     text_field(build, "architecture")
     text_field(build, "environment")
-    require(build.get("snapshot_id") == spec["base"]["snapshot_id"], "build base snapshot mismatch")
+    valid_name(build.get("snapshot_id"))
 
 
 def gpg_env(home, root):
@@ -234,6 +236,22 @@ def verify_signature(path, key, env):
     require(good, f"signature does not match pinned fingerprint: {path.name}")
 
 
+def add_database(database, packages, key, env):
+    probe_env = dict(env, LC_ALL="C")
+    version = run(["repo-add", "--version"], env=probe_env).splitlines()
+    match = re.fullmatch(rb"repo-add \(pacman\) (\d+)\.(\d+)\.(\d+)(?:\.r\d+\.g[0-9a-f]+)?(?:-\d+)?",
+                         version[0] if version else b"")
+    require(match is not None, "unrecognized repo-add version")
+    family = tuple(int(value) for value in match.groups()[:2])
+    # Upstream 6.0 embeds signatures by default; 6.1 introduced the opt-in.
+    require(family in {(6, 0), (6, 1), (7, 0), (7, 1)}, "unsupported repo-add version")
+    help_text = run(["repo-add", "--help"], env=probe_env)
+    advertised = re.search(rb"(?<![\w-])--include-sigs(?![\w-])", help_text) is not None
+    options = ["--include-sigs"] if family != (6, 0) or advertised else []
+    # A failed database command is terminal: never retry with weaker options.
+    run(["repo-add", *options, "--sign", "--key", key, database, *packages], env=env)
+
+
 def database_check(directory, repo_name, packages):
     db = directory / f"{repo_name}.db.tar.gz"
     members = archive_members(db)
@@ -244,7 +262,9 @@ def database_check(directory, repo_name, packages):
         info, key = {}, None
         for line in run(["bsdtar", "-xOf", db, member]).decode().splitlines():
             if line.startswith("%") and line.endswith("%"):
-                key = line.strip("%")
+                require(re.fullmatch(r"%[A-Z0-9_]+%", line), "malformed repository database field header")
+                key = line[1:-1]
+                require(key not in info, "duplicate repository database field")
                 info[key] = []
             elif line and key:
                 info[key].append(line)
@@ -259,13 +279,51 @@ def database_check(directory, repo_name, packages):
                               "DEPENDS": package["depend"], "PROVIDES": package["provides"],
                               "CONFLICTS": package["conflict"], "REPLACES": package["replaces"]}.items():
             require(record.get(field, []) == values, f"repository database field mismatch: {field}")
-        require(record.get("PGPSIG"), "package signature missing from database")
+        signature = Path(str(directory / package["filename"]) + ".sig").read_bytes()
+        require(record.get("PGPSIG") == [base64.b64encode(signature).decode("ascii")],
+                "repository database package signature mismatch")
 
 
 def payload_files(directory):
     return {p.relative_to(directory).as_posix(): sha(p) for p in directory.rglob("*")
             if p.is_file() and not p.is_symlink() and
             p.relative_to(directory).as_posix() not in {"release.json", "release.json.sig"}}
+
+
+
+def source_delivery_module():
+    """Load the reviewed sibling helper without searching caller directories."""
+    path = Path(__file__).resolve().with_name('source_delivery.py')
+    selected = importlib.util.spec_from_file_location('release_source_delivery', path)
+    module = importlib.util.module_from_spec(selected)
+    selected.loader.exec_module(module)
+    return module
+
+
+def source_associations(directory, manifest, spec):
+    """Check declared associations against the enclosing signed payload map."""
+    if 'source_delivery' not in spec:
+        return None
+    helper = source_delivery_module()
+    evidence = {item['id']: item for item in spec.get('evidence', [])}
+    require(len(evidence) == len(spec.get('evidence', [])), 'source delivery duplicate evidence ID')
+    def read_evidence(eid, limit):
+        name = 'evidence/' + valid_name(eid)
+        require(eid in evidence and name in manifest['files'] and
+                evidence[eid]['sha256'] == manifest['files'][name], 'source delivery evidence/payload binding')
+        raw = helper.read_file(directory / name, limit)
+        require(hashlib.sha256(raw).hexdigest() == manifest['files'][name], 'source delivery payload changed')
+        return raw
+    def read_provenance(package):
+        name = package['provenance']
+        require(name in manifest['files'], 'source delivery provenance payload missing')
+        raw = helper.read_file(directory / name, 4 * 1024**2)
+        require(hashlib.sha256(raw).hexdigest() == manifest['files'][name], 'source delivery provenance changed')
+        return helper.decode(raw)
+    try:
+        return helper.verify_associations(spec, manifest['packages'], read_evidence, read_provenance)
+    except ValueError as error:
+        raise Error('source delivery: ' + str(error)) from error
 
 
 def verify_release(directory, key, env):
@@ -300,6 +358,7 @@ def verify_release(directory, key, env):
                 "copied package/provenance differs from input checksum")
         packages.append(p)
     dependency_check(spec, packages, load(directory / "base.json"))
+    source_associations(directory, manifest, spec)
     for name in (f"{spec['repo_name']}.db.tar.gz", f"{spec['repo_name']}.files.tar.gz"):
         verify_signature(directory / "repo" / name, key, env)
     database_check(directory / "repo", spec["repo_name"], manifest["packages"])
@@ -360,6 +419,28 @@ def stage(args, root, key, env):
             p.update(filename=archive.name, sha256=sha(copied), provenance=record_name)
             packages.append(p)
         dependency_check(spec, packages, load(out / "base.json"))
+        if 'source_delivery' in spec:
+            declared = spec['source_delivery']
+            require(type(declared) is dict and set(declared) == {'schema_version', 'index'} and
+                    type(declared['schema_version']) is int and declared['schema_version'] == 1,
+                    'source delivery declaration schema')
+            helper = source_delivery_module()
+            try:
+                assembled = helper.assemble(base_dir, declared['index'], packages,
+                    spec['policy']['selected_packages'], spec.get('synthetic'),
+                    lambda package: load(out / package['provenance']))
+            except ValueError as error:
+                raise Error('source delivery: ' + str(error)) from error
+            retained = {item['id']: item for item in spec.get('evidence', [])}
+            require(len(retained) == len(spec.get('evidence', [])), 'source delivery duplicate evidence ID')
+            for item in assembled:
+                if item['id'] in retained:
+                    require(all(retained[item['id']].get(k) == item[k] for k in ('path', 'sha256')),
+                            'source delivery evidence collision')
+                else:
+                    retained[item['id']] = item
+            spec['evidence'] = list(retained.values())
+            write(out / 'spec.json', spec)
         for evidence in spec.get("evidence", []):
             eid = valid_name(evidence["id"])
             path = out / "evidence" / eid
@@ -368,10 +449,11 @@ def stage(args, root, key, env):
         if spec.get("project_license"):
             text_field(spec["project_license"], "spdx")
             shutil.copyfile(file_ref(base_dir, spec["project_license"]), out / "project-license.txt")
+        source_associations(out, {'packages': packages, 'files': payload_files(out)}, spec)
         for p in packages:
             sign(out / "repo" / p["filename"], key, env)
-        run(["repo-add", "--include-sigs", "--sign", "--key", key,
-             out / "repo" / f"{repo}.db.tar.gz", *[out / "repo" / p["filename"] for p in packages]], env=env)
+        add_database(out / "repo" / f"{repo}.db.tar.gz",
+                     [out / "repo" / p["filename"] for p in packages], key, env)
         # repo-add signs the .files archive on current pacman; explicitly handle older versions.
         files_db = out / "repo" / f"{repo}.files.tar.gz"
         if not Path(str(files_db) + ".sig").exists():
@@ -384,7 +466,9 @@ def stage(args, root, key, env):
         sign(out / "release.json", key, env)
         verify_release(out, key, env)
         os.rename(out, destination)
-    return {"status": "local-staging", "path": str(destination), "release_sha256": sha(destination / "release.json")}
+    return {"status": "local-staging", "path": str(destination), "release_sha256": sha(destination / "release.json"),
+            "source_delivery": "CHECKED_DECLARED_ASSOCIATIONS" if 'source_delivery' in spec else "NOT_DECLARED",
+            "source_completeness_accepted": False}
 
 
 def gates_check(directory, manifest, spec, gates_path):
@@ -432,7 +516,7 @@ def gates_check(directory, manifest, spec, gates_path):
         for attempt in (1, 2):
             r = record("native-build", package=p["name"], attempt=attempt)
             require(r.get("execution") == "native" and r.get("architecture") == "aarch64", "emulation/cross build is not native")
-            require(r.get("artifact_sha256") == p["sha256"] and r.get("snapshot_id") == spec["base"]["snapshot_id"], "build checksum/base mismatch")
+            require(r.get("artifact_sha256") == p["sha256"] and r.get("snapshot_id") == prov["build"]["snapshot_id"], "build checksum/snapshot mismatch")
             require(re.fullmatch(r"sha256:[0-9a-f]{64}", r.get("environment_digest", "")), "builder image not digest pinned")
             raw = load(evidence(r["build_record"]))
             require(raw.get("schema_version") == 1 and raw.get("status") == "built-package-static-pass" and
@@ -463,7 +547,7 @@ def gates_check(directory, manifest, spec, gates_path):
             operators.add(r["operator"])
             logs.update(r["logs"])
             lock = load(evidence(r["dependency_lock"]))
-            require(lock.get("schema_version") == 1 and lock.get("snapshot_id") == spec["base"]["snapshot_id"] and
+            require(lock.get("schema_version") == 1 and lock.get("snapshot_id") == prov["build"]["snapshot_id"] and
                     lock.get("packages") and lock.get("retrievable_inputs"), "dependency lock/input retention missing")
             for dep in lock["packages"]:
                 text_field(dep, "name")

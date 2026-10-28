@@ -1,0 +1,53 @@
+name: Updater604 native4K source factories
+on:
+  pull_request:
+    paths:
+      - 'scripts/ci/updater604-native4k-source/**'
+      - '.github/workflows/updater604-native4k-source.yml'
+  push:
+    paths:
+      - 'scripts/ci/updater604-native4k-source/**'
+      - '.github/workflows/updater604-native4k-source.yml'
+permissions:
+  contents: read
+jobs:
+  source-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: b21a5864d5a4610b9181a1c270ac8821d8448a17
+          path: .ci-updater604-held489
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 94297073ac36f257edd118aceba3e375a7148550
+          path: .ci-updater604-normal
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: c75911fe09fb5ceba1e54a6456d5b9c4721960b6
+          path: .ci-updater604-recovery
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 4828dde937a8c6305331208b09e61342e6d911ed
+          path: .ci-updater604-prerequisites
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Exact normal and recovery emission plus all21 emitted source controls
+        run: |
+          python -I -B -Werror scripts/ci/updater604-native4k-source/test_factory.py \
+            --held "$GITHUB_WORKSPACE/.ci-updater604-held489" \
+            --normal "$GITHUB_WORKSPACE/.ci-updater604-normal" \
+            --recovery "$GITHUB_WORKSPACE/.ci-updater604-recovery" \
+            --decisions "$GITHUB_WORKSPACE/.ci-updater604-prerequisites"

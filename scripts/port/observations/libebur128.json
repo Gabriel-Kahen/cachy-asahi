@@ -1,0 +1,292 @@
+{
+  "ELF": [
+    {
+      "16K_load": "NOT RUN",
+      "class": 64,
+      "endianness": "little",
+      "machine": 183,
+      "path": "usr/lib/libebur128.so.1.2.6",
+      "runtime": "NOT RUN"
+    }
+  ],
+  "buildinfo": {
+    "bytes": 5526,
+    "fields": {
+      "builddate": [
+        "1720200420"
+      ],
+      "builddir": [
+        "/build"
+      ],
+      "buildenv": [
+        "distcc",
+        "color",
+        "!ccache",
+        "check",
+        "!sign"
+      ],
+      "buildtool": [
+        "devtools"
+      ],
+      "buildtoolver": [
+        "20220621-1-any"
+      ],
+      "format": [
+        "2"
+      ],
+      "installed": [
+        "acl-2.3.2-1-aarch64",
+        "archlinuxarm-keyring-20240419-1-any",
+        "attr-2.5.2-1-aarch64",
+        "audit-4.0.1-3-aarch64",
+        "autoconf-2.72-1-any",
+        "automake-1.16.5-2-any",
+        "bash-5.2.026-5-aarch64",
+        "binutils-2.42+r91+g6224493e457-1-aarch64",
+        "bison-3.8.2-6-aarch64",
+        "brotli-1.1.0-2-aarch64",
+        "bzip2-1.0.8-6-aarch64",
+        "ca-certificates-20240618-1-any",
+        "ca-certificates-mozilla-3.101.1-1-aarch64",
+        "ca-certificates-utils-20240618-1-any",
+        "cmake-3.30.0-1-aarch64",
+        "coreutils-9.5-1-aarch64",
+        "cppdap-1.58.0-2-aarch64",
+        "curl-8.8.0-1-aarch64",
+        "db-6.2.32-1-aarch64",
+        "db5.3-5.3.28-5-aarch64",
+        "debugedit-5.0-6-aarch64",
+        "diffutils-3.10-1-aarch64",
+        "distcc-3.4-10-aarch64",
+        "e2fsprogs-1.47.1-4-aarch64",
+        "elfutils-0.191-3.1-aarch64",
+        "expat-2.6.2-1-aarch64",
+        "fakeroot-1.35-1.1-aarch64",
+        "file-5.45-1-aarch64",
+        "filesystem-2024.04.07-1-any",
+        "findutils-4.10.0-1-aarch64",
+        "flex-2.6.4-5-aarch64",
+        "gawk-5.3.0-1-aarch64",
+        "gc-8.2.6-1-aarch64",
+        "gcc-14.1.1+r1+g43b730b9134-1-aarch64",
+        "gcc-libs-14.1.1+r1+g43b730b9134-1-aarch64",
+        "gdbm-1.23-2-aarch64",
+        "gettext-0.22.5-1-aarch64",
+        "git-2.45.2-1-aarch64",
+        "glib2-2.80.3-2-aarch64",
+        "glibc-2.39+r52+gf8e4623421-1-aarch64",
+        "gmp-6.3.0-2-aarch64",
+        "gnupg-2.4.5-1-aarch64",
+        "gnutls-3.8.6-1-aarch64",
+        "gpgme-1.23.2-4-aarch64",
+        "grep-3.11-1-aarch64",
+        "groff-1.23.0-6-aarch64",
+        "guile-3.0.10-1-aarch64",
+        "gzip-1.13-2-aarch64",
+        "hicolor-icon-theme-0.18-1-any",
+        "iana-etc-20240612-1-any",
+        "icu-75.1-1-aarch64",
+        "jansson-2.14-4-aarch64",
+        "json-c-0.17-1-aarch64",
+        "jsoncpp-1.9.5-2-aarch64",
+        "keyutils-1.6.3-2-aarch64",
+        "krb5-1.21.2-2-aarch64",
+        "less-1:643-2-aarch64",
+        "libarchive-3.7.4-1-aarch64",
+        "libassuan-2.5.7-2-aarch64",
+        "libcap-2.70-1-aarch64",
+        "libcap-ng-0.8.5-2-aarch64",
+        "libcroco-0.6.13-2-aarch64",
+        "libelf-0.191-3.1-aarch64",
+        "libevent-2.1.12-4-aarch64",
+        "libffi-3.4.6-1-aarch64",
+        "libgcrypt-1.11.0-2-aarch64",
+        "libgpg-error-1.50-1-aarch64",
+        "libidn2-2.3.7-1-aarch64",
+        "libisl-0.26-2-aarch64",
+        "libksba-1.6.7-1-aarch64",
+        "libldap-2.6.8-1-aarch64",
+        "libmpc-1.3.1-1-aarch64",
+        "libnghttp2-1.62.1-1-aarch64",
+        "libnghttp3-1.4.0-1-aarch64",
+        "libnsl-2.0.1-1-aarch64",
+        "libp11-kit-0.25.3-1-aarch64",
+        "libpsl-0.21.5-2-aarch64",
+        "libsasl-2.1.28-4-aarch64",
+        "libsecret-0.21.4-1-aarch64",
+        "libssh2-1.11.0-1-aarch64",
+        "libsysprof-capture-46.0-3.1-aarch64",
+        "libtasn1-4.19.0-2-aarch64",
+        "libtirpc-1.3.4-1-aarch64",
+        "libtool-2.4.7+83+g7b091831-1-aarch64",
+        "libunistring-1.2-1-aarch64",
+        "libusb-1.0.27-1-aarch64",
+        "libutempter-1.2.1-4-aarch64",
+        "libuv-1.48.0-2-aarch64",
+        "libverto-0.3.2-5-aarch64",
+        "libxcrypt-4.4.36-1-aarch64",
+        "libxml2-2.13.1-1-aarch64",
+        "linux-api-headers-6.8-1-aarch64",
+        "lz4-1:1.9.4-3-aarch64",
+        "m4-1.4.19-3-aarch64",
+        "make-4.4.1-2-aarch64",
+        "mpdecimal-4.0.0-2-aarch64",
+        "mpfr-4.2.1-3.1-aarch64",
+        "ncurses-6.5-3-aarch64",
+        "nettle-3.10-1-aarch64",
+        "npth-1.7-1-aarch64",
+        "openssl-3.3.1-1-aarch64",
+        "p11-kit-0.25.3-1-aarch64",
+        "pacman-6.1.0-3-aarch64",
+        "pacman-mirrorlist-20230206-1-any",
+        "pam-1.6.1-2-aarch64",
+        "pambase-20230918-1-any",
+        "patch-2.7.6-10-aarch64",
+        "pcre-8.45-4-aarch64",
+        "pcre2-10.44-1-aarch64",
+        "perl-5.38.2-1-aarch64",
+        "perl-error-0.17029-5-any",
+        "perl-mailtools-2.21-7-any",
+        "perl-timedate-2.33-5-any",
+        "pinentry-1.3.0-1-aarch64",
+        "pkgconf-2.1.1-1-aarch64",
+        "popt-1.19-1-aarch64",
+        "python-3.12.4-1-aarch64",
+        "readline-8.2.010-1-aarch64",
+        "rhash-1.4.4-1-aarch64",
+        "sed-4.9-3-aarch64",
+        "shadow-4.16.0-1-aarch64",
+        "sqlite-3.46.0-1-aarch64",
+        "sudo-1.9.15.p5-1-aarch64",
+        "systemd-libs-256.1-1-aarch64",
+        "tar-1.35-2-aarch64",
+        "texinfo-7.1-2-aarch64",
+        "tpm2-tss-4.0.1-1-aarch64",
+        "tzdata-2024a-2-aarch64",
+        "util-linux-2.40.2-1-aarch64",
+        "util-linux-libs-2.40.2-1-aarch64",
+        "which-2.21-6-aarch64",
+        "xz-5.6.2-1-aarch64",
+        "zlib-1:1.3.1-2-aarch64",
+        "zstd-1.5.6-1-aarch64"
+      ],
+      "options": [
+        "strip",
+        "docs",
+        "!libtool",
+        "!staticlibs",
+        "emptydirs",
+        "zipman",
+        "purge",
+        "!debug",
+        "!lto"
+      ],
+      "packager": [
+        "Arch Linux ARM Build System <builder+seattle@archlinuxarm.org>"
+      ],
+      "pkgarch": [
+        "aarch64"
+      ],
+      "pkgbase": [
+        "libebur128"
+      ],
+      "pkgbuild_sha256sum": [
+        "9870d1bf45a71a1819a20c25cf97123638c45ef469997b54982331bb35b84dd2"
+      ],
+      "pkgname": [
+        "libebur128"
+      ],
+      "pkgver": [
+        "1.2.6-2"
+      ],
+      "startdir": [
+        "/startdir"
+      ]
+    },
+    "sha256": "8e7dc40df3e8d1589a18e3d58f27b4588cd1a077d1c3a3d2cbd4fd9c35fdbbcb"
+  },
+  "complete_corresponding_source_license_closure": "NOT ESTABLISHED; declared package metadata only",
+  "hooks_and_scriptlets": [],
+  "installed_paths": [
+    "usr",
+    "usr/include",
+    "usr/include/ebur128.h",
+    "usr/lib",
+    "usr/lib/libebur128.so",
+    "usr/lib/libebur128.so.1",
+    "usr/lib/libebur128.so.1.2.6",
+    "usr/lib/pkgconfig",
+    "usr/lib/pkgconfig/libebur128.pc",
+    "usr/share",
+    "usr/share/licenses",
+    "usr/share/licenses/libebur128",
+    "usr/share/licenses/libebur128/LICENSE"
+  ],
+  "license_declaration": [
+    "MIT"
+  ],
+  "license_notice_files": [
+    {
+      "bytes": 1059,
+      "legal_clearance": "NOT ESTABLISHED; retained notice observation",
+      "path": "usr/share/licenses/libebur128/LICENSE",
+      "sha256": "d6b4754bb67bdd08b97d5d11b2d7434997a371585a78fe77007149df3af8d09c"
+    }
+  ],
+  "links": [
+    {
+      "path": "usr/lib/libebur128.so",
+      "target": "libebur128.so.1",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/lib/libebur128.so.1",
+      "target": "libebur128.so.1.2.6",
+      "type": "symlink"
+    }
+  ],
+  "metadata": {
+    "arch": [
+      "aarch64"
+    ],
+    "builddate": [
+      "1720200420"
+    ],
+    "depend": [
+      "glibc"
+    ],
+    "license": [
+      "MIT"
+    ],
+    "makedepend": [
+      "cmake",
+      "git"
+    ],
+    "packager": [
+      "Arch Linux ARM Build System <builder+seattle@archlinuxarm.org>"
+    ],
+    "pkgbase": [
+      "libebur128"
+    ],
+    "pkgdesc": [
+      "A library that implements the EBU R 128 standard for loudness normalisation"
+    ],
+    "pkgname": [
+      "libebur128"
+    ],
+    "pkgver": [
+      "1.2.6-2"
+    ],
+    "size": [
+      "84248"
+    ],
+    "url": [
+      "https://github.com/jiixyj/libebur128"
+    ],
+    "xdata": [
+      "pkgtype=pkg"
+    ]
+  },
+  "package_execution": "NOT RUN",
+  "path_count": 13
+}

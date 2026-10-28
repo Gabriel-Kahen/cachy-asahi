@@ -1,0 +1,106 @@
+{
+  "observed_at_utc": "2026-10-11T23:48:05.143629+00:00",
+  "method": "HTTP GET official aarch64 package pages; availability only, not chosen-base resolution or build success",
+  "packages": [
+    {
+      "name": "bat",
+      "url": "https://archlinuxarm.org/packages/aarch64/bat",
+      "status": "package-page-present",
+      "version": "bat 0.26.1-3",
+      "license": "Apache-2.0 OR MIT",
+      "response_sha256": "1e8d1ae543fab45606ca54b8ee2af5f4314e651e0420e2dc3eda44747e06dddc"
+    },
+    {
+      "name": "expac",
+      "url": "https://archlinuxarm.org/packages/aarch64/expac",
+      "status": "package-page-present",
+      "version": "expac 10-13",
+      "license": "GPL",
+      "response_sha256": "75be3cdd17715efb338685e95887a5bcff43853cae79cc5467a17a86b356f788"
+    },
+    {
+      "name": "eza",
+      "url": "https://archlinuxarm.org/packages/aarch64/eza",
+      "status": "package-page-present",
+      "version": "eza 0.23.5-2",
+      "license": "EUPL-1.2",
+      "response_sha256": "acb036f08b850d1c0163792c2c837730b35b06c588e0029ae0b3fbd7bd6c5ba0"
+    },
+    {
+      "name": "fastfetch",
+      "url": "https://archlinuxarm.org/packages/aarch64/fastfetch",
+      "status": "package-page-present",
+      "version": "fastfetch 2.69.0-1",
+      "license": "MIT",
+      "response_sha256": "1a1694033f9d9f3fe885a6d603111108eba46af22707cb447fa8de1041ceed9a"
+    },
+    {
+      "name": "fish",
+      "url": "https://archlinuxarm.org/packages/aarch64/fish",
+      "status": "package-page-present",
+      "version": "fish 4.9.3-1",
+      "license": "GPL-2.0-only AND BSD-3-Clause AND ISC AND MIT AND PSF-2.0",
+      "response_sha256": "be67e4f13653abe330d4e38b9eb6642eaccf974f203f1b0c22374c5d91a921e8"
+    },
+    {
+      "name": "fish-autopair",
+      "url": "https://archlinuxarm.org/packages/aarch64/fish-autopair",
+      "status": "not-confirmed",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "name": "fish-pure-prompt",
+      "url": "https://archlinuxarm.org/packages/aarch64/fish-pure-prompt",
+      "status": "not-confirmed",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "name": "fisher",
+      "url": "https://archlinuxarm.org/packages/aarch64/fisher",
+      "status": "package-page-present",
+      "version": "fisher 4.4.8-1",
+      "license": "MIT",
+      "response_sha256": "5af1feb5ca5a5af36984a2223c1f2fc44808a2c72ec7ab6542649ecc1667c48b"
+    },
+    {
+      "name": "fzf",
+      "url": "https://archlinuxarm.org/packages/aarch64/fzf",
+      "status": "package-page-present",
+      "version": "fzf 0.74.5-1",
+      "license": "MIT",
+      "response_sha256": "ad1c58bf759f6d1740a14fa3dda52cb67eed4d10a9afd277cf0239c927286e34"
+    },
+    {
+      "name": "pkgfile",
+      "url": "https://archlinuxarm.org/packages/aarch64/pkgfile",
+      "status": "package-page-present",
+      "version": "pkgfile 26-1",
+      "license": "MIT",
+      "response_sha256": "b24e885690e82e0b33280ded1e216a63b6ccd787f902c5e5d09b046f7d663630"
+    },
+    {
+      "name": "tealdeer",
+      "url": "https://archlinuxarm.org/packages/aarch64/tealdeer",
+      "status": "package-page-present",
+      "version": "tealdeer 1.9.0-1",
+      "license": "MIT,Apache-2.0",
+      "response_sha256": "6916f1d1e3fdc3c2336f576caeebe352c1cb709916dcef4087674d21abf53664"
+    },
+    {
+      "name": "ttf-fantasque-nerd",
+      "url": "https://archlinuxarm.org/packages/aarch64/ttf-fantasque-nerd",
+      "status": "package-page-present",
+      "version": "ttf-fantasque-nerd 3.5.1-2",
+      "license": "OFL-1.1-no-RFN",
+      "response_sha256": "fd2792cf3f4aef06025fc545d34684da0433f15bd8366eee67193fe034979d3d"
+    },
+    {
+      "name": "coreutils",
+      "url": "https://archlinuxarm.org/packages/aarch64/coreutils",
+      "status": "package-page-present",
+      "version": "coreutils 9.12-2",
+      "license": "GPL-3.0-or-later,GFDL-1.3-or-later",
+      "response_sha256": "931625eae014c8078b40165f22b7497c37bcf37a9c931b0c93b084415fe2eebc"
+    }
+  ]
+}

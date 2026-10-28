@@ -1,0 +1,56 @@
+{
+  "files": {
+    ".github/workflows/native-arm-setup5-expanded600.yml": {
+      "bytes": 24629,
+      "sha256": "52ee7217b9aa22c12d88519adc7f1a94a827e6ae0ab4656b8c49b3c2be687950"
+    },
+    "scripts/ci/setup5-expanded600/README.md": {
+      "bytes": 5434,
+      "sha256": "3aff48960339e03c670b2635101f18b5b6e4d60f7956e2c4254dcf12232f38db"
+    },
+    "scripts/ci/setup5-expanded600/freeze.py": {
+      "bytes": 1014,
+      "sha256": "ac866e92f2c066774ff780a45535d394d7d0c0839b76fc27a6441b11e4581cc9"
+    },
+    "scripts/ci/setup5-expanded600/gate.py": {
+      "bytes": 4688,
+      "sha256": "65259da0bdf9cfdea37f8f3154524c9f7963d62dfe35d71f660fc8d25b25e9fa"
+    },
+    "scripts/ci/setup5-expanded600/host.py": {
+      "bytes": 8130,
+      "sha256": "badd0654daea40fb3d7d805c683d4b06c36872c77df392488196acc70355c5f2"
+    },
+    "scripts/ci/setup5-expanded600/input-policy.json": {
+      "bytes": 730,
+      "sha256": "77f101edd82b00d71f62d5bbbf651d32e72ad000ae64653e4bb87f94e0f35602"
+    },
+    "scripts/ci/setup5-expanded600/lifecycle.py": {
+      "bytes": 14034,
+      "sha256": "cfff8a416dacf78786ea0179754677b3ec17a5f1d3ed30aa62050a2fddc7747c"
+    },
+    "scripts/ci/setup5-expanded600/policy.py": {
+      "bytes": 7888,
+      "sha256": "d1e3b53e46441d5dacc40aedc7bf111928b0a5a6aa61918261974b449206ae30"
+    },
+    "scripts/ci/setup5-expanded600/root-native600-acceptance.json": {
+      "bytes": 1445,
+      "sha256": "85723d4edc3f03e44973fbc36df2612de5b6ebe47154e6b5238ac69d0784713c"
+    },
+    "scripts/ci/setup5-expanded600/root-setup5-acceptance.json": {
+      "bytes": 747,
+      "sha256": "961d2bc413fbd0d1b5d2042533bfdf57b2f85054bdf8cc8eb3766180ce7f4581"
+    },
+    "scripts/ci/setup5-expanded600/run.py": {
+      "bytes": 1901,
+      "sha256": "cbe979dcfcb5920fc2c4b027dd181f887b87081e393d767412668a45240b1c70"
+    },
+    "scripts/ci/setup5-expanded600/test_source.py": {
+      "bytes": 25688,
+      "sha256": "93ce6bcf5bb11cb9bdc59ca011dd841b72c705c85b5a55ceeeda4553bf521ea9"
+    }
+  },
+  "hardware": "NOT_RUN",
+  "native": "NOT_RUN_BY_FREEZE",
+  "schema_version": 1,
+  "scope": "ISOLATED_SETUP5_ON_SIGNED600_THEN_UNCHANGED_ORIGINAL_FULL600"
+}

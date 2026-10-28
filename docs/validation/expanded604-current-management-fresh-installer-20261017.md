@@ -1,0 +1,11 @@
+# Current604 signed fresh installer
+
+Run39007904058/sourceed776a706fc711c5bcc4d933f38e88e7791bc9f6/attempt1 passes and is Root accepted for generic ARM4K software installation only. This is the current Welcome0.1.0-4/Orphans0.1.0-2 target3f64a13c4af7ab8b1598583f534af3347c8df2397a0afa33fb8b0f5f06b19cf5, distinct from the historical604 installer.
+
+Root independently replays the exact original log-frame collection and233 frozen operands (232Git plus the prior Root-pinned current604 replay). All144 manifest rows, six original runner transforms,604 installed packages, ordinary parent retirement, numeric ownership/namespace, payload/database/trust/user/source preservation and ordered cleanup pass. Independent post-parent root readback covers124479nodes/4930113861bytes/1841databasefiles, with zero missing database nodes, in518729ms under the unchanged600s bound. QEMU exits naturally after3862.721s. The ten retained public files total142523bytes; original logs3145932bytes are retained once under artifacts/development/expanded604-current-management-installer-terminal-20261017/actual39007904058.
+
+Private raw maps/profile/lock/payload bytes are checked by the frozen guest and not exported; replay joins their complete retained summaries and original protocol rather than performing a fresh live root read. Retired actor absence remains source-bound receipt evidence. Runtime statx versus original fdinfo fallback is not distinguished. No native-container P0, fullGUI, installed16K, physical macOS/Apple boot/recovery, M2, performance or release acceptance follows. Both Air sizes remain untested. All release selections remain false.
+
+This accepted current installer plus current native604 composition enables the separate current updater matrix; historical updater results do not transfer. Before dispatch, the updater freeze is corrected to retain every current support operand rather than dropping163 supporting rows. An emit-then-freeze regression proves the full198-file closure, and all47 updater controls pass.
+
+The [current updater matrix](expanded604-current-management-updater-20261017.md) now passes its three distinct native runs: normal completion, precommit exit86 and postcommit exit87. This supplies current copied-root upgrade/interruption evidence; hardware and boot recovery remain unfinished.

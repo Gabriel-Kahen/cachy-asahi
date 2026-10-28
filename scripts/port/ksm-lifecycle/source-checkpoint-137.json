@@ -1,0 +1,125 @@
+{
+  "16K_hardware_acceptance": "NOT RUN",
+  "Asahi_M2_acceptance": "NOT RUN",
+  "Docker_daemon_used_by_test_run": false,
+  "actual_installation_removal": "NOT RUN",
+  "actual_native_container_signing": "NOT RUN",
+  "actual_native_lifecycle_execution": "NOT RUN",
+  "closed_schedules": [
+    "Inherited per-operation immutable CLI/socket/daemon bindings cover create/start/cleanup/removal and separate absence queries.",
+    "Inherited matching positive real/effective UID/GID gate precedes Docker or caller inputs.",
+    "Inherited lifecycle mode change precedes authoritative receipt writes.",
+    "Actual SIGTERM/SIGINT remembered after controller writer return or raised during final deferral restoration durably rewrite FAIL.",
+    "Caught SIGINT during caller-handler restoration rewrites already completed reports without phase replay.",
+    "Existing post-operation CLI/socket checks reject byte drift and socket drift during transport exceptions."
+  ],
+  "default_keyring_used": false,
+  "document": {
+    "mode": "0o644",
+    "path": "docs/workstreams/ksm-lifecycle.md",
+    "sha256": "2fd1fda99adc412647bcbfcfb70694f5662342268bc41853fa4bd807062ae472",
+    "size": 18241
+  },
+  "external_frozen_helpers": {
+    "client_stage": {
+      "mode": "0o644",
+      "path": "scripts/client/stage.py",
+      "sha256": "dc0c75969ed79548c3eb0ab1692f57ebffe7464d9192e591cdcf61aeaeb77154",
+      "size": 33711
+    },
+    "source_guard": {
+      "mode": "0o644",
+      "path": "scripts/ci/source_suites.py",
+      "sha256": "4bfec1387f87768e5b37475d6172bde302ef52c01c68f81297435048be7f2100",
+      "size": 23470
+    }
+  },
+  "historical135_test_receipt": {
+    "mode": "0o644",
+    "path": "scripts/port/ksm-lifecycle/source-test-results-135.json",
+    "sha256": "7e404fa10fc24a840528c718ccb4b4895909e80d4ce1581ee50fbd024498349e",
+    "size": 12972
+  },
+  "historical_independent_review": {
+    "mode": "0o644",
+    "path": "docs/reviews/ksm-lifecycle-review.md",
+    "sha256": "e5caea1dadc1929eef3af074025bae652f5f17b3e27e76b9239360e231290df8",
+    "size": 7787
+  },
+  "host_package_or_service_mutation": false,
+  "integration_owner": "Root coordinator; sources and owned document only.",
+  "management_activation": "NOT RUN",
+  "performance_measurements": "NOT RUN",
+  "root_audited_native_build_pair": {
+    "consumed_by_this_lifecycle_adapter": false,
+    "job": "38218102399",
+    "receipt": {
+      "mode": "0o644",
+      "path": "artifacts/ci/38218102399/root-ksm-build-verification.json",
+      "sha256": "206e78b2b45c282798ceb7e1386a1e3a1f9318e25d3e153ab7c459eeb9e53bb0",
+      "size": 308
+    },
+    "status": "PASS-two-equal-native-archives"
+  },
+  "schema_version": 1,
+  "shared_manifests_CI_Git_dispatch_modified": false,
+  "source_and_test_files": {
+    "scripts/port/ksm-lifecycle/contract.py": {
+      "mode": "0o644",
+      "path": "scripts/port/ksm-lifecycle/contract.py",
+      "sha256": "bfce5d9a5e8a9626cdedb121f299dafd730b13e484d1c4be7ba917207e4d161b",
+      "size": 25965
+    },
+    "scripts/port/ksm-lifecycle/stage.py": {
+      "mode": "0o644",
+      "path": "scripts/port/ksm-lifecycle/stage.py",
+      "sha256": "be4a61ac4ed8efbf243e2be1a5211c4ad0553f7be13a26b64e3e655de73cbaee",
+      "size": 28843
+    },
+    "scripts/port/ksm-lifecycle/test_contract.py": {
+      "mode": "0o644",
+      "path": "scripts/port/ksm-lifecycle/test_contract.py",
+      "sha256": "13c7273a83cf3b67330f76380c05c14aa8af6ff4d7173c43d607d5c8b25e4258",
+      "size": 25769
+    },
+    "scripts/port/ksm-lifecycle/test_stage.py": {
+      "mode": "0o644",
+      "path": "scripts/port/ksm-lifecycle/test_stage.py",
+      "sha256": "e34c99bb71f57748c5f171f08085ca4d0ab3846e26cbc48ca07e246730218332",
+      "size": 40222
+    },
+    "scripts/port/ksm-lifecycle/test_worker.py": {
+      "mode": "0o644",
+      "path": "scripts/port/ksm-lifecycle/test_worker.py",
+      "sha256": "d8a2535f5e9355454e350c44f94a686dcf079b4e521e0ebf6f526e09ad5a0f08",
+      "size": 39223
+    },
+    "scripts/port/ksm-lifecycle/worker.py": {
+      "mode": "0o644",
+      "path": "scripts/port/ksm-lifecycle/worker.py",
+      "sha256": "e879cb22be50da3a1e7c5e8f700349cb9ec8d4e57f32b2745397425d24d4d258",
+      "size": 36001
+    }
+  },
+  "status": "HELD-source-tested-reviewed-KSM-development-lifecycle",
+  "terminal_contract": "Acceptance requires matching PASS receipts and clean worker/controller exits. Once each caller signal handler is restored, arbitrary default-handler termination may stop a completed process; its receipt alone is not acceptance.",
+  "test_receipt": {
+    "mode": "0o644",
+    "path": "scripts/port/ksm-lifecycle/source-test-results.json",
+    "sha256": "b8efbb557dadc3e51a2e8a561d5e2553d55cf7d39cea1041f350ecc466bebb69",
+    "size": 13772
+  },
+  "test_results": {
+    "contract": 42,
+    "controller": 50,
+    "count": 137,
+    "error_count": 0,
+    "failure_count": 0,
+    "independent_bounded_source_review": "PASS-no-remaining-blocker-in-reviewed-schedules",
+    "new_tests_since_inherited127": 10,
+    "real_temporary_GPG_checks": 4,
+    "skipped_count": 0,
+    "syntax": "PASS",
+    "worker": 45
+  }
+}

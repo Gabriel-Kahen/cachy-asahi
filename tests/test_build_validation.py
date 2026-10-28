@@ -28,6 +28,17 @@ class ValidationTests(unittest.TestCase):
         self.root = Path(self.temp.name)
         self.addCleanup(self.temp.cleanup)
 
+    def test_compare_cli_resolves_selected_helpers_under_isolation(self):
+        marker = self.root / 'ambient-imported'
+        (self.root / 'build.py').write_text(
+            'from pathlib import Path\nPath(' + repr(str(marker)) + ').touch()\nraise RuntimeError("ambient helper")\n')
+        result = subprocess.run([sys.executable, '-I', '-S', '-B', str(ROOT / 'scripts/build/compare.py'), '--help'],
+                                cwd=self.root, env=dict(os.environ, PYTHONPATH=str(self.root)),
+                                capture_output=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stderr.decode())
+        self.assertIn(b'--require-bytes', result.stdout)
+        self.assertFalse(marker.exists())
+
     def recipe(self, extra=''):
         directory = self.root / 'packages' / 'desktop' / 'nested' / 'example'
         directory.mkdir(parents=True, exist_ok=True)

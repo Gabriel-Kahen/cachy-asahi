@@ -96,3 +96,179 @@ gh workflow run native-arm-build.yml --ref main -f mode=build \
 The recorded recipe digest is a candidate requiring coordinator review. Regenerate/review the lock if an owner changes any reviewed input. The workflow is manual only, serialized, bounded to 50 minutes, and exposes no production signing credentials or publication permissions. Probe success establishes runner availability/observations; source-audit success establishes authentication/metadata receipts; only actual complete build/comparison evidence can advance the native build gate. M1 and all release/hardware gates still require coordinator review and their additional evidence.
 
 Evidence is framed by `CACHY_ASAHI_EVIDENCE_BEGIN <name> sha256=<digest> bytes=<size>` and the matching `...END` marker. Download logs with `gh run view <run-id> --log`, remove GitHub's log prefixes from lines between each marker, base64-decode into a `.tar.gz`, check the marker's SHA-256 before extracting, and inspect `runner.json`, `result.json`, bootstrap/build provenance and comparisons. Expanded bundles are capped at 16 MiB and compressed bundles at 8 MiB. Input caches, Docker contexts and GPG homes are excluded. Preserve receipts/input locks with the original private blobs; logs and input URLs alone are not a long-term retention guarantee.
+
+## Frozen development-only integration mode
+
+The original four native build pairs passed in coordinator-reviewed run
+`38189520114`, source commit `ebd5812640b0b69f5c09a47752b739e37e338754`.
+The integration controller and adapters described here are implemented and locally
+boundary-tested; actual native integration execution remains **NOT RUN**.
+This section replaces the earlier proposed common entry/guard interface.
+
+`native_arm.py integration` authenticates the unchanged signed ALARM inputs,
+checks the reviewed original recipe lock and full integration source freeze, and
+regenerates/hash-compares every fixture input before building. It requires the
+accepted checkout to match `GITHUB_SHA`. It builds all four originals twice and
+all four changed DEVELOPMENT fixtures twice, with strict archive-byte comparison.
+No current-mirror fallback, host package installation, production signing key,
+paid runner, cache or artifact service is added.
+
+Freeze the final sources and generated fixture bytes before committing/dispatching:
+
+```sh
+python3 -B scripts/ci/integration.py --freeze \
+  --recipes-sha256 20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63 \
+  --recipe-source-commit ebd5812640b0b69f5c09a47752b739e37e338754 \
+  --source-date-epoch 1791748800 \
+  --output scripts/ci/integration.lock.json
+```
+
+The output must be new. The coordinator reviews the resulting SHA-256 and alone
+commits, pushes and dispatches `mode=integration`, supplying `inputs_sha256`,
+`recipes_sha256` and `integration_sha256`. CI source freeze includes every regular
+file under scripts/tests/packages/examples, plus LICENSE/AGENTS/README and this
+workflow; it excludes bytecode, its own lock, and independently developing
+`scripts/virtual`, `scripts/client`, `scripts/experiments`, `scripts/port` and
+`packages/tools` follow-up batches. Neither excluded batch
+is invoked or claimed tested by this integration mode. Source modes and hashes,
+fixture modes/hashes, original recipe commit and deterministic build epoch are
+bound; changes require a fresh review/freeze.
+
+Each stage has its owner's existing interface and guard:
+
+| Stage | Container/input boundary | Evidence scope |
+| --- | --- | --- |
+| TEST signer | Fresh non-root ARM, read-only root, cap0/NNP/no network; expiring TEST private key only in tmpfs | Verified public fingerprint, certificate/signature hashes and exact eight archive bindings |
+| Lifecycle/handoff | Fresh writable root, six explicit file/account/child-cleanup capabilities (including KILL); read-only `/inputs` and `/runner`, actual writable overlay `/tmp` | Real install/changed upgrade/remove/recovery; independent complete original payload/inventory check and visible-filesystem cleanup before exact stopped-container commit |
+| Repository | Fresh read-only root; pacman target copied to 6GiB `/scratch` tmpfs, bounded TEST key tmpfs | Signed/revoked/rotated/tampered generic repository transactions; actual copied-root bytes/capacity measured before copy |
+| Onboarding | Fresh non-root read-only derived installed image; complete package lock plus original baseline archive/payload manifest | Installed CLI, editor/PTY/C/shell journey and complete helper/release test counts |
+| Desktop | Separate non-root read-only derived image; original desktop archive and unchanged base lock | Installed payload plus pinned parser/subset checks; compositor remains BLOCKED without DRM |
+| Source suites | Fresh non-root read-only base image; full reviewed `/source` mount, private owned tmpfs HOME | Every requested source suite/package synchronization check; zero discoveries or skips cannot PASS |
+
+Containers run serially with unique names and bounded resources. Only the exact
+lifecycle container can be committed, after exit zero plus a fully bound READY
+receipt, original baseline hashes/ownership, exact base-plus-four inventory and
+all cleanup checks. That image stays local to the ephemeral runner: Docker commit
+retains parent layers, so deleting a bootstrap-generated private keyring from the
+visible filesystem does **not** erase lower-layer bytes or create a distributable
+secret-free image. No image is pushed/exported. Flattened release images require
+a separate audited process.
+
+Outputs stay separate from original native-build evidence. The controller selects
+public JSON/log/txt receipts, prunes sensitive state before reading/hashing it,
+and applies `integration_export.py`; oversize, symlink, credential/private-key
+content or sensitive paths reject export with public diagnostics. Repository
+TEST-key command argv are represented by identity hashes/status rather than raw
+keygen options. Nontext repository test materials are explicitly listed as
+excluded without reading/hashing their content. The only binary package export
+is an explicit rehashed set of the four reviewed MIT config-only fixture archives.
+Successful TEST signer and repository artifacts also use separate explicit
+receipt-bound public exporters: public certificates, detached signatures, approved
+repository databases/packages and regular alias mappings. The signer exports exactly
+one verified public certificate plus eight signatures; repository negative cases
+retain their intentionally bad/revoked material for offline review. No GPG homes
+or standalone sensitive revocation files enter these exports. Each binary bundle
+has a 12MiB payload bound and all bytes are rehashed before/after copying.
+Final controller summaries also pass the text exporter; failed stage/export
+statuses are recorded separately from component statuses. Workflow publication
+continues through all stage bundles even if one bundle fails. Private key homes,
+source rootfs/dependencies, copied pacman roots and user homes never enter public
+integration bundles.
+
+Generic native ARM/4K software checks cannot satisfy physical M2, Asahi boot,
+16K-page, accelerated graphics/audio, suspend/power, GUI usability, stable trust,
+production publication or performance gates. All remain independently unrun.
+
+Initial-stage source snapshots include all exact inputs named by the reviewed
+original recipe lock, including 25 historical evidence files, and other package
+audit text. Generated package archives and unlocked ignored logs are excluded;
+the active virtual/client/experiments/port/platform and packages/tools/libraries follow-up
+trees have separate later freezes. A missing locked input fails the source scan.
+Both freeze and preflight copy and rehash the complete snapshot, then generate
+deterministic fixtures from that copied tree before any native mutation. Original
+recipe inputs and their lock are preserved.
+
+Only explicitly named desktop terminal logs have a readable escaped projection:
+ANSI/control and invalid UTF-8 bytes are represented as text, with adjacent raw
+SHA-256/byte count and projected SHA-256/byte count receipts. Raw bytes are not
+exported. The existing private-content policy runs before projection and the
+generic exporter remains unchanged. Desktop children receive an owned mode0700
+XDG_RUNTIME_DIR under the guarded tmpfs HOME. Verification remains enabled;
+this environment correction does not establish the cause of an earlier abort.
+
+Lifecycle package inventories have a separate explicit host projection. Exactly
+eight known stage paths must contain only valid package/version maps equal to the
+complete accepted base, base-plus-originals or base-plus-upgrade inventory.
+Reinstallation uses upgrade versions, matching the lifecycle producer. Public
+row lists preserve every package/version and bind original hashes/byte counts;
+a separate projection receipt binds public hashes/byte counts. Unknown paths or
+unreviewed schema/content still face the unchanged generic credential guard.
+This resolves the `libsecret` field-name false positive without relaxing it.
+
+Handoff refusal codes come from a fixed reviewed set; controller diagnostics
+retain the failing operation and changed Config field names only. No arbitrary
+Env values, hashes of those values or exception text are published on refusal.
+The derived verifier now scans ordinary filesystem metadata without following
+symlinks or opening nodes, after mount/native guards and before contract reads.
+It refuses every socket, block device and unexpected character node, including
+alternate names. Exact standard character devices and matching Docker PTYs are
+allowed. The bounded point-in-time namespace scan does not claim protection
+against a malicious daemon, inherited descriptors or abstract sockets.
+
+Image commitment uses explicit accepted portable Config JSON through the guarded
+local Docker API, pinned to v1.48. Empty base commands are sent as `Cmd: []`;
+empty base entrypoints use Docker's exact `Entrypoint: [""]` reset sentinel to
+prevent commit-time inheritance of lifecycle execution arguments. Docker clears
+that sentinel during subsequent container creation. Canonical comparison treats
+only that exact sentinel as an empty entrypoint and null/empty Labels as no
+labels. Runtime commands/entrypoints, nonempty labels and every Env entry remain
+subject to full equality checks. No socket enters a container and no new
+capability, remote endpoint or image publication is introduced. These semantics
+are source-confirmed against [Docker 28.0.4 commit](https://github.com/moby/moby/blob/v28.0.4/daemon/commit.go)
+and [container-create](https://github.com/moby/moby/blob/v28.0.4/daemon/create.go)
+code; controlled native acceptance remains a separate requirement.
+
+A unique private local recovery tag is prechecked and registered before commit
+submission. Failed image verification removes the owned derivative with observed
+image/tag absence; ambiguous requests remain FAIL with uncertain cleanup. The
+builder is never a removal target. On success, consumers finish while the owned
+installed image is available, then the controller removes it and seals its final
+summary. Optional future consumers are internal callables in the same process;
+the ordinary integration CLI and original four-package stage predicate remain.
+
+
+### Corrective source review and freeze status
+
+Independent review reproduced deterministic child identity-forwarding and public
+repository log-naming failures, plus runtime-mount, cleanup, cancellation,
+underlying-tmp, fixture-diagnostic and committed-image configuration gaps. These
+have source fixes and focused mocked regressions. Handoff now runs without a
+`/tmp` mount, cleans the actual writable image view, and requires
+`image-tmp-view-empty` before READY. A fresh read-only container independently
+checks the committed image's inventory, complete original payloads/ownership,
+empty underlying `/tmp` and absence of visible private state before onboarding.
+
+Lifecycle alone receives CHOWN/DAC_OVERRIDE/FOWNER/SETUID/SETGID/KILL; repository
+and derived read-side verification retain the five file/account capabilities.
+All relevant capability sets and no-new-privileges are checked by stage guards.
+The handoff's nonce/image are passed through `/usr/bin/env` process argv rather
+than Docker Config.Env. Commit restores the accepted base USER/ENTRYPOINT/CMD/
+WORKDIR and verifies normalized executable image configuration and exact Env;
+test identity cannot persist in the installed image metadata.
+
+Cleanup requires bounded named removal and daemon-confirmed absence. Cancellation
+stops tracked process groups, removes owned containers and finalizes sanitized
+failure records; cleanup failure cannot retain PASS. Original error category and
+separate cleanup outcomes remain visible. Already-created fixture provenance,
+validation and detailed build logs are retained after failure. Six known public
+repository verification/revocation logs are projected only when their exact
+producer receipt binds the filename, label and content hash; general GPG/private
+path denial remains intact.
+
+The earlier lock SHA `641be67646a40f396f6aaff7c24dcfa4af2c91d4734c99a30702df6e472d54c8`
+is **invalidated**, following corrective sources and the updated complete-port
+roadmap. It has not been overwritten or used for dispatch. The coordinator must
+review and regenerate the final source/fixture lock after confirming source
+stability. Actual native integration remains NOT RUN. This initial four-package
+integration foundation does not satisfy R1–R5/M5–M9/A12–A15; broader maintained
+package/tool/platform/installation and physical acceptance tracks remain required.

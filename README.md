@@ -8,7 +8,7 @@ Initial target: an M2 MacBook Air running Asahi Arch Linux ARM and Hyprland. The
 
 ## Status
 
-Implementation is underway in six coordinated workstreams: desktop packaging, shells/defaults, ARM build/validation and setup, signed releases/recovery, performance measurement, and native ARM CI. Four original configuration/setup packages, baseline capture, build inspection, release recovery and measurement tooling are implemented and locally tested. All four packages passed two clean native ARM container builds with byte-identical archives; see [actual execution](docs/validation/native-arm.md). Target installation, a supported installer, stable release and M2 hardware validation remain unfinished. This is an independent project, not an official CachyOS or Asahi distribution.
+Implementation is underway in six coordinated workstreams: desktop packaging, shells/defaults, ARM build/validation and setup, signed releases/recovery, performance measurement, and native ARM CI. Four original configuration/setup packages, baseline capture, build inspection, release recovery and measurement tooling are implemented and locally tested. All ten selected development recipes have passed native ARM build pairs with byte-identical archives. The core package/configuration lifecycle and signed test-repository cases pass, and the 574-package upstream desktop set installs offline with an exact inventory; see [current execution and limits](docs/implementation-status.md). Target installation, a supported installer, stable release and M2 hardware validation remain unfinished. This is an independent project, not an official CachyOS or Asahi distribution.
 
 See [implementation status](docs/implementation-status.md) for the complete outline's execution gates and [coordination](docs/orchestration.md) for worker ownership. Candidate recipes and tools are development artifacts until their gates pass.
 
@@ -38,6 +38,7 @@ Kernel experiments and CPU-specific optimization follow a measured, working base
 - [Hardware validation](docs/hardware-validation.md): evidence required before support claims.
 - [Source notes](docs/sources.md): starting references, checked October 11, 2026.
 - [Package candidates](manifests/packages.toml): a starting inventory, not an install list.
+- [Setup8 development](docs/setup8-development.md): selected 0.3.0-1 recipe, explicit user commands and accepted generic ARM scope.
 - [Contributor instructions](AGENTS.md): evidence and collaboration rules.
 
 ## Development boundaries

@@ -1,0 +1,6 @@
+cachy-asahi mirrors 0.1.0
+Original MIT implementation by cachy-asahi contributors, 2026.
+
+The required mirror-checking function is specified in
+docs/port/tools-functionality.md. No rate-mirrors or CachyOS wrapper code,
+server catalog, branding, keys or repository trust is imported.

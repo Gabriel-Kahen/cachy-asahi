@@ -1,0 +1,100 @@
+name: native-arm-apps13-client
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact 40-character source SHA, equal to this workflow revision
+        type: string
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: native-arm-apps13-client
+  cancel-in-progress: false
+jobs:
+  native:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi'
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 100
+    defaults:
+      run:
+        shell: bash
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      SLICE: scripts/ci/apps13-client-native
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        timeout-minutes: 2
+        with:
+          ref: ${{ inputs.source_sha }}
+          persist-credentials: false
+      - name: Prove the explicit source and workflow revision before actors
+        id: proof
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' '@JOB_SHA256@' "$SLICE/job.py" '@MANIFEST_SHA256@' "$SLICE/source-manifest.json" | sha256sum --check
+          python3 -I -B "$SLICE/job.py" proof --source "$GITHUB_WORKSPACE" --proof "$RUNNER_TEMP/apps13-client-native-source-proof.json"
+      - name: Focused source and hosted entry controls
+        timeout-minutes: 3
+        run: |
+          set -euo pipefail
+          python3 -I -B scripts/ci/test_maintained_desktop574.py
+          python3 -B -m unittest discover -s "$SLICE" -p test_lane.py
+          python3 -B -m unittest discover -s "$SLICE" -p test_retained.py
+      - name: Checkout the whole exact public574 retained input source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        timeout-minutes: 3
+        with:
+          ref: ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad
+          path: retained574
+          persist-credentials: false
+      - name: Reconstruct pinned inputs and run offline owned native574 transaction
+        timeout-minutes: 40
+        env:
+          JOB_TOKEN: ${{ steps.proof.outputs.job_token }}
+        run: >-
+          timeout --signal=TERM --kill-after=10s 2300s
+          python3 -I -B "$SLICE/producer.py"
+          --source "$GITHUB_WORKSPACE" --carrier "$GITHUB_WORKSPACE/retained574"
+          --output "$RUNNER_TEMP/desktop574" --job-token "$JOB_TOKEN"
+      - name: Rebuilt Runtime1 pair, owned dependency image, explicit Apps13 and client-v2 pairs
+        timeout-minutes: 43
+        env:
+          CONSUMER_TOKEN: ${{ steps.proof.outputs.consumer_token }}
+        run: |
+          set -euo pipefail
+          timeout --signal=TERM --kill-after=30s 2500s \
+            python3 -B "$SLICE/run.py" --source "$GITHUB_WORKSPACE" \
+              --base-dir "$RUNNER_TEMP/desktop574" --output "$RUNNER_TEMP/apps13-client-native-runtime" \
+              --consumer-token "$CONSUMER_TOKEN"
+      - name: Retire all owned consumers, dependency images and original producer before TEST authority
+        if: always() && steps.proof.outcome == 'success'
+        timeout-minutes: 6
+        run: >-
+          timeout --signal=TERM --kill-after=10s 330s
+          python3 -I -B "$SLICE/job.py" cleanup
+          --source "$GITHUB_WORKSPACE"
+          --proof "$RUNNER_TEMP/apps13-client-native-source-proof.json"
+          --base "$RUNNER_TEMP/desktop574" --runtime "$RUNNER_TEMP/apps13-client-native-runtime"
+          --output "$RUNNER_TEMP/apps13-client-native-ordered-cleanup.json"
+      - name: Retain the closed Apps13 client-v2 and rebuilt Runtime1 evidence set
+        if: always() && steps.proof.outcome == 'success'
+        timeout-minutes: 2
+        run: >-
+          python3 -I -B "$SLICE/job.py" retain
+          --source "$GITHUB_WORKSPACE" --proof "$RUNNER_TEMP/apps13-client-native-source-proof.json"
+          --base "$RUNNER_TEMP/desktop574" --runtime "$RUNNER_TEMP/apps13-client-native-runtime"
+          --cleanup "$RUNNER_TEMP/apps13-client-native-ordered-cleanup.json"
+          --output "$RUNNER_TEMP/apps13-client-native-public"
+      - name: Upload only the bounded public evidence directory
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        timeout-minutes: 2
+        with:
+          name: apps13-client-native-candidates-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 3
+          if-no-files-found: ignore
+          path: ${{ runner.temp }}/apps13-client-native-public/
+          include-hidden-files: true

@@ -1,0 +1,147 @@
+name: native-arm-welcome-independent-profile
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: Independently owned full profile (both matching runs required for full GUI)
+        type: choice
+        options: [minimal, overlay]
+        required: true
+      source_sha:
+        description: Exact 40-character source SHA, equal to this workflow revision
+        type: string
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: native-arm-welcome-independent-profile-${{ inputs.profile }}
+  cancel-in-progress: false
+jobs:
+  native:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi'
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 155
+    defaults:
+      run:
+        shell: bash
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      SLICE: scripts/ci/welcome-independent-profile-native
+      PROFILE: ${{ inputs.profile }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: ${{ inputs.source_sha }}
+          persist-credentials: false
+      - name: Prove the explicit source and workflow revision before secrets
+        id: proof
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' '2bbf86b5a2d80d45fa6046547672cb6ce25c32921b4624fbedfa943187b46c1b' "$SLICE/job.py" 'c0708d6b5d2292b6be1b8eb700f375049415e683875ac915b3e61a1ac8d86720' "$SLICE/source-manifest.json" | sha256sum --check
+          python3 -I -B "$SLICE/job.py" proof --profile "$PROFILE" --code "$RUNNER_TEMP/welcome-independent-${PROFILE}-code" --source "$GITHUB_WORKSPACE" --manifest "$SLICE/source-manifest.json" --proof "$RUNNER_TEMP/welcome-independent-${PROFILE}-source-proof.json" --runtime "$RUNNER_TEMP/welcome-independent-${PROFILE}-runtime"
+      - name: Focused source and hosted entry controls
+        timeout-minutes: 3
+        run: |
+          set -euo pipefail
+          python3 -I -B "$SLICE/test_lane.py"
+          python3 -I -B scripts/ci/test_maintained_desktop574.py
+          python3 -B -m unittest discover -s scripts/ci/welcome-management-native -p test_native.py
+          python3 -B -m unittest discover -s scripts/ci/welcome-management-native -p test_gui.py
+          python3 -B -m unittest discover -s scripts/ci/welcome-management-native -p test_failure_capture.py
+          python3 -B -m unittest discover -s scripts/ci/welcome-management-native -p test_report_retirement.py
+          python3 -B -m unittest discover -s scripts/ci/welcome-management-native -p test_focus_reply.py
+          python3 -B -m unittest discover -s scripts/ci/welcome-management-native -p test_process_progress.py
+      - name: Seed the six exact retained inputs using existing secrets only
+        timeout-minutes: 2
+        env:
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01 }}
+          CACHY_OLD_FOUR_SCHEMA: '1'
+          CACHY_OLD_FOUR_SOURCE_EPOCH: '1791748800'
+          CACHY_OLD_FOUR_JBIGKIT_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_01 }}
+          CACHY_OLD_FOUR_JBIGKIT_02: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_02 }}
+          CACHY_OLD_FOUR_JBIGKIT_SIG_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_SIG_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_02: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_02 }}
+          CACHY_OLD_FOUR_LIBTIFF_03: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_03 }}
+          CACHY_OLD_FOUR_LIBTIFF_04: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_04 }}
+          CACHY_OLD_FOUR_LIBTIFF_05: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_05 }}
+          CACHY_OLD_FOUR_LIBTIFF_06: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_06 }}
+          CACHY_OLD_FOUR_LIBTIFF_07: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_07 }}
+          CACHY_OLD_FOUR_LIBTIFF_08: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_08 }}
+          CACHY_OLD_FOUR_LIBTIFF_09: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_09 }}
+          CACHY_OLD_FOUR_LIBTIFF_10: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_10 }}
+          CACHY_OLD_FOUR_LIBTIFF_11: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_11 }}
+          CACHY_OLD_FOUR_LIBTIFF_12: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_12 }}
+          CACHY_OLD_FOUR_LIBTIFF_13: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_13 }}
+          CACHY_OLD_FOUR_LIBTIFF_14: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_14 }}
+          CACHY_OLD_FOUR_LIBTIFF_15: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_15 }}
+          CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}
+        run: >-
+          python3 -I -B scripts/ci/maintained_desktop574.py seed
+          --inputs scripts/ci/maintained-desktop574-inputs.json
+          --output "$RUNNER_TEMP/desktop574-${PROFILE}"
+      - name: Checkout exact retained public input source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: 04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd
+          path: retained-public-inputs
+          persist-credentials: false
+      - name: Seed fourteen exact public ARM input files
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' 'a7857658af224984065e575f6ffed8308ea85027d46eace8bda146d9033e93b3' 'retained-public-inputs/seed.py' 'a388c8c8ba8e06cb92fd2be598b86e433c4e403b6e71a0f15b1eaec381bb7300' 'retained-public-inputs/index.json' | sha256sum --check
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC TMPDIR="$RUNNER_TEMP" python3 -I -B "$GITHUB_WORKSPACE/retained-public-inputs/seed.py" --cache "$RUNNER_TEMP/desktop574-${PROFILE}/context/deps"
+      - name: Reconstruct pinned inputs and run offline owned native574 transaction
+        timeout-minutes: 40
+        env:
+          JOB_TOKEN: ${{ steps.proof.outputs.job_token }}
+        run: >-
+          timeout --signal=TERM --kill-after=10s 2300s
+          python3 -I -B scripts/ci/maintained_desktop574.py build
+          --inputs scripts/ci/maintained-desktop574-inputs.json
+          --output "$RUNNER_TEMP/desktop574-${PROFILE}" --job-token "$JOB_TOKEN"
+      - name: Native management products and installed GUI lifecycle
+        timeout-minutes: 85
+        run: >-
+          timeout --signal=TERM --kill-after=480s 4500s
+          python3 -I -B "$SLICE/job.py" run --profile "$PROFILE"
+          --code "$RUNNER_TEMP/welcome-independent-${PROFILE}-code"
+          --source "$GITHUB_WORKSPACE" --manifest "$SLICE/source-manifest.json"
+          --proof "$RUNNER_TEMP/welcome-independent-${PROFILE}-source-proof.json"
+          --base "$RUNNER_TEMP/desktop574-${PROFILE}" --runtime "$RUNNER_TEMP/welcome-independent-${PROFILE}-runtime"
+      - name: Retire owned tool consumers before the original producer
+        if: always() && steps.proof.outcome == 'success'
+        timeout-minutes: 6
+        run: >-
+          timeout --signal=TERM --kill-after=10s 330s
+          python3 -I -B "$SLICE/job.py" cleanup --profile "$PROFILE" --code "$RUNNER_TEMP/welcome-independent-${PROFILE}-code"
+          --source "$GITHUB_WORKSPACE" --manifest "$SLICE/source-manifest.json"
+          --proof "$RUNNER_TEMP/welcome-independent-${PROFILE}-source-proof.json"
+          --base "$RUNNER_TEMP/desktop574-${PROFILE}" --runtime "$RUNNER_TEMP/welcome-independent-${PROFILE}-runtime"
+          --output "$RUNNER_TEMP/welcome-independent-${PROFILE}-ordered-cleanup.json"
+      - name: Retain the closed welcome-management candidate evidence set
+        if: always() && steps.proof.outcome == 'success'
+        timeout-minutes: 2
+        run: >-
+          python3 -I -B "$SLICE/job.py" retain --profile "$PROFILE" --code "$RUNNER_TEMP/welcome-independent-${PROFILE}-code"
+          --source "$GITHUB_WORKSPACE" --manifest "$SLICE/source-manifest.json" --proof "$RUNNER_TEMP/welcome-independent-${PROFILE}-source-proof.json"
+          --base "$RUNNER_TEMP/desktop574-${PROFILE}" --runtime "$RUNNER_TEMP/welcome-independent-${PROFILE}-runtime"
+          --cleanup "$RUNNER_TEMP/welcome-independent-${PROFILE}-ordered-cleanup.json"
+          --output "$RUNNER_TEMP/welcome-independent-${PROFILE}-public"
+      - name: Upload only the bounded public evidence directory
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        timeout-minutes: 2
+        with:
+          name: welcome-independent-${{ inputs.profile }}-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 3
+          if-no-files-found: ignore
+          path: ${{ runner.temp }}/welcome-independent-${{ inputs.profile }}-public/
+          include-hidden-files: true

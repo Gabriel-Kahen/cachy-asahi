@@ -1,0 +1,259 @@
+{
+  "files": {
+    "packages/tools/cachy-asahi-dns/.SRCINFO": {
+      "bytes": 1016,
+      "sha256": "07d5d92c9d92011f7ee9fab670d283e3889b06c248f27a4e77dfdb9f1a810098"
+    },
+    "packages/tools/cachy-asahi-dns/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-dns/NOTICE": {
+      "bytes": 362,
+      "sha256": "1ff77dc69e120adfacea23ac77a756ff5931b888c7535f0e2f2b928114a5873e"
+    },
+    "packages/tools/cachy-asahi-dns/PKGBUILD": {
+      "bytes": 1527,
+      "sha256": "9419e496146a8af5379f4bc886645943f703949274d75bcc52035acc996b251b"
+    },
+    "packages/tools/cachy-asahi-dns/README.md": {
+      "bytes": 5399,
+      "sha256": "c1e0c9d4ca17e48587ad0070388c0f2c05191ee2537d079a2cca84c199d0d3d0"
+    },
+    "packages/tools/cachy-asahi-dns/cachy-asahi-dns": {
+      "bytes": 12387,
+      "sha256": "86e91bee103876974c8296874c58ef9e1ea7b7e4b06c99928cda1d9f8cabca99"
+    },
+    "packages/tools/cachy-asahi-dns/check_source.py": {
+      "bytes": 2430,
+      "sha256": "74fc9aa8dbba61cfaaca9cadba5f78ea080969bb2d9a58dc38f36dde35ddd7a1"
+    },
+    "packages/tools/cachy-asahi-dns/source-provenance.json": {
+      "bytes": 1203,
+      "sha256": "80fc23caeb1d6b87a6ca8407106359a951cc7f880442954fde7d86647dd706ad"
+    },
+    "packages/tools/cachy-asahi-dns/test_dns.py": {
+      "bytes": 11857,
+      "sha256": "f11a175e757e65959c2ed7902f041efb6be0becb772b34207cdd7b626ab50543"
+    },
+    "packages/tools/cachy-asahi-sysctl/.SRCINFO": {
+      "bytes": 882,
+      "sha256": "107e151422de3607cd3ec71679b84cad79733f626b8b321fedce29426cf32748"
+    },
+    "packages/tools/cachy-asahi-sysctl/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-sysctl/NOTICE": {
+      "bytes": 470,
+      "sha256": "5f75cdf074f7df1736f78f3e8e654196dedabff686ea32bbe92bf95c8863c50e"
+    },
+    "packages/tools/cachy-asahi-sysctl/PKGBUILD": {
+      "bytes": 1400,
+      "sha256": "ca35fc44379d22e3ec6b8b0d88455ab51427c48b11b0be9bb281deeda9c6e9e5"
+    },
+    "packages/tools/cachy-asahi-sysctl/README.md": {
+      "bytes": 5062,
+      "sha256": "26de39821ec4396f2419e4c59f1f5fe1419d87510ad25b75d68150a71c5ac78f"
+    },
+    "packages/tools/cachy-asahi-sysctl/cachy-asahi-sysctl": {
+      "bytes": 12547,
+      "sha256": "48f43f1ccd7b0c70205ddc0cf5b0da60766b25d1181fbc56447722fcff9a5dd0"
+    },
+    "packages/tools/cachy-asahi-sysctl/source-provenance.json": {
+      "bytes": 461,
+      "sha256": "c94acfffed76fc1e9379c47ee221aea24ddd642278acad7aa4d62420dda77556"
+    },
+    "packages/tools/cachy-asahi-sysctl/test_sysctl.py": {
+      "bytes": 12327,
+      "sha256": "e583bf9932981764adb4ade79b987ef5e2a4e7e395b732c8c948a4447b3d09c5"
+    },
+    "scripts/build/build.py": {
+      "bytes": 11299,
+      "sha256": "e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45"
+    },
+    "scripts/build/compare.py": {
+      "bytes": 5820,
+      "sha256": "4198864c264642b196a090a67b36185e5c194e38edc4cb928d08eb65b9f710cd"
+    },
+    "scripts/build/container-entry.sh": {
+      "bytes": 1787,
+      "sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24"
+    },
+    "scripts/checks/package_checks.py": {
+      "bytes": 17706,
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+    },
+    "scripts/ci/apps-cache-native/installed.py": {
+      "bytes": 4441,
+      "sha256": "10d210905f770854ddf9ebb72b46002d414787aa0a878a498ba4b21b663d9d8e"
+    },
+    "scripts/ci/dns-sysctl-native/README.md": {
+      "bytes": 4243,
+      "sha256": "b720fa24c3d607ca80f2b786f1b31c87201a9cbde9aa740be14c9578528d6288"
+    },
+    "scripts/ci/dns-sysctl-native/adapter.py": {
+      "bytes": 10248,
+      "sha256": "9aa1fbadced2fe26fa603831e5f0c0837d72a9d3ac191dadc4cdeb36703a2025"
+    },
+    "scripts/ci/dns-sysctl-native/contract.py": {
+      "bytes": 380,
+      "sha256": "575e55e9dcc7e006130ff549eddde8ce2a71396efb502baca6c93ee0c87eed00"
+    },
+    "scripts/ci/dns-sysctl-native/fixture_checks.py": {
+      "bytes": 2944,
+      "sha256": "d3f232e4573c3df5735d969d4cb6dd8c2cacd2236bf8312ce69091aae537bf0a"
+    },
+    "scripts/ci/dns-sysctl-native/infrastructure-pins.json": {
+      "bytes": 4196,
+      "sha256": "dbd98f2229f0bd18904fc9f11585ffbfd67c369b0c28bd7c552942cc2d1ad779"
+    },
+    "scripts/ci/dns-sysctl-native/input-policy.json": {
+      "bytes": 4244,
+      "sha256": "2f2b9c26d0c0873abad469f204bd4fd8940bff574bb0e32ba1ef14e2b98d8d46"
+    },
+    "scripts/ci/dns-sysctl-native/job.py": {
+      "bytes": 370,
+      "sha256": "6065fff6889eac2ce0123d4ea660147f51e204cce4d0b7a5d3a944d870b6c4c1"
+    },
+    "scripts/ci/dns-sysctl-native/lifecycle.py": {
+      "bytes": 4580,
+      "sha256": "a0d69757d76bbf1aed0e3dd44e207a6f7ce5dedef25c9571d198bea90ba97070"
+    },
+    "scripts/ci/dns-sysctl-native/original-pins.json": {
+      "bytes": 4196,
+      "sha256": "dbd98f2229f0bd18904fc9f11585ffbfd67c369b0c28bd7c552942cc2d1ad779"
+    },
+    "scripts/ci/dns-sysctl-native/preflight.py": {
+      "bytes": 1164,
+      "sha256": "d4edf7de6beed8b3a9f58928715706674f5f8edb80451a7d0d360c37d567447e"
+    },
+    "scripts/ci/dns-sysctl-native/prepare.py": {
+      "bytes": 5020,
+      "sha256": "3fbb6d809b193602b502d5f1bd7e22e5ee3cd7ed0bee63709667992766e247ce"
+    },
+    "scripts/ci/dns-sysctl-native/private_profile.py": {
+      "bytes": 12349,
+      "sha256": "d491920894b250aa4318a367a391546e0d3eac529c4db0a0089720ba048fe976"
+    },
+    "scripts/ci/dns-sysctl-native/profile_actor.py": {
+      "bytes": 11484,
+      "sha256": "430fff65679af7711f20ffd7f97716eb8957bb47660886d176a8dda5ab476e9a"
+    },
+    "scripts/ci/dns-sysctl-native/rules.py": {
+      "bytes": 7569,
+      "sha256": "ef084162a9799a7b8854c16c02b03100cdac0f7d8b483e208fde9bcb093a9fb8"
+    },
+    "scripts/ci/dns-sysctl-native/run.py": {
+      "bytes": 370,
+      "sha256": "e11ed6953cb566e0684a72dfc62415df537478f9a2dbf873529c06ca57693880"
+    },
+    "scripts/ci/dns-sysctl-native/selection.py": {
+      "bytes": 3881,
+      "sha256": "cfe1fc02fe0038fcb3edded598777be92d25f2a7362246b4f2ca134570762e88"
+    },
+    "scripts/ci/dns-sysctl-native/test_lane.py": {
+      "bytes": 12706,
+      "sha256": "f6e3208c385c61703a0ac81ebcac84f9d9da5d0ec1fd522087d3bdc1895e17ad"
+    },
+    "scripts/ci/dns-sysctl-native/workflow.yml.in": {
+      "bytes": 7145,
+      "sha256": "070017bf9ef2126214b1ff686ad8dc6daccfc3fb0930b28440e3aa076e5acfaa"
+    },
+    "scripts/ci/full-development-composition/run.py": {
+      "bytes": 29738,
+      "sha256": "f86af098fdb0fc9a57a8b78b351341395ce13f9977464783f6f8133626e85698"
+    },
+    "scripts/ci/full-root-upgrade/root_upgrade.py": {
+      "bytes": 23555,
+      "sha256": "fe1232ae6b510021910b4fb80016ac3b4668c6e4386cdae45e7b95196e400756"
+    },
+    "scripts/ci/maintained-desktop574-inputs.json": {
+      "bytes": 623664,
+      "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+    },
+    "scripts/ci/maintained_desktop574.py": {
+      "bytes": 22367,
+      "sha256": "27ba4be42cf2bd41675073e07cccc917ae033f9d68b07a33cfd7f074ac27b760"
+    },
+    "scripts/ci/old_four_seed.py": {
+      "bytes": 29048,
+      "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
+    },
+    "scripts/ci/test_maintained_desktop574.py": {
+      "bytes": 19082,
+      "sha256": "e5d7dc11d1a59cf37a273e9a7103c7e55b169335b17c599990946f4e677ca974"
+    },
+    "scripts/ci/tools-native/README.md": {
+      "bytes": 5983,
+      "sha256": "e5d734f6d57fc61a9ea681e9d64693dfee84e505eb623d720dc1375629157027"
+    },
+    "scripts/ci/tools-native/contract.py": {
+      "bytes": 9420,
+      "sha256": "9367c5159883de71c9ba64bbdab03817d1088d0dd09a6e79a76b1d8044d264a2"
+    },
+    "scripts/ci/tools-native/freeze.py": {
+      "bytes": 3655,
+      "sha256": "d82887caf6d44d824418b965846c6fa189fdebb3ae3c5ebb7a6ea87ef723c50b"
+    },
+    "scripts/ci/tools-native/highlighting_fixture.py": {
+      "bytes": 3073,
+      "sha256": "34cbe559741c4bcc62a616eb9986b33fc39e443c63a6bb109e981ba36c7a7ef9"
+    },
+    "scripts/ci/tools-native/job.py": {
+      "bytes": 13110,
+      "sha256": "67dc1b888974303e59aa5d68cc68cfd362c3d0fe730ef93585121d69ac6aab1c"
+    },
+    "scripts/ci/tools-native/lifecycle.py": {
+      "bytes": 8069,
+      "sha256": "1f12f8b544115ea089de9ee9e76e7f83b4f6a095754e63c65b8e760c1111784d"
+    },
+    "scripts/ci/tools-native/mirror_fixture.py": {
+      "bytes": 7656,
+      "sha256": "29cd3c761693f5c185fb38380ca1d22f57d50236bd052715a3884d8f8e10bb2a"
+    },
+    "scripts/ci/tools-native/product-spec.json": {
+      "bytes": 4760,
+      "sha256": "cc8f6f64a0cbdcaaeb94726ccc7d9bec902ea6d6896dbcbf8670f4fdf638b7c5"
+    },
+    "scripts/ci/tools-native/run.py": {
+      "bytes": 8992,
+      "sha256": "d13738494fd6cf66cb4f243a53eb2a33b91f74f0c692f42fe5464d48acd69f48"
+    },
+    "scripts/ci/tools-native/source-manifest.json": {
+      "bytes": 20759,
+      "sha256": "3126108db1a9f27ae3f6a3aa8a90acf89aa20cd2985977d5202b758e86823766"
+    },
+    "scripts/ci/tools-native/source-pins.json": {
+      "bytes": 7613,
+      "sha256": "4ecd96135cf73c6c813f49eb60730fc67af28f54bd679a2f884af128abeb00fa"
+    },
+    "scripts/ci/tools-native/test_native.py": {
+      "bytes": 15756,
+      "sha256": "98c7115efefa50b5554169b2da5aa65c4af5dd8674c23b53514101619307294f"
+    },
+    "scripts/ci/welcome-native/ci/caller.py": {
+      "bytes": 8363,
+      "sha256": "cf80f438eff180b73ae9676e2145b56ba6a358fd9a69bb219e0a7a6f53ff01df"
+    },
+    "scripts/ci/welcome-native/lifecycle.py": {
+      "bytes": 12278,
+      "sha256": "b87831eea710dbf18cb3ab3aa7bf49856d26bebbd3e684861dcab7dc1d337c74"
+    },
+    "scripts/ci/welcome-native/run.py": {
+      "bytes": 12766,
+      "sha256": "52112b49ea98b5aef131b8bcbcc188bcc59cc3a4827161091d4e86af14d2757c"
+    },
+    "scripts/ci/zsh-highlighting-native/terminal.py": {
+      "bytes": 9842,
+      "sha256": "b5804c82328e7f1a93b47f137c9f0c8cac6bea2c28994e1909d2f4a958535f25"
+    },
+    "scripts/virtual/common.py": {
+      "bytes": 84361,
+      "sha256": "aef2b4f09a91c4cfd66dd4504e69ef18396a94214c82ae0ec0a43c2716894a03"
+    }
+  },
+  "native_runtime": "NOT_RUN",
+  "schema_version": 1,
+  "scope": "TWO_DNS_SYSCTL_NATIVE_CANDIDATES_ONLY"
+}

@@ -1,0 +1,43 @@
+pkgbase = cachy-asahi-apps
+	pkgdesc = Offline signed ARM development application catalog and explicit readonly package plans
+	pkgver = 0.1.0
+	pkgrel = 9
+	url = https://github.com/Gabriel-Kahen/cachy-asahi
+	arch = any
+	license = MIT
+	depends = python>=3.11
+	depends = gnupg
+	depends = libarchive
+	depends = pacman
+	depends = cachy-asahi-repository-runtime=0.1.0-1
+	noextract = check-inputs.tar.gz
+	source = apps.py
+	source = cachy-asahi-apps
+	source = helper-pins.json
+	source = test_apps.py
+	source = check_source.py
+	source = README.md
+	source = source-provenance.json
+	source = NOTICE
+	source = LICENSE
+	source = prepare-check-inputs.py
+	source = check-inputs.json
+	source = check-inputs.tar.gz
+	source = inventory.py
+	source = test_inventory_paths.py
+	sha256sums = 8b575e25226463834a45b3f679ee4ddf5ef124976b008494a4944c0252cdf1f5
+	sha256sums = 4e9c078c2e05cc00cb6479d5fff23b92cbcabd8d6b3ff970f6181e6467921630
+	sha256sums = 33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a
+	sha256sums = 6d55ca76da60b7f1121d04cb3e16435f6db477b39e7ae8985bec01e7227d4987
+	sha256sums = ee0858d7a676a6b34fedef8012243e05632e1666c5b82620882225b797702944
+	sha256sums = d5e8493005bd6141f78a1a1ab80e5c0b9e9095a2c5fe90a2186d016ca316228d
+	sha256sums = 16d0a5c8a275fdf947a42a91d1c86d91dc64dfe9ab225879239b6dc5561be19e
+	sha256sums = 980846ac3919dd2078f11da7263938a4869187dbc2311210f9fee6cb4ab820a5
+	sha256sums = 51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7
+	sha256sums = 76bc1977cf402872816a430156541c0ccd41273e9080730d2ace7838ffa74214
+	sha256sums = 5cd338eb2ab9f4579825f3dd30de0f25d54a73ee1090737b0a21a506d12caad8
+	sha256sums = 6d38353fe33e0ce595df507ad9b928d80d3e1d6fe5d45d5418f927e9f50fe6d2
+	sha256sums = 8bb0e7374882d4b74f50cadf5a1d3d1524627e10714b53848b8b27eb6da30837
+	sha256sums = f5a9aba43a478b9323b7b69ed1402979844a43d983cf2e72b1668968a8726721
+
+pkgname = cachy-asahi-apps

@@ -1,0 +1,57 @@
+name: Apps16 source and disposable package checks
+on:
+  pull_request:
+    paths:
+      - 'packages/tools/cachy-asahi-apps16/**'
+      - 'packages/tools/cachy-asahi-repository-runtime/**'
+      - 'packages/tools/cachy-asahi-repository-client-v2/**'
+      - 'scripts/client/client.py'
+      - 'scripts/release/**'
+      - 'scripts/checks/package_checks.py'
+      - 'scripts/ci/apps16-package/**'
+      - '.github/workflows/apps16-package.yml'
+      - 'LICENSE'
+  push:
+    branches: [main, codex/virtual-integration]
+    tags: ['**']
+    paths:
+      - 'packages/tools/cachy-asahi-apps16/**'
+      - 'packages/tools/cachy-asahi-repository-runtime/**'
+      - 'packages/tools/cachy-asahi-repository-client-v2/**'
+      - 'scripts/client/client.py'
+      - 'scripts/release/**'
+      - 'scripts/checks/package_checks.py'
+      - 'scripts/ci/apps16-package/**'
+      - '.github/workflows/apps16-package.yml'
+      - 'LICENSE'
+permissions:
+  contents: read
+jobs:
+  package:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Check out the exact public Apps16 recipe42
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: a32501a76b79b65d175c8eefc2b4f741ec0388e5
+          path: .ci-fixtures/apps16-recipe
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install disposable test tools
+        run: sudo apt-get update && sudo apt-get install -y gnupg libarchive-tools pacman-package-manager makepkg
+      - name: Finite helper routing, ordered94 gate and source refusals
+        run: python3 -I -B -Werror::ResourceWarning scripts/ci/apps16-package/test_check.py --repository-source "$GITHUB_WORKSPACE" --expected-source "$GITHUB_WORKSPACE/.ci-fixtures/apps16-recipe"
+      - name: Exact sources, canonical helpers, makepkg links and complete94 tests
+        run: |
+          python3 -I -B scripts/ci/apps16-package/check.py --help
+          python3 -I -B -Werror::ResourceWarning scripts/ci/apps16-package/check.py --repository-source "$GITHUB_WORKSPACE" --expected-source "$GITHUB_WORKSPACE/.ci-fixtures/apps16-recipe" --output "$RUNNER_TEMP/apps16-package-check"

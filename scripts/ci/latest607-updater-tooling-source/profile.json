@@ -1,0 +1,50 @@
+{
+  "Root_acceptance": null,
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "added": [],
+  "changed": [
+    "README.md",
+    "implementation/profile.json",
+    "implementation/namespace_context.py",
+    "implementation/parent355.json",
+    "implementation/source_guard.py",
+    "source-manifest.json"
+  ],
+  "files": {
+    "after-source.json": {
+      "bytes": 64420,
+      "sha256": "9cb793c3faeed979818e19574a1cffb957446295f145f43532688e4bf4dceaf6"
+    },
+    "before-source.json": {
+      "bytes": 64420,
+      "sha256": "644c8b051c6313717b8dda9a5f0b07bd0586f97fbcdf7fc5e9e31932e5c3c4d5"
+    },
+    "context.json": {
+      "bytes": 231179,
+      "sha256": "08819b9bd6e37efeae6af2b4346895b3e536409a2d5255974c56e5f711afd438"
+    },
+    "fresh-source.json": {
+      "bytes": 230902,
+      "sha256": "497fe59f6615388c56366affa749d2f7cb25ccf6432f506770a718e1ed2c8850"
+    },
+    "namespace_context.py.in": {
+      "bytes": 6474,
+      "sha256": "71c85c0231c4b9a464c6606e18c46f4f6160079749d6e6ceac5309ae126969ad"
+    },
+    "readme.json": {
+      "bytes": 1119,
+      "sha256": "e1284180d2dcbaefaf06380f85bc79fa482ff3f4753655469c5031c3f6117414"
+    }
+  },
+  "held": 351,
+  "parent": 357,
+  "result": 357,
+  "sources": {
+    "after": "3b8ca255d90f0b4b0be18639a4b754da8c7aa969",
+    "before": "514446620daea7133de1b215202b41c895edef28",
+    "fresh": "b9976eea34eaed4b6e56af3be21d4d652fa971d6"
+  },
+  "status": "FIXED_PUBLIC357_TO_PUBLIC357_TOOLING1197_SOURCE_ONLY"
+}

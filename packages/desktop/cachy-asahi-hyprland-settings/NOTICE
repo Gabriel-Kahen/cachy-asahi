@@ -11,3 +11,12 @@ Hyprland v0.56.2's example and published Lua API were used as API references:
 https://github.com/hyprwm/Hyprland/tree/efb50993780079460b0cbed1363e2166a2de1d9f
 The upstream compositor is BSD-3-Clause. No compositor code is bundled here.
 Local source/package checks do not establish ARM builds or Asahi/M2 compatibility.
+
+The original cachy-asahi-screenshot helper is also covered by this package's MIT
+License. It invokes separately installed upstream tools; no grim/slurp code or
+binaries are bundled. CLI/license/dependency audit references:
+- grim v1.5.0, b7a99854e46945db9f50ba8d2417ac42321173d1 (MIT):
+  https://gitlab.freedesktop.org/emersion/grim/-/tree/b7a99854e46945db9f50ba8d2417ac42321173d1
+- slurp v1.5.0, fc921b603ee02afff42aba9eb073e82fab900048 (MIT):
+  https://github.com/emersion/slurp/tree/fc921b603ee02afff42aba9eb073e82fab900048
+Pinned API inspection is not a build, installation, capture or M2 test.

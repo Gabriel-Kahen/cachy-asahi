@@ -1,0 +1,58 @@
+{
+  "experiments": {
+    "ARM-C01": {
+      "attempt": 1,
+      "frame": {
+        "bytes": 2970705,
+        "sha256": "97b5c4c335370b42c62ddf458d5007616e84e8fd1970fa841b45e984469b1454"
+      },
+      "logs": {
+        "bytes": 15693521,
+        "sha256": "404cfa25a532d6c72516e0fd7eba402c6ca30d1619119a92c55935105a93279d"
+      },
+      "run": 38772803597,
+      "source": "aae3cb6e95742e0abbe5c2926bb962d319da9ce6"
+    },
+    "ARM-C02": {
+      "attempt": 1,
+      "frame": {
+        "bytes": 2780155,
+        "sha256": "3cd3b02af472fcb75268141fd02975dd8ac31e23a88a601bfca8ec217acca5d3"
+      },
+      "logs": {
+        "bytes": 15245350,
+        "sha256": "ad555b92751d184d6caf8d7ea2719e2acd12c69982a4a1b84b4d2871a1e37152"
+      },
+      "run": 38775950466,
+      "source": "cddba7afc8dc37466cb7a5df1e85d6834606adaf"
+    },
+    "ARM-C03": {
+      "attempt": 1,
+      "frame": {
+        "bytes": 4284488,
+        "sha256": "c23249d067dbf4e0a0094bd351b5be2c51b3860e6ef97de60f178d1ff55917ef"
+      },
+      "logs": {
+        "bytes": 18698628,
+        "sha256": "e6b1dbec7626c2ed7460cc1c9f7c3a4d466d3f7ee6a52e70b8c67d873be34896"
+      },
+      "run": 38783836486,
+      "source": "17d0a81a1abaf3b458a08131a5eae6dc3311e280"
+    },
+    "ARM-C04": {
+      "attempt": 1,
+      "frame": {
+        "bytes": 2554194,
+        "sha256": "33f67688c755965f44520ac1d97e8e4d86027bc92d021996a8307a08127b50ec"
+      },
+      "logs": {
+        "bytes": 14731151,
+        "sha256": "0fb841642eb4a93608b72505aaf2c45f061925ce505d21591feb367089353fff"
+      },
+      "run": 38784996204,
+      "source": "cbeea71a84ef08cb00f89767c73098380ec0185c"
+    }
+  },
+  "schema_version": 1,
+  "status": "EXACT_ORIGINAL_LOG_FRAME_INPUTS_NOT_NEW_RUNTIME"
+}

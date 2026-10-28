@@ -1,0 +1,19 @@
+{
+  "copied_packet_removed": true,
+  "eligible_native_authority": false,
+  "historical_maps_locks_unchanged": true,
+  "native_acceptance": "NOT RUN",
+  "proposed_collector_source_map_sha256": "50638283c25bc76ec66bd47988227e31022cbad3bac16354d9db8ca7081dccc3",
+  "purpose": "derived-local-source-validation-record",
+  "record_kind": "transcribed tool output; original filesystem log was not retained",
+  "schema_version": 1,
+  "skipped": 0,
+  "source_sha256": {
+    "common.py": "92ca41005397c6cccfd70497646c0de1f2ac88a697e0fcbec4165bf5326cfc08",
+    "test_common.py": "be76e12659b8e810da2fb394c1b1e5dc88dfeab76f1951e8d712c91f20ae7f3f"
+  },
+  "status": "PASS-local-tests",
+  "stdout_stderr_transcript": "----------------------------------------------------------------------\nRan 118 tests in 15.258s\n\nOK\n\nexact source stable 17 files; historical maps unchanged\n",
+  "test_command": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s <temporary exact copy>/scripts/port/repository-client-native -p test_*.py -q",
+  "tests": 118
+}

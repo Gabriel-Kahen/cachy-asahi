@@ -1,0 +1,136 @@
+name: native-arm-apps-cache-candidates
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact 40-character source SHA, equal to this workflow revision
+        type: string
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: native-arm-apps-cache-candidates
+  cancel-in-progress: false
+jobs:
+  native:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi'
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 100
+    defaults:
+      run:
+        shell: bash
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      SLICE: scripts/ci/apps-cache-native
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: ${{ inputs.source_sha }}
+          persist-credentials: false
+      - name: Prove the explicit source and workflow revision before secrets
+        id: proof
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' '9a88aa45a16a5a6056d719828a1bae8b04a3cb3b32a2768b5aecb8167ef2adda' "$SLICE/job.py" '70856125e4e282c3b27bc5d1efeac5df00ccdfa09147d6bbcfb75634437281c5' "$SLICE/source-manifest.json" | sha256sum --check
+          python3 -I -B "$SLICE/job.py" proof --source "$GITHUB_WORKSPACE" --proof "$RUNNER_TEMP/apps-cache-native-source-proof.json"
+      - name: Focused source and hosted entry controls
+        timeout-minutes: 3
+        run: |
+          set -euo pipefail
+          python3 -I -B scripts/ci/test_maintained_desktop574.py
+          python3 -B -m unittest discover -s "$SLICE" -p test_lane.py
+      - name: Seed the six exact retained inputs using existing secrets only
+        timeout-minutes: 2
+        env:
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01 }}
+          CACHY_OLD_FOUR_SCHEMA: '1'
+          CACHY_OLD_FOUR_SOURCE_EPOCH: '1791748800'
+          CACHY_OLD_FOUR_JBIGKIT_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_01 }}
+          CACHY_OLD_FOUR_JBIGKIT_02: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_02 }}
+          CACHY_OLD_FOUR_JBIGKIT_SIG_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_SIG_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_02: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_02 }}
+          CACHY_OLD_FOUR_LIBTIFF_03: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_03 }}
+          CACHY_OLD_FOUR_LIBTIFF_04: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_04 }}
+          CACHY_OLD_FOUR_LIBTIFF_05: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_05 }}
+          CACHY_OLD_FOUR_LIBTIFF_06: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_06 }}
+          CACHY_OLD_FOUR_LIBTIFF_07: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_07 }}
+          CACHY_OLD_FOUR_LIBTIFF_08: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_08 }}
+          CACHY_OLD_FOUR_LIBTIFF_09: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_09 }}
+          CACHY_OLD_FOUR_LIBTIFF_10: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_10 }}
+          CACHY_OLD_FOUR_LIBTIFF_11: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_11 }}
+          CACHY_OLD_FOUR_LIBTIFF_12: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_12 }}
+          CACHY_OLD_FOUR_LIBTIFF_13: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_13 }}
+          CACHY_OLD_FOUR_LIBTIFF_14: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_14 }}
+          CACHY_OLD_FOUR_LIBTIFF_15: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_15 }}
+          CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}
+        run: >-
+          python3 -I -B scripts/ci/maintained_desktop574.py seed
+          --inputs scripts/ci/maintained-desktop574-inputs.json
+          --output "$RUNNER_TEMP/desktop574"
+      - name: Checkout exact retained public input source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: 04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd
+          path: retained-public-inputs
+          persist-credentials: false
+      - name: Seed fourteen exact public ARM input files
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' 'a7857658af224984065e575f6ffed8308ea85027d46eace8bda146d9033e93b3' 'retained-public-inputs/seed.py' 'a388c8c8ba8e06cb92fd2be598b86e433c4e403b6e71a0f15b1eaec381bb7300' 'retained-public-inputs/index.json' | sha256sum --check
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC TMPDIR="$RUNNER_TEMP" python3 -I -B "$GITHUB_WORKSPACE/retained-public-inputs/seed.py" --cache "$RUNNER_TEMP/desktop574/context/deps"
+      - name: Reconstruct pinned inputs and run offline owned native574 transaction
+        timeout-minutes: 40
+        env:
+          JOB_TOKEN: ${{ steps.proof.outputs.job_token }}
+        run: >-
+          timeout --signal=TERM --kill-after=10s 2300s
+          python3 -I -B scripts/ci/maintained_desktop574.py build
+          --inputs scripts/ci/maintained-desktop574-inputs.json
+          --output "$RUNNER_TEMP/desktop574" --job-token "$JOB_TOKEN"
+      - name: Runtime pair, owned runtime dependency image, Apps pair and independent Cache pair
+        timeout-minutes: 43
+        env:
+          CONSUMER_TOKEN: ${{ steps.proof.outputs.consumer_token }}
+        run: |
+          set -euo pipefail
+          timeout --signal=TERM --kill-after=30s 2500s \
+            python3 -B "$SLICE/run.py" --source "$GITHUB_WORKSPACE" \
+              --base-dir "$RUNNER_TEMP/desktop574" --output "$RUNNER_TEMP/apps-cache-native-runtime" \
+              --consumer-token "$CONSUMER_TOKEN"
+      - name: Retire all owned consumers, dependency images and original producer before TEST authority
+        if: always() && steps.proof.outcome == 'success'
+        timeout-minutes: 6
+        run: >-
+          timeout --signal=TERM --kill-after=10s 330s
+          python3 -I -B "$SLICE/job.py" cleanup
+          --source "$GITHUB_WORKSPACE"
+          --proof "$RUNNER_TEMP/apps-cache-native-source-proof.json"
+          --base "$RUNNER_TEMP/desktop574" --runtime "$RUNNER_TEMP/apps-cache-native-runtime"
+          --output "$RUNNER_TEMP/apps-cache-native-ordered-cleanup.json"
+      - name: Retain the closed Apps Runtime and Cache candidate evidence set
+        if: always() && steps.proof.outcome == 'success'
+        timeout-minutes: 2
+        run: >-
+          python3 -I -B "$SLICE/job.py" retain
+          --source "$GITHUB_WORKSPACE" --proof "$RUNNER_TEMP/apps-cache-native-source-proof.json"
+          --base "$RUNNER_TEMP/desktop574" --runtime "$RUNNER_TEMP/apps-cache-native-runtime"
+          --cleanup "$RUNNER_TEMP/apps-cache-native-ordered-cleanup.json"
+          --output "$RUNNER_TEMP/apps-cache-native-public"
+      - name: Upload only the bounded public evidence directory
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        timeout-minutes: 2
+        with:
+          name: apps-cache-native-candidates-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 3
+          if-no-files-found: ignore
+          path: ${{ runner.temp }}/apps-cache-native-public/
+          include-hidden-files: true

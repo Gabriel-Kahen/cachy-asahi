@@ -1,0 +1,1832 @@
+{
+  "candidates": {
+    "bankstown": "5ad5c45ead516c32b0639af52a9f9a2772994973d2c3f7870d1e0c8795cdc352",
+    "triforce-lv2": "8c49f609fb86cc1d46d9971e4b9967f7dc5a60fa2185810eb85f368d5aad0e51"
+  },
+  "controller_inputs": {
+    "container.py": "f7b7eec42ddd5f7e6d2f537ad500f34c839f544b4cbefa4488e9f18727392a65",
+    "host.c": "8e17986c68bb7fdbee644026bbdce4045179e65a0d34d210622260654b9e72a7",
+    "inputs.json": "6248c5993f502863b4e9ff97f9610044f0ff72bb4adf1a3e9c54803840258afe",
+    "job.py": "58607b7addf96afacf066c63ca028f8d9cd2f433abd1e122451f634cdc194d4f",
+    "run.py": "94143717f44a9a2311bfd2ca0d910badb9b80c6b7e03146742b3db9c1a35d625",
+    "support.py": "cc5c8b373294cd5971908f8283c93e6f63866098301c12546a7530a89a4bbb6c",
+    "test_container.py": "45463fd49f4f759122098ee2a1d09c65bd822f2dbecf479663965e95c9da882a",
+    "test_job.py": "431b2b3f488f1cc6b5df3975431d13a9eadc8cde56da9f3d8323a378c0765194",
+    "test_run.py": "c1306cc7c59d45f562b8f094b3334088f62e20da9b8b26e15094ce3d76d58433"
+  },
+  "elf": {
+    "bankstown": {
+      "class": "ELF64",
+      "hardware_status": "NOT RUN",
+      "load_segments": 4,
+      "machine": "AArch64",
+      "needed": [
+        "ld-linux-aarch64.so.1",
+        "libc.so.6",
+        "libgcc_s.so.1",
+        "libm.so.6"
+      ],
+      "path_tags": [],
+      "sha256": "5ad5c45ead516c32b0639af52a9f9a2772994973d2c3f7870d1e0c8795cdc352",
+      "structural_16k": "PASS",
+      "version_requirements": [
+        "GCC_3.0",
+        "GCC_3.3",
+        "GCC_4.2.0",
+        "GLIBC_2.17",
+        "GLIBC_2.18",
+        "GLIBC_2.25",
+        "GLIBC_2.28",
+        "GLIBC_2.30",
+        "GLIBC_2.33",
+        "GLIBC_2.34"
+      ]
+    },
+    "host": {
+      "class": "ELF64",
+      "hardware_status": "NOT RUN",
+      "load_segments": 2,
+      "machine": "AArch64",
+      "needed": [
+        "ld-linux-aarch64.so.1",
+        "libc.so.6",
+        "liblilv-0.so.0",
+        "libm.so.6"
+      ],
+      "path_tags": [],
+      "sha256": "5c03fe21379ed34da154afebd0dbe17db873b22fce48c8a550ac67870d76202b",
+      "structural_16k": "PASS",
+      "version_requirements": [
+        "GLIBC_2.17",
+        "GLIBC_2.33",
+        "GLIBC_2.34"
+      ]
+    },
+    "triforce-lv2": {
+      "class": "ELF64",
+      "hardware_status": "NOT RUN",
+      "load_segments": 4,
+      "machine": "AArch64",
+      "needed": [
+        "ld-linux-aarch64.so.1",
+        "libc.so.6",
+        "libgcc_s.so.1",
+        "libm.so.6"
+      ],
+      "path_tags": [],
+      "sha256": "8c49f609fb86cc1d46d9971e4b9967f7dc5a60fa2185810eb85f368d5aad0e51",
+      "structural_16k": "PASS",
+      "version_requirements": [
+        "GCC_3.0",
+        "GCC_3.3",
+        "GCC_4.2.0",
+        "GLIBC_2.17",
+        "GLIBC_2.18",
+        "GLIBC_2.25",
+        "GLIBC_2.28",
+        "GLIBC_2.30",
+        "GLIBC_2.33",
+        "GLIBC_2.34",
+        "GLIBC_2.35"
+      ]
+    }
+  },
+  "failure_class": null,
+  "headers": {
+    "lilv": "68c53a8023206291dafb22d6e099d554fa8b1b047f3f4ab601fd90f0b26990af",
+    "lv2_core": "802568ed0e3882a27172e4503cfee74936bc3f8252467b26d32a7d2dbb372689",
+    "lv2_urid": "62f7424bc0a4dc2716291ec9d305771bce2ce26edf765d57de9eedba48db2f78"
+  },
+  "host": {
+    "compile_flags": [
+      "-std=c11",
+      "-O2",
+      "-march=armv8-a",
+      "-mtune=generic",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-I/usr/include/lilv-0",
+      "-I/usr/include/sratom-0",
+      "-I/usr/include/sord-0",
+      "-I/usr/include/serd-0",
+      "-I/usr/include/zix-0",
+      "-llilv-0",
+      "-ldl",
+      "-lm"
+    ],
+    "compiler_sha256": "741ced8152a820a28ab88603dd1ceb2343245728ac784839e4b5390f2411890e",
+    "lilv_pc_sha256": "2b3127e6900a3f4e703c3e1291ddada856b3425f6b9023c10bc07754f76848a1",
+    "pkg_config_sha256": "1ec51aabdb5a398206b9f796944e197409f05fce0d749c7c41c0213256022e4a",
+    "readelf_sha256": "4bd135916c3cebba703b8d311e04f977e03d3cd998f57ed2d4c590f21166dbb7",
+    "sha256": "5c03fe21379ed34da154afebd0dbe17db873b22fce48c8a550ac67870d76202b",
+    "source_sha256": "8e17986c68bb7fdbee644026bbdce4045179e65a0d34d210622260654b9e72a7"
+  },
+  "inventory": {
+    "after_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+    "before_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+    "count": 574,
+    "unchanged": true
+  },
+  "loader": {
+    "bankstown": {
+      "descriptor_count": 1,
+      "loaded_libraries": [
+        {
+          "identity": "candidate/bankstown.lv2/bankstown.so",
+          "sha256": "5ad5c45ead516c32b0639af52a9f9a2772994973d2c3f7870d1e0c8795cdc352"
+        },
+        {
+          "identity": "system/ld-linux-aarch64.so.1",
+          "sha256": "b1f2738bdb51e6419d7062f96c8a44bd68853698dc5ac624fa6ca9f9b03d456d"
+        },
+        {
+          "identity": "system/libc.so.6",
+          "sha256": "6ab264fb4e8df9942b0fb75b48fcd5c30b2f081d8dfaa6c25d7be1d3fce5b2ab"
+        },
+        {
+          "identity": "system/libgcc_s.so.1",
+          "sha256": "ac598673a4bf67c0295b6609e46b1fafd0d4adf3f80a513d61ac49ecff772e48"
+        },
+        {
+          "identity": "system/liblilv-0.so.0.28.0",
+          "sha256": "36ca09aca4aff7c5dcd20653b3f06cb50f4754b7640ebcfacccf39c8f677986b"
+        },
+        {
+          "identity": "system/libm.so.6",
+          "sha256": "71ed8de709c40acd4fd0177258fc71251a5acdb1d075122409ad42529d6c7a4e"
+        },
+        {
+          "identity": "system/libserd-0.so.0.32.10",
+          "sha256": "dbb1c593e95096a623032dba1e982e2a6036282b91bfb541941d5ac612a7dbd5"
+        },
+        {
+          "identity": "system/libsord-0.so.0.16.22",
+          "sha256": "883810499cb52f6402f200e120f84f6682797870760f334bda13e27717f1c8d3"
+        },
+        {
+          "identity": "system/libsratom-0.so.0.6.22",
+          "sha256": "d119fc162d531f996e35413ab187fa06e18108a767c5d1ae9808b98520471ede"
+        },
+        {
+          "identity": "system/libzix-0.so.0.8.2",
+          "sha256": "b8a32e1b80d18ebb3b44297564d2f69f8728abef82ab08df200e2fa2d351be67"
+        },
+        {
+          "identity": "virtual/linux-vdso.so.1",
+          "sha256": null
+        }
+      ],
+      "selected_uris": [
+        "https://chadmed.au/bankstown"
+      ],
+      "status": "PASS"
+    },
+    "triforce-lv2": {
+      "descriptor_count": 1,
+      "loaded_libraries": [
+        {
+          "identity": "candidate/triforce.lv2/triforce.so",
+          "sha256": "8c49f609fb86cc1d46d9971e4b9967f7dc5a60fa2185810eb85f368d5aad0e51"
+        },
+        {
+          "identity": "system/ld-linux-aarch64.so.1",
+          "sha256": "b1f2738bdb51e6419d7062f96c8a44bd68853698dc5ac624fa6ca9f9b03d456d"
+        },
+        {
+          "identity": "system/libc.so.6",
+          "sha256": "6ab264fb4e8df9942b0fb75b48fcd5c30b2f081d8dfaa6c25d7be1d3fce5b2ab"
+        },
+        {
+          "identity": "system/libgcc_s.so.1",
+          "sha256": "ac598673a4bf67c0295b6609e46b1fafd0d4adf3f80a513d61ac49ecff772e48"
+        },
+        {
+          "identity": "system/liblilv-0.so.0.28.0",
+          "sha256": "36ca09aca4aff7c5dcd20653b3f06cb50f4754b7640ebcfacccf39c8f677986b"
+        },
+        {
+          "identity": "system/libm.so.6",
+          "sha256": "71ed8de709c40acd4fd0177258fc71251a5acdb1d075122409ad42529d6c7a4e"
+        },
+        {
+          "identity": "system/libserd-0.so.0.32.10",
+          "sha256": "dbb1c593e95096a623032dba1e982e2a6036282b91bfb541941d5ac612a7dbd5"
+        },
+        {
+          "identity": "system/libsord-0.so.0.16.22",
+          "sha256": "883810499cb52f6402f200e120f84f6682797870760f334bda13e27717f1c8d3"
+        },
+        {
+          "identity": "system/libsratom-0.so.0.6.22",
+          "sha256": "d119fc162d531f996e35413ab187fa06e18108a767c5d1ae9808b98520471ede"
+        },
+        {
+          "identity": "system/libzix-0.so.0.8.2",
+          "sha256": "b8a32e1b80d18ebb3b44297564d2f69f8728abef82ab08df200e2fa2d351be67"
+        },
+        {
+          "identity": "virtual/linux-vdso.so.1",
+          "sha256": null
+        }
+      ],
+      "selected_uris": [
+        "https://chadmed.au/triforce"
+      ],
+      "status": "PASS"
+    }
+  },
+  "processing": {
+    "audio_devices": "NOT USED",
+    "case_count": 60,
+    "cases": [
+      {
+        "fixture": "zero",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": 0,
+        "pair_role": "repeat",
+        "peak": 0,
+        "profile": "j413",
+        "rate_hz": 44100,
+        "rms": 0,
+        "sample_fnv1a64": [
+          "1a0564b2e8de2325",
+          "1a0564b2e8de2325"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "bypass",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": 0,
+        "pair_role": "repeat",
+        "peak": 0.05494692549109459,
+        "profile": "j413",
+        "rate_hz": 44100,
+        "rms": 0.020837574555922167,
+        "sample_fnv1a64": [
+          "5d6135a69baf36bf",
+          "5d6135a69baf36bf"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "amount-zero",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": 0,
+        "pair_role": "repeat",
+        "peak": 0.05494692549109459,
+        "profile": "j413",
+        "rate_hz": 44100,
+        "rms": 0.020837574555922167,
+        "sample_fnv1a64": [
+          "5d6135a69baf36bf",
+          "5d6135a69baf36bf"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "configured",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": 0,
+        "pair_role": "repeat",
+        "peak": 0.07143764197826385,
+        "profile": "j413",
+        "rate_hz": 44100,
+        "rms": 0.027950100134045596,
+        "sample_fnv1a64": [
+          "187467aeff94f3bf",
+          "187467aeff94f3bf"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "channel-exchange",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": null,
+        "pair_role": "channel-exchange",
+        "peak": 0.07143764197826385,
+        "profile": "j413",
+        "rate_hz": 44100,
+        "rms": 0.01966343367922752,
+        "sample_fnv1a64": [
+          "7b1c24ef4d47b33c",
+          "4dcb4ced923db33c"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "sign-reversal",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": null,
+        "pair_role": "sign-reversal",
+        "peak": 0.07143764197826385,
+        "profile": "j413",
+        "rate_hz": 44100,
+        "rms": 0.027950100134045596,
+        "sample_fnv1a64": [
+          "187467aeff94f3bf",
+          "bba2659feacbe6bf"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "wet-amount-scaling",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 1.1175870895385742e-08,
+        "max_repeat_error": null,
+        "pair_role": "wet-amount-scaling",
+        "peak": 0.12002351135015488,
+        "profile": "j413",
+        "rate_hz": 44100,
+        "rms": 0.05973619484475882,
+        "sample_fnv1a64": [
+          "1cbcad3a8a96d98d",
+          "d74527d3711feb4f"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 14.618109509198415,
+        "wet_rms": [
+          0.029567053471447675,
+          0.02965539952970666
+        ]
+      },
+      {
+        "fixture": "zero",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": 0,
+        "pair_role": "repeat",
+        "peak": 0,
+        "profile": "j413",
+        "rate_hz": 48000,
+        "rms": 0,
+        "sample_fnv1a64": [
+          "1a0564b2e8de2325",
+          "1a0564b2e8de2325"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "bypass",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": 0,
+        "pair_role": "repeat",
+        "peak": 0.05497313290834427,
+        "profile": "j413",
+        "rate_hz": 48000,
+        "rms": 0.020853885470146268,
+        "sample_fnv1a64": [
+          "84cea00abb901251",
+          "84cea00abb901251"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "amount-zero",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": 0,
+        "pair_role": "repeat",
+        "peak": 0.05497313290834427,
+        "profile": "j413",
+        "rate_hz": 48000,
+        "rms": 0.020853885470146268,
+        "sample_fnv1a64": [
+          "84cea00abb901251",
+          "84cea00abb901251"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "configured",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": 0,
+        "pair_role": "repeat",
+        "peak": 0.07233454287052155,
+        "profile": "j413",
+        "rate_hz": 48000,
+        "rms": 0.02801893734750917,
+        "sample_fnv1a64": [
+          "c38b49538c1630ad",
+          "c38b49538c1630ad"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "channel-exchange",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": null,
+        "pair_role": "channel-exchange",
+        "peak": 0.07233454287052155,
+        "profile": "j413",
+        "rate_hz": 48000,
+        "rms": 0.01978089059875469,
+        "sample_fnv1a64": [
+          "dc89e6356c048a03",
+          "63da4886c5d08a03"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "sign-reversal",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": null,
+        "pair_role": "sign-reversal",
+        "peak": 0.07233454287052155,
+        "profile": "j413",
+        "rate_hz": 48000,
+        "rms": 0.02801893734750917,
+        "sample_fnv1a64": [
+          "c38b49538c1630ad",
+          "4f380329162031ad"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "wet-amount-scaling",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 1.1175870895385742e-08,
+        "max_repeat_error": null,
+        "pair_role": "wet-amount-scaling",
+        "peak": 0.12002931535243988,
+        "profile": "j413",
+        "rate_hz": 48000,
+        "rms": 0.05984645484879921,
+        "sample_fnv1a64": [
+          "42284922955a05a0",
+          "61cfd362b2296fec"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 14.646956206799093,
+        "wet_rms": [
+          0.029601559766790415,
+          0.029612538924479213
+        ]
+      },
+      {
+        "fixture": "zero",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": 0,
+        "pair_role": "repeat",
+        "peak": 0,
+        "profile": "j413",
+        "rate_hz": 88200,
+        "rms": 0,
+        "sample_fnv1a64": [
+          "1a0564b2e8de2325",
+          "1a0564b2e8de2325"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "bypass",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": 0,
+        "pair_role": "repeat",
+        "peak": 0.05480079725384712,
+        "profile": "j413",
+        "rate_hz": 88200,
+        "rms": 0.020812858760769593,
+        "sample_fnv1a64": [
+          "c3379ceaa3534aba",
+          "c3379ceaa3534aba"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "amount-zero",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": 0,
+        "pair_role": "repeat",
+        "peak": 0.05480079725384712,
+        "profile": "j413",
+        "rate_hz": 88200,
+        "rms": 0.020812858760769593,
+        "sample_fnv1a64": [
+          "c3379ceaa3534aba",
+          "c3379ceaa3534aba"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "configured",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": 0,
+        "pair_role": "repeat",
+        "peak": 0.07285961508750916,
+        "profile": "j413",
+        "rate_hz": 88200,
+        "rms": 0.027949077933139513,
+        "sample_fnv1a64": [
+          "c729bf8f76933434",
+          "c729bf8f76933434"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "channel-exchange",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": null,
+        "pair_role": "channel-exchange",
+        "peak": 0.07192473113536835,
+        "profile": "j413",
+        "rate_hz": 88200,
+        "rms": 0.019789616721695165,
+        "sample_fnv1a64": [
+          "d7ff64e04d7aaf67",
+          "4b238ae790eeaf67"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "sign-reversal",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": null,
+        "pair_role": "sign-reversal",
+        "peak": 0.07285961508750916,
+        "profile": "j413",
+        "rate_hz": 88200,
+        "rms": 0.027949077933139513,
+        "sample_fnv1a64": [
+          "c729bf8f76933434",
+          "654899aa6dcf8034"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "wet-amount-scaling",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 1.1175870895385742e-08,
+        "max_repeat_error": null,
+        "pair_role": "wet-amount-scaling",
+        "peak": 0.1200135126709938,
+        "profile": "j413",
+        "rate_hz": 88200,
+        "rms": 0.05974743689422802,
+        "sample_fnv1a64": [
+          "58a03c028f935ec4",
+          "d09ba868720762ac"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 14.550423144060256,
+        "wet_rms": [
+          0.02925059161415395,
+          0.02927039397040444
+        ]
+      },
+      {
+        "fixture": "zero",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": 0,
+        "pair_role": "repeat",
+        "peak": 0,
+        "profile": "j413",
+        "rate_hz": 96000,
+        "rms": 0,
+        "sample_fnv1a64": [
+          "1a0564b2e8de2325",
+          "1a0564b2e8de2325"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "bypass",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": 0,
+        "pair_role": "repeat",
+        "peak": 0.054665714502334595,
+        "profile": "j413",
+        "rate_hz": 96000,
+        "rms": 0.021502024982206942,
+        "sample_fnv1a64": [
+          "f4b8a5ae65957ab2",
+          "f4b8a5ae65957ab2"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "amount-zero",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": 0,
+        "pair_role": "repeat",
+        "peak": 0.054665714502334595,
+        "profile": "j413",
+        "rate_hz": 96000,
+        "rms": 0.021502024982206942,
+        "sample_fnv1a64": [
+          "f4b8a5ae65957ab2",
+          "f4b8a5ae65957ab2"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "configured",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": 0,
+        "pair_role": "repeat",
+        "peak": 0.07325442135334015,
+        "profile": "j413",
+        "rate_hz": 96000,
+        "rms": 0.028827843067340334,
+        "sample_fnv1a64": [
+          "8b3b2e3ee48df6bb",
+          "8b3b2e3ee48df6bb"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "channel-exchange",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": null,
+        "pair_role": "channel-exchange",
+        "peak": 0.07251475006341934,
+        "profile": "j413",
+        "rate_hz": 96000,
+        "rms": 0.020331755820769574,
+        "sample_fnv1a64": [
+          "83bc4c1da9c5a1fa",
+          "e9b3fa654947a1fa"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "sign-reversal",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": null,
+        "pair_role": "sign-reversal",
+        "peak": 0.07325442135334015,
+        "profile": "j413",
+        "rate_hz": 96000,
+        "rms": 0.028827843067340334,
+        "sample_fnv1a64": [
+          "8b3b2e3ee48df6bb",
+          "0029314c2400babb"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "wet-amount-scaling",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 1.1175870895385742e-08,
+        "max_repeat_error": null,
+        "pair_role": "wet-amount-scaling",
+        "peak": 0.12000283598899841,
+        "profile": "j413",
+        "rate_hz": 96000,
+        "rms": 0.05962213965625732,
+        "sample_fnv1a64": [
+          "0723e5a87b036133",
+          "2395870a3bf3b9a9"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 14.522204514887491,
+        "wet_rms": [
+          0.02906523153309756,
+          0.029172356144381177
+        ]
+      },
+      {
+        "fixture": "zero",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": 0,
+        "pair_role": "repeat",
+        "peak": 0,
+        "profile": "j415",
+        "rate_hz": 44100,
+        "rms": 0,
+        "sample_fnv1a64": [
+          "1a0564b2e8de2325",
+          "1a0564b2e8de2325"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "bypass",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": 0,
+        "pair_role": "repeat",
+        "peak": 0.05494692549109459,
+        "profile": "j415",
+        "rate_hz": 44100,
+        "rms": 0.020837574555922167,
+        "sample_fnv1a64": [
+          "5d6135a69baf36bf",
+          "5d6135a69baf36bf"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "amount-zero",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": 0,
+        "pair_role": "repeat",
+        "peak": 0.05494692549109459,
+        "profile": "j415",
+        "rate_hz": 44100,
+        "rms": 0.020837574555922167,
+        "sample_fnv1a64": [
+          "5d6135a69baf36bf",
+          "5d6135a69baf36bf"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "configured",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": 0,
+        "pair_role": "repeat",
+        "peak": 0.12362272292375565,
+        "profile": "j415",
+        "rate_hz": 44100,
+        "rms": 0.04904012863547057,
+        "sample_fnv1a64": [
+          "e1e50b46d69e6308",
+          "e1e50b46d69e6308"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "channel-exchange",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": null,
+        "pair_role": "channel-exchange",
+        "peak": 0.12362272292375565,
+        "profile": "j415",
+        "rate_hz": 44100,
+        "rms": 0.03450758564369547,
+        "sample_fnv1a64": [
+          "7a8649231487b2b3",
+          "2e07f8c6f233b2b3"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "sign-reversal",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": null,
+        "pair_role": "sign-reversal",
+        "peak": 0.12362272292375565,
+        "profile": "j415",
+        "rate_hz": 44100,
+        "rms": 0.04904012863547057,
+        "sample_fnv1a64": [
+          "e1e50b46d69e6308",
+          "cd3a13530c01a008"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "wet-amount-scaling",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 2.2351741790771484e-08,
+        "max_repeat_error": null,
+        "pair_role": "wet-amount-scaling",
+        "peak": 0.24388498067855835,
+        "profile": "j415",
+        "rate_hz": 44100,
+        "rms": 0.12113094614144367,
+        "sample_fnv1a64": [
+          "7912785ffd4ec17c",
+          "81945623a7c6ebb6"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 66.53305200318741,
+        "wet_rms": [
+          0.06337336991534745,
+          0.06336478850255804
+        ]
+      },
+      {
+        "fixture": "zero",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": 0,
+        "pair_role": "repeat",
+        "peak": 0,
+        "profile": "j415",
+        "rate_hz": 48000,
+        "rms": 0,
+        "sample_fnv1a64": [
+          "1a0564b2e8de2325",
+          "1a0564b2e8de2325"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "bypass",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": 0,
+        "pair_role": "repeat",
+        "peak": 0.05497313290834427,
+        "profile": "j415",
+        "rate_hz": 48000,
+        "rms": 0.020853885470146268,
+        "sample_fnv1a64": [
+          "84cea00abb901251",
+          "84cea00abb901251"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "amount-zero",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": 0,
+        "pair_role": "repeat",
+        "peak": 0.05497313290834427,
+        "profile": "j415",
+        "rate_hz": 48000,
+        "rms": 0.020853885470146268,
+        "sample_fnv1a64": [
+          "84cea00abb901251",
+          "84cea00abb901251"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "configured",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": 0,
+        "pair_role": "repeat",
+        "peak": 0.12409507483243942,
+        "profile": "j415",
+        "rate_hz": 48000,
+        "rms": 0.04908556903666536,
+        "sample_fnv1a64": [
+          "2a2df721e47eb1a4",
+          "2a2df721e47eb1a4"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "channel-exchange",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": null,
+        "pair_role": "channel-exchange",
+        "peak": 0.1233864575624466,
+        "profile": "j415",
+        "rate_hz": 48000,
+        "rms": 0.034645965957871304,
+        "sample_fnv1a64": [
+          "c33037ca37d6c748",
+          "e4303b599284c748"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "sign-reversal",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": null,
+        "pair_role": "sign-reversal",
+        "peak": 0.12409507483243942,
+        "profile": "j415",
+        "rate_hz": 48000,
+        "rms": 0.04908556903666536,
+        "sample_fnv1a64": [
+          "2a2df721e47eb1a4",
+          "957725100b9051a4"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "wet-amount-scaling",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 2.2351741790771484e-08,
+        "max_repeat_error": null,
+        "pair_role": "wet-amount-scaling",
+        "peak": 0.24389654397964478,
+        "profile": "j415",
+        "rate_hz": 48000,
+        "rms": 0.12112972394698339,
+        "sample_fnv1a64": [
+          "a9c451d3c3cec7ec",
+          "053d3e0699ed9e98"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 66.56560442217366,
+        "wet_rms": [
+          0.06323105325452542,
+          0.06343157375660731
+        ]
+      },
+      {
+        "fixture": "zero",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": 0,
+        "pair_role": "repeat",
+        "peak": 0,
+        "profile": "j415",
+        "rate_hz": 88200,
+        "rms": 0,
+        "sample_fnv1a64": [
+          "1a0564b2e8de2325",
+          "1a0564b2e8de2325"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "bypass",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": 0,
+        "pair_role": "repeat",
+        "peak": 0.05480079725384712,
+        "profile": "j415",
+        "rate_hz": 88200,
+        "rms": 0.020812858760769593,
+        "sample_fnv1a64": [
+          "c3379ceaa3534aba",
+          "c3379ceaa3534aba"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "amount-zero",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": 0,
+        "pair_role": "repeat",
+        "peak": 0.05480079725384712,
+        "profile": "j415",
+        "rate_hz": 88200,
+        "rms": 0.020812858760769593,
+        "sample_fnv1a64": [
+          "c3379ceaa3534aba",
+          "c3379ceaa3534aba"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "configured",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": 0,
+        "pair_role": "repeat",
+        "peak": 0.12481153756380081,
+        "profile": "j415",
+        "rate_hz": 88200,
+        "rms": 0.04879705556854211,
+        "sample_fnv1a64": [
+          "c244d4b2769aaf87",
+          "c244d4b2769aaf87"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "channel-exchange",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": null,
+        "pair_role": "channel-exchange",
+        "peak": 0.12461143732070923,
+        "profile": "j415",
+        "rate_hz": 88200,
+        "rms": 0.034548519210995936,
+        "sample_fnv1a64": [
+          "4085bcc385a9c733",
+          "3d6ec9982855c733"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "sign-reversal",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": null,
+        "pair_role": "sign-reversal",
+        "peak": 0.12481153756380081,
+        "profile": "j415",
+        "rate_hz": 88200,
+        "rms": 0.04879705556854211,
+        "sample_fnv1a64": [
+          "c244d4b2769aaf87",
+          "fa9bb6cfc5436787"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "wet-amount-scaling",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 2.2351741790771484e-08,
+        "max_repeat_error": null,
+        "pair_role": "wet-amount-scaling",
+        "peak": 0.24389052391052246,
+        "profile": "j415",
+        "rate_hz": 88200,
+        "rms": 0.12058154506027101,
+        "sample_fnv1a64": [
+          "20e7e1d62e0cbe93",
+          "207e0078ad2e8937"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 66.07977125895685,
+        "wet_rms": [
+          0.06256475356375416,
+          0.06293638106477636
+        ]
+      },
+      {
+        "fixture": "zero",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": 0,
+        "pair_role": "repeat",
+        "peak": 0,
+        "profile": "j415",
+        "rate_hz": 96000,
+        "rms": 0,
+        "sample_fnv1a64": [
+          "1a0564b2e8de2325",
+          "1a0564b2e8de2325"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "bypass",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": 0,
+        "pair_role": "repeat",
+        "peak": 0.054665714502334595,
+        "profile": "j415",
+        "rate_hz": 96000,
+        "rms": 0.021502024982206942,
+        "sample_fnv1a64": [
+          "f4b8a5ae65957ab2",
+          "f4b8a5ae65957ab2"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "amount-zero",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": 0,
+        "pair_role": "repeat",
+        "peak": 0.054665714502334595,
+        "profile": "j415",
+        "rate_hz": 96000,
+        "rms": 0.021502024982206942,
+        "sample_fnv1a64": [
+          "f4b8a5ae65957ab2",
+          "f4b8a5ae65957ab2"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "configured",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": 0,
+        "pair_role": "repeat",
+        "peak": 0.12653225660324097,
+        "profile": "j415",
+        "rate_hz": 96000,
+        "rms": 0.050456432892314135,
+        "sample_fnv1a64": [
+          "9aca3f18be946442",
+          "9aca3f18be946442"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "channel-exchange",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": null,
+        "pair_role": "channel-exchange",
+        "peak": 0.12558194994926453,
+        "profile": "j415",
+        "rate_hz": 96000,
+        "rms": 0.03559184233372443,
+        "sample_fnv1a64": [
+          "86abbc789937b37d",
+          "2cc848b7f327b37d"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "sign-reversal",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": null,
+        "pair_role": "sign-reversal",
+        "peak": 0.12653225660324097,
+        "profile": "j415",
+        "rate_hz": 96000,
+        "rms": 0.050456432892314135,
+        "sample_fnv1a64": [
+          "9aca3f18be946442",
+          "0c841c80760f4c42"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "wet-amount-scaling",
+        "frames_per_instance": 24576,
+        "latency_frames": null,
+        "max_oracle_error": 2.2351741790771484e-08,
+        "max_repeat_error": null,
+        "pair_role": "wet-amount-scaling",
+        "peak": 0.24381187558174133,
+        "profile": "j415",
+        "rate_hz": 96000,
+        "rms": 0.12052907223031696,
+        "sample_fnv1a64": [
+          "315cabe23e43887f",
+          "9310709d06787a5a"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/bankstown",
+        "wet_energy": 65.99276417252332,
+        "wet_rms": [
+          0.06263110071899035,
+          0.06271816206063793
+        ]
+      },
+      {
+        "fixture": "zero",
+        "frames_per_instance": 32768,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": 0,
+        "pair_role": "repeat",
+        "peak": 0,
+        "profile": "asahi-microphone",
+        "rate_hz": 48000,
+        "rms": 0,
+        "sample_fnv1a64": [
+          "c74b47c8c74a2325",
+          "c74b47c8c74a2325"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/triforce",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "common-mode-dc",
+        "frames_per_instance": 32768,
+        "latency_frames": null,
+        "max_oracle_error": 3.725290298461914e-09,
+        "max_repeat_error": 0,
+        "pair_role": "repeat",
+        "peak": 0.0625,
+        "profile": "asahi-microphone",
+        "rate_hz": 48000,
+        "rms": 0.06249999723513605,
+        "sample_fnv1a64": [
+          "749ce61006dc9f25",
+          "749ce61006dc9f25"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/triforce",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "common-mode-quarter-wave",
+        "frames_per_instance": 32768,
+        "latency_frames": null,
+        "max_oracle_error": 3.725290298461914e-09,
+        "max_repeat_error": 0,
+        "pair_role": "repeat",
+        "peak": 0.0625,
+        "profile": "asahi-microphone",
+        "rate_hz": 48000,
+        "rms": 0.044194171869105174,
+        "sample_fnv1a64": [
+          "41473102ef4a0d25",
+          "41473102ef4a0d25"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/triforce",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      },
+      {
+        "fixture": "unequal",
+        "frames_per_instance": 32768,
+        "latency_frames": null,
+        "max_oracle_error": 0,
+        "max_repeat_error": 0,
+        "pair_role": "repeat",
+        "peak": 0.039558738470077515,
+        "profile": "asahi-microphone",
+        "rate_hz": 48000,
+        "rms": 0.0077899691111075415,
+        "sample_fnv1a64": [
+          "125e6c91602f7d19",
+          "125e6c91602f7d19"
+        ],
+        "status": "PASS",
+        "uri": "https://chadmed.au/triforce",
+        "wet_energy": 0,
+        "wet_rms": [
+          0,
+          0
+        ]
+      }
+    ],
+    "control_binding_count": 16,
+    "failure_class": null,
+    "hardware": "NOT RUN",
+    "instance_count": 120,
+    "mode": "processing",
+    "optimization_acceptance": "NOT RUN",
+    "plugins": [
+      {
+        "audio_inputs": [
+          "in_l",
+          "in_r"
+        ],
+        "audio_outputs": [
+          "out_l",
+          "out_r"
+        ],
+        "controls": [
+          {
+            "default": 0,
+            "enum_values": [],
+            "index": 4,
+            "integer": false,
+            "maximum": 1,
+            "minimum": 0,
+            "symbol": "bypass",
+            "toggled": true
+          },
+          {
+            "default": 1,
+            "enum_values": [],
+            "index": 5,
+            "integer": false,
+            "maximum": 15,
+            "minimum": 0,
+            "symbol": "amt",
+            "toggled": false
+          },
+          {
+            "default": 20,
+            "enum_values": [],
+            "index": 6,
+            "integer": false,
+            "maximum": 250,
+            "minimum": 10,
+            "symbol": "floor",
+            "toggled": false
+          },
+          {
+            "default": 200,
+            "enum_values": [],
+            "index": 7,
+            "integer": false,
+            "maximum": 250,
+            "minimum": 10,
+            "symbol": "ceil",
+            "toggled": false
+          },
+          {
+            "default": 200,
+            "enum_values": [],
+            "index": 8,
+            "integer": false,
+            "maximum": 250,
+            "minimum": 10,
+            "symbol": "final_hp",
+            "toggled": false
+          },
+          {
+            "default": 1,
+            "enum_values": [],
+            "index": 9,
+            "integer": false,
+            "maximum": 15,
+            "minimum": 0,
+            "symbol": "sat_second",
+            "toggled": false
+          },
+          {
+            "default": 1,
+            "enum_values": [],
+            "index": 10,
+            "integer": false,
+            "maximum": 15,
+            "minimum": 0,
+            "symbol": "sat_third",
+            "toggled": false
+          },
+          {
+            "default": 0.5,
+            "enum_values": [],
+            "index": 11,
+            "integer": false,
+            "maximum": 1,
+            "minimum": 0,
+            "symbol": "blend",
+            "toggled": false
+          }
+        ],
+        "port_count": 12,
+        "required_features": [
+          "http://lv2plug.in/ns/lv2core#inPlaceBroken"
+        ],
+        "uri": "https://chadmed.au/bankstown"
+      },
+      {
+        "audio_inputs": [
+          "in_1",
+          "in_2",
+          "in_3"
+        ],
+        "audio_outputs": [
+          "out"
+        ],
+        "controls": [
+          {
+            "default": 0,
+            "enum_values": [],
+            "index": 4,
+            "integer": false,
+            "maximum": 360,
+            "minimum": 0,
+            "symbol": "h_angle",
+            "toggled": false
+          },
+          {
+            "default": 0,
+            "enum_values": [],
+            "index": 5,
+            "integer": false,
+            "maximum": 360,
+            "minimum": 0,
+            "symbol": "v_angle",
+            "toggled": false
+          },
+          {
+            "default": 2000,
+            "enum_values": [],
+            "index": 6,
+            "integer": false,
+            "maximum": 20000,
+            "minimum": 20,
+            "symbol": "opt_freq",
+            "toggled": false
+          },
+          {
+            "default": 100,
+            "enum_values": [],
+            "index": 7,
+            "integer": false,
+            "maximum": 3500,
+            "minimum": 100,
+            "symbol": "t_win",
+            "toggled": false
+          },
+          {
+            "default": 0.0199999996,
+            "enum_values": [],
+            "index": 8,
+            "integer": false,
+            "maximum": 1,
+            "minimum": 0,
+            "symbol": "mic2_x",
+            "toggled": false
+          },
+          {
+            "default": 0.0199999996,
+            "enum_values": [],
+            "index": 9,
+            "integer": false,
+            "maximum": 1,
+            "minimum": 0,
+            "symbol": "mic2_y",
+            "toggled": false
+          },
+          {
+            "default": 0.0199999996,
+            "enum_values": [],
+            "index": 10,
+            "integer": false,
+            "maximum": 1,
+            "minimum": 0,
+            "symbol": "mic3_x",
+            "toggled": false
+          },
+          {
+            "default": 0.0199999996,
+            "enum_values": [],
+            "index": 11,
+            "integer": false,
+            "maximum": 1,
+            "minimum": 0,
+            "symbol": "mic3_y",
+            "toggled": false
+          }
+        ],
+        "port_count": 12,
+        "required_features": [
+          "http://lv2plug.in/ns/lv2core#inPlaceBroken"
+        ],
+        "uri": "https://chadmed.au/triforce"
+      }
+    ],
+    "schema_version": 1,
+    "status": "PASS"
+  },
+  "schema_version": 1,
+  "stage": "complete",
+  "status": "PASS"
+}

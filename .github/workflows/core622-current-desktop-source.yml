@@ -1,0 +1,193 @@
+name: core622-current-desktop-source
+on:
+  push:
+    branches: [main, codex/virtual-integration]
+    tags: ['**']
+    paths: ['scripts/ci/core622-current-desktop-source/**', '.github/workflows/core622-current-desktop-source.yml']
+  pull_request:
+    paths: ['scripts/ci/core622-current-desktop-source/**', '.github/workflows/core622-current-desktop-source.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONWARNINGS: error
+    steps:
+      - name: Check out maintained factory
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Exact public parent DATA
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 11b3cfb59663e42b34247facb9f30f042e891444
+          path: .ci-fixtures/core622-parent
+          persist-credentials: false
+      - name: Exact public fresh607 DATA
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: b9976eea34eaed4b6e56af3be21d4d652fa971d6
+          path: .ci-fixtures/core622-fresh607
+          persist-credentials: false
+      - name: Exact public core_record DATA
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 6e29f427fe273042ebaeca24d00326173888e95d
+          path: .ci-fixtures/core622-core_record
+          persist-credentials: false
+      - name: Exact public fresh_record DATA
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 5a0789405ded23f759f4a3aa545cf737c4ec3bde
+          path: .ci-fixtures/core622-fresh_record
+          persist-credentials: false
+      - name: Exact public expected DATA
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: ad09020a776c93fad3c2625c836a99cbde0c83b9
+          path: .ci-fixtures/core622-expected
+          persist-credentials: false
+      - name: Exact public core622-core800 control DATA
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 1a76a09d9cb8210cc2b76eda0c63a08bcd89d4ec
+          path: .ci-fixtures/core622-core800
+          persist-credentials: false
+      - name: Exact public core622-ksm637 control DATA
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: de21d6c25e0fbf5ac83c71965bae3ffa23390461
+          path: .ci-fixtures/core622-ksm637
+          persist-credentials: false
+      - name: Exact public core622-kernel-carrier control DATA
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 247123187cb1aceae5e61bc89f3c01dbf2986311
+          path: .ci-fixtures/core622-kernel-carrier
+          persist-credentials: false
+      - name: Exact public expanded604-installer control DATA
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: bd0cf1891083d011b70edab10501c317d3720b78
+          path: .ci-fixtures/expanded604-installer
+          persist-credentials: false
+      - name: Exact public expanded604-legacy control DATA
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: b6b17e5f6b322f160f7eeb22c8a01380a3c854cd
+          path: .ci-fixtures/expanded604-legacy
+          persist-credentials: false
+      - name: Exact public expanded604-seven control DATA
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 7fee76d68e5fd75437d8b49aaaced8376d2215cd
+          path: .ci-fixtures/expanded604-seven
+          persist-credentials: false
+      - name: Exact public expanded604-fresh600-decisions control DATA
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: fd42f51b6c32a1cca69df5699760ed2a9e39329f
+          path: .ci-fixtures/expanded604-fresh600-decisions
+          persist-credentials: false
+      - name: Select Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Reproduce exact66 and run all maintained and inherited source controls
+        timeout-minutes: 35
+        shell: bash
+        run: |
+          set -euo pipefail
+          stage=$(mktemp -d "$RUNNER_TEMP/core622-source.XXXXXXXX")
+          trap 'rm -rf -- "$stage"' EXIT
+          mkdir -m700 "$stage/parent"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/core622-parent" archive --format=tar 11b3cfb59663e42b34247facb9f30f042e891444 | tar -x -C "$stage/parent"
+          export CORE622_PARENT="$stage/parent"
+          mkdir -m700 "$stage/fresh607"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/core622-fresh607" archive --format=tar b9976eea34eaed4b6e56af3be21d4d652fa971d6 | tar -x -C "$stage/fresh607"
+          export CORE622_FRESH607="$stage/fresh607"
+          mkdir -m700 "$stage/core_record"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/core622-core_record" archive --format=tar 6e29f427fe273042ebaeca24d00326173888e95d | tar -x -C "$stage/core_record"
+          export CORE622_CORE_RECORD="$stage/core_record"
+          mkdir -m700 "$stage/fresh_record"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/core622-fresh_record" archive --format=tar 5a0789405ded23f759f4a3aa545cf737c4ec3bde | tar -x -C "$stage/fresh_record"
+          export CORE622_FRESH_RECORD="$stage/fresh_record"
+          mkdir -m700 "$stage/expected"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/core622-expected" archive --format=tar ad09020a776c93fad3c2625c836a99cbde0c83b9 | tar -x -C "$stage/expected"
+          export CORE622_EXPECTED="$stage/expected"
+          mkdir -m700 "$stage/installer-fixtures"
+          mkdir -m700 "$stage/core800"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/core622-core800" archive --format=tar 1a76a09d9cb8210cc2b76eda0c63a08bcd89d4ec | tar -x -C "$stage/core800"
+          export CORE622_CORE_SOURCE="$stage/core800"
+          mkdir -m700 "$stage/ksm637"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/core622-ksm637" archive --format=tar de21d6c25e0fbf5ac83c71965bae3ffa23390461 | tar -x -C "$stage/ksm637"
+          export CORE622_VM_SOURCE="$stage/ksm637"
+          mkdir -m700 "$stage/kernel-carrier"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/core622-kernel-carrier" archive --format=tar 247123187cb1aceae5e61bc89f3c01dbf2986311 | tar -x -C "$stage/kernel-carrier"
+          export CORE622_KERNEL_CARRIER="$stage/kernel-carrier"
+          mkdir -m700 "$stage/installer-fixtures/expanded604-installer"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/expanded604-installer" archive --format=tar bd0cf1891083d011b70edab10501c317d3720b78 | tar -x -C "$stage/installer-fixtures/expanded604-installer"
+          mkdir -m700 "$stage/installer-fixtures/expanded604-legacy"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/expanded604-legacy" archive --format=tar b6b17e5f6b322f160f7eeb22c8a01380a3c854cd | tar -x -C "$stage/installer-fixtures/expanded604-legacy"
+          mkdir -m700 "$stage/installer-fixtures/expanded604-seven"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/expanded604-seven" archive --format=tar 7fee76d68e5fd75437d8b49aaaced8376d2215cd | tar -x -C "$stage/installer-fixtures/expanded604-seven"
+          mkdir -m700 "$stage/installer-fixtures/expanded604-fresh600-decisions"
+          git -C "$GITHUB_WORKSPACE/.ci-fixtures/expanded604-fresh600-decisions" archive --format=tar fd42f51b6c32a1cca69df5699760ed2a9e39329f | tar -x -C "$stage/installer-fixtures/expanded604-fresh600-decisions"
+          export CORE622_INSTALLER_WORKSPACE="$stage/installer-fixtures"
+          python3 -I -B -Werror scripts/ci/core622-current-desktop-source/test_source.py
+          python3 -I -B -Werror scripts/ci/core622-current-desktop-source/prepare.py --help
+          python3 -I -B -Werror - "$stage" <<'PY'
+          import importlib.util,os,sys
+          from pathlib import Path
+          stage=Path(sys.argv[1])
+          source=Path(os.environ['GITHUB_WORKSPACE'])/'scripts/ci/core622-current-desktop-source/prepare.py'
+          spec=importlib.util.spec_from_file_location('exact_core622_factory',source)
+          factory=importlib.util.module_from_spec(spec);spec.loader.exec_module(factory)
+          roots={name:Path(os.environ['CORE622_'+name.upper()])for name in('parent','fresh607','core_record','fresh_record')}
+          for context in('known','null'):factory.emit(roots,stage/context,context)
+          before=factory.before_owned_initialization(factory.before_proof_output(factory.before_media_contract(factory.tree(stage/'known'))))
+          parent=stage/'b7';parent.mkdir(mode=0o700)
+          for name,raw in before.items():
+           target=parent/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(raw);target.chmod(0o644)
+          factory.need(factory.tree(parent)==before,'whole b7 inverse materialization before emitted controls')
+          PY
+          export CORE622_B7_SOURCE="$stage/b7"
+          for context in known null; do
+            export CORE622_EMITTED_SOURCE="$stage/$context"
+            python3 -I -B -Werror scripts/ci/core622-current-desktop-source/test_scoped_caps.py
+            python3 -I -B -Werror scripts/ci/core622-current-desktop-source/test_initialization.py
+          done
+          receipts="$RUNNER_TEMP/core622-control-receipts-${{ matrix.python }}"
+          mkdir -m700 "$receipts"
+          for context in known null; do
+            python3 -I -B -Werror scripts/ci/core622-current-desktop-source/test_native_workflow.py --scope core --context "$context" --output-dir "$receipts/core-$context"
+          done
+          python3 -I -B -Werror scripts/ci/core622-current-desktop-source/test_native_workflow.py --scope installer-controller --installer-workspace "$CORE622_INSTALLER_WORKSPACE" --output-dir "$receipts/installer-controller"
+      - name: Retain source-control command receipts
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: core622-source-controls-python-${{ matrix.python }}
+          path: ${{ runner.temp }}/core622-control-receipts-${{ matrix.python }}
+          if-no-files-found: warn
+          retention-days: 7

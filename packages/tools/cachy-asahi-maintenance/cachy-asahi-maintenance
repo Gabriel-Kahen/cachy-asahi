@@ -1,0 +1,13 @@
+#!/usr/bin/python3 -IB
+# SPDX-License-Identifier: MIT
+"""Review an explicitly selected signed release and retained observations offline."""
+from pathlib import Path
+import runpy
+import sys
+
+if sys.argv[1:] == ['--version']:
+    print('cachy-asahi-maintenance 0.1.0-2')
+else:
+    # Relative to this installed launcher only; no checkout, cwd or env lookup.
+    runtime = Path(__file__).resolve().parents[1] / 'lib/cachy-asahi/maintenance'
+    runpy.run_path(str(runtime / 'scripts/maintenance/health.py'), run_name='__main__')

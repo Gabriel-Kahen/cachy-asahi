@@ -1,0 +1,376 @@
+{
+  "adopted": false,
+  "archive_downloads_repeated": false,
+  "baseline_reproducers": [
+    {
+      "path": "artifacts/platform/platform-source-corrections-20261012/baseline-defect-reproducer.json",
+      "sha256": "b379bffde16cb0acec8e9bb7455432371810b8b05a8d273c46b5c93f8f1a6582",
+      "size": 2303
+    },
+    {
+      "path": "artifacts/platform/platform-source-corrections-20261012/baseline-destination-defect.json",
+      "sha256": "5d877b668d07ddf0a3a7ee2fa4b7898e7e2331f409d2e30a207da6e746bf39a3",
+      "size": 353
+    }
+  ],
+  "changed_source_test_files": {
+    "scripts/platform/authenticate_missing.py": {
+      "current": "28d7d4e007b9d856733eb64e250f8c24ecfedf409ce4c0b0221329e443e1f1fa",
+      "historical": "619f9e9dab73b8def6f90b22ec4842bc58231a198318b93c5a84c52fa5e5d1b9"
+    },
+    "scripts/platform/coordinated_python.py": {
+      "current": "48128d92373c84f6d72b3a323cbd39fe7e295c8ae5307816d5d9f7906055610d",
+      "historical": "afc8520061ca66530e4064d563fe97032a55a7ca40c7c0c82ef0f8f483d2c018"
+    },
+    "scripts/platform/ownership.py": {
+      "current": "aed58a9548ca5fbd440f6f28843e2b37b5481a4dba14c8241e953ea4ff1a725e",
+      "historical": "2f902f3b72df0721ddf9135969c5902ece4e88b19746ecb1a39456fb8e436667"
+    },
+    "scripts/platform/payload_audit.py": {
+      "current": "07dbd012913490e3a7e1360a50adb115ee6e01cb7d356501e5c9c67c82bb540c",
+      "historical": "81429bded6010438e71ddf78c39b3803f5318c26101132eb1f4193505fe96d8d"
+    },
+    "scripts/platform/test_authenticate_missing.py": {
+      "current": "af98c580bbb6f9554ef3ddbc6ef601cf7c68b273837c2a0c0dfa39b875e60301",
+      "historical": "1934d2a344fffbb1653bb10dfc92ab82c9450793c2bc496fe92dbf4ed9e10696"
+    },
+    "scripts/platform/test_coordinated_python.py": {
+      "current": "80f1e5c1afedde556af0ec0036a028160fb4d94803da0add72315072a7d71a04",
+      "historical": "d28f9cede69764831f17cec36094ca84180caf5d8721ea1c4ecfec164f47088b"
+    },
+    "scripts/platform/test_ownership.py": {
+      "current": "9a19729848268f687f304ab7e9dc0b80a2611d2d978a3ba4bacac95dcb3ef801",
+      "historical": "3f371c2cd02b12f26ca6e7702c9b5a0c5d8aeed6bbf5bbbd1e4d35759e27460f"
+    },
+    "scripts/platform/test_payload_audit.py": {
+      "current": "22ba84ced4daeade722c8d6a5084b60700c1ffc7080eaac9e7fbb12b169a4778",
+      "historical": "742b17ad6102bcbcaebba25fcc7427b2f532ba879375dec90c875e36472d28ff"
+    }
+  },
+  "corrected_fixtures": {
+    "path": "artifacts/platform/platform-source-corrections-20261012/corrected-fixtures.json",
+    "sha256": "35ee5c6f1f3344b326044a1bc107b4839a687421f8107d7ee2d7869496cd02e2",
+    "size": 1040
+  },
+  "corrections": [
+    "Consume the exact bounded byte capture that was hashed, after closing the mutable source descriptor.",
+    "Expand prefix symlinks before ..; detect observed non-directory prefixes as ENOTDIR with bounded inert component traversal.",
+    "Reject destination path traversal and check canonical containment, private parent identity and fd-relative directory creation.",
+    "Bind original strict checkpoint source snapshots as data, with exact historical pins and separate current source hashes."
+  ],
+  "corrective_document": {
+    "path": "docs/workstreams/platform-source-corrections.md",
+    "sha256": "08b1c48c538c6a1b8584cc5e0b7157e60ed00243755d35d41990fd0d621675e7",
+    "size": 4213
+  },
+  "cryptographic_verification_repeated": false,
+  "current_coordinator_document": {
+    "path": "docs/workstreams/coordinated-python.md",
+    "sha256": "ea466e0752c052e1f1ea6cca5765cb49f3f6a96ff1a4a6e9c01be0d03b9cb459",
+    "size": 7282
+  },
+  "files": {
+    "scripts/platform/archive_coverage.py": "685a98cb082739e5fa3630ff6496cceb09fc45698a806e737d40cfffe84b3c11",
+    "scripts/platform/authenticate_missing.py": "28d7d4e007b9d856733eb64e250f8c24ecfedf409ce4c0b0221329e443e1f1fa",
+    "scripts/platform/coordinated_python.py": "48128d92373c84f6d72b3a323cbd39fe7e295c8ae5307816d5d9f7906055610d",
+    "scripts/platform/ownership.py": "aed58a9548ca5fbd440f6f28843e2b37b5481a4dba14c8241e953ea4ff1a725e",
+    "scripts/platform/payload_audit.py": "07dbd012913490e3a7e1360a50adb115ee6e01cb7d356501e5c9c67c82bb540c",
+    "scripts/platform/recovery_inputs.py": "09be69917bf74b50a65841243e8e4cfef264a56074945b609264c76a0f387430",
+    "scripts/platform/test_archive_coverage.py": "7224c25838b1a0b80d39a6ceb209e8ea80f1b4358ecc36843d9b6d47f7a75741",
+    "scripts/platform/test_authenticate_missing.py": "af98c580bbb6f9554ef3ddbc6ef601cf7c68b273837c2a0c0dfa39b875e60301",
+    "scripts/platform/test_coordinated_python.py": "80f1e5c1afedde556af0ec0036a028160fb4d94803da0add72315072a7d71a04",
+    "scripts/platform/test_ownership.py": "9a19729848268f687f304ab7e9dc0b80a2611d2d978a3ba4bacac95dcb3ef801",
+    "scripts/platform/test_payload_audit.py": "22ba84ced4daeade722c8d6a5084b60700c1ffc7080eaac9e7fbb12b169a4778",
+    "scripts/platform/test_recovery_inputs.py": "132f2dcbe8c281b4b2cf6f02a94773d9fb82bb30b4fa97ca776200363edb1882",
+    "scripts/platform/test_transaction.py": "e4a180ca6e24a7ace2cef1bf545c63a2cc36fec59846c8e98e8aa00fa76fc556",
+    "scripts/platform/transaction.py": "1e4776bd89c436af526ed132d75df32fbc15cf2349dd3cf7cf13ecf874238694"
+  },
+  "full_recovery_package_retention_complete": false,
+  "hardware_accepted": false,
+  "historical_checkpoint": {
+    "path": "artifacts/platform/coordinated-python-20261012-inputs/held-source-checkpoint.json",
+    "sha256": "073c32fa3e3fda21cc5ce8353c8fb782826dc4ef48905e78a9198c5df550c7d5",
+    "size": 7803
+  },
+  "historical_coordinator_document": {
+    "path": "artifacts/platform/platform-source-corrections-20261012/historical-coordinated-python.md",
+    "sha256": "38fe04799aeec431890de0f9923cbb8c0818370d91088e432275061afe566469",
+    "size": 6435
+  },
+  "historical_data": {
+    "compatibility": {
+      "actual_compiler_binary_identity_verified": false,
+      "additional_direct_Python_consumers_pending": [
+        "gdb",
+        "gdb-common",
+        "gpsd",
+        "meson",
+        "python-dbus",
+        "python-pyxdg",
+        "python-tqdm",
+        "uwsm",
+        "vapoursynth"
+      ],
+      "capture": {
+        "path": "artifacts/platform/python-compatibility-20261012/capture-c.json",
+        "sha256": "70df91bc90d6591910311009038847290eb13413753ef31ac599391664b4b648",
+        "size": 57396
+      },
+      "firmware_XML_native_FFI_runtime_verified": false,
+      "full_image_authentication_from_specific_library_match": false,
+      "nominal_BUILDINFO_GCC_glibc_version_strings_equal": true,
+      "old_Expat_export_count": 72,
+      "original_python_metadata_recovered_after_prepare": true,
+      "required_Expat_symbols_satisfied": 57,
+      "source_directory_only_differences": 7,
+      "source_module_matches": 13,
+      "specific_recovered_Expat_image_library_sha256_match": "a950488bf7f69ec589170b0548f3a8a850dad39f060b33a5b3c9e079abdb4730",
+      "subsequently_recovered_signed_original_python_metadata": {
+        "path": "artifacts/platform/coordinated-python-20261012-inputs/recovered-original-python-metadata.json",
+        "sha256": "ef16ffee6e4faf8991783155098bd1ad1a66c853348cf9b2ce299d073799bbc4",
+        "size": 21512
+      },
+      "sysconfig_fields": 1106
+    },
+    "fresh_missing_archive_authentication": {
+      "archive_signature_cache_byte_limit": 524288000,
+      "bytes": 364535409,
+      "download_upper_bound_bytes": 374347220,
+      "evidence_byte_limit": 67108864,
+      "evidence_bytes": 3646562,
+      "failures": 0,
+      "full_receipt_byte_limit": 67108864,
+      "pinned_ALARM_certificate_sha256": "6ce771e853f04a38a5b533cb33e61f877b9b06b58b6db051eb8a15d737a2332f",
+      "pinned_ALARM_signer": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+      "planned": 151,
+      "report": {
+        "path": "artifacts/platform/coordinated-python-20261012-auth/authentication-receipt.json",
+        "sha256": "4e92a950bccbf37002c964391c57da453bbc9c3bc1211b5134e5a69a79bbd6ee",
+        "size": 649854
+      },
+      "source_database_authentication_accepted": false,
+      "status": "PASS-all-planned-archive-data-authenticated",
+      "verified": 151
+    },
+    "historical_recovery": {
+      "alternative_current_catalog_exact_protected_versions": 186,
+      "alternative_protected_versions_requiring_historical_retrieval": 15,
+      "archive_hashes_historically_prepinned": false,
+      "cache_bytes": 31800492,
+      "completed_row_reused": 1,
+      "failed_first_attempt": {
+        "path": "artifacts/platform/coordinated-python-20261012-recovery-auth/recovery-receipt.json",
+        "sha256": "466b55f797bef649079172cf9b550b550f5dc104ba6c97dc856918b3391156c4",
+        "size": 33733
+      },
+      "failures_this_resume": 0,
+      "fresh_signature_checks_this_resume": 15,
+      "full_recovery_package_retention_complete": false,
+      "metadata_bytes": 1057654,
+      "operator_listing_url": "https://pkgmirror.sametimetomorrow.net/aarch64/packages/",
+      "planned": 16,
+      "prior_rate_limited_failures_retained": 15,
+      "report": {
+        "path": "artifacts/platform/coordinated-python-20261012-recovery-auth-b/recovery-receipt.json",
+        "sha256": "186c12034720734d0bcc9274b95bcf44e91b08e045f50098fe8147c7ad26ae46",
+        "size": 94191
+      },
+      "source_owner_trust_accepted": false,
+      "status": "PASS-all-exact-old-recovery-archive-data",
+      "verified": 16
+    },
+    "hooks": {
+      "exact_hook_contents_available": 41,
+      "execution_or_matching_order_verified": false,
+      "report": {
+        "path": "artifacts/platform/coordinated-python-20261012-inputs/hook-scriptlet-input-observation.json",
+        "sha256": "ebb0658e21d73a3599aa93879139ee27fe78ce7b70e0cd49ca4da4a785c8c6c6",
+        "size": 79806
+      },
+      "service_policy_findings": [
+        "PipeWire and WirePlumber scriptlets enable global user socket/service units and disable them on removal.",
+        "asahi-desktop-meta Bluetooth enablement appears only in post_upgrade; fresh-install policy remains open."
+      ],
+      "source_receipt_payload_stage": "The hook receipt refers to predecessor payload-report-b; all 41 hook and 15 transaction INSTALL content hashes were independently compared to final payload-report-c and unchanged image bytes.",
+      "transaction_INSTALL_contents_available": 15,
+      "transaction_packages_without_INSTALL": 351
+    },
+    "remaining_gaps": [
+      "218 baseline archives/payloads unavailable; full recovery package retention incomplete.",
+      "Firmware/XML/native FFI and nine additional selected direct Python consumers require target tests.",
+      "General desktop ABI and 16K loading, hook ordering/behavior, fresh-install Bluetooth policy, actual boot and rollback remain unverified.",
+      "Independent key-owner custody, full-image authentication, source/license grants and maintained full-port gates remain open."
+    ],
+    "strict_history": {
+      "preserved_original_protected_versions": 201,
+      "report": {
+        "path": "artifacts/platform/target-metadata-20261012/transaction-report.json",
+        "sha256": "b485e1bcbb2a1412159e9fdf774622e44db480a35c1919e36d7ee229ae8e8647",
+        "size": 1536337
+      },
+      "sole_refusal": "python3.14.8-1 requested; original3.14.7-1 protected",
+      "status": "FAIL-incomplete-or-policy-rejected"
+    },
+    "unadopted_alternative": {
+      "commit_called": false,
+      "downloads_or_repository_updates": false,
+      "final_packages": 624,
+      "metadata_dependency_witnesses": 3197,
+      "new_packages": 363,
+      "only_protected_delta": [
+        {
+          "name": "python",
+          "proposal_version": "3.14.8-1",
+          "strict_version": "3.14.7-1"
+        }
+      ],
+      "other_protected_versions_preserved": 200,
+      "package_conflicts": 0,
+      "protected_versions": 201,
+      "removals": 0,
+      "replacement_names": [
+        "python",
+        "perl",
+        "networkmanager"
+      ],
+      "replacements": 3,
+      "report": {
+        "path": "artifacts/platform/coordinated-python-20261012-inputs/coordinated-transaction-report.json",
+        "sha256": "bdf171c691f88340079d9632b801190d7866d06e3822c5cb83c7086245a8a030",
+        "size": 1549234
+      },
+      "satisfied": 55,
+      "status": "PASS-private-metadata-prepare",
+      "targets": 55
+    }
+  },
+  "historical_original_sources": {
+    "path": "artifacts/platform/platform-source-corrections-20261012/historical-auth-files.json",
+    "sha256": "efbd957b5ceaa9faf9f0dd75ee21468da956858b2e9d4c01f5aa64d6569488dd",
+    "size": 2052
+  },
+  "historical_public_observation": {
+    "path": "artifacts/platform/platform-source-corrections-20261012/historical-coordinated-python-observation.json",
+    "sha256": "811ce57fc7371ec76bdbd296d78ae9e21fa209783ff233598e3a34230f24f372",
+    "size": 11265
+  },
+  "historical_reports_rewritten": false,
+  "historical_transaction_prepare_repeated": false,
+  "history_input_contract": {
+    "path": "artifacts/platform/platform-source-corrections-20261012/coordinated-history-inputs.json",
+    "sha256": "c3144116c64b71ca7a7576a3038aa88c357d1b9916c280f7567f2ce603399181",
+    "size": 2366
+  },
+  "history_source_authority_note": "Earlier held checkpoints and source-unchanged statements describe their historical capture; current fourteen-file authority is this corrected source map. Original 70-test ownership executors are retained as exact data snapshots and were not rerun.",
+  "history_validation": {
+    "path": "artifacts/platform/platform-source-corrections-20261012/strict-history-validation.json",
+    "sha256": "5fa2f1207e9bec11a705038914cbdc168ca938c34c0658205acac16bd29cfa7b",
+    "size": 3897
+  },
+  "image_authentication_accepted": false,
+  "independent_key_owner_trust_accepted": false,
+  "independent_review": {
+    "all2560_links_replayed": true,
+    "archive_reads_performed_by_reviewer": false,
+    "changed_link_findings": 0,
+    "historical_snapshots_executed": false,
+    "independent_component_walker_2534_agreed": true,
+    "status": "PASS-bounded-source-and-retained-link-review"
+  },
+  "installation_accepted": false,
+  "memory_limit_note": "Compressed payload snapshots: at most 300,000,000 bytes per archive plus BytesIO storage/copy overhead; streaming decoded limits remain 1 GiB per archive and 8 GiB in aggregate.",
+  "original70_current_files_unchanged": false,
+  "original70_history_preserved": true,
+  "original77_10_current_files_unchanged": true,
+  "refreshed_ownership": {
+    "declared_non_directory_overlap_candidates": 0,
+    "packages_available": 624,
+    "report": {
+      "path": "artifacts/platform/platform-source-corrections-20261012/ownership-report.json",
+      "sha256": "963c6b73e71d7ea41b4cf45bcef67e7df02ad0557f2142a84252133afad9590e",
+      "size": 7836900
+    },
+    "same_selected_package_records_as_historical": true
+  },
+  "refreshed_payload": {
+    "all_payload_nodes_controls_links_unknown_set_equal_historical": true,
+    "archive_reinspection_performed": true,
+    "baseline_unavailable": 218,
+    "decoded_bytes": 3512166400,
+    "exact_candidate_archives": 366,
+    "exit_code": 1,
+    "exit_reason": "218 unavailable baseline archives",
+    "file_list_mismatches": 0,
+    "historical_report": {
+      "path": "artifacts/platform/coordinated-python-20261012-inputs/payload-report-c.json",
+      "sha256": "3228744a94b9409e8465acbf946f1bd0d286f11b90517cb9a769181569a51ac7",
+      "size": 26481530
+    },
+    "input_contract": {
+      "path": "artifacts/platform/platform-source-corrections-20261012/payload-inputs.json",
+      "sha256": "d44430bb3ab62c15fca1698bea699a4af35c11d6788d3c44817471ea13d98f6f",
+      "size": 120402
+    },
+    "inspected_archives": 406,
+    "nodes": 84371,
+    "non_directory_overlaps": 0,
+    "observed_symlink_targets": 2534,
+    "report": {
+      "path": "artifacts/platform/platform-source-corrections-20261012/payload-report.json",
+      "sha256": "1b47237b65e73754b524be19aff929b65ab348217d6696cab247fa73cd68607f",
+      "size": 26481520
+    },
+    "retained_authentication_bindings": {
+      "path": "artifacts/platform/coordinated-python-20261012-inputs/payload-final-authentication-bindings.json",
+      "sha256": "f7ad4c4017d489e2f121c0e36d3f9e13d3dfa862edb129fda341d30e0bc1f944",
+      "size": 373988
+    },
+    "same_archive_regular_hardlinks": 26,
+    "same_identity_image_unverified_archives": 40,
+    "source_mutable_file_reseek_used": false
+  },
+  "runtime_abi_accepted": false,
+  "schema_version": 1,
+  "source_correction_checkpoint_path": "artifacts/platform/platform-source-corrections-20261012/checkpoint.json",
+  "source_grants_complete": false,
+  "status": "source-corrected-tested-reviewed-held-data-only-checkpoint",
+  "system_mutation": false,
+  "tests": {
+    "errors": 0,
+    "failures": 0,
+    "historical_capture_tuple77_repeated": false,
+    "log": {
+      "path": "artifacts/platform/platform-source-corrections-20261012/regression-tests.log",
+      "sha256": "5a8d870ec7bc16c0bc7c5dca259ea32aa9174eff55fc41f9fdda204628bb3b3b",
+      "size": 259
+    },
+    "module_counts": {
+      "archive_coverage": 17,
+      "authenticate_missing": 18,
+      "coordinated_python": 23,
+      "ownership": 32,
+      "payload_audit": 22,
+      "recovery_inputs": 21,
+      "transaction": 26
+    },
+    "modules": [
+      "test_transaction",
+      "test_ownership",
+      "test_archive_coverage",
+      "test_coordinated_python",
+      "test_authenticate_missing",
+      "test_payload_audit",
+      "test_recovery_inputs"
+    ],
+    "new_regressions": 20,
+    "report": {
+      "path": "artifacts/platform/platform-source-corrections-20261012/regression-tests.json",
+      "sha256": "d3b29d18ac4426cc6d459aa4530d23684acc2c4376cd46e7fa17c36efa75667d",
+      "size": 2486
+    },
+    "skips": 0,
+    "syntax": "PASS",
+    "total": 159
+  },
+  "utc": "2026-10-12T08:28:04.111182+00:00"
+}

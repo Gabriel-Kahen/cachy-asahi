@@ -1,0 +1,167 @@
+{
+  "adopted": false,
+  "corrected_source_observation": {
+    "path": "scripts/platform/platform-source-corrections-observation.json",
+    "sha256": "2de23b52d907680f4d4a03f3670fdcf1fcfe897369130ffe52951b5fbdba6525",
+    "size": 17745
+  },
+  "current_corrective_document": {
+    "path": "docs/workstreams/platform-source-corrections.md",
+    "sha256": "08b1c48c538c6a1b8584cc5e0b7157e60ed00243755d35d41990fd0d621675e7",
+    "size": 4213
+  },
+  "current_source_checkpoint_path": "artifacts/platform/platform-source-corrections-20261012/checkpoint.json",
+  "current_tests": {
+    "count": 159,
+    "errors": 0,
+    "failures": 0,
+    "new_regressions": 20,
+    "report": {
+      "path": "artifacts/platform/platform-source-corrections-20261012/regression-tests.json",
+      "sha256": "d3b29d18ac4426cc6d459aa4530d23684acc2c4376cd46e7fa17c36efa75667d",
+      "size": 2486
+    },
+    "skips": 0
+  },
+  "files": {
+    "scripts/platform/archive_coverage.py": "685a98cb082739e5fa3630ff6496cceb09fc45698a806e737d40cfffe84b3c11",
+    "scripts/platform/authenticate_missing.py": "28d7d4e007b9d856733eb64e250f8c24ecfedf409ce4c0b0221329e443e1f1fa",
+    "scripts/platform/coordinated_python.py": "48128d92373c84f6d72b3a323cbd39fe7e295c8ae5307816d5d9f7906055610d",
+    "scripts/platform/ownership.py": "aed58a9548ca5fbd440f6f28843e2b37b5481a4dba14c8241e953ea4ff1a725e",
+    "scripts/platform/payload_audit.py": "07dbd012913490e3a7e1360a50adb115ee6e01cb7d356501e5c9c67c82bb540c",
+    "scripts/platform/recovery_inputs.py": "09be69917bf74b50a65841243e8e4cfef264a56074945b609264c76a0f387430",
+    "scripts/platform/test_archive_coverage.py": "7224c25838b1a0b80d39a6ceb209e8ea80f1b4358ecc36843d9b6d47f7a75741",
+    "scripts/platform/test_authenticate_missing.py": "af98c580bbb6f9554ef3ddbc6ef601cf7c68b273837c2a0c0dfa39b875e60301",
+    "scripts/platform/test_coordinated_python.py": "80f1e5c1afedde556af0ec0036a028160fb4d94803da0add72315072a7d71a04",
+    "scripts/platform/test_ownership.py": "9a19729848268f687f304ab7e9dc0b80a2611d2d978a3ba4bacac95dcb3ef801",
+    "scripts/platform/test_payload_audit.py": "22ba84ced4daeade722c8d6a5084b60700c1ffc7080eaac9e7fbb12b169a4778",
+    "scripts/platform/test_recovery_inputs.py": "132f2dcbe8c281b4b2cf6f02a94773d9fb82bb30b4fa97ca776200363edb1882",
+    "scripts/platform/test_transaction.py": "e4a180ca6e24a7ace2cef1bf545c63a2cc36fec59846c8e98e8aa00fa76fc556",
+    "scripts/platform/transaction.py": "1e4776bd89c436af526ed132d75df32fbc15cf2349dd3cf7cf13ecf874238694"
+  },
+  "hardware_accepted": false,
+  "historical_document": {
+    "path": "artifacts/platform/platform-source-corrections-20261012/historical-coordinated-python.md",
+    "sha256": "38fe04799aeec431890de0f9923cbb8c0818370d91088e432275061afe566469",
+    "size": 6435
+  },
+  "historical_held_checkpoint": {
+    "path": "artifacts/platform/coordinated-python-20261012-inputs/held-source-checkpoint.json",
+    "sha256": "073c32fa3e3fda21cc5ce8353c8fb782826dc4ef48905e78a9198c5df550c7d5",
+    "size": 7803
+  },
+  "historical_observation": {
+    "path": "artifacts/platform/platform-source-corrections-20261012/historical-coordinated-python-observation.json",
+    "sha256": "811ce57fc7371ec76bdbd296d78ae9e21fa209783ff233598e3a34230f24f372",
+    "size": 11265
+  },
+  "historical_receipts_rewritten": false,
+  "historical_transaction_prepare_download_or_GPG_repeated": false,
+  "image_authentication_accepted": false,
+  "independent_key_owner_trust_accepted": false,
+  "installation_accepted": false,
+  "original70_current_source_files_unchanged": false,
+  "original70_historical_executors_reexecuted": false,
+  "original70_retained_history_validation": {
+    "path": "artifacts/platform/platform-source-corrections-20261012/strict-history-validation.json",
+    "sha256": "5fa2f1207e9bec11a705038914cbdc168ca938c34c0658205acac16bd29cfa7b",
+    "size": 3897
+  },
+  "original77_ten_current_pins_unchanged": true,
+  "runtime_abi_accepted": false,
+  "schema_version": 1,
+  "status": "current-pointer-to-source-corrected-data-only-platform-checkpoint",
+  "system_mutation": false,
+  "unchanged_historical_data_receipts": {
+    "fresh_missing_archive_authentication": {
+      "archive_signature_cache_byte_limit": 524288000,
+      "bytes": 364535409,
+      "download_upper_bound_bytes": 374347220,
+      "evidence_byte_limit": 67108864,
+      "evidence_bytes": 3646562,
+      "failures": 0,
+      "full_receipt_byte_limit": 67108864,
+      "pinned_ALARM_certificate_sha256": "6ce771e853f04a38a5b533cb33e61f877b9b06b58b6db051eb8a15d737a2332f",
+      "pinned_ALARM_signer": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+      "planned": 151,
+      "report": {
+        "path": "artifacts/platform/coordinated-python-20261012-auth/authentication-receipt.json",
+        "sha256": "4e92a950bccbf37002c964391c57da453bbc9c3bc1211b5134e5a69a79bbd6ee",
+        "size": 649854
+      },
+      "source_database_authentication_accepted": false,
+      "status": "PASS-all-planned-archive-data-authenticated",
+      "verified": 151
+    },
+    "historical_recovery": {
+      "alternative_current_catalog_exact_protected_versions": 186,
+      "alternative_protected_versions_requiring_historical_retrieval": 15,
+      "archive_hashes_historically_prepinned": false,
+      "cache_bytes": 31800492,
+      "completed_row_reused": 1,
+      "failed_first_attempt": {
+        "path": "artifacts/platform/coordinated-python-20261012-recovery-auth/recovery-receipt.json",
+        "sha256": "466b55f797bef649079172cf9b550b550f5dc104ba6c97dc856918b3391156c4",
+        "size": 33733
+      },
+      "failures_this_resume": 0,
+      "fresh_signature_checks_this_resume": 15,
+      "full_recovery_package_retention_complete": false,
+      "metadata_bytes": 1057654,
+      "operator_listing_url": "https://pkgmirror.sametimetomorrow.net/aarch64/packages/",
+      "planned": 16,
+      "prior_rate_limited_failures_retained": 15,
+      "report": {
+        "path": "artifacts/platform/coordinated-python-20261012-recovery-auth-b/recovery-receipt.json",
+        "sha256": "186c12034720734d0bcc9274b95bcf44e91b08e045f50098fe8147c7ad26ae46",
+        "size": 94191
+      },
+      "source_owner_trust_accepted": false,
+      "status": "PASS-all-exact-old-recovery-archive-data",
+      "verified": 16
+    },
+    "strict_history": {
+      "preserved_original_protected_versions": 201,
+      "report": {
+        "path": "artifacts/platform/target-metadata-20261012/transaction-report.json",
+        "sha256": "b485e1bcbb2a1412159e9fdf774622e44db480a35c1919e36d7ee229ae8e8647",
+        "size": 1536337
+      },
+      "sole_refusal": "python3.14.8-1 requested; original3.14.7-1 protected",
+      "status": "FAIL-incomplete-or-policy-rejected"
+    },
+    "unadopted_alternative": {
+      "commit_called": false,
+      "downloads_or_repository_updates": false,
+      "final_packages": 624,
+      "metadata_dependency_witnesses": 3197,
+      "new_packages": 363,
+      "only_protected_delta": [
+        {
+          "name": "python",
+          "proposal_version": "3.14.8-1",
+          "strict_version": "3.14.7-1"
+        }
+      ],
+      "other_protected_versions_preserved": 200,
+      "package_conflicts": 0,
+      "protected_versions": 201,
+      "removals": 0,
+      "replacement_names": [
+        "python",
+        "perl",
+        "networkmanager"
+      ],
+      "replacements": 3,
+      "report": {
+        "path": "artifacts/platform/coordinated-python-20261012-inputs/coordinated-transaction-report.json",
+        "sha256": "bdf171c691f88340079d9632b801190d7866d06e3822c5cb83c7086245a8a030",
+        "size": 1549234
+      },
+      "satisfied": 55,
+      "status": "PASS-private-metadata-prepare",
+      "targets": 55
+    }
+  },
+  "utc": "2026-10-12T08:34:28.713973+00:00"
+}
