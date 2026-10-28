@@ -65,7 +65,7 @@
             "PAGE_PROFILE": "${{ inputs.page_profile }}"
           },
           "name": "Export only the three exact pinned kernel DATA members without Git metadata",
-          "run": "set -euo pipefail\ntest \"$PAGE_PROFILE\" = generic16k\n[[ \"$KERNEL_DATA_SOURCE\" =~ ^[0-9a-f]{40}$ ]]\nprintf '%s  %s\\n' 'be5969d6bda17e854035965391088e9ed4f4be68ceef3a3b3730f5f56c56f731' 'native4k-source/capacity/kernel_stage.py' | sha256sum --check\nprintf '%s  %s\\n' 'af947b7ce62251b6820b88f8ab08bf1c5c8bfbb0405a0f03aec1c73d56eb16ed' 'native4k-source/capacity/custody.py' | sha256sum --check\nprintf '%s  %s\\n' '8a4960373fd2ef7905077913eb1848b202bfff9aab0b7a315db90435ff805b7f' 'native4k-source/capacity/kernel_data.py' | sha256sum --check\npython3 -I -B native4k-source/capacity/kernel_stage.py --source \"$GITHUB_WORKSPACE/updater607-kernel-data-source\" --revision \"$KERNEL_DATA_SOURCE\" --output \"$RUNNER_TEMP/updater607-kernel-data\"\n"
+          "run": "set -euo pipefail\ntest \"$PAGE_PROFILE\" = generic16k\n[[ \"$KERNEL_DATA_SOURCE\" =~ ^[0-9a-f]{40}$ ]]\nprintf '%s  %s\\n' 'be5969d6bda17e854035965391088e9ed4f4be68ceef3a3b3730f5f56c56f731' 'native4k-source/lifecycle/kernel_stage.py' | sha256sum --check\nprintf '%s  %s\\n' 'af947b7ce62251b6820b88f8ab08bf1c5c8bfbb0405a0f03aec1c73d56eb16ed' 'native4k-source/lifecycle/custody.py' | sha256sum --check\nprintf '%s  %s\\n' '8a4960373fd2ef7905077913eb1848b202bfff9aab0b7a315db90435ff805b7f' 'native4k-source/lifecycle/kernel_data.py' | sha256sum --check\npython3 -I -B native4k-source/lifecycle/kernel_stage.py --source \"$GITHUB_WORKSPACE/updater607-kernel-data-source\" --revision \"$KERNEL_DATA_SOURCE\" --output \"$RUNNER_TEMP/updater607-kernel-data\"\n"
         },
         {
           "env": {
@@ -77,7 +77,7 @@
           },
           "id": "root_policy",
           "name": "Require Root actual prerequisite bindings before secrets or actors",
-          "run": "set -euo pipefail\ntest \"$PAGE_PROFILE\" = generic16k\n[[ \"$KERNEL_DATA_SOURCE\" =~ ^[0-9a-f]{40}$ ]]\nprintf '%s  %s\\n' '1f573c773fa8f5bdb1617c32be73f068d67a7b85972c7b813f408907dcaa39e7' 'native4k-source/entry.py' | sha256sum --check\ntest \"$(sha256sum expanded604-upgrade/scripts/ci/expanded604-apps6-public-pair-updater/run.py | cut -d ' ' -f 1)\" = ed05eaf1c6263ed5ce1dc2e97c863021c03d232cc5ad3554ab681aa4866993fe\ntest \"$(sha256sum expanded604-upgrade/scripts/ci/expanded604-apps6-public-pair-updater/source-manifest.json | cut -d ' ' -f 1)\" = ec9a759bbb5be161a0a77c2983e731c3b09e71b33688a2ecdf54abce9d1ba41b\ntest \"$(sha256sum expanded604-upgrade/scripts/ci/current604-public-pair-updater16k/job.py | cut -d ' ' -f 1)\" = 47c560fdc227a0b41e2cca9e1797b55adce2b35bb080d950d8ee1d1993c86c13\ntest \"$(sha256sum expanded604-upgrade/scripts/ci/current604-public-pair-updater16k/wiring-source-manifest.json | cut -d ' ' -f 1)\" = b1519c84860d72883acb39649d61598ca94f68c11f0d8612f8f8665bfcae984f\npython3 -I -B native4k-source/entry.py preflight --probe-mode generic16k-fullcopy-capacity --page-profile generic16k --kernel-input \"$RUNNER_TEMP/updater607-kernel-data\" --fresh16k-source \"$GITHUB_WORKSPACE/updater607-fresh16k-source\" \\\n  --implementation \"$GITHUB_WORKSPACE/expanded604-upgrade\" --source \"$IMPLEMENTATION_SOURCE\" \\\n  --workflow-sha \"$WORKFLOW_SOURCE\" --case \"$UPGRADE_CASE\"\n",
+          "run": "set -euo pipefail\ntest \"$PAGE_PROFILE\" = generic16k\n[[ \"$KERNEL_DATA_SOURCE\" =~ ^[0-9a-f]{40}$ ]]\nprintf '%s  %s\\n' '52fbf7656b6489eb896f2f92234fd35fb3e4d760304b76dace32a4d4a425a3e4' 'native4k-source/entry.py' | sha256sum --check\ntest \"$(sha256sum expanded604-upgrade/scripts/ci/expanded604-apps6-public-pair-updater/run.py | cut -d ' ' -f 1)\" = ed05eaf1c6263ed5ce1dc2e97c863021c03d232cc5ad3554ab681aa4866993fe\ntest \"$(sha256sum expanded604-upgrade/scripts/ci/expanded604-apps6-public-pair-updater/source-manifest.json | cut -d ' ' -f 1)\" = ec9a759bbb5be161a0a77c2983e731c3b09e71b33688a2ecdf54abce9d1ba41b\ntest \"$(sha256sum expanded604-upgrade/scripts/ci/current604-public-pair-updater16k/job.py | cut -d ' ' -f 1)\" = 47c560fdc227a0b41e2cca9e1797b55adce2b35bb080d950d8ee1d1993c86c13\ntest \"$(sha256sum expanded604-upgrade/scripts/ci/current604-public-pair-updater16k/wiring-source-manifest.json | cut -d ' ' -f 1)\" = b1519c84860d72883acb39649d61598ca94f68c11f0d8612f8f8665bfcae984f\npython3 -I -B native4k-source/entry.py preflight --lifecycle-mode normal-emulated16k-lifecycle-v1 --page-profile generic16k --kernel-input \"$RUNNER_TEMP/updater607-kernel-data\" --fresh16k-source \"$GITHUB_WORKSPACE/updater607-fresh16k-source\" \\\n  --implementation \"$GITHUB_WORKSPACE/expanded604-upgrade\" --source \"$IMPLEMENTATION_SOURCE\" \\\n  --workflow-sha \"$WORKFLOW_SOURCE\" --case \"$UPGRADE_CASE\"\n",
           "shell": "bash"
         },
         {
@@ -255,7 +255,7 @@
         },
         {
           "name": "Run closed607 source and focused nonzero source controls",
-          "run": "set -euo pipefail\npython3 -I -B native4k-source/entry.py --source-preflight\nLATEST607_HELD_SOURCE=\"$GITHUB_WORKSPACE/expanded604-upgrade\" python3 -I -B native4k-source/production/parent360/test_source.py\npython3 -I -B native4k-source/production/test_source.py\npython3 -I -B native4k-source/test_source.py\npython3 -I -B native4k-source/capacity/emissions/cases/normal/scripts/ci/full-root-upgrade/root_upgrade.py --help\n",
+          "run": "set -euo pipefail\npython3 -I -B native4k-source/entry.py --source-preflight\nLATEST607_HELD_SOURCE=\"$GITHUB_WORKSPACE/expanded604-upgrade\" python3 -I -B native4k-source/production/parent360/test_source.py\npython3 -I -B native4k-source/production/test_source.py\npython3 -I -B native4k-source/test_source.py\npython3 -I -B native4k-source/lifecycle/emissions/cases/normal/scripts/ci/full-root-upgrade/root_upgrade.py --help\n",
           "shell": "bash"
         },
         {
@@ -266,7 +266,7 @@
           },
           "id": "root_decisions",
           "name": "Require five actual decisions and frozen installer before input retrieval",
-          "run": "set -euo pipefail\npython3 -I -B native4k-source/entry.py decisions --probe-mode generic16k-fullcopy-capacity --page-profile generic16k --kernel-input \"$RUNNER_TEMP/updater607-kernel-data\" --fresh16k-source \"$GITHUB_WORKSPACE/updater607-fresh16k-source\" \\\n  --latest-installer \"$GITHUB_WORKSPACE/latest607-latest-installer\" --six-record \"$GITHUB_WORKSPACE/latest607-six-record\" --apps16 \"$GITHUB_WORKSPACE/latest607-apps16\" --apps16qualification \"$GITHUB_WORKSPACE/latest607-apps16qualification\" --apps16current606qualification \"$GITHUB_WORKSPACE/latest607-apps16current606qualification\" --latest-decisions \"$GITHUB_WORKSPACE/latest607-latest-decisions\" --six-public \"$RUNNER_TEMP/latest607-six-public\" \\\n  --implementation \"$GITHUB_WORKSPACE/expanded604-upgrade\" --source \"$IMPLEMENTATION_SOURCE\" \\\n  --workflow-sha \"$WORKFLOW_SOURCE\" --updater-decisions \"$GITHUB_WORKSPACE/apps6-updater-decisions\" --case \"$UPGRADE_CASE\" \\\n  --installer-source \"$GITHUB_WORKSPACE/expanded604-installer\" \\\n  --decision-source \"$GITHUB_WORKSPACE/expanded604-decisions\"\n",
+          "run": "set -euo pipefail\npython3 -I -B native4k-source/entry.py decisions --lifecycle-mode normal-emulated16k-lifecycle-v1 --page-profile generic16k --kernel-input \"$RUNNER_TEMP/updater607-kernel-data\" --fresh16k-source \"$GITHUB_WORKSPACE/updater607-fresh16k-source\" \\\n  --latest-installer \"$GITHUB_WORKSPACE/latest607-latest-installer\" --six-record \"$GITHUB_WORKSPACE/latest607-six-record\" --apps16 \"$GITHUB_WORKSPACE/latest607-apps16\" --apps16qualification \"$GITHUB_WORKSPACE/latest607-apps16qualification\" --apps16current606qualification \"$GITHUB_WORKSPACE/latest607-apps16current606qualification\" --latest-decisions \"$GITHUB_WORKSPACE/latest607-latest-decisions\" --six-public \"$RUNNER_TEMP/latest607-six-public\" \\\n  --implementation \"$GITHUB_WORKSPACE/expanded604-upgrade\" --source \"$IMPLEMENTATION_SOURCE\" \\\n  --workflow-sha \"$WORKFLOW_SOURCE\" --updater-decisions \"$GITHUB_WORKSPACE/apps6-updater-decisions\" --case \"$UPGRADE_CASE\" \\\n  --installer-source \"$GITHUB_WORKSPACE/expanded604-installer\" \\\n  --decision-source \"$GITHUB_WORKSPACE/expanded604-decisions\"\n",
           "shell": "bash"
         },
         {
@@ -324,7 +324,7 @@
           "id": "root_inputs",
           "if": "${{ !cancelled() && steps.audio_inputs.outcome == 'success' }}",
           "name": "Verify all actual decisions and immutable inputs before secrets",
-          "run": "set -euo pipefail\npython3 -I -B native4k-source/entry.py inputs --probe-mode generic16k-fullcopy-capacity --page-profile generic16k --kernel-input \"$RUNNER_TEMP/updater607-kernel-data\" --fresh16k-source \"$GITHUB_WORKSPACE/updater607-fresh16k-source\" \\\n  --latest-installer \"$GITHUB_WORKSPACE/latest607-latest-installer\" --six-record \"$GITHUB_WORKSPACE/latest607-six-record\" --apps16 \"$GITHUB_WORKSPACE/latest607-apps16\" --apps16qualification \"$GITHUB_WORKSPACE/latest607-apps16qualification\" --apps16current606qualification \"$GITHUB_WORKSPACE/latest607-apps16current606qualification\" --latest-decisions \"$GITHUB_WORKSPACE/latest607-latest-decisions\" --six-public \"$RUNNER_TEMP/latest607-six-public\" \\\n  --implementation \"$GITHUB_WORKSPACE/expanded604-upgrade\" --source \"$IMPLEMENTATION_SOURCE\" \\\n  --workflow-sha \"$WORKFLOW_SOURCE\" --updater-decisions \"$GITHUB_WORKSPACE/apps6-updater-decisions\" --case \"$UPGRADE_CASE\" \\\n  --installer-source \"$GITHUB_WORKSPACE/expanded604-installer\" \\\n  --decision-source \"$GITHUB_WORKSPACE/expanded604-decisions\" \\\n  --upgrader-source \"$GITHUB_WORKSPACE/expanded604-upgrader-source\" \\\n  --legacy-source \"$GITHUB_WORKSPACE/expanded604-legacy\" \\\n  --seven-source \"$GITHUB_WORKSPACE/expanded604-seven\" --eight-source \"$GITHUB_WORKSPACE/expanded604-eight\" \\\n  --setup-source \"$GITHUB_WORKSPACE/expanded604-setup5\" \\\n  --management-source \"$GITHUB_WORKSPACE/expanded604-management-source/payload\" \\\n  --welcome-source \"$GITHUB_WORKSPACE/expanded604-welcome-source/payload\" \\\n  --fresh600-decisions \"$GITHUB_WORKSPACE/expanded604-fresh600-decisions\" \\\n  --native604-decisions \"$GITHUB_WORKSPACE/expanded604-native604-decisions\" \\\n  --apps6-source \"$GITHUB_WORKSPACE/apps6-inputs/payload\" --apps6-authority-source \"$GITHUB_WORKSPACE/apps6-authority\" --baseline-source \"$GITHUB_WORKSPACE/apps5-baseline\" --baseline-decisions-source \"$GITHUB_WORKSPACE/apps5-baseline-decisions\" \\\n  --audio-inputs \"$RUNNER_TEMP/audio-archives\"\n",
+          "run": "set -euo pipefail\npython3 -I -B native4k-source/entry.py inputs --lifecycle-mode normal-emulated16k-lifecycle-v1 --page-profile generic16k --kernel-input \"$RUNNER_TEMP/updater607-kernel-data\" --fresh16k-source \"$GITHUB_WORKSPACE/updater607-fresh16k-source\" \\\n  --latest-installer \"$GITHUB_WORKSPACE/latest607-latest-installer\" --six-record \"$GITHUB_WORKSPACE/latest607-six-record\" --apps16 \"$GITHUB_WORKSPACE/latest607-apps16\" --apps16qualification \"$GITHUB_WORKSPACE/latest607-apps16qualification\" --apps16current606qualification \"$GITHUB_WORKSPACE/latest607-apps16current606qualification\" --latest-decisions \"$GITHUB_WORKSPACE/latest607-latest-decisions\" --six-public \"$RUNNER_TEMP/latest607-six-public\" \\\n  --implementation \"$GITHUB_WORKSPACE/expanded604-upgrade\" --source \"$IMPLEMENTATION_SOURCE\" \\\n  --workflow-sha \"$WORKFLOW_SOURCE\" --updater-decisions \"$GITHUB_WORKSPACE/apps6-updater-decisions\" --case \"$UPGRADE_CASE\" \\\n  --installer-source \"$GITHUB_WORKSPACE/expanded604-installer\" \\\n  --decision-source \"$GITHUB_WORKSPACE/expanded604-decisions\" \\\n  --upgrader-source \"$GITHUB_WORKSPACE/expanded604-upgrader-source\" \\\n  --legacy-source \"$GITHUB_WORKSPACE/expanded604-legacy\" \\\n  --seven-source \"$GITHUB_WORKSPACE/expanded604-seven\" --eight-source \"$GITHUB_WORKSPACE/expanded604-eight\" \\\n  --setup-source \"$GITHUB_WORKSPACE/expanded604-setup5\" \\\n  --management-source \"$GITHUB_WORKSPACE/expanded604-management-source/payload\" \\\n  --welcome-source \"$GITHUB_WORKSPACE/expanded604-welcome-source/payload\" \\\n  --fresh600-decisions \"$GITHUB_WORKSPACE/expanded604-fresh600-decisions\" \\\n  --native604-decisions \"$GITHUB_WORKSPACE/expanded604-native604-decisions\" \\\n  --apps6-source \"$GITHUB_WORKSPACE/apps6-inputs/payload\" --apps6-authority-source \"$GITHUB_WORKSPACE/apps6-authority\" --baseline-source \"$GITHUB_WORKSPACE/apps5-baseline\" --baseline-decisions-source \"$GITHUB_WORKSPACE/apps5-baseline-decisions\" \\\n  --audio-inputs \"$RUNNER_TEMP/audio-archives\"\n",
           "shell": "bash"
         },
         {
@@ -598,8 +598,8 @@
           },
           "id": "composition",
           "if": "${{ always() && !cancelled() && steps.root_inputs.outcome == 'success' && steps.frozen574_archive32.outcome == 'success' && steps.frozen574_archive20.outcome == 'success' && steps.frozen574_archive8.outcome == 'success' && steps.complete_desktop574_seed.outcome == 'success' }}",
-          "name": "Diagnostic-only finite generic16K full-copy capacity",
-          "run": "set -euo pipefail\ntest \"$FDK_PAIR_OUTCOME\" = success\ntest \"$AUDIO_INPUTS_OUTCOME\" = success\ninstall -d -m 700 \"$RUNNER_TEMP/expanded604-root-upgrade-home\"\ntimeout --signal=TERM --kill-after=60s 18000s \\\n  env -i PATH=/usr/local/bin:/usr/bin:/bin HOME=\"$RUNNER_TEMP/expanded604-root-upgrade-home\" LANG=C.UTF-8 TZ=UTC \\\n  PYTHONDONTWRITEBYTECODE=1 \\\n  GITHUB_REPOSITORY=\"${{ github.repository }}\" \\\n  GITHUB_SHA=\"${{ github.sha }}\" \\\n  GITHUB_EVENT_NAME=\"${{ github.event_name }}\" \\\n  GITHUB_RUN_ATTEMPT=\"${{ github.run_attempt }}\" \\\n  GITHUB_RUN_ID=\"${{ github.run_id }}\" \\\n  GITHUB_REF=\"${{ github.ref }}\" \\\n  GITHUB_WORKFLOW_REF=\"${{ github.workflow_ref }}\" \\\n  GITHUB_WORKFLOW=\"${{ github.workflow }}\" \\\n  python3 -I -B \"$GITHUB_WORKSPACE/native4k-source/entry.py\" run --probe-mode generic16k-fullcopy-capacity --page-profile generic16k --kernel-input \"$RUNNER_TEMP/updater607-kernel-data\" --fresh16k-source \"$GITHUB_WORKSPACE/updater607-fresh16k-source\" \\\n  --dependency-incoming \"$GITHUB_WORKSPACE/latest607-dependency-incoming\" \\\n  --latest-installer \"$GITHUB_WORKSPACE/latest607-latest-installer\" --six-record \"$GITHUB_WORKSPACE/latest607-six-record\" --apps16 \"$GITHUB_WORKSPACE/latest607-apps16\" --apps16qualification \"$GITHUB_WORKSPACE/latest607-apps16qualification\" --apps16current606qualification \"$GITHUB_WORKSPACE/latest607-apps16current606qualification\" --latest-decisions \"$GITHUB_WORKSPACE/latest607-latest-decisions\" --six-public \"$RUNNER_TEMP/latest607-six-public\" \\\n    --implementation \"$GITHUB_WORKSPACE/expanded604-upgrade\" --source \"$IMPLEMENTATION_SOURCE\" --workflow-sha \"$IMPLEMENTATION_SOURCE\" \\\n    --case \"$UPGRADE_CASE\" --installer-source \"$GITHUB_WORKSPACE/expanded604-installer\" \\\n    --decision-source \"$GITHUB_WORKSPACE/expanded604-decisions\" \\\n    --upgrader-source \"$GITHUB_WORKSPACE/expanded604-upgrader-source\" \\\n    --setup-source \"$GITHUB_WORKSPACE/expanded604-setup5\" \\\n    --legacy-source \"$GITHUB_WORKSPACE/expanded604-legacy\" \\\n    --preparation-source \"$GITHUB_WORKSPACE/composition-preparation\" \\\n    --updater-v2-source \"$GITHUB_WORKSPACE/composition-updater-v2\" --setup4-pair \"$RUNNER_TEMP/setup4-retained\" \\\n    --product \"$GITHUB_WORKSPACE/composition-product\" --updater \"$GITHUB_WORKSPACE/composition-updater\" \\\n    --desktop \"$GITHUB_WORKSPACE/composition-desktop\" \\\n    --native \"$RUNNER_TEMP/native-evidence\" --fdk \"$RUNNER_TEMP/fdk-evidence\" --cache \"$RUNNER_TEMP/alarm-cache\" \\\n    --seven-source \"$GITHUB_WORKSPACE/expanded604-seven\" --eight-source \"$GITHUB_WORKSPACE/expanded604-eight\" \\\n    --management-source \"$GITHUB_WORKSPACE/expanded604-management-source/payload\" \\\n    --welcome-source \"$GITHUB_WORKSPACE/expanded604-welcome-source/payload\" \\\n    --fresh600-decisions \"$GITHUB_WORKSPACE/expanded604-fresh600-decisions\" \\\n    --native604-decisions \"$GITHUB_WORKSPACE/expanded604-native604-decisions\" \\\n    --apps6-source \"$GITHUB_WORKSPACE/apps6-inputs/payload\" --apps6-authority-source \"$GITHUB_WORKSPACE/apps6-authority\" --baseline-source \"$GITHUB_WORKSPACE/apps5-baseline\" --baseline-decisions-source \"$GITHUB_WORKSPACE/apps5-baseline-decisions\" \\\n  --audio-inputs \"$RUNNER_TEMP/audio-archives\" \\\n    --updater-decisions \"$GITHUB_WORKSPACE/apps6-updater-decisions\" \\\n    --output \"/tmp/cachy-asahi-updater607-copy-capacity-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT-$UPGRADE_CASE\"\n",
+          "name": "Run explicit EMULATED16K normal updater lifecycle",
+          "run": "set -euo pipefail\ntest \"$FDK_PAIR_OUTCOME\" = success\ntest \"$AUDIO_INPUTS_OUTCOME\" = success\ninstall -d -m 700 \"$RUNNER_TEMP/expanded604-root-upgrade-home\"\ntimeout --signal=TERM --kill-after=60s 18000s \\\n  env -i PATH=/usr/local/bin:/usr/bin:/bin HOME=\"$RUNNER_TEMP/expanded604-root-upgrade-home\" LANG=C.UTF-8 TZ=UTC \\\n  PYTHONDONTWRITEBYTECODE=1 \\\n  GITHUB_REPOSITORY=\"${{ github.repository }}\" \\\n  GITHUB_SHA=\"${{ github.sha }}\" \\\n  GITHUB_EVENT_NAME=\"${{ github.event_name }}\" \\\n  GITHUB_RUN_ATTEMPT=\"${{ github.run_attempt }}\" \\\n  GITHUB_RUN_ID=\"${{ github.run_id }}\" \\\n  GITHUB_REF=\"${{ github.ref }}\" \\\n  GITHUB_WORKFLOW_REF=\"${{ github.workflow_ref }}\" \\\n  GITHUB_WORKFLOW=\"${{ github.workflow }}\" \\\n  python3 -I -B \"$GITHUB_WORKSPACE/native4k-source/entry.py\" run --lifecycle-mode normal-emulated16k-lifecycle-v1 --page-profile generic16k --kernel-input \"$RUNNER_TEMP/updater607-kernel-data\" --fresh16k-source \"$GITHUB_WORKSPACE/updater607-fresh16k-source\" \\\n  --dependency-incoming \"$GITHUB_WORKSPACE/latest607-dependency-incoming\" \\\n  --latest-installer \"$GITHUB_WORKSPACE/latest607-latest-installer\" --six-record \"$GITHUB_WORKSPACE/latest607-six-record\" --apps16 \"$GITHUB_WORKSPACE/latest607-apps16\" --apps16qualification \"$GITHUB_WORKSPACE/latest607-apps16qualification\" --apps16current606qualification \"$GITHUB_WORKSPACE/latest607-apps16current606qualification\" --latest-decisions \"$GITHUB_WORKSPACE/latest607-latest-decisions\" --six-public \"$RUNNER_TEMP/latest607-six-public\" \\\n    --implementation \"$GITHUB_WORKSPACE/expanded604-upgrade\" --source \"$IMPLEMENTATION_SOURCE\" --workflow-sha \"$IMPLEMENTATION_SOURCE\" \\\n    --case \"$UPGRADE_CASE\" --installer-source \"$GITHUB_WORKSPACE/expanded604-installer\" \\\n    --decision-source \"$GITHUB_WORKSPACE/expanded604-decisions\" \\\n    --upgrader-source \"$GITHUB_WORKSPACE/expanded604-upgrader-source\" \\\n    --setup-source \"$GITHUB_WORKSPACE/expanded604-setup5\" \\\n    --legacy-source \"$GITHUB_WORKSPACE/expanded604-legacy\" \\\n    --preparation-source \"$GITHUB_WORKSPACE/composition-preparation\" \\\n    --updater-v2-source \"$GITHUB_WORKSPACE/composition-updater-v2\" --setup4-pair \"$RUNNER_TEMP/setup4-retained\" \\\n    --product \"$GITHUB_WORKSPACE/composition-product\" --updater \"$GITHUB_WORKSPACE/composition-updater\" \\\n    --desktop \"$GITHUB_WORKSPACE/composition-desktop\" \\\n    --native \"$RUNNER_TEMP/native-evidence\" --fdk \"$RUNNER_TEMP/fdk-evidence\" --cache \"$RUNNER_TEMP/alarm-cache\" \\\n    --seven-source \"$GITHUB_WORKSPACE/expanded604-seven\" --eight-source \"$GITHUB_WORKSPACE/expanded604-eight\" \\\n    --management-source \"$GITHUB_WORKSPACE/expanded604-management-source/payload\" \\\n    --welcome-source \"$GITHUB_WORKSPACE/expanded604-welcome-source/payload\" \\\n    --fresh600-decisions \"$GITHUB_WORKSPACE/expanded604-fresh600-decisions\" \\\n    --native604-decisions \"$GITHUB_WORKSPACE/expanded604-native604-decisions\" \\\n    --apps6-source \"$GITHUB_WORKSPACE/apps6-inputs/payload\" --apps6-authority-source \"$GITHUB_WORKSPACE/apps6-authority\" --baseline-source \"$GITHUB_WORKSPACE/apps5-baseline\" --baseline-decisions-source \"$GITHUB_WORKSPACE/apps5-baseline-decisions\" \\\n  --audio-inputs \"$RUNNER_TEMP/audio-archives\" \\\n    --updater-decisions \"$GITHUB_WORKSPACE/apps6-updater-decisions\" \\\n    --output \"/tmp/cachy-asahi-updater607-normal-lifecycle-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT-$UPGRADE_CASE\"\n",
           "shell": "bash",
           "timeout-minutes": 310
         },
@@ -609,30 +609,30 @@
           },
           "if": "always()",
           "name": "Retire only the original owned job HOME and Docker config",
-          "run": "set -euo pipefail\npython3 -I -B \"$GITHUB_WORKSPACE/native4k-source/capacity/cleanup.py\" --implementation \"$GITHUB_WORKSPACE/expanded604-upgrade\" --source \"${{ inputs.source }}\" --workflow-sha \"${{ github.sha }}\" --case \"${{ inputs.case }}\" --source-output \"/tmp/cachy-asahi-updater607-copy-capacity-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT-${{ inputs.case }}\" --output \"$RUNNER_TEMP/updater607-copy-capacity-cleanup.json\"\n"
+          "run": "set -euo pipefail\npython3 -I -B \"$GITHUB_WORKSPACE/native4k-source/lifecycle/cleanup.py\" --implementation \"$GITHUB_WORKSPACE/expanded604-upgrade\" --source \"${{ inputs.source }}\" --workflow-sha \"${{ github.sha }}\" --case \"${{ inputs.case }}\" --source-output \"/tmp/cachy-asahi-updater607-normal-lifecycle-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT-${{ inputs.case }}\" --output \"$RUNNER_TEMP/updater607-normal-lifecycle-cleanup.json\"\n"
         },
         {
           "env": {
             "LATEST607_HELD_SOURCE": "${{ github.workspace }}/expanded604-upgrade"
           },
           "if": "always()",
-          "name": "Retain fixed original current607 generic16K public roles and separate wrapper custody",
-          "run": "set -euo pipefail\npython3 -I -B \"$GITHUB_WORKSPACE/native4k-source/retain.py\" \\\n --implementation \"$GITHUB_WORKSPACE/expanded604-upgrade\" --source \"${{ inputs.source }}\" --workflow-sha \"${{ github.sha }}\" --case \"${{ inputs.case }}\" \\\n --source-output \"/tmp/cachy-asahi-updater607-copy-capacity-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT-${{ inputs.case }}\" \\\n --output \"$RUNNER_TEMP/updater607-copy-capacity-evidence\" --cleanup \"$RUNNER_TEMP/updater607-copy-capacity-cleanup.json\"\n",
+          "name": "Retain normal lifecycle public roles and separate VM custody",
+          "run": "set -euo pipefail\npython3 -I -B \"$GITHUB_WORKSPACE/native4k-source/retain.py\" \\\n --implementation \"$GITHUB_WORKSPACE/expanded604-upgrade\" --source \"${{ inputs.source }}\" --workflow-sha \"${{ github.sha }}\" --case \"${{ inputs.case }}\" \\\n --source-output \"/tmp/cachy-asahi-updater607-normal-lifecycle-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT-${{ inputs.case }}\" \\\n --output \"$RUNNER_TEMP/updater607-normal-lifecycle-evidence\" --cleanup \"$RUNNER_TEMP/updater607-normal-lifecycle-cleanup.json\"\n",
           "shell": "bash",
           "timeout-minutes": 2
         },
         {
           "if": "${{ always() && !cancelled() }}",
-          "name": "Retain exact current607 generic16K source-bound public artifact",
+          "name": "Retain exact source-bound normal lifecycle artifact",
           "uses": "actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9",
           "with": {
             "archive": true,
             "compression-level": 0,
             "if-no-files-found": "error",
             "include-hidden-files": false,
-            "name": "updater607-copy-capacity-${{ inputs.case }}-${{ github.run_id }}-${{ github.run_attempt }}",
+            "name": "updater607-normal-lifecycle-${{ inputs.case }}-${{ github.run_id }}-${{ github.run_attempt }}",
             "overwrite": false,
-            "path": "${{ runner.temp }}/updater607-copy-capacity-evidence/evidence.zip",
+            "path": "${{ runner.temp }}/updater607-normal-lifecycle-evidence/evidence.zip",
             "retention-days": 3
           }
         }
@@ -640,15 +640,17 @@
       "timeout-minutes": 360
     }
   },
-  "name": "native-arm-updater607-copy-capacity",
+  "name": "native-arm-latest607-updater-generic16k",
   "on": {
     "workflow_dispatch": {
       "inputs": {
         "case": {
           "default": "normal",
-          "description": "Diagnostic-only full-copy capacity; no update acceptance",
+          "description": "Normal signed update/rollback/recovery, or original fault case",
           "options": [
-            "normal"
+            "normal",
+            "precommit-exit86",
+            "postcommit-exit87"
           ],
           "required": true,
           "type": "choice"
@@ -668,6 +670,15 @@
           "required": true,
           "type": "string"
         },
+        "lifecycle_mode": {
+          "default": "normal-emulated16k-lifecycle-v1",
+          "description": "Explicit private EMULATED16K normal lifecycle",
+          "options": [
+            "normal-emulated16k-lifecycle-v1"
+          ],
+          "required": true,
+          "type": "choice"
+        },
         "mode": {
           "default": "build",
           "description": "Fresh native original-four builder and required FDK pair",
@@ -679,17 +690,9 @@
         },
         "page_profile": {
           "default": "generic16k",
-          "description": "Explicit generic16K full-copy capacity context",
+          "description": "Owned generic16K VM; no hardware acceptance",
           "options": [
             "generic16k"
-          ],
-          "required": true,
-          "type": "choice"
-        },
-        "probe_mode": {
-          "default": "generic16k-fullcopy-capacity",
-          "options": [
-            "generic16k-fullcopy-capacity"
           ],
           "required": true,
           "type": "choice"
@@ -700,7 +703,7 @@
           "type": "string"
         },
         "source": {
-          "description": "Exact diagnostic capacity context/workflow SHA; all production prerequisites stay distinct",
+          "description": "Exact complete lifecycle source/workflow commit",
           "required": true,
           "type": "string"
         }
