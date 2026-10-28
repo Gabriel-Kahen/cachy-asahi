@@ -1,0 +1,201 @@
+{
+  "commit": "ebf0f43d7c4267876fc256f5fce75982c33f4399",
+  "files": [
+    {
+      "actual": {
+        "bytes": 1077,
+        "sha256": "860e3d7a86b84e6a7012c7a635fc64df475cebc6cce34dfeb73a5982ec58176c"
+      },
+      "commit": "ebf0f43d7c4267876fc256f5fce75982c33f4399",
+      "matches_git_blob": true,
+      "path": "LICENSE-MIT",
+      "primary_bytes": 1077,
+      "primary_git_blob_sha1": "014835144877ea9c926d027ece3e1a26290cf481",
+      "primary_sha256": null,
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/ebf0f43d7c4267876fc256f5fce75982c33f4399/LICENSE-MIT"
+    },
+    {
+      "actual": {
+        "bytes": 11357,
+        "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+      },
+      "commit": "ebf0f43d7c4267876fc256f5fce75982c33f4399",
+      "matches_git_blob": true,
+      "path": "LICENSE-APACHE",
+      "primary_bytes": 11357,
+      "primary_git_blob_sha1": "261eeb9e9f8b2b4b0d119366dda99c6fd7d35c64",
+      "primary_sha256": null,
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/ebf0f43d7c4267876fc256f5fce75982c33f4399/LICENSE-APACHE"
+    },
+    {
+      "actual": {
+        "bytes": 47726,
+        "sha256": "8525fa983711cb2de13dde1fa5063825e0cc11d747a2b37ec171216037d5b091"
+      },
+      "commit": "ebf0f43d7c4267876fc256f5fce75982c33f4399",
+      "matches_git_blob": true,
+      "path": "crates/uv/src/commands/build_frontend.rs",
+      "primary_bytes": 47726,
+      "primary_git_blob_sha1": "b4803988b8826f47abe82194fd1dbe35d6acf49e",
+      "primary_sha256": null,
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/ebf0f43d7c4267876fc256f5fce75982c33f4399/crates/uv/src/commands/build_frontend.rs"
+    },
+    {
+      "actual": {
+        "bytes": 80238,
+        "sha256": "1733b813f9800ae749760a6d834e435231d69e2e77ac5be27cbbd05db3bf0d28"
+      },
+      "commit": "ebf0f43d7c4267876fc256f5fce75982c33f4399",
+      "matches_git_blob": true,
+      "path": "crates/uv-build-backend/src/lib.rs",
+      "primary_bytes": 80238,
+      "primary_git_blob_sha1": "c2f7c9f23632b5f8fb92f6f89357b48418414d51",
+      "primary_sha256": null,
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/ebf0f43d7c4267876fc256f5fce75982c33f4399/crates/uv-build-backend/src/lib.rs"
+    },
+    {
+      "actual": {
+        "bytes": 50014,
+        "sha256": "2d19a46185106e63313f58912ac966b481ab8d60dfc0c64813679a1a785d7f30"
+      },
+      "commit": "ebf0f43d7c4267876fc256f5fce75982c33f4399",
+      "matches_git_blob": true,
+      "path": "crates/uv-build-frontend/src/lib.rs",
+      "primary_bytes": 50014,
+      "primary_git_blob_sha1": "b642e6099c66a9766e1350efe712567861bb87dc",
+      "primary_sha256": null,
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/ebf0f43d7c4267876fc256f5fce75982c33f4399/crates/uv-build-frontend/src/lib.rs"
+    },
+    {
+      "actual": {
+        "bytes": 4803,
+        "sha256": "6fbe0020d04fa78db8fecc53bab420065e2ca0bdb8bcc4f9b0996d24a22a7465"
+      },
+      "commit": "ebf0f43d7c4267876fc256f5fce75982c33f4399",
+      "matches_git_blob": true,
+      "path": "crates/uv-build/python/uv_build/__init__.py",
+      "primary_bytes": 4803,
+      "primary_git_blob_sha1": "86226f51267f9fe8b8c6167b639153b640b7577c",
+      "primary_sha256": null,
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/ebf0f43d7c4267876fc256f5fce75982c33f4399/crates/uv-build/python/uv_build/__init__.py"
+    },
+    {
+      "actual": {
+        "bytes": 1629,
+        "sha256": "1bce4b0492684083f8db440d323a5b1449dfd5aea4180d8a7aebfda3271a3081"
+      },
+      "commit": "ebf0f43d7c4267876fc256f5fce75982c33f4399",
+      "matches_git_blob": true,
+      "path": "crates/uv-build/pyproject.toml",
+      "primary_bytes": 1629,
+      "primary_git_blob_sha1": "8c3c14457710d58dfeb7d8805fc3d27d1acb0d8b",
+      "primary_sha256": null,
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/ebf0f43d7c4267876fc256f5fce75982c33f4399/crates/uv-build/pyproject.toml"
+    },
+    {
+      "actual": {
+        "bytes": 6090,
+        "sha256": "b3526aaf1c73931d2c333633f1f69b4e56c5a0e8d49204072e401e93a70dbc69"
+      },
+      "commit": "ebf0f43d7c4267876fc256f5fce75982c33f4399",
+      "matches_git_blob": true,
+      "path": "crates/uv-build/src/main.rs",
+      "primary_bytes": 6090,
+      "primary_git_blob_sha1": "ceb5109a74c8d35c01ee506c2b3f2620f0dfe788",
+      "primary_sha256": null,
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/ebf0f43d7c4267876fc256f5fce75982c33f4399/crates/uv-build/src/main.rs"
+    },
+    {
+      "actual": {
+        "bytes": 79183,
+        "sha256": "0e22f80046a365536da3bc2152d4239c3d0b842b2de59ff1cc2633bfb8faf4c5"
+      },
+      "commit": "ebf0f43d7c4267876fc256f5fce75982c33f4399",
+      "matches_git_blob": true,
+      "path": "crates/uv-build-backend/src/metadata.rs",
+      "primary_bytes": 79183,
+      "primary_git_blob_sha1": "7b90ba01cecedd7a199482c495306f6e67c57272",
+      "primary_sha256": null,
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/ebf0f43d7c4267876fc256f5fce75982c33f4399/crates/uv-build-backend/src/metadata.rs"
+    },
+    {
+      "actual": {
+        "bytes": 3206,
+        "sha256": "12f63de7a978ef925250554035dbf751368d5139265a26da4856d20a7fb12f2b"
+      },
+      "commit": "ebf0f43d7c4267876fc256f5fce75982c33f4399",
+      "matches_git_blob": true,
+      "path": "crates/uv/src/commands/build_backend.rs",
+      "primary_bytes": 3206,
+      "primary_git_blob_sha1": "c9f4e2ed53a2d6c3657791ed7144c466daf378d3",
+      "primary_sha256": null,
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/ebf0f43d7c4267876fc256f5fce75982c33f4399/crates/uv/src/commands/build_backend.rs"
+    },
+    {
+      "actual": {
+        "bytes": 328315,
+        "sha256": "4dd5895eb86b5ebf1da061da1165e581a3cf75b669564a14b4b783598a92d578"
+      },
+      "commit": "ebf0f43d7c4267876fc256f5fce75982c33f4399",
+      "matches_git_blob": true,
+      "path": "crates/uv-cli/src/lib.rs",
+      "primary_bytes": 328315,
+      "primary_git_blob_sha1": "7476c4394ab5e53a780f39c8528b16b53cf1f5cc",
+      "primary_sha256": null,
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/ebf0f43d7c4267876fc256f5fce75982c33f4399/crates/uv-cli/src/lib.rs"
+    },
+    {
+      "actual": {
+        "bytes": 355,
+        "sha256": "56244bd779ca7895cc41f4e0dd12ec8d298f3fa34d4553e776f2c8aa050c88ae"
+      },
+      "commit": "ebf0f43d7c4267876fc256f5fce75982c33f4399",
+      "matches_git_blob": true,
+      "path": "crates/uv-version/src/lib.rs",
+      "primary_bytes": 355,
+      "primary_git_blob_sha1": "20a8940a121643c78223dc80da78cf1fbe2a9817",
+      "primary_sha256": null,
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/ebf0f43d7c4267876fc256f5fce75982c33f4399/crates/uv-version/src/lib.rs"
+    },
+    {
+      "actual": {
+        "bytes": 16623,
+        "sha256": "cc1fe02a7969bedf73d03ca98e9151e2b3fbb1ca53fd6ced989f26104d640b94"
+      },
+      "commit": "ebf0f43d7c4267876fc256f5fce75982c33f4399",
+      "matches_git_blob": true,
+      "path": "Cargo.toml",
+      "primary_bytes": 16623,
+      "primary_git_blob_sha1": "95b5e97e82c2136fb6a705eadf9cdaa92cb05ae0",
+      "primary_sha256": null,
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/ebf0f43d7c4267876fc256f5fce75982c33f4399/Cargo.toml"
+    },
+    {
+      "actual": {
+        "bytes": 368,
+        "sha256": "d5052e15647181cd95093776ff468b13e3e1a8b9bece4776214d06d74a0e3a50"
+      },
+      "commit": "ebf0f43d7c4267876fc256f5fce75982c33f4399",
+      "matches_git_blob": true,
+      "path": "crates/uv-version/Cargo.toml",
+      "primary_bytes": 368,
+      "primary_git_blob_sha1": "abd7688efe839089d812c27e37c97902aff421d6",
+      "primary_sha256": null,
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/ebf0f43d7c4267876fc256f5fce75982c33f4399/crates/uv-version/Cargo.toml"
+    },
+    {
+      "actual": {
+        "bytes": 662,
+        "sha256": "57fce2fd9b7b5ce84e97d4e9a1a65fe8531f20ea1d7c703b433fbce3511f4b47"
+      },
+      "commit": "ebf0f43d7c4267876fc256f5fce75982c33f4399",
+      "matches_git_blob": true,
+      "path": "crates/uv-build/Cargo.toml",
+      "primary_bytes": 662,
+      "primary_git_blob_sha1": "82380682f02ece931832d5668eab9c37e1b0905a",
+      "primary_sha256": null,
+      "url": "https://raw.githubusercontent.com/astral-sh/uv/ebf0f43d7c4267876fc256f5fce75982c33f4399/crates/uv-build/Cargo.toml"
+    }
+  ],
+  "tag": "0.11.28"
+}

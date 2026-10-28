@@ -1,0 +1,114 @@
+# Hosted native developer input closure
+
+Successor to the frozen 138-file constructor. No prior/canonical source is edited.
+Actual source/ref/run remain NULL until Root publication and genuine run metadata.
+Source construction/controls do not execute compiler/native/GPG/ALPM/Git/install
+actors. Bounded public acquisition was explicitly authorized separately.
+
+## Exact frontend and separate backend
+
+Official uv 0.11.28 resolves to commit
+`ebf0f43d7c4267876fc256f5fce75982c33f4399`. Primary sources are the
+[GitHub release](https://github.com/astral-sh/uv/releases/tag/0.11.28) and
+[exact PyPI backend metadata](https://pypi.org/pypi/uv_build/0.11.28/json).
+Licenses are `MIT OR Apache-2.0`; the exact notices are retained.
+
+| Input | Bytes | SHA256 |
+| --- | ---: | --- |
+| uv-aarch64-unknown-linux-gnu.tar.gz | 24,689,886 | `03e9fe0a81b0718d0bc84625de3885df6cc3f89a8b6af6121d6b9f6113fb6533` |
+| uv_build-0.11.28-py3-none-manylinux_2_28_aarch64.whl | 1,616,098 | `d99cb38411412134781140cc64dc7d296dbc383fa1e81ddc13ecb6863852ecf5` |
+| uv_build-0.11.28.tar.gz, source | 408,697 | `daba66fd25a9a82caa23949686e967cbb69fd056177e991650643186057adaef` |
+
+The release supplies uv/uvx, not an importable Python uv_build package. Exact
+source distinguishes the direct Rust fast path from PEP517. The unmodified shim
+has `USE_UV_EXECUTABLE=False` and calls `uv-build`, supplied by the separate wheel.
+That wheel has no Requires-Dist dependencies; RECORD, shim and license joins were
+checked. No importability claim is inferred from the uv binary alone.
+
+`python_backend.py` retains the original project/journey and process core. It
+installs the pinned local backend wheel into a fresh private venv with offline,
+no-index/no-deps; prepends its bin path; verifies original shim/uv-build payloads;
+and uses `--force-pep517 --no-build-isolation`. Backend files are pinned around
+every command. Nothing is installed on the host, and no shim is modified.
+
+Archive inspection is not execution. ELF metadata shows AArch64 and GLIBC>=2.28;
+the ALARM rootfs pins glibc 2.43. Loader resolution, backend import, builds, native
+16K and M2 remain NOT RUN. Primary HTTPS/size/hashes were verified; independent
+signatures, attestations and reproducible binary builds were not verified.
+
+## Closed source construction
+
+```sh
+python3 -I -B scripts/ci/native-developer-workflows-input-closure/construct.py \
+  --predecessor /absolute/path/to/frozen-138-file-source \
+  --acquisition /absolute/path/to/input-closure-packet/acquisition \
+  --output /absolute/path/to/new-closed-hosted-source
+```
+
+The predecessor must match map
+`e41a4b76269528ba678bdf1d0fbd7f1a997b9799decfa6ade352e33dc79a56bd`.
+The fixed primary-acquisition handoff and all copied archives/provenance are
+verified. Original code/data limits stay held; only the two named public tool
+archives use exact larger file pins. Ordinary source reads retain their 16 MiB cap.
+
+Original ALARM 341 plus eight packages stays exact 349. uv is a separately pinned
+tool under /opt in the disposable image; uv_build stays in the private developer
+venv. Neither is passed off as an ALARM package. The guest must actually pass
+Python PEP517, compiled extension, CMake and Meson before reporting component PASS.
+
+## Practical hosted route
+
+The source emits byte-identical canonical/dedicated aliases:
+`.github/workflows/native-arm-build.yml` and
+`.github/workflows/native-arm-developer-workflows.yml`. Root uses existing
+canonical workflow 381664314 on `ubuntu-24.04-arm`, as PGO102 did. Ubuntu only
+actuates Docker; selected-base execution is inside the exact ALARM environment.
+No preseeded/dedicated runner or new secret is required.
+
+The workflow checks exact Git source before secrets, uses the original 22 private
+chunks and public14 seed, moves that checkout outside the source, fetches the
+original 1154 carrier once to `pgo-hosted-retained` under the proven 480s envelope,
+and atomically copies 16 exact leaves for the eight build-tool archive/signature
+pairs. The original owner then proves the full carrier, builds 341, authenticates
+the eight-package overlay and runs all four real component journeys.
+
+Existing process/cleanup/resource gates remain: bootstrap 2250s subdeadline,
+consumer 2 CPU/4 GiB/256 PIDs/1800s, no network, read-only source/root, direct final
+waits, named inventory probe, exact owned images and both GPG-home retirements.
+Provisioning failure yields bounded DATA diagnostics. No phase ran here.
+
+## Root stage and one dispatch
+
+Publish the complete generated namespace from an isolated source checkout,
+retaining its map/Git blobs/ref. Root fills genuine values in the NULL dispatch
+JSON, then invokes the existing canonical route once:
+
+```sh
+gh api repos/Gabriel-Kahen/cachy-asahi/actions/workflows/381664314/dispatches \
+  --method POST --input /root-owned/bound-dispatch.json
+```
+
+The body requires `ref`, `inputs.source_sha`, `inputs.source_map_sha256`.
+Attempt 1 and exact GitHub source/workflow/ref/run equality are mandatory. Run
+selectors are bound only after dispatch metadata exists. No main/PR6 merge occurs.
+
+The matching passive reader checks exact binding, provisioning, both daemon
+inspections, resource/mount predicates, raw actor/feature logs and all four actual
+component outcomes. NULL bindings refuse before original-artifact reads. DATA
+diagnostics confer no native acceptance; Root authenticates original custody.
+Native 16K, M2, installed Asahi, performance and release qualification stay separate.
+
+## Bounded public-tree transport
+
+The retention phase writes one regular `upload/public-tree.tar` for the ordinary
+artifact uploader. A canonical uncompressed USTAR capsule carries an exact index,
+explicit directory modes, file modes/bytes and symlink target bytes as ordinary
+data payloads. No archive entry is a link. The matching reader checks the capsule
+in memory; it never extracts or creates host links and never reads link targets.
+The complete capsule, including metadata/tar overhead, must fit 32MiB; each ordinary
+payload remains at most 16MiB. Private caches/key material are excluded.
+
+Run `native/reader.py --capsule ORIGINAL_PUBLIC_TREE_TAR --binding ACTUAL_JSON`
+only after Root authenticates the ordinary artifact ZIP and its sole capsule
+member. NULL actual bindings refuse before capsule access. Local tar/ZIP fixture
+roundtrips are transport-model controls, not actual GitHub or native evidence.

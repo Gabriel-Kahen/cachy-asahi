@@ -1,0 +1,48 @@
+{
+  "ALPM": "NOT_RUN",
+  "actual": {
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "baseline": "a0bbaee4da1c588f33375b6d4cda372d89a85f77",
+  "canonical_workflow_id": 381664314,
+  "environment": "EXACT_SIGNED_ALARM_ORIGINAL341_PLUS_RETAINED8",
+  "future_native": [
+    "Python_PEP517",
+    "C_extension",
+    "CMake",
+    "Meson"
+  ],
+  "historical_predecessor_baseline": "5a8838f32e0629231159488e7407f5f0eb532f1c",
+  "hosted_runner": "ubuntu-24.04-arm",
+  "limits": {
+    "bootstrap_seconds": 2250,
+    "cleanup_seconds": 160,
+    "consumer_seconds": 1800,
+    "cpus": 2,
+    "memory": 4294967296,
+    "pids": 256,
+    "public_bytes": 33554432
+  },
+  "native": "NOT_RUN",
+  "packages": 349,
+  "physical_M2": "NOT_RUN",
+  "protocol": "FORCE_PEP517_WITH_PINNED_PRIVATE_UV_BUILD",
+  "public_evidence_transport": {
+    "basis177_map_sha256": "99d676438a247749b3e1c564943d8735452a1ebd92ec91dd78ee37817e77f36d",
+    "capsule_bytes": 33554432,
+    "format": "CANONICAL_USTAR_PUBLIC_TREE_AS_DATA_V1",
+    "ordinary_member_bytes": 16777216,
+    "reader": "PASSIVE_CAPSULE_DATA_VIEW",
+    "symlinks": "TARGET_BYTES_AS_ORDINARY_PAYLOAD_NO_HOST_LINKS",
+    "upload": "upload/public-tree.tar"
+  },
+  "python_wheel": "EXACT_ARM_FRONTEND_AND_SEPARATE_BACKEND_WHEEL_PREPARED_NOT_EXECUTED",
+  "release": "NOT_ADMITTED",
+  "required_new_runners": [],
+  "required_new_secrets": [],
+  "schema": 1,
+  "signatures": "NOT_RUN",
+  "source_status": "SUCCESSOR_SOURCE_ONLY_NOT_PUBLISHED"
+}
