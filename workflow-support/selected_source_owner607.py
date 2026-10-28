@@ -60,8 +60,10 @@ def configure(owner):
    need(owner.decode(capsule)['files']['workflow-support/install_diagnostic607.py']==pin(raw),'source-bound diagnostic helper before actor mount')
    alpm_path=ROOT/'workflow-support/alpm_load_diagnostic607.py';alpm_raw=owner.read(alpm_path,64*1024);alpm_sha=pin(alpm_raw)['sha256']
    need(owner.decode(capsule)['files']['workflow-support/alpm_load_diagnostic607.py']==pin(alpm_raw),'source-bound signed-load helper before actor mount')
+   sig_path=ROOT/'workflow-support/alpm_signature_diagnostic607.py';sig_raw=owner.read(sig_path,64*1024);sig_sha=pin(sig_raw)['sha256']
+   need(owner.decode(capsule)['files']['workflow-support/alpm_signature_diagnostic607.py']==pin(sig_raw),'source-bound signature-detail helper before actor mount')
    need(argv[-4:]==['-I','-B','/fresh-operation/provider607.py','--install']and argv.count('--entrypoint=/usr/bin/python3')==1,'one exact original install actor slot')
-   at=argv.index('--entrypoint=/usr/bin/python3');argv=argv[:at]+['--mount','type=bind,src='+str(path)+',dst=/fresh-install-diagnostic.py,readonly','--env=FRESH_INSTALL_DIAGNOSTIC_SHA256='+sha,'--mount','type=bind,src='+str(alpm_path)+',dst=/fresh-alpm-diagnostic.py,readonly','--env=FRESH_ALPM_DIAGNOSTIC_SHA256='+alpm_sha]+argv[at:]
+   at=argv.index('--entrypoint=/usr/bin/python3');argv=argv[:at]+['--mount','type=bind,src='+str(path)+',dst=/fresh-install-diagnostic.py,readonly','--env=FRESH_INSTALL_DIAGNOSTIC_SHA256='+sha,'--mount','type=bind,src='+str(alpm_path)+',dst=/fresh-alpm-diagnostic.py,readonly','--env=FRESH_ALPM_DIAGNOSTIC_SHA256='+alpm_sha,'--mount','type=bind,src='+str(sig_path)+',dst=/fresh-signature-diagnostic.py,readonly','--env=FRESH_SIGNATURE_DIAGNOSTIC_SHA256='+sig_sha]+argv[at:]
    argv[-2]='/fresh-install-diagnostic.py'
   return name,argv,public
  owner.Runtime.actor_plan=actor_plan

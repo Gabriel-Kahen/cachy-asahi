@@ -1,7 +1,7 @@
 {
   "Root_acceptance": null,
   "actual": null,
-  "actual_parent": "bf2b243e1d23c465af4f591111f2c4afc057d202",
+  "actual_parent": "7a0243948d97c1e5f0083bbdb63b3c89254e2b12",
   "actual_run_id": null,
   "alpm_load_diagnostic": {
     "acceptance": false,
@@ -9,13 +9,13 @@
     "capture_signature_cap": 1048576,
     "clocks": "UNCHANGED",
     "engine_entrypoint": {
-      "bytes": 11320,
-      "sha256": "b6c072e14bc1a8662c2d0a1ec76004bcf4947f483e2a7fd9ea0a4b74a596f5dd"
+      "bytes": 12223,
+      "sha256": "97a5c41c3b1614022fb1c60ce51b8e238a3f0fa50514834bb8f1a8c6fa8c6112"
     },
     "engine_six_seams": "UNCHANGED",
     "entrypoint": {
-      "bytes": 10304,
-      "sha256": "24e6bf1f676bc423b66fd8a4812432d37a31ba6cb9d31eb6e20245277db3a307"
+      "bytes": 11428,
+      "sha256": "ce0d66944826a69d79c5961a1c27f5ea6d862e15d22e9c496a6ae12beb888c03"
     },
     "errno_order": "IMMEDIATELY_AFTER_NONZERO_BEFORE_OTHER_ALPM_CALL_OR_TRANSLATION",
     "exact_original_instance_return_exception": "HELD",
@@ -23,15 +23,35 @@
     "map": "CURRENT_SIGNED607_MANIFEST",
     "max_report_bytes": 32768,
     "only_actor": "install",
-    "option_getters": "UNOBSERVED_NO_BOUND_GETTERS",
+    "option_getters": "BOUNDED_ROLE_AGREEMENT_BEFORE_SELECTED_LOAD_ONLY",
     "owner_entrypoint": {
-      "bytes": 7371,
-      "sha256": "06b8d4672a0e31c5209bc4736f679f766236e0aa856443382a1d2990c766dfb8"
+      "bytes": 7810,
+      "sha256": "45e77ea73ab8403f33678b4fa3c93a66d9c0b454a1f2aed7a070ed70cb6a16aa"
     },
     "provider_and_signature_predicates": "UNCHANGED",
     "raw_package_signature_keyring_bodies": "NOT_EXPORTED",
     "standalone_join": "EXACT_OBSERVED_ROLE_AND_SOURCE_LOOP_ORDER",
     "status": "SOURCE_BOUND_ORIGINAL_SIGNED_LOAD_FAILURE_DATA"
+  },
+  "alpm_signature_diagnostic": {
+    "acceptance": false,
+    "after": "PURE_PYTHON_PRESERVES_GENERIC_ERRNO",
+    "callback": "PINNED_STATIC_FORMAT_BRANCH_FLAGS_NO_VA_LIST_READ",
+    "changed_siglevel": false,
+    "changed_trust": false,
+    "entrypoint": {
+      "bytes": 8753,
+      "sha256": "8276c24f8bdc73deaafe6496014be7375cacfd146f34a94c595170a84558ce64"
+    },
+    "extra_verification": false,
+    "native_abi": "GNU_AARCH64_INDIRECT_VA_LIST_OPAQUE",
+    "option_getters": "BEFORE_SELECTED_LOAD_ONLY",
+    "prior_callback": "NULL_REQUIRED",
+    "restore": "AFTER_ENGINE_SKIP_RELEASED_HANDLE",
+    "status": "SOURCE_BOUND_ORIGINAL_SIGNATURE_BRANCH_DATA",
+    "target_index": 59,
+    "target_name": "cachy-asahi-topmem",
+    "target_version": "0.1.0-1"
   },
   "attempt": null,
   "budgets": {
@@ -52,8 +72,8 @@
     "clocks": "UNCHANGED",
     "closed_selected_source_files": 245,
     "entrypoint": {
-      "bytes": 7371,
-      "sha256": "06b8d4672a0e31c5209bc4736f679f766236e0aa856443382a1d2990c766dfb8"
+      "bytes": 7810,
+      "sha256": "45e77ea73ab8403f33678b4fa3c93a66d9c0b454a1f2aed7a070ed70cb6a16aa"
     },
     "filesystem_fallback": false,
     "independent_capsule_pin": "CAPSULE_SHA256_PRESERVED_IN_CLEAN_PARENT_AND_CHILD_ENV",
@@ -161,8 +181,8 @@
     "acceptance": false,
     "engine_and_native_inverse": "UNCHANGED_ORIGINAL_SIX_SEAMS",
     "entrypoint": {
-      "bytes": 11320,
-      "sha256": "b6c072e14bc1a8662c2d0a1ec76004bcf4947f483e2a7fd9ea0a4b74a596f5dd"
+      "bytes": 12223,
+      "sha256": "97a5c41c3b1614022fb1c60ce51b8e238a3f0fa50514834bb8f1a8c6fa8c6112"
     },
     "fixed_files": [
       "result.json",
@@ -180,8 +200,8 @@
       "sha256": "c5bb6332b8a874380f75df683e2746cfabf07a20a1d897af93065e0b9241fb04"
     },
     "owner_entrypoint": {
-      "bytes": 7371,
-      "sha256": "06b8d4672a0e31c5209bc4736f679f766236e0aa856443382a1d2990c766dfb8"
+      "bytes": 7810,
+      "sha256": "45e77ea73ab8403f33678b4fa3c93a66d9c0b454a1f2aed7a070ed70cb6a16aa"
     },
     "phase_stream": "SAME_ORIGINAL_COMPLETEDPROCESS_STDOUT_STDERR_STDOUT_COMBINED",
     "predicate": "code==0 and result.status==PROVISIONAL_FULL_COMPOSITION_INSTALLER and result.committed is True and result.package_count==607",
@@ -564,7 +584,7 @@
     "unallocated_job_minutes": 34
   },
   "workflow_input_contract": {
-    "bytes": 20201,
-    "sha256": "b2feb0483270bb6e40b13e543c89cb6ceb5e3faf26fa4f0105a4db6511c419aa"
+    "bytes": 20856,
+    "sha256": "e450d0ff71a20fba69dd5cc9311397dcc2083bf674425cce9381fe944ddd8e3d"
   }
 }

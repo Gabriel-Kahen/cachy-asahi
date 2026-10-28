@@ -1,4 +1,4 @@
-name: native-arm-apps607-alpm-load-diagnostic
+name: native-arm-apps607-signature-branch-diagnostic
 on:
   workflow_dispatch:
     inputs:

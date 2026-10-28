@@ -126,6 +126,13 @@ def load_alpm_diagnostic():
  try:need(os.fstatvfs(fd).f_flag&os.ST_RDONLY,'signed-load module mount readonly')
  finally:os.close(fd)
  module=types.ModuleType('_source_bound_alpm_load_diagnostic');module.__file__=str(path);sys.modules[module.__name__]=module;exec(compile(raw,str(path),'exec'),vars(module));return module
+def load_signature_diagnostic():
+ expected=os.environ.get('FRESH_SIGNATURE_DIAGNOSTIC_SHA256','');need(re.fullmatch('[0-9a-f]{64}',expected)is not None,'independent signature-detail diagnostic pin')
+ path=Path('/fresh-signature-diagnostic.py');observation,raw=snapshot(path,64*1024,owned=False,privacy=False);need(raw is not None and pin(raw)['sha256']==expected,'exact signature-detail diagnostic module')
+ need(path.is_mount(),'explicit signature-detail readonly file mount');fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_CLOEXEC)
+ try:need(os.fstatvfs(fd).f_flag&os.ST_RDONLY,'signature-detail module mount readonly')
+ finally:os.close(fd)
+ module=types.ModuleType('_source_bound_alpm_signature_diagnostic');module.__file__=str(path);sys.modules[module.__name__]=module;exec(compile(raw,str(path),'exec'),vars(module));return module
 def main():
  global ALPM_DIAGNOSTIC
  need(sys.argv[1:]==['--install'],'only original install actor phase');expected=os.environ.get('FRESH_INSTALL_DIAGNOSTIC_SHA256','');need(re.fullmatch('[0-9a-f]{64}',expected)is not None,'independent diagnostic entrypoint pin')
@@ -136,5 +143,6 @@ def main():
  try:need(os.fstatvfs(fd).f_flag&os.ST_RDONLY,'diagnostic code mount readonly')
  finally:os.close(fd)
  ALPM_DIAGNOSTIC=load_alpm_diagnostic()
+ ALPM_DIAGNOSTIC.SIGNATURE_DIAGNOSTIC=load_signature_diagnostic()
  P.save(P.OUT/'native607-install-actor-diagnostic-derivation.json',proof);return P.main()
 if __name__=='__main__':raise SystemExit(main())
