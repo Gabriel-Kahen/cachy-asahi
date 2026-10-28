@@ -101,7 +101,7 @@ def _parent(roots, source, name, limits):
         for fd in reversed(held): os.close(fd)
 
 
-def source_manifest(source, limits, roots, policy):
+def source_manifest(source, limits, roots, policy, *, special_node_observer=None):
     """Bounded read-only coverage observation; copying stays in measure_copy."""
     nodes, groups, excluded = {}, {}, []
     total_bytes = 0
@@ -148,7 +148,13 @@ def source_manifest(source, limits, roots, policy):
             elif stat.S_ISLNK(info.st_mode):
                 need(name not in RUNTIME and name not in MOUNT_FILES, 'runtime or mount-file alias refused')
                 node.update(type='symlink', target=os.readlink(leaf, dir_fd=fd)); nodes[name] = node
-            else: raise ValueError('persistent special node refused')
+            else:
+                try:
+                    if special_node_observer is not None:
+                        special_node_observer(fd, leaf, name, info, initial, policy)
+                except BaseException:
+                    pass
+                raise ValueError('persistent special node refused')
             need(name not in RUNTIME or node['type'] == 'directory', 'runtime directory required')
             need(roots._identity(os.stat(leaf, dir_fd=fd, follow_symlinks=False)) == roots._identity(info),
                  'persistent named entry drift')

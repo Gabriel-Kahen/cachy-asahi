@@ -438,9 +438,9 @@
       "sha256": "d33eda29a06088251f6a4e0c5bb07d903055ca1761a83a93ed9c70b38a90017f"
     },
     "media-source/scripts/ci/full-root-upgrade-caller/persistent_scope.py": {
-      "bytes": 17405,
+      "bytes": 17679,
       "mode": 420,
-      "sha256": "cd1f23bd252b77e9b3a9e907e1c0defd5141025408e92ae5c2500152076b6f3a"
+      "sha256": "7e32c5b2de63ce6f0d03a79b772a6d538cb7bad386f4316900190b1fe3d345da"
     },
     "media-source/scripts/ci/full-root-upgrade/root_upgrade.py": {
       "bytes": 23555,

@@ -150,10 +150,65 @@ def proof_placeholders(root,snapshot):
             path=root/name;os.utime(path,ns=(path.stat().st_atime_ns,node['mtime_ns']),follow_symlinks=False)
     nodes,caps=snapshot(root);need(all(nodes[name]==row and caps[name]==original_caps[name]for name,row in original_nodes.items())and all(caps[name]=={}for name in overlay)and set(nodes)-set(original_nodes)==set(overlay),'only exact fresh empty mountpoint overlay')
     return nodes,caps,overlay,original_nodes
+def special_node_observer(selection, roots, limits):
+    """One first-refusal record; no node body, private path, or second walk."""
+    emitted = False
+    def observe(parent, leaf, name, info, parent_initial, policy):
+        nonlocal emitted
+        if emitted:
+            return
+        emitted = True
+        record = dict(schema=1, purpose='SUPPORT183_FIRST_SPECIAL_NODE_V1',
+            status='FIRST_SPECIAL_NODE_UNAVAILABLE', phase='INITIAL_MEDIA_SOURCE_INVENTORY',
+            binding=selection['binding'], source_map_sha256=selection['source_map_sha256'],
+            nonce=selection['nonce'], image=selection['image'],
+            primary_error='persistent special node refused', node=None, acceptance=False)
+        descriptor = None
+        try:
+            kinds = ((stat.S_ISCHR, 'char_device'), (stat.S_ISBLK, 'block_device'),
+                     (stat.S_ISFIFO, 'fifo'), (stat.S_ISSOCK, 'socket'))
+            kind = next((label for check, label in kinds if check(info.st_mode)), 'unknown')
+            descriptor = os.open(leaf, os.O_PATH | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=parent)
+            held = os.fstat(descriptor)
+            parent_mount = roots._mount_id(parent, limits)
+            node_mount = roots._mount_id(descriptor, limits)
+            rebound = os.stat(leaf, dir_fd=parent, follow_symlinks=False)
+            stable = (roots._identity(info) == roots._identity(held) == roots._identity(rebound)
+                and info.st_rdev == held.st_rdev == rebound.st_rdev
+                and roots._identity(os.fstat(parent)) == parent_initial
+                and parent_mount == policy['source_mount'])
+            role = name.split('/', 1)[0]
+            if role not in {'etc', 'usr', 'var', 'home', 'root', 'opt'}:
+                role = 'other'
+            record['node'] = dict(type=kind, mode=stat.S_IMODE(info.st_mode),
+                rdev=dict(major=os.major(info.st_rdev), minor=os.minor(info.st_rdev))
+                    if kind in {'char_device', 'block_device'} else None,
+                path_sha256=hashlib.sha256(b'SUPPORT183_SPECIAL_NODE_PATH_V1\0' + os.fsencode(name)).hexdigest(),
+                role=role, source_mount=policy['source_mount'], parent_mount=parent_mount,
+                node_mount=node_mount, stable=stable)
+            record['status'] = 'FIRST_SPECIAL_NODE_OBSERVED' if stable else 'FIRST_SPECIAL_NODE_UNSTABLE'
+        except BaseException:
+            # The original rejection remains the primary error, including on races.
+            record['status'] = 'FIRST_SPECIAL_NODE_UNAVAILABLE'
+            record['node'] = None
+        finally:
+            if descriptor is not None:
+                try:
+                    os.close(descriptor)
+                except OSError:
+                    pass
+        try:
+            raw = json.dumps(record, sort_keys=True, separators=(',', ':'), allow_nan=False)
+            if len(raw.encode()) <= 4096:
+                print('SUPPORT183_SPECIAL_NODE ' + raw, flush=True)
+        except BaseException:
+            pass
+    return observe
+
 def media_prepare(s):
     out=Path('/measurement');need(not any(out.iterdir())and shutil.disk_usage(out).free>=48*1024**3,'fresh bounded48GiB media area');a=media_apis();stage=out/'stage';stage.mkdir(mode=0o700);st=stage.lstat();save(out/'stage-owner.json',dict(nonce=s['nonce'],device=st.st_dev,inode=st.st_ino));data=stage/'data';support=data/'support';support.mkdir(parents=True)
     def limits():return a.roots.Limits(deadline=time.monotonic()+900,max_nodes=500000,max_bytes=8*1024**3,max_file_bytes=1024**3,max_package_files=100000)
-    policy=mount_policy(a.scope.mounts(a.scope._mount_table()));before,_=a.scope.source_manifest(Path('/'),limits(),a.roots,policy)
+    policy=mount_policy(a.scope.mounts(a.scope._mount_table()));inventory_limits=limits();before,_=a.scope.source_manifest(Path('/'),inventory_limits,a.roots,policy,special_node_observer=special_node_observer(s,a.roots,inventory_limits))
     capability=a.caps.derive(read(providers()/'media-source/scripts/apps/file_capabilities.py'),set(policy['observed_mounts'])|RUNTIME);caps=capability.observe(Path('/'),a.caps.nodes(before),limits())
     roots={'boot':stage/'boot','proof':support/'proof-root'}
     for target in roots.values():

@@ -686,9 +686,9 @@
       "sha256": "d33eda29a06088251f6a4e0c5bb07d903055ca1761a83a93ed9c70b38a90017f"
     },
     "native/guest-providers/media-source/scripts/ci/full-root-upgrade-caller/persistent_scope.py": {
-      "bytes": 17405,
+      "bytes": 17679,
       "mode": 420,
-      "sha256": "cd1f23bd252b77e9b3a9e907e1c0defd5141025408e92ae5c2500152076b6f3a"
+      "sha256": "7e32c5b2de63ce6f0d03a79b772a6d538cb7bad386f4316900190b1fe3d345da"
     },
     "native/guest-providers/media-source/scripts/ci/full-root-upgrade/root_upgrade.py": {
       "bytes": 23555,
@@ -758,12 +758,12 @@
     "native/guest_inputs.json": {
       "bytes": 19434,
       "mode": 420,
-      "sha256": "e5dbdc3940a589d3d27a621a24ffca03b48aa6180d9101155bc9008b154be117"
+      "sha256": "acdd79c6452cc09ed8830f4b0b7a07a675ce1725f0fdec3e25794b8c636700a9"
     },
     "native/guest_vm.py": {
-      "bytes": 46611,
+      "bytes": 49773,
       "mode": 420,
-      "sha256": "02d4c319f77128ac219faef04c4987fb2d9082ae805af193c2ef992e9ba9a788"
+      "sha256": "3abfc0bfcc15dd474f0f7ab4da321027b9c6b425fb5f62c35ceb971f54fefe18"
     },
     "native/inputs.py": {
       "bytes": 2105,
@@ -801,9 +801,9 @@
       "sha256": "2cf8179a692bf8dc797c444f7cd4fc9cca33ec3cb86acec841f4d3b1029c738e"
     },
     "native/reader.py": {
-      "bytes": 66072,
+      "bytes": 70025,
       "mode": 420,
-      "sha256": "5bc1a26eec26b08c22a9d3562f08ea7478982f6b97f8049f85b251d165d9e919"
+      "sha256": "1effecb4cbf34501df7f3c5c70f0bf2c2bb2a5374190cf01bfd82cc3fcb9c23e"
     },
     "native/workflow.yml.in": {
       "bytes": 11219,
