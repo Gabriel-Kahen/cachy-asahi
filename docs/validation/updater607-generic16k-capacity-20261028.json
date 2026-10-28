@@ -1,0 +1,189 @@
+{
+  "admission_scope": "ROOT_QUALIFIED_RETAINED_GENERIC16K_FULL_COPY_CAPACITY_DIAGNOSTIC_DATA_ONLY",
+  "artifact": {
+    "bytes": 501051,
+    "id": 12779802512,
+    "name": "updater607-copy-capacity-normal-40586273764-1",
+    "sha256": "f5b228dfb5b87cc724a3ad1cbeda32ddc792dc5ea56192f431599a3f9f5ce419"
+  },
+  "attempt": 1,
+  "counts": {
+    "authenticated_original_files": 43,
+    "authenticated_replay_files": 18,
+    "capacity_files": 716,
+    "original_acquisitions": 5,
+    "production_files": 709,
+    "reader_files": 1508,
+    "semantic_replays": 1,
+    "source_files": 1433
+  },
+  "diagnostic_timing_scope": "Single retained generic16K QEMU diagnostic; no final-system performance or physical M2 evidence.",
+  "evidence_pins": {
+    "artifacts/development/updater607-capacity-v5-transport-native-trial-root-20261027/source-authorization.json": {
+      "bytes": 274889,
+      "sha256": "4adaeaa68a092116d3a39f903accda7f77831997364f1181fa71c9f03d48a0c5"
+    },
+    "artifacts/development/updater607-capacity-v5-transport-native-trial-root-20261027/source-modes.json": {
+      "bytes": 128130,
+      "sha256": "d6bcb8f3d6bbeac18381f1b3e22de15d32f1264f514704de1f5f7d87fe4af1c1"
+    },
+    "artifacts/development/updater607-v5-capacity-root-component-admission-20261028/Root-component-admission.json": {
+      "bytes": 2222,
+      "sha256": "2cd1c5de02ba81bbef4ad3d87e6cce0ac4a8060fee6515df2ae5684f8e8fa51d"
+    },
+    "artifacts/development/updater607-v5-transport-complete-strict-replay-20261028/Root-replay-facts.json": {
+      "bytes": 37705,
+      "sha256": "f4b00df4c1d53b7cdcf3dcdd4aca3ac6ccb306e7c9a32d8008f5f294684c6f24"
+    },
+    "artifacts/development/updater607-v5-transport-complete-strict-replay-20261028/complete-original-custody.json": {
+      "bytes": 7774,
+      "sha256": "0df0323dd6528f5b098cb3e6d015de83fea973826aadfae4b47278f6d98fa819"
+    },
+    "artifacts/development/updater607-v5-transport-complete-strict-replay-20261028/freeze.json": {
+      "bytes": 3141,
+      "sha256": "3393b3c7e083c1c907289f70b6d2d9b75b0e479f972db947545d88487a9fa882"
+    },
+    "artifacts/development/updater607-v5-transport-complete-strict-replay-20261028/strict-result.json": {
+      "bytes": 35991,
+      "sha256": "4615bdebf65cbc5a5ff8219708bbf2ade7e78ac5fe00c0072847984955f58b97"
+    },
+    "artifacts/development/updater607-v5-transport-published-reader-root-preparation-20261027/actual-binding.json": {
+      "bytes": 613320,
+      "sha256": "584eab163bca4b6fd69518bf2dae403a390b8a3d9ede1b8d6a72211e08b4c98e"
+    },
+    "artifacts/development/updater607-v5-transport-published-reader-root-preparation-20261027/reader/reader-map.json": {
+      "bytes": 296517,
+      "sha256": "36a463673fafd0c75e53616f996889756bb06bb6da4c1f04c232d86e7f8225a8"
+    }
+  },
+  "final_monotonic_counters": {
+    "alias_calls": 205892,
+    "completed_bytes": 4927899351,
+    "completed_groups": 101098,
+    "completed_members": 102946,
+    "mount_fallback": 0,
+    "parent_calls": 454828,
+    "statx_success": 6021025
+  },
+  "fresh_observations": {
+    "count": 3,
+    "destination_checkpoint": "2e129be29f1dccf5fa6857f4bc89087a660f89eb90a3e4f0fcc81e3227656292",
+    "matching_inventory_DB_nodes_hardlinks_ownership_caches": {
+      "auxiliary_cache_sha256": "c3581a1eb2808147e7e1a1ac82c26620451ff7009882f2a8636a4991b6f918c8",
+      "database_sha256": "b41e3511242db9c756baab5d1b26f073023aaf27ed97c4ab17a2729807319fa9",
+      "hardlink_graph_sha256": "35bcc0467af59584039beacd5b6da54136d5be66bc2cd36fec8d023d14192382",
+      "inventory_sha256": "72818a8a2ae488281b08486b92c435ec244ef3b5313f23b97473d1684ecb68b4",
+      "main_cache_sha256": "1f2c231a09af4bc32163e682fcfc40d44c44a351598105f42577a4a4b4bf2973",
+      "nodes_sha256": "089f7fb7b1c8f85ef8fd5c21f8c7309ab15d0a55535a4878ffa1c6b9e517a44d",
+      "ownership_sha256": "99a56ffe6e8b1836a1049d469c4fb61b5e5d152d1d700a344b8b69ebb773eea2"
+    },
+    "packages_each": 607,
+    "phases": [
+      "SOURCE_BEFORE",
+      "DESTINATION",
+      "SOURCE_AFTER"
+    ],
+    "source_checkpoint_preserved": "341f9f49ef6722febd60f9aa5a3b15063780c0dbf4401e24aa918e0435cc54f9"
+  },
+  "generic_environment": {
+    "boot_line": {
+      "bytes": 852,
+      "sha256": "ec82a8fd398c09005a5e971d0bcd1de8ca939b598ddbf624960944d3df9136fa"
+    },
+    "full_UART": {
+      "bytes": 74074,
+      "sha256": "40fd528d5dd8ace48745396965cb5f484028b5d59843bdc8c6b30a3f8159c531"
+    },
+    "full_UART_exported": false,
+    "guest_page_size": 16384,
+    "host_wrapper_page_size_after": 4096,
+    "kernel_release": "7.1.13-generic16k-managed-gui",
+    "whole_filesystem_bodies_exported": false
+  },
+  "job": 122478370364,
+  "nonce": "4ea3107b6579cde70158fa0c04f792b8",
+  "original_bodies": {
+    "artifact.zip": {
+      "bytes": 501051,
+      "sha256": "f5b228dfb5b87cc724a3ad1cbeda32ddc792dc5ea56192f431599a3f9f5ce419"
+    },
+    "artifacts.json": {
+      "bytes": 799,
+      "sha256": "51437771451ce174baa215719c88d2600ad3175a7d5989acfa6c9f593d889a9f"
+    },
+    "jobs.json": {
+      "bytes": 21534,
+      "sha256": "accfb8994d65d2bab8462bcdf52309be0d4c847f13588b85999fa1a835114bb3"
+    },
+    "logs.zip": {
+      "bytes": 3699260,
+      "sha256": "4eef0655353b1957e68c2f851ac8033f7f8d8963e657756ab8d1da5a888e84de"
+    },
+    "run.json": {
+      "bytes": 13024,
+      "sha256": "f000d45de11e1a85c6cb26591638b2b25b32a4a5c09cd5eb49a06ef76379b2ba"
+    }
+  },
+  "parent": "c8c5396ab6c01c48d45c930026b176c8f168b966",
+  "phase_names": [
+    "SOURCE_BEFORE",
+    "CAPACITY_AND_DESTINATION_OPEN",
+    "DIRECTORIES",
+    "REGULAR_FILES",
+    "SYMLINKS",
+    "DIRECTORY_METADATA",
+    "DESTINATION_OBSERVE",
+    "SOURCE_AFTER",
+    "FINAL_ROOT_CHECKS",
+    "COMPLETE"
+  ],
+  "preserved_limits": {
+    "M2": "NOT_RUN",
+    "full_port_acceptance": false,
+    "hardware": "NOT_RUN",
+    "normal_updater_acceptance": false,
+    "normal_updater_status": "NOT_ACCEPTED",
+    "performance_gain": "NOT_ESTABLISHED",
+    "production_trust": "NOT_GRANTED",
+    "release": "NOT_ADMITTED",
+    "transaction_acceptance": false
+  },
+  "recorded_diagnostic_copy": {
+    "copy_bytes": 4927899351,
+    "copy_elapsed_ns": 3360620359520,
+    "copy_seconds": 3360.62035952,
+    "diagnostic_ceiling_seconds": 3600,
+    "directories": 8440,
+    "driver_ceiling_seconds": 4800,
+    "driver_elapsed_ns": 3501616241152,
+    "driver_seconds": 3501.616241152,
+    "logical_bytes": 4975316195,
+    "nodes": 125392,
+    "production_ceiling_seconds_held": 1200,
+    "regular_groups": 101098,
+    "regular_members": 102946,
+    "symlinks": 14006
+  },
+  "ref": "codex/updater607-capacity-v5-transport-native-v1",
+  "retained_claim_limits": {
+    "Root_admission_changes_by_this_document": false,
+    "authority_transfer": false,
+    "live_reobservation": "NOT_PERFORMED",
+    "membership": "SOURCE_ENFORCED_RETAINED_CLAIMS",
+    "normal_production_copy_ceiling_seconds_unchanged": 1200,
+    "replay_native_GPG_ALPM_actors": "NONE",
+    "retirement": "MATCHED_RETAINED_SOURCE_ENFORCED_CLAIMS_NO_FRESH_DAEMON_QUERY"
+  },
+  "run": 40586273764,
+  "schema_version": 1,
+  "source": "171c9ad50e61595355deeb95b54f3793625f640e",
+  "status": "DOCUMENTATION_OF_EXISTING_FINITE_ROOT_ADMISSION",
+  "transaction_flags": {
+    "checkpoint_changed": false,
+    "commit_started": false,
+    "committed_transactions": 0,
+    "init_started": false,
+    "packages_committed": false
+  },
+  "tree": "c1f3af946c3ddfbac00d17116ebb47e6a9b2a45b"
+}
