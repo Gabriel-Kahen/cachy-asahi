@@ -121,7 +121,7 @@ def _retain_transport_or_early_data(public):
 
 
 # Versioned bounded original outer-caller DATA, never runtime/cleanup authority.
-OUTER_ROLES={'result.json':4*1024**2,'intent.json':16384,'child-exception.txt':65536,'child-exception.json':16384,'outer-exception.txt':65536,'outer-exception.json':16384,'selected-main.json':16384,'phase.stdout':1024**2,'phase.stderr':1024**2,'phase.exit-code':32,'phase.stdout.json':16384,'phase.stderr.json':16384}
+OUTER_ROLES={'result.json':4*1024**2,'intent.json':16384,'child-exception.txt':65536,'child-exception.json':16384,'outer-exception.txt':65536,'outer-exception.json':16384,'selected-main.json':16384,'phase.stdout':1024**2,'phase.stderr':1024**2,'phase.exit-code':32,'phase.stdout.json':16384,'phase.stderr.json':16384,'context-retirement.json':16384}
 
 def outer_read(path,limit,*,prefix=False):
  path=Path(path);need(path.is_absolute()and path==path.resolve()and not any(p.is_symlink()for p in(path,*path.parents)),'literal outer diagnostic DATA');fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK|os.O_CLOEXEC)
@@ -271,12 +271,96 @@ def optional_outer_caller(output,public):
    public=Path(public);need(not(public/'outer-fresh-caller').exists(),'no undeclared optional physical roles');before=outer_read(public/'export.json',4*1024**2)[0];record=json.loads(before);record['outer_caller_diagnostics']=dict(schema=1,status='UNAVAILABLE_OR_REFUSED_OPTIONAL_OUTER_DATA',error_type=type(error).__name__,acceptance=False);outer_export_commit(public,record,before)
   except BaseException:pass # Original complete export remains authoritative.
 
+
+class ContextRetirementObservations:
+ """Observe original values only; never walk, stat, read or sample a clock."""
+ def __init__(self,parent,deadline):
+  self.parent=Path(parent);self.deadline=deadline;self.context_hash=hashlib.sha256(str(parent).encode('utf-8','surrogateescape')).hexdigest();self.scalars={n:dict(status='NOT_EVALUATED')for n in('entry_count','file_bytes_total','owner_type_alias_all','monotonic')};self.evaluations={n:dict(status='NOT_EVALUATED',calls=0,true=0,false=0)for n in('byte_is_file','file_bytes','alias','owner_matches_current','type_is_file','type_is_dir')};self.samples={};self.events=hashlib.sha256();self.error_type=None
+ def record(self,name,value,role=None):
+  try:
+   if name in self.scalars:self.scalars[name]=dict(status='EVALUATED',value=value)
+   else:
+    row=self.evaluations[name];row['status']='EVALUATED';row['calls']+=1
+    if type(value)is bool:row['true'if value else'false']+=1
+   if role is not None:
+    digest=hashlib.sha256(role.relative_to(self.parent).as_posix().encode('utf-8','surrogateescape')).hexdigest();self.events.update((name+':'+digest+'\n').encode())
+    if digest in self.samples or len(self.samples)<8:self.samples.setdefault(digest,{})[name]=value
+  except BaseException as error:self.error_type=type(error).__name__
+  return value
+ def emit(self,predicate=None,operand_error=None):
+  try:
+   _,work,_,intent=outer_intent();value=dict(schema=1,status='OBSERVED_EXISTING_CURRENT_CONTEXT_RETIREMENT_GUARD_DATA_ONLY',identity=intent['identity'],nonce=intent['nonce'],source_export=intent['source_export'],context_role='CURRENT_SELECTED_CONTEXT',context_path_sha256=self.context_hash,limits=dict(entries=2048,bytes=768*1024**2,shared_cleanup_seconds=240),cleanup_end=self.deadline,scalars=self.scalars,evaluations=self.evaluations,role_event_sha256=self.events.hexdigest(),sampled_roles=[dict(role_sha256=k,values=v)for k,v in self.samples.items()],sample_limit=8,predicate=dict(status='OPERAND_RAISED',error_type=operand_error)if operand_error is not None else dict(status='EVALUATED',value=predicate),observation_error_type=self.error_type,extra_context_walks=0,extra_context_stats=0,extra_clock_samples=0,acceptance=False);outer_write(work/'context-retirement.json',outer_encoded(value),16384)
+  except BaseException:pass # Observation cannot replace original guard/exception.
+
+class _NoContextRetirementObservation:
+ def record(self,name,value,role=None):return value
+ def emit(self,predicate=None,operand_error=None):pass
+
+def context_retirement_observations(parent,deadline):
+ try:return ContextRetirementObservations(parent,deadline)
+ except BaseException:return _NoContextRetirementObservation()
+
+def context_observation_value(raw,index):
+ import math,re
+ need(len(raw)<=16384,'bounded original observation role')
+ def unique(pairs):
+  value={}
+  for key,item in pairs:need(key not in value,'unique observation fields');value[key]=item
+  return value
+ value=json.loads(raw,object_pairs_hook=unique,parse_constant=lambda x:need(False,'finite observation JSON'));keys={'schema','status','identity','nonce','source_export','context_role','context_path_sha256','limits','cleanup_end','scalars','evaluations','role_event_sha256','sampled_roles','sample_limit','predicate','observation_error_type','extra_context_walks','extra_context_stats','extra_clock_samples','acceptance'};need(type(value)is dict and set(value)==keys,'exact observation schema');need(type(value['schema'])is int and value['schema']==1 and value['status']=='OBSERVED_EXISTING_CURRENT_CONTEXT_RETIREMENT_GUARD_DATA_ONLY'and value['identity']==index['identity']and value['nonce']==index['nonce']and value['source_export']==index['source_export']and value['context_role']=='CURRENT_SELECTED_CONTEXT'and value['acceptance']is False,'Source-bound observation identity')
+ def hexpin(x):return type(x)is str and re.fullmatch('[0-9a-f]{64}',x)is not None
+ def integer(x,maximum=2**127):return type(x)is int and 0<=x<=maximum
+ def finite(x):return type(x)in(int,float)and math.isfinite(x)and x>=0
+ errors={'OSError','FileNotFoundError','PermissionError','NotADirectoryError','IsADirectoryError','ValueError','TypeError','AttributeError','OverflowError','UnicodeError','UnicodeEncodeError','MemoryError','RuntimeError','InterruptedError','KeyboardInterrupt','SystemExit'}
+ need(hexpin(value['context_path_sha256'])and hexpin(value['role_event_sha256'])and finite(value['cleanup_end'])and value['limits']==dict(entries=2048,bytes=768*1024**2,shared_cleanup_seconds=240),'safe hash/numeric observation fields');need(value['observation_error_type']is None or value['observation_error_type']in errors,'finite observer error class');need(all(type(value[k])is int and value[k]==0 for k in('extra_context_walks','extra_context_stats','extra_clock_samples')),'no additional context probes');need(type(value['sample_limit'])is int and value['sample_limit']==8,'fixed safe sample limit')
+ scalars=value['scalars'];need(type(scalars)is dict and set(scalars)=={'entry_count','file_bytes_total','owner_type_alias_all','monotonic'},'only existing guard scalar operands')
+ for name,row in scalars.items():
+  need(type(row)is dict and row.get('status')in('EVALUATED','NOT_EVALUATED'),'typed scalar evaluation')
+  if row['status']=='NOT_EVALUATED':need(set(row)=={'status'},'skipped operand has no invented value')
+  else:
+   need(set(row)=={'status','value'},'one exact existing scalar value');item=row['value'];need(type(item)is bool if name=='owner_type_alias_all'else finite(item)if name=='monotonic'else integer(item),'finite original scalar type')
+ names={'byte_is_file','file_bytes','alias','owner_matches_current','type_is_file','type_is_dir'};evaluations=value['evaluations'];need(type(evaluations)is dict and set(evaluations)==names,'only original owner/type/alias operations')
+ for name,row in evaluations.items():
+  need(type(row)is dict and set(row)=={'status','calls','true','false'}and row['status']in('EVALUATED','NOT_EVALUATED')and all(integer(row[k],2048)for k in('calls','true','false')),'bounded typed original evaluation counters');need(row['status']==('NOT_EVALUATED'if row['calls']==0 else'EVALUATED')and(row['true']==row['false']==0 if name=='file_bytes'else row['true']+row['false']==row['calls']),'faithful primitive counters')
+ samples=value['sampled_roles'];need(type(samples)is list and len(samples)<=8,'bounded hashed role samples');seen=set()
+ for sample in samples:
+  need(type(sample)is dict and set(sample)=={'role_sha256','values'}and hexpin(sample['role_sha256'])and sample['role_sha256']not in seen,'unique hashed context roles');seen.add(sample['role_sha256']);need(type(sample['values'])is dict and set(sample['values'])<=names,'only original role operations')
+  for name,item in sample['values'].items():need(integer(item)if name=='file_bytes'else type(item)is bool,'no raw role names/paths/owners')
+ predicate=value['predicate'];need(type(predicate)is dict and(predicate.get('status')=='EVALUATED'and set(predicate)=={'status','value'}and type(predicate['value'])is bool or predicate.get('status')=='OPERAND_RAISED'and set(predicate)=={'status','error_type'}and predicate['error_type']in errors),'exact original guard outcome only');return value
+
+def context_retirement_frame(bodies,index,remaining):
+ """Tiny source-asserted operand projection, never an inferred failure cause."""
+ name='context-retirement.json'
+ if name not in bodies:return dict(status='UNAVAILABLE',acceptance=False),0
+ raw=bodies[name];retained=pin(raw)
+ try:
+  value=context_observation_value(raw,index);scalars={k:v['value']if v['status']=='EVALUATED'else'NOT_EVALUATED'for k,v in value['scalars'].items()};evaluations={k:[v['calls'],v['true'],v['false']]if v['status']=='EVALUATED'else'NOT_EVALUATED'for k,v in value['evaluations'].items()};projection=dict(status='SOURCE_ASSERTED_EXISTING_OPERANDS_DATA_ONLY',retained=retained,context_sha256=value['context_path_sha256'],role_event_sha256=value['role_event_sha256'],cleanup_end=value['cleanup_end'],scalars=scalars,evaluations=evaluations,predicate=value['predicate'],observation_error_type=value['observation_error_type'],acceptance=False);size=len(json.dumps(projection,sort_keys=True,separators=(',',':')).encode());need(size<=min(1024,remaining),'held aggregate plus tiny operand projection');return projection,size
+ except BaseException as error:return dict(status='REFUSED_OR_UNAVAILABLE',retained=retained,error_type=type(error).__name__,acceptance=False),0
+
+def context_stderr_privacy(raw,source_root):
+ """Only fixed guard text and exact public Source traceback locations."""
+ import re
+ try:
+  text=raw.decode('utf-8');need(bool(text)and len(raw)<=512,'bounded full stderr privacy inspection');allowed={'Traceback (most recent call last):','ValueError: bounded exact owned current context retirement'};filenames={str(Path(source_root)/n)for n in('run622.py','case.py','export622.py')}
+  for line in text.splitlines():
+   if line in allowed or re.fullmatch(r'[ \^~]*',line):continue
+   match=re.fullmatch(r'  File "([^"\n]+)", line [1-9][0-9]{0,6}, in (main|_cleanup|cleanup|need|outer_delegate)',line)
+   need(match is not None and match.group(1)in filenames,'no arbitrary path/code/message in stderr frame')
+  need('ValueError: bounded exact owned current context retirement'in text,'exact known original guard diagnostic');return True
+ except BaseException:return False
+
 def outer_frame():
  import base64
  _,_,output,_=outer_intent();bodies,index=outer_collect(output);selected={};remaining=24576
  for name,cap in(('result.json',8192),('child-exception.txt',6144),('outer-exception.txt',6144),('selected-main.json',2048),('phase.exit-code',32)):
   if name not in bodies:continue
   raw=bodies[name];window=raw[:min(cap,remaining)];remaining-=len(window);selected[name]=dict(retained=pin(raw),content_base64=base64.b64encode(window).decode(),window_pin=pin(window),content_bytes=len(window),complete_content=len(window)==len(raw),window='FULL'if len(window)==len(raw)else'PREFIX')
+ stderr_privacy=dict(status='UNAVAILABLE',window_cap=512,acceptance=False)
+ if 'phase.stderr'in bodies:
+  raw_stderr=bodies['phase.stderr'];admitted=context_stderr_privacy(raw_stderr,Path(__file__).absolute().parent);stderr_privacy=dict(status='ADMITTED_FIXED_SOURCE_GUARD_WINDOW'if admitted else'REFUSED_PRIVATE_OR_UNRECOGNIZED_STDERR',retained=pin(raw_stderr),stream_complete=index['roles']['phase.stderr']['complete'],source_root=str(Path(__file__).absolute().parent),window_cap=512,acceptance=False)
+  if admitted:
+   window=raw_stderr[:min(512,remaining)];remaining-=len(window);selected['phase.stderr']=dict(retained=pin(raw_stderr),content_base64=base64.b64encode(window).decode(),window_pin=pin(window),content_bytes=len(window),complete_content=len(window)==len(raw_stderr),window='FULL'if len(window)==len(raw_stderr)else'PREFIX')
+ context_projection,context_bytes=context_retirement_frame(bodies,index,remaining);remaining-=context_bytes
  projection=None
  if 'result.json'in bodies:
   try:
@@ -286,7 +370,7 @@ def outer_frame():
     original=json.dumps(value[name],sort_keys=True,separators=(',',':'),ensure_ascii=True,allow_nan=False).encode();window=original[:min(1536,budget)];budget-=len(window);fields[name]=dict(content_base64=base64.b64encode(window).decode(),window_pin=pin(window),original_json_bytes=len(original),complete_value=len(window)==len(original))
    projection=dict(status='SOURCE_ASSERTED_FIXED_ORIGINAL_SCALAR_FIELDS_DATA_ONLY',result=pin(bodies['result.json']),fields=fields,acceptance=False)
   except BaseException:pass
- frame=dict(original_result_projection=projection,schema=1,status='SOURCE_BOUND_ORIGINAL_OUTER_CALLER_JOBLOG_DATA_ONLY',identity=index['identity'],nonce=index['nonce'],source_export=index['source_export'],roles=index['roles'],selected_content=selected,exception_cause='NOT_INFERRED',acceptance=False);raw=b'CORE622_OUTER_CALLER_FRAME_V1 '+json.dumps(frame,sort_keys=True,separators=(',',':'),allow_nan=False).encode()+b'\n';need(len(raw)<=65536,'small fixed diagnostic joblog frame');return raw
+ frame=dict(context_retirement_projection=context_projection,phase_stderr_privacy=stderr_privacy,original_result_projection=projection,schema=1,status='SOURCE_BOUND_ORIGINAL_OUTER_CALLER_JOBLOG_DATA_ONLY',identity=index['identity'],nonce=index['nonce'],source_export=index['source_export'],roles=index['roles'],selected_content=selected,exception_cause='NOT_INFERRED',acceptance=False);raw=b'CORE622_OUTER_CALLER_FRAME_V1 '+json.dumps(frame,sort_keys=True,separators=(',',':'),allow_nan=False).encode()+b'\n';need(len(raw)<=65536,'small fixed diagnostic joblog frame');return raw
 
 def transport(core,public,target):
  path=core/'scripts/ci/core-native-lifecycle/owner.py';sys.path.insert(0,str(path.parent));spec=importlib.util.spec_from_file_location('_core622_whole_original_transport',path);module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);return module.transport(types.SimpleNamespace(public=public,output=target))
