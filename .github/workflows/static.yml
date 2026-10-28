@@ -1031,19 +1031,14 @@ jobs:
         run: python3 -I -B scripts/ci/static_apt_trial.py report
 
   developer-release-components:
+    needs: component-selection
+    if: ${{ !cancelled() && (needs.component-selection.result != 'success' || needs.component-selection.outputs.run != 'false') }}
     name: Developer/release ${{ matrix.component }} (Python ${{ matrix.python }})
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - {component: sbom-comparison, python: '3.12', tests: 25}
-          - {component: sbom-comparison, python: '3.14', tests: 25}
-          - {component: developer-package, python: '3.12', tests: 13}
-          - {component: developer-package, python: '3.14', tests: 13}
-          - {component: release-package, python: '3.14', tests: 13}
-          - {component: release-package-v2, python: '3.14', tests: 7}
+      matrix: ${{ fromJSON(needs.component-selection.result == 'success' && needs.component-selection.outputs.matrix || '{"include":[{"component":"sbom-comparison","python":"3.12","tests":25},{"component":"sbom-comparison","python":"3.14","tests":25},{"component":"developer-package","python":"3.12","tests":13},{"component":"developer-package","python":"3.14","tests":13},{"component":"release-package","python":"3.14","tests":13},{"component":"release-package-v2","python":"3.14","tests":7}]}') }}
     steps:
       - name: Checkout exact component source
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
@@ -1085,3 +1080,37 @@ jobs:
           result = unittest.TextTestRunner(verbosity=2).run(suite)
           assert result.wasSuccessful() and not result.skipped, 'focused component failed or skipped'
           PY
+
+  component-selection:
+    name: Conservative component selection
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      run: ${{ steps.select.outputs.run }}
+      matrix: ${{ steps.select.outputs.matrix }}
+    steps:
+      - name: Checkout bounded depth-two selector source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+          fetch-tags: false
+      - name: Check selector failure and coverage controls
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/ci/component_selection/test_select.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/component_selection/test_collect.py
+      - name: Select reviewed components or the complete baseline
+        id: select
+        shell: bash
+        env:
+          SELECTION_EVENT: ${{ github.event_name }}
+          SELECTION_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          SELECTION_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+          SELECTION_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          component_diff() {
+            timeout 30s git diff --no-ext-diff --no-renames --name-status -z "$1" "$2" -- | head -c 1048577 > "$3"
+          }
+          source scripts/ci/component_selection/collect.sh
+          collect_components static
