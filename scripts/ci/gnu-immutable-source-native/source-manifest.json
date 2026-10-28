@@ -2744,8 +2744,8 @@
       "sha256": "76b787fa71b121ec1bf83b86e4d5db849913614bc90e03239b869d7061af1db4"
     },
     "scripts/ci/gnu-immutable-source-native/deploy.py": {
-      "bytes": 675577,
-      "sha256": "e61123d4df55de97067dce119c94058e1d4d898e24c74fda6f81737411130a6b"
+      "bytes": 677794,
+      "sha256": "8e309f2fc12da6a2148e2f04aadb6849aa095c944dae6f83ba74f8ca560ea4a3"
     },
     "scripts/ci/gnu-immutable-source-native/descriptor_failure_export.py": {
       "bytes": 8358,
@@ -3132,8 +3132,8 @@
       "sha256": "593adac24462c9ac178d913e21f65508880a98742fd7bfdfe5b342e94da3c583"
     },
     "scripts/ci/gnu-immutable-source-native/test_deployment.py": {
-      "bytes": 70917,
-      "sha256": "5195c26b428df25b0bd5d93b2df1237fce8bdf5732fc9e9a12f205e63b3b1e6a"
+      "bytes": 71235,
+      "sha256": "485216a1057ec25c8680a1e723910996131244c2458a46aff9c2a1d1bbd0de45"
     },
     "scripts/ci/gnu-immutable-source-native/test_interruption.py": {
       "bytes": 9210,

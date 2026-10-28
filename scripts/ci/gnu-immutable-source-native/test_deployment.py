@@ -7,8 +7,11 @@ ROOT=D.ROOT
 
 def original_signature_parent_runtime():
  import fixed_case as F,original_signature_source as G
- current=F.snapshot(ROOT/'runtime');parent=G.normalize(current);q=G.profile()
- D.need(G.apply(parent,q['runtime_edits'])==current,'whole current signed-original runtime reapplication')
+ current=F.snapshot(ROOT/'runtime');raw={'runtime/'+n:b for n,b in current.items()}
+ historical_raw=D._RETAINED_TRANSPORT.worker_group_runtime_inverse(raw)
+ D.need(D._RETAINED_TRANSPORT.worker_group_runtime_apply(historical_raw)==raw,'whole approved runtime3 reapplication')
+ historical={n[len('runtime/'):]:b for n,b in historical_raw.items()};parent=G.normalize(historical);q=G.profile()
+ D.need(G.apply(parent,q['runtime_edits'])==historical,'whole historical signed-original runtime reapplication')
  D.need(F.snapshot(ROOT/'runtime')==current,'whole current raw runtime remains byte-held')
  return parent
 class Tests(unittest.TestCase):
