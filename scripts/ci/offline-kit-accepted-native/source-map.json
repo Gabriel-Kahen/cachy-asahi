@@ -137,9 +137,9 @@
       "sha256": "c3f32068d23ab2ec13e8b1dcb42df24138837ea1570dd5db76e83ffa47830e65"
     },
     "scripts/ci/offline-kit-accepted-native/candidate-source/candidate_lifecycle.py": {
-      "bytes": 21405,
+      "bytes": 40712,
       "mode": 420,
-      "sha256": "c66910e2f84d6a27e3d901304700a1e31d95406ac19882ba37b16bc3d7f00e01"
+      "sha256": "c77ca4c8a3d2b36b5c9ea64b8ad08518f8df9e7c6e0c4a72d4927b14982af377"
     },
     "scripts/ci/offline-kit-accepted-native/candidate-source/candidate_profile.py": {
       "bytes": 32204,
@@ -252,9 +252,9 @@
       "sha256": "14381d049506b52770059bf7af415f7a079f69872543e74417aca11ce24ac3c5"
     },
     "scripts/ci/offline-kit-accepted-native/owner.py": {
-      "bytes": 26124,
+      "bytes": 39982,
       "mode": 420,
-      "sha256": "48a8cc23f2b0fbc888d79215039ca5e864760dd83e780d84c99cea6376c72a57"
+      "sha256": "46fdda71e60f560bd126230241ea8c59d0b459670c7c20e6c47244cee7826681"
     },
     "scripts/ci/offline-kit-accepted-native/owner_common.py": {
       "bytes": 15682,
