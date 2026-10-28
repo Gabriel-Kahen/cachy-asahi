@@ -1,0 +1,106 @@
+{
+  "M2": "NOT_RUN",
+  "all_eight_payloads_byte_identical": true,
+  "artifact": 12775406393,
+  "attempt": 1,
+  "cleanup": "SOURCE_BOUND_CONSUMERS_BEFORE_PRODUCER_TRANSCRIPTS_NO_NEW_LIVE_DAEMON_PROBE",
+  "complete_receipt_summary": {
+    "bytes": 29923,
+    "sha256": "1a334af8a054958dc94736faaafcc4e43558b7ae7c814aee9a29b8fb6b78a434"
+  },
+  "correctness_each": {
+    "cross_decodes": 96,
+    "encodes": 48,
+    "input_boundaries": [
+      16383,
+      16384,
+      16385
+    ],
+    "probes": 2,
+    "strict_rejections": 6
+  },
+  "full_port_acceptance": false,
+  "generic16k": "NOT_RUN_INPUT_LENGTHS_DO_NOT_PROVE_KERNEL_PAGE_SIZE",
+  "independent_outer_attempts": 2,
+  "inner_evidence_files_each": 305,
+  "input_transport_bytes": 1046432165,
+  "input_transport_files": 1154,
+  "installed": "NOT_RUN",
+  "isa": "GENERIC_ARMV8_A_SOURCE_POLICY",
+  "job": 122500619368,
+  "native_codec_execution": "SOURCE_BOUND_ORIGINAL_COMMAND_AND_OUTPUT_DATA_NOT_LOCALLY_REENACTED",
+  "native_page_size": 4096,
+  "native_profiles_each": 17,
+  "native_target": "aarch64-unknown-linux-gnu",
+  "optimization_selection": "NOT_GRANTED",
+  "optimized_clean_builds_each": 2,
+  "owned_commands_each": 234,
+  "payloads": {
+    "LICENSE": {
+      "bytes": 1002,
+      "sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2"
+    },
+    "example": {
+      "bytes": 399064,
+      "sha256": "98d8d554fd8f77dd10da6cd3bd39bcc6fcfdbfdd019219cc29d17af541a8cf90"
+    },
+    "libz.a": {
+      "bytes": 577542,
+      "sha256": "cc5575c0994af32580a3ecb74d4ab7821af04f802c7a9c313a48e21833710809"
+    },
+    "minigzip": {
+      "bytes": 380232,
+      "sha256": "4458d26336a537d5521a893f2b5db0cfd20511b41ba46a40dbd71552776bf5fb"
+    },
+    "probe": {
+      "bytes": 337624,
+      "sha256": "da7b3ffacc8fb5fdecc9b239bb717f18a7046aa5452ea48eb0df264615ad2197"
+    },
+    "strict-gzip": {
+      "bytes": 186792,
+      "sha256": "6b0ff3b642413a11eb4a4313c86d6c94c623a6e55036c7904c24f3a02129326d"
+    },
+    "zconf.h": {
+      "bytes": 16921,
+      "sha256": "0718a11beb3295b345fb29a63b44b654b282d82c4cd0513f6225587f2b29b8bb"
+    },
+    "zlib.h": {
+      "bytes": 103848,
+      "sha256": "818667d6ab6a37fe7469cb06a7f0cb2c2cb2f2c948a03e5accf1a4a74bf3020a"
+    }
+  },
+  "performance_gains": "NOT_MEASURED",
+  "prior_wrapper_failures": "0600_SOURCE_PROJECTION_AND_PRESEMANTIC_LITERAL_PATH_REFUSAL_RETAINED",
+  "producer": {
+    "image": "sha256:38733b636448e3b14bb5a97c84dc0e524e9129cdedbfa2d0204ae0fc66618b19",
+    "independent_outer_builders": [
+      "cachy-asahi-6ee98626a5744f80",
+      "cachy-asahi-c397950f7d7e46af"
+    ],
+    "package_lock": {
+      "bytes": 6674,
+      "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
+    },
+    "packages": 341
+  },
+  "production_trust": "NOT_GRANTED",
+  "profile_seals": [
+    "19d5b5ea146888df74c24434bbaf74c9f8e3ab0ddf5dbd3775f2b08bfb12ec2a",
+    "ac5546e6b7ea653d63106de4944b1ca0aa1d5baa47a670671274a4f6eb25d39d"
+  ],
+  "qualification": "SOURCE_AND_PUBLICATION_BOUND_NATIVE_ORIGINALS_WITH_COMPLETE_CONSTRUCTION_CORRECTNESS_PROFILE_TOOL_AND_ORDERED_RETIREMENT_PROJECTION",
+  "ref": "codex/zlib-pgo102-tool-identity-native-v1",
+  "release": "NOT_ADMITTED",
+  "run": 40592666471,
+  "source": "3ee4b0ae221429385e738f4df01eac1b730f36ee",
+  "status": "ROOT_QUALIFIED_GENERIC_ARM4K_PGO_CONSTRUCTION_AND_CORRECTNESS_COMPONENT_ONLY",
+  "strict_packet_seal": {
+    "bytes": 239719,
+    "sha256": "a7291c0015cc6436a69fcb762c977fc00c8a49c22fb6f61c2b61f57161def686"
+  },
+  "strict_result": {
+    "bytes": 7506,
+    "sha256": "d1bb7b1803dfc7d0ce9c9e4a4d97700f58e845b99f3f0c175b8f6d7a30bb2667"
+  },
+  "tool_FD_proof": "RECORDED_NATIVE_CLAIM_NOT_REEXECUTED"
+}

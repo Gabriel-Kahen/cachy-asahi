@@ -251,7 +251,7 @@ def launch(argv, cwd, env, run_seconds, ready_seconds, marker):
     return result
 
 
-def run(args):
+def run(args, launcher=None):
     require(re.fullmatch('[0-9a-f]{64}', args.entry_sha256) is not None, 'entry SHA256 required')
     for value in (args.run_seconds, args.ready_seconds):
         require(math.isfinite(value) and .05 <= value <= 30, 'deadlines must be finite in [0.05, 30] seconds')
@@ -301,7 +301,7 @@ def run(args):
             require(cwd.is_dir(), 'runtime working directory missing')
         require(all(row['state'] in ('UNCHANGED', 'URI_PASSED_WITHOUT_FETCH') for row in inputs.verify(selected_inputs)),
                 'local input changed before launch')
-        result = launch(argv, cwd, env, args.run_seconds, args.ready_seconds, args.ready_marker)
+        result = (launch if launcher is None else launcher)(argv, cwd, env, args.run_seconds, args.ready_seconds, args.ready_marker)
         input_receipts = inputs.verify(selected_inputs)
         if any(row['state'] in ('CHANGED', 'UNVERIFIED') for row in input_receipts):
             result['application_status'] = result['status']
@@ -310,7 +310,7 @@ def run(args):
         result.update(schema=1, context=mode, desktop_id=args.select, desktop_sha256=args.entry_sha256,
                       argv=argv, cwd=str(cwd), executable_files=sorted(set(files)), inputs=input_receipts,
                       audit_pins=audit.stage.pins, evidence='HOST_FIXTURE_ONLY' if mode == 'fixture' else 'ISOLATED_APPLICATION_EXEC_ONLY',
-                      gui='NOT_RUN (output marker does not prove window mapping)', native_arm='NOT_RUN' if mode == 'fixture' else platform.machine(),
+                      gui=result.get('gui', 'NOT_RUN (output marker does not prove window mapping)'), native_arm='NOT_RUN' if mode == 'fixture' else platform.machine(),
                       m2='NOT_RUN', performance='NOT_MEASURED', release='NOT_ADMITTED')
         return result
     finally:
