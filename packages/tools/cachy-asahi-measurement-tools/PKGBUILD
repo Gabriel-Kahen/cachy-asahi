@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: MIT
+pkgname=cachy-asahi-measurement-tools
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Frozen measurement plans, owned workloads and offline baseline comparison'
+arch=(any)
+url=https://github.com/Gabriel-Kahen/cachy-asahi
+license=(MIT)
+depends=('python>=3.12')
+checkdepends=(bubblewrap)
+options=('!strip' '!debug')
+source=(LICENSE NOTICE README.md assemble.py benchmark.py benchmark_platform_metrics.py cachy-asahi-measurement-tools conditions.example.json experiment.example.json owned_process.py payload-map.json platform_metrics.py process_group_memory.py smoke_workload.py source-provenance.json test_package.py)
+sha256sums=(51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7 993cde3f1cd8094d28c9bccbe3b2c6b39f155976c906a4ea9b6e42375cbc9285 3870a5c9b164fed3bab99ec11dd3c073391ddb2d1b879cfd37942a2e2d6a2fb8 3ad1a329e7cf2b2f47b50515fb9d7b5ac2c4a547021f404082dca54d609df555 3783f5e6f6a44bc177fd31254d044d5fb31832e232306a358d8cfb497a62b3cc 863442bfeb274b7dcfec540c33fd4632498e58a5672a3b466aca6bc6fc46b9bd d599f8f1ac277c1d19ba40aa45d8133d2f7ce28c873a46aea829c82da21d895c bcc89dc73d4aec57ca57eca1bd5cbef58cf2639f8b330dced9933fbbe69ff758 c7f90a9b0ab1c6a877653a17b44025160d7e9beb7065f48084bce9e3c065cecf 83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f 1747f8bbdd3d0a2ca411967501776c8232913be1223c74f6d390bd954c58e81d bf3d80c3e5a7d8e8a67c393e2cabf19c2a45945fd023628bdb5dcb5b03b2b4f2 15d8e0f998f01e4f0a85122421ae76538eb05a0a2ab422e346674b8138ba2037 7f4dd277dd618d568c1df327b4f520bab26e7abfd33a91a8178da2c513cfd1cb 7c9de95405e819c0a2e693c7eb29eca3a1187e6e7c2d6ce26effad212cf50a5b e176512445f0984968a5d98160333957402133be82415d0abeac5c78c9dfec2f)
+
+prepare() {
+    # makepkg stages plain local sources as symlinks. Materialize them before
+    # the exact ordinary-file installer; preserve original bytes, not links.
+    local _measurement_source
+    install -d "$srcdir/materialized" || return
+    for _measurement_source in "${source[@]}"; do
+        install -m644 "$srcdir/$_measurement_source" "$srcdir/materialized/$_measurement_source" || return
+    done
+}
+
+check() {
+    python -I -B -Werror::ResourceWarning "$srcdir/materialized/test_package.py" --recipe-root "$startdir"
+}
+
+package() {
+    [[ -n ${srcdir:-} && -n ${pkgdir:-} && $pkgdir != / && $pkgdir != "$srcdir" ]] || return 1
+    python -I -B "$srcdir/materialized/assemble.py" --source "$srcdir/materialized" --prefix "$pkgdir/usr"
+}

@@ -1,0 +1,19 @@
+# Proposal only: Root owns canonical manifests/packages.toml and selection.
+[[packages]]
+name = "cachy-asahi-measurement-tools"
+phase = "measurement-workflows"
+status = "candidate"
+source = "local-original-exact-five-module-MIT-closure"
+recipe = "packages/tools/cachy-asahi-measurement-tools/PKGBUILD"
+license = "MIT"
+audit = "packages/tools/cachy-asahi-measurement-tools/README.md"
+candidate_version = "0.1.0-1"
+selected_for_development = false
+selected_for_release = false
+host_validation = "PASS eight original package controls; two unchanged moved prefixes; 24 real private PID/proc and empty-sysfs owned trials; INCOMPLETE/FAIL and NOT RUN preserved; no real session/sensor observation"
+native_build = "NOT RUN"
+installation = "NOT RUN; package() staging and private file inverse only, not ALPM or installed Asahi"
+hardware_validation = "NOT RUN"
+performance = "NOT MEASURED; intentional host fixture sleep difference only"
+release = "NOT ADMITTED"
+next_step = "Root adoption, clean native ARM pairs and independently scoped signed disposable ALPM lifecycle; native16K and both M2 Air qualification remain separate."

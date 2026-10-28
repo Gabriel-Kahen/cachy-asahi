@@ -1,0 +1,65 @@
+{
+  "schema": "measurement-tools-provenance-v1",
+  "base_commit": "852d1b7324e4ad840fa94ea7c9fc994b1aa07280",
+  "sources": [
+    {
+      "source": "scripts/benchmarks/benchmark.py",
+      "file": "benchmark.py",
+      "sha256": "3783f5e6f6a44bc177fd31254d044d5fb31832e232306a358d8cfb497a62b3cc",
+      "bytes": 50739,
+      "git_blob": "ec6bd887dbb2196971134523a6b170a35fe9b974",
+      "license": "MIT",
+      "transformation": "none; byte-identical"
+    },
+    {
+      "source": "scripts/benchmarks/process_group_memory.py",
+      "file": "process_group_memory.py",
+      "sha256": "15d8e0f998f01e4f0a85122421ae76538eb05a0a2ab422e346674b8138ba2037",
+      "bytes": 7097,
+      "git_blob": "177d83e7337e2931eaa510a34b18ccf75211e754",
+      "license": "MIT",
+      "transformation": "none; byte-identical"
+    },
+    {
+      "source": "scripts/benchmarks/platform_metrics.py",
+      "file": "platform_metrics.py",
+      "sha256": "bf3d80c3e5a7d8e8a67c393e2cabf19c2a45945fd023628bdb5dcb5b03b2b4f2",
+      "bytes": 26497,
+      "git_blob": "05eeada27ff87c58d2c10672fe2861780db78f49",
+      "license": "MIT",
+      "transformation": "none; byte-identical"
+    },
+    {
+      "source": "scripts/benchmarks/benchmark_platform_metrics.py",
+      "file": "benchmark_platform_metrics.py",
+      "sha256": "863442bfeb274b7dcfec540c33fd4632498e58a5672a3b466aca6bc6fc46b9bd",
+      "bytes": 16254,
+      "git_blob": "3d6f790bd8123e3effb68790d30b6378069b5b95",
+      "license": "MIT",
+      "transformation": "none; byte-identical"
+    },
+    {
+      "source": "scripts/virtual/owned_process.py",
+      "file": "owned_process.py",
+      "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f",
+      "bytes": 25140,
+      "git_blob": "4eea0bab0a1518b5379d62dc399921ce330e108a",
+      "license": "MIT",
+      "transformation": "none; byte-identical"
+    },
+    {
+      "source": "LICENSE",
+      "file": "LICENSE",
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+      "bytes": 1081,
+      "git_blob": "4a871664e48917bbb97e51b6d4d0eeb825772d1f",
+      "license": "MIT",
+      "transformation": "none; byte-identical"
+    }
+  ],
+  "native_build": "NOT RUN",
+  "installation": "NOT RUN",
+  "hardware_validation": "NOT RUN",
+  "performance": "NOT MEASURED",
+  "release": "NOT ADMITTED"
+}
