@@ -1,4 +1,4 @@
-name: native-arm-apps607-role-bound-cache-snapshot
+name: native-arm-apps607-selected-carrier-source
 on:
   workflow_dispatch:
     inputs:

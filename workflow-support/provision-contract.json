@@ -1,7 +1,7 @@
 {
   "Root_acceptance": null,
   "actual": null,
-  "actual_parent": "66fae6ddbbd6df66e4d5a50c9577e9bb9168b170",
+  "actual_parent": "116ff85f6d2f5ed0ba023a97ca3f79546a001623",
   "actual_run_id": null,
   "attempt": null,
   "budgets": {
@@ -16,6 +16,55 @@
     "reap_seconds": 5,
     "snapshot_seconds": 900,
     "transaction_seconds": 600
+  },
+  "carrier_source_route": {
+    "acceptance": false,
+    "clocks": "UNCHANGED",
+    "closed_selected_source_files": 245,
+    "entrypoint": {
+      "bytes": 5894,
+      "sha256": "bf254c99c92bbe9813e5797db48e8b83af15030e1a53e221c7b5e8ff4cd01992"
+    },
+    "filesystem_fallback": false,
+    "independent_capsule_pin": "CAPSULE_SHA256_PRESERVED_IN_CLEAN_PARENT_AND_CHILD_ENV",
+    "operation_profile": {
+      "bytes": 44437,
+      "sha256": "359a8cf7ff531160981fae4a9fce486f0904b4798bbee30311919e500f0395d6"
+    },
+    "ordinary_checked": "DELEGATE_UNCHANGED_ORIGINAL_ROOT_AND_ROW",
+    "ordinary_packet": "GITHUB_WORKSPACE/apps607-repair-packet/payload",
+    "original_owner": {
+      "bytes": 39552,
+      "sha256": "973c96eacc1a321aa497962b449f4c7d46bd41ed5d1361f8b7ec56c36c2edfb7"
+    },
+    "packet_writes": false,
+    "selected_authority_files": {
+      "apps16-repair/carrier-profile.json": {
+        "bytes": 46416,
+        "sha256": "805e3ef1b4e2be899476c3d215468af02f824eb8a071e473e22aeb7bae3aed0e"
+      },
+      "apps16-repair/carrier.py": {
+        "bytes": 4181,
+        "sha256": "a181a6d080dab7a5a1613f23e6a1da70596c8c3d8c84fd44e444a32f3a7950f1"
+      },
+      "apps16-repair/contract_common.py": {
+        "bytes": 4407,
+        "sha256": "340f6db4592c72507f1028e882fe78b5398ea9b8cab6323260ff6e0c88543380"
+      },
+      "apps16-repair/selection.py": {
+        "bytes": 8889,
+        "sha256": "616cfe431e97c1576fca6119ec552d5f16226847d3569c8e248410a6bdee2150"
+      }
+    },
+    "selected_carrier": "GITHUB_WORKSPACE/apps16-native-pair",
+    "selected_namespace": "APPS16_CARRIER/",
+    "selected_source": "closed_capsule/repair-source",
+    "status": "SOURCE_BOUND_SELECTED_AUTHORITY_NOT_PACKET_FALLBACK",
+    "supervised_child": "SAME_NEW_ENTRYPOINT_WHOLE_ORIGINAL_MAIN_INVERSE_ONE_PATH_SEAM",
+    "workflow_cli": {
+      "bytes": 4222,
+      "sha256": "5ea1070c917d90b3678fcf1a63d6cc9de320e94dfedb2b170908279049278b4e"
+    }
   },
   "dependency_inputs": {
     "GPG": "UNCHANGED_ORIGINAL_ACQUIRE_REQUIRED",
@@ -451,7 +500,7 @@
     "unallocated_job_minutes": 34
   },
   "workflow_input_contract": {
-    "bytes": 13673,
-    "sha256": "47620b91cc7beb922ab8994c29a50e7f50157a6e1dff8d72557827b4281f2117"
+    "bytes": 16402,
+    "sha256": "78b6f68f4f61de7eb90762886faf425910ec3bbcdd5ec782f656554766b16f9f"
   }
 }

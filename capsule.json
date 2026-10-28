@@ -4,12 +4,12 @@
   "entry": "operation/native_owner607.py",
   "files": {
     ".github/workflows/native-arm-apps16-reinstall-interruption.yml": {
-      "bytes": 38610,
-      "sha256": "9e2cee190f616abbd91fdafb7af0ce8c06bb59335fe84feed4c06c20ce25fac8"
+      "bytes": 38608,
+      "sha256": "05a7a42934e32304019f5677a26fac790ff5efd4afcd29f1a5613cd77b66b323"
     },
     ".github/workflows/native-arm-build.yml": {
-      "bytes": 38610,
-      "sha256": "9e2cee190f616abbd91fdafb7af0ce8c06bb59335fe84feed4c06c20ce25fac8"
+      "bytes": 38608,
+      "sha256": "05a7a42934e32304019f5677a26fac790ff5efd4afcd29f1a5613cd77b66b323"
     },
     "operation/README.md": {
       "bytes": 1937,
@@ -2148,8 +2148,8 @@
       "sha256": "9a8064cde23ad90c2352395bdd1f6f5a8e843b3db3468cd2cc5a90829dc32704"
     },
     "workflow-support/input-contract.json": {
-      "bytes": 13673,
-      "sha256": "47620b91cc7beb922ab8994c29a50e7f50157a6e1dff8d72557827b4281f2117"
+      "bytes": 16402,
+      "sha256": "78b6f68f4f61de7eb90762886faf425910ec3bbcdd5ec782f656554766b16f9f"
     },
     "workflow-support/legacy_prefill.py": {
       "bytes": 5986,
@@ -2160,16 +2160,16 @@
       "sha256": "eaf9a46630e4fe4ca0a8f94a6dc2de4a881a6ad7e8b4dd0810b3347c0d7038d5"
     },
     "workflow-support/owner_cli607.py": {
-      "bytes": 4039,
-      "sha256": "177d74c77ab50fc7f9b233fa16775130d7e3a13f0dfed68f7a47f28a0b917995"
+      "bytes": 4222,
+      "sha256": "5ea1070c917d90b3678fcf1a63d6cc9de320e94dfedb2b170908279049278b4e"
     },
     "workflow-support/provider1197.json": {
       "bytes": 221235,
       "sha256": "26902de45f63d4873a3be035adad610f9b2ad76cd2c798676424a2e3edf39a85"
     },
     "workflow-support/provision-contract.json": {
-      "bytes": 14610,
-      "sha256": "120b35b8e64e66d8fc4f90000ef89b311d2d6a9f215997529c799ddfefd4a630"
+      "bytes": 16560,
+      "sha256": "a14479186c2fe7a7cfcd017737456a398025694026b49da37fcae7819360114f"
     },
     "workflow-support/retained_dependency.py": {
       "bytes": 14318,
@@ -2178,13 +2178,17 @@
     "workflow-support/retained_transport.py": {
       "bytes": 15387,
       "sha256": "00b3e949b195cc82dfc80a4e1d89b0cb39607e9485312778e254a6aedbf5b248"
+    },
+    "workflow-support/selected_source_owner607.py": {
+      "bytes": 5894,
+      "sha256": "bf254c99c92bbe9813e5797db48e8b83af15030e1a53e221c7b5e8ff4cd01992"
     }
   },
   "hardware": "NOT_RUN",
   "native": "NOT_RUN",
   "operation": "recover-apps16-reinstall607",
   "operation_profile_sha256": "359a8cf7ff531160981fae4a9fce486f0904b4798bbee30311919e500f0395d6",
-  "parent_capsule_sha256": "309ebad69595b3159375504b73d40cfd6565a19303a50851dda704ae1c2091f7",
+  "parent_capsule_sha256": "cf2b914492ba452f6f50c494950786247b8b9f0ceb568a6b3e3dca9ef2c17c70",
   "provider": {
     "authorization_sha256": "26902de45f63d4873a3be035adad610f9b2ad76cd2c798676424a2e3edf39a85",
     "files": 1197,
