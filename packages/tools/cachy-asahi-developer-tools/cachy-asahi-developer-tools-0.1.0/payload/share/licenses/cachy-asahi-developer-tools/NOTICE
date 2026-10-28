@@ -1,0 +1,16 @@
+cachy-asahi-developer-tools 0.1.0
+Copyright (c) 2026 cachy-asahi contributors. MIT License; see LICENSE.
+
+Original launcher, assembly/packaging controls and documentation are MIT.
+The versioned runtime includes verbatim original cachy-asahi developer runners,
+owned_process.py and original MIT fixtures. Every fixture LICENSE is retained.
+owned_process.py retains its reservation.py derivation notice. Runtime pins and
+source-provenance.json record exact retained source bytes; a checkout revision
+alone does not identify uncommitted input bytes.
+
+External Python, Git, compilers/linkers, Vim, Make, Ninja, CMake/CTest, Meson,
+GDB and uv are selected from the host. Their binaries, libraries and licenses
+are not copied into this package. This package does not redistribute upstream
+CachyOS tools, Asahi platform code, Python's standard library or uv_build.
+The Python fixture requests uv's exact built-in uv_build==0.11.28 backend;
+no backend archive or dependency is bundled or downloaded.

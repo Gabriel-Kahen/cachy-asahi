@@ -1,0 +1,116 @@
+#!/usr/bin/python3 -I
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 cachy-asahi contributors
+"""Run finite offline developer fixture journeys from the installed prefix."""
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path, PurePosixPath
+import stat
+import sys
+
+sys.dont_write_bytecode = True
+NAME, VERSION = 'cachy-asahi-developer-tools', '0.1.0'
+MANIFEST_SHA256 = '97474e2b40e92fbfcc28a39c4942ec82d2921355d4c09d7b275cd046682727ef'
+ENTRIES = dict(workflow='developer_workflow.py', build_systems='developer_build_systems.py',
+               debugger='developer_debugger.py', python='python_development.py')
+
+
+def ordinary(path, size=None):
+    info = path.lstat()
+    if (not stat.S_ISREG(info.st_mode) or info.st_size > 1024 * 1024
+            or (size is not None and info.st_size != size)):
+        raise ValueError('bounded ordinary runtime file required: ' + str(path))
+    return path.read_bytes()
+
+
+def runtime_files(prefix):
+    runtime = prefix / 'lib' / NAME / VERSION
+    for path in (runtime, *runtime.parents):
+        if path.is_symlink():
+            raise ValueError('runtime directory alias refused')
+    raw = ordinary(runtime / 'runtime.json')
+    if hashlib.sha256(raw).hexdigest() != MANIFEST_SHA256:
+        raise ValueError('packaged runtime manifest pin differs')
+    manifest = json.loads(raw)
+    expected = {'runtime.json'}
+    contents = {}
+    for row in manifest['files']:
+        relative = PurePosixPath(row['path'])
+        if relative.is_absolute() or '..' in relative.parts or str(relative) in expected:
+            raise ValueError('invalid runtime map path')
+        expected.add(str(relative))
+        path = runtime / relative
+        raw = ordinary(path, row['bytes'])
+        if hashlib.sha256(raw).hexdigest() != row['sha256']:
+            raise ValueError('packaged runtime file pin differs: ' + str(relative))
+        contents[str(relative)] = raw
+    observed = set()
+    for path in runtime.rglob('*'):
+        info = path.lstat()
+        if stat.S_ISDIR(info.st_mode):
+            continue
+        if not stat.S_ISREG(info.st_mode):
+            raise ValueError('runtime links and special files refused')
+        observed.add(str(path.relative_to(runtime)))
+    if observed != expected:
+        raise ValueError('packaged runtime file set differs')
+    return runtime, contents
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--version', action='version', version=NAME + ' ' + VERSION)
+    sub = parser.add_subparsers(dest='command', required=True)
+    sub.add_parser('verify', help='verify exact packaged runtime bytes without running tools')
+    for command, help_text in (
+            ('workflow', 'Git, Vim, C/C++, venv and available Make/Ninja journeys'),
+            ('build-systems', 'available CMake/Meson shared-library and private install journeys'),
+            ('debugger', 'GDB original C/C++ fixture journeys'),
+            ('python', 'explicit Python/uv offline package journey')):
+        child = sub.add_parser(command, help=help_text)
+        child.add_argument('--output', required=True, type=Path, help='new absolute private evidence directory')
+        if command == 'python':
+            child.add_argument('--python', required=True, help='absolute interpreter path')
+            child.add_argument('--uv', help='absolute existing uv 0.11.28 path; no download')
+        else:
+            child.add_argument('--tool-path', default=os.defpath,
+                               help='explicit absolute tool directories; default /bin:/usr/bin')
+        child.add_argument('--command-timeout', type=float, default=30)
+        child.add_argument('--total-timeout', type=float, default=300)
+    args = parser.parse_args()
+    try:
+        prefix = Path(__file__).resolve().parents[1]
+        runtime, contents = runtime_files(prefix)
+        if args.command == 'verify':
+            print(json.dumps(dict(package=NAME, version=VERSION, status='PASS_PACKAGED_RUNTIME',
+                                  runtime=str(runtime), files=len(contents))))
+            return 0
+        output = args.output
+        if not output.is_absolute():
+            raise ValueError('output must be absolute')
+        if output.resolve().is_relative_to(prefix) or prefix.is_relative_to(output.resolve()):
+            raise ValueError('output must be outside the installed prefix and its ancestors')
+        key = args.command.replace('-', '_')
+        relative = 'scripts/workflows/' + ENTRIES[key]
+        entry = runtime / relative
+        # Only the fixed, verified package entrypoint is compiled. No user source input.
+        argv = [str(entry), '--output', str(output), '--command-timeout', str(args.command_timeout),
+                '--total-timeout', str(args.total_timeout)]
+        if args.command == 'python':
+            argv += ['--python', args.python]
+            if args.uv:
+                argv += ['--uv', args.uv]
+        else:
+            argv += ['--tool-path', args.tool_path]
+        sys.argv = argv
+        namespace = dict(__file__=str(entry), __name__='__main__', __package__=None)
+        exec(compile(contents[relative], str(entry), 'exec'), namespace)
+    except (OSError, ValueError, KeyError) as error:
+        parser.exit(2, str(error) + '\n')
+    return 0
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())
