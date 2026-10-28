@@ -25,6 +25,45 @@ from common import LABEL, binding, consumer_contract, input_contract, load, need
 DOCKER = ('/usr/bin/docker', '--host=unix:///var/run/docker.sock')
 
 
+def relay_release_build_cause(work, rows, index, command, map_hash, emit=print):
+    """Relay only the exact nested marker before outer cleanup; never mask failure."""
+    try:
+        from capsule import _ordinary
+        from release_projection_v1 import PRIVATE_MARKER
+        from release_build_cause_v1 import MARKER, MAX_LINE, validate
+        need(type(index) is int and index >= 0 and len(rows) == index + 1
+             and rows[index].get('argv') == command, 'exact just-failed build actor row')
+        path = Path(work) / 'actors' / ('%04d.log' % index)
+        need(Path(rows[index]['log']) == path, 'exact original actor log role')
+        raw = _ordinary(path, 16*1024**2)
+        need(not PRIVATE_MARKER.search(raw), 'whole actor log privacy refusal')
+        framing = re.compile(rb'^(?:#[1-9][0-9]*(?: [0-9]+(?:\.[0-9]+)?)? |[0-9]+(?:\.[0-9]+)? )?'
+                             + re.escape(MARKER.encode()) + rb'(.+)$')
+        values = []; count = 0
+        def pairs(rows):
+            value = {}
+            for key, item in rows:
+                need(key not in value, 'duplicate cause JSON field'); value[key] = item
+            return value
+        for line in raw.splitlines():
+            if MARKER.encode() not in line:
+                continue
+            count += 1; match = framing.fullmatch(line)
+            need(match is not None and count <= 8 and len(line) <= MAX_LINE + 64, 'bounded exact cause marker framing')
+            value = json.loads(match[1], object_pairs_hook=pairs,
+                               parse_constant=lambda _: need(False, 'nonfinite cause JSON'))
+            validate(value, map_hash)
+            if value not in values:
+                values.append(value)
+        need(len(values) == 1, 'one exact nested cause DATA value')
+        emit(MARKER + json.dumps(values[0], sort_keys=True, separators=(',', ':'), ensure_ascii=False, allow_nan=False), flush=True)
+    except BaseException:
+        try:
+            emit('RELEASE_BUILD_FIRST_CAUSE_RELAY_UNAVAILABLE', flush=True)
+        except BaseException:
+            pass
+
+
 def module(path, name):
     spec = importlib.util.spec_from_file_location(name, path)
     result = importlib.util.module_from_spec(spec); sys.modules[name] = result
@@ -218,6 +257,8 @@ def run(root, args):
             actor.run(command, timeout=600)
         except BaseException as error:
             overlay_error = error
+            if operation=='release-alpm-upgrade-v1':
+                relay_release_build_cause(args.work, actor.rows, before, command, args.map_sha256)
             raise
         finally:
             build_operations.append(build_operation('tools', command, actor.rows, before))

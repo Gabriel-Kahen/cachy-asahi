@@ -625,9 +625,9 @@
       "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
     },
     "native/owner.py": {
-      "bytes": 26951,
+      "bytes": 29186,
       "mode": 420,
-      "sha256": "f8f44b1fb0ca3b713f2ba5c46c9892de07777462ac4e9482621e58ded18a0a62"
+      "sha256": "0d50b3eb74a5f83107142e806cc203e78f05812fd67f7321f98ef08ce5bd0cfd"
     },
     "native/predecessor-source-map.json": {
       "bytes": 27440,
@@ -675,9 +675,14 @@
       "sha256": "aed1ecd1091744d9a4353dcdcac00266bacab24a1a2c3d2cea6cb4a47166847c"
     },
     "native/release_alpm_v1.py": {
-      "bytes": 22825,
+      "bytes": 23443,
       "mode": 420,
-      "sha256": "cb570311da3c24e3d8e58514a08b3fcb26ca8b45a2fd24b3ba995d9d7d7ecc78"
+      "sha256": "2c922b881709017d0a1a869c0c272b07aefd607c682b228daea249675e127e02"
+    },
+    "native/release_build_cause_v1.py": {
+      "bytes": 12659,
+      "mode": 420,
+      "sha256": "ebd90211dba9cb7d090b07ea29909ca5cbeef0f6875a67760f3c52f72fda5750"
     },
     "native/release_guest_v1.py": {
       "bytes": 2987,
@@ -685,14 +690,14 @@
       "sha256": "10eb4d88baabaa0efdecbab684b5caafaa68a7cfc50b668849df99cd3d532c85"
     },
     "native/release_projection_v1.py": {
-      "bytes": 10481,
+      "bytes": 10601,
       "mode": 420,
-      "sha256": "64b81d9ea4fb1d35b6556fc214837e994ec18b55e4ec9d9f2092361edf9301b9"
+      "sha256": "a8020df71167d8addb5f44a6286e8231a38ff85cc7bf51c5236a96bdb5d52b8c"
     },
     "native/release_reader_v1.py": {
-      "bytes": 92188,
+      "bytes": 96115,
       "mode": 420,
-      "sha256": "d05ff12a676596268e0c20df7c867e8fc59e12bd36dc6eded082dc846a251dda"
+      "sha256": "d3052ab1f1ddb8f76ea295db63f4df7013282a9bd1dbf8e5ea7840e3706cd811"
     },
     "native/release_tools_v1.py": {
       "bytes": 16767,
@@ -1008,6 +1013,9 @@
   "image_basis180_map_sha256": "cceed4d8b72e9e73a5cb433c2c4643f5e85a0490dacd5b226514e2961aaba458",
   "image_basis180_source": "a434716cbf53085e6380e06939be6a38dd5412fc",
   "release187_predecessor": "94d638063f826b3c501e3dd004d9a41b40f7a0e0",
+  "release_build_cause_marker": "RELEASE_BUILD_FIRST_CAUSE_V1 ",
+  "release_build_cause_operation": "release-alpm-upgrade-v1",
+  "release_build_cause_parent": "feb4d3c4b998fbc328eab0cd140e82497b5c3622",
   "release_corrected191_parent": "111f14d2b21b220d86912d5ead978848c7ef1cb0",
   "release_operation": "release-alpm-upgrade-v1",
   "release_original191_predecessor": "4c3171a1937489badd22d350835e8287fee3c52a",
