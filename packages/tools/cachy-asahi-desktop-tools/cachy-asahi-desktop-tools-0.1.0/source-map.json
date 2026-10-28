@@ -1,0 +1,83 @@
+{
+  "schema": 1,
+  "files": [
+    {
+      "path": "LICENSE",
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+      "mode": 420
+    },
+    {
+      "path": "PROVENANCE.json",
+      "bytes": 1678,
+      "sha256": "89a14ad88fa6dfb55c5daf1292640d065e06d98f9a7d31dd7234bcc546645783",
+      "mode": 420
+    },
+    {
+      "path": "README.md",
+      "bytes": 5630,
+      "sha256": "4f9d3df15aba6181e601f973d38859a97b94bf37458e957401a91854501036a9",
+      "mode": 420
+    },
+    {
+      "path": "assemble.py",
+      "bytes": 3355,
+      "sha256": "57c29b4051d7079ccf35de500402b0d4b171b71babc2029ee40e5c52c9a37000",
+      "mode": 420
+    },
+    {
+      "path": "payload/bin/cachy-asahi-desktop-tools",
+      "bytes": 211,
+      "sha256": "97a52910cc63650ca248dd0a1ff5393df3af1f3fd5df167546e5034754268e5d",
+      "mode": 493
+    },
+    {
+      "path": "payload/lib/cachy-asahi-desktop-tools/cli.py",
+      "bytes": 5741,
+      "sha256": "a53e822e99133eb020fac1877c0796cd15cb8734415a13539304512bea57c0b6",
+      "mode": 420
+    },
+    {
+      "path": "payload/lib/cachy-asahi-desktop-tools/desktop_applications.py",
+      "bytes": 37685,
+      "sha256": "4eefd981d6e6d20471ba108e4450308a284ca7fcc47b08ebfea7e468887835a3",
+      "mode": 420
+    },
+    {
+      "path": "payload/share/doc/cachy-asahi-desktop-tools/PROVENANCE.json",
+      "bytes": 1678,
+      "sha256": "89a14ad88fa6dfb55c5daf1292640d065e06d98f9a7d31dd7234bcc546645783",
+      "mode": 420
+    },
+    {
+      "path": "payload/share/doc/cachy-asahi-desktop-tools/README.md",
+      "bytes": 5630,
+      "sha256": "4f9d3df15aba6181e601f973d38859a97b94bf37458e957401a91854501036a9",
+      "mode": 420
+    },
+    {
+      "path": "payload/share/licenses/cachy-asahi-desktop-tools/LICENSE",
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+      "mode": 420
+    },
+    {
+      "path": "payload-map.json",
+      "bytes": 1221,
+      "sha256": "aec1c3d142aa069cfb38f89f1221a298fbc5b74b49fcc0e36013f65c8d37dab6",
+      "mode": 420
+    },
+    {
+      "path": "test_desktop_applications.py",
+      "bytes": 29065,
+      "sha256": "3e48ae6f0ec0b5dcd235ee66f8874ce3bde251efde4e35cfac5a5ff9da5d146d",
+      "mode": 420
+    },
+    {
+      "path": "test_package.py",
+      "bytes": 11485,
+      "sha256": "114949ab5250a5f0ed8041fa07d565247a1752403b781bca35d75af7afdea0ab",
+      "mode": 420
+    }
+  ]
+}
