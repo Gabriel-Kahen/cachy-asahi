@@ -1744,12 +1744,12 @@
       "sha256": "eb0dcfff0cebdc9101840654c48cbcdb96af3f641ec9b7530c235ef46064354d"
     },
     "immutable/supervisor.py": {
-      "bytes": 1884,
-      "sha256": "d0aa00574817eabfecaa0af886e251e45156fe2de46efa5d2775a9ce46d98a23"
+      "bytes": 20870,
+      "sha256": "e53f49e874215b8a14d1ee2d03552a81257b99fa3f8f5f152b7f45b39da9ab3c"
     },
     "immutable/test_controls.py": {
-      "bytes": 10193,
-      "sha256": "7e2cda89fd12e03fbb37bffafa4e946b5e2d4689a7bfb6bd185595d83038c3f8"
+      "bytes": 10578,
+      "sha256": "7d516392d458dc71a9d4b48cc35384db588e4d045c5d1f95e83b952a5a6a5b5f"
     },
     "immutable/worker.py": {
       "bytes": 4890,
