@@ -1,0 +1,165 @@
+{
+  "Root_acceptance": null,
+  "cases_separate_root_dispatches": true,
+  "clocks": {
+    "CIleaseTTL": 15840,
+    "ELF": 300,
+    "actor_retirement_reserve": 900,
+    "caller_fault": 7740,
+    "caller_normal": 12480,
+    "capmap": 900,
+    "cleanup": 300,
+    "composition_step": 18600,
+    "copy": 4260,
+    "export": 1200,
+    "fault_driver": 5700,
+    "guest_worker_fault": 10140,
+    "guest_worker_normal": 14880,
+    "host_owner": 17400,
+    "job": 21600,
+    "job_build_reserve": 2400,
+    "job_owner": 18000,
+    "normal_driver": 10440,
+    "pid1_fault": 10260,
+    "pid1_normal": 15000,
+    "post_composition_reserve": 600,
+    "prepare": 2400,
+    "qemu_fault": 10380,
+    "qemu_normal": 15120,
+    "scrub": 1200,
+    "stage": 1200,
+    "verify": 600,
+    "vm_transport": 15840
+  },
+  "copies_per_case": {
+    "normal": 2,
+    "postcommit-exit87": 1,
+    "precommit-exit86": 1
+  },
+  "evidence": {
+    "driver_minus_copy_aggregate_seconds": "140.995881632",
+    "files": {
+      "HANDOFF.md": {
+        "bytes": 6900,
+        "sha256": "d5a96b4153389cfaa03e405c8e6354355d5aea7879a8787d0ca29dc2194aa20e"
+      },
+      "Root-replay-facts.json": {
+        "bytes": 37705,
+        "sha256": "f4b00df4c1d53b7cdcf3dcdd4aca3ac6ccb306e7c9a32d8008f5f294684c6f24"
+      },
+      "freeze.json": {
+        "bytes": 3141,
+        "sha256": "3393b3c7e083c1c907289f70b6d2d9b75b0e479f972db947545d88487a9fa882"
+      },
+      "strict-result.json": {
+        "bytes": 35991,
+        "sha256": "4615bdebf65cbc5a5ff8219708bbf2ade7e78ac5fe00c0072847984955f58b97"
+      }
+    },
+    "isolated_cleanup_seconds": null,
+    "job": 122478370364,
+    "measured_caller_seconds": "5466.530914",
+    "measured_copy_seconds": "3360.62035952",
+    "measured_driver_seconds": "3501.616241152",
+    "measured_qemu_seconds": "6505.049982",
+    "originals_refetched": false,
+    "root": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/updater607-v5-transport-complete-strict-replay-20261028",
+    "run": 40586273764,
+    "semantic_replays": 0,
+    "source": "171c9ad50e61595355deeb95b54f3793625f640e"
+  },
+  "formulas": {
+    "caller": "quiescence120+stage1200+driver+verify600+bridge120",
+    "cleanup": "ceil60((driver_observed-copy_observed)*2)",
+    "copy": "ceil60(copy_observed*1.25)",
+    "effective_actor": "min(nominal,same_VM_deadline-now-900); refuse if<=5",
+    "fault_driver": "2400+(copy-1200)+(cleanup-60)",
+    "guest": "caller+2*capmap900+ELF300+bridge300",
+    "normal_driver": "2*copy+2*(1860-1200)+2*cleanup",
+    "pid1": "guest+120",
+    "qemu": "pid1+120"
+  },
+  "geometry": {
+    "actual_ext4_free_bytes": null,
+    "actual_ext4_free_inodes": null,
+    "boot_bytes": 17179869184,
+    "data_bytes": 25769803776,
+    "dynamic_byte_inode_guards": "MANDATORY_UNCHANGED_NOT_PASSED_BY_ARITHMETIC",
+    "filesystem_metadata_and_reserved_blocks": "NOT_MEASURED_SUBTRACTED_BY_MANDATORY_RUNTIME_FREE_SPACE_GUARDS",
+    "future_input_nodes": null,
+    "geometry_resized": false,
+    "host_prepare_reserve_bytes": 51539607552,
+    "input_aggregate_max_bytes": 8589934592,
+    "observed_logical_root_bytes": 4975316195,
+    "observed_nodes_per_root": 125392,
+    "raw_geometry_margin_bytes": 1717049687,
+    "root_reserve_bytes": 268435456,
+    "simultaneous_full_root_copies": 3,
+    "source_authorization": {
+      "bytes": 286538,
+      "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/updater607-capacity-v5-transport-native-trial-root-20261027/Root-git-source-authorization.json",
+      "sha256": "e68cff2efc6e34399159eb74fdf71002724ecba938cda0407399dff2992f518c"
+    },
+    "source_files": {
+      "production/emissions/cases/normal/upgrade-config.json": {
+        "bytes": 14055,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/updater607-capacity-v5-transport-native-trial-root-20261027/source/production/emissions/cases/normal/upgrade-config.json",
+        "sha256": "451aff71466bb0b3016bf1a93f1081a8b3e744cff770fe65ebc281767863b6c6"
+      },
+      "production/vm/disk.py": {
+        "bytes": 12836,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/updater607-capacity-v5-transport-native-trial-root-20261027/source/production/vm/disk.py",
+        "sha256": "d33eda29a06088251f6a4e0c5bb07d903055ca1761a83a93ed9c70b38a90017f"
+      },
+      "production/vm/vm.py": {
+        "bytes": 20785,
+        "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/updater607-capacity-v5-transport-native-trial-root-20261027/source/production/vm/vm.py",
+        "sha256": "10c7b095441b97430da3b5fc079fa68a04ec705bbd3104d08491c2a49ecccae1"
+      }
+    },
+    "status": "PASS_NECESSARY_RAW_GEOMETRY_ARITHMETIC_NOT_FREE_SPACE_ADMISSION",
+    "three_root_nodes": 376176,
+    "upper_modeled_bytes": 24052754089,
+    "workspace_future_bytes": 268435456
+  },
+  "held_production_defaults": {
+    "cleanup": 60,
+    "copy": 1200,
+    "fault_driver": 2400,
+    "normal_driver": 1860,
+    "scale": 1200,
+    "stage": 1200,
+    "verify": 600
+  },
+  "lease": {
+    "acquire": "BEFORE_FIRST_COPY_SAME_CLOCK",
+    "cross_host_guest_monotonic_identity": "NOT_ASSUMED",
+    "expired_owned_cleanup": "OWNED_RETIREMENT_ONLY_NO_NEW_WORK",
+    "expired_work": "REFUSE",
+    "expiry": "min(acquisition_monotonic+15840,effective_same_clock_parent_deadline)",
+    "kind": "NEW_PRIVATE_CI_OWNED_LEASE_NOT_PRODUCTION_EXPIRY_WAIVER",
+    "nominal_ttl": 15840,
+    "normal_minimum_cover": 11040
+  },
+  "purpose": "EXPLICIT_EMULATED16K_NORMAL_LIFECYCLE_CI_ONLY",
+  "ref": null,
+  "run": null,
+  "schema": 1,
+  "scope": {
+    "all_individual_maxima_completion_guarantee": false,
+    "cleanup_margin_basis": "AGGREGATE_DRIVER_MINUS_COPY_UPPER_PROXY_NOT_ISOLATED_CLEANUP_MEASUREMENT",
+    "failure": "NOT_RUN",
+    "hardware": "NOT_RUN",
+    "initialization": "NOT_RUN",
+    "new_phase_allocations": "CONTRACT_RESERVES_NOT_MEASURED_EXECUTION",
+    "normal_lifecycle": "NOT_RUN",
+    "normal_updater_acceptance": false,
+    "performance_gain": "NOT_ESTABLISHED",
+    "schedule": "ONE_SHARED_VM15840_CLOCK_CLAMPS_PREPARE_QEMU_EXPORT_SCRUB_WITH900_RETIREMENT_RESERVE",
+    "signed_forward_recovery": "NOT_RUN",
+    "signed_update": "NOT_RUN",
+    "snapshot_rollback": "NOT_RUN"
+  },
+  "source": null,
+  "status": "PINNED_CAPACITY_SCALARS_DERIVED_SOURCE_ONLY_NOT_LIFECYCLE_MEASUREMENT"
+}
