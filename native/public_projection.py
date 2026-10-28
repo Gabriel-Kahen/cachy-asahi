@@ -17,7 +17,7 @@ PRODUCERS = {
  'scripts/workflows/developer_workflow.py':'531c124cde3fa41d46888acfc638c823196bb2f297b19ab68ab3d001b05f16ba',
  'native/uv-inputs.json':'b61aaff24cc354fc5946af07afc7a088587d52987081ea993e847270cfda94d3'}
 HOST={'transport-diagnostic.json','transport-proof.json','receipt.json','cleanup.json','source-proof.json','consumer-inspect.json','consumer-after.json',
- 'consumer-diagnostic.json','image-ledger.json','image-retirement.json','bootstrap-failure-retention.json','provision-diagnostic.json','build-summary.json'}
+ 'consumer-diagnostic.json','image-ledger.json','image-retirement.json','bootstrap-failure-retention.json','provision-diagnostic.json','build-summary.json','meson-diagnostic.json'}
 BOOTSTRAP={phase+'-'+name for phase in ('bootstrap','overlay') for name in
  ('packages.lock','signatures.json','bootstrap.json','cache-checksums.json','Dockerfile','runner.json')}|{
  'bootstrap-acquisition.json','bootstrap-key-import.log','bootstrap-bootstrap.log'}
@@ -108,9 +108,10 @@ def _project(source_root,public_root,projected_root):
    C.need(name=='receipt.json' or re.fullmatch(r'[0-9]{4}\.(stdout|stderr)',name),'fixed transport proof leaf required');add(relative)
  journey=_names(public,'journey')
  for name in journey:
-  with C.refusal_context('projection-select','journey/'+name):C.need(name in {'result.json','build-summary.json',*REPORTS},'unknown journey entry refused')
+  with C.refusal_context('projection-select','journey/'+name):C.need(name in {'result.json','build-summary.json','meson-diagnostic.json',*REPORTS},'unknown journey entry refused')
  add('journey/result.json',optional=True)
  add('journey/build-summary.json',optional=True)
+ add('journey/meson-diagnostic.json',optional=True)
  for feature,reports in REPORTS.items():
   prefix='journey/'+feature;names=_names(public,prefix)
   for name in names:

@@ -380,7 +380,7 @@ def retained_public_projection(view, files, binding, map_sha256):
         'scripts/workflows/developer_workflow.py': '531c124cde3fa41d46888acfc638c823196bb2f297b19ab68ab3d001b05f16ba',
         'native/uv-inputs.json': 'b61aaff24cc354fc5946af07afc7a088587d52987081ea993e847270cfda94d3'}
     host = {'transport-diagnostic.json', 'transport-proof.json', 'receipt.json', 'cleanup.json', 'source-proof.json', 'consumer-inspect.json', 'consumer-after.json',
-            'consumer-diagnostic.json', 'image-ledger.json', 'image-retirement.json', 'bootstrap-failure-retention.json', 'provision-diagnostic.json', 'build-summary.json'}
+            'consumer-diagnostic.json', 'image-ledger.json', 'image-retirement.json', 'bootstrap-failure-retention.json', 'provision-diagnostic.json', 'build-summary.json', 'meson-diagnostic.json'}
     bootstrap = {phase + '-' + leaf for phase in ('bootstrap', 'overlay') for leaf in
                  ('packages.lock', 'signatures.json', 'bootstrap.json', 'cache-checksums.json', 'Dockerfile', 'runner.json')}
     bootstrap |= {'bootstrap-acquisition.json', 'bootstrap-key-import.log', 'bootstrap-bootstrap.log'}
@@ -411,7 +411,7 @@ def retained_public_projection(view, files, binding, map_sha256):
          and ('receipt.json' in selected) != ('provision-diagnostic.json' in selected),
          'closed finite projection leaf set and sole authority required')
     for target, row in selected.items():
-        parts = target.split('/'); allowed = target in host or target in {'journey/result.json', 'journey/build-summary.json'}
+        parts = target.split('/'); allowed = target in host or target in {'journey/result.json', 'journey/build-summary.json', 'journey/meson-diagnostic.json'}
         if len(parts) == 2:
             allowed |= (parts[0] == 'actor-logs' and re.fullmatch(r'[0-9]{4}\.log', parts[1]) is not None
                         or parts[0] == 'provision-logs' and re.fullmatch(r'(?:proof\.json|input-transport-owner\.json|input-cache-owner\.json)-[0-9]{3}\.log', parts[1]) is not None
@@ -594,9 +594,66 @@ def retained_build_summary(view, files, binding, map_sha256, positive=False):
                 original_result_and_feature_logs='VERIFIED_ACTUAL_RETAINED_BYTES')
 
 
+
+def retained_meson_diagnostic(view, files, binding, map_sha256):
+    """Strict optional Meson DATA; normal route proves actual original bytes."""
+    import meson_diagnostics as meson
+    names = {'meson-diagnostic.json', 'journey/meson-diagnostic.json'}
+    if not names & set(files):
+        return dict(status='ABSENT_MESON_STAGE_DIAGNOSTIC_DATA_ONLY', native='NOT_ADMITTED')
+    need(names <= set(files) and all(files[name]['kind'] == 'file' and files[name]['bytes'] <= meson.CAP for name in names),
+         'both bounded original and bound Meson diagnostics required')
+    value = view.load('meson-diagnostic.json'); meson.validate_bound(value, binding, map_sha256)
+    for name in names:
+        need(pin(view.read(name)) == {key: files[name][key] for key in ('bytes', 'sha256')}, 'actual Meson diagnostic DATA bytes differ')
+    summary = value['guest_summary']; raw_guest = view.read('journey/meson-diagnostic.json')
+    need(pin(raw_guest) == value['guest_summary_pin'] and view.load('journey/meson-diagnostic.json') == summary,
+         'host Meson binding must preserve exact unchanged original guest DATA')
+    result_name = 'journey/build-systems/result.json'
+    if summary['status'] == 'REFUSED_MESON_STAGE_DIAGNOSTIC_DATA':
+        log_verification = 'NOT_AVAILABLE_REFUSED_SOURCE_DIAGNOSTIC'
+        if summary['result_pin'] is not None and result_name in files:
+            need(files[result_name]['kind'] == 'file' and pin(view.read(result_name)) == summary['result_pin'],
+                 'known refused Meson result pin must match actual retained bytes')
+            if summary['log_pin'] is not None:
+                selected = meson.selected_record(view.load(result_name), Path('/out/journey/build-systems'))
+                need(selected['command'] is not None, 'known refused Meson log requires original selected command')
+                name = 'journey/build-systems/' + selected['command']['log']['name']
+                if name in files:
+                    need(files[name]['kind'] == 'file' and pin(view.read(name)) == summary['log_pin'],
+                         'known refused Meson log pin must match actual retained bytes')
+                    log_verification = 'VERIFIED_KNOWN_ACTUAL_BODY_PIN_ONLY_DIAGNOSTIC_REFUSED'
+        return dict(status='REFUSED_MESON_STAGE_DIAGNOSTIC_DATA_ONLY', native='NOT_ADMITTED',
+                    selected_log_verification=log_verification)
+    need(result_name in files and files[result_name]['kind'] == 'file' and files[result_name]['bytes'] <= meson.RESULT_CAP
+         and pin(view.read(result_name)) == summary['result_pin'] == {key: files[result_name][key] for key in ('bytes', 'sha256')},
+         'original Meson result pin must match actual retained body')
+    result = view.load(result_name)
+    need(type(result.get('sources')) is dict
+         and result['sources'].get('runner') == meson.PRODUCERS['scripts/workflows/developer_build_systems.py']
+         and result['sources'].get('helper') == meson.PRODUCERS['scripts/workflows/developer_workflow.py']
+         and result['sources'].get('owned_process') == meson.PRODUCERS['scripts/virtual/owned_process.py'],
+         'Meson diagnostic requires original pinned Source producers')
+    selected = meson.selected_record(result, Path('/out/journey/build-systems')); command = selected['command']
+    if command is not None:
+        name = 'journey/build-systems/' + command['log']['name']
+        need(name in files and files[name]['kind'] == 'file' and files[name]['bytes'] <= meson.LOG_CAP
+             and pin(view.read(name)) == command['log']['original_pin'] == {key: files[name][key] for key in ('bytes', 'sha256')},
+             'selected last Source Meson command log must match actual retained bytes')
+        command['log']['window'] = meson.log_window(view.read(name), command['log']['name'])
+    expected = dict(schema=1, status='MESON_STAGE_DIAGNOSTIC_DATA_ONLY', source_map_sha256=map_sha256,
+        source_producers=meson.PRODUCERS, result_pin=pin(view.read(result_name)), **selected,
+        native='NOT_ADMITTED', physical_M2='NOT_RUN')
+    need(summary == expected, 'Meson diagnostic must preserve exact last Source command, exit, supervision, failure stage and log DATA')
+    return dict(status='VALIDATED_MESON_STAGE_DIAGNOSTIC_DATA_ONLY', native='NOT_ADMITTED',
+        last_command_stage=summary['last_command_stage'], last_command_role=summary['last_command_role'],
+        failure_stage=summary['failure_stage'], exit=None if command is None else command['exit'],
+        original_result_and_selected_log='VERIFIED_ACTUAL_RETAINED_BYTES')
+
+
 def retained_safe_diagnostic(view, files, binding, map_sha256):
     """Explicit fresh safe DATA route; absent original bodies cannot be verified."""
-    name = 'safe-diagnostic.json'; optional = {'consumer-diagnostic.json', 'build-summary.json', 'projection-refusal.json'}
+    name = 'safe-diagnostic.json'; optional = {'consumer-diagnostic.json', 'build-summary.json', 'projection-refusal.json', 'meson-diagnostic.json'}
     need(name in files and files[name]['kind'] == 'file' and files[name]['mode'] == 0o600,
          'safe failure authority must be ordinary private DATA')
     value = view.load(name)
@@ -634,6 +691,9 @@ def retained_safe_diagnostic(view, files, binding, map_sha256):
             check_consumer(document, binding, map_sha256)
         elif target == 'build-summary.json':
             bound_build_summary(document, binding, map_sha256)
+        elif target == 'meson-diagnostic.json':
+            from meson_diagnostics import validate_bound
+            validate_bound(document, binding, map_sha256)
         else:
             need(type(document) is dict and set(document) == {'schema', 'binding', 'source_map_sha256', 'diagnostic'}
                  and type(document['schema']) is int and document['schema'] == 1 and document['binding'] == binding
@@ -716,6 +776,7 @@ def validate(capsule_path, expected):
          'same-source owner and explicit cleanup outcome required')
     consumer_diagnostic = retained_consumer_diagnostic(view, files, receipt, binding, expected['map_sha256'])
     build_summary = retained_build_summary(view, files, binding, expected['map_sha256'])
+    retained_meson_diagnostic(view, files, binding, expected['map_sha256'])
     failed = (receipt['status'] != 'PASS_NATIVE_DEVELOPER_COMPONENTS_ONLY'
               or cleanup['status'] != 'PASS_EXACT_OWNED_RESOURCES_RETIRED')
     need(failed or consumer_diagnostic['status'] != 'ABSENT_CONSUMER_DIAGNOSTIC_DATA_ONLY',
