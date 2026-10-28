@@ -3,6 +3,8 @@
 """Finite candidate ALPM lifecycle; target seed is database-only, not bootable."""
 import argparse
 import hashlib
+import gzip
+import io
 import importlib.util
 import json
 import os
@@ -14,6 +16,7 @@ import stat
 import subprocess
 import sys
 import tarfile
+import zlib
 sys.dont_write_bytecode = True
 BASE_LOCK_SHA = 'cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac'
 PACKAGES = {'cachy-asahi-session-diagnostics': ('0.1.0-3', 'session'),
@@ -217,7 +220,7 @@ def offline_authentication_recovery(args, k, selected, checked, package, archive
     return events
 
 
-def run(args):
+def _run(args):
     """Execute five transitions only inside an independently selected actor."""
     need(args.execute and platform.system() == 'Linux' and platform.machine() in ('aarch64', 'arm64') and
          os.getuid() == os.geteuid() != 0 and os.getgid() == os.getegid() != 0,
@@ -294,7 +297,7 @@ def run(args):
         runtime = worker.runtime()
         runner = runtime.Runner(270, env, workspace.parent / 'supervisor-logs')
         with runtime.cancellation_handlers():
-            completed = runner.run(command, timeout=270, limit=1024**2, log='worker.log')
+            completed = retained_worker_run(runner, command, workspace.parent)
         save(workspace.parent / 'worker-command.json', dict(argv=command, exit=completed.returncode,
              merged_output=completed.stdout.decode(errors='replace')))
         receipt_path = workspace / 'evidence/result.json'
@@ -336,6 +339,230 @@ def run(args):
         hardware='NOT_RUN', generic16k='NOT_RUN', release='NOT_ADMITTED')
     save(Path('/out/candidate-lifecycle.json'), report)
     return report
+
+
+def partial_read(path, maximum=16 * 1024**2):
+    path = Path(path)
+    need(path.is_absolute() and '..' not in path.parts and not any(p.is_symlink() for p in (path, *path.parents)), 'ordinary partial input required')
+    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    with os.fdopen(fd, 'rb') as stream:
+        before = os.fstat(stream.fileno())
+        need(stat.S_ISREG(before.st_mode) and before.st_nlink == 1 and 0 <= before.st_size <= maximum, 'bounded partial ordinary file required')
+        raw = stream.read(maximum + 1); after = os.fstat(stream.fileno())
+    identity = lambda s: (s.st_dev, s.st_ino, s.st_mode, s.st_uid, s.st_gid, s.st_nlink, s.st_size, s.st_mtime_ns, s.st_ctime_ns)
+    need(identity(before) == identity(after) == identity(path.lstat()) and len(raw) == before.st_size, 'partial input changed while reading')
+    return raw
+
+
+def retained_worker_run(runner, command, phase_directory):
+    try:
+        completed = runner.run(command, timeout=270, limit=1024**2, log='worker.log')
+    except BaseException as primary:
+        record = dict(argv=command, exit=None, merged_output=None, exception=dict(type=type(primary).__name__, reason=str(primary)[:4096]), stream_status='UNAVAILABLE_OR_INCOMPLETE', stream_completeness='UNKNOWN_ON_EXCEPTION')
+        try:
+            log = phase_directory / 'supervisor-logs/worker.log'
+            if log.is_file() and not log.is_symlink():
+                raw = partial_read(log, 1024**2)
+                record.update(merged_output=raw.decode(errors='replace'), stream_status='EXACT_RETAINED_MERGED_LOG', merged_bytes=len(raw), merged_sha256=sha(raw))
+        except BaseException as secondary:
+            record['log_retention_error'] = dict(type=type(secondary).__name__, reason=str(secondary)[:512])
+        try:
+            save(phase_directory / 'worker-command.json', record)
+        except BaseException as secondary:
+            primary.add_note('worker command retention failed: ' + type(secondary).__name__ + ': ' + str(secondary)[:512])
+        raise
+
+    if completed.returncode != 0:
+        primary = ValueError('candidate worker exited nonzero: ' + str(completed.returncode))
+        try:
+            save(phase_directory / 'worker-command.json', dict(argv=command, exit=completed.returncode,
+                 merged_output=completed.stdout.decode(errors='replace')))
+        except BaseException as secondary:
+            primary.add_note('worker command retention failed: ' + type(secondary).__name__ + ': ' + str(secondary)[:512])
+        raise primary
+    return completed
+
+
+def partial_roots(output):
+    roots = []
+    for short in ('maintenance', 'session'):
+        for step in STEPS:
+            phase = 'phase-' + short + '-' + step
+            for name in (phase + '/workspace/evidence/system-snapshot', phase + '/workspace/system'):
+                path = output / name
+                if os.path.lexists(path):
+                    need(path.is_dir() and not path.is_symlink(), 'ordinary existing partial root required')
+                    roots.append(name)
+    return roots
+
+
+def partial_layout(context, roots):
+    need(type(context) is dict and set(context) == {'source_commit', 'feature_code_sha', 'selection_sha256', 'package'}, 'closed partial source context required')
+    need(re.fullmatch('[a-f0-9]{40}', context['source_commit']) and context['source_commit'] == context['feature_code_sha'] and re.fullmatch('[a-f0-9]{64}', context['selection_sha256']), 'exact partial source context required')
+    package = context['package']
+    need(type(package) is dict and set(package) == {'name', 'version', 'arch', 'sha256'} and package['name'] in PACKAGES and package['version'] == PACKAGES[package['name']][0] and package['arch'] == 'any' and re.fullmatch('[a-f0-9]{64}', package['sha256']), 'selected public package required')
+    need(type(roots) is list and len(roots) <= 10 and len(roots) == len(set(roots)), 'finite distinct partial roots required')
+    phases = set(); rows = []
+    for i, name in enumerate(roots):
+        match = re.fullmatch(r'phase-(maintenance|session)-(install|reinstall|remove|reinstall-after-remove|final-remove)/workspace/(system|evidence/system-snapshot)', name)
+        need(match is not None and match[1] == PACKAGES[package['name']][1], 'selected phase/root role required')
+        phase = name.split('/')[0][6:]; phases.add(phase)
+        rows.append(dict(path=name, phase=phase, role='system' if match[3] == 'system' else 'system-snapshot', member_prefix=f'root-{i:02d}'))
+    need(len(phases) <= 5, 'at most five partial phases required')
+    return rows
+
+
+def partial_allowed(name, directory):
+    payload = {'usr/bin/cachy-asahi-maintenance', 'usr/bin/cachy-asahi-session-diagnostics', 'usr/lib/cachy-asahi-session-diagnostics/session_probe.py',
+        *('usr/lib/cachy-asahi/maintenance/scripts/' + n for n in ('maintenance/health.py', 'maintenance/rebuild_plan.py', 'maintenance/security_advisories.py', 'maintenance/signing_expiry.py', 'maintenance/update_plan.py', 'release/check_source_pins.py', 'release/compare_releases.py', 'release/release.py', 'release/source_delivery.py')),
+        *('usr/share/doc/cachy-asahi-maintenance/' + n for n in ('README.md', 'health-inputs.md', 'payload-pins.json', 'source-provenance.json')),
+        *('usr/share/doc/cachy-asahi-session-diagnostics/' + n for n in ('README.md', 'session-probe.md', 'source-provenance.json')),
+        *('usr/share/licenses/' + p + '/' + n for p in PACKAGES for n in ('LICENSE', 'NOTICE'))}
+    leaves = payload | {SENTINEL, str(Path(SENTINEL).with_name('user-alias'))}
+    prefixes = {str(p) for n in leaves | {'var/lib/pacman/local/dummy'} for p in Path(n).parents if str(p) != '.'}
+    parts = Path(name).parts
+    if any(p in {'keys', 'gnupg', 'producer', 'signing', 'original-trust', 'trust'} or p.startswith('.local-transaction-') for p in parts): return False
+    if directory: return name in prefixes or (len(parts) == 5 and parts[:4] == ('var', 'lib', 'pacman', 'local') and re.fullmatch('[A-Za-z0-9@+_.:-]+', parts[4]) is not None)
+    return name in leaves or name == 'var/lib/pacman/local/ALPM_DB_VERSION' or (len(parts) == 6 and parts[:4] == ('var', 'lib', 'pacman', 'local') and re.fullmatch('[A-Za-z0-9@+_.:-]+', parts[4]) is not None and parts[5] in {'desc', 'files', 'mtree', 'install'})
+
+
+def retain_partial(output_root, source_context, roots=None):
+    """Only public partial DATA; no completed phase or native admission inferred."""
+    output = Path(output_root)
+    need(output.is_absolute() and not any(p.is_symlink() for p in (output, *output.parents)) and output.is_dir(), 'ordinary partial output required')
+    selected = partial_roots(output) if roots is None else roots
+    root_rows = partial_layout(source_context, selected); members = {}; bodies = {}; total = 0; owner = output.stat().st_uid
+    for root_row in root_rows:
+        root = output / root_row['path']; prefix = root_row['member_prefix']
+        need(root.is_dir() and not any(p.is_symlink() for p in (root, *root.parents)), 'ordinary selected partial root required')
+        pending = [(root, '')]
+        while pending:
+            path, name = pending.pop(); st = path.lstat(); need(st.st_uid == owner, 'partial root ownership differs')
+            key = prefix + ('/' + name if name else ''); need(len(members) < 20000, 'partial node bound exceeded')
+            row = dict(mode=stat.S_IMODE(st.st_mode), uid=st.st_uid, gid=st.st_gid)
+            if stat.S_ISDIR(st.st_mode):
+                row['type'] = 'directory'
+                for child in sorted(path.iterdir(), reverse=True):
+                    child_name = name + '/' + child.name if name else child.name
+                    if partial_allowed(child_name, child.is_dir() and not child.is_symlink()): pending.append((child, child_name))
+            elif stat.S_ISLNK(st.st_mode):
+                target = os.readlink(path)
+                need(name == str(Path(SENTINEL).with_name('user-alias')) and target == 'user-sentinel' and path.resolve().is_relative_to(root.resolve()), 'fixed internal fixture alias required')
+                row.update(type='symlink', target=target)
+            else:
+                raw = partial_read(path); total += len(raw); need(total <= 128 * 1024**2, 'partial decoded byte bound exceeded')
+                row.update(type='file', bytes=len(raw), sha256=sha(raw)); bodies[key] = raw
+            members[key] = row
+    manifest = dict(schema_version=1, status='PARTIAL_CANDIDATE_PUBLIC_DATA_ONLY', acceptance=False, native_admission=False, source_context=source_context,
+        caps=dict(compressed_bytes=16*1024**2, decoded_bytes=128*1024**2, nodes=20000, phases=5), roots=root_rows, members=members, decoded_bytes=total, public_scope='ALPM_LOCAL_METADATA_FIXED_USER_FIXTURE_ACCEPTED_PAYLOAD_ONLY', excluded_scopes=['keys', 'gnupg', '.local-transaction-*', 'producer', 'signing', 'original-trust', 'trust', 'unrelated_payload_and_user_paths'])
+    need(len(encoded(manifest)) <= 2*1024**2, 'partial manifest bound exceeded')
+    buffer = io.BytesIO()
+    with tarfile.open(fileobj=buffer, mode='w', format=tarfile.PAX_FORMAT) as archive:
+        for name, row in members.items():
+            item = tarfile.TarInfo(name); item.mode = row['mode']; item.uid = row['uid']; item.gid = row['gid']
+            if row['type'] == 'directory': item.type = tarfile.DIRTYPE
+            elif row['type'] == 'symlink': item.type = tarfile.SYMTYPE; item.linkname = row['target']
+            else: item.size = row['bytes']
+            archive.addfile(item, io.BytesIO(bodies[name]) if name in bodies else None)
+            need(buffer.tell() <= 128 * 1024**2, 'partial tar decoded bound exceeded')
+        raw = encoded(manifest); item = tarfile.TarInfo('manifest.json'); item.size = len(raw); item.mode = 0o600
+        archive.addfile(item, io.BytesIO(raw))
+    need(buffer.tell() <= 128 * 1024**2, 'partial tar decoded bound exceeded')
+    compressed = gzip.compress(buffer.getvalue(), mtime=0); need(len(compressed) <= 16 * 1024**2, 'partial compressed bound exceeded')
+    capsule = output / 'candidate-partial.tar.gz'; marker = output / 'candidate-partial.json'
+    need(not os.path.lexists(capsule) and not os.path.lexists(marker), 'fresh partial outputs required')
+    with capsule.open('xb') as stream: stream.write(compressed)
+    capsule.chmod(0o600)
+    with marker.open('xb') as stream: stream.write(encoded(manifest))
+    marker.chmod(0o600)
+    return manifest
+
+
+def verify_partial(output_root, source_context):
+    output = Path(output_root); raw = partial_read(output / 'candidate-partial.json', 2*1024**2)
+    def unique(rows):
+        result = {}
+        for key, value in rows:
+            need(key not in result, 'duplicate partial JSON key'); result[key] = value
+        return result
+    manifest = json.loads(raw, object_pairs_hook=unique, parse_constant=lambda _: need(False, 'nonfinite partial JSON'))
+    need(type(manifest) is dict and set(manifest) == {'schema_version','status','acceptance','native_admission','source_context','caps','roots','members','decoded_bytes','public_scope','excluded_scopes'}, 'closed partial manifest required')
+    need(type(manifest['schema_version']) is int and manifest['schema_version'] == 1 and manifest['status'] == 'PARTIAL_CANDIDATE_PUBLIC_DATA_ONLY' and manifest['acceptance'] is False and manifest['native_admission'] is False and manifest['source_context'] == source_context, 'source-bound nonadmissible partial DATA required')
+    need(type(manifest['decoded_bytes']) is int and 0 <= manifest['decoded_bytes'] <= 128*1024**2 and type(manifest['caps']) is dict and all(type(v) is int for v in manifest['caps'].values()), 'literal partial counts required')
+    need(manifest['caps'] == dict(compressed_bytes=16*1024**2, decoded_bytes=128*1024**2, nodes=20000, phases=5), 'exact partial caps required')
+    need(manifest['public_scope'] == 'ALPM_LOCAL_METADATA_FIXED_USER_FIXTURE_ACCEPTED_PAYLOAD_ONLY' and manifest['excluded_scopes'] == ['keys', 'gnupg', '.local-transaction-*', 'producer', 'signing', 'original-trust', 'trust', 'unrelated_payload_and_user_paths'], 'exact partial public scope required')
+    roots = partial_layout(source_context, [r['path'] for r in manifest['roots']]); need(roots == manifest['roots'], 'exact partial root roles required')
+    rows = manifest['members']; need(type(rows) is dict and len(rows) <= 20000, 'bounded partial member map required')
+    need(all(r['member_prefix'] in rows and rows[r['member_prefix']]['type'] == 'directory' for r in roots), 'all partial root nodes required')
+    for name, row in rows.items():
+        need(type(row) is dict and row.get('type') in {'directory','file','symlink'} and all(type(row.get(k)) is int for k in ('mode','uid','gid')) and 0 <= row['mode'] <= 0o7777 and 0 <= row['uid'] < 2**32 and 0 <= row['gid'] < 2**32, 'literal partial metadata required')
+        fields = {'type','mode','uid','gid'} | ({'bytes','sha256'} if row['type'] == 'file' else {'target'} if row['type'] == 'symlink' else set())
+        need(set(row) == fields and (row['type'] != 'file' or (type(row['bytes']) is int and 0 <= row['bytes'] <= 16*1024**2 and re.fullmatch('[a-f0-9]{64}', row['sha256']))), 'closed partial member row required')
+        need(type(name) is str and len(name) <= 4096 and all(0 < len(part) <= 255 for part in name.split('/')), 'bounded partial components required')
+        need(not name.startswith('/') and '..' not in Path(name).parts and Path(name).as_posix() == name, 'canonical partial member name required')
+        for parent in Path(name).parents:
+            if str(parent) != '.': need(str(parent) in rows and rows[str(parent)]['type'] == 'directory', 'complete partial directory ancestry required')
+    compressed = partial_read(output / 'candidate-partial.tar.gz', 16*1024**2)
+    need(compressed[:8] == b'\x1f\x8b\x08\x00\x00\x00\x00\x00', 'fixed public partial gzip header required')
+    decoder = zlib.decompressobj(31); decoded = decoder.decompress(compressed, 128*1024**2 + 1)
+    need(len(decoded) <= 128*1024**2, 'partial tar decoded bound exceeded')
+    need(decoder.eof and not decoder.unused_data and not decoder.unconsumed_tail, 'one complete partial gzip stream required')
+    seen = set(); total = 0; canonical = io.BytesIO()
+    with tarfile.open(fileobj=io.BytesIO(decoded), mode='r:') as archive, tarfile.open(fileobj=canonical, mode='w', format=tarfile.PAX_FORMAT) as rebuilt:
+        for member in archive:
+            need('manifest.json' not in seen, 'partial manifest must be last')
+            need(member.issym() or member.linkname == '', 'non-alias partial linkname must be empty')
+            need(member.uname == member.gname == '' and member.mtime == 0 and set(member.pax_headers) <= {'path','linkpath'}, 'public partial tar header required')
+            name = member.name; need(name not in seen and len(seen) <= 20000, 'duplicate or unbounded partial tar members'); seen.add(name)
+            if name == 'manifest.json':
+                need(member.isfile() and not member.islnk() and not member.issparse() and member.mode == 0o600 and member.uid == member.gid == 0 and member.size == len(raw) and archive.extractfile(member).read() == raw, 'exact ordinary0600 root-owned inside/outside partial manifest required')
+                item = tarfile.TarInfo('manifest.json'); item.mode = 0o600; item.size = len(raw)
+                rebuilt.addfile(item, io.BytesIO(raw)); continue
+            need(name in rows and not name.startswith('/') and '..' not in Path(name).parts, 'listed safe partial member required')
+            row = rows[name]; prefix = name.split('/')[0]; need(prefix in {r['member_prefix'] for r in roots}, 'selected partial root prefix required')
+            relative = name[len(prefix)+1:] if name != prefix else ''
+            need(not relative or partial_allowed(relative, member.isdir()), 'partial public allowlist required')
+            common = dict(mode=member.mode, uid=member.uid, gid=member.gid); body = None
+            if member.isdir():
+                need(member.size == 0, 'empty partial directory header required')
+                actual = dict(common, type='directory')
+            elif member.issym():
+                need(member.size == 0, 'empty partial alias header required')
+                need(relative == str(Path(SENTINEL).with_name('user-alias')) and member.linkname == 'user-sentinel', 'fixed internal partial alias required')
+                actual = dict(common, type='symlink', target=member.linkname)
+            else:
+                need(member.isfile() and not member.islnk() and not member.issparse() and 0 <= member.size <= 16*1024**2, 'ordinary nonsparse bounded partial member required')
+                body = archive.extractfile(member).read(); total += len(body); need(total <= 128*1024**2, 'partial decoded body bound exceeded')
+                actual = dict(common, type='file', bytes=len(body), sha256=sha(body))
+            need(actual == row, 'exact partial member bytes/metadata required')
+            item = tarfile.TarInfo(name); item.mode = row['mode']; item.uid = row['uid']; item.gid = row['gid']
+            if row['type'] == 'directory': item.type = tarfile.DIRTYPE
+            elif row['type'] == 'symlink': item.type = tarfile.SYMTYPE; item.linkname = row['target']
+            else: item.size = row['bytes']
+            rebuilt.addfile(item, io.BytesIO(body) if body is not None else None)
+            need(canonical.tell() <= 128*1024**2, 'partial canonical tar bound exceeded')
+        need(not any(decoded[archive.offset:]), 'nonzero trailing partial tar data')
+    need(canonical.getvalue() == decoded, 'canonical public partial tar encoding required')
+    need(seen == set(rows) | {'manifest.json'} and total == manifest['decoded_bytes'], 'complete partial member set/byte sum required')
+    return manifest
+
+
+def run(args):
+    try:
+        return _run(args)
+    except BaseException as primary:
+        try:
+            raw = read(args.selection, 1024**2); need(sha(raw) == args.selection_sha256, 'partial selection pin differs')
+            selection = json.loads(raw)
+            context = dict(source_commit=selection['source_commit'], feature_code_sha=selection['feature_code_sha'], selection_sha256=args.selection_sha256, package=selection['candidate']['package'])
+            manifest = retain_partial(Path('/out'), context); verify_partial(Path('/out'), context)
+            status = dict(status='PARTIAL_DATA_RETAINED_NO_ADMISSION', acceptance=False, manifest_sha256=sha(encoded(manifest)), original_exception=dict(type=type(primary).__name__, reason=str(primary)[:4096]))
+        except BaseException as secondary:
+            status = dict(status='PARTIAL_DATA_RETENTION_FAILED', acceptance=False, retention_error=dict(type=type(secondary).__name__, reason=str(secondary)[:4096]), original_exception=dict(type=type(primary).__name__, reason=str(primary)[:4096]))
+            primary.add_note('partial DATA retention failed: ' + type(secondary).__name__ + ': ' + str(secondary)[:512])
+        try: save(Path('/out/candidate-retention.json'), status)
+        except BaseException as secondary: primary.add_note('partial retention status unavailable: ' + type(secondary).__name__)
+        raise
 
 
 def main(argv=None):

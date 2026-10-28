@@ -311,31 +311,236 @@ def cleanup(args):
     else:raise ValueError('missing original producer ownership report cannot establish native cleanup')
     save(work/'ordered-cleanup.json',dict(status='PASS_CONSUMERS_ABSENT_THEN_ORIGINAL574_RETIRED',identity=own,removed=removed))
 
+PUBLIC_FILE_LIMIT=16*1024**2
+PUBLIC_TOTAL_LIMIT=128*1024**2
+PUBLIC_RESULT_RESERVE=2*1024**2
+PUBLIC_FILE_COUNT=2048
+RETENTION_STEPS=('install','reinstall','remove','reinstall-after-remove','final-remove')
+
+
+def public_names(manifest):
+    """Finite public metadata/media names; raw installed trees have no role here."""
+    names=set(('source-proof.json','bootstrap.json','accepted-carrier.json','input-transport-owner.json',
+               'ordered-cleanup.json','kit-results.json'))
+    for root in ('bootstrap-actors','cleanup-actors','kit-actors','input-transport-actors'):
+        names.add(root+'/actors.json')
+        names.update(root+f'/{i:04d}.log' for i in range(100))
+    names.update('phase-logs/transport.'+suffix for suffix in ('stdout','stderr','exit-code'))
+    accepted=LANE+'/accepted/'
+    names.update('accepted-carrier/'+n[len(accepted):] for n in manifest['files'] if n.startswith(accepted))
+    for short,package,version,prefix in (
+            ('maintenance','cachy-asahi-maintenance','0.1.0-2','maintenance'),
+            ('diagnostics','cachy-asahi-session-diagnostics','0.1.0-3','session')):
+        names.add(short+'/candidate-inputs/candidate-selection.json')
+        for phase in ('produce','receive','candidate'):
+            names.update(short+'/trial-'+phase+'-'+suffix+'.json' for suffix in ('inspection','stopped','absence'))
+        receiver=short+'/receiver/'
+        names.update(receiver+n+'.json' for n in ('client-verify','client-plan','higher-real-checkpoint',
+            'hypothetical-remove-plan','receiver','refusals','source-lookup-export'))
+        names.add(receiver+'state/checkpoint.json')
+        names.update(receiver+'logs/'+label+'.json' for label in ('good','expired','tampered','wrong-key'))
+        names.update(receiver+'source-export/'+package+'-'+suffix for suffix in
+            ('LICENSE','NOTICE','PKGBUILD','existing-review','source-map.json','source.tar'))
+        names.add(receiver+'source-export/source-delivery-receipt.json')
+        names.update(short+'/trial/'+n for n in ('identity.json','packages.lock'))
+        public=short+'/trial/public/'
+        names.update(public+n for n in ('assembly.json','producer-path-absence.json','producer.json','source-pack.json','staging.json','transport.tar.gz'))
+        names.update(public+'producer-logs/'+n+'.json' for n in
+            ('key-agent-cleanup','key-generation','original-key-dearmor','original-signature','wrong-key-generation'))
+        names.update(public+'trust/'+n for n in ('higher.json','higher.json.sig','pins.json','plan_bridge.py'))
+        release=('base.json','release.json','release.json.sig','spec.json','project-license.txt',
+            'provenance/'+package+'.json','repo/'+package+'-'+version+'-any.pkg.tar.xz',
+            'repo/'+package+'-'+version+'-any.pkg.tar.xz.sig',
+            'repo/offline-native-test.db.tar.gz','repo/offline-native-test.db.tar.gz.sig',
+            'repo/offline-native-test.files.tar.gz','repo/offline-native-test.files.tar.gz.sig')
+        evidence=('accepted-native-component.json','integration.lock.json','original-signature-verification.json','source-delivery.json')
+        evidence+=tuple(package+'-'+suffix for suffix in ('LICENSE','NOTICE','PKGBUILD','source-map.json','existing-review','source.tar'))
+        evidence+=('original-'+package+'-'+version+'-any.pkg.tar.xz.sig',)
+        evidence+=tuple('original-'+short+'.'+suffix for suffix in ('TEST-original-status.txt','TEST-public.asc','provenance.json'))
+        for label in ('good','expired','tampered','wrong-key','bootstrap-tampered'):
+            root=public+'transport/'+label+'/'
+            names.update(root+n for n in ('development.json','development.json.sig','kit.json','public.gpg','receiver-license.txt',
+                'scripts/client/client.py','scripts/release/offline_kit.py','scripts/release/source_delivery.py'))
+            names.update(root+'release/'+n for n in release)
+            names.update(root+'release/evidence/'+n for n in evidence)
+        output=short+'/candidate-output/'
+        names.update(output+n for n in ('candidate-lifecycle.json','candidate-exports.tar.gz','candidate-partial.tar.gz',
+            'candidate-partial.json','candidate-retention.json','offline-refusal-recovery.json','client-state/checkpoint.json'))
+        for step in RETENTION_STEPS:
+            phase=output+'phase-'+prefix+'-'+step+'/'
+            names.update(phase+n for n in ('contract.json','worker-command.json','supervisor-logs/worker.log'))
+            names.update(phase+'workspace/evidence/'+n for n in ('result.json','authentication-command.json','supervisor-command.log',
+                'alpm.log','candidate-packages.lock','installed-packages.lock'))
+    return names
+
+
+def public_aliases():
+    aliases={}
+    for short in ('maintenance','diagnostics'):
+        for label in ('good','expired','tampered','wrong-key','bootstrap-tampered'):
+            for suffix in ('db','files'):
+                for signature in ('','.sig'):
+                    root=short+'/trial/public/transport/'+label+'/release/repo/'
+                    aliases[root+'offline-native-test.'+suffix+signature]='offline-native-test.'+suffix+'.tar.gz'+signature
+    return aliases
+
+
+def portable_public(name):
+    return type(name) is str and len(name)<=256 and all(
+        part not in ('','.','..') and re.fullmatch('[A-Za-z0-9@+_.-]+',part) for part in name.split('/'))
+
+
+def private_retention(parts):
+    return any(part in ('producer','signing','original-trust','system-snapshot') or
+               part.startswith('.local-transaction-') for part in parts) or any(
+               parts[i:i+2]==('workspace','system') for i in range(len(parts)-1))
+
+
+def partial_retention(current,own):
+    """Retain only a validated DATA capsule; never expose its raw source trees."""
+    output=current/'candidate-output'
+    if not os.path.lexists(output):return None
+    C.safe_path(output);need(output.is_dir(),'ordinary candidate output required')
+    report=output/'candidate-lifecycle.json';full=output/'candidate-exports.tar.gz'
+    if os.path.lexists(report) and os.path.lexists(full):
+        value=load(report)
+        if value.get('status')=='PASS_FINITE_REAL_CANDIDATE_DISPOSABLE_ALPM_LIFECYCLE':
+            need(sha(read(full))==value['export_capsule_sha256'],'held successful export capsule pin')
+            need(not any(os.path.lexists(output/n) for n in ('candidate-partial.tar.gz','candidate-partial.json')),
+                 'unexpected partial pair beside successful export quarantined')
+            return None
+    partial=output/'candidate-partial.tar.gz';metadata=output/'candidate-partial.json'
+    roots=[output/('phase-'+prefix+'-'+step)/'workspace'/role for prefix in ('maintenance','session')
+        for step in RETENTION_STEPS for role in ('system','evidence/system-snapshot')]
+    if not any(os.path.lexists(p) for p in (*roots,partial,metadata)):return None
+    selected=read(current/'candidate-inputs/candidate-selection.json');selection=json.loads(selected)
+    need(selection['source_commit']==own['source_sha'] and selection['feature_code_sha']==own['feature_code_sha'],
+         'partial DATA selected source context')
+    context=dict(source_commit=own['source_sha'],feature_code_sha=own['feature_code_sha'],
+        selection_sha256=sha(selected),package=selection['candidate']['package'])
+    helper=C.module(HERE/'candidate-source/candidate_lifecycle.py','retained_partial_data_helper')
+    if not os.path.lexists(partial) and not os.path.lexists(metadata):helper.retain_partial(output,context)
+    need(os.path.lexists(partial) and os.path.lexists(metadata),'complete partial capsule/manifest pair required')
+    marker=read(metadata,2*1024**2);capsule=read(partial)
+    need(helper.verify_partial(output,context)==json.loads(marker),'verified partial manifest changed')
+    need(read(metadata,2*1024**2)==marker and read(partial)==capsule,'verified partial pair changed')
+    return dict(status='VERIFIED_PARTIAL_DATA_ONLY',acceptance=False,manifest_bytes=len(marker),capsule_bytes=len(capsule),
+        manifest_sha256=sha(marker),capsule_sha256=sha(capsule))
+
+
 def retain(args):
-    _,own,tmp=binding(args);work=Path(args.work);out=fresh(tmp/'offline-kit-accepted-public');total=0;files={}
-    for path in sorted(work.rglob('*')):
-        if not path.is_file() or path.is_symlink():continue
-        rel=path.relative_to(work)
-        if any(p in ('producer','signing','original-trust') for p in rel.parts):continue
-        if 'system-snapshot' in rel.parts:continue
-        if 'workspace' in rel.parts and 'system' in rel.parts and (work/rel.parts[0]/'candidate-output/candidate-exports.tar.gz').is_file():continue
-        if any(part.startswith('.local-transaction-') for part in rel.parts):continue
-        raw=read(path);total+=len(raw);need(total<=128*1024**2,'bounded public evidence no silent dropping')
-        dst=out/rel;dst.parent.mkdir(parents=True,exist_ok=True);dst.write_bytes(raw);files[str(rel)]=dict(bytes=len(raw),sha256=sha(raw))
-    for path in (tmp/'desktop574/report.json',tmp/'desktop574/installed-packages.lock',tmp/'desktop574/offline-kit-retained574-inputs.json'):
-        if path.exists():
-            raw=read(path);total+=len(raw);need(total<=128*1024**2,'bounded original574 evidence')
-            name='producer574/'+path.name;dst=out/name;dst.parent.mkdir(parents=True,exist_ok=True);dst.write_bytes(raw);files[name]=dict(bytes=len(raw),sha256=sha(raw))
-    manifest=source(ROOT,args.manifest_sha256)
-    for name in (*manifest['files'],MAP,*ALIASES):
-        raw=read(ROOT/name);total+=len(raw);need(total<=128*1024**2,'bounded complete source evidence')
-        dst=out/'source'/name;dst.parent.mkdir(parents=True,exist_ok=True);dst.write_bytes(raw);files['source/'+name]=dict(bytes=len(raw),sha256=sha(raw))
-    complete=(work/'kit-results.json').exists() and (work/'ordered-cleanup.json').exists()
-    result=load(work/'kit-results.json') if complete else {}
-    if complete and result.get('status')=='PASS_TWO_ACTUAL_ACCEPTED_TOOLS_KITS_PENDING_CLEANUP':
-        transferred=transport_receipt(work,own,tmp);prepared_receipt(tmp/'desktop574',transferred)
-    status='PASS_NATIVE_TWO_ACCEPTED_TOOLS_OFFLINE_KIT_FINITE_ALPM_ONLY' if complete and load(work/'ordered-cleanup.json')['status']=='PASS_CONSUMERS_ABSENT_THEN_ORIGINAL574_RETIRED' and result.get('status')=='PASS_TWO_ACTUAL_ACCEPTED_TOOLS_KITS_PENDING_CLEANUP' else 'INCOMPLETE_OR_FAILED'
-    save(out/'result.json',dict(status=status,identity=own,files=files,bytes=total,export_trees='candidate-exports.tar.gz preserves all five post-commit snapshots and aliases per package; repeated working seeds omitted when capsule exists',private_paths='producer/signing/original-trust never exported',full_base_payload_installed=False,hardware='NOT_RUN',release='NOT_ADMITTED'))
+    manifest,own,tmp=binding(args);work=Path(args.work);out=fresh(tmp/'offline-kit-accepted-public')
+    total=0;files={};attempted=set();errors=[];error_count=0;partial={};eligible=False
+    def failed(stage,name,error):
+        nonlocal error_count
+        error_count+=1
+        if len(errors)<64:errors.append(dict(stage=stage,path=str(name)[:256],error_type=type(error).__name__,error=str(error)[:384]))
+    def emit(path,name,expected=None):
+        nonlocal total
+        dst=None;attempted.add(name)
+        try:
+            need(portable_public(name),'nonportable public path refused')
+            need(len(files)<PUBLIC_FILE_COUNT and name not in files,'bounded unique public file set')
+            raw=read(path,PUBLIC_FILE_LIMIT)
+            if expected is not None:
+                need(len(raw)==expected['bytes'] and sha(raw)==expected['sha256'],'source/evidence body pin differs')
+                if 'mode' in expected:need(stat.S_IMODE(path.stat().st_mode)==expected['mode'],'source mode differs')
+            need(total+len(raw)<=PUBLIC_TOTAL_LIMIT-PUBLIC_RESULT_RESERVE,'bounded public bytes with result reserve')
+            dst=out/name;dst.parent.mkdir(parents=True,exist_ok=True);dst.write_bytes(raw)
+            files[name]=dict(bytes=len(raw),sha256=sha(raw));total+=len(raw)
+        except Exception as error:
+            if dst is not None:
+                try:dst.unlink(missing_ok=True)
+                except OSError as cleanup_error:failed('partial-copy-cleanup',name,cleanup_error)
+            failed('copy',name,error)
+    try:
+        # Source and concrete raw actor/worker evidence precede optional media/capsules.
+        for name,row in manifest['files'].items():emit(ROOT/name,'source/'+name,row)
+        try:
+            map_raw=read(ROOT/MAP);emit(ROOT/MAP,'source/'+MAP,dict(bytes=len(map_raw),sha256=args.manifest_sha256,mode=0o644))
+        except Exception as error:failed('source-map',MAP,error)
+        try:
+            template=read(ROOT/LANE/'workflow.yml.in').decode()
+            rendered=template.replace('@MAP_SHA@',args.manifest_sha256).replace('@OWNER_SHA@',manifest['files'][LANE+'/owner.py']['sha256']).encode()
+            for name in ALIASES:emit(ROOT/name,'source/'+name,dict(bytes=len(rendered),sha256=sha(rendered),mode=0o644))
+        except Exception as error:failed('source-aliases','workflows',error)
+        C.safe_path(work);work_info=work.lstat()
+        need(stat.S_ISDIR(work_info.st_mode) and work_info.st_uid==os.getuid() and not work_info.st_mode&0o022,
+             'ordinary owned private work root required')
+        allowed=public_names(manifest);aliases=public_aliases()
+        critical=lambda n:n.parts[0] in ('bootstrap-actors','cleanup-actors','kit-actors','input-transport-actors','phase-logs') or 'supervisor-logs' in n.parts or n.name=='worker-command.json' or ('evidence' in n.parts and n.name in ('result.json','supervisor-command.log'))
+        critical_paths=[Path(n) for n in allowed if critical(Path(n)) and os.path.lexists(work/n)]
+        kit_logs=[p for p in critical_paths if p.parts[0]=='kit-actors' and p.stem.isdecimal()]
+        latest=max(kit_logs,key=lambda p:int(p.stem)) if kit_logs else None
+        def priority(path):
+            return (0 if path.name=='actors.json' else 1 if path==latest else
+                2 if path.parts[0] not in ('bootstrap-actors','cleanup-actors','kit-actors','input-transport-actors','phase-logs') else 3,path.as_posix())
+        for rel in sorted(critical_paths,key=priority):emit(work/rel,rel.as_posix())
+        for short in ('maintenance','diagnostics'):
+            try:
+                value=partial_retention(work/short,own)
+                if value is not None:partial[short]=value
+            except Exception as error:failed('partial-capsule',short,error)
+        directories={str(p) for n in allowed|set(aliases) for p in Path(n).parents if p!=Path('.')}
+        paths=[];nodes=0;pending=[work]
+        while pending:
+            folder=pending.pop();entries=[]
+            try:
+                with os.scandir(folder) as stream:
+                    for entry in stream:
+                        nodes+=1;need(nodes<=20000,'bounded public namespace scan exceeded');entries.append(entry)
+            except OSError as error:failed('walk',folder.relative_to(work),error);continue
+            for entry in sorted(entries,key=lambda e:e.name):
+                path=Path(entry.path);rel=path.relative_to(work)
+                if private_retention(rel.parts):continue
+                if entry.is_dir(follow_symlinks=False):
+                    if not portable_public(rel.as_posix()) or rel.as_posix() not in directories:
+                        failed('namespace',rel,ValueError('unlisted/nonordinary public directory refused'))
+                    else:pending.append(path)
+                    continue
+                if path.is_symlink() and aliases.get(rel.as_posix())==os.readlink(path):continue
+                if rel.as_posix() not in allowed or not portable_public(rel.as_posix()):
+                    failed('namespace',rel,ValueError('unlisted/nonportable public file refused'));continue
+                paths.append(rel)
+        accepted=LANE+'/accepted/'
+        for rel in paths:
+            name=rel.as_posix()
+            if name in attempted:continue
+            expected=manifest['files'].get(accepted+name[len('accepted-carrier/'):]) if name.startswith('accepted-carrier/') else None
+            if len(rel.parts)==3 and rel.parts[1]=='candidate-output' and rel.name in ('candidate-partial.tar.gz','candidate-partial.json'):
+                verified=partial.get(rel.parts[0])
+                if not verified or verified['status']!='VERIFIED_PARTIAL_DATA_ONLY':continue
+                kind='capsule' if rel.name.endswith('.tar.gz') else 'manifest'
+                expected=dict(bytes=verified[kind+'_bytes'],sha256=verified[kind+'_sha256'])
+            emit(work/rel,name,expected)
+        for short in tuple(partial):
+            pair=[short+'/candidate-output/'+n for n in ('candidate-partial.json','candidate-partial.tar.gz')]
+            if not all(n in files for n in pair):
+                for name in pair:
+                    if name in files:
+                        try:(out/name).unlink();total-=files.pop(name)['bytes']
+                        except OSError as error:failed('partial-copy-cleanup',name,error)
+                partial.pop(short);failed('partial-capsule',short,ValueError('incomplete copied partial pair quarantined'))
+        for name in ('report.json','installed-packages.lock','offline-kit-retained574-inputs.json'):
+            path=tmp/'desktop574'/name
+            if os.path.lexists(path):emit(path,'producer574/'+name)
+        complete=(work/'kit-results.json').exists() and (work/'ordered-cleanup.json').exists()
+        result=load(work/'kit-results.json') if complete else {}
+        if complete and result.get('status')=='PASS_TWO_ACTUAL_ACCEPTED_TOOLS_KITS_PENDING_CLEANUP':
+            transferred=transport_receipt(work,own,tmp);prepared_receipt(tmp/'desktop574',transferred)
+        eligible=complete and load(work/'ordered-cleanup.json')['status']=='PASS_CONSUMERS_ABSENT_THEN_ORIGINAL574_RETIRED' and result.get('status')=='PASS_TWO_ACTUAL_ACCEPTED_TOOLS_KITS_PENDING_CLEANUP'
+    except Exception as error:failed('retain','public',error)
+    status='PASS_NATIVE_TWO_ACCEPTED_TOOLS_OFFLINE_KIT_FINITE_ALPM_ONLY' if eligible and not error_count else 'INCOMPLETE_OR_FAILED'
+    record=dict(status=status,identity=own,files=files,bytes=total,retention_complete=not error_count,
+        retention_errors=errors,retention_error_count=error_count,partial_capsules=partial,
+        export_trees='candidate-exports.tar.gz holds successful five-phase snapshots; candidate-partial.tar.gz holds only observed failed-run DATA; raw system trees never copied',
+        private_paths='producer/signing/original-trust/.local-transaction-* and all raw workspace/system/system-snapshot paths excluded',
+        full_base_payload_installed=False,hardware='NOT_RUN',release='NOT_ADMITTED')
+    if status=='INCOMPLETE_OR_FAILED':record.update(acceptance=False,native='NOT_ADMITTED')
+    need(len((json.dumps(record,indent=2,sort_keys=True)+'\n').encode())<=PUBLIC_RESULT_RESERVE,'bounded reserved public result')
+    save(out/'result.json',record)
+    need(not error_count,'public retention incomplete; see retained result.json')
+
 
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('command',choices=('proof','transport','bootstrap','run','cleanup','retain'))
