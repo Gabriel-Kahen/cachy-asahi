@@ -1,0 +1,461 @@
+{
+  "ALPM": "NOT_RUN",
+  "GPG": "NOT_RUN",
+  "actual": {
+    "artifact": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "composition": {
+    "actual": {
+      "artifact": null,
+      "job": null,
+      "ref": null,
+      "run": null,
+      "source": null
+    },
+    "diagnostic_model_map": "b295500787e25eeb77ac16e84fb786d3d6c1e9f02f7a9ddb83d950bbe9d75c90",
+    "genuine_sole_parent": "94d638063f826b3c501e3dd004d9a41b40f7a0e0",
+    "installed_model_map": "a05a853fd84b42bcbfe1e1659f9610d9c5c6bdafa9562f626efa82b945b735f5"
+  },
+  "default184_diagnostic_composition": "ROOT_MUST_COMPOSE_NEW184_BUILD_SUMMARY_DIAGNOSTICS_BEFORE_DISPATCH",
+  "execution_scope": "OWNED_IMAGE_BUILD_STAGE_ROOT_LIFECYCLE_WITH_RUNUSER_ALARM_JOURNEYS; readonly consumer exports only finite DATA",
+  "genuine_parent184": "90d0419a134f0aa1b918199484e32fddec84ac6c",
+  "git_inputs": {
+    "carrier_files": 1154,
+    "carrier_source": "ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad",
+    "default_input_policy": "UNCHANGED_BASE5_CACHE512_FIXED8_OVERLAY; Git ten only in selected operation context, no HTTP fallback",
+    "expected354_sha256": "194c69d58e56b4bea56d729a750acc15f336924d87555d5b250776c607ffda24",
+    "leaves": [
+      {
+        "bytes": 8650624,
+        "carrier_relative_path": "packages/git-2.56.0-1-aarch64.pkg.tar.xz",
+        "filename": "git-2.56.0-1-aarch64.pkg.tar.xz",
+        "package": "git",
+        "role": "archive",
+        "sha256": "b152a20edb215e98cada4b2dfbd02a9e925bda0b2de6ac1441e9e60b6698d3b5",
+        "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/git-2.56.0-1-aarch64.pkg.tar.xz"
+      },
+      {
+        "bytes": 566,
+        "carrier_relative_path": "packages/git-2.56.0-1-aarch64.pkg.tar.xz.sig",
+        "filename": "git-2.56.0-1-aarch64.pkg.tar.xz.sig",
+        "package": "git",
+        "role": "signature",
+        "sha256": "a94f8074a7c20a8ad8327a8dfaac724069989f9aabf62c4ec0322533642c59ca",
+        "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/git-2.56.0-1-aarch64.pkg.tar.xz.sig"
+      },
+      {
+        "bytes": 21280,
+        "carrier_relative_path": "packages/perl-error-0.17030-3-any.pkg.tar.xz",
+        "filename": "perl-error-0.17030-3-any.pkg.tar.xz",
+        "package": "perl-error",
+        "role": "archive",
+        "sha256": "45e48cf1eac8c7ee4f78656e3eec0df2aae9fa75aa924367abc20c2270ec54db",
+        "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/perl-error-0.17030-3-any.pkg.tar.xz"
+      },
+      {
+        "bytes": 566,
+        "carrier_relative_path": "packages/perl-error-0.17030-3-any.pkg.tar.xz.sig",
+        "filename": "perl-error-0.17030-3-any.pkg.tar.xz.sig",
+        "package": "perl-error",
+        "role": "signature",
+        "sha256": "b6e561ae65c2e858cb05b20007b8996595eb3c2dec15a4436d4fb7d8d8bbf16c",
+        "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/perl-error-0.17030-3-any.pkg.tar.xz.sig"
+      },
+      {
+        "bytes": 59796,
+        "carrier_relative_path": "packages/perl-mailtools-2.22-3-any.pkg.tar.xz",
+        "filename": "perl-mailtools-2.22-3-any.pkg.tar.xz",
+        "package": "perl-mailtools",
+        "role": "archive",
+        "sha256": "71b6383a6dab51efe4be74d14a8ea7bcdb07a34a20da7c2c6f708c4a01257018",
+        "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/perl-mailtools-2.22-3-any.pkg.tar.xz"
+      },
+      {
+        "bytes": 566,
+        "carrier_relative_path": "packages/perl-mailtools-2.22-3-any.pkg.tar.xz.sig",
+        "filename": "perl-mailtools-2.22-3-any.pkg.tar.xz.sig",
+        "package": "perl-mailtools",
+        "role": "signature",
+        "sha256": "b769d12bd9f6ee215f8d1d4a06168d06f9ce0b6e3604cfd323f753c1f4d5f2ab",
+        "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/perl-mailtools-2.22-3-any.pkg.tar.xz.sig"
+      },
+      {
+        "bytes": 61796,
+        "carrier_relative_path": "packages/perl-timedate-2.35-1-any.pkg.tar.xz",
+        "filename": "perl-timedate-2.35-1-any.pkg.tar.xz",
+        "package": "perl-timedate",
+        "role": "archive",
+        "sha256": "d97a4a2b169a88fbb2db3dc5425eba2b31b58ab4123a1a998c2fcc718cd8251b",
+        "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/perl-timedate-2.35-1-any.pkg.tar.xz"
+      },
+      {
+        "bytes": 566,
+        "carrier_relative_path": "packages/perl-timedate-2.35-1-any.pkg.tar.xz.sig",
+        "filename": "perl-timedate-2.35-1-any.pkg.tar.xz.sig",
+        "package": "perl-timedate",
+        "role": "signature",
+        "sha256": "cf152bbe2914ca09964e68cc636328a4a9cdb99cecc7fe4779d327b7b64e6fb4",
+        "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/perl-timedate-2.35-1-any.pkg.tar.xz.sig"
+      },
+      {
+        "bytes": 90636,
+        "carrier_relative_path": "packages/zlib-ng-2.3.3-1-aarch64.pkg.tar.xz",
+        "filename": "zlib-ng-2.3.3-1-aarch64.pkg.tar.xz",
+        "package": "zlib-ng",
+        "role": "archive",
+        "sha256": "1ee3a19d58b27a1f63d455177be5301ca474ed20d3699ffc7f0a4f987852e930",
+        "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/zlib-ng-2.3.3-1-aarch64.pkg.tar.xz"
+      },
+      {
+        "bytes": 566,
+        "carrier_relative_path": "packages/zlib-ng-2.3.3-1-aarch64.pkg.tar.xz.sig",
+        "filename": "zlib-ng-2.3.3-1-aarch64.pkg.tar.xz.sig",
+        "package": "zlib-ng",
+        "role": "signature",
+        "sha256": "e3d9ee5945cf6b560097a05c6cac3fbb19be26ca52b1a595930b5257802d2920",
+        "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/zlib-ng-2.3.3-1-aarch64.pkg.tar.xz.sig"
+      }
+    ],
+    "metadata": {
+      "git": {
+        "BUILDINFO": {
+          "bytes": 7073,
+          "sha256": "fec5efab049a0a662cf1627f0e0353f642f938f94b1c2f85039d30edbd104e90"
+        },
+        "PKGINFO": {
+          "bytes": 1335,
+          "sha256": "936b0f73d3cf31fe744b1e8dd6afc0ed1afcd7667ae99f397c36061c80d52a9f"
+        },
+        "conflicts": [],
+        "hard_dependencies": [
+          "curl",
+          "expat",
+          "perl",
+          "perl-error",
+          "perl-mailtools",
+          "openssl",
+          "pcre2",
+          "grep",
+          "shadow",
+          "zlib-ng"
+        ],
+        "hook_paths": [],
+        "install_script": {
+          "bytes": 324,
+          "review": "Only registers/removes /usr/bin/git-shell in etc/shells; existing --noscriptlet policy suppresses it; fixed local Git journey does not require registration",
+          "sha256": "afe63da01ad0808371c99bb21865bd56a5cd2fee3efdd0372d98cde9310f3ca5"
+        },
+        "license": [
+          "GPL-2.0-only"
+        ],
+        "metadata_matches_descriptor": true,
+        "pkgbuild_sha256": "a3e46c59e103cb0c39d457d4c488d8b8eb880f4222c8fe05a25ab00495ad0885",
+        "provides": [],
+        "replaces": [],
+        "retained_license_notices": [
+          {
+            "bytes": 17987,
+            "path": "usr/share/git/subtree/COPYING",
+            "sha256": "ab15fd526bd8dd18a9e77ebc139656bf4d33e97fc7238cd11bf60e2b9b8666c6"
+          }
+        ],
+        "signature_authentication": "NOT_RUN; exact detached signature bytes available for original ALARM-key verification",
+        "upstream_source_archive_or_commit": "NOT_RETAINED_IN_THIS_DESCRIPTOR_OR_PACKAGE_METADATA",
+        "upstream_url": [
+          "https://git-scm.com/"
+        ]
+      },
+      "perl-error": {
+        "BUILDINFO": {
+          "bytes": 5481,
+          "sha256": "b1234e5057d41e968990595c69fd3abae30ed2845ab6270a64bcde6c78be4bd5"
+        },
+        "PKGINFO": {
+          "bytes": 495,
+          "sha256": "8de4fb685fec18ef5e1cd13408d9cd84a7ceab1fa7ef2bd427e94235ff9d0657"
+        },
+        "conflicts": [],
+        "hard_dependencies": [
+          "perl"
+        ],
+        "hook_paths": [],
+        "install_script": null,
+        "license": [
+          "PerlArtistic",
+          "GPL"
+        ],
+        "metadata_matches_descriptor": true,
+        "pkgbuild_sha256": "38a7adca9516888bf3d4068a2cd6b04d6619daf15bf07dca5bad8fc003b61e68",
+        "provides": [],
+        "replaces": [],
+        "retained_license_notices": [],
+        "signature_authentication": "NOT_RUN; exact detached signature bytes available for original ALARM-key verification",
+        "upstream_source_archive_or_commit": "NOT_RETAINED_IN_THIS_DESCRIPTOR_OR_PACKAGE_METADATA",
+        "upstream_url": [
+          "https://search.cpan.org/dist/Error/"
+        ]
+      },
+      "perl-mailtools": {
+        "BUILDINFO": {
+          "bytes": 5523,
+          "sha256": "a81e4712941165dfe3bf930ac544877f9c0e05d1a98d9c1c2f2cfe0f371d117f"
+        },
+        "PKGINFO": {
+          "bytes": 412,
+          "sha256": "4486038d2976126f81cbaf73694e39142f18efbe065146bf98507d2a2f6becc2"
+        },
+        "conflicts": [],
+        "hard_dependencies": [
+          "perl-timedate"
+        ],
+        "hook_paths": [],
+        "install_script": null,
+        "license": [
+          "PerlArtistic",
+          "GPL"
+        ],
+        "metadata_matches_descriptor": true,
+        "pkgbuild_sha256": "036785b27818956c858e038105f5404f70b425561be2553097ed64a0c53d3d7b",
+        "provides": [],
+        "replaces": [],
+        "retained_license_notices": [],
+        "signature_authentication": "NOT_RUN; exact detached signature bytes available for original ALARM-key verification",
+        "upstream_source_archive_or_commit": "NOT_RETAINED_IN_THIS_DESCRIPTOR_OR_PACKAGE_METADATA",
+        "upstream_url": [
+          "https://metacpan.org/release/MailTools"
+        ]
+      },
+      "perl-timedate": {
+        "BUILDINFO": {
+          "bytes": 6138,
+          "sha256": "8254f75a114952c26e096486b9a62095ea56115faf4b9df625b3923d9335256c"
+        },
+        "PKGINFO": {
+          "bytes": 421,
+          "sha256": "b74d6137e7122c9575bf274a847d97e5ddd6036a8163714df8f7579085dfbf7d"
+        },
+        "conflicts": [],
+        "hard_dependencies": [
+          "perl"
+        ],
+        "hook_paths": [],
+        "install_script": null,
+        "license": [
+          "PerlArtistic"
+        ],
+        "metadata_matches_descriptor": true,
+        "pkgbuild_sha256": "e4df89fbb929e24b3fd48e3b3a0526b47cf2a4e26eb47b6b6e880f7db3e37206",
+        "provides": [
+          "timedate"
+        ],
+        "replaces": [
+          "timedate"
+        ],
+        "retained_license_notices": [],
+        "signature_authentication": "NOT_RUN; exact detached signature bytes available for original ALARM-key verification",
+        "upstream_source_archive_or_commit": "NOT_RETAINED_IN_THIS_DESCRIPTOR_OR_PACKAGE_METADATA",
+        "upstream_url": [
+          "https://search.cpan.org/dist/TimeDate/"
+        ]
+      },
+      "zlib-ng": {
+        "BUILDINFO": {
+          "bytes": 5961,
+          "sha256": "3255432f52ed4a6524f631703a9e629a3e6a6588edecc82d9a0e83107fc3dc65"
+        },
+        "PKGINFO": {
+          "bytes": 489,
+          "sha256": "d5a78a879e64de5232b203d2b1e933581407f1c42118aa1bef725dbe712e7d61"
+        },
+        "conflicts": [],
+        "hard_dependencies": [
+          "glibc"
+        ],
+        "hook_paths": [],
+        "install_script": null,
+        "license": [
+          "Zlib"
+        ],
+        "metadata_matches_descriptor": true,
+        "pkgbuild_sha256": "3846aec409e7cd386485c96758f384f039b51e24cdfab2f2d7f937c9b9a8b3cc",
+        "provides": [
+          "libz-ng.so=2-64"
+        ],
+        "replaces": [],
+        "retained_license_notices": [
+          {
+            "bytes": 867,
+            "path": "usr/share/licenses/zlib-ng/LICENSE.md",
+            "sha256": "6c9f0d975b41afaa34d22f55bb8986ce69e5cb7ad327cb2b28820cd425edf5ee"
+          }
+        ],
+        "signature_authentication": "NOT_RUN; exact detached signature bytes available for original ALARM-key verification",
+        "upstream_source_archive_or_commit": "NOT_RETAINED_IN_THIS_DESCRIPTOR_OR_PACKAGE_METADATA",
+        "upstream_url": [
+          "https://github.com/zlib-ng/zlib-ng"
+        ]
+      }
+    },
+    "rows": [
+      {
+        "arch": "aarch64",
+        "conflicts": [],
+        "depends": [
+          "curl",
+          "expat",
+          "perl",
+          "perl-error",
+          "perl-mailtools",
+          "openssl",
+          "pcre2",
+          "grep",
+          "shadow",
+          "zlib-ng"
+        ],
+        "filename": "git-2.56.0-1-aarch64.pkg.tar.xz",
+        "isize": 51321112,
+        "license": [
+          "GPL-2.0-only"
+        ],
+        "name": "git",
+        "provides": [],
+        "replaces": [],
+        "repo": "extra",
+        "sha256": "b152a20edb215e98cada4b2dfbd02a9e925bda0b2de6ac1441e9e60b6698d3b5",
+        "signature_sha256": "a94f8074a7c20a8ad8327a8dfaac724069989f9aabf62c4ec0322533642c59ca",
+        "signature_size": 566,
+        "size": 8650624,
+        "source_url": [
+          "https://git-scm.com/"
+        ],
+        "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/git-2.56.0-1-aarch64.pkg.tar.xz",
+        "version": "2.56.0-1"
+      },
+      {
+        "arch": "any",
+        "conflicts": [],
+        "depends": [
+          "perl"
+        ],
+        "filename": "perl-error-0.17030-3-any.pkg.tar.xz",
+        "isize": 42865,
+        "license": [
+          "PerlArtistic",
+          "GPL"
+        ],
+        "name": "perl-error",
+        "provides": [],
+        "replaces": [],
+        "repo": "extra",
+        "sha256": "45e48cf1eac8c7ee4f78656e3eec0df2aae9fa75aa924367abc20c2270ec54db",
+        "signature_sha256": "b6e561ae65c2e858cb05b20007b8996595eb3c2dec15a4436d4fb7d8d8bbf16c",
+        "signature_size": 566,
+        "size": 21280,
+        "source_url": [
+          "https://search.cpan.org/dist/Error/"
+        ],
+        "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/perl-error-0.17030-3-any.pkg.tar.xz",
+        "version": "0.17030-3"
+      },
+      {
+        "arch": "any",
+        "conflicts": [],
+        "depends": [
+          "perl-timedate"
+        ],
+        "filename": "perl-mailtools-2.22-3-any.pkg.tar.xz",
+        "isize": 106745,
+        "license": [
+          "PerlArtistic",
+          "GPL"
+        ],
+        "name": "perl-mailtools",
+        "provides": [],
+        "replaces": [],
+        "repo": "extra",
+        "sha256": "71b6383a6dab51efe4be74d14a8ea7bcdb07a34a20da7c2c6f708c4a01257018",
+        "signature_sha256": "b769d12bd9f6ee215f8d1d4a06168d06f9ce0b6e3604cfd323f753c1f4d5f2ab",
+        "signature_size": 566,
+        "size": 59796,
+        "source_url": [
+          "https://metacpan.org/release/MailTools"
+        ],
+        "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/perl-mailtools-2.22-3-any.pkg.tar.xz",
+        "version": "2.22-3"
+      },
+      {
+        "arch": "any",
+        "conflicts": [],
+        "depends": [
+          "perl"
+        ],
+        "filename": "perl-timedate-2.35-1-any.pkg.tar.xz",
+        "isize": 157825,
+        "license": [
+          "PerlArtistic"
+        ],
+        "name": "perl-timedate",
+        "provides": [
+          "timedate"
+        ],
+        "replaces": [
+          "timedate"
+        ],
+        "repo": "extra",
+        "sha256": "d97a4a2b169a88fbb2db3dc5425eba2b31b58ab4123a1a998c2fcc718cd8251b",
+        "signature_sha256": "cf152bbe2914ca09964e68cc636328a4a9cdb99cecc7fe4779d327b7b64e6fb4",
+        "signature_size": 566,
+        "size": 61796,
+        "source_url": [
+          "https://search.cpan.org/dist/TimeDate/"
+        ],
+        "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/perl-timedate-2.35-1-any.pkg.tar.xz",
+        "version": "2.35-1"
+      },
+      {
+        "arch": "aarch64",
+        "conflicts": [],
+        "depends": [
+          "glibc"
+        ],
+        "filename": "zlib-ng-2.3.3-1-aarch64.pkg.tar.xz",
+        "isize": 256995,
+        "license": [
+          "Zlib"
+        ],
+        "name": "zlib-ng",
+        "provides": [
+          "libz-ng.so=2-64"
+        ],
+        "replaces": [],
+        "repo": "extra",
+        "sha256": "1ee3a19d58b27a1f63d455177be5301ca474ed20d3699ffc7f0a4f987852e930",
+        "signature_sha256": "e3d9ee5945cf6b560097a05c6cac3fbb19be26ca52b1a595930b5257802d2920",
+        "signature_size": 566,
+        "size": 90636,
+        "source_url": [
+          "https://github.com/zlib-ng/zlib-ng"
+        ],
+        "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/zlib-ng-2.3.3-1-aarch64.pkg.tar.xz",
+        "version": "2.3.3-1"
+      }
+    ],
+    "signer_fingerprint": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+    "source_rebuild_closure": "Exact signed binary inputs and package-build recipe digests retained; upstream source archive/commit hashes and actual PKGBUILD bytes are not established here"
+  },
+  "native": "NOT_RUN",
+  "operation": "installed-alpm-v1",
+  "policy": "Required/Required; isolated TEST GPGDir; no original signed-input substitution",
+  "prefix_map": "3dda8f5b89be60f9322bc3a9f0eb50387ad33b1a5fc36982c14782690989bfaa",
+  "schema": 1,
+  "signature_guard_pattern": "scripts/ci/native_arm.py:valid_signature",
+  "test_signer_pattern": "scripts/ci/zsh-highlighting-native/container.py",
+  "test_signer_pattern_pin": {
+    "bytes": 7643,
+    "sha256": "f4e588ac7fb4fb621f4c11b64e564a436de9c8437aa77ca1d91fe2962ed3cc8d"
+  }
+}

@@ -304,7 +304,7 @@ def cache(root, args):
          and previous['status'] == 'PASS_EXACT_RETAINED_INPUT_TRANSPORT_DATA_ONLY'
          and previous['carrier_head'] == CARRIER_SOURCE and previous['profile_sha256'] == PROFILE,
          'exact completed same-owner transport DATA required')
-    retired(previous['actors'], args.work)
+    transport_retired(previous, args.work, carrier_profile(root), own, args.map_sha256)
     need(not (args.work / 'input-cache-owner.json').exists(), 'one-shot eight-input cache DATA seed; no retry')
     full = carrier_profile(root)
     before = cache_inventory(args.cache, deadline)

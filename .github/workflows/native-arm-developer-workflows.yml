@@ -2,6 +2,11 @@ name: native-arm-developer-workflows
 on:
   workflow_dispatch:
     inputs:
+      operation:
+        type: choice
+        required: false
+        default: source184
+        options: [source184, installed-v1, installed-alpm-v1]
       source_sha:
         type: string
         required: true
@@ -23,6 +28,7 @@ jobs:
         shell: bash
     env:
       PYTHONDONTWRITEBYTECODE: '1'
+      NATIVE_OPERATION: ${{ inputs.operation || 'source184' }}
       SOURCE_SHA: ${{ inputs.source_sha }}
       SOURCE_MAP_SHA256: ${{ inputs.source_map_sha256 }}
       INPUTS_SHA256: beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
@@ -38,7 +44,7 @@ jobs:
         timeout-minutes: 3
         run: |
           set -euo pipefail
-          printf '%s  %s\n' 'f037bca33940e764dce4a7d66dfe6d0c72fbeda07c7f417ee7e1d30629eb86f9' native/common.py | sha256sum --check
+          printf '%s  %s\n' '519af91e1b35ef7c1e404a53dd537d8d6498bc28098f76a562f0d65c5c27b658' native/common.py | sha256sum --check
           cmp --silent .github/workflows/native-arm-build.yml .github/workflows/native-arm-developer-workflows.yml
           timeout --signal=TERM --kill-after=30s 150s \
           env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/native-developer-work/home" LANG=C.UTF-8 TZ=UTC \
@@ -167,7 +173,7 @@ jobs:
             RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
             python3 -I -B native/owner.py \
               --source-sha "$SOURCE_SHA" --ref "$GITHUB_REF" --run-id "$GITHUB_RUN_ID" --map-sha256 "$SOURCE_MAP_SHA256" \
-              --work "$RUNNER_TEMP/native-developer-work" --cache "$RUNNER_TEMP/alarm-cache" --carrier "$RUNNER_TEMP/pgo-hosted-retained" --execute
+              --work "$RUNNER_TEMP/native-developer-work" --cache "$RUNNER_TEMP/alarm-cache" --carrier "$RUNNER_TEMP/pgo-hosted-retained" --execute --operation "$NATIVE_OPERATION"
       - name: Retain bounded original DATA or native evidence capsule
         if: always() && steps.proof.outcome == 'success'
         timeout-minutes: 3
