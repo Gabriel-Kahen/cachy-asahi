@@ -2,6 +2,11 @@ name: native-arm-developer-workflows
 on:
   workflow_dispatch:
     inputs:
+      operation:
+        type: choice
+        required: true
+        default: source184
+        options: [source184, security-alpm-v1]
       source_sha:
         type: string
         required: true
@@ -24,6 +29,7 @@ jobs:
     env:
       PYTHONDONTWRITEBYTECODE: '1'
       SOURCE_SHA: ${{ inputs.source_sha }}
+      OPERATION: ${{ inputs.operation }}
       SOURCE_MAP_SHA256: ${{ inputs.source_map_sha256 }}
       INPUTS_SHA256: beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
     steps:
@@ -165,7 +171,7 @@ jobs:
             GITHUB_REPOSITORY="$GITHUB_REPOSITORY" GITHUB_RUN_ID="$GITHUB_RUN_ID" GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" \
             GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" GITHUB_EVENT_NAME="$GITHUB_EVENT_NAME" GITHUB_ACTIONS="$GITHUB_ACTIONS" \
             RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
-            python3 -I -B native/owner.py \
+            python3 -I -B native/owner.py --operation "$OPERATION" \
               --source-sha "$SOURCE_SHA" --ref "$GITHUB_REF" --run-id "$GITHUB_RUN_ID" --map-sha256 "$SOURCE_MAP_SHA256" \
               --work "$RUNNER_TEMP/native-developer-work" --cache "$RUNNER_TEMP/alarm-cache" --carrier "$RUNNER_TEMP/pgo-hosted-retained" --execute
       - name: Retain bounded original DATA or native evidence capsule

@@ -1,0 +1,205 @@
+{
+  "actual": {
+    "artifact": null,
+    "job": null,
+    "ref": null,
+    "run": null,
+    "runtime": null,
+    "source": null
+  },
+  "developer201": {
+    "mechanism": "Fresh scoped TEST key; Required/Required ALPM; trust/config/user preservation; scoped-home retirement",
+    "seal_sha256": "1ef62359b8b9969681a520ed967606069037c4e8ce176438a959dc6dc9c9daaf",
+    "source_module": {
+      "bytes": 21189,
+      "sha256": "adf1d995dd377c5984ac3e1edfaec7b2f46420cbb4467f214051fd7750eaee0e"
+    }
+  },
+  "native191": {
+    "map_sha256": "6a9cf1b093d012c03ac3ec3de192718bb69c43e8922350869669a92bd75b614c",
+    "source": "4c3171a1937489badd22d350835e8287fee3c52a",
+    "tree": "1f58d194ccbf29554754758f9c28b53fc56e1e57"
+  },
+  "operation": "security-alpm-v1",
+  "package": "cachy-asahi-security-maintenance",
+  "payload_files": {
+    "bin/cachy-asahi-security-maintenance": {
+      "bytes": 2249,
+      "mode": 493,
+      "sha256": "997830d6b2bee2d33d6dad4d9f56aa973c2ded83c4d75a3ff6c61794087e685e"
+    },
+    "lib/cachy-asahi/security-maintenance-v2/payload-pins.json": {
+      "bytes": 2353,
+      "mode": 420,
+      "sha256": "f71c4be5dbed113c6fde55e9f18a2c496d281ec84445daf63bde64e766b88e16"
+    },
+    "lib/cachy-asahi/security-maintenance-v2/scripts/build/build.py": {
+      "bytes": 11299,
+      "mode": 420,
+      "sha256": "e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45"
+    },
+    "lib/cachy-asahi/security-maintenance-v2/scripts/build/build_v2.py": {
+      "bytes": 13242,
+      "mode": 420,
+      "sha256": "37242a5680c0cb587087042455782478dac0f574f977a5f696c97d29eac39b43"
+    },
+    "lib/cachy-asahi/security-maintenance-v2/scripts/build/compare.py": {
+      "bytes": 5820,
+      "mode": 420,
+      "sha256": "4198864c264642b196a090a67b36185e5c194e38edc4cb928d08eb65b9f710cd"
+    },
+    "lib/cachy-asahi/security-maintenance-v2/scripts/build/compare_v2.py": {
+      "bytes": 5963,
+      "mode": 420,
+      "sha256": "89c606044b587ea772d5bbab4bad55c09dc23a7080900a9ad51839b2f516215b"
+    },
+    "lib/cachy-asahi/security-maintenance-v2/scripts/build/container-entry-v2.sh": {
+      "bytes": 2447,
+      "mode": 420,
+      "sha256": "9be3db97efde70536a81d1c97f9ac69893a6004ab403566f8453704a2a189d2a"
+    },
+    "lib/cachy-asahi/security-maintenance-v2/scripts/build/container-entry.sh": {
+      "bytes": 1787,
+      "mode": 420,
+      "sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24"
+    },
+    "lib/cachy-asahi/security-maintenance-v2/scripts/build/source_materials.py": {
+      "bytes": 7877,
+      "mode": 420,
+      "sha256": "9b0d95d2604ae4689f081283fc671281ce13879fcb146ddf4188873b05c89e5a"
+    },
+    "lib/cachy-asahi/security-maintenance-v2/scripts/checks/package_checks.py": {
+      "bytes": 17706,
+      "mode": 420,
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+    },
+    "lib/cachy-asahi/security-maintenance-v2/scripts/maintenance/advisory_cache.py": {
+      "bytes": 16067,
+      "mode": 420,
+      "sha256": "727a9c1b9060231b6a6e017596d24de6f519828f5317b588a7c84a5efd4051fb"
+    },
+    "lib/cachy-asahi/security-maintenance-v2/scripts/maintenance/build_batch.py": {
+      "bytes": 34362,
+      "mode": 420,
+      "sha256": "b2e27ed00ba4c795762e313a15e791b9dc7a9503d5d7078b1603d725d54137d5"
+    },
+    "lib/cachy-asahi/security-maintenance-v2/scripts/maintenance/build_batch_v2.py": {
+      "bytes": 15277,
+      "mode": 420,
+      "sha256": "1d4830817aff747965b2446f2cf42f3889ac7c6651c04d9a5884bfe29f33066d"
+    },
+    "lib/cachy-asahi/security-maintenance-v2/scripts/maintenance/build_outputs_v2.py": {
+      "bytes": 26635,
+      "mode": 420,
+      "sha256": "20c763488e6093b787b43d0ff952e071a2e1e7e3ed253510ff3a05f0f511cd53"
+    },
+    "lib/cachy-asahi/security-maintenance-v2/scripts/maintenance/campaign.py": {
+      "bytes": 25588,
+      "mode": 420,
+      "sha256": "49450fefce70569dfaf1a0304ca1f127e2d8fa010da217ea4aad7a4b100db6b5"
+    },
+    "lib/cachy-asahi/security-maintenance-v2/scripts/maintenance/rebuild_plan.py": {
+      "bytes": 25822,
+      "mode": 420,
+      "sha256": "472f9bb621d78f79f5016a662b7f72eb03e995dae787c7846bc1f947ff21313c"
+    },
+    "lib/cachy-asahi/security-maintenance-v2/scripts/maintenance/security_advisories.py": {
+      "bytes": 12145,
+      "mode": 420,
+      "sha256": "f018ff4ac0265217213f749bf59afa08b61b24e4054973c0dcde110e57a0a2cb"
+    },
+    "lib/cachy-asahi/security-maintenance-v2/scripts/maintenance/security_campaign.py": {
+      "bytes": 17354,
+      "mode": 420,
+      "sha256": "31caf705cb019be9a0e470424d332788dd62ed4009c75b3e4cbc92a31e2de492"
+    },
+    "lib/cachy-asahi/security-maintenance-v2/scripts/maintenance/source_cache.py": {
+      "bytes": 14253,
+      "mode": 420,
+      "sha256": "3c922b1c5ea737605d7fd39aa986fa281c50bcf6926660390032e677706e28f3"
+    },
+    "lib/cachy-asahi/security-maintenance-v2/scripts/maintenance/update_plan.py": {
+      "bytes": 14881,
+      "mode": 420,
+      "sha256": "21af73923ca4bfff244d653e1f0046015d429a582548b2a60f1e0feb5b2a687e"
+    },
+    "lib/cachy-asahi/security-maintenance-v2/scripts/release/check_source_pins.py": {
+      "bytes": 9981,
+      "mode": 420,
+      "sha256": "9b78c348e2d567f44f656285f6a562220cadead7025f1e0db2eb9a53d9f09ea3"
+    },
+    "lib/cachy-asahi/security-maintenance-v2/scripts/release/release.py": {
+      "bytes": 41320,
+      "mode": 420,
+      "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435"
+    },
+    "lib/cachy-asahi/security-maintenance-v2/scripts/release/source_delivery.py": {
+      "bytes": 16456,
+      "mode": 420,
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+    },
+    "lib/cachy-asahi/security-maintenance-v2/scripts/virtual/owned_process.py": {
+      "bytes": 25140,
+      "mode": 420,
+      "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f"
+    },
+    "share/doc/cachy-asahi-security-maintenance/README.md": {
+      "bytes": 6627,
+      "mode": 420,
+      "sha256": "348032974e387d50ac91e6cd5f42bf4a779f5b41fbc169f03fc382badd664fc1"
+    },
+    "share/doc/cachy-asahi-security-maintenance/installed-files.txt": {
+      "bytes": 2302,
+      "mode": 420,
+      "sha256": "0ede41293967ae079be2b4ab6be836da584718ea9fcbfc033dd1cbc4d56376a3"
+    },
+    "share/doc/cachy-asahi-security-maintenance/source-provenance.json": {
+      "bytes": 5816,
+      "mode": 420,
+      "sha256": "1f1151d26da80f76eba934113101c52dd87923639dc190c7178c0ecdecd47cef"
+    },
+    "share/licenses/cachy-asahi-security-maintenance/LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "share/licenses/cachy-asahi-security-maintenance/NOTICE": {
+      "bytes": 961,
+      "mode": 420,
+      "sha256": "4a407789adb51dfda543bd2ca880f28173f42492f3a7ae11caeddbda57aa5a20"
+    }
+  },
+  "remediation": "NOT_ESTABLISHED",
+  "required_dependencies": {
+    "ca-certificates": "20240618-1",
+    "libarchive": "3.8.9-1",
+    "pacman": "7.1.0.r9.g54d9411-2",
+    "python": "3.14.8-1",
+    "zstd": "1.5.7-3"
+  },
+  "schema": 1,
+  "snapshot_files": {
+    "advisories.json": {
+      "bytes": 897176,
+      "sha256": "4efea659894b09ead65550cb3faba13dfec031db8ac100d377b7819861f1f019"
+    },
+    "provenance.json": {
+      "bytes": 2278,
+      "sha256": "629e4334fe1f49489e930dcd7f1e03f588fc158e1e2fe5d11f03e2a59e23310a"
+    },
+    "snapshot.json": {
+      "bytes": 422,
+      "sha256": "3dd395daaf0cab61b24616697ae59b5bcde28853f913bceb87af1c5d0cc42d76"
+    }
+  },
+  "snapshot_sha256": "3dd395daaf0cab61b24616697ae59b5bcde28853f913bceb87af1c5d0cc42d76",
+  "source_bundle": {
+    "bytes": 471040,
+    "sha256": "967cbdec217bd3bdb2ef5194244342a65c420d63d35042257719724942f5f35d"
+  },
+  "source_profile": {
+    "bytes": 5465,
+    "sha256": "cafd87217ae5fd3e461b36637ae4acfb223bd54e231daf841bb7d45eb327df4f"
+  },
+  "version": "0.1.0-2"
+}

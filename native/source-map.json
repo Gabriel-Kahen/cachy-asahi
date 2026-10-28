@@ -13,14 +13,14 @@
   "consumer_basis182_source": "5b2016cc842970952c03cc2cc068a9cfbea5812c",
   "files": {
     ".github/workflows/native-arm-build.yml": {
-      "bytes": 12819,
+      "bytes": 13020,
       "mode": 420,
-      "sha256": "ac04dd166d8a71de0f00f84a1a0f4a22b03a65087e144c240881a225be30ba9d"
+      "sha256": "c1d73225b7eaac28b6aa9b54f1a93354f723767251d474518a754282e0327108"
     },
     ".github/workflows/native-arm-developer-workflows.yml": {
-      "bytes": 12819,
+      "bytes": 13020,
       "mode": 420,
-      "sha256": "ac04dd166d8a71de0f00f84a1a0f4a22b03a65087e144c240881a225be30ba9d"
+      "sha256": "c1d73225b7eaac28b6aa9b54f1a93354f723767251d474518a754282e0327108"
     },
     "bootstrap/.github/workflows/native-arm-build.yml": {
       "bytes": 16219,
@@ -613,9 +613,9 @@
       "sha256": "2c42c705654d31e639f389f9a868dada0d9df76813d865e766be7b7c08f8404c"
     },
     "native/invocation.json": {
-      "bytes": 999,
+      "bytes": 1042,
       "mode": 420,
-      "sha256": "5b216c7568900c4b128702350a894a04478b0453f66a5d9ce35b3de67a0802ba"
+      "sha256": "94ca8414b37284d4cca547aded9d8dfe044468ac1cf1063266b1df3fc0271691"
     },
     "native/original341.lock": {
       "bytes": 6674,
@@ -623,9 +623,9 @@
       "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
     },
     "native/owner.py": {
-      "bytes": 26041,
+      "bytes": 27043,
       "mode": 420,
-      "sha256": "0c2c520b08c61394f0089dd2a661309ce2992d7f86e36dc394afc69087e2a04e"
+      "sha256": "9c0f49d3161ecf83c51da366027630eb689889214dbab6bdb35c6f6855c30588"
     },
     "native/predecessor-source-map.json": {
       "bytes": 27440,
@@ -638,9 +638,9 @@
       "sha256": "871ac3fcaa05f06d5c25dc41e365207a7e649c8c16c60b0cc9e0af8243e8e9e8"
     },
     "native/provision.py": {
-      "bytes": 22851,
+      "bytes": 22896,
       "mode": 420,
-      "sha256": "96367364405bb19cd35b3b2ae178611fb372af10519adb820f3aeb8bf5a6ce6b"
+      "sha256": "4707fc0cc8a9d805d6521b330202b2fec1a0788fedc3ef432cb53c326f46c3fc"
     },
     "native/public_projection.py": {
       "bytes": 12829,
@@ -653,9 +653,9 @@
       "sha256": "ef300afa53a9480dd2605ee58d0bd18df6569acb6483d55494c6b9c696a96a31"
     },
     "native/reader.py": {
-      "bytes": 66106,
+      "bytes": 66416,
       "mode": 420,
-      "sha256": "e87199b0be6d3fbd235be7584d06f83907b85da43d5ce6f753f021cd79a27854"
+      "sha256": "7d8461c40d28b3a425296fdfc8dc5bb2bfae0277bf37d7f26ea9e454b4f882d1"
     },
     "native/retained_transport.py": {
       "bytes": 12375,
@@ -666,6 +666,31 @@
       "bytes": 7948,
       "mode": 420,
       "sha256": "750b929681353a5915e5541d4bdbe167b558830e9762d6ac2da0c05146120a70"
+    },
+    "native/security-contract-v1.json": {
+      "bytes": 7928,
+      "mode": 420,
+      "sha256": "bcb13efe59928dafa44390c08b30207cd54e90f8ed31773eee4411899a414e38"
+    },
+    "native/security-makepkg.conf": {
+      "bytes": 316,
+      "mode": 420,
+      "sha256": "8cdd968870a2a92d7006739e96dedefa14e51c40d62cfc15831f234a767a1421"
+    },
+    "native/security_native_v1.py": {
+      "bytes": 19933,
+      "mode": 420,
+      "sha256": "ecea6cc95a0e9b81f8a798b4f91ffe3cfce1f581734aa561f090574429ff6702"
+    },
+    "native/security_reader_v1.py": {
+      "bytes": 6793,
+      "mode": 420,
+      "sha256": "c28772b8307734d4066844b342ccddfbe8aba23995431f120bc90d2ec9f5bbce"
+    },
+    "native/security_workflow_v1.py": {
+      "bytes": 13659,
+      "mode": 420,
+      "sha256": "95b2dd41be8903da672a78a1dfd452de97ab925703d1c53d40b689ef5dc34159"
     },
     "native/transport_proof.py": {
       "bytes": 16711,
@@ -716,6 +741,26 @@
       "bytes": 22632,
       "mode": 420,
       "sha256": "cdb46ca82ec8d45923361cb190cf2cc426b1bf3587eb4c9fd4cef76d91dd5b36"
+    },
+    "security-inputs/recipe.tar": {
+      "bytes": 471040,
+      "mode": 420,
+      "sha256": "967cbdec217bd3bdb2ef5194244342a65c420d63d35042257719724942f5f35d"
+    },
+    "security-inputs/security_maintenance_source_delivery_v2.py": {
+      "bytes": 10379,
+      "mode": 493,
+      "sha256": "29a40b165df345f38ef4cd4d5d93c285b2f40306b38f7119dc3136d929949d29"
+    },
+    "security-inputs/security_maintenance_source_profile_v2.json": {
+      "bytes": 5465,
+      "mode": 420,
+      "sha256": "cafd87217ae5fd3e461b36637ae4acfb223bd54e231daf841bb7d45eb327df4f"
+    },
+    "security-inputs/snapshot-data.json": {
+      "bytes": 1199916,
+      "mode": 420,
+      "sha256": "30d4f24416d9a2e37078bef91c762ba3665f0d49d5e454b882a6ab8bdc612fd0"
     },
     "tests/workflows/fixtures/developer/build-systems/CMakeLists.txt": {
       "bytes": 734,
@@ -966,6 +1011,7 @@
   "image_basis180_map_sha256": "cceed4d8b72e9e73a5cb433c2c4643f5e85a0490dacd5b226514e2961aaba458",
   "image_basis180_source": "a434716cbf53085e6380e06939be6a38dd5412fc",
   "schema": 1,
+  "security_operation": "security-alpm-v1",
   "transport_basis177_map_sha256": "99d676438a247749b3e1c564943d8735452a1ebd92ec91dd78ee37817e77f36d",
   "transport_basis187_map_sha256": "b295500787e25eeb77ac16e84fb786d3d6c1e9f02f7a9ddb83d950bbe9d75c90",
   "transport_basis187_source": "94d638063f826b3c501e3dd004d9a41b40f7a0e0"

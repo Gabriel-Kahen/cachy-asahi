@@ -184,7 +184,7 @@ def retained_image_lifecycle(view, files, receipt, cleanup, binding, map_sha256)
     dockerfile = 'bootstrap-proof/overlay-Dockerfile'
     need(dockerfile in files and files[dockerfile]['kind'] == 'file'
          and pin(view.read(dockerfile)) == {k: files[dockerfile][k] for k in ('bytes', 'sha256')}
-         and view.read(dockerfile).splitlines()[:1] == [('FROM ' + aliases['base']).encode()],
+         and view.read(dockerfile).splitlines()[:1] == [('FROM ' + aliases['base'] + (' AS security-dependencies' if receipt.get('operation') == 'security-alpm-v1' else '')).encode()],
          'actual overlay Dockerfile must use verified local base alias')
     need(receipt.get('bootstrap', {}).get('image') == ledger['created']['base']['image_id']
          and receipt.get('consumer', {}).get('image') == ledger['created']['tools']['image_id'],
@@ -714,6 +714,9 @@ def validate(capsule_path, expected):
     need(receipt.get('binding') == binding and receipt.get('source_map_sha256') == expected['map_sha256']
          and type(receipt.get('status')) is str and type(cleanup.get('status')) is str,
          'same-source owner and explicit cleanup outcome required')
+    if receipt.get('operation') == 'security-alpm-v1':
+        from security_reader_v1 import validate_component
+        return validate_component(view, files, receipt, cleanup, binding, expected, sys.modules[__name__])
     consumer_diagnostic = retained_consumer_diagnostic(view, files, receipt, binding, expected['map_sha256'])
     build_summary = retained_build_summary(view, files, binding, expected['map_sha256'])
     failed = (receipt['status'] != 'PASS_NATIVE_DEVELOPER_COMPONENTS_ONLY'
