@@ -74,7 +74,17 @@ class Controls(unittest.TestCase):
   (foreign/'.git').unlink();(foreign/'alias').symlink_to(root/'held')
   with self.assertRaises(ValueError):closed_data.names(root,admin=True)
  def test_whole_workflow_inverse_decoded_five_controls_separate_exactly_once(self):
-  raw=C.read(ROOT/'parent574/.github/workflows/native-arm-current606-welcome8-gui.yml');new,p=W.derive(raw);self.assertTrue(p['whole_inverse']);self.assertEqual(__import__('build_inventory').workflow(__import__('runner_context').workflow(__import__('observer_apply').workflow(new))),C.read(ROOT/'.github/workflows/native-arm-build.yml'));lines=W.commands(new);self.assertEqual(len(lines),5);self.assertEqual(sum('service_controls.py'in x for x in lines),1);self.assertIn(b'eea3f3022c9214deacc60c92dfca13704420756b',new)
+  raw=C.read(ROOT/'parent574/.github/workflows/native-arm-current606-welcome8-gui.yml');new,p=W.derive(raw);self.assertTrue(p['whole_inverse'])
+  # Recover the entire authenticated historical context before its unchanged guard.
+  B=__import__('build_inventory');BG=__import__('build_inventory_guard');A=__import__('fresh_adaptation')
+  current={n:G.read(ROOT/n)for n in G.table(ROOT)};prior=BG.source_control_fixture_inverse(current);positive=BG.renewal_inverse(prior);historical=BG.positive_inverse(positive)
+  binding=json.loads(historical['implementation/fresh-signer-policy.json'])['binding'];step=__import__('runner_context').workflow(__import__('observer_apply').workflow(new))
+  parent=A.workflow_transform(B._fresh_signer_prior_workflow(step),binding)[0];self.assertEqual(parent,historical['.github/workflows/native-arm-build.yml'])
+  renderer=types.ModuleType('_historical676_workflow_control');exec(compile(B._POSITIVE_WORKFLOW_RENDERER,'<Source-owned-positive-workflow>','exec'),vars(renderer))
+  self.assertEqual(G.pin(parent),renderer.PARENT_PIN);derived=renderer.positive_workflow(parent);self.assertEqual(renderer.inverse_workflow(derived),parent)
+  old=('          ref: '+binding['carrier_source']+'\n').encode();fresh=G.obj(HERE/'fresh-signer-policy.json')['binding']['carrier_source'];self.assertNotEqual(binding['carrier_source'],fresh);self.assertEqual(derived.count(old),2)
+  self.assertEqual(derived.replace(old,('          ref: '+fresh+'\n').encode()),C.read(ROOT/'.github/workflows/native-arm-build.yml'))
+  lines=W.commands(new);self.assertEqual(len(lines),5);self.assertEqual(sum('service_controls.py'in x for x in lines),1);self.assertIn(b'eea3f3022c9214deacc60c92dfca13704420756b',new)
   with self.assertRaises(ValueError):W.commands(new.replace(b'apps16_common.py\\npython3',b'apps16_common.py python3',1))
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--record',type=Path,required=True);p.add_argument('--public',type=Path,required=True);p.add_argument('--assets',type=Path,required=True);ARGS=p.parse_args();unittest.main(argv=[sys.argv[0]],verbosity=2)
