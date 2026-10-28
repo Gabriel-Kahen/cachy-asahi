@@ -1,0 +1,209 @@
+# Proposed outside-union workflow. CodeCommit is Root-selected and verified;
+# future Source/Data identities and exact external plan registration remain required.
+name: maintained-composed-installer-v1
+on:
+  push:
+    branches: [codex/maintained-composed-execution-v1]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: native-arm-build
+  cancel-in-progress: false
+  queue: max
+jobs:
+  maintained:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/codex/maintained-composed-execution-v1' && github.event.repository.private == false
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 190
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      ROOT_REGISTERED_MAINTAINED_COMPOSED_PLAN_B64: ${{ vars.MAINTAINED_COMPOSED_ROOT_PLAN_B64 }}
+      ROOT_REGISTERED_MAINTAINED_COMPOSED_PLAN_SHA256: ${{ vars.MAINTAINED_COMPOSED_ROOT_PLAN_SHA256 }}
+    steps:
+      - name: Invoke the Root-selected maintained composition
+        timeout-minutes: 185
+        shell: bash
+        env:
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01 }}
+          CACHY_OLD_FOUR_SCHEMA: '1'
+          CACHY_OLD_FOUR_SOURCE_EPOCH: '1791748800'
+          CACHY_OLD_FOUR_JBIGKIT_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_01 }}
+          CACHY_OLD_FOUR_JBIGKIT_02: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_02 }}
+          CACHY_OLD_FOUR_JBIGKIT_SIG_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_SIG_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_02: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_02 }}
+          CACHY_OLD_FOUR_LIBTIFF_03: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_03 }}
+          CACHY_OLD_FOUR_LIBTIFF_04: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_04 }}
+          CACHY_OLD_FOUR_LIBTIFF_05: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_05 }}
+          CACHY_OLD_FOUR_LIBTIFF_06: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_06 }}
+          CACHY_OLD_FOUR_LIBTIFF_07: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_07 }}
+          CACHY_OLD_FOUR_LIBTIFF_08: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_08 }}
+          CACHY_OLD_FOUR_LIBTIFF_09: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_09 }}
+          CACHY_OLD_FOUR_LIBTIFF_10: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_10 }}
+          CACHY_OLD_FOUR_LIBTIFF_11: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_11 }}
+          CACHY_OLD_FOUR_LIBTIFF_12: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_12 }}
+          CACHY_OLD_FOUR_LIBTIFF_13: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_13 }}
+          CACHY_OLD_FOUR_LIBTIFF_14: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_14 }}
+          CACHY_OLD_FOUR_LIBTIFF_15: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_15 }}
+          CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}
+        run: |
+          set -euo pipefail
+          python3 -I -B - <<'PYTHON'
+          """Root workflow entry; external registration is required before invocation."""
+          import time
+          PREPARATION_ENTRY = time.monotonic()  # Before trusted delivery or imports.
+          import base64
+          import hashlib
+          import json
+          import math
+          import os
+          import re
+          import signal
+          import sys
+          import types
+          import urllib.request
+          from contextlib import contextmanager
+
+          REPOSITORY = 'Gabriel-Kahen/cachy-asahi'
+          CODE_COMMIT = 'b489e54b5c526525cc083fba0bdcf89962951d00'
+          LAUNCHER_PATH = '.github/bootstrap/development-launcher.py'
+          LAUNCHER_SHA = 'c592842869d15bbae7833df7671b934cd62207df6ddf17dff640b3d72ca1a5be'
+          LAUNCHER_BYTES = 26685
+          BOOTSTRAP_SHA = '3aacfc9c397c30cb2bf713ddc28f4d9a06bfa74cbf416bf5a452bd07de7ba836'
+          ISSUER_SHA = '9e3271b8cb21e7be1940c2aa9f17f84357d0a438ed45a19ad34ae226ec9d4581'
+          EXECUTION_REF = 'refs/heads/codex/maintained-composed-execution-v1'
+          COMPOSITION = 'installer-preflight-maintained-v1'
+          PACKET_SHA = 'a989941b2b7c0a342a002838c1c8bc47cec17d4a3a0f767c82b6a8c9bf96825b'
+          PLAN_ENV = 'ROOT_REGISTERED_MAINTAINED_COMPOSED_PLAN_B64'
+          PIN_ENV = 'ROOT_REGISTERED_MAINTAINED_COMPOSED_PLAN_SHA256'
+
+
+          def need(value, code):
+              if not value: raise ValueError(code)
+
+
+          def full_pin(value, width):
+              need(type(value) is str and re.fullmatch('[0-9a-f]{'+str(width)+'}', value), 'Root-registration-pin')
+              return value
+
+
+          def live(end):
+              need(type(end) is float and math.isfinite(end) and time.monotonic() < end, 'Root-preparation-deadline')
+
+
+          def registered_plan(environment):
+              # These two environment fields come only from Root-managed repository vars
+              # in the reviewed workflow. No workflow_dispatch input is an authority source.
+              encoded = environment.get(PLAN_ENV); expected = full_pin(environment.get(PIN_ENV), 64)
+              need(type(encoded) is str and 0 < len(encoded) <= 10924 and encoded.isascii(), 'Root-plan-bytes')
+              raw = base64.b64decode(encoded, validate=True)
+              need(0 < len(raw) <= 8192 and base64.b64encode(raw).decode('ascii') == encoded, 'Root-plan-base64')
+              need(hashlib.sha256(raw).hexdigest() == expected, 'Root-plan-pin')
+              def pairs(rows):
+                  result = {}
+                  for key, value in rows:
+                      need(key not in result, 'Root-plan-duplicate'); result[key] = value
+                  return result
+              def constant(value): raise ValueError('Root-plan-nonfinite')
+              plan = json.loads(raw, object_pairs_hook=pairs, parse_constant=constant)
+              need(type(plan) is dict and set(plan) == {'root_pins','code_commit','data_commit','composition',
+                  'git_sha256','development_sha256'}, 'Root-plan-fields')
+              pins = plan['root_pins']
+              need(type(pins) is dict and set(pins) == {'selection_sha256','peer_receipt_sha256',
+                  'source_rows_sha256','source_commit','cli_sha256'}, 'Root-plan-root-pins')
+              for key in ('selection_sha256','peer_receipt_sha256','source_rows_sha256','cli_sha256'): full_pin(pins[key],64)
+              source = full_pin(pins['source_commit'],40)
+              full_pin(plan['data_commit'],40); full_pin(plan['git_sha256'],64); full_pin(plan['development_sha256'],64)
+              need(full_pin(CODE_COMMIT,40) == full_pin(plan['code_commit'],40) and
+                  len({CODE_COMMIT,source,plan['data_commit']}) == 3, 'Root-Code-Source-Data-binding')
+              need(environment.get('GITHUB_EVENT_NAME') in ('push','workflow_dispatch') and
+                  environment.get('GITHUB_REF') == EXECUTION_REF, 'Root-execution-trigger')
+              need(environment.get('GITHUB_REPOSITORY') == REPOSITORY and
+                  environment.get('GITHUB_SHA') == environment.get('GITHUB_WORKFLOW_SHA') == source, 'Root-workflow-SourceCommit')
+              need(plan['composition'] == COMPOSITION and plan['development_sha256'] == PACKET_SHA, 'Root-mode-packet-binding')
+              return plan
+
+
+          @contextmanager
+          def preparation(end):
+              # Only initial trusted-body delivery/imports. Source3 owns all later signals,
+              # workspace descriptors, J, E, process cleanup and bounded publication.
+              need(signal.getitimer(signal.ITIMER_REAL) == (0.0,0.0), 'Root-existing-timer')
+              previous = signal.getsignal(signal.SIGALRM)
+              def expired(number, frame): raise TimeoutError('Root-preparation-deadline')
+              installed = False
+              try:
+                  live(end); signal.signal(signal.SIGALRM,expired); installed = True
+                  remaining = end-time.monotonic(); need(remaining > 0, 'Root-preparation-deadline')
+                  signal.setitimer(signal.ITIMER_REAL,remaining); yield
+              finally:
+                  cause = sys.exc_info()[1]; first = None
+                  if installed:
+                      try: signal.setitimer(signal.ITIMER_REAL,0)
+                      except BaseException as error: first = error
+                      try: signal.signal(signal.SIGALRM,previous)
+                      except BaseException as error:
+                          if first is None: first = error
+                  if cause is None and first is not None: raise first
+
+
+          class NoRedirect(urllib.request.HTTPRedirectHandler):
+              def redirect_request(self,*args,**kwargs): raise ValueError('Root-launcher-redirect')
+
+
+          def fetch_launcher(commit,end):
+              live(end); full_pin(commit,40)
+              url = 'https://raw.githubusercontent.com/'+REPOSITORY+'/'+commit+'/'+LAUNCHER_PATH
+              opener = urllib.request.build_opener(urllib.request.ProxyHandler({}),NoRedirect())
+              request = urllib.request.Request(url,headers={'Accept-Encoding':'identity'})
+              with opener.open(request,timeout=max(0.001,end-time.monotonic())) as reply:
+                  need(reply.status == 200 and reply.geturl() == url and
+                      reply.headers.get('Content-Encoding') in (None,'identity'), 'Root-launcher-origin')
+                  raw = bytearray()
+                  while True:
+                      live(end); part = reply.read1(min(65536,LAUNCHER_BYTES+1-len(raw)))
+                      if not part: break
+                      raw.extend(part); need(len(raw) <= LAUNCHER_BYTES,'Root-launcher-size')
+              live(end)
+              need(len(raw) == LAUNCHER_BYTES and hashlib.sha256(raw).hexdigest() == LAUNCHER_SHA,'Root-launcher-pin')
+              return bytes(raw)
+
+
+          def load_launcher(raw):
+              need(type(raw) is bytes and len(raw) == LAUNCHER_BYTES and
+                  hashlib.sha256(raw).hexdigest() == LAUNCHER_SHA,'Root-launcher-pin')
+              launcher = types.ModuleType('Root_pinned_maintained_launcher')
+              exec(compile(raw,'<Root-pinned-maintained-launcher>','exec'),launcher.__dict__)
+              need(launcher.BOOTSTRAP_SHA == BOOTSTRAP_SHA and launcher.ISSUER_SHA == ISSUER_SHA,
+                  'Root-Source3-body-pins')
+              return launcher
+
+
+          def invoke(environment,*,entry=PREPARATION_ENTRY):
+              need(type(entry) is float and math.isfinite(entry) and 0 < entry <= time.monotonic(),'Root-preparation-entry')
+              end = entry + 60.0
+              with preparation(end):
+                  plan = registered_plan(environment); live(end)
+                  launcher = load_launcher(fetch_launcher(plan['code_commit'],end)); live(end)
+              # No renewed entry or clock. Source3 checks this same original entry+60.
+              result = launcher.launch_composed(plan,environment,preparation_entry=entry)
+              need(type(result) is dict and type(result.get('controller_exit_code')) is int and
+                  0 <= result['controller_exit_code'] <= 255,'Root-controller-exit')
+              return result
+
+
+          def main():
+              result = invoke(dict(os.environ))
+              # Controller streaming already carries its bounded status/publication evidence.
+              # This summary is process outcome, not whole-port or hardware admission.
+              keys = ('controller_exit_code','retained_cutoff','workflow_end','code_commit','source_commit',
+                      'data_commit','composition','baseline_id','lineage')
+              print('MAINTAINED_COMPOSED_LAUNCH_RESULT='+json.dumps({k:result[k] for k in keys},sort_keys=True,allow_nan=False),flush=True)
+              return result['controller_exit_code']
+
+
+          if __name__ == '__main__': raise SystemExit(main())
+          PYTHON
