@@ -172,6 +172,7 @@ class Runner:
         return self._run_many(commands, timeout, lognames, MAX_OUTPUT)
 
     def _run_many(self, commands, timeout, lognames, limit):
+        self.parallel_first_failure = None
         if threading.current_thread() is not threading.main_thread() or threading.active_count() != 1:
             raise ValueError('threaded-runner')
         timeout = _seconds(timeout)
@@ -230,6 +231,8 @@ class Runner:
             while True:
                 codes = [process.poll() for process in processes]
                 if all(code is not None for code in codes) or any(code not in (None, 0) for code in codes):
+                    if len(codes) == 2 and any(code not in (None, 0) for code in codes):
+                        self.parallel_first_failure = tuple(codes)
                     break
                 left = end - time.monotonic()
                 if left <= 0:
