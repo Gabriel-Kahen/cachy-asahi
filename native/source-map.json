@@ -15,14 +15,14 @@
   "consumer_basis182_source": "5b2016cc842970952c03cc2cc068a9cfbea5812c",
   "files": {
     ".github/workflows/native-arm-build.yml": {
-      "bytes": 12819,
+      "bytes": 13041,
       "mode": 420,
-      "sha256": "ac04dd166d8a71de0f00f84a1a0f4a22b03a65087e144c240881a225be30ba9d"
+      "sha256": "3e88275f27fc00dff72ed3244b0ced0b77a5b06ccc58c3d8c023521eb81af6b9"
     },
     ".github/workflows/native-arm-developer-workflows.yml": {
-      "bytes": 12819,
+      "bytes": 13041,
       "mode": 420,
-      "sha256": "ac04dd166d8a71de0f00f84a1a0f4a22b03a65087e144c240881a225be30ba9d"
+      "sha256": "3e88275f27fc00dff72ed3244b0ced0b77a5b06ccc58c3d8c023521eb81af6b9"
     },
     "bootstrap/.github/workflows/native-arm-build.yml": {
       "bytes": 16219,
@@ -615,9 +615,9 @@
       "sha256": "2c42c705654d31e639f389f9a868dada0d9df76813d865e766be7b7c08f8404c"
     },
     "native/invocation.json": {
-      "bytes": 999,
+      "bytes": 1424,
       "mode": 420,
-      "sha256": "5b216c7568900c4b128702350a894a04478b0453f66a5d9ce35b3de67a0802ba"
+      "sha256": "5edbca008e9620efd09c8f0c610bda0a2d7c1e2ed28272aebf1eae436019f3b8"
     },
     "native/original341.lock": {
       "bytes": 6674,
@@ -625,9 +625,9 @@
       "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
     },
     "native/owner.py": {
-      "bytes": 26041,
+      "bytes": 26951,
       "mode": 420,
-      "sha256": "0c2c520b08c61394f0089dd2a661309ce2992d7f86e36dc394afc69087e2a04e"
+      "sha256": "f8f44b1fb0ca3b713f2ba5c46c9892de07777462ac4e9482621e58ded18a0a62"
     },
     "native/predecessor-source-map.json": {
       "bytes": 27440,
@@ -658,6 +658,46 @@
       "bytes": 66106,
       "mode": 420,
       "sha256": "e87199b0be6d3fbd235be7584d06f83907b85da43d5ce6f753f021cd79a27854"
+    },
+    "native/release-contract-v1.json": {
+      "bytes": 17108,
+      "mode": 420,
+      "sha256": "16d6854936e8fbfd10ae245d8414de29f742711f75a041230971cf1ff23161d5"
+    },
+    "native/release-makepkg-v1.conf": {
+      "bytes": 316,
+      "mode": 420,
+      "sha256": "8cdd968870a2a92d7006739e96dedefa14e51c40d62cfc15831f234a767a1421"
+    },
+    "native/release-sources-v1.tar": {
+      "bytes": 460800,
+      "mode": 420,
+      "sha256": "aed1ecd1091744d9a4353dcdcac00266bacab24a1a2c3d2cea6cb4a47166847c"
+    },
+    "native/release_alpm_v1.py": {
+      "bytes": 22825,
+      "mode": 420,
+      "sha256": "cb570311da3c24e3d8e58514a08b3fcb26ca8b45a2fd24b3ba995d9d7d7ecc78"
+    },
+    "native/release_guest_v1.py": {
+      "bytes": 2987,
+      "mode": 420,
+      "sha256": "10eb4d88baabaa0efdecbab684b5caafaa68a7cfc50b668849df99cd3d532c85"
+    },
+    "native/release_projection_v1.py": {
+      "bytes": 10481,
+      "mode": 420,
+      "sha256": "64b81d9ea4fb1d35b6556fc214837e994ec18b55e4ec9d9f2092361edf9301b9"
+    },
+    "native/release_reader_v1.py": {
+      "bytes": 92188,
+      "mode": 420,
+      "sha256": "d05ff12a676596268e0c20df7c867e8fc59e12bd36dc6eded082dc846a251dda"
+    },
+    "native/release_tools_v1.py": {
+      "bytes": 16767,
+      "mode": 420,
+      "sha256": "bb0742e5ffcd03dddf4b047ee4c6612bbd1c764d27de7003d9b12a9cbf1c8d46"
     },
     "native/retained_transport.py": {
       "bytes": 12375,
@@ -967,6 +1007,10 @@
   },
   "image_basis180_map_sha256": "cceed4d8b72e9e73a5cb433c2c4643f5e85a0490dacd5b226514e2961aaba458",
   "image_basis180_source": "a434716cbf53085e6380e06939be6a38dd5412fc",
+  "release187_predecessor": "94d638063f826b3c501e3dd004d9a41b40f7a0e0",
+  "release_corrected191_parent": "111f14d2b21b220d86912d5ead978848c7ef1cb0",
+  "release_operation": "release-alpm-upgrade-v1",
+  "release_original191_predecessor": "4c3171a1937489badd22d350835e8287fee3c52a",
   "schema": 1,
   "transport_basis177_map_sha256": "99d676438a247749b3e1c564943d8735452a1ebd92ec91dd78ee37817e77f36d",
   "transport_basis187_map_sha256": "b295500787e25eeb77ac16e84fb786d3d6c1e9f02f7a9ddb83d950bbe9d75c90",
