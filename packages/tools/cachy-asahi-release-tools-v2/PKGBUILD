@@ -1,0 +1,37 @@
+# SPDX-License-Identifier: MIT
+# Versioned original offline candidate; no installation hooks.
+pkgname=cachy-asahi-release-tools
+pkgver=0.2.0
+pkgrel=1
+pkgdesc='Offline exact release SBOM export, source delivery and evidence comparison'
+arch=(any)
+url=https://github.com/Gabriel-Kahen/cachy-asahi
+license=(MIT)
+depends=('python>=3.14' zstd)
+options=('!strip' '!debug')
+source=(cachy-asahi-release-tools release_sbom.py source_delivery.py recipe_source_delivery.py recipe_source_delivery_v2.py archive_stream.py package_checks.py compare_sboms.py check_package.py test_package.py README.md comparing-sboms.md source-provenance.json payload-map.json export-v2.json NOTICE LICENSE)
+sha256sums=(e263381111012ef0da8d95b3444234f65cb229862be96c69302f0d76a6a8b786 1a53831128858c6c629f2449a7276a52846e52ebf426baa6f1c010aa209af486 8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e 779f8147a13d3f90d11b9e5610f2d7d74fce28d0732797331fc832f0e87323be cbc13a6e2d604dfec9d0090cb22d279952f2c96b3d1196c2e8a18ee83ad922ae 10f1a4c0ac5b98852d9ebb150af28f9ce345c800935a64fa463bc90f72fcb838 e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8 219296c46902257f64203e3b3b41ece42a2e21a7d818f305bac858767aeff1b4 9beb0e47cdffb34bd6ced8b79ad5b7fdf803d19f511a9e09eb276568f0a89c06 0110cf22772a185130699f026e833becc3ba0fe00470b25a0b0c534732fcfd42 1484d16a682b31502767c24adc78fc9b833a113ef7aa3ce9c11b59a5ae6db6d1 8e285f024605021660cc6663c5afa2a25b82274fc174afb6d804b5d7e0779791 36dde21707ee1b608a143c90cbcece0a4eaba87a4e5d58eb2cc1644b1403ed08 8ed1b5ec5a6d19e2c2d615e69f65917e4101e6ecc01af489f7631e37d4ec9ec1 fda19b4b9b2bcec3d2132e442a03f5fe4a4cff8b6dd01b5a4a2979deb9b07273 0da9276c75e849a70d42edc0ac77dda021b0c595e781f88fd561dc42263e6fab 51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7)
+
+check() {
+    python -I -B "$srcdir/check_package.py" --recipe-root "$startdir" || return
+    python -I -B -Werror::ResourceWarning "$srcdir/test_package.py" --recipe-root "$startdir"
+}
+
+package() {
+    [[ -n ${srcdir:-} && -n ${pkgdir:-} && $pkgdir != / && $pkgdir != "$srcdir" ]] || return 1
+    install -Dm755 "$srcdir/cachy-asahi-release-tools" "$pkgdir/usr/bin/cachy-asahi-release-tools" || return
+    install -Dm644 "$srcdir/release_sbom.py" "$pkgdir/usr/lib/cachy-asahi/release-tools-v2/scripts/release/release_sbom.py" || return
+    install -Dm644 "$srcdir/source_delivery.py" "$pkgdir/usr/lib/cachy-asahi/release-tools-v2/scripts/release/source_delivery.py" || return
+    install -Dm644 "$srcdir/recipe_source_delivery.py" "$pkgdir/usr/lib/cachy-asahi/release-tools-v2/scripts/release/recipe_source_delivery.py" || return
+    install -Dm644 "$srcdir/recipe_source_delivery_v2.py" "$pkgdir/usr/lib/cachy-asahi/release-tools-v2/scripts/release/recipe_source_delivery_v2.py" || return
+    install -Dm644 "$srcdir/compare_sboms.py" "$pkgdir/usr/lib/cachy-asahi/release-tools-v2/scripts/release/compare_sboms.py" || return
+    install -Dm644 "$srcdir/archive_stream.py" "$pkgdir/usr/lib/cachy-asahi/release-tools-v2/scripts/update/archive_stream.py" || return
+    install -Dm644 "$srcdir/package_checks.py" "$pkgdir/usr/lib/cachy-asahi/release-tools-v2/scripts/checks/package_checks.py" || return
+    install -Dm644 "$srcdir/README.md" "$pkgdir/usr/share/doc/cachy-asahi-release-tools/README.md" || return
+    install -Dm644 "$srcdir/comparing-sboms.md" "$pkgdir/usr/share/doc/cachy-asahi-release-tools/comparing-sboms.md" || return
+    install -Dm644 "$srcdir/source-provenance.json" "$pkgdir/usr/share/doc/cachy-asahi-release-tools/source-provenance.json" || return
+    install -Dm644 "$srcdir/payload-map.json" "$pkgdir/usr/share/doc/cachy-asahi-release-tools/payload-map.json" || return
+    install -Dm644 "$srcdir/export-v2.json" "$pkgdir/usr/share/doc/cachy-asahi-release-tools/export-v2.json" || return
+    install -Dm644 "$srcdir/NOTICE" "$pkgdir/usr/share/licenses/cachy-asahi-release-tools/NOTICE" || return
+    install -Dm644 "$srcdir/LICENSE" "$pkgdir/usr/share/licenses/cachy-asahi-release-tools/LICENSE" || return
+}
