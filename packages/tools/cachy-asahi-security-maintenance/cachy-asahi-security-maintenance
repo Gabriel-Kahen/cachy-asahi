@@ -1,0 +1,45 @@
+#!/usr/bin/python3 -IB
+# SPDX-License-Identifier: MIT
+"""Isolated security-maintenance CLI; acquisition requires its explicit command."""
+import hashlib
+import json
+from pathlib import Path
+import runpy
+import sys
+
+VERSION = 'cachy-asahi-security-maintenance 0.1.0-2'
+BASE = Path(__file__).resolve().parents[1] / 'lib/cachy-asahi/security-maintenance-v2'
+try:
+    pins = json.loads((BASE / 'payload-pins.json').read_bytes())
+    files = {str(p.relative_to(BASE)) for p in (BASE / 'scripts').rglob('*') if p.is_file()}
+    if files != set(pins):
+        raise ValueError('runtime file coverage differs')
+    for key, checksum in pins.items():
+        path = BASE / key
+        if path != path.resolve() or not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != checksum:
+            raise ValueError('runtime source differs: ' + key)
+    if sys.argv[1:] == ['--version']:
+        print(VERSION)
+    elif sys.argv[1:] == ['--help']:
+        print('usage: cachy-asahi-security-maintenance COMMAND [OPTIONS]\n\n'
+              'Offline: prepare, status, plan-builds, verify-advisories\n'
+              'Explicit HTTPS: acquire-advisories (one official GET to fresh private output)\n'
+              'Finite builder: batch (plan or explicit execute)\n\n'
+              'Use COMMAND --help for its required selections and options.\n'
+              'Advisory DATA does not establish ARM affectedness or remediation.')
+    else:
+        command = sys.argv[1] if len(sys.argv) > 1 else ''
+        if command in ('acquire-advisories', 'verify-advisories'):
+            target = BASE / 'scripts/maintenance/advisory_cache.py'
+            action = 'acquire' if command == 'acquire-advisories' else 'verify'
+            sys.argv = [str(target), action] + sys.argv[2:]
+        elif command == 'batch':
+            target = BASE / 'scripts/maintenance/build_batch_v2.py'
+            sys.argv = [str(target)] + sys.argv[2:]
+        else:
+            target = BASE / 'scripts/maintenance/security_campaign.py'
+            sys.argv[0] = str(target)
+        runpy.run_path(str(target), run_name='__main__')
+except (OSError, ValueError, KeyError, StopIteration) as error:
+    print('security maintenance: ' + str(error), file=sys.stderr)
+    sys.exit(2)
