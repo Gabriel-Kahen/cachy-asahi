@@ -64,8 +64,21 @@
     "pids": 256,
     "public_bytes": 33554432
   },
+  "local_image_binding": {
+    "BuildKit_disable": false,
+    "FROM": "VERIFIED_LOCAL_BASE_ALIAS",
+    "base": "native-developer-base:OWN_TOKEN",
+    "baseline": "BOTH_EXACT_ALIASES_AND_OWNED_NAMESPACE_PROVEN_ABSENT",
+    "bracket": "EXACT_BASE_ID_AND_OWNER_LABELS_BEFORE_AND_AFTER_OVERLAY_EVEN_FAILURE",
+    "cleanup_evidence": "ALL_RETIREMENT_ROWS_AND_FINAL_DAEMON_QUERIES_RETAINED_EVEN_FAILURE",
+    "creator": "EXACT_SUCCESSFUL_NATURALLY_RETIRED_SOURCE_BUILD_ROW",
+    "overlay": "native-developer-tools:OWN_TOKEN",
+    "registry_fallback": false,
+    "retirement": "ONLY_CREATED_STILL_BOUND_ALIAS_NAMES_NO_FORCE_OR_IMAGE_ID_DELETE",
+    "unknown_build": "NO_CLEANUP_MUTATION_NO_POSITIVE_STATUS"
+  },
   "native": "NOT_RUN",
-  "native_retry": "HELD_NOT_AUTHORIZED",
+  "native_retry": "ROOT_ONLY_CHANGED_CAUSE_AFTER_SEALED_SOURCE_PUBLICATION",
   "packages": 349,
   "physical_M2": "NOT_RUN",
   "protocol": "FORCE_PEP517_WITH_PINNED_PRIVATE_UV_BUILD",
@@ -79,9 +92,9 @@
     "upload": "upload/public-tree.tar"
   },
   "publication_parent": {
-    "reason": "Reviewable corrective child of the actual failed178 source; no invented179 or180 commit",
-    "requirement": "GENUINE_PUBLISHED178_CAUSAL_PARENT",
-    "source": "cc6dcdb86bf358e7aa72335f671216d9eca91037"
+    "reason": "Ownedlocaltag and separatelyobserved cleanup correctivechild; preserve180",
+    "requirement": "GENUINE_PUBLISHED180_CHANGED_CAUSE_PARENT",
+    "source": "a434716cbf53085e6380e06939be6a38dd5412fc"
   },
   "python_wheel": "EXACT_ARM_FRONTEND_AND_SEPARATE_BACKEND_WHEEL_PREPARED_NOT_EXECUTED",
   "release": "NOT_ADMITTED",
