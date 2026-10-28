@@ -1,0 +1,78 @@
+{
+  "VM": "NOT_RUN",
+  "archive_sha256": "874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad",
+  "baseline": {
+    "bytes": 64022,
+    "sha256": "9729936f8a2a3ffa3edf1e3f689dbb56426795f733c73d83a9e4ee94ee8d7aa5"
+  },
+  "boot": "NOT_RUN",
+  "candidate": {
+    "bytes": 64050,
+    "sha256": "958f956770acf57925fe7274145897efbba71a5a26a134d7d53b3826a3056642"
+  },
+  "commands": [
+    {
+      "argv": [
+        "/usr/bin/make",
+        "-C",
+        "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/ksm16k-advice-kernel-development-20261019/local-kconfig/linux-asahi-7.1.13-3",
+        "O=/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/ksm16k-advice-kernel-development-20261019/local-kconfig/baseline/build",
+        "ARCH=arm64",
+        "LLVM=1",
+        "allnoconfig"
+      ],
+      "log": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/ksm16k-advice-kernel-development-20261019/local-kconfig/baseline/configure.log",
+      "log_bytes": 1314,
+      "log_sha256": "02b79a3f4269888efc1cec67a4d22ff1142b04912c22b2845a97f7d45232c998",
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/usr/bin/make",
+        "-C",
+        "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/ksm16k-advice-kernel-development-20261019/local-kconfig/linux-asahi-7.1.13-3",
+        "O=/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/ksm16k-advice-kernel-development-20261019/local-kconfig/ksm/build",
+        "ARCH=arm64",
+        "LLVM=1",
+        "allnoconfig"
+      ],
+      "log": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/ksm16k-advice-kernel-development-20261019/local-kconfig/ksm/configure.log",
+      "log_bytes": 1299,
+      "log_sha256": "2fe200fc87eda146d0af86842520236c7dcafa19d7b7f332092e9c3b24a7750f",
+      "returncode": 0
+    },
+    {
+      "argv": [
+        "/usr/bin/make",
+        "-C",
+        "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/ksm16k-advice-kernel-development-20261019/local-kconfig/linux-asahi-7.1.13-3",
+        "O=/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/ksm16k-advice-kernel-development-20261019/local-kconfig/advice/build",
+        "ARCH=arm64",
+        "LLVM=1",
+        "allnoconfig"
+      ],
+      "log": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/ksm16k-advice-kernel-development-20261019/local-kconfig/advice/configure.log",
+      "log_bytes": 1308,
+      "log_sha256": "3a7d5a46a41f621c6297c63db11e4cf6b2f19655e2a046d4ca1410d835f58110",
+      "returncode": 0
+    }
+  ],
+  "configuration_delta": {
+    "CONFIG_ADVISE_SYSCALLS": {
+      "before": "n",
+      "proposed": "y"
+    },
+    "CONFIG_KSM": {
+      "before": "n",
+      "proposed": "y"
+    },
+    "CONFIG_XXHASH": {
+      "before": "n",
+      "proposed": "y"
+    }
+  },
+  "hardware": "NOT_RUN",
+  "host_architecture": "x86_64",
+  "native_Image": "NOT_BUILT",
+  "status": "LOCAL_REAL_KCONFIG_ONLY_NOT_NATIVE_BUILD_OR_BOOT"
+}

@@ -366,13 +366,19 @@
   "original341_sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25",
   "original_inputs_sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f",
   "private_check_route": {
+    "capacity_fit": "NOT_MEASURED",
     "check_function": "EXACT_UNCHANGED_RECIPE_CHECK",
-    "environment": "PRIVATE_ORIGINAL341_ROOT_OUTSIDE_DOCKER_SECCOMP",
-    "native_check_claim": "ONLY_IF_EXTERNAL_PROOF_PASSES",
+    "environment": "OWNED_CORE_QEMU_EMU16K_ORIGINAL341",
+    "execution": "EMU16K_AARCH64",
+    "guest_inputs": "native/guest_inputs.json",
+    "host_privilege_workaround": false,
+    "native_check_claim": "NOT_A_NATIVE_CHECK_CLAIM",
     "ordinary_makepkg_uses_nocheck": true,
+    "owner_seconds": 14400,
     "privileged": false,
     "required": true,
-    "unconfined": false
+    "unconfined": false,
+    "workflow_minutes": 300
   },
   "schema": 1,
   "selected_package": {
