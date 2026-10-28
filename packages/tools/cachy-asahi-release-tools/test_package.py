@@ -123,16 +123,23 @@ class SyntheticRelease:
 # Runs the actual launcher in isolated Python. Reads outside the moved prefix,
 # explicit temporary inputs and interpreter trees fail, as do network/children.
 AUDIT_DRIVER = r'''
-import os, runpy, sys
+import os, runpy, sys, sysconfig
 target, work = sys.argv[1:3]
-allowed = (os.path.dirname(os.path.dirname(os.path.dirname(target))) + '/', work + '/', '/usr/', '/lib/', '/lib64/', '/etc/')
+paths = sysconfig.get_paths(vars={'base': sys.base_prefix, 'platbase': sys.base_exec_prefix})
+stdlib = {os.path.realpath(paths[key]) for key in ('stdlib', 'platstdlib')}
+third_party = {os.path.realpath(paths[key]) for key in ('purelib', 'platlib')}
+third_party.update(os.path.join(root, leaf) for root in stdlib for leaf in ('site-packages', 'dist-packages'))
+allowed = {os.path.realpath(os.path.dirname(os.path.dirname(os.path.dirname(target)))), os.path.realpath(work)}
+def within(path, roots):
+    return any(path == root or path.startswith(root + os.sep) for root in roots)
 def check(path, flags=0):
     # The transport walks ancestor directories with openat; directory opens
     # permit traversal while file content stays within the allowed trees.
     if flags & os.O_DIRECTORY:
         return
-    path = os.path.abspath(os.fsdecode(path))
-    if not path.startswith(allowed) and path != '/dev/null':
+    path = os.path.realpath(os.fsdecode(path))
+    standard = within(path, stdlib) and not within(path, third_party)
+    if not (within(path, allowed) or standard or path == '/dev/null'):
         raise RuntimeError('read outside moved runtime/explicit inputs: ' + path)
 original_open = os.open
 def guarded_open(path, flags, mode=0o777, *, dir_fd=None):
@@ -241,6 +248,53 @@ class PackageTests(unittest.TestCase):
         for command in ('sbom', 'source-export', 'recipe-pack', 'recipe-unpack'):
             with self.subTest(command=command):
                 self.assertIn(b'--output', self.run_cli(command, '--help').stdout)
+
+    def test_auditor_selected_stdlib_and_privacy_boundaries(self):
+        outside = self.base / 'unrelated-private-file'
+        outside.write_bytes(b'PRIVATE CONTENT MUST NOT BE READ OR PRINTED\n')
+        escape = self.work / 'escape'; escape.symlink_to(outside)
+        # Exercise the identical auditor before runpy, including pkgutil's
+        # lazy import from the actual selected interpreter's standard library.
+        preamble, separator, _ = AUDIT_DRIVER.partition("sys.argv = [target, *sys.argv[3:]]")
+        self.assertTrue(separator)
+        probe = preamble + r'''
+import json, pkgutil, socket, subprocess
+assert within(os.path.realpath(pkgutil.__file__), stdlib)
+denied = []
+def refuse(label, action, reason):
+    try:
+        action()
+    except RuntimeError as error:
+        assert reason in str(error), str(error)
+        denied.append(label)
+    else:
+        raise AssertionError('auditor allowed ' + label)
+outside, escape = sys.argv[3:5]
+for label, path in (
+    ('unrelated-existing-file', outside),
+    ('input-symlink-escape', escape),
+    ('interpreter-prefix-file', os.path.join(paths['include'], 'Python.h')),
+    ('stdlib-prefix-sibling', paths['stdlib'] + '-unrelated/private'),
+    ('third-party', os.path.join(paths['purelib'], 'not-stdlib.py'))):
+    refuse(label, lambda path=path: open(path, 'rb'), 'read outside moved runtime/explicit inputs')
+parent = os.open(os.path.dirname(outside), os.O_RDONLY | os.O_DIRECTORY)
+try:
+    refuse('unrelated-openat', lambda: os.open(os.path.basename(outside), os.O_RDONLY, dir_fd=parent),
+           'read outside moved runtime/explicit inputs')
+finally:
+    os.close(parent)
+refuse('network-socket', socket.socket, 'offline test forbids actor: socket.')
+refuse('nested-subprocess', lambda: subprocess.Popen(['/usr/bin/true']), 'offline test forbids actor: subprocess.')
+print(json.dumps(dict(stdlib=sorted(stdlib), pkgutil=os.path.realpath(pkgutil.__file__), denied=denied), sort_keys=True))
+'''
+        run = subprocess.run([sys.executable, '-I', '-B', '-c', probe,
+            str(self.cli), str(self.work), str(outside), str(escape)], cwd=self.cwd,
+            env={'PATH': '/usr/bin:/bin', 'LC_ALL': 'C', 'PYTHONPATH': str(self.cwd),
+                 'PYTHONHOME': '/nonexistent-python-home'}, capture_output=True, timeout=30)
+        self.assertEqual(run.returncode, 0, (run.stdout + run.stderr).decode())
+        result = json.loads(run.stdout)
+        self.assertEqual(len(result['denied']), 8)
+        self.assertNotIn(b'PRIVATE CONTENT', run.stdout + run.stderr)
 
     def test_sbom_exact_identity_deterministic_bytes_and_offline_reads(self):
         document, report = self.sbom(audited=True)
