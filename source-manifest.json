@@ -24,8 +24,8 @@
       "sha256": "a7dd2ea4e7502a3186211d98e72f18c7808c9052028f8661da4a5f2cab6bdca6"
     },
     "implementation/build-inventory-parent.json": {
-      "bytes": 5333014,
-      "sha256": "203c9c84d9a3aeb642fe4fb7fd98a744501f2c90a07345639c830d2f88a17d42"
+      "bytes": 5704053,
+      "sha256": "7a22f3cb747b2741c90a9613750484933978c51ef0d55e83d2afbdd1bff4d38b"
     },
     "implementation/build-inventory-policy.json": {
       "bytes": 504,
@@ -36,8 +36,8 @@
       "sha256": "29cac0619e4b75dd59f8e6be34851aecde917ffdabe8efef74fafe4ce6d68423"
     },
     "implementation/build_inventory_guard.py": {
-      "bytes": 167063,
-      "sha256": "6c4dd072adab8c6072803171be8e1bbb05e9478e13826bea4a980dbedeb95b31"
+      "bytes": 170247,
+      "sha256": "575168928026381d1c469c3440a488f90ebf85f9330e3eac14d4a432c62707b5"
     },
     "implementation/closed_data.py": {
       "bytes": 669,
@@ -480,8 +480,8 @@
       "sha256": "98412c7d1060415cde8c76b34bb5f6322e01aeebe0461c40edff5bc70e9ce4d3"
     },
     "implementation/test_source.py": {
-      "bytes": 11440,
-      "sha256": "8d578bbe8a07f34090206e86184bfd5f96cbd99d51202e2b4c5b48674f58dac0"
+      "bytes": 12634,
+      "sha256": "5d016b47bc899c81f922bc888ec8f5260ab5e9ddbe9ba012568b36e966479b48"
     },
     "implementation/transport.py": {
       "bytes": 4286,
