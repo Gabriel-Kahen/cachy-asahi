@@ -1,0 +1,13 @@
+cachy-asahi-support 0.2.0-1
+Copyright (c) 2026 cachy-asahi contributors. MIT License; see LICENSE.
+
+Original project packaging and launcher retain four exact MIT runtime sources:
+collect_support.py, support_bundle.py, session_probe.py and the Doctor2 command
+(source name doctor.py). Original copyright and SPDX headers are preserved.
+All four use Python standard library; no third-party source is bundled.
+See source-provenance.json for exact source origins and hashes.
+
+The collect subcommand explicitly runs the current read-only Doctor/session
+APIs through their bounded fixed-query contracts. create and verify run the
+unchanged offline bundle API. No official CachyOS/Asahi affiliation or approval,
+native ARM, ALPM installation, M2 behavior or release qualification is claimed.
