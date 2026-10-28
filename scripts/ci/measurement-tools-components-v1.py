@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
 """Finite measurement CI fixture and explicitly scoped source/private tests."""
-import argparse,ast,hashlib,importlib.util,json,os,shlex,shutil,stat,subprocess,sys,unittest
+import argparse,ast,contextlib,hashlib,importlib.util,json,os,shlex,shutil,stat,subprocess,sys,unittest
 from pathlib import Path
 PROFILE='manifests/measurement-tools-source-20261028.json'
 PROFILE_SHA='24692e6754b466c9172343c80883733fe14b240b18d15b87b109aed397c14ec0'
@@ -18,6 +18,24 @@ def fixture(root,work):
  return out
 def static(root):
  adapter=load('measurement_adapter',root/'scripts/checks/check_measurement_tools_v1.py');original=root/'scripts/checks/measurement_tools_package_checks_original_v1.py';need(sha(original.read_bytes())==adapter.ORIGINAL_SHA256,'adapter original checker pin');checks=load('measurement_original_checks',original);report=checks.recipe(root/RECIPE/'PKGBUILD');need(not report['errors'],str(report['errors']));need(report['metadata']['depends']==['python>=3.12'],'supported package Python minimum');print(json.dumps(dict(status='PASS_RETAINED_STATIC_ADAPTER_RECIPE_API',fresh_scope='recipe API only; no makepkg, archive inspection or workloads',makepkg_printsrcinfo='NOT_RUN_HERE_RETAINED_HOST_RECEIPT_ONLY',archive_static='NOT_RUN_HERE_RETAINED_HOST_RECEIPT_ONLY',native='NOT_RUN'),sort_keys=True))
+@contextlib.contextmanager
+def discovered_source_fixture(tests,root,work):
+ """Bind every discovered measurement source control; never filter or skip one."""
+ def cases(tests):
+  for test in tests:
+   if isinstance(test,unittest.TestSuite):yield from cases(test)
+   else:yield test
+ target=(root/'scripts/release/test_measurement_tools_source_delivery_v1.py').resolve();selected=[];modules=set()
+ for test in cases(tests):
+  module=sys.modules.get(type(test).__module__)
+  if module is not None and getattr(module,'__file__',None)and Path(module.__file__).resolve()==target:
+   selected.append(test);modules.add(module)
+ if not selected:
+  yield
+  return
+ need(len(selected)==4 and len(modules)==1,'all four discovered measurement source controls required');module=next(iter(modules));previous=module.ROOT;need(previous is None,'discovered source fixture was already configured');module.ROOT=fixture(root,work)
+ try:yield
+ finally:module.ROOT=previous
 def suite(root,kind,work):
  relative='scripts/release/test_measurement_tools_source_delivery_v1.py'if kind=='source'else RECIPE+'/test_package.py';module=load('measurement_'+kind,root/relative)
  if kind=='source':module.ROOT=root;expected=4
