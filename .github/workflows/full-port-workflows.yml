@@ -18,6 +18,8 @@ on:
       - 'packages/tools/cachy-asahi-orphans/**'
       - 'packages/tools/cachy-asahi-orphans03/**'
       - 'packages/tools/cachy-asahi-support/**'
+      - 'packages/tools/cachy-asahi-support2/**'
+      - 'packages/tools/cachy-asahi-security-maintenance/**'
       - 'tests/test_orphans03_adoption.py'
       - 'packages/tools/cachy-asahi-session-diagnostics/**'
       - 'scripts/update/archive_stream.py'
@@ -52,6 +54,8 @@ on:
       - 'packages/tools/cachy-asahi-orphans/**'
       - 'packages/tools/cachy-asahi-orphans03/**'
       - 'packages/tools/cachy-asahi-support/**'
+      - 'packages/tools/cachy-asahi-support2/**'
+      - 'packages/tools/cachy-asahi-security-maintenance/**'
       - 'tests/test_orphans03_adoption.py'
       - 'packages/tools/cachy-asahi-session-diagnostics/**'
       - 'scripts/update/archive_stream.py'
@@ -78,7 +82,7 @@ jobs:
       fail-fast: false
       matrix:
         python: ['3.12', '3.14']
-        component: [image, signed-intake, signed-image, sbom, source-mirror, source-mirror-update, desktop, app-runtime, app-inputs, python, python-extension, build-systems, pgo-source, app-window, mirror-builder, debugger, support-bundle, support-collection, recovery-bundle, security-operation, advisory-cache, orphans03, support-package]
+        component: [image, signed-intake, signed-image, sbom, source-mirror, source-mirror-update, desktop, app-runtime, app-inputs, python, python-extension, build-systems, pgo-source, app-window, mirror-builder, debugger, support-bundle, support-collection, recovery-bundle, security-operation, advisory-cache, support-package2, security-maintenance-package, orphans03, support-package]
     steps:
       - name: Checkout complete canonical component closure
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -110,6 +114,8 @@ jobs:
             /packages/tools/cachy-asahi-orphans/
             /packages/tools/cachy-asahi-orphans03/
             /packages/tools/cachy-asahi-support/
+            /packages/tools/cachy-asahi-support2/
+            /packages/tools/cachy-asahi-security-maintenance/
             /tests/test_orphans03_adoption.py
             /packages/tools/cachy-asahi-session-diagnostics/
             /scripts/update/archive_stream.py
@@ -128,7 +134,7 @@ jobs:
           sudo apt-get install --no-install-recommends -y lua5.4
           lua -v
       - name: Prepare short private operator temporary directory
-        if: contains(fromJSON('["debugger", "support-bundle", "support-collection", "recovery-bundle", "security-operation", "advisory-cache", "support-package"]'), matrix.component)
+        if: contains(fromJSON('["debugger", "support-bundle", "support-collection", "recovery-bundle", "security-operation", "advisory-cache", "support-package", "support-package2", "security-maintenance-package"]'), matrix.component)
         run: |
           stage=$(mktemp -d /tmp/caa-operator.XXXXXXXX)
           chmod 700 "$stage"
@@ -146,7 +152,7 @@ jobs:
           sudo apt-get install --no-install-recommends -y gpgv libarchive-tools
           gpgv --version
       - name: Install exact Noble security planning version and archive tools
-        if: matrix.component == 'security-operation'
+        if: matrix.component == 'security-operation' || matrix.component == 'security-maintenance-package'
         run: |
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y libarchive-tools libalpm13t64=13.0.2-6ubuntu2 makepkg=6.0.2-6ubuntu2
@@ -155,7 +161,7 @@ jobs:
           test "$(vercmp '1:1.0' '1.0')" -gt 0
           dpkg-query -W -f='${binary:Package}\t${Version}\n' libalpm13t64 makepkg
       - name: Prepare complete Noble namespace prerequisites for support package
-        if: matrix.component == 'support-package'
+        if: matrix.component == 'support-package' || matrix.component == 'support-package2'
         run: |
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y bubblewrap
@@ -190,6 +196,8 @@ jobs:
             advisory-cache) suite=scripts/maintenance/test_advisory_cache.py ;;
             orphans03) suite=tests/test_orphans03_adoption.py ;;
             support-package) suite=scripts/release/test_support_source_delivery_v1.py ;;
+            support-package2) suite=scripts/release/test_support_source_delivery_v2.py ;;
+            security-maintenance-package) suite=scripts/release/test_security_maintenance_source_delivery_v2.py ;;
             *) exit 2 ;;
           esac
           python -B -S -Werror::ResourceWarning "$suite"
@@ -353,3 +361,78 @@ jobs:
           run_support_fixture 2>&1 | tee "$RUNNER_TEMP/support-package-tests.log"
           grep -q 'Ran 8 tests' "$RUNNER_TEMP/support-package-tests.log"
           if grep -q 'skipped' "$RUNNER_TEMP/support-package-tests.log"; then exit 1; fi
+      - name: Observe the real support2 namespace permission boundary
+        if: matrix.component == 'support-package2'
+        run: |
+          python -I -B packages/tools/cachy-asahi-support2/check_package.py
+          python -I -B - "$RUNNER_TEMP" "$GITHUB_ENV" <<'PY'
+          import importlib.util
+          import json
+          import os
+          from pathlib import Path
+          import subprocess
+          import sys
+          import tempfile
+          root = Path(sys.argv[1])
+          spec = importlib.util.spec_from_file_location('support_exact_fixture', 'packages/tools/cachy-asahi-support2/test_package.py')
+          fixture = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(fixture)
+          with tempfile.TemporaryDirectory(prefix='support2-namespace-', dir=os.environ['TMPDIR']) as name:
+              work = Path(name)
+              prefix = work / 'prefix'
+              inputs = work / 'inputs'
+              prefix.mkdir()
+              inputs.mkdir()
+              command = [*fixture.sandbox(prefix, inputs), '/usr/bin/python3', '-I', '-B', '-c',
+                         'import os; assert not os.path.exists("/home"); assert not os.path.exists("/stage/PKGBUILD")']
+              result = subprocess.run(command, capture_output=True, timeout=15)
+          (root / 'support2-namespace.stdout').write_bytes(result.stdout)
+          (root / 'support2-namespace.stderr').write_bytes(result.stderr)
+          (root / 'support2-namespace.json').write_text(json.dumps(dict(command=command, exit=result.returncode)) + '\n')
+          use_root = False
+          if result.returncode:
+              permission = (b'bwrap: Creating new namespace failed: Operation not permitted', b'bwrap: No permissions to create new namespace', b'bwrap: loopback: Failed RTM_NEWADDR: Operation not permitted')
+              assert b'bwrap:' in result.stderr and any(text in result.stderr for text in permission), result.stderr
+              use_root = True
+          with Path(sys.argv[2]).open('a') as output:
+              output.write('SUPPORT2_TEST_ROOT=' + ('1' if use_root else '0') + '\n')
+          print('Actual namespace permission observation: ' + ('bounded exact test needs sudo' if use_root else 'ordinary user admitted'))
+          PY
+      - name: Run all six real installed support2 collection controls
+        if: matrix.component == 'support-package2'
+        run: |
+          set -euo pipefail
+          python -I -B packages/tools/cachy-asahi-support2/check_package.py
+          # Only this source-bound private fixture may use sudo after a genuine namespace permission denial.
+          run_support2_fixture() {
+            if [ "$SUPPORT2_TEST_ROOT" = 1 ]; then
+              sudo env PYTHONDONTWRITEBYTECODE=1 "$(command -v python)" -B -S -Werror::ResourceWarning - <<'PY'
+          import os
+          import runpy
+          import sys
+          import tempfile
+          # User namespaces cannot traverse the runner-owned 0700 TMPDIR as host root.
+          # Create every private fixture ancestor under the same UID as the sudo test.
+          with tempfile.TemporaryDirectory(prefix='caa-support-root-', dir='/tmp') as name:
+              state = os.stat(name)
+              assert state.st_uid == os.getuid() and state.st_mode & 0o777 == 0o700
+              os.environ['TMPDIR'] = name
+              tempfile.tempdir = name
+              sys.argv = ['packages/tools/cachy-asahi-support2/test_package.py', '-v']
+              runpy.run_path(sys.argv[0], run_name='__main__')
+          PY
+            else
+              "$(command -v python)" -B -S -Werror::ResourceWarning \
+                packages/tools/cachy-asahi-support2/test_package.py -v
+            fi
+          }
+          run_support2_fixture 2>&1 | tee "$RUNNER_TEMP/support-package2-tests.log"
+          grep -q 'Ran 6 tests' "$RUNNER_TEMP/support-package2-tests.log"
+          if grep -q 'skipped' "$RUNNER_TEMP/support-package2-tests.log"; then exit 1; fi
+      - name: Run all seven installed security maintenance package controls
+        if: matrix.component == 'security-maintenance-package'
+        run: |
+          set -euo pipefail
+          python -B -S -Werror::ResourceWarning packages/tools/cachy-asahi-security-maintenance/test_package.py -v 2>&1 | tee "$RUNNER_TEMP/security-maintenance-package-tests.log"
+          grep -q 'Ran 7 tests' "$RUNNER_TEMP/security-maintenance-package-tests.log"
+          if grep -q 'skipped' "$RUNNER_TEMP/security-maintenance-package-tests.log"; then exit 1; fi
