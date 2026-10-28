@@ -1,0 +1,61 @@
+#!/usr/bin/python3 -IB
+# SPDX-License-Identifier: MIT
+"""Frozen measurement plans, owned workloads and offline comparison."""
+import argparse
+import importlib.util
+import json
+from pathlib import Path
+import sys
+
+VERSION = '0.1.0'
+RUNTIME = Path(__file__).resolve().parents[1] / 'lib/cachy-asahi/measurement-tools-v1/scripts'
+
+
+def module(name, path):
+    spec = importlib.util.spec_from_file_location(name, path)
+    value = importlib.util.module_from_spec(spec)
+    sys.modules[name] = value
+    spec.loader.exec_module(value)
+    return value
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--version', action='version', version='cachy-asahi-measurement-tools ' + VERSION)
+    sub = parser.add_subparsers(dest='command', required=True)
+    state = sub.add_parser('state', help='Record base identity; no desktop or sensor probes')
+    state.add_argument('--execution-context', choices=('physical', 'virtual', 'emulated', 'unknown'), required=True)
+    state.add_argument('--output', type=Path, required=True)
+    for name in ('benchmark', 'metrics'):
+        command = sub.add_parser(name, add_help=False)
+        command.add_argument('arguments', nargs=argparse.REMAINDER)
+    args = parser.parse_args()
+    try:
+        if args.command == 'metrics':
+            return module('installed_platform_metrics', RUNTIME / 'benchmarks/platform_metrics.py').main(args.arguments)
+        bench = module('installed_benchmark', RUNTIME / 'benchmarks/benchmark.py')
+        if args.command == 'state':
+            identity = bench.live_identity(args.execution_context)
+            packages = identity.pop('packages')
+            repositories = identity.pop('repositories')
+            record = identity | {'schema_version': 1, 'record_type': 'measurement-base-state',
+                'captured_at': bench.now(), 'packages': {'returncode': 0 if packages is not None else None,
+                    'stdout': packages, 'status': 'ok' if packages is not None else 'unknown'},
+                'repositories': {'sync_databases': repositories}, 'optimization_acceptance': 'NOT RUN',
+                'scope': 'base identity only; execution context is operator declared; no hardware gate'}
+            bench.write_json(args.output, record)
+            return 0
+        # Do not expose the original legacy branch's post-reap numeric group signal.
+        # Exact original run() also verifies flag/frozen-config agreement.
+        arguments = args.arguments
+        if arguments and arguments[0] == 'run' and '--platform-metrics' not in arguments and '--help' not in arguments:
+            raise ValueError('installed run requires --platform-metrics and its frozen declaration')
+        sys.argv = [str(RUNTIME / 'benchmarks/benchmark.py'), *arguments]
+        return bench.main()
+    except (ValueError, OSError, KeyError, TypeError) as error:
+        print('measurement-tools refused: ' + str(error)[:300], file=sys.stderr)
+        return 2
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())
