@@ -10,10 +10,11 @@ import capsule as C
 import privacy_diagnostics as privacy
 
 PRODUCERS = {
- 'native/release_alpm_v1.py': 'cb570311da3c24e3d8e58514a08b3fcb26ca8b45a2fd24b3ba995d9d7d7ecc78',
- 'native/release_tools_v1.py': 'bb0742e5ffcd03dddf4b047ee4c6612bbd1c764d27de7003d9b12a9cbf1c8d46',
- 'native/release_guest_v1.py': '10eb4d88baabaa0efdecbab684b5caafaa68a7cfc50b668849df99cd3d532c85',
- 'native/release-contract-v1.json': '16d6854936e8fbfd10ae245d8414de29f742711f75a041230971cf1ff23161d5'}
+    'native/release_alpm_v1.py': '2c922b881709017d0a1a869c0c272b07aefd607c682b228daea249675e127e02',
+    'native/release_tools_v1.py': 'bb0742e5ffcd03dddf4b047ee4c6612bbd1c764d27de7003d9b12a9cbf1c8d46',
+    'native/release_guest_v1.py': '10eb4d88baabaa0efdecbab684b5caafaa68a7cfc50b668849df99cd3d532c85',
+    'native/release-contract-v1.json': '16d6854936e8fbfd10ae245d8414de29f742711f75a041230971cf1ff23161d5',
+    'native/release_build_cause_v1.py': 'ebd90211dba9cb7d090b07ea29909ca5cbeef0f6875a67760f3c52f72fda5750'}
 HOST={'transport-diagnostic.json','transport-proof.json','receipt.json','cleanup.json','source-proof.json','consumer-inspect.json','consumer-after.json',
  'consumer-diagnostic.json','image-ledger.json','image-retirement.json','bootstrap-failure-retention.json','provision-diagnostic.json','build-summary.json'}
 BOOTSTRAP={phase+'-'+name for phase in ('bootstrap','overlay') for name in

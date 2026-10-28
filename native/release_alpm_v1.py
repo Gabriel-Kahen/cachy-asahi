@@ -14,6 +14,7 @@ import tempfile
 
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 import release_tools_v1 as T
+import release_build_cause_v1 as D
 
 need=T.need
 PREFIX=T.PREFIX
@@ -226,44 +227,53 @@ def inside(source,map_hash):
     except BaseException as error:
         primary=error;traceback=error.__traceback__;report['failure']=dict(type=type(error).__name__,message=str(error)[:1024])
     finally:
-        # A fresh owned cleanup supervisor has its own bounded deadline, so an
-        # exhausted/cancelled business Commands object cannot prevent retirement.
-        try:
-            cleanup_commands=W.Commands(scope,work/'command-home','/usr/bin:/bin',timeout=30,total=120,max_output=1024*1024)
-            cleanup_commands.records=commands.records
-            def clean_run(step,argv,expected=0):return cleanup_commands.run(step,list(map(str,argv)),work,expected)
-        except BaseException as error:
-            if primary is None:primary=error
-            def clean_run(step,argv,expected=0):raise ValueError('owned cleanup supervisor unavailable')
-        cleanup_failures=[]
-        if primary is not None and pacman is not None:
+        def finish_cleanup():
+            nonlocal primary
+            # A fresh owned cleanup supervisor has its own bounded deadline, so an
+            # exhausted/cancelled business Commands object cannot prevent retirement.
             try:
-                actual=b''.join(sorted(clean_run('cleanup-inventory',['/usr/bin/pacman','-Q']).splitlines(keepends=True)))
-                if any(line.startswith((T.NAME+' ').encode()) for line in actual.splitlines()):
-                    clean_run('cleanup-remove',['/usr/bin/pacman',*pacman,'--noconfirm','--noscriptlet','-R',T.NAME])
-                need(b''.join(sorted(clean_run('cleanup-restored-inventory',['/usr/bin/pacman','-Q']).splitlines(keepends=True)))==base,'failure cleanup restores exact349')
-                if baseline_reasons is not None:
-                    restored={key:b''.join(sorted(clean_run('cleanup-reasons-'+key,['/usr/bin/pacman',flag]).splitlines(keepends=True)))
-                              for key,flag in (('explicit','-Qqe'),('dependencies','-Qqd'))}
-                    need(restored==baseline_reasons,'failure cleanup restores install reasons')
-            except BaseException as error:cleanup_failures.append('ALPM-restore:'+type(error).__name__)
-        cleanup=retire_homes(clean_run,(signing,trust),work);cleanup['failures']+=cleanup_failures;report['cleanup']=cleanup
-        try:report['global_config_unchanged']=T.pin(Path('/etc/pacman.conf'))==protected_config
-        except BaseException:report['global_config_unchanged']=False
-        try:report['global_trust_unchanged']=T.snapshot(Path('/etc/pacman.d/gnupg'))==protected_trust
-        except BaseException:report['global_trust_unchanged']=False
-        if not report['global_config_unchanged'] or not report['global_trust_unchanged']:cleanup['failures'].append('global-policy-drift')
-        if primary is None and not cleanup['failures']:report['stages'].append('cleanup')
-        primary=primary_failure(primary,cleanup)
-        if primary is None and report['stages']==list(T.STAGES):report['status']='PASS_RELEASE_TOOLS_NATIVE_ALPM_UPGRADE'
-        report['commands']=commands.records
-        try:
-            (scope/'commands.json').write_bytes(T.encoded(commands.records));(scope/'result.json').write_bytes(T.encoded(report))
-            for path in scope.iterdir():path.chmod(0o644)
-            for directory in (scope,scope.parent,STORE):directory.chmod(0o755)
-        except BaseException as failure:
-            if primary is None:primary=failure
-            else:primary.add_note('report retained incompletely: '+type(failure).__name__)
+                cleanup_commands=W.Commands(scope,work/'command-home','/usr/bin:/bin',timeout=30,total=120,max_output=1024*1024)
+                cleanup_commands.records=commands.records
+                def clean_run(step,argv,expected=0):return cleanup_commands.run(step,list(map(str,argv)),work,expected)
+            except BaseException as error:
+                if primary is None:primary=error
+                def clean_run(step,argv,expected=0):raise ValueError('owned cleanup supervisor unavailable')
+            cleanup_failures=[]
+            if primary is not None and pacman is not None:
+                try:
+                    actual=b''.join(sorted(clean_run('cleanup-inventory',['/usr/bin/pacman','-Q']).splitlines(keepends=True)))
+                    if any(line.startswith((T.NAME+' ').encode()) for line in actual.splitlines()):
+                        clean_run('cleanup-remove',['/usr/bin/pacman',*pacman,'--noconfirm','--noscriptlet','-R',T.NAME])
+                    need(b''.join(sorted(clean_run('cleanup-restored-inventory',['/usr/bin/pacman','-Q']).splitlines(keepends=True)))==base,'failure cleanup restores exact349')
+                    if baseline_reasons is not None:
+                        restored={key:b''.join(sorted(clean_run('cleanup-reasons-'+key,['/usr/bin/pacman',flag]).splitlines(keepends=True)))
+                                  for key,flag in (('explicit','-Qqe'),('dependencies','-Qqd'))}
+                        need(restored==baseline_reasons,'failure cleanup restores install reasons')
+                except BaseException as error:cleanup_failures.append('ALPM-restore:'+type(error).__name__)
+            cleanup=retire_homes(clean_run,(signing,trust),work);cleanup['failures']+=cleanup_failures;report['cleanup']=cleanup
+            try:report['global_config_unchanged']=T.pin(Path('/etc/pacman.conf'))==protected_config
+            except BaseException:report['global_config_unchanged']=False
+            try:report['global_trust_unchanged']=T.snapshot(Path('/etc/pacman.d/gnupg'))==protected_trust
+            except BaseException:report['global_trust_unchanged']=False
+            if not report['global_config_unchanged'] or not report['global_trust_unchanged']:cleanup['failures'].append('global-policy-drift')
+            if primary is None and not cleanup['failures']:report['stages'].append('cleanup')
+            primary=primary_failure(primary,cleanup)
+            if primary is None and report['stages']==list(T.STAGES):report['status']='PASS_RELEASE_TOOLS_NATIVE_ALPM_UPGRADE'
+            report['commands']=commands.records
+            try:
+                (scope/'commands.json').write_bytes(T.encoded(commands.records));(scope/'result.json').write_bytes(T.encoded(report))
+                for path in scope.iterdir():path.chmod(0o644)
+                for directory in (scope,scope.parent,STORE):directory.chmod(0o755)
+            except BaseException as failure:
+                if primary is None:primary=failure
+                else:primary.add_note('report retained incompletely: '+type(failure).__name__)
+            return primary
+        # Preserve the original rejection even if any later cleanup step fails.
+        primary=D.preserve_primary(primary,finish_cleanup)
+        if primary is not None:
+            if traceback is None:traceback=primary.__traceback__
+            try:D.emit(scope,commands.records,report,map_hash,primary)
+            except BaseException:pass
     if primary is not None:raise primary.with_traceback(traceback)
     need(report['status']=='PASS_RELEASE_TOOLS_NATIVE_ALPM_UPGRADE','complete lifecycle required')
     for path in scope.iterdir():path.chmod(0o644)

@@ -369,10 +369,11 @@ def retained_consumer_diagnostic(view, files, receipt, binding, map_sha256, posi
 
 
 PRODUCERS = {
-    'native/release_alpm_v1.py': 'cb570311da3c24e3d8e58514a08b3fcb26ca8b45a2fd24b3ba995d9d7d7ecc78',
+    'native/release_alpm_v1.py': '2c922b881709017d0a1a869c0c272b07aefd607c682b228daea249675e127e02',
     'native/release_tools_v1.py': 'bb0742e5ffcd03dddf4b047ee4c6612bbd1c764d27de7003d9b12a9cbf1c8d46',
     'native/release_guest_v1.py': '10eb4d88baabaa0efdecbab684b5caafaa68a7cfc50b668849df99cd3d532c85',
-    'native/release-contract-v1.json': '16d6854936e8fbfd10ae245d8414de29f742711f75a041230971cf1ff23161d5'}
+    'native/release-contract-v1.json': '16d6854936e8fbfd10ae245d8414de29f742711f75a041230971cf1ff23161d5',
+    'native/release_build_cause_v1.py': 'ebd90211dba9cb7d090b07ea29909ca5cbeef0f6875a67760f3c52f72fda5750'}
 PASS = 'PASS_RELEASE_TOOLS_NATIVE_ALPM_UPGRADE'
 OPERATION = 'release-alpm-upgrade-v1'
 
@@ -991,6 +992,58 @@ def retained_release_alpm(view, files, guest, map_sha256):
                 native='NOT_ADMITTED', native_16K='NOT_QUALIFIED', physical_M2='NOT_RUN', release='NOT_ADMITTED')
 
 
+def retained_release_build_cause(view, files, receipt, cleanup, binding, map_sha256):
+    """Read only a fixed marker in the unique original failed tools-build log."""
+    from release_build_cause_v1 import MARKER, MAX_LINE, validate as check_build_cause
+    operations = cleanup.get('build_operations', [])
+    need(type(operations) is list and len(operations) <= 2, 'finite original build operations required')
+    selected = [item for item in operations if type(item) is dict and item.get('role') == 'tools']
+    if not selected:
+        return dict(status='ABSENT_RELEASE_BUILD_CAUSE_DATA_ONLY', cause='UNKNOWN', native='NOT_ADMITTED')
+    need(len(selected) == 1 and type(selected[0].get('actor')) is dict, 'unique original tools build actor required')
+    actor = selected[0]['actor']; argv = actor.get('argv')
+    need(type(argv) is list and argv[:4] == ['/usr/bin/docker', '--host=unix:///var/run/docker.sock', 'build', '--network=none']
+         and '--platform=linux/arm64' in argv and actor in receipt.get('actors', []), 'same original native tools build command required')
+    name = actor.get('public_log')
+    need(type(name) is str and re.fullmatch(r'actor-logs/[0-9]{4}\.log', name) is not None
+         and name in files and files[name]['kind'] == 'file', 'exact retained tools actor log required')
+    raw = view.read(name)
+    need(len(raw) <= 16*1024**2 and pin(raw) == actor.get('log_pin')
+         and pin(raw) == {key: files[name][key] for key in ('bytes', 'sha256')}, 'complete original tools actor log pin required')
+    framing = re.compile(rb'^(?:#[1-9][0-9]*(?: [0-9]+(?:\.[0-9]+)?)? |[0-9]+(?:\.[0-9]+)? )?'
+                         + re.escape(MARKER.encode()) + rb'(.+)$')
+    candidates = []; marker_count = 0
+    def pairs(rows):
+        value = {}
+        for key, item in rows:
+            need(key not in value, 'duplicate build cause JSON field refused'); value[key] = item
+        return value
+    for line in raw.splitlines():
+        if MARKER.encode() not in line:
+            continue
+        match = framing.fullmatch(line)
+        need(match is not None and len(line) <= MAX_LINE + 64, 'bounded fixed Docker build cause framing required')
+        body = match[1]; marker_count += 1
+        need(len(body) <= MAX_LINE and marker_count <= 8, 'bounded build cause marker count/bytes required')
+        value = json.loads(body, object_pairs_hook=pairs,
+                           parse_constant=lambda _: need(False, 'nonfinite build cause DATA refused'))
+        check_build_cause(value, map_sha256)
+        if value not in candidates:
+            candidates.append(value)
+    if not candidates:
+        return dict(status='ABSENT_RELEASE_BUILD_CAUSE_DATA_ONLY', cause='UNKNOWN', native='NOT_ADMITTED')
+    need(len(candidates) == 1 and selected[0].get('terminal') is True
+         and type(actor.get('exit')) is int and actor['exit'] != 0
+         and all(actor.get(key) is True for key in ('natural_exit', 'group_absent', 'exit_observed_via_waitpid', 'leader_held_until_group_inspection'))
+         and actor.get('retirement') == 'REAPED' and actor.get('ownership_lost') is False
+         and actor.get('forced_cleanup') is False, 'one diagnostic in original naturally retired failed build only')
+    need(receipt.get('binding') == binding and receipt.get('source_map_sha256') == map_sha256,
+         'same actual source/run build diagnostic binding required')
+    return dict(status='VALIDATED_RELEASE_BUILD_FIRST_CAUSE_DATA_ONLY', binding=binding,
+                actor_log=name, actor_log_pin=pin(raw), actor_exit=actor['exit'], data=candidates[0],
+                native='NOT_ADMITTED', physical_M2='NOT_RUN', release='NOT_ADMITTED')
+
+
 def retained_transport_diagnostic(view, files, phase, binding, map_sha256):
     value = phase.get('transport_diagnostic')
     if value is None:
@@ -1067,13 +1120,14 @@ def validate(capsule_path, expected):
          'same-source owner and explicit cleanup outcome required')
     consumer_diagnostic = retained_consumer_diagnostic(view, files, receipt, binding, expected['map_sha256'])
     build_summary = retained_build_summary(view, files, binding, expected['map_sha256'])
+    build_cause = retained_release_build_cause(view, files, receipt, cleanup, binding, expected['map_sha256'])
     failed = (receipt['status'] != PASS or cleanup['status'] != 'PASS_EXACT_OWNED_RESOURCES_RETIRED')
     need(failed or consumer_diagnostic['status'] != 'ABSENT_CONSUMER_DIAGNOSTIC_DATA_ONLY',
          'successful release owner cannot omit original consumer diagnostic')
     if failed or not consumer_diagnostic['positive_candidate']:
         return dict(status='VALIDATED_NATIVE_FAILURE_DATA_ONLY', binding=binding,
                     owner_status=receipt['status'], cleanup_status=cleanup['status'],
-                    consumer_diagnostic=consumer_diagnostic, build_summary=build_summary,
+                    consumer_diagnostic=consumer_diagnostic, build_summary=build_summary, build_cause=build_cause,
                     native='NOT_ADMITTED', physical_M2='NOT_RUN', release='NOT_ADMITTED')
     retained_consumer_diagnostic(view, files, receipt, binding, expected['map_sha256'], positive=True)
     retained_failure_data(view, files, receipt.get('bootstrap_failure_data'), binding, expected['map_sha256'])
