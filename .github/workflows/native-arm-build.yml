@@ -51,7 +51,7 @@ jobs:
         timeout-minutes: 4
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '0480a2855beec1bd6ea37aff281b7b34e20b6367190fd488a1338b8a18a846f1' "$DEPLOY/entry.py" 'eda9c9794d38816616d90ea7d458a63440bab0b5f4b40657f9a8403ef07a2fb4' "$DEPLOY/source-manifest.json" | sha256sum --check
+          printf '%s  %s\n' '0480a2855beec1bd6ea37aff281b7b34e20b6367190fd488a1338b8a18a846f1' "$DEPLOY/entry.py" '0005ec5bb769dd1426232242134aac39623e55f0f88f40739fa2604d9f52e3da' "$DEPLOY/source-manifest.json" | sha256sum --check
           python3 -I -B "$DEPLOY/entry.py" source --source "$GITHUB_WORKSPACE/immutable-source"
           python3 -I -B "$DEPLOY/test_deployment.py" --source "$GITHUB_WORKSPACE/immutable-source"
           python3 -I -B "$DEPLOY/precredential_controls.py" --test "$GITHUB_WORKSPACE/immutable-source/runtime/immutable/test_controls.py"
