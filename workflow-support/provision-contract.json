@@ -1,7 +1,7 @@
 {
   "Root_acceptance": null,
   "actual": null,
-  "actual_parent": "c5924f1431ec1077019911c4f4e1f7c2f6e88d68",
+  "actual_parent": "66fae6ddbbd6df66e4d5a50c9577e9bb9168b170",
   "actual_run_id": null,
   "attempt": null,
   "budgets": {
@@ -21,8 +21,20 @@
     "GPG": "UNCHANGED_ORIGINAL_ACQUIRE_REQUIRED",
     "acceptance": false,
     "acquire_sha256": "d87249d22f1184ee46d7d98db981ae394ae8e72847057b53bfecd778ab970d77",
-    "all_prior_cache_bytes_inodes_metadata": "MUST_REMAIN_UNCHANGED",
+    "all_prior_cache_inode_metadata": "MUST_REMAIN_UNCHANGED",
+    "bounded_refusal_diagnostics": "ROLE_FILENAME_STAT_EXPECTED_AND_NAMED_FAILED_PREDICATES",
     "cache": "$RUNNER_TEMP/alarm-cache",
+    "cache_metadata_helper": {
+      "bytes": 3826,
+      "sha256": "94e612507c49ef619f889eca8e805c9fe2c1b9bbca8dac014573494b46cd7a85"
+    },
+    "cache_role_count": 1161,
+    "cache_role_profile": {
+      "bytes": 332087,
+      "sha256": "58306d30d5c89053c08c24a1cd6d7a13c0c44f9a91b2a367f251e2c25288b9a7"
+    },
+    "cache_snapshot_policy": "FINITE_PRODUCER_ROLE_METADATA_ONLY_SELECTED_PAIR_BYTES",
+    "capacity_increase": false,
     "changed_package_pins": false,
     "cleanup_authority": false,
     "files": {
@@ -39,15 +51,21 @@
         "sha256": "9a8064cde23ad90c2352395bdd1f6f5a8e843b3db3468cd2cc5a90829dc32704"
       }
     },
+    "global_UID_allowlist": false,
     "helper": {
-      "bytes": 8819,
-      "sha256": "08008144be7a1947a8b72a9cb0939a510196828996c1ebcdc1cf4a7c6a9d8612"
+      "bytes": 14318,
+      "sha256": "fe3d6c2088ff5c391bd8bf3fe34e57d0e36d658572139076603ee34c23e94a9b"
     },
     "network": "NONE",
+    "prior_cache_role_count": 1159,
+    "prior_content_hash_verification": "NOT_PERFORMED_BY_PREFILL_ORIGINAL_HASH_GPG_GATES_REQUIRED",
+    "prior_content_write_confinement": "NO_WRITES_EXCEPT_ABSENT_TWO_SELECTED_ROLE_NAMES",
     "public_provenance_source": "405761af52cdfa92b97bbf5b0519f32230d9a254",
     "public_provenance_tree": "3ed40f295ad50cfc1ae5a20e1c7da2d33f878d11",
     "receipt": "$RUNNER_TEMP/apps607-retained-dependency-inputs.json",
-    "status": "EXACT_RETAINED_ARCHIVE_AND_SIGNATURE_NOT_AUTHENTICATION"
+    "regular_single_link_current_producer_owner_exact_role_size": "REQUIRED",
+    "status": "EXACT_RETAINED_ARCHIVE_AND_SIGNATURE_NOT_AUTHENTICATION",
+    "unselected_cache_body_reads": 0
   },
   "dispatch": null,
   "disposable_outputs": [
@@ -433,7 +451,7 @@
     "unallocated_job_minutes": 34
   },
   "workflow_input_contract": {
-    "bytes": 12490,
-    "sha256": "4326f576bae7a7122c31abae97f5feaed32e1d8ecfa3e7e5f2765c1b752f78c5"
+    "bytes": 13673,
+    "sha256": "47620b91cc7beb922ab8994c29a50e7f50157a6e1dff8d72557827b4281f2117"
   }
 }

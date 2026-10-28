@@ -1,4 +1,4 @@
-name: native-arm-apps607-retained-dependency-input
+name: native-arm-apps607-role-bound-cache-snapshot
 on:
   workflow_dispatch:
     inputs:
