@@ -15,6 +15,10 @@ on:
       - 'scripts/virtual/**'
       - 'scripts/maintenance/source_cache.py'
       - 'packages/tools/cachy-asahi-maintenance/**'
+      - 'packages/tools/cachy-asahi-orphans/**'
+      - 'packages/tools/cachy-asahi-orphans03/**'
+      - 'packages/tools/cachy-asahi-support/**'
+      - 'tests/test_orphans03_adoption.py'
       - 'packages/tools/cachy-asahi-session-diagnostics/**'
       - 'scripts/update/archive_stream.py'
       - 'scripts/virtual/owned_process.py'
@@ -45,6 +49,10 @@ on:
       - 'scripts/virtual/**'
       - 'scripts/maintenance/source_cache.py'
       - 'packages/tools/cachy-asahi-maintenance/**'
+      - 'packages/tools/cachy-asahi-orphans/**'
+      - 'packages/tools/cachy-asahi-orphans03/**'
+      - 'packages/tools/cachy-asahi-support/**'
+      - 'tests/test_orphans03_adoption.py'
       - 'packages/tools/cachy-asahi-session-diagnostics/**'
       - 'scripts/update/archive_stream.py'
       - 'scripts/virtual/owned_process.py'
@@ -70,7 +78,7 @@ jobs:
       fail-fast: false
       matrix:
         python: ['3.12', '3.14']
-        component: [image, signed-intake, signed-image, sbom, source-mirror, source-mirror-update, desktop, app-runtime, app-inputs, python, python-extension, build-systems, pgo-source, app-window, mirror-builder, debugger, support-bundle, recovery-bundle, security-operation]
+        component: [image, signed-intake, signed-image, sbom, source-mirror, source-mirror-update, desktop, app-runtime, app-inputs, python, python-extension, build-systems, pgo-source, app-window, mirror-builder, debugger, support-bundle, recovery-bundle, security-operation, orphans03, support-package]
     steps:
       - name: Checkout complete canonical component closure
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -99,6 +107,10 @@ jobs:
             /scripts/ci/native_arm.py
             /scripts/integration/lifecycle.py
             /packages/tools/cachy-asahi-maintenance/
+            /packages/tools/cachy-asahi-orphans/
+            /packages/tools/cachy-asahi-orphans03/
+            /packages/tools/cachy-asahi-support/
+            /tests/test_orphans03_adoption.py
             /packages/tools/cachy-asahi-session-diagnostics/
             /scripts/update/archive_stream.py
             /scripts/virtual/owned_process.py
@@ -116,7 +128,7 @@ jobs:
           sudo apt-get install --no-install-recommends -y lua5.4
           lua -v
       - name: Prepare short private operator temporary directory
-        if: contains(fromJSON('["debugger", "support-bundle", "recovery-bundle", "security-operation"]'), matrix.component)
+        if: contains(fromJSON('["debugger", "support-bundle", "recovery-bundle", "security-operation", "support-package"]'), matrix.component)
         run: |
           stage=$(mktemp -d /tmp/caa-operator.XXXXXXXX)
           chmod 700 "$stage"
@@ -142,6 +154,14 @@ jobs:
           command -v vercmp
           test "$(vercmp '1:1.0' '1.0')" -gt 0
           dpkg-query -W -f='${binary:Package}\t${Version}\n' libalpm13t64 makepkg
+      - name: Prepare complete Noble namespace prerequisites for support package
+        if: matrix.component == 'support-package'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y bubblewrap
+          command -v bwrap
+          test -x /usr/bin/python3
+          # The corrected fixture preserves real host /lib and optional /lib64; no host-layout mutation.
       - name: Run exact focused component suite
         env:
           COMPONENT: ${{ matrix.component }}
@@ -166,6 +186,8 @@ jobs:
             support-bundle) suite=tests/support/test_support_bundle.py ;;
             recovery-bundle) suite=scripts/release/test_recovery_bundle.py ;;
             security-operation) suite=scripts/maintenance/test_security_campaign.py ;;
+            orphans03) suite=tests/test_orphans03_adoption.py ;;
+            support-package) suite=scripts/release/test_support_source_delivery_v1.py ;;
             *) exit 2 ;;
           esac
           python -B -S -Werror::ResourceWarning "$suite"
@@ -261,3 +283,52 @@ jobs:
           assert all(row['exit_code'] == row['expected'] for row in result['steps'])
           assert result['builds'] == result['native'] == result['installed'] == 'NOT_RUN'
           PY
+      - name: Observe the real support namespace permission boundary
+        if: matrix.component == 'support-package'
+        run: |
+          python -I -B packages/tools/cachy-asahi-support/check_package.py
+          python -I -B - "$RUNNER_TEMP" "$GITHUB_ENV" <<'PY'
+          import importlib.util
+          import json
+          import os
+          from pathlib import Path
+          import subprocess
+          import sys
+          import tempfile
+          root = Path(sys.argv[1])
+          spec = importlib.util.spec_from_file_location('support_exact_fixture', 'packages/tools/cachy-asahi-support/test_package.py')
+          fixture = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(fixture)
+          with tempfile.TemporaryDirectory(prefix='support-namespace-', dir=os.environ['TMPDIR']) as name:
+              work = Path(name)
+              prefix = work / 'prefix'
+              inputs = work / 'inputs'
+              prefix.mkdir()
+              inputs.mkdir()
+              command = [*fixture.sandbox_command(prefix, inputs), '/usr/bin/python3', '-I', '-B', '-c',
+                         'import os; assert not os.path.exists("/home"); assert not os.path.exists("/stage/PKGBUILD")']
+              result = subprocess.run(command, capture_output=True, timeout=15)
+          (root / 'support-namespace.stdout').write_bytes(result.stdout)
+          (root / 'support-namespace.stderr').write_bytes(result.stderr)
+          (root / 'support-namespace.json').write_text(json.dumps(dict(command=command, exit=result.returncode)) + '\n')
+          use_root = False
+          if result.returncode:
+              permission = (b'bwrap: Creating new namespace failed: Operation not permitted', b'bwrap: No permissions to create new namespace')
+              assert b'bwrap:' in result.stderr and any(text in result.stderr for text in permission), result.stderr
+              use_root = True
+          with Path(sys.argv[2]).open('a') as output:
+              output.write('SUPPORT_TEST_ROOT=' + ('1' if use_root else '0') + '\n')
+          print('Actual namespace permission observation: ' + ('bounded exact test needs sudo' if use_root else 'ordinary user admitted'))
+          PY
+      - name: Run all eight real private support package and hidden-source controls
+        if: matrix.component == 'support-package'
+        run: |
+          set -euo pipefail
+          python -I -B packages/tools/cachy-asahi-support/check_package.py
+          # Only this source-bound private fixture may use sudo after a genuine namespace permission denial.
+          prefix=()
+          if [ "$SUPPORT_TEST_ROOT" = 1 ]; then prefix=(sudo env "TMPDIR=$TMPDIR" PYTHONDONTWRITEBYTECODE=1); fi
+          "${prefix[@]}" "$(command -v python)" -B -S -Werror::ResourceWarning \
+            packages/tools/cachy-asahi-support/test_package.py -v 2>&1 | tee "$RUNNER_TEMP/support-package-tests.log"
+          grep -q 'Ran 8 tests' "$RUNNER_TEMP/support-package-tests.log"
+          if grep -q 'skipped' "$RUNNER_TEMP/support-package-tests.log"; then exit 1; fi
