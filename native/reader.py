@@ -32,6 +32,64 @@ GUEST_KERNEL = dict(release='7.1.13-generic16k-managed-gui',
 def encoded(value):
     return (json.dumps(value, sort_keys=True, indent=2, allow_nan=False) + '\n').encode()
 
+
+def special_node_diagnostic(value, binding, map_sha256, nonce, image):
+    """Match one bounded refusal observation; grants no execution or cleanup credit."""
+    need(len(encoded(value)) <= 4096, 'bounded special-node diagnostic')
+    fields(value, 'schema purpose status phase binding source_map_sha256 nonce image primary_error node acceptance')
+    need(type(value['schema']) is int and value['schema'] == 1
+         and value['purpose'] == 'SUPPORT183_FIRST_SPECIAL_NODE_V1'
+         and value['phase'] == 'INITIAL_MEDIA_SOURCE_INVENTORY'
+         and value['primary_error'] == 'persistent special node refused'
+         and value['acceptance'] is False, 'closed refusal diagnostic purpose')
+    fields(binding, 'source_sha ref run_id attempt')
+    hexadecimal(binding['source_sha'], 40)
+    need(type(binding['ref']) is str and 0 < len(binding['ref']) <= 255 and binding['ref'].isprintable()
+         and type(binding['run_id']) is str and re.fullmatch('[0-9]{1,20}', binding['run_id'])
+         and type(binding['attempt']) is int and 0 < binding['attempt'] < 2**31, 'explicit diagnostic binding')
+    hexadecimal(map_sha256)
+    hexadecimal(nonce, 32)
+    need(type(image) is str and image.startswith('sha256:'), 'explicit diagnostic image')
+    hexadecimal(image[7:])
+    need(encoded(value['binding']) == encoded(binding) and value['source_map_sha256'] == map_sha256
+         and value['nonce'] == nonce and value['image'] == image, 'same-source helper refusal observation')
+    status, node = value['status'], value['node']
+    need(status in ('FIRST_SPECIAL_NODE_OBSERVED', 'FIRST_SPECIAL_NODE_UNSTABLE',
+                    'FIRST_SPECIAL_NODE_UNAVAILABLE'), 'closed refusal observation status')
+    if status == 'FIRST_SPECIAL_NODE_UNAVAILABLE':
+        need(node is None, 'unavailable special-node observation carries no node data')
+    else:
+        fields(node, 'type mode rdev path_sha256 role source_mount parent_mount node_mount stable')
+        need(node['type'] in ('char_device', 'block_device', 'fifo', 'socket', 'unknown')
+             and type(node['mode']) is int and 0 <= node['mode'] <= 4095
+             and node['role'] in ('etc', 'usr', 'var', 'home', 'root', 'opt', 'other'), 'bounded public node metadata')
+        hexadecimal(node['path_sha256'])
+        need(all(type(node[k]) is int and 0 < node[k] < 2**64
+                 for k in ('source_mount', 'parent_mount', 'node_mount'))
+             and type(node['stable']) is bool
+             and node['stable'] is (status == 'FIRST_SPECIAL_NODE_OBSERVED'), 'explicit observed mount identities and stability')
+        if node['type'] in ('char_device', 'block_device'):
+            fields(node['rdev'], 'major minor')
+            need(all(type(v) is int and 0 <= v < 2**64 for v in node['rdev'].values()), 'bounded observed device identity')
+        else:
+            need(node['rdev'] is None, 'non-device special node has no device numbers')
+    return value
+
+
+def special_node_log(raw, binding, map_sha256, nonce, image):
+    """Read one first-refusal line from already-selected original helper DATA."""
+    need(type(raw) is bytes and 0 < len(raw) <= MAX_MEMBER, 'bounded original helper log')
+    prefix = b'SUPPORT183_SPECIAL_NODE '
+    rows = [line for line in raw.splitlines(keepends=True) if line.startswith(prefix)]
+    need(len(rows) == 1 and rows[0].endswith(b'\n') and not rows[0].endswith(b'\r\n')
+         and 0 < len(rows[0]) - len(prefix) <= 4096, 'one complete bounded first-refusal diagnostic line')
+    value = special_node_diagnostic(decode(rows[0][len(prefix):]), binding, map_sha256, nonce, image)
+    return dict(status='MATCHED_REFUSAL_DIAGNOSTIC_DATA_ONLY', acceptance=False,
+                diagnostic=value, primary_error='persistent special node refused',
+                execution='NOT_QUALIFIED_BY_DIAGNOSTIC', cleanup='NOT_QUALIFIED_BY_DIAGNOSTIC',
+                guest_proof='NOT_RUN', native_pair='NOT_RUN', physical_M2='NOT_RUN')
+
+
 def guest_proof_command():
     return ['/usr/bin/bwrap', '--unshare-all', '--die-with-parent', '--new-session',
         '--ro-bind', '/support/proof-root', '/', '--proc', '/proc', '--dev', '/dev',
