@@ -163,15 +163,18 @@ def _parent(roots, source, name, limits):
         for fd in reversed(held): os.close(fd)
 
 
+SOURCE_MANIFEST_HASH_PROFILE = 'SOURCE_MANIFEST_FD_HELD_ONCE_PER_INODE_V1'
+
 def source_manifest(source, limits, roots, policy):
-    """Bounded read-only coverage observation; copying stays in measure_copy."""
+    """Fresh observation; each hardlink inode hash retains its exact FD locally."""
     nodes, groups, excluded = {}, {}, []
     total_bytes = 0
+    hardlink_aliases = 0
     _normal_scope_path = ''
     source = Path(source)
     infrastructure = INFRASTRUCTURE & set(policy['observed_mounts'])
     def walk(fd, prefix='', depth=0):
-        nonlocal total_bytes, _normal_scope_path
+        nonlocal total_bytes, _normal_scope_path, hardlink_aliases
         _normal_scope_path = prefix.rstrip('/')
         limits.tick(); need(depth <= limits.max_depth, 'persistent scope depth limit')
         initial = roots._identity(os.fstat(fd)); names = sorted(os.listdir(fd))
@@ -204,12 +207,36 @@ def source_manifest(source, limits, roots, policy):
                     need(name in MOUNT_FILES or roots._mount_id(child, limits) == policy['source_mount'],
                          'persistent file mount crossing')
                     if name in MOUNT_FILES: need(info.st_nlink == 1, 'ordinary mount file hardlink refused')
-                    node.update(type='file', bytes=info.st_size, sha256=roots._file_hash(child, info, limits))
-                finally: os.close(child)
+                    if info.st_nlink > 1:
+                        need(hardlink_aliases < limits.max_hardlink_aliases,
+                             'persistent hardlink alias limit')
+                        need(2 <= info.st_nlink <= limits.max_hardlink_members,
+                             'persistent hardlink group not closed')
+                        inode = (info.st_dev, info.st_ino)
+                        group = groups.get(inode)
+                        if group is None:
+                            need(len(groups) < limits.max_hardlink_groups, 'persistent hardlink group limit')
+                            digest = roots._file_hash(child, info, limits)
+                            group = dict(nlink=info.st_nlink, members=[], fd=child,
+                                         identity=roots._identity(info), sha256=digest)
+                            groups[inode] = group
+                        else:
+                            need(roots._identity(os.fstat(child)) == roots._identity(info)
+                                 == group['identity'] == roots._identity(os.fstat(group['fd'])),
+                                 'persistent hardlink identity drift')
+                        need(group['nlink'] == info.st_nlink, 'persistent hardlink drift')
+                        need(len(group['members']) < limits.max_hardlink_members,
+                             'persistent hardlink group not closed')
+                        hardlink_aliases += 1
+                        group['members'].append(name)
+                        node.update(type='file', bytes=info.st_size, sha256=group['sha256'])
+                    else:
+                        node.update(type='file', bytes=info.st_size, sha256=roots._file_hash(child, info, limits))
+                finally:
+                    # The inserted group owns its FD immediately, including async failure.
+                    if groups.get((info.st_dev, info.st_ino), {}).get('fd') != child:
+                        os.close(child)
                 nodes[name] = node
-                if info.st_nlink > 1:
-                    group = groups.setdefault((info.st_dev, info.st_ino), dict(nlink=info.st_nlink, members=[]))
-                    need(group['nlink'] == info.st_nlink, 'persistent hardlink drift'); group['members'].append(name)
             elif stat.S_ISLNK(info.st_mode):
                 need(name not in RUNTIME and name not in MOUNT_FILES, 'runtime or mount-file alias refused')
                 node.update(type='symlink', target=os.readlink(leaf, dir_fd=fd)); nodes[name] = node
@@ -221,30 +248,45 @@ def source_manifest(source, limits, roots, policy):
         _normal_scope_path = prefix.rstrip('/')
         need(names == sorted(os.listdir(fd)) and roots._identity(os.fstat(fd)) == initial,
              'persistent directory changed')
-    with _updater_phase('SOURCE_WALK'):
-        fd = roots._open_root(source)
-        try:
-            initial = roots._identity(os.fstat(fd)); walk(fd)
-            rebound = roots._open_root(source)
+    try:
+        with _updater_phase('SOURCE_WALK'):
+            fd = roots._open_root(source)
             try:
-                need(roots._identity(os.fstat(rebound)) == roots._identity(os.fstat(fd)) == initial
-                     and roots._mount_id(rebound, limits) == policy['source_mount'], 'persistent root path drift')
-            finally: os.close(rebound)
-        except BaseException as error:
-            try:error._normal_primary_failure = _normal_primary_record(error, 'CALLER_SOURCE_WALK', _normal_scope_path)
-            except BaseException:pass
-            raise
-        finally: os.close(fd)
-    with _updater_phase('SOURCE_HARDLINKS'):
-        need(len(groups) <= limits.max_hardlink_groups, 'persistent hardlink group limit')
-        aliases = 0
+                initial = roots._identity(os.fstat(fd)); walk(fd)
+                rebound = roots._open_root(source)
+                try:
+                    need(roots._identity(os.fstat(rebound)) == roots._identity(os.fstat(fd)) == initial
+                         and roots._mount_id(rebound, limits) == policy['source_mount'], 'persistent root path drift')
+                finally: os.close(rebound)
+            except BaseException as error:
+                try:error._normal_primary_failure = _normal_primary_record(error, 'CALLER_SOURCE_WALK', _normal_scope_path)
+                except BaseException:pass
+                raise
+            finally: os.close(fd)
+        with _updater_phase('SOURCE_HARDLINKS'):
+            need(len(groups) <= limits.max_hardlink_groups, 'persistent hardlink group limit')
+            aliases = 0
+            for group in groups.values():
+                limits.tick()
+                need(roots._identity(os.fstat(group['fd'])) == group['identity']
+                     and roots._mount_id(group['fd'], limits) == policy['source_mount'],
+                     'persistent hardlink retained entry drift')
+                members = sorted(group['members']); aliases += len(members)
+                need(len(members) == group['nlink'] and len(members) <= limits.max_hardlink_members,
+                     'persistent hardlink group not closed')
+                for name in members: nodes[name]['hardlink_group'] = members[0]
+            need(aliases <= limits.max_hardlink_aliases, 'persistent hardlink alias limit')
+        return nodes, sorted(excluded)
+    finally:
+        # Close each original descriptor once, including failure paths; never retry.
+        active = sys.exception()
+        cleanup_error = None
         for group in groups.values():
-            members = sorted(group['members']); aliases += len(members)
-            need(len(members) == group['nlink'] and len(members) <= limits.max_hardlink_members,
-                 'persistent hardlink group not closed')
-            for name in members: nodes[name]['hardlink_group'] = members[0]
-        need(aliases <= limits.max_hardlink_aliases, 'persistent hardlink alias limit')
-    return nodes, sorted(excluded)
+            try: os.close(group['fd'])
+            except BaseException as error:
+                if cleanup_error is None: cleanup_error = error
+        if cleanup_error is not None:
+            if active is None: raise cleanup_error
 
 
 def _restore_boundaries(source, target, nodes, roots, copier, limits):
