@@ -46,6 +46,23 @@ def run_overlay(actor,command):
 
 def policy(root):return json.loads(read(root/'native/security-contract-v1.json'))
 
+
+def stage_snapshot(root,contract,owner,destination):
+    data=json.loads(read(root/'security-inputs/snapshot-data.json'))
+    need(set(data)=={'advisories.json','provenance.json','snapshot.json'},'exact retained snapshot names')
+    bodies={}
+    for name,body in data.items():
+        raw=base64.b64decode(body,validate=True)
+        need(pin(raw)==contract['snapshot_files'][name],'retained snapshot bytes')
+        bodies[name]=raw
+    destination.mkdir(mode=0o700);destination.chmod(0o700)
+    os.chown(destination,owner.pw_uid,owner.pw_gid)
+    for name,raw in bodies.items():
+        target=destination/name
+        with target.open('xb')as stream:stream.write(raw)
+        target.chmod(0o600);os.chown(target,owner.pw_uid,owner.pw_gid)
+    return destination
+
 def unpack(root,map_hash):
     need(os.getuid()==os.geteuid()==0 and platform.machine()=='aarch64' and root==SOURCE,'unpack only in disposable native image')
     verify_source(root,map_hash)
@@ -112,16 +129,12 @@ def inside(root,map_hash):
     versions=dict(line.decode().split(' ',1) for line in baseline.splitlines())
     need(all(versions.get(k)==v for k,v in contract['required_dependencies'].items()),'required retained runtime dependencies')
     unpack(root,map_hash)
-    snapshot_root=PREFIX/'snapshot';snapshot_root.mkdir()
-    snapshot_data=json.loads(read(root/'security-inputs/snapshot-data.json'))
-    need(set(snapshot_data)=={'advisories.json','provenance.json','snapshot.json'},'exact retained snapshot names')
-    for name,body in snapshot_data.items():
-        raw=base64.b64decode(body,validate=True);need(pin(raw)==contract['snapshot_files'][name],'retained snapshot bytes')
-        (snapshot_root/name).write_bytes(raw);(snapshot_root/name).chmod(0o644)
+    alarm=pwd.getpwnam('alarm')
+    snapshot_root=stage_snapshot(root,contract,alarm,PREFIX/'snapshot')
     paths=contract['payload_files']
     need(len(paths)==29 and all(not os.path.lexists('/usr/'+name) for name in paths),'package paths initially absent')
     protected_config=pin(read(Path('/etc/pacman.conf')));protected_trust=snapshot(Path('/etc/pacman.d/gnupg'))
-    alarm=pwd.getpwnam('alarm');private=Path(tempfile.mkdtemp(prefix='security-test-',dir='/tmp'));private.chmod(0o700)
+    private=Path(tempfile.mkdtemp(prefix='security-test-',dir='/tmp'));private.chmod(0o700)
     signing,trust=private/'signing',private/'trust'
     for home in (signing,trust):home.mkdir(mode=0o700)
     c=Commands(private)
