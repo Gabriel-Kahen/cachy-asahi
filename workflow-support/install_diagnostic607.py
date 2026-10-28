@@ -103,7 +103,7 @@ def engine_call(P,original,fd,sha,report_fd,area,who,base):
    def run(self,argv,**kwargs):return capture.original_run(self.original,argv,kwargs)
   facade.Runner=Runner;return facade
  base.runtime=runtime
- try:value=original.engine(fd,sha,report_fd);returned=True;return value
+ try:value=ALPM_DIAGNOSTIC.call(P,original,fd,sha,report_fd,area,who,base,capture);returned=True;return value
  except BaseException as original_error:error=original_error;raise
  finally:
   base.runtime=ordinary_runtime
@@ -119,7 +119,15 @@ def configure(P):
  need(before.count(guard)==after.count(guard)==1,'required install predicate byte held');P.diagnostic_engine_call=lambda *a:engine_call(P,*a)
  exec(compile(after,'<held-install-actor-original-diagnostic-seam>','exec'),vars(P))
  return dict(before=pin(before.encode()),after=pin(after.encode()),whole_inverse=True,predicate=pin(guard.encode()),provider=PROVIDER,engine_six_native_seams='UNCHANGED')
+def load_alpm_diagnostic():
+ expected=os.environ.get('FRESH_ALPM_DIAGNOSTIC_SHA256','');need(re.fullmatch('[0-9a-f]{64}',expected)is not None,'independent signed-load diagnostic pin')
+ path=Path('/fresh-alpm-diagnostic.py');observation,raw=snapshot(path,64*1024,owned=False,privacy=False);need(raw is not None and pin(raw)['sha256']==expected,'exact signed-load diagnostic module')
+ need(path.is_mount(),'explicit signed-load readonly file mount');fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_CLOEXEC)
+ try:need(os.fstatvfs(fd).f_flag&os.ST_RDONLY,'signed-load module mount readonly')
+ finally:os.close(fd)
+ module=types.ModuleType('_source_bound_alpm_load_diagnostic');module.__file__=str(path);sys.modules[module.__name__]=module;exec(compile(raw,str(path),'exec'),vars(module));return module
 def main():
+ global ALPM_DIAGNOSTIC
  need(sys.argv[1:]==['--install'],'only original install actor phase');expected=os.environ.get('FRESH_INSTALL_DIAGNOSTIC_SHA256','');need(re.fullmatch('[0-9a-f]{64}',expected)is not None,'independent diagnostic entrypoint pin')
  observation,raw=snapshot(Path(__file__).resolve(),64*1024,owned=False,privacy=False);need(raw is not None and pin(raw)['sha256']==expected,'exact diagnostic code')
  path=Path('/fresh-operation/provider607.py');observation,raw=snapshot(path,PROVIDER['bytes'],owned=False,privacy=False);need(raw is not None and pin(raw)==PROVIDER,'held provider source snapshot')
@@ -127,5 +135,6 @@ def main():
  need(Path(__file__).is_mount(),'explicit diagnostic readonly file mount');fd=os.open(Path(__file__),os.O_RDONLY|os.O_NOFOLLOW|os.O_CLOEXEC)
  try:need(os.fstatvfs(fd).f_flag&os.ST_RDONLY,'diagnostic code mount readonly')
  finally:os.close(fd)
+ ALPM_DIAGNOSTIC=load_alpm_diagnostic()
  P.save(P.OUT/'native607-install-actor-diagnostic-derivation.json',proof);return P.main()
 if __name__=='__main__':raise SystemExit(main())
