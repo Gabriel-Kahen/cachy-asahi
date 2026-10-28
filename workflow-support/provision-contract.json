@@ -1,7 +1,7 @@
 {
   "Root_acceptance": null,
   "actual": null,
-  "actual_parent": "116ff85f6d2f5ed0ba023a97ca3f79546a001623",
+  "actual_parent": "5b8ab35236a2a236073838f37bd90a80d740f9b7",
   "actual_run_id": null,
   "attempt": null,
   "budgets": {
@@ -22,8 +22,8 @@
     "clocks": "UNCHANGED",
     "closed_selected_source_files": 245,
     "entrypoint": {
-      "bytes": 5894,
-      "sha256": "bf254c99c92bbe9813e5797db48e8b83af15030e1a53e221c7b5e8ff4cd01992"
+      "bytes": 6949,
+      "sha256": "93d0d77fdd26dbe7948d4769cc4169dd2cf990db6f7bc8ced2a4c76fc96587a0"
     },
     "filesystem_fallback": false,
     "independent_capsule_pin": "CAPSULE_SHA256_PRESERVED_IN_CLEAN_PARENT_AND_CHILD_ENV",
@@ -127,6 +127,40 @@
   ],
   "entry": "operation/native_owner607.py",
   "hardware": "NOT_RUN",
+  "installer_engine_diagnostic": {
+    "acceptance": false,
+    "engine_and_native_inverse": "UNCHANGED_ORIGINAL_SIX_SEAMS",
+    "entrypoint": {
+      "bytes": 10421,
+      "sha256": "b05e0080ef8003dba3fdffc51b733b0ae74a6a7076397cb5db7fbd4e57fc104f"
+    },
+    "fixed_files": [
+      "result.json",
+      "alpm.log"
+    ],
+    "install_actor_inverse": "ONE_ENGINE_CALL_SEAM",
+    "key_material": "REFUSED",
+    "max_commands": 640,
+    "max_result_bytes": 262144,
+    "max_stream_bytes": 65536,
+    "new_readonly_code_mount": "/fresh-install-diagnostic.py",
+    "only_actor": "install",
+    "original_provider": {
+      "bytes": 33239,
+      "sha256": "c5bb6332b8a874380f75df683e2746cfabf07a20a1d897af93065e0b9241fb04"
+    },
+    "owner_entrypoint": {
+      "bytes": 6949,
+      "sha256": "93d0d77fdd26dbe7948d4769cc4169dd2cf990db6f7bc8ced2a4c76fc96587a0"
+    },
+    "phase_stream": "SAME_ORIGINAL_COMPLETEDPROCESS_STDOUT_STDERR_STDOUT_COMBINED",
+    "predicate": "code==0 and result.status==PROVISIONAL_FULL_COMPOSITION_INSTALLER and result.committed is True and result.package_count==607",
+    "runtime_guards": "UNCHANGED",
+    "secret_key_listing_body": "REFUSED_PRIVACY_ROLE",
+    "separate_stderr": "NONE_ORIGINAL_RUNTIME_REDIRECT",
+    "status": "SOURCE_BOUND_ORIGINAL_ENGINE_DATA_BEFORE_UNCHANGED_GUARD",
+    "total_raw_bytes": 2097152
+  },
   "inventory": {
     "expected607_sha256": "be35402204ba5c03d78279722afa83047c9575d2da70fb5c4064f46ed15954c5",
     "final_signed607": 607,
@@ -500,7 +534,7 @@
     "unallocated_job_minutes": 34
   },
   "workflow_input_contract": {
-    "bytes": 16402,
-    "sha256": "78b6f68f4f61de7eb90762886faf425910ec3bbcdd5ec782f656554766b16f9f"
+    "bytes": 18370,
+    "sha256": "4dae1baeae0800d4f9d3a3a87c07cef92b5e7e321e82f9d1df067a5bc897f198"
   }
 }

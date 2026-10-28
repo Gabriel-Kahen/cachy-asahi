@@ -1,8 +1,8 @@
 {
   "Root_acceptance": null,
   "actual": null,
-  "actual_parent": "116ff85f6d2f5ed0ba023a97ca3f79546a001623",
-  "actual_parent_tree": "e1772103d35a79d9b4eee078ebec208e2c639ea8",
+  "actual_parent": "5b8ab35236a2a236073838f37bd90a80d740f9b7",
+  "actual_parent_tree": "1f6dea34a62f2a8339f45085e525c66113dedf47",
   "budgets": {
     "completion_guarantee": false,
     "dependency_input_join_seconds": 60,
@@ -291,8 +291,8 @@
     "clocks": "UNCHANGED",
     "closed_selected_source_files": 245,
     "entrypoint": {
-      "bytes": 5894,
-      "sha256": "bf254c99c92bbe9813e5797db48e8b83af15030e1a53e221c7b5e8ff4cd01992"
+      "bytes": 6949,
+      "sha256": "93d0d77fdd26dbe7948d4769cc4169dd2cf990db6f7bc8ced2a4c76fc96587a0"
     },
     "filesystem_fallback": false,
     "independent_capsule_pin": "CAPSULE_SHA256_PRESERVED_IN_CLEAN_PARENT_AND_CHILD_ENV",
@@ -401,8 +401,8 @@
     "unselected_cache_body_reads": 0
   },
   "diagnostic_basis_capsule": {
-    "bytes": 102118,
-    "sha256": "cf2b914492ba452f6f50c494950786247b8b9f0ceb568a6b3e3dca9ef2c17c70"
+    "bytes": 102283,
+    "sha256": "b39ddd52c25ec00a1a41114351bd8bc6c6884e344d3d5ffc30bd6dc203423d17"
   },
   "hardware": "NOT_RUN",
   "inputs": {
@@ -416,6 +416,57 @@
     "recipes_sha256": "a5fb287b4dda2a90bf61d4fa8cbbc5d666dad8bb450a70544d00545b091f36e3",
     "source": "bd0cf1891083d011b70edab10501c317d3720b78"
   },
+  "installer_causal_actual": {
+    "actual_engine_return": "UNKNOWN_NOT_EXPORTED",
+    "actual_failed_conjunct": "UNKNOWN_NOT_EXPORTED",
+    "actual_inner_cause": "UNKNOWN",
+    "actual_result": "UNKNOWN_NOT_EXPORTED",
+    "attempt": 1,
+    "failed_step": 46,
+    "guard": "actual complete native signed607 installer",
+    "job": 122662339061,
+    "old_missing_carrier": "NOT_THE_NEW_PRINTED_BOUNDARY",
+    "original_stderr": {
+      "bytes": 1191,
+      "sha256": "4ef3bebc5a0578c8b3e8a3a62fe4829a6eebd8b6c64d3604281b2706d5f86e6c"
+    },
+    "run": 40642095937,
+    "source": "5b8ab35236a2a236073838f37bd90a80d740f9b7"
+  },
+  "installer_engine_diagnostic": {
+    "acceptance": false,
+    "engine_and_native_inverse": "UNCHANGED_ORIGINAL_SIX_SEAMS",
+    "entrypoint": {
+      "bytes": 10421,
+      "sha256": "b05e0080ef8003dba3fdffc51b733b0ae74a6a7076397cb5db7fbd4e57fc104f"
+    },
+    "fixed_files": [
+      "result.json",
+      "alpm.log"
+    ],
+    "install_actor_inverse": "ONE_ENGINE_CALL_SEAM",
+    "key_material": "REFUSED",
+    "max_commands": 640,
+    "max_result_bytes": 262144,
+    "max_stream_bytes": 65536,
+    "new_readonly_code_mount": "/fresh-install-diagnostic.py",
+    "only_actor": "install",
+    "original_provider": {
+      "bytes": 33239,
+      "sha256": "c5bb6332b8a874380f75df683e2746cfabf07a20a1d897af93065e0b9241fb04"
+    },
+    "owner_entrypoint": {
+      "bytes": 6949,
+      "sha256": "93d0d77fdd26dbe7948d4769cc4169dd2cf990db6f7bc8ced2a4c76fc96587a0"
+    },
+    "phase_stream": "SAME_ORIGINAL_COMPLETEDPROCESS_STDOUT_STDERR_STDOUT_COMBINED",
+    "predicate": "code==0 and result.status==PROVISIONAL_FULL_COMPOSITION_INSTALLER and result.committed is True and result.package_count==607",
+    "runtime_guards": "UNCHANGED",
+    "secret_key_listing_body": "REFUSED_PRIVACY_ROLE",
+    "separate_stderr": "NONE_ORIGINAL_RUNTIME_REDIRECT",
+    "status": "SOURCE_BOUND_ORIGINAL_ENGINE_DATA_BEFORE_UNCHANGED_GUARD",
+    "total_raw_bytes": 2097152
+  },
   "native": "NOT_RUN",
   "old607_cause": "UNKNOWN_LOCAL_AUTH_COMPONENT_PASS_IS_NOT_OLD_NATIVE_CACHE_PROOF",
   "operation_profile": {
@@ -425,7 +476,7 @@
   "ref": null,
   "schema_version": 1,
   "source": null,
-  "source_files": 546,
+  "source_files": 547,
   "status": "SOURCE_ONLY_ROLE_BOUND_CACHE_METADATA_CONTRACT",
   "transport": {
     "bytes": 1046432165,
@@ -495,7 +546,7 @@
   "workflow": {
     "alias": ".github/workflows/native-arm-apps16-reinstall-interruption.yml",
     "current_registry": "NOT_QUERIED_NO_API",
-    "name": "native-arm-apps607-selected-carrier-source",
+    "name": "native-arm-apps607-engine-diagnostic",
     "path": ".github/workflows/native-arm-build.yml",
     "prior_observed_id": 381664314
   }

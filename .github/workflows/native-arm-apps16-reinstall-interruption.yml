@@ -1,4 +1,4 @@
-name: native-arm-apps607-selected-carrier-source
+name: native-arm-apps607-engine-diagnostic
 on:
   workflow_dispatch:
     inputs:

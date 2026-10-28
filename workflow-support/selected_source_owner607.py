@@ -51,6 +51,18 @@ def configure(owner):
   result.H.C.checked=selected_checker(owner,args,result.H.C.checked)
   return result
  owner.modules=modules
+ original_plan=owner.Runtime.actor_plan
+ def actor_plan(runtime,role,context_sha=None):
+  name,argv,public=original_plan(runtime,role,context_sha)
+  if role=='install':
+   path=ROOT/'workflow-support/install_diagnostic607.py';raw=owner.read(path,64*1024);sha=pin(raw)['sha256']
+   capsule=owner.read(ROOT/'capsule.json');need(pin(capsule)['sha256']==os.environ.get('CAPSULE_SHA256'),'held independent capsule before actor mount')
+   need(owner.decode(capsule)['files']['workflow-support/install_diagnostic607.py']==pin(raw),'source-bound diagnostic helper before actor mount')
+   need(argv[-4:]==['-I','-B','/fresh-operation/provider607.py','--install']and argv.count('--entrypoint=/usr/bin/python3')==1,'one exact original install actor slot')
+   at=argv.index('--entrypoint=/usr/bin/python3');argv=argv[:at]+['--mount','type=bind,src='+str(path)+',dst=/fresh-install-diagnostic.py,readonly','--env=FRESH_INSTALL_DIAGNOSTIC_SHA256='+sha]+argv[at:]
+   argv[-2]='/fresh-install-diagnostic.py'
+  return name,argv,public
+ owner.Runtime.actor_plan=actor_plan
  raw=owner.read(Path(owner.__file__));need(pin(raw)==OWNER,'whole held owner before main derivation')
  text=raw.decode();node=next(n for n in ast.parse(text).body if isinstance(n,ast.FunctionDef)and n.name=='main');before=ast.get_source_segment(text,node)+'\n'
  old='str(Path(__file__).resolve())';new='str(SELECTED_OWNER_ENTRY)'
