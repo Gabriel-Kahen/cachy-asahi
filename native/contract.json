@@ -46,6 +46,16 @@
     "unknown_or_mutated_row": "REFUSE_BEFORE_CALLBACK"
   },
   "canonical_workflow_id": 381664314,
+  "consumer_failure_diagnostics": {
+    "acceptance": "DATA_ONLY_UNLESS_ALL_HELD_NATIVE_GATES_PASS",
+    "guest": "BOUNDED_PHASE_TYPE_MESSAGE_AND_ORIGINAL_RERAISE",
+    "original_bytes_cap": 16777216,
+    "phase": "EMIT_BEFORE_CLEANUP_AND_CAPSULE_PACK",
+    "privacy": "WHOLE_ORIGINAL_UTF8_CONTROL_AND_PRIVATE_MARKER_GUARD; REFUSED_RAW_NOT_MIRRORED",
+    "public_suffix_cap": 65536,
+    "receipt": "consumer-diagnostic.json",
+    "source": "EXACT_INDEXED_ORIGINAL_START_ATTACHED_ACTOR_LOG"
+  },
   "environment": "EXACT_SIGNED_ALARM_ORIGINAL341_PLUS_RETAINED8",
   "future_native": [
     "Python_PEP517",
@@ -91,10 +101,19 @@
     "symlinks": "TARGET_BYTES_AS_ORDINARY_PAYLOAD_NO_HOST_LINKS",
     "upload": "upload/public-tree.tar"
   },
+  "public_projection": {
+    "actual182_offending_path": "UNKNOWN_UNPRINTED",
+    "capsule_private_guard": "UNCHANGED_STRICT",
+    "destination": "public-projection",
+    "failure": "BOUNDED_EXACT_MEMBER_PATH_PHASE_DIAGNOSTIC_NO_MATERIAL_DUMP",
+    "private_working_trees": "NEVER_TRAVERSED_OR_COPIED",
+    "scope": "FINITE_SOURCE_DEFINED_REPORTS_ORIGINAL_COMMAND_LOGS_AND_PINNED_BACKEND_FILES",
+    "source": "PUBLIC_OWNER_OUTPUT_UNCHANGED"
+  },
   "publication_parent": {
-    "reason": "Ownedlocaltag and separatelyobserved cleanup correctivechild; preserve180",
-    "requirement": "GENUINE_PUBLISHED180_CHANGED_CAUSE_PARENT",
-    "source": "a434716cbf53085e6380e06939be6a38dd5412fc"
+    "reason": "Original consumer failure and independent private-path pack refusal diagnostics; finite public DATA projection",
+    "requirement": "GENUINE_PUBLISHED182_CHANGED_CAUSE_PARENT",
+    "source": "5b2016cc842970952c03cc2cc068a9cfbea5812c"
   },
   "python_wheel": "EXACT_ARM_FRONTEND_AND_SEPARATE_BACKEND_WHEEL_PREPARED_NOT_EXECUTED",
   "release": "NOT_ADMITTED",

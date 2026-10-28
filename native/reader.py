@@ -289,6 +289,189 @@ def retained_image_lifecycle(view, files, receipt, cleanup, binding, map_sha256)
          'final daemon absence must follow actual container and image retirements')
 
 
+def retained_consumer_diagnostic(view, files, receipt, binding, map_sha256, positive=False):
+    """Match original consumer actor DATA; failure/refusal grants no native credit."""
+    value = receipt.get('consumer_diagnostic'); name = 'consumer-diagnostic.json'
+    if value is None:
+        need(not positive and name not in files, 'positive native matching requires original consumer diagnostic')
+        return dict(status='ABSENT_CONSUMER_DIAGNOSTIC_DATA_ONLY', positive_candidate=False)
+    need(type(value) is dict and type(value.get('schema')) is int and value['schema'] == 1
+         and value.get('binding') == binding and value.get('source_map_sha256') == map_sha256
+         and value.get('native') == 'NOT_ADMITTED' and value.get('physical_M2') == 'NOT_RUN',
+         'same-source original consumer diagnostic required')
+    need(name in files and files[name]['kind'] == 'file' and files[name]['bytes'] <= 512*1024
+         and pin(view.read(name)) == {key: files[name][key] for key in ('bytes', 'sha256')}
+         and view.load(name) == value, 'authoritative consumer diagnostic DATA differs')
+    if value.get('status') == 'REFUSED_CONSUMER_ACTOR_DATA_GUARD':
+        need(not positive and set(value) == {'schema', 'status', 'binding', 'source_map_sha256', 'actor_index',
+             'container', 'reason', 'native', 'physical_M2'}
+             and value.get('reason') == 'ORIGINAL_CONSUMER_DIAGNOSTIC_UNAVAILABLE_OR_PRIVATE',
+             'consumer diagnostic refusal is fixed metadata only')
+        return dict(status='REFUSED_CONSUMER_DIAGNOSTIC_DATA_ONLY', positive_candidate=False)
+    need(value.get('status') == 'ORIGINAL_CONSUMER_ACTOR_DATA_ONLY'
+         and set(value) == {'schema', 'status', 'binding', 'source_map_sha256', 'actor_index', 'container', 'argv',
+                           'actor', 'original_error', 'log', 'native', 'physical_M2'},
+         'exact original consumer diagnostic schema required')
+    rows = receipt.get('actors'); index = value.get('actor_index'); container = value.get('container')
+    need(type(rows) is list and type(index) is int and 0 <= index < len(rows)
+         and re.fullmatch('[0-9a-f]{64}', container or ''), 'exact original consumer actor selection required')
+    row = rows[index]; argv = ['/usr/bin/docker', '--host=unix:///var/run/docker.sock', 'start', '-a', container]
+    fields = ('status', 'exit', 'natural_exit', 'group_absent', 'retirement', 'exit_observed_via_waitpid',
+              'ownership_lost', 'forced_cleanup', 'leader_held_until_group_inspection')
+    work = Path(receipt['output_root']).parent
+    need(type(row) is dict and row.get('argv') == argv and value.get('argv') == argv
+         and work.is_absolute() and '..' not in work.parts and row.get('log') == str(work / 'actors' / ('%04d.log' % index))
+         and value.get('actor') == {key: row.get(key) for key in fields},
+         'consumer diagnostic must match exact source-owned original start actor')
+    log = value.get('log'); target = row.get('public_log')
+    need(type(log) is dict and set(log) == {'original_pin', 'offset', 'complete', 'bytes', 'sha256', 'text'}
+         and target in files and files[target]['kind'] == 'file' and files[target]['bytes'] <= 16*1024**2,
+         'consumer diagnostic requires bounded retained original actor log')
+    raw = view.read(target)
+    need(pin(raw) == log['original_pin'] == row.get('log_pin') == {key: files[target][key] for key in ('bytes', 'sha256')},
+         'consumer diagnostic original log pin differs from actual DATA')
+    private = (b'-----BEGIN', b'PRIVATE KEY', b'OPENSSH PRIVATE', b'CACHY_OLD_FOUR_', b'CACHY_RETAINED_',
+               b'Authorization:', b'authorization:', b'ghp_', b'github_pat_')
+    private_marker = re.compile(br'-----BEGIN[^\r\n]{0,100}PRIVATE KEY|BEGIN PGP PRIVATE|ssh-(?:rsa|ed25519)|ecdsa-sha2-|(?:gh[pousr]_|github_pat_)[A-Za-z0-9_]+|authorization\s*:\s*(?:bearer|token)|(?:access[_-]?token|password|secret)\s*[=:]|CACHY_(?:OLD_FOUR|RETAINED_BUBBLEWRAP)|PRIVATE_KEY|(?:_TOKEN|_SECRET|_PASSWORD)\b', re.I)
+
+    def safe(raw):
+        need(not any(marker in raw for marker in private) and not private_marker.search(raw),
+             'private consumer diagnostic DATA refused')
+        text = raw.decode('utf-8')
+        need(not any(ord(c) < 32 and c not in '\n\r\t' for c in text), 'control consumer diagnostic DATA refused')
+        return text
+
+    safe(raw); offset = max(0, len(raw) - 64*1024)
+    while offset < len(raw) and raw[offset] & 0xc0 == 0x80:
+        offset += 1
+    window = raw[offset:]
+    need(type(log['offset']) is int and log['offset'] == offset and type(log['complete']) is bool
+         and log['complete'] is (offset == 0) and type(log['bytes']) is int
+         and {key: log[key] for key in ('bytes', 'sha256')} == pin(window) and log['text'] == safe(window),
+         'consumer diagnostic must be exact bounded UTF-8 original suffix')
+    error = value['original_error']
+    need(error is None or type(error) is dict and set(error) == {'type', 'message'}
+         and type(error['type']) is str and 0 < len(error['type']) <= 128
+         and type(error['message']) is str and len(error['message']) <= 2048,
+         'bounded original consumer exception metadata required')
+    if error is not None:
+        safe(error['message'].encode())
+    candidate = (error is None and row.get('status') == 'PASS' and type(row.get('exit')) is int and row['exit'] == 0
+                 and all(row.get(key) is True for key in ('natural_exit', 'group_absent', 'exit_observed_via_waitpid', 'leader_held_until_group_inspection'))
+                 and row.get('retirement') == 'REAPED' and row.get('ownership_lost') is False and row.get('forced_cleanup') is False)
+    need(not positive or candidate and receipt.get('consumer', {}).get('container') == container,
+         'positive consumer matching requires original zero-exit natural retirement without exception')
+    return dict(status='VALIDATED_ORIGINAL_CONSUMER_ACTOR_DATA_ONLY', positive_candidate=candidate,
+                actor_exit=row.get('exit'), container=container)
+
+
+def retained_public_projection(view, files, binding, map_sha256):
+    """Require a closed finite DATA projection, preserving every reader-required leaf."""
+    name = 'public-projection.json'
+    need(name in files and files[name]['kind'] == 'file', 'source-owned finite projection receipt required')
+    value = view.load(name)
+    producers = {
+        'native/python_backend.py': 'ef300afa53a9480dd2605ee58d0bd18df6569acb6483d55494c6b9c696a96a31',
+        'scripts/workflows/python_development.py': '3587267a38e77e9ca93301accf7fe0c6d73f5664320ee11635b0c17734e3004b',
+        'scripts/workflows/python_extension.py': 'cdb46ca82ec8d45923361cb190cf2cc426b1bf3587eb4c9fd4cef76d91dd5b36',
+        'scripts/workflows/developer_build_systems.py': '8c5025f3d748fb2e5aebb304310852158ebaac0bcaf9ef44cad8676ed5963fbc',
+        'scripts/workflows/developer_workflow.py': '531c124cde3fa41d46888acfc638c823196bb2f297b19ab68ab3d001b05f16ba',
+        'native/uv-inputs.json': 'b61aaff24cc354fc5946af07afc7a088587d52987081ea993e847270cfda94d3'}
+    host = {'receipt.json', 'cleanup.json', 'source-proof.json', 'consumer-inspect.json', 'consumer-after.json',
+            'consumer-diagnostic.json', 'image-ledger.json', 'image-retirement.json', 'bootstrap-failure-retention.json', 'provision-diagnostic.json'}
+    bootstrap = {phase + '-' + leaf for phase in ('bootstrap', 'overlay') for leaf in
+                 ('packages.lock', 'signatures.json', 'bootstrap.json', 'cache-checksums.json', 'Dockerfile', 'runner.json')}
+    bootstrap |= {'bootstrap-acquisition.json', 'bootstrap-key-import.log', 'bootstrap-bootstrap.log'}
+    reports = {'python': {'result.json', 'project.json', 'commands.json'},
+               'extension': {'result.json', 'project.json', 'commands.json'},
+               'build-systems': {'result.json', 'project-cmake.json', 'project-meson.json', 'installed-cmake.json', 'installed-meson.json', 'commands.json'}}
+    private = {'python': {'home', 'tmp', 'project', 'venv', 'cache', 'dist', 'snapshots'},
+               'extension': {'home', 'tmp', 'extension-project', 'snapshots'},
+               'build-systems': {'home', 'tmp', 'cmake-project', 'meson-project', 'sources'}}
+    site = 'lib/python3.14/site-packages/'; dist = 'uv_build-0.11.28.dist-info/'
+    backend = {'bin/uv-build'} | {site + 'uv_build/' + leaf for leaf in ('__init__.py', '__main__.py', 'py.typed')}
+    backend |= {site + dist + leaf for leaf in ('METADATA', 'WHEEL', 'RECORD', 'INSTALLER', 'REQUESTED', 'direct_url.json',
+                'uv_cache.json', 'licenses/LICENSE-APACHE', 'licenses/LICENSE-MIT', 'sboms/uv-build.cyclonedx.json')}
+    log_pattern = r'[0-9]{3}-[A-Za-z0-9][A-Za-z0-9_+.-]{0,127}\.log'
+    private_marker = re.compile(br'-----BEGIN[^\r\n]{0,100}PRIVATE KEY|BEGIN PGP PRIVATE|ssh-(?:rsa|ed25519)|ecdsa-sha2-|(?:gh[pousr]_|github_pat_)[A-Za-z0-9_]+|authorization\s*:\s*(?:bearer|token)|(?:access[_-]?token|password|secret)\s*[=:]|CACHY_(?:OLD_FOUR|RETAINED_BUBBLEWRAP)|PRIVATE_KEY|(?:_TOKEN|_SECRET|_PASSWORD)\b', re.I)
+    need(type(value) is dict and type(value.get('schema')) is int and value['schema'] == 1
+         and value.get('status') == 'PASS_FINITE_SOURCE_PUBLIC_DATA_PROJECTION'
+         and value.get('binding') == binding and value.get('source_map_sha256') == map_sha256
+         and value.get('source_producers') == producers
+         and value.get('omitted_private_scopes') == sorted('journey/' + feature + '/' + part for feature, parts in private.items() for part in parts)
+         and value.get('original_output_unchanged') is True and value.get('omitted_private_trees_walked') is False
+         and value.get('privacy') == 'Selected text/JSON/log ASCII private-key,SSH,token,secret-env marker refusal; exact source-pinned backend executable exempt from text scanning'
+         and value.get('scope') == 'Fixed reports, raw referenced command logs and exact backend files only; raw snapshots and remaining private project/build/home/tmp/venv/cache trees not retained',
+         'same-source exact finite projection and explicit omission scope required')
+    need(pin(view.read(name)) == {key: files[name][key] for key in ('bytes', 'sha256')}, 'projection receipt actual bytes differ')
+    selected = value.get('selected')
+    need(type(selected) is dict and 0 < len(selected) <= 2998 and set(files) == set(selected) | {name}
+         and ('receipt.json' in selected) != ('provision-diagnostic.json' in selected),
+         'closed finite projection leaf set and sole authority required')
+    for target, row in selected.items():
+        parts = target.split('/'); allowed = target in host or target == 'journey/result.json'
+        if len(parts) == 2:
+            allowed |= (parts[0] == 'actor-logs' and re.fullmatch(r'[0-9]{4}\.log', parts[1]) is not None
+                        or parts[0] == 'provision-logs' and re.fullmatch(r'(?:proof\.json|input-transport-owner\.json|input-cache-owner\.json)-[0-9]{3}\.log', parts[1]) is not None
+                        or parts[0] == 'bootstrap-proof' and parts[1] in bootstrap)
+        if len(parts) == 3 and parts[0] == 'journey' and parts[1] in reports:
+            allowed |= parts[2] in reports[parts[1]] or re.fullmatch(log_pattern, parts[2]) is not None
+        if target.startswith('journey/python/venv/'):
+            allowed |= target.removeprefix('journey/python/venv/') in backend
+        need(allowed and type(row) is dict and set(row) == {'kind', 'mode', 'source_mode', 'bytes', 'sha256'}
+             and row['kind'] == 'file' and type(row['mode']) is int and row['mode'] == 0o600
+             and type(row['source_mode']) is int and 0 <= row['source_mode'] <= 0o777
+             and type(row['bytes']) is int and 0 <= row['bytes'] <= 16*1024**2
+             and re.fullmatch('[0-9a-f]{64}', row['sha256'] or ''), 'finite ordinary projected evidence leaf required')
+        need(files[target] == {key: row[key] for key in ('kind', 'mode', 'bytes', 'sha256')}
+             and pin(view.read(target)) == {key: row[key] for key in ('bytes', 'sha256')},
+             'projection selected pin and modes must match manifest and actual DATA')
+        if target == 'journey/python/venv/bin/uv-build':
+            need(pin(view.read(target)) == dict(bytes=3310128, sha256='82cf8b50be166cf5aab7eddddd0c27535b59cf9b34c4abc9443acacb1256f10c'),
+                 'only exact source-pinned backend executable may bypass text scanning')
+        else:
+            need(not private_marker.search(view.read(target)), 'private marker in projected public DATA refused')
+    guest = view.load('journey/result.json') if 'journey/result.json' in selected else None
+    for feature in reports:
+        prefix = 'journey/' + feature + '/'; report_name = prefix + 'result.json'
+        actual_logs = {target for target in selected if target.startswith(prefix) and re.fullmatch(log_pattern, target[len(prefix):])}
+        if report_name not in selected:
+            need(not actual_logs, 'projected feature logs require original feature result')
+            continue
+        report = view.load(report_name); commands = report.get('commands', [])
+        need(type(commands) is list and len(commands) <= 1000, 'finite projected original feature command list required')
+        wanted = set()
+        for command in commands:
+            leaf = command.get('log')
+            need(type(leaf) is str and re.fullmatch(log_pattern, leaf) and prefix + leaf not in wanted,
+                 'finite unique projected feature log names required')
+            target = prefix + leaf; wanted.add(target)
+            need(target in selected and {key: selected[target][key] for key in ('bytes', 'sha256')} == command.get('log_pin'),
+                 'all original feature raw command logs must be projected')
+        need(actual_logs == wanted, 'closed original feature log projection required')
+        command_file = prefix + 'commands.json'
+        need(not commands or command_file in selected, 'actual feature command list receipt must be projected')
+        if command_file in selected:
+            need(view.load(command_file) == commands, 'projected standalone and feature command lists differ')
+        if type(guest) is dict and guest.get('status') == 'PASS_NATIVE_DEVELOPER_COMPONENTS_ONLY':
+            need(guest.get('build_systems' if feature == 'build-systems' else feature) == report,
+                 'positive guest and separately retained feature results differ')
+        if feature == 'python':
+            installed = report.get('installed_backend', {}).get('files', {})
+            need(type(installed) is dict and len(installed) <= len(backend), 'finite projected installed backend map required')
+            wanted_backend = set()
+            for path, expected_file in installed.items():
+                need(type(path) is str and path.startswith('/out/journey/python/venv/')
+                     and path.removeprefix('/out/journey/python/venv/') in backend, 'source wheel layout backend leaf required')
+                target = path.removeprefix('/out/'); wanted_backend.add(target)
+                need(target in selected and {key: selected[target][key] for key in ('bytes', 'sha256')} == expected_file,
+                     'every original installed backend file must be projected')
+            need({target for target in selected if target.startswith('journey/python/venv/')} == wanted_backend,
+                 'exact installed backend evidence projection required')
+    return dict(status='VALIDATED_FINITE_PUBLIC_DATA_PROJECTION_ONLY', selected=len(selected))
+
+
+
 def validate(capsule_path, expected):
     need(type(expected) is dict and set(expected) == {'source', 'ref', 'run', 'map_sha256'}
          and re.fullmatch('[0-9a-f]{40}', expected.get('source') or '')
@@ -306,6 +489,7 @@ def validate(capsule_path, expected):
          and re.fullmatch('[0-9a-f]{64}', row.get('sha256') or '') for row in files.values()), 'typed artifact pins')
     need(0 < len(files) <= 3000 and sum(row['bytes'] for row in files.values()) <= 32*1024**2, 'bounded artifact namespace')
     view.verify_manifest(manifest)
+    retained_public_projection(view, files, binding, expected['map_sha256'])
     if 'provision-diagnostic.json' in files:
         diagnostic = view.load('provision-diagnostic.json')
         need(diagnostic['binding'] == binding and diagnostic['source_map_sha256'] == expected['map_sha256']
@@ -313,6 +497,19 @@ def validate(capsule_path, expected):
              and diagnostic['native'] == diagnostic['GPG'] == diagnostic['ALPM'] == 'NOT_RUN', 'actual DATA diagnostic only')
         return dict(status='VALIDATED_INPUT_PROVISIONING_DIAGNOSTIC_NOT_NATIVE', binding=binding, native='NOT_RUN', physical_M2='NOT_RUN')
     receipt = view.load('receipt.json'); cleanup = view.load('cleanup.json')
+    need(receipt.get('binding') == binding and receipt.get('source_map_sha256') == expected['map_sha256']
+         and type(receipt.get('status')) is str and type(cleanup.get('status')) is str,
+         'same-source owner and explicit cleanup outcome required')
+    consumer_diagnostic = retained_consumer_diagnostic(view, files, receipt, binding, expected['map_sha256'])
+    failed = (receipt['status'] != 'PASS_NATIVE_DEVELOPER_COMPONENTS_ONLY'
+              or cleanup['status'] != 'PASS_EXACT_OWNED_RESOURCES_RETIRED')
+    need(failed or consumer_diagnostic['status'] != 'ABSENT_CONSUMER_DIAGNOSTIC_DATA_ONLY',
+         'successful owner cannot omit original consumer diagnostic')
+    if failed or not consumer_diagnostic['positive_candidate']:
+        return dict(status='VALIDATED_NATIVE_FAILURE_DATA_ONLY', binding=binding,
+                    owner_status=receipt['status'], cleanup_status=cleanup['status'],
+                    consumer_diagnostic=consumer_diagnostic, native='NOT_ADMITTED', physical_M2='NOT_RUN')
+    retained_consumer_diagnostic(view, files, receipt, binding, expected['map_sha256'], positive=True)
     retained_failure_data(view, files, receipt.get('bootstrap_failure_data'), binding, expected['map_sha256'])
     retained_image_lifecycle(view, files, receipt, cleanup, binding, expected['map_sha256'])
     need(receipt['binding'] == binding and receipt['source_map_sha256'] == expected['map_sha256']

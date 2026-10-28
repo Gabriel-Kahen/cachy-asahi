@@ -154,3 +154,25 @@ without force or image-ID removal. Unknown/foreign/preexisting state is held.
 All retirement rows remain captured on errors; independent final daemon queries
 are required for PASS. Ledger and retirement DATA are retained standalone and
 in the existing receipts. These source/model checks do not prove a native run.
+
+## Original consumer diagnostics and finite public projection
+
+The start-attached consumer actor now emits a source/run/map-bound DATA receipt
+before cleanup and capsule packing, on success or failure. It retains the exact
+indexed actor exit/retirement fields, original whole-log pin, and at most64KiB of
+original UTF-8 suffix bytes with an explicit offset and completeness flag. The
+whole log must satisfy the private-marker/text guard before any window is emitted.
+A refused log is also blocked from generic mirroring. The guest records bounded
+phase/type/message failure DATA and re-raises the original error.
+
+The owner projects finite public reports, original command logs and pinned backend
+files into a fresh sibling directory. It does not traverse disposable guest home,
+temporary, project, build or general virtual-environment trees. The original output
+is preserved. The capsule format, strict private-path guard and32MiB/16MiB limits
+remain. Packing refusals emit bounded member/path/phase context before raising;
+no rejected payload or key material is printed. A passive failure DATA result does
+not pass the native component or cleanup gates.
+
+The genuine182 run reached the consumer start but did not export its inner error.
+Its separate private-path pack refusal did not print the offending path. These
+causes remain UNKNOWN; source-backed fixtures show retention behavior only.
