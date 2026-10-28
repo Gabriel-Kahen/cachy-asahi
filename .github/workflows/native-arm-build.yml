@@ -1,4 +1,4 @@
-name: native-arm-apps607-engine-diagnostic
+name: native-arm-apps607-alpm-load-diagnostic
 on:
   workflow_dispatch:
     inputs:

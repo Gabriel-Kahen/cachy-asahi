@@ -1,8 +1,38 @@
 {
   "Root_acceptance": null,
   "actual": null,
-  "actual_parent": "5b8ab35236a2a236073838f37bd90a80d740f9b7",
+  "actual_parent": "bf2b243e1d23c465af4f591111f2c4afc057d202",
   "actual_run_id": null,
+  "alpm_load_diagnostic": {
+    "acceptance": false,
+    "capture_archive_cap": 268435456,
+    "capture_signature_cap": 1048576,
+    "clocks": "UNCHANGED",
+    "engine_entrypoint": {
+      "bytes": 11320,
+      "sha256": "b6c072e14bc1a8662c2d0a1ec76004bcf4947f483e2a7fd9ea0a4b74a596f5dd"
+    },
+    "engine_six_seams": "UNCHANGED",
+    "entrypoint": {
+      "bytes": 10304,
+      "sha256": "24e6bf1f676bc423b66fd8a4812432d37a31ba6cb9d31eb6e20245277db3a307"
+    },
+    "errno_order": "IMMEDIATELY_AFTER_NONZERO_BEFORE_OTHER_ALPM_CALL_OR_TRANSLATION",
+    "exact_original_instance_return_exception": "HELD",
+    "extra_actors": false,
+    "map": "CURRENT_SIGNED607_MANIFEST",
+    "max_report_bytes": 32768,
+    "only_actor": "install",
+    "option_getters": "UNOBSERVED_NO_BOUND_GETTERS",
+    "owner_entrypoint": {
+      "bytes": 7371,
+      "sha256": "06b8d4672a0e31c5209bc4736f679f766236e0aa856443382a1d2990c766dfb8"
+    },
+    "provider_and_signature_predicates": "UNCHANGED",
+    "raw_package_signature_keyring_bodies": "NOT_EXPORTED",
+    "standalone_join": "EXACT_OBSERVED_ROLE_AND_SOURCE_LOOP_ORDER",
+    "status": "SOURCE_BOUND_ORIGINAL_SIGNED_LOAD_FAILURE_DATA"
+  },
   "attempt": null,
   "budgets": {
     "caller_seconds": 610,
@@ -22,8 +52,8 @@
     "clocks": "UNCHANGED",
     "closed_selected_source_files": 245,
     "entrypoint": {
-      "bytes": 6949,
-      "sha256": "93d0d77fdd26dbe7948d4769cc4169dd2cf990db6f7bc8ced2a4c76fc96587a0"
+      "bytes": 7371,
+      "sha256": "06b8d4672a0e31c5209bc4736f679f766236e0aa856443382a1d2990c766dfb8"
     },
     "filesystem_fallback": false,
     "independent_capsule_pin": "CAPSULE_SHA256_PRESERVED_IN_CLEAN_PARENT_AND_CHILD_ENV",
@@ -131,8 +161,8 @@
     "acceptance": false,
     "engine_and_native_inverse": "UNCHANGED_ORIGINAL_SIX_SEAMS",
     "entrypoint": {
-      "bytes": 10421,
-      "sha256": "b05e0080ef8003dba3fdffc51b733b0ae74a6a7076397cb5db7fbd4e57fc104f"
+      "bytes": 11320,
+      "sha256": "b6c072e14bc1a8662c2d0a1ec76004bcf4947f483e2a7fd9ea0a4b74a596f5dd"
     },
     "fixed_files": [
       "result.json",
@@ -150,8 +180,8 @@
       "sha256": "c5bb6332b8a874380f75df683e2746cfabf07a20a1d897af93065e0b9241fb04"
     },
     "owner_entrypoint": {
-      "bytes": 6949,
-      "sha256": "93d0d77fdd26dbe7948d4769cc4169dd2cf990db6f7bc8ced2a4c76fc96587a0"
+      "bytes": 7371,
+      "sha256": "06b8d4672a0e31c5209bc4736f679f766236e0aa856443382a1d2990c766dfb8"
     },
     "phase_stream": "SAME_ORIGINAL_COMPLETEDPROCESS_STDOUT_STDERR_STDOUT_COMBINED",
     "predicate": "code==0 and result.status==PROVISIONAL_FULL_COMPOSITION_INSTALLER and result.committed is True and result.package_count==607",
@@ -534,7 +564,7 @@
     "unallocated_job_minutes": 34
   },
   "workflow_input_contract": {
-    "bytes": 18370,
-    "sha256": "4dae1baeae0800d4f9d3a3a87c07cef92b5e7e321e82f9d1df067a5bc897f198"
+    "bytes": 20201,
+    "sha256": "b2feb0483270bb6e40b13e543c89cb6ceb5e3faf26fa4f0105a4db6511c419aa"
   }
 }
