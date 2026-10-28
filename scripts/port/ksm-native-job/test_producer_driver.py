@@ -9,6 +9,7 @@ import json
 import os
 from pathlib import Path
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -33,19 +34,29 @@ class _TestOnlyEntry(Exception):
 class _TestOnlyFacade:
     def __init__(self, module, original, calls, action=None):
         self.module,self.original,self.calls,self.action=module,original,calls,action
+        self.primary=None; self.refusals=[]
     def run(self,*args,**kwargs):
-        previous=sys.getprofile(); result=['reply']
+        previous=sys.getprofile(); previous_trace=sys.gettrace(); result=['reply']
+        self.primary=None; self.refusals=[]
+        def trace(frame,event,arg):
+            if event=='exception' and frame.f_globals is driver.__dict__ and type(arg[1]) is ValueError:
+                self.refusals.append(arg[1].args)
+            return trace
         def profile(frame,event,arg):
             if event=='call' and frame.f_code is self.original.__code__ and frame.f_globals is self.original.__globals__:
                 values=frame.f_locals
                 self.calls.append((values['command'],values['log'],values['timeout']))
                 if self.action is not None: result[0]=self.action(*self.calls[-1])
-                raise _TestOnlyEntry()
-        sys.setprofile(profile)
+                self.primary=_TestOnlyEntry()
+                raise self.primary
+        sys.setprofile(profile); sys.settrace(trace)
         try:
             try: return self.module.run(*args,**kwargs)
-            except _TestOnlyEntry: return result[0]
-        finally: sys.setprofile(previous)
+            except _TestOnlyEntry as error:
+                if error is not self.primary: raise
+                return result[0]
+        finally:
+            sys.settrace(previous_trace); sys.setprofile(previous)
 
 
 class DriverTests(unittest.TestCase):
@@ -199,9 +210,30 @@ class DriverTests(unittest.TestCase):
         facade,calls=self.wrapped(poison); self.subject=facade.module
         # This context intentionally fails at entry and again at exit; close it here.
         cleanup=self._cleanups.pop(); close,args,kwargs=cleanup
-        with self.assertRaises(ValueError): facade.run(COMMAND,timeout=60)
-        with self.assertRaises(ValueError): close(*args,**kwargs)
+        # The inert entry exception is the primary: held policy preserves it
+        # over a later custody refusal. Always close the graph, even if a test
+        # assertion fails, so quarantine cannot leak into the next import.
+        try:
+            self.assertEqual(facade.run(COMMAND,timeout=60),'late unreviewed result')
+            self.assertIsInstance(facade.primary,_TestOnlyEntry)
+            self.assertIn(('producer-code-custody',),facade.refusals)
+        finally:
+            with self.assertRaisesRegex(ValueError,'producer-code-custody'): close(*args,**kwargs)
         self.assertEqual(len(calls),1); self.assertNotIn(id(self.subject),driver._GRAPHS)
+
+    def test_late_fixture_assertion_failure_restores_caller_and_next_import(self):
+        before=self.state(); profile=sys.getprofile(); trace=sys.gettrace()
+        handlers={s:signal.getsignal(s) for s in (signal.SIGINT,signal.SIGTERM)}
+        mask=signal.pthread_sigmask(signal.SIG_BLOCK,set())
+        with self.assertRaisesRegex(AssertionError,'^injected fixture assertion$'):
+            with patch.object(self,'assertEqual',side_effect=AssertionError('injected fixture assertion')):
+                self.test_late_test_only_entry_poison_never_delegates_or_leaks()
+        self.assertEqual(self.state(),before)
+        self.assertIs(sys.getprofile(),profile); self.assertIs(sys.gettrace(),trace)
+        self.assertEqual({s:signal.getsignal(s) for s in handlers},handlers)
+        self.assertEqual(signal.pthread_sigmask(signal.SIG_BLOCK,set()),mask)
+        self.assertFalse(driver._GRAPHS); self.assertFalse(driver._GUARDS)
+        self.test_machinery_export_replacements_do_not_rebuild_trusted_hook()
 
     def test_role_expiry_still_restores_graph_and_caller_state(self):
         before=self.state(); end=self.end
@@ -328,7 +360,7 @@ print('trusted builtin identity, custom handlers, nonempty mask, real runtime de
 
     def test_source_mutation_restores_state_even_body_failure(self):
         p=self.root/'scripts/ci/native_arm.py'; before=self.state()
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(RuntimeError,'^body refused$'):
             with self.graph():
                 p.write_bytes(p.read_bytes()+b'\n# changed\n'); raise RuntimeError('body refused')
         self.assertEqual(self.state(),before)
@@ -344,7 +376,14 @@ print('trusted builtin identity, custom handlers, nonempty mask, real runtime de
         with self.graph() as (native,_):
             importer=native.__dict__['__builtins__']['__import__']
             for name,level in [('foreign_project',0),('integration',0),('package_checks',1)]:
-                with self.subTest(name=name,level=level),self.assertRaises(ValueError): importer(name,native.__dict__,fromlist=('recipe',),level=level)
+                expected=ValueError if level else ModuleNotFoundError
+                with self.subTest(name=name,level=level),self.assertRaises(expected) as caught:
+                    importer(name,native.__dict__,fromlist=('recipe',),level=level)
+                if not level:
+                    self.assertIs(type(caught.exception),ModuleNotFoundError)
+                    self.assertEqual(caught.exception.name,name)
+                    self.assertEqual(driver.refusal_record(caught.exception,'GRAPH_LOAD'),
+                        dict(schema_version=1,last_source_gate='GRAPH_LOAD',predicate='producer-unbound-import',rejected_import_root=name))
 
     def test_expired_graph_refuses_without_loading(self):
         self.end=time.monotonic()-1
@@ -416,7 +455,9 @@ print('trusted builtin identity, custom handlers, nonempty mask, real runtime de
     def test_image_post_forward_drift_refuses(self):
         def mutate(*args): (self.output/'image-id').write_text(IMAGE+' \n'); return 'late'
         module,_=self.wrapped(mutate)
-        with self.assertRaises(ValueError): module.run(COMMAND,timeout=60)
+        self.assertEqual(module.run(COMMAND,timeout=60),'late')
+        self.assertIsInstance(module.primary,_TestOnlyEntry)
+        self.assertIn(('producer-image-drift',),module.refusals)
 
     def test_private_parent_identity_drift_refuses_before_forward(self):
         module,calls=self.wrapped(); old=self.base/'old'; self.private.rename(old); self.private.mkdir(mode=0o700)
@@ -436,7 +477,9 @@ print('trusted builtin identity, custom handlers, nonempty mask, real runtime de
             return 'late'
         module,_=self.wrapped(late); old=driver.time
         try:
-            with self.assertRaises(ValueError): module.run(COMMAND,timeout=60)
+            self.assertEqual(module.run(COMMAND,timeout=60),'late')
+            self.assertIsInstance(module.primary,_TestOnlyEntry)
+            self.assertIn(('producer-deadline',),module.refusals)
         finally: driver.time=old
 
     def test_wrapper_refuses_forged_or_expired_module_identity_grants(self):
@@ -515,17 +558,22 @@ print('trusted builtin identity, custom handlers, nonempty mask, real runtime de
 
 
 class RefusalLeafTests(unittest.TestCase):
-    def issued(self, reason='producer-source-pin'):
-        try: driver.need(False,reason)
-        except ValueError as error: return error
+    def issued(self, reason='producer-source-pin', *, import_root=None):
+        try: driver.need(False,reason,import_root=import_root)
+        except (ValueError,ModuleNotFoundError) as error: return error
         self.fail('original refusal absent')
 
     def test_all_source_issued_tags_preserve_original_builtin_message(self):
         for reason in driver.REFUSAL_PREDICATES:
-            error=self.issued(reason)
-            self.assertIs(type(error),ValueError); self.assertEqual(error.args,(reason,))
-            self.assertEqual(driver.refusal_record(error,'GRAPH_LOAD'),
-                {'schema_version':1,'last_source_gate':'GRAPH_LOAD','predicate':reason})
+            unbound=reason=='producer-unbound-import'
+            error=self.issued(reason,import_root='foreign_project' if unbound else None)
+            self.assertIs(type(error),ModuleNotFoundError if unbound else ValueError)
+            self.assertEqual(error.args,(reason,))
+            expected={'schema_version':1,'last_source_gate':'GRAPH_LOAD','predicate':reason}
+            if unbound:
+                self.assertEqual(error.name,'foreign_project')
+                expected['rejected_import_root']='foreign_project'
+            self.assertEqual(driver.refusal_record(error,'GRAPH_LOAD'),expected)
         error=self.issued('foreign not in enum')
         self.assertEqual(error.args,('foreign not in enum',))
         self.assertEqual(driver.refusal_record(error,'GRAPH_LOAD')['predicate'],'UNKNOWN')
@@ -595,6 +643,500 @@ class RefusalLeafTests(unittest.TestCase):
                 output.write.side_effect=control
                 with self.assertRaises(type(control)) as caught: driver.main(self.args())
             self.assertIs(caught.exception,control)
+
+
+class FirstCausePreservationTests(unittest.TestCase):
+    """Exact public definitions over inert namespaces; no producer/provider actors."""
+    DRIVER_PATH = HERE/'producer_driver.py'
+    IMAGE = 'sha256:'+'1'*64
+
+    def definitions(self, *names):
+        tree=ast.parse(self.DRIVER_PATH.read_bytes())
+        nodes=[n for n in tree.body if isinstance(n,(ast.FunctionDef,ast.ClassDef)) and n.name in names]
+        for node in nodes:
+            if isinstance(node,ast.FunctionDef):node.decorator_list=[]
+        namespace={'__builtins__':builtins.__dict__,'LANGUAGE':types.MappingProxyType(vars(builtins).copy())}
+        exec(compile(ast.Module(body=nodes,type_ignores=[]),str(self.DRIVER_PATH),'exec',dont_inherit=True),namespace)
+        # Compatibility harness for the six existing policy tests only. This
+        # function is never installed in product Source. Its handler/policy are
+        # selected from the actual inline Forwarder finalizer, not reimplemented.
+        if '_finish' in names:
+            forward=next((n for n in tree.body if isinstance(n,ast.ClassDef) and n.name=='_Forwarder'),None)
+            call=next(n for n in forward.body if isinstance(n,ast.FunctionDef) and n.name=='__call__')
+            policy=next((n for n in call.body if isinstance(n,ast.Assign) and isinstance(n.targets[0],ast.Name) and n.targets[0].id=='_first_cause_policy'),None)
+            if policy is not None:
+                handler=next(n for n in ast.walk(call) if isinstance(n,ast.ExceptHandler) and isinstance(n.name,str) and n.name.startswith('_secondary_'))
+                class Flag(ast.NodeTransformer):
+                    def visit_Name(self,node):
+                        if node.id.startswith('_preserve_'):node.id='failed'
+                        return node
+                handler=Flag().visit(handler)
+                harness=ast.parse('def _finish(finalize,failed):\n pass').body[0]
+                action=ast.parse('try:\n finalize()\nexcept Exception:\n raise').body[0];action.handlers=[handler]
+                harness.body=[policy,action];ast.fix_missing_locations(harness)
+                exec(compile(ast.Module(body=[harness],type_ignores=[]),'<test-only-inline-policy-harness>','exec',dont_inherit=True),namespace)
+        return namespace
+
+    def raised(self, action):
+        try:action()
+        except BaseException as error:return error
+        self.fail('expected refusal')
+
+    def test_finish_preserves_primary_identity_and_traceback(self):
+        ns=self.definitions('_finish');primary=TypeError('primary');secondary=ValueError('secondary')
+        calls=[];first=[]
+        def finish():calls.append('finish');raise secondary
+        def call():
+            try:
+                try:raise primary
+                except BaseException:
+                    first.append(primary.__traceback__);raise
+            finally:ns['_finish'](finish,True)
+        error=self.raised(call)
+        self.assertIs(error,primary);self.assertEqual(calls,['finish'])
+        self.assertIs(error.__traceback__.tb_next,first[0])
+        self.assertIsNone(error.__cause__);self.assertIsNone(error.__context__)
+
+    def test_finish_sole_failure_refuses_and_success_runs_once(self):
+        ns=self.definitions('_finish');calls=[];error=ValueError('sole')
+        self.assertIs(self.raised(lambda:ns['_finish'](lambda:(_ for _ in ()).throw(error),False)),error)
+        for failed in (False,True):ns['_finish'](lambda:calls.append(failed),failed)
+        self.assertEqual(calls,[False,True])
+
+    def test_finish_known_builtin_secondary_errors(self):
+        ns=self.definitions('_finish')
+        for kind in (ValueError,TypeError,AttributeError,KeyError,IndexError,RuntimeError,OSError,
+                     FileNotFoundError,PermissionError,NotADirectoryError,IsADirectoryError,
+                     UnicodeError,ImportError,ModuleNotFoundError):
+            with self.subTest(kind=kind.__name__):
+                primary=TypeError('primary')
+                def call():
+                    try:raise primary
+                    finally:ns['_finish'](lambda:(_ for _ in ()).throw(kind('secondary')),True)
+                self.assertIs(self.raised(call),primary)
+
+    def test_finish_cancellation_both_priorities(self):
+        ns=self.definitions('_finish')
+        class Cancelled(BaseException):pass
+        class BrokerCancelled(ValueError):pass
+        for primary,secondary,expected in ((Cancelled(),ValueError(),0),(KeyboardInterrupt(),TypeError(),0),
+                (SystemExit(2),ValueError(),0),(TypeError(),Cancelled(),1),
+                (ValueError(),KeyboardInterrupt(),1),(ValueError(),BrokerCancelled(),1)):
+            with self.subTest(primary=type(primary),secondary=type(secondary)):
+                def call():
+                    try:raise primary
+                    finally:ns['_finish'](lambda:(_ for _ in ()).throw(secondary),True)
+                self.assertIs(self.raised(call),(primary,secondary)[expected])
+
+    def test_finish_no_hostile_exception_attribute_hooks(self):
+        ns=self.definitions('_finish');hooks=[]
+        class Hostile(BaseException):
+            def __getattribute__(self,name):hooks.append(('get',name));raise AssertionError('hook')
+            def __setattr__(self,name,value):hooks.append(('set',name));raise AssertionError('hook')
+        primary=Hostile()
+        def call():
+            try:raise primary
+            finally:ns['_finish'](lambda:(_ for _ in ()).throw(ValueError()),True)
+        self.assertIs(self.raised(call),primary);self.assertEqual(hooks,[])
+        class Secondary(ValueError):
+            def __getattribute__(self,name):hooks.append(('secondary',name));raise AssertionError('hook')
+        secondary=Secondary()
+        self.assertIs(self.raised(lambda:ns['_finish'](lambda:(_ for _ in ()).throw(secondary),True)),secondary)
+        self.assertEqual(hooks,[])
+
+    def forward(self, inventory=False, primary=None, secondary=None, fail='postguard', pre=False):
+        ns=self.definitions('_finish','_Forwarder');events=[]
+        guard_calls=[0];reads=[0];native=object()
+        state=types.SimpleNamespace(cancelled=False,ownership_uncertain=True,cleanup='FAIL',first_failure=primary)
+        def guard():
+            guard_calls[0]+=1;events.append('guard')
+            if (pre and guard_calls[0]==1 or not pre and guard_calls[0]==2) and fail=='postguard' and secondary is not None:raise secondary
+        def original(*args):
+            events.append('original')
+            if primary is not None:raise primary
+            return 'reply'
+        def read(*args):
+            reads[0]+=1;events.append('read')
+            if reads[0]==2 and fail=='readback' and secondary is not None:raise secondary
+            return (self.IMAGE.encode(),(1,))
+        class Output:
+            parent='parent'
+            def __truediv__(self,other):return 'image-id'
+            def lstat(self):return types.SimpleNamespace(st_mode=0o40700,st_uid=7)
+        custody=types.SimpleNamespace(native=native,original=original,guard=guard,verify=lambda:events.append('verify'))
+        wrapper=object.__new__(ns['_Forwarder'])
+        for key,value in zip(wrapper.__slots__,(native,original,guard,Output(),200,'parent-id')):object.__setattr__(wrapper,key,value)
+        custody.wrapper=wrapper
+        def need(ok,reason):
+            if not ok:raise ValueError(reason)
+        ns.update(_GRAPHS={id(native):(None,None,None,None,custody)},need=need,alive=lambda end:events.append('alive'),
+            re=__import__('re'),stat=__import__('stat'),os=types.SimpleNamespace(geteuid=lambda:7),read=read,
+            directory=lambda path:'parent-id',CAP=180,time=types.SimpleNamespace(monotonic=lambda:100))
+        command=['docker','run','--rm','--pull=never','--network=none','--cap-drop=ALL','--security-opt=no-new-privileges',
+                 '--read-only','--entrypoint=/bin/cat',self.IMAGE,'/builder-packages.lock'] if inventory else ['inert']
+        def call():return wrapper(command,timeout=60 if inventory else 1800)
+        return call,events,state
+
+    def test_forward_success_action_order(self):
+        for inventory in (False,True):
+            call,events,state=self.forward(inventory)
+            self.assertEqual(call(),'reply')
+            self.assertEqual(events,['verify','guard','alive']+(['read'] if inventory else [])+['original']+(['read'] if inventory else [])+['guard'])
+            self.assertEqual((state.cleanup,state.ownership_uncertain,state.cancelled),('FAIL',True,False))
+
+    def test_forward_primary_only_and_dual_finalizers(self):
+        for inventory,fail in ((False,'postguard'),(True,'postguard'),(True,'readback')):
+            for dual in (False,True):
+                primary=TypeError('primary');secondary=ValueError('secondary') if dual else None
+                call,events,state=self.forward(inventory,primary,secondary,fail)
+                self.assertIs(self.raised(call),primary);self.assertEqual(events.count('original'),1)
+                self.assertIs(state.first_failure,primary);self.assertEqual(state.cleanup,'FAIL');self.assertTrue(state.ownership_uncertain)
+
+    def test_forward_sole_finalizer_failure_and_precheck_refuse(self):
+        for inventory,fail in ((False,'postguard'),(True,'postguard'),(True,'readback')):
+            secondary=ValueError('secondary');call,events,_=self.forward(inventory,secondary=secondary,fail=fail)
+            self.assertIs(self.raised(call),secondary)
+        secondary=ValueError('pre');call,events,_=self.forward(secondary=secondary,pre=True)
+        self.assertIs(self.raised(call),secondary);self.assertNotIn('original',events)
+
+    def test_forward_cancellation_is_not_swallowed(self):
+        class Cancelled(BaseException):pass
+        class BrokerCancelled(ValueError):pass
+        for primary,secondary,expected in ((Cancelled(),ValueError(),0),(TypeError(),Cancelled(),1),(TypeError(),BrokerCancelled(),1)):
+            call,events,_=self.forward(primary=primary,secondary=secondary)
+            self.assertIs(self.raised(call),(primary,secondary)[expected]);self.assertEqual(events.count('original'),1)
+
+    def quarantine(self, primary=None, secondary=None, post_alive=None):
+        ns=self.definitions('_finish','quarantine');events=[]
+        class Modules(dict):
+            def clear(self):
+                events.append('restore-modules')
+                if secondary is not None:raise secondary
+                super().clear()
+        fake_sys=types.SimpleNamespace(modules=Modules(held=object()),path=['old-path'],meta_path=['old-meta'],
+            path_hooks=['old-hooks'],path_importer_cache={'old':'cache'})
+        fake_builtins=types.SimpleNamespace(__import__=object(),compile=object(),exec=object())
+        old_ops=vars(fake_builtins).copy();old_modules=dict(fake_sys.modules);calls=[0]
+        def alive(end):
+            calls[0]+=1;events.append('alive')
+            if calls[0]==1 and post_alive is not None:raise post_alive
+        ns.update(STANDARD='/inert',Path=Path,sys=fake_sys,builtins=fake_builtins,STDLIB=frozenset(),BOOTSTRAP={},
+            LANGUAGE=dict(vars(builtins),__import__=lambda *a:None,compile=object(),exec=object()),FINDERS=('finder',),FILE_HOOK='hook',
+            alive=alive,need=lambda ok,reason,**kw:None)
+        generator=ns['quarantine'](200);next(generator)
+        def finish():
+            if primary is not None:generator.throw(primary)
+            else:
+                try:next(generator)
+                except StopIteration:return 'done'
+        return finish,events,fake_sys,fake_builtins,old_ops,old_modules
+
+    def test_quarantine_success_restores_only_inert_state(self):
+        call,events,state,operations,old_ops,old_modules=self.quarantine()
+        self.assertEqual(call(),'done');self.assertEqual(state.modules,old_modules)
+        self.assertEqual((state.path,state.meta_path,state.path_hooks,state.path_importer_cache),(['old-path'],['old-meta'],['old-hooks'],{'old':'cache'}))
+        self.assertEqual(vars(operations),old_ops);self.assertEqual(events,['alive','restore-modules'])
+
+    def test_quarantine_primary_and_dual_restore_failure(self):
+        for secondary in (None,ValueError('secondary')):
+            primary=TypeError('primary');call,events,*_=self.quarantine(primary,secondary)
+            self.assertIs(self.raised(call),primary);self.assertEqual(events,['restore-modules'])
+
+    def test_quarantine_sole_restore_or_postyield_failure_refuses(self):
+        secondary=ValueError('restore');call,*_=self.quarantine(secondary=secondary)
+        self.assertIs(self.raised(call),secondary)
+        primary=TypeError('postyield');call,*_=self.quarantine(secondary=ValueError(),post_alive=primary)
+        self.assertIs(self.raised(call),primary)
+
+    def test_quarantine_cancellation_both_priorities(self):
+        class Cancelled(BaseException):pass
+        for primary,secondary,expected in ((Cancelled(),ValueError(),0),(TypeError(),Cancelled(),1)):
+            call,*_=self.quarantine(primary,secondary)
+            self.assertIs(self.raised(call),(primary,secondary)[expected])
+
+    def graph(self, primary=None, failures=None):
+        ns=self.definitions('_finish','load_graph');events=[];failures=failures or {};phase=['entry'];exit_reads=[0]
+        class FakePath(list):
+            def __setitem__(self,key,value):
+                events.append('path-restore')
+                if 'path' in failures:raise failures['path']
+                super().__setitem__(key,value)
+        class Grants(dict):
+            def pop(self,key,default=None):
+                events.append('pop')
+                if 'pop' in failures:raise failures['pop']
+                return super().pop(key,default)
+        class Guard:
+            def __init__(self,disk):self._disk=disk
+            def __call__(self):events.append('guard');self._disk()
+        class Custody:
+            def __init__(self,modules,guard,original,deadline):self.native=modules['native_arm'];self.guard=guard
+            def verify(self):
+                events.append('verify')
+                if 'verify' in failures:raise failures['verify']
+            def restore(self):
+                events.append('restore')
+                if 'restore' in failures:raise failures['restore']
+        @contextmanager
+        def quarantine(deadline):yield lambda *a:None,['inert-path']
+        def read(path,*args):
+            events.append('read')
+            if phase[0]=='exit':
+                exit_reads[0]+=1
+                key='outer_disk' if exit_reads[0]>2 else 'disk'
+                if key in failures:raise failures[key]
+            return b'inert',(1,)
+        def execute(code,namespace):
+            events.append('exec')
+            if 'exec' in failures:raise failures['exec']
+            namespace['run']=lambda *args:None
+        ns.update(absolute=lambda x:x,read=read,SOURCES={'package_checks':('checks.py','pin'),'native_arm':('native.py','pin')},
+            hashlib=types.SimpleNamespace(sha256=lambda raw:types.SimpleNamespace(hexdigest=lambda:'pin')),
+            need=lambda ok,reason:None,_Guard=Guard,types=types,quarantine=quarantine,
+            LANGUAGE=dict(vars(builtins),compile=lambda *a:None,exec=execute),sys=types.SimpleNamespace(path=FakePath()),
+            _Custody=Custody,_GRAPHS=Grants(),_GUARDS=Grants())
+        generator=ns['load_graph'](Path('/inert'),deadline=200)
+        def call():
+            next(generator);phase[0]='exit';events.append('yielded')
+            if primary is not None:generator.throw(primary)
+            else:
+                try:next(generator)
+                except StopIteration:return 'done'
+        return call,events,ns
+
+    def test_graph_success_order_and_grant_lifetime(self):
+        call,events,ns=self.graph();self.assertEqual(call(),'done')
+        self.assertEqual(events.count('exec'),2);self.assertEqual(events.count('path-restore'),2)
+        tail=events[events.index('yielded')+1:]
+        self.assertEqual(tail,['verify','read','read','restore','pop','pop','read','read'])
+        self.assertFalse(ns['_GRAPHS']);self.assertFalse(ns['_GUARDS'])
+
+    def test_graph_outer_disk_and_yield_finalizers_preserve_primary(self):
+        for site in ('verify','disk','restore','pop','outer_disk'):
+            primary=TypeError('primary');call,events,_=self.graph(primary,{site:ValueError('secondary')})
+            self.assertIs(self.raised(call),primary,site)
+            self.assertEqual(events.count('exec'),2)
+
+    def test_graph_nested_restore_and_pop_preserve_first_failure(self):
+        for first,second in (('verify','restore'),('restore','pop')):
+            primary=TypeError(first);call,events,_=self.graph(failures={first:primary,second:ValueError(second)})
+            self.assertIs(self.raised(call),primary)
+            self.assertIn('restore',events);self.assertIn('pop',events)
+
+    def test_graph_sole_finalizer_failure_refuses(self):
+        for site in ('verify','disk','restore','pop','outer_disk'):
+            error=ValueError(site);call,events,_=self.graph(failures={site:error})
+            self.assertIs(self.raised(call),error,site)
+
+    def test_graph_exec_path_restore_dual_and_sole_failure(self):
+        primary=TypeError('exec');call,events,_=self.graph(failures={'exec':primary,'path':ValueError('restore')})
+        self.assertIs(self.raised(call),primary);self.assertEqual(events.count('exec'),1)
+        secondary=ValueError('path');call,events,_=self.graph(failures={'path':secondary})
+        self.assertIs(self.raised(call),secondary)
+
+    def test_graph_cancellation_both_priorities(self):
+        class Cancelled(BaseException):pass
+        for primary,secondary,expected in ((Cancelled(),ValueError(),0),(TypeError(),Cancelled(),1)):
+            call,events,_=self.graph(primary,{'verify':secondary})
+            self.assertIs(self.raised(call),(primary,secondary)[expected])
+
+    def test_exact_cancellation_classes_and_sticky_signal_state(self):
+        support=getattr(self,'SUPPORT_ROOT',HERE)
+        selected={}
+        for filename,names in (('runtime.py',('Cancelled','_Cancellation','ResourceFailure')),('broker.py',('Cancelled',))):
+            tree=ast.parse((support/filename).read_bytes())
+            nodes=[n for n in tree.body if isinstance(n,ast.ClassDef) and n.name in names]
+            ns={'contextmanager':contextmanager}
+            exec(compile(ast.Module(body=nodes,type_ignores=[]),filename,'exec',dont_inherit=True),ns)
+            selected[filename]=ns
+        runtime=selected['runtime.py'];finish=self.definitions('_finish')['_finish'];state=runtime['_Cancellation']()
+        def interrupt():
+            try:state.interrupt(15)
+            finally:finish(lambda:(_ for _ in ()).throw(ValueError('secondary')),True)
+        error=self.raised(interrupt)
+        self.assertIs(type(error),runtime['Cancelled']);self.assertEqual((state.signum,state.deferrals),(15,0))
+        self.assertIs(type(self.raised(state.check)),runtime['Cancelled'])
+        for secondary in (selected['broker.py']['Cancelled'](),runtime['ResourceFailure']({'reason':'resource'})):
+            primary=TypeError('first')
+            def call():
+                try:raise primary
+                finally:finish(lambda:(_ for _ in ()).throw(secondary),True)
+            self.assertIs(self.raised(call),secondary)
+
+
+class CorrectionRegressionTests(unittest.TestCase):
+    """Exact selected scopes and synthetic callbacks; no product imports/actors."""
+    def probe(self):return FirstCausePreservationTests()
+    @staticmethod
+    def cell(function,name):return dict(zip(function.__code__.co_freevars,(cell.cell_contents for cell in function.__closure__)))[name]
+    def test_driver_has_no_helper_or_generated_finalizer_closures(self):
+        tree=ast.parse((HERE/'producer_driver.py').read_bytes())
+        self.assertFalse(any(isinstance(n,ast.Name) and n.id=='_finish' for n in ast.walk(tree)))
+        self.assertFalse(any(isinstance(n,ast.FunctionDef) and (n.name=='_finish' or n.name.startswith('_finalize_')) for n in ast.walk(tree)))
+    def test_forward_helper_rebind_and_code_mutation_cannot_skip_postguards(self):
+        for inventory in (False,True):
+            probe=self.probe();secondary=ValueError('guard');call,events,_=probe.forward(inventory,secondary=secondary)
+            wrapper=self.cell(call,'wrapper');namespace=type(wrapper).__call__.__globals__
+            old=object.__getattribute__(wrapper,'_original')
+            def former_helper(finalize,failed):finalize()
+            def no_op(*args):pass
+            namespace['_finish']=former_helper
+            def action(*args):
+                former_helper.__code__=no_op.__code__
+                namespace['_finish']=no_op
+                return old(*args)
+            object.__setattr__(wrapper,'_original',action)
+            self.assertIs(probe.raised(call),secondary);self.assertEqual(events.count('original'),1);self.assertEqual(events.count('guard'),2)
+    def test_forward_inventory_readback_remains_mandatory_after_helper_poison(self):
+        probe=self.probe();error=ValueError('readback');call,events,_=probe.forward(True,secondary=error,fail='readback')
+        wrapper=self.cell(call,'wrapper');namespace=type(wrapper).__call__.__globals__;namespace['_finish']=lambda *args:None
+        self.assertIs(probe.raised(call),error);self.assertEqual(events.count('read'),2)
+    def test_forward_exception_policy_survives_midbody_globals_and_language_poison(self):
+        probe=self.probe();primary=TypeError('first');secondary=MemoryError('resource')
+        call,events,_=probe.forward(primary=primary,secondary=secondary)
+        wrapper=self.cell(call,'wrapper');namespace=type(wrapper).__call__.__globals__;old=object.__getattribute__(wrapper,'_original')
+        def action(*args):
+            namespace.update(type=lambda value:ValueError,GeneratorExit=TypeError,Exception=BaseException,ValueError=MemoryError)
+            namespace['LANGUAGE']={'type':lambda value:ValueError,'GeneratorExit':TypeError,'Exception':BaseException,'ValueError':MemoryError}
+            return old(*args)
+        object.__setattr__(wrapper,'_original',action)
+        self.assertIs(probe.raised(call),secondary)
+    def test_quarantine_close_restoration_error_remains_outward(self):
+        probe=self.probe();error=ValueError('restore');call,events,state,*_=probe.quarantine(secondary=error)
+        state.modules['late-inert-entry']=object();generator=self.cell(call,'generator')
+        self.assertIs(probe.raised(generator.close),error);self.assertIn('late-inert-entry',state.modules);self.assertIn('restore-modules',events)
+    def test_quarantine_normal_close_runs_restoration_once(self):
+        probe=self.probe();call,events,state,operations,old_ops,old_modules=probe.quarantine()
+        state.modules['late-inert-entry']=object();generator=self.cell(call,'generator')
+        self.assertIsNone(generator.close());self.assertEqual(events,['restore-modules']);self.assertEqual(state.modules,old_modules);self.assertEqual(vars(operations),old_ops)
+    def test_quarantine_close_and_pending_primary_ignore_helper_mutation(self):
+        for closing in (False,True):
+            probe=self.probe();primary=TypeError('primary');secondary=ValueError('restore')
+            call,events,*_=probe.quarantine(primary,secondary);generator=self.cell(call,'generator')
+            generator.gi_frame.f_globals['_finish']=lambda *args:None
+            self.assertIs(probe.raised(generator.close if closing else call),secondary if closing else primary)
+            self.assertEqual(events,['restore-modules'])
+    def test_graph_close_preserves_verify_failure_and_retires_grants(self):
+        probe=self.probe();secondary=ValueError('verify');call,events,namespace=probe.graph(failures={'verify':secondary})
+        generator=self.cell(call,'generator');next(generator)
+        self.assertIs(probe.raised(generator.close),secondary);self.assertFalse(namespace['_GRAPHS']);self.assertFalse(namespace['_GUARDS']);self.assertIn('restore',events)
+    def test_graph_helper_poison_cannot_skip_verify_restore_pop_or_disk(self):
+        probe=self.probe();call,events,namespace=probe.graph();namespace['_finish']=lambda *args:None
+        self.assertEqual(call(),'done');tail=events[events.index('yielded')+1:]
+        self.assertEqual(tail,['verify','read','read','restore','pop','pop','read','read'])
+        self.assertFalse(namespace['_GRAPHS']);self.assertFalse(namespace['_GUARDS'])
+    def test_secondary_metaclass_equality_cannot_selfgrant_suppression(self):
+        probe=self.probe();namespace=probe.definitions('_finish');effects=[]
+        class Compare(type):
+            def __eq__(self,other):effects.append('equality');return True
+        class CustomCancelled(ValueError,metaclass=Compare):pass
+        primary=TypeError('primary');secondary=CustomCancelled('secondary')
+        def call():
+            try:raise primary
+            finally:namespace['_finish'](lambda:(_ for _ in ()).throw(secondary),True)
+        self.assertIs(probe.raised(call),secondary);self.assertEqual(effects,[])
+    def test_exact_unicode_subcategories_remain_covered(self):
+        probe=self.probe();namespace=probe.definitions('_finish')
+        for secondary in (UnicodeDecodeError('utf8',b'x',0,1,'reason'),UnicodeEncodeError('utf8','x',0,1,'reason'),UnicodeTranslateError('x',0,1,'reason')):
+            primary=TypeError('primary')
+            def call():
+                try:raise primary
+                finally:namespace['_finish'](lambda:(_ for _ in ()).throw(secondary),True)
+            self.assertIs(probe.raised(call),primary)
+    def test_generator_exit_policy_is_captured_before_body_mutation(self):
+        probe=self.probe();secondary=ValueError('restore');call,events,*_=probe.quarantine(secondary=secondary)
+        generator=self.cell(call,'generator');namespace=generator.gi_frame.f_globals
+        namespace.update(type=lambda value:TypeError,GeneratorExit=TypeError,BaseException=Exception,Exception=BaseException)
+        namespace['LANGUAGE']={}
+        self.assertIs(probe.raised(generator.close),secondary)
+
+
+class KernelRecordCompatibilityTests(unittest.TestCase):
+    """Exact probe definition, inert observations; no subprocess or host probe."""
+    def fixture(self, *, system='Linux', machine='aarch64', docker_arch='aarch64', uid=1000,
+                endpoint='unix:///run/docker.sock', docker_host=None, uname_error=None):
+        path=HERE.parents[1]/'ci/native_arm.py'
+        tree=ast.parse(path.read_bytes())
+        node=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='probe')
+        calls=[];saved=[]
+        kernel=types.SimpleNamespace(sysname='Linux',nodename='inert-node',release='inert-release',
+                                     version='inert-version',machine='aarch64')
+        def uname():
+            calls.append('os.uname')
+            if uname_error is not None:raise uname_error
+            return kernel
+        def forbidden():raise AssertionError('lazy platform uname must not be requested')
+        def run(command,log=None,timeout=1800):
+            calls.append((command,log,timeout))
+            replies={('docker','info','--format','{{.Architecture}}'):docker_arch,
+                     ('docker','version'):'inert-docker-version',('lscpu',):'inert-cpu',
+                     ('docker','context','inspect'):json.dumps([{'Endpoints':{'docker':{'Host':endpoint}}}])}
+            return replies[tuple(command)]
+        env={'RUNNER_ARCH':'ARM64','RUNNER_OS':'Linux','GITHUB_REPOSITORY':'inert/repository',
+             'GITHUB_SHA':'a'*40,'GITHUB_RUN_ID':'123','ImageVersion':'inert-image','ImageOS':'inert-linux'}
+        if docker_host is not None:env['DOCKER_HOST']=docker_host
+        namespace=dict(os=types.SimpleNamespace(uname=uname,sysconf=lambda name:16384,getuid=lambda:uid,
+                        getgid=lambda:1000,environ=env),platform=types.SimpleNamespace(uname=forbidden,
+                        system=lambda:system,machine=lambda:machine),run=run,json=json,
+                        sys=types.SimpleNamespace(version='inert-python'),sha=lambda p:'b'*64,
+                        Path=Path,__file__=str(path),save=lambda path,value:saved.append(json.loads(json.dumps(value))))
+        exec(compile(ast.Module(body=[node],type_ignores=[]),str(path),'exec'),namespace)
+        return lambda:namespace['probe'](Path('/inert/output')),calls,saved
+
+    def test_five_native_kernel_fields_without_lazy_processor(self):
+        call,calls,saved=self.fixture();record=call()
+        self.assertEqual(record['kernel'],dict(system='Linux',node='inert-node',release='inert-release',
+                          version='inert-version',machine='aarch64'))
+        self.assertEqual(calls.count('os.uname'),1);self.assertNotIn('processor',record['kernel'])
+        self.assertEqual(len(calls),5);self.assertEqual(len(saved),2)
+        self.assertTrue(all(row[1:] == (None,60) for row in calls if type(row) is tuple))
+
+    def test_provenance_environment_and_page_size_preserved(self):
+        call,_,_=self.fixture();record=call()
+        expected=dict(page_size=16384,python='inert-python',uid=1000,gid=1000,runner_arch='ARM64',
+                      runner_os='Linux',repository='inert/repository',commit='a'*40,run_id='123',
+                      bootstrap_script_sha256='b'*64,image_version='inert-image',image_os='inert-linux',
+                      native_build='NOT RUN',hardware_validation='NOT RUN')
+        self.assertEqual({k:record[k] for k in expected},expected)
+
+    def test_platform_system_check_remains_required(self):
+        call,_,saved=self.fixture(system='Darwin')
+        with self.assertRaisesRegex(ValueError,'native Linux ARM'):call()
+        self.assertEqual(len(saved),1)
+
+    def test_platform_architecture_check_remains_required(self):
+        call,_,_=self.fixture(machine='x86_64')
+        with self.assertRaisesRegex(ValueError,'native Linux ARM'):call()
+
+    def test_daemon_architecture_check_remains_required(self):
+        call,_,_=self.fixture(docker_arch='amd64')
+        with self.assertRaisesRegex(ValueError,'native Linux ARM'):call()
+
+    def test_arm64_alias_remains_supported(self):
+        call,_,_=self.fixture(machine='arm64',docker_arch='arm64');self.assertEqual(call()['docker_server_arch'],'arm64')
+
+    def test_root_coordinator_remains_rejected(self):
+        call,_,_=self.fixture(uid=0)
+        with self.assertRaisesRegex(ValueError,'non-root'):call()
+
+    def test_remote_endpoint_remains_rejected(self):
+        call,_,_=self.fixture(endpoint='tcp://inert.invalid:2375')
+        with self.assertRaisesRegex(ValueError,'default local Docker socket'):call()
+
+    def test_remote_environment_override_remains_rejected(self):
+        call,_,_=self.fixture(docker_host='tcp://inert.invalid:2375')
+        with self.assertRaisesRegex(ValueError,'default local Docker socket'):call()
+
+    def test_both_local_endpoint_aliases_remain_supported(self):
+        for endpoint in ('unix:///run/docker.sock','unix:///var/run/docker.sock'):
+            call,_,_=self.fixture(endpoint=endpoint);self.assertEqual(call()['docker_endpoint'],endpoint)
+
+    def test_native_uname_error_is_not_swallowed(self):
+        error=OSError('inert uname failure');call,calls,saved=self.fixture(uname_error=error)
+        try:call()
+        except OSError as observed:self.assertIs(observed,error)
+        else:self.fail('expected exact uname error')
+        self.assertEqual(calls,['os.uname']);self.assertEqual(saved,[])
 
 
 if __name__=='__main__': unittest.main()

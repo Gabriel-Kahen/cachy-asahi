@@ -175,8 +175,14 @@ runner.run([sys.executable,'-I','-B','-c',"import os,time;open({str(pidfile)!r},
         def fail(): raise ValueError('broker-failed')
         with self.assertRaisesRegex(ValueError, 'broker-failed'):
             self.runner.run(self.command('import time;time.sleep(3)'), service=fail)
+        # Leave real fork/setup time before deliberately exhausting the callback budget.
+        callbacks = []
+        def late():
+            callbacks.append(True)
+            time.sleep(1.05)
         with self.assertRaisesRegex(ValueError, 'command-timeout'):
-            self.runner.run(self.command('import time;time.sleep(3)'), timeout=.02, service=lambda: time.sleep(.03))
+            self.runner.run(self.command('import time;time.sleep(3)'), timeout=1, service=late)
+        self.assertEqual(callbacks, [True])
 
     def test_sealed_fd_is_transportable_and_parent_retains_it(self):
         fd = os.memfd_create('fixture', os.MFD_CLOEXEC | os.MFD_ALLOW_SEALING)
