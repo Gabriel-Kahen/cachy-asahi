@@ -1,0 +1,49 @@
+{
+  "acceptance": false,
+  "binding": {
+    "artifact_digest": "sha256:a8d63daf2984b6e495aac0c3007ccc2ed25c15a09e283bc6d10e250f9a6083e7",
+    "artifact_id": 12725560214,
+    "artifact_name": "c01-native-paired-runtime-40485240528-1",
+    "artifact_size": 8254485,
+    "attempt": 1,
+    "custody": "HTTP_API_AND_BYTES_REQUIRE_TRUSTED_COLLECTOR_INGRESS",
+    "job_conclusion": "success",
+    "job_id": 122125271366,
+    "ref": "codex/c01-installed-paired-runtime-v1",
+    "repository": "Gabriel-Kahen/cachy-asahi",
+    "repository_id": 1414857795,
+    "run_conclusion": "success",
+    "run_id": 40485240528,
+    "runtime_acceptance": "NOT_ISSUED",
+    "scope": "SELECTED_ORIGINAL_LOGS_AND_ARTIFACT_NOT_RUNTIME_ACCEPTANCE",
+    "source": "fc45bef5493afc1fbc5ee0a1fc0537275a4e90d6",
+    "workflow": ".github/workflows/native-arm-build.yml",
+    "workflow_id": 381664314
+  },
+  "comparison_exit_code": 2,
+  "median_elapsed_improvement_pct": -0.040589148173775236,
+  "preliminary_result": "FAIL",
+  "summary_seconds": {
+    "baseline": {
+      "maximum": 1.431602559,
+      "median": 1.429444879,
+      "median_absolute_deviation": 0.0016196775000000274,
+      "minimum": 1.413181287,
+      "n": 6,
+      "range_pct_of_median": 1.2887011084251887
+    },
+    "candidate": {
+      "maximum": 1.433662865,
+      "median": 1.4300250785,
+      "median_absolute_deviation": 0.0025350685000000706,
+      "minimum": 1.41538847,
+      "n": 6,
+      "range_pct_of_median": 1.277907309092004
+    }
+  },
+  "thresholds": {
+    "maximum_elapsed_range_pct": 25,
+    "maximum_regression": {},
+    "minimum_elapsed_improvement_pct": 5
+  }
+}

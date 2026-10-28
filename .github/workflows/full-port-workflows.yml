@@ -6,7 +6,13 @@ on:
       - 'scripts/checks/package_checks.py'
       - 'scripts/release/**'
       - 'scripts/client/client.py'
-      - 'scripts/build/source_materials.py'
+      - 'scripts/build/**'
+      - 'scripts/experiments/**'
+      - 'packages/experiments/**'
+      - 'scripts/ci/desktop574_guest.py'
+      - 'scripts/ci/welcome-managed-gui/**'
+      - 'scripts/integration/desktop.py'
+      - 'scripts/virtual/**'
       - 'scripts/maintenance/source_cache.py'
       - 'packages/tools/cachy-asahi-maintenance/**'
       - 'packages/tools/cachy-asahi-session-diagnostics/**'
@@ -22,7 +28,13 @@ on:
       - 'scripts/checks/package_checks.py'
       - 'scripts/release/**'
       - 'scripts/client/client.py'
-      - 'scripts/build/source_materials.py'
+      - 'scripts/build/**'
+      - 'scripts/experiments/**'
+      - 'packages/experiments/**'
+      - 'scripts/ci/desktop574_guest.py'
+      - 'scripts/ci/welcome-managed-gui/**'
+      - 'scripts/integration/desktop.py'
+      - 'scripts/virtual/**'
       - 'scripts/maintenance/source_cache.py'
       - 'packages/tools/cachy-asahi-maintenance/**'
       - 'packages/tools/cachy-asahi-session-diagnostics/**'
@@ -42,7 +54,7 @@ jobs:
       fail-fast: false
       matrix:
         python: ['3.12', '3.14']
-        component: [image, signed-intake, signed-image, sbom, source-mirror, source-mirror-update, desktop, app-runtime, app-inputs, python, python-extension, build-systems]
+        component: [image, signed-intake, signed-image, sbom, source-mirror, source-mirror-update, desktop, app-runtime, app-inputs, python, python-extension, build-systems, pgo-source, app-window, mirror-builder]
     steps:
       - name: Checkout complete canonical component closure
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -55,7 +67,13 @@ jobs:
             /scripts/checks/package_checks.py
             /scripts/release/
             /scripts/client/client.py
-            /scripts/build/source_materials.py
+            /scripts/build/
+            /scripts/experiments/
+            /packages/experiments/
+            /scripts/ci/desktop574_guest.py
+            /scripts/ci/welcome-managed-gui/
+            /scripts/integration/desktop.py
+            /scripts/virtual/
             /scripts/maintenance/source_cache.py
             /packages/tools/cachy-asahi-maintenance/
             /packages/tools/cachy-asahi-session-diagnostics/
@@ -68,6 +86,12 @@ jobs:
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
           python-version: ${{ matrix.python }}
+      - name: Install Lua for window protocol model controls
+        if: matrix.component == 'app-window'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y lua5.4
+          lua -v
       - name: Run exact focused component suite
         env:
           COMPONENT: ${{ matrix.component }}
@@ -82,6 +106,9 @@ jobs:
             app-inputs) suite=scripts/workflows/test_desktop_application_inputs.py ;;
             python-extension) suite=tests/workflows/test_python_extension.py ;;
             app-runtime) suite=scripts/workflows/test_desktop_application_runtime.py ;;
+            pgo-source) suite=scripts/experiments/test_zlib_pgo102.py ;;
+            app-window) suite=scripts/workflows/test_desktop_application_window_lifecycle.py ;;
+            mirror-builder) suite=scripts/build/test_mirror_consumer.py ;;
             python) suite=tests/workflows/test_python_development.py ;;
             desktop) suite=scripts/workflows/test_desktop_applications.py ;;
             build-systems) suite=tests/workflows/test_developer_build_systems.py ;;
