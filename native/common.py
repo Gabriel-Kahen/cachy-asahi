@@ -68,7 +68,14 @@ def verify_source(root, checksum):
     raw = read(root / MAP); need(pin(raw)['sha256'] == checksum, 'whole source map differs')
     manifest = json.loads(raw)
     need(manifest['schema'] == 1 and manifest['actual'] == dict(source=None, ref=None, run=None), 'NULL unexecuted source selectors')
-    rows = manifest['files']; need(MAP not in rows and len(rows) <= 200, 'finite nonrecursive source map')
+    rows = manifest['files']
+    profile = manifest.get('source_profile')
+    if profile is None:
+        need(MAP not in rows and len(rows) <= 200, 'finite nonrecursive source map')
+    else:
+        need(profile == 'native191-installed-alpm205-v1' and len(rows) == 204 and MAP not in rows
+             and hashlib.sha256(('\n'.join(sorted(rows))+'\n').encode()).hexdigest() == '666c6cfea85c442ae77a338d30a137a699bc0fc62fff5caf02d5b93ff1a46d8b',
+             'exact versioned205 source profile required')
     actual = set(); actual_dirs = set()
     for directory, dirs, files in os.walk(root, followlinks=False):
         base = Path(directory)
