@@ -1,0 +1,18 @@
+cachy-asahi-orphans 0.1.0
+Copyright (c) 2026 cachy-asahi contributors. MIT License.
+
+Original local read-only orphan assessment and explicit removal-plan candidate.
+No-follow traversal, stable byte/metadata snapshots and atomic no-replace output
+patterns derive from this project's MIT cache and mirror tools. The full grant
+and copyright remain in LICENSE.
+
+The source-pinned protection floor records existing development-base/platform
+package names as conservative reference data, not accepted target policy.
+Uses the existing separately provided libalpm16 public read-only API; no library
+bytes, upstream package-manager implementation or orphan-removal alias is bundled.
+No removal, transaction, payload validation, release or recovery authority claimed.
+
+Orphans3 0.2.0 successor: original MIT orphan assessment source is retained with
+optional owned-lock snapshot/check plumbing. New finite offline removal adapter
+uses public libalpm16 APIs and local_transaction/Apps transaction patterns.
+Historical read-only claims describe the separate inherited component only.

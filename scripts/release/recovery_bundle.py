@@ -11,6 +11,7 @@ import argparse
 import copy
 import importlib.util
 import json
+import math
 import os
 from pathlib import Path
 import stat
@@ -57,6 +58,33 @@ def bound(ref, maximum):
     raw = pinned(ref['path'], ref['sha256'], maximum)
     C.need(len(raw) == ref['size'], 'reference size differs')
     return raw
+
+
+def recovery_json(raw):
+    """Recovery observations include fractional timings; authority JSON stays strict."""
+    def finite(text):
+        value = float(text)
+        C.need(math.isfinite(value), 'finite recovery observation number required')
+        return value
+    value = json.loads(raw, object_pairs_hook=P.auth.coverage.pairs, parse_float=finite,
+                       parse_constant=lambda _: C.need(False, 'nonfinite recovery JSON refused'))
+    C.need(isinstance(value, dict), 'recovery JSON object required')
+    if value.get('kind') == 'exact-superseded-recovery-archive-data':
+        rows = value.get('packages', [])
+        C.need(isinstance(rows, list), 'recovery package observations must be a list')
+        for row in rows:
+            C.need(isinstance(row, dict), 'recovery package observation must be an object')
+            for field in ('http_attempts', 'http_attempts_this_run'):
+                attempts = row.get(field, [])
+                C.need(isinstance(attempts, list), 'recovery timing observations must be a list')
+                for attempt in attempts:
+                    C.need(isinstance(attempt, dict), 'recovery timing observation must be an object')
+                    for key in ('pace_wait_seconds', 'retry_after_seconds'):
+                        if key in attempt:
+                            duration = attempt[key]
+                            C.need(type(duration) in (int, float) and duration >= 0,
+                                   'invalid recovery timing observation')
+    return value
 
 
 def read(root, name, maximum=C.MAX_JSON):
@@ -136,7 +164,7 @@ def recovery_view(root, chosen, base, *, extract=False):
     reference = chosen['recovery_receipt']
     raw = read(root, 'recovery/receipt.json', P.RECEIPT_LIMIT)
     C.need(len(raw) == reference['size'] and C.digest(raw) == reference['sha256'], 'selected recovery receipt differs')
-    prior = C.decode(raw)
+    prior = recovery_json(raw)
     C.need(prior.get('status') == 'PASS-all-exact-old-recovery-archive-data'
            and prior.get('failures') == [], 'complete authenticated recovery inventory required')
     original = {key: value for key, value in prior['inputs'].items() if key != 'previous_receipt'}
@@ -146,12 +174,14 @@ def recovery_view(root, chosen, base, *, extract=False):
         data = read(root, 'recovery/inputs/' + key, maximum)
         C.need(len(data) == item['size'] and C.digest(data) == item['sha256'], 'recovery input copy differs')
         contract[key] = local_ref(root, 'recovery/inputs/' + key, item)
-    K.public_packets(read(root, 'recovery/inputs/certificate', P.MIB))
+    # recovery_inputs.plan binds the exact known public certificate bytes. That
+    # producer certificate is armored, unlike the kit's binary gpg --export
+    # keyring; the kit packet parser is not applicable to this separate input.
     # The old availability document embeds an absolute image reference. Keep its
     # original bytes and verify that binding before producing an ephemeral view
     # for the existing planner. The workspace never stores relocation-dependent
     # rewritten evidence, and verification never opens the historical paths.
-    availability = C.decode(read(root, 'recovery/inputs/old_availability'))
+    availability = recovery_json(read(root, 'recovery/inputs/old_availability'))
     C.need(availability.get('inputs', {}).get('image_inventory') == original['image_inventory'],
            'original availability/image binding differs')
     availability['inputs']['image_inventory'] = contract['image_inventory']
@@ -175,6 +205,8 @@ def recovery_view(root, chosen, base, *, extract=False):
         C.need(baseline and (baseline['version'], baseline['arch']) == (item['version'], item['arch']),
                'recovery package does not match selected predecessor base')
         localized = copy.deepcopy(row)
+        C.need(type(localized['signature_observation'].get('exit')) is int,
+               'integer retained signature exit required')
         for field in ('archive', 'signature', 'operator_index', 'inspection'):
             name = 'recovery/packages/' + item['name'] + '/' + field
             localized[field].update(local_ref(root, name, row[field]))
@@ -251,7 +283,7 @@ def materialize(args):
     # Authenticate before creating a workspace or accessing recovery archive paths.
     _, base = inspect_kit(kit, chosen, args)
     prior_raw = bound(chosen['recovery_receipt'], P.RECEIPT_LIMIT)
-    prior = C.decode(prior_raw)
+    prior = recovery_json(prior_raw)
     C.need(prior.get('status') == 'PASS-all-exact-old-recovery-archive-data'
            and prior.get('failures') == [], 'complete recovery receipt required')
     parent = C.directory(output.parent)
