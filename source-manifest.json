@@ -38,8 +38,8 @@
       "sha256": "ad42b0a833af063b004aee0be2cdae21e6b4bedb9f07bc82759e7a47f27a0865"
     },
     "lifecycle/cleanup.py": {
-      "bytes": 899,
-      "sha256": "0d9f9223f0db722e8226409eed269826d707dc69dd6eb5dd0bbd45e246f940b6"
+      "bytes": 4394,
+      "sha256": "4da22ab2296ded7aa76fc46a4971e9c783a66c1eac939aab759461f279419510"
     },
     "lifecycle/custody.py": {
       "bytes": 2730,
@@ -2850,12 +2850,12 @@
       "sha256": "25415b39b05de71b10476a4831f4b8f4fa54ef3543cf76a76d54ed7e1b6737d2"
     },
     "lifecycle/selected.py": {
-      "bytes": 22520,
-      "sha256": "a6fde4e3ac53e0de114e2a4476f8b3d26d650a1c38212c306fe31291997aedc3"
+      "bytes": 25398,
+      "sha256": "60d896e7a6771e605c53e55b8886615a66dadd30f4e9d771a5a0db7711a82183"
     },
     "lifecycle/source-manifest.json": {
-      "bytes": 136377,
-      "sha256": "ebf52a35b93ef95ed20b3cf2f73c749f85e17a47514447574927ed0170292fb4"
+      "bytes": 136378,
+      "sha256": "4b8edc83e3babfdf823ede0a594085241e39fc7210db4c25544dcbca377b6f89"
     },
     "lifecycle/test_source.py": {
       "bytes": 3132,
@@ -5730,8 +5730,8 @@
       "sha256": "10c7b095441b97430da3b5fc079fa68a04ec705bbd3104d08491c2a49ecccae1"
     },
     "profile.json": {
-      "bytes": 278405,
-      "sha256": "2d5cd1e46c7083b91629b9420c12414639130bb6ab14a91c04caa5ec56277b91"
+      "bytes": 278406,
+      "sha256": "210fc89adc786e5de48bc4962f37018c0560f6aa8c951515816bb3e7cd14daaf"
     },
     "retain.py": {
       "bytes": 675,
