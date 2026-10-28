@@ -1,8 +1,8 @@
 {
   "Root_acceptance": null,
   "actual": null,
-  "actual_parent": "66fae6ddbbd6df66e4d5a50c9577e9bb9168b170",
-  "actual_parent_tree": "803dc64ba8b7085d608cb5ab3a9bb5633ce80050",
+  "actual_parent": "116ff85f6d2f5ed0ba023a97ca3f79546a001623",
+  "actual_parent_tree": "e1772103d35a79d9b4eee078ebec208e2c639ea8",
   "budgets": {
     "completion_guarantee": false,
     "dependency_input_join_seconds": 60,
@@ -261,6 +261,80 @@
     ],
     "unallocated_job_minutes": 34
   },
+  "carrier_causal_actual": {
+    "attempt": 1,
+    "cause": "SELECTED_AUTHORITY_CALLED_WITH_OLD_PACKET_ROOT",
+    "child_commands": 4,
+    "child_exit_codes": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "error_type": "FileNotFoundError",
+    "job": 122579367940,
+    "missing_operand": "/home/runner/work/cachy-asahi/cachy-asahi/apps607-repair-packet/payload/apps16-repair/carrier.py",
+    "original_log": {
+      "bytes": 5022306,
+      "sha256": "de6e2bc6ef1004b5935d60306fea2530089155042317fb919e84efaab21a8ad6"
+    },
+    "original_owner": {
+      "bytes": 12850,
+      "sha256": "a8f85c50de1261b2e2cd2da4d2d41211f92909bc8114ccbd41e43e09cd2358c3"
+    },
+    "run": 40616266684,
+    "source": "116ff85f6d2f5ed0ba023a97ca3f79546a001623",
+    "traceback": "NOT_EXPORTED"
+  },
+  "carrier_source_route": {
+    "acceptance": false,
+    "clocks": "UNCHANGED",
+    "closed_selected_source_files": 245,
+    "entrypoint": {
+      "bytes": 5894,
+      "sha256": "bf254c99c92bbe9813e5797db48e8b83af15030e1a53e221c7b5e8ff4cd01992"
+    },
+    "filesystem_fallback": false,
+    "independent_capsule_pin": "CAPSULE_SHA256_PRESERVED_IN_CLEAN_PARENT_AND_CHILD_ENV",
+    "operation_profile": {
+      "bytes": 44437,
+      "sha256": "359a8cf7ff531160981fae4a9fce486f0904b4798bbee30311919e500f0395d6"
+    },
+    "ordinary_checked": "DELEGATE_UNCHANGED_ORIGINAL_ROOT_AND_ROW",
+    "ordinary_packet": "GITHUB_WORKSPACE/apps607-repair-packet/payload",
+    "original_owner": {
+      "bytes": 39552,
+      "sha256": "973c96eacc1a321aa497962b449f4c7d46bd41ed5d1361f8b7ec56c36c2edfb7"
+    },
+    "packet_writes": false,
+    "selected_authority_files": {
+      "apps16-repair/carrier-profile.json": {
+        "bytes": 46416,
+        "sha256": "805e3ef1b4e2be899476c3d215468af02f824eb8a071e473e22aeb7bae3aed0e"
+      },
+      "apps16-repair/carrier.py": {
+        "bytes": 4181,
+        "sha256": "a181a6d080dab7a5a1613f23e6a1da70596c8c3d8c84fd44e444a32f3a7950f1"
+      },
+      "apps16-repair/contract_common.py": {
+        "bytes": 4407,
+        "sha256": "340f6db4592c72507f1028e882fe78b5398ea9b8cab6323260ff6e0c88543380"
+      },
+      "apps16-repair/selection.py": {
+        "bytes": 8889,
+        "sha256": "616cfe431e97c1576fca6119ec552d5f16226847d3569c8e248410a6bdee2150"
+      }
+    },
+    "selected_carrier": "GITHUB_WORKSPACE/apps16-native-pair",
+    "selected_namespace": "APPS16_CARRIER/",
+    "selected_source": "closed_capsule/repair-source",
+    "status": "SOURCE_BOUND_SELECTED_AUTHORITY_NOT_PACKET_FALLBACK",
+    "supervised_child": "SAME_NEW_ENTRYPOINT_WHOLE_ORIGINAL_MAIN_INVERSE_ONE_PATH_SEAM",
+    "workflow_cli": {
+      "bytes": 4222,
+      "sha256": "5ea1070c917d90b3678fcf1a63d6cc9de320e94dfedb2b170908279049278b4e"
+    }
+  },
   "causal_actual": {
     "attempt": 1,
     "direct_entry": "UNKNOWN_NOT_PRINTED",
@@ -327,8 +401,8 @@
     "unselected_cache_body_reads": 0
   },
   "diagnostic_basis_capsule": {
-    "bytes": 101806,
-    "sha256": "309ebad69595b3159375504b73d40cfd6565a19303a50851dda704ae1c2091f7"
+    "bytes": 102118,
+    "sha256": "cf2b914492ba452f6f50c494950786247b8b9f0ceb568a6b3e3dca9ef2c17c70"
   },
   "hardware": "NOT_RUN",
   "inputs": {
@@ -351,7 +425,7 @@
   "ref": null,
   "schema_version": 1,
   "source": null,
-  "source_files": 545,
+  "source_files": 546,
   "status": "SOURCE_ONLY_ROLE_BOUND_CACHE_METADATA_CONTRACT",
   "transport": {
     "bytes": 1046432165,
@@ -421,7 +495,7 @@
   "workflow": {
     "alias": ".github/workflows/native-arm-apps16-reinstall-interruption.yml",
     "current_registry": "NOT_QUERIED_NO_API",
-    "name": "native-arm-apps607-role-bound-cache-snapshot",
+    "name": "native-arm-apps607-selected-carrier-source",
     "path": ".github/workflows/native-arm-build.yml",
     "prior_observed_id": 381664314
   }

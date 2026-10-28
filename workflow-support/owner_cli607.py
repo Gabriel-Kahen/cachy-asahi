@@ -28,12 +28,13 @@ def command(mode,root,env):
  'packet':workspace/'apps607-repair-packet/payload','apps16-pair':workspace/'apps16-native-pair',
  'output':Path('/tmp')/('cachy-asahi-expanded604-installer-'+run+'-'+attempt),'owner-output':Path('/tmp')/('caa-apps607-'+token),
  'handoff':temporary/('apps607-handoff-'+token+'.json'),'public':temporary/'apps607-fresh-recovery-public'}
- argv=[sys.executable,'-I','-B',str(root/'operation/native_owner607.py'),mode]
+ capsule=env.get('CAPSULE_SHA256');need(type(capsule)is str and re.fullmatch('[0-9a-f]{64}',capsule),'independent whole successor capsule pin')
+ argv=[sys.executable,'-I','-B',str(root/'workflow-support/selected_source_owner607.py'),mode]
  for name,path in paths.items():argv+=['--'+name,str(path)]
  argv+=['--fresh-source-revision',PROVIDER,'--implementation-revision','bd0cf1891083d011b70edab10501c317d3720b78','--operation-profile-sha256',profile]
  if mode=='supervised-cleanup':
   outcome=env['RECOVERY_JOB_OUTCOME'];need(outcome in('success','failure','cancelled','skipped'),'actual workflow outcome');argv+=['--job-outcome',outcome]
- clean=dict(PATH='/usr/local/bin:/usr/bin:/bin',HOME=str(temporary/'apps607-coordinator-home'),LANG='C.UTF-8',TZ='UTC',PYTHONDONTWRITEBYTECODE='1',SOURCE_SHA=source,GITHUB_SHA=source,GITHUB_WORKFLOW_SHA=source,GITHUB_RUN_ID=run,GITHUB_RUN_ATTEMPT=attempt)
+ clean=dict(PATH='/usr/local/bin:/usr/bin:/bin',HOME=str(temporary/'apps607-coordinator-home'),LANG='C.UTF-8',TZ='UTC',PYTHONDONTWRITEBYTECODE='1',SOURCE_SHA=source,GITHUB_SHA=source,GITHUB_WORKFLOW_SHA=source,GITHUB_RUN_ID=run,GITHUB_RUN_ATTEMPT=attempt,CAPSULE_SHA256=capsule)
  return argv,clean
 def main(argv=None):
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('mode',choices=MODES);a=p.parse_args(argv);args,env=command(a.mode,Path(__file__).resolve().parents[1],os.environ);return os.execve(sys.executable,args,env)
