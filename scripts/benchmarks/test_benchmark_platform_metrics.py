@@ -188,24 +188,46 @@ class IntegrationTests(unittest.TestCase):
 
     def test_blocked_sensor_preserves_unknown_capture_and_blocks_next_workload(self):
         run=self.root/'blocked-sensor'; run.mkdir()
-        entered,release=threading.Event(),threading.Event()
+        entered,release,exited=threading.Event(),threading.Event(),threading.Event()
         original=m.snapshot
+        initial,workers,streams=[],[],[]
+        fdopen=os.fdopen
+        def opened(fd,*args,**kwargs):
+            stream=fdopen(fd,*args,**kwargs)
+            if os.readlink('/proc/self/fd/'+str(fd))==str(run/'platform-metrics/samples.jsonl'):
+                streams.append(stream)
+            return stream
         def delayed(inventory,sequence):
             if threading.current_thread() is not threading.main_thread():
-                entered.set(); release.wait(2)
-            return original(inventory,sequence)
-        try:
-            with patch.object(a,'load_dependencies',return_value=(m,owner)), patch.object(m,'snapshot',side_effect=delayed), self.assertRaisesRegex(a.Invalid,'incomplete workload/platform worker'):
-                a.execute([sys.executable,'-c','import time; time.sleep(.2)'],run,os.environ.copy(),run,1,.02,{'interval_seconds':.1},b.metrics)
-            self.assertTrue(entered.is_set())
-            receipt=b.read_json(run/'platform-metrics/capture.json')
-            self.assertFalse(receipt['completed']); self.assertFalse(receipt['worker_stopped'])
-            self.assertTrue(receipt['supervision']['reaped']); self.assertNotIn('files',receipt)
-            with self.assertRaisesRegex(a.Invalid,'sampler still blocked'):
-                a.execute([sys.executable,'-c','pass'],run,os.environ.copy(),run,1,.02,{'interval_seconds':.1},b.metrics)
-        finally:
-            release.set()
-            if a._active is not None: a._active.join(timeout=2)
+                workers.append(threading.current_thread()); entered.set()
+                try:
+                    release.wait()
+                    # The stopped worker discards this fixture row. Do not start
+                    # another real sensor read while retiring a test-owned block.
+                    return initial[0]
+                finally:
+                    exited.set()
+            row=original(inventory,sequence); initial.append(row); return row
+        with patch.object(a,'load_dependencies',return_value=(m,owner)), patch.object(m,'snapshot',side_effect=delayed), patch.object(os,'fdopen',side_effect=opened):
+            try:
+                with self.assertRaisesRegex(a.Invalid,'incomplete workload/platform worker'):
+                    a.execute([sys.executable,'-c','import time; time.sleep(.2)'],run,os.environ.copy(),run,1,.02,{'interval_seconds':.1},b.metrics)
+                self.assertTrue(entered.is_set()); self.assertEqual(len(workers),1)
+                self.assertTrue(workers[0].is_alive())
+                receipt=b.read_json(run/'platform-metrics/capture.json')
+                self.assertFalse(receipt['completed']); self.assertFalse(receipt['worker_stopped'])
+                self.assertTrue(receipt['supervision']['reaped']); self.assertNotIn('files',receipt)
+                with patch.object(a.subprocess,'Popen',side_effect=AssertionError('blocked sampler launched workload')), self.assertRaisesRegex(a.Invalid,'sampler still blocked'):
+                    a.execute([sys.executable,'-c','pass'],run,os.environ.copy(),run,1,.02,{'interval_seconds':.1},b.metrics)
+            finally:
+                release.set()
+                if workers:
+                    self.assertTrue(exited.wait(2),'fixture snapshot did not exit')
+                    workers[0].join(timeout=2)
+                    self.assertFalse(workers[0].is_alive(),'fixture sampler did not retire')
+                # Preserve the incomplete capture, then close only the test-owned
+                # stream after its sole writer has stopped.
+                for stream in streams: stream.close()
 
     def test_unresolved_owned_wait_blocks_next_launch_without_numeric_access(self):
         run=self.root/'blocked-owned'; run.mkdir()
