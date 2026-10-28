@@ -1,0 +1,72 @@
+{
+  "configuration": [],
+  "exports_package_owned": false,
+  "files": {
+    "usr/bin/cachy-asahi-release-tools": {
+      "mode": 493,
+      "source": "cachy-asahi-release-tools"
+    },
+    "usr/lib/cachy-asahi/release-tools-v2/scripts/checks/package_checks.py": {
+      "mode": 420,
+      "source": "package_checks.py"
+    },
+    "usr/lib/cachy-asahi/release-tools-v2/scripts/release/compare_sboms.py": {
+      "mode": 420,
+      "source": "compare_sboms.py"
+    },
+    "usr/lib/cachy-asahi/release-tools-v2/scripts/release/recipe_source_delivery.py": {
+      "mode": 420,
+      "source": "recipe_source_delivery.py"
+    },
+    "usr/lib/cachy-asahi/release-tools-v2/scripts/release/recipe_source_delivery_v2.py": {
+      "mode": 420,
+      "source": "recipe_source_delivery_v2.py"
+    },
+    "usr/lib/cachy-asahi/release-tools-v2/scripts/release/release_sbom.py": {
+      "mode": 420,
+      "source": "release_sbom.py"
+    },
+    "usr/lib/cachy-asahi/release-tools-v2/scripts/release/source_delivery.py": {
+      "mode": 420,
+      "source": "source_delivery.py"
+    },
+    "usr/lib/cachy-asahi/release-tools-v2/scripts/update/archive_stream.py": {
+      "mode": 420,
+      "source": "archive_stream.py"
+    },
+    "usr/share/doc/cachy-asahi-release-tools/README.md": {
+      "mode": 420,
+      "source": "README.md"
+    },
+    "usr/share/doc/cachy-asahi-release-tools/comparing-sboms.md": {
+      "mode": 420,
+      "source": "comparing-sboms.md"
+    },
+    "usr/share/doc/cachy-asahi-release-tools/export-v2.json": {
+      "mode": 420,
+      "source": "export-v2.json"
+    },
+    "usr/share/doc/cachy-asahi-release-tools/payload-map.json": {
+      "mode": 420,
+      "source": "payload-map.json"
+    },
+    "usr/share/doc/cachy-asahi-release-tools/source-provenance.json": {
+      "mode": 420,
+      "source": "source-provenance.json"
+    },
+    "usr/share/licenses/cachy-asahi-release-tools/LICENSE": {
+      "mode": 420,
+      "source": "LICENSE"
+    },
+    "usr/share/licenses/cachy-asahi-release-tools/NOTICE": {
+      "mode": 420,
+      "source": "NOTICE"
+    }
+  },
+  "hooks": [],
+  "package": "cachy-asahi-release-tools",
+  "private_runtime": "release-tools-v2",
+  "schema_version": 2,
+  "services": [],
+  "version": "0.2.0-1"
+}
