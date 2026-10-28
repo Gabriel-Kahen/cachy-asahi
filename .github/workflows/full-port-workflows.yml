@@ -78,7 +78,7 @@ jobs:
       fail-fast: false
       matrix:
         python: ['3.12', '3.14']
-        component: [image, signed-intake, signed-image, sbom, source-mirror, source-mirror-update, desktop, app-runtime, app-inputs, python, python-extension, build-systems, pgo-source, app-window, mirror-builder, debugger, support-bundle, recovery-bundle, security-operation, orphans03, support-package]
+        component: [image, signed-intake, signed-image, sbom, source-mirror, source-mirror-update, desktop, app-runtime, app-inputs, python, python-extension, build-systems, pgo-source, app-window, mirror-builder, debugger, support-bundle, support-collection, recovery-bundle, security-operation, orphans03, support-package]
     steps:
       - name: Checkout complete canonical component closure
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -128,7 +128,7 @@ jobs:
           sudo apt-get install --no-install-recommends -y lua5.4
           lua -v
       - name: Prepare short private operator temporary directory
-        if: contains(fromJSON('["debugger", "support-bundle", "recovery-bundle", "security-operation", "support-package"]'), matrix.component)
+        if: contains(fromJSON('["debugger", "support-bundle", "support-collection", "recovery-bundle", "security-operation", "support-package"]'), matrix.component)
         run: |
           stage=$(mktemp -d /tmp/caa-operator.XXXXXXXX)
           chmod 700 "$stage"
@@ -184,6 +184,7 @@ jobs:
             build-systems) suite=tests/workflows/test_developer_build_systems.py ;;
             debugger) suite=tests/workflows/test_developer_debugger.py ;;
             support-bundle) suite=tests/support/test_support_bundle.py ;;
+            support-collection) suite=tests/support/test_collect_support.py ;;
             recovery-bundle) suite=scripts/release/test_recovery_bundle.py ;;
             security-operation) suite=scripts/maintenance/test_security_campaign.py ;;
             orphans03) suite=tests/test_orphans03_adoption.py ;;
@@ -313,7 +314,7 @@ jobs:
           (root / 'support-namespace.json').write_text(json.dumps(dict(command=command, exit=result.returncode)) + '\n')
           use_root = False
           if result.returncode:
-              permission = (b'bwrap: Creating new namespace failed: Operation not permitted', b'bwrap: No permissions to create new namespace')
+              permission = (b'bwrap: Creating new namespace failed: Operation not permitted', b'bwrap: No permissions to create new namespace', b'bwrap: loopback: Failed RTM_NEWADDR: Operation not permitted')
               assert b'bwrap:' in result.stderr and any(text in result.stderr for text in permission), result.stderr
               use_root = True
           with Path(sys.argv[2]).open('a') as output:
