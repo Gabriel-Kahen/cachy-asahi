@@ -1,9 +1,7 @@
 {
   "GUI": "NOT_RUN",
   "Root_acceptance": null,
-  "authority_scope": "FRESH_TEST_SIGNATURES_ONLY_HISTORICAL_NATIVE_CREDIT_NEW_SOURCE_SELECTION_REQUIRED",
-  "created": 1793132014,
-  "expires": 1793218414,
+  "expires": 1794421220,
   "hardware": "NOT_RUN",
   "inputs": {
     "dns2": {
@@ -55,36 +53,37 @@
       }
     }
   },
-  "native_build": "NOT_RUN",
-  "nonce": "70e19840e2ee3eb804a5f79bb6c60651",
-  "purpose": "NEW_GUI_TEST_SIGNATURE_CATALOG",
-  "schema_version": 1,
+  "key_created": 1793211620,
+  "nonce": "38e61169ecf3d97de92175f04a1d6e54",
+  "producer": "ROOT_LOCAL_TEST_SIGNING_ONLY",
+  "purpose": "ROOT_CURRENT_TEST_SIGNATURE_CATALOG_V2",
+  "schema_version": 2,
   "signatures": {
     "dns2": {
       "bytes": 310,
-      "sha256": "6a7156567874fa9124cac970c09fc6c9193634ee987548cca6dcad54b3920f0f"
+      "sha256": "675d70a36a7a6135920adec29f863e029093137137fb712b11447a78524468d9"
     },
     "doctor": {
       "bytes": 310,
-      "sha256": "1059861c2334591ea010507f4d04c510ffed7f541cbd8b60b0bb3cbe771f3371"
+      "sha256": "54130bde21b597c8e01ba7396bfe33716d29a633c470d6859fa659ea1ae3b969"
     },
     "held77-index": {
       "bytes": 310,
-      "sha256": "f4f54529d9c0a4d295185c8ee53fc215fad85cfeacd53d847a90b5c60480f00c"
+      "sha256": "39f193a478a14912dd1082922542138cc7c351425cebd2093992198e4eec0ae9"
     },
     "native73-index": {
       "bytes": 310,
-      "sha256": "39c7655f758b9981449297488679d156d73d8f5915c6b6d881b38e65f6ae1bc3"
+      "sha256": "fe29e19fa74b6d3690ddaf78f77c8c2a1e90d7d110bc1d14bdc62e495d33f095"
     },
     "orphans": {
       "bytes": 310,
-      "sha256": "c9e8b39d14fd50bcde78fe4e6b3b46230a396d507132aae8478dbf0ab53bdc2d"
+      "sha256": "f8981f96bf3d1c5248883ebe9f8c965381837b5cc4f067d06e952b1c91e4456f"
     },
     "welcome5": {
       "bytes": 310,
-      "sha256": "a90294a23575d4af09837f8d3408ad34a7223ffde8c8992a07e78f8343cd2651"
+      "sha256": "aff571e2e112e93b45e6a96b1b12857130e935bd27e3efbf6b3853e8c7dd91c1"
     }
   },
-  "signer": "86E873FCF42D98B2E38CF370329A06AB61D55DF3",
-  "source_sha": "b97cee23851088a853b0537641fde1d250ef06c2"
+  "signer": "1D3AE16618E733DBBF7EF4102D93566368E6C104",
+  "uid": "CACHY-ASAHI TEST ONLY 38e61169ecf3d97de92175f04a1d6e54 <test-only@invalid.example>"
 }
