@@ -131,6 +131,21 @@
       "mode": 420,
       "sha256": "bf687e3d29fae3f85d1c79acd508a7cc0571eebacaa6fe663d8a0356cc434d0a"
     },
+    "scripts/ci/offline-kit-accepted-native/candidate-policy.LICENSE": {
+      "bytes": 11358,
+      "mode": 420,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    "scripts/ci/offline-kit-accepted-native/candidate-policy.NOTICE": {
+      "bytes": 1296,
+      "mode": 420,
+      "sha256": "e6eaf114a30c32d14002e1d2210474f85de7309e2dd09cfb9eeca2a8d2e0356f"
+    },
+    "scripts/ci/offline-kit-accepted-native/candidate-policy.json": {
+      "bytes": 20575,
+      "mode": 420,
+      "sha256": "c3f3a00be01ff6d855bfe5d6f31ed5f4e5fa31f2e84efd87e7270202b19e076a"
+    },
     "scripts/ci/offline-kit-accepted-native/candidate-source/candidate-worker.py": {
       "bytes": 116524,
       "mode": 420,
@@ -254,12 +269,12 @@
     "scripts/ci/offline-kit-accepted-native/owner.py": {
       "bytes": 39982,
       "mode": 420,
-      "sha256": "46fdda71e60f560bd126230241ea8c59d0b459670c7c20e6c47244cee7826681"
+      "sha256": "9c1768b6edbddaec058471fd4ba99a8868d162af7305a460a220ef13bda4c3fb"
     },
     "scripts/ci/offline-kit-accepted-native/owner_common.py": {
-      "bytes": 15682,
+      "bytes": 17492,
       "mode": 420,
-      "sha256": "785e4d7a1ebc77220ae7bbdacab3bae42bc7581d0ebcb7e6e109bcb4e4e44bf8"
+      "sha256": "e757c45666362eb2fed206ec6a5f733130d39960c1a01ed749a82971f0942056"
     },
     "scripts/ci/offline-kit-accepted-native/prefill574.py": {
       "bytes": 3153,

@@ -10,7 +10,7 @@ MAP=LANE+'/source-map.json'
 ALIASES=('.github/workflows/native-arm-build.yml','.github/workflows/native-arm-offline-kit-accepted.yml')
 LOCK='cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac'
 COMMON_BYTES=(HERE/'owner_common.py').read_bytes()
-if hashlib.sha256(COMMON_BYTES).hexdigest()!='785e4d7a1ebc77220ae7bbdacab3bae42bc7581d0ebcb7e6e109bcb4e4e44bf8':raise ValueError('pinned owner primitives')
+if hashlib.sha256(COMMON_BYTES).hexdigest()!='e757c45666362eb2fed206ec6a5f733130d39960c1a01ed749a82971f0942056':raise ValueError('pinned owner primitives')
 spec=importlib.util.spec_from_file_location('_closed_owner_common',HERE/'owner_common.py');C=importlib.util.module_from_spec(spec);exec(compile(COMMON_BYTES,str(HERE/'owner_common.py'),'exec'),C.__dict__)
 need,sha,read,load,save,fresh=C.need,C.sha,C.read,C.load,C.save,C.fresh
 
