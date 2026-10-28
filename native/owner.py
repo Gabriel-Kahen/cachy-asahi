@@ -85,7 +85,7 @@ def run(root, args):
         need(phase['binding'] == own and phase['source_map_sha256'] == args.map_sha256, 'exact same-source prior DATA provisioning')
     need(transported['status'] == 'PASS_EXACT_RETAINED_INPUT_TRANSPORT_DATA_ONLY'
          and seeded['status'] == 'PASS_EIGHT_INPUT_CACHE_DATA_ONLY', 'completed hosted input provisioning required')
-    provision.retired(transported['actors'], args.work)
+    provision.transport_retired(transported, args.work, provision.carrier_profile(root), own, args.map_sha256)
     output = args.work / 'public'; output.mkdir(mode=0o700)
     report = dict(schema=1, status='FAIL', binding=own, source_map_sha256=args.map_sha256,
                   input_inventory=pin(expected), source_root=str(root), output_root=str(output),
@@ -313,6 +313,11 @@ def run(root, args):
         save(output / 'cleanup.json', cleanup); report['actors'] = actor.rows
         save(output / 'receipt.json', report)
         report['provisioning'] = dict(proof=proof, transport=transported, cache=seeded)
+        try:
+            provision.copy_transport_public(args.work, output, own, args.map_sha256)
+        except Exception:
+            report['status'] = 'FAIL_TRANSPORT_PUBLIC_RETENTION'
+            report['transport_public_retention'] = 'REFUSED_BOUNDED_TRANSPORT_DATA'
         proofs = output / 'bootstrap-proof'; proofs.mkdir()
         # Capture source-defined failure DATA before generic log mirroring.
         # Guard rejection must not replace the original bootstrap exception.

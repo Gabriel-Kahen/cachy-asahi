@@ -16,7 +16,7 @@ PRODUCERS = {
  'scripts/workflows/developer_build_systems.py':'8c5025f3d748fb2e5aebb304310852158ebaac0bcaf9ef44cad8676ed5963fbc',
  'scripts/workflows/developer_workflow.py':'531c124cde3fa41d46888acfc638c823196bb2f297b19ab68ab3d001b05f16ba',
  'native/uv-inputs.json':'b61aaff24cc354fc5946af07afc7a088587d52987081ea993e847270cfda94d3'}
-HOST={'receipt.json','cleanup.json','source-proof.json','consumer-inspect.json','consumer-after.json',
+HOST={'transport-diagnostic.json','transport-proof.json','receipt.json','cleanup.json','source-proof.json','consumer-inspect.json','consumer-after.json',
  'consumer-diagnostic.json','image-ledger.json','image-retirement.json','bootstrap-failure-retention.json','provision-diagnostic.json','build-summary.json'}
 BOOTSTRAP={phase+'-'+name for phase in ('bootstrap','overlay') for name in
  ('packages.lock','signatures.json','bootstrap.json','cache-checksums.json','Dockerfile','runner.json')}|{
@@ -84,7 +84,7 @@ def _project(source_root,public_root,projected_root):
    return raw
  roots=_names(public)
  for name in roots:
-  with C.refusal_context('projection-select',name):C.need(name in HOST|{'artifacts.json','actor-logs','provision-logs','bootstrap-proof','journey'},'unknown public root entry refused')
+  with C.refusal_context('projection-select',name):C.need(name in HOST|{'artifacts.json','actor-logs','provision-logs','bootstrap-proof','transport-proof','journey'},'unknown public root entry refused')
  for name in sorted(HOST&set(roots)):add(name)
  C.need('receipt.json' in selected or 'provision-diagnostic.json' in selected,'projection authority receipt required')
  C.need(not ('receipt.json' in selected and 'provision-diagnostic.json' in selected),'ambiguous projection authority refused')
@@ -102,6 +102,10 @@ def _project(source_root,public_root,projected_root):
    with C.refusal_context('projection-select',relative):
     allowed=(re.fullmatch(r'[0-9]{4}\.log',name) if directory=='actor-logs' else re.fullmatch(r'(?:proof\.json|input-transport-owner\.json|input-cache-owner\.json)-[0-9]{3}\.log',name) if directory=='provision-logs' else name in BOOTSTRAP)
     C.need(allowed,'unknown public proof leaf refused');add(relative)
+ for name in _names(public,'transport-proof'):
+  relative='transport-proof/'+name
+  with C.refusal_context('projection-select',relative):
+   C.need(name=='receipt.json' or re.fullmatch(r'[0-9]{4}\.(stdout|stderr)',name),'fixed transport proof leaf required');add(relative)
  journey=_names(public,'journey')
  for name in journey:
   with C.refusal_context('projection-select','journey/'+name):C.need(name in {'result.json','build-summary.json',*REPORTS},'unknown journey entry refused')

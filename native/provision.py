@@ -179,35 +179,85 @@ def transport(root, args):
     ordinary_directory(args.cache, private=True)
     need(not os.path.lexists(args.carrier) and not (args.work / 'input-transport-owner.json').exists(), 'fresh one-shot full-carrier transport; no retry')
     profile = carrier_profile(root)
-    actor = basis(root).Actors(args.work / 'input-transport-actors', 480)
+    profile_raw = read(root / 'bootstrap/scripts/ci/setup6-retained-helpers/carrier-profile.json')
+    evidence = args.work / 'retained-transport-evidence'
     report = dict(receipt_base(root, args, own), status='FAIL_RETAINED_INPUT_TRANSPORT_DATA',
         role='RETAINED_INPUT_TRANSPORT_DATA', carrier_source=CARRIER_SOURCE, profile_sha256=PROFILE,
         expected_carrier_files=1154, expected_carrier_bytes=1046432165, budget_seconds=480,
-        retry=False, partial_data_retained=True, full_carrier_proof='DEFERRED_TO_OWNER_PREPARE_NATIVE248',
+        retry=False, partial_data_retained=True, actors=[], canonical_transport=None,
+        full_carrier_proof='DEFERRED_TO_OWNER_PREPARE_NATIVE248',
         authentication='ORIGINAL_FULL_CARRIER_PREPARE_AND_NATIVE_SIGNATURE_AUDIT_REQUIRED')
+    original_error = None; deadline = time.monotonic() + 480
     try:
-        args.carrier.mkdir(mode=0o700)
-        with git_environment(args.work / 'home'):
-            git = ['/usr/bin/git', '--no-replace-objects', '-c', 'credential.helper=', '-c', 'http.extraHeader=',
-                   '-c', 'http.sslVerify=true', '-c', 'core.hooksPath=/dev/null', '-c', 'protocol.allow=never',
-                   '-c', 'protocol.https.allow=always', '-c', 'core.fsmonitor=false']
-            actor.run([*git, 'init', '--template=', str(args.carrier)], timeout=10)
-            actor.run([*git, '-C', str(args.carrier), '-c', 'http.lowSpeedLimit=65536', '-c', 'http.lowSpeedTime=60',
-                'fetch', '--depth=1', '--no-tags', '--no-recurse-submodules',
-                'https://github.com/Gabriel-Kahen/cachy-asahi.git', profile['source']], timeout=400)
-            fetched = actor.run([*git, '-C', str(args.carrier), 'rev-parse', '--verify', 'FETCH_HEAD'], timeout=10)
-            need(fetched == CARRIER_SOURCE, 'exact fetched immutable carrier commit')
-            actor.run([*git, '-C', str(args.carrier), 'checkout', '--detach', CARRIER_SOURCE], timeout=45)
-            head = actor.run([*git, '-C', str(args.carrier), 'rev-parse', '--verify', 'HEAD'], timeout=10)
-            need(head == CARRIER_SOURCE, 'exact retained DATA checkout HEAD')
-        report.update(status='PASS_EXACT_RETAINED_INPUT_TRANSPORT_DATA_ONLY', carrier_head=head)
+        from retained_transport import deliver
+        result = deliver(root, args.carrier, evidence, profile_raw, PROFILE)
+        report['canonical_transport'] = result
+        need(result['status'] == 'PASS_EXACT_RETAINED_GIT_DATA_ONLY', 'complete exact carrier delivery required')
+        from transport_proof import export
+        report['transport_proof'] = export(args.work, own, args.map_sha256, result, profile)
+        need(time.monotonic() < deadline, 'original480 transport envelope exhausted')
+        report.update(status='PASS_EXACT_RETAINED_INPUT_TRANSPORT_DATA_ONLY', carrier_head=CARRIER_SOURCE)
     except BaseException as error:
+        original_error = error
         report['error'] = type(error).__name__ + ': ' + str(error)[:2048]
+        if report['canonical_transport'] is None:
+            try:
+                report['canonical_transport'] = load(evidence / 'receipt.json')
+            except Exception:
+                pass
         raise
     finally:
-        report['actors'] = actor_logs(actor, args.work)
+        try:
+            from transport_retention import retain
+            report['transport_diagnostic'] = retain(args.work, own, args.map_sha256,
+                report['canonical_transport'], original_error)
+        except Exception:
+            report['transport_diagnostic'] = dict(status='REFUSED_TRANSPORT_DIAGNOSTIC_INTERNAL')
         save(args.work / 'input-transport-owner.json', report)
     return report
+
+
+def transport_retired(phase, work, profile, own, map_hash):
+    """Canonical owned-process supervision, never fabricated PGO actor fields."""
+    need(phase['binding'] == own and phase['source_map_sha256'] == map_hash
+         and phase['actors'] == [] and phase['status'] == 'PASS_EXACT_RETAINED_INPUT_TRANSPORT_DATA_ONLY',
+         'same-source exact canonical transport required')
+    from transport_proof import validate
+    certificate = load(Path(work) / 'transport-proof.json')
+    need(certificate == phase['transport_proof'], 'unchanged transport certificate')
+    validate(certificate, phase['canonical_transport'], profile, own, map_hash,
+             lambda name: read(Path(work) / name))
+
+
+def copy_transport_public(work, output, own, map_hash):
+    """Finite proof/guarded diagnostics only; never carrier/material bytes."""
+    from capsule import _ordinary
+    from public_projection import PRIVATE_MARKER
+    work, output = Path(work), Path(output)
+    for name in ('transport-diagnostic.json', 'transport-proof.json'):
+        source = work / name
+        if not source.exists():
+            continue
+        raw = _ordinary(source, 16*1024**2); value = json.loads(raw)
+        need(value.get('binding') == own and value.get('source_map_sha256') == map_hash
+             and not PRIVATE_MARKER.search(raw), 'same-source privacy-qualified transport DATA')
+        target = output / name
+        with target.open('xb') as stream:
+            stream.write(raw)
+        target.chmod(0o600)
+    proof = work / 'transport-proof'
+    if proof.exists():
+        need(proof.is_dir() and not proof.is_symlink(), 'ordinary transport proof directory')
+        destination = output / 'transport-proof'; destination.mkdir(mode=0o700)
+        names = sorted(p.name for p in proof.iterdir()); need(len(names) <= 64, 'bounded transport proof count')
+        total = 0
+        for name in names:
+            need(name == 'receipt.json' or re.fullmatch(r'[0-9]{4}\.(stdout|stderr)', name), 'fixed transport proof leaf')
+            raw = _ordinary(proof / name, 16*1024**2 if name == 'receipt.json' else 4*1024**2); total += len(raw)
+            need(total <= 16*1024**2 and not PRIVATE_MARKER.search(raw), 'bounded privacy-qualified transport proof')
+            with (destination / name).open('xb') as stream:
+                stream.write(raw)
+            (destination / name).chmod(0o600)
 
 
 def tick(deadline):
@@ -340,6 +390,10 @@ def retain(root, args):
             need(pin(data) == actor['log_pin'], 'original actor diagnostic pin')
             target = logs / (name + '-%03d.log' % number); target.write_bytes(data)
         report['phases'][name] = row
+    try:
+        copy_transport_public(args.work, output, own, args.map_sha256)
+    except Exception:
+        report['transport_public_retention'] = 'REFUSED_BOUNDED_TRANSPORT_DATA'
     save(output / 'provision-diagnostic.json', report)
     rows = {str(p.relative_to(output)): dict(kind='file', mode=stat.S_IMODE(p.lstat().st_mode), **pin(read(p))) for p in output.rglob('*') if p.is_file()}
     need(sum(row['bytes'] for row in rows.values()) <= 32*1024**2, 'bounded diagnostic artifact')

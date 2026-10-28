@@ -200,3 +200,33 @@ log bodies absent from this safe capsule are marked unavailable for pin verifica
 Actual184 only proves the aggregate guard failure and journey/result.json privacy
 refusal; aggregate/project/missing-tool values and the matched privacy rule/field
 remain UNKNOWN. New fixtures do not identify those actual values.
+
+## Bounded complete retained transport
+
+Carrier transport reuses the byte-exact maintained retained_git_transport helper
+and owned-process supervisor. A source adapter fetches exact shallow commit/tree
+metadata with blob:none, verifies a zero-blob metadata object inventory, then fetches
+every deduplicated required blob OID explicitly. It admits only the exact final
+commit/tree/blob inventory and materializes all1154 original paths, modes, sizes,
+SHA256s and Git blob hashes. Checkout, filters, submodules, lazy fetch, history and
+unselected objects provide no fallback. The original later legacy full proof stays.
+
+Both acquisition roles share one absolute400-second budget; aggregate delivery and
+materialization remain480 seconds with the existing500-second outer bound. Both
+fetch roles use --progress with the canonical bounded merged output and original
+supervision. No credential or HTTP tracing is enabled. Failed/unknown retirement
+remains failure. Data-only retention captures safe original bounded windows and
+phase/error fields while preserving the original error.
+
+A separate16MiB maximum metadata proof binds the actual raw commit, NUL-delimited
+whole tree, complete inventories, canonical receipt, non-material raw Git logs and
+all1154 material pin/mode records. It never copies package/material stdout. Native
+admission and passive reading validate actual canonical supervision instead of
+inventing PGO actor lifecycle fields. The public32MiB capsule and private guard stay.
+
+This full profile still requires1,046,432,165 material bytes. No payload reduction,
+latency improvement or native GitHub protocol compatibility is claimed. Stock Git
+can transfer blobs before an ignored-filter inventory refusal; those results are
+refused, with no full-fetch retry. Local Git fixtures establish bounded Source
+behavior only. Actual187's fetch log was empty after deadline-triggered forced
+retirement; its underlying HTTP/Git/network cause remains UNKNOWN.
