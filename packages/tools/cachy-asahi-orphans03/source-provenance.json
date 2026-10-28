@@ -1,0 +1,74 @@
+{
+  "causal_successor": {
+    "actual_ref": null,
+    "actual_run": null,
+    "actual_source": null,
+    "cause": "GLOBAL_GETEUID_SPOOF1000_REJECTED_UID1001_PRIVATE_PLAN_BEFORE_LATE_PRIVILEGE_GATE",
+    "fix": "EXPLICIT_ROOT_OPERATOR_GATE_BEFORE_ANY_INPUT_OR_DB_READ",
+    "full_recipe_gate": "109_NOT_RUN_ROOT_OWNS_FULL_TEST",
+    "native": "NOT_RUN",
+    "parent_source": "394ce9cd50eb683e6046205103a400707d7b7900",
+    "parent_version": "0.3.0-1",
+    "strict_data_guard": "UNCHANGED_NO_OWNER_OR_LINK_RELAXATION",
+    "version": "0.3.0-2"
+  },
+  "derived_readonly": {
+    "changes": "Only optional owned-lock checking/snapshot plumbing; public read-only defaults and output semantics retained.",
+    "original_sha256": "559ff8554b9c93f237ddebec8f6c8ac09749ed93b6a179c06fcf513dfffe3292",
+    "repo_path": "packages/tools/cachy-asahi-orphans/cachy-asahi-orphans"
+  },
+  "evidence": {
+    "host": "PURE_CAUSAL_UID_INPUT_GUARD_CONTROLS_ONLY_THIS_SUCCESSOR",
+    "native": "NOT_RUN",
+    "physical_M2": "NOT_RUN",
+    "real_removal": "NOT_RUN_THIS_SUCCESSOR",
+    "release": "NOT_ADMITTED"
+  },
+  "live_backend": {
+    "actual_live_removal": "NOT_RUN",
+    "fixture_commit": "25_CONTROL_SUITE_USES_FILE_SIMULATION",
+    "flags": 1152,
+    "native": "NOT_RUN",
+    "parent_product_pins": "parent-product-pins.json in development packet",
+    "physical_M2": "NOT_RUN",
+    "private_real_commit": "HISTORICAL0.3.0-1_ONLY_NOT_REPLAYED_THIS_SUCCESSOR",
+    "publication": "NOT_RUN",
+    "real_private_component": "NOT_RUN_THIS_SUCCESSOR_HISTORICAL0.3.0-1_CONTEXT_ONLY",
+    "source_scope": "EXPLICIT_OPERATOR_TARGET_POLICY_AND_REVIEWED_PLAN_NO_DEFAULT_ROOT"
+  },
+  "owned_process_retirement": {
+    "actual_ref": null,
+    "actual_run": null,
+    "actual_source": null,
+    "parent_remove_sha256": "c893b73e805f1fc093dbd479996892ad1c94cc373e840f76b9b1f63a3f880f41",
+    "real_ownership_controls": "test_retirement.py; inert owned children only; no ALPM/package/native actors",
+    "scope": "ONE_DEFAULT_SIGCHLD_MAIN_THREAD_OWNER; WNOWAIT_UNTIL_LAST_SIGNAL; DIRECT_WAITPID; LOST_OWNERSHIP_UNKNOWN_NO_SIGNALS"
+  },
+  "reference_integration_commit": "e5814001fe64147eadbb7c69650a9771f53c976e",
+  "retained_sources": {
+    "LICENSE": {
+      "repo_path": "packages/tools/cachy-asahi-orphans/LICENSE",
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "READONLY.md": {
+      "repo_path": "packages/tools/cachy-asahi-orphans/README.md",
+      "sha256": "ef96e2cf1e0809a065edd36545c861e4064f3bae2cc4665401455a89dd144529"
+    },
+    "protection-floor.json": {
+      "repo_path": "packages/tools/cachy-asahi-orphans/protection-floor.json",
+      "sha256": "0d6dfbf3cd550fe72ddad30058693007f8bb86214de1e83442580677db5005f2"
+    },
+    "test_orphans.py": {
+      "repo_path": "packages/tools/cachy-asahi-orphans/test_orphans.py",
+      "sha256": "8f4080979ad3de2b1c27419f27cd6e3f61b122544164f1e16158cc4f8d73bb82"
+    }
+  },
+  "schema_version": 1,
+  "source_scope": "LOCAL_MIT_DEVELOPMENT_PROPOSAL_NOT_RELEASE_AUTHORITY",
+  "successor": "0.3.0-2",
+  "transaction_patterns": [
+    "scripts/install/local_transaction.py: fixed NOHOOKS|NOSCRIPTLET flags, exact prepared maps",
+    "scripts/apps/transaction.py: exact removal identities and no expansion",
+    "scripts/update/bound_update.py: checked transaction/handle cleanup"
+  ]
+}

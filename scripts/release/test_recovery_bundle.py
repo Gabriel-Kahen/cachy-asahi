@@ -306,6 +306,72 @@ class BundleTests(unittest.TestCase):
         self.assertIn('plan',command['argv']);self.assertNotIn('--apply',command['argv'])
         self.assertFalse(command['executed']);self.assertFalse(command['development_kit_is_stable_source'])
 
+    def test_fractional_retained_http_observation_survives_materialize_and_relocation(self):
+        self.prior['packages'][0]['http_attempts']=[{'pace_wait_seconds':0.125}]
+        self.save_prior();self.chosen['recovery_receipt']=self.ref(self.prior_path);self.save_selection()
+        self.build()
+        relocated=self.root/'fractional-relocated';self.output.rename(relocated)
+        self.verify_args.workspace=str(relocated)
+        result=B.verify(self.verify_args)
+        self.assertEqual(result['status'],'verified-offline-recovery-data')
+        retained=B.recovery_json((relocated/'recovery/receipt.json').read_bytes())
+        self.assertEqual(retained['packages'][0]['http_attempts'][0]['pace_wait_seconds'],0.125)
+
+    def test_recovery_parser_rejects_duplicates_nonfinite_and_nonobjects(self):
+        for raw in (b'{"x":1,"x":2}',b'{"x":NaN}',b'{"x":Infinity}',b'{"x":1e999}',b'[]'):
+            self.refuse(lambda:B.recovery_json(raw))
+
+    def test_selection_and_client_authority_json_remain_integer_only(self):
+        self.chosen['schema_version']=1.0;self.save_selection()
+        self.refuse(lambda:B.selection(self.selection_path.read_bytes()))
+        self.refuse(lambda:C.decode(b'{"sequence":1.5}'))
+
+    def test_fractional_recovery_schema_counts_and_sizes_still_refuse(self):
+        for change in (lambda:self.prior.update(schema_version=1.0),
+                       lambda:self.prior.update(verified_count=float(P.OLD_COUNT)),
+                       lambda:self.prior['packages'][0]['archive'].update(
+                           size=float(self.prior['packages'][0]['archive']['size']))):
+            original=copy.deepcopy(self.prior)
+            change();self.save_prior();self.chosen['recovery_receipt']=self.ref(self.prior_path);self.save_selection()
+            self.refuse(lambda:B.materialize(self.args));self.assertFalse(self.output.exists())
+            self.prior=original;self.save_prior()
+
+    def test_exact_pinned_armored_recovery_certificate_is_not_a_binary_kit_keyring(self):
+        self.certificate.write_bytes(b'-----BEGIN PGP PUBLIC KEY BLOCK-----\noriginal TEST observation\n')
+        certificate=self.ref(self.certificate)
+        self.prior['inputs']['certificate']=certificate
+        keys={**P.auth.KEYS,'alarm':(P.auth.KEYS['alarm'][0],certificate['sha256'])}
+        self.save_prior();self.chosen['recovery_receipt']=self.ref(self.prior_path);self.save_selection()
+        with mock.patch.object(P.auth,'KEYS',keys):
+            self.build();self.assertEqual(B.verify(self.verify_args)['status'],'verified-offline-recovery-data')
+
+    def test_recovery_timing_refuses_bool_strings_negative_and_malformed_rows(self):
+        for value in (True,False,'0.125',-0.1,None):
+            raw=C.encoded(dict(kind='exact-superseded-recovery-archive-data',
+                packages=[dict(http_attempts=[dict(pace_wait_seconds=value)])]))
+            self.refuse(lambda:B.recovery_json(raw))
+        for attempts in ({},[True]):
+            raw=C.encoded(dict(kind='exact-superseded-recovery-archive-data',packages=[dict(http_attempts=attempts)]))
+            self.refuse(lambda:B.recovery_json(raw))
+
+    def test_bool_recovery_authority_fields_and_wrong_fingerprint_refuse(self):
+        for mutate in (lambda:self.prior.update(schema_version=True),
+                       lambda:self.prior.update(verified_count=True),
+                       lambda:self.prior['packages'][0]['archive'].update(size=True),
+                       lambda:self.prior['packages'][0]['signature_verification'].update(primary_fingerprint='F'*40)):
+            saved=copy.deepcopy(self.prior)
+            mutate();self.save_prior();self.chosen['recovery_receipt']=self.ref(self.prior_path);self.save_selection()
+            self.refuse(lambda:B.materialize(self.args));self.assertFalse(self.output.exists())
+            self.prior=saved;self.save_prior()
+
+    def test_retained_signature_exit_does_not_accept_bool_or_fractional_zero(self):
+        for value in (False,True,0.0):
+            original=copy.deepcopy(self.prior)
+            self.prior['packages'][0]['signature_observation']['exit']=value
+            self.save_prior();self.chosen['recovery_receipt']=self.ref(self.prior_path);self.save_selection()
+            self.refuse(lambda:B.materialize(self.args));self.assertFalse(self.output.exists())
+            self.prior=original;self.save_prior()
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
