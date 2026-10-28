@@ -146,3 +146,44 @@ through the unmodified production CLI as an actual refusal.
 All results remain recovery **data** custody evidence. Package installation,
 usable-system restoration, stable admission, ARM/native execution, M2 hardware,
 snapshot restoration, boot/session recovery and performance are not accepted.
+
+## Real host cryptographic component validation (2026-10-28)
+
+The mocked fixture coverage above is the initial consumer-test history. The
+corrected product retains those explicit unit-test seams and now has 23 focused
+host tests. A separate real host integration used an isolated disposable TEST
+authority without mocking signature/authentication, certificate pins, clocks or
+checkpoints. It materialized an authenticated kit, reinspected the copied kit,
+verified the workspace before and after relocation and producer-input removal,
+then verified again using public material after private signing-home retirement.
+
+That finite observation includes 14 causal CLI refusals and 55 owned commands
+reaching their expected exits. Expected refusal exit1 is preserved, not relabeled
+as exit-zero success. TEST fingerprint was
+`7DC954EC29B50C54BA40DE712BC81A8722A5ACB0`; this is historical test provenance,
+not production trust or a current-validity claim. The short/long envelopes expire
+naturally; no expiry/checkpoint override or operational signing authority follows.
+
+The product correction admits finite fractional recovery timing observations
+emitted by the actual producer. Duplicate keys, nonfinite/overflow numbers,
+boolean/string/negative timing values and malformed timing rows refuse. Authority
+selection/client parsing stays integer-only, and retained signature exit requires
+an exact integer before existing exit-zero/status/fingerprint checks. The exact
+pinned ALARM recovery certificate is armored, so the unrelated binary kit-key
+packet parser is removed only from that certificate path; its SHA/size/bytes,
+planner checks and separate kit-keyring guards remain. No signature bypass exists.
+
+The integration used inert synthetic overlay/base inputs and 16 exact retained
+ALARM recovery archives as rehashed/reinspected data. Their signature observations
+remain retained evidence: `fresh_recovery_signature_verification` stays false.
+No archive payload or hook was executed. Owned-agent reaping, per-home gpgconf
+shutdown/socket removal and private-home removal were recorded; no secret export
+is retained. Global escaped-descendant absence and physical erasure were not
+observed. The earlier failed/retired authority is preserved as failed evidence.
+
+These results establish host crypto/component behavior only. They do not establish
+native ARM execution, installed transactions, stable endpoint recovery, usable
+system/boot/session restoration, M2, performance or release acceptance. Retained
+integration provenance: `artifacts/development/recovery-bundle-crypto-root-integration-20261028/`
+and its pinned replacement-authority evidence inventory. No crypto or test rerun
+occurred during this source integration.
