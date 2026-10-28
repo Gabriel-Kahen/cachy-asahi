@@ -1,0 +1,84 @@
+{
+  "actual": {
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "additions": [],
+  "gdb_rows": [
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "bash",
+        "boost-libs",
+        "expat",
+        "libgcc",
+        "libstdc++",
+        "gdb-common=18.1",
+        "glibc",
+        "gmp",
+        "guile",
+        "libelf",
+        "liblzma.so=5-64",
+        "libmpfr.so=6-64",
+        "libncursesw.so=6-64",
+        "libreadline.so=8-64",
+        "libxxhash.so=0-64",
+        "libzstd.so=1-64",
+        "mpfr",
+        "ncurses",
+        "python",
+        "readline",
+        "source-highlight",
+        "xxhash",
+        "xz",
+        "zstd"
+      ],
+      "filename": "gdb-18.1-1-aarch64.pkg.tar.xz",
+      "license": [
+        "GPL-3.0-or-later",
+        "LGPL-3.0-or-later"
+      ],
+      "name": "gdb",
+      "provides": [],
+      "replaces": [],
+      "sha256": "189c02d39b130db5e17f28e3c26f2eb21785c9cbc51974410f2ef82e9993582c",
+      "signature_sha256": "4b607a40a0b445bb71a413c505a7487f1ebacff25b2f6d4b14fcc70cbdb0ea3a",
+      "signature_size": 566,
+      "size": 7865476,
+      "source_url": [
+        "https://www.gnu.org/software/gdb/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/gdb-18.1-1-aarch64.pkg.tar.xz",
+      "version": "18.1-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "python",
+        "guile"
+      ],
+      "filename": "gdb-common-18.1-1-aarch64.pkg.tar.xz",
+      "license": [
+        "GPL-3.0-or-later",
+        "LGPL-3.0-or-later"
+      ],
+      "name": "gdb-common",
+      "provides": [],
+      "replaces": [],
+      "sha256": "da47f5e168fd5476e167042f1f33a6f9c2ae7197957939936d4acf3e537fb10f",
+      "signature_sha256": "a143df7ecb956454a2f0debdd5deae7f8b426dc0abdf2583ff96f7fe05cc5434",
+      "signature_size": 566,
+      "size": 118312,
+      "source_url": [
+        "https://www.gnu.org/software/gdb/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/gdb-common-18.1-1-aarch64.pkg.tar.xz",
+      "version": "18.1-1"
+    }
+  ],
+  "packages": 341,
+  "schema": 1
+}

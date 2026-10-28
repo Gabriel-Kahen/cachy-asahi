@@ -1,0 +1,18 @@
+{
+  "actual": {
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "capsule": "$RUNNER_TEMP/native-debugger-work/upload/public-tree.tar",
+  "owner": "native/owner.py",
+  "phases": [
+    "proof",
+    "transport",
+    "owner",
+    "retain"
+  ],
+  "publication": "ROOT_MUST_BIND_REAL_SOURCE_REF_RUN_AND_MAP",
+  "schema": 1,
+  "workflow_id": 381664314
+}
