@@ -755,7 +755,12 @@ jobs:
           test "$FDK_PAIR_OUTCOME" = success
           test "$AUDIO_INPUTS_OUTCOME" = success
           install -d -m 700 "$RUNNER_TEMP/expanded604-installer-home"
+          diagnostic_ready=false
+          if python3 -I -B "$GITHUB_WORKSPACE/core622-code/export622.py" --outer-caller-begin && { exec 3> >(python3 -I -B "$GITHUB_WORKSPACE/core622-code/export622.py" --outer-caller-pump phase.stdout); stdout_pump=$!; exec 4> >(python3 -I -B "$GITHUB_WORKSPACE/core622-code/export622.py" --outer-caller-pump phase.stderr); stderr_pump=$!; }; then
+            diagnostic_ready=true
+          fi
           phase_seconds=$(python3 -I -B "$GITHUB_WORKSPACE/core622-code/ownership622.py" --begin-core-phase)
+          run_original_current_core() {
           timeout --signal=TERM --kill-after=60s "${phase_seconds}s" \
             env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/expanded604-installer-home" LANG=C.UTF-8 TZ=UTC \
             PYTHONDONTWRITEBYTECODE=1 RUNNER_TEMP="$RUNNER_TEMP" SOURCE_SHA="${{ github.sha }}" WORKFLOW_SHA="${{ github.sha }}" \
@@ -782,6 +787,16 @@ jobs:
               --apps6-source "$GITHUB_WORKSPACE/apps6-inputs/payload" --apps6-authority-source "$GITHUB_WORKSPACE/apps6-authority" \
             --audio-inputs "$RUNNER_TEMP/audio-archives" \
               --output "/tmp/cachy-asahi-expanded604-installer-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          }
+          set +e
+          if "$diagnostic_ready"; then run_original_current_core >&3 2>&4; else run_original_current_core; fi
+          phase_exit=$?
+          set -e
+          if "$diagnostic_ready"; then printf '%s\n' "$phase_exit" >"$RUNNER_TEMP/core622-outer-fresh-caller/phase.exit-code" || true; fi
+          exec 3>&- 4>&- || true
+          if "$diagnostic_ready"; then wait "$stdout_pump" || true; wait "$stderr_pump" || true; fi
+          if [ "$phase_exit" -ne 0 ]; then python3 -I -B "$GITHUB_WORKSPACE/core622-code/export622.py" --outer-caller-frame || true; fi
+          exit "$phase_exit"
       - name: Retain only bounded declared expanded604 installer reports
         if: always()
         timeout-minutes: 2

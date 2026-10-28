@@ -55,7 +55,7 @@ def copy(output,public,*,retained_transport=False):
    if f.is_file():
     n=f.relative_to(source).as_posix();need(st.st_size<=128*1024**2 and len(rows)<4096,'original individual public caps');raw=f.read_bytes();need(len(raw)==st.st_size,'whole current public bytes');rows[n]=pin(raw);total+=len(raw);need(total<=768*1024**2,'original768MiB aggregate');target=public/n;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(raw)
   need((public/'export.json').is_file(),'source-owned full Core retainer required');record=json.loads((public/'export.json').read_bytes());need(set(rows)==set(record['files'])|{'export.json'}and all(rows[n]==v for n,v in record['files'].items()),'unchanged complete current Core public closure');
-  if retained_transport:_retain_transport_or_early_data(public)
+  if retained_transport:_retain_transport_or_early_data(public);optional_outer_caller(output,public)
   return
  public.mkdir(mode=0o700)
  # An original producer failure can precede every Core consumer. Preserve only
@@ -65,7 +65,7 @@ def copy(output,public,*,retained_transport=False):
   st=result.lstat();need(stat.S_ISREG(st.st_mode)and st.st_nlink==1 and st.st_uid==os.getuid()and st.st_size<=4*1024**2,'ordinary bounded current outer result');raw=result.read_bytes();need(len(raw)==st.st_size,'whole current result');(public/'fresh607-caller-result.json').write_bytes(raw);rows['fresh607-caller-result.json']=pin(raw)
  raw=(json.dumps(dict(status='CORE622_PRE_PROVISION_FAILURE_DATA_ONLY',scope='COPIED_ROOT_PROVISIONING_NOT_NORMAL_HOOK_INSTALLATION_THEN_NORMAL_CORE_VM',Core_runtime='NOT_ESTABLISHED',acceptance=False,hardware='NOT_RUN'),sort_keys=True,indent=2)+'\n').encode();(public/'current622-context.json').write_bytes(raw);rows['current622-context.json']=pin(raw);(public/'export.json').write_text(json.dumps(dict(schema=1,status='FAIL_OR_INCOMPLETE',files=rows,bytes=sum(r['bytes']for r in rows.values()),errors=[dict(file='Core622',error='PRE_PROVISION_FAILURE_DATA_ONLY')],hardware='NOT_RUN'),sort_keys=True,indent=2)+'\n')
 
- if retained_transport:_retain_transport_or_early_data(public)
+ if retained_transport:_retain_transport_or_early_data(public);optional_outer_caller(output,public)
 
 
 def _retain_early_transport_data(public,reason):
@@ -119,10 +119,182 @@ def _retain_transport_or_early_data(public):
   _admit_closed_sibling_source();__import__('ownership622').retain_complete574_transport(public)
  except BaseException as error:return _retain_early_transport_data(public,type(error).__name__)
 
+
+# Versioned bounded original outer-caller DATA, never runtime/cleanup authority.
+OUTER_ROLES={'result.json':4*1024**2,'intent.json':16384,'child-exception.txt':65536,'child-exception.json':16384,'outer-exception.txt':65536,'outer-exception.json':16384,'selected-main.json':16384,'phase.stdout':1024**2,'phase.stderr':1024**2,'phase.exit-code':32,'phase.stdout.json':16384,'phase.stderr.json':16384}
+
+def outer_read(path,limit,*,prefix=False):
+ path=Path(path);need(path.is_absolute()and path==path.resolve()and not any(p.is_symlink()for p in(path,*path.parents)),'literal outer diagnostic DATA');fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK|os.O_CLOEXEC)
+ try:
+  a=os.fstat(fd);key=lambda s:tuple(getattr(s,k)for k in('st_dev','st_ino','st_mode','st_uid','st_gid','st_nlink','st_size','st_mtime_ns','st_ctime_ns'));need(stat.S_ISREG(a.st_mode)and a.st_nlink==1 and a.st_uid==os.getuid()and stat.S_IMODE(a.st_mode)in(0o600,0o644)and a.st_size>=0,'ordinary owned bounded outer diagnostic role');need(prefix or a.st_size<=limit,'outer diagnostic role exceeds its held cap');keep=bytearray();digest=hashlib.sha256();scanned=0;full=a.st_size<=128*1024**2
+  while scanned<(a.st_size if full else min(a.st_size,limit)):
+   part=os.read(fd,min(1024**2,(a.st_size if full else limit)-scanned));need(part,'whole stable outer diagnostic read');digest.update(part);scanned+=len(part)
+   if len(keep)<limit:keep.extend(part[:limit-len(keep)])
+  need(key(a)==key(os.fstat(fd))==key(path.lstat()),'stable original outer diagnostic descriptor/path');data=bytes(keep);return data,dict(original_path=str(path),original_bytes=a.st_size,original_sha256=digest.hexdigest()if full else None,retained=pin(data),complete=len(data)==a.st_size,window='FULL'if len(data)==a.st_size else'PREFIX',whole_digest_known=full)
+ finally:os.close(fd)
+
+def outer_encoded(value):return(json.dumps(value,sort_keys=True,indent=2,allow_nan=False)+'\n').encode()
+
+def outer_paths():
+ import re
+ source=os.environ.get('GITHUB_SHA','');run=os.environ.get('GITHUB_RUN_ID','');ref=os.environ.get('GITHUB_REF_NAME','');need(re.fullmatch('[a-f0-9]{40}',source)and source==os.environ.get('SOURCE_SHA')==os.environ.get('WORKFLOW_SHA')and re.fullmatch('[1-9][0-9]{0,19}',run)and re.fullmatch('codex/[a-z0-9-]+',ref)and os.environ.get('GITHUB_RUN_ATTEMPT')=='1','exact outer diagnostic Source/run binding');root=Path(__file__).absolute().parent;temporary=Path(os.environ['RUNNER_TEMP']);workspace=Path(os.environ['GITHUB_WORKSPACE']);need(root==workspace/'core622-code'and root==root.resolve()and temporary==temporary.resolve()and all(p.is_absolute()and not any(q.is_symlink()for q in(p,*p.parents))for p in(root,temporary))and temporary.is_dir()and temporary.stat().st_uid==os.getuid()and not temporary.stat().st_mode&0o022,'canonical disjoint Source/runtime outer diagnostic roles');work=temporary/'core622-outer-fresh-caller';output=Path('/tmp')/('cachy-asahi-expanded604-installer-'+run+'-1');need(not root.is_relative_to(temporary)and not temporary.is_relative_to(root)and not any(p.is_symlink()for p in(output,*output.parents)),'disjoint exact outer caller path');identity=dict(source=source,ref=ref,run=int(run),attempt=1);nonce=hashlib.sha256(('current607-core622:'+source+':'+run).encode()).hexdigest()[:32];code=pin(outer_read(root/'export622.py',4*1024**2)[0]);intent=dict(schema=1,status='SOURCE_BOUND_OUTER_FRESH_CALLER_INTENT_DATA_ONLY',identity=identity,nonce=nonce,source_root=str(root),runtime_temp=str(temporary),work_path=str(work),output=str(output),source_export=code,acceptance=False);return temporary,work,output,intent
+
+def outer_intent():
+ temporary,work,output,expected=outer_paths();need(work.is_dir()and work.stat().st_uid==os.getuid()and stat.S_IMODE(work.stat().st_mode)==0o700,'owned outer diagnostic directory');raw=outer_read(work/'intent.json',16384)[0];need(raw==outer_encoded(expected),'exact immutable original outer diagnostic intent');return temporary,work,output,expected
+
+def outer_write(path,data,limit):
+ need(len(data)<=limit,'bounded actual outer diagnostic write');fd=os.open(path,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,0o600)
+ try:
+  with os.fdopen(fd,'wb',closefd=False)as stream:stream.write(data)
+  info=os.fstat(fd);return(info.st_dev,info.st_ino)
+ except BaseException:
+  try:
+   a=os.fstat(fd);b=Path(path).lstat()
+   if(a.st_dev,a.st_ino)==(b.st_dev,b.st_ino)and a.st_uid==os.getuid()and a.st_nlink==1:Path(path).unlink()
+  except BaseException:pass
+  raise
+ finally:os.close(fd)
+
+def outer_begin():
+ _,work,_,intent=outer_paths();need(not os.path.lexists(work),'one fresh outer diagnostic intent');work.mkdir(mode=0o700);outer_write(work/'intent.json',outer_encoded(intent),16384);return intent
+
+def outer_exception(error,kind):
+ import traceback
+ need(kind in('child','outer'),'fixed actual exception role');_,work,_,intent=outer_intent();body=bytearray();total=0;digest=hashlib.sha256()
+ for text in traceback.TracebackException.from_exception(error,capture_locals=False).format():
+  raw=text.encode('utf-8','backslashreplace');digest.update(raw);total+=len(raw)
+  if len(body)<65536:body.extend(raw[:65536-len(body)])
+ raw=bytes(body);outer_write(work/(kind+'-exception.txt'),raw,65536);value=dict(schema=1,status='ORIGINAL_CAUGHT_EXCEPTION_TRACEBACK_DATA_ONLY',identity=intent['identity'],nonce=intent['nonce'],kind=kind,error_type=type(error).__name__,traceback=dict(original_bytes=total,original_sha256=digest.hexdigest(),retained=pin(raw),complete=len(raw)==total,window='FULL'if len(raw)==total else'PREFIX',locals=False),acceptance=False);outer_write(work/(kind+'-exception.json'),outer_encoded(value),16384)
+
+def outer_delegate(call):
+ event=dict(schema=1,status='SELECTED_ORIGINAL_FRESH_MAIN_BOUNDARY_DATA_ONLY',phase='SELECTED_ORIGINAL_FRESH_MAIN',event='ENTER',acceptance=False)
+ try:
+  value=call();event.update(event='RETURN',return_type=type(value).__name__,return_value=value if type(value)in(int,bool,type(None))else None);return value
+ except BaseException as error:
+  event.update(event='RAISE',error_type=type(error).__name__)
+  try:outer_exception(error,'outer')
+  except BaseException:pass
+  raise
+ finally:
+  try:
+   _,work,_,intent=outer_intent();event.update(identity=intent['identity'],nonce=intent['nonce']);outer_write(work/'selected-main.json',outer_encoded(event),16384)
+  except BaseException:pass # Optional DATA never replaces the original return/raise.
+
+def outer_pump(role):
+ """Drain FD0; optional prefix-write failure never closes the input early."""
+ import select,time
+ need(role in('phase.stdout','phase.stderr'),'fixed bounded stream role');deadline=time.monotonic()+60;work=None;intent=None;clock=None;stream=None;created=None;errors=[];observed=0;digest=hashlib.sha256();eof=False;kept=0
+ try:
+  _,work,_,intent=outer_intent();_admit_closed_sibling_source();O=__import__('ownership622');clock=O.job_clock();deadline=clock['deadline']-120
+  try:stream=open(work/role,'xb',buffering=0);info=os.fstat(stream.fileno());created=(info.st_dev,info.st_ino)
+  except BaseException as error:errors.append(dict(stage='OPEN_PREFIX',error_type=type(error).__name__))
+ except BaseException as error:errors.append(dict(stage='CAPTURE_BINDING',error_type=type(error).__name__))
+ try:
+  while True:
+   if clock is not None:
+    try:phase=O.native_phase(require_work=False);deadline=min(deadline,phase['phase_end']+60)
+    except FileNotFoundError:pass
+    except BaseException as error:
+     if not any(v['stage']=='PHASE_BOUND'for v in errors):errors.append(dict(stage='PHASE_BOUND',error_type=type(error).__name__))
+   remaining=deadline-time.monotonic()
+   if remaining<=0:errors.append(dict(stage='DRAIN_DEADLINE',error_type='TimeoutError'));break
+   ready,_,_=select.select([0],[],[],min(.25,remaining))
+   if not ready:continue
+   raw=os.read(0,65536)
+   if not raw:eof=True;break
+   observed+=len(raw);digest.update(raw)
+   if stream is not None and kept<1024**2:
+    try:piece=raw[:1024**2-kept];count=stream.write(piece);need(count==len(piece),'whole bounded prefix write');kept+=count
+    except BaseException as error:
+     errors.append(dict(stage='WRITE_PREFIX',error_type=type(error).__name__))
+     try:stream.close()
+     except BaseException:pass
+     stream=None
+ finally:
+  if stream is not None:
+   try:stream.close()
+   except BaseException as error:errors.append(dict(stage='CLOSE_PREFIX',error_type=type(error).__name__))
+ if work is not None and intent is not None:
+  retained=None
+  try:
+   need(created is not None,'no borrowed prefix adoption');info=(work/role).lstat();need((info.st_dev,info.st_ino)==created,'same owned prefix inode');retained=pin(outer_read(work/role,1024**2)[0])
+  except BaseException as error:errors.append(dict(stage='PREFIX_PIN',error_type=type(error).__name__))
+  value=dict(schema=1,status='BOUNDED_ORIGINAL_PHASE_STREAM_CAPTURE_DATA_ONLY',identity=intent['identity'],nonce=intent['nonce'],role=role,observed_bytes=observed,observed_sha256=digest.hexdigest(),eof=eof,retained=retained,complete=eof and retained is not None and retained['bytes']==observed and not errors,window='FULL'if eof and retained is not None and retained['bytes']==observed and not errors else'PREFIX',errors=errors,acceptance=False)
+  try:outer_write(work/(role+'.json'),outer_encoded(value),16384)
+  except BaseException:pass
+ return 0 if eof else 1
+
+def outer_collect(output):
+ _,work,expected,intent=outer_intent();need(Path(output)==expected,'only the original source-bound fresh caller output');allowed=set(OUTER_ROLES)-{'result.json'};need(all(not p.is_symlink()and p.is_file()and p.name in allowed for p in work.iterdir()),'finite owned outer diagnostic namespace');rows={};bodies={};errors=[];total=0
+ for name,cap in OUTER_ROLES.items():
+  path=expected/'result.json'if name=='result.json'else work/name
+  if not path.exists():rows[name]=dict(status='UNAVAILABLE',original_path=str(path));continue
+  try:
+   raw,meta=outer_read(path,cap);
+   if name in('phase.stdout','phase.stderr'):
+    pump_raw=outer_read(work/(name+'.json'),16384)[0];pump=json.loads(pump_raw);need(pump['schema']==1 and pump['status']=='BOUNDED_ORIGINAL_PHASE_STREAM_CAPTURE_DATA_ONLY'and pump['identity']==intent['identity']and pump['nonce']==intent['nonce']and pump['role']==name and pump['retained']==pin(raw)and type(pump['observed_bytes'])is int and pump['observed_bytes']>=len(raw)and type(pump['eof'])is bool and type(pump['complete'])is bool and pump['window']in('FULL','PREFIX')and pump['complete']==(pump['eof']and pump['observed_bytes']==len(raw)and not pump['errors']),'actual bounded stream pump receipt');meta.update(original_bytes=pump['observed_bytes'],original_sha256=pump['observed_sha256']if pump['eof']else None,complete=pump['complete'],window=pump['window'],whole_digest_known=pump['eof'],pump_metadata=pin(pump_raw))
+   need(total+len(raw)<=8*1024**2,'held8MiB outer diagnostic aggregate');total+=len(raw);bodies[name]=raw;rows[name]=dict(status='ORIGINAL_DATA'if meta['complete']else'PARTIAL_ORIGINAL_PREFIX_DATA',**meta)
+  except BaseException as error:rows[name]=dict(status='REFUSED_OR_UNAVAILABLE',original_path=str(path),error_type=type(error).__name__);errors.append(dict(role=name,error_type=type(error).__name__))
+ index=dict(schema=1,status='BOUNDED_ORIGINAL_OUTER_FRESH_CALLER_DIAGNOSTICS_DATA_ONLY',identity=intent['identity'],nonce=intent['nonce'],intent=pin(outer_encoded(intent)),source_export=intent['source_export'],output=str(expected),work_path=str(work),roles=rows,retained_bytes=total,errors=errors,exception_cause='NOT_INFERRED_FROM_ABSENCE_OR_STREAM_TEXT',acceptance=False);need(len(outer_encoded(index))<=65536,'bounded diagnostic index');return bodies,index
+
+def outer_export_commit(public,record,before):
+ path=public/'export.json';temporary=public/'.outer-export-commit.tmp';data=outer_encoded(record);need(len(data)<=4*1024**2 and outer_read(path,4*1024**2)[0]==before,'stable complete original export before optional commit')
+ created=None
+ try:
+  created=outer_write(temporary,data,4*1024**2);info=temporary.lstat();need((info.st_dev,info.st_ino)==created and outer_read(temporary,4*1024**2)[0]==data,'same prepared optional export inode/body');need(outer_read(path,4*1024**2)[0]==before,'same original export at optional commit');os.replace(temporary,path)
+ finally:
+  if created is not None and os.path.lexists(temporary):
+   info=temporary.lstat()
+   if(info.st_dev,info.st_ino)==created and info.st_uid==os.getuid()and info.st_nlink==1:temporary.unlink()
+
+def retain_outer_caller(output,public):
+ temporary,_,_,_=outer_intent();public=Path(public);need(public==temporary/'core622-public'and public==public.resolve()and public.is_dir(),'fixed existing complete Core public diagnostic target');bodies,index=outer_collect(output);bodies['index.json']=outer_encoded(index);before=outer_read(public/'export.json',4*1024**2)[0];record=json.loads(before);need(not(public/'outer-fresh-caller').exists(),'fresh versioned outer diagnostic public roles');target=public/'outer-fresh-caller';target.mkdir(mode=0o700);need(sum(map(len,bodies.values()))<=8*1024**2,'unchanged outer component cap');failures=[];written={}
+ try:
+  for name,raw in bodies.items():
+   try:
+    need(record['bytes']+len(raw)<=768*1024**2 and len(record['files'])<4096,'held whole Core public capacities');identity=outer_write(target/name,raw,OUTER_ROLES.get(name,65536));written[name]=dict(pin=pin(raw),identity=identity);record['files']['outer-fresh-caller/'+name]=pin(raw);record['bytes']+=len(raw)
+   except BaseException as error:failures.append(dict(role=name,error_type=type(error).__name__))
+  record['outer_caller_diagnostics']=dict(schema=1,status='OPTIONAL_ORIGINAL_OUTER_DIAGNOSTIC_DATA_ONLY',index=pin(bodies['index.json'])if'outer-fresh-caller/index.json'in record['files']else None,errors=failures,acceptance=False);outer_export_commit(public,record,before);return index
+ except BaseException:
+  # Roll back only these freshly-created, unchanged owned copies. Originals stay.
+  for name,w in written.items():
+   path=target/name
+   info=path.lstat()
+   if(info.st_dev,info.st_ino)==w['identity']and pin(outer_read(path,OUTER_ROLES.get(name,65536))[0])==w['pin']:path.unlink()
+  if not any(target.iterdir()):target.rmdir()
+  raise
+
+def optional_outer_caller(output,public):
+ try:return retain_outer_caller(output,public)
+ except BaseException as error:
+  try:
+   public=Path(public);need(not(public/'outer-fresh-caller').exists(),'no undeclared optional physical roles');before=outer_read(public/'export.json',4*1024**2)[0];record=json.loads(before);record['outer_caller_diagnostics']=dict(schema=1,status='UNAVAILABLE_OR_REFUSED_OPTIONAL_OUTER_DATA',error_type=type(error).__name__,acceptance=False);outer_export_commit(public,record,before)
+  except BaseException:pass # Original complete export remains authoritative.
+
+def outer_frame():
+ import base64
+ _,_,output,_=outer_intent();bodies,index=outer_collect(output);selected={};remaining=24576
+ for name,cap in(('result.json',8192),('child-exception.txt',6144),('outer-exception.txt',6144),('selected-main.json',2048),('phase.exit-code',32)):
+  if name not in bodies:continue
+  raw=bodies[name];window=raw[:min(cap,remaining)];remaining-=len(window);selected[name]=dict(retained=pin(raw),content_base64=base64.b64encode(window).decode(),window_pin=pin(window),content_bytes=len(window),complete_content=len(window)==len(raw),window='FULL'if len(window)==len(raw)else'PREFIX')
+ projection=None
+ if 'result.json'in bodies:
+  try:
+   value=json.loads(bodies['result.json']);need(type(value)is dict,'original result object projection only');fields={};budget=4096
+   for name in('status','error_type','error','producer_cleanup','cleanup_error','caller_private_cleanup','private_cleanup_error','expanded_cache_cleanup','expanded_cleanup_error'):
+    if name not in value or type(value[name])not in(str,int,bool,type(None)):continue
+    original=json.dumps(value[name],sort_keys=True,separators=(',',':'),ensure_ascii=True,allow_nan=False).encode();window=original[:min(1536,budget)];budget-=len(window);fields[name]=dict(content_base64=base64.b64encode(window).decode(),window_pin=pin(window),original_json_bytes=len(original),complete_value=len(window)==len(original))
+   projection=dict(status='SOURCE_ASSERTED_FIXED_ORIGINAL_SCALAR_FIELDS_DATA_ONLY',result=pin(bodies['result.json']),fields=fields,acceptance=False)
+  except BaseException:pass
+ frame=dict(original_result_projection=projection,schema=1,status='SOURCE_BOUND_ORIGINAL_OUTER_CALLER_JOBLOG_DATA_ONLY',identity=index['identity'],nonce=index['nonce'],source_export=index['source_export'],roles=index['roles'],selected_content=selected,exception_cause='NOT_INFERRED',acceptance=False);raw=b'CORE622_OUTER_CALLER_FRAME_V1 '+json.dumps(frame,sort_keys=True,separators=(',',':'),allow_nan=False).encode()+b'\n';need(len(raw)<=65536,'small fixed diagnostic joblog frame');return raw
+
 def transport(core,public,target):
  path=core/'scripts/ci/core-native-lifecycle/owner.py';sys.path.insert(0,str(path.parent));spec=importlib.util.spec_from_file_location('_core622_whole_original_transport',path);module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);return module.transport(types.SimpleNamespace(public=public,output=target))
 
 def main():
+ if sys.argv[1:]==['--outer-caller-begin']:outer_begin();return 0
+ if len(sys.argv)==3 and sys.argv[1]=='--outer-caller-pump':return outer_pump(sys.argv[2])
+ if sys.argv[1:]==['--outer-caller-frame']:print(outer_frame().decode(),end='');return 0
  p=argparse.ArgumentParser();p.add_argument('--output',type=Path,required=True);p.add_argument('--public',type=Path,required=True);p.add_argument('--transport-only',action='store_true');p.add_argument('--core-source',type=Path);p.add_argument('--transport',type=Path);a=p.parse_args()
  if a.transport_only:need(a.core_source is not None and a.transport is not None,'explicit original transport source/output');return transport(a.core_source,a.public,a.transport)
  return copy(a.output,a.public,retained_transport=True)
