@@ -3,7 +3,7 @@
 import argparse,contextlib,hashlib,json,os,re,shutil,sys,time,types
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parent))
-import case as C,adapter,desktop622 as X,ownership622
+import case as C,adapter,desktop622 as X,ownership622,export622
 ROOT=Path(__file__).resolve().parent
 
 @contextlib.contextmanager
@@ -33,7 +33,7 @@ def derive(text):
  ("receipt['status']=='PASS' and all(receipt[k]=='PASS' for k in ('container_cleanup','image_cleanup','private_cleanup'))","receipt['status']=='PASS_CORE622_CURRENT607_NORMAL_CORE_TWO_BOOT' and receipt['all_original_cleanup']=='PASS'"),
  ("safe=vm_retired(vm_output)","safe=Y.core_retired(vm_output)"),
  ("cleanup=producer.cleanup(producer_output)","cleanup=Y.cleanup(producer,producer_output,vm_output)"),
- ("    except BaseException as error:result.update(status='FAIL',error_type=type(error).__name__,error=str(error)[:2048])","    except BaseException as error:\n        result.update(status='FAIL',error_type=type(error).__name__,error=str(error)[:2048])\n        try:Y.desktop_failure(result)\n        except BaseException:pass # Optional DATA cannot replace original failure/cleanup."),
+ ("    except BaseException as error:result.update(status='FAIL',error_type=type(error).__name__,error=str(error)[:2048])","    except BaseException as error:\n        result.update(status='FAIL',error_type=type(error).__name__,error=str(error)[:2048])\n        try:Y.outer_exception(error)\n        except BaseException:pass # Original caught error/result remains primary.\n        try:Y.desktop_failure(result)\n        except BaseException:pass # Optional DATA cannot replace original failure/cleanup."),
  ("'GENERIC4K_LATEST607_FRESH_INSTALLER_SOFTWARE_ONLY'",repr(X.SCOPE)),
  )
  before=text
@@ -154,11 +154,12 @@ def main(argv=None):
     context.producer=args.output;return ownership622.prepare_owned(original,args,super().producer,F.producer_diagnostic.CALLER_PIN,context.workspace/'core-source',context.proof['git']['core800'],F.producer_diagnostic.command,context.capture_desktop_build,context.end,context.capture_dependency)
    def seed_tooling(self,*a):
     fact=super().seed_tooling(*a);context.tooling_seed=fact;return fact
+   def outer_exception(self,error):return export622.outer_exception(error,'child')
    def desktop_failure(self,result):return context.desktop_failure(result)
    def core_host(self,args):return context.host(args)
    def core_retired(self,path):return context.retired(path)
    def cleanup(self,original,producer,path):return context.cleanup(original,producer,path)
    def __init__(self,*a,**kw):super().__init__(*a,**kw);self.source=proof['source_sha']
   oldderive=F.derive;selected=X.clone(F,Integration=Integration,derive=lambda raw:derive(oldderive(raw)))
-  return selected.main(rest)
+  return export622.outer_delegate(lambda:selected.main(rest))
 if __name__=='__main__':raise SystemExit(main())
