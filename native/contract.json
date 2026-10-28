@@ -1,0 +1,50 @@
+{
+  "actual": {
+    "ref": null,
+    "run": null,
+    "source": null
+  },
+  "bootstrap_failure_data": {
+    "allowlist": [
+      "acquisition.json",
+      "key-import.log",
+      "bootstrap.log",
+      "signatures.json"
+    ],
+    "positive_reader": "REQUIRE_AUTHORITATIVE_RETENTION_AND_ALL501_ACQUISITIONS",
+    "retention": "EXACT_BYTES_GUARDED_PUBLIC_COPY"
+  },
+  "bootstrap_fetch": {
+    "cache_only_package_descriptors": 496,
+    "extras_canonical_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "original_canonical_sha256": "00aab63e0b388efa1f9c7145ba49ffc8333987322de1482e9b6cc6d2676c9166",
+    "parent_fetch_exact_base_descriptors": 5,
+    "unknown_or_mutated": "REFUSE_NO_FALLBACK"
+  },
+  "canonical_workflow_id": 381664314,
+  "environment": "EXACT_SIGNED_ALARM_ORIGINAL341_NO_ADDITIONS",
+  "future_native": [
+    "C_GDB",
+    "CPP_GDB"
+  ],
+  "hosted_runner": "ubuntu-24.04-arm",
+  "image_path": "UNCHANGED_ORIGINAL_FROM_SCRATCH_NO_OVERLAY_FROM_IMAGE_ID",
+  "isolation": "PRIVATE_PID_NAMESPACE_DEFAULT_DOCKER_SECCOMP_CAP_DROP_ALL_NO_HOST_ATTACH",
+  "limits": {
+    "consumer_seconds": 1800,
+    "cpus": 2,
+    "memory": 4294967296,
+    "pids": 256,
+    "public_bytes": 33554432
+  },
+  "native": "NOT_RUN",
+  "native_16K": "NOT_QUALIFIED",
+  "packages": 341,
+  "parent": "3ee4b0ae221429385e738f4df01eac1b730f36ee",
+  "physical_M2": "NOT_RUN",
+  "predecessor124_map_sha256": "c5bd849a2347b1ab50dc31e544a310389f06d6ec744b3cbb51a400ce4f0a7ac9",
+  "public_evidence_transport": "CANONICAL_USTAR_PUBLIC_TREE_AS_DATA_V1",
+  "release": "NOT_ADMITTED",
+  "schema": 1,
+  "source_status": "SUCCESSOR_SOURCE_ONLY_NOT_PUBLISHED"
+}
