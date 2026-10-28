@@ -379,7 +379,7 @@ def retained_public_projection(view, files, binding, map_sha256):
         'scripts/workflows/developer_build_systems.py': '8c5025f3d748fb2e5aebb304310852158ebaac0bcaf9ef44cad8676ed5963fbc',
         'scripts/workflows/developer_workflow.py': '531c124cde3fa41d46888acfc638c823196bb2f297b19ab68ab3d001b05f16ba',
         'native/uv-inputs.json': 'b61aaff24cc354fc5946af07afc7a088587d52987081ea993e847270cfda94d3'}
-    host = {'receipt.json', 'cleanup.json', 'source-proof.json', 'consumer-inspect.json', 'consumer-after.json',
+    host = {'transport-diagnostic.json', 'transport-proof.json', 'receipt.json', 'cleanup.json', 'source-proof.json', 'consumer-inspect.json', 'consumer-after.json',
             'consumer-diagnostic.json', 'image-ledger.json', 'image-retirement.json', 'bootstrap-failure-retention.json', 'provision-diagnostic.json', 'build-summary.json'}
     bootstrap = {phase + '-' + leaf for phase in ('bootstrap', 'overlay') for leaf in
                  ('packages.lock', 'signatures.json', 'bootstrap.json', 'cache-checksums.json', 'Dockerfile', 'runner.json')}
@@ -415,7 +415,8 @@ def retained_public_projection(view, files, binding, map_sha256):
         if len(parts) == 2:
             allowed |= (parts[0] == 'actor-logs' and re.fullmatch(r'[0-9]{4}\.log', parts[1]) is not None
                         or parts[0] == 'provision-logs' and re.fullmatch(r'(?:proof\.json|input-transport-owner\.json|input-cache-owner\.json)-[0-9]{3}\.log', parts[1]) is not None
-                        or parts[0] == 'bootstrap-proof' and parts[1] in bootstrap)
+                        or parts[0] == 'bootstrap-proof' and parts[1] in bootstrap
+                        or parts[0] == 'transport-proof' and re.fullmatch(r'receipt\.json|[0-9]{4}\.(stdout|stderr)', parts[1]) is not None)
         if len(parts) == 3 and parts[0] == 'journey' and parts[1] in reports:
             allowed |= parts[2] in reports[parts[1]] or re.fullmatch(log_pattern, parts[2]) is not None
         if target.startswith('journey/python/venv/'):
@@ -648,6 +649,37 @@ def retained_safe_diagnostic(view, files, binding, map_sha256):
                 original_result_and_feature_logs='NOT_AVAILABLE_PIN_VERIFICATION_NOT_PERFORMED')
 
 
+def retained_transport_diagnostic(view, files, phase, binding, map_sha256):
+    value = phase.get('transport_diagnostic')
+    if value is None:
+        need('transport-diagnostic.json' not in files, 'unexpected transport diagnostic')
+        return
+    name = 'transport-diagnostic.json'
+    need(name in files and files[name]['kind'] == 'file' and files[name]['bytes'] <= 1024**2
+         and view.load(name) == value, 'standalone original transport diagnostic required')
+    from transport_retention import validate as validate_transport_diagnostic
+    validate_transport_diagnostic(value, binding, map_sha256, phase['work'])
+
+
+def retained_transport_proof(view, files, phase, binding, map_sha256):
+    """Actual canonical supervision and all complete carrier/object proof DATA."""
+    need(phase['binding'] == binding and phase['source_map_sha256'] == map_sha256
+         and phase['actors'] == [] and phase['status'] == 'PASS_EXACT_RETAINED_INPUT_TRANSPORT_DATA_ONLY'
+         and phase['carrier_source'] == 'ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad'
+         and phase['profile_sha256'] == '4089fd798849cafda23d03c0dd95ac896a83fd63ad21e331ae420c147535586c'
+         and phase['expected_carrier_files'] == 1154 and phase['expected_carrier_bytes'] == 1046432165
+         and phase['budget_seconds'] == 480 and phase['retry'] is False,
+         'same-source complete canonical transport, original clocks and whole profile required')
+    name = 'transport-proof.json'
+    need(name in files and files[name]['kind'] == 'file' and view.load(name) == phase['transport_proof'],
+         'standalone canonical transport certificate required')
+    from transport_proof import validate as validate_transport
+    profile = load(Path(__file__).resolve().parents[1] / 'bootstrap/scripts/ci/setup6-retained-helpers/carrier-profile.json')
+    validate_transport(view.load(name), phase['canonical_transport'], profile, binding, map_sha256, view.read)
+    return dict(status='VALIDATED_COMPLETE_CANONICAL_TRANSPORT_DATA_ONLY', files=1154,
+                native='NOT_ADMITTED')
+
+
 def validate(capsule_path, expected):
     need(type(expected) is dict and set(expected) == {'source', 'ref', 'run', 'map_sha256'}
          and re.fullmatch('[0-9a-f]{40}', expected.get('source') or '')
@@ -668,6 +700,10 @@ def validate(capsule_path, expected):
     if 'safe-diagnostic.json' in files:
         return retained_safe_diagnostic(view, files, binding, expected['map_sha256'])
     retained_public_projection(view, files, binding, expected['map_sha256'])
+    if 'provision-diagnostic.json' in files:
+        transport_phase = view.load('provision-diagnostic.json').get('phases', {}).get('input-transport-owner.json')
+        if transport_phase is not None:
+            retained_transport_diagnostic(view, files, transport_phase, binding, expected['map_sha256'])
     if 'provision-diagnostic.json' in files:
         diagnostic = view.load('provision-diagnostic.json')
         need(diagnostic['binding'] == binding and diagnostic['source_map_sha256'] == expected['map_sha256']
@@ -713,6 +749,7 @@ def validate(capsule_path, expected):
     need(after['State'] == receipt['consumer']['state'] and after['State']['Running'] is False
          and after['State']['ExitCode'] == 0 and after['State']['Status'] == 'exited', 'actual completed consumer daemon state')
     phases = receipt['provisioning']
+    retained_transport_proof(view, files, phases['transport'], binding, expected['map_sha256'])
     need(phases['proof']['status'] == 'PASS_EXACT_PUBLISHED_SOURCE_PROOF_ONLY'
          and phases['transport']['status'] == 'PASS_EXACT_RETAINED_INPUT_TRANSPORT_DATA_ONLY'
          and phases['cache']['status'] == 'PASS_EIGHT_INPUT_CACHE_DATA_ONLY', 'complete hosted source and input DATA provisioning')

@@ -75,7 +75,7 @@ def inspect_privacy(raw,relative_path):
  except (ValueError,UnicodeError,RecursionError,TypeError,OverflowError):pass
  return result
 
-HOST={'receipt.json','cleanup.json','source-proof.json','consumer-inspect.json','consumer-after.json','consumer-diagnostic.json',
+HOST={'transport-diagnostic.json','transport-proof.json','receipt.json','cleanup.json','source-proof.json','consumer-inspect.json','consumer-after.json','consumer-diagnostic.json',
  'image-ledger.json','image-retirement.json','bootstrap-failure-retention.json','provision-diagnostic.json','build-summary.json'}
 REPORTS={'python':{'result.json','commands.json','project.json'},'extension':{'result.json','commands.json','project.json'},
  'build-systems':{'result.json','commands.json','project-cmake.json','project-meson.json','installed-cmake.json','installed-meson.json'}}
@@ -95,6 +95,8 @@ def _sha(value,nullable=False):return value is None and nullable or type(value) 
 def _path(value):
  if type(value) is not str or len(value.encode('utf-8'))>4096 or PRIVATE_MARKER.search(value.encode()):return False
  if value in HOST|PRODUCERS|{'journey/result.json','journey/build-summary.json','artifacts.json','public-projection.json'}:return True
+ if value.startswith('transport-proof/'):
+  return value.removeprefix('transport-proof/')=='receipt.json' or re.fullmatch(r'[0-9]{4}\.(stdout|stderr)',value.removeprefix('transport-proof/')) is not None
  if value.startswith('bootstrap-proof/'):return value.removeprefix('bootstrap-proof/') in PROOFS
  if re.fullmatch(r'actor-logs/[0-9]{4}\.log|provision-logs/(?:proof\.json|input-transport-owner\.json|input-cache-owner\.json)-[0-9]{3}\.log',value):return True
  for feature,names in REPORTS.items():
