@@ -1,8 +1,8 @@
 {
   "Root_acceptance": null,
   "actual": null,
-  "actual_parent": "c5924f1431ec1077019911c4f4e1f7c2f6e88d68",
-  "actual_parent_tree": "4bfa1456d555359cca5394a20d9cfc8323bf688a",
+  "actual_parent": "66fae6ddbbd6df66e4d5a50c9577e9bb9168b170",
+  "actual_parent_tree": "803dc64ba8b7085d608cb5ab3a9bb5633ce80050",
   "budgets": {
     "completion_guarantee": false,
     "dependency_input_join_seconds": 60,
@@ -262,21 +262,38 @@
     "unallocated_job_minutes": 34
   },
   "causal_actual": {
-    "archive_URL_in_trace": "UNKNOWN",
-    "archive_attribution": "SOURCE_ORDER_AND_CACHE_INFERENCE",
     "attempt": 1,
-    "job": 122478315351,
-    "raw_error": "HTTP404_AT_ARCHIVE_FETCH",
-    "run": 40586254399,
-    "source": "c5924f1431ec1077019911c4f4e1f7c2f6e88d68",
-    "status": "FAILURE_DATA_ONLY"
+    "direct_entry": "UNKNOWN_NOT_PRINTED",
+    "direct_predicate": "UNKNOWN_NOT_PRINTED",
+    "direct_stat": "UNKNOWN_NOT_PRINTED",
+    "prior_actual_rootfs_bytes": 829367415,
+    "run": 40603657197,
+    "same_original_job_log": {
+      "bytes": 4459938,
+      "sha256": "213dac1b43c366f60cb98686a1e0d811f354c87bbd864553113fa7e6d5210a7f"
+    },
+    "source": "66fae6ddbbd6df66e4d5a50c9577e9bb9168b170",
+    "source_incompatibility": "GENERIC128M_CONTENT_READ_NOT_VALID_FOR_PRIOR_ROOTFS_ROLE",
+    "step": "Join exact retained dependency archive and signature before native owner"
   },
   "dependency_inputs": {
     "GPG": "UNCHANGED_ORIGINAL_ACQUIRE_REQUIRED",
     "acceptance": false,
     "acquire_sha256": "d87249d22f1184ee46d7d98db981ae394ae8e72847057b53bfecd778ab970d77",
-    "all_prior_cache_bytes_inodes_metadata": "MUST_REMAIN_UNCHANGED",
+    "all_prior_cache_inode_metadata": "MUST_REMAIN_UNCHANGED",
+    "bounded_refusal_diagnostics": "ROLE_FILENAME_STAT_EXPECTED_AND_NAMED_FAILED_PREDICATES",
     "cache": "$RUNNER_TEMP/alarm-cache",
+    "cache_metadata_helper": {
+      "bytes": 3826,
+      "sha256": "94e612507c49ef619f889eca8e805c9fe2c1b9bbca8dac014573494b46cd7a85"
+    },
+    "cache_role_count": 1161,
+    "cache_role_profile": {
+      "bytes": 332087,
+      "sha256": "58306d30d5c89053c08c24a1cd6d7a13c0c44f9a91b2a367f251e2c25288b9a7"
+    },
+    "cache_snapshot_policy": "FINITE_PRODUCER_ROLE_METADATA_ONLY_SELECTED_PAIR_BYTES",
+    "capacity_increase": false,
     "changed_package_pins": false,
     "cleanup_authority": false,
     "files": {
@@ -293,19 +310,25 @@
         "sha256": "9a8064cde23ad90c2352395bdd1f6f5a8e843b3db3468cd2cc5a90829dc32704"
       }
     },
+    "global_UID_allowlist": false,
     "helper": {
-      "bytes": 8819,
-      "sha256": "08008144be7a1947a8b72a9cb0939a510196828996c1ebcdc1cf4a7c6a9d8612"
+      "bytes": 14318,
+      "sha256": "fe3d6c2088ff5c391bd8bf3fe34e57d0e36d658572139076603ee34c23e94a9b"
     },
     "network": "NONE",
+    "prior_cache_role_count": 1159,
+    "prior_content_hash_verification": "NOT_PERFORMED_BY_PREFILL_ORIGINAL_HASH_GPG_GATES_REQUIRED",
+    "prior_content_write_confinement": "NO_WRITES_EXCEPT_ABSENT_TWO_SELECTED_ROLE_NAMES",
     "public_provenance_source": "405761af52cdfa92b97bbf5b0519f32230d9a254",
     "public_provenance_tree": "3ed40f295ad50cfc1ae5a20e1c7da2d33f878d11",
     "receipt": "$RUNNER_TEMP/apps607-retained-dependency-inputs.json",
-    "status": "EXACT_RETAINED_ARCHIVE_AND_SIGNATURE_NOT_AUTHENTICATION"
+    "regular_single_link_current_producer_owner_exact_role_size": "REQUIRED",
+    "status": "EXACT_RETAINED_ARCHIVE_AND_SIGNATURE_NOT_AUTHENTICATION",
+    "unselected_cache_body_reads": 0
   },
   "diagnostic_basis_capsule": {
-    "bytes": 101072,
-    "sha256": "f9899ac254c004eaea35ed51d386f8ff0277f9ac0e70bd56c4073228ac1a9357"
+    "bytes": 101806,
+    "sha256": "309ebad69595b3159375504b73d40cfd6565a19303a50851dda704ae1c2091f7"
   },
   "hardware": "NOT_RUN",
   "inputs": {
@@ -328,8 +351,8 @@
   "ref": null,
   "schema_version": 1,
   "source": null,
-  "source_files": 543,
-  "status": "SOURCE_ONLY_EXACT_RETAINED_DEPENDENCY_INPUT_CONTRACT",
+  "source_files": 545,
+  "status": "SOURCE_ONLY_ROLE_BOUND_CACHE_METADATA_CONTRACT",
   "transport": {
     "bytes": 1046432165,
     "cleanup_authority": false,
@@ -398,7 +421,7 @@
   "workflow": {
     "alias": ".github/workflows/native-arm-apps16-reinstall-interruption.yml",
     "current_registry": "NOT_QUERIED_NO_API",
-    "name": "native-arm-apps607-retained-dependency-input",
+    "name": "native-arm-apps607-role-bound-cache-snapshot",
     "path": ".github/workflows/native-arm-build.yml",
     "prior_observed_id": 381664314
   }
