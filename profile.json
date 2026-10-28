@@ -199,7 +199,7 @@
     },
     "emissions/cases/normal/adapter.json": {
       "bytes": 58965,
-      "sha256": "dfe2a1ad0c76a21d82f5d6169f36f3b81c425dc941c0f0b7038a8abe8c22b876"
+      "sha256": "b5d350281ece22e2bc50b732ddbc49f803516742a3f8fae3cac060858f4839b5"
     },
     "emissions/cases/normal/packages/tools/cachy-asahi-apps/.SRCINFO": {
       "bytes": 1775,
@@ -446,8 +446,8 @@
       "sha256": "dc49c28398c3fa7ccf8c065fed34da9376d41c092405037e1c9f68045f91660b"
     },
     "emissions/cases/normal/scripts/ci/full-root-upgrade-caller/persistent_scope.py": {
-      "bytes": 28101,
-      "sha256": "458ec2adbc3e509e89dc78b223b30d1ee2cdc041259f61c9c7578153d36cdeb0"
+      "bytes": 99709,
+      "sha256": "dd3cab457b382eea7892d58c9473d25676c06cb6ad3c34a0c2337b9c961c8975"
     },
     "emissions/cases/normal/scripts/ci/full-root-upgrade-caller/run.py": {
       "bytes": 27803,
@@ -462,8 +462,8 @@
       "sha256": "b78c34f92cec146af49eb632bdb1955e3c87823bf12e6da056bffa44c2eefa0c"
     },
     "emissions/cases/normal/scripts/ci/full-root-upgrade-caller/upgrade_hook.py": {
-      "bytes": 15558,
-      "sha256": "d23ed409b618920ac2f857e3a7e2745c56733cbf1f3868339088d9bbd564f4c1"
+      "bytes": 50080,
+      "sha256": "b3c044feb2f298d681e567bb7e9881241ad6be3959eb1660a639c42b826566fb"
     },
     "emissions/cases/normal/scripts/ci/full-root-upgrade/construct_repository.py": {
       "bytes": 13960,
@@ -482,8 +482,8 @@
       "sha256": "0feee89b5d26c8546c83fcb5ce583861cd13e35cdb512d0e13847eb7e3d51676"
     },
     "emissions/cases/normal/scripts/ci/full-root-upgrade/root_upgrade.py": {
-      "bytes": 25040,
-      "sha256": "f2deac756dbd40d51acbb0cbd7cd30360f5ccceaec8ad2d9fe1aa0e7396fdb27"
+      "bytes": 58286,
+      "sha256": "23e957aa04ed4e1e687ff8facc66db5db88a565713b4d874d2bcca76171b9b9a"
     },
     "emissions/cases/normal/scripts/ci/latest607-updater/selected-input.json": {
       "bytes": 77149,
@@ -558,8 +558,8 @@
       "sha256": "fccc4ea132364f3a075c358ce75664c565724d65b1f9a72bc2afdc82fe9c08f3"
     },
     "emissions/cases/normal/scripts/update/aux_initialize.py": {
-      "bytes": 7611,
-      "sha256": "ebdfefb242e439ec8cd6e955eecbdacd6ddc60f2f9303e8176309ff65bf5a8f7"
+      "bytes": 42802,
+      "sha256": "8a0f64b72310e1d0e3ee69691ecccbf098408c59a24a9210d7bd37566a2f1441"
     },
     "emissions/cases/normal/scripts/update/aux_runtime.py": {
       "bytes": 10032,
@@ -578,8 +578,8 @@
       "sha256": "f84e35a1798c4ce3fdc2b30f25105358bddc66e910ec575de9de52f6e22a31f9"
     },
     "emissions/cases/normal/scripts/update/full_root.py": {
-      "bytes": 35970,
-      "sha256": "3d8972efeb577750382c62d6801b8c507dbf612ed96e29ebde450a102c5c568e"
+      "bytes": 69703,
+      "sha256": "61cded0826b25e251e10e72b22bbd508c045182208abecd58b15e84f5179b4d8"
     },
     "emissions/cases/normal/scripts/update/generic_policy.py": {
       "bytes": 3992,
@@ -635,7 +635,7 @@
     },
     "emissions/cases/normal/upgrade-config.json": {
       "bytes": 14303,
-      "sha256": "bc0d4bf42b60244fd0352a0c8d1b97c367edff350f5e131330b54343ccda7d6b"
+      "sha256": "debc9a8bc7868f41e284ee3b962617f4458a7b9aa5ac338b84c4ef0e6c6ea5a5"
     },
     "emissions/cases/postcommit-exit87/adapter.json": {
       "bytes": 64434,
@@ -1550,8 +1550,8 @@
       "sha256": "be5969d6bda17e854035965391088e9ed4f4be68ceef3a3b3730f5f56c56f731"
     },
     "lifecycle_overlay.py": {
-      "bytes": 657845,
-      "sha256": "158b10db5af62e80ce6d9cc44624bc6131437a3577ac9d65234cf24ade9b2101"
+      "bytes": 954903,
+      "sha256": "1ddf093269c35a110ac88cc8f07aa4454f19a58a3ae3c13ec3549aeaf74a2d01"
     },
     "parent360/.github/workflows/native-arm-build.yml": {
       "bytes": 87381,
@@ -2994,8 +2994,8 @@
       "sha256": "1c03917fb6899a2f48c345f0c96bbde203121aff74a9f6459364436a1af3e1e9"
     },
     "profile.json": {
-      "bytes": 695844,
-      "sha256": "e3d6a5f794d8f0757c1928013e655f5e3f28718b3dacc9d2293e023293323b35"
+      "bytes": 695845,
+      "sha256": "d5882bf2a21448885dc11abf701fbfff8ad4ad1a9cb1c945b073b730eb5366b9"
     },
     "retain.py": {
       "bytes": 1275,
@@ -3006,8 +3006,8 @@
       "sha256": "60d896e7a6771e605c53e55b8886615a66dadd30f4e9d771a5a0db7711a82183"
     },
     "source-manifest.json": {
-      "bytes": 136378,
-      "sha256": "4b8edc83e3babfdf823ede0a594085241e39fc7210db4c25544dcbca377b6f89"
+      "bytes": 136379,
+      "sha256": "7dadf4de4c06f1bd6a15bfc79d82936a6178c132b1945020d14ffb5086c93be0"
     },
     "test_source.py": {
       "bytes": 3132,
