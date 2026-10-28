@@ -985,3 +985,42 @@ installation = "NOT RUN; ordinary-user staging and archive payload extraction on
 installed_real_network = "NOT RUN"
 hardware_validation = "NOT RUN"
 next_step = "Root canonical adoption and separately scoped native ARM pairs/disposable ALPM lifecycle; installed real-network path, native16K/M2, production trust, ARM remediation and release remain unestablished."
+
+# Unselected developer/release tooling candidates; host evidence only.
+[[packages]]
+name = "cachy-asahi-developer-tools"
+phase = "developer-workflows"
+status = "candidate"
+source = "local-original-pinned-MIT-private-runtime"
+recipe = "packages/tools/cachy-asahi-developer-tools/PKGBUILD"
+license = "MIT"
+audit = "packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/payload/share/doc/cachy-asahi-developer-tools/README.md"
+candidate_version = "0.1.0-1"
+selected_for_development = false
+selected_for_release = false
+source_archive_sha256 = "767ac7a1e98b35f212247ed906434c11c197ad5640ad3a13601d433c84d756c2"
+source_archive_bytes = 42901
+host_validation = "PASS13 focused packaging controls; actual x86_64 makepkg archive/private moved-prefix workflow, CMake, GDB and offline Python/uv journeys; 28 source/fixture holds preserved"
+native_build = "NOT RUN"
+installation = "NOT RUN; archive staging/private relocation is not ALPM or installed Asahi lifecycle"
+hardware_validation = "NOT RUN"
+performance = "NOT MEASURED"
+next_step = "Qualify a clean native ARM build pair, disposable ALPM lifecycle, native16K and selected target composition; preserve existing native/debugger ownership. Meson and physical M2 remain NOT RUN; release not admitted."
+
+[[packages]]
+name = "cachy-asahi-release-tools"
+phase = "complete-port-tools"
+status = "candidate"
+source = "local-original-pinned-MIT-private-runtime"
+recipe = "packages/tools/cachy-asahi-release-tools/PKGBUILD"
+license = "MIT"
+audit = "packages/tools/cachy-asahi-release-tools/README.md"
+candidate_version = "0.1.0-1"
+selected_for_development = false
+selected_for_release = false
+host_validation = "PASS12 moved-prefix controls; actual x86_64 makepkg archive/exact12-file payload; synthetic bound zstd recipe/SBOM/source export/unpack; six frozen runtime holds preserved"
+native_build = "NOT RUN"
+installation = "NOT RUN; moved-prefix archive payload is private staging, not ALPM or target installation"
+hardware_validation = "NOT RUN"
+performance = "NOT MEASURED"
+next_step = "Qualify clean native ARM build pair, signed disposable ALPM lifecycle, native16K and selected target composition. Physical M2, legal, signing and release acceptance remain separate; SBOM comparison is an independent source CLI."
