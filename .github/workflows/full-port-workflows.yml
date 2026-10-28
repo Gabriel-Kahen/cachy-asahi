@@ -18,6 +18,14 @@ on:
       - 'packages/tools/cachy-asahi-session-diagnostics/**'
       - 'scripts/update/archive_stream.py'
       - 'scripts/virtual/owned_process.py'
+      - 'scripts/support/**'
+      - 'tests/support/**'
+      - 'scripts/hardware/session_probe.py'
+      - 'packages/tools/cachy-asahi-doctor2/**'
+      - 'scripts/maintenance/**'
+      - 'scripts/port/**'
+      - 'scripts/ci/native_arm.py'
+      - 'scripts/integration/lifecycle.py'
       - 'scripts/workflows/**'
       - 'tests/workflows/**'
       - '.github/workflows/full-port-workflows.yml'
@@ -40,6 +48,14 @@ on:
       - 'packages/tools/cachy-asahi-session-diagnostics/**'
       - 'scripts/update/archive_stream.py'
       - 'scripts/virtual/owned_process.py'
+      - 'scripts/support/**'
+      - 'tests/support/**'
+      - 'scripts/hardware/session_probe.py'
+      - 'packages/tools/cachy-asahi-doctor2/**'
+      - 'scripts/maintenance/**'
+      - 'scripts/port/**'
+      - 'scripts/ci/native_arm.py'
+      - 'scripts/integration/lifecycle.py'
       - 'scripts/workflows/**'
       - 'tests/workflows/**'
       - '.github/workflows/full-port-workflows.yml'
@@ -54,7 +70,7 @@ jobs:
       fail-fast: false
       matrix:
         python: ['3.12', '3.14']
-        component: [image, signed-intake, signed-image, sbom, source-mirror, source-mirror-update, desktop, app-runtime, app-inputs, python, python-extension, build-systems, pgo-source, app-window, mirror-builder]
+        component: [image, signed-intake, signed-image, sbom, source-mirror, source-mirror-update, desktop, app-runtime, app-inputs, python, python-extension, build-systems, pgo-source, app-window, mirror-builder, debugger, support-bundle, recovery-bundle, security-operation]
     steps:
       - name: Checkout complete canonical component closure
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -74,7 +90,14 @@ jobs:
             /scripts/ci/welcome-managed-gui/
             /scripts/integration/desktop.py
             /scripts/virtual/
-            /scripts/maintenance/source_cache.py
+            /scripts/maintenance/
+            /scripts/support/
+            /tests/support/
+            /scripts/hardware/session_probe.py
+            /packages/tools/cachy-asahi-doctor2/
+            /scripts/port/
+            /scripts/ci/native_arm.py
+            /scripts/integration/lifecycle.py
             /packages/tools/cachy-asahi-maintenance/
             /packages/tools/cachy-asahi-session-diagnostics/
             /scripts/update/archive_stream.py
@@ -92,6 +115,33 @@ jobs:
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y lua5.4
           lua -v
+      - name: Prepare short private operator temporary directory
+        if: contains(fromJSON('["debugger", "support-bundle", "recovery-bundle", "security-operation"]'), matrix.component)
+        run: |
+          stage=$(mktemp -d /tmp/caa-operator.XXXXXXXX)
+          chmod 700 "$stage"
+          printf 'TMPDIR=%s\n' "$stage" >> "$GITHUB_ENV"
+      - name: Install actual debugger fixture prerequisites
+        if: matrix.component == 'debugger'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y gdb build-essential
+          gdb --version
+      - name: Install public verification and recovery archive tools
+        if: matrix.component == 'recovery-bundle'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y gpgv libarchive-tools
+          gpgv --version
+      - name: Install exact Noble security planning version and archive tools
+        if: matrix.component == 'security-operation'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y libarchive-tools libalpm13t64=13.0.2-6ubuntu2 makepkg=6.0.2-6ubuntu2
+          command -v bsdtar
+          command -v vercmp
+          test "$(vercmp '1:1.0' '1.0')" -gt 0
+          dpkg-query -W -f='${binary:Package}\t${Version}\n' libalpm13t64 makepkg
       - name: Run exact focused component suite
         env:
           COMPONENT: ${{ matrix.component }}
@@ -112,6 +162,10 @@ jobs:
             python) suite=tests/workflows/test_python_development.py ;;
             desktop) suite=scripts/workflows/test_desktop_applications.py ;;
             build-systems) suite=tests/workflows/test_developer_build_systems.py ;;
+            debugger) suite=tests/workflows/test_developer_debugger.py ;;
+            support-bundle) suite=tests/support/test_support_bundle.py ;;
+            recovery-bundle) suite=scripts/release/test_recovery_bundle.py ;;
+            security-operation) suite=scripts/maintenance/test_security_campaign.py ;;
             *) exit 2 ;;
           esac
           python -B -S -Werror::ResourceWarning "$suite"
@@ -179,4 +233,31 @@ jobs:
               assert state['group_census'] == 'EMPTY_TWICE' and state['output_complete'] is True
               assert state['timeout'] is False and state['signals'] == [] and state['error'] is None
           print('PASS real compiled Python journey and all 31 command retirements')
+          PY
+      - name: Run real C and C++ debugger journeys
+        if: matrix.component == 'debugger'
+        run: |
+          python -I -B -Werror::ResourceWarning scripts/workflows/developer_debugger.py \
+            --tool-path /usr/bin:/bin --command-timeout 30 --total-timeout 300 \
+            --output "$TMPDIR/debugger-workflow"
+          python -I -B - "$TMPDIR/debugger-workflow/result.json" <<'PY'
+          import json, sys
+          from pathlib import Path
+          result = json.loads(Path(sys.argv[1]).read_bytes())
+          assert result['status'] == 'PASS_LOCAL_DEBUGGER_COMPONENT'
+          assert len(result['commands']) == 17
+          PY
+      - name: Run offline security operation CLI fixture and both admission plans
+        if: matrix.component == 'security-operation'
+        run: |
+          python -B -S -Werror::ResourceWarning scripts/maintenance/test_security_campaign.py \
+            --demo-directory "$TMPDIR/security-operation-demo"
+          python -I -B - "$TMPDIR/security-operation-demo/demonstration.json" <<'PY'
+          import json, sys
+          from pathlib import Path
+          result = json.loads(Path(sys.argv[1]).read_bytes())
+          assert result['status'] == 'HOST_OFFLINE_CLI_ONLY'
+          assert len(result['steps']) == 10
+          assert all(row['exit_code'] == row['expected'] for row in result['steps'])
+          assert result['builds'] == result['native'] == result['installed'] == 'NOT_RUN'
           PY
