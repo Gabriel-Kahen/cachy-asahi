@@ -18,6 +18,9 @@ import sys
 import time
 DOCKER=('docker','--host=unix:///var/run/docker.sock')
 LABEL='org.cachy-asahi.offline-kit-accepted-owner'
+CANDIDATE_POLICY_BYTES=20575
+CANDIDATE_POLICY_SHA256='c3f3a00be01ff6d855bfe5d6f31ed5f4e5fa31f2e84efd87e7270202b19e076a'
+CANDIDATE_POLICY_COMPACT_SHA256='89663715255f392c507da4d74febe1e978e555a37115d6d8741f00978c79078d'
 def need(ok, message):
     if not ok:
         raise ValueError(message)
@@ -271,7 +274,37 @@ def module(path, name):
     spec.loader.exec_module(value)
     return value
 
-def trial_inspection(row, own, image, mounts):
+def compact_profile(raw):
+    """Match Docker CLI json.Compact without rewriting JSON string lexemes."""
+    text=raw.decode('utf-8')
+    json.loads(text,parse_constant=lambda _:need(False,'nonfinite policy JSON'))
+    out=[];quoted=False;escaped=False
+    for char in text:
+        if quoted:
+            out.append(char)
+            if escaped:escaped=False
+            elif char=='\\':escaped=True
+            elif char=='"':quoted=False
+        elif char=='"':quoted=True;out.append(char)
+        elif char not in ' \t\n\r':out.append(char)
+    return ''.join(out)
+
+
+def candidate_policy():
+    path=Path(__file__).with_name('candidate-policy.json')
+    need(path.is_absolute(),'fixed absolute candidate policy path required')
+    raw=read(path,256*1024)
+    need(len(raw)==CANDIDATE_POLICY_BYTES and sha(raw)==CANDIDATE_POLICY_SHA256 and
+         stat.S_IMODE(path.stat().st_mode)==0o644,'exact ordinary candidate policy required')
+    compact=compact_profile(raw)
+    need(sha(compact.encode())==CANDIDATE_POLICY_COMPACT_SHA256,'exact Docker compact candidate policy required')
+    return path,compact
+
+
+def trial_inspection(row, own, image, mounts, phase):
+    need(type(phase)is str and phase in ('produce','receive','candidate'),'explicit finite trial phase required')
+    security=['no-new-privileges']
+    if phase=='candidate':security.append('seccomp='+candidate_policy()[1])
     host = row['HostConfig']
     need(row['Name'] == '/' + own['consumer'] and row['Image'] == image
          and row['Config']['Labels'].get(LABEL) == own['token']
@@ -279,7 +312,7 @@ def trial_inspection(row, own, image, mounts):
     need(host['NetworkMode'] == 'none' and host['ReadonlyRootfs'] and not host['Privileged']
          and not host['AutoRemove'] and host['PidsLimit'] == 128 and host['Memory'] == 1024**3
          and host['NanoCpus'] == 2_000_000_000 and set(host['CapDrop']) == {'ALL'}
-         and not host.get('CapAdd') and host['SecurityOpt'] == ['no-new-privileges']
+         and not host.get('CapAdd') and host['SecurityOpt'] == security
          and not host.get('Devices') and not host.get('DeviceRequests') and not host.get('VolumesFrom'),
          'finite native trial isolation')
     actual={(m['Destination'],m['Source'],m['RW']) for m in row['Mounts'] if m['Type']=='bind'}
@@ -290,6 +323,8 @@ def trial_inspection(row, own, image, mounts):
          'trial exact bind namespace')
 
 def trial_actor(actor, own, image, work, phase, mounts):
+    need(type(phase)is str and phase in ('produce','receive','candidate'),'explicit finite trial phase required')
+    policy=candidate_policy() if phase=='candidate' else None
     need(not actor.docker('ps','-aq','--no-trunc','--filter','name=^/'+own['consumer']+'$'), 'fresh trial consumer name')
     command=['create','--name',own['consumer'],'--label',LABEL+'='+own['token'],'--pull=never',
         '--platform','linux/arm64','--user',f'{os.getuid()}:{os.getgid()}', '--cap-drop=ALL',
@@ -298,6 +333,7 @@ def trial_actor(actor, own, image, work, phase, mounts):
         '--env','HOME=/tmp/kit-home','--env','LANG=C.UTF-8','--env','LC_ALL=C.UTF-8','--env','TZ=UTC',
         '--env','PYTHONDONTWRITEBYTECODE=1','--env','FEATURE_CODE_SHA='+own['feature_code_sha'],
         '--env','CONTEXT_SOURCE_SHA='+own['source_sha'], '--env','ACCEPTED_TOOL='+own['accepted_tool']]
+    if policy is not None:command += ['--security-opt=seccomp='+str(policy[0])]
     for dst,src,rw in mounts:
         need(',' not in src and '\n' not in src,'simple finite mount path')
         command += ['--mount','type=bind,src='+src+',dst='+dst+('' if rw else ',readonly')]
@@ -308,7 +344,7 @@ def trial_actor(actor, own, image, work, phase, mounts):
     command += ['--entrypoint','/usr/bin/python',image,'-I','-B','/trial-code/trial.py',phase]
     cid=actor.docker(*command,timeout=30)
     row=json.loads(actor.docker('inspect',cid))[0]
-    trial_inspection(row,own,image,mounts)
+    trial_inspection(row,own,image,mounts,phase)
     save(work/('trial-'+phase+'-inspection.json'),row)
     actor.docker('start','--attach',cid,timeout=1500 if phase=='candidate' else 300)
     stopped=json.loads(actor.docker('inspect',cid))[0]
