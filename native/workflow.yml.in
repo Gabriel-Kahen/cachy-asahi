@@ -81,7 +81,7 @@ jobs:
           import os
           from pathlib import Path
           import sys
-          sys.path.insert(0, 'scripts/ci')
+          sys.path.insert(0, 'bootstrap/scripts/ci')
           from old_four_seed import (OLD_FOUR_PRIVATE_ROWS, RETAINED_BUBBLEWRAP_PRIVATE_ROWS,
                                      seed_current_build_cache)
           pin = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
