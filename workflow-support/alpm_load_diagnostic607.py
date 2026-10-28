@@ -30,7 +30,7 @@ def hash_operand(path,expected,cap,deadline):
   if fd is not None:os.close(fd)
 class Scope:
  def __init__(self,P,original,area,who,base,capture):
-  self.P,self.original,self.area,self.who,self.base,self.capture=P,original,area,who,base,capture;self.calls=0;self.written=False;self.seen={};self.instances=[];self.modules=[]
+  self.P,self.original,self.area,self.who,self.base,self.capture=P,original,area,who,base,capture;self.calls=0;self.written=False;self.seen={};self.instances=[];self.modules=[];self.observers=[];self.signature_current=None
   self.value=original.native_inputs()[2];self.rows=self.value['packages'];need(len(self.rows)==607 and len({r['name']for r in self.rows})==607,'exact selected607 package map')
   self.raw_manifest=P.read(P.BUNDLE/'manifest.json',1024**2);need(P.decode(self.raw_manifest)==self.value,'original current manifest/map equality')
   for row in self.rows:
@@ -54,8 +54,8 @@ class Scope:
   need(len(args)==5,'exact signed load argument count');handle,path,full,siglevel,pointer=args;i=self.by_path.get(path)if type(path)is bytes else None
   if i is None:r.update(status='REFUSED_ALPM_LOAD_ROLE_DATA',reason='UNSELECTED_ARCHIVE_OPERAND');self.emit(r);return
   package=self.rows[i];need(package['signature']==package['archive']+'.sig','detached signature role')
-  r['package_index']=i;r['package']={k:package[k]for k in('name','version','archive','size','sha256','signature','signature_size','signature_sha256','signer')};r['source_order_matches']=i==index;r['call']=dict(same_handle=handle==instance.handle,full=scalar(full),siglevel=scalar(siglevel))
-  root,gpgdir,log,architecture=ctor;r['context']=dict(architecture=architecture if architecture in('aarch64','x86_64')else'UNOBSERVED_OTHER',install_root_role_matches=root==self.area/'root',gpgdir_role_matches=gpgdir==self.area.parent/'gpg',log_role_matches=log==self.area/'alpm.log',configured_local_file_siglevel=1,configured_level_authority='UNCHANGED_PINNED_CONSTRUCTOR_SOURCE',actual_option_getters='UNOBSERVED_NO_BOUND_GETTERS',internal_signature_source='UNOBSERVED_API_HAS_NO_SIGNATURE_PATH_ARGUMENT',sidecar_observation='EXPECTED_MANIFEST_OPERAND_ONLY',keyring_count=len(self.value['keyrings']),keyring_map=pin(self.P.encoded(self.value['keyrings'])),private_keyring_values='NOT_READ_OR_EXPORTED')
+  r['signature_detail']=self.signature_current;r['package_index']=i;r['package']={k:package[k]for k in('name','version','archive','size','sha256','signature','signature_size','signature_sha256','signer')};r['source_order_matches']=i==index;r['call']=dict(same_handle=handle==instance.handle,full=scalar(full),siglevel=scalar(siglevel))
+  root,gpgdir,log,architecture=ctor;r['context']=dict(architecture=architecture if architecture in('aarch64','x86_64')else'UNOBSERVED_OTHER',install_root_role_matches=root==self.area/'root',gpgdir_role_matches=gpgdir==self.area.parent/'gpg',log_role_matches=log==self.area/'alpm.log',configured_local_file_siglevel=1,configured_level_authority='UNCHANGED_PINNED_CONSTRUCTOR_SOURCE',actual_option_getters='SEE_SIGNATURE_DETAIL_BEFORE_SELECTED_LOAD_ONLY',internal_signature_source='UNOBSERVED_API_HAS_NO_SIGNATURE_PATH_ARGUMENT',sidecar_observation='EXPECTED_MANIFEST_OPERAND_ONLY',keyring_count=len(self.value['keyrings']),keyring_map=pin(self.P.encoded(self.value['keyrings'])),private_keyring_values='NOT_READ_OR_EXPORTED')
   deadline=self.base.TASK_DEADLINE;r['archive']=hash_operand(self.P.BUNDLE/package['archive'],dict(bytes=package['size'],sha256=package['sha256']),MAX_ARCHIVE,deadline);r['signature']=hash_operand(self.P.BUNDLE/package['signature'],dict(bytes=package['signature_size'],sha256=package['signature_sha256']),MAX_SIGNATURE,deadline)
   prior=self.seen.get(i)
   if prior is None:r['standalone_gpg']=dict(status='NOT_OBSERVED')
@@ -66,11 +66,19 @@ class Scope:
    except BaseException as e:r['standalone_gpg']['record_status']='MISSING_OR_REFUSED';r['standalone_gpg']['record_error_type']=type(e).__name__
   self.emit(r)
  def factory(self,ordinary,*args,**kwargs):
-  instance=ordinary(*args,**kwargs);original_load=instance.alpm_pkg_load;self.instances.append((instance,original_load));ctor=tuple(args[:4])
+  instance=ordinary(*args,**kwargs);original_load=instance.alpm_pkg_load;self.instances.append((instance,original_load));ctor=tuple(args[:4]);observer=None
+  try:observer=SIGNATURE_DIAGNOSTIC.Observer(instance,ctor,self.area,self.rows,self.base.TASK_DEADLINE);self.observers.append(observer)
+  except BaseException:self.signature_current=dict(status='REFUSED_SIGNATURE_OBSERVER_SETUP',acceptance=False)
   def load(*call_args):
    index=self.calls;self.calls+=1
+   try:
+    if observer is not None:observer.begin(index,call_args)
+   except BaseException:self.signature_current=dict(status='REFUSED_SIGNATURE_OBSERVER_BEGIN',acceptance=False)
    try:result=original_load(*call_args)
    except BaseException as error:
+    try:
+     if observer is not None:self.signature_current=observer.after()
+    except BaseException:self.signature_current=dict(status='REFUSED_SIGNATURE_OBSERVER_AFTER',acceptance=False)
     try:self.failure(instance,call_args,None,error,dict(status='NOT_RETURNED'),ctor,index)
     except BaseException as capture_error:self.refused(capture_error)
     raise
@@ -78,8 +86,15 @@ class Scope:
     # This is the first ALPM call after failure; no getter/translation precedes it.
     try:errno=dict(status='OBSERVED_IMMEDIATELY',numeric=scalar(instance.alpm_errno(call_args[0])))
     except BaseException as e:errno=dict(status='REFUSED_ERRNO',error_type=type(e).__name__)
+    try:
+     if observer is not None:self.signature_current=observer.after()
+    except BaseException:self.signature_current=dict(status='REFUSED_SIGNATURE_OBSERVER_AFTER',acceptance=False)
     try:self.failure(instance,call_args,result,None,errno,ctor,index)
     except BaseException as capture_error:self.refused(capture_error)
+   else:
+    try:
+     if observer is not None:observer.after()
+    except BaseException:pass
    return result
   instance.alpm_pkg_load=load;return instance
  def refused(self,error):
@@ -91,6 +106,9 @@ class Scope:
    constructor=roots.Alpm;self.modules.append((roots,constructor));roots.Alpm=lambda *a,**k:self.factory(constructor,*a,**k)
   return result
  def restore(self):
+  for observer in reversed(self.observers):
+   try:observer.close()
+   except BaseException:pass
   for instance,load in reversed(self.instances):instance.alpm_pkg_load=load
   for roots,constructor in reversed(self.modules):roots.Alpm=constructor
 def call(P,original,fd,sha,report_fd,area,who,base,capture):
