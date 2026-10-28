@@ -1,0 +1,846 @@
+name: native-arm-current606-setup6-owned-copy
+on:
+  workflow_dispatch:
+    inputs:
+      source:
+        description: Exact Root frozen604 source; refuses pending current Welcome4/Orphans2 inputs
+        required: true
+        type: string
+      mode:
+        description: Fresh native original-four builder and required FDK pair
+        required: true
+        default: build
+        type: choice
+        options: [build]
+      inputs_sha256:
+        description: Exact pinned Source input lock
+        type: string
+        default: beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
+      recipes_sha256:
+        description: Exact pinned four-package recipe lock
+        type: string
+        default: a5fb287b4dda2a90bf61d4fa8cbbc5d666dad8bb450a70544d00545b091f36e3
+      integration_sha256:
+        description: Leave empty; this FDK-only job does not run integration
+        type: string
+        default: ''
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: native-arm-current606-setup6-owned-copy
+  cancel-in-progress: false
+jobs:
+  native:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 220
+    env:
+      SOURCE_COMMIT: a79c4ca92486854f9edb639cd970d2c90fda4b12
+      INPUTS_SHA256: ${{ inputs.inputs_sha256 }}
+      RECIPES_SHA256: ${{ inputs.recipes_sha256 }}
+      RETRY_MODE: ${{ inputs.mode }}
+      REQUESTED_INTEGRATION_SHA256: ${{ inputs.integration_sha256 }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: a79c4ca92486854f9edb639cd970d2c90fda4b12
+          persist-credentials: false
+      - name: Checkout exact separate604 implementation
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.source }}
+          path: expanded604-code
+          persist-credentials: false
+      - name: Require Root current Welcome4/Orphans2 inputs and exact source before secrets or actors
+        id: policy604
+        shell: bash
+        env:
+          IMPLEMENTATION_SOURCE: ${{ inputs.source }}
+          WORKFLOW_SOURCE: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          printf '%s  %s\n' '3a4f10e5e1e938b54154d54ed96a1cceff8b09c6900e51f26da3b44758fa5442' 'expanded604-code/scripts/ci/current606-doctor2-closed-owner/owner.py' 'b068b09844e6acbc00154e49c2d4625b9b39c6f58ad8efdae0b4626c9ec2f7f3' 'expanded604-code/scripts/ci/current606-doctor2-closed-owner/source-manifest.json' | sha256sum --check
+          python3 -B expanded604-code/scripts/ci/current606-doctor2-closed-owner/owner.py --source-preflight
+          python3 -B expanded604-code/scripts/ci/current606-doctor2-closed-owner/owner.py --require-selection
+          printf '%s  %s\n' 'ce1cbfdb602b3e67ea844eae7b9bc37768194f95009bdec642997a23801bf02a' 'expanded604-code/held606/scripts/ci/current606-native/run.py' '09dae54c10f76d1a7b0bedd012f82aa513f5cc93102ad4ef5e6406dfee8bdd74' 'expanded604-code/held606/scripts/ci/current606-native/source-manifest.json' | sha256sum --check
+          test "$(sha256sum expanded604-code/held606/held604/scripts/ci/expanded604-apps6-public-pairs/run.py | cut -d ' ' -f 1)" = de8d990a70218063bd0ba1f0ec782ab5e71420aa6912af430facc37d717b38f1
+          test "$(sha256sum expanded604-code/held606/held604/scripts/ci/expanded604-apps6-public-pairs/source-manifest.json | cut -d ' ' -f 1)" = e2b1f8ac11fa119493e22f44722d265293887de7edda80f4b61c00f8a80bf51c
+          python3 -B expanded604-code/held606/scripts/ci/current606-native/gate.py \
+            --code "$GITHUB_WORKSPACE/expanded604-code/held606/held604" --source "$IMPLEMENTATION_SOURCE" \
+            --workflow-sha "$WORKFLOW_SOURCE" --preflight
+      - name: Checkout exact accepted Apps7 and Runtime1 native input pairs
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 02734c705565868b0b964c48399a4f659fc6f271
+          path: doctor2-native-pairs
+          persist-credentials: false
+      - name: Checkout finite accepted606 Root decision DATA
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 02d28b794c1a297171d82b5718fd98cddacbfa48
+          path: current606-decision
+          persist-credentials: false
+      - name: Checkout exact accepted unsigned Doctor2 native DATA
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 24f8d8ed9de7f4ea1aedcc9624110e553204b36c
+          path: setup6-accepted-native
+          persist-credentials: false
+      - name: Source and refusal controls with genuine native DATA only
+        env:
+          DOCTOR2_PAIR_PACKET: ${{ github.workspace }}/setup6-accepted-native
+          APPS7_PAIR_PACKET: ${{ github.workspace }}/doctor2-native-pairs
+          CURRENT606_DECISION: ${{ github.workspace }}/current606-decision/decisions/current606-native.json
+        run: |
+          python3 -I -B expanded604-code/scripts/ci/current606-doctor2-closed-owner/test_owner.py
+      - name: Verify exact accepted native pairs before secrets or producers
+        run: python3 -I -B expanded604-code/scripts/ci/current606-doctor2-closed-owner/owner.py --native-inputs --apps-packet "$GITHUB_WORKSPACE/doctor2-native-pairs" --setup-packet "$GITHUB_WORKSPACE/setup6-accepted-native"
+      - name: Checkout fixed legacy public input source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ steps.policy604.outputs.legacy_source }}
+          path: expanded604-legacy
+          persist-credentials: false
+      - name: Checkout fixed eight public input source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ steps.policy604.outputs.eight_source }}
+          path: expanded604-eight
+          persist-credentials: false
+      - name: Checkout fixed seven public input source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ steps.policy604.outputs.seven_source }}
+          path: expanded604-seven
+          persist-credentials: false
+      - name: Checkout fixed management public input source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ steps.policy604.outputs.management_source }}
+          path: expanded604-management
+          persist-credentials: false
+      - name: Checkout fixed setup public input source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ steps.policy604.outputs.setup_source }}
+          path: expanded604-setup
+          persist-credentials: false
+      - name: Checkout fixed welcome public input source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ steps.policy604.outputs.welcome_source }}
+          path: expanded604-welcome
+          persist-credentials: false
+      - name: Checkout exact public659 native pairs
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ steps.policy604.outputs.apps6_source }}
+          path: expanded604-apps6-inputs
+          persist-credentials: false
+      - name: Checkout accepted public native byte-case authority
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ steps.policy604.outputs.apps6_authority_source }}
+          path: expanded604-apps6-bytecase-authority
+          persist-credentials: false
+      - name: Retrieve only the six original pinned audio inputs
+        id: audio_inputs
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 -B expanded604-legacy/scripts/ci/full-development-composition/retrieve_audio.py --output "$RUNNER_TEMP/audio-archives"
+      - name: Verify every actual accepted pair and source before secrets
+        shell: bash
+        env:
+          IMPLEMENTATION_SOURCE: ${{ inputs.source }}
+          WORKFLOW_SOURCE: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          python3 -B expanded604-code/held606/scripts/ci/current606-native/gate.py \
+            --code "$GITHUB_WORKSPACE/expanded604-code/held606/held604" --source "$IMPLEMENTATION_SOURCE" --workflow-sha "$WORKFLOW_SOURCE" \
+            --legacy-source "$GITHUB_WORKSPACE/expanded604-legacy" --eight-source "$GITHUB_WORKSPACE/expanded604-eight" \
+            --seven-source "$GITHUB_WORKSPACE/expanded604-seven" --management-source "$GITHUB_WORKSPACE/expanded604-management/payload" \
+            --setup-source "$GITHUB_WORKSPACE/expanded604-setup" --welcome-source "$GITHUB_WORKSPACE/expanded604-welcome/payload" \
+            --apps6-source "$GITHUB_WORKSPACE/expanded604-apps6-inputs/payload" --apps6-authority-source "$GITHUB_WORKSPACE/expanded604-apps6-bytecase-authority" \
+            --audio-inputs "$RUNNER_TEMP/audio-archives"
+      - name: Current604 source controls without native actors
+        shell: bash
+        env:
+          CURRENT604_PACKET_ROOT: ${{ github.workspace }}/expanded604-welcome/payload
+          CURRENT604_MANAGEMENT_ROOT: ${{ github.workspace }}/expanded604-management/payload
+          CURRENT604_NATIVE_SOURCE: ${{ github.workspace }}/expanded604-code/held606
+        run: |
+          set -euo pipefail
+          python3 -B -m unittest discover -s expanded604-code/held606/scripts/ci/current606-native -p test_lane.py
+      - name: Seed the six frozen private cache objects before native work
+        if: inputs.mode == 'build'
+        shell: bash
+        env:
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01 }}
+          CACHY_OLD_FOUR_SCHEMA: '1'
+          CACHY_OLD_FOUR_SOURCE_EPOCH: '1791748800'
+          CACHY_OLD_FOUR_JBIGKIT_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_01 }}
+          CACHY_OLD_FOUR_JBIGKIT_02: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_02 }}
+          CACHY_OLD_FOUR_JBIGKIT_SIG_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_SIG_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_02: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_02 }}
+          CACHY_OLD_FOUR_LIBTIFF_03: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_03 }}
+          CACHY_OLD_FOUR_LIBTIFF_04: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_04 }}
+          CACHY_OLD_FOUR_LIBTIFF_05: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_05 }}
+          CACHY_OLD_FOUR_LIBTIFF_06: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_06 }}
+          CACHY_OLD_FOUR_LIBTIFF_07: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_07 }}
+          CACHY_OLD_FOUR_LIBTIFF_08: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_08 }}
+          CACHY_OLD_FOUR_LIBTIFF_09: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_09 }}
+          CACHY_OLD_FOUR_LIBTIFF_10: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_10 }}
+          CACHY_OLD_FOUR_LIBTIFF_11: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_11 }}
+          CACHY_OLD_FOUR_LIBTIFF_12: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_12 }}
+          CACHY_OLD_FOUR_LIBTIFF_13: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_13 }}
+          CACHY_OLD_FOUR_LIBTIFF_14: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_14 }}
+          CACHY_OLD_FOUR_LIBTIFF_15: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_15 }}
+          CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_COMMIT"
+          test "$INPUTS_SHA256" = beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
+          timeout --signal=TERM --kill-after=5s 75s python3 -B - <<'PYSEED'
+          import hashlib
+          import os
+          from pathlib import Path
+          import sys
+          sys.path.insert(0, 'scripts/ci')
+          from old_four_seed import (OLD_FOUR_PRIVATE_ROWS, RETAINED_BUBBLEWRAP_PRIVATE_ROWS,
+                                     seed_current_build_cache)
+          pin = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
+          if hashlib.sha256(Path('scripts/ci/inputs.lock.json').read_bytes()).hexdigest() != pin:
+              raise SystemExit('private-cache-input-binding-refused')
+          names = {'CACHY_OLD_FOUR_' + f'{tag}_{i:02d}'
+                   for _, _, _, tag, count in OLD_FOUR_PRIVATE_ROWS for i in range(1, count + 1)}
+          retained = {'CACHY_RETAINED_BUBBLEWRAP_V1_' + f'{tag}_{i:02d}'
+                      for _, _, _, tag, sizes in RETAINED_BUBBLEWRAP_PRIVATE_ROWS
+                      for i in range(1, len(sizes) + 1)}
+          names |= retained
+          if len(names) != 22 or len(retained) != 3 or not all(os.environ.get(name) for name in names):
+              raise SystemExit('private-cache-required-secrets-missing')
+          cache = Path(os.environ['RUNNER_TEMP']) / 'alarm-cache'
+          cache.mkdir(mode=0o700)
+          keep = names | {'CACHY_OLD_FOUR_SCHEMA', 'CACHY_OLD_FOUR_SOURCE_EPOCH'}
+          for name in tuple(os.environ):
+              if name not in keep:
+                  os.environ.pop(name)
+          seed_current_build_cache(cache, pin)
+          PYSEED
+      - name: Checkout exact retained public input source
+        if: inputs.mode == 'build'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # existing pinned checkout
+        with:
+          ref: 04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd
+          path: retained-public-inputs
+          persist-credentials: false
+      - name: Seed fourteen exact public ARM input files
+        if: inputs.mode == 'build'
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C "$GITHUB_WORKSPACE/retained-public-inputs" rev-parse HEAD)" = 04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd
+          test "$(sha256sum retained-public-inputs/seed.py | cut -d ' ' -f 1)" = a7857658af224984065e575f6ffed8308ea85027d46eace8bda146d9033e93b3
+          test "$(sha256sum retained-public-inputs/index.json | cut -d ' ' -f 1)" = a388c8c8ba8e06cb92fd2be598b86e433c4e403b6e71a0f15b1eaec381bb7300
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC \
+            TMPDIR="$RUNNER_TEMP" \
+            python3 -I -B "$GITHUB_WORKSPACE/retained-public-inputs/seed.py" \
+              --cache "$RUNNER_TEMP/alarm-cache"
+      - name: Checkout exact original574 archive lock before native base
+        if: ${{ success() && inputs.mode == 'build' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: 9a2e520dbdfce7e4af417595ff3de9e6a284ef04
+          path: archive32-original-lock
+          persist-credentials: false
+      - name: Checkout exact complete574 retained input carrier
+        if: ${{ success() && inputs.mode == 'build' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad
+          path: doctor-retained574
+          persist-credentials: false
+      - name: Checkout exact retained compiler6 input carrier
+        if: ${{ success() && inputs.mode == 'build' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: 8ee14069b7a74455a7bea1171ba319932c9df304
+          path: doctor-compiler6
+          persist-credentials: false
+      - name: Prefill exact Doctor32/20/8/6 caches before unchanged legacy CLIs
+        if: ${{ success() && inputs.mode == 'build' }}
+        timeout-minutes: 3
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -I -B - "$GITHUB_WORKSPACE/expanded604-code/retained-inputs" "$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-doctor2-closed-owner" "$GITHUB_WORKSPACE/archive32-original-lock/scripts/ci/maintained-desktop574-inputs.json" "$GITHUB_WORKSPACE/doctor-retained574" "$GITHUB_WORKSPACE/doctor-compiler6" "$RUNNER_TEMP" <<'PYDOCTOREARLYRETAINED'
+          import importlib.util,json,sys,time
+          from pathlib import Path
+          support,lane,lock,carrier,compiler,temporary=map(lambda n:Path(n).absolute(),sys.argv[1:]);sys.path.insert(0,str(support))
+          import legacy_prefill as L
+          deadline=time.monotonic()+170;results={}
+          for n in(32,20,8,6):
+              spec=importlib.util.spec_from_file_location('_doctor_original_archive'+str(n),lane/('archive'+str(n)+'.py'));M=importlib.util.module_from_spec(spec);spec.loader.exec_module(M)
+              policy_lock=compiler/'original-extension.lock.json'if n==6 else lock
+              policy=M.policy(lane/('archive'+str(n)+'-policy.json'),policy_lock)
+              path=temporary/('frozen-updater-archive6'if n==6 else'frozen574-archive'+str(n));external=compiler if n==6 else carrier
+              results[str(n)]=L.prefill(external,path,policy,deadline,git_dir=external/'.git',profile_dir=support)
+          output=temporary/'doctor-retained-inputs';output.mkdir(mode=0o700)
+          with(output/'early.json').open('xb')as f:f.write((json.dumps(dict(status='EXACT_FOUR_LEGACY_CACHE_PREFILLS_DATA_ONLY',limit_seconds=170,records=results,actual=None,authentication='ORIGINAL_CLI_INDEX_GPG_STILL_REQUIRED'),sort_keys=True,indent=2)+'\n').encode())
+          PYDOCTOREARLYRETAINED
+      - name: Prefetch exact original26 native-base plus six extra574 bytes before original build
+        id: frozen574_archive32_early
+        if: ${{ success() && inputs.mode == 'build' }}
+        timeout-minutes: 4
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive32_helper="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-doctor2-closed-owner/archive32.py"
+          archive32_policy="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-doctor2-closed-owner/archive32-policy.json"
+          archive32_inputs="$GITHUB_WORKSPACE/archive32-original-lock/scripts/ci/maintained-desktop574-inputs.json"
+          printf '%s  %s\n' 'b1e2fc13644510a613ce09e53b39d4f4471cf47fc03fa62f312258379666c418' "$archive32_helper" '4f6ce49214422579f1cc448ff95d9f311cbfaf47a0d0c4f32d828c9edf843585' "$archive32_policy" | sha256sum --check
+          python3 -I -B - "$archive32_helper" "$archive32_policy" "$archive32_inputs" "$GITHUB_WORKSPACE/scripts/ci/inputs.lock.json" <<'PYARCHIVE32NATIVE'
+          import importlib.util,json,sys
+          from pathlib import Path
+          helper,policy,inputs,native_inputs=map(Path,sys.argv[1:])
+          spec=importlib.util.spec_from_file_location('held_archive32_native_join',helper)
+          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+          selected=module.policy(policy,inputs)
+          raw=module.read(native_inputs,1024**2)
+          expected=dict(bytes=328101,sha256='beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f')
+          module.need(module.pin(raw)==expected,'whole original native-base lock required')
+          native={}
+          for row in json.loads(raw)['packages']:
+              native[row['filename']]=dict(bytes=row['size'],sha256=row['sha256'])
+              native[row['filename']+'.sig']=dict(bytes=row['signature_size'],sha256=row['signature_sha256'])
+          files={name:{key:row[key]for key in('bytes','sha256')}for name,row in selected['files'].items()}
+          common={name:row for name,row in files.items()if name in native}
+          extra={name:row for name,row in files.items()if name not in native}
+          expected_extra={'firefox-157.0.1-1-aarch64.pkg.tar.xz','firefox-157.0.1-1-aarch64.pkg.tar.xz.sig','libnotify-0.8.8-1-aarch64.pkg.tar.xz','libnotify-0.8.8-1-aarch64.pkg.tar.xz.sig','pcsclite-2.5.2-1-aarch64.pkg.tar.xz','pcsclite-2.5.2-1-aarch64.pkg.tar.xz.sig'}
+          module.need(len(common)==26 and all(native[name]==row for name,row in common.items())and set(extra)==expected_extra,'exact original26 native-base and six extra574 operands')
+          print(module.encoded(dict(status='EXACT_ORIGINAL_NATIVE26_AND_SIX_EXTRA574_DATA_ONLY',native_inputs=expected,original574_inputs=selected['original_inputs'],common26=common,extra6=extra,versions='UNCHANGED',trust='UNCHANGED_ORIGINAL_CHECKS_REQUIRED')).decode(),end='')
+          PYARCHIVE32NATIVE
+          python3 -I -B "$archive32_helper" --policy "$archive32_policy" --inputs "$archive32_inputs" --cache "$RUNNER_TEMP/frozen574-archive32"
+          python3 -I -B - "$archive32_helper" "$archive32_policy" "$archive32_inputs" "$RUNNER_TEMP/frozen574-archive32" "$RUNNER_TEMP/alarm-cache" <<'PYARCHIVE32'
+          import importlib.util,sys
+          from pathlib import Path
+          helper,policy,inputs,cache,destination=map(Path,sys.argv[1:])
+          spec=importlib.util.spec_from_file_location('held_archive32_cache_seed',helper)
+          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+          selected=module.policy(policy,inputs)
+          result=module.seed_exact(cache,destination,selected)
+          result.update(helper=module.pin(helper.read_bytes()),policy=module.pin(policy.read_bytes()),destination='EXISTING_OWNED_ALARM_CACHE',original_versions='UNCHANGED',original_signature_and_trust_checks='UNCHANGED')
+          print(module.encoded(result).decode(),end='')
+          PYARCHIVE32
+      - name: Prefetch full20 original frozen574 and seed only exact4 native-base files
+        id: frozen574_archive20_early
+        if: ${{ success() && inputs.mode == 'build' }}
+        timeout-minutes: 4
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive20_owner="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-doctor2-closed-owner"
+          archive20_helper="$archive20_owner/archive20.py"
+          archive20_policy="$archive20_owner/archive20-policy.json"
+          archive20_inputs="$GITHUB_WORKSPACE/archive32-original-lock/scripts/ci/maintained-desktop574-inputs.json"
+          printf '%s  %s\n' 'e8ef66fc0431a04deb331f75258457bf4bdeb13a18bcd863fd5bece3b9a54968' "$archive20_helper" '1f966afe0c24bb9a928154cb0638a8bb78292c799ffd544132633caddf6217ae' "$archive20_policy" | sha256sum --check
+          python3 -I -B "$archive20_helper" --policy "$archive20_policy" --inputs "$archive20_inputs" --cache "$RUNNER_TEMP/frozen574-archive20"
+          python3 -I -B - "$archive20_owner/prepare.py" "$archive20_helper" "$archive20_policy" "$archive20_inputs" "$GITHUB_WORKSPACE/scripts/ci/inputs.lock.json" "$RUNNER_TEMP/frozen574-archive20" "$RUNNER_TEMP/alarm-cache" <<'PYARCHIVE20NATIVE'
+          import importlib.util,sys
+          from pathlib import Path
+          prepare,helper,policy,inputs,native,cache,destination=map(Path,sys.argv[1:])
+          sys.path.insert(0,str(prepare.parent))
+          spec=importlib.util.spec_from_file_location('source_owned_archive20_native4',prepare)
+          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+          print(module.C.encoded(module.seed_archive20_native(helper,policy,inputs,native,cache,destination)).decode(),end='')
+          PYARCHIVE20NATIVE
+      - name: Prefetch full8 original frozen574 and seed full8 native-base files
+        id: frozen574_archive8_early
+        if: ${{ success() && inputs.mode == 'build' }}
+        timeout-minutes: 4
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive8_owner="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-doctor2-closed-owner"
+          archive8_helper="$archive8_owner/archive8.py"
+          archive8_policy="$archive8_owner/archive8-policy.json"
+          archive8_inputs="$GITHUB_WORKSPACE/archive32-original-lock/scripts/ci/maintained-desktop574-inputs.json"
+          printf '%s  %s\n' '5e24808152c727f5dcd19252c66e1ab121bdb9dbd6b90becb943820634898565' "$archive8_helper" '2b21c05d30a9c5efd2f717cfa8475c9de3150d7729f710b348b70a84f5b16e20' "$archive8_policy" | sha256sum --check
+          python3 -I -B "$archive8_helper" --policy "$archive8_policy" --inputs "$archive8_inputs" --cache "$RUNNER_TEMP/frozen574-archive8"
+          python3 -I -B - "$archive8_owner/prepare.py" "$archive8_helper" "$archive8_policy" "$archive8_inputs" "$GITHUB_WORKSPACE/scripts/ci/inputs.lock.json" "$RUNNER_TEMP/frozen574-archive8" "$RUNNER_TEMP/alarm-cache" <<'PYARCHIVE8NATIVE'
+          import importlib.util,sys
+          from pathlib import Path
+          prepare,helper,policy,inputs,native,cache,destination=map(Path,sys.argv[1:])
+          sys.path.insert(0,str(prepare.parent))
+          spec=importlib.util.spec_from_file_location('source_owned_archive8_native8',prepare)
+          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+          print(module.C.encoded(module.seed_archive8_native(helper,policy,inputs,native,cache,destination)).decode(),end='')
+          PYARCHIVE8NATIVE
+      - name: Seed complete exact248 inputs before unchanged native base
+        if: ${{ success() && inputs.mode == 'build' }}
+        timeout-minutes: 3
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -I -B - "$GITHUB_WORKSPACE/expanded604-code/retained-inputs" "$GITHUB_WORKSPACE/doctor-retained574" "$RUNNER_TEMP/alarm-cache" "$GITHUB_WORKSPACE/scripts/ci/inputs.lock.json" "$RUNNER_TEMP/doctor-retained-inputs/native248.json" <<'PYDOCTORSEED'
+          import importlib.util,json,sys,time
+          from pathlib import Path
+          support,carrier,cache,lock,output=map(lambda n:Path(n).absolute(),sys.argv[1:]);sys.path.insert(0,str(support))
+          spec=importlib.util.spec_from_file_location('_doctor_fixed_retained_preparation',support/'prepare.py');P=importlib.util.module_from_spec(spec);spec.loader.exec_module(P)
+          result=P.prepare(carrier,cache,'native248',lock,time.monotonic()+170,carrier/'.git')
+          with output.open('xb')as f:f.write((json.dumps(dict(status='SOURCE_BOUND_RETAINED_PREPARATION_DATA_ONLY',limit_seconds=170,record=result,actual=None),sort_keys=True,indent=2)+'\n').encode())
+          PYDOCTORSEED
+      - name: Build the fresh native base and original package pairs
+        id: original_build
+        timeout-minutes: 50
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$RETRY_MODE" = build
+          test "$INPUTS_SHA256" = beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
+          test "$RECIPES_SHA256" = a5fb287b4dda2a90bf61d4fa8cbbc5d666dad8bb450a70544d00545b091f36e3
+          test -z "$REQUESTED_INTEGRATION_SHA256"
+          test "$(git rev-parse HEAD)" = "$SOURCE_COMMIT"
+          install -d -m 700 "$RUNNER_TEMP/desktop-docker-config"
+          test "$(sha256sum retained-public-inputs/seed.py | cut -d ' ' -f 1)" = a7857658af224984065e575f6ffed8308ea85027d46eace8bda146d9033e93b3
+          test "$(sha256sum retained-public-inputs/index.json | cut -d ' ' -f 1)" = a388c8c8ba8e06cb92fd2be598b86e433c4e403b6e71a0f15b1eaec381bb7300
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC \
+            RUNNER_TEMP="$RUNNER_TEMP" DOCKER_CONFIG="$RUNNER_TEMP/desktop-docker-config" \
+            GITHUB_SHA="$SOURCE_COMMIT" GITHUB_REPOSITORY="$GITHUB_REPOSITORY" \
+            GITHUB_RUN_ID="$GITHUB_RUN_ID" GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" \
+            PYTHONDONTWRITEBYTECODE=1 INPUTS_SHA256="$INPUTS_SHA256" RECIPES_SHA256="$RECIPES_SHA256" \
+            /bin/bash --noprofile --norc -euo pipefail <<'RUN_ORIGINAL_BUILDS'
+          export TMPDIR="$RUNNER_TEMP"
+          python3 -B scripts/ci/native_arm.py build \
+            --inputs-sha256 "$INPUTS_SHA256" --recipes-sha256 "$RECIPES_SHA256" \
+            --cache "$RUNNER_TEMP/alarm-cache" --output "$RUNNER_TEMP/native-evidence"
+          RUN_ORIGINAL_BUILDS
+      - name: Retain bounded original-four and base evidence
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -d "$RUNNER_TEMP/native-evidence" ]; then
+            python3 -B scripts/ci/log_evidence.py "$RUNNER_TEMP/native-evidence"
+          fi
+      - name: Checkout the fixed FDK source
+        id: fdk_source
+        if: ${{ !cancelled() && steps.original_build.outcome == 'success' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 804b418f14459e82031046fb28a0308b4cb9348e
+          path: fdk-source
+          persist-credentials: false
+      - name: Required FDK pair on this job native base
+        id: fdk_pair
+        if: ${{ always() && !cancelled() }}
+        timeout-minutes: 25
+        shell: bash
+        env:
+          FDK_CHECKOUT_OUTCOME: ${{ steps.fdk_source.outcome }}
+        run: |
+          set -euo pipefail
+          test "$FDK_CHECKOUT_OUTCOME" = success
+          install -d -m 700 "$RUNNER_TEMP/fdk-home" "$RUNNER_TEMP/fdk-docker-config"
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/fdk-home" LANG=C.UTF-8 TZ=UTC \
+            RUNNER_TEMP="$RUNNER_TEMP" TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 \
+            DOCKER_CONFIG="$RUNNER_TEMP/fdk-docker-config" \
+            FDK_SOURCE_ROOT="$GITHUB_WORKSPACE/fdk-source" \
+            FDK_NATIVE_OUTPUT="$RUNNER_TEMP/native-evidence" \
+            FDK_OUTPUT="$RUNNER_TEMP/fdk-evidence" \
+            /bin/bash --noprofile --norc -euo pipefail > "$RUNNER_TEMP/fdk-driver.log" 2>&1 <<'RUN_FDK'
+          # Optional post-core step. Uses only the original base builder on this daemon.
+          set -euo pipefail
+          source_root=${FDK_SOURCE_ROOT:?}
+          native_out=${FDK_NATIVE_OUTPUT:?}
+          out=${FDK_OUTPUT:?}
+          mkdir -m 700 "$out"
+          status=FAIL
+          finish() {
+              rc=$?
+              printf 'FDK_PAIR=%s\nEXIT=%s\n' "$status" "$rc" > "$out/result.txt" || :
+              cat "$out/result.txt" || :
+              if [[ $status == FAIL ]]; then
+                  for log in "$out"/build-*/build.log "$out"/*.log; do
+                      [[ ! -f $log ]] || tail -n 40 "$log" || :
+                  done
+              fi
+              return "$rc"
+          }
+          trap finish EXIT
+          image=$(python3 - "$source_root" "$native_out" "$out" <<'PY'
+          from pathlib import Path
+          import hashlib, json, re, sys
+          source, native, out = map(Path, sys.argv[1:])
+          result = native / 'result.json'
+          if not result.exists() or json.loads(result.read_text()).get('native_build') != 'PASS':
+              raise SystemExit(0)
+          bootstrap = json.loads((native / 'bootstrap.json').read_text())
+          image = (native / 'image-id').read_text().strip()
+          assert re.fullmatch(r'sha256:[0-9a-f]{64}', image)
+          assert bootstrap['status'] == 'image-provisioned' and bootstrap['image_id'] == image
+          assert hashlib.sha256((native / 'packages.lock').read_bytes()).hexdigest() == bootstrap['packages_lock_sha256']
+          recipe = source / 'packages/libraries/cachy-asahi-fdk-aac/PKGBUILD'
+          digest = hashlib.sha256(recipe.read_bytes()).hexdigest()
+          assert digest == '774803633213d77e9879005608ff23528b6780465c7bd00f3234430c9a7346df'
+          for name in ('template-inputs.json', 'reviewed-inputs.json'):
+              data = json.loads((source / 'scripts/port/fdk-native-stage' / name).read_text())
+              data['PKGBUILD'] = digest
+              (out / name).write_text(json.dumps(data, sort_keys=True, indent=2) + '\n')
+          print(image)
+          PY
+          )
+          if [[ -z $image ]]; then
+              status=SKIPPED
+              printf 'No successful original-four builder; FDK was not run.\n'
+              exit 0
+          fi
+          python3 -B "$source_root/packages/libraries/cachy-asahi-fdk-aac/select-source.py" \
+              --fetch-upstream --output "$out/selected-source.tar" > "$out/selection.log" 2>&1
+          template_sha=$(sha256sum "$out/template-inputs.json" | cut -d ' ' -f 1)
+          python3 -B "$source_root/packages/libraries/cachy-asahi-fdk-aac/materialize.py" \
+              --archive "$out/selected-source.tar" --output "$out/recipe" \
+              --reviewed-template "$out/template-inputs.json" \
+              --reviewed-template-sha256 "$template_sha" > "$out/materialize.log" 2>&1
+          for attempt in 1 2; do
+              python3 -B "$source_root/scripts/build/build.py" "$out/recipe" \
+                  --image "$image" --output "$out/build-$attempt" --mode native \
+                  --source-date-epoch 1791748800 --network none --timeout 600 \
+                  --expected-packages "$native_out/packages.lock" \
+                  --reviewed-inputs "$out/reviewed-inputs.json" > "$out/build-$attempt.log" 2>&1
+          done
+          python3 -B "$source_root/scripts/build/compare.py" \
+              "$out/build-1" "$out/build-2" --require-bytes > "$out/compare.json" 2> "$out/compare.log"
+          cat "$out/compare.json"
+          status=PASS
+          RUN_FDK
+          grep -qx 'FDK_PAIR=PASS' "$RUNNER_TEMP/fdk-evidence/result.txt"
+      - name: Retain bounded FDK metadata and separate outcome
+        if: always()
+        shell: bash
+        env:
+          ORIGINAL_BUILD_OUTCOME: ${{ steps.original_build.outcome }}
+          FDK_CHECKOUT_OUTCOME: ${{ steps.fdk_source.outcome }}
+          FDK_PAIR_OUTCOME: ${{ steps.fdk_pair.outcome }}
+        run: |
+          set -euo pipefail
+          {
+            printf '\n### FDK-only native job\nOriginal pairs: %s; FDK checkout: %s; FDK step: %s\n' \
+              "$ORIGINAL_BUILD_OUTCOME" "$FDK_CHECKOUT_OUTCOME" "$FDK_PAIR_OUTCOME"
+            if [ -f "$RUNNER_TEMP/fdk-evidence/result.txt" ]; then
+              cat "$RUNNER_TEMP/fdk-evidence/result.txt"
+            else
+              printf 'No FDK script result; this is not a pair PASS.\n'
+            fi
+            printf 'Core lifecycle/integration: NOT RUN in this dedicated job.\n'
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+          python3 -B - <<'PYFDKLOG'
+          from pathlib import Path
+          import os, shutil
+          root = Path(os.environ['RUNNER_TEMP'])
+          source, public = root / 'fdk-evidence', root / 'fdk-metadata'
+          public.mkdir()
+          names = ['result.txt', 'compare.json', 'template-inputs.json', 'reviewed-inputs.json']
+          names += [f'build-{i}/{name}' for i in (1, 2) for name in ('provenance.json', 'validation.json')]
+          for name in names:
+              original, target = source / name, public / name
+              if original.is_file():
+                  target.parent.mkdir(parents=True, exist_ok=True)
+                  shutil.copyfile(original, target)
+          for name, original in [('driver-tail.log', root / 'fdk-driver.log')] + [
+                  (f'build-{i}-tail.log', source / f'build-{i}/build.log') for i in (1, 2)]:
+              if original.is_file():
+                  with original.open('rb') as stream:
+                      stream.seek(max(0, original.stat().st_size - 65536))
+                      (public / name).write_bytes(stream.read(65536))
+          (public / 'scope.txt').write_text('FDK build-pair metadata only; lifecycle/integration NOT RUN; no package binaries uploaded.\n')
+          PYFDKLOG
+          python3 -B scripts/ci/log_evidence.py "$RUNNER_TEMP/fdk-metadata"
+      - name: Checkout the ten current development recipes
+        if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: a58fca33c4db5f2ab3ea6111f4d7842a932cc336
+          path: composition-product
+          persist-credentials: false
+      - name: Checkout the exact updater compiler implementation
+        if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 1aea667aec50a62ba0ab2dad44be24a4dc3bd098
+          path: composition-updater
+          persist-credentials: false
+      - name: Checkout the proven 574-package runtime builder
+        if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 9a2e520dbdfce7e4af417595ff3de9e6a284ef04
+          path: composition-desktop
+          persist-credentials: false
+      - name: Checkout the exact v2 updater implementation
+        if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 480053c0866a922138d85af2b9880fb0e10d7b2c
+          path: composition-updater-v2
+          persist-credentials: false
+      - name: Checkout unchanged composition preparation APIs
+        if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 93bc9bfac7343ee3b443ae3332c0942ed1ba5b55
+          path: composition-preparation
+          persist-credentials: false
+      - name: Unpack only the exact retained public setup4 pair
+        if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
+        shell: bash
+        run: |
+          python3 -B - <<'PYPAIR'
+          from pathlib import Path, PurePosixPath
+          import hashlib, os, tarfile
+          source=Path('composition-preparation/scripts/ci/full-development-composition/retained/setup4-pair.tar.xz')
+          assert source.stat().st_size==69776 and hashlib.sha256(source.read_bytes()).hexdigest()=='1637452a84733fdf059d7dbc10c5b6dddd11c589c4f97ebb6a4655aedd12359f'
+          target=Path(os.environ['RUNNER_TEMP'])/'setup4-retained'
+          target.mkdir(mode=0o700)
+          with tarfile.open(source,'r:xz') as archive:
+              members=archive.getmembers()
+              assert len(members)==64 and sum(item.size for item in members)<4*1024**2
+              assert len({item.name for item in members})==64
+              for item in members:
+                  name=PurePosixPath(item.name)
+                  assert item.isfile() and not name.is_absolute() and '..' not in name.parts
+                  assert name.parts[0] in ('build-1','build-2')
+              archive.extractall(target,filter='data')
+          PYPAIR
+      - name: Seed complete exact574 inputs before unchanged original producer
+        if: ${{ success() && inputs.mode == 'build' }}
+        timeout-minutes: 3
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -I -B - "$GITHUB_WORKSPACE/expanded604-code/retained-inputs" "$GITHUB_WORKSPACE/doctor-retained574" "$RUNNER_TEMP/alarm-cache" "$GITHUB_WORKSPACE/archive32-original-lock/scripts/ci/maintained-desktop574-inputs.json" "$RUNNER_TEMP/doctor-retained-inputs/desktop574.json" <<'PYDOCTORSEED'
+          import importlib.util,json,sys,time
+          from pathlib import Path
+          support,carrier,cache,lock,output=map(lambda n:Path(n).absolute(),sys.argv[1:]);sys.path.insert(0,str(support))
+          spec=importlib.util.spec_from_file_location('_doctor_fixed_retained_preparation',support/'prepare.py');P=importlib.util.module_from_spec(spec);spec.loader.exec_module(P)
+          result=P.prepare(carrier,cache,'desktop574',lock,time.monotonic()+170,carrier/'.git')
+          with output.open('xb')as f:f.write((json.dumps(dict(status='SOURCE_BOUND_RETAINED_PREPARATION_DATA_ONLY',limit_seconds=170,record=result,actual=None),sort_keys=True,indent=2)+'\n').encode())
+          PYDOCTORSEED
+      - name: Prefetch and seed exact32 frozen574 bytes before unchanged producer
+        id: frozen574_archive32
+        if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' && steps.audio_inputs.outcome == 'success' }}
+        timeout-minutes: 4
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive32_helper="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-doctor2-closed-owner/archive32.py"
+          archive32_policy="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-doctor2-closed-owner/archive32-policy.json"
+          archive32_inputs="$GITHUB_WORKSPACE/composition-desktop/scripts/ci/maintained-desktop574-inputs.json"
+          printf '%s  %s\n' 'b1e2fc13644510a613ce09e53b39d4f4471cf47fc03fa62f312258379666c418' "$archive32_helper" '4f6ce49214422579f1cc448ff95d9f311cbfaf47a0d0c4f32d828c9edf843585' "$archive32_policy" | sha256sum --check
+          python3 -I -B "$archive32_helper" --policy "$archive32_policy" --inputs "$archive32_inputs" --cache "$RUNNER_TEMP/frozen574-archive32"
+          python3 -I -B - "$archive32_helper" "$archive32_policy" "$archive32_inputs" "$RUNNER_TEMP/frozen574-archive32" "$RUNNER_TEMP/alarm-cache" <<'PYARCHIVE32'
+          import importlib.util,sys
+          from pathlib import Path
+          helper,policy,inputs,cache,destination=map(Path,sys.argv[1:])
+          spec=importlib.util.spec_from_file_location('held_archive32_cache_seed',helper)
+          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+          selected=module.policy(policy,inputs)
+          result=module.seed_exact(cache,destination,selected)
+          result.update(helper=module.pin(helper.read_bytes()),policy=module.pin(policy.read_bytes()),destination='EXISTING_OWNED_ALARM_CACHE',original_versions='UNCHANGED',original_signature_and_trust_checks='UNCHANGED')
+          print(module.encoded(result).decode(),end='')
+          PYARCHIVE32
+          archive6_helper="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-doctor2-closed-owner/archive6.py"
+          archive6_policy="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-doctor2-closed-owner/archive6-policy.json"
+          archive6_inputs="$GITHUB_WORKSPACE/composition-updater/scripts/port/updater-extension/builder-extension.lock.json"
+          printf '%s  %s\n' '5e448ef6677fc26485e044b3ac2d35a07105703d4f1a719bb7c030678eff87ae' "$archive6_helper" '4d83dbda592b8b6575d02df65de829226cae3ddffc7268e3d47873ac83f3b322' "$archive6_policy" | sha256sum --check
+          python3 -I -B "$archive6_helper" --policy "$archive6_policy" --inputs "$archive6_inputs" --cache "$RUNNER_TEMP/frozen-updater-archive6"
+          python3 -I -B - "$archive6_helper" "$archive6_policy" "$archive6_inputs" "$RUNNER_TEMP/frozen-updater-archive6" "$RUNNER_TEMP/alarm-cache" <<'PYARCHIVE6'
+          import importlib.util,sys
+          from pathlib import Path
+          helper,policy,inputs,cache,destination=map(Path,sys.argv[1:])
+          spec=importlib.util.spec_from_file_location('held_updater_archive6_seed',helper)
+          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+          selected=module.policy(policy,inputs)
+          result=module.seed_exact(cache,destination,selected)
+          result.update(helper=module.pin(helper.read_bytes()),policy=module.pin(policy.read_bytes()),destination='EXISTING_OWNED_ALARM_CACHE',original_versions='UNCHANGED',original_signature_and_trust_checks='UNCHANGED')
+          print(module.encoded(result).decode(),end='')
+          PYARCHIVE6
+      - name: Prefetch and seed full20 original frozen574 files before unchanged producer
+        id: frozen574_archive20
+        if: ${{ !cancelled() && steps.frozen574_archive32.outcome == 'success' }}
+        timeout-minutes: 4
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive20_helper="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-doctor2-closed-owner/archive20.py"
+          archive20_policy="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-doctor2-closed-owner/archive20-policy.json"
+          archive20_inputs="$GITHUB_WORKSPACE/composition-desktop/scripts/ci/maintained-desktop574-inputs.json"
+          printf '%s  %s\n' 'e8ef66fc0431a04deb331f75258457bf4bdeb13a18bcd863fd5bece3b9a54968' "$archive20_helper" '1f966afe0c24bb9a928154cb0638a8bb78292c799ffd544132633caddf6217ae' "$archive20_policy" | sha256sum --check
+          python3 -I -B "$archive20_helper" --policy "$archive20_policy" --inputs "$archive20_inputs" --cache "$RUNNER_TEMP/frozen574-archive20"
+          python3 -I -B - "$archive20_helper" "$archive20_policy" "$archive20_inputs" "$RUNNER_TEMP/frozen574-archive20" "$RUNNER_TEMP/alarm-cache" <<'PYARCHIVE20'
+          import importlib.util,sys
+          from pathlib import Path
+          helper,policy,inputs,cache,destination=map(Path,sys.argv[1:])
+          spec=importlib.util.spec_from_file_location('held_archive20_full_seed',helper)
+          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+          result=module.seed_exact(cache,destination,module.policy(policy,inputs))
+          print(module.encoded(result).decode(),end='')
+          PYARCHIVE20
+      - name: Prefetch and seed full8 original frozen574 files before unchanged producer
+        id: frozen574_archive8
+        if: ${{ !cancelled() && steps.frozen574_archive20.outcome == 'success' }}
+        timeout-minutes: 4
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive8_helper="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-doctor2-closed-owner/archive8.py"
+          archive8_policy="$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-doctor2-closed-owner/archive8-policy.json"
+          archive8_inputs="$GITHUB_WORKSPACE/composition-desktop/scripts/ci/maintained-desktop574-inputs.json"
+          printf '%s  %s\n' '5e24808152c727f5dcd19252c66e1ab121bdb9dbd6b90becb943820634898565' "$archive8_helper" '2b21c05d30a9c5efd2f717cfa8475c9de3150d7729f710b348b70a84f5b16e20' "$archive8_policy" | sha256sum --check
+          python3 -I -B "$archive8_helper" --policy "$archive8_policy" --inputs "$archive8_inputs" --cache "$RUNNER_TEMP/frozen574-archive8"
+          python3 -I -B - "$archive8_helper" "$archive8_policy" "$archive8_inputs" "$RUNNER_TEMP/frozen574-archive8" "$RUNNER_TEMP/alarm-cache" <<'PYARCHIVE8'
+          import importlib.util,sys
+          from pathlib import Path
+          helper,policy,inputs,cache,destination=map(Path,sys.argv[1:])
+          spec=importlib.util.spec_from_file_location('held_archive8_full_seed',helper)
+          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+          result=module.seed_exact(cache,destination,module.policy(policy,inputs))
+          print(module.encoded(result).decode(),end='')
+          PYARCHIVE8
+      - name: Required signed604 plus606 additions and restoration lifecycle
+        id: composition604
+        if: ${{ always() && !cancelled() && steps.frozen574_archive32.outcome == 'success' && steps.frozen574_archive20.outcome == 'success' && steps.frozen574_archive8.outcome == 'success' }}
+        timeout-minutes: 115
+        shell: bash
+        env:
+          FDK_PAIR_OUTCOME: ${{ steps.fdk_pair.outcome }}
+          AUDIO_INPUTS_OUTCOME: ${{ steps.audio_inputs.outcome }}
+          IMPLEMENTATION_SOURCE: ${{ inputs.source }}
+        run: |
+          set -euo pipefail
+          test "$FDK_PAIR_OUTCOME" = success
+          test "$AUDIO_INPUTS_OUTCOME" = success
+          install -d -m 700 "$RUNNER_TEMP/expanded604-home"
+          timeout --signal=TERM --kill-after=60s 6660s \
+            env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/expanded604-home" LANG=C.UTF-8 TZ=UTC \
+            PYTHONDONTWRITEBYTECODE=1 \
+            python3 -B "$GITHUB_WORKSPACE/expanded604-code/scripts/ci/current606-doctor2-closed-owner/owner.py" --apps-packet "$GITHUB_WORKSPACE/doctor2-native-pairs" --setup-packet "$GITHUB_WORKSPACE/setup6-accepted-native" \
+              --code "$GITHUB_WORKSPACE/expanded604-code/held606/held604" --code-revision "$IMPLEMENTATION_SOURCE" \
+              --legacy-source "$GITHUB_WORKSPACE/expanded604-legacy" --eight-source "$GITHUB_WORKSPACE/expanded604-eight" \
+              --seven-source "$GITHUB_WORKSPACE/expanded604-seven" --management-source "$GITHUB_WORKSPACE/expanded604-management/payload" \
+              --setup-source "$GITHUB_WORKSPACE/expanded604-setup" --welcome-source "$GITHUB_WORKSPACE/expanded604-welcome/payload" \
+              --preparation-source "$GITHUB_WORKSPACE/composition-preparation" \
+              --updater-v2-source "$GITHUB_WORKSPACE/composition-updater-v2" --setup4-pair "$RUNNER_TEMP/setup4-retained" \
+              --product "$GITHUB_WORKSPACE/composition-product" --updater "$GITHUB_WORKSPACE/composition-updater" \
+              --desktop "$GITHUB_WORKSPACE/composition-desktop" \
+              --native "$RUNNER_TEMP/native-evidence" --fdk "$RUNNER_TEMP/fdk-evidence" --cache "$RUNNER_TEMP/alarm-cache" \
+              --apps6-source "$GITHUB_WORKSPACE/expanded604-apps6-inputs/payload" --apps6-authority-source "$GITHUB_WORKSPACE/expanded604-apps6-bytecase-authority" \
+            --audio-inputs "$RUNNER_TEMP/audio-archives" \
+              --output "/tmp/cachy-asahi-expanded604-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+      - name: Retain the separate bounded604 public closure and lifecycle
+        id: native_public_retention
+        if: always()
+        env:
+          CAA_EVIDENCE_SOURCE_SHA: ${{ inputs.source }}
+          CAA_EVIDENCE_WORKFLOW_SHA: ${{ github.sha }}
+        timeout-minutes: 2
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -I -B - <<'PYRETAIN'
+          import hashlib,json,os,pathlib,shutil,stat
+          source=pathlib.Path('/tmp')/('cachy-asahi-expanded604-'+os.environ['GITHUB_RUN_ID']+'-'+os.environ['GITHUB_RUN_ATTEMPT'])/'public'
+          retained=pathlib.Path(os.environ['RUNNER_TEMP'])/'doctor-retained-inputs'
+          if source.exists()and retained.exists():
+              assert source.is_dir()and not any(p.is_symlink()for p in(source,*source.parents))
+              identity=lambda s:(s.st_dev,s.st_ino,s.st_mode,s.st_uid,s.st_gid,s.st_nlink,s.st_size,s.st_mtime_ns,s.st_ctime_ns)
+              state=retained.lstat();assert stat.S_ISDIR(state.st_mode)and state.st_uid==os.getuid()and stat.S_IMODE(state.st_mode)==0o700 and not any(p.is_symlink()for p in(retained,*retained.parents))
+              destination=source/'retained-inputs';destination.mkdir(mode=0o700)
+              for original in sorted(retained.iterdir()):
+                  assert original.name in('early.json','native248.json','desktop574.json')
+                  fd=os.open(original,os.O_RDONLY|os.O_CLOEXEC|os.O_NOFOLLOW|os.O_NONBLOCK)
+                  try:
+                      info=os.fstat(fd);assert stat.S_ISREG(info.st_mode)and info.st_nlink==1 and info.st_uid==os.getuid()and info.st_size<=4*1024**2
+                      raw=b''
+                      while block:=os.read(fd,65536):raw+=block;assert len(raw)<=4*1024**2
+                      assert len(raw)==info.st_size and identity(info)==identity(os.fstat(fd))==identity(original.lstat())
+                  finally:os.close(fd)
+                  with(destination/original.name).open('xb')as f:f.write(raw)
+              report_path=source/'report.json'
+              if report_path.exists():
+                  fd=os.open(report_path,os.O_RDONLY|os.O_CLOEXEC|os.O_NOFOLLOW|os.O_NONBLOCK)
+                  try:
+                      info=os.fstat(fd);assert stat.S_ISREG(info.st_mode)and info.st_nlink==1 and info.st_uid==os.getuid()and info.st_size<=32*1024**2
+                      original_report=b''
+                      while block:=os.read(fd,65536):original_report+=block;assert len(original_report)<=32*1024**2
+                      assert len(original_report)==info.st_size and identity(info)==identity(os.fstat(fd))==identity(report_path.lstat())
+                  finally:os.close(fd)
+                  report=json.loads(original_report)
+                  if 'public_files'in report:
+                      before=report['public_files'];assert type(before)is dict and not any(n.startswith('retained-inputs/')for n in before)
+                      assert report['retention']['files']==len(before)and report['retention']['bytes']==sum(r['bytes']for r in before.values())and report['retention']['cap']==64*1024**2
+                      with(destination/'original-owner-report.json').open('xb')as f:f.write(original_report)
+                      added={}
+                      for p in sorted(destination.iterdir()):
+                          raw=p.read_bytes();added['retained-inputs/'+p.name]=dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())
+                      assert set(added)<=set('retained-inputs/'+n for n in('early.json','native248.json','desktop574.json','original-owner-report.json'))
+                      report['public_files']=dict(before,**added);report['retention']=dict(report['retention'],files=len(before)+len(added),bytes=sum(r['bytes']for r in before.values())+sum(r['bytes']for r in added.values()))
+                      assert report['retention']['files']<=1100 and report['retention']['bytes']<=64*1024**2
+                      raw=(json.dumps(report,sort_keys=True,indent=2)+'\n').encode();assert len(raw)<=32*1024**2
+                      temporary=source/'report-retained-export.json'
+                      with temporary.open('xb')as f:f.write(raw)
+                      temporary.replace(report_path)
+          target=pathlib.Path(os.environ['RUNNER_TEMP'])/'expanded604-public'
+          target.mkdir(mode=0o700)
+          rows={};total=0;part=0;packet_bytes=0;pieces=0
+          def chunk(raw):
+              global part,packet_bytes,pieces
+              if part==0 or packet_bytes+len(raw)>4*1024**2:
+                  part+=1;packet_bytes=0;assert part<=35
+                  (target/('part-%04d'%part)).mkdir()
+              root=target/('part-%04d'%part);pieces+=1;packet_bytes+=len(raw)
+              name='chunk-%04d.bin'%pieces;(root/name).write_bytes(raw)
+              return {'packet':root.name,'path':name,'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()}
+          if source.exists():
+              assert source.is_dir() and not source.is_symlink()
+              for path in sorted(source.rglob('*')):
+                  info=path.lstat();assert not path.is_symlink()
+                  if stat.S_ISDIR(info.st_mode):continue
+                  assert stat.S_ISREG(info.st_mode) and info.st_nlink==1 and info.st_size<=32*1024**2
+                  total+=info.st_size;assert total<=65*1024**2 and len(rows)<1100
+                  name=path.relative_to(source).as_posix();chunks=[];digest=hashlib.sha256()
+                  with path.open('rb') as stream:
+                      while raw:=stream.read(4*1024**2):digest.update(raw);chunks.append(chunk(raw))
+                  rows[name]={'bytes':info.st_size,'sha256':digest.hexdigest(),'chunks':chunks}
+          index=target/'part-0000';index.mkdir()
+          (index/'retention.json').write_text(json.dumps(dict(files=rows,bytes=total,cap=65*1024**2,
+              packet_raw_cap=4*1024**2,packet_count=part,
+              reconstruction='concatenate each file chunks in listed order and verify full bytes and sha256',
+              scope='accepted public pairs and native604 metadata lifecycle; hardware NOT_RUN'),sort_keys=True)+'\n')
+          PYRETAIN
+          python3 -I -B "$GITHUB_WORKSPACE/expanded604-code/scripts/ci/native-evidence-transport/transport.py" \
+            --policy "$GITHUB_WORKSPACE/expanded604-code/scripts/ci/native-evidence-transport/doctor-policy.json" \
+            --packets "$RUNNER_TEMP/expanded604-public" \
+            --encoder "$GITHUB_WORKSPACE/scripts/ci/log_evidence.py" \
+            --output "$RUNNER_TEMP/native-framed-evidence"
+      - name: Upload original native framed evidence with source-bound transport receipt
+        if: always() && steps.native_public_retention.outcome == 'success'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        timeout-minutes: 5
+        with:
+          name: native-framed-evidence-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
+          path: ${{ runner.temp }}/native-framed-evidence/
+          retention-days: 3
+          compression-level: 0
+          include-hidden-files: false
+          if-no-files-found: error

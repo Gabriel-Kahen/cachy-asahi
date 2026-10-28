@@ -1,0 +1,61 @@
+{
+  "dependencies": {
+    "optional": [],
+    "required": [
+      "python>=3.11"
+    ],
+    "selected_inventory_reference": {
+      "path": "scripts/ci/current606-ksm2-copy/expected606.lock",
+      "python": "3.14.8-1",
+      "scope": "retained-inventory-only-not-live-host-or-target",
+      "sha256": "3a586c1e3400391f56bd281ac9c16aba85d94d0fca002770e77ee1802c5d9fd1"
+    }
+  },
+  "future_native_build_pair": {
+    "actual_binding": null,
+    "build1": null,
+    "build2": null
+  },
+  "license": {
+    "copyright": "2026 cachy-asahi contributors",
+    "id": "MIT",
+    "path": "LICENSE",
+    "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+  },
+  "observed_integration_revision": "a0bbaee4da1c588f33375b6d4cda372d89a85f77",
+  "package": "cachy-asahi-support",
+  "qualification": {
+    "ALPM_installation": "NOT RUN",
+    "native_build": "NOT RUN",
+    "performance": "NOT MEASURED",
+    "physical_M2": "NOT RUN",
+    "release": "NOT ADMITTED"
+  },
+  "runtime_closure": {
+    "doctor.py": {
+      "license": "MIT",
+      "origin": "current-project-source",
+      "sha256": "ddd8c3cedc5ba1291dcdd2d1d7a188e5b4d4a4ac7323ffe6f7ee554f6687d41e",
+      "source_path": "packages/tools/cachy-asahi-doctor2/cachy-asahi-doctor",
+      "source_revision": "a0bbaee4da1c588f33375b6d4cda372d89a85f77"
+    },
+    "session_probe.py": {
+      "license": "MIT",
+      "origin": "current-project-source",
+      "sha256": "9c5c41899cd991b0de4bf8d30bad6f5452b4592ea9440df0f0b4a7b54bc66984",
+      "source_path": "scripts/hardware/session_probe.py",
+      "source_revision": "a0bbaee4da1c588f33375b6d4cda372d89a85f77"
+    },
+    "support_bundle.py": {
+      "license": "MIT",
+      "origin": "reviewed-uncommitted-support-bundle-proposal",
+      "packet": "artifacts/development/support-bundle-development-20261027",
+      "sha256": "2fff76ad4df036f383927381b0b56c89904c3087f7ca151902ba80fb8c82bdc8",
+      "source_path": "scripts/support/support_bundle.py",
+      "source_revision": null
+    }
+  },
+  "schema_version": 1,
+  "source_revision": null,
+  "version": "0.1.0-1"
+}

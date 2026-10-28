@@ -1,0 +1,23 @@
+
+class ProducerFacade:
+ """The real producer keeps executing globals and original exporter mutation."""
+ def __init__(self,producer,diagnostic):object.__setattr__(self,'_producer',producer);object.__setattr__(self,'_diagnostic',diagnostic)
+ def __getattr__(self,name):
+  if name=='prepare':return lambda args:self._diagnostic.prepare(self._producer,args)
+  return getattr(self._producer,name)
+ def __setattr__(self,name,value):setattr(self._producer,name,value)
+
+def dependency_policy():
+ p=C.profile()['dependency_cache'];C.need(set(p['operands'])=={'compiler6.py','compiler6-profile.json','producer_diagnostic.py'}and p['incoming_ref']=='codex/current606-incoming31-v1'and all(type(p[k])is int for k in('new_phase_seconds','prior_files','new_files','total_dependency_files','original_acquisition_seconds'))and all(p[k]is None for k in('current_actual_source','current_actual_ref','current_actual_run')),'fixed typed cache policy and current actualNULL');C.need(p['incoming_source']=='405761af52cdfa92b97bbf5b0519f32230d9a254'and p['new_phase_seconds']==240 and p['prior_files']==1159 and p['new_files']==8 and p['total_dependency_files']==10 and p['original_acquisition_seconds']==180 and p['authority']is False,'closed additional240 cache phase, no original180 reset/authority')
+ for n,w in p['operands'].items():C.checked(C.HERE/n,w)
+ return p
+
+def prepare_with_plan(integration,original,producer,args):
+ # New explicit240 phase fits only within the HELD original outer allowances.
+ import time
+ p=dependency_policy();C.need(integration.dependency_incoming is not None,'explicit immutable dependency input required')
+ original_common,_=integration.source_modules();revision=C.load('_latest607_dependency_revision',integration.fresh/'implementation/loaders.py',{'common':original_common});revision.revision(integration.dependency_incoming,p['incoming_source'])
+ helper=C.load('_latest607_exact_retained_dependency_copy',C.HERE/'compiler6.py');deadline=time.monotonic()+p['new_phase_seconds']
+ helper.prepare_dependency_cache(integration.dependency_incoming,args.preparation_source,args.desktop/'scripts/ci/maintained-desktop574-inputs.json',args.cache,deadline)
+ diagnostic=C.load('_latest607_exact_fixed_producer_diagnostic',C.HERE/'producer_diagnostic.py')
+ return original.prepare_with_plan(ProducerFacade(producer,diagnostic),args)

@@ -1,0 +1,161 @@
+name: Parallel development tools
+on:
+  pull_request:
+    paths:
+      - '**' # Unknown paths must reach the full-suite fallback.
+      - '.github/workflows/parallel-development-tools.yml'
+      - 'scripts/benchmarks/**'
+      - 'scripts/workflows/**'
+      - 'scripts/virtual/owned_process.py'
+      - 'scripts/build/**'
+      - 'scripts/checks/**'
+      - 'scripts/maintenance/**'
+      - 'scripts/release/**'
+      - 'tests/workflows/**'
+      - 'tests/test_build_outputs_v2.py'
+      - 'tests/test_maintenance_campaign.py'
+      - 'packages/tools/cachy-asahi-orphans/**'
+      - 'packages/tools/cachy-asahi-cache/**'
+      - 'packages/tools/cachy-asahi-repository-runtime/**'
+      - 'packages/tools/cachy-asahi-dns/**'
+      - 'packages/tools/cachy-asahi-sysctl/**'
+      - 'packages/tools/cachy-asahi-topmem/**'
+  push:
+    branches: [main]
+    paths:
+      - '**' # Unknown paths must reach the full-suite fallback.
+      - '.github/workflows/parallel-development-tools.yml'
+      - 'scripts/benchmarks/**'
+      - 'scripts/workflows/**'
+      - 'scripts/virtual/owned_process.py'
+      - 'scripts/build/**'
+      - 'scripts/checks/**'
+      - 'scripts/maintenance/**'
+      - 'scripts/release/**'
+      - 'tests/workflows/**'
+      - 'tests/test_build_outputs_v2.py'
+      - 'tests/test_maintenance_campaign.py'
+      - 'packages/tools/cachy-asahi-orphans/**'
+      - 'packages/tools/cachy-asahi-cache/**'
+      - 'packages/tools/cachy-asahi-repository-runtime/**'
+      - 'packages/tools/cachy-asahi-dns/**'
+      - 'packages/tools/cachy-asahi-sysctl/**'
+      - 'packages/tools/cachy-asahi-topmem/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  focused:
+    needs: component-selection
+    if: ${{ !cancelled() && (needs.component-selection.result != 'success' || needs.component-selection.outputs.run != 'false') }}
+    name: ${{ matrix.lane }} / Python ${{ matrix.python }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.component-selection.result == 'success' && needs.component-selection.outputs.matrix || '{"include":[{"lane":"metrics","python":"3.12"},{"lane":"developer","python":"3.12"},{"lane":"campaign","python":"3.12"},{"lane":"management-source","python":"3.12"},{"lane":"retained-transport","python":"3.12"},{"lane":"metrics","python":"3.14"},{"lane":"developer","python":"3.14"},{"lane":"campaign","python":"3.14"},{"lane":"management-source","python":"3.14"},{"lane":"retained-transport","python":"3.14"}]}') }}
+    steps:
+      - name: Checkout local dependency closure
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /LICENSE
+            /docs/port/maintenance-campaign.md
+            /docs/port/developer-workflow.md
+            /scripts/benchmarks/
+            /scripts/workflows/
+            /scripts/virtual/owned_process.py
+            /scripts/build/
+            /scripts/checks/
+            /scripts/maintenance/
+            /scripts/release/
+            /tests/workflows/
+            /tests/test_build_outputs_v2.py
+            /tests/test_maintenance_campaign.py
+            /packages/tools/cachy-asahi-orphans/
+            /packages/tools/cachy-asahi-cache/
+            /packages/tools/cachy-asahi-repository-runtime/
+            /packages/tools/cachy-asahi-dns/
+            /packages/tools/cachy-asahi-sysctl/
+            /packages/tools/cachy-asahi-topmem/
+      - name: Select Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install developer environment
+        if: matrix.lane == 'developer'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y git vim build-essential python3-venv ninja-build
+          command -v make
+          command -v ninja
+      - name: Install campaign metadata readers
+        if: matrix.lane == 'campaign'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y libarchive-tools pacman-package-manager makepkg
+          test -x /usr/bin/vercmp
+      - name: Run focused controls
+        env:
+          LANE: ${{ matrix.lane }}
+        run: |
+          case "$LANE" in
+            metrics)
+              python -I -B scripts/benchmarks/test_platform_metrics.py -v
+              python -I -B scripts/benchmarks/test_benchmark_platform_metrics.py -v
+              python -I -B scripts/benchmarks/test_benchmark_owned_rss.py -v
+              ;;
+            developer)
+              python -I -B tests/workflows/test_developer_workflow.py -v
+              python -I -B scripts/workflows/developer_workflow.py --output "$RUNNER_TEMP/developer-workflow" --tool-path "$(dirname "$(command -v python)"):/usr/bin:/bin" --command-timeout 30 --total-timeout 300
+              python -I -B -c 'import json,sys; from pathlib import Path; r=json.loads(Path(sys.argv[1]).read_text()); assert r["status"] == "PASS_LOCAL_DEVELOPER_COMPONENT"; assert all(r["project_workflows"][b]["status"] == "PASS_REAL_PROJECT_WORKFLOW" for b in ("make", "ninja")); assert len(r["commands"]) == 63 + sum(r["tools"][b]["status"] == "PRESENT" for b in ("cmake", "meson")); assert all(c["success"] for c in r["commands"])' "$RUNNER_TEMP/developer-workflow/result.json"
+              ;;
+            campaign)
+              python -I -B tests/test_maintenance_campaign.py -v
+              ;;
+            retained-transport)
+              python -I -B -Werror::ResourceWarning scripts/maintenance/test_retained_git_transport.py -v
+              ;;
+            management-source)
+              python -I -B scripts/release/test_management_tools_source_delivery.py -v
+              python -I -B -Werror::ResourceWarning scripts/release/test_dns_sysctl_topmem_source_delivery.py -v
+              ;;
+            *) exit 2 ;;
+          esac
+
+  component-selection:
+    name: Conservative component selection
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      run: ${{ steps.select.outputs.run }}
+      matrix: ${{ steps.select.outputs.matrix }}
+    steps:
+      - name: Checkout bounded depth-two selector source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+          fetch-tags: false
+      - name: Check selector failure and coverage controls
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/ci/component_selection/test_select.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/component_selection/test_collect.py
+      - name: Select reviewed components or the complete baseline
+        id: select
+        shell: bash
+        env:
+          SELECTION_EVENT: ${{ github.event_name }}
+          SELECTION_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          SELECTION_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+          SELECTION_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          component_diff() {
+            timeout 30s git diff --no-ext-diff --no-renames --name-status -z "$1" "$2" -- | head -c 1048577 > "$3"
+          }
+          source scripts/ci/component_selection/collect.sh
+          collect_components parallel

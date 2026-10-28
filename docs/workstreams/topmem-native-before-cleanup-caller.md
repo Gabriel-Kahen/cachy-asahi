@@ -1,0 +1,56 @@
+# Topmem native addon before parent cleanup: source proposal
+
+This standalone caller is a review proposal. It starts a **fresh** original baseline, keeps that job's positively owned image available for the Topmem addon, and disposes of the signer, both addon journals, then the baseline image. No workflow registration, dispatch, actual signing, native addon execution, or hardware admission was performed for this proposal.
+
+The coordinator reported the separate original run 38354516537 passed on published 0f6b202 and removed its image. This proposal cannot reuse that image. Historical failed runs and the failed first caller model remain unchanged; their outcomes are not backfilled.
+
+## Frozen source boundaries
+
+All paths below are relative to `artifacts/reviews/topmem-native-before-cleanup-caller-proposal-20261013/`.
+
+| Selection | Pin | Membership |
+| --- | --- | --- |
+| `baseline96/packet.json` | `16498f24649b981e99d803682e87e632bbba289e4bb6d3169d7608d7cecdc617` | 96 source rows plus the unchanged packet; 1,369,627 source bytes |
+| `addon19/source-manifest.json` | `4eb3b51f8eb7dcd0bc1ec01dd4b911326d7f0faef0d810517e42b5a9d6272cd7` | 18 source rows plus manifest; selected V3 addon |
+| `addon19/addon.py` | `d2d9435ee5032abec36614a8ad2af98cf6ad9bf5d75506ab4166fd76e18d8579` | V3 author receipt b5e9e167fde3fb278e88ff3ca6ed50123417aaa7ee4759a3bec8b8ae83726931 |
+| `caller/manifest.json` | `094b11df269f67b73317e6e62a842e4d419f4cf82287a29e5198791b398b5ed3` | Four helpers plus manifest, separately frozen |
+
+The caller helpers are `caller.py` (e1998e223fedc95a1b3b70691304b7626db19e7d15bed48a96c5a9dbf1c5c3f3), `signing.py` (ae20b859fe21da1ddc281031f96d13808a565c417b66619898534255f1416194), `recovery.py` (a1ee87c3c88535f4a0ca2ee47062a747cacc7d0282cae35f426bca5648e03331), and `agent_entry.py` (ee885a13520ed03d66d6ba004b236c8de3a262861d3b7b25655a816f078f2a8c). The baseline inventory and source manifest were not extended with Topmem. The package inventory still does not claim Topmem native installation or M2 hardware acceptance.
+
+## Concrete execution and acceptance
+
+`proposed-workflow.yml` is inert and deliberately has `ROOT_SELECTION_REQUIRED` tool-policy fields. It preserves the first-step Source96 clock and pinned checkout. Once independently selected and committed, the sequence is caller `proof`, unchanged baseline `lane.py --phase prefetch --execute-prefetch`, caller `native`, then closed metadata `retain`. The proposal authenticates the caller body before invoking it. There is no old baseline `lane.py --phase native` invocation, because that controller cleans up the image before an addon can run.
+
+Caller proof checks the exact Git HEAD, source commit/workflow context, file modes and bytes of the baseline97, addon19, caller5 and one separate committed tool policy: exactly122 rows. It also produces the unchanged baseline proof consumed by unchanged prefetch. The proof receipt is cooperative same-job custody evidence, not independently signed arbitrary CLI admission. Runtime rechecks all three source closures and fixed tools. Docker CLI path/hash and the exact `unix:///var/run/docker.sock` endpoint must match the selected tuple before any baseline actor. Local source-only verification is available through `python -I -B -S caller/caller.py --phase verify --caller-manifest-sha256 <pin>`; this crosses no actor boundary.
+
+One absolute first-step deadline J remains inherited: global start+7200, prefetch start+1800, source proof start+300, guard J-120. The caller reserves work until guard-480 and cleanup until guard-60. One shared recovery cutoff, computed before any disposal as min(cleanup cutoff, now+180), is passed to signer, addon and baseline; later stages cannot renew it. The parent owns process observations, cancellation and public-file retirement. A persisted, held-inode caller-state record reserves each attempt before launch.
+
+The actual selected baseline receipt validator must accept the original 8 builds, 4 comparisons, 249 status-parser signature observations and graph/provenance/journals before addon work. Original receipt bytes are held by hash and compared again before addon admission, after recovery and after public publication. Original counters are never extended. Addon commands must finish the separate exact six-command schedule: current build1/build2/compare, upgrade-fixture build1/build2/compare. Successful addon counters are four builds, two comparisons, six host signature verification observations and one lifecycle. Separate finite journal observations retain partial original/addon counts and raw hashes on failure; `null` means unavailable, and these observations grant no acceptance.
+
+The selected lifecycle argv, image, daemon, nonce, key fingerprint and journal must match. The Source19 lifecycle runs signed install0.1.0-1, smoke/ownership, upgrade0.1.0-2, smoke, remove/reinstall/final remove, and restores inventory/sentinel state. A marker string cannot grant a pass. The parent requires a naturally reaped zero addon process plus the actual Source19 admission predicates and successful owned cleanup. The Source19 provisional declaration alone is insufficient. Public metadata uses closed nested fields, finite counts, selected context and hashes; it does not project private argv, paths, keys or errors.
+
+## Disposable TEST signer and tool selection
+
+The Root-selected committed policy must use purpose `TOPMEM_DISPOSABLE_TEST_TOOLCHAIN_V1`, exact `/usr/bin/gpg`, `/usr/bin/gpg-agent`, `/usr/bin/repo-add` tool rows and bounded helper rows including the exact caller-selected `/usr/bin/python3.12`. Root-owned, nonwritable regular bodies, hashes, sizes, modes, ELF interpreter and required dependencies are rechecked. Helpers are bounded to128 rows/256MiB. ELF RPATH/RUNPATH and unselected dependencies are refused. **A script repo-add is refused** because its interpreter/helper closure has not been selected. No automatic host/tool substitution occurs. The original Git/Python/Docker pins come from an earlier hosted read-only observation and must match afresh; they are not new platform evidence.
+
+The selected ELF loader/default ARM library policy is an explicit readiness prerequisite; static DT_NEEDED checks do not establish runtime dlopen/cache behavior. No future tool policy or signature authority is fabricated here. If the future hosted repo-add is a shell script or the supervised GPG-agent interface is unavailable, the current caller refuses and the owner must select and review a concrete compatible toolchain or a separate source revision before an actual run.
+
+The parent owns one private prebound Unix listener and registers its exact inode with the resource scanner before launch. It supervises the pinned agent entry in a separately owned process group with the source child-setup/PDEATHSIG policy, then binds PID/start/group/session/uid/gid/executable before handoff. The child generates one RSA2048 signing-only one-day key with TEST-nonce identity, uses `--no-autostart` and explicit private keyhome, verifies the single primary fingerprint, and exports only a public certificate. The Source19 eight-field key-owner contract independently checks fingerprint, certificate bytes, private-home custody and selected GPG/repo-add hashes. The default keyring and release keys are not used.
+
+Recovery verifies owned journal/process/socket/tree custody, terminates/reaps only that agent, closes/unlinks/unregisters its owned listener and removes keyhome/runtime using bounded fd-anchored enumeration. Owner contract/public certificate are retained for recovery verification; a foreign or uncertain signer is a sticky failure and cannot grant a public owner reference. Unknown startup reservations retain uncertainty even if positively held resources can be disposed.
+
+## Both addon journals and baseline recovery
+
+The build journal uses the original broker's exact FDK label and limits four addon build containers. The lifecycle journal has its separate Topmem label/name/argv/image/daemon/nonce and permits one lifecycle container. Recovery uses the actual worker graph/owner and accepted broker APIs. It queries and verifies each ownership selector independently and checks absence after removal. The addon helper never deletes the baseline image.
+
+Source19 stores no lifecycle CID. Provisional-zero plus the parent's naturally completed-zero process observation can establish absence when all exact selectors are empty. UNKNOWN without a CID stays failed/unknown; discovering and removing a positively owned container does not erase an unknown launch outcome. Both addon recoveries run before the original worker cleanup removes the original containers and image. Every cleanup stage is attempted under the same cutoff; any failure, uncertainty, cancellation or source/receipt drift prevents PASS.
+
+## Verification and limits
+
+Final caller replay:38/38 finite scenarios PASS across7 methods, zero actors/PYC; receipt `1a1bc08721c964dc6a415ee286fd685e8a0dadd9c5dd6bdb8aa04cf3ff04f127`. Peer source report `c930aca7ccfc192883d103e87f6eeb692d2147fcc3a8a9f8c056eb6c07a67b6a` reports no remaining blocking finding within its finite accepted-parameter checklist. Signing controls:33 inert PASS, receipt `3b43b8b834a7ab6ad464117fddd60c09b03666224f523de0b2141ad7efcf6499`. Recovery controls:18 inert PASS, receipt `21cfbe301237279da84085dfdeb38196d7756dd0fa12a5189401ed6c99b1ae9a`;41 leaves independently authenticated. These controls call actual source APIs through inert actor seams. They prove finite source behavior within those seams, not real crypto or native recovery.
+
+Caller attempt01 preserves its child-cancellation failure and fixture failures. Attempt02 preserves the reproduced observation-cancellation failure. Attempt03 records its corrected green replay and the later Docker selector finding. The final independent replay is recorded under `caller-models/attempt-04/`; consult that receipt for exact scenarios and source pins. Models use local Python3.14 with explicit substitution at the future Python3.12/tool/process/native actor gates. Actual caller, Source96 receipt/output validators and Source19 key/lifecycle data code execute; package artifacts, signature observations and lifecycle results are synthetic. No subprocess, socket, Docker, GPG, signing, network, compiler, image, installation or dispatch actor was launched for this proposal.
+
+The first root seal refused three signing evidence mode mismatches while bytes/hashes matched. The signer author confirmed a sealing chmod-order error and restored only those three modes to the existing receipt; `signing-review/custody-repair.json` (444c3380f9001e9971ee807999268f873e4bbc6ec53976ba9b1609bfb8451c34) preserves before/expected/after and complete revalidation. `root-seal-attempt-01.json` retains the refusal. Helper source and earlier receipts are unchanged.
+
+The root `receipt.json` indexes every regular proposal leaf, including failed attempts and nested receipts, excluding only itself, and separately binds this guide. Root independent selection, committed tool policy, supervised-agent readiness and a fresh actual baseline→addon→all cleanup job remain pending. M2 hardware, performance, release selection and the wider roadmap remain incomplete.

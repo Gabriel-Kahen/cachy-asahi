@@ -1,0 +1,573 @@
+{
+  "experiments": {
+    "ARM-C01": {
+      "archive_manifest": {
+        "bytes": 71848,
+        "path": "artifacts/development/arm-c01-run38772803597-review-20261015/experiment-artifacts/archive-manifest.json",
+        "sha256": "45ffafb3f060a00f6933c1c6146a58b989187c88725572370627071be38e63a9"
+      },
+      "builds": [
+        "baseline-1",
+        "baseline-2",
+        "lto-1",
+        "lto-2"
+      ],
+      "bundle": {
+        "bytes": 2969903,
+        "path": "artifacts/development/arm-c01-run38772803597-review-20261015/experiment-artifacts/development-ARM-C01-outputs.tar.gz",
+        "sha256": "9195b3feaed061012600fac707a61f5b0f4c769894240a2c5742de99e784e573"
+      },
+      "review_path": "artifacts/development/arm-c01-run38772803597-review-20261015",
+      "run": 38772803597,
+      "selected": {
+        "baseline-1/LICENSE.txt": {
+          "bytes": 1002,
+          "sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2"
+        },
+        "baseline-1/example": {
+          "bytes": 361536,
+          "sha256": "8ae78ebd3fdf1cddd8833bcffcfc3367381490d4d774e8d3dafcdc0733df7f5e"
+        },
+        "baseline-1/libz.a": {
+          "bytes": 485710,
+          "sha256": "f8affb01a6e86f4829a2a153325f034a7c42dbe1e965ac099fb0fbca135d570f"
+        },
+        "baseline-1/minigzip": {
+          "bytes": 343568,
+          "sha256": "910e519d2e0f30e9ff9a1b4063b01f0e0426d7263f5871fb6db1fc9fc70b97f5"
+        },
+        "baseline-1/strict-gzip": {
+          "bytes": 158072,
+          "sha256": "53d1bd2741b813c665933de52558bff311f433ff415d303884cbcd43a956ab7a"
+        },
+        "baseline-2/LICENSE.txt": {
+          "bytes": 1002,
+          "sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2"
+        },
+        "baseline-2/example": {
+          "bytes": 361536,
+          "sha256": "8ae78ebd3fdf1cddd8833bcffcfc3367381490d4d774e8d3dafcdc0733df7f5e"
+        },
+        "baseline-2/libz.a": {
+          "bytes": 485710,
+          "sha256": "f8affb01a6e86f4829a2a153325f034a7c42dbe1e965ac099fb0fbca135d570f"
+        },
+        "baseline-2/minigzip": {
+          "bytes": 343568,
+          "sha256": "910e519d2e0f30e9ff9a1b4063b01f0e0426d7263f5871fb6db1fc9fc70b97f5"
+        },
+        "baseline-2/strict-gzip": {
+          "bytes": 158072,
+          "sha256": "53d1bd2741b813c665933de52558bff311f433ff415d303884cbcd43a956ab7a"
+        },
+        "corpus/allbytes.bin": {
+          "bytes": 65536,
+          "sha256": "7daca2095d0438260fa849183dfc67faa459fdf4936e1bc91eec6b281b27e4c2"
+        },
+        "corpus/corrupt-crc.gz": {
+          "bytes": 335,
+          "sha256": "a19dbb20fb13e19ef69a185142b2dc84fd49a321d48f494ba24dd33841ec387f"
+        },
+        "corpus/empty.bin": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "corpus/gzip-reference.gz": {
+          "bytes": 335,
+          "sha256": "8d9203c840283e131c22a251638d671bb032b07e60dd826682f82fc4de685aad"
+        },
+        "corpus/heldout-source.bin": {
+          "bytes": 5291,
+          "sha256": "4026d921213bb2e311d8d42b44ef53361c102d5d45ae32f93f8e52eaee8d068f"
+        },
+        "corpus/incompressible.bin": {
+          "bytes": 262144,
+          "sha256": "d0a8f250747dd09a9d433e6d36f6151f0c84ea25131465adfa6017f1b7dd53e1"
+        },
+        "corpus/manifest.json": {
+          "bytes": 1847,
+          "sha256": "fd527801eb3b16bd2a1b7150b98402ca7901e4b88716a9233e0fc239c66ec596"
+        },
+        "corpus/onebyte.bin": {
+          "bytes": 1,
+          "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+        },
+        "corpus/repeated.txt": {
+          "bytes": 124928,
+          "sha256": "3184c3614ea966aa462525613d3893136de73291bd805cb442f3fa6ea0f35f89"
+        },
+        "corpus/truncated-trailer.gz": {
+          "bytes": 327,
+          "sha256": "2cd5546291ea6525b873331a372f57a2a96b5c18b8a13d0542db63b366d2f2b4"
+        },
+        "lto-1/LICENSE.txt": {
+          "bytes": 1002,
+          "sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2"
+        },
+        "lto-1/example": {
+          "bytes": 332264,
+          "sha256": "f05bd5811ab0f2ece9c9f972a98bf49906202654fdde194ff4e960ba7a60a4d1"
+        },
+        "lto-1/libz.a": {
+          "bytes": 621254,
+          "sha256": "84ba2093e7c2b7038b258c4b5b41e814daf14086362db74f086e16912381f76e"
+        },
+        "lto-1/minigzip": {
+          "bytes": 237456,
+          "sha256": "01083d23c851eb4073ee88654230135c2871417537af6a714f4d929d45f38a38"
+        },
+        "lto-1/strict-gzip": {
+          "bytes": 132600,
+          "sha256": "4fff45fbfb28e25dd5c1892c9d4bf40f727cd48b17f658a1c705cd5d3a3cceef"
+        },
+        "lto-2/LICENSE.txt": {
+          "bytes": 1002,
+          "sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2"
+        },
+        "lto-2/example": {
+          "bytes": 332264,
+          "sha256": "f05bd5811ab0f2ece9c9f972a98bf49906202654fdde194ff4e960ba7a60a4d1"
+        },
+        "lto-2/libz.a": {
+          "bytes": 621254,
+          "sha256": "84ba2093e7c2b7038b258c4b5b41e814daf14086362db74f086e16912381f76e"
+        },
+        "lto-2/minigzip": {
+          "bytes": 237456,
+          "sha256": "01083d23c851eb4073ee88654230135c2871417537af6a714f4d929d45f38a38"
+        },
+        "lto-2/strict-gzip": {
+          "bytes": 132600,
+          "sha256": "4fff45fbfb28e25dd5c1892c9d4bf40f727cd48b17f658a1c705cd5d3a3cceef"
+        }
+      }
+    },
+    "ARM-C02": {
+      "archive_manifest": {
+        "bytes": 71434,
+        "path": "artifacts/development/arm-c02-run38775950466-review-20261015/experiment-artifacts/archive-manifest.json",
+        "sha256": "b76784832a577cc05ce16090300ff09031631c377f5f8c5a30dcf24641305812"
+      },
+      "builds": [
+        "baseline-1",
+        "baseline-2",
+        "o3-1",
+        "o3-2"
+      ],
+      "bundle": {
+        "bytes": 2779751,
+        "path": "artifacts/development/arm-c02-run38775950466-review-20261015/experiment-artifacts/development-ARM-C02-outputs.tar.gz",
+        "sha256": "018d87e9037611b5fe85c4476aaab9a21dd29beacfad784c3fa0f36d7d3b4e54"
+      },
+      "review_path": "artifacts/development/arm-c02-run38775950466-review-20261015",
+      "run": 38775950466,
+      "selected": {
+        "baseline-1/LICENSE.txt": {
+          "bytes": 1002,
+          "sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2"
+        },
+        "baseline-1/example": {
+          "bytes": 361536,
+          "sha256": "8ae78ebd3fdf1cddd8833bcffcfc3367381490d4d774e8d3dafcdc0733df7f5e"
+        },
+        "baseline-1/libz.a": {
+          "bytes": 485710,
+          "sha256": "f8affb01a6e86f4829a2a153325f034a7c42dbe1e965ac099fb0fbca135d570f"
+        },
+        "baseline-1/minigzip": {
+          "bytes": 343568,
+          "sha256": "910e519d2e0f30e9ff9a1b4063b01f0e0426d7263f5871fb6db1fc9fc70b97f5"
+        },
+        "baseline-1/strict-gzip": {
+          "bytes": 158072,
+          "sha256": "53d1bd2741b813c665933de52558bff311f433ff415d303884cbcd43a956ab7a"
+        },
+        "baseline-2/LICENSE.txt": {
+          "bytes": 1002,
+          "sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2"
+        },
+        "baseline-2/example": {
+          "bytes": 361536,
+          "sha256": "8ae78ebd3fdf1cddd8833bcffcfc3367381490d4d774e8d3dafcdc0733df7f5e"
+        },
+        "baseline-2/libz.a": {
+          "bytes": 485710,
+          "sha256": "f8affb01a6e86f4829a2a153325f034a7c42dbe1e965ac099fb0fbca135d570f"
+        },
+        "baseline-2/minigzip": {
+          "bytes": 343568,
+          "sha256": "910e519d2e0f30e9ff9a1b4063b01f0e0426d7263f5871fb6db1fc9fc70b97f5"
+        },
+        "baseline-2/strict-gzip": {
+          "bytes": 158072,
+          "sha256": "53d1bd2741b813c665933de52558bff311f433ff415d303884cbcd43a956ab7a"
+        },
+        "corpus/allbytes.bin": {
+          "bytes": 65536,
+          "sha256": "7daca2095d0438260fa849183dfc67faa459fdf4936e1bc91eec6b281b27e4c2"
+        },
+        "corpus/corrupt-crc.gz": {
+          "bytes": 335,
+          "sha256": "a19dbb20fb13e19ef69a185142b2dc84fd49a321d48f494ba24dd33841ec387f"
+        },
+        "corpus/empty.bin": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "corpus/gzip-reference.gz": {
+          "bytes": 335,
+          "sha256": "8d9203c840283e131c22a251638d671bb032b07e60dd826682f82fc4de685aad"
+        },
+        "corpus/heldout-source.bin": {
+          "bytes": 5291,
+          "sha256": "4026d921213bb2e311d8d42b44ef53361c102d5d45ae32f93f8e52eaee8d068f"
+        },
+        "corpus/incompressible.bin": {
+          "bytes": 262144,
+          "sha256": "d0a8f250747dd09a9d433e6d36f6151f0c84ea25131465adfa6017f1b7dd53e1"
+        },
+        "corpus/manifest.json": {
+          "bytes": 1847,
+          "sha256": "fd527801eb3b16bd2a1b7150b98402ca7901e4b88716a9233e0fc239c66ec596"
+        },
+        "corpus/onebyte.bin": {
+          "bytes": 1,
+          "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+        },
+        "corpus/repeated.txt": {
+          "bytes": 124928,
+          "sha256": "3184c3614ea966aa462525613d3893136de73291bd805cb442f3fa6ea0f35f89"
+        },
+        "corpus/truncated-trailer.gz": {
+          "bytes": 327,
+          "sha256": "2cd5546291ea6525b873331a372f57a2a96b5c18b8a13d0542db63b366d2f2b4"
+        },
+        "o3-1/LICENSE.txt": {
+          "bytes": 1002,
+          "sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2"
+        },
+        "o3-1/example": {
+          "bytes": 417344,
+          "sha256": "885875ea4f97f77714c6ca6a29781c8eac0c7035d5981389de0317fd3fbf5150"
+        },
+        "o3-1/libz.a": {
+          "bytes": 581214,
+          "sha256": "c4869334fb3629865b8ce9a60860a85780280241fb96ec5bd9e0ab99f3135784"
+        },
+        "o3-1/minigzip": {
+          "bytes": 408360,
+          "sha256": "b6d9e6793ce0e9b35edb61ca9722ea9e230af01b83e036ef7c609cb1c5e09788"
+        },
+        "o3-1/strict-gzip": {
+          "bytes": 184840,
+          "sha256": "2f8a412db68f26c27cca903f9ce28518cdbfcca485b557b998d5e35f8d2e71c4"
+        },
+        "o3-2/LICENSE.txt": {
+          "bytes": 1002,
+          "sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2"
+        },
+        "o3-2/example": {
+          "bytes": 417344,
+          "sha256": "885875ea4f97f77714c6ca6a29781c8eac0c7035d5981389de0317fd3fbf5150"
+        },
+        "o3-2/libz.a": {
+          "bytes": 581214,
+          "sha256": "c4869334fb3629865b8ce9a60860a85780280241fb96ec5bd9e0ab99f3135784"
+        },
+        "o3-2/minigzip": {
+          "bytes": 408360,
+          "sha256": "b6d9e6793ce0e9b35edb61ca9722ea9e230af01b83e036ef7c609cb1c5e09788"
+        },
+        "o3-2/strict-gzip": {
+          "bytes": 184840,
+          "sha256": "2f8a412db68f26c27cca903f9ce28518cdbfcca485b557b998d5e35f8d2e71c4"
+        }
+      }
+    },
+    "ARM-C03": {
+      "archive_manifest": {
+        "bytes": 84686,
+        "path": "artifacts/development/arm-c03-run38783836486-review-20261015/experiment-artifacts/archive-manifest.json",
+        "sha256": "4ea105b5d7e51175f8fd46f73b09c114c8555d754593a9df3dadd69383131f61"
+      },
+      "builds": [
+        "baseline-1",
+        "baseline-2",
+        "pgo-1",
+        "pgo-2"
+      ],
+      "bundle": {
+        "bytes": 4286117,
+        "path": "artifacts/development/arm-c03-run38783836486-review-20261015/experiment-artifacts/development-ARM-C03-outputs.tar.gz",
+        "sha256": "80a6d4d420260f308780f2867b36665255c0685360d656f1b9ccd41fb4f2f3b2"
+      },
+      "review_path": "artifacts/development/arm-c03-run38783836486-review-20261015",
+      "run": 38783836486,
+      "selected": {
+        "baseline-1/LICENSE.txt": {
+          "bytes": 1002,
+          "sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2"
+        },
+        "baseline-1/example": {
+          "bytes": 361536,
+          "sha256": "8ae78ebd3fdf1cddd8833bcffcfc3367381490d4d774e8d3dafcdc0733df7f5e"
+        },
+        "baseline-1/libz.a": {
+          "bytes": 485710,
+          "sha256": "f8affb01a6e86f4829a2a153325f034a7c42dbe1e965ac099fb0fbca135d570f"
+        },
+        "baseline-1/minigzip": {
+          "bytes": 343568,
+          "sha256": "910e519d2e0f30e9ff9a1b4063b01f0e0426d7263f5871fb6db1fc9fc70b97f5"
+        },
+        "baseline-1/strict-gzip": {
+          "bytes": 158072,
+          "sha256": "53d1bd2741b813c665933de52558bff311f433ff415d303884cbcd43a956ab7a"
+        },
+        "baseline-2/LICENSE.txt": {
+          "bytes": 1002,
+          "sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2"
+        },
+        "baseline-2/example": {
+          "bytes": 361536,
+          "sha256": "8ae78ebd3fdf1cddd8833bcffcfc3367381490d4d774e8d3dafcdc0733df7f5e"
+        },
+        "baseline-2/libz.a": {
+          "bytes": 485710,
+          "sha256": "f8affb01a6e86f4829a2a153325f034a7c42dbe1e965ac099fb0fbca135d570f"
+        },
+        "baseline-2/minigzip": {
+          "bytes": 343568,
+          "sha256": "910e519d2e0f30e9ff9a1b4063b01f0e0426d7263f5871fb6db1fc9fc70b97f5"
+        },
+        "baseline-2/strict-gzip": {
+          "bytes": 158072,
+          "sha256": "53d1bd2741b813c665933de52558bff311f433ff415d303884cbcd43a956ab7a"
+        },
+        "corpus/allbytes.bin": {
+          "bytes": 65536,
+          "sha256": "7daca2095d0438260fa849183dfc67faa459fdf4936e1bc91eec6b281b27e4c2"
+        },
+        "corpus/corrupt-crc.gz": {
+          "bytes": 335,
+          "sha256": "a19dbb20fb13e19ef69a185142b2dc84fd49a321d48f494ba24dd33841ec387f"
+        },
+        "corpus/empty.bin": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "corpus/gzip-reference.gz": {
+          "bytes": 335,
+          "sha256": "8d9203c840283e131c22a251638d671bb032b07e60dd826682f82fc4de685aad"
+        },
+        "corpus/heldout-source.bin": {
+          "bytes": 5291,
+          "sha256": "4026d921213bb2e311d8d42b44ef53361c102d5d45ae32f93f8e52eaee8d068f"
+        },
+        "corpus/incompressible.bin": {
+          "bytes": 262144,
+          "sha256": "d0a8f250747dd09a9d433e6d36f6151f0c84ea25131465adfa6017f1b7dd53e1"
+        },
+        "corpus/manifest.json": {
+          "bytes": 1847,
+          "sha256": "fd527801eb3b16bd2a1b7150b98402ca7901e4b88716a9233e0fc239c66ec596"
+        },
+        "corpus/onebyte.bin": {
+          "bytes": 1,
+          "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+        },
+        "corpus/repeated.txt": {
+          "bytes": 124928,
+          "sha256": "3184c3614ea966aa462525613d3893136de73291bd805cb442f3fa6ea0f35f89"
+        },
+        "corpus/truncated-trailer.gz": {
+          "bytes": 327,
+          "sha256": "2cd5546291ea6525b873331a372f57a2a96b5c18b8a13d0542db63b366d2f2b4"
+        },
+        "pgo-1/LICENSE.txt": {
+          "bytes": 1002,
+          "sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2"
+        },
+        "pgo-1/example": {
+          "bytes": 394144,
+          "sha256": "76cd1ab30792f102050f5484bde42a6a5c896423f19cf76ab09d059c79360f35"
+        },
+        "pgo-1/libz.a": {
+          "bytes": 566350,
+          "sha256": "2138f8be0fe5d0a48e5fe30e075a1103280ae0f719c10f9e18675be3a70a7da1"
+        },
+        "pgo-1/minigzip": {
+          "bytes": 375312,
+          "sha256": "e69328b69c3556f427471d4adaa1b5322618492f94d5cd3bc51c97e2b018d956"
+        },
+        "pgo-1/strict-gzip": {
+          "bytes": 182632,
+          "sha256": "358ec1b166260ec6f6de7dad02c9c8468820714685afbe215503e1059d79f1d4"
+        },
+        "pgo-2/LICENSE.txt": {
+          "bytes": 1002,
+          "sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2"
+        },
+        "pgo-2/example": {
+          "bytes": 394144,
+          "sha256": "76cd1ab30792f102050f5484bde42a6a5c896423f19cf76ab09d059c79360f35"
+        },
+        "pgo-2/libz.a": {
+          "bytes": 566350,
+          "sha256": "2138f8be0fe5d0a48e5fe30e075a1103280ae0f719c10f9e18675be3a70a7da1"
+        },
+        "pgo-2/minigzip": {
+          "bytes": 375312,
+          "sha256": "e69328b69c3556f427471d4adaa1b5322618492f94d5cd3bc51c97e2b018d956"
+        },
+        "pgo-2/strict-gzip": {
+          "bytes": 182632,
+          "sha256": "358ec1b166260ec6f6de7dad02c9c8468820714685afbe215503e1059d79f1d4"
+        }
+      }
+    },
+    "ARM-C04": {
+      "archive_manifest": {
+        "bytes": 71440,
+        "path": "artifacts/development/arm-c04-run38784996204-review-20261015/experiment-artifacts/archive-manifest.json",
+        "sha256": "5de4c689959e8b82c904505c4415827e8630e95d0c39eecc1702f6545cd360ae"
+      },
+      "builds": [
+        "baseline-1",
+        "baseline-2",
+        "m2-1",
+        "m2-2"
+      ],
+      "bundle": {
+        "bytes": 2553613,
+        "path": "artifacts/development/arm-c04-run38784996204-review-20261015/experiment-artifacts/development-ARM-C04-outputs.tar.gz",
+        "sha256": "b78cdadff4d63fb9bf69a1a33c3c4ff0a342756cc80385b790e851fe2b53182c"
+      },
+      "review_path": "artifacts/development/arm-c04-run38784996204-review-20261015",
+      "run": 38784996204,
+      "selected": {
+        "baseline-1/LICENSE.txt": {
+          "bytes": 1002,
+          "sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2"
+        },
+        "baseline-1/example": {
+          "bytes": 361536,
+          "sha256": "8ae78ebd3fdf1cddd8833bcffcfc3367381490d4d774e8d3dafcdc0733df7f5e"
+        },
+        "baseline-1/libz.a": {
+          "bytes": 485710,
+          "sha256": "f8affb01a6e86f4829a2a153325f034a7c42dbe1e965ac099fb0fbca135d570f"
+        },
+        "baseline-1/minigzip": {
+          "bytes": 343568,
+          "sha256": "910e519d2e0f30e9ff9a1b4063b01f0e0426d7263f5871fb6db1fc9fc70b97f5"
+        },
+        "baseline-1/strict-gzip": {
+          "bytes": 158072,
+          "sha256": "53d1bd2741b813c665933de52558bff311f433ff415d303884cbcd43a956ab7a"
+        },
+        "baseline-2/LICENSE.txt": {
+          "bytes": 1002,
+          "sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2"
+        },
+        "baseline-2/example": {
+          "bytes": 361536,
+          "sha256": "8ae78ebd3fdf1cddd8833bcffcfc3367381490d4d774e8d3dafcdc0733df7f5e"
+        },
+        "baseline-2/libz.a": {
+          "bytes": 485710,
+          "sha256": "f8affb01a6e86f4829a2a153325f034a7c42dbe1e965ac099fb0fbca135d570f"
+        },
+        "baseline-2/minigzip": {
+          "bytes": 343568,
+          "sha256": "910e519d2e0f30e9ff9a1b4063b01f0e0426d7263f5871fb6db1fc9fc70b97f5"
+        },
+        "baseline-2/strict-gzip": {
+          "bytes": 158072,
+          "sha256": "53d1bd2741b813c665933de52558bff311f433ff415d303884cbcd43a956ab7a"
+        },
+        "corpus/allbytes.bin": {
+          "bytes": 65536,
+          "sha256": "7daca2095d0438260fa849183dfc67faa459fdf4936e1bc91eec6b281b27e4c2"
+        },
+        "corpus/corrupt-crc.gz": {
+          "bytes": 335,
+          "sha256": "a19dbb20fb13e19ef69a185142b2dc84fd49a321d48f494ba24dd33841ec387f"
+        },
+        "corpus/empty.bin": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "corpus/gzip-reference.gz": {
+          "bytes": 335,
+          "sha256": "8d9203c840283e131c22a251638d671bb032b07e60dd826682f82fc4de685aad"
+        },
+        "corpus/heldout-source.bin": {
+          "bytes": 5291,
+          "sha256": "4026d921213bb2e311d8d42b44ef53361c102d5d45ae32f93f8e52eaee8d068f"
+        },
+        "corpus/incompressible.bin": {
+          "bytes": 262144,
+          "sha256": "d0a8f250747dd09a9d433e6d36f6151f0c84ea25131465adfa6017f1b7dd53e1"
+        },
+        "corpus/manifest.json": {
+          "bytes": 1847,
+          "sha256": "fd527801eb3b16bd2a1b7150b98402ca7901e4b88716a9233e0fc239c66ec596"
+        },
+        "corpus/onebyte.bin": {
+          "bytes": 1,
+          "sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+        },
+        "corpus/repeated.txt": {
+          "bytes": 124928,
+          "sha256": "3184c3614ea966aa462525613d3893136de73291bd805cb442f3fa6ea0f35f89"
+        },
+        "corpus/truncated-trailer.gz": {
+          "bytes": 327,
+          "sha256": "2cd5546291ea6525b873331a372f57a2a96b5c18b8a13d0542db63b366d2f2b4"
+        },
+        "m2-1/LICENSE.txt": {
+          "bytes": 1002,
+          "sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2"
+        },
+        "m2-1/example": {
+          "bytes": 362032,
+          "sha256": "577759ae74345aa0a57345077fba461eed910a1892766730bb5fbc3aff81fec2"
+        },
+        "m2-1/libz.a": {
+          "bytes": 486174,
+          "sha256": "e82f8c16c95f8e0b74a7900302b26c15631a73392e5520134d94e7804554983a"
+        },
+        "m2-1/minigzip": {
+          "bytes": 343960,
+          "sha256": "d54a3042df86fc91cdd4044a8bc0f84f5f5ff47a6c5a65b7a783942783c469c9"
+        },
+        "m2-1/strict-gzip": {
+          "bytes": 158408,
+          "sha256": "ad4f7cfeb2f48311233eef6cad3b6864aed6a46595fcfc9f30be3d84d78d674d"
+        },
+        "m2-2/LICENSE.txt": {
+          "bytes": 1002,
+          "sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2"
+        },
+        "m2-2/example": {
+          "bytes": 362032,
+          "sha256": "577759ae74345aa0a57345077fba461eed910a1892766730bb5fbc3aff81fec2"
+        },
+        "m2-2/libz.a": {
+          "bytes": 486174,
+          "sha256": "e82f8c16c95f8e0b74a7900302b26c15631a73392e5520134d94e7804554983a"
+        },
+        "m2-2/minigzip": {
+          "bytes": 343960,
+          "sha256": "d54a3042df86fc91cdd4044a8bc0f84f5f5ff47a6c5a65b7a783942783c469c9"
+        },
+        "m2-2/strict-gzip": {
+          "bytes": 158408,
+          "sha256": "ad4f7cfeb2f48311233eef6cad3b6864aed6a46595fcfc9f30be3d84d78d674d"
+        }
+      }
+    }
+  },
+  "status": "ORIGINAL_RETAINED_INPUT_BYTES_ONLY_NOT_RUNTIME"
+}

@@ -1,0 +1,23 @@
+# Owned-job retirement diagnostics
+
+Original MIT diagnostic tooling. This observes the existing Orphans supervisor's bounded0600 handoff before its unchanged retirement check. It never signals processes, scans groups, acquires a lease, removes an actor or authorizes cleanup. Source and positive retirement predicates remain with the existing caller. Unknown group/source/lease/inner actor state remains unknown.
+
+The exact original supervisor is 8227B/SHA256524118fb285107def1453bc7c4e9db505223611186ed952adf9fdfdd0e794171. The initial retention seam/16KiB input/32KiB output/fresh0600 target reuse the finite Apps repair case supervisor; this helper strengthens its public schema and missing/partial retention rather than changing process semantics.
+
+`diagnostic(receipt, expected_identity, source_records)` reads at most16384 bytes using nofollow directory descriptors, ordinary caller-owned single-link0600 files and descriptor/name/stat stability. Missing, unsafe, unstable, malformed or foreign data stays explicitly incomplete. It retains bytes/hash after a safe complete read. Raw base64 is public ONLY after complete finite public-schema validation; unknown fields, arbitrary errors and partial values are never copied as raw content. Public error strings/types are finite allowlists. No env, argv, stack, namespace, unrelated process, host mounts or secret paths are captured. All records say cleanup_authority=false even when the original supervisor reports group absence. That assertion is not independently reobserved by this helper.
+
+`save_diagnostic` strictly replays the representation/raw hash/projection, then writes one fresh O_EXCL/no-follow0600 file <=32768 bytes and verifies readback. The wrapper uses the same fixed `$RUNNER_TEMP/apps574-repair-handoff-diagnostic.json` target before original.check, including missing handoffs. Save/source failures fail closed; no fallback cleanup is offered.
+
+`export.py` independently rejoins the original proof hash, source/trial/case/tokens, three workflow/source SHA operands and the exact actual source-manifest rows for itself, this helper, the original supervisor and wrapper. It creates one fresh private directory with only outer-handoff-diagnostic.json. No actor is started. The separate workflow upload is diagnostic-only, so original lifecycle retainer failure does not hide it. Existing closed retainer/case guards are unchanged. Consumers must treat it as a separate artifact role; a one-artifact-only collector cannot silently accept it. Missing export remains missing, not success. The normal original supervisor check and cleanup must still run and pass separately.
+
+Root integration must include these new sources in the existing finite source-pins/manifest/emitter closure, replace the wrapper with the explicit proposed version and register the separate export steps before original lifecycle retain. No new source SHA/run/acceptance is defined here. GNU case test_cases.py currently has two tests extracting the old inline diagnostic functions with a two-field inert identity; replace those two inline-helper controls with this module's strict tests (their permissive fixture intentionally fails the new schema). The unchanged seam-order assertion still applies. No shared supervisor/body changes are required. The existing helper can also be called from a GNU wrapper with its own exact source/identity field schema adapted explicitly; that integration is not claimed implemented here.
+
+Focused controls, from an adopted full tree:
+
+```
+python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/job-retirement-diagnostics -p test_retirement.py -v
+```
+
+Private proposal testing sets CACHY_ASAHI_TEST_SOURCE to the absolute checkout solely to locate the unchanged trusted original supervisor; adopted tests default to their full-tree root. Four short real unprivileged owned subprocess cases exercise forwarded SIGINT/TERM, whole process-tree SIGINT and ignored TERM escalated to KILL, with direct wait and original group-absence/retirement check. Other tests exercise missing/partial/malformed/foreign receipts, strict hashes, source drift, symlink/hardlink/mode/size/read drift, fresh export and forbidden cleanup-authority promotion. The process fixture uses inert local files and never Docker, network, namespaces or package/system mutation.
+
+Actual39034752419 was cancelled and failed the original direct-retirement guard; its handoff was not exported. These host controls do not identify its cause or prove hosted cancellation/producer/inner actor cleanup. No supervisor defect was reproduced, no retirement fix is proposed, and native cancellation validation remains NOT_RUN.

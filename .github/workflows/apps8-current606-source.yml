@@ -1,0 +1,129 @@
+name: apps8-current606-source
+on:
+  push:
+    paths:
+      - scripts/ci/apps8-current606-source/**
+      - .github/workflows/apps8-current606-source.yml
+  pull_request:
+    paths:
+      - scripts/ci/apps8-current606-source/**
+      - .github/workflows/apps8-current606-source.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONWARNINGS: error
+    steps:
+      - name: Check out the maintained factory
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Check out exact accepted Apps348 parent source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 3660e6cb87b4cb5591b1d295c62c8b02cca4b7e6
+          path: .ci-fixtures/apps-parent348
+          persist-credentials: false
+      - name: Check out exact accepted Apps8 input93 source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 979b2d6ec7417e607a911d8c25bef2f1f7f72dcb
+          path: .ci-fixtures/apps8-input93
+          persist-credentials: false
+      - name: Check out exact expected current606 Apps8 source380
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: c2b61b7089e41baed6b284bf0f3a55819f661c05
+          path: .ci-fixtures/apps8-expected380
+          persist-credentials: false
+      - name: Check out exact published runtime correction
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 5c3c2d0ce5b4f6c2672c9367b722170687c7de69
+          path: .ci-fixtures/apps8-current606-source-correction
+          persist-credentials: false
+      - name: Check out exact Apps9 accepted input93
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 128b9806c8e972a729d5c1ef4f2dc9e39e48fc42
+          path: .ci-fixtures/apps9-input93
+          persist-credentials: false
+      - name: Check out exact Apps9 current606 source389
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 51399738e2cb98551fbb84c930156022fd734029
+          path: .ci-fixtures/apps9-expected389
+          persist-credentials: false
+      - name: Check out exact Apps10 accepted input94
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: a2bbf5edd57a7a31951a1e9060c83698f29302c4
+          path: .ci-fixtures/apps10-input94
+          persist-credentials: false
+      - name: Check out exact Apps10 current606 source389
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: eeb7fc5c3bcaa5b152ca6eb97983f6c31f8d0cdb
+          path: .ci-fixtures/apps10-expected389
+          persist-credentials: false
+      - name: Check out exact Apps11 accepted input94
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 333e3e8680bcfb6cad6afb5c5dc6070e39e62a6e
+          path: .ci-fixtures/apps11-input94
+          persist-credentials: false
+      - name: Check out exact Apps11 current606 source389
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 7abbc5ca0c3a0cb132732b6d8e78fbbae48ab242
+          path: .ci-fixtures/apps11-expected389
+          persist-credentials: false
+      - name: Select the explicit Python version
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Exact emission and source-only controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -I -B -Werror scripts/ci/apps8-current606-source/test_prepare.py \
+            --parent "$GITHUB_WORKSPACE/.ci-fixtures/apps-parent348" \
+            --carrier "$GITHUB_WORKSPACE/.ci-fixtures/apps8-input93" \
+            --expected "$GITHUB_WORKSPACE/.ci-fixtures/apps8-expected380"
+          python3 -I -B -Werror scripts/ci/apps8-current606-source/test_correction.py --parent "$GITHUB_WORKSPACE/.ci-fixtures/apps-parent348" --expected "$GITHUB_WORKSPACE/.ci-fixtures/apps8-current606-source-correction" --carrier "$GITHUB_WORKSPACE/.ci-fixtures/apps8-input93"
+          python3 -I -B -Werror scripts/ci/apps8-current606-source/test_apps9.py \
+            --parent "$GITHUB_WORKSPACE/.ci-fixtures/apps-parent348" \
+            --carrier "$GITHUB_WORKSPACE/.ci-fixtures/apps8-input93" \
+            --apps9-carrier "$GITHUB_WORKSPACE/.ci-fixtures/apps9-input93" \
+            --expected "$GITHUB_WORKSPACE/.ci-fixtures/apps9-expected389"
+          python3 -I -B -Werror scripts/ci/apps8-current606-source/test_apps10.py \
+            --parent "$GITHUB_WORKSPACE/.ci-fixtures/apps-parent348" \
+            --carrier "$GITHUB_WORKSPACE/.ci-fixtures/apps8-input93" \
+            --apps10-carrier "$GITHUB_WORKSPACE/.ci-fixtures/apps10-input94" \
+            --expected "$GITHUB_WORKSPACE/.ci-fixtures/apps10-expected389"
+          python3 -I -B -Werror scripts/ci/apps8-current606-source/test_apps11.py \
+            --parent "$GITHUB_WORKSPACE/.ci-fixtures/apps-parent348" \
+            --carrier "$GITHUB_WORKSPACE/.ci-fixtures/apps8-input93" \
+            --apps11-carrier "$GITHUB_WORKSPACE/.ci-fixtures/apps11-input94" \
+            --apps9-carrier "$GITHUB_WORKSPACE/.ci-fixtures/apps9-input93" \
+            --apps10-carrier "$GITHUB_WORKSPACE/.ci-fixtures/apps10-input94" \
+            --expected "$GITHUB_WORKSPACE/.ci-fixtures/apps11-expected389"

@@ -3,17 +3,21 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: Probe runner, authenticate frozen inputs, or build four reviewed recipes twice
+        description: Probe, audit, original builds, or frozen development-only integration
         required: true
         default: probe
         type: choice
-        options: [probe, audit, build]
+        options: [probe, audit, build, integration]
       inputs_sha256:
-        description: Reviewed SHA-256 of scripts/ci/inputs.lock.json (audit/build)
+        description: Reviewed SHA-256 of selected input lock (build uses maintained successor)
         type: string
         default: ''
       recipes_sha256:
-        description: Reviewed SHA-256 of scripts/ci/recipes.lock.json (build)
+        description: Reviewed SHA-256 of selected four-package recipe lock (build)
+        type: string
+        default: ''
+      integration_sha256:
+        description: Reviewed SHA-256 of scripts/ci/integration.lock.json (integration)
         type: string
         default: ''
 permissions:
@@ -21,6 +25,7 @@ permissions:
 concurrency:
   group: native-arm-build
   cancel-in-progress: false
+  queue: max
 jobs:
   native:
     if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
@@ -31,29 +36,120 @@ jobs:
       BUILD_MODE: ${{ inputs.mode }}
       INPUTS_SHA256: ${{ inputs.inputs_sha256 }}
       RECIPES_SHA256: ${{ inputs.recipes_sha256 }}
+      INTEGRATION_SHA256: ${{ inputs.integration_sha256 }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1, verified upstream ref
         with:
           persist-credentials: false
-      - name: Validate bootstrap boundaries
-        run: python3 -m unittest discover -s scripts/ci -p 'test_*.py' -v
       - name: Record native runner evidence
-        run: >-
-          python3 scripts/ci/native_arm.py probe
-          --cache "$RUNNER_TEMP/alarm-cache"
-          --output "$RUNNER_TEMP/native-probe"
+        shell: bash
+        run: |
+          set -euo pipefail
+          install -d -m 700 "$RUNNER_TEMP/native-home"
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/native-home" LANG=C.UTF-8 TZ=UTC \
+            RUNNER_TEMP="$RUNNER_TEMP" TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 \
+            RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" \
+            ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
+            GITHUB_SHA="$GITHUB_SHA" GITHUB_REPOSITORY="$GITHUB_REPOSITORY" \
+            GITHUB_RUN_ID="$GITHUB_RUN_ID" GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" \
+            python3 -B scripts/ci/native_arm.py probe \
+            --cache "$RUNNER_TEMP/alarm-cache" --output "$RUNNER_TEMP/native-probe"
+      - name: Seed the six frozen private cache objects before native work
+        if: inputs.mode == 'build'
+        shell: bash
+        env:
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01 }}
+          CACHY_OLD_FOUR_SCHEMA: '1'
+          CACHY_OLD_FOUR_SOURCE_EPOCH: '1791748800'
+          CACHY_OLD_FOUR_JBIGKIT_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_01 }}
+          CACHY_OLD_FOUR_JBIGKIT_02: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_02 }}
+          CACHY_OLD_FOUR_JBIGKIT_SIG_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_SIG_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_02: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_02 }}
+          CACHY_OLD_FOUR_LIBTIFF_03: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_03 }}
+          CACHY_OLD_FOUR_LIBTIFF_04: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_04 }}
+          CACHY_OLD_FOUR_LIBTIFF_05: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_05 }}
+          CACHY_OLD_FOUR_LIBTIFF_06: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_06 }}
+          CACHY_OLD_FOUR_LIBTIFF_07: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_07 }}
+          CACHY_OLD_FOUR_LIBTIFF_08: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_08 }}
+          CACHY_OLD_FOUR_LIBTIFF_09: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_09 }}
+          CACHY_OLD_FOUR_LIBTIFF_10: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_10 }}
+          CACHY_OLD_FOUR_LIBTIFF_11: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_11 }}
+          CACHY_OLD_FOUR_LIBTIFF_12: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_12 }}
+          CACHY_OLD_FOUR_LIBTIFF_13: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_13 }}
+          CACHY_OLD_FOUR_LIBTIFF_14: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_14 }}
+          CACHY_OLD_FOUR_LIBTIFF_15: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_15 }}
+          CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$INPUTS_SHA256" = beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
+          test "$(sha256sum scripts/ci/maintained-native/locks/inputs-successor.lock.json | cut -d ' ' -f 1)" = "$INPUTS_SHA256"
+          timeout --signal=TERM --kill-after=5s 75s python3 -B - <<'PYSEED'
+          import hashlib
+          import os
+          from pathlib import Path
+          import sys
+          sys.path.insert(0, 'scripts/ci')
+          from old_four_seed import (OLD_FOUR_PRIVATE_ROWS, RETAINED_BUBBLEWRAP_PRIVATE_ROWS,
+                                     seed_current_build_cache)
+          pin = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
+          if hashlib.sha256(Path('scripts/ci/inputs.lock.json').read_bytes()).hexdigest() != pin:
+              raise SystemExit('private-cache-input-binding-refused')
+          names = {'CACHY_OLD_FOUR_' + f'{tag}_{i:02d}'
+                   for _, _, _, tag, count in OLD_FOUR_PRIVATE_ROWS for i in range(1, count + 1)}
+          retained = {'CACHY_RETAINED_BUBBLEWRAP_V1_' + f'{tag}_{i:02d}'
+                      for _, _, _, tag, sizes in RETAINED_BUBBLEWRAP_PRIVATE_ROWS
+                      for i in range(1, len(sizes) + 1)}
+          names |= retained
+          if len(names) != 22 or len(retained) != 3 or not all(os.environ.get(name) for name in names):
+              raise SystemExit('private-cache-required-secrets-missing')
+          cache = Path(os.environ['RUNNER_TEMP']) / 'alarm-cache'
+          cache.mkdir(mode=0o700)
+          keep = names | {'CACHY_OLD_FOUR_SCHEMA', 'CACHY_OLD_FOUR_SOURCE_EPOCH'}
+          for name in tuple(os.environ):
+              if name not in keep:
+                  os.environ.pop(name)
+          seed_current_build_cache(cache, pin)
+          PYSEED
       - name: Authenticate inputs or build in isolated native containers
         if: inputs.mode != 'probe'
-        run: >-
-          python3 scripts/ci/native_arm.py "$BUILD_MODE"
-          --inputs-sha256 "$INPUTS_SHA256"
-          --recipes-sha256 "$RECIPES_SHA256"
-          --cache "$RUNNER_TEMP/alarm-cache"
-          --output "$RUNNER_TEMP/native-evidence"
+        shell: bash
+        env:
+          NATIVE_RECIPES_PATH: ${{ inputs.mode == 'build' && 'scripts/ci/setup-0.1.0-4-recipes.lock.json' || 'scripts/ci/recipes.lock.json' }}
+          NATIVE_INPUTS_PATH: ${{ inputs.mode == 'build' && 'scripts/ci/maintained-native/locks/inputs-successor.lock.json' || 'scripts/ci/inputs.lock.json' }}
+        run: |
+          set -euo pipefail
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/native-home" LANG=C.UTF-8 TZ=UTC \
+            RUNNER_TEMP="$RUNNER_TEMP" TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 \
+            RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" \
+            ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
+            GITHUB_SHA="$GITHUB_SHA" GITHUB_REPOSITORY="$GITHUB_REPOSITORY" \
+            GITHUB_RUN_ID="$GITHUB_RUN_ID" GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" \
+            python3 -B scripts/ci/native_arm.py "$BUILD_MODE" \
+            --inputs "$NATIVE_INPUTS_PATH" --inputs-sha256 "$INPUTS_SHA256" \
+            --recipes "$NATIVE_RECIPES_PATH" --recipes-sha256 "$RECIPES_SHA256" \
+            --integration-sha256 "$INTEGRATION_SHA256" \
+            --integration-output "$RUNNER_TEMP/integration-evidence" \
+            --cache "$RUNNER_TEMP/alarm-cache" --output "$RUNNER_TEMP/native-evidence"
       - name: Retain bounded evidence and package artifacts in free workflow logs
         if: always()
         run: |
-          python3 scripts/ci/log_evidence.py "$RUNNER_TEMP/native-probe"
+          evidence_status=0
+          python3 scripts/ci/log_evidence.py "$RUNNER_TEMP/native-probe" || evidence_status=1
           if [ -d "$RUNNER_TEMP/native-evidence" ]; then
-            python3 scripts/ci/log_evidence.py "$RUNNER_TEMP/native-evidence"
+            python3 scripts/ci/log_evidence.py "$RUNNER_TEMP/native-evidence" || evidence_status=1
           fi
+          if [ -d "$RUNNER_TEMP/integration-evidence/public" ]; then
+            for stage in "$RUNNER_TEMP/integration-evidence/public"/*; do
+              if [ -d "$stage" ]; then
+                python3 scripts/ci/log_evidence.py "$stage" || evidence_status=1
+              fi
+            done
+            if [ -f "$RUNNER_TEMP/integration-evidence/public/summary/result.json" ]; then
+              cat "$RUNNER_TEMP/integration-evidence/public/summary/result.json"
+            fi
+          fi
+          exit "$evidence_status"

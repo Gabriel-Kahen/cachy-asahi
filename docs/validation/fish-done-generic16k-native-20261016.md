@@ -1,0 +1,13 @@
+# Fish Done on generic16K pages with a native private recorder
+
+Actual [38946660799](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38946660799) passes at source `b17c5de215b4a7be89816cdfb775e57d21373055`. Root joins97 exact Git source files, eleven mapped original/recorder sources, the independently reproduced adapted fixture, compiler receipt, all eighteen case records, actual kernel configuration and ordered cleanup.
+
+The native574 capture compiles the small C recorder once in0.707414s with strict warnings and16K ELF alignment. Capture retains733 files/55 ELF metadata records and their dependency closure. The separate diskless guest boots actual16384-byte pages; one25.652818s adapted driver command passes all18 original case/assertion bodies under UID23001. The original driver is captured unchanged; only a separate copy's prepare() substitutes the private C recorder. Product sources and the two-second transport plus one-second kill escalation are unchanged.
+
+Coverage includes foreground/watched success and failure, signal status, no-op and existing namespaces, caller continuation, repeat/disable, literal escaped command data, missing transport, transport failure and forced timeout. All case-specific copied recorder hashes, notification deltas/PIDs/log hashes and private inputs join. Capture, page-probe compile and QEMU exit naturally with groups absent; QEMU exits0 in32.835221s. Private consumers retire before the owned producer probe/image, followed by completed kernel-work removal.
+
+Earlier actual38942908262 remains failed. Its original Python recorder takes2.858840s to write one row; the unchanged bounded product transport exits124 after2.123116s with no row. The new result addresses test-recorder startup cost. It does not establish a product performance gain.
+
+Evidence: `artifacts/development/fish-done16k-run38946660799/{runtime.json,artifact.zip,logs.zip,collection.json,kernel.config,verify.py,root-verification.json}`. Artifact63711B SHA256 `45ba7f71f6b58c1b4e4933c68b662535c6295b1b214dea8ae42c3b819b037d01`; logs104704B SHA256 `54568a8db0f38b2170c6161b2619a4374c46ba48df55fdb8bd33d77cfd99d6d5`.
+
+The full raw UART, captured executable payload/native recorder binary and kernel Image are not exported. Their byte and execution checks are enforced by the exact frozen source; Root independently replays retained parsed records, actual config and source/adapter identities. Acceptance is explicitly `PRIVATE_NATIVE_C_NOTIFY_SEND_RECORDER_ONLY`, using copied source payloads without package registration. Real notification manager/D-Bus/display delivery, installed16K package lifecycle, M2 hardware, performance and release admission remain untested here.

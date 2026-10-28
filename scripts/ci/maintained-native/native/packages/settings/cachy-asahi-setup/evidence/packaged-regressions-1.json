@@ -1,0 +1,37 @@
+{
+  "result": "PASS",
+  "helper_sha256": "a6251142b9c7e54796285c1a301fb590599d8aaa1625ea0bfebd7fc21622fdc2",
+  "scope": "temporary homes/templates only; no shell blocks or session commands executed",
+  "cases": [
+    {
+      "case": "oversized-fish-preview",
+      "passed": true,
+      "failures": []
+    },
+    {
+      "case": "oversized-fish-apply",
+      "passed": true,
+      "failures": []
+    },
+    {
+      "case": "mixed-oversized-zsh-preview",
+      "passed": true,
+      "failures": []
+    },
+    {
+      "case": "mixed-oversized-zsh-apply",
+      "passed": true,
+      "failures": []
+    },
+    {
+      "case": "forged-journal-root-preview",
+      "passed": true,
+      "failures": []
+    },
+    {
+      "case": "forged-journal-root-apply",
+      "passed": true,
+      "failures": []
+    }
+  ]
+}

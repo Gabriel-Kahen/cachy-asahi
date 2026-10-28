@@ -1,0 +1,160 @@
+{
+  "Root_acceptance": null,
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "added": {
+    "implementation/kernel20_input.py": {
+      "bytes": 2640,
+      "sha256": "dd84befeb3e75b4886cda7029cb8c1a93b1ed66824c59db01467b9794a6539c3"
+    },
+    "implementation/page-mode-profile.json": {
+      "bytes": 176983,
+      "sha256": "813263cbadb6ce89eeaa4ed6dd7aad11c762a1b88bc5f931c6fd1bc870db534d"
+    },
+    "implementation/page-parent.json": {
+      "bytes": 2587112,
+      "sha256": "c6b5e7ffbf3a0f2028ee5cbba23eb03e608ff980511cf569dcc7c8634f0f4512"
+    },
+    "implementation/page_mode.py": {
+      "bytes": 7484,
+      "sha256": "24afa68565264678adb85f364146d53ba39f7a596551cb664bfedbead2e3722f"
+    },
+    "implementation/page_source.py": {
+      "bytes": 11168,
+      "sha256": "c00cc1f72bc76d04b6fcf349dcd0cfdee592d439e505ce0e15836653c11dac0a"
+    },
+    "implementation/test_page_mode.py": {
+      "bytes": 6507,
+      "sha256": "88b4c9c6e25907e4d958f0d9ff68163399d43325b6c09a9c22f43a5ea340c764"
+    }
+  },
+  "changed": {
+    ".github/workflows/native-arm-build.yml": {
+      "after": {
+        "bytes": 37579,
+        "sha256": "13506785c7d7d8213e9a876e6702c3357f3ad9bbe2aaf135bfde3fb06240373f"
+      },
+      "before": {
+        "bytes": 35579,
+        "sha256": "e6fc8cd43ea3803b200414b7902f9ac6efd58212ba1561090cde8752ac06c0aa"
+      }
+    },
+    ".github/workflows/native-arm-latest607-fresh-installer.yml": {
+      "after": {
+        "bytes": 37579,
+        "sha256": "13506785c7d7d8213e9a876e6702c3357f3ad9bbe2aaf135bfde3fb06240373f"
+      },
+      "before": {
+        "bytes": 35579,
+        "sha256": "e6fc8cd43ea3803b200414b7902f9ac6efd58212ba1561090cde8752ac06c0aa"
+      }
+    },
+    "README.md": {
+      "after": {
+        "bytes": 3034,
+        "sha256": "3066c19d53edce3e30e051f428e4e86438c92803b17394e027ddb340735685b8"
+      },
+      "before": {
+        "bytes": 2412,
+        "sha256": "89b17123e7ec74cde210e7ee5af2fd14f680553829064a52296bfffe6d322ce9"
+      }
+    },
+    "implementation/run.py": {
+      "after": {
+        "bytes": 7287,
+        "sha256": "53776cb2fa0a64340fe75bded332dbd5d8bf5875ab1437c3e5ab04f94be105a4"
+      },
+      "before": {
+        "bytes": 6838,
+        "sha256": "395db322b98e4496132dde9da3f5a9bfeff4406868605e0f53e6bdb2e5641083"
+      }
+    },
+    "implementation/source_guard.py": {
+      "after": {
+        "bytes": 2867,
+        "sha256": "093d24d76a0b3c951fab1671238a357e788d8e6e60bd63c7449a9a05c5aed64a"
+      },
+      "before": {
+        "bytes": 2873,
+        "sha256": "94ad9a65e64e937cb1ce50c818d935f0b849871ae1bb0d6d3a15a173c9fb92d2"
+      }
+    },
+    "implementation/test_source.py": {
+      "after": {
+        "bytes": 9701,
+        "sha256": "b7fb00df0166b8d0e4baf75774aa49da2c720e17d1781d16788d5901b1336c1a"
+      },
+      "before": {
+        "bytes": 9664,
+        "sha256": "55b226f084ef7969e22ba843e055231a45977fce1c9c079c4700db6319c9e946"
+      }
+    },
+    "implementation/workflow-template.yml": {
+      "after": {
+        "bytes": 37534,
+        "sha256": "5fc29fa6650ff23fb679d5935448bc9ed83ef5f6342bbbfbdc9c4eab1b0894a6"
+      },
+      "before": {
+        "bytes": 35534,
+        "sha256": "7335a5e46aa81650e24e3a859bbac25229da90ad8d3b064ff14fe3a090e5fbb2"
+      }
+    },
+    "source-manifest.json": {
+      "after": {
+        "bytes": 448135,
+        "sha256": "f360b1e9324dd24d045c7105bf4f74253d1117b440d395b2fda311a44c2f38cf"
+      },
+      "before": {
+        "bytes": 447215,
+        "sha256": "89f28bd898d4491abe05f346b91d9567620d747b4a0c22fb64fe8b09878fc3cd"
+      }
+    }
+  },
+  "files": {
+    "history.json.in": {
+      "bytes": 1048,
+      "sha256": "44c1211cd060a9fad13d351256ad9e3c141495db3afd0a5af1c52c378fe46abe"
+    },
+    "input-source.json": {
+      "bytes": 230954,
+      "sha256": "a3255bd054d6e1dd43bd9270d1aa706ac782d4e56df714094a8f641482f0cb48"
+    },
+    "kernel20_input.py.in": {
+      "bytes": 2640,
+      "sha256": "dd84befeb3e75b4886cda7029cb8c1a93b1ed66824c59db01467b9794a6539c3"
+    },
+    "output-source.json": {
+      "bytes": 231876,
+      "sha256": "de63baf6af82c88012dcd55d06cf2ea48aaecb4ce6fa6970f04b9b9738510180"
+    },
+    "page-mode-profile.json.in": {
+      "bytes": 176983,
+      "sha256": "813263cbadb6ce89eeaa4ed6dd7aad11c762a1b88bc5f931c6fd1bc870db534d"
+    },
+    "page_mode.py.in": {
+      "bytes": 7484,
+      "sha256": "24afa68565264678adb85f364146d53ba39f7a596551cb664bfedbead2e3722f"
+    },
+    "page_source.before.py.in": {
+      "bytes": 9245,
+      "sha256": "78127d7e1bddd6b52cff877392abfb4b0ded19a372c09b8e8b3a9d196da99d76"
+    },
+    "page_source.py.in": {
+      "bytes": 11116,
+      "sha256": "c56a7e0c1b6d0f5ed41a57eaa52ffab66ab8a5245cc7e70d02ac572ef9cb0f96"
+    },
+    "test_page_mode.py.in": {
+      "bytes": 6507,
+      "sha256": "88b4c9c6e25907e4d958f0d9ff68163399d43325b6c09a9c22f43a5ea340c764"
+    }
+  },
+  "generic16k": "NOT_RUN",
+  "generic16k_fit": "NOT_ESTABLISHED",
+  "hardware": "NOT_RUN",
+  "held": 1189,
+  "name": "SOURCE_ONLY1197_TO1203_GENERIC16K_KEEP4K_FIXED_SCOPE_V1",
+  "parent": 1197,
+  "performance": "NOT_MEASURED",
+  "result": 1203
+}

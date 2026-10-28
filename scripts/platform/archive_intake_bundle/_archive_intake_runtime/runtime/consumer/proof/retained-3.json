@@ -1,0 +1,39 @@
+{
+  "all261_accepted": false,
+  "archive_signature_bytes": 19637384,
+  "authenticated_rows": 28,
+  "author_receipt_sha256": "9407330375b60db80180abdbfffdd50bdd811c3269a9e665f8696efb8cbe223e",
+  "fresh_controls": 3,
+  "image_install_native_hardware": "NOT RUN",
+  "independent_key_owner_trust": false,
+  "indexed_artifacts": {
+    "artifacts/reviews/platform-missing-two-authenticated-recovery-root-peer-20261013/checks.json": {
+      "bytes": 2218,
+      "mode": 420,
+      "sha256": "311ab9290e42888fc319ceb0292160ac5bc659713d2b7e89731ffd98ebb4beba"
+    },
+    "artifacts/reviews/platform-missing-two-authenticated-recovery-root-peer-20261013/harness-diagnostics.json": {
+      "bytes": 294,
+      "mode": 420,
+      "sha256": "fdeabb18e4d1efe124582dcaa2fbaceee3b96a172292e9c3877f9f09190b2285"
+    },
+    "artifacts/reviews/platform-missing-two-authenticated-recovery-root-peer-20261013/review.py": {
+      "bytes": 11915,
+      "mode": 420,
+      "sha256": "31cae21a9bf9e656fe634278b4101369b66230974ecc81bf6882e7b775a782f4"
+    },
+    "docs/reviews/platform-missing-two-authenticated-recovery-root-review.md": {
+      "bytes": 6186,
+      "mode": 420,
+      "sha256": "ede9f3988ac56ad55d7763ac1ac8d905e6d9fa1e61dae962d2293ab3d147b194"
+    }
+  },
+  "indexed_count": 4,
+  "old_f964_BLOCKED20_261_259_preserved": true,
+  "replayed_actors": 0,
+  "schema_version": 1,
+  "signed_database_association": false,
+  "signer_joins26_closed": false,
+  "status": "PASS_RETAINED_ACTUAL_TWO_SIGNED_ARCHIVE_METADATA",
+  "tar_decode_extract": 0
+}

@@ -1,0 +1,108 @@
+{
+  "files": [
+    {
+      "historical_path": "scripts/port/ksm-native-job/history-80/scripts/port/ksm-native-job/acceptance.py",
+      "mode": "0644",
+      "original_path": "scripts/port/ksm-native-job/acceptance.py",
+      "sha256": "e1237d479f2b340997991f28e477f9d2ebb05958663f3097c0317a3b7d8aa532",
+      "size_bytes": 15611
+    },
+    {
+      "historical_path": "scripts/port/ksm-native-job/history-80/scripts/port/ksm-native-job/consumer.py",
+      "mode": "0644",
+      "original_path": "scripts/port/ksm-native-job/consumer.py",
+      "sha256": "53323c45a63d7bbf989c33421dfb521ef29b4a3fff1d42c670ae4aca2a81f15e",
+      "size_bytes": 8696
+    },
+    {
+      "historical_path": "scripts/port/ksm-native-job/history-80/scripts/port/ksm-native-job/job.py",
+      "mode": "0644",
+      "original_path": "scripts/port/ksm-native-job/job.py",
+      "sha256": "f57c9cf24807b3070b0087eb173b163f41e0de32fd235cf4f4b6a9998b18ca18",
+      "size_bytes": 7855
+    },
+    {
+      "historical_path": "scripts/port/ksm-native-job/history-80/scripts/port/ksm-native-job/public.py",
+      "mode": "0644",
+      "original_path": "scripts/port/ksm-native-job/public.py",
+      "sha256": "171adb7f770243675d851bd42386007deac39d7bc2ac06228a35177308ec269e",
+      "size_bytes": 21342
+    },
+    {
+      "historical_path": "scripts/port/ksm-native-job/history-80/scripts/port/ksm-native-job/required_paths.py",
+      "mode": "0644",
+      "original_path": "scripts/port/ksm-native-job/required_paths.py",
+      "sha256": "eaae1a48c5af8f7121c402184474a75a772347100a167b7fad8c9cbe12821366",
+      "size_bytes": 7538
+    },
+    {
+      "historical_path": "scripts/port/ksm-native-job/history-80/scripts/port/ksm-native-job/test_acceptance.py",
+      "mode": "0644",
+      "original_path": "scripts/port/ksm-native-job/test_acceptance.py",
+      "sha256": "f2fea5300d7456e7ac69914ec8c4eb5479e00bfb19a263fdd0b33c388f5010e9",
+      "size_bytes": 20917
+    },
+    {
+      "historical_path": "scripts/port/ksm-native-job/history-80/scripts/port/ksm-native-job/test_consumer.py",
+      "mode": "0644",
+      "original_path": "scripts/port/ksm-native-job/test_consumer.py",
+      "sha256": "5ff9c78b4fe1cb1ba241370db0cd64944c88ee83b51c3e3a1606e2fae2268d26",
+      "size_bytes": 8730
+    },
+    {
+      "historical_path": "scripts/port/ksm-native-job/history-80/scripts/port/ksm-native-job/test_job.py",
+      "mode": "0644",
+      "original_path": "scripts/port/ksm-native-job/test_job.py",
+      "sha256": "5c00faea380a1ed31cb3c97100d08ca8c944771f86cc1a38d1d90e58d1b918f8",
+      "size_bytes": 5067
+    },
+    {
+      "historical_path": "scripts/port/ksm-native-job/history-80/scripts/port/ksm-native-job/test_packet_integration.py",
+      "mode": "0644",
+      "original_path": "scripts/port/ksm-native-job/test_packet_integration.py",
+      "sha256": "e0b51f5f9080535550e4b7d4fec8ec94aa1883b2da077ecc50b9f77193e2c543",
+      "size_bytes": 4289
+    },
+    {
+      "historical_path": "scripts/port/ksm-native-job/history-80/scripts/port/ksm-native-job/test_public.py",
+      "mode": "0644",
+      "original_path": "scripts/port/ksm-native-job/test_public.py",
+      "sha256": "038bbc8f125d328ad807d975f30c3ca0c06db0e5f95f2f00fac35d2e9997de16",
+      "size_bytes": 22333
+    },
+    {
+      "historical_path": "scripts/port/ksm-native-job/history-80/scripts/port/ksm-native-job/source-test-results.json",
+      "mode": "0644",
+      "original_path": "scripts/port/ksm-native-job/source-test-results.json",
+      "sha256": "bc4a924e6bc271b6a4bc0cd8c3acb71dcec271e4585c846a67666c3b17e2def9",
+      "size_bytes": 11979
+    },
+    {
+      "historical_path": "scripts/port/ksm-native-job/history-80/.github/workflows/native-arm-ksm.yml",
+      "mode": "0644",
+      "original_path": ".github/workflows/native-arm-ksm.yml",
+      "sha256": "24f1abec414b724fe40b50ff188bbc895395caf2253015d0e120777f7ea7348e",
+      "size_bytes": 5360
+    },
+    {
+      "historical_path": "scripts/port/ksm-native-job/history-80/docs/workstreams/ksm-native-job.md",
+      "mode": "0644",
+      "original_path": "docs/workstreams/ksm-native-job.md",
+      "sha256": "88a2fdfa11e68a37398ef144f76fb3883cd80dd6fadd1aa1399ad87b0672dc83",
+      "size_bytes": 11035
+    },
+    {
+      "historical_path": "scripts/port/ksm-native-job/history-80/scripts/port/ksm-native-job/source-checkpoint.json",
+      "mode": "0644",
+      "original_path": "scripts/port/ksm-native-job/source-checkpoint.json",
+      "sha256": "db0fc995777218bdc70f8b432e69c7824b82891dfb08fe86b49165a6ccb827f4",
+      "size_bytes": 9577
+    }
+  ],
+  "historical_record_relabelled_as_current": false,
+  "native_execution": "NOT RUN",
+  "schema_version": 1,
+  "scope": "HISTORICAL SOURCE FIXTURES ONLY",
+  "status": "SOURCE_TESTED_NATIVE_JOB_BLOCKED",
+  "tests_run": 80
+}

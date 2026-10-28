@@ -1,0 +1,77 @@
+{
+  "applied": "NOT_APPLIED",
+  "binding": {
+    "base_sha256": "0558fd048c02ceec26a4ef300cf95db67ed1bc0d37e9d49760a4e9dc0219ef00",
+    "catalog_sha256": "0d619a09c826335cd151ff6913dc7371aab4a5b94dbd1ef11b192e5f5cc1d881",
+    "catalog_signature_sha256": "2f50bfbc5088b9c3c18a2b41176ec9d0478789ed113aade273e210c8ab99bdb2",
+    "installed_sha256": "754aef465e7971fb76938a62a3a63d898ca770b597538258888bfd546339a24b",
+    "keyring_sha256": "7f90075cd25b93822c7a0bd1d0b2283d82be6c6a6700af3ffdca895210a92ced",
+    "release_sha256": "d96f5f4b9f71afdf4f0b87ac260d67894c32bf3bb8d61b4a1d13e40e43920f08",
+    "signer": "3C80961159DD61CF2BDEA2746AE40EE49E4BF97C",
+    "spec_sha256": "db690998dc1a98b2773b8ed3abcb1811def6454d43bfe1b9ccf9f7a6a45a1433"
+  },
+  "freshness": "NOT_ESTABLISHED",
+  "helper_pins": {
+    "scripts/client/client.py": {
+      "bytes": 28669,
+      "sha256": "48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7"
+    },
+    "scripts/release/release.py": {
+      "bytes": 41320,
+      "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435"
+    },
+    "scripts/release/source_delivery.py": {
+      "bytes": 16456,
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+    }
+  },
+  "installer_authority": false,
+  "plan": {
+    "additions": [
+      {
+        "arch": "any",
+        "conflict": [],
+        "depend": [
+          "pacman",
+          "python>=3.11"
+        ],
+        "files": [
+          "usr/bin/cachy-asahi-cache",
+          "usr/share/doc/cachy-asahi-cache/README.md",
+          "usr/share/licenses/cachy-asahi-cache/LICENSE",
+          "usr/share/licenses/cachy-asahi-cache/NOTICE"
+        ],
+        "metadata_sha256": "3cfb33dfc73094f9492205bcbe7733f572d78bcf7c1470ef73d92359f7e17b8a",
+        "name": "cachy-asahi-cache",
+        "provides": [],
+        "release_archive_sha256": "450706e2899f57b44ca2f446560c8aeab710a4726a13561d09a2cb4a8bf1da40",
+        "replaces": [],
+        "source": "signed-release",
+        "version": "0.2.0-1"
+      }
+    ],
+    "after_inventory_sha256": "898493da4e460cdb2df925dea082feb091074bb77b448a00bd6a1835f26298d1",
+    "before_inventory_sha256": "c581d58d8a394ca513653dae59398727374aaa68bf59cb751c32268c87945729",
+    "conflicts": [],
+    "dependencies": [],
+    "dependency_policy": "unique signed-release provider; no orphan/autoremove",
+    "installed_inventory": "OBSERVED_LOCAL_DB_METADATA_NOT_PAYLOAD_OR_HARDWARE_ATTESTATION",
+    "inventory_reobserved_by_planner": false,
+    "operation": "install",
+    "protection": "ALL_SIGNED_BASE_PACKAGES",
+    "removals": [],
+    "requested_applications": [
+      "cache"
+    ],
+    "requested_packages": [
+      "cachy-asahi-cache"
+    ],
+    "unchanged_selected": [],
+    "upgrades": []
+  },
+  "schema_version": 1,
+  "scope": "development",
+  "stable_accepted": false,
+  "status": "PLANNED",
+  "synthetic": true
+}

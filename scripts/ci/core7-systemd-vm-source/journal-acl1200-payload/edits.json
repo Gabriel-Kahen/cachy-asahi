@@ -1,0 +1,115 @@
+{
+  "acl_policy.py": [
+    [
+      "wanted=policy(value['nodes']);actual=",
+      "__import__('journal_acl').check_graph(value,label);value=dict(value);value.pop('posix_acl_access');value['posix_acl_defaults']={n:v for n,v in value['posix_acl_defaults'].items()if n!=__import__('journal_acl').PATH};wanted=policy(value['nodes']);actual="
+    ],
+    [
+      "need(label in LABELS and type(value)is dict and set(value)==",
+      "need(label in LABELS and type(value)is dict and set(value)-{'posix_acl_access'}=="
+    ],
+    [
+      "need(label in LABELS,'fixed mandatory graph stage');wanted=policy(nodes);root=",
+      "import journal_acl as J\n need(label in LABELS,'fixed mandatory graph stage');wanted=dict(policy(nodes),**J.policy(nodes));sources=dict(DECLARATIONS,**J.DECLARATIONS);root="
+    ],
+    [
+      "  value=None\n  if ATTR in names:",
+      "  value=None;access=None\n  if J.ACCESS in names:\n   need(kind=='directory'and relative==J.PATH,'access ACL only at exact source journal directory');access=J.typed(os.getxattr(target,J.ACCESS,**options),J.ACCESS);need(label!=LABELS[0],'original copied graph has no access ACL')\n  if ATTR in names:"
+    ],
+    [
+      "   need(kind=='directory'and relative==PATH,'default ACL only at source-defined directory')\n   value=typed(os.getxattr(target,ATTR,**options));need(label!=LABELS[0],'original copied graph has no default ACL')",
+      "   if relative==J.PATH:\n    need(kind=='directory','journal default ACL directory');value=J.typed(os.getxattr(target,ATTR,**options),ATTR);need(label!=LABELS[0],'original copied graph has no journal default ACL')\n   else:\n    need(kind=='directory'and relative==PATH,'default ACL only at source-defined directory')\n    value=typed(os.getxattr(target,ATTR,**options));need(label!=LABELS[0],'original copied graph has no default ACL')"
+    ],
+    [
+      "if relative in (*DECLARATIONS,'etc/passwd','etc/group'):",
+      "if relative in (*sources,'etc/passwd','etc/group'):"
+    ],
+    [
+      "if relative in DECLARATIONS:need(raw_value==DECLARATIONS[relative],'whole exact TPM declaration');declarations[relative]=raw_value",
+      "if relative in sources:need(raw_value==sources[relative],'whole exact TPM/journal declaration');declarations[relative]=raw_value"
+    ],
+    [
+      "else:account(raw_value,relative=='etc/group');accounts[relative]=raw_value",
+      "else:account(raw_value,relative=='etc/group');J.account(raw_value,relative=='etc/group');accounts[relative]=raw_value"
+    ],
+    [
+      "  record=(value,before)",
+      "  record=(value,access,before)"
+    ],
+    [
+      "{ATTR,'system.posix_acl_default'}",
+      "{ATTR,'system.posix_acl_default','system.posix_acl_access'}"
+    ],
+    [
+      "names=[n for n in names if n!='system.posix_acl_default']",
+      "names=[n for n in names if n not in('system.posix_acl_default','system.posix_acl_access')]"
+    ],
+    [
+      "set(declarations)==set(DECLARATIONS),'all fresh",
+      "set(declarations)==set(sources),'all fresh"
+    ],
+    [
+      "need(result==({}if label==LABELS[0]else wanted),'complete mandatory fresh ACL presence/content');return result",
+      "need(result==({}if label==LABELS[0]else wanted),'complete mandatory fresh ACL presence/content');need({n:v[1]for n,v in seen.items()if v[1]is not None}==({}if label==LABELS[0]else{J.PATH:J.typed(J.expected(),J.ACCESS)}),'complete mandatory fresh journal access ACL presence/content');return result"
+    ],
+    [
+      " observer.acl_defaults=finish;return observer",
+      " observer.acl_defaults=finish;observer.acl_access=lambda:{n:v[1]for n,v in seen.items()if v[1]is not None};return observer"
+    ]
+  ],
+  "guest.py": [
+    [
+      "posix_acl_defaults=observer.acl_defaults(),mounts=",
+      "posix_acl_defaults=observer.acl_defaults(),posix_acl_access=observer.acl_access(),mounts="
+    ]
+  ],
+  "entry.py": [
+    [
+      "validation=__import__('vm_validation').prove(root)",
+      "validation=__import__('journal_acl').prove(root)"
+    ]
+  ],
+  "LICENSE": null,
+  "test_sources.py": [
+    [
+      "  import guest,graph_api,gzip,acl_policy",
+      "  import guest,graph_api,gzip,acl_policy,journal_acl as J"
+    ],
+    [
+      "dict(acl_policy.DECLARATIONS,**{'etc/passwd':b'tss:x:972:972:tss:/:/bin/false\\n','etc/group':b'tss:x:972:\\n'})",
+      "dict(acl_policy.DECLARATIONS,**J.DECLARATIONS,**{'etc/passwd':b'tss:x:972:972:tss:/:/bin/false\\n','etc/group':b'root:x:0:\\nadm:x:999:\\nwheel:x:998:\\nsystemd-journal:x:981:\\ntss:x:972:\\n'})"
+    ],
+    [
+      "   leaf=root/acl_policy.PATH;leaf.mkdir(parents=True);leaf.chmod(0o2775)",
+      "   leaf=root/acl_policy.PATH;leaf.mkdir(parents=True);leaf.chmod(0o2775)\n   journal=root/J.PATH;journal.mkdir(parents=True);journal.chmod(0o2755)"
+    ],
+    [
+      "   real_load=C.load;real_read=C.read;records=[]",
+      "   def private_journal(nodes):\n    for name,raw in J.DECLARATIONS.items():C.need(nodes[name]==dict(type='file',mode=0o644,uid=os.geteuid(),gid=os.getegid(),**C.pin(raw)),'explicit owned journal declaration fixture')\n    C.need(nodes[J.PATH]==dict(type='directory',mode=0o2755,uid=os.geteuid(),gid=os.getegid()),'explicit owned journal directory fixture');return{J.PATH:J.typed(J.expected(),J.DEFAULT)}\n   real_load=C.load;real_read=C.read;records=[]"
+    ],
+    [
+      "patch.object(acl_policy,'policy',side_effect=private_policy):",
+      "patch.object(acl_policy,'policy',side_effect=private_policy),patch.object(J,'policy',side_effect=private_journal):"
+    ],
+    [
+      "os.setxattr(root/acl_policy.PATH,acl_policy.ATTR,acl_policy.expected());after_acl=",
+      "os.setxattr(root/acl_policy.PATH,acl_policy.ATTR,acl_policy.expected());os.setxattr(journal,J.ACCESS,J.expected());os.setxattr(journal,J.DEFAULT,J.expected());after_acl="
+    ],
+    [
+      "self.assertEqual(after_acl['posix_acl_defaults'],{acl_policy.PATH:acl_policy.typed(acl_policy.expected())})",
+      "self.assertEqual(after_acl['posix_acl_defaults'],{acl_policy.PATH:acl_policy.typed(acl_policy.expected()),J.PATH:J.typed(J.expected(),J.DEFAULT)});self.assertEqual(after_acl['posix_acl_access'],{J.PATH:J.typed(J.expected(),J.ACCESS)})"
+    ],
+    [
+      "  import acl_policy as A,copy",
+      "  import acl_policy as A,copy,journal_acl as J"
+    ],
+    [
+      "  graph=dict(complete=True,nodes=nodes,security_capabilities={},posix_acl_defaults={},mounts={},excluded={})",
+      "  nodes.update({n:dict(type='file',mode=0o644,uid=0,gid=0,**C.pin(raw))for n,raw in J.DECLARATIONS.items()});nodes[J.PATH]=dict(type='directory',mode=0o2755,uid=0,gid=981)\n  graph=dict(complete=True,nodes=nodes,security_capabilities={},posix_acl_defaults={},posix_acl_access={},mounts={},excluded={})"
+    ],
+    [
+      "  graph['posix_acl_defaults']={A.PATH:A.typed(A.expected())}",
+      "  graph['posix_acl_defaults']={A.PATH:A.typed(A.expected()),J.PATH:J.typed(J.expected(),J.DEFAULT)};graph['posix_acl_access']={J.PATH:J.typed(J.expected(),J.ACCESS)}"
+    ]
+  ]
+}

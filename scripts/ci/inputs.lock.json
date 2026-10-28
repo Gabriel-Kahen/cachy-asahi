@@ -5780,14 +5780,14 @@
         "libxcrypt",
         "libcrypt.so=2-64"
       ],
-      "filename": "perl-5.42.2-2-aarch64.pkg.tar.xz",
+      "filename": "perl-5.42.3-1-aarch64.pkg.tar.xz",
       "license": [
         "Artistic-1.0-Perl",
         "GPL-1.0-or-later"
       ],
       "name": "perl",
       "provides": [
-        "perl-archive-tar=3.04",
+        "perl-archive-tar=3.12",
         "perl-attribute-handlers=1.03",
         "perl-autodie=2.37",
         "perl-autoloader=5.74",
@@ -5795,7 +5795,7 @@
         "perl-base=2.27",
         "perl-bignum=0.67",
         "perl-carp=1.54",
-        "perl-compress-raw-bzip2=2.213",
+        "perl-compress-raw-bzip2=2.218",
         "perl-compress-raw-zlib=2.222",
         "perl-config-perl-v=0.38",
         "perl-constant=1.33",
@@ -5830,11 +5830,11 @@
         "perl-filter-util-call=1.64",
         "perl-findbin=1.54",
         "perl-getopt-long=2.58",
-        "perl-http-tiny=0.090",
+        "perl-http-tiny=0.096",
         "perl-i18n-collate=1.02",
         "perl-i18n-langtags=0.45",
         "perl-if=0.0610",
-        "perl-io-compress=2.213",
+        "perl-io-compress=2.223",
         "perl-io-socket-ip=0.43",
         "perl-io-zlib=1.15",
         "perl-io=1.55",
@@ -5850,7 +5850,7 @@
         "perl-math-complex=1.63",
         "perl-memoize=1.17",
         "perl-mime-base64=3.16_01",
-        "perl-module-corelist=5.20260329_42",
+        "perl-module-corelist=5.20260802_42",
         "perl-module-load-conditional=0.74",
         "perl-module-load=0.36",
         "perl-module-loaded=0.08",
@@ -5872,8 +5872,8 @@
         "perl-scalar-list-utils=1.68_01",
         "perl-search-dict=1.08",
         "perl-selfloader=1.28",
-        "perl-socket=2.038",
-        "perl-storable=3.37",
+        "perl-socket=2.041",
+        "perl-storable=3.37_01",
         "perl-sys-syslog=0.36",
         "perl-term-ansicolor=5.01",
         "perl-term-cap=1.18",
@@ -5902,15 +5902,15 @@
         "perl-xsloader=0.32"
       ],
       "replaces": [],
-      "sha256": "21c8efe3c10c0c12b8a9b1bb504e71a834f1685916a78da61f71d31e61125161",
-      "signature_sha256": "7a42e189d397bcbec6ba6d7686b603feb627d9e8927034ad7e3958d57382be62",
+      "sha256": "f0e47c42ec91985898af2ce7355ef4eead50457108706add1f8c1650bca19b8f",
+      "signature_sha256": "f40e70ac18f61c8b706c7642bac2cfef7b4fcb9d96bd30da3fc41c48a6667dca",
       "signature_size": 566,
-      "size": 16001716,
+      "size": 16017184,
       "source_url": [
         "https://www.perl.org"
       ],
-      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/perl-5.42.2-2-aarch64.pkg.tar.xz",
-      "version": "5.42.2-2"
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/perl-5.42.3-1-aarch64.pkg.tar.xz",
+      "version": "5.42.3-1"
     },
     {
       "arch": "aarch64",
@@ -6774,14 +6774,14 @@
         "vim-minimal"
       ],
       "depends": [
-        "vim-runtime=9.2.1164-2",
+        "vim-runtime=9.2.1178-1",
         "gpm",
         "acl",
         "glibc",
         "libgcrypt",
         "zlib"
       ],
-      "filename": "vim-9.2.1164-2-aarch64.pkg.tar.xz",
+      "filename": "vim-9.2.1178-1-aarch64.pkg.tar.xz",
       "license": [
         "custom:vim"
       ],
@@ -6794,36 +6794,36 @@
       "replaces": [
         "vim-minimal"
       ],
-      "sha256": "d4f857559e5f0af1cd5a9603d31437ddc8fe35957c11bc6b8670b9a58a80ea73",
-      "signature_sha256": "38e920e436994e6516752f2057974ecd3d284b4be5887a183714175be9169524",
-      "signature_size": 565,
-      "size": 2086796,
+      "sha256": "e6dac872c70975d71550af934402f4e603bb0ebe444310440bc89f4e8c8e76c4",
+      "signature_sha256": "28d7e145d8f47626e574fc7412cd45d866392a8557adda3002362ff42bb993aa",
+      "signature_size": 566,
+      "size": 2084600,
       "source_url": [
         "https://www.vim.org"
       ],
-      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/vim-9.2.1164-2-aarch64.pkg.tar.xz",
-      "version": "9.2.1164-2"
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/vim-9.2.1178-1-aarch64.pkg.tar.xz",
+      "version": "9.2.1178-1"
     },
     {
       "arch": "aarch64",
       "conflicts": [],
       "depends": [],
-      "filename": "vim-runtime-9.2.1164-2-aarch64.pkg.tar.xz",
+      "filename": "vim-runtime-9.2.1178-1-aarch64.pkg.tar.xz",
       "license": [
         "custom:vim"
       ],
       "name": "vim-runtime",
       "provides": [],
       "replaces": [],
-      "sha256": "def07038ac8bde14c3c875ea2f37adc199e21bb237d357b1b2f00eb401d4add6",
-      "signature_sha256": "7481985526069c20b81762bbb308a0df61acf07d316f557d60e330a22627e5e3",
+      "sha256": "340ee0b85995517e50832aea2e69224044ff77b384fc5c8e017959bcdcfc78f8",
+      "signature_sha256": "466eca3dc6734a3d10ea8f90f1a5d9ca15e339290995557d3120f03690399bf4",
       "signature_size": 566,
-      "size": 7702256,
+      "size": 7703748,
       "source_url": [
         "https://www.vim.org"
       ],
-      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/vim-runtime-9.2.1164-2-aarch64.pkg.tar.xz",
-      "version": "9.2.1164-2"
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/vim-runtime-9.2.1178-1-aarch64.pkg.tar.xz",
+      "version": "9.2.1178-1"
     },
     {
       "arch": "aarch64",
@@ -7525,7 +7525,7 @@
     "core m4 1.4.21-2 m4-1.4.21-2-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/core/m4-1.4.21-2-aarch64.pkg.tar.xz",
     "core diffutils 3.12-2 diffutils-3.12-2-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/core/diffutils-3.12-2-aarch64.pkg.tar.xz",
     "core db5.3 5.3.28-7 db5.3-5.3.28-7-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/core/db5.3-5.3.28-7-aarch64.pkg.tar.xz",
-    "core perl 5.42.2-2 perl-5.42.2-2-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/core/perl-5.42.2-2-aarch64.pkg.tar.xz",
+    "core perl 5.42.3-1 perl-5.42.3-1-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/core/perl-5.42.3-1-aarch64.pkg.tar.xz",
     "core autoconf 2.73-1 autoconf-2.73-1-any.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/core/autoconf-2.73-1-any.pkg.tar.xz",
     "core automake 1.19-1 automake-1.19-1-any.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/core/automake-1.19-1-any.pkg.tar.xz",
     "core bison 3.8.2-8 bison-3.8.2-8-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/core/bison-3.8.2-8-aarch64.pkg.tar.xz",
@@ -11583,7 +11583,26 @@
   ],
   "schema_version": 1,
   "signer_fingerprint": "68B3537F39A313B3E574D06777193F152BDBE6A6",
-  "snapshot_id": "alarm-official-mirror-2026-10-11-transaction",
+  "snapshot_id": "alarm-official-retained-transaction-2026-10-12-perl-refresh",
+  "snapshot_migrations": [
+    {
+      "closure": "341 generic metadata records; 1582 relations satisfied; zero conflicts/removals. Native transaction/build/integration NOT RUN.",
+      "new_unsigned_core_observation": {
+        "bytes": 256696,
+        "name": "core",
+        "sha256": "5f184763bad034ac02662ee37d87edad8124244c8609f4a441947da1855b0b08",
+        "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/core.db"
+      },
+      "new_version": "5.42.3-1",
+      "old_version": "5.42.2-2",
+      "package": "perl",
+      "previous_inputs_sha256": "7d53775b2de6136d531a7f20059088def7bbb11ad8baef58e75cd5826e3a2b41",
+      "proposal_path": "scripts/port/builder-perl-migration-proposal.json",
+      "proposal_sha256": "d39c1b744ea54e282663e99932d58976336496426f7c3c6fd12b94526ff09a8f",
+      "reason": "Original pinned Perl archive and signature superseded on official mirrors; explicit authenticated replacement.",
+      "scope": "Retain all other original bytes; prior repository_databases describe original capture, not a current full sync snapshot."
+    }
+  ],
   "source_date_epoch": 1791748800,
   "status": "candidate-inputs"
 }

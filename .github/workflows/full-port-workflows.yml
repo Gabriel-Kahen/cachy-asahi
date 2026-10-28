@@ -1,0 +1,474 @@
+name: Full port component workflows
+on:
+  pull_request:
+    paths:
+      - '**' # Unknown paths must reach the full-suite fallback.
+      - 'scripts/platform/**'
+      - 'scripts/checks/package_checks.py'
+      - 'scripts/release/**'
+      - 'scripts/client/client.py'
+      - 'scripts/build/**'
+      - 'scripts/experiments/**'
+      - 'packages/experiments/**'
+      - 'scripts/ci/desktop574_guest.py'
+      - 'scripts/ci/welcome-managed-gui/**'
+      - 'scripts/integration/desktop.py'
+      - 'scripts/virtual/**'
+      - 'scripts/maintenance/source_cache.py'
+      - 'packages/tools/cachy-asahi-maintenance/**'
+      - 'packages/tools/cachy-asahi-orphans/**'
+      - 'packages/tools/cachy-asahi-orphans03/**'
+      - 'packages/tools/cachy-asahi-support/**'
+      - 'packages/tools/cachy-asahi-support2/**'
+      - 'packages/tools/cachy-asahi-security-maintenance/**'
+      - 'tests/test_orphans03_adoption.py'
+      - 'packages/tools/cachy-asahi-session-diagnostics/**'
+      - 'scripts/update/archive_stream.py'
+      - 'scripts/virtual/owned_process.py'
+      - 'scripts/support/**'
+      - 'tests/support/**'
+      - 'scripts/hardware/session_probe.py'
+      - 'packages/tools/cachy-asahi-doctor2/**'
+      - 'scripts/maintenance/**'
+      - 'scripts/port/**'
+      - 'scripts/ci/native_arm.py'
+      - 'scripts/integration/lifecycle.py'
+      - 'scripts/workflows/**'
+      - 'tests/workflows/**'
+      - '.github/workflows/full-port-workflows.yml'
+  push:
+    branches: [main]
+    paths:
+      - '**' # Unknown paths must reach the full-suite fallback.
+      - 'scripts/platform/**'
+      - 'scripts/checks/package_checks.py'
+      - 'scripts/release/**'
+      - 'scripts/client/client.py'
+      - 'scripts/build/**'
+      - 'scripts/experiments/**'
+      - 'packages/experiments/**'
+      - 'scripts/ci/desktop574_guest.py'
+      - 'scripts/ci/welcome-managed-gui/**'
+      - 'scripts/integration/desktop.py'
+      - 'scripts/virtual/**'
+      - 'scripts/maintenance/source_cache.py'
+      - 'packages/tools/cachy-asahi-maintenance/**'
+      - 'packages/tools/cachy-asahi-orphans/**'
+      - 'packages/tools/cachy-asahi-orphans03/**'
+      - 'packages/tools/cachy-asahi-support/**'
+      - 'packages/tools/cachy-asahi-support2/**'
+      - 'packages/tools/cachy-asahi-security-maintenance/**'
+      - 'tests/test_orphans03_adoption.py'
+      - 'packages/tools/cachy-asahi-session-diagnostics/**'
+      - 'scripts/update/archive_stream.py'
+      - 'scripts/virtual/owned_process.py'
+      - 'scripts/support/**'
+      - 'tests/support/**'
+      - 'scripts/hardware/session_probe.py'
+      - 'packages/tools/cachy-asahi-doctor2/**'
+      - 'scripts/maintenance/**'
+      - 'scripts/port/**'
+      - 'scripts/ci/native_arm.py'
+      - 'scripts/integration/lifecycle.py'
+      - 'scripts/workflows/**'
+      - 'tests/workflows/**'
+      - '.github/workflows/full-port-workflows.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  components:
+    needs: component-selection
+    if: ${{ !cancelled() && (needs.component-selection.result != 'success' || needs.component-selection.outputs.run != 'false') }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.component-selection.result == 'success' && needs.component-selection.outputs.matrix || '{"include":[{"component":"image","python":"3.12"},{"component":"signed-intake","python":"3.12"},{"component":"signed-image","python":"3.12"},{"component":"sbom","python":"3.12"},{"component":"source-mirror","python":"3.12"},{"component":"source-mirror-update","python":"3.12"},{"component":"desktop","python":"3.12"},{"component":"app-runtime","python":"3.12"},{"component":"app-inputs","python":"3.12"},{"component":"python","python":"3.12"},{"component":"python-extension","python":"3.12"},{"component":"build-systems","python":"3.12"},{"component":"pgo-source","python":"3.12"},{"component":"app-window","python":"3.12"},{"component":"mirror-builder","python":"3.12"},{"component":"debugger","python":"3.12"},{"component":"support-bundle","python":"3.12"},{"component":"support-collection","python":"3.12"},{"component":"recovery-bundle","python":"3.12"},{"component":"security-operation","python":"3.12"},{"component":"advisory-cache","python":"3.12"},{"component":"support-package2","python":"3.12"},{"component":"security-maintenance-package","python":"3.12"},{"component":"orphans03","python":"3.12"},{"component":"support-package","python":"3.12"},{"component":"image","python":"3.14"},{"component":"signed-intake","python":"3.14"},{"component":"signed-image","python":"3.14"},{"component":"sbom","python":"3.14"},{"component":"source-mirror","python":"3.14"},{"component":"source-mirror-update","python":"3.14"},{"component":"desktop","python":"3.14"},{"component":"app-runtime","python":"3.14"},{"component":"app-inputs","python":"3.14"},{"component":"python","python":"3.14"},{"component":"python-extension","python":"3.14"},{"component":"build-systems","python":"3.14"},{"component":"pgo-source","python":"3.14"},{"component":"app-window","python":"3.14"},{"component":"mirror-builder","python":"3.14"},{"component":"debugger","python":"3.14"},{"component":"support-bundle","python":"3.14"},{"component":"support-collection","python":"3.14"},{"component":"recovery-bundle","python":"3.14"},{"component":"security-operation","python":"3.14"},{"component":"advisory-cache","python":"3.14"},{"component":"support-package2","python":"3.14"},{"component":"security-maintenance-package","python":"3.14"},{"component":"orphans03","python":"3.14"},{"component":"support-package","python":"3.14"}]}') }}
+    steps:
+      - name: Checkout complete canonical component closure
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /scripts/platform/
+            /scripts/checks/package_checks.py
+            /scripts/release/
+            /scripts/client/client.py
+            /scripts/build/
+            /scripts/experiments/
+            /packages/experiments/
+            /scripts/ci/desktop574_guest.py
+            /scripts/ci/welcome-managed-gui/
+            /scripts/integration/desktop.py
+            /scripts/virtual/
+            /scripts/maintenance/
+            /scripts/support/
+            /tests/support/
+            /scripts/hardware/session_probe.py
+            /packages/tools/cachy-asahi-doctor2/
+            /scripts/port/
+            /scripts/ci/native_arm.py
+            /scripts/integration/lifecycle.py
+            /packages/tools/cachy-asahi-maintenance/
+            /packages/tools/cachy-asahi-orphans/
+            /packages/tools/cachy-asahi-orphans03/
+            /packages/tools/cachy-asahi-support/
+            /packages/tools/cachy-asahi-support2/
+            /packages/tools/cachy-asahi-security-maintenance/
+            /tests/test_orphans03_adoption.py
+            /packages/tools/cachy-asahi-session-diagnostics/
+            /scripts/update/archive_stream.py
+            /scripts/virtual/owned_process.py
+            /scripts/workflows/
+            /tests/workflows/
+            /LICENSE
+      - name: Select Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install Lua for window protocol model controls
+        if: matrix.component == 'app-window'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y lua5.4
+          lua -v
+      - name: Prepare short private operator temporary directory
+        if: contains(fromJSON('["debugger", "support-bundle", "support-collection", "recovery-bundle", "security-operation", "advisory-cache", "support-package", "support-package2", "security-maintenance-package"]'), matrix.component)
+        run: |
+          stage=$(mktemp -d /tmp/caa-operator.XXXXXXXX)
+          chmod 700 "$stage"
+          printf 'TMPDIR=%s\n' "$stage" >> "$GITHUB_ENV"
+      - name: Install actual debugger fixture prerequisites
+        if: matrix.component == 'debugger'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y gdb build-essential
+          gdb --version
+      - name: Install public verification and recovery archive tools
+        if: matrix.component == 'recovery-bundle'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y gpgv libarchive-tools
+          gpgv --version
+      - name: Install exact Noble security planning version and archive tools
+        if: matrix.component == 'security-operation' || matrix.component == 'security-maintenance-package'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y libarchive-tools libalpm13t64=13.0.2-6ubuntu2 makepkg=6.0.2-6ubuntu2
+          command -v bsdtar
+          command -v vercmp
+          test "$(vercmp '1:1.0' '1.0')" -gt 0
+          dpkg-query -W -f='${binary:Package}\t${Version}\n' libalpm13t64 makepkg
+      - name: Prepare complete Noble namespace prerequisites for support package
+        if: matrix.component == 'support-package' || matrix.component == 'support-package2'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y bubblewrap
+          command -v bwrap
+          test -x /usr/bin/python3
+          # The corrected fixture preserves real host /lib and optional /lib64; no host-layout mutation.
+      - name: Run exact focused component suite
+        env:
+          COMPONENT: ${{ matrix.component }}
+        run: |
+          case "$COMPONENT" in
+            image) suite=scripts/platform/test_release_image.py ;;
+            signed-intake) suite=scripts/platform/test_signed_archive_intake.py ;;
+            signed-image) suite=scripts/platform/test_release_image_signed.py ;;
+            sbom) suite=scripts/release/test_release_sbom.py ;;
+            source-mirror) suite=scripts/release/test_release_source_mirror.py ;;
+            source-mirror-update) suite=scripts/release/test_release_source_mirror_incremental.py ;;
+            app-inputs) suite=scripts/workflows/test_desktop_application_inputs.py ;;
+            python-extension) suite=tests/workflows/test_python_extension.py ;;
+            app-runtime) suite=scripts/workflows/test_desktop_application_runtime.py ;;
+            pgo-source) suite=scripts/experiments/test_zlib_pgo102.py ;;
+            app-window) suite=scripts/workflows/test_desktop_application_window_lifecycle.py ;;
+            mirror-builder) suite=scripts/build/test_mirror_consumer.py ;;
+            python) suite=tests/workflows/test_python_development.py ;;
+            desktop) suite=scripts/workflows/test_desktop_applications.py ;;
+            build-systems) suite=tests/workflows/test_developer_build_systems.py ;;
+            debugger) suite=tests/workflows/test_developer_debugger.py ;;
+            support-bundle) suite=tests/support/test_support_bundle.py ;;
+            support-collection) suite=tests/support/test_collect_support.py ;;
+            recovery-bundle) suite=scripts/release/test_recovery_bundle.py ;;
+            security-operation) suite=scripts/maintenance/test_security_campaign.py ;;
+            advisory-cache) suite=scripts/maintenance/test_advisory_cache.py ;;
+            orphans03) suite=tests/test_orphans03_adoption.py ;;
+            support-package) suite=scripts/release/test_support_source_delivery_v1.py ;;
+            support-package2) suite=scripts/release/test_support_source_delivery_v2.py ;;
+            security-maintenance-package) suite=scripts/release/test_security_maintenance_source_delivery_v2.py ;;
+            *) exit 2 ;;
+          esac
+          python -B -S -Werror::ResourceWarning "$suite"
+      - name: Install hosted build-system prerequisites
+        if: matrix.component == 'build-systems' || matrix.component == 'python-extension'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y cmake meson ninja-build build-essential
+      - name: Run both standalone real build-system journeys
+        if: matrix.component == 'build-systems'
+        env:
+          RESULT: ${{ runner.temp }}/full-port-build-systems
+        run: |
+          python -I -B -Werror::ResourceWarning scripts/workflows/developer_build_systems.py \
+            --output "$RESULT" --tool-path /usr/bin:/bin --command-timeout 45 --total-timeout 300
+          python -I -B - "$RESULT" <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+          import sys
+          root = Path(sys.argv[1])
+          report = json.loads((root / 'result.json').read_bytes())
+          assert report['status'] == 'PASS_AVAILABLE_LOCAL_WORKFLOWS'
+          assert set(report['project_workflows']) == {'cmake', 'meson'}
+          assert set(report['tools']) == {'cmake', 'ctest', 'meson', 'ninja', 'cc', 'c++'}
+          assert all(row['status'] == 'PRESENT' for row in report['tools'].values())
+          for backend, row in report['project_workflows'].items():
+              assert row['status'] == 'PASS_REAL_PROJECT_WORKFLOW', (backend, row)
+              assert row['unchanged'] == 'NO_OBJECT_LIBRARY_BINARY_WRITES'
+              assert row['compile_failure'] == 'REAL_NONZERO_STALE_EXECUTION_REFUSED'
+              assert row['test_failure'] == 'REAL_NONZERO_EXECUTION_REVOKED'
+              assert row['installed'] == 'PASS_PRIVATE_PREFIX_RUNTIME'
+          assert len(report['commands']) == 48
+          for row in report['commands']:
+              supervision = row['supervision']
+              assert row['success'] is True, row
+              assert supervision['reaped'] is True and supervision['ownership'] == 'REAPED'
+              assert supervision['group_census'] == 'EMPTY_TWICE' and supervision['output_complete'] is True
+              assert supervision['timeout'] is False and supervision['signals'] == []
+              assert supervision['error'] is None
+              expected, actual = row['expected'], supervision['exit']
+              assert (type(actual) is int and actual > 0) if expected == 'nonzero' else actual == expected
+              raw = (root / row['log']).read_bytes()
+              assert len(raw) == row['log_pin']['bytes']
+              assert hashlib.sha256(raw).hexdigest() == row['log_pin']['sha256']
+          print('PASS: both real component journeys and all 48 expected command/retirement/log joins')
+          PY
+      - name: Run real compiled Python project and private installs
+        if: matrix.component == 'python-extension'
+        run: |
+          python -I -B -Werror::ResourceWarning scripts/workflows/python_extension.py \
+            --python "$(command -v python)" --cmake /usr/bin/cmake --ctest /usr/bin/ctest \
+            --ninja /usr/bin/ninja --cc /usr/bin/cc --output "$RUNNER_TEMP/python-extension" \
+            --command-timeout 45 --total-timeout 300
+          python -I -B - "$RUNNER_TEMP/python-extension/result.json" <<'PY'
+          import json, sys
+          from pathlib import Path
+          result = json.loads(Path(sys.argv[1]).read_bytes())
+          assert result['status'] == 'PASS_LOCAL_COMPILED_PYTHON_WORKFLOW'
+          assert len(result['commands']) == 31
+          for command in result['commands']:
+              state = command['supervision']
+              assert command['success'] is True
+              assert state['reaped'] is True and state['ownership'] == 'REAPED'
+              assert state['group_census'] == 'EMPTY_TWICE' and state['output_complete'] is True
+              assert state['timeout'] is False and state['signals'] == [] and state['error'] is None
+          print('PASS real compiled Python journey and all 31 command retirements')
+          PY
+      - name: Run real C and C++ debugger journeys
+        if: matrix.component == 'debugger'
+        run: |
+          python -I -B -Werror::ResourceWarning scripts/workflows/developer_debugger.py \
+            --tool-path /usr/bin:/bin --command-timeout 30 --total-timeout 300 \
+            --output "$TMPDIR/debugger-workflow"
+          python -I -B - "$TMPDIR/debugger-workflow/result.json" <<'PY'
+          import json, sys
+          from pathlib import Path
+          result = json.loads(Path(sys.argv[1]).read_bytes())
+          assert result['status'] == 'PASS_LOCAL_DEBUGGER_COMPONENT'
+          assert len(result['commands']) == 17
+          PY
+      - name: Run offline security operation CLI fixture and both admission plans
+        if: matrix.component == 'security-operation'
+        run: |
+          python -B -S -Werror::ResourceWarning scripts/maintenance/test_security_campaign.py \
+            --demo-directory "$TMPDIR/security-operation-demo"
+          python -I -B - "$TMPDIR/security-operation-demo/demonstration.json" <<'PY'
+          import json, sys
+          from pathlib import Path
+          result = json.loads(Path(sys.argv[1]).read_bytes())
+          assert result['status'] == 'HOST_OFFLINE_CLI_ONLY'
+          assert len(result['steps']) == 10
+          assert all(row['exit_code'] == row['expected'] for row in result['steps'])
+          assert result['builds'] == result['native'] == result['installed'] == 'NOT_RUN'
+          PY
+      - name: Observe the real support namespace permission boundary
+        if: matrix.component == 'support-package'
+        run: |
+          python -I -B packages/tools/cachy-asahi-support/check_package.py
+          python -I -B - "$RUNNER_TEMP" "$GITHUB_ENV" <<'PY'
+          import importlib.util
+          import json
+          import os
+          from pathlib import Path
+          import subprocess
+          import sys
+          import tempfile
+          root = Path(sys.argv[1])
+          spec = importlib.util.spec_from_file_location('support_exact_fixture', 'packages/tools/cachy-asahi-support/test_package.py')
+          fixture = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(fixture)
+          with tempfile.TemporaryDirectory(prefix='support-namespace-', dir=os.environ['TMPDIR']) as name:
+              work = Path(name)
+              prefix = work / 'prefix'
+              inputs = work / 'inputs'
+              prefix.mkdir()
+              inputs.mkdir()
+              command = [*fixture.sandbox_command(prefix, inputs), '/usr/bin/python3', '-I', '-B', '-c',
+                         'import os; assert not os.path.exists("/home"); assert not os.path.exists("/stage/PKGBUILD")']
+              result = subprocess.run(command, capture_output=True, timeout=15)
+          (root / 'support-namespace.stdout').write_bytes(result.stdout)
+          (root / 'support-namespace.stderr').write_bytes(result.stderr)
+          (root / 'support-namespace.json').write_text(json.dumps(dict(command=command, exit=result.returncode)) + '\n')
+          use_root = False
+          if result.returncode:
+              permission = (b'bwrap: Creating new namespace failed: Operation not permitted', b'bwrap: No permissions to create new namespace', b'bwrap: loopback: Failed RTM_NEWADDR: Operation not permitted')
+              assert b'bwrap:' in result.stderr and any(text in result.stderr for text in permission), result.stderr
+              use_root = True
+          with Path(sys.argv[2]).open('a') as output:
+              output.write('SUPPORT_TEST_ROOT=' + ('1' if use_root else '0') + '\n')
+          print('Actual namespace permission observation: ' + ('bounded exact test needs sudo' if use_root else 'ordinary user admitted'))
+          PY
+      - name: Run all eight real private support package and hidden-source controls
+        if: matrix.component == 'support-package'
+        run: |
+          set -euo pipefail
+          python -I -B packages/tools/cachy-asahi-support/check_package.py
+          # Only this source-bound private fixture may use sudo after a genuine namespace permission denial.
+          run_support_fixture() {
+            if [ "$SUPPORT_TEST_ROOT" = 1 ]; then
+              sudo env PYTHONDONTWRITEBYTECODE=1 "$(command -v python)" -B -S -Werror::ResourceWarning - <<'PY'
+          import os
+          import runpy
+          import sys
+          import tempfile
+          # User namespaces cannot traverse the runner-owned 0700 TMPDIR as host root.
+          # Create every private fixture ancestor under the same UID as the sudo test.
+          with tempfile.TemporaryDirectory(prefix='caa-support-root-', dir='/tmp') as name:
+              state = os.stat(name)
+              assert state.st_uid == os.getuid() and state.st_mode & 0o777 == 0o700
+              os.environ['TMPDIR'] = name
+              tempfile.tempdir = name
+              sys.argv = ['packages/tools/cachy-asahi-support/test_package.py', '-v']
+              runpy.run_path(sys.argv[0], run_name='__main__')
+          PY
+            else
+              "$(command -v python)" -B -S -Werror::ResourceWarning \
+                packages/tools/cachy-asahi-support/test_package.py -v
+            fi
+          }
+          run_support_fixture 2>&1 | tee "$RUNNER_TEMP/support-package-tests.log"
+          grep -q 'Ran 8 tests' "$RUNNER_TEMP/support-package-tests.log"
+          if grep -q 'skipped' "$RUNNER_TEMP/support-package-tests.log"; then exit 1; fi
+      - name: Observe the real support2 namespace permission boundary
+        if: matrix.component == 'support-package2'
+        run: |
+          python -I -B packages/tools/cachy-asahi-support2/check_package.py
+          python -I -B - "$RUNNER_TEMP" "$GITHUB_ENV" <<'PY'
+          import importlib.util
+          import json
+          import os
+          from pathlib import Path
+          import subprocess
+          import sys
+          import tempfile
+          root = Path(sys.argv[1])
+          spec = importlib.util.spec_from_file_location('support_exact_fixture', 'packages/tools/cachy-asahi-support2/test_package.py')
+          fixture = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(fixture)
+          with tempfile.TemporaryDirectory(prefix='support2-namespace-', dir=os.environ['TMPDIR']) as name:
+              work = Path(name)
+              prefix = work / 'prefix'
+              inputs = work / 'inputs'
+              prefix.mkdir()
+              inputs.mkdir()
+              command = [*fixture.sandbox(prefix, inputs), '/usr/bin/python3', '-I', '-B', '-c',
+                         'import os; assert not os.path.exists("/home"); assert not os.path.exists("/stage/PKGBUILD")']
+              result = subprocess.run(command, capture_output=True, timeout=15)
+          (root / 'support2-namespace.stdout').write_bytes(result.stdout)
+          (root / 'support2-namespace.stderr').write_bytes(result.stderr)
+          (root / 'support2-namespace.json').write_text(json.dumps(dict(command=command, exit=result.returncode)) + '\n')
+          use_root = False
+          if result.returncode:
+              permission = (b'bwrap: Creating new namespace failed: Operation not permitted', b'bwrap: No permissions to create new namespace', b'bwrap: loopback: Failed RTM_NEWADDR: Operation not permitted')
+              assert b'bwrap:' in result.stderr and any(text in result.stderr for text in permission), result.stderr
+              use_root = True
+          with Path(sys.argv[2]).open('a') as output:
+              output.write('SUPPORT2_TEST_ROOT=' + ('1' if use_root else '0') + '\n')
+          print('Actual namespace permission observation: ' + ('bounded exact test needs sudo' if use_root else 'ordinary user admitted'))
+          PY
+      - name: Run all six real installed support2 collection controls
+        if: matrix.component == 'support-package2'
+        run: |
+          set -euo pipefail
+          python -I -B packages/tools/cachy-asahi-support2/check_package.py
+          # Only this source-bound private fixture may use sudo after a genuine namespace permission denial.
+          run_support2_fixture() {
+            if [ "$SUPPORT2_TEST_ROOT" = 1 ]; then
+              sudo env PYTHONDONTWRITEBYTECODE=1 "$(command -v python)" -B -S -Werror::ResourceWarning - <<'PY'
+          import os
+          import runpy
+          import sys
+          import tempfile
+          # User namespaces cannot traverse the runner-owned 0700 TMPDIR as host root.
+          # Create every private fixture ancestor under the same UID as the sudo test.
+          with tempfile.TemporaryDirectory(prefix='caa-support-root-', dir='/tmp') as name:
+              state = os.stat(name)
+              assert state.st_uid == os.getuid() and state.st_mode & 0o777 == 0o700
+              os.environ['TMPDIR'] = name
+              tempfile.tempdir = name
+              sys.argv = ['packages/tools/cachy-asahi-support2/test_package.py', '-v']
+              runpy.run_path(sys.argv[0], run_name='__main__')
+          PY
+            else
+              "$(command -v python)" -B -S -Werror::ResourceWarning \
+                packages/tools/cachy-asahi-support2/test_package.py -v
+            fi
+          }
+          run_support2_fixture 2>&1 | tee "$RUNNER_TEMP/support-package2-tests.log"
+          grep -q 'Ran 6 tests' "$RUNNER_TEMP/support-package2-tests.log"
+          if grep -q 'skipped' "$RUNNER_TEMP/support-package2-tests.log"; then exit 1; fi
+      - name: Run all seven installed security maintenance package controls
+        if: matrix.component == 'security-maintenance-package'
+        run: |
+          set -euo pipefail
+          python -B -S -Werror::ResourceWarning packages/tools/cachy-asahi-security-maintenance/test_package.py -v 2>&1 | tee "$RUNNER_TEMP/security-maintenance-package-tests.log"
+          grep -q 'Ran 7 tests' "$RUNNER_TEMP/security-maintenance-package-tests.log"
+          if grep -q 'skipped' "$RUNNER_TEMP/security-maintenance-package-tests.log"; then exit 1; fi
+
+  component-selection:
+    name: Conservative component selection
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      run: ${{ steps.select.outputs.run }}
+      matrix: ${{ steps.select.outputs.matrix }}
+    steps:
+      - name: Checkout bounded depth-two selector source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+          fetch-tags: false
+      - name: Check selector failure and coverage controls
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/ci/component_selection/test_select.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/component_selection/test_collect.py
+      - name: Select reviewed components or the complete baseline
+        id: select
+        shell: bash
+        env:
+          SELECTION_EVENT: ${{ github.event_name }}
+          SELECTION_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          SELECTION_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+          SELECTION_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          component_diff() {
+            timeout 30s git diff --no-ext-diff --no-renames --name-status -z "$1" "$2" -- | head -c 1048577 > "$3"
+          }
+          source scripts/ci/component_selection/collect.sh
+          collect_components full-port

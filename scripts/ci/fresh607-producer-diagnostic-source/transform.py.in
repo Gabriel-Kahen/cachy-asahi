@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: MIT
+"""Finite source1182 diagnostic successor with exact whole-parent inverse."""
+import json
+RUN='implementation/run.py';GUARD='implementation/source_guard.py';HELPER='implementation/producer_diagnostic.py';PROOF='implementation/producer_source.py';PARENT='implementation/producer-parent.json';MANIFEST='source-manifest.json';ALIASES=('.github/workflows/native-arm-build.yml','.github/workflows/native-arm-latest607-fresh-installer.yml')
+FOOTER=b'\n# BEGIN_FAILURE_ONLY_PRODUCER_DIAGNOSTIC_SOURCE\ndef verify():\n import producer_source\n return producer_source.verify()\n'
+EDITS=(
+ ("import common as C,accepted,adapter,materialize,source_guard","import common as C,accepted,adapter,materialize,source_guard,producer_diagnostic"),
+ ("EDITS=(\n","EDITS=(\n (\"        ready=producer.prepare(original)\",\"        ready=Y.producer(producer,original)\"),\n"),
+ (" def candidate(self,path):return adapter.emit(path)"," def producer(self,original,args):return producer_diagnostic.prepare(original,args)\n def candidate(self,path):return adapter.emit(path)"),
+)
+def transformed(old,helper,proof,parent):
+ need(len(old)==1182,'entire1182 parent source');out=dict(old);text=old[RUN].decode()
+ for before,after in EDITS:need(text.count(before)==1,'one current producer integration seam');text=text.replace(before,after,1)
+ inverse=text
+ for before,after in reversed(EDITS):need(inverse.count(after)==1,'unique producer integration inverse');inverse=inverse.replace(after,before,1)
+ need(inverse.encode()==old[RUN],'entire old run/Integration/owner inverse');compile(text,'<failure-only-original-producer-route>','exec');out[RUN]=text.encode();out[GUARD]=old[GUARD]+FOOTER;out[HELPER]=helper;out[PROOF]=proof;out[PARENT]=parent
+ manifest=json.loads(old[MANIFEST]);manifest['files']={n:pin(b)for n,b in out.items()if n not in(*ALIASES,MANIFEST)};out[MANIFEST]=enc(manifest);template=old['implementation/workflow-template.yml']
+ for name in ALIASES:out[name]=template.replace(b'@FRESH607_MANIFEST@',pin(out[MANIFEST])['sha256'].encode())
+ need(set(out)==set(old)|{HELPER,PROOF,PARENT}and len(out)==1185,'whole1185 source namespace');return out

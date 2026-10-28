@@ -1,0 +1,26 @@
+{
+  "actual": null,
+  "files": {
+    "input-source.json": {
+      "bytes": 229639,
+      "sha256": "bedf2ae65667d71e92619a511f4cee8de6927d51eb7f6d1e3dfc6a13c3dc3364"
+    },
+    "output-source.json": {
+      "bytes": 230156,
+      "sha256": "ac1e3a2997e3060d10870831e43e7f921a8b117f3198b66437f7d632d90a3ac6"
+    },
+    "runtime-parent.json": {
+      "bytes": 878665,
+      "sha256": "9a1d4e2f11ba9b8e001613ecb0dd5260a9a0d2355b1e6e57c914bc008b935776"
+    },
+    "runtime_context.py": {
+      "bytes": 4299,
+      "sha256": "ab2b9d7e78c56f6f43fb85d33d7131f324fb5f7851a31520981f4d414981b4db"
+    },
+    "runtime_source.py.in": {
+      "bytes": 5829,
+      "sha256": "8146631b16f2233fcf859fd1cdde145949c464a601b2d100fcd8a4c1fb45e812"
+    }
+  },
+  "status": "PINNED_SOURCE_ONLY1192_FACTORY_DATA"
+}

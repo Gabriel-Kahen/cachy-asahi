@@ -1,0 +1,123 @@
+{
+  "acceptance": false,
+  "actual": null,
+  "native": "NOT_RUN",
+  "python": "/home/gabe/.local/share/uv/python/cpython-3.12-linux-x86_64-gnu/bin/python3.12",
+  "rows": [
+    {
+      "argv": [
+        "/home/gabe/.local/share/uv/python/cpython-3.12-linux-x86_64-gnu/bin/python3.12",
+        "-I",
+        "-B",
+        "-Werror",
+        "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/core41-posix-acl-development-20261025/source-ready/test_case.py"
+      ],
+      "cap": 90,
+      "exit": 0,
+      "seconds": 0.16380841600039275,
+      "tests": 21
+    },
+    {
+      "argv": [
+        "/home/gabe/.local/share/uv/python/cpython-3.12-linux-x86_64-gnu/bin/python3.12",
+        "-I",
+        "-B",
+        "-Werror",
+        "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/core41-posix-acl-development-20261025/source-ready/test_emission.py"
+      ],
+      "cap": 90,
+      "exit": 0,
+      "seconds": 0.5139870240018354,
+      "tests": 4
+    },
+    {
+      "argv": [
+        "/home/gabe/.local/share/uv/python/cpython-3.12-linux-x86_64-gnu/bin/python3.12",
+        "-I",
+        "-B",
+        "-Werror",
+        "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/core41-posix-acl-development-20261025/source-ready/test_host.py"
+      ],
+      "cap": 90,
+      "exit": 0,
+      "seconds": 0.0638217040032032,
+      "tests": 3
+    },
+    {
+      "argv": [
+        "/home/gabe/.local/share/uv/python/cpython-3.12-linux-x86_64-gnu/bin/python3.12",
+        "-I",
+        "-B",
+        "-Werror",
+        "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/core41-posix-acl-development-20261025/source-ready/test_initramfs.py"
+      ],
+      "cap": 90,
+      "exit": 0,
+      "seconds": 0.163758921000408,
+      "tests": 7
+    },
+    {
+      "argv": [
+        "/home/gabe/.local/share/uv/python/cpython-3.12-linux-x86_64-gnu/bin/python3.12",
+        "-I",
+        "-B",
+        "-Werror",
+        "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/core41-posix-acl-development-20261025/source-ready/test_protocol.py"
+      ],
+      "cap": 90,
+      "exit": 0,
+      "seconds": 0.06372846599697368,
+      "tests": 3
+    },
+    {
+      "argv": [
+        "/home/gabe/.local/share/uv/python/cpython-3.12-linux-x86_64-gnu/bin/python3.12",
+        "-I",
+        "-B",
+        "-Werror",
+        "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/core41-posix-acl-development-20261025/source-ready/test_route.py",
+        "--vm-source",
+        "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/ksm16k-interrupted-sharing-trial-root-20261021/source"
+      ],
+      "cap": 90,
+      "exit": 0,
+      "seconds": 0.11376210999878822,
+      "tests": 3
+    },
+    {
+      "argv": [
+        "/home/gabe/.local/share/uv/python/cpython-3.12-linux-x86_64-gnu/bin/python3.12",
+        "-I",
+        "-B",
+        "-Werror",
+        "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/core41-posix-acl-development-20261025/source-ready/test_sources.py",
+        "--vm-source",
+        "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/ksm16k-interrupted-sharing-trial-root-20261021/source",
+        "--core-source",
+        "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/core7-baseline-scriptlet-trial-root-20261022/source",
+        "--kernel-carrier",
+        "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/ksm16k-advice-kernel-input-publication-root-20261019/source"
+      ],
+      "cap": 90,
+      "exit": 0,
+      "seconds": 1.1645867830011412,
+      "tests": 13
+    },
+    {
+      "argv": [
+        "/home/gabe/.local/share/uv/python/cpython-3.12-linux-x86_64-gnu/bin/python3.12",
+        "-I",
+        "-B",
+        "-Werror",
+        "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/development/core41-posix-acl-development-20261025/test_acl.py"
+      ],
+      "cap": 90,
+      "exit": 0,
+      "seconds": 4.866176167000958,
+      "tests": 9
+    }
+  ],
+  "seconds": 7.113862942998821,
+  "status": "PASS_TYPED_ACL_AND_WHOLE_PARENT_SOURCE_CONTROLS",
+  "tests": 63
+}

@@ -1,0 +1,88 @@
+{
+  "acceptance": "NOT_GRANTED",
+  "actual": null,
+  "after_source": "51e7797ef639de8fbed96e51b5b12bf5a92c7cb7",
+  "before_source": "09f7758b20c638f302086374931e7e5ceb3ca6fd",
+  "changed": {
+    ".github/workflows/native-arm-build.yml": {
+      "before": {
+        "bytes": 18884,
+        "sha256": "8971f36699823867d4a671b4161e1f6395bb67427502fab94f6bd4591748110d"
+      },
+      "proposed": {
+        "bytes": 18929,
+        "sha256": "830e117468adb81681c43891433431de06f2c47ebf8d1407e12b259161a5e66f"
+      }
+    },
+    ".github/workflows/native-arm-current606-welcome8-gui.yml": {
+      "before": {
+        "bytes": 18884,
+        "sha256": "8971f36699823867d4a671b4161e1f6395bb67427502fab94f6bd4591748110d"
+      },
+      "proposed": {
+        "bytes": 18929,
+        "sha256": "830e117468adb81681c43891433431de06f2c47ebf8d1407e12b259161a5e66f"
+      }
+    },
+    "apps8_common.py": {
+      "before": {
+        "bytes": 4089,
+        "sha256": "43f883effc5999fb92c98c196823b9d1b76269be7394e1205011ddcaf2810ba3"
+      },
+      "proposed": {
+        "bytes": 9642,
+        "sha256": "ab3acda99d3af6c469021ac780390ca41dc614f4289e59521f77a14a15e97947"
+      }
+    },
+    "factory/current_products.py": {
+      "before": {
+        "bytes": 4256,
+        "sha256": "814bc1396f6a35389341b9bccc13e370f78815dda2ca4a8715dbddf7948e514d"
+      },
+      "proposed": {
+        "bytes": 6012,
+        "sha256": "aa6869556cfd1ba27b5a8ef15a29c6cb09daa87ecf298fb725c3afcb8a107af6"
+      }
+    },
+    "source-manifest.json": {
+      "before": {
+        "bytes": 98020,
+        "sha256": "1f6e13bceb0a80c21a96ada553fd9ea9ebe8438fe19fef8e2fab9ba2c078e224"
+      },
+      "proposed": {
+        "bytes": 98020,
+        "sha256": "3468065599017c05010479f9f7cbe8090a9ae64ed80e40c7889caa164cd5d3e7"
+      }
+    }
+  },
+  "files": 556,
+  "held": 551,
+  "kind": "SOURCE_ONLY_EXACT_APPS_CLI_FAILURE",
+  "maps": {
+    "bytes": 196034,
+    "sha256": "07396bc9778af99be365354b3cd949b95d63999010311e3d910549416c8e9aa0"
+  },
+  "native": "NOT_RUN",
+  "payload": {
+    ".github/workflows/native-arm-build.yml": {
+      "bytes": 18929,
+      "sha256": "830e117468adb81681c43891433431de06f2c47ebf8d1407e12b259161a5e66f"
+    },
+    ".github/workflows/native-arm-current606-welcome8-gui.yml": {
+      "bytes": 18929,
+      "sha256": "830e117468adb81681c43891433431de06f2c47ebf8d1407e12b259161a5e66f"
+    },
+    "apps8_common.py": {
+      "bytes": 9642,
+      "sha256": "ab3acda99d3af6c469021ac780390ca41dc614f4289e59521f77a14a15e97947"
+    },
+    "factory/current_products.py": {
+      "bytes": 6012,
+      "sha256": "aa6869556cfd1ba27b5a8ef15a29c6cb09daa87ecf298fb725c3afcb8a107af6"
+    },
+    "source-manifest.json": {
+      "bytes": 98020,
+      "sha256": "3468065599017c05010479f9f7cbe8090a9ae64ed80e40c7889caa164cd5d3e7"
+    }
+  }
+}

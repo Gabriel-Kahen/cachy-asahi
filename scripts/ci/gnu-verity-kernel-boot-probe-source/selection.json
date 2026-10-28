@@ -1,0 +1,19 @@
+{
+  "actual_ref": null,
+  "actual_run": null,
+  "actual_source": null,
+  "changed_leaves": [
+    ".github/workflows/native-arm-build.yml",
+    ".github/workflows/native-arm-gnu-verity-boot-probe.yml",
+    "scripts/ci/gnu-verity-kernel-boot-probe/Root-build-decision.json",
+    "scripts/ci/gnu-verity-kernel-boot-probe/kernel-build-result.json",
+    "scripts/ci/gnu-verity-kernel-boot-probe/kernel-descriptor.json",
+    "scripts/ci/gnu-verity-kernel-boot-probe/source-manifest.json"
+  ],
+  "published_ref": "codex/gnu-verity-kernel-boot-probe-v1",
+  "published_source": "bd31022395cc9231dfd966a4c0efc589ac1d49c2",
+  "purpose": "GNU_VERITY_STANDALONE_BOOT_DM_PROBE_V1",
+  "schema_version": 1,
+  "scope": "BOOT_AND_DM_TARGET_AVAILABILITY_ONLY",
+  "source_files": 72
+}

@@ -1,0 +1,65 @@
+{
+  "base_inventory_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+  "candidate_source": "4cbeff43d1a206dae7974c530bb82cb4a0f77066",
+  "name": "cachy-asahi-orphans",
+  "payload": {
+    "usr/bin/cachy-asahi-orphans": [
+      "cachy-asahi-orphans",
+      493
+    ],
+    "usr/share/cachy-asahi-orphans/protection-floor.json": [
+      "protection-floor.json",
+      420
+    ],
+    "usr/share/doc/cachy-asahi-orphans/README.md": [
+      "README.md",
+      420
+    ],
+    "usr/share/licenses/cachy-asahi-orphans/LICENSE": [
+      "LICENSE",
+      420
+    ],
+    "usr/share/licenses/cachy-asahi-orphans/NOTICE": [
+      "NOTICE",
+      420
+    ]
+  },
+  "recipe_sha256": "b7c6055622f57dd3a30101ee418301a2cb3e910f03ccbb99a25ebbbed4cb9391",
+  "schema_version": 1,
+  "source_files": {
+    ".SRCINFO": {
+      "bytes": 914,
+      "sha256": "1d171298c87606d351e4dc26a5cb83bd66719b419b619f17e82bcbd097fc0188"
+    },
+    "LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "NOTICE": {
+      "bytes": 759,
+      "sha256": "326f699857d31b8cd4462081aea074d4349721fb9c48965db6208c793a086720"
+    },
+    "PKGBUILD": {
+      "bytes": 1379,
+      "sha256": "b7c6055622f57dd3a30101ee418301a2cb3e910f03ccbb99a25ebbbed4cb9391"
+    },
+    "README.md": {
+      "bytes": 8282,
+      "sha256": "421e83c8dd3f482ae0d35edf8565d09fa1d3cc2f9f4eb7e5459376b26a54991a"
+    },
+    "cachy-asahi-orphans": {
+      "bytes": 19417,
+      "sha256": "2d7d6914482a76f963603ad71aab38f87693a1c7c7ad15f7ae54bf50a3c1d629"
+    },
+    "protection-floor.json": {
+      "bytes": 10489,
+      "sha256": "0d6dfbf3cd550fe72ddad30058693007f8bb86214de1e83442580677db5005f2"
+    },
+    "test_orphans.py": {
+      "bytes": 12730,
+      "sha256": "f862b853e90a79314cbf221f440ddd2f679d21d8e94ee002d736b1f26b1ee83c"
+    }
+  },
+  "status": "ROOT_BOUND_FINAL_PRODUCT_SOURCE",
+  "version": "0.1.0-1"
+}

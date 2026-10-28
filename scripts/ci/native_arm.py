@@ -13,6 +13,7 @@ import subprocess
 import sys
 import tarfile
 import tempfile
+import urllib.error
 import urllib.request
 from pathlib import Path
 
@@ -55,10 +56,21 @@ def load_pinned(path, expected):
     return json.loads(data)
 
 
-def fetch(item, cache):
-    name = item['filename']
-    if Path(name).name != name or name in ('.', '..'):
+class AcquisitionError(ValueError):
+    def __init__(self, name, category, http_status=None):
+        self.filename, self.category, self.http_status = name, category, http_status
+        detail = f'HTTP {http_status}' if http_status is not None else category
+        super().__init__(f'input acquisition failed: {name}: {detail}')
+
+
+def input_name(value):
+    if not isinstance(value, str) or not re.fullmatch(r'[A-Za-z0-9._+@:~-]{1,255}', value) or value in ('.', '..'):
         raise ValueError('unsafe cache filename')
+    return value
+
+
+def fetch(item, cache):
+    name = input_name(item['filename'])
     check_pin(item['sha256'])
     if not isinstance(item['size'], int) or not 0 <= item['size'] <= 2 * 1024**3:
         raise ValueError('invalid input size')
@@ -85,8 +97,70 @@ def fetch(item, cache):
             raise ValueError(f'download checksum/size mismatch: {name}')
         partial.rename(target)
         return target
+    except urllib.error.HTTPError as error:
+        code = error.code if type(error.code) is int and 100 <= error.code <= 599 else None
+        # Close the response body without retaining/printing it, including in
+        # HTTPError's implicit-cleanup warning after the failed future is released.
+        try:
+            error.close()
+        except OSError:
+            pass
+        raise AcquisitionError(name, 'HTTP failure', code) from None
+    except (urllib.error.URLError, TimeoutError):
+        raise AcquisitionError(name, 'HTTPS transport failure') from None
     finally:
         partial.unlink(missing_ok=True)
+
+
+def acquire(items, cache, out):
+    """Persist each transport/pin result before any signature authentication."""
+    names = [input_name(item['filename']) for item in items]
+    if len(names) != len(set(names)) or len(names) > 1024:
+        raise ValueError('duplicate/oversized acquisition input set')
+    records = {item['filename']: {'status': 'PENDING', 'expected_sha256': check_pin(item['sha256']),
+                                 'expected_bytes': item['size']} for item in items}
+    receipt = {'schema_version': 1, 'acquisition': 'IN_PROGRESS', 'signature_authentication': 'NOT RUN',
+               'inputs': records, 'counts': {'total': len(items), 'pass': 0, 'fail': 0, 'pending': len(items)}}
+
+    def persist():
+        descriptor, name = tempfile.mkstemp(prefix='acquisition.', suffix='.partial', dir=out)
+        temporary = Path(name)
+        try:
+            with os.fdopen(descriptor, 'w') as stream:
+                json.dump(receipt, stream, sort_keys=True, indent=2); stream.write('\n')
+                stream.flush(); os.fsync(stream.fileno())
+            temporary.replace(out / 'acquisition.json')
+        finally:
+            temporary.unlink(missing_ok=True)
+
+    persist()
+    try:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
+            futures = {pool.submit(fetch, item, cache): item['filename'] for item in items}
+            for future in concurrent.futures.as_completed(futures):
+                name = futures[future]
+                try:
+                    future.result()
+                    records[name]['status'] = 'PASS'
+                    receipt['counts']['pass'] += 1
+                except Exception as error:
+                    records[name].update(status='FAIL', error_type=type(error).__name__,
+                                         error='transport, cache or pinned-byte validation failed')
+                    if isinstance(error, AcquisitionError):
+                        records[name].update(error=error.category, http_status=error.http_status)
+                    receipt['counts']['fail'] += 1
+                receipt['counts']['pending'] -= 1
+                persist()
+        receipt['acquisition'] = 'FAIL' if receipt['counts']['fail'] else 'PASS'
+    finally:
+        persist()
+    if receipt['counts']['fail']:
+        failed = sorted(name for name, row in records.items() if row['status'] == 'FAIL')
+        shown = [name + (f' (HTTP {records[name]["http_status"]})' if records[name].get('http_status') else '')
+                 for name in failed[:20]]
+        raise ValueError(f'{len(failed)} input acquisitions failed: ' + ', '.join(shown) +
+                         '; complete per-input results in acquisition.json')
+    return receipt
 
 
 def signature_item(item):
@@ -192,8 +266,7 @@ def audit(inputs, cache, out):
     names = [item['filename'] for item in items]
     if len(set(names)) != len(names):
         raise ValueError('duplicate download filename')
-    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
-        list(pool.map(lambda item: fetch(item, cache), items))
+    acquire(items, cache, out)
     keyhome = out / 'gpg'
     keyhome.mkdir(mode=0o700)
     gpg = ['gpg', '--batch', '--no-options', '--homedir', str(keyhome), '--no-auto-key-retrieve']
@@ -356,18 +429,22 @@ def build(inputs, cache, out, reviews):
                 out / (Path(path).name + f'-{attempt}-driver.log'), 360)
         run([sys.executable, str(ROOT / 'scripts/build/compare.py'), str(out / (Path(path).name + '-1')),
              str(out / (Path(path).name + '-2')), '--require-bytes'], out / (Path(path).name + '-compare.json'), 120)
+    return image
 
 
-def main():
+def main(argv=None, integration_consumers=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('mode', choices=('probe', 'audit', 'build', 'freeze-recipes'))
+    parser.add_argument('mode', choices=('probe', 'audit', 'build', 'integration', 'freeze-recipes'))
     parser.add_argument('--inputs', type=Path, default=ROOT / 'scripts/ci/inputs.lock.json')
     parser.add_argument('--inputs-sha256')
     parser.add_argument('--recipes', type=Path, default=ROOT / 'scripts/ci/recipes.lock.json')
     parser.add_argument('--recipes-sha256')
+    parser.add_argument('--integration', type=Path, default=ROOT / 'scripts/ci/integration.lock.json')
+    parser.add_argument('--integration-sha256')
+    parser.add_argument('--integration-output', type=Path)
     parser.add_argument('--cache', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     if args.mode == 'freeze-recipes':
         freeze_recipes(args.output)
         return 0
@@ -384,7 +461,8 @@ def main():
             inputs = load_pinned(args.inputs, args.inputs_sha256)
             save(out / 'inputs.lock.json', inputs)
             reviews = None
-            if args.mode == 'build':
+            integration_lock = None
+            if args.mode in ('build', 'integration'):
                 probe(out)
                 reviews = load_pinned(args.recipes, args.recipes_sha256)
                 expected_names = sorted(RECIPES)
@@ -398,12 +476,29 @@ def main():
                     if report['errors'] or report['input_sha256'] != hashes:
                         raise ValueError('current recipes differ from the reviewed set')
                 setup_sync()
+                if args.mode == 'integration':
+                    import integration
+                    if args.integration_output is None:
+                        raise ValueError('separate new integration output required')
+                    integration.output_boundaries(ROOT, out, args.cache, args.integration_output)
+                    integration_lock = integration.preflight(ROOT, args.integration, args.integration_sha256,
+                                                             args.recipes_sha256, inputs['source_date_epoch'])
+                    accepted_commit = os.environ.get('GITHUB_SHA', '')
+                    if not re.fullmatch(r'[0-9a-f]{40}', accepted_commit) or run(['git', 'rev-parse', 'HEAD']) != accepted_commit:
+                        raise ValueError('accepted workflow checkout commit must match GITHUB_SHA')
             record['verified_signed_packages'] = audit(inputs, args.cache.resolve(), out)
             record['status'] = 'signed-input-audit-pass'
-            if args.mode == 'build':
+            if args.mode in ('build', 'integration'):
                 record['status'] = 'building'
-                build(inputs, args.cache.resolve(), out, reviews)
+                image = build(inputs, args.cache.resolve(), out, reviews)
                 record.update(status='native-builds-and-byte-comparison-pass', native_build='PASS')
+                save(out / 'result.json', record)
+                if args.mode == 'integration':
+                    controller = integration.Controller(image, out, args.integration_output.resolve(), integration_lock, accepted_commit)
+                    if not controller.run(consumers=integration_consumers):
+                        raise ValueError('native virtual integration failed; inspect separate sanitized stage evidence')
+                    record.update(status='native-builds-and-virtual-integration-pass', virtual_integration='PASS',
+                                  integration_sha256=args.integration_sha256)
         return 0
     except (OSError, ValueError, KeyError, subprocess.SubprocessError, tarfile.TarError) as error:
         record.update(status='failed', error=str(error))

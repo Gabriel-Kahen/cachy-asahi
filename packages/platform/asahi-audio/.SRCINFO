@@ -1,0 +1,26 @@
+pkgbase = asahi-audio
+	pkgdesc = Selected Asahi Linux audio configuration and FIR data (development candidate)
+	pkgver = 4.1
+	pkgrel = 2
+	url = https://github.com/AsahiLinux/asahi-audio
+	arch = aarch64
+	license = MIT
+	makedepends = make
+	depends = wireplumber>=0.5.2
+	depends = pipewire>=1.0
+	depends = bankstown>=1.1.0
+	depends = lsp-plugins-lv2>=1.2.15
+	depends = speakersafetyd
+	depends = triforce-lv2>=0.2.0
+	source = asahi-audio-4.1.tar.gz
+	source = NOTICE
+	source = README.md
+	source = PACKAGING.LICENSE
+	source = source-provenance.json
+	sha256sums = e2c3887fe20481675698ac8174f53b66276f75a2b3c0853daf9b1a70dda690c5
+	sha256sums = 910a4f8a8426f28922e3cfe0d50f7cdb14d67b01549097ccadae639e59ec1007
+	sha256sums = d958e9aa11a81b2a7283d98968aa2705a79d1968b77fa1864bc0b4d3347d9df1
+	sha256sums = 51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7
+	sha256sums = 3da39cbdd69b1367fdb32ff9e4087f20812ea7c2491efbd81eab9642fb487ed1
+
+pkgname = asahi-audio

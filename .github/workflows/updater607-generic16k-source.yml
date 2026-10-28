@@ -1,0 +1,101 @@
+name: updater607-generic16k-source
+on:
+  push:
+    branches: [main, codex/virtual-integration]
+    tags: ['**']
+    paths:
+      - scripts/ci/updater607-generic16k-source/**
+      - .github/workflows/updater607-generic16k-source.yml
+  pull_request:
+    paths:
+      - scripts/ci/updater607-generic16k-source/**
+      - .github/workflows/updater607-generic16k-source.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONWARNINGS: error
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: c6a5de859c3f190d47a5aef30962d2c3b50eaf8d
+          path: .ci-fixtures/updater360
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 0db9341521b5cb5d9022715b5ba638b3e4018462
+          path: .ci-fixtures/fresh1203
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: b21a5864d5a4610b9181a1c270ac8821d8448a17
+          path: .ci-fixtures/held489
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 1c6a2e7a7c6709eb1462cdcb0b449c98fe33d845
+          path: .ci-fixtures/kernel-data3
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: b042ec002d804a581ecc599b05275ae0923a65c0
+          path: .ci-fixtures/predecessor709
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: ae2ec5afbff72cfa20639feda54425b9b3cbe838
+          path: .ci-fixtures/current709
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Construct and check default4K and explicit16K SOURCE without actors
+        shell: bash
+        run: |
+          set -euo pipefail
+          stage=$(mktemp -d "$RUNNER_TEMP/updater607-generic16k-source.XXXXXXXX")
+          trap 'rm -rf -- "$stage"' EXIT
+          export UPDATER_SOURCE="$GITHUB_WORKSPACE/.ci-fixtures/updater360"
+          export FRESH16K_SOURCE="$GITHUB_WORKSPACE/.ci-fixtures/fresh1203"
+          export HELD_SOURCE="$GITHUB_WORKSPACE/.ci-fixtures/held489"
+          export KERNEL_DATA_SOURCE="$GITHUB_WORKSPACE/.ci-fixtures/kernel-data3"
+          export OLD_UPDATER16K_SOURCE="$GITHUB_WORKSPACE/.ci-fixtures/predecessor709"
+          export CURRENT_UPDATER16K_SOURCE="$GITHUB_WORKSPACE/.ci-fixtures/current709"
+          export EMITTED_SOURCE="$stage/emitted"
+          factory="$GITHUB_WORKSPACE/scripts/ci/updater607-generic16k-source"
+          umask 077
+          python3 -I -B -Werror "$factory/prepare.py" --source "$UPDATER_SOURCE" --output "$stage/default4k"
+          python3 -I -B -Werror "$factory/prepare.py" --source "$UPDATER_SOURCE" --output "$EMITTED_SOURCE" --page-profile generic16k --fresh16k "$FRESH16K_SOURCE" --held "$HELD_SOURCE"
+          python3 -I -B -Werror - "$factory" "$stage/default4k" "$UPDATER_SOURCE" "$EMITTED_SOURCE" "$CURRENT_UPDATER16K_SOURCE" <<'PY'
+          import importlib.util
+          from pathlib import Path
+          import sys
+          factory, default, parent, emitted, current = map(Path, sys.argv[1:])
+          spec = importlib.util.spec_from_file_location('source_factory', factory / 'prepare.py')
+          module = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(module)
+          module.verify_factory()
+          before = module.Q.rows(parent)
+          expected = module.Q.rows(current)
+          module.Q.need(len(before) == 360 and module.Q.rows(default) == before, 'exact default360 output')
+          module.Q.need(len(expected) == 709 and module.Q.rows(emitted) == expected, 'exact published current709 output')
+          PY
+          python3 -I -B -Werror "$stage/default4k/entry.py" --source-preflight
+          python3 -I -B -Werror "$EMITTED_SOURCE/entry.py" --source-preflight
+          python3 -I -B -Werror "$EMITTED_SOURCE/test_source.py" -v
+          python3 -I -B -Werror "$factory/tests/test_kernel_data.py" -v
+          python3 -I -B -Werror "$factory/tests/test_constructor.py" -v
+          python3 -I -B -Werror "$factory/tests/test_vm_run.py" -v
+          python3 -I -B -Werror "$factory/tests/test_workflow.py" -v

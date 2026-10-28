@@ -1,0 +1,218 @@
+
+def engine_fixture(receipt,success=False):
+ """Execute the exact emitted ordinary caller with private DATA-only dependencies."""
+ import contextlib,hashlib,io,os,stat,time,fcntl
+ raw=P.transform(current('installer.py'),'installer.py');tree=ast.parse(raw)
+ nodes=[q for q in tree.body if isinstance(q,ast.FunctionDef)and q.name in('execute','engine_failure_projection')]
+ assert len(nodes)==2
+ with tempfile.TemporaryDirectory()as td:
+  root=Path(td);calls=[];nonce='1'*32;profile_sha='2'*64
+  class Trial:
+   def is_dir(self):return True
+   def stat(self):return types.SimpleNamespace(st_uid=23001,st_mode=stat.S_IFDIR|0o700)
+   def __truediv__(self,name):return root/name
+   def __str__(self):return str(root)
+  class Evidence:
+   def __init__(self,path):self.path=path;self.fd=os.open(path,os.O_RDONLY|os.O_DIRECTORY);s=path.stat();self.identity=[s.st_dev,s.st_ino]
+   def save(self,name,row):(self.path/name).write_bytes(C.enc(row))
+   def write(self,name,data,exclusive=False):(self.path/name).write_bytes(data)
+   def view(self):return self.path
+   def node_identity(self,name):s=(self.path/name).stat();return[s.st_dev,s.st_ino]
+   def check(self):calls.append('evidence_identity')
+   def close(self):os.close(self.fd);calls.append('evidence_close')
+  def supervise(*args,**kwargs):
+   assert kwargs['timeout']==4550 and len(kwargs['pass_fds'])==2
+   assert fcntl.fcntl(kwargs['pass_fds'][0],getattr(fcntl,'F_GET_SEALS',1034))==15
+   if success:
+    path=root/'work/evidence/result.json';path.write_bytes(C.enc(dict(status='PROVISIONAL_FULL_COMPOSITION_INSTALLER',phase='complete',nonce=nonce,profile_sha256=profile_sha)))
+   return receipt
+  def checked_inputs(**kw):calls.append(('protected_rehash',kw));return None
+  def observe(*args,**kw):calls.append('parent_observe');return dict(nodes={})
+  def compare(*args,**kw):calls.append('payload_compare')
+  def database(*args,**kw):calls.append('database');return []
+  base=types.SimpleNamespace(Evidence=Evidence,namespaces=lambda:{},environment=lambda **kw:kw)
+  roots=types.SimpleNamespace(Limits=lambda **kw:kw,observe=observe)
+  c=dict(nonce=nonce,tooling_inventory={});profile=dict(expected={});driver=types.SimpleNamespace(database=database)
+  p=types.SimpleNamespace(need=C.need,decode=json.loads,encoded=C.enc,sha=lambda _:profile_sha,EXPECTED=hashlib.sha256(b'').hexdigest(),GIB=1024**3)
+  local_os=os
+  if not hasattr(os,'memfd_create'):
+   import ctypes
+   libc=ctypes.CDLL(None,use_errno=True);create=libc.memfd_create;create.argtypes=(ctypes.c_char_p,ctypes.c_uint);create.restype=ctypes.c_int
+   def real_memfd(name,flags):
+    fd=create(name.encode(),flags)
+    if fd<0:raise OSError(ctypes.get_errno(),'real fixture memfd_create')
+    return fd
+   local_os=types.SimpleNamespace(**{n:getattr(os,n)for n in dir(os)});local_os.memfd_create=real_memfd;local_os.MFD_CLOEXEC=1;local_os.MFD_ALLOW_SEALING=2
+  local_fcntl=types.SimpleNamespace(fcntl=fcntl.fcntl,F_ADD_SEALS=getattr(fcntl,'F_ADD_SEALS',1033))
+  scope=dict(p=p,ordinary_preflight=lambda *_:(c,profile,{},dict(nodes={},ownership={}),roots,base,driver,None),TRIAL=Trial(),Path=Path,stat=stat,os=local_os,time=time,hashlib=hashlib,fcntl=local_fcntl,json=json,SHARED=root,engine_argv=lambda *_:['SOURCE_FIXTURE_NOT_AN_ACTOR'],supervise=supervise,checked_inputs=checked_inputs,compare_payload=compare,PASS='PASS_SOURCE_FIXTURE')
+  exec(compile(ast.Module(body=nodes,type_ignores=[]),'<EXACT_EMITTED_EXECUTE_PRIVATE_FIXTURE>','exec'),scope)
+  out=io.StringIO()
+  with contextlib.redirect_stdout(out):status=scope['execute']()
+  return status,json.loads(out.getvalue()),calls
+
+def test_engine_actual_caller_failure_retains_original_error(self):
+ raw=bytes(range(256))*200;receipt=dict(returncode=1,termination=None,direct_child_reaped=True,group_retired=True,output=raw)
+ status,result,calls=engine_fixture(receipt);self.assertEqual(status,1);self.assertEqual((result['status'],result['phase'],result['parent_error_type'],result['parent_error']),('FAIL','parent','ValueError','guarded engine incomplete'))
+ row=result['engine_failure_data'];import base64,hashlib
+ self.assertEqual(base64.b64decode(row['tail_base64'],validate=True),raw[-2048:]);self.assertEqual((row['output_bytes'],row['output_sha256']),(len(raw),hashlib.sha256(raw).hexdigest()));self.assertFalse(row['tail_complete']);self.assertFalse(row['transaction_authority']);self.assertFalse(row['cleanup_authority']);self.assertEqual(row['returncode'],1);self.assertNotIn('parent_observe',calls);self.assertEqual(calls[-1],'evidence_close')
+
+def test_engine_actual_caller_positive_has_no_projection(self):
+ receipt=dict(returncode=0,termination=None,direct_child_reaped=True,group_retired=True,output=b'unchanged success')
+ status,result,calls=engine_fixture(receipt,True);self.assertEqual(status,0);self.assertEqual(result['status'],'PASS_SOURCE_FIXTURE');self.assertNotIn('engine_failure_data',result);self.assertTrue(all(result[n]for n in('process_retirement','parent_inventory_preserved','source_cache_preserved','ordinary_parent_nnp_cap0')));self.assertIn('parent_observe',calls);self.assertIn('payload_compare',calls);self.assertIn(('protected_rehash',{'protected':True}),calls);self.assertEqual(calls.count('database'),3)
+
+def test_engine_typed_boundary_and_shape_failure_preserve_refusal(self):
+ import hashlib,base64
+ tree=ast.parse(P.transform(current('installer.py'),'installer.py'));node=next(q for q in tree.body if isinstance(q,ast.FunctionDef)and q.name=='engine_failure_projection');m=types.SimpleNamespace();import hashlib;scope=dict(hashlib=hashlib,json=json);exec(compile(ast.Module(body=[node],type_ignores=[]),'<EXACT_ENGINE_HELPER>','exec'),scope);m.engine_failure_projection=scope['engine_failure_projection']
+ good=dict(returncode=1,termination=None,direct_child_reaped=True,group_retired=True,output=b'x'*(1024**2))
+ row=m.engine_failure_projection(good);self.assertEqual(row['output_bytes'],1024**2);self.assertEqual(base64.b64decode(row['tail_base64']),b'x'*2048);self.assertLess(len(C.enc(row)),4096)
+ for field,value in(('output',b'x'*(1024**2+1)),('output','text'),('returncode',True),('returncode',256),('termination','foreign'),('direct_child_reaped',1),('group_retired',None)):
+  bad=dict(good,**{field:value});self.assertEqual(m.engine_failure_projection(bad)['status'],'REFUSED_DIAGNOSTIC_SHAPE');status,result,_=engine_fixture(bad);self.assertEqual(status,1);self.assertEqual(result['parent_error'],'guarded engine incomplete')
+ for raw in(b'',b'a'*2048,b'\xff\x00\n'):
+  row=m.engine_failure_projection(dict(good,output=raw));self.assertTrue(row['tail_complete']);self.assertEqual(base64.b64decode(row['tail_base64']),raw);self.assertEqual(row['output_sha256'],hashlib.sha256(raw).hexdigest())
+ self.assertEqual(m.engine_failure_projection(dict(good,foreign=True))['status'],'REFUSED_DIAGNOSTIC_SHAPE')
+
+def test_engine_frame_is_failure_data_not_host_acceptance(self):
+ raw_source=P.transform(current('installer.py'),'installer.py');tree=ast.parse(raw_source);helper_index=next(i for i,q in enumerate(tree.body)if isinstance(q,ast.FunctionDef)and q.name=='engine_failure_projection');entry_index=next(i for i,q in enumerate(tree.body)if isinstance(q,ast.If)and '__main__'in ast.unparse(q.test));self.assertLess(helper_index,entry_index)
+ status,result,_=engine_fixture(dict(returncode=1,termination=None,direct_child_reaped=True,group_retired=False,output=b'inner preflight example SOURCE_FIXTURE'))
+ vm=code('host_failure_projection',P.transform(current('run.py'),'run.py'));nonce='1'*32
+ events=[dict(event='boot',scope='generic-arm-full-installer-software',page_size=16384,kernel=P.RELEASE,uid=0),dict(result,event='result'),dict(event='exit',status='FAIL',cleanup='FAIL')]
+ raw=b''.join(('FULL_INSTALLER '+nonce+' '+json.dumps(row,sort_keys=True)+'\n').encode()for row in events)
+ parsed=vm.parse_protocol(raw,nonce,complete=False);self.assertEqual(parsed,events);self.assertLess(len(raw),8192)
+ with self.assertRaises(ValueError):vm.validate_completion(parsed,nonce,None,'2'*64)
+ before=current('installer.py');self.assertEqual(P.engine_failure_inverse(P.transform(before,'installer.py')).count(P.ENGINE_GUARD.encode()),1)
+ # Exact original guard text survives; no output/deadline increase or acceptance rewrite.
+ self.assertIn(b'timeout=4550',before);self.assertIn(b'limit=1024**2',before)
+
+Controls.test_engine_actual_caller_failure_retains_original_error=test_engine_actual_caller_failure_retains_original_error
+Controls.test_engine_actual_caller_positive_has_no_projection=test_engine_actual_caller_positive_has_no_projection
+Controls.test_engine_typed_boundary_and_shape_failure_preserve_refusal=test_engine_typed_boundary_and_shape_failure_preserve_refusal
+Controls.test_engine_frame_is_failure_data_not_host_acceptance=test_engine_frame_is_failure_data_not_host_acceptance
+
+def numeric_source_fixture(mode='generic16k'):
+ """Real emitted caller+same raw library; only platform/proc DATA are mocked."""
+ import contextlib,hashlib
+ @contextlib.contextmanager
+ def fixture():
+  saved,paths=dict(sys.modules),sys.path[:]
+  try:
+   source=C.ROOT/'parent853/roles/ksm-worker/held-copy';relative='scripts/install/local_transaction.py';raw=C.read(source/relative);profile=dict(code_files={relative:C.pin(raw)})
+   for held in (relative,'scripts/update/full_root.py','scripts/ci/full-root-upgrade/root_upgrade.py'):C.need(C.read(source/held)==C.read(C.ROOT/'installer604'/held),'complete genuine helper fixture exact raw installer inputs')
+   p=code('_numeric_actual_profile',P.transform(current('profile.py'),'profile.py')if mode=='generic16k'else current('profile.py'));sys.modules['profile']=p
+   n=code('_numeric_actual_guest',P.transform(current('numeric_vm.py'),'numeric_vm.py')if mode=='generic16k'else current('numeric_vm.py'));sys.modules['numeric_vm']=n
+   installer=code('_numeric_actual_installer',P.transform(current('installer.py'),'installer.py')if mode=='generic16k'else current('installer.py'))
+   with tempfile.TemporaryDirectory()as td:
+    root=Path(td);(root/'installer-profile.json').write_bytes(p.encoded(profile))
+    class Shared:
+     def __truediv__(self,name):
+      if name=='code':return source
+      if name=='installer-profile.json':return root/name
+      raise AssertionError('foreign fixture source role')
+    installer.SHARED=Shared();modules=installer.source_modules(profile);yield installer,p,modules,profile,raw
+  finally:
+   sys.path[:]=paths
+   for name in set(sys.modules)-set(saved):sys.modules.pop(name,None)
+   sys.modules.update(saved)
+ return fixture()
+
+def numeric_platform_fixture(base,page=16384,release=P.RELEASE,**change):
+ """Exact source-owned UID/GID maps; no host namespace/capability mutation."""
+ import copy
+ value=dict(purpose=base.NUMERIC_FIXTURE_PURPOSE,uid_map=[[0,23001,1]],gid_map=[list(row)for row in base.NUMERIC_FIXTURE_GIDS])
+ state=dict(machine='aarch64',release=release,page=page,uid=0,euid=0,gid=0,egid=0,groups=[],marker='cachy_asahi_virtual_proof=1',uid_map='0 23001 1\n',gid_map=''.join(' '.join(map(str,r))+'\n'for r in value['gid_map']),setgroups='allow');state.update(change)
+ fakeos=types.SimpleNamespace(uname=lambda:types.SimpleNamespace(machine=state['machine'],release=state['release']),sysconf=lambda _:state['page'],getuid=lambda:state['uid'],geteuid=lambda:state['euid'],getgid=lambda:state['gid'],getegid=lambda:state['egid'],getgroups=lambda:state['groups'],getpid=lambda:1)
+ oldpath=Path
+ def path(name):
+  text={'/proc/cmdline':state['marker'],'/proc/self/uid_map':state['uid_map'],'/proc/self/gid_map':state['gid_map'],'/proc/self/setgroups':state['setgroups']}
+  return types.SimpleNamespace(read_text=lambda:text[str(name)])if str(name)in text else oldpath(name)
+ base.os=fakeos;base.Path=path;return value,state
+
+class NumericPlatformControls(unittest.TestCase):
+ def test_real_selected_private_globals_three_literal_inverse_and_raw_held(self):
+  with numeric_source_fixture()as(installer,p,modules,profile,raw):
+   roots,base,driver,aux=modules;self.assertIsNot(base,roots.installer);self.assertIs(base.isolate.__globals__,vars(base));self.assertIs(base.reduce_capabilities.__globals__['numeric_fixture_environment'],base.numeric_fixture_environment);self.assertEqual(C.read(C.ROOT/'installer604/scripts/install/local_transaction.py'),raw)
+   before=next(n for n in ast.parse(raw).body if isinstance(n,ast.FunctionDef)and n.name=='numeric_fixture_environment');old=ast.get_source_segment(raw.decode(),before);selected=old
+   changes=(("os.uname().release=='7.2.10-1-aarch64-ARCH'","os.uname().release=='7.1.13-generic16k-managed-gui'"),("os.sysconf('SC_PAGE_SIZE')==4096","os.sysconf('SC_PAGE_SIZE')==16384"),('numeric fixture mapped generic4K guest required','numeric fixture mapped generic16K guest required'))
+   for a,b in changes:self.assertEqual(selected.count(a),1);selected=selected.replace(a,b,1)
+   expected=compile(selected,'<exact-source-numeric16k-environment>','exec');fn=next(x for x in expected.co_consts if isinstance(x,types.CodeType));self.assertEqual(base.numeric_fixture_environment.__code__.co_code,fn.co_code);self.assertEqual(base.numeric_fixture_environment.__code__.co_consts,fn.co_consts)
+   for name in('isolate','reduce_capabilities','capability_mask','numeric_fixture_selection','validate_contract'):
+    self.assertEqual(getattr(base,name).__code__.co_code,getattr(roots.installer,name).__code__.co_code);self.assertEqual(getattr(base,name).__code__.co_consts,getattr(roots.installer,name).__code__.co_consts)
+   self.assertEqual(base.NATIVE_PROFILE_SHA,roots.installer.NATIVE_PROFILE_SHA);self.assertEqual(base.RUNTIME_SHA,roots.installer.RUNTIME_SHA);self.assertEqual(base.FLAGS,roots.installer.FLAGS)
+ def test_exact16k_kernel_page_maps_guestmarker_ids_groups_and_wrongcases(self):
+  with numeric_source_fixture()as(_,p,modules,profile,raw):
+   base=modules[1];value,state=numeric_platform_fixture(base);self.assertIsNone(base.numeric_fixture_environment(value))
+   for field,wrong in(('page',4096),('page',65536),('release','7.2.10-1-aarch64-ARCH'),('release','foreign16k'),('machine','x86_64'),('uid',1),('euid',1),('gid',1),('egid',1),('groups',[5]),('marker',''),('uid_map','0 0 1\n'),('gid_map','0 23001 1\n'),('setgroups','deny')):
+    value,state=numeric_platform_fixture(base,**{field:wrong})
+    with self.subTest(field=field,wrong=wrong),self.assertRaises(ValueError):base.numeric_fixture_environment(value)
+   value,state=numeric_platform_fixture(base);value['uid_map'][0][0]=False
+   with self.assertRaises(ValueError):base.numeric_fixture_environment(value)
+ def test_default4k_real_module_stays_callable_and16k_refuses_in_oldguard(self):
+  with numeric_source_fixture('generic4k')as(_,p,modules,profile,raw):
+   roots,base,_,_=modules;self.assertIs(base,roots.installer);value,state=numeric_platform_fixture(base,page=4096,release='7.2.10-1-aarch64-ARCH');self.assertIsNone(base.numeric_fixture_environment(value));value,state=numeric_platform_fixture(base)
+   with self.assertRaisesRegex(ValueError,'generic4K'):base.numeric_fixture_environment(value)
+  for name in adapter.NAMES:self.assertEqual(adapter.transform(C.read(C.ROOT/'parent604'/name),name)[0],current(name))
+ def test_actual_engine_isolate_and_reduce_use_selected_guard_before_any_mutation(self):
+  import ctypes,fcntl,hashlib,os,time
+  class ReachedBeforeMutation(Exception):pass
+  with numeric_source_fixture()as(installer,p,modules,profile,raw):
+   roots,base,driver,aux=modules;value,state=numeric_platform_fixture(base);base.architecture_profile=lambda a:p.need(a=='aarch64','fixture architecture');base.namespaces=lambda:dict(user='new',mnt='new',pid='new',net='new');base.private=lambda *a:(_ for _ in()).throw(ReachedBeforeMutation('before first mount'))
+   installer.checked_inputs=lambda **kw:(dict(nonce='a'*32),profile,{},{});installer.source_modules=lambda prof:modules;installer.fcntl=types.SimpleNamespace(fcntl=fcntl.fcntl,F_GET_SEALS=1034);profile['numeric_vm']=value
+   spec=dict(contract=dict(architecture='aarch64',purpose=base.NUMERIC_FIXTURE_PURPOSE,workspace='/SYNTHETIC_PRIVATE_ONLY'),host_uid=23001,host_namespaces=dict(user='old',mnt='old',pid='old',net='old'),fixture_identity_map=value,namespace_identity=[Path('/proc/self/ns/user').stat().st_dev,Path('/proc/self/ns/user').stat().st_ino],profile_sha256=p.sha(installer.SHARED/'installer-profile.json'),nonce='a'*32,deadline=time.monotonic()+60)
+   if hasattr(os,'memfd_create'):fd=os.memfd_create('source-only-numeric-control',os.MFD_CLOEXEC|os.MFD_ALLOW_SEALING)
+   else:
+    libc=ctypes.CDLL(None,use_errno=True);libc.memfd_create.argtypes=[ctypes.c_char_p,ctypes.c_uint];fd=libc.memfd_create(b'source-only-numeric-control',3);self.assertGreaterEqual(fd,0)
+   data=p.encoded(spec);os.write(fd,data);fcntl.fcntl(fd,1033,15);self.assertEqual(fcntl.fcntl(fd,1034)&15,15)
+   with self.assertRaises(ReachedBeforeMutation):installer.engine(str(fd),hashlib.sha256(data).hexdigest(),'99')
+   # Engine owns/closes the real sealed FD. No mount/namespace operation ran.
+   with self.assertRaises(OSError):os.fstat(fd)
+   mask=sum(1<<bit for bit in(0,1,3,4,6,7,18));self.assertEqual(base.capability_mask(value),mask)
+   base.C=types.SimpleNamespace(Structure=ctypes.Structure,c_uint=ctypes.c_uint,c_int=ctypes.c_int,CDLL=lambda *a,**kw:(_ for _ in()).throw(ReachedBeforeMutation('before first prctl')))
+   with self.assertRaises(ReachedBeforeMutation):base.reduce_capabilities(fixture_identity_map=value)
+   state['release']='foreign'
+   with self.assertRaises(ValueError):base.reduce_capabilities(fixture_identity_map=value)
+
+# Keep the original ten controls and add these four real binding groups.
+for _name,_method in vars(NumericPlatformControls).items():
+ if _name.startswith('test_'):setattr(Controls,_name,_method)
+
+def authentication_command_fixture(row,argv=None,save_fail=False):
+ """Exact nested engine.command body and failure helper from emitted source."""
+ import hashlib
+ raw=P.transform(current('installer.py'),'installer.py');tree=ast.parse(raw)
+ engine=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='engine')
+ command=next(n for n in engine.body if isinstance(n,ast.FunctionDef)and n.name=='command')
+ helper=next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name=='authentication_failure_projection')
+ calls=[];result={};saved=[]
+ def run(args,**kw):calls.append((args,kw));return row
+ def save(name,value):
+  saved.append((name,copy.deepcopy(value)))
+  if save_fail:raise OSError('SOURCE_FIXTURE_DIAGNOSTIC_WRITE_FAILURE')
+ def need(ok,why):
+  if not ok:raise ValueError(why)
+ scope=dict(hashlib=hashlib,json=json,runner=types.SimpleNamespace(run=run),result=result,evidence=types.SimpleNamespace(save=save),p=types.SimpleNamespace(need=need))
+ exec(compile(ast.Module(body=[helper,command],type_ignores=[]),'<ACTUAL_SELECTED_ENGINE_COMMAND>','exec'),scope)
+ return scope,calls,result,saved
+
+class AuthenticationControls(unittest.TestCase):
+ def test_actual_authentication_caller_failure_preserves_error_and_original_bounds(self):
+  import hashlib,base64
+  argv=['/usr/bin/gpg','--batch','--no-options','--no-autostart','--homedir','/PRIVATE_FIXTURE','--no-auto-key-retrieve','--import','/PINNED_PUBLIC_KEY']
+  for raw in (b'',b'GPG_FAILURE_SOURCE_FIXTURE\n',b'x'*2048,b'x'*2049,b'x'*(1024**2)):
+   scope,calls,result,saved=authentication_command_fixture(types.SimpleNamespace(returncode=2,stdout=raw))
+   with self.assertRaisesRegex(ValueError,'^private authentication command failed$'):scope['command'](argv)
+   self.assertEqual(calls,[(argv,dict(timeout=60,limit=1024**2))]);self.assertEqual(saved[0][0],'result.json');self.assertEqual(saved[0][1],result)
+   row=result['authentication_failure_data'];self.assertEqual(row['output_bytes'],len(raw));self.assertEqual(row['output_sha256'],hashlib.sha256(raw).hexdigest());self.assertEqual(base64.b64decode(row['tail_base64']),raw[-2048:]);self.assertEqual(row['tail_complete'],len(raw)<=2048);self.assertEqual(row['argv_sha256'],hashlib.sha256(json.dumps(argv,separators=(',',':'),ensure_ascii=True).encode('ascii')).hexdigest());self.assertNotIn('argv',row);self.assertLess(len(C.enc(row)),4096);self.assertFalse(any(row[k]for k in('signature_authority','transaction_authority','cleanup_authority')))
+ def test_actual_success_no_projection_and_write_failure_preserves_original_refusal(self):
+  scope,calls,result,saved=authentication_command_fixture(types.SimpleNamespace(returncode=0,stdout=b'ORIGINAL_SUCCESS_BYTES'));self.assertEqual(scope['command'](['/usr/bin/gpg']),b'ORIGINAL_SUCCESS_BYTES');self.assertEqual(result,{});self.assertEqual(saved,[])
+  scope,calls,result,saved=authentication_command_fixture(types.SimpleNamespace(returncode=2,stdout=b'FAIL'),save_fail=True)
+  with self.assertRaisesRegex(ValueError,'^private authentication command failed$'):scope['command'](['/usr/bin/gpg'])
+ def test_bad_shape_cannot_credit_failure_or_replace_original_error(self):
+  for row in (types.SimpleNamespace(returncode=2,stdout=b'x'*(1024**2+1)),types.SimpleNamespace(returncode=2,stdout='foreign'),types.SimpleNamespace(returncode=True,stdout=b'x'),types.SimpleNamespace(returncode=-256,stdout=b'x')):
+   scope,_,result,_=authentication_command_fixture(row)
+   with self.assertRaisesRegex(ValueError,'^private authentication command failed$'):scope['command'](['/usr/bin/gpg'])
+   self.assertEqual(result['authentication_failure_data']['status'],'REFUSED_DIAGNOSTIC_SHAPE')
+ def test_complete_command_whole_installer_inverse_and_default_bytes_held(self):
+  raw=current('installer.py');selected=P.transform(raw,'installer.py');self.assertEqual(P.engine_failure_inverse(selected).count(P.AUTH_COMMAND.encode()),1);self.assertIn(b'authentication_failure_projection',selected);self.assertNotIn(b'authentication_failure_projection',raw)
+  scope,_,_,_=authentication_command_fixture(types.SimpleNamespace(returncode=1,stdout=b''))
+  for argv in ([],['a']*33,['a'*4097],[False]):self.assertEqual(scope['authentication_failure_projection'](argv,types.SimpleNamespace(returncode=1,stdout=b''))['status'],'REFUSED_DIAGNOSTIC_SHAPE')
+for _name,_method in vars(AuthenticationControls).items():
+ if _name.startswith('test_'):setattr(Controls,_name,_method)

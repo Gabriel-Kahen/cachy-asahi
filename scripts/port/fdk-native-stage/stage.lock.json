@@ -1,0 +1,181 @@
+{
+  "files": {
+    "packages/libraries/cachy-asahi-fdk-aac/.SRCINFO": {
+      "mode": 420,
+      "sha256": "6ac621f81e2d31f7e6dfa468f70b31d0218169be61f479044ccc83c440c058f1"
+    },
+    "packages/libraries/cachy-asahi-fdk-aac/COPYRIGHTS-and-LICENSES": {
+      "mode": 420,
+      "sha256": "a0a52a99bef6dea5c370711f17ed1c02e8b0989a4c167f4e54a36368987428c0"
+    },
+    "packages/libraries/cachy-asahi-fdk-aac/LICENSE.MIT": {
+      "mode": 420,
+      "sha256": "4d263ff2b095160e3b9244a132d248234241b83eed71b849decef6a3ba3fa795"
+    },
+    "packages/libraries/cachy-asahi-fdk-aac/NOTICE.classic": {
+      "mode": 420,
+      "sha256": "95ec80da40b4af12ad4c4f3158c9cfb80f2479f3246e4260cb600827cc8c7836"
+    },
+    "packages/libraries/cachy-asahi-fdk-aac/NOTICE.xhe-aac": {
+      "mode": 420,
+      "sha256": "bf3e762249027586195def2b2e904901b42c8b7fab455fc66bf365f70d08de6d"
+    },
+    "packages/libraries/cachy-asahi-fdk-aac/PKGBUILD": {
+      "mode": 420,
+      "sha256": "cf2b66e6e3719d72eca27c09d0df50d08e76d693996e019ab2b07d54ecb990bc"
+    },
+    "packages/libraries/cachy-asahi-fdk-aac/PUBLICATION.md": {
+      "mode": 420,
+      "sha256": "0db09f321999befabe795066a388c271db786377d312a3f60c84424cb7685efa"
+    },
+    "packages/libraries/cachy-asahi-fdk-aac/README.md": {
+      "mode": 420,
+      "sha256": "724fffb8b56e40db668959fd5911d87c96529813499f6f63c5fdb37f69c76d09"
+    },
+    "packages/libraries/cachy-asahi-fdk-aac/build-codec.py": {
+      "mode": 420,
+      "sha256": "3cf179f60283138e4afffb4abfe1dce1e9113366fc322bcc73386fa489941c3a"
+    },
+    "packages/libraries/cachy-asahi-fdk-aac/build-layout.json": {
+      "mode": 420,
+      "sha256": "1ca4cdc6d8070216cc7797f91d254ce6abd2eefbe3c1457beeeb47862b6599dc"
+    },
+    "packages/libraries/cachy-asahi-fdk-aac/check-built.py": {
+      "mode": 420,
+      "sha256": "f6d1e1ca8cb85da4d2555de82a08624960dfd70b00eea09dfa35e61645d694f9"
+    },
+    "packages/libraries/cachy-asahi-fdk-aac/codec-smoke.c": {
+      "mode": 420,
+      "sha256": "70735f85644927e0427d12fbda21d6515fdab1bb9c19b5105abe654218b9af96"
+    },
+    "packages/libraries/cachy-asahi-fdk-aac/inner_observation.py": {
+      "mode": 420,
+      "sha256": "a5074240e9072c6fff15efd86d80d521d775ef0e1c2475ebe1710a3165df6c2a"
+    },
+    "packages/libraries/cachy-asahi-fdk-aac/materialize.py": {
+      "mode": 420,
+      "sha256": "2c040e37b8f0b47213484c7834b70e030528dc5fe3277fecda989455862e0d75"
+    },
+    "packages/libraries/cachy-asahi-fdk-aac/publication.py": {
+      "mode": 420,
+      "sha256": "257a1fe6e567209e318fd29691501076de4566c9a536157e7d91a1002eef48d4"
+    },
+    "packages/libraries/cachy-asahi-fdk-aac/select-source.py": {
+      "mode": 420,
+      "sha256": "b7d9d047ffa87d6ec5e1fd26efb2d52dbf533d7f0359eee8874905e57c1511c7"
+    },
+    "packages/libraries/cachy-asahi-fdk-aac/selected-source-manifest.json": {
+      "mode": 420,
+      "sha256": "3eb66e2e1632cf65044f9250c7460b1effe0de3217f83b573b4e23885772fc29"
+    },
+    "packages/libraries/cachy-asahi-fdk-aac/source-provenance.json": {
+      "mode": 420,
+      "sha256": "2f5d3c3124bdc564e9183aac8a534e51ac03c078f8312395370b8454b435cae3"
+    },
+    "packages/libraries/cachy-asahi-fdk-aac/source_check.py": {
+      "mode": 420,
+      "sha256": "3825fb36450ab96bc761bdb7c86075cfbe2d80cf28b95ebda18aafbbf6b6895b"
+    },
+    "packages/libraries/cachy-asahi-fdk-aac/stage.py": {
+      "mode": 420,
+      "sha256": "ef987ac2cdf9abacd52dc44cc57d62d033a4adce7c4ec09b411d91ff5470448b"
+    },
+    "packages/libraries/cachy-asahi-fdk-aac/test_build.py": {
+      "mode": 420,
+      "sha256": "4e3b98524bb4635f657cc67013122fa45727dacd943ee74765c19717e53b04c2"
+    },
+    "packages/libraries/cachy-asahi-fdk-aac/test_inner_observation.py": {
+      "mode": 420,
+      "sha256": "d62929e72e38b864fd430fdd71b7b8479f97f6180ef629627cc6b76210b103af"
+    },
+    "packages/libraries/cachy-asahi-fdk-aac/test_publication.py": {
+      "mode": 420,
+      "sha256": "64130b1723b73d0269112283c2441d3db0c661c603f239bdc9b86c20794cca04"
+    },
+    "packages/libraries/cachy-asahi-fdk-aac/test_source.py": {
+      "mode": 420,
+      "sha256": "d1de6ee9687b7fa71e2023cb3bdb53b7a69094541a1ac986dcda9a15b8cedddc"
+    },
+    "scripts/build/build.py": {
+      "mode": 420,
+      "sha256": "e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45"
+    },
+    "scripts/build/compare.py": {
+      "mode": 420,
+      "sha256": "d75d9177cb741d7ae8e13466aa4b9e96587470b88749735ef2923f9a4446748d"
+    },
+    "scripts/build/container-entry.sh": {
+      "mode": 420,
+      "sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24"
+    },
+    "scripts/checks/package_checks.py": {
+      "mode": 420,
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+    },
+    "scripts/ci/native_arm.py": {
+      "mode": 420,
+      "sha256": "a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898"
+    },
+    "scripts/port/fdk-native-stage/broker.py": {
+      "mode": 420,
+      "sha256": "46e9abff104c46595d6e2dd5139827874d3ade2cd99d3ed3a846466e84e63bb1"
+    },
+    "scripts/port/fdk-native-stage/evidence.py": {
+      "mode": 420,
+      "sha256": "aab9c7961bfe3cdd1fd298c7609cfcb5d9853201a110016a9f0348b6fe9fb175"
+    },
+    "scripts/port/fdk-native-stage/inner_evidence.py": {
+      "mode": 420,
+      "sha256": "bdbef4cbf9161ffe691375aa9f501dfcd09dd9983f5b119bd04ec3d7f1163a75"
+    },
+    "scripts/port/fdk-native-stage/reviewed-inputs.json": {
+      "mode": 420,
+      "sha256": "43c5c8967f39687ee57fb59a17c7a6742ae4426b1b342bacb6486eea4cecc199"
+    },
+    "scripts/port/fdk-native-stage/runtime.py": {
+      "mode": 420,
+      "sha256": "253494be99c21c83743b384b2c06cd1627023ffaf54f0cbbd271bde80572f70a"
+    },
+    "scripts/port/fdk-native-stage/stage.py": {
+      "mode": 420,
+      "sha256": "85c257621ed9a3642bb444f76fa3cb0d18a5821f5e8748d23a4eb0fae0a06c43"
+    },
+    "scripts/port/fdk-native-stage/template-inputs.json": {
+      "mode": 420,
+      "sha256": "4f852126968e6b61a6bc9bc186182c435fa723d00f4776a435395ec687388235"
+    },
+    "scripts/port/fdk-native-stage/test_broker.py": {
+      "mode": 420,
+      "sha256": "7aad860f04a30e3d356a15902bde37357e6a9c3be89c5aaf371dacc18e48b174"
+    },
+    "scripts/port/fdk-native-stage/test_evidence.py": {
+      "mode": 420,
+      "sha256": "3172db20c51066ffe680f077a5de64e173a86173015f58cef768c225f8ce1867"
+    },
+    "scripts/port/fdk-native-stage/test_inner_evidence.py": {
+      "mode": 420,
+      "sha256": "7cc9b798b7cd11a307559b4c99c61a494fb2a6c2266bc0071e2078e8d93b14a7"
+    },
+    "scripts/port/fdk-native-stage/test_runtime.py": {
+      "mode": 420,
+      "sha256": "62dc4a5d982c81ee8533c9ffd70779892f0ea664c3ed006a3a446023e59d75fb"
+    },
+    "scripts/port/fdk-native-stage/test_stage.py": {
+      "mode": 420,
+      "sha256": "705598b484ee12b4924bb43cc27e9be6e5c32f2333e4cb31edf9775418a39f1a"
+    },
+    "scripts/port/fdk-native-stage/test_worker.py": {
+      "mode": 420,
+      "sha256": "9e5fbe3c58af587726fd921bbb6c7e8fc6be43411d15a9a1dfe11d329fc85f92"
+    },
+    "scripts/port/fdk-native-stage/worker.py": {
+      "mode": 420,
+      "sha256": "1f0af4373a69e122de9ad0ca09531204e320291f53c77b1f7534d95c783bb63f"
+    },
+    "scripts/port/fdk-native-stage/worker_evidence.py": {
+      "mode": 420,
+      "sha256": "1feb23dce44872bc4e1a71c332b6e8a61a617c103081db936bc0f4530610ca98"
+    }
+  },
+  "schema_version": 1
+}

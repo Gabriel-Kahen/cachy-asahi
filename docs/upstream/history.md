@@ -1,6 +1,6 @@
 # Upstream routing and duplicate check
 
-Checked October 11, 2026 using read-only primary GitHub REST/API and repository/release pages. **No issue, PR, review, comment or maintainer message was submitted by this task.** Exact query URLs, totals, selected issue/PR states, response hashes, repository metadata and release/tag metadata are retained in [history-observation.json](history-observation.json). These observations can change; refresh them immediately before authorized submission.
+The October 11, 2026 research below used read-only primary GitHub REST/API and repository/release pages and submitted no external message. Its exact query URLs, totals, states and response hashes remain in [history-observation.json](history-observation.json). The coordinator subsequently submitted a separate [kernel checksum fix](linux-asahi-config-checksums.md), draft PR #99, on October 12. The Hyprland drafts below remain unposted. Historical observations can change; refresh them before a new submission.
 
 ## Existing actionable work
 
@@ -37,4 +37,4 @@ An initial unauthenticated REST search hit HTTP 403 rate limiting before its rec
 
 [The detailed report](hyprland-config-draft.md) has pinned recipe/assets/API inputs, verified archive checksums, a no-import minimal reproduction, full-tree import rewrite disclosure, actual parser diagnostics and a narrowly verified correction illustration. [The short existing-PR evidence draft](pr-1972-evidence-draft.md) is a separate reviewable option; no posting command is supplied or executed.
 
-Discovering an existing PR, writing a draft and running x86 parsing checks do not satisfy A10's actual upstream-return requirement. The coordinator must decide whether a useful new authorized submission remains, record its exact URL/date/content, and track OPEN/CLOSED/MERGED or the maintainer response separately from project acceptance. Actual other-ARM execution is documented separately in [ARM reuse](../arm-reuse.md) and remains NOT RUN.
+Discovering an existing PR, writing a draft and running x86 parsing checks do not establish an upstream return. The separate kernel correction now has an actual submitted URL/date/content; its OPEN/DRAFT status is distinct from merge and project acceptance. Actual native hosted-ARM component execution is documented separately in [ARM reuse](../arm-reuse.md); physical-board and full-port acceptance remain separate.

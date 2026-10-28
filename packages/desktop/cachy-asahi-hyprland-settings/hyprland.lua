@@ -35,6 +35,11 @@ hl.bind("XF86AudioMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ to
 hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl --class=backlight set +5%"), { repeating = true })
 hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl --class=backlight --min-value=1 set 5%-"), { repeating = true })
 
+-- Optional explicit screenshots: install grim (and slurp for regions), then
+-- uncomment these bindings. Command+Shift+3/4 remain workspace moves.
+-- hl.bind("SUPER + CTRL + SHIFT + S", hl.dsp.exec_cmd("cachy-asahi-screenshot full"))
+-- hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd("cachy-asahi-screenshot region"))
+
 -- Optional apps: install and check their optdepends first. Enable these only if
 -- the base session does not already manage these processes (e.g. through UWSM).
 -- hl.on("hyprland.start", function()

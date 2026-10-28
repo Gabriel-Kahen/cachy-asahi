@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Example staged handler
+Exec=demo --name %c %i %F
+TryExec=demo
+Icon=demo
+NoDisplay=true
+Terminal=false
+MimeType=text/plain;
+OnlyShowIn=Hyprland;

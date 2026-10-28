@@ -1,0 +1,254 @@
+{
+  "Asahi_M2_16K_hardware": "NOT RUN",
+  "broader_source_grants_complete": false,
+  "budgets": {
+    "aggregate_seconds": 8460,
+    "build_count": 2,
+    "build_seconds_each": 360,
+    "cleanup_seconds": 180,
+    "compare_seconds": 120,
+    "container_count": 14,
+    "disk_reserve_bytes": 8589934592,
+    "image_count": 1,
+    "lifecycle_seconds": 600,
+    "private_bytes_total": 17179869184,
+    "producer_seconds": 6600,
+    "public_bytes_total": 33619968,
+    "public_file_count": 3,
+    "public_seconds": 30,
+    "source_bytes_each": 2097152,
+    "source_bytes_total": 33554432,
+    "source_seconds": 180
+  },
+  "current_checkout_git_source_acceptance": "NOT RUN: new paths not committed and production approval packet absent",
+  "existing_ksm_lifecycle_and_platform_paths_modified": false,
+  "finite_expected_source_paths": 125,
+  "held_dependencies": {
+    "scripts/build/build.py": {
+      "mode": "0644",
+      "path": "scripts/build/build.py",
+      "sha256": "e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45",
+      "size_bytes": 11299
+    },
+    "scripts/build/compare.py": {
+      "mode": "0644",
+      "path": "scripts/build/compare.py",
+      "sha256": "d75d9177cb741d7ae8e13466aa4b9e96587470b88749735ef2923f9a4446748d",
+      "size_bytes": 5763
+    },
+    "scripts/build/container-entry.sh": {
+      "mode": "0644",
+      "path": "scripts/build/container-entry.sh",
+      "sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24",
+      "size_bytes": 1787
+    },
+    "scripts/ci/inputs.lock.json": {
+      "mode": "0644",
+      "path": "scripts/ci/inputs.lock.json",
+      "sha256": "3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650",
+      "size_bytes": 328101
+    },
+    "scripts/ci/native_arm.py": {
+      "mode": "0644",
+      "path": "scripts/ci/native_arm.py",
+      "sha256": "a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898",
+      "size_bytes": 28318
+    },
+    "scripts/ci/recipes.lock.json": {
+      "mode": "0644",
+      "path": "scripts/ci/recipes.lock.json",
+      "sha256": "20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63",
+      "size_bytes": 7002
+    },
+    "scripts/ci/source_suites.py": {
+      "mode": "0644",
+      "path": "scripts/ci/source_suites.py",
+      "sha256": "4bfec1387f87768e5b37475d6172bde302ef52c01c68f81297435048be7f2100",
+      "size_bytes": 23470
+    },
+    "scripts/client/stage.py": {
+      "mode": "0644",
+      "path": "scripts/client/stage.py",
+      "sha256": "dc0c75969ed79548c3eb0ab1692f57ebffe7464d9192e591cdcf61aeaeb77154",
+      "size_bytes": 33711
+    },
+    "scripts/port/ksm-lifecycle/contract.py": {
+      "mode": "0644",
+      "path": "scripts/port/ksm-lifecycle/contract.py",
+      "sha256": "bfce5d9a5e8a9626cdedb121f299dafd730b13e484d1c4be7ba917207e4d161b",
+      "size_bytes": 25965
+    },
+    "scripts/port/ksm-lifecycle/source-checkpoint.json": {
+      "mode": "0644",
+      "path": "scripts/port/ksm-lifecycle/source-checkpoint.json",
+      "sha256": "f3966ce9d97b6a3661a57474740052eaa837929c7b7553ac2d82702562f03fc8",
+      "size_bytes": 7004
+    },
+    "scripts/port/ksm-lifecycle/stage.py": {
+      "mode": "0644",
+      "path": "scripts/port/ksm-lifecycle/stage.py",
+      "sha256": "be4a61ac4ed8efbf243e2be1a5211c4ad0553f7be13a26b64e3e655de73cbaee",
+      "size_bytes": 28843
+    },
+    "scripts/port/ksm-lifecycle/test_contract.py": {
+      "mode": "0644",
+      "path": "scripts/port/ksm-lifecycle/test_contract.py",
+      "sha256": "13c7273a83cf3b67330f76380c05c14aa8af6ff4d7173c43d607d5c8b25e4258",
+      "size_bytes": 25769
+    },
+    "scripts/port/ksm-lifecycle/test_stage.py": {
+      "mode": "0644",
+      "path": "scripts/port/ksm-lifecycle/test_stage.py",
+      "sha256": "e34c99bb71f57748c5f171f08085ca4d0ab3846e26cbc48ca07e246730218332",
+      "size_bytes": 40222
+    },
+    "scripts/port/ksm-lifecycle/test_worker.py": {
+      "mode": "0644",
+      "path": "scripts/port/ksm-lifecycle/test_worker.py",
+      "sha256": "5e9bac1045407585f26c8819c9e4d283cae3044e1cefbebabc1f4c086e517aa8",
+      "size_bytes": 50092
+    },
+    "scripts/port/ksm-lifecycle/worker.py": {
+      "mode": "0644",
+      "path": "scripts/port/ksm-lifecycle/worker.py",
+      "sha256": "76a3e94f317bea79d1e2444630d719b8acaed6c6cb6427c0bb19beedbc4d6b83",
+      "size_bytes": 38456
+    },
+    "scripts/port/refreshed-desktop/proposed-builder-inventory.lock": {
+      "mode": "0644",
+      "path": "scripts/port/refreshed-desktop/proposed-builder-inventory.lock",
+      "sha256": "89bdb06fea1862b5a6e02b77a4b98f6e04755b02327d875a716bd792929f3a4f",
+      "size_bytes": 6674
+    }
+  },
+  "independent_source_review": "two actionable claim/controller-exit findings fixed and reviewer confirmed closed",
+  "ksm_activation_sysfs": "NOT RUN",
+  "management_performance": "NOT RUN",
+  "native_blockers": [
+    "original-bootstrap-has-no-owned-image-reservation-or-label",
+    "original-inventory-probe-has-no-owned-container-name-or-label",
+    "original-builds-have-no-cancellation-recovery-journal",
+    "original-cli-has-no-per-operation-cli-socket-daemon-binding",
+    "original-cli-has-no-enforced-aggregate-output-or-disk-budget",
+    "ksm-builder-has-no-reservation-journal-or-ownership-label"
+  ],
+  "native_cleanup": "NOT RUN",
+  "native_executor_implemented": false,
+  "native_ksm_build_pair": "NOT RUN",
+  "native_producer": "NOT RUN",
+  "native_signing_install_status_remove_reinstall": "NOT RUN",
+  "original_producer_invocation": "pure exact CLI command contract, not executed/imported/overridden",
+  "owned_files": [
+    {
+      "mode": "0644",
+      "path": "scripts/port/ksm-native-job/acceptance.py",
+      "sha256": "e1237d479f2b340997991f28e477f9d2ebb05958663f3097c0317a3b7d8aa532",
+      "size_bytes": 15611
+    },
+    {
+      "mode": "0644",
+      "path": "scripts/port/ksm-native-job/consumer.py",
+      "sha256": "53323c45a63d7bbf989c33421dfb521ef29b4a3fff1d42c670ae4aca2a81f15e",
+      "size_bytes": 8696
+    },
+    {
+      "mode": "0644",
+      "path": "scripts/port/ksm-native-job/job.py",
+      "sha256": "f57c9cf24807b3070b0087eb173b163f41e0de32fd235cf4f4b6a9998b18ca18",
+      "size_bytes": 7855
+    },
+    {
+      "mode": "0644",
+      "path": "scripts/port/ksm-native-job/public.py",
+      "sha256": "171adb7f770243675d851bd42386007deac39d7bc2ac06228a35177308ec269e",
+      "size_bytes": 21342
+    },
+    {
+      "mode": "0644",
+      "path": "scripts/port/ksm-native-job/required_paths.py",
+      "sha256": "eaae1a48c5af8f7121c402184474a75a772347100a167b7fad8c9cbe12821366",
+      "size_bytes": 7538
+    },
+    {
+      "mode": "0644",
+      "path": "scripts/port/ksm-native-job/test_acceptance.py",
+      "sha256": "f2fea5300d7456e7ac69914ec8c4eb5479e00bfb19a263fdd0b33c388f5010e9",
+      "size_bytes": 20917
+    },
+    {
+      "mode": "0644",
+      "path": "scripts/port/ksm-native-job/test_consumer.py",
+      "sha256": "5ff9c78b4fe1cb1ba241370db0cd64944c88ee83b51c3e3a1606e2fae2268d26",
+      "size_bytes": 8730
+    },
+    {
+      "mode": "0644",
+      "path": "scripts/port/ksm-native-job/test_job.py",
+      "sha256": "5c00faea380a1ed31cb3c97100d08ca8c944771f86cc1a38d1d90e58d1b918f8",
+      "size_bytes": 5067
+    },
+    {
+      "mode": "0644",
+      "path": "scripts/port/ksm-native-job/test_packet_integration.py",
+      "sha256": "e0b51f5f9080535550e4b7d4fec8ec94aa1883b2da077ecc50b9f77193e2c543",
+      "size_bytes": 4289
+    },
+    {
+      "mode": "0644",
+      "path": "scripts/port/ksm-native-job/test_public.py",
+      "sha256": "038bbc8f125d328ad807d975f30c3ca0c06db0e5f95f2f00fac35d2e9997de16",
+      "size_bytes": 22333
+    },
+    {
+      "mode": "0644",
+      "path": "scripts/port/ksm-native-job/source-test-results.json",
+      "sha256": "bc4a924e6bc271b6a4bc0cd8c3acb71dcec271e4585c846a67666c3b17e2def9",
+      "size_bytes": 11979
+    },
+    {
+      "mode": "0644",
+      "path": ".github/workflows/native-arm-ksm.yml",
+      "sha256": "24f1abec414b724fe40b50ff188bbc895395caf2253015d0e120777f7ea7348e",
+      "size_bytes": 5360
+    },
+    {
+      "mode": "0644",
+      "path": "docs/workstreams/ksm-native-job.md",
+      "sha256": "88a2fdfa11e68a37398ef144f76fb3883cd80dd6fadd1aa1399ad87b0672dc83",
+      "size_bytes": 11035
+    }
+  ],
+  "producer_ownership_interface_available": false,
+  "production_packet_written": false,
+  "public_cleanup_limit": "recorded-identity checks refuse detected replacements; POSIX has no atomic identity-conditional unlink/rmdir against malicious same-UID races",
+  "public_exporter": "30 passing synthetic fixtures; not connected to native executor or uploader",
+  "published": false,
+  "repository_git_mutation": false,
+  "root_source_freeze_registration": "NOT RUN",
+  "schema_version": 1,
+  "scope": "DEVELOPMENT TEST ONLY",
+  "source_test_results": {
+    "mode": "0644",
+    "path": "scripts/port/ksm-native-job/source-test-results.json",
+    "sha256": "bc4a924e6bc271b6a4bc0cd8c3acb71dcec271e4585c846a67666c3b17e2def9",
+    "size_bytes": 11979
+  },
+  "status": "SOURCE_TESTED_NATIVE_JOB_BLOCKED",
+  "tests": {
+    "error_count": 0,
+    "execution_method": "unittest discover API and TextTestRunner with per-case result collector in python3 -B",
+    "failure_count": 0,
+    "skipped_count": 0,
+    "suite_counts": {
+      "test_acceptance": 25,
+      "test_consumer": 11,
+      "test_job": 12,
+      "test_packet_integration": 2,
+      "test_public": 30
+    },
+    "tests_run": 80
+  },
+  "workflow_dispatch": "NOT RUN",
+  "workflow_inline_python_ast": "PASS",
+  "workflow_yaml_parser": "NOT AVAILABLE in worker; GitHub validation NOT RUN"
+}

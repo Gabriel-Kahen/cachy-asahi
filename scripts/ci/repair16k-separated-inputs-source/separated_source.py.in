@@ -1,0 +1,86 @@
+# SPDX-License-Identifier: MIT
+"""Exact sibling-input workflow correction AND entire unchanged source237 gate."""
+import base64,contextlib,hashlib,io,json,runpy,stat,sys,tempfile
+from pathlib import Path
+PROFILE_SHA='PROFILE_SHA_PLACEHOLDER'
+PROFILE='apps16-repair/separated-profile.json';GUARD='apps16-repair/separated_source.py'
+PREPARE='scripts/ci/apps7-full574-repair16k-ci/prepare.py';SELECTION='apps16-repair/selection.py';SUCCESSOR='apps16-repair/successor.json'
+MANIFESTS=('scripts/ci/apps7-full574-repair-native/source-manifest.json','scripts/ci/apps7-full574-repair16k/source-manifest.json','scripts/ci/apps7-full574-repair16k-ci/source-manifest.json')
+WORKFLOWS=('.github/workflows/native-arm-apps7-full574-repair16k.yml','.github/workflows/native-arm-build.yml')
+NAMES=('retained-apps574-inputs','repair-native-decisions','repair-kernel-authority','retained-public-inputs')
+OLD_LOOP=" for name in('retained-apps574-inputs','repair-native-decisions','repair-kernel-authority','retained-public-inputs'):s=one(s,'          path: '+name+'\\n','          path: repair-source/'+name+'\\n')\n"
+NEW_LOOP=" for name in('retained-apps574-inputs','repair-native-decisions','repair-kernel-authority','retained-public-inputs'):\n  s=s.replace('$GITHUB_WORKSPACE/repair-source/'+name,'$GITHUB_WORKSPACE/'+name)\n for name in('seed.py','index.json'):\n  s=one(s,\"'retained-public-inputs/\"+name+\"'\",'\"$GITHUB_WORKSPACE/retained-public-inputs/'+name+'\"')\n"
+OLD_HOOK=" load(root/'apps16-repair/inspect_source.py','_apps16_fixed_inspect_source').prove(root)\n"
+NEW_HOOK=" load(root/'apps16-repair/separated_source.py','_apps16_separated_input_source').prove(root)\n"
+def need(ok,why):
+ if not ok:raise ValueError(why)
+def pin(raw):return dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())
+def enc(v):return(json.dumps(v,sort_keys=True,indent=2,allow_nan=False)+'\n').encode()
+def read(path,cap=8*1024**2):
+ need(not any(p.is_symlink()for p in(path,*path.parents))and path.is_file()and path.stat().st_nlink==1 and path.stat().st_size<=cap,'ordinary bounded single-link source');raw=path.read_bytes();need(len(raw)<=cap,'source bound');return raw
+def one(raw,before,after):need(raw.count(before)==1,'one counted workflow/source seam');return raw.replace(before,after,1)
+def workflow(raw):
+ text=raw.decode()
+ for name,count in zip(NAMES,(3,3,4,1)):
+  text=one(text,'          path: repair-source/'+name+'\n','          path: '+name+'\n')
+  old='$GITHUB_WORKSPACE/repair-source/'+name;new='$GITHUB_WORKSPACE/'+name;need(text.count(old)==count,'all fixed input references counted');text=text.replace(old,new,count)
+ for name in('seed.py','index.json'):text=one(text,"'retained-public-inputs/"+name+"'",'"$GITHUB_WORKSPACE/retained-public-inputs/'+name+'"')
+ return text.encode()
+def transformed(old,p,guard,profile_raw):
+ need(len(old)==237,'complete exact source237 before sibling workflow');out=dict(old)
+ out[PREPARE]=one(old[PREPARE],OLD_LOOP.encode(),NEW_LOOP.encode());out[SELECTION]=one(old[SELECTION],OLD_HOOK.encode(),NEW_HOOK.encode())
+ need(out[PREPARE].replace(NEW_LOOP.encode(),OLD_LOOP.encode(),1)==old[PREPARE]and out[SELECTION].replace(NEW_HOOK.encode(),OLD_HOOK.encode(),1)==old[SELECTION],'whole prepare/selection before inverses')
+ out[GUARD]=guard;out[PROFILE]=profile_raw
+ s=json.loads(old[SUCCESSOR]);need(PREPARE not in s['before_bodies']and pin(old[PREPARE])==s['before'][PREPARE],'previously held pure prepare exactly equals original235 body');s['before_bodies'][PREPARE]=base64.b64encode(old[PREPARE]).decode();s['after']={n:pin(v)for n,v in sorted(out.items())if n not in s['excluded_seals']};out[SUCCESSOR]=enc(s)
+ for name in MANIFESTS:
+  m=json.loads(old[name]);m['files']={n:pin(out[n])for n in sorted(set(m['files'])|{GUARD,PROFILE})};out[name]=enc(m)
+ oldsha=pin(old[MANIFESTS[-1]])['sha256'].encode();newsha=pin(out[MANIFESTS[-1]])['sha256'].encode()
+ for name in WORKFLOWS:out[name]=one(workflow(old[name]),oldsha,newsha)
+ need(set(out)-set(old)=={GUARD,PROFILE}and len(out)==239,'honest full239 namespace')
+ return out
+def profile(root):
+ raw=read(root/PROFILE,4*1024**2);need(pin(raw)['sha256']==PROFILE_SHA,'whole sibling-input profile');p=json.loads(raw)
+ need(pin(read(root/GUARD).replace(PROFILE_SHA.encode(),b'PROFILE_SHA_PLACEHOLDER'))==p['guard_template'],'whole guard self-template')
+ need(all(p[n]is None for n in('source','ref','run','actual'))and len(p['before'])==237,'NULL new authority and exact237 parent')
+ need(p['before']==p['parent_git']['files']and p['parent_publication']['source']=='eaad9c6379557e89dae557a9b9e84283a96e56d1'and p['parent_publication']['files']==p['parent_publication']['git_joins']==237,'genuine corrected237 source/Git publication')
+ return p
+def bodies(root,p):
+ out={}
+ for n,w in p['before'].items():
+  if n in p['before_bodies']:raw=base64.b64decode(p['before_bodies'][n],validate=True)
+  elif n==SUCCESSOR:
+   v=json.loads(read(root/n));need(v['before_bodies'].pop(PREPARE)==p['before_bodies'][PREPARE],'one exact original235 prepare body added');v['after']=p['successor_after'];raw=enc(v)
+  elif n in MANIFESTS:
+   v=json.loads(read(root/n));v['files']=p['manifest_files'][n];raw=enc(v)
+  else:raw=read(root/n)
+  need(len(raw)<=8*1024**2 and pin(raw)==w,'entire before237 source body '+n);out[n]=raw
+ return out
+def old_entry(old,p):
+ """Run actual237 entry, including exact inspect guard, old235 and all older gates."""
+ saved,path,argv=dict(sys.modules),sys.path[:],sys.argv[:];stems={Path(n).stem for n in old if n.endswith('.py')}
+ try:
+  for n in list(sys.modules):
+   if n.split('.')[0]in stems:sys.modules.pop(n,None)
+  with tempfile.TemporaryDirectory(prefix='separated-inputs-held237-')as tmp:
+   root=Path(tmp)/'source';root.mkdir(mode=0o700)
+   for n,raw in old.items():file=root/n;file.parent.mkdir(parents=True,exist_ok=True);file.write_bytes(raw);file.chmod(p['before_modes'][n])
+   sys.path.insert(0,str(root/'apps16-repair'));sys.argv=[str(root/'apps16-repair/entry.py'),'--source-only','--require-selection'];capture=io.StringIO()
+   with contextlib.redirect_stdout(capture):runpy.run_path(sys.argv[0],run_name='__main__')
+   v=json.loads(capture.getvalue());need(v['status']=='SOURCE_ONLY_APPS16_REPAIR_REQUIRES_NEW_PAIR_AND_BOTH_NEW_CASES'and v['parent']==235 and v['original210']==210 and v['source_files']==237 and v['authority']is v['actual']is None,'whole actual237 source guard and original235 entry, no acceptance')
+   return v
+ finally:
+  sys.path[:]=path;sys.argv[:]=argv
+  for n in set(sys.modules)-set(saved):sys.modules.pop(n,None)
+  sys.modules.update(saved)
+def prove(root):
+ root=Path(root);p=profile(root);old=bodies(root,p);actual={};dirs=set()
+ for file in root.rglob('*'):
+  relative=file.relative_to(root)
+  if relative.parts[0]=='.git':continue
+  need('.git'not in relative.parts,'nested Git administration is foreign source');s=file.lstat();need(stat.S_ISDIR(s.st_mode)or stat.S_ISREG(s.st_mode)and s.st_nlink==1,'closed239 ordinary single-link source')
+  if stat.S_ISREG(s.st_mode):actual[relative.as_posix()]=read(file)
+  else:dirs.add(relative.as_posix())
+ need(set(actual)==set(old)|{GUARD,PROFILE}and dirs=={q.as_posix()for n in actual for q in Path(n).parents if q.as_posix()!='.'},'closed239 exact source namespace')
+ need(actual==transformed(old,p,actual[GUARD],actual[PROFILE]),'whole sibling workflow/source emission')
+ parent=old_entry(old,p)
+ return dict(status='SOURCE_ONLY_SEPARATED_IMMUTABLE_INPUTS',source_files=239,parent_source237=parent,source=None,ref=None,run=None,actual=None,hardware='NOT_RUN',release='NOT_ADMITTED')

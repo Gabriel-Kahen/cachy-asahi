@@ -1,0 +1,36 @@
+{
+  "actual_raw": "BOTH_AUTHENTIC_DATASETS_WHOLE_AUDIT_PASS",
+  "before": {
+    "bytes": 6359,
+    "sha256": "ca92026e9729fdea418b067442477db6c9c925ecbd5a08b0c75953cdf440288a"
+  },
+  "edits": [
+    [
+      "MARKER='CAA_OWNED_USERNS_CHROOT_ASSERTIONS_COMPLETE'\nRESULTS={'OK','TIMEOUT','INTERRUPT','SKIP','FAIL','EXPECTEDFAIL','UNEXPECTEDPASS','ERROR','IGNORED'}\n",
+      "MARKER='CAA_OWNED_USERNS_CHROOT_ASSERTIONS_COMPLETE'\nWRAPPER='/tmp/work/src/systemd-8cc40e0c5e9234bf45084751ac53b1fbfe70b492/tools/test-crash-trace.sh'\nEXCLUDED_SUITES=('clang-tidy','coccinelle','unused-symbols','integration-tests')\nRESULTS={'OK','TIMEOUT','INTERRUPT','SKIP','FAIL','EXPECTEDFAIL','UNEXPECTEDPASS','ERROR','IGNORED'}\n"
+    ],
+    [
+      " if type(definitions)is not list or not 1<=len(definitions)<=10000:raise ValueError('complete bounded Meson introspection')\n expected={}\n for v in definitions:\n  if type(v)is not dict or set(v)!={'cmd','env','name','workdir','timeout','suite','is_parallel','priority','protocol','depends','extra_paths'}:raise ValueError('exact signed introspection schema')\n  if type(v['suite'])is not list or not v['suite']or any(type(x)is not str or x.count(':')!=1 for x in v['suite'])or type(v['name'])is not str:raise ValueError('typed test suite identity')\n  project=v['suite'][0].split(':')[0];suites=[x.split(':')[1]for x in v['suite']if x.split(':')[1]]\n  name=('+'.join(suites)+' - 'if suites else'')+project+':'+v['name']\n  if name in expected:raise ValueError('unique introspection identity')\n  if type(v['cmd'])is not list or not v['cmd']or any(type(x)is not str for x in v['cmd'])or not v['cmd'][0]or type(v['env'])is not dict or any(type(k)is not str or type(x)is not str for k,x in v['env'].items()):raise ValueError('typed introspection invocation')\n  expected[name]=v\n rows=[];seen=set();counts=collections.Counter()\n",
+      " if type(definitions)is not list or not 1<=len(definitions)<=10000:raise ValueError('complete bounded Meson introspection')\n expected={};excluded=[];definition_ids=set()\n for v in definitions:\n  if type(v)is not dict or set(v)!={'cmd','env','name','workdir','timeout','suite','is_parallel','priority','protocol','depends','extra_paths'}:raise ValueError('exact signed introspection schema')\n  if type(v['suite'])is not list or not v['suite']or any(type(x)is not str or not x or x.count(':')>1 or not x.partition(':')[0]for x in v['suite'])or type(v['name'])is not str:raise ValueError('typed test suite identity')\n  project=v['suite'][0].partition(':')[0];suites=[x.partition(':')[2]for x in v['suite']if x.partition(':')[2]]\n  name=('+'.join(suites)+' - 'if suites else'')+project+':'+v['name']\n  if type(v['cmd'])is not list or not v['cmd']or any(type(x)is not str for x in v['cmd'])or not v['cmd'][0]or type(v['env'])is not dict or any(type(k)is not str or type(x)is not str for k,x in v['env'].items()):raise ValueError('typed introspection invocation')\n  identity=json.dumps(v,sort_keys=True,separators=(',',':'))\n  if identity in definition_ids:raise ValueError('unique complete introspection definition')\n  definition_ids.add(identity)\n  # Exact upstream default setup; excluded definitions remain fully validated and counted.\n  if any(s.partition(':')[2]in EXCLUDED_SUITES for s in v['suite']):excluded.append(v)\n  else:\n   if name in expected:raise ValueError('unique introspection identity')\n   expected[name]=v\n plan=expected\n rows=[];seen=set();counts=collections.Counter()\n"
+    ],
+    [
+      "  seen.add(v['name'])\n  if v['name']not in expected or v['command']!=expected[v['name']]['cmd']or any(v['env'].get(k)!=x for k,x in expected[v['name']]['env'].items()):raise ValueError('full planned test command/environment join')\n  if v['result']not in RESULTS or type(v['is_fail'])is not bool or v['is_fail']!=(v['result']in BAD):raise ValueError('finished typed Meson result')\n",
+      "  seen.add(v['name'])\n  if v['name']not in plan or v['command']!=[WRAPPER]+plan[v['name']]['cmd']or any(v['env'].get(k)!=x for k,x in plan[v['name']]['env'].items()):raise ValueError('full planned test command/environment join')\n  if v['result']not in RESULTS or type(v['is_fail'])is not bool or v['is_fail']!=(v['result']in BAD):raise ValueError('finished typed Meson result')\n"
+    ],
+    [
+      "  if len(rows)>10000:raise ValueError('test record bound')\n if seen!=set(expected):raise ValueError('every planned Meson test must have one complete result')\n hits=[v for v in rows if v['name']=='test - systemd:test-process-util']\n",
+      "  if len(rows)>10000:raise ValueError('test record bound')\n if seen!=set(plan):raise ValueError('every planned Meson test must have one complete result')\n hits=[v for v in rows if v['name']=='test - systemd:test-process-util']\n"
+    ],
+    [
+      " if lines.count(MARKER)!=1 or sum((r['stdout']+'\\n'+r.get('stderr','')).count(MARKER)for r in rows)!=1:raise ValueError('exact final original assertions marker required')\n return dict(schema=1,status='PASS_COMPLETE_MESON_LOG_AND_NONSKIPPED_PROCESS_ROOT_ASSERTIONS',log=pin(raw),introspection=pin(intro_raw),tests=len(rows),results=dict(sorted(counts.items())),process_util=v,upstream_skips='REPORTED_UNCHANGED_NOT_ASSERTION_CREDIT',native_acceptance='NOT_GRANTED_BY_AUDITOR')\ndef save(path,raw):\n",
+      " if lines.count(MARKER)!=1 or sum((r['stdout']+'\\n'+r.get('stderr','')).count(MARKER)for r in rows)!=1:raise ValueError('exact final original assertions marker required')\n return dict(schema=1,status='PASS_COMPLETE_MESON_LOG_AND_NONSKIPPED_PROCESS_ROOT_ASSERTIONS',log=pin(raw),introspection=pin(intro_raw),tests=len(rows),introspection_tests=len(definitions),default_setup=dict(name='default',wrapper=WRAPPER,excluded_suites=list(EXCLUDED_SUITES),excluded_tests=len(excluded),excluded_by_suite={s:sum(any(x.partition(':')[2]==s for x in v['suite'])for v in excluded)for s in EXCLUDED_SUITES}),results=dict(sorted(counts.items())),process_util=v,upstream_skips='REPORTED_UNCHANGED_NOT_ASSERTION_CREDIT',native_acceptance='NOT_GRANTED_BY_AUDITOR')\ndef save(path,raw):\n"
+    ]
+  ],
+  "path": "effective-profile/systemd/cachy-asahi-testlog.py",
+  "proposed": {
+    "bytes": 7271,
+    "sha256": "b9b24eb4b0726f556097cb0b05b423aa14a5f147898e9e03519523f5ad523b1a"
+  },
+  "receipt_after": "tests=len(rows),introspection_tests=len(definitions),default_setup=dict(name='default',wrapper=WRAPPER,excluded_suites=list(EXCLUDED_SUITES),excluded_tests=len(excluded),excluded_by_suite={s:sum(any(x.partition(':')[2]==s for x in v['suite'])for v in excluded)for s in EXCLUDED_SUITES}),results=dict(sorted(counts.items()))",
+  "scope": "PINNED_UPSTREAM_DEFAULT_PLAN_BARE_PROJECT_AND_EXACT_WRAPPER_ALL_DEFINITIONS_RETAINED"
+}

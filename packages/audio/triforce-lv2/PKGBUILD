@@ -1,0 +1,53 @@
+# SPDX-License-Identifier: MIT
+# Build-only candidate from asahi-alarm/PKGBUILDs 9717359f2feac55830f8d57e50e4746e98ba6e99.
+pkgname=triforce-lv2
+pkgver=0.3.2
+pkgrel=3
+pkgdesc='Asahi audio component; protected target integration pending'
+arch=('aarch64')
+url='https://asahilinux.org'
+# Proposed GPLv3 combination; upstream GPL-2.0-or-later source is unchanged.
+# Component terms remain in the bundled third-party notices.
+license=('GPL-3.0-only' 'Apache-2.0' 'MIT' 'Zlib' 'Unicode-3.0')
+depends=('lv2')
+makedepends=('rust' 'make')
+source=('triforce-lv2-0.3.2.tar.gz' 'cargo-vendor-117.tar.xz' 'audio-rust-notices-v1.tar.xz')
+sha256sums=('1d081222d0bfe2c961ac44b368c9f1d2dd9ec0833a35bab87863bac07e9df019' '64cd55473b19f104f3a90570409d58c5ab69f63c61396541c4ad1e56e8d6293f' '7cd393018f279ff2a1e71fe85fb5767e3f58398edcd395da4ab6f4eb357ce522')
+
+prepare() {
+  cd "${srcdir}/triforce-0.3.2"
+  printf '%s  Cargo.lock\n' '453d5232d8309f7aba2c83ec3b5c27cef585181c31bd9345752e46e857d13ce3' | sha256sum -c -
+  install -dm700 "${srcdir}/cargo-home"
+  cat > "${srcdir}/cargo-home/config.toml" <<EOF
+[source.crates-io]
+replace-with = "vendored-sources"
+[source.vendored-sources]
+directory = "${srcdir}/vendor"
+[net]
+offline = true
+EOF
+}
+
+build() {
+  cd "${srcdir}/triforce-0.3.2"
+  CARGO_HOME="${srcdir}/cargo-home" cargo build --release --frozen --offline
+  printf '%s  Cargo.lock\n' '453d5232d8309f7aba2c83ec3b5c27cef585181c31bd9345752e46e857d13ce3' | sha256sum -c -
+}
+
+check() {
+  cd "${srcdir}/triforce-0.3.2"
+  test -s target/release/libtriforce.so
+  readelf -h target/release/libtriforce.so | grep -Eq 'Machine: +AArch64'
+}
+
+package() {
+  cd "${srcdir}/triforce-0.3.2"
+  make LIBDIR=/usr/lib DESTDIR="${pkgdir}" install
+  install -Dm644 LICENCE.txt "${pkgdir}/usr/share/licenses/triforce-lv2/LICENCE.txt"
+  for notice in THIRD-PARTY.md THIRD-PARTY-LICENSES.txt SOURCE.md; do
+    install -Dm644 "${srcdir}/audio-rust-notices/${pkgname}/${notice}" \
+      "${pkgdir}/usr/share/licenses/${pkgname}/${notice}"
+  done
+  install -Dm644 "${srcdir}/audio-rust-notices/${pkgname}/GPL-3.0.txt" \
+    "${pkgdir}/usr/share/licenses/${pkgname}/GPL-3.0.txt"
+}

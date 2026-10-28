@@ -1,0 +1,26 @@
+# Public-input development frontier, October 17
+
+These are development software results. Both physical M2 Air sizes, boot and recovery, final power/performance measurements and supported-release admission remain open. The active plan remains [the complete implementation outline](../../outline.md).
+
+## Accepted signed 604 fresh installation
+
+[Run 39050697739](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/39050697739) completed successfully from source `bd0cf1891083d011b70edab10501c317d3720b78`. Root independently joined 359 frozen Git source/input objects and replayed the retained data with process creation prohibited. The guest installed 604 packages and independently observed 124479 nodes/4930116522 bytes after ordinary-parent retirement. All 1209 required database nodes were present; readback completed in 506197 ms of the unchanged 600000 ms limit. All 15 ordinary/root flags, natural QEMU exit and source-bound cleanup receipts pass.
+
+The original collector and reader refused GitHub's aggregate `0_native.txt` filename. Their failure and once-downloaded 1558076-byte ZIP remain unchanged. A separately recorded adapter selects that exact aggregate member; the original frame hash, source closure and semantic checks remain mandatory. Private full maps remain source-enforced, and retired resources were not live reobserved. Hooks/scriptlets were disabled. This does not establish physical installation or repair the separate native-container P0 failure.
+
+The [finite Root decision](https://github.com/Gabriel-Kahen/cachy-asahi/blob/c38375818f116bfc129a8db853d0c9cd2d360eb9/payload/fresh604.json) is 3621 bytes, SHA 256 `e72abd1b8120fd578c9856503ef543d14d8881b67ea3faff099caba660d99997`. It grants only generic ARM4K signed public-pair Apps6 current 604 fresh-installer software credit. The same carrier retains four unchanged public prerequisite decisions.
+
+## Scoped maintained GNU lifecycle
+
+[Run 39054408035](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/39054408035), source `9aef8b7429fb8dd9f9d8412f4e878c5e0324c58d`, completed native 4096 replacement, reinstall and external restoration in both configuration cases, with 16 complete maps, eight normal runtime observations,60 lifecycle commands and ordered cleanup. Its workflow **failed** afterward because the closed source omitted an existing diagnostic helper. The strict original reader still refuses that workflow.
+
+Root's separate exact-run/digest-bound runtime reader retains that failure and preserves all 35 original proof helpers. The [finite native lifecycle decision](https://github.com/Gabriel-Kahen/cachy-asahi/blob/b07ecd0070859bd6c2b5740778ea7dabda8fe338/payload/native-lifecycle.json) accepts only the completed native lifecycle. The independently reconstructed [staged16K decision](https://github.com/Gabriel-Kahen/cachy-asahi/blob/76458951bc1ec10ea177adb9632ece99a4499db6/payload/system16k-staged.json) is data-staged private-root evidence with ALPM_NOT_RUN. Combining these prerequisites does not establish installed16K success.
+
+## Actual continuations pending acceptance
+
+- Current 604 updater source `9a9f6803e6be72b748c9be72b609a3e627732688`: [normal 39066211914](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/39066211914), [precommit 39066235418](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/39066235418), [postcommit 39066268731](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/39066268731). Its 419-file source,914 source/data Git joins and actual five-decision prerequisites pass preflight; these runs need their own lifecycle results.
+- Generic16K desktop source `2e16588fc73c8d2aeb13b16a985ccd9b1a4cdcc9`: [minimal 39066695919](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/39066695919) and [overlay 39066710149](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/39066710149). Both profiles pass real Git preflight;427 source files and 101 public data/decision files are independently joined. Runtime, pixels and cleanup need actual acceptance.
+- Full 574 repair16K source `b3ecd56f82380468becfbc3bc13aec27c4272164`: [byte 39065889891](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/39065889891). It selects the already-declared 600 s policy with the real fresh guest lease, correcting the prior accidental generic 300 s choice. Earlier 39053905786 failed before transactions; paired 39053946014 was cancelled, with kernel-work absence unknown. The second new case will follow the first common-path result; neither is accepted yet.
+- GNU source-observer diagnostic source `ebf17a94ee65739825a702cffe8b01398e403b80`: [39066713354](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/39066713354). Its separately bounded 900 s host/600 s subject boot route observes the complete original source with bounded inner progress. It performs no guest ALPM lifecycle and cannot satisfy installed16K acceptance. Previous 39040237156 timed out after 10800 s inside source-before observation; the precise inner cause remains unknown. Normal 10500/10800 limits remain unchanged.
+
+The separate raw GUI, maintained caa3 and Apps6 metadata packets remain unpublished. These public-input continuations do not read those pending metadata files or turn omitted evidence into a pass.

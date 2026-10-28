@@ -1,0 +1,1956 @@
+{
+  "acceptance": "FAIL; 233-archive set incomplete, no package skipped, no native expanded install accepted",
+  "archive_lock_sha256": "119f420629a8b594e8fc46ddf6d5f0cbcc2a3176867cda75f3c5d0ccf73b1a86",
+  "attempts": [
+    {
+      "aggregate_status": "FAIL-incomplete-archive-authentication",
+      "failures": [
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "alsa-card-profiles"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "alsa-lib"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "alsa-topology-conf"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "alsa-ucm-conf"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "atkmm"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "bluez"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "bluez-libs"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "bluez-utils"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "cairomm"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "cairomm-1.16"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "cmake"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "cppdap"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "double-conversion"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "exo"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "ffmpeg"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "fftw"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "firefox"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "flac"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "fmt"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "fuse-common"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "fuse3"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "gcr"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "gcr-4"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "git"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "glibmm"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "glibmm-2.68"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "gnome-keyring"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "gpsd"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "graphene"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "grim"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "gsm"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "gssdp"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "gst-plugins-bad-libs"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "gst-plugins-base-libs"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "gstreamer"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "gtk-layer-shell"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "gtk4"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "gtkmm-4.0"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "gtkmm3"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "gupnp"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "gupnp-igd"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "gvfs"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "hidapi"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "hyprland-qt-support"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "hyprpolkitagent"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "jsoncpp"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "l-smash"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "lame"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "less"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libappindicator"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libass"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libasyncns"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libatasmart"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libavc1394"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libb2"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libblockdev"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libblockdev-crypto"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libblockdev-fs"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libblockdev-loop"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libblockdev-mdraid"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libblockdev-nvme"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libblockdev-part"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libblockdev-smart"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libblockdev-swap"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libbluray"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libbs2b"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libbsd"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libbytesize"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libcanberra"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libcdio"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libcdio-paranoia"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libdbusmenu-glib"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libdbusmenu-gtk3"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libdovi"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libdvdnav"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libdvdread"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libebur128"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libexif"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libfdk-aac"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libfreeaptx"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libgtop"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libice"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libiec61883"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libimobiledevice"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libimobiledevice-glue"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libinih"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "liblc3"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libldac"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libmd"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libmm-glib"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libmodplug"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libmpdclient"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libmysofa"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libndp"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libnewt"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libnice"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libnm"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libnma"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libnma-common"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libnotify"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libnvme"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libogg"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libopenmpt"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libpgm"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libpipeline"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libplacebo"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libplist"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libpulse"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libraw1394"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libsamplerate"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libsigc++"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libsigc++-3.0"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libsm"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libsndfile"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libsodium"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libsoxr"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libssh"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libtatsu"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libteam"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libtheora"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libunibreak"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "liburing"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libusbmuxd"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libuv"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libva"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libvdpau"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libvorbis"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libvpx"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libxfce4ui"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libxfce4util"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libxss"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libxt"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "libxv"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "lilv"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "lv2"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "mailcap"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "mako"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "man-db"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "md4c"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "mdadm"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "meson"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "mobile-broadband-provider-info"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "mpg123"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "network-manager-applet"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "networkmanager"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "ninja"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "nm-connection-editor"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "noto-fonts"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "noto-fonts-emoji"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "nspr"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "nss"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "numactl"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "ocl-icd"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "opencore-amr"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "openjpeg2"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "opus"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "orc"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "pangomm"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "pangomm-2.48"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "parted"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "pavucontrol"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "pcre"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "pcsclite"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "perl-error"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "perl-mailtools"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "perl-timedate"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "pipewire-audio"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "pipewire-jack"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "pipewire-pulse"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "playerctl"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "polkit"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "polkit-qt6"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "portaudio"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "pps-tools"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "python-dbus"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "python-pyxdg"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "python-tqdm"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "qt6-base"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "qt6-declarative"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "qt6-translations"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "rhash"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "rubberband"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "sbc"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "sdbus-cpp"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "sdl2-compat"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "sdl3"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "serd"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "shaderc"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "slang"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "slurp"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "snappy"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "sndio"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "sord"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "sound-theme-freedesktop"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "spandsp"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "spdlog"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "speex"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "speexdsp"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "sratom"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "srt"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "startup-notification"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "swayidle"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "tdb"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "thunar"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "tslib"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "ttf-dejavu"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "udisks2"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "upower"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "uwsm"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "v4l-utils"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "vapoursynth"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "vid.stab"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "vmaf"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "volume_key"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "vulkan-icd-loader"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "waybar"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "webrtc-audio-processing-1"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "wl-clipboard"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "wpa_supplicant"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "x264"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "x265"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "xcb-util-cursor"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "xdg-desktop-portal"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "xdg-desktop-portal-gtk"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "xdg-desktop-portal-hyprland"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "xdg-user-dirs"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "xdg-utils"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "xfconf"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "xvidcore"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "zeromq"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "zimg"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "zix"
+        },
+        {
+          "failure": {
+            "diagnostic": "<urlopen error [Errno -3] Temporary failure in name resolution>",
+            "kind": "URLError",
+            "phase": "download"
+          },
+          "name": "zlib-ng"
+        }
+      ],
+      "operation": "sandbox authenticated-data downloader",
+      "source_sha256": "313bde40b876afff910336cc677d53a752dabeaff29db8c1c3b22e03337381d0",
+      "verified_count": 0
+    },
+    {
+      "aggregate_status": "FAIL-incomplete-archive-authentication",
+      "failures": [
+        {
+          "failure": {
+            "diagnostic": "HTTP Error 404: Not Found",
+            "kind": "HTTPError",
+            "phase": "download"
+          },
+          "name": "libfdk-aac"
+        }
+      ],
+      "operation": "authorized-network authenticated-data downloader",
+      "source_sha256": "313bde40b876afff910336cc677d53a752dabeaff29db8c1c3b22e03337381d0",
+      "verified_count": 232
+    }
+  ],
+  "official_same_filename_availability": [
+    {
+      "TLS_verification_relaxed": false,
+      "operation": "read-only HTTPS HEAD",
+      "result": "HTTP Error 404: Not Found",
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libfdk-aac-2.0.3-2-aarch64.pkg.tar.xz"
+    },
+    {
+      "TLS_verification_relaxed": false,
+      "operation": "read-only HTTPS HEAD",
+      "result": "HTTP Error 404: Not Found",
+      "url": "https://fl.us.mirror.archlinuxarm.org/aarch64/extra/libfdk-aac-2.0.3-2-aarch64.pkg.tar.xz"
+    },
+    {
+      "TLS_verification_relaxed": false,
+      "operation": "read-only HTTPS HEAD",
+      "result": "HTTP Error 404: Not Found",
+      "url": "https://de3.mirror.archlinuxarm.org/aarch64/extra/libfdk-aac-2.0.3-2-aarch64.pkg.tar.xz"
+    },
+    {
+      "TLS_verification_relaxed": false,
+      "operation": "read-only HTTPS HEAD",
+      "result": "TLS CERTIFICATE_VERIFY_FAILED: unable to get local issuer certificate",
+      "url": "https://nj.us.mirror.archlinuxarm.org/aarch64/extra/libfdk-aac-2.0.3-2-aarch64.pkg.tar.xz"
+    },
+    {
+      "TLS_verification_relaxed": false,
+      "operation": "read-only HTTPS HEAD",
+      "result": "TLS CERTIFICATE_VERIFY_FAILED: hostname mismatch",
+      "url": "https://mirror.archlinuxarm.org/aarch64/extra/libfdk-aac-2.0.3-2-aarch64.pkg.tar.xz"
+    }
+  ],
+  "package": {
+    "arch": "aarch64",
+    "conflicts": [],
+    "depends": [
+      "glibc"
+    ],
+    "filename": "libfdk-aac-2.0.3-2-aarch64.pkg.tar.xz",
+    "isize": 1542868,
+    "license": [
+      "custom"
+    ],
+    "name": "libfdk-aac",
+    "provides": [
+      "libfdk-aac.so=2-64"
+    ],
+    "replaces": [],
+    "repo": "extra",
+    "sha256": "11a8590845e29d7287d9d8b14e50d6046b009f52f37e21bb555c446ecedc514c",
+    "signature_sha256": "fdf56ff86907d54b20cbc15f2521c388e4e97d7c288a0b7cedba096b8f6102a7",
+    "signature_size": 566,
+    "size": 631492,
+    "source_url": [
+      "https://sourceforge.net/projects/opencore-amr/"
+    ],
+    "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libfdk-aac-2.0.3-2-aarch64.pkg.tar.xz",
+    "version": "2.0.3-2"
+  },
+  "package_page": "https://archlinuxarm.org/packages/aarch64/libfdk-aac",
+  "package_page_observation": "advertises 2.0.3-2 exact pinned filename; page is not archive availability/authentication",
+  "scope": "GENERIC-data-availability-failure"
+}

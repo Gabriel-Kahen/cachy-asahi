@@ -1,0 +1,972 @@
+{
+  "ELF": [
+    {
+      "16K_load": "NOT RUN",
+      "class": 64,
+      "endianness": "little",
+      "machine": 183,
+      "path": "usr/lib/libmd.so.0.3.0",
+      "runtime": "NOT RUN"
+    }
+  ],
+  "buildinfo": {
+    "bytes": 6452,
+    "fields": {
+      "builddate": [
+        "1791023713"
+      ],
+      "builddir": [
+        "/build"
+      ],
+      "buildenv": [
+        "distcc",
+        "color",
+        "!ccache",
+        "check",
+        "!sign"
+      ],
+      "buildtool": [
+        "devtools"
+      ],
+      "buildtoolver": [
+        "1:1.5.0-1-any"
+      ],
+      "format": [
+        "2"
+      ],
+      "installed": [
+        "acl-2.4.0-1-aarch64",
+        "archlinux-keyring-20260909-1-any",
+        "attr-2.6.0-1-aarch64",
+        "audit-4.2.1-1-aarch64",
+        "autoconf-2.73-1-any",
+        "automake-1.19-1-any",
+        "base-devel-1-2-any",
+        "bash-5.3.20-1-aarch64",
+        "binutils-2.46+r70+g155188ea10a7-1-aarch64",
+        "bison-3.8.2-8-aarch64",
+        "boost-libs-1.92.0-1-aarch64",
+        "brotli-1.2.0-1-aarch64",
+        "bzip2-1.0.8-6-aarch64",
+        "ca-certificates-20240618-1-any",
+        "ca-certificates-mozilla-3.130-1-aarch64",
+        "ca-certificates-utils-20240618-1-any",
+        "coreutils-9.12-2-aarch64",
+        "cpio-2.15-3-aarch64",
+        "cryptsetup-2.8.8-1-aarch64",
+        "curl-8.22.0-1-aarch64",
+        "db5.3-5.3.28-7-aarch64",
+        "dbus-1.16.2-1-aarch64",
+        "dbus-broker-37-3-aarch64",
+        "dbus-broker-units-37-3-aarch64",
+        "dbus-units-37-3-aarch64",
+        "debugedit-5.3-2-aarch64",
+        "device-mapper-2.03.42-1-aarch64",
+        "diffutils-3.12-2-aarch64",
+        "distcc-3.4-15-aarch64",
+        "e2fsprogs-1.47.4-1-aarch64",
+        "elfutils-0.196-1-aarch64",
+        "expat-2.8.5-1-aarch64",
+        "fakeroot-1:1.37.2-3-aarch64",
+        "file-5.48-1-aarch64",
+        "filesystem-2025.10.12-1-any",
+        "findutils-4.11.0-1-aarch64",
+        "flex-2.6.4-6-aarch64",
+        "gawk-5.4.1-1-aarch64",
+        "gc-8.2.12-1-aarch64",
+        "gcc-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "gcc-libs-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "gdb-18.1-1-aarch64",
+        "gdb-common-18.1-1-aarch64",
+        "gdbm-1.26-2-aarch64",
+        "gettext-1.0-2-aarch64",
+        "glib2-2.88.3-1-aarch64",
+        "glibc-2.43+r22+g8362e8ce10b2-2-aarch64",
+        "gmp-6.3.0-3-aarch64",
+        "gnulib-l10n-20241231-1-any",
+        "gnupg-2.4.9-3-aarch64",
+        "gnutls-3.8.13-3-aarch64",
+        "gpgme-2.2.0-1-aarch64",
+        "grep-3.12-2-aarch64",
+        "groff-1.24.1-1-aarch64",
+        "guile-3.0.11-1-aarch64",
+        "gzip-1.15-1-aarch64",
+        "hwdata-0.411-1-any",
+        "iana-etc-20260617-1-any",
+        "icu-78.3-1-aarch64",
+        "jansson-2.15.1-1-aarch64",
+        "json-c-0.19-1-aarch64",
+        "kbd-2.10.0-1-aarch64",
+        "keyutils-1.6.3-4-aarch64",
+        "kmod-34.2-1-aarch64",
+        "krb5-1.22.2-1-aarch64",
+        "leancrypto-1.9.1-1-aarch64",
+        "libarchive-3.8.9-1-aarch64",
+        "libasan-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libassuan-3.0.0-1-aarch64",
+        "libatomic-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libcap-2.78-1-aarch64",
+        "libcap-ng-0.9.6-1-aarch64",
+        "libelf-0.196-1-aarch64",
+        "libevent-2.1.13-2-aarch64",
+        "libffi-3.8.0-1-aarch64",
+        "libgcc-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libgcrypt-1.12.4-1-aarch64",
+        "libgfortran-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libgomp-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libgpg-error-1.61-1-aarch64",
+        "libidn2-2.3.8-1-aarch64",
+        "libisl-0.28-1-aarch64",
+        "libksba-1.8.1-1-aarch64",
+        "libldap-2.7.1-1-aarch64",
+        "liblsan-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libmakepkg-dropins-20-2-any",
+        "libmpc-1.4.1-1-aarch64",
+        "libnghttp2-1.70.0-1-aarch64",
+        "libnghttp3-1.18.0-1-aarch64",
+        "libngtcp2-1.25.0-1-aarch64",
+        "libnsl-2.0.1-2-aarch64",
+        "libobjc-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libp11-kit-0.26.5-1-aarch64",
+        "libpsl-0.21.5-2-aarch64",
+        "libquadmath-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libsasl-2.1.28-5-aarch64",
+        "libseccomp-2.6.0-1-aarch64",
+        "libsecret-0.21.8.2-1-aarch64",
+        "libssh2-1.11.1-7-aarch64",
+        "libstdc++-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libsysprof-capture-50.0-6-aarch64",
+        "libtasn1-4.21.0-1-aarch64",
+        "libtirpc-1.3.8-1-aarch64",
+        "libtool-2.6.0+r23+gb08cb0a0-1-aarch64",
+        "libtsan-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libubsan-16.1.1+r12+g301eb08fa2c5-1-aarch64",
+        "libunistring-1.4.2-1-aarch64",
+        "libusb-1.0.30-1-aarch64",
+        "libverto-0.3.2-6-aarch64",
+        "libxcrypt-4.5.2-1-aarch64",
+        "libxml2-2.15.4-1-aarch64",
+        "linux-api-headers-7.2-1-aarch64",
+        "lmdb-0.9.35-1-aarch64",
+        "lz4-1:1.10.0-2-aarch64",
+        "m4-1.4.21-2-aarch64",
+        "make-4.4.1-3-aarch64",
+        "mpdecimal-4.0.1-3-aarch64",
+        "mpfr-4.2.2-1-aarch64",
+        "ncurses-6.6-2-aarch64",
+        "nettle-4.0-1-aarch64",
+        "npth-1.8-1-aarch64",
+        "openssl-3.6.5-1-aarch64",
+        "p11-kit-0.26.5-1-aarch64",
+        "pacman-7.1.0.r9.g54d9411-2-aarch64",
+        "pacman-mirrorlist-20260411-2-any",
+        "pam-1.7.3-1-aarch64",
+        "pambase-20260616-1-any",
+        "patch-2.8-1-aarch64",
+        "pcre2-10.49-1-aarch64",
+        "perl-5.42.2-2-aarch64",
+        "pinentry-1.3.3-1-aarch64",
+        "pkgconf-3.0.7-1-aarch64",
+        "popt-1.19-2-aarch64",
+        "python-3.14.7-1-aarch64",
+        "readline-8.3.6-1-aarch64",
+        "sed-4.10-2-aarch64",
+        "shadow-4.20.0.arch1-1-aarch64",
+        "source-highlight-3.1.9-19-aarch64",
+        "sqlite-3.53.4-1-aarch64",
+        "sudo-1.9.17.p2-6-aarch64",
+        "systemd-262-1-aarch64",
+        "systemd-libs-262-1-aarch64",
+        "tar-1.35-5-aarch64",
+        "texinfo-7.3-1-aarch64",
+        "tpm2-tss-4.2.0-2-aarch64",
+        "tzdata-2026e-1-aarch64",
+        "util-linux-2.42.4-1-aarch64",
+        "util-linux-libs-2.42.4-1-aarch64",
+        "which-2.25-1-aarch64",
+        "xxhash-0.8.4-1-aarch64",
+        "xz-5.8.4-1-aarch64",
+        "zlib-1:1.3.2-3-aarch64",
+        "zstd-1.5.7-3-aarch64"
+      ],
+      "options": [
+        "strip",
+        "docs",
+        "!libtool",
+        "!staticlibs",
+        "emptydirs",
+        "zipman",
+        "purge",
+        "!debug",
+        "!lto"
+      ],
+      "packager": [
+        "Arch Linux ARM Build System <builder+seattle@archlinuxarm.org>"
+      ],
+      "pkgarch": [
+        "aarch64"
+      ],
+      "pkgbase": [
+        "libmd"
+      ],
+      "pkgbuild_sha256sum": [
+        "da5227918c9be28d68aa5210f609582e4237bf2c2bb6b374d7eba52b43bfac59"
+      ],
+      "pkgname": [
+        "libmd"
+      ],
+      "pkgver": [
+        "1.3.0-1"
+      ],
+      "startdir": [
+        "/startdir"
+      ]
+    },
+    "sha256": "c6edca015308f20fc100e85e16c6b6e794bf8bfaa368ed5392357547c863630c"
+  },
+  "complete_corresponding_source_license_closure": "NOT ESTABLISHED; declared package metadata only",
+  "hooks_and_scriptlets": [],
+  "installed_paths": [
+    "usr",
+    "usr/include",
+    "usr/include/md2.h",
+    "usr/include/md4.h",
+    "usr/include/md5.h",
+    "usr/include/ripemd.h",
+    "usr/include/rmd160.h",
+    "usr/include/sha.h",
+    "usr/include/sha1.h",
+    "usr/include/sha2.h",
+    "usr/include/sha256.h",
+    "usr/include/sha3.h",
+    "usr/include/sha512.h",
+    "usr/lib",
+    "usr/lib/libmd.so",
+    "usr/lib/libmd.so.0",
+    "usr/lib/libmd.so.0.3.0",
+    "usr/lib/pkgconfig",
+    "usr/lib/pkgconfig/libmd.pc",
+    "usr/share",
+    "usr/share/licenses",
+    "usr/share/licenses/libmd",
+    "usr/share/licenses/libmd/COPYING",
+    "usr/share/man",
+    "usr/share/man/man3",
+    "usr/share/man/man3/MD2Data.3.gz",
+    "usr/share/man/man3/MD2End.3.gz",
+    "usr/share/man/man3/MD2File.3.gz",
+    "usr/share/man/man3/MD2FileChunk.3.gz",
+    "usr/share/man/man3/MD2Final.3.gz",
+    "usr/share/man/man3/MD2Init.3.gz",
+    "usr/share/man/man3/MD2Transform.3.gz",
+    "usr/share/man/man3/MD2Update.3.gz",
+    "usr/share/man/man3/MD4Data.3.gz",
+    "usr/share/man/man3/MD4End.3.gz",
+    "usr/share/man/man3/MD4File.3.gz",
+    "usr/share/man/man3/MD4FileChunk.3.gz",
+    "usr/share/man/man3/MD4Final.3.gz",
+    "usr/share/man/man3/MD4Init.3.gz",
+    "usr/share/man/man3/MD4Pad.3.gz",
+    "usr/share/man/man3/MD4Transform.3.gz",
+    "usr/share/man/man3/MD4Update.3.gz",
+    "usr/share/man/man3/MD5Data.3.gz",
+    "usr/share/man/man3/MD5End.3.gz",
+    "usr/share/man/man3/MD5File.3.gz",
+    "usr/share/man/man3/MD5FileChunk.3.gz",
+    "usr/share/man/man3/MD5Final.3.gz",
+    "usr/share/man/man3/MD5Init.3.gz",
+    "usr/share/man/man3/MD5Pad.3.gz",
+    "usr/share/man/man3/MD5Transform.3.gz",
+    "usr/share/man/man3/MD5Update.3.gz",
+    "usr/share/man/man3/RMD160Data.3.gz",
+    "usr/share/man/man3/RMD160End.3.gz",
+    "usr/share/man/man3/RMD160File.3.gz",
+    "usr/share/man/man3/RMD160FileChunk.3.gz",
+    "usr/share/man/man3/RMD160Final.3.gz",
+    "usr/share/man/man3/RMD160Init.3.gz",
+    "usr/share/man/man3/RMD160Pad.3.gz",
+    "usr/share/man/man3/RMD160Transform.3.gz",
+    "usr/share/man/man3/RMD160Update.3.gz",
+    "usr/share/man/man3/SHA1Data.3.gz",
+    "usr/share/man/man3/SHA1End.3.gz",
+    "usr/share/man/man3/SHA1File.3.gz",
+    "usr/share/man/man3/SHA1FileChunk.3.gz",
+    "usr/share/man/man3/SHA1Final.3.gz",
+    "usr/share/man/man3/SHA1Init.3.gz",
+    "usr/share/man/man3/SHA1Pad.3.gz",
+    "usr/share/man/man3/SHA1Transform.3.gz",
+    "usr/share/man/man3/SHA1Update.3.gz",
+    "usr/share/man/man3/SHA224Data.3.gz",
+    "usr/share/man/man3/SHA224End.3.gz",
+    "usr/share/man/man3/SHA224File.3.gz",
+    "usr/share/man/man3/SHA224FileChunk.3.gz",
+    "usr/share/man/man3/SHA224Final.3.gz",
+    "usr/share/man/man3/SHA224Init.3.gz",
+    "usr/share/man/man3/SHA224Pad.3.gz",
+    "usr/share/man/man3/SHA224Transform.3.gz",
+    "usr/share/man/man3/SHA224Update.3.gz",
+    "usr/share/man/man3/SHA256Data.3.gz",
+    "usr/share/man/man3/SHA256End.3.gz",
+    "usr/share/man/man3/SHA256File.3.gz",
+    "usr/share/man/man3/SHA256FileChunk.3.gz",
+    "usr/share/man/man3/SHA256Final.3.gz",
+    "usr/share/man/man3/SHA256Init.3.gz",
+    "usr/share/man/man3/SHA256Pad.3.gz",
+    "usr/share/man/man3/SHA256Transform.3.gz",
+    "usr/share/man/man3/SHA256Update.3.gz",
+    "usr/share/man/man3/SHA384Data.3.gz",
+    "usr/share/man/man3/SHA384End.3.gz",
+    "usr/share/man/man3/SHA384File.3.gz",
+    "usr/share/man/man3/SHA384FileChunk.3.gz",
+    "usr/share/man/man3/SHA384Final.3.gz",
+    "usr/share/man/man3/SHA384Init.3.gz",
+    "usr/share/man/man3/SHA384Pad.3.gz",
+    "usr/share/man/man3/SHA384Transform.3.gz",
+    "usr/share/man/man3/SHA384Update.3.gz",
+    "usr/share/man/man3/SHA3_224_Final.3.gz",
+    "usr/share/man/man3/SHA3_224_Init.3.gz",
+    "usr/share/man/man3/SHA3_224_Update.3.gz",
+    "usr/share/man/man3/SHA3_256_Final.3.gz",
+    "usr/share/man/man3/SHA3_256_Init.3.gz",
+    "usr/share/man/man3/SHA3_256_Update.3.gz",
+    "usr/share/man/man3/SHA3_384_Final.3.gz",
+    "usr/share/man/man3/SHA3_384_Init.3.gz",
+    "usr/share/man/man3/SHA3_384_Update.3.gz",
+    "usr/share/man/man3/SHA3_512_Final.3.gz",
+    "usr/share/man/man3/SHA3_512_Init.3.gz",
+    "usr/share/man/man3/SHA3_512_Update.3.gz",
+    "usr/share/man/man3/SHA3_Selftest.3.gz",
+    "usr/share/man/man3/SHA512Data.3.gz",
+    "usr/share/man/man3/SHA512End.3.gz",
+    "usr/share/man/man3/SHA512File.3.gz",
+    "usr/share/man/man3/SHA512FileChunk.3.gz",
+    "usr/share/man/man3/SHA512Final.3.gz",
+    "usr/share/man/man3/SHA512Init.3.gz",
+    "usr/share/man/man3/SHA512Pad.3.gz",
+    "usr/share/man/man3/SHA512Transform.3.gz",
+    "usr/share/man/man3/SHA512Update.3.gz",
+    "usr/share/man/man3/SHA512_256Data.3.gz",
+    "usr/share/man/man3/SHA512_256End.3.gz",
+    "usr/share/man/man3/SHA512_256File.3.gz",
+    "usr/share/man/man3/SHA512_256FileChunk.3.gz",
+    "usr/share/man/man3/SHA512_256Final.3.gz",
+    "usr/share/man/man3/SHA512_256Init.3.gz",
+    "usr/share/man/man3/SHA512_256Pad.3.gz",
+    "usr/share/man/man3/SHA512_256Transform.3.gz",
+    "usr/share/man/man3/SHA512_256Update.3.gz",
+    "usr/share/man/man3/SHAKE128_Final.3.gz",
+    "usr/share/man/man3/SHAKE128_Init.3.gz",
+    "usr/share/man/man3/SHAKE128_Update.3.gz",
+    "usr/share/man/man3/SHAKE256_Final.3.gz",
+    "usr/share/man/man3/SHAKE256_Init.3.gz",
+    "usr/share/man/man3/SHAKE256_Update.3.gz",
+    "usr/share/man/man3/md2.3.gz",
+    "usr/share/man/man3/md4.3.gz",
+    "usr/share/man/man3/md5.3.gz",
+    "usr/share/man/man3/rmd160.3.gz",
+    "usr/share/man/man3/sha1.3.gz",
+    "usr/share/man/man3/sha2.3.gz",
+    "usr/share/man/man3/sha3.3.gz",
+    "usr/share/man/man3/shake.3.gz",
+    "usr/share/man/man7",
+    "usr/share/man/man7/libmd.7.gz"
+  ],
+  "license_declaration": [
+    "BSD-3-Clause AND BSD-2-Clause AND ISC AND Beerware AND CC-PDM-1.0"
+  ],
+  "license_notice_files": [
+    {
+      "bytes": 9449,
+      "legal_clearance": "NOT ESTABLISHED; retained notice observation",
+      "path": "usr/share/licenses/libmd/COPYING",
+      "sha256": "4971a2b7065117a01cb04430b53ba37c4c6181d4aa8a3a983a3f7042d1625f19"
+    }
+  ],
+  "links": [
+    {
+      "path": "usr/lib/libmd.so",
+      "target": "libmd.so.0.3.0",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/lib/libmd.so.0",
+      "target": "libmd.so.0.3.0",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/MD2Data.3.gz",
+      "target": "md2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/MD2End.3.gz",
+      "target": "md2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/MD2File.3.gz",
+      "target": "md2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/MD2FileChunk.3.gz",
+      "target": "md2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/MD2Final.3.gz",
+      "target": "md2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/MD2Init.3.gz",
+      "target": "md2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/MD2Transform.3.gz",
+      "target": "md2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/MD2Update.3.gz",
+      "target": "md2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/MD4Data.3.gz",
+      "target": "md4.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/MD4End.3.gz",
+      "target": "md4.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/MD4File.3.gz",
+      "target": "md4.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/MD4FileChunk.3.gz",
+      "target": "md4.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/MD4Final.3.gz",
+      "target": "md4.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/MD4Init.3.gz",
+      "target": "md4.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/MD4Pad.3.gz",
+      "target": "md4.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/MD4Transform.3.gz",
+      "target": "md4.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/MD4Update.3.gz",
+      "target": "md4.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/MD5Data.3.gz",
+      "target": "md5.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/MD5End.3.gz",
+      "target": "md5.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/MD5File.3.gz",
+      "target": "md5.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/MD5FileChunk.3.gz",
+      "target": "md5.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/MD5Final.3.gz",
+      "target": "md5.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/MD5Init.3.gz",
+      "target": "md5.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/MD5Pad.3.gz",
+      "target": "md5.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/MD5Transform.3.gz",
+      "target": "md5.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/MD5Update.3.gz",
+      "target": "md5.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/RMD160Data.3.gz",
+      "target": "rmd160.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/RMD160End.3.gz",
+      "target": "rmd160.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/RMD160File.3.gz",
+      "target": "rmd160.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/RMD160FileChunk.3.gz",
+      "target": "rmd160.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/RMD160Final.3.gz",
+      "target": "rmd160.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/RMD160Init.3.gz",
+      "target": "rmd160.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/RMD160Pad.3.gz",
+      "target": "rmd160.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/RMD160Transform.3.gz",
+      "target": "rmd160.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/RMD160Update.3.gz",
+      "target": "rmd160.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA1Data.3.gz",
+      "target": "sha1.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA1End.3.gz",
+      "target": "sha1.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA1File.3.gz",
+      "target": "sha1.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA1FileChunk.3.gz",
+      "target": "sha1.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA1Final.3.gz",
+      "target": "sha1.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA1Init.3.gz",
+      "target": "sha1.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA1Pad.3.gz",
+      "target": "sha1.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA1Transform.3.gz",
+      "target": "sha1.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA1Update.3.gz",
+      "target": "sha1.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA224Data.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA224End.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA224File.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA224FileChunk.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA224Final.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA224Init.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA224Pad.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA224Transform.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA224Update.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA256Data.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA256End.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA256File.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA256FileChunk.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA256Final.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA256Init.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA256Pad.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA256Transform.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA256Update.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA384Data.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA384End.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA384File.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA384FileChunk.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA384Final.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA384Init.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA384Pad.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA384Transform.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA384Update.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA3_224_Final.3.gz",
+      "target": "sha3.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA3_224_Init.3.gz",
+      "target": "sha3.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA3_224_Update.3.gz",
+      "target": "sha3.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA3_256_Final.3.gz",
+      "target": "sha3.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA3_256_Init.3.gz",
+      "target": "sha3.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA3_256_Update.3.gz",
+      "target": "sha3.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA3_384_Final.3.gz",
+      "target": "sha3.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA3_384_Init.3.gz",
+      "target": "sha3.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA3_384_Update.3.gz",
+      "target": "sha3.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA3_512_Final.3.gz",
+      "target": "sha3.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA3_512_Init.3.gz",
+      "target": "sha3.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA3_512_Update.3.gz",
+      "target": "sha3.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA512Data.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA512End.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA512File.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA512FileChunk.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA512Final.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA512Init.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA512Pad.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA512Transform.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA512Update.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA512_256Data.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA512_256End.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA512_256File.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA512_256FileChunk.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA512_256Final.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA512_256Init.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA512_256Pad.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA512_256Transform.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHA512_256Update.3.gz",
+      "target": "sha2.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHAKE128_Final.3.gz",
+      "target": "shake.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHAKE128_Init.3.gz",
+      "target": "shake.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHAKE128_Update.3.gz",
+      "target": "shake.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHAKE256_Final.3.gz",
+      "target": "shake.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHAKE256_Init.3.gz",
+      "target": "shake.3.gz",
+      "type": "symlink"
+    },
+    {
+      "path": "usr/share/man/man3/SHAKE256_Update.3.gz",
+      "target": "shake.3.gz",
+      "type": "symlink"
+    }
+  ],
+  "metadata": {
+    "arch": [
+      "aarch64"
+    ],
+    "builddate": [
+      "1791023713"
+    ],
+    "depend": [
+      "glibc"
+    ],
+    "license": [
+      "BSD-3-Clause AND BSD-2-Clause AND ISC AND Beerware AND CC-PDM-1.0"
+    ],
+    "packager": [
+      "Arch Linux ARM Build System <builder+seattle@archlinuxarm.org>"
+    ],
+    "pkgbase": [
+      "libmd"
+    ],
+    "pkgdesc": [
+      "Message Digest functions from BSD systems"
+    ],
+    "pkgname": [
+      "libmd"
+    ],
+    "pkgver": [
+      "1.3.0-1"
+    ],
+    "size": [
+      "125053"
+    ],
+    "url": [
+      "https://www.hadrons.org/software/libmd/"
+    ],
+    "xdata": [
+      "pkgtype=pkg"
+    ]
+  },
+  "package_execution": "NOT RUN",
+  "path_count": 143
+}

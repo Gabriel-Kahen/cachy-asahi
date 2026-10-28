@@ -1,0 +1,30 @@
+{
+  "index": {
+    "bytes": 2459,
+    "path": "index.json",
+    "sha256": "a356a22e211712c8e4e45cdde664239e81e763f03339498656f179a534dc222f"
+  },
+  "kernel_cache": {
+    "action_commit": "0057852bfaa89a56745cba8c7296529d2fc39830",
+    "files": {
+      "scripts/ci/tools-generic16k/acquire_kernel.py": {
+        "bytes": 8844,
+        "sha256": "4a372e1f4bfbd1f8604579873fc6fbdec91ac2555bb36f028646017b44b8c23f"
+      },
+      "scripts/ci/tools-generic16k/dependencies.json": {
+        "bytes": 21413,
+        "sha256": "4230eb9b270033919c2f346d5bef0e77841713b57275045fe25c197f75b6cab3"
+      },
+      "scripts/ci/tools-generic16k/retained_kernel.py": {
+        "bytes": 5444,
+        "sha256": "bddb14537790a484d770215e55cc2c59de50c764d15e4d677f6fbcaab84cd735"
+      }
+    },
+    "key": "asahi-kernel-source-v1-874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad-262965559",
+    "retained_asset": 647949735
+  },
+  "kernel_helper_sha256": "3c8695685dcae7eded7406ccbf0f8152f6f5820f87ef47f4e791b577c2d3b55a",
+  "pair_source": "18569401aa28e2be86f4ada20489913f28739b92",
+  "schema_version": 1,
+  "status": "ROOT_BOUND_PAIR_AND_TOOLS_CACHE_HANDOFF"
+}

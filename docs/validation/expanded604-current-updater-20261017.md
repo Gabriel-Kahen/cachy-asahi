@@ -1,0 +1,5 @@
+# Current604 copied-root updater trials
+
+The current604 native composition and fresh signed installer have separate Root acceptance. The updater additionally consumes the three accepted600-package updater decisions as typed prerequisites. Frozen source72cecf046d1e0e528cec107756d85f9b58e0a2ec uses five exact decisions from668b55ef72661fdd278324208eb2ba5c4fa3f001;47 host controls and real Git source/policy/installer/decision gates pass. These checks do not establish native update completion.
+
+The [three distinct attempt1 native runs now pass Root replay](expanded604-current-management-updater-20261017.md): normal39014667618, precommit-exit8639014682621 and postcommit-exit8739014694764. They perform the genuine Setup0.1.0-3→0.1.0-5 change, hold the other603 packages, preserve the exact case-specific commit/checkpoint truth and retire their owned copies. The default canonical updater policy stays UNBOUND; only the frozen test branch binds the accepted prerequisites. No GUI, hardware or release credit follows.

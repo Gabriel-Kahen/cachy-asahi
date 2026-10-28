@@ -1,0 +1,17 @@
+cachy-asahi session diagnostics 0.1.0-3
+Original MIT implementation by cachy-asahi contributors, 2026.
+
+The 2026-10-27 hardware-session-probe and installable package predecessors
+remain held separately. Release 0.1.0-2 corrected child reaping/reservation
+handling and added ten ownership regressions. Release 0.1.0-3 revises only the
+socket test's checkout-ancestry assumption; runtime, launcher, the ten ownership
+test bodies and all seven package controls remain byte-held. Predecessor,
+corrected and socket-fixture source hashes are recorded in source-provenance.json.
+The small launcher, recipe and package-level checks are original MIT code.
+Doctor2's fixed service-property interface and existing Asahi j413/j415 graph
+node names are reused; no external diagnostic implementation is bundled.
+
+Optional installed Hyprland, Mesa, PipeWire and systemd clients are invoked
+read-only. Their source code or binaries are not copied into this package.
+This package does not establish protected playback, native ARM, M2 hardware,
+performance, installed target, release or maintenance acceptance.

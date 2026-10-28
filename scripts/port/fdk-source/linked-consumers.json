@@ -1,0 +1,807 @@
+{
+  "method": "readelf static DT_NEEDED on exact regular signed archive bytes; no execution",
+  "objects": [
+    {
+      "DT_NEEDED": [
+        "libpipewire-0.3.so.0",
+        "libsndfile.so.1",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "7c0b9916d5d7651b36c7264dbd1a25e28db48f349c9bb76813739ed49f50df98",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "pipewire-audio",
+      "path": "usr/bin/pw-cat"
+    },
+    {
+      "DT_NEEDED": [
+        "libpipewire-0.3.so.0",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "5ad4e6630c641034edfdc79fbb5ebf914dd29857da976078b78191fdfbf1eadf",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "pipewire-audio",
+      "path": "usr/bin/pw-loopback"
+    },
+    {
+      "DT_NEEDED": [
+        "libpipewire-0.3.so.0",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "2f5999a7af25b414d7f210e5515b362c5225e73e19df96d0ff8b9a4a11dde2d5",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "pipewire-audio",
+      "path": "usr/bin/pw-mididump"
+    },
+    {
+      "DT_NEEDED": [
+        "libasound.so.2",
+        "libm.so.6",
+        "libgcc_s.so.1",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "4ef45acb662d233831afa5f88ff15c2c76e874d8cb9294b7fd8e9babbaa4baba",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "pipewire-audio",
+      "path": "usr/bin/spa-acp-tool"
+    },
+    {
+      "DT_NEEDED": [
+        "libsndfile.so.1",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "f0078c244a87bb5ee6a30cee2e08d9172df6c154063ffca79edf70b2fa1409a5",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "pipewire-audio",
+      "path": "usr/bin/spa-resample"
+    },
+    {
+      "DT_NEEDED": [
+        "libpipewire-0.3.so.0",
+        "libasound.so.2",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "eb489059f6374e74283782e6b3df7e7090883d7f72dbf4c3c42a0cac153e8477",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "pipewire-audio",
+      "path": "usr/lib/alsa-lib/libasound_module_ctl_pipewire.so"
+    },
+    {
+      "DT_NEEDED": [
+        "libpipewire-0.3.so.0",
+        "libasound.so.2",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "ea18a6d32116f4eb6e95ea97ef9e4200d70ce785a7523853a43539c9b090daef",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "pipewire-audio",
+      "path": "usr/lib/alsa-lib/libasound_module_pcm_pipewire.so"
+    },
+    {
+      "DT_NEEDED": [
+        "libpipewire-0.3.so.0",
+        "libgcc_s.so.1",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "4a20e77d586c096289ba1e6151ab4b64a98215d6712c8bcb9dfe885a0829e561",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "pipewire-audio",
+      "path": "usr/lib/pipewire-0.3/libpipewire-module-rtp-sap.so"
+    },
+    {
+      "DT_NEEDED": [
+        "libpipewire-0.3.so.0",
+        "libm.so.6",
+        "libopus.so.0",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "633497b2a274b2b7e45b065613b73ddf97fe327fb6de60c64f3abcf12cb0dcd9",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "pipewire-audio",
+      "path": "usr/lib/pipewire-0.3/libpipewire-module-rtp-sink.so"
+    },
+    {
+      "DT_NEEDED": [
+        "libpipewire-0.3.so.0",
+        "libm.so.6",
+        "libopus.so.0",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "6a52b3f552e15345c48f05524753624a28a9a30f2e71140ad185bee13be768b9",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "pipewire-audio",
+      "path": "usr/lib/pipewire-0.3/libpipewire-module-rtp-source.so"
+    },
+    {
+      "DT_NEEDED": [
+        "libwebrtc-audio-processing-1.so.3",
+        "libstdc++.so.6",
+        "libgcc_s.so.1",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "33810d145bb1e57093ef45d696a6535df958699f4e7e0290cb4a4cb9f32459dc",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "pipewire-audio",
+      "path": "usr/lib/spa-0.2/aec/libspa-aec-webrtc.so"
+    },
+    {
+      "DT_NEEDED": [
+        "libasound.so.2",
+        "libm.so.6",
+        "libudev.so.1",
+        "libgcc_s.so.1",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "c3f222dfee7a499339dffceef768c00ddd7f985da07ae397fbbda1f95231f761",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "pipewire-audio",
+      "path": "usr/lib/spa-0.2/alsa/libspa-alsa.so"
+    },
+    {
+      "DT_NEEDED": [
+        "libm.so.6",
+        "libdbus-1.so.3",
+        "libbluetooth.so.3",
+        "libglib-2.0.so.0",
+        "libgio-2.0.so.0",
+        "libgobject-2.0.so.0",
+        "libusb-1.0.so.0",
+        "libgcc_s.so.1",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "5fd1394e1292632206fc1acc5c115171e5be49dad69d7ff0cf19b473b62355b1",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "pipewire-audio",
+      "path": "usr/lib/spa-0.2/bluez5/libspa-bluez5.so"
+    },
+    {
+      "DT_NEEDED": [
+        "libfdk-aac.so.2",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "25ce30c727b37acea500aa49842f1a58e371fa70d5f0b50ae7526fb951855ab5",
+      "FDK_direct_link": true,
+      "execution": "NOT RUN",
+      "package": "pipewire-audio",
+      "path": "usr/lib/spa-0.2/bluez5/libspa-codec-bluez5-aac.so"
+    },
+    {
+      "DT_NEEDED": [
+        "libfreeaptx.so.0",
+        "libsbc.so.1",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "5bdc80b2ff4c5649a913706e3d1fb39e771a62a6d0e3fdbb0c1e88d31bf448d9",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "pipewire-audio",
+      "path": "usr/lib/spa-0.2/bluez5/libspa-codec-bluez5-aptx.so"
+    },
+    {
+      "DT_NEEDED": [
+        "libsbc.so.1",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "8ff1211eeff2c1760543c386bcfbd7b158409b1b6513d0ae58bc9a5466072616",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "pipewire-audio",
+      "path": "usr/lib/spa-0.2/bluez5/libspa-codec-bluez5-faststream.so"
+    },
+    {
+      "DT_NEEDED": [
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "9c938d4cfae4cb2240fc496faf5f9f0f6a457e225121771cfb0e55af7cd95f7c",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "pipewire-audio",
+      "path": "usr/lib/spa-0.2/bluez5/libspa-codec-bluez5-g722.so"
+    },
+    {
+      "DT_NEEDED": [
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "e3b09262690ad1bd355269ec8d94c2a5f809398f62ed8a2054775b3bcae0260e",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "pipewire-audio",
+      "path": "usr/lib/spa-0.2/bluez5/libspa-codec-bluez5-hfp-cvsd.so"
+    },
+    {
+      "DT_NEEDED": [
+        "liblc3.so.1",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "dd838ac6c87ef37fdf7580857927f186acc452d86de1e43ebebd3ec31c0d0ee6",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "pipewire-audio",
+      "path": "usr/lib/spa-0.2/bluez5/libspa-codec-bluez5-hfp-lc3-a127.so"
+    },
+    {
+      "DT_NEEDED": [
+        "liblc3.so.1",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "0914f5b6987f10f9707d1a2f937e729780a3b13293cd767bc7df73a8e88d93ea",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "pipewire-audio",
+      "path": "usr/lib/spa-0.2/bluez5/libspa-codec-bluez5-hfp-lc3-swb.so"
+    },
+    {
+      "DT_NEEDED": [
+        "libsbc.so.1",
+        "libspandsp.so.2",
+        "libgcc_s.so.1",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "6f9b1e2d10c0a76b5df4e949405e8307654cae6eab2533c72d671d83cdc0db8d",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "pipewire-audio",
+      "path": "usr/lib/spa-0.2/bluez5/libspa-codec-bluez5-hfp-msbc.so"
+    },
+    {
+      "DT_NEEDED": [
+        "liblc3.so.1",
+        "libgcc_s.so.1",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "5ca07f6f09deb8ec0a27f347dbc8f32031fa5f81c1ba48e1e3b65e0eb62218ad",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "pipewire-audio",
+      "path": "usr/lib/spa-0.2/bluez5/libspa-codec-bluez5-lc3.so"
+    },
+    {
+      "DT_NEEDED": [
+        "libldacBT_enc.so.2",
+        "libldacBT_abr.so.2",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "c07e440da66056a1e805bc001906cb210a1837abff516b12be2b3731b29c1d55",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "pipewire-audio",
+      "path": "usr/lib/spa-0.2/bluez5/libspa-codec-bluez5-ldac.so"
+    },
+    {
+      "DT_NEEDED": [
+        "libopus.so.0",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "efe4a74056d22ba700e19e2d49b14c585a19142bcba58cfe0f7ad7e11eab7323",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "pipewire-audio",
+      "path": "usr/lib/spa-0.2/bluez5/libspa-codec-bluez5-opus-g.so"
+    },
+    {
+      "DT_NEEDED": [
+        "libopus.so.0",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "7e67a397aa00b1497b8b3b3658ed62d8799130e1246b9898395d1ec9086299c5",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "pipewire-audio",
+      "path": "usr/lib/spa-0.2/bluez5/libspa-codec-bluez5-opus.so"
+    },
+    {
+      "DT_NEEDED": [
+        "libsbc.so.1",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "03e3287ed5259b1abadef713c87ecd68fafd9255f931be05c7bf4115e4a4e4ed",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "pipewire-audio",
+      "path": "usr/lib/spa-0.2/bluez5/libspa-codec-bluez5-sbc.so"
+    },
+    {
+      "DT_NEEDED": [
+        "libm.so.6",
+        "libsndfile.so.1",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "59aef8ffb4c009c146cf974346268e97f3706d2ecab9d4df51e962657f553d01",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "pipewire-audio",
+      "path": "usr/lib/spa-0.2/filter-graph/libspa-filter-graph-plugin-builtin.so"
+    },
+    {
+      "DT_NEEDED": [
+        "libm.so.6",
+        "libebur128.so.1",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "300a4ed7f3c8edcaf3a741686e42f4c4bf8348b2be51edb456236c749650abc2",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "pipewire-audio",
+      "path": "usr/lib/spa-0.2/filter-graph/libspa-filter-graph-plugin-ebur128.so"
+    },
+    {
+      "DT_NEEDED": [
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "1e03c35dc3f25da911ef6c043dc625ba223319e18183c9f86790a8af4607838d",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "pipewire-audio",
+      "path": "usr/lib/spa-0.2/filter-graph/libspa-filter-graph-plugin-ladspa.so"
+    },
+    {
+      "DT_NEEDED": [
+        "liblilv-0.so.0",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "7668b12605548d4708e6229a83fd253996d0502eb185aedc8404b888109fb182",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "pipewire-audio",
+      "path": "usr/lib/spa-0.2/filter-graph/libspa-filter-graph-plugin-lv2.so"
+    },
+    {
+      "DT_NEEDED": [
+        "libmysofa.so.1",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "8f8532713fc1964976a147bd81e9c0e74ce6f5ff1e3e916f42cc5e4faa11e54e",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "pipewire-audio",
+      "path": "usr/lib/spa-0.2/filter-graph/libspa-filter-graph-plugin-sofa.so"
+    },
+    {
+      "DT_NEEDED": [
+        "libm.so.6",
+        "libfftw3f.so.3",
+        "libgcc_s.so.1",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "777481c59f1bec965782cec8e97763f494606f16b4cd04a0607e57cd55dbe2c1",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "pipewire-audio",
+      "path": "usr/lib/spa-0.2/filter-graph/libspa-filter-graph.so"
+    },
+    {
+      "DT_NEEDED": [
+        "libpipewire-0.3.so.0",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "882e463434d9d5b47391436f3a7cc72d5977bb8328f82bdec37ac6fc598914e6",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "pipewire-jack",
+      "path": "usr/lib/libjack.so.0.3.1609"
+    },
+    {
+      "DT_NEEDED": [],
+      "ELF_sha256": "c18c00a8c921cfe84ebf9a7209a1e2a94709c7f422fb3b3c8af6555e2cd07611",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "pipewire-jack",
+      "path": "usr/lib/libjacknet.so.0.3.1609"
+    },
+    {
+      "DT_NEEDED": [
+        "libpipewire-0.3.so.0",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "604e090603df481f9b8d1e3bcba17fce6801cc986a10cd2d9fcc4b90ef1b3e68",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "pipewire-jack",
+      "path": "usr/lib/libjackserver.so.0.3.1609"
+    },
+    {
+      "DT_NEEDED": [
+        "libpipewire-0.3.so.0",
+        "libm.so.6",
+        "libdbus-1.so.3",
+        "libavahi-common.so.3",
+        "libavahi-client.so.3",
+        "libgio-2.0.so.0",
+        "libgobject-2.0.so.0",
+        "libglib-2.0.so.0",
+        "libgcc_s.so.1",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "0697bac92397c9d662aa7d625a8420f378a876a2a375ba657c5b4adbb92d1412",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "pipewire-pulse",
+      "path": "usr/lib/pipewire-0.3/libpipewire-module-protocol-pulse.so"
+    },
+    {
+      "DT_NEEDED": [
+        "libpipewire-0.3.so.0",
+        "libm.so.6",
+        "libpulse.so.0",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "7aa1cd9eed2c1125a6ab658eef0170f3a0da51c359100d823ec64ff5af8481c8",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "pipewire-pulse",
+      "path": "usr/lib/pipewire-0.3/libpipewire-module-pulse-tunnel.so"
+    },
+    {
+      "DT_NEEDED": [
+        "libasound.so.2",
+        "libjack.so.0",
+        "libm.so.6",
+        "libgcc_s.so.1",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "fc96cb113db3efc687542c7e7a82fbe9545bf1d337f4347b5ac6042ec009d280",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "portaudio",
+      "path": "usr/lib/libportaudio.so.2.0.0"
+    },
+    {
+      "DT_NEEDED": [
+        "libportaudio.so.2",
+        "libstdc++.so.6",
+        "libgcc_s.so.1",
+        "libc.so.6"
+      ],
+      "ELF_sha256": "961a29e550cec5f544e346c8e05f0c9cdb4a6f88f95f447dcaa96d7260569b00",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "portaudio",
+      "path": "usr/lib/libportaudiocpp.so.0.0.12"
+    },
+    {
+      "DT_NEEDED": [
+        "libopenmpt.so.0",
+        "libportaudio.so.2",
+        "libpulse-simple.so.0",
+        "libpulse.so.0",
+        "libsndfile.so.1",
+        "libFLAC.so.14",
+        "libstdc++.so.6",
+        "libm.so.6",
+        "libgcc_s.so.1",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "e8002597b04c2bf0f8c568a3f018fef1df3f79f2cf6185d90963e4188cd3bff1",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "libopenmpt",
+      "path": "usr/bin/openmpt123"
+    },
+    {
+      "DT_NEEDED": [
+        "libz.so.1",
+        "libmpg123.so.0",
+        "libvorbis.so.0",
+        "libvorbisfile.so.3",
+        "libstdc++.so.6",
+        "libm.so.6",
+        "libgcc_s.so.1",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "70f95898c1177c35f8429780488db3f5fdbfd3ddd5be2036c4339d32d5d927ac",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "libopenmpt",
+      "path": "usr/lib/libopenmpt.so.0.5.5"
+    },
+    {
+      "DT_NEEDED": [
+        "libavdevice.so.63",
+        "libavfilter.so.12",
+        "libavformat.so.63",
+        "libavcodec.so.63",
+        "libswresample.so.7",
+        "libswscale.so.10",
+        "libavutil.so.61",
+        "libm.so.6",
+        "libz.so.1",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "fc5db7b88a2a96e9a9036fbc9533d8b3ec16abbc31526b285e996ae1d81b9fcd",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "ffmpeg",
+      "path": "usr/bin/ffmpeg"
+    },
+    {
+      "DT_NEEDED": [
+        "libavdevice.so.63",
+        "libavfilter.so.12",
+        "libavformat.so.63",
+        "libavcodec.so.63",
+        "libswresample.so.7",
+        "libswscale.so.10",
+        "libavutil.so.61",
+        "libm.so.6",
+        "libplacebo.so.360",
+        "libSDL2-2.0.so.0",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "2fbd2a7bf0444293cc397614f65175cf9f103d8cb2679f5b2c7f2f9b95c488a4",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "ffmpeg",
+      "path": "usr/bin/ffplay"
+    },
+    {
+      "DT_NEEDED": [
+        "libavdevice.so.63",
+        "libavfilter.so.12",
+        "libavformat.so.63",
+        "libavcodec.so.63",
+        "libswresample.so.7",
+        "libswscale.so.10",
+        "libavutil.so.61",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "7c0a626038e42714f99c85b70412e1607f1f3ce5f92e41124f611014e02a7caa",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "ffmpeg",
+      "path": "usr/bin/ffprobe"
+    },
+    {
+      "DT_NEEDED": [
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "8b7911201aac81f63685063c855f44fa379cde707cc1920fb56a86e0ec88a294",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "ffmpeg",
+      "path": "usr/bin/qt-faststart"
+    },
+    {
+      "DT_NEEDED": [
+        "libswresample.so.7",
+        "libavutil.so.61",
+        "libvpx.so.12",
+        "libm.so.6",
+        "libwebpmux.so.3",
+        "liblcms2.so.2",
+        "liblzma.so.5",
+        "libdav1d.so.7",
+        "libopencore-amrwb.so.0",
+        "librsvg-2.so.2",
+        "libcairo.so.2",
+        "libgobject-2.0.so.0",
+        "libglib-2.0.so.0",
+        "libsnappy.so.1",
+        "libgsm.so.1",
+        "libjxl.so.0.12",
+        "libjxl_threads.so.0.12",
+        "libmp3lame.so.0",
+        "libopencore-amrnb.so.0",
+        "libopenjp2.so.7",
+        "libopus.so.0",
+        "libspeex.so.1",
+        "libtheoraenc.so.2",
+        "libtheoradec.so.2",
+        "libvorbis.so.0",
+        "libvorbisenc.so.2",
+        "libwebp.so.7",
+        "libx264.so.165",
+        "libx265.so.217",
+        "libxvidcore.so.4",
+        "libz.so.1",
+        "libva.so.2",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "9081ebae779181db48e49536793d4bfcc4200c1191f4d3a7056189524cbcf5a7",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "ffmpeg",
+      "path": "usr/lib/libavcodec.so.63.1.102"
+    },
+    {
+      "DT_NEEDED": [
+        "libavfilter.so.12",
+        "libavformat.so.63",
+        "libavcodec.so.63",
+        "libavutil.so.61",
+        "libraw1394.so.11",
+        "libavc1394.so.0",
+        "librom1394.so.0",
+        "libiec61883.so.0",
+        "libjack.so.0",
+        "libdrm.so.2",
+        "libxcb.so.1",
+        "libxcb-shm.so.0",
+        "libxcb-shape.so.0",
+        "libxcb-xfixes.so.0",
+        "libasound.so.2",
+        "libpulse.so.0",
+        "libsndio.so.7",
+        "libv4l2.so.0",
+        "libXv.so.1",
+        "libX11.so.6",
+        "libXext.so.6",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "06a02a60f660b47051eb9a4780bef20b4a33ba41b981b7553cf10f45d6ab02e5",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "ffmpeg",
+      "path": "usr/lib/libavdevice.so.63.1.102"
+    },
+    {
+      "DT_NEEDED": [
+        "libswscale.so.10",
+        "libavformat.so.63",
+        "libavcodec.so.63",
+        "libswresample.so.7",
+        "libavutil.so.61",
+        "libz.so.1",
+        "libbs2b.so.0",
+        "librubberband.so.3",
+        "libharfbuzz.so.0",
+        "libfribidi.so.0",
+        "liblcms2.so.2",
+        "libplacebo.so.360",
+        "libass.so.9",
+        "libva.so.2",
+        "libvidstab.so.1.2",
+        "libm.so.6",
+        "libzmq.so.5",
+        "libzimg.so.2",
+        "libOpenCL.so.1",
+        "libfontconfig.so.1",
+        "libfreetype.so.6",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "f68b1771c50fe2257ee7894c2772c004c52d81d324b9f4a9367e5968ca93346d",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "ffmpeg",
+      "path": "usr/lib/libavfilter.so.12.1.102"
+    },
+    {
+      "DT_NEEDED": [
+        "libavcodec.so.63",
+        "libavutil.so.61",
+        "libxml2.so.16",
+        "libbz2.so.1.0",
+        "libdvdnav.so.4",
+        "libdvdread.so.8",
+        "libmodplug.so.1",
+        "libopenmpt.so.0",
+        "libbluray.so.4",
+        "libgmp.so.10",
+        "libz.so.1",
+        "libgnutls.so.30",
+        "libsrt.so.1.5",
+        "libssh.so.4",
+        "libzmq.so.5",
+        "libm.so.6",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "8eba8ce57cd420a707e8b8036623531318a2bba35ecf22bc9c0d56f27caaae11",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "ffmpeg",
+      "path": "usr/lib/libavformat.so.63.1.102"
+    },
+    {
+      "DT_NEEDED": [
+        "libva-drm.so.2",
+        "libva.so.2",
+        "libva-x11.so.2",
+        "libvdpau.so.1",
+        "libX11.so.6",
+        "libm.so.6",
+        "libz.so.1",
+        "libdrm.so.2",
+        "libOpenCL.so.1",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "5c642d7835fe74bc0015a616367064f73f7f6abf46fa691260b1aa64b8c2907d",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "ffmpeg",
+      "path": "usr/lib/libavutil.so.61.1.102"
+    },
+    {
+      "DT_NEEDED": [
+        "libavutil.so.61",
+        "libm.so.6",
+        "libsoxr.so.0",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "e3332f293e40889f4b24136a5aa5567192e7c7193d3525fd7efe8a8a4c39e7f7",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "ffmpeg",
+      "path": "usr/lib/libswresample.so.7.1.102"
+    },
+    {
+      "DT_NEEDED": [
+        "libavutil.so.61",
+        "libm.so.6",
+        "libz.so.1",
+        "libc.so.6",
+        "ld-linux-aarch64.so.1"
+      ],
+      "ELF_sha256": "41ab48c64f00881ff03ed1a843316359fde3cf314cdaeea942d1e17b2e748c5c",
+      "FDK_direct_link": false,
+      "execution": "NOT RUN",
+      "package": "ffmpeg",
+      "path": "usr/lib/libswscale.so.10.1.102"
+    }
+  ]
+}

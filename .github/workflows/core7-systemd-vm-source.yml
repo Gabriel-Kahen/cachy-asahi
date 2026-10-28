@@ -1,0 +1,160 @@
+name: core7-systemd-vm-source
+on:
+  push:
+    paths:
+      - scripts/ci/core7-systemd-vm-source/**
+      - .github/workflows/core7-systemd-vm-source.yml
+  pull_request:
+    paths:
+      - scripts/ci/core7-systemd-vm-source/**
+      - .github/workflows/core7-systemd-vm-source.yml
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Checkout exact source34
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: a74c54093bf8d09883e32b0d64b77f46223920e1
+          path: .ci-fixtures/core7-systemd-expected
+          persist-credentials: false
+      - name: Checkout exact optional virtio20 source34
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: bc9c55f9c245df31061aed7e49e636eeae0a018c
+          path: .ci-fixtures/core7-systemd-virtio20-expected
+          persist-credentials: false
+      - name: Checkout exact optional four-boot rollback source36
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 48dcc65b10641a7b92eb5577f9f7d328cd26ed61
+          path: .ci-fixtures/core7-systemd-rollback-expected
+          persist-credentials: false
+      - name: Checkout exact optional two-boot host-clock source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 92ba829ca86c27b472a715c66e7d7ca5a17206e2
+          path: .ci-fixtures/core7-systemd-clock-two-boot-expected
+          persist-credentials: false
+      - name: Checkout exact optional four-boot host-clock source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 4e961335b2336e978532e83f4d6a99a43cc38cc8
+          path: .ci-fixtures/core7-systemd-clock-four-boot-expected
+          persist-credentials: false
+      - name: Checkout whole Core800
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 1a76a09d9cb8210cc2b76eda0c63a08bcd89d4ec
+          path: .ci-fixtures/core7-systemd-core800
+          persist-credentials: false
+      - name: Checkout whole media/runtime637
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: de21d6c25e0fbf5ac83c71965bae3ffa23390461
+          path: .ci-fixtures/core7-systemd-media637
+          persist-credentials: false
+      - name: Checkout exact accepted Core7 input carrier
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: e410bd5d6b4318f114d7311a99a60f20bc8d2f4a
+          path: .ci-fixtures/core7-systemd-core7
+          persist-credentials: false
+      - name: Checkout exact kernel input carrier
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 247123187cb1aceae5e61bc89f3c01dbf2986311
+          path: .ci-fixtures/core7-systemd-kernel
+          persist-credentials: false
+      - name: Checkout exact current64 input carrier
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 7dfce898755583bbf8081aae04d8b8579f66be58
+          path: .ci-fixtures/core7-systemd-core64
+          persist-credentials: false
+      - name: Checkout exact optional module-index source37
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 0e5da6aab98018d00875548813c77a4f87eedcdf
+          path: .ci-fixtures/core7-module-index-expected
+          persist-credentials: false
+      - name: Checkout exact optional VM gzip1 source38
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 4bfd24f3dcf4a3e633e2b3679c75a73a792fcebe
+          path: .ci-fixtures/core7-gzip1-expected
+          persist-credentials: false
+      - name: Checkout exact optional fresh-graph source39
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 700fc849924866bfc2845ccd49e294fb914a9671
+          path: .ci-fixtures/core7-fresh-graph-expected
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Reproduce exact source and execute original source-only controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -I -B scripts/ci/core7-systemd-vm-source/test_prepare.py \
+            --expected "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-expected" \
+            --core-source "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-core800" \
+            --vm-source "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-media637" \
+            --core7 "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-core7" \
+            --core64 "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-core64" \
+            --kernel-carrier "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-kernel"
+          python3 -I -B scripts/ci/core7-systemd-vm-source/test_virtio20.py \
+            --expected "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-virtio20-expected" \
+            --core-source "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-core800" \
+            --vm-source "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-media637" \
+            --kernel-carrier "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-kernel"
+          python3 -I -B scripts/ci/core7-systemd-vm-source/test_rollback_factory.py \
+            --expected "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-rollback-expected" \
+            --core-source "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-core800" \
+            --vm-source "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-media637" \
+            --kernel-carrier "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-kernel"
+          python3 -I -B scripts/ci/core7-systemd-vm-source/test_host_clock.py \
+            --expected-two "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-clock-two-boot-expected" \
+            --expected-four "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-clock-four-boot-expected" \
+            --core-source "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-core800" \
+            --vm-source "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-media637" \
+            --kernel-carrier "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-kernel"
+          python3 -I -B scripts/ci/core7-systemd-vm-source/test_module_indexes.py \
+            --expected "$GITHUB_WORKSPACE/.ci-fixtures/core7-module-index-expected" \
+            --core-source "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-core800" \
+            --vm-source "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-media637" \
+            --kernel-carrier "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-kernel"
+          python3 -I -B scripts/ci/core7-systemd-vm-source/test_gzip1.py \
+            --expected "$GITHUB_WORKSPACE/.ci-fixtures/core7-gzip1-expected" \
+            --core-source "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-core800" \
+            --vm-source "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-media637" \
+            --kernel-carrier "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-kernel"
+          python3 -I -B scripts/ci/core7-systemd-vm-source/test_fresh_graph.py \
+            --expected "$GITHUB_WORKSPACE/.ci-fixtures/core7-fresh-graph-expected" \
+            --core-source "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-core800" \
+            --vm-source "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-media637" \
+            --kernel-carrier "$GITHUB_WORKSPACE/.ci-fixtures/core7-systemd-kernel"

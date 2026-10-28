@@ -1,0 +1,29 @@
+
+def capacity_apply(out,p):
+ c=p['inspect_capacity'];out=dict(out)
+ for n,changes in c['file_edits'].items():
+  for old,new in changes:out[n]=one(out[n],old.encode(),new.encode())
+ out[A]+=c['adapter_append'].encode();return out
+
+def capacity_before(actual,p):
+ c=p['inspect_capacity'];prior=json.loads(enc(p));prior.pop('inspect_capacity');prior['guard_template']=c['before_guard_template']
+ for n in c['added_before_bodies']:prior['before_bodies_zlib'].pop(n)
+ before={}
+ for n,w in c['before'].items():
+  raw=actual[n]
+  if n in c['file_edits']:
+   if n==A:
+    tail=c['adapter_append'].encode();need(tail and raw.endswith(tail),'whole source-owned inspect1800 adapter footer');raw=raw[:-len(tail)]
+   for old,new in reversed(c['file_edits'][n]):raw=one(raw,new.encode(),old.encode())
+  elif n==PROFILE:raw=enc(prior)
+  elif n==GUARD:
+   raw=one(raw,pin(actual[PROFILE])['sha256'].encode(),c['before'][PROFILE]['sha256'].encode());tail=c['guard_append'].encode();need(tail and raw.endswith(tail),'whole inspect1800 guard footer');raw=raw[:-len(tail)]
+   for old,new in reversed(c['guard_edits']):raw=one(raw,new.encode(),old.encode())
+  elif n==SUCCESSOR:
+   value=json.loads(raw);value['after']={k:c['before'][k]for k in value['after']};raw=enc(value)
+  elif n in MANIFESTS:
+   value=json.loads(raw);value['files']={k:c['before'][k]for k in value['files']};raw=enc(value)
+  elif n in WORKFLOWS:raw=one(raw,pin(actual[MANIFESTS[-1]])['sha256'].encode(),c['before'][MANIFESTS[-1]]['sha256'].encode())
+  need(pin(raw)==w,'whole genuine652 source before inspect1800 '+n);before[n]=raw
+ need(len(before)==245 and pin(before[GUARD].replace(c['before'][PROFILE]['sha256'].encode(),b'PROFILE_SHA_PLACEHOLDER'))==prior['guard_template'],'whole652 guard/template before selected capacity')
+ return before,prior

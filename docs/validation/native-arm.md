@@ -1,5 +1,7 @@
 # Native ARM execution record
 
+October25: [Apps14 full606 native lifecycle](apps14-current606-native-20261025.md), [Apps15 native pairs/finite577 lifecycle](apps15-native-20261025.md), [Apps16 native pairs/finite577 lifecycle](apps16-native-20261025.md) and the [Apps10/Boot1/Doctor2/KSM2/Setup6/Welcome8 finite installed composition](current607-six-tool-native-20261025.md) are Root accepted. The composition passes32 transactions,65 fresh graphs,33 auxiliary observations and four whole240-source suites; it does not qualify Apps15/16 in606 or in that composition. Generic16K, GUI, Asahi/both M2 sizes, performance and supported release remain separate. Existing Apps14/15 selection flags remain false; no Apps16 manifest row is added here.
+
 Coordinator execution, October 12, 2026 UTC (October 11 local). Source snapshot
 `f4fc643192468526367f1ca34b96f78176cc5c8b`, published to the project repository.
 This record concerns a hosted Linux ARM builder, not a Mac installation.
@@ -106,3 +108,80 @@ rebuilds after checking the logged bundle, all eight provenance records, source
 and installed inventory bindings, artifact contents and comparisons. No material
 inconsistency was found. See [final native review](../reviews/native-execution-review.md).
 This acceptance is limited to the documented hosted ARM package execution.
+
+## Current desktop and setup native builds
+
+[Run 38683309592](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38683309592),
+at Source `465bf53545e1d83053bf3c412e210493961b74ae`, passed eight native ARM
+builds and four exact original-archive comparisons. Root verified and admitted
+retained review `a5bef078ad21c0f76cbb8fa14ddba5e0e345805316cd73f451d42128ff55e289`.
+The input lock is `beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f`;
+the recipe lock is `a5fb287b4dda2a90bf61d4fa8cbbc5d666dad8bb450a70544d00545b091f36e3`.
+
+| Package | Version | Bytes | SHA256 of each original archive |
+| --- | --- | ---: | --- |
+| cachy-asahi-fish-config | 0.1.0-1 | 5396 | `38e766158d13a0e13b8f811766119d10c018ccc256f5d99c3561b74c99d12705` |
+| cachy-asahi-hyprland-settings | 0.1.0-2 | 12740 | `0b22b778ec83d8b98d98d06fa4f016bd4e3f581b69efa83d6526c5265c2adf5e` |
+| cachy-asahi-setup | 0.1.0-3 | 14496 | `85ab7b964cd628ef21f5df6133aa9d046d32ea35cd6af3de0e5b888341550f0c` |
+| cachy-asahi-zsh-config | 0.1.0-1 | 6244 | `be2ef8ed4f0263720ed6290bff9992d5df53c7bf689a40478f2be329ba2d50e7` |
+
+The retained records contain 501 successful checksum acquisitions, 249 successful
+detached-signature GPG checks, and the selected 341-package builder inventory
+`fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25`.
+Root verified package metadata, source payload joins and matching comparison
+reports through the bounded retained-evidence review. This review did not rerun
+GPG or package builds. [Detailed evidence review](../reviews/setup-current-native-build-run-38683309592-20261015.md).
+
+This establishes native build and byte-comparison acceptance for these versions.
+Installation, upgrades, removal, recovery, Asahi target dependency/trust
+transactions, both M2 Air sizes, 16K-page execution and performance remain open.
+Final container/image/daemon/cache absence is not established; retained-cache
+finish records a handoff. Historical integration snapshots remain unselected
+and must be refreshed explicitly before accepting the current package set.
+
+
+## Welcome7 GUI pair and KSM 16K sharing (2026-10-21)
+
+Welcome7 `0.1.0-7` passed both generic native ARM **4K** GUI profiles at source
+`4bbf44cd6962c17956bce7dc2dfcc50801cd0634`:
+[minimal39358836494](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/39358836494)
+and [overlay39358896031](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/39358896031).
+Original collections and full passive replays pass, joining 348 source files,
+138 artifact members and 13 frames per profile. Root qualified the pair after
+source and visual review. Installed actions include navigation, terminal/files
+launch, Doctor1 reports, Orphans2 assessment/lock refusal, stored-only DNS2,
+missing helpers and close-during-helper retirement. Doctor/Orphans removal and
+restoration gives **595 → 593 → 595**, preserving user configuration and stored
+DNS state. The failure report is fully visible; long reports exceed the captured
+viewport, with hidden text checked separately.
+
+KSM2 passed owned anonymous-page sharing and unmerge in a generic ARM **16K** VM:
+[source0fc2af64f741b9dc2adf708f82f7bf3f4b1beb1f/run39356862528](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/39356862528).
+The signed package lifecycle is **574 → 575 → 574**. Two children each hold2MiB
+(128 pages), with per-child merging counts **0 → 128 → 0** and unchanged contents.
+Shared/sharing counters reach128/128 then zero after synchronous unmerge; scan
+counts correctly reset for that epoch. Both children exit/reap and original KSM
+settings return. Root's independent original-byte replay passes against the pinned
+diagnostic kernel and628-file source.
+
+These are finite software results. Preservation/security and retirement claims
+come from the bound source and original recorded evidence; private full maps were
+not exported and this is not a fresh live host inspection. The GUI pair gives no
+Doctor2/current606, installed Boot-history or16K GUI credit. Neither result qualifies
+interrupted recovery, Asahi integration, either M2 Air size, performance gains,
+production trust or release selection. Earlier failures remain failed. Detailed
+local decisions: `artifacts/development/welcome7-gui-pair-acceptance-root-20261021/Root-pair-acceptance.json`
+and `artifacts/development/ksm16k-counter-epoch-native-actual-20261020/Root-component-acceptance.json`.
+
+
+## Boot607 and controlled KSM interruption (2026-10-21)
+
+[Boot607 run39567514315](boot607-native-component-20261021.md) qualifies the finite
+native-container606/607 installation lifecycle and six offline synthetic fixture
+executions. It does not qualify real boot history or recovery.
+
+[KSM run39573487748](ksm16k-controlled-interruption-20261021.md) additionally
+qualifies controlled SIGTERM after actual owned-page sharing in a generic16K VM:
+unmerge, contents, settings and process retirement pass. Installed scalar-command
+interruption remains NOT RUN. Both records preserve their original artifacts and
+complete reader predicates. Neither supplies M2, performance or release acceptance.

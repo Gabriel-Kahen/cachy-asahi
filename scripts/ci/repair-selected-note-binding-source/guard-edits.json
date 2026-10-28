@@ -1,0 +1,18 @@
+[
+  [
+    " out['apps16-repair/inspect_validation.py']=raw+note['edits']['append'].encode()\n",
+    " out['apps16-repair/inspect_validation.py']=raw+note['edits']['append'].encode()\n stderr=json.loads(profile)['stderr_capture'];raw=out['apps16-repair/inspect_validation.py']\n for a,b in stderr['helper_edits']:raw=one(raw,a.encode(),b.encode())\n out['apps16-repair/inspect_validation.py']=raw+stderr['helper_append'].encode()\n"
+  ],
+  [
+    " return p\n\ndef bodies(",
+    " stderr=p['stderr_capture'];need(stderr['source']=='3c19d667ed2e0873112a84e97b62b54626381435'and len(stderr['before'])==245 and stderr['before']==stderr['git']['files']and stderr['scope']=='SELECTED_ONLY_COMPLETE_ELIGIBLE8192_OR_TYPED_TAIL_CANONICAL_NOTE_1900_NO_AUTHORITY'and stderr['codec']=='ZLIB_DICT_BASE64_CANONICAL_ASCII_JSON_V1'and all(stderr[k]is None for k in('current_source','current_ref','current_run','actual')),'whole current245 stderr-source context and NULL actual')\n return p\n\ndef bodies("
+  ],
+  [
+    " binding=p['operative_binding'];immediate={};literal=repr(actual['apps16-repair/inspect_validation.py'].decode()).encode()",
+    " actual,p=stderr_before(actual,p)\n binding=p['operative_binding'];immediate={};literal=repr(actual['apps16-repair/inspect_validation.py'].decode()).encode()"
+  ],
+  [
+    " actual,p=stderr_before(actual,p)\n",
+    " dictionary=next(n.value for n in ast.parse(actual['apps16-repair/inspect_validation.py']).body if isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id=='NOTE_DICTIONARY'for t in n.targets));need(pin(ast.literal_eval(dictionary))==p['stderr_capture']['dictionary'],'independent whole fixed NOTE dictionary DATA pin')\n actual,p=stderr_before(actual,p)\n"
+  ]
+]

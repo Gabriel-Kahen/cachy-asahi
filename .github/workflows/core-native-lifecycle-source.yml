@@ -1,0 +1,81 @@
+name: core-native-lifecycle-source
+on:
+  push:
+    paths:
+      - scripts/ci/core-native-lifecycle-source/**
+      - .github/workflows/core-native-lifecycle-source.yml
+  pull_request:
+    paths:
+      - scripts/ci/core-native-lifecycle-source/**
+      - .github/workflows/core-native-lifecycle-source.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-controls:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.14']
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      CORE_LIFECYCLE_RUNTIME: ${{ github.workspace }}/.ci-core7-runtime
+      CORE_LIFECYCLE_EXPECTED: ${{ github.workspace }}/.ci-core7-expected
+      CORE_LIFECYCLE_LAUNCH_EXPECTED: ${{ github.workspace }}/.ci-core7-launch-expected
+      CORE_LIFECYCLE_TRANSPORT_EXPECTED: ${{ github.workspace }}/.ci-core7-transport-expected
+      CORE_LIFECYCLE_BASELINE_EXPECTED: ${{ github.workspace }}/.ci-core7-baseline-expected
+      CORE_LIFECYCLE_AUTH_EXPECTED: ${{ github.workspace }}/.ci-core7-auth-expected
+    steps:
+      - name: Checkout maintained source factory
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Checkout exact public745 predecessor
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: d26819ea8c7dab41f498377e8433422c81a7256c
+          path: .ci-core7-runtime
+          persist-credentials: false
+      - name: Checkout exact public796 expected source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 7be4694ffaef6937bef7569ae7fcf45bf097c32d
+          path: .ci-core7-expected
+          persist-credentials: false
+      - name: Checkout exact public corrected796 launch source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: Gabriel-Kahen/cachy-asahi
+          ref: 4ae7b957288025f5ecf92222401e7698f04fcd92
+          path: .ci-core7-launch-expected
+          persist-credentials: false
+      - name: Checkout exact public796 transport successor
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 1450d14fbf8aed79da3cf3e4668081eb8411ab5e
+          path: .ci-core7-transport-expected
+          persist-credentials: false
+      - name: Checkout exact public797 authentication import successor
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 0701138ae19e8eccda988fdc5e05f0423c5d0c91
+          path: .ci-core7-auth-expected
+          persist-credentials: false
+      - name: Checkout exact public800 original-baseline and typed-cache source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 1a76a09d9cb8210cc2b76eda0c63a08bcd89d4ec
+          path: .ci-core7-baseline-expected
+          persist-credentials: false
+      - name: Select explicit Python version
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Check finite profile refusal and complete inert TEST signer body
+        run: python3 -I -B -Werror scripts/ci/core-native-lifecycle-source/test_factory.py
+      - name: Reproduce exact800 default and all four historical failed modes and smoke real isolated source entries
+        run: python3 -I -B -Werror scripts/ci/core-native-lifecycle-source/test_emitter.py

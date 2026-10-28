@@ -1,0 +1,47 @@
+name: Current607 installed stdout codec source factory
+on:
+  pull_request:
+    paths:
+      - 'scripts/ci/current607-native-graph-profile/**'
+      - '.github/workflows/current607-installed-codec-source.yml'
+  push:
+    paths:
+      - 'scripts/ci/current607-native-graph-profile/**'
+      - '.github/workflows/current607-installed-codec-source.yml'
+permissions:
+  contents: read
+jobs:
+  source-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        python: ['3.12', '3.14']
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 16ae35b7959ecf74b5e85cbe9243e8456ef2be6f
+          path: .ci-codec-parent840
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 8b22845252d01e1a813ed078be60315a39a27a5f
+          path: .ci-codec-expected842
+          persist-credentials: false
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 6dbfdbad6d9ec75a230ce366096206de933b1c28
+          path: .ci-codec-apps8-qualified113
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Exact842, bounded raw codec refusals and complete40 plus12 source controls
+        env:
+          INSTALLED_CODEC_PARENT: ${{ github.workspace }}/.ci-codec-parent840
+          INSTALLED_CODEC_EXPECTED: ${{ github.workspace }}/.ci-codec-expected842
+          LATEST607_APPS8_TEST_PACKET: ${{ github.workspace }}/.ci-codec-apps8-qualified113
+        run: python3 -I -B -Werror scripts/ci/current607-native-graph-profile/test_installed_codec842.py

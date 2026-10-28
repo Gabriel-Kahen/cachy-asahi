@@ -1,0 +1,59 @@
+name: welcome8-source
+on:
+  push:
+    paths:
+      - packages/tools/cachy-asahi-welcome8/**
+      - .github/workflows/welcome8-source.yml
+  pull_request:
+    paths:
+      - packages/tools/cachy-asahi-welcome8/**
+      - .github/workflows/welcome8-source.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-and-gtk:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Install host-only build and isolated display dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends build-essential pkg-config libgtk-3-dev xvfb xauth dbus-x11 librsvg2-common
+      - name: Run source and process controls
+        run: make -C packages/tools/cachy-asahi-welcome8 check test-management-ui
+      - name: Cancel an actual owned check and retry on an isolated display
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -B - <<'PYGTK'
+          #!/usr/bin/env python3
+          """Run owned fixture GTK/process controls on a new displayfd display only."""
+          import hashlib,json,os,secrets,select,subprocess,tempfile,time
+          from pathlib import Path
+          D=Path(os.environ['GITHUB_WORKSPACE']);binary=D/'packages/tools/cachy-asahi-welcome8/test-management-ui';start=time.monotonic()
+          build=subprocess.run(['make','-C',str(binary.parent),'test-management-ui'],capture_output=True);(D/'ui-build.stdout').write_bytes(build.stdout);(D/'ui-build.stderr').write_bytes(build.stderr);assert build.returncode==0,build.stderr.decode(errors='replace')
+          with tempfile.TemporaryDirectory(prefix='owned-ui-',dir=D)as td:
+           root=Path(td);runtime=root/'runtime';runtime.mkdir(mode=0o700);auth=root/'authority';auth.touch(mode=0o600);cookie=secrets.token_hex(16)
+           subprocess.run(['xauth','-f',str(auth),'add',':0','MIT-MAGIC-COOKIE-1',cookie],check=True,capture_output=True)
+           read,write=os.pipe();log=(D/'xvfb.stderr').open('wb');server=subprocess.Popen(['Xvfb','-displayfd',str(write),'-screen','0','1024x768x24','-nolisten','tcp','-auth',str(auth)],pass_fds=(write,),stdout=subprocess.DEVNULL,stderr=log);os.close(write)
+           try:
+            assert select.select([read],[],[],8)[0],'owned Xvfb display startup timeout';display=os.read(read,32).decode().strip();assert display.isdecimal();os.close(read);read=None
+            subprocess.run(['xauth','-f',str(auth),'add',':'+display,'MIT-MAGIC-COOKIE-1',cookie],check=True,capture_output=True)
+            env={k:v for k,v in os.environ.items()if k not in('DISPLAY','WAYLAND_DISPLAY','DBUS_SESSION_BUS_ADDRESS','XAUTHORITY','GTK_MODULES','GTK3_MODULES')};env.update(DISPLAY=':'+display,XAUTHORITY=str(auth),XDG_RUNTIME_DIR=str(runtime),GDK_BACKEND='x11',NO_AT_BRIDGE='1',GTK_USE_PORTAL='0',GIO_USE_VFS='local')
+            result=subprocess.run(['dbus-run-session','--',str(binary)],env=env,capture_output=True,timeout=35)
+            (D/'ui.stdout').write_bytes(result.stdout);(D/'ui.stderr').write_bytes(result.stderr);assert result.returncode==0,result.stderr.decode(errors='replace');assert b'PASS_STOP_CHECK:'in result.stdout and b'PASS_GTK_MANAGEMENT:'in result.stdout
+           finally:
+            if read is not None:os.close(read)
+            server.terminate()
+            try:server.wait(timeout=5)
+            except subprocess.TimeoutExpired:server.kill();server.wait(timeout=5)
+            log.close()
+           assert server.returncode is not None
+          (D/'ui-result.json').write_text(json.dumps(dict(status='PASS_HOST_SYNTHETIC_GTK_STOP_AND_OWNED_PROCESS_RETIREMENT',exit=result.returncode,seconds=time.monotonic()-start,display='FRESH_XVFB_DISPLAYFD_AUTHENTICATED',server_retired=True,owned_runtime_retired=not root.exists(),binary=dict(bytes=binary.stat().st_size,sha256=hashlib.sha256(binary.read_bytes()).hexdigest()),native='NOT_RUN',installed='NOT_RUN',current606='NOT_RUN',M2='NOT_RUN'),sort_keys=True,indent=2)+'\n');print((D/'ui-result.json').read_text(),end='')
+          PYGTK

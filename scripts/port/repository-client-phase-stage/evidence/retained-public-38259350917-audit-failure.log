@@ -1,0 +1,15 @@
+Traceback (most recent call last):
+  File "/home/gabe/Documents/ChatGPT/cachy-asahi/scripts/port/repository-client-phase-stage/evidence/recheck-retained-public.py", line 127, in <module>
+    if __name__ == '__main__': main()
+                               ~~~~^^
+  File "/home/gabe/Documents/ChatGPT/cachy-asahi/scripts/port/repository-client-phase-stage/evidence/recheck-retained-public.py", line 41, in main
+    repos = crypto.audit_repositories(loaded)
+  File "/home/gabe/Documents/ChatGPT/cachy-asahi/scripts/port/repository-client-native/crypto.py", line 304, in audit_repositories
+    database(repo[name], packs, sigs, files_database=kind == 'files')
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gabe/Documents/ChatGPT/cachy-asahi/scripts/port/repository-client-native/crypto.py", line 260, in database
+    need(desc.get(target, []) == info.get(source, []), 'db-package-relation-mismatch')
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gabe/Documents/ChatGPT/cachy-asahi/scripts/port/repository-client-native/common.py", line 35, in need
+    raise Refused(reason)
+common.Refused: db-package-relation-mismatch

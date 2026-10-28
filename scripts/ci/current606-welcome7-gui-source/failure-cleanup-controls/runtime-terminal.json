@@ -1,0 +1,10 @@
+{
+  "child_started": true,
+  "group_absent": true,
+  "mode": "generic4k",
+  "natural_exit": true,
+  "profile": "minimal",
+  "reaped": true,
+  "returncode": 1,
+  "schema_version": 1
+}

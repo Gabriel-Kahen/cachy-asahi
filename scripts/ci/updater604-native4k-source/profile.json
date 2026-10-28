@@ -1,0 +1,273 @@
+{
+  "actual": null,
+  "held_source": "b21a5864d5a4610b9181a1c270ac8821d8448a17",
+  "held_source_files": 489,
+  "input_profile": {
+    "bytes": 173289,
+    "sha256": "89a118eadcf27fe88acff19691a9b2fa15c550b8919a32f12732895f32724285"
+  },
+  "normal_parent": {
+    "acceptance": "NOT_TRANSFERRED",
+    "files": {
+      ".github/workflows/native-arm-build.yml": {
+        "bytes": 82489,
+        "sha256": "045d7c472f005b69e14ab5dd9af767055529a9fb19ca0e3540f288e6b8cb469a"
+      },
+      ".github/workflows/native-arm-updater604-copy4k.yml": {
+        "bytes": 82489,
+        "sha256": "045d7c472f005b69e14ab5dd9af767055529a9fb19ca0e3540f288e6b8cb469a"
+      },
+      "case.py": {
+        "bytes": 5204,
+        "sha256": "5845edf52dc6234d8542b2e0f46801766aedf0dc21cea87930bc7202647e1015"
+      },
+      "cleanup.py": {
+        "bytes": 3208,
+        "sha256": "9d474fc164b787a52c66a5ecac43dccc3a58d8e4e60db788a6e209516ac5befa"
+      },
+      "entry.py": {
+        "bytes": 5800,
+        "sha256": "953a16e65e07b350be02ea8c0c1ed89567c5e614e0ff98162682e91cc0443bb7"
+      },
+      "profile.json": {
+        "bytes": 173289,
+        "sha256": "89a118eadcf27fe88acff19691a9b2fa15c550b8919a32f12732895f32724285"
+      },
+      "retain.py": {
+        "bytes": 2642,
+        "sha256": "f0fc831c85a2693e31326f598fc05ca78f9a0a16a539246808babcd942cc258a"
+      },
+      "runtime.py": {
+        "bytes": 3250,
+        "sha256": "dc03f6252be8b92c2546a56a9f4dce7e260f1148dd87cf55649c4e50843e88c2"
+      },
+      "source-manifest.json": {
+        "bytes": 1410,
+        "sha256": "e8b3fe4d414dd9926e5e6eed19ba738609b9f85228437f2d0cad602a4986a4d8"
+      },
+      "test_source.py": {
+        "bytes": 14330,
+        "sha256": "229f76017024f2c3a4cd0b68ee72f1bf3aefad83189587f30ef413f012e90754"
+      }
+    },
+    "git": {
+      "files": {
+        ".github/workflows/native-arm-build.yml": {
+          "bytes": 82489,
+          "sha256": "045d7c472f005b69e14ab5dd9af767055529a9fb19ca0e3540f288e6b8cb469a"
+        },
+        ".github/workflows/native-arm-updater604-copy4k.yml": {
+          "bytes": 82489,
+          "sha256": "045d7c472f005b69e14ab5dd9af767055529a9fb19ca0e3540f288e6b8cb469a"
+        },
+        "case.py": {
+          "bytes": 5204,
+          "sha256": "5845edf52dc6234d8542b2e0f46801766aedf0dc21cea87930bc7202647e1015"
+        },
+        "cleanup.py": {
+          "bytes": 3208,
+          "sha256": "9d474fc164b787a52c66a5ecac43dccc3a58d8e4e60db788a6e209516ac5befa"
+        },
+        "entry.py": {
+          "bytes": 5800,
+          "sha256": "953a16e65e07b350be02ea8c0c1ed89567c5e614e0ff98162682e91cc0443bb7"
+        },
+        "profile.json": {
+          "bytes": 173289,
+          "sha256": "89a118eadcf27fe88acff19691a9b2fa15c550b8919a32f12732895f32724285"
+        },
+        "retain.py": {
+          "bytes": 2642,
+          "sha256": "f0fc831c85a2693e31326f598fc05ca78f9a0a16a539246808babcd942cc258a"
+        },
+        "runtime.py": {
+          "bytes": 3250,
+          "sha256": "dc03f6252be8b92c2546a56a9f4dce7e260f1148dd87cf55649c4e50843e88c2"
+        },
+        "source-manifest.json": {
+          "bytes": 1410,
+          "sha256": "e8b3fe4d414dd9926e5e6eed19ba738609b9f85228437f2d0cad602a4986a4d8"
+        },
+        "test_source.py": {
+          "bytes": 14330,
+          "sha256": "229f76017024f2c3a4cd0b68ee72f1bf3aefad83189587f30ef413f012e90754"
+        }
+      },
+      "ref": "codex/updater604-native4k-v1",
+      "source": "94297073ac36f257edd118aceba3e375a7148550",
+      "status": "PASS_INDEPENDENT_FULL_GIT_BLOB_JOIN"
+    },
+    "publication": {
+      "actual": "NOT_RUN",
+      "files": 10,
+      "git_joins": 10,
+      "hardware": "NOT_RUN",
+      "ref": "codex/updater604-native4k-v1",
+      "release": "NOT_ADMITTED",
+      "source": "94297073ac36f257edd118aceba3e375a7148550",
+      "status": "COMMITTED_EXACT_CLOSED_TRIAL_SOURCE"
+    },
+    "source": "94297073ac36f257edd118aceba3e375a7148550"
+  },
+  "payload": {
+    "normal/case.py": {
+      "bytes": 5204,
+      "sha256": "5845edf52dc6234d8542b2e0f46801766aedf0dc21cea87930bc7202647e1015"
+    },
+    "normal/cleanup.py": {
+      "bytes": 3208,
+      "sha256": "9d474fc164b787a52c66a5ecac43dccc3a58d8e4e60db788a6e209516ac5befa"
+    },
+    "normal/entry.py": {
+      "bytes": 5800,
+      "sha256": "953a16e65e07b350be02ea8c0c1ed89567c5e614e0ff98162682e91cc0443bb7"
+    },
+    "normal/retain.py": {
+      "bytes": 2642,
+      "sha256": "f0fc831c85a2693e31326f598fc05ca78f9a0a16a539246808babcd942cc258a"
+    },
+    "normal/runtime.py": {
+      "bytes": 3250,
+      "sha256": "dc03f6252be8b92c2546a56a9f4dce7e260f1148dd87cf55649c4e50843e88c2"
+    },
+    "normal/source-manifest.json": {
+      "bytes": 1410,
+      "sha256": "e8b3fe4d414dd9926e5e6eed19ba738609b9f85228437f2d0cad602a4986a4d8"
+    },
+    "normal/test_source.py": {
+      "bytes": 14330,
+      "sha256": "229f76017024f2c3a4cd0b68ee72f1bf3aefad83189587f30ef413f012e90754"
+    },
+    "normal/workflow.json": {
+      "bytes": 82489,
+      "sha256": "045d7c472f005b69e14ab5dd9af767055529a9fb19ca0e3540f288e6b8cb469a"
+    },
+    "recovery/case.py": {
+      "bytes": 5274,
+      "sha256": "57b552461ef557fbb1fd0d65a01367c61ebc2a71dc2bcbbacc60f4c88e398684"
+    },
+    "recovery/cleanup.py": {
+      "bytes": 3231,
+      "sha256": "b15959bcb418e613aef03736cb0b460cc150034e47e66d68b671ef7470de41c2"
+    },
+    "recovery/entry.py": {
+      "bytes": 5948,
+      "sha256": "575c1ca49830b0cf53930e94ddface604826f6d63a80b0c0928ba06785102388"
+    },
+    "recovery/retain.py": {
+      "bytes": 2650,
+      "sha256": "a3394c03e546e4026a6f57d2eb54c89015cab708626f20d6b29ef1fc312651d8"
+    },
+    "recovery/runtime.py": {
+      "bytes": 3472,
+      "sha256": "fa9d0f74fa14ba9125cf4181f960131e1d8198786d96b98f3f33f28805e22a0c"
+    },
+    "recovery/source-manifest.json": {
+      "bytes": 1492,
+      "sha256": "d7b8549dd6ef28b39c006a2495c5cf3cf8e6c756304ee5c1a04fd373f8466b03"
+    },
+    "recovery/test_source.py": {
+      "bytes": 15299,
+      "sha256": "6786a325ca3b48e46f5b4071e093e94e780e3b488bd0fb28446201f80eee81c5"
+    },
+    "recovery/workflow.json": {
+      "bytes": 82746,
+      "sha256": "c6f2e4924d6154553b0adb2e05e81af038737161ba96525d0d7f8f8d5862ac91"
+    }
+  },
+  "status": "EXACT_SOURCE_ONLY_NATIVE_ARM4K_WRAPPERS",
+  "variants": {
+    "normal": {
+      "files": {
+        ".github/workflows/native-arm-build.yml": {
+          "bytes": 82489,
+          "sha256": "045d7c472f005b69e14ab5dd9af767055529a9fb19ca0e3540f288e6b8cb469a"
+        },
+        ".github/workflows/native-arm-updater604-copy4k.yml": {
+          "bytes": 82489,
+          "sha256": "045d7c472f005b69e14ab5dd9af767055529a9fb19ca0e3540f288e6b8cb469a"
+        },
+        "case.py": {
+          "bytes": 5204,
+          "sha256": "5845edf52dc6234d8542b2e0f46801766aedf0dc21cea87930bc7202647e1015"
+        },
+        "cleanup.py": {
+          "bytes": 3208,
+          "sha256": "9d474fc164b787a52c66a5ecac43dccc3a58d8e4e60db788a6e209516ac5befa"
+        },
+        "entry.py": {
+          "bytes": 5800,
+          "sha256": "953a16e65e07b350be02ea8c0c1ed89567c5e614e0ff98162682e91cc0443bb7"
+        },
+        "profile.json": {
+          "bytes": 173289,
+          "sha256": "89a118eadcf27fe88acff19691a9b2fa15c550b8919a32f12732895f32724285"
+        },
+        "retain.py": {
+          "bytes": 2642,
+          "sha256": "f0fc831c85a2693e31326f598fc05ca78f9a0a16a539246808babcd942cc258a"
+        },
+        "runtime.py": {
+          "bytes": 3250,
+          "sha256": "dc03f6252be8b92c2546a56a9f4dce7e260f1148dd87cf55649c4e50843e88c2"
+        },
+        "source-manifest.json": {
+          "bytes": 1410,
+          "sha256": "e8b3fe4d414dd9926e5e6eed19ba738609b9f85228437f2d0cad602a4986a4d8"
+        },
+        "test_source.py": {
+          "bytes": 14330,
+          "sha256": "229f76017024f2c3a4cd0b68ee72f1bf3aefad83189587f30ef413f012e90754"
+        }
+      },
+      "ref": "codex/updater604-native4k-v1",
+      "source": "94297073ac36f257edd118aceba3e375a7148550"
+    },
+    "recovery": {
+      "files": {
+        ".github/workflows/native-arm-build.yml": {
+          "bytes": 82746,
+          "sha256": "c6f2e4924d6154553b0adb2e05e81af038737161ba96525d0d7f8f8d5862ac91"
+        },
+        ".github/workflows/native-arm-updater604-recovery4k.yml": {
+          "bytes": 82746,
+          "sha256": "c6f2e4924d6154553b0adb2e05e81af038737161ba96525d0d7f8f8d5862ac91"
+        },
+        "case.py": {
+          "bytes": 5274,
+          "sha256": "57b552461ef557fbb1fd0d65a01367c61ebc2a71dc2bcbbacc60f4c88e398684"
+        },
+        "cleanup.py": {
+          "bytes": 3231,
+          "sha256": "b15959bcb418e613aef03736cb0b460cc150034e47e66d68b671ef7470de41c2"
+        },
+        "entry.py": {
+          "bytes": 5948,
+          "sha256": "575c1ca49830b0cf53930e94ddface604826f6d63a80b0c0928ba06785102388"
+        },
+        "profile.json": {
+          "bytes": 177041,
+          "sha256": "413256e87f12b9146059ecbeec7204c43d8c4181dc4901a0f884bba0f6eededf"
+        },
+        "retain.py": {
+          "bytes": 2650,
+          "sha256": "a3394c03e546e4026a6f57d2eb54c89015cab708626f20d6b29ef1fc312651d8"
+        },
+        "runtime.py": {
+          "bytes": 3472,
+          "sha256": "fa9d0f74fa14ba9125cf4181f960131e1d8198786d96b98f3f33f28805e22a0c"
+        },
+        "source-manifest.json": {
+          "bytes": 1492,
+          "sha256": "d7b8549dd6ef28b39c006a2495c5cf3cf8e6c756304ee5c1a04fd373f8466b03"
+        },
+        "test_source.py": {
+          "bytes": 15299,
+          "sha256": "6786a325ca3b48e46f5b4071e093e94e780e3b488bd0fb28446201f80eee81c5"
+        }
+      },
+      "ref": "codex/updater604-native4k-recovery-transport-v1",
+      "source": "c75911fe09fb5ceba1e54a6456d5b9c4721960b6"
+    }
+  }
+}

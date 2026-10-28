@@ -1,0 +1,164 @@
+{
+  "schema_version": 1,
+  "additional_binary_packages": [],
+  "qemu_version": "11.1.2",
+  "qemu_machine": "virt-11.1",
+  "qemu_source_commit": "4fc49f46dc95d4a27de2509e7fceb2931e91faeb",
+  "kernel_release": "7.2.10-1-aarch64-ARCH",
+  "input_device": "virtio-keyboard-pci,id=keyboard",
+  "qmp_command": "input-send-event",
+  "rows": [
+    {
+      "package": {
+        "arch": "aarch64",
+        "conflicts": [],
+        "depends": [
+          "capstone",
+          "fuse3",
+          "libgcc",
+          "glibc",
+          "glib2",
+          "libgio-2.0.so=0-64",
+          "libglib-2.0.so=0-64",
+          "libgmodule-2.0.so=0-64",
+          "gnutls",
+          "keyutils",
+          "libaio",
+          "libelf",
+          "libbpf",
+          "libbpf.so=1-64",
+          "libjpeg-turbo",
+          "libjpeg.so=8-64",
+          "libpng",
+          "libsasl",
+          "libseccomp",
+          "libseccomp.so=2-64",
+          "libslirp",
+          "libslirp.so=0-64",
+          "liburing",
+          "liburing.so=2-64",
+          "libxdp",
+          "libxdp.so=1-64",
+          "lzo",
+          "ndctl",
+          "numactl",
+          "libnuma.so=1-64",
+          "pam",
+          "libpam.so=0-64",
+          "pixman",
+          "libpixman-1.so=0-64",
+          "qemu-common=11.1.2-1",
+          "rdma-core",
+          "snappy",
+          "vde2",
+          "zlib",
+          "zstd",
+          "libzstd.so=1-64",
+          "dtc",
+          "systemd-libs",
+          "libudev.so=1-64"
+        ],
+        "filename": "qemu-system-aarch64-11.1.2-1-aarch64.pkg.tar.xz",
+        "license": [
+          "BSD-2-Clause",
+          "BSD-2-Clause-Patent",
+          "BSD-3-Clause",
+          "CC0-1.0",
+          "FSFAP",
+          "GPL-1.0-or-later",
+          "GPL-2.0-only",
+          "GPL-2.0-only WITH Linux-syscall-note",
+          "GPL-2.0-only WITH Linux-syscall-note OR BSD-2-Clause",
+          "GPL-2.0-only WITH Linux-syscall-note OR BSD-3-Clause",
+          "GPL-2.0-or-later",
+          "GPL-2.0-or-later OR BSD-3-Clause",
+          "GPL-2.0-or-later WITH Linux-syscall-note",
+          "ISC",
+          "LGPL-2.1-only OR BSD-3-Clause",
+          "LGPL-2.0-or-later",
+          "LGPL-2.1-or-later",
+          "LicenseRef-Public-Domain",
+          "MIT"
+        ],
+        "name": "qemu-system-aarch64",
+        "provides": [],
+        "replaces": [],
+        "repo": "extra",
+        "sha256": "989a142989ab9c6696593af4561d6d7cb40c408d6a5eb2a4eaee0fdacbdb127d",
+        "signature_sha256": "9d7fc11edd3b7cd27a9d0d3af05db75b48e523280d785a2a9968c9ff5955aca7",
+        "signature_size": 566,
+        "size": 5109200,
+        "source_url": [
+          "https://www.qemu.org/"
+        ],
+        "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/qemu-system-aarch64-11.1.2-1-aarch64.pkg.tar.xz",
+        "version": "11.1.2-1"
+      },
+      "leaves": {
+        "usr/bin/qemu-system-aarch64": {
+          "bytes": 38668224,
+          "sha256": "77758ecfa8cd492358daf6faf3ccd6721688a9b09ba3b43db9c22d6223d07c27"
+        }
+      }
+    },
+    {
+      "package": {
+        "arch": "aarch64",
+        "conflicts": [
+          "linux"
+        ],
+        "depends": [
+          "coreutils",
+          "kmod",
+          "mkinitcpio>=0.7"
+        ],
+        "filename": "linux-aarch64-7.2.10-1-aarch64.pkg.tar.xz",
+        "license": [
+          "GPL-2.0-only"
+        ],
+        "name": "linux-aarch64",
+        "provides": [
+          "linux=7.2.10",
+          "KSMBD-MODULE",
+          "WIREGUARD-MODULE"
+        ],
+        "replaces": [],
+        "sha256": "9172d7677d3c1c4b4b72b50b7931b5ccc19a4552d68e4a029ca7e9663e1ebcb7",
+        "signature_sha256": "9e258a5301a67e61bb46f6714287dd077d216ab583529fb80b4e90daaddedd6f",
+        "signature_size": 566,
+        "size": 68687880,
+        "source_url": [
+          "http://www.kernel.org/"
+        ],
+        "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/linux-aarch64-7.2.10-1-aarch64.pkg.tar.xz",
+        "version": "7.2.10-1"
+      },
+      "leaves": {
+        "boot/Image": {
+          "bytes": 50485760,
+          "sha256": "92445dac35421e6cba8ccf7b3e7de8fe8ca8914b69db26fce4a5162352f5dc0a"
+        },
+        "usr/lib/modules/7.2.10-1-aarch64-ARCH/kernel/drivers/virtio/virtio_input.ko": {
+          "bytes": 14864,
+          "sha256": "95b975c2818e75f32d33efa136c8e28046b9399c54c9f9a25947113f87a908ad"
+        },
+        "usr/lib/modules/7.2.10-1-aarch64-ARCH/kernel/drivers/input/keyboard/gpio_keys.ko": {
+          "bytes": 26144,
+          "sha256": "17e32b90adf9536c1ff5fdae252cce987a93bf66eb3b56fd4125493aef55895b"
+        }
+      }
+    }
+  ],
+  "native_execution": "NOT_RUN",
+  "embedded_config": {
+    "bytes": 328264,
+    "sha256": "4748eb86a0f27b34de1e62435da15287d763637205d0ba44c249991b04bc7238",
+    "settings": [
+      "CONFIG_INPUT=y",
+      "CONFIG_INPUT_EVDEV=y",
+      "CONFIG_VIRTIO_PCI=y",
+      "CONFIG_VIRTIO_INPUT=m",
+      "CONFIG_KEYBOARD_GPIO=m"
+    ]
+  }
+}

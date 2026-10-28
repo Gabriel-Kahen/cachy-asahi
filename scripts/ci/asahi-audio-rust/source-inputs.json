@@ -1,0 +1,109 @@
+{
+  "actual_run": "38801968699",
+  "objects": [
+    {
+      "also_used_by": [],
+      "filename": "0001-j504-Write-the-full-speaker-names-in-conf.patch",
+      "repository_path": "packages/audio/speakersafetyd/0001-j504-Write-the-full-speaker-names-in-conf.patch",
+      "sha256": "9c1060ca170f52ceb2a68fd1d3c67a31edc4171473b65c239de2115ac8c1870f",
+      "size": 1470,
+      "url": "https://raw.githubusercontent.com/Gabriel-Kahen/cachy-asahi/b83c0f539034f10112a2d1e9743810344f13bb9d/packages/audio/speakersafetyd/0001-j504-Write-the-full-speaker-names-in-conf.patch"
+    },
+    {
+      "also_used_by": [],
+      "filename": "speakersafetyd-PKGBUILD",
+      "repository_path": "packages/audio/speakersafetyd/PKGBUILD",
+      "sha256": "a446c4387c5547ebfde75542dd16b1684b77a47cd726ba15ad6543e8869aa087",
+      "size": 2136,
+      "url": "https://raw.githubusercontent.com/Gabriel-Kahen/cachy-asahi/b83c0f539034f10112a2d1e9743810344f13bb9d/packages/audio/speakersafetyd/PKGBUILD"
+    },
+    {
+      "also_used_by": [
+        "packages/audio/bankstown/audio-rust-notices-v1.tar.xz",
+        "packages/audio/triforce-lv2/audio-rust-notices-v1.tar.xz"
+      ],
+      "filename": "audio-rust-notices-v1.tar.xz",
+      "repository_path": "packages/audio/speakersafetyd/audio-rust-notices-v1.tar.xz",
+      "sha256": "7cd393018f279ff2a1e71fe85fb5767e3f58398edcd395da4ab6f4eb357ce522",
+      "size": 48916,
+      "url": "https://raw.githubusercontent.com/Gabriel-Kahen/cachy-asahi/b83c0f539034f10112a2d1e9743810344f13bb9d/packages/audio/speakersafetyd/audio-rust-notices-v1.tar.xz"
+    },
+    {
+      "also_used_by": [
+        "packages/audio/bankstown/cargo-vendor-117.tar.xz",
+        "packages/audio/triforce-lv2/cargo-vendor-117.tar.xz"
+      ],
+      "filename": "cargo-vendor-117.tar.xz",
+      "repository_path": "packages/audio/speakersafetyd/cargo-vendor-117.tar.xz",
+      "sha256": "64cd55473b19f104f3a90570409d58c5ab69f63c61396541c4ad1e56e8d6293f",
+      "size": 5733816,
+      "url": "https://raw.githubusercontent.com/Gabriel-Kahen/cachy-asahi/b83c0f539034f10112a2d1e9743810344f13bb9d/packages/audio/speakersafetyd/cargo-vendor-117.tar.xz"
+    },
+    {
+      "also_used_by": [],
+      "filename": "speakersafetyd-2.0.1.tar.gz",
+      "repository_path": "packages/audio/speakersafetyd/speakersafetyd-2.0.1.tar.gz",
+      "sha256": "0e1cb05a2f5521d80f9a502daa0b75ef5c7f2b9e8913b0f88c2d19a97d4439e5",
+      "size": 24865,
+      "url": "https://raw.githubusercontent.com/Gabriel-Kahen/cachy-asahi/b83c0f539034f10112a2d1e9743810344f13bb9d/packages/audio/speakersafetyd/speakersafetyd-2.0.1.tar.gz"
+    },
+    {
+      "also_used_by": [],
+      "filename": "bankstown-PKGBUILD",
+      "repository_path": "packages/audio/bankstown/PKGBUILD",
+      "sha256": "5838989edc7db8efd20ede6fabe75407270ed0f352f5d88a74d32a2a9811bf93",
+      "size": 1806,
+      "url": "https://raw.githubusercontent.com/Gabriel-Kahen/cachy-asahi/b83c0f539034f10112a2d1e9743810344f13bb9d/packages/audio/bankstown/PKGBUILD"
+    },
+    {
+      "also_used_by": [],
+      "filename": "bankstown-1.1.0.tar.gz",
+      "repository_path": "packages/audio/bankstown/bankstown-1.1.0.tar.gz",
+      "sha256": "e877508b73fe90774d74526d838f75e8ea278bdbcee0a1f92e3eca67ed734675",
+      "size": 6655,
+      "url": "https://raw.githubusercontent.com/Gabriel-Kahen/cachy-asahi/b83c0f539034f10112a2d1e9743810344f13bb9d/packages/audio/bankstown/bankstown-1.1.0.tar.gz"
+    },
+    {
+      "also_used_by": [],
+      "filename": "triforce-lv2-PKGBUILD",
+      "repository_path": "packages/audio/triforce-lv2/PKGBUILD",
+      "sha256": "d077ab1b6a7fc2bfc1d6daca6e96502b569922c355bd8f7b1aed3363acb41a9f",
+      "size": 2135,
+      "url": "https://raw.githubusercontent.com/Gabriel-Kahen/cachy-asahi/b83c0f539034f10112a2d1e9743810344f13bb9d/packages/audio/triforce-lv2/PKGBUILD"
+    },
+    {
+      "also_used_by": [],
+      "filename": "triforce-lv2-0.3.2.tar.gz",
+      "repository_path": "packages/audio/triforce-lv2/triforce-lv2-0.3.2.tar.gz",
+      "sha256": "1d081222d0bfe2c961ac44b368c9f1d2dd9ec0833a35bab87863bac07e9df019",
+      "size": 15910,
+      "url": "https://raw.githubusercontent.com/Gabriel-Kahen/cachy-asahi/b83c0f539034f10112a2d1e9743810344f13bb9d/packages/audio/triforce-lv2/triforce-lv2-0.3.2.tar.gz"
+    },
+    {
+      "also_used_by": [],
+      "filename": "recipes.json",
+      "repository_path": "scripts/ci/asahi-audio-rust/recipes.json",
+      "sha256": "1b1b966ab8e537f98f3e962555385f6764bb5a64511198757c762a5f9a7704c6",
+      "size": 12623,
+      "url": "https://raw.githubusercontent.com/Gabriel-Kahen/cachy-asahi/b83c0f539034f10112a2d1e9743810344f13bb9d/scripts/ci/asahi-audio-rust/recipes.json"
+    },
+    {
+      "also_used_by": [],
+      "filename": "inputs.lock.json",
+      "repository_path": "scripts/ci/asahi-audio-rust/inputs.lock.json",
+      "sha256": "7297c9fa299e65484cdb46fc4d149af5815627a385d3050c5c884cd0cc3889c2",
+      "size": 335837,
+      "url": "https://raw.githubusercontent.com/Gabriel-Kahen/cachy-asahi/b83c0f539034f10112a2d1e9743810344f13bb9d/scripts/ci/asahi-audio-rust/inputs.lock.json"
+    },
+    {
+      "also_used_by": [],
+      "filename": "expected-packages.lock",
+      "repository_path": "scripts/ci/asahi-audio-rust/expected-packages.lock",
+      "sha256": "d6b50a41e5e1c1880faedfbd6a1eebad6d271901c0a42923af5c8e977f23e963",
+      "size": 6845,
+      "url": "https://raw.githubusercontent.com/Gabriel-Kahen/cachy-asahi/b83c0f539034f10112a2d1e9743810344f13bb9d/scripts/ci/asahi-audio-rust/expected-packages.lock"
+    }
+  ],
+  "source": "b83c0f539034f10112a2d1e9743810344f13bb9d",
+  "total_bytes": 6193014
+}
