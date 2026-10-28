@@ -1029,3 +1029,57 @@ jobs:
       - name: Report one matched hosted setup pair after the full static suite
         if: ${{ (github.event_name == 'workflow_dispatch' && inputs.measure-cache) || inputs.setup-phase == 'warm' }}
         run: python3 -I -B scripts/ci/static_apt_trial.py report
+
+  developer-release-components:
+    name: Developer/release ${{ matrix.component }} (Python ${{ matrix.python }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {component: sbom-comparison, python: '3.12', tests: 25}
+          - {component: sbom-comparison, python: '3.14', tests: 25}
+          - {component: developer-package, python: '3.12', tests: 13}
+          - {component: developer-package, python: '3.14', tests: 13}
+          - {component: release-package, python: '3.14', tests: 12}
+    steps:
+      - name: Checkout exact component source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Select supported component Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Bind fixed launcher interpreter on this disposable component runner
+        env:
+          COMPONENT_PYTHON: ${{ matrix.python }}
+        run: |
+          selected=$(python -I -c 'import sys; print(sys.executable)')
+          sudo ln -sfn "$selected" /usr/bin/python3
+          /usr/bin/python3 -I -c 'import os,sys; assert ".".join(map(str,sys.version_info[:2])) == os.environ["COMPONENT_PYTHON"]; print(sys.executable,sys.version)'
+          if [[ "$COMPONENT_PYTHON" == 3.14 ]]; then
+            /usr/bin/python3 -I -c 'from compression import zstd; assert zstd.decompress(zstd.compress(b"decoder-control")) == b"decoder-control"'
+          fi
+      - name: Run only the selected integrated focused suite
+        env:
+          COMPONENT: ${{ matrix.component }}
+          EXPECTED_TESTS: ${{ matrix.tests }}
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          case "$COMPONENT" in
+            sbom-comparison) suite=scripts/release/test_compare_sboms.py ;;
+            developer-package) suite=packages/tools/cachy-asahi-developer-tools/cachy-asahi-developer-tools-0.1.0/test_package.py ;;
+            release-package) suite=packages/tools/cachy-asahi-release-tools/test_package.py ;;
+            *) exit 2 ;;
+          esac
+          python -I -B -Werror::ResourceWarning - "$suite" "$EXPECTED_TESTS" <<'PY'
+          import importlib.util, sys, unittest
+          spec = importlib.util.spec_from_file_location('focused_component', sys.argv[1])
+          module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
+          suite = unittest.defaultTestLoader.loadTestsFromModule(module)
+          assert suite.countTestCases() == int(sys.argv[2]), 'focused suite count changed'
+          result = unittest.TextTestRunner(verbosity=2).run(suite)
+          assert result.wasSuccessful() and not result.skipped, 'focused component failed or skipped'
+          PY
