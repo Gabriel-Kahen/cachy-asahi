@@ -1047,3 +1047,26 @@ native_generic16k = "NOT RUN"
 hardware_validation = "NOT RUN"
 performance = "NOT MEASURED"
 next_step = "Coordinator adoption, clean native ARM pairs and disposable signed ALPM lifecycle; selected integrated Asahi/16K/M2/boot recovery and release remain unaccepted."
+
+[[packages]]
+name = "cachy-asahi-desktop-tools"
+phase = "desktop-workflows"
+status = "candidate"
+source = "local-original-pinned-MIT-static-checker"
+recipe = "packages/tools/cachy-asahi-desktop-tools/PKGBUILD"
+license = "MIT"
+candidate_version = "0.1.0-1"
+selected_for_development = false
+selected_for_release = false
+source_archive_sha256 = "69d8c7bb3a13086d4b3ae5a46fa79db14ef4a034912bacb9f185ccc4d54b0ba4"
+host_validation = "PASS81 unchanged54+package27; exporter7; actual host makepkg exact6-file archive and moved offline CLI capture/audit/refusal/private-file-inverse"
+host_package_sha256 = "6e934317ad828898ace72b059bd3f5fcd0c5e83c9065f2588f8969c538a360bb"
+host_package_bytes = 28433
+native_build = "NOT RUN"
+installation = "NOT RUN; private archive extraction and file inverse only, not ALPM"
+native_generic16k = "NOT RUN"
+GUI = "NOT RUN; command is static only and launches no desktop entries"
+hardware_validation = "NOT RUN"
+performance = "NOT MEASURED"
+release = "NOT ADMITTED"
+next_step = "Root adoption, clean native ARM build pair and signed disposable ALPM lifecycle; preserve existing guarded runtime/window workflows and GUI607/Apps549 ownership."
