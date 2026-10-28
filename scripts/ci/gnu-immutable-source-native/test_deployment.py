@@ -150,11 +150,11 @@ class Tests(unittest.TestCase):
    legacy=workspace/'old-layout';shutil.copytree(ROOT,legacy,ignore=lambda directory,names:{'.git'}if Path(directory)==ROOT else set())
    for name in('lifecycle-packet','retained-public-inputs'):
     (legacy/name).mkdir();(legacy/name/'index.json').write_text('INERT_UNEXPECTED_CHECKOUT')
-   with self.assertRaisesRegex(ValueError,'exact source closure'):D.source(legacy)
+   with self.assertRaisesRegex(ValueError,r'\Aexact current retained transport source closure\Z'):D.source(legacy)
    self.assertEqual(D.source(root)['files'],expected_files)
    for name in('extra','lifecycle-packet'):
     (root/name).write_text('INERT_UNEXPECTED')
-    with self.assertRaisesRegex(ValueError,'exact source closure'):D.source(root)
+    with self.assertRaisesRegex(ValueError,r'\Aexact current retained transport source closure\Z'):D.source(root)
     (root/name).unlink()
    self.assertEqual(D.source(root)['files'],expected_files)
 class MediaPreparationControls(unittest.TestCase):
