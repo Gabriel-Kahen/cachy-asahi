@@ -112,3 +112,29 @@ Run `native/reader.py --capsule ORIGINAL_PUBLIC_TREE_TAR --binding ACTUAL_JSON`
 only after Root authenticates the ordinary artifact ZIP and its sole capsule
 member. NULL actual bindings refuse before capsule access. Local tar/ZIP fixture
 roundtrips are transport-model controls, not actual GitHub or native evidence.
+
+## Causal bootstrap failure retention
+
+The owner now retains the original bootstrap acquisition.json and the original
+key-import/build streams and signature-result JSON when present. A narrow DATA
+guard verifies the pinned producer, exact501-input metadata/record schema, fixed
+source command shapes, stable ordinary files and public-text privacy rules.
+Accepted bytes are copied unchanged with private0600 copy permissions and original
+source modes recorded. Refused content is never mirrored into generic actor logs;
+accepted named streams are reused there without duplicate bytes.
+
+The standalone guard receipt and enclosing owner receipt agree. Expected guard
+failures keep fixed codes and preserve an already-active primary exception. A
+guard failure cannot produce a positive native result. The existing32MiB capsule,
+16MiB member/resource/deadline limits, four journeys, input URLs/pins and package cache-only
+seed policy remain. Acquisition records retain their original generic error
+fields; they do not invent a more specific cache cause. No retry is performed.
+
+The complete declared seed union has520 names. Exactly the five original base
+rows (rootfs, signature and three keyring files) are outside it. The original
+pinned parent fetch now handles only those five exact metadata rows, matching
+the held PGO behavior. Original and overlay package/signature rows remain strictly
+cache-only; a failed package cache check never falls back to HTTP. Unknown or
+mutated rows refuse before either callback. No URL/pin, retry or resource limit
+is changed, and the development consumer remains network-none. This source
+closure proof is not a runtime404/cache-miss finding.

@@ -16,6 +16,50 @@ from common import consumer_contract, load, need, pin, uv_policy
 from capsule import open_capsule
 
 
+def retained_failure_data(view, files, value, binding, map_sha256):
+    """Cross-check bounded causal DATA only; success grants no native credit."""
+    names = {'acquisition.json', 'key-import.log', 'bootstrap.log', 'signatures.json'}
+    need(type(value) is dict and type(value.get('schema')) is int and value['schema'] == 1
+         and value.get('status') == 'PASS_BOUNDED_BOOTSTRAP_FAILURE_DATA'
+         and value.get('guard_code') == 'PUBLIC_SOURCE_VALIDATED'
+         and value.get('binding') == binding and value.get('source_map_sha256') == map_sha256,
+         'same-source successful bounded bootstrap DATA retention required')
+    authority = 'bootstrap-failure-retention.json'
+    need(authority in files and files[authority]['kind'] == 'file'
+         and pin(view.read(authority)) == {k: files[authority][k] for k in ('bytes', 'sha256')}
+         and view.load(authority) == value, 'same authoritative retention receipt in actual capsule DATA')
+    rows = value.get('files')
+    need(type(rows) is dict and set(rows) == names and value.get('blocked_actor_logs') == [],
+         'exact causal DATA allowlist; refused streams cannot qualify')
+    retained = set()
+    for name, row in rows.items():
+        need(type(row) is dict and row.get('status') == 'RETAINED'
+             and row.get('code') == 'PUBLIC_DATA_VALIDATED',
+             'all four causal DATA files required for positive native matching')
+        target = 'bootstrap-proof/bootstrap-' + name
+        need(set(row) == {'status', 'code', 'public_path', 'kind', 'mode', 'source_mode', 'bytes', 'sha256'}
+             and row['public_path'] == target and row['kind'] == 'file' and row['mode'] == 0o600
+             and type(row['source_mode']) is int and 0 <= row['source_mode'] <= 0o777
+             and type(row['bytes']) is int and 0 <= row['bytes'] <= (1024**2 if name == 'acquisition.json' else 16*1024**2)
+             and re.fullmatch('[0-9a-f]{64}', row['sha256'] or ''),
+             'exact bounded causal DATA target, source/public modes and pin')
+        need(target in files and files[target]['kind'] == 'file' and files[target]['mode'] == row['mode']
+             and {k: files[target][k] for k in ('bytes', 'sha256')} == {k: row[k] for k in ('bytes', 'sha256')}
+             and pin(view.read(target)) == {k: row[k] for k in ('bytes', 'sha256')},
+             'causal DATA receipt must match manifest and actual capsule bytes')
+        retained.add(target)
+    need({n for n in files if n in {'bootstrap-proof/bootstrap-' + name for name in names}} == retained,
+         'complete exact retained causal DATA target set')
+    acquired = view.load('bootstrap-proof/bootstrap-acquisition.json')
+    need(type(acquired) is dict and type(acquired.get('schema_version')) is int and acquired['schema_version'] == 1
+         and acquired.get('acquisition') == 'PASS' and acquired.get('signature_authentication') == 'NOT RUN'
+         and acquired.get('counts') == {'total': 501, 'pass': 501, 'fail': 0, 'pending': 0}
+         and all(type(n) is int for n in acquired['counts'].values())
+         and type(acquired.get('inputs')) is dict and len(acquired['inputs']) == 501
+         and all(type(row) is dict and row.get('status') == 'PASS' for row in acquired['inputs'].values()),
+         'positive native matching requires original PASS acquisition for all501 inputs')
+
+
 def validate(capsule_path, expected):
     need(type(expected) is dict and set(expected) == {'source', 'ref', 'run', 'map_sha256'}
          and re.fullmatch('[0-9a-f]{40}', expected.get('source') or '')
@@ -40,6 +84,7 @@ def validate(capsule_path, expected):
              and diagnostic['native'] == diagnostic['GPG'] == diagnostic['ALPM'] == 'NOT_RUN', 'actual DATA diagnostic only')
         return dict(status='VALIDATED_INPUT_PROVISIONING_DIAGNOSTIC_NOT_NATIVE', binding=binding, native='NOT_RUN', physical_M2='NOT_RUN')
     receipt = view.load('receipt.json'); cleanup = view.load('cleanup.json')
+    retained_failure_data(view, files, receipt.get('bootstrap_failure_data'), binding, expected['map_sha256'])
     need(receipt['binding'] == binding and receipt['source_map_sha256'] == expected['map_sha256']
          and receipt['status'] == 'PASS_NATIVE_DEVELOPER_COMPONENTS_ONLY'
          and cleanup['status'] == 'PASS_EXACT_OWNED_RESOURCES_RETIRED', 'all native components plus actual resource retirement required')

@@ -123,7 +123,12 @@ def run(root, args):
         seed = module(helpers / 'prepare.py', '_sealed_retained_input_preparation')
         save(args.work / 'input-data-preparation.json', seed.prepare(args.carrier, args.cache, 'native248',
             root / 'bootstrap/scripts/ci/inputs.lock.json', min(actor.deadline, time.monotonic()+2250), args.carrier / '.git'))
-        native.fetch = lambda row, cache: cache_file(cache, row)  # Never acquire/fall back to HTTP.
+        # native248 seeds package pairs, not the original five base inputs.
+        # Restore their pinned parent path only; package failures never fall back.
+        from bootstrap_inputs import bind_fetch
+        parent_fetch = native.fetch
+        native.fetch = bind_fetch(original, profile['additions']['rows'], args.cache,
+                                  lambda row, selected_cache: cache_file(selected_cache, row), parent_fetch)
         def native_run(argv, log=None, timeout=1800):
             nonlocal building
             command = list(map(str, argv))
@@ -244,16 +249,44 @@ def run(root, args):
         save(output / 'cleanup.json', cleanup); report['actors'] = actor.rows
         save(output / 'receipt.json', report)
         report['provisioning'] = dict(proof=proof, transport=transported, cache=seeded)
+        proofs = output / 'bootstrap-proof'; proofs.mkdir()
+        # Capture source-defined failure DATA before generic log mirroring.
+        # Guard rejection must not replace the original bootstrap exception.
+        try:
+            from failure_retention import retain
+            diagnostic = retain(root, args.work, args.cache, output, original, own, actor.rows)
+        except Exception:
+            diagnostic = dict(schema=1, status='FAIL_BOUNDED_BOOTSTRAP_FAILURE_DATA_GUARD', binding=own,
+                guard_code='INTERNAL_RETENTION_FAILURE',
+                files={name: dict(status='REFUSED', code='INTERNAL_RETENTION_FAILURE') for name in
+                       ('acquisition.json', 'key-import.log', 'bootstrap.log', 'signatures.json')},
+                blocked_actor_logs=[str(args.work / 'bootstrap' / name) for name in ('key-import.log', 'bootstrap.log')])
+        diagnostic['source_map_sha256'] = args.map_sha256
+        report['bootstrap_failure_data'] = diagnostic
+        if diagnostic['status'] != 'PASS_BOUNDED_BOOTSTRAP_FAILURE_DATA' and report['status'] == 'PASS_NATIVE_DEVELOPER_COMPONENTS_ONLY':
+            report['status'] = 'FAIL_BOOTSTRAP_DIAGNOSTIC_RETENTION'
+        save(output / 'bootstrap-failure-retention.json', diagnostic)
+        retained_streams = {str(args.work / 'bootstrap' / name): row for name, row in diagnostic['files'].items()
+                            if name in ('key-import.log', 'bootstrap.log') and row['status'] == 'RETAINED'}
         logs = output / 'actor-logs'; logs.mkdir()
         for number, row in enumerate(proof['actors'] + transported['actors'] + actor.rows + cleanup.get('actors', [])):
             path = Path(row['log'])
+            if str(path) in diagnostic['blocked_actor_logs']:
+                row['public_retention'] = 'REFUSED_BOOTSTRAP_FAILURE_DATA_GUARD'
+                continue
+            if str(path) in retained_streams:
+                retained = retained_streams[str(path)]
+                row['public_log'] = retained['public_path']
+                row['log_pin'] = {key: retained[key] for key in ('bytes', 'sha256')}
+                continue  # One exact guarded copy, without doubling the public byte budget.
             if path.is_file():
                 data = read(path)
                 target = logs / ('%04d.log' % number); target.write_bytes(data)
                 row['public_log'] = str(target.relative_to(output)); row['log_pin'] = pin(data)
-        proofs = output / 'bootstrap-proof'; proofs.mkdir()
         for directory in ('bootstrap', 'overlay'):
             for name in ('packages.lock', 'signatures.json', 'bootstrap.json', 'cache-checksums.json', 'Dockerfile', 'runner.json'):
+                if directory == 'bootstrap' and name == 'signatures.json':
+                    continue  # The exact original is copied only through the guarded path above.
                 path = args.work / directory / ('context/Dockerfile' if name == 'Dockerfile' else name)
                 if path.is_file():
                     (proofs / (directory + '-' + name)).write_bytes(read(path))
@@ -267,6 +300,7 @@ def run(root, args):
                 files[str(path.relative_to(output))] = dict(kind='file', mode=stat.S_IMODE(path.lstat().st_mode), **pin(read(path)))
         need(sum(r['bytes'] for r in files.values()) <= 32*1024**2, 'bounded public artifact namespace')
         save(output / 'artifacts.json', dict(schema=1, binding=own, source_map_sha256=args.map_sha256, files=files))
+    need(report['bootstrap_failure_data']['status'] == 'PASS_BOUNDED_BOOTSTRAP_FAILURE_DATA', 'bootstrap failure DATA retention guard refused')
     return report
 
 

@@ -6,6 +6,45 @@
     "source": null
   },
   "baseline": "a0bbaee4da1c588f33375b6d4cda372d89a85f77",
+  "bootstrap_failure_retention": {
+    "acquisition_receipt_bytes": 1048576,
+    "copy": "EXACT_BYTES_PRIVATE0600_WITH_SOURCE_MODE_RECORDED",
+    "guard": "PINNED_PRODUCER_SCHEMA_INPUT_PINS_SOURCE_ARGV_AND_PRIVACY_MARKERS",
+    "inputs": "EXACT_FIVE_ORIGINAL_BASE_ROWS_PARENT_FETCH_ALL512_PACKAGE_SIGNATURE_ROWS_CACHE_ONLY",
+    "native_retry": "NOT_AUTHORIZED",
+    "ordinary_member_bytes": 16777216,
+    "public_capsule_bytes": 33554432,
+    "receipt": "bootstrap-failure-retention.json",
+    "refusal": "NO_RAW_BYTES_OR_MIRRORED_DUPLICATE; ORIGINAL_EXCEPTION_PRESERVED",
+    "scope": "EXACT_ORIGINAL_BOOTSTRAP_DIAGNOSTIC_DATA_ONLY",
+    "source_names": [
+      "acquisition.json",
+      "key-import.log",
+      "bootstrap.log",
+      "signatures.json"
+    ],
+    "target_prefix": "bootstrap-proof/bootstrap-"
+  },
+  "bootstrap_input_closure": {
+    "actual_native_reason": "UNKNOWN_UNEXPORTED",
+    "cache_only_audit_package_signature_rows": 512,
+    "causal_basis_source": "cc6dcdb86bf358e7aa72335f671216d9eca91037",
+    "consumer_network": "NONE",
+    "declared_seed_union_files": 520,
+    "finite_parent_fetch": [
+      "ArchLinuxARM-2026.08-aarch64-rootfs.tar.gz",
+      "ArchLinuxARM-2026.08-aarch64-rootfs.tar.gz.sig",
+      "archlinuxarm-revoked",
+      "archlinuxarm-trusted",
+      "archlinuxarm.gpg"
+    ],
+    "native_retry": "HELD_NOT_AUTHORIZED",
+    "new_URLs_or_pins": false,
+    "package_cache_failure": "NO_PARENT_FALLBACK",
+    "parent_fetch": "BYTE_HELD_NATIVE_ARM_FETCH_WITH_EXISTING_URL_SIZE_SHA256",
+    "required_original_audit_rows": 501,
+    "unknown_or_mutated_row": "REFUSE_BEFORE_CALLBACK"
+  },
   "canonical_workflow_id": 381664314,
   "environment": "EXACT_SIGNED_ALARM_ORIGINAL341_PLUS_RETAINED8",
   "future_native": [
@@ -26,6 +65,7 @@
     "public_bytes": 33554432
   },
   "native": "NOT_RUN",
+  "native_retry": "HELD_NOT_AUTHORIZED",
   "packages": 349,
   "physical_M2": "NOT_RUN",
   "protocol": "FORCE_PEP517_WITH_PINNED_PRIVATE_UV_BUILD",
@@ -37,6 +77,11 @@
     "reader": "PASSIVE_CAPSULE_DATA_VIEW",
     "symlinks": "TARGET_BYTES_AS_ORDINARY_PAYLOAD_NO_HOST_LINKS",
     "upload": "upload/public-tree.tar"
+  },
+  "publication_parent": {
+    "reason": "Reviewable corrective child of the actual failed178 source; no invented179 or180 commit",
+    "requirement": "GENUINE_PUBLISHED178_CAUSAL_PARENT",
+    "source": "cc6dcdb86bf358e7aa72335f671216d9eca91037"
   },
   "python_wheel": "EXACT_ARM_FRONTEND_AND_SEPARATE_BACKEND_WHEEL_PREPARED_NOT_EXECUTED",
   "release": "NOT_ADMITTED",
