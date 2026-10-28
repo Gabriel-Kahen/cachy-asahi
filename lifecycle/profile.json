@@ -8405,7 +8405,7 @@
     "normal": {
       "adapter.json": {
         "bytes": 58965,
-        "sha256": "dfe2a1ad0c76a21d82f5d6169f36f3b81c425dc941c0f0b7038a8abe8c22b876"
+        "sha256": "b5d350281ece22e2bc50b732ddbc49f803516742a3f8fae3cac060858f4839b5"
       },
       "packages/tools/cachy-asahi-apps/.SRCINFO": {
         "bytes": 1775,
@@ -8652,8 +8652,8 @@
         "sha256": "dc49c28398c3fa7ccf8c065fed34da9376d41c092405037e1c9f68045f91660b"
       },
       "scripts/ci/full-root-upgrade-caller/persistent_scope.py": {
-        "bytes": 28101,
-        "sha256": "458ec2adbc3e509e89dc78b223b30d1ee2cdc041259f61c9c7578153d36cdeb0"
+        "bytes": 99709,
+        "sha256": "dd3cab457b382eea7892d58c9473d25676c06cb6ad3c34a0c2337b9c961c8975"
       },
       "scripts/ci/full-root-upgrade-caller/run.py": {
         "bytes": 27803,
@@ -8668,8 +8668,8 @@
         "sha256": "b78c34f92cec146af49eb632bdb1955e3c87823bf12e6da056bffa44c2eefa0c"
       },
       "scripts/ci/full-root-upgrade-caller/upgrade_hook.py": {
-        "bytes": 15558,
-        "sha256": "d23ed409b618920ac2f857e3a7e2745c56733cbf1f3868339088d9bbd564f4c1"
+        "bytes": 50080,
+        "sha256": "b3c044feb2f298d681e567bb7e9881241ad6be3959eb1660a639c42b826566fb"
       },
       "scripts/ci/full-root-upgrade/construct_repository.py": {
         "bytes": 13960,
@@ -8688,8 +8688,8 @@
         "sha256": "0feee89b5d26c8546c83fcb5ce583861cd13e35cdb512d0e13847eb7e3d51676"
       },
       "scripts/ci/full-root-upgrade/root_upgrade.py": {
-        "bytes": 25040,
-        "sha256": "f2deac756dbd40d51acbb0cbd7cd30360f5ccceaec8ad2d9fe1aa0e7396fdb27"
+        "bytes": 58286,
+        "sha256": "23e957aa04ed4e1e687ff8facc66db5db88a565713b4d874d2bcca76171b9b9a"
       },
       "scripts/ci/latest607-updater/selected-input.json": {
         "bytes": 77149,
@@ -8764,8 +8764,8 @@
         "sha256": "fccc4ea132364f3a075c358ce75664c565724d65b1f9a72bc2afdc82fe9c08f3"
       },
       "scripts/update/aux_initialize.py": {
-        "bytes": 7611,
-        "sha256": "ebdfefb242e439ec8cd6e955eecbdacd6ddc60f2f9303e8176309ff65bf5a8f7"
+        "bytes": 42802,
+        "sha256": "8a0f64b72310e1d0e3ee69691ecccbf098408c59a24a9210d7bd37566a2f1441"
       },
       "scripts/update/aux_runtime.py": {
         "bytes": 10032,
@@ -8784,8 +8784,8 @@
         "sha256": "f84e35a1798c4ce3fdc2b30f25105358bddc66e910ec575de9de52f6e22a31f9"
       },
       "scripts/update/full_root.py": {
-        "bytes": 35970,
-        "sha256": "3d8972efeb577750382c62d6801b8c507dbf612ed96e29ebde450a102c5c568e"
+        "bytes": 69703,
+        "sha256": "61cded0826b25e251e10e72b22bbd508c045182208abecd58b15e84f5179b4d8"
       },
       "scripts/update/generic_policy.py": {
         "bytes": 3992,
@@ -8841,7 +8841,7 @@
       },
       "upgrade-config.json": {
         "bytes": 14303,
-        "sha256": "bc0d4bf42b60244fd0352a0c8d1b97c367edff350f5e131330b54343ccda7d6b"
+        "sha256": "debc9a8bc7868f41e284ee3b962617f4458a7b9aa5ac338b84c4ef0e6c6ea5a5"
       }
     },
     "postcommit-exit87": {
