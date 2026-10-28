@@ -15,7 +15,7 @@ jobs:
   native:
     if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
     runs-on: ubuntu-24.04-arm
-    timeout-minutes: 115
+    timeout-minutes: 300
     env:
       SOURCE_SHA: ${{ inputs.source_sha }}
       PYTHONDONTWRITEBYTECODE: '1'
@@ -30,7 +30,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '3efe719100abdb3c1eca273764205ece8224f338bc33ed4c687c4c6bc2687c17' native/owner.py '38f46c114274b72a70e852b4542e59d0f4f1623f777844ef1024e5d6b9a559ee' native/source-map.json | sha256sum --check
+          printf '%s  %s\n' 'ea710ef082d4ffaebd2bb8b0fef25d6151b9b692c0cc48a22e8ec93dd4797c06' native/owner.py '93916e313c5ae17fcb56006de8326666dc1c842d013912e25489c6915cddd912' native/source-map.json | sha256sum --check
           test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
           test "$GITHUB_SHA" = "$SOURCE_SHA"
           test "$GITHUB_WORKFLOW_SHA" = "$SOURCE_SHA"
@@ -42,10 +42,10 @@ jobs:
             GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" GITHUB_EVENT_NAME="$GITHUB_EVENT_NAME" \
             GITHUB_REPOSITORY="$GITHUB_REPOSITORY" GITHUB_ACTIONS="$GITHUB_ACTIONS" RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" \
             python3 -I -B native/owner.py --preflight-only --execute \
-            --source-sha "$SOURCE_SHA" --ref "$GITHUB_REF" --run-id "$GITHUB_RUN_ID" --map-sha256 38f46c114274b72a70e852b4542e59d0f4f1623f777844ef1024e5d6b9a559ee \
+            --source-sha "$SOURCE_SHA" --ref "$GITHUB_REF" --run-id "$GITHUB_RUN_ID" --map-sha256 93916e313c5ae17fcb56006de8326666dc1c842d013912e25489c6915cddd912 \
             --work "$RUNNER_TEMP/support-native-work" --cache "$RUNNER_TEMP/alarm-cache" \
             --carrier "$RUNNER_TEMP/pgo-hosted-retained" --public "$RUNNER_TEMP/support-native-public"
-      - name: Provision and preflight disposable runner-host bubblewrap before secrets
+      - name: Provision and verify owned ARM guest host tools before secrets
         timeout-minutes: 12
         shell: bash
         run: |
@@ -53,183 +53,7 @@ jobs:
           env -i PATH=/usr/bin:/bin HOME="$RUNNER_TEMP/support-native-home" LANG=C TZ=UTC \
             RUNNER_TEMP="$RUNNER_TEMP" SOURCE_SHA="$SOURCE_SHA" PYTHONDONTWRITEBYTECODE=1 \
             GITHUB_ACTIONS="$GITHUB_ACTIONS" RUNNER_ENVIRONMENT="$RUNNER_ENVIRONMENT" \
-            python3 -I -B - <<'PYHOST'
-          """Runner-host dependency readiness only; never substitutes for private check()."""
-          import hashlib
-          import importlib.util
-          import json
-          import os
-          from pathlib import Path
-          import platform
-          import re
-          import stat
-          import subprocess
-          import sys
-          import time
-          
-          M = 1024**2
-          LOG_CAP, RECEIPT_CAP, TOTAL_SECONDS = M, 64*1024, 600
-          APT_OPTIONS = ['-o', 'Acquire::Retries=0', '-o', 'Acquire::http::Timeout=30',
-                         '-o', 'Acquire::https::Timeout=30', '-o', 'Dpkg::Use-Pty=0']
-          UPDATE = ['/usr/bin/sudo', '-n', '--', '/usr/bin/apt-get', *APT_OPTIONS, 'update']
-          INSTALL = ['/usr/bin/sudo', '-n', '--', '/usr/bin/apt-get', *APT_OPTIONS,
-                     'install', '--yes', '--no-install-recommends', 'bubblewrap']
-          PACKAGE = ['/usr/bin/dpkg-query', '-W', '-f=${Package}\t${Version}\t${Architecture}\n', 'bubblewrap']
-          OWNER = ['/usr/bin/dpkg-query', '-S', '/usr/bin/bwrap']
-          VERSION = ['/usr/bin/bwrap', '--version']
-          PROBE = ['/usr/bin/bwrap', '--unshare-all', '--die-with-parent', '--new-session',
-                   '--ro-bind', '/', '/', '--proc', '/proc', '--dev', '/dev', '--tmpfs', '/tmp',
-                   '--tmpfs', '/home', '--tmpfs', '/run', '--tmpfs', '/sys', '--tmpfs', '/root',
-                   '--clearenv', '--setenv', 'PATH', '/usr/bin:/bin', '--chdir', '/tmp', '--', '/usr/bin/true']
-          
-          def need(ok, why):
-              if not ok: raise ValueError(why)
-          
-          def pin(raw):
-              return dict(bytes=len(raw), sha256=hashlib.sha256(raw).hexdigest())
-          
-          def error_data(error):
-              return dict(type=type(error).__name__, errno=getattr(error, 'errno', None), message=str(error)[:512])
-          
-          def natural(row):
-              state = row.get('supervision', {})
-              return (row.get('error') is None and row.get('exit') == state.get('exit') == 0
-                  and state.get('retirement') == 'REAPED' and state.get('natural_exit') is True
-                  and state.get('group_absent') is True and state.get('leader_held_until_group_inspection') is True
-                  and state.get('exit_observed_via_waitpid') is True and state.get('ownership_lost') is False
-                  and state.get('forced_cleanup') is False and row.get('complete') is True)
-          
-          def preflight(execute, identity, emit, now=time.monotonic):
-              """Fakeable orchestration; execute returns (bounded original bytes, command row)."""
-              receipt = dict(schema=1, status='FAIL_HOST_BUBBLEWRAP_PREFLIGHT', scope='DISPOSABLE_RUNNER_HOST_ONLY',
-                  commands=[], executable=None, package=None, version=None, namespace=None,
-                  private_check='NOT_RUN_NOT_REPLACED', actual_native='NOT_RUN', error=None)
-              deadline = now() + TOTAL_SECONDS
-              emit(receipt)
-              def command(argv, seconds, privileged=False):
-                  remaining = deadline-now()
-                  need(remaining > 0 and len(receipt['commands']) < 7, 'bounded whole host preflight')
-                  try:
-                      raw, row = execute(argv, min(seconds, remaining), privileged)
-                  except Exception as error:
-                      receipt['commands'].append(dict(argv=argv, exit=None, error=error_data(error), complete=False))
-                      raise
-                  receipt['commands'].append(row); emit(receipt)
-                  need(len(raw) <= LOG_CAP and row.get('argv') == argv and natural(row), 'actual bounded natural command success required')
-                  return raw
-              try:
-                  command(UPDATE, 180, True)
-                  command(INSTALL, 180, True)
-                  before = identity(); receipt['executable'] = before; emit(receipt)
-                  raw = command(PACKAGE, 30)
-                  match = re.fullmatch(rb'bubblewrap\t([0-9A-Za-z.+:~_-]{1,160})\tarm64\n', raw)
-                  need(match is not None, 'actual Ubuntu arm64 bubblewrap package version')
-                  receipt['package'] = dict(name='bubblewrap', version=match[1].decode(), architecture='arm64')
-                  need(re.fullmatch(rb'bubblewrap(?::arm64)?: /usr/bin/bwrap\n', command(OWNER, 30)) is not None,
-                       'exact installed package owns fixed host executable')
-                  raw = command(VERSION, 15)
-                  need(re.fullmatch(rb'bubblewrap [0-9][0-9A-Za-z.+~_-]{0,79}\n', raw) is not None, 'bounded actual executable version')
-                  receipt['version'] = raw.decode().strip()
-                  need(command(PROBE, 30) == b'', 'harmless namespace probe must have empty original output')
-                  need(identity() == before, 'host executable identity changed during readiness')
-                  need(now() <= deadline, 'whole preflight deadline')
-                  receipt['namespace'] = dict(status='PASS_HARMLESS_UNSHARE_ALL_TRUE', privileged=False,
-                      probe=PROBE, private_ALARM_rootfs='NOT_USED', check_function='NOT_RUN')
-                  receipt['status'] = 'PASS_HOST_BUBBLEWRAP_READY_ONLY'
-              except Exception as error:
-                  receipt['error'] = error_data(error)
-                  emit(receipt)
-                  return receipt
-              emit(receipt)
-              return receipt
-          
-          def executable_identity():
-              path = Path('/usr/bin/bwrap')
-              need(not any(p.is_symlink() for p in (path,*path.parents)), 'fixed ordinary host executable path')
-              fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
-              fields = lambda s: (s.st_dev,s.st_ino,s.st_mode,s.st_nlink,s.st_uid,s.st_gid,s.st_size,s.st_mtime_ns,s.st_ctime_ns)
-              try:
-                  before = os.fstat(fd)
-                  need(stat.S_ISREG(before.st_mode) and before.st_nlink == 1 and before.st_uid == 0
-                       and 0 < before.st_size <= 8*M and before.st_mode & 0o111 and not before.st_mode & 0o6000
-                       and os.access(path,os.X_OK), 'root-owned executable non-setuid host bubblewrap')
-                  raw = b''
-                  while block := os.read(fd, min(M, before.st_size+1-len(raw))):
-                      raw += block; need(len(raw) <= before.st_size, 'bounded executable bytes')
-                  need(len(raw) == before.st_size and fields(os.fstat(fd)) == fields(before) == fields(path.lstat()), 'stable exact host executable')
-                  return dict(path=str(path), **pin(raw), device=before.st_dev, inode=before.st_ino,
-                      mode=stat.S_IMODE(before.st_mode), uid=before.st_uid, gid=before.st_gid,
-                      mtime_ns=before.st_mtime_ns, ctime_ns=before.st_ctime_ns)
-              finally: os.close(fd)
-          
-          def main():
-              """Future workflow entrypoint. Tests never call this or import owned_child."""
-              temp = Path(os.environ['RUNNER_TEMP']).absolute()
-              need(not any(p.is_symlink() for p in (temp,*temp.parents)), 'ordinary runner temporary directory')
-              out = temp/'support-host-preflight'; out.mkdir(mode=0o700)
-              (out/'logs').mkdir(mode=0o700)
-              private = temp/'support-host-preflight-private'; private.mkdir(mode=0o700)
-              source = Path.cwd()
-              binding = dict(source_sha=os.environ.get('SOURCE_SHA'), scope='GITHUB_HOSTED_UBUNTU_24_04_ARM')
-              supervisor = None
-              def emit(value):
-                  record = dict(value, binding=binding, supervisor=supervisor)
-                  raw = (json.dumps(record,sort_keys=True,indent=2)+'\n').encode()
-                  need(len(raw) <= RECEIPT_CAP, 'bounded host readiness receipt')
-                  pending = out/'receipt.pending'; pending.write_bytes(raw); pending.chmod(0o600)
-                  os.replace(pending,out/'receipt.json')
-              try:
-                  need(re.fullmatch('[0-9a-f]{40}',binding['source_sha'] or '') is not None, 'actual source binding')
-                  need(os.environ.get('GITHUB_ACTIONS') == 'true' and os.environ.get('RUNNER_ENVIRONMENT') == 'github-hosted',
-                       'disposable GitHub-hosted runner only')
-                  need(platform.system() == 'Linux' and platform.machine() in ('aarch64','arm64')
-                       and os.getuid() == os.geteuid() != 0, 'ordinary native ARM runner host')
-                  release = dict(line.split('=',1) for line in Path('/etc/os-release').read_text().splitlines() if '=' in line)
-                  need(release.get('ID','').strip('"') == 'ubuntu' and release.get('VERSION_ID','').strip('"') == '24.04',
-                       'declared disposable Ubuntu24.04 runner')
-                  need(not any(k.startswith(('CACHY_','GH_','GITHUB_TOKEN','LD_','DOCKER_')) for k in os.environ), 'no secrets or loader/daemon overrides')
-                  module_path = source/'bootstrap/scripts/ci/zlib-pgo-native-hosted/owned_child.py'
-                  manifest = json.loads((source/'native/source-map.json').read_bytes())
-                  row = manifest['files'][module_path.relative_to(source).as_posix()]
-                  raw = module_path.read_bytes()
-                  need(pin(raw) == {k:row[k] for k in ('bytes','sha256')}, 'held owned supervisor source pin')
-                  supervisor = pin(raw)
-                  spec = importlib.util.spec_from_file_location('_support_host_owned',module_path)
-                  owned = importlib.util.module_from_spec(spec); sys.modules[spec.name] = owned; spec.loader.exec_module(owned)
-                  child_env = dict(PATH='/usr/bin:/bin',HOME=os.environ['HOME'],LANG='C',LC_ALL='C',TZ='UTC',DEBIAN_FRONTEND='noninteractive')
-                  counter = 0
-                  def execute(argv,timeout,privileged):
-                      nonlocal counter
-                      counter += 1; need(counter <= 7, 'finite host command count')
-                      path = private/('%02d.log' % counter); state = {}; failure = None; result = None
-                      with path.open('xb') as stream:
-                          try:
-                              result = owned.run(argv,timeout=timeout,stdin=subprocess.DEVNULL,stdout=stream,
-                                  stderr=subprocess.STDOUT,stdout_limit=LOG_CAP,stderr_limit=LOG_CAP,
-                                  env=child_env,cwd=str(source),lifecycle=state,
-                                  allowed_uids={os.getuid(),0} if privileged else {os.getuid()})
-                          except Exception as error: failure = error_data(error)
-                      observed = path.stat().st_size
-                      with path.open('rb') as stream: raw = stream.read(LOG_CAP)
-                      relative = 'logs/%02d.log' % counter
-                      with (out/relative).open('xb') as stream: stream.write(raw)
-                      command = dict(argv=argv,timeout_seconds=timeout,privileged=privileged,
-                          exit=result.returncode if result is not None else state.get('exit'),error=failure,
-                          supervision=state,log=relative,log_pin=pin(raw),original_bytes_observed=observed,
-                          complete=observed <= LOG_CAP,prefix_only=observed > LOG_CAP)
-                      return raw,command
-                  receipt = preflight(execute,executable_identity,emit)
-              except Exception as error:
-                  receipt = dict(schema=1,status='FAIL_HOST_BUBBLEWRAP_PREFLIGHT',error=error_data(error),
-                      commands=[],private_check='NOT_RUN_NOT_REPLACED',actual_native='NOT_RUN')
-                  emit(receipt)
-              print(json.dumps(dict(status=receipt['status'],source_sha=binding['source_sha'],
-                  receipt='support-host-preflight/receipt.json',private_check='NOT_RUN_NOT_REPLACED'),sort_keys=True))
-              return 0 if receipt['status'] == 'PASS_HOST_BUBBLEWRAP_READY_ONLY' else 2
-          
-          if __name__ == '__main__':
-              raise SystemExit(main())
-          PYHOST
+            python3 -I -B native/guest_vm.py --tools-only --provision-tools --map-sha256 93916e313c5ae17fcb56006de8326666dc1c842d013912e25489c6915cddd912
       - name: Seed the six exact retained inputs using existing secrets only
         timeout-minutes: 2
         env:
@@ -322,8 +146,22 @@ jobs:
           test ! -e "$RUNNER_TEMP/pgo-hosted-retained"
           mv support-retained-data "$RUNNER_TEMP/pgo-hosted-retained"
           chmod 700 "$RUNNER_TEMP/pgo-hosted-retained"
+      - name: Checkout exact existing Core generic16K kernel DATA
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 10
+        with:
+          ref: 247123187cb1aceae5e61bc89f3c01dbf2986311
+          path: support-guest-kernel-data
+          persist-credentials: false
+      - name: Move pinned Core kernel carrier outside closed Source
+        shell: bash
+        run: |
+          set -euo pipefail
+          test ! -e "$RUNNER_TEMP/support-guest-kernel"
+          mv support-guest-kernel-data "$RUNNER_TEMP/support-guest-kernel"
+          chmod 700 "$RUNNER_TEMP/support-guest-kernel"
       - name: Exact signed base, independent native pair and disposable signed lifecycle
-        timeout-minutes: 90
+        timeout-minutes: 240
         shell: bash
         run: |
           set -euo pipefail
@@ -334,7 +172,7 @@ jobs:
             GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" GITHUB_EVENT_NAME="$GITHUB_EVENT_NAME" \
             GITHUB_REPOSITORY="$GITHUB_REPOSITORY" GITHUB_ACTIONS="$GITHUB_ACTIONS" RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" \
             python3 -I -B native/owner.py --execute \
-            --source-sha "$SOURCE_SHA" --ref "$GITHUB_REF" --run-id "$GITHUB_RUN_ID" --map-sha256 38f46c114274b72a70e852b4542e59d0f4f1623f777844ef1024e5d6b9a559ee \
+            --source-sha "$SOURCE_SHA" --ref "$GITHUB_REF" --run-id "$GITHUB_RUN_ID" --map-sha256 93916e313c5ae17fcb56006de8326666dc1c842d013912e25489c6915cddd912 \
             --work "$RUNNER_TEMP/support-native-work" --cache "$RUNNER_TEMP/alarm-cache" \
             --carrier "$RUNNER_TEMP/pgo-hosted-retained" --public "$RUNNER_TEMP/support-native-public"
       - name: Upload only bounded regular DATA capsule and receipt
@@ -345,11 +183,11 @@ jobs:
           retention-days: 3
           if-no-files-found: ignore
           path: ${{ runner.temp }}/support-native-public/
-      - name: Upload bounded runner-host readiness or failure DATA
+      - name: Upload bounded guest-host prerequisite DATA
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
-          name: support-host-preflight-${{ github.run_id }}-${{ github.run_attempt }}
+          name: support-guest-host-preflight-${{ github.run_id }}-${{ github.run_attempt }}
           retention-days: 3
           if-no-files-found: ignore
-          path: ${{ runner.temp }}/support-host-preflight/
+          path: ${{ runner.temp }}/support-guest-host-preflight/

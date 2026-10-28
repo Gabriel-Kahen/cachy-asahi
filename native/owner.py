@@ -153,47 +153,15 @@ def capsule(public, destination, binding, map_sha):
 
 def private_check_proof(root, args, public, actor, image, binding, token, policy):
     selected = policy['selected_package']
-    helper = module(root / 'native/private_check.py', '_support_private_check_route')
-    ident = actor.docker('create', '--name', 'support-proof-export-' + token, '--pull=never', '--network=none',
-        '--read-only', '--cap-drop=ALL', '--security-opt=no-new-privileges',
-        '--label', LABEL + '=' + token, '--label', LABEL + '.source=' + binding['source_sha'],
-        '--label', LABEL + '.run=' + binding['run_id'], '--entrypoint=/bin/true', image, timeout=60)
-    need(re.fullmatch('[0-9a-f]{64}', ident), 'owned proof export container ID')
-    inspection = json.loads(actor.docker('inspect', ident))[0]
-    need(inspection['Image'] == image and inspection['Name'] == '/support-proof-export-' + token
-         and inspection['State']['Running'] is False and inspection['Config']['Labels'].get(LABEL) == token,
-         'exact stopped original341 proof export identity')
-    exported = args.work / 'private-original341.tar'
-    actor.docker('export', '--output', str(exported), ident, timeout=300)
-    materialized = helper.materialize(exported, args.work / 'private-original341-root')
-    work = args.work / 'private-check-work'
-    work.mkdir(mode=0o700)
     recipe = selected['recipe_root']
     package_files = {name: row for name, row in selected['files'].items() if name.startswith(recipe + '/')}
-    need(len(package_files) == 17, 'exact sealed17 recipe-source proof')
-    save(work / 'proof-input.json', dict(schema=1, binding=binding, source_map_sha256=args.map_sha256,
-        image=image, recipe_root=recipe, recipe_sha256=selected['recipe_sha256'], source_files=package_files,
-        original341_sha256=LOCK_SHA))
-    target = public / 'private-check'
-    target.mkdir(mode=0o700)
-    command = helper.proof_command(args.work / 'private-original341-root', root, work, recipe)
-    actor.run(command, target / 'outer.log', timeout=1200)
-    result = load(work / 'proof-result.json')
-    need(result['status'] == 'PASS_EXTERNAL_EXACT_CHECK_FUNCTION' and result['binding'] == binding
-         and result['source_map_sha256'] == args.map_sha256 and result['image'] == image
-         and result['checks']['count'] == 6 and result['checks']['skips'] == 0, 'actual private exact frozen check completion')
-    for path in sorted(work.rglob('*')):
-        if path.is_file():
-            relative = path.relative_to(work)
-            need(relative.name in ('proof-input.json', 'proof-result.json', 'check.log', 'commands.json') or relative.parts[0] in ('logs', 'commands'), 'finite proof public DATA')
-            dest = target / relative
-            dest.parent.mkdir(parents=True, exist_ok=True)
-            dest.write_bytes(read(path, 8*1024**2))
-    save(target / 'export.json', dict(schema=1, image=image, container=ident, inspect=inspection,
-        binding=binding, source_map_sha256=args.map_sha256, materialized=materialized,
-        command=list(map(str,command)), rootfs_export_public=False, source_files=package_files))
-    return dict(status=result['status'], receipt=pin(read(target / 'proof-result.json')),
-                export=pin(read(target / 'export.json')), exact_check=True, in_makepkg=False)
+    need(len(package_files) == 17, 'exact sealed17 guest check sources')
+    guest = module(root / 'native/guest_vm.py', '_support_owned_core16k_guest')
+    result = guest.run(root, args, public, actor, image, binding, token, policy, package_files=package_files)
+    need(result['status'] == 'PASS_GUEST_EMU16K_EXACT_CHECK_FUNCTION'
+         and result['execution'] == 'EMU16K_AARCH64' and result['exact_check'] is True
+         and result['in_makepkg'] is False, 'real guest exact check must gate native nocheck pair')
+    return result
 
 
 def run(root, args):
@@ -206,12 +174,12 @@ def run(root, args):
     # First retained import occurs only after complete publication/selection/admission.
     pgo = module(root / 'bootstrap/scripts/ci/zlib-pgo-native-hosted/owner.py', '_support_qualified_pgo102')
     pgo.DOCKER = DOCKER
-    actor = pgo.Actors(args.work / 'actors', 5000)
+    actor = pgo.Actors(args.work / 'actors', 14400)  # selected Core owner envelope; fit unmeasured
     images, containers = [], {}
     building = False
     report = dict(schema=1, status='FAIL', binding=binding, source_map_sha256=args.map_sha256,
         source_root=str(root), output_root=str(public), uid=os.getuid(), gid=os.getgid(),
-        native_16K='NOT_QUALIFIED', physical_M2='NOT_RUN', release='NOT_ADMITTED')
+        native_16K='NOT_QUALIFIED', guest_check_environment='EMU16K_AARCH64', native_pair_environment='NATIVE_ARM64_4K_DOCKER', physical_M2='NOT_RUN', release='NOT_ADMITTED')
     previous_run = subprocess.run
     previous_env = {k: os.environ.get(k) for k in ('GIT_CONFIG_NOSYSTEM', 'GIT_CONFIG_GLOBAL', 'GIT_NO_REPLACE_OBJECTS', 'GIT_OPTIONAL_LOCKS', 'GIT_NO_LAZY_FETCH', 'GIT_TERMINAL_PROMPT')}
     try:
@@ -310,6 +278,7 @@ def run(root, args):
         handlers = {n: signal.signal(n, lambda number, frame: pending.append(number)) for n in (signal.SIGINT, signal.SIGTERM)}
         cleanup = dict(status='UNKNOWN_NOT_ACCEPTED', actors=[])
         try:
+            need(getattr(actor, 'support_guest_outer_cleanup_safe', True), 'guest ownership unknown; retain backing and producer')
             retire = pgo.Actors(args.work / 'retirement-actors', 160)
             cleanup['actors'] = retire.rows
             ids = retire.docker('ps', '-aq', '--no-trunc', '--filter', 'label=' + LABEL + '=' + token).split()
