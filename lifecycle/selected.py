@@ -67,11 +67,49 @@ def candidate(api,source,target,case,descriptor):
  need(custody.rows(target)==custody.profile()['emitted_cases'][case],'all current16K installer/caller/config/policy emissions match constructor')
  return config,calling
 
+VM_IMPORTS={'contract.py': {'bytes': 5358, 'sha256': '45c352ba77bc29bfa44cd50d507c814da1ab8cf8e253a9268db498742fe0dcc4'}, 'lifecycle_ci.py': {'bytes': 7619, 'sha256': '68cbd5ed627dec67acde1660112a880fb8196341ecc0d2f0f1a474c975de4e6f'}, 'vm.py': {'bytes': 21418, 'sha256': '06ac8ebb3ebe3d0606790a1fa749fbfa75579d6dd2713ca8b8b04a68d1bf720f'}}
+
+def vm_siblings(support):
+ """Load only three exact sibling bodies; never search for their execution."""
+ import importlib.machinery,os,stat,sys,types
+ support=Path(support);expected=Path(__file__).resolve().parent/'vm'
+ need(support.is_absolute()and support==expected==support.resolve()and not any(p.is_symlink()for p in(support,*support.parents)),'exact ordinary VM sibling directory')
+ keys=('contract','lifecycle_ci','_current607_vm_contract','_current607_vm_lifecycle_ci','_current607_vm_transport')
+ need(not any(k in sys.modules for k in keys),'pre-existing VM sibling module namespace refused')
+ need(len(sys.path)<=128 and all(type(p)is str for p in sys.path),'bounded VM sibling shadow check')
+ for name in ('contract','lifecycle_ci'):
+  target=support/(name+'.py')
+  for entry in sys.path:
+   spec=importlib.machinery.PathFinder.find_spec(name,[entry])
+   if spec is not None:need(type(spec.origin)is str and Path(spec.origin)==target and Path(spec.origin).resolve()==target,'foreign VM sibling import-path shadow refused: '+name)
+ def checked(name):
+  path=support/name;need(not path.is_symlink(),'VM sibling source alias refused')
+  fd=os.open(path,os.O_RDONLY|os.O_CLOEXEC|os.O_NOFOLLOW|os.O_NONBLOCK)
+  try:
+   info=os.fstat(fd);need(stat.S_ISREG(info.st_mode)and info.st_nlink==1 and 0<info.st_size<=128*1024,'bounded ordinary VM sibling body')
+   raw=bytearray()
+   while chunk:=os.read(fd,65536):raw.extend(chunk);need(len(raw)<=info.st_size,'VM sibling body grew')
+   identity=lambda s:(s.st_dev,s.st_ino,s.st_mode,s.st_nlink,s.st_uid,s.st_gid,s.st_size,s.st_mtime_ns,s.st_ctime_ns)
+   need(len(raw)==info.st_size and identity(info)==identity(os.fstat(fd))==identity(path.lstat())and pin(bytes(raw))==VM_IMPORTS[name],'exact stable VM sibling source pin: '+name)
+   return bytes(raw)
+  finally:os.close(fd)
+ names={'contract.py':'_current607_vm_contract','lifecycle_ci.py':'_current607_vm_lifecycle_ci','vm.py':'_current607_vm_transport'}
+ bodies={n:compile(checked(n),str(support/n),'exec')for n in names}
+ modules={n:types.ModuleType(v)for n,v in names.items()}
+ try:
+  for n,m in modules.items():m.__file__=str(support/n);sys.modules[names[n]]=m
+  exec(bodies['contract.py'],vars(modules['contract.py']));exec(bodies['lifecycle_ci.py'],vars(modules['lifecycle_ci.py']))
+  sys.modules['contract']=modules['contract.py'];sys.modules['lifecycle_ci']=modules['lifecycle_ci.py']
+  transport=modules['vm.py'];exec(bodies['vm.py'],vars(transport))
+  need(transport.C is modules['contract.py']and transport.CI is modules['lifecycle_ci.py'],'exact captured VM sibling module identity')
+  return transport
+ finally:
+  for key in keys:sys.modules.pop(key,None)
+
+
 def vm(api,args,extra,context,verify_dependencies):
- import common as C
  root=Path(__file__).resolve().parent;support=root/'vm'
- contract=C.load('_current607_vm_contract',support/'contract.py')
- transport=C.load('_current607_vm_transport',support/'vm.py',{'contract':contract})
+ transport=vm_siblings(support)
  def kernel(a):
   verify_dependencies(a.fresh16k_source,'fresh16k')
   descriptor=json.loads((root/'profile.json').read_bytes())['kernel_descriptor']
