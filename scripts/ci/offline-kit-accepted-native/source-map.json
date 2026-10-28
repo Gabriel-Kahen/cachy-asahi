@@ -261,20 +261,25 @@
       "mode": 420,
       "sha256": "6e199ce206038571a32bc480b11a39a62f1d7adbe85cae3730912360561c3aa1"
     },
+    "scripts/ci/offline-kit-accepted-native/namespace_diagnostic_owner.py": {
+      "bytes": 10620,
+      "mode": 420,
+      "sha256": "c3093cd473ef67e7efe745bcd509b1f127d0c54ab39614bf4f2a056c2b0a1318"
+    },
     "scripts/ci/offline-kit-accepted-native/original-fixture-worker.py": {
       "bytes": 93752,
       "mode": 420,
       "sha256": "14381d049506b52770059bf7af415f7a079f69872543e74417aca11ce24ac3c5"
     },
     "scripts/ci/offline-kit-accepted-native/owner.py": {
-      "bytes": 39982,
+      "bytes": 42654,
       "mode": 420,
-      "sha256": "9c1768b6edbddaec058471fd4ba99a8868d162af7305a460a220ef13bda4c3fb"
+      "sha256": "c5bd5168155af5ca8db22ac3f6581207c588e48bd8dfa98629408385c8705b5e"
     },
     "scripts/ci/offline-kit-accepted-native/owner_common.py": {
-      "bytes": 17492,
+      "bytes": 18998,
       "mode": 420,
-      "sha256": "e757c45666362eb2fed206ec6a5f733130d39960c1a01ed749a82971f0942056"
+      "sha256": "dbb12f84b78a1b4c2d4916bcd82f0993f83765f09105de638c17ebafd4ce8ecd"
     },
     "scripts/ci/offline-kit-accepted-native/prefill574.py": {
       "bytes": 3153,
@@ -306,6 +311,11 @@
       "mode": 420,
       "sha256": "5599d1289cf29cf33a499ac3bc785c3c8fb8514a6e32e151d03363e0955218ea"
     },
+    "scripts/ci/offline-kit-accepted-native/trial-code/namespace_diagnostic.py": {
+      "bytes": 20230,
+      "mode": 420,
+      "sha256": "8f2c977c647168d4635821c5940b34a89f3b150766b0dda752a346e5fa0c1092"
+    },
     "scripts/ci/offline-kit-accepted-native/trial-code/plan_bridge.py": {
       "bytes": 8031,
       "mode": 420,
@@ -317,9 +327,9 @@
       "sha256": "eb3882c0ff60c9c33439fa7588700c05b16e6f116bde51079642722e956f4c31"
     },
     "scripts/ci/offline-kit-accepted-native/workflow.yml.in": {
-      "bytes": 13270,
+      "bytes": 14388,
       "mode": 420,
-      "sha256": "0d591cd73b60a4aa411640056772c2bce202e7bd0562238fab79ba3c9bd2a1e6"
+      "sha256": "8724460377538764958bea897f8d4a8b98988d6754e096e749d06712d86555dd"
     },
     "scripts/ci/old_four_seed.py": {
       "bytes": 29048,
@@ -362,6 +372,6 @@
       "sha256": "e5d7dc11d1a59cf37a273e9a7103c7e55b169335b17c599990946f4e677ca974"
     }
   },
-  "purpose": "TWO_ACCEPTED_NATIVE_TOOLS_OFFLINE_KIT_FULL_RETAINED_TRANSPORT",
+  "purpose": "FRESH_RUNNER_FINITE_SELECTED_NAMESPACE_DIAGNOSTIC_CI_ROUTE",
   "schema": 1
 }

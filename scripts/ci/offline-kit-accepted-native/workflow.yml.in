@@ -2,6 +2,13 @@ name: native-arm-offline-kit-accepted-tools
 on:
   workflow_dispatch:
     inputs:
+      operation:
+        description: Explicit bounded operation; diagnostic never runs a kit lifecycle
+        type: choice
+        required: true
+        options:
+          - namespace-diagnostic
+          - kit-lifecycle
       source_sha:
         description: Exact source SHA equal to this workflow revision and complete closed source tree
         type: string
@@ -22,6 +29,7 @@ jobs:
     env:
       PYTHONDONTWRITEBYTECODE: '1'
       SOURCE_SHA: ${{ inputs.source_sha }}
+      NATIVE_OPERATION: ${{ inputs.operation }}
       SLICE: scripts/ci/offline-kit-accepted-native
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -34,6 +42,10 @@ jobs:
         timeout-minutes: 2
         run: |
           set -euo pipefail
+          case "${NATIVE_OPERATION-}" in
+            namespace-diagnostic|kit-lifecycle) ;;
+            *) printf '%s\n' 'Explicit valid NATIVE_OPERATION required' >&2; exit 2 ;;
+          esac
           [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
           test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
           test "$GITHUB_SHA" = "$SOURCE_SHA"
@@ -42,7 +54,7 @@ jobs:
           printf '%s  %s\n' '@OWNER_SHA@' "$SLICE/owner.py" '@MAP_SHA@' "$SLICE/source-map.json" | sha256sum --check
           timeout --signal=TERM --kill-after=10s 100s \
           env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC \
-            TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 SOURCE_SHA="$SOURCE_SHA" \
+            TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 SOURCE_SHA="$SOURCE_SHA" NATIVE_OPERATION="$NATIVE_OPERATION" \
             RUNNER_TEMP="$RUNNER_TEMP" RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" \
             GITHUB_ACTIONS="$GITHUB_ACTIONS" GITHUB_SHA="$GITHUB_SHA" \
             GITHUB_WORKFLOW_SHA="$GITHUB_WORKFLOW_SHA" GITHUB_REPOSITORY="$GITHUB_REPOSITORY" \
@@ -64,6 +76,7 @@ jobs:
           timeout --signal=TERM --kill-after=5s 45s python3 -I -B "$SLICE/test_relocated_bridge.py"
           timeout --signal=TERM --kill-after=5s 45s python3 -I -B "$SLICE/test_cleanup_receipt.py"
       - name: Checkout immutable accepted native tools source and archive DATA
+        if: inputs.operation == 'kit-lifecycle'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         timeout-minutes: 2
         with:
@@ -71,6 +84,7 @@ jobs:
           path: retained-native-tools
           persist-credentials: false
       - name: Prove accepted carrier commit tree and inventory before native actors
+        if: inputs.operation == 'kit-lifecycle'
         timeout-minutes: 1
         run: |
           set -euo pipefail
@@ -136,7 +150,7 @@ jobs:
           set +e
           timeout --signal=TERM --kill-after=30s 500s \
           env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC \
-            TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 SOURCE_SHA="$SOURCE_SHA" \
+            TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 SOURCE_SHA="$SOURCE_SHA" NATIVE_OPERATION="$NATIVE_OPERATION" \
             RUNNER_TEMP="$RUNNER_TEMP" RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" \
             GITHUB_ACTIONS="$GITHUB_ACTIONS" GITHUB_SHA="$GITHUB_SHA" \
             GITHUB_WORKFLOW_SHA="$GITHUB_WORKFLOW_SHA" GITHUB_REPOSITORY="$GITHUB_REPOSITORY" \
@@ -157,7 +171,7 @@ jobs:
           set -euo pipefail
           timeout --signal=TERM --kill-after=10s 2300s \
           env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC \
-            TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 SOURCE_SHA="$SOURCE_SHA" \
+            TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 SOURCE_SHA="$SOURCE_SHA" NATIVE_OPERATION="$NATIVE_OPERATION" \
             RUNNER_TEMP="$RUNNER_TEMP" RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" \
             GITHUB_ACTIONS="$GITHUB_ACTIONS" GITHUB_SHA="$GITHUB_SHA" \
             GITHUB_WORKFLOW_SHA="$GITHUB_WORKFLOW_SHA" GITHUB_REPOSITORY="$GITHUB_REPOSITORY" \
@@ -166,20 +180,25 @@ jobs:
             GITHUB_OUTPUT="$GITHUB_OUTPUT" \
             python3 -I -B "$SLICE/owner.py" bootstrap \
             --manifest-sha256 '@MAP_SHA@' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute
-      - name: Verify original accepted signatures and run both offline kit lifecycles
-        timeout-minutes: 78
+      - name: Execute the explicit diagnostic or signed kit lifecycle operation
+        timeout-minutes: ${{ inputs.operation == 'namespace-diagnostic' && 9 || 78 }}
         run: |
           set -euo pipefail
-          timeout --signal=TERM --kill-after=30s 4560s \
+          case "${NATIVE_OPERATION-}" in
+            namespace-diagnostic) SELECTED_TIMEOUT=540s ;;
+            kit-lifecycle) SELECTED_TIMEOUT=4560s ;;
+            *) printf '%s\n' 'Explicit valid NATIVE_OPERATION required' >&2; exit 2 ;;
+          esac
+          timeout --signal=TERM --kill-after=30s "$SELECTED_TIMEOUT" \
           env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC \
-            TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 SOURCE_SHA="$SOURCE_SHA" \
+            TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 SOURCE_SHA="$SOURCE_SHA" NATIVE_OPERATION="$NATIVE_OPERATION" \
             RUNNER_TEMP="$RUNNER_TEMP" RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" \
             GITHUB_ACTIONS="$GITHUB_ACTIONS" GITHUB_SHA="$GITHUB_SHA" \
             GITHUB_WORKFLOW_SHA="$GITHUB_WORKFLOW_SHA" GITHUB_REPOSITORY="$GITHUB_REPOSITORY" \
             GITHUB_EVENT_NAME="$GITHUB_EVENT_NAME" GITHUB_RUN_ID="$GITHUB_RUN_ID" \
             GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" \
             GITHUB_OUTPUT="$GITHUB_OUTPUT" \
-            python3 -I -B "$SLICE/owner.py" run \
+            python3 -I -B "$SLICE/owner.py" execute-selected \
             --manifest-sha256 '@MAP_SHA@' --work "$RUNNER_TEMP/offline-kit-accepted-work" --execute
       - name: Retire all owned kit consumers before the original574 producer
         if: always() && steps.proof.outcome == 'success'
@@ -188,7 +207,7 @@ jobs:
           set -euo pipefail
           timeout --signal=TERM --kill-after=10s 330s \
           env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC \
-            TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 SOURCE_SHA="$SOURCE_SHA" \
+            TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 SOURCE_SHA="$SOURCE_SHA" NATIVE_OPERATION="$NATIVE_OPERATION" \
             RUNNER_TEMP="$RUNNER_TEMP" RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" \
             GITHUB_ACTIONS="$GITHUB_ACTIONS" GITHUB_SHA="$GITHUB_SHA" \
             GITHUB_WORKFLOW_SHA="$GITHUB_WORKFLOW_SHA" GITHUB_REPOSITORY="$GITHUB_REPOSITORY" \
@@ -204,7 +223,7 @@ jobs:
           set -euo pipefail
           timeout --signal=TERM --kill-after=10s 150s \
           env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC \
-            TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 SOURCE_SHA="$SOURCE_SHA" \
+            TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 SOURCE_SHA="$SOURCE_SHA" NATIVE_OPERATION="$NATIVE_OPERATION" \
             RUNNER_TEMP="$RUNNER_TEMP" RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" \
             GITHUB_ACTIONS="$GITHUB_ACTIONS" GITHUB_SHA="$GITHUB_SHA" \
             GITHUB_WORKFLOW_SHA="$GITHUB_WORKFLOW_SHA" GITHUB_REPOSITORY="$GITHUB_REPOSITORY" \
