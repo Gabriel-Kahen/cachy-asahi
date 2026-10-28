@@ -243,6 +243,11 @@ def run(root, args):
         finally:
             report['consumer_diagnostic'] = retain_consumer(args.work, output, own, args.map_sha256,
                 actor.rows, consumer_index, container, consumer_error)
+            try:
+                from build_summary import bind as bind_build_summary
+                report['build_summary'] = bind_build_summary(output, own, args.map_sha256)
+            except Exception:
+                report['build_summary_retention'] = 'REFUSED_BOUNDED_BUILD_SUMMARY_DATA'
         need(report['consumer_diagnostic']['status'] == 'ORIGINAL_CONSUMER_ACTOR_DATA_ONLY',
              'original consumer diagnostic retention required')
         after = json.loads(actor.docker('inspect', container))[0]
@@ -361,6 +366,14 @@ def run(root, args):
             from public_projection import project
             project(root, output, args.work / 'public-projection')
         except Exception as error:
+            try:
+                from privacy_diagnostics import validate_refusal
+                detail = error.diagnostic()
+                validate_refusal(detail)
+                save(args.work / 'projection-refusal.json', dict(schema=1, binding=own,
+                    source_map_sha256=args.map_sha256, diagnostic=detail))
+            except Exception:
+                pass  # Saving safe refusal DATA cannot replace the primary error.
             print('NATIVE_PUBLIC_PROJECTION_REFUSED ' + type(error).__name__, flush=True)
             if primary_error is None:
                 raise
