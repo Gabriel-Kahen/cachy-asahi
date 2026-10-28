@@ -56,6 +56,8 @@ def run(root, output, map_hash):
         phase = 'build-systems'
         builds = module(root, 'scripts/workflows/developer_build_systems.py', '_native_builds')
         report['build_systems'] = builds.run(output / 'build-systems', '/usr/bin', timeout=45, total=600)
+        from meson_diagnostics import emit as emit_meson_diagnostic
+        emit_meson_diagnostic(output / 'build-systems', report['build_systems'], map_hash, output)
         from build_summary import emit as emit_build_summary
         emit_build_summary(output / 'build-systems', report['build_systems'], map_hash, output)
         need(report['build_systems']['status'] == 'PASS_AVAILABLE_LOCAL_WORKFLOWS'

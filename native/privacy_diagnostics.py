@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 """Fixed privacy rule IDs and source-whitelisted context; never expose values."""
 import hashlib,json,re
+from pathlib import Path
 CAP=16*1024**2
 PRIVATE_MARKER=re.compile(br'-----BEGIN[^\r\n]{0,100}PRIVATE KEY|BEGIN PGP PRIVATE|ssh-(?:rsa|ed25519)|ecdsa-sha2-|(?:gh[pousr]_|github_pat_)[A-Za-z0-9_]+|authorization\s*:\s*(?:bearer|token)|(?:access[_-]?token|password|secret)\s*[=:]|CACHY_(?:OLD_FOUR|RETAINED_BUBBLEWRAP)|PRIVATE_KEY|(?:_TOKEN|_SECRET|_PASSWORD)\b',re.I)
 RULES=tuple((f'PRIVACY_{i:02d}',re.compile(pattern,re.I)) for i,pattern in enumerate((
@@ -19,6 +20,73 @@ FIELDS={
  'build-summary.json':{('status',)}|{('guest_summary',)+p for p in SUMMARY_FIELDS},
  'receipt.json':{('status',),('error',),('bootstrap','status')},'consumer-diagnostic.json':{('status',),('phase',)},
  'cleanup.json':{('status',)},'provision-diagnostic.json':{('status',)}}
+
+
+# New contexts identify only fixed Source vocabulary, never the matched value.
+# List positions are canonicalized; the hash cannot print arbitrary field names.
+def _label_registry():
+ result={}
+ def add(file,label,path):result.setdefault(file,{}).setdefault(label,set()).add(tuple(path))
+ for feature,label in (('python','PYTHON'),('extension','EXTENSION'),('build_systems','BUILD')):
+  folder='build-systems' if feature=='build_systems' else feature
+  for file,prefix in (('journey/result.json',(feature,)),('journey/'+folder+'/result.json',())):
+   for leaf,name in (('status','REPORT_STATUS'),('error','REPORT_ERROR')):add(file,label+'_'+name,prefix+(leaf,))
+   for leaf,name in (('argv','ARGUMENT'),('cwd','LOCATION'),('step','STEP'),('launch_error','LAUNCH_ERROR')):
+    path=prefix+('commands','*',leaf)+(('*',) if leaf=='argv' else ())
+    add(file,label+'_COMMAND_'+name,path)
+   for leaf in ('error','ownership','group_census'):
+    add(file,label+'_COMMAND_SUPERVISION',prefix+('commands','*','supervision',leaf))
+   add(file,label+'_COMMAND_SUPERVISION',prefix+('commands','*','supervision','signals','*'))
+   if feature=='build_systems':
+    for backend in ('cmake','meson'):
+     add(file,'BUILD_PROJECT_STATUS',prefix+('project_workflows',backend,'status'))
+     add(file,'BUILD_PROJECT_MISSING_TOOL',prefix+('project_workflows',backend,'missing','*'))
+    for tool in ('cmake','ctest','meson','ninja','cc','c++'):
+     for leaf in ('status','path','resolved'):
+      add(file,'BUILD_TOOL_METADATA',prefix+('tools',tool,leaf))
+     add(file,'BUILD_TOOL_METADATA',prefix+('tools',tool,'version','*'))
+ for file,prefix in (('journey/build-systems/commands.json',()),('journey/python/commands.json',()),('journey/extension/commands.json',())):
+  label='BUILD' if 'build-systems' in file else 'PYTHON' if '/python/' in file else 'EXTENSION'
+  add(file,label+'_COMMAND_ARGUMENT',('*','argv','*'))
+  add(file,label+'_COMMAND_LOCATION',('*','cwd'))
+  add(file,label+'_COMMAND_STEP',('*','step'))
+  for leaf in ('error','ownership','group_census'):add(file,label+'_COMMAND_SUPERVISION',('*','supervision',leaf))
+ return result
+LABEL_PATHS=_label_registry()
+
+HEADER_PROFILE_SHA256='2c42c705654d31e639f389f9a868dada0d9df76813d865e766be7b7c08f8404c'
+_HEADER_PATHS=None
+
+def _pinned_header_paths():
+ global _HEADER_PATHS
+ if _HEADER_PATHS is None:
+  from capsule import _ordinary
+  raw=_ordinary(Path(__file__).resolve().parent/'input-profile.json',256*1024)
+  if hashlib.sha256(raw).hexdigest()!=HEADER_PROFILE_SHA256:raise ValueError('PINNED_HEADER_CONTEXT_PROFILE_REFUSED')
+  files=json.loads(raw)['python_headers']['files']
+  if type(files) is not dict or len(files)!=283:raise ValueError('PINNED_HEADER_CONTEXT_PROFILE_REFUSED')
+  names=[]
+  for name,row in files.items():
+   if type(name) is not str or not name.startswith('usr/include/python3.14/') or type(row) is not dict:
+    raise ValueError('PINNED_HEADER_CONTEXT_PROFILE_REFUSED')
+   names.append(name.removeprefix('usr/include/python3.14/'))
+  _HEADER_PATHS={
+   'journey/result.json':{prefix+(name,) for prefix in (('headers','files'),('extension','headers','files')) for name in names},
+   'journey/extension/result.json':{('headers','files',name) for name in names}}
+ return _HEADER_PATHS
+
+def _fixed_context(path,relative_path,is_key):
+ if is_key:
+  header_shape=(relative_path=='journey/result.json' and
+   (len(path)==3 and path[:2]==('headers','files') or len(path)==4 and path[:3]==('extension','headers','files'))
+   or relative_path=='journey/extension/result.json' and len(path)==3 and path[:2]==('headers','files'))
+  if header_shape and tuple(path) in _pinned_header_paths().get(relative_path,set()):
+   return 'PINNED_PYTHON_HEADER_MAP_KEY',hashlib.sha256(_canonical(list(path))).hexdigest(),'EXTENSION_HEADER_REPORT'
+  return None
+ canonical=tuple('*' if type(part) is int else part for part in path)
+ for label,known in LABEL_PATHS.get(relative_path,{}).items():
+  if canonical in known:return label,hashlib.sha256(_canonical(list(canonical))).hexdigest(),None
+ return None
 
 
 def _pin(raw):return dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())
@@ -69,6 +137,11 @@ def inspect_privacy(raw,relative_path):
   found=_field(_parse(raw),identifier)
   if found is None:return result
   path,value,is_key=found;result['field_path_sha256']=hashlib.sha256(_canonical(list(path))).hexdigest()
+  fixed=_fixed_context(path,relative_path,is_key)
+  if fixed is not None:
+   result.update(logical_field=fixed[0],field_path_sha256=fixed[1],field_sha256=None)
+   if fixed[2] is not None:result['scope']=fixed[2]
+   return result
   if not is_key and path in FIELDS.get(relative_path,set()):
    value_hash=hashlib.sha256(_canonical(value)).hexdigest()
    result.update(logical_field='.'.join(path),field_sha256=value_hash)
@@ -76,7 +149,7 @@ def inspect_privacy(raw,relative_path):
  return result
 
 HOST={'transport-diagnostic.json','transport-proof.json','receipt.json','cleanup.json','source-proof.json','consumer-inspect.json','consumer-after.json','consumer-diagnostic.json',
- 'image-ledger.json','image-retirement.json','bootstrap-failure-retention.json','provision-diagnostic.json','build-summary.json'}
+ 'image-ledger.json','image-retirement.json','bootstrap-failure-retention.json','provision-diagnostic.json','build-summary.json','meson-diagnostic.json'}
 REPORTS={'python':{'result.json','commands.json','project.json'},'extension':{'result.json','commands.json','project.json'},
  'build-systems':{'result.json','commands.json','project-cmake.json','project-meson.json','installed-cmake.json','installed-meson.json'}}
 PRODUCERS={'native/python_backend.py','native/uv-inputs.json','scripts/workflows/python_development.py','scripts/workflows/python_extension.py',
@@ -94,7 +167,7 @@ def _sha(value,nullable=False):return value is None and nullable or type(value) 
 
 def _path(value):
  if type(value) is not str or len(value.encode('utf-8'))>4096 or PRIVATE_MARKER.search(value.encode()):return False
- if value in HOST|PRODUCERS|{'journey/result.json','journey/build-summary.json','artifacts.json','public-projection.json'}:return True
+ if value in HOST|PRODUCERS|{'journey/result.json','journey/build-summary.json','journey/meson-diagnostic.json','artifacts.json','public-projection.json'}:return True
  if value.startswith('transport-proof/'):
   return value.removeprefix('transport-proof/')=='receipt.json' or re.fullmatch(r'[0-9]{4}\.(stdout|stderr)',value.removeprefix('transport-proof/')) is not None
  if value.startswith('bootstrap-proof/'):return value.removeprefix('bootstrap-proof/') in PROOFS
@@ -107,11 +180,20 @@ def _path(value):
  return value.startswith('journey/python/venv/') and value.removeprefix('journey/python/venv/') in BACKEND
 
 def validate_context(value,path):
- _need(type(value) is dict and set(value)=={'schema','rule_id','logical_field','field_path_sha256','field_sha256','whole_file'})
+ keys={'schema','rule_id','logical_field','field_path_sha256','field_sha256','whole_file'}
+ _need(type(value) is dict and (set(value)==keys or set(value)==keys|{'scope'}))
  _need(type(value['schema']) is int and value['schema']==1 and value['rule_id'] in {'PRIVACY_00',*(r[0] for r in RULES)})
  whole=value['whole_file'];_need(type(whole) is dict and set(whole)=={'bytes','sha256'} and type(whole['bytes']) is int and 0<whole['bytes']<=CAP and _sha(whole['sha256']))
  _need(_sha(value['field_path_sha256'],True) and _sha(value['field_sha256'],True))
+ if value['logical_field']=='PINNED_PYTHON_HEADER_MAP_KEY':
+  _need(set(value)==keys|{'scope'} and value['scope']=='EXTENSION_HEADER_REPORT' and value['field_sha256'] is None
+   and value['field_path_sha256'] in {hashlib.sha256(_canonical(list(parts))).hexdigest() for parts in _pinned_header_paths().get(path,set())})
+  return True
+ _need(set(value)==keys)
  if value['logical_field']=='UNCLASSIFIED':_need(value['field_sha256'] is None)
+ elif type(value['logical_field']) is str and value['logical_field'] in LABEL_PATHS.get(path,{}):
+  _need(value['field_sha256'] is None and value['field_path_sha256'] in
+   {hashlib.sha256(_canonical(list(parts))).hexdigest() for parts in LABEL_PATHS[path][value['logical_field']]})
  else:
   known={'.'.join(parts):parts for parts in FIELDS.get(path,set())};_need(type(value['logical_field']) is str and value['logical_field'] in known)
   _need(_sha(value['field_sha256']) and value['field_path_sha256']==hashlib.sha256(_canonical(list(known[value['logical_field']]))).hexdigest())

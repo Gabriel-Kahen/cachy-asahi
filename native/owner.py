@@ -248,6 +248,11 @@ def run(root, args):
                 report['build_summary'] = bind_build_summary(output, own, args.map_sha256)
             except Exception:
                 report['build_summary_retention'] = 'REFUSED_BOUNDED_BUILD_SUMMARY_DATA'
+            try:
+                from meson_diagnostics import bind as bind_meson_diagnostic
+                report['meson_diagnostic'] = bind_meson_diagnostic(output, own, args.map_sha256)
+            except Exception:
+                report['meson_diagnostic_retention'] = 'REFUSED_BOUNDED_MESON_DIAGNOSTIC'
         need(report['consumer_diagnostic']['status'] == 'ORIGINAL_CONSUMER_ACTOR_DATA_ONLY',
              'original consumer diagnostic retention required')
         after = json.loads(actor.docker('inspect', container))[0]

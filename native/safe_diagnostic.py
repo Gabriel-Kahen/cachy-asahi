@@ -7,7 +7,8 @@ import capsule as C
 from consumer_diagnostics import DOCKER, FIELDS, safe_text
 
 CAP = 1024 * 1024
-INPUTS = {'consumer-diagnostic.json': ('public/consumer-diagnostic.json', 512*1024),
+INPUTS = {'meson-diagnostic.json': ('public/meson-diagnostic.json', 512*1024),
+          'consumer-diagnostic.json': ('public/consumer-diagnostic.json', 512*1024),
           'build-summary.json': ('public/build-summary.json', 512*1024),
           'projection-refusal.json': ('projection-refusal.json', 32*1024)}
 
@@ -75,6 +76,9 @@ def check_consumer(value, own, map_hash):
 def check_leaf(name, value, own, map_hash):
     if name == 'consumer-diagnostic.json':
         return check_consumer(value, own, map_hash)
+    if name == 'meson-diagnostic.json':
+        from meson_diagnostics import validate_bound
+        return validate_bound(value, own, map_hash)
     if name == 'build-summary.json':
         from build_summary import validate_bound
         return validate_bound(value, own, map_hash)
