@@ -1744,12 +1744,12 @@
       "sha256": "eb0dcfff0cebdc9101840654c48cbcdb96af3f641ec9b7530c235ef46064354d"
     },
     "runtime/immutable/supervisor.py": {
-      "bytes": 1884,
-      "sha256": "d0aa00574817eabfecaa0af886e251e45156fe2de46efa5d2775a9ce46d98a23"
+      "bytes": 20870,
+      "sha256": "e53f49e874215b8a14d1ee2d03552a81257b99fa3f8f5f152b7f45b39da9ab3c"
     },
     "runtime/immutable/test_controls.py": {
-      "bytes": 10193,
-      "sha256": "7e2cda89fd12e03fbb37bffafa4e946b5e2d4689a7bfb6bd185595d83038c3f8"
+      "bytes": 10578,
+      "sha256": "7d516392d458dc71a9d4b48cc35384db588e4d045c5d1f95e83b952a5a6a5b5f"
     },
     "runtime/immutable/worker.py": {
       "bytes": 4890,
@@ -1760,8 +1760,8 @@
       "sha256": "fdd4333d65c46d77e2db766d8713722477b61b21ba22dbe9d6c46f7a98c64647"
     },
     "runtime/runtime-source.json": {
-      "bytes": 147893,
-      "sha256": "93a8e6c43c51630ec7fda6377bd3158cb9788bfd0fcc81df353603573440595d"
+      "bytes": 147894,
+      "sha256": "579db74fb89c09ddb3805393ee7ec8208d7137305fe795bae7dc66a0e3a444ab"
     },
     "runtime/runtime-vm/.github/workflows/native-arm-build.yml": {
       "bytes": 10533,
@@ -2744,8 +2744,8 @@
       "sha256": "76b787fa71b121ec1bf83b86e4d5db849913614bc90e03239b869d7061af1db4"
     },
     "scripts/ci/gnu-immutable-source-native/deploy.py": {
-      "bytes": 622869,
-      "sha256": "b69bee6315efe1bba2f071098b1f7405978065e29b07ef6ec8ef17ec68c1f0f1"
+      "bytes": 675577,
+      "sha256": "e61123d4df55de97067dce119c94058e1d4d898e24c74fda6f81737411130a6b"
     },
     "scripts/ci/gnu-immutable-source-native/descriptor_failure_export.py": {
       "bytes": 8358,

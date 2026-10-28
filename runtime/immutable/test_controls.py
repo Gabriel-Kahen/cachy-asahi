@@ -74,7 +74,7 @@ class Controls(unittest.TestCase):
   try:row,out,err,error=space['run_command']([sys.executable,'-I','-B','-c',script],Path('/tmp'),dict(PATH='/usr/bin:/bin'),5,1024,service=s)
   finally:s.sock.close()
   self.assertIsNone(error,(row,out,err));self.assertEqual(row['exit_code'],0);self.assertTrue(row['group_absence_verified']);self.assertEqual(err,b'');self.assertEqual(out,b'INERT_NOT_NATIVE_ACCEPTANCE\n')
-  with self.assertRaises(ProcessLookupError):os.kill(s.pid,0)
+  retired=row['worker_group_retirement'];self.assertTrue(retired['leader_reaped']);self.assertEqual(retired['wait_ownership'],'REAPED');self.assertEqual(retired['proof_status'],'PRE_REAP_RESERVED_LEADER_ONLY');self.assertEqual(retired['raw_wait']['raw_exit'],0);self.assertEqual(retired['raw_wait']['reserved_exit'],0);self.assertEqual(len(retired['pre_reap_scans']),2);self.assertTrue(all(scan['count']==1 for scan in retired['pre_reap_scans']))
  def test_preparer_init_and_four_disk_QEMU_source_controls(self):
   prepare=inputs.original('_inert_prepare','scripts/ci/glibc-debian-maintained-installed16k/prepare.py');raw=Path(prepare.__file__).read_bytes();init,proof=disk_adapter.init(raw);self.assertIn('mount -t proc -o ro,nosuid,nodev,noexec proc /proc',init);self.assertNotIn('/volume/held',init);self.assertIn('/immutable/entry.py',init);self.assertIn('runtime_stage.execute',disk_adapter.preparer(raw))
   run=inputs.original('_inert_qemu','scripts/ci/glibc-debian-maintained-installed16k/run.py');argv=disk_adapter.qemu(run.qemu,'Image','boot','work','source','hash');self.assertEqual(sum(x=='-drive'for x in argv),4);self.assertIn('if=none,id=source,format=raw,readonly=on,file=source',argv);self.assertIn('if=none,id=hash,format=raw,readonly=on,file=hash',argv)
