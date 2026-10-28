@@ -566,9 +566,9 @@
       "sha256": "9d7c76cf79a84d927ea7fb03f8513c55b6de5817c1670ebcae8efe5946d6e59a"
     },
     "native/workflow.yml.in": {
-      "bytes": 9653,
+      "bytes": 22799,
       "mode": 420,
-      "sha256": "79111cdc4d78dc7218d6c98a5def017999c3b0b5eab6de786684b9bb3d66d299"
+      "sha256": "02e76fa566f40f110c21208cc0e29e669f84add2726fbbc3d28b2c258bf21732"
     },
     "packages/tools/cachy-asahi-support2/.SRCINFO": {
       "bytes": 1901,
