@@ -2,6 +2,7 @@ name: Full port component workflows
 on:
   pull_request:
     paths:
+      - '**' # Unknown paths must reach the full-suite fallback.
       - 'scripts/platform/**'
       - 'scripts/checks/package_checks.py'
       - 'scripts/release/**'
@@ -38,6 +39,7 @@ on:
   push:
     branches: [main]
     paths:
+      - '**' # Unknown paths must reach the full-suite fallback.
       - 'scripts/platform/**'
       - 'scripts/checks/package_checks.py'
       - 'scripts/release/**'
@@ -76,13 +78,13 @@ permissions:
   contents: read
 jobs:
   components:
+    needs: component-selection
+    if: ${{ !cancelled() && (needs.component-selection.result != 'success' || needs.component-selection.outputs.run != 'false') }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     strategy:
       fail-fast: false
-      matrix:
-        python: ['3.12', '3.14']
-        component: [image, signed-intake, signed-image, sbom, source-mirror, source-mirror-update, desktop, app-runtime, app-inputs, python, python-extension, build-systems, pgo-source, app-window, mirror-builder, debugger, support-bundle, support-collection, recovery-bundle, security-operation, advisory-cache, support-package2, security-maintenance-package, orphans03, support-package]
+      matrix: ${{ fromJSON(needs.component-selection.result == 'success' && needs.component-selection.outputs.matrix || '{"include":[{"component":"image","python":"3.12"},{"component":"signed-intake","python":"3.12"},{"component":"signed-image","python":"3.12"},{"component":"sbom","python":"3.12"},{"component":"source-mirror","python":"3.12"},{"component":"source-mirror-update","python":"3.12"},{"component":"desktop","python":"3.12"},{"component":"app-runtime","python":"3.12"},{"component":"app-inputs","python":"3.12"},{"component":"python","python":"3.12"},{"component":"python-extension","python":"3.12"},{"component":"build-systems","python":"3.12"},{"component":"pgo-source","python":"3.12"},{"component":"app-window","python":"3.12"},{"component":"mirror-builder","python":"3.12"},{"component":"debugger","python":"3.12"},{"component":"support-bundle","python":"3.12"},{"component":"support-collection","python":"3.12"},{"component":"recovery-bundle","python":"3.12"},{"component":"security-operation","python":"3.12"},{"component":"advisory-cache","python":"3.12"},{"component":"support-package2","python":"3.12"},{"component":"security-maintenance-package","python":"3.12"},{"component":"orphans03","python":"3.12"},{"component":"support-package","python":"3.12"},{"component":"image","python":"3.14"},{"component":"signed-intake","python":"3.14"},{"component":"signed-image","python":"3.14"},{"component":"sbom","python":"3.14"},{"component":"source-mirror","python":"3.14"},{"component":"source-mirror-update","python":"3.14"},{"component":"desktop","python":"3.14"},{"component":"app-runtime","python":"3.14"},{"component":"app-inputs","python":"3.14"},{"component":"python","python":"3.14"},{"component":"python-extension","python":"3.14"},{"component":"build-systems","python":"3.14"},{"component":"pgo-source","python":"3.14"},{"component":"app-window","python":"3.14"},{"component":"mirror-builder","python":"3.14"},{"component":"debugger","python":"3.14"},{"component":"support-bundle","python":"3.14"},{"component":"support-collection","python":"3.14"},{"component":"recovery-bundle","python":"3.14"},{"component":"security-operation","python":"3.14"},{"component":"advisory-cache","python":"3.14"},{"component":"support-package2","python":"3.14"},{"component":"security-maintenance-package","python":"3.14"},{"component":"orphans03","python":"3.14"},{"component":"support-package","python":"3.14"}]}') }}
     steps:
       - name: Checkout complete canonical component closure
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -436,3 +438,37 @@ jobs:
           python -B -S -Werror::ResourceWarning packages/tools/cachy-asahi-security-maintenance/test_package.py -v 2>&1 | tee "$RUNNER_TEMP/security-maintenance-package-tests.log"
           grep -q 'Ran 7 tests' "$RUNNER_TEMP/security-maintenance-package-tests.log"
           if grep -q 'skipped' "$RUNNER_TEMP/security-maintenance-package-tests.log"; then exit 1; fi
+
+  component-selection:
+    name: Conservative component selection
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      run: ${{ steps.select.outputs.run }}
+      matrix: ${{ steps.select.outputs.matrix }}
+    steps:
+      - name: Checkout bounded depth-two selector source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+          fetch-tags: false
+      - name: Check selector failure and coverage controls
+        run: |
+          python3 -I -B -Werror::ResourceWarning scripts/ci/component_selection/test_select.py
+          python3 -I -B -Werror::ResourceWarning scripts/ci/component_selection/test_collect.py
+      - name: Select reviewed components or the complete baseline
+        id: select
+        shell: bash
+        env:
+          SELECTION_EVENT: ${{ github.event_name }}
+          SELECTION_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          SELECTION_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+          SELECTION_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          component_diff() {
+            timeout 30s git diff --no-ext-diff --no-renames --name-status -z "$1" "$2" -- | head -c 1048577 > "$3"
+          }
+          source scripts/ci/component_selection/collect.sh
+          collect_components full-port
