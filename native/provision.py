@@ -318,6 +318,12 @@ def retain(root, args):
         upload.mkdir(mode=0o700)
         capsule = pack(output, upload / 'public-tree.tar')
         return dict(status='EXISTING_NATIVE_PUBLIC_EVIDENCE_CAPSULED_WITHOUT_MUTATION', capsule=capsule)
+    if output.exists():
+        from safe_diagnostic import create
+        report = create(args.work, own, args.map_sha256)
+        upload.mkdir(mode=0o700)
+        pack(args.work / 'safe-diagnostic', upload / 'public-tree.tar')
+        return report
     need(not output.exists(), 'fresh diagnostic public directory')
     output.mkdir(mode=0o700); logs = output / 'provision-logs'; logs.mkdir()
     report = dict(receipt_base(root, args, own), status='DIAGNOSTIC_HOSTED_INPUT_PROVISIONING_ONLY', phases={})

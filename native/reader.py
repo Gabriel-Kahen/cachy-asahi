@@ -14,6 +14,8 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import consumer_contract, load, need, pin, uv_policy
 from capsule import open_capsule
+from privacy_diagnostics import validate_refusal
+from safe_diagnostic import check_consumer
 
 
 def retained_failure_data(view, files, value, binding, map_sha256):
@@ -378,7 +380,7 @@ def retained_public_projection(view, files, binding, map_sha256):
         'scripts/workflows/developer_workflow.py': '531c124cde3fa41d46888acfc638c823196bb2f297b19ab68ab3d001b05f16ba',
         'native/uv-inputs.json': 'b61aaff24cc354fc5946af07afc7a088587d52987081ea993e847270cfda94d3'}
     host = {'receipt.json', 'cleanup.json', 'source-proof.json', 'consumer-inspect.json', 'consumer-after.json',
-            'consumer-diagnostic.json', 'image-ledger.json', 'image-retirement.json', 'bootstrap-failure-retention.json', 'provision-diagnostic.json'}
+            'consumer-diagnostic.json', 'image-ledger.json', 'image-retirement.json', 'bootstrap-failure-retention.json', 'provision-diagnostic.json', 'build-summary.json'}
     bootstrap = {phase + '-' + leaf for phase in ('bootstrap', 'overlay') for leaf in
                  ('packages.lock', 'signatures.json', 'bootstrap.json', 'cache-checksums.json', 'Dockerfile', 'runner.json')}
     bootstrap |= {'bootstrap-acquisition.json', 'bootstrap-key-import.log', 'bootstrap-bootstrap.log'}
@@ -409,7 +411,7 @@ def retained_public_projection(view, files, binding, map_sha256):
          and ('receipt.json' in selected) != ('provision-diagnostic.json' in selected),
          'closed finite projection leaf set and sole authority required')
     for target, row in selected.items():
-        parts = target.split('/'); allowed = target in host or target == 'journey/result.json'
+        parts = target.split('/'); allowed = target in host or target in {'journey/result.json', 'journey/build-summary.json'}
         if len(parts) == 2:
             allowed |= (parts[0] == 'actor-logs' and re.fullmatch(r'[0-9]{4}\.log', parts[1]) is not None
                         or parts[0] == 'provision-logs' and re.fullmatch(r'(?:proof\.json|input-transport-owner\.json|input-cache-owner\.json)-[0-9]{3}\.log', parts[1]) is not None
@@ -472,6 +474,180 @@ def retained_public_projection(view, files, binding, map_sha256):
 
 
 
+def build_summary_document(value, map_sha256):
+    """Fixed map-bound scalar DATA only; never accept raw unknown result values."""
+    tools = ('cmake', 'ctest', 'meson', 'ninja', 'cc', 'c++'); projects = ('cmake', 'meson')
+    aggregate = {'PASS_AVAILABLE_LOCAL_WORKFLOWS', 'NOT_RUN_NO_BUILD_SYSTEM', 'FAIL', 'UNKNOWN', 'ABSENT'}
+    project_status = {'PASS_REAL_PROJECT_WORKFLOW', 'NOT_RUN', 'FAIL', 'RUNNING', 'UNKNOWN', 'ABSENT'}
+    tool_status = {'PRESENT', 'MISSING', 'UNKNOWN', 'ABSENT'}
+    need(type(value) is dict and type(value.get('schema')) is int and value['schema'] == 1
+         and value.get('source_map_sha256') == map_sha256, 'build summary exact map binding required')
+    if value.get('status') == 'REFUSED_BUILD_SYSTEM_SUMMARY_DATA':
+        need(set(value) == {'schema', 'status', 'source_map_sha256', 'reason'}
+             and value['reason'] == 'BOUNDED_BUILD_STATUS_DATA_UNAVAILABLE', 'fixed build summary refusal only')
+        return False
+    need(set(value) == {'schema', 'status', 'source_map_sha256', 'aggregate', 'projects', 'tools', 'observed_projects',
+                       'unexpected_project_keys', 'original_result_pin', 'command_logs'}
+         and value['status'] == 'BUILD_SYSTEM_SUMMARY_DATA_ONLY' and type(value['aggregate']) is str
+         and value['aggregate'] in aggregate and type(value['projects']) is dict and set(value['projects']) == set(projects)
+         and type(value['tools']) is dict and set(value['tools']) == set(tools)
+         and all(type(status) is str and status in tool_status for status in value['tools'].values()),
+         'fixed build summary scalar schema required')
+    need(type(value['observed_projects']) is dict and set(value['observed_projects']) == set(projects)
+         and all(type(flag) is bool for flag in value['observed_projects'].values())
+         and type(value['unexpected_project_keys']) is bool, 'fixed build summary project presence flags required')
+    for row in value['projects'].values():
+        need(type(row) is dict and set(row) == {'status', 'missing', 'missing_unknown'}
+             and type(row['status']) is str and row['status'] in project_status
+             and type(row['missing']) is dict and set(row['missing']) == set(tools)
+             and all(type(flag) is bool for flag in row['missing'].values()) and type(row['missing_unknown']) is bool,
+             'fixed build project status and missing-tool flags required')
+    def typed_pin(row, cap):
+        need(type(row) is dict and set(row) == {'bytes', 'sha256'} and type(row['bytes']) is int
+             and 0 <= row['bytes'] <= cap and type(row['sha256']) is str and re.fullmatch('[0-9a-f]{64}', row['sha256']),
+             'bounded original build diagnostic pin required')
+    typed_pin(value['original_result_pin'], 16*1024**2)
+    need(type(value['command_logs']) is list and len(value['command_logs']) <= 1000, 'finite original build log pins required')
+    names = set()
+    for row in value['command_logs']:
+        need(type(row) is dict and set(row) == {'log', 'pin'} and type(row['log']) is str
+             and re.fullmatch(r'[0-9]{3}-[A-Za-z0-9][A-Za-z0-9_+.-]{0,127}\.log', row['log'])
+             and row['log'] not in names, 'fixed unique source build log names required')
+        names.add(row['log']); typed_pin(row['pin'], 256*1024)
+    raw = json.dumps(value, sort_keys=True, allow_nan=False).encode()
+    private = re.compile(br'-----BEGIN[^\r\n]{0,100}PRIVATE KEY|BEGIN PGP PRIVATE|ssh-(?:rsa|ed25519)|ecdsa-sha2-|(?:gh[pousr]_|github_pat_)[A-Za-z0-9_]+|authorization\s*:\s*(?:bearer|token)|(?:access[_-]?token|password|secret)\s*[=:]|CACHY_(?:OLD_FOUR|RETAINED_BUBBLEWRAP)|PRIVATE_KEY|(?:_TOKEN|_SECRET|_PASSWORD)\b', re.I)
+    need(len(raw) <= 512*1024 and not private.search(raw) and not any(marker in raw for marker in
+         (b'-----BEGIN', b'PRIVATE KEY', b'OPENSSH PRIVATE', b'CACHY_OLD_FOUR_', b'CACHY_RETAINED_', b'Authorization:', b'authorization:', b'ghp_', b'github_pat_')),
+         'bounded privacy-safe build whitelist DATA required')
+    return True
+
+
+def bound_build_summary(value, binding, map_sha256):
+    need(type(value) is dict and set(value) == {'schema', 'status', 'binding', 'source_map_sha256', 'guest_summary_pin', 'guest_summary'}
+         and type(value['schema']) is int and value['schema'] == 1 and value['status'] == 'BOUND_BUILD_SUMMARY_DATA_ONLY'
+         and value['binding'] == binding and value['source_map_sha256'] == map_sha256, 'same-source bound build summary required')
+    row = value['guest_summary_pin']
+    need(type(row) is dict and set(row) == {'bytes', 'sha256'} and type(row['bytes']) is int
+         and 0 <= row['bytes'] <= 512*1024 and type(row['sha256']) is str and re.fullmatch('[0-9a-f]{64}', row['sha256']),
+         'bounded original guest build-summary pin required')
+    return build_summary_document(value['guest_summary'], map_sha256)
+
+
+def retained_build_summary(view, files, binding, map_sha256, positive=False):
+    names = {'build-summary.json', 'journey/build-summary.json'}
+    if not names & set(files):
+        need(not positive, 'positive native matching requires build summary')
+        return dict(status='ABSENT_BUILD_SUMMARY_DATA_ONLY', positive_candidate=False)
+    need(names <= set(files) and all(files[name]['kind'] == 'file' and files[name]['bytes'] <= 512*1024 for name in names),
+         'both exact original and host-bound build summaries required')
+    value = view.load('build-summary.json'); available = bound_build_summary(value, binding, map_sha256)
+    for name in names:
+        need(pin(view.read(name)) == {key: files[name][key] for key in ('bytes', 'sha256')}, 'actual retained build-summary bytes differ')
+    summary = value['guest_summary']
+    need(pin(view.read('journey/build-summary.json')) == value['guest_summary_pin']
+         and view.load('journey/build-summary.json') == summary, 'bound summary must match unchanged original guest DATA')
+    if not available:
+        need(not positive, 'refused build summary grants no native credit')
+        return dict(status='REFUSED_BUILD_SUMMARY_DATA_ONLY', positive_candidate=False)
+    result_name = 'journey/build-systems/result.json'
+    need(result_name in files and files[result_name]['kind'] == 'file'
+         and pin(view.read(result_name)) == summary['original_result_pin']
+         and summary['original_result_pin'] == {key: files[result_name][key] for key in ('bytes', 'sha256')},
+         'original build result pin must match actual retained bytes')
+    result = view.load(result_name); tools = ('cmake', 'ctest', 'meson', 'ninja', 'cc', 'c++'); projects = ('cmake', 'meson')
+    rows = result.get('project_workflows', {}); tool_rows = result.get('tools', {})
+    need(type(rows) is dict and type(tool_rows) is dict, 'original build result project/tool maps required')
+    def status(value, allowed, present=True):
+        return value if type(value) is str and value in allowed else 'UNKNOWN' if present else 'ABSENT'
+    normalized = {}
+    for name in projects:
+        row = rows.get(name, {}); row = row if type(row) is dict else {}
+        missing = row.get('missing', []); valid = type(missing) is list and all(type(item) is str for item in missing)
+        normalized[name] = dict(status=status(row.get('status'), {'PASS_REAL_PROJECT_WORKFLOW', 'NOT_RUN', 'FAIL', 'RUNNING', 'UNKNOWN', 'ABSENT'}, name in rows),
+            missing={tool: bool(valid and tool in missing) for tool in tools},
+            missing_unknown=not valid or any(item not in tools for item in missing))
+    commands = result.get('commands', [])
+    need(type(commands) is list and len(commands) <= 1000, 'finite original build command list required')
+    expected_logs = []
+    for row in commands:
+        need(type(row) is dict and type(row.get('log')) is str, 'original build command reference required')
+        name = 'journey/build-systems/' + row['log']; expected = row.get('log_pin')
+        need(name in files and files[name]['kind'] == 'file' and files[name]['bytes'] <= 256*1024
+             and pin(view.read(name)) == expected == {key: files[name][key] for key in ('bytes', 'sha256')},
+             'original build command pins must match actual retained raw logs')
+        expected_logs.append(dict(log=row['log'], pin=expected))
+    expected = dict(schema=1, status='BUILD_SYSTEM_SUMMARY_DATA_ONLY', source_map_sha256=map_sha256,
+        aggregate=status(result.get('status'), {'PASS_AVAILABLE_LOCAL_WORKFLOWS', 'NOT_RUN_NO_BUILD_SYSTEM', 'FAIL', 'UNKNOWN', 'ABSENT'}, 'status' in result),
+        projects=normalized, tools={tool: status(tool_rows[tool].get('status') if type(tool_rows.get(tool)) is dict else None,
+          {'PRESENT', 'MISSING', 'UNKNOWN', 'ABSENT'}, tool in tool_rows) for tool in tools},
+        observed_projects={name: name in rows for name in projects}, unexpected_project_keys=any(name not in projects for name in rows),
+        original_result_pin=summary['original_result_pin'], command_logs=expected_logs)
+    need(summary == expected, 'build summary must preserve exact whitelist normalization of original result')
+    candidate = (summary['aggregate'] == 'PASS_AVAILABLE_LOCAL_WORKFLOWS'
+                 and all(summary['observed_projects'].values()) and not summary['unexpected_project_keys']
+                 and all(row['status'] == 'PASS_REAL_PROJECT_WORKFLOW' and not any(row['missing'].values())
+                         and row['missing_unknown'] is False for row in summary['projects'].values())
+                 and all(value == 'PRESENT' for value in summary['tools'].values()))
+    need(not positive or candidate, 'original aggregate and both build journeys remain required for native matching')
+    return dict(status='VALIDATED_BOUND_BUILD_SUMMARY_DATA_ONLY', positive_candidate=candidate,
+                original_result_and_feature_logs='VERIFIED_ACTUAL_RETAINED_BYTES')
+
+
+def retained_safe_diagnostic(view, files, binding, map_sha256):
+    """Explicit fresh safe DATA route; absent original bodies cannot be verified."""
+    name = 'safe-diagnostic.json'; optional = {'consumer-diagnostic.json', 'build-summary.json', 'projection-refusal.json'}
+    need(name in files and files[name]['kind'] == 'file' and files[name]['mode'] == 0o600,
+         'safe failure authority must be ordinary private DATA')
+    value = view.load(name)
+    need(type(value) is dict and set(value) == {'schema', 'status', 'binding', 'source_map_sha256', 'native', 'physical_M2',
+         'release', 'original_public', 'original_projection', 'reason', 'original_result_and_feature_logs', 'files'}
+         and type(value['schema']) is int and value['schema'] == 1
+         and value['status'] == 'NATIVE_FAILURE_SAFE_DIAGNOSTIC_DATA_ONLY' and value['binding'] == binding
+         and value['source_map_sha256'] == map_sha256 and value['native'] == 'NOT_ADMITTED'
+         and value['physical_M2'] == 'NOT_RUN' and value['release'] == 'NOT_ADMITTED'
+         and value['original_public'] == value['original_projection'] == 'PRESERVED_UNTRAVERSED'
+         and value['reason'] == 'EXISTING_PUBLIC_WITHOUT_COMPLETED_PROJECTION'
+         and value['original_result_and_feature_logs'] == 'NOT_AVAILABLE_PIN_VERIFICATION_NOT_PERFORMED'
+         and type(value['files']) is dict and set(value['files']) == optional,
+         'exact source-bound safe failure DATA authority required')
+    retained = set()
+    for target, row in value['files'].items():
+        need(type(row) is dict, 'fixed safe diagnostic retention row required')
+        if row.get('status') == 'ABSENT':
+            need(row == dict(status='ABSENT', code='SOURCE_DIAGNOSTIC_NOT_PRESENT'), 'fixed absent safe diagnostic metadata required')
+            continue
+        if row.get('status') == 'REFUSED':
+            need(set(row) == {'status', 'code'} and row['code'] in
+                 {'SOURCE_DIAGNOSTIC_UNAVAILABLE_OR_ALIASED', 'SOURCE_DIAGNOSTIC_SCHEMA_OR_PRIVACY_REFUSED'},
+                 'fixed refused safe diagnostic metadata required')
+            continue
+        cap = 32*1024 if target == 'projection-refusal.json' else 512*1024
+        need(set(row) == {'status', 'bytes', 'sha256'} and row['status'] == 'RETAINED'
+             and type(row['bytes']) is int and 0 <= row['bytes'] <= cap
+             and type(row['sha256']) is str and re.fullmatch('[0-9a-f]{64}', row['sha256'])
+             and target in files and files[target] == dict(kind='file', mode=0o600, **{key: row[key] for key in ('bytes', 'sha256')})
+             and pin(view.read(target)) == {key: row[key] for key in ('bytes', 'sha256')},
+             'retained safe diagnostic must match actual ordinary capsule bytes')
+        retained.add(target); document = view.load(target)
+        if target == 'consumer-diagnostic.json':
+            check_consumer(document, binding, map_sha256)
+        elif target == 'build-summary.json':
+            bound_build_summary(document, binding, map_sha256)
+        else:
+            need(type(document) is dict and set(document) == {'schema', 'binding', 'source_map_sha256', 'diagnostic'}
+                 and type(document['schema']) is int and document['schema'] == 1 and document['binding'] == binding
+                 and document['source_map_sha256'] == map_sha256, 'same-source projection refusal metadata required')
+            validate_refusal(document['diagnostic'])
+    need(set(files) == retained | {name} and sum(row['bytes'] for row in files.values()) <= 1024**2
+         and pin(view.read(name)) == {key: files[name][key] for key in ('bytes', 'sha256')}
+         and view.root_mode == 0o700 and set(view.entries) == set(files) | {'artifacts.json'}
+         and all(row['kind'] == 'file' and row['mode'] == 0o600 for row in view.entries.values()),
+         'closed fresh safe diagnostic namespace only; no raw or native evidence mixing')
+    return dict(status='VALIDATED_NATIVE_FAILURE_SAFE_DIAGNOSTIC_DATA_ONLY', binding=binding,
+                retained=sorted(retained), native='NOT_ADMITTED', physical_M2='NOT_RUN', release='NOT_ADMITTED',
+                original_result_and_feature_logs='NOT_AVAILABLE_PIN_VERIFICATION_NOT_PERFORMED')
+
+
 def validate(capsule_path, expected):
     need(type(expected) is dict and set(expected) == {'source', 'ref', 'run', 'map_sha256'}
          and re.fullmatch('[0-9a-f]{40}', expected.get('source') or '')
@@ -489,6 +665,8 @@ def validate(capsule_path, expected):
          and re.fullmatch('[0-9a-f]{64}', row.get('sha256') or '') for row in files.values()), 'typed artifact pins')
     need(0 < len(files) <= 3000 and sum(row['bytes'] for row in files.values()) <= 32*1024**2, 'bounded artifact namespace')
     view.verify_manifest(manifest)
+    if 'safe-diagnostic.json' in files:
+        return retained_safe_diagnostic(view, files, binding, expected['map_sha256'])
     retained_public_projection(view, files, binding, expected['map_sha256'])
     if 'provision-diagnostic.json' in files:
         diagnostic = view.load('provision-diagnostic.json')
@@ -501,15 +679,23 @@ def validate(capsule_path, expected):
          and type(receipt.get('status')) is str and type(cleanup.get('status')) is str,
          'same-source owner and explicit cleanup outcome required')
     consumer_diagnostic = retained_consumer_diagnostic(view, files, receipt, binding, expected['map_sha256'])
+    build_summary = retained_build_summary(view, files, binding, expected['map_sha256'])
     failed = (receipt['status'] != 'PASS_NATIVE_DEVELOPER_COMPONENTS_ONLY'
               or cleanup['status'] != 'PASS_EXACT_OWNED_RESOURCES_RETIRED')
     need(failed or consumer_diagnostic['status'] != 'ABSENT_CONSUMER_DIAGNOSTIC_DATA_ONLY',
          'successful owner cannot omit original consumer diagnostic')
+    need(failed or build_summary['status'] != 'ABSENT_BUILD_SUMMARY_DATA_ONLY',
+         'successful owner cannot omit original build summary')
+    if failed or not build_summary['positive_candidate']:
+        return dict(status='VALIDATED_NATIVE_FAILURE_DATA_ONLY', binding=binding,
+                    owner_status=receipt['status'], cleanup_status=cleanup['status'],
+                    consumer_diagnostic=consumer_diagnostic, build_summary=build_summary, native='NOT_ADMITTED', physical_M2='NOT_RUN')
     if failed or not consumer_diagnostic['positive_candidate']:
         return dict(status='VALIDATED_NATIVE_FAILURE_DATA_ONLY', binding=binding,
                     owner_status=receipt['status'], cleanup_status=cleanup['status'],
                     consumer_diagnostic=consumer_diagnostic, native='NOT_ADMITTED', physical_M2='NOT_RUN')
     retained_consumer_diagnostic(view, files, receipt, binding, expected['map_sha256'], positive=True)
+    retained_build_summary(view, files, binding, expected['map_sha256'], positive=True)
     retained_failure_data(view, files, receipt.get('bootstrap_failure_data'), binding, expected['map_sha256'])
     retained_image_lifecycle(view, files, receipt, cleanup, binding, expected['map_sha256'])
     need(receipt['binding'] == binding and receipt['source_map_sha256'] == expected['map_sha256']

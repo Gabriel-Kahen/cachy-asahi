@@ -7,6 +7,7 @@ from pathlib import Path
 import re
 import stat
 import capsule as C
+import privacy_diagnostics as privacy
 
 PRODUCERS = {
  'native/python_backend.py':'ef300afa53a9480dd2605ee58d0bd18df6569acb6483d55494c6b9c696a96a31',
@@ -16,7 +17,7 @@ PRODUCERS = {
  'scripts/workflows/developer_workflow.py':'531c124cde3fa41d46888acfc638c823196bb2f297b19ab68ab3d001b05f16ba',
  'native/uv-inputs.json':'b61aaff24cc354fc5946af07afc7a088587d52987081ea993e847270cfda94d3'}
 HOST={'receipt.json','cleanup.json','source-proof.json','consumer-inspect.json','consumer-after.json',
- 'consumer-diagnostic.json','image-ledger.json','image-retirement.json','bootstrap-failure-retention.json','provision-diagnostic.json'}
+ 'consumer-diagnostic.json','image-ledger.json','image-retirement.json','bootstrap-failure-retention.json','provision-diagnostic.json','build-summary.json'}
 BOOTSTRAP={phase+'-'+name for phase in ('bootstrap','overlay') for name in
  ('packages.lock','signatures.json','bootstrap.json','cache-checksums.json','Dockerfile','runner.json')}|{
  'bootstrap-acquisition.json','bootstrap-key-import.log','bootstrap-bootstrap.log'}
@@ -71,7 +72,11 @@ def _project(source_root,public_root,projected_root):
    result=_read(public,name,optional)
    if result is None:return None
    raw,mode=result;C._mode(mode)
-   if name!='journey/python/venv/bin/uv-build':C.need(not PRIVATE_MARKER.search(raw),'private material marker in selected public DATA refused')
+   if name!='journey/python/venv/bin/uv-build' and PRIVATE_MARKER.search(raw):
+    context=privacy.inspect_privacy(raw,name);privacy.validate_context(context,name)
+    error=C.CapsuleRefusal('private material marker in selected public DATA refused',phase='projection-select',path=name)
+    error.privacy_context=context
+    raise error
    if expected is not None:C.need(C.pin(raw)==_pin(expected),'projection retained source pin differs')
    if name in selected:C.need(selected[name]==raw,'projection duplicate leaf differs')
    selected[name]=raw;source_modes[name]=mode
@@ -99,8 +104,9 @@ def _project(source_root,public_root,projected_root):
     C.need(allowed,'unknown public proof leaf refused');add(relative)
  journey=_names(public,'journey')
  for name in journey:
-  with C.refusal_context('projection-select','journey/'+name):C.need(name in {'result.json',*REPORTS},'unknown journey entry refused')
+  with C.refusal_context('projection-select','journey/'+name):C.need(name in {'result.json','build-summary.json',*REPORTS},'unknown journey entry refused')
  add('journey/result.json',optional=True)
+ add('journey/build-summary.json',optional=True)
  for feature,reports in REPORTS.items():
   prefix='journey/'+feature;names=_names(public,prefix)
   for name in names:

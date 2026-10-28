@@ -176,3 +176,27 @@ not pass the native component or cleanup gates.
 The genuine182 run reached the consumer start but did not export its inner error.
 Its separate private-path pack refusal did not print the offending path. These
 causes remain UNKNOWN; source-backed fixtures show retention behavior only.
+
+## Build-summary failure diagnostics and fresh safe fallback
+
+Before the aggregate CMake/Meson guard, the guest writes and emits a whitelist of
+aggregate/project status enums, fixed missing-tool/presence booleans, and original
+result/command-log hashes. Unknown strings become UNKNOWN; arbitrary values are
+never emitted. The host binds this unchanged guest DATA to its source/run/map.
+The original guard and default feature payloads remain unchanged.
+
+A private-marker refusal reports only a fixed neutral rule ID, a source-whitelisted
+logical JSON field or UNCLASSIFIED with a field-path hash, and bounded file/context
+hashes. It never prints the matched marker, value, body or private material. The
+strict original privacy predicate and positive acceptance gates remain.
+
+When owner public output exists without a completed projection, retention writes a
+fresh disjoint safe-diagnostic sibling. It copies only schema/privacy-qualified
+consumer-frame, build-summary and fixed refusal metadata. Original public/projected
+bytes remain untouched and untraversed. This direct finite capsule has an explicit
+failure-DATA authority and cannot qualify native work. Original result and feature
+log bodies absent from this safe capsule are marked unavailable for pin verification.
+
+Actual184 only proves the aggregate guard failure and journey/result.json privacy
+refusal; aggregate/project/missing-tool values and the matched privacy rule/field
+remain UNKNOWN. New fixtures do not identify those actual values.

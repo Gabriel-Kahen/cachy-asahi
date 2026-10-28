@@ -40,8 +40,11 @@ class CapsuleRefusal(ValueError):
         self.emitted = False
 
     def diagnostic(self):
-        return dict(schema=1, status='REFUSED_PUBLIC_DATA', phase=self.phase or 'guard',
-                    code=self.code, path=self.path, path_sha256=self.path_sha256, member=self.member)
+        value = dict(schema=1, status='REFUSED_PUBLIC_DATA', phase=self.phase or 'guard',
+                     code=self.code, path=self.path, path_sha256=self.path_sha256, member=self.member)
+        if hasattr(self, 'privacy_context'):
+            value['privacy_context'] = self.privacy_context
+        return value
 
 
 @contextmanager
