@@ -304,8 +304,11 @@ class IsolatedCacheCLI(unittest.TestCase):
  def test_fresh_actual_cli_refuses_modified_local_helper_before_original_inputs(self):
   import subprocess,shutil
   with tempfile.TemporaryDirectory(prefix='core622-isolated-cache-refuse-')as td:
-   root=Path(td);script=root/'ownership622.py';source=Path(__file__).resolve().parent;shutil.copyfile(source/'ownership622.py',script);(root/'desktop622.py').write_bytes((source/'desktop622.py').read_bytes()+b'\n# private wrong helper\n');(root/'cache').mkdir(mode=0o700)
-   p=subprocess.run(self.argv(root,script),cwd=root,stdin=subprocess.DEVNULL,capture_output=True,timeout=20,env=dict(PATH='/usr/bin:/bin',LANG='C',PYTHONDONTWRITEBYTECODE='1'));self.assertEqual(p.returncode,1);self.assertIn(b'exact held local desktop622 cache bootstrap',p.stderr);self.assertNotIn(b'FileNotFoundError',p.stderr);self.assertEqual(list((root/'cache').iterdir()),[])
+   root=Path(td);source=Path(__file__).resolve().parent;closed=root/'closed-source';closed.mkdir(mode=0o700);manifest=json.loads((source/'source-manifest.json').read_bytes());names=set(manifest['files'])|{'source-manifest.json','.github/workflows/native-arm-build.yml','.github/workflows/native-arm-core7-real-systemd.yml'};self.assertEqual(len(names),66)
+   for name in sorted(names):
+    target=closed/name;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source/name,target);target.chmod(0o644)
+   script=closed/'ownership622.py';(closed/'desktop622.py').write_bytes((closed/'desktop622.py').read_bytes()+b'\n# private wrong helper\n');(root/'cache').mkdir(mode=0o700)
+   p=subprocess.run(self.argv(root,script),cwd=root,stdin=subprocess.DEVNULL,capture_output=True,timeout=20,env=dict(PATH='/usr/bin:/bin',LANG='C',PYTHONDONTWRITEBYTECODE='1'));self.assertEqual(p.returncode,1);self.assertIn(b'closed current Source sibling admission refused',p.stderr);self.assertNotIn(b'FileNotFoundError',p.stderr);self.assertNotIn(b'exact held local desktop622 cache bootstrap',p.stderr);self.assertNotIn(b'selected.prepare_with_dependencies',p.stderr);self.assertNotIn(b'compiler6.py',p.stderr);self.assertEqual(list((root/'cache').iterdir()),[]);self.assertFalse((root/'carrier').exists());self.assertFalse((root/'updater').exists())
 
 class ProofOutputControls(unittest.TestCase):
  """Actual actor derivation, argv-derived Docker DATA and real output FDs.
