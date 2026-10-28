@@ -10,7 +10,7 @@ MAP=LANE+'/source-map.json'
 ALIASES=('.github/workflows/native-arm-build.yml','.github/workflows/native-arm-offline-kit-accepted.yml')
 LOCK='cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac'
 COMMON_BYTES=(HERE/'owner_common.py').read_bytes()
-if hashlib.sha256(COMMON_BYTES).hexdigest()!='e757c45666362eb2fed206ec6a5f733130d39960c1a01ed749a82971f0942056':raise ValueError('pinned owner primitives')
+if hashlib.sha256(COMMON_BYTES).hexdigest()!='dbb12f84b78a1b4c2d4916bcd82f0993f83765f09105de638c17ebafd4ce8ecd':raise ValueError('pinned owner primitives')
 spec=importlib.util.spec_from_file_location('_closed_owner_common',HERE/'owner_common.py');C=importlib.util.module_from_spec(spec);exec(compile(COMMON_BYTES,str(HERE/'owner_common.py'),'exec'),C.__dict__)
 need,sha,read,load,save,fresh=C.need,C.sha,C.read,C.load,C.save,C.fresh
 
@@ -51,6 +51,12 @@ def identity(env=None):
     return dict(source_sha=s,feature_code_sha=s,run_id=e['GITHUB_RUN_ID'],token=token,
                 consumer='offline-kit-accepted-'+token)
 
+def operation(env=None):
+    e=os.environ if env is None else env;selected=e.get('NATIVE_OPERATION')
+    need(type(selected)is str and selected in ('namespace-diagnostic','kit-lifecycle'),'explicit finite native operation required')
+    return selected
+
+
 def binding(args,execute=False):
     manifest=source(ROOT,args.manifest_sha256);own=identity();tmp=C.safe_path(os.environ['RUNNER_TEMP'])
     need(Path(args.work)==tmp/'offline-kit-accepted-work' and not tmp.is_relative_to(ROOT) and not ROOT.is_relative_to(tmp),'fixed disjoint runtime path')
@@ -61,14 +67,16 @@ def binding(args,execute=False):
     return manifest,own,tmp
 
 def proof(args):
+    selected=operation()
     manifest,own,tmp=binding(args);work=fresh(args.work);work.chmod(0o700)
-    save(work/'source-proof.json',dict(status='PASS_PRESECRET_COMPLETE_ACCEPTED_TOOLS_SOURCE',identity=own,map_sha256=args.manifest_sha256,files=len(manifest['files'])+3,native='NOT_RUN'))
+    save(work/'source-proof.json',dict(status='PASS_PRESECRET_COMPLETE_ACCEPTED_TOOLS_SOURCE',identity=own,map_sha256=args.manifest_sha256,files=len(manifest['files'])+3,native='NOT_RUN',operation=selected))
     with open(os.environ['GITHUB_OUTPUT'],'a') as out:out.write('job_token='+own['token']+'\n')
 
 def admitted(args):
+    selected=operation()
     manifest,own,tmp=binding(args,True)
     held=load(Path(args.work)/'source-proof.json')
-    need(held['identity']==own and held['map_sha256']==args.manifest_sha256,'same presecret proof')
+    need(held['identity']==own and held['map_sha256']==args.manifest_sha256 and held.get('operation')==selected,'same presecret proof and explicit native operation')
     return manifest,own,tmp
 
 CARRIER_SOURCE='ddc6ca5f3478f9c607f8fae52661c451ae0bf3ad'
@@ -227,6 +235,7 @@ def accepted_carrier(directory,output):
         inventory_sha256='90debc7e293cfa34cda36f5ea1b8b968c43942134e4d40253963c3568e1c35cb',actual_authority=False)
 
 def run(args):
+    need(operation()=='kit-lifecycle','kit lifecycle operation required before kit actors')
     manifest,own,tmp=admitted(args);work=Path(args.work);base=load(work/'bootstrap.json')
     need(base['identity']==own and base['status']=='PASS_ACTUAL_FRESH_ACCEPTED574_PRODUCER','same actual574 producer')
     core=C.module(ROOT/'scripts/ci/maintained_desktop574.py','selected574_image')
@@ -371,6 +380,12 @@ def public_names(manifest):
             names.update(phase+n for n in ('contract.json','worker-command.json','supervisor-logs/worker.log'))
             names.update(phase+'workspace/evidence/'+n for n in ('result.json','authentication-command.json','supervisor-command.log',
                 'alpm.log','candidate-packages.lock','installed-packages.lock'))
+    diagnostic='namespace-diagnostic/'
+    names.update(diagnostic+n for n in ('owner-result.json','image-inspection.json',
+        'trial-candidate-inspection.json','trial-candidate-stopped.json','trial-candidate-absence.json','actors/actors.json'))
+    names.update(diagnostic+f'actors/{i:04d}.log'for i in range(100))
+    names.update(diagnostic+'out/'+n for n in ('namespace-context.json','namespace-parent.json',
+        'namespace-child.json','namespace-status.json','namespace-supervisor/command.log'))
     return names
 
 
@@ -391,7 +406,7 @@ def portable_public(name):
 
 
 def private_retention(parts):
-    return any(part in ('producer','signing','original-trust','system-snapshot') or
+    return (len(parts)>=2 and parts[:2]in(('namespace-diagnostic','inputs'),('namespace-diagnostic','media'))) or any(part in ('producer','signing','original-trust','system-snapshot') or
                part.startswith('.local-transaction-') for part in parts) or any(
                parts[i:i+2]==('workspace','system') for i in range(len(parts)-1))
 
@@ -429,7 +444,11 @@ def partial_retention(current,own):
 
 
 def retain(args):
-    manifest,own,tmp=binding(args);work=Path(args.work);out=fresh(tmp/'offline-kit-accepted-public')
+    selected=operation()
+    manifest,own,tmp=binding(args);work=Path(args.work)
+    held=load(work/'source-proof.json')
+    need(held['identity']==own and held['map_sha256']==args.manifest_sha256 and held.get('operation')==selected,'same retained operation and presecret proof')
+    out=fresh(tmp/'offline-kit-accepted-public')
     total=0;files={};attempted=set();errors=[];error_count=0;partial={};eligible=False
     def failed(stage,name,error):
         nonlocal error_count
@@ -524,26 +543,49 @@ def retain(args):
         for name in ('report.json','installed-packages.lock','offline-kit-retained574-inputs.json'):
             path=tmp/'desktop574'/name
             if os.path.lexists(path):emit(path,'producer574/'+name)
-        complete=(work/'kit-results.json').exists() and (work/'ordered-cleanup.json').exists()
+        complete=selected=='kit-lifecycle' and (work/'kit-results.json').exists() and (work/'ordered-cleanup.json').exists()
         result=load(work/'kit-results.json') if complete else {}
         if complete and result.get('status')=='PASS_TWO_ACTUAL_ACCEPTED_TOOLS_KITS_PENDING_CLEANUP':
             transferred=transport_receipt(work,own,tmp);prepared_receipt(tmp/'desktop574',transferred)
         eligible=complete and load(work/'ordered-cleanup.json')['status']=='PASS_CONSUMERS_ABSENT_THEN_ORIGINAL574_RETIRED' and result.get('status')=='PASS_TWO_ACTUAL_ACCEPTED_TOOLS_KITS_PENDING_CLEANUP'
     except Exception as error:failed('retain','public',error)
     status='PASS_NATIVE_TWO_ACCEPTED_TOOLS_OFFLINE_KIT_FINITE_ALPM_ONLY' if eligible and not error_count else 'INCOMPLETE_OR_FAILED'
-    record=dict(status=status,identity=own,files=files,bytes=total,retention_complete=not error_count,
+    record=dict(status=status,identity=own,operation=selected,diagnostic_only=selected=='namespace-diagnostic',files=files,bytes=total,retention_complete=not error_count,
         retention_errors=errors,retention_error_count=error_count,partial_capsules=partial,
         export_trees='candidate-exports.tar.gz holds successful five-phase snapshots; candidate-partial.tar.gz holds only observed failed-run DATA; raw system trees never copied',
         private_paths='producer/signing/original-trust/.local-transaction-* and all raw workspace/system/system-snapshot paths excluded',
         full_base_payload_installed=False,hardware='NOT_RUN',release='NOT_ADMITTED')
-    if status=='INCOMPLETE_OR_FAILED':record.update(acceptance=False,native='NOT_ADMITTED')
+    if selected=='namespace-diagnostic':
+        record.update(status='RETAINED_NAMESPACE_DIAGNOSTIC_DATA_ONLY' if not error_count else 'INCOMPLETE_OR_FAILED',
+            acceptance=False,native_admission=False,native='NOT_ADMITTED',kit_lifecycle='NOT_RUN',
+            status_scope='PUBLIC_DATA_RETENTION_ONLY_NO_EXECUTION_OR_KIT_ADMISSION')
+    elif status=='INCOMPLETE_OR_FAILED':record.update(acceptance=False,native='NOT_ADMITTED')
     need(len((json.dumps(record,indent=2,sort_keys=True)+'\n').encode())<=PUBLIC_RESULT_RESERVE,'bounded reserved public result')
     save(out/'result.json',record)
     need(not error_count,'public retention incomplete; see retained result.json')
 
 
+def namespace_diagnostic(args):
+    # Existing admitted image only; never provision or run kits.
+    need(operation()=='namespace-diagnostic','namespace diagnostic operation required before diagnostic actors')
+    manifest,_,_=admitted(args)
+    name=LANE+'/namespace_diagnostic_owner.py';raw=read(ROOT/name)
+    need(dict(bytes=len(raw),sha256=sha(raw),mode=stat.S_IMODE((ROOT/name).stat().st_mode))==manifest['files'][name],
+         'mapped diagnostic owner before execution')
+    helper=C.module(ROOT/name,'_explicit_namespace_diagnostic_owner')
+    return helper.capture(args)
+
+
+def execute_selected(args):
+    selected=operation()
+    if selected=='namespace-diagnostic':return namespace_diagnostic(args)
+    return run(args)
+
+
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('command',choices=('proof','transport','bootstrap','run','cleanup','retain'))
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('command',choices=('proof','transport','bootstrap','run','cleanup','retain','namespace-diagnostic','execute-selected'))
     p.add_argument('--manifest-sha256',required=True);p.add_argument('--work',required=True);p.add_argument('--execute',action='store_true');a=p.parse_args()
-    globals()[a.command](a)
+    if a.command=='namespace-diagnostic':namespace_diagnostic(a)
+    elif a.command=='execute-selected':execute_selected(a)
+    else:globals()[a.command](a)
 if __name__=='__main__':main()

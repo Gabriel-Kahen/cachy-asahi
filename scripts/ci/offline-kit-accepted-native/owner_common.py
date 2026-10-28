@@ -301,10 +301,21 @@ def candidate_policy():
     return path,compact
 
 
-def trial_inspection(row, own, image, mounts, phase):
+def trial_inspection(row, own, image, mounts, phase, *, mode='kit'):
+    need(type(mode)is str and mode in ('kit','namespace-diagnostic') and (mode=='kit' or phase=='candidate'), 'finite explicit candidate mode')
     need(type(phase)is str and phase in ('produce','receive','candidate'),'explicit finite trial phase required')
     security=['no-new-privileges']
     if phase=='candidate':security.append('seccomp='+candidate_policy()[1])
+    if mode=='namespace-diagnostic':
+        expected=['-I','-B','/trial-code/namespace_diagnostic.py','parent','--execute']
+        need(own['accepted_tool']=='namespace-diagnostic' and
+             row['Config']['Entrypoint']==['/usr/bin/python'] and
+             row['Config']['Cmd']==row['Args']==expected,
+             'diagnostic-only candidate entrypoint')
+        env=dict(v.split('=',1)for v in row['Config']['Env'])
+        need(len(env)==len(row['Config']['Env']) and env.get('CACHY_NAMESPACE_DIAGNOSTIC')=='1' and
+             env.get('CACHY_NAMESPACE_DIAGNOSTIC_CONTEXT_SHA')==own['candidate_selection_sha'],
+             'explicit diagnostic context environment')
     host = row['HostConfig']
     need(row['Name'] == '/' + own['consumer'] and row['Image'] == image
          and row['Config']['Labels'].get(LABEL) == own['token']
@@ -322,7 +333,11 @@ def trial_inspection(row, own, image, mounts, phase):
          and set(host['Tmpfs']['/tmp'].split(',')) == {'rw','nosuid','nodev','exec','size=256m'},
          'trial exact bind namespace')
 
-def trial_actor(actor, own, image, work, phase, mounts):
+def trial_actor(actor, own, image, work, phase, mounts, *, mode='kit'):
+    need(type(mode)is str and mode in ('kit','namespace-diagnostic') and (mode=='kit' or phase=='candidate'), 'finite explicit candidate mode')
+    if mode=='namespace-diagnostic':
+        need(own['accepted_tool']=='namespace-diagnostic' and re.fullmatch('[a-f0-9]{64}',own['candidate_selection_sha']),
+             'diagnostic context selection')
     need(type(phase)is str and phase in ('produce','receive','candidate'),'explicit finite trial phase required')
     policy=candidate_policy() if phase=='candidate' else None
     need(not actor.docker('ps','-aq','--no-trunc','--filter','name=^/'+own['consumer']+'$'), 'fresh trial consumer name')
@@ -341,10 +356,15 @@ def trial_actor(actor, own, image, work, phase, mounts):
         command += ['--env','CACHY_ASAHI_INSTALL_NONCE='+own['candidate_nonce'],
                     '--env','CACHY_ASAHI_INSTALL_IMAGE='+image,
                     '--env','CANDIDATE_SELECTION_SHA='+own['candidate_selection_sha']]
-    command += ['--entrypoint','/usr/bin/python',image,'-I','-B','/trial-code/trial.py',phase]
+    if mode=='namespace-diagnostic':
+        command += ['--env','CACHY_NAMESPACE_DIAGNOSTIC=1','--env',
+                    'CACHY_NAMESPACE_DIAGNOSTIC_CONTEXT_SHA='+own['candidate_selection_sha']]
+        tail=['/trial-code/namespace_diagnostic.py','parent','--execute']
+    else:tail=['/trial-code/trial.py',phase]
+    command += ['--entrypoint','/usr/bin/python',image,'-I','-B',*tail]
     cid=actor.docker(*command,timeout=30)
     row=json.loads(actor.docker('inspect',cid))[0]
-    trial_inspection(row,own,image,mounts,phase)
+    trial_inspection(row,own,image,mounts,phase,mode=mode)
     save(work/('trial-'+phase+'-inspection.json'),row)
     actor.docker('start','--attach',cid,timeout=1500 if phase=='candidate' else 300)
     stopped=json.loads(actor.docker('inspect',cid))[0]
