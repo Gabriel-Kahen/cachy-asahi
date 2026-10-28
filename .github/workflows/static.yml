@@ -1042,7 +1042,7 @@ jobs:
           - {component: sbom-comparison, python: '3.14', tests: 25}
           - {component: developer-package, python: '3.12', tests: 13}
           - {component: developer-package, python: '3.14', tests: 13}
-          - {component: release-package, python: '3.14', tests: 12}
+          - {component: release-package, python: '3.14', tests: 13}
     steps:
       - name: Checkout exact component source
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
