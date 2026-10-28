@@ -98,6 +98,7 @@ def run(root, args):
     ledger = None; container = None; created_base_id = None; namespace_fresh = False
     build_operations = []; probe_rows = []; cleanup = dict(status='UNKNOWN')
     prior_run = subprocess.run
+    primary_error = None
     git_environment = dict(GIT_CONFIG_NOSYSTEM='1', GIT_CONFIG_GLOBAL='/dev/null', GIT_NO_REPLACE_OBJECTS='1',
                            GIT_OPTIONAL_LOCKS='0', GIT_NO_LAZY_FETCH='1', GIT_TERMINAL_PROMPT='0')
     try:
@@ -232,7 +233,18 @@ def run(root, args):
         need(re.fullmatch('[0-9a-f]{64}', container), 'exact created container ID')
         inspection = json.loads(actor.docker('inspect', container))[0]
         consumer_identity(inspection, own, image, root, output); save(output / 'consumer-inspect.json', inspection)
-        actor.docker('start', '-a', container, timeout=1800)
+        from consumer_diagnostics import retain as retain_consumer
+        consumer_index = len(actor.rows); consumer_error = None
+        try:
+            actor.docker('start', '-a', container, timeout=1800)
+        except BaseException as error:
+            consumer_error = error
+            raise
+        finally:
+            report['consumer_diagnostic'] = retain_consumer(args.work, output, own, args.map_sha256,
+                actor.rows, consumer_index, container, consumer_error)
+        need(report['consumer_diagnostic']['status'] == 'ORIGINAL_CONSUMER_ACTOR_DATA_ONLY',
+             'original consumer diagnostic retention required')
         after = json.loads(actor.docker('inspect', container))[0]
         consumer_identity(after, own, image, root, output)
         save(output / 'consumer-after.json', after)
@@ -242,6 +254,7 @@ def run(root, args):
         need(result['status'] == 'PASS_NATIVE_DEVELOPER_COMPONENTS_ONLY', 'all actual native developer components required')
         report['status'] = result['status']
     except BaseException as error:
+        primary_error = error
         if ledger is None:
             ledger = getattr(error, 'ledger', None)
         if ledger is not None:
@@ -317,6 +330,10 @@ def run(root, args):
         logs = output / 'actor-logs'; logs.mkdir()
         for number, row in enumerate(proof['actors'] + transported['actors'] + actor.rows + cleanup.get('actors', [])):
             path = Path(row['log'])
+            if (report.get('consumer_diagnostic', {}).get('status') != 'ORIGINAL_CONSUMER_ACTOR_DATA_ONLY'
+                    and row.get('argv') == [*DOCKER, 'start', '-a', container]):
+                row['public_retention'] = 'REFUSED_CONSUMER_ACTOR_DATA_GUARD'
+                continue
             if str(path) in diagnostic['blocked_actor_logs']:
                 row['public_retention'] = 'REFUSED_BOOTSTRAP_FAILURE_DATA_GUARD'
                 continue
@@ -339,15 +356,14 @@ def run(root, args):
         save(output / 'image-ledger.json', ledger)
         save(output / 'image-retirement.json', cleanup['image_retirement'])
         save(output / 'cleanup.json', cleanup); save(output / 'receipt.json', report)
-        files = {}
-        for path in sorted(output.rglob('*')):
-            if path.is_symlink():
-                target = os.readlink(path)
-                files[str(path.relative_to(output))] = dict(kind='symlink', mode=stat.S_IMODE(path.lstat().st_mode), target=target, **pin(target.encode()))
-            elif path.is_file() and path.name != 'artifacts.json':
-                files[str(path.relative_to(output))] = dict(kind='file', mode=stat.S_IMODE(path.lstat().st_mode), **pin(read(path)))
-        need(sum(r['bytes'] for r in files.values()) <= 32*1024**2, 'bounded public artifact namespace')
-        save(output / 'artifacts.json', dict(schema=1, binding=own, source_map_sha256=args.map_sha256, files=files))
+        # Project only source-defined public evidence; never walk disposable guest trees.
+        try:
+            from public_projection import project
+            project(root, output, args.work / 'public-projection')
+        except Exception as error:
+            print('NATIVE_PUBLIC_PROJECTION_REFUSED ' + type(error).__name__, flush=True)
+            if primary_error is None:
+                raise
     need(report['bootstrap_failure_data']['status'] == 'PASS_BOUNDED_BOOTSTRAP_FAILURE_DATA', 'bootstrap failure DATA retention guard refused')
     return report
 

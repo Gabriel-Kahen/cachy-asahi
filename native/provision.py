@@ -307,10 +307,12 @@ def retain(root, args):
     own, _ = admit(root, args, 'cache')
     proof = prior_proof(root, args, own)
     output = args.work / 'public'
+    projected = args.work / 'public-projection'
     from capsule import pack
     upload = args.work / 'upload'
     need(not upload.exists(), 'fresh public capsule output directory')
-    if (output / 'artifacts.json').is_file():
+    if (projected / 'artifacts.json').is_file():
+        output = projected
         manifest = load(output / 'artifacts.json')
         need(manifest['binding'] == own and manifest['source_map_sha256'] == args.map_sha256, 'same-owner native output retained without mutation')
         upload.mkdir(mode=0o700)
@@ -336,8 +338,10 @@ def retain(root, args):
     rows = {str(p.relative_to(output)): dict(kind='file', mode=stat.S_IMODE(p.lstat().st_mode), **pin(read(p))) for p in output.rglob('*') if p.is_file()}
     need(sum(row['bytes'] for row in rows.values()) <= 32*1024**2, 'bounded diagnostic artifact')
     save(output / 'artifacts.json', dict(schema=1, binding=own, source_map_sha256=args.map_sha256, files=rows))
+    from public_projection import project
+    project(root, output, projected)
     upload.mkdir(mode=0o700)
-    pack(output, upload / 'public-tree.tar')
+    pack(projected, upload / 'public-tree.tar')
     return report
 
 
