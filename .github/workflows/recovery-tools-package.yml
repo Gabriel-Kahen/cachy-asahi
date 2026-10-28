@@ -1,0 +1,48 @@
+name: Recovery tools package
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/recovery-tools-package.yml
+      - packages/tools/cachy-asahi-recovery-tools/**
+      - scripts/release/recovery_tools_source_delivery_v1.py
+      - scripts/release/recovery-tools-source-profile-v1.json
+      - scripts/release/test_recovery_tools_source_delivery_v1.py
+  push:
+    branches: [main, codex/virtual-integration]
+    paths:
+      - .github/workflows/recovery-tools-package.yml
+      - packages/tools/cachy-asahi-recovery-tools/**
+      - scripts/release/recovery_tools_source_delivery_v1.py
+      - scripts/release/recovery-tools-source-profile-v1.json
+      - scripts/release/test_recovery_tools_source_delivery_v1.py
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    name: Recovery package and complete source (Python 3.14)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.14'
+      - name: Bind the installed launcher on this disposable runner
+        run: |
+          selected=$(python -I -c 'import sys; print(sys.executable)')
+          sudo ln -sfn "$selected" /usr/bin/python3
+          /usr/bin/python3 -I -c 'import sys; assert sys.version_info[:2] == (3, 14)'
+      - name: Check pinned package and relocatable installed launcher
+        run: |
+          python -I -B packages/tools/cachy-asahi-recovery-tools/check_package.py --recipe-root packages/tools/cachy-asahi-recovery-tools
+          python -I -B -Werror::ResourceWarning packages/tools/cachy-asahi-recovery-tools/test_package.py --recipe-root packages/tools/cachy-asahi-recovery-tools
+      - name: Check complete source export and original recovery controls
+        run: |
+          python -I -B -Werror::ResourceWarning scripts/release/test_recovery_tools_source_delivery_v1.py
+          python -I -B -Werror::ResourceWarning scripts/release/test_recovery_bundle.py
