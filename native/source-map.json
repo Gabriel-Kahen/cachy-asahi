@@ -539,9 +539,9 @@
       "sha256": "d99cb38411412134781140cc64dc7d296dbc383fa1e81ddc13ecb6863852ecf5"
     },
     "native/README.md": {
-      "bytes": 8073,
+      "bytes": 9019,
       "mode": 420,
-      "sha256": "7ed4518fdc9d61c1f7bdc4ab08cdf5a745c7aef0b4698821f85df31841c9a49c"
+      "sha256": "28a3517fc6a3927e3f08aa29cf3cc97a5cf71115e271016d5fc0fd52f188c054"
     },
     "native/bootstrap_inputs.py": {
       "bytes": 3306,
@@ -553,15 +553,20 @@
       "mode": 420,
       "sha256": "bd3edc517c341f325738a7b3047df995750dc92679ba3c5c121c251d576a767c"
     },
+    "native/cleanup_control.py": {
+      "bytes": 3172,
+      "mode": 420,
+      "sha256": "70048a05f54091f24c7c34166c2ad6510c260187f01ea65646e367d2b175b828"
+    },
     "native/common.py": {
       "bytes": 8477,
       "mode": 420,
       "sha256": "f037bca33940e764dce4a7d66dfe6d0c72fbeda07c7f417ee7e1d30629eb86f9"
     },
     "native/contract.json": {
-      "bytes": 3395,
+      "bytes": 4129,
       "mode": 420,
-      "sha256": "384192ee790c1130840af76ec808dd41efb1588823d2472f46f7bb5d37a8f1ec"
+      "sha256": "14107bf6d31d762bfe79eec66b32ce4400817b9839833c53d61730e856d29a51"
     },
     "native/desktop574-inputs.lock.json": {
       "bytes": 623664,
@@ -583,6 +588,11 @@
       "mode": 420,
       "sha256": "fcc665a1bdf31be3e23e891bbd4b601f2ae0909bd066a20753a6f9fbdf8f293a"
     },
+    "native/image_lifecycle.py": {
+      "bytes": 12996,
+      "mode": 420,
+      "sha256": "db316b70634018f4c85c179cabc4abfe28143dd3d863011b18367a050f8e5340"
+    },
     "native/input-profile.json": {
       "bytes": 168201,
       "mode": 420,
@@ -599,9 +609,9 @@
       "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
     },
     "native/owner.py": {
-      "bytes": 21885,
+      "bytes": 24358,
       "mode": 420,
-      "sha256": "3264c4192e5fb575637433adc453d4b3c30b928ba050d3903ccf01c57ef69569"
+      "sha256": "bdea9c5330cc56a777dfe8c54355e9f735016973eb8edd6765baac8ba2e670fd"
     },
     "native/predecessor-source-map.json": {
       "bytes": 27440,
@@ -619,9 +629,9 @@
       "sha256": "ef300afa53a9480dd2605ee58d0bd18df6569acb6483d55494c6b9c696a96a31"
     },
     "native/reader.py": {
-      "bytes": 12672,
+      "bytes": 31545,
       "mode": 420,
-      "sha256": "8e385c4c64135680cf24896774e34486f5e999b40f85b25908b80fc2af7825c1"
+      "sha256": "92035206cab8c4be90c42b3407884031f98119638087d56be62b2a6f88493b6d"
     },
     "native/uv-inputs.json": {
       "bytes": 9989,
@@ -904,6 +914,8 @@
       "sha256": "daba66fd25a9a82caa23949686e967cbb69fd056177e991650643186057adaef"
     }
   },
+  "image_basis180_map_sha256": "cceed4d8b72e9e73a5cb433c2c4643f5e85a0490dacd5b226514e2961aaba458",
+  "image_basis180_source": "a434716cbf53085e6380e06939be6a38dd5412fc",
   "schema": 1,
   "transport_basis177_map_sha256": "99d676438a247749b3e1c564943d8735452a1ebd92ec91dd78ee37817e77f36d"
 }

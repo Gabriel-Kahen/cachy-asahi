@@ -138,3 +138,19 @@ cache-only; a failed package cache check never falls back to HTTP. Unknown or
 mutated rows refuse before either callback. No URL/pin, retry or resource limit
 is changed, and the development consumer remains network-none. This source
 closure proof is not a runtime404/cache-miss finding.
+
+## Owned local base alias and exact cleanup
+
+The overlay FROM uses the source-created local base tag, checked against the
+exact owned image ID before and after the network-none/pull-false build. Both
+source aliases and the owned namespace must be absent before creation. Only
+known successful source build rows register alias ownership. No registry fallback
+or BuildKit disabling is introduced.
+
+Cleanup uses recorded natural owned build retirement (including a naturally
+failed client), not a latched building flag. It removes only proved created
+image aliases still bound to expected IDs, and proved stopped created containers,
+without force or image-ID removal. Unknown/foreign/preexisting state is held.
+All retirement rows remain captured on errors; independent final daemon queries
+are required for PASS. Ledger and retirement DATA are retained standalone and
+in the existing receipts. These source/model checks do not prove a native run.
