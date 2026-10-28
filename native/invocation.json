@@ -9,6 +9,8 @@
     "-I",
     "-B",
     "native/owner.py",
+    "--operation",
+    "security-alpm-v1",
     "--execute",
     "--source-sha",
     null,
