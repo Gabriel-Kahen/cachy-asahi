@@ -39,9 +39,10 @@ jobs:
           source_factory="$GITHUB_WORKSPACE/scripts/ci/source-tools-native-lifecycle"
           platform_factory="$GITHUB_WORKSPACE/scripts/ci/platform-tools-native-lifecycle-source"
           python3 -I -B -Werror::ResourceWarning "$source_factory/test_assemble_source.py"
+          python3 -I -B -Werror::ResourceWarning "$source_factory/test_namespace_observation.py"
           python3 -I -B "$source_factory/assemble_source.py" \
             --parent-source "$stage/basis" --raw-parent-commit "$source_factory/parent-commit.txt" \
-            --profile-sha256 7cb6244c3f0e40e226b647755607d3fbb0d777530c69ff7ea3a2a19f1335ddfc \
+            --profile-sha256 da31f43fd89d246087047c626b385b875caa64c6f50d94515dc60610b64df024 \
             --output "$stage/source200"
           PLATFORM_NATIVE_BASIS="$stage/basis" python3 -I -B -Werror::ResourceWarning "$platform_factory/test_prepare.py"
           PLATFORM_NATIVE_BASIS="$stage/basis" python3 -I -B -Werror::ResourceWarning "$platform_factory/test_namespace_context.py"

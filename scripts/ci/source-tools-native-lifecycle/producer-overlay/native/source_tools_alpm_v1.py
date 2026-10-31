@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Owned image actor. Failure carriers persist DATA; the consumer still rejects FAIL."""
-import argparse,base64,json,os,pwd,re,shutil,signal,stat,sys,tempfile
+import argparse,base64,json,os,pwd,re,shutil,signal,stat,sys,tempfile,time
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 import source_tools_tools_v1 as T
@@ -139,7 +139,7 @@ def preserve_command_failure(commands,scope,report,step,argv,cwd,expected,error,
  retain_first_failure(scope,report)
 
 
-def build_pair(run,source,recipes,policy,alarm,report):
+def build_pair(run,source,recipes,policy,alarm,report,observe_namespace=None):
  """Two fresh inodes, one stable logical path; never rewrite metadata."""
  result={};config=source/policy['makepkg_config']['path'];slot=PREFIX/'build-current';seen=set()
  for label in ('a','b'):
@@ -159,7 +159,11 @@ def build_pair(run,source,recipes,policy,alarm,report):
    need(archive.is_file() and not archive.is_symlink(),'actual built archive')
    item['archive']=dict(filename=archive.name,**T.pin(archive));result[label]=directory/archive.name;report['stages'].append('build-'+label)
   except BaseException as error:
-   primary=error;raise
+   primary=error
+   if observe_namespace is not None:
+    try:observe_namespace(label,slot)
+    except BaseException as later:report.setdefault('namespace_observation_failures',[]).append(type(later).__name__)
+   raise
   finally:
    try:
     need(not os.path.lexists(directory) and slot.is_dir() and not slot.is_symlink(),'known build tree custody')
@@ -177,6 +181,40 @@ def retain_exception(commands,scope,step,argv,cwd,expected,error,before):
  if not path.exists():path.write_bytes(raw)
  commands.records.append(dict(step=step,argv=list(map(str,argv)),cwd=str(cwd),expected=expected,success=False,log=name,log_pin=T.data_pin(raw),supervision=None,channels='stdout+stderr combined in pipe order',exception_type=type(error).__name__,output_state='UNKNOWN_IF_SUPERVISION_DID_NOT_RETURN',exception_retention='DATA_ONLY_NO_SECOND_WAIT_OR_SIGNAL_AUTHORITY'))
  (scope/'commands.json').write_bytes(T.encoded(commands.records))
+
+NS_OBSERVATION_MODES=('context','user','mount','user_mount','user_net','user_mount_net')
+
+
+def observe_namespace_failure(run,commands,scope,report,label,slot,map_hash):
+ """No probe until the original failed build has exact complete owned retirement."""
+ failure=report.get('first_failure');rows=report.get('commands',[])
+ if type(failure)is not dict or failure.get('phase')!='build-'+label:return
+ index=failure.get('command_index')
+ if type(index)is not int or not 0<=index<len(rows):return
+ row=rows[index];state=row.get('supervision',{});raw=T.ordinary(scope/row['log'],1024**2)
+ if not(row.get('step')=='build-'+label and row.get('success')is False and T.data_pin(raw)==row.get('log_pin')
+        and b'bwrap: No permissions to create a new namespace'in raw
+        and state.get('reaped')is True and state.get('ownership')=='REAPED'and state.get('group_census')=='EMPTY_TWICE'
+        and state.get('output_complete')is True and state.get('timeout')is False and state.get('error')is None and state.get('signals')==[]):return
+ result=dict(status='BOUNDED_POST_FAILURE_NAMESPACE_DATA_ONLY',original_command_index=index,build=label,
+             original_log=row['log_pin'],observations=[],native_acceptance='NOT_ADMITTED')
+ report.setdefault('namespace_observations',{})[label]=result
+ before_timeout=commands.timeout;original_failure=dict(failure)
+ try:
+  commands.timeout=min(before_timeout,10)
+  for mode in NS_OBSERVATION_MODES:
+   if commands.deadline-time.monotonic()<=11:result['stopped']='ORIGINAL_DEADLINE_BUDGET';break
+   step='namespace-'+label+'-'+mode;before=len(commands.records)
+   argv=row['argv'][:row['argv'].index('/usr/bin/makepkg')]+['/usr/bin/python3','-I','-B',str(SOURCE/'native/source_tools_probe_v1.py'),'--namespace-mode',mode,'--map-sha256',map_hash]
+   try:
+    body=run(step,argv,cwd=slot);need(len(body)<=32768,'namespace observation32KiB cap');value=json.loads(body)
+    need(value.get('status')=='NAMESPACE_PREREQUISITE_DATA_ONLY'and value.get('mode')==mode and value.get('source_map_sha256')==map_hash,'same-mode/map namespace DATA')
+    result['observations'].append(dict(mode=mode,command_index=before,output=T.data_pin(body)))
+   except BaseException as error:result['stopped']='OBSERVATION_UNAVAILABLE:'+type(error).__name__;break
+ finally:
+  commands.timeout=before_timeout
+  need(report['first_failure']==original_failure,'original failure must remain unchanged')
+
 
 def protected_state():
  roots=dict(alpm_db='/var/lib/pacman',alarm_home='/home/alarm',root_home='/root',global_trust='/etc/pacman.d/gnupg',global_config='/etc/pacman.conf',package_cache='/var/cache/pacman')
@@ -239,7 +277,12 @@ def inside(source,map_hash):
   user=PREFIX/'user-data';user.mkdir(mode=0o755);(user/'keep.txt').write_bytes(b'SYNTHETIC user data; preserve across TEST install/remove.\n')
   T._own_tree(user,alarm.pw_uid,alarm.pw_gid);sentinel=T.pin(user/'keep.txt')
   recipes=T.extract_recipes(source,PREFIX/'build-inputs',policy)
-  archives=build_pair(run,source,recipes,policy,alarm,report)
+  def namespace_failure(label,slot):
+   nonlocal phase
+   saved_phase=phase
+   try:observe_namespace_failure(run,commands,scope,report,label,slot,map_hash)
+   finally:phase=saved_phase
+  archives=build_pair(run,source,recipes,policy,alarm,report,namespace_failure)
   phase='compare';report['comparison']=T.compare_archives(run,archives,policy,map_hash);report['stages'].append('compare')
   gpg=['/usr/bin/gpg','--batch','--no-options','--homedir',str(signing),'--no-auto-key-retrieve','--pinentry-mode','loopback','--passphrase','']
   run('generate-test-key',gpg+['--quick-generate-key',TEST_UID,'ed25519','sign','1d'])
