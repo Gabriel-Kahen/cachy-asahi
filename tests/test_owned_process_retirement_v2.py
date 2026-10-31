@@ -86,7 +86,7 @@ class Model:
         if self.wait_failure=='error':raise OSError('modeled raw wait failure')
         if self.wait_failure=='zero':return 0,0
         self.released=True;return self.pid,0
-    def stat(self,pid):
+    def stat(self,pid,*,with_parent=False):
         self.numeric('stat:'+str(pid))
         state=b'S'if self.raw_called and self.late_reuse else b'Z'
         start=99 if self.raw_called and self.late_reuse else 17 if pid==self.pid else 18
@@ -94,7 +94,8 @@ class Model:
         row=(pid,state,group,group,start)
         if self.in_scan and self.steal==self.role and not self.stolen:
             self.stolen=True;self.events.append('external_wait_stolen')
-        return row
+        # Modeled extra remains foreign to the supervisor; PPID never grants custody.
+        return (*row, os.getpid() if pid==self.pid else self.pid) if with_parent else row
     def scandir(self,path):
         self.numeric('scan:'+str(self.role))
         if self.incomplete and self.role=='reserved':raise TimeoutError('modeled incomplete final census')
@@ -176,9 +177,11 @@ class DeterministicControls(FixtureAudit,unittest.TestCase):
         self.assertEqual(hashlib.sha256(ORIGINAL.read_bytes()).hexdigest(),ORIGINAL_SHA)
         self.assertEqual(inspect.signature(R.supervise),inspect.signature(OLD.supervise))
         old,new=ast.parse(ORIGINAL.read_bytes()),ast.parse(V2.read_bytes())
-        for name in ('prepare','_stat','_rss_members','_rss_identity','_rss_sample','_rss_summary','_rss_failure'):
+        for name in ('prepare','_rss_identity','_rss_sample','_rss_summary','_rss_failure'):
             get=lambda tree:next(n for n in tree.body if isinstance(n,ast.FunctionDef)and n.name==name)
             self.assertEqual(ast.dump(get(old),include_attributes=False),ast.dump(get(new),include_attributes=False),name)
+        # Parentage selection changes two private helpers. Fresh default-shape
+        # controls in test_owned_adopted_zombie cover their unchanged default DATA.
         for name in ('TICK','PROC_LIMIT','RSS_MAX_TASKS','RSS_MAX_MEMBERS','RSS_MAX_SAMPLES','RSS_MAX_ROWS','RSS_SAMPLE_SECONDS','RSS_SCOPE'):
             self.assertEqual(getattr(R,name),getattr(OLD,name),name)
         self.assertNotIn('if reaped and group',V2.read_text())
@@ -196,7 +199,7 @@ class Audit:
         self.numeric();self.events.append('raw_wait');result=WAITPID(*args)
         if result[0]==self.pid:self.released=True
         return result
-    def stat(self,pid):self.numeric();self.events.append('stat');return self.stat_original(pid)
+    def stat(self,pid,**kwargs):self.numeric();self.events.append('stat');return self.stat_original(pid,**kwargs)
     def scandir(self,path):self.numeric();self.events.append('scan');return SCANDIR(path)
     def killpg(self,pid,sig):
         self.numeric();self.assert_pid(pid);self.events.append(signal.Signals(sig).name)
@@ -277,9 +280,9 @@ while True:time.sleep(1)
         self.assertEqual(result['exit'],7);self.assertEqual(result['group_census'],'RESERVED_LEADER_ONLY');self.assertFalse(result['passed'])
         self.assertEqual(audit.events[-1],'raw_wait');record(self._testMethodName,'HOST_NONZERO_REJECTION',result,audit.events)
 
-# Eight original RSS behavior controls are reused unmodified with only R rebound
-# to the new local core. The ninth compatibility control changes only the intended
-# private _members AST assertion; public API and result fields stay exact.
+# Eight original RSS behavior controls retain their expected behavior with R/STAT
+# rebound and optional private-helper keywords forwarded by fixture wrappers.
+# The ninth retains public API/behavior and checks the additive pre-reap DATA.
 RSS=load('retained_rss_controls',ROOT/'tests/test_owned_process_memory.py');RSS.R=R;RSS.STAT=R._stat
 class RetainedRSSControls(FixtureAudit,RSS.OwnedMemory):
     def test_default_helpers_and_result_contract_stay_compatible(self):
@@ -289,6 +292,14 @@ class RetainedRSSControls(FixtureAudit,RSS.OwnedMemory):
             with self.assertRaises(ValueError):R.supervise(child,cap=1,retirement=.4,rss_interval=value)
         with patch.object(R,'_rss_sample',side_effect=AssertionError('default must never sample')):result=R.supervise(child,cap=1,retirement=.4)
         self.assertTrue(result['passed'],result);self.assertEqual(result['group_census'],'RESERVED_LEADER_ONLY')
-        self.assertEqual(set(result),{'exit','reaped','ownership','timeout','signals','output','output_complete','group_census','error','seconds','passed'})
+        self.assertEqual(set(result),{'exit','reaped','ownership','timeout','signals','output','output_complete','group_census','group_retirement','error','seconds','passed'})
+        snapshot=result['group_retirement'];self.assertEqual(set(snapshot),{'phase','reserved_leader','wait_owner_pid','wait_owner_subreaper','member_count','members','truncated'})
+        self.assertEqual(snapshot['phase'],'PRE_REAP');self.assertEqual(snapshot['wait_owner_pid'],os.getpid());self.assertEqual(snapshot['wait_owner_subreaper'],'NOT_OBSERVED')
+        self.assertIs(type(snapshot['member_count']),int);self.assertEqual(snapshot['member_count'],1);self.assertIs(snapshot['truncated'],False)
+        self.assertEqual(len(snapshot['members']),1);member=snapshot['members'][0];self.assertEqual(set(member),{'pid','state','group','session','start_ticks','ppid','parent_relation'})
+        self.assertTrue(all(type(member[k])is int for k in('pid','group','session','start_ticks','ppid')))
+        self.assertEqual(member['pid'],snapshot['reserved_leader']['pid']);self.assertEqual(member['start_ticks'],snapshot['reserved_leader']['start_ticks'])
+        self.assertEqual(member['group'],member['pid']);self.assertEqual(member['session'],member['pid']);self.assertIn(member['state'],('Z','X'))
+        self.assertEqual(member['ppid'],os.getpid());self.assertEqual(member['parent_relation'],'WAIT_OWNER_PID')
 
 if __name__=='__main__':unittest.main(verbosity=2)
