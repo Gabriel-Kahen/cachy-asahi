@@ -470,3 +470,26 @@ is not replaced with fabricated actor rows. Validation precedes the one-shot
 marker and all cache writes. Original120s seed,400s shared Git/480s total/500s
 outer budgets, complete1154 DATA and default/installed routes remain held.
 This source correction does not establish a successful later seed or consumer.
+
+
+## Overlay failure scalar diagnostics v1
+
+The original205 failure proves only owned overlay Docker actor exit1 and a
+PRIVACY_07 refusal of its8360-byte private log; inner cause stays UNKNOWN.
+This source adds fixed enum-only installed-image failure phases and an exact
+source-bound overlay actor diagnostic before cleanup/projection. It prints the
+finite summary into the future direct job log and writes private work JSON.
+No raw log window, arbitrary exception text/type, secret value or private stream
+is exported. A missing, malformed, duplicate or wrong-map marker remains
+NOT_OBSERVED/REFUSED with UNKNOWN phase. Public projection, privacy and capsule
+fallback protocols remain unchanged; this diagnostic grants no native credit.
+
+
+## Resumed source correction, 2026-10-31
+
+The pair caller now uses total600, within the unchanged workflow constructor's
+600-second maximum. Its previous total900 was rejected before any makepkg actor.
+This is a source-proven blocker, not a recovered diagnosis of the original run.
+Cleanup-only failures retain their first enum phase/category before subsequent
+cleanup work. Direct-log enum export is attempted even if the private JSON save
+fails. Raw logs, capsule privacy, process ownership and acceptance gates are held.
