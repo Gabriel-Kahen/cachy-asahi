@@ -1,0 +1,185 @@
+{
+  "alpm_installation": "NOT_RUN",
+  "archive_binding": {
+    "archive_bytes": 53104,
+    "archive_sha256": "028340024c32ff02109679d6a5dfc56122c769830b94014a5373199c26e195d1",
+    "metadata_sha256": "a0b9b5d724b102d89941917bb62c30493ef09fb259d2f73ba483fc323ff4b59f",
+    "native_execution": "NOT_ESTABLISHED",
+    "pkgbuild_sha256": "984509e7f468086f02e23704748a58a3fc13b5c2babfbc27a2d27ac7258b3857",
+    "status": "ARCHIVE_METADATA_AND_PAYLOAD_BOUND"
+  },
+  "archive_status": "BOUND",
+  "dependencies": {
+    "checkdepends": [],
+    "depends": [
+      "python>=3.11",
+      "gnupg",
+      "libarchive",
+      "pacman"
+    ],
+    "makedepends": [],
+    "optdepends": []
+  },
+  "files": {
+    ".SRCINFO": {
+      "bytes": 2225,
+      "mode": "0644",
+      "sha256": "6614557aa31b48a3b3a82af1d7bd311daedb4f771c0e8737d1f6297716962ac6"
+    },
+    "LICENSE": {
+      "bytes": 1081,
+      "mode": "0644",
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "NOTICE": {
+      "bytes": 598,
+      "mode": "0644",
+      "sha256": "b6dffb613c2a3b709756cbdce9b0f40c2fe69a4133c1b050f69ccb618f2ee17a"
+    },
+    "PKGBUILD": {
+      "bytes": 3104,
+      "mode": "0644",
+      "sha256": "984509e7f468086f02e23704748a58a3fc13b5c2babfbc27a2d27ac7258b3857"
+    },
+    "README.md": {
+      "bytes": 5966,
+      "mode": "0644",
+      "sha256": "0b476d0188373df5fc02fb27523c36347cf9a6fe01076ff45238433203443eeb"
+    },
+    "cachy-asahi-maintenance": {
+      "bytes": 525,
+      "mode": "0644",
+      "sha256": "4c0fe954900fb4bbda0b816d59a831a563f9497aa057e4e4f6a5d8c7d30c83be"
+    },
+    "check_source.py": {
+      "bytes": 6510,
+      "mode": "0644",
+      "sha256": "8e0df4bcb8759f819eac03792c43d8c17c52d33e46f48bf9b194d44cd5f71c27"
+    },
+    "check_source_pins.py": {
+      "bytes": 9981,
+      "mode": "0644",
+      "sha256": "9b78c348e2d567f44f656285f6a562220cadead7025f1e0db2eb9a53d9f09ea3"
+    },
+    "compare_releases.py": {
+      "bytes": 11691,
+      "mode": "0644",
+      "sha256": "27086c7b0af74a1226deae7a6a71245882b82608a1fa9d33b68e657979c7d83c"
+    },
+    "health-inputs.md": {
+      "bytes": 10691,
+      "mode": "0644",
+      "sha256": "fa9ad03e43b75fc8bdeba2ee06dc09c06973a85bbcca17f708c92d4f78f0557f"
+    },
+    "health.py": {
+      "bytes": 26653,
+      "mode": "0644",
+      "sha256": "6809526f7553e76f4a6c8d24cbde2688abe8cfd1139b92b88a51847e7a7acadf"
+    },
+    "payload-pins.json": {
+      "bytes": 2473,
+      "mode": "0644",
+      "sha256": "235ddbb11910b29bb5ea57e111094c0ddccd89a7da966f93843510ab3b8fe3e4"
+    },
+    "rebuild_plan.py": {
+      "bytes": 25822,
+      "mode": "0644",
+      "sha256": "472f9bb621d78f79f5016a662b7f72eb03e995dae787c7846bc1f947ff21313c"
+    },
+    "release.py": {
+      "bytes": 41320,
+      "mode": "0644",
+      "sha256": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435"
+    },
+    "security_advisories.py": {
+      "bytes": 12145,
+      "mode": "0644",
+      "sha256": "f018ff4ac0265217213f749bf59afa08b61b24e4054973c0dcde110e57a0a2cb"
+    },
+    "signing_expiry.py": {
+      "bytes": 9002,
+      "mode": "0644",
+      "sha256": "dd6ef397ea47cf14bb31f6ae6f7ca388d68bdb15e7fa3d20c36eb01f901b2c98"
+    },
+    "source-provenance.json": {
+      "bytes": 2598,
+      "mode": "0644",
+      "sha256": "b3ac2eab0236f8817501b38d47c5f1f5e883ee37cb533c2a9be46e2164c21058"
+    },
+    "source_delivery.py": {
+      "bytes": 16456,
+      "mode": "0644",
+      "sha256": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e"
+    },
+    "test_package.py": {
+      "bytes": 10076,
+      "mode": "0644",
+      "sha256": "68f4a91a32eb5073524c019c8721a4775b3af1a71b2b6c602cc26849a079583f"
+    },
+    "update_plan.py": {
+      "bytes": 14881,
+      "mode": "0644",
+      "sha256": "21af73923ca4bfff244d653e1f0046015d429a582548b2a60f1e0feb5b2a687e"
+    }
+  },
+  "host_check_commands": [
+    [
+      "python",
+      "-I",
+      "-B",
+      "check_source.py",
+      "--recipe-root",
+      "."
+    ],
+    [
+      "python",
+      "-I",
+      "-B",
+      "-Werror::ResourceWarning",
+      "test_package.py"
+    ]
+  ],
+  "legal_acceptance": false,
+  "license": "MIT",
+  "native_build": "NOT_RUN",
+  "observed_source_revision": "50c6280fa3b2871bb663c0910d95e35f2a488b01",
+  "package": {
+    "arch": "any",
+    "name": "cachy-asahi-maintenance",
+    "version": "0.1.0-2"
+  },
+  "physical_m2": "NOT_RUN",
+  "purpose": "reviewed-original-recipe-source",
+  "rebuild_commands": [
+    "makepkg --verifysource",
+    "makepkg --cleanbuild --force"
+  ],
+  "rebuild_environment": "Separately provisioned native aarch64 build environment with declared dependencies; no automatic dependency installation.",
+  "recipe_key": "PKGBUILD",
+  "recipe_sha256": "984509e7f468086f02e23704748a58a3fc13b5c2babfbc27a2d27ac7258b3857",
+  "release": "NOT_ADMITTED",
+  "revision_is_not_source_authority": true,
+  "schema_version": 1,
+  "source_order": [
+    "cachy-asahi-maintenance",
+    "check_source_pins.py",
+    "compare_releases.py",
+    "health.py",
+    "rebuild_plan.py",
+    "release.py",
+    "security_advisories.py",
+    "signing_expiry.py",
+    "source_delivery.py",
+    "update_plan.py",
+    "payload-pins.json",
+    "test_package.py",
+    "check_source.py",
+    "README.md",
+    "health-inputs.md",
+    "source-provenance.json",
+    "NOTICE",
+    "LICENSE"
+  ],
+  "stage_command": "umask 022; source \"$1/PKGBUILD\"; srcdir=$1; pkgdir=$2; package",
+  "stage_is_not_installation": true
+}

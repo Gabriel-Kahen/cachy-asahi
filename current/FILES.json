@@ -1,0 +1,94 @@
+{
+  "files": {
+    "cachy-asahi-maintenance-0.1.0-2-any.pkg.tar.xz": {
+      "bytes": 53104,
+      "sha256": "028340024c32ff02109679d6a5dfc56122c769830b94014a5373199c26e195d1"
+    },
+    "cachy-asahi-maintenance-0.1.0-2-any.pkg.tar.xz.sig": {
+      "bytes": 119,
+      "sha256": "86f170300d2a5de759327b13b567aa9c9f8c9f451166573fb1dd40b747941401"
+    },
+    "cachy-asahi-session-diagnostics-0.1.0-3-any.pkg.tar.xz": {
+      "bytes": 20924,
+      "sha256": "8e69184b33395d80ba921385d0ed071cc35178ae64f18549a9bf34e5c185c70d"
+    },
+    "cachy-asahi-session-diagnostics-0.1.0-3-any.pkg.tar.xz.sig": {
+      "bytes": 119,
+      "sha256": "bac478bc1c07d7dfe71b8694567914deb53cd71edc820ece8f07718c8fd0bc0f"
+    },
+    "diagnostics.LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "diagnostics.NOTICE": {
+      "bytes": 1093,
+      "sha256": "dad09067890027d4674c6f5861462966f190e527e7d4524360fbc175c68e0511"
+    },
+    "diagnostics.PKGBUILD": {
+      "bytes": 2443,
+      "sha256": "ef55f7a91dab46dbf5355a5d02c0ccd4113bf45db2578cf59412662dca734662"
+    },
+    "diagnostics.TEST-original-status.txt": {
+      "bytes": 393,
+      "sha256": "bdaf5a904452f3cd75deb93a7bbcfb28e854a0a25a14a80cc1889206f506035b"
+    },
+    "diagnostics.TEST-public.asc": {
+      "bytes": 461,
+      "sha256": "b6d87d1d92177d218f3c235fdc897d0f55986a9d13918941de770559b2881ca6"
+    },
+    "diagnostics.bundle.json": {
+      "bytes": 4371,
+      "sha256": "ab8fa29a7aec41028260780b24edfa2b09f98844e457996eb03d778f7eaee792"
+    },
+    "diagnostics.provenance.json": {
+      "bytes": 1958,
+      "sha256": "2a0bf63af08de814081b2d30776a7f1cf4324b0e5c3e1730a51c1e0082da6781"
+    },
+    "diagnostics.source-map.json": {
+      "bytes": 1066,
+      "sha256": "17e35bfe4830b261a52772e7a46f03c3d578524966e280c04121eb13b3d726e1"
+    },
+    "diagnostics.source.tar": {
+      "bytes": 102400,
+      "sha256": "154057c2bfad0928c4a6cfb376628bb87d61c70ccc7149ec21936349672c7913"
+    },
+    "maintenance.LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "maintenance.NOTICE": {
+      "bytes": 598,
+      "sha256": "b6dffb613c2a3b709756cbdce9b0f40c2fe69a4133c1b050f69ccb618f2ee17a"
+    },
+    "maintenance.PKGBUILD": {
+      "bytes": 3104,
+      "sha256": "984509e7f468086f02e23704748a58a3fc13b5c2babfbc27a2d27ac7258b3857"
+    },
+    "maintenance.TEST-original-status.txt": {
+      "bytes": 393,
+      "sha256": "47a6e2cdeceb817d3af1f3019783102950dd6d74f909ab7a4051c2c6b8b421ed"
+    },
+    "maintenance.TEST-public.asc": {
+      "bytes": 461,
+      "sha256": "b6d87d1d92177d218f3c235fdc897d0f55986a9d13918941de770559b2881ca6"
+    },
+    "maintenance.bundle.json": {
+      "bytes": 5456,
+      "sha256": "9212f9477672f422b6350bd7e2765ce5f074255b117ea90a09fef0eec313629a"
+    },
+    "maintenance.provenance.json": {
+      "bytes": 1934,
+      "sha256": "6c783e39c0d320d7ddb5885cb3377a44479fd60ab0476253d214024a81d16d32"
+    },
+    "maintenance.source-map.json": {
+      "bytes": 1773,
+      "sha256": "9007b29d68bbe4c209345bd5689148c96da61f41522f70102b0029927a289788"
+    },
+    "maintenance.source.tar": {
+      "bytes": 245760,
+      "sha256": "bf687e3d29fae3f85d1c79acd508a7cc0571eebacaa6fe663d8a0356cc434d0a"
+    }
+  },
+  "self_excluded": "FILES.json",
+  "status": "CLOSED_FLAT_FRESH_ROOT_LOCAL_TEST_CURRENT_CARRIER"
+}

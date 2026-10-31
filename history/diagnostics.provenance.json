@@ -1,0 +1,47 @@
+{
+  "TEST_original_status": "diagnostics.TEST-original-status.txt",
+  "TEST_public_key": "diagnostics.TEST-public.asc",
+  "TEST_signature": "cachy-asahi-session-diagnostics-0.1.0-3-any.pkg.tar.xz.sig",
+  "archive_binding": {
+    "archive_bytes": 20924,
+    "archive_sha256": "8e69184b33395d80ba921385d0ed071cc35178ae64f18549a9bf34e5c185c70d",
+    "metadata_sha256": "30cbf87629b28be019283d06900e8a9661723fb0968215797c5659644e062685",
+    "native_execution": "NOT_ESTABLISHED",
+    "pkgbuild_sha256": "ef55f7a91dab46dbf5355a5d02c0ccd4113bf45db2578cf59412662dca734662",
+    "status": "ARCHIVE_METADATA_AND_PAYLOAD_BOUND"
+  },
+  "artifact": 12741267389,
+  "attempt": 1,
+  "job": 122243177376,
+  "native_archive": "cachy-asahi-session-diagnostics-0.1.0-3-any.pkg.tar.xz",
+  "native_archive_pin": {
+    "bytes": 20924,
+    "sha256": "8e69184b33395d80ba921385d0ed071cc35178ae64f18549a9bf34e5c185c70d"
+  },
+  "native_build_pair": {
+    "archive_bytes": 20924,
+    "archive_sha256": "8e69184b33395d80ba921385d0ed071cc35178ae64f18549a9bf34e5c185c70d",
+    "buildinfo_equal": true,
+    "byte_equal": true,
+    "complete_buildinfo_packages": 574,
+    "payload_equal": true,
+    "pkginfo_equal": true
+  },
+  "package": "cachy-asahi-session-diagnostics",
+  "physical_M2": "NOT_RUN",
+  "production_trust": "NOT_ADMITTED",
+  "publication": "NOT_RUN",
+  "recipe_source_files": 12,
+  "release": "NOT_ADMITTED",
+  "run": 40519714137,
+  "signature_assurance": "EXACT_RETAINED_TEST_PUBLIC_MATERIAL_AND_SOURCE_BOUND_STATUS_ONLY_NOT_INDEPENDENT_CRYPTOGRAPHY",
+  "source": "e20eb9a2095f3e9a2dd0073ce68f9208bec0d87d",
+  "source_bundle": "diagnostics.source.tar",
+  "source_bundle_pin": {
+    "bytes": 102400,
+    "sha256": "154057c2bfad0928c4a6cfb376628bb87d61c70ccc7149ec21936349672c7913"
+  },
+  "source_license_dependency_acceptance": "NOT_ISSUED",
+  "status": "ROOT_ACCEPTED_FINITE_GENERIC_NATIVE_ARM_DIAGNOSTICS_BUILD_AND_INSTALLED_CLI_COMPONENT_ONLY",
+  "version": "0.1.0-3"
+}
