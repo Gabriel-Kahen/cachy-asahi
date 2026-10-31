@@ -278,7 +278,8 @@ def inside(root,map_hash):
             before_commands=len(c.records);cleanup_error=None
             try:
                 c.run('retire-test-home',['/usr/bin/gpgconf','--homedir',home,'--kill','all'])
-                c.run('no-autostart-proof',['/usr/bin/gpg-connect-agent','--homedir',home,'--no-autostart','/bye'],'nonzero')
+                c.run('no-autostart-proof',['/usr/bin/gpg-connect-agent','--homedir',home,'--no-autostart','/bye'])
+                need(c.records[-1]['stdout']==pin(b'') and c.records[-1]['stderr']==pin(b'gpg-connect-agent: no gpg-agent running in this session\n'),'scoped agent absence diagnostic required')
                 need(not any(stat.S_ISSOCK(p.lstat().st_mode) for p in home.rglob('*')),'scoped sockets absent');retired.append(home)
             except BaseException as error:
                 report['status']='FAIL'

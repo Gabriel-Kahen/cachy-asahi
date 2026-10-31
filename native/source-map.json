@@ -678,9 +678,9 @@
       "sha256": "8cdd968870a2a92d7006739e96dedefa14e51c40d62cfc15831f234a767a1421"
     },
     "native/security_native_v1.py": {
-      "bytes": 23869,
+      "bytes": 24053,
       "mode": 420,
-      "sha256": "351d334d7906f1c75d34bcef189314d5293a8f116cc4e81c24bee918721d1309"
+      "sha256": "833910309be4254767e979be02476ff4c5ca4990a5bbc689f8e7c595b08ba854"
     },
     "native/security_reader_v1.py": {
       "bytes": 14573,
