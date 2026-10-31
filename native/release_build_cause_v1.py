@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-"""Finite failed makepkg DATA; no actors and no acceptance authority."""
+"""Finite failed build or exact install-v1 DATA; no actors or acceptance."""
 import hashlib
 import json
 import math
@@ -18,6 +18,11 @@ SCOPE=PREFIX/'evidence/journey/release-alpm-v1'
 CONFIG=PREFIX/'source/native/release-makepkg-v1.conf'
 OPERATION='release-alpm-upgrade-v1'
 UNKNOWN='UNKNOWN'
+INSTALL_PRIMARY='command failed or retirement unknown: install-v1'
+INSTALL_WORK='[REDACTED_INSTALL_WORK]'
+INSTALL_REDACTION=dict(scheme='install-v1-work-root-v1',role='FAILED_INSTALL_V1_ORIGINAL_COMMAND',
+    fields=['cwd','argv[2]'],replacement=INSTALL_WORK)
+INSTALL_ARCHIVE=str(PREFIX/'build-inputs/v1/cachy-asahi-release-tools-0.1.0-1-any.pkg.tar.zst')
 ABSENCE_OUTPUT=b'gpg-connect-agent: no gpg-agent running in this session\n'
 _LOCATION=re.compile(r'https?://[^\s"<>]+|/(?:home|root)/[^\s"<>]+|/tmp/release-tools-test-[^\s"<>]+',re.I)
 _ANSI=re.compile(r'\x1b\[[0-?]*[ -/]*[@-~]')
@@ -154,6 +159,7 @@ def _supervision(s):
         if 'group_retirement'in s:_group_retirement(s['group_retirement'])
 
 def _row(row,stage):
+    if stage=='install-v1':return _install_public_row(row)
     keys={'step','argv','cwd','expected','success','log','log_pin','supervision','channels'}
     need(type(row)is dict and set(row)in(keys,keys|{'launch_error'}),'original command fields')
     need(row['step']==stage and row['argv']==argv(stage) and row['cwd']==str(PREFIX/'build-inputs'/stage[6:])
@@ -167,9 +173,48 @@ def _row(row,stage):
     need(not private(raw)and not _LOCATION.search(raw.decode()),'command privacy refusal')
     return raw
 
+def _install_metadata(row):
+    need(row['step']=='install-v1' and type(row['expected'])is int and row['expected']==0
+         and row['success']is False and row['channels']=='stdout+stderr combined in pipe order',
+         'exact failed install-v1 command role')
+    need(type(row['log'])is str and re.fullmatch(r'[0-9]{3}-install-v1\.log',row['log']),'fixed install-v1 log role')
+    _pin(row['log_pin']);_supervision(row['supervision'])
+    if 'launch_error'in row:
+        need(type(row['launch_error'])is str and len(row['launch_error'].encode())<=2048,'bounded original install launch error')
+
+def _install_argv(work):
+    return ['/usr/bin/pacman','--config',work+'/pacman.conf','--noconfirm','--noscriptlet','-U',INSTALL_ARCHIVE]
+
+def _install_public_row(row):
+    keys={'step','argv','cwd','expected','success','log','log_pin','supervision','channels','original_row_pin','redaction'}
+    need(type(row)is dict and set(row)in(keys,keys|{'launch_error'}),'fixed public install-v1 command fields')
+    need(row['cwd']==INSTALL_WORK and row['argv']==_install_argv(INSTALL_WORK)
+         and row['redaction']==INSTALL_REDACTION,'exact install-v1 work-root redaction scheme/role')
+    _pin(row['original_row_pin']);need(0<row['original_row_pin']['bytes']<=ROW_CAP,'canonical original install row cap')
+    _install_metadata(row)
+    raw=encoded(row);need(len(raw)<=ROW_CAP,'public install row cap')
+    need(not private(raw)and not _LOCATION.search(raw.decode()),'public install command privacy refusal')
+    return raw
+
+def _install_row(row):
+    """Validate the raw source-owned row before replacing exactly two paths."""
+    keys={'step','argv','cwd','expected','success','log','log_pin','supervision','channels'}
+    need(type(row)is dict and set(row)in(keys,keys|{'launch_error'}),'original install-v1 command fields')
+    work=row['cwd']
+    need(type(work)is str and re.fullmatch(r'/tmp/release-tools-test-[A-Za-z0-9_-]{1,64}',work)
+         and row['argv']==_install_argv(work),'exact original install-v1 argv/cwd join')
+    _install_metadata(row)
+    raw=encoded(row);need(len(raw)<=ROW_CAP,'canonical original install row cap')
+    public=json.loads(raw)
+    public.update(cwd=INSTALL_WORK,original_row_pin=pin(raw),redaction=dict(INSTALL_REDACTION))
+    public['argv'][2]=INSTALL_WORK+'/pacman.conf'
+    # Other values, including null supervision and optional launch_error, are
+    # preserved verbatim. Any remaining private location refuses the whole row.
+    return _install_public_row(public)
+
 def _read_log(scope,name):
     need(Path(scope)==SCOPE and not any(p.is_symlink()for p in (SCOPE,*SCOPE.parents)),'fixed ordinary scope')
-    need(type(name)is str and re.fullmatch(r'[0-9]{3}-(?:build-v[12]|no-autostart-(?:signing|trust))\.log',name),'fixed build or absence-check log role')
+    need(type(name)is str and re.fullmatch(r'[0-9]{3}-(?:build-v[12]|install-v1|no-autostart-(?:signing|trust))\.log',name),'fixed build/install-v1 or absence-check log role')
     path=SCOPE/name;fd=os.open(path,os.O_RDONLY|os.O_NONBLOCK|os.O_NOFOLLOW|os.O_CLOEXEC)
     try:
         before=os.fstat(fd)
@@ -293,10 +338,13 @@ def build(scope,records,report,map_hash,primary):
             message=_text(message,1024)if len(message)<=4096 and not private(message)else UNKNOWN,message_pin=pin(message)if len(message)<=LOG_CAP else None)
     except BaseException:pass
     candidates=[r for r in records if type(r)is dict and r.get('step')in('build-v1','build-v2')and r.get('success')is False]if type(records)is list and len(records)<=160 else []
+    if not candidates and type(primary).__name__=='Failure' and str(primary)==INSTALL_PRIMARY:
+        candidates=[r for r in records if type(r)is dict and r.get('step')=='install-v1' and r.get('success')is False]if type(records)is list and len(records)<=160 else []
     if len(candidates)==1:
         row=candidates[0];value['stage']=row['step']
         try:
-            raw=_row(row,value['stage']);value['command']=dict(status='OBSERVED',row=json.loads(raw),pin=pin(raw))
+            raw=_install_row(row)if value['stage']=='install-v1'else _row(row,value['stage'])
+            value['command']=dict(status='OBSERVED',row=json.loads(raw),pin=pin(raw))
         except BaseException:value['command']['status']='REFUSED_COMMAND'
         if value['command']['status']=='OBSERVED':
             s=row['supervision'];value['observed_exit']=s['exit']if s is not None and type(s['exit'])is int else UNKNOWN
@@ -314,7 +362,7 @@ def validate(value,map_hash):
     need(type(value)is dict and set(value)==keys and type(value['schema'])is int and value['schema']==1
          and value['operation']==OPERATION and type(map_hash)is str and re.fullmatch('[0-9a-f]{64}',map_hash)
          and value['source_map_sha256']==map_hash and value['role']=='image-stage-release-build'
-         and value['status']=='DIAGNOSTIC_ONLY'and value['stage']in(UNKNOWN,'build-v1','build-v2')
+         and value['status']=='DIAGNOSTIC_ONLY'and value['stage']in(UNKNOWN,'build-v1','build-v2','install-v1')
          and value['native']==value['release']=='NOT_ADMITTED'and value['physical_M2']=='NOT_RUN','fixed nonaccepting diagnostic envelope')
     command=value['command'];need(type(command)is dict and set(command)=={'status','row','pin'},'command fields')
     if command['status']=='OBSERVED':
@@ -335,6 +383,9 @@ def validate(value,map_hash):
     else:need(out['suffix']is None,'refused output carries no text')
     primary=value['primary'];need(type(primary)is dict and set(primary)=={'type','message','message_pin'}and type(primary['type'])is str and re.fullmatch('[A-Za-z][A-Za-z0-9_]{0,63}',primary['type'])and type(primary['message'])is str and len(primary['message'].encode())<=1024 and not private(primary['message'].encode())and not _LOCATION.search(primary['message']),'finite safe original failure')
     if primary['message_pin']is not None:_pin(primary['message_pin'])
+    if value['stage']=='install-v1':
+        need(primary==dict(type='Failure',message=INSTALL_PRIMARY,message_pin=pin(INSTALL_PRIMARY.encode())),
+             'install-v1 diagnostic requires exact original primary Failure')
     cleanup=value['inner_cleanup'];need(type(cleanup)is dict and set(cleanup)=={'homes_retired','no_sockets','private_directory_absent','global_config_unchanged','global_trust_unchanged','failure_types','absence_checks'},'finite cleanup projection')
     need(all(type(cleanup[k])is bool or cleanup[k]==UNKNOWN for k in cleanup if k not in ('failure_types','absence_checks')),'observed cleanup booleans only')
     tags=cleanup['failure_types'];need(tags==UNKNOWN or type(tags)is list and len(tags)<=16 and all(type(x)is str and (x==UNKNOWN or re.fullmatch(r'(?:[A-Za-z][A-Za-z0-9_+-]{0,63}:[A-Za-z][A-Za-z0-9_]{0,63}|global-policy-drift)',x))for x in tags),'fixed cleanup failure class tags')
