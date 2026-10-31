@@ -26,7 +26,7 @@ map/tree hashes. The fixed profile hash is compiled into `prepare.py`. The
 parent raw commit is included only to prove the genuine tree/commit join.
 
 Output contains the complete199-file `source/`, source authorization and modes,
-prospective Git blobs, the13-path delta and original five before-operands,
+prospective Git blobs, the15-path delta and original seven before-operands,
 raw parent commit and Source-only stage metadata. Publication/run/job/artifact
 actuals remain NULL. The original200-row source cap,1154 retained DATA profile,
 400/480-second transport clocks and owned-process/runtime contracts are held.
@@ -61,3 +61,20 @@ Native ARM, GPG/ALPM lifecycle and authenticated platform compatibility remain
 NOT RUN;16K/M2/recovery/performance/release acceptance remain separate. Existing
 package and development packets are preserved; this helper does not integrate
 the separate three-package host change.
+
+
+Namespace-context diagnostic successor (Source-only): see
+[namespace-observation-v1.md](namespace-observation-v1.md). The exact ordinary
+alarm-user makepkg process now prints one bounded read-only pre-exec context,
+then execs the identical makepkg argv in that PID. No probe, extra actor, wait,
+signal, mount or privilege change is added. The frozen recipe13, all nine real
+bwrap package tests,25/15/9 positive checks, existing clocks/caps and retirement
+rules remain held. A namespace denial still fails the build; context is DATA,
+not acceptance or a guessed kernel/seccomp/LSM diagnosis.
+
+New focused DATA controls only:
+
+```sh
+PLATFORM_NATIVE_BASIS=/absolute/retained-genuine191-source \
+  python3 -I -B scripts/ci/platform-tools-native-lifecycle-source/test_namespace_context.py
+```
