@@ -51,6 +51,7 @@ class AssemblerControls(unittest.TestCase):
         self.parent_path = self.root / 'parent'; write_tree(self.parent_path, self.parent)
         self.raw_path = self.root / 'parent.raw'; self.raw_path.write_bytes(self.raw)
         self.overlay = {name: (('original inert overlay ' + name + '\n').encode(), 0o644) for name in A.SEAMS | A.ADDITIONS}
+        self.overlay['.github/workflows/native-arm-build.yml'] = (b'name: inert\nconcurrency:\n  group: native-arm-developer-workflows\n  cancel-in-progress: false\njobs:\n', 0o644)
         self.overlay['.github/workflows/native-arm-developer-workflows.yml'] = self.overlay['.github/workflows/native-arm-build.yml']
         self.overlay['native/source-tools-contract-v1.json'] = (encoded(dict(operation=A.OPERATION, actual=dict(source=None, ref=None, run=None, job=None, artifact=None))), 0o644)
         self.refresh_final()
@@ -64,12 +65,12 @@ class AssemblerControls(unittest.TestCase):
         final = dict(self.parent); final.update(self.overlay)
         rows = {name: row for name, row in A.descriptors(final).items() if name != A.MAP}
         self.overlay[A.MAP] = (encoded(dict(schema=1, actual=dict(source=None, ref=None, run=None), files=rows)), 0o644)
-        final.update(self.overlay); self.final = final
+        final.update(self.overlay); self.final = A.scheduled_source(final)
 
     def refresh_profile(self, change=None):
         value = dict(schema=1, purpose='source-tools-native-main-overlay', genuine_parent=self.parent_sha,
             parent_tree=self.parent_tree, main_base=A.MAIN_BASE, operation=A.OPERATION, actual=dict(source=None, ref=None, run=None),
-            parent_files=A.descriptors(self.parent), overlay=A.descriptors(self.overlay), source_map_sha256=A.pin(self.overlay[A.MAP][0])['sha256'],
+            parent_files=A.descriptors(self.parent), overlay=A.descriptors(self.overlay), source_map_sha256=A.pin(self.final[A.MAP][0])['sha256'],
             prospective_tree=A.tree(self.final), source_files=200)
         if change:
             change(value)
@@ -208,6 +209,31 @@ class AssemblerControls(unittest.TestCase):
             with self.subTest(name=name), self.assertRaises(ValueError): A.relative(name)
         self.refresh_profile(lambda value: value.update(source_files=True))
         with self.assertRaisesRegex(ValueError, 'overlay identity'): self.run_assemble()
+
+
+    def test_component_queue_keeps_multiple_pending_and_exact_job_body(self):
+        aliases = A.WORKFLOW_ALIASES
+        legacy = b'name: inert\nconcurrency:\n  group: native-arm-developer-workflows\n  cancel-in-progress: false\njobs:\n  native:\n    runs-on: ubuntu-24.04-arm\n    timeout-minutes: 135\n'
+        raw = {aliases[0]: legacy, aliases[1]: legacy, 'native/held.py': b'INERT DATA'}
+        scheduled = A.scheduled_workflows(raw)
+        self.assertEqual(raw[aliases[0]], legacy)
+        self.assertEqual(scheduled['native/held.py'], raw['native/held.py'])
+        self.assertEqual(scheduled[aliases[0]], scheduled[aliases[1]])
+        block = ('concurrency:\n  group: ' + A.CONCURRENCY_GROUP + '\n  cancel-in-progress: false\n  queue: max\njobs:\n').encode()
+        before = b'concurrency:\n  group: native-arm-developer-workflows\n  cancel-in-progress: false\njobs:\n'
+        self.assertEqual(scheduled[aliases[0]].replace(block, before, 1), legacy)
+        self.assertEqual(A.CONCURRENCY_GROUP, 'native-arm-source-tools')
+
+    def test_unreviewed_existing_queue_group_and_duplicate_block_refuse(self):
+        aliases = A.WORKFLOW_ALIASES
+        legacy = b'name: inert\nconcurrency:\n  group: native-arm-developer-workflows\n  cancel-in-progress: false\njobs:\n'
+        for bad in (legacy.replace(b'jobs:', b'  queue: max\njobs:'), legacy.replace(b'native-arm-developer-workflows', b'foreign-lane'), legacy + legacy):
+            with self.subTest(raw=bad), self.assertRaisesRegex(ValueError, 'legacy concurrency'):
+                A.scheduled_workflows({aliases[0]: bad, aliases[1]: bad})
+
+    def test_mismatched_workflow_aliases_refuse_scheduling(self):
+        with self.assertRaisesRegex(ValueError, 'aliases differ'):
+            A.scheduled_workflows(dict(zip(A.WORKFLOW_ALIASES, (b'left', b'right'))))
 
 
 if __name__ == '__main__':
