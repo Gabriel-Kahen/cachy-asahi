@@ -12,7 +12,7 @@ import subprocess
 import time
 
 ROOT=Path(__file__).resolve().parents[2]
-CORE_PIN='f2669a2fbff358e7fcd9a54c67066021af8f0108f5652efc41d1d4a9ecfe14e9'
+CORE_PIN='d1a09f0989afe97a3ea84a20eb6608d282c6a95e2d1e665185e47366f408a16e'
 
 def pin(raw):
     return dict(bytes=len(raw), sha256=hashlib.sha256(raw).hexdigest())
