@@ -660,9 +660,9 @@
       "sha256": "e87199b0be6d3fbd235be7584d06f83907b85da43d5ce6f753f021cd79a27854"
     },
     "native/release-contract-v1.json": {
-      "bytes": 17108,
+      "bytes": 17382,
       "mode": 420,
-      "sha256": "16d6854936e8fbfd10ae245d8414de29f742711f75a041230971cf1ff23161d5"
+      "sha256": "e42ada621d718d8c0de2d6c4f5e34a90cd9789e8773b17537b451afd0874ebb6"
     },
     "native/release-makepkg-v1.conf": {
       "bytes": 316,
@@ -675,14 +675,14 @@
       "sha256": "aed1ecd1091744d9a4353dcdcac00266bacab24a1a2c3d2cea6cb4a47166847c"
     },
     "native/release_alpm_v1.py": {
-      "bytes": 23443,
+      "bytes": 23463,
       "mode": 420,
-      "sha256": "2c922b881709017d0a1a869c0c272b07aefd607c682b228daea249675e127e02"
+      "sha256": "bb80791daf41586234edebbbd0b1b9081dedc72636c2bb71044735796cb1f02c"
     },
     "native/release_build_cause_v1.py": {
-      "bytes": 12659,
+      "bytes": 18934,
       "mode": 420,
-      "sha256": "ebd90211dba9cb7d090b07ea29909ca5cbeef0f6875a67760f3c52f72fda5750"
+      "sha256": "53bb46c90c2d5aa2fc3d860f5167a5c97d04e9b05f20fa0a957019e34474295d"
     },
     "native/release_guest_v1.py": {
       "bytes": 2987,
@@ -690,19 +690,19 @@
       "sha256": "10eb4d88baabaa0efdecbab684b5caafaa68a7cfc50b668849df99cd3d532c85"
     },
     "native/release_projection_v1.py": {
-      "bytes": 10601,
+      "bytes": 10838,
       "mode": 420,
-      "sha256": "a8020df71167d8addb5f44a6286e8231a38ff85cc7bf51c5236a96bdb5d52b8c"
+      "sha256": "21251ae98cd44f6591bd01fac223bad51b5c876d71f9d5c19763ff8d5699d7e6"
     },
     "native/release_reader_v1.py": {
-      "bytes": 96115,
+      "bytes": 96361,
       "mode": 420,
-      "sha256": "d3052ab1f1ddb8f76ea295db63f4df7013282a9bd1dbf8e5ea7840e3706cd811"
+      "sha256": "ea80755bc7e5dc61d5437df5aa28679973f086cee719e851b2136a39f5c7824f"
     },
     "native/release_tools_v1.py": {
-      "bytes": 16767,
+      "bytes": 17257,
       "mode": 420,
-      "sha256": "bb0742e5ffcd03dddf4b047ee4c6612bbd1c764d27de7003d9b12a9cbf1c8d46"
+      "sha256": "6910ff5c4e0e63fc64f7c13f5dccc2df5528377418135c91026d7ed3bb3bfd3a"
     },
     "native/retained_transport.py": {
       "bytes": 12375,
@@ -744,15 +744,20 @@
       "mode": 420,
       "sha256": "83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f"
     },
+    "scripts/virtual/owned_process_retirement_v2.py": {
+      "bytes": 24150,
+      "mode": 493,
+      "sha256": "f2669a2fbff358e7fcd9a54c67066021af8f0108f5652efc41d1d4a9ecfe14e9"
+    },
     "scripts/workflows/developer_build_systems.py": {
       "bytes": 20558,
       "mode": 420,
       "sha256": "8c5025f3d748fb2e5aebb304310852158ebaac0bcaf9ef44cad8676ed5963fbc"
     },
     "scripts/workflows/developer_workflow.py": {
-      "bytes": 29699,
-      "mode": 420,
-      "sha256": "531c124cde3fa41d46888acfc638c823196bb2f297b19ab68ab3d001b05f16ba"
+      "bytes": 31019,
+      "mode": 493,
+      "sha256": "12e0f3f8dbfe9df1ce50042300427f0fed10ae315d82df0af5ffcad9873eee29"
     },
     "scripts/workflows/python_development.py": {
       "bytes": 19097,
@@ -1019,6 +1024,9 @@
   "release_corrected191_parent": "111f14d2b21b220d86912d5ead978848c7ef1cb0",
   "release_operation": "release-alpm-upgrade-v1",
   "release_original191_predecessor": "4c3171a1937489badd22d350835e8287fee3c52a",
+  "release_retirement_maintained_main": "eaf43eddc5604773d8176f319700a450bc32ccb0",
+  "release_retirement_parent": "adb1f15aa0821e185218dea175b08650831549f1",
+  "release_retirement_profile": "reserved-terminal-v2",
   "schema": 1,
   "transport_basis177_map_sha256": "99d676438a247749b3e1c564943d8735452a1ebd92ec91dd78ee37817e77f36d",
   "transport_basis187_map_sha256": "b295500787e25eeb77ac16e84fb786d3d6c1e9f02f7a9ddb83d950bbe9d75c90",

@@ -47,16 +47,7 @@ def _pin(value):
          and 0<=value['bytes']<=LOG_CAP and type(value['sha256'])is str
          and re.fullmatch('[0-9a-f]{64}',value['sha256']),'bounded pin')
 
-def _row(row,stage):
-    keys={'step','argv','cwd','expected','success','log','log_pin','supervision','channels'}
-    need(type(row)is dict and set(row)in(keys,keys|{'launch_error'}),'original command fields')
-    need(row['step']==stage and row['argv']==argv(stage) and row['cwd']==str(PREFIX/'build-inputs'/stage[6:])
-         and type(row['expected'])is int and row['expected']==0 and row['success']is False
-         and row['channels']=='stdout+stderr combined in pipe order','exact failed source-owned build command')
-    need(type(row['log'])is str and re.fullmatch(r'[0-9]{3}-'+stage+r'\.log',row['log']),'fixed command log role')
-    _pin(row['log_pin'])
-    if 'launch_error'in row:need(type(row['launch_error'])is str and len(row['launch_error'].encode())<=2048,'bounded launch error')
-    s=row['supervision']
+def _supervision(s):
     if s is not None:
         need(type(s)is dict and set(s)=={'exit','reaped','ownership','timeout','signals','output_complete','group_census','error','seconds','passed'},'original non-RSS supervision fields')
         need(s['exit']is None or type(s['exit'])is int and -255<=s['exit']<=255,'observed exit only')
@@ -66,13 +57,24 @@ def _row(row,stage):
         need(s['group_census']in('NOT_OBSERVED','RESERVED_LEADER_ONLY','RESERVED_MEMBERS_REMAIN','UNKNOWN','PRESENT_OR_REUSED','EMPTY_ONCE','EMPTY_TWICE'),'observed census')
         need(s['error']is None or type(s['error'])is str and len(s['error'].encode())<=2048,'bounded supervisor error')
         need(type(s['seconds'])in(int,float)and math.isfinite(s['seconds'])and 0<=s['seconds']<=610,'bounded observed time')
+
+def _row(row,stage):
+    keys={'step','argv','cwd','expected','success','log','log_pin','supervision','channels'}
+    need(type(row)is dict and set(row)in(keys,keys|{'launch_error'}),'original command fields')
+    need(row['step']==stage and row['argv']==argv(stage) and row['cwd']==str(PREFIX/'build-inputs'/stage[6:])
+         and type(row['expected'])is int and row['expected']==0 and row['success']is False
+         and row['channels']=='stdout+stderr combined in pipe order','exact failed source-owned build command')
+    need(type(row['log'])is str and re.fullmatch(r'[0-9]{3}-'+stage+r'\.log',row['log']),'fixed command log role')
+    _pin(row['log_pin'])
+    if 'launch_error'in row:need(type(row['launch_error'])is str and len(row['launch_error'].encode())<=2048,'bounded launch error')
+    _supervision(row['supervision'])
     raw=encoded(row);need(len(raw)<=ROW_CAP,'command row cap')
     need(not private(raw)and not _LOCATION.search(raw.decode()),'command privacy refusal')
     return raw
 
 def _read_log(scope,name):
     need(Path(scope)==SCOPE and not any(p.is_symlink()for p in (SCOPE,*SCOPE.parents)),'fixed ordinary scope')
-    need(type(name)is str and re.fullmatch(r'[0-9]{3}-build-v[12]\.log',name),'fixed failed build log name')
+    need(type(name)is str and re.fullmatch(r'[0-9]{3}-(?:build-v[12]|no-autostart-(?:signing|trust))\.log',name),'fixed build or absence-check log role')
     path=SCOPE/name;fd=os.open(path,os.O_RDONLY|os.O_NONBLOCK|os.O_NOFOLLOW|os.O_CLOEXEC)
     try:
         before=os.fstat(fd)
@@ -85,7 +87,91 @@ def _read_log(scope,name):
         return bytes(raw)
     finally:os.close(fd)
 
-def _cleanup(report):
+def _absence_unknown(status=UNKNOWN):
+    return dict(status=status,row_pin=None,expected=UNKNOWN,success=UNKNOWN,
+        supervision=None,launch_error=None,log_pin=None,
+        output=dict(status=UNKNOWN,pin=None,suffix=None))
+
+def _absence_row(row,role):
+    step='no-autostart-'+role
+    keys={'step','argv','cwd','expected','success','log','log_pin','supervision','channels'}
+    need(type(row)is dict and set(row)in(keys,keys|{'launch_error'}),'original absence command fields')
+    args=row['argv']
+    need(type(args)is list and len(args)==5 and args[:2]==['/usr/bin/gpg-connect-agent','--homedir']
+         and args[3:]==['--no-autostart','/bye'] and type(args[2])is str
+         and re.fullmatch('/tmp/release-tools-test-[A-Za-z0-9_-]{1,64}/'+role,args[2]),'fixed owned absence command')
+    need(row['step']==step and row['cwd']==str(Path(args[2]).parent)
+         and row['expected']=='nonzero' and type(row['success'])is bool
+         and row['channels']=='stdout+stderr combined in pipe order','exact original absence command role')
+    need(type(row['log'])is str and re.fullmatch(r'[0-9]{3}-'+step+r'\.log',row['log']),'fixed absence log role')
+    _pin(row['log_pin']);_supervision(row['supervision'])
+    if 'launch_error'in row:need(type(row['launch_error'])is str and len(row['launch_error'].encode())<=2048,'bounded absence launch error')
+    raw=encoded(row);need(len(raw)<=ROW_CAP and not private(raw),'absence row cap/privacy refusal')
+    return raw
+
+def _absence_checks(scope,records):
+    out={role:_absence_unknown()for role in ('signing','trust')}
+    if type(records)is not list or len(records)>160:return out
+    for role in out:
+        rows=[r for r in records if type(r)is dict and r.get('step')=='no-autostart-'+role]
+        if not rows:continue
+        if len(rows)!=1:out[role]=_absence_unknown('REFUSED_COMMAND');continue
+        row=rows[0]
+        try:
+            raw=_absence_row(row,role);state=row['supervision'];projected=None
+            if state is not None:
+                projected=json.loads(encoded(state));error=state['error']
+                projected['error']=None if error is None else _text(error.encode(),256)
+                projected['error_pin']=None if error is None else pin(error.encode())
+            launch=row.get('launch_error')
+            launch=None if launch is None else dict(pin=pin(launch.encode()),text=_text(launch.encode(),256))
+            result=dict(status='OBSERVED',row_pin=pin(raw),expected=row['expected'],success=row['success'],
+                supervision=projected,launch_error=launch,log_pin=dict(row['log_pin']),
+                output=dict(status=UNKNOWN,pin=None,suffix=None))
+            out[role]=result
+        except BaseException:out[role]=_absence_unknown('REFUSED_COMMAND');continue
+        try:
+            raw=_read_log(scope,row['log']);need(type(raw)is bytes and len(raw)<=LOG_CAP,'whole absence output cap')
+            result['output']['pin']=pin(raw)
+            if pin(raw)!=row['log_pin']:result['output']['status']='REFUSED_PIN'
+            elif private(raw):result['output']['status']='REFUSED_PRIVACY'
+            else:result['output'].update(status='OBSERVED_SUFFIX',suffix=_text(raw,512))
+        except BaseException:result['output']=dict(status='UNAVAILABLE_OR_REFUSED_READ',pin=None,suffix=None)
+    return out
+
+def _safe_error(value):
+    need(type(value)is dict and set(value)=={'pin','text'},'projected error fields')
+    _pin(value['pin']);text=value['text']
+    need(type(text)is str and len(text.encode())<=256 and not private(text.encode())
+         and not _LOCATION.search(text) and _text(text.encode(),256)==text,'sanitized bounded observed error')
+
+def _validate_absence_checks(checks):
+    need(type(checks)is dict and set(checks)=={'signing','trust'},'two fixed absence roles')
+    for role,value in checks.items():
+        need(type(value)is dict and set(value)=={'status','row_pin','expected','success','supervision','launch_error','log_pin','output'},'absence projection fields')
+        if value['status']!='OBSERVED':
+            need(value['status']in(UNKNOWN,'REFUSED_COMMAND')and value==_absence_unknown(value['status']),'unavailable absence state remains unknown');continue
+        _pin(value['row_pin']);need(value['row_pin']['bytes']<=ROW_CAP,'original absence row cap');_pin(value['log_pin'])
+        need(value['expected']=='nonzero' and type(value['success'])is bool,'observed absence expectation/success only')
+        state=value['supervision']
+        if state is not None:
+            need(type(state)is dict and 'error_pin'in state,'projected original supervision')
+            copy=dict(state);error_pin=copy.pop('error_pin');_supervision(copy)
+            if state['error']is None:need(error_pin is None,'no invented error pin')
+            else:_safe_error(dict(pin=error_pin,text=state['error']))
+        if value['launch_error']is not None:_safe_error(value['launch_error'])
+        out=value['output'];need(type(out)is dict and set(out)=={'status','pin','suffix'},'absence output fields')
+        need(out['status']in(UNKNOWN,'OBSERVED_SUFFIX','REFUSED_PIN','REFUSED_PRIVACY','UNAVAILABLE_OR_REFUSED_READ'),'absence output status')
+        if out['pin']is not None:_pin(out['pin'])
+        if out['status']in(UNKNOWN,'UNAVAILABLE_OR_REFUSED_READ'):need(out['pin']is None,'unavailable absence log pin')
+        if out['status']=='REFUSED_PIN':need(out['pin']is not None and out['pin']!=value['log_pin'],'observed absence pin mismatch')
+        if out['status']=='REFUSED_PRIVACY':need(out['pin']==value['log_pin'],'whole original absence privacy pin')
+        if out['status']=='OBSERVED_SUFFIX':
+            text=out['suffix'];need(out['pin']==value['log_pin']and type(text)is str and len(text.encode())<=512
+                and not private(text.encode())and not _LOCATION.search(text)and _text(text.encode(),512)==text,'bounded sanitized original absence suffix')
+        else:need(out['suffix']is None,'refused absence output carries no text')
+
+def _cleanup(report,scope=None,records=None):
     report=report if type(report)is dict else {}
     source=report.get('cleanup',{});source=source if type(source)is dict else {}
     out={k:source.get(k)if type(source.get(k))is bool else UNKNOWN for k in('homes_retired','no_sockets','private_directory_absent')}
@@ -93,13 +179,14 @@ def _cleanup(report):
     failures=source.get('failures');out['failure_types']=UNKNOWN
     if type(failures)is list and len(failures)<=16:
         out['failure_types']=[x if type(x)is str and re.fullmatch(r'(?:[A-Za-z][A-Za-z0-9_+-]{0,63}:[A-Za-z][A-Za-z0-9_]{0,63}|global-policy-drift)',x)else UNKNOWN for x in failures]
+    out['absence_checks']=_absence_checks(scope,records)
     return out
 
 def build(scope,records,report,map_hash,primary):
     value=dict(schema=1,operation=OPERATION,source_map_sha256=map_hash,role='image-stage-release-build',
         status='DIAGNOSTIC_ONLY',stage=UNKNOWN,command=dict(status=UNKNOWN,row=None,pin=None),
         output=dict(status=UNKNOWN,pin=None,suffix=None),observed_exit=UNKNOWN,
-        primary=dict(type=UNKNOWN,message=UNKNOWN,message_pin=None),inner_cleanup=_cleanup(report),
+        primary=dict(type=UNKNOWN,message=UNKNOWN,message_pin=None),inner_cleanup=_cleanup(report,scope,records),
         native='NOT_ADMITTED',physical_M2='NOT_RUN',release='NOT_ADMITTED')
     try:
         message=str(primary).encode();kind=type(primary).__name__
@@ -149,9 +236,10 @@ def validate(value,map_hash):
     else:need(out['suffix']is None,'refused output carries no text')
     primary=value['primary'];need(type(primary)is dict and set(primary)=={'type','message','message_pin'}and type(primary['type'])is str and re.fullmatch('[A-Za-z][A-Za-z0-9_]{0,63}',primary['type'])and type(primary['message'])is str and len(primary['message'].encode())<=1024 and not private(primary['message'].encode())and not _LOCATION.search(primary['message']),'finite safe original failure')
     if primary['message_pin']is not None:_pin(primary['message_pin'])
-    cleanup=value['inner_cleanup'];need(type(cleanup)is dict and set(cleanup)=={'homes_retired','no_sockets','private_directory_absent','global_config_unchanged','global_trust_unchanged','failure_types'},'finite cleanup projection')
-    need(all(type(cleanup[k])is bool or cleanup[k]==UNKNOWN for k in cleanup if k!='failure_types'),'observed cleanup booleans only')
+    cleanup=value['inner_cleanup'];need(type(cleanup)is dict and set(cleanup)=={'homes_retired','no_sockets','private_directory_absent','global_config_unchanged','global_trust_unchanged','failure_types','absence_checks'},'finite cleanup projection')
+    need(all(type(cleanup[k])is bool or cleanup[k]==UNKNOWN for k in cleanup if k not in ('failure_types','absence_checks')),'observed cleanup booleans only')
     tags=cleanup['failure_types'];need(tags==UNKNOWN or type(tags)is list and len(tags)<=16 and all(type(x)is str and (x==UNKNOWN or re.fullmatch(r'(?:[A-Za-z][A-Za-z0-9_+-]{0,63}:[A-Za-z][A-Za-z0-9_]{0,63}|global-policy-drift)',x))for x in tags),'fixed cleanup failure class tags')
+    _validate_absence_checks(cleanup['absence_checks'])
     raw=encoded(value);need(len(MARKER.encode())+len(raw)+1<=MAX_LINE and not private(raw),'complete diagnostic privacy/cap')
     return value
 

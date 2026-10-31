@@ -60,6 +60,13 @@ def source_policy(root):
                  and re.fullmatch('[0-9a-f]{64}',item['sha256']),'pinned package payload')
     need(policy['bundle']['path']=='native/release-sources-v1.tar' and policy['bundle']['members']==37
          and policy['bundle']['bytes']<=policy['bundle']['max_bytes']<=1024**2,'finite source bundle')
+    retirement=policy['retirement_profile']
+    need(set(retirement)=={'name','path','bytes','sha256','group_census'}
+         and retirement['name']=='reserved-terminal-v2'
+         and retirement['path']=='scripts/virtual/owned_process_retirement_v2.py'
+         and retirement['group_census']=='RESERVED_LEADER_ONLY'
+         and data_pin(ordinary(root/retirement['path']))=={k:retirement[k] for k in ('bytes','sha256')},
+         'exact versioned pre-reap retirement profile required')
     base=ordinary(root/'native/expected349.lock')
     need(data_pin(base)=={k:policy['expected349'][k] for k in ('bytes','sha256')}
          and len(base.splitlines())==349,'exact base349 lock')
