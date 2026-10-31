@@ -69,6 +69,7 @@ finish() {
  exit "$rc"
 }
 trap finish EXIT
+exec > /dev/ttyS0 2>&1
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
 apt-get install --yes --quiet --no-install-recommends bubblewrap python3 libssl3t64 libexpat1 libzstd1 libffi8 liblzma5 libbz2-1.0 libsqlite3-0 libreadline8t64 libncursesw6 libuuid1
@@ -104,6 +105,10 @@ def guest_diagnostics(raw):
   if re.search(r'authorization|cookie|password|secret|(?:gh|github)_token|api[_-]?key|access[_-]?token|token\s*[:=]|private.key',line,re.I):
    lines.append('[sensitive field omitted]');continue
   lines.append(re.sub(r'https?://[^\s]+','[URL omitted]',line))
+ # Anchor the bounded diagnostic window at the terminal receipt; later
+ # shutdown chatter must not discard the bootstrap failure or receipt.
+ terminal=[i for i,line in enumerate(lines)if line.startswith('MEASUREMENT_GUEST_RESULT=')]
+ if terminal:lines=lines[:terminal[-1]+1]
  return '\n'.join(lines)[-16384:]
 GUEST_OWNER_SHA256='83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f'
 _guest_unresolved=None
