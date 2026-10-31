@@ -8,6 +8,28 @@ PROFILE_SHA='24692e6754b466c9172343c80883733fe14b240b18d15b87b109aed397c14ec0'
 RECIPE='packages/tools/cachy-asahi-measurement-tools'
 def need(ok,why):
  if not ok:raise ValueError(why)
+
+def guest_budget():
+ """Fixed nested-budget policy; no operator input, deadline renewal or acceptance."""
+ # Keep the previous whole-VM allowance for boot/provision/fixture setup, then
+ # reserve the FULL existing inner work budgets rather than spending them on boot.
+ startup,probe,runner,finish=180,20,180,20
+ retirement_ms=500
+ qemu=(1000*(startup+probe+runner+finish)+retirement_ms+999)//1000
+ # Retained 5e0 jobs: setup/tools17s; VM-step minus QEMU max65.464s.
+ # Round each observed outside-QEMU maximum UP to a whole minute; export gets
+ # the existing20s external-operation allowance. These are finite reserves,
+ # not claims about unmeasured boot/shutdown performance.
+ setup,input_prep,host_export=60,120,20
+ job=(setup+input_prep+qemu+host_export+59)//60
+ relay=180  # Existing diagnostic lifetime is held; never a work/admission deadline.
+ need(qemu<=401 and job<=11 and relay==180,'fixed guest/job/diagnostic budget maximum')
+ return dict(policy='MEASUREMENT_GUEST_NESTED_BUDGET_V1',startup_allowance_seconds=startup,
+  sandbox_preflight_seconds=probe,package_runner_seconds=runner,guest_finish_reserve_seconds=finish,
+  retirement_milliseconds=retirement_ms,qemu_cap_seconds=qemu,natural_window_milliseconds=qemu*1000-retirement_ms,
+  host_setup_reserve_seconds=setup,host_input_reserve_seconds=input_prep,host_export_reserve_seconds=host_export,
+  ci_job_timeout_minutes=job,relay_seconds=relay,performance='NOT_MEASURED')
+
 def sha(raw):return hashlib.sha256(raw).hexdigest()
 def load(name,path):
  spec=importlib.util.spec_from_file_location(name,path);module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);return module
@@ -468,7 +490,42 @@ def guest_diagnostics(raw):
  # shutdown chatter must not discard the bootstrap failure or receipt.
  terminal=[i for i,line in enumerate(lines)if line.startswith('MEASUREMENT_GUEST_RESULT=')]
  if terminal:lines=lines[:terminal[-1]+1]
- return '\n'.join(lines)[-16384:]
+ text='\n'.join(lines)
+ # Heartbeats can evict every early phase/test record from a plain suffix.
+ # Project only closed diagnostic DATA, reserving the same total16384 budget.
+ try:
+  observed=dict(scope='OBSERVED_DIAGNOSTICS_ONLY_NOT_ADMISSION',raw_sha256=sha(raw),bootstrap={},runners={})
+  for line in lines:
+   stage=re.fullmatch(r'MEASUREMENT_BOOTSTRAP_STAGE_START=(apt-update|apt-install|source-setup|python-probe|package8) elapsed=([0-9]{1,19})',line)
+   if stage and progress_integer(int(stage[2])):observed['bootstrap'][stage[1]]=int(stage[2])
+   if not line.startswith('MEASUREMENT_RUNNER_V1='):continue
+   try:event=progress_decode(line.split('=',1)[1].encode()+b'\n')
+   except Exception:continue
+   role=event['role']
+   if role=='relay':continue
+   brief={key:event[key]for key in('kind','seq','ms','test','step','status','code','dropped')if key in event}
+   runner=observed['runners'].setdefault(role,dict(first=brief,latest=brief,last_heartbeat=None,tests={},completed_steps={}))
+   runner['latest']=brief
+   if event['kind']=='heartbeat':runner['last_heartbeat']=event
+   if event['kind']=='step-finish':
+    step=event.get('step','other');runner['completed_steps'][step]=runner['completed_steps'].get(step,0)+1
+   test=event.get('test',0)
+   if test and event['kind']in('test-start','test-finish'):
+    record=runner['tests'].setdefault(str(test),dict(starts=0,finishes=0,start_ms=None,finish_ms=None,last_observed_outcome='not-observed'))
+    if event['kind']=='test-start':
+     record['starts']+=1
+     if record['start_ms']is None:record['start_ms']=event.get('ms')
+    else:record['finishes']+=1;record['finish_ms']=event.get('ms');record['last_observed_outcome']=event.get('status','not-observed')
+  if observed['bootstrap']or observed['runners']:
+   prefix='MEASUREMENT_GUEST_OBSERVED_V1='
+   projection=prefix+json.dumps(observed,sort_keys=True,separators=(',',':'),allow_nan=False)
+   if len(projection)>8192:
+    for runner in observed['runners'].values():runner.pop('last_heartbeat',None)
+    projection=prefix+json.dumps(observed,sort_keys=True,separators=(',',':'),allow_nan=False)
+   need(len(projection)<=8192,'bounded diagnostic projection')
+   return projection+'\n'+text[-(16384-len(projection)-1):]
+ except Exception:pass  # Projection failure cannot replace the original result.
+ return text[-16384:]
 GUEST_OWNER_SHA256='83444522f4dfede67f6965ea75de8411b9e34510c04d40571fe439c223294e8f'
 _guest_unresolved=None
 def guest_supervisor(owner,cancel):
@@ -510,11 +567,11 @@ def guest_custody(owner,argv,work):
   phase='launch'
   child=subprocess.Popen(argv,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,start_new_session=True)
   phase='supervise';transferred=True
-  result=supervise(child,cap=180,retirement=.5,grace=.1)
+  result=supervise(child,cap=guest_budget()['qemu_cap_seconds'],retirement=.5,grace=.1)
  except BaseException as error:
   if child is not None and not transferred:
    # Only this branch still owns a fresh child never given to supervise().
-   # A shorter failure retirement cannot renew the normal 180s run budget.
+   # A shorter failure retirement cannot renew the fixed derived run budget.
    try:result=owner.supervise(child,cap=.6,retirement=.5,grace=.1)
    except BaseException as cleanup:result=guest_failure(cleanup,'UNKNOWN')
    result['passed']=False;result['wrapper_error']=type(error).__name__+': '+str(error)[:300]
@@ -566,6 +623,7 @@ def guest_custody(owner,argv,work):
 
 def guest(root,work):
  import tarfile,urllib.request
+ print(json.dumps(dict(guest_budget=guest_budget()),sort_keys=True),flush=True)
  need(os.geteuid()!=0,'ordinary host guest owner required')
  need(all(shutil.which(x)for x in ('qemu-system-x86_64','qemu-img','cloud-localds','genisoimage')),'explicit disposable VM tools required')
  selected=Path(sys.executable).resolve();prefix=Path(sys.base_prefix).resolve();need(selected.is_relative_to(prefix)and selected!=Path('/usr/bin/python3').resolve(),'separate selected Python prefix required')
