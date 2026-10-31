@@ -30,7 +30,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          printf '%s  %s\n' 'ea710ef082d4ffaebd2bb8b0fef25d6151b9b692c0cc48a22e8ec93dd4797c06' native/owner.py 'd2719b673ef9a069e97806a8c65bc9acfaaec74d717fa84b805bc9ce43e1cc29' native/source-map.json | sha256sum --check
+          printf '%s  %s\n' 'ea710ef082d4ffaebd2bb8b0fef25d6151b9b692c0cc48a22e8ec93dd4797c06' native/owner.py '84a4639af9a13aee71c9a28f985cf57e58e5745bd9ea3e82e75d9e3db1a4a3cc' native/source-map.json | sha256sum --check
           test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
           test "$GITHUB_SHA" = "$SOURCE_SHA"
           test "$GITHUB_WORKFLOW_SHA" = "$SOURCE_SHA"
@@ -42,7 +42,7 @@ jobs:
             GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" GITHUB_EVENT_NAME="$GITHUB_EVENT_NAME" \
             GITHUB_REPOSITORY="$GITHUB_REPOSITORY" GITHUB_ACTIONS="$GITHUB_ACTIONS" RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" \
             python3 -I -B native/owner.py --preflight-only --execute \
-            --source-sha "$SOURCE_SHA" --ref "$GITHUB_REF" --run-id "$GITHUB_RUN_ID" --map-sha256 d2719b673ef9a069e97806a8c65bc9acfaaec74d717fa84b805bc9ce43e1cc29 \
+            --source-sha "$SOURCE_SHA" --ref "$GITHUB_REF" --run-id "$GITHUB_RUN_ID" --map-sha256 84a4639af9a13aee71c9a28f985cf57e58e5745bd9ea3e82e75d9e3db1a4a3cc \
             --work "$RUNNER_TEMP/support-native-work" --cache "$RUNNER_TEMP/alarm-cache" \
             --carrier "$RUNNER_TEMP/pgo-hosted-retained" --public "$RUNNER_TEMP/support-native-public"
       - name: Provision and verify owned ARM guest host tools before secrets
@@ -53,7 +53,7 @@ jobs:
           env -i PATH=/usr/bin:/bin HOME="$RUNNER_TEMP/support-native-home" LANG=C TZ=UTC \
             RUNNER_TEMP="$RUNNER_TEMP" SOURCE_SHA="$SOURCE_SHA" PYTHONDONTWRITEBYTECODE=1 \
             GITHUB_ACTIONS="$GITHUB_ACTIONS" RUNNER_ENVIRONMENT="$RUNNER_ENVIRONMENT" \
-            python3 -I -B native/guest_vm.py --tools-only --provision-tools --map-sha256 d2719b673ef9a069e97806a8c65bc9acfaaec74d717fa84b805bc9ce43e1cc29
+            python3 -I -B native/guest_vm.py --tools-only --provision-tools --map-sha256 84a4639af9a13aee71c9a28f985cf57e58e5745bd9ea3e82e75d9e3db1a4a3cc
       - name: Seed the six exact retained inputs using existing secrets only
         timeout-minutes: 2
         env:
@@ -172,7 +172,7 @@ jobs:
             GITHUB_WORKFLOW_REF="$GITHUB_WORKFLOW_REF" GITHUB_EVENT_NAME="$GITHUB_EVENT_NAME" \
             GITHUB_REPOSITORY="$GITHUB_REPOSITORY" GITHUB_ACTIONS="$GITHUB_ACTIONS" RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" \
             python3 -I -B native/owner.py --execute \
-            --source-sha "$SOURCE_SHA" --ref "$GITHUB_REF" --run-id "$GITHUB_RUN_ID" --map-sha256 d2719b673ef9a069e97806a8c65bc9acfaaec74d717fa84b805bc9ce43e1cc29 \
+            --source-sha "$SOURCE_SHA" --ref "$GITHUB_REF" --run-id "$GITHUB_RUN_ID" --map-sha256 84a4639af9a13aee71c9a28f985cf57e58e5745bd9ea3e82e75d9e3db1a4a3cc \
             --work "$RUNNER_TEMP/support-native-work" --cache "$RUNNER_TEMP/alarm-cache" \
             --carrier "$RUNNER_TEMP/pgo-hosted-retained" --public "$RUNNER_TEMP/support-native-public"
       - name: Upload only bounded regular DATA capsule and receipt
