@@ -99,7 +99,7 @@ def run(root, args):
     from image_lifecycle import reserve, register, verify_base, retire as retire_images
     from cleanup_control import build_operation, retire_created_containers
     ledger = None; container = None; created_base_id = None; namespace_fresh = False
-    build_operations = []; probe_rows = []; cleanup = dict(status='UNKNOWN')
+    build_operations = []; probe_rows = []; cleanup = dict(status='UNKNOWN', binding=own, source_map_sha256=args.map_sha256)
     prior_run = subprocess.run
     primary_error = None
     git_environment = dict(GIT_CONFIG_NOSYSTEM='1', GIT_CONFIG_GLOBAL='/dev/null', GIT_NO_REPLACE_OBJECTS='1',
@@ -277,7 +277,8 @@ def run(root, args):
         cleanup_handlers = {number: signal.signal(number, lambda number, frame: pending_cleanup.append(number))
                             for number in (signal.SIGINT, signal.SIGTERM)}
         retire = None
-        cleanup = dict(status='UNKNOWN_NOT_ACCEPTED', actors=[], build_operations=build_operations,
+        cleanup = dict(status='UNKNOWN_NOT_ACCEPTED', binding=own, source_map_sha256=args.map_sha256,
+                       actors=[], build_operations=build_operations,
                        container_retirement=[], daemon_absence=None, image_retirement=None)
         try:
             retire = pgo.Actors(args.work / 'retirement-actors', 160)
