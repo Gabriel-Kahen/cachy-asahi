@@ -105,6 +105,7 @@ class Context:
   with namespace(ROOT,dict(case=C,adapter=adapter,desktop622=X,ownership622=ownership622)):return self._host(a)
  def _host(self,a):
   import controller,evidence,entry
+  export622.telemetry_phase('CORE_HOST_PREPARE')
   w=self.workspace;producer=self.producer;C.need(producer is not None and a.output.parent==Path('/tmp')and not a.output.exists(),'same original fresh607 producer and fresh sibling Core owner');base=producer/'private/desktop574';base_report=C.decode(C.read(base/'report.json'));marker=C.read(base/'image-id',128).decode().strip();C.need(base_report['image']==marker and base_report['ownership']['token']and marker not in base_report['ownership']['before_images'],'actual base token/image-id equality before Core actor')
   record=C.decode(C.read(a.ready/'manifest.json',4*1024**2));X.manifest(C.decode(C.read(ROOT/'composition.json',4*1024**2)),record);C.need(record['status']=='READY_SIGNED_EXPANDED607'and record['preparation']['base_receipt']['image']==marker and record['preparation']['base_receipt']['ownership']['token']==base_report['ownership']['token']and record['preparation']['package_signatures']=='verified-each-exact-signer','actual full fresh607 preparation/base/signer binding');C.need(self.tooling_seed is not None and self.tooling_seed['status']=='EXACT35_TOOLING_INPUT_CACHE_PREPARED_NOT_AUTHENTICATION','actual unchanged retained35 seed result')
   parent=a.output.with_name(a.output.name+'-context');C.need(not parent.exists(),'fresh independent Core context');parent.mkdir(mode=0o700);self.context_lease=__import__('provision622').claim_input_context(parent,self.proof['selection']);__import__('provision622').record_input_context(self.context_lease)
@@ -119,9 +120,9 @@ class Context:
   kernel=entry.kernel_inputs(types.SimpleNamespace(proof=parent/'source-proof.json',kernel_carrier=w/'kernel-inputs'),C.decode(C.read(ROOT/'profile.json',4*1024**2)))
   args=types.SimpleNamespace(core_source=w/'core-source',vm_source=w/'vm-source',core7=w/'core7-inputs',core64=w/'core64-inputs',kernel_inputs=kernel,base=base,proof=parent/'source-proof.json',output=a.output,receipt=parent/'ordered-cleanup.json',public=parent/'public',source=w/'core-source',case_source=ROOT,workspace=w/'core-source/runtime/runtime-vm',selected=proof['selection'],current607_inputs=a.ready,fresh607_source=self.fresh,current607_code=a.code,outer_deadline=self.end);self.current=args
   code=1
-  try:code=controller.execute(args)
+  try:export622.telemetry_phase('CORE_EXECUTION');code=controller.execute(args)
   finally:
-   cleanup=evidence.cleanup(args);retained=evidence.retain(args)
+   export622.telemetry_phase('CORE_EVIDENCE_CLEANUP');cleanup=evidence.cleanup(args);export622.telemetry_phase('CORE_EVIDENCE_RETENTION');retained=evidence.retain(args)
    C.need(not(ROOT/'actual.json').exists(),'no source-owned acceptance slot created')
    clean=C.decode(C.read(args.receipt));status='PASS_CORE622_CURRENT607_NORMAL_CORE_TWO_BOOT'if code==cleanup==retained==0 else'FAIL';result=dict(status=status,scope=X.SCOPE,provisioning=X.PROVISIONING,normal_fresh607_installation='NOT_RUN',all_original_cleanup='PASS'if cleanup==0 else'FAIL',whole_graph_and_two_boots='PASS'if retained==0 else'UNQUALIFIED',fit='NOT_ESTABLISHED',hardware='NOT_RUN',core_public=public_rows(parent/'public'));(a.output/'result.json').write_bytes(C.encoded(result))
    # Copy original complete public Core evidence before the unchanged outer
@@ -129,7 +130,7 @@ class Context:
    target=producer.with_name(producer.name.removesuffix('-producer'))/'core622-public';C.need(not target.exists(),'fresh bounded full Core evidence destination');shutil.copytree(parent/'public',target);C.need(public_rows(target)==result['core_public'],'all current Core public bytes retained exactly')
    try:self.context_inventory=declared_context_inventory(result['core_public'],C.read(parent/'context-owner.json',16384),self.context_lease,args.selected,C.decode(C.read(ROOT/'profile.json',4*1024**2))['source_profiles']['kernel_carrier']['files'],C.read(parent/'public/export.json',4*1024**2))
    except BaseException:pass # Missing authority refuses retirement; original result/exception remains primary.
-  C.need(code==cleanup==retained==0,'complete actual607 formation and normal Core twoBoot result')
+  export622.telemetry_phase('CORE_HOST_RETURN');C.need(code==cleanup==retained==0,'complete actual607 formation and normal Core twoBoot result')
  def retired(self,path):
   if self.current is None:return not path.exists()
   a=self.current
@@ -147,6 +148,7 @@ class Context:
  def cleanup(self,original,producer,path):
   with namespace(ROOT,dict(case=C,adapter=adapter,desktop622=X,ownership622=ownership622)):return self._cleanup(original,producer,path)
  def _cleanup(self,original,producer,path):
+  export622.telemetry_phase('ORIGINAL_PRODUCER_CLEANUP')
   # The original cleanup body remains exact. Only its real subprocess timeout
   # arguments are clamped to the remaining same240s handoff/retirement clock.
   self.cleanup_end=min(time.monotonic()+240,self.native_phase['phase_end'])if self.native_phase is not None else ownership622.remaining_deadline(240,'cleanup',clock=self.job_clock)if self.job_clock is not None else time.monotonic()+240
@@ -156,7 +158,7 @@ class Context:
    remaining=self.cleanup_end-time.monotonic();C.need(remaining>0,'unchanged shared240 producer cleanup allowance');kw=dict(kw);kw['timeout']=min(kw.get('timeout',remaining),remaining);return subprocess.run(*args,**kw)
   shim=types.SimpleNamespace(**{n:getattr(subprocess,n)for n in dir(subprocess)if not n.startswith('__')});shim.run=run;scoped=X.clone(original,subprocess=shim);C.need(scoped.cleanup.__code__ is original.cleanup.__code__ and scoped.cleanup.__globals__['subprocess'].run is run,'actual whole original cleanup executing shared remaining clock');result=scoped.cleanup(producer)
   if self.current is not None:
-   parent=self.current.proof.parent;entries=list(parent.rglob('*'));C.need(self.context_inventory is not None,'required declared private context retirement inventory');limit=self.context_inventory['summary']['bytes'];inventory_nodes={};observation=export622.context_retirement_observations(parent,self.cleanup_end,self.context_inventory['summary'])
+   export622.telemetry_phase('CURRENT_CONTEXT_RETIREMENT');parent=self.current.proof.parent;entries=list(parent.rglob('*'));C.need(self.context_inventory is not None,'required declared private context retirement inventory');limit=self.context_inventory['summary']['bytes'];inventory_nodes={};observation=export622.context_retirement_observations(parent,self.cleanup_end,self.context_inventory['summary'])
    try:
     bounded=observation.record('entry_count',len(entries))<=2048 and observation.record('file_bytes_total',sum(observation.record('file_bytes',context_inventory_stat(inventory_nodes,p,p.stat()).st_size,p)for p in entries if observation.record('byte_is_file',p.is_file(),p)))<=limit and observation.record('owner_type_alias_all',all(not observation.record('alias',p.is_symlink(),p)and observation.record('owner_matches_current',context_inventory_stat(inventory_nodes,p,p.stat()).st_uid==os.getuid(),p)and(observation.record('type_is_file',p.is_file(),p)or observation.record('type_is_dir',p.is_dir(),p))for p in entries))and observation.inventory_check(lambda:validate_context_inventory(self.context_inventory,parent,entries,self.current.selected,inventory_nodes))and observation.record('monotonic',time.monotonic())<self.cleanup_end
    except BaseException as error:observation.emit(operand_error=type(error).__name__);raise
@@ -183,9 +185,9 @@ def main(argv=None):
   class Integration(old_integration):
    def bind(self,original,producer):return ownership622.verifier_capture(old_integration.bind,F,context,self,original,producer)
    def producer(self,original,args):
-    context.producer=args.output;return ownership622.prepare_owned(original,args,super().producer,F.producer_diagnostic.CALLER_PIN,context.workspace/'core-source',context.proof['git']['core800'],F.producer_diagnostic.command,context.capture_desktop_build,context.end,context.capture_dependency)
+    export622.telemetry_phase('PRODUCER_PREPARE');context.producer=args.output;return ownership622.prepare_owned(original,args,super().producer,F.producer_diagnostic.CALLER_PIN,context.workspace/'core-source',context.proof['git']['core800'],F.producer_diagnostic.command,context.capture_desktop_build,context.end,context.capture_dependency)
    def seed_tooling(self,*a):
-    fact=super().seed_tooling(*a);context.tooling_seed=fact;return fact
+    export622.telemetry_phase('TOOLING_SEED');fact=super().seed_tooling(*a);context.tooling_seed=fact;return fact
    def outer_exception(self,error):return export622.outer_exception(error,'child')
    def desktop_failure(self,result):return context.desktop_failure(result)
    def core_host(self,args):return context.host(args)

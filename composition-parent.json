@@ -19553,6 +19553,406 @@
     "publication_parent": "0d49642fbbf02aaea49339b3829e166b83b6f984",
     "schema": 1
   },
+  "runner_resilience_causal": {
+    "acceptance": false,
+    "actual": null,
+    "before": {
+      ".github/workflows/native-arm-build.yml": {
+        "bytes": 50261,
+        "sha256": "818aa03433027cf2e310cb15c85cf1293141eb377cf53f198a26f9bfdaa0ea67"
+      },
+      ".github/workflows/native-arm-core7-real-systemd.yml": {
+        "bytes": 50261,
+        "sha256": "818aa03433027cf2e310cb15c85cf1293141eb377cf53f198a26f9bfdaa0ea67"
+      },
+      "Core800-acceptance.json": {
+        "bytes": 2043,
+        "sha256": "d6f67e4c2782f9b609309e6e5627ad6534f172f0560ec7e2e2ec5c3a4f251e9d"
+      },
+      "LICENSE": {
+        "bytes": 27836,
+        "sha256": "624b2335eff599a84764ef0a51b6d2962b5ef504a792e1b362ea31f0cbc1ac4c"
+      },
+      "README.md": {
+        "bytes": 6730,
+        "sha256": "849d859eb0d7c49d4a1a673218fbc74a7bcf378b711b3e2ebb21ab3887dcff8e"
+      },
+      "acl_policy.py": {
+        "bytes": 83174,
+        "sha256": "9204e5794f01b49a0b301088f3a5b4439e57eb7273fc5afac278b3f967816462"
+      },
+      "adapter.py": {
+        "bytes": 1401,
+        "sha256": "fb0aadeb5fb230346161be90e94696aecaecf6d2b3e1e3f40538d7ab72f23586"
+      },
+      "assembly622.py": {
+        "bytes": 466,
+        "sha256": "610836ad8beeed379079b711c37d20867b28218d9422631ff7857d8a4872be55"
+      },
+      "boot.py": {
+        "bytes": 5422,
+        "sha256": "f6df3d8e5b5602f3b9eca4ebfbb54afaa354ac29b7b4b9cc26988a9de064349e"
+      },
+      "candidate_capacity.py": {
+        "bytes": 49900,
+        "sha256": "03018514575bb12b0f6623b4f4a2396a2ce3fa3691225c6134f061a787d12a83"
+      },
+      "case.py": {
+        "bytes": 8668,
+        "sha256": "07ea5e72a4ad8b22b9a6594aada61941abefa4659b46b26fc0bb59efa239319b"
+      },
+      "clock.py": {
+        "bytes": 4205,
+        "sha256": "cf43f16973294a8e687c65341cb63329a71d9a2a2ea488f0f6f2e20b97087c3c"
+      },
+      "composition-parent.json": {
+        "bytes": 3024415,
+        "sha256": "462e4f1f4fc4b302ae6a7c805b8b02255bcdf7e8fd05c143370fbd633e6f1d67"
+      },
+      "composition.json": {
+        "bytes": 444951,
+        "sha256": "154aab2490617a23d3fb745cc8c03d3bc4abb35d3c836f4a43394b1758158d6c"
+      },
+      "compression-profile.json": {
+        "bytes": 1179,
+        "sha256": "aec949ee839909702d208a3f91710c4565b5dcf46fa4fca0b2bd3bc13558d57c"
+      },
+      "controller.py": {
+        "bytes": 11715,
+        "sha256": "50061a1e0e91dabdbe66572500cfaf343c97e6cd750f77665b17c4ec4a1cb719"
+      },
+      "desktop622.py": {
+        "bytes": 9856,
+        "sha256": "eace06a0842aa08b803de34522178a086943c3e05086b1ed07f7fb986fd07400"
+      },
+      "effects.py": {
+        "bytes": 6147,
+        "sha256": "e2d4d80f64736975437615146f09f8796c20a634b02bb31d167614700609aae7"
+      },
+      "entry.py": {
+        "bytes": 6025,
+        "sha256": "f34a53b6ea08ef673d0d187e70a4fc1a496b8b00882cd432fbe3af0e50ddac68"
+      },
+      "evidence.py": {
+        "bytes": 7937,
+        "sha256": "21da5d7bc45214cac174da7fa779ddf281760841f5a233b9c57b21b154d4e4be"
+      },
+      "expected607.lock": {
+        "bytes": 12076,
+        "sha256": "be35402204ba5c03d78279722afa83047c9575d2da70fb5c4064f46ed15954c5"
+      },
+      "expected622.lock": {
+        "bytes": 12444,
+        "sha256": "189d037738680f5dfc9a5d48169eddf866383a06b070c094dac613c9d1b4eca8"
+      },
+      "export622.py": {
+        "bytes": 42628,
+        "sha256": "1860991983ed000f702f589f242764d067d6efe0afe0fd6fa12c2c0e6b4d5cb5"
+      },
+      "formation622.py": {
+        "bytes": 4938,
+        "sha256": "c0dba994e0edb0da162e796a68b555ead745889baf5cd70a929fa465e79b4485"
+      },
+      "graph_api.py": {
+        "bytes": 1899,
+        "sha256": "16839d25ad6a3957b68848fb6718a393840840b433361eba1ae07ddbbdafe5d7"
+      },
+      "graph_stage_source.py": {
+        "bytes": 56225,
+        "sha256": "b0ce77149ff72ea2936c23fcbdeefe3c011a2dfc75d60d40ec650ab233e5e845"
+      },
+      "guest.py": {
+        "bytes": 23657,
+        "sha256": "e921b2aa54f47125dd83c8c4932fa6ba3c4048f107e4dcf6df4d42680c71b874"
+      },
+      "guest_guard.py": {
+        "bytes": 4160,
+        "sha256": "8db72fbc36f59c5660f7ddc4f56f3bdbed81cdec4344c65017db522501f83de7"
+      },
+      "hook.py": {
+        "bytes": 787,
+        "sha256": "b3e2bd1c4eb715928919028be1dddce2090605d233ba8f4d6bf98d67e95f5fa3"
+      },
+      "host.py": {
+        "bytes": 4302,
+        "sha256": "d25d18a115483bf7b6f2f0f0f1bfe21d19de37951949e55685edcfb77d84248b"
+      },
+      "initramfs.py": {
+        "bytes": 4502,
+        "sha256": "50d3a4833f5b783704c1a07fb3c213819769a08294eb677e7066ec13595d4b98"
+      },
+      "journal_acl.py": {
+        "bytes": 94610,
+        "sha256": "e3849c1604b6520c4fb813692290a0989d08542cf3ada1fbf412948a83a26c9c"
+      },
+      "lane622.py": {
+        "bytes": 9700,
+        "sha256": "31d47330f090f82c5ed5a1da108045492fa4de9d47bd45bbb2c169781d7c52bf"
+      },
+      "media.py": {
+        "bytes": 9202,
+        "sha256": "4ade0d8e6fb970e1291b2f9a5f55653934844c36e866491c338678650ac8af0e"
+      },
+      "mime-profile.json": {
+        "bytes": 259815,
+        "sha256": "4c601c715c4ee64484f49dacebfddb53da9391893c29e3c0626a92942a36a793"
+      },
+      "mime_cache.py": {
+        "bytes": 47294,
+        "sha256": "1e04c1a6d7918c6499a3a356397749a60083000bb493e9fb3df1f277ea635922"
+      },
+      "ownership622.py": {
+        "bytes": 63574,
+        "sha256": "4392285392cca3e9e01241599443f061bb4cdd559c507556b2ef5e1ae2915a8f"
+      },
+      "pid1-baseline.json": {
+        "bytes": 528,
+        "sha256": "b508b5ff108bc90d79952c7a90efdb812ccd008421297412b9338a2c6c1c8be6"
+      },
+      "pid1-expected.json": {
+        "bytes": 548,
+        "sha256": "2891023d89c1f35b47c8e4cb8b7c88105ddce72b18796a377b161e7278f03659"
+      },
+      "prepare.py": {
+        "bytes": 1394,
+        "sha256": "554c52290776a5f4ec314ba8abad836db1d99ab81e4782964e3a0d4bbe04a8a2"
+      },
+      "profile.json": {
+        "bytes": 334009,
+        "sha256": "e03456c28bcae23d3cb6ae856af81adf75a1a60905aefb0e0238acd147e3de24"
+      },
+      "provision622.py": {
+        "bytes": 48590,
+        "sha256": "0e11e0d2339ec94eef3a760c1298d74ba5caab2367adcf601258c1c3826ec341"
+      },
+      "run622.py": {
+        "bytes": 29242,
+        "sha256": "f40d7c146d2c1807ca79058b0921e605a3765b46d07091189262afe11b9414ba"
+      },
+      "serial-profile.json": {
+        "bytes": 734,
+        "sha256": "f7cd6095424948d3e108b3b96763674612fc086e2da08cb783da78057a0f0c0e"
+      },
+      "serial_result.py": {
+        "bytes": 52907,
+        "sha256": "d708f9de5f31a15882596ed95fb9514958ce8df4a85ce2152dcb265f878b3991"
+      },
+      "source-manifest.json": {
+        "bytes": 8714,
+        "sha256": "4e471a2bd0f0d82f4fa267e20eec2fd9b6d9126da7b70872b7959051c386309f"
+      },
+      "source622.py": {
+        "bytes": 66757,
+        "sha256": "cd8ee53a6e0a8f652e6af3f4afa9951d7742b59182f65b59b19771124b99b2ba"
+      },
+      "test_bridge622.py": {
+        "bytes": 143898,
+        "sha256": "d9dcecddfde74d90d4187f4fac90261d2962fa312efd593c9d8d1992eb8430d6"
+      },
+      "test_case.py": {
+        "bytes": 19195,
+        "sha256": "723c962fafa76c84e8d6764e687bdebe5faad63b00a96edb0355f27c8ad7a189"
+      },
+      "test_desktop622.py": {
+        "bytes": 5072,
+        "sha256": "ed28a02f696c57785041c53b8c8380b3817cbb2e884b1fd3df4451881c7a6daf"
+      },
+      "test_emission.py": {
+        "bytes": 2521,
+        "sha256": "57a4a755385a5e380e303f3e3da33bafcfc71063ffce2041f22b22b5a5ffdf8f"
+      },
+      "test_host.py": {
+        "bytes": 3090,
+        "sha256": "b01d3159bd0b0c688434bac69976dd16cf173358a598957f3be58f49c1642460"
+      },
+      "test_initramfs.py": {
+        "bytes": 7864,
+        "sha256": "0d0a521c9f4e8793c4b15a82119dfca7a46642033c94b72327e27118a797bae2"
+      },
+      "test_protocol.py": {
+        "bytes": 4378,
+        "sha256": "ac482fa3a8fc0ab932bcf8e65b864e4ac26affc1ecf30ecea61cd42b52264d25"
+      },
+      "test_route.py": {
+        "bytes": 9847,
+        "sha256": "b32ab0d4b5dd3cbfbb131811a8460bc82b07dcd517598971c1b14bdc437123ab"
+      },
+      "test_sources.py": {
+        "bytes": 19838,
+        "sha256": "eef8c2a75e8f3c5e282eb48daba98ce471c58791b29e0653626fe0949a06a8e7"
+      },
+      "tmpfiles_hash.py": {
+        "bytes": 41582,
+        "sha256": "6912c9ae1a14477212921c6aed68b54e7c83a6a9308664e515c51619603eba6b"
+      },
+      "transaction_output.py": {
+        "bytes": 42998,
+        "sha256": "8ce374e17744888ad70ca0b19485ffd6f72d6cf029f47f6fdfaa07c47dce6ce9"
+      },
+      "units/caa-core-observer.service": {
+        "bytes": 474,
+        "sha256": "95b66c92d2acbbfdb5d904c2c0f6b61518fd3bb7c71eb290751a27e9d2fc8e6e"
+      },
+      "units/caa-core-probe.service": {
+        "bytes": 358,
+        "sha256": "b8a4a142045304e53893608548c293b684fbe295831e25a84d5cf3c19ef0a6b4"
+      },
+      "units/caa-core-worker.service": {
+        "bytes": 352,
+        "sha256": "70ebee606afc5fee5359d3ea05cee62445766c8a4033d6fbee7398f0be6f9353"
+      },
+      "units/caa-core.target": {
+        "bytes": 189,
+        "sha256": "1025ff9b01e2132861b26cf35fd5f4a25424638f03e49222552ef0cbbb719e37"
+      },
+      "validate.py": {
+        "bytes": 7302,
+        "sha256": "00fd4f5a2c4652d6a6c39737188decc60b8a001964bf919fdaf9d68c11b1c051"
+      },
+      "vm_validation.py": {
+        "bytes": 52784,
+        "sha256": "a69264ea55374b2058048ca2441c89942e65f43d06125b0d1ad71d3e021202e1"
+      },
+      "workflow.yml.in": {
+        "bytes": 50261,
+        "sha256": "818aa03433027cf2e310cb15c85cf1293141eb377cf53f198a26f9bfdaa0ea67"
+      },
+      "xattr_diagnostic.py": {
+        "bytes": 17502,
+        "sha256": "ad88aee4e41afa9f78d45785a45f274abeac1aaf335225ec0c4cc61240cbba47"
+      }
+    },
+    "candidate_manifest": {
+      "bytes": 32145,
+      "sha256": "1a9ccfe1adcc461e89bd1025360219ea0e3ca6e41ae49e993a6e0fb2a3d6b509"
+    },
+    "candidate_manifest_raw": {
+      "bytes": 32145,
+      "sha256": "1a9ccfe1adcc461e89bd1025360219ea0e3ca6e41ae49e993a6e0fb2a3d6b509"
+    },
+    "cause": "UNKNOWN",
+    "diagnostic_roles": 14,
+    "edits": {
+      "export622.py": [
+        [
+          "def outer_pump(role):",
+          "# Finite live telemetry through the already-owned stdout pump. No new actor.\nTELEMETRY_PHASE_PREFIX=b'CORE622_PHASE_MARKER_V1 '\nTELEMETRY_PREFIX=b'CORE622_PHASE_RESOURCE_V1 '\nTELEMETRY_PHASES=('AWAITING_INSTALLER_PHASE','FRESH_INSTALLER_ENTER','PRODUCER_PREPARE','TOOLING_SEED','CORE_HOST_PREPARE','CORE_EXECUTION','CORE_EVIDENCE_CLEANUP','CORE_EVIDENCE_RETENTION','CORE_HOST_RETURN','ORIGINAL_PRODUCER_CLEANUP','CURRENT_CONTEXT_RETIREMENT','OUTER_CALLER_RETURN','OUTER_CALLER_RAISE')\nTELEMETRY_RESOURCES=('host_mem_total_kib','host_mem_available_kib','host_swap_total_kib','host_swap_free_kib','pump_vm_rss_kib','pump_vm_hwm_kib','pump_threads')\n_PHASE_MARKER_ATTEMPTS=0\n\ndef telemetry_encoded(value):return json.dumps(value,sort_keys=True,separators=(',',':'),allow_nan=False).encode()\n\ndef telemetry_proc(path,cap):\n need(path in('/proc/meminfo','/proc/self/status','/proc/self/stat'),'fixed numeric kernel roles only');fd=os.open(path,os.O_RDONLY|os.O_NONBLOCK|os.O_CLOEXEC)\n try:\n  raw=os.read(fd,cap+1);need(len(raw)<=cap,'bounded kernel observation');return raw\n finally:os.close(fd)\n\ndef telemetry_process_identity():\n pid=os.getpid();ticks=None\n try:\n  raw=telemetry_proc('/proc/self/stat',16384);head,tail=raw.split(b'(',1);fields=tail.rsplit(b')',1)[1].split();need(int(head)==pid and len(fields)>=20 and fields[19].isdigit(),'own kernel process identity');candidate=int(fields[19]);need(0<candidate<2**63,'bounded own process startticks');ticks=candidate\n except BaseException:pass\n return dict(pid=pid,start_ticks=ticks)\n\ndef telemetry_resources():\n rows={k:None for k in TELEMETRY_RESOURCES}\n for path,fields in(('/proc/meminfo',{'MemTotal':'host_mem_total_kib','MemAvailable':'host_mem_available_kib','SwapTotal':'host_swap_total_kib','SwapFree':'host_swap_free_kib'}),('/proc/self/status',{'VmRSS':'pump_vm_rss_kib','VmHWM':'pump_vm_hwm_kib','Threads':'pump_threads'})):\n  try:\n   seen=set()\n   for line in telemetry_proc(path,65536).decode('ascii').splitlines():\n    key,sep,text=line.partition(':')\n    if key not in fields:continue\n    name=fields[key];parts=text.split();valid=key not in seen and len(parts)==(1 if key=='Threads'else 2)and parts[0].isdigit()and(key=='Threads'or parts[1]=='kB');seen.add(key);value=int(parts[0])if valid else None;rows[name]=value if value is not None and value<2**63 else None\n  except BaseException:pass\n return rows\n\ndef telemetry_write(raw):\n \"\"\"Independent nonblocking pipe description; never mutate inherited FD1 flags.\"\"\"\n fd=None\n try:\n  need(type(raw)is bytes and 0<len(raw)<=1024,'finite safe telemetry write');fd=os.open('/proc/self/fd/1',os.O_WRONLY|os.O_NONBLOCK|os.O_CLOEXEC);s=os.fstat(fd);original=os.fstat(1);need(stat.S_ISFIFO(s.st_mode)and(s.st_dev,s.st_ino)==(original.st_dev,original.st_ino)and os.fpathconf(fd,'PC_PIPE_BUF')>=1024,'same inherited output pipe with atomic bounded writes');return os.write(fd,raw)==len(raw)\n except BaseException:return False\n finally:\n  if fd is not None:\n   try:os.close(fd)\n   except BaseException:pass\n\ndef telemetry_identity(value):\n return type(value)is dict and set(value)=={'pid','start_ticks'}and type(value['pid'])is int and 0<value['pid']<2**31 and(value['start_ticks']is None or type(value['start_ticks'])is int and 0<value['start_ticks']<2**63)\n\ndef telemetry_selection(value,intent):\n return type(value)is dict and set(value)=={'source','ref','run','attempt'}and type(value['source'])is str and len(value['source'])==40 and all(c in'0123456789abcdef'for c in value['source'])and type(value['ref'])is str and 6<len(value['ref'])<=96 and value['ref'].startswith('codex/')and all(c in'abcdefghijklmnopqrstuvwxyz0123456789-'for c in value['ref'][6:])and type(value['run'])is int and 0<value['run']<10**20 and type(value['attempt'])is int and value['attempt']==1 and value==intent['identity']\n\ndef telemetry_frame_value(value,intent):\n need(type(value)is dict and set(value)=={'schema','status','identity','nonce','sequence','kind','elapsed_ms','phase','installer_identity','pump_identity','resource_scope','resources','unavailable_fields','acceptance'},'exact finite live telemetry fields');need(type(value['schema'])is int and value['schema']==1 and value['status']=='BOUNDED_SOURCE_PHASE_RESOURCE_DATA_ONLY'and telemetry_selection(value['identity'],intent)and value['nonce']==intent['nonce']and value['acceptance']is False,'same Source/run/nonce live telemetry');need(type(value['sequence'])is int and 1<=value['sequence']<=294 and value['kind']in('INTERVAL','PHASE')and type(value['elapsed_ms'])is int and 0<=value['elapsed_ms']<=350*60*1000 and value['phase']in TELEMETRY_PHASES,'finite count/cadence/public phase');need(telemetry_identity(value['pump_identity'])and(value['installer_identity']is None or telemetry_identity(value['installer_identity'])and value['installer_identity']['start_ticks']is not None)and value['resource_scope']=='HOST_MEMINFO_PUMP_ONLY_INSTALLER_ID_ASSERTED','resource and actor identity scopes');resources=value['resources'];need(type(resources)is dict and set(resources)==set(TELEMETRY_RESOURCES)and all(v is None or type(v)is int and 0<=v<2**63 for v in resources.values())and value['unavailable_fields']==sorted(k for k,v in resources.items()if v is None),'fixed numeric resource allowlist with explicit availability');need(len(TELEMETRY_PREFIX+telemetry_encoded(value)+b'\\n')<=1024,'bounded complete telemetry frame');return value\n\ndef telemetry_summary_value(value,intent):\n keys={'schema','status','identity','nonce','cadence_seconds','interval_cap','phase_marker_cap','frame_cap','total_frame_cap','interval_samples','phase_markers','emitted_frames','dropped_frames','rejected_markers','last_phase','installer_identity','pump_identity','recent','acceptance'};need(type(value)is dict and set(value)==keys and type(value['schema'])is int and value['schema']==1 and value['status']=='BOUNDED_STDOUT_PUMP_TELEMETRY_DATA_ONLY'and telemetry_selection(value['identity'],intent)and value['nonce']==intent['nonce']and value['acceptance']is False,'exact same-owner telemetry summary');need((value['cadence_seconds'],value['interval_cap'],value['phase_marker_cap'],value['frame_cap'],value['total_frame_cap'])==(60,262,32,1024,294)and all(type(value[k])is int for k in('cadence_seconds','interval_cap','phase_marker_cap','frame_cap','total_frame_cap','interval_samples','phase_markers','emitted_frames','dropped_frames','rejected_markers')),'fixed telemetry clocks/cap types');total=value['interval_samples']+value['phase_markers'];need(0<=value['interval_samples']<=262 and 0<=value['phase_markers']<=32 and 0<=value['emitted_frames']<=total and value['dropped_frames']==total-value['emitted_frames']and 0<=value['rejected_markers']<2**31 and value['last_phase']in TELEMETRY_PHASES and telemetry_identity(value['pump_identity'])and(value['installer_identity']is None or telemetry_identity(value['installer_identity'])),'finite event/output accounting');recent=value['recent'];need(type(recent)is list and len(recent)==min(8,total),'finite last-eight telemetry samples');previous=-1\n for i,row in enumerate(recent,total-len(recent)+1):\n  telemetry_frame_value(row,intent);need(row['sequence']==i and row['elapsed_ms']>=previous and row['pump_identity']==value['pump_identity'],'same pump chronological sample suffix');previous=row['elapsed_ms']\n if recent:need(recent[-1]['phase']==value['last_phase']and recent[-1]['installer_identity']==value['installer_identity'],'latest exact phase/identity summary')\n need(len(outer_encoded(value))<=12000,'summary inside existing16KiB pump receipt');return value\n\ndef telemetry_phase(phase):\n global _PHASE_MARKER_ATTEMPTS\n try:\n  need(phase in TELEMETRY_PHASES and _PHASE_MARKER_ATTEMPTS<32,'finite Source phase markers');_PHASE_MARKER_ATTEMPTS+=1;_,_,_,intent=outer_intent();actor=telemetry_process_identity();need(actor['start_ticks']is not None,'actual installer startticks only');value=dict(schema=1,status='SOURCE_OWNED_INSTALLER_PHASE_DATA_ONLY',identity=intent['identity'],nonce=intent['nonce'],phase=phase,installer_identity=actor,acceptance=False);raw=TELEMETRY_PHASE_PREFIX+telemetry_encoded(value)+b'\\n';need(len(raw)<=512,'small fixed phase marker');telemetry_write(raw)\n except BaseException:pass # Optional observation never replaces the installer outcome.\n\nclass PhaseResourceTelemetry:\n def __init__(self,intent,started):\n  need(type(intent['identity']['ref'])is str and len(intent['identity']['ref'])<=96,'bounded public ref telemetry');self.intent=intent;self.started=started;self.next=started;self.pump=telemetry_process_identity();self.phase='AWAITING_INSTALLER_PHASE';self.actor=None;self.intervals=0;self.markers=0;self.emitted=0;self.dropped=0;self.rejected=0;self.recent=[];self.line=b'';self.discard=False\n def sample(self,kind,now):\n  intervals=self.intervals+(kind=='INTERVAL');markers=self.markers+(kind=='PHASE')\n  frame=dict(schema=1,status='BOUNDED_SOURCE_PHASE_RESOURCE_DATA_ONLY',identity=self.intent['identity'],nonce=self.intent['nonce'],sequence=intervals+markers,kind=kind,elapsed_ms=max(0,int((now-self.started)*1000)),phase=self.phase,installer_identity=self.actor,pump_identity=self.pump,resource_scope='HOST_MEMINFO_PUMP_ONLY_INSTALLER_ID_ASSERTED',resources=telemetry_resources(),unavailable_fields=[],acceptance=False);frame['unavailable_fields']=sorted(k for k,v in frame['resources'].items()if v is None);telemetry_frame_value(frame,self.intent);self.intervals=intervals;self.markers=markers;self.recent=(self.recent+[frame])[-8:]\n  try:emitted=telemetry_write(TELEMETRY_PREFIX+telemetry_encoded(frame)+b'\\n')\n  except BaseException:emitted=False\n  if emitted:self.emitted+=1\n  else:self.dropped+=1\n def tick(self,now):\n  try:\n   if self.intervals<262 and now>=self.next:self.next=now+60;self.sample('INTERVAL',now)\n  except BaseException:pass\n def marker(self,raw,now):\n  if not raw.startswith(TELEMETRY_PHASE_PREFIX):return\n  try:\n   need(self.markers<32 and len(raw)<=512,'phase marker count and byte cap')\n   def pairs(rows):\n    value={}\n    for k,v in rows:need(k not in value,'unique phase fields');value[k]=v\n    return value\n   value=json.loads(raw[len(TELEMETRY_PHASE_PREFIX):],object_pairs_hook=pairs,parse_constant=lambda _:need(False,'finite phase JSON'));need(type(value)is dict and set(value)=={'schema','status','identity','nonce','phase','installer_identity','acceptance'}and type(value['schema'])is int and value['schema']==1 and value['status']=='SOURCE_OWNED_INSTALLER_PHASE_DATA_ONLY'and telemetry_selection(value['identity'],self.intent)and value['nonce']==self.intent['nonce']and value['phase']in TELEMETRY_PHASES and telemetry_identity(value['installer_identity'])and value['installer_identity']['start_ticks']is not None and value['acceptance']is False,'strict same-owner public phase marker');need(raw==TELEMETRY_PHASE_PREFIX+telemetry_encoded(value),'canonical Source marker bytes');previous=(self.phase,self.actor)\n   try:self.phase=value['phase'];self.actor=value['installer_identity'];self.sample('PHASE',now)\n   except BaseException:self.phase,self.actor=previous;raise\n  except BaseException:self.rejected=min(2**31-1,self.rejected+1)\n def feed(self,raw,now):\n  try:\n   at=0\n   while at<len(raw):\n    end=raw.find(b'\\n',at);end=len(raw)if end<0 else end;piece=raw[at:min(end,at+513)]\n    if not self.discard:\n     if len(self.line)+end-at>512:self.line=b'';self.discard=True\n     else:self.line+=piece\n    if end<len(raw):\n     if not self.discard:self.marker(self.line,now)\n     self.line=b'';self.discard=False\n    at=end+1\n  except BaseException:pass\n def summary(self):\n  value=dict(schema=1,status='BOUNDED_STDOUT_PUMP_TELEMETRY_DATA_ONLY',identity=self.intent['identity'],nonce=self.intent['nonce'],cadence_seconds=60,interval_cap=262,phase_marker_cap=32,frame_cap=1024,total_frame_cap=294,interval_samples=self.intervals,phase_markers=self.markers,emitted_frames=self.emitted,dropped_frames=self.dropped,rejected_markers=self.rejected,last_phase=self.phase,installer_identity=self.actor,pump_identity=self.pump,recent=self.recent,acceptance=False);return telemetry_summary_value(value,self.intent)\n\ndef phase_resource_telemetry(intent,started):\n try:return PhaseResourceTelemetry(intent,started)\n except BaseException:return None\n\ndef outer_pump(role):"
+        ],
+        [
+          "event=dict(schema=1,status='SELECTED_ORIGINAL_FRESH_MAIN_BOUNDARY_DATA_ONLY',phase='SELECTED_ORIGINAL_FRESH_MAIN',event='ENTER',acceptance=False)",
+          "event=dict(schema=1,status='SELECTED_ORIGINAL_FRESH_MAIN_BOUNDARY_DATA_ONLY',phase='SELECTED_ORIGINAL_FRESH_MAIN',event='ENTER',acceptance=False);telemetry_phase('FRESH_INSTALLER_ENTER')"
+        ],
+        [
+          "else None);return value\n except BaseException as error:",
+          "else None);telemetry_phase('OUTER_CALLER_RETURN');return value\n except BaseException as error:"
+        ],
+        [
+          "event.update(event='RAISE',error_type=type(error).__name__)",
+          "event.update(event='RAISE',error_type=type(error).__name__);telemetry_phase('OUTER_CALLER_RAISE')"
+        ],
+        [
+          "deadline=time.monotonic()+60;work=None",
+          "started=time.monotonic();deadline=started+60;telemetry=None;work=None"
+        ],
+        [
+          "deadline=clock['deadline']-120\n  try:stream=",
+          "deadline=clock['deadline']-120\n  if role=='phase.stdout':telemetry=phase_resource_telemetry(intent,started)\n  try:stream="
+        ],
+        [
+          "remaining=deadline-time.monotonic()\n   if remaining<=0",
+          "now=time.monotonic();remaining=deadline-now\n   if remaining<=0"
+        ],
+        [
+          "   ready,_,_=select.select([0],[],[],min(.25,remaining))",
+          "   if telemetry is not None:telemetry.tick(now)\n   ready,_,_=select.select([0],[],[],min(.25,remaining))"
+        ],
+        [
+          "   observed+=len(raw);digest.update(raw)",
+          "   if telemetry is not None:telemetry.feed(raw,now)\n   observed+=len(raw);digest.update(raw)"
+        ],
+        [
+          "  try:outer_write(work/(role+'.json'),outer_encoded(value),16384)",
+          "  if telemetry is not None:\n   try:value.update(schema=2,telemetry=telemetry.summary())\n   except BaseException:pass # Original raw capture receipt remains primary.\n  try:outer_write(work/(role+'.json'),outer_encoded(value),16384)"
+        ],
+        [
+          "pump['schema']==1 and pump['status']",
+          "type(pump['schema'])is int and pump['schema']in(1,2)and pump['status']"
+        ],
+        [
+          "meta.update(original_bytes=pump['observed_bytes']",
+          "\n    if pump['schema']==2:\n     need(name=='phase.stdout'and set(pump)=={'schema','status','identity','nonce','role','observed_bytes','observed_sha256','eof','retained','complete','window','errors','acceptance','telemetry'},'only versioned stdout telemetry receipt');telemetry_summary_value(pump['telemetry'],intent)\n    else:need('telemetry'not in pump,'no unversioned telemetry receipt')\n    meta.update(original_bytes=pump['observed_bytes']"
+        ]
+      ],
+      "run622.py": [
+        [
+          " def _host(self,a):\n  import controller,evidence,entry",
+          " def _host(self,a):\n  import controller,evidence,entry\n  export622.telemetry_phase('CORE_HOST_PREPARE')"
+        ],
+        [
+          "  try:code=controller.execute(args)",
+          "  try:export622.telemetry_phase('CORE_EXECUTION');code=controller.execute(args)"
+        ],
+        [
+          "   cleanup=evidence.cleanup(args);retained=evidence.retain(args)",
+          "   export622.telemetry_phase('CORE_EVIDENCE_CLEANUP');cleanup=evidence.cleanup(args);export622.telemetry_phase('CORE_EVIDENCE_RETENTION');retained=evidence.retain(args)"
+        ],
+        [
+          "  C.need(code==cleanup==retained==0,'complete actual607 formation and normal Core twoBoot result')",
+          "  export622.telemetry_phase('CORE_HOST_RETURN');C.need(code==cleanup==retained==0,'complete actual607 formation and normal Core twoBoot result')"
+        ],
+        [
+          " def _cleanup(self,original,producer,path):\n",
+          " def _cleanup(self,original,producer,path):\n  export622.telemetry_phase('ORIGINAL_PRODUCER_CLEANUP')\n"
+        ],
+        [
+          "parent=self.current.proof.parent;entries=list(parent.rglob('*'));",
+          "export622.telemetry_phase('CURRENT_CONTEXT_RETIREMENT');parent=self.current.proof.parent;entries=list(parent.rglob('*'));"
+        ],
+        [
+          "   def producer(self,original,args):\n    context.producer",
+          "   def producer(self,original,args):\n    export622.telemetry_phase('PRODUCER_PREPARE');context.producer"
+        ],
+        [
+          "    fact=super().seed_tooling(*a);",
+          "    export622.telemetry_phase('TOOLING_SEED');fact=super().seed_tooling(*a);"
+        ]
+      ],
+      "test_bridge622.py": [
+        [
+          "prior=C.read(CASE/'run622.py',4*1024**2).decode()",
+          "prior=C.read(CASE/'run622.py',4*1024**2).decode()\n  resilience=parents['runner_resilience_causal'];self.assertEqual((resilience['schema'],resilience['parent_source'],resilience['actual']),(1,'04a943632f8c8eab4d03f073a46f3b161567b1e3',None))\n  for old,new in reversed(resilience['edits']['run622.py']):self.assertEqual(prior.count(new),1);prior=prior.replace(new,old,1)\n  self.assertEqual(C.pin(prior.encode()),resilience['before']['run622.py'])"
+        ]
+      ],
+      "workflow.yml.in": [
+        [
+          "      - name: Required fresh latest607 installation in the separately owned VM\n        id: composition\n        if: ${{ always() && !cancelled() }}\n",
+          "      - name: Required fresh latest607 installation in the separately owned VM\n        id: composition\n        if: ${{ always() && !cancelled() && steps.pre_installer_upload.outcome == 'success' }}\n"
+        ],
+        [
+          "      - name: Required fresh latest607 installation in the separately owned VM\n",
+          "      - name: Close completed prerequisite metadata before the Core installer\n        id: pre_installer_checkpoint\n        if: ${{ !cancelled() && steps.original_build.outcome == 'success' && steps.fdk_pair.outcome == 'success' }}\n        timeout-minutes: 1\n        shell: bash\n        env:\n          ORIGINAL_BUILD_OUTCOME: ${{ steps.original_build.outcome }}\n          FDK_PAIR_OUTCOME: ${{ steps.fdk_pair.outcome }}\n        run: |\n          set -euo pipefail\n          python3 -I -B - <<'PYCHECKPOINT'\n          \"\"\"Finite completed-prerequisite metadata projection; never payload or acceptance.\"\"\"\n          import hashlib,json,math,os,re,stat,sys,time\n          from pathlib import Path\n          M=1024**2\n          DRIVER='a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898'\n          BUILDER='a79c4ca92486854f9edb639cd970d2c90fda4b12'\n          INPUTS='beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'\n          RECIPES='a5fb287b4dda2a90bf61d4fa8cbbc5d666dad8bb450a70544d00545b091f36e3'\n          FDK_RECIPE='774803633213d77e9879005608ff23528b6780465c7bd00f3234430c9a7346df'\n          NAMES=('cachy-asahi-hyprland-settings','cachy-asahi-fish-config','cachy-asahi-zsh-config','cachy-asahi-setup')\n          PAIRS=tuple(('native-evidence',n,n)for n in NAMES)+(('fdk-evidence','fdk',''),)\n          ROLES=tuple(sorted(['native-evidence/'+n for n in('result.json','bootstrap.json','runner.json')]+['native-evidence/'+n+'-compare.json'for n in NAMES]+['native-evidence/'+n+'-'+str(i)+'/'+f for n in NAMES for i in(1,2)for f in('provenance.json','validation.json')]+['fdk-evidence/'+n for n in('result.txt','compare.json','template-inputs.json','reviewed-inputs.json')]+['fdk-evidence/build-'+str(i)+'/'+f for i in(1,2)for f in('provenance.json','validation.json')]))\n          def need(value,why):\n           if not value:raise ValueError(why)\n          def enc(value):return(json.dumps(value,sort_keys=True,indent=2,allow_nan=False)+'\\n').encode()\n          def pin(raw):return dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())\n          def obj(raw):\n           def pairs(rows):\n            result={}\n            for k,v in rows:need(k not in result,'duplicate metadata field');result[k]=v\n            return result\n           def number(text):\n            value=float(text);need(math.isfinite(value),'nonfinite metadata number');return value\n           return json.loads(raw,object_pairs_hook=pairs,parse_float=number,parse_constant=lambda _:need(False,'nonfinite metadata'))\n          def digest(value):return type(value)is str and re.fullmatch('[0-9a-f]{64}',value)is not None\n          def stable(path,cap):\n           path=Path(path);need(path.is_absolute()and path==path.resolve()and not any(p.is_symlink()for p in(path,*path.parents)),'literal metadata path');fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_CLOEXEC|os.O_NONBLOCK)\n           try:\n            a=os.fstat(fd);key=lambda v:tuple(getattr(v,k)for k in('st_dev','st_ino','st_mode','st_uid','st_gid','st_nlink','st_size','st_mtime_ns','st_ctime_ns'));need(stat.S_ISREG(a.st_mode)and a.st_nlink==1 and a.st_uid==os.getuid()and 0<=a.st_size<=cap,'bounded owned ordinary metadata');raw=bytearray()\n            while len(raw)<=a.st_size:\n             part=os.read(fd,min(65536,a.st_size+1-len(raw)))\n             if not part:break\n             raw.extend(part)\n            need(len(raw)==a.st_size and key(a)==key(os.fstat(fd))==key(path.lstat()),'whole stable original metadata');return bytes(raw)\n           finally:os.close(fd)\n          def write(path,raw):\n           fd=os.open(path,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,0o600)\n           with os.fdopen(fd,'wb')as stream:need(stream.write(raw)==len(raw),'whole checkpoint write');stream.flush();os.fsync(stream.fileno())\n          def projection(root,env,now):\n           source=env['GITHUB_SHA'];run=env['GITHUB_RUN_ID'];ref=env['GITHUB_REF_NAME'];need(re.fullmatch('[0-9a-f]{40}',source)and source==env['SOURCE_SHA']==env['WORKFLOW_SHA']and re.fullmatch('[1-9][0-9]{0,19}',run)and re.fullmatch('codex/[a-z0-9-]+',ref)and env['GITHUB_RUN_ATTEMPT']=='1'and env['GITHUB_REPOSITORY']=='Gabriel-Kahen/cachy-asahi'and env['RUNNER_ARCH']=='ARM64','same first current Source workflow identity');need(env['ORIGINAL_BUILD_OUTCOME']==env['FDK_PAIR_OUTCOME']=='success','both actual prerequisite steps completed successfully');identity=dict(source=source,ref=ref,run=int(run),attempt=1);nonce=hashlib.sha256(('current607-core622:'+source+':'+run).encode()).hexdigest()[:32];clock_raw=stable(root/'core622-job-clock.json',16384);clock=obj(clock_raw);reserve=dict(cleanup=240,retention=360,upload=300,grace=120);need(type(clock)is dict and set(clock)=={'schema','status','identity','nonce','runtime_temp','started','deadline','global_seconds','reserved_seconds'}and clock['schema']==1 and type(clock['schema'])is int and clock['status']=='SOURCE_OWNED_CORE622_JOB_CLOCK_DATA_ONLY'and type(clock['identity'])is dict and set(clock['identity'])==set(identity)and all(type(clock['identity'][k])is int for k in('run','attempt'))and clock['identity']==identity and clock['nonce']==nonce and clock['runtime_temp']==str(root)and type(clock['global_seconds'])is int and clock['global_seconds']==21000 and type(clock['reserved_seconds'])is dict and clock['reserved_seconds']==reserve and all(type(v)is int for v in clock['reserved_seconds'].values())and all(type(v)in(int,float)and math.isfinite(v)for v in(clock['started'],clock['deadline'],now))and stat.S_IMODE((root/'core622-job-clock.json').lstat().st_mode)==0o600 and clock['deadline']==clock['started']+21000 and clock['started']<=now<clock['deadline']-sum(reserve.values())-360,'unchanged job clock with staging and upload inside existing work allowance');need(not os.path.lexists(root/'core622-native-phase.json'),'installer native phase has not started');raws={};total=0\n           need(len(ROLES)==len(set(ROLES))==31,'literal31 original metadata roles')\n           for name in ROLES:\n            raw=stable(root/name,min(4*M,16*M-total));total+=len(raw);need(total<=16*M,'held16MiB public metadata read budget');raws[name]=raw\n           data={n:obj(raw)for n,raw in raws.items()if n.endswith('.json')};result=data['native-evidence/result.json'];runner=data['native-evidence/runner.json'];bootstrap=data['native-evidence/bootstrap.json'];need(result['status']=='native-builds-and-byte-comparison-pass'and result['mode']=='build'and result['native_build']=='PASS'and result['reviewed_inputs_sha256']==INPUTS and result['reviewed_recipes_sha256']==RECIPES and result['bootstrap_script_sha256']==DRIVER,'completed exact original native build report');need(runner['run_id']==run and runner['commit']==BUILDER and runner['repository']=='Gabriel-Kahen/cachy-asahi'and runner['runner_arch']is None and runner['docker_server_arch']in('aarch64','arm64')and runner['bootstrap_script_sha256']==DRIVER,'same current original native runner report');image=bootstrap['image_id'];lock=bootstrap['packages_lock_sha256'];need(bootstrap['status']=='image-provisioned'and re.fullmatch('sha256:[0-9a-f]{64}',image)and digest(lock)and bootstrap['inputs_sha256']==INPUTS,'same completed base image and held input lock');need(raws['fdk-evidence/result.txt']==b'FDK_PAIR=PASS\\nEXIT=0\\n','original FDK terminal PASS and zero exit');template=data['fdk-evidence/template-inputs.json'];reviewed=data['fdk-evidence/reviewed-inputs.json'];need(template['PKGBUILD']==reviewed['PKGBUILD']==FDK_RECIPE,'held exact FDK recipe');summaries={}\n           for folder,label,prefix in PAIRS:\n            compare_name=folder+'/'+(prefix+'-compare.json'if prefix else'compare.json');compare=data[compare_name];need(compare['status']=='contents-reproduced'and compare['errors']==[]and type(compare['packages'])is dict and len(compare['packages'])==1 and all(type(row)is dict and all(row[k]is True for k in('installed_contents_equal','pkginfo_equal','bytes_equal'))for row in compare['packages'].values()),'original completed nonempty byte comparison');pair=[]\n            for i in(1,2):\n             base=folder+'/'+(prefix+'-'+str(i)if prefix else'build-'+str(i));p=data[base+'/provenance.json'];validation=data[base+'/validation.json'];need(p['status']=='built-package-static-pass'and type(p['exit_code'])is int and p['exit_code']==0 and p['mode']=='native'and p['network']=='none'and p['image_id']==image and p['expected_packages_sha256']==lock and p['source_date_epoch']==1791748800 and digest(p['entry_script_sha256'])and type(p['recipe_inputs'])is dict and p['recipe_inputs']and all(digest(v)for v in p['recipe_inputs'].values())and re.fullmatch('cachy-asahi-[0-9a-f]{16}',p['clean_environment_id']),'completed original native package provenance');need(p['files']['validation.json']==pin(raws[base+'/validation.json'])['sha256']and validation['errors']==[]and type(validation['artifacts'])is list and len(validation['artifacts'])==1,'whole original validation/provenance join');artifact=validation['artifacts'][0];need(artifact['errors']==[]and digest(artifact['sha256'])and p['artifacts']=={artifact['artifact']:artifact['sha256']}and set(compare['packages'])==set(p['artifacts']),'same single validated package identity in provenance and comparison');pair.append(p)\n            need(pair[0]['clean_environment_id']!=pair[1]['clean_environment_id']and all(pair[0][k]==pair[1][k]for k in('image','image_id','mode','source_date_epoch','recipe_inputs','recipe_metadata','expected_packages_sha256','entry_script_sha256'))and pair[0]['artifacts']==pair[1]['artifacts'],'same original pair inputs and complete package-byte identity across distinct recorded environments')\n            if label=='fdk':need(pair[0]['recipe_inputs']==reviewed,'same complete reviewed FDK inputs')\n            summaries[label]=dict(status='SOURCE_REPORTED_PAIR_METADATA_VALIDATED',distinct_recorded_environments=True,original_comparison='CONTENTS_PKGINFO_AND_BYTES_EQUAL',original_validation_errors=0,package_count=1,raw_package_payload='NOT_CARRIED',independent_actor_replay=False)\n           need(not os.path.lexists(root/'core622-native-phase.json'),'installer phase still not started');return dict(schema=1,status='COMPLETED_PREREQUISITE_METADATA_CHECKPOINT_DATA_ONLY',identity=identity,nonce=nonce,job_clock=pin(clock_raw),source_roles={n:pin(raws[n])for n in ROLES},source_metadata_bytes=total,source_role_count=31,original_native_runner_arch=None,source_reports=summaries,stage='BEFORE_EXPENSIVE_CORE_INSTALLER',installer='NOT_ENTERED_BY_CHECKPOINT',original_metadata_bodies='NOT_CARRIED_HASHES_AND_FINITE_PROJECTION_ONLY',package_payloads='NOT_CARRIED',private_roots='NOT_READ',logs='NOT_READ',normal90_acceptance=False,functional_acceptance=False,native_acceptance=False,hardware='NOT_RUN',release='NOT_ADMITTED',acceptance=False)\n          def stage():\n           root=Path(os.environ['RUNNER_TEMP']);need(root.is_absolute()and root==root.resolve()and not any(p.is_symlink()for p in(root,*root.parents))and root.is_dir()and root.stat().st_uid==os.getuid()and not root.stat().st_mode&0o022,'canonical caller-owned runtime');target=root/'core622-pre-installer-public';need(not os.path.lexists(target),'fresh one-shot checkpoint namespace');value=projection(root,os.environ,time.monotonic());raw=enc(value);need(len(raw)<=65536,'small finite public projection');target.mkdir(mode=0o700);write(target/'checkpoint.json',raw);export=enc(dict(schema=1,status='CLOSED_COMPLETED_PREREQUISITE_METADATA_CHECKPOINT_DATA_ONLY',identity=value['identity'],nonce=value['nonce'],files={'checkpoint.json':pin(raw)},bytes=len(raw),acceptance=False));need(len(export)<=16384 and len(raw)+len(export)<=16*M,'checkpoint within held public capacity');write(target/'export.json',export);need({p.relative_to(target).as_posix()for p in target.rglob('*')}=={'checkpoint.json','export.json'}and stable(target/'checkpoint.json',65536)==raw and stable(target/'export.json',16384)==export,'complete closed2 checkpoint bytes');fd=os.open(os.environ['GITHUB_OUTPUT'],os.O_WRONLY|os.O_APPEND|os.O_NOFOLLOW|os.O_CLOEXEC)\n           with os.fdopen(fd,'w')as stream:stream.write('ready=true\\n')\n          if __name__=='__main__':\n           try:stage()\n           except BaseException as error:print('PRE_INSTALLER_METADATA_CHECKPOINT_REFUSED:'+type(error).__name__,file=sys.stderr);raise SystemExit(1)\n          PYCHECKPOINT\n      - name: Upload completed prerequisite metadata checkpoint\n        id: pre_installer_upload\n        if: ${{ !cancelled() && steps.pre_installer_checkpoint.outcome == 'success' && steps.pre_installer_checkpoint.outputs.ready == 'true' }}\n        timeout-minutes: 5\n        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9\n        with:\n          name: core622-prerequisite-metadata-${{ github.run_id }}-${{ github.run_attempt }}\n          path: |\n            ${{ runner.temp }}/core622-pre-installer-public/checkpoint.json\n            ${{ runner.temp }}/core622-pre-installer-public/export.json\n          retention-days: 3\n          compression-level: 0\n          include-hidden-files: false\n          if-no-files-found: error\n      - name: Required fresh latest607 installation in the separately owned VM\n"
+        ]
+      ]
+    },
+    "functional_acceptance": false,
+    "guard_anchor": " C=globals()['C'];root=Path(root)\n",
+    "guard_prefix": " C=globals()['C'];root=Path(root)\n causal=C.decode(C.read(root/'composition-parent.json',4*1024**2))['runner_resilience_causal']\n C.need(causal['schema']==1 and causal['parent_source']=='04a943632f8c8eab4d03f073a46f3b161567b1e3' and causal['actual']is None and causal['publication_parent']=='04a943632f8c8eab4d03f073a46f3b161567b1e3'and len(causal['before'])==66 and causal['acceptance']is False,'exact staged export66 before retained DATA route, no invented publication')\n prior={n:C.read(root/n,4*1024**2)for n in causal['before']}\n for name,rules in causal['edits'].items():\n  text=prior[name].decode()\n  for before,after in reversed(rules):C.need(text.count(after)==1,'one exact retained causal source inverse');text=text.replace(after,before,1)\n  prior[name]=text.encode()\n parent=C.decode(prior['composition-parent.json']);C.need(parent.pop('runner_resilience_causal')==causal,'complete causal parent inverse');prior['composition-parent.json']=C.encoded(parent)\n manifest=C.decode(prior['source-manifest.json']);manifest['files']={n:w for n,w in causal['before'].items()if n not in('source-manifest.json',*ALIASES)};prior['source-manifest.json']=C.encoded(manifest)\n text=prior['source622.py'].decode()\n for name,before in(('PRODUCTS',causal['guard_products_before']),('SELF',causal['guard_self_before'])):\n  node=next(n for n in ast.parse(text).body if isinstance(n,ast.Assign)and isinstance(n.targets[0],ast.Name)and n.targets[0].id==name);after=ast.get_source_segment(text,node);C.need(text.count(after)==1,'one retained causal guard seal inverse');text=text.replace(after,before,1)\n C.need(text.count(causal['guard_prefix'])==1,'one retained causal guard prefix inverse');text=text.replace(causal['guard_prefix'],causal['guard_anchor'],1);prior['source622.py']=text.encode();C.need({n:C.pin(raw)for n,raw in prior.items()}==causal['before'],'whole exact staged export66 before all previous Source predicates')\n tree=ast.parse(text);sealed={n.targets[0].id:ast.literal_eval(n.value)for n in tree.body if isinstance(n,ast.Assign)and isinstance(n.targets[0],ast.Name)and n.targets[0].id in('PRODUCTS','SELF')};C.need(all(C.pin(prior[n])==w for n,w in sealed['PRODUCTS'].items()),'all preceding export66 products');seal=sealed['SELF'];C.need(text.count(seal)==1 and hashlib.sha256(text.replace(seal,'@SELF@').encode()).hexdigest()==seal,'whole preceding export66 selfseal')\n def prior_read(path,maximum=1024**2):\n  name=Path(path).relative_to(root).as_posix();C.need(name in prior and len(prior[name])<=maximum,'bounded complete export66 inverse only');return prior[name]\n C=__import__('types').SimpleNamespace(**dict(vars(C),read=prior_read))\n",
+    "guard_products_before": "PRODUCTS={'Core800-acceptance.json': {'bytes': 2043, 'sha256': 'd6f67e4c2782f9b609309e6e5627ad6534f172f0560ec7e2e2ec5c3a4f251e9d'}, 'LICENSE': {'bytes': 27836, 'sha256': '624b2335eff599a84764ef0a51b6d2962b5ef504a792e1b362ea31f0cbc1ac4c'}, 'README.md': {'bytes': 6730, 'sha256': '849d859eb0d7c49d4a1a673218fbc74a7bcf378b711b3e2ebb21ab3887dcff8e'}, 'acl_policy.py': {'bytes': 83174, 'sha256': '9204e5794f01b49a0b301088f3a5b4439e57eb7273fc5afac278b3f967816462'}, 'adapter.py': {'bytes': 1401, 'sha256': 'fb0aadeb5fb230346161be90e94696aecaecf6d2b3e1e3f40538d7ab72f23586'}, 'assembly622.py': {'bytes': 466, 'sha256': '610836ad8beeed379079b711c37d20867b28218d9422631ff7857d8a4872be55'}, 'boot.py': {'bytes': 5422, 'sha256': 'f6df3d8e5b5602f3b9eca4ebfbb54afaa354ac29b7b4b9cc26988a9de064349e'}, 'candidate_capacity.py': {'bytes': 49900, 'sha256': '03018514575bb12b0f6623b4f4a2396a2ce3fa3691225c6134f061a787d12a83'}, 'case.py': {'bytes': 8668, 'sha256': '07ea5e72a4ad8b22b9a6594aada61941abefa4659b46b26fc0bb59efa239319b'}, 'clock.py': {'bytes': 4205, 'sha256': 'cf43f16973294a8e687c65341cb63329a71d9a2a2ea488f0f6f2e20b97087c3c'}, 'composition-parent.json': {'bytes': 3024415, 'sha256': '462e4f1f4fc4b302ae6a7c805b8b02255bcdf7e8fd05c143370fbd633e6f1d67'}, 'composition.json': {'bytes': 444951, 'sha256': '154aab2490617a23d3fb745cc8c03d3bc4abb35d3c836f4a43394b1758158d6c'}, 'compression-profile.json': {'bytes': 1179, 'sha256': 'aec949ee839909702d208a3f91710c4565b5dcf46fa4fca0b2bd3bc13558d57c'}, 'controller.py': {'bytes': 11715, 'sha256': '50061a1e0e91dabdbe66572500cfaf343c97e6cd750f77665b17c4ec4a1cb719'}, 'desktop622.py': {'bytes': 9856, 'sha256': 'eace06a0842aa08b803de34522178a086943c3e05086b1ed07f7fb986fd07400'}, 'effects.py': {'bytes': 6147, 'sha256': 'e2d4d80f64736975437615146f09f8796c20a634b02bb31d167614700609aae7'}, 'entry.py': {'bytes': 6025, 'sha256': 'f34a53b6ea08ef673d0d187e70a4fc1a496b8b00882cd432fbe3af0e50ddac68'}, 'evidence.py': {'bytes': 7937, 'sha256': '21da5d7bc45214cac174da7fa779ddf281760841f5a233b9c57b21b154d4e4be'}, 'expected607.lock': {'bytes': 12076, 'sha256': 'be35402204ba5c03d78279722afa83047c9575d2da70fb5c4064f46ed15954c5'}, 'expected622.lock': {'bytes': 12444, 'sha256': '189d037738680f5dfc9a5d48169eddf866383a06b070c094dac613c9d1b4eca8'}, 'export622.py': {'bytes': 42628, 'sha256': '1860991983ed000f702f589f242764d067d6efe0afe0fd6fa12c2c0e6b4d5cb5'}, 'formation622.py': {'bytes': 4938, 'sha256': 'c0dba994e0edb0da162e796a68b555ead745889baf5cd70a929fa465e79b4485'}, 'graph_api.py': {'bytes': 1899, 'sha256': '16839d25ad6a3957b68848fb6718a393840840b433361eba1ae07ddbbdafe5d7'}, 'graph_stage_source.py': {'bytes': 56225, 'sha256': 'b0ce77149ff72ea2936c23fcbdeefe3c011a2dfc75d60d40ec650ab233e5e845'}, 'guest.py': {'bytes': 23657, 'sha256': 'e921b2aa54f47125dd83c8c4932fa6ba3c4048f107e4dcf6df4d42680c71b874'}, 'guest_guard.py': {'bytes': 4160, 'sha256': '8db72fbc36f59c5660f7ddc4f56f3bdbed81cdec4344c65017db522501f83de7'}, 'hook.py': {'bytes': 787, 'sha256': 'b3e2bd1c4eb715928919028be1dddce2090605d233ba8f4d6bf98d67e95f5fa3'}, 'host.py': {'bytes': 4302, 'sha256': 'd25d18a115483bf7b6f2f0f0f1bfe21d19de37951949e55685edcfb77d84248b'}, 'initramfs.py': {'bytes': 4502, 'sha256': '50d3a4833f5b783704c1a07fb3c213819769a08294eb677e7066ec13595d4b98'}, 'journal_acl.py': {'bytes': 94610, 'sha256': 'e3849c1604b6520c4fb813692290a0989d08542cf3ada1fbf412948a83a26c9c'}, 'lane622.py': {'bytes': 9700, 'sha256': '31d47330f090f82c5ed5a1da108045492fa4de9d47bd45bbb2c169781d7c52bf'}, 'media.py': {'bytes': 9202, 'sha256': '4ade0d8e6fb970e1291b2f9a5f55653934844c36e866491c338678650ac8af0e'}, 'mime-profile.json': {'bytes': 259815, 'sha256': '4c601c715c4ee64484f49dacebfddb53da9391893c29e3c0626a92942a36a793'}, 'mime_cache.py': {'bytes': 47294, 'sha256': '1e04c1a6d7918c6499a3a356397749a60083000bb493e9fb3df1f277ea635922'}, 'ownership622.py': {'bytes': 63574, 'sha256': '4392285392cca3e9e01241599443f061bb4cdd559c507556b2ef5e1ae2915a8f'}, 'pid1-baseline.json': {'bytes': 528, 'sha256': 'b508b5ff108bc90d79952c7a90efdb812ccd008421297412b9338a2c6c1c8be6'}, 'pid1-expected.json': {'bytes': 548, 'sha256': '2891023d89c1f35b47c8e4cb8b7c88105ddce72b18796a377b161e7278f03659'}, 'prepare.py': {'bytes': 1394, 'sha256': '554c52290776a5f4ec314ba8abad836db1d99ab81e4782964e3a0d4bbe04a8a2'}, 'profile.json': {'bytes': 334009, 'sha256': 'e03456c28bcae23d3cb6ae856af81adf75a1a60905aefb0e0238acd147e3de24'}, 'provision622.py': {'bytes': 48590, 'sha256': '0e11e0d2339ec94eef3a760c1298d74ba5caab2367adcf601258c1c3826ec341'}, 'run622.py': {'bytes': 29242, 'sha256': 'f40d7c146d2c1807ca79058b0921e605a3765b46d07091189262afe11b9414ba'}, 'serial-profile.json': {'bytes': 734, 'sha256': 'f7cd6095424948d3e108b3b96763674612fc086e2da08cb783da78057a0f0c0e'}, 'serial_result.py': {'bytes': 52907, 'sha256': 'd708f9de5f31a15882596ed95fb9514958ce8df4a85ce2152dcb265f878b3991'}, 'test_bridge622.py': {'bytes': 143898, 'sha256': 'd9dcecddfde74d90d4187f4fac90261d2962fa312efd593c9d8d1992eb8430d6'}, 'test_case.py': {'bytes': 19195, 'sha256': '723c962fafa76c84e8d6764e687bdebe5faad63b00a96edb0355f27c8ad7a189'}, 'test_desktop622.py': {'bytes': 5072, 'sha256': 'ed28a02f696c57785041c53b8c8380b3817cbb2e884b1fd3df4451881c7a6daf'}, 'test_emission.py': {'bytes': 2521, 'sha256': '57a4a755385a5e380e303f3e3da33bafcfc71063ffce2041f22b22b5a5ffdf8f'}, 'test_host.py': {'bytes': 3090, 'sha256': 'b01d3159bd0b0c688434bac69976dd16cf173358a598957f3be58f49c1642460'}, 'test_initramfs.py': {'bytes': 7864, 'sha256': '0d0a521c9f4e8793c4b15a82119dfca7a46642033c94b72327e27118a797bae2'}, 'test_protocol.py': {'bytes': 4378, 'sha256': 'ac482fa3a8fc0ab932bcf8e65b864e4ac26affc1ecf30ecea61cd42b52264d25'}, 'test_route.py': {'bytes': 9847, 'sha256': 'b32ab0d4b5dd3cbfbb131811a8460bc82b07dcd517598971c1b14bdc437123ab'}, 'test_sources.py': {'bytes': 19838, 'sha256': 'eef8c2a75e8f3c5e282eb48daba98ce471c58791b29e0653626fe0949a06a8e7'}, 'tmpfiles_hash.py': {'bytes': 41582, 'sha256': '6912c9ae1a14477212921c6aed68b54e7c83a6a9308664e515c51619603eba6b'}, 'transaction_output.py': {'bytes': 42998, 'sha256': '8ce374e17744888ad70ca0b19485ffd6f72d6cf029f47f6fdfaa07c47dce6ce9'}, 'units/caa-core-observer.service': {'bytes': 474, 'sha256': '95b66c92d2acbbfdb5d904c2c0f6b61518fd3bb7c71eb290751a27e9d2fc8e6e'}, 'units/caa-core-probe.service': {'bytes': 358, 'sha256': 'b8a4a142045304e53893608548c293b684fbe295831e25a84d5cf3c19ef0a6b4'}, 'units/caa-core-worker.service': {'bytes': 352, 'sha256': '70ebee606afc5fee5359d3ea05cee62445766c8a4033d6fbee7398f0be6f9353'}, 'units/caa-core.target': {'bytes': 189, 'sha256': '1025ff9b01e2132861b26cf35fd5f4a25424638f03e49222552ef0cbbb719e37'}, 'validate.py': {'bytes': 7302, 'sha256': '00fd4f5a2c4652d6a6c39737188decc60b8a001964bf919fdaf9d68c11b1c051'}, 'vm_validation.py': {'bytes': 52784, 'sha256': 'a69264ea55374b2058048ca2441c89942e65f43d06125b0d1ad71d3e021202e1'}, 'workflow.yml.in': {'bytes': 50261, 'sha256': '818aa03433027cf2e310cb15c85cf1293141eb377cf53f198a26f9bfdaa0ea67'}, 'xattr_diagnostic.py': {'bytes': 17502, 'sha256': 'ad88aee4e41afa9f78d45785a45f274abeac1aaf335225ec0c4cc61240cbba47'}}",
+    "guard_self_before": "SELF='96ad4fd026e0584247b2ba83817b1591a8cf243efdcc5a4b26f7f722a57c0d53'",
+    "native_acceptance": false,
+    "normal90_acceptance": false,
+    "parent_authorization": {
+      "bytes": 8523,
+      "sha256": "e8c3d755b4ca2f63579db26cc91024a4f347873f0567828e6d6c35e77cacd900"
+    },
+    "parent_ref": "codex/core66-private-context-inventory-v1",
+    "parent_source": "04a943632f8c8eab4d03f073a46f3b161567b1e3",
+    "parent_tree": "a27aa130a2326320c356931da1fa6d54a2919ad2",
+    "public_transport_roles": 13,
+    "publication_parent": "04a943632f8c8eab4d03f073a46f3b161567b1e3",
+    "schema": 1,
+    "workload_inputs_clocks_memory_caps": "HELD"
+  },
   "schema": 1,
   "source": "11b3cfb59663e42b34247facb9f30f042e891444",
   "transaction_progress": {

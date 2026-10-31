@@ -740,9 +740,93 @@ jobs:
           ref: fb515d735a81194f06ea117539dee60438bb8d87
           path: fresh607-tooling-inputs
           persist-credentials: false
+      - name: Close completed prerequisite metadata before the Core installer
+        id: pre_installer_checkpoint
+        if: ${{ !cancelled() && steps.original_build.outcome == 'success' && steps.fdk_pair.outcome == 'success' }}
+        timeout-minutes: 1
+        shell: bash
+        env:
+          ORIGINAL_BUILD_OUTCOME: ${{ steps.original_build.outcome }}
+          FDK_PAIR_OUTCOME: ${{ steps.fdk_pair.outcome }}
+        run: |
+          set -euo pipefail
+          python3 -I -B - <<'PYCHECKPOINT'
+          """Finite completed-prerequisite metadata projection; never payload or acceptance."""
+          import hashlib,json,math,os,re,stat,sys,time
+          from pathlib import Path
+          M=1024**2
+          DRIVER='a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898'
+          BUILDER='a79c4ca92486854f9edb639cd970d2c90fda4b12'
+          INPUTS='beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
+          RECIPES='a5fb287b4dda2a90bf61d4fa8cbbc5d666dad8bb450a70544d00545b091f36e3'
+          FDK_RECIPE='774803633213d77e9879005608ff23528b6780465c7bd00f3234430c9a7346df'
+          NAMES=('cachy-asahi-hyprland-settings','cachy-asahi-fish-config','cachy-asahi-zsh-config','cachy-asahi-setup')
+          PAIRS=tuple(('native-evidence',n,n)for n in NAMES)+(('fdk-evidence','fdk',''),)
+          ROLES=tuple(sorted(['native-evidence/'+n for n in('result.json','bootstrap.json','runner.json')]+['native-evidence/'+n+'-compare.json'for n in NAMES]+['native-evidence/'+n+'-'+str(i)+'/'+f for n in NAMES for i in(1,2)for f in('provenance.json','validation.json')]+['fdk-evidence/'+n for n in('result.txt','compare.json','template-inputs.json','reviewed-inputs.json')]+['fdk-evidence/build-'+str(i)+'/'+f for i in(1,2)for f in('provenance.json','validation.json')]))
+          def need(value,why):
+           if not value:raise ValueError(why)
+          def enc(value):return(json.dumps(value,sort_keys=True,indent=2,allow_nan=False)+'\n').encode()
+          def pin(raw):return dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())
+          def obj(raw):
+           def pairs(rows):
+            result={}
+            for k,v in rows:need(k not in result,'duplicate metadata field');result[k]=v
+            return result
+           def number(text):
+            value=float(text);need(math.isfinite(value),'nonfinite metadata number');return value
+           return json.loads(raw,object_pairs_hook=pairs,parse_float=number,parse_constant=lambda _:need(False,'nonfinite metadata'))
+          def digest(value):return type(value)is str and re.fullmatch('[0-9a-f]{64}',value)is not None
+          def stable(path,cap):
+           path=Path(path);need(path.is_absolute()and path==path.resolve()and not any(p.is_symlink()for p in(path,*path.parents)),'literal metadata path');fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_CLOEXEC|os.O_NONBLOCK)
+           try:
+            a=os.fstat(fd);key=lambda v:tuple(getattr(v,k)for k in('st_dev','st_ino','st_mode','st_uid','st_gid','st_nlink','st_size','st_mtime_ns','st_ctime_ns'));need(stat.S_ISREG(a.st_mode)and a.st_nlink==1 and a.st_uid==os.getuid()and 0<=a.st_size<=cap,'bounded owned ordinary metadata');raw=bytearray()
+            while len(raw)<=a.st_size:
+             part=os.read(fd,min(65536,a.st_size+1-len(raw)))
+             if not part:break
+             raw.extend(part)
+            need(len(raw)==a.st_size and key(a)==key(os.fstat(fd))==key(path.lstat()),'whole stable original metadata');return bytes(raw)
+           finally:os.close(fd)
+          def write(path,raw):
+           fd=os.open(path,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,0o600)
+           with os.fdopen(fd,'wb')as stream:need(stream.write(raw)==len(raw),'whole checkpoint write');stream.flush();os.fsync(stream.fileno())
+          def projection(root,env,now):
+           source=env['GITHUB_SHA'];run=env['GITHUB_RUN_ID'];ref=env['GITHUB_REF_NAME'];need(re.fullmatch('[0-9a-f]{40}',source)and source==env['SOURCE_SHA']==env['WORKFLOW_SHA']and re.fullmatch('[1-9][0-9]{0,19}',run)and re.fullmatch('codex/[a-z0-9-]+',ref)and env['GITHUB_RUN_ATTEMPT']=='1'and env['GITHUB_REPOSITORY']=='Gabriel-Kahen/cachy-asahi'and env['RUNNER_ARCH']=='ARM64','same first current Source workflow identity');need(env['ORIGINAL_BUILD_OUTCOME']==env['FDK_PAIR_OUTCOME']=='success','both actual prerequisite steps completed successfully');identity=dict(source=source,ref=ref,run=int(run),attempt=1);nonce=hashlib.sha256(('current607-core622:'+source+':'+run).encode()).hexdigest()[:32];clock_raw=stable(root/'core622-job-clock.json',16384);clock=obj(clock_raw);reserve=dict(cleanup=240,retention=360,upload=300,grace=120);need(type(clock)is dict and set(clock)=={'schema','status','identity','nonce','runtime_temp','started','deadline','global_seconds','reserved_seconds'}and clock['schema']==1 and type(clock['schema'])is int and clock['status']=='SOURCE_OWNED_CORE622_JOB_CLOCK_DATA_ONLY'and type(clock['identity'])is dict and set(clock['identity'])==set(identity)and all(type(clock['identity'][k])is int for k in('run','attempt'))and clock['identity']==identity and clock['nonce']==nonce and clock['runtime_temp']==str(root)and type(clock['global_seconds'])is int and clock['global_seconds']==21000 and type(clock['reserved_seconds'])is dict and clock['reserved_seconds']==reserve and all(type(v)is int for v in clock['reserved_seconds'].values())and all(type(v)in(int,float)and math.isfinite(v)for v in(clock['started'],clock['deadline'],now))and stat.S_IMODE((root/'core622-job-clock.json').lstat().st_mode)==0o600 and clock['deadline']==clock['started']+21000 and clock['started']<=now<clock['deadline']-sum(reserve.values())-360,'unchanged job clock with staging and upload inside existing work allowance');need(not os.path.lexists(root/'core622-native-phase.json'),'installer native phase has not started');raws={};total=0
+           need(len(ROLES)==len(set(ROLES))==31,'literal31 original metadata roles')
+           for name in ROLES:
+            raw=stable(root/name,min(4*M,16*M-total));total+=len(raw);need(total<=16*M,'held16MiB public metadata read budget');raws[name]=raw
+           data={n:obj(raw)for n,raw in raws.items()if n.endswith('.json')};result=data['native-evidence/result.json'];runner=data['native-evidence/runner.json'];bootstrap=data['native-evidence/bootstrap.json'];need(result['status']=='native-builds-and-byte-comparison-pass'and result['mode']=='build'and result['native_build']=='PASS'and result['reviewed_inputs_sha256']==INPUTS and result['reviewed_recipes_sha256']==RECIPES and result['bootstrap_script_sha256']==DRIVER,'completed exact original native build report');need(runner['run_id']==run and runner['commit']==BUILDER and runner['repository']=='Gabriel-Kahen/cachy-asahi'and runner['runner_arch']is None and runner['docker_server_arch']in('aarch64','arm64')and runner['bootstrap_script_sha256']==DRIVER,'same current original native runner report');image=bootstrap['image_id'];lock=bootstrap['packages_lock_sha256'];need(bootstrap['status']=='image-provisioned'and re.fullmatch('sha256:[0-9a-f]{64}',image)and digest(lock)and bootstrap['inputs_sha256']==INPUTS,'same completed base image and held input lock');need(raws['fdk-evidence/result.txt']==b'FDK_PAIR=PASS\nEXIT=0\n','original FDK terminal PASS and zero exit');template=data['fdk-evidence/template-inputs.json'];reviewed=data['fdk-evidence/reviewed-inputs.json'];need(template['PKGBUILD']==reviewed['PKGBUILD']==FDK_RECIPE,'held exact FDK recipe');summaries={}
+           for folder,label,prefix in PAIRS:
+            compare_name=folder+'/'+(prefix+'-compare.json'if prefix else'compare.json');compare=data[compare_name];need(compare['status']=='contents-reproduced'and compare['errors']==[]and type(compare['packages'])is dict and len(compare['packages'])==1 and all(type(row)is dict and all(row[k]is True for k in('installed_contents_equal','pkginfo_equal','bytes_equal'))for row in compare['packages'].values()),'original completed nonempty byte comparison');pair=[]
+            for i in(1,2):
+             base=folder+'/'+(prefix+'-'+str(i)if prefix else'build-'+str(i));p=data[base+'/provenance.json'];validation=data[base+'/validation.json'];need(p['status']=='built-package-static-pass'and type(p['exit_code'])is int and p['exit_code']==0 and p['mode']=='native'and p['network']=='none'and p['image_id']==image and p['expected_packages_sha256']==lock and p['source_date_epoch']==1791748800 and digest(p['entry_script_sha256'])and type(p['recipe_inputs'])is dict and p['recipe_inputs']and all(digest(v)for v in p['recipe_inputs'].values())and re.fullmatch('cachy-asahi-[0-9a-f]{16}',p['clean_environment_id']),'completed original native package provenance');need(p['files']['validation.json']==pin(raws[base+'/validation.json'])['sha256']and validation['errors']==[]and type(validation['artifacts'])is list and len(validation['artifacts'])==1,'whole original validation/provenance join');artifact=validation['artifacts'][0];need(artifact['errors']==[]and digest(artifact['sha256'])and p['artifacts']=={artifact['artifact']:artifact['sha256']}and set(compare['packages'])==set(p['artifacts']),'same single validated package identity in provenance and comparison');pair.append(p)
+            need(pair[0]['clean_environment_id']!=pair[1]['clean_environment_id']and all(pair[0][k]==pair[1][k]for k in('image','image_id','mode','source_date_epoch','recipe_inputs','recipe_metadata','expected_packages_sha256','entry_script_sha256'))and pair[0]['artifacts']==pair[1]['artifacts'],'same original pair inputs and complete package-byte identity across distinct recorded environments')
+            if label=='fdk':need(pair[0]['recipe_inputs']==reviewed,'same complete reviewed FDK inputs')
+            summaries[label]=dict(status='SOURCE_REPORTED_PAIR_METADATA_VALIDATED',distinct_recorded_environments=True,original_comparison='CONTENTS_PKGINFO_AND_BYTES_EQUAL',original_validation_errors=0,package_count=1,raw_package_payload='NOT_CARRIED',independent_actor_replay=False)
+           need(not os.path.lexists(root/'core622-native-phase.json'),'installer phase still not started');return dict(schema=1,status='COMPLETED_PREREQUISITE_METADATA_CHECKPOINT_DATA_ONLY',identity=identity,nonce=nonce,job_clock=pin(clock_raw),source_roles={n:pin(raws[n])for n in ROLES},source_metadata_bytes=total,source_role_count=31,original_native_runner_arch=None,source_reports=summaries,stage='BEFORE_EXPENSIVE_CORE_INSTALLER',installer='NOT_ENTERED_BY_CHECKPOINT',original_metadata_bodies='NOT_CARRIED_HASHES_AND_FINITE_PROJECTION_ONLY',package_payloads='NOT_CARRIED',private_roots='NOT_READ',logs='NOT_READ',normal90_acceptance=False,functional_acceptance=False,native_acceptance=False,hardware='NOT_RUN',release='NOT_ADMITTED',acceptance=False)
+          def stage():
+           root=Path(os.environ['RUNNER_TEMP']);need(root.is_absolute()and root==root.resolve()and not any(p.is_symlink()for p in(root,*root.parents))and root.is_dir()and root.stat().st_uid==os.getuid()and not root.stat().st_mode&0o022,'canonical caller-owned runtime');target=root/'core622-pre-installer-public';need(not os.path.lexists(target),'fresh one-shot checkpoint namespace');value=projection(root,os.environ,time.monotonic());raw=enc(value);need(len(raw)<=65536,'small finite public projection');target.mkdir(mode=0o700);write(target/'checkpoint.json',raw);export=enc(dict(schema=1,status='CLOSED_COMPLETED_PREREQUISITE_METADATA_CHECKPOINT_DATA_ONLY',identity=value['identity'],nonce=value['nonce'],files={'checkpoint.json':pin(raw)},bytes=len(raw),acceptance=False));need(len(export)<=16384 and len(raw)+len(export)<=16*M,'checkpoint within held public capacity');write(target/'export.json',export);need({p.relative_to(target).as_posix()for p in target.rglob('*')}=={'checkpoint.json','export.json'}and stable(target/'checkpoint.json',65536)==raw and stable(target/'export.json',16384)==export,'complete closed2 checkpoint bytes');fd=os.open(os.environ['GITHUB_OUTPUT'],os.O_WRONLY|os.O_APPEND|os.O_NOFOLLOW|os.O_CLOEXEC)
+           with os.fdopen(fd,'w')as stream:stream.write('ready=true\n')
+          if __name__=='__main__':
+           try:stage()
+           except BaseException as error:print('PRE_INSTALLER_METADATA_CHECKPOINT_REFUSED:'+type(error).__name__,file=sys.stderr);raise SystemExit(1)
+          PYCHECKPOINT
+      - name: Upload completed prerequisite metadata checkpoint
+        id: pre_installer_upload
+        if: ${{ !cancelled() && steps.pre_installer_checkpoint.outcome == 'success' && steps.pre_installer_checkpoint.outputs.ready == 'true' }}
+        timeout-minutes: 5
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: core622-prerequisite-metadata-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/core622-pre-installer-public/checkpoint.json
+            ${{ runner.temp }}/core622-pre-installer-public/export.json
+          retention-days: 3
+          compression-level: 0
+          include-hidden-files: false
+          if-no-files-found: error
       - name: Required fresh latest607 installation in the separately owned VM
         id: composition
-        if: ${{ always() && !cancelled() }}
+        if: ${{ always() && !cancelled() && steps.pre_installer_upload.outcome == 'success' }}
         timeout-minutes: 270
         shell: bash
         env:
