@@ -58,7 +58,8 @@ class RetirementFailure(RuntimeError):pass
 
 def model(subject, *, retire_failed=False, socket_unknown=False, result_write_failed=False,
           index_write_failed=False, final_write_failed=False, first_file_failed=False,
-          partial_initialization=False, initialization_failed=False, state_drift=False):
+          partial_initialization=False, initialization_failed=False, state_drift=False,
+          no_agent_output=b'gpg-connect-agent: no gpg-agent running in this session\n'):
     """The real lifecycle runs; only external actors/native premises are modeled.
 
     All fixture paths are owned. No package, key, socket or process is created.
@@ -110,6 +111,7 @@ def model(subject, *, retire_failed=False, socket_unknown=False, result_write_fa
             def run(self,step,argv,cwd,expected=0):
                 events.append(step)
                 raw=base if 'inventory' in step else b''
+                if step.startswith('no-autostart-'):raw=no_agent_output
                 if step.endswith('-explicit'):raw=b'base\n'
                 failure=None
                 if step=='generate-test-key':
@@ -223,6 +225,18 @@ class ActualInsideFlow(unittest.TestCase):
         with self.assertRaisesRegex(AssertionError,'actor forbidden'):socket.socket()
         import subprocess
         with self.assertRaisesRegex(AssertionError,'actor forbidden'):subprocess.Popen(['/NO-ACTOR'])
+
+
+    def test_exact_absence_model_keeps_rejected_cleanup_and_primary(self):
+        exact=b'gpg-connect-agent: no gpg-agent running in this session\n'
+        for scenario in (dict(no_agent_output=b''), dict(no_agent_output=exact[:-1]),
+                         dict(no_agent_output=exact+b'extra\n'),
+                         dict(retire_failed=True), dict(socket_unknown=True)):
+            with self.subTest(scenario=scenario):
+                observed=model(A,**scenario)
+                self.assertIsNone(observed['raised']);self.assertTrue(observed['work_exists'])
+                self.assertFalse(observed['result']['cleanup']['private_directory_absent'])
+                self.assertEqual(observed['result']['first_failure']['type'],'PrimaryCommandFailure')
 
 
 if __name__=='__main__':

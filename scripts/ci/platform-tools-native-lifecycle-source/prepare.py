@@ -14,7 +14,7 @@ import tempfile
 
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
-PROFILE_SHA256 = 'b9d112fb663f88512a15674f26feaf65ed15fb0d180ebafd4061dee0c183f717'
+PROFILE_SHA256 = '12d95d49ba520ee7ee90891c524635ba6fc7512dd1c8a855fe91be4fb0d6a561'
 MAX_FILE, MAX_TOTAL, MAX_FILES = 64 * 1024**2, 96 * 1024**2, 200
 
 
@@ -120,6 +120,20 @@ def git_tree(files):
 
 
 
+PRODUCER_BEFORE = {'bootstrap/scripts/ci/native_arm.py': {'bytes': 28318, 'sha256': 'a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898'}, 'native/failure_retention.py': {'bytes': 13639, 'sha256': '20f9f6fb153d3be98e41c343e63f5994aa3708ccbd4299e1f551a38b697ffbe3'}, 'native/platform_alpm_v1.py': {'bytes': 22616, 'sha256': '77e71a7d20002aadc62c3b77aae40f9631ebcdc1e95ef9dc85f317e417a87293'}, 'native/platform_reader_v1.py': {'bytes': 117959, 'sha256': '2e29062143e5a41d3ffa288af1624ef4b48cfaa0923f13b5d489a67e37fb3f3e'}, 'native/platform_projection_v1.py': {'bytes': 14295, 'sha256': 'db35e422138546744bc1b31c81a8e594a0f9e8e289fa1999a269098b6a2ed969'}}
+PRODUCER_AFTER = {'native/failure_retention.py': {'bytes': 13639, 'sha256': 'cdb50b755f3e76d0229278bb89476752702544f3c31947e74676c82b213a8dc7', 'mode': 420}, 'native/platform_alpm_v1.py': {'bytes': 22862, 'sha256': '7867244f91d73da5ad1daca1dc13a71ad5a4b5e8f66517490fa1feae8361dfb5', 'mode': 420}, 'native/platform_reader_v1.py': {'bytes': 118148, 'sha256': 'c7ad1e8af0e06db2182fc72546bfa2c4e59c22f79fd63f248700970c8a76a205', 'mode': 420}, 'native/platform_projection_v1.py': {'bytes': 14295, 'sha256': 'ac673854bd1f21a6079ca0910c41cfc49a5793ebe44069c113a3eb30574467be', 'mode': 420}, 'bootstrap/scripts/ci/native_arm.py': {'bytes': 28877, 'sha256': '8e71ba83e7d5037c6f7772401ec3b872684ccfa8472d855d8d6d3052cb1f41ba', 'mode': 420}}
+
+
+def retired_producer(bodies):
+    """Five authenticated producer/cleanup replacements; operands never execute."""
+    need({name: dict(bytes=len(bodies[name]), sha256=hashlib.sha256(bodies[name]).hexdigest()) for name in PRODUCER_BEFORE} == PRODUCER_BEFORE,
+         'strict frozen producer/observer inputs differ')
+    overlay = tree(HERE / 'producer-overlay')
+    need(rows(overlay) == PRODUCER_AFTER, 'fixed producer retirement overlay differs')
+    result = dict(bodies)
+    result.update({name: raw for name, (raw, _) in overlay.items()})
+    return result
+
 CONCURRENCY_GROUP = 'native-arm-platform-tools'
 WORKFLOW_ALIASES = ('.github/workflows/native-arm-build.yml', '.github/workflows/native-arm-developer-workflows.yml')
 
@@ -139,7 +153,7 @@ def scheduled_workflows(bodies):
 
 def scheduled_source(files):
     original = {name: raw for name, (raw, _) in files.items()}
-    bodies = scheduled_workflows(original)
+    bodies = retired_producer(scheduled_workflows(original))
     result = {name: (raw, files[name][1]) for name, raw in bodies.items()}
     manifest = json.loads(files['native/source-map.json'][0])
     need(manifest['files'] == {name: row for name, row in rows(files).items() if name != 'native/source-map.json'}, 'original source map before scheduling differs')
@@ -155,7 +169,7 @@ def profile():
     need(value['kind'] == 'platform-tools-native-source-profile-v1' and value['pr_base'] == 'main'
          and value['integration_base'] == '3a3ccc6c69d1b800dc47fbaea051b87f5f3d43b4'
          and len(value['basis']) == 191 and len(value['payload']) == 13 and len(value['after']) == 199
-         and all(item is None for item in value['actual'].values()), 'exact unexecuted Source profile required')
+         and all(item is None for item in value['actual'].values()) and value['producer_overlay'] == PRODUCER_AFTER, 'exact unexecuted Source profile required')
     return value
 
 
@@ -197,7 +211,7 @@ def emit(basis, output):
                  actual=value['actual'], native='NOT_RUN', authenticated_platform_transition='NOT_RUN', release='NOT_ADMITTED')
     bodies = {'source/' + name: item for name, item in after.items()}
     before_rows, after_rows = rows(before), rows(after)
-    delta = {n: dict(before=before_rows.get(n), after=after_rows.get(n)) for n in value['payload']}
+    delta = {n: dict(before=before_rows.get(n), after=after_rows.get(n)) for n in set(value['payload']) | set(value['producer_overlay'])}
     bodies.update({
         'stage.json': (encoded(stage), 0o644),
         'source-authorization.json': (encoded({n: {k: r[k] for k in ('bytes', 'sha256')} for n, r in rows(after).items()}), 0o644),
@@ -206,7 +220,7 @@ def emit(basis, output):
         'delta191.json': (encoded(dict(parent=value['genuine_parent'], changes=delta)), 0o644),
         'parent-commit.raw': (read(HERE / 'parent-commit.raw')[0], 0o644),
     })
-    for name in value['payload']:
+    for name in set(value['payload']) | set(value['producer_overlay']):
         if name in before:
             bodies['before191/' + name] = before[name]
     with tempfile.TemporaryDirectory(prefix='.platform-source-', dir=parent) as temp:
